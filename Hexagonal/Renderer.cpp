@@ -38,7 +38,7 @@ int eRenderer::globalDrawDepth	= 0;
 // initialize the window, its rendering context, and a default font
 //***************
 bool eRenderer::Init(const char * name, int windowWidth, int windowHeight) {
-	/*window = SDL_CreateWindow( name, 
+	window = SDL_CreateWindow( name, 
 							   SDL_WINDOWPOS_UNDEFINED, 
 							   SDL_WINDOWPOS_UNDEFINED, 
 							   windowWidth, 
@@ -46,10 +46,10 @@ bool eRenderer::Init(const char * name, int windowWidth, int windowHeight) {
 							   SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL );
 
 	if (!window)
-		return false;*/
+		return false;
 
 	// DEBUG: SDL_RENDERER_TARGETTEXTURE allows rendering to SDL_Textures
-	internal_renderer = SDL_CreateRenderer(Application::SWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE);
+	internal_renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE);
 
 	if (!internal_renderer)
 		return false;
@@ -588,7 +588,7 @@ SDL_Renderer * const eRenderer::GetSDLRenderer() const {
 // returns the window the rendering context is registered to
 //*****************
 SDL_Window * const eRenderer::GetWindow() const {
-	return Application::SWindow;
+	return window;
 }
 
 void eRenderer::ReadPixels(unsigned char*& pixel) {

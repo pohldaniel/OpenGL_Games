@@ -97,7 +97,7 @@ private:
 	std::vector<eRenderImage *>			overlayPoolInserts;								// minimize priority re-calculations	
 	std::vector<eCamera *>				registeredCameras;								// cameras to copy to the main rendering context during Flush
 
-	//SDL_Window *						window;
+	SDL_Window *						window;
 	SDL_Renderer *						internal_renderer;
 
 	// swappable render targets

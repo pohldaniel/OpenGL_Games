@@ -6,11 +6,7 @@
 #include <engine/input/Keyboard.h>
 #include <engine/input/Mouse.h>
 //#include <engine/sound/SoundDevice.h>
-
 #include <States/StateMachine.h>
-
-#include <SDL.h>
-#include <SDL_syswm.h>
 
 class Application {
 
@@ -66,6 +62,4 @@ public:
 	static HANDLE Icon;
 	static bool VerticalSync;
 	static bool Fullscreen;
-
-	static SDL_Window* SWindow;
 };
