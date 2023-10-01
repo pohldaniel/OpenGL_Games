@@ -184,37 +184,26 @@ void Game::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 		m_trackball.mouse(TrackBall::Button::ELeftButton, TrackBall::Modifier::ENoModifier, true, event.x, event.y);
 		applyTransformation(m_trackball);
 
+		//clip
+		float mouseNDCX = (2.0f * event.x) / static_cast<float>(Application::Width) - 1.0f;
+		float mouseNDCY = 1.0f - (2.0f * event.y) / static_cast<float>(Application::Height);
 
-		float cursorPosNDCX = (2.0f * event.x) / (float)Application::Width - 1.0f;
-		float cursorPosNDCY = 1.0f - (2.0f * event.y) / (float)Application::Height;
-		Vector4f m_cursorPosEye = Vector4f(cursorPosNDCX, cursorPosNDCY, -1.0f, 1.0f) ^ m_camera.getInvOrthographicMatrixNew();
-		
+		//view
+		float mouseViewX = 0.5f * (m_right * (mouseNDCX + 1.0f) + m_left   * (1.0f - mouseNDCX));
+		float mouseViewY = 0.5f * (m_top   * (mouseNDCY + 1.0f) + m_bottom * (1.0f - mouseNDCY));
+			
 		//world
-		m_cursorPosEye[0] = m_cursorPosEye[0] + m_camera.getPositionX();
-		m_cursorPosEye[1] = m_cursorPosEye[1] + m_camera.getPositionY();
+		Vector3f m_position = m_camera.getPosition();
+		float mouseWorldX = mouseViewX + m_camera.getPositionX();
+		float mouseWorldY = mouseViewY + m_camera.getPositionY();
 
+		isometricToCartesian(mouseWorldX, mouseWorldY, 32.0f, 32.0f);
 		
-		//iso -> cart
-		//posX = (pointX - pointY) * CELL_WIDTH
-		//posY = -(pointX + pointY) * CELL_HEIGHT * 0.5f
-		//pointX = posX / CELL_WIDTH + pointY
-		//pointY = - 2.0 * posY /CELL_HEIGHT - pointX
-		//
-		//pointX = posX / CELL_WIDTH - 2.0 * posY /CELL_HEIGHT - pointX
-		//pointX = 0.5f * posX / CELL_WIDTH - posY /CELL_HEIGHT 
-		//pointX = (0.5f * posX - posY) /CELL_WIDTH									(CELL_WIDTH = CELL_HEIGHT)
-		//
-		//pointY = - 2.0 * posY /CELL_HEIGHT - (0.5f * posX - posY) /CELL_WIDTH
-		//pointY =-(0.5f * posX + posY)/CELL_HEIGHT
-		//pointY =-(0.5f * posX + posY - CELL_HEIGHT)/CELL_HEIGHT					(shift one Cell matching OpenGL)
-	
-		const float w = 32.0f;
-		const float h = 32.0f;
-		
-		float row = (0.5f * m_cursorPosEye[0]  - m_cursorPosEye[1]) / w;
-		float col = -(0.5f * m_cursorPosEye[0] + m_cursorPosEye[1]) / h + 1.0f;
+		float row = std::roundf(mouseWorldX);
+		// shift one CELL_HEIGHT matching OpenGL
+		float col = std::roundf(mouseWorldY) + 1.0f;
 
-		std::cout << "Mouse X:" << std::round(row) << " Mouse Y: " << std::round(col)  << std::endl;
+		std::cout << "Mouse X:" << row << " Mouse Y: " << col << std::endl;
 
 	}else if (event.button == 2u) {
 		//m_drawUi = false;
@@ -426,9 +415,9 @@ void Game::loadMap(std::string name) {
 			if (m_layer[layer][column][row] != -1 && layer == 3) {
 
 				const TextureRect& rect = TileSet::Get().getTextureRects()[m_layer[layer][column][row]];
-				eVec2 cellMins = eVec2((float)(row * cellWidth), (float)(column * cellHeight));
-				eBounds bounds = eBounds(cellMins, cellMins + eVec2((float)cellWidth, (float)cellHeight));
-				eVec2& origin = bounds[0];
+				//eVec2 cellMins = eVec2((float)(row * cellWidth), (float)(column * cellHeight));
+				//eBounds bounds = eBounds(cellMins, cellMins + eVec2((float)cellWidth, (float)cellHeight));
+				eVec2& origin = eVec2((float)(row * cellWidth), (float)(column * cellHeight));
 
 				eMath::CartesianToIsometric(origin.x, origin.y);
 				m_cells.push_back({ rect, origin.x, -origin.y });
@@ -457,11 +446,32 @@ void Game::loadMap(std::string name) {
 	read.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 }
 
-void IsometricToCartesian(float & x, float & y) {
+//isoX =  (cartX * CELL_WIDTH - cartY * CELL_HEIGHT) 
+//isoY = -(cartX * CELL_WIDTH + cartY * CELL_HEIGHT)  * 0.5f
+void Game::cartesianToIartesian(float & x, float & y, float cellWidth, float cellHeight) {
+	float cartX = x * cellWidth;
+	float cartY = y * cellHeight;
+	x = (cartX - cartY);
+	y = (cartX + cartY) * 0.5f;
+}
+
+//iso -> cart
+//isoX =  (cartX * CELL_WIDTH - cartY * CELL_HEIGHT) 
+//isoY = -(cartX * CELL_WIDTH + cartY * CELL_HEIGHT)  * 0.5f
+//cartX = (isoX  + cartY * CELL_HEIGHT) / CELL_WIDTH
+//cartY = (-2.0 * isoY  - cartX * CELL_WIDTH) / CELL_HEIGHT
+//
+//cartX = (isoX - 2.0 * isoY - cartX * CELL_WIDTH) / CELL_WIDTH
+//cartX =  (0.5f * isoX - isoY) /CELL_WIDTH 
+//
+//cartY = (-2.0 * isoY  - isoX  - cartY * CELL_HEIGHT) / CELL_HEIGHT
+//cartY =-(0.5f * isoX + isoY) / CELL_HEIGHT
+void Game::isometricToCartesian(float& x, float& y, float cellWidth, float cellHeight) {
 	float isoX = x;
 	float isoY = y;
-	x = (2.0f * isoY + isoX) * 0.5f;
-	y = (2.0f * isoY - isoX) * 0.5f;
+
+	x =  (0.5f * isoX - isoY) / cellWidth;
+	y = -(0.5f * isoX + isoY) / cellHeight;
 }
 
 void Game::culling() {
@@ -474,10 +484,10 @@ void Game::culling() {
 	corners[2] = Vector2f( m_right - m_screeBorder,  m_top - m_screeBorder);
 	corners[3] = Vector2f( m_right - m_screeBorder, m_bottom + m_screeBorder);
 	
-	IsometricToCartesian(corners[0][0], corners[0][1]);
-	IsometricToCartesian(corners[1][0], corners[1][1]);
-	IsometricToCartesian(corners[2][0], corners[2][1]);
-	IsometricToCartesian(corners[3][0], corners[3][1]);
+	isometricToCartesian(corners[0][0], corners[0][1]);
+	isometricToCartesian(corners[1][0], corners[1][1]);
+	isometricToCartesian(corners[2][0], corners[2][1]);
+	isometricToCartesian(corners[3][0], corners[3][1]);
 
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glMatrixMode(GL_PROJECTION);
@@ -498,14 +508,14 @@ void Game::culling() {
 	/*glVertex3f(xpos, ypos, 0.0f);
 	glVertex3f(xpos, (ypos + h), 0.0f);
 	glVertex3f(xpos + w, (ypos + h), 0.0f);
-	glVertex3f(xpos + w, ypos, 0.0f);
+	glVertex3f(xpos + w, ypos, 0.0f);*/
 
 	glVertex3f(corners[0][0], corners[0][1], 0.0f);
 	glVertex3f(corners[1][0], corners[1][1], 0.0f);
 	glVertex3f(corners[2][0], corners[2][1], 0.0f);
-	glVertex3f(corners[3][0], corners[3][1], 0.0f);*/
+	glVertex3f(corners[3][0], corners[3][1], 0.0f);
 
-	float left = m_left * m_scale;
+	/*float left = m_left * m_scale;
 	float right = m_right * m_scale;
 	float top = m_top * m_scale;
 	float bottom = m_bottom * m_scale;
@@ -513,7 +523,7 @@ void Game::culling() {
 	glVertex3f(-left, (top - bottom) * 0.5f, 0.0f);
 	glVertex3f((right - left) * 0.5f, top, 0.0f);
 	glVertex3f(right, (top - bottom) * 0.5f, 0.0f);
-	glVertex3f((right - left) * 0.5f, bottom, 0.0f);
+	glVertex3f((right - left) * 0.5f, bottom, 0.0f);*/
 
 	glEnd();
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);

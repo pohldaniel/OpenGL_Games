@@ -92,5 +92,8 @@ private:
 	float m_screeBorder = 50.0f;
 	float m_scale = 1.0f;
 
+	void cartesianToIartesian(float & x, float & y, float cellWidth = 32.0f, float cellHeight = 32.0f);
+	void isometricToCartesian(float& x, float& y, float cellWidth = 32.0f, float cellHeight = 32.0f);
+
 	//Cell pickedCell;
 };
