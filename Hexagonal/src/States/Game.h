@@ -84,4 +84,13 @@ private:
 	int numLayers = 0;
 
 	std::vector<Cell> m_cells;
+	std::vector<Cell> m_visibleCells;
+	bool move;
+
+	void culling();
+	float m_left, m_right, m_bottom, m_top;
+	float m_screeBorder = 50.0f;
+	float m_scale = 1.0f;
+
+	//Cell pickedCell;
 };

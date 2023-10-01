@@ -21,10 +21,17 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	m_camera = Camera();
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
-	m_camera.lookAt(Vector3f(-713.0f,  -2155.0f, 0.0f), Vector3f(-713.0f, -2155.0f, 0.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
+	//m_camera.lookAt(Vector3f(-713.0f,  -2155.0f, 0.0f), Vector3f(-713.0f, -2155.0f, 0.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
+	m_camera.lookAt(Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 0.0f, 0.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
+
 
 	m_camera.setRotationSpeed(0.1f);
 	m_camera.setMovingSpeed(400.0f);
+
+	m_left = m_camera.getLeftOrthographic();
+	m_right = m_camera.getRightOrthographic();
+	m_bottom = m_camera.getBottomOrthographic();
+	m_top = m_camera.getTopOrthographic();
 
 	glClearColor(0.494f, 0.686f, 0.796f, 1.0f);
 	glClearDepth(1.0f);
@@ -65,7 +72,7 @@ void Game::update() {
 
 	float dx = 0.0f;
 	float dy = 0.0f;
-	bool move = false;
+	move = false;
 
 	if (keyboard.keyDown(Keyboard::KEY_W)) {
 		directrion += Vector3f(0.0f, 1.0f, 0.0f);
@@ -161,8 +168,10 @@ void Game::render() {
 	shader->unuse();
 	glDisable(GL_BLEND);
 
-	if (m_drawUi)
-		renderUi();
+	//culling();
+
+	//if (m_drawUi)
+	//	renderUi();
 }
 
 void Game::OnMouseMotion(Event::MouseMoveEvent& event) {
@@ -174,6 +183,39 @@ void Game::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 	if (event.button == 1u) {		
 		m_trackball.mouse(TrackBall::Button::ELeftButton, TrackBall::Modifier::ENoModifier, true, event.x, event.y);
 		applyTransformation(m_trackball);
+
+
+		float cursorPosNDCX = (2.0f * event.x) / (float)Application::Width - 1.0f;
+		float cursorPosNDCY = 1.0f - (2.0f * event.y) / (float)Application::Height;
+		Vector4f m_cursorPosEye = Vector4f(cursorPosNDCX, cursorPosNDCY, -1.0f, 1.0f) ^ m_camera.getInvOrthographicMatrixNew();
+		
+		//world
+		m_cursorPosEye[0] = m_cursorPosEye[0] + m_camera.getPositionX();
+		m_cursorPosEye[1] = m_cursorPosEye[1] + m_camera.getPositionY();
+
+		
+		//iso -> cart
+		//posX = (pointX - pointY) * CELL_WIDTH
+		//posY = -(pointX + pointY) * CELL_HEIGHT * 0.5f
+		//pointX = posX / CELL_WIDTH + pointY
+		//pointY = - 2.0 * posY /CELL_HEIGHT - pointX
+		//
+		//pointX = posX / CELL_WIDTH - 2.0 * posY /CELL_HEIGHT - pointX
+		//pointX = 0.5f * posX / CELL_WIDTH - posY /CELL_HEIGHT 
+		//pointX = (0.5f * posX - posY) /CELL_WIDTH									(CELL_WIDTH = CELL_HEIGHT)
+		//
+		//pointY = - 2.0 * posY /CELL_HEIGHT - (0.5f * posX - posY) /CELL_WIDTH
+		//pointY =-(0.5f * posX + posY)/CELL_HEIGHT
+		//pointY =-(0.5f * posX + posY - CELL_HEIGHT)/CELL_HEIGHT					(shift one Cell matching OpenGL)
+	
+		const float w = 32.0f;
+		const float h = 32.0f;
+		
+		float row = (0.5f * m_cursorPosEye[0]  - m_cursorPosEye[1]) / w;
+		float col = -(0.5f * m_cursorPosEye[0] + m_cursorPosEye[1]) / h + 1.0f;
+
+		std::cout << "Mouse X:" << std::round(row) << " Mouse Y: " << std::round(col)  << std::endl;
+
 	}else if (event.button == 2u) {
 		//m_drawUi = false;
 		Mouse::instance().attach(Application::GetWindow());
@@ -247,14 +289,17 @@ void Game::renderUi() {
 	if (m_initUi) {
 		m_initUi = false;
 		ImGuiID dock_id_left = ImGui::DockBuilderSplitNode(dockSpaceId, ImGuiDir_Left, 0.2f, nullptr, &dockSpaceId);
-		ImGui::DockBuilderDockWindow("Settings", dock_id_left);
+		ImGuiID dock_id_down = ImGui::DockBuilderSplitNode(dockSpaceId, ImGuiDir_Down, 0.2f, nullptr, &dockSpaceId);
+		ImGui::DockBuilderDockWindow("Settings", dock_id_down);
 	}
 
 	// render widgets
 	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 	ImGui::Checkbox("Draw Wirframe", &StateMachine::GetEnableWireframe());
+	ImGui::SliderFloat("Screen Border", &m_screeBorder, 0.0f, 500.0f);
 	
-	
+	ImGui::SliderFloat("Scale", &m_scale, 0.0f, 5.0f);
+
 	ImGui::End();
 
 	ImGui::Render();
@@ -378,7 +423,7 @@ void Game::loadMap(std::string name) {
 
 			m_layer[layer][column][row]--;
 
-			if (m_layer[layer][column][row] != -1) {
+			if (m_layer[layer][column][row] != -1 && layer == 3) {
 
 				const TextureRect& rect = TileSet::Get().getTextureRects()[m_layer[layer][column][row]];
 				eVec2 cellMins = eVec2((float)(row * cellWidth), (float)(column * cellHeight));
@@ -410,4 +455,66 @@ void Game::loadMap(std::string name) {
 		
 	}
 	read.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+}
+
+void IsometricToCartesian(float & x, float & y) {
+	float isoX = x;
+	float isoY = y;
+	x = (2.0f * isoY + isoX) * 0.5f;
+	y = (2.0f * isoY - isoX) * 0.5f;
+}
+
+void Game::culling() {
+
+	std::array<Vector2f, 4> corners;
+	Vector3f m_position = m_camera.getPosition();
+
+	corners[0] = Vector2f( m_left + m_screeBorder,  m_bottom + m_screeBorder);
+	corners[1] = Vector2f(m_left + m_screeBorder, m_top - m_screeBorder);
+	corners[2] = Vector2f( m_right - m_screeBorder,  m_top - m_screeBorder);
+	corners[3] = Vector2f( m_right - m_screeBorder, m_bottom + m_screeBorder);
+	
+	IsometricToCartesian(corners[0][0], corners[0][1]);
+	IsometricToCartesian(corners[1][0], corners[1][1]);
+	IsometricToCartesian(corners[2][0], corners[2][1]);
+	IsometricToCartesian(corners[3][0], corners[3][1]);
+
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glLoadMatrixf(&m_camera.getOrthographicMatrix()[0][0]);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+
+	glBegin(GL_QUADS);
+	glColor3f(1.0f, 0.0f, 0.0f);
+
+	float xpos = corners[0][0];
+	float ypos = corners[1][1];
+	float w = corners[2][0];
+	float h = corners[3][1];
+
+
+	/*glVertex3f(xpos, ypos, 0.0f);
+	glVertex3f(xpos, (ypos + h), 0.0f);
+	glVertex3f(xpos + w, (ypos + h), 0.0f);
+	glVertex3f(xpos + w, ypos, 0.0f);
+
+	glVertex3f(corners[0][0], corners[0][1], 0.0f);
+	glVertex3f(corners[1][0], corners[1][1], 0.0f);
+	glVertex3f(corners[2][0], corners[2][1], 0.0f);
+	glVertex3f(corners[3][0], corners[3][1], 0.0f);*/
+
+	float left = m_left * m_scale;
+	float right = m_right * m_scale;
+	float top = m_top * m_scale;
+	float bottom = m_bottom * m_scale;
+
+	glVertex3f(-left, (top - bottom) * 0.5f, 0.0f);
+	glVertex3f((right - left) * 0.5f, top, 0.0f);
+	glVertex3f(right, (top - bottom) * 0.5f, 0.0f);
+	glVertex3f((right - left) * 0.5f, bottom, 0.0f);
+
+	glEnd();
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
