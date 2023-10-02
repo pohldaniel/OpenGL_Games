@@ -375,8 +375,14 @@ void Shader::linkShaders(GLuint compShader) {
 	}
 }
 
-void Shader::attachShader(GLuint shader) {
+void Shader::attachShader(GLuint shader, bool reload) {
 	if (m_program) {
+
+		if (reload) {
+			glDeleteProgram(m_program);
+			m_program = glCreateProgram();
+		}
+
 		if (shader)
 			glAttachShader(m_program, shader);
 	}

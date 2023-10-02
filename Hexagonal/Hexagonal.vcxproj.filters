@@ -369,6 +369,15 @@
     <ClCompile Include="TileSet.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\States\ZomPan.cpp">
+      <Filter>Source Files\States</Filter>
+    </ClCompile>
+    <ClCompile Include="GLVertexBuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GLImageView.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="convhull\convhull_3d.h">
@@ -745,6 +754,15 @@
     </ClInclude>
     <ClInclude Include="engine\Rect.h">
       <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="src\States\ZoomPan.h">
+      <Filter>Source Files\States</Filter>
+    </ClInclude>
+    <ClInclude Include="GLVertexBuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GLImageView.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

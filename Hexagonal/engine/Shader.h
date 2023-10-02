@@ -15,6 +15,7 @@
 class Shader {
 
 public:
+
 	Shader();
 	Shader(const char* vertex, const char* fragment, bool fromFile = true);
 	Shader(const char* vertex, const char* fragment, const char* geometry, bool fromFile = true);
@@ -53,7 +54,7 @@ public:
 	void loadBool(const char* location, bool value) const;
 	void loadInt(const char* location, int value) const;
 	void loadUnsignedInt(const char* location, unsigned int value) const;
-	void attachShader(GLuint compShader);
+	void attachShader(GLuint compShader, bool reload = false);
 	void linkShaders();
 
 	GLuint m_program;

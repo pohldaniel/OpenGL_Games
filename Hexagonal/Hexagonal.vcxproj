@@ -173,10 +173,13 @@
     <ClCompile Include="Entity.cpp" />
     <ClCompile Include="EntityPrefabManager.cpp" />
     <ClCompile Include="ErrorLogger.cpp" />
+    <ClCompile Include="GLImageView.cpp" />
+    <ClCompile Include="GLVertexBuffer.cpp" />
     <ClCompile Include="ImageManager.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="RenderTarget.cpp" />
     <ClCompile Include="sHero.cpp" />
+    <ClCompile Include="src\States\ZomPan.cpp" />
     <ClCompile Include="TileSet.cpp" />
     <ClCompile Include="_Collision.cpp" />
     <ClCompile Include="CollisionModel.cpp" />
@@ -339,7 +342,10 @@
     <ClInclude Include="Entity.h" />
     <ClInclude Include="EntityPrefabManager.h" />
     <ClInclude Include="ErrorLogger.h" />
+    <ClInclude Include="GLImageView.h" />
+    <ClInclude Include="GLVertexBuffer.h" />
     <ClInclude Include="sHero.h" />
+    <ClInclude Include="src\States\ZoomPan.h" />
     <ClInclude Include="TileSet.h" />
     <ClInclude Include="_Game.h" />
     <ClInclude Include="GameObject.h" />

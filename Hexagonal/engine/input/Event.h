@@ -4,9 +4,17 @@ public:
 	Event() = default;
 
 	struct MouseMoveEvent{
+		enum MouseButton {
+			NONE = 0,
+			BUTTON_LEFT = 1,
+			BUTTON_RIGHT = 2,
+			BUTTON_MIDDLE = 3
+		};
+
 		int x; 
 		int y;
 		bool titleBar;
+		MouseButton button;
 	};
 
 	struct MouseButtonEvent {
@@ -28,6 +36,7 @@ public:
 			DOWN = 1
 		};
 		WheelDirection direction;
+		short delta;
 	};
 
 	struct KeyboardEvent {

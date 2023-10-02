@@ -6,6 +6,7 @@
 enum CurrentState {
 	MENU,
 	TILEPLACING,	
+	ZOOMPAN,
 	GAME
 };
 

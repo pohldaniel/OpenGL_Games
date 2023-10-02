@@ -14,6 +14,7 @@
 #include <States/Menu.h>
 #include <States/TilePlacing.h>
 #include <States/Game.h>
+#include <States/ZoomPan.h>
 #include <UI/Widget.h>
 
 
@@ -391,17 +392,20 @@ void Application::initStates() {
 	Machine = new StateMachine(m_dt, m_fdt);	
 	//Machine->addStateAtTop(new Menu(*Machine));
 	//Machine->addStateAtTop(new TilePlacing(*Machine));
-	Machine->addStateAtTop(new Game(*Machine));
+	//Machine->addStateAtTop(new Game(*Machine));
+	Machine->addStateAtTop(new ZoomPan(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
 
 	switch (message) {
 		case WM_MOUSEMOVE: {
+
 			Event event;
 			event.type = Event::MOUSEMOTION;
 			event.data.mouseMove.x = static_cast<int>(static_cast<short>(LOWORD(lParam)));
 			event.data.mouseMove.y = static_cast<int>(static_cast<short>(HIWORD(lParam)));
+			event.data.mouseMove.button = wParam & MK_RBUTTON ? Event::MouseMoveEvent::MouseButton::BUTTON_RIGHT : wParam & MK_LBUTTON ? Event::MouseMoveEvent::MouseButton::BUTTON_LEFT : Event::MouseMoveEvent::MouseButton::NONE;
 			EventDispatcher.pushEvent(event);
 			break;
 		}case WM_LBUTTONDOWN: {
@@ -493,6 +497,7 @@ void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 		}case WM_MOUSEWHEEL: {
 			Event event;
 			event.type = Event::MOUSEWHEEL;
+			event.data.mouseWheel.delta = GET_WHEEL_DELTA_WPARAM(wParam);
 			event.data.mouseWheel.direction = GET_WHEEL_DELTA_WPARAM(wParam) > 0 ? Event::MouseWheelEvent::WheelDirection::UP : Event::MouseWheelEvent::WheelDirection::DOWN;
 			
 			EventDispatcher.pushEvent(event);
@@ -595,6 +600,8 @@ void Application::loadAssets() {
 	Globals::textureManager.loadTexture("forest_3", "res/backgrounds/Forest/plx-3.png", true);
 	Globals::textureManager.loadTexture("forest_4", "res/backgrounds/Forest/plx-4.png", true);
 	Globals::textureManager.loadTexture("forest_5", "res/backgrounds/Forest/plx-5.png", true);
+
+	Globals::textureManager.loadTexture("flower", "res/textures/Flower.bmp", true);
 
 	Globals::fontManager.loadCharacterSet("upheaval_200", "res/fonts/upheavtt.ttf", 200, 0, 30, 128, 0, true, 0u);
 	Globals::fontManager.loadCharacterSet("upheaval_50", "res/fonts/upheavtt.ttf", 50, 0, 3, 0, 0, true, 0u);
