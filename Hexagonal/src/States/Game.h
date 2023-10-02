@@ -63,6 +63,8 @@ private:
 
 	bool m_initUi = true;
 	bool m_drawUi = true;
+	bool m_useCulling = true; 
+	bool m_drawCullingRect = false;
 
 	Background m_background;
 	Pixelbuffer m_pixelbuffer;
@@ -88,12 +90,16 @@ private:
 	bool move;
 
 	void culling();
+	void drawCullingRect();
+
 	float m_left, m_right, m_bottom, m_top;
-	float m_screeBorder = 50.0f;
-	float m_scale = 1.0f;
+	float m_screeBorder = 0.0f;
 
 	void cartesianToIartesian(float & x, float & y, float cellWidth = 32.0f, float cellHeight = 32.0f);
 	void isometricToCartesian(float& x, float& y, float cellWidth = 32.0f, float cellHeight = 32.0f);
-
-	//Cell pickedCell;
+	void isometricToCartesian(float x, float y, int& row, int& col, float cellWidth = 32.0f, float cellHeight = 32.0f);
+	void isometricToRow(float x, float y, int& row, float cellWidth = 32.0f);
+	void isometricToCol(float x, float y, int& col, float cellHeight = 32.0f);
+	bool isValid(const int row, const int column) const;
+	std::array<Vector2f, 4> corners;
 };

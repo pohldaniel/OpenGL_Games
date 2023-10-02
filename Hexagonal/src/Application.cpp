@@ -479,6 +479,7 @@ void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 			EventDispatcher.pushEvent(event);
 			break;
 		}case WM_SYSKEYDOWN: {
+			
 			switch (wParam) {
 				case VK_MENU: {
 					Event event;
