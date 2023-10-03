@@ -1,7 +1,12 @@
-uniform sampler2D ImageTexture;
+#version 410 core
 
+in vec2 texCoord;
+
+uniform sampler2D ImageTexture;
 uniform float fWidth;
 uniform float fHeight;
+
+out vec4 color;
 
 // Function to get a texel data from a texture with GL_NEAREST property.
 // Bi-Linear interpolation is implemented in this function with the 
@@ -39,7 +44,7 @@ vec4 tex2DBiLinear( sampler2D textureSampler_i, vec2 texCoord_i )
 // Shader for creating GL_LINEAR interpolation in shader.
 void main()
 {
-	vec4 Data = tex2DBiLinear( ImageTexture, gl_TexCoord[0].st );
-	gl_FragColor = Data;
+	vec4 Data = tex2DBiLinear( ImageTexture, texCoord );
+	color = Data;
 }
 

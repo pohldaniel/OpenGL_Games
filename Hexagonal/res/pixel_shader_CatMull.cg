@@ -1,7 +1,12 @@
-uniform sampler2D ImageTexture;
+#version 410 core
 
+in vec2 texCoord;
+
+uniform sampler2D ImageTexture;
 uniform float fWidth;
 uniform float fHeight;
+
+out vec4 color;
 
 float CatMullRom( float x )
 {
@@ -65,8 +70,8 @@ vec4 BiCubic( sampler2D textureSampler, vec2 TexCoord )
 // Shader for interpolating Bi cubic in CatMull Rom method.
 void main()
 {
-	vec4 Data = BiCubic( ImageTexture, gl_TexCoord[0].st );
-	gl_FragColor = Data;
+	vec4 Data = BiCubic( ImageTexture, texCoord );
+	color = Data;
 ;
 }
 

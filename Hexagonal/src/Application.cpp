@@ -15,6 +15,7 @@
 #include <States/TilePlacing.h>
 #include <States/Game.h>
 #include <States/ZoomPan.h>
+#include <States/Plot.h>
 #include <UI/Widget.h>
 
 
@@ -394,13 +395,13 @@ void Application::initStates() {
 	//Machine->addStateAtTop(new TilePlacing(*Machine));
 	//Machine->addStateAtTop(new Game(*Machine));
 	Machine->addStateAtTop(new ZoomPan(*Machine));
+	//Machine->addStateAtTop(new Plot(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
 
 	switch (message) {
 		case WM_MOUSEMOVE: {
-
 			Event event;
 			event.type = Event::MOUSEMOTION;
 			event.data.mouseMove.x = static_cast<int>(static_cast<short>(LOWORD(lParam)));
@@ -466,6 +467,13 @@ void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 				//	EventDispatcher.pushEvent(event);
 				//	break;
 				//}
+				//case VK_HOME: {
+				//	Event event;
+				//	event.type = Event::KEYDOWN;
+				//	event.data.keyboard.keyCode = VK_HOME;
+				//	EventDispatcher.pushEvent(event);
+				//	break;
+				//}
 #if DEVBUILD
 				case 'z': case 'Z': {
 					StateMachine::ToggleWireframe();
@@ -498,11 +506,8 @@ void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 			Event event;
 			event.type = Event::MOUSEWHEEL;
 			event.data.mouseWheel.delta = GET_WHEEL_DELTA_WPARAM(wParam);
-			event.data.mouseWheel.direction = GET_WHEEL_DELTA_WPARAM(wParam) > 0 ? Event::MouseWheelEvent::WheelDirection::UP : Event::MouseWheelEvent::WheelDirection::DOWN;
-			
+			event.data.mouseWheel.direction = GET_WHEEL_DELTA_WPARAM(wParam) > 0 ? Event::MouseWheelEvent::WheelDirection::UP : Event::MouseWheelEvent::WheelDirection::DOWN;			
 			EventDispatcher.pushEvent(event);
-
-			//Mouse::instance().updateWheelDelta(static_cast<int>(static_cast<int>(wParam) >> 16));
 			break;
 		}
 	}

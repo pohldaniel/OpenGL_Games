@@ -34,16 +34,20 @@ ZoomPan::ZoomPan(StateMachine& machine) : State(machine, CurrentState::ZOOMPAN) 
 		{ &Globals::textureManager.get("forest_5"), 1, 5.0f }});
 	m_background.setSpeed(0.005f);
 
-	m_glVertexBuffer.CreateQuadVertexBuffer();
 	m_fXOffset = 0.46193072;
 	m_fYOffset = 0.24252957;
 	m_fZoomWidth = 0.14254469;
 	m_fZoomHeight = 0.14254469;
 
-	PrepareVertexBuffer();
+	m_zoomableQuad.mapBuffer(m_fXOffset, m_fYOffset, m_fZoomWidth, m_fZoomHeight);
 
 	m_shader = new Shader();
-	PrepareSingleView();
+	m_shader->attachShader(Shader::LoadShaderProgram(GL_VERTEX_SHADER, "res/quad.vert"), true);
+	m_shader->attachShader(Shader::LoadShaderProgram(GL_FRAGMENT_SHADER, "res/quad.frag"), false);
+	m_shader->linkShaders();
+	m_pShader = m_shader;
+
+	m_pTexture = &Globals::textureManager.get("flower");
 }
 
 ZoomPan::~ZoomPan() {
@@ -177,7 +181,7 @@ void ZoomPan::OnMouseMotion(Event::MouseMoveEvent& event) {
 		}
 
 		// Cretae new vertex buffer for zoomed texture mapping.
-		PrepareVertexBuffer();
+		m_zoomableQuad.mapBuffer(m_fXOffset, m_fYOffset, m_fZoomWidth, m_fZoomHeight);
 
 	}else{
 		bMoveStart = false;
@@ -281,43 +285,59 @@ void ZoomPan::renderUi() {
 	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 	ImGui::Checkbox("Draw Wirframe", &StateMachine::GetEnableWireframe());
 
-	int currentMode = mode;
-	if (ImGui::Combo("Mode", &currentMode, "Nearest\0Linear\0Bilinear\0Bicubic Triangular\0Bicubic Bell Shaped\0Bicubic B Spline\0Catmull Rom Spline\0\0")) {
-		mode = static_cast<Mode>(currentMode);
-
-		switch (mode){
+	int currentFilter = filter;
+	if (ImGui::Combo("Filter", &currentFilter, "Nearest\0Linear\0\0")) {
+		filter = static_cast<Filter>(currentFilter);
+		switch (filter) {
 			case NEAREST:
 				Globals::textureManager.get("flower").setNearest();
-				pImage->SetShader(nullptr);
 				break;
 			case LINEAR:
 				Globals::textureManager.get("flower").setLinear(GL_LINEAR);
-				pImage->SetShader(nullptr);
+				break;
+		}
+	}
+
+	int currentMode = mode;
+	if (ImGui::Combo("Mode", &currentMode, "None\0Bilinear\0Bicubic Triangular\0Bicubic Bell Shaped\0Bicubic B Spline\0Catmull Rom Spline\0\0")) {
+		mode = static_cast<Mode>(currentMode);
+
+		switch (mode){
+			case NONE:			
+				m_shader->attachShader(Shader::LoadShaderProgram(GL_VERTEX_SHADER, "res/quad.vert"), true);
+				m_shader->attachShader(Shader::LoadShaderProgram(GL_FRAGMENT_SHADER, "res/quad.frag"), false);
+				m_shader->linkShaders();
+				m_pShader = m_shader;
 				break;
 			case BILINEAR:
-				m_shader->attachShader(Shader::LoadShaderProgram(GL_FRAGMENT_SHADER, "res/pixel_shader_BiLinear.cg"), true);
+				m_shader->attachShader(Shader::LoadShaderProgram(GL_VERTEX_SHADER, "res/quad.vert"), true);
+				m_shader->attachShader(Shader::LoadShaderProgram(GL_FRAGMENT_SHADER, "res/pixel_shader_BiLinear.cg"), false);
 				m_shader->linkShaders();
-				pImage->SetShader(m_shader);
+				m_pShader = m_shader;
 				break;
 			case BICUBIC_TRIANGULAR:
-				m_shader->attachShader(Shader::LoadShaderProgram(GL_FRAGMENT_SHADER, "res/pixel_shader_BiCubic.cg"), true);
+				m_shader->attachShader(Shader::LoadShaderProgram(GL_VERTEX_SHADER, "res/quad.vert"), true);
+				m_shader->attachShader(Shader::LoadShaderProgram(GL_FRAGMENT_SHADER, "res/pixel_shader_BiCubic.cg"), false);
 				m_shader->linkShaders();
-				pImage->SetShader(m_shader);
+				m_pShader = m_shader;
 				break;
 			case BICUBIC_BELL_SHAPED:
-				m_shader->attachShader(Shader::LoadShaderProgram(GL_FRAGMENT_SHADER, "res/pixel_shader_Bell.cg"), true);
+				m_shader->attachShader(Shader::LoadShaderProgram(GL_VERTEX_SHADER, "res/quad.vert"), true);
+				m_shader->attachShader(Shader::LoadShaderProgram(GL_FRAGMENT_SHADER, "res/pixel_shader_Bell.cg"), false);
 				m_shader->linkShaders();
-				pImage->SetShader(m_shader);
+				m_pShader = m_shader;
 				break;
 			case BICUBIC_B_SPLINE:
-				m_shader->attachShader(Shader::LoadShaderProgram(GL_FRAGMENT_SHADER, "res/pixel_shader_BSpline.cg"), true);
+				m_shader->attachShader(Shader::LoadShaderProgram(GL_VERTEX_SHADER, "res/quad.vert"), true);
+				m_shader->attachShader(Shader::LoadShaderProgram(GL_FRAGMENT_SHADER, "res/pixel_shader_BSpline.cg"), false);
 				m_shader->linkShaders();
-				pImage->SetShader(m_shader);
+				m_pShader = m_shader;
 				break;
 			case CATMULL_ROM_SPLINE:
-				m_shader->attachShader(Shader::LoadShaderProgram(GL_FRAGMENT_SHADER, "res/pixel_shader_CatMull.cg"), true);
+				m_shader->attachShader(Shader::LoadShaderProgram(GL_FRAGMENT_SHADER, "res/quad.vert"), true);
+				m_shader->attachShader(Shader::LoadShaderProgram(GL_FRAGMENT_SHADER, "res/pixel_shader_CatMull.cg"), false);
 				m_shader->linkShaders();
-				pImage->SetShader(m_shader);
+				m_pShader = m_shader;
 				break;
 			default:
 				break;
@@ -331,14 +351,16 @@ void ZoomPan::renderUi() {
 }
 
 void ZoomPan::DrawZoomedImage() {
-	// Displays all views. Draw()_ method of GLImageView prepares the 
-	// Zoomed image of a view. m_ImageView list holds single object in normal case.
-	// When All In View is selected in Interpolation type, m_ImageView will hold 7 View
-	// objects.
-	for (int nViewIndex = 0; nViewIndex < m_ImageView.size(); nViewIndex++)
-	{
-		(m_ImageView[nViewIndex])->Draw();
-	}
+	glViewport(0, 0, 800, 600);
+
+	m_pShader->use();
+	m_pShader->loadInt("ImageTexture", 0);
+	m_pShader->loadFloat("fWidth", static_cast<float>(m_pTexture->getWidth()));
+	m_pShader->loadFloat("fHeight", static_cast<float>(m_pTexture->getHeight()));
+	m_pTexture->bind();
+	m_zoomableQuad.drawRaw();
+	m_pTexture->unbind();
+	m_pShader->unuse();
 }
 
 void ZoomPan::DrawActualImage() {
@@ -346,13 +368,13 @@ void ZoomPan::DrawActualImage() {
 	glViewport(805, 10, 200, 150);
 
 	// Image is attached.
-
-	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, Globals::textureManager.get("flower").getTexture());
-
-	// Entire image is mapped to screen.
-	m_glVertexBuffer.DrawVertexBuffer(GL_QUADS);
-	glDisable(GL_TEXTURE_2D);
+	auto shader = Globals::shaderManager.getAssetPointer("quad");
+	shader->use();
+	shader->loadBool("u_flip", false);
+	Globals::textureManager.get("flower").bind();
+	Globals::shapeManager.get("quad").drawRaw();
+	Globals::textureManager.get("flower").unbind();
+	shader->unuse();
 
 	// Set Red color for Zoom area indication.
 	glColor3f(1.0, 0.0, 0.0);
@@ -384,35 +406,7 @@ void ZoomPan::DrawActualImage() {
 	glVertex3f(-1 + fPixel, -1, 0.0);
 	glEnd();
 	glEnable(GL_TEXTURE_2D);
-	glColor3f(1.0, 1.0, 1.0);
-}
-
-void ZoomPan::PrepareVertexBuffer()
-{
-	const float fXOffset = m_fXOffset;
-	const float fYOffset = m_fYOffset;
-	const float fWidth = m_fZoomWidth;
-	const float fHeight = m_fZoomHeight;
-	m_glVertexBufferZoom.SetAt(0, -1.0f, 1.0f, 0.0f, fXOffset, fHeight + fYOffset); // Left Top  corner
-	m_glVertexBufferZoom.SetAt(1, -1.0f, -1.0f, 0.0f, fXOffset, fYOffset);// Left Bottom
-	m_glVertexBufferZoom.SetAt(2, 1.0f, -1.0f, 0.0f, fXOffset + fWidth, fYOffset); // Right bottom
-	m_glVertexBufferZoom.SetAt(3, 1.0f, 1.0f, 0.0f, fXOffset + fWidth, fHeight + fYOffset); // Right top
-}
-
-void ZoomPan::PrepareSingleView()
-{
-	for (int nViewIndex = 0; nViewIndex < m_ImageView.size(); nViewIndex++)
-	{
-		delete m_ImageView[nViewIndex];
-	}
-	m_ImageView.clear();
-
-	pImage = new GLImageView();
-	pImage->SetViewport(0, 0, 800, 600);
-	pImage->SetShader(nullptr);
-	pImage->SetTextureParam(&Globals::textureManager.get("flower"), Globals::textureManager.get("flower").getWidth(), Globals::textureManager.get("flower").getHeight());
-	pImage->SetVertexBuffer(&m_glVertexBufferZoom);
-	m_ImageView.push_back(pImage);
+	glColor3f(1.0f, 1.0f, 1.0f);
 }
 
 bool ZoomPan::WithinImageArea(int posX, int posY) {
@@ -469,6 +463,5 @@ void ZoomPan::HandleZoom(const short delta) {
 		}
 	}
 
-	// Prepare vertex buffer for zoomed texture mapping.
-	PrepareVertexBuffer();
+	m_zoomableQuad.mapBuffer(m_fXOffset, m_fYOffset, m_fZoomWidth, m_fZoomHeight);
 }

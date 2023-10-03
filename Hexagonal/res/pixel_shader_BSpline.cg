@@ -1,7 +1,12 @@
-uniform sampler2D ImageTexture;
+#version 410 core
 
+in vec2 texCoord;
+
+uniform sampler2D ImageTexture;
 uniform float fWidth;
 uniform float fHeight;
+
+out vec4 color;
 
 // Function returns a floating point value between 0 and 1.
 // This function returns higher value for nearest values of 0.
@@ -57,8 +62,8 @@ vec4 BiCubic( sampler2D textureSampler, vec2 TexCoord )
 // This shader uses B Spline method for interpolation.
 void main()
 {
-	vec4 Data = BiCubic( ImageTexture, gl_TexCoord[0].st );
-	gl_FragColor = Data;
+	vec4 Data = BiCubic( ImageTexture, texCoord );
+	color = Data;
 ;
 }
 

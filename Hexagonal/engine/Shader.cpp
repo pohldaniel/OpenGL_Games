@@ -235,13 +235,20 @@ GLuint Shader::CompileShader(GLenum type, const char *pszSource) {
 
 		if (!compiled) {
 
-			GLsizei infoLogSize = 0;
-			std::string infoLog;
+			GLsizei logSizeInfo = 0;	
+			glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &logSizeInfo);
 
-			glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &infoLogSize);
-			infoLog.resize(infoLogSize);
-			glGetShaderInfoLog(shader, infoLogSize, &infoLogSize, &infoLog[0]);
-			std::cout << "Compile status: \n" << &infoLog << std::endl;
+			std::string logInfo;
+			logInfo.resize(logSizeInfo);
+			glGetShaderInfoLog(shader, logSizeInfo, &logSizeInfo, &logInfo[0]);
+			std::cout << "Compile status: \n" << logInfo << std::endl;
+
+			GLsizei logSizeProgram = 0;
+			std::string logProgram;
+			logProgram.resize(256);
+
+			glGetProgramInfoLog(shader, 256, &logSizeProgram, &logProgram[0]);
+			std::cout << "Error Message: \n" << logProgram << std::endl;
 		}
 	}
 	return shader;
@@ -381,10 +388,14 @@ void Shader::attachShader(GLuint shader, bool reload) {
 		if (reload) {
 			glDeleteProgram(m_program);
 			m_program = glCreateProgram();
+			m_uniformLocationCache.clear();
+
 		}
 
-		if (shader)
+		if (shader) {
 			glAttachShader(m_program, shader);
+			glDeleteShader(shader);
+		}
 	}
 }
 

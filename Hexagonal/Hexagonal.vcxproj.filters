@@ -372,10 +372,10 @@
     <ClCompile Include="src\States\ZomPan.cpp">
       <Filter>Source Files\States</Filter>
     </ClCompile>
-    <ClCompile Include="GLVertexBuffer.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="src\States\Plot.cpp">
+      <Filter>Source Files\States</Filter>
     </ClCompile>
-    <ClCompile Include="GLImageView.cpp">
+    <ClCompile Include="ZoomableQuad.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -758,10 +758,10 @@
     <ClInclude Include="src\States\ZoomPan.h">
       <Filter>Source Files\States</Filter>
     </ClInclude>
-    <ClInclude Include="GLVertexBuffer.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="src\States\Plot.h">
+      <Filter>Source Files\States</Filter>
     </ClInclude>
-    <ClInclude Include="GLImageView.h">
+    <ClInclude Include="ZoomableQuad.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

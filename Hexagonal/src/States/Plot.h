@@ -11,28 +11,18 @@
 
 #include "StateMachine.h"
 #include "Background.h"
-#include "ZoomableQuad.h"
 
-enum Filter {
-	NEAREST,
-	LINEAR
+struct point {
+	float x;
+	float y;
 };
 
-enum Mode {
-	NONE,
-	BILINEAR,
-	BICUBIC_TRIANGULAR,
-	BICUBIC_BELL_SHAPED,
-	BICUBIC_B_SPLINE,
-	CATMULL_ROM_SPLINE
-};
-
-class ZoomPan : public State, public MouseEventListener, public KeyboardEventListener {
+class Plot : public State, public MouseEventListener, public KeyboardEventListener {
 
 public:
 
-	ZoomPan(StateMachine& machine);
-	~ZoomPan();
+	Plot(StateMachine& machine);
+	~Plot();
 
 	void fixedUpdate() override;
 	void update() override;
@@ -47,33 +37,19 @@ public:
 
 private:
 
-	void applyTransformation(TrackBall& arc);
+	Matrix4f viewportTransform(float x, float y, float width, float height, float *pixel_x, float *pixel_y);
 	void renderUi();
-	void DrawZoomedImage();
-	void DrawActualImage();
-	void HandleZoom(const short delta);
-	bool WithinImageArea(int posX, int posY);
-
-	Camera m_camera;
-	TrackBall m_trackball;
-	Transform m_transform;
-
+	
 	bool m_initUi = true;
 	bool m_drawUi = true;
+	
+	float offset_x = 0;
+	float scale_x = 1;
 
-	Background m_background;
-	Mode mode = Mode::NONE;
-	Filter filter = Filter::NEAREST;
-
-	float m_fXOffset;
-	float m_fYOffset;
-
-	float m_fZoomWidth;
-	float m_fZoomHeight;
-
+	unsigned int vbo[3];
+	int border = 10;
+	int ticksize = 10;
 	Shader* m_shader;
-	ZoomableQuad m_zoomableQuad;
 
-	Texture* m_pTexture;
-	Shader* m_pShader;
+	
 };

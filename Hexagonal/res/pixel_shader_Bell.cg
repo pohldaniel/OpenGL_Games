@@ -1,8 +1,12 @@
+#version 410 core
+
+in vec2 texCoord;
 
 uniform sampler2D ImageTexture;
-
 uniform float fWidth;
 uniform float fHeight;
+
+out vec4 color;
 
 // This function returns a float values betwwen 0 and 1, which
 // provides a bell shape when plotting from -2 to +2.
@@ -58,8 +62,7 @@ vec4 BiCubic( sampler2D textureSampler, vec2 TexCoord )
 // Shader for  BiCubic interpolation with Bell method.
 void main()
 {
-	vec4 Data = BiCubic( ImageTexture, gl_TexCoord[0].st );
-	gl_FragColor = Data;
-;
+	vec4 Data = BiCubic( ImageTexture, texCoord );
+	color = Data;
 }
 
