@@ -170,6 +170,7 @@
     <ClCompile Include="Box.cpp" />
     <ClCompile Include="CreateEntityPrefabStrategies.cpp" />
     <ClCompile Include="Dictionary.cpp" />
+    <ClCompile Include="engine\ZoomableQuad.cpp" />
     <ClCompile Include="Entity.cpp" />
     <ClCompile Include="EntityPrefabManager.cpp" />
     <ClCompile Include="ErrorLogger.cpp" />
@@ -180,7 +181,6 @@
     <ClCompile Include="src\States\Plot.cpp" />
     <ClCompile Include="src\States\ZomPan.cpp" />
     <ClCompile Include="TileSet.cpp" />
-    <ClCompile Include="ZoomableQuad.cpp" />
     <ClCompile Include="_Collision.cpp" />
     <ClCompile Include="CollisionModel.cpp" />
     <ClCompile Include="engine\ArrayBuffer.cpp" />
@@ -339,6 +339,7 @@
     <ClInclude Include="engine\Transform.h" />
     <ClInclude Include="engine\Vector.h" />
     <ClInclude Include="engine\VolumeBuffer.h" />
+    <ClInclude Include="engine\ZoomableQuad.h" />
     <ClInclude Include="Entity.h" />
     <ClInclude Include="EntityPrefabManager.h" />
     <ClInclude Include="ErrorLogger.h" />
@@ -346,7 +347,6 @@
     <ClInclude Include="src\States\Plot.h" />
     <ClInclude Include="src\States\ZoomPan.h" />
     <ClInclude Include="TileSet.h" />
-    <ClInclude Include="ZoomableQuad.h" />
     <ClInclude Include="_Game.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="GridCell.h" />

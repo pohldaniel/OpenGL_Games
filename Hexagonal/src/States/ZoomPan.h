@@ -8,10 +8,10 @@
 #include <engine/Pixelbuffer.h>
 #include <engine/Framebuffer.h>
 #include <engine/Spritesheet.h>
+#include <engine/ZoomableQuad.h>
 
 #include "StateMachine.h"
 #include "Background.h"
-#include "ZoomableQuad.h"
 
 enum Filter {
 	NEAREST,

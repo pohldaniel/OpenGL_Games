@@ -883,3 +883,8 @@ void Framebuffer::bindDepthStencilTexture(unsigned int unit) const {
 	glActiveTexture(GL_TEXTURE0 + unit);
 	glBindTexture(GL_TEXTURE_2D, m_depthStencilTexture);
 }
+
+void Framebuffer::unbindColorTexture() const {
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, 0);
+}

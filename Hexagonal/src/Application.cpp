@@ -393,8 +393,8 @@ void Application::initStates() {
 	Machine = new StateMachine(m_dt, m_fdt);	
 	//Machine->addStateAtTop(new Menu(*Machine));
 	//Machine->addStateAtTop(new TilePlacing(*Machine));
-	//Machine->addStateAtTop(new Game(*Machine));
-	Machine->addStateAtTop(new ZoomPan(*Machine));
+	Machine->addStateAtTop(new Game(*Machine));
+	//Machine->addStateAtTop(new ZoomPan(*Machine));
 	//Machine->addStateAtTop(new Plot(*Machine));
 }
 

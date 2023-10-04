@@ -12,6 +12,7 @@
 #include <engine/Pixelbuffer.h>
 #include <engine/Framebuffer.h>
 #include <engine/Spritesheet.h>
+#include <engine/ZoomableQuad.h>
 
 #include "StateMachine.h"
 #include "Background.h"
@@ -67,8 +68,9 @@ private:
 	bool m_drawCullingRect = false;
 
 	Background m_background;
-	Pixelbuffer m_pixelbuffer;
+	ZoomableQuad m_zoomableQuad;
 	Texture m_texture;
+	Framebuffer m_mainRT;
 
 	std::vector<TextureRect> m_textureRects;
 	unsigned int m_atlas;
@@ -94,12 +96,16 @@ private:
 
 	float m_left, m_right, m_bottom, m_top;
 	float m_screeBorder = 0.0f;
+	float m_zoom = 1.0f;
+	float m_zoomFactor = 1.0f;
+	float m_focusPointY;
+	float m_focusPointX;
 
 	void cartesianToIartesian(float & x, float & y, float cellWidth = 32.0f, float cellHeight = 32.0f);
-	void isometricToCartesian(float& x, float& y, float cellWidth = 32.0f, float cellHeight = 32.0f);
-	void isometricToCartesian(float x, float y, int& row, int& col, float cellWidth = 32.0f, float cellHeight = 32.0f);
-	void isometricToRow(float x, float y, int& row, float cellWidth = 32.0f);
-	void isometricToCol(float x, float y, int& col, float cellHeight = 32.0f);
+	void isometricToCartesian(float& x, float& y, float cellWidth = 32.0f, float cellHeight = 32.0f, float isoOffsetX = 0.0f, float isoOffsetY = 0.0f);
+	void isometricToCartesian(float x, float y, int& row, int& col, float cellWidth = 32.0f, float cellHeight = 32.0f, float isoOffsetX = 0.0f, float isoOffsetY = 0.0f);
+	void isometricToRow(float x, float y, int& row, float cellWidth = 32.0f, float isoOffsetX = 0.0f, float isoOffsetY = 0.0f);
+	void isometricToCol(float x, float y, int& col, float cellHeight = 32.0f, float isoOffsetX = 0.0f, float isoOffsetY = 0.0f);
 	bool isValid(const int row, const int column) const;
 	std::array<Vector2f, 4> corners;
 };

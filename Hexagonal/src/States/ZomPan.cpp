@@ -18,7 +18,7 @@ ZoomPan::ZoomPan(StateMachine& machine) : State(machine, CurrentState::ZOOMPAN) 
 	m_camera = Camera();
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
-	m_camera.lookAt(Vector3f(0.0f, 0.0f, 10.0f), Vector3f(0.0f, 0.0f, 10.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));	
+	m_camera.lookAt(Vector3f(0.0f, 0.0f, 10.0f), Vector3f(0.0f, 0.0f, 10.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
 
 	m_camera.setRotationSpeed(0.1f);
 	m_camera.setMovingSpeed(400.0f);
@@ -128,7 +128,7 @@ void ZoomPan::render() {
 	//m_background.draw();
 	DrawZoomedImage();
 	DrawActualImage();
-	
+
 	if (m_drawUi)
 		renderUi();
 }
@@ -139,12 +139,13 @@ void ZoomPan::OnMouseMotion(Event::MouseMoveEvent& event) {
 
 	static int startX = 0, startY = 0;
 	static bool bMoveStart = false;
-	if (event.button == 1u && !bMoveStart && WithinImageArea(event.x, event.y)){
+	if (event.button == 1u && !bMoveStart && WithinImageArea(event.x, event.y)) {
 		bMoveStart = true;
 		startX = event.x;
 		startY = event.y;
 
-	}else if (bMoveStart && event.button == 1u) {
+	}
+	else if (bMoveStart && event.button == 1u) {
 		// Move 
 		int nXDiff = -(event.x - startX);
 		int nYDiff = event.y - startY;
@@ -152,30 +153,30 @@ void ZoomPan::OnMouseMotion(Event::MouseMoveEvent& event) {
 		startY = event.y;
 
 		// If mouse move in X direction
-		if (nXDiff){
+		if (nXDiff) {
 			float fOldX = m_fXOffset;
-			m_fXOffset += (static_cast<float>(nXDiff) * 0.75f)/ static_cast<float>(Globals::textureManager.get("flower").getWidth());
+			m_fXOffset += (static_cast<float>(nXDiff) * 0.75f) / static_cast<float>(Globals::textureManager.get("flower").getWidth());
 
 			// If new change display data outside of texture, then reset to old value.
-			if (m_fXOffset < 0.0){
+			if (m_fXOffset < 0.0) {
 				m_fXOffset = 0.0;
 			}
-			if (m_fXOffset + m_fZoomWidth > 1.0){
+			if (m_fXOffset + m_fZoomWidth > 1.0) {
 				m_fXOffset = fOldX;
 			}
 		}
 
 		// If mouse move in Y direction
-		if (nYDiff){
+		if (nYDiff) {
 			float fOldY = m_fYOffset;
 			m_fYOffset += (static_cast<float>(nYDiff) * 0.75f) / static_cast<float>(Globals::textureManager.get("flower").getHeight());
 
 			// If new change display data outside the texture, reset to old value.
-			if (m_fYOffset < 0.0){
+			if (m_fYOffset < 0.0) {
 				m_fYOffset = 0.0;
 			}
 
-			if (m_fYOffset + m_fZoomHeight > 1.0){
+			if (m_fYOffset + m_fZoomHeight > 1.0) {
 				m_fYOffset = fOldY;
 			}
 		}
@@ -183,13 +184,15 @@ void ZoomPan::OnMouseMotion(Event::MouseMoveEvent& event) {
 		// Cretae new vertex buffer for zoomed texture mapping.
 		m_zoomableQuad.mapBuffer(m_fXOffset, m_fYOffset, m_fZoomWidth, m_fZoomHeight);
 
-	}else{
+	}
+	else {
 		bMoveStart = false;
 
 		// Check mouse area is within image area then, set Arrow cursor.
-		if (WithinImageArea(event.x, event.y)){
+		if (WithinImageArea(event.x, event.y)) {
 			Application::SetCursorIcon(IDC_SIZEALL);
-		}else{
+		}
+		else {
 			Application::SetCursorIcon(IDC_ARROW);
 		}
 	}
@@ -289,12 +292,12 @@ void ZoomPan::renderUi() {
 	if (ImGui::Combo("Filter", &currentFilter, "Nearest\0Linear\0\0")) {
 		filter = static_cast<Filter>(currentFilter);
 		switch (filter) {
-			case NEAREST:
-				Globals::textureManager.get("flower").setNearest();
-				break;
-			case LINEAR:
-				Globals::textureManager.get("flower").setLinear(GL_LINEAR);
-				break;
+		case NEAREST:
+			Globals::textureManager.get("flower").setNearest();
+			break;
+		case LINEAR:
+			Globals::textureManager.get("flower").setLinear(GL_LINEAR);
+			break;
 		}
 	}
 
@@ -302,45 +305,45 @@ void ZoomPan::renderUi() {
 	if (ImGui::Combo("Mode", &currentMode, "None\0Bilinear\0Bicubic Triangular\0Bicubic Bell Shaped\0Bicubic B Spline\0Catmull Rom Spline\0\0")) {
 		mode = static_cast<Mode>(currentMode);
 
-		switch (mode){
-			case NONE:			
-				m_shader->attachShader(Shader::LoadShaderProgram(GL_VERTEX_SHADER, "res/quad.vert"), true);
-				m_shader->attachShader(Shader::LoadShaderProgram(GL_FRAGMENT_SHADER, "res/quad.frag"), false);
-				m_shader->linkShaders();
-				m_pShader = m_shader;
-				break;
-			case BILINEAR:
-				m_shader->attachShader(Shader::LoadShaderProgram(GL_VERTEX_SHADER, "res/quad.vert"), true);
-				m_shader->attachShader(Shader::LoadShaderProgram(GL_FRAGMENT_SHADER, "res/pixel_shader_BiLinear.cg"), false);
-				m_shader->linkShaders();
-				m_pShader = m_shader;
-				break;
-			case BICUBIC_TRIANGULAR:
-				m_shader->attachShader(Shader::LoadShaderProgram(GL_VERTEX_SHADER, "res/quad.vert"), true);
-				m_shader->attachShader(Shader::LoadShaderProgram(GL_FRAGMENT_SHADER, "res/pixel_shader_BiCubic.cg"), false);
-				m_shader->linkShaders();
-				m_pShader = m_shader;
-				break;
-			case BICUBIC_BELL_SHAPED:
-				m_shader->attachShader(Shader::LoadShaderProgram(GL_VERTEX_SHADER, "res/quad.vert"), true);
-				m_shader->attachShader(Shader::LoadShaderProgram(GL_FRAGMENT_SHADER, "res/pixel_shader_Bell.cg"), false);
-				m_shader->linkShaders();
-				m_pShader = m_shader;
-				break;
-			case BICUBIC_B_SPLINE:
-				m_shader->attachShader(Shader::LoadShaderProgram(GL_VERTEX_SHADER, "res/quad.vert"), true);
-				m_shader->attachShader(Shader::LoadShaderProgram(GL_FRAGMENT_SHADER, "res/pixel_shader_BSpline.cg"), false);
-				m_shader->linkShaders();
-				m_pShader = m_shader;
-				break;
-			case CATMULL_ROM_SPLINE:
-				m_shader->attachShader(Shader::LoadShaderProgram(GL_FRAGMENT_SHADER, "res/quad.vert"), true);
-				m_shader->attachShader(Shader::LoadShaderProgram(GL_FRAGMENT_SHADER, "res/pixel_shader_CatMull.cg"), false);
-				m_shader->linkShaders();
-				m_pShader = m_shader;
-				break;
-			default:
-				break;
+		switch (mode) {
+		case NONE:
+			m_shader->attachShader(Shader::LoadShaderProgram(GL_VERTEX_SHADER, "res/quad.vert"), true);
+			m_shader->attachShader(Shader::LoadShaderProgram(GL_FRAGMENT_SHADER, "res/quad.frag"), false);
+			m_shader->linkShaders();
+			m_pShader = m_shader;
+			break;
+		case BILINEAR:
+			m_shader->attachShader(Shader::LoadShaderProgram(GL_VERTEX_SHADER, "res/quad.vert"), true);
+			m_shader->attachShader(Shader::LoadShaderProgram(GL_FRAGMENT_SHADER, "res/pixel_shader_BiLinear.cg"), false);
+			m_shader->linkShaders();
+			m_pShader = m_shader;
+			break;
+		case BICUBIC_TRIANGULAR:
+			m_shader->attachShader(Shader::LoadShaderProgram(GL_VERTEX_SHADER, "res/quad.vert"), true);
+			m_shader->attachShader(Shader::LoadShaderProgram(GL_FRAGMENT_SHADER, "res/pixel_shader_BiCubic.cg"), false);
+			m_shader->linkShaders();
+			m_pShader = m_shader;
+			break;
+		case BICUBIC_BELL_SHAPED:
+			m_shader->attachShader(Shader::LoadShaderProgram(GL_VERTEX_SHADER, "res/quad.vert"), true);
+			m_shader->attachShader(Shader::LoadShaderProgram(GL_FRAGMENT_SHADER, "res/pixel_shader_Bell.cg"), false);
+			m_shader->linkShaders();
+			m_pShader = m_shader;
+			break;
+		case BICUBIC_B_SPLINE:
+			m_shader->attachShader(Shader::LoadShaderProgram(GL_VERTEX_SHADER, "res/quad.vert"), true);
+			m_shader->attachShader(Shader::LoadShaderProgram(GL_FRAGMENT_SHADER, "res/pixel_shader_BSpline.cg"), false);
+			m_shader->linkShaders();
+			m_pShader = m_shader;
+			break;
+		case CATMULL_ROM_SPLINE:
+			m_shader->attachShader(Shader::LoadShaderProgram(GL_FRAGMENT_SHADER, "res/quad.vert"), true);
+			m_shader->attachShader(Shader::LoadShaderProgram(GL_FRAGMENT_SHADER, "res/pixel_shader_CatMull.cg"), false);
+			m_shader->linkShaders();
+			m_pShader = m_shader;
+			break;
+		default:
+			break;
 		}
 	}
 
@@ -418,7 +421,7 @@ void ZoomPan::HandleZoom(const short delta) {
 	float fZoomYIncr = m_fZoomWidth  * 0.025 * 3.0f;
 
 	// Zoom
-	if (delta < 0){
+	if (delta < 0) {
 
 		/*
 		Increase of Zoomed area in Left and Right will be same.
@@ -442,7 +445,8 @@ void ZoomPan::HandleZoom(const short delta) {
 			m_fZoomHeight -= fZoomYIncr;
 			m_fZoomWidth -= fZoomXIncr;
 		}
-	}else{
+	}
+	else {
 		// Zoom
 		m_fXOffset += fZoomXIncr / 2;
 		m_fYOffset += fZoomYIncr / 2;

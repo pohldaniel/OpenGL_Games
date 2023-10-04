@@ -8,9 +8,10 @@ out vec4 vertColor;
 
 uniform vec4 u_texRect = vec4(0.0, 0.0, 1.0, 1.0);
 uniform bool u_flip = true;
+uniform mat4 u_transform = mat4(1.0);
 
 void main(void){
-	gl_Position = vec4(i_position, 1.0);
+	gl_Position = u_transform * vec4(i_position, 1.0);
 
 	texCoord.y =  u_flip ? 1.0 - i_texCoord.y : i_texCoord.y;
 
