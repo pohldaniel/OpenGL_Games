@@ -46,10 +46,6 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 		{ &Globals::textureManager.get("forest_5"), 1, 5.0f }});
 	m_background.setSpeed(0.005f);
 
-	m_texture.createEmptyTexture(Application::Width, Application::Height, GL_RGBA8, GL_RGBA);
-	m_texture.setWrapMode(GL_CLAMP);
-	m_texture.setFilter(GL_NEAREST);
-
 	m_mainRT.create(Application::Width, Application::Height);
 	m_mainRT.attachTexture2D(AttachmentTex::RGBA);
 	m_mainRT.attachRenderbuffer(AttachmentRB::DEPTH24);
@@ -169,7 +165,7 @@ void Game::render() {
 
 	Spritesheet::Bind(m_atlas);
 	for (auto cell : m_useCulling ? m_visibleCells : m_cells) {
-		Batchrenderer::Get().addQuadAA(Vector4f(cell.posX + (m_camera.getPositionX() + m_focusPointX) * (1.0f - m_zoomFactor), cell.posY + (m_camera.getPositionY() + m_focusPointY) * (1.0f - m_zoomFactor), cell.rect.width * m_zoomFactor, cell.rect.height * m_zoomFactor), Vector4f(cell.rect.textureOffsetX, cell.rect.textureOffsetY, cell.rect.textureWidth, cell.rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), cell.rect.frame);
+		Batchrenderer::Get().addQuadAA(Vector4f(cell.posX * m_zoomFactor + (m_camera.getPositionX() + m_focusPointX) * (1.0f - m_zoomFactor), cell.posY * m_zoomFactor + (m_camera.getPositionY() + m_focusPointY) * (1.0f - m_zoomFactor), cell.rect.width * m_zoomFactor, cell.rect.height * m_zoomFactor), Vector4f(cell.rect.textureOffsetX, cell.rect.textureOffsetY, cell.rect.textureWidth, cell.rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), cell.rect.frame);
 	}
 
 	Batchrenderer::Get().drawBufferRaw();
@@ -219,7 +215,7 @@ void Game::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 		float mouseWorldY = mouseViewY + m_camera.getPositionY();
 
 		int row, col;
-		isometricToCartesian(mouseWorldX, mouseWorldY, row, col, cellWidth  * m_zoomFactor, cellHeight  * m_zoomFactor, -(m_camera.getPositionX() + m_focusPointX) * (1.0f - m_zoomFactor), -(m_camera.getPositionY() + m_focusPointY) * (1.0f - m_zoomFactor));
+		isometricToCartesian(mouseWorldX - (m_camera.getPositionX() + m_focusPointX) * (1.0f - m_zoomFactor), mouseWorldY - (m_camera.getPositionY() + m_focusPointY) * (1.0f - m_zoomFactor), row, col, cellWidth  * m_zoomFactor, cellHeight  * m_zoomFactor);
 	
 		std::cout << "Mouse X:" << row << " Mouse Y: " << col << std::endl;
 
@@ -241,23 +237,13 @@ void Game::OnMouseButtonUp(Event::MouseButtonEvent& event) {
 
 void Game::OnMouseWheel(Event::MouseWheelEvent& event) {
 	if (event.direction == 1u) {
-		m_zoom = m_zoom - 0.25f;
-
-		//if (m_zoom > 1.0f)
-			//m_zoomableQuad.setZoom(m_zoom);
-		//else
 		m_zoomFactor = m_zoomFactor - 0.1f;
-		m_zoomFactor = Math::Clamp(m_zoomFactor, 0.4f, 1.6f);
+		m_zoomFactor = Math::Clamp(m_zoomFactor, 0.4f, 5.0f);
 	}
 
 	if (event.direction == 0u) {
-		m_zoom = m_zoom + 0.25f;
-
-		//if (m_zoom > 1.0f)
-			//m_zoomableQuad.setZoom(m_zoom);
-		//else
 		m_zoomFactor = m_zoomFactor + 0.1f;
-		m_zoomFactor = Math::Clamp(m_zoomFactor, 0.4f, 1.6f);
+		m_zoomFactor = Math::Clamp(m_zoomFactor, 0.4f, 5.0f);
 	}
 }
 
@@ -455,12 +441,10 @@ void Game::loadMap(std::string name) {
 			if (m_layer[layer][column][row] != -1) {
 
 				const TextureRect& rect = TileSet::Get().getTextureRects()[m_layer[layer][column][row]];
-				//eVec2 cellMins = eVec2((float)(row * cellWidth), (float)(column * cellHeight));
-				//eBounds bounds = eBounds(cellMins, cellMins + eVec2((float)cellWidth, (float)cellHeight));
-				eVec2& origin = eVec2((float)(row * cellWidth), (float)(column * cellHeight));
-
-				eMath::CartesianToIsometric(origin.x, origin.y);
-				m_cells.push_back({ rect, origin.x, -origin.y });
+				float cartX = static_cast<float>(row);
+				float cartY = static_cast<float>(column);
+				cartesianToIsometric(cartX, cartY, cellWidth, cellHeight);
+				m_cells.push_back({ rect, cartX, -cartY });
 
 			}
 
@@ -488,7 +472,7 @@ void Game::loadMap(std::string name) {
 
 //isoX =  (cartX * CELL_WIDTH - cartY * CELL_HEIGHT) 
 //isoY = -(cartX * CELL_WIDTH + cartY * CELL_HEIGHT)  * 0.5f
-void Game::cartesianToIartesian(float & x, float & y, float cellWidth, float cellHeight) {
+void Game::cartesianToIsometric(float & x, float & y, float cellWidth, float cellHeight) {
 	float cartX = x * cellWidth;
 	float cartY = y * cellHeight;
 	x = (cartX - cartY);
@@ -506,17 +490,17 @@ void Game::cartesianToIartesian(float & x, float & y, float cellWidth, float cel
 //
 //cartY = (-2.0 * isoY  - isoX  - cartY * CELL_HEIGHT) / CELL_HEIGHT
 //cartY =-(0.5f * isoX + isoY) / CELL_HEIGHT
-void Game::isometricToCartesian(float& x, float& y, float cellWidth, float cellHeight, float isoOffsetX, float isoOffsetY) {
-	float isoX = x + isoOffsetX;
-	float isoY = y + isoOffsetY;
+void Game::isometricToCartesian(float& x, float& y, float cellWidth, float cellHeight) {
+	float isoX = x;
+	float isoY = y;
 
 	x =  (0.5f * isoX - isoY) / cellWidth;
 	y = -(0.5f * isoX + isoY) / cellHeight;
 }
 
-void Game::isometricToCartesian(float x, float y, int& row, int& col, float cellWidth, float cellHeight, float isoOffsetX, float isoOffsetY) {
-	float isoX = x + isoOffsetX;
-	float isoY = y + isoOffsetY;
+void Game::isometricToCartesian(float x, float y, int& row, int& col, float cellWidth, float cellHeight) {
+	float isoX = x;
+	float isoY = y;
 
 	x = (0.5f * isoX - isoY) / cellWidth;
 	y = -(0.5f * isoX + isoY) / cellHeight;
@@ -525,17 +509,17 @@ void Game::isometricToCartesian(float x, float y, int& row, int& col, float cell
 	col = static_cast<int>(std::roundf(y )) + 1;
 }
 
-void Game::isometricToRow(float x, float y, int& row,  float cellWidth, float isoOffsetX, float isoOffsetY) {
-	float isoX = x + isoOffsetX;
-	float isoY = y + isoOffsetY;
+void Game::isometricToRow(float x, float y, int& row,  float cellWidth) {
+	float isoX = x;
+	float isoY = y;
 
 	x = (0.5f * isoX - isoY) / cellWidth;
 	row = static_cast<int>(std::roundf(x));
 }
 
-void Game::isometricToCol(float x, float y, int& col, float cellHeight, float isoOffsetX, float isoOffsetY) {
-	float isoX = x + isoOffsetX;
-	float isoY = y + isoOffsetY;
+void Game::isometricToCol(float x, float y, int& col, float cellHeight) {
+	float isoX = x;
+	float isoY = y;
 
 	y = -(0.5f * isoX + isoY) / cellHeight;
 	col = static_cast<int>(std::roundf(y)) + 1;
@@ -549,30 +533,30 @@ void Game::culling() {
 
 	Vector3f m_position = m_camera.getPosition();
 
-	corners[0] = Vector2f(m_left  + m_screeBorder, m_bottom + m_screeBorder);
-	corners[1] = Vector2f(m_left  + m_screeBorder, m_top - m_screeBorder);
-	corners[2] = Vector2f(m_right - m_screeBorder, m_top - m_screeBorder);
-	corners[3] = Vector2f(m_right - m_screeBorder, m_bottom + m_screeBorder);
+	corners[0] = Vector2f(m_left  + m_screeBorder, m_bottom + m_screeBorder) + Vector2f(m_position[0] - (m_camera.getPositionX() + m_focusPointX) * (1.0f - m_zoomFactor), m_position[1] - (m_camera.getPositionY() + m_focusPointY) * (1.0f - m_zoomFactor));
+	corners[1] = Vector2f(m_left  + m_screeBorder, m_top - m_screeBorder) + Vector2f(m_position[0] - (m_camera.getPositionX() + m_focusPointX) * (1.0f - m_zoomFactor), m_position[1] - (m_camera.getPositionY() + m_focusPointY) * (1.0f - m_zoomFactor));
+	corners[2] = Vector2f(m_right - m_screeBorder, m_top - m_screeBorder) + Vector2f(m_position[0] - (m_camera.getPositionX() + m_focusPointX) * (1.0f - m_zoomFactor), m_position[1] - (m_camera.getPositionY() + m_focusPointY) * (1.0f - m_zoomFactor));
+	corners[3] = Vector2f(m_right - m_screeBorder, m_bottom + m_screeBorder) + Vector2f(m_position[0] - (m_camera.getPositionX() + m_focusPointX) * (1.0f - m_zoomFactor), m_position[1] - (m_camera.getPositionY() + m_focusPointY) * (1.0f - m_zoomFactor));
 
 	int rowMin, rowMax, colMin, colMax;
-	isometricToCol(corners[0][0] + m_position[0], corners[0][1] + m_position[1], colMax, cellHeight * m_zoomFactor, -(m_camera.getPositionX() + m_focusPointX) * (1.0f - m_zoomFactor), -(m_camera.getPositionY() + m_focusPointY) * (1.0f - m_zoomFactor));
-	isometricToRow(corners[1][0] + m_position[0], corners[1][1] + m_position[1], rowMin, cellWidth * m_zoomFactor,  -(m_camera.getPositionX() + m_focusPointX) * (1.0f - m_zoomFactor),  -(m_camera.getPositionY() + m_focusPointY) * (1.0f - m_zoomFactor));
-	isometricToCol(corners[2][0] + m_position[0], corners[2][1] + m_position[1], colMin, cellHeight * m_zoomFactor, -(m_camera.getPositionX() + m_focusPointX) * (1.0f - m_zoomFactor), -(m_camera.getPositionY() + m_focusPointY) * (1.0f - m_zoomFactor));
-	isometricToRow(corners[3][0] + m_position[0], corners[3][1] + m_position[1], rowMax, cellWidth * m_zoomFactor,  -(m_camera.getPositionX() + m_focusPointX) * (1.0f - m_zoomFactor),  -(m_camera.getPositionY() + m_focusPointY) * (1.0f - m_zoomFactor));
+	isometricToCol(corners[0][0], corners[0][1], colMax, cellHeight * m_zoomFactor);
+	isometricToRow(corners[1][0], corners[1][1], rowMin, cellWidth  * m_zoomFactor);
+	isometricToCol(corners[2][0], corners[2][1], colMin, cellHeight * m_zoomFactor);
+	isometricToRow(corners[3][0], corners[3][1], rowMax, cellWidth  * m_zoomFactor);
 	 
 	m_visibleCells.clear();
 	m_visibleCells.shrink_to_fit();
 
 	for (int j = 0; j < m_layer.size(); j++) {
-		for (int y = colMin; y <= colMax + 4; y++) {
-			for (int x = rowMin; x <= rowMax + 4; x++) {
+		for (int y = colMin; y < colMax + 5; y++) {
+			for (int x = rowMin; x < rowMax + 5; x++) {
 
 				if (isValid(x, y) && m_layer[j][y][x] != -1) {
 					const TextureRect& rect = TileSet::Get().getTextureRects()[m_layer[j][y][x]];
-					eVec2& origin = eVec2((float)(x * cellWidth * m_zoomFactor), (float)(y * cellHeight * m_zoomFactor));
-
-					eMath::CartesianToIsometric(origin.x, origin.y);
-					m_visibleCells.push_back({ rect, origin.x, -origin.y });
+					float cartX = static_cast<float>(x);
+					float cartY = static_cast<float>(y);
+					cartesianToIsometric(cartX, cartY, cellWidth, cellHeight );
+					m_visibleCells.push_back({ rect, cartX, -cartY });
 				}
 
 			}
@@ -581,12 +565,14 @@ void Game::culling() {
 }
 
 void Game::drawCullingRect() {
+	Vector3f m_position = m_camera.getPosition();
+	
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
 	glLoadMatrixf(&m_camera.getOrthographicMatrix()[0][0]);
 	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
+	glPushMatrix();
+	glTranslatef((-m_position[0] - (m_camera.getPositionX() + m_focusPointX) * (1.0f - m_zoomFactor)), -(m_position[1] - (m_camera.getPositionY() + m_focusPointY) * (1.0f - m_zoomFactor)),0.0f);
 
 	glBegin(GL_QUADS);
 	glColor3f(1.0f, 0.0f, 0.0f);
@@ -597,5 +583,6 @@ void Game::drawCullingRect() {
 	glVertex3f(corners[3][0], corners[3][1], 0.0f);
 
 	glEnd();
+	glPopMatrix();
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
