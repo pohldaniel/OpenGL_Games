@@ -31,6 +31,10 @@ struct Cell {
 	//float boundY;
 	float posX;
 	float posY;
+	bool visible;
+	int row;
+	int col;
+	int layer;
 
 };
 
@@ -92,6 +96,7 @@ private:
 
 	void culling();
 	void drawCullingRect();
+	void drawMouseRect();
 
 	float m_left, m_right, m_bottom, m_top;
 	float m_screeBorder = 0.0f;
@@ -106,4 +111,11 @@ private:
 	void isometricToCol(float x, float y, int& col, float cellHeight = 32.0f);
 	bool isValid(const int row, const int column) const;
 	std::array<Vector2f, 4> corners;
+
+	bool m_mouseDown = false;
+	float m_mouseX, m_mouseY;
+	float m_curMouseX, m_curMouseY;
+	int m_rowMin, m_rowMax, m_colMin, m_colMax;
+
+	int m_visRowMin, m_visRowMax, m_visColMin, m_visColMax;
 };
