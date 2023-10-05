@@ -213,6 +213,7 @@ void Game::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 		m_trackball.mouse(TrackBall::Button::ELeftButton, TrackBall::Modifier::ENoModifier, true, event.x, event.y);
 		applyTransformation(m_trackball);
 
+		unselect();
 		//clip
 		//float mouseNDCX = (2.0f * event.x) / static_cast<float>(Application::Width) - 1.0f;
 		//float mouseNDCY = 1.0f - (2.0f * event.y) / static_cast<float>(Application::Height);
@@ -230,16 +231,12 @@ void Game::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 
 		int row, col;
 		isometricToCartesian(mouseWorldX, mouseWorldY, row, col, cellWidth  * m_zoomFactor, cellHeight  * m_zoomFactor);
-		
-		if(isValid(row, col) && m_layer[1][col][row].first != -1)
-			m_cells[m_layer[1][col][row].second].selected = true;
-
-		if (isValid(row, col) && m_layer[3][col][row].first != -1)
-			m_cells[m_layer[3][col][row].second].selected = true;
-
-		if (isValid(row, col) && m_layer[4][col][row].first != -1)
-			m_cells[m_layer[4][col][row].second].selected = true;
-
+		for (int j = 0; j < m_layer.size(); j++) {
+			if(isValid(row, col) && m_layer[j][col][row].first != -1) {
+				m_selectedCells.push_back(m_cells[m_layer[j][col][row].second]);
+				m_selectedCells.back().get().selected = true;
+			}
+		}
 
 		m_mouseDown = true;
 		m_mouseX = mouseViewX;
@@ -248,7 +245,7 @@ void Game::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 		m_curMouseY = m_mouseY;
 
 	}else if (event.button == 2u) {
-		//m_drawUi = false;
+		unselect();
 		Mouse::instance().attach(Application::GetWindow());
 	}
 }
@@ -258,18 +255,30 @@ void Game::OnMouseButtonUp(Event::MouseButtonEvent& event) {
 		m_trackball.mouse(TrackBall::Button::ELeftButton, TrackBall::Modifier::ENoModifier, false, event.x, event.y);
 		applyTransformation(m_trackball);
 
+		float offsetX = m_zoomFactor * (m_camera.getPositionX() + m_focusPointX) - m_focusPointX;
+		float offsetY = m_zoomFactor * (m_camera.getPositionY() + m_focusPointY) - m_focusPointY;
+
 		float mouseViewX = static_cast<float>(event.x);
 		float mouseViewY = static_cast<float>(Application::Height - event.y);
 
-		float left = std::min(m_mouseX, mouseViewX);
-		float right = std::max(m_mouseX, mouseViewX);
-		float bottom = std::max(m_mouseY, mouseViewY);
-		float top = std::min(m_mouseY, mouseViewY);
+		int left = static_cast<int>(floor(std::min(m_mouseX, mouseViewX) / 32.0f) * 32.0f);
+		int right = static_cast<int>(ceil(std::max(m_mouseX, mouseViewX) / 32.0f) * 32.0f);
+		int bottom = static_cast<int>(ceil(std::min(m_mouseY, mouseViewY) / 16.0f) * 16.0f);
+		int top = static_cast<int>(floor(std::max(m_mouseY, mouseViewY) / 16.0f) * 16.0f);
 
-		isometricToCol(left, bottom, m_colMax, cellHeight * m_zoomFactor);
-		isometricToRow(left, top, m_rowMin, cellWidth  * m_zoomFactor);
-		isometricToCol(right, top, m_colMin, cellHeight * m_zoomFactor);
-		isometricToRow(right, bottom, m_rowMax, cellWidth  * m_zoomFactor);
+		for (int x = left; x < right; x = x + 32) {
+			for (int y = bottom; y < top; y = y + 16) {
+				int row, col;
+				isometricToCartesian(x + offsetX, y + offsetY, row, col, cellWidth  * m_zoomFactor, cellHeight  * m_zoomFactor);
+				for (int j = 0; j < m_layer.size(); j++) {
+					if(isValid(row, col) && m_layer[j][col][row].first != -1) {
+						m_selectedCells.push_back(m_cells[m_layer[j][col][row].second]);
+						m_selectedCells.back().get().selected = true;
+					}
+				}
+
+			}
+		}
 
 		m_mouseDown = false;
 		m_mouseX = mouseViewX;
@@ -376,6 +385,15 @@ void Game::renderUi() {
 
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+}
+
+void Game::unselect() {
+	std::for_each(m_selectedCells.begin(), m_selectedCells.end(), [](std::reference_wrapper<Cell> const& cell) {
+		cell.get().selected = false;
+	});
+
+	m_selectedCells.clear();
+
 }
 
 void Game::loadTileSet(std::string name) {

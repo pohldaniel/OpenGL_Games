@@ -82,12 +82,14 @@ private:
 	int numLayers = 0;
 
 	std::vector<Cell> m_cells;
+	std::vector<std::reference_wrapper<Cell>> m_selectedCells;
 	std::vector<Cell> m_visibleCells;
 	bool move;
 
 	void culling();
 	void drawCullingRect();
 	void drawMouseRect();
+	void unselect();
 
 	float m_left, m_right, m_bottom, m_top;
 	float m_screeBorder = 0.0f;
