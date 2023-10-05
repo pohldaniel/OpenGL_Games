@@ -23,19 +23,10 @@
 #include "Tile.h"
 
 struct Cell {
-
-	//Cell()
-
-	const TextureRect& rect;
-	//float boundX;
-	//float boundY;
+	const TextureRect& rect;	
 	float posX;
 	float posY;
-	bool visible;
-	int row;
-	int col;
-	int layer;
-
+	bool selected;
 };
 
 class Game : public State, public MouseEventListener, public KeyboardEventListener {
@@ -82,7 +73,7 @@ private:
 	void loadMap(std::string name);
 	void SkipFileKey(std::ifstream & read);
 
-	std::vector<unsigned int**> m_layer;
+	std::vector<std::pair<int, unsigned int>**> m_layer;
 
 	int numColumns = 0;
 	int numRows = 0;
@@ -103,12 +94,19 @@ private:
 	float m_zoomFactor = 1.0f;
 	float m_focusPointY;
 	float m_focusPointX;
+	float m_enlargeBorder = 100.0f;
 
 	void cartesianToIsometric(float & x, float & y, float cellWidth = 32.0f, float cellHeight = 32.0f);
 	void isometricToCartesian(float& x, float& y, float cellWidth = 32.0f, float cellHeight = 32.0f);
 	void isometricToCartesian(float x, float y, int& row, int& col, float cellWidth = 32.0f, float cellHeight = 32.0f);
+	void isometricToCartesian(float x, float y, int& row, int& col, float cellWidth, float cellHeight, int min, int max);
+
 	void isometricToRow(float x, float y, int& row, float cellWidth = 32.0f);
+	void isometricToRow(float x, float y, int& row, float cellWidth, int min, int max);
+
 	void isometricToCol(float x, float y, int& col, float cellHeight = 32.0f);
+	void isometricToCol(float x, float y, int& col, float cellHeight, int min, int max);
+
 	bool isValid(const int row, const int column) const;
 	std::array<Vector2f, 4> corners;
 
@@ -116,6 +114,4 @@ private:
 	float m_mouseX, m_mouseY;
 	float m_curMouseX, m_curMouseY;
 	int m_rowMin, m_rowMax, m_colMin, m_colMax;
-
-	int m_visRowMin, m_visRowMax, m_visColMin, m_visColMax;
 };
