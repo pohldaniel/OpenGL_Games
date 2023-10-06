@@ -30,6 +30,12 @@ struct Cell {
 	bool visible;
 };
 
+struct SingleSelectedCell {
+	int row;
+	int col;
+	bool found;
+};
+
 class Game : public State, public MouseEventListener, public KeyboardEventListener {
 
 public:
@@ -50,10 +56,6 @@ public:
 
 private:
 
-	void applyTransformation(TrackBall& arc);
-	void renderUi();
-	
-
 	Camera m_camera;
 	TrackBall m_trackball;
 	Transform m_transform;
@@ -62,6 +64,12 @@ private:
 	bool m_drawUi = true;
 	bool m_useCulling = true;
 	bool m_drawCullingRect = false;
+	float m_left, m_right, m_bottom, m_top;
+	float m_screeBorder = 0.0f;
+	float m_zoomFactor = 1.0f;
+	float m_focusPointY;
+	float m_focusPointX;
+	float m_enlargeBorder = 100.0f;
 
 	Background m_background;
 	ZoomableQuad m_zoomableQuad;
@@ -69,10 +77,6 @@ private:
 
 	std::vector<TextureRect> m_textureRects;
 	unsigned int m_atlas;
-
-	void loadTileSet(std::string name);
-	void loadMap(std::string name);
-	void SkipFileKey(std::ifstream & read);
 
 	std::vector<std::pair<int, unsigned int>**> m_layer;
 
@@ -83,27 +87,30 @@ private:
 	int numLayers = 0;
 
 	std::vector<Cell> m_cells;
-	std::vector<std::reference_wrapper<Cell>> m_selectedCells;
-
-	//std::vector<std::vector<std::reference_wrapper<Cell>>> m_selectedChunks;
-
 	std::vector<Cell> m_visibleCells;
+	std::vector<std::reference_wrapper<Cell>> m_selectedCells;
+	std::vector<std::reference_wrapper<Cell>> m_cellCache;
+	std::vector<SingleSelectedCell> m_singleCache;
+
 	bool move;
-	//int m_chunk = -1;
-	//bool m_pushChunk = true;
+	std::array<Vector2f, 4> m_cullingVerteices;
+
+	bool m_mouseDown = false;
+	float m_mouseX, m_mouseY;
+	float m_curMouseX, m_curMouseY;
+
+	void loadTileSet(std::string name);
+	void loadMap(std::string name);
+	void SkipFileKey(std::ifstream & read);
+
+	void applyTransformation(TrackBall& arc);
+	void renderUi();
 	void culling();
 	void drawCullingRect();
 	void drawMouseRect();
-	void unselect(bool visible, bool selected, bool clear, int chunk = -1);
-	void resetAllChunks();
 
-
-	float m_left, m_right, m_bottom, m_top;
-	float m_screeBorder = 0.0f;
-	float m_zoomFactor = 1.0f;
-	float m_focusPointY;
-	float m_focusPointX;
-	float m_enlargeBorder = 100.0f;
+	void processCache(std::vector<std::reference_wrapper<Cell>>& cache, bool visible, bool selected, bool clear);
+	void processCache(std::vector<std::reference_wrapper<Cell>>& cache, bool visible, bool selected, std::vector<std::reference_wrapper<Cell>>& storage, bool clearAfterCopy);
 
 	void cartesianToIsometric(float & x, float & y, float cellWidth = 32.0f, float cellHeight = 32.0f);
 	void isometricToCartesian(float& x, float& y, float cellWidth = 32.0f, float cellHeight = 32.0f);
@@ -117,10 +124,6 @@ private:
 	void isometricToCol(float x, float y, int& col, float cellHeight, int min, int max);
 
 	bool isValid(const int row, const int column) const;
-	std::array<Vector2f, 4> corners;
 
-	bool m_mouseDown = false;
-	float m_mouseX, m_mouseY;
-	float m_curMouseX, m_curMouseY;
-	int m_rowMin, m_rowMax, m_colMin, m_colMax;
+	static bool FindSingleCell(SingleSelectedCell const& s1, SingleSelectedCell const& s2);
 };
