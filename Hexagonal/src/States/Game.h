@@ -21,6 +21,7 @@
 #include "Camera.h"
 #include "Map.h"
 #include "Tile.h"
+#include "Rasterizer.h"
 
 struct Cell {
 	const TextureRect& rect;	
@@ -116,4 +117,9 @@ private:
 	float m_mouseX, m_mouseY;
 	float m_curMouseX, m_curMouseY;
 	int m_rowMin, m_rowMax, m_colMin, m_colMax;
+	uint32_t* pixels;
+	Rasterizer rast;
+	Color color1;
+	Color color2;
+	Color color3;
 };
