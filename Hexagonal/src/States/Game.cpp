@@ -441,8 +441,6 @@ void Game::OnMouseMotion(Event::MouseMoveEvent& event) {
 		//supercover_line( startX, startY ,  endX, endY , points);
 		//linev5(startX, startY, endX, endY, points);
 
-		
-
 		/*int point01, point02;
 		isometricToCartesian(corners[0][0] + offsetX, corners[0][1] + offsetY, point01, point02, cellWidth * m_zoomFactor, cellHeight * m_zoomFactor);
 
@@ -471,15 +469,18 @@ void Game::OnMouseMotion(Event::MouseMoveEvent& event) {
 		rasterTriangle(initial2, points);
 
 		for (auto point : points) {
-			//int row, col;
-			//isometricToCartesian(point[0] + offsetX, point[1] + offsetY, row, col, cellWidth * m_zoomFactor, cellHeight * m_zoomFactor);
+			int row, col;
+			isometricToCartesian(point[0] + offsetX, point[1] + offsetY, row, col, cellWidth * m_zoomFactor, cellHeight * m_zoomFactor);
 			for (int j = 0; j < m_layer.size(); j++) {
 				if (isValid(row, col) && m_layer[j][col][row].first != -1) {
-						if (!m_cells[m_layer[j][col][row].second].selected) {
-							m_cachedCells.push_back(m_cells[m_layer[j][col][row].second]);
-							m_cachedCells.back().get().selected = true;
-						}
+					if (!m_cells[m_layer[j][col][row].second].selected) {
+						m_cellCache.push_back(m_cells[m_layer[j][col][row].second]);
+						m_cellCache.back().get().selected = true;
 					}
+					SingleSelectedCell defaultCell = { row, col, false };
+					std::vector<SingleSelectedCell>::iterator it = std::find_if(m_singleCache.begin(), m_singleCache.end(), std::bind(FindSingleCell, std::placeholders::_1, defaultCell));
+					it->found = true;
+				}
 			}
 		}*/
 
@@ -962,16 +963,16 @@ void Game::culling() {
 
 	Vector3f m_position = m_camera.getPosition();
 
-	m_cullingVerteices[0] = Vector2f(m_left  + m_screeBorder, m_bottom + m_screeBorder) + Vector2f(m_zoomFactor * (m_position[0] + m_focusPointX) - m_focusPointX, m_zoomFactor * (m_position[1] + m_focusPointY) - m_focusPointY);
-	m_cullingVerteices[1] = Vector2f(m_left  + m_screeBorder, m_top - m_screeBorder)    + Vector2f(m_zoomFactor * (m_position[0] + m_focusPointX) - m_focusPointX, m_zoomFactor * (m_position[1] + m_focusPointY) - m_focusPointY);
-	m_cullingVerteices[2] = Vector2f(m_right - m_screeBorder, m_top - m_screeBorder)    + Vector2f(m_zoomFactor * (m_position[0] + m_focusPointX) - m_focusPointX, m_zoomFactor * (m_position[1] + m_focusPointY) - m_focusPointY);
-	m_cullingVerteices[3] = Vector2f(m_right - m_screeBorder, m_bottom + m_screeBorder) + Vector2f(m_zoomFactor * (m_position[0] + m_focusPointX) - m_focusPointX, m_zoomFactor * (m_position[1] + m_focusPointY) - m_focusPointY);
+	m_cullingVertices[0] = Vector2f(m_left  + m_screeBorder, m_bottom + m_screeBorder) + Vector2f(m_zoomFactor * (m_position[0] + m_focusPointX) - m_focusPointX, m_zoomFactor * (m_position[1] + m_focusPointY) - m_focusPointY);
+	m_cullingVertices[1] = Vector2f(m_left  + m_screeBorder, m_top - m_screeBorder)    + Vector2f(m_zoomFactor * (m_position[0] + m_focusPointX) - m_focusPointX, m_zoomFactor * (m_position[1] + m_focusPointY) - m_focusPointY);
+	m_cullingVertices[2] = Vector2f(m_right - m_screeBorder, m_top - m_screeBorder)    + Vector2f(m_zoomFactor * (m_position[0] + m_focusPointX) - m_focusPointX, m_zoomFactor * (m_position[1] + m_focusPointY) - m_focusPointY);
+	m_cullingVertices[3] = Vector2f(m_right - m_screeBorder, m_bottom + m_screeBorder) + Vector2f(m_zoomFactor * (m_position[0] + m_focusPointX) - m_focusPointX, m_zoomFactor * (m_position[1] + m_focusPointY) - m_focusPointY);
 
 	int rowMin, rowMax, colMin, colMax;
-	isometricToCol(m_cullingVerteices[0][0] - m_enlargeBorder, m_cullingVerteices[0][1] - m_enlargeBorder, colMax, cellHeight * m_zoomFactor, 0, 128);
-	isometricToRow(m_cullingVerteices[3][0] + m_enlargeBorder, m_cullingVerteices[3][1] - m_enlargeBorder, rowMax, cellWidth  * m_zoomFactor, 0, 128);
-	isometricToRow(m_cullingVerteices[1][0],                   m_cullingVerteices[1][1],                   rowMin, cellWidth  * m_zoomFactor, 0, 128);
-	isometricToCol(m_cullingVerteices[2][0],                   m_cullingVerteices[2][1],                   colMin, cellHeight * m_zoomFactor, 0, 128);
+	isometricToCol(m_cullingVertices[0][0] - m_enlargeBorder, m_cullingVertices[0][1] - m_enlargeBorder, colMax, cellHeight * m_zoomFactor, 0, 128);
+	isometricToRow(m_cullingVertices[3][0] + m_enlargeBorder, m_cullingVertices[3][1] - m_enlargeBorder, rowMax, cellWidth  * m_zoomFactor, 0, 128);
+	isometricToRow(m_cullingVertices[1][0]                  , m_cullingVertices[1][1]                  , rowMin, cellWidth  * m_zoomFactor, 0, 128);
+	isometricToCol(m_cullingVertices[2][0]                  , m_cullingVertices[2][1]                  , colMin, cellHeight * m_zoomFactor, 0, 128);
  
 	m_visibleCells.clear();
 	
@@ -1001,10 +1002,10 @@ void Game::drawCullingRect() {
 	glBegin(GL_QUADS);
 	glColor3f(1.0f, 0.0f, 0.0f);
 
-	glVertex3f(m_cullingVerteices[0][0], m_cullingVerteices[0][1], 0.0f);
-	glVertex3f(m_cullingVerteices[1][0], m_cullingVerteices[1][1], 0.0f);
-	glVertex3f(m_cullingVerteices[2][0], m_cullingVerteices[2][1], 0.0f);
-	glVertex3f(m_cullingVerteices[3][0], m_cullingVerteices[3][1], 0.0f);
+	glVertex3f(m_cullingVertices[0][0], m_cullingVertices[0][1], 0.0f);
+	glVertex3f(m_cullingVertices[1][0], m_cullingVertices[1][1], 0.0f);
+	glVertex3f(m_cullingVertices[2][0], m_cullingVertices[2][1], 0.0f);
+	glVertex3f(m_cullingVertices[3][0], m_cullingVertices[3][1], 0.0f);
 
 	glEnd();
 	glPopMatrix();
@@ -1024,45 +1025,6 @@ void  Game::drawMouseRect() {
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
-	
-
-	/*float left = std::min(m_mouseX, m_curMouseX);
-	float bottom = std::min(m_mouseY, m_curMouseY);
-	cartesianToIsometric(left, bottom, cellWidth * m_zoomFactor, cellHeight * m_zoomFactor);
-	glVertex3f(left, bottom, 0.0f);
-
-	left = std::min(m_mouseX, m_curMouseX);
-	float top = std::max(m_mouseY, m_curMouseY);
-	cartesianToIsometric(left, top, cellWidth * m_zoomFactor, cellHeight * m_zoomFactor);
-	glVertex3f(left, top , 0.0f);
-
-	float right = std::max(m_mouseX, m_curMouseX);
-	top = std::max(m_mouseY, m_curMouseY);
-	cartesianToIsometric(right, top, cellWidth * m_zoomFactor, cellHeight * m_zoomFactor);
-	glVertex3f(right, top , 0.0f);
-
-	right = std::max(m_mouseX, m_curMouseX);
-	bottom = std::min(m_mouseY, m_curMouseY);
-	cartesianToIsometric(right, bottom, cellWidth * m_zoomFactor, cellHeight * m_zoomFactor);
-	glVertex3f(right, bottom , 0.0f);*/
-
-	/*float left = std::min(m_mouseX, m_curMouseX);
-	float bottom = std::min(m_mouseY, m_curMouseY);
-
-
-	float _left = std::min(m_mouseX, m_curMouseX);
-	float _bottom = std::min(m_mouseY, m_curMouseY);
-	float top = std::max(m_mouseY, m_curMouseY);
-	float right = std::max(m_mouseX, m_curMouseX);
-	std::cout << "Left: " << left << " Bottom: " << bottom << std::endl;
-	isometricToCartesian(_left, _bottom, right - left, top - bottom);
-	std::cout << "_Left: " << _left << " _Bottom: " << _bottom << std::endl;
-
-	glVertex3f(_left, -_bottom , 0.0f);
-	glVertex3f(left,  top, 0.0f);
-	glVertex3f(right, top, 0.0f);
-	glVertex3f(right, bottom, 0.0f);*/
-
 	float left = std::min(m_mouseX, m_curMouseX);
 	float bottom = std::min(m_mouseY, m_curMouseY);
 	float top = std::max(m_mouseY, m_curMouseY);
@@ -1073,7 +1035,7 @@ void  Game::drawMouseRect() {
 	float _top = top + (top - bottom) * 0.5f;
 	float _right = right + (right - left) * 0.5f;
 
-	std::array<Vector2f, 4> corners;
+	/*std::array<Vector2f, 4> corners;
 	corners[0] = Vector2f(left, bottom);
 	corners[1] = Vector2f(left, top);
 	corners[2] = Vector2f(right, top);
@@ -1086,22 +1048,22 @@ void  Game::drawMouseRect() {
 	glVertex3f(left, top, 0.0f);
 	glVertex3f(right, top, 0.0f);
 	glVertex3f(right, bottom, 0.0f);
-	glEnd();
+	glEnd();*/
 	
-
-	/*corners[0] = Vector2f(left - (right - left) * 0.5f, bottom + (top - bottom) * 0.5f);
-	corners[1] = Vector2f(left + (right - left) * 0.5f, top + (top - bottom) * 0.5f);
-	corners[2] = Vector2f(right + (right - left) * 0.5f, bottom + (top - bottom) * 0.5f);
-	corners[3] = Vector2f(left + (right - left) * 0.5f, bottom - (top - bottom) * 0.5f);
+	std::array<Vector2f, 4> m_vertices;
+	m_vertices[0] = Vector2f(left - (right - left) * 0.5f, bottom + (top - bottom) * 0.5f);
+	m_vertices[1] = Vector2f(left + (right - left) * 0.5f, top + (top - bottom) * 0.5f);
+	m_vertices[2] = Vector2f(right + (right - left) * 0.5f, bottom + (top - bottom) * 0.5f);
+	m_vertices[3] = Vector2f(left + (right - left) * 0.5f, bottom - (top - bottom) * 0.5f);
 
 
 	glBegin(GL_QUADS);
 	glColor3f(0.0f, 1.0f, 0.0f);
-	glVertex3f(corners[0][0], corners[0][1], 0.0f);
-	glVertex3f(corners[1][0], corners[1][1], 0.0f);
-	glVertex3f(corners[2][0], corners[2][1], 0.0f);
-	glVertex3f(corners[3][0], corners[3][1], 0.0f);
-	glEnd();*/
+	glVertex3f(m_vertices[0][0], m_vertices[0][1], 0.0f);
+	glVertex3f(m_vertices[1][0], m_vertices[1][1], 0.0f);
+	glVertex3f(m_vertices[2][0], m_vertices[2][1], 0.0f);
+	glVertex3f(m_vertices[3][0], m_vertices[3][1], 0.0f);
+	glEnd();
 
 	glLineWidth(1.0f);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);

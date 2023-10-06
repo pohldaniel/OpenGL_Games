@@ -93,7 +93,7 @@ private:
 	std::vector<SingleSelectedCell> m_singleCache;
 
 	bool move;
-	std::array<Vector2f, 4> m_cullingVerteices;
+	std::array<Vector2f, 4> m_cullingVertices;
 
 	bool m_mouseDown = false;
 	float m_mouseX, m_mouseY;
