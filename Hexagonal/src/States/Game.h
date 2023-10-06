@@ -23,7 +23,7 @@
 #include "Tile.h"
 
 struct Cell {
-	const TextureRect& rect;	
+	const TextureRect& rect;
 	float posX;
 	float posY;
 	bool selected;

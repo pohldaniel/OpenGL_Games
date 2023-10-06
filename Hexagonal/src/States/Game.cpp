@@ -140,7 +140,7 @@ void Game::render() {
 	glEnable(GL_BLEND);
 	auto shader = Globals::shaderManager.getAssetPointer("quad_array");
 	shader->use();
-	
+
 	const TextureRect& rect = TileSet::Get().getTextureRects()[11];
 	shader->loadMatrix("u_transform", m_camera.getOrthographicMatrix() * Matrix4f::Scale(rect.width, rect.height, 0.0f));
 	shader->loadVector("u_texRect", Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureOffsetX + rect.textureWidth, rect.textureOffsetY + rect.textureHeight));
@@ -165,8 +165,8 @@ void Game::render() {
 
 	Spritesheet::Bind(m_atlas);
 	for (auto cell : m_useCulling ? m_visibleCells : m_cells) {
-		if(cell.visible)
-			Batchrenderer::Get().addQuadAA(Vector4f(cell.posX * m_zoomFactor + (m_camera.getPositionX() + m_focusPointX) * (1.0f - m_zoomFactor), cell.posY * m_zoomFactor + (m_camera.getPositionY() + m_focusPointY) * (1.0f - m_zoomFactor), cell.rect.width * m_zoomFactor, cell.rect.height * m_zoomFactor), Vector4f(cell.rect.textureOffsetX, cell.rect.textureOffsetY, cell.rect.textureWidth, cell.rect.textureHeight), cell.selected ? Vector4f(0.5f, 0.5f, 0.5f, 1.0f) :  Vector4f(1.0f, 1.0f, 1.0f, 1.0f), cell.rect.frame);
+		if (cell.visible)
+			Batchrenderer::Get().addQuadAA(Vector4f(cell.posX * m_zoomFactor + (m_camera.getPositionX() + m_focusPointX) * (1.0f - m_zoomFactor), cell.posY * m_zoomFactor + (m_camera.getPositionY() + m_focusPointY) * (1.0f - m_zoomFactor), cell.rect.width * m_zoomFactor, cell.rect.height * m_zoomFactor), Vector4f(cell.rect.textureOffsetX, cell.rect.textureOffsetY, cell.rect.textureWidth, cell.rect.textureHeight), cell.selected ? Vector4f(0.5f, 0.5f, 0.5f, 1.0f) : Vector4f(1.0f, 1.0f, 1.0f, 1.0f), cell.rect.frame);
 	}
 
 	Batchrenderer::Get().drawBufferRaw();
@@ -174,7 +174,7 @@ void Game::render() {
 	shader->unuse();
 	glDisable(GL_BLEND);
 
-	if(m_drawCullingRect)
+	if (m_drawCullingRect)
 		drawCullingRect();
 
 	drawMouseRect();
@@ -207,7 +207,7 @@ void supercover_line(int x, int y, int x2, int y2, std::vector<std::array<int, 2
 		int decision = (1 + 2 * ix) * ny - (1 + 2 * iy) * nx;
 		if (decision == 0) {
 			// next step is diagonal
-			p[0] += sign_x ;
+			p[0] += sign_x;
 			p[1] += sign_y;
 			ix = ix + 1;
 			iy = iy + 1;
@@ -286,7 +286,7 @@ void fillFlatSideTriangleInt(std::array<int, 2>  v1, std::array<int, 2> v2, std:
 	int dx2 = abs(v3[0] - v1[0]);
 	int dy2 = abs(v3[1] - v1[1]);
 
-	if (dx1 == 0.0f) {	
+	if (dx1 == 0.0f) {
 		return;
 	}
 
@@ -373,18 +373,20 @@ void fillFlatSideTriangleInt(std::array<int, 2>  v1, std::array<int, 2> v2, std:
 
 void rasterTriangle(std::vector<std::array<int, 2>>& initial, std::vector<std::array<int, 2>>& points) {
 
-	std::sort(initial.begin(), initial.end(), [](const std::array<int, 2> &a, const std::array<int, 2> &b){
+	std::sort(initial.begin(), initial.end(), [](const std::array<int, 2> &a, const std::array<int, 2> &b) {
 		return a[1] > b[1];
 	});
 
 
-	if (initial[1][1] == initial[2][2]){
+	if (initial[1][1] == initial[2][2]) {
 		fillFlatSideTriangleInt({ initial[0][0],initial[0][1] }, { initial[1][0],initial[1][1] }, { initial[2][0],initial[2][1] }, points);
 
-	}else if (initial[0][1] == initial[1][1]){
+	}
+	else if (initial[0][1] == initial[1][1]) {
 		fillFlatSideTriangleInt({ initial[2][0],initial[2][1] }, { initial[0][0],initial[0][1] }, { initial[1][0],initial[1][1] }, points);
 
-	}else{
+	}
+	else {
 		std::array<int, 2> vTmp = { (int)(initial[0][0] + ((float)(initial[1][1] - initial[0][1]) / (float)(initial[2][1] - initial[0][1])) * (initial[2][0] - initial[0][0])), initial[1][1] };
 		fillFlatSideTriangleInt({ initial[0][0],initial[0][1] }, { initial[1][0],initial[1][1] }, vTmp, points);
 		fillFlatSideTriangleInt({ initial[2][0],initial[2][1] }, { initial[1][0],initial[1][1] }, vTmp, points);
@@ -394,9 +396,9 @@ void rasterTriangle(std::vector<std::array<int, 2>>& initial, std::vector<std::a
 void Game::OnMouseMotion(Event::MouseMoveEvent& event) {
 	m_trackball.motion(event.x, event.y);
 	applyTransformation(m_trackball);
-	
+
 	if (m_mouseDown) {
-	
+
 		for (auto cell : m_singleCache) {
 			cell.found = false;
 		}
@@ -419,29 +421,28 @@ void Game::OnMouseMotion(Event::MouseMoveEvent& event) {
 
 		std::array<Vector2f, 4> corners;
 
-		corners[0] = Vector2f(left, bottom);
-		corners[1] = Vector2f(left, top);
-		corners[2] = Vector2f(right, top);
-		corners[3] = Vector2f(right, bottom);
+		//corners[0] = Vector2f(left, bottom);
+		//corners[1] = Vector2f(left, top);
+		//corners[2] = Vector2f(right, top);
+		//corners[3] = Vector2f(right, bottom);
 
-		//corners[0] = Vector2f(left - (right - left) * 0.5f, bottom + (top - bottom) * 0.5f);
-		//corners[1] = Vector2f(left + (right - left) * 0.5f, top + (top - bottom) * 0.5f);
-		//corners[2] = Vector2f(right + (right - left) * 0.5f, bottom + (top - bottom) * 0.5f);
-		//corners[3] = Vector2f(left + (right - left) * 0.5f, bottom - (top - bottom) * 0.5f);
-
+		corners[0] = Vector2f(left - (right - left) * 0.5f, bottom + (top - bottom) * 0.5f);
+		corners[1] = Vector2f(left + (right - left) * 0.5f, top + (top - bottom) * 0.5f);
+		corners[2] = Vector2f(right + (right - left) * 0.5f, bottom + (top - bottom) * 0.5f);
+		corners[3] = Vector2f(left + (right - left) * 0.5f, bottom - (top - bottom) * 0.5f);
 
 		std::vector<std::array<int, 2>> points;
 		points.clear();
 
 		//int startX, startY;
 		//isometricToCartesian(m_mouseX + offsetX, m_mouseY + offsetY, startX, startY, cellWidth * m_zoomFactor, cellHeight * m_zoomFactor);
-	
+
 		//int endX, endY;
 		//isometricToCartesian(mouseViewX + offsetX, mouseViewY + offsetY, endX, endY, cellWidth * m_zoomFactor, cellHeight * m_zoomFactor);
 		//supercover_line( startX, startY ,  endX, endY , points);
 		//linev5(startX, startY, endX, endY, points);
 
-		/*int point01, point02;
+		int point01, point02;
 		isometricToCartesian(corners[0][0] + offsetX, corners[0][1] + offsetY, point01, point02, cellWidth * m_zoomFactor, cellHeight * m_zoomFactor);
 
 		int point11, point12;
@@ -452,7 +453,7 @@ void Game::OnMouseMotion(Event::MouseMoveEvent& event) {
 
 		int point31, point32;
 		isometricToCartesian(corners[3][0] + offsetX, corners[3][1] + offsetY, point31, point32, cellWidth * m_zoomFactor, cellHeight * m_zoomFactor);
-		
+
 
 		std::vector<std::array<int, 2>> initial;
 		initial.push_back({ point01, point02 });
@@ -469,27 +470,25 @@ void Game::OnMouseMotion(Event::MouseMoveEvent& event) {
 		rasterTriangle(initial2, points);
 
 		for (auto point : points) {
-			int row, col;
-			isometricToCartesian(point[0] + offsetX, point[1] + offsetY, row, col, cellWidth * m_zoomFactor, cellHeight * m_zoomFactor);
 			for (int j = 0; j < m_layer.size(); j++) {
-				if (isValid(row, col) && m_layer[j][col][row].first != -1) {
-					if (!m_cells[m_layer[j][col][row].second].selected) {
-						m_cellCache.push_back(m_cells[m_layer[j][col][row].second]);
+				if (isValid(point[0], point[1]) && m_layer[j][point[1]][point[0]].first != -1) {
+					if (!m_cells[m_layer[j][point[1]][point[0]].second].selected && m_cells[m_layer[j][point[1]][point[0]].second].visible) {
+						m_cellCache.push_back(m_cells[m_layer[j][point[1]][point[0]].second]);
 						m_cellCache.back().get().selected = true;
 					}
-					SingleSelectedCell defaultCell = { row, col, false };
+					SingleSelectedCell defaultCell = { point[0], point[1], false };
 					std::vector<SingleSelectedCell>::iterator it = std::find_if(m_singleCache.begin(), m_singleCache.end(), std::bind(FindSingleCell, std::placeholders::_1, defaultCell));
 					it->found = true;
 				}
 			}
-		}*/
+		}
 
 		//int _left = static_cast<int>(floor(std::min(m_mouseX, mouseViewX) / (32.0f * m_zoomFactor)) * 32.0f * m_zoomFactor);
 		//int _right = static_cast<int>(ceil(std::max(m_mouseX, mouseViewX) / (32.0f * m_zoomFactor)) * 32.0f * m_zoomFactor);
 		//int _bottom = static_cast<int>(ceil(std::min(m_mouseY, mouseViewY) / (16.0f * m_zoomFactor)) * 16.0f * m_zoomFactor);
 		//int _top = static_cast<int>(floor(std::max(m_mouseY, mouseViewY) / (16.0f * m_zoomFactor)) * 16.0f * m_zoomFactor);
 
-		int _left = static_cast<int>(std::min(m_mouseX, mouseViewX));
+		/*int _left = static_cast<int>(std::min(m_mouseX, mouseViewX));
 		int _right = static_cast<int>(std::max(m_mouseX, mouseViewX));
 		int _bottom = static_cast<int>(std::min(m_mouseY, mouseViewY));
 		int _top = static_cast<int>(std::max(m_mouseY, mouseViewY));
@@ -500,24 +499,24 @@ void Game::OnMouseMotion(Event::MouseMoveEvent& event) {
 				isometricToCartesian(x + offsetX, y + offsetY, row, col, cellWidth  * m_zoomFactor, cellHeight  * m_zoomFactor);
 				for (int j = 0; j < m_layer.size(); j++) {
 					if (isValid(row, col) && m_layer[j][col][row].first != -1) {
-						if (!m_cells[m_layer[j][col][row].second].selected) {
+						if (!m_cells[m_layer[j][col][row].second].selected && m_cells[m_layer[j][col][row].second].visible) {
 							m_cellCache.push_back(m_cells[m_layer[j][col][row].second]);
 							m_cellCache.back().get().selected = true;
 						}
 						SingleSelectedCell defaultCell = { row, col, false };
 						std::vector<SingleSelectedCell>::iterator it = std::find_if(m_singleCache.begin(), m_singleCache.end(), std::bind(FindSingleCell, std::placeholders::_1, defaultCell));
-						it->found = true;						
+						it->found = true;
 					}
 				}
 
 			}
-		}
-		
+		}*/
+
 	}
 }
 
 void Game::OnMouseButtonDown(Event::MouseButtonEvent& event) {
-	if (event.button == 1u) {		
+	if (event.button == 1u) {
 		m_trackball.mouse(TrackBall::Button::ELeftButton, TrackBall::Modifier::ENoModifier, true, event.x, event.y);
 		applyTransformation(m_trackball);
 
@@ -528,7 +527,7 @@ void Game::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 		//view
 		//float mouseViewX = 0.5f * (m_right * (mouseNDCX + 1.0f) + m_left   * (1.0f - mouseNDCX));
 		//float mouseViewY = 0.5f * (m_top   * (mouseNDCY + 1.0f) + m_bottom * (1.0f - mouseNDCY));
-		
+
 		float mouseViewX = static_cast<float>(event.x);
 		float mouseViewY = static_cast<float>(Application::Height - event.y);
 
@@ -539,15 +538,17 @@ void Game::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 		int row, col;
 		isometricToCartesian(mouseWorldX, mouseWorldY, row, col, cellWidth  * m_zoomFactor, cellHeight  * m_zoomFactor);
 		for (int j = 0; j < m_layer.size(); j++) {
-			if(isValid(row, col) && m_layer[j][col][row].first != -1) {			
+			if (isValid(row, col) && m_layer[j][col][row].first != -1) {
 				m_selectedCells.push_back(m_cells[m_layer[j][col][row].second]);
 				Cell& cell = m_selectedCells.back();
 				cell.selected = !cell.selected;
+				//cell.selected = true;
 
-				if (cell.selected) {
+				if (cell.selected && cell.visible) {
 					m_singleCache.push_back({ row, col, false });
-				}else {
-					m_singleCache.erase(std::remove_if(m_singleCache.begin(), m_singleCache.end(), [](SingleSelectedCell cell) {return cell.found;}), m_singleCache.end());
+				}
+				else {
+					m_singleCache.erase(std::remove_if(m_singleCache.begin(), m_singleCache.end(), [](SingleSelectedCell cell) {return cell.found; }), m_singleCache.end());
 				}
 			}
 		}
@@ -557,14 +558,15 @@ void Game::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 		m_curMouseX = m_mouseX;
 		m_curMouseY = m_mouseY;
 
-	}else if (event.button == 2u) {
+	}
+	else if (event.button == 2u) {
 		processCache(m_selectedCells, true, false, true);
 		Mouse::instance().attach(Application::GetWindow());
 	}
 }
 
 void Game::OnMouseButtonUp(Event::MouseButtonEvent& event) {
-	if (event.button == 1u) {		
+	if (event.button == 1u) {
 		m_trackball.mouse(TrackBall::Button::ELeftButton, TrackBall::Modifier::ENoModifier, false, event.x, event.y);
 		applyTransformation(m_trackball);
 
@@ -577,22 +579,24 @@ void Game::OnMouseButtonUp(Event::MouseButtonEvent& event) {
 		m_curMouseX = m_mouseX;
 		m_curMouseY = m_mouseY;
 
-		m_singleCache.erase(std::remove_if(m_singleCache.begin(), m_singleCache.end(),[this](SingleSelectedCell cell) {
+		m_singleCache.erase(std::remove_if(m_singleCache.begin(), m_singleCache.end(), [this](SingleSelectedCell cell) {
 			if (cell.found) {
 				for (int j = 0; j < m_layer.size(); j++) {
 					if (m_layer[j][cell.col][cell.row].first != -1) {
 						m_cells[m_layer[j][cell.col][cell.row].second].visible = false;
+						m_cells[m_layer[j][cell.col][cell.row].second].selected = true;
 					}
 				}
 			}
-			
+
 			return cell.found;
-			})
+		})
 			, m_singleCache.end()
-		);
+			);
 		processCache(m_cellCache, false, true, m_selectedCells, true);
 
-	}else if (event.button == 2u) {
+	}
+	else if (event.button == 2u) {
 		//m_drawUi = true;
 		Mouse::instance().detach();
 	}
@@ -743,24 +747,25 @@ void Game::loadTileSet(std::string name) {
 			height = imageHeight;
 
 			m_textureRects.push_back({ static_cast<float>(posX) / static_cast<float>(imageWidth),
-                                       static_cast<float>(posY) / static_cast<float>(imageHeight),
-                                       static_cast<float>(width) / static_cast<float>(imageWidth),
-                                       static_cast<float>(height) / static_cast<float>(imageHeight),
-                                       width,
-                                       height,
-                                       0u });
-		}else {
+				static_cast<float>(posY) / static_cast<float>(imageHeight),
+				static_cast<float>(width) / static_cast<float>(imageWidth),
+				static_cast<float>(height) / static_cast<float>(imageHeight),
+				width,
+				height,
+				0u });
+		}
+		else {
 
 			while (!readImageDef.eof()) {
 				readImageDef >> posX >> posY >> width >> height;
 
 				m_textureRects.push_back({ static_cast<float>(posX) / static_cast<float>(imageWidth),
-                                           static_cast<float>(posY) / static_cast<float>(imageHeight),
-                                           static_cast<float>(width) / static_cast<float>(imageWidth),
-                                           static_cast<float>(height) / static_cast<float>(imageHeight),
-                                           width,
-                                           height,
-                                           0u });
+					static_cast<float>(posY) / static_cast<float>(imageHeight),
+					static_cast<float>(width) / static_cast<float>(imageWidth),
+					static_cast<float>(height) / static_cast<float>(imageHeight),
+					width,
+					height,
+					0u });
 
 				readImageDef.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 			}
@@ -827,7 +832,7 @@ void Game::loadMap(std::string name) {
 		m_layer[layer] = new std::pair<int, unsigned int>*[numColumns];
 		for (int i = 0; i < numColumns; ++i)
 			m_layer[layer][i] = new std::pair<int, unsigned int>[numRows];
-																				// read one layer
+		// read one layer
 		while (read.peek() != '}') {
 			int tileType = INVALID_ID;
 			read >> m_layer[layer][column][row].first;
@@ -840,7 +845,7 @@ void Game::loadMap(std::string name) {
 				float cartX = static_cast<float>(row);
 				float cartY = static_cast<float>(column);
 				cartesianToIsometric(cartX, cartY, cellWidth, cellHeight);
-				m_cells.push_back({ rect, cartX, -cartY , false, true});
+				m_cells.push_back({ rect, cartX, -cartY , false, true });
 				m_layer[layer][column][row].second = m_cells.size() - 1;
 			}
 
@@ -848,7 +853,8 @@ void Game::loadMap(std::string name) {
 				read.ignore(1, '\n');
 				row = 0;
 				column++;
-			}else if (read.peek() == ',') {
+			}
+			else if (read.peek() == ',') {
 				read.ignore(1, ',');
 				row++;
 				if (row >= numRows) {
@@ -856,12 +862,12 @@ void Game::loadMap(std::string name) {
 					column++;
 				}
 			}
-			
-			
+
+
 		}
 		read.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 		++layer;
-		
+
 	}
 	read.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 }
@@ -890,7 +896,7 @@ void Game::isometricToCartesian(float& x, float& y, float cellWidth, float cellH
 	float isoX = x;
 	float isoY = y;
 
-	x =  (0.5f * isoX - isoY) / cellWidth;
+	x = (0.5f * isoX - isoY) / cellWidth;
 	y = -(0.5f * isoX + isoY) / cellHeight;
 }
 
@@ -902,7 +908,7 @@ void Game::isometricToCartesian(float x, float y, int& row, int& col, float cell
 	y = -(0.5f * isoX + isoY) / cellHeight;
 
 	row = static_cast<int>(std::roundf(x));
-	col = static_cast<int>(std::roundf(y )) + 1;
+	col = static_cast<int>(std::roundf(y)) + 1;
 }
 
 void Game::isometricToCartesian(float x, float y, int& row, int& col, float cellWidth, float cellHeight, int min, int max) {
@@ -919,7 +925,7 @@ void Game::isometricToCartesian(float x, float y, int& row, int& col, float cell
 	col = Math::Clamp(col, min, max);
 }
 
-void Game::isometricToRow(float x, float y, int& row,  float cellWidth) {
+void Game::isometricToRow(float x, float y, int& row, float cellWidth) {
 	float isoX = x;
 	float isoY = y;
 
@@ -963,24 +969,24 @@ void Game::culling() {
 
 	Vector3f m_position = m_camera.getPosition();
 
-	m_cullingVertices[0] = Vector2f(m_left  + m_screeBorder, m_bottom + m_screeBorder) + Vector2f(m_zoomFactor * (m_position[0] + m_focusPointX) - m_focusPointX, m_zoomFactor * (m_position[1] + m_focusPointY) - m_focusPointY);
-	m_cullingVertices[1] = Vector2f(m_left  + m_screeBorder, m_top - m_screeBorder)    + Vector2f(m_zoomFactor * (m_position[0] + m_focusPointX) - m_focusPointX, m_zoomFactor * (m_position[1] + m_focusPointY) - m_focusPointY);
-	m_cullingVertices[2] = Vector2f(m_right - m_screeBorder, m_top - m_screeBorder)    + Vector2f(m_zoomFactor * (m_position[0] + m_focusPointX) - m_focusPointX, m_zoomFactor * (m_position[1] + m_focusPointY) - m_focusPointY);
+	m_cullingVertices[0] = Vector2f(m_left + m_screeBorder, m_bottom + m_screeBorder) + Vector2f(m_zoomFactor * (m_position[0] + m_focusPointX) - m_focusPointX, m_zoomFactor * (m_position[1] + m_focusPointY) - m_focusPointY);
+	m_cullingVertices[1] = Vector2f(m_left + m_screeBorder, m_top - m_screeBorder) + Vector2f(m_zoomFactor * (m_position[0] + m_focusPointX) - m_focusPointX, m_zoomFactor * (m_position[1] + m_focusPointY) - m_focusPointY);
+	m_cullingVertices[2] = Vector2f(m_right - m_screeBorder, m_top - m_screeBorder) + Vector2f(m_zoomFactor * (m_position[0] + m_focusPointX) - m_focusPointX, m_zoomFactor * (m_position[1] + m_focusPointY) - m_focusPointY);
 	m_cullingVertices[3] = Vector2f(m_right - m_screeBorder, m_bottom + m_screeBorder) + Vector2f(m_zoomFactor * (m_position[0] + m_focusPointX) - m_focusPointX, m_zoomFactor * (m_position[1] + m_focusPointY) - m_focusPointY);
 
 	int rowMin, rowMax, colMin, colMax;
 	isometricToCol(m_cullingVertices[0][0] - m_enlargeBorder, m_cullingVertices[0][1] - m_enlargeBorder, colMax, cellHeight * m_zoomFactor, 0, 128);
 	isometricToRow(m_cullingVertices[3][0] + m_enlargeBorder, m_cullingVertices[3][1] - m_enlargeBorder, rowMax, cellWidth  * m_zoomFactor, 0, 128);
-	isometricToRow(m_cullingVertices[1][0]                  , m_cullingVertices[1][1]                  , rowMin, cellWidth  * m_zoomFactor, 0, 128);
-	isometricToCol(m_cullingVertices[2][0]                  , m_cullingVertices[2][1]                  , colMin, cellHeight * m_zoomFactor, 0, 128);
- 
+	isometricToRow(m_cullingVertices[1][0], m_cullingVertices[1][1], rowMin, cellWidth  * m_zoomFactor, 0, 128);
+	isometricToCol(m_cullingVertices[2][0], m_cullingVertices[2][1], colMin, cellHeight * m_zoomFactor, 0, 128);
+
 	m_visibleCells.clear();
-	
+
 
 	for (int j = 0; j < m_layer.size(); j++) {
 		for (int y = colMin; y < colMax; y++) {
 			for (int x = rowMin; x < rowMax; x++) {
-				if (m_layer[j][y][x].first != -1) {					
+				if (m_layer[j][y][x].first != -1) {
 					m_visibleCells.push_back(m_cells[m_layer[j][y][x].second]);
 				}
 
@@ -991,7 +997,7 @@ void Game::culling() {
 
 void Game::drawCullingRect() {
 	Vector3f m_position = m_camera.getPosition();
-	
+
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glMatrixMode(GL_PROJECTION);
 	glLoadMatrixf(&m_camera.getOrthographicMatrix()[0][0]);
@@ -1049,7 +1055,7 @@ void  Game::drawMouseRect() {
 	glVertex3f(right, top, 0.0f);
 	glVertex3f(right, bottom, 0.0f);
 	glEnd();*/
-	
+
 	std::array<Vector2f, 4> m_vertices;
 	m_vertices[0] = Vector2f(left - (right - left) * 0.5f, bottom + (top - bottom) * 0.5f);
 	m_vertices[1] = Vector2f(left + (right - left) * 0.5f, top + (top - bottom) * 0.5f);
