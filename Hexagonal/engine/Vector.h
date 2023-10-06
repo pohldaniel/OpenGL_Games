@@ -56,6 +56,10 @@ namespace Math {
 	T Clamp(const T& n, const T& lower, const T& upper) {
 		return std::max(lower, std::min(n, upper));
 	}
+
+	template <typename T> int sgn(T val) {
+		return (T(0) < val) - (val < T(0));
+	}
 };
 
 class Vector2f {

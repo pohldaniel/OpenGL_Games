@@ -7,3 +7,5 @@ https://thegimptutorials.com/how-to-mask/
 color change x
 
 https://www.youtube.com/watch?v=DkE4ZWIAt44
+
+https://stackoverflow.com/questions/7870533/c-triangle-rasterization

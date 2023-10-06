@@ -21,13 +21,13 @@
 #include "Camera.h"
 #include "Map.h"
 #include "Tile.h"
-#include "Rasterizer.h"
 
 struct Cell {
 	const TextureRect& rect;	
 	float posX;
 	float posY;
 	bool selected;
+	bool visible;
 };
 
 class Game : public State, public MouseEventListener, public KeyboardEventListener {
@@ -84,13 +84,19 @@ private:
 
 	std::vector<Cell> m_cells;
 	std::vector<std::reference_wrapper<Cell>> m_selectedCells;
+
+	//std::vector<std::vector<std::reference_wrapper<Cell>>> m_selectedChunks;
+
 	std::vector<Cell> m_visibleCells;
 	bool move;
-
+	//int m_chunk = -1;
+	//bool m_pushChunk = true;
 	void culling();
 	void drawCullingRect();
 	void drawMouseRect();
-	void unselect();
+	void unselect(bool visible, bool selected, bool clear, int chunk = -1);
+	void resetAllChunks();
+
 
 	float m_left, m_right, m_bottom, m_top;
 	float m_screeBorder = 0.0f;
@@ -117,9 +123,4 @@ private:
 	float m_mouseX, m_mouseY;
 	float m_curMouseX, m_curMouseY;
 	int m_rowMin, m_rowMax, m_colMin, m_colMax;
-	uint32_t* pixels;
-	Rasterizer rast;
-	Color color1;
-	Color color2;
-	Color color3;
 };
