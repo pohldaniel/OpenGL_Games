@@ -281,7 +281,8 @@ void Game::OnMouseMotion(Event::MouseMoveEvent& event) {
 						}
 						SingleSelectedCell defaultCell = { point[0], point[1], false };
 						std::vector<SingleSelectedCell>::iterator it = std::find_if(m_singleCache.begin(), m_singleCache.end(), std::bind(FindSingleCell, std::placeholders::_1, defaultCell));
-						it->found = true;
+						if (it != m_singleCache.end())
+							it->found = true;
 					}
 				}
 			}
@@ -306,7 +307,8 @@ void Game::OnMouseMotion(Event::MouseMoveEvent& event) {
 							}
 							SingleSelectedCell defaultCell = { row, col, false };
 							std::vector<SingleSelectedCell>::iterator it = std::find_if(m_singleCache.begin(), m_singleCache.end(), std::bind(FindSingleCell, std::placeholders::_1, defaultCell));
-							it->found = true;
+							if (it != m_singleCache.end())
+								it->found = true;
 						}
 					}
 
@@ -336,7 +338,8 @@ void Game::OnMouseMotion(Event::MouseMoveEvent& event) {
 							}
 							SingleSelectedCell defaultCell = { row, col, false };
 							std::vector<SingleSelectedCell>::iterator it = std::find_if(m_singleCache.begin(), m_singleCache.end(), std::bind(FindSingleCell, std::placeholders::_1, defaultCell));
-							it->found = true;
+							if (it != m_singleCache.end())
+								it->found = true;
 						}
 					}
 
@@ -354,7 +357,8 @@ void Game::OnMouseMotion(Event::MouseMoveEvent& event) {
 					}
 					SingleSelectedCell defaultCell = { row, col, false };
 					std::vector<SingleSelectedCell>::iterator it = std::find_if(m_singleCache.begin(), m_singleCache.end(), std::bind(FindSingleCell, std::placeholders::_1, defaultCell));
-					it->found = true;
+					if (it != m_singleCache.end())
+						it->found = true;
 				}
 			}
 		}	
