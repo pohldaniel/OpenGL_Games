@@ -36,6 +36,13 @@ struct SingleSelectedCell {
 	bool found;
 };
 
+enum SelectionMode {
+	BOXSELECTION,
+	ISOSELECTION,
+	MARKER,
+	RASTERIZER
+};
+
 class Game : public State, public MouseEventListener, public KeyboardEventListener {
 
 public:
@@ -55,49 +62,6 @@ public:
 	void OnKeyUp(Event::KeyboardEvent& event) override;
 
 private:
-
-	Camera m_camera;
-	TrackBall m_trackball;
-	Transform m_transform;
-
-	bool m_initUi = true;
-	bool m_drawUi = true;
-	bool m_useCulling = true;
-	bool m_drawCullingRect = false;
-	float m_left, m_right, m_bottom, m_top;
-	float m_screeBorder = 0.0f;
-	float m_zoomFactor = 1.0f;
-	float m_focusPointY;
-	float m_focusPointX;
-	float m_enlargeBorder = 100.0f;
-
-	Background m_background;
-	ZoomableQuad m_zoomableQuad;
-	Framebuffer m_mainRT;
-
-	std::vector<TextureRect> m_textureRects;
-	unsigned int m_atlas;
-
-	std::vector<std::pair<int, unsigned int>**> m_layer;
-
-	int numColumns = 0;
-	int numRows = 0;
-	int cellWidth = 0;
-	int cellHeight = 0;
-	int numLayers = 0;
-
-	std::vector<Cell> m_cells;
-	std::vector<Cell> m_visibleCells;
-	std::vector<std::reference_wrapper<Cell>> m_selectedCells;
-	std::vector<std::reference_wrapper<Cell>> m_cellCache;
-	std::vector<SingleSelectedCell> m_singleCache;
-
-	bool move;
-	std::array<Vector2f, 4> m_cullingVertices;
-
-	bool m_mouseDown = false;
-	float m_mouseX, m_mouseY;
-	float m_curMouseX, m_curMouseY;
 
 	void loadTileSet(std::string name);
 	void loadMap(std::string name);
@@ -124,6 +88,54 @@ private:
 	void isometricToCol(float x, float y, int& col, float cellHeight, int min, int max);
 
 	bool isValid(const int row, const int column) const;
+
+	Camera m_camera;
+	TrackBall m_trackball;
+	Transform m_transform;
+
+	bool m_initUi = true;
+	bool m_drawUi = true;
+	bool m_useCulling = true;
+	bool m_drawCullingRect = false;
+	float m_left, m_right, m_bottom, m_top;
+	float m_screeBorder = 0.0f;
+	float m_zoomFactor = 1.0f;
+	float m_focusPointY;
+	float m_focusPointX;
+	float m_enlargeBorder = 100.0f;
+	bool m_discreteSelection = true;
+	bool m_useRedrawMap = false;
+
+	Background m_background;
+	ZoomableQuad m_zoomableQuad;
+	Framebuffer m_mainRT;
+
+	std::vector<TextureRect> m_textureRects;
+	unsigned int m_atlas;
+
+	std::vector<std::pair<int, unsigned int>**> m_layer;
+
+	int numColumns = 0;
+	int numRows = 0;
+	int cellWidth = 0;
+	int cellHeight = 0;
+	int numLayers = 0;
+
+	std::vector<Cell> m_cells;
+	std::vector<Cell> m_visibleCells;
+	std::vector<std::reference_wrapper<Cell>> m_selectedCells;
+	std::vector<std::reference_wrapper<Cell>> m_cellCache;
+	std::vector<SingleSelectedCell> m_singleCache;
+
+	bool move;
+	std::array<Vector2f, 4> m_cullingVertices;
+
+	bool m_mouseDown = false;
+	bool m_mouseMove = false;
+	bool m_redrawMap = true;
+	float m_mouseX, m_mouseY;
+	float m_curMouseX, m_curMouseY;
+	SelectionMode selectionMode = SelectionMode::ISOSELECTION;
 
 	static bool FindSingleCell(SingleSelectedCell const& s1, SingleSelectedCell const& s2);
 };

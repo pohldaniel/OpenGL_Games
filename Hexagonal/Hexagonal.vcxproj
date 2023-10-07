@@ -180,6 +180,7 @@
     <ClCompile Include="sHero.cpp" />
     <ClCompile Include="src\States\Plot.cpp" />
     <ClCompile Include="src\States\ZomPan.cpp" />
+    <ClCompile Include="src\Utils\Rasterizer.cpp" />
     <ClCompile Include="TileSet.cpp" />
     <ClCompile Include="_Collision.cpp" />
     <ClCompile Include="CollisionModel.cpp" />
@@ -346,6 +347,7 @@
     <ClInclude Include="sHero.h" />
     <ClInclude Include="src\States\Plot.h" />
     <ClInclude Include="src\States\ZoomPan.h" />
+    <ClInclude Include="src\Utils\Rasterizer.h" />
     <ClInclude Include="TileSet.h" />
     <ClInclude Include="_Game.h" />
     <ClInclude Include="GameObject.h" />

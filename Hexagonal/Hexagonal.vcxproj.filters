@@ -378,6 +378,9 @@
     <ClCompile Include="engine\ZoomableQuad.cpp">
       <Filter>engine</Filter>
     </ClCompile>
+    <ClCompile Include="src\Utils\Rasterizer.cpp">
+      <Filter>Source Files\Utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="convhull\convhull_3d.h">
@@ -763,6 +766,9 @@
     </ClInclude>
     <ClInclude Include="engine\ZoomableQuad.h">
       <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Utils\Rasterizer.h">
+      <Filter>Source Files\Utils</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
