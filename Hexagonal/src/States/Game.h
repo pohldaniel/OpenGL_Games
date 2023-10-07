@@ -18,10 +18,6 @@
 #include "Background.h"
 #include "TileSet.h"
 
-#include "Camera.h"
-#include "Map.h"
-#include "Tile.h"
-
 struct Cell {
 	const TextureRect& rect;
 	float posX;
@@ -104,7 +100,7 @@ private:
 	float m_focusPointX;
 	float m_enlargeBorder = 100.0f;
 	bool m_discreteSelection = true;
-	bool m_useRedrawMap = false;
+	bool m_autoRedraw = false;
 
 	Background m_background;
 	ZoomableQuad m_zoomableQuad;

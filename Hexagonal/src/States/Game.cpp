@@ -10,8 +10,7 @@
 #include "Menu.h"
 #include "Utils/Rasterizer.h"
 
-#include "_Game.h"
-#include "CreatePrefabStrategies.h"
+#define MAX_ESTRING_LENGTH 128
 
 Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 
@@ -155,7 +154,7 @@ void Game::render() {
 	glDisable(GL_BLEND);*/
 
 	if (m_redrawMap) {
-		m_redrawMap = !m_useRedrawMap;
+		m_redrawMap = !m_autoRedraw;
 		m_mainRT.bindWrite();
 		culling();
 		glClearBufferfv(GL_COLOR, 0, std::vector<float>{0.494f, 0.686f, 0.796f, 1.0f}.data());
@@ -534,8 +533,8 @@ void Game::renderUi() {
 	ImGui::Checkbox("Draw Wirframe", &StateMachine::GetEnableWireframe());
 	ImGui::Checkbox("Use Culling", &m_useCulling);
 	ImGui::Checkbox("Draw Culling Rect", &m_drawCullingRect);
-	if (ImGui::Checkbox("Use Redraw Map", &m_useRedrawMap)) {
-		m_redrawMap = !m_useRedrawMap;
+	if (ImGui::Checkbox("Auto Redraw", &m_autoRedraw)) {
+		m_redrawMap = !m_autoRedraw;
 	}
 	ImGui::SliderFloat("Screen Border", &m_screeBorder, 0.0f, 450.0f);
 	ImGui::SliderFloat("Focus Point X", &m_focusPointX, -1600.0f, 1600.0f);
@@ -551,7 +550,7 @@ void Game::renderUi() {
 		ImGui::Checkbox("Discrete Selection", &m_discreteSelection);
 	}
 
-	if (m_useRedrawMap) {
+	if (m_autoRedraw) {
 		if (ImGui::Button("Redraw Map")) {
 			m_redrawMap = true;
 		}
@@ -685,7 +684,7 @@ void Game::loadMap(std::string name) {
 
 	m_layer.resize(numLayers);
 
-	Uint32 layer = 0;
+	unsigned int layer = 0;
 	read.ignore(std::numeric_limits<std::streamsize>::max(), '{');			// ignore up past "Layers {"
 	read.ignore(1, '\n');													// ignore the '\n' past '{'
 
@@ -700,7 +699,7 @@ void Game::loadMap(std::string name) {
 			m_layer[layer][i] = new std::pair<int, unsigned int>[numRows];
 		// read one layer
 		while (read.peek() != '}') {
-			int tileType = INVALID_ID;
+			int tileType = -1;
 			read >> m_layer[layer][column][row].first;
 
 			m_layer[layer][column][row].first--;
@@ -941,22 +940,22 @@ void  Game::drawMouseRect() {
 		float cartX = m_discreteSelection ? rowMax + 0.5f : rowMax + 1.0f;
 		float cartY = m_discreteSelection ? colMax - 0.5f : colMax + 1.0f;
 		cartesianToIsometric(cartX, cartY, cellWidth, cellHeight);
-		glVertex3f(cartX, -cartY, 0.0f);
+		glVertex3f(cartX * m_zoomFactor + (m_camera.getPositionX() + m_focusPointX) * (1.0f - m_zoomFactor), -cartY * m_zoomFactor + (m_camera.getPositionY() + m_focusPointY) * (1.0f - m_zoomFactor), 0.0f);
 
 		cartX = m_discreteSelection ? rowMin - 0.5f : rowMin - 1.0f;
 		cartY = m_discreteSelection ? colMax - 0.5f : colMax + 1.0f;
 		cartesianToIsometric(cartX, cartY, cellWidth, cellHeight);
-		glVertex3f(cartX, -cartY, 0.0f);
+		glVertex3f(cartX * m_zoomFactor + (m_camera.getPositionX() + m_focusPointX) * (1.0f - m_zoomFactor), -cartY * m_zoomFactor + (m_camera.getPositionY() + m_focusPointY) * (1.0f - m_zoomFactor), 0.0f);
 
 		cartX = m_discreteSelection ? rowMin - 0.5f : rowMin - 1.0f;
 		cartY = m_discreteSelection ? colMin - 0.5f : colMin - 1.0f;
 		cartesianToIsometric(cartX, cartY, cellWidth, cellHeight);
-		glVertex3f(cartX, -cartY, 0.0f);
+		glVertex3f(cartX * m_zoomFactor + (m_camera.getPositionX() + m_focusPointX) * (1.0f - m_zoomFactor), -cartY * m_zoomFactor + (m_camera.getPositionY() + m_focusPointY) * (1.0f - m_zoomFactor), 0.0f);
 
 		cartX = m_discreteSelection ? rowMax + 0.5f : rowMax + 1.0f;
 		cartY = m_discreteSelection ? colMin - 0.5f : colMin - 1.0f;
 		cartesianToIsometric(cartX, cartY, cellWidth, cellHeight);
-		glVertex3f(cartX, -cartY, 0.0f);
+		glVertex3f(cartX * m_zoomFactor + (m_camera.getPositionX() + m_focusPointX) * (1.0f - m_zoomFactor), -cartY * m_zoomFactor + (m_camera.getPositionY() + m_focusPointY) * (1.0f - m_zoomFactor), 0.0f);
 		glEnd();
 	}
 	

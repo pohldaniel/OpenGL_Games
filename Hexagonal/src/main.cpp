@@ -7,7 +7,6 @@
 
 #include "Application.h"
 #include "Globals.h"
-#include "_Game.h"
 
 extern AssetManager<Shader> Globals::shaderManager = AssetManager<Shader>();
 extern AssetManager<Texture> Globals::textureManager = AssetManager<Texture>();
@@ -20,7 +19,6 @@ extern AssetManager<Spritesheet> Globals::spritesheetManager = AssetManager<Spri
 extern float Globals::soundVolume = 0.2f;
 extern float Globals::musicVolume = 0.1f;
 extern Physics* Globals::physics = NULL;
-extern eGame* game = new eGame();
 
 DebugDrawer debugDrawer;
 
