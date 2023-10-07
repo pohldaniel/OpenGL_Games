@@ -11,11 +11,12 @@
 #include <Application.h>
 #include <Globals.h>
 
-#include <States/Menu.h>
 #include <States/TilePlacing.h>
-#include <States/Game.h>
 #include <States/ZoomPan.h>
 #include <States/Plot.h>
+#include <States/CoreMechanic.h>
+#include <States/Menu.h>
+#include <States/Game.h>
 #include <UI/Widget.h>
 
 
@@ -118,7 +119,7 @@ void Application::createWindow() {
 	Window = CreateWindowEx(
 		NULL,
 		"WINDOWCLASS",
-		"Ballenger",
+		"EOE",
 		WS_OVERLAPPEDWINDOW,
 		CW_USEDEFAULT, CW_USEDEFAULT,
 		Width,
@@ -394,6 +395,7 @@ void Application::initStates() {
 	//Machine->addStateAtTop(new Menu(*Machine));
 	//Machine->addStateAtTop(new TilePlacing(*Machine));
 	Machine->addStateAtTop(new Game(*Machine));
+	//Machine->addStateAtTop(new CoreMechanic(*Machine));
 	//Machine->addStateAtTop(new ZoomPan(*Machine));
 	//Machine->addStateAtTop(new Plot(*Machine));
 }

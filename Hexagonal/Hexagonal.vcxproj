@@ -88,14 +88,14 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;src;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;..\SDL2\include;..\SDL2_image\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;src;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4005;</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>..\libd\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libsoil2.lib;libimgui.lib;libfreetype.lib;libbullet.lib;SDL2.lib;SDL2_image.lib;libpng.lib;libzlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libsoil2.lib;libimgui.lib;libfreetype.lib;libbullet.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -105,14 +105,14 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;src;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;..\SDL2\include;..\SDL2_image\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;src;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4005;</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>..\libd\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libsoil2.lib;libimgui.lib;libfreetype.lib;libbullet.lib;SDL2.lib;SDL2_image.lib;libpng.lib;libzlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libsoil2.lib;libimgui.lib;libfreetype.lib;libbullet.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -124,7 +124,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;src;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;..\SDL2\include;..\SDL2_image\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;src;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <DisableSpecificWarnings>4005;</DisableSpecificWarnings>
     </ClCompile>
@@ -134,7 +134,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>..\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libsoil2.lib;libimgui.lib;libfreetype.lib;libbullet.lib;SDL2.lib;SDL2_image.lib;libpng.lib;libzlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libsoil2.lib;libimgui.lib;libfreetype.lib;libbullet.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -146,7 +146,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;_WINDOWS;_CRT_SECURE_NO_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;src;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;..\SDL2\include;..\SDL2_image\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;src;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <DisableSpecificWarnings>4005;</DisableSpecificWarnings>
     </ClCompile>
@@ -156,11 +156,13 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>..\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libsoil2.lib;libimgui.lib;libfreetype.lib;libbullet.lib;SDL2.lib;SDL2_image.lib;libpng.lib;libzlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libsoil2.lib;libimgui.lib;libfreetype.lib;libbullet.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="engine\ZoomableQuad.cpp" />
+    <ClCompile Include="src\Map.cpp" />
+    <ClCompile Include="src\States\CoreMechanic.cpp" />
     <ClCompile Include="src\States\Plot.cpp" />
     <ClCompile Include="src\States\ZomPan.cpp" />
     <ClCompile Include="src\TileSet.cpp" />
@@ -293,6 +295,8 @@
     <ClInclude Include="engine\VolumeBuffer.h" />
     <ClInclude Include="engine\ZoomableQuad.h" />
     <ClInclude Include="src\Globals.h" />
+    <ClInclude Include="src\Map.h" />
+    <ClInclude Include="src\States\CoreMechanic.h" />
     <ClInclude Include="src\States\Plot.h" />
     <ClInclude Include="src\States\ZoomPan.h" />
     <ClInclude Include="src\TileSet.h" />

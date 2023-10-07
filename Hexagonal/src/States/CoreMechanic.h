@@ -18,33 +18,33 @@
 #include "Background.h"
 #include "TileSet.h"
 
-struct Cell {
-	const TextureRect& rect;
-	float posX;
-	float posY;
-	bool selected;
-	bool visible;
-};
-
-struct SingleSelectedCell {
-	int row;
-	int col;
-	bool found;
-};
-
-enum SelectionMode {
-	BOXSELECTION,
-	ISOSELECTION,
-	MARKER,
-	RASTERIZER
-};
-
-class Game : public State, public MouseEventListener, public KeyboardEventListener {
+class CoreMechanic : public State, public MouseEventListener, public KeyboardEventListener {
 
 public:
 
-	Game(StateMachine& machine);
-	~Game();
+	struct Cell {
+		const TextureRect& rect;
+		float posX;
+		float posY;
+		bool selected;
+		bool visible;
+	};
+
+	struct SingleSelectedCell {
+		int row;
+		int col;
+		bool found;
+	};
+
+	enum SelectionMode {
+		BOXSELECTION,
+		ISOSELECTION,
+		MARKER,
+		RASTERIZER
+	};
+
+	CoreMechanic(StateMachine& machine);
+	~CoreMechanic();
 
 	void fixedUpdate() override;
 	void update() override;

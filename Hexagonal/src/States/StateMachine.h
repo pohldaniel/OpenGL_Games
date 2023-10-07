@@ -8,6 +8,7 @@ enum CurrentState {
 	TILEPLACING,
 	ZOOMPAN,
 	PLOT,
+	COREMECHANIC,
 	GAME
 };
 

@@ -1,3 +1,4 @@
+#include <engine/Texture.h>
 #include <engine/Spritesheet.h>
 
 #include "TileSet.h"
@@ -18,6 +19,66 @@ void TileSet::init(unsigned int _width, unsigned int _height) {
 
 	spritesheetPtr = nullptr;
 	spritesheet = nullptr;
+}
+
+void TileSet::loadTileSet(std::string name) {
+	std::ifstream readTileSet(name);
+
+	char resourceFilename[128];
+	while (!readTileSet.eof()) {
+		readTileSet >> resourceFilename;
+
+		std::ifstream readImageDef(resourceFilename);
+		char textureFilepath[128];
+		memset(textureFilepath, 0, sizeof(textureFilepath));
+		readImageDef.getline(textureFilepath, sizeof(textureFilepath), '\n');
+
+		int imageWidth, imageHeight;
+		unsigned char* bytes = Texture::LoadFromFile(textureFilepath, imageWidth, imageHeight, false);
+
+		int accessInt = 0, numFrames = 0;
+		readImageDef >> accessInt >> numFrames;
+
+		unsigned int posX = 0, posY = 0, width = 0, height = 0;
+		std::vector<TextureRect> textureRects;
+		if (numFrames == 0) {
+			posX = posY = 0;
+			width = imageWidth;
+			height = imageHeight;
+
+			textureRects.push_back({ static_cast<float>(posX) / static_cast<float>(imageWidth),
+				static_cast<float>(posY) / static_cast<float>(imageHeight),
+				static_cast<float>(width) / static_cast<float>(imageWidth),
+				static_cast<float>(height) / static_cast<float>(imageHeight),
+				width,
+				height,
+				0u });
+		}else {
+
+			
+			while (!readImageDef.eof()) {
+				readImageDef >> posX >> posY >> width >> height;
+
+				textureRects.push_back({ static_cast<float>(posX) / static_cast<float>(imageWidth),
+					static_cast<float>(posY) / static_cast<float>(imageHeight),
+					static_cast<float>(width) / static_cast<float>(imageWidth),
+					static_cast<float>(height) / static_cast<float>(imageHeight),
+					width,
+					height,
+					0u });
+
+				readImageDef.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+			}
+			
+		}
+		readImageDef.close();
+
+		addTexture(bytes, imageWidth, imageHeight, textureRects, true);
+		free(bytes);
+		textureRects.clear();
+		textureRects.shrink_to_fit();	
+	}
+	readTileSet.close();
 }
 
 void TileSet::addTexture(unsigned char *texture, unsigned int w, unsigned int h, bool flipTextureRect, unsigned int _maxWidth, unsigned int _maxHeight) {

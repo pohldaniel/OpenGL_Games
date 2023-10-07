@@ -4,7 +4,7 @@
 #include <imgui_internal.h>
 #include <engine/Batchrenderer.h>
 
-#include "Game.h"
+#include "CoreMechanic.h"
 #include "Application.h"
 #include "Globals.h"
 #include "Menu.h"
@@ -12,7 +12,7 @@
 
 #define MAX_ESTRING_LENGTH 128
 
-Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
+CoreMechanic::CoreMechanic(StateMachine& machine) : State(machine, CurrentState::COREMECHANIC) {
 
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
@@ -58,16 +58,16 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	//Spritesheet::Safe("test", m_atlas);
 }
 
-Game::~Game() {
+CoreMechanic::~CoreMechanic() {
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
 }
 
-void Game::fixedUpdate() {
+void CoreMechanic::fixedUpdate() {
 
 }
 
-void Game::update() {
+void CoreMechanic::update() {
 	Keyboard &keyboard = Keyboard::instance();
 	Vector3f directrion = Vector3f();
 
@@ -132,7 +132,7 @@ void Game::update() {
 	m_background.update(m_dt);
 }
 
-void Game::render() {
+void CoreMechanic::render() {
 	/*glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_BLEND);
 	auto shader = Globals::shaderManager.getAssetPointer("quad_array");
@@ -196,7 +196,7 @@ void Game::render() {
 		renderUi();
 }
 
-void Game::OnMouseMotion(Event::MouseMoveEvent& event) {
+void CoreMechanic::OnMouseMotion(Event::MouseMoveEvent& event) {
 	m_trackball.motion(event.x, event.y);
 	applyTransformation(m_trackball);
 
@@ -362,7 +362,7 @@ void Game::OnMouseMotion(Event::MouseMoveEvent& event) {
 	}
 }
 
-void Game::OnMouseButtonDown(Event::MouseButtonEvent& event) {
+void CoreMechanic::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 	if (event.button == 1u) {
 		m_trackball.mouse(TrackBall::Button::ELeftButton, TrackBall::Modifier::ENoModifier, true, event.x, event.y);
 		applyTransformation(m_trackball);
@@ -411,7 +411,7 @@ void Game::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 	}
 }
 
-void Game::OnMouseButtonUp(Event::MouseButtonEvent& event) {
+void CoreMechanic::OnMouseButtonUp(Event::MouseButtonEvent& event) {
 	if (event.button == 1u) {
 		m_trackball.mouse(TrackBall::Button::ELeftButton, TrackBall::Modifier::ENoModifier, false, event.x, event.y);
 		applyTransformation(m_trackball);
@@ -449,7 +449,7 @@ void Game::OnMouseButtonUp(Event::MouseButtonEvent& event) {
 	}
 }
 
-void Game::OnMouseWheel(Event::MouseWheelEvent& event) {
+void CoreMechanic::OnMouseWheel(Event::MouseWheelEvent& event) {
 	if (event.direction == 1u) {
 		m_zoomFactor = m_zoomFactor - 0.05f;
 		m_zoomFactor = Math::Clamp(m_zoomFactor, 0.2f, 2.5f);
@@ -461,7 +461,7 @@ void Game::OnMouseWheel(Event::MouseWheelEvent& event) {
 	}
 }
 
-void Game::OnKeyDown(Event::KeyboardEvent& event) {
+void CoreMechanic::OnKeyDown(Event::KeyboardEvent& event) {
 	if (event.keyCode == VK_LMENU) {
 		m_drawUi = !m_drawUi;
 	}
@@ -473,11 +473,11 @@ void Game::OnKeyDown(Event::KeyboardEvent& event) {
 	}
 }
 
-void Game::OnKeyUp(Event::KeyboardEvent& event) {
+void CoreMechanic::OnKeyUp(Event::KeyboardEvent& event) {
 
 }
 
-void Game::resize(int deltaW, int deltaH) {
+void CoreMechanic::resize(int deltaW, int deltaH) {
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
 	m_mainRT.resize(Application::Width, Application::Height);
@@ -491,11 +491,11 @@ void Game::resize(int deltaW, int deltaH) {
 	m_focusPointY = static_cast<float>(Application::Height / 2);
 }
 
-void Game::applyTransformation(TrackBall& arc) {
+void CoreMechanic::applyTransformation(TrackBall& arc) {
 	m_transform.fromMatrix(arc.getTransform());
 }
 
-void Game::renderUi() {
+void CoreMechanic::renderUi() {
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
@@ -563,7 +563,7 @@ void Game::renderUi() {
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
-void Game::processCache(std::vector<std::reference_wrapper<Cell>>& cache, bool visible, bool selected, bool clear) {
+void CoreMechanic::processCache(std::vector<std::reference_wrapper<Cell>>& cache, bool visible, bool selected, bool clear) {
 	std::for_each(cache.begin(), cache.end(), [visible, selected](std::reference_wrapper<Cell> const& cell) {
 		cell.get().selected = selected;
 		cell.get().visible = visible;
@@ -574,7 +574,7 @@ void Game::processCache(std::vector<std::reference_wrapper<Cell>>& cache, bool v
 		cache.clear();
 }
 
-void Game::processCache(std::vector<std::reference_wrapper<Cell>>& cache, bool visible, bool selected, std::vector<std::reference_wrapper<Cell>>& storage, bool clearAfterCopy) {
+void CoreMechanic::processCache(std::vector<std::reference_wrapper<Cell>>& cache, bool visible, bool selected, std::vector<std::reference_wrapper<Cell>>& storage, bool clearAfterCopy) {
 	std::for_each(cache.begin(), cache.end(), [visible, selected](std::reference_wrapper<Cell> const& cell) {
 		cell.get().selected = selected;
 		cell.get().visible = visible;
@@ -587,14 +587,14 @@ void Game::processCache(std::vector<std::reference_wrapper<Cell>>& cache, bool v
 		cache.clear();
 }
 
-void Game::SkipFileKey(std::ifstream & read) {
+void CoreMechanic::SkipFileKey(std::ifstream & read) {
 	read.ignore(std::numeric_limits<std::streamsize>::max(), ':');
 	while (read.peek() == ' ' || read.peek() == '\t')
 		read.ignore();
 }
 
 
-void Game::loadMap(std::string name) {
+void CoreMechanic::loadMap(std::string name) {
 	std::ifstream read(name);
 	char buffer[MAX_ESTRING_LENGTH];
 	memset(buffer, 0, sizeof(buffer));
@@ -681,7 +681,7 @@ void Game::loadMap(std::string name) {
 
 //isoX =  (cartX * CELL_WIDTH - cartY * CELL_HEIGHT) 
 //isoY = -(cartX * CELL_WIDTH + cartY * CELL_HEIGHT)  * 0.5f
-void Game::cartesianToIsometric(float & x, float & y, float cellWidth, float cellHeight) {
+void CoreMechanic::cartesianToIsometric(float & x, float & y, float cellWidth, float cellHeight) {
 	float cartX = x * cellWidth;
 	float cartY = y * cellHeight;
 	x = (cartX - cartY);
@@ -699,7 +699,7 @@ void Game::cartesianToIsometric(float & x, float & y, float cellWidth, float cel
 //
 //cartY = (-2.0 * isoY  - isoX  - cartY * CELL_HEIGHT) / CELL_HEIGHT
 //cartY =-(0.5f * isoX + isoY) / CELL_HEIGHT
-void Game::isometricToCartesian(float& x, float& y, float cellWidth, float cellHeight) {
+void CoreMechanic::isometricToCartesian(float& x, float& y, float cellWidth, float cellHeight) {
 	float isoX = x;
 	float isoY = y;
 
@@ -707,7 +707,7 @@ void Game::isometricToCartesian(float& x, float& y, float cellWidth, float cellH
 	y = -(0.5f * isoX + isoY) / cellHeight;
 }
 
-void Game::isometricToCartesian(float x, float y, int& row, int& col, float cellWidth, float cellHeight) {
+void CoreMechanic::isometricToCartesian(float x, float y, int& row, int& col, float cellWidth, float cellHeight) {
 	float isoX = x;
 	float isoY = y;
 
@@ -718,7 +718,7 @@ void Game::isometricToCartesian(float x, float y, int& row, int& col, float cell
 	col = static_cast<int>(std::roundf(y)) + 1;
 }
 
-void Game::isometricToCartesian(float x, float y, int& row, int& col, float cellWidth, float cellHeight, int min, int max) {
+void CoreMechanic::isometricToCartesian(float x, float y, int& row, int& col, float cellWidth, float cellHeight, int min, int max) {
 	float isoX = x;
 	float isoY = y;
 
@@ -732,7 +732,7 @@ void Game::isometricToCartesian(float x, float y, int& row, int& col, float cell
 	col = Math::Clamp(col, min, max);
 }
 
-void Game::isometricToRow(float x, float y, int& row, float cellWidth) {
+void CoreMechanic::isometricToRow(float x, float y, int& row, float cellWidth) {
 	float isoX = x;
 	float isoY = y;
 
@@ -740,7 +740,7 @@ void Game::isometricToRow(float x, float y, int& row, float cellWidth) {
 	row = static_cast<int>(std::roundf(x));
 }
 
-void Game::isometricToRow(float x, float y, int& row, float cellWidth, int min, int max) {
+void CoreMechanic::isometricToRow(float x, float y, int& row, float cellWidth, int min, int max) {
 	float isoX = x;
 	float isoY = y;
 
@@ -750,7 +750,7 @@ void Game::isometricToRow(float x, float y, int& row, float cellWidth, int min, 
 	row = Math::Clamp(row, min, max);
 }
 
-void Game::isometricToCol(float x, float y, int& col, float cellHeight) {
+void CoreMechanic::isometricToCol(float x, float y, int& col, float cellHeight) {
 	float isoX = x;
 	float isoY = y;
 
@@ -758,7 +758,7 @@ void Game::isometricToCol(float x, float y, int& col, float cellHeight) {
 	col = static_cast<int>(std::roundf(y)) + 1;
 }
 
-void Game::isometricToCol(float x, float y, int& col, float cellHeight, int min, int max) {
+void CoreMechanic::isometricToCol(float x, float y, int& col, float cellHeight, int min, int max) {
 	float isoX = x;
 	float isoY = y;
 
@@ -768,11 +768,11 @@ void Game::isometricToCol(float x, float y, int& col, float cellHeight, int min,
 	col = Math::Clamp(col, min, max);
 }
 
-bool Game::isValid(const int row, const int column) const {
+bool CoreMechanic::isValid(const int row, const int column) const {
 	return (row >= 0 && row < 128 && column >= 0 && column < 128);
 }
 
-void Game::culling() {
+void CoreMechanic::culling() {
 	if (!m_useCulling) return;
 	Vector3f m_position = m_camera.getPosition();
 
@@ -802,7 +802,7 @@ void Game::culling() {
 	}
 }
 
-void Game::drawCullingRect() {
+void CoreMechanic::drawCullingRect() {
 	Vector3f m_position = m_camera.getPosition();
 
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -825,7 +825,7 @@ void Game::drawCullingRect() {
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 
-void  Game::drawMouseRect() {
+void  CoreMechanic::drawMouseRect() {
 	if (!m_mouseDown || selectionMode == SelectionMode::MARKER || selectionMode == SelectionMode::RASTERIZER) return;
 
 	float offsetX = m_zoomFactor * (m_camera.getPositionX() + m_focusPointX) - m_focusPointX;
@@ -906,6 +906,6 @@ void  Game::drawMouseRect() {
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 
-bool Game::FindSingleCell(SingleSelectedCell const& s1, SingleSelectedCell const& s2) {
+bool CoreMechanic::FindSingleCell(SingleSelectedCell const& s1, SingleSelectedCell const& s2) {
 	return s1.row == s2.row && s1.col == s2.col;
 } 
