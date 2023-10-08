@@ -63,7 +63,8 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	TileSetManager::Get().getTileSet("sArcher_anm").loadTileSet("Graphics/Animations/sArcher/Controller_defs/sArcher.bimg", 1280u, 1024u, true);
 	//Spritesheet::Safe("sArcher", TileSetManager::Get().getTileSet("sArcher_anm").getAtlas());
 
-	loadAnimation("Graphics/Animations/sHero/Controller_defs/sHero_run.banim");
+	m_sHero_run.loadAnimation16("Graphics/Animations/sHero/Controller_defs/sHero_run.banim", TileSetManager::Get().getTileSet("sHero_anm").getTextureRects());
+	m_sArcher_run.loadAnimation8("Graphics/Animations/sArcher/Controller_defs/sArcher_run.banim", TileSetManager::Get().getTileSet("sArcher_anm").getTextureRects());
 }
 
 Game::~Game() {
@@ -146,12 +147,13 @@ void Game::render() {
 	auto shader = Globals::shaderManager.getAssetPointer("quad_array");
 	shader->use();
 
-	const TextureRect& rect = m_animationFrames[m_direction * 14 + m_animationFrame].rect;
+	const TextureRect& rect = m_selctedAnimation == SelectedAnimation::ARCHER_RUN ? m_sArcher_run.m_animationFrames[m_direction8 * m_sArcher_run.m_moveTexturesPerDirection[m_direction8] + m_animationFrame - 1].rect
+                                                                                  : m_sHero_run.m_animationFrames[m_direction16 * m_sHero_run.m_moveTexturesPerDirection[m_direction16] + m_animationFrame - 1].rect;
+
 	shader->loadMatrix("u_transform", m_camera.getOrthographicMatrix() * Matrix4f::Translate(800.0f, 450.0f, 0.0f) * Matrix4f::Scale(rect.width, rect.height, 0.0f));
 	shader->loadVector("u_texRect", Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureOffsetX + rect.textureWidth, rect.textureOffsetY + rect.textureHeight));
 	shader->loadInt("u_layer", rect.frame);
-	Spritesheet::Bind(TileSetManager::Get().getTileSet("sHero_anm").getAtlas());
-
+	Spritesheet::Bind(m_selctedAnimation == SelectedAnimation::ARCHER_RUN ? TileSetManager::Get().getTileSet("sArcher_anm").getAtlas() : TileSetManager::Get().getTileSet("sHero_anm").getAtlas());
 	Globals::shapeManager.get("quad").drawRaw();
 
 	Spritesheet::Unbind();
@@ -564,14 +566,29 @@ void Game::renderUi() {
 			m_redrawMap = true;
 		}
 	}
+	ImGui::NewLine();
+	ImGui::NewLine();
 
-	
-	int currentDierection = m_direction;
-	if (ImGui::Combo("Direction", &currentDierection, "East\0North East Down\0North East Middle\0North East Up\0North\0North West Up\0North West Middle\0North West Dow\0West\0South West Up\0South West Middle\\0South West Down\0South\0South East Down\0South East Middle\0South East Up\0\0")) {
-		m_direction = static_cast<Enums::Direction16 > (currentDierection);
+	int currentAnimation = m_selctedAnimation;
+	if (ImGui::Combo("Animation", &currentAnimation, "Hero Run\0Archer Run\0\0")) {
+		m_selctedAnimation = static_cast<SelectedAnimation> (currentAnimation);
+		m_animationFrame = 1;
 	}
+	
+	if (m_selctedAnimation == SelectedAnimation::ARCHER_RUN) {
+		int currentDierection8 = m_direction8;
+		if (ImGui::Combo("Direction 8", &currentDierection8, "South\0South East\0East\0North East\0North\0North West\0West\0South West\0\0")) {
+			m_direction8 = static_cast<Enums::Direction8 > (currentDierection8);
+		}
+	}else {
+		int currentDierection16 = m_direction16;
+		if (ImGui::Combo("Direction 16", &currentDierection16, "East\0North East Down\0North East Middle\0North East Up\0North\0North West Up\0North West Middle\0North West Dow\0West\0South West Up\0South West Middle\0South West Down\0South\0South East Down\0South East Middle\0South East Up\0\0")) {
+			m_direction16 = static_cast<Enums::Direction16> (currentDierection16);
+		}
+	}
+	
 
-	ImGui::SliderInt("Animation Frame", &m_animationFrame, 0, 13);
+	ImGui::SliderInt("Animation Frame", &m_animationFrame, 1, m_selctedAnimation == SelectedAnimation::ARCHER_RUN ? m_sArcher_run.m_moveTexturesPerDirection[m_direction8] : m_sHero_run.m_moveTexturesPerDirection[m_direction16]);
 	ImGui::End();
 
 	ImGui::Render();
@@ -925,7 +942,7 @@ bool Game::FindSingleCell(SingleSelectedCell const& s1, SingleSelectedCell const
 	return s1.row == s2.row && s1.col == s2.col;
 } 
 
-void Game::loadAnimation(std::string name) {
+void Animation::loadAnimation16(std::string name, const std::vector<TextureRect>& textureRects) {
 	std::ifstream readAnimations(name);
 
 	char resourceFilename[128];
@@ -954,12 +971,51 @@ void Game::loadAnimation(std::string name) {
 			float normalizedTime;
 			readAnimationDef >> subframeIndex >> normalizedTime;
 			readAnimationDef.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-			const TextureRect& rect = TileSetManager::Get().getTileSet("sHero_anm").getTextureRects()[direction * numAnimationFrames + subframeIndex];
+			const TextureRect& rect = textureRects[direction * numAnimationFrames + subframeIndex];
 
-			m_animationFrames.push_back({ rect , normalizedTime,  direction});
+			m_animationFrames.push_back({ rect , normalizedTime });
 		}
 		readAnimationDef.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-
+		m_moveTexturesPerDirection[direction] = numAnimationFrames;
 		direction = static_cast<Enums::Direction16>(static_cast<int>(direction) + 1);
+	}
+}
+
+void Animation::loadAnimation8(std::string name, const std::vector<TextureRect>& textureRects) {
+	std::ifstream readAnimations(name);
+
+	char resourceFilename[128];
+
+	Enums::Direction8 direction = Enums::Direction8::s;
+	while (!readAnimations.eof()) {
+		readAnimations >> resourceFilename;
+
+		std::ifstream readAnimationDef(resourceFilename);
+		int numAnimationFrames = 0;
+		int framesPerSecond = 0;
+		int loopInt = 0;
+		AnimationLoopState loopMode;
+
+		readAnimationDef >> numAnimationFrames >> framesPerSecond >> loopInt;
+
+		switch (loopInt) {
+		case 1: loopMode = AnimationLoopState::ONCE; break;
+		case 2: loopMode = AnimationLoopState::REPEAT; break;
+		default: loopMode = AnimationLoopState::REPEAT; break;
+		}
+
+		readAnimationDef.ignore(std::numeric_limits<std::streamsize>::max(), '{');
+		while (!readAnimationDef.eof() && readAnimationDef.peek() != '}') {
+			int subframeIndex;
+			float normalizedTime;
+			readAnimationDef >> subframeIndex >> normalizedTime;
+			readAnimationDef.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+			const TextureRect& rect = textureRects[direction * numAnimationFrames + subframeIndex];
+
+			m_animationFrames.push_back({ rect , normalizedTime });
+		}
+		readAnimationDef.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+		m_moveTexturesPerDirection[direction] = numAnimationFrames;
+		direction = static_cast<Enums::Direction8>(static_cast<int>(direction) + 1);
 	}
 }

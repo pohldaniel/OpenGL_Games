@@ -36,7 +36,13 @@ struct SingleSelectedCell {
 struct AnimationFrame {
 	const TextureRect& rect;
 	float normalizedTime;
-	Enums::Direction16 direction;
+};
+
+struct Animation {
+	void loadAnimation16(std::string name, const std::vector<TextureRect>& textureRects);
+	void loadAnimation8(std::string name, const std::vector<TextureRect>& textureRects);
+	std::vector<AnimationFrame> m_animationFrames;
+	std::unordered_map<int, unsigned short> m_moveTexturesPerDirection;	
 };
 
 enum SelectionMode {
@@ -49,6 +55,11 @@ enum SelectionMode {
 enum AnimationLoopState {
 	ONCE,
 	REPEAT
+};
+
+enum SelectedAnimation {
+	HERO_RUN,
+	ARCHER_RUN
 };
 
 class Game : public State, public MouseEventListener, public KeyboardEventListener {
@@ -72,7 +83,7 @@ public:
 private:
 
 	void loadMap(std::string name);
-	void loadAnimation(std::string name);
+	
 	void SkipFileKey(std::ifstream & read);
 
 	void applyTransformation(TrackBall& arc);
@@ -114,7 +125,7 @@ private:
 	bool m_discreteSelection = true;
 	bool m_autoRedraw = false;
 
-	int m_animationFrame = 0;
+	int m_animationFrame = 1;
 
 	Background m_background;
 	ZoomableQuad m_zoomableQuad;
@@ -148,6 +159,10 @@ private:
 
 	static bool FindSingleCell(SingleSelectedCell const& s1, SingleSelectedCell const& s2);
 
-	std::vector<AnimationFrame> m_animationFrames;
-	Enums::Direction16 m_direction = Enums::Direction16::E;
+	
+	Enums::Direction16 m_direction16 = Enums::Direction16::E;
+	Enums::Direction8 m_direction8 = Enums::Direction8::s;
+	SelectedAnimation m_selctedAnimation = SelectedAnimation::ARCHER_RUN;
+	Animation m_sHero_run;
+	Animation m_sArcher_run;
 };
