@@ -38,11 +38,12 @@ public:
 	void unbind(unsigned int unit = 0u) const;
 	void safe(std::string name);
 
-	static void Bind(unsigned int& textureRef, unsigned int unit = 0u);
-	static void Unbind(unsigned int unit = 0u);
+	static void Bind(const unsigned int& textureRef, unsigned int unit = 0u);
+	static void Unbind(const unsigned int unit = 0u);
 	static void Safe(std::string name, unsigned int textureAtlas);
 	static unsigned int Merge(const unsigned int& atlas1, const unsigned int& atlas2, bool deleteAtlas1 = true, bool deleteAtlas2 = true);
-	static unsigned int CreateSpritesheet(unsigned char* bytes, unsigned int width, unsigned int height, unsigned int layer, unsigned int format = 0);
+	static unsigned int CreateSpritesheet(unsigned char* bytes, unsigned int width, unsigned int height, unsigned int layer);
+	static void CreateSpritesheet(unsigned char* bytes, unsigned int width, unsigned int height, unsigned int layer, unsigned int& textureRef);
 
 private:
 

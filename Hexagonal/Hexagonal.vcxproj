@@ -294,6 +294,7 @@
     <ClInclude Include="engine\Vector.h" />
     <ClInclude Include="engine\VolumeBuffer.h" />
     <ClInclude Include="engine\ZoomableQuad.h" />
+    <ClInclude Include="src\Enums.h" />
     <ClInclude Include="src\Globals.h" />
     <ClInclude Include="src\Map.h" />
     <ClInclude Include="src\States\CoreMechanic.h" />

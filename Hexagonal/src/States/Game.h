@@ -17,6 +17,7 @@
 #include "StateMachine.h"
 #include "Background.h"
 #include "TileSet.h"
+#include "Enums.h"
 
 struct Cell {
 	const TextureRect& rect;
@@ -32,11 +33,22 @@ struct SingleSelectedCell {
 	bool found;
 };
 
+struct AnimationFrame {
+	const TextureRect& rect;
+	float normalizedTime;
+	Enums::Direction16 direction;
+};
+
 enum SelectionMode {
 	BOXSELECTION,
 	ISOSELECTION,
 	MARKER,
 	RASTERIZER
+};
+
+enum AnimationLoopState {
+	ONCE,
+	REPEAT
 };
 
 class Game : public State, public MouseEventListener, public KeyboardEventListener {
@@ -60,6 +72,7 @@ public:
 private:
 
 	void loadMap(std::string name);
+	void loadAnimation(std::string name);
 	void SkipFileKey(std::ifstream & read);
 
 	void applyTransformation(TrackBall& arc);
@@ -101,6 +114,8 @@ private:
 	bool m_discreteSelection = true;
 	bool m_autoRedraw = false;
 
+	int m_animationFrame = 0;
+
 	Background m_background;
 	ZoomableQuad m_zoomableQuad;
 	Framebuffer m_mainRT;
@@ -129,7 +144,10 @@ private:
 	bool m_redrawMap = true;
 	float m_mouseX, m_mouseY;
 	float m_curMouseX, m_curMouseY;
-	SelectionMode selectionMode = SelectionMode::ISOSELECTION;
+	SelectionMode m_selectionMode = SelectionMode::ISOSELECTION;
 
 	static bool FindSingleCell(SingleSelectedCell const& s1, SingleSelectedCell const& s2);
+
+	std::vector<AnimationFrame> m_animationFrames;
+	Enums::Direction16 m_direction = Enums::Direction16::E;
 };

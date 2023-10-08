@@ -47,15 +47,14 @@ CoreMechanic::CoreMechanic(StateMachine& machine) : State(machine, CurrentState:
 	m_mainRT.attachTexture2D(AttachmentTex::RGBA);
 	m_mainRT.attachRenderbuffer(AttachmentRB::DEPTH24);
 
-	TileSet::Get().init(1024u, 1024u);
-	TileSet::Get().loadTileSet("res/tilesetFrames2.bimg");
-	loadMap("res/EvilTown2.emap");
+	TileSetManager::Get().getTileSet("map").loadTileSet("res/tilesetFrames2.bimg");
+	m_atlas = TileSetManager::Get().getTileSet("map").getAtlas();
 
 	m_focusPointX = static_cast<float>(Application::Width / 2);
 	m_focusPointY = static_cast<float>(Application::Height / 2);
 
-	m_atlas = TileSet::Get().getAtlas();
-	//Spritesheet::Safe("test", m_atlas);
+	
+	//Spritesheet::Safe("map", m_atlas);
 }
 
 CoreMechanic::~CoreMechanic() {
@@ -138,7 +137,7 @@ void CoreMechanic::render() {
 	auto shader = Globals::shaderManager.getAssetPointer("quad_array");
 	shader->use();
 
-	const TextureRect& rect = TileSet::Get().getTextureRects()[11];
+	const TextureRect& rect = TileSetManager::Get().getTileSet("map").getTextureRects()[11];
 	shader->loadMatrix("u_transform", m_camera.getOrthographicMatrix() * Matrix4f::Scale(rect.width, rect.height, 0.0f));
 	shader->loadVector("u_texRect", Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureOffsetX + rect.textureWidth, rect.textureOffsetY + rect.textureHeight));
 	shader->loadInt("u_layer", rect.frame);
@@ -648,7 +647,7 @@ void CoreMechanic::loadMap(std::string name) {
 
 			if (m_layer[layer][column][row].first != -1) {
 
-				const TextureRect& rect = TileSet::Get().getTextureRects()[m_layer[layer][column][row].first];
+				const TextureRect& rect = TileSetManager::Get().getTileSet("map").getTextureRects()[m_layer[layer][column][row].first];
 				float cartX = static_cast<float>(row);
 				float cartY = static_cast<float>(column);
 				cartesianToIsometric(cartX, cartY, cellWidth, cellHeight);

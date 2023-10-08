@@ -47,15 +47,23 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	m_mainRT.attachTexture2D(AttachmentTex::RGBA);
 	m_mainRT.attachRenderbuffer(AttachmentRB::DEPTH24);
 
-	TileSet::Get().init(1024u, 1024u);
-	TileSet::Get().loadTileSet("res/tilesetFrames2.bimg");
+	
+	TileSetManager::Get().getTileSet("map").loadTileSet("res/tilesetFrames2.bimg");
+	m_atlas = TileSetManager::Get().getTileSet("map").getAtlas();
+	//Spritesheet::Safe("map", m_atlas);
+
 	loadMap("res/EvilTown2.emap");
 
 	m_focusPointX = static_cast<float>(Application::Width / 2);
 	m_focusPointY = static_cast<float>(Application::Height / 2);
 
-	m_atlas = TileSet::Get().getAtlas();
-	//Spritesheet::Safe("test", m_atlas);
+	TileSetManager::Get().getTileSet("sHero_anm").loadTileSet("Graphics/Animations/sHero/Controller_defs/sHero.bimg", 1280u, 1280u, true);
+	//Spritesheet::Safe("sHero", TileSetManager::Get().getTileSet("sHero_anm").getAtlas());
+
+	TileSetManager::Get().getTileSet("sArcher_anm").loadTileSet("Graphics/Animations/sArcher/Controller_defs/sArcher.bimg", 1280u, 1024u, true);
+	//Spritesheet::Safe("sArcher", TileSetManager::Get().getTileSet("sArcher_anm").getAtlas());
+
+	loadAnimation("Graphics/Animations/sHero/Controller_defs/sHero_run.banim");
 }
 
 Game::~Game() {
@@ -133,24 +141,24 @@ void Game::update() {
 }
 
 void Game::render() {
-	/*glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_BLEND);
 	auto shader = Globals::shaderManager.getAssetPointer("quad_array");
 	shader->use();
 
-	const TextureRect& rect = TileSet::Get().getTextureRects()[11];
-	shader->loadMatrix("u_transform", m_camera.getOrthographicMatrix() * Matrix4f::Scale(rect.width, rect.height, 0.0f));
+	const TextureRect& rect = m_animationFrames[m_direction * 14 + m_animationFrame].rect;
+	shader->loadMatrix("u_transform", m_camera.getOrthographicMatrix() * Matrix4f::Translate(800.0f, 450.0f, 0.0f) * Matrix4f::Scale(rect.width, rect.height, 0.0f));
 	shader->loadVector("u_texRect", Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureOffsetX + rect.textureWidth, rect.textureOffsetY + rect.textureHeight));
 	shader->loadInt("u_layer", rect.frame);
-	Spritesheet::Bind(m_atlas);
+	Spritesheet::Bind(TileSetManager::Get().getTileSet("sHero_anm").getAtlas());
 
 	Globals::shapeManager.get("quad").drawRaw();
 
 	Spritesheet::Unbind();
 	shader->unuse();
-	glDisable(GL_BLEND);*/
+	glDisable(GL_BLEND);
 
-	if (m_redrawMap) {
+	/*if (m_redrawMap) {
 		m_redrawMap = !m_autoRedraw;
 		m_mainRT.bindWrite();
 		culling();
@@ -190,7 +198,7 @@ void Game::render() {
 	m_mainRT.bindColorTexture();
 	m_zoomableQuad.drawRaw();
 	m_mainRT.unbindColorTexture();
-	shader->unuse();
+	shader->unuse();*/
 
 	if (m_drawUi)
 		renderUi();
@@ -206,7 +214,7 @@ void Game::OnMouseMotion(Event::MouseMoveEvent& event) {
 			cell.found = false;
 		}
 
-		if (selectionMode != SelectionMode::MARKER)
+		if(m_selectionMode != SelectionMode::MARKER)
 			processCache(m_cellCache, true, false, true);
 
 		float offsetX = m_zoomFactor * (m_camera.getPositionX() + m_focusPointX) - m_focusPointX;
@@ -217,7 +225,7 @@ void Game::OnMouseMotion(Event::MouseMoveEvent& event) {
 
 		m_curMouseX = mouseViewX;
 		m_curMouseY = mouseViewY;
-		if (selectionMode == SelectionMode::RASTERIZER) {
+		if(m_selectionMode == SelectionMode::RASTERIZER) {
 			std::vector<std::array<int, 2>> points;
 			points.clear();
 
@@ -285,7 +293,7 @@ void Game::OnMouseMotion(Event::MouseMoveEvent& event) {
 			}
 
 
-		}else if (selectionMode == SelectionMode::BOXSELECTION) {
+		}else if(m_selectionMode == SelectionMode::BOXSELECTION) {
 			//box selection
 			int left = static_cast<int>(std::min(m_mouseX, mouseViewX));
 			int right = static_cast<int>(std::max(m_mouseX, mouseViewX));
@@ -311,7 +319,7 @@ void Game::OnMouseMotion(Event::MouseMoveEvent& event) {
 
 				}
 			}
-		}else if (selectionMode == SelectionMode::ISOSELECTION) {
+		}else if(m_selectionMode == SelectionMode::ISOSELECTION) {
 			// iso selection
 			int row1, col1;
 			isometricToCartesian(m_mouseX + offsetX, m_mouseY + offsetY, row1, col1, cellWidth  * m_zoomFactor, cellHeight  * m_zoomFactor);
@@ -342,7 +350,7 @@ void Game::OnMouseMotion(Event::MouseMoveEvent& event) {
 
 				}
 			}
-		}else if (selectionMode == SelectionMode::MARKER) {
+		}else if(m_selectionMode == SelectionMode::MARKER) {
 			//marker
 			int row, col;
 			isometricToCartesian(mouseViewX + offsetX, mouseViewY + offsetY, row, col, cellWidth  * m_zoomFactor, cellHeight  * m_zoomFactor);
@@ -542,12 +550,12 @@ void Game::renderUi() {
 	ImGui::SliderFloat("Focus Point Y", &m_focusPointY, -1000.0f, 1000.0f);
 	ImGui::SliderFloat("Enlarge Culling Rect", &m_enlargeBorder, 0.0f, 600.0f);
 
-	int currentSelectionMode = selectionMode;
+	int currentSelectionMode = m_selectionMode;
 	if (ImGui::Combo("Mode", &currentSelectionMode, "Box Slection\0Iso Selection\0Marker\0Rasterizer\0\0")) {
-		selectionMode = static_cast<SelectionMode>(currentSelectionMode);
+		m_selectionMode = static_cast<SelectionMode>(currentSelectionMode);
 	}
 
-	if (selectionMode == SelectionMode::ISOSELECTION) {
+	if (m_selectionMode == SelectionMode::ISOSELECTION) {
 		ImGui::Checkbox("Discrete Selection", &m_discreteSelection);
 	}
 
@@ -557,6 +565,13 @@ void Game::renderUi() {
 		}
 	}
 
+	
+	int currentDierection = m_direction;
+	if (ImGui::Combo("Direction", &currentDierection, "East\0North East Down\0North East Middle\0North East Up\0North\0North West Up\0North West Middle\0North West Dow\0West\0South West Up\0South West Middle\\0South West Down\0South\0South East Down\0South East Middle\0South East Up\0\0")) {
+		m_direction = static_cast<Enums::Direction16 > (currentDierection);
+	}
+
+	ImGui::SliderInt("Animation Frame", &m_animationFrame, 0, 13);
 	ImGui::End();
 
 	ImGui::Render();
@@ -648,7 +663,7 @@ void Game::loadMap(std::string name) {
 
 			if (m_layer[layer][column][row].first != -1) {
 
-				const TextureRect& rect = TileSet::Get().getTextureRects()[m_layer[layer][column][row].first];
+				const TextureRect& rect = TileSetManager::Get().getTileSet("map").getTextureRects()[m_layer[layer][column][row].first];
 				float cartX = static_cast<float>(row);
 				float cartY = static_cast<float>(column);
 				cartesianToIsometric(cartX, cartY, cellWidth, cellHeight);
@@ -826,7 +841,7 @@ void Game::drawCullingRect() {
 }
 
 void  Game::drawMouseRect() {
-	if (!m_mouseDown || selectionMode == SelectionMode::MARKER || selectionMode == SelectionMode::RASTERIZER) return;
+	if (!m_mouseDown || m_selectionMode == SelectionMode::MARKER || m_selectionMode == SelectionMode::RASTERIZER) return;
 
 	float offsetX = m_zoomFactor * (m_camera.getPositionX() + m_focusPointX) - m_focusPointX;
 	float offsetY = m_zoomFactor * (m_camera.getPositionY() + m_focusPointY) - m_focusPointY;
@@ -839,7 +854,7 @@ void  Game::drawMouseRect() {
 	glLoadIdentity();
 	
 
-	if (selectionMode == SelectionMode::BOXSELECTION) {
+	if (m_selectionMode == SelectionMode::BOXSELECTION) {
 		float left = std::min(m_mouseX, m_curMouseX);
 		float bottom = std::min(m_mouseY, m_curMouseY);
 		float top = std::max(m_mouseY, m_curMouseY);
@@ -853,7 +868,7 @@ void  Game::drawMouseRect() {
 		glVertex3f(right, bottom, 0.0f);
 		glEnd();
 
-	}else if (selectionMode == SelectionMode::ISOSELECTION) {
+	}else if(m_selectionMode == SelectionMode::ISOSELECTION) {
 
 
 		glLoadMatrixf(&m_camera.getViewMatrix()[0][0]);
@@ -909,3 +924,42 @@ void  Game::drawMouseRect() {
 bool Game::FindSingleCell(SingleSelectedCell const& s1, SingleSelectedCell const& s2) {
 	return s1.row == s2.row && s1.col == s2.col;
 } 
+
+void Game::loadAnimation(std::string name) {
+	std::ifstream readAnimations(name);
+
+	char resourceFilename[128];
+
+	Enums::Direction16 direction = Enums::Direction16::E;
+	while (!readAnimations.eof()) {
+		readAnimations >> resourceFilename;
+
+		std::ifstream readAnimationDef(resourceFilename);
+		int numAnimationFrames = 0;
+		int framesPerSecond = 0;
+		int loopInt = 0;
+		AnimationLoopState loopMode;
+
+		readAnimationDef >> numAnimationFrames >> framesPerSecond >> loopInt;
+
+		switch (loopInt) {
+			case 1: loopMode = AnimationLoopState::ONCE; break;
+			case 2: loopMode = AnimationLoopState::REPEAT; break;
+			default: loopMode = AnimationLoopState::REPEAT; break;
+		}
+		
+		readAnimationDef.ignore(std::numeric_limits<std::streamsize>::max(), '{');
+		while (!readAnimationDef.eof() && readAnimationDef.peek() != '}') {
+			int subframeIndex;
+			float normalizedTime;
+			readAnimationDef >> subframeIndex >> normalizedTime;
+			readAnimationDef.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+			const TextureRect& rect = TileSetManager::Get().getTileSet("sHero_anm").getTextureRects()[direction * numAnimationFrames + subframeIndex];
+
+			m_animationFrames.push_back({ rect , normalizedTime,  direction});
+		}
+		readAnimationDef.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+		direction = static_cast<Enums::Direction16>(static_cast<int>(direction) + 1);
+	}
+}

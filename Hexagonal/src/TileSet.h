@@ -5,29 +5,25 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
+#include <unordered_map>
 
 #include <engine/Rect.h>
 
-class TileSet {
+struct TextureAtlasCreator {
 
 public:
 
-	void loadTileSet(std::string name);
 	void init(unsigned int _width = 1024u, unsigned int _height = 1024u);
-	unsigned int getAtlas();
-	const std::vector<TextureRect>& getTextureRects() const;
 
-	static TileSet& Get();
+	void addTexture(unsigned char *texture, unsigned int w, unsigned int h, bool flipTextureRect, unsigned int _maxWidth, unsigned int _maxHeight, std::vector<TextureRect>& textureRects);
+	void addTexture(unsigned char *texture, unsigned int w, unsigned int h, std::vector<TextureRect>& prepacked, bool flipTextureRect, unsigned int _maxWidth, unsigned int _maxHeight, std::vector<TextureRect>& textureRects);
+	void resetLine();
+	void addFrame();
+	void getAtlas(unsigned int& textureRef);
+
+	static TextureAtlasCreator& Get();
 
 private:
-
-	TileSet() = default;
-
-	void addTexture(unsigned char *texture, unsigned int w, unsigned int h, bool flipTextureRect = false, unsigned int _maxWidth = 0u, unsigned int _maxHeight = 0u);
-	void addTexture(unsigned char *texture, unsigned int w, unsigned int h, std::vector<TextureRect>& prepacked, bool flipTextureRect = false, unsigned int _maxWidth = 0u, unsigned int _maxHeight = 0u);
-	void resetLine();
-	void addFrame();	
-	
 
 	unsigned char* buffer;
 	unsigned char* bufferPtr;
@@ -42,8 +38,36 @@ private:
 	unsigned int fillSpace;
 	unsigned short frame;
 
+	static TextureAtlasCreator s_instance;
+};
+
+class TileSet {
+
+	friend class TileSetManager;
+
+public:
+
+	TileSet() = default;
+	void loadTileSet(std::string name, unsigned int width = 1024u, unsigned int height = 1024u, bool resetLine = false);
+	const std::vector<TextureRect>& getTextureRects() const;
+	const unsigned int& getAtlas() const;
+
+private:
+
+	unsigned int m_atlas;
 	std::vector<TextureRect> m_textureRects;
+};
 
+class TileSetManager {
 
-	static TileSet s_instance;
+public:
+	
+	TileSet& getTileSet(std::string name);
+	static TileSetManager& Get();
+
+private:
+	TileSetManager() = default;
+
+	std::unordered_map<std::string, TileSet> m_tileSets;
+	static TileSetManager s_instance;
 };
