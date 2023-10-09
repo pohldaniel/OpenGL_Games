@@ -160,7 +160,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Animation.cpp" />
+    <ClCompile Include="AnimationController.cpp" />
+    <ClCompile Include="AnimationState.cpp" />
+    <ClCompile Include="BlendState.cpp" />
     <ClCompile Include="engine\ZoomableQuad.cpp" />
+    <ClCompile Include="HashIndex.cpp" />
     <ClCompile Include="src\Map.cpp" />
     <ClCompile Include="src\States\CoreMechanic.cpp" />
     <ClCompile Include="src\States\Plot.cpp" />
@@ -241,8 +246,13 @@
     <ClCompile Include="src\UI\Widget.cpp" />
     <ClCompile Include="src\Utils\SolidIO.cpp" />
     <ClCompile Include="src\Utils\Utils.cpp" />
+    <ClCompile Include="StateNode.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Animation.h" />
+    <ClInclude Include="AnimationController.h" />
+    <ClInclude Include="AnimationState.h" />
+    <ClInclude Include="BlendState.h" />
     <ClInclude Include="engine\ArrayBuffer.h" />
     <ClInclude Include="engine\collision\Collider.h" />
     <ClInclude Include="engine\collision\Collision.h" />
@@ -294,6 +304,8 @@
     <ClInclude Include="engine\Vector.h" />
     <ClInclude Include="engine\VolumeBuffer.h" />
     <ClInclude Include="engine\ZoomableQuad.h" />
+    <ClInclude Include="HashIndex.h" />
+    <ClInclude Include="Sort.h" />
     <ClInclude Include="src\Enums.h" />
     <ClInclude Include="src\Globals.h" />
     <ClInclude Include="src\Map.h" />
@@ -332,6 +344,8 @@
     <ClInclude Include="src\UI\Widget.h" />
     <ClInclude Include="src\Utils\SolidIO.h" />
     <ClInclude Include="src\Utils\Utils.h" />
+    <ClInclude Include="StateNode.h" />
+    <ClInclude Include="StateTransition.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

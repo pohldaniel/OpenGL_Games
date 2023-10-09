@@ -18,6 +18,7 @@
 #include "Background.h"
 #include "TileSet.h"
 #include "Enums.h"
+#include "Animation.h"
 
 struct Cell {
 	const TextureRect& rect;
@@ -33,28 +34,11 @@ struct SingleSelectedCell {
 	bool found;
 };
 
-struct AnimationFrame {
-	const TextureRect& rect;
-	float normalizedTime;
-};
-
-struct Animation {
-	void loadAnimation16(std::string name, const std::vector<TextureRect>& textureRects);
-	void loadAnimation8(std::string name, const std::vector<TextureRect>& textureRects);
-	std::vector<AnimationFrame> m_animationFrames;
-	std::unordered_map<int, unsigned short> m_moveTexturesPerDirection;	
-};
-
 enum SelectionMode {
 	BOXSELECTION,
 	ISOSELECTION,
 	MARKER,
 	RASTERIZER
-};
-
-enum AnimationLoopState {
-	ONCE,
-	REPEAT
 };
 
 enum SelectedAnimation {

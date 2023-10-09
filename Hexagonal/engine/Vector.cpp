@@ -2320,7 +2320,11 @@ Vector2f::Vector2f() {
 	vec[0] = 0.0f;
 	vec[1] = 0.0f;
 }
-Vector2f::~Vector2f() {}
+
+Vector2f::Vector2f(const Vector2f &rhs) {
+	vec[0] = rhs.vec[0];
+	vec[1] = rhs.vec[1];
+}
 
 Vector2f::Vector2f(float x_, float y_) {
 	vec[0] = x_;
@@ -2328,13 +2332,14 @@ Vector2f::Vector2f(float x_, float y_) {
 
 }
 
+Vector2f::~Vector2f() {}
+
 void Vector2f::set(float x_, float y_) {
 	vec[0] = x_, vec[1] = y_;
 }
 
-Vector2f::Vector2f(const Vector2f &rhs) {
-	vec[0] = rhs.vec[0];
-	vec[1] = rhs.vec[1];
+float Vector2f::lengthSq() const {
+	return (vec[0] * vec[0]) + (vec[1] * vec[1]);
 }
 
 float &Vector2f::operator[](int index) {

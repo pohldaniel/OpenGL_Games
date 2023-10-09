@@ -75,11 +75,11 @@ public:
 	~Vector2f();
 
 	void set(float x_, float y_);
+	float lengthSq() const;
+	const float* getVec()const;
 
 	float &operator[](int index);
 	const float operator[](int index) const;
-
-	const float* getVec()const;
 
 	Vector2f& operator= (const Vector2f& rhs);
 

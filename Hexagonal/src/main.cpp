@@ -39,7 +39,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	std::cout << "alt + enter      : fullscreen" << std::endl;
 
 	int frames = 0;
-	float framesTime = 0;
+	float frameTime = 0;
 #endif
 
 	Globals::physics = new Physics(PHYSICS_STEP);
@@ -75,14 +75,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		deltaTime = deltaClock.resetSec();
 
 #if DEBUG
-		framesTime += deltaTime;
+		frameTime += deltaTime;
 		frames++;
-		if (framesTime > 1) {
+		if (frameTime > 1) {
 			_TCHAR fpsText[32];
 			_sntprintf(fpsText, 32, "FPS: %d FPS", frames);
 			SetWindowText(hwnd, fpsText);
 			frames = 0;
-			framesTime = 0;
+			frameTime = 0;
 			deltaClock.restart();
 		}
 #endif
