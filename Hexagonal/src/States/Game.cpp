@@ -63,8 +63,14 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	TileSetManager::Get().getTileSet("sArcher_anm").loadTileSet("Graphics/Animations/sArcher/Controller_defs/sArcher.bimg", 1280u, 1024u, true);
 	//Spritesheet::Safe("sArcher", TileSetManager::Get().getTileSet("sArcher_anm").getAtlas());
 
-	m_sHero_run.loadAnimation16("Graphics/Animations/sHero/Controller_defs/sHero_run.banim", TileSetManager::Get().getTileSet("sHero_anm").getTextureRects());
-	m_sArcher_run.loadAnimation8("Graphics/Animations/sArcher/Controller_defs/sArcher_run.banim", TileSetManager::Get().getTileSet("sArcher_anm").getTextureRects());
+	AnimationManager::Get().loadAnimation16("Graphics/Animations/sHero/Controller_defs/sHero.banim", TileSetManager::Get().getTileSet("sHero_anm").getTextureRects());
+	AnimationManager::Get().loadAnimation8("Graphics/Animations/sArcher/Controller_defs/sArcher.banim", TileSetManager::Get().getTileSet("sArcher_anm").getTextureRects());
+
+	m_animationController = new eAnimationController();
+	m_animationController->load("Graphics/Animations/sHero/Controller_defs/sHero.ectrl");
+
+	selectedAnimation = &AnimationManager::Get().getAnimation("sArcher_Run_" + std::to_string(m_direction8));
+	texturesPerDirection = selectedAnimation->getTexturesPerDirection(m_direction8);
 }
 
 Game::~Game() {
@@ -147,13 +153,11 @@ void Game::render() {
 	auto shader = Globals::shaderManager.getAssetPointer("quad_array");
 	shader->use();
 
-	const TextureRect& rect = m_selctedAnimation == SelectedAnimation::ARCHER_RUN ? m_sArcher_run.getAnimationFrames()[m_direction8 * m_sArcher_run.getTexturesPerDirection(m_direction8) + m_animationFrame - 1].rect
-                                                                                  : m_sHero_run.getAnimationFrames()[m_direction16 * m_sHero_run.getTexturesPerDirection(m_direction16) + m_animationFrame - 1].rect;
-
+	const TextureRect& rect = selectedAnimation->getAnimationFrames()[m_animationFrame - 1].rect;
 	shader->loadMatrix("u_transform", m_camera.getOrthographicMatrix() * Matrix4f::Translate(800.0f, 450.0f, 0.0f) * Matrix4f::Scale(rect.width, rect.height, 0.0f));
 	shader->loadVector("u_texRect", Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureOffsetX + rect.textureWidth, rect.textureOffsetY + rect.textureHeight));
 	shader->loadInt("u_layer", rect.frame);
-	Spritesheet::Bind(m_selctedAnimation == SelectedAnimation::ARCHER_RUN ? TileSetManager::Get().getTileSet("sArcher_anm").getAtlas() : TileSetManager::Get().getTileSet("sHero_anm").getAtlas());
+	Spritesheet::Bind((m_selctedAnimation == SelectedAnimation::ARCHER_RUN || m_selctedAnimation == SelectedAnimation::ARCHER_IDLE) ? TileSetManager::Get().getTileSet("sArcher_anm").getAtlas() : TileSetManager::Get().getTileSet("sHero_anm").getAtlas());
 	Globals::shapeManager.get("quad").drawRaw();
 
 	Spritesheet::Unbind();
@@ -570,25 +574,44 @@ void Game::renderUi() {
 	ImGui::NewLine();
 
 	int currentAnimation = m_selctedAnimation;
-	if (ImGui::Combo("Animation", &currentAnimation, "Hero Run\0Archer Run\0\0")) {
+	if (ImGui::Combo("Animation", &currentAnimation, "Hero Run\0Archer Run\0Hero Idle\0Archer Idle\0\0")) {
 		m_selctedAnimation = static_cast<SelectedAnimation> (currentAnimation);
 		m_animationFrame = 1;
+		reload = true;
 	}
 	
-	if (m_selctedAnimation == SelectedAnimation::ARCHER_RUN) {
-		int currentDierection8 = m_direction8;
-		if (ImGui::Combo("Direction 8", &currentDierection8, "South\0South East\0East\0North East\0North\0North West\0West\0South West\0\0")) {
-			m_direction8 = static_cast<Enums::Direction8 > (currentDierection8);
-		}
-	}else {
+	if (m_selctedAnimation == SelectedAnimation::HERO_RUN) {
 		int currentDierection16 = m_direction16;
-		if (ImGui::Combo("Direction 16", &currentDierection16, "East\0North East Down\0North East Middle\0North East Up\0North\0North West Up\0North West Middle\0North West Dow\0West\0South West Up\0South West Middle\0South West Down\0South\0South East Down\0South East Middle\0South East Up\0\0")) {
+		if (reload || ImGui::Combo("Direction 16", &currentDierection16, "East\0North East Down\0North East Middle\0North East Up\0North\0North West Up\0North West Middle\0North West Down\0West\0South West Up\0South West Middle\0South West Down\0South\0South East Down\0South East Middle\0South East Up\0\0")) {
 			m_direction16 = static_cast<Enums::Direction16> (currentDierection16);
+			selectedAnimation = &AnimationManager::Get().getAnimation("sHero_Run_" + std::to_string(m_direction16));
+			texturesPerDirection = selectedAnimation->getTexturesPerDirection(m_direction16);
+		}	
+	}else if (m_selctedAnimation == SelectedAnimation::ARCHER_RUN) {		
+		int currentDierection8 = m_direction8;
+		if (reload || ImGui::Combo("Direction 8", &currentDierection8, "South\0South East\0East\0North East\0North\0North West\0West\0South West\0\0")) {
+			m_direction8 = static_cast<Enums::Direction8 > (currentDierection8);
+			selectedAnimation = &AnimationManager::Get().getAnimation("sArcher_Run_" + std::to_string(m_direction8));
+			texturesPerDirection = selectedAnimation->getTexturesPerDirection(m_direction8);
+		}
+	}else if (m_selctedAnimation == SelectedAnimation::HERO_IDLE) {
+		int currentDierection16 = m_direction16;
+		if (reload || ImGui::Combo("Direction 16", &currentDierection16, "East\0North East Down\0North East Middle\0North East Up\0North\0North West Up\0North West Middle\0North West Down\0West\0South West Up\0South West Middle\0South West Down\0South\0South East Down\0South East Middle\0South East Up\0\0")) {
+			m_direction16 = static_cast<Enums::Direction16> (currentDierection16);
+			selectedAnimation = &AnimationManager::Get().getAnimation("sHero_Idle_" + std::to_string(m_direction16));
+			texturesPerDirection = selectedAnimation->getTexturesPerDirection(m_direction16);
+		}
+	}else if (m_selctedAnimation == SelectedAnimation::ARCHER_IDLE) {
+		int currentDierection8 = m_direction8;
+		if (reload || ImGui::Combo("Direction 8", &currentDierection8, "South\0South East\0East\0North East\0North\0North West\0West\0South West\0\0")) {
+			m_direction8 = static_cast<Enums::Direction8 > (currentDierection8);
+			selectedAnimation = &AnimationManager::Get().getAnimation("sArcher_Idle_" + std::to_string(m_direction8));
+			texturesPerDirection = selectedAnimation->getTexturesPerDirection(m_direction8);
 		}
 	}
-	
+	reload = false;
 
-	ImGui::SliderInt("Animation Frame", &m_animationFrame, 1, m_selctedAnimation == SelectedAnimation::ARCHER_RUN ? m_sArcher_run.getTexturesPerDirection(m_direction8) : m_sHero_run.getTexturesPerDirection(m_direction16));
+	ImGui::SliderInt("Animation Frame", &m_animationFrame, 1, texturesPerDirection);
 	ImGui::End();
 
 	ImGui::Render();
@@ -709,6 +732,7 @@ void Game::loadMap(std::string name) {
 
 	}
 	read.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+	read.close();
 }
 
 //isoX =  (cartX * CELL_WIDTH - cartY * CELL_HEIGHT) 

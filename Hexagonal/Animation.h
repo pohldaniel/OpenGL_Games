@@ -2,6 +2,7 @@
 
 #include <fstream>
 #include <sstream>
+#include <filesystem>
 
 #include <engine/Rect.h>
 #include <unordered_map>
@@ -19,6 +20,9 @@ struct AnimationFrame {
 };
 
 struct Animation {
+
+	friend class AnimationManager;
+
 	void loadAnimation16(std::string name, const std::vector<TextureRect>& textureRects);
 	void loadAnimation8(std::string name, const std::vector<TextureRect>& textureRects);
 	const std::vector<AnimationFrame>& getAnimationFrames() const;
@@ -41,9 +45,12 @@ public:
 	Animation& getAnimation(std::string name);
 	static AnimationManager& Get();
 
+	void loadAnimation16(std::string name, const std::vector<TextureRect>& textureRects);
+	void loadAnimation8(std::string name, const std::vector<TextureRect>& textureRects);
+
 private:
 	AnimationManager() = default;
 
-	std::unordered_map<std::string, Animation> m_tileSets;
+	std::unordered_map<std::string, Animation> m_animations;
 	static AnimationManager s_instance;
 };

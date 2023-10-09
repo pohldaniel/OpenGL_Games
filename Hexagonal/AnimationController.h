@@ -9,9 +9,6 @@
 #include "StateNode.h"
 
 class eAnimationController  {
-public:
-
-	friend class eAnimationControllerManager;		// sole access to Add/GetXYZParameterIndex functionality
 
 public:
 
@@ -52,7 +49,7 @@ public:
 	bool										GetTriggerParameter(int nameHash) const;
 
 	virtual void								Update();
-	
+	void load(const std::string & name);
 
 private:
 

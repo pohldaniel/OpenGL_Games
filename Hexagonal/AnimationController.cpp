@@ -28,6 +28,7 @@ If you have questions concerning this license, you may contact Thomas Freehill a
 #include "AnimationState.h"
 #include "BlendState.h"
 #include "Sort.h"
+#include <iostream>
 
 //************
 // eAnimationController::eAnimationController
@@ -266,4 +267,326 @@ bool eAnimationController::AddTriggerParameter(const std::string & name, bool in
 	triggerParamsHash.Add(hashKey, triggerParameters.size());
 	triggerParameters.emplace_back(initialValue);
 	return true;
+}
+
+void eAnimationController::load(const std::string & name) {
+	std::ifstream read(name);
+
+	char buffer[128];
+	memset(buffer, 0, sizeof(buffer));
+	read.getline(buffer, sizeof(buffer), '\n');
+
+	memset(buffer, 0, sizeof(buffer));
+	read.getline(buffer, sizeof(buffer), '\n');
+
+	memset(buffer, 0, sizeof(buffer));
+	read.getline(buffer, sizeof(buffer), '\n');							// initial state name
+
+	int numStateNodes = 0;												// controller configuration
+	int numTransitions = 0;
+	int numIntParams = 0;
+	int numFloatParams = 0;
+	int numBoolParams = 0;
+	int numTriggerParams = 0;
+	read >> numStateNodes >> numTransitions >> numIntParams >> numFloatParams >> numBoolParams >> numTriggerParams;
+
+	statesHash.ClearAndResize(numStateNodes);
+	transitionsHash.ClearAndResize(numTransitions);
+	intParamsHash.ClearAndResize(numIntParams);
+	floatParamsHash.ClearAndResize(numFloatParams);
+	boolParamsHash.ClearAndResize(numBoolParams);
+	triggerParamsHash.ClearAndResize(numTriggerParams);
+	animationStates.reserve(numStateNodes);
+	stateTransitions.reserve(numTransitions);
+	intParameters.reserve(numIntParams);
+	floatParameters.reserve(numFloatParams);
+	boolParameters.reserve(numBoolParams);
+	triggerParameters.reserve(numTriggerParams);
+
+	enum class LoadState {
+		CONTROLLER_PARAMETERS,
+		ANIMATION_STATES,
+		BLEND_STATES,
+		STATE_TRANSITIONS,
+		FINISHED
+	};
+	LoadState loadState = LoadState::CONTROLLER_PARAMETERS;
+	int defaultFloatNameHash = 0;
+	bool firstFloatNameHashSaved = false;
+
+	// DEBUG: always put a major-section's closing brace '}' on a new line below the last entry
+	read.ignore(std::numeric_limits<std::streamsize>::max(), '{');		// jump to Controller_Parameters {\n
+	read.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+	while (read.peek() != '}') {
+		memset(buffer, 0, sizeof(buffer));
+		read.getline(buffer, sizeof(buffer), ' ');						// parameter type
+		std::string parameterType(buffer);
+		
+		memset(buffer, 0, sizeof(buffer));
+		read.getline(buffer, sizeof(buffer), ' ');						// parameter name
+		std::string parameterName(buffer);
+		
+		// TODO: log an error if the same parameter attempts to load twice (based on its nameHash)
+		if (parameterType == "int") {									// parameter initial value
+			int initialIntValue = 0;
+			read >> initialIntValue;
+			AddIntParameter(parameterName, initialIntValue);
+		}
+		else if (parameterType == "float") {
+			float initialFloatValue = 0.0f;
+			read >> initialFloatValue;
+			AddFloatParameter(parameterName, initialFloatValue);
+			if (!firstFloatNameHashSaved) {								// saved first hashkey to use for blendState default parameters, if needed
+				firstFloatNameHashSaved = true;
+				defaultFloatNameHash = floatParamsHash.GetHashKey(parameterName);
+			}
+		}
+		else if (parameterType == "bool") {
+			bool initialBoolValue = false;
+			read >> initialBoolValue;
+			AddBoolParameter(parameterName, initialBoolValue);
+		}
+		else if (parameterType == "trigger") {
+			bool initialTriggerValue = false;
+			read >> initialTriggerValue;
+			AddTriggerParameter(parameterName, initialTriggerValue);
+		}
+
+		read.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+		
+	}
+
+	loadState = LoadState::ANIMATION_STATES;
+
+	while (!read.eof() && loadState != LoadState::FINISHED) {
+		read.ignore(std::numeric_limits<std::streamsize>::max(), '{');
+		read.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+		switch (loadState) {
+		case LoadState::ANIMATION_STATES: {
+			while (read.peek() != '}') {
+				/*memset(buffer, 0, sizeof(buffer));
+				read.getline(buffer, sizeof(buffer), ' ');				// state name
+				std::string stateName(buffer);
+				
+				memset(buffer, 0, sizeof(buffer));
+				read.getline(buffer, sizeof(buffer), ' ');				// animation name
+
+				auto & animation = game->GetAnimationManager().GetByFilename(buffer);
+				
+				float stateSpeed = 0.0f;
+				read >> stateSpeed;										// state speed
+				read.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+				AddAnimationState(std::make_unique<eAnimationState>(stateName, animation, stateSpeed));*/
+			}
+			loadState = LoadState::BLEND_STATES;
+			break;
+		}
+
+		case LoadState::BLEND_STATES: {
+			while (read.peek() != '}') {								// adding blend states
+				read.ignore(std::numeric_limits<std::streamsize>::max(), '\n');		// skip past implicit "{\n"
+
+				memset(buffer, 0, sizeof(buffer));
+				read.getline(buffer, sizeof(buffer), ' ');				// state name
+				std::string stateName(buffer);
+				
+				int numAnimations = 0;									// state configuration
+				int animationBlendMode = 0;
+				float stateSpeed = 0.0f;
+				read >> numAnimations >> animationBlendMode >> stateSpeed;
+				read.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+				
+				AnimationBlendMode blendMode;
+				switch (animationBlendMode) {
+				case 1: blendMode = AnimationBlendMode::SIMPLE_1D; break;
+				case 2: blendMode = AnimationBlendMode::FREEFORM_2D; break;
+				default: blendMode = AnimationBlendMode::SIMPLE_1D; break;
+				}
+
+				memset(buffer, 0, sizeof(buffer));
+				read.getline(buffer, sizeof(buffer), ' ');				// x-axis blending parameter name
+				std::string xBlendParameterName(buffer);
+
+
+				// DEBUG: .ectrl format demands that if one blend state exists, then at least one float param exists
+				int xBlendParameterHash = floatParamsHash.GetHashKey(xBlendParameterName);
+				int xBlendParameterIndex = GetFloatParameterIndex(xBlendParameterName);
+				if (xBlendParameterIndex < 0)							// invalid parameter name, use default
+					xBlendParameterHash = defaultFloatNameHash;
+
+
+				int yBlendParameterHash = defaultFloatNameHash;
+				if (blendMode == AnimationBlendMode::FREEFORM_2D) {
+					memset(buffer, 0, sizeof(buffer));
+					read.getline(buffer, sizeof(buffer), '\n');			// y-axis blending parameter name
+					std::string yBlendParameterName(buffer);					
+
+					// DEBUG: .ectrl format demands if blendMode == FREEFORM_2D that two parameters be listed
+					int yBlendParameterIndex = GetFloatParameterIndex(yBlendParameterName);
+					yBlendParameterHash = floatParamsHash.GetHashKey(yBlendParameterName);
+					if (yBlendParameterIndex < 0)
+						yBlendParameterHash = defaultFloatNameHash;
+				}
+
+
+				// TODO: if no floats values are listed (just an animationName\n) then default values to 
+				// (1.0f / numAnimations) * currentAnimationLoadedCount so they are evenly distributed
+				// OR: add a "distribute" boolean at the top of the blend state file-definition
+				// to indicate how to affect/ignore the values in the file
+				auto & newBlendState = std::make_unique<eBlendState>(stateName, numAnimations, xBlendParameterHash, yBlendParameterHash, blendMode, stateSpeed);
+				while (read.peek() != '}') {							// adding blend nodes
+					read.getline(buffer, sizeof(buffer), ' ');			// animation name
+					std::string animationName(buffer);
+
+					float nodeValue_X = 0.0f;
+					float nodeValue_Y = 0.0f;
+					read >> nodeValue_X;
+					if (blendMode == AnimationBlendMode::FREEFORM_2D)
+						read >> nodeValue_Y;
+
+					read.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+					if (!newBlendState->AddBlendNode(animationName, nodeValue_X, nodeValue_Y))
+						return;									// bad animation name	// TODO: just log an error and let the error_animation play
+				}
+
+				read.ignore(std::numeric_limits<std::streamsize>::max(), '\n');	// skip past blend state delimiter "}\n"
+				newBlendState->Init();
+				// FIXME(?): blendNodesHash ClearAndResize to numAnimations may cause too many collisions
+				AddAnimationState(std::move(newBlendState));
+			}
+			loadState = LoadState::STATE_TRANSITIONS;
+			break;
+		}
+
+		case LoadState::STATE_TRANSITIONS: {
+			while (read.peek() != '}') {								// adding blend states
+				read.ignore(std::numeric_limits<std::streamsize>::max(), '\n');		// skip past implicit "{\n"
+
+				memset(buffer, 0, sizeof(buffer));
+				read.getline(buffer, sizeof(buffer), ' ');				// transition name
+				std::string transitionName(buffer);
+				
+				memset(buffer, 0, sizeof(buffer));
+				read.getline(buffer, sizeof(buffer), ' ');				// from state
+				std::string fromState(buffer);
+				
+				// fromState is allow to be invalid for anyState == true
+				int fromStateIndex = GetStateIndex(fromState);
+
+				memset(buffer, 0, sizeof(buffer));
+				read.getline(buffer, sizeof(buffer), ' ');				// to state
+				std::string toState(buffer);				
+
+				// skip this transition if its toState is invalid
+				int toStateIndex = GetStateIndex(toState);
+				if (toStateIndex < 0) {
+					read.ignore(std::numeric_limits<std::streamsize>::max(), '}');
+					read.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+					continue;
+				}
+
+				float exitTime = 0.0f;									// when to check conditions (in normalizedTime)
+				float offset = 0.0f;									// where to start toState (in normalizedTime)
+				bool anyState = false;									// transition occurs from any eStateNode
+				read >> anyState >> exitTime >> offset;
+				read.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+				// skip this transition if its fromState is invalid
+				if (!anyState && fromStateIndex < 0) {
+					read.ignore(std::numeric_limits<std::streamsize>::max(), '}');
+					read.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+					continue;
+				}
+
+				if (offset < 0.0f)
+					offset = 0.0f;
+
+				eStateTransition newTransition(transitionName, anyState, fromStateIndex, toStateIndex, exitTime, offset);
+				while (read.peek() != '}') {							// adding transition conditions
+					read.getline(buffer, sizeof(buffer), ' ');			// condition type (from named controller param's type)
+					std::string conditionType(buffer);
+	
+					read.getline(buffer, sizeof(buffer), ' ');			// controller parameter name
+					std::string controllerParameterName(buffer);
+	
+					read.getline(buffer, sizeof(buffer), ' ');			// comparision operator name
+					std::string compareOperatorName(buffer);
+
+					// DEBUG: compareEnum will be ignored for bools and triggers because they're always COMPARE_ENUM::EQUAL
+					COMPARE_ENUM compareEnum;
+					if (compareOperatorName == "greater")			compareEnum = COMPARE_ENUM::GREATER;
+					else if (compareOperatorName == "greaterEqual") compareEnum = COMPARE_ENUM::GREATER_EQUAL;
+					else if (compareOperatorName == "less")			compareEnum = COMPARE_ENUM::LESS;
+					else if (compareOperatorName == "lessEqual")	compareEnum = COMPARE_ENUM::LESS_EQUAL;
+					else if (compareOperatorName == "equal")		compareEnum = COMPARE_ENUM::EQUAL;
+					else if (compareOperatorName == "notEqual")		compareEnum = COMPARE_ENUM::NOT_EQUAL;
+
+					if (conditionType == "int") {						// condition value, and validating parameter names
+
+						const int controllerIntIndex = GetIntParameterIndex(controllerParameterName);
+						if (controllerIntIndex >= 0) {
+							int intValue = 0;
+							read >> intValue;
+							read.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+							newTransition.AddIntCondition(controllerIntIndex, compareEnum, intValue);
+						}
+						else {
+							read.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+						}
+
+					}
+					else if (conditionType == "float") {
+
+						const int controllerFloatIndex = GetFloatParameterIndex(controllerParameterName);
+						if (controllerFloatIndex >= 0) {
+							float floatValue = 0.0f;
+							read >> floatValue;
+							read.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+		
+							newTransition.AddFloatCondition(controllerFloatIndex, compareEnum, floatValue);
+						}
+						else {
+							read.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+						}
+
+					}
+					else if (conditionType == "bool") {
+
+						const int controllerBoolIndex = GetBoolParameterIndex(controllerParameterName);
+						if (controllerBoolIndex >= 0) {
+							bool boolValue = false;
+							read >> boolValue;
+							read.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+						
+
+							newTransition.AddBoolCondition(controllerBoolIndex, boolValue);
+						}
+						else {
+							read.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+						}
+
+					}
+					else if (conditionType == "trigger") {
+
+						const int controllerTriggerIndex = GetBoolParameterIndex(controllerParameterName);
+						if (controllerTriggerIndex >= 0)
+							newTransition.AddTriggerCondition(controllerTriggerIndex);
+						else
+							read.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+					}
+				}
+
+				read.ignore(std::numeric_limits<std::streamsize>::max(), '\n');	// skip past blend state delimiter "}\n"
+				AddTransition(std::move(newTransition));
+			}
+			SortAndHashTransitions();
+			loadState = LoadState::FINISHED;
+			break;
+		}
+		}
+	}
+
+	read.close();
 }

@@ -20,6 +20,8 @@
 #include "Enums.h"
 #include "Animation.h"
 
+#include "AnimationController.h"
+
 struct Cell {
 	const TextureRect& rect;
 	float posX;
@@ -43,7 +45,9 @@ enum SelectionMode {
 
 enum SelectedAnimation {
 	HERO_RUN,
-	ARCHER_RUN
+	ARCHER_RUN,
+	HERO_IDLE,
+	ARCHER_IDLE
 };
 
 class Game : public State, public MouseEventListener, public KeyboardEventListener {
@@ -147,6 +151,11 @@ private:
 	Enums::Direction16 m_direction16 = Enums::Direction16::E;
 	Enums::Direction8 m_direction8 = Enums::Direction8::s;
 	SelectedAnimation m_selctedAnimation = SelectedAnimation::ARCHER_RUN;
-	Animation m_sHero_run;
-	Animation m_sArcher_run;
+	//Animation m_sHero_run;
+	//Animation m_sArcher_run;
+
+	Animation* selectedAnimation;
+	eAnimationController* m_animationController;
+	int texturesPerDirection;
+	bool reload = false;
 };

@@ -16,26 +16,26 @@ Blend_States {
 {
 IdleState 8 2 1
 xSpeed ySpeed
-Graphics/Animations/sArcher/sArcher_Idle/Animation_defs/sArcher_Idle_0.eanim 0 1
-Graphics/Animations/sArcher/sArcher_Idle/Animation_defs/sArcher_Idle_1.eanim 0.707 0.707
-Graphics/Animations/sArcher/sArcher_Idle/Animation_defs/sArcher_Idle_2.eanim 1 0
-Graphics/Animations/sArcher/sArcher_Idle/Animation_defs/sArcher_Idle_3.eanim 0.707 -0.707
-Graphics/Animations/sArcher/sArcher_Idle/Animation_defs/sArcher_Idle_4.eanim 0 -1
-Graphics/Animations/sArcher/sArcher_Idle/Animation_defs/sArcher_Idle_5.eanim -0.707 -0.707
-Graphics/Animations/sArcher/sArcher_Idle/Animation_defs/sArcher_Idle_6.eanim -1 0
-Graphics/Animations/sArcher/sArcher_Idle/Animation_defs/sArcher_Idle_7.eanim -0.707 0.707
+sArcher_Idle_0 0 1
+sArcher_Idle_1 0.707 0.707
+sArcher_Idle_2 1 0
+sArcher_Idle_3 0.707 -0.707
+sArcher_Idle_4 0 -1
+sArcher_Idle_5 -0.707 -0.707
+sArcher_Idle_6 -1 0
+sArcher_Idle_7 -0.707 0.707
 }
 {
 RunState 8 2 1.25
 xSpeed ySpeed
-Graphics/Animations/sArcher/sArcher_Run/Animation_defs/sArcher_Run_0.eanim 0 1
-Graphics/Animations/sArcher/sArcher_Run/Animation_defs/sArcher_Run_1.eanim 0.707 0.707
-Graphics/Animations/sArcher/sArcher_Run/Animation_defs/sArcher_Run_2.eanim 1 0
-Graphics/Animations/sArcher/sArcher_Run/Animation_defs/sArcher_Run_3.eanim 0.707 -0.707
-Graphics/Animations/sArcher/sArcher_Run/Animation_defs/sArcher_Run_4.eanim 0 -1
-Graphics/Animations/sArcher/sArcher_Run/Animation_defs/sArcher_Run_5.eanim -0.707 -0.707
-Graphics/Animations/sArcher/sArcher_Run/Animation_defs/sArcher_Run_6.eanim -1 0
-Graphics/Animations/sArcher/sArcher_Run/Animation_defs/sArcher_Run_7.eanim -0.707 0.707
+sArcher_Run_0 0 1
+sArcher_Run_1 0.707 0.707
+sArcher_Run_2 1 0
+sArcher_Run_3 0.707 -0.707
+sArcher_Run_4 0 -1
+sArcher_Run_5 -0.707 -0.707
+sArcher_Run_6 -1 0
+sArcher_Run_7 -0.707 0.707
 }
 }
 
