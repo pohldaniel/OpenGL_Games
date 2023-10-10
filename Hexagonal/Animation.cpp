@@ -128,7 +128,7 @@ void AnimationManager::loadAnimation16(std::string name, const std::vector<Textu
 		int loopInt = 0;
 
 		Animation& animation = getAnimation(std::experimental::filesystem::path(resourceFilename).filename().stem().string());
-
+		animation.name = std::experimental::filesystem::path(resourceFilename).filename().stem().string();
 		readAnimationDef >> numAnimationFrames >> framesPerSecond >> loopInt;
 
 		animation.m_duration = (float)(1000.0f * static_cast<float>(numAnimationFrames)) / (float)framesPerSecond;
@@ -176,7 +176,7 @@ void AnimationManager::loadAnimation8(std::string name, const std::vector<Textur
 		int loopInt = 0;
 
 		Animation& animation = getAnimation(std::experimental::filesystem::path(resourceFilename).filename().stem().string());
-
+		animation.name = std::experimental::filesystem::path(resourceFilename).filename().stem().string();
 		readAnimationDef >> numAnimationFrames >> framesPerSecond >> loopInt;
 
 		animation.m_duration = (float)(1000.0f * static_cast<float>(numAnimationFrames)) / (float)framesPerSecond;

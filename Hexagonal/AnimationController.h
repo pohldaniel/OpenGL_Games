@@ -50,7 +50,7 @@ public:
 
 	virtual void								Update();
 	void load(const std::string & name);
-
+	const AnimationFrame*						currentFrame = nullptr;
 private:
 
 	// returns true if add was successful, false if the item already exists 

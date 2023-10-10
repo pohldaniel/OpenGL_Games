@@ -67,7 +67,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	AnimationManager::Get().loadAnimation8("Graphics/Animations/sArcher/Controller_defs/sArcher.banim", TileSetManager::Get().getTileSet("sArcher_anm").getTextureRects());
 
 	m_animationController = new eAnimationController();
-	m_animationController->load("Graphics/Animations/sHero/Controller_defs/sHero.ectrl");
+	m_animationController->load("Graphics/Animations/sArcher/Controller_defs/sArcher.ectrl");
 
 	selectedAnimation = &AnimationManager::Get().getAnimation("sArcher_Run_" + std::to_string(m_direction8));
 	texturesPerDirection = selectedAnimation->getTexturesPerDirection(m_direction8);
@@ -145,6 +145,8 @@ void Game::update() {
 	m_transform.fromMatrix(m_trackball.getTransform());
 
 	m_background.update(m_dt);
+
+	m_animationController->Update();
 }
 
 void Game::render() {
@@ -153,7 +155,9 @@ void Game::render() {
 	auto shader = Globals::shaderManager.getAssetPointer("quad_array");
 	shader->use();
 
-	const TextureRect& rect = selectedAnimation->getAnimationFrames()[m_animationFrame - 1].rect;
+	//const TextureRect& rect = selectedAnimation->getAnimationFrames()[m_animationFrame - 1].rect;
+	const TextureRect& rect = m_animationController->currentFrame->rect;
+
 	shader->loadMatrix("u_transform", m_camera.getOrthographicMatrix() * Matrix4f::Translate(800.0f, 450.0f, 0.0f) * Matrix4f::Scale(rect.width, rect.height, 0.0f));
 	shader->loadVector("u_texRect", Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureOffsetX + rect.textureWidth, rect.textureOffsetY + rect.textureHeight));
 	shader->loadInt("u_layer", rect.frame);

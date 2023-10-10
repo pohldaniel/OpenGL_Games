@@ -29,7 +29,7 @@ struct Animation {
 	const float getDuration() const;
 	const unsigned short getTexturesPerDirection(int direction) const;
 	const AnimationLoopState getAnimationLoopState() const;
-
+	std::string name;
 private:
 
 	std::vector<AnimationFrame> m_animationFrames;

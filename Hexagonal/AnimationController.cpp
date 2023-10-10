@@ -145,8 +145,7 @@ void eAnimationController::Update() {
 			break;
 		}
 	}
-
-	animationStates[currentState]->Update();
+	animationStates[1]->Update();
 }
 
 //**************
@@ -434,7 +433,7 @@ void eAnimationController::load(const std::string & name) {
 				// (1.0f / numAnimations) * currentAnimationLoadedCount so they are evenly distributed
 				// OR: add a "distribute" boolean at the top of the blend state file-definition
 				// to indicate how to affect/ignore the values in the file
-				auto & newBlendState = std::make_unique<eBlendState>(stateName, numAnimations, xBlendParameterHash, yBlendParameterHash, blendMode, stateSpeed);
+				auto & newBlendState = std::make_unique<eBlendState>(stateName, numAnimations, xBlendParameterHash, yBlendParameterHash, blendMode, stateSpeed, this);
 				while (read.peek() != '}') {							// adding blend nodes
 					read.getline(buffer, sizeof(buffer), ' ');			// animation name
 					std::string animationName(buffer);

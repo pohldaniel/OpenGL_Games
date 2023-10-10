@@ -63,7 +63,8 @@ public:
 															int xBlendParameterHash,
 															int yBlendParameterHash,
 															AnimationBlendMode blendMode = AnimationBlendMode::SIMPLE_1D,
-															float speed = 1.0f);
+															float speed = 1.0f,
+															eAnimationController* stateMachine = nullptr);
 
 
 private:

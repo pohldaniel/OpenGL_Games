@@ -25,6 +25,8 @@ If you have questions concerning this license, you may contact Thomas Freehill a
 ===========================================================================
 */
 #include "StateNode.h"
+#include <iostream>
+#include "AnimationController.h"
 
 //*********************
 // eStateNode::NextFrame
@@ -32,8 +34,9 @@ If you have questions concerning this license, you may contact Thomas Freehill a
 // according to param animation
 //*********************
 void eStateNode::NextFrame(const Animation & animation) {
-	//time += (float)game->GetFixedTime();
+	time += 16.666f * 0.6f;
 	if (time > duration) { 
+		
 		switch (animation.getAnimationLoopState()) {
 			case AnimationLoopState::ONCE:		time = duration; break;
 			case AnimationLoopState::REPEAT:	time = 0.0f; break;
@@ -43,12 +46,15 @@ void eStateNode::NextFrame(const Animation & animation) {
 	// the price-is-right for which animation frame should be active
 	for (auto & frame : animation.getAnimationFrames()) {
 		auto animTime = frame.normalizedTime * duration;
+		
 		if (animTime <= time)
 			currentFrame = &frame;
 		else
 			break;
 	}
 
+	stateMachine->currentFrame = currentFrame;
+	
 	//auto & targetRenderImage = stateMachine->Owner()->RenderImage();
 	//targetRenderImage.SetImage(currentFrame->imageManagerIndex);
 	//targetRenderImage.SetImageFrame(currentFrame->subframeIndex);

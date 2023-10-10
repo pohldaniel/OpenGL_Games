@@ -74,7 +74,7 @@ protected:
 	std::string									name;
 	int											nameHash;
 	float										speed;
-	float										duration;
+	float										duration = 0.0f;
 	float										time					= 0.0f;
 	const AnimationFrame *					currentFrame			= nullptr;
 };

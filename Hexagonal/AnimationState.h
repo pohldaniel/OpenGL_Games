@@ -46,7 +46,8 @@ public:
 
 public:
 
-	eAnimationState(const std::string & name, const std::shared_ptr<Animation> & animation,  float speed = 1.0f);
+	eAnimationState(const std::string & name, const std::shared_ptr<Animation> & animation,  float speed = 1.0f,
+		eAnimationController* stateMachine = nullptr);
 
 	Tag GetTag() const override { return Tag::ANIMATIONSTATE; }
 

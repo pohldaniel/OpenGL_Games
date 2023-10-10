@@ -27,18 +27,19 @@ If you have questions concerning this license, you may contact Thomas Freehill a
 #include "BlendState.h"
 #include "AnimationController.h"
 #include "Animation.h"
+#include <iostream>
 
 //*********************
 // eBlendState::eBlendState
 //*********************
-eBlendState::eBlendState(const std::string & name, int numAnimations, int xBlendParameterHash, int yBlendParameterHash, AnimationBlendMode blendMode, float speed)
+eBlendState::eBlendState(const std::string & name, int numAnimations, int xBlendParameterHash, int yBlendParameterHash, AnimationBlendMode blendMode, float speed, eAnimationController* stateMachine)
 	: xBlendParameterHash(xBlendParameterHash),
 	  yBlendParameterHash(yBlendParameterHash),
 	  blendMode(blendMode),
-	  currentAnimationIndex(0) {
+	  currentAnimationIndex(0){
 	this->speed = (speed > 0.0f ? speed : 1.0f);
 	this->name = name;
-
+	this->stateMachine = stateMachine;
 	nameHash = std::hash<std::string>()(name);
 	blendNodesHash.ClearAndResize(numAnimations);
 	animations.reserve(numAnimations);

@@ -26,13 +26,14 @@ If you have questions concerning this license, you may contact Thomas Freehill a
 */
 #include "AnimationState.h"
 #include "Animation.h"
-
+#include <iostream>
 //*********************
 // eAnimationState::eAnimationState
 //*********************
-eAnimationState::eAnimationState(const std::string & name, const std::shared_ptr<Animation>& animation, float speed) : animation(animation) {
+eAnimationState::eAnimationState(const std::string & name, const std::shared_ptr<Animation>& animation, float speed, eAnimationController* stateMachine) : animation(animation) {
 	this->speed = (speed > 0.0f ? speed : 1.0f);
 	this->name = name;
+	this->stateMachine = stateMachine;
 
 	currentFrame = &animation->getAnimationFrames()[0];
 	duration = (animation->getDuration() / speed) + 16.6666f;	// BUGFIX: + FixedTime() prevents skipping the last animation frame during playback
