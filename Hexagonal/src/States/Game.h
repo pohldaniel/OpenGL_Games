@@ -28,6 +28,8 @@ struct Cell {
 	float posY;
 	bool selected;
 	bool visible;
+	int row;
+	int col;
 };
 
 struct SingleSelectedCell {
@@ -43,11 +45,9 @@ enum SelectionMode {
 	RASTERIZER
 };
 
-enum SelectedAnimation {
-	HERO_RUN,
-	ARCHER_RUN,
-	HERO_IDLE,
-	ARCHER_IDLE
+enum SelectedEntity {
+	HERO,
+	ARCHER
 };
 
 class Game : public State, public MouseEventListener, public KeyboardEventListener {
@@ -113,7 +113,6 @@ private:
 	bool m_discreteSelection = true;
 	bool m_autoRedraw = false;
 
-	int m_animationFrame = 1;
 
 	Background m_background;
 	ZoomableQuad m_zoomableQuad;
@@ -148,18 +147,14 @@ private:
 	static bool FindSingleCell(SingleSelectedCell const& s1, SingleSelectedCell const& s2);
 
 	
-	Enums::Direction16 m_direction16 = Enums::Direction16::E;
-	Enums::Direction8 m_direction8 = Enums::Direction8::s;
-	SelectedAnimation m_selctedAnimation = SelectedAnimation::ARCHER_RUN;
-	//Animation m_sHero_run;
-	//Animation m_sArcher_run;
+	
+	SelectedEntity m_selctedEntity = SelectedEntity::ARCHER;
 
-	Animation* selectedAnimation;
 	eAnimationController* m_animationControllerArcher, *m_animationControllerHero;
-	int texturesPerDirection;
-	bool reload = false;
+
 	Vector2f m_velocity;
 	Vector2f m_oldFacingDirection;
+	Vector2f m_position;
 
 	const int xSpeedParameterHash = std::hash< std::string >()("xSpeed");
 	const int ySpeedParameterHash = std::hash< std::string >()("ySpeed");

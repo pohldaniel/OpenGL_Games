@@ -72,8 +72,9 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	m_animationControllerHero = new eAnimationController();
 	m_animationControllerHero->load("Graphics/Animations/sHero/Controller_defs/sHero.ectrl");
 
-	selectedAnimation = &AnimationManager::Get().getAnimation("sArcher_Run_" + std::to_string(m_direction8));
-	texturesPerDirection = selectedAnimation->getTexturesPerDirection(m_direction8);
+	m_position = Vector2f(35.0f, 35.0f);
+	cartesianToIsometric(m_position[0], m_position[1]);
+	m_position[1] = -m_position[1];
 }
 
 Game::~Game() {
@@ -95,20 +96,17 @@ void Game::update() {
 	move = false;
 
 	if (keyboard.keyDown(Keyboard::KEY_W)) {
-		directrion += Vector3f(0.0f, 1.0f * (1.0f / m_zoomFactor), 0.0f);
-		_directrion += Vector2f(0.0f, 1.0f);
+		directrion += Vector3f(0.0f, 1.0f * (1.0f / m_zoomFactor), 0.0f);		
 		move |= true;
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_S)) {
-		directrion += Vector3f(0.0f, -1.0f * (1.0f / m_zoomFactor), 0.0f);
-		_directrion += Vector2f(0.0f, -1.0f);
+		directrion += Vector3f(0.0f, -1.0f * (1.0f / m_zoomFactor), 0.0f);		
 		move |= true;
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_A)) {
 		directrion += Vector3f(-1.0f * (1.0f / m_zoomFactor), 0.0f, 0.0f);
-		_directrion += Vector2f(-1.0f, 0.0f);
 		m_background.addOffset(-0.001f);
 		m_background.setSpeed(-0.005f);
 		move |= true;
@@ -116,7 +114,6 @@ void Game::update() {
 
 	if (keyboard.keyDown(Keyboard::KEY_D)) {
 		directrion += Vector3f(1.0f * (1.0f / m_zoomFactor), 0.0f, 0.0f);
-		_directrion += Vector2f(1.0f, 0.0f);
 		m_background.addOffset(0.001f);
 		m_background.setSpeed(0.005f);
 		move |= true;
@@ -132,6 +129,22 @@ void Game::update() {
 		move |= true;
 	}
 
+	if (keyboard.keyDown(Keyboard::KEY_UP)) {
+		_directrion += Vector2f(0.0f, 1.0f);
+	}
+
+	if (keyboard.keyDown(Keyboard::KEY_DOWN)) {
+		_directrion += Vector2f(0.0f, -1.0f);
+	}
+
+	if (keyboard.keyDown(Keyboard::KEY_LEFT)) {
+		_directrion += Vector2f(-1.0f, 0.0f);
+	}
+
+	if (keyboard.keyDown(Keyboard::KEY_RIGHT)) {
+		_directrion += Vector2f(1.0f, 0.0f);
+	}
+
 	Mouse &mouse = Mouse::instance();
 
 	if (mouse.buttonDown(Mouse::MouseButton::BUTTON_RIGHT)) {
@@ -142,7 +155,6 @@ void Game::update() {
 	if (move || dx != 0.0f || dy != 0.0f) {
 		if (dx || dy) {
 			//m_camera.rotate(dx, dy);
-
 		}
 
 		if (move) {
@@ -183,28 +195,13 @@ void Game::update() {
 	m_animationControllerHero->SetFloatParameter(ySpeedParameterHash, facingDirection[1]);
 	m_animationControllerHero->SetFloatParameter(magnitudeParameterHash, facingDirection.length());
 	m_animationControllerHero->Update();
+
+	
 }
 
 void Game::render() {
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glEnable(GL_BLEND);
-	auto shader = Globals::shaderManager.getAssetPointer("quad_array");
-	shader->use();
-
-	//const TextureRect& rect = selectedAnimation->getAnimationFrames()[m_animationFrame - 1].rect;
-	const TextureRect& rect = (m_selctedAnimation == SelectedAnimation::ARCHER_RUN || m_selctedAnimation == SelectedAnimation::ARCHER_IDLE) ? m_animationControllerArcher->currentFrame->rect : m_animationControllerHero->currentFrame->rect;
-
-	shader->loadMatrix("u_transform", m_camera.getOrthographicMatrix() * Matrix4f::Translate(800.0f, 450.0f, 0.0f) * Matrix4f::Scale(rect.width, rect.height, 0.0f));
-	shader->loadVector("u_texRect", Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureOffsetX + rect.textureWidth, rect.textureOffsetY + rect.textureHeight));
-	shader->loadInt("u_layer", rect.frame);
-	Spritesheet::Bind((m_selctedAnimation == SelectedAnimation::ARCHER_RUN || m_selctedAnimation == SelectedAnimation::ARCHER_IDLE) ? TileSetManager::Get().getTileSet("sArcher_anm").getAtlas() : TileSetManager::Get().getTileSet("sHero_anm").getAtlas());
-	Globals::shapeManager.get("quad").drawRaw();
-
-	Spritesheet::Unbind();
-	shader->unuse();
-	glDisable(GL_BLEND);
-
-	/*if (m_redrawMap) {
+	
+	if (m_redrawMap) {
 		m_redrawMap = !m_autoRedraw;
 		m_mainRT.bindWrite();
 		culling();
@@ -219,12 +216,20 @@ void Game::render() {
 
 		Spritesheet::Bind(m_atlas);
 		for (auto cell : m_useCulling ? m_visibleCells : m_cells) {
-			if (cell.visible)
+			if (cell.visible) {			
 				Batchrenderer::Get().addQuadAA(Vector4f(cell.posX * m_zoomFactor + (m_camera.getPositionX() + m_focusPointX) * (1.0f - m_zoomFactor), cell.posY * m_zoomFactor + (m_camera.getPositionY() + m_focusPointY) * (1.0f - m_zoomFactor), cell.rect.width * m_zoomFactor, cell.rect.height * m_zoomFactor), Vector4f(cell.rect.textureOffsetX, cell.rect.textureOffsetY, cell.rect.textureWidth, cell.rect.textureHeight), cell.selected ? Vector4f(0.5f, 0.5f, 0.5f, 1.0f) : Vector4f(1.0f, 1.0f, 1.0f, 1.0f), cell.rect.frame);
+			}
 		}
 
 		Batchrenderer::Get().drawBufferRaw();
 		Spritesheet::Unbind();
+
+		const TextureRect& rect = (m_selctedEntity == SelectedEntity::ARCHER || m_selctedEntity == SelectedEntity::ARCHER) ? m_animationControllerArcher->currentFrame->rect : m_animationControllerHero->currentFrame->rect;
+		Spritesheet::Bind((m_selctedEntity == SelectedEntity::ARCHER || m_selctedEntity == SelectedEntity::ARCHER) ? TileSetManager::Get().getTileSet("sArcher_anm").getAtlas() : TileSetManager::Get().getTileSet("sHero_anm").getAtlas());
+		Batchrenderer::Get().addQuadAA(Vector4f(m_position[0] * m_zoomFactor + (m_camera.getPositionX() + m_focusPointX) * (1.0f - m_zoomFactor), m_position[1] * m_zoomFactor + (m_camera.getPositionY() + m_focusPointY) * (1.0f - m_zoomFactor), rect.width * m_zoomFactor, rect.height * m_zoomFactor), Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureWidth, rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), rect.frame);
+		Batchrenderer::Get().drawBufferRaw();
+		Spritesheet::Unbind();
+
 		shader->unuse();
 		glDisable(GL_BLEND);
 
@@ -244,7 +249,7 @@ void Game::render() {
 	m_mainRT.bindColorTexture();
 	m_zoomableQuad.drawRaw();
 	m_mainRT.unbindColorTexture();
-	shader->unuse();*/
+	shader->unuse();
 
 	if (m_drawUi)
 		renderUi();
@@ -447,8 +452,7 @@ void Game::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 
 				if (cell.selected && cell.visible) {
 					m_singleCache.push_back({ row, col, false });
-				}
-				else {
+				}else {
 					m_singleCache.erase(std::remove_if(m_singleCache.begin(), m_singleCache.end(), [](SingleSelectedCell cell) {return cell.found; }), m_singleCache.end());
 				}
 			}
@@ -613,45 +617,11 @@ void Game::renderUi() {
 	ImGui::NewLine();
 	ImGui::NewLine();
 
-	int currentAnimation = m_selctedAnimation;
-	if (ImGui::Combo("Animation", &currentAnimation, "Hero Run\0Archer Run\0Hero Idle\0Archer Idle\0\0")) {
-		m_selctedAnimation = static_cast<SelectedAnimation> (currentAnimation);
-		m_animationFrame = 1;
-		reload = true;
+	int currentEntity = m_selctedEntity;
+	if (ImGui::Combo("Entity", &currentEntity, "Hero\0Archer\0\0")) {
+		m_selctedEntity = static_cast<SelectedEntity> (currentEntity);
 	}
 	
-	if (m_selctedAnimation == SelectedAnimation::HERO_RUN) {
-		int currentDierection16 = m_direction16;
-		if (reload || ImGui::Combo("Direction 16", &currentDierection16, "East\0North East Down\0North East Middle\0North East Up\0North\0North West Up\0North West Middle\0North West Down\0West\0South West Up\0South West Middle\0South West Down\0South\0South East Down\0South East Middle\0South East Up\0\0")) {
-			m_direction16 = static_cast<Enums::Direction16> (currentDierection16);
-			selectedAnimation = &AnimationManager::Get().getAnimation("sHero_Run_" + std::to_string(m_direction16));
-			texturesPerDirection = selectedAnimation->getTexturesPerDirection(m_direction16);
-		}	
-	}else if (m_selctedAnimation == SelectedAnimation::ARCHER_RUN) {		
-		int currentDierection8 = m_direction8;
-		if (reload || ImGui::Combo("Direction 8", &currentDierection8, "South\0South East\0East\0North East\0North\0North West\0West\0South West\0\0")) {
-			m_direction8 = static_cast<Enums::Direction8 > (currentDierection8);
-			selectedAnimation = &AnimationManager::Get().getAnimation("sArcher_Run_" + std::to_string(m_direction8));
-			texturesPerDirection = selectedAnimation->getTexturesPerDirection(m_direction8);
-		}
-	}else if (m_selctedAnimation == SelectedAnimation::HERO_IDLE) {
-		int currentDierection16 = m_direction16;
-		if (reload || ImGui::Combo("Direction 16", &currentDierection16, "East\0North East Down\0North East Middle\0North East Up\0North\0North West Up\0North West Middle\0North West Down\0West\0South West Up\0South West Middle\0South West Down\0South\0South East Down\0South East Middle\0South East Up\0\0")) {
-			m_direction16 = static_cast<Enums::Direction16> (currentDierection16);
-			selectedAnimation = &AnimationManager::Get().getAnimation("sHero_Idle_" + std::to_string(m_direction16));
-			texturesPerDirection = selectedAnimation->getTexturesPerDirection(m_direction16);
-		}
-	}else if (m_selctedAnimation == SelectedAnimation::ARCHER_IDLE) {
-		int currentDierection8 = m_direction8;
-		if (reload || ImGui::Combo("Direction 8", &currentDierection8, "South\0South East\0East\0North East\0North\0North West\0West\0South West\0\0")) {
-			m_direction8 = static_cast<Enums::Direction8 > (currentDierection8);
-			selectedAnimation = &AnimationManager::Get().getAnimation("sArcher_Idle_" + std::to_string(m_direction8));
-			texturesPerDirection = selectedAnimation->getTexturesPerDirection(m_direction8);
-		}
-	}
-	reload = false;
-
-	ImGui::SliderInt("Animation Frame", &m_animationFrame, 1, texturesPerDirection);
 	ImGui::End();
 
 	ImGui::Render();
@@ -747,7 +717,7 @@ void Game::loadMap(std::string name) {
 				float cartX = static_cast<float>(row);
 				float cartY = static_cast<float>(column);
 				cartesianToIsometric(cartX, cartY, cellWidth, cellHeight);
-				m_cells.push_back({ rect, cartX, -cartY , false, true });
+				m_cells.push_back({ rect, cartX, -cartY , false, true, row, column });
 				m_layer[layer][column][row].second = m_cells.size() - 1;
 			}
 
