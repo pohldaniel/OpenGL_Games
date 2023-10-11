@@ -155,7 +155,13 @@ private:
 	//Animation m_sArcher_run;
 
 	Animation* selectedAnimation;
-	eAnimationController* m_animationController;
+	eAnimationController* m_animationControllerArcher, *m_animationControllerHero;
 	int texturesPerDirection;
 	bool reload = false;
+	Vector2f m_velocity;
+	Vector2f m_oldFacingDirection;
+
+	const int xSpeedParameterHash = std::hash< std::string >()("xSpeed");
+	const int ySpeedParameterHash = std::hash< std::string >()("ySpeed");
+	const int magnitudeParameterHash = std::hash< std::string >()("magnitude");
 };

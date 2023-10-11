@@ -79,17 +79,15 @@ bool CompareUtility(const type & lhs, COMPARE_ENUM compare, const type & rhs) {
 bool eAnimationController::CheckTransitionConditions(const eStateTransition & transition) {
 	if (animationStates[currentState]->GetNormalizedTime() < transition.exitTime)
 		return false;
-
+	
 	bool updateState = true;
 	for (auto & conditionTuple : transition.floatConditions) {
-		updateState = CompareUtility<float>(floatParameters[std::get<0>(conditionTuple)],
-			std::get<COMPARE_ENUM>(conditionTuple),
-			std::get<2>(conditionTuple)
-			);
+		updateState = CompareUtility<float>(floatParameters[std::get<0>(conditionTuple)],std::get<COMPARE_ENUM>(conditionTuple),std::get<2>(conditionTuple));
+
 		if (!updateState)
 			return false;
 	}
-
+	
 	for (auto & conditionTuple : transition.intConditions) {
 		updateState = CompareUtility<int>(intParameters[std::get<0>(conditionTuple)],
 			std::get<COMPARE_ENUM>(conditionTuple),
@@ -145,7 +143,7 @@ void eAnimationController::Update() {
 			break;
 		}
 	}
-	animationStates[1]->Update();
+	animationStates[currentState]->Update();
 }
 
 //**************

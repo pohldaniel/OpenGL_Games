@@ -66,8 +66,11 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	AnimationManager::Get().loadAnimation16("Graphics/Animations/sHero/Controller_defs/sHero.banim", TileSetManager::Get().getTileSet("sHero_anm").getTextureRects());
 	AnimationManager::Get().loadAnimation8("Graphics/Animations/sArcher/Controller_defs/sArcher.banim", TileSetManager::Get().getTileSet("sArcher_anm").getTextureRects());
 
-	m_animationController = new eAnimationController();
-	m_animationController->load("Graphics/Animations/sArcher/Controller_defs/sArcher.ectrl");
+	m_animationControllerArcher = new eAnimationController();
+	m_animationControllerArcher->load("Graphics/Animations/sArcher/Controller_defs/sArcher.ectrl");
+
+	m_animationControllerHero = new eAnimationController();
+	m_animationControllerHero->load("Graphics/Animations/sHero/Controller_defs/sHero.ectrl");
 
 	selectedAnimation = &AnimationManager::Get().getAnimation("sArcher_Run_" + std::to_string(m_direction8));
 	texturesPerDirection = selectedAnimation->getTexturesPerDirection(m_direction8);
@@ -85,6 +88,7 @@ void Game::fixedUpdate() {
 void Game::update() {
 	Keyboard &keyboard = Keyboard::instance();
 	Vector3f directrion = Vector3f();
+	Vector2f _directrion = Vector2f();
 
 	float dx = 0.0f;
 	float dy = 0.0f;
@@ -92,16 +96,19 @@ void Game::update() {
 
 	if (keyboard.keyDown(Keyboard::KEY_W)) {
 		directrion += Vector3f(0.0f, 1.0f * (1.0f / m_zoomFactor), 0.0f);
+		_directrion += Vector2f(0.0f, 1.0f);
 		move |= true;
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_S)) {
 		directrion += Vector3f(0.0f, -1.0f * (1.0f / m_zoomFactor), 0.0f);
+		_directrion += Vector2f(0.0f, -1.0f);
 		move |= true;
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_A)) {
 		directrion += Vector3f(-1.0f * (1.0f / m_zoomFactor), 0.0f, 0.0f);
+		_directrion += Vector2f(-1.0f, 0.0f);
 		m_background.addOffset(-0.001f);
 		m_background.setSpeed(-0.005f);
 		move |= true;
@@ -109,6 +116,7 @@ void Game::update() {
 
 	if (keyboard.keyDown(Keyboard::KEY_D)) {
 		directrion += Vector3f(1.0f * (1.0f / m_zoomFactor), 0.0f, 0.0f);
+		_directrion += Vector2f(1.0f, 0.0f);
 		m_background.addOffset(0.001f);
 		m_background.setSpeed(0.005f);
 		move |= true;
@@ -146,7 +154,35 @@ void Game::update() {
 
 	m_background.update(m_dt);
 
-	m_animationController->Update();
+
+
+	const float moveSpeed = 0.8f;
+	_directrion.normalize();
+	_directrion *= moveSpeed;
+	isometricToCartesian(_directrion[0], _directrion[1], 1.0f, 1.0f);
+
+	m_velocity = _directrion;
+
+	Vector2f facingDirection;
+	if (!m_velocity.zero()) {
+		facingDirection = m_velocity.normalize();
+		cartesianToIsometric(facingDirection[0], facingDirection[1], 1.0f, 1.0f);
+		facingDirection.normalize();
+		m_oldFacingDirection = facingDirection;
+	}
+	else {
+		facingDirection = m_oldFacingDirection * 0.25f;
+	}
+
+	m_animationControllerArcher->SetFloatParameter(xSpeedParameterHash, facingDirection[0]);
+	m_animationControllerArcher->SetFloatParameter(ySpeedParameterHash, facingDirection[1]);
+	m_animationControllerArcher->SetFloatParameter(magnitudeParameterHash, facingDirection.length());
+	m_animationControllerArcher->Update();
+
+	m_animationControllerHero->SetFloatParameter(xSpeedParameterHash, facingDirection[0]);
+	m_animationControllerHero->SetFloatParameter(ySpeedParameterHash, facingDirection[1]);
+	m_animationControllerHero->SetFloatParameter(magnitudeParameterHash, facingDirection.length());
+	m_animationControllerHero->Update();
 }
 
 void Game::render() {
@@ -156,7 +192,7 @@ void Game::render() {
 	shader->use();
 
 	//const TextureRect& rect = selectedAnimation->getAnimationFrames()[m_animationFrame - 1].rect;
-	const TextureRect& rect = m_animationController->currentFrame->rect;
+	const TextureRect& rect = (m_selctedAnimation == SelectedAnimation::ARCHER_RUN || m_selctedAnimation == SelectedAnimation::ARCHER_IDLE) ? m_animationControllerArcher->currentFrame->rect : m_animationControllerHero->currentFrame->rect;
 
 	shader->loadMatrix("u_transform", m_camera.getOrthographicMatrix() * Matrix4f::Translate(800.0f, 450.0f, 0.0f) * Matrix4f::Scale(rect.width, rect.height, 0.0f));
 	shader->loadVector("u_texRect", Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureOffsetX + rect.textureWidth, rect.textureOffsetY + rect.textureHeight));

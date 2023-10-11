@@ -2316,7 +2316,6 @@ void Matrix4f::print() const {
 
 //////////////////////////////////////////////////////////////////////
 Vector2f::Vector2f() {
-
 	vec[0] = 0.0f;
 	vec[1] = 0.0f;
 }
@@ -2329,7 +2328,6 @@ Vector2f::Vector2f(const Vector2f &rhs) {
 Vector2f::Vector2f(float x_, float y_) {
 	vec[0] = x_;
 	vec[1] = y_;
-
 }
 
 Vector2f::~Vector2f() {}
@@ -2338,8 +2336,25 @@ void Vector2f::set(float x_, float y_) {
 	vec[0] = x_, vec[1] = y_;
 }
 
+float Vector2f::length() const {
+	return sqrtf((vec[0] * vec[0]) + (vec[1] * vec[1]));
+}
+
 float Vector2f::lengthSq() const {
 	return (vec[0] * vec[0]) + (vec[1] * vec[1]);
+}
+
+bool Vector2f::zero() {
+	return vec[0] == 0.0 && vec[1] == 0.0;
+}
+
+Vector2f& Vector2f::normalize() {
+	float _length = length();
+	if (_length == 0.0f) return *this;
+
+	float invMag = 1.0f / _length;
+	vec[0] *= invMag, vec[1] *= invMag;
+	return *this;
 }
 
 float &Vector2f::operator[](int index) {
@@ -2351,7 +2366,6 @@ const float Vector2f::operator[](int index) const {
 }
 
 const float* Vector2f::getVec()const {
-
 	return vec;
 }
 

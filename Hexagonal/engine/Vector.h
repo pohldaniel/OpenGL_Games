@@ -75,8 +75,11 @@ public:
 	~Vector2f();
 
 	void set(float x_, float y_);
+	float length() const;
 	float lengthSq() const;
 	const float* getVec()const;
+	bool zero();
+	Vector2f& normalize();
 
 	float &operator[](int index);
 	const float operator[](int index) const;
