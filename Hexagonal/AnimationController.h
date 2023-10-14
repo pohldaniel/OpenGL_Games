@@ -14,7 +14,7 @@ public:
 
 	virtual									   ~eAnimationController() = default;
 	eAnimationController() = default;
-	eAnimationController(eAnimationController && other) = default;
+	eAnimationController(const char* filename);
 	eAnimationController(const eAnimationController & other);
 	eAnimationController(const char * sourceFilename, int managerIndex);
 

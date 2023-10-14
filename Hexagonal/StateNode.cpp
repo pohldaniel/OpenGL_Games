@@ -52,7 +52,6 @@ void eStateNode::NextFrame(const Animation & animation) {
 		else
 			break;
 	}
-
 	stateMachine->currentFrame = currentFrame;
 	
 	//auto & targetRenderImage = stateMachine->Owner()->RenderImage();

@@ -20,7 +20,12 @@
 #include "Enums.h"
 #include "Animation.h"
 
+#include "Math.hpp"
+
+
+#include "Entity.h"
 #include "AnimationController.h"
+#include "Prefab.h"
 
 struct Cell {
 	const TextureRect& rect;
@@ -83,17 +88,6 @@ private:
 	void processCache(std::vector<std::reference_wrapper<Cell>>& cache, bool visible, bool selected, bool clear);
 	void processCache(std::vector<std::reference_wrapper<Cell>>& cache, bool visible, bool selected, std::vector<std::reference_wrapper<Cell>>& storage, bool clearAfterCopy);
 
-	void cartesianToIsometric(float & x, float & y, float cellWidth = 32.0f, float cellHeight = 32.0f);
-	void isometricToCartesian(float& x, float& y, float cellWidth = 32.0f, float cellHeight = 32.0f);
-	void isometricToCartesian(float x, float y, int& row, int& col, float cellWidth = 32.0f, float cellHeight = 32.0f);
-	void isometricToCartesian(float x, float y, int& row, int& col, float cellWidth, float cellHeight, int min, int max);
-
-	void isometricToRow(float x, float y, int& row, float cellWidth = 32.0f);
-	void isometricToRow(float x, float y, int& row, float cellWidth, int min, int max);
-
-	void isometricToCol(float x, float y, int& col, float cellHeight = 32.0f);
-	void isometricToCol(float x, float y, int& col, float cellHeight, int min, int max);
-
 	bool isValid(const int row, const int column) const;
 
 	Camera m_camera;
@@ -134,6 +128,8 @@ private:
 	std::vector<std::reference_wrapper<Cell>> m_cellCache;
 	std::vector<SingleSelectedCell> m_singleCache;
 
+	std::vector<Entity> m_entities;
+
 	bool move;
 	std::array<Vector2f, 4> m_cullingVertices;
 
@@ -149,14 +145,4 @@ private:
 	
 	
 	SelectedEntity m_selctedEntity = SelectedEntity::ARCHER;
-
-	eAnimationController* m_animationControllerArcher, *m_animationControllerHero;
-
-	Vector2f m_velocity;
-	Vector2f m_oldFacingDirection;
-	Vector2f m_position;
-
-	const int xSpeedParameterHash = std::hash< std::string >()("xSpeed");
-	const int ySpeedParameterHash = std::hash< std::string >()("ySpeed");
-	const int magnitudeParameterHash = std::hash< std::string >()("magnitude");
 };

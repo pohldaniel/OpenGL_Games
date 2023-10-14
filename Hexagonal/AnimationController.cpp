@@ -30,6 +30,10 @@ If you have questions concerning this license, you may contact Thomas Freehill a
 #include "Sort.h"
 #include <iostream>
 
+eAnimationController::eAnimationController(const char* filename) {
+	load(filename);
+}
+
 //************
 // eAnimationController::eAnimationController
 // copy ctor needs to allocate new state unique_ptrs
@@ -48,13 +52,15 @@ eAnimationController::eAnimationController(const eAnimationController & other)
 	boolParameters(other.boolParameters),
 	triggerParameters(other.triggerParameters),
 	currentState(other.currentState),
-	paused(other.paused) {
+	paused(other.paused){
 	for (auto & state : other.animationStates) {
 		if (state->GetTag() == ANIMATIONSTATE) {
 			animationStates.emplace_back(std::make_unique<eAnimationState>(*static_cast<eAnimationState *>(state.get())));
+			animationStates.back()->stateMachine = this;
 		}
 		else if (state->GetTag() == BLENDSTATE) {
 			animationStates.emplace_back(std::make_unique<eBlendState>(*static_cast<eBlendState *>(state.get())));
+			animationStates.back()->stateMachine = this;
 		}
 	}
 }
