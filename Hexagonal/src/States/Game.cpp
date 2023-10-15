@@ -680,13 +680,13 @@ void Game::loadMap(std::string name) {
 			if (m_layer[layer][column][row].first != -1) {
 
 				const TextureRect& rect = TileSetManager::Get().getTileSet("map").getTextureRects()[m_layer[layer][column][row].first];
-				const std::array<unsigned int, 4>& collRect = defaultAABBList[colAndBlockId[m_layer[layer][column][row].first][0]];
-				const std::array<unsigned int, 3>& blockRect = defaultRenderBlockSizes[colAndBlockId[m_layer[layer][column][row].first][1]];
+				const std::array<unsigned int, 4>& collRect = defaultAABBList[std::min(colAndBlockId[m_layer[layer][column][row].first][0], 0)];
+				const std::array<unsigned int, 3>& blockRect = defaultRenderBlockSizes[std::min(colAndBlockId[m_layer[layer][column][row].first][1], 0)];
 
 				float cartX = static_cast<float>(row);
 				float cartY = static_cast<float>(column);
 				Math::cartesianToIsometric(cartX, cartY, cellWidth, cellHeight);
-				m_cells.push_back({ rect, cartX, -cartY, false, true,  collRect , blockRect, colAndBlockId[m_layer[layer][column][row].first][0] != 0 });
+				m_cells.push_back({ rect, cartX, -cartY, false, true,  collRect , blockRect, colAndBlockId[m_layer[layer][column][row].first][0] != -1 });
 				m_layer[layer][column][row].second = m_cells.size() - 1;
 			}
 
@@ -933,12 +933,12 @@ void Game::loadCollision(std::string name) {
 		// get all subframe indexes for the eImage (separated by spaces), everything after '#' is ignored
 		while (read.peek() != '#') {
 			int subframeIndex;
-			unsigned int colliderType;
-			unsigned int renderBlockType;
+			int colliderType;
+			int renderBlockType;
 
 			read >> subframeIndex >> colliderType >> renderBlockType;
 
-			colAndBlockId.push_back({ colliderType, renderBlockType });
+			colAndBlockId.push_back({ colliderType - 1, renderBlockType - 1});
 
 			read.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 		}

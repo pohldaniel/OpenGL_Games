@@ -153,7 +153,7 @@ private:
 	std::vector<std::array<unsigned int, 3>> defaultRenderBlockSizes;
 	std::vector<std::array<unsigned int, 4>> defaultAABBList;
 
-	std::vector<std::array<unsigned int, 2>> colAndBlockId;
+	std::vector<std::array<int, 2>> colAndBlockId;
 
 	void DrawIsometricRect(float posX, float posY, const std::array<unsigned int, 4 >& colRect);
 };
