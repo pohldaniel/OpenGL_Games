@@ -50,6 +50,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 
 	
 	TileSetManager::Get().getTileSet("map").loadTileSet("res/tilesetFrames2.bimg");
+	loadCollision("Graphics/Maps/Tileset_defs/evilMaster2.etls");
 	m_atlas = TileSetManager::Get().getTileSet("map").getAtlas();
 	//Spritesheet::Safe("map", m_atlas);
 
@@ -75,6 +76,8 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 
 	m_entities.push_back(Entity(PrefabManager::Get().getPrefab("sHero")));
 	m_entities.push_back(Entity(PrefabManager::Get().getPrefab("sArcher")));
+
+	
 }
 
 Game::~Game() {
@@ -191,6 +194,10 @@ void Game::render() {
 
 		shader->unuse();
 		glDisable(GL_BLEND);
+
+		for (auto cell : m_collisionCells) {
+			DrawIsometricRect(cell.posX, cell.posY, cell.collisionRect);
+		}
 
 		if (m_drawCullingRect)
 			drawCullingRect();
@@ -673,10 +680,13 @@ void Game::loadMap(std::string name) {
 			if (m_layer[layer][column][row].first != -1) {
 
 				const TextureRect& rect = TileSetManager::Get().getTileSet("map").getTextureRects()[m_layer[layer][column][row].first];
+				const std::array<unsigned int, 4>& collRect = defaultAABBList[colAndBlockId[m_layer[layer][column][row].first][0]];
+				const std::array<unsigned int, 3>& blockRect = defaultRenderBlockSizes[colAndBlockId[m_layer[layer][column][row].first][1]];
+
 				float cartX = static_cast<float>(row);
 				float cartY = static_cast<float>(column);
 				Math::cartesianToIsometric(cartX, cartY, cellWidth, cellHeight);
-				m_cells.push_back({ rect, cartX, -cartY , false, true, row, column });
+				m_cells.push_back({ rect, cartX, -cartY, false, true,  collRect , blockRect, colAndBlockId[m_layer[layer][column][row].first][0] != 0 });
 				m_layer[layer][column][row].second = m_cells.size() - 1;
 			}
 
@@ -724,13 +734,18 @@ void Game::culling() {
 	Math::isometricToCol(m_cullingVertices[2][0], m_cullingVertices[2][1], colMin, cellHeight * m_zoomFactor, 0, 128);
 
 	m_visibleCells.clear();
-
+	m_collisionCells.clear();
 
 	for (int j = 0; j < m_layer.size(); j++) {
 		for (int y = colMin; y < colMax; y++) {
 			for (int x = rowMin; x < rowMax; x++) {
 				if (m_layer[j][y][x].first != -1) {
+
 					m_visibleCells.push_back(m_cells[m_layer[j][y][x].second]);
+					//std::cout << m_layer[j][y][x].first << std::endl;
+					if (m_cells[m_layer[j][y][x].second].hasCollision) {
+						m_collisionCells.push_back(m_cells[m_layer[j][y][x].second]);
+					}
 				}
 
 			}
@@ -846,3 +861,117 @@ bool Game::FindSingleCell(SingleSelectedCell const& s1, SingleSelectedCell const
 	return s1.row == s2.row && s1.col == s2.col;
 } 
 
+void Game::loadCollision(std::string name) {
+	std::ifstream read(name);
+
+	read.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+	char buffer[MAX_ESTRING_LENGTH];
+	memset(buffer, 0, sizeof(buffer));
+	read.getline(buffer, sizeof(buffer), '\n');
+
+	enum {
+		LOADING_DEFAULT_COLLISION,
+		LOADING_DEFAULT_RENDERBLOCKS,
+		LOADING_TILESET
+	};
+	int readState = LOADING_DEFAULT_COLLISION;
+
+	read.ignore(std::numeric_limits<std::streamsize>::max(), '\n');			// skip the third line comment
+	
+
+	while (readState == LOADING_DEFAULT_COLLISION) {
+		memset(buffer, 0, sizeof(buffer));
+		read.getline(buffer, sizeof(buffer), ':');							// collision shape text
+
+
+		std::string collisionShape = buffer;
+		if (collisionShape.compare("eBounds") == 0) {
+			unsigned int width = 0;
+			unsigned int height = 0;
+			unsigned int xOffset = 0;
+			unsigned int yOffset = 0;
+			read >> width >> height >> xOffset >> yOffset;
+
+			defaultAABBList.push_back({ width , height , xOffset , yOffset });
+		}
+
+		read.ignore(std::numeric_limits<std::streamsize>::max(), '\n');		// skip the rest of the line
+		if (read.peek() == '#') {
+			read.ignore(std::numeric_limits<std::streamsize>::max(), '\n');	// skip the renderBlockSize rules comment
+			readState = LOADING_DEFAULT_RENDERBLOCKS;
+		}
+	}
+
+	
+	while (readState == LOADING_DEFAULT_RENDERBLOCKS) {
+		SkipFileKey(read);													// rbSize text
+		unsigned int width = 0;
+		unsigned int height = 0;
+		unsigned int depth = 0;
+		read >> width >> height >> depth;
+		
+		defaultRenderBlockSizes.push_back({ width, height, depth });
+		read.ignore(std::numeric_limits<std::streamsize>::max(), '\n');		// skip the rest of the line
+		if (read.peek() == '#') {
+			read.ignore(std::numeric_limits<std::streamsize>::max(), '\n');	// begin tile type definitions comment
+			SkipFileKey(read);												// num_tiles text
+			readState = LOADING_TILESET;
+		}
+	}
+
+	
+
+	size_t numTiles = 0;
+	read >> numTiles;
+	read.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+	while (!read.eof()) {	// readState == LOADING_TILESET
+							// read a source image name
+		memset(buffer, 0, sizeof(buffer));
+		read.getline(buffer, sizeof(buffer), '\n');
+		
+		// get all subframe indexes for the eImage (separated by spaces), everything after '#' is ignored
+		while (read.peek() != '#') {
+			int subframeIndex;
+			unsigned int colliderType;
+			unsigned int renderBlockType;
+
+			read >> subframeIndex >> colliderType >> renderBlockType;
+
+			colAndBlockId.push_back({ colliderType, renderBlockType });
+
+			read.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+		}
+		read.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+	}
+
+	read.close();
+}
+
+void Game::DrawIsometricRect(float posX, float posY, const std::array<unsigned int,4 >& colRect) {
+	
+
+	glMatrixMode(GL_PROJECTION);
+	glLoadMatrixf(&m_camera.getOrthographicMatrix()[0][0]);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadMatrixf(&m_camera.getViewMatrix()[0][0]);
+	
+	
+
+
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	glBegin(GL_QUADS);
+	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+
+	float xpos = posX + colRect[2];
+	float ypos = posY + colRect[3];
+	float w = colRect[0];
+	float h = colRect[1];
+
+	glVertex3f(xpos, ypos, 0.0f);
+	glVertex3f(xpos, (ypos + h), 0.0f);
+	glVertex3f(xpos + w, (ypos + h), 0.0f);
+	glVertex3f(xpos + w, ypos, 0.0f);
+	glEnd();
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+}

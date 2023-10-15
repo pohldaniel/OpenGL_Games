@@ -33,8 +33,9 @@ struct Cell {
 	float posY;
 	bool selected;
 	bool visible;
-	int row;
-	int col;
+	const std::array<unsigned int, 4>& collisionRect;
+	const std::array<unsigned int, 3>& renderBlock;
+	bool hasCollision;
 };
 
 struct SingleSelectedCell {
@@ -76,7 +77,7 @@ public:
 private:
 
 	void loadMap(std::string name);
-	
+	void loadCollision(std::string name);
 	void SkipFileKey(std::ifstream & read);
 
 	void applyTransformation(TrackBall& arc);
@@ -124,6 +125,8 @@ private:
 
 	std::vector<Cell> m_cells;
 	std::vector<Cell> m_visibleCells;
+	std::vector<Cell> m_collisionCells;
+
 	std::vector<std::reference_wrapper<Cell>> m_selectedCells;
 	std::vector<std::reference_wrapper<Cell>> m_cellCache;
 	std::vector<SingleSelectedCell> m_singleCache;
@@ -145,4 +148,12 @@ private:
 	
 	
 	SelectedEntity m_selctedEntity = SelectedEntity::ARCHER;
+
+
+	std::vector<std::array<unsigned int, 3>> defaultRenderBlockSizes;
+	std::vector<std::array<unsigned int, 4>> defaultAABBList;
+
+	std::vector<std::array<unsigned int, 2>> colAndBlockId;
+
+	void DrawIsometricRect(float posX, float posY, const std::array<unsigned int, 4 >& colRect);
 };
