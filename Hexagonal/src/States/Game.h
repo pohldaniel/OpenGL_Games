@@ -33,9 +33,11 @@ struct Cell {
 	float posY;
 	bool selected;
 	bool visible;
-	const std::array<unsigned int, 4>& collisionRect;
+	const Vector4f& collisionRect;
 	const std::array<unsigned int, 3>& renderBlock;
 	bool hasCollision;
+	int row;
+	int col;
 };
 
 struct SingleSelectedCell {
@@ -151,9 +153,9 @@ private:
 
 
 	std::vector<std::array<unsigned int, 3>> defaultRenderBlockSizes;
-	std::vector<std::array<unsigned int, 4>> defaultAABBList;
+	std::vector<Vector4f> defaultAABBList;
 
 	std::vector<std::array<int, 2>> colAndBlockId;
 
-	void DrawIsometricRect(float posX, float posY, const std::array<unsigned int, 4 >& colRect);
+	void drawIsometricRect(float posX, float posY, Vector4f sizeOffset);
 };

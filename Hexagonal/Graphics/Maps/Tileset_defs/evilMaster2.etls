@@ -4,7 +4,7 @@ Graphics/Maps/Tileset_defs/tilesetFrames2.bimg
 eBounds: 32 32 0 0		# 0 (width height offset.x offset.y)
 eBounds: 16 32 8 0		# 1
 eBounds: 32 16 0 8		# 2
-eBounds: 16 16 32 10		# 3 (tree)
+eBounds: 16 16 32 10	# 3 (tree)
 eBounds: 16 32 0 0		# 4
 eBounds: 32 16 0 0		# 5
 eBounds: 16 16 0 0		# 6
@@ -31,7 +31,7 @@ cwalls12: 32 16 16		# 12
 houses: 32 32 112		# 13
 tree: 16 16 110			# 14
 floors2: 16 16 0		# 15 (used for floors with offset colliders causing renderBlock overlap)
-caveEnter1: 32 64 112		# 16
+caveEnter1: 32 64 112	# 16
 stairs: 64 64 112		# 17
 cactus: 16 16 32		# 18
 # begin tile type definitions

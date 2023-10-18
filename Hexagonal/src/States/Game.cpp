@@ -196,7 +196,7 @@ void Game::render() {
 		glDisable(GL_BLEND);
 
 		for (auto cell : m_collisionCells) {
-			DrawIsometricRect(cell.posX, cell.posY, cell.collisionRect);
+			drawIsometricRect((cell.posX + 32.0f) * m_zoomFactor + (m_camera.getPositionX() + m_focusPointX) * (1.0f - m_zoomFactor), (cell.posY + 32.0f) * m_zoomFactor + (m_camera.getPositionY() + m_focusPointY) * (1.0f - m_zoomFactor), cell.collisionRect * m_zoomFactor);
 		}
 
 		if (m_drawCullingRect)
@@ -680,13 +680,13 @@ void Game::loadMap(std::string name) {
 			if (m_layer[layer][column][row].first != -1) {
 
 				const TextureRect& rect = TileSetManager::Get().getTileSet("map").getTextureRects()[m_layer[layer][column][row].first];
-				const std::array<unsigned int, 4>& collRect = defaultAABBList[std::min(colAndBlockId[m_layer[layer][column][row].first][0], 0)];
-				const std::array<unsigned int, 3>& blockRect = defaultRenderBlockSizes[std::min(colAndBlockId[m_layer[layer][column][row].first][1], 0)];
+				const Vector4f& collRect = colAndBlockId[m_layer[layer][column][row].first][0] == 0 ? defaultAABBList[0] : defaultAABBList[colAndBlockId[m_layer[layer][column][row].first][0] - 1];
+				const std::array<unsigned int, 3>& blockRect = colAndBlockId[m_layer[layer][column][row].first][1] == 0 ? defaultRenderBlockSizes[0] : defaultRenderBlockSizes[colAndBlockId[m_layer[layer][column][row].first][1] - 1];
 
 				float cartX = static_cast<float>(row);
 				float cartY = static_cast<float>(column);
 				Math::cartesianToIsometric(cartX, cartY, cellWidth, cellHeight);
-				m_cells.push_back({ rect, cartX, -cartY, false, true,  collRect , blockRect, colAndBlockId[m_layer[layer][column][row].first][0] != -1 });
+				m_cells.push_back({ rect, cartX, -cartY, false, true,  collRect , blockRect, colAndBlockId[m_layer[layer][column][row].first][0] != 0, row,  column });
 				m_layer[layer][column][row].second = m_cells.size() - 1;
 			}
 
@@ -742,7 +742,7 @@ void Game::culling() {
 				if (m_layer[j][y][x].first != -1) {
 
 					m_visibleCells.push_back(m_cells[m_layer[j][y][x].second]);
-					//std::cout << m_layer[j][y][x].first << std::endl;
+					
 					if (m_cells[m_layer[j][y][x].second].hasCollision) {
 						m_collisionCells.push_back(m_cells[m_layer[j][y][x].second]);
 					}
@@ -892,7 +892,7 @@ void Game::loadCollision(std::string name) {
 			unsigned int yOffset = 0;
 			read >> width >> height >> xOffset >> yOffset;
 
-			defaultAABBList.push_back({ width , height , xOffset , yOffset });
+			defaultAABBList.push_back({ static_cast<float>(width) , static_cast<float>(height) , static_cast<float>(xOffset) , static_cast<float>(yOffset)});
 		}
 
 		read.ignore(std::numeric_limits<std::streamsize>::max(), '\n');		// skip the rest of the line
@@ -937,9 +937,7 @@ void Game::loadCollision(std::string name) {
 			int renderBlockType;
 
 			read >> subframeIndex >> colliderType >> renderBlockType;
-
-			colAndBlockId.push_back({ colliderType - 1, renderBlockType - 1});
-
+			colAndBlockId.push_back({ colliderType, renderBlockType});
 			read.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 		}
 		read.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
@@ -948,30 +946,32 @@ void Game::loadCollision(std::string name) {
 	read.close();
 }
 
-void Game::DrawIsometricRect(float posX, float posY, const std::array<unsigned int,4 >& colRect) {
-	
+void Game::drawIsometricRect(float posX, float posY, Vector4f sizeOffset) {
+	std::array<Vector2f, 4> fPoints;
+	fPoints[0] = Vector2f(sizeOffset[2], sizeOffset[3]);
+	fPoints[1] = Vector2f(sizeOffset[2], sizeOffset[3] + sizeOffset[1]);
+	fPoints[2] = Vector2f(sizeOffset[2] + sizeOffset[0], sizeOffset[3] + sizeOffset[1]);
+	fPoints[3] = Vector2f(sizeOffset[2] + sizeOffset[0], sizeOffset[3]);
+
+	Math::cartesianToIsometric(fPoints[0][0], fPoints[0][1], 1.0f, 1.0f);
+	Math::cartesianToIsometric(fPoints[1][0], fPoints[1][1], 1.0f, 1.0f);
+	Math::cartesianToIsometric(fPoints[2][0], fPoints[2][1], 1.0f, 1.0f);
+	Math::cartesianToIsometric(fPoints[3][0], fPoints[3][1], 1.0f, 1.0f);
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadMatrixf(&m_camera.getOrthographicMatrix()[0][0]);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadMatrixf(&m_camera.getViewMatrix()[0][0]);
-	
-	
-
 
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glBegin(GL_QUADS);
 	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
-	float xpos = posX + colRect[2];
-	float ypos = posY + colRect[3];
-	float w = colRect[0];
-	float h = colRect[1];
+	glVertex3f(posX + fPoints[0][0], posY - fPoints[0][1], 0.0f);
+	glVertex3f(posX + fPoints[1][0], posY - fPoints[1][1], 0.0f);
+	glVertex3f(posX + fPoints[2][0], posY - fPoints[2][1], 0.0f);
+	glVertex3f(posX + fPoints[3][0], posY - fPoints[3][1], 0.0f);
 
-	glVertex3f(xpos, ypos, 0.0f);
-	glVertex3f(xpos, (ypos + h), 0.0f);
-	glVertex3f(xpos + w, (ypos + h), 0.0f);
-	glVertex3f(xpos + w, ypos, 0.0f);
 	glEnd();
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
