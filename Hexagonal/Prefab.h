@@ -4,6 +4,8 @@
 #include <memory>
 #include <unordered_map>
 
+#include <engine/Vector.h>
+
 class TileSet;
 class eAnimationController;
 
@@ -11,9 +13,13 @@ struct Prefab {
 	Prefab(const TileSet& tileSet);
 
 	void setAnimationController(const eAnimationController* animationController);
+	void setBounds(Vector4f& bounds);
+	void setOffset(Vector2f& offset);
 
 	const TileSet& tileSet;
 	std::unique_ptr<eAnimationController> animationController;
+	Vector4f bounds;
+	Vector2f offset;
 };
 
 

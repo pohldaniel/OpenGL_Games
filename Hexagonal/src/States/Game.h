@@ -36,8 +36,6 @@ struct Cell {
 	const Vector4f& collisionRect;
 	const std::array<unsigned int, 3>& renderBlock;
 	bool hasCollision;
-	int row;
-	int col;
 };
 
 struct SingleSelectedCell {
@@ -158,4 +156,7 @@ private:
 	std::vector<std::array<int, 2>> colAndBlockId;
 
 	void drawIsometricRect(float posX, float posY, Vector4f sizeOffset);
+	void drawIsometricRect(float posX, float posY, Vector4f bounds, Vector2f offset);
+
+	void checkCollision(float posX, float posY, Vector4f bounds, Vector2f offset);
 };

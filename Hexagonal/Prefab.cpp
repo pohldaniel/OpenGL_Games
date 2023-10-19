@@ -11,6 +11,14 @@ void Prefab::setAnimationController(const eAnimationController* _animationContro
 	animationController = std::make_unique<eAnimationController>(*_animationController);
 }
 
+void Prefab::setBounds(Vector4f& _bounds) {
+	bounds = _bounds;
+}
+
+void Prefab::setOffset(Vector2f& _offset) {
+	offset = _offset;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 PrefabManager PrefabManager::s_instance;
 
