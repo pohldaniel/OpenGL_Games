@@ -157,6 +157,5 @@ private:
 
 	void drawIsometricRect(float posX, float posY, Vector4f sizeOffset);
 	void drawIsometricRect(float posX, float posY, Vector4f bounds, Vector2f offset);
-
-	void checkCollision(float posX, float posY, Vector4f bounds, Vector2f offset);
+	void drawIsometricRect(int posX, int posY);
 };
