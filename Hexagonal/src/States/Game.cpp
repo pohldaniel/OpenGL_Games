@@ -75,12 +75,12 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 
 	PrefabManager::Get().addPrefab("sArcher", TileSetManager::Get().getTileSet("sArcher_anm"));
 	PrefabManager::Get().getPrefab("sArcher").setAnimationController(new eAnimationController("Graphics/Animations/sArcher/Controller_defs/sArcher.ectrl"));
-	PrefabManager::Get().getPrefab("sArcher").setBounds(Vector4f(-8.0f, -8.0f, 8.0f, 8.0f) * 20.0f);
-	//PrefabManager::Get().getPrefab("sArcher").setOffset(Vector2f(10.0f, -38.0f));
-	PrefabManager::Get().getPrefab("sArcher").setOffset(Vector2f(10.0f, -40.0f));
+	PrefabManager::Get().getPrefab("sArcher").setBounds(Vector4f(-8.0f, -8.0f, 8.0f, 8.0f));
+	PrefabManager::Get().getPrefab("sArcher").setOffset(Vector2f(10.0f, -38.0f));
+	PrefabManager::Get().getPrefab("sArcher").setBoundingBox({ 32.0f, 0.0f, 32.0f, 100.0f});
 
-	m_entities.push_back(Entity(PrefabManager::Get().getPrefab("sHero")));
-	m_entities.push_back(Entity(PrefabManager::Get().getPrefab("sArcher")));
+	m_entities.push_back(Entity(PrefabManager::Get().getPrefab("sHero"), m_camera, m_zoomFactor, m_focusPointX, m_focusPointY));
+	m_entities.push_back(Entity(PrefabManager::Get().getPrefab("sArcher"), m_camera, m_zoomFactor, m_focusPointX, m_focusPointY));
 
 	
 }
@@ -190,9 +190,9 @@ void Game::render() {
 		Spritesheet::Unbind();
 
 		for (auto entity = m_entities.begin() + m_selctedEntity; entity != m_entities.begin() + (m_selctedEntity + 1) ; entity++) {
-			const TextureRect& rect = (*entity).m_prefab.animationController->currentFrame->rect;
-			Spritesheet::Bind((*entity).m_prefab.tileSet.getAtlas());
-			Batchrenderer::Get().addQuadAA(Vector4f((*entity).m_position[0] * m_zoomFactor + (m_camera.getPositionX() + m_focusPointX) * (1.0f - m_zoomFactor), (*entity).m_position[1] * m_zoomFactor + (m_camera.getPositionY() + m_focusPointY) * (1.0f - m_zoomFactor), rect.width * m_zoomFactor, rect.height * m_zoomFactor), Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureWidth, rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), rect.frame);
+			const TextureRect& rect = (*entity).prefab.animationController->currentFrame->rect;
+			Spritesheet::Bind((*entity).prefab.tileSet.getAtlas());
+			Batchrenderer::Get().addQuadAA(Vector4f((*entity).m_position[0] * m_zoomFactor + (m_camera.getPositionX() + m_focusPointX) * (1.0f - m_zoomFactor), (*entity).m_position[1] * m_zoomFactor + (m_camera.getPositionY() + m_focusPointY) * (1.0f - m_zoomFactor), rect.width * m_zoomFactor, rect.height * m_zoomFactor), Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureWidth, rect.textureHeight), (*entity).m_isSelected ? Vector4f(0.5f, 0.5f, 0.5f, 1.0f) : Vector4f(1.0f, 1.0f, 1.0f, 1.0f), rect.frame);
 			Batchrenderer::Get().drawBufferRaw();
 			Spritesheet::Unbind();
 		}
@@ -205,16 +205,16 @@ void Game::render() {
 		}
 
 		for (auto entity = m_entities.begin() + m_selctedEntity; entity != m_entities.begin() + (m_selctedEntity + 1); entity++) {
-			drawIsometricRect(((*entity).m_position[0]) * m_zoomFactor + (m_camera.getPositionX() + m_focusPointX) * (1.0f - m_zoomFactor), ((*entity).m_position[1]) * m_zoomFactor + (m_camera.getPositionY() + m_focusPointY) * (1.0f - m_zoomFactor), (*entity).m_prefab.bounds * m_zoomFactor, (*entity).m_prefab.offset * m_zoomFactor);
+			drawIsometricRect(((*entity).m_position[0]) * m_zoomFactor + (m_camera.getPositionX() + m_focusPointX) * (1.0f - m_zoomFactor), ((*entity).m_position[1]) * m_zoomFactor + (m_camera.getPositionY() + m_focusPointY) * (1.0f - m_zoomFactor), (*entity).prefab.bounds * m_zoomFactor, (*entity).prefab.offset * m_zoomFactor);
 			(*entity).updateGridBounds();
 
-			for (int y = (*entity).minY; y <= (*entity).maxY; y++) {
-				for (int x = (*entity).minX; x <= (*entity).maxX; x++) {
+			for (int y = (*entity).m_minY; y <= (*entity).m_maxY; y++) {
+				for (int x = (*entity).m_minX; x <= (*entity).m_maxX; x++) {
 					drawIsometricRect(x, y);
 				}
 			}
 
-			//checkCollision((*entity).m_position[0], (*entity).m_position[1], (*entity).m_prefab.bounds, (*entity).m_prefab.offset);
+			//drawClickBox((*entity).m_position[0] + (*entity).prefab.boundingBox.posX, (*entity).m_position[1] + (*entity).prefab.boundingBox.posY, +(*entity).prefab.boundingBox.width, (*entity).prefab.boundingBox.height);
 		}
 		
 
@@ -243,6 +243,8 @@ void Game::render() {
 void Game::OnMouseMotion(Event::MouseMoveEvent& event) {
 	m_trackball.motion(event.x, event.y);
 	applyTransformation(m_trackball);
+
+	if (m_selectionMode == SelectionMode::ENTITY) return;
 
 	if (m_mouseDown) {
 		m_mouseMove = true;
@@ -407,87 +409,108 @@ void Game::OnMouseMotion(Event::MouseMoveEvent& event) {
 }
 
 void Game::OnMouseButtonDown(Event::MouseButtonEvent& event) {
-	if (event.button == 1u) {
-		m_trackball.mouse(TrackBall::Button::ELeftButton, TrackBall::Modifier::ENoModifier, true, event.x, event.y);
-		applyTransformation(m_trackball);
 
-		//clip
-		//float mouseNDCX = (2.0f * event.x) / static_cast<float>(Application::Width) - 1.0f;
-		//float mouseNDCY = 1.0f - (2.0f * event.y) / static_cast<float>(Application::Height);
+	if (m_selectionMode == SelectionMode::ENTITY) {
+		for (auto entity = m_entities.begin() + m_selctedEntity; entity != m_entities.begin() + (m_selctedEntity + 1); entity++) {
+			(*entity).processInput(event.x, event.y, event.button);
+		}
+		
+	}else {
+		if (event.button == 1u) {
+			m_trackball.mouse(TrackBall::Button::ELeftButton, TrackBall::Modifier::ENoModifier, true, event.x, event.y);
+			applyTransformation(m_trackball);
 
-		//view
-		//float mouseViewX = 0.5f * (m_right * (mouseNDCX + 1.0f) + m_left   * (1.0f - mouseNDCX));
-		//float mouseViewY = 0.5f * (m_top   * (mouseNDCY + 1.0f) + m_bottom * (1.0f - mouseNDCY));
+			//clip
+			//float mouseNDCX = (2.0f * event.x) / static_cast<float>(Application::Width) - 1.0f;
+			//float mouseNDCY = 1.0f - (2.0f * event.y) / static_cast<float>(Application::Height);
 
-		float mouseViewX = static_cast<float>(event.x);
-		float mouseViewY = static_cast<float>(Application::Height - event.y);
+			//view
+			//float mouseViewX = 0.5f * (m_right * (mouseNDCX + 1.0f) + m_left   * (1.0f - mouseNDCX));
+			//float mouseViewY = 0.5f * (m_top   * (mouseNDCY + 1.0f) + m_bottom * (1.0f - mouseNDCY));
 
-		//world with zoom
-		float mouseWorldX = mouseViewX + m_zoomFactor * (m_camera.getPositionX() + m_focusPointX) - m_focusPointX;
-		float mouseWorldY = mouseViewY + m_zoomFactor * (m_camera.getPositionY() + m_focusPointY) - m_focusPointY;
+			float mouseViewX = static_cast<float>(event.x);
+			float mouseViewY = static_cast<float>(Application::Height - event.y);
 
-		int row, col;
-		Math::isometricToCartesian(mouseWorldX, mouseWorldY, row, col, cellWidth  * m_zoomFactor, cellHeight  * m_zoomFactor);
-		std::cout << "Row: " << row << " Col: " << col << std::endl;
-		for (int j = 0; j < m_layer.size(); j++) {
-			if (isValid(row, col) && m_layer[j][col][row].first != -1) {
-				m_selectedCells.push_back(m_cells[m_layer[j][col][row].second]);
-				Cell& cell = m_selectedCells.back();
-				//cell.selected = !cell.selected;
-				cell.selected = true;
+			//world with zoom
+			float mouseWorldX = mouseViewX + m_zoomFactor * (m_camera.getPositionX() + m_focusPointX) - m_focusPointX;
+			float mouseWorldY = mouseViewY + m_zoomFactor * (m_camera.getPositionY() + m_focusPointY) - m_focusPointY;
 
-				if (cell.selected && cell.visible) {
-					m_singleCache.push_back({ row, col, false });
-				}else {
-					m_singleCache.erase(std::remove_if(m_singleCache.begin(), m_singleCache.end(), [](SingleSelectedCell cell) {return cell.found; }), m_singleCache.end());
+			int row, col;
+			Math::isometricToCartesian(mouseWorldX, mouseWorldY, row, col, cellWidth  * m_zoomFactor, cellHeight  * m_zoomFactor);
+
+			for (int j = 0; j < m_layer.size(); j++) {
+				if (isValid(row, col) && m_layer[j][col][row].first != -1) {
+					m_selectedCells.push_back(m_cells[m_layer[j][col][row].second]);
+					Cell& cell = m_selectedCells.back();
+					//cell.selected = !cell.selected;
+					cell.selected = true;
+
+					if (cell.selected && cell.visible) {
+						m_singleCache.push_back({ row, col, false });
+					}
+					else {
+						m_singleCache.erase(std::remove_if(m_singleCache.begin(), m_singleCache.end(), [](SingleSelectedCell cell) {return cell.found; }), m_singleCache.end());
+					}
 				}
 			}
-		}
-		m_mouseDown = true;
-		m_mouseX = mouseViewX;
-		m_mouseY = mouseViewY;
-		m_curMouseX = m_mouseX;
-		m_curMouseY = m_mouseY;
+			m_mouseDown = true;
+			m_mouseX = mouseViewX;
+			m_mouseY = mouseViewY;
+			m_curMouseX = m_mouseX;
+			m_curMouseY = m_mouseY;
 
-	} else if (event.button == 2u) {
-		processCache(m_selectedCells, true, false, true);
+		} else if (event.button == 2u) {
+			processCache(m_selectedCells, true, false, true);
+			
+		}
+	}
+
+	if (event.button == 2u) {
 		Mouse::instance().attach(Application::GetWindow());
 	}
 }
 
 void Game::OnMouseButtonUp(Event::MouseButtonEvent& event) {
-	if (event.button == 1u) {
-		m_trackball.mouse(TrackBall::Button::ELeftButton, TrackBall::Modifier::ENoModifier, false, event.x, event.y);
-		applyTransformation(m_trackball);
+	
+	if (m_selectionMode == SelectionMode::ENTITY) {
+		for (auto entity = m_entities.begin() + m_selctedEntity; entity != m_entities.begin() + (m_selctedEntity + 1); entity++) {
+			(*entity).processInput(event.x, event.y, event.button);
+		}		
+	} else {
+		if (event.button == 1u) {
+			m_trackball.mouse(TrackBall::Button::ELeftButton, TrackBall::Modifier::ENoModifier, false, event.x, event.y);
+			applyTransformation(m_trackball);
 
-		float mouseViewX = static_cast<float>(event.x);
-		float mouseViewY = static_cast<float>(Application::Height - event.y);
+			float mouseViewX = static_cast<float>(event.x);
+			float mouseViewY = static_cast<float>(Application::Height - event.y);
 
-		m_singleCache.erase(std::remove_if(m_singleCache.begin(), m_singleCache.end(), [this](SingleSelectedCell cell) {
-			if (cell.found || !m_mouseMove) {
-				for (int j = 0; j < m_layer.size(); j++) {
-					if (m_layer[j][cell.col][cell.row].first != -1) {
-						m_cells[m_layer[j][cell.col][cell.row].second].visible = false;
-						m_cells[m_layer[j][cell.col][cell.row].second].selected = true;
+			m_singleCache.erase(std::remove_if(m_singleCache.begin(), m_singleCache.end(), [this](SingleSelectedCell cell) {
+				if (cell.found || !m_mouseMove) {
+					for (int j = 0; j < m_layer.size(); j++) {
+						if (m_layer[j][cell.col][cell.row].first != -1) {
+							m_cells[m_layer[j][cell.col][cell.row].second].visible = false;
+							m_cells[m_layer[j][cell.col][cell.row].second].selected = true;
+						}
 					}
 				}
-			}
 
-			return cell.found || !m_mouseMove;
+				return cell.found || !m_mouseMove;
 			})
-			, m_singleCache.end()
-			);
-		processCache(m_cellCache, false, true, m_selectedCells, true);
+				, m_singleCache.end()
+				);
+			processCache(m_cellCache, false, true, m_selectedCells, true);
 
-		m_mouseDown = false;
-		m_mouseMove = false;
-		m_mouseX = mouseViewX;
-		m_mouseY = mouseViewY;
-		m_curMouseX = m_mouseX;
-		m_curMouseY = m_mouseY;
+			m_mouseDown = false;
+			m_mouseMove = false;
+			m_mouseX = mouseViewX;
+			m_mouseY = mouseViewY;
+			m_curMouseX = m_mouseX;
+			m_curMouseY = m_mouseY;
 
+		}
 	}
-	else if (event.button == 2u) {
+
+	if (event.button == 2u) {
 		//m_drawUi = true;
 		Mouse::instance().detach();
 	}
@@ -587,7 +610,7 @@ void Game::renderUi() {
 	ImGui::SliderFloat("Enlarge Culling Rect", &m_enlargeBorder, 0.0f, 600.0f);
 
 	int currentSelectionMode = m_selectionMode;
-	if (ImGui::Combo("Mode", &currentSelectionMode, "Box Slection\0Iso Selection\0Marker\0Rasterizer\0\0")) {
+	if (ImGui::Combo("Selection Mode", &currentSelectionMode, "Box Selection\0Iso Selection\0Marker\0Rasterizer\0Entity\0\0")) {
 		m_selectionMode = static_cast<SelectionMode>(currentSelectionMode);
 	}
 
@@ -797,7 +820,7 @@ void Game::drawCullingRect() {
 }
 
 void  Game::drawMouseRect() {
-	if (!m_mouseDown || m_selectionMode == SelectionMode::MARKER || m_selectionMode == SelectionMode::RASTERIZER) return;
+	if (!m_mouseDown || m_selectionMode == SelectionMode::MARKER || m_selectionMode == SelectionMode::RASTERIZER || m_selectionMode == SelectionMode::ENTITY) return;
 
 	float offsetX = m_zoomFactor * (m_camera.getPositionX() + m_focusPointX) - m_focusPointX;
 	float offsetY = m_zoomFactor * (m_camera.getPositionY() + m_focusPointY) - m_focusPointY;
@@ -1061,4 +1084,26 @@ void Game::drawIsometricRect(int posX, int posY) {
 	glVertex3f(cartX * m_zoomFactor + (m_camera.getPositionX() + m_focusPointX) * (1.0f - m_zoomFactor), -cartY * m_zoomFactor + (m_camera.getPositionY() + m_focusPointY) * (1.0f - m_zoomFactor), 0.0f);
 	glEnd();
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+}
+
+void Game::drawClickBox(float posX, float posY, float width, float height) {
+
+	glMatrixMode(GL_PROJECTION);
+	glLoadMatrixf(&m_camera.getOrthographicMatrix()[0][0]);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadMatrixf(&m_camera.getViewMatrix()[0][0]);
+
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	glBegin(GL_QUADS);
+
+	glColor3f(0.0f, 1.0f, 1.0f);
+	glVertex3f(posX, posY, 0.0f);
+	glColor3f(1.0f, 1.0f, 1.0f);
+	glVertex3f(posX, (posY + height), 0.0f);
+	glColor3f(1.0f, 1.0f, 0.0f);
+	glVertex3f(posX + width, (posY + height), 0.0f);
+	glColor3f(1.0f, 0.0f, 1.0f);
+	glVertex3f(posX + width, posY, 0.0f);
+	glEnd();
+
 }

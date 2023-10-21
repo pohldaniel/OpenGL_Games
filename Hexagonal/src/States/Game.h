@@ -48,7 +48,8 @@ enum SelectionMode {
 	BOXSELECTION,
 	ISOSELECTION,
 	MARKER,
-	RASTERIZER
+	RASTERIZER,
+	ENTITY
 };
 
 enum SelectedEntity {
@@ -141,7 +142,7 @@ private:
 	bool m_redrawMap = true;
 	float m_mouseX, m_mouseY;
 	float m_curMouseX, m_curMouseY;
-	SelectionMode m_selectionMode = SelectionMode::ISOSELECTION;
+	SelectionMode m_selectionMode = SelectionMode::ENTITY;
 
 	static bool FindSingleCell(SingleSelectedCell const& s1, SingleSelectedCell const& s2);
 
@@ -158,4 +159,6 @@ private:
 	void drawIsometricRect(float posX, float posY, Vector4f sizeOffset);
 	void drawIsometricRect(float posX, float posY, Vector4f bounds, Vector2f offset);
 	void drawIsometricRect(int posX, int posY);
+
+	void drawClickBox(float posX, float posY, float width, float height);
 };

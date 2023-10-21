@@ -5,6 +5,7 @@
 #include <unordered_map>
 
 #include <engine/Vector.h>
+#include <engine/Rect.h>
 
 class TileSet;
 class eAnimationController;
@@ -15,11 +16,13 @@ struct Prefab {
 	void setAnimationController(const eAnimationController* animationController);
 	void setBounds(Vector4f& bounds);
 	void setOffset(Vector2f& offset);
+	void setBoundingBox(const Rect& boundingBox);
 
 	const TileSet& tileSet;
 	std::unique_ptr<eAnimationController> animationController;
 	Vector4f bounds;
 	Vector2f offset;
+	Rect boundingBox;
 };
 
 

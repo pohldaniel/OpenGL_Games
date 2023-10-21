@@ -19,6 +19,10 @@ void Prefab::setOffset(Vector2f& _offset) {
 	offset = _offset;
 }
 
+void Prefab::setBoundingBox(const Rect& _boundingBox) {
+	boundingBox = _boundingBox;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 PrefabManager PrefabManager::s_instance;
 
