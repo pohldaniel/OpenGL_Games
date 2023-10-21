@@ -94,15 +94,15 @@ void Entity::processInput(const int mouseX, const int mouseY, const Event::Mouse
 }
 
 void Entity::updateGridBounds() {
-	int row, col;
-	float posX = m_position[0], posY = m_position[1];
-	Math::isometricToCartesian(posX, posY, row, col);
+	
+	int row = static_cast<int>(std::roundf(-(0.5f * m_position[0] + m_position[1]) / CELL_WIDTH));
+	int col = static_cast<int>(std::roundf(-(0.5f * m_position[0] + 2.0f * m_position[1]) / CELL_HEIGHT)) + 1;
 
-	m_minX = static_cast<int>(std::roundf((prefab.offset[0] - prefab.bounds[3]) / CELL_WIDTH));
-	m_maxX = static_cast<int>(std::roundf((prefab.offset[0] - prefab.bounds[1]) / CELL_HEIGHT));
+	m_minX = static_cast<int>(std::roundf((m_position[0] + prefab.offset[0] - prefab.bounds[3]) / CELL_WIDTH));
+	m_maxX = static_cast<int>(std::roundf((m_position[0] + prefab.offset[0] - prefab.bounds[1]) / CELL_HEIGHT));
 
-	m_minY = static_cast<int>(std::roundf((prefab.offset[1] - prefab.bounds[2]) / CELL_WIDTH));
-	m_maxY = static_cast<int>(std::roundf((prefab.offset[1] - prefab.bounds[0]) / CELL_HEIGHT));
+	m_minY = static_cast<int>(std::roundf((m_position[1] + prefab.offset[1] - prefab.bounds[2]) / CELL_WIDTH));
+	m_maxY = static_cast<int>(std::roundf((m_position[1] + prefab.offset[1] - prefab.bounds[0]) / CELL_HEIGHT));
 
 	m_minX += row;
 	m_maxX += row;

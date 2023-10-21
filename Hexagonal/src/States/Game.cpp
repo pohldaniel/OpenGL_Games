@@ -81,13 +81,13 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	PrefabManager::Get().getPrefab("sArcher").setBoundingBox({ 32.0f, 0.0f, 32.0f, 100.0f});
 
 	m_entities.push_back(Entity(PrefabManager::Get().getPrefab("sHero"), m_camera, m_zoomFactor, m_focusPointX, m_focusPointY));
-	m_entities.back().setPosition({ -50.0f, -1120.0f });
+	m_entities.back().setPosition({ -200.0f, -1110.0f });
 
 	m_entities.push_back(Entity(PrefabManager::Get().getPrefab("sArcher"), m_camera, m_zoomFactor, m_focusPointX, m_focusPointY));
-	m_entities.back().setPosition({0.0f, - 1120.0f});
+	m_entities.back().setPosition({0.0f, -1120.0f});
 
 	m_entities.push_back(Entity(PrefabManager::Get().getPrefab("sHero"), m_camera, m_zoomFactor, m_focusPointX, m_focusPointY));
-	m_entities.back().setPosition({ 50.0f, -1120.0f });
+	m_entities.back().setPosition({ 200.0f, -1120.0f });
 }
 
 Game::~Game() {
@@ -801,7 +801,7 @@ void Game::drawCullingRect() {
 	glMatrixMode(GL_PROJECTION);
 	glLoadMatrixf(&m_camera.getOrthographicMatrix()[0][0]);
 	glMatrixMode(GL_MODELVIEW);
-	glPushMatrix();
+	glLoadIdentity();
 	glTranslatef(m_focusPointX - m_zoomFactor * (m_position[0] + m_focusPointX), m_focusPointY - m_zoomFactor * (m_position[1] + m_focusPointY), 0.0f);
 
 	glBegin(GL_QUADS);
@@ -813,7 +813,6 @@ void Game::drawCullingRect() {
 	glVertex3f(m_cullingVertices[3][0], m_cullingVertices[3][1], 0.0f);
 
 	glEnd();
-	glPopMatrix();
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 
