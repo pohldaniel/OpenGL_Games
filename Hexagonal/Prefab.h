@@ -19,7 +19,7 @@ struct Prefab {
 	void setBoundingBox(const Rect& boundingBox);
 
 	const TileSet& tileSet;
-	std::unique_ptr<eAnimationController> animationController;
+	std::shared_ptr<eAnimationController> animationController;
 	Vector4f bounds;
 	Vector2f offset;
 	Rect boundingBox;

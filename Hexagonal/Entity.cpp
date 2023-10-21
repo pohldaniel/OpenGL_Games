@@ -14,15 +14,14 @@ Entity::Entity(const Prefab& prefab, const Camera& camera, const float& zoomFact
 	  focusPointX(focusPointX),
 	  focusPointY(focusPointY)
 {
-	m_position = Vector2f(35.0f, 35.0f);
-	Math::cartesianToIsometric(m_position[0], m_position[1]);
-	m_position[1] = -m_position[1];
-
+	
 	m_minX = m_maxX = m_minY = m_maxY = 0;
 	m_isSelected = false;
+	m_animationController = std::make_unique< eAnimationController>(*prefab.animationController);
 }
 
 void Entity::update(float dt) {
+	//if (!m_isSelected) return;
 
 	const float moveSpeed = 0.8f;
 	m_directrion.normalize();
@@ -37,19 +36,19 @@ void Entity::update(float dt) {
 		Math::cartesianToIsometric(facingDirection[0], facingDirection[1], 1.0f, 1.0f);
 		facingDirection.normalize();
 		m_oldFacingDirection = facingDirection;
-	}
-	else {
+	}else {
 		facingDirection = m_oldFacingDirection * 0.25f;
 	}
 
-	prefab.animationController->SetFloatParameter(xSpeedParameterHash, facingDirection[0]);
-	prefab.animationController->SetFloatParameter(ySpeedParameterHash, facingDirection[1]);
-	prefab.animationController->SetFloatParameter(magnitudeParameterHash, facingDirection.length());
-	prefab.animationController->Update();
+	m_animationController->SetFloatParameter(xSpeedParameterHash, facingDirection[0]);
+	m_animationController->SetFloatParameter(ySpeedParameterHash, facingDirection[1]);
+	m_animationController->SetFloatParameter(magnitudeParameterHash, facingDirection.length());
+	m_animationController->Update();
 }
 
 void Entity::processInput() {
-	
+	if (!m_isSelected) return;
+
 	Keyboard &keyboard = Keyboard::instance();
 
 	m_directrion = Vector2f();
@@ -75,16 +74,19 @@ void Entity::processInput(const int mouseX, const int mouseY, const Event::Mouse
 	float mouseViewX = static_cast<float>(mouseX);
 	float mouseViewY = static_cast<float>(Application::Height - mouseY);
 
-	float mouseWorldX = mouseViewX + zoomFactor * (camera.getPositionX() + focusPointX) - focusPointX;
-	float mouseWorldY = mouseViewY + zoomFactor * (camera.getPositionY() + focusPointY) - focusPointY;
+	float mouseWorldX = mouseViewX + camera.getPositionX();
+	float mouseWorldY = mouseViewY + camera.getPositionY();
 
 	if (m_isSelected && button == Event::MouseButtonEvent::MouseButton::BUTTON_RIGHT) {
 		m_isSelected = false;
 		return;
 	}
 
-	if (mouseWorldX > m_position[0] + prefab.boundingBox.posX && mouseWorldX < m_position[0] + prefab.boundingBox.posX + prefab.boundingBox.width &&
-		mouseWorldY > m_position[1] + prefab.boundingBox.posY && mouseWorldY < m_position[1] + prefab.boundingBox.posY + prefab.boundingBox.height) {
+	float posX = (prefab.boundingBox.posX + m_position[0]) * zoomFactor + (camera.getPositionX() + focusPointX) * (1.0f - zoomFactor);
+	float posY = (prefab.boundingBox.posY + m_position[1]) * zoomFactor + (camera.getPositionY() + focusPointY) * (1.0f - zoomFactor);
+
+	if (mouseWorldX > posX && mouseWorldX < posX + prefab.boundingBox.width  * zoomFactor &&
+		mouseWorldY > posY && mouseWorldY < posY + prefab.boundingBox.height * zoomFactor) {
 		m_isSelected = button == Event::MouseButtonEvent::MouseButton::BUTTON_LEFT;
 	}else {
 		//m_isSelected = false;
@@ -113,8 +115,6 @@ void Entity::updateGridBounds() {
 	//m_maxY = Math::Clamp(minX, 0, 128);
 }
 
-void Entity::drawClickBox() {
-	float posX = m_position[0], posY = m_position[1];
-	float width = 32.0f, height = 32.0f;
-
+void Entity::setPosition(const Vector2f& position) {
+	m_position = position;
 }

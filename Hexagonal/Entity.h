@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <memory>
 #include <engine/Vector.h>
 #include <engine/Rect.h>
 #include <engine/input/Event.h>
@@ -10,6 +11,7 @@
 #define CELL_HEIGHT 32.0f
 
 class Prefab;
+class eAnimationController;
 
 class Entity {
 
@@ -19,15 +21,17 @@ public:
 	void update(float dt);
 	void processInput();
 	void processInput(const int mouseX, const int mouseY, const Event::MouseButtonEvent::MouseButton button = Event::MouseButtonEvent::MouseButton::NONE);
+	void setPosition(const Vector2f& position);
+
 //private:
 
 	void updateGridBounds();
-	void drawClickBox();
 
 	Vector2f m_directrion;
 	Vector2f m_velocity;
 	Vector2f m_oldFacingDirection;
 	Vector2f m_position;
+	std::unique_ptr<eAnimationController> m_animationController;
 
 	const int xSpeedParameterHash = std::hash< std::string >()("xSpeed");
 	const int ySpeedParameterHash = std::hash< std::string >()("ySpeed");

@@ -148,7 +148,7 @@ private:
 
 	
 	
-	SelectedEntity m_selctedEntity = SelectedEntity::ARCHER;
+	//SelectedEntity m_selctedEntity = SelectedEntity::ARCHER;
 
 
 	std::vector<std::array<unsigned int, 3>> defaultRenderBlockSizes;

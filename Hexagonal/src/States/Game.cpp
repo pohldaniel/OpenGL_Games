@@ -72,6 +72,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	PrefabManager::Get().getPrefab("sHero").setAnimationController(new eAnimationController("Graphics/Animations/sHero/Controller_defs/sHero.ectrl"));
 	PrefabManager::Get().getPrefab("sHero").setBounds(Vector4f(-8.0f, -8.0f, 8.0f, 8.0f));
 	PrefabManager::Get().getPrefab("sHero").setOffset(Vector2f(10.0f, -18.0f));
+	PrefabManager::Get().getPrefab("sHero").setBoundingBox({ 16.0f, 0.0f, 40.0f, 64.0f });
 
 	PrefabManager::Get().addPrefab("sArcher", TileSetManager::Get().getTileSet("sArcher_anm"));
 	PrefabManager::Get().getPrefab("sArcher").setAnimationController(new eAnimationController("Graphics/Animations/sArcher/Controller_defs/sArcher.ectrl"));
@@ -80,9 +81,13 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	PrefabManager::Get().getPrefab("sArcher").setBoundingBox({ 32.0f, 0.0f, 32.0f, 100.0f});
 
 	m_entities.push_back(Entity(PrefabManager::Get().getPrefab("sHero"), m_camera, m_zoomFactor, m_focusPointX, m_focusPointY));
-	m_entities.push_back(Entity(PrefabManager::Get().getPrefab("sArcher"), m_camera, m_zoomFactor, m_focusPointX, m_focusPointY));
+	m_entities.back().setPosition({ -50.0f, -1120.0f });
 
-	
+	m_entities.push_back(Entity(PrefabManager::Get().getPrefab("sArcher"), m_camera, m_zoomFactor, m_focusPointX, m_focusPointY));
+	m_entities.back().setPosition({0.0f, - 1120.0f});
+
+	m_entities.push_back(Entity(PrefabManager::Get().getPrefab("sHero"), m_camera, m_zoomFactor, m_focusPointX, m_focusPointY));
+	m_entities.back().setPosition({ 50.0f, -1120.0f });
 }
 
 Game::~Game() {
@@ -157,7 +162,7 @@ void Game::update() {
 
 	m_background.update(m_dt);
 
-	for (auto entity = m_entities.begin() + m_selctedEntity; entity != m_entities.begin() + (m_selctedEntity + 1); entity++) {
+	for (auto entity = m_entities.begin(); entity != m_entities.end(); entity++) {
 		(*entity).processInput();
 		(*entity).update(m_dt);
 	}
@@ -189,8 +194,8 @@ void Game::render() {
 		Batchrenderer::Get().drawBufferRaw();
 		Spritesheet::Unbind();
 
-		for (auto entity = m_entities.begin() + m_selctedEntity; entity != m_entities.begin() + (m_selctedEntity + 1) ; entity++) {
-			const TextureRect& rect = (*entity).prefab.animationController->currentFrame->rect;
+		for (auto entity = m_entities.begin(); entity != m_entities.end(); entity++) {
+			const TextureRect& rect = (*entity).m_animationController->currentFrame->rect;
 			Spritesheet::Bind((*entity).prefab.tileSet.getAtlas());
 			Batchrenderer::Get().addQuadAA(Vector4f((*entity).m_position[0] * m_zoomFactor + (m_camera.getPositionX() + m_focusPointX) * (1.0f - m_zoomFactor), (*entity).m_position[1] * m_zoomFactor + (m_camera.getPositionY() + m_focusPointY) * (1.0f - m_zoomFactor), rect.width * m_zoomFactor, rect.height * m_zoomFactor), Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureWidth, rect.textureHeight), (*entity).m_isSelected ? Vector4f(0.5f, 0.5f, 0.5f, 1.0f) : Vector4f(1.0f, 1.0f, 1.0f, 1.0f), rect.frame);
 			Batchrenderer::Get().drawBufferRaw();
@@ -204,7 +209,7 @@ void Game::render() {
 			drawIsometricRect((cell.posX + 32.0f) * m_zoomFactor + (m_camera.getPositionX() + m_focusPointX) * (1.0f - m_zoomFactor), (cell.posY + 32.0f) * m_zoomFactor + (m_camera.getPositionY() + m_focusPointY) * (1.0f - m_zoomFactor), cell.collisionRect * m_zoomFactor);
 		}
 
-		for (auto entity = m_entities.begin() + m_selctedEntity; entity != m_entities.begin() + (m_selctedEntity + 1); entity++) {
+		for (auto entity = m_entities.begin(); entity != m_entities.end(); entity++) {
 			drawIsometricRect(((*entity).m_position[0]) * m_zoomFactor + (m_camera.getPositionX() + m_focusPointX) * (1.0f - m_zoomFactor), ((*entity).m_position[1]) * m_zoomFactor + (m_camera.getPositionY() + m_focusPointY) * (1.0f - m_zoomFactor), (*entity).prefab.bounds * m_zoomFactor, (*entity).prefab.offset * m_zoomFactor);
 			(*entity).updateGridBounds();
 
@@ -214,7 +219,7 @@ void Game::render() {
 				}
 			}
 
-			//drawClickBox((*entity).m_position[0] + (*entity).prefab.boundingBox.posX, (*entity).m_position[1] + (*entity).prefab.boundingBox.posY, +(*entity).prefab.boundingBox.width, (*entity).prefab.boundingBox.height);
+			drawClickBox((*entity).m_position[0] + (*entity).prefab.boundingBox.posX, (*entity).m_position[1] + (*entity).prefab.boundingBox.posY, +(*entity).prefab.boundingBox.width, (*entity).prefab.boundingBox.height);
 		}
 		
 
@@ -411,7 +416,7 @@ void Game::OnMouseMotion(Event::MouseMoveEvent& event) {
 void Game::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 
 	if (m_selectionMode == SelectionMode::ENTITY) {
-		for (auto entity = m_entities.begin() + m_selctedEntity; entity != m_entities.begin() + (m_selctedEntity + 1); entity++) {
+		for (auto entity = m_entities.begin(); entity != m_entities.end(); entity++) {
 			(*entity).processInput(event.x, event.y, event.button);
 		}
 		
@@ -473,7 +478,7 @@ void Game::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 void Game::OnMouseButtonUp(Event::MouseButtonEvent& event) {
 	
 	if (m_selectionMode == SelectionMode::ENTITY) {
-		for (auto entity = m_entities.begin() + m_selctedEntity; entity != m_entities.begin() + (m_selctedEntity + 1); entity++) {
+		for (auto entity = m_entities.begin(); entity != m_entities.end(); entity++) {
 			(*entity).processInput(event.x, event.y, event.button);
 		}		
 	} else {
@@ -623,14 +628,7 @@ void Game::renderUi() {
 			m_redrawMap = true;
 		}
 	}
-	ImGui::NewLine();
-	ImGui::NewLine();
 
-	int currentEntity = m_selctedEntity;
-	if (ImGui::Combo("Prefab", &currentEntity, "Hero\0Archer\0\0")) {
-		m_selctedEntity = static_cast<SelectedEntity> (currentEntity);
-	}
-	
 	ImGui::End();
 
 	ImGui::Render();
@@ -1096,14 +1094,17 @@ void Game::drawClickBox(float posX, float posY, float width, float height) {
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glBegin(GL_QUADS);
 
+	posX = posX * m_zoomFactor + (m_camera.getPositionX() + m_focusPointX) * (1.0f - m_zoomFactor);
+	posY = posY * m_zoomFactor + (m_camera.getPositionY() + m_focusPointY) * (1.0f - m_zoomFactor);
+
 	glColor3f(0.0f, 1.0f, 1.0f);
 	glVertex3f(posX, posY, 0.0f);
 	glColor3f(1.0f, 1.0f, 1.0f);
-	glVertex3f(posX, (posY + height), 0.0f);
+	glVertex3f(posX, (posY + height * m_zoomFactor), 0.0f);
 	glColor3f(1.0f, 1.0f, 0.0f);
-	glVertex3f(posX + width, (posY + height), 0.0f);
+	glVertex3f(posX + width * m_zoomFactor, (posY + height * m_zoomFactor), 0.0f);
 	glColor3f(1.0f, 0.0f, 1.0f);
-	glVertex3f(posX + width, posY, 0.0f);
+	glVertex3f(posX + width * m_zoomFactor, posY, 0.0f);
 	glEnd();
 
 }

@@ -8,7 +8,7 @@ Prefab::Prefab(const TileSet& _tileSet) : tileSet(_tileSet) {
 }
 
 void Prefab::setAnimationController(const eAnimationController* _animationController) {
-	animationController = std::make_unique<eAnimationController>(*_animationController);
+	animationController = std::make_shared<eAnimationController>(*_animationController);
 }
 
 void Prefab::setBounds(Vector4f& _bounds) {
