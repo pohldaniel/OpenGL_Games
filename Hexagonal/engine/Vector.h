@@ -96,6 +96,7 @@ public:
 	Vector2f operator*(float scalar) const;
 	Vector2f operator/(float scalar) const;
 
+	static float Dot(const Vector2f &p, const Vector2f &q);
 
 private:
 

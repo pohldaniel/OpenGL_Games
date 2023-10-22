@@ -167,6 +167,7 @@
     <ClCompile Include="engine\ZoomableQuad.cpp" />
     <ClCompile Include="Entity.cpp" />
     <ClCompile Include="HashIndex.cpp" />
+    <ClCompile Include="Movement.cpp" />
     <ClCompile Include="Prefab.cpp" />
     <ClCompile Include="src\Map.cpp" />
     <ClCompile Include="src\States\CoreMechanic.cpp" />
@@ -255,6 +256,7 @@
     <ClInclude Include="AnimationController.h" />
     <ClInclude Include="AnimationState.h" />
     <ClInclude Include="BlendState.h" />
+    <ClInclude Include="Deque.h" />
     <ClInclude Include="engine\ArrayBuffer.h" />
     <ClInclude Include="engine\collision\Collider.h" />
     <ClInclude Include="engine\collision\Collision.h" />
@@ -309,8 +311,10 @@
     <ClInclude Include="Entity.h" />
     <ClInclude Include="HashIndex.h" />
     <ClInclude Include="Math.hpp" />
+    <ClInclude Include="Movement.h" />
     <ClInclude Include="Prefab.h" />
     <ClInclude Include="Sort.h" />
+    <ClInclude Include="SpatialIndexGrid.h" />
     <ClInclude Include="src\Enums.h" />
     <ClInclude Include="src\Globals.h" />
     <ClInclude Include="src\Map.h" />

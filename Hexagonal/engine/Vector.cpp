@@ -2423,6 +2423,11 @@ bool operator ==(Vector2f lhs, Vector2f rhs) {
 	float epsilon = 0.000001f;
 	return fabs(lhs[0] - rhs[0]) <= epsilon && fabs(lhs[1] - rhs[1]) <= epsilon;
 }
+
+float Vector2f::Dot(const Vector2f &p, const Vector2f &q) {
+	return (p.vec[0] * q.vec[0]) + (p.vec[1] * q.vec[1]);
+}
+
 //////////////////////////////////////////////////////////////////////
 Vector3f::Vector3f() {
 	vec[0] = 0.0f;
