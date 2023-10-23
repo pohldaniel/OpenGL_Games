@@ -104,9 +104,8 @@ void Entity::processInput(const int mouseX, const int mouseY, const Event::Mouse
 	}
 
 	if (m_isSelected && button == Event::MouseButtonEvent::MouseButton::BUTTON_RIGHT && down) {
-		//world with zoom
 		float mouseWorldX = mouseViewX - focusPointX + zoomFactor * (camera.getPositionX() + focusPointX);
-		float mouseWorldY = mouseViewY - focusPointX + zoomFactor * (camera.getPositionY() + focusPointX);
+		float mouseWorldY = mouseViewY - focusPointY + zoomFactor * (camera.getPositionY() + focusPointY);
 		m_movementPlaner->AddUserWaypoint(Vector2f(mouseWorldX / zoomFactor, mouseWorldY / zoomFactor));
 	}
 }

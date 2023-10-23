@@ -1187,17 +1187,9 @@ void Game::DrawIsometricRect(float posX, float posY, Vector4f sizeOffset, Vector
 	posY = posY * ZoomFactor + (_Camera.getPositionY() + FocusPointY) * (1.0f - ZoomFactor);
 
 	glVertex3f(posX + fPoints[0][0] * ZoomFactor, posY - fPoints[0][1] * ZoomFactor, 0.0f);
-	//glVertex3f(posX + fPoints[0][0] * ZoomFactor + (_Camera.getPositionX() + FocusPointX) * (1.0f - ZoomFactor), posY - fPoints[0][1] * ZoomFactor + (_Camera.getPositionY() + FocusPointY) * (1.0f - ZoomFactor), 0.0f);
-
 	glVertex3f(posX + fPoints[1][0] * ZoomFactor, posY - fPoints[1][1] * ZoomFactor, 0.0f);
-	//glVertex3f(posX + fPoints[1][0] * ZoomFactor + (_Camera.getPositionX() + FocusPointX) * (1.0f - ZoomFactor), posY - fPoints[1][1] * ZoomFactor + (_Camera.getPositionY() + FocusPointY) * (1.0f - ZoomFactor), 0.0f);
-
 	glVertex3f(posX + fPoints[2][0] * ZoomFactor, posY - fPoints[2][1] * ZoomFactor, 0.0f);
-	//glVertex3f(posX + fPoints[2][0] * ZoomFactor + (_Camera.getPositionX() + FocusPointX) * (1.0f - ZoomFactor), posY - fPoints[2][1] * ZoomFactor + (_Camera.getPositionY() + FocusPointY) * (1.0f - ZoomFactor), 0.0f);
-
 	glVertex3f(posX + fPoints[3][0] * ZoomFactor, posY - fPoints[3][1] * ZoomFactor, 0.0f);
-	//glVertex3f(posX + fPoints[3][0] * ZoomFactor + (_Camera.getPositionX() + FocusPointX) * (1.0f - ZoomFactor), posY - fPoints[3][1] * ZoomFactor + (_Camera.getPositionY() + FocusPointY) * (1.0f - ZoomFactor), 0.0f);
-
 
 	glEnd();
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
