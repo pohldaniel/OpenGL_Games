@@ -16,6 +16,7 @@ Entity::Entity(const Prefab& prefab, const Camera& camera, const float& zoomFact
 	
 	m_minX = m_maxX = m_minY = m_maxY = 0;
 	m_isSelected = false;
+	m_isMarked = false;
 	m_animationController = std::make_unique< eAnimationController>(*prefab.animationController);
 	m_movementPlaner = std::make_unique<eMovementPlanner>(*this, 4.0f);
 
@@ -81,7 +82,7 @@ void Entity::processInput() {
 void Entity::processInput(const int mouseX, const int mouseY, const Event::MouseButtonEvent::MouseButton button, bool down) {
 	float mouseViewX = static_cast<float>(mouseX);
 	float mouseViewY = static_cast<float>(Application::Height - mouseY);
-
+	
 	if (button == Event::MouseButtonEvent::MouseButton::BUTTON_LEFT) {
 
 		float mouseWorldX = mouseViewX + camera.getPositionX();
@@ -97,7 +98,8 @@ void Entity::processInput(const int mouseX, const int mouseY, const Event::Mouse
 				m_isSelected = !m_isSelected;
 
 		}else {
-			m_isSelected = false;
+			if(down)
+				m_isSelected = false;
 		}
 	}
 
@@ -107,6 +109,25 @@ void Entity::processInput(const int mouseX, const int mouseY, const Event::Mouse
 		float mouseWorldY = mouseViewY - focusPointX + zoomFactor * (camera.getPositionY() + focusPointX);
 		m_movementPlaner->AddUserWaypoint(Vector2f(mouseWorldX / zoomFactor, mouseWorldY / zoomFactor));
 	}
+}
+
+void Entity::mark(float left, float bottom, float right, float top) {
+	
+	float posX = (prefab.boundingBox.posX + m_position[0]) * zoomFactor + (camera.getPositionX() + focusPointX) * (1.0f - zoomFactor);
+	float posY = (prefab.boundingBox.posY + m_position[1]) * zoomFactor + (camera.getPositionY() + focusPointY) * (1.0f - zoomFactor);
+	
+
+	left += camera.getPositionX();
+	right += camera.getPositionX();
+	bottom += camera.getPositionY();
+	top += camera.getPositionY();
+
+	m_isMarked = left < posX && right > posX + prefab.boundingBox.width  * zoomFactor && bottom < posY && top > posY + prefab.boundingBox.height * zoomFactor || m_isSelected;
+}
+
+void Entity::select() {
+	m_isSelected = m_isMarked;
+	m_isMarked = false;
 }
 
 void Entity::updateGridBounds() {

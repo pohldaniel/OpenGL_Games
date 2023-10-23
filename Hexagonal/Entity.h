@@ -24,7 +24,8 @@ public:
 	void processInput();
 	void processInput(const int mouseX, const int mouseY, const Event::MouseButtonEvent::MouseButton button = Event::MouseButtonEvent::MouseButton::NONE, bool down = true);
 	void setPosition(const Vector2f& position);
-
+	void mark(float left, float bottom, float right, float top);
+	void select();
 //private:
 
 	void updateGridBounds();
@@ -43,6 +44,7 @@ public:
 
 	int m_minX, m_maxX, m_minY, m_maxY;
 	bool m_isSelected;
+	bool m_isMarked;
 
 	const Prefab& prefab;
 	const Camera& camera;

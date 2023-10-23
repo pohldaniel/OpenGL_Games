@@ -204,7 +204,7 @@ void Game::render() {
 		for (auto entity = m_entities.begin(); entity != m_entities.end(); entity++) {
 			const TextureRect& rect = (*entity)->m_animationController->currentFrame->rect;
 			Spritesheet::Bind((*entity)->prefab.tileSet.getAtlas());
-			Batchrenderer::Get().addQuadAA(Vector4f((*entity)->m_position[0] * ZoomFactor + (_Camera.getPositionX() + FocusPointX) * (1.0f - ZoomFactor), (*entity)->m_position[1] * ZoomFactor + (_Camera.getPositionY() + FocusPointY) * (1.0f - ZoomFactor), rect.width * ZoomFactor, rect.height * ZoomFactor), Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureWidth, rect.textureHeight), (*entity)->m_isSelected ? Vector4f(0.5f, 0.5f, 0.5f, 1.0f) : Vector4f(1.0f, 1.0f, 1.0f, 1.0f), rect.frame);
+			Batchrenderer::Get().addQuadAA(Vector4f((*entity)->m_position[0] * ZoomFactor + (_Camera.getPositionX() + FocusPointX) * (1.0f - ZoomFactor), (*entity)->m_position[1] * ZoomFactor + (_Camera.getPositionY() + FocusPointY) * (1.0f - ZoomFactor), rect.width * ZoomFactor, rect.height * ZoomFactor), Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureWidth, rect.textureHeight), (*entity)->m_isMarked ? Vector4f(0.8f, 0.2f, 0.2f, 1.0f) : (*entity)->m_isSelected ? Vector4f(0.5f, 0.5f, 0.5f, 1.0f) : Vector4f(1.0f, 1.0f, 1.0f, 1.0f), rect.frame);
 			Batchrenderer::Get().drawBufferRaw();
 			Spritesheet::Unbind();
 		}
@@ -259,175 +259,209 @@ void Game::OnMouseMotion(Event::MouseMoveEvent& event) {
 	m_trackball.motion(event.x, event.y);
 	applyTransformation(m_trackball);
 
-	if (m_selectionMode == SelectionMode::ENTITY) return;
+	if (m_selectionMode == SelectionMode::ENTITY) {
+		if (m_mouseDown) {
+			float offsetX = ZoomFactor * (_Camera.getPositionX() + FocusPointX) - FocusPointX;
+			float offsetY = ZoomFactor * (_Camera.getPositionY() + FocusPointY) - FocusPointY;
 
-	if (m_mouseDown) {
-		m_mouseMove = true;
-		for (auto cell : m_singleCache) {
-			cell.found = false;
+			float mouseViewX = static_cast<float>(event.x);
+			float mouseViewY = static_cast<float>(Application::Height - event.y);
+
+			m_curMouseX = mouseViewX;
+			m_curMouseY = mouseViewY;
+			m_mouseMove = true;
+
+			float left = std::min(m_mouseX, m_curMouseX);
+			float bottom = std::min(m_mouseY, m_curMouseY);			
+			float right = std::max(m_mouseX, m_curMouseX);
+			float top = std::max(m_mouseY, m_curMouseY);
+
+			for (auto entity = m_entities.begin(); entity != m_entities.end(); entity++) {
+				(*entity)->mark(left, bottom, right, top);
+			}
 		}
+	}else {
 
-		if(m_selectionMode != SelectionMode::MARKER)
-			processCache(m_cellCache, true, false, true);
+		if (m_mouseDown) {
+			m_mouseMove = true;
+			for (auto cell : m_singleCache) {
+				cell.found = false;
+			}
 
-		float offsetX = ZoomFactor * (_Camera.getPositionX() + FocusPointX) - FocusPointX;
-		float offsetY = ZoomFactor * (_Camera.getPositionY() + FocusPointY) - FocusPointY;
+			if (m_selectionMode != SelectionMode::MARKER)
+				processCache(m_cellCache, true, false, true);
 
-		float mouseViewX = static_cast<float>(event.x);
-		float mouseViewY = static_cast<float>(Application::Height - event.y);
+			float offsetX = ZoomFactor * (_Camera.getPositionX() + FocusPointX) - FocusPointX;
+			float offsetY = ZoomFactor * (_Camera.getPositionY() + FocusPointY) - FocusPointY;
 
-		m_curMouseX = mouseViewX;
-		m_curMouseY = mouseViewY;
-		if(m_selectionMode == SelectionMode::RASTERIZER) {
-			std::vector<std::array<int, 2>> points;
-			points.clear();
+			float mouseViewX = static_cast<float>(event.x);
+			float mouseViewY = static_cast<float>(Application::Height - event.y);
 
-			//int startX, startY;
-			//isometricToCartesian(m_mouseX + offsetX, m_mouseY + offsetY, startX, startY, cellWidth * m_zoomFactor, cellHeight * m_zoomFactor);
+			m_curMouseX = mouseViewX;
+			m_curMouseY = mouseViewY;
+			if (m_selectionMode == SelectionMode::RASTERIZER) {
+				std::vector<std::array<int, 2>> points;
+				points.clear();
 
-			//int endX, endY;
-			//isometricToCartesian(mouseViewX + offsetX, mouseViewY + offsetY, endX, endY, cellWidth * m_zoomFactor, cellHeight * m_zoomFactor);
+				//int startX, startY;
+				//isometricToCartesian(m_mouseX + offsetX, m_mouseY + offsetY, startX, startY, cellWidth * m_zoomFactor, cellHeight * m_zoomFactor);
 
-			//Rasterizer::supercover_line( startX, startY ,  endX, endY , points);
-			//Rasterizer::linev5(startX, startY, endX, endY, points);
+				//int endX, endY;
+				//isometricToCartesian(mouseViewX + offsetX, mouseViewY + offsetY, endX, endY, cellWidth * m_zoomFactor, cellHeight * m_zoomFactor);
 
-			float left = std::min(m_mouseX, mouseViewX);
-			float right = std::max(m_mouseX, mouseViewX);
-			float bottom = std::min(m_mouseY, mouseViewY);
-			float top = std::max(m_mouseY, mouseViewY);
+				//Rasterizer::supercover_line( startX, startY ,  endX, endY , points);
+				//Rasterizer::linev5(startX, startY, endX, endY, points);
 
-			std::array<Vector2f, 4> corners;
+				float left = std::min(m_mouseX, mouseViewX);
+				float right = std::max(m_mouseX, mouseViewX);
+				float bottom = std::min(m_mouseY, mouseViewY);
+				float top = std::max(m_mouseY, mouseViewY);
 
-			corners[0] = Vector2f(left, bottom);
-			corners[1] = Vector2f(left, top);
-			corners[2] = Vector2f(right, top);
-			corners[3] = Vector2f(right, bottom);
+				std::array<Vector2f, 4> corners;
 
-			int point01, point02;
-			Math::isometricToCartesian(corners[0][0] + offsetX, corners[0][1] + offsetY, point01, point02, cellWidth * ZoomFactor, cellHeight * ZoomFactor);
+				corners[0] = Vector2f(left, bottom);
+				corners[1] = Vector2f(left, top);
+				corners[2] = Vector2f(right, top);
+				corners[3] = Vector2f(right, bottom);
 
-			int point11, point12;
-			Math::isometricToCartesian(corners[1][0] + offsetX, corners[1][1] + offsetY, point11, point12, cellWidth * ZoomFactor, cellHeight * ZoomFactor);
+				int point01, point02;
+				Math::isometricToCartesian(corners[0][0] + offsetX, corners[0][1] + offsetY, point01, point02, cellWidth * ZoomFactor, cellHeight * ZoomFactor);
 
-			int point21, point22;
-			Math::isometricToCartesian(corners[2][0] + offsetX, corners[2][1] + offsetY, point21, point22, cellWidth * ZoomFactor, cellHeight * ZoomFactor);
+				int point11, point12;
+				Math::isometricToCartesian(corners[1][0] + offsetX, corners[1][1] + offsetY, point11, point12, cellWidth * ZoomFactor, cellHeight * ZoomFactor);
 
-			int point31, point32;
-			Math::isometricToCartesian(corners[3][0] + offsetX, corners[3][1] + offsetY, point31, point32, cellWidth * ZoomFactor, cellHeight * ZoomFactor);
+				int point21, point22;
+				Math::isometricToCartesian(corners[2][0] + offsetX, corners[2][1] + offsetY, point21, point22, cellWidth * ZoomFactor, cellHeight * ZoomFactor);
+
+				int point31, point32;
+				Math::isometricToCartesian(corners[3][0] + offsetX, corners[3][1] + offsetY, point31, point32, cellWidth * ZoomFactor, cellHeight * ZoomFactor);
 
 
-			std::vector<std::array<int, 2>> initial;
-			initial.push_back({ point01, point02 });
-			initial.push_back({ point11, point12 });
-			initial.push_back({ point31, point32 });
+				std::vector<std::array<int, 2>> initial;
+				initial.push_back({ point01, point02 });
+				initial.push_back({ point11, point12 });
+				initial.push_back({ point31, point32 });
 
-			Rasterizer::rasterTriangle(initial, points);
+				Rasterizer::rasterTriangle(initial, points);
 
-			std::vector<std::array<int, 2>> initial2;
-			initial2.push_back({ point11, point12 });
-			initial2.push_back({ point21, point22 });
-			initial2.push_back({ point31, point32 });
+				std::vector<std::array<int, 2>> initial2;
+				initial2.push_back({ point11, point12 });
+				initial2.push_back({ point21, point22 });
+				initial2.push_back({ point31, point32 });
 
-			Rasterizer::rasterTriangle(initial2, points);
+				Rasterizer::rasterTriangle(initial2, points);
 
-			for (auto point : points) {
+				for (auto point : points) {
+					for (int j = 0; j < m_layer.size(); j++) {
+						if (isValid(point[0], point[1]) && m_layer[j][point[1]][point[0]].first != -1) {
+							if (!m_cells[m_layer[j][point[1]][point[0]].second].selected && m_cells[m_layer[j][point[1]][point[0]].second].visible) {
+								m_cellCache.push_back(m_cells[m_layer[j][point[1]][point[0]].second]);
+								m_cellCache.back().get().selected = true;
+							}
+							SingleSelectedCell defaultCell = { point[0], point[1], false };
+							std::vector<SingleSelectedCell>::iterator it = std::find_if(m_singleCache.begin(), m_singleCache.end(), std::bind(FindSingleCell, std::placeholders::_1, defaultCell));
+							if (it != m_singleCache.end())
+								it->found = true;
+						}
+					}
+				}
+
+
+			}else if (m_selectionMode == SelectionMode::BOXSELECTION) {
+				//box selection
+				int left = static_cast<int>(std::min(m_mouseX, mouseViewX));
+				int right = static_cast<int>(std::max(m_mouseX, mouseViewX));
+				int bottom = static_cast<int>(std::min(m_mouseY, mouseViewY));
+				int top = static_cast<int>(std::max(m_mouseY, mouseViewY));
+
+				for (int x = left; x < right; x = x + cellWidth * ZoomFactor) {
+					for (int y = bottom; y < top; y = y + cellHeight * 0.5f * ZoomFactor) {
+						int row, col;
+						Math::isometricToCartesian(x + offsetX, y + offsetY, row, col, cellWidth  * ZoomFactor, cellHeight  * ZoomFactor);
+						for (int j = 0; j < m_layer.size(); j++) {
+							if (isValid(row, col) && m_layer[j][col][row].first != -1) {
+								if (!m_cells[m_layer[j][col][row].second].selected && m_cells[m_layer[j][col][row].second].visible) {
+									m_cellCache.push_back(m_cells[m_layer[j][col][row].second]);
+									m_cellCache.back().get().selected = true;
+								}
+								SingleSelectedCell defaultCell = { row, col, false };
+								std::vector<SingleSelectedCell>::iterator it = std::find_if(m_singleCache.begin(), m_singleCache.end(), std::bind(FindSingleCell, std::placeholders::_1, defaultCell));
+								if (it != m_singleCache.end())
+									it->found = true;
+							}
+						}
+
+					}
+				}
+			}else if (m_selectionMode == SelectionMode::ISOSELECTION) {
+				// iso selection
+				int row1, col1;
+				Math::isometricToCartesian(m_mouseX + offsetX, m_mouseY + offsetY, row1, col1, cellWidth  * ZoomFactor, cellHeight  * ZoomFactor);
+
+				int row2, col2;
+				Math::isometricToCartesian(mouseViewX + offsetX, mouseViewY + offsetY, row2, col2, cellWidth  * ZoomFactor, cellHeight  * ZoomFactor);
+
+				int rowMin = std::min(row1, row2);
+				int rowMax = std::max(row1, row2);
+				int colMin = std::min(col1, col2);
+				int colMax = std::max(col1, col2);
+
+
+				for (int col = colMin; col <= colMax; col++) {
+					for (int row = rowMin; row <= rowMax; row++) {
+						for (int j = 0; j < m_layer.size(); j++) {
+							if (isValid(row, col) && m_layer[j][col][row].first != -1) {
+								if (!m_cells[m_layer[j][col][row].second].selected && m_cells[m_layer[j][col][row].second].visible) {
+									m_cellCache.push_back(m_cells[m_layer[j][col][row].second]);
+									m_cellCache.back().get().selected = true;
+								}
+								SingleSelectedCell defaultCell = { row, col, false };
+								std::vector<SingleSelectedCell>::iterator it = std::find_if(m_singleCache.begin(), m_singleCache.end(), std::bind(FindSingleCell, std::placeholders::_1, defaultCell));
+								if (it != m_singleCache.end())
+									it->found = true;
+							}
+						}
+
+					}
+				}
+			}else if (m_selectionMode == SelectionMode::MARKER) {
+				//marker
+				int row, col;
+				Math::isometricToCartesian(mouseViewX + offsetX, mouseViewY + offsetY, row, col, cellWidth  * ZoomFactor, cellHeight  * ZoomFactor);
 				for (int j = 0; j < m_layer.size(); j++) {
-					if (isValid(point[0], point[1]) && m_layer[j][point[1]][point[0]].first != -1) {
-						if (!m_cells[m_layer[j][point[1]][point[0]].second].selected && m_cells[m_layer[j][point[1]][point[0]].second].visible) {
-							m_cellCache.push_back(m_cells[m_layer[j][point[1]][point[0]].second]);
+					if (isValid(row, col) && m_layer[j][col][row].first != -1) {
+						if (!m_cells[m_layer[j][col][row].second].selected && m_cells[m_layer[j][col][row].second].visible) {
+							m_cellCache.push_back(m_cells[m_layer[j][col][row].second]);
 							m_cellCache.back().get().selected = true;
 						}
-						SingleSelectedCell defaultCell = { point[0], point[1], false };
+						SingleSelectedCell defaultCell = { row, col, false };
 						std::vector<SingleSelectedCell>::iterator it = std::find_if(m_singleCache.begin(), m_singleCache.end(), std::bind(FindSingleCell, std::placeholders::_1, defaultCell));
 						if (it != m_singleCache.end())
 							it->found = true;
 					}
 				}
 			}
-
-
-		}else if(m_selectionMode == SelectionMode::BOXSELECTION) {
-			//box selection
-			int left = static_cast<int>(std::min(m_mouseX, mouseViewX));
-			int right = static_cast<int>(std::max(m_mouseX, mouseViewX));
-			int bottom = static_cast<int>(std::min(m_mouseY, mouseViewY));
-			int top = static_cast<int>(std::max(m_mouseY, mouseViewY));
-
-			for (int x = left; x < right; x = x + cellWidth * ZoomFactor) {
-				for (int y = bottom; y < top; y = y + cellHeight * 0.5f * ZoomFactor) {
-					int row, col;
-					Math::isometricToCartesian(x + offsetX, y + offsetY, row, col, cellWidth  * ZoomFactor, cellHeight  * ZoomFactor);
-					for (int j = 0; j < m_layer.size(); j++) {
-						if (isValid(row, col) && m_layer[j][col][row].first != -1) {
-							if (!m_cells[m_layer[j][col][row].second].selected && m_cells[m_layer[j][col][row].second].visible) {
-								m_cellCache.push_back(m_cells[m_layer[j][col][row].second]);
-								m_cellCache.back().get().selected = true;
-							}
-							SingleSelectedCell defaultCell = { row, col, false };
-							std::vector<SingleSelectedCell>::iterator it = std::find_if(m_singleCache.begin(), m_singleCache.end(), std::bind(FindSingleCell, std::placeholders::_1, defaultCell));
-							if (it != m_singleCache.end())
-								it->found = true;
-						}
-					}
-
-				}
-			}
-		}else if(m_selectionMode == SelectionMode::ISOSELECTION) {
-			// iso selection
-			int row1, col1;
-			Math::isometricToCartesian(m_mouseX + offsetX, m_mouseY + offsetY, row1, col1, cellWidth  * ZoomFactor, cellHeight  * ZoomFactor);
-
-			int row2, col2;
-			Math::isometricToCartesian(mouseViewX + offsetX, mouseViewY + offsetY, row2, col2, cellWidth  * ZoomFactor, cellHeight  * ZoomFactor);
-
-			int rowMin = std::min(row1, row2);
-			int rowMax = std::max(row1, row2);
-			int colMin = std::min(col1, col2);
-			int colMax = std::max(col1, col2);
-
-
-			for (int col = colMin; col <= colMax; col++) {
-				for (int row = rowMin; row <= rowMax; row++) {
-					for (int j = 0; j < m_layer.size(); j++) {
-						if (isValid(row, col) && m_layer[j][col][row].first != -1) {
-							if (!m_cells[m_layer[j][col][row].second].selected && m_cells[m_layer[j][col][row].second].visible) {
-								m_cellCache.push_back(m_cells[m_layer[j][col][row].second]);
-								m_cellCache.back().get().selected = true;
-							}
-							SingleSelectedCell defaultCell = { row, col, false };
-							std::vector<SingleSelectedCell>::iterator it = std::find_if(m_singleCache.begin(), m_singleCache.end(), std::bind(FindSingleCell, std::placeholders::_1, defaultCell));
-							if (it != m_singleCache.end())
-								it->found = true;
-						}
-					}
-
-				}
-			}
-		}else if(m_selectionMode == SelectionMode::MARKER) {
-			//marker
-			int row, col;
-			Math::isometricToCartesian(mouseViewX + offsetX, mouseViewY + offsetY, row, col, cellWidth  * ZoomFactor, cellHeight  * ZoomFactor);
-			for (int j = 0; j < m_layer.size(); j++) {
-				if (isValid(row, col) && m_layer[j][col][row].first != -1) {
-					if (!m_cells[m_layer[j][col][row].second].selected && m_cells[m_layer[j][col][row].second].visible) {
-						m_cellCache.push_back(m_cells[m_layer[j][col][row].second]);
-						m_cellCache.back().get().selected = true;
-					}
-					SingleSelectedCell defaultCell = { row, col, false };
-					std::vector<SingleSelectedCell>::iterator it = std::find_if(m_singleCache.begin(), m_singleCache.end(), std::bind(FindSingleCell, std::placeholders::_1, defaultCell));
-					if (it != m_singleCache.end())
-						it->found = true;
-				}
-			}
-		}	
+		}
 	}
 }
 
 void Game::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 
 	if (m_selectionMode == SelectionMode::ENTITY) {
+		
 		for (auto entity = m_entities.begin(); entity != m_entities.end(); entity++) {
-			(*entity)->processInput(event.x, event.y, event.button, true);
+				(*entity)->processInput(event.x, event.y, event.button, true);
+		}
+
+		if (event.button == 1u) {
+			float mouseViewX = static_cast<float>(event.x);
+			float mouseViewY = static_cast<float>(Application::Height - event.y);
+
+			m_mouseDown = true;
+			m_mouseX = mouseViewX;
+			m_mouseY = mouseViewY;
+			m_curMouseX = m_mouseX;
+			m_curMouseY = m_mouseY;
 		}
 		
 	}else {
@@ -452,7 +486,7 @@ void Game::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 
 			int row, col;
 			Math::isometricToCartesian(mouseWorldX, mouseWorldY, row, col, cellWidth  * ZoomFactor, cellHeight  * ZoomFactor);
-			std::cout << "_Row: " << row << " _Col: " << col << std::endl;
+
 			for (int j = 0; j < m_layer.size(); j++) {
 				if (isValid(row, col) && m_layer[j][col][row].first != -1) {
 					m_selectedCells.push_back(m_cells[m_layer[j][col][row].second]);
@@ -489,9 +523,19 @@ void Game::OnMouseButtonUp(Event::MouseButtonEvent& event) {
 	
 	if (m_selectionMode == SelectionMode::ENTITY) {
 		for (auto entity = m_entities.begin(); entity != m_entities.end(); entity++) {
-			(*entity)->processInput(event.x, event.y, event.button, false);
-		}		
-	} else {
+			if(m_mouseMove && event.button == Event::MouseButtonEvent::MouseButton::BUTTON_LEFT)
+				(*entity)->select();
+			else
+				(*entity)->processInput(event.x, event.y, event.button, false);		
+		}	
+
+		m_mouseDown = false;
+		m_mouseMove = false;
+		m_mouseX = static_cast<float>(event.x);
+		m_mouseY = static_cast<float>(Application::Height - event.y);
+		m_curMouseX = m_mouseX;
+		m_curMouseY = m_mouseY;
+	}else {
 		if (event.button == 1u) {
 			m_trackball.mouse(TrackBall::Button::ELeftButton, TrackBall::Modifier::ENoModifier, false, event.x, event.y);
 			applyTransformation(m_trackball);
@@ -827,7 +871,7 @@ void Game::drawCullingRect() {
 }
 
 void  Game::drawMouseRect() {
-	if (!m_mouseDown || m_selectionMode == SelectionMode::MARKER || m_selectionMode == SelectionMode::RASTERIZER || m_selectionMode == SelectionMode::ENTITY) return;
+	if (!m_mouseDown || m_selectionMode == SelectionMode::MARKER || m_selectionMode == SelectionMode::RASTERIZER) return;
 
 	float offsetX = ZoomFactor * (_Camera.getPositionX() + FocusPointX) - FocusPointX;
 	float offsetY = ZoomFactor * (_Camera.getPositionY() + FocusPointY) - FocusPointY;
@@ -840,7 +884,7 @@ void  Game::drawMouseRect() {
 	glLoadIdentity();
 	
 
-	if (m_selectionMode == SelectionMode::BOXSELECTION) {
+	if (m_selectionMode == SelectionMode::BOXSELECTION || m_selectionMode == SelectionMode::ENTITY) {
 		float left = std::min(m_mouseX, m_curMouseX);
 		float bottom = std::min(m_mouseY, m_curMouseY);
 		float top = std::max(m_mouseY, m_curMouseY);
