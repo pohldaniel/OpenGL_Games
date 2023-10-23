@@ -22,10 +22,8 @@ public:
 	Entity(const Prefab& prefab, const Camera& camera, const float& zoomFactor, const float& focusPointX, const float& focusPointY);
 	void update(float dt);
 	void processInput();
-	void processInput(const int mouseX, const int mouseY, const Event::MouseButtonEvent::MouseButton button = Event::MouseButtonEvent::MouseButton::NONE);
+	void processInput(const int mouseX, const int mouseY, const Event::MouseButtonEvent::MouseButton button = Event::MouseButtonEvent::MouseButton::NONE, bool down = true);
 	void setPosition(const Vector2f& position);
-
-	//void addMovementPlanner(float movementSpeed);
 
 //private:
 

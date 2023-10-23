@@ -137,7 +137,7 @@ private:
 	std::vector<std::reference_wrapper<Cell>> m_cellCache;
 	std::vector<SingleSelectedCell> m_singleCache;
 
-	std::vector<Entity> m_entities;
+	std::vector<Entity*> m_entities;
 
 	bool move;
 	std::array<Vector2f, 4> m_cullingVertices;
@@ -166,10 +166,6 @@ private:
 	void drawIsometricRect(int posX, int posY, Vector4f color);
 
 	void drawClickBox(float posX, float posY, float width, float height);
-	eMovementPlanner* m_movementPlanner;
-
-
-	
 
 	static Camera _Camera;
 	static float ZoomFactor;

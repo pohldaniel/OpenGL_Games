@@ -30,7 +30,7 @@ If you have questions concerning this license, you may contact Thomas Freehill a
 //***************
 // eMovementPlanner::eMovementPlanner
 //***************
-eMovementPlanner::eMovementPlanner(Entity& entity, float movementSpeed) : entity(entity), maxMoveSpeed(movementSpeed), goalRange(movementSpeed){
+eMovementPlanner::eMovementPlanner(Entity& _entity, float movementSpeed) : entity(_entity), maxMoveSpeed(movementSpeed), goalRange(movementSpeed){
 
 	pathingState = PATHTYPE_COMPASS;
 	moveState = MOVETYPE_GOAL;

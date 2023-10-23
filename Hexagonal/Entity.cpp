@@ -17,11 +17,15 @@ Entity::Entity(const Prefab& prefab, const Camera& camera, const float& zoomFact
 	m_minX = m_maxX = m_minY = m_maxY = 0;
 	m_isSelected = false;
 	m_animationController = std::make_unique< eAnimationController>(*prefab.animationController);
-	m_movementPlaner = std::make_unique< eMovementPlanner>(*this, 4.0f);
+	m_movementPlaner = std::make_unique<eMovementPlanner>(*this, 4.0f);
+
+	//std::cout << "Constructor" << this << std::endl;
 }
 
 void Entity::update(float dt) {
 	//if (!m_isSelected) return;
+
+	m_movementPlaner->Update();
 
 	const float moveSpeed = 0.8f;
 	m_directrion.normalize();
@@ -46,6 +50,8 @@ void Entity::update(float dt) {
 	m_animationController->Update();
 
 	m_position += m_velocity;
+
+
 }
 
 void Entity::processInput() {
@@ -72,26 +78,34 @@ void Entity::processInput() {
 	}
 }
 
-void Entity::processInput(const int mouseX, const int mouseY, const Event::MouseButtonEvent::MouseButton button) {
+void Entity::processInput(const int mouseX, const int mouseY, const Event::MouseButtonEvent::MouseButton button, bool down) {
 	float mouseViewX = static_cast<float>(mouseX);
 	float mouseViewY = static_cast<float>(Application::Height - mouseY);
 
-	float mouseWorldX = mouseViewX + camera.getPositionX();
-	float mouseWorldY = mouseViewY + camera.getPositionY();
+	if (button == Event::MouseButtonEvent::MouseButton::BUTTON_LEFT) {
 
-	if (m_isSelected && button == Event::MouseButtonEvent::MouseButton::BUTTON_RIGHT) {
-		m_isSelected = false;
-		return;
+		float mouseWorldX = mouseViewX + camera.getPositionX();
+		float mouseWorldY = mouseViewY + camera.getPositionY();
+
+		float posX = (prefab.boundingBox.posX + m_position[0]) * zoomFactor + (camera.getPositionX() + focusPointX) * (1.0f - zoomFactor);
+		float posY = (prefab.boundingBox.posY + m_position[1]) * zoomFactor + (camera.getPositionY() + focusPointY) * (1.0f - zoomFactor);
+
+		if (mouseWorldX > posX && mouseWorldX < posX + prefab.boundingBox.width  * zoomFactor &&
+			mouseWorldY > posY && mouseWorldY < posY + prefab.boundingBox.height * zoomFactor) {
+
+			if (down)
+				m_isSelected = !m_isSelected;
+
+		}else {
+			m_isSelected = false;
+		}
 	}
 
-	float posX = (prefab.boundingBox.posX + m_position[0]) * zoomFactor + (camera.getPositionX() + focusPointX) * (1.0f - zoomFactor);
-	float posY = (prefab.boundingBox.posY + m_position[1]) * zoomFactor + (camera.getPositionY() + focusPointY) * (1.0f - zoomFactor);
-
-	if (mouseWorldX > posX && mouseWorldX < posX + prefab.boundingBox.width  * zoomFactor &&
-		mouseWorldY > posY && mouseWorldY < posY + prefab.boundingBox.height * zoomFactor) {
-		m_isSelected = button == Event::MouseButtonEvent::MouseButton::BUTTON_LEFT;
-	}else {
-		//m_isSelected = false;
+	if (m_isSelected && button == Event::MouseButtonEvent::MouseButton::BUTTON_RIGHT && down) {
+		//world with zoom
+		float mouseWorldX = mouseViewX - focusPointX + zoomFactor * (camera.getPositionX() + focusPointX);
+		float mouseWorldY = mouseViewY - focusPointX + zoomFactor * (camera.getPositionY() + focusPointX);
+		m_movementPlaner->AddUserWaypoint(Vector2f(mouseWorldX / zoomFactor, mouseWorldY / zoomFactor));
 	}
 }
 

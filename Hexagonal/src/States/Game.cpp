@@ -87,17 +87,14 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	PrefabManager::Get().getPrefab("sArcher").setOffset(Vector2f(10.0f, -38.0f));
 	PrefabManager::Get().getPrefab("sArcher").setBoundingBox({ 32.0f, 0.0f, 32.0f, 100.0f});
 
-	//m_entities.push_back(Entity(PrefabManager::Get().getPrefab("sHero"), m_camera, m_zoomFactor, m_focusPointX, m_focusPointY));
-	//m_entities.back().setPosition({ -200.0f, -1110.0f });
+	m_entities.push_back(new Entity(PrefabManager::Get().getPrefab("sHero"), _Camera, ZoomFactor, FocusPointX, FocusPointY));
+	m_entities[0]->setPosition({ -200.0f, -1110.0f });
 
-	m_entities.push_back(Entity(PrefabManager::Get().getPrefab("sArcher"), _Camera, ZoomFactor, FocusPointX, FocusPointY));
-	m_entities.back().setPosition({0.0f, -1120.0f});
+	m_entities.push_back(new Entity(PrefabManager::Get().getPrefab("sArcher"), _Camera, ZoomFactor, FocusPointX, FocusPointY));
+	m_entities[1]->setPosition({0.0f, -1120.0f});
 
-	//m_entities.push_back(Entity(PrefabManager::Get().getPrefab("sHero"), m_camera, m_zoomFactor, m_focusPointX, m_focusPointY));
-	//m_entities.back().setPosition({ 200.0f, -1120.0f });
-
-
-	m_movementPlanner = new eMovementPlanner(m_entities.back(), 4.0f);
+	m_entities.push_back(new Entity(PrefabManager::Get().getPrefab("sHero"), _Camera, ZoomFactor, FocusPointX, FocusPointY));
+	m_entities[2]->setPosition({ 200.0f, -1120.0f });
 }
 
 Game::~Game() {
@@ -154,16 +151,8 @@ void Game::update() {
 	Mouse &mouse = Mouse::instance();
 
 	if (mouse.buttonPressed(Mouse::MouseButton::BUTTON_RIGHT)) {
-		//dx = mouse.xPosRelative();
-		//dy = mouse.yPosRelative();
-
-		float mouseViewX = static_cast<float>(mouse.xPosAbsolute());
-		float mouseViewY = static_cast<float>(Application::Height - mouse.yPosAbsolute());
-
-		//world with zoom
-		float mouseWorldX = mouseViewX + ZoomFactor * (_Camera.getPositionX() + FocusPointX) - FocusPointX;
-		float mouseWorldY = mouseViewY + ZoomFactor * (_Camera.getPositionY() + FocusPointY) - FocusPointY;
-		m_movementPlanner->AddUserWaypoint(Vector2f(mouseWorldX, mouseWorldY));
+		dx = mouse.xPosRelative();
+		dy = mouse.yPosRelative();
 	}
 
 	if (move || dx != 0.0f || dy != 0.0f) {
@@ -181,11 +170,10 @@ void Game::update() {
 	m_background.update(m_dt);
 
 	for (auto entity = m_entities.begin(); entity != m_entities.end(); entity++) {
-		(*entity).processInput();
-		(*entity).update(m_dt);
+		(*entity)->processInput();
+		(*entity)->update(m_dt);
+		
 	}
-
-	m_movementPlanner->Update();
 }
 
 void Game::render() {
@@ -214,9 +202,9 @@ void Game::render() {
 		Spritesheet::Unbind();
 
 		for (auto entity = m_entities.begin(); entity != m_entities.end(); entity++) {
-			const TextureRect& rect = (*entity).m_animationController->currentFrame->rect;
-			Spritesheet::Bind((*entity).prefab.tileSet.getAtlas());
-			Batchrenderer::Get().addQuadAA(Vector4f((*entity).m_position[0] * ZoomFactor + (_Camera.getPositionX() + FocusPointX) * (1.0f - ZoomFactor), (*entity).m_position[1] * ZoomFactor + (_Camera.getPositionY() + FocusPointY) * (1.0f - ZoomFactor), rect.width * ZoomFactor, rect.height * ZoomFactor), Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureWidth, rect.textureHeight), (*entity).m_isSelected ? Vector4f(0.5f, 0.5f, 0.5f, 1.0f) : Vector4f(1.0f, 1.0f, 1.0f, 1.0f), rect.frame);
+			const TextureRect& rect = (*entity)->m_animationController->currentFrame->rect;
+			Spritesheet::Bind((*entity)->prefab.tileSet.getAtlas());
+			Batchrenderer::Get().addQuadAA(Vector4f((*entity)->m_position[0] * ZoomFactor + (_Camera.getPositionX() + FocusPointX) * (1.0f - ZoomFactor), (*entity)->m_position[1] * ZoomFactor + (_Camera.getPositionY() + FocusPointY) * (1.0f - ZoomFactor), rect.width * ZoomFactor, rect.height * ZoomFactor), Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureWidth, rect.textureHeight), (*entity)->m_isSelected ? Vector4f(0.5f, 0.5f, 0.5f, 1.0f) : Vector4f(1.0f, 1.0f, 1.0f, 1.0f), rect.frame);
 			Batchrenderer::Get().drawBufferRaw();
 			Spritesheet::Unbind();
 		}
@@ -229,16 +217,18 @@ void Game::render() {
 		}
 
 		for (auto entity = m_entities.begin(); entity != m_entities.end(); entity++) {
-			drawIsometricRect(((*entity).m_position[0]) * ZoomFactor + (_Camera.getPositionX() + FocusPointX) * (1.0f - ZoomFactor), ((*entity).m_position[1]) * ZoomFactor + (_Camera.getPositionY() + FocusPointY) * (1.0f - ZoomFactor), (*entity).prefab.bounds * ZoomFactor, (*entity).prefab.offset * ZoomFactor, Vector4f(1.0f, 0.0f, 1.0f, 1.0f));
-			(*entity).updateGridBounds();
+			drawIsometricRect(((*entity)->m_position[0]) * ZoomFactor + (_Camera.getPositionX() + FocusPointX) * (1.0f - ZoomFactor), ((*entity)->m_position[1]) * ZoomFactor + (_Camera.getPositionY() + FocusPointY) * (1.0f - ZoomFactor), (*entity)->prefab.bounds * ZoomFactor, (*entity)->prefab.offset * ZoomFactor, Vector4f(1.0f, 0.0f, 1.0f, 1.0f));
+			(*entity)->updateGridBounds();
 
-			for (int y = (*entity).m_minY; y <= (*entity).m_maxY; y++) {
-				for (int x = (*entity).m_minX; x <= (*entity).m_maxX; x++) {
+			for (int y = (*entity)->m_minY; y <= (*entity)->m_maxY; y++) {
+				for (int x = (*entity)->m_minX; x <= (*entity)->m_maxX; x++) {
 					drawIsometricRect(x, y, Vector4f(0.0f, 0.0f, 1.0f, 1.0f));
 				}
 			}
 
-			drawClickBox((*entity).m_position[0] + (*entity).prefab.boundingBox.posX, (*entity).m_position[1] + (*entity).prefab.boundingBox.posY, +(*entity).prefab.boundingBox.width, (*entity).prefab.boundingBox.height);
+			drawClickBox((*entity)->m_position[0] + (*entity)->prefab.boundingBox.posX, (*entity)->m_position[1] + (*entity)->prefab.boundingBox.posY, +(*entity)->prefab.boundingBox.width, (*entity)->prefab.boundingBox.height);
+
+			(*entity)->m_movementPlaner->DebugDraw();
 		}
 		
 
@@ -246,8 +236,6 @@ void Game::render() {
 			drawCullingRect();
 
 		drawMouseRect();
-
-		m_movementPlanner->DebugDraw();
 
 		m_mainRT.unbindWrite();
 	}
@@ -439,7 +427,7 @@ void Game::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 
 	if (m_selectionMode == SelectionMode::ENTITY) {
 		for (auto entity = m_entities.begin(); entity != m_entities.end(); entity++) {
-			(*entity).processInput(event.x, event.y, event.button);
+			(*entity)->processInput(event.x, event.y, event.button, true);
 		}
 		
 	}else {
@@ -501,7 +489,7 @@ void Game::OnMouseButtonUp(Event::MouseButtonEvent& event) {
 	
 	if (m_selectionMode == SelectionMode::ENTITY) {
 		for (auto entity = m_entities.begin(); entity != m_entities.end(); entity++) {
-			(*entity).processInput(event.x, event.y, event.button);
+			(*entity)->processInput(event.x, event.y, event.button, false);
 		}		
 	} else {
 		if (event.button == 1u) {
@@ -1151,10 +1139,21 @@ void Game::DrawIsometricRect(float posX, float posY, Vector4f sizeOffset, Vector
 	glBegin(GL_QUADS);
 	glColor4f(color[0], color[1], color[2], color[3]);
 
-	glVertex3f(posX + fPoints[0][0], posY - fPoints[0][1], 0.0f);
-	glVertex3f(posX + fPoints[1][0], posY - fPoints[1][1], 0.0f);
-	glVertex3f(posX + fPoints[2][0], posY - fPoints[2][1], 0.0f);
-	glVertex3f(posX + fPoints[3][0], posY - fPoints[3][1], 0.0f);
+	posX = posX * ZoomFactor + (_Camera.getPositionX() + FocusPointX) * (1.0f - ZoomFactor);
+	posY = posY * ZoomFactor + (_Camera.getPositionY() + FocusPointY) * (1.0f - ZoomFactor);
+
+	glVertex3f(posX + fPoints[0][0] * ZoomFactor, posY - fPoints[0][1] * ZoomFactor, 0.0f);
+	//glVertex3f(posX + fPoints[0][0] * ZoomFactor + (_Camera.getPositionX() + FocusPointX) * (1.0f - ZoomFactor), posY - fPoints[0][1] * ZoomFactor + (_Camera.getPositionY() + FocusPointY) * (1.0f - ZoomFactor), 0.0f);
+
+	glVertex3f(posX + fPoints[1][0] * ZoomFactor, posY - fPoints[1][1] * ZoomFactor, 0.0f);
+	//glVertex3f(posX + fPoints[1][0] * ZoomFactor + (_Camera.getPositionX() + FocusPointX) * (1.0f - ZoomFactor), posY - fPoints[1][1] * ZoomFactor + (_Camera.getPositionY() + FocusPointY) * (1.0f - ZoomFactor), 0.0f);
+
+	glVertex3f(posX + fPoints[2][0] * ZoomFactor, posY - fPoints[2][1] * ZoomFactor, 0.0f);
+	//glVertex3f(posX + fPoints[2][0] * ZoomFactor + (_Camera.getPositionX() + FocusPointX) * (1.0f - ZoomFactor), posY - fPoints[2][1] * ZoomFactor + (_Camera.getPositionY() + FocusPointY) * (1.0f - ZoomFactor), 0.0f);
+
+	glVertex3f(posX + fPoints[3][0] * ZoomFactor, posY - fPoints[3][1] * ZoomFactor, 0.0f);
+	//glVertex3f(posX + fPoints[3][0] * ZoomFactor + (_Camera.getPositionX() + FocusPointX) * (1.0f - ZoomFactor), posY - fPoints[3][1] * ZoomFactor + (_Camera.getPositionY() + FocusPointY) * (1.0f - ZoomFactor), 0.0f);
+
 
 	glEnd();
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
