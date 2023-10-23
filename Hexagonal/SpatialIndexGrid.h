@@ -27,7 +27,10 @@ If you have questions concerning this license, you may contact Thomas Freehill a
 #ifndef EVIL_SPATIAL_INDEX_GRID_H
 #define EVIL_SPATIAL_INDEX_GRID_H
 
+
+#include <iostream>
 #include <engine/Vector.h>
+#include "Math.hpp"
 
 //*************************************************
 //				eGridIndex
@@ -54,8 +57,8 @@ public:
 
 protected:
 
-	int						gridRow;
-	int						gridColumn;
+	int						gridRow = 0;
+	int						gridColumn = 0;
 
 };
 
@@ -305,8 +308,8 @@ inline type & eSpatialIndexGrid<type, rows, columns>::IndexValidated(const Vecto
 //******************
 template< class type, int rows, int columns>
 inline void eSpatialIndexGrid<type, rows, columns>::Index(const Vector2f & point, int & row, int & column)  const {
-	row = (int)(point[0] * invCellWidth);		
-	column = (int)(point[1] * invCellHeight);
+	row = (int)((0.5f * point[0] - point[1]) * invCellWidth);
+	column = (int)(-(0.5f * point[0] + point[1]) * invCellHeight);
 }
 
 //******************

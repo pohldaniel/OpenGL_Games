@@ -26,6 +26,7 @@
 #include "Entity.h"
 #include "AnimationController.h"
 #include "Prefab.h"
+#include "Movement.h"
 
 struct Cell {
 	const TextureRect& rect;
@@ -57,7 +58,11 @@ enum SelectedEntity {
 	ARCHER
 };
 
+
+
 class Game : public State, public MouseEventListener, public KeyboardEventListener {
+
+	friend eMovementPlanner;
 
 public:
 
@@ -74,6 +79,10 @@ public:
 	void OnMouseButtonUp(Event::MouseButtonEvent& event) override;
 	void OnKeyDown(Event::KeyboardEvent& event) override;
 	void OnKeyUp(Event::KeyboardEvent& event) override;
+
+	static void DrawIsometricRect(float posX, float posY, Vector4f sizeOffset, Vector4f color);
+	static void DrawIsometricRect(float posX, float posY, Vector4f bounds, Vector2f offset, Vector4f color);
+	static void DrawIsometricRect(int posX, int posY, Vector4f color);
 
 private:
 
@@ -92,7 +101,6 @@ private:
 
 	bool isValid(const int row, const int column) const;
 
-	Camera m_camera;
 	TrackBall m_trackball;
 	Transform m_transform;
 
@@ -102,9 +110,6 @@ private:
 	bool m_drawCullingRect = false;
 	float m_left, m_right, m_bottom, m_top;
 	float m_screeBorder = 0.0f;
-	float m_zoomFactor = 1.0f;
-	float m_focusPointY;
-	float m_focusPointX;
 	float m_enlargeBorder = 100.0f;
 	bool m_discreteSelection = true;
 	bool m_autoRedraw = false;
@@ -156,9 +161,18 @@ private:
 
 	std::vector<std::array<int, 2>> colAndBlockId;
 
-	void drawIsometricRect(float posX, float posY, Vector4f sizeOffset);
-	void drawIsometricRect(float posX, float posY, Vector4f bounds, Vector2f offset);
-	void drawIsometricRect(int posX, int posY);
+	void drawIsometricRect(float posX, float posY, Vector4f sizeOffset, Vector4f color);
+	void drawIsometricRect(float posX, float posY, Vector4f bounds, Vector2f offset, Vector4f color);
+	void drawIsometricRect(int posX, int posY, Vector4f color);
 
 	void drawClickBox(float posX, float posY, float width, float height);
+	eMovementPlanner* m_movementPlanner;
+
+
+	
+
+	static Camera _Camera;
+	static float ZoomFactor;
+	static float FocusPointY;
+	static float FocusPointX;
 };

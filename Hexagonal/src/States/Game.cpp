@@ -13,25 +13,32 @@
 
 #define MAX_ESTRING_LENGTH 128
 
+Camera Game::_Camera;
+float Game::ZoomFactor;
+float Game::FocusPointY;
+float Game::FocusPointX;
+
 Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
 	EventDispatcher::AddMouseListener(this);
 
-	m_camera = Camera();
-	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
-	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
-	m_camera.lookAt(Vector3f(-800.0f, -1500.0f, 0.0f), Vector3f(-800.0f, -1500.0f, 0.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
+	_Camera = Camera();
+	_Camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
+	_Camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
+	_Camera.lookAt(Vector3f(-800.0f, -1500.0f, 0.0f), Vector3f(-800.0f, -1500.0f, 0.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
+
+	_Camera.setRotationSpeed(0.1f);
+	_Camera.setMovingSpeed(400.0f);
 
 
-	m_camera.setRotationSpeed(0.1f);
-	m_camera.setMovingSpeed(400.0f);
+	ZoomFactor = 1.0f;
 
-	m_left = m_camera.getLeftOrthographic();
-	m_right = m_camera.getRightOrthographic();
-	m_bottom = m_camera.getBottomOrthographic();
-	m_top = m_camera.getTopOrthographic();
+	m_left = _Camera.getLeftOrthographic();
+	m_right = _Camera.getRightOrthographic();
+	m_bottom = _Camera.getBottomOrthographic();
+	m_top = _Camera.getTopOrthographic();
 
 	glClearColor(0.494f, 0.686f, 0.796f, 1.0f);
 	glClearDepth(1.0f);
@@ -56,8 +63,8 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 
 	loadMap("res/EvilTown2.emap");
 
-	m_focusPointX = static_cast<float>(Application::Width / 2);
-	m_focusPointY = static_cast<float>(Application::Height / 2);
+	FocusPointX = static_cast<float>(Application::Width / 2);
+	FocusPointY = static_cast<float>(Application::Height / 2);
 
 	TileSetManager::Get().getTileSet("sHero_anm").loadTileSet("Graphics/Animations/sHero/Controller_defs/sHero.bimg", 1280u, 1280u, true);
 	//Spritesheet::Safe("sHero", TileSetManager::Get().getTileSet("sHero_anm").getAtlas());
@@ -80,14 +87,17 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	PrefabManager::Get().getPrefab("sArcher").setOffset(Vector2f(10.0f, -38.0f));
 	PrefabManager::Get().getPrefab("sArcher").setBoundingBox({ 32.0f, 0.0f, 32.0f, 100.0f});
 
-	m_entities.push_back(Entity(PrefabManager::Get().getPrefab("sHero"), m_camera, m_zoomFactor, m_focusPointX, m_focusPointY));
-	m_entities.back().setPosition({ -200.0f, -1110.0f });
+	//m_entities.push_back(Entity(PrefabManager::Get().getPrefab("sHero"), m_camera, m_zoomFactor, m_focusPointX, m_focusPointY));
+	//m_entities.back().setPosition({ -200.0f, -1110.0f });
 
-	m_entities.push_back(Entity(PrefabManager::Get().getPrefab("sArcher"), m_camera, m_zoomFactor, m_focusPointX, m_focusPointY));
+	m_entities.push_back(Entity(PrefabManager::Get().getPrefab("sArcher"), _Camera, ZoomFactor, FocusPointX, FocusPointY));
 	m_entities.back().setPosition({0.0f, -1120.0f});
 
-	m_entities.push_back(Entity(PrefabManager::Get().getPrefab("sHero"), m_camera, m_zoomFactor, m_focusPointX, m_focusPointY));
-	m_entities.back().setPosition({ 200.0f, -1120.0f });
+	//m_entities.push_back(Entity(PrefabManager::Get().getPrefab("sHero"), m_camera, m_zoomFactor, m_focusPointX, m_focusPointY));
+	//m_entities.back().setPosition({ 200.0f, -1120.0f });
+
+
+	m_movementPlanner = new eMovementPlanner(m_entities.back(), 4.0f);
 }
 
 Game::~Game() {
@@ -108,24 +118,24 @@ void Game::update() {
 	move = false;
 
 	if (keyboard.keyDown(Keyboard::KEY_W)) {
-		directrion += Vector3f(0.0f, 1.0f * (1.0f / m_zoomFactor), 0.0f);		
+		directrion += Vector3f(0.0f, 1.0f * (1.0f / ZoomFactor), 0.0f);		
 		move |= true;
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_S)) {
-		directrion += Vector3f(0.0f, -1.0f * (1.0f / m_zoomFactor), 0.0f);		
+		directrion += Vector3f(0.0f, -1.0f * (1.0f / ZoomFactor), 0.0f);		
 		move |= true;
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_A)) {
-		directrion += Vector3f(-1.0f * (1.0f / m_zoomFactor), 0.0f, 0.0f);
+		directrion += Vector3f(-1.0f * (1.0f / ZoomFactor), 0.0f, 0.0f);
 		m_background.addOffset(-0.001f);
 		m_background.setSpeed(-0.005f);
 		move |= true;
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_D)) {
-		directrion += Vector3f(1.0f * (1.0f / m_zoomFactor), 0.0f, 0.0f);
+		directrion += Vector3f(1.0f * (1.0f / ZoomFactor), 0.0f, 0.0f);
 		m_background.addOffset(0.001f);
 		m_background.setSpeed(0.005f);
 		move |= true;
@@ -143,18 +153,26 @@ void Game::update() {
 
 	Mouse &mouse = Mouse::instance();
 
-	if (mouse.buttonDown(Mouse::MouseButton::BUTTON_RIGHT)) {
-		dx = mouse.xPosRelative();
-		dy = mouse.yPosRelative();
+	if (mouse.buttonPressed(Mouse::MouseButton::BUTTON_RIGHT)) {
+		//dx = mouse.xPosRelative();
+		//dy = mouse.yPosRelative();
+
+		float mouseViewX = static_cast<float>(mouse.xPosAbsolute());
+		float mouseViewY = static_cast<float>(Application::Height - mouse.yPosAbsolute());
+
+		//world with zoom
+		float mouseWorldX = mouseViewX + ZoomFactor * (_Camera.getPositionX() + FocusPointX) - FocusPointX;
+		float mouseWorldY = mouseViewY + ZoomFactor * (_Camera.getPositionY() + FocusPointY) - FocusPointY;
+		m_movementPlanner->AddUserWaypoint(Vector2f(mouseWorldX, mouseWorldY));
 	}
 
 	if (move || dx != 0.0f || dy != 0.0f) {
 		if (dx || dy) {
-			//m_camera.rotate(dx, dy);
+			//_Camera.rotate(dx, dy);
 		}
 
 		if (move) {
-			m_camera.move(directrion * m_dt);
+			_Camera.move(directrion * m_dt);
 		}
 	}
 	m_trackball.idle();
@@ -167,6 +185,7 @@ void Game::update() {
 		(*entity).update(m_dt);
 	}
 
+	m_movementPlanner->Update();
 }
 
 void Game::render() {
@@ -182,12 +201,12 @@ void Game::render() {
 		glEnable(GL_BLEND);
 		auto shader = Globals::shaderManager.getAssetPointer("batch");
 		shader->use();
-		shader->loadMatrix("u_transform", m_camera.getOrthographicMatrix() * m_camera.getViewMatrix());
+		shader->loadMatrix("u_transform", _Camera.getOrthographicMatrix() * _Camera.getViewMatrix());
 
 		Spritesheet::Bind(m_atlas);
 		for (auto cell : m_useCulling ? m_visibleCells : m_cells) {
 			if (cell.visible) {			
-				Batchrenderer::Get().addQuadAA(Vector4f(cell.posX * m_zoomFactor + (m_camera.getPositionX() + m_focusPointX) * (1.0f - m_zoomFactor), cell.posY * m_zoomFactor + (m_camera.getPositionY() + m_focusPointY) * (1.0f - m_zoomFactor), cell.rect.width * m_zoomFactor, cell.rect.height * m_zoomFactor), Vector4f(cell.rect.textureOffsetX, cell.rect.textureOffsetY, cell.rect.textureWidth, cell.rect.textureHeight), cell.selected ? Vector4f(0.5f, 0.5f, 0.5f, 1.0f) : Vector4f(1.0f, 1.0f, 1.0f, 1.0f), cell.rect.frame);
+				Batchrenderer::Get().addQuadAA(Vector4f(cell.posX * ZoomFactor + (_Camera.getPositionX() + FocusPointX) * (1.0f - ZoomFactor), cell.posY * ZoomFactor + (_Camera.getPositionY() + FocusPointY) * (1.0f - ZoomFactor), cell.rect.width * ZoomFactor, cell.rect.height * ZoomFactor), Vector4f(cell.rect.textureOffsetX, cell.rect.textureOffsetY, cell.rect.textureWidth, cell.rect.textureHeight), cell.selected ? Vector4f(0.5f, 0.5f, 0.5f, 1.0f) : Vector4f(1.0f, 1.0f, 1.0f, 1.0f), cell.rect.frame);
 			}
 		}
 
@@ -197,7 +216,7 @@ void Game::render() {
 		for (auto entity = m_entities.begin(); entity != m_entities.end(); entity++) {
 			const TextureRect& rect = (*entity).m_animationController->currentFrame->rect;
 			Spritesheet::Bind((*entity).prefab.tileSet.getAtlas());
-			Batchrenderer::Get().addQuadAA(Vector4f((*entity).m_position[0] * m_zoomFactor + (m_camera.getPositionX() + m_focusPointX) * (1.0f - m_zoomFactor), (*entity).m_position[1] * m_zoomFactor + (m_camera.getPositionY() + m_focusPointY) * (1.0f - m_zoomFactor), rect.width * m_zoomFactor, rect.height * m_zoomFactor), Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureWidth, rect.textureHeight), (*entity).m_isSelected ? Vector4f(0.5f, 0.5f, 0.5f, 1.0f) : Vector4f(1.0f, 1.0f, 1.0f, 1.0f), rect.frame);
+			Batchrenderer::Get().addQuadAA(Vector4f((*entity).m_position[0] * ZoomFactor + (_Camera.getPositionX() + FocusPointX) * (1.0f - ZoomFactor), (*entity).m_position[1] * ZoomFactor + (_Camera.getPositionY() + FocusPointY) * (1.0f - ZoomFactor), rect.width * ZoomFactor, rect.height * ZoomFactor), Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureWidth, rect.textureHeight), (*entity).m_isSelected ? Vector4f(0.5f, 0.5f, 0.5f, 1.0f) : Vector4f(1.0f, 1.0f, 1.0f, 1.0f), rect.frame);
 			Batchrenderer::Get().drawBufferRaw();
 			Spritesheet::Unbind();
 		}
@@ -206,16 +225,16 @@ void Game::render() {
 		glDisable(GL_BLEND);
 
 		for (auto cell : m_collisionCells) {
-			drawIsometricRect((cell.posX + 32.0f) * m_zoomFactor + (m_camera.getPositionX() + m_focusPointX) * (1.0f - m_zoomFactor), (cell.posY + 32.0f) * m_zoomFactor + (m_camera.getPositionY() + m_focusPointY) * (1.0f - m_zoomFactor), cell.collisionRect * m_zoomFactor);
+			drawIsometricRect((cell.posX + 32.0f) * ZoomFactor + (_Camera.getPositionX() + FocusPointX) * (1.0f - ZoomFactor), (cell.posY + 32.0f) * ZoomFactor + (_Camera.getPositionY() + FocusPointY) * (1.0f - ZoomFactor), cell.collisionRect * ZoomFactor, Vector4f(1.0f, 0.0f, 1.0f, 1.0f));
 		}
 
 		for (auto entity = m_entities.begin(); entity != m_entities.end(); entity++) {
-			drawIsometricRect(((*entity).m_position[0]) * m_zoomFactor + (m_camera.getPositionX() + m_focusPointX) * (1.0f - m_zoomFactor), ((*entity).m_position[1]) * m_zoomFactor + (m_camera.getPositionY() + m_focusPointY) * (1.0f - m_zoomFactor), (*entity).prefab.bounds * m_zoomFactor, (*entity).prefab.offset * m_zoomFactor);
+			drawIsometricRect(((*entity).m_position[0]) * ZoomFactor + (_Camera.getPositionX() + FocusPointX) * (1.0f - ZoomFactor), ((*entity).m_position[1]) * ZoomFactor + (_Camera.getPositionY() + FocusPointY) * (1.0f - ZoomFactor), (*entity).prefab.bounds * ZoomFactor, (*entity).prefab.offset * ZoomFactor, Vector4f(1.0f, 0.0f, 1.0f, 1.0f));
 			(*entity).updateGridBounds();
 
 			for (int y = (*entity).m_minY; y <= (*entity).m_maxY; y++) {
 				for (int x = (*entity).m_minX; x <= (*entity).m_maxX; x++) {
-					drawIsometricRect(x, y);
+					drawIsometricRect(x, y, Vector4f(0.0f, 0.0f, 1.0f, 1.0f));
 				}
 			}
 
@@ -227,6 +246,9 @@ void Game::render() {
 			drawCullingRect();
 
 		drawMouseRect();
+
+		m_movementPlanner->DebugDraw();
+
 		m_mainRT.unbindWrite();
 	}
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -260,8 +282,8 @@ void Game::OnMouseMotion(Event::MouseMoveEvent& event) {
 		if(m_selectionMode != SelectionMode::MARKER)
 			processCache(m_cellCache, true, false, true);
 
-		float offsetX = m_zoomFactor * (m_camera.getPositionX() + m_focusPointX) - m_focusPointX;
-		float offsetY = m_zoomFactor * (m_camera.getPositionY() + m_focusPointY) - m_focusPointY;
+		float offsetX = ZoomFactor * (_Camera.getPositionX() + FocusPointX) - FocusPointX;
+		float offsetY = ZoomFactor * (_Camera.getPositionY() + FocusPointY) - FocusPointY;
 
 		float mouseViewX = static_cast<float>(event.x);
 		float mouseViewY = static_cast<float>(Application::Height - event.y);
@@ -294,16 +316,16 @@ void Game::OnMouseMotion(Event::MouseMoveEvent& event) {
 			corners[3] = Vector2f(right, bottom);
 
 			int point01, point02;
-			Math::isometricToCartesian(corners[0][0] + offsetX, corners[0][1] + offsetY, point01, point02, cellWidth * m_zoomFactor, cellHeight * m_zoomFactor);
+			Math::isometricToCartesian(corners[0][0] + offsetX, corners[0][1] + offsetY, point01, point02, cellWidth * ZoomFactor, cellHeight * ZoomFactor);
 
 			int point11, point12;
-			Math::isometricToCartesian(corners[1][0] + offsetX, corners[1][1] + offsetY, point11, point12, cellWidth * m_zoomFactor, cellHeight * m_zoomFactor);
+			Math::isometricToCartesian(corners[1][0] + offsetX, corners[1][1] + offsetY, point11, point12, cellWidth * ZoomFactor, cellHeight * ZoomFactor);
 
 			int point21, point22;
-			Math::isometricToCartesian(corners[2][0] + offsetX, corners[2][1] + offsetY, point21, point22, cellWidth * m_zoomFactor, cellHeight * m_zoomFactor);
+			Math::isometricToCartesian(corners[2][0] + offsetX, corners[2][1] + offsetY, point21, point22, cellWidth * ZoomFactor, cellHeight * ZoomFactor);
 
 			int point31, point32;
-			Math::isometricToCartesian(corners[3][0] + offsetX, corners[3][1] + offsetY, point31, point32, cellWidth * m_zoomFactor, cellHeight * m_zoomFactor);
+			Math::isometricToCartesian(corners[3][0] + offsetX, corners[3][1] + offsetY, point31, point32, cellWidth * ZoomFactor, cellHeight * ZoomFactor);
 
 
 			std::vector<std::array<int, 2>> initial;
@@ -343,10 +365,10 @@ void Game::OnMouseMotion(Event::MouseMoveEvent& event) {
 			int bottom = static_cast<int>(std::min(m_mouseY, mouseViewY));
 			int top = static_cast<int>(std::max(m_mouseY, mouseViewY));
 
-			for (int x = left; x < right; x = x + cellWidth * m_zoomFactor) {
-				for (int y = bottom; y < top; y = y + cellHeight * 0.5f * m_zoomFactor) {
+			for (int x = left; x < right; x = x + cellWidth * ZoomFactor) {
+				for (int y = bottom; y < top; y = y + cellHeight * 0.5f * ZoomFactor) {
 					int row, col;
-					Math::isometricToCartesian(x + offsetX, y + offsetY, row, col, cellWidth  * m_zoomFactor, cellHeight  * m_zoomFactor);
+					Math::isometricToCartesian(x + offsetX, y + offsetY, row, col, cellWidth  * ZoomFactor, cellHeight  * ZoomFactor);
 					for (int j = 0; j < m_layer.size(); j++) {
 						if (isValid(row, col) && m_layer[j][col][row].first != -1) {
 							if (!m_cells[m_layer[j][col][row].second].selected && m_cells[m_layer[j][col][row].second].visible) {
@@ -365,10 +387,10 @@ void Game::OnMouseMotion(Event::MouseMoveEvent& event) {
 		}else if(m_selectionMode == SelectionMode::ISOSELECTION) {
 			// iso selection
 			int row1, col1;
-			Math::isometricToCartesian(m_mouseX + offsetX, m_mouseY + offsetY, row1, col1, cellWidth  * m_zoomFactor, cellHeight  * m_zoomFactor);
+			Math::isometricToCartesian(m_mouseX + offsetX, m_mouseY + offsetY, row1, col1, cellWidth  * ZoomFactor, cellHeight  * ZoomFactor);
 
 			int row2, col2;
-			Math::isometricToCartesian(mouseViewX + offsetX, mouseViewY + offsetY, row2, col2, cellWidth  * m_zoomFactor, cellHeight  * m_zoomFactor);
+			Math::isometricToCartesian(mouseViewX + offsetX, mouseViewY + offsetY, row2, col2, cellWidth  * ZoomFactor, cellHeight  * ZoomFactor);
 
 			int rowMin = std::min(row1, row2);
 			int rowMax = std::max(row1, row2);
@@ -396,7 +418,7 @@ void Game::OnMouseMotion(Event::MouseMoveEvent& event) {
 		}else if(m_selectionMode == SelectionMode::MARKER) {
 			//marker
 			int row, col;
-			Math::isometricToCartesian(mouseViewX + offsetX, mouseViewY + offsetY, row, col, cellWidth  * m_zoomFactor, cellHeight  * m_zoomFactor);
+			Math::isometricToCartesian(mouseViewX + offsetX, mouseViewY + offsetY, row, col, cellWidth  * ZoomFactor, cellHeight  * ZoomFactor);
 			for (int j = 0; j < m_layer.size(); j++) {
 				if (isValid(row, col) && m_layer[j][col][row].first != -1) {
 					if (!m_cells[m_layer[j][col][row].second].selected && m_cells[m_layer[j][col][row].second].visible) {
@@ -437,12 +459,12 @@ void Game::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 			float mouseViewY = static_cast<float>(Application::Height - event.y);
 
 			//world with zoom
-			float mouseWorldX = mouseViewX + m_zoomFactor * (m_camera.getPositionX() + m_focusPointX) - m_focusPointX;
-			float mouseWorldY = mouseViewY + m_zoomFactor * (m_camera.getPositionY() + m_focusPointY) - m_focusPointY;
+			float mouseWorldX = mouseViewX + ZoomFactor * (_Camera.getPositionX() + FocusPointX) - FocusPointX;
+			float mouseWorldY = mouseViewY + ZoomFactor * (_Camera.getPositionY() + FocusPointY) - FocusPointY;
 
 			int row, col;
-			Math::isometricToCartesian(mouseWorldX, mouseWorldY, row, col, cellWidth  * m_zoomFactor, cellHeight  * m_zoomFactor);
-
+			Math::isometricToCartesian(mouseWorldX, mouseWorldY, row, col, cellWidth  * ZoomFactor, cellHeight  * ZoomFactor);
+			std::cout << "_Row: " << row << " _Col: " << col << std::endl;
 			for (int j = 0; j < m_layer.size(); j++) {
 				if (isValid(row, col) && m_layer[j][col][row].first != -1) {
 					m_selectedCells.push_back(m_cells[m_layer[j][col][row].second]);
@@ -523,13 +545,13 @@ void Game::OnMouseButtonUp(Event::MouseButtonEvent& event) {
 
 void Game::OnMouseWheel(Event::MouseWheelEvent& event) {
 	if (event.direction == 1u) {
-		m_zoomFactor = m_zoomFactor - 0.05f;
-		m_zoomFactor = Math::Clamp(m_zoomFactor, 0.2f, 2.5f);
+		ZoomFactor = ZoomFactor - 0.05f;
+		ZoomFactor = Math::Clamp(ZoomFactor, 0.2f, 2.5f);
 	}
 
 	if (event.direction == 0u) {
-		m_zoomFactor = m_zoomFactor + 0.05f;
-		m_zoomFactor = Math::Clamp(m_zoomFactor, 0.2f, 2.5f);
+		ZoomFactor = ZoomFactor + 0.05f;
+		ZoomFactor = Math::Clamp(ZoomFactor, 0.2f, 2.5f);
 	}
 }
 
@@ -550,17 +572,17 @@ void Game::OnKeyUp(Event::KeyboardEvent& event) {
 }
 
 void Game::resize(int deltaW, int deltaH) {
-	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
-	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
+	_Camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
+	_Camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
 	m_mainRT.resize(Application::Width, Application::Height);
 
-	m_left = m_camera.getLeftOrthographic();
-	m_right = m_camera.getRightOrthographic();
-	m_bottom = m_camera.getBottomOrthographic();
-	m_top = m_camera.getTopOrthographic();
+	m_left = _Camera.getLeftOrthographic();
+	m_right = _Camera.getRightOrthographic();
+	m_bottom = _Camera.getBottomOrthographic();
+	m_top = _Camera.getTopOrthographic();
 
-	m_focusPointX = static_cast<float>(Application::Width / 2);
-	m_focusPointY = static_cast<float>(Application::Height / 2);
+	FocusPointX = static_cast<float>(Application::Width / 2);
+	FocusPointY = static_cast<float>(Application::Height / 2);
 }
 
 void Game::applyTransformation(TrackBall& arc) {
@@ -610,8 +632,8 @@ void Game::renderUi() {
 		m_redrawMap = !m_autoRedraw;
 	}
 	ImGui::SliderFloat("Screen Border", &m_screeBorder, 0.0f, 450.0f);
-	ImGui::SliderFloat("Focus Point X", &m_focusPointX, -1600.0f, 1600.0f);
-	ImGui::SliderFloat("Focus Point Y", &m_focusPointY, -1000.0f, 1000.0f);
+	ImGui::SliderFloat("Focus Point X", &FocusPointX, -1600.0f, 1600.0f);
+	ImGui::SliderFloat("Focus Point Y", &FocusPointY, -1000.0f, 1000.0f);
 	ImGui::SliderFloat("Enlarge Culling Rect", &m_enlargeBorder, 0.0f, 600.0f);
 
 	int currentSelectionMode = m_selectionMode;
@@ -761,18 +783,18 @@ bool Game::isValid(const int row, const int column) const {
 
 void Game::culling() {
 	if (!m_useCulling) return;
-	Vector3f m_position = m_camera.getPosition();
+	Vector3f m_position = _Camera.getPosition();
 
-	m_cullingVertices[0] = Vector2f(m_left + m_screeBorder, m_bottom + m_screeBorder) + Vector2f(m_zoomFactor * (m_position[0] + m_focusPointX) - m_focusPointX, m_zoomFactor * (m_position[1] + m_focusPointY) - m_focusPointY);
-	m_cullingVertices[1] = Vector2f(m_left + m_screeBorder, m_top - m_screeBorder) + Vector2f(m_zoomFactor * (m_position[0] + m_focusPointX) - m_focusPointX, m_zoomFactor * (m_position[1] + m_focusPointY) - m_focusPointY);
-	m_cullingVertices[2] = Vector2f(m_right - m_screeBorder, m_top - m_screeBorder) + Vector2f(m_zoomFactor * (m_position[0] + m_focusPointX) - m_focusPointX, m_zoomFactor * (m_position[1] + m_focusPointY) - m_focusPointY);
-	m_cullingVertices[3] = Vector2f(m_right - m_screeBorder, m_bottom + m_screeBorder) + Vector2f(m_zoomFactor * (m_position[0] + m_focusPointX) - m_focusPointX, m_zoomFactor * (m_position[1] + m_focusPointY) - m_focusPointY);
+	m_cullingVertices[0] = Vector2f(m_left + m_screeBorder, m_bottom + m_screeBorder) + Vector2f(ZoomFactor * (m_position[0] + FocusPointX) - FocusPointX, ZoomFactor * (m_position[1] + FocusPointY) - FocusPointY);
+	m_cullingVertices[1] = Vector2f(m_left + m_screeBorder, m_top - m_screeBorder) + Vector2f(ZoomFactor * (m_position[0] + FocusPointX) - FocusPointX, ZoomFactor * (m_position[1] + FocusPointY) - FocusPointY);
+	m_cullingVertices[2] = Vector2f(m_right - m_screeBorder, m_top - m_screeBorder) + Vector2f(ZoomFactor * (m_position[0] + FocusPointX) - FocusPointX, ZoomFactor * (m_position[1] + FocusPointY) - FocusPointY);
+	m_cullingVertices[3] = Vector2f(m_right - m_screeBorder, m_bottom + m_screeBorder) + Vector2f(ZoomFactor * (m_position[0] + FocusPointX) - FocusPointX, ZoomFactor * (m_position[1] + FocusPointY) - FocusPointY);
 
 	int rowMin, rowMax, colMin, colMax;
-	Math::isometricToCol(m_cullingVertices[0][0] - m_enlargeBorder, m_cullingVertices[0][1] - m_enlargeBorder, colMax, cellHeight * m_zoomFactor, 0, 128);
-	Math::isometricToRow(m_cullingVertices[3][0] + m_enlargeBorder, m_cullingVertices[3][1] - m_enlargeBorder, rowMax, cellWidth  * m_zoomFactor, 0, 128);
-	Math::isometricToRow(m_cullingVertices[1][0], m_cullingVertices[1][1], rowMin, cellWidth  * m_zoomFactor, 0, 128);
-	Math::isometricToCol(m_cullingVertices[2][0], m_cullingVertices[2][1], colMin, cellHeight * m_zoomFactor, 0, 128);
+	Math::isometricToCol(m_cullingVertices[0][0] - m_enlargeBorder, m_cullingVertices[0][1] - m_enlargeBorder, colMax, cellHeight * ZoomFactor, 0, 128);
+	Math::isometricToRow(m_cullingVertices[3][0] + m_enlargeBorder, m_cullingVertices[3][1] - m_enlargeBorder, rowMax, cellWidth  * ZoomFactor, 0, 128);
+	Math::isometricToRow(m_cullingVertices[1][0], m_cullingVertices[1][1], rowMin, cellWidth  * ZoomFactor, 0, 128);
+	Math::isometricToCol(m_cullingVertices[2][0], m_cullingVertices[2][1], colMin, cellHeight * ZoomFactor, 0, 128);
 
 	m_visibleCells.clear();
 	m_collisionCells.clear();
@@ -795,14 +817,14 @@ void Game::culling() {
 }
 
 void Game::drawCullingRect() {
-	Vector3f m_position = m_camera.getPosition();
+	Vector3f m_position = _Camera.getPosition();
 
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glMatrixMode(GL_PROJECTION);
-	glLoadMatrixf(&m_camera.getOrthographicMatrix()[0][0]);
+	glLoadMatrixf(&_Camera.getOrthographicMatrix()[0][0]);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	glTranslatef(m_focusPointX - m_zoomFactor * (m_position[0] + m_focusPointX), m_focusPointY - m_zoomFactor * (m_position[1] + m_focusPointY), 0.0f);
+	glTranslatef(FocusPointX - ZoomFactor * (m_position[0] + FocusPointX), FocusPointY - ZoomFactor * (m_position[1] + FocusPointY), 0.0f);
 
 	glBegin(GL_QUADS);
 	glColor3f(1.0f, 0.0f, 0.0f);
@@ -819,13 +841,13 @@ void Game::drawCullingRect() {
 void  Game::drawMouseRect() {
 	if (!m_mouseDown || m_selectionMode == SelectionMode::MARKER || m_selectionMode == SelectionMode::RASTERIZER || m_selectionMode == SelectionMode::ENTITY) return;
 
-	float offsetX = m_zoomFactor * (m_camera.getPositionX() + m_focusPointX) - m_focusPointX;
-	float offsetY = m_zoomFactor * (m_camera.getPositionY() + m_focusPointY) - m_focusPointY;
+	float offsetX = ZoomFactor * (_Camera.getPositionX() + FocusPointX) - FocusPointX;
+	float offsetY = ZoomFactor * (_Camera.getPositionY() + FocusPointY) - FocusPointY;
 
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glLineWidth(2.0f);
 	glMatrixMode(GL_PROJECTION);
-	glLoadMatrixf(&m_camera.getOrthographicMatrix()[0][0]);
+	glLoadMatrixf(&_Camera.getOrthographicMatrix()[0][0]);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	
@@ -847,19 +869,19 @@ void  Game::drawMouseRect() {
 	}else if(m_selectionMode == SelectionMode::ISOSELECTION) {
 
 
-		glLoadMatrixf(&m_camera.getViewMatrix()[0][0]);
+		glLoadMatrixf(&_Camera.getViewMatrix()[0][0]);
 		int row1, col1, row2, col2;
 		float p00, p01, p10, p11;
 		if (m_discreteSelection) {
-			Math::isometricToCartesian(m_mouseX + offsetX, m_mouseY + offsetY, row1, col1, cellWidth  * m_zoomFactor, cellHeight  * m_zoomFactor);
-			Math::isometricToCartesian(m_curMouseX + offsetX, m_curMouseY + offsetY, row2, col2, cellWidth  * m_zoomFactor, cellHeight  * m_zoomFactor);
+			Math::isometricToCartesian(m_mouseX + offsetX, m_mouseY + offsetY, row1, col1, cellWidth  * ZoomFactor, cellHeight  * ZoomFactor);
+			Math::isometricToCartesian(m_curMouseX + offsetX, m_curMouseY + offsetY, row2, col2, cellWidth  * ZoomFactor, cellHeight  * ZoomFactor);
 		}else {
 			p00 = m_mouseX + offsetX;
 			p01 = m_mouseY + offsetY;
 			p10 = m_curMouseX + offsetX;
 			p11 = m_curMouseY + offsetY;
-			Math::isometricToCartesian(p00, p01, cellWidth  * m_zoomFactor, cellHeight  * m_zoomFactor);
-			Math::isometricToCartesian(p10, p11, cellWidth  * m_zoomFactor, cellHeight  * m_zoomFactor);
+			Math::isometricToCartesian(p00, p01, cellWidth  * ZoomFactor, cellHeight  * ZoomFactor);
+			Math::isometricToCartesian(p10, p11, cellWidth  * ZoomFactor, cellHeight  * ZoomFactor);
 		}
 
 		float rowMin = m_discreteSelection ? static_cast<float>(std::min(row1, row2)) : std::min(p00, p10);
@@ -873,22 +895,22 @@ void  Game::drawMouseRect() {
 		float cartX = m_discreteSelection ? rowMax + 0.5f : rowMax + 1.0f;
 		float cartY = m_discreteSelection ? colMax - 0.5f : colMax + 1.0f;
 		Math::cartesianToIsometric(cartX, cartY, cellWidth, cellHeight);
-		glVertex3f(cartX * m_zoomFactor + (m_camera.getPositionX() + m_focusPointX) * (1.0f - m_zoomFactor), -cartY * m_zoomFactor + (m_camera.getPositionY() + m_focusPointY) * (1.0f - m_zoomFactor), 0.0f);
+		glVertex3f(cartX * ZoomFactor + (_Camera.getPositionX() + FocusPointX) * (1.0f - ZoomFactor), -cartY * ZoomFactor + (_Camera.getPositionY() + FocusPointY) * (1.0f - ZoomFactor), 0.0f);
 
 		cartX = m_discreteSelection ? rowMin - 0.5f : rowMin - 1.0f;
 		cartY = m_discreteSelection ? colMax - 0.5f : colMax + 1.0f;
 		Math::cartesianToIsometric(cartX, cartY, cellWidth, cellHeight);
-		glVertex3f(cartX * m_zoomFactor + (m_camera.getPositionX() + m_focusPointX) * (1.0f - m_zoomFactor), -cartY * m_zoomFactor + (m_camera.getPositionY() + m_focusPointY) * (1.0f - m_zoomFactor), 0.0f);
+		glVertex3f(cartX * ZoomFactor + (_Camera.getPositionX() + FocusPointX) * (1.0f - ZoomFactor), -cartY * ZoomFactor + (_Camera.getPositionY() + FocusPointY) * (1.0f - ZoomFactor), 0.0f);
 
 		cartX = m_discreteSelection ? rowMin - 0.5f : rowMin - 1.0f;
 		cartY = m_discreteSelection ? colMin - 0.5f : colMin - 1.0f;
 		Math::cartesianToIsometric(cartX, cartY, cellWidth, cellHeight);
-		glVertex3f(cartX * m_zoomFactor + (m_camera.getPositionX() + m_focusPointX) * (1.0f - m_zoomFactor), -cartY * m_zoomFactor + (m_camera.getPositionY() + m_focusPointY) * (1.0f - m_zoomFactor), 0.0f);
+		glVertex3f(cartX * ZoomFactor + (_Camera.getPositionX() + FocusPointX) * (1.0f - ZoomFactor), -cartY * ZoomFactor + (_Camera.getPositionY() + FocusPointY) * (1.0f - ZoomFactor), 0.0f);
 
 		cartX = m_discreteSelection ? rowMax + 0.5f : rowMax + 1.0f;
 		cartY = m_discreteSelection ? colMin - 0.5f : colMin - 1.0f;
 		Math::cartesianToIsometric(cartX, cartY, cellWidth, cellHeight);
-		glVertex3f(cartX * m_zoomFactor + (m_camera.getPositionX() + m_focusPointX) * (1.0f - m_zoomFactor), -cartY * m_zoomFactor + (m_camera.getPositionY() + m_focusPointY) * (1.0f - m_zoomFactor), 0.0f);
+		glVertex3f(cartX * ZoomFactor + (_Camera.getPositionX() + FocusPointX) * (1.0f - ZoomFactor), -cartY * ZoomFactor + (_Camera.getPositionY() + FocusPointY) * (1.0f - ZoomFactor), 0.0f);
 		glEnd();
 	}
 	
@@ -986,7 +1008,7 @@ void Game::loadCollision(std::string name) {
 	read.close();
 }
 
-void Game::drawIsometricRect(float posX, float posY, Vector4f sizeOffset) {
+void Game::drawIsometricRect(float posX, float posY, Vector4f sizeOffset, Vector4f color) {
 	std::array<Vector2f, 4> fPoints;
 	fPoints[0] = Vector2f(sizeOffset[2], sizeOffset[3]);
 	fPoints[1] = Vector2f(sizeOffset[2], sizeOffset[3] + sizeOffset[1]);
@@ -999,13 +1021,13 @@ void Game::drawIsometricRect(float posX, float posY, Vector4f sizeOffset) {
 	Math::cartesianToIsometric(fPoints[3][0], fPoints[3][1], 1.0f, 1.0f);
 
 	glMatrixMode(GL_PROJECTION);
-	glLoadMatrixf(&m_camera.getOrthographicMatrix()[0][0]);
+	glLoadMatrixf(&_Camera.getOrthographicMatrix()[0][0]);
 	glMatrixMode(GL_MODELVIEW);
-	glLoadMatrixf(&m_camera.getViewMatrix()[0][0]);
+	glLoadMatrixf(&_Camera.getViewMatrix()[0][0]);
 
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glBegin(GL_QUADS);
-	glColor4f(1.0f, 0.0f, 1.0f, 1.0f);
+	glColor4f(color[0], color[1], color[2], color[3]);
 
 	glVertex3f(posX + fPoints[0][0], posY - fPoints[0][1], 0.0f);
 	glVertex3f(posX + fPoints[1][0], posY - fPoints[1][1], 0.0f);
@@ -1016,7 +1038,7 @@ void Game::drawIsometricRect(float posX, float posY, Vector4f sizeOffset) {
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 
-void Game::drawIsometricRect(float posX, float posY, Vector4f bounds, Vector2f offset) {
+void Game::drawIsometricRect(float posX, float posY, Vector4f bounds, Vector2f offset, Vector4f color) {
 	std::array<Vector2f, 4> fPoints;
 
 	fPoints[0] = Vector2f(bounds[0] + offset[0], bounds[1] + offset[1]);
@@ -1030,13 +1052,13 @@ void Game::drawIsometricRect(float posX, float posY, Vector4f bounds, Vector2f o
 	Math::cartesianToIsometric(fPoints[3][0], fPoints[3][1], 1.0f, 1.0f);
 
 	glMatrixMode(GL_PROJECTION);
-	glLoadMatrixf(&m_camera.getOrthographicMatrix()[0][0]);
+	glLoadMatrixf(&_Camera.getOrthographicMatrix()[0][0]);
 	glMatrixMode(GL_MODELVIEW);
-	glLoadMatrixf(&m_camera.getViewMatrix()[0][0]);
+	glLoadMatrixf(&_Camera.getViewMatrix()[0][0]);
 
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glBegin(GL_QUADS);
-	glColor4f(1.0f, 0.0f, 1.0f, 1.0f);
+	glColor4f(color[0], color[1], color[2], color[3]);
 
 	glVertex3f(posX + fPoints[0][0], posY - fPoints[0][1], 0.0f);
 	glVertex3f(posX + fPoints[1][0], posY - fPoints[1][1], 0.0f);
@@ -1047,7 +1069,7 @@ void Game::drawIsometricRect(float posX, float posY, Vector4f bounds, Vector2f o
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 
-void Game::drawIsometricRect(int posX, int posY) {
+void Game::drawIsometricRect(int posX, int posY, Vector4f color) {
 
 	//if (!isValid(posX, posY)) return;
 
@@ -1058,27 +1080,27 @@ void Game::drawIsometricRect(int posX, int posY) {
 
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glBegin(GL_QUADS);
-	glColor3f(0.0f, 0.0f, 1.0f);
+	glColor4f(color[0], color[1], color[2], color[3]);
 
 	float cartX = rowMax;
 	float cartY = colMax;
 	Math::cartesianToIsometric(cartX, cartY, cellWidth, cellHeight);
-	glVertex3f(cartX * m_zoomFactor + (m_camera.getPositionX() + m_focusPointX) * (1.0f - m_zoomFactor), -cartY * m_zoomFactor + (m_camera.getPositionY() + m_focusPointY) * (1.0f - m_zoomFactor), 0.0f);
+	glVertex3f(cartX * ZoomFactor + (_Camera.getPositionX() + FocusPointX) * (1.0f - ZoomFactor), -cartY * ZoomFactor + (_Camera.getPositionY() + FocusPointY) * (1.0f - ZoomFactor), 0.0f);
 
 	cartX = rowMin;
 	cartY = colMax;
 	Math::cartesianToIsometric(cartX, cartY, cellWidth, cellHeight);
-	glVertex3f(cartX * m_zoomFactor + (m_camera.getPositionX() + m_focusPointX) * (1.0f - m_zoomFactor), -cartY * m_zoomFactor + (m_camera.getPositionY() + m_focusPointY) * (1.0f - m_zoomFactor), 0.0f);
+	glVertex3f(cartX * ZoomFactor + (_Camera.getPositionX() + FocusPointX) * (1.0f - ZoomFactor), -cartY * ZoomFactor + (_Camera.getPositionY() + FocusPointY) * (1.0f - ZoomFactor), 0.0f);
 
 	cartX = rowMin;
 	cartY = colMin;
 	Math::cartesianToIsometric(cartX, cartY, cellWidth, cellHeight);
-	glVertex3f(cartX * m_zoomFactor + (m_camera.getPositionX() + m_focusPointX) * (1.0f - m_zoomFactor), -cartY * m_zoomFactor + (m_camera.getPositionY() + m_focusPointY) * (1.0f - m_zoomFactor), 0.0f);
+	glVertex3f(cartX * ZoomFactor + (_Camera.getPositionX() + FocusPointX) * (1.0f - ZoomFactor), -cartY * ZoomFactor + (_Camera.getPositionY() + FocusPointY) * (1.0f - ZoomFactor), 0.0f);
 
 	cartX = rowMax;
 	cartY = colMin;
 	Math::cartesianToIsometric(cartX, cartY, cellWidth, cellHeight);
-	glVertex3f(cartX * m_zoomFactor + (m_camera.getPositionX() + m_focusPointX) * (1.0f - m_zoomFactor), -cartY * m_zoomFactor + (m_camera.getPositionY() + m_focusPointY) * (1.0f - m_zoomFactor), 0.0f);
+	glVertex3f(cartX * ZoomFactor + (_Camera.getPositionX() + FocusPointX) * (1.0f - ZoomFactor), -cartY * ZoomFactor + (_Camera.getPositionY() + FocusPointY) * (1.0f - ZoomFactor), 0.0f);
 	glEnd();
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
@@ -1086,24 +1108,121 @@ void Game::drawIsometricRect(int posX, int posY) {
 void Game::drawClickBox(float posX, float posY, float width, float height) {
 
 	glMatrixMode(GL_PROJECTION);
-	glLoadMatrixf(&m_camera.getOrthographicMatrix()[0][0]);
+	glLoadMatrixf(&_Camera.getOrthographicMatrix()[0][0]);
 	glMatrixMode(GL_MODELVIEW);
-	glLoadMatrixf(&m_camera.getViewMatrix()[0][0]);
+	glLoadMatrixf(&_Camera.getViewMatrix()[0][0]);
 
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glBegin(GL_QUADS);
 
-	posX = posX * m_zoomFactor + (m_camera.getPositionX() + m_focusPointX) * (1.0f - m_zoomFactor);
-	posY = posY * m_zoomFactor + (m_camera.getPositionY() + m_focusPointY) * (1.0f - m_zoomFactor);
+	posX = posX * ZoomFactor + (_Camera.getPositionX() + FocusPointX) * (1.0f - ZoomFactor);
+	posY = posY * ZoomFactor + (_Camera.getPositionY() + FocusPointY) * (1.0f - ZoomFactor);
 
 	glColor3f(0.0f, 1.0f, 1.0f);
 	glVertex3f(posX, posY, 0.0f);
 	glColor3f(1.0f, 1.0f, 1.0f);
-	glVertex3f(posX, (posY + height * m_zoomFactor), 0.0f);
+	glVertex3f(posX, (posY + height * ZoomFactor), 0.0f);
 	glColor3f(1.0f, 1.0f, 0.0f);
-	glVertex3f(posX + width * m_zoomFactor, (posY + height * m_zoomFactor), 0.0f);
+	glVertex3f(posX + width * ZoomFactor, (posY + height * ZoomFactor), 0.0f);
 	glColor3f(1.0f, 0.0f, 1.0f);
-	glVertex3f(posX + width * m_zoomFactor, posY, 0.0f);
+	glVertex3f(posX + width * ZoomFactor, posY, 0.0f);
 	glEnd();
 
+}
+
+void Game::DrawIsometricRect(float posX, float posY, Vector4f sizeOffset, Vector4f color) {
+	std::array<Vector2f, 4> fPoints;
+	fPoints[0] = Vector2f(sizeOffset[2], sizeOffset[3]);
+	fPoints[1] = Vector2f(sizeOffset[2], sizeOffset[3] + sizeOffset[1]);
+	fPoints[2] = Vector2f(sizeOffset[2] + sizeOffset[0], sizeOffset[3] + sizeOffset[1]);
+	fPoints[3] = Vector2f(sizeOffset[2] + sizeOffset[0], sizeOffset[3]);
+
+	Math::cartesianToIsometric(fPoints[0][0], fPoints[0][1], 1.0f, 1.0f);
+	Math::cartesianToIsometric(fPoints[1][0], fPoints[1][1], 1.0f, 1.0f);
+	Math::cartesianToIsometric(fPoints[2][0], fPoints[2][1], 1.0f, 1.0f);
+	Math::cartesianToIsometric(fPoints[3][0], fPoints[3][1], 1.0f, 1.0f);
+
+	glMatrixMode(GL_PROJECTION);
+	glLoadMatrixf(&_Camera.getOrthographicMatrix()[0][0]);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadMatrixf(&_Camera.getViewMatrix()[0][0]);
+
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	glBegin(GL_QUADS);
+	glColor4f(color[0], color[1], color[2], color[3]);
+
+	glVertex3f(posX + fPoints[0][0], posY - fPoints[0][1], 0.0f);
+	glVertex3f(posX + fPoints[1][0], posY - fPoints[1][1], 0.0f);
+	glVertex3f(posX + fPoints[2][0], posY - fPoints[2][1], 0.0f);
+	glVertex3f(posX + fPoints[3][0], posY - fPoints[3][1], 0.0f);
+
+	glEnd();
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+}
+
+void Game::DrawIsometricRect(float posX, float posY, Vector4f bounds, Vector2f offset, Vector4f color) {
+	std::array<Vector2f, 4> fPoints;
+
+	fPoints[0] = Vector2f(bounds[0] + offset[0], bounds[1] + offset[1]);
+	fPoints[1] = Vector2f(bounds[0] + offset[0], bounds[3] + offset[1]);
+	fPoints[2] = Vector2f(bounds[2] + offset[0], bounds[3] + offset[1]);
+	fPoints[3] = Vector2f(bounds[2] + offset[0], bounds[1] + offset[1]);
+
+	Math::cartesianToIsometric(fPoints[0][0], fPoints[0][1], 1.0f, 1.0f);
+	Math::cartesianToIsometric(fPoints[1][0], fPoints[1][1], 1.0f, 1.0f);
+	Math::cartesianToIsometric(fPoints[2][0], fPoints[2][1], 1.0f, 1.0f);
+	Math::cartesianToIsometric(fPoints[3][0], fPoints[3][1], 1.0f, 1.0f);
+
+	glMatrixMode(GL_PROJECTION);
+	glLoadMatrixf(&_Camera.getOrthographicMatrix()[0][0]);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadMatrixf(&_Camera.getViewMatrix()[0][0]);
+
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	glBegin(GL_QUADS);
+	glColor4f(color[0], color[1], color[2], color[3]);
+
+	glVertex3f(posX + fPoints[0][0], posY - fPoints[0][1], 0.0f);
+	glVertex3f(posX + fPoints[1][0], posY - fPoints[1][1], 0.0f);
+	glVertex3f(posX + fPoints[2][0], posY - fPoints[2][1], 0.0f);
+	glVertex3f(posX + fPoints[3][0], posY - fPoints[3][1], 0.0f);
+
+	glEnd();
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+}
+
+void Game::DrawIsometricRect(int posX, int posY, Vector4f color) {
+
+	//if (!isValid(posX, posY)) return;
+
+	float rowMin = posX - 0.5f;
+	float rowMax = posX + 0.5f;
+	float colMin = posY - 1.5f;
+	float colMax = posY - 0.5f;
+
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	glBegin(GL_QUADS);
+	glColor4f(color[0], color[1], color[2], color[3]);
+
+	float cartX = rowMax;
+	float cartY = colMax;
+	Math::cartesianToIsometric(cartX, cartY, CELL_WIDTH, CELL_HEIGHT);
+	glVertex3f(cartX * ZoomFactor + (_Camera.getPositionX() + FocusPointX) * (1.0f - ZoomFactor), -cartY * ZoomFactor + (_Camera.getPositionY() + FocusPointY) * (1.0f - ZoomFactor), 0.0f);
+
+	cartX = rowMin;
+	cartY = colMax;
+	Math::cartesianToIsometric(cartX, cartY, CELL_WIDTH, CELL_HEIGHT);
+	glVertex3f(cartX * ZoomFactor + (_Camera.getPositionX() + FocusPointX) * (1.0f - ZoomFactor), -cartY * ZoomFactor + (_Camera.getPositionY() + FocusPointY) * (1.0f - ZoomFactor), 0.0f);
+
+	cartX = rowMin;
+	cartY = colMin;
+	Math::cartesianToIsometric(cartX, cartY, CELL_WIDTH, CELL_HEIGHT);
+	glVertex3f(cartX * ZoomFactor + (_Camera.getPositionX() + FocusPointX) * (1.0f - ZoomFactor), -cartY * ZoomFactor + (_Camera.getPositionY() + FocusPointY) * (1.0f - ZoomFactor), 0.0f);
+
+	cartX = rowMax;
+	cartY = colMin;
+	Math::cartesianToIsometric(cartX, cartY, CELL_WIDTH, CELL_HEIGHT);
+	glVertex3f(cartX * ZoomFactor + (_Camera.getPositionX() + FocusPointX) * (1.0f - ZoomFactor), -cartY * ZoomFactor + (_Camera.getPositionY() + FocusPointY) * (1.0f - ZoomFactor), 0.0f);
+	glEnd();
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }

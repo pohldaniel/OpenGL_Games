@@ -26,34 +26,20 @@ If you have questions concerning this license, you may contact Thomas Freehill a
 */
 #include "Movement.h"
 #include "Map.h"
-
+#include "States/Game.h"
 //***************
 // eMovementPlanner::eMovementPlanner
 //***************
-eMovementPlanner::eMovementPlanner(float movementSpeed)
-	: maxMoveSpeed(movementSpeed),
-	goalRange(movementSpeed) {
-}
+eMovementPlanner::eMovementPlanner(Entity& entity, float movementSpeed) : entity(entity), maxMoveSpeed(movementSpeed), goalRange(movementSpeed){
 
-//***************
-// eMovementPlanner::SetOwner
-//***************
-/*void eMovementPlanner::SetOwner(eGameObject * newOwner) {
-	owner = newOwner;
-	currentTile = &knownMap.Index(owner->CollisionModel().Center());
-	previousTile = currentTile;
-	StopMoving();
-}*/
-
-//***************
-// eMovementPlanner::Init
-//***************
-void eMovementPlanner::Init() {
 	pathingState = PATHTYPE_COMPASS;
 	moveState = MOVETYPE_GOAL;
-	//auto & tileMap = owner->GetMap()->TileMap();
-	//knownMap.SetCellSize(tileMap.CellWidth(), tileMap.CellHeight());
+	knownMap.SetCellSize(32, 32);
 	knownMap.ResetAllCells();
+
+	currentTile = &knownMap.Index(entity.m_position);
+	previousTile = currentTile;
+	StopMoving();
 }
 
 //******************
@@ -61,7 +47,7 @@ void eMovementPlanner::Init() {
 //******************
 void eMovementPlanner::StopMoving() {
 	wallSide = nullptr;
-	//owner->CollisionModel().SetVelocity(vec2_zero);
+	entity.m_velocity.set(0.0f, 0.0f);
 	moving = false;
 }
 
@@ -70,7 +56,7 @@ void eMovementPlanner::StopMoving() {
 // selects and updates a pathfinding type (eg: waypoint+obstacle avoid, A* optimal path, wall follow, Area awareness, raw compass?, etc)
 //***************
 void eMovementPlanner::Update() {
-	//auto & ownerCollisionModel = owner->CollisionModel();
+
 	bool wasStopped = false;
 
 	// only pathfind with a waypoint
@@ -81,18 +67,18 @@ void eMovementPlanner::Update() {
 
 		// drop a trail waypoint (but never in a deadend that stopped the entity last frame)
 		if (moving && !wasStopped && moveState != MOVETYPE_TRAIL && lastTrailTile != currentTile) {
-			//trail.PushFront(ownerCollisionModel.Center());
+			trail.PushFront(entity.m_position);
 			lastTrailTile = currentTile;
 		}
 
 		// check if goal is close enough to stop
-		/*if (ownerCollisionModel.Center().Compare(*currentWaypoint, goalRange)) {
+		if (entity.m_position.compare(*currentWaypoint, goalRange)) {
 			StopMoving();
 			UpdateWaypoint(true);
 		}
 
 		// finalize the move
-		moving = (ownerCollisionModel.GetVelocity() != vec2_zero);*/
+		moving = !entity.m_velocity.zero();
 	}
 }
 
@@ -127,8 +113,7 @@ void eMovementPlanner::CompassFollow() {
 	if (!moving) {
 		test.vector = Vector2f(0.0f, 0.0f);
 		maxRotation = 360.0f;
-	}
-	else {
+	} else {
 		CheckWalls(bias);
 		test = right;		// counter-clockwise sweep of 180 degree arc from right to left in the forward direction
 
@@ -142,16 +127,17 @@ void eMovementPlanner::CompassFollow() {
 			currentTile->value = VISITED_TILE;
 	}
 
-	//waypoint.vector = *currentWaypoint - ownerCollisionModel.Center();
+	waypoint.vector = *currentWaypoint - entity.m_position;
 	waypoint.vector.normalize();
 
 	bestWeight = 0.0f;
 	rotationAngle = 0.0f;
 	while (rotationAngle < maxRotation) {
-
+		
 		// check how clear the path is starting one step along it
 		// and head straight for the waypoint if the test.vector path crosses extremely near it
 		if (CheckVectorPath(test)) {
+			//std::cout << "-----------" << std::endl;
 			if (CheckVectorPath(waypoint))
 				forward = waypoint;
 			else
@@ -159,7 +145,8 @@ void eMovementPlanner::CompassFollow() {
 
 			// initilize the new left and right, and their validSteps that'll be used next frame
 			CheckWalls(nullptr);
-			//ownerCollisionModel.SetVelocity(forward.vector * maxMoveSpeed);
+			//std::cout << "Velocity2: " << entity.m_velocity[0] << "  " << entity.m_velocity[1] << std::endl;
+			entity.m_velocity = forward.vector * maxMoveSpeed;
 			return;
 		}
 
@@ -194,19 +181,16 @@ void eMovementPlanner::CompassFollow() {
 	if (moveState == MOVETYPE_GOAL && best.stepRatio == 0) {	// deadlocked, begin deadend protocols (ie follow the trail now)
 		StopMoving();
 		moveState = MOVETYPE_TRAIL;
-	}
-	else if (moveState == MOVETYPE_TRAIL && best.stepRatio > 0) {
+	} else if (moveState == MOVETYPE_TRAIL && best.stepRatio > 0) {
 		StopMoving();
 		moveState = MOVETYPE_GOAL;
-	}
-	else if (moveState == MOVETYPE_TRAIL && best.validSteps == 0) {
+	}else if (moveState == MOVETYPE_TRAIL && best.validSteps == 0) {
 		StopMoving();
-	}
-	else {
+	}else {
 		forward = best;
 		// initilize the new left and right, and their validSteps that'll be used next frame
 		CheckWalls(nullptr);
-		//ownerCollisionModel.SetVelocity(forward.vector * maxMoveSpeed);
+		entity.m_velocity = forward.vector * maxMoveSpeed;
 	}
 	// moveState may have changed, track the correct waypoint
 	UpdateWaypoint();
@@ -218,33 +202,32 @@ void eMovementPlanner::CompassFollow() {
 // returns true if a future position using along is near the waypoint
 //******************
 bool eMovementPlanner::CheckVectorPath(decision_t & along) {
-	/*static const float maxSteps = 5.0f;										// how many future steps to test
+	static const float maxSteps = 5.0f;										// how many future steps to test
 
-	auto & ownerCollisionModel = owner->CollisionModel();
-	auto & boundsCenter = ownerCollisionModel.AbsBounds().Center();
+	//auto & ownerCollisionModel = owner->CollisionModel();
+	Vector2f& boundsCenter = entity.m_position;
 	float castLength = maxMoveSpeed * maxSteps;
 	float nearestFraction = 1.0f;
 	float mapEdgeFraction = 1.0f;
 
-	auto & mapEdges = owner->GetMap()->EdgeColliders();
-	for (size_t i = 0; i < mapEdges.size(); ++i) {
+	//auto & mapEdges = owner->GetMap()->EdgeColliders();
+	/*for (size_t i = 0; i < mapEdges.size(); ++i) {
 		float movingAway = mapEdges[i].second * along.vector;
 		if (movingAway >= 0.0f)
 			continue;
-		if (eCollision::MovingAABBAABBTest(ownerCollisionModel.AbsBounds(), along.vector, castLength, mapEdges[i].first, mapEdgeFraction) &&
-			mapEdgeFraction < nearestFraction)
-			nearestFraction = mapEdgeFraction;
-	}
+		//if (eCollision::MovingAABBAABBTest(ownerCollisionModel.AbsBounds(), along.vector, castLength, mapEdges[i].first, mapEdgeFraction) && mapEdgeFraction < nearestFraction)
+		//	nearestFraction = mapEdgeFraction;
+	}*/
 
 	along.validSteps = 0.0f;
-	Collision_t collision;
-	if (ownerCollisionModel.FindApproachingCollision(along.vector, castLength, collision) &&
-		collision.fraction < nearestFraction) {
-		nearestFraction = collision.fraction;
+	//Collision_t collision;
+	//if (ownerCollisionModel.FindApproachingCollision(along.vector, castLength, collision) && collision.fraction < nearestFraction) {
+	if (false) {
+		//nearestFraction = collision.fraction;
 	}
 	else {
-		eVec2 endPoint = boundsCenter + along.vector * (nearestFraction * castLength);
-		if (moveState == MOVETYPE_GOAL && endPoint.Compare(*currentWaypoint, goalRange)) {
+		Vector2f endPoint = boundsCenter + along.vector * (nearestFraction * castLength);
+		if (moveState == MOVETYPE_GOAL && endPoint.compare(*currentWaypoint, goalRange)) {
 			along.validSteps = floor(nearestFraction * maxSteps);
 			return true;
 		}
@@ -253,7 +236,7 @@ bool eMovementPlanner::CheckVectorPath(decision_t & along) {
 
 	// DEBUG: eCollision::GetAreaCells using along.vector grabs more cells 
 	// than eMovementPlanner will when updating knownMap, so it's not used here
-	eVec2 futureCenter = boundsCenter;
+	Vector2f futureCenter = boundsCenter;
 	float newSteps = 0.0f;
 	for (int i = 0; i < along.validSteps; ++i) {
 		if (knownMap.Index(futureCenter).value == UNKNOWN_TILE)
@@ -263,9 +246,9 @@ bool eMovementPlanner::CheckVectorPath(decision_t & along) {
 
 	along.stepRatio = 0.0f;
 	if (along.validSteps > 0.0f)
-		along.stepRatio = newSteps / along.validSteps;*/
+		along.stepRatio = newSteps / along.validSteps;
 
-	return false;
+	return true;
 }
 
 //**************
@@ -306,10 +289,10 @@ void eMovementPlanner::AddUserWaypoint(const Vector2f & waypoint) {
 	eBounds waypointBounds = owner->CollisionModel().LocalBounds() + waypoint;
 	if (!eCollision::AABBContainsAABB(owner->GetMap()->AbsBounds(), waypointBounds) ||
 		eCollision::BoxCast(owner->map, collisions, waypointBounds, vec2_zero, 0.0f))
-		return;
+		return;*/
 
 	goals.PushFront(waypoint);
-	UpdateWaypoint();*/
+	UpdateWaypoint();
 }
 
 //******************
@@ -401,7 +384,7 @@ void eMovementPlanner::UpdateKnownMap() {
 							// DEBUG: only needs to be more than **half-way** onto a new tile
 							// to set the currentTile as previousTile and VISITED_TILE,
 							// instead of completely off the tile (via a full absBounds check against the eGridCell bounds)
-	//checkTile = &knownMap.Index(owner->CollisionModel().Center());
+	checkTile = &knownMap.Index(entity.m_position);
 	if (checkTile != currentTile) {
 		previousTile = currentTile;
 		previousTile->value = VISITED_TILE;
@@ -472,14 +455,26 @@ void eMovementPlanner::DebugDraw() {
 // eMovementPlanner::DrawGoalWaypoints
 //******************
 void eMovementPlanner::DrawGoalWaypoints() {
-	
+	for (auto iterator = goals.Back(); iterator != nullptr; iterator = iterator->Next()) {
+		Vector2f goalPoint = iterator->Data();
+		float x = floorf(goalPoint[0] + 0.5f);
+		float y = floorf(goalPoint[1] + 0.5f);
+
+		Game::DrawIsometricRect(x, y, Vector4f(10.0f, 10.0f, 0.0f, 0.0f), Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
+	}
 }
 
 //******************
 // eMovementPlanner::DrawTrailWaypoints
 //******************
 void eMovementPlanner::DrawTrailWaypoints() {
-	
+	for (auto iterator = trail.Front(); iterator != nullptr; iterator = iterator->Prev()) {
+		Vector2f trailPoint = iterator->Data();
+		float x = floorf(trailPoint[0] + 0.5f);
+		float y = floorf(trailPoint[1] + 0.5f);
+
+		Game::DrawIsometricRect(x, y, Vector4f(5.0f, 5.0f, 0.0f, 0.0f), Vector4f(0.0f, 1.0f, 0.0f, 1.0f));
+	}
 }
 
 //******************

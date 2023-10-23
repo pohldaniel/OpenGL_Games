@@ -44,12 +44,16 @@ If you have questions concerning this license, you may contact Thomas Freehill a
 // TODO: implement a eMovementStrategy to swap out the ::Move algorithm at runtime
 // based on external decisions, and to make this a more flexible class
 //*************************************************
+
+class Game;
+class Entity;
+
 class eMovementPlanner {
 public:
 
-	eMovementPlanner(float movementSpeed);
+	eMovementPlanner(Entity& entity, float movementSpeed);
+	//Game* game;
 
-	void										Init();
 	void										DebugDraw();
 	void										AddUserWaypoint(const Vector2f& waypoint);
 	void										ClearTrail();
@@ -61,16 +65,10 @@ public:
 	void										DrawTrailWaypoints();
 	void										DrawKnownMap() const;
 	void										Update();
-	/*virtual void								Update() override;
-	virtual std::unique_ptr<eComponent>			GetCopy() const	override { return std::make_unique<eMovementPlanner>(*this); }
-	virtual void								SetOwner(eGameObject * newOwner) override;
-	virtual int									GetClassType() const override { return CLASS_MOVEMENT; }
-	virtual bool								IsClassType(int classType) const override {
-	if (classType == CLASS_MOVEMENT)
-	return true;
-	return eComponent::IsClassType(classType);
-	}*/
 
+	//virtual std::unique_ptr<eComponent>	GetCopy() const	override { return std::make_unique<eMovementPlanner>(*this); }
+
+	Entity& entity;
 private:
 
 	// values for known_map_t knownMap;

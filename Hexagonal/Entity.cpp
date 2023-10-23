@@ -12,12 +12,12 @@ Entity::Entity(const Prefab& prefab, const Camera& camera, const float& zoomFact
 	  camera(camera),
 	  zoomFactor(zoomFactor),
 	  focusPointX(focusPointX),
-	  focusPointY(focusPointY)
-{
+	  focusPointY(focusPointY) {
 	
 	m_minX = m_maxX = m_minY = m_maxY = 0;
 	m_isSelected = false;
 	m_animationController = std::make_unique< eAnimationController>(*prefab.animationController);
+	m_movementPlaner = std::make_unique< eMovementPlanner>(*this, 4.0f);
 }
 
 void Entity::update(float dt) {
@@ -28,7 +28,7 @@ void Entity::update(float dt) {
 	m_directrion *= moveSpeed;
 	Math::isometricToCartesian(m_directrion[0], m_directrion[1], 1.0f, 1.0f);
 
-	m_velocity = m_directrion;
+	//m_velocity = m_directrion;
 
 	Vector2f facingDirection;
 	if (!m_velocity.zero()) {
@@ -44,6 +44,8 @@ void Entity::update(float dt) {
 	m_animationController->SetFloatParameter(ySpeedParameterHash, facingDirection[1]);
 	m_animationController->SetFloatParameter(magnitudeParameterHash, facingDirection.length());
 	m_animationController->Update();
+
+	m_position += m_velocity;
 }
 
 void Entity::processInput() {

@@ -7,6 +7,8 @@
 #include <engine/input/Event.h>
 #include <engine/Camera.h>
 
+#include "Movement.h"
+
 #define CELL_WIDTH 32.0f
 #define CELL_HEIGHT 32.0f
 
@@ -23,6 +25,8 @@ public:
 	void processInput(const int mouseX, const int mouseY, const Event::MouseButtonEvent::MouseButton button = Event::MouseButtonEvent::MouseButton::NONE);
 	void setPosition(const Vector2f& position);
 
+	//void addMovementPlanner(float movementSpeed);
+
 //private:
 
 	void updateGridBounds();
@@ -31,7 +35,9 @@ public:
 	Vector2f m_velocity;
 	Vector2f m_oldFacingDirection;
 	Vector2f m_position;
+
 	std::unique_ptr<eAnimationController> m_animationController;
+	std::unique_ptr<eMovementPlanner> m_movementPlaner;
 
 	const int xSpeedParameterHash = std::hash< std::string >()("xSpeed");
 	const int ySpeedParameterHash = std::hash< std::string >()("ySpeed");

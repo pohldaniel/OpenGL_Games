@@ -2357,6 +2357,16 @@ Vector2f& Vector2f::normalize() {
 	return *this;
 }
 
+bool Vector2f::compare(const Vector2f& rhs, float epsilon) {
+	if (std::fabs(vec[0] - rhs[0]) > epsilon)
+		return false;
+
+	if (std::fabs(vec[1] - rhs[1]) > epsilon)
+		return false;
+
+	return true;
+}
+
 float &Vector2f::operator[](int index) {
 	return vec[index];
 }

@@ -278,7 +278,6 @@ void Mouse::update(){
 		m_mouseWheel = static_cast<float>(m_wheelDelta - m_prevWheelDelta) / static_cast<float>(WHEEL_DELTA);
 		m_prevWheelDelta = m_wheelDelta;
 		
-
 		POINT CursorPos;
 		GetCursorPos(&CursorPos);		
 		m_xPosRelative = static_cast< float >((CursorPos.x - m_centerX));
@@ -295,6 +294,10 @@ void Mouse::attach(HWND hWnd) {
 	GetCursorPos(&CursorPos);
 	m_xLastPos = CursorPos.x;
 	m_yLastPos = CursorPos.y;
+
+	ScreenToClient(m_hWnd, &CursorPos);
+	m_xPosAbsolute = CursorPos.x;
+	m_yPosAbsolute = CursorPos.y;
 
 	RECT rectClient, rectWindow;
 	GetWindowRect(m_hWnd, &rectWindow);
