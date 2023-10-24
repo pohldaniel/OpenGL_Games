@@ -26,6 +26,8 @@ public:
 	void setPosition(const Vector2f& position);
 	void mark(float left, float bottom, float right, float top);
 	void select();
+	void debugDraw();
+
 //private:
 
 	void updateGridBounds();

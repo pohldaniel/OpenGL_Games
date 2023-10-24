@@ -6,6 +6,7 @@
 #include "AnimationController.h"
 #include "Math.hpp"
 #include "Application.h"
+#include "States/Game.h"
 
 Entity::Entity(const Prefab& prefab, const Camera& camera, const float& zoomFactor, const float& focusPointX, const float& focusPointY) 
 	: prefab(prefab),
@@ -31,28 +32,25 @@ void Entity::update(float dt) {
 	const float moveSpeed = 0.8f;
 	m_directrion.normalize();
 	m_directrion *= moveSpeed;
-	Math::isometricToCartesian(m_directrion[0], m_directrion[1], 1.0f, 1.0f);
+	
+	if(!m_movementPlaner->isMoving())
+	  m_velocity = m_directrion;
 
-	//m_velocity = m_directrion;
-
+	
 	Vector2f facingDirection;
 	if (!m_velocity.zero()) {
-		facingDirection = m_velocity.normalize();
-		Math::cartesianToIsometric(facingDirection[0], facingDirection[1], 1.0f, 1.0f);
-		facingDirection.normalize();
+		facingDirection = m_velocity.normalize();		
 		m_oldFacingDirection = facingDirection;
 	}else {
 		facingDirection = m_oldFacingDirection * 0.25f;
 	}
 
 	m_animationController->SetFloatParameter(xSpeedParameterHash, facingDirection[0]);
-	m_animationController->SetFloatParameter(ySpeedParameterHash, facingDirection[1]);
+	m_animationController->SetFloatParameter(ySpeedParameterHash, -facingDirection[1]);
 	m_animationController->SetFloatParameter(magnitudeParameterHash, facingDirection.length());
 	m_animationController->Update();
 
 	m_position += m_velocity;
-
-
 }
 
 void Entity::processInput() {
@@ -148,4 +146,10 @@ void Entity::updateGridBounds() {
 
 void Entity::setPosition(const Vector2f& position) {
 	m_position = position;
+}
+
+void Entity::debugDraw() {
+	if (m_velocity.zero()) return;
+	
+	Game::DrawIsometricLine(m_position, m_position + m_velocity * 50.0f, prefab.offset, { 1.0f, 1.0, 0.0, 1.0f });
 }

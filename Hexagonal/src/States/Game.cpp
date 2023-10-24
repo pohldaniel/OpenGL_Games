@@ -229,6 +229,7 @@ void Game::render() {
 			drawClickBox((*entity)->m_position[0] + (*entity)->prefab.boundingBox.posX, (*entity)->m_position[1] + (*entity)->prefab.boundingBox.posY, +(*entity)->prefab.boundingBox.width, (*entity)->prefab.boundingBox.height);
 
 			(*entity)->m_movementPlaner->DebugDraw();
+			(*entity)->debugDraw();
 		}
 		
 
@@ -1162,7 +1163,7 @@ void Game::drawClickBox(float posX, float posY, float width, float height) {
 
 }
 
-void Game::DrawIsometricRect(float posX, float posY, Vector4f sizeOffset, Vector4f color) {
+void Game::DrawIsometricRect(float posX, float posY, const Vector4f& sizeOffset, const Vector4f& color) {
 	std::array<Vector2f, 4> fPoints;
 	fPoints[0] = Vector2f(sizeOffset[2], sizeOffset[3]);
 	fPoints[1] = Vector2f(sizeOffset[2], sizeOffset[3] + sizeOffset[1]);
@@ -1195,7 +1196,7 @@ void Game::DrawIsometricRect(float posX, float posY, Vector4f sizeOffset, Vector
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 
-void Game::DrawIsometricRect(float posX, float posY, Vector4f bounds, Vector2f offset, Vector4f color) {
+void Game::DrawIsometricRect(float posX, float posY, const Vector4f& bounds, const Vector2f& offset, const Vector4f& color) {
 	std::array<Vector2f, 4> fPoints;
 
 	fPoints[0] = Vector2f(bounds[0] + offset[0], bounds[1] + offset[1]);
@@ -1226,7 +1227,7 @@ void Game::DrawIsometricRect(float posX, float posY, Vector4f bounds, Vector2f o
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 
-void Game::DrawIsometricRect(int posX, int posY, Vector4f color) {
+void Game::DrawIsometricRect(int posX, int posY, const Vector4f& color) {
 
 	//if (!isValid(posX, posY)) return;
 
@@ -1234,6 +1235,11 @@ void Game::DrawIsometricRect(int posX, int posY, Vector4f color) {
 	float rowMax = posX + 0.5f;
 	float colMin = posY - 1.5f;
 	float colMax = posY - 0.5f;
+
+	glMatrixMode(GL_PROJECTION);
+	glLoadMatrixf(&_Camera.getOrthographicMatrix()[0][0]);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadMatrixf(&_Camera.getViewMatrix()[0][0]);
 
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glBegin(GL_QUADS);
@@ -1260,4 +1266,26 @@ void Game::DrawIsometricRect(int posX, int posY, Vector4f color) {
 	glVertex3f(cartX * ZoomFactor + (_Camera.getPositionX() + FocusPointX) * (1.0f - ZoomFactor), -cartY * ZoomFactor + (_Camera.getPositionY() + FocusPointY) * (1.0f - ZoomFactor), 0.0f);
 	glEnd();
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+}
+
+void Game::DrawIsometricLine(const Vector2f& start, const Vector2f& end, const Vector2f& offset, const Vector4f& color) {
+	
+	glMatrixMode(GL_PROJECTION);
+	glLoadMatrixf(&_Camera.getOrthographicMatrix()[0][0]);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadMatrixf(&_Camera.getViewMatrix()[0][0]);
+
+	glBegin(GL_LINES);
+	glColor4f(color[0], color[1], color[2], color[3]);
+
+	float cartX = start[0] + (offset[0] - offset[1]);
+	float cartY = -start[1] + 0.5f * (offset[0] + offset[1]) ;
+	glVertex3f(cartX * ZoomFactor + (_Camera.getPositionX() + FocusPointX) * (1.0f - ZoomFactor), -cartY * ZoomFactor + (_Camera.getPositionY() + FocusPointY) * (1.0f - ZoomFactor), 0.0f);
+
+	
+	cartX = end[0] + (offset[0] - offset[1]);
+	cartY = -end[1] + 0.5f * (offset[0] + offset[1]);
+	glVertex3f(cartX * ZoomFactor + (_Camera.getPositionX() + FocusPointX) * (1.0f - ZoomFactor), -cartY * ZoomFactor + (_Camera.getPositionY() + FocusPointY) * (1.0f - ZoomFactor), 0.0f);
+	glEnd();
+
 }

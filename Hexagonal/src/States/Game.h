@@ -80,9 +80,10 @@ public:
 	void OnKeyDown(Event::KeyboardEvent& event) override;
 	void OnKeyUp(Event::KeyboardEvent& event) override;
 
-	static void DrawIsometricRect(float posX, float posY, Vector4f sizeOffset, Vector4f color);
-	static void DrawIsometricRect(float posX, float posY, Vector4f bounds, Vector2f offset, Vector4f color);
-	static void DrawIsometricRect(int posX, int posY, Vector4f color);
+	static void DrawIsometricRect(float posX, float posY, const Vector4f& sizeOffset, const Vector4f& color);
+	static void DrawIsometricRect(float posX, float posY, const Vector4f& bounds, const Vector2f& offset, const Vector4f& color);
+	static void DrawIsometricRect(int posX, int posY, const Vector4f& color);
+	static void DrawIsometricLine(const Vector2f& start, const Vector2f& end, const Vector2f& offset, const Vector4f& color);
 
 private:
 

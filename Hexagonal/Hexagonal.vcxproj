@@ -169,6 +169,7 @@
     <ClCompile Include="HashIndex.cpp" />
     <ClCompile Include="Movement.cpp" />
     <ClCompile Include="Prefab.cpp" />
+    <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="src\Map.cpp" />
     <ClCompile Include="src\States\CoreMechanic.cpp" />
     <ClCompile Include="src\States\Plot.cpp" />
@@ -313,6 +314,7 @@
     <ClInclude Include="Math.hpp" />
     <ClInclude Include="Movement.h" />
     <ClInclude Include="Prefab.h" />
+    <ClInclude Include="Renderer.h" />
     <ClInclude Include="Sort.h" />
     <ClInclude Include="SpatialIndexGrid.h" />
     <ClInclude Include="src\Enums.h" />

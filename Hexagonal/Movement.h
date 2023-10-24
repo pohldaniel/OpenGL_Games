@@ -65,7 +65,7 @@ public:
 	void										DrawTrailWaypoints();
 	void										DrawKnownMap() const;
 	void										Update();
-
+	bool										isMoving();
 	//virtual std::unique_ptr<eComponent>	GetCopy() const	override { return std::make_unique<eMovementPlanner>(*this); }
 
 	Entity& entity;
@@ -167,6 +167,10 @@ inline void eMovementPlanner::TogglePathingState() {
 //*************
 inline float eMovementPlanner::Speed() const {
 	return maxMoveSpeed;
+}
+
+inline bool eMovementPlanner::isMoving() {
+	return moving;
 }
 
 #endif /* EVIL_MOVEMENTPLANNER_H */
