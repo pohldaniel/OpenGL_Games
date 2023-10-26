@@ -1,0 +1,302 @@
+#include <imgui.h>
+#include <imgui_impl_win32.h>
+#include <imgui_impl_opengl3.h>
+#include <imgui_internal.h>
+#include <engine/Batchrenderer.h>
+
+#include "Game.h"
+#include "Application.h"
+#include "Globals.h"
+#include "Menu.h"
+
+
+Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
+
+	Application::SetCursorIcon(IDC_ARROW);
+	EventDispatcher::AddKeyboardListener(this);
+	EventDispatcher::AddMouseListener(this);
+
+	m_camera = Camera();
+	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
+	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
+	m_camera.lookAt(Vector3f(0.0f, 2.0f, 10.0f), Vector3f(0.0f, 2.0f, 10.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
+	m_camera.setRotationSpeed(0.1f);
+	m_camera.setMovingSpeed(10.0f);
+
+	m_trackball.reshape(Application::Width, Application::Height);
+	m_trackball.setDollyPosition(-2.5f);
+	applyTransformation(m_trackball);
+
+	glClearColor(0.494f, 0.686f, 0.796f, 1.0f);
+	glClearDepth(1.0f);
+
+	m_background.setLayer(std::vector<BackgroundLayer>{
+		{ &Globals::textureManager.get("forest_1"), 1, 1.0f },
+		{ &Globals::textureManager.get("forest_2"), 1, 2.0f },
+		{ &Globals::textureManager.get("forest_3"), 1, 3.0f },
+		{ &Globals::textureManager.get("forest_4"), 1, 4.0f },
+		{ &Globals::textureManager.get("forest_5"), 1, 5.0f }});
+	m_background.setSpeed(0.005f);
+
+	
+	m_slicedCube.create(128, 128, 128);
+	
+	Instance instance;
+	instance.color = Vector3f(0.569844782f, 0.157939225f, 0.157963991f);
+	instance.position = Vector3f(0.0f, 0.0f, 1.0f);
+	instance.rotation = 0.0f;
+	m_instances.push_back(instance);
+	m_instances.back().mesh.loadModel("res/mesh/sphere.obj");
+	m_instances.back().mesh.getMeshes()[0]->packBuffer();
+
+	bake_sdf(m_instances.back(), 0.025f, 4);
+}
+
+Game::~Game() {
+	EventDispatcher::RemoveKeyboardListener(this);
+	EventDispatcher::RemoveMouseListener(this);
+}
+
+void Game::fixedUpdate() {
+
+}
+
+void Game::update() {
+	Keyboard &keyboard = Keyboard::instance();
+	Vector3f directrion = Vector3f();
+
+	float dx = 0.0f;
+	float dy = 0.0f;
+	bool move = false;
+
+	if (keyboard.keyDown(Keyboard::KEY_W)) {		
+		directrion += Vector3f(0.0f, 0.0f, 1.0f);
+		move |= true;
+	}
+
+	if (keyboard.keyDown(Keyboard::KEY_S)) {	
+		directrion += Vector3f(0.0f, 0.0f, -1.0f);
+		move |= true;
+	}
+
+	if (keyboard.keyDown(Keyboard::KEY_A)) {
+		directrion += Vector3f(-1.0f, 0.0f, 0.0f);
+		m_background.addOffset(-0.001f);
+		m_background.setSpeed(-0.005f);
+		move |= true;
+	}
+
+	if (keyboard.keyDown(Keyboard::KEY_D)) {
+		directrion += Vector3f(1.0f, 0.0f, 0.0f);
+		m_background.addOffset(0.001f);
+		m_background.setSpeed(0.005f);
+		move |= true;
+	}
+
+	if (keyboard.keyDown(Keyboard::KEY_Q)) {
+		directrion += Vector3f(0.0f, -1.0f, 0.0f);
+		move |= true;
+	}
+
+	if (keyboard.keyDown(Keyboard::KEY_E)) {
+		directrion += Vector3f(0.0f, 1.0f, 0.0f);
+		move |= true;
+	}
+
+	Mouse &mouse = Mouse::instance();
+
+	if (mouse.buttonDown(Mouse::MouseButton::BUTTON_RIGHT)) {
+		dx = mouse.xPosRelative();
+		dy = mouse.yPosRelative();
+	}
+
+	if (move || dx != 0.0f || dy != 0.0f) {
+		if (dx || dy) {
+			m_camera.rotate(dx, dy);
+		}
+
+		if (move) {
+			m_camera.move(directrion * m_dt);
+		}
+	}
+	m_trackball.idle();
+	m_transform.fromMatrix(m_trackball.getTransform());
+
+	m_background.update(m_dt);
+}
+
+void Game::render() {
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	/*m_background.draw();
+	
+	auto shader = Globals::shaderManager.getAssetPointer("texture");
+	shader->use();
+
+	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
+	shader->loadMatrix("u_view", m_camera.getViewMatrix());
+	shader->loadMatrix("u_model", m_transform.getTransformationMatrix());
+
+	m_instances.back().mesh.drawRaw();
+
+	shader->unuse();*/
+
+	glDisable(GL_DEPTH_TEST);
+	glDisable(GL_CULL_FACE);
+	auto shader = Globals::shaderManager.getAssetPointer("texture3d");
+	shader->use();
+	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
+	shader->loadMatrix("u_view", m_camera.getViewMatrix());
+	shader->loadMatrix("u_model", m_transform.getTransformationMatrix());
+	shader->loadInt("u_texture", 0);
+	glActiveTexture(GL_TEXTURE0);
+
+	glBindTexture(GL_TEXTURE_3D, m_instances.back().sdf.getTexture());
+
+	m_slicedCube.drawRaw();
+	shader->unuse();
+
+	if (m_drawUi)
+		renderUi();
+}
+
+void Game::OnMouseMotion(Event::MouseMoveEvent& event) {
+	m_trackball.motion(event.x, event.y);
+	applyTransformation(m_trackball);
+}
+
+void Game::OnMouseButtonDown(Event::MouseButtonEvent& event) {
+
+	if (event.button == 1u) {
+		m_trackball.mouse(TrackBall::Button::ELeftButton, TrackBall::Modifier::ENoModifier, true, event.x, event.y);
+		applyTransformation(m_trackball);
+	}else if (event.button == 2u) {
+		Mouse::instance().attach(Application::GetWindow());
+	}
+}
+
+void Game::OnMouseButtonUp(Event::MouseButtonEvent& event) {
+	
+	if (event.button == 1u) {
+		m_trackball.mouse(TrackBall::Button::ELeftButton, TrackBall::Modifier::ENoModifier, false, event.x, event.y);
+		applyTransformation(m_trackball);
+	}else if (event.button == 2u) {
+		Mouse::instance().detach();
+	}
+}
+
+void Game::OnMouseWheel(Event::MouseWheelEvent& event) {
+	
+}
+
+void Game::OnKeyDown(Event::KeyboardEvent& event) {
+	if (event.keyCode == VK_LMENU) {
+		m_drawUi = !m_drawUi;
+	}
+
+	if (event.keyCode == VK_ESCAPE) {
+		ImGui::GetIO().WantCaptureMouse = false;
+		Mouse::instance().detach();
+		m_isRunning = false;
+	}
+}
+
+void Game::OnKeyUp(Event::KeyboardEvent& event) {
+
+}
+
+void Game::resize(int deltaW, int deltaH) {
+	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
+	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
+}
+
+void Game::applyTransformation(TrackBall& arc) {
+	m_transform.fromMatrix(arc.getTransform());
+}
+
+void Game::renderUi() {
+	ImGui_ImplOpenGL3_NewFrame();
+	ImGui_ImplWin32_NewFrame();
+	ImGui::NewFrame();
+
+	ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar |
+		ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove |
+		ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus |
+		ImGuiWindowFlags_NoBackground;
+
+	ImGuiViewport* viewport = ImGui::GetMainViewport();
+	ImGui::SetNextWindowPos(viewport->Pos);
+	ImGui::SetNextWindowSize(viewport->Size);
+	ImGui::SetNextWindowViewport(viewport->ID);
+
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+	ImGui::Begin("InvisibleWindow", nullptr, windowFlags);
+	ImGui::PopStyleVar(3);
+
+	ImGuiID dockSpaceId = ImGui::GetID("MainDockSpace");
+	ImGui::DockSpace(dockSpaceId, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_PassthruCentralNode);
+	ImGui::End();
+
+	if (m_initUi) {
+		m_initUi = false;
+		ImGuiID dock_id_left = ImGui::DockBuilderSplitNode(dockSpaceId, ImGuiDir_Left, 0.2f, nullptr, &dockSpaceId);
+		ImGuiID dock_id_right = ImGui::DockBuilderSplitNode(dockSpaceId, ImGuiDir_Right, 0.2f, nullptr, &dockSpaceId);
+		ImGuiID dock_id_down = ImGui::DockBuilderSplitNode(dockSpaceId, ImGuiDir_Down, 0.2f, nullptr, &dockSpaceId);
+		ImGuiID dock_id_up = ImGui::DockBuilderSplitNode(dockSpaceId, ImGuiDir_Up, 0.2f, nullptr, &dockSpaceId);
+		ImGui::DockBuilderDockWindow("Settings", dock_id_left);
+	}
+
+	// render widgets
+	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
+	ImGui::Checkbox("Draw Wirframe", &StateMachine::GetEnableWireframe());
+	
+	ImGui::End();
+
+	ImGui::Render();
+	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+}
+
+void Game::bake_sdf(Instance& instance, float grid_step_size, int padding)
+{
+	Vector3f  min_extents = instance.mesh.getAABB().position - (Vector3f(grid_step_size) * float(padding));
+	Vector3f  max_extents = instance.mesh.getAABB().position + instance.mesh.getAABB().size + (Vector3f(grid_step_size) * float(padding));
+	Vector3f  grid_origin = min_extents + Vector3f(grid_step_size / 2.0f);
+	Vector3f  box_size = max_extents - min_extents;
+
+	std::array<int, 3> volume_size = { std::ceil(box_size[0] / grid_step_size), std::ceil(box_size[1] / grid_step_size), std::ceil(box_size[2] / grid_step_size) };
+
+	instance.volume_size = volume_size;
+	instance.grid_origin = grid_origin;
+	instance.grid_step_size = grid_step_size;
+	instance.min_extents = min_extents;
+	instance.max_extents = max_extents;
+
+	instance.sdf.createTexture3D(volume_size[0], volume_size[1], volume_size[2], GL_R32F, GL_RED, GL_FLOAT);
+	instance.sdf.setFilter(GL_LINEAR, GL_LINEAR);
+	instance.sdf.setWrapMode(GL_CLAMP_TO_EDGE);
+
+	auto shader = Globals::shaderManager.getAssetPointer("sdf_comp");
+	shader->use();
+	shader->loadVector("u_GridStepSize", Vector3f(grid_step_size));
+	shader->loadVector("u_GridOrigin", grid_origin);
+	shader->loadUnsignedInt("u_NumTriangles", instance.mesh.getNumberOfTriangles());
+	shader->loadVector("u_VolumeSize", volume_size);
+
+	glBindImageTexture(0, instance.sdf.getTexture(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32F);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, instance.mesh.getMeshes()[0]->getVbo());
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, instance.mesh.getMeshes()[0]->getIbo());
+
+
+	const uint32_t NUM_THREADS_X = 8;
+	const uint32_t NUM_THREADS_Y = 8;
+	const uint32_t NUM_THREADS_Z = 1;
+
+	uint32_t size_x = static_cast<uint32_t>(ceil(float(volume_size[0]) / float(NUM_THREADS_X)));
+	uint32_t size_y = static_cast<uint32_t>(ceil(float(volume_size[1]) / float(NUM_THREADS_Y)));
+	uint32_t size_z = static_cast<uint32_t>(ceil(float(volume_size[2]) / float(NUM_THREADS_Z)));
+
+	glDispatchCompute(size_x, size_y, size_z);
+
+	glFinish();
+}

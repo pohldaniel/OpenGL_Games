@@ -235,6 +235,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SDL2_ttf", "SDL2_ttf\SDL2_t
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Hexagonal", "Hexagonal\Hexagonal.vcxproj", "{1B5F26AE-3D52-4594-85AD-E566C5B809AD}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "26SDF", "26SDF\26SDF.vcxproj", "{A666EC43-6FC6-4EC9-B7A8-2BB7ED7A6F6E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -827,6 +829,14 @@ Global
 		{1B5F26AE-3D52-4594-85AD-E566C5B809AD}.Release|x64.Build.0 = Release|x64
 		{1B5F26AE-3D52-4594-85AD-E566C5B809AD}.Release|x86.ActiveCfg = Release|Win32
 		{1B5F26AE-3D52-4594-85AD-E566C5B809AD}.Release|x86.Build.0 = Release|Win32
+		{A666EC43-6FC6-4EC9-B7A8-2BB7ED7A6F6E}.Debug|x64.ActiveCfg = Debug|x64
+		{A666EC43-6FC6-4EC9-B7A8-2BB7ED7A6F6E}.Debug|x64.Build.0 = Debug|x64
+		{A666EC43-6FC6-4EC9-B7A8-2BB7ED7A6F6E}.Debug|x86.ActiveCfg = Debug|Win32
+		{A666EC43-6FC6-4EC9-B7A8-2BB7ED7A6F6E}.Debug|x86.Build.0 = Debug|Win32
+		{A666EC43-6FC6-4EC9-B7A8-2BB7ED7A6F6E}.Release|x64.ActiveCfg = Release|x64
+		{A666EC43-6FC6-4EC9-B7A8-2BB7ED7A6F6E}.Release|x64.Build.0 = Release|x64
+		{A666EC43-6FC6-4EC9-B7A8-2BB7ED7A6F6E}.Release|x86.ActiveCfg = Release|Win32
+		{A666EC43-6FC6-4EC9-B7A8-2BB7ED7A6F6E}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

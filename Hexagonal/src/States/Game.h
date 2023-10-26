@@ -53,12 +53,6 @@ enum SelectionMode {
 	ENTITY
 };
 
-enum SelectedEntity {
-	HERO,
-	ARCHER
-};
-
-
 
 class Game : public State, public MouseEventListener, public KeyboardEventListener {
 
@@ -151,11 +145,6 @@ private:
 	SelectionMode m_selectionMode = SelectionMode::ENTITY;
 
 	static bool FindSingleCell(SingleSelectedCell const& s1, SingleSelectedCell const& s2);
-
-	
-	
-	//SelectedEntity m_selctedEntity = SelectedEntity::ARCHER;
-
 
 	std::vector<std::array<unsigned int, 3>> defaultRenderBlockSizes;
 	std::vector<Vector4f> defaultAABBList;
