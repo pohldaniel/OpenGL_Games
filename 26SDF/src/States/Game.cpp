@@ -44,7 +44,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	m_slicedCube.create(128, 128, 128);
 	m_ground.loadModel("res/mesh/ground.obj");
 
-	m_instances.resize(2);
+	m_instances.resize(3);
 
 	m_instances[0].color = Vector3f(0.334582895f, 0.503325939f, 0.222088382f);
 	m_instances[0].position = Vector3f(4.0f, 0.0f, 1.0f);
@@ -52,7 +52,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	m_instances[0].mesh.loadModel("res/mesh/sphere.obj");
 	m_instances[0].mesh.getMeshes()[0]->packBuffer();
 
-	//bake_sdf(m_instances[0], 0.025f, 4);
+	bake_sdf(m_instances[0], 0.025f, 4);
 
 	InstanceUniforms uniform;
 
@@ -69,7 +69,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	m_instances[1].mesh.loadModel("res/mesh/cylinder.obj");
 	m_instances[1].mesh.getMeshes()[0]->packBuffer();
 
-	//bake_sdf(m_instances[1], 0.025f, 4);
+	bake_sdf(m_instances[1], 0.025f, 4);
 
 	InstanceUniforms uniform2;
 
@@ -81,7 +81,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	m_textureUniforms.push_back(m_instances[1].sdf.makeTextureHandleResident());
 
 
-	/*m_instances[2].color = Vector3f(0.569844782f, 0.157939225f, 0.157963991f);
+	m_instances[2].color = Vector3f(0.569844782f, 0.157939225f, 0.157963991f);
 	m_instances[2].position = Vector3f(0.0f, 0.0f, 1.0f);
 	m_instances[2].rotation = 0.0f;
 	m_instances[2].mesh.loadModel("res/mesh/bunny.obj");
@@ -96,7 +96,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	uniform3.sdf_idx = { static_cast<int>(m_textureUniforms.size()), 0, 0, 0 };
 
 	m_instanceUniforms.push_back(uniform3);
-	m_textureUniforms.push_back(m_instances[2].sdf.makeTextureHandleResident());*/
+	m_textureUniforms.push_back(m_instances[2].sdf.makeTextureHandleResident());
 
 	glGenBuffers(1, &m_globalUbo);
 	glBindBuffer(GL_UNIFORM_BUFFER, m_globalUbo);
@@ -117,8 +117,9 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 	
 
-	SamplerPack sampler[2] = { { m_textureUniforms[0], 0, 0, 0, 0, 0, 0, 0, 0},
-							   { m_textureUniforms[1], 0, 0, 0, 0, 0, 0, 0, 0} };
+	SamplerPack sampler[3] = { { m_textureUniforms[0], 0, 0, 0, 0, 0, 0, 0, 0},
+							   { m_textureUniforms[1], 0, 0, 0, 0, 0, 0, 0, 0},
+							   { m_textureUniforms[2], 0, 0, 0, 0, 0, 0, 0, 0}};
 	
 
 	glBindBuffer(GL_UNIFORM_BUFFER, m_sdfUbo);

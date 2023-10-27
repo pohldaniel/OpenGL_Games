@@ -33,7 +33,7 @@ public:
 	void loadCrossHDRIFromFile(std::string fileName, const bool flipVertical = true, unsigned int internalFormat = 0u, unsigned int format = 0u, int paddingLeft = 0, int paddingRight = 0, int paddingTop = 0, int paddingBottom = 0);
 	void loadHDRIFromFile(std::string fileName, const bool flipVertical = true, unsigned int internalFormat = 0u, unsigned int format = 0u, int paddingLeft = 0, int paddingRight = 0, int paddingTop = 0, int paddingBottom = 0);
 	void loadCrossDDSFromFile(std::string fileName);
-	void loadDDSRawFromFile(std::string fileName, const int knownInternal = NULL);
+	void loadDDSRawFromFile(std::string fileName, const int knownInternal = 0);
 	void loadCubeFromFile(std::string* textureFiles, const bool flipVertical = false, unsigned int internalFormat = 0u, unsigned int format = 0u);
 	void loadCrossCubeFromFile(std::string fileName, const bool _flipVertical = false, unsigned int _internalFormat = 0u, unsigned int _format = 0u);
 
