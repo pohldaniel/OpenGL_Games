@@ -114,7 +114,7 @@ public:
 	void translate(float dx, float dy, float dz);
 	void scale(float a, float b, float c);
 
-	void drawRaw();
+	void drawRaw() const;
 	void drawRawInstanced();
 	void drawRawStacked();
 	void drawRawInstancedStacked();
@@ -218,7 +218,7 @@ public:
 	ObjMesh(int numberTriangles, ObjModel* model);
 	~ObjMesh();
 
-	void drawRaw();
+	void drawRaw() const;
 	void drawRawInstanced();
 	const Material& getMaterial() const;
 	

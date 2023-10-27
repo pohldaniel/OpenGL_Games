@@ -29,7 +29,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	m_trackball.setDollyPosition(-2.5f);
 	applyTransformation(m_trackball);
 
-	glClearColor(0.494f, 0.686f, 0.796f, 1.0f);
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClearDepth(1.0f);
 
 	m_background.setLayer(std::vector<BackgroundLayer>{
@@ -46,40 +46,57 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 
 	m_instances.resize(2);
 
-	m_instances[0].color = Vector3f(0.569844782f, 0.157939225f, 0.157963991f);
-	m_instances[0].position = Vector3f(0.0f, 0.0f, 1.0f);
+	m_instances[0].color = Vector3f(0.334582895f, 0.503325939f, 0.222088382f);
+	m_instances[0].position = Vector3f(4.0f, 0.0f, 1.0f);
 	m_instances[0].rotation = 0.0f;
 	m_instances[0].mesh.loadModel("res/mesh/sphere.obj");
 	m_instances[0].mesh.getMeshes()[0]->packBuffer();
 
-	bake_sdf(m_instances[0], 0.025f, 4);
+	//bake_sdf(m_instances[0], 0.025f, 4);
 
 	InstanceUniforms uniform;
 
 	uniform.half_extents = Vector4f((m_instances[0].max_extents - m_instances[0].min_extents) / 2.0f, 0.0f);
 	uniform.os_center = Vector4f((m_instances[0].max_extents + m_instances[0].min_extents) / 2.0f, 1.0f);
-	uniform.sdf_idx = { static_cast<int>(m_texture_uniforms.size()), 0, 0, 0 };
+	uniform.sdf_idx = { static_cast<int>(m_textureUniforms.size()), 0, 0, 0 };
 
-	m_instance_uniforms.push_back(uniform);
-	m_texture_uniforms.push_back(m_instances[0].sdf.makeTextureHandleResident());
+	m_instanceUniforms.push_back(uniform);
+	m_textureUniforms.push_back(m_instances[0].sdf.makeTextureHandleResident());
 
-	m_instances[1].color = Vector3f(0.569844782f, 0.157939225f, 0.157963991f);
-	m_instances[1].position = Vector3f(0.0f, 0.0f, 1.0f);
+	m_instances[1].color = Vector3f(0.103627160f, 0.303517729f, 0.482233524f);
+	m_instances[1].position = Vector3f(-4.0f, 0.0f, 1.0f);
 	m_instances[1].rotation = 0.0f;
 	m_instances[1].mesh.loadModel("res/mesh/cylinder.obj");
 	m_instances[1].mesh.getMeshes()[0]->packBuffer();
 
-	bake_sdf(m_instances[1], 0.025f, 4);
+	//bake_sdf(m_instances[1], 0.025f, 4);
 
 	InstanceUniforms uniform2;
 
 	uniform2.half_extents = Vector4f((m_instances[1].max_extents - m_instances[1].min_extents) / 2.0f, 0.0f);
 	uniform2.os_center = Vector4f((m_instances[1].max_extents + m_instances[1].min_extents) / 2.0f, 1.0f);
-	uniform2.sdf_idx = { static_cast<int>(m_texture_uniforms.size()), 0, 0, 0 };
+	uniform2.sdf_idx = { static_cast<int>(m_textureUniforms.size()), 0, 0, 0 };
 
-	m_instance_uniforms.push_back(uniform2);
-	m_texture_uniforms.push_back(m_instances[1].sdf.makeTextureHandleResident());
+	m_instanceUniforms.push_back(uniform2);
+	m_textureUniforms.push_back(m_instances[1].sdf.makeTextureHandleResident());
 
+
+	/*m_instances[2].color = Vector3f(0.569844782f, 0.157939225f, 0.157963991f);
+	m_instances[2].position = Vector3f(0.0f, 0.0f, 1.0f);
+	m_instances[2].rotation = 0.0f;
+	m_instances[2].mesh.loadModel("res/mesh/bunny.obj");
+	m_instances[2].mesh.getMeshes()[0]->packBuffer();
+
+	bake_sdf(m_instances[2], 0.025f, 4);
+
+	InstanceUniforms uniform3;
+
+	uniform3.half_extents = Vector4f((m_instances[2].max_extents - m_instances[2].min_extents) / 2.0f, 0.0f);
+	uniform3.os_center = Vector4f((m_instances[2].max_extents + m_instances[2].min_extents) / 2.0f, 1.0f);
+	uniform3.sdf_idx = { static_cast<int>(m_textureUniforms.size()), 0, 0, 0 };
+
+	m_instanceUniforms.push_back(uniform3);
+	m_textureUniforms.push_back(m_instances[2].sdf.makeTextureHandleResident());*/
 
 	glGenBuffers(1, &m_globalUbo);
 	glBindBuffer(GL_UNIFORM_BUFFER, m_globalUbo);
@@ -89,8 +106,8 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 
 	glGenBuffers(1, &m_instanceUbo);
 	glBindBuffer(GL_UNIFORM_BUFFER, m_instanceUbo);
-	glBufferData(GL_UNIFORM_BUFFER, 144 * NUM_INSTANCES, NULL, GL_STATIC_DRAW);
-	glBindBufferRange(GL_UNIFORM_BUFFER, 1, m_instanceUbo, 0, 144 * NUM_INSTANCES);
+	glBufferData(GL_UNIFORM_BUFFER, 176 * NUM_INSTANCES, NULL, GL_STATIC_DRAW);
+	glBindBufferRange(GL_UNIFORM_BUFFER, 1, m_instanceUbo, 0, 176 * NUM_INSTANCES);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 	glGenBuffers(1, &m_sdfUbo);
@@ -100,12 +117,12 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 	
 
-	SamplerPack sampler[2] = { {m_texture_uniforms[0], 0, 0, 0, 0, 0, 0, 0, 0},
-							   {m_texture_uniforms[1], 0, 0, 0, 0, 0, 0, 0, 0} };
+	SamplerPack sampler[2] = { { m_textureUniforms[0], 0, 0, 0, 0, 0, 0, 0, 0},
+							   { m_textureUniforms[1], 0, 0, 0, 0, 0, 0, 0, 0} };
 	
 
 	glBindBuffer(GL_UNIFORM_BUFFER, m_sdfUbo);
-	glBufferSubData(GL_UNIFORM_BUFFER, 0, 16 * m_texture_uniforms.size(), &sampler[0]);
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, 16 * m_textureUniforms.size(), &sampler[0]);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
@@ -126,12 +143,12 @@ void Game::update() {
 	float dy = 0.0f;
 	bool move = false;
 
-	if (keyboard.keyDown(Keyboard::KEY_W)) {		
+	if (keyboard.keyDown(Keyboard::KEY_W)) {
 		directrion += Vector3f(0.0f, 0.0f, 1.0f);
 		move |= true;
 	}
 
-	if (keyboard.keyDown(Keyboard::KEY_S)) {	
+	if (keyboard.keyDown(Keyboard::KEY_S)) {
 		directrion += Vector3f(0.0f, 0.0f, -1.0f);
 		move |= true;
 	}
@@ -180,37 +197,61 @@ void Game::update() {
 	m_transform.fromMatrix(m_trackball.getTransform());
 
 	m_background.update(m_dt);
+
+	update_transforms();
+	updateUbo();
+}
+
+void Game::renderMesh(const ObjModel* mesh, const Matrix4f& model, const Vector3f& color) {
+	auto shader = Globals::shaderManager.getAssetPointer("texture");
+	shader->use();
+	shader->loadVector("u_Color", color);
+	shader->loadMatrix("u_model", model);
+	
+	mesh->drawRaw();
+	
 }
 
 void Game::render() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	//m_background.draw();
 	
-	/*auto shader = Globals::shaderManager.getAssetPointer("texture");
+	auto shader = Globals::shaderManager.getAssetPointer("texture");
 	shader->use();
 
-	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
-	shader->loadMatrix("u_view", m_camera.getViewMatrix());
-	shader->loadMatrix("u_model", m_transform.getTransformationMatrix());
+	shader->loadBool("u_SDFSoftShadows", m_soft_shadows);
+	shader->loadFloat("u_SDFTMin", m_t_min);
+	shader->loadFloat("u_SDFTMax", m_t_max);
+	shader->loadFloat("u_SDFSoftShadowsK", m_soft_shadows_k);
+	shader->loadFloat("u_AOStepSize", m_ao_step_size);
+	shader->loadFloat("u_AOStrength", m_ao_strength);
+	shader->loadInt("u_AONumSteps", m_ao_num_steps);
+	shader->loadBool("u_AO", m_ao);
 
-	m_ground.drawRaw();
+	shader->loadVector("u_LightPos", m_light_pos);
+	shader->loadVector("u_LightDirection", Vector3f(0.0f, m_light_pitch, -1.0f).normalize());
+	shader->loadFloat("u_LightInnerCutoff", std::cosf(m_light_inner_cutoff * PI_ON_180));
+	shader->loadFloat("u_LightOuterCutoff", std::cosf(m_light_outer_cutoff * PI_ON_180));
+	shader->loadFloat("u_LightRange", m_light_range);
 
-	shader->unuse();*/
+	renderMesh(&m_ground, Matrix4f::IDENTITY, Vector3f(0.5f));
 
-	glDisable(GL_DEPTH_TEST);
+	for (const auto& instance : m_instances)
+		renderMesh(&instance.mesh, instance.transform, instance.color);
+
+	shader->unuse();
+
+	/*glDisable(GL_DEPTH_TEST);
 	glDisable(GL_CULL_FACE);
 	auto shader = Globals::shaderManager.getAssetPointer("texture3d");
 	shader->use();
 	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
 	shader->loadMatrix("u_view", m_camera.getViewMatrix());
 	shader->loadMatrix("u_model", m_transform.getTransformationMatrix());
-	shader->loadInt("u_texture", 0);
-	glActiveTexture(GL_TEXTURE0);
-
-	glBindTexture(GL_TEXTURE_3D, m_instances.back().sdf.getTexture());
+	
 
 	m_slicedCube.drawRaw();
-	shader->unuse();
+	shader->unuse();*/
 
 	if (m_drawUi)
 		renderUi();
@@ -359,14 +400,41 @@ void Game::bake_sdf(Instance& instance, float grid_step_size, int padding) {
 
 void Game::updateUbo() {
 
-	
 	glBindBuffer(GL_UNIFORM_BUFFER, m_globalUbo);
 	glBufferSubData(GL_UNIFORM_BUFFER, 0, 84, &m_globalUniforms);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 	glBindBuffer(GL_UNIFORM_BUFFER, m_instanceUbo);
-	glBufferSubData(GL_UNIFORM_BUFFER, 0, 144 * m_instances.size(), &m_instance_uniforms[0]);
-	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, 176 * m_instances.size(), &m_instanceUniforms[0]);
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);	
+}
 
-	
+void Game::update_transforms() {
+	// Update camera matrices.
+	m_globalUniforms.view_proj = m_camera.getPerspectiveMatrix() * m_camera.getViewMatrix();
+	m_globalUniforms.cam_pos = Vector4f(m_camera.getPosition(), 0.0f);
+	m_globalUniforms.num_instances = m_instances.size();
+
+	for (int i = 0; i < m_instances.size(); i++){
+		auto& instance = m_instances[i];
+
+		instance.transform = Matrix4f::Translate(instance.position);
+			
+		//if (instance.animate)
+			//instance.transform = instance.transform * glm::rotate(glm::mat4(1.0f), glm::radians(float(glfwGetTime()) * 10.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		//else
+			//instance.transform = instance.transform * glm::rotate(glm::mat4(1.0f), glm::radians(instance.rotation), glm::vec3(0.0f, 1.0f, 0.0f));
+
+		m_instanceUniforms[i].inverse_transform = Matrix4f::InvTranslate(instance.position);
+		m_instanceUniforms[i].ws_center = m_instanceUniforms[i].os_center * instance.transform;
+
+		Vector3f axis[] = {
+			Vector3f(1.0f, 0.0f, 0.0f),
+			Vector3f(0.0f, 1.0f, 0.0f),
+			Vector3f(0.0f, 0.0f, 1.0f)
+		};
+
+		for (int j = 0; j < 3; j++)
+			m_instanceUniforms[i].ws_axis[j] = Vector4f(axis[j] * instance.transform, 0.0f);
+	}
 }

@@ -501,7 +501,7 @@ bool ObjModel::loadModel(const char* a_filename, Vector3f& axis, float degree, V
 	return true;
 }
 
-void ObjModel::drawRaw() {
+void ObjModel::drawRaw() const {
 	for (int j = 0; j < m_numberOfMeshes; j++) {
 		m_meshes[j]->drawRaw();
 	}
@@ -1746,7 +1746,7 @@ void ObjMesh::updateInstances(std::vector<Matrix4f>& modelMTX) {
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-void ObjMesh::drawRaw() {
+void ObjMesh::drawRaw() const {
 	glBindVertexArray(m_vao);
 	glDrawElements(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);

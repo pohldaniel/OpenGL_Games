@@ -82,6 +82,7 @@ private:
 	void renderUi();
 	void bake_sdf(Instance& instance, float grid_step_size, int padding);
 	void updateUbo();
+	void update_transforms();
 
 	bool m_initUi = true;
 	bool m_drawUi = true;
@@ -93,12 +94,35 @@ private:
 
 	std::vector<Instance> m_instances;
 	SlicedCube m_slicedCube;
-	std::vector<InstanceUniforms> m_instance_uniforms;
-	std::vector<uint64_t> m_texture_uniforms;
+	std::vector<InstanceUniforms> m_instanceUniforms;
+	std::vector<uint64_t> m_textureUniforms;
 	GlobalUniforms m_globalUniforms;
 	ObjModel m_ground;
 
 	unsigned int m_globalUbo = 0;
 	unsigned int m_instanceUbo = 0;
 	unsigned int m_sdfUbo = 0;
+
+
+	// Light
+	float     m_light_pitch = -0.9f;
+	Vector3f  m_light_pos = Vector3f(0.0f, 30.0f, 35.0f);
+	float     m_light_inner_cutoff = 3.4f;
+	float     m_light_outer_cutoff = 8.7f;
+	float     m_light_range = 100.0f;
+
+	// AO
+	bool  m_ao = true;
+	float m_ao_strength = 0.16f;
+	float m_ao_step_size = 0.15f;
+	int   m_ao_num_steps = 8;
+
+	// SDF
+	float m_t_min = 0.2f;
+	float m_t_max = 100.0f;
+	bool  m_soft_shadows = true;
+	float m_soft_shadows_k = 5.7f;
+	bool  m_draw_bounding_boxes = false;
+
+	void renderMesh(const ObjModel* mesh, const Matrix4f& model, const Vector3f& color);
 };
