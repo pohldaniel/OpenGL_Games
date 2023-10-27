@@ -15,6 +15,9 @@
 #include <States/StateMachine.h>
 #include "Background.h"
 
+#define NUM_INSTANCES 16
+#define NUM_SDFS 16
+
 struct Instance {
 	// Mesh
 	ObjModel			mesh;
@@ -33,6 +36,26 @@ struct Instance {
 	float	 rotation = 0.0f;
 	Vector3f position = Vector3f(0.0f);
 	Matrix4f transform = Matrix4f::IDENTITY;
+};
+
+struct GlobalUniforms {
+	Matrix4f view_proj;
+	Vector4f cam_pos;
+	int32_t num_instances;
+};
+
+struct SamplerPack {
+	std::uint64_t value;
+	std::uint8_t padding[8];
+};
+
+struct InstanceUniforms {
+	Matrix4f inverse_transform;
+	Vector4f half_extents;
+	Vector4f os_center;
+	Vector4f ws_center;
+	Vector4f ws_axis[3];
+	std::array<int, 4> sdf_idx;
 };
 
 class Game : public State, public MouseEventListener, public KeyboardEventListener {
@@ -58,6 +81,7 @@ private:
 	void applyTransformation(TrackBall& arc);
 	void renderUi();
 	void bake_sdf(Instance& instance, float grid_step_size, int padding);
+	void updateUbo();
 
 	bool m_initUi = true;
 	bool m_drawUi = true;
@@ -69,4 +93,12 @@ private:
 
 	std::vector<Instance> m_instances;
 	SlicedCube m_slicedCube;
+	std::vector<InstanceUniforms> m_instance_uniforms;
+	std::vector<uint64_t> m_texture_uniforms;
+	GlobalUniforms m_globalUniforms;
+	ObjModel m_ground;
+
+	unsigned int m_globalUbo = 0;
+	unsigned int m_instanceUbo = 0;
+	unsigned int m_sdfUbo = 0;
 };

@@ -17,6 +17,8 @@ public:
 	~Texture();
 	
 	const unsigned int& getTexture() const;
+	const unsigned int& getTextureHandle() const;
+	const unsigned int& makeTextureHandleResident();
 	unsigned int getWidth() const;
 	unsigned int getHeight() const;
 	unsigned int getChannels() const;
@@ -99,6 +101,7 @@ private:
 	unsigned int m_internalFormat = 0;
 	unsigned int m_type = 0;
 	unsigned int m_target;
+	unsigned int m_textureHandle = 0;
 };
 
 #endif

@@ -1634,8 +1634,6 @@ void ObjMesh::cleanup(){
 	if (m_vao)
 		glDeleteVertexArrays(1, &m_vao);
 
-	std::cout << "Vbo2: " << m_vbo << std::endl;
-
 	if (m_vbo)
 		glDeleteBuffers(1, &m_vbo);
 

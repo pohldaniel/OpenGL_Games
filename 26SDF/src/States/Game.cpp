@@ -10,6 +10,8 @@
 #include "Menu.h"
 
 
+
+
 Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 
 	Application::SetCursorIcon(IDC_ARROW);
@@ -40,16 +42,71 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 
 	
 	m_slicedCube.create(128, 128, 128);
-	
-	Instance instance;
-	instance.color = Vector3f(0.569844782f, 0.157939225f, 0.157963991f);
-	instance.position = Vector3f(0.0f, 0.0f, 1.0f);
-	instance.rotation = 0.0f;
-	m_instances.push_back(instance);
-	m_instances.back().mesh.loadModel("res/mesh/sphere.obj");
-	m_instances.back().mesh.getMeshes()[0]->packBuffer();
+	m_ground.loadModel("res/mesh/ground.obj");
 
-	bake_sdf(m_instances.back(), 0.025f, 4);
+	m_instances.resize(2);
+
+	m_instances[0].color = Vector3f(0.569844782f, 0.157939225f, 0.157963991f);
+	m_instances[0].position = Vector3f(0.0f, 0.0f, 1.0f);
+	m_instances[0].rotation = 0.0f;
+	m_instances[0].mesh.loadModel("res/mesh/sphere.obj");
+	m_instances[0].mesh.getMeshes()[0]->packBuffer();
+
+	bake_sdf(m_instances[0], 0.025f, 4);
+
+	InstanceUniforms uniform;
+
+	uniform.half_extents = Vector4f((m_instances[0].max_extents - m_instances[0].min_extents) / 2.0f, 0.0f);
+	uniform.os_center = Vector4f((m_instances[0].max_extents + m_instances[0].min_extents) / 2.0f, 1.0f);
+	uniform.sdf_idx = { static_cast<int>(m_texture_uniforms.size()), 0, 0, 0 };
+
+	m_instance_uniforms.push_back(uniform);
+	m_texture_uniforms.push_back(m_instances[0].sdf.makeTextureHandleResident());
+
+	m_instances[1].color = Vector3f(0.569844782f, 0.157939225f, 0.157963991f);
+	m_instances[1].position = Vector3f(0.0f, 0.0f, 1.0f);
+	m_instances[1].rotation = 0.0f;
+	m_instances[1].mesh.loadModel("res/mesh/cylinder.obj");
+	m_instances[1].mesh.getMeshes()[0]->packBuffer();
+
+	bake_sdf(m_instances[1], 0.025f, 4);
+
+	InstanceUniforms uniform2;
+
+	uniform2.half_extents = Vector4f((m_instances[1].max_extents - m_instances[1].min_extents) / 2.0f, 0.0f);
+	uniform2.os_center = Vector4f((m_instances[1].max_extents + m_instances[1].min_extents) / 2.0f, 1.0f);
+	uniform2.sdf_idx = { static_cast<int>(m_texture_uniforms.size()), 0, 0, 0 };
+
+	m_instance_uniforms.push_back(uniform2);
+	m_texture_uniforms.push_back(m_instances[1].sdf.makeTextureHandleResident());
+
+
+	glGenBuffers(1, &m_globalUbo);
+	glBindBuffer(GL_UNIFORM_BUFFER, m_globalUbo);
+	glBufferData(GL_UNIFORM_BUFFER, 84 , NULL, GL_STATIC_DRAW);
+	glBindBufferRange(GL_UNIFORM_BUFFER, 0, m_globalUbo, 0, 84);
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+	glGenBuffers(1, &m_instanceUbo);
+	glBindBuffer(GL_UNIFORM_BUFFER, m_instanceUbo);
+	glBufferData(GL_UNIFORM_BUFFER, 144 * NUM_INSTANCES, NULL, GL_STATIC_DRAW);
+	glBindBufferRange(GL_UNIFORM_BUFFER, 1, m_instanceUbo, 0, 144 * NUM_INSTANCES);
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+	glGenBuffers(1, &m_sdfUbo);
+	glBindBuffer(GL_UNIFORM_BUFFER, m_sdfUbo);
+	glBufferData(GL_UNIFORM_BUFFER, 16 * NUM_SDFS, NULL, GL_STATIC_DRAW);
+	glBindBufferRange(GL_UNIFORM_BUFFER, 2, m_sdfUbo, 0, 16 * NUM_SDFS);
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+	
+
+	SamplerPack sampler[2] = { {m_texture_uniforms[0], 0, 0, 0, 0, 0, 0, 0, 0},
+							   {m_texture_uniforms[1], 0, 0, 0, 0, 0, 0, 0, 0} };
+	
+
+	glBindBuffer(GL_UNIFORM_BUFFER, m_sdfUbo);
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, 16 * m_texture_uniforms.size(), &sampler[0]);
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
 Game::~Game() {
@@ -127,16 +184,16 @@ void Game::update() {
 
 void Game::render() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	/*m_background.draw();
+	//m_background.draw();
 	
-	auto shader = Globals::shaderManager.getAssetPointer("texture");
+	/*auto shader = Globals::shaderManager.getAssetPointer("texture");
 	shader->use();
 
 	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
 	shader->loadMatrix("u_view", m_camera.getViewMatrix());
 	shader->loadMatrix("u_model", m_transform.getTransformationMatrix());
 
-	m_instances.back().mesh.drawRaw();
+	m_ground.drawRaw();
 
 	shader->unuse();*/
 
@@ -257,8 +314,7 @@ void Game::renderUi() {
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
-void Game::bake_sdf(Instance& instance, float grid_step_size, int padding)
-{
+void Game::bake_sdf(Instance& instance, float grid_step_size, int padding) {
 	Vector3f  min_extents = instance.mesh.getAABB().position - (Vector3f(grid_step_size) * float(padding));
 	Vector3f  max_extents = instance.mesh.getAABB().position + instance.mesh.getAABB().size + (Vector3f(grid_step_size) * float(padding));
 	Vector3f  grid_origin = min_extents + Vector3f(grid_step_size / 2.0f);
@@ -299,4 +355,18 @@ void Game::bake_sdf(Instance& instance, float grid_step_size, int padding)
 	glDispatchCompute(size_x, size_y, size_z);
 
 	glFinish();
+}
+
+void Game::updateUbo() {
+
+	
+	glBindBuffer(GL_UNIFORM_BUFFER, m_globalUbo);
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, 84, &m_globalUniforms);
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+	glBindBuffer(GL_UNIFORM_BUFFER, m_instanceUbo);
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, 144 * m_instances.size(), &m_instance_uniforms[0]);
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+	
 }

@@ -599,6 +599,7 @@ void Application::loadAssets() {
 
 	Globals::shaderManager.loadShader("texture3d", "res/shader/texture3D.vert", "res/shader/texture3D.frag");
 	Globals::shaderManager.loadShader("sdf_comp", "res/shader/bake_sdf_cs.glsl");
+	Globals::shaderManager.loadShader("mesh", "res/shader/mesh_vs.glsl", "res/shader/mesh_fs.glsl");
 
 	Globals::textureManager.loadTexture("forest_1", "res/backgrounds/Forest/plx-1.png", true);
 	Globals::textureManager.loadTexture("forest_2", "res/backgrounds/Forest/plx-2.png", true);
