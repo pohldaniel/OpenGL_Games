@@ -147,6 +147,7 @@ public:
 
 	void generateTangents();
 	void generateNormals();
+	void packBuffer();
 	
 	void createInstancesStatic(std::vector<Matrix4f>& modelMTX);
 	void createInstancesDynamic(unsigned int numberOfInstances);
@@ -199,10 +200,13 @@ private:
 	void static CreateBuffer(std::vector<float>& vertexBuffer, std::vector<unsigned int> indexBuffer, unsigned int& vao, unsigned int& vbo, unsigned int& ibo, unsigned int stride);
 	void static GenerateNormals(std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer, ObjModel& model, bool& hasNormals, unsigned int& stride, unsigned int startIndex, unsigned int endIndex);
 	void static GenerateTangents(std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer, ObjModel& model, bool& hasNormals, bool& hasTangents, unsigned int& stride, unsigned int startIndex, unsigned int endIndex);
+	void static PackBuffer(std::vector<float>& vertexBuffer, unsigned int& vao, unsigned int& vbo, unsigned int stride);
+
 
 	void static GenerateNormals(std::vector<float>& vertexCoords, std::vector<std::array<int, 10>>& face, std::vector<float>& normalCoords);
 	void static GenerateFlatNormals(std::vector<float>& vertexCoords, std::vector<std::array<int, 10>>& face, std::vector<float>& normalCoords);
 	void static GenerateTangents(std::vector<float>& vertexCoords, std::vector<float>& textureCoords, std::vector<float>& normalCoords, std::vector<std::array<int, 10>>& face, std::vector<float>& tangentCoords, std::vector<float>& bitangentCoords);
+
 
 	void static ReadMaterialFromFile(std::string path, std::string mltName, short& index);
 	std::string static GetTexturePath(std::string texPath, std::string modelDirectory);
@@ -226,10 +230,10 @@ public:
 	std::vector<unsigned int>& getIndexBuffer();
 	int getStride();
 	void cleanup();
+
 	unsigned int getNumberOfTriangles();
 	const unsigned int& getVbo() const;
 	const unsigned int& getIbo() const;
-	void packBuffer();
 
 private:
 

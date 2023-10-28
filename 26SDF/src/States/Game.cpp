@@ -52,7 +52,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	m_instances[0].id = 0;
 	m_instances[0].pickColor = Vector4f(((m_instances[0].id & 0x000000FF) >> 0)* (1.0f / 255.0f), ((m_instances[0].id & 0x0000FF00) >> 8)* (1.0f / 255.0f), ((m_instances[0].id & 0x00FF0000) >> 16)* (1.0f / 255.0f), 0.0f);
 	m_instances[0].mesh.loadModel("res/mesh/sphere.obj");
-	m_instances[0].mesh.getMeshes()[0]->packBuffer();
+	m_instances[0].mesh.packBuffer();
 	m_instances[0].mesh.createAABB();
 	//m_instances[0].mesh.createSphere();
 	//m_instances[0].mesh.createConvexHull("res/mesh/sphere.obj");
@@ -74,7 +74,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	m_instances[1].id = 1;
 	m_instances[1].pickColor = Vector4f(((m_instances[1].id & 0x000000FF) >> 0)* (1.0f / 255.0f), ((m_instances[1].id & 0x0000FF00) >> 8)* (1.0f / 255.0f), ((m_instances[1].id & 0x00FF0000) >> 16)* (1.0f / 255.0f), 0.0f);
 	m_instances[1].mesh.loadModel("res/mesh/cylinder.obj");
-	m_instances[1].mesh.getMeshes()[0]->packBuffer();
+	m_instances[1].mesh.packBuffer();
 	m_instances[1].mesh.createAABB();
 	//m_instances[1].mesh.createSphere();
 	//m_instances[1].mesh.createConvexHull("res/mesh/cylinder.obj");
@@ -97,7 +97,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	m_instances[2].id = 2;
 	m_instances[2].pickColor = Vector4f(((m_instances[2].id & 0x000000FF) >> 0)* (1.0f / 255.0f), ((m_instances[2].id & 0x0000FF00) >> 8)* (1.0f / 255.0f), ((m_instances[2].id & 0x00FF0000) >> 16)* (1.0f / 255.0f), 0.0f);
 	m_instances[2].mesh.loadModel("res/mesh/bunny.obj");
-	m_instances[2].mesh.getMeshes()[0]->packBuffer();
+	m_instances[2].mesh.packBuffer();
 	m_instances[2].mesh.createAABB();
 	//m_instances[2].mesh.createSphere();
 	//m_instances[2].mesh.createConvexHull("res/mesh/bunny.obj");

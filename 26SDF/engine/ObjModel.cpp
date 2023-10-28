@@ -702,6 +702,18 @@ void ObjModel::generateNormals() {
 	}
 }
 
+void ObjModel::packBuffer() {
+	if (m_isStacked) {
+		ObjModel::PackBuffer(m_vertexBuffer, m_vao, m_vbo, m_stride);
+
+	}else {
+
+		for (int j = 0; j < m_meshes.size(); j++) {
+			ObjModel::PackBuffer(m_meshes[j]->m_vertexBuffer, m_meshes[j]->m_vao, m_meshes[j]->m_vbo, m_meshes[j]->m_stride);
+		}
+	}
+}
+
 void ObjModel::GenerateNormals(std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer, ObjModel& model, bool& hasNormals, unsigned int& stride, unsigned int startIndex, unsigned int endIndex) {
 	if (hasNormals) { return; }
 
@@ -953,6 +965,131 @@ void ObjModel::GenerateTangents(std::vector<float>& vertexBuffer, std::vector<un
 
 	hasTangents = true;
 	stride = 14;
+}
+
+void ObjModel::PackBuffer(std::vector<float>& vertexBuffer, unsigned int& vao, unsigned int& vbo, unsigned int stride) {
+	std::vector<float> vertexBufferNew;
+	unsigned int strideNew;
+
+	if (stride == 3) {
+		vertexBufferNew.resize(vertexBuffer.size() / 3 * 4);
+
+		for (unsigned int i = 0, k = 0; i < vertexBufferNew.size(); i = i + 4, k = k + 3) {
+			vertexBufferNew[i] = vertexBuffer[k];
+			vertexBufferNew[i + 1] = vertexBuffer[k + 1];
+			vertexBufferNew[i + 2] = vertexBuffer[k + 2];
+			vertexBufferNew[i + 3] = 0.0f;
+		}
+		strideNew = 4;
+	}
+
+	if (stride == 5) {
+		vertexBufferNew.resize(vertexBuffer.size() / 5 * 8);
+
+		for (unsigned int i = 0, k = 0; i < vertexBufferNew.size(); i = i + 8, k = k + 5) {
+			vertexBufferNew[i] = vertexBuffer[k];
+			vertexBufferNew[i + 1] = vertexBuffer[k + 1];
+			vertexBufferNew[i + 2] = vertexBuffer[k + 2];
+			vertexBufferNew[i + 3] = 0.0f;
+
+			vertexBufferNew[i + 4] = vertexBuffer[k + 3];
+			vertexBufferNew[i + 5] = vertexBuffer[k + 4];
+			vertexBufferNew[i + 6] = 0.0f;
+			vertexBufferNew[i + 7] = 0.0f;
+		}
+		strideNew = 8;
+	}
+
+	if (stride == 8) {
+		vertexBufferNew.resize(vertexBuffer.size() / 8 * 12);
+
+		for (unsigned int i = 0, k = 0; i < vertexBufferNew.size(); i = i + 12, k = k + 8) {
+			vertexBufferNew[i] = vertexBuffer[k];
+			vertexBufferNew[i + 1] = vertexBuffer[k + 1];
+			vertexBufferNew[i + 2] = vertexBuffer[k + 2];
+			vertexBufferNew[i + 3] = 0.0f;
+
+			vertexBufferNew[i + 4] = vertexBuffer[k + 3];
+			vertexBufferNew[i + 5] = vertexBuffer[k + 4];
+			vertexBufferNew[i + 6] = 0.0f;
+			vertexBufferNew[i + 7] = 0.0f;
+
+			vertexBufferNew[i + 8] = vertexBuffer[k + 5];
+			vertexBufferNew[i + 9] = vertexBuffer[k + 6];
+			vertexBufferNew[i + 10] = vertexBuffer[k + 7];
+			vertexBufferNew[i + 11] = 0.0f;
+		}
+		strideNew = 12;
+	}
+
+	if (stride == 14) {
+		vertexBufferNew.resize(vertexBuffer.size() / 14 * 20);
+
+		for (unsigned int i = 0, k = 0; i < vertexBufferNew.size(); i = i + 16, k = k + 20) {
+			vertexBufferNew[i] = vertexBuffer[k];
+			vertexBufferNew[i + 1] = vertexBuffer[k + 1];
+			vertexBufferNew[i + 2] = vertexBuffer[k + 2];
+			vertexBufferNew[i + 3] = 0.0f;
+
+			vertexBufferNew[i + 4] = vertexBuffer[k + 3];
+			vertexBufferNew[i + 5] = vertexBuffer[k + 4];
+			vertexBufferNew[i + 6] = 0.0f;
+			vertexBufferNew[i + 7] = 0.0f;
+
+			vertexBufferNew[i + 8] = vertexBuffer[k + 5];
+			vertexBufferNew[i + 9] = vertexBuffer[k + 6];
+			vertexBufferNew[i + 10] = vertexBuffer[k + 7];
+			vertexBufferNew[i + 11] = 0.0f;
+
+			vertexBufferNew[i + 12] = vertexBuffer[k + 8];
+			vertexBufferNew[i + 13] = vertexBuffer[k + 9];
+			vertexBufferNew[i + 14] = vertexBuffer[k + 10];
+			vertexBufferNew[i + 15] = 0.0f;
+
+			vertexBufferNew[i + 16] = vertexBuffer[k + 11];
+			vertexBufferNew[i + 17] = vertexBuffer[k + 12];
+			vertexBufferNew[i + 18] = vertexBuffer[k + 13];
+			vertexBufferNew[i + 19] = 0.0f;
+		}
+		strideNew = 20;
+	}
+
+	vertexBuffer.clear();
+	vertexBuffer.shrink_to_fit();
+	vertexBuffer.insert(vertexBuffer.end(), vertexBufferNew.begin(), vertexBufferNew.end());
+
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glBufferData(GL_ARRAY_BUFFER, vertexBufferNew.size() * sizeof(float), &vertexBufferNew[0], GL_STATIC_DRAW);
+	
+
+	glBindVertexArray(vao);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, strideNew * sizeof(float), (void*)0);
+
+	//Texture Coordinates
+	if (stride == 5 || stride == 8 || stride == 14) {
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, strideNew * sizeof(float), (void*)(4 * sizeof(float)));
+	}
+
+	//Normals
+	if (stride == 6 || stride == 8 || stride == 14) {
+		glEnableVertexAttribArray(2);
+		glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, strideNew * sizeof(float), (void*)((stride == 8 || stride == 14) ? 8 * sizeof(float) : 4 * sizeof(float)));
+	}
+
+	//Tangents Bitangents
+	if (stride == 14) {
+		glEnableVertexAttribArray(3);
+		glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, strideNew * sizeof(float), (void*)(12 * sizeof(float)));
+
+		glEnableVertexAttribArray(4);
+		glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, strideNew * sizeof(float), (void*)(16 * sizeof(float)));
+	}
+	
+	glBindVertexArray(0);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 void ObjModel::createInstancesStatic(std::vector<Matrix4f>& modelMTX) {
@@ -2216,132 +2353,4 @@ void ConvexHull::drawRaw() const {
 	glBindVertexArray(m_vao);
 	glDrawElements(GL_TRIANGLES, m_indexBuffer.size(), GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
-}
-
-void ObjMesh::packBuffer() {
-
-	std::vector<float> vertexBuffer;
-	unsigned int stride;
-
-	if (m_stride == 3) {
-		vertexBuffer.resize(m_vertexBuffer.size() / 3 * 4);
-
-		for (unsigned int i = 0, k = 0; i < vertexBuffer.size(); i = i + 4, k = k + 3) {
-			vertexBuffer[i] = m_vertexBuffer[k];
-			vertexBuffer[i + 1] = m_vertexBuffer[k + 1];
-			vertexBuffer[i + 2] = m_vertexBuffer[k + 2];
-			vertexBuffer[i + 3] = 0.0f;
-		}
-		stride = 4;
-	}
-
-	if (m_stride == 5) {
-		vertexBuffer.resize(m_vertexBuffer.size() / 5 * 8);
-
-		for (unsigned int i = 0, k = 0; i < vertexBuffer.size(); i = i + 8, k = k + 5) {
-			vertexBuffer[i] = m_vertexBuffer[k];
-			vertexBuffer[i + 1] = m_vertexBuffer[k + 1];
-			vertexBuffer[i + 2] = m_vertexBuffer[k + 2];
-			vertexBuffer[i + 3] = 0.0f;
-
-			vertexBuffer[i + 4] = m_vertexBuffer[k + 3];
-			vertexBuffer[i + 5] = m_vertexBuffer[k + 4];
-			vertexBuffer[i + 6] = 0.0f;
-			vertexBuffer[i + 7] = 0.0f;
-		}
-		stride = 8;
-	}
-
-	if (m_stride == 8) {
-		vertexBuffer.resize(m_vertexBuffer.size() / 8 * 12);
-
-		for (unsigned int i = 0, k = 0; i < vertexBuffer.size(); i = i + 12, k = k + 8) {
-			vertexBuffer[i] = m_vertexBuffer[k];
-			vertexBuffer[i + 1] = m_vertexBuffer[k + 1];
-			vertexBuffer[i + 2] = m_vertexBuffer[k + 2];
-			vertexBuffer[i + 3] = 0.0f;
-
-			vertexBuffer[i + 4] = m_vertexBuffer[k + 3];
-			vertexBuffer[i + 5] = m_vertexBuffer[k + 4];
-			vertexBuffer[i + 6] = 0.0f;
-			vertexBuffer[i + 7] = 0.0f;
-
-			vertexBuffer[i + 8] = m_vertexBuffer[k + 5];
-			vertexBuffer[i + 9] = m_vertexBuffer[k + 6];
-			vertexBuffer[i + 10] = m_vertexBuffer[k + 7];
-			vertexBuffer[i + 11] = 0.0f;
-		}
-		stride = 12;
-	}
-
-	if (m_stride == 14) {
-		vertexBuffer.resize(m_vertexBuffer.size() / 14 * 20);
-
-		for (unsigned int i = 0, k = 0; i < vertexBuffer.size(); i = i + 16, k = k + 20) {
-			vertexBuffer[i] = m_vertexBuffer[k];
-			vertexBuffer[i + 1] = m_vertexBuffer[k + 1];
-			vertexBuffer[i + 2] = m_vertexBuffer[k + 2];
-			vertexBuffer[i + 3] = 0.0f;
-
-			vertexBuffer[i + 4] = m_vertexBuffer[k + 3];
-			vertexBuffer[i + 5] = m_vertexBuffer[k + 4];
-			vertexBuffer[i + 6] = 0.0f;
-			vertexBuffer[i + 7] = 0.0f;
-
-			vertexBuffer[i + 8] = m_vertexBuffer[k + 5];
-			vertexBuffer[i + 9] = m_vertexBuffer[k + 6];
-			vertexBuffer[i + 10] = m_vertexBuffer[k + 7];
-			vertexBuffer[i + 11] = 0.0f;
-
-			vertexBuffer[i + 12] = m_vertexBuffer[k + 8];
-			vertexBuffer[i + 13] = m_vertexBuffer[k + 9];
-			vertexBuffer[i + 14] = m_vertexBuffer[k + 10];
-			vertexBuffer[i + 15] = 0.0f;
-
-			vertexBuffer[i + 16] = m_vertexBuffer[k + 11];
-			vertexBuffer[i + 17] = m_vertexBuffer[k + 12];
-			vertexBuffer[i + 18] = m_vertexBuffer[k + 13];
-			vertexBuffer[i + 19] = 0.0f;
-		}
-		stride = 20;
-	}
-
-	m_vertexBuffer.clear();
-	m_vertexBuffer.shrink_to_fit();
-
-
-	m_vertexBuffer.insert(m_vertexBuffer.end(), vertexBuffer.begin(), vertexBuffer.end());
-
-	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-	glBufferData(GL_ARRAY_BUFFER, vertexBuffer.size() * sizeof(float), &vertexBuffer[0], GL_STATIC_DRAW);
-	
-
-	glBindVertexArray(m_vao);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)0);
-
-	//Texture Coordinates
-	if (m_stride == 5 || m_stride == 8 || m_stride == 14) {
-		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)(4 * sizeof(float)));
-	}
-
-	//Normals
-	if (m_stride == 6 || m_stride == 8 || m_stride == 14) {
-		glEnableVertexAttribArray(2);
-		glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)((m_stride == 8 || m_stride == 14) ? 8 * sizeof(float) : 4 * sizeof(float)));
-	}
-
-	//Tangents Bitangents
-	if (m_stride == 14) {
-		glEnableVertexAttribArray(3);
-		glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)(12 * sizeof(float)));
-
-		glEnableVertexAttribArray(4);
-		glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)(16 * sizeof(float)));
-	}
-	
-	glBindVertexArray(0);
-
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
