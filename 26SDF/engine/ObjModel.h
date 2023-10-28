@@ -25,10 +25,10 @@
 
 
 class ObjModel;
-struct BoundingBoxS {
+struct BoundingBox {
 
 	void createBuffer();
-	void drawRaw();
+	void drawRaw() const;
 
 	std::vector<float> m_vertexBuffer;
 	std::vector<unsigned int> m_indexBuffer;
@@ -44,7 +44,7 @@ struct BoundingBoxS {
 struct BoundingSphere {
 
 	void createBuffer(ObjModel& model);	
-	void drawRaw();
+	void drawRaw() const;
 
 	std::vector<float> m_vertexBuffer;
 	std::vector<unsigned int> m_indexBuffer;
@@ -63,7 +63,7 @@ struct BoundingSphere {
 
 struct ConvexHull {
 	void createBuffer(const char* filename, Vector3f &rotate, float degree, Vector3f& translate, float scale, bool useConvhull, ObjModel& model);
-	void drawRaw();
+	void drawRaw() const;
 
 	std::vector<float> m_vertexBuffer;
 	std::vector<unsigned int> m_indexBuffer;
@@ -97,7 +97,7 @@ class ObjMesh;
 class ObjModel {
 
 	friend ObjMesh;
-	friend BoundingBoxS;
+	friend BoundingBox;
 	friend BoundingSphere;
 	friend ConvexHull;
 
@@ -129,16 +129,16 @@ public:
 	void createConvexHull(const char* a_filename, bool useConvhull = true);
 	void createConvexHull(const char* a_filename, Vector3f& rotate, float degree, Vector3f& translate, float scale, bool useConvhull = true);
 
-	void drawAABB();
-	void drawSphere();
-	void drawHull();
+	void drawAABB() const;
+	void drawSphere() const;
+	void drawHull() const;
 
 	bool loadModel(const char* filename, bool isStacked = false, bool withoutNormals = false, bool generateSmoothNormals = false, bool generateFlatNormals = false, bool generateSmoothTangents = false, bool rescale = false);
 	bool loadModel(const char* a_filename, Vector3f& rotate, float degree, Vector3f& translate = Vector3f(0.0f, 0.0f, 0.0f), float scale = 1.0f, bool asStacked = false, bool withoutNormals = false, bool generateSmoothNormals = false, bool generateFlatNormals = false, bool generateSmoothTangents = false, bool rescale = false);
 
 	std::string getMltPath();
 	std::string getModelDirectory();
-	BoundingBoxS& getAABB();
+	BoundingBox& getAABB();
 	BoundingSphere& getBoundingSphere();
 	ConvexHull& getConvexHull();
 	Transform& getTransform();
@@ -175,7 +175,7 @@ private:
 
 	Vector3f m_center;
 	
-	BoundingBoxS aabb;
+	BoundingBox aabb;
 	BoundingSphere boundingSphere;
 	ConvexHull convexHull;
 

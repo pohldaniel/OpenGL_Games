@@ -11,9 +11,11 @@
 #include <engine/ZoomableQuad.h>
 #include <engine/ObjModel.h>
 #include <engine/SlicedCube.h>
+#include <engine/Transform.h>
 
 #include <States/StateMachine.h>
 #include "Background.h"
+#include "MousePickerFBO.h"
 
 #define NUM_INSTANCES 16
 #define NUM_SDFS 16
@@ -32,10 +34,13 @@ struct Instance {
 	Vector3f			max_extents;
 
 	// Transform
-	bool	 animate = false;
 	float	 rotation = 0.0f;
 	Vector3f position = Vector3f(0.0f);
-	Matrix4f transform = Matrix4f::IDENTITY;
+	Transform transform;
+
+	unsigned int id;
+	Vector4f pickColor;
+	bool selected = false;
 };
 
 struct GlobalUniforms {
@@ -80,6 +85,7 @@ private:
 
 	void applyTransformation(TrackBall& arc);
 	void renderUi();
+	void mousePickPass();
 	void bake_sdf(Instance& instance, float grid_step_size, int padding);
 	void updateUbo();
 	void update_transforms();
@@ -124,5 +130,9 @@ private:
 	float m_soft_shadows_k = 5.7f;
 	bool  m_draw_bounding_boxes = false;
 
+	bool showSdf = false;
+
 	void renderMesh(const ObjModel* mesh, const Matrix4f& model, const Vector3f& color);
+	MousePickerFBO m_mousePicker;
+	unsigned int m_lasPicked = 0;
 };

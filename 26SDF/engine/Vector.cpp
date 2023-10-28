@@ -2215,7 +2215,7 @@ Matrix4f Matrix4f::inverse() const {
 	return tmp;
 }
 
-Matrix4f Matrix4f::Inverse(Matrix4f &m) {
+Matrix4f Matrix4f::Inverse(const Matrix4f &m) {
 	Matrix4f tmp;
 	float d = m.determinant();
 

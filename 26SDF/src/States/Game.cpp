@@ -26,7 +26,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	m_camera.setMovingSpeed(10.0f);
 
 	m_trackball.reshape(Application::Width, Application::Height);
-	m_trackball.setDollyPosition(-2.5f);
+	m_trackball.setDollyPosition(-5.0f);
 	applyTransformation(m_trackball);
 
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -49,8 +49,13 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	m_instances[0].color = Vector3f(0.334582895f, 0.503325939f, 0.222088382f);
 	m_instances[0].position = Vector3f(4.0f, 0.0f, 1.0f);
 	m_instances[0].rotation = 0.0f;
+	m_instances[0].id = 0;
+	m_instances[0].pickColor = Vector4f(((m_instances[0].id & 0x000000FF) >> 0)* (1.0f / 255.0f), ((m_instances[0].id & 0x0000FF00) >> 8)* (1.0f / 255.0f), ((m_instances[0].id & 0x00FF0000) >> 16)* (1.0f / 255.0f), 0.0f);
 	m_instances[0].mesh.loadModel("res/mesh/sphere.obj");
 	m_instances[0].mesh.getMeshes()[0]->packBuffer();
+	m_instances[0].mesh.createAABB();
+	//m_instances[0].mesh.createSphere();
+	//m_instances[0].mesh.createConvexHull("res/mesh/sphere.obj");
 
 	bake_sdf(m_instances[0], 0.025f, 4);
 
@@ -66,8 +71,13 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	m_instances[1].color = Vector3f(0.103627160f, 0.303517729f, 0.482233524f);
 	m_instances[1].position = Vector3f(-4.0f, 0.0f, 1.0f);
 	m_instances[1].rotation = 0.0f;
+	m_instances[1].id = 1;
+	m_instances[1].pickColor = Vector4f(((m_instances[1].id & 0x000000FF) >> 0)* (1.0f / 255.0f), ((m_instances[1].id & 0x0000FF00) >> 8)* (1.0f / 255.0f), ((m_instances[1].id & 0x00FF0000) >> 16)* (1.0f / 255.0f), 0.0f);
 	m_instances[1].mesh.loadModel("res/mesh/cylinder.obj");
 	m_instances[1].mesh.getMeshes()[0]->packBuffer();
+	m_instances[1].mesh.createAABB();
+	//m_instances[1].mesh.createSphere();
+	//m_instances[1].mesh.createConvexHull("res/mesh/cylinder.obj");
 
 	bake_sdf(m_instances[1], 0.025f, 4);
 
@@ -84,8 +94,13 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	m_instances[2].color = Vector3f(0.569844782f, 0.157939225f, 0.157963991f);
 	m_instances[2].position = Vector3f(0.0f, 0.0f, 1.0f);
 	m_instances[2].rotation = 0.0f;
+	m_instances[2].id = 2;
+	m_instances[2].pickColor = Vector4f(((m_instances[2].id & 0x000000FF) >> 0)* (1.0f / 255.0f), ((m_instances[2].id & 0x0000FF00) >> 8)* (1.0f / 255.0f), ((m_instances[2].id & 0x00FF0000) >> 16)* (1.0f / 255.0f), 0.0f);
 	m_instances[2].mesh.loadModel("res/mesh/bunny.obj");
 	m_instances[2].mesh.getMeshes()[0]->packBuffer();
+	m_instances[2].mesh.createAABB();
+	//m_instances[2].mesh.createSphere();
+	//m_instances[2].mesh.createConvexHull("res/mesh/bunny.obj");
 
 	bake_sdf(m_instances[2], 0.025f, 4);
 
@@ -214,9 +229,13 @@ void Game::renderMesh(const ObjModel* mesh, const Matrix4f& model, const Vector3
 }
 
 void Game::render() {
+
+	mousePickPass();
+
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	//m_background.draw();
-	
+
 	auto shader = Globals::shaderManager.getAssetPointer("texture");
 	shader->use();
 
@@ -238,36 +257,64 @@ void Game::render() {
 	renderMesh(&m_ground, Matrix4f::IDENTITY, Vector3f(0.5f));
 
 	for (const auto& instance : m_instances)
-		renderMesh(&instance.mesh, instance.transform, instance.color);
+		renderMesh(&instance.mesh, instance.transform.getTransformationMatrix(), instance.color);
 
 	shader->unuse();
 
-	/*glDisable(GL_DEPTH_TEST);
-	glDisable(GL_CULL_FACE);
-	auto shader = Globals::shaderManager.getAssetPointer("texture3d");
-	shader->use();
-	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
-	shader->loadMatrix("u_view", m_camera.getViewMatrix());
-	shader->loadMatrix("u_model", m_transform.getTransformationMatrix());
-	
+	if (m_draw_bounding_boxes) {
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-	m_slicedCube.drawRaw();
-	shader->unuse();*/
+		glMatrixMode(GL_PROJECTION);
+		glLoadMatrixf(&(m_camera.getPerspectiveMatrix() * m_camera.getViewMatrix())[0][0]);
+		glMatrixMode(GL_MODELVIEW);
+		glColor3f(1.0f, 0.0f, 0.0f);
+		for (const auto& instance : m_instances) {
+
+			glLoadMatrixf(&instance.transform.getTransformationMatrix()[0][0]);
+			instance.mesh.drawAABB();
+			//instance.mesh.drawSphere();
+			//instance.mesh.drawHull();
+		}
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	}
+
+	if (showSdf){
+		glDisable(GL_DEPTH_TEST);
+		glDisable(GL_CULL_FACE);
+		shader = Globals::shaderManager.getAssetPointer("texture3d");
+		shader->use();
+		shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
+		shader->loadMatrix("u_view", Matrix4f::IDENTITY);
+		shader->loadMatrix("u_model", m_transform.getTransformationMatrix());
+		shader->loadUnsignedInt("u_layer", m_lasPicked);
+		m_slicedCube.drawRaw();
+		shader->unuse();
+		glEnable(GL_DEPTH_TEST);
+		glEnable(GL_CULL_FACE);
+	}
 
 	if (m_drawUi)
 		renderUi();
 }
 
-void Game::OnMouseMotion(Event::MouseMoveEvent& event) {
+void Game::OnMouseMotion(Event::MouseMoveEvent& event) {	
 	m_trackball.motion(event.x, event.y);
 	applyTransformation(m_trackball);
-}
+	m_mousePicker.updateObjectId(event.x, event.y);
+} 
 
 void Game::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 
 	if (event.button == 1u) {
 		m_trackball.mouse(TrackBall::Button::ELeftButton, TrackBall::Modifier::ENoModifier, true, event.x, event.y);
 		applyTransformation(m_trackball);
+
+		for (auto& instance : m_instances) {
+			instance.selected = instance.id == m_mousePicker.getPickedId() && !instance.selected;
+			if (instance.selected)
+				m_lasPicked = instance.id;
+		}
+
 	}else if (event.button == 2u) {
 		Mouse::instance().attach(Application::GetWindow());
 	}
@@ -350,6 +397,25 @@ void Game::renderUi() {
 	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 	ImGui::Checkbox("Draw Wirframe", &StateMachine::GetEnableWireframe());
 	
+	ImGui::Checkbox("Draw Bounding Boxes", &m_draw_bounding_boxes);
+	ImGui::Checkbox("Soft Shadows", &m_soft_shadows);
+	ImGui::InputFloat("T-Min", &m_t_min);
+	ImGui::InputFloat("T-Max", &m_t_max);
+	ImGui::SliderFloat("Soft Shadows K", &m_soft_shadows_k, 1.0f, 16.0f);
+	ImGui::SliderFloat("Light Pitch", &m_light_pitch, -1.0f, 1.0f);
+	ImGui::InputFloat3("Light Position", &m_light_pos[0]);
+	ImGui::SliderFloat("Light Inner Cutoff", &m_light_inner_cutoff, 0.0f, 90.0f);
+	ImGui::SliderFloat("Light Outer Cutoff", &m_light_outer_cutoff, 0.0f, 90.0f);
+	ImGui::SliderFloat("Light Range", &m_light_range, 0.0f, 100.0f);
+
+	ImGui::Separator();
+
+	ImGui::Checkbox("Ambient Occlusion", &m_ao);
+	ImGui::SliderFloat("AO Strength", &m_ao_strength, 0.0f, 1.0f);
+	ImGui::SliderFloat("AO Step Size", &m_ao_step_size, 0.01f, 1.0f);
+	ImGui::SliderInt("AO Num Steps", &m_ao_num_steps, 1, 32);
+	ImGui::Separator();
+	ImGui::Checkbox("Show Sdf", &showSdf);
 	ImGui::End();
 
 	ImGui::Render();
@@ -419,15 +485,16 @@ void Game::update_transforms() {
 	for (int i = 0; i < m_instances.size(); i++){
 		auto& instance = m_instances[i];
 
-		instance.transform = Matrix4f::Translate(instance.position);
+		instance.transform.setPosition(instance.position);
+		if (instance.selected)
+			instance.transform.rotate(Vector3f(0.0f, 1.0f, 0.0f), 0.1f);
+		else
+			instance.transform.rotate(Vector3f(0.0f, 1.0f, 0.0f), instance.rotation);
 			
-		//if (instance.animate)
-			//instance.transform = instance.transform * glm::rotate(glm::mat4(1.0f), glm::radians(float(glfwGetTime()) * 10.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-		//else
-			//instance.transform = instance.transform * glm::rotate(glm::mat4(1.0f), glm::radians(instance.rotation), glm::vec3(0.0f, 1.0f, 0.0f));
 
-		m_instanceUniforms[i].inverse_transform = Matrix4f::InvTranslate(instance.position);
-		m_instanceUniforms[i].ws_center = m_instanceUniforms[i].os_center * instance.transform;
+		m_instanceUniforms[i].inverse_transform = instance.transform.getInvTransformationMatrix();
+		m_instanceUniforms[i].ws_center = m_instanceUniforms[i].os_center * instance.transform.getTransformationMatrix();
+
 
 		Vector3f axis[] = {
 			Vector3f(1.0f, 0.0f, 0.0f),
@@ -436,6 +503,27 @@ void Game::update_transforms() {
 		};
 
 		for (int j = 0; j < 3; j++)
-			m_instanceUniforms[i].ws_axis[j] = Vector4f(axis[j] * instance.transform, 0.0f);
+			m_instanceUniforms[i].ws_axis[j] = Vector4f(axis[j] * instance.transform.getTransformationMatrix(), 0.0f);
 	}
+}
+
+void Game::mousePickPass() {
+	m_mousePicker.getBuffer().bindWrite();
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	glMatrixMode(GL_PROJECTION);
+	glLoadMatrixf(&(m_camera.getPerspectiveMatrix() * m_camera.getViewMatrix())[0][0]);
+	glMatrixMode(GL_MODELVIEW);
+		
+	for (const auto& instance : m_instances) {
+		glColor4f(instance.pickColor[0], instance.pickColor[1], instance.pickColor[2], instance.pickColor[3]);
+		glLoadMatrixf(&instance.transform.getTransformationMatrix()[0][0]);
+		instance.mesh.drawAABB();		
+	}
+	
+	m_mousePicker.getBuffer().unbindWrite();
+
+	glPolygonMode(GL_FRONT_AND_BACK, StateMachine::GetEnableWireframe() ? GL_LINE : GL_FILL);
 }

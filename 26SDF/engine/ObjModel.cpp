@@ -1,7 +1,7 @@
 
 #define CONVHULL_3D_USE_SINGLE_PRECISION
 #define CONVHULL_3D_ENABLE
-#include "..\convhull\convhull_3d.h"
+#include "../convhull/convhull_3d.h"
 
 #include "ObjModel.h"
 
@@ -605,15 +605,15 @@ void ObjModel::drawInstancedStacked(const Camera& camera) {
 	glBindVertexArray(0);
 }
 
-void ObjModel::drawAABB() {
+void ObjModel::drawAABB() const{
 	aabb.drawRaw();
 }
 
-void ObjModel::drawSphere() {
+void ObjModel::drawSphere() const {
 	boundingSphere.drawRaw();
 }
 
-void ObjModel::drawHull() {
+void ObjModel::drawHull() const {
 	convexHull.drawRaw();
 }
 
@@ -634,7 +634,7 @@ void ObjModel::createConvexHull(const char* filename, Vector3f &rotate, float de
 	convexHull.createBuffer(filename, rotate, degree, translate, scale, useConvhull, *this);
 }
 
-BoundingBoxS& ObjModel::getAABB() {
+BoundingBox& ObjModel::getAABB() {
 	return aabb;
 }
 
@@ -1920,7 +1920,7 @@ int IndexBufferCreator::addVertex(int hash, const float *pVertex, int stride) {
 	return index;
 }
 
-void BoundingBoxS::createBuffer() {
+void BoundingBox::createBuffer() {
 	m_vertexBuffer.push_back(position[0]); m_vertexBuffer.push_back(position[1]); m_vertexBuffer.push_back(position[2]);
 	m_vertexBuffer.push_back(position[0] + size[0]); m_vertexBuffer.push_back(position[1]); m_vertexBuffer.push_back(position[2]);
 	m_vertexBuffer.push_back(position[0] + size[0]); m_vertexBuffer.push_back(position[1] + size[1]); m_vertexBuffer.push_back(position[2]);
@@ -1930,23 +1930,23 @@ void BoundingBoxS::createBuffer() {
 	m_vertexBuffer.push_back(position[0] + size[0]); m_vertexBuffer.push_back(position[1] + size[1]); m_vertexBuffer.push_back(position[2] + size[2]);
 	m_vertexBuffer.push_back(position[0]); m_vertexBuffer.push_back(position[1] + size[1]); m_vertexBuffer.push_back(position[2] + size[2]);
 
-	m_indexBuffer.push_back(0); m_indexBuffer.push_back(1); m_indexBuffer.push_back(2);
-	m_indexBuffer.push_back(2); m_indexBuffer.push_back(3); m_indexBuffer.push_back(0);
+	m_indexBuffer.push_back(1); m_indexBuffer.push_back(0); m_indexBuffer.push_back(2);
+	m_indexBuffer.push_back(3); m_indexBuffer.push_back(2); m_indexBuffer.push_back(0);
 
-	m_indexBuffer.push_back(1); m_indexBuffer.push_back(5); m_indexBuffer.push_back(6);
-	m_indexBuffer.push_back(6); m_indexBuffer.push_back(2); m_indexBuffer.push_back(1);
+	m_indexBuffer.push_back(5); m_indexBuffer.push_back(1); m_indexBuffer.push_back(6);
+	m_indexBuffer.push_back(2); m_indexBuffer.push_back(6); m_indexBuffer.push_back(1);
 
-	m_indexBuffer.push_back(7); m_indexBuffer.push_back(6); m_indexBuffer.push_back(5);
-	m_indexBuffer.push_back(5); m_indexBuffer.push_back(4); m_indexBuffer.push_back(7);
+	m_indexBuffer.push_back(6); m_indexBuffer.push_back(7); m_indexBuffer.push_back(5);
+	m_indexBuffer.push_back(4); m_indexBuffer.push_back(5); m_indexBuffer.push_back(7);
 
-	m_indexBuffer.push_back(4); m_indexBuffer.push_back(0); m_indexBuffer.push_back(3);
-	m_indexBuffer.push_back(3); m_indexBuffer.push_back(7); m_indexBuffer.push_back(4);
+	m_indexBuffer.push_back(0); m_indexBuffer.push_back(4); m_indexBuffer.push_back(3);
+	m_indexBuffer.push_back(7); m_indexBuffer.push_back(3); m_indexBuffer.push_back(4);
 
-	m_indexBuffer.push_back(4); m_indexBuffer.push_back(5); m_indexBuffer.push_back(1);
-	m_indexBuffer.push_back(1); m_indexBuffer.push_back(0); m_indexBuffer.push_back(4);
+	m_indexBuffer.push_back(5); m_indexBuffer.push_back(4); m_indexBuffer.push_back(1);
+	m_indexBuffer.push_back(0); m_indexBuffer.push_back(1); m_indexBuffer.push_back(4);
 
-	m_indexBuffer.push_back(3); m_indexBuffer.push_back(2); m_indexBuffer.push_back(6);
-	m_indexBuffer.push_back(6); m_indexBuffer.push_back(7); m_indexBuffer.push_back(3);
+	m_indexBuffer.push_back(2); m_indexBuffer.push_back(3); m_indexBuffer.push_back(6);
+	m_indexBuffer.push_back(7); m_indexBuffer.push_back(6); m_indexBuffer.push_back(3);
 
 	short stride = 3; short offset = 0;
 
@@ -1970,7 +1970,7 @@ void BoundingBoxS::createBuffer() {
 	glBindVertexArray(0);
 }
 
-void BoundingBoxS::drawRaw() {
+void BoundingBox::drawRaw() const {
 	glBindVertexArray(m_vao);
 	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
@@ -2093,7 +2093,7 @@ void BoundingSphere::createBuffer(ObjModel& model) {
 	model.m_hasBoundingSphere = true;
 }
 
-void BoundingSphere::drawRaw() {
+void BoundingSphere::drawRaw() const {
 	glBindVertexArray(m_vao);
 	glDrawElements(GL_TRIANGLES, m_indexBuffer.size(), GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
@@ -2212,7 +2212,7 @@ void ConvexHull::createBuffer(const char* filename, Vector3f &rotate, float degr
 	}
 }
 
-void ConvexHull::drawRaw() {
+void ConvexHull::drawRaw() const {
 	glBindVertexArray(m_vao);
 	glDrawElements(GL_TRIANGLES, m_indexBuffer.size(), GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);

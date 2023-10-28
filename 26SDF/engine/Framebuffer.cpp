@@ -801,17 +801,17 @@ void Framebuffer::bindReadNoneVP() {
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, m_fbo);
 }
 
-void Framebuffer::unbind() {
+void Framebuffer::unbind() const {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glViewport(0, 0, Width, Height);
 }
 
-void Framebuffer::unbindWrite() {
+void Framebuffer::unbindWrite() const {
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 	glViewport(0, 0, Width, Height);
 }
 
-void Framebuffer::unbindRead() {
+void Framebuffer::unbindRead() const {
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
 	glViewport(0, 0, Width, Height);
 }

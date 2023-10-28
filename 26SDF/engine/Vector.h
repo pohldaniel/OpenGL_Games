@@ -364,7 +364,7 @@ public:
 
 	static Matrix4f &Transpose(Matrix4f &m);
 	static Matrix4f Transpose(const Matrix4f &m);
-	static Matrix4f Inverse(Matrix4f &m);
+	static Matrix4f Inverse(const Matrix4f &m);
 
 private:
 
