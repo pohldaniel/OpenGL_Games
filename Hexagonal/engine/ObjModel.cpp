@@ -1,7 +1,7 @@
 
 #define CONVHULL_3D_USE_SINGLE_PRECISION
 #define CONVHULL_3D_ENABLE
-#include "..\convhull\convhull_3d.h"
+#include "../convhull/convhull_3d.h"
 
 #include "ObjModel.h"
 
@@ -35,20 +35,8 @@ ObjModel::~ObjModel() {
 	if (m_vao)
 		glDeleteVertexArrays(1, &m_vao);
 
-	if (m_vbo[0])
-		glDeleteBuffers(1, &m_vbo[0]);
-
-	if (m_vbo[1])
-		glDeleteBuffers(1, &m_vbo[1]);
-
-	if (m_vbo[2])
-		glDeleteBuffers(1, &m_vbo[2]);
-
-	if (m_vbo[3])
-		glDeleteBuffers(1, &m_vbo[3]);
-
-	if (m_vbo[4])
-		glDeleteBuffers(1, &m_vbo[4]);
+	if (m_vbo)
+		glDeleteBuffers(1, &m_vbo);
 
 	if (m_vboInstances)
 		glDeleteBuffers(1, &m_vboInstances);
@@ -105,6 +93,17 @@ bool ObjModel::loadModel(const char* filename, bool isStacked, bool withoutNorma
 
 bool compare(const std::array<int, 10> &i_lhs, const std::array<int, 10> &i_rhs) {
 	return i_lhs[9] < i_rhs[9];
+}
+
+int ObjModel::whitespaces(char c[]) {
+	int count = 0;
+	char *ptr = c;
+	while ((ptr = strchr(ptr, ' ')) != NULL) {
+		count++;
+		ptr++;
+	}
+
+	return count;
 }
 
 bool ObjModel::loadModel(const char* a_filename, Vector3f& axis, float degree, Vector3f& translate, float scale, bool isStacked, bool withoutNormals, bool generateSmoothNormals, bool generateFlatNormals, bool generateSmoothTangents, bool rescale) {
@@ -263,28 +262,57 @@ bool ObjModel::loadModel(const char* a_filename, Vector3f& axis, float degree, V
 
 		}case 'f': {
 
-			int a, b, c, n1, n2, n3, t1, t2, t3;
+			
 			fgets(buffer, sizeof(buffer), pFile);
+			bool quads = whitespaces(buffer) == 4;
 
-			if (!textureCoords.empty() && !normalCoords.empty()) {				
-				sscanf(buffer, "%d/%d/%d %d/%d/%d %d/%d/%d", &a, &t1, &n1, &b, &t2, &n2, &c, &t3, &n3);
-				face.push_back({  a, b, c, t1, t2, t3, n1, n2, n3, assign  });
+			if(!quads) {
+				int a, b, c, n1, n2, n3, t1, t2, t3;
 
-			}else if (!normalCoords.empty()) {
-				sscanf(buffer, "%d//%d %d//%d %d//%d", &a, &n1, &b, &n2, &c, &n3);
-				face.push_back({  a, b, c, 0, 0, 0, n1, n2, n3, assign  });
-
-			}else if (!textureCoords.empty()) {				
-				if (!withoutNormals) {
+				if (!textureCoords.empty() && !normalCoords.empty()) {
 					sscanf(buffer, "%d/%d/%d %d/%d/%d %d/%d/%d", &a, &t1, &n1, &b, &t2, &n2, &c, &t3, &n3);
-					face.push_back({  a, b, c, t1, t2, t3, n1, n2, n3, assign  });
+					face.push_back({ a, b, c, t1, t2, t3, n1, n2, n3, assign });
+
+				}else if (!normalCoords.empty()) {
+					sscanf(buffer, "%d//%d %d//%d %d//%d", &a, &n1, &b, &n2, &c, &n3);
+					face.push_back({ a, b, c, 0, 0, 0, n1, n2, n3, assign });
+
+				}else if (!textureCoords.empty()) {
+					if (!withoutNormals) {
+						sscanf(buffer, "%d/%d/%d %d/%d/%d %d/%d/%d", &a, &t1, &n1, &b, &t2, &n2, &c, &t3, &n3);
+						face.push_back({ a, b, c, t1, t2, t3, n1, n2, n3, assign });
+					}else {
+						sscanf(buffer, "%d/%d %d/%d %d/%d", &a, &t1, &b, &t2, &c, &t3);
+						face.push_back({ a, b, c, t1, t2, t3, 0, 0, 0, assign });
+					}
 				}else {
-					sscanf(buffer, "%d/%d %d/%d %d/%d", &a, &t1, &b, &t2, &c, &t3);
-					face.push_back({  a, b, c, t1, t2, t3, 0, 0, 0, assign  });
+					sscanf(buffer, "%d %d %d", &a, &b, &c);
+					face.push_back({ a, b, c, 0, 0, 0, 0, 0, 0, assign });
 				}
+
 			}else {
-				sscanf(buffer, "%d %d %d", &a, &b, &c);
-				face.push_back({  a, b, c, 0, 0, 0, 0, 0, 0, assign  });
+
+				 int a, b, c, d, n1, n2, n3, n4, t1, t2, t3, t4;
+
+				 if (!textureCoords.empty() && !normalCoords.empty()) {
+					 sscanf(buffer, "%d/%d/%d %d/%d/%d %d/%d/%d %d/%d/%d", &a, &t1, &n1, &b, &t2, &n2, &c, &t3, &n3, &d, &t4, &n4);
+					 face.push_back({ a, b, c, t1, t2, t3, n1, n2, n3, assign });
+					 face.push_back({ a, c, d, t1, t3, t4, n1, n3, n4, assign });
+
+				 }else if (!normalCoords.empty()) {
+					 sscanf(buffer, "%d//%d %d//%d %d//%d %d//%d", &a, &n1, &b, &n2, &c, &n3, &d, &n4);
+					 face.push_back({ a, b, c, 0, 0, 0, n1, n2, n3, assign });
+					 face.push_back({ a, c, d, 0, 0, 0, n1, n3, n4, assign });
+
+				 }else if (!textureCoords.empty()) {
+					 sscanf(buffer, "%d/%d %d/%d %d/%d %d/%d", &a, &t1, &b, &t2, &c, &t3, &d, &t4);
+					 face.push_back({ a, b, c, t1, t2, t3, 0, 0, 0, assign });
+					 face.push_back({ a, c, d, t1, t3, t4, 0, 0, 0, assign });
+				 }else {
+					 sscanf(buffer, "%d %d %dd %d", &a, &b, &c, &d);
+					 face.push_back({ a, b, c, 0, 0, 0, 0, 0, 0, assign });
+					 face.push_back({ a, c, d, 0, 0, 0, 0, 0, 0, assign });
+				 }
 			}
 			break;
 
@@ -435,6 +463,9 @@ bool ObjModel::loadModel(const char* a_filename, Vector3f& axis, float degree, V
 					m_meshes[j]->m_vbo,
 					m_meshes[j]->m_ibo,
 					m_meshes[j]->m_stride);
+
+			m_drawCount += m_meshes[j]->m_indexBuffer.size();
+
 		}else {
 			
 			m_meshes[j]->m_baseIndex = m_indexBuffer.size();
@@ -453,6 +484,7 @@ bool ObjModel::loadModel(const char* a_filename, Vector3f& axis, float degree, V
 
 	if (m_isStacked) {
 		ObjModel::CreateBuffer(m_vertexBuffer, m_indexBuffer, m_vao, m_vbo, m_ibo, m_stride);
+		m_drawCount = m_indexBuffer.size();
 	}
 
 	indexBufferCreator.positionCoordsIn.clear();
@@ -469,7 +501,7 @@ bool ObjModel::loadModel(const char* a_filename, Vector3f& axis, float degree, V
 	return true;
 }
 
-void ObjModel::drawRaw() {
+void ObjModel::drawRaw() const {
 	for (int j = 0; j < m_numberOfMeshes; j++) {
 		m_meshes[j]->drawRaw();
 	}
@@ -573,15 +605,15 @@ void ObjModel::drawInstancedStacked(const Camera& camera) {
 	glBindVertexArray(0);
 }
 
-void ObjModel::drawAABB() {
+void ObjModel::drawAABB() const{
 	aabb.drawRaw();
 }
 
-void ObjModel::drawSphere() {
+void ObjModel::drawSphere() const {
 	boundingSphere.drawRaw();
 }
 
-void ObjModel::drawHull() {
+void ObjModel::drawHull() const {
 	convexHull.drawRaw();
 }
 
@@ -602,7 +634,7 @@ void ObjModel::createConvexHull(const char* filename, Vector3f &rotate, float de
 	convexHull.createBuffer(filename, rotate, degree, translate, scale, useConvhull, *this);
 }
 
-BoundingBoxS& ObjModel::getAABB() {
+BoundingBox& ObjModel::getAABB() {
 	return aabb;
 }
 
@@ -620,6 +652,18 @@ Transform& ObjModel::getTransform() {
 
 std::vector<ObjMesh*>& ObjModel::getMeshes() {
 	return m_meshes;
+}
+
+unsigned int ObjModel::getNumberOfTriangles() {
+	return m_drawCount / 3;
+}
+
+const unsigned int& ObjModel::getVbo() const {
+	return m_vbo;
+}
+
+const unsigned int& ObjModel::getIbo() const {
+	return m_ibo;
 }
 
 void ObjModel::generateTangents() {
@@ -654,6 +698,18 @@ void ObjModel::generateNormals() {
 			if (m_meshes[j]->m_hasNormals) continue;
 			ObjModel::GenerateNormals(m_meshes[j]->m_vertexBuffer, m_meshes[j]->m_indexBuffer, *this, m_meshes[j]->m_hasNormals, m_meshes[j]->m_stride, j, j + 1);
 			ObjModel::CreateBuffer(m_meshes[j]->m_vertexBuffer, m_meshes[j]->m_indexBuffer, m_meshes[j]->m_vao, m_meshes[j]->m_vbo, m_meshes[j]->m_ibo, m_meshes[j]->m_stride);
+		}
+	}
+}
+
+void ObjModel::packBuffer() {
+	if (m_isStacked) {
+		ObjModel::PackBuffer(m_vertexBuffer, m_vao, m_vbo, m_stride);
+
+	}else {
+
+		for (int j = 0; j < m_meshes.size(); j++) {
+			ObjModel::PackBuffer(m_meshes[j]->m_vertexBuffer, m_meshes[j]->m_vao, m_meshes[j]->m_vbo, m_meshes[j]->m_stride);
 		}
 	}
 }
@@ -911,6 +967,131 @@ void ObjModel::GenerateTangents(std::vector<float>& vertexBuffer, std::vector<un
 	stride = 14;
 }
 
+void ObjModel::PackBuffer(std::vector<float>& vertexBuffer, unsigned int& vao, unsigned int& vbo, unsigned int stride) {
+	std::vector<float> vertexBufferNew;
+	unsigned int strideNew;
+
+	if (stride == 3) {
+		vertexBufferNew.resize(vertexBuffer.size() / 3 * 4);
+
+		for (unsigned int i = 0, k = 0; i < vertexBufferNew.size(); i = i + 4, k = k + 3) {
+			vertexBufferNew[i] = vertexBuffer[k];
+			vertexBufferNew[i + 1] = vertexBuffer[k + 1];
+			vertexBufferNew[i + 2] = vertexBuffer[k + 2];
+			vertexBufferNew[i + 3] = 0.0f;
+		}
+		strideNew = 4;
+	}
+
+	if (stride == 5) {
+		vertexBufferNew.resize(vertexBuffer.size() / 5 * 8);
+
+		for (unsigned int i = 0, k = 0; i < vertexBufferNew.size(); i = i + 8, k = k + 5) {
+			vertexBufferNew[i] = vertexBuffer[k];
+			vertexBufferNew[i + 1] = vertexBuffer[k + 1];
+			vertexBufferNew[i + 2] = vertexBuffer[k + 2];
+			vertexBufferNew[i + 3] = 0.0f;
+
+			vertexBufferNew[i + 4] = vertexBuffer[k + 3];
+			vertexBufferNew[i + 5] = vertexBuffer[k + 4];
+			vertexBufferNew[i + 6] = 0.0f;
+			vertexBufferNew[i + 7] = 0.0f;
+		}
+		strideNew = 8;
+	}
+
+	if (stride == 8) {
+		vertexBufferNew.resize(vertexBuffer.size() / 8 * 12);
+
+		for (unsigned int i = 0, k = 0; i < vertexBufferNew.size(); i = i + 12, k = k + 8) {
+			vertexBufferNew[i] = vertexBuffer[k];
+			vertexBufferNew[i + 1] = vertexBuffer[k + 1];
+			vertexBufferNew[i + 2] = vertexBuffer[k + 2];
+			vertexBufferNew[i + 3] = 0.0f;
+
+			vertexBufferNew[i + 4] = vertexBuffer[k + 3];
+			vertexBufferNew[i + 5] = vertexBuffer[k + 4];
+			vertexBufferNew[i + 6] = 0.0f;
+			vertexBufferNew[i + 7] = 0.0f;
+
+			vertexBufferNew[i + 8] = vertexBuffer[k + 5];
+			vertexBufferNew[i + 9] = vertexBuffer[k + 6];
+			vertexBufferNew[i + 10] = vertexBuffer[k + 7];
+			vertexBufferNew[i + 11] = 0.0f;
+		}
+		strideNew = 12;
+	}
+
+	if (stride == 14) {
+		vertexBufferNew.resize(vertexBuffer.size() / 14 * 20);
+
+		for (unsigned int i = 0, k = 0; i < vertexBufferNew.size(); i = i + 16, k = k + 20) {
+			vertexBufferNew[i] = vertexBuffer[k];
+			vertexBufferNew[i + 1] = vertexBuffer[k + 1];
+			vertexBufferNew[i + 2] = vertexBuffer[k + 2];
+			vertexBufferNew[i + 3] = 0.0f;
+
+			vertexBufferNew[i + 4] = vertexBuffer[k + 3];
+			vertexBufferNew[i + 5] = vertexBuffer[k + 4];
+			vertexBufferNew[i + 6] = 0.0f;
+			vertexBufferNew[i + 7] = 0.0f;
+
+			vertexBufferNew[i + 8] = vertexBuffer[k + 5];
+			vertexBufferNew[i + 9] = vertexBuffer[k + 6];
+			vertexBufferNew[i + 10] = vertexBuffer[k + 7];
+			vertexBufferNew[i + 11] = 0.0f;
+
+			vertexBufferNew[i + 12] = vertexBuffer[k + 8];
+			vertexBufferNew[i + 13] = vertexBuffer[k + 9];
+			vertexBufferNew[i + 14] = vertexBuffer[k + 10];
+			vertexBufferNew[i + 15] = 0.0f;
+
+			vertexBufferNew[i + 16] = vertexBuffer[k + 11];
+			vertexBufferNew[i + 17] = vertexBuffer[k + 12];
+			vertexBufferNew[i + 18] = vertexBuffer[k + 13];
+			vertexBufferNew[i + 19] = 0.0f;
+		}
+		strideNew = 20;
+	}
+
+	vertexBuffer.clear();
+	vertexBuffer.shrink_to_fit();
+	vertexBuffer.insert(vertexBuffer.end(), vertexBufferNew.begin(), vertexBufferNew.end());
+
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glBufferData(GL_ARRAY_BUFFER, vertexBufferNew.size() * sizeof(float), &vertexBufferNew[0], GL_STATIC_DRAW);
+	
+
+	glBindVertexArray(vao);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, strideNew * sizeof(float), (void*)0);
+
+	//Texture Coordinates
+	if (stride == 5 || stride == 8 || stride == 14) {
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, strideNew * sizeof(float), (void*)(4 * sizeof(float)));
+	}
+
+	//Normals
+	if (stride == 6 || stride == 8 || stride == 14) {
+		glEnableVertexAttribArray(2);
+		glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, strideNew * sizeof(float), (void*)((stride == 8 || stride == 14) ? 8 * sizeof(float) : 4 * sizeof(float)));
+	}
+
+	//Tangents Bitangents
+	if (stride == 14) {
+		glEnableVertexAttribArray(3);
+		glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, strideNew * sizeof(float), (void*)(12 * sizeof(float)));
+
+		glEnableVertexAttribArray(4);
+		glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, strideNew * sizeof(float), (void*)(16 * sizeof(float)));
+	}
+	
+	glBindVertexArray(0);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
+
 void ObjModel::createInstancesStatic(std::vector<Matrix4f>& modelMTX) {
 	if (m_isStacked) {
 		m_instanceCount = modelMTX.size();
@@ -1103,38 +1284,26 @@ void ObjModel::initAssets(AssetManager<Shader>& shaderManager, bool instanced) {
 	}
 }
 
-void ObjModel::CreateBuffer(std::vector<float>& vertexBuffer, std::vector<unsigned int> indexBuffer, unsigned int& vao, unsigned int (&vbo)[5], unsigned int& ibo, unsigned int stride) {
+void ObjModel::CreateBuffer(std::vector<float>& vertexBuffer, std::vector<unsigned int> indexBuffer, unsigned int& vao, unsigned int& vbo, unsigned int& ibo, unsigned int stride) {
 
 	if (vao)
 		glDeleteVertexArrays(1, &vao);
 
-	if (vbo[0])
-		glDeleteBuffers(1, &vbo[0]);
-
-	if (vbo[1])
-		glDeleteBuffers(1, &vbo[1]);
-
-	if (vbo[2])
-		glDeleteBuffers(1, &vbo[2]);
-
-	if (vbo[3])
-		glDeleteBuffers(1, &vbo[3]);
-
-	if (vbo[4])
-		glDeleteBuffers(1, &vbo[4]);
+	if (vbo)
+		glDeleteBuffers(1, &vbo);
 
 	if (ibo)
 		glDeleteBuffers(1, &ibo);
 
 
-	glGenBuffers(stride == 14 ? 5 : stride == 8 ? 3 : (stride == 6 || stride == 5) ? 2 : 1, vbo);
+	glGenBuffers(1, &vbo);
 	glGenBuffers(1, &ibo);
 
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
 
 	//Positions
-	glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	glBufferData(GL_ARRAY_BUFFER, vertexBuffer.size() * sizeof(float), &vertexBuffer[0], GL_STATIC_DRAW);
 
 	glEnableVertexAttribArray(0);
@@ -1142,33 +1311,20 @@ void ObjModel::CreateBuffer(std::vector<float>& vertexBuffer, std::vector<unsign
 
 	//Texture Coordinates
 	if (stride == 5 || stride == 8 || stride == 14) {
-
-		glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
-		glBufferData(GL_ARRAY_BUFFER, vertexBuffer.size() * sizeof(float), &vertexBuffer[0], GL_STATIC_DRAW);
-
 		glEnableVertexAttribArray(1);
 		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)(3 * sizeof(float)));
 	}
 
 	//Normals
 	if (stride == 6 || stride == 8 || stride == 14) {
-		glBindBuffer(GL_ARRAY_BUFFER, vbo[2]);
-		glBufferData(GL_ARRAY_BUFFER, vertexBuffer.size() * sizeof(float), &vertexBuffer[0], GL_STATIC_DRAW);
-
 		glEnableVertexAttribArray(2);
 		glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)((stride == 8 || stride == 14) ? 5 * sizeof(float) : 3 * sizeof(float)));
 	}
 
 	//Tangents Bitangents
-	if (stride == 14) {
-		glBindBuffer(GL_ARRAY_BUFFER, vbo[3]);
-		glBufferData(GL_ARRAY_BUFFER, vertexBuffer.size() * sizeof(float), &vertexBuffer[0], GL_STATIC_DRAW);
-
+	if (stride == 14) {		
 		glEnableVertexAttribArray(3);
 		glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)(8 * sizeof(float)));
-
-		glBindBuffer(GL_ARRAY_BUFFER, vbo[4]);
-		glBufferData(GL_ARRAY_BUFFER, vertexBuffer.size() * sizeof(float), &vertexBuffer[0], GL_STATIC_DRAW);
 
 		glEnableVertexAttribArray(4);
 		glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)(11 * sizeof(float)));
@@ -1615,20 +1771,8 @@ void ObjMesh::cleanup(){
 	if (m_vao)
 		glDeleteVertexArrays(1, &m_vao);
 
-	if (m_vbo[0])
-		glDeleteBuffers(1, &m_vbo[0]);
-
-	if (m_vbo[1])
-		glDeleteBuffers(1, &m_vbo[1]);
-
-	if (m_vbo[2])
-		glDeleteBuffers(1, &m_vbo[2]);
-
-	if (m_vbo[3])
-		glDeleteBuffers(1, &m_vbo[3]);
-
-	if (m_vbo[4])
-		glDeleteBuffers(1, &m_vbo[4]);
+	if (m_vbo)
+		glDeleteBuffers(1, &m_vbo);
 
 	if (m_vboInstances)
 		glDeleteBuffers(1, &m_vboInstances);
@@ -1739,7 +1883,7 @@ void ObjMesh::updateInstances(std::vector<Matrix4f>& modelMTX) {
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-void ObjMesh::drawRaw() {
+void ObjMesh::drawRaw() const {
 	glBindVertexArray(m_vao);
 	glDrawElements(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
@@ -1761,6 +1905,18 @@ std::vector<unsigned int>& ObjMesh::getIndexBuffer() {
 
 int ObjMesh::getStride() {
 	return m_stride;
+}
+
+unsigned int ObjMesh::getNumberOfTriangles() {
+	return m_drawCount / 3;
+}
+
+const unsigned int& ObjMesh::getVbo() const {
+	return m_vbo;
+}
+
+const unsigned int& ObjMesh::getIbo() const {
+	return m_ibo;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1901,7 +2057,7 @@ int IndexBufferCreator::addVertex(int hash, const float *pVertex, int stride) {
 	return index;
 }
 
-void BoundingBoxS::createBuffer() {
+void BoundingBox::createBuffer() {
 	m_vertexBuffer.push_back(position[0]); m_vertexBuffer.push_back(position[1]); m_vertexBuffer.push_back(position[2]);
 	m_vertexBuffer.push_back(position[0] + size[0]); m_vertexBuffer.push_back(position[1]); m_vertexBuffer.push_back(position[2]);
 	m_vertexBuffer.push_back(position[0] + size[0]); m_vertexBuffer.push_back(position[1] + size[1]); m_vertexBuffer.push_back(position[2]);
@@ -1911,23 +2067,23 @@ void BoundingBoxS::createBuffer() {
 	m_vertexBuffer.push_back(position[0] + size[0]); m_vertexBuffer.push_back(position[1] + size[1]); m_vertexBuffer.push_back(position[2] + size[2]);
 	m_vertexBuffer.push_back(position[0]); m_vertexBuffer.push_back(position[1] + size[1]); m_vertexBuffer.push_back(position[2] + size[2]);
 
-	m_indexBuffer.push_back(0); m_indexBuffer.push_back(1); m_indexBuffer.push_back(2);
-	m_indexBuffer.push_back(2); m_indexBuffer.push_back(3); m_indexBuffer.push_back(0);
+	m_indexBuffer.push_back(1); m_indexBuffer.push_back(0); m_indexBuffer.push_back(2);
+	m_indexBuffer.push_back(3); m_indexBuffer.push_back(2); m_indexBuffer.push_back(0);
 
-	m_indexBuffer.push_back(1); m_indexBuffer.push_back(5); m_indexBuffer.push_back(6);
-	m_indexBuffer.push_back(6); m_indexBuffer.push_back(2); m_indexBuffer.push_back(1);
+	m_indexBuffer.push_back(5); m_indexBuffer.push_back(1); m_indexBuffer.push_back(6);
+	m_indexBuffer.push_back(2); m_indexBuffer.push_back(6); m_indexBuffer.push_back(1);
 
-	m_indexBuffer.push_back(7); m_indexBuffer.push_back(6); m_indexBuffer.push_back(5);
-	m_indexBuffer.push_back(5); m_indexBuffer.push_back(4); m_indexBuffer.push_back(7);
+	m_indexBuffer.push_back(6); m_indexBuffer.push_back(7); m_indexBuffer.push_back(5);
+	m_indexBuffer.push_back(4); m_indexBuffer.push_back(5); m_indexBuffer.push_back(7);
 
-	m_indexBuffer.push_back(4); m_indexBuffer.push_back(0); m_indexBuffer.push_back(3);
-	m_indexBuffer.push_back(3); m_indexBuffer.push_back(7); m_indexBuffer.push_back(4);
+	m_indexBuffer.push_back(0); m_indexBuffer.push_back(4); m_indexBuffer.push_back(3);
+	m_indexBuffer.push_back(7); m_indexBuffer.push_back(3); m_indexBuffer.push_back(4);
 
-	m_indexBuffer.push_back(4); m_indexBuffer.push_back(5); m_indexBuffer.push_back(1);
-	m_indexBuffer.push_back(1); m_indexBuffer.push_back(0); m_indexBuffer.push_back(4);
+	m_indexBuffer.push_back(5); m_indexBuffer.push_back(4); m_indexBuffer.push_back(1);
+	m_indexBuffer.push_back(0); m_indexBuffer.push_back(1); m_indexBuffer.push_back(4);
 
-	m_indexBuffer.push_back(3); m_indexBuffer.push_back(2); m_indexBuffer.push_back(6);
-	m_indexBuffer.push_back(6); m_indexBuffer.push_back(7); m_indexBuffer.push_back(3);
+	m_indexBuffer.push_back(2); m_indexBuffer.push_back(3); m_indexBuffer.push_back(6);
+	m_indexBuffer.push_back(7); m_indexBuffer.push_back(6); m_indexBuffer.push_back(3);
 
 	short stride = 3; short offset = 0;
 
@@ -1951,7 +2107,7 @@ void BoundingBoxS::createBuffer() {
 	glBindVertexArray(0);
 }
 
-void BoundingBoxS::drawRaw() {
+void BoundingBox::drawRaw() const {
 	glBindVertexArray(m_vao);
 	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
@@ -2074,7 +2230,7 @@ void BoundingSphere::createBuffer(ObjModel& model) {
 	model.m_hasBoundingSphere = true;
 }
 
-void BoundingSphere::drawRaw() {
+void BoundingSphere::drawRaw() const {
 	glBindVertexArray(m_vao);
 	glDrawElements(GL_TRIANGLES, m_indexBuffer.size(), GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
@@ -2193,7 +2349,7 @@ void ConvexHull::createBuffer(const char* filename, Vector3f &rotate, float degr
 	}
 }
 
-void ConvexHull::drawRaw() {
+void ConvexHull::drawRaw() const {
 	glBindVertexArray(m_vao);
 	glDrawElements(GL_TRIANGLES, m_indexBuffer.size(), GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);

@@ -189,6 +189,7 @@ Texture::~Texture() {
 }
 
 void Texture::cleanup() {
+
 	if (m_texture) {
 		glDeleteTextures(1, &m_texture);
 		m_texture = 0;
@@ -771,6 +772,28 @@ void Texture::createEmptyTexture(unsigned int width, unsigned int height, unsign
 	m_channels = _internalFormat == GL_RGBA8 ? 4 : _internalFormat == GL_RGB8 ? 3 : _internalFormat == GL_RG8 ? 2 : _internalFormat == GL_R8 ? 1 : 4;
 }
 
+void Texture::createTexture3D(unsigned int width, unsigned int height, unsigned int depth, unsigned int internalFormat, unsigned int format, unsigned int type, unsigned char* data) {
+	m_internalFormat = internalFormat;
+	m_format = format;
+	m_type = type;
+	m_target = GL_TEXTURE_3D;
+	
+	glGenTextures(1, &m_texture);
+	glBindTexture(GL_TEXTURE_3D, m_texture);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+	glTexImage3D(GL_TEXTURE_3D, 0, internalFormat, width, height, depth, 0, format, type, data);
+	glBindTexture(GL_TEXTURE_3D, 0);
+
+	m_width = width;
+	m_height = height;
+	m_depth = depth;
+}
+
 void Texture::createNullCubemap(unsigned int width, unsigned int height, unsigned int color) {
 	int pitch = ((width * 32 + 31) & ~31) >> 3; // align to 4-byte boundaries
 	std::vector<unsigned char> pixels(pitch * height, color);
@@ -860,6 +883,16 @@ unsigned char* Texture::readPixel() {
 	glGetTexImage(GL_TEXTURE_2D, 0, m_format, GL_UNSIGNED_BYTE, bytes);
 	glBindTexture(GL_TEXTURE_2D, 0);
 	return bytes;
+}
+
+const unsigned int& Texture::makeTextureHandleResident() {
+	m_textureHandle = glGetTextureHandleARB(m_texture);
+	glMakeTextureHandleResidentARB(m_textureHandle);
+	return m_textureHandle;
+}
+
+const unsigned int& Texture::getTextureHandle() const {
+	return m_textureHandle;
 }
 
 void Texture::CutSubimage(std::string fileIn, std::string fileOut, unsigned int _offsetX, unsigned int _offsetY, unsigned int _width, unsigned int _height, const bool _flipVertical) {

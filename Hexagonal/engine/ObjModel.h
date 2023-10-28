@@ -25,10 +25,10 @@
 
 
 class ObjModel;
-struct BoundingBoxS {
+struct BoundingBox {
 
 	void createBuffer();
-	void drawRaw();
+	void drawRaw() const;
 
 	std::vector<float> m_vertexBuffer;
 	std::vector<unsigned int> m_indexBuffer;
@@ -44,7 +44,7 @@ struct BoundingBoxS {
 struct BoundingSphere {
 
 	void createBuffer(ObjModel& model);	
-	void drawRaw();
+	void drawRaw() const;
 
 	std::vector<float> m_vertexBuffer;
 	std::vector<unsigned int> m_indexBuffer;
@@ -63,7 +63,7 @@ struct BoundingSphere {
 
 struct ConvexHull {
 	void createBuffer(const char* filename, Vector3f &rotate, float degree, Vector3f& translate, float scale, bool useConvhull, ObjModel& model);
-	void drawRaw();
+	void drawRaw() const;
 
 	std::vector<float> m_vertexBuffer;
 	std::vector<unsigned int> m_indexBuffer;
@@ -97,7 +97,7 @@ class ObjMesh;
 class ObjModel {
 
 	friend ObjMesh;
-	friend BoundingBoxS;
+	friend BoundingBox;
 	friend BoundingSphere;
 	friend ConvexHull;
 
@@ -114,7 +114,7 @@ public:
 	void translate(float dx, float dy, float dz);
 	void scale(float a, float b, float c);
 
-	void drawRaw();
+	void drawRaw() const;
 	void drawRawInstanced();
 	void drawRawStacked();
 	void drawRawInstancedStacked();
@@ -129,23 +129,25 @@ public:
 	void createConvexHull(const char* a_filename, bool useConvhull = true);
 	void createConvexHull(const char* a_filename, Vector3f& rotate, float degree, Vector3f& translate, float scale, bool useConvhull = true);
 
-	void drawAABB();
-	void drawSphere();
-	void drawHull();
+	void drawAABB() const;
+	void drawSphere() const;
+	void drawHull() const;
 
 	bool loadModel(const char* filename, bool isStacked = false, bool withoutNormals = false, bool generateSmoothNormals = false, bool generateFlatNormals = false, bool generateSmoothTangents = false, bool rescale = false);
 	bool loadModel(const char* a_filename, Vector3f& rotate, float degree, Vector3f& translate = Vector3f(0.0f, 0.0f, 0.0f), float scale = 1.0f, bool asStacked = false, bool withoutNormals = false, bool generateSmoothNormals = false, bool generateFlatNormals = false, bool generateSmoothTangents = false, bool rescale = false);
 
 	std::string getMltPath();
 	std::string getModelDirectory();
-	BoundingBoxS& getAABB();
+	BoundingBox& getAABB();
 	BoundingSphere& getBoundingSphere();
 	ConvexHull& getConvexHull();
 	Transform& getTransform();
 	std::vector<ObjMesh*>& getMeshes();
+	unsigned int getNumberOfTriangles();
 
 	void generateTangents();
 	void generateNormals();
+	void packBuffer();
 	
 	void createInstancesStatic(std::vector<Matrix4f>& modelMTX);
 	void createInstancesDynamic(unsigned int numberOfInstances);
@@ -155,7 +157,12 @@ public:
 	void initAssets(bool instanced = false);
 	void initAssets(AssetManager<Shader>& shaderManager, bool instanced = false);
 
+	const unsigned int& getVbo() const;
+	const unsigned int& getIbo() const;
+
 private:
+
+	int whitespaces(char c[]);
 
 	unsigned int m_numberOfVertices, m_numberOfTriangles, m_numberOfMeshes, m_stride;
 
@@ -169,7 +176,7 @@ private:
 
 	Vector3f m_center;
 	
-	BoundingBoxS aabb;
+	BoundingBox aabb;
 	BoundingSphere boundingSphere;
 	ConvexHull convexHull;
 
@@ -183,19 +190,23 @@ private:
 	std::vector<Matrix4f> m_instances;
 
 	unsigned int m_instanceCount = 0;
+	unsigned int m_drawCount = 0;
 
 	unsigned int m_vao = 0;
-	unsigned int m_vbo[5] = { 0 };
+	unsigned int m_vbo = 0;
 	unsigned int m_ibo = 0;
 	unsigned int m_vboInstances = 0;
 
-	void static CreateBuffer(std::vector<float>& vertexBuffer, std::vector<unsigned int> indexBuffer, unsigned int& vao, unsigned int(&vbo)[5], unsigned int& ibo, unsigned int stride);
+	void static CreateBuffer(std::vector<float>& vertexBuffer, std::vector<unsigned int> indexBuffer, unsigned int& vao, unsigned int& vbo, unsigned int& ibo, unsigned int stride);
 	void static GenerateNormals(std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer, ObjModel& model, bool& hasNormals, unsigned int& stride, unsigned int startIndex, unsigned int endIndex);
 	void static GenerateTangents(std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer, ObjModel& model, bool& hasNormals, bool& hasTangents, unsigned int& stride, unsigned int startIndex, unsigned int endIndex);
+	void static PackBuffer(std::vector<float>& vertexBuffer, unsigned int& vao, unsigned int& vbo, unsigned int stride);
+
 
 	void static GenerateNormals(std::vector<float>& vertexCoords, std::vector<std::array<int, 10>>& face, std::vector<float>& normalCoords);
 	void static GenerateFlatNormals(std::vector<float>& vertexCoords, std::vector<std::array<int, 10>>& face, std::vector<float>& normalCoords);
 	void static GenerateTangents(std::vector<float>& vertexCoords, std::vector<float>& textureCoords, std::vector<float>& normalCoords, std::vector<std::array<int, 10>>& face, std::vector<float>& tangentCoords, std::vector<float>& bitangentCoords);
+
 
 	void static ReadMaterialFromFile(std::string path, std::string mltName, short& index);
 	std::string static GetTexturePath(std::string texPath, std::string modelDirectory);
@@ -211,7 +222,7 @@ public:
 	ObjMesh(int numberTriangles, ObjModel* model);
 	~ObjMesh();
 
-	void drawRaw();
+	void drawRaw() const;
 	void drawRawInstanced();
 	const Material& getMaterial() const;
 	
@@ -219,6 +230,10 @@ public:
 	std::vector<unsigned int>& getIndexBuffer();
 	int getStride();
 	void cleanup();
+
+	unsigned int getNumberOfTriangles();
+	const unsigned int& getVbo() const;
+	const unsigned int& getIbo() const;
 
 private:
 
@@ -231,7 +246,7 @@ private:
 	void updateInstances(std::vector<Matrix4f>& modelMTX);
 
 	unsigned int m_vao = 0;
-	unsigned int m_vbo[5] = { 0 };
+	unsigned int m_vbo = 0;
 	unsigned int m_vboInstances = 0;
 	unsigned int m_ibo = 0;
 	

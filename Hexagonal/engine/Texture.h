@@ -17,6 +17,8 @@ public:
 	~Texture();
 	
 	const unsigned int& getTexture() const;
+	const unsigned int& getTextureHandle() const;
+	const unsigned int& makeTextureHandleResident();
 	unsigned int getWidth() const;
 	unsigned int getHeight() const;
 	unsigned int getChannels() const;
@@ -31,7 +33,7 @@ public:
 	void loadCrossHDRIFromFile(std::string fileName, const bool flipVertical = true, unsigned int internalFormat = 0u, unsigned int format = 0u, int paddingLeft = 0, int paddingRight = 0, int paddingTop = 0, int paddingBottom = 0);
 	void loadHDRIFromFile(std::string fileName, const bool flipVertical = true, unsigned int internalFormat = 0u, unsigned int format = 0u, int paddingLeft = 0, int paddingRight = 0, int paddingTop = 0, int paddingBottom = 0);
 	void loadCrossDDSFromFile(std::string fileName);
-	void loadDDSRawFromFile(std::string fileName, const int knownInternal = NULL);
+	void loadDDSRawFromFile(std::string fileName, const int knownInternal = 0);
 	void loadCubeFromFile(std::string* textureFiles, const bool flipVertical = false, unsigned int internalFormat = 0u, unsigned int format = 0u);
 	void loadCrossCubeFromFile(std::string fileName, const bool _flipVertical = false, unsigned int _internalFormat = 0u, unsigned int _format = 0u);
 
@@ -39,6 +41,7 @@ public:
 	void loadFromFile(std::string fileName, unsigned int offsetX, unsigned int offsetY, unsigned int width = 0u, unsigned int height = 0u, const bool flipVertical = false, unsigned int _internalFormat = 0, unsigned int format = 0u);
 	void createNullTexture(unsigned int width, unsigned int height, unsigned int color = 255u);
 	void createEmptyTexture(unsigned int width, unsigned int heightu, unsigned int internalFormat = 0u, unsigned int format = 0u, unsigned int type = 0u);
+	void createTexture3D(unsigned int width, unsigned int height, unsigned int depth, unsigned int internalFormat = 0u, unsigned int format = 0u, unsigned int type = 0u, unsigned char* data = NULL);
 	void createPerlinNoise(unsigned int width, unsigned int height, unsigned int seed = 0u);
 	void createNoise(unsigned int width, unsigned int height);
 	void createNullCubemap(unsigned int width, unsigned int height, unsigned int color = 255);
@@ -98,6 +101,7 @@ private:
 	unsigned int m_internalFormat = 0;
 	unsigned int m_type = 0;
 	unsigned int m_target;
+	unsigned int m_textureHandle = 0;
 };
 
 #endif

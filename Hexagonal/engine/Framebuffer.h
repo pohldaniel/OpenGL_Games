@@ -77,9 +77,9 @@ public:
 	void attachRenderbuffer(AttachmentRB::AttachmentRB attachment, unsigned int samples = 0u, unsigned int coverageSamples = 0u);
 	void bindVP(unsigned int width, unsigned int height);
 
-	void unbind();
-	void unbindWrite();
-	void unbindRead();
+	void unbind() const;
+	void unbindWrite() const;
+	void unbindRead() const;
 
 	std::function<void()> bind = 0;
 	std::function<void()> bindWrite = 0;
