@@ -36,6 +36,7 @@ namespace Enums {
 		ISOSELECTION,
 		MARKER,
 		RASTERIZER,
+		ENTITY,
 		NONE
 	};
 

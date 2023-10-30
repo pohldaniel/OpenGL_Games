@@ -47,14 +47,13 @@ CoreMechanic::CoreMechanic(StateMachine& machine) : State(machine, CurrentState:
 	m_mainRT.attachTexture2D(AttachmentTex::RGBA);
 	m_mainRT.attachRenderbuffer(AttachmentRB::DEPTH24);
 
-	TileSetManager::Get().getTileSet("map").loadTileSet("res/tilesetFrames2.bimg");
+	TileSetManager::Get().getTileSet("map").loadTileSet("Graphics/Maps/Tileset_defs/tilesetFrames2.bimg");
 	m_atlas = TileSetManager::Get().getTileSet("map").getAtlas();
+	loadMap("Graphics/Maps/EvilTown2.emap");
+	//Spritesheet::Safe("map", m_atlas);
 
 	m_focusPointX = static_cast<float>(Application::Width / 2);
 	m_focusPointY = static_cast<float>(Application::Height / 2);
-
-	
-	//Spritesheet::Safe("map", m_atlas);
 }
 
 CoreMechanic::~CoreMechanic() {

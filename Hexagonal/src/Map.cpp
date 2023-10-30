@@ -7,9 +7,6 @@
 #include "Utils/Rasterizer.h"
 
 Map::Map(const Camera& _camera) : camera(_camera) {
-	//EventDispatcher::AddKeyboardListener(this);
-	//EventDispatcher::AddMouseListener(this);
-
 	m_focusPointX = static_cast<float>(Application::Width / 2);
 	m_focusPointY = static_cast<float>(Application::Height / 2);
 
@@ -20,8 +17,7 @@ Map::Map(const Camera& _camera) : camera(_camera) {
 }
 
 Map::~Map() {
-	//EventDispatcher::RemoveKeyboardListener(this);
-	//EventDispatcher::RemoveMouseListener(this);
+
 }
 
 void Map::drawRaw() {
@@ -79,6 +75,7 @@ void Map::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 
 	}else if (event.button == 2u) {
 		processCache(m_selectedCells, true, false, true);
+		m_singleCache.clear();
 	}
 }
 
@@ -98,9 +95,9 @@ void Map::OnMouseMotion(Event::MouseMoveEvent& event) {
 
 		float mouseViewX = static_cast<float>(event.x);
 		float mouseViewY = static_cast<float>(Application::Height - event.y);
-
 		m_curMouseX = mouseViewX;
 		m_curMouseY = mouseViewY;
+
 		if (m_selectionMode == Enums::SelectionMode::RASTERIZER) {
 			std::vector<std::array<int, 2>> points;
 			points.clear();
@@ -249,9 +246,6 @@ void Map::OnMouseMotion(Event::MouseMoveEvent& event) {
 void Map::OnMouseButtonUp(Event::MouseButtonEvent& event) {
 	if (m_selectionMode == Enums::SelectionMode::NONE) return;
 	if (event.button == 1u) {
-		
-		float mouseViewX = static_cast<float>(event.x);
-		float mouseViewY = static_cast<float>(Application::Height - event.y);
 
 		m_singleCache.erase(std::remove_if(m_singleCache.begin(), m_singleCache.end(), [this](SingleSelectedCell cell) {
 			if (cell.found || !m_mouseMove) {
@@ -268,15 +262,17 @@ void Map::OnMouseButtonUp(Event::MouseButtonEvent& event) {
 			, m_singleCache.end()
 			);
 		processCache(m_cellCache, false, true, m_selectedCells, true);
-
-		m_mouseDown = false;
-		m_mouseMove = false;
-		m_mouseX = mouseViewX;
-		m_mouseY = mouseViewY;
-		m_curMouseX = m_mouseX;
-		m_curMouseY = m_mouseY;
-
 	}
+
+	float mouseViewX = static_cast<float>(event.x);
+	float mouseViewY = static_cast<float>(Application::Height - event.y);
+
+	m_mouseDown = false;
+	m_mouseMove = false;
+	m_mouseX = mouseViewX;
+	m_mouseY = mouseViewY;
+	m_curMouseX = m_mouseX;
+	m_curMouseY = m_mouseY;
 }
 
 void Map::OnMouseWheel(Event::MouseWheelEvent& event) {
@@ -361,6 +357,7 @@ void Map::culling() {
 }
 
 void Map::drawCullingRect() {
+	if (!m_showCullingRect) return;
 	Vector3f m_position = camera.getPosition();
 
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -384,8 +381,8 @@ void Map::drawCullingRect() {
 
 void Map::drawMouseRect(float mouseX, float curMouseX, float mouseY, float curMouseY) {
 	
-	if (m_selectionMode == Enums::SelectionMode::MARKER || m_selectionMode == Enums::SelectionMode::RASTERIZER ) return;
-	
+	if (!m_mouseDown || (m_selectionMode == Enums::SelectionMode::MARKER || m_selectionMode == Enums::SelectionMode::RASTERIZER)) return;
+
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glLineWidth(2.0f);
 	glMatrixMode(GL_PROJECTION);
@@ -393,7 +390,6 @@ void Map::drawMouseRect(float mouseX, float curMouseX, float mouseY, float curMo
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	
-
 	if (m_selectionMode == Enums::SelectionMode::BOXSELECTION || m_selectionMode == Enums::SelectionMode::NONE) {
 		float left = std::min(mouseX, curMouseX);
 		float bottom = std::min(mouseY, curMouseY);
@@ -457,7 +453,6 @@ void Map::drawMouseRect(float mouseX, float curMouseX, float mouseY, float curMo
 		glVertex3f(cartX * m_zoomFactor + (camera.getPositionX() + m_focusPointX) * (1.0f - m_zoomFactor), -cartY * m_zoomFactor + (camera.getPositionY() + m_focusPointY) * (1.0f - m_zoomFactor), 0.0f);
 		glEnd();
 	}
-
 
 	glLineWidth(1.0f);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -670,6 +665,10 @@ bool& Map::discreteSelection() {
 	return m_discreteSelection;
 }
 
+bool& Map::showCullingRect() {
+	return m_showCullingRect;
+}
+
 float& Map::screenBorder() {
 	return m_screeBorder;
 }
@@ -680,4 +679,8 @@ float& Map::enlargeBorder() {
 
 bool Map::FindSingleCell(SingleSelectedCell const& s1, SingleSelectedCell const& s2) {
 	return s1.row == s2.row && s1.col == s2.col;
+}
+
+void Map::setZoomFactor(float zoomFactor) {
+	m_zoomFactor = zoomFactor;
 }

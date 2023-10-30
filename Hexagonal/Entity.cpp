@@ -7,6 +7,7 @@
 #include "Math.hpp"
 #include "Application.h"
 #include "States/Game.h"
+#include "Renderer.h"
 
 Entity::Entity(const Prefab& prefab, const Camera& camera, const float& zoomFactor, const float& focusPointX, const float& focusPointY) 
 	: prefab(prefab),
@@ -151,5 +152,5 @@ void Entity::setPosition(const Vector2f& position) {
 void Entity::debugDraw() {
 	if (m_velocity.zero()) return;
 	
-	Game::DrawIsometricLine(m_position, m_position + m_velocity * 50.0f, prefab.offset, { 1.0f, 1.0, 0.0, 1.0f });
+	Renderer::Get().drawIsometricLine(m_position, m_position + m_velocity * 50.0f, prefab.offset, { 1.0f, 1.0, 0.0, 1.0f });
 }

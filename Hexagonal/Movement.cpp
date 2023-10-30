@@ -25,8 +25,10 @@ If you have questions concerning this license, you may contact Thomas Freehill a
 ===========================================================================
 */
 #include "Movement.h"
+#include "Entity.h"
 #include "Map.h"
-#include "States/Game.h"
+#include "Renderer.h"
+
 //***************
 // eMovementPlanner::eMovementPlanner
 //***************
@@ -460,7 +462,7 @@ void eMovementPlanner::DrawGoalWaypoints() {
 		float x = floorf(goalPoint[0] + 0.5f);
 		float y = floorf(goalPoint[1] + 0.5f);
 
-		Game::DrawIsometricRect(x, y, Vector4f(10.0f, 10.0f, 0.0f, 0.0f), Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
+		Renderer::Get().drawIsometricRect(x, y, Vector4f(10.0f, 10.0f, 0.0f, 0.0f), Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
 	}
 }
 
@@ -473,7 +475,7 @@ void eMovementPlanner::DrawTrailWaypoints() {
 		float x = floorf(trailPoint[0] + 0.5f);
 		float y = floorf(trailPoint[1] + 0.5f);
 
-		Game::DrawIsometricRect(x, y, Vector4f(5.0f, 5.0f, 0.0f, 0.0f), Vector4f(0.0f, 1.0f, 0.0f, 1.0f));
+		Renderer::Get().drawIsometricRect(x, y, Vector4f(5.0f, 5.0f, 0.0f, 0.0f), Vector4f(0.0f, 1.0f, 0.0f, 1.0f));
 	}
 }
 

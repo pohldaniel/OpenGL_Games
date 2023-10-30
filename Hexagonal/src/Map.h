@@ -60,9 +60,11 @@ public:
 	const int getCellHeight() const;
 	const std::vector<Cell>& getCollisionCells() const;
 	void setSelectionMode(Enums::SelectionMode selectionMode);
+	void setZoomFactor(float zoomFactor);
 
 	bool& useCulling();
 	bool& discreteSelection();
+	bool& showCullingRect();
 	float& screenBorder();
 	float& enlargeBorder();
 
@@ -79,6 +81,7 @@ private:
 	float m_enlargeBorder = 100.0f;
 	bool m_discreteSelection = true;
 	bool m_useCulling = true;
+	bool m_showCullingRect = false;
 
 	unsigned int m_atlas;
 	
