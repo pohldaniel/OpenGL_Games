@@ -161,7 +161,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="engine\ZoomableQuad.cpp" />
-    <ClCompile Include="MousePickerFBO.cpp" />
+    <ClCompile Include="src\MousePickerFBO.cpp" />
     <ClCompile Include="src\States\StateMachine.cpp" />
     <ClCompile Include="src\Utils\Rasterizer.cpp" />
     <ClCompile Include="engine\ArrayBuffer.cpp" />
@@ -289,10 +289,10 @@
     <ClInclude Include="engine\Vector.h" />
     <ClInclude Include="engine\VolumeBuffer.h" />
     <ClInclude Include="engine\ZoomableQuad.h" />
-    <ClInclude Include="MousePickerFBO.h" />
     <ClInclude Include="src\Application.h" />
     <ClInclude Include="src\Background.h" />
     <ClInclude Include="src\Globals.h" />
+    <ClInclude Include="src\MousePickerFBO.h" />
     <ClInclude Include="src\RandomColor.h" />
     <ClInclude Include="src\States\StateMachine.h" />
     <ClInclude Include="src\Utils\Rasterizer.h" />

@@ -279,7 +279,7 @@
     <ClCompile Include="src\States\StateMachine.cpp">
       <Filter>Source Files\States</Filter>
     </ClCompile>
-    <ClCompile Include="MousePickerFBO.cpp">
+    <ClCompile Include="src\MousePickerFBO.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -530,7 +530,7 @@
     <ClInclude Include="src\Background.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="MousePickerFBO.h">
+    <ClInclude Include="src\MousePickerFBO.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
