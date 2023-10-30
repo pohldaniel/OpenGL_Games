@@ -1,0 +1,927 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Source Files\States">
+      <UniqueIdentifier>{61f62bb9-5bfc-46f4-98b2-ff9f822154ae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="miniball">
+      <UniqueIdentifier>{baa8049b-5ef1-4af6-b8b7-d019e52f0867}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="convhull">
+      <UniqueIdentifier>{16b0aa13-3ea7-4211-bef6-e7a1047efd87}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Objects">
+      <UniqueIdentifier>{1689bc2d-d82d-43f4-9860-bd96a42fc04e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="engine">
+      <UniqueIdentifier>{b825812d-d6d9-4db8-b627-5449dfc6db6a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="engine\input">
+      <UniqueIdentifier>{0facde4d-d456-4b50-9ce9-daab74ad9b27}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="engine\MeshObject">
+      <UniqueIdentifier>{10b2c2b0-8208-4a3d-ba5d-b1cf1c0f5dc4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="engine\sound">
+      <UniqueIdentifier>{af2fe3bc-45b1-4b7b-a4bf-f2b78430cea2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\UI">
+      <UniqueIdentifier>{7b68a3d5-73eb-423e-b48e-9b44561208f6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Physics">
+      <UniqueIdentifier>{25bd00d9-4d5e-4732-bac4-aec51435a245}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Utils">
+      <UniqueIdentifier>{c5ffcde2-dc23-4afa-a0da-d27a2ced2fdd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="engine\collision">
+      <UniqueIdentifier>{a8ab60a4-23c7-4a80-9ea5-930f359b0744}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="engine\animation">
+      <UniqueIdentifier>{b0dd8b9e-8e51-446d-ae91-0badfcc86648}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Andromeda">
+      <UniqueIdentifier>{a21aa37c-3767-4e9e-a618-21fb3ca38b95}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Andromeda\FileSystem">
+      <UniqueIdentifier>{9915878a-0baa-45bd-b0de-7cbcd22e808d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Andromeda\FileSystem\Stdio">
+      <UniqueIdentifier>{b5870bdc-84d4-406d-b192-d3982c0e942d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Andromeda\Graphics">
+      <UniqueIdentifier>{833d4f6b-688b-4c5c-a15a-1622127f8340}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Andromeda\Graphics\Text">
+      <UniqueIdentifier>{057037ee-f821-4008-be9e-686fcc876ff0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Levels">
+      <UniqueIdentifier>{cf51e59e-dbde-4d2c-9029-eb60197de347}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Levels\SimpleStruct">
+      <UniqueIdentifier>{904e9696-3aca-4b6f-875a-1ca7b5fd122f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\JellyPhysics">
+      <UniqueIdentifier>{21447362-a7ca-4aeb-ad6f-ee57837d6f10}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Car">
+      <UniqueIdentifier>{5c17e483-d7fa-4ebb-a07b-2243f8bb1446}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="engine\input\ApplicationEventListener.cpp">
+      <Filter>engine\input</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\input\EventDispatcher.cpp">
+      <Filter>engine\input</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\input\Keyboard.cpp">
+      <Filter>engine\input</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\input\KeyboardEventListener.cpp">
+      <Filter>engine\input</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\input\MouseEventListener.cpp">
+      <Filter>engine\input</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\MeshObject\MeshCapsule.cpp">
+      <Filter>engine\MeshObject</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\MeshObject\MeshCube.cpp">
+      <Filter>engine\MeshObject</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\MeshObject\MeshCylinder.cpp">
+      <Filter>engine\MeshObject</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\MeshObject\MeshDisk.cpp">
+      <Filter>engine\MeshObject</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\MeshObject\MeshQuad.cpp">
+      <Filter>engine\MeshObject</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\MeshObject\MeshSphere.cpp">
+      <Filter>engine\MeshObject</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\MeshObject\MeshSpiral.cpp">
+      <Filter>engine\MeshObject</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\MeshObject\MeshTorus.cpp">
+      <Filter>engine\MeshObject</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\MeshObject\Shape.cpp">
+      <Filter>engine\MeshObject</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\Batchrenderer.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\BuiltInShader.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\Camera.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\CharacterSet.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\Cube.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\Fontrenderer.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\Framebuffer.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\Frustum.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\Line.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\Material.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\ObjModel.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\PerlinNoise.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\Quad.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\Random.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\Shader.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\SlicedCube.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\Spritesheet.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\Tetraedron.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\Texture.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\Timer.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\TrackBall.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\Transform.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\Vector.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\VolumeBuffer.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\ArrayBuffer.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\CubeBuffer.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\input\Mouse.cpp">
+      <Filter>engine\input</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\OctreeNew.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Physics\BspConverter.cpp">
+      <Filter>Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="Physics\BspLoader.cpp">
+      <Filter>Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="Physics\DebugDrawer.cpp">
+      <Filter>Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="Physics\HeightField.cpp">
+      <Filter>Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="Physics\heightfield128x128.cpp">
+      <Filter>Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="Physics\KinematicObject.cpp">
+      <Filter>Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="Physics\KinematicTrigger.cpp">
+      <Filter>Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="Physics\MousePicker.cpp">
+      <Filter>Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="Physics\Physics.cpp">
+      <Filter>Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="Physics\PhysicsCar.cpp">
+      <Filter>Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="Physics\Ragdoll.cpp">
+      <Filter>Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="Physics\ShapeDrawer.cpp">
+      <Filter>Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="Physics\StaticTrigger.cpp">
+      <Filter>Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Application.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Objects\Object.cpp">
+      <Filter>Source Files\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Objects\RenderableObject.cpp">
+      <Filter>Source Files\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\States\Menu.cpp">
+      <Filter>Source Files\States</Filter>
+    </ClCompile>
+    <ClCompile Include="src\UI\Button.cpp">
+      <Filter>Source Files\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\UI\SeekerBar.cpp">
+      <Filter>Source Files\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\UI\TextField.cpp">
+      <Filter>Source Files\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\UI\Widget.cpp">
+      <Filter>Source Files\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Utils\SolidIO.cpp">
+      <Filter>Source Files\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Utils\Utils.cpp">
+      <Filter>Source Files\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\UI\CheckBox.cpp">
+      <Filter>Source Files\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\States\Game.cpp">
+      <Filter>Source Files\States</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\Pixelbuffer.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Background.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RandomColor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\collision\Collision.cpp">
+      <Filter>engine\collision</Filter>
+    </ClCompile>
+    <ClCompile Include="src\main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\ZoomableQuad.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Utils\Rasterizer.cpp">
+      <Filter>Source Files\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\States\StateMachine.cpp">
+      <Filter>Source Files\States</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MousePickerFBO.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderManager.cpp">
+      <Filter>Andromeda</Filter>
+    </ClCompile>
+    <ClCompile Include="Shader2.cpp">
+      <Filter>Andromeda</Filter>
+    </ClCompile>
+    <ClCompile Include="AnimVec3.cpp">
+      <Filter>Andromeda</Filter>
+    </ClCompile>
+    <ClCompile Include="AnimMat4.cpp">
+      <Filter>Andromeda</Filter>
+    </ClCompile>
+    <ClCompile Include="FileSystem\Stdio\StdioDirectory.cpp">
+      <Filter>Andromeda\FileSystem\Stdio</Filter>
+    </ClCompile>
+    <ClCompile Include="FileSystem\Stdio\StdioFile.cpp">
+      <Filter>Andromeda\FileSystem\Stdio</Filter>
+    </ClCompile>
+    <ClCompile Include="FileSystem\BaseDirectory.cpp">
+      <Filter>Andromeda\FileSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="FileSystem\BaseFile.cpp">
+      <Filter>Andromeda\FileSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="FileSystem\FileManager.cpp">
+      <Filter>Andromeda\FileSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderManager.cpp">
+      <Filter>Andromeda</Filter>
+    </ClCompile>
+    <ClCompile Include="FrameBufferObject.cpp">
+      <Filter>Andromeda</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture2.cpp">
+      <Filter>Andromeda</Filter>
+    </ClCompile>
+    <ClCompile Include="MemoryManager.cpp">
+      <Filter>Andromeda</Filter>
+    </ClCompile>
+    <ClCompile Include="MemoryManagerGlfw.cpp">
+      <Filter>Andromeda</Filter>
+    </ClCompile>
+    <ClCompile Include="VertexArrayObject.cpp">
+      <Filter>Andromeda</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderManagerGL3.cpp">
+      <Filter>Andromeda</Filter>
+    </ClCompile>
+    <ClCompile Include="FrameBufferObjectGL3.cpp">
+      <Filter>Andromeda</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderGlsl.cpp">
+      <Filter>Andromeda</Filter>
+    </ClCompile>
+    <ClCompile Include="VertexArrayObjectGL3.cpp">
+      <Filter>Andromeda</Filter>
+    </ClCompile>
+    <ClCompile Include="VertexBufferObjectGL3.cpp">
+      <Filter>Andromeda</Filter>
+    </ClCompile>
+    <ClCompile Include="TextureManager.cpp">
+      <Filter>Andromeda</Filter>
+    </ClCompile>
+    <ClCompile Include="VertexBufferObject.cpp">
+      <Filter>Andromeda</Filter>
+    </ClCompile>
+    <ClCompile Include="Text\FontManager.cpp">
+      <Filter>Andromeda\Graphics\Text</Filter>
+    </ClCompile>
+    <ClCompile Include="Text\TextureAtlas.cpp">
+      <Filter>Andromeda\Graphics\Text</Filter>
+    </ClCompile>
+    <ClCompile Include="Text\TexturedFont.cpp">
+      <Filter>Andromeda\Graphics\Text</Filter>
+    </ClCompile>
+    <ClCompile Include="Sprite.cpp">
+      <Filter>Andromeda</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Levels\GamePressureBody.cpp">
+      <Filter>Source Files\Levels</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Levels\GameSpringBody.cpp">
+      <Filter>Source Files\Levels</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Levels\KinematicControl.cpp">
+      <Filter>Source Files\Levels</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Levels\KinematicMotor.cpp">
+      <Filter>Source Files\Levels</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Levels\KinematicPlatform.cpp">
+      <Filter>Source Files\Levels</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Levels\LevelManager.cpp">
+      <Filter>Source Files\Levels</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Levels\LevelSoftBody.cpp">
+      <Filter>Source Files\Levels</Filter>
+    </ClCompile>
+    <ClCompile Include="src\JellyPhysics\AABB.cpp">
+      <Filter>Source Files\JellyPhysics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\JellyPhysics\Body.cpp">
+      <Filter>Source Files\JellyPhysics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\JellyPhysics\ClosedShape.cpp">
+      <Filter>Source Files\JellyPhysics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\JellyPhysics\InternalSpring.cpp">
+      <Filter>Source Files\JellyPhysics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\JellyPhysics\PointMass.cpp">
+      <Filter>Source Files\JellyPhysics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\JellyPhysics\PressureBody.cpp">
+      <Filter>Source Files\JellyPhysics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\JellyPhysics\SpringBody.cpp">
+      <Filter>Source Files\JellyPhysics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\JellyPhysics\Vector2.cpp">
+      <Filter>Source Files\JellyPhysics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\JellyPhysics\VectorTools.cpp">
+      <Filter>Source Files\JellyPhysics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\JellyPhysics\World.cpp">
+      <Filter>Source Files\JellyPhysics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\JellyCore.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\JellyMenu.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Car\Car.cpp">
+      <Filter>Source Files\Car</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Car\Chassis.cpp">
+      <Filter>Source Files\Car</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Car\GameBallonBody.cpp">
+      <Filter>Source Files\Car</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Car\SuspensionShock.cpp">
+      <Filter>Source Files\Car</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Car\Tire.cpp">
+      <Filter>Source Files\Car</Filter>
+    </ClCompile>
+    <ClCompile Include="Timer2.cpp">
+      <Filter>Andromeda</Filter>
+    </ClCompile>
+    <ClCompile Include="src\JellyHelper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="convhull\convhull_3d.h">
+      <Filter>convhull</Filter>
+    </ClInclude>
+    <ClInclude Include="Miniball\Miniball.h">
+      <Filter>miniball</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\input\ApplicationEventListener.h">
+      <Filter>engine\input</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\input\Event.h">
+      <Filter>engine\input</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\input\EventDispatcher.h">
+      <Filter>engine\input</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\input\Keyboard.h">
+      <Filter>engine\input</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\input\KeyboardEventListener.h">
+      <Filter>engine\input</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\input\MouseEventListener.h">
+      <Filter>engine\input</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\MeshObject\MeshCapsule.h">
+      <Filter>engine\MeshObject</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\MeshObject\MeshCube.h">
+      <Filter>engine\MeshObject</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\MeshObject\MeshCylinder.h">
+      <Filter>engine\MeshObject</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\MeshObject\MeshDisk.h">
+      <Filter>engine\MeshObject</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\MeshObject\MeshQuad.h">
+      <Filter>engine\MeshObject</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\MeshObject\MeshSphere.h">
+      <Filter>engine\MeshObject</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\MeshObject\MeshSpiral.h">
+      <Filter>engine\MeshObject</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\MeshObject\MeshTorus.h">
+      <Filter>engine\MeshObject</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\MeshObject\Shape.h">
+      <Filter>engine\MeshObject</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\AssetManger.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\Batchrenderer.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\BuiltInShader.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\Camera.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\CharacterSet.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\Clock.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\Cube.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\Fontrenderer.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\Framebuffer.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\Frustum.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\Line.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\Material.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\ObjModel.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\PerlinNoise.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\Quad.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\Random.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\Shader.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\SlicedCube.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\Spritesheet.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\Tetraedron.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\Texture.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\Timer.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\TrackBall.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\Transform.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\Vector.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\VolumeBuffer.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\ArrayBuffer.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\CubeBuffer.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\input\Mouse.h">
+      <Filter>engine\input</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\OctreeNew.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Physics\BspConverter.h">
+      <Filter>Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="Physics\BspLoader.h">
+      <Filter>Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="Physics\BspToBulletConverter.h">
+      <Filter>Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="Physics\DebugDrawer.h">
+      <Filter>Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="Physics\HeightField.h">
+      <Filter>Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="Physics\KinematicObject.h">
+      <Filter>Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="Physics\KinematicTrigger.h">
+      <Filter>Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="Physics\MousePicker.h">
+      <Filter>Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="Physics\Physics.h">
+      <Filter>Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="Physics\PhysicsCar.h">
+      <Filter>Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="Physics\Ragdoll.h">
+      <Filter>Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="Physics\ShapeDrawer.h">
+      <Filter>Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="Physics\StaticTrigger.h">
+      <Filter>Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Objects\Object.h">
+      <Filter>Source Files\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Objects\RenderableObject.h">
+      <Filter>Source Files\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\States\Menu.h">
+      <Filter>Source Files\States</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UI\Button.h">
+      <Filter>Source Files\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UI\SeekerBar.h">
+      <Filter>Source Files\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UI\TextField.h">
+      <Filter>Source Files\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UI\Widget.h">
+      <Filter>Source Files\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Utils\SolidIO.h">
+      <Filter>Source Files\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Utils\Utils.h">
+      <Filter>Source Files\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UI\CheckBox.h">
+      <Filter>Source Files\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\States\Game.h">
+      <Filter>Source Files\States</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\Pixelbuffer.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\collision\Collider.h">
+      <Filter>engine\collision</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\collision\Collision.h">
+      <Filter>engine\collision</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\Rect.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\ZoomableQuad.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Utils\Rasterizer.h">
+      <Filter>Source Files\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Globals.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Application.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\RandomColor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\States\StateMachine.h">
+      <Filter>Source Files\States</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Background.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MousePickerFBO.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderManager.h">
+      <Filter>Andromeda</Filter>
+    </ClInclude>
+    <ClInclude Include="Shader2.h">
+      <Filter>Andromeda</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphicsEnums.h">
+      <Filter>Andromeda</Filter>
+    </ClInclude>
+    <ClInclude Include="AnimMat4.h">
+      <Filter>Andromeda</Filter>
+    </ClInclude>
+    <ClInclude Include="AnimVec3.h">
+      <Filter>Andromeda</Filter>
+    </ClInclude>
+    <ClInclude Include="AnimVec4.h">
+      <Filter>Andromeda</Filter>
+    </ClInclude>
+    <ClInclude Include="FileSystem\Stdio\StdioDirectory.h">
+      <Filter>Andromeda\FileSystem\Stdio</Filter>
+    </ClInclude>
+    <ClInclude Include="FileSystem\Stdio\StdioFile.h">
+      <Filter>Andromeda\FileSystem\Stdio</Filter>
+    </ClInclude>
+    <ClInclude Include="FileSystem\BaseDirectory.h">
+      <Filter>Andromeda\FileSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="FileSystem\BaseFile.h">
+      <Filter>Andromeda\FileSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="FileSystem\FileManager.h">
+      <Filter>Andromeda\FileSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderManager.h">
+      <Filter>Andromeda</Filter>
+    </ClInclude>
+    <ClInclude Include="FrameBufferObject.h">
+      <Filter>Andromeda</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture2.h">
+      <Filter>Andromeda</Filter>
+    </ClInclude>
+    <ClInclude Include="MemoryManager.h">
+      <Filter>Andromeda</Filter>
+    </ClInclude>
+    <ClInclude Include="MemoryManagerGlfw.h">
+      <Filter>Andromeda</Filter>
+    </ClInclude>
+    <ClInclude Include="VertexArrayObject.h">
+      <Filter>Andromeda</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderManagerGL3.h">
+      <Filter>Andromeda</Filter>
+    </ClInclude>
+    <ClInclude Include="FrameBufferObjectGL3.h">
+      <Filter>Andromeda</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderGlsl.h">
+      <Filter>Andromeda</Filter>
+    </ClInclude>
+    <ClInclude Include="VertexArrayObjectGL3.h">
+      <Filter>Andromeda</Filter>
+    </ClInclude>
+    <ClInclude Include="VertexBufferObjectGL3.h">
+      <Filter>Andromeda</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureManager.h">
+      <Filter>Andromeda</Filter>
+    </ClInclude>
+    <ClInclude Include="VertexTypes.h">
+      <Filter>Andromeda</Filter>
+    </ClInclude>
+    <ClInclude Include="VertexBufferObject.h">
+      <Filter>Andromeda</Filter>
+    </ClInclude>
+    <ClInclude Include="Text\FontManager.h">
+      <Filter>Andromeda\Graphics\Text</Filter>
+    </ClInclude>
+    <ClInclude Include="Text\TextPart.h">
+      <Filter>Andromeda\Graphics\Text</Filter>
+    </ClInclude>
+    <ClInclude Include="Text\TextureAtlas.h">
+      <Filter>Andromeda\Graphics\Text</Filter>
+    </ClInclude>
+    <ClInclude Include="Text\TexturedFont.h">
+      <Filter>Andromeda\Graphics\Text</Filter>
+    </ClInclude>
+    <ClInclude Include="Sprite.h">
+      <Filter>Andromeda</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Levels\GamePressureBody.h">
+      <Filter>Source Files\Levels</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Levels\GameSpringBody.h">
+      <Filter>Source Files\Levels</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Levels\InputHelper.h">
+      <Filter>Source Files\Levels</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Levels\KinematicControl.h">
+      <Filter>Source Files\Levels</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Levels\KinematicMotor.h">
+      <Filter>Source Files\Levels</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Levels\KinematicPlatform.h">
+      <Filter>Source Files\Levels</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Levels\LevelInfo.h">
+      <Filter>Source Files\Levels</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Levels\LevelManager.h">
+      <Filter>Source Files\Levels</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Levels\LevelSoftBody.h">
+      <Filter>Source Files\Levels</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Levels\ObjectInfo.h">
+      <Filter>Source Files\Levels</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Levels\SkinInfo.h">
+      <Filter>Source Files\Levels</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Levels\SimpleStruct\BodyObject.h">
+      <Filter>Source Files\Levels\SimpleStruct</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Levels\SimpleStruct\BodyObjectInfo.h">
+      <Filter>Source Files\Levels\SimpleStruct</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Levels\SimpleStruct\BodyPoint.h">
+      <Filter>Source Files\Levels\SimpleStruct</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Levels\SimpleStruct\BodyPolygon.h">
+      <Filter>Source Files\Levels\SimpleStruct</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Levels\SimpleStruct\BodySpring.h">
+      <Filter>Source Files\Levels\SimpleStruct</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Levels\SimpleStruct\GameObject.h">
+      <Filter>Source Files\Levels\SimpleStruct</Filter>
+    </ClInclude>
+    <ClInclude Include="src\JellyPhysics\AABB.h">
+      <Filter>Source Files\JellyPhysics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\JellyPhysics\Bitmask.h">
+      <Filter>Source Files\JellyPhysics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\JellyPhysics\Body.h">
+      <Filter>Source Files\JellyPhysics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\JellyPhysics\ClosedShape.h">
+      <Filter>Source Files\JellyPhysics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\JellyPhysics\InternalSpring.h">
+      <Filter>Source Files\JellyPhysics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\JellyPhysics\JellyPhysics.h">
+      <Filter>Source Files\JellyPhysics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\JellyPhysics\JellyPrerequisites.h">
+      <Filter>Source Files\JellyPhysics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\JellyPhysics\PointMass.h">
+      <Filter>Source Files\JellyPhysics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\JellyPhysics\PressureBody.h">
+      <Filter>Source Files\JellyPhysics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\JellyPhysics\SpringBody.h">
+      <Filter>Source Files\JellyPhysics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\JellyPhysics\Vector2.h">
+      <Filter>Source Files\JellyPhysics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\JellyPhysics\VectorTools.h">
+      <Filter>Source Files\JellyPhysics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\JellyPhysics\World.h">
+      <Filter>Source Files\JellyPhysics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\JellyCore.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\JellyMenu.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Car\Car.h">
+      <Filter>Source Files\Car</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Car\Chassis.h">
+      <Filter>Source Files\Car</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Car\GameBallonBody.h">
+      <Filter>Source Files\Car</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Car\SuspensionShock.h">
+      <Filter>Source Files\Car</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Car\Tire.h">
+      <Filter>Source Files\Car</Filter>
+    </ClInclude>
+    <ClInclude Include="src\JellyHelper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Timer2.h">
+      <Filter>Andromeda</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

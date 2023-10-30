@@ -1,0 +1,449 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{b4931b20-a005-4195-8a9a-5c7db8447979}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>_27JellyCar</RootNamespace>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;ANDROMEDA_GL3;ANDROMEDA_GLFW;ANDROMEDA_PC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.\;src;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;..\05UniversityRacer\glm;..\libfreetypegl;..\libtinyxml;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DisableSpecificWarnings>4005;</DisableSpecificWarnings>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>..\libd\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libsoil2.lib;libimgui.lib;libfreetype.lib;libbullet.lib;libfreetypegl.lib;libtinyxml.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;ANDROMEDA_GL3;ANDROMEDA_GLFW;ANDROMEDA_PC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.\;src;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;..\05UniversityRacer\glm;..\libfreetypegl;..\libtinyxml;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DisableSpecificWarnings>4005;</DisableSpecificWarnings>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>..\libd\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libsoil2.lib;libimgui.lib;libfreetype.lib;libbullet.lib;libfreetypegl.lib;libtinyxml.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;ANDROMEDA_GL3;ANDROMEDA_GLFW;ANDROMEDA_PC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.\;src;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;..\05UniversityRacer\glm;..\libfreetypegl;..\libtinyxml;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <DisableSpecificWarnings>4005;</DisableSpecificWarnings>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>..\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libsoil2.lib;libimgui.lib;libfreetype.lib;libbullet.lib;libfreetypegl.lib;libtinyxml.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_CRT_SECURE_NO_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;ANDROMEDA_GL3;ANDROMEDA_GLFW;ANDROMEDA_PC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.\;src;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;..\05UniversityRacer\glm;..\libfreetypegl;..\libtinyxml;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <DisableSpecificWarnings>4005;</DisableSpecificWarnings>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>..\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libsoil2.lib;libimgui.lib;libfreetype.lib;libbullet.lib;libfreetypegl.lib;libtinyxml.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="AnimMat4.cpp" />
+    <ClCompile Include="AnimVec3.cpp" />
+    <ClCompile Include="engine\ZoomableQuad.cpp" />
+    <ClCompile Include="FileSystem\BaseDirectory.cpp" />
+    <ClCompile Include="FileSystem\BaseFile.cpp" />
+    <ClCompile Include="FileSystem\FileManager.cpp" />
+    <ClCompile Include="FileSystem\Stdio\StdioDirectory.cpp" />
+    <ClCompile Include="FileSystem\Stdio\StdioFile.cpp" />
+    <ClCompile Include="FrameBufferObject.cpp" />
+    <ClCompile Include="FrameBufferObjectGL3.cpp" />
+    <ClCompile Include="MemoryManager.cpp" />
+    <ClCompile Include="MemoryManagerGlfw.cpp" />
+    <ClCompile Include="RenderManager.cpp" />
+    <ClCompile Include="RenderManagerGL3.cpp" />
+    <ClCompile Include="Shader2.cpp" />
+    <ClCompile Include="ShaderGlsl.cpp" />
+    <ClCompile Include="ShaderManager.cpp" />
+    <ClCompile Include="Sprite.cpp" />
+    <ClCompile Include="src\Car\Car.cpp" />
+    <ClCompile Include="src\Car\Chassis.cpp" />
+    <ClCompile Include="src\Car\GameBallonBody.cpp" />
+    <ClCompile Include="src\Car\SuspensionShock.cpp" />
+    <ClCompile Include="src\Car\Tire.cpp" />
+    <ClCompile Include="src\JellyCore.cpp" />
+    <ClCompile Include="src\JellyHelper.cpp" />
+    <ClCompile Include="src\JellyMenu.cpp" />
+    <ClCompile Include="src\JellyPhysics\AABB.cpp" />
+    <ClCompile Include="src\JellyPhysics\Body.cpp" />
+    <ClCompile Include="src\JellyPhysics\ClosedShape.cpp" />
+    <ClCompile Include="src\JellyPhysics\InternalSpring.cpp" />
+    <ClCompile Include="src\JellyPhysics\PointMass.cpp" />
+    <ClCompile Include="src\JellyPhysics\PressureBody.cpp" />
+    <ClCompile Include="src\JellyPhysics\SpringBody.cpp" />
+    <ClCompile Include="src\JellyPhysics\Vector2.cpp" />
+    <ClCompile Include="src\JellyPhysics\VectorTools.cpp" />
+    <ClCompile Include="src\JellyPhysics\World.cpp" />
+    <ClCompile Include="src\Levels\GamePressureBody.cpp" />
+    <ClCompile Include="src\Levels\GameSpringBody.cpp" />
+    <ClCompile Include="src\Levels\KinematicControl.cpp" />
+    <ClCompile Include="src\Levels\KinematicMotor.cpp" />
+    <ClCompile Include="src\Levels\KinematicPlatform.cpp" />
+    <ClCompile Include="src\Levels\LevelManager.cpp" />
+    <ClCompile Include="src\Levels\LevelSoftBody.cpp" />
+    <ClCompile Include="src\MousePickerFBO.cpp" />
+    <ClCompile Include="src\States\StateMachine.cpp" />
+    <ClCompile Include="src\Utils\Rasterizer.cpp" />
+    <ClCompile Include="engine\ArrayBuffer.cpp" />
+    <ClCompile Include="engine\Batchrenderer.cpp" />
+    <ClCompile Include="engine\BuiltInShader.cpp" />
+    <ClCompile Include="engine\Camera.cpp" />
+    <ClCompile Include="engine\CharacterSet.cpp" />
+    <ClCompile Include="engine\collision\Collision.cpp" />
+    <ClCompile Include="engine\Cube.cpp" />
+    <ClCompile Include="engine\CubeBuffer.cpp" />
+    <ClCompile Include="engine\Fontrenderer.cpp" />
+    <ClCompile Include="engine\Framebuffer.cpp" />
+    <ClCompile Include="engine\Frustum.cpp" />
+    <ClCompile Include="engine\input\ApplicationEventListener.cpp" />
+    <ClCompile Include="engine\input\EventDispatcher.cpp" />
+    <ClCompile Include="engine\input\Keyboard.cpp" />
+    <ClCompile Include="engine\input\KeyboardEventListener.cpp" />
+    <ClCompile Include="engine\input\Mouse.cpp" />
+    <ClCompile Include="engine\input\MouseEventListener.cpp" />
+    <ClCompile Include="engine\Line.cpp" />
+    <ClCompile Include="engine\Material.cpp" />
+    <ClCompile Include="engine\MeshObject\MeshCapsule.cpp" />
+    <ClCompile Include="engine\MeshObject\MeshCube.cpp" />
+    <ClCompile Include="engine\MeshObject\MeshCylinder.cpp" />
+    <ClCompile Include="engine\MeshObject\MeshDisk.cpp" />
+    <ClCompile Include="engine\MeshObject\MeshQuad.cpp" />
+    <ClCompile Include="engine\MeshObject\MeshSphere.cpp" />
+    <ClCompile Include="engine\MeshObject\MeshSpiral.cpp" />
+    <ClCompile Include="engine\MeshObject\MeshTorus.cpp" />
+    <ClCompile Include="engine\MeshObject\Shape.cpp" />
+    <ClCompile Include="engine\ObjModel.cpp" />
+    <ClCompile Include="engine\OctreeNew.cpp" />
+    <ClCompile Include="engine\PerlinNoise.cpp" />
+    <ClCompile Include="engine\Pixelbuffer.cpp" />
+    <ClCompile Include="engine\Quad.cpp" />
+    <ClCompile Include="engine\Random.cpp" />
+    <ClCompile Include="engine\Shader.cpp" />
+    <ClCompile Include="engine\SlicedCube.cpp" />
+    <ClCompile Include="engine\Spritesheet.cpp" />
+    <ClCompile Include="engine\Tetraedron.cpp" />
+    <ClCompile Include="engine\Texture.cpp" />
+    <ClCompile Include="engine\Timer.cpp" />
+    <ClCompile Include="engine\TrackBall.cpp" />
+    <ClCompile Include="engine\Transform.cpp" />
+    <ClCompile Include="engine\Vector.cpp" />
+    <ClCompile Include="engine\VolumeBuffer.cpp" />
+    <ClCompile Include="Physics\BspConverter.cpp" />
+    <ClCompile Include="Physics\BspLoader.cpp" />
+    <ClCompile Include="Physics\DebugDrawer.cpp" />
+    <ClCompile Include="Physics\HeightField.cpp" />
+    <ClCompile Include="Physics\heightfield128x128.cpp" />
+    <ClCompile Include="Physics\KinematicObject.cpp" />
+    <ClCompile Include="Physics\KinematicTrigger.cpp" />
+    <ClCompile Include="Physics\MousePicker.cpp" />
+    <ClCompile Include="Physics\Physics.cpp" />
+    <ClCompile Include="Physics\PhysicsCar.cpp" />
+    <ClCompile Include="Physics\Ragdoll.cpp" />
+    <ClCompile Include="Physics\ShapeDrawer.cpp" />
+    <ClCompile Include="Physics\StaticTrigger.cpp" />
+    <ClCompile Include="src\Application.cpp" />
+    <ClCompile Include="src\Background.cpp" />
+    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\Objects\Object.cpp" />
+    <ClCompile Include="src\Objects\RenderableObject.cpp" />
+    <ClCompile Include="src\RandomColor.cpp" />
+    <ClCompile Include="src\States\Game.cpp" />
+    <ClCompile Include="src\States\Menu.cpp" />
+    <ClCompile Include="src\UI\Button.cpp" />
+    <ClCompile Include="src\UI\CheckBox.cpp" />
+    <ClCompile Include="src\UI\SeekerBar.cpp" />
+    <ClCompile Include="src\UI\TextField.cpp" />
+    <ClCompile Include="src\UI\Widget.cpp" />
+    <ClCompile Include="src\Utils\SolidIO.cpp" />
+    <ClCompile Include="src\Utils\Utils.cpp" />
+    <ClCompile Include="Texture2.cpp" />
+    <ClCompile Include="TextureManager.cpp" />
+    <ClCompile Include="Text\FontManager.cpp" />
+    <ClCompile Include="Text\TextureAtlas.cpp" />
+    <ClCompile Include="Text\TexturedFont.cpp" />
+    <ClCompile Include="Timer2.cpp" />
+    <ClCompile Include="VertexArrayObject.cpp" />
+    <ClCompile Include="VertexArrayObjectGL3.cpp" />
+    <ClCompile Include="VertexBufferObject.cpp" />
+    <ClCompile Include="VertexBufferObjectGL3.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="AnimMat4.h" />
+    <ClInclude Include="AnimVec3.h" />
+    <ClInclude Include="AnimVec4.h" />
+    <ClInclude Include="engine\ArrayBuffer.h" />
+    <ClInclude Include="engine\collision\Collider.h" />
+    <ClInclude Include="engine\collision\Collision.h" />
+    <ClInclude Include="engine\CubeBuffer.h" />
+    <ClInclude Include="engine\input\Mouse.h" />
+    <ClInclude Include="engine\OctreeNew.h" />
+    <ClInclude Include="convhull\convhull_3d.h" />
+    <ClInclude Include="engine\AssetManger.h" />
+    <ClInclude Include="engine\Batchrenderer.h" />
+    <ClInclude Include="engine\BuiltInShader.h" />
+    <ClInclude Include="engine\Camera.h" />
+    <ClInclude Include="engine\CharacterSet.h" />
+    <ClInclude Include="engine\Clock.h" />
+    <ClInclude Include="engine\Cube.h" />
+    <ClInclude Include="engine\Fontrenderer.h" />
+    <ClInclude Include="engine\Framebuffer.h" />
+    <ClInclude Include="engine\Frustum.h" />
+    <ClInclude Include="engine\input\ApplicationEventListener.h" />
+    <ClInclude Include="engine\input\Event.h" />
+    <ClInclude Include="engine\input\EventDispatcher.h" />
+    <ClInclude Include="engine\input\Keyboard.h" />
+    <ClInclude Include="engine\input\KeyboardEventListener.h" />
+    <ClInclude Include="engine\input\MouseEventListener.h" />
+    <ClInclude Include="engine\Line.h" />
+    <ClInclude Include="engine\Material.h" />
+    <ClInclude Include="engine\MeshObject\MeshCapsule.h" />
+    <ClInclude Include="engine\MeshObject\MeshCube.h" />
+    <ClInclude Include="engine\MeshObject\MeshCylinder.h" />
+    <ClInclude Include="engine\MeshObject\MeshDisk.h" />
+    <ClInclude Include="engine\MeshObject\MeshQuad.h" />
+    <ClInclude Include="engine\MeshObject\MeshSphere.h" />
+    <ClInclude Include="engine\MeshObject\MeshSpiral.h" />
+    <ClInclude Include="engine\MeshObject\MeshTorus.h" />
+    <ClInclude Include="engine\MeshObject\Shape.h" />
+    <ClInclude Include="engine\ObjModel.h" />
+    <ClInclude Include="engine\PerlinNoise.h" />
+    <ClInclude Include="engine\Pixelbuffer.h" />
+    <ClInclude Include="engine\Quad.h" />
+    <ClInclude Include="engine\Random.h" />
+    <ClInclude Include="engine\Rect.h" />
+    <ClInclude Include="engine\Shader.h" />
+    <ClInclude Include="engine\SlicedCube.h" />
+    <ClInclude Include="engine\Spritesheet.h" />
+    <ClInclude Include="engine\Tetraedron.h" />
+    <ClInclude Include="engine\Texture.h" />
+    <ClInclude Include="engine\Timer.h" />
+    <ClInclude Include="engine\TrackBall.h" />
+    <ClInclude Include="engine\Transform.h" />
+    <ClInclude Include="engine\Vector.h" />
+    <ClInclude Include="engine\VolumeBuffer.h" />
+    <ClInclude Include="engine\ZoomableQuad.h" />
+    <ClInclude Include="FileSystem\BaseDirectory.h" />
+    <ClInclude Include="FileSystem\BaseFile.h" />
+    <ClInclude Include="FileSystem\FileManager.h" />
+    <ClInclude Include="FileSystem\Stdio\StdioDirectory.h" />
+    <ClInclude Include="FileSystem\Stdio\StdioFile.h" />
+    <ClInclude Include="FrameBufferObject.h" />
+    <ClInclude Include="FrameBufferObjectGL3.h" />
+    <ClInclude Include="GraphicsEnums.h" />
+    <ClInclude Include="MemoryManager.h" />
+    <ClInclude Include="MemoryManagerGlfw.h" />
+    <ClInclude Include="RenderManager.h" />
+    <ClInclude Include="RenderManagerGL3.h" />
+    <ClInclude Include="Shader2.h" />
+    <ClInclude Include="ShaderGlsl.h" />
+    <ClInclude Include="ShaderManager.h" />
+    <ClInclude Include="Sprite.h" />
+    <ClInclude Include="src\Application.h" />
+    <ClInclude Include="src\Background.h" />
+    <ClInclude Include="src\Car\Car.h" />
+    <ClInclude Include="src\Car\Chassis.h" />
+    <ClInclude Include="src\Car\GameBallonBody.h" />
+    <ClInclude Include="src\Car\SuspensionShock.h" />
+    <ClInclude Include="src\Car\Tire.h" />
+    <ClInclude Include="src\Globals.h" />
+    <ClInclude Include="src\JellyCore.h" />
+    <ClInclude Include="src\JellyHelper.h" />
+    <ClInclude Include="src\JellyMenu.h" />
+    <ClInclude Include="src\JellyPhysics\AABB.h" />
+    <ClInclude Include="src\JellyPhysics\Bitmask.h" />
+    <ClInclude Include="src\JellyPhysics\Body.h" />
+    <ClInclude Include="src\JellyPhysics\ClosedShape.h" />
+    <ClInclude Include="src\JellyPhysics\InternalSpring.h" />
+    <ClInclude Include="src\JellyPhysics\JellyPhysics.h" />
+    <ClInclude Include="src\JellyPhysics\JellyPrerequisites.h" />
+    <ClInclude Include="src\JellyPhysics\PointMass.h" />
+    <ClInclude Include="src\JellyPhysics\PressureBody.h" />
+    <ClInclude Include="src\JellyPhysics\SpringBody.h" />
+    <ClInclude Include="src\JellyPhysics\Vector2.h" />
+    <ClInclude Include="src\JellyPhysics\VectorTools.h" />
+    <ClInclude Include="src\JellyPhysics\World.h" />
+    <ClInclude Include="src\Levels\GamePressureBody.h" />
+    <ClInclude Include="src\Levels\GameSpringBody.h" />
+    <ClInclude Include="src\Levels\InputHelper.h" />
+    <ClInclude Include="src\Levels\KinematicControl.h" />
+    <ClInclude Include="src\Levels\KinematicMotor.h" />
+    <ClInclude Include="src\Levels\KinematicPlatform.h" />
+    <ClInclude Include="src\Levels\LevelInfo.h" />
+    <ClInclude Include="src\Levels\LevelManager.h" />
+    <ClInclude Include="src\Levels\LevelSoftBody.h" />
+    <ClInclude Include="src\Levels\ObjectInfo.h" />
+    <ClInclude Include="src\Levels\SimpleStruct\BodyObject.h" />
+    <ClInclude Include="src\Levels\SimpleStruct\BodyObjectInfo.h" />
+    <ClInclude Include="src\Levels\SimpleStruct\BodyPoint.h" />
+    <ClInclude Include="src\Levels\SimpleStruct\BodyPolygon.h" />
+    <ClInclude Include="src\Levels\SimpleStruct\BodySpring.h" />
+    <ClInclude Include="src\Levels\SimpleStruct\GameObject.h" />
+    <ClInclude Include="src\Levels\SkinInfo.h" />
+    <ClInclude Include="src\MousePickerFBO.h" />
+    <ClInclude Include="src\RandomColor.h" />
+    <ClInclude Include="src\States\StateMachine.h" />
+    <ClInclude Include="src\Utils\Rasterizer.h" />
+    <ClInclude Include="Physics\BspConverter.h" />
+    <ClInclude Include="Physics\BspLoader.h" />
+    <ClInclude Include="Physics\BspToBulletConverter.h" />
+    <ClInclude Include="Physics\DebugDrawer.h" />
+    <ClInclude Include="Physics\HeightField.h" />
+    <ClInclude Include="Physics\KinematicObject.h" />
+    <ClInclude Include="Physics\KinematicTrigger.h" />
+    <ClInclude Include="Physics\MousePicker.h" />
+    <ClInclude Include="Physics\Physics.h" />
+    <ClInclude Include="Physics\PhysicsCar.h" />
+    <ClInclude Include="Physics\Ragdoll.h" />
+    <ClInclude Include="Physics\ShapeDrawer.h" />
+    <ClInclude Include="Physics\StaticTrigger.h" />
+    <ClInclude Include="src\Objects\Object.h" />
+    <ClInclude Include="src\Objects\RenderableObject.h" />
+    <ClInclude Include="Miniball\Miniball.h" />
+    <ClInclude Include="src\States\Game.h" />
+    <ClInclude Include="src\States\Menu.h" />
+    <ClInclude Include="src\UI\Button.h" />
+    <ClInclude Include="src\UI\CheckBox.h" />
+    <ClInclude Include="src\UI\SeekerBar.h" />
+    <ClInclude Include="src\UI\TextField.h" />
+    <ClInclude Include="src\UI\Widget.h" />
+    <ClInclude Include="src\Utils\SolidIO.h" />
+    <ClInclude Include="src\Utils\Utils.h" />
+    <ClInclude Include="Texture2.h" />
+    <ClInclude Include="TextureManager.h" />
+    <ClInclude Include="Text\FontManager.h" />
+    <ClInclude Include="Text\TextPart.h" />
+    <ClInclude Include="Text\TextureAtlas.h" />
+    <ClInclude Include="Text\TexturedFont.h" />
+    <ClInclude Include="Timer2.h" />
+    <ClInclude Include="VertexArrayObject.h" />
+    <ClInclude Include="VertexArrayObjectGL3.h" />
+    <ClInclude Include="VertexBufferObject.h" />
+    <ClInclude Include="VertexBufferObjectGL3.h" />
+    <ClInclude Include="VertexTypes.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
