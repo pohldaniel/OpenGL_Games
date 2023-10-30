@@ -30,4 +30,13 @@ namespace Enums {
 		SEM = 14,
 		SEU = 15,
 	};
+
+	enum SelectionMode {
+		BOXSELECTION,
+		ISOSELECTION,
+		MARKER,
+		RASTERIZER,
+		NONE
+	};
+
 }
