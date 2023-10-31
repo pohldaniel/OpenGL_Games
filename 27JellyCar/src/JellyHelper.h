@@ -1,10 +1,9 @@
-#include "RenderManager.h"
-#include "ShaderManager.h"
-#include "Shader2.h"
-#include "VertexTypes.h"
+#include <_Andromeda/RenderManager.h>
+#include <_Andromeda/ShaderManager.h>
+#include <_Andromeda/Shader2.h>
+#include <_Andromeda/VertexTypes.h>
 
 #include "JellyPhysics/JellyPhysics.h"
-
 
 using namespace JellyPhysics;
 

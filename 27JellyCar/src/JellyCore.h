@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Text/TextureAtlas.h"
-#include "Text/TexturedFont.h"
-#include "Shader2.h"
+#include <_Andromeda/Text/TextureAtlas.h>
+#include <_Andromeda/Text/TexturedFont.h>
+#include <_Andromeda/Shader2.h>
 
 class JellyCore {
 

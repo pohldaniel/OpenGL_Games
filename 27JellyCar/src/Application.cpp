@@ -1,5 +1,4 @@
 #include <iostream>
-#include <time.h>
 #include <GL/glew.h>
 #include <GL/wglew.h>
 #include <imgui.h>
@@ -319,15 +318,16 @@ void Application::initOpenGL(int msaaSamples) {
 
 	glCullFace(GL_BACK);
 	glFrontFace(GL_CCW);
-	glEnable(GL_CULL_FACE);
-	//glDisable(GL_CULL_FACE);
+	//glEnable(GL_CULL_FACE);
+	glDisable(GL_CULL_FACE);
 
 	glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_LEQUAL);
+	//glDepthFunc(GL_LEQUAL);
 
+	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+	//glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 }
 
 void Application::initImGUI() {

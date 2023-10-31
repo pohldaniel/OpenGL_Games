@@ -18,6 +18,7 @@
 
 #include "JellyMenu.h"
 #include "JellyCore.h"
+#include "JellyIntro.h"
 
 class Game : public State, public MouseEventListener, public KeyboardEventListener {
 
@@ -45,11 +46,12 @@ private:
 	bool m_initUi = true;
 	bool m_drawUi = true;
 	
-	Background m_background;
+	//Background m_background;
 	TrackBall m_trackball;
 	Transform m_transform;
 	Camera m_camera;
 
 	JellyCore* m_jellyCore;
 	JellyMenuBetter* m_jellyMenu;
+	JellyIntro* m_jellyIntro;
 };

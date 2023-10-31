@@ -1,7 +1,7 @@
 #ifndef SuspensionShock_H
 #define SuspensionShock_H
 
-#include "RenderManager.h"
+#include <_Andromeda/RenderManager.h>
 
 #include "JellyPhysics/JellyPhysics.h"
 

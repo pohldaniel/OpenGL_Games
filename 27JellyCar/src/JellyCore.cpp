@@ -1,5 +1,7 @@
 #include "JellyCore.h"
-#include "ShaderManager.h"
+#include <_Andromeda/RenderManager.h>
+#include <_Andromeda/ShaderManager.h>
+#include <_Andromeda/Sprite.h>
 
 JellyCore::JellyCore(){
 	_menuAtlas = 0;

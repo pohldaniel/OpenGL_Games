@@ -7,7 +7,6 @@ using namespace JellyPhysics;
 #include "LevelSoftBody.h"
 #include "LevelInfo.h"
 #include "SkinInfo.h"
-#include "Texture2.h"
 #include "../Car/Car.h"
 
 #include "SimpleStruct/BodyObject.h"

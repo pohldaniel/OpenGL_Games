@@ -1,7 +1,7 @@
 #ifndef Car_H
 #define Car_H
 
-#include "RenderManager.h"
+#include <_Andromeda/RenderManager.h>
 
 #include "JellyPhysics/JellyPhysics.h"
 using namespace JellyPhysics;
@@ -65,7 +65,7 @@ public:
 
 	void setChassisTorque(float t);
 
-	void SetChassisTextures(Texture2* small,Texture2* big);
+	void SetChassisTextures(Texture2* small, Texture2* big);
 	void SetTireTextures(Texture2* small, Texture2* big);
 
 	void Draw(glm::mat4 &proj);

@@ -29,18 +29,26 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	glClearColor(0.494f, 0.686f, 0.796f, 1.0f);
 	glClearDepth(1.0f);
 
-	m_background.setLayer(std::vector<BackgroundLayer>{
+	/*m_background.setLayer(std::vector<BackgroundLayer>{
 		{ &Globals::textureManager.get("forest_1"), 1, 1.0f },
 		{ &Globals::textureManager.get("forest_2"), 1, 2.0f },
 		{ &Globals::textureManager.get("forest_3"), 1, 3.0f },
 		{ &Globals::textureManager.get("forest_4"), 1, 4.0f },
 		{ &Globals::textureManager.get("forest_5"), 1, 5.0f }});
-	m_background.setSpeed(0.005f);
+	m_background.setSpeed(0.005f);*/
 
 	m_jellyCore = new JellyCore();
 	m_jellyCore->Init();
 
+	RenderManager* _renderManager = RenderManager::Instance();
+	_renderManager->SetWindowSize(Application::Width, Application::Height);
+	_renderManager->Init();
+
+	m_jellyIntro = new JellyIntro();
+	m_jellyIntro->Init();
+
 	m_jellyMenu = new JellyMenuBetter(m_jellyCore);
+	m_jellyMenu->Init();
 }
 
 Game::~Game() {
@@ -72,15 +80,15 @@ void Game::update() {
 
 	if (keyboard.keyDown(Keyboard::KEY_A)) {
 		directrion += Vector3f(-1.0f, 0.0f, 0.0f);
-		m_background.addOffset(-0.001f);
-		m_background.setSpeed(-0.005f);
+		//m_background.addOffset(-0.001f);
+		//m_background.setSpeed(-0.005f);
 		move |= true;
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_D)) {
 		directrion += Vector3f(1.0f, 0.0f, 0.0f);
-		m_background.addOffset(0.001f);
-		m_background.setSpeed(0.005f);
+		//m_background.addOffset(0.001f);
+		//m_background.setSpeed(0.005f);
 		move |= true;
 	}
 
@@ -113,17 +121,22 @@ void Game::update() {
 	m_trackball.idle();
 	m_transform.fromMatrix(m_trackball.getTransform());
 
-	m_background.update(m_dt);
+	//m_background.update(m_dt);
+
+	m_jellyMenu->Update();
+	//m_jellyIntro->Update();
 }
 
 void Game::render() {
 
-	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	/*glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	m_background.draw();
 
 	if (m_drawUi)
-		renderUi();
+		renderUi();*/
+	m_jellyMenu->Draw();
+	//m_jellyIntro->Draw();
 }
 
 void Game::OnMouseMotion(Event::MouseMoveEvent& event) {	

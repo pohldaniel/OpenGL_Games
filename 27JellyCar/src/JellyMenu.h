@@ -5,11 +5,14 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "JellyCore.h"
-#include "RenderManager.h"
-#include "Sprite.h"
-#include "Timer2.h"
+#include <_Andromeda/Sprite.h>
+#include <_Andromeda/Timer2.h>
+
 #include "Levels/LevelManager.h"
+#include "JellyCore.h"
+
+
+using namespace JellyPhysics;
 
 class JellyMenuBetter {
 

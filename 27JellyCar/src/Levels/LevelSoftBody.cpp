@@ -5,7 +5,7 @@
 #include "tinyxml.h"
 #include <string>
 
-#include "FileSystem/FileManager.h"
+#include <_Andromeda/FileSystem/FileManager.h>
 
 LevelSoftBody::LevelSoftBody(std::string fileName, World *mWorld, const Vector2& pos, float angle, const Vector2& scale, int material)
 {
@@ -23,7 +23,7 @@ LevelSoftBody::LevelSoftBody(std::string fileName, World *mWorld, const Vector2&
 	JellyPhysics::ClosedShape shape;
 
 	//loac main level file
-	BaseFile* file =FileManager::Instance()->GetFile(fileName);
+	BaseFile* file = FileManager::Instance()->GetFile(fileName);
 
 	if (file == 0)
 		return;

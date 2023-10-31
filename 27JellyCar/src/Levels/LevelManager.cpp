@@ -11,9 +11,10 @@
 
 #include "tinyxml.h"
 
-#include "FileSystem/FileManager.h"
+#include <_Andromeda/FileSystem/FileManager.h>
 
-#include "TextureManager.h"
+#include <_Andromeda/TextureManager.h>
+
 
 std::string LevelManager::GetPathName(std::string& fileName)
 {

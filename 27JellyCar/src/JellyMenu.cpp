@@ -3,6 +3,7 @@
 
 #include <stdio.h> 
 #include <sstream> 
+#include <iostream>
 
 JellyMenuBetter::JellyMenuBetter(JellyCore* core){
 	_core = core;
@@ -72,7 +73,6 @@ void JellyMenuBetter::Init()
 
 	//level elements
 	_gameBodies = _levelManager->GetLevelBodies();
-
 	_jellyProjection = glm::ortho(-20.0f + 0, 0 + 20.0f, -4.2f + 4, 4 + 18.2f, -1.0f, 1.0f);
 
 
@@ -275,7 +275,7 @@ void JellyMenuBetter::HandleEvents()
 void JellyMenuBetter::Update()
 {
 	/*if (!_inputHelper->ActionHold(CarAction::Left) && !_inputHelper->ActionHold(CarAction::Right))
-		_car->setTorque(0);
+		_car->setTorque(0);*/
 
 	//Update physic
 	for (int i = 0; i < 6; i++)
@@ -298,7 +298,7 @@ void JellyMenuBetter::Update()
 		_car->getChassisBody()->setPositionAngle(pos, 0.0f, scale);
 		_car->getTire(0)->setPositionAngle(pos, 0.0f, scale);
 		_car->getTire(1)->setPositionAngle(pos, 0.0f, scale);
-	}*/
+	}
 }
 
 void JellyMenuBetter::Draw()
@@ -306,7 +306,7 @@ void JellyMenuBetter::Draw()
 	//_core->frameObject->Bind();
 
 	//start frame
-	/*_renderManager->StartFrame();
+	_renderManager->StartFrame();
 
 	//clear screen
 	_renderManager->ClearScreen();
@@ -374,15 +374,15 @@ void JellyMenuBetter::Draw()
 
 
 	//options sprite
-	_inputHelper->MenuActionSprite(MenuAction::MenuPause)->SetPosition(glm::vec2((_renderManager->GetWidth() / 2) - 40, _renderManager->GetHeight() - 29));
-	_inputHelper->MenuActionSprite(MenuAction::MenuPause)->Draw(_projection);
+	//_inputHelper->MenuActionSprite(MenuAction::MenuPause)->SetPosition(glm::vec2((_renderManager->GetWidth() / 2) - 40, _renderManager->GetHeight() - 29));
+	//_inputHelper->MenuActionSprite(MenuAction::MenuPause)->Draw(_projection);
 
 	//options text
 	_menuFont->AddText("Options", (_renderManager->GetWidth() / 2) - 90, _renderManager->GetHeight() - 19, glm::vec3(0.19f, 0.14f, 0.17f), FontRight);
 
 	//exit sprite
-	_inputHelper->MenuActionSprite(MenuAction::MenuExit)->SetPosition(glm::vec2((_renderManager->GetWidth() / 2) + 40, _renderManager->GetHeight() - 29));
-	_inputHelper->MenuActionSprite(MenuAction::MenuExit)->Draw(_projection);
+	//_inputHelper->MenuActionSprite(MenuAction::MenuExit)->SetPosition(glm::vec2((_renderManager->GetWidth() / 2) + 40, _renderManager->GetHeight() - 29));
+	//_inputHelper->MenuActionSprite(MenuAction::MenuExit)->Draw(_projection);
 
 	//exit text
 	_menuFont->AddText("Exit", (_renderManager->GetWidth() / 2) + 90, _renderManager->GetHeight() - 19, glm::vec3(0.19f, 0.14f, 0.17f), FontLeft);
@@ -404,8 +404,8 @@ void JellyMenuBetter::Draw()
 	_renderManager->StartFrame();
 	_renderManager->ClearScreen();
 
-	_core->renderSprite->Draw(_projection);
+	_core->renderSprite->Draw(_projection);*/
 
 	//end frame
-	_renderManager->EndFrame();*/
+	_renderManager->EndFrame();
 }
