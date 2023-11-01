@@ -7,7 +7,7 @@ out vec2 texCoord;
 out vec4 vertColor;
 
 uniform vec4 u_texRect = vec4(0.0, 0.0, 1.0, 1.0);
-uniform bool u_flip = true;
+uniform bool u_flip = false;
 uniform mat4 u_transform = mat4(1.0);
 
 void main(void){

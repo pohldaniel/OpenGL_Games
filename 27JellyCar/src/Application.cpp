@@ -320,8 +320,8 @@ void Application::initOpenGL(int msaaSamples) {
 
 	glCullFace(GL_BACK);
 	glFrontFace(GL_CCW);
-	glEnable(GL_CULL_FACE);
-	//glDisable(GL_CULL_FACE);
+	//glEnable(GL_CULL_FACE);
+	glDisable(GL_CULL_FACE);
 
 	//glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);
@@ -609,6 +609,7 @@ void Application::loadAssets() {
 
 
 	Globals::textureManager.loadTexture("paper", "Assets/Jelly/Texture/paper.png");
+	Globals::textureManager.loadTexture("controls", "Assets/Images/buttons_vita.png");
 
 	Globals::fontManager.loadCharacterSet("upheaval_200", "res/fonts/upheavtt.ttf", 200, 0, 30, 128, 0, true, 0u);
 	Globals::fontManager.loadCharacterSet("upheaval_50", "res/fonts/upheavtt.ttf",  50,  0, 3,  0,   0, true, 1u);
@@ -632,6 +633,9 @@ void Application::loadAssets() {
 	//Globals::spritesheetManager.getAssetPointer("jelly_font")->safe("jelly");
 
 	Globals::shapeManager.buildQuadXY("quad", Vector3f(-1.0f, -1.0f, 0.0f), Vector2f(2.0f, 2.0f), 1, 1, true, false, false);
+
+	Globals::shapeManager.buildQuadXY("quad_half", Vector3f(-0.5f, -0.5f, 0.0f), Vector2f(1.0f, 1.0f), 1, 1, true, false, false);
+
 	Globals::shapeManager.buildQuadXY("quad_aligned", Vector3f(0.0f, 0.0f, 0.0f), Vector2f(1.0f, 1.0f), 1, 1, true, false, false);
 
 	Globals::shapeManager.buildQuadXZ("quad_XZ", Vector3f(-1.0f, 0.0f, -1.0f), Vector2f(2.0f, 2.0f), 1, 1, true, false, false);
