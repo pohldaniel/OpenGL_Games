@@ -1,3 +1,4 @@
+#include <SOIL2/SOIL2.h>
 #include "TextureAtlas.h"
 #include "../TextureManager.h"
 #include "../RenderManager.h"
@@ -24,13 +25,13 @@ TextureAtlas::~TextureAtlas(){
 
 void TextureAtlas::SaveTextur(std::string fileName){
             ////convert data to rgba
-            //unsigned char* newData = Convert(_atlas->data, 1, 4, _width, _height);
+            unsigned char* newData = Convert(_atlas->data, 1, 4, _width, _height);
 
             ////save image
-            //stbi_write_png(fileName.c_str(), _width, _height, 4, newData, _width * 4);
+			SOIL_save_image(fileName.c_str(), SOIL_SAVE_TYPE_PNG, _width, _height, 4, newData);
 
             ////dalete data
-            //delete[] newData;
+            delete[] newData;
 }
 
 void TextureAtlas::LoadTexture(std::string fileName){

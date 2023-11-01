@@ -43,9 +43,9 @@ public:
 		m_assets[name].createEmptyTexture(width, height, internalFormat, format, type);
 	}
 
-	void loadCharacterSet(const std::string& name, const std::string& path, const unsigned int characterSize, const unsigned int spacingX = 1, const unsigned int spacingY = 10, unsigned int minHeight = 0u, int shiftX = 0, const bool flipVertical = true, unsigned int frame = 0u) {
+	void loadCharacterSet(const std::string& name, const std::string& path, const unsigned int characterSize, const unsigned int paddingX = 1, const unsigned int paddingY = 10, unsigned int minHeight = 0u, int spacing = 0, const bool flipVertical = true, unsigned int frame = 0u) {
 		m_assets.insert(std::pair<std::string, T>(name, T()));
-		m_assets[name].loadFromFile(path, characterSize, spacingX, spacingY, minHeight, shiftX, flipVertical, frame);
+		m_assets[name].loadFromFile(path, characterSize, paddingX, paddingY, minHeight, spacing, flipVertical, frame);
 	}
 
 	void loadShader(const std::string& name, const std::string& vertex, const std::string& fragment) {
@@ -94,6 +94,11 @@ public:
 	void createSpritesheetFromTexture(const std::string& name, unsigned int texture, unsigned int format = 0u, unsigned int internalFormat = 0u, int unpackAlignment = 4) {
 		m_assetPointer[name] = new T();
 		m_assetPointer[name]->createSpritesheetFromTexture(texture, format, internalFormat, unpackAlignment);
+	}
+
+	void createSpritesheetFromSpritesheet(const std::string& name, unsigned int spriteSheet, unsigned int format = 0u, unsigned int internalFormat = 0u, int unpackAlignment = 4, bool deletSpriteshhet = false) {
+		m_assetPointer[name] = new T();
+		m_assetPointer[name]->createSpritesheetFromSpritesheet(spriteSheet, format, internalFormat, unpackAlignment, deletSpriteshhet);
 	}
 
 	void createEmptySpritesheet(const std::string& name, unsigned int width, unsigned int height, unsigned int format = 0u) {

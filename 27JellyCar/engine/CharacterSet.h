@@ -25,8 +25,10 @@ struct CharacterSet {
 	CharacterSet& operator=(const CharacterSet& rhs);
 	~CharacterSet();
 
-	void loadFromFile(const std::string& path, unsigned int characterSize, unsigned int intspacingX = 1u, unsigned int spacingY = 10u, unsigned int minHeight = 0u, int shiftX = 0, const bool flipVertical = true, unsigned int frame = 0u);
+	void loadFromFile(const std::string& path, unsigned int characterSize, unsigned int paddingX = 1u, unsigned int paddingY = 10u, unsigned int minHeight = 0u, int spacing = 0, const bool flipVertical = true, unsigned int frame = 0u);
 	void safeFont();
+	void addSpacing(std::string chars, int spacing = 0);
+
 	std::map<GLchar, Char> characters;
 	unsigned int spriteSheet;
 	unsigned int maxWidth;

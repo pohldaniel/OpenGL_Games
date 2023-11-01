@@ -46,7 +46,7 @@ private:
 	bool m_initUi = true;
 	bool m_drawUi = true;
 	
-	//Background m_background;
+	Background m_background;
 	TrackBall m_trackball;
 	Transform m_transform;
 	Camera m_camera;

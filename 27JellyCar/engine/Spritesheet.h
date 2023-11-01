@@ -20,12 +20,15 @@ public:
 
 	void createSpritesheet(unsigned int texture, unsigned int width, unsigned int height, unsigned int format = 0);
 	void createSpritesheetFromTexture(unsigned int texture, unsigned int format = 0, unsigned int internalFormat = 0, int unpackAlignment = 4);
+	void createSpritesheetFromSpritesheet(unsigned int spritesheet, unsigned int format = 0, unsigned int internalFormat = 0, int unpackAlignment = 4, bool deleteSpritesheet = false);
 	void addToSpritesheet(std::string pictureFile, unsigned short tileWidth, unsigned short tileHeight, unsigned short spacing = 0, bool reverse = false, bool flipVertical = false, int row = 0, int minColumn = 0, int maxColumn = -1, unsigned int format = 0);
 
 	void createSpritesheet(std::string fileName, unsigned int format = 0, unsigned int internalFormat = 0, bool flipVertical = true, int unpackAlignment = 4);
 	void addToSpritesheet(std::string fileName, unsigned int format = 0, unsigned int internalFormat = 0, bool flipVertical = true, int unpackAlignment = 4);
 	void addToSpritesheet(unsigned int texture, unsigned int format = 0, unsigned int internalFormat = 0, int unpackAlignment = 4);
 	void addToSpritesheet(unsigned char* bytes, unsigned int width, unsigned int height, unsigned int format = 0);
+
+	void addSpritesheetToSpritesheet(unsigned int spritesheet, bool deleteSpritesheet = false);
 
 	void createNullSpritesheet(unsigned int width, unsigned int height, unsigned short layer);
 	void createEmptySpritesheet(unsigned int width, unsigned int height, unsigned int format = 0);
@@ -51,6 +54,9 @@ private:
 	unsigned short m_tileCountX = 0;
 	unsigned short m_tileCountY = 0;
 	unsigned short m_totalFrames = 0;
+
+	unsigned int m_format = 0;
+	unsigned int m_internalFormat = 0;
 };
 
 #endif

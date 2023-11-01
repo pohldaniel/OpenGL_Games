@@ -41,4 +41,5 @@ void JellyCore::Init() {
 
 	//upload texture
 	_menuAtlas->CreateTexture();
+	_menuAtlas->SaveTextur("font.png");
 }

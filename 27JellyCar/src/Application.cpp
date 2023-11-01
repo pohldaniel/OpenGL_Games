@@ -12,6 +12,8 @@
 
 #include <States/Menu.h>
 #include <States/Game.h>
+#include <States/JellyIntroNew.h>
+#include <States/JellyMenuNew.h>
 #include <UI/Widget.h>
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -318,16 +320,16 @@ void Application::initOpenGL(int msaaSamples) {
 
 	glCullFace(GL_BACK);
 	glFrontFace(GL_CCW);
-	//glEnable(GL_CULL_FACE);
-	glDisable(GL_CULL_FACE);
+	glEnable(GL_CULL_FACE);
+	//glDisable(GL_CULL_FACE);
 
-	glEnable(GL_DEPTH_TEST);
-	//glDepthFunc(GL_LEQUAL);
+	//glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LEQUAL);
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	//glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 }
 
 void Application::initImGUI() {
@@ -389,10 +391,14 @@ void Application::initStates() {
 	Machine = new StateMachine(m_dt, m_fdt);	
 	//Machine->addStateAtTop(new Menu(*Machine));
 	//Machine->addStateAtTop(new TilePlacing(*Machine));
-	Machine->addStateAtTop(new Game(*Machine));
+
 	//Machine->addStateAtTop(new CoreMechanic(*Machine));
 	//Machine->addStateAtTop(new ZoomPan(*Machine));
 	//Machine->addStateAtTop(new Plot(*Machine));
+
+	//Machine->addStateAtTop(new Game(*Machine));
+	Machine->addStateAtTop(new JellyMenuNew(*Machine));
+	//Machine->addStateAtTop(new JellyIntroNew(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -590,23 +596,44 @@ void Application::loadAssets() {
 
 	Globals::shaderManager.loadShader("font", "res/shader/batch.vert", "res/shader/font.frag");
 	Globals::shaderManager.loadShader("batch", "res/shader/batch.vert", "res/shader/batch.frag");
-
-	Globals::shaderManager.loadShader("texture", "res/shader/texture.vert", "res/shader/texture.frag");		
 	Globals::shaderManager.loadShader("quad_back", "res/shader/quad_back.vert", "res/shader/quad.frag");
-	Globals::shaderManager.loadShader("quad", "res/shader/quad.vert", "res/shader/quad.frag");
 
+	Globals::shaderManager.loadShader("quad", "res/shader/quad.vert", "res/shader/quad.frag");
 	Globals::shaderManager.loadShader("quad_array", "res/shader/quad_array.vert", "res/shader/quad_array.frag");
 
-	Globals::textureManager.loadTexture("forest_1", "res/backgrounds/Forest/plx-1.png", true);
-	Globals::textureManager.loadTexture("forest_2", "res/backgrounds/Forest/plx-2.png", true);
-	Globals::textureManager.loadTexture("forest_3", "res/backgrounds/Forest/plx-3.png", true);
-	Globals::textureManager.loadTexture("forest_4", "res/backgrounds/Forest/plx-4.png", true);
-	Globals::textureManager.loadTexture("forest_5", "res/backgrounds/Forest/plx-5.png", true);
+	Globals::textureManager.loadTexture("forest_1", "res/backgrounds/Forest/plx-1.png");
+	Globals::textureManager.loadTexture("forest_2", "res/backgrounds/Forest/plx-2.png");
+	Globals::textureManager.loadTexture("forest_3", "res/backgrounds/Forest/plx-3.png");
+	Globals::textureManager.loadTexture("forest_4", "res/backgrounds/Forest/plx-4.png");
+	Globals::textureManager.loadTexture("forest_5", "res/backgrounds/Forest/plx-5.png");
+
+
+	Globals::textureManager.loadTexture("paper", "Assets/Jelly/Texture/paper.png");
 
 	Globals::fontManager.loadCharacterSet("upheaval_200", "res/fonts/upheavtt.ttf", 200, 0, 30, 128, 0, true, 0u);
-	Globals::fontManager.loadCharacterSet("upheaval_50", "res/fonts/upheavtt.ttf", 50, 0, 3, 0, 0, true, 0u);
+	Globals::fontManager.loadCharacterSet("upheaval_50", "res/fonts/upheavtt.ttf",  50,  0, 3,  0,   0, true, 1u);
+
+	Globals::fontManager.loadCharacterSet("jelly_16", "Assets/Fonts/JellyFont.ttf", 16, 20, 20, 512, 0, true, 0u);
+	Globals::fontManager.loadCharacterSet("jelly_32", "Assets/Fonts/JellyFont.ttf", 32, 20, 20, 512, 0, true, 1u);
+	Globals::fontManager.loadCharacterSet("jelly_64", "Assets/Fonts/JellyFont.ttf", 64, 5,  5,  512, 0, true, 2u);
+	Globals::fontManager.get("jelly_16").addSpacing("t", 1);
+	Globals::fontManager.get("jelly_16").addSpacing("T", 2);
+	Globals::fontManager.get("jelly_32").addSpacing("t", 3);
+	Globals::fontManager.get("jelly_32").addSpacing("T", 4);
+	Globals::fontManager.get("jelly_32").addSpacing("pP", -2);
+	Globals::fontManager.get("jelly_64").addSpacing("t", 2);
+	Globals::fontManager.get("jelly_64").addSpacing("T", 2);
+	Globals::fontManager.get("jelly_64").addSpacing("r", 2);
+	//Globals::fontManager.get("jelly_32").safeFont();
+
+	Globals::spritesheetManager.createSpritesheetFromSpritesheet("jelly_font", Globals::fontManager.get("jelly_16").spriteSheet, GL_RED, GL_R8, 1, true);
+	Globals::spritesheetManager.getAssetPointer("jelly_font")->addSpritesheetToSpritesheet(Globals::fontManager.get("jelly_32").spriteSheet, true);
+	Globals::spritesheetManager.getAssetPointer("jelly_font")->addSpritesheetToSpritesheet(Globals::fontManager.get("jelly_64").spriteSheet, true);
+	//Globals::spritesheetManager.getAssetPointer("jelly_font")->safe("jelly");
 
 	Globals::shapeManager.buildQuadXY("quad", Vector3f(-1.0f, -1.0f, 0.0f), Vector2f(2.0f, 2.0f), 1, 1, true, false, false);
+	Globals::shapeManager.buildQuadXY("quad_aligned", Vector3f(0.0f, 0.0f, 0.0f), Vector2f(1.0f, 1.0f), 1, 1, true, false, false);
+
 	Globals::shapeManager.buildQuadXZ("quad_XZ", Vector3f(-1.0f, 0.0f, -1.0f), Vector2f(2.0f, 2.0f), 1, 1, true, false, false);
 	Globals::shapeManager.buildDiamondXY("diamond_XY", Vector2f(96.0f, 48.0f), 0.75f, 1, 1, true, false, false);
 	Globals::shapeManager.buildCube("cube", Vector3f(-1.0f, -5.0f, -1.0f), Vector3f(2.0f, 10.0f, 2.0f), 1, 1, true, true, true);

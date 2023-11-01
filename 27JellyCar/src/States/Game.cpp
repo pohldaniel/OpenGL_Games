@@ -29,13 +29,13 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	glClearColor(0.494f, 0.686f, 0.796f, 1.0f);
 	glClearDepth(1.0f);
 
-	/*m_background.setLayer(std::vector<BackgroundLayer>{
+	m_background.setLayer(std::vector<BackgroundLayer>{
 		{ &Globals::textureManager.get("forest_1"), 1, 1.0f },
 		{ &Globals::textureManager.get("forest_2"), 1, 2.0f },
 		{ &Globals::textureManager.get("forest_3"), 1, 3.0f },
 		{ &Globals::textureManager.get("forest_4"), 1, 4.0f },
 		{ &Globals::textureManager.get("forest_5"), 1, 5.0f }});
-	m_background.setSpeed(0.005f);*/
+	m_background.setSpeed(0.005f);
 
 	m_jellyCore = new JellyCore();
 	m_jellyCore->Init();

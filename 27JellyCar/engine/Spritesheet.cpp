@@ -266,6 +266,53 @@ void Spritesheet::createSpritesheetFromTexture(unsigned int texture, unsigned in
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
 }
 
+void Spritesheet::createSpritesheetFromSpritesheet(unsigned int spritesheet, unsigned int _format, unsigned int _internalFormat, int _unpackAlignment, bool deleteSpritesheet) {
+	int miplevel = 0;
+
+	int width, height, depth;
+	glBindTexture(GL_TEXTURE_2D_ARRAY, spritesheet);
+	glGetTexLevelParameteriv(GL_TEXTURE_2D_ARRAY, miplevel, GL_TEXTURE_WIDTH, &width);
+	glGetTexLevelParameteriv(GL_TEXTURE_2D_ARRAY, miplevel, GL_TEXTURE_HEIGHT, &height);
+	glGetTexLevelParameteriv(GL_TEXTURE_2D_ARRAY, miplevel, GL_TEXTURE_DEPTH, &depth);
+	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
+	
+	
+	m_internalFormat = _internalFormat == 0 ? GL_RGBA8 : _internalFormat;
+	m_format = _format == 0 ? GL_RGBA : _format;
+	m_totalFrames++;
+
+	glPixelStorei(GL_UNPACK_ALIGNMENT, _unpackAlignment);
+
+	glGenTextures(1, &m_texture);
+	glBindTexture(GL_TEXTURE_2D_ARRAY, m_texture);
+	glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, m_internalFormat, width, height, m_totalFrames, 0, m_format, GL_UNSIGNED_BYTE, NULL);
+
+	unsigned int fbo = 0;
+	glGenFramebuffers(1, &fbo);
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo);
+
+	for (unsigned short layer = 0; layer < depth; ++layer) {
+		glFramebufferTextureLayer(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, spritesheet, 0, layer);
+		glReadBuffer(GL_COLOR_ATTACHMENT0);
+		glCopyTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, layer, 0, 0, width, height);
+	}
+
+	
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+	glDeleteFramebuffers(1, &fbo);
+
+	glTexParameterf(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameterf(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
+
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+
+	if (deleteSpritesheet)
+		glDeleteTextures(1, &spritesheet);
+}
+
 void Spritesheet::createSpritesheet(std::string fileName, unsigned int _format, unsigned int _internalFormat,  bool _flipVertical, int _unpackAlignment) {
 	int width, height, numCompontents;
 	unsigned char* imageData = SOIL_load_image(fileName.c_str(), &width, &height, &numCompontents, SOIL_LOAD_AUTO);
@@ -478,6 +525,63 @@ void Spritesheet::addToSpritesheet(unsigned char* bytes, unsigned int width, uns
 	m_texture = texture_new;
 }
 
+void Spritesheet::addSpritesheetToSpritesheet(unsigned int spritesheet, bool deleteSpritesheet) {
+	int miplevel = 0;
+
+	int width1, height1, depth1;
+	glBindTexture(GL_TEXTURE_2D_ARRAY, m_texture);
+	glGetTexLevelParameteriv(GL_TEXTURE_2D_ARRAY, miplevel, GL_TEXTURE_WIDTH, &width1);
+	glGetTexLevelParameteriv(GL_TEXTURE_2D_ARRAY, miplevel, GL_TEXTURE_HEIGHT, &height1);
+	glGetTexLevelParameteriv(GL_TEXTURE_2D_ARRAY, miplevel, GL_TEXTURE_DEPTH, &depth1);
+	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
+
+	int width2, height2, depth2;
+	glBindTexture(GL_TEXTURE_2D_ARRAY, spritesheet);
+	glGetTexLevelParameteriv(GL_TEXTURE_2D_ARRAY, miplevel, GL_TEXTURE_WIDTH, &width2);
+	glGetTexLevelParameteriv(GL_TEXTURE_2D_ARRAY, miplevel, GL_TEXTURE_HEIGHT, &height2);
+	glGetTexLevelParameteriv(GL_TEXTURE_2D_ARRAY, miplevel, GL_TEXTURE_DEPTH, &depth2);
+	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
+
+	unsigned int atlas_new;
+	glGenTextures(1, &atlas_new);
+	glBindTexture(GL_TEXTURE_2D_ARRAY, atlas_new);
+	glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA8, width1, height1, depth1 + depth2, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+
+	unsigned int fbo = 0;
+	glGenFramebuffers(1, &fbo);
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo);
+
+	for (unsigned short layer = 0; layer < depth1; ++layer) {
+		glFramebufferTextureLayer(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, m_texture, 0, layer);
+		glReadBuffer(GL_COLOR_ATTACHMENT0);
+		glCopyTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, layer, 0, 0, width1, height1);
+	}
+
+	for (unsigned short layer = 0; layer < depth2; ++layer) {
+		glFramebufferTextureLayer(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, spritesheet, 0, layer);
+		glReadBuffer(GL_COLOR_ATTACHMENT0);
+		glCopyTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, depth1 + layer, 0, 0, width2, height2);
+	}
+
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+	glDeleteFramebuffers(1, &fbo);
+
+	glBindTexture(GL_TEXTURE_2D_ARRAY, atlas_new);
+	glTexParameterf(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameterf(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
+
+
+	glDeleteTextures(1, &m_texture);
+
+	if (deleteSpritesheet)
+		glDeleteTextures(1, &spritesheet);
+
+	m_texture = atlas_new;
+}
+
 unsigned int Spritesheet::getAtlas() {
 	return m_texture;
 }
@@ -599,7 +703,7 @@ unsigned int Spritesheet::Merge(const unsigned int& atlas1, const unsigned int& 
 		glDeleteTextures(1, &atlas1);
 
 	if (deleteAtlas2)
-		glDeleteTextures(1, &atlas1);
+		glDeleteTextures(1, &atlas2);
 
 	return atlas_new;
 }
