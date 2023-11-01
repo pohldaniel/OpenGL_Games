@@ -34,8 +34,8 @@ MainMenu::MainMenu(StateMachine& machine) : State(machine, CurrentState::MAINMEN
 		m_machine.addStateAtBottom(new Options(m_machine));
 	});
 
-	dynamic_cast<Label*>(m_dialog.getChildWidgets()[2])->setDefaultColor(Utils::file_exists("res/_lua/save/savegame.lua") ? Vector4f(1.0f, 1.0f, 1.0f, 1.0f) : Vector4f(0.5f, 0.5f, 0.5f, 1.0f));
-	dynamic_cast<Label*>(m_dialog.getChildWidgets()[2])->setHoverColor(Utils::file_exists("res/_lua/save/savegame.lua") ? Vector4f(1.0f, 1.0f, 0.0f, 1.0f) : Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
+	dynamic_cast<Label*>(m_dialog.getChildWidgets()[3])->setDefaultColor(Utils::file_exists("res/_lua/save/savegame.lua") ? Vector4f(1.0f, 1.0f, 1.0f, 1.0f) : Vector4f(0.5f, 0.5f, 0.5f, 1.0f));
+	dynamic_cast<Label*>(m_dialog.getChildWidgets()[3])->setHoverColor(Utils::file_exists("res/_lua/save/savegame.lua") ? Vector4f(1.0f, 1.0f, 0.0f, 1.0f) : Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
 
 	dynamic_cast<Label*>(m_dialog.getChildWidgets()[3])->setFunction([&]() {
 		if (Utils::file_exists("res/_lua/save/savegame.lua")) {
@@ -51,7 +51,9 @@ MainMenu::MainMenu(StateMachine& machine) : State(machine, CurrentState::MAINMEN
 
 	TextureManager::BindTexture(Globals::spritesheetManager.getAssetPointer("font")->getAtlas(), true, 0);
 	TextureManager::BindTexture(TextureManager::GetTextureAtlas("dialog"), true, 2);
-	Globals::musicManager.get("background").play("res/music/Early_Dawn_Simple.ogg");
+
+	if(!Globals::musicManager.get("background").isPlaying())
+		Globals::musicManager.get("background").play("res/music/Early_Dawn_Simple.ogg");
 }
 
 MainMenu::~MainMenu() {

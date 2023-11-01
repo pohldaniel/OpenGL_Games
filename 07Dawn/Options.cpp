@@ -86,7 +86,7 @@ Options::Options(StateMachine& machine) : State(machine, CurrentState::OPTIONS) 
 
 	TextureManager::BindTexture(Globals::spritesheetManager.getAssetPointer("font")->getAtlas(), true, 0);
 	TextureManager::BindTexture(TextureManager::GetTextureAtlas("dialog"), true, 2);
-	Globals::musicManager.get("background").play("res/music/Early_Dawn_Simple.ogg");
+	//Globals::musicManager.get("background").play("res/music/Early_Dawn_Simple.ogg");
 }
 
 
