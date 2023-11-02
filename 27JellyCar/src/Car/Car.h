@@ -65,8 +65,8 @@ public:
 
 	void setChassisTorque(float t);
 
-	void SetChassisTextures(Texture2* small, Texture2* big);
-	void SetTireTextures(Texture2* small, Texture2* big);
+	void SetChassisTextures(Texture2* _small, Texture2* big);
+	void SetTireTextures(Texture2* _small, Texture2* big);
 
 	void Draw(glm::mat4 &proj);
 };

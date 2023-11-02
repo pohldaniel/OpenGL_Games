@@ -264,6 +264,7 @@
     <ClCompile Include="src\UI\Widget.cpp" />
     <ClCompile Include="src\Utils\SolidIO.cpp" />
     <ClCompile Include="src\Utils\Utils.cpp" />
+    <ClCompile Include="TileSet.cpp" />
     <ClCompile Include="_Andromeda\AnimMat4.cpp" />
     <ClCompile Include="_Andromeda\AnimVec3.cpp" />
     <ClCompile Include="_Andromeda\FileSystem\BaseDirectory.cpp" />
@@ -416,6 +417,7 @@
     <ClInclude Include="src\UI\Widget.h" />
     <ClInclude Include="src\Utils\SolidIO.h" />
     <ClInclude Include="src\Utils\Utils.h" />
+    <ClInclude Include="TileSet.h" />
     <ClInclude Include="_Andromeda\AnimMat4.h" />
     <ClInclude Include="_Andromeda\AnimVec3.h" />
     <ClInclude Include="_Andromeda\AnimVec4.h" />

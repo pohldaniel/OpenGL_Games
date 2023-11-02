@@ -14,7 +14,7 @@
 #include <_Andromeda/FileSystem/FileManager.h>
 
 #include <_Andromeda/TextureManager.h>
-
+#include <iostream>
 
 std::string LevelManager::GetPathName(std::string& fileName)
 {
@@ -509,6 +509,8 @@ bool LevelManager::LoadLevel(World *world, std::string levelName, std::string ca
 	{
 		return false;
 	}
+	std::cout << "Size: " << dataSize << std::endl;
+	doc.SaveFile("TestFile.xml");
 
 	TiXmlHandle hDoc(&doc);
 	TiXmlElement* pElem;

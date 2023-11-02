@@ -12,9 +12,9 @@ struct TextureRect {
 	float textureOffsetX;
 	float textureOffsetY;
 	float textureWidth;
-	float textureHeight;
-	unsigned int height;
+	float textureHeight;	
 	unsigned int width;
+	unsigned int height;
 	unsigned short frame;
 };
 

@@ -2,13 +2,14 @@
 
 flat in int layer;
 in vec2 texCoord;
+in vec4 vertColor;
+
 out vec4 outColor;
 
 uniform sampler2DArray u_texture;
-uniform vec4 u_blendColor = vec4(1.0);
 
 void main(void) {
-	outColor = u_blendColor * texture(u_texture, vec3(texCoord, layer));
+	outColor = vertColor * texture(u_texture, vec3(texCoord, layer));
 	
 	//outColor = vec4(1.0, 0.0, 0.0, 1.0);
 }

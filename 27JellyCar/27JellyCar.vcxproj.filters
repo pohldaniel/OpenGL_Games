@@ -471,6 +471,9 @@
     <ClCompile Include="src\States\JellyMenuNew.cpp">
       <Filter>Source Files\States</Filter>
     </ClCompile>
+    <ClCompile Include="TileSet.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="convhull\convhull_3d.h">
@@ -937,6 +940,9 @@
     </ClInclude>
     <ClInclude Include="src\States\JellyMenuNew.h">
       <Filter>Source Files\States</Filter>
+    </ClInclude>
+    <ClInclude Include="TileSet.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
