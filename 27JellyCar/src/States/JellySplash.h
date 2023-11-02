@@ -11,33 +11,20 @@
 #include "Levels/LevelManager.h"
 #include "JellyPhysics/World.h"
 
-class JellyIntroNew : public State {
+class JellySplash : public State {
 
 public:
-	JellyIntroNew(StateMachine& machine);
-	~JellyIntroNew();
+	JellySplash(StateMachine& machine);
+	~JellySplash();
 
 	void fixedUpdate() override;
 	void update() override;
 	void render() override;
-	void resize(int deltaW, int deltaH) override;
 
 private:
-
-	unsigned int backWidth = 0, backHeight = 0;
-	unsigned int columns = 0, rows = 0;
-
-	std::vector<SkinInfo> _carSkins;
-
-
-	LevelManager* _levelManager;
-	std::vector<LevelSoftBody*> _gameBodies;
-	World* _world;
-	Car* _car;
-
-	glm::mat4 _jellyProjection;
-
-	Vector2 _levelTarget;
+	
 	bool _end;
-
+	float _dt;
+	float _alpha;
+	float _splashTimer;
 };

@@ -190,7 +190,9 @@
     <ClCompile Include="src\MousePickerFBO.cpp" />
     <ClCompile Include="src\States\JellyIntroNew.cpp" />
     <ClCompile Include="src\States\JellyMenuNew.cpp" />
+    <ClCompile Include="src\States\JellySplash.cpp" />
     <ClCompile Include="src\States\StateMachine.cpp" />
+    <ClCompile Include="src\TileSet.cpp" />
     <ClCompile Include="src\Utils\Rasterizer.cpp" />
     <ClCompile Include="engine\ArrayBuffer.cpp" />
     <ClCompile Include="engine\Batchrenderer.cpp" />
@@ -264,7 +266,6 @@
     <ClCompile Include="src\UI\Widget.cpp" />
     <ClCompile Include="src\Utils\SolidIO.cpp" />
     <ClCompile Include="src\Utils\Utils.cpp" />
-    <ClCompile Include="TileSet.cpp" />
     <ClCompile Include="_Andromeda\AnimMat4.cpp" />
     <ClCompile Include="_Andromeda\AnimVec3.cpp" />
     <ClCompile Include="_Andromeda\FileSystem\BaseDirectory.cpp" />
@@ -390,7 +391,9 @@
     <ClInclude Include="src\RandomColor.h" />
     <ClInclude Include="src\States\JellyIntroNew.h" />
     <ClInclude Include="src\States\JellyMenuNew.h" />
+    <ClInclude Include="src\States\JellySplash.h" />
     <ClInclude Include="src\States\StateMachine.h" />
+    <ClInclude Include="src\TileSet.h" />
     <ClInclude Include="src\Utils\Rasterizer.h" />
     <ClInclude Include="Physics\BspConverter.h" />
     <ClInclude Include="Physics\BspLoader.h" />
@@ -417,7 +420,6 @@
     <ClInclude Include="src\UI\Widget.h" />
     <ClInclude Include="src\Utils\SolidIO.h" />
     <ClInclude Include="src\Utils\Utils.h" />
-    <ClInclude Include="TileSet.h" />
     <ClInclude Include="_Andromeda\AnimMat4.h" />
     <ClInclude Include="_Andromeda\AnimVec3.h" />
     <ClInclude Include="_Andromeda\AnimVec4.h" />

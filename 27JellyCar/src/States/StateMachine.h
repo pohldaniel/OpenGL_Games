@@ -7,7 +7,8 @@ enum CurrentState {
 	MENU,
 	GAME,
 	JELLYMENU,
-	JELLYINTRO
+	JELLYINTRO,
+	JELLYSPLASH
 };
 
 class State;

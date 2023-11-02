@@ -14,6 +14,7 @@
 #include <States/Game.h>
 #include <States/JellyIntroNew.h>
 #include <States/JellyMenuNew.h>
+#include <States/JellySplash.h>
 #include <UI/Widget.h>
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -397,8 +398,9 @@ void Application::initStates() {
 	//Machine->addStateAtTop(new Plot(*Machine));
 
 	//Machine->addStateAtTop(new Game(*Machine));
-	Machine->addStateAtTop(new JellyMenuNew(*Machine));
+	//Machine->addStateAtTop(new JellyMenuNew(*Machine));
 	//Machine->addStateAtTop(new JellyIntroNew(*Machine));
+	Machine->addStateAtTop(new JellySplash(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -607,9 +609,11 @@ void Application::loadAssets() {
 	Globals::textureManager.loadTexture("forest_4", "res/backgrounds/Forest/plx-4.png");
 	Globals::textureManager.loadTexture("forest_5", "res/backgrounds/Forest/plx-5.png");
 
-
 	Globals::textureManager.loadTexture("paper", "Assets/Jelly/Texture/paper.png");
 	Globals::textureManager.loadTexture("controls", "Assets/Images/buttons_vita.png");
+	Globals::textureManager.loadTexture("logo", "Assets/Jelly/Texture/logo.png");
+	Globals::textureManager.loadTexture("splash", "Assets/Images/splash_switch.png");
+
 
 	Globals::fontManager.loadCharacterSet("upheaval_200", "res/fonts/upheavtt.ttf", 200, 0, 30, 128, 0, true, 0u);
 	Globals::fontManager.loadCharacterSet("upheaval_50", "res/fonts/upheavtt.ttf",  50,  0, 3,  0,   0, true, 1u);

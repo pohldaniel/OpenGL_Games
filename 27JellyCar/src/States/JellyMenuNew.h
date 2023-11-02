@@ -1,20 +1,23 @@
 #pragma once
+
 #include <engine/input/MouseEventListener.h>
 #include <engine/input/KeyboardEventListener.h>
-#include <engine/input/Mouse.h>
-
 #include <States/StateMachine.h>
-#include <UI/Button.h>
-#include <UI/TextField.h>
-
 
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "JellyHelper.h"
 #include "Car/Car.h"
 #include "Levels/LevelSoftBody.h"
 #include "Levels/LevelManager.h"
 #include "JellyPhysics/World.h"
+
+struct LevelInfo2 {
+	std::string name;
+	std::string file;
+	std::string thumb;
+	float time;
+	float jump;
+};
 
 class JellyMenuNew : public State, public MouseEventListener, public KeyboardEventListener {
 
@@ -35,8 +38,12 @@ private:
 	void OnMouseButtonDown(Event::MouseButtonEvent& event) override;
 	void OnKeyDown(Event::KeyboardEvent& event) override;
 
+	void loadLevelInfo(std::string path);
+
 	unsigned int backWidth = 0, backHeight = 0;
 	unsigned int columns = 0, rows = 0;
+	float controlsWidth = 0, controlsHeight = 0;
+
 
 	int currentPosition;
 	int columnStartPosition;
@@ -56,4 +63,8 @@ private:
 	glm::mat4 _jellyProjection;
 
 	unsigned int m_thumbAtlas = 0;
+
+	std::vector<LevelInfo2> m_levelInfos;
+
+	const std::vector<std::string> thumbsFromLevelInfos(const std::vector<LevelInfo2>& levelInfos);
 };

@@ -5,6 +5,8 @@
 #include "Globals.h"
 #include "TileSet.h"
 
+#include "tinyxml.h"
+#include "JellyHelper.h"
 
 JellyMenuNew::JellyMenuNew(StateMachine& machine) : State(machine, CurrentState::JELLYMENU) {
 
@@ -18,6 +20,8 @@ JellyMenuNew::JellyMenuNew(StateMachine& machine) : State(machine, CurrentState:
 	columns = ceil(static_cast<float>(Application::Width) / static_cast<float>(backWidth));
 	rows = ceil(static_cast<float>(Application::Height) / static_cast<float>(backHeight));
 
+	controlsWidth = static_cast<float>(Globals::textureManager.get("controls").getWidth());
+	controlsHeight = static_cast<float>(Globals::textureManager.get("controls").getHeight());
 
 	JellyHellper::Instance()->LoadShaders();
 
@@ -28,13 +32,8 @@ JellyMenuNew::JellyMenuNew(StateMachine& machine) : State(machine, CurrentState:
 	_levelManager->LoadCarSkins("car_skins.xml");
 	_levelManager->LoadScores("JellyScore.xml");
 
-	//get scenes names
+
 	_sceneFiles = _levelManager->GetScenes();
-
-	//get first image
-	//_levelImage = new Sprite("thumb", _levelManager->GetThumb(_sceneFiles[0]), _shader);
-	//_levelImage->SetPosition(glm::vec2(_renderManager->GetWidth() / 2, 222));
-
 	_carSkins = _levelManager->GetCarSkins();
 
 	_world = new World();
@@ -58,83 +57,12 @@ JellyMenuNew::JellyMenuNew(StateMachine& machine) : State(machine, CurrentState:
 	carcolumnStartPosition = 0;
 	carpositionsInColumn = 5;
 
-	TileSetManager::Get().getTileSet("thumbs").loadTileSet({ 
-															"Assets/Jelly/Thumbs/level-tut.png",
-															"Assets/Jelly/Thumbs/easy1.png",
-															"Assets/Jelly/Thumbs/level-02.png",
-															"Assets/Jelly/Thumbs/easy2.png",
-															"Assets/Jelly/Thumbs/crusher.png",
-		
-															"Assets/Jelly/Thumbs/easy3.png",
-															"Assets/Jelly/Thumbs/level-06.png",
-															"Assets/Jelly/Thumbs/easy4.png",
-															"Assets/Jelly/Thumbs/snake.png",
-															"Assets/Jelly/Thumbs/easy5.png",
-	
-															"Assets/Jelly/Thumbs/cave.png",
-															"Assets/Jelly/Thumbs/easy6.png",
-															"Assets/Jelly/Thumbs/ski-jump.png",
-															"Assets/Jelly/Thumbs/easy7.png",
-															"Assets/Jelly/Thumbs/catapult.png",
-	
-															"Assets/Jelly/Thumbs/easy8.png",
-															"Assets/Jelly/Thumbs/boulders.png",
-															"Assets/Jelly/Thumbs/easy9.png",
-															"Assets/Jelly/Thumbs/level-05.png",
-															"Assets/Jelly/Thumbs/easy10.png",
-	
-															"Assets/Jelly/Thumbs/level-04.png",
-															"Assets/Jelly/Thumbs/normal2.png",
-															"Assets/Jelly/Thumbs/level-03.png",
-															"Assets/Jelly/Thumbs/normal3.png",
-															"Assets/Jelly/Thumbs/wave.png", 
-	
-															"Assets/Jelly/Thumbs/normal4.png",
-															"Assets/Jelly/Thumbs/level-01.png",
-															"Assets/Jelly/Thumbs/normal5.png",
-															"Assets/Jelly/Thumbs/level-08.png",
-															"Assets/Jelly/Thumbs/normal6.png",
-	
-															"Assets/Jelly/Thumbs/level-07.png",
-															"Assets/Jelly/Thumbs/normal7.png",
-															"Assets/Jelly/Thumbs/rocket.png",
-															"Assets/Jelly/Thumbs/normal8.png",
-															"Assets/Jelly/Thumbs/big-wheel.png",
-	
-															"Assets/Jelly/Thumbs/normal9.png",
-															"Assets/Jelly/Thumbs/waves.png",
-															"Assets/Jelly/Thumbs/normal10.png",
-															"Assets/Jelly/Thumbs/castle.png",
-															"Assets/Jelly/Thumbs/hard1.png",
-	
-															"Assets/Jelly/Thumbs/blocks.png",
-															"Assets/Jelly/Thumbs/hard2.png",
-															"Assets/Jelly/Thumbs/spikes.png",
-															"Assets/Jelly/Thumbs/hard3.png",
-															"Assets/Jelly/Thumbs/grinder.png",
-	
-															"Assets/Jelly/Thumbs/hard4.png",
-															"Assets/Jelly/Thumbs/homeward.png",
-															"Assets/Jelly/Thumbs/hard5.png",
-															"Assets/Jelly/Thumbs/revolver.png",
-															"Assets/Jelly/Thumbs/hard6.png",
+	loadLevelInfo("Assets/Jelly/scene_list.xml");
 
-															"Assets/Jelly/Thumbs/loading.png",	
-															"Assets/Jelly/Thumbs/hard7.png",
-															"Assets/Jelly/Thumbs/derby.png",
-															"Assets/Jelly/Thumbs/hard8.png",
-															"Assets/Jelly/Thumbs/piter.png",
-
-															"Assets/Jelly/Thumbs/hard9.png",
-															"Assets/Jelly/Thumbs/jaklub.png",
-															"Assets/Jelly/Thumbs/hard10.png",
-															"Assets/Jelly/Thumbs/cogs.png",
-															"Assets/Jelly/Thumbs/hard11.png",
-
-															"Assets/Jelly/Thumbs/hard12.png" });
+	TileSetManager::Get().getTileSet("thumbs").loadTileSet(thumbsFromLevelInfos(m_levelInfos));
 
 	m_thumbAtlas = TileSetManager::Get().getTileSet("thumbs").getAtlas();
-	//Spritesheet::Safe("thumbs", m_atlas);
+	//Spritesheet::Safe("thumbs", m_thumbAtlas);
 }
 
 JellyMenuNew::~JellyMenuNew() {
@@ -197,8 +125,6 @@ void JellyMenuNew::render() {
 
 	shader->unuse();
 
-	//menu level drawing
-	
 	//menu level
 	for (size_t i = 0; i < _gameBodies.size(); i++){
 		_gameBodies[i]->Draw(_jellyProjection);
@@ -223,26 +149,18 @@ void JellyMenuNew::render() {
 	shader = Globals::shaderManager.getAssetPointer("quad");
 	shader->use();
 
-	//512 512
-	//glm::vec2(239.0f, 194.0f), glm::vec2(74.0f, 38.0f) || start 
-	//glm::vec2(159.0f, 193.0f), glm::vec2(74.0f, 38.0f) || select 
-
-	//left = 239 / 512 || right = (239 + 74) / 512
-	//bottom = (512 - (194 + 38))/ 512 || top = (512 - 194)/ 512
-	
-	
 	Globals::textureManager.get("controls").bind(0);
 
 	int posx = Application::Width / 2 - 40 ;
 	int posy = 29;
 	shader->loadMatrix("u_transform", Matrix4f::Orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f) * Matrix4f::Translate(static_cast<float>(posx), static_cast<float>(posy), 0.0f)* Matrix4f::Scale(static_cast<float>(78), static_cast<float>(38), 1.0f));
-	shader->loadVector("u_texRect", Vector4f(239.0f / 512.0f, (512.0f - (194.0f + 38.0f)) / 512.0f, (239.0f + 74.0f) / 512.0f, (512.0f - 194.0f) / 512.0f));
+	shader->loadVector("u_texRect", Vector4f(239.0f / controlsWidth, (controlsHeight - (194.0f + 38.0f)) / controlsHeight, (239.0f + 74.0f) / controlsWidth, (controlsHeight - 194.0f) / controlsHeight));
 
 	Globals::shapeManager.get("quad_half").drawRaw();
 
 	posx = Application::Width / 2 + 40 ;
 	shader->loadMatrix("u_transform", Matrix4f::Orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f) * Matrix4f::Translate(static_cast<float>(posx), static_cast<float>(posy), 0.0f)* Matrix4f::Scale(static_cast<float>(78), static_cast<float>(38), 1.0f));
-	shader->loadVector("u_texRect", Vector4f(159.0f/ 512.0f, (512.0f - (193.0f + 38.0f))/ 512.0f, (159.0f + 74.0f)/512.0f, (512.0f - 193.0f) / 512.0f));
+	shader->loadVector("u_texRect", Vector4f(159.0f/ controlsWidth, (512.0f - (193.0f + 38.0f)) / controlsHeight, (159.0f + 74.0f) / controlsWidth, (controlsHeight - 193.0f) / controlsHeight));
 
 	Globals::shapeManager.get("quad_half").drawRaw();
 
@@ -253,18 +171,20 @@ void JellyMenuNew::render() {
 
 	int levelTextPositionY = Application::Height - ( (Application::Height / 2) - 156 - 30);
 
-	Fontrenderer::Get().addText(Globals::fontManager.get("jelly_64"), static_cast<float>(Application::Width / 2 - Globals::fontManager.get("jelly_64").getWidth("Tutorial") / 2), levelTextPositionY, "Tutorial", Vector4f(0.19f, 0.14f, 0.17f, 1.0f));
-	Fontrenderer::Get().addText(Globals::fontManager.get("jelly_64"), static_cast<float>(Application::Width / 2 - Globals::fontManager.get("jelly_64").getWidth("Tutorial") / 2), levelTextPositionY + 3, "Tutorial", Vector4f(1.0f,  0.65f, 0.0f, 1.0f));
+	Fontrenderer::Get().addText(Globals::fontManager.get("jelly_64"), static_cast<float>(Application::Width / 2 - Globals::fontManager.get("jelly_64").getWidth(m_levelInfos[currentPosition].name) / 2), levelTextPositionY, m_levelInfos[currentPosition].name, Vector4f(0.19f, 0.14f, 0.17f, 1.0f));
+	Fontrenderer::Get().addText(Globals::fontManager.get("jelly_64"), static_cast<float>(Application::Width / 2 - Globals::fontManager.get("jelly_64").getWidth(m_levelInfos[currentPosition].name) / 2), levelTextPositionY + 3, m_levelInfos[currentPosition].name, Vector4f(1.0f,  0.65f, 0.0f, 1.0f));
 
 	int timePositionX = (Application::Width / 2) - (272 / 2);
 	int jumpPositionX = (Application::Width / 2) + (272 / 2);
 	int textPosY = Application::Height - ((Application::Height / 2) + 30);
 
-	Fontrenderer::Get().addText(Globals::fontManager.get("jelly_32"), timePositionX , textPosY, "999.00s", Vector4f(0.19f, 0.14f, 0.17f, 1.0f));
-	Fontrenderer::Get().addText(Globals::fontManager.get("jelly_32"), timePositionX , textPosY + 2, "999.00s", Vector4f(0.0f, 0.84f, 0.0f, 1.0f));
+	std::string time = Fontrenderer::FloatToString(m_levelInfos[currentPosition].time, 2);
+	Fontrenderer::Get().addText(Globals::fontManager.get("jelly_32"), timePositionX , textPosY, time + "s", Vector4f(0.19f, 0.14f, 0.17f, 1.0f));
+	Fontrenderer::Get().addText(Globals::fontManager.get("jelly_32"), timePositionX , textPosY + 2, time + "s", Vector4f(0.0f, 0.84f, 0.0f, 1.0f));
 
-	Fontrenderer::Get().addText(Globals::fontManager.get("jelly_32"), jumpPositionX - Globals::fontManager.get("jelly_32").getWidth("0.00m"), textPosY, "0.00m", Vector4f(0.19f, 0.14f, 0.17f, 1.0f));
-	Fontrenderer::Get().addText(Globals::fontManager.get("jelly_32"), jumpPositionX - Globals::fontManager.get("jelly_32").getWidth("0.00m"), textPosY + 2, "0.00m", Vector4f(0.71f, 0.16f, 0.18f, 1.0f));
+	std::string jump = Fontrenderer::FloatToString(m_levelInfos[currentPosition].jump, 2);
+	Fontrenderer::Get().addText(Globals::fontManager.get("jelly_32"), jumpPositionX - Globals::fontManager.get("jelly_32").getWidth(jump + "m"), textPosY, jump + "m", Vector4f(0.19f, 0.14f, 0.17f, 1.0f));
+	Fontrenderer::Get().addText(Globals::fontManager.get("jelly_32"), jumpPositionX - Globals::fontManager.get("jelly_32").getWidth(jump + "m"), textPosY + 2, jump + "m", Vector4f(0.71f, 0.16f, 0.18f, 1.0f));
 
 	Fontrenderer::Get().addText(Globals::fontManager.get("jelly_32"), static_cast<float>(Application::Width / 2 - 90 - Globals::fontManager.get("jelly_32").getWidth("Options")), 10, "Options", Vector4f(0.19f, 0.14f, 0.17f, 1.0f));
 	Fontrenderer::Get().addText(Globals::fontManager.get("jelly_32"), static_cast<float>(Application::Width / 2 + 90), 10, "Exit", Vector4f(0.19f, 0.14f, 0.17f, 1.0f));
@@ -361,4 +281,46 @@ void JellyMenuNew::processInput() {
 	if (keyboard.keyDown(Keyboard::KEY_E)){
 		_car->mChassis->torque = 1.0f;
 	}
+}
+
+void JellyMenuNew::loadLevelInfo(std::string path) {
+	std::ifstream is(path, std::ifstream::in);
+
+	is.seekg(0, is.end);
+	int length = is.tellg();
+	is.seekg(0, is.beg);
+
+	unsigned char* buffer = new unsigned char[length];
+	is.read(reinterpret_cast<char*>(buffer), length);
+	is.close();
+
+	//load data
+	TiXmlDocument doc;
+	if (!doc.LoadContent(buffer, length)){
+		return;
+	}
+
+	TiXmlHandle hDoc(&doc);
+	TiXmlElement* pElem;
+	TiXmlHandle hRoot(0);
+
+	TiXmlElement* ObjectNode = pElem = hDoc.FirstChild("Scenes").FirstChild().Element();
+	for (ObjectNode; ObjectNode; ObjectNode = ObjectNode->NextSiblingElement()) {
+		LevelInfo2 info;
+
+		info.name = ObjectNode->Attribute("name");
+		info.file = ObjectNode->Attribute("file");
+		info.thumb = ObjectNode->Attribute("thumb");
+		info.time = 999.0f;
+		info.jump = 0.0f;
+
+		m_levelInfos.push_back(info);
+
+	}
+}
+
+const std::vector<std::string> JellyMenuNew::thumbsFromLevelInfos(const std::vector<LevelInfo2>& levelInfos) {
+	std::vector<std::string> thumbs;
+	std::transform(levelInfos.begin(), levelInfos.end(), std::back_inserter(thumbs), [](const LevelInfo2& info)-> std::string { return "Assets/Jelly/Thumbs/" + info.thumb + ".png"; });
+	return thumbs;
 }
