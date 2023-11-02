@@ -11,10 +11,6 @@ StateMachine::~StateMachine() {
 	clearStates();
 }
 
-void StateMachine::resize(unsigned int width, unsigned int height) {
-	
-}
-
 State* StateMachine::addStateAtTop(State* state) {
 	m_states.push(state);
 	return state;

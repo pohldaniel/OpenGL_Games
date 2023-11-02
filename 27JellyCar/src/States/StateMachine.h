@@ -18,18 +18,17 @@ class StateMachine {
 	friend class Application;
 
 public:
+
 	StateMachine(const float& dt, const float& fdt);
 	~StateMachine();
 
 	State* addStateAtTop(State* state);
 	void addStateAtBottom(State* state);
+	void clearAndPush(State* state);
 
 	void fixedUpdate();
 	void update();
 	void render();
-	void resize(unsigned int width, unsigned int height);
-
-	void clearAndPush(State* state);
 	
 	const bool isRunning() const;
 

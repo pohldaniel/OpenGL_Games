@@ -525,8 +525,6 @@ void Application::Resize(int deltaW, int deltaH) {
 		Framebuffer::SetDefaultSize(Width, Height);
 		Widget::Resize(Width, Height);
 
-		Machine->resize(Width, Height);
-		
 		Machine->m_states.top()->resize(deltaW, deltaH);
 
 		auto shader = Globals::shaderManager.getAssetPointer("font");

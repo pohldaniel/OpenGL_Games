@@ -8,8 +8,10 @@
 #include "JellyHelper.h"
 
 JellySplash::JellySplash(StateMachine& machine) : State(machine, CurrentState::JELLYSPLASH) {
-
-	
+	_dt = 0.0f;
+	_splashTimer = 0.0f;
+	_alpha = 0.0f;
+	_end = false;
 }
 
 JellySplash::~JellySplash() {
