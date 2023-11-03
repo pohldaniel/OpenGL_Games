@@ -16,6 +16,7 @@
 #include <States/JellyMenu.h>
 #include <States/JellySplash.h>
 #include <States/JellyGame.h>
+#include <States/JellyOptions.h>
 #include <UI/Widget.h>
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -395,8 +396,9 @@ void Application::initStates() {
 	
 	//Machine->addStateAtTop(new Game(*Machine));
 	//Machine->addStateAtTop(new JellyMenuNew(*Machine));
-	//Machine->addStateAtTop(new JellyIntroNew(*Machine));
-	Machine->addStateAtTop(new JellyGame(*Machine));
+	//Machine->addStateAtTop(new JellyIntro(*Machine));
+	Machine->addStateAtTop(new JellySplash(*Machine));
+	//Machine->addStateAtTop(new JellyOptions(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {

@@ -30,11 +30,11 @@ public:
 	void update() override;
 	void render() override;
 	void resize(int deltaW, int deltaH) override;
-	void processInput();
-
+	
 private:
 
 	void OnKeyDown(Event::KeyboardEvent& event) override;
+	void processInput();
 
 	void loadLevelInfo(std::string path);
 

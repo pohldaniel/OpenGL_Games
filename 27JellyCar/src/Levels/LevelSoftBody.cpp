@@ -567,6 +567,18 @@ void LevelSoftBody::SetTexture(Texture2* texture)
 	}
 }
 
+void LevelSoftBody::SetTextureRect(const TextureRect& rect) 
+{
+	if (pressureized == true)
+	{
+		static_cast<GamePressureBody*>(mBody)->SetTextureRect(rect);
+	}
+	else
+	{
+		static_cast<GameSpringBody*>(mBody)->SetTextureRect(rect);
+	}
+}
+
 void LevelSoftBody::SetLineColor(glm::vec4 color)
 {
 	if (pressureized == true)

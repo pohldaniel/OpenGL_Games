@@ -81,6 +81,10 @@ void GameSpringBody::SetTexture(Texture2* texture)
 	_texture = texture;
 }
 
+void GameSpringBody::SetTextureRect(const TextureRect& rect) {
+	m_textureRect = rect;
+}
+
 void GameSpringBody::SetLineColor(glm::vec4 color)
 {
 	_lineColor = color;

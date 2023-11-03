@@ -1,6 +1,7 @@
 #ifndef GameSpringBody_H
 #define GameSpringBody_H
 
+#include <engine/Rect.h>
 #include <_Andromeda/RenderManager.h>
 
 #include "JellyPhysics/JellyPhysics.h"
@@ -18,6 +19,7 @@ namespace JellyPhysics
 		bool _created;
 
 		Texture2* _texture;
+		TextureRect m_textureRect;
 		std::vector<Vector2> _textPositions;
 
 	public:
@@ -39,6 +41,7 @@ namespace JellyPhysics
 		void accumulateInternalForces();
 
 		void SetTexture(Texture2* texture);
+		void SetTextureRect(const TextureRect& rect);
 		void SetLineColor(glm::vec4 color);
 
 		void Draw(glm::mat4 &proj, int *mIndices, int mIndicesCount, float  R, float  G, float B);

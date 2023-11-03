@@ -1,6 +1,7 @@
 #ifndef GamePressureBody_H
 #define GamePressureBody_H
 
+#include <engine/Rect.h>
 #include <_Andromeda/RenderManager.h>
 
 #include "JellyPhysics/JellyPhysics.h"
@@ -20,6 +21,7 @@ namespace JellyPhysics
 
 		Texture2* _texture;
 		std::vector<Vector2> _textPositions;
+		TextureRect m_textureRect;
 
 	public:
 
@@ -32,6 +34,7 @@ namespace JellyPhysics
 		void accumulateExternalForces();
 
 		void SetTexture(Texture2* texture);
+		void SetTextureRect(const TextureRect& rect);
 		void SetLineColor(glm::vec4 color);
 
 		void Draw(glm::mat4 &proj, int *mIndices, int mIndicesCount, float  R, float  G, float B);

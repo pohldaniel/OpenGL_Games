@@ -7,6 +7,8 @@
 
 #include "tinyxml.h"
 #include "JellyHelper.h"
+#include "JellyOptions.h"
+#include "JellyGame.h"
 
 JellyMenu::JellyMenu(StateMachine& machine) : State(machine, CurrentState::JELLYMENU) {
 
@@ -110,7 +112,7 @@ void JellyMenu::update() {
 }
 
 void JellyMenu::render() {
-
+	
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
 	auto shader = Globals::shaderManager.getAssetPointer("quad_back");
@@ -139,7 +141,7 @@ void JellyMenu::render() {
 	//car
 	_car->Draw(_jellyProjection);
 	
-	glEnable(GL_BLEND);
+
 
 	shader = Globals::shaderManager.getAssetPointer("quad_array");
 	shader->use();
@@ -159,13 +161,13 @@ void JellyMenu::render() {
 
 	int posx = Application::Width / 2 - 40 ;
 	int posy = 29;
-	shader->loadMatrix("u_transform", Matrix4f::Orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f) * Matrix4f::Translate(static_cast<float>(posx), static_cast<float>(posy), 0.0f)* Matrix4f::Scale(static_cast<float>(78), static_cast<float>(38), 1.0f));
+	shader->loadMatrix("u_transform", Matrix4f::Orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f) * Matrix4f::Translate(static_cast<float>(posx), static_cast<float>(posy), 0.0f)* Matrix4f::Scale(static_cast<float>(74), static_cast<float>(38), 1.0f));
 	shader->loadVector("u_texRect", Vector4f(239.0f / controlsWidth, (controlsHeight - (194.0f + 38.0f)) / controlsHeight, (239.0f + 74.0f) / controlsWidth, (controlsHeight - 194.0f) / controlsHeight));
 
 	Globals::shapeManager.get("quad_half").drawRaw();
 
 	posx = Application::Width / 2 + 40 ;
-	shader->loadMatrix("u_transform", Matrix4f::Orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f) * Matrix4f::Translate(static_cast<float>(posx), static_cast<float>(posy), 0.0f)* Matrix4f::Scale(static_cast<float>(78), static_cast<float>(38), 1.0f));
+	shader->loadMatrix("u_transform", Matrix4f::Orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f) * Matrix4f::Translate(static_cast<float>(posx), static_cast<float>(posy), 0.0f)* Matrix4f::Scale(static_cast<float>(74), static_cast<float>(38), 1.0f));
 	shader->loadVector("u_texRect", Vector4f(159.0f/ controlsWidth, (512.0f - (193.0f + 38.0f)) / controlsHeight, (159.0f + 74.0f) / controlsWidth, (controlsHeight - 193.0f) / controlsHeight));
 
 	Globals::shapeManager.get("quad_half").drawRaw();
@@ -196,7 +198,7 @@ void JellyMenu::render() {
 	Fontrenderer::Get().addText(Globals::fontManager.get("jelly_32"), static_cast<float>(Application::Width / 2 + 90), 10, "Exit", Vector4f(0.19f, 0.14f, 0.17f, 1.0f));
 	Fontrenderer::Get().drawBuffer();
 	Globals::spritesheetManager.getAssetPointer("jelly_font")->unbind(0);
-	glDisable(GL_BLEND);
+	
 
 }
 
@@ -214,6 +216,18 @@ void JellyMenu::resize(int deltaW, int deltaH) {
 void JellyMenu::processInput() {
 	Keyboard &keyboard = Keyboard::instance();
 	
+	if (keyboard.keyPressed(Keyboard::KEY_ENTER)){
+
+		auto shader = Globals::shaderManager.getAssetPointer("quad");
+		shader->use();
+		shader->loadVector("u_texRect", Vector4f(0.0f, 0.0f, 1.0f, 1.0f));
+		shader->unuse();
+
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new JellyOptions(m_machine));
+		return;
+	}
+
 	if (keyboard.keyPressed(Keyboard::KEY_UP)){
 		currentPosition--;
 

@@ -188,6 +188,7 @@
     <ClCompile Include="src\States\JellyGame.cpp" />
     <ClCompile Include="src\States\JellyIntro.cpp" />
     <ClCompile Include="src\States\JellyMenu.cpp" />
+    <ClCompile Include="src\States\JellyOptions.cpp" />
     <ClCompile Include="src\States\JellySplash.cpp" />
     <ClCompile Include="src\States\StateMachine.cpp" />
     <ClCompile Include="src\TileSet.cpp" />
@@ -387,6 +388,7 @@
     <ClInclude Include="src\States\JellyGame.h" />
     <ClInclude Include="src\States\JellyIntro.h" />
     <ClInclude Include="src\States\JellyMenu.h" />
+    <ClInclude Include="src\States\JellyOptions.h" />
     <ClInclude Include="src\States\JellySplash.h" />
     <ClInclude Include="src\States\StateMachine.h" />
     <ClInclude Include="src\TileSet.h" />

@@ -471,6 +471,9 @@
     <ClCompile Include="src\States\JellyGame.cpp">
       <Filter>Source Files\States</Filter>
     </ClCompile>
+    <ClCompile Include="src\States\JellyOptions.cpp">
+      <Filter>Source Files\States</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="convhull\convhull_3d.h">
@@ -936,6 +939,9 @@
       <Filter>Source Files\States</Filter>
     </ClInclude>
     <ClInclude Include="src\States\JellyGame.h">
+      <Filter>Source Files\States</Filter>
+    </ClInclude>
+    <ClInclude Include="src\States\JellyOptions.h">
       <Filter>Source Files\States</Filter>
     </ClInclude>
   </ItemGroup>

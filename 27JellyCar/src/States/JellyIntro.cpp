@@ -38,6 +38,20 @@ JellyIntro::JellyIntro(StateMachine& machine) : State(machine, CurrentState::JEL
 
 	_levelTarget = _levelManager->GetLevelTarget();
 	_end = false;
+
+	Globals::textureManager.get("paper").bind(1);
+	Globals::textureManager.get("logo").bind(2);
+	Texture::SetActivateTexture(0);
+
+	auto shader = Globals::shaderManager.getAssetPointer("quad_back");
+	shader->use();
+	shader->loadInt("u_texture", 1);
+	shader->unuse();
+
+	shader = Globals::shaderManager.getAssetPointer("quad");
+	shader->use();
+	shader->loadInt("u_texture", 2);
+	shader->unuse();
 }
 
 JellyIntro::~JellyIntro() {
@@ -106,20 +120,27 @@ void JellyIntro::update() {
 	if (enterMenu){
 		_end = true;
 		//_audioHelper->StopEngineSound();
-		
+		auto shader = Globals::shaderManager.getAssetPointer("quad_back");
+		shader->use();
+		shader->loadInt("u_texture", 0);
+		shader->unuse();
+
+		shader = Globals::shaderManager.getAssetPointer("quad");
+		shader->use();
+		shader->loadInt("u_texture", 0);
+		shader->unuse();
+
 		m_isRunning = false;
-		m_machine.addStateAtBottom(new JellyIntro(m_machine));
+		m_machine.addStateAtBottom(new JellyMenu(m_machine));
 	}
 }
 
 void JellyIntro::render() {
-
+	
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	auto shader = Globals::shaderManager.getAssetPointer("quad_back");
 
 	shader->use();
-	Globals::textureManager.get("paper").bind(0);
-
 	for (int y = 0; y < rows; y++) {
 		for (int x = 0; x < columns; x++) {
 
@@ -130,18 +151,16 @@ void JellyIntro::render() {
 			Globals::shapeManager.get("quad_aligned").drawRaw();
 		}
 	}
-	Globals::textureManager.get("paper").unbind(0);
 
 	shader->unuse();
 
 	shader = Globals::shaderManager.getAssetPointer("quad");
 	shader->use();
-	Globals::textureManager.get("logo").bind();
+	
 	shader->loadMatrix("u_transform", Matrix4f::Orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f) * Matrix4f::Translate(static_cast<float>(Application::Width / 2), static_cast<float>(Application::Height  - 200), 0.0f) * Matrix4f::Scale(static_cast<float>(Globals::textureManager.get("logo").getWidth()), static_cast<float>(Globals::textureManager.get("logo").getHeight()), 1.0f));
 	Globals::shapeManager.get("quad_half").drawRaw();
-	Globals::textureManager.get("logo").unbind();
 	shader->unuse();
-
+	
 	for (size_t i = 0; i < _gameBodies.size(); i++) {
 		_gameBodies[i]->Draw(_jellyProjection);
 	}

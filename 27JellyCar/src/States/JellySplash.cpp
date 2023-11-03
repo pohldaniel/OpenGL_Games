@@ -12,6 +12,8 @@ JellySplash::JellySplash(StateMachine& machine) : State(machine, CurrentState::J
 	_splashTimer = 0.0f;
 	_alpha = 0.0f;
 	_end = false;
+
+	Globals::textureManager.get("splash").bind();
 }
 
 JellySplash::~JellySplash() {
@@ -50,6 +52,8 @@ void JellySplash::update() {
 		shader->loadVector("u_color", Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
 		shader->unuse();
 
+		Globals::textureManager.get("splash").unbind();
+
 		m_isRunning = false;
 		//_audioHelper->StopEngineSound();
 		m_machine.addStateAtBottom(new JellyIntro(m_machine));
@@ -58,14 +62,12 @@ void JellySplash::update() {
 }
 
 void JellySplash::render() {
-
+	
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	auto shader = Globals::shaderManager.getAssetPointer("quad");
-	shader->use();
-	Globals::textureManager.get("splash").bind();
+	shader->use();	
 	shader->loadMatrix("u_transform", Matrix4f::IDENTITY);
 	shader->loadVector("u_color", Vector4f(1.0f, 1.0f, 1.0f, _alpha));
-	Globals::shapeManager.get("quad").drawRaw();
-	Globals::textureManager.get("splash").unbind();
+	Globals::shapeManager.get("quad").drawRaw();	
 	shader->unuse();
 }

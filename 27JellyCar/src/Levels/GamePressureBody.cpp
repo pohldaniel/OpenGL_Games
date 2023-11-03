@@ -58,6 +58,10 @@ void GamePressureBody::SetTexture(Texture2* texture)
 	_texture = texture;
 }
 
+void GamePressureBody::SetTextureRect(const TextureRect& rect) {
+	m_textureRect = rect;
+}
+
 void GamePressureBody::SetLineColor(glm::vec4 color)
 {
 	_lineColor = color;

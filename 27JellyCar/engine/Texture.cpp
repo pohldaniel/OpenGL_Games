@@ -189,7 +189,6 @@ Texture::~Texture() {
 }
 
 void Texture::cleanup() {
-
 	if (m_texture) {
 		glDeleteTextures(1, &m_texture);
 		m_texture = 0;
@@ -1364,9 +1363,9 @@ void Texture::bind(unsigned int unit) const {
 	glBindTexture(m_target, m_texture);
 }
 
-void Texture::unbind(unsigned int unit) const {
-	glBindTexture(m_target, 0);
+void Texture::unbind(unsigned int unit) const {	
 	glActiveTexture(GL_TEXTURE0 + unit);
+	glBindTexture(m_target, 0);
 }
 
 void Texture::setLinear(unsigned int mode) const {
@@ -1423,8 +1422,12 @@ void Texture::Bind(unsigned int textureRef, unsigned int unit, unsigned int targ
 	glBindTexture(target, textureRef);
 }
 
-void Texture::Unbind(unsigned int unit, unsigned int target) {
+void Texture::Unbind(unsigned int unit, unsigned int target) {	
+	glActiveTexture(GL_TEXTURE0 + unit);
 	glBindTexture(target, 0);
+}
+
+void Texture::SetActivateTexture(unsigned int unit) {
 	glActiveTexture(GL_TEXTURE0 + unit);
 }
 
