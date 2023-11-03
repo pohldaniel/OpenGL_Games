@@ -16,18 +16,15 @@ JellyIntro::JellyIntro(StateMachine& machine) : State(machine, CurrentState::JEL
 
 
 	JellyHellper::Instance()->LoadShaders();
+	_world = new World();
 
 	_levelManager = new LevelManager();
 	_levelManager->SetAssetsLocation("Assets/Jelly/");
 	_levelManager->LoadCarSkins("car_skins.xml");
+	_levelManager->InitPhysic(_world);
+	_levelManager->LoadCompiledLevel(_world, "intro.scene", "Assets/Jelly/car_and_truck.car");
 
 	_carSkins = _levelManager->GetCarSkins();
-
-	_world = new World();
-
-	_levelManager->InitPhysic(_world);
-	//_levelManager->LoadLevel(_world, "intro.scene", "Assets/Jelly/car_and_truck.car");
-	_levelManager->LoadCompiledLevel(_world, "intro.scene", "Assets/Jelly/car_and_truck.car");
 
 	_car = _levelManager->GetCar();
 	_car->SetChassisTextures(_levelManager->GetCarImage(_carSkins[0].chassisSmall), _levelManager->GetCarImage(_carSkins[0].chassisBig));

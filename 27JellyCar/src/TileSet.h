@@ -47,7 +47,7 @@ class TileSet {
 
 public:
 
-	TileSet() = default;
+	TileSet();
 	void loadTileSet(std::vector<std::string>  texturePaths, unsigned int width = 1024u, unsigned int height = 1024u, bool resetLine = false);
 	const std::vector<TextureRect>& getTextureRects() const;
 	const unsigned int& getAtlas() const;
@@ -56,6 +56,7 @@ private:
 
 	unsigned int m_atlas;
 	std::vector<TextureRect> m_textureRects;
+	bool m_init;
 };
 
 class TileSetManager {
@@ -64,6 +65,8 @@ public:
 
 	TileSet& getTileSet(std::string name);
 	static TileSetManager& Get();
+
+	bool containsTileset(std::string name);
 
 private:
 	TileSetManager() = default;

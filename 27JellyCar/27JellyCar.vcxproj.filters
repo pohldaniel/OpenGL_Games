@@ -474,6 +474,9 @@
     <ClCompile Include="src\States\JellyOptions.cpp">
       <Filter>Source Files\States</Filter>
     </ClCompile>
+    <ClCompile Include="SceneManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="convhull\convhull_3d.h">
@@ -943,6 +946,9 @@
     </ClInclude>
     <ClInclude Include="src\States\JellyOptions.h">
       <Filter>Source Files\States</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneManager.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

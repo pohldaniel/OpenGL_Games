@@ -22,11 +22,10 @@ JellyOptions::JellyOptions(StateMachine& machine) : State(machine, CurrentState:
 
 	JellyHellper::Instance()->LoadShaders();
 
-	_levelManager = new LevelManager();
-	_levelManager->SetAssetsLocation("Assets/Jelly/");
-	
 	_world = new World();
 
+	_levelManager = new LevelManager();
+	_levelManager->SetAssetsLocation("Assets/Jelly/");
 	_levelManager->InitPhysic(_world);
 	_levelManager->LoadCompiledLevel(_world, "options_scene.scene", "");
 
@@ -36,14 +35,14 @@ JellyOptions::JellyOptions(StateMachine& machine) : State(machine, CurrentState:
 	_screenBounds = glm::vec4(-20.0f + 0, 0 + 20.0f, -4.2f - 5, -5 + 18.2f);
 	_jellyProjection = glm::ortho(-20.0f + 0, 0 + 20.0f, -4.2f - 5, -5 + 18.2f, -1.0f, 1.0f);
 
-
 	TileSetManager::Get().getTileSet("options").loadTileSet({
-		"Assets/Jelly/Options/credits.png",
-		"Assets/Jelly/Options/libs.png",
-		"Assets/Jelly/Options/keyboard.png",
-		"Assets/Jelly/Options/gamepad.png",
-		"Assets/Jelly/Options/secret.png", 
-		"Assets/Jelly/Options/volume.png" });
+			"Assets/Jelly/Options/credits.png",
+			"Assets/Jelly/Options/libs.png",
+			"Assets/Jelly/Options/keyboard.png",
+			"Assets/Jelly/Options/gamepad.png",
+			"Assets/Jelly/Options/secret.png",
+			"Assets/Jelly/Options/volume.png" });
+	
 
 	m_options = TileSetManager::Get().getTileSet("options").getAtlas();
 	//Spritesheet::Safe("Options", m_options);

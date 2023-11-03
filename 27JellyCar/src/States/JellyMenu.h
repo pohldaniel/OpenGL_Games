@@ -10,14 +10,8 @@
 #include "Levels/LevelSoftBody.h"
 #include "Levels/LevelManager.h"
 #include "JellyPhysics/World.h"
+#include "SceneManager.h"
 
-struct LevelInfo2 {
-	std::string name;
-	std::string file;
-	std::string thumb;
-	float time;
-	float jump;
-};
 
 class JellyMenu : public State, public MouseEventListener, public KeyboardEventListener {
 
@@ -36,20 +30,16 @@ private:
 	void OnKeyDown(Event::KeyboardEvent& event) override;
 	void processInput();
 
-	void loadLevelInfo(std::string path);
+	//void loadLevelInfo(std::string path);
 
 	unsigned int backWidth = 0, backHeight = 0;
 	unsigned int columns = 0, rows = 0;
 	float controlsWidth = 0, controlsHeight = 0;
 
 
-	int currentPosition;
-	int columnStartPosition;
-	int positionsInColumn;
+	int& currentPosition;
+	int& carcurrentPosition;
 
-	int carcurrentPosition;
-	int carcolumnStartPosition;
-	int carpositionsInColumn;
 	std::vector<SkinInfo> _carSkins;
 	std::vector<std::string> _sceneFiles;
 
@@ -62,7 +52,7 @@ private:
 
 	unsigned int m_thumbAtlas = 0;
 
-	std::vector<LevelInfo2> m_levelInfos;
+	
 
 	const std::vector<std::string> thumbsFromLevelInfos(const std::vector<LevelInfo2>& levelInfos);
 };

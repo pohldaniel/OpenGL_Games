@@ -10,7 +10,9 @@
 #include "JellyOptions.h"
 #include "JellyGame.h"
 
-JellyMenu::JellyMenu(StateMachine& machine) : State(machine, CurrentState::JELLYMENU) {
+JellyMenu::JellyMenu(StateMachine& machine) : State(machine, CurrentState::JELLYMENU),
+currentPosition(SceneManager::Get().getSceneInfo("scene").m_currentPosition),
+carcurrentPosition(SceneManager::Get().getSceneInfo("scene").m_carCurrentPosition) {
 
 	EventDispatcher::AddMouseListener(this);
 	EventDispatcher::AddKeyboardListener(this);
@@ -26,23 +28,19 @@ JellyMenu::JellyMenu(StateMachine& machine) : State(machine, CurrentState::JELLY
 	controlsHeight = static_cast<float>(Globals::textureManager.get("controls").getHeight());
 
 	JellyHellper::Instance()->LoadShaders();
+	_world = new World();
 
 	_levelManager = new LevelManager();
-
 	_levelManager->SetAssetsLocation("Assets/Jelly/");
 	_levelManager->LoadAllScenes("scene_list.xml");
 	_levelManager->LoadCarSkins("car_skins.xml");
 	_levelManager->LoadScores("JellyScore.xml");
-
-
-	_sceneFiles = _levelManager->GetScenes();
-	_carSkins = _levelManager->GetCarSkins();
-
-	_world = new World();
-
 	_levelManager->InitPhysic(_world);
 	_levelManager->LoadLevel(_world, "menu.scene", "Assets/Jelly/car_and_truck.car");
 	_levelManager->LoadCompiledLevel(_world, "menu.scene", "Assets/Jelly/car_and_truck.car");
+
+	_sceneFiles = _levelManager->GetScenes();
+	_carSkins = _levelManager->GetCarSkins();
 
 	_car = _levelManager->GetCar();
 	_car->SetChassisTextures(_levelManager->GetCarImage(_carSkins[0].chassisSmall), _levelManager->GetCarImage(_carSkins[0].chassisBig));
@@ -51,18 +49,9 @@ JellyMenu::JellyMenu(StateMachine& machine) : State(machine, CurrentState::JELLY
 	_gameBodies = _levelManager->GetLevelBodies();
 	_jellyProjection = glm::ortho(-20.0f + 0, 0 + 20.0f, -4.2f + 4, 4 + 18.2f, -1.0f, 1.0f);
 
-	currentPosition = 0;
-	columnStartPosition = 0;
-	positionsInColumn = 5;
 
-	carcurrentPosition = 0;
-	carcolumnStartPosition = 0;
-	carpositionsInColumn = 5;
-
-	loadLevelInfo("Assets/Jelly/scene_list.xml");
-
-	TileSetManager::Get().getTileSet("thumbs").loadTileSet(thumbsFromLevelInfos(m_levelInfos));
-
+	SceneManager::Get().getSceneInfo("scene").loadLevelInfo("Assets/Jelly/scene_list.xml");
+	TileSetManager::Get().getTileSet("thumbs").loadTileSet(thumbsFromLevelInfos(SceneManager::Get().getSceneInfo("scene").getLevelInfos()));
 	m_thumbAtlas = TileSetManager::Get().getTileSet("thumbs").getAtlas();
 	//Spritesheet::Safe("thumbs", m_thumbAtlas);
 }
@@ -179,18 +168,21 @@ void JellyMenu::render() {
 
 	int levelTextPositionY = Application::Height - ( (Application::Height / 2) - 156 - 30);
 
-	Fontrenderer::Get().addText(Globals::fontManager.get("jelly_64"), static_cast<float>(Application::Width / 2 - Globals::fontManager.get("jelly_64").getWidth(m_levelInfos[currentPosition].name) / 2), levelTextPositionY, m_levelInfos[currentPosition].name, Vector4f(0.19f, 0.14f, 0.17f, 1.0f));
-	Fontrenderer::Get().addText(Globals::fontManager.get("jelly_64"), static_cast<float>(Application::Width / 2 - Globals::fontManager.get("jelly_64").getWidth(m_levelInfos[currentPosition].name) / 2), levelTextPositionY + 3, m_levelInfos[currentPosition].name, Vector4f(1.0f,  0.65f, 0.0f, 1.0f));
+	
+	const LevelInfo2& levelInfo = SceneManager::Get().getSceneInfo("scene").getCurrentLevelInfo();
+
+	Fontrenderer::Get().addText(Globals::fontManager.get("jelly_64"), static_cast<float>(Application::Width / 2 - Globals::fontManager.get("jelly_64").getWidth(levelInfo.name) / 2), levelTextPositionY, levelInfo.name, Vector4f(0.19f, 0.14f, 0.17f, 1.0f));
+	Fontrenderer::Get().addText(Globals::fontManager.get("jelly_64"), static_cast<float>(Application::Width / 2 - Globals::fontManager.get("jelly_64").getWidth(levelInfo.name) / 2), levelTextPositionY + 3, levelInfo.name, Vector4f(1.0f,  0.65f, 0.0f, 1.0f));
 
 	int timePositionX = (Application::Width / 2) - (272 / 2);
 	int jumpPositionX = (Application::Width / 2) + (272 / 2);
 	int textPosY = Application::Height - ((Application::Height / 2) + 30);
 
-	std::string time = Fontrenderer::FloatToString(m_levelInfos[currentPosition].time, 2);
+	std::string time = Fontrenderer::FloatToString(levelInfo.time, 2);
 	Fontrenderer::Get().addText(Globals::fontManager.get("jelly_32"), timePositionX , textPosY, time + "s", Vector4f(0.19f, 0.14f, 0.17f, 1.0f));
 	Fontrenderer::Get().addText(Globals::fontManager.get("jelly_32"), timePositionX , textPosY + 2, time + "s", Vector4f(0.0f, 0.84f, 0.0f, 1.0f));
 
-	std::string jump = Fontrenderer::FloatToString(m_levelInfos[currentPosition].jump, 2);
+	std::string jump = Fontrenderer::FloatToString(levelInfo.jump, 2);
 	Fontrenderer::Get().addText(Globals::fontManager.get("jelly_32"), jumpPositionX - Globals::fontManager.get("jelly_32").getWidth(jump + "m"), textPosY, jump + "m", Vector4f(0.19f, 0.14f, 0.17f, 1.0f));
 	Fontrenderer::Get().addText(Globals::fontManager.get("jelly_32"), jumpPositionX - Globals::fontManager.get("jelly_32").getWidth(jump + "m"), textPosY + 2, jump + "m", Vector4f(0.71f, 0.16f, 0.18f, 1.0f));
 
@@ -216,6 +208,10 @@ void JellyMenu::resize(int deltaW, int deltaH) {
 void JellyMenu::processInput() {
 	Keyboard &keyboard = Keyboard::instance();
 	
+	if (keyboard.keyPressed(Keyboard::KEY_SPACE)) {
+		m_isRunning = false;
+	}
+
 	if (keyboard.keyPressed(Keyboard::KEY_ENTER)){
 
 		auto shader = Globals::shaderManager.getAssetPointer("quad");
@@ -226,6 +222,18 @@ void JellyMenu::processInput() {
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new JellyOptions(m_machine));
 		return;
+	}
+
+	if (keyboard.keyPressed(Keyboard::KEY_S)) {
+		auto shader = Globals::shaderManager.getAssetPointer("quad");
+		shader->use();
+		shader->loadVector("u_texRect", Vector4f(0.0f, 0.0f, 1.0f, 1.0f));
+		shader->unuse();
+
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new JellyGame(m_machine, "scene"));
+		return;
+	
 	}
 
 	if (keyboard.keyPressed(Keyboard::KEY_UP)){
@@ -268,7 +276,7 @@ void JellyMenu::processInput() {
 		_car->SetTireTextures(_levelManager->GetCarImage(_carSkins[carcurrentPosition].tireSmall), _levelManager->GetCarImage(_carSkins[carcurrentPosition].tireBig));
 	}
 
-	if (keyboard.keyPressed(Keyboard::KEY_S)){
+	if (keyboard.keyPressed(Keyboard::KEY_W)){
 		_car->Transform();
 	}
 
@@ -292,42 +300,6 @@ void JellyMenu::processInput() {
 
 	if (keyboard.keyDown(Keyboard::KEY_E)){
 		_car->mChassis->torque = 1.0f;
-	}
-}
-
-void JellyMenu::loadLevelInfo(std::string path) {
-	std::ifstream is(path, std::ifstream::in);
-
-	is.seekg(0, is.end);
-	int length = is.tellg();
-	is.seekg(0, is.beg);
-
-	unsigned char* buffer = new unsigned char[length];
-	is.read(reinterpret_cast<char*>(buffer), length);
-	is.close();
-
-	//load data
-	TiXmlDocument doc;
-	if (!doc.LoadContent(buffer, length)){
-		return;
-	}
-
-	TiXmlHandle hDoc(&doc);
-	TiXmlElement* pElem;
-	TiXmlHandle hRoot(0);
-
-	TiXmlElement* ObjectNode = pElem = hDoc.FirstChild("Scenes").FirstChild().Element();
-	for (ObjectNode; ObjectNode; ObjectNode = ObjectNode->NextSiblingElement()) {
-		LevelInfo2 info;
-
-		info.name = ObjectNode->Attribute("name");
-		info.file = ObjectNode->Attribute("file");
-		info.thumb = ObjectNode->Attribute("thumb");
-		info.time = 999.0f;
-		info.jump = 0.0f;
-
-		m_levelInfos.push_back(info);
-
 	}
 }
 

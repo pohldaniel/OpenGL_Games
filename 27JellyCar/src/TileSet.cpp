@@ -139,7 +139,12 @@ TextureAtlasCreator& TextureAtlasCreator::Get() {
 }
 
 ////////////////////////////TileSet//////////////////////////////////////////
+TileSet::TileSet() : m_init(false) {
+
+}
+
 void TileSet::loadTileSet(std::vector<std::string>  texturePaths, unsigned int _width, unsigned int _height, bool resetLine) {
+	if (m_init) return;
 	TextureAtlasCreator::Get().init(_width, _height);
 	
 	for(auto& path: texturePaths){ 
@@ -154,6 +159,7 @@ void TileSet::loadTileSet(std::vector<std::string>  texturePaths, unsigned int _
 	}
 
 	TextureAtlasCreator::Get().getAtlas(m_atlas);
+	m_init = true;
 }
 
 const unsigned int& TileSet::getAtlas() const {
@@ -167,10 +173,14 @@ const std::vector<TextureRect>& TileSet::getTextureRects() const {
 ///////////////////////TileSetManager//////////////////////////
 TileSetManager TileSetManager::s_instance;
 
-TileSetManager& TileSetManager::Get() {
-	return s_instance;
-}
-
 TileSet& TileSetManager::getTileSet(std::string name) {
 	return m_tileSets[name];
+}
+
+bool TileSetManager::containsTileset(std::string name) {
+	return m_tileSets.count(name) == 1;
+}
+
+TileSetManager& TileSetManager::Get() {
+	return s_instance;
 }

@@ -395,9 +395,9 @@ void Application::initStates() {
 	//Machine->addStateAtTop(new Menu(*Machine));
 	
 	//Machine->addStateAtTop(new Game(*Machine));
-	//Machine->addStateAtTop(new JellyMenuNew(*Machine));
+	Machine->addStateAtTop(new JellyMenu(*Machine));
 	//Machine->addStateAtTop(new JellyIntro(*Machine));
-	Machine->addStateAtTop(new JellySplash(*Machine));
+	//Machine->addStateAtTop(new JellySplash(*Machine));
 	//Machine->addStateAtTop(new JellyOptions(*Machine));
 }
 

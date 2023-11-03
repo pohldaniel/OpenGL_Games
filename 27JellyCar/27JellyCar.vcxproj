@@ -161,6 +161,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="engine\ZoomableQuad.cpp" />
+    <ClCompile Include="SceneManager.cpp" />
     <ClCompile Include="src\Car\Car.cpp" />
     <ClCompile Include="src\Car\Chassis.cpp" />
     <ClCompile Include="src\Car\GameBallonBody.cpp" />
@@ -345,6 +346,7 @@
     <ClInclude Include="engine\Vector.h" />
     <ClInclude Include="engine\VolumeBuffer.h" />
     <ClInclude Include="engine\ZoomableQuad.h" />
+    <ClInclude Include="SceneManager.h" />
     <ClInclude Include="src\Application.h" />
     <ClInclude Include="src\Background.h" />
     <ClInclude Include="src\Car\Car.h" />
