@@ -166,10 +166,7 @@
     <ClCompile Include="src\Car\GameBallonBody.cpp" />
     <ClCompile Include="src\Car\SuspensionShock.cpp" />
     <ClCompile Include="src\Car\Tire.cpp" />
-    <ClCompile Include="src\JellyCore.cpp" />
     <ClCompile Include="src\JellyHelper.cpp" />
-    <ClCompile Include="src\JellyIntro.cpp" />
-    <ClCompile Include="src\JellyMenu.cpp" />
     <ClCompile Include="src\JellyPhysics\AABB.cpp" />
     <ClCompile Include="src\JellyPhysics\Body.cpp" />
     <ClCompile Include="src\JellyPhysics\ClosedShape.cpp" />
@@ -188,8 +185,9 @@
     <ClCompile Include="src\Levels\LevelManager.cpp" />
     <ClCompile Include="src\Levels\LevelSoftBody.cpp" />
     <ClCompile Include="src\MousePickerFBO.cpp" />
-    <ClCompile Include="src\States\JellyIntroNew.cpp" />
-    <ClCompile Include="src\States\JellyMenuNew.cpp" />
+    <ClCompile Include="src\States\JellyGame.cpp" />
+    <ClCompile Include="src\States\JellyIntro.cpp" />
+    <ClCompile Include="src\States\JellyMenu.cpp" />
     <ClCompile Include="src\States\JellySplash.cpp" />
     <ClCompile Include="src\States\StateMachine.cpp" />
     <ClCompile Include="src\TileSet.cpp" />
@@ -354,10 +352,7 @@
     <ClInclude Include="src\Car\SuspensionShock.h" />
     <ClInclude Include="src\Car\Tire.h" />
     <ClInclude Include="src\Globals.h" />
-    <ClInclude Include="src\JellyCore.h" />
     <ClInclude Include="src\JellyHelper.h" />
-    <ClInclude Include="src\JellyIntro.h" />
-    <ClInclude Include="src\JellyMenu.h" />
     <ClInclude Include="src\JellyPhysics\AABB.h" />
     <ClInclude Include="src\JellyPhysics\Bitmask.h" />
     <ClInclude Include="src\JellyPhysics\Body.h" />
@@ -389,8 +384,9 @@
     <ClInclude Include="src\Levels\SkinInfo.h" />
     <ClInclude Include="src\MousePickerFBO.h" />
     <ClInclude Include="src\RandomColor.h" />
-    <ClInclude Include="src\States\JellyIntroNew.h" />
-    <ClInclude Include="src\States\JellyMenuNew.h" />
+    <ClInclude Include="src\States\JellyGame.h" />
+    <ClInclude Include="src\States\JellyIntro.h" />
+    <ClInclude Include="src\States\JellyMenu.h" />
     <ClInclude Include="src\States\JellySplash.h" />
     <ClInclude Include="src\States\StateMachine.h" />
     <ClInclude Include="src\TileSet.h" />

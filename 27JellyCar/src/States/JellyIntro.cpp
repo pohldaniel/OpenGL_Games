@@ -1,12 +1,12 @@
 #include <engine/Fontrenderer.h>
 
-#include "JellyIntroNew.h"
-#include "JellyMenuNew.h"
+#include "JellyIntro.h"
+#include "JellyMenu.h"
 #include "Application.h"
 #include "Globals.h"
 #include "JellyHelper.h"
 
-JellyIntroNew::JellyIntroNew(StateMachine& machine) : State(machine, CurrentState::JELLYSPLASH) {
+JellyIntro::JellyIntro(StateMachine& machine) : State(machine, CurrentState::JELLYSPLASH) {
 
 	backWidth = Globals::textureManager.get("paper").getWidth();
 	backHeight = Globals::textureManager.get("paper").getHeight();
@@ -40,12 +40,23 @@ JellyIntroNew::JellyIntroNew(StateMachine& machine) : State(machine, CurrentStat
 	_end = false;
 }
 
-JellyIntroNew::~JellyIntroNew() {
+JellyIntro::~JellyIntro() {
+	if (_levelManager != 0){
+		//clear level
+		_levelManager->ClearLevel(_world);
+
+		//remove level manager
+		delete _levelManager;
+	}
+
+	//remove physic world
+	delete _world;
+	_gameBodies.clear();
 }
 
-void JellyIntroNew::fixedUpdate() {}
+void JellyIntro::fixedUpdate() {}
 
-void JellyIntroNew::update() {
+void JellyIntro::update() {
 
 	if (_end){
 		//manager->PopState();
@@ -93,17 +104,15 @@ void JellyIntroNew::update() {
 	}
 
 	if (enterMenu){
-		m_isRunning = false;
-		m_machine.addStateAtBottom(new JellyMenuNew(m_machine));
-
-		//_audioHelper->StopEngineSound();
 		_end = true;
+		//_audioHelper->StopEngineSound();
+		
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new JellyIntro(m_machine));
 	}
-
 }
 
-void JellyIntroNew::render() {
-
+void JellyIntro::render() {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	auto shader = Globals::shaderManager.getAssetPointer("quad_back");
@@ -140,7 +149,7 @@ void JellyIntroNew::render() {
 
 }
 
-void JellyIntroNew::resize(int deltaW, int deltaH) {
+void JellyIntro::resize(int deltaW, int deltaH) {
 	columns = ceil(static_cast<float>(Application::Width) / static_cast<float>(backWidth));
 	rows = ceil(static_cast<float>(Application::Height) / static_cast<float>(backHeight));
 }

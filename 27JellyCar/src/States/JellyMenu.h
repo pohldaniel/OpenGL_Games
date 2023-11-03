@@ -19,23 +19,21 @@ struct LevelInfo2 {
 	float jump;
 };
 
-class JellyMenuNew : public State, public MouseEventListener, public KeyboardEventListener {
+class JellyMenu : public State, public MouseEventListener, public KeyboardEventListener {
 
 public:
-	JellyMenuNew(StateMachine& machine);
-	~JellyMenuNew();
+
+	JellyMenu(StateMachine& machine);
+	~JellyMenu();
 
 	void fixedUpdate() override;
 	void update() override;
 	void render() override;
 	void resize(int deltaW, int deltaH) override;
-
 	void processInput();
 
 private:
 
-	void OnMouseMotion(Event::MouseMoveEvent& event) override;
-	void OnMouseButtonDown(Event::MouseButtonEvent& event) override;
 	void OnKeyDown(Event::KeyboardEvent& event) override;
 
 	void loadLevelInfo(std::string path);

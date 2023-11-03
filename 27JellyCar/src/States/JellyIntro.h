@@ -11,11 +11,12 @@
 #include "Levels/LevelManager.h"
 #include "JellyPhysics/World.h"
 
-class JellyIntroNew : public State {
+class JellyIntro : public State {
 
 public:
-	JellyIntroNew(StateMachine& machine);
-	~JellyIntroNew();
+
+	JellyIntro(StateMachine& machine);
+	~JellyIntro();
 
 	void fixedUpdate() override;
 	void update() override;
@@ -28,8 +29,6 @@ private:
 	unsigned int columns = 0, rows = 0;
 
 	std::vector<SkinInfo> _carSkins;
-
-
 	LevelManager* _levelManager;
 	std::vector<LevelSoftBody*> _gameBodies;
 	World* _world;

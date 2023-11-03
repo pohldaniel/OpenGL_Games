@@ -36,19 +36,6 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 		{ &Globals::textureManager.get("forest_4"), 1, 4.0f },
 		{ &Globals::textureManager.get("forest_5"), 1, 5.0f }});
 	m_background.setSpeed(0.005f);
-
-	m_jellyCore = new JellyCore();
-	m_jellyCore->Init();
-
-	RenderManager* _renderManager = RenderManager::Instance();
-	_renderManager->SetWindowSize(Application::Width, Application::Height);
-	_renderManager->Init();
-
-	m_jellyIntro = new JellyIntro();
-	m_jellyIntro->Init();
-
-	m_jellyMenu = new JellyMenuBetter(m_jellyCore);
-	m_jellyMenu->Init();
 }
 
 Game::~Game() {
@@ -120,23 +107,16 @@ void Game::update() {
 	}
 	m_trackball.idle();
 	m_transform.fromMatrix(m_trackball.getTransform());
-
-	//m_background.update(m_dt);
-
-	m_jellyMenu->Update();
-	//m_jellyIntro->Update();
 }
 
 void Game::render() {
 
-	/*glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	m_background.draw();
 
 	if (m_drawUi)
-		renderUi();*/
-	m_jellyMenu->Draw();
-	//m_jellyIntro->Draw();
+		renderUi();
 }
 
 void Game::OnMouseMotion(Event::MouseMoveEvent& event) {	

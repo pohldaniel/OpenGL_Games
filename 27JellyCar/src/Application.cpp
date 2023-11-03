@@ -12,9 +12,10 @@
 
 #include <States/Menu.h>
 #include <States/Game.h>
-#include <States/JellyIntroNew.h>
-#include <States/JellyMenuNew.h>
+#include <States/JellyIntro.h>
+#include <States/JellyMenu.h>
 #include <States/JellySplash.h>
+#include <States/JellyGame.h>
 #include <UI/Widget.h>
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -391,16 +392,11 @@ void Application::fixedUpdate() {
 void Application::initStates() {	
 	Machine = new StateMachine(m_dt, m_fdt);	
 	//Machine->addStateAtTop(new Menu(*Machine));
-	//Machine->addStateAtTop(new TilePlacing(*Machine));
-
-	//Machine->addStateAtTop(new CoreMechanic(*Machine));
-	//Machine->addStateAtTop(new ZoomPan(*Machine));
-	//Machine->addStateAtTop(new Plot(*Machine));
-
+	
 	//Machine->addStateAtTop(new Game(*Machine));
 	//Machine->addStateAtTop(new JellyMenuNew(*Machine));
 	//Machine->addStateAtTop(new JellyIntroNew(*Machine));
-	Machine->addStateAtTop(new JellySplash(*Machine));
+	Machine->addStateAtTop(new JellyGame(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -635,12 +631,6 @@ void Application::loadAssets() {
 	//Globals::spritesheetManager.getAssetPointer("jelly_font")->safe("jelly");
 
 	Globals::shapeManager.buildQuadXY("quad", Vector3f(-1.0f, -1.0f, 0.0f), Vector2f(2.0f, 2.0f), 1, 1, true, false, false);
-
 	Globals::shapeManager.buildQuadXY("quad_half", Vector3f(-0.5f, -0.5f, 0.0f), Vector2f(1.0f, 1.0f), 1, 1, true, false, false);
-
 	Globals::shapeManager.buildQuadXY("quad_aligned", Vector3f(0.0f, 0.0f, 0.0f), Vector2f(1.0f, 1.0f), 1, 1, true, false, false);
-
-	Globals::shapeManager.buildQuadXZ("quad_XZ", Vector3f(-1.0f, 0.0f, -1.0f), Vector2f(2.0f, 2.0f), 1, 1, true, false, false);
-	Globals::shapeManager.buildDiamondXY("diamond_XY", Vector2f(96.0f, 48.0f), 0.75f, 1, 1, true, false, false);
-	Globals::shapeManager.buildCube("cube", Vector3f(-1.0f, -5.0f, -1.0f), Vector3f(2.0f, 10.0f, 2.0f), 1, 1, true, true, true);
 }

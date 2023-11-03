@@ -1,6 +1,6 @@
 #include <engine/Fontrenderer.h>
 
-#include "JellyMenuNew.h"
+#include "JellyMenu.h"
 #include "Application.h"
 #include "Globals.h"
 #include "TileSet.h"
@@ -8,7 +8,7 @@
 #include "tinyxml.h"
 #include "JellyHelper.h"
 
-JellyMenuNew::JellyMenuNew(StateMachine& machine) : State(machine, CurrentState::JELLYMENU) {
+JellyMenu::JellyMenu(StateMachine& machine) : State(machine, CurrentState::JELLYMENU) {
 
 	EventDispatcher::AddMouseListener(this);
 	EventDispatcher::AddKeyboardListener(this);
@@ -65,19 +65,30 @@ JellyMenuNew::JellyMenuNew(StateMachine& machine) : State(machine, CurrentState:
 	//Spritesheet::Safe("thumbs", m_thumbAtlas);
 }
 
-JellyMenuNew::~JellyMenuNew() {
+JellyMenu::~JellyMenu() {
 	EventDispatcher::RemoveMouseListener(this);
 	EventDispatcher::RemoveKeyboardListener(this);
+
+	if (_levelManager != 0){
+		//clear level
+		_levelManager->ClearLevel(_world);
+
+		//remove level manager
+		delete _levelManager;
+	}
+
+	//remove physic world
+	delete _world;
+	_gameBodies.clear();
 }
 
-void JellyMenuNew::fixedUpdate() {}
+void JellyMenu::fixedUpdate() {}
 
-void JellyMenuNew::update() {
+void JellyMenu::update() {
 
 	processInput();
 
-	for (int i = 0; i < 6; i++)
-	{
+	for (int i = 0; i < 6; i++){
 		_world->update(0.004f);
 
 		for (size_t i = 0; i < _gameBodies.size(); i++)
@@ -88,8 +99,7 @@ void JellyMenuNew::update() {
 	}
 
 	//reset car position
-	if (_car->getPosition().Y < _levelManager->GetLevelLine())
-	{
+	if (_car->getPosition().Y < _levelManager->GetLevelLine()){
 		Vector2 pos = _levelManager->GetCarStartPos();
 		Vector2 scale = Vector2(1.0f, 1.0f);
 
@@ -97,17 +107,13 @@ void JellyMenuNew::update() {
 		_car->getTire(0)->setPositionAngle(pos, 0.0f, scale);
 		_car->getTire(1)->setPositionAngle(pos, 0.0f, scale);
 	}
-
 }
 
-void JellyMenuNew::render() {
+void JellyMenu::render() {
 
-	
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
-
 	auto shader = Globals::shaderManager.getAssetPointer("quad_back");
-
 	shader->use();
 	Globals::textureManager.get("paper").bind(0);
 
@@ -194,26 +200,18 @@ void JellyMenuNew::render() {
 
 }
 
-void JellyMenuNew::OnMouseMotion(Event::MouseMoveEvent& event) {
-
-}
-
-void JellyMenuNew::OnMouseButtonDown(Event::MouseButtonEvent& event) {
-
-}
-
-void JellyMenuNew::OnKeyDown(Event::KeyboardEvent& event) {
+void JellyMenu::OnKeyDown(Event::KeyboardEvent& event) {
 	if (event.keyCode == VK_ESCAPE) {
 		m_isRunning = false;
 	}
 }
 
-void JellyMenuNew::resize(int deltaW, int deltaH) {
+void JellyMenu::resize(int deltaW, int deltaH) {
 	columns = ceil(static_cast<float>(Application::Width) / static_cast<float>(backWidth));
 	rows = ceil(static_cast<float>(Application::Height) / static_cast<float>(backHeight));
 }
 
-void JellyMenuNew::processInput() {
+void JellyMenu::processInput() {
 	Keyboard &keyboard = Keyboard::instance();
 	
 	if (keyboard.keyPressed(Keyboard::KEY_UP)){
@@ -283,7 +281,7 @@ void JellyMenuNew::processInput() {
 	}
 }
 
-void JellyMenuNew::loadLevelInfo(std::string path) {
+void JellyMenu::loadLevelInfo(std::string path) {
 	std::ifstream is(path, std::ifstream::in);
 
 	is.seekg(0, is.end);
@@ -319,7 +317,7 @@ void JellyMenuNew::loadLevelInfo(std::string path) {
 	}
 }
 
-const std::vector<std::string> JellyMenuNew::thumbsFromLevelInfos(const std::vector<LevelInfo2>& levelInfos) {
+const std::vector<std::string> JellyMenu::thumbsFromLevelInfos(const std::vector<LevelInfo2>& levelInfos) {
 	std::vector<std::string> thumbs;
 	std::transform(levelInfos.begin(), levelInfos.end(), std::back_inserter(thumbs), [](const LevelInfo2& info)-> std::string { return "Assets/Jelly/Thumbs/" + info.thumb + ".png"; });
 	return thumbs;

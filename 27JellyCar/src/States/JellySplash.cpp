@@ -1,7 +1,7 @@
 #include <engine/Fontrenderer.h>
 
 #include "JellySplash.h"
-#include "JellyIntroNew.h"
+#include "JellyIntro.h"
 
 #include "Application.h"
 #include "Globals.h"
@@ -43,15 +43,17 @@ void JellySplash::update() {
 	}
 
 	if (_splashTimer >= 4.0){
+		_end = true;
+
 		auto shader = Globals::shaderManager.getAssetPointer("quad");
 		shader->use();
 		shader->loadVector("u_color", Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
 		shader->unuse();
 
 		m_isRunning = false;
-		m_machine.addStateAtBottom(new JellyIntroNew(m_machine));
 		//_audioHelper->StopEngineSound();
-		_end = true;
+		m_machine.addStateAtBottom(new JellyIntro(m_machine));
+
 	}
 }
 

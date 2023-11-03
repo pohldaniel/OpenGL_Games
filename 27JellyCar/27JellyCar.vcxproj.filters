@@ -357,12 +357,6 @@
     <ClCompile Include="src\JellyPhysics\World.cpp">
       <Filter>Source Files\JellyPhysics</Filter>
     </ClCompile>
-    <ClCompile Include="src\JellyCore.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\JellyMenu.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\Car\Car.cpp">
       <Filter>Source Files\Car</Filter>
     </ClCompile>
@@ -462,19 +456,19 @@
     <ClCompile Include="_Andromeda\VertexBufferObjectGL3.cpp">
       <Filter>Andromeda</Filter>
     </ClCompile>
-    <ClCompile Include="src\JellyIntro.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\States\JellyIntroNew.cpp">
-      <Filter>Source Files\States</Filter>
-    </ClCompile>
-    <ClCompile Include="src\States\JellyMenuNew.cpp">
-      <Filter>Source Files\States</Filter>
-    </ClCompile>
     <ClCompile Include="src\TileSet.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\States\JellySplash.cpp">
+      <Filter>Source Files\States</Filter>
+    </ClCompile>
+    <ClCompile Include="src\States\JellyIntro.cpp">
+      <Filter>Source Files\States</Filter>
+    </ClCompile>
+    <ClCompile Include="src\States\JellyMenu.cpp">
+      <Filter>Source Files\States</Filter>
+    </ClCompile>
+    <ClCompile Include="src\States\JellyGame.cpp">
       <Filter>Source Files\States</Filter>
     </ClCompile>
   </ItemGroup>
@@ -815,12 +809,6 @@
     <ClInclude Include="src\JellyPhysics\World.h">
       <Filter>Source Files\JellyPhysics</Filter>
     </ClInclude>
-    <ClInclude Include="src\JellyCore.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\JellyMenu.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\Car\Car.h">
       <Filter>Source Files\Car</Filter>
     </ClInclude>
@@ -935,19 +923,19 @@
     <ClInclude Include="_Andromeda\VertexTypes.h">
       <Filter>Andromeda</Filter>
     </ClInclude>
-    <ClInclude Include="src\JellyIntro.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\States\JellyIntroNew.h">
-      <Filter>Source Files\States</Filter>
-    </ClInclude>
-    <ClInclude Include="src\States\JellyMenuNew.h">
-      <Filter>Source Files\States</Filter>
-    </ClInclude>
     <ClInclude Include="src\TileSet.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\States\JellySplash.h">
+      <Filter>Source Files\States</Filter>
+    </ClInclude>
+    <ClInclude Include="src\States\JellyIntro.h">
+      <Filter>Source Files\States</Filter>
+    </ClInclude>
+    <ClInclude Include="src\States\JellyMenu.h">
+      <Filter>Source Files\States</Filter>
+    </ClInclude>
+    <ClInclude Include="src\States\JellyGame.h">
       <Filter>Source Files\States</Filter>
     </ClInclude>
   </ItemGroup>
