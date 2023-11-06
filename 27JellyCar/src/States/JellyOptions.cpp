@@ -229,7 +229,7 @@ void JellyOptions::processInput() {
 		shader->unuse();
 
 		m_isRunning = false;
-		m_machine.addStateAtBottom(new JellyMenu(m_machine));
+
 		return;
 	}
 }

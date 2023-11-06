@@ -6,7 +6,7 @@
 #include "Globals.h"
 #include "JellyHelper.h"
 
-JellyIntro::JellyIntro(StateMachine& machine) : State(machine, CurrentState::JELLYSPLASH) {
+JellyIntro::JellyIntro(StateMachine& machine) : State(machine, CurrentState::JELLYINTRO) {
 
 	backWidth = Globals::textureManager.get("paper").getWidth();
 	backHeight = Globals::textureManager.get("paper").getHeight();

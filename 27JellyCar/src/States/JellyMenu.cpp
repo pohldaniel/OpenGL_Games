@@ -51,6 +51,7 @@ carcurrentPosition(SceneManager::Get().getSceneInfo("scene").m_carCurrentPositio
 
 
 	SceneManager::Get().getSceneInfo("scene").loadLevelInfo("Assets/Jelly/scene_list.xml");
+	SceneManager::Get().getSceneInfo("scene").loadCarSkins("Assets/Jelly/car_skins.xml");
 	TileSetManager::Get().getTileSet("thumbs").loadTileSet(thumbsFromLevelInfos(SceneManager::Get().getSceneInfo("scene").getLevelInfos()));
 	m_thumbAtlas = TileSetManager::Get().getTileSet("thumbs").getAtlas();
 	//Spritesheet::Safe("thumbs", m_thumbAtlas);
@@ -216,17 +217,18 @@ void JellyMenu::processInput() {
 
 		auto shader = Globals::shaderManager.getAssetPointer("quad");
 		shader->use();
+		shader->loadMatrix("u_transform", Matrix4f::IDENTITY);
 		shader->loadVector("u_texRect", Vector4f(0.0f, 0.0f, 1.0f, 1.0f));
 		shader->unuse();
 
-		m_isRunning = false;
-		m_machine.addStateAtBottom(new JellyOptions(m_machine));
+		m_machine.addStateAtTop(new JellyOptions(m_machine));
 		return;
 	}
 
 	if (keyboard.keyPressed(Keyboard::KEY_S)) {
 		auto shader = Globals::shaderManager.getAssetPointer("quad");
 		shader->use();
+		shader->loadMatrix("u_transform", Matrix4f::IDENTITY);
 		shader->loadVector("u_texRect", Vector4f(0.0f, 0.0f, 1.0f, 1.0f));
 		shader->unuse();
 

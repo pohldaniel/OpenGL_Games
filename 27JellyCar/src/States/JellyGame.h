@@ -2,6 +2,7 @@
 
 #include <engine/input/MouseEventListener.h>
 #include <engine/input/KeyboardEventListener.h>
+#include <engine/Framebuffer.h>
 #include <States/StateMachine.h>
 
 #include <glm/gtc/matrix_transform.hpp>
@@ -10,6 +11,8 @@
 #include "Levels/LevelSoftBody.h"
 #include "Levels/LevelManager.h"
 #include "JellyPhysics/World.h"
+
+#include "_Andromeda/Sprite.h"
 
 class JellyGame : public State, public KeyboardEventListener {
 
@@ -23,20 +26,24 @@ public:
 	void render() override;
 	void resize(int deltaW, int deltaH) override;
 
+	void renderScene();
+
 private:
 
 	void OnKeyDown(Event::KeyboardEvent& event) override;
 	void processInput();
+	void UpdateTransformMeter(float dt);
 
 	unsigned int backWidth = 0, backHeight = 0;
 	unsigned int columns = 0, rows = 0;
 
-	std::vector<SkinInfo> _carSkins;
+
 	LevelManager* _levelManager;
 	std::vector<LevelSoftBody*> _gameBodies;
 	World* _world;
 	Car* _car;
 
+	glm::mat4 _projection;
 	glm::mat4 _jellyProjection;
 
 	Vector2 _levelTarget;
@@ -98,4 +105,17 @@ private:
 
 	AABB _ballonAABB;
 	AABB _tireAABB;
+
+	Shader2* _shader;
+	ShaderManager* _shaderManager;
+
+	Sprite* _backSprite;
+	Sprite* _targetSprite;
+	Sprite* _tireSprite;
+	Sprite* _ballonSprite;
+	Sprite* _tireSpriteBack;
+	Sprite* _ballonSpriteBack;
+	Sprite* _transformMeter;
+
+	Framebuffer m_mainRT;
 };

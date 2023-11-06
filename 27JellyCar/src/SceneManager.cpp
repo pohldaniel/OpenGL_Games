@@ -67,7 +67,49 @@ void SceneInfo::loadLevelInfo(std::string path) {
 		m_levelInfos.push_back(info);
 
 	}
+	
+	m_sceneFiles = sceneFilesFromLevelInfos(m_levelInfos);	
+}
+
+void SceneInfo::loadCarSkins(std::string path) {
+	if (m_init) return;
+	std::ifstream is(path, std::ifstream::in);
+
+	is.seekg(0, is.end);
+	int length = is.tellg();
+	is.seekg(0, is.beg);
+
+	unsigned char* buffer = new unsigned char[length];
+	is.read(reinterpret_cast<char*>(buffer), length);
+	is.close();
+
+	//load data
+	TiXmlDocument doc;
+	if (!doc.LoadContent(buffer, length)) {
+		return;
+	}
+
+	TiXmlHandle hDoc(&doc);
+	TiXmlElement* pElem;
+	TiXmlHandle hRoot(0);
+
+	TiXmlElement* ObjectNode = pElem = hDoc.FirstChild("Skins").FirstChild().Element();
+	for (ObjectNode; ObjectNode; ObjectNode = ObjectNode->NextSiblingElement()){
+		SkinInfo skinInfo;
+		skinInfo.name = ObjectNode->Attribute("name");
+		skinInfo.tireSmall = ObjectNode->Attribute("tireSmall");
+		skinInfo.tireBig = ObjectNode->Attribute("tireBig");
+		skinInfo.chassisSmall = ObjectNode->Attribute("chassisSmall");
+		skinInfo.chassisBig = ObjectNode->Attribute("chassisBig");
+		m_carSkins.push_back(skinInfo);
+	}
 	m_init = true;
+}
+
+const std::vector<std::string> SceneInfo::sceneFilesFromLevelInfos(const std::vector<LevelInfo2>& levelInfos) {
+	std::vector<std::string> sceneFiles;
+	std::transform(levelInfos.begin(), levelInfos.end(), std::back_inserter(sceneFiles), [](const LevelInfo2& info)-> std::string { return info.file; });
+	return sceneFiles;
 }
 
 ///////////////////////ScenetManager//////////////////////////

@@ -10,7 +10,10 @@ enum CurrentState {
 	JELLYINTRO,
 	JELLYSPLASH,
 	JELLYGAME,
-	JELLYOPTIONS
+	JELLYOPTIONS,
+	JELLYDIALOG,
+	JELLYFINISH,
+	JELLYPAUSE
 };
 
 class State;
@@ -33,6 +36,7 @@ public:
 	void render();
 	
 	const bool isRunning() const;
+	const std::stack<State*>& getStates() const;
 
 	const float& m_fdt;
 	const float& m_dt;

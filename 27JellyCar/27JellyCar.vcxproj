@@ -161,7 +161,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="engine\ZoomableQuad.cpp" />
-    <ClCompile Include="SceneManager.cpp" />
     <ClCompile Include="src\Car\Car.cpp" />
     <ClCompile Include="src\Car\Chassis.cpp" />
     <ClCompile Include="src\Car\GameBallonBody.cpp" />
@@ -186,10 +185,14 @@
     <ClCompile Include="src\Levels\LevelManager.cpp" />
     <ClCompile Include="src\Levels\LevelSoftBody.cpp" />
     <ClCompile Include="src\MousePickerFBO.cpp" />
+    <ClCompile Include="src\SceneManager.cpp" />
+    <ClCompile Include="src\States\JellyFinish.cpp" />
     <ClCompile Include="src\States\JellyGame.cpp" />
+    <ClCompile Include="src\States\JellyPause.cpp" />
     <ClCompile Include="src\States\JellyIntro.cpp" />
     <ClCompile Include="src\States\JellyMenu.cpp" />
     <ClCompile Include="src\States\JellyOptions.cpp" />
+    <ClCompile Include="src\States\JellyDialog.cpp" />
     <ClCompile Include="src\States\JellySplash.cpp" />
     <ClCompile Include="src\States\StateMachine.cpp" />
     <ClCompile Include="src\TileSet.cpp" />
@@ -346,7 +349,6 @@
     <ClInclude Include="engine\Vector.h" />
     <ClInclude Include="engine\VolumeBuffer.h" />
     <ClInclude Include="engine\ZoomableQuad.h" />
-    <ClInclude Include="SceneManager.h" />
     <ClInclude Include="src\Application.h" />
     <ClInclude Include="src\Background.h" />
     <ClInclude Include="src\Car\Car.h" />
@@ -387,10 +389,14 @@
     <ClInclude Include="src\Levels\SkinInfo.h" />
     <ClInclude Include="src\MousePickerFBO.h" />
     <ClInclude Include="src\RandomColor.h" />
+    <ClInclude Include="src\SceneManager.h" />
+    <ClInclude Include="src\States\JellyFinish.h" />
     <ClInclude Include="src\States\JellyGame.h" />
+    <ClInclude Include="src\States\JellyPause.h" />
     <ClInclude Include="src\States\JellyIntro.h" />
     <ClInclude Include="src\States\JellyMenu.h" />
     <ClInclude Include="src\States\JellyOptions.h" />
+    <ClInclude Include="src\States\JellyDialog.h" />
     <ClInclude Include="src\States\JellySplash.h" />
     <ClInclude Include="src\States\StateMachine.h" />
     <ClInclude Include="src\TileSet.h" />

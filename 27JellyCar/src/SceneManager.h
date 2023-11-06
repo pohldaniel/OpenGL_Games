@@ -1,6 +1,8 @@
 #pragma once
 
 #include <fstream>
+#include <algorithm>
+#include <iterator>
 
 #include <vector>
 #include <unordered_map>
@@ -24,6 +26,7 @@ public:
 
 	SceneInfo();
 	void loadLevelInfo(std::string path);
+	void loadCarSkins(std::string path);
 	const std::vector<SkinInfo>& getSkinInfos() const;
 	const std::vector<std::string>& getSceneFiles() const;
 	const std::vector<LevelInfo2>& getLevelInfos() const;
@@ -32,10 +35,12 @@ public:
 	const std::string& getCurrentSceneFile() const;
 	const LevelInfo2& getCurrentLevelInfo() const;
 
-
-
 	int m_currentPosition;
 	int m_carCurrentPosition;
+
+private:
+
+	const std::vector<std::string> sceneFilesFromLevelInfos(const std::vector<LevelInfo2>& levelInfos);
 
 	std::vector<SkinInfo> m_carSkins;
 	std::vector<std::string> m_sceneFiles;
@@ -55,6 +60,7 @@ public:
 
 private:
 	SceneManager() = default;
+
 
 	std::unordered_map<std::string, SceneInfo> m_sceneInfos;
 	static SceneManager s_instance;

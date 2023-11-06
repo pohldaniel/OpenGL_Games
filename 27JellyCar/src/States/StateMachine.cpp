@@ -1,3 +1,4 @@
+#include <iostream>
 #include "StateMachine.h"
 #include "Application.h"
 
@@ -33,7 +34,6 @@ void StateMachine::fixedUpdate() {
 }
 
 void StateMachine::update() {
-
 	if (!m_states.empty()) {
 		m_states.top()->update();
 		if (!m_states.top()->isRunning()) {
@@ -68,6 +68,10 @@ void StateMachine::clearStates() {
 
 const bool StateMachine::isRunning() const {
 	return m_isRunning;
+}
+
+const std::stack<State*>& StateMachine::getStates() const {
+	return m_states;
 }
 
 void StateMachine::ToggleWireframe() {
