@@ -502,8 +502,7 @@ void Application::Resize(int deltaW, int deltaH) {
 	if (Init) {
 		ViewPort::Get().init(Width, Height);
 		s_machine->resize(Width, Height);
-		s_machine->m_states.top()->resize(deltaW, deltaH);
-
+		
 		auto shader = Globals::shaderManager.getAssetPointer("batch_font");
 
 		glUseProgram(shader->m_program);
@@ -521,6 +520,8 @@ void Application::Resize(int deltaW, int deltaH) {
 		glUseProgram(shader->m_program);
 		shader->loadMatrix("u_projection", ViewPort::Get().getCamera().getOrthographicMatrix());
 		glUseProgram(0);
+
+		s_machine->m_states.top()->resize(deltaW, deltaH);
 	}
 }
 

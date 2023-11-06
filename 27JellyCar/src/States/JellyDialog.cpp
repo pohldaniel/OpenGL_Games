@@ -9,7 +9,7 @@
 JellyDialog::JellyDialog(StateMachine& machine, Framebuffer& mainRT, std::string text) :
 	State(machine, CurrentState::JELLYDIALOG),
 	mainRT(mainRT),
-	m_text(text) {
+	m_text(text){
 
 	controlsWidth = static_cast<float>(Globals::textureManager.get("controls").getWidth());
 	controlsHeight = static_cast<float>(Globals::textureManager.get("controls").getHeight());
@@ -74,5 +74,5 @@ void JellyDialog::render() {
 }
 
 void JellyDialog::resize(int deltaW, int deltaH) {
-	
+	m_machine.resizeState(deltaW, deltaH, CurrentState::JELLYGAME);
 }

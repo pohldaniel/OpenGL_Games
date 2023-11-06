@@ -461,15 +461,16 @@ void Application::Resize(int deltaW, int deltaH) {
 	glViewport(0, 0, Width, Height);
 	
 	if (Init) {
+		Framebuffer::SetDefaultSize(Width, Height);
+
 		Machine->resize(Width, Height);
-		Machine->m_states.top()->resize(deltaW, deltaH);
-		
+	
 		auto shader = Globals::shaderManager.getAssetPointer("font");
 		shader->use();
 		shader->loadMatrix("u_projection", Matrix4f::Orthographic(0.0f, static_cast<float>(Width), 0.0f, static_cast<float>(Height), -1.0f, 1.0f));
 		shader->unuse();
 
-		Framebuffer::SetDefaultSize(Width, Height);
+		Machine->m_states.top()->resize(deltaW, deltaH);
 	}	
 }
 

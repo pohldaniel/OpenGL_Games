@@ -549,12 +549,14 @@ void JellyGame::resize(int deltaW, int deltaH) {
 	columns = ceil(static_cast<float>(Application::Width) / static_cast<float>(backWidth));
 	rows = ceil(static_cast<float>(Application::Height) / static_cast<float>(backHeight));
 
-	m_mainRT.resize(Application::Width, Application::Height);
+	_projection = glm::ortho(0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, -1.0f, 1.0f);
+	_screenBounds = glm::vec4(0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f);
 
-	if (m_machine.getStates().top()->getCurrentState() != CurrentState::JELLYGAME) {
-		renderScene();
-	}
+	m_mainRT.resize(Application::Width, Application::Height);
 	
+	if (!m_isActive) {		
+		renderScene();
+	}	
 }
 
 void JellyGame::OnKeyDown(Event::KeyboardEvent& event) {

@@ -201,6 +201,9 @@ LRESULT Application::DisplayWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 					if ((HIWORD(lParam) & KF_ALTDOWN))
 						ToggleFullScreen(!Fullscreen);
 					break;
+				}case VK_MENU: {
+					ToggleFullScreen(!Fullscreen);
+					break;
 				}
 			}
 			break;
@@ -397,9 +400,9 @@ void Application::initStates() {
 	//Machine->addStateAtTop(new Menu(*Machine));
 	
 	//Machine->addStateAtTop(new Game(*Machine));
-	Machine->addStateAtTop(new JellyMenu(*Machine));
+	//Machine->addStateAtTop(new JellyMenu(*Machine));
 	//Machine->addStateAtTop(new JellyIntro(*Machine));
-	//Machine->addStateAtTop(new JellySplash(*Machine));
+	Machine->addStateAtTop(new JellySplash(*Machine));
 	//Machine->addStateAtTop(new JellyOptions(*Machine));
 }
 
@@ -525,8 +528,6 @@ void Application::Resize(int deltaW, int deltaH) {
 		Framebuffer::SetDefaultSize(Width, Height);
 		Widget::Resize(Width, Height);
 
-		Machine->m_states.top()->resize(deltaW, deltaH);
-
 		auto shader = Globals::shaderManager.getAssetPointer("font");
 		shader->use();
 		shader->loadMatrix("u_transform", Matrix4f::Orthographic(0.0f, static_cast<float>(Width), 0.0f, static_cast<float>(Height), -1.0f, 1.0f));
@@ -536,6 +537,8 @@ void Application::Resize(int deltaW, int deltaH) {
 		shader->use();
 		shader->loadMatrix("u_transform", Matrix4f::Orthographic(0.0f, static_cast<float>(Width), 0.0f, static_cast<float>(Height), -1.0f, 1.0f));
 		shader->unuse();
+
+		Machine->m_states.top()->resize(deltaW, deltaH);
 	}	
 }
 
@@ -624,6 +627,9 @@ void Application::loadAssets() {
 	Globals::fontManager.get("jelly_32").addSpacing("t", 3);
 	Globals::fontManager.get("jelly_32").addSpacing("T", 4);
 	Globals::fontManager.get("jelly_32").addSpacing("pP", -2);
+	Globals::fontManager.get("jelly_32").addSpacing("f", 6);
+	Globals::fontManager.get("jelly_32").addSpacing("v", 5);
+	Globals::fontManager.get("jelly_32").addSpacing("e", 2);
 	Globals::fontManager.get("jelly_64").addSpacing("t", 2);
 	Globals::fontManager.get("jelly_64").addSpacing("T", 2);
 	Globals::fontManager.get("jelly_64").addSpacing("r", 2);

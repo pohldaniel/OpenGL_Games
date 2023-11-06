@@ -1,4 +1,3 @@
-#include <iostream>
 #include "Application.h"
 #include "engine/Framebuffer.h"
 
@@ -316,9 +315,9 @@ void Application::Resize(int deltaW, int deltaH) {
 	Globals::orthographic = Matrix4f::GetOrthographic(Globals::orthographic, 0.0f, static_cast<float>(Width), 0.0f, static_cast<float>(Height), -1.0f, 1.0f);
 	
 	if (Init) {
-		Machine->resize(Width, Height);
-		Machine->m_states.top()->resize(deltaW, deltaH);
 		Framebuffer::SetDefaultSize(Width, Height);
+		Machine->resize(Width, Height);
+		Machine->m_states.top()->resize(deltaW, deltaH);		
 	}
 }
 

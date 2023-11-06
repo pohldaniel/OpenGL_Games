@@ -26,7 +26,8 @@ public:
 
 private:
 
-	Framebuffer& mainRT;
 	float controlsWidth = 0, controlsHeight = 0;
 	std::string m_text;
+
+	Framebuffer& mainRT;
 };

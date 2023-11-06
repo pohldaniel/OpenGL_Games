@@ -119,6 +119,6 @@ void JellyPause::render() {
 	Globals::spritesheetManager.getAssetPointer("jelly_font")->unbind(0);
 }
 
-void JellyPause::resize(int deltaW, int deltaH) {
-	
+void JellyPause::resize(int deltaW, int deltaH) {	
+	m_machine.resizeState(deltaW, deltaH, CurrentState::JELLYGAME);
 }

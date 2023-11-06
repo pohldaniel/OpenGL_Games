@@ -216,6 +216,7 @@ void JellyOptions::OnKeyDown(Event::KeyboardEvent& event) {
 void JellyOptions::resize(int deltaW, int deltaH) {
 	columns = ceil(static_cast<float>(Application::Width) / static_cast<float>(backWidth));
 	rows = ceil(static_cast<float>(Application::Height) / static_cast<float>(backHeight));
+	m_machine.resizeState(deltaW, deltaH, CurrentState::JELLYGAME);
 }
 
 void JellyOptions::processInput() {

@@ -510,12 +510,13 @@ void Application::Resize(int deltaW, int deltaH) {
 		Widget::Resize(Width, Height);
 
 		Machine->resize(Width, Height);
-		Machine->m_states.top()->resize(deltaW, deltaH);
-
+		
 		auto shader = Globals::shaderManager.getAssetPointer("font");
 		shader->use();
 		shader->loadMatrix("u_transform", Matrix4f::Orthographic(0.0f, static_cast<float>(Width), 0.0f, static_cast<float>(Height), -1.0f, 1.0f));
 		shader->unuse();
+
+		Machine->m_states.top()->resize(deltaW, deltaH);
 	}	
 }
 

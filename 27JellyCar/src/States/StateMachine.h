@@ -34,9 +34,10 @@ public:
 	void fixedUpdate();
 	void update();
 	void render();
+	void resizeState(int deltaW, int deltaH, CurrentState state);
 	
 	const bool isRunning() const;
-	const std::stack<State*>& getStates() const;
+	std::stack<State*>& getStates();
 
 	const float& m_fdt;
 	const float& m_dt;
@@ -61,6 +62,8 @@ private:
 
 class State {
 
+	friend class StateMachine;
+
 public:
 	State(StateMachine& machine, CurrentState currentState);
 	virtual ~State();
@@ -71,6 +74,7 @@ public:
 	virtual void resize(int deltaW, int deltaH) {};
 
 	const bool isRunning() const;
+	const bool isActive() const;
 	CurrentState getCurrentState();
 	
 protected:
@@ -79,5 +83,6 @@ protected:
 	const float& m_fdt;
 	const float& m_dt;
 	bool m_isRunning = true;
+	bool m_isActive = true;
 	CurrentState m_currentState;
 };

@@ -13,13 +13,18 @@ StateMachine::~StateMachine() {
 }
 
 State* StateMachine::addStateAtTop(State* state) {
+	if (!m_states.empty())
+		m_states.top()->m_isActive = false;
+	
 	m_states.push(state);
+	state->m_isActive = true;
 	return state;
 }
 
 void StateMachine::addStateAtBottom(State* state) {
 	if (m_states.empty()) {
 		m_states.push(state);
+		state->m_isActive = true;
 	}else {
 		State* temp = m_states.top();
 		m_states.pop();
@@ -57,6 +62,7 @@ void StateMachine::render() {
 void StateMachine::clearAndPush(State* state) {
 	clearStates();
 	m_states.push(state);
+	state->m_isActive = true;
 }
 
 void StateMachine::clearStates() {
@@ -66,11 +72,25 @@ void StateMachine::clearStates() {
 	}
 }
 
+void StateMachine::resizeState(int deltaW, int deltaH, CurrentState state) {
+	if (m_states.empty()) return;
+	
+	if (m_states.top()->getCurrentState() == state) {
+		m_states.top()->resize(deltaW, deltaH);
+	}else {
+		State* temp = m_states.top();
+		m_states.pop();
+		resizeState(deltaW, deltaH, state);
+		m_states.push(temp);
+	}
+}
+
 const bool StateMachine::isRunning() const {
 	return m_isRunning;
 }
 
-const std::stack<State*>& StateMachine::getStates() const {
+
+std::stack<State*>& StateMachine::getStates(){
 	return m_states;
 }
 
@@ -93,6 +113,11 @@ State::~State() {
 const bool State::isRunning() const {
 	return m_isRunning;
 }
+
+const bool State::isActive() const {
+	return m_isActive;
+}
+
 
 CurrentState State::getCurrentState() {
 	return m_currentState;
