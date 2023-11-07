@@ -118,4 +118,6 @@ private:
 	Sprite* _transformMeter;
 
 	Framebuffer m_mainRT;
+
+	
 };

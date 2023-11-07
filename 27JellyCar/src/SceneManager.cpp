@@ -16,6 +16,10 @@ const std::vector<std::string>& SceneInfo::getSceneFiles() const {
 	return m_sceneFiles;
 }
 
+const std::vector<std::string>& SceneInfo::getThumbFiles() const {
+	return m_thumbFiles;
+}
+
 const std::vector<LevelInfo2>& SceneInfo::getLevelInfos() const {
 	return m_levelInfos;
 }
@@ -37,7 +41,7 @@ void SceneInfo::loadLevelInfo(std::string path) {
 	std::ifstream is(path, std::ifstream::in);
 
 	is.seekg(0, is.end);
-	int length = is.tellg();
+	std::streamoff length = is.tellg();
 	is.seekg(0, is.beg);
 
 	unsigned char* buffer = new unsigned char[length];
@@ -46,7 +50,7 @@ void SceneInfo::loadLevelInfo(std::string path) {
 
 	//load data
 	TiXmlDocument doc;
-	if (!doc.LoadContent(buffer, length)) {
+	if (!doc.LoadContent(buffer, static_cast<int>(length))){
 		return;
 	}
 
@@ -69,6 +73,7 @@ void SceneInfo::loadLevelInfo(std::string path) {
 	}
 	
 	m_sceneFiles = sceneFilesFromLevelInfos(m_levelInfos);	
+	m_thumbFiles = thumbFilesFromLevelInfos(m_levelInfos);
 }
 
 void SceneInfo::loadCarSkins(std::string path) {
@@ -76,7 +81,7 @@ void SceneInfo::loadCarSkins(std::string path) {
 	std::ifstream is(path, std::ifstream::in);
 
 	is.seekg(0, is.end);
-	int length = is.tellg();
+	std::streamoff length = is.tellg();
 	is.seekg(0, is.beg);
 
 	unsigned char* buffer = new unsigned char[length];
@@ -85,7 +90,7 @@ void SceneInfo::loadCarSkins(std::string path) {
 
 	//load data
 	TiXmlDocument doc;
-	if (!doc.LoadContent(buffer, length)) {
+	if (!doc.LoadContent(buffer, static_cast<int>(length))) {
 		return;
 	}
 
@@ -106,10 +111,71 @@ void SceneInfo::loadCarSkins(std::string path) {
 	m_init = true;
 }
 
+void SceneInfo::loadScores(std::string path) {
+	//loac main level file
+	std::ifstream is(path, std::ifstream::in);
+
+	if (!is.is_open())
+		return;
+
+	is.seekg(0, is.end);
+	std::streamoff length = is.tellg();
+	is.seekg(0, is.beg);
+
+	unsigned char* buffer = new unsigned char[length];
+	is.read(reinterpret_cast<char*>(buffer), length);
+	is.close();
+
+	//load data
+	TiXmlDocument doc;
+	if (!doc.LoadContent(buffer, static_cast<int>(length))) {
+		return;
+	}
+
+	TiXmlHandle hDoc(&doc);
+	TiXmlElement* pElem;
+	TiXmlHandle hRoot(0);
+
+	TiXmlElement* ObjectNode = pElem = hDoc.FirstChild("Levels").FirstChild().Element();
+	
+	for (ObjectNode; ObjectNode; ObjectNode = ObjectNode->NextSiblingElement()) {
+		int index = std::stoi(ObjectNode->Attribute("id"));
+		m_levelInfos[index].time = std::stof(ObjectNode->Attribute("score"));
+		m_levelInfos[index].jump = std::stof(ObjectNode->Attribute("jump"));
+	}
+}
+
+void SceneInfo::saveScores(std::string path) {
+	TiXmlDocument doc;
+	TiXmlDeclaration* decl = new TiXmlDeclaration("1.0", "", "");
+	doc.LinkEndChild(decl);
+
+	//root
+	TiXmlElement * root = new TiXmlElement("Levels");
+	doc.LinkEndChild(root);
+
+	for (int i = 0; i < m_levelInfos.size(); i++){
+		TiXmlElement * cxn = new TiXmlElement("Level");
+		root->LinkEndChild(cxn);
+		cxn->SetAttribute("name", m_levelInfos[i].name.c_str());
+		cxn->SetAttribute("id", i);
+		cxn->SetDoubleAttribute("score", m_levelInfos[i].time);
+		cxn->SetDoubleAttribute("jump", m_levelInfos[i].jump);
+	}
+
+	doc.SaveFile(path.c_str());
+}
+
 const std::vector<std::string> SceneInfo::sceneFilesFromLevelInfos(const std::vector<LevelInfo2>& levelInfos) {
 	std::vector<std::string> sceneFiles;
 	std::transform(levelInfos.begin(), levelInfos.end(), std::back_inserter(sceneFiles), [](const LevelInfo2& info)-> std::string { return info.file; });
 	return sceneFiles;
+}
+
+const std::vector<std::string> SceneInfo::thumbFilesFromLevelInfos(const std::vector<LevelInfo2>& levelInfos) {
+	std::vector<std::string> thumbs;
+	std::transform(levelInfos.begin(), levelInfos.end(), std::back_inserter(thumbs), [](const LevelInfo2& info)-> std::string { return "Assets/Jelly/Thumbs/" + info.thumb + ".png"; });
+	return thumbs;
 }
 
 ///////////////////////ScenetManager//////////////////////////

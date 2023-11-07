@@ -2,6 +2,7 @@
 
 #include <engine/input/MouseEventListener.h>
 #include <engine/input/KeyboardEventListener.h>
+#include <engine/input/Keyboard.h>
 #include <States/StateMachine.h>
 
 #include <glm/gtc/matrix_transform.hpp>
@@ -63,10 +64,6 @@ private:
 	void OnKeyDown(Event::KeyboardEvent& event) override;
 	void processInput();
 
-	void InitCredits();
-	
-	void InitActionNames();
-
 	unsigned int backWidth = 0, backHeight = 0;
 	unsigned int columns = 0, rows = 0;
 	float controlsWidth = 0, controlsHeight = 0;
@@ -80,12 +77,6 @@ private:
 	glm::vec4 _screenBounds;
 	
 	unsigned int m_options;
-
-	std::vector<Text> _credits;
-	float _creditsPosition = 600.0f;
-
-	std::vector<CarAction> _carActions;
-	std::map<CarAction, std::string> _actionTranslation;
 
 	std::vector<LevelSoftBody*> _menuBodies;
 	int _menuBodySelected;
@@ -155,8 +146,7 @@ private:
 
 	int centerX;
 	float _libsPosition;
-	std::vector<Text> _libs;
-	
+	std::vector<Text> _libs;	
 };
 
 class JellyOptionCredit : public JellyOptionState {
@@ -175,6 +165,10 @@ private:
 
 	void OnKeyDown(Event::KeyboardEvent& event) override;
 	void processInput() override;
+	void initCredits();
+
+	std::vector<Text> _credits;
+	float _creditsPosition = 600.0f;
 };
 
 class JellyOptionControl : public JellyOptionState {
@@ -182,7 +176,7 @@ class JellyOptionControl : public JellyOptionState {
 public:
 
 	JellyOptionControl(JellyOptions& machine);
-	~JellyOptionControl() = default;
+	~JellyOptionControl();
 
 	void fixedUpdate() override;
 	void update() override;
@@ -193,6 +187,14 @@ private:
 
 	void OnKeyDown(Event::KeyboardEvent& event) override;
 	void processInput() override;
+	void initActionNames();
+	void loadSettings(std::string path);
+	void saveSettings(std::string path);
+	std::map<int, int> getActionKeyMapping();
+
+	std::vector<CarAction> _carActions;
+	std::map<CarAction, std::string> _actionTranslation;
+	std::map<CarAction, Keyboard::Key> _carKeyboardMapping;
 };
 
 class JellyOptionSound : public JellyOptionState {
@@ -200,7 +202,7 @@ class JellyOptionSound : public JellyOptionState {
 public:
 
 	JellyOptionSound(JellyOptions& machine);
-	~JellyOptionSound() = default;
+	~JellyOptionSound();
 
 	void fixedUpdate() override;
 	void update() override;
@@ -211,4 +213,11 @@ private:
 
 	void OnKeyDown(Event::KeyboardEvent& event) override;
 	void processInput() override;
+
+	void loadSettings(std::string path);
+	void saveSettings(std::string path);
+
+	float _carVolume;
+	float _soundsVolume;
+	float _musicVolume;
 };

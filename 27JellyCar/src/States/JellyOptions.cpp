@@ -1,4 +1,5 @@
 #include <engine/Fontrenderer.h>
+#include <tinyxml.h>
 
 #include "JellyOptions.h"
 #include "JellyMenu.h"
@@ -54,10 +55,6 @@ JellyOptions::JellyOptions(StateMachine& machine) : State(machine, States::JELLY
 	_secretTexture = TextureManager::Instance()->LoadFromFile("Assets/Jelly/Texture/secret.png");
 	_volumeTexture = TextureManager::Instance()->LoadFromFile("Assets/Jelly/Texture/volume.png");
 
-	InitCredits();
-
-	InitActionNames();
-
 	//texture test
 	for (size_t i = 0; i < _gameBodies.size(); i++){
 		if (_gameBodies[i]->GetName() == "options_libs"){
@@ -108,7 +105,7 @@ JellyOptions::JellyOptions(StateMachine& machine) : State(machine, States::JELLY
 JellyOptions::~JellyOptions() {
 	EventDispatcher::RemoveKeyboardListener(this);
 
-	if (_levelManager != 0){
+	if (_levelManager != 0) {
 		//clear level
 		_levelManager->ClearLevel(_world);
 
@@ -119,9 +116,6 @@ JellyOptions::~JellyOptions() {
 	//remove physic world
 	delete _world;
 	_gameBodies.clear();
-
-	_credits.clear();
-	_actionTranslation.clear();
 }
 
 void JellyOptions::OnKeyDown(Event::KeyboardEvent& event) {	
@@ -184,43 +178,12 @@ void JellyOptions::processInput() {
 		dragPoint = -1;
 	}
 
-	if (touchF == true){
-		if (dragBody == NULL){
-			int body;
-			_world->getClosestPointMass(Vector2(dragX, dragY), body, dragPoint);
-			dragBody = _world->getBody(body);
-
-			//click testing
-			for (size_t i = 0; i < _gameBodies.size(); i++){
-				if (_gameBodies[i]->GetBody()->contains(Vector2(dragX, dragY))){
-					
-					if (_gameBodies[i]->GetName() == "options_credits"){
-						//set correct positiond down
-						_creditsPosition = Application::Height - (Application::Height * 0.08f);
-					}
-
-					if (_gameBodies[i]->GetName() == "options_keys"){
-						_selctedPosition = 0;
-						_alphaScale = 1.0f;
-					}
-
-					if (_gameBodies[i]->GetName() == "options_sound"){
-						_soundPosition = 0;
-						_alphaScale = 1.0f;
-						//_audioHelper->PlayFastEngine();
-					}
-				}
-			}
-		}
-	}
-
-	if (keyboard.keyPressed(Keyboard::KEY_S)){
+	if(keyboard.keyPressed(Keyboard::KEY_S)){
 
 		if (_menuBodies[_menuBodySelected]->GetName() == "options_libs"){
 			addStateAtTop(new JellyOptionLib(*this));
 		}else if (_menuBodies[_menuBodySelected]->GetName() == "options_credits"){
-			_creditsPosition = Application::Height - (Application::Height * 0.08f);
-
+			
 			addStateAtTop(new JellyOptionCredit(*this));
 		}else if (_menuBodies[_menuBodySelected]->GetName() == "options_keys"){
 			_selctedPosition = 0;
@@ -248,42 +211,8 @@ void JellyOptions::processInput() {
 	}
 }
 
-void JellyOptions::InitCredits(){
-	_credits.push_back(Text("Thanks", 0));
-	_credits.push_back(Text("Walaber for original game", 82));
-	_credits.push_back(Text("Shadow for car skins", 142));
-	_credits.push_back(Text("Ruben Wolfe, SMOKE, TheFloW", 202));
-	_credits.push_back(Text("for support and testing", 242));
-	_credits.push_back(Text("Rinnegatamante and EasyRPG Team", 302));
-	_credits.push_back(Text("for the Audio Decoder used for Vita sound module", 342));
-	_credits.push_back(Text("St3f  for splash screen", 402));
-	_credits.push_back(Text("Team Molecule for HENkaku", 462));
-	_credits.push_back(Text("Everybody who contributed to vitasdk", 522));
-	_credits.push_back(Text("Switchbrew team", 582));
-	_credits.push_back(Text("Everybody who contributed to libnx", 642));
-}
 
-void JellyOptions::InitActionNames(){
-	_carActions.push_back(CarAction::Left);
-	_carActions.push_back(CarAction::Right);
-	_carActions.push_back(CarAction::RotateLeft);
-	_carActions.push_back(CarAction::RotateRight);
 
-	_carActions.push_back(CarAction::Transform);
-	_carActions.push_back(CarAction::Ballon);
-	_carActions.push_back(CarAction::Tire);
-	_carActions.push_back(CarAction::Map);
-
-	_actionTranslation.insert(std::pair<CarAction, std::string>(CarAction::Left, "Left"));
-	_actionTranslation.insert(std::pair<CarAction, std::string>(CarAction::Right, "Right"));
-	_actionTranslation.insert(std::pair<CarAction, std::string>(CarAction::RotateLeft, "Rotate Left"));
-	_actionTranslation.insert(std::pair<CarAction, std::string>(CarAction::RotateRight, "Rotate Right"));
-
-	_actionTranslation.insert(std::pair<CarAction, std::string>(CarAction::Transform, "Transform"));
-	_actionTranslation.insert(std::pair<CarAction, std::string>(CarAction::Ballon, "Ballon"));
-	_actionTranslation.insert(std::pair<CarAction, std::string>(CarAction::Tire, "Sticky tire"));
-	_actionTranslation.insert(std::pair<CarAction, std::string>(CarAction::Map, "Map"));
-}
 
 JellyOptionState* JellyOptions::addStateAtTop(JellyOptionState* state) {
 	if (!m_states.empty())
@@ -399,9 +328,9 @@ void JellyOptions::render() {
 		renderControls();
 
 		Globals::spritesheetManager.getAssetPointer("jelly_font")->bind(0);
-		Fontrenderer::Get().addText(Globals::fontManager.get("jelly_64"), static_cast<float>(Application::Width / 2 - Globals::fontManager.get("jelly_64").getWidth("Options") / 2), Application::Height - 87, "Options", Vector4f(0.19f, 0.14f, 0.17f, 1.0f));
-		Fontrenderer::Get().addText(Globals::fontManager.get("jelly_64"), static_cast<float>(Application::Width / 2 - Globals::fontManager.get("jelly_64").getWidth("Options") / 2), Application::Height - 85, "Options", Vector4f(1.0f, 0.65f, 0.0f, 1.0f));
-		Fontrenderer::Get().addText(Globals::fontManager.get("jelly_32"), static_cast<float>(Application::Width / 2 + 30), 6, "Back", Vector4f(0.19f, 0.14f, 0.17f, 1.0f));
+		Fontrenderer::Get().addText(Globals::fontManager.get("jelly_64"), static_cast<float>(Application::Width / 2 - Globals::fontManager.get("jelly_64").getWidth("Options") / 2), static_cast<float>(Application::Height - 87), "Options", Vector4f(0.19f, 0.14f, 0.17f, 1.0f));
+		Fontrenderer::Get().addText(Globals::fontManager.get("jelly_64"), static_cast<float>(Application::Width / 2 - Globals::fontManager.get("jelly_64").getWidth("Options") / 2), static_cast<float>(Application::Height - 85), "Options", Vector4f(1.0f, 0.65f, 0.0f, 1.0f));
+		Fontrenderer::Get().addText(Globals::fontManager.get("jelly_32"), static_cast<float>(Application::Width / 2 + 30), static_cast<float>(6), "Back", Vector4f(0.19f, 0.14f, 0.17f, 1.0f));
 		Fontrenderer::Get().drawBuffer();
 		Globals::spritesheetManager.getAssetPointer("jelly_font")->unbind(0);
 	}
@@ -415,7 +344,6 @@ JellyOptionLib::JellyOptionLib(JellyOptions& machine) : JellyOptionState(machine
 	centerX = Application::Width / 2;
 	_libsPosition = Application::Height - (Application::Height * 0.08f);
 	_libs.clear();
-	_libs.shrink_to_fit();
 
 	initLibs();
 }
@@ -506,7 +434,9 @@ void JellyOptionLib::initLibs() {
 }
 
 JellyOptionCredit::JellyOptionCredit(JellyOptions& machine) : JellyOptionState(machine) {
-	
+	_creditsPosition = Application::Height - (Application::Height * 0.08f);
+	_credits.clear();
+	initCredits();
 }
 
 void JellyOptionCredit::fixedUpdate() {}
@@ -551,8 +481,43 @@ void JellyOptionCredit::processInput() {
 	}
 }
 
-JellyOptionControl::JellyOptionControl(JellyOptions& machine) : JellyOptionState(machine) {
+void JellyOptionCredit::initCredits() {
+	_credits.push_back(Text("Thanks", 0));
+	_credits.push_back(Text("Walaber for original game", 82));
+	_credits.push_back(Text("Shadow for car skins", 142));
+	_credits.push_back(Text("Ruben Wolfe, SMOKE, TheFloW", 202));
+	_credits.push_back(Text("for support and testing", 242));
+	_credits.push_back(Text("Rinnegatamante and EasyRPG Team", 302));
+	_credits.push_back(Text("for the Audio Decoder used for Vita sound module", 342));
+	_credits.push_back(Text("St3f  for splash screen", 402));
+	_credits.push_back(Text("Team Molecule for HENkaku", 462));
+	_credits.push_back(Text("Everybody who contributed to vitasdk", 522));
+	_credits.push_back(Text("Switchbrew team", 582));
+	_credits.push_back(Text("Everybody who contributed to libnx", 642));
+}
 
+
+JellyOptionControl::JellyOptionControl(JellyOptions& machine) : JellyOptionState(machine) {
+	_carActions.clear();
+	_actionTranslation.clear();
+	initActionNames();
+
+	_carKeyboardMapping.insert(std::pair<CarAction, Keyboard::Key>(CarAction::Left, Keyboard::Key::KEY_LEFT));
+	_carKeyboardMapping.insert(std::pair<CarAction, Keyboard::Key>(CarAction::Right, Keyboard::Key::KEY_RIGHT));
+
+	_carKeyboardMapping.insert(std::pair<CarAction, Keyboard::Key>(CarAction::Transform, Keyboard::Key::KEY_S));
+	_carKeyboardMapping.insert(std::pair<CarAction, Keyboard::Key>(CarAction::Ballon, Keyboard::Key::KEY_D));
+	_carKeyboardMapping.insert(std::pair<CarAction, Keyboard::Key>(CarAction::Tire, Keyboard::Key::KEY_A));
+	_carKeyboardMapping.insert(std::pair<CarAction, Keyboard::Key>(CarAction::Map, Keyboard::Key::KEY_W));
+
+	_carKeyboardMapping.insert(std::pair<CarAction, Keyboard::Key>(CarAction::RotateLeft, Keyboard::Key::KEY_Q));
+	_carKeyboardMapping.insert(std::pair<CarAction, Keyboard::Key>(CarAction::RotateRight, Keyboard::Key::KEY_E));
+
+	loadSettings("JellyKeySettings.xml");
+}
+
+JellyOptionControl::~JellyOptionControl() {
+	saveSettings("JellyKeySettings.xml");
 }
 
 void JellyOptionControl::fixedUpdate() {}
@@ -597,8 +562,115 @@ void JellyOptionControl::processInput() {
 	}
 }
 
-JellyOptionSound::JellyOptionSound(JellyOptions& machine) : JellyOptionState(machine) {
+void JellyOptionControl::initActionNames() {
+	_carActions.push_back(CarAction::Left);
+	_carActions.push_back(CarAction::Right);
+	_carActions.push_back(CarAction::RotateLeft);
+	_carActions.push_back(CarAction::RotateRight);
 
+	_carActions.push_back(CarAction::Transform);
+	_carActions.push_back(CarAction::Ballon);
+	_carActions.push_back(CarAction::Tire);
+	_carActions.push_back(CarAction::Map);
+
+	_actionTranslation.insert(std::pair<CarAction, std::string>(CarAction::Left, "Left"));
+	_actionTranslation.insert(std::pair<CarAction, std::string>(CarAction::Right, "Right"));
+	_actionTranslation.insert(std::pair<CarAction, std::string>(CarAction::RotateLeft, "Rotate Left"));
+	_actionTranslation.insert(std::pair<CarAction, std::string>(CarAction::RotateRight, "Rotate Right"));
+
+	_actionTranslation.insert(std::pair<CarAction, std::string>(CarAction::Transform, "Transform"));
+	_actionTranslation.insert(std::pair<CarAction, std::string>(CarAction::Ballon, "Ballon"));
+	_actionTranslation.insert(std::pair<CarAction, std::string>(CarAction::Tire, "Sticky tire"));
+	_actionTranslation.insert(std::pair<CarAction, std::string>(CarAction::Map, "Map"));
+}
+
+void JellyOptionControl::loadSettings(std::string path) {
+	std::ifstream is(path, std::ifstream::in);
+
+	if (!is.is_open())
+		return;
+
+	is.seekg(0, is.end);
+	std::streamoff length = is.tellg();
+	is.seekg(0, is.beg);
+
+	unsigned char* buffer = new unsigned char[length];
+	is.read(reinterpret_cast<char*>(buffer), length);
+	is.close();
+
+	TiXmlDocument doc;
+	if (!doc.LoadContent(buffer, static_cast<int>(length))) {
+		return;
+	}
+
+	TiXmlHandle hDoc(&doc);
+	TiXmlElement* pElem;
+	TiXmlHandle hRoot(0);
+
+	std::map<int, int> actionKeyMapping;
+
+	TiXmlElement* ObjectNode = pElem = hDoc.FirstChild("Settings").FirstChild().Element();
+	for (ObjectNode; ObjectNode; ObjectNode = ObjectNode->NextSiblingElement()){
+		int action = atof(ObjectNode->Attribute("action"));
+		int key = atof(ObjectNode->Attribute("key"));
+
+		actionKeyMapping.insert(std::pair<int, int>(action, key));
+	}
+
+	if (actionKeyMapping.size() > 0){
+		for (std::map<int, int>::iterator iterator = actionKeyMapping.begin(); iterator != actionKeyMapping.end(); iterator++){
+			CarAction action = static_cast<CarAction>(iterator->first);
+
+			Keyboard::Key code = static_cast<Keyboard::Key>(iterator->second);
+			_carKeyboardMapping.insert(std::pair<CarAction, Keyboard::Key>(action, code));
+			
+		}
+	}
+}
+
+void JellyOptionControl::saveSettings(std::string path) {
+	TiXmlDocument doc;
+	TiXmlDeclaration* decl = new TiXmlDeclaration("1.0", "", "");
+	doc.LinkEndChild(decl);
+
+	//root
+	TiXmlElement * root = new TiXmlElement("Settings");
+	doc.LinkEndChild(root);
+
+	//get mapping
+	std::map<int, int> actionKeyMapping = getActionKeyMapping();
+
+	typedef std::map<int, int>::iterator it_type;
+	for (it_type iterator = actionKeyMapping.begin(); iterator != actionKeyMapping.end(); iterator++){
+		TiXmlElement * cxn = new TiXmlElement("ActionMapping");
+		root->LinkEndChild(cxn);
+		cxn->SetDoubleAttribute("action", iterator->first);
+		cxn->SetDoubleAttribute("key", iterator->second);
+	}
+
+	doc.SaveFile(path.c_str());
+}
+
+std::map<int, int> JellyOptionControl::getActionKeyMapping(){
+	std::map<int, int> _actionKeyMapping;
+
+	for (int i = 0; i < CarAction::Count; i++){
+		CarAction action = static_cast<CarAction>(i);	
+		_actionKeyMapping.insert(std::pair<int, int>(i, static_cast<int>(_carKeyboardMapping[action])));
+	}
+	return _actionKeyMapping;
+}
+
+JellyOptionSound::JellyOptionSound(JellyOptions& machine) : JellyOptionState(machine) {
+	_carVolume = 0.3f;
+	_soundsVolume = 0.3f;
+	_musicVolume = 0.1f;
+
+	loadSettings("JellyAudioSettings.xml");
+}
+
+JellyOptionSound::~JellyOptionSound() {
+	saveSettings("JellyAudioSettings.xml");
 }
 
 void JellyOptionSound::fixedUpdate() {}
@@ -640,4 +712,74 @@ void JellyOptionSound::processInput() {
 		m_isRunning = false;
 		return;
 	}
+}
+
+void JellyOptionSound::loadSettings(std::string path) {
+
+	std::ifstream is(path, std::ifstream::in);
+
+	if (!is.is_open())
+		return;
+
+	is.seekg(0, is.end);
+	std::streamoff length = is.tellg();
+	is.seekg(0, is.beg);
+
+	unsigned char* buffer = new unsigned char[length];
+	is.read(reinterpret_cast<char*>(buffer), length);
+	is.close();
+
+	TiXmlDocument doc;
+	if (!doc.LoadContent(buffer, static_cast<int>(length))) {
+		return;
+	}
+
+	TiXmlHandle hDoc(&doc);
+	TiXmlElement* pElem;
+	TiXmlHandle hRoot(0);
+
+	TiXmlElement* ObjectNode = pElem = hDoc.FirstChild("Settings").FirstChild().Element();
+	for (ObjectNode; ObjectNode; ObjectNode = ObjectNode->NextSiblingElement()){
+		std::string soundName = ObjectNode->Attribute("name");
+
+		if (soundName == "Car"){
+			_carVolume = std::stof(ObjectNode->Attribute("volume"));
+		}else if (soundName == "Sounds"){
+			_soundsVolume = std::stof(ObjectNode->Attribute("volume"));
+		}else if (soundName == "Music"){
+			_musicVolume = std::stof(ObjectNode->Attribute("volume"));
+		}
+	}
+}
+
+void JellyOptionSound::saveSettings(std::string path) {
+	TiXmlDocument doc;
+	TiXmlDeclaration* decl = new TiXmlDeclaration("1.0", "", "");
+	doc.LinkEndChild(decl);
+
+	//root
+	TiXmlElement * root = new TiXmlElement("Settings");
+	doc.LinkEndChild(root);
+	{
+		TiXmlElement * cxn = new TiXmlElement("SoundLevel");
+		root->LinkEndChild(cxn);
+		cxn->SetAttribute("name", "Car");
+		cxn->SetDoubleAttribute("volume", _carVolume);
+	}
+
+	{
+		TiXmlElement * cxn = new TiXmlElement("SoundLevel");
+		root->LinkEndChild(cxn);
+		cxn->SetAttribute("name", "Sounds");
+		cxn->SetDoubleAttribute("volume", _soundsVolume);
+	}
+
+	{
+		TiXmlElement * cxn = new TiXmlElement("SoundLevel");
+		root->LinkEndChild(cxn);
+		cxn->SetAttribute("name", "Music");
+		cxn->SetDoubleAttribute("volume", _musicVolume);
+	}
+
+	doc.SaveFile(path.c_str());
 }

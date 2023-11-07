@@ -52,9 +52,11 @@ carcurrentPosition(SceneManager::Get().getSceneInfo("scene").m_carCurrentPositio
 
 	SceneManager::Get().getSceneInfo("scene").loadLevelInfo("Assets/Jelly/scene_list.xml");
 	SceneManager::Get().getSceneInfo("scene").loadCarSkins("Assets/Jelly/car_skins.xml");
-	TileSetManager::Get().getTileSet("thumbs").loadTileSet(thumbsFromLevelInfos(SceneManager::Get().getSceneInfo("scene").getLevelInfos()));
+	TileSetManager::Get().getTileSet("thumbs").loadTileSet(SceneManager::Get().getSceneInfo("scene").getThumbFiles());
 	m_thumbAtlas = TileSetManager::Get().getTileSet("thumbs").getAtlas();
 	//Spritesheet::Safe("thumbs", m_thumbAtlas);
+
+	SceneManager::Get().getSceneInfo("scene").loadScores("JellyScore.xml");
 }
 
 JellyMenu::~JellyMenu() {
@@ -305,8 +307,3 @@ void JellyMenu::processInput() {
 	}
 }
 
-const std::vector<std::string> JellyMenu::thumbsFromLevelInfos(const std::vector<LevelInfo2>& levelInfos) {
-	std::vector<std::string> thumbs;
-	std::transform(levelInfos.begin(), levelInfos.end(), std::back_inserter(thumbs), [](const LevelInfo2& info)-> std::string { return "Assets/Jelly/Thumbs/" + info.thumb + ".png"; });
-	return thumbs;
-}

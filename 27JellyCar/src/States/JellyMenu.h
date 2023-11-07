@@ -30,8 +30,6 @@ private:
 	void OnKeyDown(Event::KeyboardEvent& event) override;
 	void processInput();
 
-	//void loadLevelInfo(std::string path);
-
 	unsigned int backWidth = 0, backHeight = 0;
 	unsigned int columns = 0, rows = 0;
 	float controlsWidth = 0, controlsHeight = 0;
@@ -51,8 +49,4 @@ private:
 	glm::mat4 _jellyProjection;
 
 	unsigned int m_thumbAtlas = 0;
-
-	
-
-	const std::vector<std::string> thumbsFromLevelInfos(const std::vector<LevelInfo2>& levelInfos);
 };

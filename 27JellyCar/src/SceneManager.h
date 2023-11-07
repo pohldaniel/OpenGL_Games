@@ -27,8 +27,12 @@ public:
 	SceneInfo();
 	void loadLevelInfo(std::string path);
 	void loadCarSkins(std::string path);
+	void loadScores(std::string path);
+	void saveScores(std::string path);
+
 	const std::vector<SkinInfo>& getSkinInfos() const;
 	const std::vector<std::string>& getSceneFiles() const;
+	const std::vector<std::string>& getThumbFiles() const;
 	const std::vector<LevelInfo2>& getLevelInfos() const;
 
 	const SkinInfo& getCurrentSkinInfo() const;
@@ -41,9 +45,11 @@ public:
 private:
 
 	const std::vector<std::string> sceneFilesFromLevelInfos(const std::vector<LevelInfo2>& levelInfos);
+	const std::vector<std::string> thumbFilesFromLevelInfos(const std::vector<LevelInfo2>& levelInfos);
 
 	std::vector<SkinInfo> m_carSkins;
 	std::vector<std::string> m_sceneFiles;
+	std::vector<std::string> m_thumbFiles;
 	std::vector<LevelInfo2> m_levelInfos;
 	bool m_init;
 };

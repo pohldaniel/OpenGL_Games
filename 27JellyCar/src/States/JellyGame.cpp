@@ -220,6 +220,8 @@ JellyGame::~JellyGame() {
 	//remove physic world
 	delete _world;
 	_gameBodies.clear();
+
+	SceneManager::Get().getSceneInfo(m_scene).saveScores("JellyScore.xml");
 }
 
 void JellyGame::fixedUpdate() {}
