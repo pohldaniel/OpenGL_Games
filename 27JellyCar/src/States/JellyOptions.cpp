@@ -101,8 +101,6 @@ JellyOptions::JellyOptions(StateMachine& machine) : State(machine, States::JELLY
 	//_optionsSoundLevel = AudioHelper::Instance()->GetVolume(AudioHelper::AudioHelperSoundEnum::Sounds) * 10.0f;
 	//_optionsMusicLevel = AudioHelper::Instance()->GetVolume(AudioHelper::AudioHelperSoundEnum::Music) * 10.0f;
 
-	_optionsState = JellyOptionsState::Menu;
-
 	dragBody = NULL;
 	_selctedPosition = 0;
 }
@@ -123,7 +121,6 @@ JellyOptions::~JellyOptions() {
 	_gameBodies.clear();
 
 	_credits.clear();
-	_libs.clear();
 	_actionTranslation.clear();
 }
 
@@ -196,28 +193,18 @@ void JellyOptions::processInput() {
 			//click testing
 			for (size_t i = 0; i < _gameBodies.size(); i++){
 				if (_gameBodies[i]->GetBody()->contains(Vector2(dragX, dragY))){
-
-					if (_gameBodies[i]->GetName() == "options_libs"){
-						_optionsState = JellyOptionsState::Libs;
-						//_libsPosition = 510;
-						_libsPosition = Application::Height - (Application::Height * 0.08f);;
-					}
-
+					
 					if (_gameBodies[i]->GetName() == "options_credits"){
-						_optionsState = JellyOptionsState::Credits;
-
 						//set correct positiond down
 						_creditsPosition = Application::Height - (Application::Height * 0.08f);
 					}
 
 					if (_gameBodies[i]->GetName() == "options_keys"){
-						_optionsState = JellyOptionsState::Controls;
 						_selctedPosition = 0;
 						_alphaScale = 1.0f;
 					}
 
 					if (_gameBodies[i]->GetName() == "options_sound"){
-						_optionsState = JellyOptionsState::Sound;
 						_soundPosition = 0;
 						_alphaScale = 1.0f;
 						//_audioHelper->PlayFastEngine();
@@ -230,26 +217,21 @@ void JellyOptions::processInput() {
 	if (keyboard.keyPressed(Keyboard::KEY_S)){
 
 		if (_menuBodies[_menuBodySelected]->GetName() == "options_libs"){
-			_optionsState = JellyOptionsState::Libs;
-			_libsPosition = Application::Height - (Application::Height * 0.08f);
-
 			addStateAtTop(new JellyOptionLib(*this));
-
 		}else if (_menuBodies[_menuBodySelected]->GetName() == "options_credits"){
-			_optionsState = JellyOptionsState::Credits;
 			_creditsPosition = Application::Height - (Application::Height * 0.08f);
 
+			addStateAtTop(new JellyOptionCredit(*this));
 		}else if (_menuBodies[_menuBodySelected]->GetName() == "options_keys"){
-			_optionsState = JellyOptionsState::Controls;
 			_selctedPosition = 0;
 			_alphaScale = 1.0f;
 
+			addStateAtTop(new JellyOptionControl(*this));
 		}else if (_menuBodies[_menuBodySelected]->GetName() == "options_sound"){
-			_optionsState = JellyOptionsState::Sound;
 			_soundPosition = 0;
 			_alphaScale = 1.0f;
 			//_audioHelper->PlayFastEngine();
-
+			addStateAtTop(new JellyOptionSound(*this));
 		}
 	}
 
@@ -280,8 +262,6 @@ void JellyOptions::InitCredits(){
 	_credits.push_back(Text("Switchbrew team", 582));
 	_credits.push_back(Text("Everybody who contributed to libnx", 642));
 }
-
-
 
 void JellyOptions::InitActionNames(){
 	_carActions.push_back(CarAction::Left);
@@ -329,26 +309,24 @@ void JellyOptions::update() {
 	}else {
 		processInput();
 
-		if (_optionsState == Menu) {
-			//Update physic
-			for (int i = 0; i < 6; i++) {
-				_world->update(0.004f);
+		//Update physic
+		for (int i = 0; i < 6; i++) {
+			_world->update(0.004f);
 
-				for (size_t i = 0; i < _gameBodies.size(); i++)
-					_gameBodies[i]->Update(0.004f);
-			}
-
-			//update alpha scale
-			_alphaScale += (_scaleFactor  * m_dt);
-
-			if (_alphaScale > 1.0f) {
-				_scaleFactor = -2.0f;
-			}
-
-			if (_alphaScale < 0.0f) {
-				_scaleFactor = 2.0f;
-			}
+			for (size_t i = 0; i < _gameBodies.size(); i++)
+				_gameBodies[i]->Update(0.004f);
 		}
+
+		//update alpha scale
+		_alphaScale += (_scaleFactor  * m_dt);
+
+		if (_alphaScale > 1.0f) {
+				_scaleFactor = -2.0f;
+		}
+
+		if (_alphaScale < 0.0f) {
+				_scaleFactor = 2.0f;
+		}		
 	}
 }
 
@@ -435,7 +413,7 @@ JellyOptionState::JellyOptionState(JellyOptions& machine) : m_machine(machine) {
 
 JellyOptionLib::JellyOptionLib(JellyOptions& machine) : JellyOptionState(machine) {
 	centerX = Application::Width / 2;
-	_libsPosition = 600.0f;
+	_libsPosition = Application::Height - (Application::Height * 0.08f);
 	_libs.clear();
 	_libs.shrink_to_fit();
 
@@ -525,4 +503,141 @@ void JellyOptionLib::initLibs() {
 	_libs.push_back(Text("vorbisfile", 862));
 	_libs.push_back(Text("vorbisenc", 922));
 	_libs.push_back(Text("vorbis", 9802));
+}
+
+JellyOptionCredit::JellyOptionCredit(JellyOptions& machine) : JellyOptionState(machine) {
+	
+}
+
+void JellyOptionCredit::fixedUpdate() {}
+
+void JellyOptionCredit::update() {
+	processInput();
+}
+
+void JellyOptionCredit::render() {
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	m_machine.renderBackground();
+	m_machine.renderLevel();
+	m_machine.renderControls();
+
+	Globals::spritesheetManager.getAssetPointer("jelly_font")->bind(0);
+	Fontrenderer::Get().addText(Globals::fontManager.get("jelly_64"), static_cast<float>(Application::Width / 2 - Globals::fontManager.get("jelly_64").getWidth("Credits") / 2), Application::Height - 87, "Credits", Vector4f(0.19f, 0.14f, 0.17f, 1.0f));
+	Fontrenderer::Get().addText(Globals::fontManager.get("jelly_64"), static_cast<float>(Application::Width / 2 - Globals::fontManager.get("jelly_64").getWidth("Credits") / 2), Application::Height - 85, "Credits", Vector4f(1.0f, 0.65f, 0.0f, 1.0f));
+
+	Fontrenderer::Get().addText(Globals::fontManager.get("jelly_32"), static_cast<float>(Application::Width / 2 + 30), 6, "Back", Vector4f(0.19f, 0.14f, 0.17f, 1.0f));
+
+	Fontrenderer::Get().drawBuffer();
+	Globals::spritesheetManager.getAssetPointer("jelly_font")->unbind(0);
+}
+
+void JellyOptionCredit::resize(int deltaW, int deltaH) {
+	m_machine.resize(deltaW, deltaH);
+}
+
+void JellyOptionCredit::OnKeyDown(Event::KeyboardEvent& event) {
+	if (event.keyCode == VK_ESCAPE) {
+		m_isRunning = false;
+	}
+}
+
+void JellyOptionCredit::processInput() {
+	Keyboard &keyboard = Keyboard::instance();
+
+	if (keyboard.keyPressed(Keyboard::KEY_D)) {
+		m_isRunning = false;
+		return;
+	}
+}
+
+JellyOptionControl::JellyOptionControl(JellyOptions& machine) : JellyOptionState(machine) {
+
+}
+
+void JellyOptionControl::fixedUpdate() {}
+
+void JellyOptionControl::update() {
+	processInput();
+}
+
+void JellyOptionControl::render() {
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	m_machine.renderBackground();
+	m_machine.renderLevel();
+	m_machine.renderControls();
+
+	Globals::spritesheetManager.getAssetPointer("jelly_font")->bind(0);
+	Fontrenderer::Get().addText(Globals::fontManager.get("jelly_64"), static_cast<float>(Application::Width / 2 - Globals::fontManager.get("jelly_64").getWidth("Car Controls") / 2), Application::Height - 87, "Car Controls", Vector4f(0.19f, 0.14f, 0.17f, 1.0f));
+	Fontrenderer::Get().addText(Globals::fontManager.get("jelly_64"), static_cast<float>(Application::Width / 2 - Globals::fontManager.get("jelly_64").getWidth("Car Controls") / 2), Application::Height - 85, "Car Controls", Vector4f(1.0f, 0.65f, 0.0f, 1.0f));
+
+	Fontrenderer::Get().addText(Globals::fontManager.get("jelly_32"), static_cast<float>(Application::Width / 2 + 30), 6, "Back", Vector4f(0.19f, 0.14f, 0.17f, 1.0f));
+
+	Fontrenderer::Get().drawBuffer();
+	Globals::spritesheetManager.getAssetPointer("jelly_font")->unbind(0);
+}
+
+void JellyOptionControl::resize(int deltaW, int deltaH) {
+	m_machine.resize(deltaW, deltaH);
+}
+
+void JellyOptionControl::OnKeyDown(Event::KeyboardEvent& event) {
+	if (event.keyCode == VK_ESCAPE) {
+		m_isRunning = false;
+	}
+}
+
+void JellyOptionControl::processInput() {
+	Keyboard &keyboard = Keyboard::instance();
+
+	if (keyboard.keyPressed(Keyboard::KEY_D)) {
+		m_isRunning = false;
+		return;
+	}
+}
+
+JellyOptionSound::JellyOptionSound(JellyOptions& machine) : JellyOptionState(machine) {
+
+}
+
+void JellyOptionSound::fixedUpdate() {}
+
+void JellyOptionSound::update() {
+	processInput();
+}
+
+void JellyOptionSound::render() {
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	m_machine.renderBackground();
+	m_machine.renderLevel();
+	m_machine.renderControls();
+
+	Globals::spritesheetManager.getAssetPointer("jelly_font")->bind(0);
+	Fontrenderer::Get().addText(Globals::fontManager.get("jelly_64"), static_cast<float>(Application::Width / 2 - Globals::fontManager.get("jelly_64").getWidth("Sound Levels") / 2), Application::Height - 87, "Sound Levels", Vector4f(0.19f, 0.14f, 0.17f, 1.0f));
+	Fontrenderer::Get().addText(Globals::fontManager.get("jelly_64"), static_cast<float>(Application::Width / 2 - Globals::fontManager.get("jelly_64").getWidth("Sound Levels") / 2), Application::Height - 85, "Sound Levels", Vector4f(1.0f, 0.65f, 0.0f, 1.0f));
+
+	Fontrenderer::Get().addText(Globals::fontManager.get("jelly_32"), static_cast<float>(Application::Width / 2 + 30), 6, "Back", Vector4f(0.19f, 0.14f, 0.17f, 1.0f));
+	Fontrenderer::Get().drawBuffer();
+	Globals::spritesheetManager.getAssetPointer("jelly_font")->unbind(0);
+}
+
+void JellyOptionSound::resize(int deltaW, int deltaH) {
+	m_machine.resize(deltaW, deltaH);
+}
+
+void JellyOptionSound::OnKeyDown(Event::KeyboardEvent& event) {
+	if (event.keyCode == VK_ESCAPE) {
+		m_isRunning = false;
+	}
+}
+
+void JellyOptionSound::processInput() {
+	Keyboard &keyboard = Keyboard::instance();
+
+	if (keyboard.keyPressed(Keyboard::KEY_D)) {
+		m_isRunning = false;
+		return;
+	}
 }

@@ -25,15 +25,6 @@ enum CarAction {
 	Count = 8
 };
 
-enum JellyOptionsState{
-	Menu,
-	Sound,
-	Controls,
-	Credits,
-	Libs,
-	Secret
-};
-
 class Text {
 
 public:
@@ -93,16 +84,12 @@ private:
 	std::vector<Text> _credits;
 	float _creditsPosition = 600.0f;
 
-	std::vector<Text> _libs;
-	float _libsPosition = 600.0f;
-
 	std::vector<CarAction> _carActions;
 	std::map<CarAction, std::string> _actionTranslation;
 
 	std::vector<LevelSoftBody*> _menuBodies;
 	int _menuBodySelected;
 
-	JellyOptionsState _optionsState;
 	float _alphaScale = 1.0f;
 	float _scaleFactor = 0.01f;
 	bool _changeBinding;
@@ -170,4 +157,58 @@ private:
 	float _libsPosition;
 	std::vector<Text> _libs;
 	
+};
+
+class JellyOptionCredit : public JellyOptionState {
+
+public:
+
+	JellyOptionCredit(JellyOptions& machine);
+	~JellyOptionCredit() = default;
+
+	void fixedUpdate() override;
+	void update() override;
+	void render() override;
+	void resize(int deltaW, int deltaH) override;
+
+private:
+
+	void OnKeyDown(Event::KeyboardEvent& event) override;
+	void processInput() override;
+};
+
+class JellyOptionControl : public JellyOptionState {
+
+public:
+
+	JellyOptionControl(JellyOptions& machine);
+	~JellyOptionControl() = default;
+
+	void fixedUpdate() override;
+	void update() override;
+	void render() override;
+	void resize(int deltaW, int deltaH) override;
+
+private:
+
+	void OnKeyDown(Event::KeyboardEvent& event) override;
+	void processInput() override;
+};
+
+class JellyOptionSound : public JellyOptionState {
+
+public:
+
+	JellyOptionSound(JellyOptions& machine);
+	~JellyOptionSound() = default;
+
+	void fixedUpdate() override;
+	void update() override;
+	void render() override;
+	void resize(int deltaW, int deltaH) override;
+
+private:
+
+	void OnKeyDown(Event::KeyboardEvent& event) override;
+	void processInput() override;
 };
