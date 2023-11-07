@@ -7,7 +7,7 @@
 #include "Globals.h"
 #include "JellyHelper.h"
 
-JellyPause::JellyPause(StateMachine& machine, const Framebuffer& mainRT) : State(machine, CurrentState::JELLYPAUSE) , mainRT(mainRT) {
+JellyPause::JellyPause(StateMachine& machine, const Framebuffer& mainRT) : State(machine, States::JELLYPAUSE) , mainRT(mainRT) {
 	controlsWidth = static_cast<float>(Globals::textureManager.get("controls").getWidth());
 	controlsHeight = static_cast<float>(Globals::textureManager.get("controls").getHeight());
 	_checkpoint = false;
@@ -32,7 +32,7 @@ void JellyPause::update() {
 		m_isRunning = false;
 	}
 
-	if (keyboard.keyPressed(Keyboard::KEY_ENTER)) {
+	if (keyboard.keyPressed(Keyboard::KEY_ENTER) && !keyboard.keyDown(Keyboard::KEY_RALT)) {
 		auto shader = Globals::shaderManager.getAssetPointer("quad");
 		shader->use();
 		shader->loadMatrix("u_transform", Matrix4f::IDENTITY);
@@ -120,5 +120,5 @@ void JellyPause::render() {
 }
 
 void JellyPause::resize(int deltaW, int deltaH) {	
-	m_machine.resizeState(deltaW, deltaH, CurrentState::JELLYGAME);
+	m_machine.resizeState(deltaW, deltaH, States::JELLYGAME);
 }

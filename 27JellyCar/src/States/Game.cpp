@@ -9,7 +9,7 @@
 #include "Globals.h"
 #include "Menu.h"
 
-Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
+Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);

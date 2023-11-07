@@ -5,7 +5,7 @@
 #include "Globals.h"
 
 
-Menu::Menu(StateMachine& machine) : State(machine, CurrentState::MENU) {
+Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 
 	EventDispatcher::AddMouseListener(this);
 	EventDispatcher::AddKeyboardListener(this);

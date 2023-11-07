@@ -72,7 +72,7 @@ void StateMachine::clearStates() {
 	}
 }
 
-void StateMachine::resizeState(int deltaW, int deltaH, CurrentState state) {
+void StateMachine::resizeState(int deltaW, int deltaH, States state) {
 	if (m_states.empty()) return;
 	
 	if (m_states.top()->getCurrentState() == state) {
@@ -101,8 +101,20 @@ void StateMachine::ToggleWireframe() {
 bool& StateMachine::GetEnableWireframe(){
 	return EnableWireframe;
 }
+/////////////////////////////////////////////
+const bool StateInterface::isRunning() const {
+	return m_isRunning;
+}
 
-State::State(StateMachine& machine, CurrentState currentState) : m_machine(machine), m_dt(machine.m_dt), m_fdt(machine.m_fdt) {
+const bool StateInterface::isActive() const {
+	return m_isActive;
+}
+
+void StateInterface::stopState() {
+	m_isRunning = false;
+}
+
+State::State(StateMachine& machine, States currentState) : m_machine(machine), m_dt(machine.m_dt), m_fdt(machine.m_fdt) {
 	m_currentState = currentState;
 }
 
@@ -110,15 +122,6 @@ State::~State() {
 
 }
 
-const bool State::isRunning() const {
-	return m_isRunning;
-}
-
-const bool State::isActive() const {
-	return m_isActive;
-}
-
-
-CurrentState State::getCurrentState() {
+States State::getCurrentState() {
 	return m_currentState;
 }

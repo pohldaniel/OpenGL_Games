@@ -3,7 +3,7 @@
 #include <GL/glew.h>
 #include <stack>
 
-enum CurrentState {
+enum States {
 	MENU,
 	GAME,
 	JELLYMENU,
@@ -20,8 +20,6 @@ class State;
 
 class StateMachine {
 
-	friend class Application;
-
 public:
 
 	StateMachine(const float& dt, const float& fdt);
@@ -34,7 +32,7 @@ public:
 	void fixedUpdate();
 	void update();
 	void render();
-	void resizeState(int deltaW, int deltaH, CurrentState state);
+	void resizeState(int deltaW, int deltaH, States state);
 	
 	const bool isRunning() const;
 	std::stack<State*>& getStates();
@@ -60,13 +58,12 @@ private:
 	
 };
 
-class State {
-
-	friend class StateMachine;
+class StateInterface {
 
 public:
-	State(StateMachine& machine, CurrentState currentState);
-	virtual ~State();
+
+	StateInterface() = default;
+	virtual ~StateInterface() = default;
 
 	virtual void fixedUpdate() = 0;
 	virtual void update() = 0;
@@ -75,14 +72,30 @@ public:
 
 	const bool isRunning() const;
 	const bool isActive() const;
-	CurrentState getCurrentState();
+	void stopState();
+
+protected:
+
+	bool m_isRunning = true;
+	bool m_isActive = true;
+};
+
+class State : public StateInterface {
+
+	friend class StateMachine;
+
+public:
+
+	State(StateMachine& machine, States currentState);
+	virtual ~State();
+
+	States getCurrentState();
 	
 protected:
 
 	StateMachine& m_machine;
 	const float& m_fdt;
 	const float& m_dt;
-	bool m_isRunning = true;
-	bool m_isActive = true;
-	CurrentState m_currentState;
+	
+	States m_currentState;
 };

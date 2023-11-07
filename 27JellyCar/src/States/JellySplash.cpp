@@ -7,7 +7,7 @@
 #include "Globals.h"
 #include "JellyHelper.h"
 
-JellySplash::JellySplash(StateMachine& machine) : State(machine, CurrentState::JELLYSPLASH) {
+JellySplash::JellySplash(StateMachine& machine) : State(machine, States::JELLYSPLASH) {
 	_dt = 0.0f;
 	_splashTimer = 0.0f;
 	_alpha = 0.0f;

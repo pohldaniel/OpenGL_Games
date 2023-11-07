@@ -7,7 +7,7 @@
 #include "JellyHelper.h"
 
 JellyFinish::JellyFinish(StateMachine& machine, const Framebuffer& mainRT, bool newJumpRecord, bool newTimeRecord) : 
-	State(machine, CurrentState::JELLYFINISH),
+	State(machine, States::JELLYFINISH),
 	mainRT(mainRT),
 	_newJumpRecord(newJumpRecord),
 	_newTimeRecord(newTimeRecord){

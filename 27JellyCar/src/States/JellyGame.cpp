@@ -11,7 +11,7 @@
 #include "JellyHelper.h"
 #include "SceneManager.h"
 
-JellyGame::JellyGame(StateMachine& machine, std::string scene) : State(machine, CurrentState::JELLYGAME) {
+JellyGame::JellyGame(StateMachine& machine, std::string scene) : State(machine, States::JELLYGAME) {
 	EventDispatcher::AddKeyboardListener(this);
 
 	m_scene = scene;
@@ -569,7 +569,7 @@ void JellyGame::OnKeyDown(Event::KeyboardEvent& event) {
 void JellyGame::processInput() {
 	Keyboard &keyboard = Keyboard::instance();
 
-	if (keyboard.keyPressed(Keyboard::KEY_ENTER)){
+	if (keyboard.keyPressed(Keyboard::KEY_ENTER) && !keyboard.keyDown(Keyboard::KEY_RALT)){
 		//_gamePlayState = GamePlayState::Paused;
 		//_audioHelper->StopEngineSound();
 		//return;

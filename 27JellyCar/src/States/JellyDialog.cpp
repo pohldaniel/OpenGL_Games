@@ -7,7 +7,7 @@
 #include "JellyHelper.h"
 
 JellyDialog::JellyDialog(StateMachine& machine, Framebuffer& mainRT, std::string text) :
-	State(machine, CurrentState::JELLYDIALOG),
+	State(machine, States::JELLYDIALOG),
 	mainRT(mainRT),
 	m_text(text){
 
@@ -74,5 +74,5 @@ void JellyDialog::render() {
 }
 
 void JellyDialog::resize(int deltaW, int deltaH) {
-	m_machine.resizeState(deltaW, deltaH, CurrentState::JELLYGAME);
+	m_machine.resizeState(deltaW, deltaH, States::JELLYGAME);
 }

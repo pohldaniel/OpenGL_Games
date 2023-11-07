@@ -47,7 +47,11 @@ public:
 	}
 };
 
+class JellyOptionState;
+
 class JellyOptions : public State, public KeyboardEventListener {
+
+	friend class JellyOptionLib;
 
 public:
 
@@ -59,13 +63,17 @@ public:
 	void render() override;
 	void resize(int deltaW, int deltaH) override;
 
+	void renderLevel();
+	void renderBackground();
+	void renderControls();
+
 private:
 
 	void OnKeyDown(Event::KeyboardEvent& event) override;
 	void processInput();
 
 	void InitCredits();
-	void InitLibs();
+	
 	void InitActionNames();
 
 	unsigned int backWidth = 0, backHeight = 0;
@@ -76,7 +84,6 @@ private:
 	LevelManager* _levelManager;
 	std::vector<LevelSoftBody*> _gameBodies;
 	World* _world;
-	float _dt;
 
 	glm::mat4 _jellyProjection;
 	glm::vec4 _screenBounds;
@@ -99,6 +106,10 @@ private:
 	float _alphaScale = 1.0f;
 	float _scaleFactor = 0.01f;
 	bool _changeBinding;
+
+	float dragX, dragY;
+	bool touchF = false;
+	int dragPoint = -1;
 	Body *dragBody;
 
 	Texture2* _creditsTexture;
@@ -107,4 +118,56 @@ private:
 	Texture2* _gamepadTexture;
 	Texture2* _secretTexture;
 	Texture2* _volumeTexture;
+
+	int _selctedPosition;
+	int _soundPosition = 0;
+
+
+	std::stack<JellyOptionState*> m_states;
+	JellyOptionState* addStateAtTop(JellyOptionState* state);
+};
+
+////////////////////////////////////////////////////////////////////////
+class JellyOptionState : public StateInterface {
+
+	friend class JellyOptions;
+
+public:
+
+	JellyOptionState(JellyOptions& machine);
+	virtual ~JellyOptionState() = default;
+
+protected:
+
+	virtual void OnKeyDown(Event::KeyboardEvent& event) = 0;
+	JellyOptions& m_machine;
+
+private:
+
+	virtual void processInput() = 0;
+};
+
+class JellyOptionLib : public JellyOptionState {
+
+public:
+
+	JellyOptionLib(JellyOptions& machine);
+	~JellyOptionLib() = default;
+
+	void fixedUpdate() override;
+	void update() override;
+	void render() override;
+	void resize(int deltaW, int deltaH) override;
+
+private:
+
+	void OnKeyDown(Event::KeyboardEvent& event) override;
+	void processInput() override;
+
+	void initLibs();
+
+	int centerX;
+	float _libsPosition;
+	std::vector<Text> _libs;
+	
 };

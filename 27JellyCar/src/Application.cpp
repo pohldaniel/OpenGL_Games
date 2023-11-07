@@ -201,10 +201,10 @@ LRESULT Application::DisplayWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 					if ((HIWORD(lParam) & KF_ALTDOWN))
 						ToggleFullScreen(!Fullscreen);
 					break;
-				}case VK_MENU: {
+				}/*case VK_MENU: {
 					ToggleFullScreen(!Fullscreen);
 					break;
-				}
+				}*/
 			}
 			break;
 		//ignore left alt
@@ -358,9 +358,7 @@ void Application::ToggleVerticalSync() {
 
 	// WGL_EXT_swap_control.
 	typedef BOOL(WINAPI * PFNWGLSWAPINTERVALEXTPROC)(GLint);
-	static PFNWGLSWAPINTERVALEXTPROC wglSwapIntervalEXT =
-		reinterpret_cast<PFNWGLSWAPINTERVALEXTPROC>(
-			wglGetProcAddress("wglSwapIntervalEXT"));
+	static PFNWGLSWAPINTERVALEXTPROC wglSwapIntervalEXT =reinterpret_cast<PFNWGLSWAPINTERVALEXTPROC>(wglGetProcAddress("wglSwapIntervalEXT"));
 
 	if (wglSwapIntervalEXT) {
 		wglSwapIntervalEXT(VerticalSync);
@@ -538,7 +536,7 @@ void Application::Resize(int deltaW, int deltaH) {
 		shader->loadMatrix("u_transform", Matrix4f::Orthographic(0.0f, static_cast<float>(Width), 0.0f, static_cast<float>(Height), -1.0f, 1.0f));
 		shader->unuse();
 
-		Machine->m_states.top()->resize(deltaW, deltaH);
+		Machine->getStates().top()->resize(deltaW, deltaH);
 	}	
 }
 

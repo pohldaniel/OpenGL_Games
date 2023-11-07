@@ -10,7 +10,7 @@
 #include "JellyOptions.h"
 #include "JellyGame.h"
 
-JellyMenu::JellyMenu(StateMachine& machine) : State(machine, CurrentState::JELLYMENU),
+JellyMenu::JellyMenu(StateMachine& machine) : State(machine, States::JELLYMENU),
 currentPosition(SceneManager::Get().getSceneInfo("scene").m_currentPosition),
 carcurrentPosition(SceneManager::Get().getSceneInfo("scene").m_carCurrentPosition) {
 
@@ -197,7 +197,7 @@ void JellyMenu::render() {
 
 void JellyMenu::OnKeyDown(Event::KeyboardEvent& event) {
 	if (event.keyCode == VK_ESCAPE) {
-		m_isRunning = false;
+		//m_isRunning = false;
 	}
 }
 
@@ -213,7 +213,7 @@ void JellyMenu::processInput() {
 		m_isRunning = false;
 	}
 
-	if (keyboard.keyPressed(Keyboard::KEY_ENTER)){
+	if (keyboard.keyPressed(Keyboard::KEY_ENTER) && !keyboard.keyDown(Keyboard::KEY_RALT)){
 
 		auto shader = Globals::shaderManager.getAssetPointer("quad");
 		shader->use();
