@@ -13,6 +13,7 @@
 #include "JellyPhysics/World.h"
 
 #include <_Andromeda/TextureManager.h>
+#include <_Andromeda/Sprite.h>
 
 enum CarAction {
 	Left = 0,
@@ -44,6 +45,9 @@ class JellyOptionState;
 class JellyOptions : public State, public KeyboardEventListener {
 
 	friend class JellyOptionLib;
+	friend class JellyOptionCredit;
+	friend class JellyOptionSound;
+	friend class JellyOptionControl;
 
 public:
 
@@ -65,7 +69,7 @@ private:
 	void processInput();
 
 	unsigned int backWidth = 0, backHeight = 0;
-	unsigned int columns = 0, rows = 0;
+	int columns = 0, rows = 0;
 	float controlsWidth = 0, controlsHeight = 0;
 
 	std::vector<SkinInfo> _carSkins;
@@ -144,9 +148,9 @@ private:
 
 	void initLibs();
 
+	std::vector<Text> _libs;
 	int centerX;
-	float _libsPosition;
-	std::vector<Text> _libs;	
+	float _libsPosition;	
 };
 
 class JellyOptionCredit : public JellyOptionState {
@@ -168,7 +172,8 @@ private:
 	void initCredits();
 
 	std::vector<Text> _credits;
-	float _creditsPosition = 600.0f;
+	float _creditsPosition;
+	int centerX;
 };
 
 class JellyOptionControl : public JellyOptionState {
@@ -195,6 +200,18 @@ private:
 	std::vector<CarAction> _carActions;
 	std::map<CarAction, std::string> _actionTranslation;
 	std::map<CarAction, Keyboard::Key> _carKeyboardMapping;
+
+	float _alphaScale;
+	int centerX;
+	glm::mat4 _projection;
+	float _scaleFactor;
+
+	Sprite* _backSelectSprite;
+	int _selctedPosition;
+	bool _changeBinding;
+	CarAction _selectedAction;
+
+	float controlsWidth, controlsHeight;
 };
 
 class JellyOptionSound : public JellyOptionState {
@@ -220,4 +237,21 @@ private:
 	float _carVolume;
 	float _soundsVolume;
 	float _musicVolume;
+
+	Sprite* _backRoundSprite;
+	Sprite* _leftSprite;
+	Sprite* _rightSprite;
+
+	Sprite* _barSprite;
+	Sprite* _barBlueSprite;
+
+	int _soundPosition;
+	float _alphaScale;
+	float _scaleFactor;
+
+	glm::mat4 _projection;
+	int _optionsCarLevel;
+	int _optionsSoundLevel;
+	int _optionsMusicLevel;
+	
 };

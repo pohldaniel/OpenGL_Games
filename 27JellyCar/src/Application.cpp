@@ -19,6 +19,8 @@
 #include <States/JellyOptions.h>
 #include <UI/Widget.h>
 
+#include "Resource.h"
+
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 EventDispatcher& Application::EventDispatcher = EventDispatcher::Get();
@@ -33,7 +35,7 @@ DWORD Application::SavedExStyle;
 DWORD Application::SavedStyle;
 RECT Application::Savedrc;
 HCURSOR Application::Cursor = LoadCursor(nullptr, IDC_ARROW);
-HANDLE Application::Icon = LoadImage(NULL, "res/icon.ico", IMAGE_ICON, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
+HANDLE Application::Icon = LoadImage(NULL, "res/icon1.ico", IMAGE_ICON, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
 bool Application::VerticalSync = true;
 
 Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fdt) {
@@ -110,7 +112,7 @@ void Application::createWindow() {
 	windowClass.hbrBackground = (HBRUSH)GetStockObject(WHITE_BRUSH);
 	windowClass.lpszMenuName = NULL;
 	windowClass.lpszClassName = "WINDOWCLASS";
-	windowClass.hIconSm = LoadIcon(NULL, IDI_APPLICATION);
+	windowClass.hIconSm = LoadIcon(windowClass.hInstance, MAKEINTRESOURCE(JELLY_ICON));
 
 	if (!RegisterClassEx(&windowClass))
 		return;
@@ -118,7 +120,7 @@ void Application::createWindow() {
 	Window = CreateWindowEx(
 		NULL,
 		"WINDOWCLASS",
-		"SDF",
+		"Jelly Car",
 		WS_OVERLAPPEDWINDOW,
 		CW_USEDEFAULT, CW_USEDEFAULT,
 		Width,
@@ -400,8 +402,8 @@ void Application::initStates() {
 	//Machine->addStateAtTop(new Game(*Machine));
 	//Machine->addStateAtTop(new JellyMenu(*Machine));
 	//Machine->addStateAtTop(new JellyIntro(*Machine));
-	Machine->addStateAtTop(new JellySplash(*Machine));
-	//Machine->addStateAtTop(new JellyOptions(*Machine));
+	//Machine->addStateAtTop(new JellySplash(*Machine));
+	Machine->addStateAtTop(new JellyOptions(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {

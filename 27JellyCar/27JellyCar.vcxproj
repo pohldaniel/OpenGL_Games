@@ -349,6 +349,7 @@
     <ClInclude Include="engine\Vector.h" />
     <ClInclude Include="engine\VolumeBuffer.h" />
     <ClInclude Include="engine\ZoomableQuad.h" />
+    <ClInclude Include="Resource.h" />
     <ClInclude Include="src\Application.h" />
     <ClInclude Include="src\Background.h" />
     <ClInclude Include="src\Car\Car.h" />
@@ -458,6 +459,9 @@
     <ClInclude Include="_Andromeda\VertexBufferObject.h" />
     <ClInclude Include="_Andromeda\VertexBufferObjectGL3.h" />
     <ClInclude Include="_Andromeda\VertexTypes.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="resource.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
