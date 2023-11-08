@@ -402,8 +402,8 @@ void Application::initStates() {
 	//Machine->addStateAtTop(new Game(*Machine));
 	//Machine->addStateAtTop(new JellyMenu(*Machine));
 	//Machine->addStateAtTop(new JellyIntro(*Machine));
-	//Machine->addStateAtTop(new JellySplash(*Machine));
-	Machine->addStateAtTop(new JellyOptions(*Machine));
+	Machine->addStateAtTop(new JellySplash(*Machine));
+	//Machine->addStateAtTop(new JellyOptions(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -615,6 +615,14 @@ void Application::loadAssets() {
 	Globals::textureManager.loadTexture("logo", "Assets/Jelly/Texture/logo.png");
 	Globals::textureManager.loadTexture("splash", "Assets/Images/splash_switch.png");
 
+	Globals::textureManager.loadTexture("bar_blue", "Assets/Jelly/Texture/back.png");
+
+	Globals::textureManager.loadTexture("select_round_back", "Assets/Jelly/Texture/roundBack.png");
+	Globals::textureManager.loadTexture("select_left", "Assets/Jelly/Texture/left.png");
+	Globals::textureManager.loadTexture("select_right", "Assets/Jelly/Texture/right.png");
+
+	Globals::textureManager.loadTexture("options_bar", "Assets/Jelly/Texture/bar.png");
+	Globals::textureManager.loadTexture("options_bar_blue", "Assets/Jelly/Texture/barBlue.png");
 
 	Globals::fontManager.loadCharacterSet("upheaval_200", "res/fonts/upheavtt.ttf", 200, 0, 30, 128, 0, true, 0u);
 	Globals::fontManager.loadCharacterSet("upheaval_50", "res/fonts/upheavtt.ttf",  50,  0, 3,  0,   0, true, 1u);

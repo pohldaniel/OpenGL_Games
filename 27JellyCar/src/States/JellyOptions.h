@@ -13,7 +13,7 @@
 #include "JellyPhysics/World.h"
 
 #include <_Andromeda/TextureManager.h>
-#include <_Andromeda/Sprite.h>
+//#include <_Andromeda/Sprite.h>
 
 enum CarAction {
 	Left = 0,
@@ -118,11 +118,14 @@ public:
 
 	JellyOptionState(JellyOptions& machine);
 	virtual ~JellyOptionState() = default;
+	void resize(int deltaW, int deltaH) override;
 
 protected:
 
 	virtual void OnKeyDown(Event::KeyboardEvent& event) = 0;
+	
 	JellyOptions& m_machine;
+	Matrix4f m_orthographic;
 
 private:
 
@@ -139,7 +142,6 @@ public:
 	void fixedUpdate() override;
 	void update() override;
 	void render() override;
-	void resize(int deltaW, int deltaH) override;
 
 private:
 
@@ -163,7 +165,6 @@ public:
 	void fixedUpdate() override;
 	void update() override;
 	void render() override;
-	void resize(int deltaW, int deltaH) override;
 
 private:
 
@@ -186,7 +187,6 @@ public:
 	void fixedUpdate() override;
 	void update() override;
 	void render() override;
-	void resize(int deltaW, int deltaH) override;
 
 private:
 
@@ -203,10 +203,9 @@ private:
 
 	float _alphaScale;
 	int centerX;
-	glm::mat4 _projection;
+
 	float _scaleFactor;
 
-	Sprite* _backSelectSprite;
 	int _selctedPosition;
 	bool _changeBinding;
 	CarAction _selectedAction;
@@ -224,7 +223,6 @@ public:
 	void fixedUpdate() override;
 	void update() override;
 	void render() override;
-	void resize(int deltaW, int deltaH) override;
 
 private:
 
@@ -238,20 +236,11 @@ private:
 	float _soundsVolume;
 	float _musicVolume;
 
-	Sprite* _backRoundSprite;
-	Sprite* _leftSprite;
-	Sprite* _rightSprite;
-
-	Sprite* _barSprite;
-	Sprite* _barBlueSprite;
-
 	int _soundPosition;
 	float _alphaScale;
 	float _scaleFactor;
 
-	glm::mat4 _projection;
 	int _optionsCarLevel;
 	int _optionsSoundLevel;
-	int _optionsMusicLevel;
-	
+	int _optionsMusicLevel;	
 };

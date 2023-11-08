@@ -132,6 +132,10 @@ void JellyOptions::resize(int deltaW, int deltaH) {
 	columns = ceil(static_cast<float>(Application::Width) / static_cast<float>(backWidth));
 	rows = ceil(static_cast<float>(Application::Height) / static_cast<float>(backHeight));
 	m_machine.resizeState(deltaW, deltaH, States::JELLYGAME);
+	
+	if (!m_states.empty()) {
+		m_states.top()->resize(deltaW, deltaH);
+	}
 }
 
 void JellyOptions::processInput() {
@@ -337,7 +341,11 @@ void JellyOptions::render() {
 }
 /////////////////////////////////////////
 JellyOptionState::JellyOptionState(JellyOptions& machine) : m_machine(machine) {
+	m_orthographic.orthographic(0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, -1.0f, 1.0f);
+}
 
+void JellyOptionState::resize(int deltaW, int deltaH) {
+	m_orthographic.orthographic(0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, -1.0f, 1.0f);
 }
 
 JellyOptionLib::JellyOptionLib(JellyOptions& machine) : JellyOptionState(machine) {
@@ -392,10 +400,6 @@ void JellyOptionLib::render() {
 	Fontrenderer::Get().drawBuffer();
 	Globals::spritesheetManager.getAssetPointer("jelly_font")->unbind(0);
 } 
-
-void JellyOptionLib::resize(int deltaW, int deltaH) {
-	m_machine.resize(deltaW, deltaH);
-}
 
 void JellyOptionLib::OnKeyDown(Event::KeyboardEvent& event) {
 	if (event.keyCode == VK_ESCAPE) {
@@ -482,10 +486,6 @@ void JellyOptionCredit::render() {
 	Globals::spritesheetManager.getAssetPointer("jelly_font")->unbind(0);
 }
 
-void JellyOptionCredit::resize(int deltaW, int deltaH) {
-	m_machine.resize(deltaW, deltaH);
-}
-
 void JellyOptionCredit::OnKeyDown(Event::KeyboardEvent& event) {
 	if (event.keyCode == VK_ESCAPE) {
 		m_isRunning = false;
@@ -538,12 +538,10 @@ JellyOptionControl::JellyOptionControl(JellyOptions& machine) : JellyOptionState
 	centerX = Application::Width / 2;
 	_alphaScale = 1.0f;
 	_scaleFactor = 0.01f;
-	_projection = glm::ortho(0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, -1.0f, 1.0f);
 
 	_changeBinding = false;
 	_selctedPosition = 0;
 
-	_backSelectSprite = new Sprite("selectBack", "Assets/Jelly/Texture/back.png", "Assets/Shaders/sprite", "Assets/Shaders/sprite");
 	controlsWidth = static_cast<float>(Globals::textureManager.get("controls").getWidth());
 	controlsHeight = static_cast<float>(Globals::textureManager.get("controls").getHeight());
 }
@@ -575,31 +573,37 @@ void JellyOptionControl::render() {
 	m_machine.renderLevel();
 	m_machine.renderControls();
 
-	_backSelectSprite->SetSolor(glm::vec4(1.0f, 1.0f, 1.0f, _changeBinding ? _alphaScale : 1.0f));
+
 	int startPosition = Application::Height / 2 - 100;
 	int step = 45;
 
-	//draw backgroud bar
-	_backSelectSprite->SetScale(glm::vec2(0.53f, 1.1f));
+	const Texture& back = Globals::textureManager.get("bar_blue");
+	Vector3f pos = _selctedPosition < 4 ? Vector3f(centerX - 145, Application::Height - (startPosition - 20 + (_selctedPosition * step)), 0.0f) : Vector3f(centerX + 145, Application::Height - (startPosition - 20 + (_selctedPosition * step) - (step * 4)), 0.0f);
 
-	if (_selctedPosition < 4){
-		_backSelectSprite->SetPosition(glm::vec2(centerX - 145, startPosition - 20 + (_selctedPosition * step)));
-	}else{
-		_backSelectSprite->SetPosition(glm::vec2(centerX + 145, startPosition - 20 + (_selctedPosition * step) - (step * 4)));
-	}
-
-	_backSelectSprite->Draw(_projection);
-
-
+	
 	auto shader = Globals::shaderManager.getAssetPointer("quad");
 	shader->use();
+	shader->loadMatrix("u_transform", m_orthographic * Matrix4f::Translate(pos) * Matrix4f::Scale(static_cast<float>(back.getWidth()) * 0.53f, static_cast<float>(back.getHeight()) * 1.1f, 1.0f));
+	shader->loadVector("u_texRect", Vector4f(0.0f, 0.0f, 1.0f, 1.0f));
+	shader->loadVector("u_color", Vector4f(1.0f, 1.0f, 1.0f, _changeBinding ? _alphaScale : 1.0f));
+
+	back.bind(0);
+	Globals::shapeManager.get("quad_half").drawRaw();
+	back.unbind();
+
+	shader->loadVector("u_color", Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+	//shader->unuse();
+	
+	
+	//shader = Globals::shaderManager.getAssetPointer("quad");
+	//shader->use();
 
 	Globals::textureManager.get("controls").bind(0);
 
 	int startY = startPosition + 85;
 	//R-Trigger
 	if (!(_changeBinding && _selctedPosition == 3)){
-		shader->loadMatrix("u_transform", Matrix4f::Orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f) * Matrix4f::Translate(static_cast<float>(centerX - 50), static_cast<float>(startY), 0.0f) * Matrix4f::Scale(128.0f * 0.5f, 60.0f * 0.5f, 1.0f));
+		shader->loadMatrix("u_transform", m_orthographic * Matrix4f::Translate(static_cast<float>(centerX - 50), static_cast<float>(startY), 0.0f) * Matrix4f::Scale(128.0f * 0.5f, 60.0f * 0.5f, 1.0f));
 		shader->loadVector("u_texRect", Vector4f(369.0f / controlsWidth, (controlsHeight - (11.0f + 60.0f)) / controlsHeight, (369.0f + 128.0f) / controlsWidth, (controlsHeight - 11.0f) / controlsHeight));
 
 		Globals::shapeManager.get("quad_half").drawRaw();
@@ -608,7 +612,7 @@ void JellyOptionControl::render() {
 	startY += step;
 	//L-Triggert
 	if (!(_changeBinding && _selctedPosition == 2)) {
-		shader->loadMatrix("u_transform", Matrix4f::Orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f) * Matrix4f::Translate(static_cast<float>(centerX - 50), static_cast<float>(startY), 0.0f) * Matrix4f::Scale(128.0f* 0.5f, 60.0f * 0.5f, 1.0f));
+		shader->loadMatrix("u_transform", m_orthographic * Matrix4f::Translate(static_cast<float>(centerX - 50), static_cast<float>(startY), 0.0f) * Matrix4f::Scale(128.0f* 0.5f, 60.0f * 0.5f, 1.0f));
 		shader->loadVector("u_texRect", Vector4f(6.0f / controlsWidth, (controlsHeight - (87.0f + 60.0f)) / controlsHeight, (6.0f + 128.0f) / controlsWidth, (controlsHeight - 87.0f) / controlsHeight));
 
 		Globals::shapeManager.get("quad_half").drawRaw();
@@ -617,7 +621,7 @@ void JellyOptionControl::render() {
 	startY += step;
 	//Right
 	if (!(_changeBinding && _selctedPosition == 1)) {
-		shader->loadMatrix("u_transform", Matrix4f::Orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f) * Matrix4f::Translate(static_cast<float>(centerX - 50), static_cast<float>(startY), 0.0f) * Matrix4f::Scale(88.0f * 0.4f, 68.0f * 0.4f, 1.0f));
+		shader->loadMatrix("u_transform", m_orthographic * Matrix4f::Translate(static_cast<float>(centerX - 50), static_cast<float>(startY), 0.0f) * Matrix4f::Scale(88.0f * 0.4f, 68.0f * 0.4f, 1.0f));
 		shader->loadVector("u_texRect", Vector4f(413.0f / controlsWidth, (controlsHeight - (82.0f + 68.0f)) / controlsHeight, (413.0f + 88.0f) / controlsWidth, (controlsHeight - 82.0f) / controlsHeight));
 
 		Globals::shapeManager.get("quad_half").drawRaw();
@@ -626,7 +630,7 @@ void JellyOptionControl::render() {
 	startY += step;
 	//Left
 	if (!(_changeBinding && _selctedPosition == 0)) {
-		shader->loadMatrix("u_transform", Matrix4f::Orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f) * Matrix4f::Translate(static_cast<float>(centerX - 50), static_cast<float>(startY), 0.0f) * Matrix4f::Scale(88.0f * 0.4f, 68.0f * 0.4f, 1.0f));
+		shader->loadMatrix("u_transform", m_orthographic * Matrix4f::Translate(static_cast<float>(centerX - 50), static_cast<float>(startY), 0.0f) * Matrix4f::Scale(88.0f * 0.4f, 68.0f * 0.4f, 1.0f));
 		shader->loadVector("u_texRect", Vector4f(313.0f / controlsWidth, (controlsHeight - (88.0f + 68.0f)) / controlsHeight, (313.0f + 88.0f) / controlsWidth, (controlsHeight - 88.0f) / controlsHeight));
 
 		Globals::shapeManager.get("quad_half").drawRaw();
@@ -635,7 +639,7 @@ void JellyOptionControl::render() {
 	startY = startPosition + 85;
 	//Triangle
 	if (!(_changeBinding && _selctedPosition == 7)) {
-		shader->loadMatrix("u_transform", Matrix4f::Orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f) * Matrix4f::Translate(static_cast<float>(centerX + 50), static_cast<float>(startY), 0.0f) * Matrix4f::Scale(78.0f * 0.4f, 78.0f * 0.4f, 1.0f));
+		shader->loadMatrix("u_transform", m_orthographic * Matrix4f::Translate(static_cast<float>(centerX + 50), static_cast<float>(startY), 0.0f) * Matrix4f::Scale(78.0f * 0.4f, 78.0f * 0.4f, 1.0f));
 		shader->loadVector("u_texRect", Vector4f(17.0f / controlsWidth, (controlsHeight - (5.0f + 78.0f)) / controlsHeight, (17.0f + 78.0f) / controlsWidth, (controlsHeight - 5.0f) / controlsHeight));
 
 		Globals::shapeManager.get("quad_half").drawRaw();
@@ -644,7 +648,7 @@ void JellyOptionControl::render() {
 	startY += step;
 	//Square
 	if (!(_changeBinding && _selctedPosition == 6)) {
-		shader->loadMatrix("u_transform", Matrix4f::Orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f) * Matrix4f::Translate(static_cast<float>(centerX + 50), static_cast<float>(startY), 0.0f) * Matrix4f::Scale(78.0f * 0.4f, 78.0f * 0.4f, 1.0f));
+		shader->loadMatrix("u_transform", m_orthographic * Matrix4f::Translate(static_cast<float>(centerX + 50), static_cast<float>(startY), 0.0f) * Matrix4f::Scale(78.0f * 0.4f, 78.0f * 0.4f, 1.0f));
 		shader->loadVector("u_texRect", Vector4f(273.0f / controlsWidth, (controlsHeight - (5.0f + 78.0f)) / controlsHeight, (273.0f + 78.0f) / controlsWidth, (controlsHeight - 5.0f) / controlsHeight));
 
 		Globals::shapeManager.get("quad_half").drawRaw();
@@ -652,7 +656,7 @@ void JellyOptionControl::render() {
 	startY += step;
 	//Circle
 	if (!(_changeBinding && _selctedPosition == 5)) {
-		shader->loadMatrix("u_transform", Matrix4f::Orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f) * Matrix4f::Translate(static_cast<float>(centerX + 50), static_cast<float>(startY), 0.0f) * Matrix4f::Scale(78.0f * 0.4f, 78.0f * 0.4f, 1.0f));
+		shader->loadMatrix("u_transform", m_orthographic * Matrix4f::Translate(static_cast<float>(centerX + 50), static_cast<float>(startY), 0.0f) * Matrix4f::Scale(78.0f * 0.4f, 78.0f * 0.4f, 1.0f));
 		shader->loadVector("u_texRect", Vector4f(102.0f / controlsWidth, (controlsHeight - (5.0f + 78.0f)) / controlsHeight, (102.0f + 78.0f) / controlsWidth, (controlsHeight - 5.0f) / controlsHeight));
 
 		Globals::shapeManager.get("quad_half").drawRaw();
@@ -660,7 +664,7 @@ void JellyOptionControl::render() {
 	startY += step;
 	//Cross
 	if (!(_changeBinding && _selctedPosition == 4)) {
-		shader->loadMatrix("u_transform", Matrix4f::Orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f) * Matrix4f::Translate(static_cast<float>(centerX + 50), static_cast<float>(startY), 0.0f) * Matrix4f::Scale(78.0f * 0.4f, 78.0f * 0.4f, 1.0f));
+		shader->loadMatrix("u_transform", m_orthographic * Matrix4f::Translate(static_cast<float>(centerX + 50), static_cast<float>(startY), 0.0f) * Matrix4f::Scale(78.0f * 0.4f, 78.0f * 0.4f, 1.0f));
 		shader->loadVector("u_texRect", Vector4f(186.0f / controlsWidth, (controlsHeight - (5.0f + 78.0f)) / controlsHeight, (186.0f + 78.0f) / controlsWidth, (controlsHeight - 5.0f) / controlsHeight));
 
 		Globals::shapeManager.get("quad_half").drawRaw();
@@ -695,10 +699,6 @@ void JellyOptionControl::render() {
 
 	Fontrenderer::Get().drawBuffer();
 	Globals::spritesheetManager.getAssetPointer("jelly_font")->unbind(0);
-}
-
-void JellyOptionControl::resize(int deltaW, int deltaH) {
-	m_machine.resize(deltaW, deltaH);
 }
 
 void JellyOptionControl::OnKeyDown(Event::KeyboardEvent& event) {
@@ -852,18 +852,9 @@ JellyOptionSound::JellyOptionSound(JellyOptions& machine) : JellyOptionState(mac
 
 	loadSettings("JellyAudioSettings.xml");
 
-	_backRoundSprite = new Sprite("selectRoundBack", "Assets/Jelly/Texture/roundBack.png", "Assets/Shaders/sprite", "Assets/Shaders/sprite");
-	_leftSprite = new Sprite("selectLeft", "Assets/Jelly/Texture/left.png", "Assets/Shaders/sprite", "Assets/Shaders/sprite");
-	_rightSprite = new Sprite("selectRight", "Assets/Jelly/Texture/right.png", "Assets/Shaders/sprite", "Assets/Shaders/sprite");
-
-	_barSprite = new Sprite("optionsBar", "Assets/Jelly/Texture/bar.png", "Assets/Shaders/sprite", "Assets/Shaders/sprite");
-	_barBlueSprite = new Sprite("optionsBarBlue", "Assets/Jelly/Texture/barBlue.png", "Assets/Shaders/sprite", "Assets/Shaders/sprite");
-
 	_soundPosition = 0;
 	_alphaScale = 1.0f;
 	_scaleFactor = 0.01f;
-
-	_projection = glm::ortho(0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, -1.0f, 1.0f);
 
 	_optionsCarLevel = _carVolume * 10.0f;
 	_optionsSoundLevel = _soundsVolume * 10.0f;
@@ -902,78 +893,112 @@ void JellyOptionSound::render() {
 	int rightSpritePosX = Application::Width / 2 + (260);
 	int leftRightPosY = Application::Height / 2 + (Application::Height * 0.08f);
 
-	_leftSprite->SetScale(glm::vec2(0.8f, 0.8f));
+	//_leftSprite->SetScale(glm::vec2(0.8f, 0.8f));
+
+	
+	
+	const Texture* texture = &Globals::textureManager.get("select_left");
+	texture->bind(0);
+
+	auto shader = Globals::shaderManager.getAssetPointer("quad");
+	shader->use();
+	shader->loadVector("u_texRect", Vector4f(0.0f, 0.0f, 1.0f, 1.0f));
+
+	Vector3f pos = Vector3f(leftSpritePosX, Application::Height - (leftRightPosY - 140 - 5), 0.0f);
+	shader->loadMatrix("u_transform", m_orthographic * Matrix4f::Translate(pos) * Matrix4f::Scale(static_cast<float>(texture->getWidth()) * 0.8f, static_cast<float>(texture->getHeight()) * 0.8f, 1.0f));
+	shader->loadVector("u_color", Vector4f(1.0f, 1.0f, 1.0f, _soundPosition == 0 ? _alphaScale : 1.0f));
+	Globals::shapeManager.get("quad_half").drawRaw();
+	//texture.unbind();
 
 
-	_leftSprite->SetSolor(glm::vec4(1.0f, 1.0f, 1.0f, _soundPosition == 0 ? _alphaScale : 1.0f));
-	_leftSprite->SetPosition(glm::vec2(leftSpritePosX, leftRightPosY - 140));
-	_leftSprite->Draw(_projection);
+	pos = Vector3f(leftSpritePosX, Application::Height - (leftRightPosY - 5), 0.0f);
+	shader->loadMatrix("u_transform", m_orthographic * Matrix4f::Translate(pos) * Matrix4f::Scale(static_cast<float>(texture->getWidth()) * 0.8f, static_cast<float>(texture->getHeight()) * 0.8f, 1.0f));
+	shader->loadVector("u_color", Vector4f(1.0f, 1.0f, 1.0f, _soundPosition == 1 ? _alphaScale : 1.0f));
+	Globals::shapeManager.get("quad_half").drawRaw();
 
-	_leftSprite->SetSolor(glm::vec4(1.0f, 1.0f, 1.0f, _soundPosition == 1 ? _alphaScale : 1.0f));
-	_leftSprite->SetPosition(glm::vec2(leftSpritePosX, leftRightPosY));
-	_leftSprite->Draw(_projection);
+	pos = Vector3f(leftSpritePosX, Application::Height - (leftRightPosY + 140 - 5), 0.0f);
+	shader->loadMatrix("u_transform", m_orthographic * Matrix4f::Translate(pos) * Matrix4f::Scale(static_cast<float>(texture->getWidth()) * 0.8f, static_cast<float>(texture->getHeight()) * 0.8f, 1.0f));
+	shader->loadVector("u_color", Vector4f(1.0f, 1.0f, 1.0f, _soundPosition == 2 ? _alphaScale : 1.0f));
+	Globals::shapeManager.get("quad_half").drawRaw();
 
+	texture = &Globals::textureManager.get("select_right");
+	texture->bind(0);
 
-	_leftSprite->SetSolor(glm::vec4(1.0f, 1.0f, 1.0f, _soundPosition == 2 ? _alphaScale : 1.0f));
-	_leftSprite->SetPosition(glm::vec2(leftSpritePosX, leftRightPosY + 140));
-	_leftSprite->Draw(_projection);
+	pos = Vector3f(rightSpritePosX, Application::Height - (leftRightPosY - 140 - 5), 0.0f);
+	shader->loadMatrix("u_transform", m_orthographic * Matrix4f::Translate(pos) * Matrix4f::Scale(static_cast<float>(texture->getWidth()) * 0.8f, static_cast<float>(texture->getHeight()) * 0.8f, 1.0f));
+	shader->loadVector("u_color", Vector4f(1.0f, 1.0f, 1.0f, _soundPosition == 0 ? _alphaScale : 1.0f));
+	Globals::shapeManager.get("quad_half").drawRaw();
 
-	//right side
-	_rightSprite->SetScale(glm::vec2(0.8f, 0.8f));
+	pos = Vector3f(rightSpritePosX, Application::Height - (leftRightPosY - 5), 0.0f);
+	shader->loadMatrix("u_transform", m_orthographic * Matrix4f::Translate(pos) * Matrix4f::Scale(static_cast<float>(texture->getWidth()) * 0.8f, static_cast<float>(texture->getHeight()) * 0.8f, 1.0f));
+	shader->loadVector("u_color", Vector4f(1.0f, 1.0f, 1.0f, _soundPosition == 1 ? _alphaScale : 1.0f));
+	Globals::shapeManager.get("quad_half").drawRaw();
 
-	_rightSprite->SetSolor(glm::vec4(1.0f, 1.0f, 1.0f, _soundPosition == 0 ? _alphaScale : 1.0f));
-	_rightSprite->SetPosition(glm::vec2(rightSpritePosX, leftRightPosY - 140));
-	_rightSprite->Draw(_projection);
+	pos = Vector3f(rightSpritePosX, Application::Height - (leftRightPosY + 140 - 5), 0.0f);
+	shader->loadMatrix("u_transform", m_orthographic * Matrix4f::Translate(pos) * Matrix4f::Scale(static_cast<float>(texture->getWidth()) * 0.8f, static_cast<float>(texture->getHeight()) * 0.8f, 1.0f));
+	shader->loadVector("u_color", Vector4f(1.0f, 1.0f, 1.0f, _soundPosition == 2 ? _alphaScale : 1.0f));
+	Globals::shapeManager.get("quad_half").drawRaw();
 
-
-	_rightSprite->SetSolor(glm::vec4(1.0f, 1.0f, 1.0f, _soundPosition == 1 ? _alphaScale : 1.0f));
-	_rightSprite->SetPosition(glm::vec2(rightSpritePosX, leftRightPosY));
-	_rightSprite->Draw(_projection);
-
-	_rightSprite->SetSolor(glm::vec4(1.0f, 1.0f, 1.0f, _soundPosition == 2 ? _alphaScale : 1.0f));
-	_rightSprite->SetPosition(glm::vec2(rightSpritePosX, leftRightPosY + 140));
-	_rightSprite->Draw(_projection);
-
-	//sound bars
-	_barSprite->SetScale(glm::vec2(0.8f, 0.8f));
-	_barBlueSprite->SetScale(glm::vec2(0.8f, 0.8f));
-
+	shader->loadVector("u_color", Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+	
+	
 	int startBar = Application::Width / 2 - (180);
+	for (int i = 0; i < 10; i++) {
+		if (i < _optionsCarLevel) {			
+			texture = &Globals::textureManager.get("options_bar");
+			texture->bind(0);
 
-	//int startBar = 300;
+			pos = Vector3f(startBar + (i * 40), Application::Height - (leftRightPosY - 140), 0.0f);
+			shader->loadMatrix("u_transform", m_orthographic * Matrix4f::Translate(pos) * Matrix4f::Scale(static_cast<float>(texture->getWidth()) * 0.8f, static_cast<float>(texture->getHeight()) * 0.8f, 1.0f));
+			Globals::shapeManager.get("quad_half").drawRaw();
+		}else {
+			texture = &Globals::textureManager.get("options_bar_blue");
+			texture->bind(0);
 
-	//car
-	for (int i = 0; i < 10; i++){
-		if (i < _optionsCarLevel){
-			_barSprite->SetPosition(glm::vec2(startBar + (i * 40), leftRightPosY - 140));
-			_barSprite->Draw(_projection);
-		}else{
-			_barBlueSprite->SetPosition(glm::vec2(startBar + (i * 40), leftRightPosY - 140));
-			_barBlueSprite->Draw(_projection);
+			pos = Vector3f(startBar + (i * 40), Application::Height - (leftRightPosY - 140), 0.0f);
+			shader->loadMatrix("u_transform", m_orthographic * Matrix4f::Translate(pos) * Matrix4f::Scale(static_cast<float>(texture->getWidth()) * 0.8f, static_cast<float>(texture->getHeight()) * 0.8f, 1.0f));
+			Globals::shapeManager.get("quad_half").drawRaw();
 		}
 	}
 
-	//sounds
-	for (int i = 0; i < 10; i++){
-		if (i < _optionsSoundLevel){
-			_barSprite->SetPosition(glm::vec2(startBar + (i * 40), leftRightPosY));
-			_barSprite->Draw(_projection);
-		}else{
-			_barBlueSprite->SetPosition(glm::vec2(startBar + (i * 40), leftRightPosY));
-			_barBlueSprite->Draw(_projection);
+	for (int i = 0; i < 10; i++) {
+		if (i < _optionsSoundLevel) {
+			texture = &Globals::textureManager.get("options_bar");
+			texture->bind(0);
+
+			pos = Vector3f(startBar + (i * 40), Application::Height - (leftRightPosY), 0.0f);
+			shader->loadMatrix("u_transform", m_orthographic * Matrix4f::Translate(pos) * Matrix4f::Scale(static_cast<float>(texture->getWidth()) * 0.8f, static_cast<float>(texture->getHeight()) * 0.8f, 1.0f));
+			Globals::shapeManager.get("quad_half").drawRaw();
+		}else {
+			texture = &Globals::textureManager.get("options_bar_blue");
+			texture->bind(0);
+
+			pos = Vector3f(startBar + (i * 40), Application::Height - (leftRightPosY), 0.0f);
+			shader->loadMatrix("u_transform", m_orthographic * Matrix4f::Translate(pos) * Matrix4f::Scale(static_cast<float>(texture->getWidth()) * 0.8f, static_cast<float>(texture->getHeight()) * 0.8f, 1.0f));
+			Globals::shapeManager.get("quad_half").drawRaw();
 		}
 	}
 
-	//music
-	for (int i = 0; i < 10; i++){
-		if (i < _optionsMusicLevel){
-			_barSprite->SetPosition(glm::vec2(startBar + (i * 40), leftRightPosY + 140));
-			_barSprite->Draw(_projection);
-		}else{
-			_barBlueSprite->SetPosition(glm::vec2(startBar + (i * 40), leftRightPosY + 140));
-			_barBlueSprite->Draw(_projection);
+	for (int i = 0; i < 10; i++) {
+		if (i < _optionsMusicLevel) {
+			texture = &Globals::textureManager.get("options_bar");
+			texture->bind(0);
+
+			pos = Vector3f(startBar + (i * 40), Application::Height - (leftRightPosY + 140), 0.0f);
+			shader->loadMatrix("u_transform", m_orthographic * Matrix4f::Translate(pos) * Matrix4f::Scale(static_cast<float>(texture->getWidth()) * 0.8f, static_cast<float>(texture->getHeight()) * 0.8f, 1.0f));
+			Globals::shapeManager.get("quad_half").drawRaw();
+		}else {
+			texture = &Globals::textureManager.get("options_bar_blue");
+			texture->bind(0);
+
+			pos = Vector3f(startBar + (i * 40), Application::Height - (leftRightPosY + 140), 0.0f);
+			shader->loadMatrix("u_transform", m_orthographic * Matrix4f::Translate(pos) * Matrix4f::Scale(static_cast<float>(texture->getWidth()) * 0.8f, static_cast<float>(texture->getHeight()) * 0.8f, 1.0f));
+			Globals::shapeManager.get("quad_half").drawRaw();
 		}
 	}
+	
+	shader->unuse();
+
 
 	Globals::spritesheetManager.getAssetPointer("jelly_font")->bind(0);
 	Fontrenderer::Get().addText(Globals::fontManager.get("jelly_64"), static_cast<float>(Application::Width / 2 - Globals::fontManager.get("jelly_64").getWidth("Sound Levels") / 2), static_cast<float>(Application::Height - 87), "Sound Levels", Vector4f(0.19f, 0.14f, 0.17f, 1.0f));
@@ -992,10 +1017,6 @@ void JellyOptionSound::render() {
 	Fontrenderer::Get().addText(Globals::fontManager.get("jelly_32"), static_cast<float>(Application::Width / 2 + 30), static_cast<float>(6), "Back", Vector4f(0.19f, 0.14f, 0.17f, 1.0f));
 	Fontrenderer::Get().drawBuffer();
 	Globals::spritesheetManager.getAssetPointer("jelly_font")->unbind(0);
-}
-
-void JellyOptionSound::resize(int deltaW, int deltaH) {
-	m_machine.resize(deltaW, deltaH);
 }
 
 void JellyOptionSound::OnKeyDown(Event::KeyboardEvent& event) {
