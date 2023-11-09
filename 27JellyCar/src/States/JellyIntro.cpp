@@ -8,33 +8,31 @@
 
 JellyIntro::JellyIntro(StateMachine& machine) : State(machine, States::JELLYINTRO) {
 
-	backWidth = Globals::textureManager.get("paper").getWidth();
-	backHeight = Globals::textureManager.get("paper").getHeight();
+	m_backWidth = Globals::textureManager.get("paper").getWidth();
+	m_backHeight = Globals::textureManager.get("paper").getHeight();
 
-	columns = ceil(static_cast<float>(Application::Width) / static_cast<float>(backWidth));
-	rows = ceil(static_cast<float>(Application::Height) / static_cast<float>(backHeight));
+	m_columns = ceil(static_cast<float>(Application::Width) / static_cast<float>(m_backWidth));
+	m_rows = ceil(static_cast<float>(Application::Height) / static_cast<float>(m_backHeight));
 
 
 	JellyHellper::Instance()->LoadShaders();
-	_world = new World();
+	m_world = new World();
 
-	_levelManager = new LevelManager();
-	_levelManager->SetAssetsLocation("Assets/Jelly/");
-	_levelManager->LoadCarSkins("car_skins.xml");
-	_levelManager->InitPhysic(_world);
-	_levelManager->LoadCompiledLevel(_world, "intro.scene", "Assets/Jelly/car_and_truck.car");
+	m_levelManager = new LevelManager();
+	m_levelManager->SetAssetsLocation("Assets/Jelly/");
+	m_levelManager->LoadCarSkins("car_skins.xml");
+	m_levelManager->InitPhysic(m_world);
+	m_levelManager->LoadCompiledLevel(m_world, "intro.scene", "Assets/Jelly/car_and_truck.car");
 
-	_carSkins = _levelManager->GetCarSkins();
+	m_carSkins = m_levelManager->GetCarSkins();
 
-	_car = _levelManager->GetCar();
-	_car->SetChassisTextures(_levelManager->GetCarImage(_carSkins[0].chassisSmall), _levelManager->GetCarImage(_carSkins[0].chassisBig));
-	_car->SetTireTextures(_levelManager->GetCarImage(_carSkins[0].tireSmall), _levelManager->GetCarImage(_carSkins[0].tireBig));
+	m_car = m_levelManager->GetCar();
+	m_car->SetChassisTextures(m_levelManager->GetCarImage(m_carSkins[0].chassisSmall), m_levelManager->GetCarImage(m_carSkins[0].chassisBig));
+	m_car->SetTireTextures(m_levelManager->GetCarImage(m_carSkins[0].tireSmall), m_levelManager->GetCarImage(m_carSkins[0].tireBig));
 
-	_gameBodies = _levelManager->GetLevelBodies();
-	_jellyProjection = glm::ortho(-20.0f + 0, 0 + 20.0f, -4.2f + 4, 4 + 18.2f, -1.0f, 1.0f);
-
-	_levelTarget = _levelManager->GetLevelTarget();
-	_end = false;
+	m_gameBodies = m_levelManager->GetLevelBodies();
+	m_jellyProjection = glm::ortho(-20.0f + 0, 0 + 20.0f, -4.2f + 4, 4 + 18.2f, -1.0f, 1.0f);
+	m_levelTarget = m_levelManager->GetLevelTarget();
 
 	Globals::textureManager.get("paper").bind(1);
 	Globals::textureManager.get("logo").bind(2);
@@ -52,70 +50,64 @@ JellyIntro::JellyIntro(StateMachine& machine) : State(machine, States::JELLYINTR
 }
 
 JellyIntro::~JellyIntro() {
-	if (_levelManager != 0){
+	if (m_levelManager != 0){
 		//clear level
-		_levelManager->ClearLevel(_world);
+		m_levelManager->ClearLevel(m_world);
 
 		//remove level manager
-		delete _levelManager;
+		delete m_levelManager;
 	}
 
 	//remove physic world
-	delete _world;
-	_gameBodies.clear();
+	delete m_world;
+	m_gameBodies.clear();
 }
 
 void JellyIntro::fixedUpdate() {}
 
 void JellyIntro::update() {
 
-	if (_end){
-		//manager->PopState();
-		return;
-	}
-
-	_car->setTorque(1);
+	m_car->setTorque(1);
 
 	//Update physic
 	for (int i = 0; i < 6; i++){
-		_world->update(0.004f);
+		m_world->update(0.004f);
 
-		for (size_t i = 0; i < _gameBodies.size(); i++)
-			_gameBodies[i]->Update(0.004f);
+		for (size_t i = 0; i < m_gameBodies.size(); i++)
+			m_gameBodies[i]->Update(0.004f);
 
-		_car->clearForces();
-		_car->update(0.004f);
+		m_car->clearForces();
+		m_car->update(0.004f);
 	}
 
 	//reset car position
-	if (_car->getPosition().Y < _levelManager->GetLevelLine()){
-		Vector2 pos = _levelManager->GetCarStartPos();
+	if (m_car->getPosition().Y < m_levelManager->GetLevelLine()){
+		Vector2 pos = m_levelManager->GetCarStartPos();
 		Vector2 scale = Vector2(1.0f, 1.0f);
 
-		_car->getChassisBody()->setPositionAngle(pos, 0.0f, scale);
-		_car->getTire(0)->setPositionAngle(pos, 0.0f, scale);
-		_car->getTire(1)->setPositionAngle(pos, 0.0f, scale);
+		m_car->getChassisBody()->setPositionAngle(pos, 0.0f, scale);
+		m_car->getTire(0)->setPositionAngle(pos, 0.0f, scale);
+		m_car->getTire(1)->setPositionAngle(pos, 0.0f, scale);
 	}
 
 	bool enterMenu = false;
 
 	//end of scene
-	if (_car->getChassisBody()->getAABB().contains(_levelTarget)){
-		if (_car->getChassisBody()->contains(_levelTarget)){
+	if (m_car->getChassisBody()->getAABB().contains(m_levelTarget)){
+		if (m_car->getChassisBody()->contains(m_levelTarget)){
 			enterMenu = true;
 		}
 	}
 
 	for (int i = 0; i < 2; i++){
-		if (_car->getTire(i)->getAABB().contains(_levelTarget)){
-			if (_car->getTire(i)->contains(_levelTarget)){
+		if (m_car->getTire(i)->getAABB().contains(m_levelTarget)){
+			if (m_car->getTire(i)->contains(m_levelTarget)){
 				enterMenu = true;
 			}
 		}
 	}
 
 	if (enterMenu){
-		_end = true;
 		//_audioHelper->StopEngineSound();
 		auto shader = Globals::shaderManager.getAssetPointer("quad_back");
 		shader->use();
@@ -138,13 +130,13 @@ void JellyIntro::render() {
 	auto shader = Globals::shaderManager.getAssetPointer("quad_back");
 
 	shader->use();
-	for (int y = 0; y < rows; y++) {
-		for (int x = 0; x < columns; x++) {
+	for (int y = 0; y < m_rows; y++) {
+		for (int x = 0; x < m_columns; x++) {
 
-			int posx = (backWidth * x);
-			int posy = Application::Height - (backHeight * (1 + y));
+			int posx = m_backWidth * x;
+			int posy = Application::Height - m_backHeight * (1 + y);
 
-			shader->loadMatrix("u_transform", Matrix4f::Orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f) * Matrix4f::Translate(static_cast<float>(posx), static_cast<float>(posy), 0.0f) * Matrix4f::Scale(static_cast<float>(backWidth), static_cast<float>(backHeight), 1.0f));
+			shader->loadMatrix("u_transform", Matrix4f::Orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f) * Matrix4f::Translate(static_cast<float>(posx), static_cast<float>(posy), 0.0f) * Matrix4f::Scale(static_cast<float>(m_backWidth), static_cast<float>(m_backHeight), 1.0f));
 			Globals::shapeManager.get("quad_aligned").drawRaw();
 		}
 	}
@@ -158,14 +150,14 @@ void JellyIntro::render() {
 	Globals::shapeManager.get("quad_half").drawRaw();
 	shader->unuse();
 	
-	for (size_t i = 0; i < _gameBodies.size(); i++) {
-		_gameBodies[i]->Draw(_jellyProjection);
+	for (size_t i = 0; i < m_gameBodies.size(); i++) {
+		m_gameBodies[i]->Draw(m_jellyProjection);
 	}
-	_car->Draw(_jellyProjection);
 
+	m_car->Draw(m_jellyProjection);
 }
 
 void JellyIntro::resize(int deltaW, int deltaH) {
-	columns = ceil(static_cast<float>(Application::Width) / static_cast<float>(backWidth));
-	rows = ceil(static_cast<float>(Application::Height) / static_cast<float>(backHeight));
+	m_columns = ceil(static_cast<float>(Application::Width) / static_cast<float>(m_backWidth));
+	m_rows = ceil(static_cast<float>(Application::Height) / static_cast<float>(m_backHeight));
 }

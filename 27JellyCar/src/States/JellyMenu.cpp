@@ -18,36 +18,36 @@ carcurrentPosition(SceneManager::Get().getSceneInfo("scene").m_carCurrentPositio
 	EventDispatcher::AddKeyboardListener(this);
 
 
-	backWidth = Globals::textureManager.get("paper").getWidth();
-	backHeight = Globals::textureManager.get("paper").getHeight();
+	m_backWidth = Globals::textureManager.get("paper").getWidth();
+	m_backHeight = Globals::textureManager.get("paper").getHeight();
 
-	columns = ceil(static_cast<float>(Application::Width) / static_cast<float>(backWidth));
-	rows = ceil(static_cast<float>(Application::Height) / static_cast<float>(backHeight));
+	m_columns = ceil(static_cast<float>(Application::Width) / static_cast<float>(m_backWidth));
+	m_rows = ceil(static_cast<float>(Application::Height) / static_cast<float>(m_backHeight));
 
-	controlsWidth = static_cast<float>(Globals::textureManager.get("controls").getWidth());
-	controlsHeight = static_cast<float>(Globals::textureManager.get("controls").getHeight());
+	m_controlsWidth = static_cast<float>(Globals::textureManager.get("controls").getWidth());
+	m_controlsHeight = static_cast<float>(Globals::textureManager.get("controls").getHeight());
 
 	JellyHellper::Instance()->LoadShaders();
-	_world = new World();
+	m_world = new World();
 
-	_levelManager = new LevelManager();
-	_levelManager->SetAssetsLocation("Assets/Jelly/");
-	_levelManager->LoadAllScenes("scene_list.xml");
-	_levelManager->LoadCarSkins("car_skins.xml");
-	_levelManager->LoadScores("JellyScore.xml");
-	_levelManager->InitPhysic(_world);
-	_levelManager->LoadLevel(_world, "menu.scene", "Assets/Jelly/car_and_truck.car");
-	_levelManager->LoadCompiledLevel(_world, "menu.scene", "Assets/Jelly/car_and_truck.car");
+	m_levelManager = new LevelManager();
+	m_levelManager->SetAssetsLocation("Assets/Jelly/");
+	m_levelManager->LoadAllScenes("scene_list.xml");
+	m_levelManager->LoadCarSkins("car_skins.xml");
+	m_levelManager->LoadScores("JellyScore.xml");
+	m_levelManager->InitPhysic(m_world);
+	m_levelManager->LoadLevel(m_world, "menu.scene", "Assets/Jelly/car_and_truck.car");
+	m_levelManager->LoadCompiledLevel(m_world, "menu.scene", "Assets/Jelly/car_and_truck.car");
 
-	_sceneFiles = _levelManager->GetScenes();
-	_carSkins = _levelManager->GetCarSkins();
+	m_sceneFiles = m_levelManager->GetScenes();
+	m_carSkins = m_levelManager->GetCarSkins();
 
-	_car = _levelManager->GetCar();
-	_car->SetChassisTextures(_levelManager->GetCarImage(_carSkins[0].chassisSmall), _levelManager->GetCarImage(_carSkins[0].chassisBig));
-	_car->SetTireTextures(_levelManager->GetCarImage(_carSkins[0].tireSmall), _levelManager->GetCarImage(_carSkins[0].tireBig));
+	m_car = m_levelManager->GetCar();
+	m_car->SetChassisTextures(m_levelManager->GetCarImage(m_carSkins[0].chassisSmall), m_levelManager->GetCarImage(m_carSkins[0].chassisBig));
+	m_car->SetTireTextures(m_levelManager->GetCarImage(m_carSkins[0].tireSmall), m_levelManager->GetCarImage(m_carSkins[0].tireBig));
 
-	_gameBodies = _levelManager->GetLevelBodies();
-	_jellyProjection = glm::ortho(-20.0f + 0, 0 + 20.0f, -4.2f + 4, 4 + 18.2f, -1.0f, 1.0f);
+	m_gameBodies = m_levelManager->GetLevelBodies();
+	m_jellyProjection = glm::ortho(-20.0f + 0, 0 + 20.0f, -4.2f + 4, 4 + 18.2f, -1.0f, 1.0f);
 
 
 	SceneManager::Get().getSceneInfo("scene").loadLevelInfo("Assets/Jelly/scene_list.xml");
@@ -63,17 +63,17 @@ JellyMenu::~JellyMenu() {
 	EventDispatcher::RemoveMouseListener(this);
 	EventDispatcher::RemoveKeyboardListener(this);
 
-	if (_levelManager != 0){
+	if (m_levelManager != 0){
 		//clear level
-		_levelManager->ClearLevel(_world);
+		m_levelManager->ClearLevel(m_world);
 
 		//remove level manager
-		delete _levelManager;
+		delete m_levelManager;
 	}
 
 	//remove physic world
-	delete _world;
-	_gameBodies.clear();
+	delete m_world;
+	m_gameBodies.clear();
 }
 
 void JellyMenu::fixedUpdate() {}
@@ -83,23 +83,23 @@ void JellyMenu::update() {
 	processInput();
 
 	for (int i = 0; i < 6; i++){
-		_world->update(0.004f);
+		m_world->update(0.004f);
 
-		for (size_t i = 0; i < _gameBodies.size(); i++)
-			_gameBodies[i]->Update(0.004f);
+		for (size_t i = 0; i < m_gameBodies.size(); i++)
+			m_gameBodies[i]->Update(0.004f);
 
-		_car->clearForces();
-		_car->update(0.004f);
+		m_car->clearForces();
+		m_car->update(0.004f);
 	}
 
 	//reset car position
-	if (_car->getPosition().Y < _levelManager->GetLevelLine()){
-		Vector2 pos = _levelManager->GetCarStartPos();
+	if (m_car->getPosition().Y < m_levelManager->GetLevelLine()){
+		Vector2 pos = m_levelManager->GetCarStartPos();
 		Vector2 scale = Vector2(1.0f, 1.0f);
 
-		_car->getChassisBody()->setPositionAngle(pos, 0.0f, scale);
-		_car->getTire(0)->setPositionAngle(pos, 0.0f, scale);
-		_car->getTire(1)->setPositionAngle(pos, 0.0f, scale);
+		m_car->getChassisBody()->setPositionAngle(pos, 0.0f, scale);
+		m_car->getTire(0)->setPositionAngle(pos, 0.0f, scale);
+		m_car->getTire(1)->setPositionAngle(pos, 0.0f, scale);
 	}
 }
 
@@ -111,13 +111,13 @@ void JellyMenu::render() {
 	shader->use();
 	Globals::textureManager.get("paper").bind(0);
 
-	for (int y = 0; y < rows; y++){
-		for (int x = 0; x < columns; x++) {
+	for (int y = 0; y < m_rows; y++){
+		for (int x = 0; x < m_columns; x++) {
 
-			int posx = (backWidth * x);
-			int posy = Application::Height - (backHeight * (1 + y));
+			int posx = m_backWidth * x;
+			int posy = Application::Height - m_backHeight * (1 + y);
 
-			shader->loadMatrix("u_transform", Matrix4f::Orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f) * Matrix4f::Translate(static_cast<float>(posx), static_cast<float>(posy), 0.0f) * Matrix4f::Scale(static_cast<float>(backWidth), static_cast<float>(backHeight), 1.0f));
+			shader->loadMatrix("u_transform", Matrix4f::Orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f) * Matrix4f::Translate(static_cast<float>(posx), static_cast<float>(posy), 0.0f) * Matrix4f::Scale(static_cast<float>(m_backWidth), static_cast<float>(m_backHeight), 1.0f));
 			Globals::shapeManager.get("quad_aligned").drawRaw();
 		}
 	}
@@ -126,14 +126,12 @@ void JellyMenu::render() {
 	shader->unuse();
 
 	//menu level
-	for (size_t i = 0; i < _gameBodies.size(); i++){
-		_gameBodies[i]->Draw(_jellyProjection);
+	for (size_t i = 0; i < m_gameBodies.size(); i++){
+		m_gameBodies[i]->Draw(m_jellyProjection);
 	}
 
 	//car
-	_car->Draw(_jellyProjection);
-	
-
+	m_car->Draw(m_jellyProjection);
 
 	shader = Globals::shaderManager.getAssetPointer("quad_array");
 	shader->use();
@@ -154,13 +152,13 @@ void JellyMenu::render() {
 	int posx = Application::Width / 2 - 40 ;
 	int posy = 29;
 	shader->loadMatrix("u_transform", Matrix4f::Orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f) * Matrix4f::Translate(static_cast<float>(posx), static_cast<float>(posy), 0.0f)* Matrix4f::Scale(static_cast<float>(74), static_cast<float>(38), 1.0f));
-	shader->loadVector("u_texRect", Vector4f(239.0f / controlsWidth, (controlsHeight - (194.0f + 38.0f)) / controlsHeight, (239.0f + 74.0f) / controlsWidth, (controlsHeight - 194.0f) / controlsHeight));
+	shader->loadVector("u_texRect", Vector4f(239.0f / m_controlsWidth, (m_controlsHeight - (194.0f + 38.0f)) / m_controlsHeight, (239.0f + 74.0f) / m_controlsWidth, (m_controlsHeight - 194.0f) / m_controlsHeight));
 
 	Globals::shapeManager.get("quad_half").drawRaw();
 
 	posx = Application::Width / 2 + 40 ;
 	shader->loadMatrix("u_transform", Matrix4f::Orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f) * Matrix4f::Translate(static_cast<float>(posx), static_cast<float>(posy), 0.0f)* Matrix4f::Scale(static_cast<float>(74), static_cast<float>(38), 1.0f));
-	shader->loadVector("u_texRect", Vector4f(159.0f/ controlsWidth, (512.0f - (193.0f + 38.0f)) / controlsHeight, (159.0f + 74.0f) / controlsWidth, (controlsHeight - 193.0f) / controlsHeight));
+	shader->loadVector("u_texRect", Vector4f(159.0f/ m_controlsWidth, (512.0f - (193.0f + 38.0f)) / m_controlsHeight, (159.0f + 74.0f) / m_controlsWidth, (m_controlsHeight - 193.0f) / m_controlsHeight));
 
 	Globals::shapeManager.get("quad_half").drawRaw();
 
@@ -171,7 +169,6 @@ void JellyMenu::render() {
 
 	int levelTextPositionY = Application::Height - ( (Application::Height / 2) - 156 - 30);
 
-	
 	const LevelInfo2& levelInfo = SceneManager::Get().getSceneInfo("scene").getCurrentLevelInfo();
 
 	Fontrenderer::Get().addText(Globals::fontManager.get("jelly_64"), static_cast<float>(Application::Width / 2 - Globals::fontManager.get("jelly_64").getWidth(levelInfo.name) / 2), levelTextPositionY, levelInfo.name, Vector4f(0.19f, 0.14f, 0.17f, 1.0f));
@@ -204,8 +201,8 @@ void JellyMenu::OnKeyDown(Event::KeyboardEvent& event) {
 }
 
 void JellyMenu::resize(int deltaW, int deltaH) {
-	columns = ceil(static_cast<float>(Application::Width) / static_cast<float>(backWidth));
-	rows = ceil(static_cast<float>(Application::Height) / static_cast<float>(backHeight));
+	m_columns = ceil(static_cast<float>(Application::Width) / static_cast<float>(m_backWidth));
+	m_rows = ceil(static_cast<float>(Application::Height) / static_cast<float>(m_backHeight));
 }
 
 void JellyMenu::processInput() {
@@ -252,8 +249,8 @@ void JellyMenu::processInput() {
 	if (keyboard.keyPressed(Keyboard::KEY_DOWN)){
 		currentPosition++;
 
-		if (currentPosition >= _sceneFiles.size()){
-			currentPosition = _sceneFiles.size() - 1;
+		if (currentPosition >= m_sceneFiles.size()){
+			currentPosition = m_sceneFiles.size() - 1;
 		}
 		//_audioHelper->PlayHitSound();
 	}
@@ -261,12 +258,12 @@ void JellyMenu::processInput() {
 	if (keyboard.keyPressed(Keyboard::KEY_D)){
 		carcurrentPosition++;
 
-		if (carcurrentPosition >= _carSkins.size()){
-			carcurrentPosition = _carSkins.size() - 1;
+		if (carcurrentPosition >= m_carSkins.size()){
+			carcurrentPosition = m_carSkins.size() - 1;
 		}
 
-		_car->SetChassisTextures(_levelManager->GetCarImage(_carSkins[carcurrentPosition].chassisSmall), _levelManager->GetCarImage(_carSkins[carcurrentPosition].chassisBig));
-		_car->SetTireTextures(_levelManager->GetCarImage(_carSkins[carcurrentPosition].tireSmall), _levelManager->GetCarImage(_carSkins[carcurrentPosition].tireBig));
+		m_car->SetChassisTextures(m_levelManager->GetCarImage(m_carSkins[carcurrentPosition].chassisSmall), m_levelManager->GetCarImage(m_carSkins[carcurrentPosition].chassisBig));
+		m_car->SetTireTextures(m_levelManager->GetCarImage(m_carSkins[carcurrentPosition].tireSmall), m_levelManager->GetCarImage(m_carSkins[carcurrentPosition].tireBig));
 	}
 
 	if (keyboard.keyPressed(Keyboard::KEY_A)){
@@ -276,34 +273,34 @@ void JellyMenu::processInput() {
 			carcurrentPosition = 0;
 		}
 
-		_car->SetChassisTextures(_levelManager->GetCarImage(_carSkins[carcurrentPosition].chassisSmall), _levelManager->GetCarImage(_carSkins[carcurrentPosition].chassisBig));
-		_car->SetTireTextures(_levelManager->GetCarImage(_carSkins[carcurrentPosition].tireSmall), _levelManager->GetCarImage(_carSkins[carcurrentPosition].tireBig));
+		m_car->SetChassisTextures(m_levelManager->GetCarImage(m_carSkins[carcurrentPosition].chassisSmall), m_levelManager->GetCarImage(m_carSkins[carcurrentPosition].chassisBig));
+		m_car->SetTireTextures(m_levelManager->GetCarImage(m_carSkins[carcurrentPosition].tireSmall), m_levelManager->GetCarImage(m_carSkins[carcurrentPosition].tireBig));
 	}
 
 	if (keyboard.keyPressed(Keyboard::KEY_W)){
-		_car->Transform();
+		m_car->Transform();
 	}
 
 	if (!keyboard.keyDown(Keyboard::KEY_LEFT) && !keyboard.keyDown(Keyboard::KEY_RIGHT))
-		_car->setTorque(0);
+		m_car->setTorque(0);
 
 	if (keyboard.keyDown(Keyboard::KEY_LEFT)){
-		_car->setTorque(-1);
+		m_car->setTorque(-1);
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_RIGHT)){
-		_car->setTorque(1);
+		m_car->setTorque(1);
 	}
 
 	//chasis torque
-	_car->mChassis->torque = 0.0f;
+	m_car->mChassis->torque = 0.0f;
 
 	if (keyboard.keyDown(Keyboard::KEY_Q)){
-		_car->mChassis->torque = -1.0f;
+		m_car->mChassis->torque = -1.0f;
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_E)){
-		_car->mChassis->torque = 1.0f;
+		m_car->mChassis->torque = 1.0f;
 	}
 }
 

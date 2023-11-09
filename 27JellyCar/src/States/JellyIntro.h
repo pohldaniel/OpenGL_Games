@@ -25,18 +25,16 @@ public:
 
 private:
 
-	unsigned int backWidth = 0, backHeight = 0;
-	unsigned int columns = 0, rows = 0;
+	unsigned int m_backWidth, m_backHeight;
+	unsigned int m_columns, m_rows;
 
-	std::vector<SkinInfo> _carSkins;
-	LevelManager* _levelManager;
-	std::vector<LevelSoftBody*> _gameBodies;
-	World* _world;
-	Car* _car;
+	std::vector<SkinInfo> m_carSkins;
+	LevelManager* m_levelManager;
+	std::vector<LevelSoftBody*> m_gameBodies;
+	World* m_world;
+	Car* m_car;
 
-	glm::mat4 _jellyProjection;
+	glm::mat4 m_jellyProjection;
 
-	Vector2 _levelTarget;
-	bool _end;
-
+	Vector2 m_levelTarget;
 };

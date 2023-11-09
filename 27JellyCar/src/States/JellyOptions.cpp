@@ -23,18 +23,18 @@ JellyOptions::JellyOptions(StateMachine& machine) : State(machine, States::JELLY
 
 	JellyHellper::Instance()->LoadShaders();
 
-	_world = new World();
+	m_world = new World();
 
-	_levelManager = new LevelManager();
-	_levelManager->SetAssetsLocation("Assets/Jelly/");
-	_levelManager->InitPhysic(_world);
-	_levelManager->LoadCompiledLevel(_world, "options_scene.scene", "");
+	m_levelManager = new LevelManager();
+	m_levelManager->SetAssetsLocation("Assets/Jelly/");
+	m_levelManager->InitPhysic(m_world);
+	m_levelManager->LoadCompiledLevel(m_world, "options_scene.scene", "");
 
 	//level elements
-	_gameBodies = _levelManager->GetLevelBodies();
+	m_gameBodies = m_levelManager->GetLevelBodies();
 
-	_screenBounds = glm::vec4(-20.0f + 0, 0 + 20.0f, -4.2f - 5, -5 + 18.2f);
-	_jellyProjection = glm::ortho(-20.0f + 0, 0 + 20.0f, -4.2f - 5, -5 + 18.2f, -1.0f, 1.0f);
+	m_screenBounds = glm::vec4(-20.0f + 0, 0 + 20.0f, -4.2f - 5, -5 + 18.2f);
+	m_jellyProjection = glm::ortho(-20.0f + 0, 0 + 20.0f, -4.2f - 5, -5 + 18.2f, -1.0f, 1.0f);
 
 	//TileSetManager::Get().getTileSet("options").loadTileSet({
 	//		"Assets/Jelly/Options/credits.png",
@@ -49,58 +49,58 @@ JellyOptions::JellyOptions(StateMachine& machine) : State(machine, States::JELLY
 	//Spritesheet::Safe("Options", m_options);
 
 	//texture test
-	for (size_t i = 0; i < _gameBodies.size(); i++){
-		if (_gameBodies[i]->GetName() == "options_libs"){
-			_gameBodies[i]->SetTexture(&Globals::textureManager.get("libs"));
-			//_gameBodies[i]->SetTextureRect(TileSetManager::Get().getTileSet("options").getTextureRects()[1]);
-			_menuBodies.push_back(_gameBodies[i]);
+	for (size_t i = 0; i < m_gameBodies.size(); i++){
+		if (m_gameBodies[i]->GetName() == "options_libs"){
+			m_gameBodies[i]->SetTexture(&Globals::textureManager.get("libs"));
+			//m_gameBodies[i]->SetTextureRect(TileSetManager::Get().getTileSet("options").getTextureRects()[1]);
+			m_menuBodies.push_back(m_gameBodies[i]);
 		}
 
-		if (_gameBodies[i]->GetName() == "options_credits"){
-			_gameBodies[i]->SetTexture(&Globals::textureManager.get("credits"));
-			//_gameBodies[i]->SetTextureRect(TileSetManager::Get().getTileSet("options").getTextureRects()[0]);
-			_menuBodies.push_back(_gameBodies[i]);
+		if (m_gameBodies[i]->GetName() == "options_credits"){
+			m_gameBodies[i]->SetTexture(&Globals::textureManager.get("credits"));
+			//m_gameBodies[i]->SetTextureRect(TileSetManager::Get().getTileSet("options").getTextureRects()[0]);
+			m_menuBodies.push_back(m_gameBodies[i]);
 		}
 
-		if (_gameBodies[i]->GetName() == "options_keys"){
-			_gameBodies[i]->SetTexture(&Globals::textureManager.get("gamepad"));
-			//_gameBodies[i]->SetTextureRect(TileSetManager::Get().getTileSet("options").getTextureRects()[2]);
-			_menuBodies.push_back(_gameBodies[i]);
+		if (m_gameBodies[i]->GetName() == "options_keys"){
+			m_gameBodies[i]->SetTexture(&Globals::textureManager.get("gamepad"));
+			//m_gameBodies[i]->SetTextureRect(TileSetManager::Get().getTileSet("options").getTextureRects()[2]);
+			m_menuBodies.push_back(m_gameBodies[i]);
 		}
 
-		if (_gameBodies[i]->GetName() == "options_sound"){
-			_gameBodies[i]->SetTexture(&Globals::textureManager.get("volume"));
-			//_gameBodies[i]->SetTextureRect(TileSetManager::Get().getTileSet("options").getTextureRects()[5]);
-			_menuBodies.push_back(_gameBodies[i]);
+		if (m_gameBodies[i]->GetName() == "options_sound"){
+			m_gameBodies[i]->SetTexture(&Globals::textureManager.get("volume"));
+			//m_gameBodies[i]->SetTextureRect(TileSetManager::Get().getTileSet("options").getTextureRects()[5]);
+			m_menuBodies.push_back(m_gameBodies[i]);
 		}
 
-		if (_gameBodies[i]->GetName() == "options_secret"){
-			_gameBodies[i]->SetTexture(&Globals::textureManager.get("secret"));
-			//_gameBodies[i]->SetTextureRect(TileSetManager::Get().getTileSet("options").getTextureRects()[4]);
-			_menuBodies.push_back(_gameBodies[i]);
+		if (m_gameBodies[i]->GetName() == "options_secret"){
+			m_gameBodies[i]->SetTexture(&Globals::textureManager.get("secret"));
+			//m_gameBodies[i]->SetTextureRect(TileSetManager::Get().getTileSet("options").getTextureRects()[4]);
+			m_menuBodies.push_back(m_gameBodies[i]);
 		}
 	}
 
-	_menuBodySelected = 0;
-	_alphaScale = 1.0f;
+	m_menuBodySelected = 0;
+	m_alphaScale = 1.0f;
 
-	dragBody = NULL;
+	m_dragBody = NULL;
 }
 
 JellyOptions::~JellyOptions() {
 	EventDispatcher::RemoveKeyboardListener(this);
 
-	if (_levelManager != 0) {
+	if (m_levelManager != 0) {
 		//clear level
-		_levelManager->ClearLevel(_world);
+		m_levelManager->ClearLevel(m_world);
 
 		//remove level manager
-		delete _levelManager;
+		delete m_levelManager;
 	}
 
 	//remove physic world
-	delete _world;
-	_gameBodies.clear();
+	delete m_world;
+	m_gameBodies.clear();
 }
 
 void JellyOptions::OnKeyDown(Event::KeyboardEvent& event) {	
@@ -130,18 +130,18 @@ void JellyOptions::processInput() {
 
 	//keys
 	if (keyboard.keyPressed(Keyboard::KEY_LEFT)){
-		_menuBodySelected--;
+		m_menuBodySelected--;
 
-		if (_menuBodySelected < 0){
-			_menuBodySelected = 0;
+		if (m_menuBodySelected < 0){
+			m_menuBodySelected = 0;
 		}
 	}
 
 	//move down
 	if (keyboard.keyPressed(Keyboard::KEY_RIGHT)){
-		_menuBodySelected++;
-		if (_menuBodySelected > _menuBodies.size() - 1){
-			_menuBodySelected = _menuBodies.size() - 1;
+		m_menuBodySelected++;
+		if (m_menuBodySelected > m_menuBodies.size() - 1){
+			m_menuBodySelected = m_menuBodies.size() - 1;
 		}
 	}
 
@@ -153,36 +153,36 @@ void JellyOptions::processInput() {
 		//dragX = touch.x;
 		//dragY = touch.y;
 
-		touchF = true;
+		m_touchF = true;
 	}else{
 		//testtouch = glm::vec2(0.0f, 0.0f);
-		touchF = false;
+		m_touchF = false;
 	}
 
-	if (touchF == true){
-		if (dragBody != NULL){
-			PointMass *pm = dragBody->getPointMass(dragPoint);
-			dragBody->setDragForce(VectorTools::calculateSpringForce(pm->Position, pm->Velocity, Vector2(dragX, dragY), Vector2(0, 0), 0.0f, 100.0f, 10.0f), dragPoint);
+	if (m_touchF == true){
+		if (m_dragBody != NULL){
+			PointMass *pm = m_dragBody->getPointMass(m_dragPoint);
+			m_dragBody->setDragForce(VectorTools::calculateSpringForce(pm->Position, pm->Velocity, Vector2(m_dragX, m_dragY), Vector2(0, 0), 0.0f, 100.0f, 10.0f), m_dragPoint);
 		}
 	}else{
-		dragBody = NULL;
-		dragPoint = -1;
+		m_dragBody = NULL;
+		m_dragPoint = -1;
 	}
 
 	if(keyboard.keyPressed(Keyboard::KEY_S)){
 
-		if (_menuBodies[_menuBodySelected]->GetName() == "options_libs"){
-			_alphaScale = 1.0f;
+		if (m_menuBodies[m_menuBodySelected]->GetName() == "options_libs"){
+			m_alphaScale = 1.0f;
 			addStateAtTop(new JellyOptionLib(*this));
-		}else if (_menuBodies[_menuBodySelected]->GetName() == "options_credits"){
-			_alphaScale = 1.0f;
+		}else if (m_menuBodies[m_menuBodySelected]->GetName() == "options_credits"){
+			m_alphaScale = 1.0f;
 			addStateAtTop(new JellyOptionCredit(*this));
-		}else if (_menuBodies[_menuBodySelected]->GetName() == "options_keys"){
-			_alphaScale = 1.0f;
+		}else if (m_menuBodies[m_menuBodySelected]->GetName() == "options_keys"){
+			m_alphaScale = 1.0f;
 
 			addStateAtTop(new JellyOptionControl(*this));
-		}else if (_menuBodies[_menuBodySelected]->GetName() == "options_sound"){
-			_alphaScale = 1.0f;
+		}else if (m_menuBodies[m_menuBodySelected]->GetName() == "options_sound"){
+			m_alphaScale = 1.0f;
 			addStateAtTop(new JellyOptionSound(*this));
 		}
 	}
@@ -229,21 +229,21 @@ void JellyOptions::update() {
 
 		//Update physic
 		for (int i = 0; i < 6; i++) {
-			_world->update(0.004f);
+			m_world->update(0.004f);
 
-			for (size_t i = 0; i < _gameBodies.size(); i++)
-				_gameBodies[i]->Update(0.004f);
+			for (size_t i = 0; i < m_gameBodies.size(); i++)
+				m_gameBodies[i]->Update(0.004f);
 		}
 
 		//update alpha scale
-		_alphaScale += (_scaleFactor  * m_dt);
+		m_alphaScale += (m_scaleFactor  * m_dt);
 
-		if (_alphaScale > 1.0f) {
-				_scaleFactor = -2.0f;
+		if (m_alphaScale > 1.0f) {
+			m_scaleFactor = -2.0f;
 		}
 
-		if (_alphaScale < 0.0f) {
-				_scaleFactor = 2.0f;
+		if (m_alphaScale < 0.0f) {
+			m_scaleFactor = 2.0f;
 		}		
 	}
 }
@@ -271,9 +271,9 @@ void JellyOptions::renderBackground() {
 
 void JellyOptions::renderLevel() {
 	//menu level
-	for (size_t i = 0; i < _gameBodies.size(); i++) {
-		if (_gameBodies[i]->GetBody()->getIsStatic()) {
-			_gameBodies[i]->Draw(_jellyProjection);
+	for (size_t i = 0; i < m_gameBodies.size(); i++) {
+		if (m_gameBodies[i]->GetBody()->getIsStatic()) {
+			m_gameBodies[i]->Draw(m_jellyProjection);
 		}
 	}
 }
@@ -301,16 +301,16 @@ void JellyOptions::render() {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		renderBackground();
 
-		for (size_t i = 0; i < _gameBodies.size(); i++) {
-			_gameBodies[i]->SetLineColor(glm::vec4(0, 0, 0, 1.0f));
+		for (size_t i = 0; i < m_gameBodies.size(); i++) {
+			m_gameBodies[i]->SetLineColor(glm::vec4(0, 0, 0, 1.0f));
 		}
 
 		//set alpha value for selected menu
-		_menuBodies[_menuBodySelected]->SetLineColor(glm::vec4(0, 0, 1, _alphaScale));
+		m_menuBodies[m_menuBodySelected]->SetLineColor(glm::vec4(0, 0, 1, m_alphaScale));
 
 		//menu level
-		for (size_t i = 0; i < _gameBodies.size(); i++) {
-			_gameBodies[i]->Draw(_jellyProjection);
+		for (size_t i = 0; i < m_gameBodies.size(); i++) {
+			m_gameBodies[i]->Draw(m_jellyProjection);
 		}
 
 		renderControls();
@@ -333,9 +333,9 @@ void JellyOptionState::resize(int deltaW, int deltaH) {
 }
 
 JellyOptionLib::JellyOptionLib(JellyOptions& machine) : JellyOptionState(machine) {
-	centerX = Application::Width / 2;
-	_libsPosition = Application::Height - (Application::Height * 0.08f);
-	_libs.clear();
+	m_centerX = Application::Width / 2;
+	m_libsPosition = Application::Height - (Application::Height * 0.08f);
+	m_libs.clear();
 
 	initLibs();
 }
@@ -347,17 +347,17 @@ void JellyOptionLib::fixedUpdate() {
 void JellyOptionLib::update() {
 	processInput();
 
-	_libsPosition -= (m_machine.m_dt * 40);
+	m_libsPosition -= (m_machine.m_dt * 40);
 
 	bool reset = true;
-	for (size_t i = 0; i < _libs.size(); i++) {
-		if (_libs[i].StartPosition + _libsPosition >(Application::Width * 0.13f)){
+	for (size_t i = 0; i < m_libs.size(); i++) {
+		if (m_libs[i].StartPosition + m_libsPosition >(Application::Width * 0.13f)){
 			reset = false;
 		}
 	}
 
 	if (reset){
-		_libsPosition = Application::Height - (Application::Height * 0.08f);;
+		m_libsPosition = Application::Height - (Application::Height * 0.08f);;
 	}
 }
 
@@ -372,11 +372,11 @@ void JellyOptionLib::render() {
 	Fontrenderer::Get().addText(Globals::fontManager.get("jelly_64"), static_cast<float>(Application::Width / 2 - Globals::fontManager.get("jelly_64").getWidth("Libs") / 2), static_cast<float>(Application::Height - 87), "Libs", Vector4f(0.19f, 0.14f, 0.17f, 1.0f));
 	Fontrenderer::Get().addText(Globals::fontManager.get("jelly_64"), static_cast<float>(Application::Width / 2 - Globals::fontManager.get("jelly_64").getWidth("Libs") / 2), static_cast<float>(Application::Height - 85), "Libs", Vector4f(1.0f, 0.65f, 0.0f, 1.0f));
 
-	for (size_t i = 0; i < _libs.size(); i++){
-		if (_libs[i].StartPosition + _libsPosition  >(Application::Width * 0.13f) && _libs[i].StartPosition + _libsPosition < (Application::Height - (Application::Height * 0.08f))){
+	for (size_t i = 0; i < m_libs.size(); i++){
+		if (m_libs[i].StartPosition + m_libsPosition  >(Application::Width * 0.13f) && m_libs[i].StartPosition + m_libsPosition < (Application::Height - (Application::Height * 0.08f))){
 
-			Fontrenderer::Get().addText(Globals::fontManager.get("jelly_32"), static_cast<float>(centerX - Globals::fontManager.get("jelly_32").getWidth(_libs[i].Content) / 2), static_cast<float>(Application::Height - (_libs[i].StartPosition + _libsPosition)), _libs[i].Content, Vector4f(0.19f, 0.14f, 0.17f, 1.0f));
-			Fontrenderer::Get().addText(Globals::fontManager.get("jelly_32"), static_cast<float>(centerX - Globals::fontManager.get("jelly_32").getWidth(_libs[i].Content) / 2), static_cast<float>(Application::Height - (_libs[i].StartPosition - 2 + _libsPosition)), _libs[i].Content, Vector4f(1.0f, 0.65f, 0.0f, 1.0f));
+			Fontrenderer::Get().addText(Globals::fontManager.get("jelly_32"), static_cast<float>(m_centerX - Globals::fontManager.get("jelly_32").getWidth(m_libs[i].Content) / 2), static_cast<float>(Application::Height - (m_libs[i].StartPosition + m_libsPosition)), m_libs[i].Content, Vector4f(0.19f, 0.14f, 0.17f, 1.0f));
+			Fontrenderer::Get().addText(Globals::fontManager.get("jelly_32"), static_cast<float>(m_centerX - Globals::fontManager.get("jelly_32").getWidth(m_libs[i].Content) / 2), static_cast<float>(Application::Height - (m_libs[i].StartPosition - 2 + m_libsPosition)), m_libs[i].Content, Vector4f(1.0f, 0.65f, 0.0f, 1.0f));
 		}
 	}
 
@@ -403,34 +403,34 @@ void JellyOptionLib::processInput() {
 
 void JellyOptionLib::resize(int deltaW, int deltaH) {
 	JellyOptionState::resize(deltaW, deltaH);
-	centerX = Application::Width / 2;
-	_libsPosition = Application::Height - (Application::Height * 0.08f);
+	m_centerX = Application::Width / 2;
+	m_libsPosition = Application::Height - (Application::Height * 0.08f);
 }
 
 void JellyOptionLib::initLibs() {
-	_libs.push_back(Text("Libs used for PC/Vita/Switch", 0));
-	_libs.push_back(Text("freetype", 82));
-	_libs.push_back(Text("freetype_gl", 142));
-	_libs.push_back(Text("glad", 202));
-	_libs.push_back(Text("glew", 262));
-	_libs.push_back(Text("glfw", 322));
-	_libs.push_back(Text("glm", 382));
-	_libs.push_back(Text("irrKlang", 442));
-	_libs.push_back(Text("JellyPhysics", 502));
-	_libs.push_back(Text("ogg", 562));
-	_libs.push_back(Text("SDL2", 622));
-	_libs.push_back(Text("stb", 682));
-	_libs.push_back(Text("speexdsp", 742));
-	_libs.push_back(Text("tinyxml", 802));
-	_libs.push_back(Text("vorbisfile", 862));
-	_libs.push_back(Text("vorbisenc", 922));
-	_libs.push_back(Text("vorbis", 9802));
+	m_libs.push_back(Text("Libs used for PC/Vita/Switch", 0));
+	m_libs.push_back(Text("freetype", 82));
+	m_libs.push_back(Text("freetype_gl", 142));
+	m_libs.push_back(Text("glad", 202));
+	m_libs.push_back(Text("glew", 262));
+	m_libs.push_back(Text("glfw", 322));
+	m_libs.push_back(Text("glm", 382));
+	m_libs.push_back(Text("irrKlang", 442));
+	m_libs.push_back(Text("JellyPhysics", 502));
+	m_libs.push_back(Text("ogg", 562));
+	m_libs.push_back(Text("SDL2", 622));
+	m_libs.push_back(Text("stb", 682));
+	m_libs.push_back(Text("speexdsp", 742));
+	m_libs.push_back(Text("tinyxml", 802));
+	m_libs.push_back(Text("vorbisfile", 862));
+	m_libs.push_back(Text("vorbisenc", 922));
+	m_libs.push_back(Text("vorbis", 9802));
 }
 
 JellyOptionCredit::JellyOptionCredit(JellyOptions& machine) : JellyOptionState(machine) {
-	centerX = Application::Width / 2;
-	_creditsPosition = Application::Height - (Application::Height * 0.08f);
-	_credits.clear();
+	m_centerX = Application::Width / 2;
+	m_creditsPosition = Application::Height - (Application::Height * 0.08f);
+	m_credits.clear();
 	initCredits();
 }
 
@@ -439,17 +439,17 @@ void JellyOptionCredit::fixedUpdate() {}
 void JellyOptionCredit::update() {
 	processInput();
 
-	_creditsPosition -= (m_machine.m_dt * 40);
+	m_creditsPosition -= (m_machine.m_dt * 40);
 
 	bool reset = true;
-	for (size_t i = 0; i < _credits.size(); i++){
-		if (_credits[i].StartPosition + _creditsPosition >(Application::Width * 0.13f)){
+	for (size_t i = 0; i < m_credits.size(); i++){
+		if (m_credits[i].StartPosition + m_creditsPosition >(Application::Width * 0.13f)){
 			reset = false;
 		}
 	}
 
 	if (reset){
-		_creditsPosition = Application::Height - (Application::Height * 0.08f);;
+		m_creditsPosition = Application::Height - (Application::Height * 0.08f);;
 	}
 }
 
@@ -464,10 +464,10 @@ void JellyOptionCredit::render() {
 	Fontrenderer::Get().addText(Globals::fontManager.get("jelly_64"), static_cast<float>(Application::Width / 2 - Globals::fontManager.get("jelly_64").getWidth("Credits") / 2), static_cast<float>(Application::Height - 87), "Credits", Vector4f(0.19f, 0.14f, 0.17f, 1.0f));
 	Fontrenderer::Get().addText(Globals::fontManager.get("jelly_64"), static_cast<float>(Application::Width / 2 - Globals::fontManager.get("jelly_64").getWidth("Credits") / 2), static_cast<float>(Application::Height - 85), "Credits", Vector4f(1.0f, 0.65f, 0.0f, 1.0f));
 
-	for (size_t i = 0; i < _credits.size(); i++){
-		if (_credits[i].StartPosition + _creditsPosition  >(Application::Width * 0.13f) && _credits[i].StartPosition + _creditsPosition < (Application::Height - (Application::Height * 0.08f))){
-			Fontrenderer::Get().addText(Globals::fontManager.get("jelly_32"), static_cast<float>(centerX - Globals::fontManager.get("jelly_32").getWidth(_credits[i].Content) / 2), static_cast<float>(Application::Height - (_credits[i].StartPosition + _creditsPosition)), _credits[i].Content, Vector4f(0.19f, 0.14f, 0.17f, 1.0f));
-			Fontrenderer::Get().addText(Globals::fontManager.get("jelly_32"), static_cast<float>(centerX - Globals::fontManager.get("jelly_32").getWidth(_credits[i].Content) / 2), static_cast<float>(Application::Height - (_credits[i].StartPosition - 2 + _creditsPosition)), _credits[i].Content, Vector4f(1.0f, 0.65f, 0.0f, 1.0f));
+	for (size_t i = 0; i < m_credits.size(); i++){
+		if (m_credits[i].StartPosition + m_creditsPosition  >(Application::Width * 0.13f) && m_credits[i].StartPosition + m_creditsPosition < (Application::Height - (Application::Height * 0.08f))){
+			Fontrenderer::Get().addText(Globals::fontManager.get("jelly_32"), static_cast<float>(m_centerX - Globals::fontManager.get("jelly_32").getWidth(m_credits[i].Content) / 2), static_cast<float>(Application::Height - (m_credits[i].StartPosition + m_creditsPosition)), m_credits[i].Content, Vector4f(0.19f, 0.14f, 0.17f, 1.0f));
+			Fontrenderer::Get().addText(Globals::fontManager.get("jelly_32"), static_cast<float>(m_centerX - Globals::fontManager.get("jelly_32").getWidth(m_credits[i].Content) / 2), static_cast<float>(Application::Height - (m_credits[i].StartPosition - 2 + m_creditsPosition)), m_credits[i].Content, Vector4f(1.0f, 0.65f, 0.0f, 1.0f));
 		}
 	}
 
@@ -493,53 +493,52 @@ void JellyOptionCredit::processInput() {
 
 void JellyOptionCredit::resize(int deltaW, int deltaH) {
 	JellyOptionState::resize(deltaW, deltaH);
-	centerX = Application::Width / 2;
-	_creditsPosition = Application::Height - (Application::Height * 0.08f);
+	m_centerX = Application::Width / 2;
+	m_creditsPosition = Application::Height - (Application::Height * 0.08f);
 }
 
 void JellyOptionCredit::initCredits() {
-	_credits.push_back(Text("Thanks", 0));
-	_credits.push_back(Text("Walaber for original game", 82));
-	_credits.push_back(Text("Shadow for car skins", 142));
-	_credits.push_back(Text("Ruben Wolfe, SMOKE, TheFloW", 202));
-	_credits.push_back(Text("for support and testing", 242));
-	_credits.push_back(Text("Rinnegatamante and EasyRPG Team", 302));
-	_credits.push_back(Text("for the Audio Decoder used for Vita sound module", 342));
-	_credits.push_back(Text("St3f  for splash screen", 402));
-	_credits.push_back(Text("Team Molecule for HENkaku", 462));
-	_credits.push_back(Text("Everybody who contributed to vitasdk", 522));
-	_credits.push_back(Text("Switchbrew team", 582));
-	_credits.push_back(Text("Everybody who contributed to libnx", 642));
+	m_credits.push_back(Text("Thanks", 0));
+	m_credits.push_back(Text("Walaber for original game", 82));
+	m_credits.push_back(Text("Shadow for car skins", 142));
+	m_credits.push_back(Text("Ruben Wolfe, SMOKE, TheFloW", 202));
+	m_credits.push_back(Text("for support and testing", 242));
+	m_credits.push_back(Text("Rinnegatamante and EasyRPG Team", 302));
+	m_credits.push_back(Text("for the Audio Decoder used for Vita sound module", 342));
+	m_credits.push_back(Text("St3f  for splash screen", 402));
+	m_credits.push_back(Text("Team Molecule for HENkaku", 462));
+	m_credits.push_back(Text("Everybody who contributed to vitasdk", 522));
+	m_credits.push_back(Text("Switchbrew team", 582));
+	m_credits.push_back(Text("Everybody who contributed to libnx", 642));
 }
 
-
 JellyOptionControl::JellyOptionControl(JellyOptions& machine) : JellyOptionState(machine) {
-	_carActions.clear();
-	_actionTranslation.clear();
+	m_carActions.clear();
+	m_actionTranslation.clear();
 	initActionNames();
 
-	_carKeyboardMapping.insert(std::pair<CarAction, Keyboard::Key>(CarAction::Left, Keyboard::Key::KEY_LEFT));
-	_carKeyboardMapping.insert(std::pair<CarAction, Keyboard::Key>(CarAction::Right, Keyboard::Key::KEY_RIGHT));
+	m_carKeyboardMapping.insert(std::pair<CarAction, Keyboard::Key>(CarAction::Left, Keyboard::Key::KEY_LEFT));
+	m_carKeyboardMapping.insert(std::pair<CarAction, Keyboard::Key>(CarAction::Right, Keyboard::Key::KEY_RIGHT));
 
-	_carKeyboardMapping.insert(std::pair<CarAction, Keyboard::Key>(CarAction::Transform, Keyboard::Key::KEY_S));
-	_carKeyboardMapping.insert(std::pair<CarAction, Keyboard::Key>(CarAction::Ballon, Keyboard::Key::KEY_D));
-	_carKeyboardMapping.insert(std::pair<CarAction, Keyboard::Key>(CarAction::Tire, Keyboard::Key::KEY_A));
-	_carKeyboardMapping.insert(std::pair<CarAction, Keyboard::Key>(CarAction::Map, Keyboard::Key::KEY_W));
+	m_carKeyboardMapping.insert(std::pair<CarAction, Keyboard::Key>(CarAction::Transform, Keyboard::Key::KEY_S));
+	m_carKeyboardMapping.insert(std::pair<CarAction, Keyboard::Key>(CarAction::Ballon, Keyboard::Key::KEY_D));
+	m_carKeyboardMapping.insert(std::pair<CarAction, Keyboard::Key>(CarAction::Tire, Keyboard::Key::KEY_A));
+	m_carKeyboardMapping.insert(std::pair<CarAction, Keyboard::Key>(CarAction::Map, Keyboard::Key::KEY_W));
 
-	_carKeyboardMapping.insert(std::pair<CarAction, Keyboard::Key>(CarAction::RotateLeft, Keyboard::Key::KEY_Q));
-	_carKeyboardMapping.insert(std::pair<CarAction, Keyboard::Key>(CarAction::RotateRight, Keyboard::Key::KEY_E));
+	m_carKeyboardMapping.insert(std::pair<CarAction, Keyboard::Key>(CarAction::RotateLeft, Keyboard::Key::KEY_Q));
+	m_carKeyboardMapping.insert(std::pair<CarAction, Keyboard::Key>(CarAction::RotateRight, Keyboard::Key::KEY_E));
 
 	loadSettings("JellyKeySettings.xml");
 
-	centerX = Application::Width / 2;
-	_alphaScale = 1.0f;
-	_scaleFactor = 0.01f;
+	m_centerX = Application::Width / 2;
+	m_alphaScale = 1.0f;
+	m_scaleFactor = 0.01f;
 
-	_changeBinding = false;
-	_selctedPosition = 0;
+	m_changeBinding = false;
+	m_selctedPosition = 0;
 
-	controlsWidth = static_cast<float>(Globals::textureManager.get("controls").getWidth());
-	controlsHeight = static_cast<float>(Globals::textureManager.get("controls").getHeight());
+	m_controlsWidth = static_cast<float>(Globals::textureManager.get("controls").getWidth());
+	m_controlsHeight = static_cast<float>(Globals::textureManager.get("controls").getHeight());
 }
 
 JellyOptionControl::~JellyOptionControl() {
@@ -551,14 +550,14 @@ void JellyOptionControl::fixedUpdate() {}
 void JellyOptionControl::update() {
 	processInput();
 
-	_alphaScale += (_scaleFactor  * m_machine.m_dt);
+	m_alphaScale += (m_scaleFactor  * m_machine.m_dt);
 
-	if (_alphaScale > 1.0f){
-		_scaleFactor = -2.0f;
+	if (m_alphaScale > 1.0f){
+		m_scaleFactor = -2.0f;
 	}
 
-	if (_alphaScale < 0.0f){
-		_scaleFactor = 2.0f;
+	if (m_alphaScale < 0.0f){
+		m_scaleFactor = 2.0f;
 	}
 }
 
@@ -574,94 +573,89 @@ void JellyOptionControl::render() {
 	int step = 45;
 
 	const Texture& back = Globals::textureManager.get("bar_blue");
-	Vector3f pos = _selctedPosition < 4 ? Vector3f(centerX - 145, startPosition - 20 + (_selctedPosition * step), 0.0f) : Vector3f(centerX + 145, startPosition - 20 + (_selctedPosition * step) - (step * 4), 0.0f);
+	Vector3f pos = m_selctedPosition < 4 ? Vector3f(m_centerX - 145, startPosition - 20 + (m_selctedPosition * step), 0.0f) : Vector3f(m_centerX + 145, startPosition - 20 + (m_selctedPosition * step) - (step * 4), 0.0f);
 
 	
 	auto shader = Globals::shaderManager.getAssetPointer("quad");
 	shader->use();
 	shader->loadMatrix("u_transform", m_orthographic * Matrix4f::Translate(pos) * Matrix4f::Scale(static_cast<float>(back.getWidth()) * 0.53f, static_cast<float>(back.getHeight()) * 1.1f, 1.0f));
 	shader->loadVector("u_texRect", Vector4f(0.0f, 0.0f, 1.0f, 1.0f));
-	shader->loadVector("u_color", Vector4f(1.0f, 1.0f, 1.0f, _changeBinding ? _alphaScale : 1.0f));
+	shader->loadVector("u_color", Vector4f(1.0f, 1.0f, 1.0f, m_changeBinding ? m_alphaScale : 1.0f));
 
 	back.bind(0);
 	Globals::shapeManager.get("quad_half").drawRaw();
 	back.unbind();
 
 	shader->loadVector("u_color", Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
-	//shader->unuse();
 	
-	
-	//shader = Globals::shaderManager.getAssetPointer("quad");
-	//shader->use();
-
 	Globals::textureManager.get("controls").bind(0);
 
 	int startY = startPosition + 85;
 	//R-Trigger
-	if (!(_changeBinding && _selctedPosition == 3)){
-		shader->loadMatrix("u_transform", m_orthographic * Matrix4f::Translate(static_cast<float>(centerX - 50), static_cast<float>(Application::Height - startY), 0.0f) * Matrix4f::Scale(128.0f * 0.5f, 60.0f * 0.5f, 1.0f));
-		shader->loadVector("u_texRect", Vector4f(369.0f / controlsWidth, (controlsHeight - (11.0f + 60.0f)) / controlsHeight, (369.0f + 128.0f) / controlsWidth, (controlsHeight - 11.0f) / controlsHeight));
+	if (!(m_changeBinding && m_selctedPosition == 3)){
+		shader->loadMatrix("u_transform", m_orthographic * Matrix4f::Translate(static_cast<float>(m_centerX - 50), static_cast<float>(Application::Height - startY), 0.0f) * Matrix4f::Scale(128.0f * 0.5f, 60.0f * 0.5f, 1.0f));
+		shader->loadVector("u_texRect", Vector4f(369.0f / m_controlsWidth, (m_controlsHeight - (11.0f + 60.0f)) / m_controlsHeight, (369.0f + 128.0f) / m_controlsWidth, (m_controlsHeight - 11.0f) / m_controlsHeight));
 
 		Globals::shapeManager.get("quad_half").drawRaw();
 	}
 
 	startY += step;
 	//L-Triggert
-	if (!(_changeBinding && _selctedPosition == 2)) {
-		shader->loadMatrix("u_transform", m_orthographic * Matrix4f::Translate(static_cast<float>(centerX - 50), static_cast<float>(Application::Height - startY), 0.0f) * Matrix4f::Scale(128.0f* 0.5f, 60.0f * 0.5f, 1.0f));
-		shader->loadVector("u_texRect", Vector4f(6.0f / controlsWidth, (controlsHeight - (87.0f + 60.0f)) / controlsHeight, (6.0f + 128.0f) / controlsWidth, (controlsHeight - 87.0f) / controlsHeight));
+	if (!(m_changeBinding && m_selctedPosition == 2)) {
+		shader->loadMatrix("u_transform", m_orthographic * Matrix4f::Translate(static_cast<float>(m_centerX - 50), static_cast<float>(Application::Height - startY), 0.0f) * Matrix4f::Scale(128.0f* 0.5f, 60.0f * 0.5f, 1.0f));
+		shader->loadVector("u_texRect", Vector4f(6.0f / m_controlsWidth, (m_controlsHeight - (87.0f + 60.0f)) / m_controlsHeight, (6.0f + 128.0f) / m_controlsWidth, (m_controlsHeight - 87.0f) / m_controlsHeight));
 
 		Globals::shapeManager.get("quad_half").drawRaw();
 	}
 
 	startY += step;
 	//Right
-	if (!(_changeBinding && _selctedPosition == 1)) {
-		shader->loadMatrix("u_transform", m_orthographic * Matrix4f::Translate(static_cast<float>(centerX - 50), static_cast<float>(Application::Height - startY), 0.0f) * Matrix4f::Scale(88.0f * 0.4f, 68.0f * 0.4f, 1.0f));
-		shader->loadVector("u_texRect", Vector4f(413.0f / controlsWidth, (controlsHeight - (82.0f + 68.0f)) / controlsHeight, (413.0f + 88.0f) / controlsWidth, (controlsHeight - 82.0f) / controlsHeight));
+	if (!(m_changeBinding && m_selctedPosition == 1)) {
+		shader->loadMatrix("u_transform", m_orthographic * Matrix4f::Translate(static_cast<float>(m_centerX - 50), static_cast<float>(Application::Height - startY), 0.0f) * Matrix4f::Scale(88.0f * 0.4f, 68.0f * 0.4f, 1.0f));
+		shader->loadVector("u_texRect", Vector4f(413.0f / m_controlsWidth, (m_controlsHeight - (82.0f + 68.0f)) / m_controlsHeight, (413.0f + 88.0f) / m_controlsWidth, (m_controlsHeight - 82.0f) / m_controlsHeight));
 
 		Globals::shapeManager.get("quad_half").drawRaw();
 	}
 
 	startY += step;
 	//Left
-	if (!(_changeBinding && _selctedPosition == 0)) {
-		shader->loadMatrix("u_transform", m_orthographic * Matrix4f::Translate(static_cast<float>(centerX - 50), static_cast<float>(Application::Height - startY), 0.0f) * Matrix4f::Scale(88.0f * 0.4f, 68.0f * 0.4f, 1.0f));
-		shader->loadVector("u_texRect", Vector4f(313.0f / controlsWidth, (controlsHeight - (88.0f + 68.0f)) / controlsHeight, (313.0f + 88.0f) / controlsWidth, (controlsHeight - 88.0f) / controlsHeight));
+	if (!(m_changeBinding && m_selctedPosition == 0)) {
+		shader->loadMatrix("u_transform", m_orthographic * Matrix4f::Translate(static_cast<float>(m_centerX - 50), static_cast<float>(Application::Height - startY), 0.0f) * Matrix4f::Scale(88.0f * 0.4f, 68.0f * 0.4f, 1.0f));
+		shader->loadVector("u_texRect", Vector4f(313.0f / m_controlsWidth, (m_controlsHeight - (88.0f + 68.0f)) / m_controlsHeight, (313.0f + 88.0f) / m_controlsWidth, (m_controlsHeight - 88.0f) / m_controlsHeight));
 
 		Globals::shapeManager.get("quad_half").drawRaw();
 	}
 	
 	startY = startPosition + 85;
 	//Triangle
-	if (!(_changeBinding && _selctedPosition == 7)) {
-		shader->loadMatrix("u_transform", m_orthographic * Matrix4f::Translate(static_cast<float>(centerX + 50), static_cast<float>(Application::Height - startY), 0.0f) * Matrix4f::Scale(78.0f * 0.4f, 78.0f * 0.4f, 1.0f));
-		shader->loadVector("u_texRect", Vector4f(17.0f / controlsWidth, (controlsHeight - (5.0f + 78.0f)) / controlsHeight, (17.0f + 78.0f) / controlsWidth, (controlsHeight - 5.0f) / controlsHeight));
+	if (!(m_changeBinding && m_selctedPosition == 7)) {
+		shader->loadMatrix("u_transform", m_orthographic * Matrix4f::Translate(static_cast<float>(m_centerX + 50), static_cast<float>(Application::Height - startY), 0.0f) * Matrix4f::Scale(78.0f * 0.4f, 78.0f * 0.4f, 1.0f));
+		shader->loadVector("u_texRect", Vector4f(17.0f / m_controlsWidth, (m_controlsHeight - (5.0f + 78.0f)) / m_controlsHeight, (17.0f + 78.0f) / m_controlsWidth, (m_controlsHeight - 5.0f) / m_controlsHeight));
 
 		Globals::shapeManager.get("quad_half").drawRaw();
 	}
 
 	startY += step;
 	//Square
-	if (!(_changeBinding && _selctedPosition == 6)) {
-		shader->loadMatrix("u_transform", m_orthographic * Matrix4f::Translate(static_cast<float>(centerX + 50), static_cast<float>(Application::Height - startY), 0.0f) * Matrix4f::Scale(78.0f * 0.4f, 78.0f * 0.4f, 1.0f));
-		shader->loadVector("u_texRect", Vector4f(273.0f / controlsWidth, (controlsHeight - (5.0f + 78.0f)) / controlsHeight, (273.0f + 78.0f) / controlsWidth, (controlsHeight - 5.0f) / controlsHeight));
+	if (!(m_changeBinding && m_selctedPosition == 6)) {
+		shader->loadMatrix("u_transform", m_orthographic * Matrix4f::Translate(static_cast<float>(m_centerX + 50), static_cast<float>(Application::Height - startY), 0.0f) * Matrix4f::Scale(78.0f * 0.4f, 78.0f * 0.4f, 1.0f));
+		shader->loadVector("u_texRect", Vector4f(273.0f / m_controlsWidth, (m_controlsHeight - (5.0f + 78.0f)) / m_controlsHeight, (273.0f + 78.0f) / m_controlsWidth, (m_controlsHeight - 5.0f) / m_controlsHeight));
 
 		Globals::shapeManager.get("quad_half").drawRaw();
 	}
 	startY += step;
 	//Circle
-	if (!(_changeBinding && _selctedPosition == 5)) {
-		shader->loadMatrix("u_transform", m_orthographic * Matrix4f::Translate(static_cast<float>(centerX + 50), static_cast<float>(Application::Height - startY), 0.0f) * Matrix4f::Scale(78.0f * 0.4f, 78.0f * 0.4f, 1.0f));
-		shader->loadVector("u_texRect", Vector4f(102.0f / controlsWidth, (controlsHeight - (5.0f + 78.0f)) / controlsHeight, (102.0f + 78.0f) / controlsWidth, (controlsHeight - 5.0f) / controlsHeight));
+	if (!(m_changeBinding && m_selctedPosition == 5)) {
+		shader->loadMatrix("u_transform", m_orthographic * Matrix4f::Translate(static_cast<float>(m_centerX + 50), static_cast<float>(Application::Height - startY), 0.0f) * Matrix4f::Scale(78.0f * 0.4f, 78.0f * 0.4f, 1.0f));
+		shader->loadVector("u_texRect", Vector4f(102.0f / m_controlsWidth, (m_controlsHeight - (5.0f + 78.0f)) / m_controlsHeight, (102.0f + 78.0f) / m_controlsWidth, (m_controlsHeight - 5.0f) / m_controlsHeight));
 
 		Globals::shapeManager.get("quad_half").drawRaw();
 	}
 	startY += step;
 	//Cross
-	if (!(_changeBinding && _selctedPosition == 4)) {
-		shader->loadMatrix("u_transform", m_orthographic * Matrix4f::Translate(static_cast<float>(centerX + 50), static_cast<float>(Application::Height - startY), 0.0f) * Matrix4f::Scale(78.0f * 0.4f, 78.0f * 0.4f, 1.0f));
-		shader->loadVector("u_texRect", Vector4f(186.0f / controlsWidth, (controlsHeight - (5.0f + 78.0f)) / controlsHeight, (186.0f + 78.0f) / controlsWidth, (controlsHeight - 5.0f) / controlsHeight));
+	if (!(m_changeBinding && m_selctedPosition == 4)) {
+		shader->loadMatrix("u_transform", m_orthographic * Matrix4f::Translate(static_cast<float>(m_centerX + 50), static_cast<float>(Application::Height - startY), 0.0f) * Matrix4f::Scale(78.0f * 0.4f, 78.0f * 0.4f, 1.0f));
+		shader->loadVector("u_texRect", Vector4f(186.0f / m_controlsWidth, (m_controlsHeight - (5.0f + 78.0f)) / m_controlsHeight, (186.0f + 78.0f) / m_controlsWidth, (m_controlsHeight - 5.0f) / m_controlsHeight));
 
 		Globals::shapeManager.get("quad_half").drawRaw();
 	}
@@ -678,16 +672,16 @@ void JellyOptionControl::render() {
 
 	//4 left positions
 	for (size_t i = 0; i < 4; i++){
-		Fontrenderer::Get().addText(Globals::fontManager.get("jelly_32"), static_cast<float>(centerX - 100 - Globals::fontManager.get("jelly_32").getWidth(_actionTranslation[_carActions[i]])), static_cast<float>(Application::Height - startY), _actionTranslation[_carActions[i]], Vector4f(0.19f, 0.14f, 0.17f, 1.0f));
-		Fontrenderer::Get().addText(Globals::fontManager.get("jelly_32"), static_cast<float>(centerX - 100 - Globals::fontManager.get("jelly_32").getWidth(_actionTranslation[_carActions[i]])), static_cast<float>(Application::Height - (startY - 2)), _actionTranslation[_carActions[i]], Vector4f(1.0f, 0.65f, 0.0f, 1.0f));
+		Fontrenderer::Get().addText(Globals::fontManager.get("jelly_32"), static_cast<float>(m_centerX - 100 - Globals::fontManager.get("jelly_32").getWidth(m_actionTranslation[m_carActions[i]])), static_cast<float>(Application::Height - startY), m_actionTranslation[m_carActions[i]], Vector4f(0.19f, 0.14f, 0.17f, 1.0f));
+		Fontrenderer::Get().addText(Globals::fontManager.get("jelly_32"), static_cast<float>(m_centerX - 100 - Globals::fontManager.get("jelly_32").getWidth(m_actionTranslation[m_carActions[i]])), static_cast<float>(Application::Height - (startY - 2)), m_actionTranslation[m_carActions[i]], Vector4f(1.0f, 0.65f, 0.0f, 1.0f));
 		startY += step;
 	}
 
 	//4 right positions
 	startY = startPosition;
-	for (size_t i = 4; i < _carActions.size(); i++){
-		Fontrenderer::Get().addText(Globals::fontManager.get("jelly_32"), static_cast<float>(centerX + 100), static_cast<float>(Application::Height - startY), _actionTranslation[_carActions[i]], Vector4f(0.19f, 0.14f, 0.17f, 1.0f));
-		Fontrenderer::Get().addText(Globals::fontManager.get("jelly_32"), static_cast<float>(centerX + 100), static_cast<float>(Application::Height - (startY - 2)), _actionTranslation[_carActions[i]], Vector4f(1.0f, 0.65f, 0.0f, 1.0f));
+	for (size_t i = 4; i < m_carActions.size(); i++){
+		Fontrenderer::Get().addText(Globals::fontManager.get("jelly_32"), static_cast<float>(m_centerX + 100), static_cast<float>(Application::Height - startY), m_actionTranslation[m_carActions[i]], Vector4f(0.19f, 0.14f, 0.17f, 1.0f));
+		Fontrenderer::Get().addText(Globals::fontManager.get("jelly_32"), static_cast<float>(m_centerX + 100), static_cast<float>(Application::Height - (startY - 2)), m_actionTranslation[m_carActions[i]], Vector4f(1.0f, 0.65f, 0.0f, 1.0f));
 		startY += step;
 	}
 
@@ -713,24 +707,24 @@ void JellyOptionControl::processInput() {
 	}else{*/
 		//move up
 		if(keyboard.keyPressed(Keyboard::KEY_UP)){
-			_selctedPosition--;
-			if (_selctedPosition < 0){
-				_selctedPosition = 0;
+			m_selctedPosition--;
+			if (m_selctedPosition < 0){
+				m_selctedPosition = 0;
 			}
 		}
 
 		//move down
 		if (keyboard.keyPressed(Keyboard::KEY_DOWN)){
-			_selctedPosition++;
-			if (_selctedPosition > _carActions.size() - 1){
-				_selctedPosition = _carActions.size() - 1;
+			m_selctedPosition++;
+			if (m_selctedPosition > m_carActions.size() - 1){
+				m_selctedPosition = m_carActions.size() - 1;
 			}
 		}
 
 		if (keyboard.keyPressed(Keyboard::KEY_ENTER) && !keyboard.keyDown(Keyboard::KEY_RALT)){
 			//check action to process
-			_selectedAction = _carActions[_selctedPosition];
-			_changeBinding = !_changeBinding;
+			m_selectedAction = m_carActions[m_selctedPosition];
+			m_changeBinding = !m_changeBinding;
 
 			//_inputHelper->UpdateAllInputs(true);
 		}
@@ -744,29 +738,29 @@ void JellyOptionControl::processInput() {
 
 void JellyOptionControl::resize(int deltaW, int deltaH) {
 	JellyOptionState::resize(deltaW, deltaH);
-	centerX = Application::Width / 2;
+	m_centerX = Application::Width / 2;
 }
 
 void JellyOptionControl::initActionNames() {
-	_carActions.push_back(CarAction::Left);
-	_carActions.push_back(CarAction::Right);
-	_carActions.push_back(CarAction::RotateLeft);
-	_carActions.push_back(CarAction::RotateRight);
+	m_carActions.push_back(CarAction::Left);
+	m_carActions.push_back(CarAction::Right);
+	m_carActions.push_back(CarAction::RotateLeft);
+	m_carActions.push_back(CarAction::RotateRight);
 
-	_carActions.push_back(CarAction::Transform);
-	_carActions.push_back(CarAction::Ballon);
-	_carActions.push_back(CarAction::Tire);
-	_carActions.push_back(CarAction::Map);
+	m_carActions.push_back(CarAction::Transform);
+	m_carActions.push_back(CarAction::Ballon);
+	m_carActions.push_back(CarAction::Tire);
+	m_carActions.push_back(CarAction::Map);
 
-	_actionTranslation.insert(std::pair<CarAction, std::string>(CarAction::Left, "Left"));
-	_actionTranslation.insert(std::pair<CarAction, std::string>(CarAction::Right, "Right"));
-	_actionTranslation.insert(std::pair<CarAction, std::string>(CarAction::RotateLeft, "Rotate Left"));
-	_actionTranslation.insert(std::pair<CarAction, std::string>(CarAction::RotateRight, "Rotate Right"));
+	m_actionTranslation.insert(std::pair<CarAction, std::string>(CarAction::Left, "Left"));
+	m_actionTranslation.insert(std::pair<CarAction, std::string>(CarAction::Right, "Right"));
+	m_actionTranslation.insert(std::pair<CarAction, std::string>(CarAction::RotateLeft, "Rotate Left"));
+	m_actionTranslation.insert(std::pair<CarAction, std::string>(CarAction::RotateRight, "Rotate Right"));
 
-	_actionTranslation.insert(std::pair<CarAction, std::string>(CarAction::Transform, "Transform"));
-	_actionTranslation.insert(std::pair<CarAction, std::string>(CarAction::Ballon, "Ballon"));
-	_actionTranslation.insert(std::pair<CarAction, std::string>(CarAction::Tire, "Sticky tire"));
-	_actionTranslation.insert(std::pair<CarAction, std::string>(CarAction::Map, "Map"));
+	m_actionTranslation.insert(std::pair<CarAction, std::string>(CarAction::Transform, "Transform"));
+	m_actionTranslation.insert(std::pair<CarAction, std::string>(CarAction::Ballon, "Ballon"));
+	m_actionTranslation.insert(std::pair<CarAction, std::string>(CarAction::Tire, "Sticky tire"));
+	m_actionTranslation.insert(std::pair<CarAction, std::string>(CarAction::Map, "Map"));
 }
 
 void JellyOptionControl::loadSettings(std::string path) {
@@ -807,7 +801,7 @@ void JellyOptionControl::loadSettings(std::string path) {
 			CarAction action = static_cast<CarAction>(iterator->first);
 
 			Keyboard::Key code = static_cast<Keyboard::Key>(iterator->second);
-			_carKeyboardMapping.insert(std::pair<CarAction, Keyboard::Key>(action, code));
+			m_carKeyboardMapping.insert(std::pair<CarAction, Keyboard::Key>(action, code));
 			
 		}
 	}
@@ -841,25 +835,25 @@ std::map<int, int> JellyOptionControl::getActionKeyMapping(){
 
 	for (int i = 0; i < CarAction::Count; i++){
 		CarAction action = static_cast<CarAction>(i);	
-		_actionKeyMapping.insert(std::pair<int, int>(i, static_cast<int>(_carKeyboardMapping[action])));
+		_actionKeyMapping.insert(std::pair<int, int>(i, static_cast<int>(m_carKeyboardMapping[action])));
 	}
 	return _actionKeyMapping;
 }
 
 JellyOptionSound::JellyOptionSound(JellyOptions& machine) : JellyOptionState(machine) {
-	_carVolume = 0.3f;
-	_soundsVolume = 0.3f;
-	_musicVolume = 0.1f;
+	m_carVolume = 0.3f;
+	m_soundsVolume = 0.3f;
+	m_musicVolume = 0.1f;
 
 	loadSettings("JellyAudioSettings.xml");
 
-	_soundPosition = 0;
-	_alphaScale = 1.0f;
-	_scaleFactor = 0.01f;
+	m_soundPosition = 0;
+	m_alphaScale = 1.0f;
+	m_scaleFactor = 0.01f;
 
-	_optionsCarLevel = _carVolume * 10.0f;
-	_optionsSoundLevel = _soundsVolume * 10.0f;
-	_optionsMusicLevel = _musicVolume * 10.0f;
+	m_optionsCarLevel = m_carVolume * 10.0f;
+	m_optionsSoundLevel = m_soundsVolume * 10.0f;
+	m_optionsMusicLevel = m_musicVolume * 10.0f;
 }
 
 JellyOptionSound::~JellyOptionSound() {
@@ -871,14 +865,14 @@ void JellyOptionSound::fixedUpdate() {}
 void JellyOptionSound::update() {
 	processInput();
 
-	_alphaScale += (_scaleFactor  * m_machine.m_dt);
+	m_alphaScale += (m_scaleFactor  * m_machine.m_dt);
 
-	if (_alphaScale > 1.0f){
-		_scaleFactor = -2.0f;
+	if (m_alphaScale > 1.0f){
+		m_scaleFactor = -2.0f;
 	}
 
-	if (_alphaScale < 0.0f){
-		_scaleFactor = 2.0f;
+	if (m_alphaScale < 0.0f){
+		m_scaleFactor = 2.0f;
 	}
 }
 
@@ -907,19 +901,19 @@ void JellyOptionSound::render() {
 
 	Vector3f pos = Vector3f(leftSpritePosX, leftRightPosY - 140 - 5, 0.0f);
 	shader->loadMatrix("u_transform", m_orthographic * Matrix4f::Translate(pos) * Matrix4f::Scale(static_cast<float>(texture->getWidth()) * 0.8f, static_cast<float>(texture->getHeight()) * 0.8f, 1.0f));
-	shader->loadVector("u_color", Vector4f(1.0f, 1.0f, 1.0f, _soundPosition == 0 ? _alphaScale : 1.0f));
+	shader->loadVector("u_color", Vector4f(1.0f, 1.0f, 1.0f, m_soundPosition == 0 ? m_alphaScale : 1.0f));
 	Globals::shapeManager.get("quad_half").drawRaw();
 	//texture.unbind();
 
 
 	pos = Vector3f(leftSpritePosX, leftRightPosY - 5, 0.0f);
 	shader->loadMatrix("u_transform", m_orthographic * Matrix4f::Translate(pos) * Matrix4f::Scale(static_cast<float>(texture->getWidth()) * 0.8f, static_cast<float>(texture->getHeight()) * 0.8f, 1.0f));
-	shader->loadVector("u_color", Vector4f(1.0f, 1.0f, 1.0f, _soundPosition == 1 ? _alphaScale : 1.0f));
+	shader->loadVector("u_color", Vector4f(1.0f, 1.0f, 1.0f, m_soundPosition == 1 ? m_alphaScale : 1.0f));
 	Globals::shapeManager.get("quad_half").drawRaw();
 
 	pos = Vector3f(leftSpritePosX, leftRightPosY + 140 - 5, 0.0f);
 	shader->loadMatrix("u_transform", m_orthographic * Matrix4f::Translate(pos) * Matrix4f::Scale(static_cast<float>(texture->getWidth()) * 0.8f, static_cast<float>(texture->getHeight()) * 0.8f, 1.0f));
-	shader->loadVector("u_color", Vector4f(1.0f, 1.0f, 1.0f, _soundPosition == 2 ? _alphaScale : 1.0f));
+	shader->loadVector("u_color", Vector4f(1.0f, 1.0f, 1.0f, m_soundPosition == 2 ? m_alphaScale : 1.0f));
 	Globals::shapeManager.get("quad_half").drawRaw();
 
 	texture = &Globals::textureManager.get("select_right");
@@ -927,17 +921,17 @@ void JellyOptionSound::render() {
 
 	pos = Vector3f(rightSpritePosX, leftRightPosY - 140 - 5, 0.0f);
 	shader->loadMatrix("u_transform", m_orthographic * Matrix4f::Translate(pos) * Matrix4f::Scale(static_cast<float>(texture->getWidth()) * 0.8f, static_cast<float>(texture->getHeight()) * 0.8f, 1.0f));
-	shader->loadVector("u_color", Vector4f(1.0f, 1.0f, 1.0f, _soundPosition == 0 ? _alphaScale : 1.0f));
+	shader->loadVector("u_color", Vector4f(1.0f, 1.0f, 1.0f, m_soundPosition == 0 ? m_alphaScale : 1.0f));
 	Globals::shapeManager.get("quad_half").drawRaw();
 
 	pos = Vector3f(rightSpritePosX, leftRightPosY - 5, 0.0f);
 	shader->loadMatrix("u_transform", m_orthographic * Matrix4f::Translate(pos) * Matrix4f::Scale(static_cast<float>(texture->getWidth()) * 0.8f, static_cast<float>(texture->getHeight()) * 0.8f, 1.0f));
-	shader->loadVector("u_color", Vector4f(1.0f, 1.0f, 1.0f, _soundPosition == 1 ? _alphaScale : 1.0f));
+	shader->loadVector("u_color", Vector4f(1.0f, 1.0f, 1.0f, m_soundPosition == 1 ? m_alphaScale : 1.0f));
 	Globals::shapeManager.get("quad_half").drawRaw();
 
 	pos = Vector3f(rightSpritePosX, leftRightPosY + 140 - 5, 0.0f);
 	shader->loadMatrix("u_transform", m_orthographic * Matrix4f::Translate(pos) * Matrix4f::Scale(static_cast<float>(texture->getWidth()) * 0.8f, static_cast<float>(texture->getHeight()) * 0.8f, 1.0f));
-	shader->loadVector("u_color", Vector4f(1.0f, 1.0f, 1.0f, _soundPosition == 2 ? _alphaScale : 1.0f));
+	shader->loadVector("u_color", Vector4f(1.0f, 1.0f, 1.0f, m_soundPosition == 2 ? m_alphaScale : 1.0f));
 	Globals::shapeManager.get("quad_half").drawRaw();
 
 	shader->loadVector("u_color", Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
@@ -945,7 +939,7 @@ void JellyOptionSound::render() {
 	
 	int startBar = Application::Width / 2 - (180);
 	for (int i = 0; i < 10; i++) {
-		if (i < _optionsCarLevel) {			
+		if (i < m_optionsCarLevel) {
 			texture = &Globals::textureManager.get("options_bar");
 			texture->bind(0);
 
@@ -963,7 +957,7 @@ void JellyOptionSound::render() {
 	}
 
 	for (int i = 0; i < 10; i++) {
-		if (i < _optionsSoundLevel) {
+		if (i < m_optionsSoundLevel) {
 			texture = &Globals::textureManager.get("options_bar");
 			texture->bind(0);
 
@@ -981,7 +975,7 @@ void JellyOptionSound::render() {
 	}
 
 	for (int i = 0; i < 10; i++) {
-		if (i < _optionsMusicLevel) {
+		if (i < m_optionsMusicLevel) {
 			texture = &Globals::textureManager.get("options_bar");
 			texture->bind(0);
 
@@ -1031,89 +1025,89 @@ void JellyOptionSound::processInput() {
 
 	//move up
 	if (keyboard.keyPressed(Keyboard::KEY_UP)){
-		_soundPosition--;
-		if (_soundPosition < 0){
-			_soundPosition = 0;
+		m_soundPosition--;
+		if (m_soundPosition < 0){
+			m_soundPosition = 0;
 		}
 
 		//_audioHelper->StopEngineSound();
 
-		if (_soundPosition == 0){
+		if (m_soundPosition == 0){
 			//_audioHelper->PlayFastEngine();
 		}
 	}
 
 	//move down
 	if (keyboard.keyPressed(Keyboard::KEY_DOWN)){
-		_soundPosition++;
-		if (_soundPosition > 2){
-			_soundPosition = 2;
+		m_soundPosition++;
+		if (m_soundPosition > 2){
+			m_soundPosition = 2;
 		}
 
 		//_audioHelper->StopEngineSound();
 
-		if (_soundPosition == 0){
+		if (m_soundPosition == 0){
 			//_audioHelper->PlayFastEngine();
 		}
 	}
 
 	if (keyboard.keyPressed(Keyboard::KEY_LEFT)){
 
-		if (_soundPosition == 0){
-			_optionsCarLevel--;
-			if (_optionsCarLevel < 0){
-				_optionsCarLevel = 0;
+		if (m_soundPosition == 0){
+			m_optionsCarLevel--;
+			if (m_optionsCarLevel < 0){
+				m_optionsCarLevel = 0;
 			}
-			_carVolume = (float)_optionsCarLevel / 10.0f;
+			m_carVolume = (float)m_optionsCarLevel / 10.0f;
 		}
 
-		if (_soundPosition == 1){
-			_optionsSoundLevel--;
-			if (_optionsSoundLevel < 0){
-				_optionsSoundLevel = 0;
+		if (m_soundPosition == 1){
+			m_optionsSoundLevel--;
+			if (m_optionsSoundLevel < 0){
+				m_optionsSoundLevel = 0;
 			}
-			_soundsVolume = (float)_optionsSoundLevel / 10.0f;
+			m_soundsVolume = (float)m_optionsSoundLevel / 10.0f;
 			//_audioHelper->PlayHitSound();
 		}
 
-		if (_soundPosition == 2){
-			_optionsMusicLevel--;
-			if (_optionsMusicLevel < 0){
-				_optionsMusicLevel = 0;
+		if (m_soundPosition == 2){
+			m_optionsMusicLevel--;
+			if (m_optionsMusicLevel < 0){
+				m_optionsMusicLevel = 0;
 			}
-			_musicVolume = (float)_optionsMusicLevel / 10.0f;
+			m_musicVolume = (float)m_optionsMusicLevel / 10.0f;
 		}
 	}
 
 	//move down
 	if (keyboard.keyPressed(Keyboard::KEY_RIGHT)){
 
-		if (_soundPosition == 0){
-			_optionsCarLevel++;
-			if (_optionsCarLevel > 10){
-				_optionsCarLevel = 10;
+		if (m_soundPosition == 0){
+			m_optionsCarLevel++;
+			if (m_optionsCarLevel > 10){
+				m_optionsCarLevel = 10;
 			}
 
-			_carVolume = (float)_optionsCarLevel / 10.0f;
+			m_carVolume = (float)m_optionsCarLevel / 10.0f;
 		}
 
-		if (_soundPosition == 1){
-			_optionsSoundLevel++;
-			if (_optionsSoundLevel > 10){
-				_optionsSoundLevel = 10;
+		if (m_soundPosition == 1){
+			m_optionsSoundLevel++;
+			if (m_optionsSoundLevel > 10){
+				m_optionsSoundLevel = 10;
 			}
 
-			_soundsVolume = (float)_optionsSoundLevel / 10.0f;
+			m_soundsVolume = (float)m_optionsSoundLevel / 10.0f;
 			//_audioHelper->PlayHitSound();
 		}
 
-		if (_soundPosition == 2){
-			_optionsMusicLevel++;
-			if (_optionsMusicLevel > 10){
-				_optionsMusicLevel = 10;
+		if (m_soundPosition == 2){
+			m_optionsMusicLevel++;
+			if (m_optionsMusicLevel > 10){
+				m_optionsMusicLevel = 10;
 			}
 
-			_musicVolume = (float)_optionsMusicLevel / 10.0f;
+			m_musicVolume = (float)m_optionsMusicLevel / 10.0f;
 		}
 	}
 
@@ -1152,11 +1146,11 @@ void JellyOptionSound::loadSettings(std::string path) {
 		std::string soundName = ObjectNode->Attribute("name");
 
 		if (soundName == "Car"){
-			_carVolume = std::stof(ObjectNode->Attribute("volume"));
+			m_carVolume = std::stof(ObjectNode->Attribute("volume"));
 		}else if (soundName == "Sounds"){
-			_soundsVolume = std::stof(ObjectNode->Attribute("volume"));
+			m_soundsVolume = std::stof(ObjectNode->Attribute("volume"));
 		}else if (soundName == "Music"){
-			_musicVolume = std::stof(ObjectNode->Attribute("volume"));
+			m_musicVolume = std::stof(ObjectNode->Attribute("volume"));
 		}
 	}
 }
@@ -1173,21 +1167,21 @@ void JellyOptionSound::saveSettings(std::string path) {
 		TiXmlElement * cxn = new TiXmlElement("SoundLevel");
 		root->LinkEndChild(cxn);
 		cxn->SetAttribute("name", "Car");
-		cxn->SetDoubleAttribute("volume", _carVolume);
+		cxn->SetDoubleAttribute("volume", m_carVolume);
 	}
 
 	{
 		TiXmlElement * cxn = new TiXmlElement("SoundLevel");
 		root->LinkEndChild(cxn);
 		cxn->SetAttribute("name", "Sounds");
-		cxn->SetDoubleAttribute("volume", _soundsVolume);
+		cxn->SetDoubleAttribute("volume", m_soundsVolume);
 	}
 
 	{
 		TiXmlElement * cxn = new TiXmlElement("SoundLevel");
 		root->LinkEndChild(cxn);
 		cxn->SetAttribute("name", "Music");
-		cxn->SetDoubleAttribute("volume", _musicVolume);
+		cxn->SetDoubleAttribute("volume", m_musicVolume);
 	}
 
 	doc.SaveFile(path.c_str());

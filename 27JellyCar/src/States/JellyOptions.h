@@ -70,26 +70,26 @@ private:
 	int m_columns, m_rows;
 	float m_controlsWidth, m_controlsHeight;
 
-	LevelManager* _levelManager;
-	std::vector<LevelSoftBody*> _gameBodies;
-	World* _world;
+	LevelManager* m_levelManager;
+	std::vector<LevelSoftBody*> m_gameBodies;
+	World* m_world;
 
-	glm::mat4 _jellyProjection;
-	glm::vec4 _screenBounds;
+	glm::mat4 m_jellyProjection;
+	glm::vec4 m_screenBounds;
 	
 	unsigned int m_options;
 
-	std::vector<LevelSoftBody*> _menuBodies;
-	int _menuBodySelected;
+	std::vector<LevelSoftBody*> m_menuBodies;
+	int m_menuBodySelected;
 
-	float _alphaScale = 1.0f;
-	float _scaleFactor = 0.01f;
+	float m_alphaScale = 1.0f;
+	float m_scaleFactor = 0.01f;
 
 
-	float dragX, dragY;
-	bool touchF = false;
-	int dragPoint = -1;
-	Body *dragBody;
+	float m_dragX, m_dragY;
+	bool m_touchF = false;
+	int m_dragPoint = -1;
+	Body *m_dragBody;
 
 	std::stack<JellyOptionState*> m_states;
 };
@@ -136,9 +136,9 @@ private:
 
 	void initLibs();
 
-	std::vector<Text> _libs;
-	int centerX;
-	float _libsPosition;	
+	std::vector<Text> m_libs;
+	int m_centerX;
+	float m_libsPosition;
 };
 
 class JellyOptionCredit : public JellyOptionState {
@@ -159,9 +159,9 @@ private:
 	void processInput() override;
 	void initCredits();
 
-	std::vector<Text> _credits;
-	float _creditsPosition;
-	int centerX;
+	std::vector<Text> m_credits;
+	float m_creditsPosition;
+	int m_centerX;
 };
 
 class JellyOptionControl : public JellyOptionState {
@@ -185,20 +185,20 @@ private:
 	void saveSettings(std::string path);
 	std::map<int, int> getActionKeyMapping();
 
-	std::vector<CarAction> _carActions;
-	std::map<CarAction, std::string> _actionTranslation;
-	std::map<CarAction, Keyboard::Key> _carKeyboardMapping;
+	std::vector<CarAction> m_carActions;
+	std::map<CarAction, std::string> m_actionTranslation;
+	std::map<CarAction, Keyboard::Key> m_carKeyboardMapping;
 
-	float _alphaScale;
-	int centerX;
+	float m_alphaScale;
+	int m_centerX;
 
-	float _scaleFactor;
+	float m_scaleFactor;
 
-	int _selctedPosition;
-	bool _changeBinding;
-	CarAction _selectedAction;
+	int m_selctedPosition;
+	bool m_changeBinding;
+	CarAction m_selectedAction;
 
-	float controlsWidth, controlsHeight;
+	float m_controlsWidth, m_controlsHeight;
 };
 
 class JellyOptionSound : public JellyOptionState {
@@ -220,15 +220,15 @@ private:
 	void loadSettings(std::string path);
 	void saveSettings(std::string path);
 
-	float _carVolume;
-	float _soundsVolume;
-	float _musicVolume;
+	float m_carVolume;
+	float m_soundsVolume;
+	float m_musicVolume;
 
-	int _soundPosition;
-	float _alphaScale;
-	float _scaleFactor;
+	int m_soundPosition;
+	float m_alphaScale;
+	float m_scaleFactor;
 
-	int _optionsCarLevel;
-	int _optionsSoundLevel;
-	int _optionsMusicLevel;	
+	int m_optionsCarLevel;
+	int m_optionsSoundLevel;
+	int m_optionsMusicLevel;
 };

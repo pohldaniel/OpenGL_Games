@@ -21,8 +21,6 @@ public:
 
 private:
 	
-	bool _end;
-	float _dt;
-	float _alpha;
-	float _splashTimer;
+	float m_alpha;
+	float m_splashTimer;
 };

@@ -30,23 +30,21 @@ private:
 	void OnKeyDown(Event::KeyboardEvent& event) override;
 	void processInput();
 
-	unsigned int backWidth = 0, backHeight = 0;
-	unsigned int columns = 0, rows = 0;
-	float controlsWidth = 0, controlsHeight = 0;
+	unsigned int m_backWidth, m_backHeight;
+	unsigned int m_columns, m_rows;
+	float m_controlsWidth, m_controlsHeight;
 
 
 	int& currentPosition;
 	int& carcurrentPosition;
 
-	std::vector<SkinInfo> _carSkins;
-	std::vector<std::string> _sceneFiles;
+	std::vector<SkinInfo> m_carSkins;
+	std::vector<std::string> m_sceneFiles;
 
-	LevelManager* _levelManager;
-	std::vector<LevelSoftBody*> _gameBodies;
-	World* _world;
-	Car* _car;
-
-	glm::mat4 _jellyProjection;
-
+	LevelManager* m_levelManager;
+	std::vector<LevelSoftBody*> m_gameBodies;
+	World* m_world;
+	Car* m_car;
+	glm::mat4 m_jellyProjection;
 	unsigned int m_thumbAtlas = 0;
 };

@@ -8,11 +8,8 @@
 #include "JellyHelper.h"
 
 JellySplash::JellySplash(StateMachine& machine) : State(machine, States::JELLYSPLASH) {
-	_dt = 0.0f;
-	_splashTimer = 0.0f;
-	_alpha = 0.0f;
-	_end = false;
-
+	m_splashTimer = 0.0f;
+	m_alpha = 0.0f;
 	Globals::textureManager.get("splash").bind();
 }
 
@@ -23,30 +20,23 @@ void JellySplash::fixedUpdate() {}
 
 void JellySplash::update() {
 
-	if (_end){
-		return;
-	}
+	m_splashTimer += m_dt;
 
-	_dt = m_dt;
-	_splashTimer += _dt;
-
-	if (_splashTimer < 2.0){
-		_alpha += _dt;
-		if (_alpha >= 1.0f){
-			_alpha = 1.0f;
+	if (m_splashTimer < 2.0){
+		m_alpha += m_dt;
+		if (m_alpha >= 1.0f){
+			m_alpha = 1.0f;
 		}
 	}
 
-	if (_splashTimer >= 3.0 && _splashTimer <= 4.0){
-		_alpha -= _dt;
-		if (_alpha < 0.0f){
-			_alpha = 0.0f;
+	if (m_splashTimer >= 3.0 && m_splashTimer <= 4.0){
+		m_alpha -= m_dt;
+		if (m_alpha < 0.0f){
+			m_alpha = 0.0f;
 		}
 	}
 
-	if (_splashTimer >= 4.0){
-		_end = true;
-
+	if (m_splashTimer >= 4.0){
 		auto shader = Globals::shaderManager.getAssetPointer("quad");
 		shader->use();
 		shader->loadVector("u_color", Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
@@ -67,7 +57,7 @@ void JellySplash::render() {
 	auto shader = Globals::shaderManager.getAssetPointer("quad");
 	shader->use();	
 	shader->loadMatrix("u_transform", Matrix4f::IDENTITY);
-	shader->loadVector("u_color", Vector4f(1.0f, 1.0f, 1.0f, _alpha));
+	shader->loadVector("u_color", Vector4f(1.0f, 1.0f, 1.0f, m_alpha));
 	Globals::shapeManager.get("quad").drawRaw();	
 	shader->unuse();
 }
