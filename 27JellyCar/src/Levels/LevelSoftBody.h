@@ -2,6 +2,7 @@
 #define LevelSoftBody_H
 
 #include <engine/Rect.h>
+#include <engine/Texture.h>
 
 #include "JellyPhysics/JellyPhysics.h"
 #include "SimpleStruct/BodyObject.h"
@@ -88,8 +89,8 @@ public:
 	void AddTriangle(int a, int b, int c);
 	void FinalizeTriangles();
 
-	void SetTexture(Texture2* texture);
 	void SetTextureRect(const TextureRect& rect);
+	void SetTexture(Texture* texture);
 	void SetLineColor(glm::vec4 color);
 
 	void Draw(glm::mat4 &proj);

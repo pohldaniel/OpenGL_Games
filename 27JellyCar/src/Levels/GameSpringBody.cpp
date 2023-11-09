@@ -20,7 +20,7 @@ GameSpringBody::GameSpringBody(World* w, const ClosedShape& shape, float massPer
 
 	_created = false;
 
-	_texture = 0;
+	m_texture = nullptr;
 }
 
 GameSpringBody::GameSpringBody(World* w, const ClosedShape& shape, float massPerPoint,
@@ -43,7 +43,7 @@ GameSpringBody::GameSpringBody(World* w, const ClosedShape& shape, float massPer
 
 	_created = false;
 
-	_texture = 0;
+	m_texture = nullptr;
 }
 
 GameSpringBody::~GameSpringBody()
@@ -76,13 +76,14 @@ void GameSpringBody::accumulateInternalForces()
 	}
 }
 
-void GameSpringBody::SetTexture(Texture2* texture)
+void GameSpringBody::SetTextureRect(const TextureRect& rect)
 {
-	_texture = texture;
+	m_textureRect = rect;
 }
 
-void GameSpringBody::SetTextureRect(const TextureRect& rect) {
-	m_textureRect = rect;
+void GameSpringBody::SetTexture(Texture* texture)
+{
+	m_texture = texture;
 }
 
 void GameSpringBody::SetLineColor(glm::vec4 color)
@@ -94,7 +95,7 @@ void GameSpringBody::Draw(glm::mat4 &proj, int *mIndices, int mIndicesCount, flo
 {
 	if (!_created)
 	{
-		if (_texture != 0)
+		if (m_texture != 0)
 		{
 			//generate texture positions
 			_textPositions = JellyHellper::Instance()->GetTexturePositions(getAABB(), mPointMasses);
@@ -122,7 +123,7 @@ void GameSpringBody::Draw(glm::mat4 &proj, int *mIndices, int mIndicesCount, flo
 	{
 		JellyHellper::Instance()->UpdateLines(_vertexObject, mPointMasses, false);
 
-		if (_texture != 0)
+		if (m_texture != 0)
 		{
 			JellyHellper::Instance()->UpdateTextured(_shapeObject, mPointMasses, _textPositions, mIndices, mIndicesCount, false);
 		}
@@ -132,10 +133,10 @@ void GameSpringBody::Draw(glm::mat4 &proj, int *mIndices, int mIndicesCount, flo
 		}
 	}
 
-	if (_texture != 0)
+	if (m_texture != 0)
 	{
 		_color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-		JellyHellper::Instance()->DrawTextured(_shapeObject, proj,_texture, _color);
+		JellyHellper::Instance()->DrawTextured(_shapeObject, proj, m_texture, _color);
 	}
 	else
 	{

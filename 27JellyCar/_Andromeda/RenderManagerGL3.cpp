@@ -268,12 +268,11 @@ void RenderManagerGL3::DestroyTexture(Texture2* image)
 }
 
 void RenderManagerGL3::UseTexture(Texture2* image)
-{
-	if (image != 0 /*&& _lastTextureId != image->GetId()*/)
-	{
+{	
+	if (image != 0 /*&& _lastTextureId != image->GetId()*/){
 		glBindTexture(GL_TEXTURE_2D, image->GetId());
 		_lastTextureId = image->GetId();
-	}
+	}	
 }
 
 void RenderManagerGL3::UpdateTexture(Texture2* image, void *data)

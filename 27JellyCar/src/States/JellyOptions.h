@@ -12,9 +12,6 @@
 #include "Levels/LevelManager.h"
 #include "JellyPhysics/World.h"
 
-#include <_Andromeda/TextureManager.h>
-//#include <_Andromeda/Sprite.h>
-
 enum CarAction {
 	Left = 0,
 	Right = 1,
@@ -65,14 +62,14 @@ public:
 
 private:
 
+	JellyOptionState* addStateAtTop(JellyOptionState* state);
 	void OnKeyDown(Event::KeyboardEvent& event) override;
 	void processInput();
 
-	unsigned int backWidth = 0, backHeight = 0;
-	int columns = 0, rows = 0;
-	float controlsWidth = 0, controlsHeight = 0;
+	unsigned int m_backWidth, m_backHeight;
+	int m_columns, m_rows;
+	float m_controlsWidth, m_controlsHeight;
 
-	std::vector<SkinInfo> _carSkins;
 	LevelManager* _levelManager;
 	std::vector<LevelSoftBody*> _gameBodies;
 	World* _world;
@@ -87,26 +84,14 @@ private:
 
 	float _alphaScale = 1.0f;
 	float _scaleFactor = 0.01f;
-	bool _changeBinding;
+
 
 	float dragX, dragY;
 	bool touchF = false;
 	int dragPoint = -1;
 	Body *dragBody;
 
-	Texture2* _creditsTexture;
-	Texture2* _libsTexture;
-	Texture2* _keyboardTexture;
-	Texture2* _gamepadTexture;
-	Texture2* _secretTexture;
-	Texture2* _volumeTexture;
-
-	int _selctedPosition;
-	int _soundPosition = 0;
-
-
 	std::stack<JellyOptionState*> m_states;
-	JellyOptionState* addStateAtTop(JellyOptionState* state);
 };
 
 ////////////////////////////////////////////////////////////////////////
@@ -118,7 +103,7 @@ public:
 
 	JellyOptionState(JellyOptions& machine);
 	virtual ~JellyOptionState() = default;
-	void resize(int deltaW, int deltaH) override;
+	virtual void resize(int deltaW, int deltaH) override;
 
 protected:
 
@@ -142,6 +127,7 @@ public:
 	void fixedUpdate() override;
 	void update() override;
 	void render() override;
+	void resize(int deltaW, int deltaH) override;
 
 private:
 
@@ -165,6 +151,7 @@ public:
 	void fixedUpdate() override;
 	void update() override;
 	void render() override;
+	void resize(int deltaW, int deltaH) override;
 
 private:
 
@@ -187,6 +174,7 @@ public:
 	void fixedUpdate() override;
 	void update() override;
 	void render() override;
+	void resize(int deltaW, int deltaH) override;
 
 private:
 

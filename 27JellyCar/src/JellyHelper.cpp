@@ -1,3 +1,4 @@
+#include <iostream>
 #include "JellyHelper.h"
 
 JellyHellper* JellyHellper::_helper = 0;
@@ -356,6 +357,24 @@ void JellyHellper::DrawTextured(VertexArrayObject* vertexArray, glm::mat4 &proj,
 		//bind texture
 		RenderManager::Instance()->UseTexture(texture);
 
+		//bind shader
+		_textureShader->Bind();
+
+		//set uniforms
+		_textureShader->SetUniform(VertexShader, "translation", proj);
+		_textureShader->SetUniform(FragmentShader, "colors", color);
+
+		vertexArray->Draw();
+	}
+}
+
+void JellyHellper::DrawTextured(VertexArrayObject* vertexArray, glm::mat4 &proj, Texture* texture, glm::vec4 &color)
+{
+	if (_textureShader != 0 && vertexArray != 0)
+	{
+		//bind texture
+		texture->bind(0);
+		//texture->bind(0);
 		//bind shader
 		_textureShader->Bind();
 

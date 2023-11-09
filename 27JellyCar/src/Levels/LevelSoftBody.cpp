@@ -555,18 +555,6 @@ void LevelSoftBody::FinalizeTriangles()
 		mIndices[i] = mIndexList[i];
 }
 
-void LevelSoftBody::SetTexture(Texture2* texture)
-{
-	if (pressureized == true)
-	{
-		static_cast<GamePressureBody*>(mBody)->SetTexture(texture);
-	}
-	else
-	{
-		static_cast<GameSpringBody*>(mBody)->SetTexture(texture);
-	}
-}
-
 void LevelSoftBody::SetTextureRect(const TextureRect& rect) 
 {
 	if (pressureized == true)
@@ -576,6 +564,18 @@ void LevelSoftBody::SetTextureRect(const TextureRect& rect)
 	else
 	{
 		static_cast<GameSpringBody*>(mBody)->SetTextureRect(rect);
+	}
+}
+
+void LevelSoftBody::SetTexture(Texture* texture)
+{
+	if (pressureized == true)
+	{
+		static_cast<GamePressureBody*>(mBody)->SetTexture(texture);
+	}
+	else
+	{
+		static_cast<GameSpringBody*>(mBody)->SetTexture(texture);
 	}
 }
 

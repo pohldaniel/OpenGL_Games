@@ -1,3 +1,5 @@
+#include <engine/Texture.h>
+
 #include <_Andromeda/RenderManager.h>
 #include <_Andromeda/ShaderManager.h>
 #include <_Andromeda/Shader2.h>
@@ -43,5 +45,5 @@ public:
 	void UpdateTexturedBlob(VertexArrayObject* vertexArray, std::vector<Vector2> &points, int count, std::vector<Vector2> &mTetxure, bool create);
 	void UpdateTextured(VertexArrayObject* vertexArray, std::vector<PointMass> &pointMasses, std::vector<Vector2> &mTextureList, int *mIndices, int mIndicesCount, bool create);
 	void DrawTextured(VertexArrayObject* vertexArray, glm::mat4 &proj, Texture2* texture, glm::vec4 &color);
-	
+	void DrawTextured(VertexArrayObject* vertexArray, glm::mat4 &proj, Texture* texture, glm::vec4 &color);
 };

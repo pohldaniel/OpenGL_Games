@@ -20,7 +20,7 @@ GamePressureBody::GamePressureBody(World* w, const ClosedShape& s, float mpp, fl
 
 	shape.resize(mPointMasses.size() + 2);
 
-	_texture = 0;
+	m_texture = nullptr;
 }
 
 GamePressureBody::~GamePressureBody()
@@ -53,14 +53,15 @@ void GamePressureBody::accumulateExternalForces()
 	}
 }
 
-void GamePressureBody::SetTexture(Texture2* texture)
-{
-	_texture = texture;
-}
-
 void GamePressureBody::SetTextureRect(const TextureRect& rect) {
 	m_textureRect = rect;
 }
+
+void GamePressureBody::SetTexture(Texture* texture)
+{
+	m_texture = texture;
+}
+
 
 void GamePressureBody::SetLineColor(glm::vec4 color)
 {
@@ -71,7 +72,7 @@ void GamePressureBody::Draw(glm::mat4 &proj, int *mIndices, int mIndicesCount, f
 {
 	if (!_created)
 	{
-		if (_texture != 0)
+		if (m_texture != 0)
 		{
 			//generate texture positions
 			_textPositions = JellyHellper::Instance()->GetTexturePositions(getAABB(), mPointMasses);
@@ -97,8 +98,16 @@ void GamePressureBody::Draw(glm::mat4 &proj, int *mIndices, int mIndicesCount, f
 		JellyHellper::Instance()->UpdateSpringShape(_shapeObject, mPointMasses, mIndices, mIndicesCount, false);
 	}
 
-	_color = glm::vec4(R, G, B, 0.7f);
-	JellyHellper::Instance()->DrawShape(_shapeObject, proj, _color);
+	if (m_texture != 0)
+	{
+		_color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+		JellyHellper::Instance()->DrawTextured(_shapeObject, proj, m_texture, _color);
+	}
+	else
+	{
+		_color = glm::vec4(R, G, B, 0.7f);
+		JellyHellper::Instance()->DrawShape(_shapeObject, proj, _color);
+	}
 
 	//draw lines
 	JellyHellper::Instance()->DrawLines(_vertexObject, proj, _lineColor);

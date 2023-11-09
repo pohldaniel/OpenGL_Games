@@ -624,6 +624,13 @@ void Application::loadAssets() {
 	Globals::textureManager.loadTexture("options_bar", "Assets/Jelly/Texture/bar.png");
 	Globals::textureManager.loadTexture("options_bar_blue", "Assets/Jelly/Texture/barBlue.png");
 
+	Globals::textureManager.loadTexture("credits", "Assets/Jelly/Texture/credits.png");
+	Globals::textureManager.loadTexture("libs", "Assets/Jelly/Texture/libs.png");
+	Globals::textureManager.loadTexture("keyboard", "Assets/Jelly/Texture/keyboard.png");
+	Globals::textureManager.loadTexture("gamepad", "Assets/Jelly/Texture/gamepad.png", false);
+	Globals::textureManager.loadTexture("secret", "Assets/Jelly/Texture/secret.png", false);
+	Globals::textureManager.loadTexture("volume", "Assets/Jelly/Texture/volume.png");
+
 	Globals::fontManager.loadCharacterSet("upheaval_200", "res/fonts/upheavtt.ttf", 200, 0, 30, 128, 0, true, 0u);
 	Globals::fontManager.loadCharacterSet("upheaval_50", "res/fonts/upheavtt.ttf",  50,  0, 3,  0,   0, true, 1u);
 
