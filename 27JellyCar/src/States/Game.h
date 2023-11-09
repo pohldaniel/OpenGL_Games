@@ -16,9 +16,6 @@
 #include <States/StateMachine.h>
 #include "Background.h"
 
-#include "JellyMenu.h"
-#include "JellyIntro.h"
-
 class Game : public State, public MouseEventListener, public KeyboardEventListener {
 
 public:
