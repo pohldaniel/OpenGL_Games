@@ -2,8 +2,6 @@
 
 #include "JellyGame.h"
 #include "JellyMenu.h"
-#include "JellyPause.h"
-#include "JellyFinish.h"
 #include "JellyDialog.h"
 
 #include "Application.h"
@@ -301,7 +299,7 @@ void JellyGame::update() {
 				_menuLevelManager->SetJump(_levelName, _bestJumpLenght);
 				_menuLevelManager->SaveScores("JellyScore.xml");
 			}*/
-			m_machine.addStateAtTop(new JellyFinish(m_machine, m_mainRT, _newJumpRecord, _newTimeRecord));
+			m_machine.addStateAtTop(new JellyDialogFinish(m_machine, m_mainRT, _newJumpRecord, _newTimeRecord));
 			return;
 		}
 	}
@@ -326,7 +324,7 @@ void JellyGame::update() {
 					_menuLevelManager->SaveScores("JellyScore.xml");
 				}*/
 
-				m_machine.addStateAtTop(new JellyFinish(m_machine, m_mainRT, _newJumpRecord, _newTimeRecord));
+				m_machine.addStateAtTop(new JellyDialogFinish(m_machine, m_mainRT, _newJumpRecord, _newTimeRecord));
 				return;
 			}
 		}
@@ -576,7 +574,7 @@ void JellyGame::processInput() {
 		//_audioHelper->StopEngineSound();
 		//return;
 
-		m_machine.addStateAtTop(new JellyPause(m_machine, m_mainRT));		
+		m_machine.addStateAtTop(new JellyDialogPause(m_machine, m_mainRT));		
 		return;
 	}
 

@@ -380,9 +380,8 @@ void Map::drawCullingRect() {
 }
 
 void Map::drawMouseRect(float mouseX, float curMouseX, float mouseY, float curMouseY) {
+	if (m_selectionMode == Enums::SelectionMode::MARKER || m_selectionMode == Enums::SelectionMode::RASTERIZER) return;
 	
-	if (!m_mouseDown || (m_selectionMode == Enums::SelectionMode::MARKER || m_selectionMode == Enums::SelectionMode::RASTERIZER)) return;
-
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glLineWidth(2.0f);
 	glMatrixMode(GL_PROJECTION);
