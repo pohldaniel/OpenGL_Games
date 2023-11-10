@@ -18,8 +18,8 @@ public:
 
 	static ShaderManager* Instance();
 
-	Shader2* LoadFromFile(std::string name, std::string vertexFile, std::string fragmentFile, VertexType vertexType);
-	Shader2* LoadFromMemory(std::string name, const std::string& vertexShader, const std::string& fragmentShader, VertexType vertexType);
+	Shader2* LoadFromFile(std::string name, std::string vertexFile, std::string fragmentFile);
+	Shader2* LoadFromMemory(std::string name, const std::string& vertexShader, const std::string& fragmentShader);
 
 	Shader2* Get(std::string name);
 

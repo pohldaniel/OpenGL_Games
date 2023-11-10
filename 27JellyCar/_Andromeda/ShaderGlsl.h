@@ -23,8 +23,8 @@ public:
 	ShaderGlSl();
 	~ShaderGlSl();
 
-	bool LoadFromFile(std::string vertexFile, std::string fragmentFile, VertexType vertexType);
-	bool LoadFromMemory(std::string vertexShader, std::string fragmentShader, VertexType vertexType);
+	bool LoadFromFile(std::string vertexFile, std::string fragmentFile) override;
+	bool LoadFromMemory(std::string vertexShader, std::string fragmentShader) override;
 
 	void Bind();
 

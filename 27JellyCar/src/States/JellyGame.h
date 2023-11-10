@@ -115,9 +115,10 @@ private:
 	Sprite* _ballonSprite;
 	Sprite* _tireSpriteBack;
 	Sprite* _ballonSpriteBack;
-	Sprite* _transformMeter;
+	//Sprite* _transformMeter;
 
 	Framebuffer m_mainRT;
 
-	
+	Matrix4f m_orthographic;
+	Camera m_camera;
 };

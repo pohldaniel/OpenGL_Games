@@ -20,7 +20,6 @@ protected:
 	std::string _vertexShaderFile;
 	std::string _fragmentShaderFile;
 
-	VertexType _vertexType;
 
 	Shader2();
 
@@ -37,8 +36,8 @@ public:
 	virtual void Bind() = 0;
 
 	//load shader from file or from text
-	virtual bool LoadFromFile(std::string vertexFile, std::string fragmentFile, VertexType vertexType) = 0;
-	virtual bool LoadFromMemory(std::string vertexShader, std::string fragmentShader, VertexType vertexType) = 0;
+	virtual bool LoadFromFile(std::string vertexFile, std::string fragmentFile) = 0;
+	virtual bool LoadFromMemory(std::string vertexShader, std::string fragmentShader) = 0;
 
 	//set uniforms values
 	virtual void SetUniform(ShaderType shaderType, std::string name, int val) = 0;

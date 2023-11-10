@@ -5,7 +5,6 @@ Shader2::Shader2(){
 	_vertexShaderFile = "";
 	_fragmentShaderFile = "";
 
-	_vertexType = VertexType::Simple;
 }
 
 void Shader2::SetName(std::string name) {

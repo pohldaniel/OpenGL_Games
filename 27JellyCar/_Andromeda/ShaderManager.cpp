@@ -18,7 +18,7 @@ ShaderManager* ShaderManager::Instance(){
 	return _shaderManager;
 }
 
-Shader2* ShaderManager::LoadFromFile(std::string name, std::string vertexFile, std::string fragmentFile, VertexType vertexType) {
+Shader2* ShaderManager::LoadFromFile(std::string name, std::string vertexFile, std::string fragmentFile) {
 
 	if (_shaders.find(name) == _shaders.end()){
 		//Utils::Logger::Instance()->Log("ShaderManager::LoadFromFile: %s \n", name.c_str());
@@ -49,7 +49,7 @@ Shader2* ShaderManager::LoadFromFile(std::string name, std::string vertexFile, s
 		shader->SetName(name);
 
 		//load shader
-		shader->LoadFromFile(vertexFile, fragmentFile, vertexType);
+		shader->LoadFromFile(vertexFile, fragmentFile);
 
 		//add to collection
 		_shaders.insert(std::pair<std::string, Shader2*>(name, shader));
@@ -60,7 +60,7 @@ Shader2* ShaderManager::LoadFromFile(std::string name, std::string vertexFile, s
 	return _shaders[name];
 }
 
-Shader2* ShaderManager::LoadFromMemory(std::string name, const std::string& vertexShader, const std::string& fragmentShader, VertexType vertexType)
+Shader2* ShaderManager::LoadFromMemory(std::string name, const std::string& vertexShader, const std::string& fragmentShader)
 {
 	if (_shaders.find(name) == _shaders.end())
 	{
@@ -84,7 +84,7 @@ Shader2* ShaderManager::LoadFromMemory(std::string name, const std::string& vert
 		shader->SetName(name);
 
 		//load shader
-		shader->LoadFromMemory(vertexShader, fragmentShader, vertexType);
+		shader->LoadFromMemory(vertexShader, fragmentShader);
 
 		//add to collection
 		_shaders.insert(std::pair<std::string, Shader2*>(name, shader));

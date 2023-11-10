@@ -127,7 +127,7 @@ void JellyOptions::resize(int deltaW, int deltaH) {
 	}
 }
 
-glm::vec2 TouchToScreen(glm::vec4 screenBound, glm::vec2 touch){
+glm::vec2 JellyOptions::touchToScreen(glm::vec4 screenBound, glm::vec2 touch){
 	float width = fabsf(screenBound.x) + fabsf(screenBound.y);
 	float widthFactor = width / static_cast<float>(Application::Width);
 	float dragX = (touch.x * widthFactor) + screenBound.x;
@@ -170,7 +170,7 @@ void JellyOptions::processInput() {
 	
 	//touch 
 	if (mouse.buttonDown(Mouse::BUTTON_LEFT)) {
-		glm::vec2 touch = TouchToScreen(m_screenBounds, glm::vec2(mouse.xPos(), mouse.yPos()));
+		glm::vec2 touch = touchToScreen(m_screenBounds, glm::vec2(mouse.xPos(), mouse.yPos()));
 		m_dragX = touch.x;
 		m_dragY = touch.y;
 
@@ -742,6 +742,13 @@ void JellyOptionControl::render() {
 
 void JellyOptionControl::OnKeyDown(Event::KeyboardEvent& event) {
 	if (event.keyCode == VK_ESCAPE) {
+
+		auto shader = Globals::shaderManager.getAssetPointer("quad");
+		shader->use();
+		shader->loadVector("u_color", Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+		shader->loadVector("u_texRect", Vector4f(0.0f, 0.0f, 1.0f, 1.0f));
+		shader->unuse();
+
 		m_isRunning = false;
 	}
 }
@@ -946,7 +953,6 @@ void JellyOptionSound::render() {
 
 	auto shader = Globals::shaderManager.getAssetPointer("quad");
 	shader->use();
-	shader->loadVector("u_texRect", Vector4f(0.0f, 0.0f, 1.0f, 1.0f));
 
 	Vector3f pos = Vector3f(leftSpritePosX, leftRightPosY - 140 - 5, 0.0f);
 	shader->loadMatrix("u_transform", m_orthographic * Matrix4f::Translate(pos) * Matrix4f::Scale(static_cast<float>(texture->getWidth()) * 0.8f, static_cast<float>(texture->getHeight()) * 0.8f, 1.0f));
@@ -1065,6 +1071,11 @@ void JellyOptionSound::render() {
 
 void JellyOptionSound::OnKeyDown(Event::KeyboardEvent& event) {
 	if (event.keyCode == VK_ESCAPE) {
+		auto shader = Globals::shaderManager.getAssetPointer("quad");
+		shader->use();
+		shader->loadVector("u_color", Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+		shader->unuse();
+
 		m_isRunning = false;
 	}
 }

@@ -400,9 +400,9 @@ void Application::initStates() {
 	//Machine->addStateAtTop(new Menu(*Machine));
 	
 	//Machine->addStateAtTop(new Game(*Machine));
-	//Machine->addStateAtTop(new JellyMenu(*Machine));
+	Machine->addStateAtTop(new JellyMenu(*Machine));
 	//Machine->addStateAtTop(new JellyIntro(*Machine));
-	Machine->addStateAtTop(new JellySplash(*Machine));
+	//Machine->addStateAtTop(new JellySplash(*Machine));
 	//Machine->addStateAtTop(new JellyOptions(*Machine));
 }
 
@@ -631,6 +631,10 @@ void Application::loadAssets() {
 	Globals::textureManager.loadTexture("secret", "Assets/Jelly/Texture/secret.png", false);
 	Globals::textureManager.loadTexture("volume", "Assets/Jelly/Texture/volume.png");
 
+
+	Globals::textureManager.loadTexture("transform_meter", "Assets/Jelly/Texture/transform_meter.png");
+	Globals::textureManager.loadTexture("ballon", "Assets/Jelly/Texture/ballon.png");
+
 	Globals::fontManager.loadCharacterSet("upheaval_200", "res/fonts/upheavtt.ttf", 200, 0, 30, 128, 0, true, 0u);
 	Globals::fontManager.loadCharacterSet("upheaval_50", "res/fonts/upheavtt.ttf",  50,  0, 3,  0,   0, true, 1u);
 
@@ -658,4 +662,5 @@ void Application::loadAssets() {
 	Globals::shapeManager.buildQuadXY("quad", Vector3f(-1.0f, -1.0f, 0.0f), Vector2f(2.0f, 2.0f), 1, 1, true, false, false);
 	Globals::shapeManager.buildQuadXY("quad_half", Vector3f(-0.5f, -0.5f, 0.0f), Vector2f(1.0f, 1.0f), 1, 1, true, false, false);
 	Globals::shapeManager.buildQuadXY("quad_aligned", Vector3f(0.0f, 0.0f, 0.0f), Vector2f(1.0f, 1.0f), 1, 1, true, false, false);
+	Globals::shapeManager.buildQuadXY("quad_aligned_x", Vector3f(0.0f, -0.5f, 0.0f), Vector2f(1.0f, 1.0f), 1, 1, true, false, false);
 }

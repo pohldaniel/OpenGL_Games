@@ -23,9 +23,8 @@
 			}
 		}
 		
-		bool ShaderGlSl::LoadFromFile(std::string vertexFile, std::string fragmentFile, VertexType vertexType)
+		bool ShaderGlSl::LoadFromFile(std::string vertexFile, std::string fragmentFile)
 		{
-			_vertexType = vertexType;
 
 			//load vertex shader
 			_vertexShader = LoadShaderFile(vertexFile, VertexShader);
@@ -39,9 +38,8 @@
 			return true;
 		}
 
-		bool ShaderGlSl::LoadFromMemory(std::string vertexShader, std::string fragmentShader, VertexType vertexType)
+		bool ShaderGlSl::LoadFromMemory(std::string vertexShader, std::string fragmentShader)
 		{
-			_vertexType = vertexType;
 
 			//load vertex shader
 			_vertexShader = LoadShaderText(vertexShader, VertexShader);

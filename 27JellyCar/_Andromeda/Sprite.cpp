@@ -11,7 +11,7 @@ Sprite::Sprite(std::string name, std::string imageName, std::string vertexShader
 	_name = name;
 
 	//load shader
-	_shader = ShaderManager::Instance()->LoadFromFile(name, vertexShader, fragmentShader, Textured);
+	_shader = ShaderManager::Instance()->LoadFromFile(name, vertexShader, fragmentShader);
 	//load texture
 	_texture = TextureManager::Instance()->LoadFromFile(imageName);
 

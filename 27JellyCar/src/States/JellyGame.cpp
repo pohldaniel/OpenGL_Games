@@ -27,6 +27,10 @@ JellyGame::JellyGame(StateMachine& machine, std::string scene) : State(machine, 
 	_jellyProjection = glm::ortho(-20.0f, 20.0f, -20.0f, 20.0f, -1.0f, 1.0f);
 	_screenBounds = glm::vec4(0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f);
 
+	
+
+
+
 	_fastCar = false;
 	_slowCar = true;
 
@@ -72,7 +76,7 @@ JellyGame::JellyGame(StateMachine& machine, std::string scene) : State(machine, 
 	_tireAABB.expandToInclude(Vector2((static_cast<float>(Application::Width) / 2.0f) - 128.0f + 64.0f, 450.0f + 64.0f));
 	_tireAABB.expandToInclude(Vector2((static_cast<float>(Application::Width) / 2.0f) - 128.0f - 64.0f, 450.0f - 64.0f));
 
-	_shader = _shaderManager->LoadFromFile("sprite", "Assets/Shaders/sprite", "Assets/Shaders/sprite", Textured);
+	_shader = _shaderManager->LoadFromFile("sprite", "Assets/Shaders/sprite", "Assets/Shaders/sprite");
 	_backSprite = new Sprite("paper", "Assets/Jelly/Texture/paper.png", _shader);
 
 	_targetSprite = new Sprite("target", "Assets/Jelly/Texture/finish.png", _shader);
@@ -87,8 +91,8 @@ JellyGame::JellyGame(StateMachine& machine, std::string scene) : State(machine, 
 	_tireSpriteBack = new Sprite("tireBack", "Assets/Jelly/Texture/roundBackRed.png", _shader);
 	_ballonSpriteBack = new Sprite("ballonBack", "Assets/Jelly/Texture/roundBack.png", _shader);
 
-	_transformMeter = new Sprite("transformmeter", "Assets/Jelly/Texture/transform_meter.png", _shader);
-	_transformMeter->SetPosition(glm::vec2(128, 40));
+	//_transformMeter = new Sprite("transformmeter", "Assets/Jelly/Texture/transform_meter.png", _shader);
+	//_transformMeter->SetPosition(glm::vec2(128, 40));
 
 	_sceneFile = SceneManager::Get().getSceneInfo(m_scene).getCurrentLevelInfo().file;
 	_levelName = SceneManager::Get().getSceneInfo(m_scene).getCurrentLevelInfo().name;
@@ -201,7 +205,11 @@ JellyGame::JellyGame(StateMachine& machine, std::string scene) : State(machine, 
 	m_mainRT.attachTexture2D(AttachmentTex::RGBA);
 	m_mainRT.attachRenderbuffer(AttachmentRB::DEPTH24);
 
+	m_orthographic.orthographic(0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, -1.0f, 1.0f);
 	
+	m_camera = Camera();
+	m_camera.lookAt(Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 0.0f, 0.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
+	m_camera.orthographic(-20.0f, 20.0f, -11.2f, 11.2f, -1.0f, 1.0f);
 }
 
 JellyGame::~JellyGame() {
@@ -247,10 +255,10 @@ void JellyGame::update() {
 
 		_car->clearForces();
 		_car->update(0.004f);
-
+		
 		UpdateTransformMeter(0.004f);
 	}
-
+	m_camera.setPosition(_car->getPosition().X, _car->getPosition().Y, 0.0f);
 
 	if (_ballonActive){
 		_ballonTime -= _dt;
@@ -403,14 +411,14 @@ void JellyGame::update() {
 }
 
 void JellyGame::render() {
-
+	
 	renderScene();
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 	auto shader = Globals::shaderManager.getAssetPointer("quad");
 	shader->use();
-	shader->loadBool("u_flip", false);
+	shader->loadMatrix("u_transform", Matrix4f::IDENTITY);
+	shader->loadVector("u_texRect", Vector4f(0.0f, 0.0f, 1.0f, 1.0f));
 	m_mainRT.bindColorTexture();
 	Globals::shapeManager.get("quad").drawRaw();
 	m_mainRT.unbindColorTexture();
@@ -419,7 +427,7 @@ void JellyGame::render() {
 
 void JellyGame::renderScene() {
 	m_mainRT.bindWrite();
-	glClearBufferfv(GL_COLOR, 0, std::vector<float>{0.0f, 0.0f, 0.0f, 0.0f}.data());
+	glClearBufferfv(GL_COLOR, 0, std::vector<float>{0.494f, 0.686f, 0.796f, 1.0f}.data());
 	glClearBufferfv(GL_DEPTH, 0, &std::vector<float>{1.0f}[0]);
 
 	_backSprite->SetScale(glm::vec2(0.1f, 0.1f));
@@ -492,9 +500,19 @@ void JellyGame::renderScene() {
 		if (!_gameBodies[i]->GetBody()->getDisable()) {
 			if (_gameBodies[i]->GetName() == "itemballoon") {
 				//draw ballon
-				_ballonSprite->SetScale(glm::vec2(0.02f, -0.02f));
-				_ballonSprite->SetPosition(_gameBodies[i]->GetStartPosition());
-				_ballonSprite->Draw(_jellyProjection);
+				const Texture& texture = Globals::textureManager.get("ballon");
+				Matrix4f model;
+
+				
+				texture.bind(0);
+
+				auto shader = Globals::shaderManager.getAssetPointer("quad");
+				shader->use();
+				shader->loadMatrix("u_transform", m_camera.getOrthographicMatrix() * m_camera.getViewMatrix() * Matrix4f::Translate(_gameBodies[i]->GetStartPosition()[0], _gameBodies[i]->GetStartPosition()[1], 0.0f) * Matrix4f::Scale(static_cast<float>(texture.getWidth()) * 0.02f, static_cast<float>(texture.getHeight()) * 0.02f, 1.0f));
+				shader->loadVector("u_texRect", Vector4f(0.0f, 0.0f, 1.0f, 1.0f));
+				Globals::shapeManager.get("quad_half").drawRaw();
+				shader->unuse();
+				texture.unbind();
 			}
 			else if (_gameBodies[i]->GetName() == "itemstick") {
 				_tireSprite->SetScale(glm::vec2(0.02f, 0.02f));
@@ -521,10 +539,18 @@ void JellyGame::renderScene() {
 
 	//_transformMeter
 	if (mTransformMeter >= 0.0f) {
-		float test = 1.0f - mTransformMeter;
-		_transformMeter->SetPosition(glm::vec2(128 - (test * 64.0f), 40.0f));
-		_transformMeter->SetSize(glm::vec2(128 * mTransformMeter, 32));
-		_transformMeter->Draw(_projection);
+		const Texture& texture = Globals::textureManager.get("transform_meter");
+		texture.bind(0);
+
+		auto shader = Globals::shaderManager.getAssetPointer("quad");
+		shader->use();
+	
+		Vector3f pos = Vector3f(64.0f, 40.0f, 0.0f);
+		shader->loadMatrix("u_transform", m_orthographic * Matrix4f::Translate(pos) * Matrix4f::Scale(128.0f * mTransformMeter, 32.0f, 1.0f));
+		shader->loadVector("u_texRect", Vector4f(0.0f, 0.0f, mTransformMeter, 1.0f));
+		Globals::shapeManager.get("quad_aligned_x").drawRaw();
+		shader->unuse();
+		texture.unbind();
 	}
 
 	_targetSprite->Draw(_jellyProjection);
@@ -551,6 +577,7 @@ void JellyGame::resize(int deltaW, int deltaH) {
 
 	_projection = glm::ortho(0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, -1.0f, 1.0f);
 	_screenBounds = glm::vec4(0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f);
+	m_orthographic.orthographic(0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, -1.0f, 1.0f);
 
 	m_mainRT.resize(Application::Width, Application::Height);
 	

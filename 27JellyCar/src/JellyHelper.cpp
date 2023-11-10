@@ -14,10 +14,10 @@ JellyHellper::JellyHellper()
 void JellyHellper::LoadShaders()
 {
 	//load color shader
-	_colorShader = ShaderManager::Instance()->LoadFromFile("simple_color", "Assets/Shaders/simple_color_transform", "Assets/Shaders/simple_color_transform", Simple);
+	_colorShader = ShaderManager::Instance()->LoadFromFile("simple_color", "Assets/Shaders/simple_color_transform", "Assets/Shaders/simple_color_transform");
 
 	//load texture shader
-	_textureShader = ShaderManager::Instance()->LoadFromFile("sprite", "Assets/Shaders/sprite", "Assets/Shaders/sprite", Textured);
+	_textureShader = ShaderManager::Instance()->LoadFromFile("sprite", "Assets/Shaders/sprite", "Assets/Shaders/sprite");
 }
 
 JellyHellper* JellyHellper::Instance()
