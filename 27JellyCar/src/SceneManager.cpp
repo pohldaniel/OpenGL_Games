@@ -166,6 +166,44 @@ void SceneInfo::saveScores(std::string path) {
 	doc.SaveFile(path.c_str());
 }
 
+float SceneInfo::getTime(std::string levelName){
+	for (size_t i = 0; i < m_levelInfos.size(); i++){
+		if (m_levelInfos[i].name == levelName){
+			return m_levelInfos[i].time;
+		}
+	}
+
+	return 999.0f;
+}
+
+float SceneInfo::getJump(std::string levelName){
+	for (size_t i = 0; i < m_levelInfos.size(); i++){
+		if (m_levelInfos[i].name == levelName){
+			return m_levelInfos[i].jump;
+		}
+	}
+
+	return 0.0f;
+}
+
+void SceneInfo::setTime(std::string levelName, float time){
+	for (size_t i = 0; i < m_levelInfos.size(); i++){
+		if (m_levelInfos[i].name == levelName){
+			m_levelInfos[i].time = time;
+			return;
+		}
+	}
+}
+
+void SceneInfo::setJump(std::string levelName, float jump){
+	for (size_t i = 0; i < m_levelInfos.size(); i++){
+		if (m_levelInfos[i].name == levelName){
+			m_levelInfos[i].jump = jump;
+			return;
+		}
+	}
+}
+
 const std::vector<std::string> SceneInfo::sceneFilesFromLevelInfos(const std::vector<LevelInfo2>& levelInfos) {
 	std::vector<std::string> sceneFiles;
 	std::transform(levelInfos.begin(), levelInfos.end(), std::back_inserter(sceneFiles), [](const LevelInfo2& info)-> std::string { return info.file; });

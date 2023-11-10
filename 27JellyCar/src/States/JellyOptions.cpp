@@ -35,7 +35,7 @@ JellyOptions::JellyOptions(StateMachine& machine) : State(machine, States::JELLY
 	//level elements
 	m_gameBodies = m_levelManager->GetLevelBodies();
 
-	m_screenBounds = glm::vec4(-20.0f + 0, 0 + 20.0f, -4.2f - 5, -5 + 18.2f);
+	m_screenBounds = Vector4f(-20.0f + 0, 0 + 20.0f, -4.2f - 5, -5 + 18.2f);
 	m_jellyProjection = glm::ortho(-20.0f + 0, 0 + 20.0f, -4.2f - 5, -5 + 18.2f, -1.0f, 1.0f);
 
 	//TileSetManager::Get().getTileSet("options").loadTileSet({
@@ -127,24 +127,24 @@ void JellyOptions::resize(int deltaW, int deltaH) {
 	}
 }
 
-glm::vec2 JellyOptions::touchToScreen(glm::vec4 screenBound, glm::vec2 touch){
-	float width = fabsf(screenBound.x) + fabsf(screenBound.y);
+Vector2f JellyOptions::touchToScreen(Vector4f screenBound, Vector2f touch) {
+	float width = fabsf(screenBound[0]) + fabsf(screenBound[1]);
 	float widthFactor = width / static_cast<float>(Application::Width);
-	float dragX = (touch.x * widthFactor) + screenBound.x;
+	float dragX = (touch[0] * widthFactor) + screenBound[0];
 
-	float height = fabsf(screenBound.w) + fabsf(screenBound.z);
+	float height = fabsf(screenBound[3]) + fabsf(screenBound[2]);
 	float heightFactor = height / static_cast<float>(Application::Height);
 
 	float dragY = 0.0f;
 
-	if (screenBound.w < screenBound.z)
-		dragY = (touch.y * heightFactor) + screenBound.w;
-	else{
-		touch.y = static_cast<float>(Application::Height) - touch.y;
-		dragY = (touch.y * heightFactor) + screenBound.z;
+	if (screenBound[3] < screenBound[2])
+		dragY = (touch[1] * heightFactor) + screenBound[3];
+	else {
+		touch[1] = static_cast<float>(Application::Height) - touch[1];
+		dragY = (touch[1] * heightFactor) + screenBound[2];
 	}
 
-	return glm::vec2(dragX, dragY);
+	return Vector2f(dragX, dragY);
 }
 
 void JellyOptions::processInput() {
@@ -170,9 +170,9 @@ void JellyOptions::processInput() {
 	
 	//touch 
 	if (mouse.buttonDown(Mouse::BUTTON_LEFT)) {
-		glm::vec2 touch = touchToScreen(m_screenBounds, glm::vec2(mouse.xPos(), mouse.yPos()));
-		m_dragX = touch.x;
-		m_dragY = touch.y;
+		Vector2f touch = touchToScreen(m_screenBounds, Vector2f(mouse.xPos(), mouse.yPos()));
+		m_dragX = touch[0];
+		m_dragY = touch[1];
 
 		m_touchF = true;
 

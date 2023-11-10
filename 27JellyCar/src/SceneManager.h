@@ -29,6 +29,10 @@ public:
 	void loadCarSkins(std::string path);
 	void loadScores(std::string path);
 	void saveScores(std::string path);
+	float getTime(std::string levelName);
+	float getJump(std::string levelName);
+	void setTime(std::string levelName, float time);
+	void setJump(std::string levelName, float jump);
 
 	const std::vector<SkinInfo>& getSkinInfos() const;
 	const std::vector<std::string>& getSceneFiles() const;

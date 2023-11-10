@@ -400,9 +400,9 @@ void Application::initStates() {
 	//Machine->addStateAtTop(new Menu(*Machine));
 	
 	//Machine->addStateAtTop(new Game(*Machine));
-	Machine->addStateAtTop(new JellyMenu(*Machine));
+	//Machine->addStateAtTop(new JellyMenu(*Machine));
 	//Machine->addStateAtTop(new JellyIntro(*Machine));
-	//Machine->addStateAtTop(new JellySplash(*Machine));
+	Machine->addStateAtTop(new JellySplash(*Machine));
 	//Machine->addStateAtTop(new JellyOptions(*Machine));
 }
 
@@ -634,6 +634,10 @@ void Application::loadAssets() {
 
 	Globals::textureManager.loadTexture("transform_meter", "Assets/Jelly/Texture/transform_meter.png");
 	Globals::textureManager.loadTexture("ballon", "Assets/Jelly/Texture/ballon.png");
+	Globals::textureManager.loadTexture("ballon_back", "Assets/Jelly/Texture/roundBack.png");
+	Globals::textureManager.loadTexture("tire", "Assets/Jelly/Texture/tire.png");
+	Globals::textureManager.loadTexture("tire_back", "Assets/Jelly/Texture/roundBackRed.png");
+	Globals::textureManager.loadTexture("target", "Assets/Jelly/Texture/finish.png");
 
 	Globals::fontManager.loadCharacterSet("upheaval_200", "res/fonts/upheavtt.ttf", 200, 0, 30, 128, 0, true, 0u);
 	Globals::fontManager.loadCharacterSet("upheaval_50", "res/fonts/upheavtt.ttf",  50,  0, 3,  0,   0, true, 1u);

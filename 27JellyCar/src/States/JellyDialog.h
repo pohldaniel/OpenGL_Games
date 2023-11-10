@@ -33,11 +33,12 @@ private:
 	std::string m_text;
 };
 
+class JellyGame;
 class JellyDialogPause : public JellyDialog {
 
 public:
 
-	JellyDialogPause(StateMachine& machine, Framebuffer& mainRT, bool checkpoint = false);
+	JellyDialogPause(StateMachine& machine, Framebuffer& mainRT, JellyGame* game);
 	~JellyDialogPause() = default;
 
 	void update() override;
@@ -45,7 +46,7 @@ public:
 
 private:
 
-	bool m_checkpoint;
+	JellyGame* m_game;
 };
 
 class JellyDialogFinish : public JellyDialog {

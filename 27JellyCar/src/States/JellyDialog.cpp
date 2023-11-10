@@ -3,6 +3,7 @@
 #include "JellyDialog.h"
 #include "JellyMenu.h"
 #include "JellyOptions.h"
+#include "JellyGame.h"
 
 #include "Application.h"
 #include "Globals.h"
@@ -75,14 +76,14 @@ void JellyDialog::resize(int deltaW, int deltaH) {
 	m_machine.resizeState(deltaW, deltaH, States::JELLYGAME);
 }
 
-JellyDialogPause::JellyDialogPause(StateMachine& machine, Framebuffer& mainRT, bool checkpoint) : JellyDialog(machine, mainRT){
-	m_checkpoint = checkpoint;
+JellyDialogPause::JellyDialogPause(StateMachine& machine, Framebuffer& mainRT, JellyGame* game) : JellyDialog(machine, mainRT){
+	m_game = game;
 }
 
 void JellyDialogPause::update() {
 	Keyboard &keyboard = Keyboard::instance();
 
-	if (keyboard.keyPressed(Keyboard::KEY_D)) {
+	if (keyboard.keyPressed(Keyboard::KEY_D) || (keyboard.keyPressed(Keyboard::KEY_A) && m_game->m_checkpoint)) {
 		auto shader = Globals::shaderManager.getAssetPointer("quad");
 		shader->use();
 		shader->loadMatrix("u_transform", Matrix4f::IDENTITY);
@@ -90,6 +91,9 @@ void JellyDialogPause::update() {
 		shader->unuse();
 
 		m_isRunning = false;
+
+		if (m_game->m_checkpoint)
+			m_game->spawnAtCheckpoint();
 	}
 
 	if (keyboard.keyPressed(Keyboard::KEY_ENTER) && !keyboard.keyDown(Keyboard::KEY_RALT)) {
@@ -110,10 +114,6 @@ void JellyDialogPause::update() {
 		shader->unuse();
 
 		m_machine.clearAndPush(new JellyMenu(m_machine));
-	}
-
-	if (keyboard.keyPressed(Keyboard::KEY_C)) {
-		m_checkpoint = !m_checkpoint;
 	}
 }
 
@@ -141,7 +141,7 @@ void JellyDialogPause::render() {
 	Globals::shapeManager.get("quad_half").drawRaw();
 
 	int offsetY = 40;
-	if (m_checkpoint) {
+	if (m_game->m_checkpoint) {
 		shader->loadMatrix("u_transform", Matrix4f::Orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f) * Matrix4f::Translate(static_cast<float>(Application::Width / 2), static_cast<float>(Application::Height / 2 + 2), 0.0f)* Matrix4f::Scale(static_cast<float>(78 * 0.4f), static_cast<float>(78 * 0.4f), 1.0f));
 		shader->loadVector("u_texRect", Vector4f(273.0f / m_controlsWidth, (m_controlsHeight - (5.0f + 78.0f)) / m_controlsHeight, (273.0f + 78.0f) / m_controlsWidth, (m_controlsHeight - 5.0f) / m_controlsHeight));
 		Globals::shapeManager.get("quad_half").drawRaw();
@@ -165,7 +165,7 @@ void JellyDialogPause::render() {
 	Fontrenderer::Get().addText(Globals::fontManager.get("jelly_32"), static_cast<float>(Application::Width / 2 - Globals::fontManager.get("jelly_32").getWidth("Pause") / 2), static_cast<float>(Application::Height / 2 + 72), "Pause", Vector4f(0.71f, 0.16f, 0.18f, 1.0f));
 	Fontrenderer::Get().addText(Globals::fontManager.get("jelly_32"), static_cast<float>(Application::Width / 2 + 50), static_cast<float>(Application::Height / 2 + 22), "Resume", Vector4f(0.19f, 0.14f, 0.17f, 1.0f));
 
-	if (m_checkpoint) {
+	if (m_game->m_checkpoint) {
 		Fontrenderer::Get().addText(Globals::fontManager.get("jelly_32"), static_cast<float>(Application::Width / 2 + 50), static_cast<float>(Application::Height / 2 - 18), "Go to checkpoint", Vector4f(0.19f, 0.14f, 0.17f, 1.0f));
 	}
 	Fontrenderer::Get().addText(Globals::fontManager.get("jelly_32"), static_cast<float>(Application::Width / 2 + 50), static_cast<float>(Application::Height / 2 - 58 + offsetY), "Options", Vector4f(0.19f, 0.14f, 0.17f, 1.0f));

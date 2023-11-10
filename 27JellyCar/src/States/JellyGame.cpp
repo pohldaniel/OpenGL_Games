@@ -11,195 +11,159 @@
 
 JellyGame::JellyGame(StateMachine& machine, std::string scene) : State(machine, States::JELLYGAME) {
 	EventDispatcher::AddKeyboardListener(this);
+	Mouse::instance().attach(Application::GetWindow(), false);
 
 	m_scene = scene;
 
-	backWidth = Globals::textureManager.get("paper").getWidth();
-	backHeight = Globals::textureManager.get("paper").getHeight();
-
-	columns = ceil(static_cast<float>(Application::Width) / static_cast<float>(backWidth));
-	rows = ceil(static_cast<float>(Application::Height) / static_cast<float>(backHeight));
-	
 	JellyHellper::Instance()->LoadShaders();
-	_shaderManager = ShaderManager::Instance();
+	
+	m_screenBounds = Vector4f(0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f);
 
-	_projection = glm::ortho(0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, -1.0f, 1.0f);
-	_jellyProjection = glm::ortho(-20.0f, 20.0f, -20.0f, 20.0f, -1.0f, 1.0f);
-	_screenBounds = glm::vec4(0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f);
+	m_fastCar = false;
+	m_slowCar = true;
+
+	m_showMap = false;
+
+	m_hitTime = 0.0f;
+	m_chassisHit = 0.0f;
 
 	
-
-
-
-	_fastCar = false;
-	_slowCar = true;
-
-	_showMap = false;
-
-	//timer
-	_dt = 0.0f;
-	_time = 0.0f;
-	//_timer = new Timer();
-
-	_hitTime = 0.0f;
-	_chassisHit = 0.0f;
 
 	//jumping
-	_isJumping = false;
-	_inTheAir = false;
-	_jumpStartPosition = 0.0f;
-	_bestJumpLenght = 0.0f;
+	m_isJumping = false;
+	m_inTheAir = false;
+	m_jumpStartPosition = 0.0f;
+	m_bestJumpLenght = 0.0f;
+	m_time = 0.0f;
 
-	mTransformMeter = 1.0f;
-	mTransformMeterRechargeSpeed = 1.0f / 13.0f;
-	mTransformMeterGrowDir = 0;
+	m_transformMeter = 1.0f;
+	m_transformMeterRechargeSpeed = 1.0f / 13.0f;
+	m_transformMeterGrowDir = 0;
 
 	//checkpoint
-	_checkpoint = false;
+	m_checkpoint = false;
 
 	//ballon and tire initialization
-	_haveBallon = false;
-	_haveTire = false;
+	m_haveBallon = false;
+	m_haveTire = false;
 
-	_ballonActive = false;
-	_tireActive = false;
+	m_ballonActive = false;
+	m_tireActive = false;
 
-	_ballonPressed = false;
-	_tirePressed = false;
+	m_ballonPressed = false;
+	m_tirePressed = false;
 
-	_ballonTime = 0.0f;
-	_tireTime = 0.0f;
+	m_ballonTime = 0.0f;
+	m_tireTime = 0.0f;
 
-	_ballonAABB.expandToInclude(Vector2((static_cast<float>(Application::Width) / 2.0f) + 128.0f + 64.0f, 450.0f + 64.0f));
-	_ballonAABB.expandToInclude(Vector2((static_cast<float>(Application::Width) / 2.0f) + 128.0f - 64.0f, 450.0f - 64.0f));
+	m_ballonAABB.expandToInclude(Vector2((static_cast<float>(Application::Width) / 2.0f) + 128.0f + 64.0f, 450.0f + 64.0f));
+	m_ballonAABB.expandToInclude(Vector2((static_cast<float>(Application::Width) / 2.0f) + 128.0f - 64.0f, 450.0f - 64.0f));
 
-	_tireAABB.expandToInclude(Vector2((static_cast<float>(Application::Width) / 2.0f) - 128.0f + 64.0f, 450.0f + 64.0f));
-	_tireAABB.expandToInclude(Vector2((static_cast<float>(Application::Width) / 2.0f) - 128.0f - 64.0f, 450.0f - 64.0f));
+	m_tireAABB.expandToInclude(Vector2((static_cast<float>(Application::Width) / 2.0f) - 128.0f + 64.0f, 450.0f + 64.0f));
+	m_tireAABB.expandToInclude(Vector2((static_cast<float>(Application::Width) / 2.0f) - 128.0f - 64.0f, 450.0f - 64.0f));
 
-	_shader = _shaderManager->LoadFromFile("sprite", "Assets/Shaders/sprite", "Assets/Shaders/sprite");
-	_backSprite = new Sprite("paper", "Assets/Jelly/Texture/paper.png", _shader);
+	m_sceneFile = SceneManager::Get().getSceneInfo(m_scene).getCurrentLevelInfo().file;
+	m_levelName = SceneManager::Get().getSceneInfo(m_scene).getCurrentLevelInfo().name;
 
-	_targetSprite = new Sprite("target", "Assets/Jelly/Texture/finish.png", _shader);
-	_targetSprite->SetScale(glm::vec2(0.04f, 0.04f));
-
-	_tireSprite = new Sprite("tireSprite", "Assets/Jelly/Texture/tire.png", _shader);
-	_tireSprite->SetScale(glm::vec2(0.04f, 0.04f));
-
-	_ballonSprite = new Sprite("ballonSprite", "Assets/Jelly/Texture/ballon.png", _shader);
-	_ballonSprite->SetScale(glm::vec2(0.04f, 0.04f));
-
-	_tireSpriteBack = new Sprite("tireBack", "Assets/Jelly/Texture/roundBackRed.png", _shader);
-	_ballonSpriteBack = new Sprite("ballonBack", "Assets/Jelly/Texture/roundBack.png", _shader);
-
-	//_transformMeter = new Sprite("transformmeter", "Assets/Jelly/Texture/transform_meter.png", _shader);
-	//_transformMeter->SetPosition(glm::vec2(128, 40));
-
-	_sceneFile = SceneManager::Get().getSceneInfo(m_scene).getCurrentLevelInfo().file;
-	_levelName = SceneManager::Get().getSceneInfo(m_scene).getCurrentLevelInfo().name;
-
-	_world = new World();
-	_levelManager = new LevelManager();
-	_levelManager->SetAssetsLocation("Assets/Jelly/");
-	_levelManager->LoadCarSkins("car_skins.xml");
-	_levelManager->InitPhysic(_world);
-	_levelManager->LoadCompiledLevel(_world, _sceneFile, "Assets/Jelly/car_and_truck.car");
+	m_world = new World();
+	m_levelManager = new LevelManager();
+	m_levelManager->SetAssetsLocation("Assets/Jelly/");
+	m_levelManager->LoadCarSkins("car_skins.xml");
+	m_levelManager->InitPhysic(m_world);
+	m_levelManager->LoadCompiledLevel(m_world, m_sceneFile, "Assets/Jelly/car_and_truck.car");
 
 
 	const SkinInfo& skinInfo = SceneManager::Get().getSceneInfo("scene").getCurrentSkinInfo();
-	_car = _levelManager->GetCar();
-	_car->SetChassisTextures(_levelManager->GetCarImage(skinInfo.chassisSmall), _levelManager->GetCarImage(skinInfo.chassisBig));
-	_car->SetTireTextures(_levelManager->GetCarImage(skinInfo.tireSmall), _levelManager->GetCarImage(skinInfo.tireBig));
+	m_car = m_levelManager->GetCar();
+	m_car->SetChassisTextures(m_levelManager->GetCarImage(skinInfo.chassisSmall), m_levelManager->GetCarImage(skinInfo.chassisBig));
+	m_car->SetTireTextures(m_levelManager->GetCarImage(skinInfo.tireSmall), m_levelManager->GetCarImage(skinInfo.tireBig));
 
 	// filter callbacks (for sound playback)
-	/*_world->setMaterialPairFilterCallback(0, 2, this);
-	_world->setMaterialPairFilterCallback(1, 2, this);
-	_world->setMaterialPairFilterCallback(4, 2, this);
+	m_world->setMaterialPairFilterCallback(0, 2, this);
+	m_world->setMaterialPairFilterCallback(1, 2, this);
+	m_world->setMaterialPairFilterCallback(4, 2, this);
 
-	_world->setMaterialPairFilterCallback(0, 3, this);
-	_world->setMaterialPairFilterCallback(1, 3, this);
-	_world->setMaterialPairFilterCallback(4, 3, this);
+	m_world->setMaterialPairFilterCallback(0, 3, this);
+	m_world->setMaterialPairFilterCallback(1, 3, this);
+	m_world->setMaterialPairFilterCallback(4, 3, this);
 
 	//ballon and tire collision
-	_world->setMaterialPairFilterCallback(5, 2, this);
-	_world->setMaterialPairFilterCallback(5, 3, this);*/
+	m_world->setMaterialPairFilterCallback(5, 2, this);
+	m_world->setMaterialPairFilterCallback(5, 3, this);
 
 	//level elements
-	_gameBodies = _levelManager->GetLevelBodies();
+	m_gameBodies = m_levelManager->GetLevelBodies();
 
 	//set map size
-	_wholeMapPosition = _levelManager->GetWorldCenter();
-	_wholeMapSize = _levelManager->GetWorldSize();
-	_worldLimits = _levelManager->GetWorldLimits();
+	m_wholeMapPosition = m_levelManager->GetWorldCenter();
+	m_wholeMapSize = m_levelManager->GetWorldSize();
+	m_worldLimits = m_levelManager->GetWorldLimits();
 
 	//compute map view
-	//_mapLimits
-	//doing this at 2 am was not so easy :p
-	if (_wholeMapSize.X > _wholeMapSize.Y){
-		float sizeX = _wholeMapSize.X;
-		float sizeY = _wholeMapSize.X  * 0.56f;
+	//mapLimits
+	if (m_wholeMapSize.X > m_wholeMapSize.Y){
+		float sizeX = m_wholeMapSize.X;
+		float sizeY = m_wholeMapSize.X  * 0.56f;
 
 		float startX, startY;
 		float endX, endY;
 
-		if (sizeY < _wholeMapSize.Y){
-			startY = _worldLimits.Min.Y - 5.0f;
-			endY = _worldLimits.Max.Y + 5.0f;
+		if (sizeY < m_wholeMapSize.Y){
+			startY = m_worldLimits.Min.Y - 5.0f;
+			endY = m_worldLimits.Max.Y + 5.0f;
 
-			sizeX = ((_wholeMapSize.Y + 10.0f) / 0.56f);
+			sizeX = ((m_wholeMapSize.Y + 10.0f) / 0.56f);
 
-			startX = _wholeMapPosition.X - (sizeX / 2.0f);
-			endX = _wholeMapPosition.X + (sizeX / 2.0f);
+			startX = m_wholeMapPosition.X - (sizeX / 2.0f);
+			endX = m_wholeMapPosition.X + (sizeX / 2.0f);
 
 		}else{
-			startX = _worldLimits.Min.X;
-			endX = _worldLimits.Max.X;
+			startX = m_worldLimits.Min.X;
+			endX = m_worldLimits.Max.X;
 
-			startY = _wholeMapPosition.Y - (sizeY / 2.0f);
-			endY = _wholeMapPosition.Y + (sizeY / 2.0f);
+			startY = m_wholeMapPosition.Y - (sizeY / 2.0f);
+			endY = m_wholeMapPosition.Y + (sizeY / 2.0f);
 		}
 
-		_mapLimits.Min.X = startX;
-		_mapLimits.Min.Y = startY;
-		_mapLimits.Max.X = endX;
-		_mapLimits.Max.Y = endY;
+		m_mapLimits.Min.X = startX;
+		m_mapLimits.Min.Y = startY;
+		m_mapLimits.Max.X = endX;
+		m_mapLimits.Max.Y = endY;
 
 	}else{
-		float sizeX = _wholeMapSize.Y / 0.56f;
-		float sizeY = _wholeMapSize.Y;
+		float sizeX = m_wholeMapSize.Y / 0.56f;
+		float sizeY = m_wholeMapSize.Y;
 
 		float startX = 0.0f, startY = 0.0f;
 		float endX = 0.0f, endY = 0.0f;
 
-		if (sizeX < _wholeMapSize.X){
+		if (sizeX < m_wholeMapSize.X){
 			//??
 		}else{
-			startY = _worldLimits.Min.Y;
-			endY = _worldLimits.Max.Y;
+			startY = m_worldLimits.Min.Y;
+			endY = m_worldLimits.Max.Y;
 
-			startX = _wholeMapPosition.X - (sizeX / 2.0f);
-			endX = _wholeMapPosition.X + (sizeX / 2.0f);
+			startX = m_wholeMapPosition.X - (sizeX / 2.0f);
+			endX = m_wholeMapPosition.X + (sizeX / 2.0f);
 		}
 
-		_mapLimits.Min.X = startX;
-		_mapLimits.Min.Y = startY;
-		_mapLimits.Max.X = endX;
-		_mapLimits.Max.Y = endY;
+		m_mapLimits.Min.X = startX;
+		m_mapLimits.Min.Y = startY;
+		m_mapLimits.Max.X = endX;
+		m_mapLimits.Max.Y = endY;
 	}
 
-	_wholeMapSize.X += 5;
-	_wholeMapSize.Y = (_wholeMapSize.X *0.56f) / 2.0f;
-	_wholeMapSize.X = _wholeMapSize.X / 2.0f;
+	m_wholeMapSize.X += 5;
+	m_wholeMapSize.Y = (m_wholeMapSize.X *0.56f) / 2.0f;
+	m_wholeMapSize.X = m_wholeMapSize.X / 2.0f;
 
-	_levelTarget = _levelManager->GetLevelTarget();
-	_levelLine = _levelManager->GetLevelLine();
+	m_levelTarget = m_levelManager->GetLevelTarget();
+	m_levelLine = m_levelManager->GetLevelLine();
 
-	_targetSprite->SetPosition(glm::vec2(_levelTarget.X, _levelTarget.Y));
+	m_carBreakCount = 0;
 
-	carBreakCount = 0;
-
-	_newTimeRecord = false;
-	_newJumpRecord = false;
-
+	m_newTimeRecord = false;
+	m_newJumpRecord = false;
 
 	m_mainRT.create(Application::Width, Application::Height);
 	m_mainRT.attachTexture2D(AttachmentTex::RGBA);
@@ -215,19 +179,17 @@ JellyGame::JellyGame(StateMachine& machine, std::string scene) : State(machine, 
 JellyGame::~JellyGame() {
 	EventDispatcher::RemoveKeyboardListener(this);
 
-	if (_levelManager != 0) {
+	if (m_levelManager != 0) {
 		//clear level
-		_levelManager->ClearLevel(_world);
+		m_levelManager->ClearLevel(m_world);
 
 		//remove level manager
-		delete _levelManager;
+		delete m_levelManager;
 	}
 
 	//remove physic world
-	delete _world;
-	_gameBodies.clear();
-
-	SceneManager::Get().getSceneInfo(m_scene).saveScores("JellyScore.xml");
+	delete m_world;
+	m_gameBodies.clear();
 }
 
 void JellyGame::fixedUpdate() {}
@@ -236,123 +198,114 @@ void JellyGame::update() {
 
 	processInput();
 
-	_dt = m_dt;
-	_time += _dt;
-	_hitTime += _dt;
+	m_time += m_dt;
+	m_hitTime += m_dt;
 
 	//hit info - zero before update/callback event
-	_chassisHit = 0;
+	m_chassisHit = 0;
 
 	//jumping info - true before update/callback event
-	_isJumping = true;
+	m_isJumping = true;
 
 	//Update physic
 	for (int i = 0; i < 6; i++){
-		_world->update(0.004f);
+		m_world->update(0.004f);
 
-		for (size_t i = 0; i < _gameBodies.size(); i++)
-			_gameBodies[i]->Update(0.004f);
+		for (size_t i = 0; i < m_gameBodies.size(); i++)
+			m_gameBodies[i]->Update(0.004f);
 
-		_car->clearForces();
-		_car->update(0.004f);
+		m_car->clearForces();
+		m_car->update(0.004f);
 		
 		UpdateTransformMeter(0.004f);
 	}
-	m_camera.setPosition(_car->getPosition().X, _car->getPosition().Y, 0.0f);
 
-	if (_ballonActive){
-		_ballonTime -= _dt;
+	if(!m_showMap)
+	  m_camera.setPosition(m_car->getPosition().X, m_car->getPosition().Y, 0.0f);
 
-		if (_ballonTime <= 0.0f){
-			_car->UseBallon(false);
-			_ballonActive = false;
-			_haveBallon = false;
+	if (m_ballonActive){
+		m_ballonTime -= m_dt;
+
+		if (m_ballonTime <= 0.0f){
+			m_car->UseBallon(false);
+			m_ballonActive = false;
+			m_haveBallon = false;
 		}
 	}
 
-	if (_tireActive){
-		_tireTime -= _dt;
+	if (m_tireActive){
+		m_tireTime -= m_dt;
 
-		if (_tireTime <= 0.0f){
-			_car->UseNearestGracity(false);
-			_tireActive = false;
-			_haveTire = false;
+		if (m_tireTime <= 0.0f){
+			m_car->UseNearestGracity(false);
+			m_tireActive = false;
+			m_haveTire = false;
 		}
-	}
-
-	//update camera*
-	//screen ratio 0.56
-	if (_showMap){
-		_jellyProjection = glm::ortho(_mapLimits.Min.X, _mapLimits.Max.X, _mapLimits.Min.Y, _mapLimits.Max.Y, -1.0f, 1.0f);
-	}else{
-		_jellyProjection = glm::ortho(-20.0f + _car->getPosition().X, _car->getPosition().X + 20.0f, -11.2f + _car->getPosition().Y, _car->getPosition().Y + 11.2f, -1.0f, 1.0f);
 	}
 
 	//check level ending
-	if (_car->getChassisBody()->getAABB().contains(_levelTarget)){
-		if (_car->getChassisBody()->contains(_levelTarget)){
-			//_gamePlayState = GamePlayState::Finish;
+	if (m_car->getChassisBody()->getAABB().contains(m_levelTarget)){
+		if (m_car->getChassisBody()->contains(m_levelTarget)){
 			//_audioHelper->StopEngineSound();
 
-			/*if (_time < _menuLevelManager->GetTime(_levelName)){
-				_newTimeRecord = true;
+			if (m_time < SceneManager::Get().getSceneInfo(m_scene).getTime(m_levelName)) {
+				m_newTimeRecord = true;
 
-				_menuLevelManager->SetTime(_levelName, _time);
-				_menuLevelManager->SaveScores("JellyScore.xml");
+				SceneManager::Get().getSceneInfo(m_scene).setTime(m_levelName, m_time);
+				SceneManager::Get().getSceneInfo(m_scene).saveScores("JellyScore.xml");
 			}
 
-			if (_bestJumpLenght > _menuLevelManager->GetJump(_levelName)){
-				_newJumpRecord = true;
+			if (m_bestJumpLenght > SceneManager::Get().getSceneInfo(m_scene).getJump(m_levelName)) {
+				m_newJumpRecord = true;
 
-				_menuLevelManager->SetJump(_levelName, _bestJumpLenght);
-				_menuLevelManager->SaveScores("JellyScore.xml");
-			}*/
-			m_machine.addStateAtTop(new JellyDialogFinish(m_machine, m_mainRT, _newJumpRecord, _newTimeRecord));
+				SceneManager::Get().getSceneInfo(m_scene).setJump(m_levelName, m_bestJumpLenght);
+				SceneManager::Get().getSceneInfo(m_scene).saveScores("JellyScore.xml");
+			}
+
+			m_machine.addStateAtTop(new JellyDialogFinish(m_machine, m_mainRT, m_newJumpRecord, m_newTimeRecord));
 			return;
 		}
 	}
 
 	for (int i = 0; i < 2; i++){
-		if (_car->getTire(i)->getAABB().contains(_levelTarget)){
-			if (_car->getTire(i)->contains(_levelTarget)){
-				/*_gamePlayState = GamePlayState::Finish;
-				_audioHelper->StopEngineSound();
+		if (m_car->getTire(i)->getAABB().contains(m_levelTarget)){
+			if (m_car->getTire(i)->contains(m_levelTarget)){
+				//_audioHelper->StopEngineSound();
 
-				if (_time < _menuLevelManager->GetTime(_levelName)){
-					_newTimeRecord = true;
+				if (m_time < SceneManager::Get().getSceneInfo(m_scene).getTime(m_levelName)){
+					m_newTimeRecord = true;
 
-					_menuLevelManager->SetTime(_levelName, _time);
-					_menuLevelManager->SaveScores("JellyScore.xml");
+					SceneManager::Get().getSceneInfo(m_scene).setTime(m_levelName, m_time);
+					SceneManager::Get().getSceneInfo(m_scene).saveScores("JellyScore.xml");
 				}
 
-				if (_bestJumpLenght > _menuLevelManager->GetJump(_levelName)){
-					_newJumpRecord = true;
+				if (m_bestJumpLenght > SceneManager::Get().getSceneInfo(m_scene).getJump(m_levelName)){
+					m_newJumpRecord = true;
 
-					_menuLevelManager->SetJump(_levelName, _bestJumpLenght);
-					_menuLevelManager->SaveScores("JellyScore.xml");
-				}*/
+					SceneManager::Get().getSceneInfo(m_scene).setJump(m_levelName, m_bestJumpLenght);
+					SceneManager::Get().getSceneInfo(m_scene).saveScores("JellyScore.xml");
+				}
 
-				m_machine.addStateAtTop(new JellyDialogFinish(m_machine, m_mainRT, _newJumpRecord, _newTimeRecord));
+				m_machine.addStateAtTop(new JellyDialogFinish(m_machine, m_mainRT, m_newJumpRecord, m_newTimeRecord));
 				return;
 			}
 		}
 	}
 
 	//check out of bounds
-	if (_car->getPosition().Y < _levelLine){
-		if (_checkpoint){
-			Vector2 pos = Vector2(_checkpointPosition.x, _checkpointPosition.y);
+	if (m_car->getPosition().Y < m_levelLine){
+		if (m_checkpoint){
+			Vector2 pos = Vector2(m_checkpointPosition[0], m_checkpointPosition[1]);
 			Vector2 scale = Vector2(1.0f, 1.0f);
 
-			_car->getChassisBody()->setVelocity(Vector2(0, 0));
-			_car->getTire(0)->setVelocity(Vector2(0, 0));
-			_car->getTire(1)->setVelocity(Vector2(0, 0));
+			m_car->getChassisBody()->setVelocity(Vector2(0, 0));
+			m_car->getTire(0)->setVelocity(Vector2(0, 0));
+			m_car->getTire(1)->setVelocity(Vector2(0, 0));
 
-			_car->getChassisBody()->setPositionAngle(pos, 0.0f, scale);
-			_car->getTire(0)->setPositionAngle(Vector2(_checkpointPosition.x + 1.5f, _checkpointPosition.y - 0.3f), 0.0f, scale);
-			_car->getTire(1)->setPositionAngle(Vector2(_checkpointPosition.x - 1.3f, _checkpointPosition.y - 0.3f), 0.0f, scale);
+			m_car->getChassisBody()->setPositionAngle(pos, 0.0f, scale);
+			m_car->getTire(0)->setPositionAngle(Vector2(m_checkpointPosition[0] + 1.5f, m_checkpointPosition[1] - 0.3f), 0.0f, scale);
+			m_car->getTire(1)->setPositionAngle(Vector2(m_checkpointPosition[0] - 1.3f, m_checkpointPosition[1] - 0.3f), 0.0f, scale);
 		}else{
-			//_gamePlayState = GamePlayState::OutOfBounds;
 			//_audioHelper->StopEngineSound();
 			m_machine.addStateAtTop(new JellyDialog(m_machine, m_mainRT, "Out of level"));
 			return;
@@ -360,20 +313,18 @@ void JellyGame::update() {
 	}
 
 	//check car broken
-	AABB chassisAABB = _car->getChassisBody()->getAABB();
+	AABB chassisAABB = m_car->getChassisBody()->getAABB();
 	Vector2 chassisSize = chassisAABB.Max - chassisAABB.Min;
 	if ((fabsf(chassisSize.X) > 17.0f) || (fabsf(chassisSize.Y) > 17.0f)){
-		//_gamePlayState = GamePlayState::CarBroken;
 		//_audioHelper->StopEngineSound();
 		m_machine.addStateAtTop(new JellyDialog(m_machine, m_mainRT, "Car broken"));
 		return;
 	}
 
 	//car broken
-	if (_world->getPenetrationCount() > 20){
-		carBreakCount++;
-		if (carBreakCount > 5){
-			//_gamePlayState = GamePlayState::CarBroken;
+	if (m_world->getPenetrationCount() > 20){
+		m_carBreakCount++;
+		if (m_carBreakCount > 5){
 			//_audioHelper->StopEngineSound();
 			m_machine.addStateAtTop(new JellyDialog(m_machine, m_mainRT, "Car broken"));
 			return;
@@ -381,31 +332,31 @@ void JellyGame::update() {
 	}
 
 	//jumping
-	if (_isJumping && !_inTheAir){
+	if (m_isJumping && !m_inTheAir){
 		//we just started jumping
-		_jumpStartPosition = _car->getPosition().X;
-		_inTheAir = true;
+		m_jumpStartPosition = m_car->getPosition().X;
+		m_inTheAir = true;
 	}
 
-	if (!_isJumping && _inTheAir){
+	if (!m_isJumping && m_inTheAir){
 		//end of jump - check if there is new jump record
-		float jumpLenght = fabsf(_jumpStartPosition - _car->getPosition().X);
+		float jumpLenght = fabsf(m_jumpStartPosition - m_car->getPosition().X);
 
-		if (jumpLenght > _bestJumpLenght){
-			_bestJumpLenght = jumpLenght;
+		if (jumpLenght > m_bestJumpLenght){
+			m_bestJumpLenght = jumpLenght;
 		}
 
-		_inTheAir = false;
+		m_inTheAir = false;
 	}
 
 	//hit sound
-	if (_chassisHit > 0.0f){
-		if ((_chassisHit > 3.0f) && (_hitTime > 0.3f)){
+	if (m_chassisHit > 0.0f){
+		if ((m_chassisHit > 3.0f) && (m_hitTime > 0.3f)){
 			//play hit sound
 			//_audioHelper->PlayHitSound();
 
 			//set timer
-			_hitTime = 0.0f;
+			m_hitTime = 0.0f;
 		}
 	}
 }
@@ -430,138 +381,189 @@ void JellyGame::renderScene() {
 	glClearBufferfv(GL_COLOR, 0, std::vector<float>{0.494f, 0.686f, 0.796f, 1.0f}.data());
 	glClearBufferfv(GL_DEPTH, 0, &std::vector<float>{1.0f}[0]);
 
-	_backSprite->SetScale(glm::vec2(0.1f, 0.1f));
-	if (_showMap) {
-		float x = _mapLimits.Min.X - 51.0f;
-		float y = _mapLimits.Min.Y - 51.0f;
+	//_backSprite->SetScale(glm::vec2(0.1f, 0.1f));
+	if (m_showMap) {
+		float x = m_mapLimits.Min.X - 51.0f;
+		float y = m_mapLimits.Min.Y - 51.0f;
 
-		for (float xx = x; xx <= _mapLimits.Max.X + 51.0f; xx += 51.0f) {
-			for (float yy = y; yy <= _mapLimits.Max.Y + 51.0f; yy += 51.0f) {
-				_backSprite->SetPosition(glm::vec2(xx, yy));
-				_backSprite->Draw(_jellyProjection);
-			}
-		}
-	}
-	else {
-		float x = _worldLimits.Min.X - 51.0f;
-		float y = _worldLimits.Min.Y - 51.0f;
-
-		for (float xx = x; xx <= _worldLimits.Max.X + 51.0f; xx += 51.0f) {
-			for (float yy = y; yy <= _worldLimits.Max.Y + 51.0f; yy += 51.0f) {
-				_backSprite->SetPosition(glm::vec2(xx, yy));
-				_backSprite->Draw(_jellyProjection);
-			}
-		}
-	}
-
-	//camera aabb
-	Vector2 camMin = _car->getPosition() - Vector2(20.0f, 11.2f);
-	Vector2 camMax = _car->getPosition() + Vector2(20.0f, 11.2f);
-	JellyPhysics::AABB camAABB(camMin, camMax);
-
-	//ignore aabb
-	Vector2 ignoreMin = _car->getPosition() - Vector2(40.0f, 22.4f);
-	Vector2 ignoreMax = _car->getPosition() + Vector2(40.0f, 22.4f);
-	JellyPhysics::AABB ignoreAABB(ignoreMin, ignoreMax);
-
-	//render level bodies
-	for (size_t i = 0; i < _gameBodies.size(); i++) {
-		if (_showMap) {
-			_gameBodies[i]->Draw(_jellyProjection);
-
-			if (ignoreAABB.intersects(_gameBodies[i]->GetIgnoreAABB())) {
-				_gameBodies[i]->SetIgnore(false);
-			}
-			else {
-				_gameBodies[i]->SetIgnore(true);
-			}
-
-		}
-		else {
-
-			if (ignoreAABB.intersects(_gameBodies[i]->GetIgnoreAABB())) {
-				_gameBodies[i]->SetIgnore(false);
-
-				if (_gameBodies[i]->GetIgnoreAABB().intersects(camAABB)) {
-					_gameBodies[i]->Draw(_jellyProjection);
-				}
-			}
-			else {
-				_gameBodies[i]->SetIgnore(true);
-			}
-		}
-	}
-
-	//car
-	_car->Draw(_jellyProjection);
-
-	//ballon - tire
-	for (size_t i = 0; i < _gameBodies.size(); i++) {
-		if (!_gameBodies[i]->GetBody()->getDisable()) {
-			if (_gameBodies[i]->GetName() == "itemballoon") {
-				//draw ballon
-				const Texture& texture = Globals::textureManager.get("ballon");
-				Matrix4f model;
-
-				
+		for (float xx = x; xx <= m_mapLimits.Max.X + 51.0f; xx += 51.0f) {
+			for (float yy = y; yy <= m_mapLimits.Max.Y + 51.0f; yy += 51.0f) {
+				const Texture& texture = Globals::textureManager.get("paper");
 				texture.bind(0);
-
 				auto shader = Globals::shaderManager.getAssetPointer("quad");
 				shader->use();
-				shader->loadMatrix("u_transform", m_camera.getOrthographicMatrix() * m_camera.getViewMatrix() * Matrix4f::Translate(_gameBodies[i]->GetStartPosition()[0], _gameBodies[i]->GetStartPosition()[1], 0.0f) * Matrix4f::Scale(static_cast<float>(texture.getWidth()) * 0.02f, static_cast<float>(texture.getHeight()) * 0.02f, 1.0f));
+				shader->loadMatrix("u_transform", m_camera.getOrthographicMatrix() * m_camera.getViewMatrix() * Matrix4f::Translate(xx, yy, 0.0f) * Matrix4f::Scale(static_cast<float>(texture.getWidth()) * 0.1f, static_cast<float>(texture.getHeight()) * 0.1f, 1.0f));
+				shader->loadVector("u_texRect", Vector4f(0.0f, 0.0f, 1.0f, 1.0f));
+				Globals::shapeManager.get("quad_half").drawRaw();
+				shader->unuse();
+				texture.unbind();
+
+
+			}
+		}
+	}else {
+		float x = m_worldLimits.Min.X - 51.0f;
+		float y = m_worldLimits.Min.Y - 51.0f;
+
+		for (float xx = x; xx <= m_worldLimits.Max.X + 51.0f; xx += 51.0f) {
+			for (float yy = y; yy <= m_worldLimits.Max.Y + 51.0f; yy += 51.0f) {
+				const Texture& texture = Globals::textureManager.get("paper");
+				texture.bind(0);
+				auto shader = Globals::shaderManager.getAssetPointer("quad");
+				shader->use();
+				shader->loadMatrix("u_transform", m_camera.getOrthographicMatrix() * m_camera.getViewMatrix() * Matrix4f::Translate(xx, yy, 0.0f) * Matrix4f::Scale(static_cast<float>(texture.getWidth()) * 0.1f, static_cast<float>(texture.getHeight()) * 0.1f, 1.0f));
 				shader->loadVector("u_texRect", Vector4f(0.0f, 0.0f, 1.0f, 1.0f));
 				Globals::shapeManager.get("quad_half").drawRaw();
 				shader->unuse();
 				texture.unbind();
 			}
-			else if (_gameBodies[i]->GetName() == "itemstick") {
-				_tireSprite->SetScale(glm::vec2(0.02f, 0.02f));
-				_tireSprite->SetPosition(_gameBodies[i]->GetStartPosition());
-				_tireSprite->Draw(_jellyProjection);
+		}
+	}
+
+	//camera aabb
+	Vector2 camMin = m_car->getPosition() - Vector2(20.0f, 11.2f);
+	Vector2 camMax = m_car->getPosition() + Vector2(20.0f, 11.2f);
+	JellyPhysics::AABB camAABB(camMin, camMax);
+
+	//ignore aabb
+	Vector2 ignoreMin = m_car->getPosition() - Vector2(40.0f, 22.4f);
+	Vector2 ignoreMax = m_car->getPosition() + Vector2(40.0f, 22.4f);
+	JellyPhysics::AABB ignoreAABB(ignoreMin, ignoreMax);
+
+	//render level bodies
+	for (size_t i = 0; i < m_gameBodies.size(); i++) {
+		if (m_showMap) {
+			m_gameBodies[i]->Draw(GlmFromMatrix(m_camera.getOrthographicMatrix() * m_camera.getViewMatrix()));
+
+			if (ignoreAABB.intersects(m_gameBodies[i]->GetIgnoreAABB())) {
+				m_gameBodies[i]->SetIgnore(false);
+			}else {
+				m_gameBodies[i]->SetIgnore(true);
+			}
+
+		}
+		else {
+
+			if (ignoreAABB.intersects(m_gameBodies[i]->GetIgnoreAABB())) {
+				m_gameBodies[i]->SetIgnore(false);
+
+				if (m_gameBodies[i]->GetIgnoreAABB().intersects(camAABB)) {
+					m_gameBodies[i]->Draw(GlmFromMatrix(m_camera.getOrthographicMatrix() * m_camera.getViewMatrix()));
+				}
+			}else {
+				m_gameBodies[i]->SetIgnore(true);
 			}
 		}
 	}
 
-	if (!_showMap && _haveBallon && _ballonTime > 0.0f) {
-		float step = 100.0f / 30.0f;
-		float scale = (_ballonTime * step) / 100.0f;
+	//car
+	m_car->Draw(GlmFromMatrix(m_camera.getOrthographicMatrix() * m_camera.getViewMatrix()));
 
-		_ballonSpriteBack->SetScale(glm::vec2(scale, scale));
-		_ballonSpriteBack->SetSolor(glm::vec4(1.0f, 1.0f, 1.0f, 0.5f));
-		_ballonSpriteBack->SetPosition(glm::vec2((Application::Width / 2) + 128, 450));
-		_ballonSpriteBack->Draw(_projection);
-
-		_ballonSprite->SetScale(glm::vec2(scale, scale));
-		//_ballonSprite->SetSolor(glm::vec4(1.0f, 1.0f, 1.0f, 0.5f));
-		_ballonSprite->SetPosition(glm::vec2((Application::Width / 2) + 128, 450));
-		_ballonSprite->Draw(_projection);
+	//ballon - tire
+	for (size_t i = 0; i < m_gameBodies.size(); i++) {
+		if (!m_gameBodies[i]->GetBody()->getDisable()) {
+			if (m_gameBodies[i]->GetName() == "itemballoon") {
+				//draw ballon
+				const Texture& texture = Globals::textureManager.get("ballon");
+				texture.bind(0);
+				auto shader = Globals::shaderManager.getAssetPointer("quad");
+				shader->use();
+				shader->loadMatrix("u_transform", m_camera.getOrthographicMatrix() * m_camera.getViewMatrix() * Matrix4f::Translate(m_gameBodies[i]->GetStartPosition()[0], m_gameBodies[i]->GetStartPosition()[1], 0.0f) * Matrix4f::Scale(static_cast<float>(texture.getWidth()) * 0.02f, static_cast<float>(texture.getHeight()) * 0.02f, 1.0f));
+				shader->loadVector("u_texRect", Vector4f(0.0f, 0.0f, 1.0f, 1.0f));
+				Globals::shapeManager.get("quad_half").drawRaw();
+				shader->unuse();
+				texture.unbind();
+			}else if (m_gameBodies[i]->GetName() == "itemstick") {
+				const Texture& texture = Globals::textureManager.get("tire");
+				texture.bind(0);
+				auto shader = Globals::shaderManager.getAssetPointer("quad");
+				shader->use();
+				shader->loadMatrix("u_transform", m_camera.getOrthographicMatrix() * m_camera.getViewMatrix() * Matrix4f::Translate(m_gameBodies[i]->GetStartPosition()[0], m_gameBodies[i]->GetStartPosition()[1], 0.0f) * Matrix4f::Scale(static_cast<float>(texture.getWidth()) * 0.02f, static_cast<float>(texture.getHeight()) * 0.02f, 1.0f));
+				shader->loadVector("u_texRect", Vector4f(0.0f, 0.0f, 1.0f, 1.0f));
+				Globals::shapeManager.get("quad_half").drawRaw();
+				shader->unuse();
+				texture.unbind();
+			}
+		}
 	}
 
 	//_transformMeter
-	if (mTransformMeter >= 0.0f) {
+	if (m_transformMeter >= 0.0f) {
 		const Texture& texture = Globals::textureManager.get("transform_meter");
 		texture.bind(0);
 
 		auto shader = Globals::shaderManager.getAssetPointer("quad");
 		shader->use();
-	
-		Vector3f pos = Vector3f(64.0f, 40.0f, 0.0f);
-		shader->loadMatrix("u_transform", m_orthographic * Matrix4f::Translate(pos) * Matrix4f::Scale(128.0f * mTransformMeter, 32.0f, 1.0f));
-		shader->loadVector("u_texRect", Vector4f(0.0f, 0.0f, mTransformMeter, 1.0f));
+		shader->loadMatrix("u_transform", m_orthographic * Matrix4f::Translate(64.0f, 40.0f, 0.0f) * Matrix4f::Scale(128.0f * m_transformMeter, 32.0f, 1.0f));
+		shader->loadVector("u_texRect", Vector4f(0.0f, 0.0f, m_transformMeter, 1.0f));
 		Globals::shapeManager.get("quad_aligned_x").drawRaw();
 		shader->unuse();
 		texture.unbind();
 	}
 
-	_targetSprite->Draw(_jellyProjection);
+	if (!m_showMap && m_haveBallon && m_ballonTime > 0.0f) {
+		float step = 100.0f / 30.0f;
+		float scale = (m_ballonTime * step) / 100.0f;
+
+		const Texture* texture = &Globals::textureManager.get("ballon_back");
+		texture->bind(0);
+		auto shader = Globals::shaderManager.getAssetPointer("quad");
+		shader->use();
+		shader->loadMatrix("u_transform", m_orthographic * Matrix4f::Translate((Application::Width / 2) + 128, 450, 0.0f) * Matrix4f::Scale(static_cast<float>(texture->getWidth()) * scale, -1.0f * static_cast<float>(texture->getHeight()) * scale, 1.0f));
+		shader->loadVector("u_texRect", Vector4f(0.0f, 0.0f, 1.0f, 1.0f));
+		shader->loadVector("u_color", Vector4f(1.0f, 1.0f, 1.0f, 0.5f));
+		Globals::shapeManager.get("quad_half").drawRaw();
+
+		texture = &Globals::textureManager.get("ballon");
+		texture->bind(0);
+		shader->loadVector("u_color", Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+		Globals::shapeManager.get("quad_half").drawRaw();
+		shader->unuse();
+		texture->unbind();
+	}
+
+	
+
+	if (!m_showMap && m_haveTire && m_tireTime > 0.0f){
+		float step = 100.0f / 30.0f;
+		float scale = (m_tireTime * step) / 100.0f;
+
+		const Texture* texture = &Globals::textureManager.get("tire_back");
+		texture->bind(0);
+		auto shader = Globals::shaderManager.getAssetPointer("quad");
+		shader->use();
+		shader->loadMatrix("u_transform", m_orthographic * Matrix4f::Translate((Application::Width / 2) - 128, 450, 0.0f) * Matrix4f::Scale(static_cast<float>(texture->getWidth()) * scale, -1.0f * static_cast<float>(texture->getHeight()) * scale, 1.0f));
+		shader->loadVector("u_texRect", Vector4f(0.0f, 0.0f, 1.0f, 1.0f));
+		shader->loadVector("u_color", Vector4f(1.0f, 1.0f, 1.0f, 0.5f));
+		Globals::shapeManager.get("quad_half").drawRaw();
+
+		texture = &Globals::textureManager.get("tire");
+		texture->bind(0);
+		shader->loadVector("u_color", Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+		Globals::shapeManager.get("quad_half").drawRaw();
+		shader->unuse();
+		texture->unbind();
+	}
+
+	const Texture& texture = Globals::textureManager.get("target");
+	texture.bind(0);
+
+	auto shader = Globals::shaderManager.getAssetPointer("quad");
+	shader->use();
+	shader->loadMatrix("u_transform", m_camera.getOrthographicMatrix() * m_camera.getViewMatrix() * Matrix4f::Translate(m_levelTarget.X, m_levelTarget.Y, 0.0f) * Matrix4f::Scale(static_cast<float>(texture.getWidth()) * 0.04f, static_cast<float>(texture.getHeight()) * 0.04f, 1.0f));
+	shader->loadVector("u_texRect", Vector4f(0.0f, 0.0f, 1.0f, 1.0f));
+	Globals::shapeManager.get("quad_half").drawRaw();
+	shader->unuse();
+
+	texture.unbind();
 
 
 	Globals::spritesheetManager.getAssetPointer("jelly_font")->bind(0);
-	std::string time = Fontrenderer::FloatToString(_time, 2);
+	std::string time = Fontrenderer::FloatToString(m_time, 2);
 	Fontrenderer::Get().addText(Globals::fontManager.get("jelly_32"), static_cast<float>(Application::Width - 125), Application::Height - 52, time, Vector4f(0.19f, 0.14f, 0.17f, 1.0f));
 	Fontrenderer::Get().addText(Globals::fontManager.get("jelly_32"), static_cast<float>(Application::Width - 125), Application::Height - 50, time, Vector4f(0.0f, 0.84f, 0.0f, 1.0f));
 
-	std::string jump = Fontrenderer::FloatToString(_bestJumpLenght, 2);
+	std::string jump = Fontrenderer::FloatToString(m_bestJumpLenght, 2);
 	Fontrenderer::Get().addText(Globals::fontManager.get("jelly_32"), static_cast<float>(Application::Width - 125), Application::Height - 82, jump, Vector4f(0.19f, 0.14f, 0.17f, 1.0f));
 	Fontrenderer::Get().addText(Globals::fontManager.get("jelly_32"), static_cast<float>(Application::Width - 125), Application::Height - 80, jump, Vector4f(0.71f, 0.16f, 0.18f, 1.0f));
 	Fontrenderer::Get().drawBuffer();
@@ -572,11 +574,7 @@ void JellyGame::renderScene() {
 }
 
 void JellyGame::resize(int deltaW, int deltaH) {
-	columns = ceil(static_cast<float>(Application::Width) / static_cast<float>(backWidth));
-	rows = ceil(static_cast<float>(Application::Height) / static_cast<float>(backHeight));
-
-	_projection = glm::ortho(0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, -1.0f, 1.0f);
-	_screenBounds = glm::vec4(0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f);
+	m_screenBounds = Vector4f(0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f);
 	m_orthographic.orthographic(0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, -1.0f, 1.0f);
 
 	m_mainRT.resize(Application::Width, Application::Height);
@@ -593,133 +591,210 @@ void JellyGame::OnKeyDown(Event::KeyboardEvent& event) {
 	}
 }
 
-void JellyGame::processInput() {
-	Keyboard &keyboard = Keyboard::instance();
 
-	if (keyboard.keyPressed(Keyboard::KEY_ENTER) && !keyboard.keyDown(Keyboard::KEY_RALT)){
-		//_gamePlayState = GamePlayState::Paused;
-		//_audioHelper->StopEngineSound();
-		//return;
+Vector2f JellyGame::touchToScreen(Vector4f screenBound, Vector2f touch) {
+	float width = fabsf(screenBound[0]) + fabsf(screenBound[1]);
+	float widthFactor = width / static_cast<float>(Application::Width);
+	float dragX = (touch[0] * widthFactor) + screenBound[0];
 
-		m_machine.addStateAtTop(new JellyDialogPause(m_machine, m_mainRT));		
-		return;
+	float height = fabsf(screenBound[3]) + fabsf(screenBound[2]);
+	float heightFactor = height / static_cast<float>(Application::Height);
+
+	float dragY = 0.0f;
+
+	if (screenBound[3] < screenBound[2])
+		dragY = (touch[1] * heightFactor) + screenBound[3];
+	else {
+		touch[1] = static_cast<float>(Application::Height) - touch[1];
+		dragY = (touch[1] * heightFactor) + screenBound[2];
 	}
 
+	return Vector2f(dragX, dragY);
+}
+
+void JellyGame::processInput() {
+	Keyboard& keyboard = Keyboard::instance();
+	Mouse& mouse = Mouse::instance();
+
+	if (keyboard.keyPressed(Keyboard::KEY_ENTER) && !keyboard.keyDown(Keyboard::KEY_RALT)){
+		m_machine.addStateAtTop(new JellyDialogPause(m_machine, m_mainRT, this));
+		return;
+	}
+	
 	if (keyboard.keyPressed(Keyboard::KEY_W)) {
-		_showMap = !_showMap;
+		m_showMap = !m_showMap;
+
+		if (m_showMap) {
+			m_camera.orthographic(m_mapLimits.Min.X, m_mapLimits.Max.X, m_mapLimits.Min.Y, m_mapLimits.Max.Y, -1.0f, 1.0f);
+			m_camera.lookAt(Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 0.0f, 0.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
+		}else {
+			m_camera.orthographic(-20.0f, 20.0f, -11.2f, 11.2f, -1.0f, 1.0f);
+		}
 	}
 
 	if (!keyboard.keyDown(Keyboard::KEY_LEFT) && !keyboard.keyDown(Keyboard::KEY_RIGHT))
-		_car->setTorque(0);
+		m_car->setTorque(0);
 
 	if (keyboard.keyDown(Keyboard::KEY_LEFT)) {
-		_car->setTorque(-1);
+		m_car->setTorque(-1);
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_RIGHT)) {
-		_car->setTorque(1);
+		m_car->setTorque(1);
 	}
 
-	//chasis torque
-	_car->mChassis->torque = 0.0f;
+	m_car->mChassis->torque = 0.0f;
 
 	if (keyboard.keyDown(Keyboard::KEY_Q)) {
-		_car->mChassis->torque = -1.0f;
+		m_car->mChassis->torque = -1.0f;
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_E)) {
-		_car->mChassis->torque = 1.0f;
+		m_car->mChassis->torque = 1.0f;
 	}
 
 	if (keyboard.keyPressed(Keyboard::KEY_S)) {
-		if (mTransformMeter > 0.0f){
-			if (_car->Transform())
-				mTransformMeterGrowDir = (mTransformMeterGrowDir >= 0) ? -1 : 1;
+		if (m_transformMeter > 0.0f){
+			if (m_car->Transform())
+				m_transformMeterGrowDir = (m_transformMeterGrowDir >= 0) ? -1 : 1;
 		}
 	}
 
-	if (keyboard.keyPressed(Keyboard::KEY_D)){
-		_ballonActive = !_ballonActive;
-		_car->UseBallon(_ballonActive);
+	if (m_haveBallon && keyboard.keyPressed(Keyboard::KEY_D)){
+		m_ballonActive = !m_ballonActive;
+		m_car->UseBallon(m_ballonActive);
 	}
 
-	if (keyboard.keyPressed(Keyboard::KEY_A)){
-		_tireActive = !_tireActive;
-		_car->UseNearestGracity(_tireActive);
+	if (m_haveTire &&keyboard.keyPressed(Keyboard::KEY_A)){
+		m_tireActive = !m_tireActive;
+		m_car->UseNearestGracity(m_tireActive);
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_LEFT) || keyboard.keyDown(Keyboard::KEY_RIGHT)){
-		if (_car->getVelocity().length() > 2.0f && _slowCar){
+		if (m_car->getVelocity().length() > 2.0f && m_slowCar){
 			//_audioHelper->PlayFastEngine();
-			_slowCar = false;
-			_fastCar = true;
+			m_slowCar = false;
+			m_fastCar = true;
 		}
 
 	}else{
-		if (_fastCar){
+		if (m_fastCar){
 			//_audioHelper->PlaySlowEngine();
-			_slowCar = true;
-			_fastCar = false;
+			m_slowCar = true;
+			m_fastCar = false;
 		}
 	}
 
 	//touch support
-	//tire and ballon
-	/*if (_haveBallon || _haveTire){
-		if (_inputHelper->GetTouchCount() > 0){
-			glm::vec2 touch = _inputHelper->TouchToScreen(_screenBounds, _inputHelper->GetTouchPosition(0));
-
-			//check if pressed ballon trigger
-			if (_haveBallon && _ballonAABB.contains(Vector2(touch.x, touch.y))){
-				if (!_ballonPressed){
-					//change ballon state
-					_ballonActive = !_ballonActive;
-
-					//activate or deactivate ballon
-					_car->UseBallon(_ballonActive);
-
-					_ballonPressed = true;
+	if (m_haveBallon || m_haveTire){
+		if (mouse.buttonPressed(Mouse::BUTTON_LEFT)){
+			Vector2f touch = touchToScreen(m_screenBounds, Vector2f(mouse.xPos(), mouse.yPos()));
+			if (m_haveBallon && m_ballonAABB.contains(Vector2(touch[0], touch[1]))){
+				if (!m_ballonPressed){
+					m_ballonActive = !m_ballonActive;
+					m_car->UseBallon(m_ballonActive);
+					m_ballonPressed = true;
 				}
 			}
 
-			//check if pressed tire trigger
-			if (_haveTire && _tireAABB.contains(Vector2(touch.x, touch.y))){
-				if (!_tirePressed){
-					//change ballon state
-					_tireActive = !_tireActive;
+			if (m_haveTire && m_tireAABB.contains(Vector2(touch[0], touch[1]))){
+				if (!m_tirePressed){
+					m_tireActive = !m_tireActive;
+					m_car->UseNearestGracity(m_tireActive);
 
-					//activate or deactivate ballon
-					_car->UseNearestGracity(_tireActive);
-
-					_tirePressed = true;
+					m_tirePressed = true;
 				}
 			}
 		}else{
-			_ballonPressed = false;
-			_tirePressed = false;
+			m_ballonPressed = false;
+			m_tirePressed = false;
 		}
-	}*/
+	}
 }
 
 void JellyGame::UpdateTransformMeter(float dt){
-	// transform meter update.
-	if (mTransformMeterGrowDir != 0){
-		//float oldValue = mTransformMeter;
-		mTransformMeter += (mTransformMeterRechargeSpeed * dt * (float)mTransformMeterGrowDir);
+	if (m_transformMeterGrowDir != 0){
+		m_transformMeter += (m_transformMeterRechargeSpeed * dt * (float)m_transformMeterGrowDir);
 
-		if (mTransformMeter <= 0.0f){
-			if (_car->TransformStatus != Car::Normal)
-				_car->Transform();
+		if (m_transformMeter <= 0.0f){
+			if (m_car->TransformStatus != Car::Normal)
+				m_car->Transform();
 		}
 
-		if (mTransformMeter <= -0.2f){
-			mTransformMeter = -0.2f;
-			mTransformMeterGrowDir = 1;
+		if (m_transformMeter <= -0.2f){
+			m_transformMeter = -0.2f;
+			m_transformMeterGrowDir = 1;
 		}
 
-		if ((mTransformMeter > 1.0f)){
-			mTransformMeter = 1.0f;
-			mTransformMeterGrowDir = 0;
+		if ((m_transformMeter > 1.0f)){
+			m_transformMeter = 1.0f;
+			m_transformMeterGrowDir = 0;
 		}
 	}
+}
+
+bool JellyGame::collisionFilter(Body* bodyA, int bodyApm, Body* bodyB, int bodyBpm1, int bodyBpm2, Vector2 hitPt, float normalVel) {
+	if (bodyB->getMaterial() == 5 || bodyA->getMaterial() == 5){
+		Body* itemBody = 0;
+
+		if (bodyB->getMaterial() == 5){
+			itemBody = bodyB;
+		}else{
+			itemBody = bodyA;
+		}
+
+		if (itemBody->getDisable()){
+			return false;
+		}
+
+		if (itemBody->GetName() == "itemstick"){
+			m_haveTire = true;
+			m_tireTime = 30.0f;
+		}else if (itemBody->GetName() == "itemballoon"){
+			m_haveBallon = true;
+			m_ballonTime = 30.0f;
+		}else if (itemBody->GetName() == "checkpoint"){
+			m_checkpoint = true;
+			m_checkpointPosition = Vector2f(itemBody->mDerivedPos.X, itemBody->mDerivedPos.Y + 1);
+		}
+
+		itemBody->setDisable(true);
+
+		return false;
+	}
+
+	m_isJumping = false;
+
+	//hit sound
+	float hitVel = fabsf(normalVel);
+
+	if (hitVel > m_chassisHit){
+		m_chassisHit = hitVel;
+	}
+
+	return true;
+}
+
+glm::mat4 JellyGame::GlmFromMatrix(const Matrix4f& _m) {
+	glm::mat4 m;
+
+	m[0][0] = _m[0][0]; m[0][1] = _m[0][1]; m[0][2] = _m[0][2]; m[0][3] = _m[0][3];
+	m[1][0] = _m[1][0]; m[1][1] = _m[1][1]; m[1][2] = _m[1][2]; m[1][3] = _m[1][3];
+	m[2][0] = _m[2][0]; m[2][1] = _m[2][1]; m[2][2] = _m[2][2]; m[2][3] = _m[2][3];
+	m[3][0] = _m[3][0]; m[3][1] = _m[3][1]; m[3][2] = _m[3][2]; m[3][3] = _m[3][3];
+
+	return m;
+}
+
+void JellyGame::spawnAtCheckpoint() {
+	Vector2 pos = Vector2(m_checkpointPosition[0], m_checkpointPosition[1]);
+	Vector2 scale = Vector2(1.0f, 1.0f);
+
+	m_car->getChassisBody()->setVelocity(Vector2(0, 0));
+	m_car->getTire(0)->setVelocity(Vector2(0, 0));
+	m_car->getTire(1)->setVelocity(Vector2(0, 0));
+
+	m_car->getChassisBody()->setPositionAngle(pos, 0.0f, scale);
+	m_car->getTire(0)->setPositionAngle(Vector2(m_checkpointPosition[0] + 1.5f, m_checkpointPosition[1] - 0.3f), 0.0f, scale);
+	m_car->getTire(1)->setPositionAngle(Vector2(m_checkpointPosition[0] - 1.3f, m_checkpointPosition[1] - 0.3f), 0.0f, scale);
 }

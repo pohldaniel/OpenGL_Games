@@ -14,7 +14,9 @@
 
 #include "_Andromeda/Sprite.h"
 
-class JellyGame : public State, public KeyboardEventListener {
+class JellyGame : public State, public KeyboardEventListener, JellyPhysics::CollisionCallback {
+
+	friend class JellyDialogPause;
 
 public:
 
@@ -27,6 +29,10 @@ public:
 	void resize(int deltaW, int deltaH) override;
 
 	void renderScene();
+	void spawnAtCheckpoint();
+
+	bool collisionFilter(Body* bA, int bodyApm, Body* bodyB, int bodyBpm1, int bodyBpm2, Vector2 hitPt, float normalVel);
+	Vector2f touchToScreen(Vector4f screenBound, Vector2f touch);
 
 private:
 
@@ -34,91 +40,72 @@ private:
 	void processInput();
 	void UpdateTransformMeter(float dt);
 
-	unsigned int backWidth = 0, backHeight = 0;
-	unsigned int columns = 0, rows = 0;
-
-
-	LevelManager* _levelManager;
-	std::vector<LevelSoftBody*> _gameBodies;
-	World* _world;
-	Car* _car;
-
-	glm::mat4 _projection;
-	glm::mat4 _jellyProjection;
-
-	Vector2 _levelTarget;
-	glm::vec4 _screenBounds;
-
+	LevelManager* m_levelManager;
+	std::vector<LevelSoftBody*> m_gameBodies;
+	World* m_world;
+	Car* m_car;
+	Vector4f m_screenBounds;
 	std::string m_scene;
+	float m_time;
 
-	std::string _levelName;
-	std::string _sceneFile;
-
-	Vector2 _wholeMapSize;
-	Vector2 _wholeMapPosition;
-	AABB _worldLimits;
-	AABB _mapLimits;
-	float _levelLine;
-	int carBreakCount;
-
-	bool _newTimeRecord;
-	bool _newJumpRecord;
-
-	bool _fastCar;
-	bool _slowCar;
-	bool _showMap;
-	float _dt;
-	float _time;
-
-	//hit sound
-	float _hitTime;
-	float _chassisHit;
-
-	//jumping
-	bool _isJumping;
-	bool _inTheAir;
-	float _jumpStartPosition;
-	float _bestJumpLenght;
+	Vector2 m_levelTarget;
+	std::string m_levelName;
+	std::string m_sceneFile;
+	bool m_newTimeRecord;
+	bool m_newJumpRecord;
+	float m_levelLine;
+	int m_carBreakCount;
 
 	//transformeter
-	float				mTransformMeter;
-	float				mTransformMeterRechargeSpeed;
-	int					mTransformMeterGrowDir;
-	int					mTransformTex;
+	float m_transformMeter;
+	float m_transformMeterRechargeSpeed;
+	int m_transformMeterGrowDir;
 
 	//checkpoint
-	bool _checkpoint;
-	glm::vec2 _checkpointPosition;
+	bool m_checkpoint;
+	Vector2f m_checkpointPosition;
+
+
+	Vector2 m_wholeMapSize;
+	Vector2 m_wholeMapPosition;
+	AABB m_worldLimits;
+	AABB m_mapLimits;
+	
+
+	bool m_fastCar;
+	bool m_slowCar;
+	bool m_showMap;
+	
+	//hit sound
+	float m_hitTime;
+	float m_chassisHit;
+
+	//jumping
+	bool m_isJumping;
+	bool m_inTheAir;
+	float m_jumpStartPosition;
+	float m_bestJumpLenght;
 
 	//ballon and tire
-	bool _haveBallon;
-	bool _haveTire;
+	bool m_haveBallon;
+	bool m_haveTire;
 
-	bool _ballonActive;
-	bool _tireActive;
+	bool m_ballonActive;
+	bool m_tireActive;
 
-	bool _ballonPressed;
-	bool _tirePressed;
+	bool m_ballonPressed;
+	bool m_tirePressed;
 
-	float _ballonTime;
-	float _tireTime;
+	float m_ballonTime;
+	float m_tireTime;
 
-	AABB _ballonAABB;
-	AABB _tireAABB;
-
-	Shader2* _shader;
-	ShaderManager* _shaderManager;
-
-	Sprite* _backSprite;
-	Sprite* _targetSprite;
-	Sprite* _tireSprite;
-	Sprite* _ballonSprite;
-	Sprite* _tireSpriteBack;
-	Sprite* _ballonSpriteBack;
-	//Sprite* _transformMeter;
+	AABB m_ballonAABB;
+	AABB m_tireAABB;
 
 	Framebuffer m_mainRT;
 
 	Matrix4f m_orthographic;
 	Camera m_camera;
+
+	static glm::mat4 GlmFromMatrix(const Matrix4f& m);
 };

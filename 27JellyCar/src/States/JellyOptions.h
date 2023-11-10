@@ -65,7 +65,7 @@ private:
 	JellyOptionState* addStateAtTop(JellyOptionState* state);
 	void OnKeyDown(Event::KeyboardEvent& event) override;
 	void processInput();
-	glm::vec2 touchToScreen(glm::vec4 screenBound, glm::vec2 touch);
+	Vector2f touchToScreen(Vector4f screenBound, Vector2f touch);
 
 	unsigned int m_backWidth, m_backHeight;
 	int m_columns, m_rows;
@@ -76,7 +76,7 @@ private:
 	World* m_world;
 
 	glm::mat4 m_jellyProjection;
-	glm::vec4 m_screenBounds;
+	Vector4f m_screenBounds;
 	
 	unsigned int m_options;
 
