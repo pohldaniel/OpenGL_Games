@@ -92,8 +92,8 @@ void Game::update() {
 	Mouse &mouse = Mouse::instance();
 
 	if (mouse.buttonDown(Mouse::MouseButton::BUTTON_RIGHT)) {
-		dx = mouse.xPosRelative();
-		dy = mouse.yPosRelative();
+		dx = mouse.xDelta();
+		dy = mouse.yDelta();
 	}
 
 	if (move || dx != 0.0f || dy != 0.0f) {

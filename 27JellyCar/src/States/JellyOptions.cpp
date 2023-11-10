@@ -11,6 +11,8 @@
 JellyOptions::JellyOptions(StateMachine& machine) : State(machine, States::JELLYOPTIONS) {
 
 	EventDispatcher::AddKeyboardListener(this);
+	Mouse::instance().attach(Application::GetWindow(), false);
+
 
 	m_backWidth = Globals::textureManager.get("paper").getWidth();
 	m_backHeight = Globals::textureManager.get("paper").getHeight();
@@ -125,8 +127,29 @@ void JellyOptions::resize(int deltaW, int deltaH) {
 	}
 }
 
+glm::vec2 TouchToScreen(glm::vec4 screenBound, glm::vec2 touch){
+	float width = fabsf(screenBound.x) + fabsf(screenBound.y);
+	float widthFactor = width / static_cast<float>(Application::Width);
+	float dragX = (touch.x * widthFactor) + screenBound.x;
+
+	float height = fabsf(screenBound.w) + fabsf(screenBound.z);
+	float heightFactor = height / static_cast<float>(Application::Height);
+
+	float dragY = 0.0f;
+
+	if (screenBound.w < screenBound.z)
+		dragY = (touch.y * heightFactor) + screenBound.w;
+	else{
+		touch.y = static_cast<float>(Application::Height) - touch.y;
+		dragY = (touch.y * heightFactor) + screenBound.z;
+	}
+
+	return glm::vec2(dragX, dragY);
+}
+
 void JellyOptions::processInput() {
 	Keyboard &keyboard = Keyboard::instance();
+	Mouse &mouse = Mouse::instance();
 
 	//keys
 	if (keyboard.keyPressed(Keyboard::KEY_LEFT)){
@@ -144,19 +167,18 @@ void JellyOptions::processInput() {
 			m_menuBodySelected = m_menuBodies.size() - 1;
 		}
 	}
-
+	
 	//touch 
-	//if (_inputHelper->GetTouchCount() > 0) {
-	if(false){	
-		//glm::vec2 touch = _inputHelper->TouchToScreen(_screenBounds, _inputHelper->GetTouchPosition(0));
-
-		//dragX = touch.x;
-		//dragY = touch.y;
+	if (mouse.buttonDown(Mouse::BUTTON_LEFT)) {
+		glm::vec2 touch = TouchToScreen(m_screenBounds, glm::vec2(mouse.xPos(), mouse.yPos()));
+		m_dragX = touch.x;
+		m_dragY = touch.y;
 
 		m_touchF = true;
+
 	}else{
-		//testtouch = glm::vec2(0.0f, 0.0f);
 		m_touchF = false;
+
 	}
 
 	if (m_touchF == true){
@@ -169,6 +191,34 @@ void JellyOptions::processInput() {
 		m_dragPoint = -1;
 	}
 
+	if (m_touchF == true){
+		if (m_dragBody == NULL){
+			int body;
+			m_world->getClosestPointMass(Vector2(m_dragX, m_dragY), body, m_dragPoint);
+			m_dragBody = m_world->getBody(body);
+
+
+			//click testing
+			for (size_t i = 0; i < m_gameBodies.size(); i++){
+				if (m_gameBodies[i]->GetBody()->contains(Vector2(m_dragX, m_dragY))){
+					if (m_gameBodies[i]->GetName() == "options_libs"){
+						m_alphaScale = 1.0f;
+						addStateAtTop(new JellyOptionLib(*this));
+					}else if (m_gameBodies[i]->GetName() == "options_credits"){
+						m_alphaScale = 1.0f;
+						addStateAtTop(new JellyOptionCredit(*this));
+					}else if (m_gameBodies[i]->GetName() == "options_keys"){
+						m_alphaScale = 1.0f;
+						addStateAtTop(new JellyOptionControl(*this));
+					}else if (m_gameBodies[i]->GetName() == "options_sound"){
+						m_alphaScale = 1.0f;
+						addStateAtTop(new JellyOptionSound(*this));
+					}
+				}
+			}
+		}
+	}
+
 	if(keyboard.keyPressed(Keyboard::KEY_S)){
 
 		if (m_menuBodies[m_menuBodySelected]->GetName() == "options_libs"){
@@ -179,7 +229,6 @@ void JellyOptions::processInput() {
 			addStateAtTop(new JellyOptionCredit(*this));
 		}else if (m_menuBodies[m_menuBodySelected]->GetName() == "options_keys"){
 			m_alphaScale = 1.0f;
-
 			addStateAtTop(new JellyOptionControl(*this));
 		}else if (m_menuBodies[m_menuBodySelected]->GetName() == "options_sound"){
 			m_alphaScale = 1.0f;

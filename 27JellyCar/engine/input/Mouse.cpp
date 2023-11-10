@@ -1,5 +1,6 @@
 #include <iostream>
 #include "Mouse.h"
+#include "hidusage.h"
 
 HCURSOR Mouse::Cursor = LoadCursor(nullptr, IDC_ARROW);
 
@@ -31,10 +32,10 @@ Mouse::Mouse(){
 	m_prevWheelDelta = 0;
 	m_mouseWheel = 0.0f;
 
-	m_xPosAbsolute = 0;
-	m_yPosAbsolute = 0;
-	m_xPosRelative = 0;
-	m_yPosRelative = 0;
+	m_xPos = 0;
+	m_yPos = 0;
+	m_xDelta = 0;
+	m_yDelta = 0;
 	m_weightModifier = WEIGHT_MODIFIER;
 	m_historyBufferSize = HISTORY_BUFFER_SIZE;
 	m_attached = false;
@@ -55,10 +56,9 @@ bool Mouse::attachRaw(HWND hWnd){
 	if (!m_hWnd){
 
 		RAWINPUTDEVICE rid[1] = { 0 };
-
-		rid[0].usUsagePage = 1;
-		rid[0].usUsage = 2;
-		rid[0].dwFlags = 0;
+		rid[0].usUsagePage = HID_USAGE_PAGE_GENERIC;
+		rid[0].usUsage = HID_USAGE_GENERIC_MOUSE;
+		rid[0].dwFlags = RIDEV_INPUTSINK;
 		rid[0].hwndTarget = hWnd;
 
 		if (!RegisterRawInputDevices(rid, 1, sizeof(rid[0])))
@@ -158,26 +158,31 @@ void Mouse::handleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam){
 	default: {
 		
 		break;
-	}
-	case WM_INPUT:
+	}case WM_INPUT:
 		GetRawInputData(reinterpret_cast<HRAWINPUT>(lParam), RID_INPUT, m_tempBuffer, &size, sizeof(RAWINPUTHEADER));
 		pRaw = reinterpret_cast<RAWINPUT*>(m_tempBuffer);
 		if (pRaw->header.dwType == RIM_TYPEMOUSE){
 
-			m_xPosRelative = static_cast<float>(pRaw->data.mouse.lLastX);
-			m_yPosRelative = static_cast<float>(pRaw->data.mouse.lLastY);
-
+			m_xDelta = static_cast<float>(pRaw->data.mouse.lLastX);
+			m_yDelta = static_cast<float>(pRaw->data.mouse.lLastY);
+		
 			if (m_enableFiltering){
 				
-				performMouseFiltering(m_xPosRelative, m_yPosRelative);
+				performMouseFiltering(m_xDelta, m_yDelta);
 
-				m_xPosRelative = m_filtered[0];
-				m_yPosRelative = m_filtered[1];
+				m_xDelta = m_filtered[0];
+				m_yDelta = m_filtered[1];
 
-				performMouseSmoothing(m_xPosRelative, m_yPosRelative);
+				performMouseSmoothing(m_xDelta, m_yDelta);
 
-				m_xPosRelative = m_filtered[0];
-				m_yPosRelative = m_filtered[1];
+				m_xDelta = m_filtered[0];
+				m_yDelta = m_filtered[1];			
+			}
+
+			m_mouseWheel = 0.0f;
+			if (pRaw->data.mouse.usButtonFlags & RI_MOUSE_WHEEL) {
+				m_mouseWheel = static_cast<float>((*(short*)&pRaw->data.mouse.usButtonData)) / static_cast<float>(WHEEL_DELTA);
+				
 			}
 		}
 
@@ -187,12 +192,12 @@ void Mouse::handleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam){
 		int x = static_cast<int>(static_cast<short>(LOWORD(lParam)));
 		int y = static_cast<int>(static_cast<short>(HIWORD(lParam)));
 	
-		m_xPosRelative = static_cast< float >(x - m_centerX);
-		m_yPosRelative = static_cast< float >(y - m_centerY);
+		m_xDelta = static_cast< float >(x - m_centerX);
+		m_yDelta = static_cast< float >(y - m_centerY);
 
 
-		m_xPosAbsolute = x;
-		m_yPosAbsolute = y;
+		m_xPos = x;
+		m_yPos = y;
 		
 		break;
 
@@ -212,11 +217,11 @@ void Mouse::handleEvent(Event event) {
 			int x = event.data.mouseMove.x;
 			int y = event.data.mouseMove.y;
 
-			m_xPosRelative = static_cast< float >(x - m_centerX);
-			m_yPosRelative = static_cast< float >(y - m_centerY);
+			m_xDelta = static_cast< float >(x - m_centerX);
+			m_yDelta = static_cast< float >(y - m_centerY);
 
-			m_xPosAbsolute = x;
-			m_yPosAbsolute = y;
+			m_xPos = x;
+			m_yPos = y;
 			break;
 		}
 	}
@@ -227,13 +232,12 @@ void Mouse::hideCursor(bool hideCursor){
 	if (hideCursor) {
 		m_cursorVisible = false;
 
-		while (ShowCursor(FALSE) >= 0)
-			; // do nothing
+		while (ShowCursor(FALSE) >= 0); // do nothing
+
 	}else {
 		m_cursorVisible = true;
 
-		while (ShowCursor(TRUE) < 0)
-			; // do nothing
+		while (ShowCursor(TRUE) < 0); // do nothing
 	}
 }
 
@@ -243,11 +247,11 @@ void Mouse::setPosition(UINT x, UINT y){
 	if (ClientToScreen(m_hWnd, &pt)){
 		SetCursorPos(pt.x, pt.y);
 
-		m_xPosAbsolute = x;
-		m_yPosAbsolute = y;
+		m_xPos = x;
+		m_yPos = y;
 
-		m_xPosRelative = 0.0f;
-		m_yPosRelative = 0.0f;	
+		m_xDelta = 0.0f;
+		m_yDelta = 0.0f;
 	}
 }
 
@@ -280,13 +284,20 @@ void Mouse::update(){
 		
 		POINT CursorPos;
 		GetCursorPos(&CursorPos);		
-		m_xPosRelative = static_cast< float >((CursorPos.x - m_centerX));
-		m_yPosRelative = static_cast< float >((CursorPos.y - m_centerY));
-		setCursorToMiddle();
+		m_xDelta = static_cast< float >((CursorPos.x - m_centerX));
+		m_yDelta = static_cast< float >((CursorPos.y - m_centerY));
+		
+		if(!m_cursorVisible)
+			setCursorToMiddle();
+		else {
+			ScreenToClient(m_hWnd, &CursorPos);
+			m_xPos = CursorPos.x;
+			m_yPos = CursorPos.y;
+		}
 	}
 }
 
-void Mouse::attach(HWND hWnd) {
+void Mouse::attach(HWND hWnd, bool _hideCursor) {
 	if (m_attached) return;
 	m_hWnd = hWnd;
 
@@ -296,8 +307,8 @@ void Mouse::attach(HWND hWnd) {
 	m_yLastPos = CursorPos.y;
 
 	ScreenToClient(m_hWnd, &CursorPos);
-	m_xPosAbsolute = CursorPos.x;
-	m_yPosAbsolute = CursorPos.y;
+	m_xPos = CursorPos.x;
+	m_yPos = CursorPos.y;
 
 	RECT rectClient, rectWindow;
 	GetWindowRect(m_hWnd, &rectWindow);
@@ -307,7 +318,8 @@ void Mouse::attach(HWND hWnd) {
 	m_centerY = rectWindow.top + rectClient.bottom / 2;
 
 	setCursorToMiddle();
-	hideCursor(true);
+	if(_hideCursor)
+		hideCursor(true);
 	m_attached = true;
 }
 
@@ -316,13 +328,14 @@ void Mouse::detach() {
 
 	SetCursorPos(m_xLastPos, m_yLastPos);
 	m_attached = false;
-	hideCursor(false);
-	m_xPosRelative = 0;
-	m_yPosRelative = 0;
+	if(!m_cursorVisible)
+		hideCursor(false);
+	m_xDelta = 0.0f;
+	m_yDelta = 0.0f;
 	m_hWnd = 0;
 }
 
 void Mouse::setAbsolute(int x, int y) {
-	m_xPosAbsolute = x;
-	m_yPosAbsolute = y;
+	m_xPos = x;
+	m_yPos = y;
 }

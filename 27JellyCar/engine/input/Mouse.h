@@ -35,21 +35,21 @@ public:
 		return m_enableFiltering;
 	}
 
-	int xPosAbsolute() const{
-		return m_xPosAbsolute;
+	int xPos() const{
+		return m_xPos;
 	}
 
-	int yPosAbsolute() const
+	int yPos() const
 	{
-		return m_yPosAbsolute;
+		return m_yPos;
 	}
 
-	float xPosRelative() const{
-		return m_xPosRelative;
+	float xDelta() const{
+		return m_xDelta;
 	}
 
-	float yPosRelative() const{
-		return m_yPosRelative;
+	float yDelta() const{
+		return m_yDelta;
 	}
 
 	float weightModifier() const{
@@ -62,7 +62,7 @@ public:
 
 	bool attachRaw(HWND hWnd);
 	void detachRaw();
-	void attach(HWND hWnd);
+	void attach(HWND hWnd, bool hideCursor = true);
 	void detach();
 	void handleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 	void handleEvent(Event event);
@@ -90,20 +90,20 @@ private:
 
 	static const float WEIGHT_MODIFIER;
 	static const int HISTORY_BUFFER_SIZE = 10;
-	static const int TEMP_BUFFER_SIZE = 40;
+	static const int TEMP_BUFFER_SIZE = sizeof(RAWINPUT);
 
 	static BYTE m_tempBuffer[TEMP_BUFFER_SIZE];
 
 	HWND m_hWnd;
-	int m_xPosAbsolute, m_yPosAbsolute;
+	int m_xPos, m_yPos;
 	int m_xLastPos, m_yLastPos;
 	int m_historyBufferSize;
 	int m_mouseIndex;
 	int m_wheelDelta;
 	int m_prevWheelDelta;
 	float m_mouseWheel;
-	float m_xPosRelative;
-	float m_yPosRelative;
+	float m_xDelta;
+	float m_yDelta;
 	float m_weightModifier;
 	float m_filtered[2];
 	float m_history[HISTORY_BUFFER_SIZE * 2];

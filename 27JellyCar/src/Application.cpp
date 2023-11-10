@@ -368,7 +368,7 @@ void Application::ToggleVerticalSync() {
 	}
 }
 
-HWND Application::GetWindow() {
+const HWND& Application::GetWindow() {
 	return Window;
 }
 

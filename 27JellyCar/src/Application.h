@@ -23,7 +23,7 @@ public:
 	static void ToggleVerticalSync();
 	static void SetCursorIconFromFile(std::string file);
 	static void SetCursorIcon(LPCSTR resource);
-	static HWND GetWindow();
+	static const HWND& GetWindow();
 
 	static int Width;
 	static int Height;
