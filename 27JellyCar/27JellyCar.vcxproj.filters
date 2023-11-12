@@ -76,6 +76,9 @@
     <Filter Include="Andromeda\FileSystem\Stdio">
       <UniqueIdentifier>{5c443150-d31c-4590-992c-48f8702b53b7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Thread">
+      <UniqueIdentifier>{7712cef3-2f9b-41d0-9186-557e6f4dc8ab}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\input\ApplicationEventListener.cpp">
@@ -479,6 +482,18 @@
     </ClCompile>
     <ClCompile Include="src\States\JellyDialog.cpp">
       <Filter>Source Files\States</Filter>
+    </ClCompile>
+    <ClCompile Include="Loadingmanager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Thread\EventClass.cpp">
+      <Filter>Source Files\Thread</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Thread\MutexClass.cpp">
+      <Filter>Source Files\Thread</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Thread\Thread.cpp">
+      <Filter>Source Files\Thread</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -958,6 +973,18 @@
     </ClInclude>
     <ClInclude Include="Resource.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Loadingmanager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Thread\EventClass.h">
+      <Filter>Source Files\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Thread\MutexClass.h">
+      <Filter>Source Files\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Thread\Thread.h">
+      <Filter>Source Files\Thread</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

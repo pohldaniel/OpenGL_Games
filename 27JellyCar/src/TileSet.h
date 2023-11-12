@@ -48,13 +48,14 @@ class TileSet {
 public:
 
 	TileSet();
-	void loadTileSet(std::vector<std::string>  texturePaths, unsigned int width = 1024u, unsigned int height = 1024u, bool resetLine = false);
+	void loadTileSetCpu(std::vector<std::string>  texturePaths, unsigned int width = 1024u, unsigned int height = 1024u, bool resetLine = false);
+	void loadTileSetGpu();
 	const std::vector<TextureRect>& getTextureRects() const;
 	const unsigned int& getAtlas() const;
 
 private:
 
-	unsigned int m_atlas;
+	unsigned int m_atlas = 0;
 	std::vector<TextureRect> m_textureRects;
 	bool m_init;
 };

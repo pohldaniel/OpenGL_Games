@@ -50,9 +50,10 @@ carcurrentPosition(SceneManager::Get().getSceneInfo("scene").m_carCurrentPositio
 	m_jellyProjection = glm::ortho(-20.0f + 0, 0 + 20.0f, -4.2f + 4, 4 + 18.2f, -1.0f, 1.0f);
 
 
-	SceneManager::Get().getSceneInfo("scene").loadLevelInfo("Assets/Jelly/scene_list.xml");
-	SceneManager::Get().getSceneInfo("scene").loadCarSkins("Assets/Jelly/car_skins.xml");
-	TileSetManager::Get().getTileSet("thumbs").loadTileSet(SceneManager::Get().getSceneInfo("scene").getThumbFiles());
+	//SceneManager::Get().getSceneInfo("scene").loadLevelInfo("Assets/Jelly/scene_list.xml");
+	//SceneManager::Get().getSceneInfo("scene").loadCarSkins("Assets/Jelly/car_skins.xml");
+	//TileSetManager::Get().getTileSet("thumbs").loadTileSetCpu(SceneManager::Get().getSceneInfo("scene").getThumbFiles());
+
 	m_thumbAtlas = TileSetManager::Get().getTileSet("thumbs").getAtlas();
 	//Spritesheet::Safe("thumbs", m_thumbAtlas);
 

@@ -143,7 +143,7 @@ TileSet::TileSet() : m_init(false) {
 
 }
 
-void TileSet::loadTileSet(std::vector<std::string>  texturePaths, unsigned int _width, unsigned int _height, bool resetLine) {
+void TileSet::loadTileSetCpu(std::vector<std::string>  texturePaths, unsigned int _width, unsigned int _height, bool resetLine) {
 	if (m_init) return;
 	TextureAtlasCreator::Get().init(_width, _height);
 	
@@ -156,7 +156,11 @@ void TileSet::loadTileSet(std::vector<std::string>  texturePaths, unsigned int _
 			TextureAtlasCreator::Get().resetLine();
 
 		free(bytes);
-	}
+	}	
+}
+
+void TileSet::loadTileSetGpu() {
+	if (m_init) return;
 
 	TextureAtlasCreator::Get().getAtlas(m_atlas);
 	m_init = true;

@@ -5,6 +5,8 @@
 #include "Application.h"
 #include "Globals.h"
 #include "JellyHelper.h"
+#include "TileSet.h"
+#include "Loadingmanager.h"
 
 JellyIntro::JellyIntro(StateMachine& machine) : State(machine, States::JELLYINTRO) {
 
@@ -47,6 +49,10 @@ JellyIntro::JellyIntro(StateMachine& machine) : State(machine, States::JELLYINTR
 	shader->use();
 	shader->loadInt("u_texture", 2);
 	shader->unuse();
+
+	
+	LoadingManagerSplitted::Get().addTask(new JellyIntro::LoadSceneAndThumbsTask(this, &JellyIntro::OnProcess, &JellyIntro::OnComplete));
+	LoadingManagerSplitted::Get().startBackgroundThread();
 }
 
 JellyIntro::~JellyIntro() {
@@ -66,6 +72,11 @@ JellyIntro::~JellyIntro() {
 void JellyIntro::fixedUpdate() {}
 
 void JellyIntro::update() {
+
+	if (!LoadingManagerSplitted::Get().isFinished()){
+		LoadingManagerSplitted::Get().executeMainThreadActions();
+	}
+	
 
 	m_car->setTorque(1);
 
@@ -160,4 +171,15 @@ void JellyIntro::render() {
 void JellyIntro::resize(int deltaW, int deltaH) {
 	m_columns = ceil(static_cast<float>(Application::Width) / static_cast<float>(m_backWidth));
 	m_rows = ceil(static_cast<float>(Application::Height) / static_cast<float>(m_backHeight));
+}
+
+void JellyIntro::OnProcess() {
+	SceneManager::Get().getSceneInfo("scene").loadLevelInfo("Assets/Jelly/scene_list.xml");
+	SceneManager::Get().getSceneInfo("scene").loadCarSkins("Assets/Jelly/car_skins.xml");
+	TileSetManager::Get().getTileSet("thumbs").loadTileSetCpu(SceneManager::Get().getSceneInfo("scene").getThumbFiles());
+}
+
+void JellyIntro::OnComplete() {
+	TileSetManager::Get().getTileSet("thumbs").loadTileSetGpu();
+	//Spritesheet::Safe("thumbs", TileSetManager::Get().getTileSet("thumbs").getAtlas());
 }

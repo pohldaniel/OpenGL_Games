@@ -161,6 +161,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="engine\ZoomableQuad.cpp" />
+    <ClCompile Include="Loadingmanager.cpp" />
     <ClCompile Include="src\Car\Car.cpp" />
     <ClCompile Include="src\Car\Chassis.cpp" />
     <ClCompile Include="src\Car\GameBallonBody.cpp" />
@@ -193,6 +194,9 @@
     <ClCompile Include="src\States\JellyDialog.cpp" />
     <ClCompile Include="src\States\JellySplash.cpp" />
     <ClCompile Include="src\States\StateMachine.cpp" />
+    <ClCompile Include="src\Thread\EventClass.cpp" />
+    <ClCompile Include="src\Thread\MutexClass.cpp" />
+    <ClCompile Include="src\Thread\Thread.cpp" />
     <ClCompile Include="src\TileSet.cpp" />
     <ClCompile Include="src\Utils\Rasterizer.cpp" />
     <ClCompile Include="engine\ArrayBuffer.cpp" />
@@ -347,6 +351,7 @@
     <ClInclude Include="engine\Vector.h" />
     <ClInclude Include="engine\VolumeBuffer.h" />
     <ClInclude Include="engine\ZoomableQuad.h" />
+    <ClInclude Include="Loadingmanager.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="src\Application.h" />
     <ClInclude Include="src\Background.h" />
@@ -396,6 +401,9 @@
     <ClInclude Include="src\States\JellyDialog.h" />
     <ClInclude Include="src\States\JellySplash.h" />
     <ClInclude Include="src\States\StateMachine.h" />
+    <ClInclude Include="src\Thread\EventClass.h" />
+    <ClInclude Include="src\Thread\MutexClass.h" />
+    <ClInclude Include="src\Thread\Thread.h" />
     <ClInclude Include="src\TileSet.h" />
     <ClInclude Include="src\Utils\Rasterizer.h" />
     <ClInclude Include="Physics\BspConverter.h" />
