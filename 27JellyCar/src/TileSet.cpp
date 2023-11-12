@@ -161,7 +161,6 @@ void TileSet::loadTileSetCpu(std::vector<std::string>  texturePaths, unsigned in
 
 void TileSet::loadTileSetGpu() {
 	if (m_init) return;
-
 	TextureAtlasCreator::Get().getAtlas(m_atlas);
 	m_init = true;
 }

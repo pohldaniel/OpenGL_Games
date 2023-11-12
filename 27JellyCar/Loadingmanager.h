@@ -47,7 +47,7 @@ public:
 	virtual bool OnTask() override = 0;
 	virtual bool isFinished() = 0;
 	virtual void completeCurTask() = 0;
-	void executeMainThreadActions();
+	void update();
 
 protected:
 

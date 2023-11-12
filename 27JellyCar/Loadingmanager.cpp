@@ -16,6 +16,9 @@ LoadingManager::LoadingManager() : m_finished(false), m_accessMutex(), m_started
 
 
 void LoadingManager::startBackgroundThread() {
+	m_finished = false;
+	m_started = false;
+
 	do{
 		this->Event();
 		Sleep(10);
@@ -27,8 +30,10 @@ void LoadingManager::addTask(Task* task) {
 	m_tasks.push_back(task);
 }
 
-void LoadingManager::executeMainThreadActions() {
-	completeCurTask();
+void LoadingManager::update() {
+	if (!isFinished()) {
+		completeCurTask();
+	}
 }
 
 LoadingManagerSerialized LoadingManagerSerialized::Instance;
@@ -43,6 +48,7 @@ bool LoadingManagerSerialized::OnTask() {
 	}
 
 	m_started = true;
+
 	m_tasks.front()->Process();
 
 	//Important Note: The task Complete function will be set after finishing the task Process function
@@ -65,8 +71,6 @@ void LoadingManagerSerialized::completeCurTask() {
 
 		m_tasks.pop_front();
 		if (m_tasks.size() > 0) {
-			m_finished = false;
-			m_started = false;
 			startBackgroundThread();
 		}
 
@@ -120,6 +124,7 @@ void LoadingManagerSplitted::completeCurTask() {
 		Task *curEntry = m_queue.front();
 		m_accessMutex.Unlock();
 
+		m_tasks.clear();
 		curEntry->Complete();
 
 		delete curEntry;

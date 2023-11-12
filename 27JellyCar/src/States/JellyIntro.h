@@ -46,7 +46,4 @@ private:
 	glm::mat4 m_jellyProjection;
 
 	Vector2 m_levelTarget;
-
-	std::string m_title[2] = { "thumbs", "images" };
-	int m_count = 0;
 };

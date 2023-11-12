@@ -50,7 +50,6 @@ JellyIntro::JellyIntro(StateMachine& machine) : State(machine, States::JELLYINTR
 	shader->loadInt("u_texture", 2);
 	shader->unuse();
 
-	
 	LoadingManagerSplitted::Get().addTask(new JellyIntro::LoadSceneAndThumbsTask(this, &JellyIntro::OnProcess, &JellyIntro::OnComplete));
 	LoadingManagerSplitted::Get().startBackgroundThread();
 }
@@ -73,10 +72,8 @@ void JellyIntro::fixedUpdate() {}
 
 void JellyIntro::update() {
 
-	if (!LoadingManagerSplitted::Get().isFinished()){
-		LoadingManagerSplitted::Get().executeMainThreadActions();
-	}
 	
+	LoadingManagerSplitted::Get().update();
 
 	m_car->setTorque(1);
 
@@ -181,5 +178,4 @@ void JellyIntro::OnProcess() {
 
 void JellyIntro::OnComplete() {
 	TileSetManager::Get().getTileSet("thumbs").loadTileSetGpu();
-	//Spritesheet::Safe("thumbs", TileSetManager::Get().getTileSet("thumbs").getAtlas());
 }
