@@ -12,8 +12,6 @@
 #include "Levels/LevelManager.h"
 #include "JellyPhysics/World.h"
 
-#include "_Andromeda/Sprite.h"
-
 class JellyGame : public State, public KeyboardEventListener, JellyPhysics::CollisionCallback {
 
 	friend class JellyDialogPause;

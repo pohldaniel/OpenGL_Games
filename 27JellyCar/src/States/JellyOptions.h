@@ -39,7 +39,7 @@ public:
 
 class JellyOptionState;
 
-class JellyOptions : public State, public KeyboardEventListener {
+class JellyOptions : public State, public KeyboardEventListener, public IStateMachine<JellyOptionState> {
 
 	friend class JellyOptionLib;
 	friend class JellyOptionCredit;
@@ -62,7 +62,6 @@ public:
 
 private:
 
-	JellyOptionState* addStateAtTop(JellyOptionState* state);
 	void OnKeyDown(Event::KeyboardEvent& event) override;
 	void processInput();
 	Vector2f touchToScreen(Vector4f screenBound, Vector2f touch);
@@ -91,12 +90,10 @@ private:
 	bool m_touchF = false;
 	int m_dragPoint = -1;
 	Body *m_dragBody;
-
-	std::stack<JellyOptionState*> m_states;
 };
 
 ////////////////////////////////////////////////////////////////////////
-class JellyOptionState : public StateInterface {
+class JellyOptionState : public IState<JellyOptionState> {
 
 	friend class JellyOptions;
 

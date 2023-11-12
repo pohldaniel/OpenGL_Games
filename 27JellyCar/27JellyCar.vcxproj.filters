@@ -70,14 +70,14 @@
     <Filter Include="Andromeda\FileSystem">
       <UniqueIdentifier>{9c8a47b1-d432-4f11-9b2e-9b20c2a7d011}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Andromeda\Text">
-      <UniqueIdentifier>{ed792743-ad13-4fdb-bbe5-2d03baaaf165}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Andromeda\FileSystem\Stdio">
       <UniqueIdentifier>{5c443150-d31c-4590-992c-48f8702b53b7}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Thread">
       <UniqueIdentifier>{7712cef3-2f9b-41d0-9186-557e6f4dc8ab}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="engine\interfaces">
+      <UniqueIdentifier>{d0201a6b-300d-429e-b832-577cfae6b06f}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -393,15 +393,6 @@
     <ClCompile Include="_Andromeda\FileSystem\FileManager.cpp">
       <Filter>Andromeda\FileSystem</Filter>
     </ClCompile>
-    <ClCompile Include="_Andromeda\Text\FontManager.cpp">
-      <Filter>Andromeda\Text</Filter>
-    </ClCompile>
-    <ClCompile Include="_Andromeda\Text\TextureAtlas.cpp">
-      <Filter>Andromeda\Text</Filter>
-    </ClCompile>
-    <ClCompile Include="_Andromeda\Text\TexturedFont.cpp">
-      <Filter>Andromeda\Text</Filter>
-    </ClCompile>
     <ClCompile Include="_Andromeda\AnimMat4.cpp">
       <Filter>Andromeda</Filter>
     </ClCompile>
@@ -414,16 +405,7 @@
     <ClCompile Include="_Andromeda\FrameBufferObjectGL3.cpp">
       <Filter>Andromeda</Filter>
     </ClCompile>
-    <ClCompile Include="_Andromeda\MemoryManager.cpp">
-      <Filter>Andromeda</Filter>
-    </ClCompile>
-    <ClCompile Include="_Andromeda\MemoryManagerGlfw.cpp">
-      <Filter>Andromeda</Filter>
-    </ClCompile>
     <ClCompile Include="_Andromeda\RenderManager.cpp">
-      <Filter>Andromeda</Filter>
-    </ClCompile>
-    <ClCompile Include="_Andromeda\RenderManagerGL3.cpp">
       <Filter>Andromeda</Filter>
     </ClCompile>
     <ClCompile Include="_Andromeda\Shader2.cpp">
@@ -435,16 +417,7 @@
     <ClCompile Include="_Andromeda\ShaderManager.cpp">
       <Filter>Andromeda</Filter>
     </ClCompile>
-    <ClCompile Include="_Andromeda\Sprite.cpp">
-      <Filter>Andromeda</Filter>
-    </ClCompile>
     <ClCompile Include="_Andromeda\Texture2.cpp">
-      <Filter>Andromeda</Filter>
-    </ClCompile>
-    <ClCompile Include="_Andromeda\TextureManager.cpp">
-      <Filter>Andromeda</Filter>
-    </ClCompile>
-    <ClCompile Include="_Andromeda\Timer2.cpp">
       <Filter>Andromeda</Filter>
     </ClCompile>
     <ClCompile Include="_Andromeda\VertexArrayObject.cpp">
@@ -494,6 +467,18 @@
     </ClCompile>
     <ClCompile Include="src\Thread\Thread.cpp">
       <Filter>Source Files\Thread</Filter>
+    </ClCompile>
+    <ClCompile Include="_Andromeda\MemoryManager.cpp">
+      <Filter>Andromeda</Filter>
+    </ClCompile>
+    <ClCompile Include="_Andromeda\MemoryManagerGlfw.cpp">
+      <Filter>Andromeda</Filter>
+    </ClCompile>
+    <ClCompile Include="_Andromeda\TextureManager.cpp">
+      <Filter>Andromeda</Filter>
+    </ClCompile>
+    <ClCompile Include="_Andromeda\RenderManagerGL3.cpp">
+      <Filter>Andromeda</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -869,18 +854,6 @@
     <ClInclude Include="_Andromeda\FileSystem\FileManager.h">
       <Filter>Andromeda\FileSystem</Filter>
     </ClInclude>
-    <ClInclude Include="_Andromeda\Text\FontManager.h">
-      <Filter>Andromeda\Text</Filter>
-    </ClInclude>
-    <ClInclude Include="_Andromeda\Text\TextPart.h">
-      <Filter>Andromeda\Text</Filter>
-    </ClInclude>
-    <ClInclude Include="_Andromeda\Text\TextureAtlas.h">
-      <Filter>Andromeda\Text</Filter>
-    </ClInclude>
-    <ClInclude Include="_Andromeda\Text\TexturedFont.h">
-      <Filter>Andromeda\Text</Filter>
-    </ClInclude>
     <ClInclude Include="_Andromeda\AnimMat4.h">
       <Filter>Andromeda</Filter>
     </ClInclude>
@@ -899,16 +872,7 @@
     <ClInclude Include="_Andromeda\GraphicsEnums.h">
       <Filter>Andromeda</Filter>
     </ClInclude>
-    <ClInclude Include="_Andromeda\MemoryManager.h">
-      <Filter>Andromeda</Filter>
-    </ClInclude>
-    <ClInclude Include="_Andromeda\MemoryManagerGlfw.h">
-      <Filter>Andromeda</Filter>
-    </ClInclude>
     <ClInclude Include="_Andromeda\RenderManager.h">
-      <Filter>Andromeda</Filter>
-    </ClInclude>
-    <ClInclude Include="_Andromeda\RenderManagerGL3.h">
       <Filter>Andromeda</Filter>
     </ClInclude>
     <ClInclude Include="_Andromeda\Shader2.h">
@@ -920,16 +884,7 @@
     <ClInclude Include="_Andromeda\ShaderManager.h">
       <Filter>Andromeda</Filter>
     </ClInclude>
-    <ClInclude Include="_Andromeda\Sprite.h">
-      <Filter>Andromeda</Filter>
-    </ClInclude>
     <ClInclude Include="_Andromeda\Texture2.h">
-      <Filter>Andromeda</Filter>
-    </ClInclude>
-    <ClInclude Include="_Andromeda\TextureManager.h">
-      <Filter>Andromeda</Filter>
-    </ClInclude>
-    <ClInclude Include="_Andromeda\Timer2.h">
       <Filter>Andromeda</Filter>
     </ClInclude>
     <ClInclude Include="_Andromeda\VertexArrayObject.h">
@@ -985,6 +940,21 @@
     </ClInclude>
     <ClInclude Include="src\Thread\Thread.h">
       <Filter>Source Files\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\interfaces\IStateMachine.h">
+      <Filter>engine\interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="_Andromeda\MemoryManager.h">
+      <Filter>Andromeda</Filter>
+    </ClInclude>
+    <ClInclude Include="_Andromeda\MemoryManagerGlfw.h">
+      <Filter>Andromeda</Filter>
+    </ClInclude>
+    <ClInclude Include="_Andromeda\TextureManager.h">
+      <Filter>Andromeda</Filter>
+    </ClInclude>
+    <ClInclude Include="_Andromeda\RenderManagerGL3.h">
+      <Filter>Andromeda</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

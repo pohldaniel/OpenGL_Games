@@ -10,7 +10,6 @@
 
 #include "ObjectInfo.h"
 #include <glm/mat4x2.hpp>
-#include "_Andromeda/Texture2.h"
 
 using namespace JellyPhysics;
 

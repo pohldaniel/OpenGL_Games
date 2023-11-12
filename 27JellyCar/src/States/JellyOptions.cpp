@@ -110,7 +110,7 @@ void JellyOptions::OnKeyDown(Event::KeyboardEvent& event) {
 		m_states.top()->OnKeyDown(event);
 	}else {
 		if (event.keyCode == VK_ESCAPE) {
-			m_isRunning = false;
+			State::m_isRunning = false;
 		}
 	}
 }
@@ -243,22 +243,10 @@ void JellyOptions::processInput() {
 		shader->loadVector("u_texRect", Vector4f(0.0f, 0.0f, 1.0f, 1.0f));
 		shader->unuse();
 
-		m_isRunning = false;
+		State::m_isRunning = false;
 
 		return;
 	}
-}
-
-
-
-
-JellyOptionState* JellyOptions::addStateAtTop(JellyOptionState* state) {
-	if (!m_states.empty())
-		m_states.top()->m_isActive = false;
-
-	m_states.push(state);
-	state->m_isActive = true;
-	return state;
 }
 
 void JellyOptions::fixedUpdate() {

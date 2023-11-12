@@ -287,13 +287,8 @@
     <ClCompile Include="_Andromeda\Shader2.cpp" />
     <ClCompile Include="_Andromeda\ShaderGlsl.cpp" />
     <ClCompile Include="_Andromeda\ShaderManager.cpp" />
-    <ClCompile Include="_Andromeda\Sprite.cpp" />
     <ClCompile Include="_Andromeda\Texture2.cpp" />
     <ClCompile Include="_Andromeda\TextureManager.cpp" />
-    <ClCompile Include="_Andromeda\Text\FontManager.cpp" />
-    <ClCompile Include="_Andromeda\Text\TextureAtlas.cpp" />
-    <ClCompile Include="_Andromeda\Text\TexturedFont.cpp" />
-    <ClCompile Include="_Andromeda\Timer2.cpp" />
     <ClCompile Include="_Andromeda\VertexArrayObject.cpp" />
     <ClCompile Include="_Andromeda\VertexArrayObjectGL3.cpp" />
     <ClCompile Include="_Andromeda\VertexBufferObject.cpp" />
@@ -305,6 +300,7 @@
     <ClInclude Include="engine\collision\Collision.h" />
     <ClInclude Include="engine\CubeBuffer.h" />
     <ClInclude Include="engine\input\Mouse.h" />
+    <ClInclude Include="engine\interfaces\IStateMachine.h" />
     <ClInclude Include="engine\OctreeNew.h" />
     <ClInclude Include="convhull\convhull_3d.h" />
     <ClInclude Include="engine\AssetManger.h" />
@@ -450,14 +446,8 @@
     <ClInclude Include="_Andromeda\Shader2.h" />
     <ClInclude Include="_Andromeda\ShaderGlsl.h" />
     <ClInclude Include="_Andromeda\ShaderManager.h" />
-    <ClInclude Include="_Andromeda\Sprite.h" />
     <ClInclude Include="_Andromeda\Texture2.h" />
     <ClInclude Include="_Andromeda\TextureManager.h" />
-    <ClInclude Include="_Andromeda\Text\FontManager.h" />
-    <ClInclude Include="_Andromeda\Text\TextPart.h" />
-    <ClInclude Include="_Andromeda\Text\TextureAtlas.h" />
-    <ClInclude Include="_Andromeda\Text\TexturedFont.h" />
-    <ClInclude Include="_Andromeda\Timer2.h" />
     <ClInclude Include="_Andromeda\VertexArrayObject.h" />
     <ClInclude Include="_Andromeda\VertexArrayObjectGL3.h" />
     <ClInclude Include="_Andromeda\VertexBufferObject.h" />
