@@ -38,8 +38,8 @@ private:
 	int& currentPosition;
 	int& carcurrentPosition;
 
-	std::vector<SkinInfo> m_carSkins;
-	std::vector<std::string> m_sceneFiles;
+	unsigned int m_levelInfosSize;
+	unsigned int m_carSkinsSize;
 
 	LevelManager* m_levelManager;
 	std::vector<LevelSoftBody*> m_gameBodies;

@@ -1,6 +1,7 @@
 #include <tinyxml.h>
 #include <iostream>
 #include "SceneManager.h"
+#include "Levels/LevelManager.h"
 
 SceneInfo::SceneInfo() : 
 	m_currentPosition(0),
@@ -20,7 +21,7 @@ const std::vector<std::string>& SceneInfo::getThumbFiles() const {
 	return m_thumbFiles;
 }
 
-const std::vector<LevelInfo2>& SceneInfo::getLevelInfos() const {
+const std::vector<LevelInfo>& SceneInfo::getLevelInfos() const {
 	return m_levelInfos;
 }
 
@@ -32,48 +33,8 @@ const std::string& SceneInfo::getCurrentSceneFile() const {
 	return m_sceneFiles[m_currentPosition];
 }
 
-const LevelInfo2& SceneInfo::getCurrentLevelInfo() const {
+const LevelInfo& SceneInfo::getCurrentLevelInfo() const {
 	return m_levelInfos[m_currentPosition];
-}
-
-void SceneInfo::loadLevelInfo(std::string path) {
-	if (m_init) return;
-	std::ifstream is(path, std::ifstream::in);
-
-	is.seekg(0, is.end);
-	std::streamoff length = is.tellg();
-	is.seekg(0, is.beg);
-
-	unsigned char* buffer = new unsigned char[length];
-	is.read(reinterpret_cast<char*>(buffer), length);
-	is.close();
-
-	//load data
-	TiXmlDocument doc;
-	if (!doc.LoadContent(buffer, static_cast<int>(length))){
-		return;
-	}
-
-	TiXmlHandle hDoc(&doc);
-	TiXmlElement* pElem;
-	TiXmlHandle hRoot(0);
-
-	TiXmlElement* ObjectNode = pElem = hDoc.FirstChild("Scenes").FirstChild().Element();
-	for (ObjectNode; ObjectNode; ObjectNode = ObjectNode->NextSiblingElement()) {
-		LevelInfo2 info;
-
-		info.name = ObjectNode->Attribute("name");
-		info.file = ObjectNode->Attribute("file");
-		info.thumb = ObjectNode->Attribute("thumb");
-		info.time = 999.0f;
-		info.jump = 0.0f;
-
-		m_levelInfos.push_back(info);
-
-	}
-	
-	m_sceneFiles = sceneFilesFromLevelInfos(m_levelInfos);	
-	m_thumbFiles = thumbFilesFromLevelInfos(m_levelInfos);
 }
 
 void SceneInfo::loadCarSkins(std::string path) {
@@ -106,8 +67,52 @@ void SceneInfo::loadCarSkins(std::string path) {
 		skinInfo.tireBig = ObjectNode->Attribute("tireBig");
 		skinInfo.chassisSmall = ObjectNode->Attribute("chassisSmall");
 		skinInfo.chassisBig = ObjectNode->Attribute("chassisBig");
+
+		skinInfo.skinTexture = { new Texture("Assets/Jelly/Car_Skins/" + skinInfo.chassisSmall), new Texture("Assets/Jelly/Car_Skins/" + skinInfo.chassisBig), new Texture("Assets/Jelly/Car_Skins/" + skinInfo.tireSmall), new Texture("Assets/Jelly/Car_Skins/" + skinInfo.tireBig) };
+
 		m_carSkins.push_back(skinInfo);
+	}	
+}
+
+void SceneInfo::loadLevelInfo(std::string path) {
+	if (m_init) return;
+	std::ifstream is(path, std::ifstream::in);
+
+	is.seekg(0, is.end);
+	std::streamoff length = is.tellg();
+	is.seekg(0, is.beg);
+
+	unsigned char* buffer = new unsigned char[length];
+	is.read(reinterpret_cast<char*>(buffer), length);
+	is.close();
+
+	//load data
+	TiXmlDocument doc;
+	if (!doc.LoadContent(buffer, static_cast<int>(length))) {
+		return;
 	}
+
+	TiXmlHandle hDoc(&doc);
+	TiXmlElement* pElem;
+	TiXmlHandle hRoot(0);
+
+	TiXmlElement* ObjectNode = pElem = hDoc.FirstChild("Scenes").FirstChild().Element();
+	for (ObjectNode; ObjectNode; ObjectNode = ObjectNode->NextSiblingElement()) {
+		LevelInfo info;
+
+		info.name = ObjectNode->Attribute("name");
+		info.file = ObjectNode->Attribute("file");
+		info.thumb = ObjectNode->Attribute("thumb");
+		info.time = 999.0f;
+		info.jump = 0.0f;
+
+		m_levelInfos.push_back(info);
+
+	}
+
+	m_sceneFiles = sceneFilesFromLevelInfos(m_levelInfos);
+	m_thumbFiles = thumbFilesFromLevelInfos(m_levelInfos);
+
 	m_init = true;
 }
 
@@ -143,27 +148,6 @@ void SceneInfo::loadScores(std::string path) {
 		m_levelInfos[index].time = std::stof(ObjectNode->Attribute("score"));
 		m_levelInfos[index].jump = std::stof(ObjectNode->Attribute("jump"));
 	}
-}
-
-void SceneInfo::saveScores(std::string path) {
-	TiXmlDocument doc;
-	TiXmlDeclaration* decl = new TiXmlDeclaration("1.0", "", "");
-	doc.LinkEndChild(decl);
-
-	//root
-	TiXmlElement * root = new TiXmlElement("Levels");
-	doc.LinkEndChild(root);
-
-	for (int i = 0; i < m_levelInfos.size(); i++){
-		TiXmlElement * cxn = new TiXmlElement("Level");
-		root->LinkEndChild(cxn);
-		cxn->SetAttribute("name", m_levelInfos[i].name.c_str());
-		cxn->SetAttribute("id", i);
-		cxn->SetDoubleAttribute("score", m_levelInfos[i].time);
-		cxn->SetDoubleAttribute("jump", m_levelInfos[i].jump);
-	}
-
-	doc.SaveFile(path.c_str());
 }
 
 float SceneInfo::getTime(std::string levelName){
@@ -204,16 +188,106 @@ void SceneInfo::setJump(std::string levelName, float jump){
 	}
 }
 
-const std::vector<std::string> SceneInfo::sceneFilesFromLevelInfos(const std::vector<LevelInfo2>& levelInfos) {
+const std::vector<std::string> SceneInfo::sceneFilesFromLevelInfos(const std::vector<LevelInfo>& levelInfos) {
 	std::vector<std::string> sceneFiles;
-	std::transform(levelInfos.begin(), levelInfos.end(), std::back_inserter(sceneFiles), [](const LevelInfo2& info)-> std::string { return info.file; });
+	std::transform(levelInfos.begin(), levelInfos.end(), std::back_inserter(sceneFiles), [](const LevelInfo& info)-> std::string { return info.file; });
 	return sceneFiles;
 }
 
-const std::vector<std::string> SceneInfo::thumbFilesFromLevelInfos(const std::vector<LevelInfo2>& levelInfos) {
+const std::vector<std::string> SceneInfo::thumbFilesFromLevelInfos(const std::vector<LevelInfo>& levelInfos) {
 	std::vector<std::string> thumbs;
-	std::transform(levelInfos.begin(), levelInfos.end(), std::back_inserter(thumbs), [](const LevelInfo2& info)-> std::string { return "Assets/Jelly/Thumbs/" + info.thumb + ".png"; });
+	std::transform(levelInfos.begin(), levelInfos.end(), std::back_inserter(thumbs), [](const LevelInfo& info)-> std::string { return "Assets/Jelly/Texture/Thumbs/" + info.thumb + ".png"; });
 	return thumbs;
+}
+
+std::vector<std::string> SceneInfo::mergeAlternately(std::vector<std::string> a, std::vector<std::string> b, std::vector<std::string> c, std::vector<std::string> d) {
+	std::vector<std::string> result;
+
+	auto v1 = a.begin();
+	auto v2 = b.begin();
+	auto v3 = c.begin();
+	auto v4 = d.begin();
+
+
+	while (v1 != a.end() && v2 != b.end() && v2 != c.end() && v2 != d.end())
+	{
+		result.push_back(*v1);
+		result.push_back(*v2);
+		result.push_back(*v2);
+		result.push_back(*v3);
+		++v1;
+		++v2;
+		++v3;
+		++v4;
+	}
+	// if both the vectors have the same size we would be finished 
+	/*if (v1 != a.end()) // v1 is the longer one
+	{
+		while (v1 != a.end())
+		{
+			result.push_back(*v1);
+			++v1;
+		}
+	}
+	if (v2 != b.end()) // v2 is the longer one
+	{
+		while (v2 != b.end())
+		{
+			result.push_back(*v2);
+			++v2;
+		}
+	}*/
+	return result;
+}
+
+void SceneInfo::SaveScores(const std::string path, const std::vector<LevelInfo>& levelInfos) {
+	TiXmlDocument doc;
+	TiXmlDeclaration* decl = new TiXmlDeclaration("1.0", "", "");
+	doc.LinkEndChild(decl);
+
+	//root
+	TiXmlElement * root = new TiXmlElement("Levels");
+	doc.LinkEndChild(root);
+
+	for (int i = 0; i < levelInfos.size(); i++) {
+		TiXmlElement * cxn = new TiXmlElement("Level");
+		root->LinkEndChild(cxn);
+		cxn->SetAttribute("name", levelInfos[i].name.c_str());
+		cxn->SetAttribute("id", i);
+		cxn->SetDoubleAttribute("score", levelInfos[i].time);
+		cxn->SetDoubleAttribute("jump", levelInfos[i].jump);
+	}
+
+	doc.SaveFile(path.c_str());
+}
+
+void  SceneInfo::SaveLevel(const std::string path, const std::vector<ObjectInfo>& objectInfos, const std::vector<LevelSoftBody*>& bodies, const Vector2& target, const float flallLineconst, std::string levelName) {
+	TiXmlDocument doc;
+	//TiXmlDeclaration* decl = new TiXmlDeclaration("1.0", "", "");
+	//doc.LinkEndChild(decl);
+	std::cout << "Level Name: " << levelName << std::endl;
+	//root
+	TiXmlElement * root = new TiXmlElement("Scene");
+	root->SetAttribute("name", levelName.c_str());
+	TiXmlNode* objects = root->LinkEndChild(new TiXmlElement("Objects"));
+
+	for (int i = 0; i < objectInfos.size(); i++) {
+		TiXmlElement * cxn = new TiXmlElement("Object");
+		objects->LinkEndChild(cxn);
+		cxn->SetAttribute("name", objectInfos[i].name.c_str());
+		cxn->SetFloatAttribute("posX", objectInfos[i].posX);
+		cxn->SetFloatAttribute("posY", objectInfos[i].posY);
+		std::cout << objectInfos[i].posX << "  " << objectInfos[i].posY << std::endl;
+		std::cout << (float)std::stof(cxn->Attribute("posX")) << "  " << (float)std::stof(cxn->Attribute("posY")) << std::endl;
+
+		cxn->SetFloatAttribute("angle", objectInfos[i].angle);
+		cxn->SetFloatAttribute("scaleX", objectInfos[i].scaleX);
+		cxn->SetFloatAttribute("scaleY", objectInfos[i].scaleY);
+		cxn->SetAttribute("material", objectInfos[i].material);
+	}
+	
+	doc.LinkEndChild(root);
+	doc.SaveFile(path.c_str());
 }
 
 ///////////////////////ScenetManager//////////////////////////

@@ -8,14 +8,35 @@
 #include <unordered_map>
 #include <string>
 
-#include "Levels/SkinInfo.h"
+#include <engine/Texture.h>
+#include "Levels/ObjectInfo.h"
+#include "Levels/LevelSoftBody.h"
 
-struct LevelInfo2 {
+struct LevelInfo {
 	std::string name;
 	std::string file;
 	std::string thumb;
 	float time;
 	float jump;
+};
+
+struct SkinTexture {
+	Texture* chassisSmall;
+	Texture* chassisBig;
+	Texture* tireSmall;
+	Texture* tireBig;
+};
+
+struct SkinInfo {
+
+	std::string name;
+	std::string chassisSmall;
+	std::string chassisBig;
+
+	std::string tireSmall;
+	std::string tireBig;
+
+	SkinTexture skinTexture;
 };
 
 class SceneInfo {
@@ -28,7 +49,7 @@ public:
 	void loadLevelInfo(std::string path);
 	void loadCarSkins(std::string path);
 	void loadScores(std::string path);
-	void saveScores(std::string path);
+	
 	float getTime(std::string levelName);
 	float getJump(std::string levelName);
 	void setTime(std::string levelName, float time);
@@ -37,24 +58,28 @@ public:
 	const std::vector<SkinInfo>& getSkinInfos() const;
 	const std::vector<std::string>& getSceneFiles() const;
 	const std::vector<std::string>& getThumbFiles() const;
-	const std::vector<LevelInfo2>& getLevelInfos() const;
+	const std::vector<LevelInfo>& getLevelInfos() const;
 
 	const SkinInfo& getCurrentSkinInfo() const;
 	const std::string& getCurrentSceneFile() const;
-	const LevelInfo2& getCurrentLevelInfo() const;
+	const LevelInfo& getCurrentLevelInfo() const;
 
 	int m_currentPosition;
 	int m_carCurrentPosition;
 
+	static void SaveLevel(const std::string path, const std::vector<ObjectInfo>& objectInfos, const std::vector<LevelSoftBody*>& bodies, const Vector2& target, const float flallLine, const std::string levelName);
+	static void SaveScores(const std::string path, const std::vector<LevelInfo>& levelInfos);
 private:
 
-	const std::vector<std::string> sceneFilesFromLevelInfos(const std::vector<LevelInfo2>& levelInfos);
-	const std::vector<std::string> thumbFilesFromLevelInfos(const std::vector<LevelInfo2>& levelInfos);
+	const std::vector<std::string> sceneFilesFromLevelInfos(const std::vector<LevelInfo>& levelInfos);
+	const std::vector<std::string> thumbFilesFromLevelInfos(const std::vector<LevelInfo>& levelInfos);
+
+	std::vector<std::string> SceneInfo::mergeAlternately(std::vector<std::string> a, std::vector<std::string> b, std::vector<std::string> c, std::vector<std::string> d);
 
 	std::vector<SkinInfo> m_carSkins;
 	std::vector<std::string> m_sceneFiles;
 	std::vector<std::string> m_thumbFiles;
-	std::vector<LevelInfo2> m_levelInfos;
+	std::vector<LevelInfo> m_levelInfos;
 	bool m_init;
 };
 

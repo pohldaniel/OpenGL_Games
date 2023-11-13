@@ -12,10 +12,14 @@ GameBallonBody::GameBallonBody(World* w, const ClosedShape& shape, float massPer
 {
 	ballonActive = false;
 
-	_vertexObject = RenderManager::Instance()->CreateVertexArrayObject(Simple, DynamicDraw);
-	_vertexObject->SetVertexPrimitive(Lines);
+	_vertexObject = new Mesh();
+	_vertexObject->setVertexBufferDrawType(_DynamicDraw);
+	_vertexObject->setVertexType(_Simple);
+	_vertexObject->setVertexPrimitive(_Lines);
 
-	_shapeObject = RenderManager::Instance()->CreateVertexArrayObject(Simple, DynamicDraw);
+	_shapeObject = new Mesh();
+	_shapeObject->setVertexBufferDrawType(_DynamicDraw);
+	_shapeObject->setVertexType(_Textured);
 
 	_color = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 

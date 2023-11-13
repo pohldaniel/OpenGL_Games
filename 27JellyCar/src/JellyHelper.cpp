@@ -30,7 +30,7 @@ JellyHellper* JellyHellper::Instance()
 	return _helper;
 }
 
-void JellyHellper::UpdateLines(VertexArrayObject* vertexArray, std::vector<PointMass> &pointMasses, bool create)
+void JellyHellper::UpdateLines(Mesh* vertexArray, std::vector<PointMass> &pointMasses, bool create)
 {
 	unsigned int vertsCount = pointMasses.size();
 	unsigned int indicesCount = pointMasses.size() * 2;
@@ -40,16 +40,16 @@ void JellyHellper::UpdateLines(VertexArrayObject* vertexArray, std::vector<Point
 
 	if (create)
 	{
-		vertexArray->CreateVertices(vertsCount);
-		vertexArray->CreateIndices(indicesCount);
+		vertexArray->createVertices(vertsCount);
+		vertexArray->createIndices(indicesCount);
 
-		_simpleData = static_cast<SimpleVertex*>(vertexArray->GetVertices());
-		_indices = static_cast<unsigned short*>(vertexArray->GetIndices());
+		_simpleData = static_cast<SimpleVertex*>(vertexArray->getVertices());
+		_indices = static_cast<unsigned short*>(vertexArray->getIndices());
 	}
 	else
 	{
 		//_simpleData = new SimpleVertex[vertsCount];
-        _simpleData = static_cast<SimpleVertex*>(vertexArray->GetVertices());
+        _simpleData = static_cast<SimpleVertex*>(vertexArray->getVertices());
 	}
 
 	//update verts
@@ -88,11 +88,11 @@ void JellyHellper::UpdateLines(VertexArrayObject* vertexArray, std::vector<Point
 	//update or create
 	if (create)
 	{
-		vertexArray->Generate(false);
+		vertexArray->createBuffer(false);
 	}
 	else
 	{
-		vertexArray->UpdateVertices(_simpleData, vertsCount, false);
+		vertexArray->updateVertices(_simpleData, vertsCount, false);
 	}
 }
 
@@ -109,7 +109,19 @@ void JellyHellper::DrawLines(VertexArrayObject* vertexArray, glm::mat4 &proj, gl
 	}
 }
 
-void JellyHellper::UpdateSpringShape(VertexArrayObject* vertexArray, std::vector<PointMass> &pointMasses, int *mIndices, int mIndicesCount, bool create)
+void JellyHellper::DrawLines(Mesh* vertexArray, glm::mat4 &proj, glm::vec4 &color) {
+	if (_colorShader != 0 && vertexArray != 0)
+	{
+		_colorShader->Bind();
+
+		_colorShader->SetUniform(VertexShader, "translation", proj);
+		_colorShader->SetUniform(FragmentShader, "colors", color);
+
+		vertexArray->drawRaw();
+	}
+}
+
+void JellyHellper::UpdateSpringShape(Mesh* vertexArray, std::vector<PointMass> &pointMasses, int *mIndices, int mIndicesCount, bool create)
 {
 	unsigned int vertsCount = pointMasses.size();
 	int indicesCount = mIndicesCount;
@@ -119,16 +131,16 @@ void JellyHellper::UpdateSpringShape(VertexArrayObject* vertexArray, std::vector
 
 	if (create)
 	{
-		vertexArray->CreateVertices(vertsCount);
-		vertexArray->CreateIndices(indicesCount);
+		vertexArray->createVertices(vertsCount);
+		vertexArray->createIndices(indicesCount);
 
-		_simpleData = static_cast<SimpleVertex*>(vertexArray->GetVertices());
-		_indices = static_cast<unsigned short*>(vertexArray->GetIndices());
+		_simpleData = static_cast<SimpleVertex*>(vertexArray->getVertices());
+		_indices = static_cast<unsigned short*>(vertexArray->getIndices());
 	}
 	else
 	{
 		//_simpleData = new SimpleVertex[vertsCount];
-        _simpleData = static_cast<SimpleVertex*>(vertexArray->GetVertices());
+        _simpleData = static_cast<SimpleVertex*>(vertexArray->getVertices());
 	}
 
 	//update verts
@@ -151,15 +163,15 @@ void JellyHellper::UpdateSpringShape(VertexArrayObject* vertexArray, std::vector
 	//update or create
 	if (create)
 	{
-		vertexArray->Generate(false);
+		vertexArray->createBuffer(false);
 	}
 	else
 	{
-		vertexArray->UpdateVertices(_simpleData, vertsCount, false);
+		vertexArray->updateVertices(_simpleData, vertsCount, false);
 	}
 }
 
-void JellyHellper::UpdateBlobShape(VertexArrayObject* vertexArray, std::vector<Vector2> &points, int count, bool create)
+void JellyHellper::UpdateBlobShape(Mesh* vertexArray, std::vector<Vector2> &points, int count, bool create)
 {
 	unsigned int vertsCount = points.size();
 	unsigned int indicesCount = points.size();
@@ -169,16 +181,16 @@ void JellyHellper::UpdateBlobShape(VertexArrayObject* vertexArray, std::vector<V
 
 	if (create)
 	{
-		vertexArray->CreateVertices(vertsCount);
-		vertexArray->CreateIndices(indicesCount);
+		vertexArray->createVertices(vertsCount);
+		vertexArray->createIndices(indicesCount);
 
-		_simpleData = static_cast<SimpleVertex*>(vertexArray->GetVertices());
-		_indices = static_cast<unsigned short*>(vertexArray->GetIndices());
+		_simpleData = static_cast<SimpleVertex*>(vertexArray->getVertices());
+		_indices = static_cast<unsigned short*>(vertexArray->getIndices());
 	}
 	else
 	{
 		//_simpleData = new SimpleVertex[vertsCount];
-        _simpleData = static_cast<SimpleVertex*>(vertexArray->GetVertices());
+        _simpleData = static_cast<SimpleVertex*>(vertexArray->getVertices());
 	}
 
 	//update verts
@@ -201,11 +213,11 @@ void JellyHellper::UpdateBlobShape(VertexArrayObject* vertexArray, std::vector<V
 	//update or create
 	if (create)
 	{
-		vertexArray->Generate(false);
+		vertexArray->createBuffer(false);
 	}
 	else
 	{
-		vertexArray->UpdateVertices(_simpleData, vertsCount, false);
+		vertexArray->updateVertices(_simpleData, vertsCount, false);
 	}
 }
 
@@ -219,6 +231,17 @@ void JellyHellper::DrawShape(VertexArrayObject* vertexArray, glm::mat4 &proj, gl
 		_colorShader->SetUniform(FragmentShader, "colors", color);
 
 		vertexArray->Draw();
+	}
+}
+
+void JellyHellper::DrawShape(Mesh* vertexArray, glm::mat4 &proj, glm::vec4 &color) {
+	if (_colorShader != 0 && vertexArray != 0){
+		_colorShader->Bind();
+
+		_colorShader->SetUniform(VertexShader, "translation", proj);
+		_colorShader->SetUniform(FragmentShader, "colors", color);
+
+		vertexArray->drawRaw();
 	}
 }
 
@@ -243,7 +266,7 @@ std::vector<Vector2> JellyHellper::GetTexturePositions(const AABB& aabb, const B
 	return positions;
 }
 
-void JellyHellper::UpdateTextured(VertexArrayObject* vertexArray, std::vector<PointMass> &pointMasses, std::vector<Vector2> &mTextureList, int *mIndices, int mIndicesCount, bool create)
+void JellyHellper::UpdateTextured(Mesh* vertexArray, std::vector<PointMass> &pointMasses, std::vector<Vector2> &mTextureList, int *mIndices, int mIndicesCount, bool create)
 {
 	unsigned int vertsCount = pointMasses.size();
 	int indicesCount = mIndicesCount;
@@ -253,16 +276,16 @@ void JellyHellper::UpdateTextured(VertexArrayObject* vertexArray, std::vector<Po
 
 	if (create)
 	{
-		vertexArray->CreateVertices(vertsCount);
-		vertexArray->CreateIndices(indicesCount);
+		vertexArray->createVertices(vertsCount);
+		vertexArray->createIndices(indicesCount);
 
-		_simpleData = static_cast<TextureVertex*>(vertexArray->GetVertices());
-		_indices = static_cast<unsigned short*>(vertexArray->GetIndices());
+		_simpleData = static_cast<TextureVertex*>(vertexArray->getVertices());
+		_indices = static_cast<unsigned short*>(vertexArray->getIndices());
 	}
 	else
 	{
 		//_simpleData = new TextureVertex[vertsCount];
-        _simpleData = static_cast<TextureVertex*>(vertexArray->GetVertices());
+        _simpleData = static_cast<TextureVertex*>(vertexArray->getVertices());
 	}
 
 	//update verts
@@ -289,15 +312,15 @@ void JellyHellper::UpdateTextured(VertexArrayObject* vertexArray, std::vector<Po
 	//update or create
 	if (create)
 	{
-		vertexArray->Generate(false);
+		vertexArray->createBuffer(false);
 	}
 	else
 	{
-		vertexArray->UpdateVertices(_simpleData, vertsCount, false);
+		vertexArray->updateVertices(_simpleData, vertsCount, false);
 	}
 }
 
-void JellyHellper::UpdateTexturedBlob(VertexArrayObject* vertexArray, std::vector<Vector2> &points, int count, std::vector<Vector2> &mTetxure, bool create)
+void JellyHellper::UpdateTexturedBlob(Mesh* vertexArray, std::vector<Vector2> &points, int count, std::vector<Vector2> &mTetxure, bool create)
 {
 	unsigned int vertsCount = points.size();
 	unsigned int indicesCount = points.size();
@@ -307,16 +330,16 @@ void JellyHellper::UpdateTexturedBlob(VertexArrayObject* vertexArray, std::vecto
 
 	if (create)
 	{
-		vertexArray->CreateVertices(vertsCount);
-		vertexArray->CreateIndices(indicesCount);
+		vertexArray->createVertices(vertsCount);
+		vertexArray->createIndices(indicesCount);
 
-		_simpleData = static_cast<TextureVertex*>(vertexArray->GetVertices());
-		_indices = static_cast<unsigned short*>(vertexArray->GetIndices());
+		_simpleData = static_cast<TextureVertex*>(vertexArray->getVertices());
+		_indices = static_cast<unsigned short*>(vertexArray->getIndices());
 	}
 	else
 	{
 		//_simpleData = new TextureVertex[vertsCount];
-		_simpleData = static_cast<TextureVertex*>(vertexArray->GetVertices());
+		_simpleData = static_cast<TextureVertex*>(vertexArray->getVertices());
 	}
 
 	//update verts
@@ -342,11 +365,11 @@ void JellyHellper::UpdateTexturedBlob(VertexArrayObject* vertexArray, std::vecto
 	//update or create
 	if (create)
 	{
-		vertexArray->Generate(false);
+		vertexArray->createBuffer(false);
 	}
 	else
 	{
-		vertexArray->UpdateVertices(_simpleData, vertsCount, false);
+		vertexArray->updateVertices(_simpleData, vertsCount, false);
 	}
 }
 
@@ -368,10 +391,8 @@ void JellyHellper::DrawTextured(VertexArrayObject* vertexArray, glm::mat4 &proj,
 	}
 }
 
-void JellyHellper::DrawTextured(VertexArrayObject* vertexArray, glm::mat4 &proj, Texture* texture, glm::vec4 &color)
-{
-	if (_textureShader != 0 && vertexArray != 0)
-	{
+void JellyHellper::DrawTextured(VertexArrayObject* vertexArray, glm::mat4 &proj, Texture* texture, glm::vec4 &color) {
+	if (_textureShader != 0 && vertexArray != 0){
 		//bind texture
 		texture->bind(0);
 		//texture->bind(0);
@@ -383,6 +404,22 @@ void JellyHellper::DrawTextured(VertexArrayObject* vertexArray, glm::mat4 &proj,
 		_textureShader->SetUniform(FragmentShader, "colors", color);
 
 		vertexArray->Draw();
+	}
+}
+
+void JellyHellper::DrawTextured(Mesh* vertexArray, glm::mat4 &proj, Texture* texture, glm::vec4 &color) {
+	if (_textureShader != 0 && vertexArray != 0){
+		//bind texture
+		texture->bind(0);
+		//texture->bind(0);
+		//bind shader
+		_textureShader->Bind();
+
+		//set uniforms
+		_textureShader->SetUniform(VertexShader, "translation", proj);
+		_textureShader->SetUniform(FragmentShader, "colors", color);
+
+		vertexArray->drawRaw();
 	}
 }
 

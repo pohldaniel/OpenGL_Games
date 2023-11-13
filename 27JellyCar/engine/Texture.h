@@ -12,7 +12,7 @@ class Texture{
 public:
 
 	Texture() = default;
-	Texture(std::string pictureFile, const bool flipVertical = false, unsigned int internalFormat = 0, unsigned int format = 0);
+	Texture(std::string fileName, const bool flipVertical = false, unsigned int internalFormat = 0u, unsigned int format = 0u, int paddingLeft = 0, int paddingRight = 0, int paddingTop = 0, int paddingBottom = 0, unsigned int SOIL_FLAG = 0u);
 	Texture(Texture const& rhs);
 	~Texture();
 	

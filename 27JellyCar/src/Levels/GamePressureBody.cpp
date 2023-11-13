@@ -8,8 +8,13 @@ GamePressureBody::GamePressureBody(World* w, const ClosedShape& s, float mpp, fl
 	dragPoint = -1;
 
 	//lines
-	_vertexObject = RenderManager::Instance()->CreateVertexArrayObject(Simple, DynamicDraw);
-	_vertexObject->SetVertexPrimitive(Lines);
+	//_vertexObject = RenderManager::Instance()->CreateVertexArrayObject(Simple, DynamicDraw);
+	//_vertexObject->SetVertexPrimitive(Lines);
+
+	_vertexObject = new Mesh();
+	_vertexObject->setVertexBufferDrawType(_DynamicDraw);
+	_vertexObject->setVertexType(_Simple);
+	_vertexObject->setVertexPrimitive(_Lines);
 
 	_shapeObject = 0;
 
@@ -78,12 +83,16 @@ void GamePressureBody::Draw(glm::mat4 &proj, int *mIndices, int mIndicesCount, f
 			_textPositions = JellyHellper::Instance()->GetTexturePositions(getAABB(), mPointMasses);
 
 			//texture fill
-			_shapeObject = RenderManager::Instance()->CreateVertexArrayObject(Simple, DynamicDraw);
+			_shapeObject = new Mesh();
+			_shapeObject->setVertexBufferDrawType(_DynamicDraw);
+			_shapeObject->setVertexType(_Textured);
 		}
 		else
 		{
 			//color fill
-			_shapeObject = RenderManager::Instance()->CreateVertexArrayObject(Simple, DynamicDraw);
+			_shapeObject = new Mesh();
+			_shapeObject->setVertexBufferDrawType(_DynamicDraw);
+			_shapeObject->setVertexType(_Simple);
 		}
 
 

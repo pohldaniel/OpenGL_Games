@@ -1,7 +1,9 @@
 #ifndef Car_H
 #define Car_H
 
-#include <_Andromeda/RenderManager.h>
+#include <fstream>
+#include <engine/Texture.h>
+#include <glm/gtc/matrix_transform.hpp>
 
 #include "JellyPhysics/JellyPhysics.h"
 using namespace JellyPhysics;
@@ -10,14 +12,14 @@ using namespace JellyPhysics;
 #include "Chassis.h"
 #include "GameBallonBody.h"
 
-class Car
-{
+class Car {
+
 private:
 
-	Texture2* smallChassisTexture;
-	Texture2* bigChassisTexture;
-	Texture2* smallTireTexture;
-	Texture2* bigTireTexture;
+	Texture* smallChassisTexture;
+	Texture* bigChassisTexture;
+	Texture* smallTireTexture;
+	Texture* bigTireTexture;
 
 public:
 
@@ -65,8 +67,8 @@ public:
 
 	void setChassisTorque(float t);
 
-	void SetChassisTextures(Texture2* _small, Texture2* big);
-	void SetTireTextures(Texture2* _small, Texture2* big);
+	void SetChassisTextures(Texture* _small, Texture* big);
+	void SetTireTextures(Texture* _small, Texture* big);
 
 	void Draw(glm::mat4 &proj);
 };

@@ -3,9 +3,9 @@
 
 #include <engine/Rect.h>
 #include <engine/Texture.h>
+#include <glm/gtc/matrix_transform.hpp>
 
-#include <_Andromeda/RenderManager.h>
-
+#include "Mesh.h"
 #include "JellyPhysics/JellyPhysics.h"
 
 namespace JellyPhysics
@@ -14,8 +14,8 @@ namespace JellyPhysics
 	{
 	private:
 
-		VertexArrayObject* _vertexObject;
-		VertexArrayObject* _shapeObject;
+		Mesh* _vertexObject;
+		Mesh* _shapeObject;
 		glm::vec4 _color;
 		glm::vec4 _lineColor;
 		bool _created;

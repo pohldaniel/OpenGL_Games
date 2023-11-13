@@ -32,19 +32,13 @@ carcurrentPosition(SceneManager::Get().getSceneInfo("scene").m_carCurrentPositio
 
 	m_levelManager = new LevelManager();
 	m_levelManager->SetAssetsLocation("Assets/Jelly/");
-	m_levelManager->LoadAllScenes("scene_list.xml");
-	m_levelManager->LoadCarSkins("car_skins.xml");
-	m_levelManager->LoadScores("JellyScore.xml");
 	m_levelManager->InitPhysic(m_world);
-	m_levelManager->LoadLevel(m_world, "menu.scene", "Assets/Jelly/car_and_truck.car");
 	m_levelManager->LoadCompiledLevel(m_world, "menu.scene", "Assets/Jelly/car_and_truck.car");
 
-	m_sceneFiles = m_levelManager->GetScenes();
-	m_carSkins = m_levelManager->GetCarSkins();
-
-	m_car = m_levelManager->GetCar();
-	m_car->SetChassisTextures(m_levelManager->GetCarImage(m_carSkins[0].chassisSmall), m_levelManager->GetCarImage(m_carSkins[0].chassisBig));
-	m_car->SetTireTextures(m_levelManager->GetCarImage(m_carSkins[0].tireSmall), m_levelManager->GetCarImage(m_carSkins[0].tireBig));
+	const SkinInfo& skinInfo = SceneManager::Get().getSceneInfo("scene").getCurrentSkinInfo();
+	m_car = m_levelManager->GetCar();	
+	m_car->SetChassisTextures(skinInfo.skinTexture.chassisSmall, skinInfo.skinTexture.chassisBig);
+	m_car->SetTireTextures(skinInfo.skinTexture.tireSmall, skinInfo.skinTexture.tireBig);
 
 	m_gameBodies = m_levelManager->GetLevelBodies();
 	m_jellyProjection = glm::ortho(-20.0f + 0, 0 + 20.0f, -4.2f + 4, 4 + 18.2f, -1.0f, 1.0f);
@@ -58,6 +52,9 @@ carcurrentPosition(SceneManager::Get().getSceneInfo("scene").m_carCurrentPositio
 	//Spritesheet::Safe("thumbs", m_thumbAtlas);
 
 	SceneManager::Get().getSceneInfo("scene").loadScores("JellyScore.xml");
+
+	m_levelInfosSize = SceneManager::Get().getSceneInfo("scene").getLevelInfos().size();
+	m_carSkinsSize = SceneManager::Get().getSceneInfo("scene").getSkinInfos().size();
 }
 
 JellyMenu::~JellyMenu() {
@@ -170,7 +167,7 @@ void JellyMenu::render() {
 
 	int levelTextPositionY = Application::Height - ( (Application::Height / 2) - 156 - 30);
 
-	const LevelInfo2& levelInfo = SceneManager::Get().getSceneInfo("scene").getCurrentLevelInfo();
+	const LevelInfo& levelInfo = SceneManager::Get().getSceneInfo("scene").getCurrentLevelInfo();
 
 	Fontrenderer::Get().addText(Globals::fontManager.get("jelly_64"), static_cast<float>(Application::Width / 2 - Globals::fontManager.get("jelly_64").getWidth(levelInfo.name) / 2), levelTextPositionY, levelInfo.name, Vector4f(0.19f, 0.14f, 0.17f, 1.0f));
 	Fontrenderer::Get().addText(Globals::fontManager.get("jelly_64"), static_cast<float>(Application::Width / 2 - Globals::fontManager.get("jelly_64").getWidth(levelInfo.name) / 2), levelTextPositionY + 3, levelInfo.name, Vector4f(1.0f,  0.65f, 0.0f, 1.0f));
@@ -250,8 +247,8 @@ void JellyMenu::processInput() {
 	if (keyboard.keyPressed(Keyboard::KEY_DOWN)){
 		currentPosition++;
 
-		if (currentPosition >= m_sceneFiles.size()){
-			currentPosition = m_sceneFiles.size() - 1;
+		if (currentPosition >= m_levelInfosSize){
+			currentPosition = m_levelInfosSize - 1;
 		}
 		//_audioHelper->PlayHitSound();
 	}
@@ -259,12 +256,13 @@ void JellyMenu::processInput() {
 	if (keyboard.keyPressed(Keyboard::KEY_D)){
 		carcurrentPosition++;
 
-		if (carcurrentPosition >= m_carSkins.size()){
-			carcurrentPosition = m_carSkins.size() - 1;
+		if (carcurrentPosition >= m_carSkinsSize){
+			carcurrentPosition = m_carSkinsSize - 1;
 		}
 
-		m_car->SetChassisTextures(m_levelManager->GetCarImage(m_carSkins[carcurrentPosition].chassisSmall), m_levelManager->GetCarImage(m_carSkins[carcurrentPosition].chassisBig));
-		m_car->SetTireTextures(m_levelManager->GetCarImage(m_carSkins[carcurrentPosition].tireSmall), m_levelManager->GetCarImage(m_carSkins[carcurrentPosition].tireBig));
+		const SkinInfo& skinInfo = SceneManager::Get().getSceneInfo("scene").getCurrentSkinInfo();
+		m_car->SetChassisTextures(skinInfo.skinTexture.chassisSmall, skinInfo.skinTexture.chassisBig);
+		m_car->SetTireTextures(skinInfo.skinTexture.tireSmall, skinInfo.skinTexture.tireBig);
 	}
 
 	if (keyboard.keyPressed(Keyboard::KEY_A)){
@@ -274,8 +272,9 @@ void JellyMenu::processInput() {
 			carcurrentPosition = 0;
 		}
 
-		m_car->SetChassisTextures(m_levelManager->GetCarImage(m_carSkins[carcurrentPosition].chassisSmall), m_levelManager->GetCarImage(m_carSkins[carcurrentPosition].chassisBig));
-		m_car->SetTireTextures(m_levelManager->GetCarImage(m_carSkins[carcurrentPosition].tireSmall), m_levelManager->GetCarImage(m_carSkins[carcurrentPosition].tireBig));
+		const SkinInfo& skinInfo = SceneManager::Get().getSceneInfo("scene").getCurrentSkinInfo();
+		m_car->SetChassisTextures(skinInfo.skinTexture.chassisSmall, skinInfo.skinTexture.chassisBig);
+		m_car->SetTireTextures(skinInfo.skinTexture.tireSmall, skinInfo.skinTexture.tireBig);
 	}
 
 	if (keyboard.keyPressed(Keyboard::KEY_W)){

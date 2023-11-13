@@ -28,11 +28,15 @@ Tire::Tire(World *w, const ClosedShape& s,
 	smallBig = false;
 	ballon = false;
 
-	_vertexObject = RenderManager::Instance()->CreateVertexArrayObject(Simple, DynamicDraw);
-	_vertexObject->SetVertexPrimitive(Lines);
+	_vertexObject = new Mesh();
+	_vertexObject->setVertexBufferDrawType(_DynamicDraw);
+	_vertexObject->setVertexType(_Simple);
+	_vertexObject->setVertexPrimitive(_Lines);
 
-	_texturedObject = RenderManager::Instance()->CreateVertexArrayObject(Textured, DynamicDraw);
-	_texturedObject->SetVertexPrimitive(TriangleFan);
+	_texturedObject = new Mesh();
+	_texturedObject->setVertexBufferDrawType(_DynamicDraw);
+	_texturedObject->setVertexType(_Textured);
+	_texturedObject->setVertexPrimitive(_TriangleFan);
 
 	_color = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 
@@ -150,7 +154,7 @@ void Tire::accumulateExternalForces()
 float Tire::GetDrive() { return drive; }
 float Tire::GetMaxOmega() { return maxOmega; }
 
-void Tire::Draw(glm::mat4 &proj, Texture2* texture)
+void Tire::Draw(glm::mat4 &proj, Texture* texture)
 {
 	//update blob shape
 	{

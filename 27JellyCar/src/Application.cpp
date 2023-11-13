@@ -624,12 +624,12 @@ void Application::loadAssets() {
 	Globals::textureManager.loadTexture("options_bar", "Assets/Jelly/Texture/bar.png");
 	Globals::textureManager.loadTexture("options_bar_blue", "Assets/Jelly/Texture/barBlue.png");
 
-	Globals::textureManager.loadTexture("credits", "Assets/Jelly/Texture/credits.png");
-	Globals::textureManager.loadTexture("libs", "Assets/Jelly/Texture/libs.png");
-	Globals::textureManager.loadTexture("keyboard", "Assets/Jelly/Texture/keyboard.png");
-	Globals::textureManager.loadTexture("gamepad", "Assets/Jelly/Texture/gamepad.png", false);
-	Globals::textureManager.loadTexture("secret", "Assets/Jelly/Texture/secret.png", false);
-	Globals::textureManager.loadTexture("volume", "Assets/Jelly/Texture/volume.png");
+	Globals::textureManager.loadTexture("credits", "Assets/Jelly/Texture/Options/credits.png");
+	Globals::textureManager.loadTexture("libs", "Assets/Jelly/Texture/Options/libs.png");
+	Globals::textureManager.loadTexture("keyboard", "Assets/Jelly/Texture/Options/keyboard.png");
+	Globals::textureManager.loadTexture("gamepad", "Assets/Jelly/Texture/Options/gamepad.png", false);
+	Globals::textureManager.loadTexture("secret", "Assets/Jelly/Texture/Options/secret.png", false);
+	Globals::textureManager.loadTexture("volume", "Assets/Jelly/Texture/Options/volume.png");
 
 
 	Globals::textureManager.loadTexture("transform_meter", "Assets/Jelly/Texture/transform_meter.png");

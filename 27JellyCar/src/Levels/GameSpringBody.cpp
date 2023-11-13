@@ -10,8 +10,10 @@ GameSpringBody::GameSpringBody(World* w, const ClosedShape& shape, float massPer
 	dragPoint = -1;
 
 	//lines
-	_vertexObject = RenderManager::Instance()->CreateVertexArrayObject(Simple, DynamicDraw);
-	_vertexObject->SetVertexPrimitive(Lines);
+	_vertexObject = new Mesh();
+	_vertexObject->setVertexBufferDrawType(_DynamicDraw);
+	_vertexObject->setVertexType(_Simple);
+	_vertexObject->setVertexPrimitive(_Lines);
 
 	_shapeObject = 0;
 
@@ -33,8 +35,10 @@ GameSpringBody::GameSpringBody(World* w, const ClosedShape& shape, float massPer
 	dragPoint = -1;
 
 	//lines
-	_vertexObject = RenderManager::Instance()->CreateVertexArrayObject(Simple, DynamicDraw);
-	_vertexObject->SetVertexPrimitive(Lines);
+	_vertexObject = new Mesh();
+	_vertexObject->setVertexBufferDrawType(_DynamicDraw);
+	_vertexObject->setVertexType(_Simple);
+	_vertexObject->setVertexPrimitive(_Lines);
 
 	_shapeObject = 0;
 
@@ -101,7 +105,9 @@ void GameSpringBody::Draw(glm::mat4 &proj, int *mIndices, int mIndicesCount, flo
 			_textPositions = JellyHellper::Instance()->GetTexturePositions(getAABB(), mPointMasses);
 
 			//texture fill
-			_shapeObject = RenderManager::Instance()->CreateVertexArrayObject(Textured, DynamicDraw);
+			_shapeObject = new Mesh();
+			_shapeObject->setVertexBufferDrawType(_DynamicDraw);
+			_shapeObject->setVertexType(_Textured);
 
 			//generate object
 			JellyHellper::Instance()->UpdateTextured(_shapeObject, mPointMasses, _textPositions, mIndices, mIndicesCount, true);
@@ -109,7 +115,9 @@ void GameSpringBody::Draw(glm::mat4 &proj, int *mIndices, int mIndicesCount, flo
 		else
 		{
 			//color fill
-			_shapeObject = RenderManager::Instance()->CreateVertexArrayObject(Simple, DynamicDraw);
+			_shapeObject = new Mesh();
+			_shapeObject->setVertexBufferDrawType(_DynamicDraw);
+			_shapeObject->setVertexType(_Simple);
 
 			//generate object
 			JellyHellper::Instance()->UpdateSpringShape(_shapeObject, mPointMasses, mIndices, mIndicesCount, true);

@@ -37,10 +37,12 @@ private:
 	unsigned int m_backWidth, m_backHeight;
 	unsigned int m_columns, m_rows;
 
-	std::vector<SkinInfo> m_carSkins;
 	LevelManager* m_levelManager;
+	LevelManager* m_copyManager;
+
 	std::vector<LevelSoftBody*> m_gameBodies;
 	World* m_world;
+	World* m_copyWorld;
 	Car* m_car;
 
 	glm::mat4 m_jellyProjection;

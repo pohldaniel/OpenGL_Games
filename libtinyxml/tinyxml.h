@@ -837,6 +837,7 @@ public:
 
 	void SetIntValue( int _value );										///< Set the value from an integer.
 	void SetDoubleValue( double _value );								///< Set the value from a double.
+	void SetFloatValue(float _value);									///< Set the value from a float.
 
     #ifdef TIXML_USE_STL
 	/// STL std::string form.
@@ -1073,6 +1074,7 @@ public:
 		will be created if it does not exist, or changed if it does.
 	*/
 	void SetDoubleAttribute( const char * name, double value );
+	void SetFloatAttribute(const char * name, float val);
 
 	/** Deletes an attribute with the given name.
 	*/

@@ -13,10 +13,15 @@ Chassis::Chassis(World *w, const ClosedShape& sA, const ClosedShape& sB,
 	smallBig = false;
 	ballon = false;
 
-	_vertexObject = RenderManager::Instance()->CreateVertexArrayObject(Simple, DynamicDraw);
-	_vertexObject->SetVertexPrimitive(Lines);
+	_vertexObject = new Mesh();
+	_vertexObject->setVertexBufferDrawType(_DynamicDraw);
+	_vertexObject->setVertexType(_Simple);
+	_vertexObject->setVertexPrimitive(_Lines);
 
-	_texturedObject = RenderManager::Instance()->CreateVertexArrayObject(Textured, DynamicDraw);
+	_texturedObject = new Mesh();
+	_texturedObject->setVertexBufferDrawType(_DynamicDraw);
+	_texturedObject->setVertexType(_Textured);
+
 
 	_color = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 
@@ -263,13 +268,15 @@ void Chassis::GenerateVertices()
 
 	//test
 	{
-		_vertexObject = RenderManager::Instance()->CreateVertexArrayObject(Textured, StaticDraw);
+		_vertexObject = new Mesh();
+		_vertexObject->setVertexBufferDrawType(_StaticDraw);
+		_vertexObject->setVertexType(_Textured);
 
 		//create vertices
-		_vertexObject->CreateVertices(14);
+		_vertexObject->createVertices(14);
 
 		//get vertices
-		TextureVertex* _simpleData = static_cast<TextureVertex*>(_vertexObject->GetVertices());
+		TextureVertex* _simpleData = static_cast<TextureVertex*>(_vertexObject->getVertices());
 
 		_simpleData[0].x = -3.8f;		_simpleData[0].y = -1.6f;		_simpleData[0].z = 0.0f;
 		_simpleData[1].x = -3.8f;		_simpleData[1].y = 0.4f;		_simpleData[1].z = 0.0f;
@@ -302,10 +309,10 @@ void Chassis::GenerateVertices()
 		_simpleData[13].u = 0.164f;  _simpleData[13].v = 0.985f;
 
 		//create indices
-		_vertexObject->CreateIndices(36);
+		_vertexObject->createIndices(36);
 
 		//get indices
-		unsigned short* _indices = static_cast<unsigned short*>(_vertexObject->GetIndices());
+		unsigned short* _indices = static_cast<unsigned short*>(_vertexObject->getIndices());
 
 		_indices[0] = 0;	_indices[1] = 1;	_indices[2] = 13;
 		_indices[3] = 1;	_indices[4] = 2;	_indices[5] = 13;
@@ -321,12 +328,12 @@ void Chassis::GenerateVertices()
 		_indices[33] = 6;	_indices[34] = 7;	_indices[35] = 8;
 
 		//generate buffer object
-		_vertexObject->Generate();
+		_vertexObject->createBuffer(true);
 	}
 
 }
 
-void Chassis::Draw(glm::mat4 &proj, Texture2* texture)
+void Chassis::Draw(glm::mat4 &proj, Texture* texture)
 {
 	if (!_created)
 	{

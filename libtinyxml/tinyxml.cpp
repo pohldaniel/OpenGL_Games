@@ -756,6 +756,13 @@ void TiXmlElement::SetAttribute( const std::string& name, int val )
 }
 #endif
 
+void TiXmlElement::SetFloatAttribute(const char * name, float val)
+{
+	TiXmlAttribute* attrib = attributeSet.FindOrCreate(name);
+	if (attrib) {
+		attrib->SetFloatValue(val);
+	}
+}
 
 void TiXmlElement::SetDoubleAttribute( const char * name, double val )
 {	
@@ -802,7 +809,7 @@ void TiXmlElement::Print( FILE* cfile, int depth ) const
 	int i;
 	assert( cfile );
 	for ( i=0; i<depth; i++ ) {
-		fprintf( cfile, "    " );
+		fprintf( cfile, "  " );
 	}
 
 	fprintf( cfile, "<%s", value.c_str() );
@@ -843,7 +850,7 @@ void TiXmlElement::Print( FILE* cfile, int depth ) const
 		}
 		fprintf( cfile, "\n" );
 		for( i=0; i<depth; ++i ) {
-			fprintf( cfile, "    " );
+			fprintf( cfile, "  " );
 		}
 		fprintf( cfile, "</%s>", value.c_str() );
 	}
@@ -1315,11 +1322,22 @@ void TiXmlAttribute::SetDoubleValue( double _value )
 {
 	char buf [256];
 	#if defined(TIXML_SNPRINTF)		
-		TIXML_SNPRINTF( buf, sizeof(buf), "%g", _value);
+		TIXML_SNPRINTF( buf, sizeof(buf), "%.16g", _value);
 	#else
-		sprintf (buf, "%g", _value);
+		sprintf (buf, "%.16g", _value);
 	#endif
 	SetValue (buf);
+}
+
+void TiXmlAttribute::SetFloatValue(float _value)
+{
+	char buf[256];
+#if defined(TIXML_SNPRINTF)		
+	TIXML_SNPRINTF(buf, sizeof(buf), "%.7g", _value);
+#else
+	sprintf(buf, "%.7g", _value);
+#endif
+	SetValue(buf);
 }
 
 int TiXmlAttribute::IntValue() const
@@ -1352,7 +1370,7 @@ void TiXmlComment::Print( FILE* cfile, int depth ) const
 	assert( cfile );
 	for ( int i=0; i<depth; i++ )
 	{
-		fprintf( cfile,  "    " );
+		fprintf( cfile,  "  " );
 	}
 	fprintf( cfile, "<!--%s-->", value.c_str() );
 }
@@ -1390,7 +1408,7 @@ void TiXmlText::Print( FILE* cfile, int depth ) const
 		int i;
 		fprintf( cfile, "\n" );
 		for ( i=0; i<depth; i++ ) {
-			fprintf( cfile, "    " );
+			fprintf( cfile, "  " );
 		}
 		fprintf( cfile, "<![CDATA[%s]]>\n", value.c_str() );	// unformatted output
 	}
@@ -1521,7 +1539,7 @@ TiXmlNode* TiXmlDeclaration::Clone() const
 void TiXmlUnknown::Print( FILE* cfile, int depth ) const
 {
 	for ( int i=0; i<depth; i++ )
-		fprintf( cfile, "    " );
+		fprintf( cfile, "  " );
 	fprintf( cfile, "<%s>", value.c_str() );
 }
 

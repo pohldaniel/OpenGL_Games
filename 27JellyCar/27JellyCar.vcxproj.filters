@@ -456,9 +456,6 @@
     <ClCompile Include="src\States\JellyDialog.cpp">
       <Filter>Source Files\States</Filter>
     </ClCompile>
-    <ClCompile Include="Loadingmanager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\Thread\EventClass.cpp">
       <Filter>Source Files\Thread</Filter>
     </ClCompile>
@@ -479,6 +476,12 @@
     </ClCompile>
     <ClCompile Include="_Andromeda\RenderManagerGL3.cpp">
       <Filter>Andromeda</Filter>
+    </ClCompile>
+    <ClCompile Include="src\LoadingManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Mesh.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -746,9 +749,6 @@
     <ClInclude Include="src\Levels\KinematicPlatform.h">
       <Filter>Source Files\Levels</Filter>
     </ClInclude>
-    <ClInclude Include="src\Levels\LevelInfo.h">
-      <Filter>Source Files\Levels</Filter>
-    </ClInclude>
     <ClInclude Include="src\Levels\LevelManager.h">
       <Filter>Source Files\Levels</Filter>
     </ClInclude>
@@ -756,9 +756,6 @@
       <Filter>Source Files\Levels</Filter>
     </ClInclude>
     <ClInclude Include="src\Levels\ObjectInfo.h">
-      <Filter>Source Files\Levels</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Levels\SkinInfo.h">
       <Filter>Source Files\Levels</Filter>
     </ClInclude>
     <ClInclude Include="src\Levels\SimpleStruct\BodyObject.h">
@@ -929,9 +926,6 @@
     <ClInclude Include="Resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Loadingmanager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\Thread\EventClass.h">
       <Filter>Source Files\Thread</Filter>
     </ClInclude>
@@ -955,6 +949,12 @@
     </ClInclude>
     <ClInclude Include="_Andromeda\RenderManagerGL3.h">
       <Filter>Andromeda</Filter>
+    </ClInclude>
+    <ClInclude Include="src\LoadingManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Mesh.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

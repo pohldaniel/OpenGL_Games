@@ -1,14 +1,11 @@
 #ifndef SuspensionShock_H
 #define SuspensionShock_H
 
-#include <_Andromeda/RenderManager.h>
-
 #include "JellyPhysics/JellyPhysics.h"
 
 class Tire;
 
-class SuspensionShock
-{
+class SuspensionShock {
 public:
 
 	int		mChassisPM;

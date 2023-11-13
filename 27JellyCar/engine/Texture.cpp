@@ -13,32 +13,9 @@ bool operator==(const Texture& t1, const Texture& t2) {
 	return t1.m_texture == t2.m_texture && t1.m_width == t2.m_width && t1.m_height == t2.m_height && t1.m_depth == t2.m_depth && t1.m_channels == t2.m_channels && t1.m_format == t2.m_format && t1.m_internalFormat == t2.m_internalFormat && t1.m_type == t2.m_type && t1.m_target == t2.m_target;
 }
 
-Texture::Texture(std::string fileName, const bool _flipVertical, unsigned int _internalFormat, unsigned int _format) {
+Texture::Texture(std::string fileName, const bool flipVertical, unsigned int internalFormat, unsigned int format, int paddingLeft, int paddingRight, int paddingTop, int paddingBottom , unsigned int SOIL_FLAG) {
 	
-	int width, height, numCompontents;
-	unsigned char* imageData = SOIL_load_image(fileName.c_str(), &width, &height, &numCompontents, SOIL_LOAD_AUTO);
-	m_internalFormat = _internalFormat == 0 && numCompontents == 1 ? GL_R8 : _internalFormat == 0 && numCompontents == 3 ? GL_RGB8 : _internalFormat == 0 ? GL_RGBA8 : _internalFormat;
-	m_format = _format == 0 && numCompontents == 1 ? GL_R : _format == 0 && numCompontents == 3 ? GL_RGB : _format == 0 ? GL_RGBA : _format;
-	m_type = GL_UNSIGNED_BYTE;
-	m_target = GL_TEXTURE_2D;
-
-	if(_flipVertical) 
-		flipVertical(imageData, numCompontents * width, height);
-
-	glGenTextures(1, &m_texture);
-	glBindTexture(m_target, m_texture);
-	glTexParameterf(m_target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameterf(m_target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(m_target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(m_target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexImage2D(m_target, 0, m_internalFormat, width, height, 0, m_format, m_type, imageData);
-	glBindTexture(m_target, 0);
-
-	SOIL_free_image_data(imageData);
-
-	m_width = width;
-	m_height = height;
-	m_channels = numCompontents;
+	loadFromFile(fileName, flipVertical, internalFormat, format, paddingLeft, paddingRight, paddingTop, paddingBottom, SOIL_FLAG);
 }
 
 Texture::Texture(Texture const& rhs){

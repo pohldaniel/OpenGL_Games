@@ -1,20 +1,22 @@
 #ifndef Chassis_H
 #define Chassis_H
 
-#include <_Andromeda/RenderManager.h>
+#include <engine/Texture.h>
+#include <glm/gtc/matrix_transform.hpp>
 
 #include "JellyPhysics/JellyPhysics.h"
 using namespace JellyPhysics;
 
 #include "Tire.h"
 #include "SuspensionShock.h"
+#include "Mesh.h"
 
 class Chassis : public SpringBody
 {
 public:
 
-	VertexArrayObject* _vertexObject;
-	VertexArrayObject* _texturedObject;
+	Mesh* _vertexObject;
+	Mesh* _texturedObject;
 
 	glm::vec4 _color;
 	bool _created;
@@ -73,7 +75,7 @@ public:
 	void AddPoly(int a, int b, int c);
 	void EndPolys();
 
-	void Draw(glm::mat4 &proj, Texture2* texture);
+	void Draw(glm::mat4 &proj, Texture* texture);
 
 };
 

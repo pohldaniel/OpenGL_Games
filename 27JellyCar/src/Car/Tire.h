@@ -1,17 +1,20 @@
 #ifndef Tire_H
 #define Tire_H
 
-#include <_Andromeda/RenderManager.h>
-
+#include <engine/Texture.h>
 #include "JellyPhysics/JellyPhysics.h"
+#include <glm/gtc/matrix_transform.hpp>
+
 using namespace JellyPhysics;
+
+#include "Mesh.h"
 
 class Tire : public PressureBody
 {
 private:
 
-	VertexArrayObject* _vertexObject;
-	VertexArrayObject* _texturedObject;
+	Mesh* _vertexObject;
+	Mesh* _texturedObject;
 	glm::vec4 _color;
 	bool _created;
 
@@ -73,7 +76,7 @@ public:
 
 	void UseNearestGracity(bool state);
 
-	void Draw(glm::mat4 &proj, Texture2* texture);
+	void Draw(glm::mat4 &proj, Texture* texture);
 };
 
 #endif 

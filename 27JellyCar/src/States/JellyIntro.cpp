@@ -22,15 +22,14 @@ JellyIntro::JellyIntro(StateMachine& machine) : State(machine, States::JELLYINTR
 
 	m_levelManager = new LevelManager();
 	m_levelManager->SetAssetsLocation("Assets/Jelly/");
-	m_levelManager->LoadCarSkins("car_skins.xml");
 	m_levelManager->InitPhysic(m_world);
 	m_levelManager->LoadCompiledLevel(m_world, "intro.scene", "Assets/Jelly/car_and_truck.car");
 
-	m_carSkins = m_levelManager->GetCarSkins();
-
+	SceneManager::Get().getSceneInfo("scene").loadCarSkins("Assets/Jelly/car_skins.xml");
+	const SkinInfo& skinInfo = SceneManager::Get().getSceneInfo("scene").getCurrentSkinInfo();
 	m_car = m_levelManager->GetCar();
-	m_car->SetChassisTextures(m_levelManager->GetCarImage(m_carSkins[0].chassisSmall), m_levelManager->GetCarImage(m_carSkins[0].chassisBig));
-	m_car->SetTireTextures(m_levelManager->GetCarImage(m_carSkins[0].tireSmall), m_levelManager->GetCarImage(m_carSkins[0].tireBig));
+	m_car->SetChassisTextures(skinInfo.skinTexture.chassisSmall, skinInfo.skinTexture.chassisBig);
+	m_car->SetTireTextures(skinInfo.skinTexture.tireSmall, skinInfo.skinTexture.tireBig);
 
 	m_gameBodies = m_levelManager->GetLevelBodies();
 	m_jellyProjection = glm::ortho(-20.0f + 0, 0 + 20.0f, -4.2f + 4, 4 + 18.2f, -1.0f, 1.0f);
@@ -52,6 +51,13 @@ JellyIntro::JellyIntro(StateMachine& machine) : State(machine, States::JELLYINTR
 
 	LoadingManagerSplitted::Get().addTask(new JellyIntro::LoadSceneAndThumbsTask(this, &JellyIntro::OnProcess, &JellyIntro::OnComplete));
 	LoadingManagerSplitted::Get().startBackgroundThread();
+
+	m_copyWorld = new World();
+	m_copyManager = new LevelManager();
+	m_copyManager->SetAssetsLocation("Assets/Jelly/");
+	m_copyManager->LoadLevel(m_copyWorld, "tut-scene.scene", "Assets/Jelly/car_and_truck.car");
+
+	SceneInfo::SaveLevel("tut.scene", m_copyManager->GetObjectInfos(), m_copyManager->GetLevelBodies(), m_copyManager->GetLevelTarget(), m_copyManager->GetLevelLine(), m_copyManager->m_currentName);
 }
 
 JellyIntro::~JellyIntro() {
@@ -172,10 +178,10 @@ void JellyIntro::resize(int deltaW, int deltaH) {
 
 void JellyIntro::OnProcess() {
 	SceneManager::Get().getSceneInfo("scene").loadLevelInfo("Assets/Jelly/scene_list.xml");
-	SceneManager::Get().getSceneInfo("scene").loadCarSkins("Assets/Jelly/car_skins.xml");
 	TileSetManager::Get().getTileSet("thumbs").loadTileSetCpu(SceneManager::Get().getSceneInfo("scene").getThumbFiles());
 }
 
 void JellyIntro::OnComplete() {
 	TileSetManager::Get().getTileSet("thumbs").loadTileSetGpu();
+	//Spritesheet::Safe("thumbs",  TileSetManager::Get().getTileSet("thumbs").getAtlas());
 }

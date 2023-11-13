@@ -1,10 +1,12 @@
 #ifndef GameBallonBody_H
 #define GameBallonBody_H
 
-#include <_Andromeda/RenderManager.h>
+#include <glm/gtc/matrix_transform.hpp>
 
 #include "JellyPhysics/JellyPhysics.h"
 using namespace JellyPhysics;
+
+#include "Mesh.h"
 
 class Chassis;
 
@@ -12,8 +14,8 @@ class GameBallonBody : public SpringBody
 {
 private:
 
-	VertexArrayObject* _vertexObject;
-	VertexArrayObject* _shapeObject;
+	Mesh* _vertexObject;
+	Mesh* _shapeObject;
 	glm::vec4 _color;
 	bool _created;
 

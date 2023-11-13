@@ -1,12 +1,9 @@
-#include "Car.h"
-#include "tinyxml.h"
+#include <tinyxml.h>
 #include <iostream>
 
-#include <_Andromeda/FileSystem/FileManager.h>
+#include "Car.h"
 
-
-Car::Car(std::string xmlFile, World *mWorld, const Vector2& pos, int chassisMat, int tireMat)
-{
+Car::Car(std::string xmlFile, World *mWorld, const Vector2& pos, int chassisMat, int tireMat) {
 	mainWorld = mWorld;
 
 	mShapeD = 0;
@@ -16,25 +13,19 @@ Car::Car(std::string xmlFile, World *mWorld, const Vector2& pos, int chassisMat,
 	TransformStatus = Car::Normal;
 
 	//loac car file
-	BaseFile* file = FileManager::Instance()->GetFile(xmlFile);
+	std::ifstream is(xmlFile, std::ifstream::in);
 
-	if (file == 0)
-		return;
+	is.seekg(0, is.end);
+	std::streamoff length = is.tellg();
+	is.seekg(0, is.beg);
 
-	file->Open(Read, Binary);
+	unsigned char* buffer = new unsigned char[length];
+	is.read(reinterpret_cast<char*>(buffer), length);
+	is.close();
 
-	int dataSize = 0;
-	unsigned char* _buffer = file->GetData(dataSize);
-
-	file->Close();
-	delete file;
-
-
-	//load object
+	//load data
 	TiXmlDocument doc;
-	if (!doc.LoadContent(_buffer, dataSize))
-	{
-		//Error - Can't load file :/
+	if (!doc.LoadContent(buffer, static_cast<int>(length))) {
 		return;
 	}
 
@@ -45,8 +36,7 @@ Car::Car(std::string xmlFile, World *mWorld, const Vector2& pos, int chassisMat,
 	pElem = hDoc.FirstChildElement().Element();
 
 	// should always have a valid root but handle gracefully if it does
-	if (!pElem)
-	{
+	if (!pElem){
 		//Error - Can't find root :/
 		return;
 	}
@@ -58,8 +48,7 @@ Car::Car(std::string xmlFile, World *mWorld, const Vector2& pos, int chassisMat,
 	shapeA.begin();
 
 	TiXmlElement* PointNode = hRoot.FirstChild("Shape1").FirstChild().Element();
-	for (PointNode; PointNode; PointNode = PointNode->NextSiblingElement())
-	{
+	for (PointNode; PointNode; PointNode = PointNode->NextSiblingElement()){
 		float x = 0.0f, y = 0.0f;
 		x = std::stof(PointNode->Attribute("x"));
 		y = std::stof(PointNode->Attribute("y"));
@@ -74,8 +63,7 @@ Car::Car(std::string xmlFile, World *mWorld, const Vector2& pos, int chassisMat,
 	shapeB.begin();
 
 	TiXmlElement* PointNode2 = hRoot.FirstChild("Shape2").FirstChild().Element();
-	for (PointNode2; PointNode2; PointNode2 = PointNode2->NextSiblingElement())
-	{
+	for (PointNode2; PointNode2; PointNode2 = PointNode2->NextSiblingElement()){
 		float x = 0.0f, y = 0.0f;
 		x = std::stof(PointNode2->Attribute("x"));
 		y = std::stof(PointNode2->Attribute("y"));
@@ -92,8 +80,7 @@ Car::Car(std::string xmlFile, World *mWorld, const Vector2& pos, int chassisMat,
 	float edgeDamp = 10.0f;
 
 	pElem = hRoot.FirstChild("Chassis").Element();
-	if (pElem != NULL)
-	{
+	if (pElem != NULL){
 		massPerPoint = std::stof(pElem->Attribute("MassPerPoint"));
 		shapeK = std::stof(pElem->Attribute("ShapeK"));
 		shapeDamp = std::stof(pElem->Attribute("ShapeDamp"));
@@ -334,13 +321,13 @@ void Car::update(float elapsed)
 		ballonBody->SetBallonPosition(mChassis->getPointMass(5)->Position, mChassis->getDerivedVelocity());
 }
 
-void Car::SetChassisTextures(Texture2* small, Texture2* big)
+void Car::SetChassisTextures(Texture* small, Texture* big)
 {
 	smallChassisTexture = small;
 	bigChassisTexture = big;
 }
 
-void Car::SetTireTextures(Texture2* small, Texture2* big)
+void Car::SetTireTextures(Texture* small, Texture* big)
 {
 	smallTireTexture = small;
 	bigTireTexture = big;
