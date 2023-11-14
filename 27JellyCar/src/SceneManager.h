@@ -11,6 +11,7 @@
 #include <engine/Texture.h>
 #include "Levels/ObjectInfo.h"
 #include "Levels/LevelSoftBody.h"
+#include "Car/Car.h"
 
 struct LevelInfo {
 	std::string name;
@@ -28,14 +29,11 @@ struct SkinTexture {
 };
 
 struct SkinInfo {
-
 	std::string name;
 	std::string chassisSmall;
 	std::string chassisBig;
-
 	std::string tireSmall;
 	std::string tireBig;
-
 	SkinTexture skinTexture;
 };
 
@@ -67,7 +65,9 @@ public:
 	int m_currentPosition;
 	int m_carCurrentPosition;
 
-	static void SaveLevel(const std::string path, const std::vector<ObjectInfo>& objectInfos, const std::vector<LevelSoftBody*>& bodies, const Vector2& target, const float flallLine, const std::string levelName);
+	static void SaveLevel(const std::string path, const std::vector<ObjectInfo>& objectInfos, const std::vector<LevelSoftBody*>& bodies, const Vector2& carPos, const Vector2& target, const float flallLine, const std::string levelName);
+	static void LoadLevel(const std::string path);
+	
 	static void SaveScores(const std::string path, const std::vector<LevelInfo>& levelInfos);
 private:
 

@@ -15,6 +15,41 @@ using namespace JellyPhysics;
 
 #include "KinematicControl.h"
 
+struct Point {
+	float x;
+	float y;
+	float mass;
+};
+
+struct  BodyInfo{
+	std::string name;
+	float massPerPoint;
+	float edgeK;
+	float edgeDamping;
+	float colorR, colorG, colorB;
+	bool kinematic;
+	bool shapeMatching;
+	float shapeK;
+	float shapeDamping;
+	float velDamping;
+
+	bool pressureized;
+	float pressure;
+};
+
+struct Spring{
+	int pt1;
+	int pt2;
+	float k;
+	float damp;
+};
+
+struct Triangle {
+	int pt0;
+	int pt1;
+	int pt2;
+};
+
 class LevelSoftBody
 {
 private:
@@ -43,7 +78,7 @@ private:
 	int mIndicesCount;
 
 	float colorR, colorG, colorB;
-
+	std::string name;
 	float massPerPoint;// = 0.0f;
 	float edgeK;//= 100.0f;
 	float edgeDamping;//= 1.0f;
@@ -51,6 +86,7 @@ private:
 	bool shapeMatching;//= true;
 	float shapeK;//= 100.0f;
 	float shapeDamping;//= 10.0f;
+	float velDamping;//= 10.0f;
 	bool pressureized;//= false;
 	float pressure;//= 0.0f;
 
@@ -94,6 +130,10 @@ public:
 
 	void Draw(glm::mat4 &proj);
 
+	BodyInfo m_bodyInfo;
+	std::vector<Point> m_points;
+	std::vector<Spring> m_springs;
+	std::vector<Triangle> m_triangles;
 };
 
 #endif

@@ -123,7 +123,7 @@ bool LevelManager::LoadCompiledLevel(World *world, std::string levelName, std::s
 	//load body objects and info
 	int number = 0;
 	loadFile->Read(&number, sizeof(int), 1);
-
+	m_currentName = levelName;
 	//save info of each body
 	for (int i = 0; i < number; i++)
 	{
@@ -163,7 +163,7 @@ bool LevelManager::LoadCompiledLevel(World *world, std::string levelName, std::s
 	for (int i = 0; i < objectsCount; i++)
 	{
 		ObjectInfo bodyInfo;
-
+		
 		//name
 		bodyInfo.name = objectsArray[i].name;
 
@@ -181,6 +181,10 @@ bool LevelManager::LoadCompiledLevel(World *world, std::string levelName, std::s
 		//material
 		bodyInfo.material = objectsArray[i].material;
 
+		bodyInfo.kinematicControls.radiansPerSecond = objectsArray[i].isMotor ? objectsArray[i].motorRadiansPerSecond : -1.0f;
+		bodyInfo.kinematicControls.radiansPerSecond = objectsArray[i].isPlatform ? objectsArray[i].platformSecondsPerLoop : -1.0f;
+		bodyInfo.kinematicControls.startOffset = 0.0f;
+		objectInfos.push_back(bodyInfo);
 		//get body info
 		int bodyNumber = -1;
 		for (size_t i = 0; i < bodyObjects.size(); i++)
@@ -324,7 +328,9 @@ bool LevelManager::LoadLevel(World *world, std::string levelName, std::string ca
 	for (ObjectNode; ObjectNode; ObjectNode = ObjectNode->NextSiblingElement())
 	{
 		ObjectInfo bodyInfo;
-
+		bodyInfo.kinematicControls.radiansPerSecond = -1.0f;
+		bodyInfo.kinematicControls.secondsPerLoop = -1.0f;
+		bodyInfo.kinematicControls.startOffset = 0.0f;
 		//name
 		bodyInfo.name = ObjectNode->Attribute("name");
 
@@ -346,7 +352,7 @@ bool LevelManager::LoadLevel(World *world, std::string levelName, std::string ca
 			bodyInfo.material = atoi(ObjectNode->Attribute("material"));
 		}
 
-		objectInfos.push_back(bodyInfo);
+		
 
 		//main path to scene file
 		std::string scenePath = GetPathName(levelFile);
@@ -354,19 +360,19 @@ bool LevelManager::LoadLevel(World *world, std::string levelName, std::string ca
 		//Add this object
 		std::string name = scenePath + "/" + bodyInfo.name + ".softbody";
 
-		bool znalazlem = false;
-		int numerek = 0;
+		bool found = false;
+		int index = 0;
 
 		for (unsigned int i = 0; i < gameBodiesNames.size(); i++)
 		{
 			if (name.compare(gameBodiesNames[i]) == 0)
 			{
-				znalazlem = true;
-				numerek = i;
+				found = true;
+				index = i;
 			}
 		}
 
-		if (znalazlem == false)
+		if (found == false)
 		{
 			gameBodiesNames.push_back(name);
 			gameBodiesNumbers.push_back(bodyNumber);
@@ -374,13 +380,13 @@ bool LevelManager::LoadLevel(World *world, std::string levelName, std::string ca
 
 		LevelSoftBody * gameBody;
 
-		if (znalazlem == false)
+		if (found == false)
 		{
 			gameBody = new LevelSoftBody(name, world, bodyInfo);
 		}
 		else
 		{
-			gameBody = new LevelSoftBody(gameBodies[gameBodiesNumbers[numerek]], world, bodyInfo);
+			gameBody = new LevelSoftBody(gameBodies[gameBodiesNumbers[index]], world, bodyInfo);
 		}
 
 		//ballon and tire item
@@ -414,14 +420,18 @@ bool LevelManager::LoadLevel(World *world, std::string levelName, std::string ca
 						end.X += std::stof(Element->Attribute("offsetX"));
 						end.Y += std::stof(Element->Attribute("offsetY"));
 
+						bodyInfo.kinematicControls.offsetX = std::stof(Element->Attribute("offsetX"));
+						bodyInfo.kinematicControls.offsetY = std::stof(Element->Attribute("offsetY"));
 
 						float seconds = std::stof(Element->Attribute("secondsPerLoop"));
+						bodyInfo.kinematicControls.secondsPerLoop = seconds;
 
 						float offset = 0.0f;
 
 						if (Element->Attribute("startOffset") != NULL)
 						{
 							offset = std::stof(Element->Attribute("startOffset"));
+							bodyInfo.kinematicControls.startOffset = offset;
 						}
 
 						gameBody->AddKinematicControl(new KinematicPlatform(body, Vector2(bodyInfo.posX, bodyInfo.posY), end, seconds, offset));
@@ -437,13 +447,14 @@ bool LevelManager::LoadLevel(World *world, std::string levelName, std::string ca
 					if (strcmp(sKinematic, "Motor") == 0)
 					{
 						float rps = std::stof(Element->Attribute("radiansPerSecond"));
+						bodyInfo.kinematicControls.radiansPerSecond = rps;
 						gameBody->AddKinematicControl(new KinematicMotor(body, rps));
 					}
 				}
 				Element = Element->NextSiblingElement();
 			}
 		}
-
+		objectInfos.push_back(bodyInfo);
 		body->updateAABB(0.0f, true);
 
 		worldLimits.expandToInclude(body->getAABB().Min);

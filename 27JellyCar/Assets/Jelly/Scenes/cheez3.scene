@@ -1,0 +1,147 @@
+<Scene name="Jello Fortress">
+  <Objects>
+    <Object name="chz3_Bridge" posX="-70.02542" posY="-12.41507" angle="360" scaleX="1" scaleY="1" material="0" />
+    <Object name="chz3_Water" posX="-70.07387" posY="-20.26711" angle="0" scaleX="1" scaleY="1" material="1" />
+    <Object name="chz3_WaterMover" posX="-86.1175" posY="-26.76342" angle="313" scaleX="1" scaleY="1" material="0">
+      <KinematicControls>
+        <Motor radiansPerSecond="4" />
+      </KinematicControls>
+    </Object>
+    <Object name="chz3_WaterMover" posX="-75.44226" posY="-26.31602" angle="233" scaleX="1" scaleY="1" material="0">
+      <KinematicControls>
+        <Motor radiansPerSecond="4" />
+      </KinematicControls>
+    </Object>
+    <Object name="chz3_WaterMover" posX="-64.76376" posY="-26.29129" angle="133" scaleX="1" scaleY="1" material="0">
+      <KinematicControls>
+        <Motor radiansPerSecond="4" />
+      </KinematicControls>
+    </Object>
+    <Object name="chz3_WaterMover" posX="-54.72061" posY="-25.5278" angle="313" scaleX="1" scaleY="1" material="0">
+      <KinematicControls>
+        <Motor radiansPerSecond="4" />
+      </KinematicControls>
+    </Object>
+    <Object name="chz3_Rock" posX="244.9998" posY="-44.95002" angle="0" scaleX="1" scaleY="1" material="0">
+      <KinematicControls>
+        <PlatformMotion offsetX="0" offsetY="10" secondsPerLoop="4" startOffset="0" />
+      </KinematicControls>
+    </Object>
+    <Object name="chz3_Rock" posX="305.0556" posY="-44.9778" angle="0" scaleX="1" scaleY="1" material="0">
+      <KinematicControls>
+        <PlatformMotion offsetX="0" offsetY="10" secondsPerLoop="4" startOffset="0.5" />
+      </KinematicControls>
+    </Object>
+    <Object name="chz3_Rock" posX="285.0885" posY="-44.94446" angle="0" scaleX="1" scaleY="1" material="0">
+      <KinematicControls>
+        <PlatformMotion offsetX="0" offsetY="10" secondsPerLoop="4" startOffset="0" />
+      </KinematicControls>
+    </Object>
+    <Object name="chz3_Rock" posX="325.0558" posY="-45.02227" angle="0" scaleX="1" scaleY="1" material="0">
+      <KinematicControls>
+        <PlatformMotion offsetX="0" offsetY="-10" secondsPerLoop="4" startOffset="0" />
+      </KinematicControls>
+    </Object>
+    <Object name="chz3_Rock" posX="265.0335" posY="-44.94448" angle="0" scaleX="1" scaleY="1" material="0">
+      <KinematicControls>
+        <PlatformMotion offsetX="0" offsetY="-10" secondsPerLoop="4" startOffset="0.5" />
+      </KinematicControls>
+    </Object>
+    <Object name="chz3_Rock" posX="344.979" posY="-54.61822" angle="0" scaleX="1" scaleY="1" material="0">
+      <KinematicControls>
+        <PlatformMotion offsetX="0" offsetY="20" secondsPerLoop="6" startOffset="0" />
+      </KinematicControls>
+    </Object>
+    <Object name="chz3_Water2" posX="480.2002" posY="-23.45002" angle="0" scaleX="1" scaleY="0.75" material="1" />
+    <Object name="chz3_WaterMover" posX="514.9828" posY="-30.98535" angle="135" scaleX="1" scaleY="1" material="0">
+      <KinematicControls>
+        <Motor radiansPerSecond="4" />
+      </KinematicControls>
+    </Object>
+    <Object name="chz3_WaterMover" posX="484.984" posY="-30.91327" angle="212" scaleX="1" scaleY="1" material="0">
+      <KinematicControls>
+        <Motor radiansPerSecond="4" />
+      </KinematicControls>
+    </Object>
+    <Object name="chz3_WaterMover" posX="454.9999" posY="-30.84123" angle="166" scaleX="1" scaleY="1" material="0">
+      <KinematicControls>
+        <Motor radiansPerSecond="4" />
+      </KinematicControls>
+    </Object>
+    <Object name="chz3_WaterMover" posX="504.7822" posY="-31.42652" angle="319" scaleX="1" scaleY="1" material="0">
+      <KinematicControls>
+        <Motor radiansPerSecond="4" />
+      </KinematicControls>
+    </Object>
+    <Object name="chz3_WaterMover" posX="474.7297" posY="-31.07063" angle="303" scaleX="1" scaleY="1" material="0">
+      <KinematicControls>
+        <Motor radiansPerSecond="4" />
+      </KinematicControls>
+    </Object>
+    <Object name="chz3_WaterMover" posX="495.0537" posY="-31.62946" angle="109" scaleX="1" scaleY="1" material="0">
+      <KinematicControls>
+        <Motor radiansPerSecond="4" />
+      </KinematicControls>
+    </Object>
+    <Object name="chz3_WaterMover" posX="444.7408" posY="-31.10005" angle="164" scaleX="1" scaleY="1" material="0">
+      <KinematicControls>
+        <Motor radiansPerSecond="4" />
+      </KinematicControls>
+    </Object>
+    <Object name="chz3_WaterMover" posX="464.4292" posY="-30.6971" angle="209" scaleX="1" scaleY="1" material="0">
+      <KinematicControls>
+        <Motor radiansPerSecond="4" />
+      </KinematicControls>
+    </Object>
+    <Object name="chz3_Ground2" posX="533.0005" posY="-20.4" angle="0" scaleX="1" scaleY="1" material="0" />
+    <Object name="chz3_Bridge2" posX="474.9994" posY="-13.16656" angle="0" scaleX="0.75" scaleY="0.75" material="0">
+      <KinematicControls>
+        <Motor radiansPerSecond="1" />
+      </KinematicControls>
+    </Object>
+    <Object name="chz3_Bridge2" posX="484.9997" posY="-13.09991" angle="0" scaleX="0.75" scaleY="0.75" material="0">
+      <KinematicControls>
+        <Motor radiansPerSecond="1" />
+      </KinematicControls>
+    </Object>
+    <Object name="chz3_Bridge2" posX="464.9997" posY="-13.06664" angle="0" scaleX="0.75" scaleY="0.75" material="0">
+      <KinematicControls>
+        <Motor radiansPerSecond="1" />
+      </KinematicControls>
+    </Object>
+    <Object name="chz3_Bridge2" posX="494.9998" posY="-13.1666" angle="0" scaleX="0.75" scaleY="0.75" material="0">
+      <KinematicControls>
+        <Motor radiansPerSecond="1" />
+      </KinematicControls>
+    </Object>
+    <Object name="chz3_Bridge2" posX="455.0006" posY="-13.08338" angle="0" scaleX="0.75" scaleY="0.75" material="0">
+      <KinematicControls>
+        <Motor radiansPerSecond="1" />
+      </KinematicControls>
+    </Object>
+    <Object name="chz3_Bridge2" posX="444.958" posY="-13.04175" angle="0" scaleX="0.75" scaleY="0.75" material="0">
+      <KinematicControls>
+        <Motor radiansPerSecond="1" />
+      </KinematicControls>
+    </Object>
+    <Object name="chz3_Bridge2" posX="514.9998" posY="-13.13331" angle="0" scaleX="0.75" scaleY="0.75" material="0">
+      <KinematicControls>
+        <Motor radiansPerSecond="1" />
+      </KinematicControls>
+    </Object>
+    <Object name="chz3_Bridge2" posX="504.9999" posY="-13.16666" angle="0" scaleX="0.75" scaleY="0.75" material="0">
+      <KinematicControls>
+        <Motor radiansPerSecond="1" />
+      </KinematicControls>
+    </Object>
+    <Object name="chz3_ground1b" posX="10" posY="-30" angle="0" scaleX="1" scaleY="1" material="0" />
+    <Object name="chz3_ground1c" posX="160" posY="-80" angle="0" scaleX="1" scaleY="1" material="0" />
+    <Object name="chz3_ground1d" posX="90" posY="0" angle="0" scaleX="1" scaleY="1" material="0" />
+    <Object name="chz3_ground1e" posX="260" posY="-70" angle="0" scaleX="1" scaleY="1" material="0" />
+    <Object name="chz3_ground1f" posX="280" posY="-20" angle="0" scaleX="1" scaleY="1" material="0" />
+    <Object name="chz3_ground1g" posX="420" posY="-30" angle="0" scaleX="1" scaleY="1" material="0" />
+    <Object name="chz3_ground1a" posX="-120" posY="0" angle="0" scaleX="1" scaleY="1" material="0" />
+  </Objects>
+  <Car name="car_and_truck" posX="-140" posY="-8" />
+  <Settings finishX="570" finishY="-8" fallLine="-400" />
+</Scene>

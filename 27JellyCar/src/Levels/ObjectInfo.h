@@ -1,6 +1,11 @@
 #ifndef ObjectInfo_H
 #define ObjectInfo_H
 
+struct KinematicControls {
+	float offsetX, offsetY, secondsPerLoop, startOffset;
+	float radiansPerSecond;
+};
+
 class ObjectInfo
 {
 public:
@@ -14,6 +19,8 @@ public:
 		posX = posY = angle = scaleX = scaleY = 0.0f;
 		material = 0;
 	}
+
+	KinematicControls kinematicControls;
 };
 
 #endif

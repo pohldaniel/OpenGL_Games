@@ -18,7 +18,7 @@ private:
 	std::string _assetLocation;
 
 	Car* _car;
-	Vector2 _carPos;
+	
 
 	std::vector<ObjectInfo> objectInfos;
 	std::vector<LevelSoftBody*> gameBodies;
@@ -61,7 +61,7 @@ public:
 	float GetLevelLine();
 
 	std::string m_currentName;
-
+	Vector2 _carPos;
 };
 
 #endif

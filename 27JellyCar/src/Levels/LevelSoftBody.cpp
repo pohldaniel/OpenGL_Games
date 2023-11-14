@@ -7,8 +7,8 @@
 
 #include <_Andromeda/FileSystem/FileManager.h>
 
-LevelSoftBody::LevelSoftBody(std::string fileName, World *mWorld, const Vector2& pos, float angle, const Vector2& scale, int material)
-{
+LevelSoftBody::LevelSoftBody(std::string fileName, World *mWorld, const Vector2& pos, float angle, const Vector2& scale, int material) {
+
 	massPerPoint = 0.0f;
 	edgeK = 100.0f;
 	edgeDamping = 1.0f;
@@ -60,6 +60,12 @@ LevelSoftBody::LevelSoftBody(std::string fileName, World *mWorld, const Vector2&
 	const char* sKinematic, *sShapeMatching;
 	//bool kinematic,shapeMatching;
 
+	//load color of the body
+	if (pElem->Attribute("name") != NULL)
+	{
+		name = pElem->Attribute("name");
+	}
+
 	//basic info
 	massPerPoint = std::stof(pElem->Attribute("massPerPoint"));
 	edgeK = std::stof(pElem->Attribute("edgeK"));
@@ -95,6 +101,12 @@ LevelSoftBody::LevelSoftBody(std::string fileName, World *mWorld, const Vector2&
 		}
 	}
 
+	//shape matching
+	if (pElem->Attribute("velDamping") != NULL)
+	{
+		velDamping = std::stof(pElem->Attribute("velDamping"));
+	}
+
 	//end of first section
 	hRoot = TiXmlHandle(pElem);
 
@@ -105,6 +117,22 @@ LevelSoftBody::LevelSoftBody(std::string fileName, World *mWorld, const Vector2&
 		pressureized = true;
 		pressure = std::stof(pElem->Attribute("amount"));
 	}
+
+	m_bodyInfo.name = name;
+	m_bodyInfo.massPerPoint = massPerPoint;
+	m_bodyInfo.edgeK = edgeK;
+	m_bodyInfo.edgeDamping = edgeDamping;
+	m_bodyInfo.colorR = colorR;
+	m_bodyInfo.colorG = colorG;
+	m_bodyInfo.colorB = colorB;
+	m_bodyInfo.kinematic = kinematic;
+	m_bodyInfo.shapeMatching = shapeMatching;
+	m_bodyInfo.shapeK = shapeK;
+	m_bodyInfo.shapeDamping = shapeDamping;
+	m_bodyInfo.velDamping = velDamping;
+
+	m_bodyInfo.pressureized = pressureized;
+	m_bodyInfo.pressure = pressure;
 
 	//SHAPE
 
@@ -128,7 +156,7 @@ LevelSoftBody::LevelSoftBody(std::string fileName, World *mWorld, const Vector2&
 
 			massExceptions.push_back(m);
 		}
-
+		m_points.push_back({ x, y, PointNode->Attribute("mass") != NULL ? std::stof(PointNode->Attribute("mass")) : -1.0f });
 		_id++;
 	}
 
@@ -171,6 +199,8 @@ LevelSoftBody::LevelSoftBody(std::string fileName, World *mWorld, const Vector2&
 		k = std::stof(SpingNode->Attribute("k"));
 		damp = std::stof(SpingNode->Attribute("damp"));
 
+		m_springs.push_back({ pt1, pt2, k, damp });
+
 		if (!pressureized)
 		{
 			static_cast<GameSpringBody*>(mBody)->addInternalSpring(pt1, pt2, k, damp);
@@ -189,7 +219,7 @@ LevelSoftBody::LevelSoftBody(std::string fileName, World *mWorld, const Vector2&
 		pt0 = atoi(PolygonNode->Attribute("pt0"));
 		pt1 = atoi(PolygonNode->Attribute("pt1"));
 		pt2 = atoi(PolygonNode->Attribute("pt2"));
-
+		m_triangles.push_back({ pt0 , pt1, pt2 });
 		// polygons!
 		AddTriangle(pt0, pt1, pt2);
 	}
@@ -333,6 +363,22 @@ LevelSoftBody::LevelSoftBody(BodyObject *exBody, World *mWorld, const Vector2& p
 	pressure = exBody->info.pressure;
 
 	
+	m_bodyInfo.name = name;
+	m_bodyInfo.massPerPoint = massPerPoint;
+	m_bodyInfo.edgeK = edgeK;
+	m_bodyInfo.edgeDamping = edgeDamping;
+	m_bodyInfo.colorR = colorR;
+	m_bodyInfo.colorG = colorG;
+	m_bodyInfo.colorB = colorB;
+	m_bodyInfo.kinematic = kinematic;
+	m_bodyInfo.shapeMatching = shapeMatching;
+	m_bodyInfo.shapeK = shapeK;
+	m_bodyInfo.shapeDamping = shapeDamping;
+	m_bodyInfo.velDamping = velDamping;
+
+	m_bodyInfo.pressureized = pressureized;
+	m_bodyInfo.pressure = pressure;
+
 	//Points
 	shape.begin();
 	int _id = 0;
@@ -348,7 +394,7 @@ LevelSoftBody::LevelSoftBody(BodyObject *exBody, World *mWorld, const Vector2& p
 
 			massExceptions.push_back(m);
 		}
-
+		m_points.push_back({ exBody->bodyPoints[i].x, exBody->bodyPoints[i].y, exBody->bodyPoints[i].mass != -1 ? exBody->bodyPoints[i].mass : -1.0f });
 		_id++;
 	}
 
@@ -389,7 +435,7 @@ LevelSoftBody::LevelSoftBody(BodyObject *exBody, World *mWorld, const Vector2& p
 		pt2 = exBody->bodySprings[i].pt2;
 		k = exBody->bodySprings[i].k;
 		damp = exBody->bodySprings[i].damp;
-
+		m_springs.push_back({ pt1, pt2, k, damp });
 		if (!pressureized)
 		{
 			static_cast<GameSpringBody*>(mBody)->addInternalSpring(pt1, pt2, k, damp);
@@ -408,7 +454,7 @@ LevelSoftBody::LevelSoftBody(BodyObject *exBody, World *mWorld, const Vector2& p
 		pt0 = exBody->bodyPolygons[i].x;
 		pt1 = exBody->bodyPolygons[i].y;
 		pt2 = exBody->bodyPolygons[i].z;
-
+		m_triangles.push_back({ pt0 , pt1, pt2 });
 		AddTriangle(pt0, pt1, pt2);
 	}
 
@@ -418,18 +464,21 @@ LevelSoftBody::LevelSoftBody(BodyObject *exBody, World *mWorld, const Vector2& p
 LevelSoftBody::LevelSoftBody(std::string fileName, World *mWorld, ObjectInfo bodyInfo) : LevelSoftBody(fileName, mWorld, Vector2(bodyInfo.posX, bodyInfo.posY), VectorTools::degToRad(bodyInfo.angle), Vector2(bodyInfo.scaleX, bodyInfo.scaleY), bodyInfo.material)
 {
 	_bodyInfo = bodyInfo;
+	m_bodyInfo.name = _bodyInfo.name;
 	mBody->SetName(_bodyInfo.name);
 }
 
 LevelSoftBody::LevelSoftBody(LevelSoftBody *exBody, World *mWorld, ObjectInfo bodyInfo) : LevelSoftBody(exBody, mWorld, Vector2(bodyInfo.posX, bodyInfo.posY), VectorTools::degToRad(bodyInfo.angle), Vector2(bodyInfo.scaleX, bodyInfo.scaleY), bodyInfo.material)
 {
 	_bodyInfo = bodyInfo;
+	m_bodyInfo.name = _bodyInfo.name;
 	mBody->SetName(_bodyInfo.name);
 }
 
 LevelSoftBody::LevelSoftBody(BodyObject *exBody, World *mWorld, ObjectInfo bodyInfo) : LevelSoftBody(exBody, mWorld, Vector2(bodyInfo.posX, bodyInfo.posY), VectorTools::degToRad(bodyInfo.angle), Vector2(bodyInfo.scaleX, bodyInfo.scaleY), bodyInfo.material)
 {
 	_bodyInfo = bodyInfo;
+	m_bodyInfo.name = _bodyInfo.name;
 	mBody->SetName(_bodyInfo.name);
 }
 

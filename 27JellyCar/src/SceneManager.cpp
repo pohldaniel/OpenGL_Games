@@ -117,7 +117,6 @@ void SceneInfo::loadLevelInfo(std::string path) {
 }
 
 void SceneInfo::loadScores(std::string path) {
-	//loac main level file
 	std::ifstream is(path, std::ifstream::in);
 
 	if (!is.is_open())
@@ -131,7 +130,6 @@ void SceneInfo::loadScores(std::string path) {
 	is.read(reinterpret_cast<char*>(buffer), length);
 	is.close();
 
-	//load data
 	TiXmlDocument doc;
 	if (!doc.LoadContent(buffer, static_cast<int>(length))) {
 		return;
@@ -261,33 +259,148 @@ void SceneInfo::SaveScores(const std::string path, const std::vector<LevelInfo>&
 	doc.SaveFile(path.c_str());
 }
 
-void  SceneInfo::SaveLevel(const std::string path, const std::vector<ObjectInfo>& objectInfos, const std::vector<LevelSoftBody*>& bodies, const Vector2& target, const float flallLineconst, std::string levelName) {
+void  SceneInfo::SaveLevel(const std::string path, const std::vector<ObjectInfo>& objectInfos, const std::vector<LevelSoftBody*>& bodies, const Vector2& carPos, const Vector2& target, const float flallLine, const std::string levelName) {
 	TiXmlDocument doc;
 	//TiXmlDeclaration* decl = new TiXmlDeclaration("1.0", "", "");
 	//doc.LinkEndChild(decl);
-	std::cout << "Level Name: " << levelName << std::endl;
-	//root
+	
 	TiXmlElement * root = new TiXmlElement("Scene");
 	root->SetAttribute("name", levelName.c_str());
-	TiXmlNode* objects = root->LinkEndChild(new TiXmlElement("Objects"));
+	TiXmlNode* objectsNode = root->LinkEndChild(new TiXmlElement("Objects"));
 
 	for (int i = 0; i < objectInfos.size(); i++) {
 		TiXmlElement * cxn = new TiXmlElement("Object");
-		objects->LinkEndChild(cxn);
+		objectsNode->LinkEndChild(cxn);
 		cxn->SetAttribute("name", objectInfos[i].name.c_str());
 		cxn->SetFloatAttribute("posX", objectInfos[i].posX);
 		cxn->SetFloatAttribute("posY", objectInfos[i].posY);
-		std::cout << objectInfos[i].posX << "  " << objectInfos[i].posY << std::endl;
-		std::cout << (float)std::stof(cxn->Attribute("posX")) << "  " << (float)std::stof(cxn->Attribute("posY")) << std::endl;
-
 		cxn->SetFloatAttribute("angle", objectInfos[i].angle);
 		cxn->SetFloatAttribute("scaleX", objectInfos[i].scaleX);
 		cxn->SetFloatAttribute("scaleY", objectInfos[i].scaleY);
 		cxn->SetAttribute("material", objectInfos[i].material);
+
+		if (objectInfos[i].kinematicControls.radiansPerSecond > 0.0f || objectInfos[i].kinematicControls.secondsPerLoop > 0.0f) {
+			TiXmlElement * kninematicControlsNode = new TiXmlElement("KinematicControls");
+			cxn->LinkEndChild(kninematicControlsNode);
+
+			if (objectInfos[i].kinematicControls.radiansPerSecond > 0.0f) {
+				TiXmlElement * motorNode = new TiXmlElement("Motor");
+				kninematicControlsNode->LinkEndChild(motorNode);
+				motorNode->SetFloatAttribute("radiansPerSecond", objectInfos[i].kinematicControls.radiansPerSecond);
+			}
+
+			if (objectInfos[i].kinematicControls.secondsPerLoop > 0.0f) {
+				TiXmlElement * platformMotionNode = new TiXmlElement("PlatformMotion");
+				kninematicControlsNode->LinkEndChild(platformMotionNode);
+				platformMotionNode->SetFloatAttribute("offsetX", objectInfos[i].kinematicControls.offsetX);
+				platformMotionNode->SetFloatAttribute("offsetY", objectInfos[i].kinematicControls.offsetY);
+				platformMotionNode->SetFloatAttribute("secondsPerLoop", objectInfos[i].kinematicControls.secondsPerLoop);
+				platformMotionNode->SetFloatAttribute("startOffset", objectInfos[i].kinematicControls.startOffset);
+			}
+		}
 	}
+
+	TiXmlNode* bodiesNode = root->LinkEndChild(new TiXmlElement("SoftBodies"));
+	std::vector<int> indices;
 	
+	
+	for (int i = 0; i < bodies.size(); i++) {
+		TiXmlElement * cxn = new TiXmlElement("SoftBody");
+		bodiesNode->LinkEndChild(cxn);
+
+		LevelSoftBody* _body = *std::find_if(bodies.begin(), bodies.end(), [&](const LevelSoftBody* m) -> bool { return m->m_bodyInfo.name == bodies[i]->m_bodyInfo.name; });
+		cxn->SetAttribute("name", _body->m_bodyInfo.name.c_str());
+		cxn->SetFloatAttribute("massPerPoint", _body->m_bodyInfo.massPerPoint);
+		cxn->SetFloatAttribute("edgeK", _body->m_bodyInfo.edgeK);
+		cxn->SetFloatAttribute("edgeDamping", _body->m_bodyInfo.edgeDamping);
+		cxn->SetFloatAttribute("colorR", _body->m_bodyInfo.colorR);
+		cxn->SetFloatAttribute("colorG", _body->m_bodyInfo.colorG);
+		cxn->SetFloatAttribute("colorB", _body->m_bodyInfo.colorB);
+		cxn->SetAttribute("kinematic", _body->m_bodyInfo.kinematic ? "True" : "False");
+		cxn->SetAttribute("shapeMatching", _body->m_bodyInfo.shapeMatching ? "True" : "False");
+
+		cxn->SetAttribute("shapeK", _body->m_bodyInfo.shapeK);
+		cxn->SetAttribute("shapeDamping", _body->m_bodyInfo.shapeDamping);
+
+		if (_body->m_bodyInfo.pressure) {
+			TiXmlElement * pressure = new TiXmlElement("Pressure");
+			cxn->LinkEndChild(pressure);
+			cxn->SetFloatAttribute("amount", _body->m_bodyInfo.pressure);
+		}
+
+		TiXmlElement * pointsNode= new TiXmlElement("Points");
+		cxn->LinkEndChild(pointsNode);
+
+		for (auto point : _body->m_points) {
+			TiXmlElement * pointNode = new TiXmlElement("Points");
+			pointsNode->LinkEndChild(pointNode);
+			pointNode->SetFloatAttribute("x", point.x);
+			pointNode->SetFloatAttribute("y", point.y);
+			if(point.mass != -1.0)
+				pointNode->SetFloatAttribute("mass", point.mass);
+		}
+
+		TiXmlElement * springsNode = new TiXmlElement("Springs");
+		cxn->LinkEndChild(springsNode);
+
+		for (auto spring : _body->m_springs) {
+			TiXmlElement * springNode = new TiXmlElement("Spring");
+			springsNode->LinkEndChild(springNode);
+			springNode->SetAttribute("pt0", spring.pt1);
+			springNode->SetAttribute("pt1", spring.pt2);
+			springNode->SetFloatAttribute("k", spring.k);
+			springNode->SetFloatAttribute("damp", spring.damp);
+			
+		}
+
+		TiXmlElement * polygonsNode = new TiXmlElement("Polygons");
+		cxn->LinkEndChild(polygonsNode);
+
+		for (auto triangle : _body->m_triangles) {
+			TiXmlElement *polygonNode = new TiXmlElement("Poly");
+			polygonsNode->LinkEndChild(polygonNode);
+			polygonNode->SetAttribute("pt0", triangle.pt0);
+			polygonNode->SetAttribute("pt1", triangle.pt1);
+			polygonNode->SetFloatAttribute("pt2", triangle.pt2);
+		}
+	}
+
+	TiXmlElement* carNode = root->LinkEndChild(new TiXmlElement("Car"))->ToElement();
+	carNode->SetAttribute("name", "car_and_truck");
+	carNode->SetFloatAttribute("posX", carPos.X);
+	carNode->SetFloatAttribute("posY", carPos.Y);
+
+	
+	TiXmlElement* settingsNode = root->LinkEndChild(new TiXmlElement("Settings"))->ToElement();
+	settingsNode->SetFloatAttribute("finishX", target.X);
+	settingsNode->SetFloatAttribute("finishY", target.Y);
+	settingsNode->SetFloatAttribute("fallLine", flallLine);
+
 	doc.LinkEndChild(root);
 	doc.SaveFile(path.c_str());
+}
+
+void SceneInfo::LoadLevel(const std::string path) {
+	std::ifstream is(path, std::ifstream::in);
+
+	if (!is.is_open())
+		return;
+
+	is.seekg(0, is.end);
+	std::streamoff length = is.tellg();
+	is.seekg(0, is.beg);
+
+	unsigned char* buffer = new unsigned char[length];
+	is.read(reinterpret_cast<char*>(buffer), length);
+	is.close();
+
+	TiXmlDocument doc;
+	if (!doc.LoadContent(buffer, static_cast<int>(length))) {
+		return;
+	}
+
+	TiXmlElement* root = doc.FirstChild()->ToElement();
+	std::cout << "Name: " << root->Attribute("name") << std::endl;
 }
 
 ///////////////////////ScenetManager//////////////////////////

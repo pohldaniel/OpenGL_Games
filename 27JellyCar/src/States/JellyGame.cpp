@@ -69,8 +69,7 @@ JellyGame::JellyGame(StateMachine& machine, std::string scene) : State(machine, 
 	m_levelManager = new LevelManager();
 	m_levelManager->SetAssetsLocation("Assets/Jelly/");
 	m_levelManager->InitPhysic(m_world);
-	m_levelManager->LoadLevel(m_world, m_sceneFile, "Assets/Jelly/car_and_truck.car");
-
+	m_levelManager->LoadCompiledLevel(m_world, m_sceneFile, "Assets/Jelly/car_and_truck.car");
 
 	const SkinInfo& skinInfo = SceneManager::Get().getSceneInfo("scene").getCurrentSkinInfo();
 	m_car = m_levelManager->GetCar();
