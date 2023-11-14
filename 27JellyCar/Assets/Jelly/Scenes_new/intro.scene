@@ -1,0 +1,50 @@
+<Scene name="Intro">
+  <Objects>
+    <Object name="custom_ground01" posX="27.92856" posY="2.58646" angle="0" scaleX="19" scaleY="1" material="0" />
+    <Object name="custom_ground01" posX="0.4883355" posY="2.58657" angle="0" scaleX="19" scaleY="1" material="0" />
+    <Object name="custom_ground01" posX="-26.95181" posY="2.586669" angle="0" scaleX="19" scaleY="1" material="0" />
+  </Objects>
+  <SoftBodies>
+    <SoftBody name="custom_ground01" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="1" colorG="0" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+      <Points>
+        <Point x="-0.7262362" y="-0.7435783" />
+        <Point x="-0.7262155" y="0.2528153" />
+        <Point x="0.7179771" y="0.2527052" />
+        <Point x="0.7179636" y="-0.7574621" />
+      </Points>
+      <Springs />
+      <Polygons>
+        <Poly pt0="1" pt1="0" pt2="2" />
+        <Poly pt0="2" pt1="3" pt2="0" />
+      </Polygons>
+    </SoftBody>
+    <SoftBody name="custom_ground01" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="1" colorG="0" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+      <Points>
+        <Point x="-0.7262362" y="-0.7435783" />
+        <Point x="-0.7262155" y="0.2528153" />
+        <Point x="0.7179771" y="0.2527052" />
+        <Point x="0.7179636" y="-0.7574621" />
+      </Points>
+      <Springs />
+      <Polygons>
+        <Poly pt0="1" pt1="0" pt2="2" />
+        <Poly pt0="2" pt1="3" pt2="0" />
+      </Polygons>
+    </SoftBody>
+    <SoftBody name="custom_ground01" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="1" colorG="0" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+      <Points>
+        <Point x="-0.7262362" y="-0.7435783" />
+        <Point x="-0.7262155" y="0.2528153" />
+        <Point x="0.7179771" y="0.2527052" />
+        <Point x="0.7179636" y="-0.7574621" />
+      </Points>
+      <Springs />
+      <Polygons>
+        <Poly pt0="1" pt1="0" pt2="2" />
+        <Poly pt0="2" pt1="3" pt2="0" />
+      </Polygons>
+    </SoftBody>
+  </SoftBodies>
+  <Car name="car_and_truck" posX="-22" posY="5" />
+  <Settings finishX="22" finishY="3" fallLine="-10" />
+</Scene>

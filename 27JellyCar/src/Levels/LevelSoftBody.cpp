@@ -495,7 +495,6 @@ LevelSoftBody::LevelSoftBody(BodyObject *exBody, World *mWorld, const Vector2& p
 			MassID m;
 			m._id = _id;
 			m._mass = exBody->bodyPoints[i].mass;
-
 			massExceptions.push_back(m);
 		}
 		m_points.push_back({ exBody->bodyPoints[i].x, exBody->bodyPoints[i].y, exBody->bodyPoints[i].mass != -1 ? exBody->bodyPoints[i].mass : -1.0f });

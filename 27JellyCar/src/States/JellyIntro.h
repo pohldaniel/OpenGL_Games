@@ -37,7 +37,6 @@ private:
 	unsigned int m_backWidth, m_backHeight;
 	unsigned int m_columns, m_rows;
 
-	LevelManager* m_levelManager;
 	LevelManager* m_copyManager;
 
 	std::vector<LevelSoftBody*> m_gameBodies;

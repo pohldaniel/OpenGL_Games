@@ -41,7 +41,7 @@ private:
 	unsigned int m_levelInfosSize;
 	unsigned int m_carSkinsSize;
 
-	LevelManager* m_levelManager;
+	//LevelManager* m_levelManager;
 	std::vector<LevelSoftBody*> m_gameBodies;
 	World* m_world;
 	Car* m_car;

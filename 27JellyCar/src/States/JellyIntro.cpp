@@ -16,24 +16,21 @@ JellyIntro::JellyIntro(StateMachine& machine) : State(machine, States::JELLYINTR
 	m_columns = ceil(static_cast<float>(Application::Width) / static_cast<float>(m_backWidth));
 	m_rows = ceil(static_cast<float>(Application::Height) / static_cast<float>(m_backHeight));
 
-
 	JellyHellper::Instance()->LoadShaders();
 	m_world = new World();
-
-	m_levelManager = new LevelManager();
-	m_levelManager->SetAssetsLocation("Assets/Jelly/");
-	m_levelManager->InitPhysic(m_world);
-	m_levelManager->LoadCompiledLevel(m_world, "intro.scene", "Assets/Jelly/car_and_truck.car");
-
+	SceneManager::Get().getScene("scene").InitPhysic(m_world);
 	SceneManager::Get().getScene("scene").loadCarSkins("Assets/Jelly/car_skins.xml");
+	SceneManager::Get().getScene("scene").loadLevel("Assets/Jelly/Scenes_new/intro.scene");
+	SceneManager::Get().getScene("scene").buildLevel(m_world, "Assets/Jelly/car_and_truck.car");
+	
 	const SkinInfo& skinInfo = SceneManager::Get().getScene("scene").getCurrentSkinInfo();
-	m_car = m_levelManager->GetCar();
+	m_car = SceneManager::Get().getScene("scene").GetCar();
 	m_car->SetChassisTextures(skinInfo.skinTexture.chassisSmall, skinInfo.skinTexture.chassisBig);
 	m_car->SetTireTextures(skinInfo.skinTexture.tireSmall, skinInfo.skinTexture.tireBig);
 
-	m_gameBodies = m_levelManager->GetLevelBodies();
+	m_gameBodies = SceneManager::Get().getScene("scene").GetLevelBodies();
 	m_jellyProjection = glm::ortho(-20.0f + 0, 0 + 20.0f, -4.2f + 4, 4 + 18.2f, -1.0f, 1.0f);
-	m_levelTarget = m_levelManager->GetLevelTarget();
+	m_levelTarget = SceneManager::Get().getScene("scene").GetLevelTarget();
 
 	Globals::textureManager.get("paper").bind(1);
 	Globals::textureManager.get("logo").bind(2);
@@ -63,8 +60,8 @@ JellyIntro::JellyIntro(StateMachine& machine) : State(machine, States::JELLYINTR
 		//}
 	}*/
 
-	//m_copyManager->LoadCompiledLevel(m_copyWorld, "waves.scene", "Assets/Jelly/car_and_truck.car");
-	//Scene::SaveLevel("waves2.scene", m_copyManager->GetObjectInfos(), m_copyManager->GetLevelBodies(), m_copyManager->_carPos, m_copyManager->GetLevelTarget(), m_copyManager->GetLevelLine(), "Circle Waves");
+	//m_copyManager->LoadCompiledLevel(m_copyWorld, "options_scene.scene", "Assets/Jelly/car_and_truck.car");
+	//Scene::SaveLevel("Assets/Jelly/Scenes_new/options_scene.scene", m_copyManager->GetObjectInfos(), m_copyManager->GetLevelBodies(), m_copyManager->_carPos, m_copyManager->GetLevelTarget(), m_copyManager->GetLevelLine(), "Options");
 	//m_copyManager->ClearLevel(m_copyWorld);
 
 	//m_copyManager->LoadCompiledLevel(m_copyWorld, "elevel1.scene", "Assets/Jelly/car_and_truck.car");
@@ -77,18 +74,8 @@ JellyIntro::JellyIntro(StateMachine& machine) : State(machine, States::JELLYINTR
 	//SceneManager::Get().getScene("scene").loadLevel("Assets/Jelly/Scenes_new/test-scene5.scene");
 }
 
-JellyIntro::~JellyIntro() {
-	if (m_levelManager != 0){
-		//clear level
-		m_levelManager->ClearLevel(m_world);
-
-		//remove level manager
-		delete m_levelManager;
-	}
-
-	//remove physic world
-	delete m_world;
-	m_gameBodies.clear();
+JellyIntro::~JellyIntro() {	
+	SceneManager::Get().getScene("scene").ClearLevel(m_world, m_gameBodies, m_car);
 }
 
 void JellyIntro::fixedUpdate() {}
@@ -112,8 +99,8 @@ void JellyIntro::update() {
 	}
 
 	//reset car position
-	if (m_car->getPosition().Y < m_levelManager->GetLevelLine()){
-		Vector2 pos = m_levelManager->GetCarStartPos();
+	if (m_car->getPosition().Y < SceneManager::Get().getScene("scene").GetLevelLine()){
+		Vector2 pos = SceneManager::Get().getScene("scene").GetCarStartPos();
 		Vector2 scale = Vector2(1.0f, 1.0f);
 
 		m_car->getChassisBody()->setPositionAngle(pos, 0.0f, scale);

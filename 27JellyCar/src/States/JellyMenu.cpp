@@ -30,17 +30,16 @@ carcurrentPosition(SceneManager::Get().getScene("scene").m_carCurrentPosition) {
 	JellyHellper::Instance()->LoadShaders();
 	m_world = new World();
 
-	m_levelManager = new LevelManager();
-	m_levelManager->SetAssetsLocation("Assets/Jelly/");
-	m_levelManager->InitPhysic(m_world);
-	m_levelManager->LoadCompiledLevel(m_world, "menu.scene", "Assets/Jelly/car_and_truck.car");
+	SceneManager::Get().getScene("scene").InitPhysic(m_world);
+	SceneManager::Get().getScene("scene").loadLevel("Assets/Jelly/Scenes_new/menu.scene");
+	SceneManager::Get().getScene("scene").buildLevel(m_world, "Assets/Jelly/car_and_truck.car");
 
 	const SkinInfo& skinInfo = SceneManager::Get().getScene("scene").getCurrentSkinInfo();
-	m_car = m_levelManager->GetCar();	
+	m_car = SceneManager::Get().getScene("scene").GetCar();
 	m_car->SetChassisTextures(skinInfo.skinTexture.chassisSmall, skinInfo.skinTexture.chassisBig);
 	m_car->SetTireTextures(skinInfo.skinTexture.tireSmall, skinInfo.skinTexture.tireBig);
 
-	m_gameBodies = m_levelManager->GetLevelBodies();
+	m_gameBodies = SceneManager::Get().getScene("scene").GetLevelBodies();
 	m_jellyProjection = glm::ortho(-20.0f + 0, 0 + 20.0f, -4.2f + 4, 4 + 18.2f, -1.0f, 1.0f);
 
 
@@ -61,17 +60,7 @@ JellyMenu::~JellyMenu() {
 	EventDispatcher::RemoveMouseListener(this);
 	EventDispatcher::RemoveKeyboardListener(this);
 
-	if (m_levelManager != 0){
-		//clear level
-		m_levelManager->ClearLevel(m_world);
-
-		//remove level manager
-		delete m_levelManager;
-	}
-
-	//remove physic world
-	delete m_world;
-	m_gameBodies.clear();
+	SceneManager::Get().getScene("scene").ClearLevel(m_world, m_gameBodies, m_car);
 }
 
 void JellyMenu::fixedUpdate() {}
@@ -91,8 +80,8 @@ void JellyMenu::update() {
 	}
 
 	//reset car position
-	if (m_car->getPosition().Y < m_levelManager->GetLevelLine()){
-		Vector2 pos = m_levelManager->GetCarStartPos();
+	if (m_car->getPosition().Y < SceneManager::Get().getScene("scene").GetLevelLine()){
+		Vector2 pos = SceneManager::Get().getScene("scene").GetCarStartPos();
 		Vector2 scale = Vector2(1.0f, 1.0f);
 
 		m_car->getChassisBody()->setPositionAngle(pos, 0.0f, scale);

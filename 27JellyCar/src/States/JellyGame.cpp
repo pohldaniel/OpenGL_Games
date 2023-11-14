@@ -66,18 +66,15 @@ JellyGame::JellyGame(StateMachine& machine, std::string scene) : State(machine, 
 	m_levelName = SceneManager::Get().getScene(m_scene).getCurrentSceneInfo().name;
 
 	m_world = new World();
-	m_levelManager = new LevelManager();
-	m_levelManager->SetAssetsLocation("Assets/Jelly/");
-	m_levelManager->InitPhysic(m_world);
+
+	SceneManager::Get().getScene("scene").InitPhysic(m_world);
 
 	Scene& _scene = SceneManager::Get().getScene(m_scene);
-	//_scene.loadLevel("Assets/Jelly/Scenes_new/" + m_sceneFile);
-	//m_levelManager->BuildLevel(m_world, _scene.getCarInfo(), _scene.getLevelInfo(), _scene.getObjectInfos(), _scene.getSoftBodyInfos(), _scene.getCurrentSceneInfo().name, "Assets/Jelly/car_and_truck.car");
-
-	m_levelManager->LoadCompiledLevel(m_world, m_sceneFile, "Assets/Jelly/car_and_truck.car");
+	_scene.loadLevel("Assets/Jelly/Scenes_new/" + m_sceneFile);
+	_scene.buildLevel(m_world, "Assets/Jelly/car_and_truck.car");
 
 	const SkinInfo& skinInfo = SceneManager::Get().getScene("scene").getCurrentSkinInfo();
-	m_car = m_levelManager->GetCar();
+	m_car = _scene.GetCar();
 	m_car->SetChassisTextures(skinInfo.skinTexture.chassisSmall, skinInfo.skinTexture.chassisBig);
 	m_car->SetTireTextures(skinInfo.skinTexture.tireSmall, skinInfo.skinTexture.tireBig);
 
@@ -95,12 +92,12 @@ JellyGame::JellyGame(StateMachine& machine, std::string scene) : State(machine, 
 	m_world->setMaterialPairFilterCallback(5, 3, this);
 
 	//level elements
-	m_gameBodies = m_levelManager->GetLevelBodies();
+	m_gameBodies = _scene.GetLevelBodies();
 
 	//set map size
-	m_wholeMapPosition = m_levelManager->GetWorldCenter();
-	m_wholeMapSize = m_levelManager->GetWorldSize();
-	m_worldLimits = m_levelManager->GetWorldLimits();
+	m_wholeMapPosition = _scene.GetWorldCenter();
+	m_wholeMapSize = _scene.GetWorldSize();
+	m_worldLimits = _scene.GetWorldLimits();
 
 	//compute map view
 	//mapLimits
@@ -160,8 +157,8 @@ JellyGame::JellyGame(StateMachine& machine, std::string scene) : State(machine, 
 	m_wholeMapSize.Y = (m_wholeMapSize.X *0.56f) / 2.0f;
 	m_wholeMapSize.X = m_wholeMapSize.X / 2.0f;
 
-	m_levelTarget = m_levelManager->GetLevelTarget();
-	m_levelLine = m_levelManager->GetLevelLine();
+	m_levelTarget = _scene.GetLevelTarget();
+	m_levelLine = _scene.GetLevelLine();
 
 	m_carBreakCount = 0;
 
@@ -182,17 +179,7 @@ JellyGame::JellyGame(StateMachine& machine, std::string scene) : State(machine, 
 JellyGame::~JellyGame() {
 	EventDispatcher::RemoveKeyboardListener(this);
 
-	if (m_levelManager != 0) {
-		//clear level
-		m_levelManager->ClearLevel(m_world);
-
-		//remove level manager
-		delete m_levelManager;
-	}
-
-	//remove physic world
-	delete m_world;
-	m_gameBodies.clear();
+	SceneManager::Get().getScene("scene").ClearLevel(m_world, m_gameBodies, m_car);
 }
 
 void JellyGame::fixedUpdate() {}

@@ -1,5 +1,6 @@
 #include "GameSpringBody.h"
 #include "../JellyHelper.h"
+#include <iostream>
 
 GameSpringBody::GameSpringBody(World* w, const ClosedShape& shape, float massPerPoint,
 	float edgeSpringK, float edgeSpringDamp,
@@ -129,6 +130,7 @@ void GameSpringBody::Draw(glm::mat4 &proj, int *mIndices, int mIndicesCount, flo
 	}
 	else if(!mIsStatic)
 	{
+
 		JellyHellper::Instance()->UpdateLines(_vertexObject, mPointMasses, false);
 
 		if (m_texture != 0)
@@ -148,10 +150,11 @@ void GameSpringBody::Draw(glm::mat4 &proj, int *mIndices, int mIndicesCount, flo
 	}
 	else
 	{
+
 		_color = glm::vec4(R, G, B, 0.7f);
 		JellyHellper::Instance()->DrawShape(_shapeObject, proj, _color);
 	}
-
+	
 	//draw lines
 	JellyHellper::Instance()->DrawLines(_vertexObject, proj, _lineColor);
 }

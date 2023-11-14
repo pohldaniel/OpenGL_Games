@@ -9,7 +9,6 @@
 
 #include "Car/Car.h"
 #include "Levels/LevelSoftBody.h"
-#include "Levels/LevelManager.h"
 #include "JellyPhysics/World.h"
 
 class JellyGame : public State, public KeyboardEventListener, JellyPhysics::CollisionCallback {
@@ -38,7 +37,6 @@ private:
 	void processInput();
 	void UpdateTransformMeter(float dt);
 
-	LevelManager* m_levelManager;
 	std::vector<LevelSoftBody*> m_gameBodies;
 	World* m_world;
 	Car* m_car;

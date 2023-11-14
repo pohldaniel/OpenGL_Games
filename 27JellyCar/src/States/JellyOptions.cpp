@@ -27,13 +27,12 @@ JellyOptions::JellyOptions(StateMachine& machine) : State(machine, States::JELLY
 
 	m_world = new World();
 
-	m_levelManager = new LevelManager();
-	m_levelManager->SetAssetsLocation("Assets/Jelly/");
-	m_levelManager->InitPhysic(m_world);
-	m_levelManager->LoadCompiledLevel(m_world, "options_scene.scene", "");
+	SceneManager::Get().getScene("scene").InitPhysic(m_world);
+	SceneManager::Get().getScene("scene").loadLevel("Assets/Jelly/Scenes_new/options_scene.scene");
+	SceneManager::Get().getScene("scene").buildLevel(m_world, "Assets/Jelly/car_and_truck.car");
 
 	//level elements
-	m_gameBodies = m_levelManager->GetLevelBodies();
+	m_gameBodies = SceneManager::Get().getScene("scene").GetLevelBodies();
 
 	m_screenBounds = Vector4f(-20.0f + 0, 0 + 20.0f, -4.2f - 5, -5 + 18.2f);
 	m_jellyProjection = glm::ortho(-20.0f + 0, 0 + 20.0f, -4.2f - 5, -5 + 18.2f, -1.0f, 1.0f);
@@ -91,18 +90,7 @@ JellyOptions::JellyOptions(StateMachine& machine) : State(machine, States::JELLY
 
 JellyOptions::~JellyOptions() {
 	EventDispatcher::RemoveKeyboardListener(this);
-
-	if (m_levelManager != 0) {
-		//clear level
-		m_levelManager->ClearLevel(m_world);
-
-		//remove level manager
-		delete m_levelManager;
-	}
-
-	//remove physic world
-	delete m_world;
-	m_gameBodies.clear();
+	SceneManager::Get().getScene("scene").ClearLevel(m_world, m_gameBodies, nullptr);
 }
 
 void JellyOptions::OnKeyDown(Event::KeyboardEvent& event) {	

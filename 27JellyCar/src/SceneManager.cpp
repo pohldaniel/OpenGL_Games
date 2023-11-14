@@ -6,7 +6,8 @@
 Scene::Scene() :
 	m_currentPosition(0),
 	m_carCurrentPosition(0),
-	m_init(false){
+	m_init(false),
+	m_car(nullptr){
 }
 
 const std::vector<SkinInfo>& Scene::getSkinInfos() const {
@@ -547,6 +548,217 @@ const CarInfo& Scene::getCarInfo() const {
 
 const LevelInfo& Scene::getLevelInfo() const {
 	return m_levelInfo;
+}
+
+void Scene::buildLevel(World *world, const std::string& carFileName) {
+	m_worldLimits.clear();
+	
+	if (m_gameBodies.size() > 0) {
+		m_gameBodies.clear();
+	}
+	int id = 0;
+	for (auto objectInfo : m_objectInfos) {
+
+		ObjectInfo bodyInfo;
+		bodyInfo.kinematicControls.radiansPerSecond = -1.0f;
+		bodyInfo.kinematicControls.secondsPerLoop = -1.0f;
+		bodyInfo.kinematicControls.startOffset = 0.0f;
+		//name
+		bodyInfo.name = objectInfo.name;
+
+		//position
+		bodyInfo.posX = objectInfo.posX;
+		bodyInfo.posY = objectInfo.posY;
+
+		//angle
+		bodyInfo.angle = objectInfo.angle;
+
+		//scale
+		bodyInfo.scaleX = objectInfo.scaleX;
+		bodyInfo.scaleY = objectInfo.scaleY;
+
+		//material
+		bodyInfo.material = objectInfo.material;
+
+		//SoftBodyInfo2 _body = *std::find_if(softBodyInfos.begin(), softBodyInfos.end(), [&](const SoftBodyInfo2 m) -> bool {
+		//	return strcmp(m.name, objectInfo.name) == 0;
+		//});
+		LevelSoftBody* gameBody = new LevelSoftBody(m_softBodyInfos[id], world, bodyInfo);
+		id++;
+
+		//ballon and tire item
+		if (gameBody->GetName() == "itemballoon" || gameBody->GetName() == "itemstick") {
+			gameBody->SetVisible(false);
+		}
+
+		m_gameBodies.push_back(gameBody);
+
+		Body* body = gameBody->GetBody();
+
+		if (objectInfo.isPlatform) {
+			Vector2 end(bodyInfo.posX, bodyInfo.posY);
+
+			end.X += objectInfo.offsetX;
+			end.Y += objectInfo.offsetY;
+			float seconds = objectInfo.secondsPerLoop;
+			float offset = objectInfo.startOffset;
+
+			gameBody->AddKinematicControl(new KinematicPlatform(body, Vector2(bodyInfo.posX, bodyInfo.posY), end, seconds, offset));
+
+			if (offset != 0.0f) {
+				Vector2 newPos = Vector2(bodyInfo.posX, bodyInfo.posY).lerp(end, 0.5f + (sinf((PI / 2.0f) + (PI*2.0*offset))*0.5f));
+				body->setPositionAngle(newPos, VectorTools::degToRad(bodyInfo.angle), Vector2(bodyInfo.scaleX, bodyInfo.scaleY));
+			}
+		}
+
+		if (objectInfo.isMotor) {
+			float rps = objectInfo.radiansPerSecond;
+			gameBody->AddKinematicControl(new KinematicMotor(body, rps));
+		}
+
+		body->updateAABB(0.0f, true);
+
+		m_worldLimits.expandToInclude(body->getAABB().Min);
+		m_worldLimits.expandToInclude(body->getAABB().Max);
+
+		// finalize this one!
+		gameBody->Finalize();
+	}
+
+	//load car
+	if (!carFileName.empty()) {
+		m_car = new Car(carFileName, world, Vector2(m_carInfo.posX, m_carInfo.posY), 2, 3);
+	}
+
+	m_carStartPos.X = m_carInfo.posX;
+	m_carStartPos.Y = m_carInfo.posY;
+
+	//very important to set this at the end...
+	world->setWorldLimits(m_worldLimits.Min, m_worldLimits.Max);
+}
+
+void Scene::InitPhysic(World *world) {
+	//add materials
+	world->addMaterial();
+	world->addMaterial();
+	world->addMaterial();
+	world->addMaterial();
+	world->addMaterial();
+	world->addMaterial();
+	world->addMaterial();
+	world->addMaterial();
+	world->addMaterial();
+
+	// car tires don't collide with the chassis.
+	world->setMaterialPairCollide(2, 3, false);
+
+	//??
+	world->setMaterialPairCollide(3, 3, false);
+
+	//
+	world->setMaterialPairCollide(0, 2, true);
+	world->setMaterialPairCollide(0, 3, true);
+
+	// car tires have a lot of friction against the ground.
+	world->setMaterialPairData(0, 3, 1.0f, 0.0f);
+	world->setMaterialPairData(1, 3, 1.0f, 0.0f);
+
+	// ground cannot collide with itself, ever.
+	world->setMaterialPairCollide(0, 0, false);
+
+	// default ground vs, dynamic object settings.
+	world->setMaterialPairData(0, 1, 0.4f, 1.0f);
+
+	// default car tire vs ice.
+	world->setMaterialPairData(3, 4, 0.0f, 0.0f);
+
+	// default car chassis vs. ice
+	world->setMaterialPairData(2, 4, 0.0f, 0.0f);
+
+	// np collision between ice and other grounb objects.
+	world->setMaterialPairCollide(0, 4, false);
+
+	// no collision between ice and ice.
+	world->setMaterialPairCollide(4, 4, false);
+
+	// default friction for objects and ice.
+	world->setMaterialPairData(1, 4, 0.0f, 0.0f);
+
+	// no collision between items and other objects
+	world->setMaterialPairCollide(0, 5, false);
+	world->setMaterialPairCollide(1, 5, false);
+	world->setMaterialPairCollide(2, 5, true);
+	world->setMaterialPairCollide(3, 5, true);
+	world->setMaterialPairCollide(4, 5, false);
+	world->setMaterialPairCollide(5, 5, false);
+	world->setMaterialPairCollide(6, 5, false);
+
+	world->setMaterialPairCollide(0, 7, true);
+	world->setMaterialPairCollide(7, 7, true);
+
+	world->setMaterialPairCollide(2, 7, false);
+	world->setMaterialPairCollide(3, 7, false);
+
+	//no collision between ballon and car
+	world->setMaterialPairCollide(2, 6, false);
+	world->setMaterialPairCollide(3, 6, false);
+}
+
+const Vector2 Scene::GetWorldCenter() const {
+	float x = (((m_worldLimits.Max.X - m_worldLimits.Min.X) / 2) + m_worldLimits.Min.X);
+	float y = (((m_worldLimits.Max.Y - m_worldLimits.Min.Y) / 2) + m_worldLimits.Min.Y);
+
+	return Vector2(x, y);
+}
+
+const Vector2 Scene::GetWorldSize() const {
+	float x = (m_worldLimits.Max.X - m_worldLimits.Min.X);
+	float y = (m_worldLimits.Max.Y - m_worldLimits.Min.Y);
+
+	return Vector2(x, y);
+}
+
+const AABB Scene::GetWorldLimits() const {
+	return m_worldLimits;
+}
+
+const Vector2 Scene::GetLevelTarget() const {
+	return Vector2(m_levelInfo.finishX, m_levelInfo.finishY);
+}
+
+const float Scene::GetLevelLine() const {
+	return m_levelInfo.fallLine;
+}
+
+Car* Scene::GetCar() {
+	return m_car;
+}
+
+Vector2 Scene::GetCarStartPos() {
+	return m_carStartPos;
+}
+
+std::vector<LevelSoftBody*> Scene::GetLevelBodies() {
+	return m_gameBodies;
+}
+
+bool Scene::ClearLevel(World *world, std::vector<LevelSoftBody*> bodies, Car* car) {
+	world->killing();
+
+	for (unsigned int i = 0; i < bodies.size(); i++){
+		world->removeBody(bodies[i]->GetBody());
+	}
+
+	for (unsigned int i = 0; i < bodies.size(); i++){
+		delete bodies[i];
+	}
+
+	world->removeAllBodies();
+	bodies.clear();
+	delete world;
+	if(car)
+		delete car;
+	return true;
 }
 
 ///////////////////////ScenetManager//////////////////////////

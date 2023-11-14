@@ -70,7 +70,6 @@ private:
 	int m_columns, m_rows;
 	float m_controlsWidth, m_controlsHeight;
 
-	LevelManager* m_levelManager;
 	std::vector<LevelSoftBody*> m_gameBodies;
 	World* m_world;
 

@@ -9,8 +9,9 @@
 #include <string>
 
 #include <engine/Texture.h>
-#include "Levels/ObjectInfo.h"
 #include "Levels/LevelSoftBody.h"
+#include "Levels/KinematicPlatform.h"
+#include "Levels/KinematicMotor.h"
 #include "Car/Car.h"
 
 struct SceneInfo {
@@ -145,7 +146,22 @@ public:
 	const std::vector<SoftBodyInfo2>& getSoftBodyInfos() const;
 	const CarInfo& getCarInfo() const;
 	const LevelInfo& getLevelInfo() const;
+
+	const Vector2 GetWorldCenter() const;
+	const Vector2 GetWorldSize() const;
+	const AABB GetWorldLimits() const;
+	const Vector2 GetLevelTarget() const;
+	const float GetLevelLine() const;
+	Car* GetCar();
+	std::vector<LevelSoftBody*> GetLevelBodies();
+	Vector2 GetCarStartPos();
+	bool ClearLevel(World *world, std::vector<LevelSoftBody*> bodies, Car* car);
+	void InitPhysic(World *world);
+
 	void loadLevel(const std::string path);
+	void buildLevel(World *world, const std::string& carFileName);
+
+	
 
 	int m_currentPosition;
 	int m_carCurrentPosition;
@@ -171,6 +187,12 @@ private:
 	LevelInfo m_levelInfo;
 	std::vector<ObjectInfo2> m_objectInfos;
 	std::vector<SoftBodyInfo2> m_softBodyInfos;
+
+
+	AABB m_worldLimits;
+	Car* m_car;
+	std::vector<LevelSoftBody*> m_gameBodies;
+	Vector2 m_carStartPos;
 };
 
 
