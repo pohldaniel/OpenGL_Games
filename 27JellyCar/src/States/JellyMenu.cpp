@@ -11,8 +11,8 @@
 #include "JellyGame.h"
 
 JellyMenu::JellyMenu(StateMachine& machine) : State(machine, States::JELLYMENU),
-currentPosition(SceneManager::Get().getSceneInfo("scene").m_currentPosition),
-carcurrentPosition(SceneManager::Get().getSceneInfo("scene").m_carCurrentPosition) {
+currentPosition(SceneManager::Get().getScene("scene").m_currentPosition),
+carcurrentPosition(SceneManager::Get().getScene("scene").m_carCurrentPosition) {
 
 	EventDispatcher::AddMouseListener(this);
 	EventDispatcher::AddKeyboardListener(this);
@@ -35,7 +35,7 @@ carcurrentPosition(SceneManager::Get().getSceneInfo("scene").m_carCurrentPositio
 	m_levelManager->InitPhysic(m_world);
 	m_levelManager->LoadCompiledLevel(m_world, "menu.scene", "Assets/Jelly/car_and_truck.car");
 
-	const SkinInfo& skinInfo = SceneManager::Get().getSceneInfo("scene").getCurrentSkinInfo();
+	const SkinInfo& skinInfo = SceneManager::Get().getScene("scene").getCurrentSkinInfo();
 	m_car = m_levelManager->GetCar();	
 	m_car->SetChassisTextures(skinInfo.skinTexture.chassisSmall, skinInfo.skinTexture.chassisBig);
 	m_car->SetTireTextures(skinInfo.skinTexture.tireSmall, skinInfo.skinTexture.tireBig);
@@ -51,10 +51,10 @@ carcurrentPosition(SceneManager::Get().getSceneInfo("scene").m_carCurrentPositio
 	m_thumbAtlas = TileSetManager::Get().getTileSet("thumbs").getAtlas();
 	//Spritesheet::Safe("thumbs", m_thumbAtlas);
 
-	SceneManager::Get().getSceneInfo("scene").loadScores("JellyScore.xml");
+	SceneManager::Get().getScene("scene").loadScores("JellyScore.xml");
 
-	m_levelInfosSize = SceneManager::Get().getSceneInfo("scene").getLevelInfos().size();
-	m_carSkinsSize = SceneManager::Get().getSceneInfo("scene").getSkinInfos().size();
+	m_levelInfosSize = SceneManager::Get().getScene("scene").getSceneInfos().size();
+	m_carSkinsSize = SceneManager::Get().getScene("scene").getSkinInfos().size();
 }
 
 JellyMenu::~JellyMenu() {
@@ -167,7 +167,7 @@ void JellyMenu::render() {
 
 	int levelTextPositionY = Application::Height - ( (Application::Height / 2) - 156 - 30);
 
-	const LevelInfo& levelInfo = SceneManager::Get().getSceneInfo("scene").getCurrentLevelInfo();
+	const SceneInfo& levelInfo = SceneManager::Get().getScene("scene").getCurrentSceneInfo();
 
 	Fontrenderer::Get().addText(Globals::fontManager.get("jelly_64"), static_cast<float>(Application::Width / 2 - Globals::fontManager.get("jelly_64").getWidth(levelInfo.name) / 2), levelTextPositionY, levelInfo.name, Vector4f(0.19f, 0.14f, 0.17f, 1.0f));
 	Fontrenderer::Get().addText(Globals::fontManager.get("jelly_64"), static_cast<float>(Application::Width / 2 - Globals::fontManager.get("jelly_64").getWidth(levelInfo.name) / 2), levelTextPositionY + 3, levelInfo.name, Vector4f(1.0f,  0.65f, 0.0f, 1.0f));
@@ -260,7 +260,7 @@ void JellyMenu::processInput() {
 			carcurrentPosition = m_carSkinsSize - 1;
 		}
 
-		const SkinInfo& skinInfo = SceneManager::Get().getSceneInfo("scene").getCurrentSkinInfo();
+		const SkinInfo& skinInfo = SceneManager::Get().getScene("scene").getCurrentSkinInfo();
 		m_car->SetChassisTextures(skinInfo.skinTexture.chassisSmall, skinInfo.skinTexture.chassisBig);
 		m_car->SetTireTextures(skinInfo.skinTexture.tireSmall, skinInfo.skinTexture.tireBig);
 	}
@@ -272,7 +272,7 @@ void JellyMenu::processInput() {
 			carcurrentPosition = 0;
 		}
 
-		const SkinInfo& skinInfo = SceneManager::Get().getSceneInfo("scene").getCurrentSkinInfo();
+		const SkinInfo& skinInfo = SceneManager::Get().getScene("scene").getCurrentSkinInfo();
 		m_car->SetChassisTextures(skinInfo.skinTexture.chassisSmall, skinInfo.skinTexture.chassisBig);
 		m_car->SetTireTextures(skinInfo.skinTexture.tireSmall, skinInfo.skinTexture.tireBig);
 	}

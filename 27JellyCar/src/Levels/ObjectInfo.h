@@ -4,6 +4,8 @@
 struct KinematicControls {
 	float offsetX, offsetY, secondsPerLoop, startOffset;
 	float radiansPerSecond;
+	bool isMotor;
+	bool isPlatform;
 };
 
 class ObjectInfo

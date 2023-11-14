@@ -4,8 +4,10 @@
 
 #include "tinyxml.h"
 #include <string>
+#include <iostream>
 
 #include <_Andromeda/FileSystem/FileManager.h>
+#include "SceneManager.h"
 
 LevelSoftBody::LevelSoftBody(std::string fileName, World *mWorld, const Vector2& pos, float angle, const Vector2& scale, int material) {
 
@@ -221,6 +223,108 @@ LevelSoftBody::LevelSoftBody(std::string fileName, World *mWorld, const Vector2&
 		pt2 = atoi(PolygonNode->Attribute("pt2"));
 		m_triangles.push_back({ pt0 , pt1, pt2 });
 		// polygons!
+		AddTriangle(pt0, pt1, pt2);
+	}
+
+	FinalizeTriangles();
+}
+
+LevelSoftBody::LevelSoftBody(const SoftBodyInfo2& softBodyInfo, World *mWorld, const Vector2& pos, float angle, const Vector2& scale, int material) {
+	
+	massPerPoint = 0.0f;
+	edgeK = 100.0f;
+	edgeDamping = 1.0f;
+	kinematic = false;
+	shapeMatching = false;
+	shapeK = 100.0f;
+	shapeDamping = 10.0f;
+	pressureized = false;
+	pressure = 0.0f;
+	_visible = true;
+
+	JellyPhysics::ClosedShape shape;
+
+	colorR = colorG = colorB = 0.0f;
+	const char* sKinematic, *sShapeMatching;
+
+	name = softBodyInfo.name;
+	massPerPoint = softBodyInfo.massPerPoint;
+	edgeK = softBodyInfo.edgeK;
+	edgeDamping = softBodyInfo.edgeDamping;
+
+	colorR = softBodyInfo.colorR;
+	colorG = softBodyInfo.colorG;
+	colorB = softBodyInfo.colorB;
+	kinematic = softBodyInfo.isKinematic;
+	shapeMatching = softBodyInfo.shapeMatching;
+	shapeK = softBodyInfo.shapeK;
+	shapeDamping = softBodyInfo.shapeDamping;
+	velDamping = softBodyInfo.velDamping;
+	
+	pressureized = softBodyInfo.pressureized;
+	pressure = softBodyInfo.pressure;
+
+	int _id = 0;
+	for (auto& point: softBodyInfo.points){
+		float x = 0.0f, y = 0.0f;
+		x = point.x;
+		y = point.y;
+		
+		shape.addVertex(Vector2(x, y));
+
+		if (point.mass != -1.0f){
+			MassID m;
+			m._id = _id;
+			m._mass = point.mass;
+			massExceptions.push_back(m);
+		}
+		_id++;
+	}
+
+	shape.finish(((massPerPoint != 0.0f) && (!kinematic)));
+
+	if (!pressureized){
+		mBody = new GameSpringBody(mWorld, shape, massPerPoint, edgeK, edgeDamping, pos, angle, scale, kinematic);
+	}else{
+		mBody = new GamePressureBody(mWorld, shape, massPerPoint, pressure, shapeK, shapeDamping, edgeK, edgeDamping, pos, angle, scale, kinematic);
+	}
+
+	mBody->setMaterial(material);
+	mBody->setVelocityDamping(0.993f);
+
+	if (shapeMatching && (!pressureized)){
+		static_cast<GameSpringBody*>(mBody)->setShapeMatching(true);
+		static_cast<GameSpringBody*>(mBody)->setShapeMatchingConstants(shapeK, shapeDamping);
+	}
+
+	// were there any mass exceptions?
+	for (unsigned int i = 0; i < massExceptions.size(); i++){
+		mBody->setMassIndividual(massExceptions[i]._id, massExceptions[i]._mass);
+	}
+
+	//Springs
+	int springCount = 0;
+	for (auto& spring : softBodyInfo.springs){
+		int pt1, pt2;
+		float k, damp;
+		pt1 = spring.pt1;
+		pt2 = spring.pt2;
+		k = spring.k;
+		damp = spring.damp;
+
+		if (!pressureized){
+			static_cast<GameSpringBody*>(mBody)->addInternalSpring(pt1, pt2, k, damp);
+		}else{
+			static_cast<GamePressureBody*>(mBody)->addInternalSpring(pt1, pt2, k, damp);
+		}
+	}
+
+	//Polygons
+	for (auto& triangle : softBodyInfo.polygons){
+		int pt0 = 0, pt1 = 0, pt2 = 0;
+		pt0 = triangle.pt0;
+		pt1 = triangle.pt1;
+		pt2 = triangle.pt2;
 		AddTriangle(pt0, pt1, pt2);
 	}
 
@@ -462,6 +566,13 @@ LevelSoftBody::LevelSoftBody(BodyObject *exBody, World *mWorld, const Vector2& p
 }
 
 LevelSoftBody::LevelSoftBody(std::string fileName, World *mWorld, ObjectInfo bodyInfo) : LevelSoftBody(fileName, mWorld, Vector2(bodyInfo.posX, bodyInfo.posY), VectorTools::degToRad(bodyInfo.angle), Vector2(bodyInfo.scaleX, bodyInfo.scaleY), bodyInfo.material)
+{
+	_bodyInfo = bodyInfo;
+	m_bodyInfo.name = _bodyInfo.name;
+	mBody->SetName(_bodyInfo.name);
+}
+
+LevelSoftBody::LevelSoftBody(const SoftBodyInfo2& softBodyInfo, World *mWorld, ObjectInfo bodyInfo) : LevelSoftBody(softBodyInfo, mWorld, Vector2(bodyInfo.posX, bodyInfo.posY), VectorTools::degToRad(bodyInfo.angle), Vector2(bodyInfo.scaleX, bodyInfo.scaleY), bodyInfo.material)
 {
 	_bodyInfo = bodyInfo;
 	m_bodyInfo.name = _bodyInfo.name;

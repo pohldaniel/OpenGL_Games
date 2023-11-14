@@ -9,6 +9,8 @@ using namespace JellyPhysics;
 
 #include "SimpleStruct/BodyObject.h"
 
+#include "SceneManager.h"
+
 #include <map>
 
 class LevelManager
@@ -62,6 +64,8 @@ public:
 
 	std::string m_currentName;
 	Vector2 _carPos;
+
+	void BuildLevel(World *world, const CarInfo& carInfo, const LevelInfo& levelInfo, const std::vector<ObjectInfo2>& objectInfos, const std::vector<SoftBodyInfo2>& softBodyInfos, const std::string& name, const std::string& carFileName);
 };
 
 #endif

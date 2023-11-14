@@ -181,10 +181,20 @@ bool LevelManager::LoadCompiledLevel(World *world, std::string levelName, std::s
 		//material
 		bodyInfo.material = objectsArray[i].material;
 
-		bodyInfo.kinematicControls.radiansPerSecond = objectsArray[i].isMotor ? objectsArray[i].motorRadiansPerSecond : -1.0f;
-		bodyInfo.kinematicControls.radiansPerSecond = objectsArray[i].isPlatform ? objectsArray[i].platformSecondsPerLoop : -1.0f;
 		bodyInfo.kinematicControls.startOffset = 0.0f;
-		objectInfos.push_back(bodyInfo);
+		
+		if (objectsArray[i].isPlatform) {
+			bodyInfo.kinematicControls.secondsPerLoop = objectsArray[i].platformSecondsPerLoop;
+
+			bodyInfo.kinematicControls.offsetX = objectsArray[i].platformOffsetX;
+			bodyInfo.kinematicControls.offsetY = objectsArray[i].platformOffsetY;
+			bodyInfo.kinematicControls.startOffset = objectsArray[i].platformStartOffset;
+			bodyInfo.kinematicControls.isPlatform = true;
+		}else {
+			bodyInfo.kinematicControls.isPlatform = false;
+		}
+		
+		
 		//get body info
 		int bodyNumber = -1;
 		for (size_t i = 0; i < bodyObjects.size(); i++)
@@ -228,12 +238,17 @@ bool LevelManager::LoadCompiledLevel(World *world, std::string levelName, std::s
 			}
 		}
 
-		if (objectsArray[i].isMotor)
-		{
+		if (objectsArray[i].isMotor){			
 			float rps = objectsArray[i].motorRadiansPerSecond;
 			gameBody->AddKinematicControl(new KinematicMotor(body, rps));
+			bodyInfo.kinematicControls.radiansPerSecond = rps;
+			bodyInfo.kinematicControls.isMotor = true;
+		}else {
+			bodyInfo.kinematicControls.isMotor = false;
 		}
 
+
+		objectInfos.push_back(bodyInfo);
 		body->updateAABB(0.0f, true);
 
 		worldLimits.expandToInclude(body->getAABB().Min);
@@ -504,7 +519,7 @@ bool LevelManager::ClearLevel(World *world){
 	gameBodies.clear();
 	gameBodiesNames.clear();
 	gameBodiesNumbers.clear();
-
+	objectInfos.clear();
 	delete _car;
 
 	return true;
@@ -550,4 +565,97 @@ float LevelManager::GetLevelLine(){
 
 std::vector<ObjectInfo>& LevelManager::GetObjectInfos() {
 	return objectInfos;
+}
+
+void LevelManager::BuildLevel(World *world, const CarInfo& carInfo, const LevelInfo& levelInfo, const std::vector<ObjectInfo2>& objectInfos, const std::vector<SoftBodyInfo2>& softBodyInfos, const std::string& _name, const std::string& carFileName) {
+	m_currentName = _name;
+	int bodyNumber = 0;
+
+	int id = 0;
+	for (auto objectInfo : objectInfos){
+
+		ObjectInfo bodyInfo;
+		bodyInfo.kinematicControls.radiansPerSecond = -1.0f;
+		bodyInfo.kinematicControls.secondsPerLoop = -1.0f;
+		bodyInfo.kinematicControls.startOffset = 0.0f;
+		//name
+		bodyInfo.name = objectInfo.name;
+		
+		//position
+		bodyInfo.posX = objectInfo.posX;
+		bodyInfo.posY = objectInfo.posY;
+
+		//angle
+		bodyInfo.angle = objectInfo.angle;
+
+		//scale
+		bodyInfo.scaleX = objectInfo.scaleX;
+		bodyInfo.scaleY = objectInfo.scaleY;
+
+		//material
+		bodyInfo.material = objectInfo.material;
+		
+
+		SoftBodyInfo2 _body = *std::find_if(softBodyInfos.begin(), softBodyInfos.end(), [&](const SoftBodyInfo2 m) -> bool { 
+			return strcmp(m.name, objectInfo.name) == 0;
+		});
+		
+		LevelSoftBody* gameBody = new LevelSoftBody(softBodyInfos[id], world, bodyInfo);
+		id++;
+
+		//ballon and tire item
+		if (gameBody->GetName() == "itemballoon" || gameBody->GetName() == "itemstick"){
+			gameBody->SetVisible(false);
+		}
+
+		gameBodies.push_back(gameBody);
+		bodyNumber++;
+
+		Body* body = gameBody->GetBody();
+
+		if (objectInfo.isPlatform) {
+			Vector2 end(bodyInfo.posX, bodyInfo.posY);
+
+			end.X += objectInfo.offsetX;
+			end.Y += objectInfo.offsetY;
+			float seconds = objectInfo.secondsPerLoop;
+			float offset = objectInfo.startOffset;
+
+			gameBody->AddKinematicControl(new KinematicPlatform(body, Vector2(bodyInfo.posX, bodyInfo.posY), end, seconds, offset));
+
+			if (offset != 0.0f){
+				Vector2 newPos = Vector2(bodyInfo.posX, bodyInfo.posY).lerp(end, 0.5f + (sinf((PI / 2.0f) + (PI*2.0*offset))*0.5f));
+				body->setPositionAngle(newPos, VectorTools::degToRad(bodyInfo.angle), Vector2(bodyInfo.scaleX, bodyInfo.scaleY));
+			}
+		}
+
+		if(objectInfo.isMotor) {
+			float rps = objectInfo.radiansPerSecond;
+			gameBody->AddKinematicControl(new KinematicMotor(body, rps));
+		}	
+
+		body->updateAABB(0.0f, true);
+
+		worldLimits.expandToInclude(body->getAABB().Min);
+		worldLimits.expandToInclude(body->getAABB().Max);
+
+		// finalize this one!
+		gameBody->Finalize();
+	}
+
+	//load car
+	_carPos.X = carInfo.posX;
+	_carPos.Y = carInfo.posY;
+
+	if (!carFileName.empty())
+		_car = new Car(carFileName, world, _carPos, 2, 3);
+
+	//Settings
+
+	finishX = levelInfo.finishX;
+	finishY = levelInfo.finishY;
+	fallLine = levelInfo.fallLine;
+
+	//very important to set this at the end...
+	world->setWorldLimits(worldLimits.Min, worldLimits.Max);
 }

@@ -13,7 +13,7 @@
 #include "Levels/LevelSoftBody.h"
 #include "Car/Car.h"
 
-struct LevelInfo {
+struct SceneInfo {
 	std::string name;
 	std::string file;
 	std::string thumb;
@@ -37,14 +37,92 @@ struct SkinInfo {
 	SkinTexture skinTexture;
 };
 
-class SceneInfo {
+struct ObjectInfo2 {
+	char name[64];
+	float posX;
+	float posY;
+	float angle;
+	float scaleX;
+	float scaleY;
+	int material;
+
+	bool isPlatform;
+	bool isMotor;
+
+	//platform motion
+	float offsetX;
+	float offsetY;
+	float secondsPerLoop;
+	float startOffset;
+
+	//motor
+	float radiansPerSecond;
+};
+
+struct Point2 {
+	float x;
+	float y;
+	float mass;
+};
+
+struct Spring2 {
+	int pt1;
+	int pt2;
+	float k;
+	float damp;
+};
+
+struct Triangle2 {
+	int pt0;
+	int pt1;
+	int pt2;
+};
+
+struct CarInfo {
+	char name[64];
+	float posX;
+	float posY;
+};
+
+struct LevelInfo {
+	float finishX;
+	float finishY;
+	float fallLine;
+};
+
+struct SoftBodyInfo2 {
+	char name[64];
+
+	float colorR;
+	float colorG;
+	float colorB;
+
+	float massPerPoint;
+	float edgeK;
+	float edgeDamping;
+
+	bool isKinematic;
+	bool shapeMatching;
+	float shapeK;
+	float shapeDamping;
+	float velDamping;
+
+	bool pressureized;
+	float pressure;
+
+	std::vector<Point2> points;
+	std::vector<Spring2> springs;
+	std::vector<Triangle2> polygons;
+};
+
+class Scene {
 
 	friend class SceneManager;
 
 public:
 
-	SceneInfo();
-	void loadLevelInfo(std::string path);
+	Scene();
+	void loadSceneInfo(std::string path);
 	void loadCarSkins(std::string path);
 	void loadScores(std::string path);
 	
@@ -56,31 +134,43 @@ public:
 	const std::vector<SkinInfo>& getSkinInfos() const;
 	const std::vector<std::string>& getSceneFiles() const;
 	const std::vector<std::string>& getThumbFiles() const;
-	const std::vector<LevelInfo>& getLevelInfos() const;
+	const std::vector<SceneInfo>& getSceneInfos() const;
 
-	const SkinInfo& getCurrentSkinInfo() const;
+	const std::string& getName() const;
 	const std::string& getCurrentSceneFile() const;
-	const LevelInfo& getCurrentLevelInfo() const;
+	const SceneInfo& getCurrentSceneInfo() const;
+	const SkinInfo& getCurrentSkinInfo() const;
+
+	const std::vector<ObjectInfo2>& getObjectInfos() const;
+	const std::vector<SoftBodyInfo2>& getSoftBodyInfos() const;
+	const CarInfo& getCarInfo() const;
+	const LevelInfo& getLevelInfo() const;
+	void loadLevel(const std::string path);
 
 	int m_currentPosition;
 	int m_carCurrentPosition;
 
 	static void SaveLevel(const std::string path, const std::vector<ObjectInfo>& objectInfos, const std::vector<LevelSoftBody*>& bodies, const Vector2& carPos, const Vector2& target, const float flallLine, const std::string levelName);
-	static void LoadLevel(const std::string path);
-	
-	static void SaveScores(const std::string path, const std::vector<LevelInfo>& levelInfos);
+	static void SaveScores(const std::string path, const std::vector<SceneInfo>& levelInfos);
+
 private:
 
-	const std::vector<std::string> sceneFilesFromLevelInfos(const std::vector<LevelInfo>& levelInfos);
-	const std::vector<std::string> thumbFilesFromLevelInfos(const std::vector<LevelInfo>& levelInfos);
+	const std::vector<std::string> sceneFilesFromLevelInfos(const std::vector<SceneInfo>& levelInfos);
+	const std::vector<std::string> thumbFilesFromLevelInfos(const std::vector<SceneInfo>& levelInfos);
 
-	std::vector<std::string> SceneInfo::mergeAlternately(std::vector<std::string> a, std::vector<std::string> b, std::vector<std::string> c, std::vector<std::string> d);
+	std::vector<std::string> mergeAlternately(std::vector<std::string> a, std::vector<std::string> b, std::vector<std::string> c, std::vector<std::string> d);
 
 	std::vector<SkinInfo> m_carSkins;
 	std::vector<std::string> m_sceneFiles;
 	std::vector<std::string> m_thumbFiles;
-	std::vector<LevelInfo> m_levelInfos;
+	std::vector<SceneInfo> m_sceneInfos;
 	bool m_init;
+
+	std::string m_name;
+	CarInfo m_carInfo;
+	LevelInfo m_levelInfo;
+	std::vector<ObjectInfo2> m_objectInfos;
+	std::vector<SoftBodyInfo2> m_softBodyInfos;
 };
 
 
@@ -88,7 +178,7 @@ class SceneManager {
 
 public:
 
-	SceneInfo& getSceneInfo(std::string name);
+	Scene& getScene(std::string name);
 	bool containsScene(std::string name);
 
 	static SceneManager& Get();
@@ -97,6 +187,6 @@ private:
 	SceneManager() = default;
 
 
-	std::unordered_map<std::string, SceneInfo> m_sceneInfos;
+	std::unordered_map<std::string, Scene> m_sceneInfos;
 	static SceneManager s_instance;
 };

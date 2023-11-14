@@ -62,16 +62,21 @@ JellyGame::JellyGame(StateMachine& machine, std::string scene) : State(machine, 
 	m_tireAABB.expandToInclude(Vector2((static_cast<float>(Application::Width) / 2.0f) - 128.0f + 64.0f, 450.0f + 64.0f));
 	m_tireAABB.expandToInclude(Vector2((static_cast<float>(Application::Width) / 2.0f) - 128.0f - 64.0f, 450.0f - 64.0f));
 
-	m_sceneFile = SceneManager::Get().getSceneInfo(m_scene).getCurrentLevelInfo().file;
-	m_levelName = SceneManager::Get().getSceneInfo(m_scene).getCurrentLevelInfo().name;
+	m_sceneFile = SceneManager::Get().getScene(m_scene).getCurrentSceneInfo().file;
+	m_levelName = SceneManager::Get().getScene(m_scene).getCurrentSceneInfo().name;
 
 	m_world = new World();
 	m_levelManager = new LevelManager();
 	m_levelManager->SetAssetsLocation("Assets/Jelly/");
 	m_levelManager->InitPhysic(m_world);
+
+	Scene& _scene = SceneManager::Get().getScene(m_scene);
+	//_scene.loadLevel("Assets/Jelly/Scenes_new/" + m_sceneFile);
+	//m_levelManager->BuildLevel(m_world, _scene.getCarInfo(), _scene.getLevelInfo(), _scene.getObjectInfos(), _scene.getSoftBodyInfos(), _scene.getCurrentSceneInfo().name, "Assets/Jelly/car_and_truck.car");
+
 	m_levelManager->LoadCompiledLevel(m_world, m_sceneFile, "Assets/Jelly/car_and_truck.car");
 
-	const SkinInfo& skinInfo = SceneManager::Get().getSceneInfo("scene").getCurrentSkinInfo();
+	const SkinInfo& skinInfo = SceneManager::Get().getScene("scene").getCurrentSkinInfo();
 	m_car = m_levelManager->GetCar();
 	m_car->SetChassisTextures(skinInfo.skinTexture.chassisSmall, skinInfo.skinTexture.chassisBig);
 	m_car->SetTireTextures(skinInfo.skinTexture.tireSmall, skinInfo.skinTexture.tireBig);
@@ -246,18 +251,18 @@ void JellyGame::update() {
 		if (m_car->getChassisBody()->contains(m_levelTarget)){
 			//_audioHelper->StopEngineSound();
 
-			if (m_time < SceneManager::Get().getSceneInfo(m_scene).getTime(m_levelName)) {
+			if (m_time < SceneManager::Get().getScene(m_scene).getTime(m_levelName)) {
 				m_newTimeRecord = true;
 
-				SceneManager::Get().getSceneInfo(m_scene).setTime(m_levelName, m_time);
-				SceneInfo::SaveScores("JellyScore.xml", SceneManager::Get().getSceneInfo(m_scene).getLevelInfos());
+				SceneManager::Get().getScene(m_scene).setTime(m_levelName, m_time);
+				Scene::SaveScores("JellyScore.xml", SceneManager::Get().getScene(m_scene).getSceneInfos());
 			}
 
-			if (m_bestJumpLenght > SceneManager::Get().getSceneInfo(m_scene).getJump(m_levelName)) {
+			if (m_bestJumpLenght > SceneManager::Get().getScene(m_scene).getJump(m_levelName)) {
 				m_newJumpRecord = true;
 
-				SceneManager::Get().getSceneInfo(m_scene).setJump(m_levelName, m_bestJumpLenght);
-				SceneInfo::SaveScores("JellyScore.xml", SceneManager::Get().getSceneInfo(m_scene).getLevelInfos());
+				SceneManager::Get().getScene(m_scene).setJump(m_levelName, m_bestJumpLenght);
+				Scene::SaveScores("JellyScore.xml", SceneManager::Get().getScene(m_scene).getSceneInfos());
 			}
 
 			m_machine.addStateAtTop(new JellyDialogFinish(m_machine, m_mainRT, m_newJumpRecord, m_newTimeRecord));
@@ -270,18 +275,18 @@ void JellyGame::update() {
 			if (m_car->getTire(i)->contains(m_levelTarget)){
 				//_audioHelper->StopEngineSound();
 
-				if (m_time < SceneManager::Get().getSceneInfo(m_scene).getTime(m_levelName)){
+				if (m_time < SceneManager::Get().getScene(m_scene).getTime(m_levelName)){
 					m_newTimeRecord = true;
 
-					SceneManager::Get().getSceneInfo(m_scene).setTime(m_levelName, m_time);
-					SceneInfo::SaveScores("JellyScore.xml", SceneManager::Get().getSceneInfo(m_scene).getLevelInfos());
+					SceneManager::Get().getScene(m_scene).setTime(m_levelName, m_time);
+					Scene::SaveScores("JellyScore.xml", SceneManager::Get().getScene(m_scene).getSceneInfos());
 				}
 
-				if (m_bestJumpLenght > SceneManager::Get().getSceneInfo(m_scene).getJump(m_levelName)){
+				if (m_bestJumpLenght > SceneManager::Get().getScene(m_scene).getJump(m_levelName)){
 					m_newJumpRecord = true;
 
-					SceneManager::Get().getSceneInfo(m_scene).setJump(m_levelName, m_bestJumpLenght);
-					SceneInfo::SaveScores("JellyScore.xml", SceneManager::Get().getSceneInfo(m_scene).getLevelInfos());
+					SceneManager::Get().getScene(m_scene).setJump(m_levelName, m_bestJumpLenght);
+					Scene::SaveScores("JellyScore.xml", SceneManager::Get().getScene(m_scene).getSceneInfos());
 				}
 
 				m_machine.addStateAtTop(new JellyDialogFinish(m_machine, m_mainRT, m_newJumpRecord, m_newTimeRecord));

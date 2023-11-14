@@ -19,7 +19,7 @@ GameBallonBody::GameBallonBody(World* w, const ClosedShape& shape, float massPer
 
 	_shapeObject = new Mesh();
 	_shapeObject->setVertexBufferDrawType(_DynamicDraw);
-	_shapeObject->setVertexType(_Textured);
+	_shapeObject->setVertexType(_Simple);
 
 	_color = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 
@@ -100,14 +100,11 @@ void GameBallonBody::FinalizeTriangles()
 
 void GameBallonBody::Draw(glm::mat4 &proj)
 {
-	if (!_created)
-	{
+	if (!_created){
 		JellyHellper::Instance()->UpdateLines(_vertexObject, mPointMasses, true);
 		JellyHellper::Instance()->UpdateSpringShape(_shapeObject, mPointMasses, mIndices, mIndicesCount, true);
 		_created = true;
-	}
-	else if (!mIsStatic)
-	{
+	}else if (!mIsStatic){
 		JellyHellper::Instance()->UpdateLines(_vertexObject, mPointMasses, false);
 		JellyHellper::Instance()->UpdateSpringShape(_shapeObject, mPointMasses, mIndices, mIndicesCount, false);
 	}

@@ -25,8 +25,8 @@ JellyIntro::JellyIntro(StateMachine& machine) : State(machine, States::JELLYINTR
 	m_levelManager->InitPhysic(m_world);
 	m_levelManager->LoadCompiledLevel(m_world, "intro.scene", "Assets/Jelly/car_and_truck.car");
 
-	SceneManager::Get().getSceneInfo("scene").loadCarSkins("Assets/Jelly/car_skins.xml");
-	const SkinInfo& skinInfo = SceneManager::Get().getSceneInfo("scene").getCurrentSkinInfo();
+	SceneManager::Get().getScene("scene").loadCarSkins("Assets/Jelly/car_skins.xml");
+	const SkinInfo& skinInfo = SceneManager::Get().getScene("scene").getCurrentSkinInfo();
 	m_car = m_levelManager->GetCar();
 	m_car->SetChassisTextures(skinInfo.skinTexture.chassisSmall, skinInfo.skinTexture.chassisBig);
 	m_car->SetTireTextures(skinInfo.skinTexture.tireSmall, skinInfo.skinTexture.tireBig);
@@ -49,22 +49,32 @@ JellyIntro::JellyIntro(StateMachine& machine) : State(machine, States::JELLYINTR
 	shader->loadInt("u_texture", 2);
 	shader->unuse();
 
-	/*SceneManager::Get().getSceneInfo("scene").loadLevelInfo("Assets/Jelly/scene_list.xml");
+	SceneManager::Get().getScene("scene").loadSceneInfo("Assets/Jelly/scene_list.xml");
 	m_copyWorld = new World();
 	m_copyManager = new LevelManager();
 	m_copyManager->SetAssetsLocation("Assets/Jelly/");
 
-	const std::vector<LevelInfo>& levelInfos = SceneManager::Get().getSceneInfo("scene").getLevelInfos();
-
+	/*const std::vector<SceneInfo>& levelInfos = SceneManager::Get().getScene("scene").getSceneInfos();
 	for (auto& levelInfo : levelInfos) {
-		m_copyManager->LoadCompiledLevel(m_copyWorld, levelInfo.file, "Assets/Jelly/car_and_truck.car");
-		SceneInfo::SaveLevel("Assets/Jelly/Scenes_new/" + levelInfo.file, m_copyManager->GetObjectInfos(), m_copyManager->GetLevelBodies(), m_copyManager->_carPos, m_copyManager->GetLevelTarget(), m_copyManager->GetLevelLine(), levelInfo.name);
+		//if (levelInfo.file.compare("cheez2.scene") == 0) {
+			m_copyManager->LoadCompiledLevel(m_copyWorld, levelInfo.file, "Assets/Jelly/car_and_truck.car");
+			Scene::SaveLevel("Assets/Jelly/Scenes_new/" + levelInfo.file, m_copyManager->GetObjectInfos(), m_copyManager->GetLevelBodies(), m_copyManager->_carPos, m_copyManager->GetLevelTarget(), m_copyManager->GetLevelLine(), levelInfo.name);
+			m_copyManager->ClearLevel(m_copyWorld);
+		//}
 	}*/
+
+	//m_copyManager->LoadCompiledLevel(m_copyWorld, "waves.scene", "Assets/Jelly/car_and_truck.car");
+	//Scene::SaveLevel("waves2.scene", m_copyManager->GetObjectInfos(), m_copyManager->GetLevelBodies(), m_copyManager->_carPos, m_copyManager->GetLevelTarget(), m_copyManager->GetLevelLine(), "Circle Waves");
+	//m_copyManager->ClearLevel(m_copyWorld);
+
+	//m_copyManager->LoadCompiledLevel(m_copyWorld, "elevel1.scene", "Assets/Jelly/car_and_truck.car");
+	//Scene::SaveLevel("elevel1.scene", m_copyManager->GetObjectInfos(), m_copyManager->GetLevelBodies(), m_copyManager->_carPos, m_copyManager->GetLevelTarget(), m_copyManager->GetLevelLine(), "Initiation");
+	//m_copyManager->ClearLevel(m_copyWorld);
 
 	LoadingManagerSplitted::Get().addTask(new JellyIntro::LoadSceneAndThumbsTask(this, &JellyIntro::OnProcess, &JellyIntro::OnComplete));
 	LoadingManagerSplitted::Get().startBackgroundThread();
 
-	SceneInfo::LoadLevel("Assets/Jelly/Scenes_new/tut-scene.scene");
+	//SceneManager::Get().getScene("scene").loadLevel("Assets/Jelly/Scenes_new/test-scene5.scene");
 }
 
 JellyIntro::~JellyIntro() {
@@ -184,8 +194,8 @@ void JellyIntro::resize(int deltaW, int deltaH) {
 }
 
 void JellyIntro::OnProcess() {
-	SceneManager::Get().getSceneInfo("scene").loadLevelInfo("Assets/Jelly/scene_list.xml");
-	TileSetManager::Get().getTileSet("thumbs").loadTileSetCpu(SceneManager::Get().getSceneInfo("scene").getThumbFiles());
+	SceneManager::Get().getScene("scene").loadSceneInfo("Assets/Jelly/scene_list.xml");
+	TileSetManager::Get().getTileSet("thumbs").loadTileSetCpu(SceneManager::Get().getScene("scene").getThumbFiles());
 }
 
 void JellyIntro::OnComplete() {

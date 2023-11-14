@@ -15,6 +15,8 @@ using namespace JellyPhysics;
 
 #include "KinematicControl.h"
 
+struct SoftBodyInfo2;
+
 struct Point {
 	float x;
 	float y;
@@ -98,10 +100,13 @@ private:
 public:
 
 	LevelSoftBody(std::string fileName, World *mWorld, const Vector2& pos, float angle, const Vector2& scale, int material);
+	LevelSoftBody(const SoftBodyInfo2& softBodyInfo, World *mWorld, const Vector2& pos, float angle, const Vector2& scale, int material);
+
 	LevelSoftBody(LevelSoftBody *exBody, World *mWorld, const Vector2& pos, float angle, const Vector2& scale, int material);
 	LevelSoftBody(BodyObject *exBody, World *mWorld, const Vector2& pos, float angle, const Vector2& scale, int material);
 
 	LevelSoftBody(std::string fileName, World *mWorld, ObjectInfo bodyInfo);
+	LevelSoftBody(const SoftBodyInfo2& softBodyInfo, World *mWorld, ObjectInfo bodyInfo);
 	LevelSoftBody(LevelSoftBody *exBody, World *mWorld, ObjectInfo bodyInfo);
 	LevelSoftBody(BodyObject *exBody, World *mWorld, ObjectInfo bodyInfo);
 
