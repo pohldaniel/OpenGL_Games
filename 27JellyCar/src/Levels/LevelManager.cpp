@@ -597,7 +597,7 @@ void LevelManager::BuildLevel(World *world, const CarInfo& carInfo, const LevelI
 		
 
 		SoftBodyInfo2 _body = *std::find_if(softBodyInfos.begin(), softBodyInfos.end(), [&](const SoftBodyInfo2 m) -> bool { 
-			return strcmp(m.name, objectInfo.name) == 0;
+			return strcmp(m.softBodyAttributes.name, objectInfo.name) == 0;
 		});
 		
 		LevelSoftBody* gameBody = new LevelSoftBody(softBodyInfos[id], world, bodyInfo);

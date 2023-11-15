@@ -245,24 +245,24 @@ LevelSoftBody::LevelSoftBody(const SoftBodyInfo2& softBodyInfo, World *mWorld, c
 	JellyPhysics::ClosedShape shape;
 
 	colorR = colorG = colorB = 0.0f;
-	const char* sKinematic, *sShapeMatching;
 
-	name = softBodyInfo.name;
-	massPerPoint = softBodyInfo.massPerPoint;
-	edgeK = softBodyInfo.edgeK;
-	edgeDamping = softBodyInfo.edgeDamping;
+	name = softBodyInfo.softBodyAttributes.name;
+	massPerPoint = softBodyInfo.softBodyAttributes.massPerPoint;
+	edgeK = softBodyInfo.softBodyAttributes.edgeK;
+	edgeDamping = softBodyInfo.softBodyAttributes.edgeDamping;
 
-	colorR = softBodyInfo.colorR;
-	colorG = softBodyInfo.colorG;
-	colorB = softBodyInfo.colorB;
-	kinematic = softBodyInfo.isKinematic;
-	shapeMatching = softBodyInfo.shapeMatching;
-	shapeK = softBodyInfo.shapeK;
-	shapeDamping = softBodyInfo.shapeDamping;
-	velDamping = softBodyInfo.velDamping;
+	colorR = softBodyInfo.softBodyAttributes.colorR;
+	colorG = softBodyInfo.softBodyAttributes.colorG;
+	colorB = softBodyInfo.softBodyAttributes.colorB;
+
+	kinematic = softBodyInfo.softBodyAttributes.isKinematic;
+	shapeMatching = softBodyInfo.softBodyAttributes.shapeMatching;
+	shapeK = softBodyInfo.softBodyAttributes.shapeK;
+	shapeDamping = softBodyInfo.softBodyAttributes.shapeDamping;
+	velDamping = softBodyInfo.softBodyAttributes.velDamping;
 	
-	pressureized = softBodyInfo.pressureized;
-	pressure = softBodyInfo.pressure;
+	pressureized = softBodyInfo.softBodyAttributes.pressureized;
+	pressure = softBodyInfo.softBodyAttributes.pressure;
 
 	int _id = 0;
 	for (auto& point: softBodyInfo.points){
@@ -290,7 +290,7 @@ LevelSoftBody::LevelSoftBody(const SoftBodyInfo2& softBodyInfo, World *mWorld, c
 	}
 
 	mBody->setMaterial(material);
-	mBody->setVelocityDamping(softBodyInfo.velDamping);
+	mBody->setVelocityDamping(softBodyInfo.softBodyAttributes.velDamping);
 
 	if (shapeMatching && (!pressureized)){
 		static_cast<GameSpringBody*>(mBody)->setShapeMatching(true);

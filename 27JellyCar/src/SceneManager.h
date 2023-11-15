@@ -46,19 +46,15 @@ struct ObjectInfo2 {
 	float scaleX;
 	float scaleY;
 	int material;
-
 	bool isPlatform;
 	bool isMotor;
-
-	//platform motion
 	float offsetX;
 	float offsetY;
 	float secondsPerLoop;
 	float startOffset;
-
-	//motor
 	float radiansPerSecond;
 };
+
 
 struct Point2 {
 	float x;
@@ -79,6 +75,12 @@ struct Triangle2 {
 	int pt2;
 };
 
+struct Triangle3 {
+	float pt0;
+	float pt1;
+	float pt2;
+};
+
 struct CarInfo {
 	char name[64];
 	float posX;
@@ -91,7 +93,7 @@ struct LevelInfo {
 	float fallLine;
 };
 
-struct SoftBodyInfo2 {
+struct SoftBodyAttributes {
 	char name[64];
 
 	float colorR;
@@ -110,11 +112,57 @@ struct SoftBodyInfo2 {
 
 	bool pressureized;
 	float pressure;
+};
 
+
+struct SoftBodyInfo2 {
+	SoftBodyAttributes softBodyAttributes;
+
+	int pointCount;
 	std::vector<Point2> points;
+
+	int springCount;
 	std::vector<Spring2> springs;
+
+	int polygonCount;
 	std::vector<Triangle2> polygons;
 };
+
+struct SoftBodyAttributes3 {
+	char name[64];
+
+	float colorR;
+	float colorG;
+	float colorB;
+
+	float massPerPoint;
+	float edgeK;
+	float edgeDamping;
+
+	bool isKinematic;
+	bool shapeMatching;
+	float shapeK;
+	float shapeDamping;
+	//float velDamping;
+
+	bool pressureized;
+	float pressure;
+};
+
+struct SoftBodyInfo3 {
+	SoftBodyAttributes3 softBodyAttributes;
+
+	int pointCount;
+	std::vector<Point2> points;
+
+	int springCount;
+	std::vector<Spring2> springs;
+
+	int polygonCount;
+	std::vector<Triangle3> polygons;
+};
+
+
 
 class Scene {
 
@@ -156,7 +204,8 @@ public:
 
 	void loadLevel(const std::string path);
 	void loadCar(const std::string path);
-	void loadCompiledLevel(const std::string path);
+	void loadCompiledLevel(const std::string path, bool reinterprate = false);
+	void saveCompiledLevel(const std::string path, bool reinterprate = false);
 
 	void buildLevel(World *world, std::vector<LevelSoftBody*>& gameBodies);
 	void buildCar(World *world, Car*& car, const std::string& carFileName);
@@ -188,6 +237,8 @@ private:
 	LevelInfo m_levelInfo;
 	std::vector<ObjectInfo2> m_objectInfos;
 	std::vector<SoftBodyInfo2> m_softBodyInfos;
+
+	std::vector<SoftBodyInfo3> m_softBodyInfos3;
 
 	AABB m_worldLimits;
 };

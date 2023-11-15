@@ -28,7 +28,8 @@ JellyOptions::JellyOptions(StateMachine& machine) : State(machine, States::JELLY
 	m_world = new World();
 
 	SceneManager::Get().getScene("scene").InitPhysic(m_world);
-	SceneManager::Get().getScene("scene").loadLevel("Assets/Jelly/Scenes_new/options_scene.scene");
+	//SceneManager::Get().getScene("scene").loadLevel("Assets/Jelly/Scenes_new/options_scene.scene");
+	SceneManager::Get().getScene("scene").loadCompiledLevel("Assets/Jelly/Scenes_compiled_new/options_scene.scene", true);
 	SceneManager::Get().getScene("scene").buildLevel(m_world, m_gameBodies);
 
 	m_screenBounds = Vector4f(-20.0f + 0, 0 + 20.0f, -4.2f - 5, -5 + 18.2f);

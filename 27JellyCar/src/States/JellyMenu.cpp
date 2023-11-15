@@ -31,7 +31,8 @@ carcurrentPosition(SceneManager::Get().getScene("scene").m_carCurrentPosition) {
 	m_world = new World();
 
 	SceneManager::Get().getScene("scene").InitPhysic(m_world);
-	SceneManager::Get().getScene("scene").loadLevel("Assets/Jelly/Scenes_new/menu.scene");
+	//SceneManager::Get().getScene("scene").loadLevel("Assets/Jelly/Scenes_new/menu.scene");
+	SceneManager::Get().getScene("scene").loadCompiledLevel("Assets/Jelly/Scenes_compiled_new/menu.scene", true);
 	SceneManager::Get().getScene("scene").buildLevel(m_world, m_gameBodies);
 	SceneManager::Get().getScene("scene").buildCar(m_world, m_car, "Assets/Jelly/car_and_truck.car");
 
