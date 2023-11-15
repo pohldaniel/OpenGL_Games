@@ -193,7 +193,7 @@ bool LevelManager::LoadCompiledLevel(World *world, std::string levelName, std::s
 		}else {
 			bodyInfo.kinematicControls.isPlatform = false;
 		}
-		
+
 		
 		//get body info
 		int bodyNumber = -1;

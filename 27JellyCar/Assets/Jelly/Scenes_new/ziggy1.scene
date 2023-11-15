@@ -24,7 +24,7 @@
     <Object name="ziggy1_spike_1" posX="-30.00001" posY="109" angle="0" scaleX="1" scaleY="1" material="0" />
   </Objects>
   <SoftBodies>
-    <SoftBody name="ziggy1_land_1" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0" colorG="0" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="ziggy1_land_1" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0" colorG="0" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-8.599999" y="8.999989" />
         <Point x="1.400003" y="5.999993" />
@@ -45,7 +45,7 @@
         <Poly pt0="6" pt1="2" pt2="7" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="ziggy1_circle1" massPerPoint="3" edgeK="100" edgeDamping="10" colorR="0.6784314" colorG="1" colorB="0.1843137" kinematic="True" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="ziggy1_circle1" massPerPoint="3" edgeK="100" edgeDamping="10" colorR="0.6784314" colorG="1" colorB="0.1843137" kinematic="True" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="0" y="1" />
         <Point x="0.7071068" y="0.7071068" />
@@ -71,7 +71,7 @@
         <Poly pt0="4" pt1="3" pt2="6" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="ziggy1_platform_1" massPerPoint="1" edgeK="100" edgeDamping="10" colorR="1" colorG="0" colorB="0" kinematic="True" shapeMatching="True" shapeK="4000" shapeDamping="20">
+    <SoftBody name="ziggy1_platform_1" massPerPoint="1" edgeK="100" edgeDamping="10" colorR="1" colorG="0" colorB="0" kinematic="True" shapeMatching="True" shapeK="4000" shapeDamping="20" velDamping="0.993">
       <Points>
         <Point x="-0.4999999" y="0.2649484" />
         <Point x="-0.5" y="0.5" />
@@ -90,7 +90,7 @@
         <Poly pt0="2" pt1="4" pt2="3" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="ziggy1_land_1" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0" colorG="0" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="ziggy1_land_1" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0" colorG="0" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-8.599999" y="8.999989" />
         <Point x="1.400003" y="5.999993" />
@@ -111,7 +111,7 @@
         <Poly pt0="6" pt1="2" pt2="7" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="ziggy1_land_3" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.6784314" colorG="1" colorB="0.1843137" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="ziggy1_land_3" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.6784314" colorG="1" colorB="0.1843137" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="1.352941" y="1.647058" />
         <Point x="4.765933" y="5.06005" />
@@ -132,7 +132,7 @@
         <Poly pt0="0" pt1="2" pt2="1" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="ziggy1_platform_2" massPerPoint="3" edgeK="100" edgeDamping="10" colorR="0.6784314" colorG="1" colorB="0.1843137" kinematic="True" shapeMatching="True" shapeK="1000" shapeDamping="20">
+    <SoftBody name="ziggy1_platform_2" massPerPoint="3" edgeK="100" edgeDamping="10" colorR="0.6784314" colorG="1" colorB="0.1843137" kinematic="True" shapeMatching="True" shapeK="1000" shapeDamping="20" velDamping="0.993">
       <Points>
         <Point x="-0.07692306" y="0.4230769" />
         <Point x="-0.1660577" y="-5.644751" />
@@ -168,7 +168,7 @@
         <Poly pt0="2" pt1="1" pt2="3" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="ziggy1_land_5" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.6784314" colorG="1" colorB="0.1843137" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="ziggy1_land_5" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.6784314" colorG="1" colorB="0.1843137" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-0.5" y="-0.5" />
         <Point x="-0.5" y="0.5" />
@@ -181,7 +181,7 @@
         <Poly pt0="0" pt1="2" pt2="3" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="ziggy1_land_4" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.6784314" colorG="1" colorB="0.1843137" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="ziggy1_land_4" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.6784314" colorG="1" colorB="0.1843137" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-16.32298" y="4.384698" />
         <Point x="-16.87774" y="7.049906" />
@@ -194,7 +194,7 @@
         <Poly pt0="0" pt1="3" pt2="2" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="ziggy1_spike_1" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.7529412" colorG="0.7529412" colorB="0.7529412" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="ziggy1_spike_1" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.7529412" colorG="0.7529412" colorB="0.7529412" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-0.5" y="-0.5" />
         <Point x="0.15" y="2.15" />
@@ -213,7 +213,7 @@
         <Poly pt0="0" pt1="5" pt2="3" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="ziggy1_spike_1" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.7529412" colorG="0.7529412" colorB="0.7529412" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="ziggy1_spike_1" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.7529412" colorG="0.7529412" colorB="0.7529412" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-0.5" y="-0.5" />
         <Point x="0.15" y="2.15" />

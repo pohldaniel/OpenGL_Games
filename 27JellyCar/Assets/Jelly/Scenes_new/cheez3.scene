@@ -66,7 +66,7 @@
     <Object name="castle_ground1a" posX="-121" posY="-2.980232e-09" angle="0" scaleX="1" scaleY="1" material="0" />
   </Objects>
   <SoftBodies>
-    <SoftBody name="castle_Bridge" massPerPoint="1" edgeK="800" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0.2509804" kinematic="False" shapeMatching="True" shapeK="500" shapeDamping="10">
+    <SoftBody name="castle_Bridge" massPerPoint="1" edgeK="800" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0.2509804" kinematic="False" shapeMatching="True" shapeK="500" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-19.92174" y="-1.578591" mass="0" />
         <Point x="-19.92174" y="2.098659" mass="0" />
@@ -99,7 +99,7 @@
         <Poly pt0="6" pt1="5" pt2="4" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="castle_Rock" massPerPoint="100" edgeK="9999" edgeDamping="10" colorR="0.2509804" colorG="0.5019608" colorB="0.5019608" kinematic="True" shapeMatching="True" shapeK="9999" shapeDamping="10">
+    <SoftBody name="castle_Rock" massPerPoint="100" edgeK="9999" edgeDamping="10" colorR="0.2509804" colorG="0.5019608" colorB="0.5019608" kinematic="True" shapeMatching="True" shapeK="9999" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-4.758061" y="-4.758061" />
         <Point x="-4.758063" y="4.699998" />
@@ -112,7 +112,7 @@
         <Poly pt0="3" pt1="0" pt2="1" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="castle_Rock" massPerPoint="100" edgeK="9999" edgeDamping="10" colorR="0.2509804" colorG="0.5019608" colorB="0.5019608" kinematic="True" shapeMatching="True" shapeK="9999" shapeDamping="10">
+    <SoftBody name="castle_Rock" massPerPoint="100" edgeK="9999" edgeDamping="10" colorR="0.2509804" colorG="0.5019608" colorB="0.5019608" kinematic="True" shapeMatching="True" shapeK="9999" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-4.758061" y="-4.758061" />
         <Point x="-4.758063" y="4.699998" />
@@ -125,7 +125,7 @@
         <Poly pt0="3" pt1="0" pt2="1" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="castle_Rock" massPerPoint="100" edgeK="9999" edgeDamping="10" colorR="0.2509804" colorG="0.5019608" colorB="0.5019608" kinematic="True" shapeMatching="True" shapeK="9999" shapeDamping="10">
+    <SoftBody name="castle_Rock" massPerPoint="100" edgeK="9999" edgeDamping="10" colorR="0.2509804" colorG="0.5019608" colorB="0.5019608" kinematic="True" shapeMatching="True" shapeK="9999" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-4.758061" y="-4.758061" />
         <Point x="-4.758063" y="4.699998" />
@@ -138,7 +138,7 @@
         <Poly pt0="3" pt1="0" pt2="1" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="castle_Rock" massPerPoint="100" edgeK="9999" edgeDamping="10" colorR="0.2509804" colorG="0.5019608" colorB="0.5019608" kinematic="True" shapeMatching="True" shapeK="9999" shapeDamping="10">
+    <SoftBody name="castle_Rock" massPerPoint="100" edgeK="9999" edgeDamping="10" colorR="0.2509804" colorG="0.5019608" colorB="0.5019608" kinematic="True" shapeMatching="True" shapeK="9999" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-4.758061" y="-4.758061" />
         <Point x="-4.758063" y="4.699998" />
@@ -151,7 +151,7 @@
         <Poly pt0="3" pt1="0" pt2="1" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="castle_Rock" massPerPoint="100" edgeK="9999" edgeDamping="10" colorR="0.2509804" colorG="0.5019608" colorB="0.5019608" kinematic="True" shapeMatching="True" shapeK="9999" shapeDamping="10">
+    <SoftBody name="castle_Rock" massPerPoint="100" edgeK="9999" edgeDamping="10" colorR="0.2509804" colorG="0.5019608" colorB="0.5019608" kinematic="True" shapeMatching="True" shapeK="9999" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-4.758061" y="-4.758061" />
         <Point x="-4.758063" y="4.699998" />
@@ -164,7 +164,7 @@
         <Poly pt0="3" pt1="0" pt2="1" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="castle_Rock" massPerPoint="100" edgeK="9999" edgeDamping="10" colorR="0.2509804" colorG="0.5019608" colorB="0.5019608" kinematic="True" shapeMatching="True" shapeK="9999" shapeDamping="10">
+    <SoftBody name="castle_Rock" massPerPoint="100" edgeK="9999" edgeDamping="10" colorR="0.2509804" colorG="0.5019608" colorB="0.5019608" kinematic="True" shapeMatching="True" shapeK="9999" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-4.758061" y="-4.758061" />
         <Point x="-4.758063" y="4.699998" />
@@ -177,7 +177,7 @@
         <Poly pt0="3" pt1="0" pt2="1" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="castle_Ground2" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.6784314" colorG="1" colorB="0.1843137" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="castle_Ground2" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.6784314" colorG="1" colorB="0.1843137" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-12.89997" y="-13.89999" />
         <Point x="-12.89994" y="10.3" />
@@ -190,7 +190,7 @@
         <Poly pt0="1" pt1="3" pt2="0" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="castle_Bridge2" massPerPoint="1" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0" kinematic="True" shapeMatching="True" shapeK="9900" shapeDamping="10">
+    <SoftBody name="castle_Bridge2" massPerPoint="1" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0" kinematic="True" shapeMatching="True" shapeK="9900" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-2.96875" y="-2.8875" />
         <Point x="-3.784424" y="-0.9643817" />
@@ -219,7 +219,7 @@
         <Poly pt0="9" pt1="8" pt2="7" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="castle_Bridge2" massPerPoint="1" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0" kinematic="True" shapeMatching="True" shapeK="9900" shapeDamping="10">
+    <SoftBody name="castle_Bridge2" massPerPoint="1" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0" kinematic="True" shapeMatching="True" shapeK="9900" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-2.96875" y="-2.8875" />
         <Point x="-3.784424" y="-0.9643817" />
@@ -248,7 +248,7 @@
         <Poly pt0="9" pt1="8" pt2="7" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="castle_Bridge2" massPerPoint="1" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0" kinematic="True" shapeMatching="True" shapeK="9900" shapeDamping="10">
+    <SoftBody name="castle_Bridge2" massPerPoint="1" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0" kinematic="True" shapeMatching="True" shapeK="9900" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-2.96875" y="-2.8875" />
         <Point x="-3.784424" y="-0.9643817" />
@@ -277,7 +277,7 @@
         <Poly pt0="9" pt1="8" pt2="7" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="castle_Bridge2" massPerPoint="1" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0" kinematic="True" shapeMatching="True" shapeK="9900" shapeDamping="10">
+    <SoftBody name="castle_Bridge2" massPerPoint="1" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0" kinematic="True" shapeMatching="True" shapeK="9900" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-2.96875" y="-2.8875" />
         <Point x="-3.784424" y="-0.9643817" />
@@ -306,7 +306,7 @@
         <Poly pt0="9" pt1="8" pt2="7" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="castle_Bridge2" massPerPoint="1" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0" kinematic="True" shapeMatching="True" shapeK="9900" shapeDamping="10">
+    <SoftBody name="castle_Bridge2" massPerPoint="1" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0" kinematic="True" shapeMatching="True" shapeK="9900" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-2.96875" y="-2.8875" />
         <Point x="-3.784424" y="-0.9643817" />
@@ -335,7 +335,7 @@
         <Poly pt0="9" pt1="8" pt2="7" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="castle_ground1b" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.7529412" colorG="0.7529412" colorB="0.7529412" kinematic="False" shapeMatching="False" shapeK="0" shapeDamping="0">
+    <SoftBody name="castle_ground1b" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.7529412" colorG="0.7529412" colorB="0.7529412" kinematic="False" shapeMatching="False" shapeK="0" shapeDamping="0" velDamping="0.993">
       <Points>
         <Point x="-60" y="0" />
         <Point x="-60" y="20" />
@@ -360,7 +360,7 @@
         <Poly pt0="1" pt1="2" pt2="9" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="castle_ground1c" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.7529412" colorG="0.7529412" colorB="0.7529412" kinematic="False" shapeMatching="False" shapeK="0" shapeDamping="0">
+    <SoftBody name="castle_ground1c" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.7529412" colorG="0.7529412" colorB="0.7529412" kinematic="False" shapeMatching="False" shapeK="0" shapeDamping="0" velDamping="0.993">
       <Points>
         <Point x="-25" y="10" />
         <Point x="-22.5" y="5" />
@@ -405,7 +405,7 @@
         <Poly pt0="21" pt1="23" pt2="20" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="castle_ground1d" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.7529412" colorG="0.7529412" colorB="0.7529412" kinematic="False" shapeMatching="False" shapeK="0" shapeDamping="0">
+    <SoftBody name="castle_ground1d" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.7529412" colorG="0.7529412" colorB="0.7529412" kinematic="False" shapeMatching="False" shapeK="0" shapeDamping="0" velDamping="0.993">
       <Points>
         <Point x="-80" y="0" />
         <Point x="-80" y="30" />
@@ -459,7 +459,7 @@
         <Poly pt0="1" pt1="2" pt2="27" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="castle_ground1e" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.7529412" colorG="0.7529412" colorB="0.7529412" kinematic="False" shapeMatching="False" shapeK="0" shapeDamping="0">
+    <SoftBody name="castle_ground1e" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.7529412" colorG="0.7529412" colorB="0.7529412" kinematic="False" shapeMatching="False" shapeK="0" shapeDamping="0" velDamping="0.993">
       <Points>
         <Point x="-20" y="-20" />
         <Point x="-60" y="-20" />
@@ -510,7 +510,7 @@
         <Poly pt0="2" pt1="3" pt2="0" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="castle_ground1f" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.7529412" colorG="0.7529412" colorB="0.7529412" kinematic="False" shapeMatching="False" shapeK="0" shapeDamping="0">
+    <SoftBody name="castle_ground1f" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.7529412" colorG="0.7529412" colorB="0.7529412" kinematic="False" shapeMatching="False" shapeK="0" shapeDamping="0" velDamping="0.993">
       <Points>
         <Point x="-80" y="-40" />
         <Point x="-80" y="-20" />
@@ -569,7 +569,7 @@
         <Poly pt0="1" pt1="2" pt2="26" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="castle_ground1g" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.7529412" colorG="0.7529412" colorB="0.7529412" kinematic="False" shapeMatching="False" shapeK="0" shapeDamping="0">
+    <SoftBody name="castle_ground1g" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.7529412" colorG="0.7529412" colorB="0.7529412" kinematic="False" shapeMatching="False" shapeK="0" shapeDamping="0" velDamping="0.993">
       <Points>
         <Point x="-30" y="-50" />
         <Point x="-30" y="0" />
@@ -622,7 +622,7 @@
         <Poly pt0="1" pt1="23" pt2="0" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="castle_ground1a" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.7529412" colorG="0.7529412" colorB="0.7529412" kinematic="False" shapeMatching="False" shapeK="0" shapeDamping="0">
+    <SoftBody name="castle_ground1a" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.7529412" colorG="0.7529412" colorB="0.7529412" kinematic="False" shapeMatching="False" shapeK="0" shapeDamping="0" velDamping="0.993">
       <Points>
         <Point x="-50" y="-40" />
         <Point x="-50" y="30" />

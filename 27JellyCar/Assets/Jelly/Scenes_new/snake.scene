@@ -45,7 +45,7 @@
     </Object>
   </Objects>
   <SoftBodies>
-    <SoftBody name="snake_belk" massPerPoint="0" edgeK="300" edgeDamping="30" colorR="1" colorG="0" colorB="0.5019608" kinematic="False" shapeMatching="True" shapeK="300" shapeDamping="30">
+    <SoftBody name="snake_belk" massPerPoint="0" edgeK="300" edgeDamping="30" colorR="1" colorG="0" colorB="0.5019608" kinematic="False" shapeMatching="True" shapeK="300" shapeDamping="30" velDamping="0.993">
       <Points>
         <Point x="-2" y="-1" />
         <Point x="-1.990989" y="0.9999998" />
@@ -61,7 +61,7 @@
         <Poly pt0="1" pt1="0" pt2="2" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="snake_1" massPerPoint="1" edgeK="700" edgeDamping="50" colorR="1" colorG="0" colorB="0.5019608" kinematic="True" shapeMatching="True" shapeK="700" shapeDamping="50">
+    <SoftBody name="snake_1" massPerPoint="1" edgeK="700" edgeDamping="50" colorR="1" colorG="0" colorB="0.5019608" kinematic="True" shapeMatching="True" shapeK="700" shapeDamping="50" velDamping="0.993">
       <Pressure amount="60" />
       <Points>
         <Point x="-2" y="-1" />
@@ -129,7 +129,7 @@
         <Poly pt0="23" pt1="21" pt2="22" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="snake_belk" massPerPoint="0" edgeK="300" edgeDamping="30" colorR="1" colorG="0" colorB="0.5019608" kinematic="False" shapeMatching="True" shapeK="300" shapeDamping="30">
+    <SoftBody name="snake_belk" massPerPoint="0" edgeK="300" edgeDamping="30" colorR="1" colorG="0" colorB="0.5019608" kinematic="False" shapeMatching="True" shapeK="300" shapeDamping="30" velDamping="0.993">
       <Points>
         <Point x="-2" y="-1" />
         <Point x="-1.990989" y="0.9999998" />
@@ -145,7 +145,7 @@
         <Poly pt0="1" pt1="0" pt2="2" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="snake_belk" massPerPoint="0" edgeK="300" edgeDamping="30" colorR="1" colorG="0" colorB="0.5019608" kinematic="False" shapeMatching="True" shapeK="300" shapeDamping="30">
+    <SoftBody name="snake_belk" massPerPoint="0" edgeK="300" edgeDamping="30" colorR="1" colorG="0" colorB="0.5019608" kinematic="False" shapeMatching="True" shapeK="300" shapeDamping="30" velDamping="0.993">
       <Points>
         <Point x="-2" y="-1" />
         <Point x="-1.990989" y="0.9999998" />
@@ -161,7 +161,7 @@
         <Poly pt0="1" pt1="0" pt2="2" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="snake_belk" massPerPoint="0" edgeK="300" edgeDamping="30" colorR="1" colorG="0" colorB="0.5019608" kinematic="False" shapeMatching="True" shapeK="300" shapeDamping="30">
+    <SoftBody name="snake_belk" massPerPoint="0" edgeK="300" edgeDamping="30" colorR="1" colorG="0" colorB="0.5019608" kinematic="False" shapeMatching="True" shapeK="300" shapeDamping="30" velDamping="0.993">
       <Points>
         <Point x="-2" y="-1" />
         <Point x="-1.990989" y="0.9999998" />
@@ -177,7 +177,7 @@
         <Poly pt0="1" pt1="0" pt2="2" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="snake_belk" massPerPoint="0" edgeK="300" edgeDamping="30" colorR="1" colorG="0" colorB="0.5019608" kinematic="False" shapeMatching="True" shapeK="300" shapeDamping="30">
+    <SoftBody name="snake_belk" massPerPoint="0" edgeK="300" edgeDamping="30" colorR="1" colorG="0" colorB="0.5019608" kinematic="False" shapeMatching="True" shapeK="300" shapeDamping="30" velDamping="0.993">
       <Points>
         <Point x="-2" y="-1" />
         <Point x="-1.990989" y="0.9999998" />
@@ -193,7 +193,7 @@
         <Poly pt0="1" pt1="0" pt2="2" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="snake_belk" massPerPoint="0" edgeK="300" edgeDamping="30" colorR="1" colorG="0" colorB="0.5019608" kinematic="False" shapeMatching="True" shapeK="300" shapeDamping="30">
+    <SoftBody name="snake_belk" massPerPoint="0" edgeK="300" edgeDamping="30" colorR="1" colorG="0" colorB="0.5019608" kinematic="False" shapeMatching="True" shapeK="300" shapeDamping="30" velDamping="0.993">
       <Points>
         <Point x="-2" y="-1" />
         <Point x="-1.990989" y="0.9999998" />
@@ -209,7 +209,7 @@
         <Poly pt0="1" pt1="0" pt2="2" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="snake_belk" massPerPoint="0" edgeK="300" edgeDamping="30" colorR="1" colorG="0" colorB="0.5019608" kinematic="False" shapeMatching="True" shapeK="300" shapeDamping="30">
+    <SoftBody name="snake_belk" massPerPoint="0" edgeK="300" edgeDamping="30" colorR="1" colorG="0" colorB="0.5019608" kinematic="False" shapeMatching="True" shapeK="300" shapeDamping="30" velDamping="0.993">
       <Points>
         <Point x="-2" y="-1" />
         <Point x="-1.990989" y="0.9999998" />
@@ -225,7 +225,7 @@
         <Poly pt0="1" pt1="0" pt2="2" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="snake_belk" massPerPoint="0" edgeK="300" edgeDamping="30" colorR="1" colorG="0" colorB="0.5019608" kinematic="False" shapeMatching="True" shapeK="300" shapeDamping="30">
+    <SoftBody name="snake_belk" massPerPoint="0" edgeK="300" edgeDamping="30" colorR="1" colorG="0" colorB="0.5019608" kinematic="False" shapeMatching="True" shapeK="300" shapeDamping="30" velDamping="0.993">
       <Points>
         <Point x="-2" y="-1" />
         <Point x="-1.990989" y="0.9999998" />
@@ -241,7 +241,7 @@
         <Poly pt0="1" pt1="0" pt2="2" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="snake_belk" massPerPoint="0" edgeK="300" edgeDamping="30" colorR="1" colorG="0" colorB="0.5019608" kinematic="False" shapeMatching="True" shapeK="300" shapeDamping="30">
+    <SoftBody name="snake_belk" massPerPoint="0" edgeK="300" edgeDamping="30" colorR="1" colorG="0" colorB="0.5019608" kinematic="False" shapeMatching="True" shapeK="300" shapeDamping="30" velDamping="0.993">
       <Points>
         <Point x="-2" y="-1" />
         <Point x="-1.990989" y="0.9999998" />
@@ -257,7 +257,7 @@
         <Poly pt0="1" pt1="0" pt2="2" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="snake_belk" massPerPoint="0" edgeK="300" edgeDamping="30" colorR="1" colorG="0" colorB="0.5019608" kinematic="False" shapeMatching="True" shapeK="300" shapeDamping="30">
+    <SoftBody name="snake_belk" massPerPoint="0" edgeK="300" edgeDamping="30" colorR="1" colorG="0" colorB="0.5019608" kinematic="False" shapeMatching="True" shapeK="300" shapeDamping="30" velDamping="0.993">
       <Points>
         <Point x="-2" y="-1" />
         <Point x="-1.990989" y="0.9999998" />
@@ -273,7 +273,7 @@
         <Poly pt0="1" pt1="0" pt2="2" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="snake_1" massPerPoint="1" edgeK="700" edgeDamping="50" colorR="1" colorG="0" colorB="0.5019608" kinematic="True" shapeMatching="True" shapeK="700" shapeDamping="50">
+    <SoftBody name="snake_1" massPerPoint="1" edgeK="700" edgeDamping="50" colorR="1" colorG="0" colorB="0.5019608" kinematic="True" shapeMatching="True" shapeK="700" shapeDamping="50" velDamping="0.993">
       <Pressure amount="60" />
       <Points>
         <Point x="-2" y="-1" />
@@ -341,7 +341,7 @@
         <Poly pt0="23" pt1="21" pt2="22" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="snake_1" massPerPoint="1" edgeK="700" edgeDamping="50" colorR="1" colorG="0" colorB="0.5019608" kinematic="True" shapeMatching="True" shapeK="700" shapeDamping="50">
+    <SoftBody name="snake_1" massPerPoint="1" edgeK="700" edgeDamping="50" colorR="1" colorG="0" colorB="0.5019608" kinematic="True" shapeMatching="True" shapeK="700" shapeDamping="50" velDamping="0.993">
       <Pressure amount="60" />
       <Points>
         <Point x="-2" y="-1" />
@@ -409,7 +409,7 @@
         <Poly pt0="23" pt1="21" pt2="22" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="snake_1" massPerPoint="1" edgeK="700" edgeDamping="50" colorR="1" colorG="0" colorB="0.5019608" kinematic="True" shapeMatching="True" shapeK="700" shapeDamping="50">
+    <SoftBody name="snake_1" massPerPoint="1" edgeK="700" edgeDamping="50" colorR="1" colorG="0" colorB="0.5019608" kinematic="True" shapeMatching="True" shapeK="700" shapeDamping="50" velDamping="0.993">
       <Pressure amount="60" />
       <Points>
         <Point x="-2" y="-1" />
@@ -477,7 +477,7 @@
         <Poly pt0="23" pt1="21" pt2="22" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="snake_1" massPerPoint="1" edgeK="700" edgeDamping="50" colorR="1" colorG="0" colorB="0.5019608" kinematic="True" shapeMatching="True" shapeK="700" shapeDamping="50">
+    <SoftBody name="snake_1" massPerPoint="1" edgeK="700" edgeDamping="50" colorR="1" colorG="0" colorB="0.5019608" kinematic="True" shapeMatching="True" shapeK="700" shapeDamping="50" velDamping="0.993">
       <Pressure amount="60" />
       <Points>
         <Point x="-2" y="-1" />
@@ -545,7 +545,7 @@
         <Poly pt0="23" pt1="21" pt2="22" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="snake_belk" massPerPoint="0" edgeK="300" edgeDamping="30" colorR="1" colorG="0" colorB="0.5019608" kinematic="False" shapeMatching="True" shapeK="300" shapeDamping="30">
+    <SoftBody name="snake_belk" massPerPoint="0" edgeK="300" edgeDamping="30" colorR="1" colorG="0" colorB="0.5019608" kinematic="False" shapeMatching="True" shapeK="300" shapeDamping="30" velDamping="0.993">
       <Points>
         <Point x="-2" y="-1" />
         <Point x="-1.990989" y="0.9999998" />
@@ -561,7 +561,7 @@
         <Poly pt0="1" pt1="0" pt2="2" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="snake_belk" massPerPoint="0" edgeK="300" edgeDamping="30" colorR="1" colorG="0" colorB="0.5019608" kinematic="False" shapeMatching="True" shapeK="300" shapeDamping="30">
+    <SoftBody name="snake_belk" massPerPoint="0" edgeK="300" edgeDamping="30" colorR="1" colorG="0" colorB="0.5019608" kinematic="False" shapeMatching="True" shapeK="300" shapeDamping="30" velDamping="0.993">
       <Points>
         <Point x="-2" y="-1" />
         <Point x="-1.990989" y="0.9999998" />
@@ -577,7 +577,7 @@
         <Poly pt0="1" pt1="0" pt2="2" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="snake_belk" massPerPoint="0" edgeK="300" edgeDamping="30" colorR="1" colorG="0" colorB="0.5019608" kinematic="False" shapeMatching="True" shapeK="300" shapeDamping="30">
+    <SoftBody name="snake_belk" massPerPoint="0" edgeK="300" edgeDamping="30" colorR="1" colorG="0" colorB="0.5019608" kinematic="False" shapeMatching="True" shapeK="300" shapeDamping="30" velDamping="0.993">
       <Points>
         <Point x="-2" y="-1" />
         <Point x="-1.990989" y="0.9999998" />
@@ -593,7 +593,7 @@
         <Poly pt0="1" pt1="0" pt2="2" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="snake_belk" massPerPoint="0" edgeK="300" edgeDamping="30" colorR="1" colorG="0" colorB="0.5019608" kinematic="False" shapeMatching="True" shapeK="300" shapeDamping="30">
+    <SoftBody name="snake_belk" massPerPoint="0" edgeK="300" edgeDamping="30" colorR="1" colorG="0" colorB="0.5019608" kinematic="False" shapeMatching="True" shapeK="300" shapeDamping="30" velDamping="0.993">
       <Points>
         <Point x="-2" y="-1" />
         <Point x="-1.990989" y="0.9999998" />
@@ -609,7 +609,7 @@
         <Poly pt0="1" pt1="0" pt2="2" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="snake_belk" massPerPoint="0" edgeK="300" edgeDamping="30" colorR="1" colorG="0" colorB="0.5019608" kinematic="False" shapeMatching="True" shapeK="300" shapeDamping="30">
+    <SoftBody name="snake_belk" massPerPoint="0" edgeK="300" edgeDamping="30" colorR="1" colorG="0" colorB="0.5019608" kinematic="False" shapeMatching="True" shapeK="300" shapeDamping="30" velDamping="0.993">
       <Points>
         <Point x="-2" y="-1" />
         <Point x="-1.990989" y="0.9999998" />
@@ -625,7 +625,7 @@
         <Poly pt0="1" pt1="0" pt2="2" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="snake_belk" massPerPoint="0" edgeK="300" edgeDamping="30" colorR="1" colorG="0" colorB="0.5019608" kinematic="False" shapeMatching="True" shapeK="300" shapeDamping="30">
+    <SoftBody name="snake_belk" massPerPoint="0" edgeK="300" edgeDamping="30" colorR="1" colorG="0" colorB="0.5019608" kinematic="False" shapeMatching="True" shapeK="300" shapeDamping="30" velDamping="0.993">
       <Points>
         <Point x="-2" y="-1" />
         <Point x="-1.990989" y="0.9999998" />
@@ -641,7 +641,7 @@
         <Poly pt0="1" pt1="0" pt2="2" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="snake_belk" massPerPoint="0" edgeK="300" edgeDamping="30" colorR="1" colorG="0" colorB="0.5019608" kinematic="False" shapeMatching="True" shapeK="300" shapeDamping="30">
+    <SoftBody name="snake_belk" massPerPoint="0" edgeK="300" edgeDamping="30" colorR="1" colorG="0" colorB="0.5019608" kinematic="False" shapeMatching="True" shapeK="300" shapeDamping="30" velDamping="0.993">
       <Points>
         <Point x="-2" y="-1" />
         <Point x="-1.990989" y="0.9999998" />
@@ -657,7 +657,7 @@
         <Poly pt0="1" pt1="0" pt2="2" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="snake_belk" massPerPoint="0" edgeK="300" edgeDamping="30" colorR="1" colorG="0" colorB="0.5019608" kinematic="False" shapeMatching="True" shapeK="300" shapeDamping="30">
+    <SoftBody name="snake_belk" massPerPoint="0" edgeK="300" edgeDamping="30" colorR="1" colorG="0" colorB="0.5019608" kinematic="False" shapeMatching="True" shapeK="300" shapeDamping="30" velDamping="0.993">
       <Points>
         <Point x="-2" y="-1" />
         <Point x="-1.990989" y="0.9999998" />
@@ -673,7 +673,7 @@
         <Poly pt0="1" pt1="0" pt2="2" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="level06_plat2" massPerPoint="4" edgeK="500" edgeDamping="15" colorR="0.5019608" colorG="0.5019608" colorB="0.7529412" kinematic="True" shapeMatching="True" shapeK="300" shapeDamping="10">
+    <SoftBody name="level06_plat2" massPerPoint="4" edgeK="500" edgeDamping="15" colorR="0.5019608" colorG="0.5019608" colorB="0.7529412" kinematic="True" shapeMatching="True" shapeK="300" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-4.8" y="0" />
         <Point x="0" y="0.8" />
@@ -696,7 +696,7 @@
         <Poly pt0="0" pt1="5" pt2="4" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="level06_plat2" massPerPoint="4" edgeK="500" edgeDamping="15" colorR="0.5019608" colorG="0.5019608" colorB="0.7529412" kinematic="True" shapeMatching="True" shapeK="300" shapeDamping="10">
+    <SoftBody name="level06_plat2" massPerPoint="4" edgeK="500" edgeDamping="15" colorR="0.5019608" colorG="0.5019608" colorB="0.7529412" kinematic="True" shapeMatching="True" shapeK="300" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-4.8" y="0" />
         <Point x="0" y="0.8" />
@@ -719,7 +719,7 @@
         <Poly pt0="0" pt1="5" pt2="4" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="level06_plat2" massPerPoint="4" edgeK="500" edgeDamping="15" colorR="0.5019608" colorG="0.5019608" colorB="0.7529412" kinematic="True" shapeMatching="True" shapeK="300" shapeDamping="10">
+    <SoftBody name="level06_plat2" massPerPoint="4" edgeK="500" edgeDamping="15" colorR="0.5019608" colorG="0.5019608" colorB="0.7529412" kinematic="True" shapeMatching="True" shapeK="300" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-4.8" y="0" />
         <Point x="0" y="0.8" />
@@ -742,7 +742,7 @@
         <Poly pt0="0" pt1="5" pt2="4" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="level06_plat2" massPerPoint="4" edgeK="500" edgeDamping="15" colorR="0.5019608" colorG="0.5019608" colorB="0.7529412" kinematic="True" shapeMatching="True" shapeK="300" shapeDamping="10">
+    <SoftBody name="level06_plat2" massPerPoint="4" edgeK="500" edgeDamping="15" colorR="0.5019608" colorG="0.5019608" colorB="0.7529412" kinematic="True" shapeMatching="True" shapeK="300" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-4.8" y="0" />
         <Point x="0" y="0.8" />

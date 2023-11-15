@@ -49,7 +49,7 @@
     </Object>
   </Objects>
   <SoftBodies>
-    <SoftBody name="level6_01" massPerPoint="0" edgeK="0" edgeDamping="0" colorR="1" colorG="0" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="level6_01" massPerPoint="0" edgeK="0" edgeDamping="0" colorR="1" colorG="0" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-2" y="0" />
         <Point x="-1.6" y="0.4" />
@@ -70,7 +70,7 @@
         <Poly pt0="6" pt1="7" pt2="0" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="level6_01" massPerPoint="0" edgeK="0" edgeDamping="0" colorR="1" colorG="0" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="level6_01" massPerPoint="0" edgeK="0" edgeDamping="0" colorR="1" colorG="0" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-2" y="0" />
         <Point x="-1.6" y="0.4" />
@@ -91,7 +91,7 @@
         <Poly pt0="6" pt1="7" pt2="0" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="level6_01" massPerPoint="0" edgeK="0" edgeDamping="0" colorR="1" colorG="0" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="level6_01" massPerPoint="0" edgeK="0" edgeDamping="0" colorR="1" colorG="0" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-2" y="0" />
         <Point x="-1.6" y="0.4" />
@@ -112,7 +112,7 @@
         <Poly pt0="6" pt1="7" pt2="0" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="level6_01" massPerPoint="0" edgeK="0" edgeDamping="0" colorR="1" colorG="0" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="level6_01" massPerPoint="0" edgeK="0" edgeDamping="0" colorR="1" colorG="0" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-2" y="0" />
         <Point x="-1.6" y="0.4" />
@@ -133,7 +133,7 @@
         <Poly pt0="6" pt1="7" pt2="0" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="level6_01" massPerPoint="0" edgeK="0" edgeDamping="0" colorR="1" colorG="0" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="level6_01" massPerPoint="0" edgeK="0" edgeDamping="0" colorR="1" colorG="0" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-2" y="0" />
         <Point x="-1.6" y="0.4" />
@@ -154,7 +154,7 @@
         <Poly pt0="6" pt1="7" pt2="0" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="level06_plinko_orange" massPerPoint="1" edgeK="600" edgeDamping="50" colorR="0.5019608" colorG="0.2509804" colorB="0" kinematic="True" shapeMatching="True" shapeK="600" shapeDamping="50">
+    <SoftBody name="level06_plinko_orange" massPerPoint="1" edgeK="600" edgeDamping="50" colorR="0.5019608" colorG="0.2509804" colorB="0" kinematic="True" shapeMatching="True" shapeK="600" shapeDamping="50" velDamping="0.993">
       <Pressure amount="150" />
       <Points>
         <Point x="0.4107142" y="0.8660255" />
@@ -176,7 +176,7 @@
         <Poly pt0="2" pt1="5" pt2="4" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="level06_plinko_orange" massPerPoint="1" edgeK="600" edgeDamping="50" colorR="0.5019608" colorG="0.2509804" colorB="0" kinematic="True" shapeMatching="True" shapeK="600" shapeDamping="50">
+    <SoftBody name="level06_plinko_orange" massPerPoint="1" edgeK="600" edgeDamping="50" colorR="0.5019608" colorG="0.2509804" colorB="0" kinematic="True" shapeMatching="True" shapeK="600" shapeDamping="50" velDamping="0.993">
       <Pressure amount="150" />
       <Points>
         <Point x="0.4107142" y="0.8660255" />
@@ -198,7 +198,7 @@
         <Poly pt0="2" pt1="5" pt2="4" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="level06_plinko_orange" massPerPoint="1" edgeK="600" edgeDamping="50" colorR="0.5019608" colorG="0.2509804" colorB="0" kinematic="True" shapeMatching="True" shapeK="600" shapeDamping="50">
+    <SoftBody name="level06_plinko_orange" massPerPoint="1" edgeK="600" edgeDamping="50" colorR="0.5019608" colorG="0.2509804" colorB="0" kinematic="True" shapeMatching="True" shapeK="600" shapeDamping="50" velDamping="0.993">
       <Pressure amount="150" />
       <Points>
         <Point x="0.4107142" y="0.8660255" />
@@ -220,7 +220,7 @@
         <Poly pt0="2" pt1="5" pt2="4" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="level06_plinko_orange" massPerPoint="1" edgeK="600" edgeDamping="50" colorR="0.5019608" colorG="0.2509804" colorB="0" kinematic="True" shapeMatching="True" shapeK="600" shapeDamping="50">
+    <SoftBody name="level06_plinko_orange" massPerPoint="1" edgeK="600" edgeDamping="50" colorR="0.5019608" colorG="0.2509804" colorB="0" kinematic="True" shapeMatching="True" shapeK="600" shapeDamping="50" velDamping="0.993">
       <Pressure amount="150" />
       <Points>
         <Point x="0.4107142" y="0.8660255" />
@@ -242,7 +242,7 @@
         <Poly pt0="2" pt1="5" pt2="4" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="level06_plinko_yellow" massPerPoint="1" edgeK="600" edgeDamping="50" colorR="1" colorG="1" colorB="0" kinematic="True" shapeMatching="True" shapeK="600" shapeDamping="50">
+    <SoftBody name="level06_plinko_yellow" massPerPoint="1" edgeK="600" edgeDamping="50" colorR="1" colorG="1" colorB="0" kinematic="True" shapeMatching="True" shapeK="600" shapeDamping="50" velDamping="0.993">
       <Pressure amount="150" />
       <Points>
         <Point x="0" y="1" />
@@ -274,7 +274,7 @@
         <Poly pt0="11" pt1="0" pt2="3" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="level06_plinko_yellow" massPerPoint="1" edgeK="600" edgeDamping="50" colorR="1" colorG="1" colorB="0" kinematic="True" shapeMatching="True" shapeK="600" shapeDamping="50">
+    <SoftBody name="level06_plinko_yellow" massPerPoint="1" edgeK="600" edgeDamping="50" colorR="1" colorG="1" colorB="0" kinematic="True" shapeMatching="True" shapeK="600" shapeDamping="50" velDamping="0.993">
       <Pressure amount="150" />
       <Points>
         <Point x="0" y="1" />
@@ -306,7 +306,7 @@
         <Poly pt0="11" pt1="0" pt2="3" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="level06_plinko_yellow" massPerPoint="1" edgeK="600" edgeDamping="50" colorR="1" colorG="1" colorB="0" kinematic="True" shapeMatching="True" shapeK="600" shapeDamping="50">
+    <SoftBody name="level06_plinko_yellow" massPerPoint="1" edgeK="600" edgeDamping="50" colorR="1" colorG="1" colorB="0" kinematic="True" shapeMatching="True" shapeK="600" shapeDamping="50" velDamping="0.993">
       <Pressure amount="150" />
       <Points>
         <Point x="0" y="1" />
@@ -338,7 +338,7 @@
         <Poly pt0="11" pt1="0" pt2="3" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="level06_plinko_yellow" massPerPoint="1" edgeK="600" edgeDamping="50" colorR="1" colorG="1" colorB="0" kinematic="True" shapeMatching="True" shapeK="600" shapeDamping="50">
+    <SoftBody name="level06_plinko_yellow" massPerPoint="1" edgeK="600" edgeDamping="50" colorR="1" colorG="1" colorB="0" kinematic="True" shapeMatching="True" shapeK="600" shapeDamping="50" velDamping="0.993">
       <Pressure amount="150" />
       <Points>
         <Point x="0" y="1" />
@@ -370,7 +370,7 @@
         <Poly pt0="11" pt1="0" pt2="3" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="level06_plinko_yellow" massPerPoint="1" edgeK="600" edgeDamping="50" colorR="1" colorG="1" colorB="0" kinematic="True" shapeMatching="True" shapeK="600" shapeDamping="50">
+    <SoftBody name="level06_plinko_yellow" massPerPoint="1" edgeK="600" edgeDamping="50" colorR="1" colorG="1" colorB="0" kinematic="True" shapeMatching="True" shapeK="600" shapeDamping="50" velDamping="0.993">
       <Pressure amount="150" />
       <Points>
         <Point x="0" y="1" />
@@ -402,7 +402,7 @@
         <Poly pt0="11" pt1="0" pt2="3" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="level06_plinko_orange" massPerPoint="1" edgeK="600" edgeDamping="50" colorR="0.5019608" colorG="0.2509804" colorB="0" kinematic="True" shapeMatching="True" shapeK="600" shapeDamping="50">
+    <SoftBody name="level06_plinko_orange" massPerPoint="1" edgeK="600" edgeDamping="50" colorR="0.5019608" colorG="0.2509804" colorB="0" kinematic="True" shapeMatching="True" shapeK="600" shapeDamping="50" velDamping="0.993">
       <Pressure amount="150" />
       <Points>
         <Point x="0.4107142" y="0.8660255" />
@@ -424,7 +424,7 @@
         <Poly pt0="2" pt1="5" pt2="4" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="level06_plinko_orange" massPerPoint="1" edgeK="600" edgeDamping="50" colorR="0.5019608" colorG="0.2509804" colorB="0" kinematic="True" shapeMatching="True" shapeK="600" shapeDamping="50">
+    <SoftBody name="level06_plinko_orange" massPerPoint="1" edgeK="600" edgeDamping="50" colorR="0.5019608" colorG="0.2509804" colorB="0" kinematic="True" shapeMatching="True" shapeK="600" shapeDamping="50" velDamping="0.993">
       <Pressure amount="150" />
       <Points>
         <Point x="0.4107142" y="0.8660255" />
@@ -446,7 +446,7 @@
         <Poly pt0="2" pt1="5" pt2="4" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="level06_plinko_orange" massPerPoint="1" edgeK="600" edgeDamping="50" colorR="0.5019608" colorG="0.2509804" colorB="0" kinematic="True" shapeMatching="True" shapeK="600" shapeDamping="50">
+    <SoftBody name="level06_plinko_orange" massPerPoint="1" edgeK="600" edgeDamping="50" colorR="0.5019608" colorG="0.2509804" colorB="0" kinematic="True" shapeMatching="True" shapeK="600" shapeDamping="50" velDamping="0.993">
       <Pressure amount="150" />
       <Points>
         <Point x="0.4107142" y="0.8660255" />
@@ -468,7 +468,7 @@
         <Poly pt0="2" pt1="5" pt2="4" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="level06_plinko_orange" massPerPoint="1" edgeK="600" edgeDamping="50" colorR="0.5019608" colorG="0.2509804" colorB="0" kinematic="True" shapeMatching="True" shapeK="600" shapeDamping="50">
+    <SoftBody name="level06_plinko_orange" massPerPoint="1" edgeK="600" edgeDamping="50" colorR="0.5019608" colorG="0.2509804" colorB="0" kinematic="True" shapeMatching="True" shapeK="600" shapeDamping="50" velDamping="0.993">
       <Pressure amount="150" />
       <Points>
         <Point x="0.4107142" y="0.8660255" />
@@ -490,7 +490,7 @@
         <Poly pt0="2" pt1="5" pt2="4" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="level06_plinko_yellow" massPerPoint="1" edgeK="600" edgeDamping="50" colorR="1" colorG="1" colorB="0" kinematic="True" shapeMatching="True" shapeK="600" shapeDamping="50">
+    <SoftBody name="level06_plinko_yellow" massPerPoint="1" edgeK="600" edgeDamping="50" colorR="1" colorG="1" colorB="0" kinematic="True" shapeMatching="True" shapeK="600" shapeDamping="50" velDamping="0.993">
       <Pressure amount="150" />
       <Points>
         <Point x="0" y="1" />
@@ -522,7 +522,7 @@
         <Poly pt0="11" pt1="0" pt2="3" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="level06_plinko_yellow" massPerPoint="1" edgeK="600" edgeDamping="50" colorR="1" colorG="1" colorB="0" kinematic="True" shapeMatching="True" shapeK="600" shapeDamping="50">
+    <SoftBody name="level06_plinko_yellow" massPerPoint="1" edgeK="600" edgeDamping="50" colorR="1" colorG="1" colorB="0" kinematic="True" shapeMatching="True" shapeK="600" shapeDamping="50" velDamping="0.993">
       <Pressure amount="150" />
       <Points>
         <Point x="0" y="1" />
@@ -554,7 +554,7 @@
         <Poly pt0="11" pt1="0" pt2="3" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="level06_plinko_yellow" massPerPoint="1" edgeK="600" edgeDamping="50" colorR="1" colorG="1" colorB="0" kinematic="True" shapeMatching="True" shapeK="600" shapeDamping="50">
+    <SoftBody name="level06_plinko_yellow" massPerPoint="1" edgeK="600" edgeDamping="50" colorR="1" colorG="1" colorB="0" kinematic="True" shapeMatching="True" shapeK="600" shapeDamping="50" velDamping="0.993">
       <Pressure amount="150" />
       <Points>
         <Point x="0" y="1" />
@@ -586,7 +586,7 @@
         <Poly pt0="11" pt1="0" pt2="3" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="level06_plinko_yellow" massPerPoint="1" edgeK="600" edgeDamping="50" colorR="1" colorG="1" colorB="0" kinematic="True" shapeMatching="True" shapeK="600" shapeDamping="50">
+    <SoftBody name="level06_plinko_yellow" massPerPoint="1" edgeK="600" edgeDamping="50" colorR="1" colorG="1" colorB="0" kinematic="True" shapeMatching="True" shapeK="600" shapeDamping="50" velDamping="0.993">
       <Pressure amount="150" />
       <Points>
         <Point x="0" y="1" />
@@ -618,7 +618,7 @@
         <Poly pt0="11" pt1="0" pt2="3" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="level06_plinko_yellow" massPerPoint="1" edgeK="600" edgeDamping="50" colorR="1" colorG="1" colorB="0" kinematic="True" shapeMatching="True" shapeK="600" shapeDamping="50">
+    <SoftBody name="level06_plinko_yellow" massPerPoint="1" edgeK="600" edgeDamping="50" colorR="1" colorG="1" colorB="0" kinematic="True" shapeMatching="True" shapeK="600" shapeDamping="50" velDamping="0.993">
       <Pressure amount="150" />
       <Points>
         <Point x="0" y="1" />
@@ -650,7 +650,7 @@
         <Poly pt0="11" pt1="0" pt2="3" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="level06_plat1" massPerPoint="1" edgeK="400" edgeDamping="10" colorR="0" colorG="0" colorB="1" kinematic="True" shapeMatching="True" shapeK="30" shapeDamping="0">
+    <SoftBody name="level06_plat1" massPerPoint="1" edgeK="400" edgeDamping="10" colorR="0" colorG="0" colorB="1" kinematic="True" shapeMatching="True" shapeK="30" shapeDamping="0" velDamping="0.993">
       <Points>
         <Point x="-6.4" y="-0.8" />
         <Point x="-7.2" y="0.8" />
@@ -693,7 +693,7 @@
         <Poly pt0="0" pt1="2" pt2="1" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="level06_plat1" massPerPoint="1" edgeK="400" edgeDamping="10" colorR="0" colorG="0" colorB="1" kinematic="True" shapeMatching="True" shapeK="30" shapeDamping="0">
+    <SoftBody name="level06_plat1" massPerPoint="1" edgeK="400" edgeDamping="10" colorR="0" colorG="0" colorB="1" kinematic="True" shapeMatching="True" shapeK="30" shapeDamping="0" velDamping="0.993">
       <Points>
         <Point x="-6.4" y="-0.8" />
         <Point x="-7.2" y="0.8" />
@@ -736,7 +736,7 @@
         <Poly pt0="0" pt1="2" pt2="1" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="level06_plat1" massPerPoint="1" edgeK="400" edgeDamping="10" colorR="0" colorG="0" colorB="1" kinematic="True" shapeMatching="True" shapeK="30" shapeDamping="0">
+    <SoftBody name="level06_plat1" massPerPoint="1" edgeK="400" edgeDamping="10" colorR="0" colorG="0" colorB="1" kinematic="True" shapeMatching="True" shapeK="30" shapeDamping="0" velDamping="0.993">
       <Points>
         <Point x="-6.4" y="-0.8" />
         <Point x="-7.2" y="0.8" />
@@ -779,7 +779,7 @@
         <Poly pt0="0" pt1="2" pt2="1" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="level06_plat1" massPerPoint="1" edgeK="400" edgeDamping="10" colorR="0" colorG="0" colorB="1" kinematic="True" shapeMatching="True" shapeK="30" shapeDamping="0">
+    <SoftBody name="level06_plat1" massPerPoint="1" edgeK="400" edgeDamping="10" colorR="0" colorG="0" colorB="1" kinematic="True" shapeMatching="True" shapeK="30" shapeDamping="0" velDamping="0.993">
       <Points>
         <Point x="-6.4" y="-0.8" />
         <Point x="-7.2" y="0.8" />
@@ -822,7 +822,7 @@
         <Poly pt0="0" pt1="2" pt2="1" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="level06_plat1" massPerPoint="1" edgeK="400" edgeDamping="10" colorR="0" colorG="0" colorB="1" kinematic="True" shapeMatching="True" shapeK="30" shapeDamping="0">
+    <SoftBody name="level06_plat1" massPerPoint="1" edgeK="400" edgeDamping="10" colorR="0" colorG="0" colorB="1" kinematic="True" shapeMatching="True" shapeK="30" shapeDamping="0" velDamping="0.993">
       <Points>
         <Point x="-6.4" y="-0.8" />
         <Point x="-7.2" y="0.8" />
@@ -865,7 +865,7 @@
         <Poly pt0="0" pt1="2" pt2="1" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="level06_plat1" massPerPoint="1" edgeK="400" edgeDamping="10" colorR="0" colorG="0" colorB="1" kinematic="True" shapeMatching="True" shapeK="30" shapeDamping="0">
+    <SoftBody name="level06_plat1" massPerPoint="1" edgeK="400" edgeDamping="10" colorR="0" colorG="0" colorB="1" kinematic="True" shapeMatching="True" shapeK="30" shapeDamping="0" velDamping="0.993">
       <Points>
         <Point x="-6.4" y="-0.8" />
         <Point x="-7.2" y="0.8" />
@@ -908,7 +908,7 @@
         <Poly pt0="0" pt1="2" pt2="1" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="level06_plat1" massPerPoint="1" edgeK="400" edgeDamping="10" colorR="0" colorG="0" colorB="1" kinematic="True" shapeMatching="True" shapeK="30" shapeDamping="0">
+    <SoftBody name="level06_plat1" massPerPoint="1" edgeK="400" edgeDamping="10" colorR="0" colorG="0" colorB="1" kinematic="True" shapeMatching="True" shapeK="30" shapeDamping="0" velDamping="0.993">
       <Points>
         <Point x="-6.4" y="-0.8" />
         <Point x="-7.2" y="0.8" />
@@ -951,7 +951,7 @@
         <Poly pt0="0" pt1="2" pt2="1" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="level6_01" massPerPoint="0" edgeK="0" edgeDamping="0" colorR="1" colorG="0" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="level6_01" massPerPoint="0" edgeK="0" edgeDamping="0" colorR="1" colorG="0" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-2" y="0" />
         <Point x="-1.6" y="0.4" />
@@ -972,7 +972,7 @@
         <Poly pt0="6" pt1="7" pt2="0" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="level6_01" massPerPoint="0" edgeK="0" edgeDamping="0" colorR="1" colorG="0" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="level6_01" massPerPoint="0" edgeK="0" edgeDamping="0" colorR="1" colorG="0" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-2" y="0" />
         <Point x="-1.6" y="0.4" />
@@ -993,7 +993,7 @@
         <Poly pt0="6" pt1="7" pt2="0" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="level6_01" massPerPoint="0" edgeK="0" edgeDamping="0" colorR="1" colorG="0" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="level6_01" massPerPoint="0" edgeK="0" edgeDamping="0" colorR="1" colorG="0" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-2" y="0" />
         <Point x="-1.6" y="0.4" />
@@ -1014,7 +1014,7 @@
         <Poly pt0="6" pt1="7" pt2="0" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="level6_01" massPerPoint="0" edgeK="0" edgeDamping="0" colorR="1" colorG="0" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="level6_01" massPerPoint="0" edgeK="0" edgeDamping="0" colorR="1" colorG="0" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-2" y="0" />
         <Point x="-1.6" y="0.4" />
@@ -1035,7 +1035,7 @@
         <Poly pt0="6" pt1="7" pt2="0" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="level6_01" massPerPoint="0" edgeK="0" edgeDamping="0" colorR="1" colorG="0" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="level6_01" massPerPoint="0" edgeK="0" edgeDamping="0" colorR="1" colorG="0" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-2" y="0" />
         <Point x="-1.6" y="0.4" />
@@ -1056,7 +1056,7 @@
         <Poly pt0="6" pt1="7" pt2="0" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="level6_01" massPerPoint="0" edgeK="0" edgeDamping="0" colorR="1" colorG="0" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="level6_01" massPerPoint="0" edgeK="0" edgeDamping="0" colorR="1" colorG="0" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-2" y="0" />
         <Point x="-1.6" y="0.4" />
@@ -1077,7 +1077,7 @@
         <Poly pt0="6" pt1="7" pt2="0" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="level6_01" massPerPoint="0" edgeK="0" edgeDamping="0" colorR="1" colorG="0" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="level6_01" massPerPoint="0" edgeK="0" edgeDamping="0" colorR="1" colorG="0" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-2" y="0" />
         <Point x="-1.6" y="0.4" />
@@ -1098,7 +1098,7 @@
         <Poly pt0="6" pt1="7" pt2="0" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="level06_plat2" massPerPoint="4" edgeK="500" edgeDamping="15" colorR="0.5019608" colorG="0.5019608" colorB="0.7529412" kinematic="True" shapeMatching="True" shapeK="300" shapeDamping="10">
+    <SoftBody name="level06_plat2" massPerPoint="4" edgeK="500" edgeDamping="15" colorR="0.5019608" colorG="0.5019608" colorB="0.7529412" kinematic="True" shapeMatching="True" shapeK="300" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-4.8" y="0" />
         <Point x="0" y="0.8" />
@@ -1121,7 +1121,7 @@
         <Poly pt0="0" pt1="5" pt2="4" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="level06_plat2" massPerPoint="4" edgeK="500" edgeDamping="15" colorR="0.5019608" colorG="0.5019608" colorB="0.7529412" kinematic="True" shapeMatching="True" shapeK="300" shapeDamping="10">
+    <SoftBody name="level06_plat2" massPerPoint="4" edgeK="500" edgeDamping="15" colorR="0.5019608" colorG="0.5019608" colorB="0.7529412" kinematic="True" shapeMatching="True" shapeK="300" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-4.8" y="0" />
         <Point x="0" y="0.8" />

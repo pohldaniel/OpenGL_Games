@@ -6,8 +6,7 @@
 Scene::Scene() :
 	m_currentPosition(0),
 	m_carCurrentPosition(0),
-	m_init(false),
-	m_car(nullptr){
+	m_init(false){
 }
 
 const std::vector<SkinInfo>& Scene::getSkinInfos() const {
@@ -320,9 +319,9 @@ void  Scene::SaveLevel(const std::string path, const std::vector<ObjectInfo>& ob
 		softBody->SetFloatAttribute("colorB", _body->m_bodyInfo.colorB);
 		softBody->SetAttribute("kinematic", _body->m_bodyInfo.kinematic ? "True" : "False");
 		softBody->SetAttribute("shapeMatching", _body->m_bodyInfo.shapeMatching ? "True" : "False");
-
 		softBody->SetAttribute("shapeK", _body->m_bodyInfo.shapeK);
 		softBody->SetAttribute("shapeDamping", _body->m_bodyInfo.shapeDamping);
+		softBody->SetFloatAttribute("velDamping", _body->m_bodyInfo.velDamping);
 
 		if (_body->m_bodyInfo.pressureized) {
 			TiXmlElement * pressure = new TiXmlElement("Pressure");
@@ -534,6 +533,14 @@ void Scene::loadLevel(const std::string path) {
 	m_levelInfo.fallLine = std::stof(levelNode->Attribute("fallLine"));
 }
 
+void Scene::loadCompiledLevel(const std::string path) {
+
+}
+
+void Scene::loadCar(const std::string path) {
+
+}
+
 const std::vector<ObjectInfo2>& Scene::getObjectInfos() const {
 	return m_objectInfos;
 }
@@ -550,12 +557,8 @@ const LevelInfo& Scene::getLevelInfo() const {
 	return m_levelInfo;
 }
 
-void Scene::buildLevel(World *world, const std::string& carFileName) {
+void Scene::buildLevel(World *world, std::vector<LevelSoftBody*>& gameBodies) {
 	m_worldLimits.clear();
-	
-	if (m_gameBodies.size() > 0) {
-		m_gameBodies.clear();
-	}
 	int id = 0;
 	for (auto objectInfo : m_objectInfos) {
 
@@ -591,7 +594,7 @@ void Scene::buildLevel(World *world, const std::string& carFileName) {
 			gameBody->SetVisible(false);
 		}
 
-		m_gameBodies.push_back(gameBody);
+		gameBodies.push_back(gameBody);
 
 		Body* body = gameBody->GetBody();
 
@@ -625,16 +628,42 @@ void Scene::buildLevel(World *world, const std::string& carFileName) {
 		gameBody->Finalize();
 	}
 
-	//load car
-	if (!carFileName.empty()) {
-		m_car = new Car(carFileName, world, Vector2(m_carInfo.posX, m_carInfo.posY), 2, 3);
-	}
-
-	m_carStartPos.X = m_carInfo.posX;
-	m_carStartPos.Y = m_carInfo.posY;
-
 	//very important to set this at the end...
 	world->setWorldLimits(m_worldLimits.Min, m_worldLimits.Max);
+}
+
+void Scene::buildCar(World *world, Car*& car, const std::string& carFileName) {
+	car = new Car(carFileName, world, Vector2(m_carInfo.posX, m_carInfo.posY), 2, 3);
+}
+
+const Vector2 Scene::getWorldCenter() const {
+	float x = (((m_worldLimits.Max.X - m_worldLimits.Min.X) / 2) + m_worldLimits.Min.X);
+	float y = (((m_worldLimits.Max.Y - m_worldLimits.Min.Y) / 2) + m_worldLimits.Min.Y);
+
+	return Vector2(x, y);
+}
+
+const Vector2 Scene::getWorldSize() const {
+	float x = (m_worldLimits.Max.X - m_worldLimits.Min.X);
+	float y = (m_worldLimits.Max.Y - m_worldLimits.Min.Y);
+
+	return Vector2(x, y);
+}
+
+const AABB Scene::getWorldLimits() const {
+	return m_worldLimits;
+}
+
+const Vector2 Scene::getLevelTarget() const {
+	return Vector2(m_levelInfo.finishX, m_levelInfo.finishY);
+}
+
+const float Scene::getLevelLine() const {
+	return m_levelInfo.fallLine;
+}
+
+Vector2 Scene::getCarStartPos() {
+	return  Vector2(m_carInfo.posX, m_carInfo.posY);
 }
 
 void Scene::InitPhysic(World *world) {
@@ -704,45 +733,7 @@ void Scene::InitPhysic(World *world) {
 	world->setMaterialPairCollide(3, 6, false);
 }
 
-const Vector2 Scene::GetWorldCenter() const {
-	float x = (((m_worldLimits.Max.X - m_worldLimits.Min.X) / 2) + m_worldLimits.Min.X);
-	float y = (((m_worldLimits.Max.Y - m_worldLimits.Min.Y) / 2) + m_worldLimits.Min.Y);
-
-	return Vector2(x, y);
-}
-
-const Vector2 Scene::GetWorldSize() const {
-	float x = (m_worldLimits.Max.X - m_worldLimits.Min.X);
-	float y = (m_worldLimits.Max.Y - m_worldLimits.Min.Y);
-
-	return Vector2(x, y);
-}
-
-const AABB Scene::GetWorldLimits() const {
-	return m_worldLimits;
-}
-
-const Vector2 Scene::GetLevelTarget() const {
-	return Vector2(m_levelInfo.finishX, m_levelInfo.finishY);
-}
-
-const float Scene::GetLevelLine() const {
-	return m_levelInfo.fallLine;
-}
-
-Car* Scene::GetCar() {
-	return m_car;
-}
-
-Vector2 Scene::GetCarStartPos() {
-	return m_carStartPos;
-}
-
-std::vector<LevelSoftBody*> Scene::GetLevelBodies() {
-	return m_gameBodies;
-}
-
-bool Scene::ClearLevel(World *world, std::vector<LevelSoftBody*> bodies, Car* car) {
+void Scene::ClearLevel(World *world, std::vector<LevelSoftBody*> bodies, Car* car) {
 	world->killing();
 
 	for (unsigned int i = 0; i < bodies.size(); i++){
@@ -758,9 +749,7 @@ bool Scene::ClearLevel(World *world, std::vector<LevelSoftBody*> bodies, Car* ca
 	delete world;
 	if(car)
 		delete car;
-	return true;
 }
-
 ///////////////////////ScenetManager//////////////////////////
 SceneManager SceneManager::s_instance;
 

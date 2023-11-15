@@ -44,7 +44,7 @@
     <Object name="h_lv1_snowwedge" posX="749.0977" posY="-858.2697" angle="304" scaleX="1" scaleY="1" material="4" />
   </Objects>
   <SoftBodies>
-    <SoftBody name="h_lv1_snow" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5450981" colorG="0.9686275" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="h_lv1_snow" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5450981" colorG="0.9686275" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-14.54762" y="-0.5" />
         <Point x="-14.54761" y="2.357142" />
@@ -57,7 +57,7 @@
         <Poly pt0="2" pt1="0" pt2="3" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="h_lv1_snowramp" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="1" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="h_lv1_snowramp" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="1" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="16.15351" y="-5.438663" />
         <Point x="12.67948" y="-3.202988" />
@@ -86,7 +86,7 @@
         <Poly pt0="8" pt1="9" pt2="10" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="h_lv1_snow" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5450981" colorG="0.9686275" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="h_lv1_snow" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5450981" colorG="0.9686275" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-14.54762" y="-0.5" />
         <Point x="-14.54761" y="2.357142" />
@@ -99,7 +99,7 @@
         <Poly pt0="2" pt1="0" pt2="3" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="h_lv1_snow" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5450981" colorG="0.9686275" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="h_lv1_snow" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5450981" colorG="0.9686275" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-14.54762" y="-0.5" />
         <Point x="-14.54761" y="2.357142" />
@@ -112,7 +112,7 @@
         <Poly pt0="2" pt1="0" pt2="3" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="h_lv1_snow" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5450981" colorG="0.9686275" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="h_lv1_snow" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5450981" colorG="0.9686275" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-14.54762" y="-0.5" />
         <Point x="-14.54761" y="2.357142" />
@@ -125,7 +125,7 @@
         <Poly pt0="2" pt1="0" pt2="3" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="h_lv1_snow" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5450981" colorG="0.9686275" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="h_lv1_snow" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5450981" colorG="0.9686275" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-14.54762" y="-0.5" />
         <Point x="-14.54761" y="2.357142" />
@@ -138,7 +138,7 @@
         <Poly pt0="2" pt1="0" pt2="3" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="h_lv1_snow" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5450981" colorG="0.9686275" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="h_lv1_snow" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5450981" colorG="0.9686275" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-14.54762" y="-0.5" />
         <Point x="-14.54761" y="2.357142" />
@@ -151,7 +151,7 @@
         <Poly pt0="2" pt1="0" pt2="3" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="h_lv1_snow" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5450981" colorG="0.9686275" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="h_lv1_snow" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5450981" colorG="0.9686275" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-14.54762" y="-0.5" />
         <Point x="-14.54761" y="2.357142" />
@@ -164,7 +164,7 @@
         <Poly pt0="2" pt1="0" pt2="3" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="h_lv1_snow" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5450981" colorG="0.9686275" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="h_lv1_snow" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5450981" colorG="0.9686275" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-14.54762" y="-0.5" />
         <Point x="-14.54761" y="2.357142" />
@@ -177,7 +177,7 @@
         <Poly pt0="2" pt1="0" pt2="3" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="h_lv1_snow" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5450981" colorG="0.9686275" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="h_lv1_snow" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5450981" colorG="0.9686275" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-14.54762" y="-0.5" />
         <Point x="-14.54761" y="2.357142" />
@@ -190,7 +190,7 @@
         <Poly pt0="2" pt1="0" pt2="3" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="h_lv1_snow_jellyballs" massPerPoint="1" edgeK="600" edgeDamping="10" colorR="0" colorG="1" colorB="0" kinematic="True" shapeMatching="True" shapeK="600" shapeDamping="10">
+    <SoftBody name="h_lv1_snow_jellyballs" massPerPoint="1" edgeK="600" edgeDamping="10" colorR="0" colorG="1" colorB="0" kinematic="True" shapeMatching="True" shapeK="600" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="0" y="1" />
         <Point x="0.8660254" y="0.5" />
@@ -213,7 +213,7 @@
         <Poly pt0="1" pt1="0" pt2="5" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="h_lv1_snowramp" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="1" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="h_lv1_snowramp" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="1" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="16.15351" y="-5.438663" />
         <Point x="12.67948" y="-3.202988" />
@@ -242,7 +242,7 @@
         <Poly pt0="8" pt1="9" pt2="10" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="h_lv1_snow_02" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5450981" colorG="0.9686275" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="h_lv1_snow_02" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5450981" colorG="0.9686275" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-14.54762" y="-0.5" />
         <Point x="-14.54761" y="2.357142" />
@@ -575,7 +575,7 @@
         <Poly pt0="160" pt1="156" pt2="155" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="h_lv1_snowramp" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="1" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="h_lv1_snowramp" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="1" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="16.15351" y="-5.438663" />
         <Point x="12.67948" y="-3.202988" />
@@ -604,7 +604,7 @@
         <Poly pt0="8" pt1="9" pt2="10" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="h_lv1_snow" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5450981" colorG="0.9686275" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="h_lv1_snow" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5450981" colorG="0.9686275" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-14.54762" y="-0.5" />
         <Point x="-14.54761" y="2.357142" />
@@ -617,7 +617,7 @@
         <Poly pt0="2" pt1="0" pt2="3" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="h_lv1_snow" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5450981" colorG="0.9686275" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="h_lv1_snow" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5450981" colorG="0.9686275" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-14.54762" y="-0.5" />
         <Point x="-14.54761" y="2.357142" />
@@ -630,7 +630,7 @@
         <Poly pt0="2" pt1="0" pt2="3" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="h_lv1_snow" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5450981" colorG="0.9686275" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="h_lv1_snow" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5450981" colorG="0.9686275" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-14.54762" y="-0.5" />
         <Point x="-14.54761" y="2.357142" />
@@ -643,7 +643,7 @@
         <Poly pt0="2" pt1="0" pt2="3" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="h_lv1_snow" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5450981" colorG="0.9686275" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="h_lv1_snow" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5450981" colorG="0.9686275" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-14.54762" y="-0.5" />
         <Point x="-14.54761" y="2.357142" />
@@ -656,7 +656,7 @@
         <Poly pt0="2" pt1="0" pt2="3" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="h_lv1_snow" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5450981" colorG="0.9686275" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="h_lv1_snow" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5450981" colorG="0.9686275" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-14.54762" y="-0.5" />
         <Point x="-14.54761" y="2.357142" />
@@ -669,7 +669,7 @@
         <Poly pt0="2" pt1="0" pt2="3" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="h_lv1_snow" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5450981" colorG="0.9686275" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="h_lv1_snow" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5450981" colorG="0.9686275" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-14.54762" y="-0.5" />
         <Point x="-14.54761" y="2.357142" />
@@ -682,7 +682,7 @@
         <Poly pt0="2" pt1="0" pt2="3" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="h_lv1_snow" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5450981" colorG="0.9686275" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="h_lv1_snow" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5450981" colorG="0.9686275" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-14.54762" y="-0.5" />
         <Point x="-14.54761" y="2.357142" />
@@ -695,7 +695,7 @@
         <Poly pt0="2" pt1="0" pt2="3" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="h_lv1_snow" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5450981" colorG="0.9686275" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="h_lv1_snow" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5450981" colorG="0.9686275" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-14.54762" y="-0.5" />
         <Point x="-14.54761" y="2.357142" />
@@ -708,7 +708,7 @@
         <Poly pt0="2" pt1="0" pt2="3" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="h_lv1_snowwedge" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="1" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="h_lv1_snowwedge" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="1" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-34.82774" y="-0.4999937" />
         <Point x="-11.5084" y="4.777312" />
@@ -721,7 +721,7 @@
         <Poly pt0="1" pt1="3" pt2="2" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="h_lv1_snow_jellyballs" massPerPoint="1" edgeK="600" edgeDamping="10" colorR="0" colorG="1" colorB="0" kinematic="True" shapeMatching="True" shapeK="600" shapeDamping="10">
+    <SoftBody name="h_lv1_snow_jellyballs" massPerPoint="1" edgeK="600" edgeDamping="10" colorR="0" colorG="1" colorB="0" kinematic="True" shapeMatching="True" shapeK="600" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="0" y="1" />
         <Point x="0.8660254" y="0.5" />
@@ -744,7 +744,7 @@
         <Poly pt0="1" pt1="0" pt2="5" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="h_lv1_snow_jellyballs" massPerPoint="1" edgeK="600" edgeDamping="10" colorR="0" colorG="1" colorB="0" kinematic="True" shapeMatching="True" shapeK="600" shapeDamping="10">
+    <SoftBody name="h_lv1_snow_jellyballs" massPerPoint="1" edgeK="600" edgeDamping="10" colorR="0" colorG="1" colorB="0" kinematic="True" shapeMatching="True" shapeK="600" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="0" y="1" />
         <Point x="0.8660254" y="0.5" />
@@ -767,7 +767,7 @@
         <Poly pt0="1" pt1="0" pt2="5" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="h_lv1_snow_jellyballs" massPerPoint="1" edgeK="600" edgeDamping="10" colorR="0" colorG="1" colorB="0" kinematic="True" shapeMatching="True" shapeK="600" shapeDamping="10">
+    <SoftBody name="h_lv1_snow_jellyballs" massPerPoint="1" edgeK="600" edgeDamping="10" colorR="0" colorG="1" colorB="0" kinematic="True" shapeMatching="True" shapeK="600" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="0" y="1" />
         <Point x="0.8660254" y="0.5" />
@@ -790,7 +790,7 @@
         <Poly pt0="1" pt1="0" pt2="5" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="h_lv1_snow" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5450981" colorG="0.9686275" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="h_lv1_snow" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5450981" colorG="0.9686275" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-14.54762" y="-0.5" />
         <Point x="-14.54761" y="2.357142" />
@@ -803,7 +803,7 @@
         <Poly pt0="2" pt1="0" pt2="3" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="h_lv1_snow_sbowqpipe" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="1" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="h_lv1_snow_sbowqpipe" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="1" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="1" y="1.420719" />
         <Point x="0.9047248" y="0.6767926" />
@@ -824,7 +824,7 @@
         <Poly pt0="0" pt1="1" pt2="7" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="h_lv1_snow_sbowqpipe" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="1" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="h_lv1_snow_sbowqpipe" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="1" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="1" y="1.420719" />
         <Point x="0.9047248" y="0.6767926" />
@@ -845,7 +845,7 @@
         <Poly pt0="0" pt1="1" pt2="7" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="h_lv1_snow_jellyballs" massPerPoint="1" edgeK="600" edgeDamping="10" colorR="0" colorG="1" colorB="0" kinematic="True" shapeMatching="True" shapeK="600" shapeDamping="10">
+    <SoftBody name="h_lv1_snow_jellyballs" massPerPoint="1" edgeK="600" edgeDamping="10" colorR="0" colorG="1" colorB="0" kinematic="True" shapeMatching="True" shapeK="600" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="0" y="1" />
         <Point x="0.8660254" y="0.5" />
@@ -868,7 +868,7 @@
         <Poly pt0="1" pt1="0" pt2="5" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="h_lv1_snow_jellyballs" massPerPoint="1" edgeK="600" edgeDamping="10" colorR="0" colorG="1" colorB="0" kinematic="True" shapeMatching="True" shapeK="600" shapeDamping="10">
+    <SoftBody name="h_lv1_snow_jellyballs" massPerPoint="1" edgeK="600" edgeDamping="10" colorR="0" colorG="1" colorB="0" kinematic="True" shapeMatching="True" shapeK="600" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="0" y="1" />
         <Point x="0.8660254" y="0.5" />
@@ -891,7 +891,7 @@
         <Poly pt0="1" pt1="0" pt2="5" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="h_lv1_snow_jellyballs" massPerPoint="1" edgeK="600" edgeDamping="10" colorR="0" colorG="1" colorB="0" kinematic="True" shapeMatching="True" shapeK="600" shapeDamping="10">
+    <SoftBody name="h_lv1_snow_jellyballs" massPerPoint="1" edgeK="600" edgeDamping="10" colorR="0" colorG="1" colorB="0" kinematic="True" shapeMatching="True" shapeK="600" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="0" y="1" />
         <Point x="0.8660254" y="0.5" />
@@ -914,7 +914,7 @@
         <Poly pt0="1" pt1="0" pt2="5" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="h_lv1_snow_jellyballs" massPerPoint="1" edgeK="600" edgeDamping="10" colorR="0" colorG="1" colorB="0" kinematic="True" shapeMatching="True" shapeK="600" shapeDamping="10">
+    <SoftBody name="h_lv1_snow_jellyballs" massPerPoint="1" edgeK="600" edgeDamping="10" colorR="0" colorG="1" colorB="0" kinematic="True" shapeMatching="True" shapeK="600" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="0" y="1" />
         <Point x="0.8660254" y="0.5" />
@@ -937,7 +937,7 @@
         <Poly pt0="1" pt1="0" pt2="5" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="h_lv1_snow_jellyballs" massPerPoint="1" edgeK="600" edgeDamping="10" colorR="0" colorG="1" colorB="0" kinematic="True" shapeMatching="True" shapeK="600" shapeDamping="10">
+    <SoftBody name="h_lv1_snow_jellyballs" massPerPoint="1" edgeK="600" edgeDamping="10" colorR="0" colorG="1" colorB="0" kinematic="True" shapeMatching="True" shapeK="600" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="0" y="1" />
         <Point x="0.8660254" y="0.5" />
@@ -960,7 +960,7 @@
         <Poly pt0="1" pt1="0" pt2="5" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="h_lv1_snow_jellyballs" massPerPoint="1" edgeK="600" edgeDamping="10" colorR="0" colorG="1" colorB="0" kinematic="True" shapeMatching="True" shapeK="600" shapeDamping="10">
+    <SoftBody name="h_lv1_snow_jellyballs" massPerPoint="1" edgeK="600" edgeDamping="10" colorR="0" colorG="1" colorB="0" kinematic="True" shapeMatching="True" shapeK="600" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="0" y="1" />
         <Point x="0.8660254" y="0.5" />
@@ -983,7 +983,7 @@
         <Poly pt0="1" pt1="0" pt2="5" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="h_lv1_snow_jellyballs" massPerPoint="1" edgeK="600" edgeDamping="10" colorR="0" colorG="1" colorB="0" kinematic="True" shapeMatching="True" shapeK="600" shapeDamping="10">
+    <SoftBody name="h_lv1_snow_jellyballs" massPerPoint="1" edgeK="600" edgeDamping="10" colorR="0" colorG="1" colorB="0" kinematic="True" shapeMatching="True" shapeK="600" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="0" y="1" />
         <Point x="0.8660254" y="0.5" />
@@ -1006,7 +1006,7 @@
         <Poly pt0="1" pt1="0" pt2="5" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="h_lv1_snow_jellyballs" massPerPoint="1" edgeK="600" edgeDamping="10" colorR="0" colorG="1" colorB="0" kinematic="True" shapeMatching="True" shapeK="600" shapeDamping="10">
+    <SoftBody name="h_lv1_snow_jellyballs" massPerPoint="1" edgeK="600" edgeDamping="10" colorR="0" colorG="1" colorB="0" kinematic="True" shapeMatching="True" shapeK="600" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="0" y="1" />
         <Point x="0.8660254" y="0.5" />
@@ -1029,7 +1029,7 @@
         <Poly pt0="1" pt1="0" pt2="5" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="h_lv1_snow_sbowqpipe" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="1" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="h_lv1_snow_sbowqpipe" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="1" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="1" y="1.420719" />
         <Point x="0.9047248" y="0.6767926" />
@@ -1050,7 +1050,7 @@
         <Poly pt0="0" pt1="1" pt2="7" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="h_lv1_snow_sbowqpipe" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="1" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="h_lv1_snow_sbowqpipe" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="1" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="1" y="1.420719" />
         <Point x="0.9047248" y="0.6767926" />
@@ -1071,7 +1071,7 @@
         <Poly pt0="0" pt1="1" pt2="7" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="h_lv1_snow" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5450981" colorG="0.9686275" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="h_lv1_snow" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5450981" colorG="0.9686275" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-14.54762" y="-0.5" />
         <Point x="-14.54761" y="2.357142" />
@@ -1084,7 +1084,7 @@
         <Poly pt0="2" pt1="0" pt2="3" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="h_lv1_snowwedge" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="1" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="h_lv1_snowwedge" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="1" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-34.82774" y="-0.4999937" />
         <Point x="-11.5084" y="4.777312" />
@@ -1097,7 +1097,7 @@
         <Poly pt0="1" pt1="3" pt2="2" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="h_lv1_snowwedge" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="1" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="h_lv1_snowwedge" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="1" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-34.82774" y="-0.4999937" />
         <Point x="-11.5084" y="4.777312" />

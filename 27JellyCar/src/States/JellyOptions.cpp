@@ -29,10 +29,7 @@ JellyOptions::JellyOptions(StateMachine& machine) : State(machine, States::JELLY
 
 	SceneManager::Get().getScene("scene").InitPhysic(m_world);
 	SceneManager::Get().getScene("scene").loadLevel("Assets/Jelly/Scenes_new/options_scene.scene");
-	SceneManager::Get().getScene("scene").buildLevel(m_world, "Assets/Jelly/car_and_truck.car");
-
-	//level elements
-	m_gameBodies = SceneManager::Get().getScene("scene").GetLevelBodies();
+	SceneManager::Get().getScene("scene").buildLevel(m_world, m_gameBodies);
 
 	m_screenBounds = Vector4f(-20.0f + 0, 0 + 20.0f, -4.2f - 5, -5 + 18.2f);
 	m_jellyProjection = glm::ortho(-20.0f + 0, 0 + 20.0f, -4.2f - 5, -5 + 18.2f, -1.0f, 1.0f);
@@ -90,7 +87,7 @@ JellyOptions::JellyOptions(StateMachine& machine) : State(machine, States::JELLY
 
 JellyOptions::~JellyOptions() {
 	EventDispatcher::RemoveKeyboardListener(this);
-	SceneManager::Get().getScene("scene").ClearLevel(m_world, m_gameBodies, nullptr);
+	Scene::ClearLevel(m_world, m_gameBodies, nullptr);
 }
 
 void JellyOptions::OnKeyDown(Event::KeyboardEvent& event) {	
@@ -915,27 +912,20 @@ void JellyOptionSound::render() {
 	m_machine.renderLevel();
 	m_machine.renderControls();
 
-
 	int leftSpritePosX = Application::Width / 2 - (260);
 	int rightSpritePosX = Application::Width / 2 + (260);
 	int leftRightPosY = Application::Height / 2 + (Application::Height * 0.08f);
 
-	//_leftSprite->SetScale(glm::vec2(0.8f, 0.8f));
-
-	
-	
 	const Texture* texture = &Globals::textureManager.get("select_left");
 	texture->bind(0);
 
 	auto shader = Globals::shaderManager.getAssetPointer("quad");
 	shader->use();
-
 	Vector3f pos = Vector3f(leftSpritePosX, leftRightPosY - 140 - 5, 0.0f);
 	shader->loadMatrix("u_transform", m_orthographic * Matrix4f::Translate(pos) * Matrix4f::Scale(static_cast<float>(texture->getWidth()) * 0.8f, static_cast<float>(texture->getHeight()) * 0.8f, 1.0f));
 	shader->loadVector("u_color", Vector4f(1.0f, 1.0f, 1.0f, m_soundPosition == 0 ? m_alphaScale : 1.0f));
+	shader->loadVector("u_texRect", Vector4f(0.0f, 0.0f, 1.0f, 1.0f));
 	Globals::shapeManager.get("quad_half").drawRaw();
-	//texture.unbind();
-
 
 	pos = Vector3f(leftSpritePosX, leftRightPosY - 5, 0.0f);
 	shader->loadMatrix("u_transform", m_orthographic * Matrix4f::Translate(pos) * Matrix4f::Scale(static_cast<float>(texture->getWidth()) * 0.8f, static_cast<float>(texture->getHeight()) * 0.8f, 1.0f));
@@ -966,7 +956,6 @@ void JellyOptionSound::render() {
 	Globals::shapeManager.get("quad_half").drawRaw();
 
 	shader->loadVector("u_color", Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
-	
 	
 	int startBar = Application::Width / 2 - (180);
 	for (int i = 0; i < 10; i++) {

@@ -54,7 +54,7 @@
     <Object name="scene9_01" posX="60" posY="21" angle="0" scaleX="22" scaleY="1" material="0" />
   </Objects>
   <SoftBodies>
-    <SoftBody name="scene9_movingplat1" massPerPoint="1" edgeK="500" edgeDamping="15" colorR="0" colorG="0.2509804" colorB="0.5019608" kinematic="True" shapeMatching="True" shapeK="500" shapeDamping="15">
+    <SoftBody name="scene9_movingplat1" massPerPoint="1" edgeK="500" edgeDamping="15" colorR="0" colorG="0.2509804" colorB="0.5019608" kinematic="True" shapeMatching="True" shapeK="500" shapeDamping="15" velDamping="0.993">
       <Points>
         <Point x="-0.5" y="-0.5" />
         <Point x="-0.5" y="0.5" />
@@ -70,7 +70,7 @@
         <Poly pt0="2" pt1="1" pt2="0" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="scene9_01" massPerPoint="0" edgeK="0" edgeDamping="0" colorR="0.5019608" colorG="0.5019608" colorB="0" kinematic="False" shapeMatching="False" shapeK="0" shapeDamping="0">
+    <SoftBody name="scene9_01" massPerPoint="0" edgeK="0" edgeDamping="0" colorR="0.5019608" colorG="0.5019608" colorB="0" kinematic="False" shapeMatching="False" shapeK="0" shapeDamping="0" velDamping="0.993">
       <Points>
         <Point x="-0.5" y="-0.5" />
         <Point x="-0.5" y="0.5" />
@@ -83,7 +83,7 @@
         <Poly pt0="1" pt1="0" pt2="3" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="scene9_movingplat1" massPerPoint="1" edgeK="500" edgeDamping="15" colorR="0" colorG="0.2509804" colorB="0.5019608" kinematic="True" shapeMatching="True" shapeK="500" shapeDamping="15">
+    <SoftBody name="scene9_movingplat1" massPerPoint="1" edgeK="500" edgeDamping="15" colorR="0" colorG="0.2509804" colorB="0.5019608" kinematic="True" shapeMatching="True" shapeK="500" shapeDamping="15" velDamping="0.993">
       <Points>
         <Point x="-0.5" y="-0.5" />
         <Point x="-0.5" y="0.5" />
@@ -99,7 +99,7 @@
         <Poly pt0="2" pt1="1" pt2="0" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="scene9_movingplat1" massPerPoint="1" edgeK="500" edgeDamping="15" colorR="0" colorG="0.2509804" colorB="0.5019608" kinematic="True" shapeMatching="True" shapeK="500" shapeDamping="15">
+    <SoftBody name="scene9_movingplat1" massPerPoint="1" edgeK="500" edgeDamping="15" colorR="0" colorG="0.2509804" colorB="0.5019608" kinematic="True" shapeMatching="True" shapeK="500" shapeDamping="15" velDamping="0.993">
       <Points>
         <Point x="-0.5" y="-0.5" />
         <Point x="-0.5" y="0.5" />
@@ -115,7 +115,7 @@
         <Poly pt0="2" pt1="1" pt2="0" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="scene9_movingplat1" massPerPoint="1" edgeK="500" edgeDamping="15" colorR="0" colorG="0.2509804" colorB="0.5019608" kinematic="True" shapeMatching="True" shapeK="500" shapeDamping="15">
+    <SoftBody name="scene9_movingplat1" massPerPoint="1" edgeK="500" edgeDamping="15" colorR="0" colorG="0.2509804" colorB="0.5019608" kinematic="True" shapeMatching="True" shapeK="500" shapeDamping="15" velDamping="0.993">
       <Points>
         <Point x="-0.5" y="-0.5" />
         <Point x="-0.5" y="0.5" />
@@ -131,7 +131,7 @@
         <Poly pt0="2" pt1="1" pt2="0" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="scene9_movingplat1" massPerPoint="1" edgeK="500" edgeDamping="15" colorR="0" colorG="0.2509804" colorB="0.5019608" kinematic="True" shapeMatching="True" shapeK="500" shapeDamping="15">
+    <SoftBody name="scene9_movingplat1" massPerPoint="1" edgeK="500" edgeDamping="15" colorR="0" colorG="0.2509804" colorB="0.5019608" kinematic="True" shapeMatching="True" shapeK="500" shapeDamping="15" velDamping="0.993">
       <Points>
         <Point x="-0.5" y="-0.5" />
         <Point x="-0.5" y="0.5" />
@@ -147,7 +147,7 @@
         <Poly pt0="2" pt1="1" pt2="0" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="scene9_movingplat1" massPerPoint="1" edgeK="500" edgeDamping="15" colorR="0" colorG="0.2509804" colorB="0.5019608" kinematic="True" shapeMatching="True" shapeK="500" shapeDamping="15">
+    <SoftBody name="scene9_movingplat1" massPerPoint="1" edgeK="500" edgeDamping="15" colorR="0" colorG="0.2509804" colorB="0.5019608" kinematic="True" shapeMatching="True" shapeK="500" shapeDamping="15" velDamping="0.993">
       <Points>
         <Point x="-0.5" y="-0.5" />
         <Point x="-0.5" y="0.5" />
@@ -163,7 +163,7 @@
         <Poly pt0="2" pt1="1" pt2="0" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="scene9_movingplat1" massPerPoint="1" edgeK="500" edgeDamping="15" colorR="0" colorG="0.2509804" colorB="0.5019608" kinematic="True" shapeMatching="True" shapeK="500" shapeDamping="15">
+    <SoftBody name="scene9_movingplat1" massPerPoint="1" edgeK="500" edgeDamping="15" colorR="0" colorG="0.2509804" colorB="0.5019608" kinematic="True" shapeMatching="True" shapeK="500" shapeDamping="15" velDamping="0.993">
       <Points>
         <Point x="-0.5" y="-0.5" />
         <Point x="-0.5" y="0.5" />
@@ -179,7 +179,7 @@
         <Poly pt0="2" pt1="1" pt2="0" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="scene9_movingplat1" massPerPoint="1" edgeK="500" edgeDamping="15" colorR="0" colorG="0.2509804" colorB="0.5019608" kinematic="True" shapeMatching="True" shapeK="500" shapeDamping="15">
+    <SoftBody name="scene9_movingplat1" massPerPoint="1" edgeK="500" edgeDamping="15" colorR="0" colorG="0.2509804" colorB="0.5019608" kinematic="True" shapeMatching="True" shapeK="500" shapeDamping="15" velDamping="0.993">
       <Points>
         <Point x="-0.5" y="-0.5" />
         <Point x="-0.5" y="0.5" />
@@ -195,7 +195,7 @@
         <Poly pt0="2" pt1="1" pt2="0" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="scene9_movingplat1" massPerPoint="1" edgeK="500" edgeDamping="15" colorR="0" colorG="0.2509804" colorB="0.5019608" kinematic="True" shapeMatching="True" shapeK="500" shapeDamping="15">
+    <SoftBody name="scene9_movingplat1" massPerPoint="1" edgeK="500" edgeDamping="15" colorR="0" colorG="0.2509804" colorB="0.5019608" kinematic="True" shapeMatching="True" shapeK="500" shapeDamping="15" velDamping="0.993">
       <Points>
         <Point x="-0.5" y="-0.5" />
         <Point x="-0.5" y="0.5" />
@@ -211,7 +211,7 @@
         <Poly pt0="2" pt1="1" pt2="0" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="scene9_movingplat1" massPerPoint="1" edgeK="500" edgeDamping="15" colorR="0" colorG="0.2509804" colorB="0.5019608" kinematic="True" shapeMatching="True" shapeK="500" shapeDamping="15">
+    <SoftBody name="scene9_movingplat1" massPerPoint="1" edgeK="500" edgeDamping="15" colorR="0" colorG="0.2509804" colorB="0.5019608" kinematic="True" shapeMatching="True" shapeK="500" shapeDamping="15" velDamping="0.993">
       <Points>
         <Point x="-0.5" y="-0.5" />
         <Point x="-0.5" y="0.5" />
@@ -227,7 +227,7 @@
         <Poly pt0="2" pt1="1" pt2="0" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="scene9_01" massPerPoint="0" edgeK="0" edgeDamping="0" colorR="0.5019608" colorG="0.5019608" colorB="0" kinematic="False" shapeMatching="False" shapeK="0" shapeDamping="0">
+    <SoftBody name="scene9_01" massPerPoint="0" edgeK="0" edgeDamping="0" colorR="0.5019608" colorG="0.5019608" colorB="0" kinematic="False" shapeMatching="False" shapeK="0" shapeDamping="0" velDamping="0.993">
       <Points>
         <Point x="-0.5" y="-0.5" />
         <Point x="-0.5" y="0.5" />

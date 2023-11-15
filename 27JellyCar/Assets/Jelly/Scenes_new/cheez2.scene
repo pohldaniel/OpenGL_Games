@@ -93,7 +93,7 @@
     <Object name="chz2_platform9" posX="146.1998" posY="110.2" angle="0" scaleX="1" scaleY="1" material="0" />
   </Objects>
   <SoftBodies>
-    <SoftBody name="chz2_Platform" massPerPoint="0" edgeK="0" edgeDamping="0" colorR="0.6784314" colorG="1" colorB="0.1843137" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="chz2_Platform" massPerPoint="0" edgeK="0" edgeDamping="0" colorR="0.6784314" colorG="1" colorB="0.1843137" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-2.887095" y="-1.048387" />
         <Point x="-21.65446" y="-2.193296" />
@@ -142,7 +142,7 @@
         <Poly pt0="16" pt1="15" pt2="14" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="chz2_wheel1" massPerPoint="1000" edgeK="1000" edgeDamping="40" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="True" shapeMatching="True" shapeK="5000" shapeDamping="40">
+    <SoftBody name="chz2_wheel1" massPerPoint="1000" edgeK="1000" edgeDamping="40" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="True" shapeMatching="True" shapeK="5000" shapeDamping="40" velDamping="0.993">
       <Points>
         <Point x="4.944487" y="-17.98161" />
         <Point x="4.641484" y="-14.76745" />
@@ -215,7 +215,7 @@
         <Poly pt0="6" pt1="5" pt2="4" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="chz2_wheel1" massPerPoint="1000" edgeK="1000" edgeDamping="40" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="True" shapeMatching="True" shapeK="5000" shapeDamping="40">
+    <SoftBody name="chz2_wheel1" massPerPoint="1000" edgeK="1000" edgeDamping="40" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="True" shapeMatching="True" shapeK="5000" shapeDamping="40" velDamping="0.993">
       <Points>
         <Point x="4.944487" y="-17.98161" />
         <Point x="4.641484" y="-14.76745" />
@@ -288,7 +288,7 @@
         <Poly pt0="6" pt1="5" pt2="4" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="chz2_wheel1" massPerPoint="1000" edgeK="1000" edgeDamping="40" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="True" shapeMatching="True" shapeK="5000" shapeDamping="40">
+    <SoftBody name="chz2_wheel1" massPerPoint="1000" edgeK="1000" edgeDamping="40" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="True" shapeMatching="True" shapeK="5000" shapeDamping="40" velDamping="0.993">
       <Points>
         <Point x="4.944487" y="-17.98161" />
         <Point x="4.641484" y="-14.76745" />
@@ -361,7 +361,7 @@
         <Poly pt0="6" pt1="5" pt2="4" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="chz2_wheel1" massPerPoint="1000" edgeK="1000" edgeDamping="40" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="True" shapeMatching="True" shapeK="5000" shapeDamping="40">
+    <SoftBody name="chz2_wheel1" massPerPoint="1000" edgeK="1000" edgeDamping="40" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="True" shapeMatching="True" shapeK="5000" shapeDamping="40" velDamping="0.993">
       <Points>
         <Point x="4.944487" y="-17.98161" />
         <Point x="4.641484" y="-14.76745" />
@@ -434,7 +434,7 @@
         <Poly pt0="6" pt1="5" pt2="4" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="chz2_elevator" massPerPoint="100" edgeK="500" edgeDamping="0" colorR="0.5019608" colorG="1" colorB="0.5019608" kinematic="True" shapeMatching="True" shapeK="500" shapeDamping="10">
+    <SoftBody name="chz2_elevator" massPerPoint="100" edgeK="500" edgeDamping="0" colorR="0.5019608" colorG="1" colorB="0.5019608" kinematic="True" shapeMatching="True" shapeK="500" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-0.5" y="-2.318182" />
         <Point x="-0.5" y="0.5" />
@@ -450,7 +450,7 @@
         <Poly pt0="3" pt1="1" pt2="0" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="chz2_platform2" massPerPoint="0" edgeK="0" edgeDamping="0" colorR="0.6784314" colorG="1" colorB="0.1843137" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="chz2_platform2" massPerPoint="0" edgeK="0" edgeDamping="0" colorR="0.6784314" colorG="1" colorB="0.1843137" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-0.7" y="-4.3" />
         <Point x="-5.825665" y="-0.1515625" />
@@ -465,7 +465,7 @@
         <Poly pt0="2" pt1="4" pt2="3" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="chz2_platform2" massPerPoint="0" edgeK="0" edgeDamping="0" colorR="0.6784314" colorG="1" colorB="0.1843137" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="chz2_platform2" massPerPoint="0" edgeK="0" edgeDamping="0" colorR="0.6784314" colorG="1" colorB="0.1843137" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-0.7" y="-4.3" />
         <Point x="-5.825665" y="-0.1515625" />
@@ -480,7 +480,7 @@
         <Poly pt0="2" pt1="4" pt2="3" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="chz2_tiny_plat" massPerPoint="0" edgeK="0" edgeDamping="0" colorR="0.6784314" colorG="1" colorB="0.1843137" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="chz2_tiny_plat" massPerPoint="0" edgeK="0" edgeDamping="0" colorR="0.6784314" colorG="1" colorB="0.1843137" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-0.5" y="-0.5" />
         <Point x="-0.5209398" y="1.099635" />
@@ -493,7 +493,7 @@
         <Poly pt0="3" pt1="0" pt2="1" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="chz2_elevator" massPerPoint="100" edgeK="500" edgeDamping="0" colorR="0.5019608" colorG="1" colorB="0.5019608" kinematic="True" shapeMatching="True" shapeK="500" shapeDamping="10">
+    <SoftBody name="chz2_elevator" massPerPoint="100" edgeK="500" edgeDamping="0" colorR="0.5019608" colorG="1" colorB="0.5019608" kinematic="True" shapeMatching="True" shapeK="500" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-0.5" y="-2.318182" />
         <Point x="-0.5" y="0.5" />
@@ -509,7 +509,7 @@
         <Poly pt0="3" pt1="1" pt2="0" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="chz2_platform3" massPerPoint="0" edgeK="0" edgeDamping="0" colorR="0.6784314" colorG="1" colorB="0.1843137" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="chz2_platform3" massPerPoint="0" edgeK="0" edgeDamping="0" colorR="0.6784314" colorG="1" colorB="0.1843137" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="1.5" y="-1.9" />
         <Point x="-3.1" y="0.9" />
@@ -528,7 +528,7 @@
         <Poly pt0="5" pt1="3" pt2="4" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="chz2_platform4" massPerPoint="0" edgeK="0" edgeDamping="0" colorR="0.6784314" colorG="1" colorB="0.1843137" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="chz2_platform4" massPerPoint="0" edgeK="0" edgeDamping="0" colorR="0.6784314" colorG="1" colorB="0.1843137" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="2.9" y="-2.3" />
         <Point x="-0.5" y="0.5" />
@@ -553,7 +553,7 @@
         <Poly pt0="5" pt1="6" pt2="7" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="chz2_wheel_2" massPerPoint="1000" edgeK="1000" edgeDamping="30" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="True" shapeMatching="True" shapeK="1000" shapeDamping="10">
+    <SoftBody name="chz2_wheel_2" massPerPoint="1000" edgeK="1000" edgeDamping="30" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="True" shapeMatching="True" shapeK="1000" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="0.4527783" y="-0.1500001" />
         <Point x="0.9103707" y="-0.3727082" />
@@ -588,7 +588,7 @@
         <Poly pt0="4" pt1="6" pt2="5" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="chz2_wheel_2" massPerPoint="1000" edgeK="1000" edgeDamping="30" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="True" shapeMatching="True" shapeK="1000" shapeDamping="10">
+    <SoftBody name="chz2_wheel_2" massPerPoint="1000" edgeK="1000" edgeDamping="30" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="True" shapeMatching="True" shapeK="1000" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="0.4527783" y="-0.1500001" />
         <Point x="0.9103707" y="-0.3727082" />
@@ -623,7 +623,7 @@
         <Poly pt0="4" pt1="6" pt2="5" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="chz2_wheel_2" massPerPoint="1000" edgeK="1000" edgeDamping="30" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="True" shapeMatching="True" shapeK="1000" shapeDamping="10">
+    <SoftBody name="chz2_wheel_2" massPerPoint="1000" edgeK="1000" edgeDamping="30" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="True" shapeMatching="True" shapeK="1000" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="0.4527783" y="-0.1500001" />
         <Point x="0.9103707" y="-0.3727082" />
@@ -658,7 +658,7 @@
         <Poly pt0="4" pt1="6" pt2="5" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="chz2_wheel_2" massPerPoint="1000" edgeK="1000" edgeDamping="30" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="True" shapeMatching="True" shapeK="1000" shapeDamping="10">
+    <SoftBody name="chz2_wheel_2" massPerPoint="1000" edgeK="1000" edgeDamping="30" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="True" shapeMatching="True" shapeK="1000" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="0.4527783" y="-0.1500001" />
         <Point x="0.9103707" y="-0.3727082" />
@@ -693,7 +693,7 @@
         <Poly pt0="4" pt1="6" pt2="5" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="chz2_platform5" massPerPoint="0" edgeK="0" edgeDamping="0" colorR="0.6784314" colorG="1" colorB="0.1843137" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="chz2_platform5" massPerPoint="0" edgeK="0" edgeDamping="0" colorR="0.6784314" colorG="1" colorB="0.1843137" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-0.4511329" y="-3.299573" />
         <Point x="-0.5" y="0.5" />
@@ -712,7 +712,7 @@
         <Poly pt0="4" pt1="5" pt2="6" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="chz2_elevator" massPerPoint="100" edgeK="500" edgeDamping="0" colorR="0.5019608" colorG="1" colorB="0.5019608" kinematic="True" shapeMatching="True" shapeK="500" shapeDamping="10">
+    <SoftBody name="chz2_elevator" massPerPoint="100" edgeK="500" edgeDamping="0" colorR="0.5019608" colorG="1" colorB="0.5019608" kinematic="True" shapeMatching="True" shapeK="500" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-0.5" y="-2.318182" />
         <Point x="-0.5" y="0.5" />
@@ -728,7 +728,7 @@
         <Poly pt0="3" pt1="1" pt2="0" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="chz2_platform6" massPerPoint="0" edgeK="0" edgeDamping="0" colorR="0.6784314" colorG="1" colorB="0.1843137" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="chz2_platform6" massPerPoint="0" edgeK="0" edgeDamping="0" colorR="0.6784314" colorG="1" colorB="0.1843137" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="2.1" y="-2.3" />
         <Point x="-0.5" y="0.5" />
@@ -743,7 +743,7 @@
         <Poly pt0="4" pt1="2" pt2="3" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="chz2_wheel_2b" massPerPoint="150" edgeK="1000" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="True" shapeMatching="True" shapeK="1000" shapeDamping="10">
+    <SoftBody name="chz2_wheel_2b" massPerPoint="150" edgeK="1000" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="True" shapeMatching="True" shapeK="1000" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-0.125" y="-45" />
         <Point x="-0.125" y="-41.77501" />
@@ -781,7 +781,7 @@
         <Poly pt0="11" pt1="12" pt2="0" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="chz2_wheel_2b" massPerPoint="150" edgeK="1000" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="True" shapeMatching="True" shapeK="1000" shapeDamping="10">
+    <SoftBody name="chz2_wheel_2b" massPerPoint="150" edgeK="1000" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="True" shapeMatching="True" shapeK="1000" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-0.125" y="-45" />
         <Point x="-0.125" y="-41.77501" />
@@ -819,7 +819,7 @@
         <Poly pt0="11" pt1="12" pt2="0" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="chz2_wheel_2b" massPerPoint="150" edgeK="1000" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="True" shapeMatching="True" shapeK="1000" shapeDamping="10">
+    <SoftBody name="chz2_wheel_2b" massPerPoint="150" edgeK="1000" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="True" shapeMatching="True" shapeK="1000" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-0.125" y="-45" />
         <Point x="-0.125" y="-41.77501" />
@@ -857,7 +857,7 @@
         <Poly pt0="11" pt1="12" pt2="0" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="chz2_wheel_2b" massPerPoint="150" edgeK="1000" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="True" shapeMatching="True" shapeK="1000" shapeDamping="10">
+    <SoftBody name="chz2_wheel_2b" massPerPoint="150" edgeK="1000" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="True" shapeMatching="True" shapeK="1000" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-0.125" y="-45" />
         <Point x="-0.125" y="-41.77501" />
@@ -895,7 +895,7 @@
         <Poly pt0="11" pt1="12" pt2="0" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="chz2_platform7" massPerPoint="0" edgeK="0" edgeDamping="0" colorR="0.6784314" colorG="1" colorB="0.1843137" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="chz2_platform7" massPerPoint="0" edgeK="0" edgeDamping="0" colorR="0.6784314" colorG="1" colorB="0.1843137" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="5.596995" y="-1.677564" />
         <Point x="-7.138349" y="-3.674958" />
@@ -912,7 +912,7 @@
         <Poly pt0="3" pt1="2" pt2="4" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="chz2_elevator" massPerPoint="100" edgeK="500" edgeDamping="0" colorR="0.5019608" colorG="1" colorB="0.5019608" kinematic="True" shapeMatching="True" shapeK="500" shapeDamping="10">
+    <SoftBody name="chz2_elevator" massPerPoint="100" edgeK="500" edgeDamping="0" colorR="0.5019608" colorG="1" colorB="0.5019608" kinematic="True" shapeMatching="True" shapeK="500" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-0.5" y="-2.318182" />
         <Point x="-0.5" y="0.5" />
@@ -928,7 +928,7 @@
         <Poly pt0="3" pt1="1" pt2="0" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="chz2_platform8" massPerPoint="0" edgeK="0" edgeDamping="0" colorR="0.6784314" colorG="1" colorB="0.1843137" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="chz2_platform8" massPerPoint="0" edgeK="0" edgeDamping="0" colorR="0.6784314" colorG="1" colorB="0.1843137" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="2.1" y="-2.3" />
         <Point x="-0.5" y="0.5" />
@@ -947,7 +947,7 @@
         <Poly pt0="6" pt1="2" pt2="0" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="chz2_platform9" massPerPoint="0" edgeK="0" edgeDamping="0" colorR="0.6784314" colorG="1" colorB="0.1843137" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="chz2_platform9" massPerPoint="0" edgeK="0" edgeDamping="0" colorR="0.6784314" colorG="1" colorB="0.1843137" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-1.9" y="-2.9" />
         <Point x="4.100001" y="7.099998" />

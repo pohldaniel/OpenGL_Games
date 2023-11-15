@@ -95,7 +95,7 @@
     </Object>
   </Objects>
   <SoftBodies>
-    <SoftBody name="homewardlift" massPerPoint="1" edgeK="1000" edgeDamping="10" colorR="0" colorG="0" colorB="1" kinematic="True" shapeMatching="True" shapeK="1000" shapeDamping="10">
+    <SoftBody name="homewardlift" massPerPoint="1" edgeK="1000" edgeDamping="10" colorR="0" colorG="0" colorB="1" kinematic="True" shapeMatching="True" shapeK="1000" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-6.569355" y="-0.9575245" />
         <Point x="-6.569355" y="0.9758091" />
@@ -111,7 +111,7 @@
         <Poly pt0="1" pt1="3" pt2="2" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="homewardground" massPerPoint="0" edgeK="4000" edgeDamping="100" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="True" shapeMatching="False" shapeK="0" shapeDamping="0">
+    <SoftBody name="homewardground" massPerPoint="0" edgeK="4000" edgeDamping="100" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="True" shapeMatching="False" shapeK="0" shapeDamping="0" velDamping="0.993">
       <Pressure amount="10" />
       <Points>
         <Point x="-6.135369" y="-1.115877" />
@@ -128,7 +128,7 @@
         <Poly pt0="2" pt1="0" pt2="3" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="homewardground" massPerPoint="0" edgeK="4000" edgeDamping="100" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="True" shapeMatching="False" shapeK="0" shapeDamping="0">
+    <SoftBody name="homewardground" massPerPoint="0" edgeK="4000" edgeDamping="100" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="True" shapeMatching="False" shapeK="0" shapeDamping="0" velDamping="0.993">
       <Pressure amount="10" />
       <Points>
         <Point x="-6.135369" y="-1.115877" />
@@ -145,7 +145,7 @@
         <Poly pt0="2" pt1="0" pt2="3" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="homewardarrow" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="1" colorG="0" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="homewardarrow" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="1" colorG="0" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-0.388889" y="-0.5" />
         <Point x="-0.8008218" y="-0.4978008" />
@@ -164,7 +164,7 @@
         <Poly pt0="2" pt1="0" pt2="4" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="homewardarrow" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="1" colorG="0" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="homewardarrow" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="1" colorG="0" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-0.388889" y="-0.5" />
         <Point x="-0.8008218" y="-0.4978008" />
@@ -183,7 +183,7 @@
         <Poly pt0="2" pt1="0" pt2="4" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="homewardarrow" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="1" colorG="0" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="homewardarrow" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="1" colorG="0" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-0.388889" y="-0.5" />
         <Point x="-0.8008218" y="-0.4978008" />
@@ -202,7 +202,7 @@
         <Poly pt0="2" pt1="0" pt2="4" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="homewardarrow" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="1" colorG="0" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="homewardarrow" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="1" colorG="0" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-0.388889" y="-0.5" />
         <Point x="-0.8008218" y="-0.4978008" />
@@ -221,7 +221,7 @@
         <Poly pt0="2" pt1="0" pt2="4" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="homewardarrow" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="1" colorG="0" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="homewardarrow" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="1" colorG="0" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-0.388889" y="-0.5" />
         <Point x="-0.8008218" y="-0.4978008" />
@@ -240,7 +240,7 @@
         <Poly pt0="2" pt1="0" pt2="4" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="homewardarrow" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="1" colorG="0" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="homewardarrow" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="1" colorG="0" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-0.388889" y="-0.5" />
         <Point x="-0.8008218" y="-0.4978008" />
@@ -259,7 +259,7 @@
         <Poly pt0="2" pt1="0" pt2="4" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="homewardground" massPerPoint="0" edgeK="4000" edgeDamping="100" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="True" shapeMatching="False" shapeK="0" shapeDamping="0">
+    <SoftBody name="homewardground" massPerPoint="0" edgeK="4000" edgeDamping="100" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="True" shapeMatching="False" shapeK="0" shapeDamping="0" velDamping="0.993">
       <Pressure amount="10" />
       <Points>
         <Point x="-6.135369" y="-1.115877" />
@@ -276,7 +276,7 @@
         <Poly pt0="2" pt1="0" pt2="3" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="homewardground" massPerPoint="0" edgeK="4000" edgeDamping="100" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="True" shapeMatching="False" shapeK="0" shapeDamping="0">
+    <SoftBody name="homewardground" massPerPoint="0" edgeK="4000" edgeDamping="100" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="True" shapeMatching="False" shapeK="0" shapeDamping="0" velDamping="0.993">
       <Pressure amount="10" />
       <Points>
         <Point x="-6.135369" y="-1.115877" />
@@ -293,7 +293,7 @@
         <Poly pt0="2" pt1="0" pt2="3" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="homewardlift" massPerPoint="1" edgeK="1000" edgeDamping="10" colorR="0" colorG="0" colorB="1" kinematic="True" shapeMatching="True" shapeK="1000" shapeDamping="10">
+    <SoftBody name="homewardlift" massPerPoint="1" edgeK="1000" edgeDamping="10" colorR="0" colorG="0" colorB="1" kinematic="True" shapeMatching="True" shapeK="1000" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-6.569355" y="-0.9575245" />
         <Point x="-6.569355" y="0.9758091" />
@@ -309,7 +309,7 @@
         <Poly pt0="1" pt1="3" pt2="2" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="homewardlift" massPerPoint="1" edgeK="1000" edgeDamping="10" colorR="0" colorG="0" colorB="1" kinematic="True" shapeMatching="True" shapeK="1000" shapeDamping="10">
+    <SoftBody name="homewardlift" massPerPoint="1" edgeK="1000" edgeDamping="10" colorR="0" colorG="0" colorB="1" kinematic="True" shapeMatching="True" shapeK="1000" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-6.569355" y="-0.9575245" />
         <Point x="-6.569355" y="0.9758091" />
@@ -325,7 +325,7 @@
         <Poly pt0="1" pt1="3" pt2="2" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="homewardarrow" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="1" colorG="0" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="homewardarrow" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="1" colorG="0" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-0.388889" y="-0.5" />
         <Point x="-0.8008218" y="-0.4978008" />
@@ -344,7 +344,7 @@
         <Poly pt0="2" pt1="0" pt2="4" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="homewardground" massPerPoint="0" edgeK="4000" edgeDamping="100" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="True" shapeMatching="False" shapeK="0" shapeDamping="0">
+    <SoftBody name="homewardground" massPerPoint="0" edgeK="4000" edgeDamping="100" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="True" shapeMatching="False" shapeK="0" shapeDamping="0" velDamping="0.993">
       <Pressure amount="10" />
       <Points>
         <Point x="-6.135369" y="-1.115877" />
@@ -361,7 +361,7 @@
         <Poly pt0="2" pt1="0" pt2="3" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="homewardlift" massPerPoint="1" edgeK="1000" edgeDamping="10" colorR="0" colorG="0" colorB="1" kinematic="True" shapeMatching="True" shapeK="1000" shapeDamping="10">
+    <SoftBody name="homewardlift" massPerPoint="1" edgeK="1000" edgeDamping="10" colorR="0" colorG="0" colorB="1" kinematic="True" shapeMatching="True" shapeK="1000" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-6.569355" y="-0.9575245" />
         <Point x="-6.569355" y="0.9758091" />
@@ -377,7 +377,7 @@
         <Poly pt0="1" pt1="3" pt2="2" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="homewardlift" massPerPoint="1" edgeK="1000" edgeDamping="10" colorR="0" colorG="0" colorB="1" kinematic="True" shapeMatching="True" shapeK="1000" shapeDamping="10">
+    <SoftBody name="homewardlift" massPerPoint="1" edgeK="1000" edgeDamping="10" colorR="0" colorG="0" colorB="1" kinematic="True" shapeMatching="True" shapeK="1000" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-6.569355" y="-0.9575245" />
         <Point x="-6.569355" y="0.9758091" />
@@ -393,7 +393,7 @@
         <Poly pt0="1" pt1="3" pt2="2" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="homewardlift" massPerPoint="1" edgeK="1000" edgeDamping="10" colorR="0" colorG="0" colorB="1" kinematic="True" shapeMatching="True" shapeK="1000" shapeDamping="10">
+    <SoftBody name="homewardlift" massPerPoint="1" edgeK="1000" edgeDamping="10" colorR="0" colorG="0" colorB="1" kinematic="True" shapeMatching="True" shapeK="1000" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-6.569355" y="-0.9575245" />
         <Point x="-6.569355" y="0.9758091" />
@@ -409,7 +409,7 @@
         <Poly pt0="1" pt1="3" pt2="2" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="homewardlift" massPerPoint="1" edgeK="1000" edgeDamping="10" colorR="0" colorG="0" colorB="1" kinematic="True" shapeMatching="True" shapeK="1000" shapeDamping="10">
+    <SoftBody name="homewardlift" massPerPoint="1" edgeK="1000" edgeDamping="10" colorR="0" colorG="0" colorB="1" kinematic="True" shapeMatching="True" shapeK="1000" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-6.569355" y="-0.9575245" />
         <Point x="-6.569355" y="0.9758091" />
@@ -425,7 +425,7 @@
         <Poly pt0="1" pt1="3" pt2="2" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="homewardground" massPerPoint="0" edgeK="4000" edgeDamping="100" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="True" shapeMatching="False" shapeK="0" shapeDamping="0">
+    <SoftBody name="homewardground" massPerPoint="0" edgeK="4000" edgeDamping="100" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="True" shapeMatching="False" shapeK="0" shapeDamping="0" velDamping="0.993">
       <Pressure amount="10" />
       <Points>
         <Point x="-6.135369" y="-1.115877" />
@@ -442,7 +442,7 @@
         <Poly pt0="2" pt1="0" pt2="3" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="homewardground" massPerPoint="0" edgeK="4000" edgeDamping="100" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="True" shapeMatching="False" shapeK="0" shapeDamping="0">
+    <SoftBody name="homewardground" massPerPoint="0" edgeK="4000" edgeDamping="100" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="True" shapeMatching="False" shapeK="0" shapeDamping="0" velDamping="0.993">
       <Pressure amount="10" />
       <Points>
         <Point x="-6.135369" y="-1.115877" />
@@ -459,7 +459,7 @@
         <Poly pt0="2" pt1="0" pt2="3" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="homewardground" massPerPoint="0" edgeK="4000" edgeDamping="100" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="True" shapeMatching="False" shapeK="0" shapeDamping="0">
+    <SoftBody name="homewardground" massPerPoint="0" edgeK="4000" edgeDamping="100" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="True" shapeMatching="False" shapeK="0" shapeDamping="0" velDamping="0.993">
       <Pressure amount="10" />
       <Points>
         <Point x="-6.135369" y="-1.115877" />
@@ -476,7 +476,7 @@
         <Poly pt0="2" pt1="0" pt2="3" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="homewardground" massPerPoint="0" edgeK="4000" edgeDamping="100" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="True" shapeMatching="False" shapeK="0" shapeDamping="0">
+    <SoftBody name="homewardground" massPerPoint="0" edgeK="4000" edgeDamping="100" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="True" shapeMatching="False" shapeK="0" shapeDamping="0" velDamping="0.993">
       <Pressure amount="10" />
       <Points>
         <Point x="-6.135369" y="-1.115877" />
@@ -493,7 +493,7 @@
         <Poly pt0="2" pt1="0" pt2="3" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="homewardground" massPerPoint="0" edgeK="4000" edgeDamping="100" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="True" shapeMatching="False" shapeK="0" shapeDamping="0">
+    <SoftBody name="homewardground" massPerPoint="0" edgeK="4000" edgeDamping="100" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="True" shapeMatching="False" shapeK="0" shapeDamping="0" velDamping="0.993">
       <Pressure amount="10" />
       <Points>
         <Point x="-6.135369" y="-1.115877" />
@@ -510,7 +510,7 @@
         <Poly pt0="2" pt1="0" pt2="3" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="homeward_cube" massPerPoint="1" edgeK="500" edgeDamping="15" colorR="0.2509804" colorG="0" colorB="0.5019608" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="homeward_cube" massPerPoint="1" edgeK="500" edgeDamping="15" colorR="0.2509804" colorG="0" colorB="0.5019608" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-1" y="-1" />
         <Point x="-1" y="0" />
@@ -544,7 +544,7 @@
         <Poly pt0="1" pt1="0" pt2="7" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="homewardground" massPerPoint="0" edgeK="4000" edgeDamping="100" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="True" shapeMatching="False" shapeK="0" shapeDamping="0">
+    <SoftBody name="homewardground" massPerPoint="0" edgeK="4000" edgeDamping="100" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="True" shapeMatching="False" shapeK="0" shapeDamping="0" velDamping="0.993">
       <Pressure amount="10" />
       <Points>
         <Point x="-6.135369" y="-1.115877" />
@@ -561,7 +561,7 @@
         <Poly pt0="2" pt1="0" pt2="3" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="homewardground" massPerPoint="0" edgeK="4000" edgeDamping="100" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="True" shapeMatching="False" shapeK="0" shapeDamping="0">
+    <SoftBody name="homewardground" massPerPoint="0" edgeK="4000" edgeDamping="100" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="True" shapeMatching="False" shapeK="0" shapeDamping="0" velDamping="0.993">
       <Pressure amount="10" />
       <Points>
         <Point x="-6.135369" y="-1.115877" />
@@ -578,7 +578,7 @@
         <Poly pt0="2" pt1="0" pt2="3" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="homewardlift" massPerPoint="1" edgeK="1000" edgeDamping="10" colorR="0" colorG="0" colorB="1" kinematic="True" shapeMatching="True" shapeK="1000" shapeDamping="10">
+    <SoftBody name="homewardlift" massPerPoint="1" edgeK="1000" edgeDamping="10" colorR="0" colorG="0" colorB="1" kinematic="True" shapeMatching="True" shapeK="1000" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-6.569355" y="-0.9575245" />
         <Point x="-6.569355" y="0.9758091" />
@@ -594,7 +594,7 @@
         <Poly pt0="1" pt1="3" pt2="2" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="homeward_bridge" massPerPoint="1" edgeK="1000" edgeDamping="35" colorR="1" colorG="1" colorB="0" kinematic="False" shapeMatching="True" shapeK="200" shapeDamping="10">
+    <SoftBody name="homeward_bridge" massPerPoint="1" edgeK="1000" edgeDamping="35" colorR="1" colorG="1" colorB="0" kinematic="False" shapeMatching="True" shapeK="200" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-2" y="6" />
         <Point x="-2" y="7" />
@@ -674,7 +674,7 @@
         <Poly pt0="13" pt1="12" pt2="11" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="homewardhome" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="1" colorG="0" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="homewardhome" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="1" colorG="0" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-2" y="-0.4054055" />
         <Point x="-2.000001" y="0.2027027" />
@@ -690,7 +690,7 @@
         <Poly pt0="2" pt1="0" pt2="3" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="homewardhome" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="1" colorG="0" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="homewardhome" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="1" colorG="0" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-2" y="-0.4054055" />
         <Point x="-2.000001" y="0.2027027" />
@@ -706,7 +706,7 @@
         <Poly pt0="2" pt1="0" pt2="3" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="homewardhome" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="1" colorG="0" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="homewardhome" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="1" colorG="0" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-2" y="-0.4054055" />
         <Point x="-2.000001" y="0.2027027" />
@@ -722,7 +722,7 @@
         <Poly pt0="2" pt1="0" pt2="3" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="homewardhome" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="1" colorG="0" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="homewardhome" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="1" colorG="0" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-2" y="-0.4054055" />
         <Point x="-2.000001" y="0.2027027" />
@@ -738,7 +738,7 @@
         <Poly pt0="2" pt1="0" pt2="3" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="homewardhome" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="1" colorG="0" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="homewardhome" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="1" colorG="0" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-2" y="-0.4054055" />
         <Point x="-2.000001" y="0.2027027" />
@@ -754,7 +754,7 @@
         <Poly pt0="2" pt1="0" pt2="3" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="homewardhome" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="1" colorG="0" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="homewardhome" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="1" colorG="0" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-2" y="-0.4054055" />
         <Point x="-2.000001" y="0.2027027" />
@@ -770,7 +770,7 @@
         <Poly pt0="2" pt1="0" pt2="3" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="homewardhome" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="1" colorG="0" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="homewardhome" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="1" colorG="0" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-2" y="-0.4054055" />
         <Point x="-2.000001" y="0.2027027" />
@@ -786,7 +786,7 @@
         <Poly pt0="2" pt1="0" pt2="3" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="homewardhome" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="1" colorG="0" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="homewardhome" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="1" colorG="0" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-2" y="-0.4054055" />
         <Point x="-2.000001" y="0.2027027" />
@@ -802,7 +802,7 @@
         <Poly pt0="2" pt1="0" pt2="3" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="homewardhome" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="1" colorG="0" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="homewardhome" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="1" colorG="0" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-2" y="-0.4054055" />
         <Point x="-2.000001" y="0.2027027" />
@@ -818,7 +818,7 @@
         <Poly pt0="2" pt1="0" pt2="3" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="homewardhome" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="1" colorG="0" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="homewardhome" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="1" colorG="0" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-2" y="-0.4054055" />
         <Point x="-2.000001" y="0.2027027" />
@@ -834,7 +834,7 @@
         <Poly pt0="2" pt1="0" pt2="3" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="homewardhome" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="1" colorG="0" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="homewardhome" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="1" colorG="0" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-2" y="-0.4054055" />
         <Point x="-2.000001" y="0.2027027" />
@@ -850,7 +850,7 @@
         <Poly pt0="2" pt1="0" pt2="3" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="homewardhome" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="1" colorG="0" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="homewardhome" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="1" colorG="0" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-2" y="-0.4054055" />
         <Point x="-2.000001" y="0.2027027" />
@@ -866,7 +866,7 @@
         <Poly pt0="2" pt1="0" pt2="3" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="homewardhome" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="1" colorG="0" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="homewardhome" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="1" colorG="0" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-2" y="-0.4054055" />
         <Point x="-2.000001" y="0.2027027" />
@@ -882,7 +882,7 @@
         <Poly pt0="2" pt1="0" pt2="3" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="homewardhome" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="1" colorG="0" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="homewardhome" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="1" colorG="0" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-2" y="-0.4054055" />
         <Point x="-2.000001" y="0.2027027" />
@@ -898,7 +898,7 @@
         <Poly pt0="2" pt1="0" pt2="3" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="homewardground" massPerPoint="0" edgeK="4000" edgeDamping="100" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="True" shapeMatching="False" shapeK="0" shapeDamping="0">
+    <SoftBody name="homewardground" massPerPoint="0" edgeK="4000" edgeDamping="100" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="True" shapeMatching="False" shapeK="0" shapeDamping="0" velDamping="0.993">
       <Pressure amount="10" />
       <Points>
         <Point x="-6.135369" y="-1.115877" />
@@ -915,7 +915,7 @@
         <Poly pt0="2" pt1="0" pt2="3" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="homewardground" massPerPoint="0" edgeK="4000" edgeDamping="100" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="True" shapeMatching="False" shapeK="0" shapeDamping="0">
+    <SoftBody name="homewardground" massPerPoint="0" edgeK="4000" edgeDamping="100" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="True" shapeMatching="False" shapeK="0" shapeDamping="0" velDamping="0.993">
       <Pressure amount="10" />
       <Points>
         <Point x="-6.135369" y="-1.115877" />
@@ -932,7 +932,7 @@
         <Poly pt0="2" pt1="0" pt2="3" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="homewardlift" massPerPoint="1" edgeK="1000" edgeDamping="10" colorR="0" colorG="0" colorB="1" kinematic="True" shapeMatching="True" shapeK="1000" shapeDamping="10">
+    <SoftBody name="homewardlift" massPerPoint="1" edgeK="1000" edgeDamping="10" colorR="0" colorG="0" colorB="1" kinematic="True" shapeMatching="True" shapeK="1000" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-6.569355" y="-0.9575245" />
         <Point x="-6.569355" y="0.9758091" />
@@ -948,7 +948,7 @@
         <Poly pt0="1" pt1="3" pt2="2" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="homewardlift" massPerPoint="1" edgeK="1000" edgeDamping="10" colorR="0" colorG="0" colorB="1" kinematic="True" shapeMatching="True" shapeK="1000" shapeDamping="10">
+    <SoftBody name="homewardlift" massPerPoint="1" edgeK="1000" edgeDamping="10" colorR="0" colorG="0" colorB="1" kinematic="True" shapeMatching="True" shapeK="1000" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-6.569355" y="-0.9575245" />
         <Point x="-6.569355" y="0.9758091" />
@@ -964,7 +964,7 @@
         <Poly pt0="1" pt1="3" pt2="2" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="homewardhome" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="1" colorG="0" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="homewardhome" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="1" colorG="0" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-2" y="-0.4054055" />
         <Point x="-2.000001" y="0.2027027" />
@@ -980,7 +980,7 @@
         <Poly pt0="2" pt1="0" pt2="3" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="homewardground" massPerPoint="0" edgeK="4000" edgeDamping="100" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="True" shapeMatching="False" shapeK="0" shapeDamping="0">
+    <SoftBody name="homewardground" massPerPoint="0" edgeK="4000" edgeDamping="100" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="True" shapeMatching="False" shapeK="0" shapeDamping="0" velDamping="0.993">
       <Pressure amount="10" />
       <Points>
         <Point x="-6.135369" y="-1.115877" />
@@ -997,7 +997,7 @@
         <Poly pt0="2" pt1="0" pt2="3" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="homewardhome" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="1" colorG="0" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="homewardhome" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="1" colorG="0" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-2" y="-0.4054055" />
         <Point x="-2.000001" y="0.2027027" />
@@ -1013,7 +1013,7 @@
         <Poly pt0="2" pt1="0" pt2="3" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="homewardlift" massPerPoint="1" edgeK="1000" edgeDamping="10" colorR="0" colorG="0" colorB="1" kinematic="True" shapeMatching="True" shapeK="1000" shapeDamping="10">
+    <SoftBody name="homewardlift" massPerPoint="1" edgeK="1000" edgeDamping="10" colorR="0" colorG="0" colorB="1" kinematic="True" shapeMatching="True" shapeK="1000" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-6.569355" y="-0.9575245" />
         <Point x="-6.569355" y="0.9758091" />
@@ -1029,7 +1029,7 @@
         <Poly pt0="1" pt1="3" pt2="2" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="homewardlift" massPerPoint="1" edgeK="1000" edgeDamping="10" colorR="0" colorG="0" colorB="1" kinematic="True" shapeMatching="True" shapeK="1000" shapeDamping="10">
+    <SoftBody name="homewardlift" massPerPoint="1" edgeK="1000" edgeDamping="10" colorR="0" colorG="0" colorB="1" kinematic="True" shapeMatching="True" shapeK="1000" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-6.569355" y="-0.9575245" />
         <Point x="-6.569355" y="0.9758091" />
@@ -1045,7 +1045,7 @@
         <Poly pt0="1" pt1="3" pt2="2" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="homewardlift" massPerPoint="1" edgeK="1000" edgeDamping="10" colorR="0" colorG="0" colorB="1" kinematic="True" shapeMatching="True" shapeK="1000" shapeDamping="10">
+    <SoftBody name="homewardlift" massPerPoint="1" edgeK="1000" edgeDamping="10" colorR="0" colorG="0" colorB="1" kinematic="True" shapeMatching="True" shapeK="1000" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-6.569355" y="-0.9575245" />
         <Point x="-6.569355" y="0.9758091" />

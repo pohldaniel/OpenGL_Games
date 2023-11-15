@@ -9,11 +9,11 @@
 #include "JellyHelper.h"
 #include "SceneManager.h"
 
-JellyGame::JellyGame(StateMachine& machine, std::string scene) : State(machine, States::JELLYGAME) {
+JellyGame::JellyGame(StateMachine& machine, std::string sceneName) : State(machine, States::JELLYGAME) {
 	EventDispatcher::AddKeyboardListener(this);
 	Mouse::instance().attach(Application::GetWindow(), false);
 
-	m_scene = scene;
+	m_sceneName = sceneName;
 
 	JellyHellper::Instance()->LoadShaders();
 	
@@ -62,19 +62,18 @@ JellyGame::JellyGame(StateMachine& machine, std::string scene) : State(machine, 
 	m_tireAABB.expandToInclude(Vector2((static_cast<float>(Application::Width) / 2.0f) - 128.0f + 64.0f, 450.0f + 64.0f));
 	m_tireAABB.expandToInclude(Vector2((static_cast<float>(Application::Width) / 2.0f) - 128.0f - 64.0f, 450.0f - 64.0f));
 
-	m_sceneFile = SceneManager::Get().getScene(m_scene).getCurrentSceneInfo().file;
-	m_levelName = SceneManager::Get().getScene(m_scene).getCurrentSceneInfo().name;
+	m_sceneFile = SceneManager::Get().getScene(m_sceneName).getCurrentSceneInfo().file;
+	m_levelName = SceneManager::Get().getScene(m_sceneName).getCurrentSceneInfo().name;
 
 	m_world = new World();
 
-	SceneManager::Get().getScene("scene").InitPhysic(m_world);
+	Scene& scene = SceneManager::Get().getScene(m_sceneName);
+	scene.InitPhysic(m_world);
+	scene.loadLevel("Assets/Jelly/Scenes_new/" + m_sceneFile);
+	scene.buildLevel(m_world, m_gameBodies);
+	scene.buildCar(m_world, m_car, "Assets/Jelly/car_and_truck.car");
 
-	Scene& _scene = SceneManager::Get().getScene(m_scene);
-	_scene.loadLevel("Assets/Jelly/Scenes_new/" + m_sceneFile);
-	_scene.buildLevel(m_world, "Assets/Jelly/car_and_truck.car");
-
-	const SkinInfo& skinInfo = SceneManager::Get().getScene("scene").getCurrentSkinInfo();
-	m_car = _scene.GetCar();
+	const SkinInfo& skinInfo = scene.getCurrentSkinInfo();
 	m_car->SetChassisTextures(skinInfo.skinTexture.chassisSmall, skinInfo.skinTexture.chassisBig);
 	m_car->SetTireTextures(skinInfo.skinTexture.tireSmall, skinInfo.skinTexture.tireBig);
 
@@ -91,13 +90,10 @@ JellyGame::JellyGame(StateMachine& machine, std::string scene) : State(machine, 
 	m_world->setMaterialPairFilterCallback(5, 2, this);
 	m_world->setMaterialPairFilterCallback(5, 3, this);
 
-	//level elements
-	m_gameBodies = _scene.GetLevelBodies();
-
 	//set map size
-	m_wholeMapPosition = _scene.GetWorldCenter();
-	m_wholeMapSize = _scene.GetWorldSize();
-	m_worldLimits = _scene.GetWorldLimits();
+	m_wholeMapPosition = scene.getWorldCenter();
+	m_wholeMapSize = scene.getWorldSize();
+	m_worldLimits = scene.getWorldLimits();
 
 	//compute map view
 	//mapLimits
@@ -157,8 +153,8 @@ JellyGame::JellyGame(StateMachine& machine, std::string scene) : State(machine, 
 	m_wholeMapSize.Y = (m_wholeMapSize.X *0.56f) / 2.0f;
 	m_wholeMapSize.X = m_wholeMapSize.X / 2.0f;
 
-	m_levelTarget = _scene.GetLevelTarget();
-	m_levelLine = _scene.GetLevelLine();
+	m_levelTarget = scene.getLevelTarget();
+	m_levelLine = scene.getLevelLine();
 
 	m_carBreakCount = 0;
 
@@ -178,8 +174,7 @@ JellyGame::JellyGame(StateMachine& machine, std::string scene) : State(machine, 
 
 JellyGame::~JellyGame() {
 	EventDispatcher::RemoveKeyboardListener(this);
-
-	SceneManager::Get().getScene("scene").ClearLevel(m_world, m_gameBodies, m_car);
+	Scene::ClearLevel(m_world, m_gameBodies, m_car);
 }
 
 void JellyGame::fixedUpdate() {}
@@ -238,18 +233,18 @@ void JellyGame::update() {
 		if (m_car->getChassisBody()->contains(m_levelTarget)){
 			//_audioHelper->StopEngineSound();
 
-			if (m_time < SceneManager::Get().getScene(m_scene).getTime(m_levelName)) {
+			if (m_time < SceneManager::Get().getScene(m_sceneName).getTime(m_levelName)) {
 				m_newTimeRecord = true;
 
-				SceneManager::Get().getScene(m_scene).setTime(m_levelName, m_time);
-				Scene::SaveScores("JellyScore.xml", SceneManager::Get().getScene(m_scene).getSceneInfos());
+				SceneManager::Get().getScene(m_sceneName).setTime(m_levelName, m_time);
+				Scene::SaveScores("JellyScore.xml", SceneManager::Get().getScene(m_sceneName).getSceneInfos());
 			}
 
-			if (m_bestJumpLenght > SceneManager::Get().getScene(m_scene).getJump(m_levelName)) {
+			if (m_bestJumpLenght > SceneManager::Get().getScene(m_sceneName).getJump(m_levelName)) {
 				m_newJumpRecord = true;
 
-				SceneManager::Get().getScene(m_scene).setJump(m_levelName, m_bestJumpLenght);
-				Scene::SaveScores("JellyScore.xml", SceneManager::Get().getScene(m_scene).getSceneInfos());
+				SceneManager::Get().getScene(m_sceneName).setJump(m_levelName, m_bestJumpLenght);
+				Scene::SaveScores("JellyScore.xml", SceneManager::Get().getScene(m_sceneName).getSceneInfos());
 			}
 
 			m_machine.addStateAtTop(new JellyDialogFinish(m_machine, m_mainRT, m_newJumpRecord, m_newTimeRecord));
@@ -262,18 +257,18 @@ void JellyGame::update() {
 			if (m_car->getTire(i)->contains(m_levelTarget)){
 				//_audioHelper->StopEngineSound();
 
-				if (m_time < SceneManager::Get().getScene(m_scene).getTime(m_levelName)){
+				if (m_time < SceneManager::Get().getScene(m_sceneName).getTime(m_levelName)){
 					m_newTimeRecord = true;
 
-					SceneManager::Get().getScene(m_scene).setTime(m_levelName, m_time);
-					Scene::SaveScores("JellyScore.xml", SceneManager::Get().getScene(m_scene).getSceneInfos());
+					SceneManager::Get().getScene(m_sceneName).setTime(m_levelName, m_time);
+					Scene::SaveScores("JellyScore.xml", SceneManager::Get().getScene(m_sceneName).getSceneInfos());
 				}
 
-				if (m_bestJumpLenght > SceneManager::Get().getScene(m_scene).getJump(m_levelName)){
+				if (m_bestJumpLenght > SceneManager::Get().getScene(m_sceneName).getJump(m_levelName)){
 					m_newJumpRecord = true;
 
-					SceneManager::Get().getScene(m_scene).setJump(m_levelName, m_bestJumpLenght);
-					Scene::SaveScores("JellyScore.xml", SceneManager::Get().getScene(m_scene).getSceneInfos());
+					SceneManager::Get().getScene(m_sceneName).setJump(m_levelName, m_bestJumpLenght);
+					Scene::SaveScores("JellyScore.xml", SceneManager::Get().getScene(m_sceneName).getSceneInfos());
 				}
 
 				m_machine.addStateAtTop(new JellyDialogFinish(m_machine, m_mainRT, m_newJumpRecord, m_newTimeRecord));

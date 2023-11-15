@@ -290,7 +290,7 @@ LevelSoftBody::LevelSoftBody(const SoftBodyInfo2& softBodyInfo, World *mWorld, c
 	}
 
 	mBody->setMaterial(material);
-	mBody->setVelocityDamping(0.993f);
+	mBody->setVelocityDamping(softBodyInfo.velDamping);
 
 	if (shapeMatching && (!pressureized)){
 		static_cast<GameSpringBody*>(mBody)->setShapeMatching(true);
@@ -478,8 +478,7 @@ LevelSoftBody::LevelSoftBody(BodyObject *exBody, World *mWorld, const Vector2& p
 	m_bodyInfo.shapeMatching = shapeMatching;
 	m_bodyInfo.shapeK = shapeK;
 	m_bodyInfo.shapeDamping = shapeDamping;
-	m_bodyInfo.velDamping = velDamping;
-
+	m_bodyInfo.velDamping = 0.993f;
 	m_bodyInfo.pressureized = pressureized;
 	m_bodyInfo.pressure = pressure;
 
@@ -514,7 +513,7 @@ LevelSoftBody::LevelSoftBody(BodyObject *exBody, World *mWorld, const Vector2& p
 	}
 
 	mBody->setMaterial(material);
-	mBody->setVelocityDamping(0.993f);
+	mBody->setVelocityDamping(m_bodyInfo.velDamping);
 
 	if (shapeMatching && (!pressureized))
 	{

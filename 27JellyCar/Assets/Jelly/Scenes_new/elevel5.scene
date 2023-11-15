@@ -27,7 +27,7 @@
     </Object>
   </Objects>
   <SoftBodies>
-    <SoftBody name="e_lv5_castle_01" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0" colorG="0" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="e_lv5_castle_01" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0" colorG="0" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-0.6665769" y="-0.4972351" />
         <Point x="-0.63802" y="-0.3385797" />
@@ -226,7 +226,7 @@
         <Poly pt0="12" pt1="11" pt2="8" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="itemstick" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="itemstick" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="0" y="1" />
         <Point x="0.2079117" y="0.9781476" />
@@ -291,7 +291,7 @@
         <Poly pt0="6" pt1="7" pt2="8" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="e_lv5_castle_02" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="1" colorG="0" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="e_lv5_castle_02" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="1" colorG="0" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-0.5044444" y="-0.4064173" />
         <Point x="-0.5" y="0.4919786" />
@@ -358,7 +358,7 @@
         <Poly pt0="11" pt1="12" pt2="1" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="e_lv5_wheel_01" massPerPoint="1" edgeK="10000" edgeDamping="15" colorR="1" colorG="1" colorB="0" kinematic="True" shapeMatching="True" shapeK="10000" shapeDamping="10">
+    <SoftBody name="e_lv5_wheel_01" massPerPoint="1" edgeK="10000" edgeDamping="15" colorR="1" colorG="1" colorB="0" kinematic="True" shapeMatching="True" shapeK="10000" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="0" y="1" />
         <Point x="0.1564345" y="0.9876884" />
@@ -400,7 +400,7 @@
         <Poly pt0="0" pt1="10" pt2="2" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="e_lv5_flag_01" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="1" colorG="1" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="e_lv5_flag_01" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="1" colorG="1" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-0.5" y="-0.5" />
         <Point x="-0.5" y="0.5" />
@@ -415,7 +415,7 @@
         <Poly pt0="0" pt1="4" pt2="3" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="e_lv5_castle_03" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="1" colorG="0" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="e_lv5_castle_03" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="1" colorG="0" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-0.5" y="-0.471537" />
         <Point x="-0.5" y="0.532258" />
@@ -434,7 +434,7 @@
         <Poly pt0="6" pt1="5" pt2="4" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="e_lv5_wheel_02" massPerPoint="1" edgeK="10000" edgeDamping="15" colorR="1" colorG="0.5019608" colorB="0" kinematic="True" shapeMatching="True" shapeK="10000" shapeDamping="10">
+    <SoftBody name="e_lv5_wheel_02" massPerPoint="1" edgeK="10000" edgeDamping="15" colorR="1" colorG="0.5019608" colorB="0" kinematic="True" shapeMatching="True" shapeK="10000" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="0" y="1" />
         <Point x="0.1564345" y="0.9876884" />
@@ -519,7 +519,7 @@
         <Poly pt0="5" pt1="4" pt2="3" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="e_lv5_wheel_02" massPerPoint="1" edgeK="10000" edgeDamping="15" colorR="1" colorG="0.5019608" colorB="0" kinematic="True" shapeMatching="True" shapeK="10000" shapeDamping="10">
+    <SoftBody name="e_lv5_wheel_02" massPerPoint="1" edgeK="10000" edgeDamping="15" colorR="1" colorG="0.5019608" colorB="0" kinematic="True" shapeMatching="True" shapeK="10000" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="0" y="1" />
         <Point x="0.1564345" y="0.9876884" />
@@ -604,7 +604,7 @@
         <Poly pt0="5" pt1="4" pt2="3" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="e_lv5_ob_01" massPerPoint="1" edgeK="10000" edgeDamping="15" colorR="0.7529412" colorG="0.7529412" colorB="0.7529412" kinematic="True" shapeMatching="True" shapeK="10000" shapeDamping="10">
+    <SoftBody name="e_lv5_ob_01" massPerPoint="1" edgeK="10000" edgeDamping="15" colorR="0.7529412" colorG="0.7529412" colorB="0.7529412" kinematic="True" shapeMatching="True" shapeK="10000" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-0.5" y="-0.5" />
         <Point x="-0.500131" y="-0.1301302" />

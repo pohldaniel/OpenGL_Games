@@ -17,7 +17,7 @@ class JellyGame : public State, public KeyboardEventListener, JellyPhysics::Coll
 
 public:
 
-	JellyGame(StateMachine& machine, std::string scene);
+	JellyGame(StateMachine& machine, std::string sceneName);
 	~JellyGame();
 
 	void fixedUpdate() override;
@@ -41,7 +41,7 @@ private:
 	World* m_world;
 	Car* m_car;
 	Vector4f m_screenBounds;
-	std::string m_scene;
+	std::string m_sceneName;
 	float m_time;
 
 	Vector2 m_levelTarget;

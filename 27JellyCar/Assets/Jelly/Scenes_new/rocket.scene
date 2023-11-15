@@ -125,7 +125,7 @@
     <Object name="rockets_plat" posX="-62" posY="40" angle="0" scaleX="2.5" scaleY="2.5" material="0" />
   </Objects>
   <SoftBodies>
-    <SoftBody name="rockets_wheel" massPerPoint="1" edgeK="10000" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="1" kinematic="True" shapeMatching="True" shapeK="10000" shapeDamping="10">
+    <SoftBody name="rockets_wheel" massPerPoint="1" edgeK="10000" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="1" kinematic="True" shapeMatching="True" shapeK="10000" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="0" y="1" />
         <Point x="0.5" y="0.8660254" />
@@ -175,7 +175,7 @@
         <Poly pt0="1" pt1="2" pt2="3" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="rockets_plat" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="False" shapeMatching="False" shapeK="0" shapeDamping="0">
+    <SoftBody name="rockets_plat" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="False" shapeMatching="False" shapeK="0" shapeDamping="0" velDamping="0.993">
       <Points>
         <Point x="1.9" y="-1.9" />
         <Point x="1.6" y="-2" />
@@ -210,7 +210,7 @@
         <Poly pt0="11" pt1="1" pt2="5" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="rockets_plat" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="False" shapeMatching="False" shapeK="0" shapeDamping="0">
+    <SoftBody name="rockets_plat" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="False" shapeMatching="False" shapeK="0" shapeDamping="0" velDamping="0.993">
       <Points>
         <Point x="1.9" y="-1.9" />
         <Point x="1.6" y="-2" />
@@ -245,7 +245,7 @@
         <Poly pt0="11" pt1="1" pt2="5" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="rockets_plat" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="False" shapeMatching="False" shapeK="0" shapeDamping="0">
+    <SoftBody name="rockets_plat" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="False" shapeMatching="False" shapeK="0" shapeDamping="0" velDamping="0.993">
       <Points>
         <Point x="1.9" y="-1.9" />
         <Point x="1.6" y="-2" />
@@ -280,7 +280,7 @@
         <Poly pt0="11" pt1="1" pt2="5" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="rockets_plat" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="False" shapeMatching="False" shapeK="0" shapeDamping="0">
+    <SoftBody name="rockets_plat" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="False" shapeMatching="False" shapeK="0" shapeDamping="0" velDamping="0.993">
       <Points>
         <Point x="1.9" y="-1.9" />
         <Point x="1.6" y="-2" />
@@ -315,7 +315,7 @@
         <Poly pt0="11" pt1="1" pt2="5" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="rockets_plat" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="False" shapeMatching="False" shapeK="0" shapeDamping="0">
+    <SoftBody name="rockets_plat" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="False" shapeMatching="False" shapeK="0" shapeDamping="0" velDamping="0.993">
       <Points>
         <Point x="1.9" y="-1.9" />
         <Point x="1.6" y="-2" />
@@ -350,7 +350,7 @@
         <Poly pt0="11" pt1="1" pt2="5" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="rockets_plat" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="False" shapeMatching="False" shapeK="0" shapeDamping="0">
+    <SoftBody name="rockets_plat" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="False" shapeMatching="False" shapeK="0" shapeDamping="0" velDamping="0.993">
       <Points>
         <Point x="1.9" y="-1.9" />
         <Point x="1.6" y="-2" />
@@ -385,7 +385,7 @@
         <Poly pt0="11" pt1="1" pt2="5" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="rockets_plat" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="False" shapeMatching="False" shapeK="0" shapeDamping="0">
+    <SoftBody name="rockets_plat" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="False" shapeMatching="False" shapeK="0" shapeDamping="0" velDamping="0.993">
       <Points>
         <Point x="1.9" y="-1.9" />
         <Point x="1.6" y="-2" />
@@ -420,7 +420,7 @@
         <Poly pt0="11" pt1="1" pt2="5" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="rockets_plat" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="False" shapeMatching="False" shapeK="0" shapeDamping="0">
+    <SoftBody name="rockets_plat" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="False" shapeMatching="False" shapeK="0" shapeDamping="0" velDamping="0.993">
       <Points>
         <Point x="1.9" y="-1.9" />
         <Point x="1.6" y="-2" />
@@ -455,7 +455,7 @@
         <Poly pt0="11" pt1="1" pt2="5" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="rockets_plat" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="False" shapeMatching="False" shapeK="0" shapeDamping="0">
+    <SoftBody name="rockets_plat" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="False" shapeMatching="False" shapeK="0" shapeDamping="0" velDamping="0.993">
       <Points>
         <Point x="1.9" y="-1.9" />
         <Point x="1.6" y="-2" />
@@ -490,7 +490,7 @@
         <Poly pt0="11" pt1="1" pt2="5" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="rockets_wheel" massPerPoint="1" edgeK="10000" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="1" kinematic="True" shapeMatching="True" shapeK="10000" shapeDamping="10">
+    <SoftBody name="rockets_wheel" massPerPoint="1" edgeK="10000" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="1" kinematic="True" shapeMatching="True" shapeK="10000" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="0" y="1" />
         <Point x="0.5" y="0.8660254" />
@@ -540,7 +540,7 @@
         <Poly pt0="1" pt1="2" pt2="3" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="rockets_plat_dynamic" massPerPoint="1" edgeK="10000" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="True" shapeMatching="True" shapeK="10000" shapeDamping="10">
+    <SoftBody name="rockets_plat_dynamic" massPerPoint="1" edgeK="10000" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="True" shapeMatching="True" shapeK="10000" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="1.9" y="-1.9" />
         <Point x="1.6" y="-2" />
@@ -594,7 +594,7 @@
         <Poly pt0="11" pt1="1" pt2="5" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="rockets_wheel" massPerPoint="1" edgeK="10000" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="1" kinematic="True" shapeMatching="True" shapeK="10000" shapeDamping="10">
+    <SoftBody name="rockets_wheel" massPerPoint="1" edgeK="10000" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="1" kinematic="True" shapeMatching="True" shapeK="10000" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="0" y="1" />
         <Point x="0.5" y="0.8660254" />
@@ -644,7 +644,7 @@
         <Poly pt0="1" pt1="2" pt2="3" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="rockets_wheel" massPerPoint="1" edgeK="10000" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="1" kinematic="True" shapeMatching="True" shapeK="10000" shapeDamping="10">
+    <SoftBody name="rockets_wheel" massPerPoint="1" edgeK="10000" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="1" kinematic="True" shapeMatching="True" shapeK="10000" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="0" y="1" />
         <Point x="0.5" y="0.8660254" />
@@ -694,7 +694,7 @@
         <Poly pt0="1" pt1="2" pt2="3" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="rockets_wheel" massPerPoint="1" edgeK="10000" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="1" kinematic="True" shapeMatching="True" shapeK="10000" shapeDamping="10">
+    <SoftBody name="rockets_wheel" massPerPoint="1" edgeK="10000" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="1" kinematic="True" shapeMatching="True" shapeK="10000" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="0" y="1" />
         <Point x="0.5" y="0.8660254" />
@@ -744,7 +744,7 @@
         <Poly pt0="1" pt1="2" pt2="3" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="rockets_wheel" massPerPoint="1" edgeK="10000" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="1" kinematic="True" shapeMatching="True" shapeK="10000" shapeDamping="10">
+    <SoftBody name="rockets_wheel" massPerPoint="1" edgeK="10000" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="1" kinematic="True" shapeMatching="True" shapeK="10000" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="0" y="1" />
         <Point x="0.5" y="0.8660254" />
@@ -794,7 +794,7 @@
         <Poly pt0="1" pt1="2" pt2="3" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="rockets_wheel" massPerPoint="1" edgeK="10000" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="1" kinematic="True" shapeMatching="True" shapeK="10000" shapeDamping="10">
+    <SoftBody name="rockets_wheel" massPerPoint="1" edgeK="10000" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="1" kinematic="True" shapeMatching="True" shapeK="10000" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="0" y="1" />
         <Point x="0.5" y="0.8660254" />
@@ -844,7 +844,7 @@
         <Poly pt0="1" pt1="2" pt2="3" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="rockets_wheel" massPerPoint="1" edgeK="10000" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="1" kinematic="True" shapeMatching="True" shapeK="10000" shapeDamping="10">
+    <SoftBody name="rockets_wheel" massPerPoint="1" edgeK="10000" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="1" kinematic="True" shapeMatching="True" shapeK="10000" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="0" y="1" />
         <Point x="0.5" y="0.8660254" />
@@ -894,7 +894,7 @@
         <Poly pt0="1" pt1="2" pt2="3" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="rockets_wheel" massPerPoint="1" edgeK="10000" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="1" kinematic="True" shapeMatching="True" shapeK="10000" shapeDamping="10">
+    <SoftBody name="rockets_wheel" massPerPoint="1" edgeK="10000" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="1" kinematic="True" shapeMatching="True" shapeK="10000" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="0" y="1" />
         <Point x="0.5" y="0.8660254" />
@@ -944,7 +944,7 @@
         <Poly pt0="1" pt1="2" pt2="3" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="rockets_wheel" massPerPoint="1" edgeK="10000" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="1" kinematic="True" shapeMatching="True" shapeK="10000" shapeDamping="10">
+    <SoftBody name="rockets_wheel" massPerPoint="1" edgeK="10000" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="1" kinematic="True" shapeMatching="True" shapeK="10000" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="0" y="1" />
         <Point x="0.5" y="0.8660254" />
@@ -994,7 +994,7 @@
         <Poly pt0="1" pt1="2" pt2="3" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="rockets_wheel" massPerPoint="1" edgeK="10000" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="1" kinematic="True" shapeMatching="True" shapeK="10000" shapeDamping="10">
+    <SoftBody name="rockets_wheel" massPerPoint="1" edgeK="10000" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="1" kinematic="True" shapeMatching="True" shapeK="10000" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="0" y="1" />
         <Point x="0.5" y="0.8660254" />
@@ -1044,7 +1044,7 @@
         <Poly pt0="1" pt1="2" pt2="3" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="rockets_wheel" massPerPoint="1" edgeK="10000" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="1" kinematic="True" shapeMatching="True" shapeK="10000" shapeDamping="10">
+    <SoftBody name="rockets_wheel" massPerPoint="1" edgeK="10000" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="1" kinematic="True" shapeMatching="True" shapeK="10000" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="0" y="1" />
         <Point x="0.5" y="0.8660254" />
@@ -1094,7 +1094,7 @@
         <Poly pt0="1" pt1="2" pt2="3" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="rockets_plat_dynamic" massPerPoint="1" edgeK="10000" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="True" shapeMatching="True" shapeK="10000" shapeDamping="10">
+    <SoftBody name="rockets_plat_dynamic" massPerPoint="1" edgeK="10000" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="True" shapeMatching="True" shapeK="10000" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="1.9" y="-1.9" />
         <Point x="1.6" y="-2" />
@@ -1148,7 +1148,7 @@
         <Poly pt0="11" pt1="1" pt2="5" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="rockets_plat_dynamic" massPerPoint="1" edgeK="10000" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="True" shapeMatching="True" shapeK="10000" shapeDamping="10">
+    <SoftBody name="rockets_plat_dynamic" massPerPoint="1" edgeK="10000" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="True" shapeMatching="True" shapeK="10000" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="1.9" y="-1.9" />
         <Point x="1.6" y="-2" />
@@ -1202,7 +1202,7 @@
         <Poly pt0="11" pt1="1" pt2="5" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="rockets_plat" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="False" shapeMatching="False" shapeK="0" shapeDamping="0">
+    <SoftBody name="rockets_plat" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="False" shapeMatching="False" shapeK="0" shapeDamping="0" velDamping="0.993">
       <Points>
         <Point x="1.9" y="-1.9" />
         <Point x="1.6" y="-2" />
@@ -1237,7 +1237,7 @@
         <Poly pt0="11" pt1="1" pt2="5" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="rockets_plat" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="False" shapeMatching="False" shapeK="0" shapeDamping="0">
+    <SoftBody name="rockets_plat" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="False" shapeMatching="False" shapeK="0" shapeDamping="0" velDamping="0.993">
       <Points>
         <Point x="1.9" y="-1.9" />
         <Point x="1.6" y="-2" />
@@ -1272,7 +1272,7 @@
         <Poly pt0="11" pt1="1" pt2="5" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="rockets_plat" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="False" shapeMatching="False" shapeK="0" shapeDamping="0">
+    <SoftBody name="rockets_plat" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="False" shapeMatching="False" shapeK="0" shapeDamping="0" velDamping="0.993">
       <Points>
         <Point x="1.9" y="-1.9" />
         <Point x="1.6" y="-2" />
@@ -1307,7 +1307,7 @@
         <Poly pt0="11" pt1="1" pt2="5" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="rockets_plat" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="False" shapeMatching="False" shapeK="0" shapeDamping="0">
+    <SoftBody name="rockets_plat" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="False" shapeMatching="False" shapeK="0" shapeDamping="0" velDamping="0.993">
       <Points>
         <Point x="1.9" y="-1.9" />
         <Point x="1.6" y="-2" />
@@ -1342,7 +1342,7 @@
         <Poly pt0="11" pt1="1" pt2="5" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="rockets_plat" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="False" shapeMatching="False" shapeK="0" shapeDamping="0">
+    <SoftBody name="rockets_plat" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="False" shapeMatching="False" shapeK="0" shapeDamping="0" velDamping="0.993">
       <Points>
         <Point x="1.9" y="-1.9" />
         <Point x="1.6" y="-2" />
@@ -1377,7 +1377,7 @@
         <Poly pt0="11" pt1="1" pt2="5" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="rockets_plat" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="False" shapeMatching="False" shapeK="0" shapeDamping="0">
+    <SoftBody name="rockets_plat" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="False" shapeMatching="False" shapeK="0" shapeDamping="0" velDamping="0.993">
       <Points>
         <Point x="1.9" y="-1.9" />
         <Point x="1.6" y="-2" />
@@ -1412,7 +1412,7 @@
         <Poly pt0="11" pt1="1" pt2="5" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="rockets_plat" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="False" shapeMatching="False" shapeK="0" shapeDamping="0">
+    <SoftBody name="rockets_plat" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="False" shapeMatching="False" shapeK="0" shapeDamping="0" velDamping="0.993">
       <Points>
         <Point x="1.9" y="-1.9" />
         <Point x="1.6" y="-2" />
@@ -1447,7 +1447,7 @@
         <Poly pt0="11" pt1="1" pt2="5" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="rockets_plat" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="False" shapeMatching="False" shapeK="0" shapeDamping="0">
+    <SoftBody name="rockets_plat" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="False" shapeMatching="False" shapeK="0" shapeDamping="0" velDamping="0.993">
       <Points>
         <Point x="1.9" y="-1.9" />
         <Point x="1.6" y="-2" />
@@ -1482,7 +1482,7 @@
         <Poly pt0="11" pt1="1" pt2="5" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="rockets_plat" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="False" shapeMatching="False" shapeK="0" shapeDamping="0">
+    <SoftBody name="rockets_plat" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="False" shapeMatching="False" shapeK="0" shapeDamping="0" velDamping="0.993">
       <Points>
         <Point x="1.9" y="-1.9" />
         <Point x="1.6" y="-2" />
@@ -1517,7 +1517,7 @@
         <Poly pt0="11" pt1="1" pt2="5" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="rockets_plat" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="False" shapeMatching="False" shapeK="0" shapeDamping="0">
+    <SoftBody name="rockets_plat" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="False" shapeMatching="False" shapeK="0" shapeDamping="0" velDamping="0.993">
       <Points>
         <Point x="1.9" y="-1.9" />
         <Point x="1.6" y="-2" />
@@ -1552,7 +1552,7 @@
         <Poly pt0="11" pt1="1" pt2="5" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="rockets_plat" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="False" shapeMatching="False" shapeK="0" shapeDamping="0">
+    <SoftBody name="rockets_plat" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="False" shapeMatching="False" shapeK="0" shapeDamping="0" velDamping="0.993">
       <Points>
         <Point x="1.9" y="-1.9" />
         <Point x="1.6" y="-2" />
@@ -1587,7 +1587,7 @@
         <Poly pt0="11" pt1="1" pt2="5" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="rockets_plat" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="False" shapeMatching="False" shapeK="0" shapeDamping="0">
+    <SoftBody name="rockets_plat" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="False" shapeMatching="False" shapeK="0" shapeDamping="0" velDamping="0.993">
       <Points>
         <Point x="1.9" y="-1.9" />
         <Point x="1.6" y="-2" />
@@ -1622,7 +1622,7 @@
         <Poly pt0="11" pt1="1" pt2="5" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="rockets_plat" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="False" shapeMatching="False" shapeK="0" shapeDamping="0">
+    <SoftBody name="rockets_plat" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="False" shapeMatching="False" shapeK="0" shapeDamping="0" velDamping="0.993">
       <Points>
         <Point x="1.9" y="-1.9" />
         <Point x="1.6" y="-2" />
@@ -1657,7 +1657,7 @@
         <Poly pt0="11" pt1="1" pt2="5" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="rockets_plat" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="False" shapeMatching="False" shapeK="0" shapeDamping="0">
+    <SoftBody name="rockets_plat" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="False" shapeMatching="False" shapeK="0" shapeDamping="0" velDamping="0.993">
       <Points>
         <Point x="1.9" y="-1.9" />
         <Point x="1.6" y="-2" />
@@ -1692,7 +1692,7 @@
         <Poly pt0="11" pt1="1" pt2="5" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="rockets_plat" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="False" shapeMatching="False" shapeK="0" shapeDamping="0">
+    <SoftBody name="rockets_plat" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="False" shapeMatching="False" shapeK="0" shapeDamping="0" velDamping="0.993">
       <Points>
         <Point x="1.9" y="-1.9" />
         <Point x="1.6" y="-2" />
@@ -1727,7 +1727,7 @@
         <Poly pt0="11" pt1="1" pt2="5" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="rockets_plat" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="False" shapeMatching="False" shapeK="0" shapeDamping="0">
+    <SoftBody name="rockets_plat" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="False" shapeMatching="False" shapeK="0" shapeDamping="0" velDamping="0.993">
       <Points>
         <Point x="1.9" y="-1.9" />
         <Point x="1.6" y="-2" />
@@ -1762,7 +1762,7 @@
         <Poly pt0="11" pt1="1" pt2="5" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="rockets_plat" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="False" shapeMatching="False" shapeK="0" shapeDamping="0">
+    <SoftBody name="rockets_plat" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="False" shapeMatching="False" shapeK="0" shapeDamping="0" velDamping="0.993">
       <Points>
         <Point x="1.9" y="-1.9" />
         <Point x="1.6" y="-2" />
@@ -1797,7 +1797,7 @@
         <Poly pt0="11" pt1="1" pt2="5" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="rockets_plat_dynamic" massPerPoint="1" edgeK="10000" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="True" shapeMatching="True" shapeK="10000" shapeDamping="10">
+    <SoftBody name="rockets_plat_dynamic" massPerPoint="1" edgeK="10000" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="True" shapeMatching="True" shapeK="10000" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="1.9" y="-1.9" />
         <Point x="1.6" y="-2" />
@@ -1851,7 +1851,7 @@
         <Poly pt0="11" pt1="1" pt2="5" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="rockets_wheel" massPerPoint="1" edgeK="10000" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="1" kinematic="True" shapeMatching="True" shapeK="10000" shapeDamping="10">
+    <SoftBody name="rockets_wheel" massPerPoint="1" edgeK="10000" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="1" kinematic="True" shapeMatching="True" shapeK="10000" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="0" y="1" />
         <Point x="0.5" y="0.8660254" />
@@ -1901,7 +1901,7 @@
         <Poly pt0="1" pt1="2" pt2="3" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="rockets_wheel" massPerPoint="1" edgeK="10000" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="1" kinematic="True" shapeMatching="True" shapeK="10000" shapeDamping="10">
+    <SoftBody name="rockets_wheel" massPerPoint="1" edgeK="10000" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="1" kinematic="True" shapeMatching="True" shapeK="10000" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="0" y="1" />
         <Point x="0.5" y="0.8660254" />
@@ -1951,7 +1951,7 @@
         <Poly pt0="1" pt1="2" pt2="3" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="rockets_plat" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="False" shapeMatching="False" shapeK="0" shapeDamping="0">
+    <SoftBody name="rockets_plat" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="False" shapeMatching="False" shapeK="0" shapeDamping="0" velDamping="0.993">
       <Points>
         <Point x="1.9" y="-1.9" />
         <Point x="1.6" y="-2" />
@@ -1986,7 +1986,7 @@
         <Poly pt0="11" pt1="1" pt2="5" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="rockets_plat" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="False" shapeMatching="False" shapeK="0" shapeDamping="0">
+    <SoftBody name="rockets_plat" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="False" shapeMatching="False" shapeK="0" shapeDamping="0" velDamping="0.993">
       <Points>
         <Point x="1.9" y="-1.9" />
         <Point x="1.6" y="-2" />
@@ -2021,7 +2021,7 @@
         <Poly pt0="11" pt1="1" pt2="5" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="rockets_plat" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="False" shapeMatching="False" shapeK="0" shapeDamping="0">
+    <SoftBody name="rockets_plat" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="False" shapeMatching="False" shapeK="0" shapeDamping="0" velDamping="0.993">
       <Points>
         <Point x="1.9" y="-1.9" />
         <Point x="1.6" y="-2" />
@@ -2056,7 +2056,7 @@
         <Poly pt0="11" pt1="1" pt2="5" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="rockets_plat" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="False" shapeMatching="False" shapeK="0" shapeDamping="0">
+    <SoftBody name="rockets_plat" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="False" shapeMatching="False" shapeK="0" shapeDamping="0" velDamping="0.993">
       <Points>
         <Point x="1.9" y="-1.9" />
         <Point x="1.6" y="-2" />
@@ -2091,7 +2091,7 @@
         <Poly pt0="11" pt1="1" pt2="5" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="rockets_plat" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="False" shapeMatching="False" shapeK="0" shapeDamping="0">
+    <SoftBody name="rockets_plat" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="False" shapeMatching="False" shapeK="0" shapeDamping="0" velDamping="0.993">
       <Points>
         <Point x="1.9" y="-1.9" />
         <Point x="1.6" y="-2" />
@@ -2126,7 +2126,7 @@
         <Poly pt0="11" pt1="1" pt2="5" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="rockets_plat" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="False" shapeMatching="False" shapeK="0" shapeDamping="0">
+    <SoftBody name="rockets_plat" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="False" shapeMatching="False" shapeK="0" shapeDamping="0" velDamping="0.993">
       <Points>
         <Point x="1.9" y="-1.9" />
         <Point x="1.6" y="-2" />
@@ -2161,7 +2161,7 @@
         <Poly pt0="11" pt1="1" pt2="5" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="rockets_plat" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="False" shapeMatching="False" shapeK="0" shapeDamping="0">
+    <SoftBody name="rockets_plat" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0.5019608" kinematic="False" shapeMatching="False" shapeK="0" shapeDamping="0" velDamping="0.993">
       <Points>
         <Point x="1.9" y="-1.9" />
         <Point x="1.6" y="-2" />

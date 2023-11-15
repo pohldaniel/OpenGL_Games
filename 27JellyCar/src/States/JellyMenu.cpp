@@ -32,23 +32,15 @@ carcurrentPosition(SceneManager::Get().getScene("scene").m_carCurrentPosition) {
 
 	SceneManager::Get().getScene("scene").InitPhysic(m_world);
 	SceneManager::Get().getScene("scene").loadLevel("Assets/Jelly/Scenes_new/menu.scene");
-	SceneManager::Get().getScene("scene").buildLevel(m_world, "Assets/Jelly/car_and_truck.car");
+	SceneManager::Get().getScene("scene").buildLevel(m_world, m_gameBodies);
+	SceneManager::Get().getScene("scene").buildCar(m_world, m_car, "Assets/Jelly/car_and_truck.car");
 
 	const SkinInfo& skinInfo = SceneManager::Get().getScene("scene").getCurrentSkinInfo();
-	m_car = SceneManager::Get().getScene("scene").GetCar();
 	m_car->SetChassisTextures(skinInfo.skinTexture.chassisSmall, skinInfo.skinTexture.chassisBig);
 	m_car->SetTireTextures(skinInfo.skinTexture.tireSmall, skinInfo.skinTexture.tireBig);
 
-	m_gameBodies = SceneManager::Get().getScene("scene").GetLevelBodies();
 	m_jellyProjection = glm::ortho(-20.0f + 0, 0 + 20.0f, -4.2f + 4, 4 + 18.2f, -1.0f, 1.0f);
-
-
-	//SceneManager::Get().getSceneInfo("scene").loadLevelInfo("Assets/Jelly/scene_list.xml");
-	//SceneManager::Get().getSceneInfo("scene").loadCarSkins("Assets/Jelly/car_skins.xml");
-	//TileSetManager::Get().getTileSet("thumbs").loadTileSetCpu(SceneManager::Get().getSceneInfo("scene").getThumbFiles());
-
 	m_thumbAtlas = TileSetManager::Get().getTileSet("thumbs").getAtlas();
-	//Spritesheet::Safe("thumbs", m_thumbAtlas);
 
 	SceneManager::Get().getScene("scene").loadScores("JellyScore.xml");
 
@@ -60,7 +52,7 @@ JellyMenu::~JellyMenu() {
 	EventDispatcher::RemoveMouseListener(this);
 	EventDispatcher::RemoveKeyboardListener(this);
 
-	SceneManager::Get().getScene("scene").ClearLevel(m_world, m_gameBodies, m_car);
+	Scene::ClearLevel(m_world, m_gameBodies, m_car);
 }
 
 void JellyMenu::fixedUpdate() {}
@@ -80,8 +72,8 @@ void JellyMenu::update() {
 	}
 
 	//reset car position
-	if (m_car->getPosition().Y < SceneManager::Get().getScene("scene").GetLevelLine()){
-		Vector2 pos = SceneManager::Get().getScene("scene").GetCarStartPos();
+	if (m_car->getPosition().Y < SceneManager::Get().getScene("scene").getLevelLine()){
+		Vector2 pos = SceneManager::Get().getScene("scene").getCarStartPos();
 		Vector2 scale = Vector2(1.0f, 1.0f);
 
 		m_car->getChassisBody()->setPositionAngle(pos, 0.0f, scale);

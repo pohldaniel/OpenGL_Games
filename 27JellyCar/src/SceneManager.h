@@ -147,20 +147,19 @@ public:
 	const CarInfo& getCarInfo() const;
 	const LevelInfo& getLevelInfo() const;
 
-	const Vector2 GetWorldCenter() const;
-	const Vector2 GetWorldSize() const;
-	const AABB GetWorldLimits() const;
-	const Vector2 GetLevelTarget() const;
-	const float GetLevelLine() const;
-	Car* GetCar();
-	std::vector<LevelSoftBody*> GetLevelBodies();
-	Vector2 GetCarStartPos();
-	bool ClearLevel(World *world, std::vector<LevelSoftBody*> bodies, Car* car);
-	void InitPhysic(World *world);
+	const Vector2 getWorldCenter() const;
+	const Vector2 getWorldSize() const;
+	const AABB getWorldLimits() const;
+	const Vector2 getLevelTarget() const;
+	const float getLevelLine() const;
+	Vector2 getCarStartPos();
 
 	void loadLevel(const std::string path);
-	void buildLevel(World *world, const std::string& carFileName);
+	void loadCar(const std::string path);
+	void loadCompiledLevel(const std::string path);
 
+	void buildLevel(World *world, std::vector<LevelSoftBody*>& gameBodies);
+	void buildCar(World *world, Car*& car, const std::string& carFileName);
 	
 
 	int m_currentPosition;
@@ -168,6 +167,8 @@ public:
 
 	static void SaveLevel(const std::string path, const std::vector<ObjectInfo>& objectInfos, const std::vector<LevelSoftBody*>& bodies, const Vector2& carPos, const Vector2& target, const float flallLine, const std::string levelName);
 	static void SaveScores(const std::string path, const std::vector<SceneInfo>& levelInfos);
+	static void ClearLevel(World *world, std::vector<LevelSoftBody*> bodies, Car* car);
+	static void InitPhysic(World *world);
 
 private:
 
@@ -188,11 +189,7 @@ private:
 	std::vector<ObjectInfo2> m_objectInfos;
 	std::vector<SoftBodyInfo2> m_softBodyInfos;
 
-
 	AABB m_worldLimits;
-	Car* m_car;
-	std::vector<LevelSoftBody*> m_gameBodies;
-	Vector2 m_carStartPos;
 };
 
 

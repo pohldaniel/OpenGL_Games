@@ -33,7 +33,7 @@
     <Object name="Revolver_arrow" posX="28.96607" posY="-207.8297" angle="0" scaleX="1" scaleY="1" material="0" />
   </Objects>
   <SoftBodies>
-    <SoftBody name="Revoler_01" massPerPoint="1" edgeK="6000" edgeDamping="20" colorR="0.5019608" colorG="0.2509804" colorB="0.2509804" kinematic="False" shapeMatching="True" shapeK="1000" shapeDamping="10">
+    <SoftBody name="Revoler_01" massPerPoint="1" edgeK="6000" edgeDamping="20" colorR="0.5019608" colorG="0.2509804" colorB="0.2509804" kinematic="False" shapeMatching="True" shapeK="1000" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-1.111112" y="-6.777778" />
         <Point x="-6.111112" y="-6.777778" />
@@ -92,7 +92,7 @@
         <Poly pt0="13" pt1="12" pt2="11" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="Revolver_stat1" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.7529412" colorG="0.7529412" colorB="0.7529412" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="Revolver_stat1" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.7529412" colorG="0.7529412" colorB="0.7529412" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="11" y="0" />
         <Point x="14" y="0" />
@@ -113,7 +113,7 @@
         <Poly pt0="6" pt1="5" pt2="7" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="Revolver_stat1" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.7529412" colorG="0.7529412" colorB="0.7529412" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="Revolver_stat1" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.7529412" colorG="0.7529412" colorB="0.7529412" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="11" y="0" />
         <Point x="14" y="0" />
@@ -134,7 +134,7 @@
         <Poly pt0="6" pt1="5" pt2="7" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="Revoler_01" massPerPoint="1" edgeK="6000" edgeDamping="20" colorR="0.5019608" colorG="0.2509804" colorB="0.2509804" kinematic="False" shapeMatching="True" shapeK="1000" shapeDamping="10">
+    <SoftBody name="Revoler_01" massPerPoint="1" edgeK="6000" edgeDamping="20" colorR="0.5019608" colorG="0.2509804" colorB="0.2509804" kinematic="False" shapeMatching="True" shapeK="1000" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-1.111112" y="-6.777778" />
         <Point x="-6.111112" y="-6.777778" />
@@ -193,7 +193,7 @@
         <Poly pt0="13" pt1="12" pt2="11" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="Revolver_stat1" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.7529412" colorG="0.7529412" colorB="0.7529412" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="Revolver_stat1" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.7529412" colorG="0.7529412" colorB="0.7529412" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="11" y="0" />
         <Point x="14" y="0" />
@@ -214,7 +214,7 @@
         <Poly pt0="6" pt1="5" pt2="7" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="Revolver_stat1" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.7529412" colorG="0.7529412" colorB="0.7529412" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="Revolver_stat1" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.7529412" colorG="0.7529412" colorB="0.7529412" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="11" y="0" />
         <Point x="14" y="0" />
@@ -235,7 +235,7 @@
         <Poly pt0="6" pt1="5" pt2="7" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="Revolver_stat1" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.7529412" colorG="0.7529412" colorB="0.7529412" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="Revolver_stat1" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.7529412" colorG="0.7529412" colorB="0.7529412" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="11" y="0" />
         <Point x="14" y="0" />
@@ -256,7 +256,7 @@
         <Poly pt0="6" pt1="5" pt2="7" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="Revoler_01" massPerPoint="1" edgeK="6000" edgeDamping="20" colorR="0.5019608" colorG="0.2509804" colorB="0.2509804" kinematic="False" shapeMatching="True" shapeK="1000" shapeDamping="10">
+    <SoftBody name="Revoler_01" massPerPoint="1" edgeK="6000" edgeDamping="20" colorR="0.5019608" colorG="0.2509804" colorB="0.2509804" kinematic="False" shapeMatching="True" shapeK="1000" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-1.111112" y="-6.777778" />
         <Point x="-6.111112" y="-6.777778" />
@@ -315,7 +315,7 @@
         <Poly pt0="13" pt1="12" pt2="11" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="Revolver_stat1" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.7529412" colorG="0.7529412" colorB="0.7529412" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="Revolver_stat1" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.7529412" colorG="0.7529412" colorB="0.7529412" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="11" y="0" />
         <Point x="14" y="0" />
@@ -336,7 +336,7 @@
         <Poly pt0="6" pt1="5" pt2="7" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="Revolver_slide" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0" colorG="1" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="Revolver_slide" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0" colorG="1" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="10" y="-2" />
         <Point x="7" y="-3" />
@@ -355,7 +355,7 @@
         <Poly pt0="6" pt1="5" pt2="2" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="Revolver_slide" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0" colorG="1" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="Revolver_slide" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0" colorG="1" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="10" y="-2" />
         <Point x="7" y="-3" />
@@ -374,7 +374,7 @@
         <Poly pt0="6" pt1="5" pt2="2" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="Revolver_slide" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0" colorG="1" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="Revolver_slide" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0" colorG="1" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="10" y="-2" />
         <Point x="7" y="-3" />
@@ -393,7 +393,7 @@
         <Poly pt0="6" pt1="5" pt2="2" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="Revolver_slide" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0" colorG="1" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="Revolver_slide" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0" colorG="1" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="10" y="-2" />
         <Point x="7" y="-3" />
@@ -412,7 +412,7 @@
         <Poly pt0="6" pt1="5" pt2="2" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="Revolver_slide" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0" colorG="1" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="Revolver_slide" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0" colorG="1" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="10" y="-2" />
         <Point x="7" y="-3" />
@@ -431,7 +431,7 @@
         <Poly pt0="6" pt1="5" pt2="2" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="Revolver_slide" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0" colorG="1" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="Revolver_slide" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0" colorG="1" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="10" y="-2" />
         <Point x="7" y="-3" />
@@ -450,7 +450,7 @@
         <Poly pt0="6" pt1="5" pt2="2" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="Revolver_slide" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0" colorG="1" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="Revolver_slide" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0" colorG="1" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="10" y="-2" />
         <Point x="7" y="-3" />
@@ -469,7 +469,7 @@
         <Poly pt0="6" pt1="5" pt2="2" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="Revolver_slide" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0" colorG="1" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="Revolver_slide" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0" colorG="1" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="10" y="-2" />
         <Point x="7" y="-3" />
@@ -488,7 +488,7 @@
         <Poly pt0="6" pt1="5" pt2="2" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="Revolver_slide" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0" colorG="1" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="Revolver_slide" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0" colorG="1" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="10" y="-2" />
         <Point x="7" y="-3" />
@@ -507,7 +507,7 @@
         <Poly pt0="6" pt1="5" pt2="2" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="Revolver_slide" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0" colorG="1" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="Revolver_slide" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0" colorG="1" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="10" y="-2" />
         <Point x="7" y="-3" />
@@ -526,7 +526,7 @@
         <Poly pt0="6" pt1="5" pt2="2" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="Revolver_slide" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0" colorG="1" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="Revolver_slide" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0" colorG="1" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="10" y="-2" />
         <Point x="7" y="-3" />
@@ -545,7 +545,7 @@
         <Poly pt0="6" pt1="5" pt2="2" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="Revolver_slide" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0" colorG="1" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="Revolver_slide" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0" colorG="1" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="10" y="-2" />
         <Point x="7" y="-3" />
@@ -564,7 +564,7 @@
         <Poly pt0="6" pt1="5" pt2="2" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="Revolver_slide" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0" colorG="1" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="Revolver_slide" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0" colorG="1" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="10" y="-2" />
         <Point x="7" y="-3" />
@@ -583,7 +583,7 @@
         <Poly pt0="6" pt1="5" pt2="2" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="Revolver_slide" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0" colorG="1" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="Revolver_slide" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0" colorG="1" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="10" y="-2" />
         <Point x="7" y="-3" />
@@ -602,7 +602,7 @@
         <Poly pt0="6" pt1="5" pt2="2" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="Revolver_stat1" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.7529412" colorG="0.7529412" colorB="0.7529412" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="Revolver_stat1" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.7529412" colorG="0.7529412" colorB="0.7529412" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="11" y="0" />
         <Point x="14" y="0" />
@@ -623,7 +623,7 @@
         <Poly pt0="6" pt1="5" pt2="7" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="Revolver_slide" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0" colorG="1" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="Revolver_slide" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0" colorG="1" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="10" y="-2" />
         <Point x="7" y="-3" />
@@ -642,7 +642,7 @@
         <Poly pt0="6" pt1="5" pt2="2" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="Revolver_arrow" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="1" colorG="1" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="Revolver_arrow" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="1" colorG="1" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-1.087302" y="-0.2619048" />
         <Point x="-1.087302" y="0.3412699" />
@@ -661,7 +661,7 @@
         <Poly pt0="1" pt1="0" pt2="6" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="Revolver_arrow" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="1" colorG="1" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="Revolver_arrow" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="1" colorG="1" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-1.087302" y="-0.2619048" />
         <Point x="-1.087302" y="0.3412699" />
@@ -680,7 +680,7 @@
         <Poly pt0="1" pt1="0" pt2="6" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="Revolver_arrow" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="1" colorG="1" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="Revolver_arrow" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="1" colorG="1" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-1.087302" y="-0.2619048" />
         <Point x="-1.087302" y="0.3412699" />
@@ -699,7 +699,7 @@
         <Poly pt0="1" pt1="0" pt2="6" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="Revolver_arrow" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="1" colorG="1" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="Revolver_arrow" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="1" colorG="1" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-1.087302" y="-0.2619048" />
         <Point x="-1.087302" y="0.3412699" />
@@ -718,7 +718,7 @@
         <Poly pt0="1" pt1="0" pt2="6" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="Revolver_arrow" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="1" colorG="1" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="Revolver_arrow" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="1" colorG="1" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-1.087302" y="-0.2619048" />
         <Point x="-1.087302" y="0.3412699" />
@@ -737,7 +737,7 @@
         <Poly pt0="1" pt1="0" pt2="6" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="Revolver_arrow" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="1" colorG="1" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10">
+    <SoftBody name="Revolver_arrow" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="1" colorG="1" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
         <Point x="-1.087302" y="-0.2619048" />
         <Point x="-1.087302" y="0.3412699" />
