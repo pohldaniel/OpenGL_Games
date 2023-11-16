@@ -182,7 +182,6 @@
     <ClCompile Include="src\Levels\KinematicControl.cpp" />
     <ClCompile Include="src\Levels\KinematicMotor.cpp" />
     <ClCompile Include="src\Levels\KinematicPlatform.cpp" />
-    <ClCompile Include="src\Levels\LevelManager.cpp" />
     <ClCompile Include="src\Levels\LevelSoftBody.cpp" />
     <ClCompile Include="src\LoadingManager.cpp" />
     <ClCompile Include="src\Mesh.cpp" />
@@ -376,15 +375,8 @@
     <ClInclude Include="src\Levels\KinematicControl.h" />
     <ClInclude Include="src\Levels\KinematicMotor.h" />
     <ClInclude Include="src\Levels\KinematicPlatform.h" />
-    <ClInclude Include="src\Levels\LevelManager.h" />
     <ClInclude Include="src\Levels\LevelSoftBody.h" />
-    <ClInclude Include="src\Levels\ObjectInfo.h" />
-    <ClInclude Include="src\Levels\SimpleStruct\BodyObject.h" />
-    <ClInclude Include="src\Levels\SimpleStruct\BodyObjectInfo.h" />
-    <ClInclude Include="src\Levels\SimpleStruct\BodyPoint.h" />
-    <ClInclude Include="src\Levels\SimpleStruct\BodyPolygon.h" />
-    <ClInclude Include="src\Levels\SimpleStruct\BodySpring.h" />
-    <ClInclude Include="src\Levels\SimpleStruct\GameObject.h" />
+    <ClInclude Include="src\Levels\SimpleStructs.h" />
     <ClInclude Include="src\LoadingManager.h" />
     <ClInclude Include="src\Mesh.h" />
     <ClInclude Include="src\MousePickerFBO.h" />

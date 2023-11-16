@@ -8,7 +8,6 @@
 
 #include "Car/Car.h"
 #include "Levels/LevelSoftBody.h"
-#include "Levels/LevelManager.h"
 #include "JellyPhysics/World.h"
 #include "SceneManager.h"
 
@@ -41,7 +40,6 @@ private:
 	unsigned int m_levelInfosSize;
 	unsigned int m_carSkinsSize;
 
-	//LevelManager* m_levelManager;
 	std::vector<LevelSoftBody*> m_gameBodies;
 	World* m_world;
 	Car* m_car;

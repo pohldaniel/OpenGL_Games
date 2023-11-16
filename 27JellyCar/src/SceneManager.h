@@ -10,9 +10,7 @@
 #include <string>
 
 #include <engine/Texture.h>
-#include "Levels/LevelSoftBody.h"
-#include "Levels/KinematicPlatform.h"
-#include "Levels/KinematicMotor.h"
+#include "Levels/SimpleStructs.h"
 #include "Car/Car.h"
 
 struct SceneInfo {
@@ -39,48 +37,6 @@ struct SkinInfo {
 	SkinTexture skinTexture;
 };
 
-struct ObjectInfo2 {
-	char name[64];
-	float posX;
-	float posY;
-	float angle;
-	float scaleX;
-	float scaleY;
-	int material;
-	bool isPlatform;
-	bool isMotor;
-	float offsetX;
-	float offsetY;
-	float secondsPerLoop;
-	float startOffset;
-	float radiansPerSecond;
-};
-
-struct Point2 {
-	float x;
-	float y;
-	float mass;
-};
-
-struct Spring2 {
-	int pt1;
-	int pt2;
-	float k;
-	float damp;
-};
-
-struct Triangle2 {
-	int pt0;
-	int pt1;
-	int pt2;
-};
-
-struct Triangle3 {
-	float pt0;
-	float pt1;
-	float pt2;
-};
-
 struct CarInfo {
 	char name[64];
 	float posX;
@@ -93,40 +49,7 @@ struct LevelInfo {
 	float fallLine;
 };
 
-struct SoftBodyAttributes {
-	char name[64];
-
-	float colorR;
-	float colorG;
-	float colorB;
-
-	float massPerPoint;
-	float edgeK;
-	float edgeDamping;
-
-	bool isKinematic;
-	bool shapeMatching;
-	float shapeK;
-	float shapeDamping;
-	float velDamping;
-
-	bool pressureized;
-	float pressure;
-};
-
-struct SoftBodyInfo2 {
-	SoftBodyAttributes softBodyAttributes;
-
-	int pointCount;
-	std::vector<Point2> points;
-
-	int springCount;
-	std::vector<Spring2> springs;
-
-	int polygonCount;
-	std::vector<Triangle2> polygons;
-};
-
+class LevelSoftBody;
 class Scene {
 
 	friend class SceneManager;
@@ -155,8 +78,8 @@ public:
 	const SceneInfo& getCurrentSceneInfo() const;
 	const SkinInfo& getCurrentSkinInfo() const;
 
-	const std::vector<ObjectInfo2>& getObjectInfos() const;
-	const std::vector<SoftBodyInfo2>& getSoftBodyInfos() const;
+	const std::vector<ObjectInfo>& getObjectInfos() const;
+	const std::vector<SoftBodyInfo>& getSoftBodyInfos() const;
 	const CarInfo& getCarInfo() const;
 	const LevelInfo& getLevelInfo() const;
 
@@ -206,8 +129,8 @@ private:
 
 	CarInfo m_carInfo;
 	LevelInfo m_levelInfo;
-	std::vector<ObjectInfo2> m_objectInfos;
-	std::vector<SoftBodyInfo2> m_softBodyInfos;
+	std::vector<ObjectInfo> m_objectInfos;
+	std::vector<SoftBodyInfo> m_softBodyInfos;
 
 	AABB m_worldLimits;
 };

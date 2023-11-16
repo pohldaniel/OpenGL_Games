@@ -1,7 +1,10 @@
 #include <tinyxml.h>
 #include <iostream>
 #include "SceneManager.h"
-#include "Levels/LevelManager.h"
+
+#include "Levels/LevelSoftBody.h"
+#include "Levels/KinematicPlatform.h"
+#include "Levels/KinematicMotor.h"
 
 Scene::Scene() :
 	m_currentPosition(0),
@@ -256,24 +259,13 @@ void removeDuplicates(std::vector<LevelSoftBody*> &v) {
 	for (std::vector<LevelSoftBody*>::iterator itei = v.begin(); itei != v.end(); itei++) {
 		LevelSoftBody* ch = *itei;
 		for (std::vector<LevelSoftBody*>::iterator itej = itei + 1; itej != v.end(); itej++) {
-			if (ch->m_bodyInfo.name.compare((*itej)->m_bodyInfo.name) == 0) {
+			if (ch->GetName().compare((*itej)->GetName()) == 0) {
 				v.erase(itej);
 				--itei;
 				break;
 			}
 		}
 	}
-
-	/*for (unsigned int i = 1; i < v.size(); ++i) {
-		for (unsigned int k = 0; k < i; ++k) {
-			if (v.at(i)->m_bodyInfo.name.compare(v.at(k)->m_bodyInfo.name) == 0) {
-				std::cout << "----" << std::endl;
-				v.erase(v.begin() + i);
-				--i;
-				break;
-			}
-		}
-	}*/
 }
 
 void Scene::SaveLevel(const std::string path, const std::vector<ObjectInfo>& objectInfos, std::vector<LevelSoftBody*>& bodies, const Vector2& carPos, const Vector2& target, const float fallLine, const std::string levelName) {
@@ -290,7 +282,7 @@ void Scene::SaveLevel(const std::string path, const std::vector<ObjectInfo>& obj
 	for (int i = 0; i < objectInfos.size(); i++) {
 		TiXmlElement * objectNode = new TiXmlElement("Object");
 		objectsNode->LinkEndChild(objectNode);
-		objectNode->SetAttribute("name", objectInfos[i].name.c_str());
+		objectNode->SetAttribute("name", objectInfos[i].name);
 		objectNode->SetFloatAttribute("posX", objectInfos[i].posX);
 		objectNode->SetFloatAttribute("posY", objectInfos[i].posY);
 		objectNode->SetFloatAttribute("angle", objectInfos[i].angle);
@@ -298,22 +290,22 @@ void Scene::SaveLevel(const std::string path, const std::vector<ObjectInfo>& obj
 		objectNode->SetFloatAttribute("scaleY", objectInfos[i].scaleY);
 		objectNode->SetAttribute("material", objectInfos[i].material);
 
-		if (objectInfos[i].kinematicControls.isMotor || objectInfos[i].kinematicControls.isPlatform) {
+		if (objectInfos[i].isMotor || objectInfos[i].isPlatform) {
 			TiXmlElement * kninematicControlsNode = new TiXmlElement("KinematicControls");
 			objectNode->LinkEndChild(kninematicControlsNode);
-			if (objectInfos[i].kinematicControls.isMotor) {
+			if (objectInfos[i].isMotor) {
 				TiXmlElement * motorNode = new TiXmlElement("Motor");
 				kninematicControlsNode->LinkEndChild(motorNode);
-				motorNode->SetFloatAttribute("radiansPerSecond", objectInfos[i].kinematicControls.radiansPerSecond);
+				motorNode->SetFloatAttribute("radiansPerSecond", objectInfos[i].radiansPerSecond);
 			}
 
-			if (objectInfos[i].kinematicControls.isPlatform) {
+			if (objectInfos[i].isPlatform) {
 				TiXmlElement * platformMotionNode = new TiXmlElement("PlatformMotion");
 				kninematicControlsNode->LinkEndChild(platformMotionNode);
-				platformMotionNode->SetFloatAttribute("offsetX", objectInfos[i].kinematicControls.offsetX);
-				platformMotionNode->SetFloatAttribute("offsetY", objectInfos[i].kinematicControls.offsetY);
-				platformMotionNode->SetFloatAttribute("secondsPerLoop", objectInfos[i].kinematicControls.secondsPerLoop);
-				platformMotionNode->SetFloatAttribute("startOffset", objectInfos[i].kinematicControls.startOffset);
+				platformMotionNode->SetFloatAttribute("offsetX", objectInfos[i].offsetX);
+				platformMotionNode->SetFloatAttribute("offsetY", objectInfos[i].offsetY);
+				platformMotionNode->SetFloatAttribute("secondsPerLoop", objectInfos[i].secondsPerLoop);
+				platformMotionNode->SetFloatAttribute("startOffset", objectInfos[i].startOffset);
 			}
 		}
 	}
@@ -323,31 +315,33 @@ void Scene::SaveLevel(const std::string path, const std::vector<ObjectInfo>& obj
 	for (int i = 0; i < bodies.size(); i++) {
 		TiXmlElement * softBody = new TiXmlElement("SoftBody");
 		softBodiesNode->LinkEndChild(softBody);
+		
+		
 
-		LevelSoftBody* _body = *std::find_if(bodies.begin(), bodies.end(), [&](const LevelSoftBody* m) -> bool { return m->m_bodyInfo.name == bodies[i]->m_bodyInfo.name; });
-		softBody->SetAttribute("name", _body->m_bodyInfo.name.c_str());
-		softBody->SetFloatAttribute("massPerPoint", _body->m_bodyInfo.massPerPoint);
-		softBody->SetFloatAttribute("edgeK", _body->m_bodyInfo.edgeK);
-		softBody->SetFloatAttribute("edgeDamping", _body->m_bodyInfo.edgeDamping);
-		softBody->SetFloatAttribute("colorR", _body->m_bodyInfo.colorR);
-		softBody->SetFloatAttribute("colorG", _body->m_bodyInfo.colorG);
-		softBody->SetFloatAttribute("colorB", _body->m_bodyInfo.colorB);
-		softBody->SetAttribute("kinematic", _body->m_bodyInfo.kinematic ? "True" : "False");
-		softBody->SetAttribute("shapeMatching", _body->m_bodyInfo.shapeMatching ? "True" : "False");
-		softBody->SetAttribute("shapeK", _body->m_bodyInfo.shapeK);
-		softBody->SetAttribute("shapeDamping", _body->m_bodyInfo.shapeDamping);
-		softBody->SetFloatAttribute("velDamping", _body->m_bodyInfo.velDamping);
+		LevelSoftBody* _body = *std::find_if(bodies.begin(), bodies.end(), [&](const LevelSoftBody* m) -> bool { return m->GetName().compare(bodies[i]->GetName()) == 0; });
+		softBody->SetAttribute("name", _body->m_objectInfo.name);
+		softBody->SetFloatAttribute("massPerPoint", _body->massPerPoint);
+		softBody->SetFloatAttribute("edgeK", _body->edgeK);
+		softBody->SetFloatAttribute("edgeDamping", _body->edgeDamping);
+		softBody->SetFloatAttribute("colorR", _body->colorR);
+		softBody->SetFloatAttribute("colorG", _body->colorG);
+		softBody->SetFloatAttribute("colorB", _body->colorB);
+		softBody->SetAttribute("kinematic", _body->isKinematic ? "True" : "False");
+		softBody->SetAttribute("shapeMatching", _body->shapeMatching ? "True" : "False");
+		softBody->SetAttribute("shapeK", _body->shapeK);
+		softBody->SetAttribute("shapeDamping", _body->shapeDamping);
+		softBody->SetFloatAttribute("velDamping", _body->velDamping);
 
-		if (_body->m_bodyInfo.pressureized) {
+		if (_body->pressureized) {
 			TiXmlElement * pressure = new TiXmlElement("Pressure");
 			softBody->LinkEndChild(pressure);
-			pressure->SetFloatAttribute("amount", _body->m_bodyInfo.pressure);
+			pressure->SetFloatAttribute("amount", _body->pressure);
 		}
 
 		TiXmlElement * pointsNode= new TiXmlElement("Points");
 		softBody->LinkEndChild(pointsNode);
 
-		for (auto point : _body->m_points) {
+		/*for (auto point : _body->m_points) {
 			TiXmlElement * pointNode = new TiXmlElement("Point");
 			pointsNode->LinkEndChild(pointNode);
 			pointNode->SetFloatAttribute("x", point.x);
@@ -376,7 +370,7 @@ void Scene::SaveLevel(const std::string path, const std::vector<ObjectInfo>& obj
 			polygonNode->SetAttribute("pt0", triangle.pt0);
 			polygonNode->SetAttribute("pt1", triangle.pt1);
 			polygonNode->SetFloatAttribute("pt2", triangle.pt2);
-		}
+		}*/
 	}
 
 	TiXmlElement* carNode = root->LinkEndChild(new TiXmlElement("Car"))->ToElement();
@@ -414,7 +408,7 @@ void Scene::loadXmlLevel(const std::string path) {
 
 	TiXmlElement* objectNode = hRoot.FirstChild("Objects").FirstChild().Element();
 	for (objectNode; objectNode; objectNode = objectNode->NextSiblingElement()){
-		ObjectInfo2 objectInfo;
+		ObjectInfo objectInfo;
 		std::strncpy(objectInfo.name, objectNode->Attribute("name"), sizeof(objectInfo.name));
 
 		objectInfo.posX = std::stof(objectNode->Attribute("posX"));
@@ -448,7 +442,7 @@ void Scene::loadXmlLevel(const std::string path) {
 
 	TiXmlElement* softBodyNode = hRoot.FirstChild("SoftBodies").FirstChild().Element();
 	for (softBodyNode; softBodyNode; softBodyNode = softBodyNode->NextSiblingElement()) {
-		SoftBodyInfo2 softBodyInfo;
+		SoftBodyInfo softBodyInfo;
 		
 		if (softBodyNode->Attribute("name") != NULL){
 			std::strncpy(softBodyInfo.softBodyAttributes.name, softBodyNode->Attribute("name"), sizeof(softBodyInfo.softBodyAttributes.name));
@@ -544,23 +538,23 @@ void Scene::loadCompiledLevel(const std::string path) {
 
 	for (int i = 0; i < softBodyCount; i++){
 
-		SoftBodyInfo2 softBodyInfo;
+		SoftBodyInfo softBodyInfo;
 		memset(&softBodyInfo.softBodyAttributes, 0, sizeof(SoftBodyAttributes));
 		stream.read(reinterpret_cast<char*>(&softBodyInfo.softBodyAttributes), sizeof(SoftBodyAttributes));
 
 		stream.read(reinterpret_cast<char*>(&softBodyInfo.pointCount), sizeof(int));
 		softBodyInfo.points.resize(softBodyInfo.pointCount);
 
-		stream.read(reinterpret_cast<char*>(&softBodyInfo.points[0]), sizeof(Point2) * softBodyInfo.pointCount);
+		stream.read(reinterpret_cast<char*>(&softBodyInfo.points[0]), sizeof(Point) * softBodyInfo.pointCount);
 
 		stream.read(reinterpret_cast<char*>(&softBodyInfo.springCount), sizeof(int));
 		softBodyInfo.springs.resize(softBodyInfo.springCount);
-		stream.read(reinterpret_cast<char*>(&softBodyInfo.springs[0]), sizeof(Spring2) * softBodyInfo.springCount);
+		stream.read(reinterpret_cast<char*>(&softBodyInfo.springs[0]), sizeof(Spring) * softBodyInfo.springCount);
 
 
 		stream.read(reinterpret_cast<char*>(&softBodyInfo.polygonCount), sizeof(int));
 		softBodyInfo.polygons.resize(softBodyInfo.polygonCount);
-		stream.read(reinterpret_cast<char*>(&softBodyInfo.polygons[0]), sizeof(Triangle2) * softBodyInfo.polygonCount);
+		stream.read(reinterpret_cast<char*>(&softBodyInfo.polygons[0]), sizeof(Triangle) * softBodyInfo.polygonCount);
 
 		m_softBodyInfos.push_back(softBodyInfo);
 	}
@@ -568,7 +562,7 @@ void Scene::loadCompiledLevel(const std::string path) {
 	int objectCount = 0;
 	stream.read(reinterpret_cast<char*>(&objectCount), sizeof(int));
 	m_objectInfos.resize(objectCount);
-	stream.read(reinterpret_cast<char*>(&m_objectInfos[0]), sizeof(ObjectInfo2) * objectCount);
+	stream.read(reinterpret_cast<char*>(&m_objectInfos[0]), sizeof(ObjectInfo) * objectCount);
 
 	stream.read(m_carInfo.name, sizeof(char) * 64);
 	stream.read(reinterpret_cast<char*>(&m_carInfo.posX), sizeof(float));
@@ -603,7 +597,7 @@ void Scene::loadOriginLevel(const std::string path) {
 
 	TiXmlElement* objectNode = hRoot.FirstChild("Objects").FirstChild().Element();
 	for (objectNode; objectNode; objectNode = objectNode->NextSiblingElement()) {
-		ObjectInfo2 objectInfo;
+		ObjectInfo objectInfo;
 		std::strncpy(objectInfo.name, objectNode->Attribute("name"), sizeof(objectInfo.name));
 		softBodyFiles.insert(objectInfo.name);
 
@@ -649,7 +643,7 @@ void Scene::loadOriginLevel(const std::string path) {
 	m_levelInfo.fallLine = std::stof(levelNode->Attribute("fallLine"));
 	 
 	for (auto& softBodyFile : softBodyFiles) {
-		SoftBodyInfo2 softBodyInfo;
+		SoftBodyInfo softBodyInfo;
 		
 		TiXmlDocument doc(std::string("Assets/Jelly/Scenes/" + softBodyFile + ".softbody").c_str());
 		if (!doc.LoadFile()) {
@@ -751,21 +745,21 @@ void Scene::saveCompiledLevel(const std::string path) {
 		stream.write(reinterpret_cast<char*>(&m_softBodyInfos[i].softBodyAttributes), sizeof(SoftBodyAttributes));
 		stream.write(reinterpret_cast<char*>(&m_softBodyInfos[i].pointCount), sizeof(int));
 		m_softBodyInfos[i].points.resize(m_softBodyInfos[i].pointCount);
-		stream.write(reinterpret_cast<char*>(&m_softBodyInfos[i].points[0]), sizeof(Point2) * m_softBodyInfos[i].pointCount);
+		stream.write(reinterpret_cast<char*>(&m_softBodyInfos[i].points[0]), sizeof(Point) * m_softBodyInfos[i].pointCount);
 
 		stream.write(reinterpret_cast<char*>(&m_softBodyInfos[i].springCount), sizeof(int));
 		m_softBodyInfos[i].springs.resize(m_softBodyInfos[i].springCount);
-		stream.write(reinterpret_cast<char*>(&m_softBodyInfos[i].springs[0]), sizeof(Spring2) * m_softBodyInfos[i].springCount);
+		stream.write(reinterpret_cast<char*>(&m_softBodyInfos[i].springs[0]), sizeof(Spring) * m_softBodyInfos[i].springCount);
 
 		stream.write(reinterpret_cast<char*>(&m_softBodyInfos[i].polygonCount), sizeof(int));
 		m_softBodyInfos[i].polygons.resize(m_softBodyInfos[i].polygonCount);
-		stream.write(reinterpret_cast<char*>(&m_softBodyInfos[i].polygons[0]), sizeof(Triangle2) * m_softBodyInfos[i].polygonCount);		
+		stream.write(reinterpret_cast<char*>(&m_softBodyInfos[i].polygons[0]), sizeof(Triangle) * m_softBodyInfos[i].polygonCount);		
 	}
 
 	int objectCount = m_objectInfos.size();
 	stream.write(reinterpret_cast<char*>(&objectCount), sizeof(int));
 	m_objectInfos.resize(objectCount);
-	stream.write(reinterpret_cast<char*>(&m_objectInfos[0]), sizeof(ObjectInfo2) * objectCount);
+	stream.write(reinterpret_cast<char*>(&m_objectInfos[0]), sizeof(ObjectInfo) * objectCount);
 
 	stream.write(m_carInfo.name, sizeof(char) * 64);
 	stream.write(reinterpret_cast<char*>(&m_carInfo.posX), sizeof(float));
@@ -895,11 +889,11 @@ void Scene::loadCar(const std::string path) {
 
 }
 
-const std::vector<ObjectInfo2>& Scene::getObjectInfos() const {
+const std::vector<ObjectInfo>& Scene::getObjectInfos() const {
 	return m_objectInfos;
 }
 
-const std::vector<SoftBodyInfo2>& Scene::getSoftBodyInfos() const {
+const std::vector<SoftBodyInfo>& Scene::getSoftBodyInfos() const {
 	return m_softBodyInfos;
 }
 
@@ -916,30 +910,10 @@ void Scene::buildLevel(World *world, std::vector<LevelSoftBody*>& gameBodies) {
 
 	for (auto objectInfo : m_objectInfos) {
 
-		ObjectInfo bodyInfo;
-		bodyInfo.kinematicControls.radiansPerSecond = -1.0f;
-		bodyInfo.kinematicControls.secondsPerLoop = -1.0f;
-		bodyInfo.kinematicControls.startOffset = 0.0f;
-		//name
-		bodyInfo.name = objectInfo.name;
-
-		//position
-		bodyInfo.posX = objectInfo.posX;
-		bodyInfo.posY = objectInfo.posY;
-
-		//angle
-		bodyInfo.angle = objectInfo.angle;
-
-		//scale
-		bodyInfo.scaleX = objectInfo.scaleX;
-		bodyInfo.scaleY = objectInfo.scaleY;
-		//material
-		bodyInfo.material = objectInfo.material;
-
-		SoftBodyInfo2 _body = *std::find_if(m_softBodyInfos.begin(), m_softBodyInfos.end(), [&](const SoftBodyInfo2 m) -> bool {
+		SoftBodyInfo softBody = *std::find_if(m_softBodyInfos.begin(), m_softBodyInfos.end(), [&](const SoftBodyInfo m) -> bool {
 			return strcmp(m.softBodyAttributes.name, objectInfo.name) == 0;
 		});
-		LevelSoftBody* gameBody = new LevelSoftBody(_body, world, bodyInfo);
+		LevelSoftBody* gameBody = new LevelSoftBody(softBody, world, objectInfo);
 
 		//ballon and tire item
 		if (gameBody->GetName() == "itemballoon" || gameBody->GetName() == "itemstick") {
@@ -951,18 +925,18 @@ void Scene::buildLevel(World *world, std::vector<LevelSoftBody*>& gameBodies) {
 		Body* body = gameBody->GetBody();
 
 		if (objectInfo.isPlatform) {
-			Vector2 end(bodyInfo.posX, bodyInfo.posY);
+			Vector2 end(objectInfo.posX, objectInfo.posY);
 
 			end.X += objectInfo.offsetX;
 			end.Y += objectInfo.offsetY;
 			float seconds = objectInfo.secondsPerLoop;
 			float offset = objectInfo.startOffset;
 
-			gameBody->AddKinematicControl(new KinematicPlatform(body, Vector2(bodyInfo.posX, bodyInfo.posY), end, seconds, offset));
+			gameBody->AddKinematicControl(new KinematicPlatform(body, Vector2(objectInfo.posX, objectInfo.posY), end, seconds, offset));
 
 			if (offset != 0.0f) {
-				Vector2 newPos = Vector2(bodyInfo.posX, bodyInfo.posY).lerp(end, 0.5f + (sinf((PI / 2.0f) + (PI*2.0*offset))*0.5f));
-				body->setPositionAngle(newPos, VectorTools::degToRad(bodyInfo.angle), Vector2(bodyInfo.scaleX, bodyInfo.scaleY));
+				Vector2 newPos = Vector2(objectInfo.posX, objectInfo.posY).lerp(end, 0.5f + (sinf((PI / 2.0f) + (PI*2.0*offset))*0.5f));
+				body->setPositionAngle(newPos, VectorTools::degToRad(objectInfo.angle), Vector2(objectInfo.scaleX, objectInfo.scaleY));
 			}
 		}
 

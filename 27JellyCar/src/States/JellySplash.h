@@ -6,7 +6,6 @@
 
 #include "Car/Car.h"
 #include "Levels/LevelSoftBody.h"
-#include "Levels/LevelManager.h"
 #include "JellyPhysics/World.h"
 
 class JellySplash : public State {

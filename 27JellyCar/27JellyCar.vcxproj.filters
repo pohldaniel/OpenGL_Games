@@ -55,9 +55,6 @@
     <Filter Include="Source Files\Levels">
       <UniqueIdentifier>{cf51e59e-dbde-4d2c-9029-eb60197de347}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Levels\SimpleStruct">
-      <UniqueIdentifier>{904e9696-3aca-4b6f-875a-1ca7b5fd122f}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\JellyPhysics">
       <UniqueIdentifier>{21447362-a7ca-4aeb-ad6f-ee57837d6f10}</UniqueIdentifier>
     </Filter>
@@ -322,9 +319,6 @@
       <Filter>Source Files\Levels</Filter>
     </ClCompile>
     <ClCompile Include="src\Levels\KinematicPlatform.cpp">
-      <Filter>Source Files\Levels</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Levels\LevelManager.cpp">
       <Filter>Source Files\Levels</Filter>
     </ClCompile>
     <ClCompile Include="src\Levels\LevelSoftBody.cpp">
@@ -749,32 +743,8 @@
     <ClInclude Include="src\Levels\KinematicPlatform.h">
       <Filter>Source Files\Levels</Filter>
     </ClInclude>
-    <ClInclude Include="src\Levels\LevelManager.h">
-      <Filter>Source Files\Levels</Filter>
-    </ClInclude>
     <ClInclude Include="src\Levels\LevelSoftBody.h">
       <Filter>Source Files\Levels</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Levels\ObjectInfo.h">
-      <Filter>Source Files\Levels</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Levels\SimpleStruct\BodyObject.h">
-      <Filter>Source Files\Levels\SimpleStruct</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Levels\SimpleStruct\BodyObjectInfo.h">
-      <Filter>Source Files\Levels\SimpleStruct</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Levels\SimpleStruct\BodyPoint.h">
-      <Filter>Source Files\Levels\SimpleStruct</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Levels\SimpleStruct\BodyPolygon.h">
-      <Filter>Source Files\Levels\SimpleStruct</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Levels\SimpleStruct\BodySpring.h">
-      <Filter>Source Files\Levels\SimpleStruct</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Levels\SimpleStruct\GameObject.h">
-      <Filter>Source Files\Levels\SimpleStruct</Filter>
     </ClInclude>
     <ClInclude Include="src\JellyPhysics\AABB.h">
       <Filter>Source Files\JellyPhysics</Filter>
@@ -955,6 +925,9 @@
     </ClInclude>
     <ClInclude Include="src\Mesh.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Levels\SimpleStructs.h">
+      <Filter>Source Files\Levels</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

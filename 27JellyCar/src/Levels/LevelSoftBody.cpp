@@ -14,7 +14,7 @@ LevelSoftBody::LevelSoftBody(std::string fileName, World *mWorld, const Vector2&
 	massPerPoint = 0.0f;
 	edgeK = 100.0f;
 	edgeDamping = 1.0f;
-	kinematic = false;
+	isKinematic = false;
 	shapeMatching = false;
 	shapeK = 100.0f;
 	shapeDamping = 10.0f;
@@ -48,7 +48,7 @@ LevelSoftBody::LevelSoftBody(std::string fileName, World *mWorld, const Vector2&
 	TiXmlHandle hDoc(&doc);
 	TiXmlElement* pElem;
 	TiXmlHandle hRoot(0);
-
+	std::string name;
 	pElem = hDoc.FirstChildElement().Element();
 	// should always have a valid root but handle gracefully if it does
 	if (!pElem)
@@ -86,9 +86,9 @@ LevelSoftBody::LevelSoftBody(std::string fileName, World *mWorld, const Vector2&
 	{
 		sKinematic = pElem->Attribute("kinematic");
 		if (strcmp(sKinematic, "True") == 0)
-			kinematic = true;
+			isKinematic = true;
 		else
-			kinematic = false;
+			isKinematic = false;
 	}
 
 	//shape matching
@@ -114,28 +114,12 @@ LevelSoftBody::LevelSoftBody(std::string fileName, World *mWorld, const Vector2&
 
 	//pressure
 	pElem = hRoot.FirstChild("Pressure").Element();
-	if (pElem)
-	{
+	if (pElem){
 		pressureized = true;
 		pressure = std::stof(pElem->Attribute("amount"));
 	}
 
-	m_bodyInfo.name = name;
-	m_bodyInfo.massPerPoint = massPerPoint;
-	m_bodyInfo.edgeK = edgeK;
-	m_bodyInfo.edgeDamping = edgeDamping;
-	m_bodyInfo.colorR = colorR;
-	m_bodyInfo.colorG = colorG;
-	m_bodyInfo.colorB = colorB;
-	m_bodyInfo.kinematic = kinematic;
-	m_bodyInfo.shapeMatching = shapeMatching;
-	m_bodyInfo.shapeK = shapeK;
-	m_bodyInfo.shapeDamping = shapeDamping;
-	m_bodyInfo.velDamping = velDamping;
-
-	m_bodyInfo.pressureized = pressureized;
-	m_bodyInfo.pressure = pressure;
-
+	strcpy(m_objectInfo.name, name.c_str());
 	//SHAPE
 
 	//Points
@@ -143,57 +127,48 @@ LevelSoftBody::LevelSoftBody(std::string fileName, World *mWorld, const Vector2&
 
 	int _id = 0;
 	TiXmlElement* PointNode = hRoot.FirstChild("Points").FirstChild().Element();
-	for (PointNode; PointNode; PointNode = PointNode->NextSiblingElement())
-	{
+	for (PointNode; PointNode; PointNode = PointNode->NextSiblingElement()){
 		float x = 0.0f, y = 0.0f;
 		x = std::stof(PointNode->Attribute("x"));
 		y = std::stof(PointNode->Attribute("y"));
 		shape.addVertex(Vector2(x, y));
 
-		if (PointNode->Attribute("mass") != NULL)
-		{
+		if (PointNode->Attribute("mass") != NULL){
 			MassID m;
 			m._id = _id;
 			m._mass = std::stof(PointNode->Attribute("mass"));
 
 			massExceptions.push_back(m);
 		}
-		m_points.push_back({ x, y, PointNode->Attribute("mass") != NULL ? std::stof(PointNode->Attribute("mass")) : -1.0f });
 		_id++;
 	}
 
 	//shape->finish(false);
-	shape.finish(((massPerPoint != 0.0f) && (!kinematic)));
+	shape.finish(((massPerPoint != 0.0f) && (!isKinematic)));
 
-	if (!pressureized)
-	{
-		mBody = new GameSpringBody(mWorld, shape, massPerPoint, edgeK, edgeDamping, pos, angle, scale, kinematic);
-	}
-	else
-	{
-		mBody = new GamePressureBody(mWorld, shape, massPerPoint, pressure, shapeK, shapeDamping, edgeK, edgeDamping, pos, angle, scale, kinematic);
+	if (!pressureized){
+		mBody = new GameSpringBody(mWorld, shape, massPerPoint, edgeK, edgeDamping, pos, angle, scale, isKinematic);
+	}else{
+		mBody = new GamePressureBody(mWorld, shape, massPerPoint, pressure, shapeK, shapeDamping, edgeK, edgeDamping, pos, angle, scale, isKinematic);
 	}
 
 	mBody->setMaterial(material);
 	mBody->setVelocityDamping(0.993f);
 
-	if (shapeMatching && (!pressureized))
-	{
+	if (shapeMatching && (!pressureized)){
 		static_cast<GameSpringBody*>(mBody)->setShapeMatching(true);
 		static_cast<GameSpringBody*>(mBody)->setShapeMatchingConstants(shapeK, shapeDamping);
 	}
 
 	// were there any mass exceptions?
-	for (unsigned int i = 0; i < massExceptions.size(); i++)
-	{
+	for (unsigned int i = 0; i < massExceptions.size(); i++){
 		mBody->setMassIndividual(massExceptions[i]._id, massExceptions[i]._mass);
 	}
 
 	//Springs
 	int springCount = 0;
 	TiXmlElement* SpingNode = hRoot.FirstChild("Springs").FirstChild().Element();
-	for (SpingNode; SpingNode; SpingNode = SpingNode->NextSiblingElement())
-	{
+	for (SpingNode; SpingNode; SpingNode = SpingNode->NextSiblingElement()){
 		int pt1, pt2;
 		float k, damp;
 		pt1 = atoi(SpingNode->Attribute("pt1"));
@@ -201,27 +176,22 @@ LevelSoftBody::LevelSoftBody(std::string fileName, World *mWorld, const Vector2&
 		k = std::stof(SpingNode->Attribute("k"));
 		damp = std::stof(SpingNode->Attribute("damp"));
 
-		m_springs.push_back({ pt1, pt2, k, damp });
 
-		if (!pressureized)
-		{
+
+		if (!pressureized){
 			static_cast<GameSpringBody*>(mBody)->addInternalSpring(pt1, pt2, k, damp);
-		}
-		else
-		{
+		}else{
 			static_cast<GamePressureBody*>(mBody)->addInternalSpring(pt1, pt2, k, damp);
 		}
 	}
 
 	//Polygons
 	TiXmlElement* PolygonNode = hRoot.FirstChild("Polygons").FirstChild().Element();
-	for (PolygonNode; PolygonNode; PolygonNode = PolygonNode->NextSiblingElement())
-	{
+	for (PolygonNode; PolygonNode; PolygonNode = PolygonNode->NextSiblingElement()){
 		int pt0 = 0, pt1 = 0, pt2 = 0;
 		pt0 = atoi(PolygonNode->Attribute("pt0"));
 		pt1 = atoi(PolygonNode->Attribute("pt1"));
 		pt2 = atoi(PolygonNode->Attribute("pt2"));
-		m_triangles.push_back({ pt0 , pt1, pt2 });
 		// polygons!
 		AddTriangle(pt0, pt1, pt2);
 	}
@@ -229,12 +199,12 @@ LevelSoftBody::LevelSoftBody(std::string fileName, World *mWorld, const Vector2&
 	FinalizeTriangles();
 }
 
-LevelSoftBody::LevelSoftBody(const SoftBodyInfo2& softBodyInfo, World *mWorld, const Vector2& pos, float angle, const Vector2& scale, int material) {
+LevelSoftBody::LevelSoftBody(const SoftBodyInfo& softBodyInfo, World *mWorld, const Vector2& pos, float angle, const Vector2& scale, int material) {
 	
 	massPerPoint = 0.0f;
 	edgeK = 100.0f;
 	edgeDamping = 1.0f;
-	kinematic = false;
+	isKinematic = false;
 	shapeMatching = false;
 	shapeK = 100.0f;
 	shapeDamping = 10.0f;
@@ -246,7 +216,7 @@ LevelSoftBody::LevelSoftBody(const SoftBodyInfo2& softBodyInfo, World *mWorld, c
 
 	colorR = colorG = colorB = 0.0f;
 
-	name = softBodyInfo.softBodyAttributes.name;
+	strcpy(m_objectInfo.name, softBodyInfo.softBodyAttributes.name);
 	massPerPoint = softBodyInfo.softBodyAttributes.massPerPoint;
 	edgeK = softBodyInfo.softBodyAttributes.edgeK;
 	edgeDamping = softBodyInfo.softBodyAttributes.edgeDamping;
@@ -255,7 +225,7 @@ LevelSoftBody::LevelSoftBody(const SoftBodyInfo2& softBodyInfo, World *mWorld, c
 	colorG = softBodyInfo.softBodyAttributes.colorG;
 	colorB = softBodyInfo.softBodyAttributes.colorB;
 
-	kinematic = softBodyInfo.softBodyAttributes.isKinematic;
+	isKinematic = softBodyInfo.softBodyAttributes.isKinematic;
 	shapeMatching = softBodyInfo.softBodyAttributes.shapeMatching;
 	shapeK = softBodyInfo.softBodyAttributes.shapeK;
 	shapeDamping = softBodyInfo.softBodyAttributes.shapeDamping;
@@ -281,12 +251,12 @@ LevelSoftBody::LevelSoftBody(const SoftBodyInfo2& softBodyInfo, World *mWorld, c
 		_id++;
 	}
 
-	shape.finish(((massPerPoint != 0.0f) && (!kinematic)));
+	shape.finish(((massPerPoint != 0.0f) && (!isKinematic)));
 
 	if (!pressureized){
-		mBody = new GameSpringBody(mWorld, shape, massPerPoint, edgeK, edgeDamping, pos, angle, scale, kinematic);
+		mBody = new GameSpringBody(mWorld, shape, massPerPoint, edgeK, edgeDamping, pos, angle, scale, isKinematic);
 	}else{
-		mBody = new GamePressureBody(mWorld, shape, massPerPoint, pressure, shapeK, shapeDamping, edgeK, edgeDamping, pos, angle, scale, kinematic);
+		mBody = new GamePressureBody(mWorld, shape, massPerPoint, pressure, shapeK, shapeDamping, edgeK, edgeDamping, pos, angle, scale, isKinematic);
 	}
 
 	mBody->setMaterial(material);
@@ -331,18 +301,16 @@ LevelSoftBody::LevelSoftBody(const SoftBodyInfo2& softBodyInfo, World *mWorld, c
 	FinalizeTriangles();
 }
 
-LevelSoftBody::LevelSoftBody(LevelSoftBody *exBody, World *mWorld, const Vector2& pos, float angle, const Vector2& scale, int material)
-{
+LevelSoftBody::LevelSoftBody(LevelSoftBody *exBody, World *mWorld, const Vector2& pos, float angle, const Vector2& scale, int material) {
 	massPerPoint = 0.0f;
 	edgeK = 100.0f;
 	edgeDamping = 1.0f;
-	kinematic = false;
+	isKinematic = false;
 	shapeMatching = false;
 	shapeK = 100.0f;
 	shapeDamping = 10.0f;
 	pressureized = false;
 	pressure = 0.0f;
-
 	_visible = true;
 
 	JellyPhysics::ClosedShape shape;
@@ -357,7 +325,7 @@ LevelSoftBody::LevelSoftBody(LevelSoftBody *exBody, World *mWorld, const Vector2
 	edgeDamping = exBody->edgeDamping;
 
 	//is body kinematic
-	kinematic = exBody->kinematic;
+	isKinematic = exBody->isKinematic;
 
 	//shape matching
 	shapeMatching = exBody->shapeMatching;
@@ -372,69 +340,56 @@ LevelSoftBody::LevelSoftBody(LevelSoftBody *exBody, World *mWorld, const Vector2
 	//Points
 	shape.begin();
 
-	for (unsigned int i = 0; i < exBody->mBody->mBaseShape.getVertices().size(); i++)
-	{
+	for (unsigned int i = 0; i < exBody->mBody->mBaseShape.getVertices().size(); i++){
 		shape.addVertex(exBody->mBody->mBaseShape.getVertices()[i]);
 	}
 
 	//shape->finish(false);
-	shape.finish(((massPerPoint != 0.0f) && (!kinematic)));
+	shape.finish(((massPerPoint != 0.0f) && (!isKinematic)));
 
-	if (!pressureized)
-	{
-		mBody = new GameSpringBody(mWorld, shape, massPerPoint, edgeK, edgeDamping, pos, angle, scale, kinematic);
-	}
-	else
-	{
-		mBody = new GamePressureBody(mWorld, shape, massPerPoint, pressure, shapeK, shapeDamping, edgeK, edgeDamping, pos, angle, scale, kinematic);
+	if (!pressureized){
+		mBody = new GameSpringBody(mWorld, shape, massPerPoint, edgeK, edgeDamping, pos, angle, scale, isKinematic);
+	}else{
+		mBody = new GamePressureBody(mWorld, shape, massPerPoint, pressure, shapeK, shapeDamping, edgeK, edgeDamping, pos, angle, scale, isKinematic);
 	}
 
 	mBody->setMaterial(exBody->mBody->getMaterial());
 	mBody->setVelocityDamping(0.993f);
 
-	if (shapeMatching && (!pressureized))
-	{
+	if (shapeMatching && (!pressureized)){
 		((GameSpringBody*)mBody)->setShapeMatching(true);
 		((GameSpringBody*)mBody)->setShapeMatchingConstants(shapeK, shapeDamping);
 	}
 
 	// were there any mass exceptions?
-	for (unsigned int i = 0; i < exBody->massExceptions.size(); i++)
-	{
+	for (unsigned int i = 0; i < exBody->massExceptions.size(); i++){
 		mBody->setMassIndividual(exBody->massExceptions[i]._id, exBody->massExceptions[i]._mass);
 	}
 
 	//Springs
-	if (!pressureized)
-	{
-		for (unsigned int i = 0; i < exBody->mBody->mSprings.size(); i++)
-		{
+	if (!pressureized){
+		for (unsigned int i = 0; i < exBody->mBody->mSprings.size(); i++){
 			((GameSpringBody*)mBody)->addInternalSpring(exBody->mBody->mSprings[i].pointMassA, exBody->mBody->mSprings[i].pointMassB, exBody->mBody->mSprings[i].springK, exBody->mBody->mSprings[i].damping);
 		}
-	}
-	else
-	{
-		for (unsigned int i = 0; i < exBody->mBody->mSprings.size(); i++)
-		{
+	}else{
+		for (unsigned int i = 0; i < exBody->mBody->mSprings.size(); i++){
 			((GamePressureBody*)mBody)->addInternalSpring(exBody->mBody->mSprings[i].pointMassA, exBody->mBody->mSprings[i].pointMassB, exBody->mBody->mSprings[i].springK, exBody->mBody->mSprings[i].damping);
 		}
 	}
 
 	//Polygons
-	for (unsigned int i = 0; i < exBody->mIndexList.size(); i++)
-	{
+	for (unsigned int i = 0; i < exBody->mIndexList.size(); i++){
 		mIndexList.push_back(exBody->mIndexList[i]);
 	}
 	
 	FinalizeTriangles();
 }
 
-LevelSoftBody::LevelSoftBody(BodyObject *exBody, World *mWorld, const Vector2& pos, float angle, const Vector2& scale, int material)
-{
+LevelSoftBody::LevelSoftBody(SoftBodyInfo* exBody, World* mWorld, const Vector2& pos, float angle, const Vector2& scale, int material) {
 	massPerPoint = 0.0f;
 	edgeK = 100.0f;
 	edgeDamping = 1.0f;
-	kinematic = false;
+	isKinematic = false;
 	shapeMatching = false;
 	shapeK = 100.0f;
 	shapeDamping = 10.0f;
@@ -445,154 +400,111 @@ LevelSoftBody::LevelSoftBody(BodyObject *exBody, World *mWorld, const Vector2& p
 
 	JellyPhysics::ClosedShape shape;
 
-	colorR = exBody->info.colorR;
-	colorG = exBody->info.colorG;
-	colorB = exBody->info.colorB;
+	colorR = exBody->softBodyAttributes.colorR;
+	colorG = exBody->softBodyAttributes.colorG;
+	colorB = exBody->softBodyAttributes.colorB;
 
 	//basic info
-	massPerPoint = exBody->info.massPerPoint;
-	edgeK = exBody->info.edgeK;
-	edgeDamping = exBody->info.edgeDamping;
+	massPerPoint = exBody->softBodyAttributes.massPerPoint;
+	edgeK = exBody->softBodyAttributes.edgeK;
+	edgeDamping = exBody->softBodyAttributes.edgeDamping;
 
 	//is body kinematic
-	kinematic = exBody->info.isKinematic;
+	isKinematic = exBody->softBodyAttributes.isKinematic;
 
 	//shape matching
-	shapeMatching = exBody->info.shapeMatching;
-	shapeK = exBody->info.shapeK;
-	shapeDamping = exBody->info.shapeDamping;
+	shapeMatching = exBody->softBodyAttributes.shapeMatching;
+	shapeK = exBody->softBodyAttributes.shapeK;
+	shapeDamping = exBody->softBodyAttributes.shapeDamping;
 
 	//pressure
-	pressureized = exBody->info.pressureized;
-	pressure = exBody->info.pressure;
-
-	
-	m_bodyInfo.name = name;
-	m_bodyInfo.massPerPoint = massPerPoint;
-	m_bodyInfo.edgeK = edgeK;
-	m_bodyInfo.edgeDamping = edgeDamping;
-	m_bodyInfo.colorR = colorR;
-	m_bodyInfo.colorG = colorG;
-	m_bodyInfo.colorB = colorB;
-	m_bodyInfo.kinematic = kinematic;
-	m_bodyInfo.shapeMatching = shapeMatching;
-	m_bodyInfo.shapeK = shapeK;
-	m_bodyInfo.shapeDamping = shapeDamping;
-	m_bodyInfo.velDamping = 0.993f;
-	m_bodyInfo.pressureized = pressureized;
-	m_bodyInfo.pressure = pressure;
+	pressureized = exBody->softBodyAttributes.pressureized;
+	pressure = exBody->softBodyAttributes.pressure;
 
 	//Points
 	shape.begin();
 	int _id = 0;
 
-	for (int i = 0; i < exBody->points; i++)
-	{
-		shape.addVertex(Vector2(exBody->bodyPoints[i].x, exBody->bodyPoints[i].y));
-		if (exBody->bodyPoints[i].mass != -1)
-		{
+	for (int i = 0; i < exBody->pointCount; i++){
+		shape.addVertex(Vector2(exBody->points[i].x, exBody->points[i].y));
+		if (exBody->points[i].mass != -1){
 			MassID m;
 			m._id = _id;
-			m._mass = exBody->bodyPoints[i].mass;
+			m._mass = exBody->points[i].mass;
 			massExceptions.push_back(m);
 		}
-		m_points.push_back({ exBody->bodyPoints[i].x, exBody->bodyPoints[i].y, exBody->bodyPoints[i].mass != -1 ? exBody->bodyPoints[i].mass : -1.0f });
+
 		_id++;
 	}
 
 	//shape->finish(false);
-	shape.finish(((massPerPoint != 0.0f) && (!kinematic)));
+	shape.finish(((massPerPoint != 0.0f) && (!isKinematic)));
 
-	if (!pressureized)
-	{
-		mBody = new GameSpringBody(mWorld, shape, massPerPoint, edgeK, edgeDamping, pos, angle, scale, kinematic);
-	}
-	else
-	{
-		mBody = new GamePressureBody(mWorld, shape, massPerPoint, pressure, shapeK, shapeDamping, edgeK, edgeDamping, pos, angle, scale, kinematic);
+	if (!pressureized){
+		mBody = new GameSpringBody(mWorld, shape, massPerPoint, edgeK, edgeDamping, pos, angle, scale, isKinematic);
+	}else{
+		mBody = new GamePressureBody(mWorld, shape, massPerPoint, pressure, shapeK, shapeDamping, edgeK, edgeDamping, pos, angle, scale, isKinematic);
 	}
 
 	mBody->setMaterial(material);
-	mBody->setVelocityDamping(m_bodyInfo.velDamping);
+	mBody->setVelocityDamping(exBody->softBodyAttributes.velDamping);
 
-	if (shapeMatching && (!pressureized))
-	{
+	if (shapeMatching && (!pressureized)){
 		static_cast<GameSpringBody*>(mBody)->setShapeMatching(true);
 		static_cast<GameSpringBody*>(mBody)->setShapeMatchingConstants(shapeK, shapeDamping);
 	}
 
 	// were there any mass exceptions?
-	for (unsigned int i = 0; i < massExceptions.size(); i++)
-	{
+	for (unsigned int i = 0; i < massExceptions.size(); i++){
 		mBody->setMassIndividual(massExceptions[i]._id, massExceptions[i]._mass);
 	}
 
 	//Springs
-	for (int i = 0; i < exBody->springs; i++)
-	{
+	for (int i = 0; i < exBody->springCount; i++){
 		int pt1, pt2;
 		float k, damp;
 
-		pt1 = exBody->bodySprings[i].pt1;
-		pt2 = exBody->bodySprings[i].pt2;
-		k = exBody->bodySprings[i].k;
-		damp = exBody->bodySprings[i].damp;
-		m_springs.push_back({ pt1, pt2, k, damp });
-		if (!pressureized)
-		{
+		pt1 = exBody->springs[i].pt1;
+		pt2 = exBody->springs[i].pt2;
+		k = exBody->springs[i].k;
+		damp = exBody->springs[i].damp;
+
+		if (!pressureized){
 			static_cast<GameSpringBody*>(mBody)->addInternalSpring(pt1, pt2, k, damp);
-		}
-		else
-		{
+		}else{
 			static_cast<GamePressureBody*>(mBody)->addInternalSpring(pt1, pt2, k, damp);
 		}
 	}
 
 	//polygons
-	for (int i = 0; i <  exBody->polygons; i++)
-	{
+	for (int i = 0; i <  exBody->pointCount; i++){
 		int pt0 = 0, pt1 = 0, pt2 = 0;
 
-		pt0 = exBody->bodyPolygons[i].x;
-		pt1 = exBody->bodyPolygons[i].y;
-		pt2 = exBody->bodyPolygons[i].z;
-		m_triangles.push_back({ pt0 , pt1, pt2 });
+		pt0 = exBody->polygons[i].pt0;
+		pt1 = exBody->polygons[i].pt1;
+		pt2 = exBody->polygons[i].pt2;
 		AddTriangle(pt0, pt1, pt2);
 	}
 
 	FinalizeTriangles();
 }
 
-LevelSoftBody::LevelSoftBody(std::string fileName, World *mWorld, ObjectInfo bodyInfo) : LevelSoftBody(fileName, mWorld, Vector2(bodyInfo.posX, bodyInfo.posY), VectorTools::degToRad(bodyInfo.angle), Vector2(bodyInfo.scaleX, bodyInfo.scaleY), bodyInfo.material)
-{
-	_bodyInfo = bodyInfo;
-	m_bodyInfo.name = _bodyInfo.name;
-	mBody->SetName(_bodyInfo.name);
+LevelSoftBody::LevelSoftBody(std::string fileName, World *mWorld, ObjectInfo objectInfo) : LevelSoftBody(fileName, mWorld, Vector2(objectInfo.posX, objectInfo.posY), VectorTools::degToRad(objectInfo.angle), Vector2(objectInfo.scaleX, objectInfo.scaleY), objectInfo.material) {
+	m_objectInfo = objectInfo;
+	mBody->SetName(m_objectInfo.name);
 }
 
-LevelSoftBody::LevelSoftBody(const SoftBodyInfo2& softBodyInfo, World *mWorld, ObjectInfo bodyInfo) : LevelSoftBody(softBodyInfo, mWorld, Vector2(bodyInfo.posX, bodyInfo.posY), VectorTools::degToRad(bodyInfo.angle), Vector2(bodyInfo.scaleX, bodyInfo.scaleY), bodyInfo.material)
-{
-	_bodyInfo = bodyInfo;
-	m_bodyInfo.name = _bodyInfo.name;
-	mBody->SetName(_bodyInfo.name);
+LevelSoftBody::LevelSoftBody(const SoftBodyInfo& softBodyInfo, World *mWorld, ObjectInfo objectInfo) : LevelSoftBody(softBodyInfo, mWorld, Vector2(objectInfo.posX, objectInfo.posY), VectorTools::degToRad(objectInfo.angle), Vector2(objectInfo.scaleX, objectInfo.scaleY), objectInfo.material) {
+	m_objectInfo = objectInfo;
+	mBody->SetName(softBodyInfo.softBodyAttributes.name);
 }
 
-LevelSoftBody::LevelSoftBody(LevelSoftBody *exBody, World *mWorld, ObjectInfo bodyInfo) : LevelSoftBody(exBody, mWorld, Vector2(bodyInfo.posX, bodyInfo.posY), VectorTools::degToRad(bodyInfo.angle), Vector2(bodyInfo.scaleX, bodyInfo.scaleY), bodyInfo.material)
-{
-	_bodyInfo = bodyInfo;
-	m_bodyInfo.name = _bodyInfo.name;
-	mBody->SetName(_bodyInfo.name);
+LevelSoftBody::LevelSoftBody(LevelSoftBody *exBody, World *mWorld, ObjectInfo objectInfo) : LevelSoftBody(exBody, mWorld, Vector2(objectInfo.posX, objectInfo.posY), VectorTools::degToRad(objectInfo.angle), Vector2(objectInfo.scaleX, objectInfo.scaleY), objectInfo.material) {
+	m_objectInfo = objectInfo;
+	mBody->SetName(m_objectInfo.name);
 }
 
-LevelSoftBody::LevelSoftBody(BodyObject *exBody, World *mWorld, ObjectInfo bodyInfo) : LevelSoftBody(exBody, mWorld, Vector2(bodyInfo.posX, bodyInfo.posY), VectorTools::degToRad(bodyInfo.angle), Vector2(bodyInfo.scaleX, bodyInfo.scaleY), bodyInfo.material)
-{
-	_bodyInfo = bodyInfo;
-	m_bodyInfo.name = _bodyInfo.name;
-	mBody->SetName(_bodyInfo.name);
-}
-
-LevelSoftBody::~LevelSoftBody()
-{
+LevelSoftBody::~LevelSoftBody() {
 	massExceptions.clear();
 
 	for (unsigned int i = 0; i < mControls.size(); i++)
@@ -678,14 +590,12 @@ const AABB& LevelSoftBody::GetIgnoreAABB()
 		return mBody->getAABB();
 }
 
-std::string LevelSoftBody::GetName()
-{
-	return _bodyInfo.name;
+std::string LevelSoftBody::GetName() const {
+	return m_objectInfo.name;
 }
 
-glm::vec2 LevelSoftBody::GetStartPosition()
-{
-	return glm::vec2(_bodyInfo.posX, _bodyInfo.posY);
+glm::vec2 LevelSoftBody::GetStartPosition(){
+	return glm::vec2(m_objectInfo.posX, m_objectInfo.posY);
 }
 
 void LevelSoftBody::SetVisible(bool visible)
@@ -713,52 +623,35 @@ void LevelSoftBody::FinalizeTriangles()
 		mIndices[i] = mIndexList[i];
 }
 
-void LevelSoftBody::SetTextureRect(const TextureRect& rect) 
-{
-	if (pressureized == true)
-	{
+void LevelSoftBody::SetTextureRect(const TextureRect& rect) {
+	if (pressureized == true){
 		static_cast<GamePressureBody*>(mBody)->SetTextureRect(rect);
-	}
-	else
-	{
+	}else{
 		static_cast<GameSpringBody*>(mBody)->SetTextureRect(rect);
 	}
 }
 
-void LevelSoftBody::SetTexture(Texture* texture)
-{
-	if (pressureized == true)
-	{
+void LevelSoftBody::SetTexture(Texture* texture){
+	if (pressureized == true){
 		static_cast<GamePressureBody*>(mBody)->SetTexture(texture);
-	}
-	else
-	{
+	}else{
 		static_cast<GameSpringBody*>(mBody)->SetTexture(texture);
 	}
 }
 
-void LevelSoftBody::SetLineColor(glm::vec4 color)
-{
-	if (pressureized == true)
-	{
+void LevelSoftBody::SetLineColor(glm::vec4 color){
+	if (pressureized == true){
 		static_cast<GamePressureBody*>(mBody)->SetLineColor(color);
-	}
-	else
-	{
+	}else{
 		static_cast<GameSpringBody*>(mBody)->SetLineColor(color);
 	}
 }
 
-void LevelSoftBody::Draw(glm::mat4 &proj)
-{
-	if (_visible)
-	{
-		if (pressureized == true)
-		{
+void LevelSoftBody::Draw(glm::mat4 &proj){
+	if (_visible){
+		if (pressureized == true){
 			static_cast<GamePressureBody*>(mBody)->Draw(proj, mIndices, mIndicesCount, colorR, colorG, colorB);
-		}
-		else
-		{
+		}else{
 			static_cast<GameSpringBody*>(mBody)->Draw(proj, mIndices, mIndicesCount, colorR, colorG, colorB);
 		}
 	}
