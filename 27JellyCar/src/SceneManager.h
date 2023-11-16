@@ -56,7 +56,6 @@ struct ObjectInfo2 {
 	float radiansPerSecond;
 };
 
-
 struct Point2 {
 	float x;
 	float y;
@@ -115,7 +114,6 @@ struct SoftBodyAttributes {
 	float pressure;
 };
 
-
 struct SoftBodyInfo2 {
 	SoftBodyAttributes softBodyAttributes;
 
@@ -128,42 +126,6 @@ struct SoftBodyInfo2 {
 	int polygonCount;
 	std::vector<Triangle2> polygons;
 };
-
-struct SoftBodyAttributes3 {
-	char name[64];
-
-	float colorR;
-	float colorG;
-	float colorB;
-
-	float massPerPoint;
-	float edgeK;
-	float edgeDamping;
-
-	bool isKinematic;
-	bool shapeMatching;
-	float shapeK;
-	float shapeDamping;
-	//float velDamping;
-
-	bool pressureized;
-	float pressure;
-};
-
-struct SoftBodyInfo3 {
-	SoftBodyAttributes3 softBodyAttributes;
-
-	int pointCount;
-	std::vector<Point2> points;
-
-	int springCount;
-	std::vector<Spring2> springs;
-
-	int polygonCount;
-	std::vector<Triangle3> polygons;
-};
-
-
 
 class Scene {
 
@@ -208,10 +170,10 @@ public:
 	void loadCar(const std::string path);
 	void loadLevel(const std::string path);
 	void loadXmlLevel(const std::string path);
-	void loadCompiledLevel(const std::string path, bool reinterprate = false);
+	void loadCompiledLevel(const std::string path);
 	void loadOriginLevel(const std::string path);
 
-	void saveCompiledLevel(const std::string path, bool reinterprate = false);
+	void saveCompiledLevel(const std::string path);
 	void saveLevel(const std::string path);
 
 	void buildLevel(World *world, std::vector<LevelSoftBody*>& gameBodies);
@@ -246,8 +208,6 @@ private:
 	LevelInfo m_levelInfo;
 	std::vector<ObjectInfo2> m_objectInfos;
 	std::vector<SoftBodyInfo2> m_softBodyInfos;
-
-	std::vector<SoftBodyInfo3> m_softBodyInfos3;
 
 	AABB m_worldLimits;
 };

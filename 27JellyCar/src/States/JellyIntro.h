@@ -8,7 +8,6 @@
 
 #include "Car/Car.h"
 #include "Levels/LevelSoftBody.h"
-#include "Levels/LevelManager.h"
 #include "JellyPhysics/World.h"
 #include "Loadingmanager.h"
 
@@ -37,11 +36,8 @@ private:
 	unsigned int m_backWidth, m_backHeight;
 	unsigned int m_columns, m_rows;
 
-	LevelManager* m_copyManager;
-
 	std::vector<LevelSoftBody*> m_gameBodies;
 	World* m_world;
-	World* m_copyWorld;
 	Car* m_car;
 
 	glm::mat4 m_jellyProjection;

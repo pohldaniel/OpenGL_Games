@@ -226,7 +226,7 @@ std::vector<std::string> Scene::mergeAlternately(std::vector<std::string> a, std
 
 void Scene::loadLevel(const std::string path) {
 	if (m_useCompiledLevel)
-		loadCompiledLevel(m_scenesPath + path, true);
+		loadCompiledLevel(m_scenesPath + path);
 	else
 		loadXmlLevel(m_scenesPath + path);
 }
@@ -533,8 +533,7 @@ void Scene::loadXmlLevel(const std::string path) {
 	m_levelInfo.fallLine = std::stof(levelNode->Attribute("fallLine"));
 }
 
-void Scene::loadCompiledLevel(const std::string path, bool reinterprate) {
-	m_softBodyInfos3.clear();
+void Scene::loadCompiledLevel(const std::string path) {
 	m_softBodyInfos.clear();
 	m_objectInfos.clear();
 	
@@ -544,104 +543,26 @@ void Scene::loadCompiledLevel(const std::string path, bool reinterprate) {
 	stream.read(reinterpret_cast<char*>(&softBodyCount), sizeof(int));
 
 	for (int i = 0; i < softBodyCount; i++){
-		if (reinterprate) {
-			SoftBodyInfo2 softBodyInfo;
-			memset(&softBodyInfo.softBodyAttributes, 0, sizeof(SoftBodyAttributes));
-			stream.read(reinterpret_cast<char*>(&softBodyInfo.softBodyAttributes), sizeof(SoftBodyAttributes));
-			
 
-			stream.read(reinterpret_cast<char*>(&softBodyInfo.pointCount), sizeof(int));
-			softBodyInfo.points.resize(softBodyInfo.pointCount);
+		SoftBodyInfo2 softBodyInfo;
+		memset(&softBodyInfo.softBodyAttributes, 0, sizeof(SoftBodyAttributes));
+		stream.read(reinterpret_cast<char*>(&softBodyInfo.softBodyAttributes), sizeof(SoftBodyAttributes));
 
+		stream.read(reinterpret_cast<char*>(&softBodyInfo.pointCount), sizeof(int));
+		softBodyInfo.points.resize(softBodyInfo.pointCount);
 
-			stream.read(reinterpret_cast<char*>(&softBodyInfo.points[0]), sizeof(Point2) * softBodyInfo.pointCount);
+		stream.read(reinterpret_cast<char*>(&softBodyInfo.points[0]), sizeof(Point2) * softBodyInfo.pointCount);
 
-			stream.read(reinterpret_cast<char*>(&softBodyInfo.springCount), sizeof(int));
-			softBodyInfo.springs.resize(softBodyInfo.springCount);
-			stream.read(reinterpret_cast<char*>(&softBodyInfo.springs[0]), sizeof(Spring2) * softBodyInfo.springCount);
+		stream.read(reinterpret_cast<char*>(&softBodyInfo.springCount), sizeof(int));
+		softBodyInfo.springs.resize(softBodyInfo.springCount);
+		stream.read(reinterpret_cast<char*>(&softBodyInfo.springs[0]), sizeof(Spring2) * softBodyInfo.springCount);
 
 
-			stream.read(reinterpret_cast<char*>(&softBodyInfo.polygonCount), sizeof(int));
-			softBodyInfo.polygons.resize(softBodyInfo.polygonCount);
-			stream.read(reinterpret_cast<char*>(&softBodyInfo.polygons[0]), sizeof(Triangle2) * softBodyInfo.polygonCount);
+		stream.read(reinterpret_cast<char*>(&softBodyInfo.polygonCount), sizeof(int));
+		softBodyInfo.polygons.resize(softBodyInfo.polygonCount);
+		stream.read(reinterpret_cast<char*>(&softBodyInfo.polygons[0]), sizeof(Triangle2) * softBodyInfo.polygonCount);
 
-			m_softBodyInfos.push_back(softBodyInfo);
-
-			/*std::cout << "Load Reinterprate: " << std::endl;
-			std::cout << softBodyInfo.softBodyAttributes.name << std::endl;
-			std::cout << softBodyInfo.softBodyAttributes.colorR << std::endl;
-			std::cout << softBodyInfo.softBodyAttributes.colorG << std::endl;
-			std::cout << softBodyInfo.softBodyAttributes.colorB << std::endl;
-			std::cout << softBodyInfo.softBodyAttributes.massPerPoint << std::endl;
-			std::cout << softBodyInfo.softBodyAttributes.edgeK << std::endl;
-			std::cout << softBodyInfo.softBodyAttributes.edgeDamping << std::endl;
-			std::cout << softBodyInfo.softBodyAttributes.isKinematic << std::endl;
-			std::cout << softBodyInfo.softBodyAttributes.shapeMatching << std::endl;
-			std::cout << softBodyInfo.softBodyAttributes.shapeK << std::endl;
-			std::cout << softBodyInfo.softBodyAttributes.shapeDamping << std::endl;
-
-			std::cout << softBodyInfo.softBodyAttributes.pressureized << std::endl;
-			std::cout << softBodyInfo.softBodyAttributes.pressure << std::endl;
-			std::cout << softBodyInfo.softBodyAttributes.velDamping << std::endl;
-
-			for (auto point : softBodyInfo.points)
-				std::cout << point.x << "  " << point.y << "  " << point.mass << std::endl;
-
-			for (auto spring : softBodyInfo.springs)
-				std::cout << spring.pt1 << "  " << spring.pt2<< "  " << spring.k << "  " << spring.damp << std::endl;
-
-			for (auto triangle : softBodyInfo.polygons)
-				std::cout << triangle.pt0 << "  " << triangle.pt1 << "  " << triangle.pt2 << std::endl;*/
-
-
-		}else {
-			SoftBodyInfo3 softBodyInfo;
-			memset(&softBodyInfo.softBodyAttributes, 0, sizeof(SoftBodyAttributes3));
-			stream.read(reinterpret_cast<char*>(&softBodyInfo.softBodyAttributes), sizeof(SoftBodyAttributes3));
-
-		
-			stream.read(reinterpret_cast<char*>(&softBodyInfo.pointCount), sizeof(int));
-			softBodyInfo.points.resize(softBodyInfo.pointCount);
-
-			
-			stream.read(reinterpret_cast<char*>(&softBodyInfo.points[0]), sizeof(Point2) * softBodyInfo.pointCount);
-
-			stream.read(reinterpret_cast<char*>(&softBodyInfo.springCount), sizeof(int));
-			softBodyInfo.springs.resize(softBodyInfo.springCount);
-			stream.read(reinterpret_cast<char*>(&softBodyInfo.springs[0]), sizeof(Spring2) * softBodyInfo.springCount);
-
-
-			stream.read(reinterpret_cast<char*>(&softBodyInfo.polygonCount), sizeof(int));
-			softBodyInfo.polygons.resize(softBodyInfo.polygonCount);
-			stream.read(reinterpret_cast<char*>(&softBodyInfo.polygons[0]), sizeof(Triangle3) * softBodyInfo.polygonCount);
-
-			m_softBodyInfos3.push_back(softBodyInfo);
-
-			/*std::cout << "Load Origin: " << std::endl;
-			std::cout << softBodyInfo.softBodyAttributes.name << std::endl;
-			std::cout << softBodyInfo.softBodyAttributes.colorR << std::endl;
-			std::cout << softBodyInfo.softBodyAttributes.colorG << std::endl;
-			std::cout << softBodyInfo.softBodyAttributes.colorB << std::endl;
-			std::cout << softBodyInfo.softBodyAttributes.massPerPoint << std::endl;
-			std::cout << softBodyInfo.softBodyAttributes.edgeK << std::endl;
-			std::cout << softBodyInfo.softBodyAttributes.edgeDamping << std::endl;
-			std::cout << softBodyInfo.softBodyAttributes.isKinematic << std::endl;
-			std::cout << softBodyInfo.softBodyAttributes.shapeMatching << std::endl;
-			std::cout << softBodyInfo.softBodyAttributes.shapeK << std::endl;
-			std::cout << softBodyInfo.softBodyAttributes.shapeDamping << std::endl;
-
-			std::cout << softBodyInfo.softBodyAttributes.pressureized << std::endl;
-			std::cout << softBodyInfo.softBodyAttributes.pressure << std::endl;
-
-			for (auto point : softBodyInfo.points)
-				std::cout << point.x << "  " << point.y << "  " << point.mass << std::endl;
-
-			for (auto spring : softBodyInfo.springs)
-				std::cout << spring.pt1 << "  " << spring.pt2 << "  " << spring.k << "  " << spring.damp << std::endl;
-
-			for (auto triangle : softBodyInfo.polygons)
-				std::cout << triangle.pt0 << "  " << triangle.pt1 << "  " << triangle.pt2 << std::endl;*/
-		}
+		m_softBodyInfos.push_back(softBodyInfo);
 	}
 	
 	int objectCount = 0;
@@ -819,89 +740,26 @@ void Scene::loadOriginLevel(const std::string path) {
 	}
 }
 
-void Scene::saveCompiledLevel(const std::string path, bool reinterprate) {
+void Scene::saveCompiledLevel(const std::string path) {
 	
 	std::ofstream stream(path, std::ios::binary);
 
-	int softBodyCount = m_softBodyInfos3.size();
+	int softBodyCount = m_softBodyInfos.size();
 	stream.write(reinterpret_cast<char*>(&softBodyCount), sizeof(int));
 	for (int i = 0; i < softBodyCount; i++) {
-		if (reinterprate) {
-			SoftBodyAttributes softBodyAttributes;
+		
+		stream.write(reinterpret_cast<char*>(&m_softBodyInfos[i].softBodyAttributes), sizeof(SoftBodyAttributes));
+		stream.write(reinterpret_cast<char*>(&m_softBodyInfos[i].pointCount), sizeof(int));
+		m_softBodyInfos[i].points.resize(m_softBodyInfos[i].pointCount);
+		stream.write(reinterpret_cast<char*>(&m_softBodyInfos[i].points[0]), sizeof(Point2) * m_softBodyInfos[i].pointCount);
 
-			std::strncpy(softBodyAttributes.name, m_softBodyInfos3[i].softBodyAttributes.name, sizeof(softBodyAttributes.name));
-			softBodyAttributes.colorR = m_softBodyInfos3[i].softBodyAttributes.colorR;
-			softBodyAttributes.colorG = m_softBodyInfos3[i].softBodyAttributes.colorG;
-			softBodyAttributes.colorB = m_softBodyInfos3[i].softBodyAttributes.colorB;
-			softBodyAttributes.massPerPoint = m_softBodyInfos3[i].softBodyAttributes.massPerPoint;
-			softBodyAttributes.edgeK = m_softBodyInfos3[i].softBodyAttributes.edgeK;
-			softBodyAttributes.edgeDamping = m_softBodyInfos3[i].softBodyAttributes.edgeDamping;
+		stream.write(reinterpret_cast<char*>(&m_softBodyInfos[i].springCount), sizeof(int));
+		m_softBodyInfos[i].springs.resize(m_softBodyInfos[i].springCount);
+		stream.write(reinterpret_cast<char*>(&m_softBodyInfos[i].springs[0]), sizeof(Spring2) * m_softBodyInfos[i].springCount);
 
-			softBodyAttributes.isKinematic = m_softBodyInfos3[i].softBodyAttributes.isKinematic;
-			softBodyAttributes.shapeMatching = m_softBodyInfos3[i].softBodyAttributes.shapeMatching;
-			softBodyAttributes.shapeK = m_softBodyInfos3[i].softBodyAttributes.shapeK;
-			softBodyAttributes.shapeDamping = m_softBodyInfos3[i].softBodyAttributes.shapeDamping;
-			softBodyAttributes.pressureized = m_softBodyInfos3[i].softBodyAttributes.pressureized;
-			softBodyAttributes.pressure = m_softBodyInfos3[i].softBodyAttributes.pressure;
-			softBodyAttributes.velDamping = 0.993f;
-
-			std::vector<Triangle2> trinagles;
-
-			for (auto triangle : m_softBodyInfos3[i].polygons) {
-				trinagles.push_back({ static_cast<int>(triangle.pt0), static_cast<int>(triangle.pt1) ,static_cast<int>(triangle.pt2) });
-			}
-
-			stream.write(reinterpret_cast<char*>(&softBodyAttributes), sizeof(SoftBodyAttributes));
-			stream.write(reinterpret_cast<char*>(&m_softBodyInfos3[i].pointCount), sizeof(int));
-			stream.write(reinterpret_cast<char*>(&m_softBodyInfos3[i].points[0]), sizeof(Point) * m_softBodyInfos3[i].pointCount);
-
-			stream.write(reinterpret_cast<char*>(&m_softBodyInfos3[i].springCount), sizeof(int));
-			stream.write(reinterpret_cast<char*>(&m_softBodyInfos3[i].springs[0]), sizeof(Spring) * m_softBodyInfos3[i].springCount);
-
-			stream.write(reinterpret_cast<char*>(&m_softBodyInfos3[i].polygonCount), sizeof(int));
-			stream.write(reinterpret_cast<char*>(&trinagles[0]), sizeof(Triangle2) * m_softBodyInfos3[i].polygonCount);
-
-			/*std::cout << "Save  Reinterprate: " << std::endl;
-			std::cout << softBodyAttributes.name << std::endl;
-			std::cout << softBodyAttributes.colorR << std::endl;
-			std::cout << softBodyAttributes.colorG << std::endl;
-			std::cout << softBodyAttributes.colorB << std::endl;
-			std::cout << softBodyAttributes.massPerPoint << std::endl;
-			std::cout << softBodyAttributes.edgeK << std::endl;
-			std::cout << softBodyAttributes.edgeDamping << std::endl;
-			std::cout << softBodyAttributes.isKinematic << std::endl;
-			std::cout << softBodyAttributes.shapeMatching << std::endl;
-			std::cout << softBodyAttributes.shapeK << std::endl;
-			std::cout << softBodyAttributes.shapeDamping << std::endl;
-
-			std::cout << softBodyAttributes.pressureized << std::endl;
-			std::cout << softBodyAttributes.pressure << std::endl;
-			std::cout << softBodyAttributes.velDamping << std::endl;
-
-			for (auto point : m_softBodyInfos3[i].points)
-				std::cout << point.x << "  " << point.y << "  " << point.mass << std::endl;
-
-			for (auto spring : m_softBodyInfos3[i].springs)
-				std::cout << spring.pt1 << "  " << spring.pt2 << "  " << spring.k << "  " << spring.damp << std::endl;
-
-			for (auto triangle : trinagles)
-				std::cout << triangle.pt0 << "  " << triangle.pt1 << "  " << triangle.pt2 << std::endl;*/
-
-
-		}else {
-			stream.write(reinterpret_cast<char*>(&m_softBodyInfos[i].softBodyAttributes), sizeof(SoftBodyAttributes));
-			stream.write(reinterpret_cast<char*>(&m_softBodyInfos[i].pointCount), sizeof(int));
-			m_softBodyInfos[i].points.resize(m_softBodyInfos[i].pointCount);
-			stream.write(reinterpret_cast<char*>(&m_softBodyInfos[i].points[0]), sizeof(Point2) * m_softBodyInfos[i].pointCount);
-
-			stream.write(reinterpret_cast<char*>(&m_softBodyInfos[i].springCount), sizeof(int));
-			m_softBodyInfos[i].springs.resize(m_softBodyInfos[i].springCount);
-			stream.write(reinterpret_cast<char*>(&m_softBodyInfos[i].springs[0]), sizeof(Spring2) * m_softBodyInfos[i].springCount);
-
-			stream.write(reinterpret_cast<char*>(&m_softBodyInfos[i].polygonCount), sizeof(int));
-			m_softBodyInfos[i].polygons.resize(m_softBodyInfos[i].polygonCount);
-			stream.write(reinterpret_cast<char*>(&m_softBodyInfos[i].polygons[0]), sizeof(Triangle2) * m_softBodyInfos[i].polygonCount);
-		}
+		stream.write(reinterpret_cast<char*>(&m_softBodyInfos[i].polygonCount), sizeof(int));
+		m_softBodyInfos[i].polygons.resize(m_softBodyInfos[i].polygonCount);
+		stream.write(reinterpret_cast<char*>(&m_softBodyInfos[i].polygons[0]), sizeof(Triangle2) * m_softBodyInfos[i].polygonCount);		
 	}
 
 	int objectCount = m_objectInfos.size();
