@@ -6,6 +6,7 @@
 
 #include <vector>
 #include <unordered_map>
+#include <set>
 #include <string>
 
 #include <engine/Texture.h>
@@ -179,6 +180,7 @@ public:
 	float getJump(std::string levelName);
 	void setTime(std::string levelName, float time);
 	void setJump(std::string levelName, float jump);
+	void configure(const std::string scenesPath, bool useCompiledLevel = true);
 
 	const std::vector<SkinInfo>& getSkinInfos() const;
 	const std::vector<std::string>& getSceneFiles() const;
@@ -186,6 +188,7 @@ public:
 	const std::vector<SceneInfo>& getSceneInfos() const;
 
 	const std::string& getName() const;
+	const std::string& getScenesPath() const;
 	const std::string& getCurrentSceneFile() const;
 	const SceneInfo& getCurrentSceneInfo() const;
 	const SkinInfo& getCurrentSkinInfo() const;
@@ -202,19 +205,22 @@ public:
 	const float getLevelLine() const;
 	Vector2 getCarStartPos();
 
-	void loadLevel(const std::string path);
 	void loadCar(const std::string path);
+	void loadLevel(const std::string path);
+	void loadXmlLevel(const std::string path);
 	void loadCompiledLevel(const std::string path, bool reinterprate = false);
+	void loadOriginLevel(const std::string path);
+
 	void saveCompiledLevel(const std::string path, bool reinterprate = false);
+	void saveLevel(const std::string path);
 
 	void buildLevel(World *world, std::vector<LevelSoftBody*>& gameBodies);
 	void buildCar(World *world, Car*& car, const std::string& carFileName);
-	
 
 	int m_currentPosition;
 	int m_carCurrentPosition;
 
-	static void SaveLevel(const std::string path, const std::vector<ObjectInfo>& objectInfos, const std::vector<LevelSoftBody*>& bodies, const Vector2& carPos, const Vector2& target, const float flallLine, const std::string levelName);
+	static void SaveLevel(const std::string path, const std::vector<ObjectInfo>& objectInfos, std::vector<LevelSoftBody*>& bodies, const Vector2& carPos, const Vector2& target, const float fallLine, const std::string levelName);
 	static void SaveScores(const std::string path, const std::vector<SceneInfo>& levelInfos);
 	static void ClearLevel(World *world, std::vector<LevelSoftBody*> bodies, Car* car);
 	static void InitPhysic(World *world);
@@ -233,6 +239,9 @@ private:
 	bool m_init;
 
 	std::string m_name;
+	std::string m_scenesPath;
+	bool m_useCompiledLevel;
+
 	CarInfo m_carInfo;
 	LevelInfo m_levelInfo;
 	std::vector<ObjectInfo2> m_objectInfos;

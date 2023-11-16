@@ -6,7 +6,8 @@
 Scene::Scene() :
 	m_currentPosition(0),
 	m_carCurrentPosition(0),
-	m_init(false){
+	m_init(false),
+	m_useCompiledLevel(false){
 }
 
 const std::vector<SkinInfo>& Scene::getSkinInfos() const {
@@ -41,21 +42,20 @@ const std::string& Scene::getName() const {
 	return m_name;
 }
 
+void Scene::configure(const std::string scenesPath, bool useCompiledLevel) {
+	m_scenesPath = scenesPath;
+	m_useCompiledLevel = useCompiledLevel;
+}
+
+const std::string& Scene::getScenesPath() const {
+	return m_scenesPath;
+}
+
 void Scene::loadCarSkins(std::string path) {
 	if (m_init) return;
-	std::ifstream is(path, std::ifstream::in);
-
-	is.seekg(0, is.end);
-	std::streamoff length = is.tellg();
-	is.seekg(0, is.beg);
-
-	unsigned char* buffer = new unsigned char[length];
-	is.read(reinterpret_cast<char*>(buffer), length);
-	is.close();
-
-	//load data
-	TiXmlDocument doc;
-	if (!doc.LoadContent(buffer, static_cast<int>(length))) {
+	
+	TiXmlDocument doc(path.c_str());
+	if (!doc.LoadFile()) {
 		return;
 	}
 
@@ -80,19 +80,9 @@ void Scene::loadCarSkins(std::string path) {
 
 void Scene::loadSceneInfo(std::string path) {
 	if (m_init) return;
-	std::ifstream is(path, std::ifstream::in);
-
-	is.seekg(0, is.end);
-	std::streamoff length = is.tellg();
-	is.seekg(0, is.beg);
-
-	unsigned char* buffer = new unsigned char[length];
-	is.read(reinterpret_cast<char*>(buffer), length);
-	is.close();
-
-	//load data
-	TiXmlDocument doc;
-	if (!doc.LoadContent(buffer, static_cast<int>(length))) {
+	
+	TiXmlDocument doc(path.c_str());
+	if (!doc.LoadFile()) {
 		return;
 	}
 
@@ -121,21 +111,9 @@ void Scene::loadSceneInfo(std::string path) {
 }
 
 void Scene::loadScores(std::string path) {
-	std::ifstream is(path, std::ifstream::in);
-
-	if (!is.is_open())
-		return;
-
-	is.seekg(0, is.end);
-	std::streamoff length = is.tellg();
-	is.seekg(0, is.beg);
-
-	unsigned char* buffer = new unsigned char[length];
-	is.read(reinterpret_cast<char*>(buffer), length);
-	is.close();
-
-	TiXmlDocument doc;
-	if (!doc.LoadContent(buffer, static_cast<int>(length))) {
+	
+	TiXmlDocument doc(path.c_str());
+	if (!doc.LoadFile()) {
 		return;
 	}
 
@@ -146,9 +124,14 @@ void Scene::loadScores(std::string path) {
 	TiXmlElement* ObjectNode = pElem = hDoc.FirstChild("Levels").FirstChild().Element();
 	
 	for (ObjectNode; ObjectNode; ObjectNode = ObjectNode->NextSiblingElement()) {
-		int index = std::stoi(ObjectNode->Attribute("id"));
-		m_sceneInfos[index].time = std::stof(ObjectNode->Attribute("score"));
-		m_sceneInfos[index].jump = std::stof(ObjectNode->Attribute("jump"));
+
+		std::string nameAtr = ObjectNode->Attribute("name");
+		std::vector<SceneInfo>::iterator it = find_if(m_sceneInfos.begin(), m_sceneInfos.end(), [&](const SceneInfo& s) { return s.name.compare(nameAtr) == 0; });
+
+		if (it != m_sceneInfos.end()) {
+			(*it).time = std::stof(ObjectNode->Attribute("score"));
+			(*it).jump = std::stof(ObjectNode->Attribute("jump"));
+		}
 	}
 }
 
@@ -241,6 +224,13 @@ std::vector<std::string> Scene::mergeAlternately(std::vector<std::string> a, std
 	return result;
 }
 
+void Scene::loadLevel(const std::string path) {
+	if (m_useCompiledLevel)
+		loadCompiledLevel(m_scenesPath + path, true);
+	else
+		loadXmlLevel(m_scenesPath + path);
+}
+
 void Scene::SaveScores(const std::string path, const std::vector<SceneInfo>& levelInfos) {
 	TiXmlDocument doc;
 	TiXmlDeclaration* decl = new TiXmlDeclaration("1.0", "", "");
@@ -255,14 +245,41 @@ void Scene::SaveScores(const std::string path, const std::vector<SceneInfo>& lev
 		root->LinkEndChild(cxn);
 		cxn->SetAttribute("name", levelInfos[i].name.c_str());
 		cxn->SetAttribute("id", i);
-		cxn->SetDoubleAttribute("score", levelInfos[i].time);
-		cxn->SetDoubleAttribute("jump", levelInfos[i].jump);
+		cxn->SetFloatAttribute("score", levelInfos[i].time);
+		cxn->SetFloatAttribute("jump", levelInfos[i].jump);
 	}
 
 	doc.SaveFile(path.c_str());
 }
 
-void  Scene::SaveLevel(const std::string path, const std::vector<ObjectInfo>& objectInfos, const std::vector<LevelSoftBody*>& bodies, const Vector2& carPos, const Vector2& target, const float flallLine, const std::string levelName) {
+void removeDuplicates(std::vector<LevelSoftBody*> &v) {
+	for (std::vector<LevelSoftBody*>::iterator itei = v.begin(); itei != v.end(); itei++) {
+		LevelSoftBody* ch = *itei;
+		for (std::vector<LevelSoftBody*>::iterator itej = itei + 1; itej != v.end(); itej++) {
+			if (ch->m_bodyInfo.name.compare((*itej)->m_bodyInfo.name) == 0) {
+				v.erase(itej);
+				--itei;
+				break;
+			}
+		}
+	}
+
+	/*for (unsigned int i = 1; i < v.size(); ++i) {
+		for (unsigned int k = 0; k < i; ++k) {
+			if (v.at(i)->m_bodyInfo.name.compare(v.at(k)->m_bodyInfo.name) == 0) {
+				std::cout << "----" << std::endl;
+				v.erase(v.begin() + i);
+				--i;
+				break;
+			}
+		}
+	}*/
+}
+
+void Scene::SaveLevel(const std::string path, const std::vector<ObjectInfo>& objectInfos, std::vector<LevelSoftBody*>& bodies, const Vector2& carPos, const Vector2& target, const float fallLine, const std::string levelName) {
+	
+	removeDuplicates(bodies);
+
 	TiXmlDocument doc;
 	//TiXmlDeclaration* decl = new TiXmlDeclaration("1.0", "", "");
 	//doc.LinkEndChild(decl);
@@ -302,9 +319,7 @@ void  Scene::SaveLevel(const std::string path, const std::vector<ObjectInfo>& ob
 	}
 
 	TiXmlNode* softBodiesNode = root->LinkEndChild(new TiXmlElement("SoftBodies"));
-	std::vector<int> indices;
-	
-	
+
 	for (int i = 0; i < bodies.size(); i++) {
 		TiXmlElement * softBody = new TiXmlElement("SoftBody");
 		softBodiesNode->LinkEndChild(softBody);
@@ -337,8 +352,7 @@ void  Scene::SaveLevel(const std::string path, const std::vector<ObjectInfo>& ob
 			pointsNode->LinkEndChild(pointNode);
 			pointNode->SetFloatAttribute("x", point.x);
 			pointNode->SetFloatAttribute("y", point.y);
-			if(point.mass != -1.0)
-				pointNode->SetFloatAttribute("mass", point.mass);
+			pointNode->SetFloatAttribute("mass", point.mass);
 		}
 
 		TiXmlElement * springsNode = new TiXmlElement("Springs");
@@ -350,8 +364,7 @@ void  Scene::SaveLevel(const std::string path, const std::vector<ObjectInfo>& ob
 			springNode->SetAttribute("pt1", spring.pt1);
 			springNode->SetAttribute("pt2", spring.pt2);
 			springNode->SetFloatAttribute("k", spring.k);
-			springNode->SetFloatAttribute("damp", spring.damp);
-			
+			springNode->SetFloatAttribute("damp", spring.damp);		
 		}
 
 		TiXmlElement * polygonsNode = new TiXmlElement("Polygons");
@@ -375,33 +388,20 @@ void  Scene::SaveLevel(const std::string path, const std::vector<ObjectInfo>& ob
 	TiXmlElement* settingsNode = root->LinkEndChild(new TiXmlElement("Settings"))->ToElement();
 	settingsNode->SetFloatAttribute("finishX", target.X);
 	settingsNode->SetFloatAttribute("finishY", target.Y);
-	settingsNode->SetFloatAttribute("fallLine", flallLine);
+	settingsNode->SetFloatAttribute("fallLine", fallLine);
 
 	doc.LinkEndChild(root);
 	doc.SaveFile(path.c_str());
 }
 
-void Scene::loadLevel(const std::string path) {
+void Scene::loadXmlLevel(const std::string path) {
 	m_objectInfos.shrink_to_fit();
 	m_objectInfos.clear();
 	m_softBodyInfos.shrink_to_fit();
 	m_softBodyInfos.clear();
 
-	std::ifstream is(path, std::ifstream::in);
-
-	if (!is.is_open())
-		return;
-
-	is.seekg(0, is.end);
-	std::streamoff length = is.tellg();
-	is.seekg(0, is.beg);
-
-	unsigned char* buffer = new unsigned char[length];
-	is.read(reinterpret_cast<char*>(buffer), length);
-	is.close();
-
-	TiXmlDocument doc;
-	if (!doc.LoadContent(buffer, static_cast<int>(length))) {
+	TiXmlDocument doc(path.c_str());
+	if (!doc.LoadFile()) {
 		return;
 	}
 
@@ -658,8 +658,165 @@ void Scene::loadCompiledLevel(const std::string path, bool reinterprate) {
 	stream.read(reinterpret_cast<char*>(&m_levelInfo.fallLine), sizeof(float));
 
 	stream.close();
+}
 
-	//std::cout << "Level Settings: " << m_levelInfo.finishX << "  " << m_levelInfo.finishY << "  " << m_levelInfo.fallLine << std::endl;
+void Scene::loadOriginLevel(const std::string path) {	
+	m_objectInfos.shrink_to_fit();
+	m_objectInfos.clear();
+	m_softBodyInfos.shrink_to_fit();
+	m_softBodyInfos.clear();
+
+	std::set<std::string> softBodyFiles;
+
+	TiXmlDocument doc(path.c_str());
+	if (!doc.LoadFile()) {
+		return;
+	}
+
+	TiXmlElement* root = doc.FirstChild()->ToElement();
+	TiXmlHandle hRoot = TiXmlHandle(root);
+
+	m_name = root->Attribute("name");
+
+	int bodyNumber = 0;
+
+	TiXmlElement* objectNode = hRoot.FirstChild("Objects").FirstChild().Element();
+	for (objectNode; objectNode; objectNode = objectNode->NextSiblingElement()) {
+		ObjectInfo2 objectInfo;
+		std::strncpy(objectInfo.name, objectNode->Attribute("name"), sizeof(objectInfo.name));
+		softBodyFiles.insert(objectInfo.name);
+
+		objectInfo.posX = std::stof(objectNode->Attribute("posX"));
+		objectInfo.posY = std::stof(objectNode->Attribute("posY"));
+		objectInfo.angle = std::stof(objectNode->Attribute("angle"));
+		objectInfo.scaleX = std::stof(objectNode->Attribute("scaleX"));
+		objectInfo.scaleY = std::stof(objectNode->Attribute("scaleY"));
+		objectInfo.material = 0;
+		if (objectNode->Attribute("material") != NULL) {
+			objectInfo.material = atoi(objectNode->Attribute("material"));
+		}
+		TiXmlElement* kinematicControls = objectNode->FirstChildElement();
+		if (kinematicControls) {
+			TiXmlElement* Element = kinematicControls->FirstChild()->ToElement();
+			if (strcmp(Element->Value(), "PlatformMotion") == 0) {
+				objectInfo.isPlatform = true;
+				objectInfo.offsetX = std::stof(Element->Attribute("offsetX"));
+				objectInfo.offsetY = std::stof(Element->Attribute("offsetY"));
+				objectInfo.secondsPerLoop = std::stof(Element->Attribute("secondsPerLoop"));
+				objectInfo.startOffset = std::stof(Element->Attribute("startOffset"));
+			}
+			else {
+				objectInfo.isMotor = true;
+				objectInfo.radiansPerSecond = std::stof(Element->Attribute("radiansPerSecond"));
+			}
+		}
+		else {
+			objectInfo.isPlatform = false;
+			objectInfo.isMotor = false;
+		}
+		m_objectInfos.push_back(objectInfo);
+	}
+
+	TiXmlElement* carNode = hRoot.FirstChild("Car").Element();
+	std::strncpy(m_carInfo.name, carNode->Attribute("name"), sizeof(m_carInfo.name));
+	m_carInfo.posX = std::stof(carNode->Attribute("posX"));
+	m_carInfo.posY = std::stof(carNode->Attribute("posY"));
+
+	TiXmlElement* levelNode = hRoot.FirstChild("Settings").Element();
+	m_levelInfo.finishX = std::stof(levelNode->Attribute("finishX"));
+	m_levelInfo.finishY = std::stof(levelNode->Attribute("finishY"));
+	m_levelInfo.fallLine = std::stof(levelNode->Attribute("fallLine"));
+	 
+	for (auto& softBodyFile : softBodyFiles) {
+		SoftBodyInfo2 softBodyInfo;
+		
+		TiXmlDocument doc(std::string("Assets/Jelly/Scenes/" + softBodyFile + ".softbody").c_str());
+		if (!doc.LoadFile()) {
+			continue;
+		}
+
+		TiXmlElement* softBodyNode = doc.FirstChild()->ToElement();
+		TiXmlHandle hRoot = TiXmlHandle(softBodyNode);
+
+		std::strncpy(softBodyInfo.softBodyAttributes.name, softBodyNode->Attribute("name"), sizeof(softBodyInfo.softBodyAttributes.name));
+
+		if (softBodyNode->Attribute("colorR") != NULL) {
+			softBodyInfo.softBodyAttributes.colorR = std::stof(softBodyNode->Attribute("colorR"));
+			softBodyInfo.softBodyAttributes.colorG = std::stof(softBodyNode->Attribute("colorG"));
+			softBodyInfo.softBodyAttributes.colorB = std::stof(softBodyNode->Attribute("colorB"));
+		}else {
+			softBodyInfo.softBodyAttributes.colorR = 0.0f;
+			softBodyInfo.softBodyAttributes.colorG = 0.0f;
+			softBodyInfo.softBodyAttributes.colorB = 0.0f;
+		}
+
+		softBodyInfo.softBodyAttributes.massPerPoint = std::stof(softBodyNode->Attribute("massPerPoint"));
+		softBodyInfo.softBodyAttributes.edgeK = std::stof(softBodyNode->Attribute("edgeK"));
+		softBodyInfo.softBodyAttributes.edgeDamping = std::stof(softBodyNode->Attribute("edgeDamping"));
+
+		if (softBodyNode->Attribute("kinematic") != NULL) {
+			const char* sKinematic = softBodyNode->Attribute("kinematic");
+			if (strcmp(sKinematic, "True") == 0)
+				softBodyInfo.softBodyAttributes.isKinematic = true;
+			else
+				softBodyInfo.softBodyAttributes.isKinematic = false;
+		}
+
+		//shape matching
+		if (softBodyNode->Attribute("shapeMatching") != NULL) {
+			const char* sShapeMatching = softBodyNode->Attribute("shapeMatching");
+			if (strcmp(sShapeMatching, "True") == 0) {
+				softBodyInfo.softBodyAttributes.shapeMatching = true;
+				softBodyInfo.softBodyAttributes.shapeK = std::stof(softBodyNode->Attribute("shapeK"));
+				softBodyInfo.softBodyAttributes.shapeDamping = std::stof(softBodyNode->Attribute("shapeDamping"));
+			}
+			else {
+				softBodyInfo.softBodyAttributes.shapeMatching = false;
+				softBodyInfo.softBodyAttributes.shapeK = 100.0f;
+				softBodyInfo.softBodyAttributes.shapeDamping = 10.0f;
+			}
+		}
+
+		//shape matching
+		if (softBodyNode->Attribute("velDamping") != NULL) {
+			softBodyInfo.softBodyAttributes.velDamping = std::stof(softBodyNode->Attribute("velDamping"));
+		}else{
+			softBodyInfo.softBodyAttributes.velDamping = 0.993f;
+		}
+
+		//pressure
+		TiXmlElement* pressureNode = softBodyNode->FirstChild("Pressure") != nullptr ? softBodyNode->FirstChild("Pressure")->ToElement() : nullptr;
+		if (pressureNode) {
+			softBodyInfo.softBodyAttributes.pressureized = true;
+			softBodyInfo.softBodyAttributes.pressure = std::stof(pressureNode->Attribute("amount"));
+		}else {
+			softBodyInfo.softBodyAttributes.pressureized = false;
+			softBodyInfo.softBodyAttributes.pressure = 0.0f;
+		}
+
+		TiXmlElement* pointNode = softBodyNode->FirstChild("Points")->FirstChild() != nullptr ? softBodyNode->FirstChild("Points")->FirstChild()->ToElement() : nullptr;
+		if (pointNode) {
+			for (pointNode; pointNode; pointNode = pointNode->NextSiblingElement()) {
+				softBodyInfo.points.push_back({ std::stof(pointNode->Attribute("x")), std::stof(pointNode->Attribute("y")), pointNode->Attribute("mass") != NULL ? std::stof(pointNode->Attribute("mass")) : -1.0f });
+			}
+		}
+
+		TiXmlElement* spingNode = softBodyNode->FirstChild("Springs")->FirstChild() != nullptr ? softBodyNode->FirstChild("Springs")->FirstChild()->ToElement() : nullptr;
+		if (spingNode) {
+			for (spingNode; spingNode; spingNode = spingNode->NextSiblingElement()) {
+				softBodyInfo.springs.push_back({ atoi(spingNode->Attribute("pt1")), atoi(spingNode->Attribute("pt2")), std::stof(spingNode->Attribute("k")), std::stof(spingNode->Attribute("damp")) });
+			}
+		}
+
+		TiXmlElement* polygonNode = softBodyNode->FirstChild("Polygons")->FirstChild() != nullptr ? softBodyNode->FirstChild("Polygons")->FirstChild()->ToElement() : nullptr;
+		if (polygonNode) {
+			for (polygonNode; polygonNode; polygonNode = polygonNode->NextSiblingElement()) {
+				softBodyInfo.polygons.push_back({ atoi(polygonNode->Attribute("pt0")) , atoi(polygonNode->Attribute("pt1")), atoi(polygonNode->Attribute("pt2")) });
+			}
+		}
+
+		m_softBodyInfos.push_back(softBodyInfo);
+	}
 }
 
 void Scene::saveCompiledLevel(const std::string path, bool reinterprate) {
@@ -761,6 +918,119 @@ void Scene::saveCompiledLevel(const std::string path, bool reinterprate) {
 	stream.write(reinterpret_cast<char*>(&m_levelInfo.fallLine), sizeof(float));
 
 	stream.close();
+}
+
+void Scene::saveLevel(const std::string path) {
+	TiXmlDocument doc;
+	//TiXmlDeclaration* decl = new TiXmlDeclaration("1.0", "", "");
+	//doc.LinkEndChild(decl);
+	TiXmlElement * root = new TiXmlElement("Scene");
+	root->SetAttribute("name", m_name.c_str());
+	TiXmlNode* objectsNode = root->LinkEndChild(new TiXmlElement("Objects"));
+
+	for (int i = 0; i < m_objectInfos.size(); i++) {
+		TiXmlElement * objectNode = new TiXmlElement("Object");
+		objectsNode->LinkEndChild(objectNode);
+		objectNode->SetAttribute("name", m_objectInfos[i].name);
+		objectNode->SetFloatAttribute("posX", m_objectInfos[i].posX);
+		objectNode->SetFloatAttribute("posY", m_objectInfos[i].posY);
+		objectNode->SetFloatAttribute("angle", m_objectInfos[i].angle);
+		objectNode->SetFloatAttribute("scaleX", m_objectInfos[i].scaleX);
+		objectNode->SetFloatAttribute("scaleY", m_objectInfos[i].scaleY);
+		objectNode->SetAttribute("material", m_objectInfos[i].material);
+
+		if (m_objectInfos[i].isMotor || m_objectInfos[i].isPlatform) {
+			TiXmlElement * kninematicControlsNode = new TiXmlElement("KinematicControls");
+			objectNode->LinkEndChild(kninematicControlsNode);
+			if (m_objectInfos[i].isMotor) {
+				TiXmlElement * motorNode = new TiXmlElement("Motor");
+				kninematicControlsNode->LinkEndChild(motorNode);
+				motorNode->SetFloatAttribute("radiansPerSecond", m_objectInfos[i].radiansPerSecond);
+			}
+
+			if (m_objectInfos[i].isPlatform) {
+				TiXmlElement * platformMotionNode = new TiXmlElement("PlatformMotion");
+				kninematicControlsNode->LinkEndChild(platformMotionNode);
+				platformMotionNode->SetFloatAttribute("offsetX", m_objectInfos[i].offsetX);
+				platformMotionNode->SetFloatAttribute("offsetY", m_objectInfos[i].offsetY);
+				platformMotionNode->SetFloatAttribute("secondsPerLoop", m_objectInfos[i].secondsPerLoop);
+				platformMotionNode->SetFloatAttribute("startOffset", m_objectInfos[i].startOffset);
+			}
+		}
+	}
+
+	TiXmlNode* softBodiesNode = root->LinkEndChild(new TiXmlElement("SoftBodies"));
+
+	for (int i = 0; i < m_softBodyInfos.size(); i++) {
+		TiXmlElement * softBody = new TiXmlElement("SoftBody");
+		softBodiesNode->LinkEndChild(softBody);
+		softBody->SetAttribute("name", m_softBodyInfos[i].softBodyAttributes.name);
+		softBody->SetFloatAttribute("massPerPoint", m_softBodyInfos[i].softBodyAttributes.massPerPoint);
+		softBody->SetFloatAttribute("edgeK", m_softBodyInfos[i].softBodyAttributes.edgeK);
+		softBody->SetFloatAttribute("edgeDamping", m_softBodyInfos[i].softBodyAttributes.edgeDamping);
+		softBody->SetFloatAttribute("colorR", m_softBodyInfos[i].softBodyAttributes.colorR);
+		softBody->SetFloatAttribute("colorG", m_softBodyInfos[i].softBodyAttributes.colorG);
+		softBody->SetFloatAttribute("colorB", m_softBodyInfos[i].softBodyAttributes.colorB);
+		softBody->SetAttribute("kinematic", m_softBodyInfos[i].softBodyAttributes.isKinematic ? "True" : "False");
+		softBody->SetAttribute("shapeMatching", m_softBodyInfos[i].softBodyAttributes.shapeMatching ? "True" : "False");
+		softBody->SetAttribute("shapeK", m_softBodyInfos[i].softBodyAttributes.shapeK);
+		softBody->SetAttribute("shapeDamping", m_softBodyInfos[i].softBodyAttributes.shapeDamping);
+		softBody->SetFloatAttribute("velDamping", m_softBodyInfos[i].softBodyAttributes.velDamping);
+
+		if (m_softBodyInfos[i].softBodyAttributes.pressureized) {
+			TiXmlElement * pressure = new TiXmlElement("Pressure");
+			softBody->LinkEndChild(pressure);
+			pressure->SetFloatAttribute("amount", m_softBodyInfos[i].softBodyAttributes.pressure);
+		}
+
+		TiXmlElement * pointsNode = new TiXmlElement("Points");
+		softBody->LinkEndChild(pointsNode);
+
+		for (auto point : m_softBodyInfos[i].points) {
+			TiXmlElement * pointNode = new TiXmlElement("Point");
+			pointsNode->LinkEndChild(pointNode);
+			pointNode->SetFloatAttribute("x", point.x);
+			pointNode->SetFloatAttribute("y", point.y);
+			pointNode->SetFloatAttribute("mass", point.mass);
+		}
+
+		TiXmlElement * springsNode = new TiXmlElement("Springs");
+		softBody->LinkEndChild(springsNode);
+
+		for (auto spring : m_softBodyInfos[i].springs) {
+			TiXmlElement * springNode = new TiXmlElement("Spring");
+			springsNode->LinkEndChild(springNode);
+			springNode->SetAttribute("pt1", spring.pt1);
+			springNode->SetAttribute("pt2", spring.pt2);
+			springNode->SetFloatAttribute("k", spring.k);
+			springNode->SetFloatAttribute("damp", spring.damp);
+		}
+
+		TiXmlElement * polygonsNode = new TiXmlElement("Polygons");
+		softBody->LinkEndChild(polygonsNode);
+
+		for (auto triangle : m_softBodyInfos[i].polygons) {
+			TiXmlElement *polygonNode = new TiXmlElement("Poly");
+			polygonsNode->LinkEndChild(polygonNode);
+			polygonNode->SetAttribute("pt0", triangle.pt0);
+			polygonNode->SetAttribute("pt1", triangle.pt1);
+			polygonNode->SetFloatAttribute("pt2", triangle.pt2);
+		}
+	}
+
+	TiXmlElement* carNode = root->LinkEndChild(new TiXmlElement("Car"))->ToElement();
+	carNode->SetAttribute("name", m_carInfo.name);
+	carNode->SetFloatAttribute("posX", m_carInfo.posX);
+	carNode->SetFloatAttribute("posY", m_carInfo.posY);
+
+
+	TiXmlElement* settingsNode = root->LinkEndChild(new TiXmlElement("Settings"))->ToElement();
+	settingsNode->SetFloatAttribute("finishX", m_levelInfo.finishX);
+	settingsNode->SetFloatAttribute("finishY", m_levelInfo.finishY);
+	settingsNode->SetFloatAttribute("fallLine", m_levelInfo.fallLine);
+
+	doc.LinkEndChild(root);
+	doc.SaveFile(path.c_str());
 }
 
 void Scene::loadCar(const std::string path) {

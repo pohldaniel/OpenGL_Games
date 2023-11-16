@@ -1,0 +1,6 @@
+<Scene name="">
+  <Objects />
+  <SoftBodies />
+  <Car name="car_and_truck" posX="-22" posY="5" />
+  <Settings finishX="22" finishY="3" fallLine="-10" />
+</Scene>

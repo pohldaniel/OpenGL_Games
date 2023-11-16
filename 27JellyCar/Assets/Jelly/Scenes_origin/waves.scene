@@ -1,0 +1,222 @@
+<Scene name="Cogs">
+  <Objects>
+    <Object name="level6_01" posX="0" posY="0" angle="0" scaleX="10" scaleY="2" material="0" />
+    <Object name="waves_circle16" posX="-14.94443" posY="-1.277778" angle="0" scaleX="2" scaleY="2" material="0">
+      <KinematicControls>
+        <PlatformMotion offsetX="25" offsetY="2" secondsPerLoop="10" startOffset="0" />
+      </KinematicControls>
+    </Object>
+    <Object name="waves_circle16" posX="-11.32904" posY="-0.2008548" angle="0" scaleX="2" scaleY="2" material="0">
+      <KinematicControls>
+        <PlatformMotion offsetX="0" offsetY="-2" secondsPerLoop="10" startOffset="0" />
+      </KinematicControls>
+    </Object>
+    <Object name="waves_circle16" posX="-8.32904" posY="-0.5085471" angle="0" scaleX="2" scaleY="2" material="0">
+      <KinematicControls>
+        <PlatformMotion offsetX="11" offsetY="0" secondsPerLoop="16" startOffset="0" />
+      </KinematicControls>
+    </Object>
+    <Object name="waves_circle16" posX="11.20943" posY="-1.354701" angle="0" scaleX="2" scaleY="2" material="0">
+      <KinematicControls>
+        <PlatformMotion offsetX="-18" offsetY="2" secondsPerLoop="16" startOffset="0" />
+      </KinematicControls>
+    </Object>
+    <Object name="waves_circle16" posX="6.90174" posY="-1.970086" angle="0" scaleX="2" scaleY="2" material="0">
+      <KinematicControls>
+        <PlatformMotion offsetX="0" offsetY="2" secondsPerLoop="5" startOffset="0" />
+      </KinematicControls>
+    </Object>
+    <Object name="waves_circle16" posX="5.747891" posY="-0.8931626" angle="0" scaleX="2" scaleY="2" material="0">
+      <KinematicControls>
+        <PlatformMotion offsetX="-10" offsetY="1.6" secondsPerLoop="8" startOffset="0" />
+      </KinematicControls>
+    </Object>
+    <Object name="level6_01" posX="-40.07696" posY="-0.07692271" angle="0" scaleX="10" scaleY="2" material="0" />
+    <Object name="waves_circle16" posX="24.17644" posY="-9.893167" angle="0" scaleX="4" scaleY="4" material="0">
+      <KinematicControls>
+        <PlatformMotion offsetX="0" offsetY="8" secondsPerLoop="4" startOffset="0" />
+      </KinematicControls>
+    </Object>
+    <Object name="waves_circle16" posX="32.17643" posY="-9.321736" angle="0" scaleX="4" scaleY="4" material="0">
+      <KinematicControls>
+        <PlatformMotion offsetX="0" offsetY="8" secondsPerLoop="4" startOffset="0" />
+      </KinematicControls>
+    </Object>
+    <Object name="waves_circle16" posX="40.17642" posY="-8.750306" angle="0" scaleX="4" scaleY="4" material="0">
+      <KinematicControls>
+        <PlatformMotion offsetX="0" offsetY="8" secondsPerLoop="4" startOffset="0" />
+      </KinematicControls>
+    </Object>
+    <Object name="waves_circle16" posX="48.17641" posY="-8.036018" angle="0" scaleX="4" scaleY="4" material="0">
+      <KinematicControls>
+        <PlatformMotion offsetX="0" offsetY="8" secondsPerLoop="4" startOffset="0" />
+      </KinematicControls>
+    </Object>
+    <Object name="waves_circle16" posX="56.17638" posY="-7.321733" angle="0" scaleX="4" scaleY="4" material="0">
+      <KinematicControls>
+        <PlatformMotion offsetX="0" offsetY="8" secondsPerLoop="4" startOffset="0" />
+      </KinematicControls>
+    </Object>
+    <Object name="waves_circle16" posX="63.89065" posY="-5.893162" angle="0" scaleX="4" scaleY="4" material="0">
+      <KinematicControls>
+        <PlatformMotion offsetX="0" offsetY="8" secondsPerLoop="4" startOffset="0" />
+      </KinematicControls>
+    </Object>
+    <Object name="waves_circle16" posX="71.605" posY="-4.321734" angle="0" scaleX="4" scaleY="4" material="0">
+      <KinematicControls>
+        <PlatformMotion offsetX="0" offsetY="8" secondsPerLoop="4" startOffset="0" />
+      </KinematicControls>
+    </Object>
+    <Object name="waves_circle16" posX="28.17641" posY="-1.893166" angle="0" scaleX="4" scaleY="4" material="0">
+      <KinematicControls>
+        <PlatformMotion offsetX="0" offsetY="-8" secondsPerLoop="4" startOffset="0" />
+      </KinematicControls>
+    </Object>
+    <Object name="waves_circle16" posX="36.31927" posY="-1.321737" angle="0" scaleX="4" scaleY="4" material="0">
+      <KinematicControls>
+        <PlatformMotion offsetX="0" offsetY="-8" secondsPerLoop="4" startOffset="0" />
+      </KinematicControls>
+    </Object>
+    <Object name="waves_circle16" posX="44.31924" posY="-0.7503088" angle="0" scaleX="4" scaleY="4" material="0">
+      <KinematicControls>
+        <PlatformMotion offsetX="0" offsetY="-8" secondsPerLoop="4" startOffset="0" />
+      </KinematicControls>
+    </Object>
+    <Object name="waves_circle16" posX="52.46208" posY="-0.03602306" angle="0" scaleX="4" scaleY="4" material="0">
+      <KinematicControls>
+        <PlatformMotion offsetX="0" offsetY="-8" secondsPerLoop="4" startOffset="0" />
+      </KinematicControls>
+    </Object>
+    <Object name="waves_circle16" posX="60.31921" posY="0.9639769" angle="0" scaleX="4" scaleY="4" material="0">
+      <KinematicControls>
+        <PlatformMotion offsetX="0" offsetY="-8" secondsPerLoop="4" startOffset="0" />
+      </KinematicControls>
+    </Object>
+    <Object name="waves_circle16" posX="67.89068" posY="2.678263" angle="0" scaleX="4" scaleY="4" material="0">
+      <KinematicControls>
+        <PlatformMotion offsetX="0" offsetY="-8" secondsPerLoop="4" startOffset="0" />
+      </KinematicControls>
+    </Object>
+    <Object name="level6_01" posX="94.51433" posY="13.77142" angle="17" scaleX="10" scaleY="2" material="0" />
+    <Object name="waves_circle16" posX="116.205" posY="7.078264" angle="0" scaleX="6" scaleY="6" material="0">
+      <KinematicControls>
+        <PlatformMotion offsetX="0" offsetY="8" secondsPerLoop="4" startOffset="0.6" />
+      </KinematicControls>
+    </Object>
+    <Object name="waves_circle16" posX="123.805" posY="9.078262" angle="0" scaleX="6" scaleY="6" material="0">
+      <KinematicControls>
+        <PlatformMotion offsetX="0" offsetY="8" secondsPerLoop="4" startOffset="0.4" />
+      </KinematicControls>
+    </Object>
+    <Object name="waves_circle16" posX="132.4049" posY="12.87826" angle="0" scaleX="6" scaleY="6" material="0">
+      <KinematicControls>
+        <PlatformMotion offsetX="0" offsetY="8" secondsPerLoop="4" startOffset="0.2" />
+      </KinematicControls>
+    </Object>
+    <Object name="waves_circle16" posX="140.6049" posY="17.67826" angle="0" scaleX="6" scaleY="6" material="0">
+      <KinematicControls>
+        <PlatformMotion offsetX="0" offsetY="8" secondsPerLoop="4" startOffset="0" />
+      </KinematicControls>
+    </Object>
+    <Object name="waves_circle16" posX="172.4047" posY="23.07827" angle="0" scaleX="10" scaleY="10" material="0" />
+    <Object name="waves_circle16" posX="200.8045" posY="22.87827" angle="0" scaleX="10" scaleY="10" material="0">
+      <KinematicControls>
+        <PlatformMotion offsetX="0" offsetY="-20" secondsPerLoop="10" startOffset="0" />
+      </KinematicControls>
+    </Object>
+    <Object name="waves_circle16" posX="230.2045" posY="22.27827" angle="0" scaleX="10" scaleY="10" material="0">
+      <KinematicControls>
+        <PlatformMotion offsetX="0" offsetY="-20" secondsPerLoop="10" startOffset="0.7" />
+      </KinematicControls>
+    </Object>
+  </Objects>
+  <SoftBodies>
+    <SoftBody name="level6_01" massPerPoint="0" edgeK="0" edgeDamping="0" colorR="1" colorG="0" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
+      <Points>
+        <Point x="-2" y="0" mass="-1" />
+        <Point x="-1.6" y="0.4" mass="-1" />
+        <Point x="1.6" y="0.4" mass="-1" />
+        <Point x="2" y="0" mass="-1" />
+        <Point x="2" y="-0.8" mass="-1" />
+        <Point x="1.6" y="-0.4" mass="-1" />
+        <Point x="-1.6" y="-0.4" mass="-1" />
+        <Point x="-2" y="-0.8" mass="-1" />
+      </Points>
+      <Springs />
+      <Polygons>
+        <Poly pt0="4" pt1="5" pt2="3" />
+        <Poly pt0="3" pt1="2" pt2="5" />
+        <Poly pt0="5" pt1="6" pt2="2" />
+        <Poly pt0="6" pt1="2" pt2="1" />
+        <Poly pt0="1" pt1="0" pt2="6" />
+        <Poly pt0="6" pt1="7" pt2="0" />
+      </Polygons>
+    </SoftBody>
+    <SoftBody name="waves_circle16" massPerPoint="10" edgeK="2000" edgeDamping="15" colorR="1" colorG="0.5019608" colorB="0.2509804" kinematic="True" shapeMatching="True" shapeK="1000" shapeDamping="10" velDamping="0.993">
+      <Points>
+        <Point x="0" y="1" mass="-1" />
+        <Point x="0.3826834" y="0.9238795" mass="-1" />
+        <Point x="0.7071068" y="0.7071068" mass="-1" />
+        <Point x="0.9238795" y="0.3826834" mass="-1" />
+        <Point x="1" y="1.216796e-08" mass="-1" />
+        <Point x="0.9238796" y="-0.3826834" mass="-1" />
+        <Point x="0.7071068" y="-0.7071068" mass="-1" />
+        <Point x="0.3826835" y="-0.9238795" mass="-1" />
+        <Point x="2.433593e-08" y="-1" mass="-1" />
+        <Point x="-0.3826834" y="-0.9238796" mass="-1" />
+        <Point x="-0.7071068" y="-0.7071068" mass="-1" />
+        <Point x="-0.9238795" y="-0.3826835" mass="-1" />
+        <Point x="-1" y="-3.65039e-08" mass="-1" />
+        <Point x="-0.9238796" y="0.3826834" mass="-1" />
+        <Point x="-0.7071068" y="0.7071068" mass="-1" />
+        <Point x="-0.3826835" y="0.9238795" mass="-1" />
+      </Points>
+      <Springs>
+        <Spring pt1="0" pt2="8" k="2000" damp="15" />
+        <Spring pt1="1" pt2="9" k="2000" damp="15" />
+        <Spring pt1="10" pt2="2" k="2000" damp="15" />
+        <Spring pt1="3" pt2="11" k="2000" damp="15" />
+        <Spring pt1="12" pt2="4" k="2000" damp="15" />
+        <Spring pt1="5" pt2="13" k="2000" damp="15" />
+        <Spring pt1="14" pt2="6" k="2000" damp="15" />
+        <Spring pt1="7" pt2="15" k="2000" damp="15" />
+        <Spring pt1="14" pt2="2" k="2000" damp="15" />
+        <Spring pt1="2" pt2="6" k="2000" damp="15" />
+        <Spring pt1="6" pt2="10" k="2000" damp="15" />
+        <Spring pt1="10" pt2="14" k="2000" damp="15" />
+        <Spring pt1="11" pt2="15" k="2000" damp="15" />
+        <Spring pt1="15" pt2="3" k="2000" damp="15" />
+        <Spring pt1="3" pt2="7" k="2000" damp="15" />
+        <Spring pt1="7" pt2="11" k="2000" damp="15" />
+        <Spring pt1="12" pt2="0" k="2000" damp="15" />
+        <Spring pt1="0" pt2="4" k="2000" damp="15" />
+        <Spring pt1="4" pt2="8" k="2000" damp="15" />
+        <Spring pt1="8" pt2="12" k="2000" damp="15" />
+        <Spring pt1="13" pt2="1" k="2000" damp="15" />
+        <Spring pt1="1" pt2="5" k="2000" damp="15" />
+        <Spring pt1="5" pt2="9" k="2000" damp="15" />
+        <Spring pt1="9" pt2="13" k="2000" damp="15" />
+      </Springs>
+      <Polygons>
+        <Poly pt0="0" pt1="15" pt2="12" />
+        <Poly pt0="15" pt1="14" pt2="11" />
+        <Poly pt0="14" pt1="13" pt2="10" />
+        <Poly pt0="13" pt1="12" pt2="9" />
+        <Poly pt0="12" pt1="11" pt2="8" />
+        <Poly pt0="11" pt1="10" pt2="7" />
+        <Poly pt0="10" pt1="9" pt2="6" />
+        <Poly pt0="9" pt1="8" pt2="5" />
+        <Poly pt0="8" pt1="7" pt2="4" />
+        <Poly pt0="7" pt1="6" pt2="3" />
+        <Poly pt0="6" pt1="5" pt2="2" />
+        <Poly pt0="5" pt1="4" pt2="1" />
+        <Poly pt0="4" pt1="3" pt2="0" />
+        <Poly pt0="3" pt1="2" pt2="15" />
+        <Poly pt0="2" pt1="1" pt2="14" />
+        <Poly pt0="1" pt1="0" pt2="13" />
+      </Polygons>
+    </SoftBody>
+  </SoftBodies>
+  <Car name="car_and_truck" posX="-40" posY="5" />
+  <Settings finishX="230" finishY="33" fallLine="-15" />
+</Scene>

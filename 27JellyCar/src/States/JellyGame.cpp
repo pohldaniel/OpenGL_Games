@@ -69,8 +69,7 @@ JellyGame::JellyGame(StateMachine& machine, std::string sceneName) : State(machi
 
 	Scene& scene = SceneManager::Get().getScene(m_sceneName);
 	scene.InitPhysic(m_world);
-	//scene.loadLevel("Assets/Jelly/Scenes_new/" + m_sceneFile);
-	scene.loadCompiledLevel("Assets/Jelly/Scenes_compiled_new/" + m_sceneFile, true);
+	scene.loadLevel(m_sceneFile);
 	scene.buildLevel(m_world, m_gameBodies);
 	scene.buildCar(m_world, m_car, "Assets/Jelly/car_and_truck.car");
 

@@ -1,0 +1,206 @@
+<Scene name="Kerplunk">
+  <Objects>
+    <Object name="level6_01" posX="0" posY="88" angle="0" scaleX="3" scaleY="1" material="0" />
+    <Object name="level6_01" posX="16" posY="88" angle="0" scaleX="3" scaleY="1" material="0" />
+    <Object name="level6_01" posX="-16" posY="88" angle="0" scaleX="3" scaleY="1" material="0" />
+    <Object name="level6_01" posX="32" posY="88" angle="0" scaleX="3" scaleY="1" material="0" />
+    <Object name="level6_01" posX="-32" posY="88" angle="0" scaleX="3" scaleY="1" material="0" />
+    <Object name="level06_plinko_orange" posX="8" posY="76" angle="0" scaleX="3" scaleY="3" material="0" />
+    <Object name="level06_plinko_orange" posX="-8" posY="76" angle="0" scaleX="3" scaleY="3" material="0" />
+    <Object name="level06_plinko_orange" posX="24" posY="76" angle="0" scaleX="3" scaleY="3" material="0" />
+    <Object name="level06_plinko_orange" posX="-24" posY="76" angle="0" scaleX="3" scaleY="3" material="0" />
+    <Object name="level06_plinko_yellow" posX="0" posY="68" angle="0" scaleX="3" scaleY="3" material="0" />
+    <Object name="level06_plinko_yellow" posX="16" posY="68" angle="0" scaleX="3" scaleY="3" material="0" />
+    <Object name="level06_plinko_yellow" posX="32" posY="68" angle="0" scaleX="3" scaleY="3" material="0" />
+    <Object name="level06_plinko_yellow" posX="-16" posY="68" angle="0" scaleX="3" scaleY="3" material="0" />
+    <Object name="level06_plinko_yellow" posX="-32" posY="68" angle="0" scaleX="3" scaleY="3" material="0" />
+    <Object name="level06_plinko_orange" posX="8" posY="60" angle="0" scaleX="3" scaleY="3" material="0" />
+    <Object name="level06_plinko_orange" posX="24" posY="60" angle="0" scaleX="3" scaleY="3" material="0" />
+    <Object name="level06_plinko_orange" posX="-8" posY="60" angle="0" scaleX="3" scaleY="3" material="0" />
+    <Object name="level06_plinko_orange" posX="-24" posY="60" angle="0" scaleX="3" scaleY="3" material="0" />
+    <Object name="level06_plinko_yellow" posX="0" posY="52" angle="0" scaleX="3" scaleY="3" material="0" />
+    <Object name="level06_plinko_yellow" posX="16" posY="52" angle="0" scaleX="3" scaleY="3" material="0" />
+    <Object name="level06_plinko_yellow" posX="32" posY="52" angle="0" scaleX="3" scaleY="3" material="0" />
+    <Object name="level06_plinko_yellow" posX="-16" posY="52" angle="0" scaleX="3" scaleY="3" material="0" />
+    <Object name="level06_plinko_yellow" posX="-32" posY="52" angle="0" scaleX="3" scaleY="3" material="0" />
+    <Object name="level06_plat1" posX="0" posY="38" angle="0" scaleX="1.5" scaleY="1" material="0" />
+    <Object name="level06_plat1" posX="24" posY="35" angle="0" scaleX="1.5" scaleY="1" material="0" />
+    <Object name="level06_plat1" posX="-24" posY="35" angle="0" scaleX="1.5" scaleY="1" material="0" />
+    <Object name="level06_plat1" posX="-12" posY="18" angle="0" scaleX="1" scaleY="1" material="0" />
+    <Object name="level06_plat1" posX="12" posY="18" angle="0" scaleX="1" scaleY="1" material="0" />
+    <Object name="level06_plat1" posX="32" posY="24" angle="45" scaleX="1.3" scaleY="1" material="0" />
+    <Object name="level06_plat1" posX="-32" posY="24" angle="315" scaleX="1.3" scaleY="1" material="0" />
+    <Object name="level6_01" posX="-40" posY="44" angle="90" scaleX="22" scaleY="3" material="0" />
+    <Object name="level6_01" posX="40" posY="44" angle="270" scaleX="22" scaleY="3" material="0" />
+    <Object name="level6_01" posX="0" posY="0" angle="180" scaleX="2" scaleY="1" material="0" />
+    <Object name="level6_01" posX="-4" posY="3" angle="90" scaleX="1.5" scaleY="1" material="0" />
+    <Object name="level6_01" posX="4" posY="3" angle="270" scaleX="1.5" scaleY="1" material="0" />
+    <Object name="level6_01" posX="26" posY="-8" angle="180" scaleX="8" scaleY="3" material="0" />
+    <Object name="level6_01" posX="-26" posY="-8" angle="180" scaleX="8" scaleY="3" material="0" />
+    <Object name="level06_plat2" posX="48" posY="-6" angle="0" scaleX="1" scaleY="1" material="0">
+      <KinematicControls>
+        <PlatformMotion offsetX="-2" offsetY="96" secondsPerLoop="28" startOffset="0" />
+      </KinematicControls>
+    </Object>
+    <Object name="level06_plat2" posX="-48" posY="-6" angle="0" scaleX="1" scaleY="1" material="0">
+      <KinematicControls>
+        <PlatformMotion offsetX="2" offsetY="96" secondsPerLoop="28" startOffset="0" />
+      </KinematicControls>
+    </Object>
+  </Objects>
+  <SoftBodies>
+    <SoftBody name="level06_plat1" massPerPoint="1" edgeK="400" edgeDamping="10" colorR="0" colorG="0" colorB="1" kinematic="True" shapeMatching="True" shapeK="30" shapeDamping="0" velDamping="0.993">
+      <Points>
+        <Point x="-6.4" y="-0.8" mass="-1" />
+        <Point x="-7.2" y="0.8" mass="-1" />
+        <Point x="-6.4" y="1.6" mass="-1" />
+        <Point x="-3.2" y="0.8" mass="-1" />
+        <Point x="0" y="1.6" mass="0" />
+        <Point x="3.2" y="0.8" mass="-1" />
+        <Point x="6.4" y="1.6" mass="-1" />
+        <Point x="7.2" y="0.8" mass="-1" />
+        <Point x="6.4" y="-0.8" mass="-1" />
+        <Point x="3.2" y="-1.6" mass="-1" />
+        <Point x="0" y="-0.8" mass="-1" />
+        <Point x="-3.2" y="-1.6" mass="-1" />
+      </Points>
+      <Springs>
+        <Spring pt1="8" pt2="6" k="500" damp="15" />
+        <Spring pt1="8" pt2="5" k="500" damp="15" />
+        <Spring pt1="5" pt2="9" k="500" damp="15" />
+        <Spring pt1="9" pt2="4" k="500" damp="15" />
+        <Spring pt1="4" pt2="10" k="500" damp="15" />
+        <Spring pt1="10" pt2="3" k="500" damp="15" />
+        <Spring pt1="3" pt2="11" k="500" damp="15" />
+        <Spring pt1="11" pt2="2" k="500" damp="15" />
+        <Spring pt1="2" pt2="0" k="500" damp="15" />
+        <Spring pt1="0" pt2="3" k="500" damp="15" />
+        <Spring pt1="11" pt2="4" k="500" damp="15" />
+        <Spring pt1="10" pt2="5" k="500" damp="15" />
+        <Spring pt1="9" pt2="6" k="500" damp="15" />
+      </Springs>
+      <Polygons>
+        <Poly pt0="8" pt1="7" pt2="6" />
+        <Poly pt0="8" pt1="6" pt2="5" />
+        <Poly pt0="5" pt1="9" pt2="8" />
+        <Poly pt0="9" pt1="5" pt2="4" />
+        <Poly pt0="4" pt1="10" pt2="9" />
+        <Poly pt0="10" pt1="4" pt2="3" />
+        <Poly pt0="3" pt1="11" pt2="10" />
+        <Poly pt0="11" pt1="3" pt2="2" />
+        <Poly pt0="2" pt1="0" pt2="11" />
+        <Poly pt0="0" pt1="2" pt2="1" />
+      </Polygons>
+    </SoftBody>
+    <SoftBody name="level06_plat2" massPerPoint="4" edgeK="500" edgeDamping="15" colorR="0.5019608" colorG="0.5019608" colorB="0.7529412" kinematic="True" shapeMatching="True" shapeK="300" shapeDamping="10" velDamping="0.993">
+      <Points>
+        <Point x="-4.8" y="0" mass="-1" />
+        <Point x="0" y="0.8" mass="-1" />
+        <Point x="4.8" y="0" mass="-1" />
+        <Point x="4.8" y="-1.6" mass="-1" />
+        <Point x="0" y="-0.8" mass="-1" />
+        <Point x="-4.8" y="-1.6" mass="-1" />
+      </Points>
+      <Springs>
+        <Spring pt1="4" pt2="1" k="500" damp="15" />
+        <Spring pt1="4" pt2="2" k="500" damp="15" />
+        <Spring pt1="3" pt2="1" k="500" damp="15" />
+        <Spring pt1="1" pt2="5" k="500" damp="15" />
+        <Spring pt1="0" pt2="4" k="500" damp="15" />
+      </Springs>
+      <Polygons>
+        <Poly pt0="3" pt1="2" pt2="1" />
+        <Poly pt0="1" pt1="4" pt2="3" />
+        <Poly pt0="4" pt1="1" pt2="0" />
+        <Poly pt0="0" pt1="5" pt2="4" />
+      </Polygons>
+    </SoftBody>
+    <SoftBody name="level06_plinko_orange" massPerPoint="1" edgeK="600" edgeDamping="50" colorR="0.5019608" colorG="0.2509804" colorB="0" kinematic="True" shapeMatching="True" shapeK="600" shapeDamping="50" velDamping="0.993">
+      <Pressure amount="150" />
+      <Points>
+        <Point x="0" y="1" mass="-1" />
+        <Point x="0.5" y="0.8660254" mass="-1" />
+        <Point x="0.8660254" y="0.5" mass="-1" />
+        <Point x="1" y="-4.371139e-08" mass="-1" />
+        <Point x="0.8660254" y="-0.5000001" mass="-1" />
+        <Point x="0.5000001" y="-0.8660254" mass="-1" />
+        <Point x="-8.742278e-08" y="-1" mass="-1" />
+        <Point x="-0.5" y="-0.8660254" mass="-1" />
+        <Point x="-0.8660254" y="-0.4999999" mass="-1" />
+        <Point x="-1" y="1.192488e-08" mass="-1" />
+        <Point x="-0.8660254" y="0.4999999" mass="-1" />
+        <Point x="-0.5000002" y="0.8660253" mass="-1" />
+      </Points>
+      <Springs />
+      <Polygons>
+        <Poly pt0="0" pt1="1" pt2="4" />
+        <Poly pt0="1" pt1="2" pt2="5" />
+        <Poly pt0="2" pt1="3" pt2="6" />
+        <Poly pt0="3" pt1="4" pt2="7" />
+        <Poly pt0="4" pt1="5" pt2="8" />
+        <Poly pt0="5" pt1="6" pt2="9" />
+        <Poly pt0="6" pt1="7" pt2="10" />
+        <Poly pt0="7" pt1="8" pt2="11" />
+        <Poly pt0="8" pt1="9" pt2="0" />
+        <Poly pt0="9" pt1="10" pt2="1" />
+        <Poly pt0="10" pt1="11" pt2="2" />
+        <Poly pt0="11" pt1="0" pt2="3" />
+      </Polygons>
+    </SoftBody>
+    <SoftBody name="level06_plinko_yellow" massPerPoint="1" edgeK="600" edgeDamping="50" colorR="1" colorG="1" colorB="0" kinematic="True" shapeMatching="True" shapeK="600" shapeDamping="50" velDamping="0.993">
+      <Pressure amount="150" />
+      <Points>
+        <Point x="0" y="1" mass="-1" />
+        <Point x="0.5" y="0.8660254" mass="-1" />
+        <Point x="0.8660254" y="0.5" mass="-1" />
+        <Point x="1" y="-4.371139e-08" mass="-1" />
+        <Point x="0.8660254" y="-0.5000001" mass="-1" />
+        <Point x="0.5000001" y="-0.8660254" mass="-1" />
+        <Point x="-8.742278e-08" y="-1" mass="-1" />
+        <Point x="-0.5" y="-0.8660254" mass="-1" />
+        <Point x="-0.8660254" y="-0.4999999" mass="-1" />
+        <Point x="-1" y="1.192488e-08" mass="-1" />
+        <Point x="-0.8660254" y="0.4999999" mass="-1" />
+        <Point x="-0.5000002" y="0.8660253" mass="-1" />
+      </Points>
+      <Springs />
+      <Polygons>
+        <Poly pt0="0" pt1="1" pt2="4" />
+        <Poly pt0="1" pt1="2" pt2="5" />
+        <Poly pt0="2" pt1="3" pt2="6" />
+        <Poly pt0="3" pt1="4" pt2="7" />
+        <Poly pt0="4" pt1="5" pt2="8" />
+        <Poly pt0="5" pt1="6" pt2="9" />
+        <Poly pt0="6" pt1="7" pt2="10" />
+        <Poly pt0="7" pt1="8" pt2="11" />
+        <Poly pt0="8" pt1="9" pt2="0" />
+        <Poly pt0="9" pt1="10" pt2="1" />
+        <Poly pt0="10" pt1="11" pt2="2" />
+        <Poly pt0="11" pt1="0" pt2="3" />
+      </Polygons>
+    </SoftBody>
+    <SoftBody name="level6_01" massPerPoint="0" edgeK="0" edgeDamping="0" colorR="1" colorG="0" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
+      <Points>
+        <Point x="-2" y="0" mass="-1" />
+        <Point x="-1.6" y="0.4" mass="-1" />
+        <Point x="1.6" y="0.4" mass="-1" />
+        <Point x="2" y="0" mass="-1" />
+        <Point x="2" y="-0.8" mass="-1" />
+        <Point x="1.6" y="-0.4" mass="-1" />
+        <Point x="-1.6" y="-0.4" mass="-1" />
+        <Point x="-2" y="-0.8" mass="-1" />
+      </Points>
+      <Springs />
+      <Polygons>
+        <Poly pt0="4" pt1="5" pt2="3" />
+        <Poly pt0="3" pt1="2" pt2="5" />
+        <Poly pt0="5" pt1="6" pt2="2" />
+        <Poly pt0="6" pt1="2" pt2="1" />
+        <Poly pt0="1" pt1="0" pt2="6" />
+        <Poly pt0="6" pt1="7" pt2="0" />
+      </Polygons>
+    </SoftBody>
+  </SoftBodies>
+  <Car name="car_and_truck" posX="0" posY="90" />
+  <Settings finishX="0" finishY="2" fallLine="-24" />
+</Scene>

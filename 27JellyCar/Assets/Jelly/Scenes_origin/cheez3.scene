@@ -1,0 +1,730 @@
+<Scene name="Jello Fortress">
+  <Objects>
+    <Object name="chz3_Bridge" posX="-70.02542" posY="-12.41507" angle="360" scaleX="1" scaleY="1" material="0" />
+    <Object name="chz3_Water" posX="-70.07387" posY="-20.26711" angle="0" scaleX="1" scaleY="1" material="1" />
+    <Object name="chz3_WaterMover" posX="-86.1175" posY="-26.76342" angle="313" scaleX="1" scaleY="1" material="0">
+      <KinematicControls>
+        <Motor radiansPerSecond="4" />
+      </KinematicControls>
+    </Object>
+    <Object name="chz3_WaterMover" posX="-75.44226" posY="-26.31602" angle="233" scaleX="1" scaleY="1" material="0">
+      <KinematicControls>
+        <Motor radiansPerSecond="4" />
+      </KinematicControls>
+    </Object>
+    <Object name="chz3_WaterMover" posX="-64.76376" posY="-26.29129" angle="133" scaleX="1" scaleY="1" material="0">
+      <KinematicControls>
+        <Motor radiansPerSecond="4" />
+      </KinematicControls>
+    </Object>
+    <Object name="chz3_WaterMover" posX="-54.72061" posY="-25.5278" angle="313" scaleX="1" scaleY="1" material="0">
+      <KinematicControls>
+        <Motor radiansPerSecond="4" />
+      </KinematicControls>
+    </Object>
+    <Object name="chz3_Rock" posX="244.9998" posY="-44.95002" angle="0" scaleX="1" scaleY="1" material="0">
+      <KinematicControls>
+        <Motor radiansPerSecond="4" />
+        <PlatformMotion offsetX="0" offsetY="10" secondsPerLoop="4" startOffset="0" />
+      </KinematicControls>
+    </Object>
+    <Object name="chz3_Rock" posX="305.0556" posY="-44.9778" angle="0" scaleX="1" scaleY="1" material="0">
+      <KinematicControls>
+        <Motor radiansPerSecond="4" />
+        <PlatformMotion offsetX="0" offsetY="10" secondsPerLoop="4" startOffset="0.5" />
+      </KinematicControls>
+    </Object>
+    <Object name="chz3_Rock" posX="285.0885" posY="-44.94446" angle="0" scaleX="1" scaleY="1" material="0">
+      <KinematicControls>
+        <Motor radiansPerSecond="4" />
+        <PlatformMotion offsetX="0" offsetY="10" secondsPerLoop="4" startOffset="0" />
+      </KinematicControls>
+    </Object>
+    <Object name="chz3_Rock" posX="325.0558" posY="-45.02227" angle="0" scaleX="1" scaleY="1" material="0">
+      <KinematicControls>
+        <Motor radiansPerSecond="4" />
+        <PlatformMotion offsetX="0" offsetY="-10" secondsPerLoop="4" startOffset="0" />
+      </KinematicControls>
+    </Object>
+    <Object name="chz3_Rock" posX="265.0335" posY="-44.94448" angle="0" scaleX="1" scaleY="1" material="0">
+      <KinematicControls>
+        <Motor radiansPerSecond="4" />
+        <PlatformMotion offsetX="0" offsetY="-10" secondsPerLoop="4" startOffset="0.5" />
+      </KinematicControls>
+    </Object>
+    <Object name="chz3_Rock" posX="344.979" posY="-54.61822" angle="0" scaleX="1" scaleY="1" material="0">
+      <KinematicControls>
+        <Motor radiansPerSecond="4" />
+        <PlatformMotion offsetX="0" offsetY="20" secondsPerLoop="6" startOffset="0" />
+      </KinematicControls>
+    </Object>
+    <Object name="chz3_Water2" posX="480.2002" posY="-23.45002" angle="0" scaleX="1" scaleY="0.75" material="1" />
+    <Object name="chz3_WaterMover" posX="514.9828" posY="-30.98535" angle="135" scaleX="1" scaleY="1" material="0">
+      <KinematicControls>
+        <Motor radiansPerSecond="4" />
+      </KinematicControls>
+    </Object>
+    <Object name="chz3_WaterMover" posX="484.984" posY="-30.91327" angle="212" scaleX="1" scaleY="1" material="0">
+      <KinematicControls>
+        <Motor radiansPerSecond="4" />
+      </KinematicControls>
+    </Object>
+    <Object name="chz3_WaterMover" posX="454.9999" posY="-30.84123" angle="166" scaleX="1" scaleY="1" material="0">
+      <KinematicControls>
+        <Motor radiansPerSecond="4" />
+      </KinematicControls>
+    </Object>
+    <Object name="chz3_WaterMover" posX="504.7822" posY="-31.42652" angle="319" scaleX="1" scaleY="1" material="0">
+      <KinematicControls>
+        <Motor radiansPerSecond="4" />
+      </KinematicControls>
+    </Object>
+    <Object name="chz3_WaterMover" posX="474.7297" posY="-31.07063" angle="303" scaleX="1" scaleY="1" material="0">
+      <KinematicControls>
+        <Motor radiansPerSecond="4" />
+      </KinematicControls>
+    </Object>
+    <Object name="chz3_WaterMover" posX="495.0537" posY="-31.62946" angle="109" scaleX="1" scaleY="1" material="0">
+      <KinematicControls>
+        <Motor radiansPerSecond="4" />
+      </KinematicControls>
+    </Object>
+    <Object name="chz3_WaterMover" posX="444.7408" posY="-31.10005" angle="164" scaleX="1" scaleY="1" material="0">
+      <KinematicControls>
+        <Motor radiansPerSecond="4" />
+      </KinematicControls>
+    </Object>
+    <Object name="chz3_WaterMover" posX="464.4292" posY="-30.6971" angle="209" scaleX="1" scaleY="1" material="0">
+      <KinematicControls>
+        <Motor radiansPerSecond="4" />
+      </KinematicControls>
+    </Object>
+    <Object name="chz3_Ground2" posX="533.0005" posY="-20.4" angle="0" scaleX="1" scaleY="1" material="0" />
+    <Object name="chz3_Bridge2" posX="474.9994" posY="-13.16656" angle="0" scaleX="0.75" scaleY="0.75" material="0">
+      <KinematicControls>
+        <Motor radiansPerSecond="1" />
+      </KinematicControls>
+    </Object>
+    <Object name="chz3_Bridge2" posX="484.9997" posY="-13.09991" angle="0" scaleX="0.75" scaleY="0.75" material="0">
+      <KinematicControls>
+        <Motor radiansPerSecond="1" />
+      </KinematicControls>
+    </Object>
+    <Object name="chz3_Bridge2" posX="464.9997" posY="-13.06664" angle="0" scaleX="0.75" scaleY="0.75" material="0">
+      <KinematicControls>
+        <Motor radiansPerSecond="1" />
+      </KinematicControls>
+    </Object>
+    <Object name="chz3_Bridge2" posX="494.9998" posY="-13.1666" angle="0" scaleX="0.75" scaleY="0.75" material="0">
+      <KinematicControls>
+        <Motor radiansPerSecond="1" />
+      </KinematicControls>
+    </Object>
+    <Object name="chz3_Bridge2" posX="455.0006" posY="-13.08338" angle="0" scaleX="0.75" scaleY="0.75" material="0">
+      <KinematicControls>
+        <Motor radiansPerSecond="1" />
+      </KinematicControls>
+    </Object>
+    <Object name="chz3_Bridge2" posX="444.958" posY="-13.04175" angle="0" scaleX="0.75" scaleY="0.75" material="0">
+      <KinematicControls>
+        <Motor radiansPerSecond="1" />
+      </KinematicControls>
+    </Object>
+    <Object name="chz3_Bridge2" posX="514.9998" posY="-13.13331" angle="0" scaleX="0.75" scaleY="0.75" material="0">
+      <KinematicControls>
+        <Motor radiansPerSecond="1" />
+      </KinematicControls>
+    </Object>
+    <Object name="chz3_Bridge2" posX="504.9999" posY="-13.16666" angle="0" scaleX="0.75" scaleY="0.75" material="0">
+      <KinematicControls>
+        <Motor radiansPerSecond="1" />
+      </KinematicControls>
+    </Object>
+    <Object name="chz3_ground1b" posX="10" posY="-30" angle="0" scaleX="1" scaleY="1" material="0" />
+    <Object name="chz3_ground1c" posX="160" posY="-80" angle="0" scaleX="1" scaleY="1" material="0" />
+    <Object name="chz3_ground1d" posX="90" posY="0" angle="0" scaleX="1" scaleY="1" material="0" />
+    <Object name="chz3_ground1e" posX="260" posY="-70" angle="0" scaleX="1" scaleY="1" material="0" />
+    <Object name="chz3_ground1f" posX="280" posY="-20" angle="0" scaleX="1" scaleY="1" material="0" />
+    <Object name="chz3_ground1g" posX="420" posY="-30" angle="0" scaleX="1" scaleY="1" material="0" />
+    <Object name="chz3_ground1a" posX="-120" posY="0" angle="0" scaleX="1" scaleY="1" material="0" />
+  </Objects>
+  <SoftBodies>
+    <SoftBody name="chz3_Bridge" massPerPoint="1" edgeK="800" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0.2509804" kinematic="False" shapeMatching="True" shapeK="500" shapeDamping="10" velDamping="0.993">
+      <Points>
+        <Point x="-20.03703" y="-2.571427" mass="0" />
+        <Point x="-20.03703" y="1.105823" mass="0" />
+        <Point x="-14.92857" y="0.5000021" mass="-1" />
+        <Point x="-10.09531" y="0.453925" mass="-1" />
+        <Point x="-5.238174" y="0.3110666" mass="-1" />
+        <Point x="-0.09531397" y="0.3110657" mass="-1" />
+        <Point x="4.618973" y="0.09677902" mass="-1" />
+        <Point x="9.904686" y="0.3110639" mass="-1" />
+        <Point x="15.1904" y="0.5967771" mass="-1" />
+        <Point x="19.97612" y="1.239634" mass="0" />
+        <Point x="19.97612" y="-1.617509" mass="0" />
+        <Point x="15.04754" y="-1.903223" mass="-1" />
+        <Point x="9.904686" y="-2.47465" mass="-1" />
+        <Point x="4.547546" y="-2.760363" mass="-1" />
+        <Point x="0.0475459" y="-2.760363" mass="-1" />
+        <Point x="-5.309601" y="-3.117505" mass="-1" />
+        <Point x="-10.02389" y="-2.974647" mass="-1" />
+        <Point x="-15.52389" y="-2.617503" mass="-1" />
+      </Points>
+      <Springs>
+        <Spring pt1="1" pt2="17" k="100" damp="10" />
+        <Spring pt1="17" pt2="3" k="100" damp="10" />
+        <Spring pt1="3" pt2="15" k="100" damp="10" />
+        <Spring pt1="15" pt2="5" k="100" damp="10" />
+        <Spring pt1="5" pt2="13" k="100" damp="10" />
+        <Spring pt1="13" pt2="7" k="100" damp="10" />
+        <Spring pt1="7" pt2="11" k="100" damp="10" />
+        <Spring pt1="11" pt2="9" k="100" damp="10" />
+        <Spring pt1="10" pt2="8" k="100" damp="10" />
+        <Spring pt1="8" pt2="12" k="100" damp="10" />
+        <Spring pt1="12" pt2="6" k="100" damp="10" />
+        <Spring pt1="6" pt2="14" k="100" damp="10" />
+        <Spring pt1="14" pt2="4" k="100" damp="10" />
+        <Spring pt1="4" pt2="16" k="100" damp="10" />
+        <Spring pt1="16" pt2="2" k="100" damp="10" />
+        <Spring pt1="2" pt2="0" k="100" damp="10" />
+      </Springs>
+      <Polygons>
+        <Poly pt0="1" pt1="0" pt2="2" />
+        <Poly pt0="0" pt1="17" pt2="2" />
+        <Poly pt0="2" pt1="17" pt2="3" />
+        <Poly pt0="3" pt1="17" pt2="16" />
+        <Poly pt0="16" pt1="3" pt2="15" />
+        <Poly pt0="15" pt1="3" pt2="4" />
+        <Poly pt0="4" pt1="15" pt2="5" />
+        <Poly pt0="5" pt1="15" pt2="14" />
+        <Poly pt0="14" pt1="5" pt2="6" />
+        <Poly pt0="6" pt1="14" pt2="13" />
+        <Poly pt0="13" pt1="6" pt2="7" />
+        <Poly pt0="7" pt1="13" pt2="12" />
+        <Poly pt0="12" pt1="7" pt2="8" />
+        <Poly pt0="8" pt1="12" pt2="11" />
+        <Poly pt0="11" pt1="8" pt2="9" />
+        <Poly pt0="9" pt1="10" pt2="11" />
+      </Polygons>
+    </SoftBody>
+    <SoftBody name="chz3_Bridge2" massPerPoint="1" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="0" kinematic="True" shapeMatching="True" shapeK="9900" shapeDamping="10" velDamping="0.993">
+      <Points>
+        <Point x="-2.96875" y="-2.8875" mass="-1" />
+        <Point x="-3.784424" y="-0.9643817" mass="-1" />
+        <Point x="-3.784424" y="0.9731183" mass="-1" />
+        <Point x="-3.0625" y="3.03125" mass="-1" />
+        <Point x="-1.050049" y="3.723118" mass="-1" />
+        <Point x="0.9655762" y="3.723118" mass="-1" />
+        <Point x="2.993749" y="3.0625" mass="-1" />
+        <Point x="3.715576" y="0.9574933" mass="-1" />
+        <Point x="3.715576" y="-1.011257" mass="-1" />
+        <Point x="3.046482" y="-3.016724" mass="-1" />
+        <Point x="1.012451" y="-3.776882" mass="-1" />
+        <Point x="-1.034424" y="-3.776882" mass="-1" />
+      </Points>
+      <Springs />
+      <Polygons>
+        <Poly pt0="3" pt1="2" pt2="1" />
+        <Poly pt0="1" pt1="0" pt2="3" />
+        <Poly pt0="3" pt1="4" pt2="0" />
+        <Poly pt0="0" pt1="11" pt2="4" />
+        <Poly pt0="4" pt1="5" pt2="11" />
+        <Poly pt0="11" pt1="10" pt2="5" />
+        <Poly pt0="5" pt1="6" pt2="10" />
+        <Poly pt0="10" pt1="9" pt2="6" />
+        <Poly pt0="6" pt1="7" pt2="9" />
+        <Poly pt0="9" pt1="8" pt2="7" />
+      </Polygons>
+    </SoftBody>
+    <SoftBody name="chz3_Ground2" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.6784314" colorG="1" colorB="0.1843137" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
+      <Points>
+        <Point x="-12.89997" y="-13.89999" mass="-1" />
+        <Point x="-12.89994" y="10.3" mass="-1" />
+        <Point x="40.69991" y="10.5" mass="-1" />
+        <Point x="41.00882" y="-12.57016" mass="-1" />
+      </Points>
+      <Springs />
+      <Polygons>
+        <Poly pt0="3" pt1="2" pt2="1" />
+        <Poly pt0="1" pt1="3" pt2="0" />
+      </Polygons>
+    </SoftBody>
+    <SoftBody name="chz3_Rock" massPerPoint="100" edgeK="9999" edgeDamping="10" colorR="0.2509804" colorG="0.5019608" colorB="0.5019608" kinematic="True" shapeMatching="True" shapeK="9999" shapeDamping="10" velDamping="0.993">
+      <Points>
+        <Point x="-4.758061" y="-4.758061" mass="-1" />
+        <Point x="-4.758063" y="4.699998" mass="-1" />
+        <Point x="4.74301" y="4.7" mass="-1" />
+        <Point x="4.75458" y="-4.760254" mass="-1" />
+      </Points>
+      <Springs />
+      <Polygons>
+        <Poly pt0="1" pt1="2" pt2="3" />
+        <Poly pt0="3" pt1="0" pt2="1" />
+      </Polygons>
+    </SoftBody>
+    <SoftBody name="chz3_Water" massPerPoint="1" edgeK="80" edgeDamping="10" colorR="1" colorG="0" colorB="0" kinematic="False" shapeMatching="True" shapeK="166" shapeDamping="10" velDamping="0.993">
+      <Points>
+        <Point x="-19.94469" y="-4.453243" mass="0" />
+        <Point x="-19.94469" y="5.003778" mass="0" />
+        <Point x="-14.86776" y="4.388391" mass="-1" />
+        <Point x="-9.872906" y="4.263802" mass="-1" />
+        <Point x="-5.488286" y="4.494571" mass="-1" />
+        <Point x="-0.1036724" y="4.186879" mass="-1" />
+        <Point x="4.665561" y="4.494571" mass="-1" />
+        <Point x="10.1271" y="4.263802" mass="-1" />
+        <Point x="15.43479" y="4.72534" mass="-1" />
+        <Point x="20.06828" y="4.340724" mass="0" />
+        <Point x="20.05018" y="-4.324437" mass="0" />
+        <Point x="15.58864" y="-3.609504" mass="-1" />
+        <Point x="9.991351" y="-4.473757" mass="-1" />
+        <Point x="4.688185" y="-4.19774" mass="-1" />
+        <Point x="0.1859174" y="-4.804075" mass="-1" />
+        <Point x="-5.43399" y="-4.433034" mass="-1" />
+        <Point x="-9.986023" y="-5.071043" mass="-1" />
+        <Point x="-15.15796" y="-4.795025" mass="-1" />
+      </Points>
+      <Springs>
+        <Spring pt1="17" pt2="2" k="100" damp="10" />
+        <Spring pt1="3" pt2="16" k="100" damp="10" />
+        <Spring pt1="15" pt2="4" k="100" damp="10" />
+        <Spring pt1="14" pt2="5" k="100" damp="10" />
+        <Spring pt1="13" pt2="6" k="100" damp="10" />
+        <Spring pt1="12" pt2="7" k="100" damp="10" />
+        <Spring pt1="11" pt2="8" k="100" damp="10" />
+      </Springs>
+      <Polygons>
+        <Poly pt0="1" pt1="0" pt2="2" />
+        <Poly pt0="2" pt1="17" pt2="0" />
+        <Poly pt0="17" pt1="3" pt2="2" />
+        <Poly pt0="3" pt1="16" pt2="17" />
+        <Poly pt0="16" pt1="15" pt2="3" />
+        <Poly pt0="3" pt1="4" pt2="15" />
+        <Poly pt0="15" pt1="5" pt2="4" />
+        <Poly pt0="15" pt1="14" pt2="5" />
+        <Poly pt0="5" pt1="6" pt2="14" />
+        <Poly pt0="14" pt1="13" pt2="6" />
+        <Poly pt0="6" pt1="7" pt2="13" />
+        <Poly pt0="13" pt1="12" pt2="7" />
+        <Poly pt0="7" pt1="8" pt2="12" />
+        <Poly pt0="12" pt1="11" pt2="8" />
+        <Poly pt0="8" pt1="9" pt2="11" />
+        <Poly pt0="11" pt1="10" pt2="9" />
+      </Polygons>
+    </SoftBody>
+    <SoftBody name="chz3_Water2" massPerPoint="1" edgeK="88" edgeDamping="10" colorR="1" colorG="0" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
+      <Points>
+        <Point x="-39.91964" y="-9.279789" mass="0" />
+        <Point x="-39.91963" y="6.920211" mass="0" />
+        <Point x="-34.97001" y="8.27034" mass="-1" />
+        <Point x="-29.97001" y="7.670339" mass="-1" />
+        <Point x="-24.97001" y="9.27034" mass="-1" />
+        <Point x="-19.97001" y="8.27034" mass="-1" />
+        <Point x="-14.77003" y="10.07034" mass="-1" />
+        <Point x="-9.97001" y="8.07034" mass="-1" />
+        <Point x="-4.570016" y="9.67034" mass="-1" />
+        <Point x="0.2299724" y="8.07034" mass="-1" />
+        <Point x="4.829978" y="10.07034" mass="-1" />
+        <Point x="10.62997" y="7.670339" mass="-1" />
+        <Point x="14.22997" y="9.67034" mass="-1" />
+        <Point x="20.02999" y="8.47034" mass="-1" />
+        <Point x="25.02999" y="9.07034" mass="-1" />
+        <Point x="29.42998" y="8.07034" mass="-1" />
+        <Point x="34.82998" y="10.07034" mass="-1" />
+        <Point x="40.07455" y="7.549623" mass="0" />
+        <Point x="40.06527" y="-9.700249" mass="0" />
+        <Point x="35.02999" y="-8.329659" mass="-1" />
+        <Point x="29.42998" y="-9.529659" mass="-1" />
+        <Point x="24.82998" y="-8.529659" mass="-1" />
+        <Point x="19.82998" y="-9.929659" mass="-1" />
+        <Point x="15.02999" y="-8.729658" mass="-1" />
+        <Point x="10.02999" y="-9.529659" mass="-1" />
+        <Point x="5.229972" y="-8.12966" mass="-1" />
+        <Point x="-0.1700218" y="-9.329659" mass="-1" />
+        <Point x="-4.97001" y="-7.529659" mass="-1" />
+        <Point x="-10.17002" y="-8.729658" mass="-1" />
+        <Point x="-15.17002" y="-7.329659" mass="-1" />
+        <Point x="-19.97001" y="-8.729658" mass="-1" />
+        <Point x="-24.77003" y="-6.929659" mass="-1" />
+        <Point x="-29.37003" y="-9.329659" mass="-1" />
+        <Point x="-35.17002" y="-7.329659" mass="-1" />
+      </Points>
+      <Springs>
+        <Spring pt1="33" pt2="2" k="100" damp="10" />
+        <Spring pt1="3" pt2="32" k="100" damp="10" />
+        <Spring pt1="31" pt2="4" k="100" damp="10" />
+        <Spring pt1="5" pt2="30" k="100" damp="10" />
+        <Spring pt1="29" pt2="6" k="100" damp="10" />
+        <Spring pt1="7" pt2="28" k="100" damp="10" />
+        <Spring pt1="27" pt2="8" k="100" damp="10" />
+        <Spring pt1="9" pt2="26" k="100" damp="10" />
+        <Spring pt1="25" pt2="10" k="100" damp="10" />
+        <Spring pt1="11" pt2="24" k="100" damp="10" />
+        <Spring pt1="23" pt2="12" k="100" damp="10" />
+        <Spring pt1="13" pt2="22" k="100" damp="10" />
+        <Spring pt1="21" pt2="14" k="100" damp="10" />
+        <Spring pt1="15" pt2="20" k="100" damp="10" />
+        <Spring pt1="19" pt2="16" k="100" damp="10" />
+      </Springs>
+      <Polygons>
+        <Poly pt0="1" pt1="0" pt2="2" />
+        <Poly pt0="2" pt1="33" pt2="0" />
+        <Poly pt0="33" pt1="32" pt2="2" />
+        <Poly pt0="2" pt1="3" pt2="32" />
+        <Poly pt0="32" pt1="31" pt2="3" />
+        <Poly pt0="3" pt1="4" pt2="31" />
+        <Poly pt0="31" pt1="30" pt2="4" />
+        <Poly pt0="4" pt1="5" pt2="30" />
+        <Poly pt0="30" pt1="29" pt2="5" />
+        <Poly pt0="5" pt1="6" pt2="29" />
+        <Poly pt0="29" pt1="28" pt2="6" />
+        <Poly pt0="6" pt1="7" pt2="28" />
+        <Poly pt0="28" pt1="27" pt2="7" />
+        <Poly pt0="7" pt1="8" pt2="27" />
+        <Poly pt0="27" pt1="26" pt2="8" />
+        <Poly pt0="8" pt1="9" pt2="26" />
+        <Poly pt0="26" pt1="25" pt2="9" />
+        <Poly pt0="9" pt1="10" pt2="25" />
+        <Poly pt0="25" pt1="24" pt2="10" />
+        <Poly pt0="10" pt1="11" pt2="24" />
+        <Poly pt0="24" pt1="23" pt2="11" />
+        <Poly pt0="11" pt1="12" pt2="23" />
+        <Poly pt0="23" pt1="22" pt2="12" />
+        <Poly pt0="12" pt1="13" pt2="22" />
+        <Poly pt0="22" pt1="21" pt2="13" />
+        <Poly pt0="13" pt1="14" pt2="21" />
+        <Poly pt0="21" pt1="20" pt2="14" />
+        <Poly pt0="14" pt1="15" pt2="20" />
+        <Poly pt0="20" pt1="19" pt2="15" />
+        <Poly pt0="15" pt1="16" pt2="19" />
+        <Poly pt0="19" pt1="18" pt2="16" />
+        <Poly pt0="16" pt1="17" pt2="18" />
+      </Polygons>
+    </SoftBody>
+    <SoftBody name="chz3_WaterMover" massPerPoint="10" edgeK="8888" edgeDamping="10" colorR="0.6784314" colorG="1" colorB="0.1843137" kinematic="True" shapeMatching="True" shapeK="8888" shapeDamping="10" velDamping="0.993">
+      <Points>
+        <Point x="-0.5" y="-0.5" mass="-1" />
+        <Point x="-0.5" y="0.5" mass="-1" />
+        <Point x="1.650568" y="1.875009" mass="-1" />
+        <Point x="0.4150925" y="-0.4727764" mass="-1" />
+      </Points>
+      <Springs />
+      <Polygons>
+        <Poly pt0="1" pt1="3" pt2="2" />
+      </Polygons>
+    </SoftBody>
+    <SoftBody name="chz3_ground1a" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.7529412" colorG="0.7529412" colorB="0.7529412" kinematic="False" shapeMatching="False" shapeK="100" shapeDamping="10" velDamping="0.993">
+      <Points>
+        <Point x="-50" y="-40" mass="-1" />
+        <Point x="-50" y="30" mass="-1" />
+        <Point x="130" y="30" mass="-1" />
+        <Point x="130" y="0" mass="-1" />
+        <Point x="90" y="0" mass="-1" />
+        <Point x="90" y="10" mass="-1" />
+        <Point x="-30" y="10" mass="-1" />
+        <Point x="-30" y="-10" mass="-1" />
+        <Point x="30" y="-10" mass="-1" />
+        <Point x="30" y="-40" mass="-1" />
+      </Points>
+      <Springs />
+      <Polygons>
+        <Poly pt0="7" pt1="8" pt2="9" />
+        <Poly pt0="0" pt1="7" pt2="9" />
+        <Poly pt0="0" pt1="1" pt2="7" />
+        <Poly pt0="7" pt1="1" pt2="6" />
+        <Poly pt0="2" pt1="3" pt2="4" />
+        <Poly pt0="4" pt1="5" pt2="2" />
+        <Poly pt0="2" pt1="5" pt2="1" />
+        <Poly pt0="1" pt1="5" pt2="6" />
+      </Polygons>
+    </SoftBody>
+    <SoftBody name="chz3_ground1b" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.7529412" colorG="0.7529412" colorB="0.7529412" kinematic="False" shapeMatching="False" shapeK="100" shapeDamping="10" velDamping="0.993">
+      <Points>
+        <Point x="-60" y="0" mass="-1" />
+        <Point x="-60" y="20" mass="-1" />
+        <Point x="0" y="20" mass="-1" />
+        <Point x="40" y="0" mass="-1" />
+        <Point x="70" y="-30" mass="-1" />
+        <Point x="100" y="-40" mass="-1" />
+        <Point x="120" y="-40" mass="-1" />
+        <Point x="120" y="-60" mass="-1" />
+        <Point x="0" y="-60" mass="-1" />
+        <Point x="0" y="0" mass="-1" />
+      </Points>
+      <Springs />
+      <Polygons>
+        <Poly pt0="5" pt1="6" pt2="7" />
+        <Poly pt0="7" pt1="4" pt2="5" />
+        <Poly pt0="4" pt1="7" pt2="8" />
+        <Poly pt0="8" pt1="3" pt2="4" />
+        <Poly pt0="8" pt1="9" pt2="3" />
+        <Poly pt0="9" pt1="2" pt2="3" />
+        <Poly pt0="9" pt1="0" pt2="1" />
+        <Poly pt0="1" pt1="2" pt2="9" />
+      </Polygons>
+    </SoftBody>
+    <SoftBody name="chz3_ground1c" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.7529412" colorG="0.7529412" colorB="0.7529412" kinematic="False" shapeMatching="False" shapeK="100" shapeDamping="10" velDamping="0.993">
+      <Points>
+        <Point x="-25" y="10" mass="-1" />
+        <Point x="-22.5" y="5" mass="-1" />
+        <Point x="-20" y="10" mass="-1" />
+        <Point x="-17.5" y="5" mass="-1" />
+        <Point x="-15" y="10" mass="-1" />
+        <Point x="-12.5" y="5" mass="-1" />
+        <Point x="-10" y="10" mass="-1" />
+        <Point x="-7.5" y="5" mass="-1" />
+        <Point x="-5" y="10" mass="-1" />
+        <Point x="-2.5" y="5" mass="-1" />
+        <Point x="0" y="10" mass="-1" />
+        <Point x="2.5" y="5" mass="-1" />
+        <Point x="5" y="10" mass="-1" />
+        <Point x="7.5" y="5" mass="-1" />
+        <Point x="10" y="10" mass="-1" />
+        <Point x="12.5" y="5" mass="-1" />
+        <Point x="15" y="10" mass="-1" />
+        <Point x="17.5" y="5" mass="-1" />
+        <Point x="20" y="10" mass="-1" />
+        <Point x="40" y="10" mass="-1" />
+        <Point x="40" y="-10" mass="-1" />
+        <Point x="-30" y="-10" mass="-1" />
+        <Point x="-30" y="10" mass="-1" />
+        <Point x="-27.5" y="5" mass="-1" />
+      </Points>
+      <Springs />
+      <Polygons>
+        <Poly pt0="22" pt1="23" pt2="21" />
+        <Poly pt0="23" pt1="0" pt2="1" />
+        <Poly pt0="1" pt1="2" pt2="3" />
+        <Poly pt0="3" pt1="4" pt2="5" />
+        <Poly pt0="5" pt1="6" pt2="7" />
+        <Poly pt0="7" pt1="8" pt2="9" />
+        <Poly pt0="9" pt1="10" pt2="11" />
+        <Poly pt0="11" pt1="12" pt2="13" />
+        <Poly pt0="13" pt1="14" pt2="15" />
+        <Poly pt0="15" pt1="16" pt2="17" />
+        <Poly pt0="17" pt1="18" pt2="19" />
+        <Poly pt0="19" pt1="20" pt2="17" />
+        <Poly pt0="20" pt1="23" pt2="17" />
+        <Poly pt0="21" pt1="23" pt2="20" />
+      </Polygons>
+    </SoftBody>
+    <SoftBody name="chz3_ground1d" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.7529412" colorG="0.7529412" colorB="0.7529412" kinematic="False" shapeMatching="False" shapeK="100" shapeDamping="10" velDamping="0.993">
+      <Points>
+        <Point x="-80" y="0" mass="-1" />
+        <Point x="-80" y="30" mass="-1" />
+        <Point x="40" y="30" mass="-1" />
+        <Point x="60" y="-20" mass="-1" />
+        <Point x="110" y="-40" mass="-1" />
+        <Point x="110" y="-60" mass="-1" />
+        <Point x="87.5" y="-60" mass="-1" />
+        <Point x="85" y="-55" mass="-1" />
+        <Point x="82.5" y="-60" mass="-1" />
+        <Point x="80" y="-55" mass="-1" />
+        <Point x="77.5" y="-60" mass="-1" />
+        <Point x="75" y="-55" mass="-1" />
+        <Point x="72.5" y="-60" mass="-1" />
+        <Point x="70" y="-55" mass="-1" />
+        <Point x="67.5" y="-60" mass="-1" />
+        <Point x="65" y="-55" mass="-1" />
+        <Point x="62.5" y="-60" mass="-1" />
+        <Point x="60" y="-55" mass="-1" />
+        <Point x="57.5" y="-60" mass="-1" />
+        <Point x="55" y="-55" mass="-1" />
+        <Point x="52.5" y="-60" mass="-1" />
+        <Point x="50" y="-55" mass="-1" />
+        <Point x="47.5" y="-60" mass="-1" />
+        <Point x="45" y="-55" mass="-1" />
+        <Point x="42.5" y="-60" mass="-1" />
+        <Point x="20" y="-60" mass="-1" />
+        <Point x="-10" y="-50" mass="-1" />
+        <Point x="-40" y="-20" mass="-1" />
+      </Points>
+      <Springs />
+      <Polygons>
+        <Poly pt0="6" pt1="4" pt2="5" />
+        <Poly pt0="6" pt1="7" pt2="4" />
+        <Poly pt0="7" pt1="23" pt2="3" />
+        <Poly pt0="3" pt1="4" pt2="7" />
+        <Poly pt0="7" pt1="8" pt2="9" />
+        <Poly pt0="9" pt1="10" pt2="11" />
+        <Poly pt0="11" pt1="12" pt2="13" />
+        <Poly pt0="13" pt1="14" pt2="15" />
+        <Poly pt0="15" pt1="16" pt2="17" />
+        <Poly pt0="17" pt1="18" pt2="19" />
+        <Poly pt0="19" pt1="20" pt2="21" />
+        <Poly pt0="21" pt1="22" pt2="23" />
+        <Poly pt0="24" pt1="25" pt2="23" />
+        <Poly pt0="25" pt1="3" pt2="23" />
+        <Poly pt0="25" pt1="2" pt2="3" />
+        <Poly pt0="2" pt1="25" pt2="26" />
+        <Poly pt0="26" pt1="27" pt2="2" />
+        <Poly pt0="27" pt1="0" pt2="1" />
+        <Poly pt0="1" pt1="2" pt2="27" />
+      </Polygons>
+    </SoftBody>
+    <SoftBody name="chz3_ground1e" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.7529412" colorG="0.7529412" colorB="0.7529412" kinematic="False" shapeMatching="False" shapeK="100" shapeDamping="10" velDamping="0.993">
+      <Points>
+        <Point x="-20" y="-20" mass="-1" />
+        <Point x="-60" y="-20" mass="-1" />
+        <Point x="-60" y="0" mass="-1" />
+        <Point x="-30" y="20" mass="-1" />
+        <Point x="0" y="20" mass="-1" />
+        <Point x="0" y="10" mass="-1" />
+        <Point x="10" y="10" mass="-1" />
+        <Point x="10" y="20" mass="-1" />
+        <Point x="60" y="20" mass="-1" />
+        <Point x="60" y="10" mass="-1" />
+        <Point x="70" y="10" mass="-1" />
+        <Point x="70" y="20" mass="-1" />
+        <Point x="80" y="20" mass="-1" />
+        <Point x="80" y="10" mass="-1" />
+        <Point x="90" y="10" mass="-1" />
+        <Point x="90" y="20" mass="-1" />
+        <Point x="100" y="20" mass="-1" />
+        <Point x="100" y="30" mass="-1" />
+        <Point x="90" y="30" mass="-1" />
+        <Point x="90" y="40" mass="-1" />
+        <Point x="130" y="40" mass="-1" />
+        <Point x="130" y="-10" mass="-1" />
+        <Point x="100" y="-10" mass="-1" />
+      </Points>
+      <Springs />
+      <Polygons>
+        <Poly pt0="20" pt1="17" pt2="18" />
+        <Poly pt0="18" pt1="19" pt2="20" />
+        <Poly pt0="20" pt1="21" pt2="16" />
+        <Poly pt0="16" pt1="17" pt2="20" />
+        <Poly pt0="21" pt1="22" pt2="16" />
+        <Poly pt0="22" pt1="14" pt2="16" />
+        <Poly pt0="16" pt1="14" pt2="15" />
+        <Poly pt0="13" pt1="14" pt2="22" />
+        <Poly pt0="13" pt1="10" pt2="11" />
+        <Poly pt0="11" pt1="12" pt2="13" />
+        <Poly pt0="10" pt1="13" pt2="22" />
+        <Poly pt0="22" pt1="9" pt2="10" />
+        <Poly pt0="9" pt1="6" pt2="7" />
+        <Poly pt0="7" pt1="8" pt2="9" />
+        <Poly pt0="22" pt1="0" pt2="9" />
+        <Poly pt0="9" pt1="0" pt2="6" />
+        <Poly pt0="0" pt1="5" pt2="6" />
+        <Poly pt0="0" pt1="3" pt2="4" />
+        <Poly pt0="4" pt1="5" pt2="0" />
+        <Poly pt0="0" pt1="1" pt2="2" />
+        <Poly pt0="2" pt1="3" pt2="0" />
+      </Polygons>
+    </SoftBody>
+    <SoftBody name="chz3_ground1f" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.7529412" colorG="0.7529412" colorB="0.7529412" kinematic="False" shapeMatching="False" shapeK="100" shapeDamping="10" velDamping="0.993">
+      <Points>
+        <Point x="-80" y="-40" mass="-1" />
+        <Point x="-80" y="-20" mass="-1" />
+        <Point x="-50" y="0" mass="-1" />
+        <Point x="-30" y="10" mass="-1" />
+        <Point x="10" y="10" mass="-1" />
+        <Point x="50" y="30" mass="-1" />
+        <Point x="90" y="30" mass="-1" />
+        <Point x="130" y="50" mass="-1" />
+        <Point x="160" y="50" mass="-1" />
+        <Point x="160" y="27.5" mass="-1" />
+        <Point x="147.5" y="27.5" mass="-1" />
+        <Point x="96.21432" y="-1.490116e-08" mass="-1" />
+        <Point x="60" y="0" mass="-1" />
+        <Point x="60" y="-20" mass="-1" />
+        <Point x="30" y="-20" mass="-1" />
+        <Point x="30" y="-10" mass="-1" />
+        <Point x="20" y="-10" mass="-1" />
+        <Point x="20" y="-20" mass="-1" />
+        <Point x="10" y="-20" mass="-1" />
+        <Point x="10" y="-10" mass="-1" />
+        <Point x="0" y="-10" mass="-1" />
+        <Point x="0" y="-20" mass="-1" />
+        <Point x="-30" y="-20" mass="-1" />
+        <Point x="-30" y="-10" mass="-1" />
+        <Point x="-40" y="-10" mass="-1" />
+        <Point x="-40" y="-20" mass="-1" />
+        <Point x="-50" y="-20" mass="-1" />
+      </Points>
+      <Springs />
+      <Polygons>
+        <Poly pt0="9" pt1="7" pt2="8" />
+        <Poly pt0="7" pt1="9" pt2="10" />
+        <Poly pt0="10" pt1="6" pt2="7" />
+        <Poly pt0="10" pt1="11" pt2="6" />
+        <Poly pt0="11" pt1="12" pt2="6" />
+        <Poly pt0="12" pt1="5" pt2="6" />
+        <Poly pt0="5" pt1="12" pt2="15" />
+        <Poly pt0="15" pt1="12" pt2="13" />
+        <Poly pt0="13" pt1="14" pt2="15" />
+        <Poly pt0="15" pt1="16" pt2="5" />
+        <Poly pt0="16" pt1="4" pt2="5" />
+        <Poly pt0="4" pt1="16" pt2="19" />
+        <Poly pt0="19" pt1="16" pt2="17" />
+        <Poly pt0="17" pt1="18" pt2="19" />
+        <Poly pt0="19" pt1="20" pt2="4" />
+        <Poly pt0="4" pt1="20" pt2="3" />
+        <Poly pt0="3" pt1="20" pt2="23" />
+        <Poly pt0="23" pt1="20" pt2="21" />
+        <Poly pt0="21" pt1="22" pt2="23" />
+        <Poly pt0="23" pt1="24" pt2="3" />
+        <Poly pt0="24" pt1="2" pt2="3" />
+        <Poly pt0="2" pt1="24" pt2="25" />
+        <Poly pt0="25" pt1="26" pt2="2" />
+        <Poly pt0="26" pt1="0" pt2="1" />
+        <Poly pt0="1" pt1="2" pt2="26" />
+      </Polygons>
+    </SoftBody>
+    <SoftBody name="chz3_ground1g" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.7529412" colorG="0.7529412" colorB="0.7529412" kinematic="False" shapeMatching="False" shapeK="100" shapeDamping="10" velDamping="0.993">
+      <Points>
+        <Point x="-30" y="-50" mass="-1" />
+        <Point x="-30" y="0" mass="-1" />
+        <Point x="-30" y="2" mass="-1" />
+        <Point x="-26" y="2" mass="-1" />
+        <Point x="-26" y="4" mass="-1" />
+        <Point x="-22" y="4" mass="-1" />
+        <Point x="-22" y="6" mass="-1" />
+        <Point x="-18" y="6" mass="-1" />
+        <Point x="-18" y="8" mass="-1" />
+        <Point x="-14" y="8" mass="-1" />
+        <Point x="-14" y="10" mass="-1" />
+        <Point x="-10" y="10" mass="-1" />
+        <Point x="-10" y="12" mass="-1" />
+        <Point x="-6" y="12" mass="-1" />
+        <Point x="-6" y="14" mass="-1" />
+        <Point x="-2" y="14" mass="-1" />
+        <Point x="-2" y="16" mass="-1" />
+        <Point x="2" y="16" mass="-1" />
+        <Point x="2" y="18" mass="-1" />
+        <Point x="6" y="18" mass="-1" />
+        <Point x="6" y="20" mass="-1" />
+        <Point x="20" y="20" mass="-1" />
+        <Point x="20" y="2" mass="-1" />
+        <Point x="-12" y="-10" mass="-1" />
+      </Points>
+      <Springs />
+      <Polygons>
+        <Poly pt0="1" pt1="2" pt2="3" />
+        <Poly pt0="3" pt1="4" pt2="5" />
+        <Poly pt0="5" pt1="6" pt2="7" />
+        <Poly pt0="7" pt1="8" pt2="9" />
+        <Poly pt0="9" pt1="10" pt2="11" />
+        <Poly pt0="11" pt1="12" pt2="13" />
+        <Poly pt0="13" pt1="14" pt2="15" />
+        <Poly pt0="15" pt1="16" pt2="17" />
+        <Poly pt0="19" pt1="17" pt2="18" />
+        <Poly pt0="19" pt1="20" pt2="21" />
+        <Poly pt0="21" pt1="22" pt2="19" />
+        <Poly pt0="19" pt1="22" pt2="17" />
+        <Poly pt0="17" pt1="22" pt2="15" />
+        <Poly pt0="13" pt1="15" pt2="22" />
+        <Poly pt0="22" pt1="11" pt2="13" />
+        <Poly pt0="11" pt1="22" pt2="23" />
+        <Poly pt0="23" pt1="9" pt2="11" />
+        <Poly pt0="23" pt1="7" pt2="9" />
+        <Poly pt0="23" pt1="5" pt2="7" />
+        <Poly pt0="23" pt1="3" pt2="5" />
+        <Poly pt0="23" pt1="1" pt2="3" />
+        <Poly pt0="1" pt1="23" pt2="0" />
+      </Polygons>
+    </SoftBody>
+  </SoftBodies>
+  <Car name="car_and_truck" posX="-140" posY="-8" />
+  <Settings finishX="570" finishY="-8" fallLine="-400" />
+</Scene>

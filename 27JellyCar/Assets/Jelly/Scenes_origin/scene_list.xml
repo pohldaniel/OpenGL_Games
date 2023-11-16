@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Scenes>
+	<Scene name="Tutorial" file="tut-scene.scene" thumb="level-tut" />
+	<Scene name="Ski Jump" file="test-scene10.scene" thumb="ski-jump" />
+	<Scene name="Crusher" file="test-scene11.scene" thumb="crusher" />
+	<Scene name="Kerplunk" file="test-scene6.scene" thumb="level-06" />
+	<Scene name="Boulders" file="test-scene12.scene" thumb="boulders" />
+	<Scene name="Factory" file="test-scene5.scene" thumb="level-05" />
+	<Scene name="Platformer" file="test-scene4.scene" thumb="level-04" />
+	<Scene name="Circus" file="test-scene3.scene" thumb="level-03" />
+	<Scene name="Forest" file="test-scene2.scene" thumb="level-02" />
+	<Scene name="Ride the Wave" file="test-scene9.scene" thumb="wave" />
+	<Scene name="Cave Escape" file="test-scene1.scene" thumb="level-01" />
+	<Scene name="The Dryer" file="test-scene8.scene" thumb="level-08" />
+	<Scene name="The Cogs" file="cogs.scene" thumb="cogs" />
+	<Scene name="Spongy Bridges" file="test-scene7.scene" thumb="level-07" />
+	<Scene name="Rocket Launch" file="rocket.scene" thumb="rocket" />
+	<Scene name="The Big Wheel" file="cheez2.scene" thumb="big-wheel" />
+	<Scene name="Circle Waves" file="waves.scene" thumb="waves" />
+	<Scene name="Jello Fortress" file="cheez3.scene" thumb="castle" />
+	<Scene name="Box Towers" file="cheez4.scene" thumb="blocks" />
+	<Scene name="Beware The Spikes" file="ziggy1.scene" thumb="spikes" />
+</Scenes>
+

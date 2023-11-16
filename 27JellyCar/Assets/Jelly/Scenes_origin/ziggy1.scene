@@ -1,0 +1,199 @@
+<Scene name="Beware The Spikes">
+  <Objects>
+    <Object name="ziggy1_land_1" posX="-53.8" posY="40" angle="0" scaleX="1" scaleY="1" material="0" />
+    <Object name="ziggy1_circle1" posX="-13.07619" posY="24.18414" angle="338" scaleX="9.253982" scaleY="8.857155" material="0">
+      <KinematicControls>
+        <Motor radiansPerSecond="0.2" />
+      </KinematicControls>
+    </Object>
+    <Object name="ziggy1_platform_1" posX="0.02538622" posY="8.380952" angle="360" scaleX="13.85715" scaleY="13.85714" material="0">
+      <KinematicControls>
+        <Motor radiansPerSecond="0.2" />
+        <PlatformMotion offsetX="40" offsetY="40" secondsPerLoop="18" startOffset="0.5" />
+      </KinematicControls>
+    </Object>
+    <Object name="ziggy1_land_1" posX="1" posY="54.19996" angle="0" scaleX="1" scaleY="1" material="0" />
+    <Object name="ziggy1_land_3" posX="2.941174" posY="65.76474" angle="0" scaleX="1" scaleY="1" material="0" />
+    <Object name="ziggy1_platform_2" posX="1.407701" posY="75.29901" angle="89" scaleX="1" scaleY="1" material="0">
+      <KinematicControls>
+        <PlatformMotion offsetX="-40" offsetY="40" secondsPerLoop="18" startOffset="0.5" />
+      </KinematicControls>
+    </Object>
+    <Object name="ziggy1_land_5" posX="-30.43637" posY="87.21813" angle="0" scaleX="28.94545" scaleY="1.454545" material="0" />
+    <Object name="ziggy1_land_4" posX="-34.99999" posY="105.7" angle="1" scaleX="1" scaleY="1" material="0" />
+    <Object name="ziggy1_spike_1" posX="-30.7" posY="106.1" angle="0" scaleX="1" scaleY="1" material="0" />
+    <Object name="ziggy1_spike_1" posX="-30.00001" posY="109" angle="0" scaleX="1" scaleY="1" material="0" />
+  </Objects>
+  <SoftBodies>
+    <SoftBody name="ziggy1_circle1" massPerPoint="3" edgeK="100" edgeDamping="10" colorR="0.6784314" colorG="1" colorB="0.1843137" kinematic="True" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
+      <Points>
+        <Point x="0" y="1" mass="-1" />
+        <Point x="0.7071068" y="0.7071068" mass="-1" />
+        <Point x="1" y="1.216796e-08" mass="-1" />
+        <Point x="0.7071068" y="-0.7071068" mass="-1" />
+        <Point x="2.433593e-08" y="-1" mass="-1" />
+        <Point x="-0.7071068" y="-0.7071068" mass="-1" />
+        <Point x="-1" y="-3.65039e-08" mass="-1" />
+        <Point x="-0.7071068" y="0.7071068" mass="-1" />
+      </Points>
+      <Springs>
+        <Spring pt1="7" pt2="3" k="100" damp="10" />
+        <Spring pt1="2" pt2="6" k="100" damp="10" />
+        <Spring pt1="5" pt2="1" k="100" damp="10" />
+        <Spring pt1="0" pt2="4" k="100" damp="10" />
+      </Springs>
+      <Polygons>
+        <Poly pt0="6" pt1="3" pt2="7" />
+        <Poly pt0="3" pt1="0" pt2="7" />
+        <Poly pt0="0" pt1="3" pt2="2" />
+        <Poly pt0="0" pt1="2" pt2="1" />
+        <Poly pt0="6" pt1="5" pt2="4" />
+        <Poly pt0="4" pt1="3" pt2="6" />
+      </Polygons>
+    </SoftBody>
+    <SoftBody name="ziggy1_land_1" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0" colorG="0" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
+      <Points>
+        <Point x="-8.599999" y="8.999989" mass="-1" />
+        <Point x="1.400003" y="5.999993" mass="-1" />
+        <Point x="8.200004" y="0.3999914" mass="-1" />
+        <Point x="30" y="0.3999917" mass="-1" />
+        <Point x="30" y="-4.600011" mass="-1" />
+        <Point x="7.799995" y="-4.000014" mass="-1" />
+        <Point x="-19.59999" y="3.999986" mass="-1" />
+        <Point x="-19.6" y="9.999989" mass="-1" />
+      </Points>
+      <Springs />
+      <Polygons>
+        <Poly pt0="1" pt1="0" pt2="7" />
+        <Poly pt0="1" pt1="7" pt2="2" />
+        <Poly pt0="5" pt1="4" pt2="3" />
+        <Poly pt0="5" pt1="3" pt2="2" />
+        <Poly pt0="5" pt1="2" pt2="6" />
+        <Poly pt0="6" pt1="2" pt2="7" />
+      </Polygons>
+    </SoftBody>
+    <SoftBody name="ziggy1_land_3" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.6784314" colorG="1" colorB="0.1843137" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
+      <Points>
+        <Point x="1.352941" y="1.647058" mass="-1" />
+        <Point x="4.765933" y="5.06005" mass="-1" />
+        <Point x="14.4706" y="5.058825" mass="-1" />
+        <Point x="14.413" y="3.234071" mass="-1" />
+        <Point x="-0.1764728" y="-0.764706" mass="-1" />
+        <Point x="-4.497024" y="-0.3835773" mass="-1" />
+        <Point x="-4.600842" y="0.4789916" mass="-1" />
+        <Point x="-0.7071068" y="0.7071068" mass="-1" />
+      </Points>
+      <Springs />
+      <Polygons>
+        <Poly pt0="6" pt1="5" pt2="7" />
+        <Poly pt0="5" pt1="4" pt2="7" />
+        <Poly pt0="4" pt1="0" pt2="7" />
+        <Poly pt0="4" pt1="3" pt2="0" />
+        <Poly pt0="3" pt1="2" pt2="0" />
+        <Poly pt0="0" pt1="2" pt2="1" />
+      </Polygons>
+    </SoftBody>
+    <SoftBody name="ziggy1_land_4" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.6784314" colorG="1" colorB="0.1843137" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
+      <Points>
+        <Point x="-16.32298" y="4.384698" mass="-1" />
+        <Point x="-16.87774" y="7.049906" mass="-1" />
+        <Point x="5.541916" y="6.703125" mass="-1" />
+        <Point x="3.749508" y="0.06411766" mass="-1" />
+      </Points>
+      <Springs />
+      <Polygons>
+        <Poly pt0="1" pt1="0" pt2="2" />
+        <Poly pt0="0" pt1="3" pt2="2" />
+      </Polygons>
+    </SoftBody>
+    <SoftBody name="ziggy1_land_5" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.6784314" colorG="1" colorB="0.1843137" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
+      <Points>
+        <Point x="-0.5" y="-0.5" mass="-1" />
+        <Point x="-0.5" y="0.5" mass="-1" />
+        <Point x="0.5" y="0.5" mass="-1" />
+        <Point x="0.4534684" y="-0.4035874" mass="-1" />
+      </Points>
+      <Springs />
+      <Polygons>
+        <Poly pt0="1" pt1="0" pt2="2" />
+        <Poly pt0="0" pt1="2" pt2="3" />
+      </Polygons>
+    </SoftBody>
+    <SoftBody name="ziggy1_platform_1" massPerPoint="1" edgeK="100" edgeDamping="10" colorR="1" colorG="0" colorB="0" kinematic="True" shapeMatching="True" shapeK="4000" shapeDamping="20" velDamping="0.993">
+      <Points>
+        <Point x="-0.4999999" y="0.2649484" mass="-1" />
+        <Point x="-0.5" y="0.5" mass="-1" />
+        <Point x="0.2835048" y="0.4999999" mass="-1" />
+        <Point x="0.2884302" y="1.075831" mass="-1" />
+        <Point x="0.5733123" y="1.071682" mass="-1" />
+        <Point x="0.5781223" y="0.4125755" mass="-1" />
+        <Point x="0.3295542" y="0.2682459" mass="-1" />
+      </Points>
+      <Springs />
+      <Polygons>
+        <Poly pt0="1" pt1="0" pt2="2" />
+        <Poly pt0="0" pt1="6" pt2="2" />
+        <Poly pt0="6" pt1="5" pt2="2" />
+        <Poly pt0="5" pt1="4" pt2="2" />
+        <Poly pt0="2" pt1="4" pt2="3" />
+      </Polygons>
+    </SoftBody>
+    <SoftBody name="ziggy1_platform_2" massPerPoint="3" edgeK="100" edgeDamping="10" colorR="0.6784314" colorG="1" colorB="0.1843137" kinematic="True" shapeMatching="True" shapeK="1000" shapeDamping="20" velDamping="0.993">
+      <Points>
+        <Point x="-0.07692306" y="0.4230769" mass="-1" />
+        <Point x="-0.1660577" y="-5.644751" mass="-1" />
+        <Point x="-1.666058" y="-5.721672" mass="-1" />
+        <Point x="-0.8199036" y="-4.760134" mass="-1" />
+        <Point x="-1.127595" y="-0.5293673" mass="-1" />
+        <Point x="-3.627596" y="-0.7985916" mass="-1" />
+        <Point x="-4.012211" y="-4.606286" mass="-1" />
+        <Point x="-3.435288" y="-5.683212" mass="-1" />
+        <Point x="-4.666058" y="-5.644753" mass="-1" />
+        <Point x="-4.858366" y="0.2398682" mass="-1" />
+      </Points>
+      <Springs>
+        <Spring pt1="6" pt2="9" k="100" damp="10" />
+        <Spring pt1="6" pt2="8" k="100" damp="10" />
+        <Spring pt1="8" pt2="7" k="100" damp="10" />
+        <Spring pt1="7" pt2="6" k="100" damp="10" />
+        <Spring pt1="2" pt2="3" k="100" damp="10" />
+        <Spring pt1="2" pt2="1" k="100" damp="10" />
+        <Spring pt1="1" pt2="3" k="100" damp="10" />
+        <Spring pt1="3" pt2="0" k="100" damp="10" />
+        <Spring pt1="3" pt2="4" k="100" damp="10" />
+        <Spring pt1="5" pt2="6" k="100" damp="10" />
+      </Springs>
+      <Polygons>
+        <Poly pt0="8" pt1="7" pt2="6" />
+        <Poly pt0="8" pt1="6" pt2="9" />
+        <Poly pt0="6" pt1="5" pt2="9" />
+        <Poly pt0="5" pt1="0" pt2="9" />
+        <Poly pt0="5" pt1="4" pt2="0" />
+        <Poly pt0="4" pt1="3" pt2="1" />
+        <Poly pt0="4" pt1="1" pt2="0" />
+        <Poly pt0="2" pt1="1" pt2="3" />
+      </Polygons>
+    </SoftBody>
+    <SoftBody name="ziggy1_spike_1" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.7529412" colorG="0.7529412" colorB="0.7529412" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
+      <Points>
+        <Point x="-0.5" y="-0.5" mass="-1" />
+        <Point x="0.15" y="2.15" mass="-1" />
+        <Point x="3.597852" y="0.1095753" mass="-1" />
+        <Point x="0.3" y="1.2" mass="-1" />
+        <Point x="3.247852" y="-0.7404252" mass="-1" />
+        <Point x="0.1978519" y="0.3595764" mass="-1" />
+        <Point x="2.897852" y="-1.640427" mass="-1" />
+      </Points>
+      <Springs />
+      <Polygons>
+        <Poly pt0="0" pt1="6" pt2="5" />
+        <Poly pt0="5" pt1="4" pt2="3" />
+        <Poly pt0="3" pt1="2" pt2="1" />
+        <Poly pt0="3" pt1="1" pt2="0" />
+        <Poly pt0="0" pt1="5" pt2="3" />
+      </Polygons>
+    </SoftBody>
+  </SoftBodies>
+  <Car name="car_and_truck" posX="-50" posY="46" />
+  <Settings finishX="-31" finishY="90" fallLine="0" />
+</Scene>

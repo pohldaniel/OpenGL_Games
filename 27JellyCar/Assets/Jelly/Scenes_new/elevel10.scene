@@ -35,18 +35,18 @@
   <SoftBodies>
     <SoftBody name="e_lv2_ground_01" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0" colorG="0" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
-        <Point x="-0.5" y="-0.381356" />
-        <Point x="-0.5" y="0.5" />
-        <Point x="0.5" y="0.5" />
-        <Point x="0.5005599" y="-0.3534702" />
-        <Point x="0.4298692" y="-0.3545161" />
-        <Point x="0.3544216" y="-0.1904643" />
-        <Point x="0.1532257" y="-0.1893604" />
-        <Point x="0.05243209" y="0.1604797" />
-        <Point x="-0.06628963" y="0.1639768" />
-        <Point x="-0.1675969" y="-0.1760031" />
-        <Point x="-0.3675453" y="-0.1760032" />
-        <Point x="-0.4371698" y="-0.3809041" />
+        <Point x="-0.5" y="-0.381356" mass="-1" />
+        <Point x="-0.5" y="0.5" mass="-1" />
+        <Point x="0.5" y="0.5" mass="-1" />
+        <Point x="0.5005599" y="-0.3534702" mass="-1" />
+        <Point x="0.4298692" y="-0.3545161" mass="-1" />
+        <Point x="0.3544216" y="-0.1904643" mass="-1" />
+        <Point x="0.1532257" y="-0.1893604" mass="-1" />
+        <Point x="0.05243209" y="0.1604797" mass="-1" />
+        <Point x="-0.06628963" y="0.1639768" mass="-1" />
+        <Point x="-0.1675969" y="-0.1760031" mass="-1" />
+        <Point x="-0.3675453" y="-0.1760032" mass="-1" />
+        <Point x="-0.4371698" y="-0.3809041" mass="-1" />
       </Points>
       <Springs />
       <Polygons>
@@ -64,23 +64,23 @@
     </SoftBody>
     <SoftBody name="e_lv2_flat_01" massPerPoint="1" edgeK="8000" edgeDamping="10" colorR="0" colorG="1" colorB="0" kinematic="True" shapeMatching="True" shapeK="8000" shapeDamping="10" velDamping="0.993">
       <Points>
-        <Point x="-0.5" y="-0.5" />
-        <Point x="-0.5" y="0.5" />
-        <Point x="0.5" y="0.5" />
-        <Point x="0.4987988" y="-0.4986018" />
-        <Point x="0.4175988" y="-0.07061093" />
-        <Point x="0.3640112" y="-0.4992609" />
-        <Point x="0.2945219" y="-0.0875601" />
-        <Point x="0.2124204" y="-0.4985765" />
-        <Point x="0.1349066" y="-0.0706109" />
-        <Point x="0.06067429" y="-0.4985765" />
-        <Point x="-0.009324175" y="-0.07908544" />
-        <Point x="-0.0775793" y="-0.4992609" />
-        <Point x="-0.1477857" y="-0.07908544" />
-        <Point x="-0.2204488" y="-0.5003856" />
-        <Point x="-0.2920165" y="-0.07908544" />
-        <Point x="-0.3538549" y="-0.5000032" />
-        <Point x="-0.4189395" y="-0.08755998" />
+        <Point x="-0.5" y="-0.5" mass="-1" />
+        <Point x="-0.5" y="0.5" mass="-1" />
+        <Point x="0.5" y="0.5" mass="-1" />
+        <Point x="0.4987988" y="-0.4986018" mass="-1" />
+        <Point x="0.4175988" y="-0.07061093" mass="-1" />
+        <Point x="0.3640112" y="-0.4992609" mass="-1" />
+        <Point x="0.2945219" y="-0.0875601" mass="-1" />
+        <Point x="0.2124204" y="-0.4985765" mass="-1" />
+        <Point x="0.1349066" y="-0.0706109" mass="-1" />
+        <Point x="0.06067429" y="-0.4985765" mass="-1" />
+        <Point x="-0.009324175" y="-0.07908544" mass="-1" />
+        <Point x="-0.0775793" y="-0.4992609" mass="-1" />
+        <Point x="-0.1477857" y="-0.07908544" mass="-1" />
+        <Point x="-0.2204488" y="-0.5003856" mass="-1" />
+        <Point x="-0.2920165" y="-0.07908544" mass="-1" />
+        <Point x="-0.3538549" y="-0.5000032" mass="-1" />
+        <Point x="-0.4189395" y="-0.08755998" mass="-1" />
       </Points>
       <Springs>
         <Spring pt1="1" pt2="4" k="8000" damp="10" />
@@ -117,21 +117,21 @@
     </SoftBody>
     <SoftBody name="e_lv2_woodhouse_01" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="1" colorG="0.5019608" colorB="0.5019608" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
-        <Point x="-0.5" y="-0.5" />
-        <Point x="-0.5019299" y="-0.03407182" />
-        <Point x="0.3083134" y="-0.02194358" />
-        <Point x="0.3078205" y="1.590028" />
-        <Point x="-0.2656054" y="1.574687" />
-        <Point x="-0.2656704" y="0.9952009" />
-        <Point x="-0.3504719" y="1.002433" />
-        <Point x="-0.349552" y="1.577097" />
-        <Point x="-0.510188" y="1.573627" />
-        <Point x="0.003518223" y="2.827097" />
-        <Point x="0.5133868" y="1.598649" />
-        <Point x="0.3785444" y="1.602958" />
-        <Point x="0.379386" y="-0.0133229" />
-        <Point x="0.4992664" y="-0.01980898" />
-        <Point x="0.4998027" y="-0.5084036" />
+        <Point x="-0.5" y="-0.5" mass="-1" />
+        <Point x="-0.5019299" y="-0.03407182" mass="-1" />
+        <Point x="0.3083134" y="-0.02194358" mass="-1" />
+        <Point x="0.3078205" y="1.590028" mass="-1" />
+        <Point x="-0.2656054" y="1.574687" mass="-1" />
+        <Point x="-0.2656704" y="0.9952009" mass="-1" />
+        <Point x="-0.3504719" y="1.002433" mass="-1" />
+        <Point x="-0.349552" y="1.577097" mass="-1" />
+        <Point x="-0.510188" y="1.573627" mass="-1" />
+        <Point x="0.003518223" y="2.827097" mass="-1" />
+        <Point x="0.5133868" y="1.598649" mass="-1" />
+        <Point x="0.3785444" y="1.602958" mass="-1" />
+        <Point x="0.379386" y="-0.0133229" mass="-1" />
+        <Point x="0.4992664" y="-0.01980898" mass="-1" />
+        <Point x="0.4998027" y="-0.5084036" mass="-1" />
       </Points>
       <Springs />
       <Polygons>
@@ -152,36 +152,36 @@
     </SoftBody>
     <SoftBody name="itemstick" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0.5019608" colorG="0.5019608" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
-        <Point x="0" y="1" />
-        <Point x="0.2079117" y="0.9781476" />
-        <Point x="0.4067366" y="0.9135454" />
-        <Point x="0.5877852" y="0.809017" />
-        <Point x="0.7431448" y="0.6691306" />
-        <Point x="0.8660254" y="0.5" />
-        <Point x="0.9510565" y="0.309017" />
-        <Point x="0.9945219" y="0.1045285" />
-        <Point x="0.9945219" y="-0.1045284" />
-        <Point x="0.9510565" y="-0.309017" />
-        <Point x="0.8660254" y="-0.5" />
-        <Point x="0.7431448" y="-0.6691306" />
-        <Point x="0.5877852" y="-0.809017" />
-        <Point x="0.4067367" y="-0.9135454" />
-        <Point x="0.2079117" y="-0.9781476" />
-        <Point x="2.433593e-08" y="-1" />
-        <Point x="-0.2079117" y="-0.9781476" />
-        <Point x="-0.4067366" y="-0.9135455" />
-        <Point x="-0.5877852" y="-0.809017" />
-        <Point x="-0.7431448" y="-0.6691306" />
-        <Point x="-0.8660254" y="-0.5" />
-        <Point x="-0.9510565" y="-0.309017" />
-        <Point x="-0.9945219" y="-0.1045285" />
-        <Point x="-0.9945219" y="0.1045284" />
-        <Point x="-0.9510565" y="0.3090169" />
-        <Point x="-0.8660254" y="0.5" />
-        <Point x="-0.7431449" y="0.6691306" />
-        <Point x="-0.5877853" y="0.8090169" />
-        <Point x="-0.4067367" y="0.9135454" />
-        <Point x="-0.2079117" y="0.9781476" />
+        <Point x="0" y="1" mass="-1" />
+        <Point x="0.2079117" y="0.9781476" mass="-1" />
+        <Point x="0.4067366" y="0.9135454" mass="-1" />
+        <Point x="0.5877852" y="0.809017" mass="-1" />
+        <Point x="0.7431448" y="0.6691306" mass="-1" />
+        <Point x="0.8660254" y="0.5" mass="-1" />
+        <Point x="0.9510565" y="0.309017" mass="-1" />
+        <Point x="0.9945219" y="0.1045285" mass="-1" />
+        <Point x="0.9945219" y="-0.1045284" mass="-1" />
+        <Point x="0.9510565" y="-0.309017" mass="-1" />
+        <Point x="0.8660254" y="-0.5" mass="-1" />
+        <Point x="0.7431448" y="-0.6691306" mass="-1" />
+        <Point x="0.5877852" y="-0.809017" mass="-1" />
+        <Point x="0.4067367" y="-0.9135454" mass="-1" />
+        <Point x="0.2079117" y="-0.9781476" mass="-1" />
+        <Point x="2.433593e-08" y="-1" mass="-1" />
+        <Point x="-0.2079117" y="-0.9781476" mass="-1" />
+        <Point x="-0.4067366" y="-0.9135455" mass="-1" />
+        <Point x="-0.5877852" y="-0.809017" mass="-1" />
+        <Point x="-0.7431448" y="-0.6691306" mass="-1" />
+        <Point x="-0.8660254" y="-0.5" mass="-1" />
+        <Point x="-0.9510565" y="-0.309017" mass="-1" />
+        <Point x="-0.9945219" y="-0.1045285" mass="-1" />
+        <Point x="-0.9945219" y="0.1045284" mass="-1" />
+        <Point x="-0.9510565" y="0.3090169" mass="-1" />
+        <Point x="-0.8660254" y="0.5" mass="-1" />
+        <Point x="-0.7431449" y="0.6691306" mass="-1" />
+        <Point x="-0.5877853" y="0.8090169" mass="-1" />
+        <Point x="-0.4067367" y="0.9135454" mass="-1" />
+        <Point x="-0.2079117" y="0.9781476" mass="-1" />
       </Points>
       <Springs />
       <Polygons>
@@ -217,32 +217,32 @@
     </SoftBody>
     <SoftBody name="e_lv2_flats_01" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="1" colorG="1" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
-        <Point x="-0.5" y="0.1984126" />
-        <Point x="-0.5" y="0.5" />
-        <Point x="-0.2372473" y="0.5064505" />
-        <Point x="-0.1670967" y="0.5390784" />
-        <Point x="-0.1077354" y="0.593339" />
-        <Point x="-0.07175762" y="0.6823765" />
-        <Point x="-0.06469548" y="0.774969" />
-        <Point x="-0.06234137" y="2.329202" />
-        <Point x="-0.04774633" y="2.441635" />
-        <Point x="-0.02001962" y="2.508367" />
-        <Point x="0.0202857" y="2.558478" />
-        <Point x="0.06937993" y="2.578746" />
-        <Point x="0.5875731" y="2.578746" />
-        <Point x="0.6088085" y="2.640471" />
-        <Point x="0.6428111" y="2.641977" />
-        <Point x="0.552321" y="2.323768" />
-        <Point x="0.1926716" y="2.320613" />
-        <Point x="0.148669" y="2.312764" />
-        <Point x="0.113818" y="2.294858" />
-        <Point x="0.09834771" y="2.244148" />
-        <Point x="0.09762759" y="2.145363" />
-        <Point x="0.09771218" y="0.4625115" />
-        <Point x="0.08783986" y="0.3586024" />
-        <Point x="0.06060385" y="0.2808188" />
-        <Point x="0.007316794" y="0.2281929" />
-        <Point x="-0.06249764" y="0.1983575" />
+        <Point x="-0.5" y="0.1984126" mass="-1" />
+        <Point x="-0.5" y="0.5" mass="-1" />
+        <Point x="-0.2372473" y="0.5064505" mass="-1" />
+        <Point x="-0.1670967" y="0.5390784" mass="-1" />
+        <Point x="-0.1077354" y="0.593339" mass="-1" />
+        <Point x="-0.07175762" y="0.6823765" mass="-1" />
+        <Point x="-0.06469548" y="0.774969" mass="-1" />
+        <Point x="-0.06234137" y="2.329202" mass="-1" />
+        <Point x="-0.04774633" y="2.441635" mass="-1" />
+        <Point x="-0.02001962" y="2.508367" mass="-1" />
+        <Point x="0.0202857" y="2.558478" mass="-1" />
+        <Point x="0.06937993" y="2.578746" mass="-1" />
+        <Point x="0.5875731" y="2.578746" mass="-1" />
+        <Point x="0.6088085" y="2.640471" mass="-1" />
+        <Point x="0.6428111" y="2.641977" mass="-1" />
+        <Point x="0.552321" y="2.323768" mass="-1" />
+        <Point x="0.1926716" y="2.320613" mass="-1" />
+        <Point x="0.148669" y="2.312764" mass="-1" />
+        <Point x="0.113818" y="2.294858" mass="-1" />
+        <Point x="0.09834771" y="2.244148" mass="-1" />
+        <Point x="0.09762759" y="2.145363" mass="-1" />
+        <Point x="0.09771218" y="0.4625115" mass="-1" />
+        <Point x="0.08783986" y="0.3586024" mass="-1" />
+        <Point x="0.06060385" y="0.2808188" mass="-1" />
+        <Point x="0.007316794" y="0.2281929" mass="-1" />
+        <Point x="-0.06249764" y="0.1983575" mass="-1" />
       </Points>
       <Springs />
       <Polygons>
@@ -275,12 +275,12 @@
     </SoftBody>
     <SoftBody name="e_lv2_flat_02" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0" colorG="0.5019608" colorB="0.5019608" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
-        <Point x="-0.5" y="-0.3289474" />
-        <Point x="-0.5" y="0.5" />
-        <Point x="0.4508029" y="0.5005538" />
-        <Point x="0.4664452" y="0.674747" />
-        <Point x="0.5" y="0.6772726" />
-        <Point x="0.4994092" y="-0.319479" />
+        <Point x="-0.5" y="-0.3289474" mass="-1" />
+        <Point x="-0.5" y="0.5" mass="-1" />
+        <Point x="0.4508029" y="0.5005538" mass="-1" />
+        <Point x="0.4664452" y="0.674747" mass="-1" />
+        <Point x="0.5" y="0.6772726" mass="-1" />
+        <Point x="0.4994092" y="-0.319479" mass="-1" />
       </Points>
       <Springs />
       <Polygons>
@@ -292,28 +292,28 @@
     </SoftBody>
     <SoftBody name="e_lv2_ob_01" massPerPoint="1" edgeK="10000" edgeDamping="15" colorR="0.5019608" colorG="0.5019608" colorB="0" kinematic="True" shapeMatching="True" shapeK="10000" shapeDamping="15" velDamping="0.993">
       <Points>
-        <Point x="-2" y="6" />
-        <Point x="-2" y="7" />
-        <Point x="0" y="7" />
-        <Point x="2" y="7" />
-        <Point x="2" y="6" />
-        <Point x="1" y="5" />
-        <Point x="1" y="3" />
-        <Point x="1" y="1" />
-        <Point x="1" y="-1" />
-        <Point x="1" y="-3" />
-        <Point x="1" y="-5" />
-        <Point x="2" y="-6" />
-        <Point x="2" y="-7" />
-        <Point x="0" y="-7" />
-        <Point x="-2" y="-7" />
-        <Point x="-2" y="-6" />
-        <Point x="-1" y="-5" />
-        <Point x="-1" y="-3" />
-        <Point x="-1" y="-1" />
-        <Point x="-1" y="1" />
-        <Point x="-1" y="3" />
-        <Point x="-1" y="5" />
+        <Point x="-2" y="6" mass="-1" />
+        <Point x="-2" y="7" mass="-1" />
+        <Point x="0" y="7" mass="-1" />
+        <Point x="2" y="7" mass="-1" />
+        <Point x="2" y="6" mass="-1" />
+        <Point x="1" y="5" mass="-1" />
+        <Point x="1" y="3" mass="-1" />
+        <Point x="1" y="1" mass="-1" />
+        <Point x="1" y="-1" mass="-1" />
+        <Point x="1" y="-3" mass="-1" />
+        <Point x="1" y="-5" mass="-1" />
+        <Point x="2" y="-6" mass="-1" />
+        <Point x="2" y="-7" mass="-1" />
+        <Point x="0" y="-7" mass="-1" />
+        <Point x="-2" y="-7" mass="-1" />
+        <Point x="-2" y="-6" mass="-1" />
+        <Point x="-1" y="-5" mass="-1" />
+        <Point x="-1" y="-3" mass="-1" />
+        <Point x="-1" y="-1" mass="-1" />
+        <Point x="-1" y="1" mass="-1" />
+        <Point x="-1" y="3" mass="-1" />
+        <Point x="-1" y="5" mass="-1" />
       </Points>
       <Springs>
         <Spring pt1="2" pt2="4" k="10000" damp="15" />
@@ -370,59 +370,42 @@
         <Poly pt0="13" pt1="12" pt2="11" />
       </Polygons>
     </SoftBody>
-    <SoftBody name="e_lv2_flat_02" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0" colorG="0.5019608" colorB="0.5019608" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
-      <Points>
-        <Point x="-0.5" y="-0.3289474" />
-        <Point x="-0.5" y="0.5" />
-        <Point x="0.4508029" y="0.5005538" />
-        <Point x="0.4664452" y="0.674747" />
-        <Point x="0.5" y="0.6772726" />
-        <Point x="0.4994092" y="-0.319479" />
-      </Points>
-      <Springs />
-      <Polygons>
-        <Poly pt0="1" pt1="0" pt2="2" />
-        <Poly pt0="2" pt1="4" pt2="5" />
-        <Poly pt0="5" pt1="2" pt2="0" />
-        <Poly pt0="3" pt1="2" pt2="4" />
-      </Polygons>
-    </SoftBody>
     <SoftBody name="e_lv2_halfcircle_01" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="1" colorG="1" colorB="0" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
-        <Point x="0.9945219" y="0.1045285" />
-        <Point x="0.9945219" y="-0.1045284" />
-        <Point x="0.9510565" y="-0.309017" />
-        <Point x="0.8660254" y="-0.5" />
-        <Point x="0.7431448" y="-0.6691306" />
-        <Point x="0.5877852" y="-0.809017" />
-        <Point x="0.4067367" y="-0.9135454" />
-        <Point x="0.2079117" y="-0.9781476" />
-        <Point x="2.433593e-08" y="-1" />
-        <Point x="-0.2079117" y="-0.9781476" />
-        <Point x="-0.4067366" y="-0.9135455" />
-        <Point x="-0.5877852" y="-0.809017" />
-        <Point x="-0.7431448" y="-0.6691306" />
-        <Point x="-0.8660254" y="-0.5" />
-        <Point x="-0.9510565" y="-0.309017" />
-        <Point x="-0.9945219" y="-0.1045285" />
-        <Point x="-0.9945219" y="0.1045284" />
-        <Point x="-0.8214831" y="0.1061947" />
-        <Point x="-0.8214831" y="-0.08839323" />
-        <Point x="-0.7786261" y="-0.2665391" />
-        <Point x="-0.6932797" y="-0.4413263" />
-        <Point x="-0.598938" y="-0.5783287" />
-        <Point x="-0.4709112" y="-0.7019728" />
-        <Point x="-0.3307801" y="-0.7825499" />
-        <Point x="-0.1939373" y="-0.8334183" />
-        <Point x="0.0001416458" y="-0.8577837" />
-        <Point x="0.1811936" y="-0.8402576" />
-        <Point x="0.3436939" y="-0.7798783" />
-        <Point x="0.5010622" y="-0.6810271" />
-        <Point x="0.6219831" y="-0.5672147" />
-        <Point x="0.7210627" y="-0.4405783" />
-        <Point x="0.7960625" y="-0.2749358" />
-        <Point x="0.8335621" y="-0.101492" />
-        <Point x="0.8353022" y="0.1003935" />
+        <Point x="0.9945219" y="0.1045285" mass="-1" />
+        <Point x="0.9945219" y="-0.1045284" mass="-1" />
+        <Point x="0.9510565" y="-0.309017" mass="-1" />
+        <Point x="0.8660254" y="-0.5" mass="-1" />
+        <Point x="0.7431448" y="-0.6691306" mass="-1" />
+        <Point x="0.5877852" y="-0.809017" mass="-1" />
+        <Point x="0.4067367" y="-0.9135454" mass="-1" />
+        <Point x="0.2079117" y="-0.9781476" mass="-1" />
+        <Point x="2.433593e-08" y="-1" mass="-1" />
+        <Point x="-0.2079117" y="-0.9781476" mass="-1" />
+        <Point x="-0.4067366" y="-0.9135455" mass="-1" />
+        <Point x="-0.5877852" y="-0.809017" mass="-1" />
+        <Point x="-0.7431448" y="-0.6691306" mass="-1" />
+        <Point x="-0.8660254" y="-0.5" mass="-1" />
+        <Point x="-0.9510565" y="-0.309017" mass="-1" />
+        <Point x="-0.9945219" y="-0.1045285" mass="-1" />
+        <Point x="-0.9945219" y="0.1045284" mass="-1" />
+        <Point x="-0.8214831" y="0.1061947" mass="-1" />
+        <Point x="-0.8214831" y="-0.08839323" mass="-1" />
+        <Point x="-0.7786261" y="-0.2665391" mass="-1" />
+        <Point x="-0.6932797" y="-0.4413263" mass="-1" />
+        <Point x="-0.598938" y="-0.5783287" mass="-1" />
+        <Point x="-0.4709112" y="-0.7019728" mass="-1" />
+        <Point x="-0.3307801" y="-0.7825499" mass="-1" />
+        <Point x="-0.1939373" y="-0.8334183" mass="-1" />
+        <Point x="0.0001416458" y="-0.8577837" mass="-1" />
+        <Point x="0.1811936" y="-0.8402576" mass="-1" />
+        <Point x="0.3436939" y="-0.7798783" mass="-1" />
+        <Point x="0.5010622" y="-0.6810271" mass="-1" />
+        <Point x="0.6219831" y="-0.5672147" mass="-1" />
+        <Point x="0.7210627" y="-0.4405783" mass="-1" />
+        <Point x="0.7960625" y="-0.2749358" mass="-1" />
+        <Point x="0.8335621" y="-0.101492" mass="-1" />
+        <Point x="0.8353022" y="0.1003935" mass="-1" />
       </Points>
       <Springs />
       <Polygons>
@@ -462,20 +445,20 @@
     </SoftBody>
     <SoftBody name="e_lv2_ob_02" massPerPoint="1" edgeK="8000" edgeDamping="10" colorR="1" colorG="0.5019608" colorB="0" kinematic="True" shapeMatching="True" shapeK="8000" shapeDamping="10" velDamping="0.993">
       <Points>
-        <Point x="0" y="1" />
-        <Point x="0.2079117" y="0.9781476" />
-        <Point x="0.08579072" y="0.1694977" />
-        <Point x="0.1370036" y="0.1286947" />
-        <Point x="0.1363412" y="-0.04501135" />
-        <Point x="0.09142139" y="-0.09211677" />
-        <Point x="0.2079117" y="-0.9781476" />
-        <Point x="2.433593e-08" y="-1" />
-        <Point x="-0.2079117" y="-0.9781476" />
-        <Point x="-0.0857907" y="-0.09211677" />
-        <Point x="-0.1356991" y="-0.04413053" />
-        <Point x="-0.1353475" y="0.1297451" />
-        <Point x="-0.07452948" y="0.1694977" />
-        <Point x="-0.2079117" y="0.9781476" />
+        <Point x="0" y="1" mass="-1" />
+        <Point x="0.2079117" y="0.9781476" mass="-1" />
+        <Point x="0.08579072" y="0.1694977" mass="-1" />
+        <Point x="0.1370036" y="0.1286947" mass="-1" />
+        <Point x="0.1363412" y="-0.04501135" mass="-1" />
+        <Point x="0.09142139" y="-0.09211677" mass="-1" />
+        <Point x="0.2079117" y="-0.9781476" mass="-1" />
+        <Point x="2.433593e-08" y="-1" mass="-1" />
+        <Point x="-0.2079117" y="-0.9781476" mass="-1" />
+        <Point x="-0.0857907" y="-0.09211677" mass="-1" />
+        <Point x="-0.1356991" y="-0.04413053" mass="-1" />
+        <Point x="-0.1353475" y="0.1297451" mass="-1" />
+        <Point x="-0.07452948" y="0.1694977" mass="-1" />
+        <Point x="-0.2079117" y="0.9781476" mass="-1" />
       </Points>
       <Springs>
         <Spring pt1="13" pt2="2" k="8000" damp="10" />
@@ -511,22 +494,22 @@
       <Points>
         <Point x="-0.5" y="-0.7392344" mass="0" />
         <Point x="-0.5" y="0.5" mass="0" />
-        <Point x="-0.3937541" y="0.4985626" />
-        <Point x="-0.2950444" y="0.4980882" />
-        <Point x="-0.2065661" y="0.4958909" />
-        <Point x="-0.1069745" y="0.4957862" />
-        <Point x="-0.006961463" y="0.4957862" />
-        <Point x="0.1119192" y="0.4957862" />
-        <Point x="0.2130153" y="0.4957862" />
-        <Point x="0.3005984" y="0.4957862" />
-        <Point x="0.3014764" y="0.1770917" />
-        <Point x="0.2176189" y="0.1291038" />
-        <Point x="0.1114869" y="0.1057123" />
-        <Point x="-0.003292916" y="0.0472328" />
-        <Point x="-0.1099492" y="0.003373154" />
-        <Point x="-0.2121504" y="-0.0755745" />
-        <Point x="-0.2941734" y="-0.1720654" />
-        <Point x="-0.3929681" y="-0.3738199" />
+        <Point x="-0.3937541" y="0.4985626" mass="-1" />
+        <Point x="-0.2950444" y="0.4980882" mass="-1" />
+        <Point x="-0.2065661" y="0.4958909" mass="-1" />
+        <Point x="-0.1069745" y="0.4957862" mass="-1" />
+        <Point x="-0.006961463" y="0.4957862" mass="-1" />
+        <Point x="0.1119192" y="0.4957862" mass="-1" />
+        <Point x="0.2130153" y="0.4957862" mass="-1" />
+        <Point x="0.3005984" y="0.4957862" mass="-1" />
+        <Point x="0.3014764" y="0.1770917" mass="-1" />
+        <Point x="0.2176189" y="0.1291038" mass="-1" />
+        <Point x="0.1114869" y="0.1057123" mass="-1" />
+        <Point x="-0.003292916" y="0.0472328" mass="-1" />
+        <Point x="-0.1099492" y="0.003373154" mass="-1" />
+        <Point x="-0.2121504" y="-0.0755745" mass="-1" />
+        <Point x="-0.2941734" y="-0.1720654" mass="-1" />
+        <Point x="-0.3929681" y="-0.3738199" mass="-1" />
       </Points>
       <Springs>
         <Spring pt1="2" pt2="17" k="8000" damp="10" />
@@ -575,16 +558,16 @@
     </SoftBody>
     <SoftBody name="e_lv2_ob_03" massPerPoint="0" edgeK="100" edgeDamping="10" colorR="0" colorG="0" colorB="1" kinematic="False" shapeMatching="True" shapeK="100" shapeDamping="10" velDamping="0.993">
       <Points>
-        <Point x="-0.5" y="-0.3867924" />
-        <Point x="-0.5" y="0.5" />
-        <Point x="-0.3583498" y="0.465574" />
-        <Point x="-0.35835" y="-0.2938601" />
-        <Point x="0.348417" y="-0.2938601" />
-        <Point x="0.3521763" y="0.4568139" />
-        <Point x="0.5" y="0.5" />
-        <Point x="0.4987931" y="-0.3881997" />
-        <Point x="0.280748" y="-0.5485771" />
-        <Point x="-0.2906806" y="-0.5485771" />
+        <Point x="-0.5" y="-0.3867924" mass="-1" />
+        <Point x="-0.5" y="0.5" mass="-1" />
+        <Point x="-0.3583498" y="0.465574" mass="-1" />
+        <Point x="-0.35835" y="-0.2938601" mass="-1" />
+        <Point x="0.348417" y="-0.2938601" mass="-1" />
+        <Point x="0.3521763" y="0.4568139" mass="-1" />
+        <Point x="0.5" y="0.5" mass="-1" />
+        <Point x="0.4987931" y="-0.3881997" mass="-1" />
+        <Point x="0.280748" y="-0.5485771" mass="-1" />
+        <Point x="-0.2906806" y="-0.5485771" mass="-1" />
       </Points>
       <Springs />
       <Polygons>
@@ -596,192 +579,6 @@
         <Poly pt0="8" pt1="4" pt2="7" />
         <Poly pt0="7" pt1="4" pt2="6" />
         <Poly pt0="6" pt1="5" pt2="4" />
-      </Polygons>
-    </SoftBody>
-    <SoftBody name="e_lv2_ob_01" massPerPoint="1" edgeK="10000" edgeDamping="15" colorR="0.5019608" colorG="0.5019608" colorB="0" kinematic="True" shapeMatching="True" shapeK="10000" shapeDamping="15" velDamping="0.993">
-      <Points>
-        <Point x="-2" y="6" />
-        <Point x="-2" y="7" />
-        <Point x="0" y="7" />
-        <Point x="2" y="7" />
-        <Point x="2" y="6" />
-        <Point x="1" y="5" />
-        <Point x="1" y="3" />
-        <Point x="1" y="1" />
-        <Point x="1" y="-1" />
-        <Point x="1" y="-3" />
-        <Point x="1" y="-5" />
-        <Point x="2" y="-6" />
-        <Point x="2" y="-7" />
-        <Point x="0" y="-7" />
-        <Point x="-2" y="-7" />
-        <Point x="-2" y="-6" />
-        <Point x="-1" y="-5" />
-        <Point x="-1" y="-3" />
-        <Point x="-1" y="-1" />
-        <Point x="-1" y="1" />
-        <Point x="-1" y="3" />
-        <Point x="-1" y="5" />
-      </Points>
-      <Springs>
-        <Spring pt1="2" pt2="4" k="10000" damp="15" />
-        <Spring pt1="2" pt2="0" k="10000" damp="15" />
-        <Spring pt1="0" pt2="4" k="10000" damp="15" />
-        <Spring pt1="5" pt2="21" k="10000" damp="15" />
-        <Spring pt1="21" pt2="2" k="10000" damp="15" />
-        <Spring pt1="2" pt2="5" k="10000" damp="15" />
-        <Spring pt1="21" pt2="3" k="10000" damp="15" />
-        <Spring pt1="5" pt2="1" k="10000" damp="15" />
-        <Spring pt1="21" pt2="6" k="10000" damp="15" />
-        <Spring pt1="20" pt2="5" k="10000" damp="15" />
-        <Spring pt1="6" pt2="20" k="10000" damp="15" />
-        <Spring pt1="20" pt2="7" k="10000" damp="15" />
-        <Spring pt1="7" pt2="19" k="10000" damp="15" />
-        <Spring pt1="19" pt2="6" k="10000" damp="15" />
-        <Spring pt1="7" pt2="18" k="10000" damp="15" />
-        <Spring pt1="18" pt2="8" k="10000" damp="15" />
-        <Spring pt1="8" pt2="19" k="10000" damp="15" />
-        <Spring pt1="18" pt2="9" k="10000" damp="15" />
-        <Spring pt1="9" pt2="17" k="10000" damp="15" />
-        <Spring pt1="17" pt2="8" k="10000" damp="15" />
-        <Spring pt1="9" pt2="16" k="10000" damp="15" />
-        <Spring pt1="16" pt2="10" k="10000" damp="15" />
-        <Spring pt1="10" pt2="17" k="10000" damp="15" />
-        <Spring pt1="16" pt2="13" k="10000" damp="15" />
-        <Spring pt1="13" pt2="10" k="10000" damp="15" />
-        <Spring pt1="11" pt2="15" k="10000" damp="15" />
-        <Spring pt1="15" pt2="13" k="10000" damp="15" />
-        <Spring pt1="13" pt2="11" k="10000" damp="15" />
-        <Spring pt1="14" pt2="10" k="10000" damp="15" />
-        <Spring pt1="16" pt2="12" k="10000" damp="15" />
-      </Springs>
-      <Polygons>
-        <Poly pt0="2" pt1="1" pt2="0" />
-        <Poly pt0="0" pt1="21" pt2="2" />
-        <Poly pt0="2" pt1="21" pt2="5" />
-        <Poly pt0="5" pt1="4" pt2="2" />
-        <Poly pt0="2" pt1="4" pt2="3" />
-        <Poly pt0="5" pt1="21" pt2="20" />
-        <Poly pt0="5" pt1="6" pt2="20" />
-        <Poly pt0="20" pt1="19" pt2="7" />
-        <Poly pt0="20" pt1="6" pt2="7" />
-        <Poly pt0="7" pt1="8" pt2="18" />
-        <Poly pt0="18" pt1="19" pt2="7" />
-        <Poly pt0="18" pt1="17" pt2="9" />
-        <Poly pt0="9" pt1="8" pt2="18" />
-        <Poly pt0="17" pt1="16" pt2="10" />
-        <Poly pt0="10" pt1="9" pt2="17" />
-        <Poly pt0="16" pt1="15" pt2="14" />
-        <Poly pt0="14" pt1="13" pt2="16" />
-        <Poly pt0="13" pt1="16" pt2="10" />
-        <Poly pt0="10" pt1="11" pt2="13" />
-        <Poly pt0="13" pt1="12" pt2="11" />
-      </Polygons>
-    </SoftBody>
-    <SoftBody name="e_lv2_flat_01" massPerPoint="1" edgeK="8000" edgeDamping="10" colorR="0" colorG="1" colorB="0" kinematic="True" shapeMatching="True" shapeK="8000" shapeDamping="10" velDamping="0.993">
-      <Points>
-        <Point x="-0.5" y="-0.5" />
-        <Point x="-0.5" y="0.5" />
-        <Point x="0.5" y="0.5" />
-        <Point x="0.4987988" y="-0.4986018" />
-        <Point x="0.4175988" y="-0.07061093" />
-        <Point x="0.3640112" y="-0.4992609" />
-        <Point x="0.2945219" y="-0.0875601" />
-        <Point x="0.2124204" y="-0.4985765" />
-        <Point x="0.1349066" y="-0.0706109" />
-        <Point x="0.06067429" y="-0.4985765" />
-        <Point x="-0.009324175" y="-0.07908544" />
-        <Point x="-0.0775793" y="-0.4992609" />
-        <Point x="-0.1477857" y="-0.07908544" />
-        <Point x="-0.2204488" y="-0.5003856" />
-        <Point x="-0.2920165" y="-0.07908544" />
-        <Point x="-0.3538549" y="-0.5000032" />
-        <Point x="-0.4189395" y="-0.08755998" />
-      </Points>
-      <Springs>
-        <Spring pt1="1" pt2="4" k="8000" damp="10" />
-        <Spring pt1="16" pt2="2" k="8000" damp="10" />
-        <Spring pt1="14" pt2="1" k="8000" damp="10" />
-        <Spring pt1="12" pt2="1" k="8000" damp="10" />
-        <Spring pt1="10" pt2="1" k="8000" damp="10" />
-        <Spring pt1="8" pt2="1" k="8000" damp="10" />
-        <Spring pt1="6" pt2="1" k="8000" damp="10" />
-        <Spring pt1="14" pt2="2" k="8000" damp="10" />
-        <Spring pt1="12" pt2="2" k="8000" damp="10" />
-        <Spring pt1="10" pt2="2" k="8000" damp="10" />
-        <Spring pt1="8" pt2="2" k="8000" damp="10" />
-        <Spring pt1="6" pt2="2" k="8000" damp="10" />
-        <Spring pt1="4" pt2="2" k="8000" damp="10" />
-      </Springs>
-      <Polygons>
-        <Poly pt0="1" pt1="0" pt2="16" />
-        <Poly pt0="16" pt1="1" pt2="14" />
-        <Poly pt0="14" pt1="16" pt2="15" />
-        <Poly pt0="14" pt1="1" pt2="12" />
-        <Poly pt0="12" pt1="14" pt2="13" />
-        <Poly pt0="12" pt1="1" pt2="10" />
-        <Poly pt0="10" pt1="11" pt2="12" />
-        <Poly pt0="2" pt1="10" pt2="1" />
-        <Poly pt0="10" pt1="8" pt2="9" />
-        <Poly pt0="8" pt1="10" pt2="2" />
-        <Poly pt0="2" pt1="8" pt2="6" />
-        <Poly pt0="6" pt1="8" pt2="7" />
-        <Poly pt0="5" pt1="6" pt2="4" />
-        <Poly pt0="4" pt1="6" pt2="2" />
-        <Poly pt0="2" pt1="4" pt2="3" />
-      </Polygons>
-    </SoftBody>
-    <SoftBody name="e_lv2_flat_01" massPerPoint="1" edgeK="8000" edgeDamping="10" colorR="0" colorG="1" colorB="0" kinematic="True" shapeMatching="True" shapeK="8000" shapeDamping="10" velDamping="0.993">
-      <Points>
-        <Point x="-0.5" y="-0.5" />
-        <Point x="-0.5" y="0.5" />
-        <Point x="0.5" y="0.5" />
-        <Point x="0.4987988" y="-0.4986018" />
-        <Point x="0.4175988" y="-0.07061093" />
-        <Point x="0.3640112" y="-0.4992609" />
-        <Point x="0.2945219" y="-0.0875601" />
-        <Point x="0.2124204" y="-0.4985765" />
-        <Point x="0.1349066" y="-0.0706109" />
-        <Point x="0.06067429" y="-0.4985765" />
-        <Point x="-0.009324175" y="-0.07908544" />
-        <Point x="-0.0775793" y="-0.4992609" />
-        <Point x="-0.1477857" y="-0.07908544" />
-        <Point x="-0.2204488" y="-0.5003856" />
-        <Point x="-0.2920165" y="-0.07908544" />
-        <Point x="-0.3538549" y="-0.5000032" />
-        <Point x="-0.4189395" y="-0.08755998" />
-      </Points>
-      <Springs>
-        <Spring pt1="1" pt2="4" k="8000" damp="10" />
-        <Spring pt1="16" pt2="2" k="8000" damp="10" />
-        <Spring pt1="14" pt2="1" k="8000" damp="10" />
-        <Spring pt1="12" pt2="1" k="8000" damp="10" />
-        <Spring pt1="10" pt2="1" k="8000" damp="10" />
-        <Spring pt1="8" pt2="1" k="8000" damp="10" />
-        <Spring pt1="6" pt2="1" k="8000" damp="10" />
-        <Spring pt1="14" pt2="2" k="8000" damp="10" />
-        <Spring pt1="12" pt2="2" k="8000" damp="10" />
-        <Spring pt1="10" pt2="2" k="8000" damp="10" />
-        <Spring pt1="8" pt2="2" k="8000" damp="10" />
-        <Spring pt1="6" pt2="2" k="8000" damp="10" />
-        <Spring pt1="4" pt2="2" k="8000" damp="10" />
-      </Springs>
-      <Polygons>
-        <Poly pt0="1" pt1="0" pt2="16" />
-        <Poly pt0="16" pt1="1" pt2="14" />
-        <Poly pt0="14" pt1="16" pt2="15" />
-        <Poly pt0="14" pt1="1" pt2="12" />
-        <Poly pt0="12" pt1="14" pt2="13" />
-        <Poly pt0="12" pt1="1" pt2="10" />
-        <Poly pt0="10" pt1="11" pt2="12" />
-        <Poly pt0="2" pt1="10" pt2="1" />
-        <Poly pt0="10" pt1="8" pt2="9" />
-        <Poly pt0="8" pt1="10" pt2="2" />
-        <Poly pt0="2" pt1="8" pt2="6" />
-        <Poly pt0="6" pt1="8" pt2="7" />
-        <Poly pt0="5" pt1="6" pt2="4" />
-        <Poly pt0="4" pt1="6" pt2="2" />
-        <Poly pt0="2" pt1="4" pt2="3" />
       </Polygons>
     </SoftBody>
   </SoftBodies>
