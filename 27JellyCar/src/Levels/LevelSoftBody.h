@@ -3,11 +3,12 @@
 
 #include <engine/Rect.h>
 #include <engine/Texture.h>
+#include <engine/Vector.h>
 
 #include "JellyPhysics/JellyPhysics.h"
 #include "Levels/SimpleStructs.h"
 
-#include <glm/mat4x2.hpp>
+
 
 using namespace JellyPhysics;
 
@@ -41,7 +42,6 @@ private:
 	int mIndicesCount;
 
 	float colorR, colorG, colorB;
-	//std::string name;
 	float massPerPoint;// = 0.0f;
 	float edgeK;//= 100.0f;
 	float edgeDamping;//= 1.0f;
@@ -53,19 +53,17 @@ private:
 	bool pressureized;//= false;
 	float pressure;//= 0.0f;
 
-	bool _visible;
+	bool m_visible;
 
 	std::vector<MassID> massExceptions;
-	
+	ObjectInfo m_objectInfo;
+	const SoftBodyInfo& m_softBodyInfo;
+
 public:
 
-	LevelSoftBody(std::string fileName, World *mWorld, const Vector2& pos, float angle, const Vector2& scale, int material);
 	LevelSoftBody(const SoftBodyInfo& softBodyInfo, World *mWorld, const Vector2& pos, float angle, const Vector2& scale, int material);
-
 	LevelSoftBody(LevelSoftBody *exBody, World *mWorld, const Vector2& pos, float angle, const Vector2& scale, int material);
-	LevelSoftBody(SoftBodyInfo *exBody, World *mWorld, const Vector2& pos, float angle, const Vector2& scale, int material);
 
-	LevelSoftBody(std::string fileName, World *mWorld, ObjectInfo objectInfo);
 	LevelSoftBody(const SoftBodyInfo& softBodyInfo, World *mWorld, ObjectInfo objectInfo);
 	LevelSoftBody(LevelSoftBody *exBody, World *mWorld, ObjectInfo objectInfo);
 
@@ -80,7 +78,7 @@ public:
 	const AABB& GetIgnoreAABB();
 
 	std::string GetName() const;
-	glm::vec2 GetStartPosition();
+	Vector2f GetStartPosition();
 
 	void SetVisible(bool visible);
 	bool IsVisible();
@@ -90,11 +88,11 @@ public:
 
 	void SetTextureRect(const TextureRect& rect);
 	void SetTexture(Texture* texture);
-	void SetLineColor(glm::vec4 color);
+	void SetLineColor(Vector4f color);
 
-	void Draw(glm::mat4 &proj);
+	void Draw(Matrix4f& proj);
 
-	ObjectInfo m_objectInfo;
+	
 };
 
 #endif

@@ -12,20 +12,9 @@ Car::Car(std::string xmlFile, World *mWorld, const Vector2& pos, int chassisMat,
 
 	TransformStatus = Car::Normal;
 
-	//loac car file
-	std::ifstream is(xmlFile, std::ifstream::in);
-
-	is.seekg(0, is.end);
-	std::streamoff length = is.tellg();
-	is.seekg(0, is.beg);
-
-	unsigned char* buffer = new unsigned char[length];
-	is.read(reinterpret_cast<char*>(buffer), length);
-	is.close();
-
 	//load data
-	TiXmlDocument doc;
-	if (!doc.LoadContent(buffer, static_cast<int>(length))) {
+	TiXmlDocument doc(xmlFile.c_str());
+	if (!doc.LoadFile()) {
 		return;
 	}
 
@@ -333,7 +322,7 @@ void Car::SetTireTextures(Texture* small, Texture* big)
 	bigTireTexture = big;
 }
 
-void Car::Draw(glm::mat4 &proj)
+void Car::Draw(Matrix4f& proj)
 {
 	if (!mChassis->smallBig)
 	{

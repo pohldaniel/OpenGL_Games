@@ -90,7 +90,6 @@ public:
 	const float getLevelLine() const;
 	Vector2 getCarStartPos();
 
-	void loadCar(const std::string path);
 	void loadLevel(const std::string path);
 	void loadXmlLevel(const std::string path);
 	void loadCompiledLevel(const std::string path);
@@ -114,8 +113,7 @@ private:
 
 	const std::vector<std::string> sceneFilesFromLevelInfos(const std::vector<SceneInfo>& levelInfos);
 	const std::vector<std::string> thumbFilesFromLevelInfos(const std::vector<SceneInfo>& levelInfos);
-
-	std::vector<std::string> mergeAlternately(std::vector<std::string> a, std::vector<std::string> b, std::vector<std::string> c, std::vector<std::string> d);
+	
 
 	std::vector<SkinInfo> m_carSkins;
 	std::vector<std::string> m_sceneFiles;
@@ -133,6 +131,8 @@ private:
 	std::vector<SoftBodyInfo> m_softBodyInfos;
 
 	AABB m_worldLimits;
+
+	static void RemoveDuplicates(std::vector<LevelSoftBody*> &vector);
 };
 
 

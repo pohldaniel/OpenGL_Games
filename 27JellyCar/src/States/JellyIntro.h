@@ -4,13 +4,10 @@
 #include <engine/input/KeyboardEventListener.h>
 #include <States/StateMachine.h>
 
-#include <glm/gtc/matrix_transform.hpp>
-
 #include "Car/Car.h"
 #include "Levels/LevelSoftBody.h"
 #include "JellyPhysics/World.h"
 #include "Loadingmanager.h"
-
 
 class JellyIntro : public State {
 
@@ -39,8 +36,6 @@ private:
 	std::vector<LevelSoftBody*> m_gameBodies;
 	World* m_world;
 	Car* m_car;
-
-	glm::mat4 m_jellyProjection;
-
+	Matrix4f m_jellyProjection;
 	Vector2 m_levelTarget;
 };

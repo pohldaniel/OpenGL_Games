@@ -2,7 +2,7 @@
 #define Chassis_H
 
 #include <engine/Texture.h>
-#include <glm/gtc/matrix_transform.hpp>
+#include <engine/Vector.h>
 
 #include "JellyPhysics/JellyPhysics.h"
 using namespace JellyPhysics;
@@ -18,7 +18,6 @@ public:
 	Mesh* _vertexObject;
 	Mesh* _texturedObject;
 
-	glm::vec4 _color;
 	bool _created;
 
 	bool _useNearestGravity;
@@ -75,7 +74,7 @@ public:
 	void AddPoly(int a, int b, int c);
 	void EndPolys();
 
-	void Draw(glm::mat4 &proj, Texture* texture);
+	void Draw(Matrix4f& proj, Texture* texture);
 
 };
 

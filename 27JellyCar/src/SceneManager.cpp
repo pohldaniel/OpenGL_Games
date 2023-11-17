@@ -54,6 +54,52 @@ const std::string& Scene::getScenesPath() const {
 	return m_scenesPath;
 }
 
+const std::vector<ObjectInfo>& Scene::getObjectInfos() const {
+	return m_objectInfos;
+}
+
+const std::vector<SoftBodyInfo>& Scene::getSoftBodyInfos() const {
+	return m_softBodyInfos;
+}
+
+const CarInfo& Scene::getCarInfo() const {
+	return m_carInfo;
+}
+
+const LevelInfo& Scene::getLevelInfo() const {
+	return m_levelInfo;
+}
+
+const Vector2 Scene::getWorldCenter() const {
+	float x = (((m_worldLimits.Max.X - m_worldLimits.Min.X) / 2) + m_worldLimits.Min.X);
+	float y = (((m_worldLimits.Max.Y - m_worldLimits.Min.Y) / 2) + m_worldLimits.Min.Y);
+
+	return Vector2(x, y);
+}
+
+const Vector2 Scene::getWorldSize() const {
+	float x = (m_worldLimits.Max.X - m_worldLimits.Min.X);
+	float y = (m_worldLimits.Max.Y - m_worldLimits.Min.Y);
+
+	return Vector2(x, y);
+}
+
+const AABB Scene::getWorldLimits() const {
+	return m_worldLimits;
+}
+
+const Vector2 Scene::getLevelTarget() const {
+	return Vector2(m_levelInfo.finishX, m_levelInfo.finishY);
+}
+
+const float Scene::getLevelLine() const {
+	return m_levelInfo.fallLine;
+}
+
+Vector2 Scene::getCarStartPos() {
+	return  Vector2(m_carInfo.posX, m_carInfo.posY);
+}
+
 void Scene::loadCarSkins(std::string path) {
 	if (m_init) return;
 	
@@ -104,7 +150,6 @@ void Scene::loadSceneInfo(std::string path) {
 		info.jump = 0.0f;
 
 		m_sceneInfos.push_back(info);
-
 	}
 
 	m_sceneFiles = sceneFilesFromLevelInfos(m_sceneInfos);
@@ -188,43 +233,61 @@ const std::vector<std::string> Scene::thumbFilesFromLevelInfos(const std::vector
 	return thumbs;
 }
 
-std::vector<std::string> Scene::mergeAlternately(std::vector<std::string> a, std::vector<std::string> b, std::vector<std::string> c, std::vector<std::string> d) {
-	std::vector<std::string> result;
+void Scene::buildLevel(World *world, std::vector<LevelSoftBody*>& gameBodies) {
+	m_worldLimits.clear();
 
-	auto v1 = a.begin();
-	auto v2 = b.begin();
-	auto v3 = c.begin();
-	auto v4 = d.begin();
+	for (auto objectInfo : m_objectInfos) {
 
+		SoftBodyInfo softBody = *std::find_if(m_softBodyInfos.begin(), m_softBodyInfos.end(), [&](const SoftBodyInfo m) -> bool {
+			return strcmp(m.softBodyAttributes.name, objectInfo.name) == 0;
+		});
+		LevelSoftBody* gameBody = new LevelSoftBody(softBody, world, objectInfo);
 
-	while (v1 != a.end() && v2 != b.end() && v2 != c.end() && v2 != d.end()){
-		result.push_back(*v1);
-		result.push_back(*v2);
-		result.push_back(*v2);
-		result.push_back(*v3);
-		++v1;
-		++v2;
-		++v3;
-		++v4;
-	}
-	// if both the vectors have the same size we would be finished 
-	/*if (v1 != a.end()) // v1 is the longer one
-	{
-		while (v1 != a.end())
-		{
-			result.push_back(*v1);
-			++v1;
+		//ballon and tire item
+		if (gameBody->GetName() == "itemballoon" || gameBody->GetName() == "itemstick") {
+			gameBody->SetVisible(false);
 		}
-	}
-	if (v2 != b.end()) // v2 is the longer one
-	{
-		while (v2 != b.end())
-		{
-			result.push_back(*v2);
-			++v2;
+
+		gameBodies.push_back(gameBody);
+
+		Body* body = gameBody->GetBody();
+
+		if (objectInfo.isPlatform) {
+			Vector2 end(objectInfo.posX, objectInfo.posY);
+
+			end.X += objectInfo.offsetX;
+			end.Y += objectInfo.offsetY;
+			float seconds = objectInfo.secondsPerLoop;
+			float offset = objectInfo.startOffset;
+
+			gameBody->AddKinematicControl(new KinematicPlatform(body, Vector2(objectInfo.posX, objectInfo.posY), end, seconds, offset));
+
+			if (offset != 0.0f) {
+				Vector2 newPos = Vector2(objectInfo.posX, objectInfo.posY).lerp(end, 0.5f + (sinf((PI / 2.0f) + (PI*2.0*offset))*0.5f));
+				body->setPositionAngle(newPos, VectorTools::degToRad(objectInfo.angle), Vector2(objectInfo.scaleX, objectInfo.scaleY));
+			}
 		}
-	}*/
-	return result;
+
+		if (objectInfo.isMotor) {
+			float rps = objectInfo.radiansPerSecond;
+			gameBody->AddKinematicControl(new KinematicMotor(body, rps));
+		}
+
+		body->updateAABB(0.0f, true);
+
+		m_worldLimits.expandToInclude(body->getAABB().Min);
+		m_worldLimits.expandToInclude(body->getAABB().Max);
+
+		// finalize this one!
+		gameBody->Finalize();
+	}
+
+	//very important to set this at the end...
+	world->setWorldLimits(m_worldLimits.Min, m_worldLimits.Max);
+}
+
+void Scene::buildCar(World *world, Car*& car, const std::string& carFileName) {
+	car = new Car(carFileName, world, Vector2(m_carInfo.posX, m_carInfo.posY), 2, 3);
 }
 
 void Scene::loadLevel(const std::string path) {
@@ -232,160 +295,6 @@ void Scene::loadLevel(const std::string path) {
 		loadCompiledLevel(m_scenesPath + path);
 	else
 		loadXmlLevel(m_scenesPath + path);
-}
-
-void Scene::SaveScores(const std::string path, const std::vector<SceneInfo>& levelInfos) {
-	TiXmlDocument doc;
-	TiXmlDeclaration* decl = new TiXmlDeclaration("1.0", "", "");
-	doc.LinkEndChild(decl);
-
-	//root
-	TiXmlElement * root = new TiXmlElement("Levels");
-	doc.LinkEndChild(root);
-
-	for (int i = 0; i < levelInfos.size(); i++) {
-		TiXmlElement * cxn = new TiXmlElement("Level");
-		root->LinkEndChild(cxn);
-		cxn->SetAttribute("name", levelInfos[i].name.c_str());
-		cxn->SetAttribute("id", i);
-		cxn->SetFloatAttribute("score", levelInfos[i].time);
-		cxn->SetFloatAttribute("jump", levelInfos[i].jump);
-	}
-
-	doc.SaveFile(path.c_str());
-}
-
-void removeDuplicates(std::vector<LevelSoftBody*> &v) {
-	for (std::vector<LevelSoftBody*>::iterator itei = v.begin(); itei != v.end(); itei++) {
-		LevelSoftBody* ch = *itei;
-		for (std::vector<LevelSoftBody*>::iterator itej = itei + 1; itej != v.end(); itej++) {
-			if (ch->GetName().compare((*itej)->GetName()) == 0) {
-				v.erase(itej);
-				--itei;
-				break;
-			}
-		}
-	}
-}
-
-void Scene::SaveLevel(const std::string path, const std::vector<ObjectInfo>& objectInfos, std::vector<LevelSoftBody*>& bodies, const Vector2& carPos, const Vector2& target, const float fallLine, const std::string levelName) {
-	
-	removeDuplicates(bodies);
-
-	TiXmlDocument doc;
-	//TiXmlDeclaration* decl = new TiXmlDeclaration("1.0", "", "");
-	//doc.LinkEndChild(decl);
-	TiXmlElement * root = new TiXmlElement("Scene");
-	root->SetAttribute("name", levelName.c_str());
-	TiXmlNode* objectsNode = root->LinkEndChild(new TiXmlElement("Objects"));
-
-	for (int i = 0; i < objectInfos.size(); i++) {
-		TiXmlElement * objectNode = new TiXmlElement("Object");
-		objectsNode->LinkEndChild(objectNode);
-		objectNode->SetAttribute("name", objectInfos[i].name);
-		objectNode->SetFloatAttribute("posX", objectInfos[i].posX);
-		objectNode->SetFloatAttribute("posY", objectInfos[i].posY);
-		objectNode->SetFloatAttribute("angle", objectInfos[i].angle);
-		objectNode->SetFloatAttribute("scaleX", objectInfos[i].scaleX);
-		objectNode->SetFloatAttribute("scaleY", objectInfos[i].scaleY);
-		objectNode->SetAttribute("material", objectInfos[i].material);
-
-		if (objectInfos[i].isMotor || objectInfos[i].isPlatform) {
-			TiXmlElement * kninematicControlsNode = new TiXmlElement("KinematicControls");
-			objectNode->LinkEndChild(kninematicControlsNode);
-			if (objectInfos[i].isMotor) {
-				TiXmlElement * motorNode = new TiXmlElement("Motor");
-				kninematicControlsNode->LinkEndChild(motorNode);
-				motorNode->SetFloatAttribute("radiansPerSecond", objectInfos[i].radiansPerSecond);
-			}
-
-			if (objectInfos[i].isPlatform) {
-				TiXmlElement * platformMotionNode = new TiXmlElement("PlatformMotion");
-				kninematicControlsNode->LinkEndChild(platformMotionNode);
-				platformMotionNode->SetFloatAttribute("offsetX", objectInfos[i].offsetX);
-				platformMotionNode->SetFloatAttribute("offsetY", objectInfos[i].offsetY);
-				platformMotionNode->SetFloatAttribute("secondsPerLoop", objectInfos[i].secondsPerLoop);
-				platformMotionNode->SetFloatAttribute("startOffset", objectInfos[i].startOffset);
-			}
-		}
-	}
-
-	TiXmlNode* softBodiesNode = root->LinkEndChild(new TiXmlElement("SoftBodies"));
-
-	for (int i = 0; i < bodies.size(); i++) {
-		TiXmlElement * softBody = new TiXmlElement("SoftBody");
-		softBodiesNode->LinkEndChild(softBody);
-		
-		
-
-		LevelSoftBody* _body = *std::find_if(bodies.begin(), bodies.end(), [&](const LevelSoftBody* m) -> bool { return m->GetName().compare(bodies[i]->GetName()) == 0; });
-		softBody->SetAttribute("name", _body->m_objectInfo.name);
-		softBody->SetFloatAttribute("massPerPoint", _body->massPerPoint);
-		softBody->SetFloatAttribute("edgeK", _body->edgeK);
-		softBody->SetFloatAttribute("edgeDamping", _body->edgeDamping);
-		softBody->SetFloatAttribute("colorR", _body->colorR);
-		softBody->SetFloatAttribute("colorG", _body->colorG);
-		softBody->SetFloatAttribute("colorB", _body->colorB);
-		softBody->SetAttribute("kinematic", _body->isKinematic ? "True" : "False");
-		softBody->SetAttribute("shapeMatching", _body->shapeMatching ? "True" : "False");
-		softBody->SetAttribute("shapeK", _body->shapeK);
-		softBody->SetAttribute("shapeDamping", _body->shapeDamping);
-		softBody->SetFloatAttribute("velDamping", _body->velDamping);
-
-		if (_body->pressureized) {
-			TiXmlElement * pressure = new TiXmlElement("Pressure");
-			softBody->LinkEndChild(pressure);
-			pressure->SetFloatAttribute("amount", _body->pressure);
-		}
-
-		TiXmlElement * pointsNode= new TiXmlElement("Points");
-		softBody->LinkEndChild(pointsNode);
-
-		/*for (auto point : _body->m_points) {
-			TiXmlElement * pointNode = new TiXmlElement("Point");
-			pointsNode->LinkEndChild(pointNode);
-			pointNode->SetFloatAttribute("x", point.x);
-			pointNode->SetFloatAttribute("y", point.y);
-			pointNode->SetFloatAttribute("mass", point.mass);
-		}
-
-		TiXmlElement * springsNode = new TiXmlElement("Springs");
-		softBody->LinkEndChild(springsNode);
-
-		for (auto spring : _body->m_springs) {
-			TiXmlElement * springNode = new TiXmlElement("Spring");
-			springsNode->LinkEndChild(springNode);
-			springNode->SetAttribute("pt1", spring.pt1);
-			springNode->SetAttribute("pt2", spring.pt2);
-			springNode->SetFloatAttribute("k", spring.k);
-			springNode->SetFloatAttribute("damp", spring.damp);		
-		}
-
-		TiXmlElement * polygonsNode = new TiXmlElement("Polygons");
-		softBody->LinkEndChild(polygonsNode);
-
-		for (auto triangle : _body->m_triangles) {
-			TiXmlElement *polygonNode = new TiXmlElement("Poly");
-			polygonsNode->LinkEndChild(polygonNode);
-			polygonNode->SetAttribute("pt0", triangle.pt0);
-			polygonNode->SetAttribute("pt1", triangle.pt1);
-			polygonNode->SetFloatAttribute("pt2", triangle.pt2);
-		}*/
-	}
-
-	TiXmlElement* carNode = root->LinkEndChild(new TiXmlElement("Car"))->ToElement();
-	carNode->SetAttribute("name", "car_and_truck");
-	carNode->SetFloatAttribute("posX", carPos.X);
-	carNode->SetFloatAttribute("posY", carPos.Y);
-
-	
-	TiXmlElement* settingsNode = root->LinkEndChild(new TiXmlElement("Settings"))->ToElement();
-	settingsNode->SetFloatAttribute("finishX", target.X);
-	settingsNode->SetFloatAttribute("finishY", target.Y);
-	settingsNode->SetFloatAttribute("fallLine", fallLine);
-
-	doc.LinkEndChild(root);
-	doc.SaveFile(path.c_str());
 }
 
 void Scene::loadXmlLevel(const std::string path) {
@@ -774,8 +683,6 @@ void Scene::saveCompiledLevel(const std::string path) {
 
 void Scene::saveLevel(const std::string path) {
 	TiXmlDocument doc;
-	//TiXmlDeclaration* decl = new TiXmlDeclaration("1.0", "", "");
-	//doc.LinkEndChild(decl);
 	TiXmlElement * root = new TiXmlElement("Scene");
 	root->SetAttribute("name", m_name.c_str());
 	TiXmlNode* objectsNode = root->LinkEndChild(new TiXmlElement("Objects"));
@@ -885,111 +792,154 @@ void Scene::saveLevel(const std::string path) {
 	doc.SaveFile(path.c_str());
 }
 
-void Scene::loadCar(const std::string path) {
-
-}
-
-const std::vector<ObjectInfo>& Scene::getObjectInfos() const {
-	return m_objectInfos;
-}
-
-const std::vector<SoftBodyInfo>& Scene::getSoftBodyInfos() const {
-	return m_softBodyInfos;
-}
-
-const CarInfo& Scene::getCarInfo() const {
-	return m_carInfo;
-}
-
-const LevelInfo& Scene::getLevelInfo() const {
-	return m_levelInfo;
-}
-
-void Scene::buildLevel(World *world, std::vector<LevelSoftBody*>& gameBodies) {
-	m_worldLimits.clear();
-
-	for (auto objectInfo : m_objectInfos) {
-
-		SoftBodyInfo softBody = *std::find_if(m_softBodyInfos.begin(), m_softBodyInfos.end(), [&](const SoftBodyInfo m) -> bool {
-			return strcmp(m.softBodyAttributes.name, objectInfo.name) == 0;
-		});
-		LevelSoftBody* gameBody = new LevelSoftBody(softBody, world, objectInfo);
-
-		//ballon and tire item
-		if (gameBody->GetName() == "itemballoon" || gameBody->GetName() == "itemstick") {
-			gameBody->SetVisible(false);
-		}
-
-		gameBodies.push_back(gameBody);
-
-		Body* body = gameBody->GetBody();
-
-		if (objectInfo.isPlatform) {
-			Vector2 end(objectInfo.posX, objectInfo.posY);
-
-			end.X += objectInfo.offsetX;
-			end.Y += objectInfo.offsetY;
-			float seconds = objectInfo.secondsPerLoop;
-			float offset = objectInfo.startOffset;
-
-			gameBody->AddKinematicControl(new KinematicPlatform(body, Vector2(objectInfo.posX, objectInfo.posY), end, seconds, offset));
-
-			if (offset != 0.0f) {
-				Vector2 newPos = Vector2(objectInfo.posX, objectInfo.posY).lerp(end, 0.5f + (sinf((PI / 2.0f) + (PI*2.0*offset))*0.5f));
-				body->setPositionAngle(newPos, VectorTools::degToRad(objectInfo.angle), Vector2(objectInfo.scaleX, objectInfo.scaleY));
+void Scene::RemoveDuplicates(std::vector<LevelSoftBody*> &vector) {
+	for (std::vector<LevelSoftBody*>::iterator itei = vector.begin(); itei != vector.end(); itei++) {
+		LevelSoftBody* ch = *itei;
+		for (std::vector<LevelSoftBody*>::iterator itej = itei + 1; itej != vector.end(); itej++) {
+			if (ch->GetName().compare((*itej)->GetName()) == 0) {
+				vector.erase(itej);
+				--itei;
+				break;
 			}
 		}
+	}
+}
 
-		if (objectInfo.isMotor) {
-			float rps = objectInfo.radiansPerSecond;
-			gameBody->AddKinematicControl(new KinematicMotor(body, rps));
+void Scene::SaveLevel(const std::string path, const std::vector<ObjectInfo>& objectInfos, std::vector<LevelSoftBody*>& bodies, const Vector2& carPos, const Vector2& target, const float fallLine, const std::string levelName) {
+
+	RemoveDuplicates(bodies);
+
+	TiXmlDocument doc;
+	TiXmlElement * root = new TiXmlElement("Scene");
+	root->SetAttribute("name", levelName.c_str());
+	TiXmlNode* objectsNode = root->LinkEndChild(new TiXmlElement("Objects"));
+
+	for (int i = 0; i < objectInfos.size(); i++) {
+		TiXmlElement * objectNode = new TiXmlElement("Object");
+		objectsNode->LinkEndChild(objectNode);
+		objectNode->SetAttribute("name", objectInfos[i].name);
+		objectNode->SetFloatAttribute("posX", objectInfos[i].posX);
+		objectNode->SetFloatAttribute("posY", objectInfos[i].posY);
+		objectNode->SetFloatAttribute("angle", objectInfos[i].angle);
+		objectNode->SetFloatAttribute("scaleX", objectInfos[i].scaleX);
+		objectNode->SetFloatAttribute("scaleY", objectInfos[i].scaleY);
+		objectNode->SetAttribute("material", objectInfos[i].material);
+
+		if (objectInfos[i].isMotor || objectInfos[i].isPlatform) {
+			TiXmlElement * kninematicControlsNode = new TiXmlElement("KinematicControls");
+			objectNode->LinkEndChild(kninematicControlsNode);
+			if (objectInfos[i].isMotor) {
+				TiXmlElement * motorNode = new TiXmlElement("Motor");
+				kninematicControlsNode->LinkEndChild(motorNode);
+				motorNode->SetFloatAttribute("radiansPerSecond", objectInfos[i].radiansPerSecond);
+			}
+
+			if (objectInfos[i].isPlatform) {
+				TiXmlElement * platformMotionNode = new TiXmlElement("PlatformMotion");
+				kninematicControlsNode->LinkEndChild(platformMotionNode);
+				platformMotionNode->SetFloatAttribute("offsetX", objectInfos[i].offsetX);
+				platformMotionNode->SetFloatAttribute("offsetY", objectInfos[i].offsetY);
+				platformMotionNode->SetFloatAttribute("secondsPerLoop", objectInfos[i].secondsPerLoop);
+				platformMotionNode->SetFloatAttribute("startOffset", objectInfos[i].startOffset);
+			}
 		}
-
-		body->updateAABB(0.0f, true);
-
-		m_worldLimits.expandToInclude(body->getAABB().Min);
-		m_worldLimits.expandToInclude(body->getAABB().Max);
-
-		// finalize this one!
-		gameBody->Finalize();
 	}
 
-	//very important to set this at the end...
-	world->setWorldLimits(m_worldLimits.Min, m_worldLimits.Max);
+	TiXmlNode* softBodiesNode = root->LinkEndChild(new TiXmlElement("SoftBodies"));
+
+	for (int i = 0; i < bodies.size(); i++) {
+		TiXmlElement * softBody = new TiXmlElement("SoftBody");
+		softBodiesNode->LinkEndChild(softBody);
+
+		LevelSoftBody* body = *std::find_if(bodies.begin(), bodies.end(), [&](const LevelSoftBody* m) -> bool { return m->GetName().compare(bodies[i]->GetName()) == 0; });
+		softBody->SetAttribute("name", body->m_objectInfo.name);
+		softBody->SetFloatAttribute("massPerPoint", body->massPerPoint);
+		softBody->SetFloatAttribute("edgeK", body->edgeK);
+		softBody->SetFloatAttribute("edgeDamping", body->edgeDamping);
+		softBody->SetFloatAttribute("colorR", body->colorR);
+		softBody->SetFloatAttribute("colorG", body->colorG);
+		softBody->SetFloatAttribute("colorB", body->colorB);
+		softBody->SetAttribute("kinematic", body->isKinematic ? "True" : "False");
+		softBody->SetAttribute("shapeMatching", body->shapeMatching ? "True" : "False");
+		softBody->SetAttribute("shapeK", body->shapeK);
+		softBody->SetAttribute("shapeDamping", body->shapeDamping);
+		softBody->SetFloatAttribute("velDamping", body->velDamping);
+
+		if (body->pressureized) {
+			TiXmlElement * pressure = new TiXmlElement("Pressure");
+			softBody->LinkEndChild(pressure);
+			pressure->SetFloatAttribute("amount", body->pressure);
+		}
+
+		TiXmlElement * pointsNode = new TiXmlElement("Points");
+		softBody->LinkEndChild(pointsNode);
+
+		for (auto point : body->m_softBodyInfo.points) {
+			TiXmlElement * pointNode = new TiXmlElement("Point");
+			pointsNode->LinkEndChild(pointNode);
+			pointNode->SetFloatAttribute("x", point.x);
+			pointNode->SetFloatAttribute("y", point.y);
+			pointNode->SetFloatAttribute("mass", point.mass);
+		}
+
+		TiXmlElement * springsNode = new TiXmlElement("Springs");
+		softBody->LinkEndChild(springsNode);
+
+		for (auto spring : body->m_softBodyInfo.springs) {
+			TiXmlElement * springNode = new TiXmlElement("Spring");
+			springsNode->LinkEndChild(springNode);
+			springNode->SetAttribute("pt1", spring.pt1);
+			springNode->SetAttribute("pt2", spring.pt2);
+			springNode->SetFloatAttribute("k", spring.k);
+			springNode->SetFloatAttribute("damp", spring.damp);
+		}
+
+		TiXmlElement * polygonsNode = new TiXmlElement("Polygons");
+		softBody->LinkEndChild(polygonsNode);
+
+		for (auto triangle : body->m_softBodyInfo.polygons) {
+			TiXmlElement *polygonNode = new TiXmlElement("Poly");
+			polygonsNode->LinkEndChild(polygonNode);
+			polygonNode->SetAttribute("pt0", triangle.pt0);
+			polygonNode->SetAttribute("pt1", triangle.pt1);
+			polygonNode->SetFloatAttribute("pt2", triangle.pt2);
+		}
+	}
+
+	TiXmlElement* carNode = root->LinkEndChild(new TiXmlElement("Car"))->ToElement();
+	carNode->SetAttribute("name", "car_and_truck");
+	carNode->SetFloatAttribute("posX", carPos.X);
+	carNode->SetFloatAttribute("posY", carPos.Y);
+
+
+	TiXmlElement* settingsNode = root->LinkEndChild(new TiXmlElement("Settings"))->ToElement();
+	settingsNode->SetFloatAttribute("finishX", target.X);
+	settingsNode->SetFloatAttribute("finishY", target.Y);
+	settingsNode->SetFloatAttribute("fallLine", fallLine);
+
+	doc.LinkEndChild(root);
+	doc.SaveFile(path.c_str());
 }
 
-void Scene::buildCar(World *world, Car*& car, const std::string& carFileName) {
-	car = new Car(carFileName, world, Vector2(m_carInfo.posX, m_carInfo.posY), 2, 3);
-}
+void Scene::SaveScores(const std::string path, const std::vector<SceneInfo>& levelInfos) {
+	TiXmlDocument doc;
+	TiXmlDeclaration* decl = new TiXmlDeclaration("1.0", "", "");
+	doc.LinkEndChild(decl);
 
-const Vector2 Scene::getWorldCenter() const {
-	float x = (((m_worldLimits.Max.X - m_worldLimits.Min.X) / 2) + m_worldLimits.Min.X);
-	float y = (((m_worldLimits.Max.Y - m_worldLimits.Min.Y) / 2) + m_worldLimits.Min.Y);
+	//root
+	TiXmlElement * root = new TiXmlElement("Levels");
+	doc.LinkEndChild(root);
 
-	return Vector2(x, y);
-}
+	for (int i = 0; i < levelInfos.size(); i++) {
+		TiXmlElement * cxn = new TiXmlElement("Level");
+		root->LinkEndChild(cxn);
+		cxn->SetAttribute("name", levelInfos[i].name.c_str());
+		cxn->SetAttribute("id", i);
+		cxn->SetFloatAttribute("score", levelInfos[i].time);
+		cxn->SetFloatAttribute("jump", levelInfos[i].jump);
+	}
 
-const Vector2 Scene::getWorldSize() const {
-	float x = (m_worldLimits.Max.X - m_worldLimits.Min.X);
-	float y = (m_worldLimits.Max.Y - m_worldLimits.Min.Y);
-
-	return Vector2(x, y);
-}
-
-const AABB Scene::getWorldLimits() const {
-	return m_worldLimits;
-}
-
-const Vector2 Scene::getLevelTarget() const {
-	return Vector2(m_levelInfo.finishX, m_levelInfo.finishY);
-}
-
-const float Scene::getLevelLine() const {
-	return m_levelInfo.fallLine;
-}
-
-Vector2 Scene::getCarStartPos() {
-	return  Vector2(m_carInfo.posX, m_carInfo.posY);
+	doc.SaveFile(path.c_str());
 }
 
 void Scene::InitPhysic(World *world) {

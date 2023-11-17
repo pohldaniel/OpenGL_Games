@@ -3,7 +3,7 @@
 
 #include <engine/Rect.h>
 #include <engine/Texture.h>
-#include <glm/gtc/matrix_transform.hpp>
+#include <engine/Vector.h>
 
 #include "Mesh.h"
 #include "JellyPhysics/JellyPhysics.h"
@@ -16,8 +16,8 @@ namespace JellyPhysics
 
 		Mesh* _vertexObject;
 		Mesh* _shapeObject;
-		glm::vec4 _color;
-		glm::vec4 _lineColor;
+		Vector4f _color;
+		Vector4f _lineColor;
 		bool _created;
 		std::vector<Vector2>	shape;
 
@@ -38,9 +38,9 @@ namespace JellyPhysics
 
 		void SetTextureRect(const TextureRect& rect);
 		void SetTexture(Texture* texture);
-		void SetLineColor(glm::vec4 color);
+		void SetLineColor(Vector4f color);
 
-		void Draw(glm::mat4 &proj, int *mIndices, int mIndicesCount, float  R, float  G, float B);
+		void Draw(Matrix4f& proj, int *mIndices, int mIndicesCount, float  R, float  G, float B);
 	};
 }
 

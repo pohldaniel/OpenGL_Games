@@ -27,12 +27,12 @@ JellyOptions::JellyOptions(StateMachine& machine) : State(machine, States::JELLY
 
 	m_world = new World();
 
-	SceneManager::Get().getScene("scene").InitPhysic(m_world);
+	Scene::InitPhysic(m_world);
 	SceneManager::Get().getScene("scene").loadCompiledLevel("options_scene.scene");
 	SceneManager::Get().getScene("scene").buildLevel(m_world, m_gameBodies);
 
 	m_screenBounds = Vector4f(-20.0f + 0, 0 + 20.0f, -4.2f - 5, -5 + 18.2f);
-	m_jellyProjection = glm::ortho(-20.0f + 0, 0 + 20.0f, -4.2f - 5, -5 + 18.2f, -1.0f, 1.0f);
+	m_jellyProjection = Matrix4f::Orthographic(-20.0f + 0, 0 + 20.0f, -4.2f - 5, -5 + 18.2f, -1.0f, 1.0f);
 
 	//TileSetManager::Get().getTileSet("options").loadTileSet({
 	//		"Assets/Jelly/Options/credits.png",
@@ -324,11 +324,11 @@ void JellyOptions::render() {
 		renderBackground();
 
 		for (size_t i = 0; i < m_gameBodies.size(); i++) {
-			m_gameBodies[i]->SetLineColor(glm::vec4(0, 0, 0, 1.0f));
+			m_gameBodies[i]->SetLineColor(Vector4f(0, 0, 0, 1.0f));
 		}
 
 		//set alpha value for selected menu
-		m_menuBodies[m_menuBodySelected]->SetLineColor(glm::vec4(0, 0, 1, m_alphaScale));
+		m_menuBodies[m_menuBodySelected]->SetLineColor(Vector4f(0, 0, 1, m_alphaScale));
 
 		//menu level
 		for (size_t i = 0; i < m_gameBodies.size(); i++) {

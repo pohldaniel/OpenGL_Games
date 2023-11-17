@@ -1,7 +1,7 @@
 #ifndef GameBallonBody_H
 #define GameBallonBody_H
 
-#include <glm/gtc/matrix_transform.hpp>
+#include <engine/Vector.h>
 
 #include "JellyPhysics/JellyPhysics.h"
 using namespace JellyPhysics;
@@ -16,7 +16,6 @@ private:
 
 	Mesh* _vertexObject;
 	Mesh* _shapeObject;
-	glm::vec4 _color;
 	bool _created;
 
 	std::vector<int> mIndexList;
@@ -57,7 +56,7 @@ public:
 
 	void SetBallonPosition(Vector2 pos, Vector2 velocity);
 
-	void Draw(glm::mat4 &proj);
+	void Draw(Matrix4f& proj);
 };
 
 #endif 

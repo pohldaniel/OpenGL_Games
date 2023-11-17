@@ -66,9 +66,9 @@ JellyGame::JellyGame(StateMachine& machine, std::string sceneName) : State(machi
 	m_levelName = SceneManager::Get().getScene(m_sceneName).getCurrentSceneInfo().name;
 
 	m_world = new World();
+	Scene::InitPhysic(m_world);
 
 	Scene& scene = SceneManager::Get().getScene(m_sceneName);
-	scene.InitPhysic(m_world);
 	scene.loadLevel(m_sceneFile);
 	scene.buildLevel(m_world, m_gameBodies);
 	scene.buildCar(m_world, m_car, "Assets/Jelly/car_and_truck.car");
@@ -418,7 +418,7 @@ void JellyGame::renderScene() {
 	//render level bodies
 	for (size_t i = 0; i < m_gameBodies.size(); i++) {
 		if (m_showMap) {
-			m_gameBodies[i]->Draw(GlmFromMatrix(m_camera.getOrthographicMatrix() * m_camera.getViewMatrix()));
+			m_gameBodies[i]->Draw(m_camera.getOrthographicMatrix() * m_camera.getViewMatrix());
 
 			if (ignoreAABB.intersects(m_gameBodies[i]->GetIgnoreAABB())) {
 				m_gameBodies[i]->SetIgnore(false);
@@ -433,7 +433,7 @@ void JellyGame::renderScene() {
 				m_gameBodies[i]->SetIgnore(false);
 
 				if (m_gameBodies[i]->GetIgnoreAABB().intersects(camAABB)) {
-					m_gameBodies[i]->Draw(GlmFromMatrix(m_camera.getOrthographicMatrix() * m_camera.getViewMatrix()));
+					m_gameBodies[i]->Draw(m_camera.getOrthographicMatrix() * m_camera.getViewMatrix());
 				}
 			}else {
 				m_gameBodies[i]->SetIgnore(true);
@@ -442,7 +442,7 @@ void JellyGame::renderScene() {
 	}
 
 	//car
-	m_car->Draw(GlmFromMatrix(m_camera.getOrthographicMatrix() * m_camera.getViewMatrix()));
+	m_car->Draw(m_camera.getOrthographicMatrix() * m_camera.getViewMatrix());
 
 	//ballon - tire
 	for (size_t i = 0; i < m_gameBodies.size(); i++) {
@@ -758,17 +758,6 @@ bool JellyGame::collisionFilter(Body* bodyA, int bodyApm, Body* bodyB, int bodyB
 	}
 
 	return true;
-}
-
-glm::mat4 JellyGame::GlmFromMatrix(const Matrix4f& _m) {
-	glm::mat4 m;
-
-	m[0][0] = _m[0][0]; m[0][1] = _m[0][1]; m[0][2] = _m[0][2]; m[0][3] = _m[0][3];
-	m[1][0] = _m[1][0]; m[1][1] = _m[1][1]; m[1][2] = _m[1][2]; m[1][3] = _m[1][3];
-	m[2][0] = _m[2][0]; m[2][1] = _m[2][1]; m[2][2] = _m[2][2]; m[2][3] = _m[2][3];
-	m[3][0] = _m[3][0]; m[3][1] = _m[3][1]; m[3][2] = _m[3][2]; m[3][3] = _m[3][3];
-
-	return m;
 }
 
 void JellyGame::spawnAtCheckpoint() {

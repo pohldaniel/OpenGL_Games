@@ -5,8 +5,6 @@
 #include <engine/Framebuffer.h>
 #include <States/StateMachine.h>
 
-#include <glm/gtc/matrix_transform.hpp>
-
 #include "Car/Car.h"
 #include "Levels/LevelSoftBody.h"
 #include "JellyPhysics/World.h"
@@ -102,6 +100,4 @@ private:
 
 	Matrix4f m_orthographic;
 	Camera m_camera;
-
-	static glm::mat4 GlmFromMatrix(const Matrix4f& m);
 };

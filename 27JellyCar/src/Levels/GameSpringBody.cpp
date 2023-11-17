@@ -18,8 +18,8 @@ GameSpringBody::GameSpringBody(World* w, const ClosedShape& shape, float massPer
 
 	_shapeObject = 0;
 
-	_color = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-	_lineColor = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+	_color = Vector4f(0.0f, 0.0f, 0.0f, 1.0f);
+	_lineColor = Vector4f(0.0f, 0.0f, 0.0f, 1.0f);
 
 	_created = false;
 
@@ -43,8 +43,8 @@ GameSpringBody::GameSpringBody(World* w, const ClosedShape& shape, float massPer
 
 	_shapeObject = 0;
 
-	_color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-	_lineColor = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+	_color = Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
+	_lineColor = Vector4f(0.0f, 0.0f, 0.0f, 1.0f);
 
 	_created = false;
 
@@ -91,12 +91,12 @@ void GameSpringBody::SetTexture(Texture* texture)
 	m_texture = texture;
 }
 
-void GameSpringBody::SetLineColor(glm::vec4 color)
+void GameSpringBody::SetLineColor(Vector4f color)
 {
 	_lineColor = color;
 }
 
-void GameSpringBody::Draw(glm::mat4 &proj, int *mIndices, int mIndicesCount, float  R, float  G, float B)
+void GameSpringBody::Draw(Matrix4f& proj, int *mIndices, int mIndicesCount, float  R, float  G, float B)
 {
 	if (!_created)
 	{
@@ -145,14 +145,11 @@ void GameSpringBody::Draw(glm::mat4 &proj, int *mIndices, int mIndicesCount, flo
 
 	if (m_texture != 0)
 	{
-		_color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-		JellyHellper::Instance()->DrawTextured(_shapeObject, proj, m_texture, _color);
+		JellyHellper::Instance()->DrawTextured(_shapeObject, proj, m_texture, Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
 	}
 	else
 	{
-
-		_color = glm::vec4(R, G, B, 0.7f);
-		JellyHellper::Instance()->DrawShape(_shapeObject, proj, _color);
+		JellyHellper::Instance()->DrawShape(_shapeObject, proj, Vector4f(R, G, B, 0.7f));
 	}
 	
 	//draw lines

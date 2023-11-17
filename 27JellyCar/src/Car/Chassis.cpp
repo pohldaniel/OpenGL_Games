@@ -22,9 +22,6 @@ Chassis::Chassis(World *w, const ClosedShape& sA, const ClosedShape& sB,
 	_texturedObject->setVertexBufferDrawType(_DynamicDraw);
 	_texturedObject->setVertexType(_Textured);
 
-
-	_color = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-
 	_created = false;
 	_useNearestGravity = false;
 
@@ -276,37 +273,49 @@ void Chassis::GenerateVertices()
 		_vertexObject->createVertices(14);
 
 		//get vertices
-		TextureVertex* _simpleData = static_cast<TextureVertex*>(_vertexObject->getVertices());
+		float* _simpleData = static_cast<float*>(_vertexObject->getVertices());
 
-		_simpleData[0].x = -3.8f;		_simpleData[0].y = -1.6f;		_simpleData[0].z = 0.0f;
-		_simpleData[1].x = -3.8f;		_simpleData[1].y = 0.4f;		_simpleData[1].z = 0.0f;
-		_simpleData[2].x = -2.6f;		_simpleData[2].y = 1.6f;		_simpleData[2].z = 0.0f;
-		_simpleData[3].x = -1.4f;		_simpleData[3].y = 1.6f;		_simpleData[3].z = 0.0f;
-		_simpleData[4].x = 0.0f;		_simpleData[4].y = 1.6f;		_simpleData[4].z = 0.0f;
-		_simpleData[5].x = 1.4f;		_simpleData[5].y = 1.6f;		_simpleData[5].z = 0.0f;
-		_simpleData[6].x = 2.2f;		_simpleData[6].y = 0.4f;		_simpleData[6].z = 0.0f;
-		_simpleData[7].x = 4.2f;		_simpleData[7].y = 0.0f;		_simpleData[7].z = 0.0f;
-		_simpleData[8].x = 3.8f;		_simpleData[8].y = -1.6f;		_simpleData[8].z = 0.0f;
-		_simpleData[9].x = 2.6f;		_simpleData[9].y = -1.6f;		_simpleData[9].z = 0.0f;
-		_simpleData[10].x = 1.4f;		_simpleData[10].y = -1.6f;		_simpleData[10].z = 0.0f;
-		_simpleData[11].x = 0.0f;		_simpleData[11].y = -1.6f;		_simpleData[11].z = 0.0f;
-		_simpleData[12].x = -1.4f;		_simpleData[12].y = -1.6f;		_simpleData[12].z = 0.0f;
-		_simpleData[13].x = -2.6f;		_simpleData[13].y = -1.6f;		_simpleData[13].z = 0.0f;
+		_simpleData[0] = -3.8f; _simpleData[1] = -1.6f;		_simpleData[2] = 0.0f;
+		_simpleData[3] = 0.01f;	_simpleData[4] = 0.975f;
 
-		_simpleData[0].u = 0.01f;	_simpleData[0].v = 0.975f;
-		_simpleData[1].u = 0.01f;	_simpleData[1].v = 0.35f;
-		_simpleData[2].u = 0.172f;  _simpleData[2].v = 0.030f;
-		_simpleData[3].u = 0.3f;	_simpleData[3].v = 0.023f;
-		_simpleData[4].u = 0.449f;  _simpleData[4].v = 0.020f;
-		_simpleData[5].u = 0.601f;  _simpleData[5].v = 0.017f;
-		_simpleData[6].u = 0.75f;	_simpleData[6].v = 0.429f;
-		_simpleData[7].u = 0.99f;	_simpleData[7].v = 0.449f;
-		_simpleData[8].u = 0.96f;	_simpleData[8].v = 0.985f;
-		_simpleData[9].u = 0.804f;  _simpleData[9].v = 0.985f;
-		_simpleData[10].u = 0.644f;  _simpleData[10].v = 0.985f;
-		_simpleData[11].u = 0.484f;  _simpleData[11].v = 0.985f;
-		_simpleData[12].u = 0.324f;  _simpleData[12].v = 0.985f;
-		_simpleData[13].u = 0.164f;  _simpleData[13].v = 0.985f;
+		_simpleData[5] = -3.8f; _simpleData[6] = 0.4f;      _simpleData[7] = 0.0f;
+		_simpleData[8] = 0.01f;	_simpleData[9] = 0.35f;
+
+		_simpleData[10] = -2.6f;  _simpleData[11] = 1.6f;   _simpleData[12] = 0.0f;
+		_simpleData[13] = 0.172f; _simpleData[14] = 0.030f;
+
+		_simpleData[15] = -1.4f; _simpleData[16] = 1.6f;    _simpleData[17] = 0.0f;
+		_simpleData[18] = 0.3f;  _simpleData[19] = 0.023f;
+
+		_simpleData[20] = 0.0f;   _simpleData[21] = 1.6f;   _simpleData[22] = 0.0f;
+		_simpleData[23] = 0.449f; _simpleData[24] = 0.020f;
+
+		_simpleData[25] = 1.4f;   _simpleData[25] = 1.6f;   _simpleData[26] = 0.0f;
+		_simpleData[28] = 0.601f; _simpleData[29] = 0.017f;
+
+		_simpleData[30] = 2.2f;   _simpleData[31] = 0.4f;   _simpleData[32] = 0.0f;
+		_simpleData[33] = 0.75f;  _simpleData[34] = 0.429f;
+
+		_simpleData[35] = 4.2f;   _simpleData[36] = 0.0f;   _simpleData[37] = 0.0f;
+		_simpleData[38] = 0.99f;  _simpleData[39] = 0.449f;
+
+		_simpleData[40] = 3.8f;   _simpleData[41] = -1.6f;	_simpleData[42] = 0.0f;
+		_simpleData[43] = 0.96f;  _simpleData[44] = 0.985f;
+
+		_simpleData[45] = 2.6f;   _simpleData[46] = -1.6f;	_simpleData[47] = 0.0f;
+		_simpleData[48] = 0.804f; _simpleData[49] = 0.985f;
+
+		_simpleData[50] = 1.4f;  _simpleData[51] = -1.6f;	_simpleData[52] = 0.0f;
+		_simpleData[53] = 0.644f;_simpleData[54] = 0.985f;
+
+		_simpleData[55] = 0.0f;  _simpleData[56] = -1.6f;	_simpleData[57] = 0.0f;
+		_simpleData[58] = 0.484f;_simpleData[59] = 0.985f;
+
+		_simpleData[60] = -1.4f; _simpleData[61] = -1.6f;	_simpleData[62] = 0.0f;
+		_simpleData[63] = 0.324f;_simpleData[64] = 0.985f;
+
+		_simpleData[65] = -2.6f; _simpleData[66] = -1.6f;	_simpleData[67] = 0.0f;
+		_simpleData[68] = 0.164f;_simpleData[69] = 0.985f;
 
 		//create indices
 		_vertexObject->createIndices(36);
@@ -333,33 +342,23 @@ void Chassis::GenerateVertices()
 
 }
 
-void Chassis::Draw(glm::mat4 &proj, Texture* texture)
-{
-	if (!_created)
-	{
+void Chassis::Draw(Matrix4f& proj, Texture* texture){
+	if (!_created){
 		JellyHellper::Instance()->UpdateLines(_vertexObject, mPointMasses, true);
 		JellyHellper::Instance()->UpdateTextured(_texturedObject, mPointMasses, mTexture1, mIndices, mIndexCount, true);
 		_created = true;
-	}
-	else
-	{
+
+	}else{
 		JellyHellper::Instance()->UpdateLines(_vertexObject, mPointMasses, false);		
 
-		if (smallBig)
-		{
+		if (smallBig){
 			JellyHellper::Instance()->UpdateTextured(_texturedObject, mPointMasses, mTexture2, mIndices, mIndexCount, false);
-		}
-		else
-		{
+		}else{
 			JellyHellper::Instance()->UpdateTextured(_texturedObject, mPointMasses, mTexture1, mIndices, mIndexCount, false);
-		}
-		
+		}		
 	}
 
-	_color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-	JellyHellper::Instance()->DrawTextured(_texturedObject, proj, texture, _color);
-
-	_color = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-	JellyHellper::Instance()->DrawLines(_vertexObject, proj, _color);
+	JellyHellper::Instance()->DrawTextured(_texturedObject, proj, texture, Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+	JellyHellper::Instance()->DrawLines(_vertexObject, proj, Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
 }
 

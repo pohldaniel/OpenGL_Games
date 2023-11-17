@@ -1,9 +1,8 @@
 #ifndef Car_H
 #define Car_H
 
-#include <fstream>
 #include <engine/Texture.h>
-#include <glm/gtc/matrix_transform.hpp>
+#include <engine/Vector.h>
 
 #include "JellyPhysics/JellyPhysics.h"
 using namespace JellyPhysics;
@@ -70,7 +69,7 @@ public:
 	void SetChassisTextures(Texture* _small, Texture* big);
 	void SetTireTextures(Texture* _small, Texture* big);
 
-	void Draw(glm::mat4 &proj);
+	void Draw(Matrix4f& proj);
 };
 
 #endif 

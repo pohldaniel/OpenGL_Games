@@ -38,8 +38,6 @@ Tire::Tire(World *w, const ClosedShape& s,
 	_texturedObject->setVertexType(_Textured);
 	_texturedObject->setVertexPrimitive(_TriangleFan);
 
-	_color = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-
 	_created = false;
 	_useNearestGravity = false;
 
@@ -154,7 +152,7 @@ void Tire::accumulateExternalForces()
 float Tire::GetDrive() { return drive; }
 float Tire::GetMaxOmega() { return maxOmega; }
 
-void Tire::Draw(glm::mat4 &proj, Texture* texture)
+void Tire::Draw(Matrix4f& proj, Texture* texture)
 {
 	//update blob shape
 	{
@@ -184,9 +182,6 @@ void Tire::Draw(glm::mat4 &proj, Texture* texture)
 		JellyHellper::Instance()->UpdateLines(_vertexObject, mPointMasses, false);
 	}
 
-	_color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-	JellyHellper::Instance()->DrawTextured(_texturedObject, proj, texture, _color);
-
-	_color = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-	JellyHellper::Instance()->DrawLines(_vertexObject, proj, _color);
+	JellyHellper::Instance()->DrawTextured(_texturedObject, proj, texture, Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+	JellyHellper::Instance()->DrawLines(_vertexObject, proj, Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
 }

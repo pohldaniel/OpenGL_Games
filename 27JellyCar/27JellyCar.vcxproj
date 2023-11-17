@@ -88,7 +88,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;ANDROMEDA_GL3;ANDROMEDA_GLFW;ANDROMEDA_PC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;src;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;..\libfreetypegl;..\libtinyxml;glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;src;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;..\libfreetypegl;..\libtinyxml;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4005;</DisableSpecificWarnings>
     </ClCompile>
     <Link>
@@ -105,7 +105,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;ANDROMEDA_GL3;ANDROMEDA_GLFW;ANDROMEDA_PC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;src;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;..\libfreetypegl;..\libtinyxml;glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;src;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;..\libfreetypegl;..\libtinyxml;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4005;</DisableSpecificWarnings>
     </ClCompile>
     <Link>
@@ -124,7 +124,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;ANDROMEDA_GL3;ANDROMEDA_GLFW;ANDROMEDA_PC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;src;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;..\libfreetypegl;..\libtinyxml;glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;src;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;..\libfreetypegl;..\libtinyxml;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <DisableSpecificWarnings>4005;</DisableSpecificWarnings>
     </ClCompile>
@@ -146,7 +146,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;_WINDOWS;_CRT_SECURE_NO_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;ANDROMEDA_GL3;ANDROMEDA_GLFW;ANDROMEDA_PC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;src;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;..\libfreetypegl;..\libtinyxml;glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;src;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;..\libfreetypegl;..\libtinyxml;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <DisableSpecificWarnings>4005;</DisableSpecificWarnings>
     </ClCompile>
@@ -271,28 +271,6 @@
     <ClCompile Include="src\UI\Widget.cpp" />
     <ClCompile Include="src\Utils\SolidIO.cpp" />
     <ClCompile Include="src\Utils\Utils.cpp" />
-    <ClCompile Include="_Andromeda\AnimMat4.cpp" />
-    <ClCompile Include="_Andromeda\AnimVec3.cpp" />
-    <ClCompile Include="_Andromeda\FileSystem\BaseDirectory.cpp" />
-    <ClCompile Include="_Andromeda\FileSystem\BaseFile.cpp" />
-    <ClCompile Include="_Andromeda\FileSystem\FileManager.cpp" />
-    <ClCompile Include="_Andromeda\FileSystem\Stdio\StdioDirectory.cpp" />
-    <ClCompile Include="_Andromeda\FileSystem\Stdio\StdioFile.cpp" />
-    <ClCompile Include="_Andromeda\FrameBufferObject.cpp" />
-    <ClCompile Include="_Andromeda\FrameBufferObjectGL3.cpp" />
-    <ClCompile Include="_Andromeda\MemoryManager.cpp" />
-    <ClCompile Include="_Andromeda\MemoryManagerGlfw.cpp" />
-    <ClCompile Include="_Andromeda\RenderManager.cpp" />
-    <ClCompile Include="_Andromeda\RenderManagerGL3.cpp" />
-    <ClCompile Include="_Andromeda\Shader2.cpp" />
-    <ClCompile Include="_Andromeda\ShaderGlsl.cpp" />
-    <ClCompile Include="_Andromeda\ShaderManager.cpp" />
-    <ClCompile Include="_Andromeda\Texture2.cpp" />
-    <ClCompile Include="_Andromeda\TextureManager.cpp" />
-    <ClCompile Include="_Andromeda\VertexArrayObject.cpp" />
-    <ClCompile Include="_Andromeda\VertexArrayObjectGL3.cpp" />
-    <ClCompile Include="_Andromeda\VertexBufferObject.cpp" />
-    <ClCompile Include="_Andromeda\VertexBufferObjectGL3.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine\ArrayBuffer.h" />
@@ -419,32 +397,6 @@
     <ClInclude Include="src\UI\Widget.h" />
     <ClInclude Include="src\Utils\SolidIO.h" />
     <ClInclude Include="src\Utils\Utils.h" />
-    <ClInclude Include="_Andromeda\AnimMat4.h" />
-    <ClInclude Include="_Andromeda\AnimVec3.h" />
-    <ClInclude Include="_Andromeda\AnimVec4.h" />
-    <ClInclude Include="_Andromeda\FileSystem\BaseDirectory.h" />
-    <ClInclude Include="_Andromeda\FileSystem\BaseFile.h" />
-    <ClInclude Include="_Andromeda\FileSystem\dirent.h" />
-    <ClInclude Include="_Andromeda\FileSystem\FileManager.h" />
-    <ClInclude Include="_Andromeda\FileSystem\Stdio\StdioDirectory.h" />
-    <ClInclude Include="_Andromeda\FileSystem\Stdio\StdioFile.h" />
-    <ClInclude Include="_Andromeda\FrameBufferObject.h" />
-    <ClInclude Include="_Andromeda\FrameBufferObjectGL3.h" />
-    <ClInclude Include="_Andromeda\GraphicsEnums.h" />
-    <ClInclude Include="_Andromeda\MemoryManager.h" />
-    <ClInclude Include="_Andromeda\MemoryManagerGlfw.h" />
-    <ClInclude Include="_Andromeda\RenderManager.h" />
-    <ClInclude Include="_Andromeda\RenderManagerGL3.h" />
-    <ClInclude Include="_Andromeda\Shader2.h" />
-    <ClInclude Include="_Andromeda\ShaderGlsl.h" />
-    <ClInclude Include="_Andromeda\ShaderManager.h" />
-    <ClInclude Include="_Andromeda\Texture2.h" />
-    <ClInclude Include="_Andromeda\TextureManager.h" />
-    <ClInclude Include="_Andromeda\VertexArrayObject.h" />
-    <ClInclude Include="_Andromeda\VertexArrayObjectGL3.h" />
-    <ClInclude Include="_Andromeda\VertexBufferObject.h" />
-    <ClInclude Include="_Andromeda\VertexBufferObjectGL3.h" />
-    <ClInclude Include="_Andromeda\VertexTypes.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />

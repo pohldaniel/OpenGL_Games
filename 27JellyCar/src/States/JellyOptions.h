@@ -5,8 +5,6 @@
 #include <engine/input/Keyboard.h>
 #include <States/StateMachine.h>
 
-#include <glm/gtc/matrix_transform.hpp>
-
 #include "Car/Car.h"
 #include "Levels/LevelSoftBody.h"
 #include "JellyPhysics/World.h"
@@ -72,7 +70,7 @@ private:
 	std::vector<LevelSoftBody*> m_gameBodies;
 	World* m_world;
 
-	glm::mat4 m_jellyProjection;
+	Matrix4f m_jellyProjection;
 	Vector4f m_screenBounds;
 	
 	unsigned int m_options;

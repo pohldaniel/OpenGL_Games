@@ -23,7 +23,7 @@ JellyIntro::JellyIntro(StateMachine& machine) : State(machine, States::JELLYINTR
 	//SceneManager::Get().getScene("scene").configure("Assets/Jelly/Scenes_new/", false);
 	SceneManager::Get().getScene("scene").configure("Assets/Jelly/Scenes_compiled_new/", true);
 
-	SceneManager::Get().getScene("scene").InitPhysic(m_world);
+	Scene::InitPhysic(m_world);
 	SceneManager::Get().getScene("scene").loadCarSkins("Assets/Jelly/car_skins.xml");	
 	SceneManager::Get().getScene("scene").loadLevel("intro.scene");
 	SceneManager::Get().getScene("scene").buildLevel(m_world, m_gameBodies);
@@ -33,7 +33,7 @@ JellyIntro::JellyIntro(StateMachine& machine) : State(machine, States::JELLYINTR
 	m_car->SetChassisTextures(skinInfo.skinTexture.chassisSmall, skinInfo.skinTexture.chassisBig);
 	m_car->SetTireTextures(skinInfo.skinTexture.tireSmall, skinInfo.skinTexture.tireBig);
 
-	m_jellyProjection = glm::ortho(-20.0f + 0, 0 + 20.0f, -4.2f + 4, 4 + 18.2f, -1.0f, 1.0f);
+	m_jellyProjection = Matrix4f::Orthographic(-20.0f + 0, 0 + 20.0f, -4.2f + 4, 4 + 18.2f, -1.0f, 1.0f);
 	m_levelTarget = SceneManager::Get().getScene("scene").getLevelTarget();
 
 	Globals::textureManager.get("paper").bind(1);

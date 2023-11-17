@@ -2,9 +2,8 @@
 
 #include <engine/input/MouseEventListener.h>
 #include <engine/input/KeyboardEventListener.h>
+#include <engine/Vector.h>
 #include <States/StateMachine.h>
-
-#include <glm/gtc/matrix_transform.hpp>
 
 #include "Car/Car.h"
 #include "Levels/LevelSoftBody.h"
@@ -43,6 +42,6 @@ private:
 	std::vector<LevelSoftBody*> m_gameBodies;
 	World* m_world;
 	Car* m_car;
-	glm::mat4 m_jellyProjection;
+	Matrix4f m_jellyProjection;
 	unsigned int m_thumbAtlas = 0;
 };

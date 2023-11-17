@@ -30,7 +30,7 @@ carcurrentPosition(SceneManager::Get().getScene("scene").m_carCurrentPosition) {
 	JellyHellper::Instance()->LoadShaders();
 	m_world = new World();
 
-	SceneManager::Get().getScene("scene").InitPhysic(m_world);
+	Scene::InitPhysic(m_world);
 	SceneManager::Get().getScene("scene").loadLevel("menu.scene");
 	SceneManager::Get().getScene("scene").buildLevel(m_world, m_gameBodies);
 	SceneManager::Get().getScene("scene").buildCar(m_world, m_car, "Assets/Jelly/car_and_truck.car");
@@ -39,7 +39,7 @@ carcurrentPosition(SceneManager::Get().getScene("scene").m_carCurrentPosition) {
 	m_car->SetChassisTextures(skinInfo.skinTexture.chassisSmall, skinInfo.skinTexture.chassisBig);
 	m_car->SetTireTextures(skinInfo.skinTexture.tireSmall, skinInfo.skinTexture.tireBig);
 
-	m_jellyProjection = glm::ortho(-20.0f + 0, 0 + 20.0f, -4.2f + 4, 4 + 18.2f, -1.0f, 1.0f);
+	m_jellyProjection = Matrix4f::Orthographic(-20.0f + 0, 0 + 20.0f, -4.2f + 4, 4 + 18.2f, -1.0f, 1.0f);
 	m_thumbAtlas = TileSetManager::Get().getTileSet("thumbs").getAtlas();
 
 	SceneManager::Get().getScene("scene").loadScores("JellyScore.xml");
