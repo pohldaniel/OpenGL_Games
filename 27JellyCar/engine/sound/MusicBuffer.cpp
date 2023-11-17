@@ -45,9 +45,16 @@ void MusicBuffer::create(float volume) {
 
 MusicBuffer::~MusicBuffer() {
 	if (m_sourceInit) {
-		alDeleteSources(1, &m_source);
-		alDeleteBuffers(NUM_BUFFERS, m_buffers);
+		cleanup();
 	}
+}
+
+void MusicBuffer::cleanup() {
+	alSourcei(m_source, AL_BUFFER, 0);
+	alDeleteSources(1, &m_source);
+	alDeleteBuffers(NUM_BUFFERS, m_buffers);
+	m_source = 0;
+	m_sourceInit = false;	
 }
 
 void MusicBuffer::play(const std::string& file) {

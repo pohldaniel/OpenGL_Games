@@ -36,7 +36,7 @@ public:
 	void pause();
 	void stop();
 	void resume();
-
+	void cleanup();
 	void updateBufferStream();
 
 	ALint getSource();

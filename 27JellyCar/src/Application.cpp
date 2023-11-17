@@ -5,6 +5,7 @@
 #include <imgui_impl_win32.h>
 #include <imgui_impl_opengl3.h>
 
+#include <engine/sound/SoundDevice.h>
 #include <engine/Framebuffer.h>
 #include <engine/Fontrenderer.h>
 #include <Application.h>
@@ -89,11 +90,12 @@ Application::~Application() {
 	Globals::shaderManager.clear();
 
 	HDC hdc = GetDC(Window);
-	wglMakeCurrent(GetDC(Window), 0);
+	wglMakeCurrent(hdc, 0);
 	wglDeleteContext(wglGetCurrentContext());
 	ReleaseDC(Window, hdc);
 
-	//SoundDevice::shutDown();
+	Globals::musicManager.get("background").cleanup();
+	SoundDevice::shutDown();
 
 	UnregisterClass("WINDOWCLASS", (HINSTANCE)GetModuleHandle(NULL));
 }
@@ -233,7 +235,9 @@ LRESULT Application::DisplayWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 				Height = 1;
 			}
 			Resize(deltaW, deltaH);
-
+			if (Init) {
+				Globals::musicManager.get("background").updateBufferStream();
+			}
 
 			break;
 		}default: {
@@ -353,7 +357,7 @@ void Application::initImGUI() {
 }
 
 void Application::initOpenAL() {
-	//SoundDevice::init();
+	SoundDevice::init();
 }
 
 void Application::ToggleVerticalSync() {
@@ -383,7 +387,7 @@ void Application::render() {
 void Application::update() {
 	Mouse::instance().update();
 	Keyboard::instance().update();
-
+	Globals::musicManager.get("background").updateBufferStream();
 	Machine->update();
 
 	if (!Machine->isRunning()) {
@@ -449,7 +453,10 @@ void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 			event.data.mouseButton.button = Event::MouseButtonEvent::MouseButton::BUTTON_RIGHT;
 			EventDispatcher.pushEvent(event);
 			break;
-		} case WM_WINDOWPOSCHANGING: {			
+		} case WM_WINDOWPOSCHANGING: {
+			if (Init) {
+				Globals::musicManager.get("background").updateBufferStream();
+			}
 			break;
 		}case WM_KEYDOWN: {
 			switch (wParam) {
@@ -667,4 +674,13 @@ void Application::loadAssets() {
 	Globals::shapeManager.buildQuadXY("quad_half", Vector3f(-0.5f, -0.5f, 0.0f), Vector2f(1.0f, 1.0f), 1, 1, true, false, false);
 	Globals::shapeManager.buildQuadXY("quad_aligned", Vector3f(0.0f, 0.0f, 0.0f), Vector2f(1.0f, 1.0f), 1, 1, true, false, false);
 	Globals::shapeManager.buildQuadXY("quad_aligned_x", Vector3f(0.0f, -0.5f, 0.0f), Vector2f(1.0f, 1.0f), 1, 1, true, false, false);
+
+	MusicBuffer::Init();
+	//SoundBuffer::Init();
+
+	Globals::musicManager.createMusicBuffer("background");
+	Globals::musicManager.get("background").setVolume(Globals::musicVolume);
+	Globals::musicManager.get("background").setLooping(true);
+
+	Globals::musicManager.get("background").play("Assets/Jelly/Music/song1.ogg");
 }

@@ -1,9 +1,6 @@
 #pragma once
 #include <AL/alc.h>
 
-#define SD_INIT SoundDevice::init();
-#define LISTENER SoundDevice::get()
-
 class SoundDevice{
 
 public:
