@@ -55,7 +55,7 @@ private:
 	ALuint m_source = 0;
 
 	bool m_sourceInit = false;	
-	bool  m_loop = false;
+	bool m_loop = false;
 
 	SNDFILE* m_sndFile = nullptr;
 	SF_INFO m_sfinfo;

@@ -6,7 +6,7 @@
 #include "Globals.h"
 #include "JellyHelper.h"
 #include "TileSet.h"
-#include "Loadingmanager.h"
+#include "MusicManager.h"
 
 JellyIntro::JellyIntro(StateMachine& machine) : State(machine, States::JELLYINTRO) {
 
@@ -15,6 +15,10 @@ JellyIntro::JellyIntro(StateMachine& machine) : State(machine, States::JELLYINTR
 
 	m_columns = ceil(static_cast<float>(Application::Width) / static_cast<float>(m_backWidth));
 	m_rows = ceil(static_cast<float>(Application::Height) / static_cast<float>(m_backHeight));
+
+	MusicManager::Get().init();
+
+	//MusicManager::Get().playFastEngine();
 
 	JellyHellper::Instance()->LoadShaders();
 	m_world = new World();
@@ -116,6 +120,8 @@ void JellyIntro::update() {
 		shader->use();
 		shader->loadInt("u_texture", 0);
 		shader->unuse();
+
+		//MusicManager::Get().stopEngineSound();
 
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new JellyMenu(m_machine));

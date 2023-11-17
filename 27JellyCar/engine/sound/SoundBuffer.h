@@ -18,7 +18,6 @@ class SoundBuffer{
 	};
 
 public:
-
 	
 	SoundBuffer();
 	SoundBuffer(SoundBuffer const& rhs);
@@ -44,7 +43,9 @@ public:
 	void setVolumeChannel(unsigned int channel, float volume);
 	void loadChannel(const std::string& file, unsigned int channel);
 	bool isPlaying(unsigned int channel);
+	void setLoopingChannel(unsigned int channel, const bool& loop);
 
+	void cleanup();
 	static void Init(unsigned short cacheSizeBuffer = 10u);
 
 private:

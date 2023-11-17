@@ -95,6 +95,9 @@ Application::~Application() {
 	ReleaseDC(Window, hdc);
 
 	Globals::musicManager.get("background").cleanup();
+	Globals::soundManager.get("car").cleanup();
+	Globals::soundManager.get("hit").cleanup();
+
 	SoundDevice::shutDown();
 
 	UnregisterClass("WINDOWCLASS", (HINSTANCE)GetModuleHandle(NULL));
@@ -666,13 +669,24 @@ void Application::loadAssets() {
 	Globals::shapeManager.buildQuadXY("quad_aligned", Vector3f(0.0f, 0.0f, 0.0f), Vector2f(1.0f, 1.0f), 1, 1, true, false, false);
 	Globals::shapeManager.buildQuadXY("quad_aligned_x", Vector3f(0.0f, -0.5f, 0.0f), Vector2f(1.0f, 1.0f), 1, 1, true, false, false);
 
-	MusicBuffer::Init();
-	//SoundBuffer::Init();
-	Globals::musicManager.createMusicBuffer("background");
-	Globals::musicManager.get("background").run();
+	//MusicBuffer::Init();
+	SoundBuffer::Init();
 
-	Globals::musicManager.get("background").setVolume(Globals::musicVolume);
-	Globals::musicManager.get("background").setLooping(true);
 
-	Globals::musicManager.get("background").play("Assets/Jelly/Music/song1.ogg");
+	//Globals::musicManager.createMusicBuffer("background");
+	//Globals::musicManager.get("background").run();
+	//Globals::musicManager.get("background").setVolume(Globals::musicVolume);
+	//Globals::musicManager.get("background").setLooping(true);
+
+
+	//Globals::soundManager.createSoundBuffer("hit", 4u, 13u, Globals::soundVolume);
+	//Globals::soundManager.createSoundBuffer("car", 0u, 2u, Globals::soundVolume);
+	//Globals::soundManager.get("car").loadChannel("Assets/Jelly/Sounds/car_low.wav", 0u);
+	//Globals::soundManager.get("car").loadChannel("Assets/Jelly/Sounds/car_high.wav", 1u);
+	//Globals::soundManager.get("car").setLoopingChannel(0u, true);
+	//Globals::soundManager.get("car").setLoopingChannel(1u, true);
+
+	Globals::soundManager.createSoundBuffer("mainMenu", 0u, 2u, Globals::soundVolume * 1.2f);
+	Globals::soundManager.get("mainMenu").loadChannel("res/Audio/ButtonHovered.wav", 0u);
+	//Globals::soundManager.get("mainMenu").loadChannel("res/Audio/ButtonClicked.wav", 1u);
 }

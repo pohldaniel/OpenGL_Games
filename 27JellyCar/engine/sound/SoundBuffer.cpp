@@ -36,15 +36,20 @@ void SoundBuffer::create(unsigned short cacheSizeSources, unsigned short channel
 }
 
 SoundBuffer::~SoundBuffer() {
+	cleanup();
+}
+
+void SoundBuffer::cleanup() {
 	Instances--;
 
-	if(m_sourceInit)
+	if (m_sourceInit) {
 		alDeleteSources(static_cast<ALsizei>(m_sources.size()), m_sources.data());
+		m_sourceInit = false;
+	}
 
 	if (Instances == 0) {
 		alDeleteBuffers(static_cast<ALsizei>(Buffer.size()), Buffer.data());
 	}
-	
 }
 
 void SoundBuffer::play(const std::string& file) {
@@ -184,6 +189,10 @@ bool SoundBuffer::isPlaying(unsigned int channel) {
 	ALint playState;
 	alGetSourcei(m_sources[channel], AL_SOURCE_STATE, &playState);
 	return playState == AL_PLAYING;
+}
+
+void SoundBuffer::setLoopingChannel(unsigned int channel, const bool& loop) {
+	alSourcei(m_sources[channel], AL_LOOPING, (ALint)loop);
 }
 
 void SoundBuffer::loadChannel(const std::string& file, unsigned int channel) {
