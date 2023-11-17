@@ -163,6 +163,7 @@
     <ClCompile Include="engine\sound\MusicBuffer.cpp" />
     <ClCompile Include="engine\sound\SoundBuffer.cpp" />
     <ClCompile Include="engine\sound\SoundDevice.cpp" />
+    <ClCompile Include="engine\Thread.cpp" />
     <ClCompile Include="engine\ZoomableQuad.cpp" />
     <ClCompile Include="src\Car\Car.cpp" />
     <ClCompile Include="src\Car\Chassis.cpp" />
@@ -198,9 +199,9 @@
     <ClCompile Include="src\States\JellyDialog.cpp" />
     <ClCompile Include="src\States\JellySplash.cpp" />
     <ClCompile Include="src\States\StateMachine.cpp" />
+    <ClCompile Include="src\Thread\CThread.cpp" />
     <ClCompile Include="src\Thread\EventClass.cpp" />
     <ClCompile Include="src\Thread\MutexClass.cpp" />
-    <ClCompile Include="src\Thread\Thread.cpp" />
     <ClCompile Include="src\TileSet.cpp" />
     <ClCompile Include="src\Utils\Rasterizer.cpp" />
     <ClCompile Include="engine\ArrayBuffer.cpp" />
@@ -327,6 +328,7 @@
     <ClInclude Include="engine\Spritesheet.h" />
     <ClInclude Include="engine\Tetraedron.h" />
     <ClInclude Include="engine\Texture.h" />
+    <ClInclude Include="engine\Thread.h" />
     <ClInclude Include="engine\Timer.h" />
     <ClInclude Include="engine\TrackBall.h" />
     <ClInclude Include="engine\Transform.h" />
@@ -376,9 +378,9 @@
     <ClInclude Include="src\States\JellyDialog.h" />
     <ClInclude Include="src\States\JellySplash.h" />
     <ClInclude Include="src\States\StateMachine.h" />
+    <ClInclude Include="src\Thread\CThread.h" />
     <ClInclude Include="src\Thread\EventClass.h" />
     <ClInclude Include="src\Thread\MutexClass.h" />
-    <ClInclude Include="src\Thread\Thread.h" />
     <ClInclude Include="src\TileSet.h" />
     <ClInclude Include="src\Utils\Rasterizer.h" />
     <ClInclude Include="Physics\BspConverter.h" />
@@ -406,7 +408,6 @@
     <ClInclude Include="src\UI\Widget.h" />
     <ClInclude Include="src\Utils\SolidIO.h" />
     <ClInclude Include="src\Utils\Utils.h" />
-    <ClInclude Include="ThreadCpp.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />

@@ -393,9 +393,6 @@
     <ClCompile Include="src\Thread\MutexClass.cpp">
       <Filter>Source Files\Thread</Filter>
     </ClCompile>
-    <ClCompile Include="src\Thread\Thread.cpp">
-      <Filter>Source Files\Thread</Filter>
-    </ClCompile>
     <ClCompile Include="src\LoadingManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -413,6 +410,12 @@
     </ClCompile>
     <ClCompile Include="src\MusicManager.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Thread\CThread.cpp">
+      <Filter>Source Files\Thread</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\Thread.cpp">
+      <Filter>engine</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -773,9 +776,6 @@
     <ClInclude Include="src\Thread\MutexClass.h">
       <Filter>Source Files\Thread</Filter>
     </ClInclude>
-    <ClInclude Include="src\Thread\Thread.h">
-      <Filter>Source Files\Thread</Filter>
-    </ClInclude>
     <ClInclude Include="engine\interfaces\IStateMachine.h">
       <Filter>engine\interfaces</Filter>
     </ClInclude>
@@ -803,8 +803,11 @@
     <ClInclude Include="src\MusicManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ThreadCpp.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="src\Thread\CThread.h">
+      <Filter>Source Files\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\Thread.h">
+      <Filter>engine</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

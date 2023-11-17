@@ -75,7 +75,7 @@
 //
 //
 
-#include "Thread.h"
+#include "CThread.h"
 
 
 #ifndef WINDOWS
@@ -193,7 +193,7 @@ CThread::OnTask( LPVOID lpvData /*data passed from thread*/
 	pTask->SetTaskStatus(TaskStatusCompleted);
 
 
-	return bReturn; 
+	return bReturn != 0; 
 } 
 
 

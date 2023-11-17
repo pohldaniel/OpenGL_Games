@@ -6,6 +6,7 @@
 #include <iostream>
 
 #include "Cache.h"
+#include "../Thread.h"
 
 static const int BUFFER_SAMPLES = 8192;
 static const int NUM_BUFFERS = 4;
@@ -30,6 +31,7 @@ public:
 	MusicBuffer(MusicBuffer const& rhs);
 	MusicBuffer& operator=(const MusicBuffer& rhs);
 	~MusicBuffer();
+	void run();
 
 	void create(float volume = 1.0f);
 	void play(const std::string& file);
@@ -63,6 +65,7 @@ private:
 	ALint m_playState;
 
 	const CacheEntry* m_cacheEntry;
+	std::unique_ptr<EndlessLooper> m_looper;
 	static CacheLRUP<std::string, CacheEntry> MusicBufferCache;
 };
 

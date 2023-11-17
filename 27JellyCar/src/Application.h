@@ -1,11 +1,10 @@
 #pragma once
 #include <windows.h>
-
+#include <memory>
 #include <engine/input/Event.h>
 #include <engine/input/EventDispatcher.h>
 #include <engine/input/Keyboard.h>
 #include <engine/input/Mouse.h>
-//#include <engine/sound/SoundDevice.h>
 #include <States/StateMachine.h>
 
 class Application {
@@ -46,7 +45,7 @@ public:
 
 	void processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 	bool m_mouseTracking = false;
-
+	
 	static void Resize(int deltaW, int deltaH);
 	static StateMachine* Machine;
 	static EventDispatcher& EventDispatcher;

@@ -22,7 +22,7 @@
 // Description:
 //
 //
-#include "Thread.h"
+#include "CThread.h"
 
 CEventClass::CEventClass(void)
 :m_bCreated(TRUE)

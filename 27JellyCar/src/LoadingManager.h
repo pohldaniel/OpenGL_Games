@@ -3,7 +3,7 @@
 #include <deque>
 #include <functional>
 #include <engine/Texture.h>
-#include <Thread/Thread.h>
+#include <Thread/CThread.h>
 
 struct Task {
 	Task();

@@ -235,9 +235,6 @@ LRESULT Application::DisplayWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 				Height = 1;
 			}
 			Resize(deltaW, deltaH);
-			if (Init) {
-				Globals::musicManager.get("background").updateBufferStream();
-			}
 
 			break;
 		}default: {
@@ -387,7 +384,6 @@ void Application::render() {
 void Application::update() {
 	Mouse::instance().update();
 	Keyboard::instance().update();
-	Globals::musicManager.get("background").updateBufferStream();
 	Machine->update();
 
 	if (!Machine->isRunning()) {
@@ -453,12 +449,7 @@ void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 			event.data.mouseButton.button = Event::MouseButtonEvent::MouseButton::BUTTON_RIGHT;
 			EventDispatcher.pushEvent(event);
 			break;
-		} case WM_WINDOWPOSCHANGING: {
-			if (Init) {
-				Globals::musicManager.get("background").updateBufferStream();
-			}
-			break;
-		}case WM_KEYDOWN: {
+		} case WM_KEYDOWN: {
 			switch (wParam) {
 
 				case VK_ESCAPE: {
@@ -677,8 +668,9 @@ void Application::loadAssets() {
 
 	MusicBuffer::Init();
 	//SoundBuffer::Init();
-
 	Globals::musicManager.createMusicBuffer("background");
+	Globals::musicManager.get("background").run();
+
 	Globals::musicManager.get("background").setVolume(Globals::musicVolume);
 	Globals::musicManager.get("background").setLooping(true);
 

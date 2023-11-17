@@ -22,7 +22,7 @@
 // Description:
 //
 //
-#include "Thread.h"
+#include "CThread.h"
 
 CMutexClass::CMutexClass(void)
 :m_bCreated(TRUE)

@@ -36,9 +36,9 @@ void MusicBuffer::create(float volume) {
 	if (!m_sourceInit) {
 		alGenSources(1, &m_source);
 		alGenBuffers(NUM_BUFFERS, m_buffers);
-
 		setVolume(volume);
 		m_sourceInit = true;
+		m_looper = std::make_unique<EndlessLooper>();
 	}
 }
 
@@ -50,6 +50,9 @@ MusicBuffer::~MusicBuffer() {
 }
 
 void MusicBuffer::cleanup() {
+	if (m_looper->running())
+		m_looper->stop();
+
 	alSourcei(m_source, AL_BUFFER, 0);
 	alDeleteSources(1, &m_source);
 	alDeleteBuffers(NUM_BUFFERS, m_buffers);
@@ -238,4 +241,14 @@ MusicBuffer::CacheEntry::~CacheEntry() {
 
 void MusicBuffer::Init(unsigned short cacheSize) {	
 	MusicBufferCache.Init(cacheSize);
+}
+
+void MusicBuffer::run() {
+	m_looper->run();
+	auto const task = [&]() {
+		updateBufferStream();
+		std::this_thread::sleep_for(std::chrono::milliseconds(100));
+	};
+
+	m_looper->addTask(task);
 }
