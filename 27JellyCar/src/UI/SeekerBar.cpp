@@ -96,14 +96,18 @@ void SeekerBar::setRightFunction(std::function<void()> fun) {
 	m_buttonRight->setFunction(fun);
 }
 
-void SeekerBar::initRenderer(const Shader* shader, unsigned int blocks) {
+void SeekerBar::initRenderer(unsigned int blocks, const Shader* shader) {
 	m_blocks = blocks;
 	m_batchrenderer = new Batchrenderer();
 	m_batchrenderer->init(m_blocks);
-	shader->use();
-	shader->loadMatrix("u_transform", Orthographic);
-	shader->unuse();
-	m_batchrenderer->setShader(shader);
+	if (shader) {
+		shader->use();
+		shader->loadMatrix("u_transform", Orthographic);
+		shader->unuse();
+		m_batchrenderer->setShader(shader);
+	}else {
+		m_batchrenderer->setShader(BatchShader.get());
+	}
 }
 
 void SeekerBar::setPosition(const float x, const float y) {
@@ -131,13 +135,15 @@ void SeekerBar::initButtons(const CharacterSet& charset, const Shader* shader) {
 	m_buttonLeft->setCharset(charset);
 	m_buttonLeft->setOutlineThickness(4.0f);
 	m_buttonLeft->setText("<");
-	m_buttonLeft->setShader(shader);
+	if(shader)
+		m_buttonLeft->setShader(shader);
 
 	m_buttonRight = new Button();
 	m_buttonRight->setCharset(charset);
 	m_buttonRight->setOutlineThickness(4.0f);
 	m_buttonRight->setText(">");
-	m_buttonRight->setShader(shader);
+	if (shader)
+		m_buttonRight->setShader(shader);
 
 	m_size[0] = m_buttonLeft->getSize()[1] + 2.0f * m_buttonLeft->getTickness();
 	m_size[1] = m_buttonLeft->getSize()[1] + 2.0f * m_buttonLeft->getTickness();

@@ -4,17 +4,21 @@
 #include "Globals.h"
 #include "Menu.h"
 
-Settings::Settings(StateMachine& machine) : State(machine, CurrentState::SETTINGS) {
+Settings::Settings(StateMachine& machine) : State(machine, States::SETTINGS) {
 
 	EventDispatcher::AddMouseListener(this);
 	EventDispatcher::AddKeyboardListener(this);
+
+	soundVolume = 0.2f;
+	musicVolume = 0.1f;
+	useSkybox = true;
 
 	m_headline.setCharset(Globals::fontManager.get("upheaval_200"));
 	m_headline.setPosition(Vector2f(static_cast<float>(Application::Width / 2 - 490), static_cast<float>(Application::Height - 200)));
 	m_headline.setOutlineThickness(5.0f);
 	m_headline.setText("Settings");
 	m_headline.setOffset(5.0f, 5.0f);
-	m_headline.setShader(Globals::shaderManager.getAssetPointer("quad_color_uniform"));
+
 
 	m_button.setCharset(Globals::fontManager.get("upheaval_50"));
 	m_button.setPosition(static_cast<float>(Application::Width - 350), 100.0f);
@@ -22,9 +26,8 @@ Settings::Settings(StateMachine& machine) : State(machine, CurrentState::SETTING
 	m_button.setOutlineThickness(5.0f);
 	m_button.setText("Menu");
 	m_button.setOffset(2.0f, 7.0f);
-	m_button.setShader(Globals::shaderManager.getAssetPointer("quad_color_uniform"));
+
 	m_button.setFunction([&]() {
-		Globals::soundManager.get("menu").playChannel(0u);
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new Menu(m_machine));
 	});
@@ -36,59 +39,50 @@ Settings::Settings(StateMachine& machine) : State(machine, CurrentState::SETTING
 
 	float currentBlock;
 
-	std::modf(Globals::soundVolume * 10, &currentBlock);
-	m_seekerBars.at("effect").initButtons(Globals::fontManager.get("upheaval_50"), Globals::shaderManager.getAssetPointer("quad_color_uniform"));
-	m_seekerBars.at("effect").initRenderer(Globals::shaderManager.getAssetPointer("font"));
+	std::modf(soundVolume * 10, &currentBlock);
+	m_seekerBars.at("effect").initButtons(Globals::fontManager.get("upheaval_50"));
+	m_seekerBars.at("effect").initRenderer(10u);
 	m_seekerBars.at("effect").setPosition(static_cast<float>(Application::Width / 2 - 400), static_cast<float>(Application::Height - 400));
 	m_seekerBars.at("effect").setCurrentBlock(static_cast<unsigned int>(currentBlock));
 	m_seekerBars.at("effect").setLeftFunction([&]() {
-		if (Globals::soundVolume > 0.0f) {
-			Globals::soundVolume -= 0.1f;
-			Globals::soundVolume = roundf(Globals::soundVolume * 10) / 10;
+		if (soundVolume > 0.0f) {
+			soundVolume -= 0.1f;
+			soundVolume = roundf(soundVolume * 10) / 10;
 		}
-		Globals::soundManager.get("menu").setVolume(Globals::soundVolume);
-		Globals::soundManager.get("menu").playChannel(0u);
 	});
 
 	m_seekerBars.at("effect").setRightFunction([&]() {
-		if (Globals::soundVolume < 1.0f) {
-			Globals::soundVolume += 0.1f;
-			Globals::soundVolume = roundf(Globals::soundVolume * 10) / 10;
+		if (soundVolume < 1.0f) {
+			soundVolume += 0.1f;
+			soundVolume = roundf(soundVolume * 10) / 10;
 		}
-		Globals::soundManager.get("menu").setVolume(Globals::soundVolume);
-		Globals::soundManager.get("menu").playChannel(0u);
 	});
 
-	std::modf(Globals::musicVolume * 10, &currentBlock);
-	m_seekerBars.at("music").initButtons(Globals::fontManager.get("upheaval_50"), Globals::shaderManager.getAssetPointer("quad_color_uniform"));
-	m_seekerBars.at("music").initRenderer(Globals::shaderManager.getAssetPointer("font"));
+	std::modf(musicVolume * 10, &currentBlock);
+	m_seekerBars.at("music").initButtons(Globals::fontManager.get("upheaval_50"));
+	m_seekerBars.at("music").initRenderer(10u);
 	m_seekerBars.at("music").setPosition(static_cast<float>(Application::Width / 2 - 400), static_cast<float>(Application::Height - 600));
 	m_seekerBars.at("music").setCurrentBlock(static_cast<unsigned int>(currentBlock));
 	m_seekerBars.at("music").setLeftFunction([&]() {
-		if (Globals::musicVolume > 0.0f) {
-			Globals::musicVolume -= 0.1f;
-			Globals::musicVolume = roundf(Globals::musicVolume * 10) / 10;
+		if (musicVolume > 0.0f) {
+			musicVolume -= 0.1f;
+			musicVolume = roundf(musicVolume * 10) / 10;
 		}	
-		Globals::soundManager.get("menu").playChannel(0u);
-		Globals::musicManager.get("background").setVolume(Globals::musicVolume);
 	});
 
 	m_seekerBars.at("music").setRightFunction([&]() {
-		if (Globals::musicVolume < 1.0f) {
-			Globals::musicVolume += 0.1f;
-			Globals::musicVolume = roundf(Globals::musicVolume * 10) / 10;
+		if (musicVolume < 1.0f) {
+			musicVolume += 0.1f;
+			musicVolume = roundf(musicVolume * 10) / 10;
 		}
-		Globals::soundManager.get("menu").playChannel(0u);
-		Globals::musicManager.get("background").setVolume(Globals::musicVolume);
 	});
 
 	m_checkBox.setPosition(Vector2f(static_cast<float>(Application::Width / 2 - 465), static_cast<float>(Application::Height - 800)));
 	m_checkBox.setSize(52.0f, 52.0f);
 	m_checkBox.setOutlineThickness(5.0f);
-	m_checkBox.setShader(Globals::shaderManager.getAssetPointer("quad_color_uniform"));
-	m_checkBox.setIsChecked(Globals::useSkybox);
+	m_checkBox.setIsChecked(useSkybox);
 	m_checkBox.setFunction([&]() {
-		Globals::useSkybox = !Globals::useSkybox;
+		useSkybox = !useSkybox;
 	});
 }
 

@@ -43,15 +43,16 @@ bool Application::VerticalSync = true;
 Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fdt) {
 	Width = WIDTH;
 	Height = HEIGHT;
-	Framebuffer::SetDefaultSize(Width, Height);
-	Widget::Resize(Width, Height);
-
+		
 	createWindow();
 	initOpenGL();
 	showWindow();
 	initImGUI();
 	initOpenAL();
 	loadAssets();
+
+	Framebuffer::SetDefaultSize(Width, Height);
+	Widget::Resize(Width, Height);
 
 	EventDispatcher.setProcessOSEvents([&]() {
 		while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
@@ -336,7 +337,7 @@ void Application::initOpenGL(int msaaSamples) {
 	//glEnable(GL_CULL_FACE);
 	glDisable(GL_CULL_FACE);
 
-	//glEnable(GL_DEPTH_TEST);
+	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);
 
 	glEnable(GL_BLEND);
@@ -600,18 +601,12 @@ void Application::SetCursorIcon(LPCSTR resource) {
 
 void Application::loadAssets() {
 
-	//Globals::textureManager.loadTexture("forest_1", "res/backgrounds/Forest/plx-1.png");
-	//Globals::textureManager.loadTexture("forest_2", "res/backgrounds/Forest/plx-2.png");
-	//Globals::textureManager.loadTexture("forest_3", "res/backgrounds/Forest/plx-3.png");
-	//Globals::textureManager.loadTexture("forest_4", "res/backgrounds/Forest/plx-4.png");
-	//Globals::textureManager.loadTexture("forest_5", "res/backgrounds/Forest/plx-5.png");
+	Globals::shaderManager.loadShader("font", "Assets/Shader/batch.vert", "Assets/Shader/font.frag");
+	Globals::shaderManager.loadShader("batch", "Assets/Shader/batch.vert", "Assets/Shader/batch.frag");
+	Globals::shaderManager.loadShader("quad_back", "Assets/Shader/quad_back.vert", "Assets/Shader/quad.frag");
 
-	Globals::shaderManager.loadShader("font", "Assets/Shader/batch.vert", "res/shader/font.frag");
-	Globals::shaderManager.loadShader("batch", "Assets/Shader/batch.vert", "res/shader/batch.frag");
-	Globals::shaderManager.loadShader("quad_back", "Assets/Shader/quad_back.vert", "res/shader/quad.frag");
-
-	Globals::shaderManager.loadShader("quad", "Assets/Shader/quad.vert", "res/shader/quad.frag");
-	Globals::shaderManager.loadShader("quad_array", "Assets/Shader/quad_array.vert", "res/shader/quad_array.frag");
+	Globals::shaderManager.loadShader("quad", "Assets/Shader/quad.vert", "Assets/Shader/quad.frag");
+	Globals::shaderManager.loadShader("quad_array", "Assets/Shader/quad_array.vert", "Assets/Shader/quad_array.frag");
 
 	Globals::textureManager.loadTexture("paper", "Assets/Jelly/Texture/paper.png");
 	Globals::textureManager.loadTexture("controls", "Assets/Images/buttons_vita.png");
@@ -641,8 +636,7 @@ void Application::loadAssets() {
 	Globals::textureManager.loadTexture("tire_back", "Assets/Jelly/Texture/roundBackRed.png");
 	Globals::textureManager.loadTexture("target", "Assets/Jelly/Texture/finish.png");
 
-	//Globals::fontManager.loadCharacterSet("upheaval_200", "res/fonts/upheavtt.ttf", 200, 0, 30, 128, 0, true, 0u);
-	//Globals::fontManager.loadCharacterSet("upheaval_50", "res/fonts/upheavtt.ttf",  50,  0, 3,  0,   0, true, 1u);
+	
 
 	Globals::fontManager.loadCharacterSet("jelly_16", "Assets/Fonts/JellyFont.ttf", 16, 20, 20, 512, 0, true, 0u);
 	Globals::fontManager.loadCharacterSet("jelly_32", "Assets/Fonts/JellyFont.ttf", 32, 20, 20, 512, 0, true, 1u);
@@ -683,4 +677,14 @@ void Application::loadAssets() {
 	Globals::soundManager.get("car").loadChannel("Assets/Jelly/Sounds/car_high.wav", 1u);
 	Globals::soundManager.get("car").setLoopingChannel(0u, true);
 	Globals::soundManager.get("car").setLoopingChannel(1u, true);
+
+
+	//Globals::fontManager.loadCharacterSet("upheaval_200", "res/fonts/upheavtt.ttf", 200, 0, 30, 128, 0, true, 0u);
+	//Globals::fontManager.loadCharacterSet("upheaval_50", "res/fonts/upheavtt.ttf",  50,  0, 3,  0,   0, true, 1u);
+
+	//Globals::textureManager.loadTexture("forest_1", "res/backgrounds/Forest/plx-1.png");
+	//Globals::textureManager.loadTexture("forest_2", "res/backgrounds/Forest/plx-2.png");
+	//Globals::textureManager.loadTexture("forest_3", "res/backgrounds/Forest/plx-3.png");
+	//Globals::textureManager.loadTexture("forest_4", "res/backgrounds/Forest/plx-4.png");
+	//Globals::textureManager.loadTexture("forest_5", "res/backgrounds/Forest/plx-5.png");
 }

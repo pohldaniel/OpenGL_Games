@@ -1,11 +1,21 @@
 #include "Widget.h"
 
+std::unique_ptr<Shader> Widget::WidgetShader = nullptr;
+std::unique_ptr<Shader> Widget::BatchShader = nullptr;
 Matrix4f Widget::Orthographic;
 
 Widget::Widget() {
 	m_size.set(1.0f, 1.0f);
 	m_position.set(0.0f, 0.0f);
 	m_transform.identity();
+
+	if (!WidgetShader) {
+		WidgetShader = std::unique_ptr<Shader>(new Shader(WIDGET_VERTEX, WIDGET_FRGAMENT, false));
+	}
+
+	if (!BatchShader) {
+		BatchShader = std::unique_ptr<Shader>(new Shader(BATCH_VERTEX, BATCH_FRGAMENT, false));
+	}
 }
 
 Widget::Widget(Widget const& rhs) {
@@ -53,7 +63,22 @@ const Vector2f& Widget::getSize() const {
 	return m_size;
 }
 
-
 void Widget::Resize(unsigned int width, unsigned int height) {
 	Orthographic.orthographic(0.0f, static_cast<float>(width), 0.0f, static_cast<float>(height), -1.0f, 1.0f);
+
+	if (!BatchShader) {
+		BatchShader = std::unique_ptr<Shader>(new Shader(BATCH_VERTEX, BATCH_FRGAMENT, false));
+	}
+
+	BatchShader->use();
+	BatchShader->loadMatrix("u_transform", Orthographic);
+	BatchShader->unuse();
+}
+
+void Widget::SetWidgetShader(const Shader* shader) {
+	WidgetShader.reset(const_cast<Shader*>(shader));
+}
+
+void Widget::SetBatchShader(const Shader* shader) {
+	BatchShader.reset(const_cast<Shader*>(shader));
 }

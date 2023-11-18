@@ -194,6 +194,7 @@
     <ClCompile Include="src\MousePickerFBO.cpp" />
     <ClCompile Include="src\MusicManager.cpp" />
     <ClCompile Include="src\SceneManager.cpp" />
+    <ClCompile Include="src\States\Controlls.cpp" />
     <ClCompile Include="src\States\JellyEditor.cpp" />
     <ClCompile Include="src\States\JellyGame.cpp" />
     <ClCompile Include="src\States\JellyIntro.cpp" />
@@ -201,6 +202,7 @@
     <ClCompile Include="src\States\JellyOptions.cpp" />
     <ClCompile Include="src\States\JellyDialog.cpp" />
     <ClCompile Include="src\States\JellySplash.cpp" />
+    <ClCompile Include="src\States\Settings.cpp" />
     <ClCompile Include="src\States\StateMachine.cpp" />
     <ClCompile Include="src\Thread\CThread.cpp" />
     <ClCompile Include="src\Thread\EventClass.cpp" />
@@ -376,6 +378,7 @@
     <ClInclude Include="src\MusicManager.h" />
     <ClInclude Include="src\RandomColor.h" />
     <ClInclude Include="src\SceneManager.h" />
+    <ClInclude Include="src\States\Controls.h" />
     <ClInclude Include="src\States\JellyEditor.h" />
     <ClInclude Include="src\States\JellyGame.h" />
     <ClInclude Include="src\States\JellyIntro.h" />
@@ -383,6 +386,7 @@
     <ClInclude Include="src\States\JellyOptions.h" />
     <ClInclude Include="src\States\JellyDialog.h" />
     <ClInclude Include="src\States\JellySplash.h" />
+    <ClInclude Include="src\States\Settings.h" />
     <ClInclude Include="src\States\StateMachine.h" />
     <ClInclude Include="src\Thread\CThread.h" />
     <ClInclude Include="src\Thread\EventClass.h" />

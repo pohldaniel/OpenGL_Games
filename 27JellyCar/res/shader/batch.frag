@@ -9,5 +9,5 @@ out vec4 outColor;
 uniform sampler2DArray u_texture;
 
 void main() {
-	outColor = v_color * texture(u_texture, vec3(v_texCoord, v_layer));
+	outColor = v_color;
 } 

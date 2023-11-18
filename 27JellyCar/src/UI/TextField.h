@@ -1,36 +1,11 @@
 #pragma once
 
 #include <functional>
-#include <memory>
 
 #include "engine/input/Event.h"
 #include "engine/CharacterSet.h"
 #include "engine/Shader.h"
 #include "Widget.h"
-
-#define TEXTFIELD_VERTEX	"#version 410 core										\n \
-																					\n \
-							layout(location = 0) in vec3 i_position;				\n \
-																					\n \
-							uniform vec4 u_color;									\n \
-							uniform mat4 u_transform = mat4(1.0);					\n \
-																					\n \
-							out vec4 color;											\n \
-																					\n \
-							void main() {											\n \
-								gl_Position = u_transform * vec4(i_position, 1.0);	\n \
-								color  = u_color;									\n \
-							}"
-
-
-#define TEXTFIELD_FRGAMENT	"#version 410 core		\n \
-														\n \
-								in vec4 color;			\n \
-								out vec4 outColor;		\n \
-														\n \
-								void main() {			\n \
-									outColor = color;	\n \
-								}"
 
 class TextField : public Widget {
 
@@ -60,8 +35,6 @@ public:
 	void setCharset(const CharacterSet& charset);
 	float getTickness();
 
-	void static SetShader(const Shader* shader);
-
 protected:
 
 	const Shader *m_shader;
@@ -78,6 +51,4 @@ protected:
 	std::string m_text;
 
 	float m_thickness = 0.0f;
-
-	static std::unique_ptr<Shader> s_shader;
 };

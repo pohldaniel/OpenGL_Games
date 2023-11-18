@@ -4,6 +4,8 @@
 
 enum States {
 	MENU,
+	SETTINGS,
+	CONTROLLS,
 	GAME,
 	JELLYMENU,
 	JELLYINTRO,

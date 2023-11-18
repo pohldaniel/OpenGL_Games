@@ -54,18 +54,19 @@ void CheckBox::draw() {
 	glStencilFunc(GL_ALWAYS, 1, 0xFF);
 	glStencilMask(0xFF);
 
-	glUseProgram(m_shader->m_program);
-	m_shader->loadMatrix("u_transform", Orthographic * m_transform);
-	m_shader->loadVector("u_color", m_fillColor);
+	auto shader = m_shader == nullptr ? WidgetShader.get() : m_shader;
+	shader->use();
+	shader->loadMatrix("u_transform", Orthographic * m_transform);
+	shader->loadVector("u_color", m_fillColor);
 	Globals::shapeManager.get("quad").drawRaw();
 
 	glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
 	glStencilMask(0x00);
 
-	m_shader->loadMatrix("u_transform", Orthographic * m_transform * m_transformOutline);
-	m_shader->loadVector("u_color", m_outlineColor);
+	shader->loadMatrix("u_transform", Orthographic * m_transform * m_transformOutline);
+	shader->loadVector("u_color", m_outlineColor);
 	Globals::shapeManager.get("quad").drawRaw();
-	glUseProgram(0);
+	shader->unuse();
 
 	glStencilMask(0xFF);
 	glDisable(GL_STENCIL_TEST);

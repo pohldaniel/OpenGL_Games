@@ -1,17 +1,19 @@
 #pragma once
+#include <math.h>
 #include "engine/input/MouseEventListener.h"
 #include "engine/input/KeyboardEventListener.h"
 #include "engine/input/Mouse.h"
 #include "engine/Transform.h"
 #include "StateMachine.h"
 #include <UI/Button.h>
-#include <UI/TextField.h>
+#include <UI/SeekerBar.h>
+#include <UI/CheckBox.h>
 
-class Menu : public State, public MouseEventListener, public KeyboardEventListener {
+class Settings : public State, public MouseEventListener, public KeyboardEventListener {
 
 public:
-	Menu(StateMachine& machine);
-	~Menu();
+	Settings(StateMachine& machine);
+	~Settings();
 
 	void fixedUpdate() override;
 	void update() override;
@@ -24,6 +26,12 @@ private:
 	void OnMouseButtonDown(Event::MouseButtonEvent& event) override;
 	void OnKeyDown(Event::KeyboardEvent& event) override;
 
+	Button m_button;
 	TextField m_headline;
-	std::unordered_map<std::string, Button> m_buttons;
+	std::unordered_map<std::string, SeekerBar> m_seekerBars;
+	CheckBox m_checkBox;
+
+	float soundVolume;
+	float musicVolume;
+	bool useSkybox;
 };

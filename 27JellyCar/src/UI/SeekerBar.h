@@ -25,8 +25,8 @@ public:
 	void setGridSize(const float sx);
 	void setCurrentBlock(unsigned int block);
 	void setSpacing(float spacing);
-	void initButtons(const CharacterSet& charset, const Shader* shader);
-	void initRenderer(const Shader* shader, unsigned int blocks = 10u);
+	void initRenderer(unsigned int blocks = 10u, const Shader* shader = nullptr);	
+	void initButtons(const CharacterSet& charset, const Shader* shader = nullptr);
 
 private:
 

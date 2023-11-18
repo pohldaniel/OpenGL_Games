@@ -4,7 +4,7 @@
 #include "Globals.h"
 #include "Menu.h"
 
-Controls::Controls(StateMachine& machine) : State(machine, CurrentState::SETTINGS) {
+Controls::Controls(StateMachine& machine) : State(machine, States::CONTROLLS) {
 
 	EventDispatcher::AddMouseListener(this);
 	EventDispatcher::AddKeyboardListener(this);
@@ -14,7 +14,7 @@ Controls::Controls(StateMachine& machine) : State(machine, CurrentState::SETTING
 	m_headline.setOutlineThickness(5.0f);
 	m_headline.setText("Controls");
 	m_headline.setOffset(5.0f, 5.0f);
-	m_headline.setShader(Globals::shaderManager.getAssetPointer("quad_color_uniform"));
+
 
 	m_button.setCharset(Globals::fontManager.get("upheaval_50"));
 	m_button.setPosition(static_cast<float>(Application::Width - 350), 100.0f);
@@ -22,9 +22,8 @@ Controls::Controls(StateMachine& machine) : State(machine, CurrentState::SETTING
 	m_button.setOutlineThickness(5.0f);
 	m_button.setText("Menu");
 	m_button.setOffset(2.0f, 7.0f);
-	m_button.setShader(Globals::shaderManager.getAssetPointer("quad_color_uniform"));
+
 	m_button.setFunction([&]() {
-		Globals::soundManager.get("menu").playChannel(0u);
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new Menu(m_machine));
 	});
@@ -44,67 +43,56 @@ Controls::Controls(StateMachine& machine) : State(machine, CurrentState::SETTING
 	});
 
 	m_textFields.at("w").setCharset(Globals::fontManager.get("upheaval_50"));
-	m_textFields.at("w").setShader(Globals::shaderManager.getAssetPointer("quad_color_uniform"));
 	m_textFields.at("w").setPosition(static_cast<float>(Application::Width / 2 - 665), static_cast<float>(Application::Height - 400));
 	m_textFields.at("w").setOutlineThickness(5.0f);
 	m_textFields.at("w").setText("w");
 
 	m_textFields.at("a").setCharset(Globals::fontManager.get("upheaval_50"));
-	m_textFields.at("a").setShader(Globals::shaderManager.getAssetPointer("quad_color_uniform"));
 	m_textFields.at("a").setPosition(static_cast<float>(Application::Width / 2 - 565), static_cast<float>(Application::Height - 400));
 	m_textFields.at("a").setOutlineThickness(5.0f);
 	m_textFields.at("a").setText("a");
 
 	m_textFields.at("s").setCharset(Globals::fontManager.get("upheaval_50"));
-	m_textFields.at("s").setShader(Globals::shaderManager.getAssetPointer("quad_color_uniform"));
 	m_textFields.at("s").setPosition(static_cast<float>(Application::Width / 2 - 465), static_cast<float>(Application::Height - 400));
 	m_textFields.at("s").setOutlineThickness(5.0f);
 	m_textFields.at("s").setText("s");
 
 	m_textFields.at("d").setCharset(Globals::fontManager.get("upheaval_50"));
-	m_textFields.at("d").setShader(Globals::shaderManager.getAssetPointer("quad_color_uniform"));
 	m_textFields.at("d").setPosition(static_cast<float>(Application::Width / 2 - 365), static_cast<float>(Application::Height - 400));
 	m_textFields.at("d").setOutlineThickness(5.0f);
 	m_textFields.at("d").setText("d");
 
 	m_textFields.at("space").setCharset(Globals::fontManager.get("upheaval_50"));
-	m_textFields.at("space").setShader(Globals::shaderManager.getAssetPointer("quad_color_uniform"));
 	m_textFields.at("space").setPosition(static_cast<float>(Application::Width / 2 - 265), static_cast<float>(Application::Height - 400));
 	m_textFields.at("space").setOutlineThickness(5.0f);
 	m_textFields.at("space").setText("Space");
 
 	m_textFields.at("mouse").setCharset(Globals::fontManager.get("upheaval_50"));
-	m_textFields.at("mouse").setShader(Globals::shaderManager.getAssetPointer("quad_color_uniform"));
 	m_textFields.at("mouse").setPosition(static_cast<float>(Application::Width / 2 - 665), static_cast<float>(Application::Height - 800));
 	m_textFields.at("mouse").setOutlineThickness(5.0f);
 	m_textFields.at("mouse").setText("Mouse");
 
 	m_textFields.at("rm").setCharset(Globals::fontManager.get("upheaval_50"));
-	m_textFields.at("rm").setShader(Globals::shaderManager.getAssetPointer("quad_color_uniform"));
 	m_textFields.at("rm").setPosition(static_cast<float>(Application::Width / 2 + 50), static_cast<float>(Application::Height - 400));
 	m_textFields.at("rm").setOutlineThickness(5.0f);
 	m_textFields.at("rm").setText("Mouse Button right");
 
 	m_textFields.at("f1").setCharset(Globals::fontManager.get("upheaval_50"));
-	m_textFields.at("f1").setShader(Globals::shaderManager.getAssetPointer("quad_color_uniform"));
 	m_textFields.at("f1").setPosition(static_cast<float>(Application::Width / 2 - 665), static_cast<float>(Application::Height - 600));
 	m_textFields.at("f1").setOutlineThickness(5.0f);
 	m_textFields.at("f1").setText("F1");
 
 	m_textFields.at("wheel").setCharset(Globals::fontManager.get("upheaval_50"));
-	m_textFields.at("wheel").setShader(Globals::shaderManager.getAssetPointer("quad_color_uniform"));
 	m_textFields.at("wheel").setPosition(static_cast<float>(Application::Width / 2 + 420), static_cast<float>(Application::Height - 600));
 	m_textFields.at("wheel").setOutlineThickness(5.0f);
 	m_textFields.at("wheel").setText("Wheel");
 
 	m_textFields.at("alt").setCharset(Globals::fontManager.get("upheaval_50"));
-	m_textFields.at("alt").setShader(Globals::shaderManager.getAssetPointer("quad_color_uniform"));
 	m_textFields.at("alt").setPosition(static_cast<float>(Application::Width / 2 - 220), static_cast<float>(Application::Height - 800));
 	m_textFields.at("alt").setOutlineThickness(5.0f);
 	m_textFields.at("alt").setText("Alt");
 
 	m_textFields.at("enter").setCharset(Globals::fontManager.get("upheaval_50"));
-	m_textFields.at("enter").setShader(Globals::shaderManager.getAssetPointer("quad_color_uniform"));
 	m_textFields.at("enter").setPosition(static_cast<float>(Application::Width / 2 - 45), static_cast<float>(Application::Height - 800));
 	m_textFields.at("enter").setOutlineThickness(5.0f);
 	m_textFields.at("enter").setText("Enter");
