@@ -18,6 +18,7 @@
 #include <States/JellySplash.h>
 #include <States/JellyGame.h>
 #include <States/JellyOptions.h>
+#include <States/JellyEditor.h>
 #include <UI/Widget.h>
 
 #include "Resource.h"
@@ -407,6 +408,7 @@ void Application::initStates() {
 	//Machine->addStateAtTop(new JellyIntro(*Machine));
 	Machine->addStateAtTop(new JellySplash(*Machine));
 	//Machine->addStateAtTop(new JellyOptions(*Machine));
+	//Machine->addStateAtTop(new JellyEditor(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -604,12 +606,12 @@ void Application::loadAssets() {
 	//Globals::textureManager.loadTexture("forest_4", "res/backgrounds/Forest/plx-4.png");
 	//Globals::textureManager.loadTexture("forest_5", "res/backgrounds/Forest/plx-5.png");
 
-	Globals::shaderManager.loadShader("font", "res/shader/batch.vert", "res/shader/font.frag");
-	Globals::shaderManager.loadShader("batch", "res/shader/batch.vert", "res/shader/batch.frag");
-	Globals::shaderManager.loadShader("quad_back", "res/shader/quad_back.vert", "res/shader/quad.frag");
+	Globals::shaderManager.loadShader("font", "Assets/Shader/batch.vert", "res/shader/font.frag");
+	Globals::shaderManager.loadShader("batch", "Assets/Shader/batch.vert", "res/shader/batch.frag");
+	Globals::shaderManager.loadShader("quad_back", "Assets/Shader/quad_back.vert", "res/shader/quad.frag");
 
-	Globals::shaderManager.loadShader("quad", "res/shader/quad.vert", "res/shader/quad.frag");
-	Globals::shaderManager.loadShader("quad_array", "res/shader/quad_array.vert", "res/shader/quad_array.frag");
+	Globals::shaderManager.loadShader("quad", "Assets/Shader/quad.vert", "res/shader/quad.frag");
+	Globals::shaderManager.loadShader("quad_array", "Assets/Shader/quad_array.vert", "res/shader/quad_array.frag");
 
 	Globals::textureManager.loadTexture("paper", "Assets/Jelly/Texture/paper.png");
 	Globals::textureManager.loadTexture("controls", "Assets/Images/buttons_vita.png");

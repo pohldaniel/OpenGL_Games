@@ -1,6 +1,5 @@
 #include "GameSpringBody.h"
-#include "../JellyHelper.h"
-#include <iostream>
+#include "JellyHelper.h"
 
 GameSpringBody::GameSpringBody(World* w, const ClosedShape& shape, float massPerPoint,
 	float edgeSpringK, float edgeSpringDamp,

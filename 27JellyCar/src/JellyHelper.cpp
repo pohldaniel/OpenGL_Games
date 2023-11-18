@@ -10,10 +10,10 @@ JellyHellper::JellyHellper(){
 
 void JellyHellper::LoadShaders(){
 	//load color shader
-	m_colorShader = new Shader("res/shader/simple_color_transform.vert", "res/shader/simple_color_transform.frag");
+	m_colorShader = new Shader("Assets/Shader/simple_color_transform.vert", "Assets/Shader/simple_color_transform.frag");
 
 	//load texture shader
-	m_textureShader = new Shader("res/shader/sprite.vert", "res/shader/sprite.frag");
+	m_textureShader = new Shader("Assets/Shader/sprite.vert", "Assets/Shader/sprite.frag");
 }
 
 JellyHellper* JellyHellper::Instance(){
