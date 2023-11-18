@@ -64,7 +64,7 @@ bool Utils::SolidIO::getSimilarVertexIndex(std::array<float, 5>& packed, std::ma
 
 void Utils::SolidIO::solidToObj(const char* filename, const char* outFileObj, const char* outFileMtl, const char* texturePath, bool flipVertical) {
 
-	std::experimental::filesystem::path mltPath(outFileMtl);
+	std::filesystem::path mltPath(outFileMtl);
 
 	std::vector<std::array<float, 3>> vertices;
 	std::vector<std::array<short, 3>> faces;
@@ -158,7 +158,7 @@ void Utils::SolidIO::solidToObj(const char* filename, const char* outFileObj, co
 	fileOut << "Ni 1.000000\n";
 	fileOut << "d 1.000000\n";
 	fileOut << "illum 1\n";
-	std::string absPath = std::experimental::filesystem::current_path().generic_string();
+	std::string absPath = std::filesystem::current_path().generic_string();
 	std::replace(absPath.begin(), absPath.end(), '\\', '/');
 	fileOut << "map_Kd " << absPath << texturePath;
 	fileOut.close();
@@ -237,7 +237,7 @@ const unsigned ELEMENT_TYPESIZES[] = {
 };
 
 void Utils::MdlIO::mdlToObj(const char* filename, const char* outFileObj, const char* outFileMtl, const char* texturePath) {
-	std::experimental::filesystem::path mltPath(outFileMtl);
+	std::filesystem::path mltPath(outFileMtl);
 	
 	std::vector<std::array<float, 3>> positions;
 	std::vector<std::array<float, 3>> normals;
@@ -362,7 +362,7 @@ void Utils::MdlIO::mdlToObj(const char* filename, const char* outFileObj, const 
 	fileOut << "Ni 1.000000\n";
 	fileOut << "d 1.000000\n";
 	fileOut << "illum 1\n";
-	std::string absPath = std::experimental::filesystem::current_path().generic_string();
+	std::string absPath = std::filesystem::current_path().generic_string();
 	std::replace(absPath.begin(), absPath.end(), '\\', '/');
 	fileOut << "map_Kd " << absPath << texturePath;
 	fileOut.close();
