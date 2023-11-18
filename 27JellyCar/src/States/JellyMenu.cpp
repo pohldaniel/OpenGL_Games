@@ -9,6 +9,7 @@
 #include "JellyHelper.h"
 #include "JellyOptions.h"
 #include "JellyGame.h"
+#include "MusicManager.h"
 
 JellyMenu::JellyMenu(StateMachine& machine) : State(machine, States::JELLYMENU),
 currentPosition(SceneManager::Get().getScene("scene").m_currentPosition),
@@ -210,6 +211,8 @@ void JellyMenu::processInput() {
 		shader->loadVector("u_texRect", Vector4f(0.0f, 0.0f, 1.0f, 1.0f));
 		shader->unuse();
 
+		MusicManager::Get().playMusic();
+
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new JellyGame(m_machine, "scene"));
 		return;
@@ -222,7 +225,7 @@ void JellyMenu::processInput() {
 		if (currentPosition < 0){
 			currentPosition = 0;
 		}
-		//_audioHelper->PlayHitSound();
+		MusicManager::Get().playHitSound();
 	}
 
 	if (keyboard.keyPressed(Keyboard::KEY_DOWN)){
@@ -231,7 +234,7 @@ void JellyMenu::processInput() {
 		if (currentPosition >= m_levelInfosSize){
 			currentPosition = m_levelInfosSize - 1;
 		}
-		//_audioHelper->PlayHitSound();
+		MusicManager::Get().playHitSound();
 	}
 
 	if (keyboard.keyPressed(Keyboard::KEY_D)){

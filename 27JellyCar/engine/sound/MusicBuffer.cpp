@@ -247,7 +247,7 @@ void MusicBuffer::run() {
 	m_looper->run();
 	auto const task = [&]() {
 		updateBufferStream();
-		std::this_thread::sleep_for(std::chrono::milliseconds(100));
+		std::this_thread::sleep_for(std::chrono::milliseconds(50));
 	};
 
 	m_looper->addTask(task);

@@ -16,9 +16,10 @@ JellyIntro::JellyIntro(StateMachine& machine) : State(machine, States::JELLYINTR
 	m_columns = ceil(static_cast<float>(Application::Width) / static_cast<float>(m_backWidth));
 	m_rows = ceil(static_cast<float>(Application::Height) / static_cast<float>(m_backHeight));
 
-	MusicManager::Get().init();
+	SceneManager::Get().getScene("scene").loadSettings("JellyAudioSettings.xml");
+	MusicManager::Get().init(SceneManager::Get().getScene("scene").m_soundSettings.carVolume, SceneManager::Get().getScene("scene").m_soundSettings.soundsVolume, SceneManager::Get().getScene("scene").m_soundSettings.musicVolume);
 
-	//MusicManager::Get().playFastEngine();
+	MusicManager::Get().playFastEngine();
 
 	JellyHellper::Instance()->LoadShaders();
 	m_world = new World();
@@ -110,7 +111,6 @@ void JellyIntro::update() {
 	}
 
 	if (enterMenu){
-		//_audioHelper->StopEngineSound();
 		auto shader = Globals::shaderManager.getAssetPointer("quad_back");
 		shader->use();
 		shader->loadInt("u_texture", 0);
@@ -121,7 +121,8 @@ void JellyIntro::update() {
 		shader->loadInt("u_texture", 0);
 		shader->unuse();
 
-		//MusicManager::Get().stopEngineSound();
+		MusicManager::Get().stopEngineSound();
+		MusicManager::Get().playMusic();
 
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new JellyMenu(m_machine));

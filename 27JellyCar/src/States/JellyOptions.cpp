@@ -7,6 +7,7 @@
 #include "Globals.h"
 #include "JellyHelper.h"
 #include "TileSet.h"
+#include "MusicManager.h"
 
 JellyOptions::JellyOptions(StateMachine& machine) : State(machine, States::JELLYOPTIONS) {
 
@@ -28,7 +29,7 @@ JellyOptions::JellyOptions(StateMachine& machine) : State(machine, States::JELLY
 	m_world = new World();
 
 	Scene::InitPhysic(m_world);
-	SceneManager::Get().getScene("scene").loadCompiledLevel("options_scene.scene");
+	SceneManager::Get().getScene("scene").loadLevel("options_scene.scene");
 	SceneManager::Get().getScene("scene").buildLevel(m_world, m_gameBodies);
 
 	m_screenBounds = Vector4f(-20.0f + 0, 0 + 20.0f, -4.2f - 5, -5 + 18.2f);
@@ -197,6 +198,7 @@ void JellyOptions::processInput() {
 						addStateAtTop(new JellyOptionControl(*this));
 					}else if (m_gameBodies[i]->GetName() == "options_sound"){
 						m_alphaScale = 1.0f;
+						MusicManager::Get().playFastEngine();
 						addStateAtTop(new JellyOptionSound(*this));
 					}
 				}
@@ -217,6 +219,7 @@ void JellyOptions::processInput() {
 			addStateAtTop(new JellyOptionControl(*this));
 		}else if (m_menuBodies[m_menuBodySelected]->GetName() == "options_sound"){
 			m_alphaScale = 1.0f;
+			MusicManager::Get().playFastEngine();
 			addStateAtTop(new JellyOptionSound(*this));
 		}
 	}
@@ -869,24 +872,22 @@ std::map<int, int> JellyOptionControl::getActionKeyMapping(){
 	return _actionKeyMapping;
 }
 
-JellyOptionSound::JellyOptionSound(JellyOptions& machine) : JellyOptionState(machine) {
-	m_carVolume = 0.3f;
-	m_soundsVolume = 0.3f;
-	m_musicVolume = 0.1f;
-
-	loadSettings("JellyAudioSettings.xml");
-
+JellyOptionSound::JellyOptionSound(JellyOptions& machine) : JellyOptionState(machine), 
+carVolume(SceneManager::Get().getScene("scene").m_soundSettings.carVolume),
+soundsVolume(SceneManager::Get().getScene("scene").m_soundSettings.soundsVolume),
+musicVolume(SceneManager::Get().getScene("scene").m_soundSettings.musicVolume) {
+	
 	m_soundPosition = 0;
 	m_alphaScale = 1.0f;
 	m_scaleFactor = 0.01f;
 
-	m_optionsCarLevel = m_carVolume * 10.0f;
-	m_optionsSoundLevel = m_soundsVolume * 10.0f;
-	m_optionsMusicLevel = m_musicVolume * 10.0f;
-}
+	m_optionsCarLevel = (int)round(carVolume * 10.0f);
+	m_optionsSoundLevel = (int)round(soundsVolume * 10.0f);
+	m_optionsMusicLevel = (int)round(musicVolume * 10.0f);
+} 
 
 JellyOptionSound::~JellyOptionSound() {
-	saveSettings("JellyAudioSettings.xml");
+	SceneManager::Get().getScene("scene").saveSettings("JellyAudioSettings.xml");
 }
 
 void JellyOptionSound::fixedUpdate() {}
@@ -1054,11 +1055,10 @@ void JellyOptionSound::processInput() {
 		if (m_soundPosition < 0){
 			m_soundPosition = 0;
 		}
-
-		//_audioHelper->StopEngineSound();
+		MusicManager::Get().stopEngineSound();
 
 		if (m_soundPosition == 0){
-			//_audioHelper->PlayFastEngine();
+			MusicManager::Get().playFastEngine();
 		}
 	}
 
@@ -1069,21 +1069,21 @@ void JellyOptionSound::processInput() {
 			m_soundPosition = 2;
 		}
 
-		//_audioHelper->StopEngineSound();
+		MusicManager::Get().stopEngineSound();
 
 		if (m_soundPosition == 0){
-			//_audioHelper->PlayFastEngine();
+			MusicManager::Get().playFastEngine();
 		}
 	}
 
 	if (keyboard.keyPressed(Keyboard::KEY_LEFT)){
-
 		if (m_soundPosition == 0){
 			m_optionsCarLevel--;
 			if (m_optionsCarLevel < 0){
 				m_optionsCarLevel = 0;
 			}
-			m_carVolume = (float)m_optionsCarLevel / 10.0f;
+			carVolume = (float)m_optionsCarLevel / 10.0f;
+			MusicManager::Get().setVolume(MusicManager::AudioHelperSoundEnum::Car, carVolume);
 		}
 
 		if (m_soundPosition == 1){
@@ -1091,8 +1091,10 @@ void JellyOptionSound::processInput() {
 			if (m_optionsSoundLevel < 0){
 				m_optionsSoundLevel = 0;
 			}
-			m_soundsVolume = (float)m_optionsSoundLevel / 10.0f;
-			//_audioHelper->PlayHitSound();
+			soundsVolume = (float)m_optionsSoundLevel / 10.0f;
+			MusicManager::Get().setVolume(MusicManager::AudioHelperSoundEnum::Sounds, soundsVolume);
+			
+			MusicManager::Get().playHitSound();
 		}
 
 		if (m_soundPosition == 2){
@@ -1100,20 +1102,21 @@ void JellyOptionSound::processInput() {
 			if (m_optionsMusicLevel < 0){
 				m_optionsMusicLevel = 0;
 			}
-			m_musicVolume = (float)m_optionsMusicLevel / 10.0f;
+			musicVolume = (float)m_optionsMusicLevel / 10.0f;
+			MusicManager::Get().setVolume(MusicManager::AudioHelperSoundEnum::Music, musicVolume);
 		}
 	}
 
 	//move down
 	if (keyboard.keyPressed(Keyboard::KEY_RIGHT)){
-
 		if (m_soundPosition == 0){
 			m_optionsCarLevel++;
 			if (m_optionsCarLevel > 10){
 				m_optionsCarLevel = 10;
 			}
 
-			m_carVolume = (float)m_optionsCarLevel / 10.0f;
+			carVolume = (float)m_optionsCarLevel / 10.0f;
+			MusicManager::Get().setVolume(MusicManager::AudioHelperSoundEnum::Car, carVolume);
 		}
 
 		if (m_soundPosition == 1){
@@ -1122,8 +1125,9 @@ void JellyOptionSound::processInput() {
 				m_optionsSoundLevel = 10;
 			}
 
-			m_soundsVolume = (float)m_optionsSoundLevel / 10.0f;
-			//_audioHelper->PlayHitSound();
+			soundsVolume = (float)m_optionsSoundLevel / 10.0f;
+			MusicManager::Get().setVolume(MusicManager::AudioHelperSoundEnum::Sounds, soundsVolume);
+			MusicManager::Get().playHitSound();
 		}
 
 		if (m_soundPosition == 2){
@@ -1132,82 +1136,14 @@ void JellyOptionSound::processInput() {
 				m_optionsMusicLevel = 10;
 			}
 
-			m_musicVolume = (float)m_optionsMusicLevel / 10.0f;
+			musicVolume = (float)m_optionsMusicLevel / 10.0f;
+			MusicManager::Get().setVolume(MusicManager::AudioHelperSoundEnum::Music, musicVolume);
 		}
 	}
 
 	if (keyboard.keyPressed(Keyboard::KEY_D)) {
+		MusicManager::Get().stopEngineSound();
 		m_isRunning = false;
 		return;
 	}
-}
-
-void JellyOptionSound::loadSettings(std::string path) {
-
-	std::ifstream is(path, std::ifstream::in);
-
-	if (!is.is_open())
-		return;
-
-	is.seekg(0, is.end);
-	std::streamoff length = is.tellg();
-	is.seekg(0, is.beg);
-
-	unsigned char* buffer = new unsigned char[length];
-	is.read(reinterpret_cast<char*>(buffer), length);
-	is.close();
-
-	TiXmlDocument doc;
-	if (!doc.LoadContent(buffer, static_cast<int>(length))) {
-		return;
-	}
-
-	TiXmlHandle hDoc(&doc);
-	TiXmlElement* pElem;
-	TiXmlHandle hRoot(0);
-
-	TiXmlElement* ObjectNode = pElem = hDoc.FirstChild("Settings").FirstChild().Element();
-	for (ObjectNode; ObjectNode; ObjectNode = ObjectNode->NextSiblingElement()){
-		std::string soundName = ObjectNode->Attribute("name");
-
-		if (soundName == "Car"){
-			m_carVolume = std::stof(ObjectNode->Attribute("volume"));
-		}else if (soundName == "Sounds"){
-			m_soundsVolume = std::stof(ObjectNode->Attribute("volume"));
-		}else if (soundName == "Music"){
-			m_musicVolume = std::stof(ObjectNode->Attribute("volume"));
-		}
-	}
-}
-
-void JellyOptionSound::saveSettings(std::string path) {
-	TiXmlDocument doc;
-	TiXmlDeclaration* decl = new TiXmlDeclaration("1.0", "", "");
-	doc.LinkEndChild(decl);
-
-	//root
-	TiXmlElement * root = new TiXmlElement("Settings");
-	doc.LinkEndChild(root);
-	{
-		TiXmlElement * cxn = new TiXmlElement("SoundLevel");
-		root->LinkEndChild(cxn);
-		cxn->SetAttribute("name", "Car");
-		cxn->SetDoubleAttribute("volume", m_carVolume);
-	}
-
-	{
-		TiXmlElement * cxn = new TiXmlElement("SoundLevel");
-		root->LinkEndChild(cxn);
-		cxn->SetAttribute("name", "Sounds");
-		cxn->SetDoubleAttribute("volume", m_soundsVolume);
-	}
-
-	{
-		TiXmlElement * cxn = new TiXmlElement("SoundLevel");
-		root->LinkEndChild(cxn);
-		cxn->SetAttribute("name", "Music");
-		cxn->SetDoubleAttribute("volume", m_musicVolume);
-	}
-
-	doc.SaveFile(path.c_str());
 }

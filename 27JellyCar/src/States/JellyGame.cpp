@@ -8,6 +8,7 @@
 #include "Globals.h"
 #include "JellyHelper.h"
 #include "SceneManager.h"
+#include "MusicManager.h"
 
 JellyGame::JellyGame(StateMachine& machine, std::string sceneName) : State(machine, States::JELLYGAME) {
 	EventDispatcher::AddKeyboardListener(this);
@@ -16,7 +17,8 @@ JellyGame::JellyGame(StateMachine& machine, std::string sceneName) : State(machi
 	m_sceneName = sceneName;
 
 	JellyHellper::Instance()->LoadShaders();
-	
+	MusicManager::Get().playSlowEngine();
+
 	m_screenBounds = Vector4f(0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f);
 
 	m_fastCar = false;
@@ -231,7 +233,7 @@ void JellyGame::update() {
 	//check level ending
 	if (m_car->getChassisBody()->getAABB().contains(m_levelTarget)){
 		if (m_car->getChassisBody()->contains(m_levelTarget)){
-			//_audioHelper->StopEngineSound();
+			MusicManager::Get().stopEngineSound();
 
 			if (m_time < SceneManager::Get().getScene(m_sceneName).getTime(m_levelName)) {
 				m_newTimeRecord = true;
@@ -255,7 +257,7 @@ void JellyGame::update() {
 	for (int i = 0; i < 2; i++){
 		if (m_car->getTire(i)->getAABB().contains(m_levelTarget)){
 			if (m_car->getTire(i)->contains(m_levelTarget)){
-				//_audioHelper->StopEngineSound();
+				MusicManager::Get().stopEngineSound();
 
 				if (m_time < SceneManager::Get().getScene(m_sceneName).getTime(m_levelName)){
 					m_newTimeRecord = true;
@@ -291,7 +293,7 @@ void JellyGame::update() {
 			m_car->getTire(0)->setPositionAngle(Vector2(m_checkpointPosition[0] + 1.5f, m_checkpointPosition[1] - 0.3f), 0.0f, scale);
 			m_car->getTire(1)->setPositionAngle(Vector2(m_checkpointPosition[0] - 1.3f, m_checkpointPosition[1] - 0.3f), 0.0f, scale);
 		}else{
-			//_audioHelper->StopEngineSound();
+			MusicManager::Get().stopEngineSound();
 			m_machine.addStateAtTop(new JellyDialog(m_machine, m_mainRT, "Out of level"));
 			return;
 		}
@@ -301,7 +303,7 @@ void JellyGame::update() {
 	AABB chassisAABB = m_car->getChassisBody()->getAABB();
 	Vector2 chassisSize = chassisAABB.Max - chassisAABB.Min;
 	if ((fabsf(chassisSize.X) > 17.0f) || (fabsf(chassisSize.Y) > 17.0f)){
-		//_audioHelper->StopEngineSound();
+		MusicManager::Get().stopEngineSound();
 		m_machine.addStateAtTop(new JellyDialog(m_machine, m_mainRT, "Car broken"));
 		return;
 	}
@@ -310,7 +312,7 @@ void JellyGame::update() {
 	if (m_world->getPenetrationCount() > 20){
 		m_carBreakCount++;
 		if (m_carBreakCount > 5){
-			//_audioHelper->StopEngineSound();
+			MusicManager::Get().stopEngineSound();
 			m_machine.addStateAtTop(new JellyDialog(m_machine, m_mainRT, "Car broken"));
 			return;
 		}
@@ -338,7 +340,7 @@ void JellyGame::update() {
 	if (m_chassisHit > 0.0f){
 		if ((m_chassisHit > 3.0f) && (m_hitTime > 0.3f)){
 			//play hit sound
-			//_audioHelper->PlayHitSound();
+			MusicManager::Get().playHitSound();
 
 			//set timer
 			m_hitTime = 0.0f;
@@ -602,6 +604,7 @@ void JellyGame::processInput() {
 	Mouse& mouse = Mouse::instance();
 
 	if (keyboard.keyPressed(Keyboard::KEY_ENTER) && !keyboard.keyDown(Keyboard::KEY_RALT)){
+		MusicManager::Get().stopEngineSound();
 		m_machine.addStateAtTop(new JellyDialogPause(m_machine, m_mainRT, this));
 		return;
 	}
@@ -657,14 +660,14 @@ void JellyGame::processInput() {
 
 	if (keyboard.keyDown(Keyboard::KEY_LEFT) || keyboard.keyDown(Keyboard::KEY_RIGHT)){
 		if (m_car->getVelocity().length() > 2.0f && m_slowCar){
-			//_audioHelper->PlayFastEngine();
+			MusicManager::Get().playFastEngine();
 			m_slowCar = false;
 			m_fastCar = true;
 		}
 
 	}else{
 		if (m_fastCar){
-			//_audioHelper->PlaySlowEngine();
+			MusicManager::Get().playSlowEngine();
 			m_slowCar = true;
 			m_fastCar = false;
 		}

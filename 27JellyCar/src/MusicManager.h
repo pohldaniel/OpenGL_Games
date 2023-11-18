@@ -14,7 +14,7 @@ public:
 		Music
 	};
 
-	void init();
+	void init(float carVolume, float soundsVolume, float musicVolume);
 	void playHitSound();
 	void playMusic();
 	void stopMusic();

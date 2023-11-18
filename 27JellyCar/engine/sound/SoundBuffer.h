@@ -63,6 +63,7 @@ private:
 	bool m_sourceInit = false;
 
 	std::vector<ALuint> m_sources;
+	std::vector<ALuint> m_buffers;
 	CacheLRU<std::string, SoundBuffer::CacheEntrySource> m_soundSourceCache;
 
 	static std::vector<ALuint> Buffer;

@@ -643,6 +643,81 @@ void Scene::loadOriginLevel(const std::string path) {
 	}
 }
 
+void Scene::loadSettings(std::string path) {
+	std::ifstream is(path, std::ifstream::in);
+
+	if (!is.is_open()) {
+		m_soundSettings.carVolume = 0.3f;
+		m_soundSettings.soundsVolume = 0.3f;
+		m_soundSettings.musicVolume = 0.1f;
+		return;
+	}
+
+	is.seekg(0, is.end);
+	std::streamoff length = is.tellg();
+	is.seekg(0, is.beg);
+
+	unsigned char* buffer = new unsigned char[length];
+	is.read(reinterpret_cast<char*>(buffer), length);
+	is.close();
+
+	TiXmlDocument doc;
+	if (!doc.LoadContent(buffer, static_cast<int>(length))) {
+		return;
+	}
+
+	TiXmlHandle hDoc(&doc);
+	TiXmlElement* pElem;
+	TiXmlHandle hRoot(0);
+
+	TiXmlElement* ObjectNode = pElem = hDoc.FirstChild("Settings").FirstChild().Element();
+	for (ObjectNode; ObjectNode; ObjectNode = ObjectNode->NextSiblingElement()) {
+		std::string soundName = ObjectNode->Attribute("name");
+
+		if (soundName == "Car") {
+			m_soundSettings.carVolume = std::stof(ObjectNode->Attribute("volume"));
+		}
+		else if (soundName == "Sounds") {
+			m_soundSettings.soundsVolume = std::stof(ObjectNode->Attribute("volume"));
+		}
+		else if (soundName == "Music") {
+			m_soundSettings.musicVolume = std::stof(ObjectNode->Attribute("volume"));
+		}
+	}
+}
+
+void Scene::saveSettings(std::string path) {
+	TiXmlDocument doc;
+	TiXmlDeclaration* decl = new TiXmlDeclaration("1.0", "", "");
+	doc.LinkEndChild(decl);
+
+	//root
+	TiXmlElement * root = new TiXmlElement("Settings");
+	doc.LinkEndChild(root);
+	{
+		TiXmlElement * cxn = new TiXmlElement("SoundLevel");
+		root->LinkEndChild(cxn);
+		cxn->SetAttribute("name", "Car");
+		cxn->SetFloatAttribute("volume", m_soundSettings.carVolume);
+	}
+
+	{
+		TiXmlElement * cxn = new TiXmlElement("SoundLevel");
+		root->LinkEndChild(cxn);
+		cxn->SetAttribute("name", "Sounds");
+		cxn->SetFloatAttribute("volume", m_soundSettings.soundsVolume);
+	}
+
+	{
+		TiXmlElement * cxn = new TiXmlElement("SoundLevel");
+		root->LinkEndChild(cxn);
+		cxn->SetAttribute("name", "Music");
+		cxn->SetFloatAttribute("volume", m_soundSettings.musicVolume);
+	}
+
+	doc.SaveFile(path.c_str());
+}
+
 void Scene::saveCompiledLevel(const std::string path) {
 	
 	std::ofstream stream(path, std::ios::binary);

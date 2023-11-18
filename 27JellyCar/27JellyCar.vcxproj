@@ -145,7 +145,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;_CRT_SECURE_NO_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;ANDROMEDA_GL3;ANDROMEDA_GLFW;ANDROMEDA_PC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_CRT_SECURE_NO_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\;src;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;..\libfreetypegl;..\libtinyxml;..\openal\include;..\sndfile\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <DisableSpecificWarnings>4005;</DisableSpecificWarnings>

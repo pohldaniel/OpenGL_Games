@@ -317,9 +317,11 @@ void Mouse::attach(HWND hWnd, bool _hideCursor) {
 	m_centerX = rectWindow.left + rectClient.right / 2;
 	m_centerY = rectWindow.top + rectClient.bottom / 2;
 
-	setCursorToMiddle();
-	if(_hideCursor)
+	
+	if (_hideCursor) {
 		hideCursor(true);
+		setCursorToMiddle();
+	}
 	m_attached = true;
 }
 

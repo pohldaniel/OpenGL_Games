@@ -16,8 +16,6 @@ extern AssetManager<Spritesheet> Globals::spritesheetManager = AssetManager<Spri
 extern AssetManager<SoundBuffer> Globals::soundManager = AssetManager<SoundBuffer>();
 extern AssetManager<MusicBuffer> Globals::musicManager = AssetManager<MusicBuffer>();
 
-extern float Globals::soundVolume = 0.2f;
-extern float Globals::musicVolume = 0.1f;
 extern Physics* Globals::physics = NULL;
 
 DebugDrawer debugDrawer;
@@ -93,8 +91,5 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	}
 
 	delete Globals::physics;
-
-	//looper->stop();
-	//looper = nullptr;
 	return 0;
 }

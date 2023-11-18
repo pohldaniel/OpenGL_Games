@@ -404,8 +404,8 @@ void Application::initStates() {
 	
 	//Machine->addStateAtTop(new Game(*Machine));
 	//Machine->addStateAtTop(new JellyMenu(*Machine));
-	Machine->addStateAtTop(new JellyIntro(*Machine));
-	//Machine->addStateAtTop(new JellySplash(*Machine));
+	//Machine->addStateAtTop(new JellyIntro(*Machine));
+	Machine->addStateAtTop(new JellySplash(*Machine));
 	//Machine->addStateAtTop(new JellyOptions(*Machine));
 }
 
@@ -598,18 +598,18 @@ void Application::SetCursorIcon(LPCSTR resource) {
 
 void Application::loadAssets() {
 
+	//Globals::textureManager.loadTexture("forest_1", "res/backgrounds/Forest/plx-1.png");
+	//Globals::textureManager.loadTexture("forest_2", "res/backgrounds/Forest/plx-2.png");
+	//Globals::textureManager.loadTexture("forest_3", "res/backgrounds/Forest/plx-3.png");
+	//Globals::textureManager.loadTexture("forest_4", "res/backgrounds/Forest/plx-4.png");
+	//Globals::textureManager.loadTexture("forest_5", "res/backgrounds/Forest/plx-5.png");
+
 	Globals::shaderManager.loadShader("font", "res/shader/batch.vert", "res/shader/font.frag");
 	Globals::shaderManager.loadShader("batch", "res/shader/batch.vert", "res/shader/batch.frag");
 	Globals::shaderManager.loadShader("quad_back", "res/shader/quad_back.vert", "res/shader/quad.frag");
 
 	Globals::shaderManager.loadShader("quad", "res/shader/quad.vert", "res/shader/quad.frag");
 	Globals::shaderManager.loadShader("quad_array", "res/shader/quad_array.vert", "res/shader/quad_array.frag");
-
-	Globals::textureManager.loadTexture("forest_1", "res/backgrounds/Forest/plx-1.png");
-	Globals::textureManager.loadTexture("forest_2", "res/backgrounds/Forest/plx-2.png");
-	Globals::textureManager.loadTexture("forest_3", "res/backgrounds/Forest/plx-3.png");
-	Globals::textureManager.loadTexture("forest_4", "res/backgrounds/Forest/plx-4.png");
-	Globals::textureManager.loadTexture("forest_5", "res/backgrounds/Forest/plx-5.png");
 
 	Globals::textureManager.loadTexture("paper", "Assets/Jelly/Texture/paper.png");
 	Globals::textureManager.loadTexture("controls", "Assets/Images/buttons_vita.png");
@@ -632,7 +632,6 @@ void Application::loadAssets() {
 	Globals::textureManager.loadTexture("secret", "Assets/Jelly/Texture/Options/secret.png", false);
 	Globals::textureManager.loadTexture("volume", "Assets/Jelly/Texture/Options/volume.png");
 
-
 	Globals::textureManager.loadTexture("transform_meter", "Assets/Jelly/Texture/transform_meter.png");
 	Globals::textureManager.loadTexture("ballon", "Assets/Jelly/Texture/ballon.png");
 	Globals::textureManager.loadTexture("ballon_back", "Assets/Jelly/Texture/roundBack.png");
@@ -640,8 +639,8 @@ void Application::loadAssets() {
 	Globals::textureManager.loadTexture("tire_back", "Assets/Jelly/Texture/roundBackRed.png");
 	Globals::textureManager.loadTexture("target", "Assets/Jelly/Texture/finish.png");
 
-	Globals::fontManager.loadCharacterSet("upheaval_200", "res/fonts/upheavtt.ttf", 200, 0, 30, 128, 0, true, 0u);
-	Globals::fontManager.loadCharacterSet("upheaval_50", "res/fonts/upheavtt.ttf",  50,  0, 3,  0,   0, true, 1u);
+	//Globals::fontManager.loadCharacterSet("upheaval_200", "res/fonts/upheavtt.ttf", 200, 0, 30, 128, 0, true, 0u);
+	//Globals::fontManager.loadCharacterSet("upheaval_50", "res/fonts/upheavtt.ttf",  50,  0, 3,  0,   0, true, 1u);
 
 	Globals::fontManager.loadCharacterSet("jelly_16", "Assets/Fonts/JellyFont.ttf", 16, 20, 20, 512, 0, true, 0u);
 	Globals::fontManager.loadCharacterSet("jelly_32", "Assets/Fonts/JellyFont.ttf", 32, 20, 20, 512, 0, true, 1u);
@@ -669,24 +668,17 @@ void Application::loadAssets() {
 	Globals::shapeManager.buildQuadXY("quad_aligned", Vector3f(0.0f, 0.0f, 0.0f), Vector2f(1.0f, 1.0f), 1, 1, true, false, false);
 	Globals::shapeManager.buildQuadXY("quad_aligned_x", Vector3f(0.0f, -0.5f, 0.0f), Vector2f(1.0f, 1.0f), 1, 1, true, false, false);
 
-	//MusicBuffer::Init();
+	MusicBuffer::Init();
 	SoundBuffer::Init();
 
+	Globals::musicManager.createMusicBuffer("background");
+	Globals::musicManager.get("background").run();
+	Globals::musicManager.get("background").setLooping(true);
 
-	//Globals::musicManager.createMusicBuffer("background");
-	//Globals::musicManager.get("background").run();
-	//Globals::musicManager.get("background").setVolume(Globals::musicVolume);
-	//Globals::musicManager.get("background").setLooping(true);
-
-
-	//Globals::soundManager.createSoundBuffer("hit", 4u, 13u, Globals::soundVolume);
-	//Globals::soundManager.createSoundBuffer("car", 0u, 2u, Globals::soundVolume);
-	//Globals::soundManager.get("car").loadChannel("Assets/Jelly/Sounds/car_low.wav", 0u);
-	//Globals::soundManager.get("car").loadChannel("Assets/Jelly/Sounds/car_high.wav", 1u);
-	//Globals::soundManager.get("car").setLoopingChannel(0u, true);
-	//Globals::soundManager.get("car").setLoopingChannel(1u, true);
-
-	Globals::soundManager.createSoundBuffer("mainMenu", 0u, 2u, Globals::soundVolume * 1.2f);
-	Globals::soundManager.get("mainMenu").loadChannel("res/Audio/ButtonHovered.wav", 0u);
-	//Globals::soundManager.get("mainMenu").loadChannel("res/Audio/ButtonClicked.wav", 1u);
+	Globals::soundManager.createSoundBuffer("hit", 6u, 26u, 1.0f);
+	Globals::soundManager.createSoundBuffer("car", 0u, 2u, 1.0f);
+	Globals::soundManager.get("car").loadChannel("Assets/Jelly/Sounds/car_low.wav", 0u);
+	Globals::soundManager.get("car").loadChannel("Assets/Jelly/Sounds/car_high.wav", 1u);
+	Globals::soundManager.get("car").setLoopingChannel(0u, true);
+	Globals::soundManager.get("car").setLoopingChannel(1u, true);
 }

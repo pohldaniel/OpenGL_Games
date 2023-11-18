@@ -49,6 +49,12 @@ struct LevelInfo {
 	float fallLine;
 };
 
+struct SoundSettings {
+	float carVolume;
+	float soundsVolume;
+	float musicVolume;
+};
+
 class LevelSoftBody;
 class Scene {
 
@@ -95,6 +101,9 @@ public:
 	void loadCompiledLevel(const std::string path);
 	void loadOriginLevel(const std::string path);
 
+	void loadSettings(std::string path);
+	void saveSettings(std::string path);
+
 	void saveCompiledLevel(const std::string path);
 	void saveLevel(const std::string path);
 
@@ -103,6 +112,8 @@ public:
 
 	int m_currentPosition;
 	int m_carCurrentPosition;
+
+	SoundSettings m_soundSettings;
 
 	static void SaveLevel(const std::string path, const std::vector<ObjectInfo>& objectInfos, std::vector<LevelSoftBody*>& bodies, const Vector2& carPos, const Vector2& target, const float fallLine, const std::string levelName);
 	static void SaveScores(const std::string path, const std::vector<SceneInfo>& levelInfos);

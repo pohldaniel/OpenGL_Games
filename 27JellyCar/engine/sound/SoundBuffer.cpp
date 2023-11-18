@@ -26,6 +26,9 @@ void SoundBuffer::create(unsigned short cacheSizeSources, unsigned short channel
 		m_sources = std::vector<ALuint>(channelSize);
 		alGenSources(channelSize, m_sources.data());
 
+		m_buffers = std::vector<ALuint>(channelSize);
+		alGenBuffers(channelSize, m_buffers.data());
+
 		setVolume(volume);
 		m_source = m_sources[0];
 		m_sourceInit = true;
@@ -44,6 +47,7 @@ void SoundBuffer::cleanup() {
 
 	if (m_sourceInit) {
 		alDeleteSources(static_cast<ALsizei>(m_sources.size()), m_sources.data());
+		alDeleteBuffers(static_cast<ALsizei>(m_buffers.size()), m_buffers.data());
 		m_sourceInit = false;
 	}
 
@@ -202,7 +206,6 @@ void SoundBuffer::loadChannel(const std::string& file, unsigned int channel) {
 	short* membuf;
 	sf_count_t num_frames;
 	ALsizei num_bytes;
-	ALuint buffer;
 
 	// Open the audio file and check that it's usable.
 	sndfile = sf_open(file.c_str(), SFM_READ, &sfinfo);
@@ -250,12 +253,9 @@ void SoundBuffer::loadChannel(const std::string& file, unsigned int channel) {
 	num_bytes = (ALsizei)(num_frames * sfinfo.channels) * (ALsizei)sizeof(short);
 
 	// Buffer the audio data into a new buffer object, then free the data and close the file.
+	alBufferData(m_buffers[channel], format, membuf, num_bytes, sfinfo.samplerate);
+	alSourcei(m_sources[channel], AL_BUFFER, (ALint)m_buffers[channel]);
 
-	alGenBuffers(1, &buffer);
-	alBufferData(buffer, format, membuf, num_bytes, sfinfo.samplerate);
-	alSourcei(m_sources[channel], AL_BUFFER, (ALint)buffer);
-	
-	alDeleteBuffers(1, &buffer);
 	free(membuf);
 	sf_close(sndfile);
 
@@ -263,8 +263,8 @@ void SoundBuffer::loadChannel(const std::string& file, unsigned int channel) {
 	err = alGetError();
 	if (err != AL_NO_ERROR) {
 		fprintf(stderr, "OpenAL Error: %s\n", alGetString(err));
-		if (buffer && alIsBuffer(buffer))
-			alDeleteBuffers(1, &buffer);
+		if (m_buffers[channel] && alIsBuffer(m_buffers[channel]))
+			alDeleteBuffers(1, &m_buffers[channel]);
 		return;
 	}
 }

@@ -45,7 +45,6 @@ void JellySplash::update() {
 		Globals::textureManager.get("splash").unbind();
 
 		m_isRunning = false;
-		//_audioHelper->StopEngineSound();
 		m_machine.addStateAtBottom(new JellyIntro(m_machine));
 
 	}

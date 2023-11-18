@@ -8,6 +8,7 @@
 #include "Application.h"
 #include "Globals.h"
 #include "JellyHelper.h"
+#include "MusicManager.h"
 
 JellyDialog::JellyDialog(StateMachine& machine, Framebuffer& mainRT) : State(machine, States::JELLYDIALOG),mainRT(mainRT){
 	m_controlsWidth = static_cast<float>(Globals::textureManager.get("controls").getWidth());
@@ -78,6 +79,8 @@ void JellyDialog::resize(int deltaW, int deltaH) {
 
 JellyDialogPause::JellyDialogPause(StateMachine& machine, Framebuffer& mainRT, JellyGame* game) : JellyDialog(machine, mainRT){
 	m_game = game;
+
+
 }
 
 void JellyDialogPause::update() {
@@ -94,6 +97,11 @@ void JellyDialogPause::update() {
 
 		if (m_game->m_checkpoint)
 			m_game->spawnAtCheckpoint();
+
+		if(m_game->m_fastCar)
+			MusicManager::Get().playFastEngine();
+		else
+			MusicManager::Get().playSlowEngine();
 	}
 
 	if (keyboard.keyPressed(Keyboard::KEY_ENTER) && !keyboard.keyDown(Keyboard::KEY_RALT)) {

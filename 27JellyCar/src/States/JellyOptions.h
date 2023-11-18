@@ -211,12 +211,9 @@ private:
 	void OnKeyDown(Event::KeyboardEvent& event) override;
 	void processInput() override;
 
-	void loadSettings(std::string path);
-	void saveSettings(std::string path);
-
-	float m_carVolume;
-	float m_soundsVolume;
-	float m_musicVolume;
+	float& carVolume;
+	float& soundsVolume;
+	float& musicVolume;
 
 	int m_soundPosition;
 	float m_alphaScale;
