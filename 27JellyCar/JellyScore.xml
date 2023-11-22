@@ -1,0 +1,64 @@
+<?xml version="1.0" ?>
+<Levels>
+  <Level name="Tutorial" id="0" score="4.814813" jump="4.318289" />
+  <Level name="Initiation" id="1" score="999" jump="0" />
+  <Level name="Forest" id="2" score="17.32314" jump="14.09334" />
+  <Level name="Slide" id="3" score="999" jump="0" />
+  <Level name="Crusher" id="4" score="40.79463" jump="5.85236" />
+  <Level name="Moving Platforms" id="5" score="999" jump="0" />
+  <Level name="Kerplunk" id="6" score="5.747172" jump="10.44981" />
+  <Level name="Balloon Squeeze" id="7" score="999" jump="0" />
+  <Level name="Snake" id="8" score="999" jump="0" />
+  <Level name="Lance" id="9" score="999" jump="0" />
+  <Level name="Cave" id="10" score="999" jump="0" />
+  <Level name="Saw" id="11" score="999" jump="0" />
+  <Level name="Ski Jump" id="12" score="999" jump="0" />
+  <Level name="Spiral" id="13" score="999" jump="0" />
+  <Level name="Catapult" id="14" score="999" jump="0" />
+  <Level name="Boat" id="15" score="999" jump="0" />
+  <Level name="Boulders" id="16" score="999" jump="0" />
+  <Level name="Mouse" id="17" score="999" jump="0" />
+  <Level name="Factory" id="18" score="999" jump="0" />
+  <Level name="Grass Lifts" id="19" score="999" jump="0" />
+  <Level name="Platformer" id="20" score="999" jump="0" />
+  <Level name="Slow Spin" id="21" score="999" jump="0" />
+  <Level name="Circus" id="22" score="999" jump="0" />
+  <Level name="Descent" id="23" score="999" jump="0" />
+  <Level name="Ride the Wave" id="24" score="999" jump="0" />
+  <Level name="Water Underneath" id="25" score="999" jump="0" />
+  <Level name="Cave Escape" id="26" score="999" jump="0" />
+  <Level name="Semi Circles" id="27" score="999" jump="0" />
+  <Level name="The Dryer" id="28" score="999" jump="0" />
+  <Level name="Space Ship" id="29" score="999" jump="0" />
+  <Level name="Spongy Bridges" id="30" score="999" jump="0" />
+  <Level name="Lemons" id="31" score="999" jump="0" />
+  <Level name="Rocket Launch" id="32" score="999" jump="0" />
+  <Level name="Pinwheels" id="33" score="999" jump="0" />
+  <Level name="The Big Wheel" id="34" score="999" jump="0" />
+  <Level name="Up" id="35" score="999" jump="0" />
+  <Level name="Circle Waves" id="36" score="999" jump="0" />
+  <Level name="Horseshoes" id="37" score="999" jump="0" />
+  <Level name="Jello Fortress" id="38" score="999" jump="0" />
+  <Level name="Launch" id="39" score="999" jump="0" />
+  <Level name="Box Towers" id="40" score="999" jump="0" />
+  <Level name="Candy Canes" id="41" score="999" jump="0" />
+  <Level name="Beware The Spikes" id="42" score="999" jump="0" />
+  <Level name="Round and Round" id="43" score="999" jump="0" />
+  <Level name="Grinder" id="44" score="999" jump="0" />
+  <Level name="Boulders 2" id="45" score="999" jump="0" />
+  <Level name="Homeward" id="46" score="999" jump="0" />
+  <Level name="Float By" id="47" score="999" jump="0" />
+  <Level name="Revolver" id="48" score="999" jump="0" />
+  <Level name="Grapes" id="49" score="999" jump="0" />
+  <Level name="Loading" id="50" score="999" jump="0" />
+  <Level name="Homerun" id="51" score="999" jump="0" />
+  <Level name="Jelly Derby" id="52" score="999" jump="0" />
+  <Level name="Lift" id="53" score="999" jump="0" />
+  <Level name="Piter Pan" id="54" score="999" jump="0" />
+  <Level name="Slow Fall" id="55" score="999" jump="0" />
+  <Level name="Jaklub" id="56" score="999" jump="0" />
+  <Level name="Storm the Castle" id="57" score="999" jump="0" />
+  <Level name="Cogs" id="58" score="999" jump="0" />
+  <Level name="Green Maze" id="59" score="999" jump="0" />
+  <Level name="Mouse Ears" id="60" score="999" jump="0" />
+</Levels>

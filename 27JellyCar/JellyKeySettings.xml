@@ -1,0 +1,11 @@
+<?xml version="1.0" ?>
+<Settings>
+  <ActionMapping action="0" key="37" />
+  <ActionMapping action="1" key="39" />
+  <ActionMapping action="2" key="81" />
+  <ActionMapping action="3" key="69" />
+  <ActionMapping action="4" key="83" />
+  <ActionMapping action="5" key="68" />
+  <ActionMapping action="6" key="65" />
+  <ActionMapping action="7" key="87" />
+</Settings>
