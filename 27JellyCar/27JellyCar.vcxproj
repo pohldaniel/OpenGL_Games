@@ -95,7 +95,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>..\libd\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libsoil2.lib;libimgui.lib;libfreetype.lib;libbullet.lib;libfreetypegl.lib;libtinyxml.lib;libopenal.lib;libsndfile.lib;libmpg.lib;liblame.lib;libflac.lib;winmm.lib;shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libsoil2.lib;libimgui.lib;libfreetype.lib;libbullet.lib;libtinyxml.lib;libopenal.lib;libsndfile.lib;libmpg.lib;liblame.lib;libflac.lib;winmm.lib;shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -112,7 +112,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>..\libd\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libsoil2.lib;libimgui.lib;libfreetype.lib;libbullet.lib;libfreetypegl.lib;libtinyxml.lib;libopenal.lib;libsndfile.lib;libmpg.lib;liblame.lib;libflac.lib;winmm.lib;shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libsoil2.lib;libimgui.lib;libfreetype.lib;libbullet.lib;libtinyxml.lib;libopenal.lib;libsndfile.lib;libmpg.lib;liblame.lib;libflac.lib;winmm.lib;shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -134,7 +134,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>..\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libsoil2.lib;libimgui.lib;libfreetype.lib;libbullet.lib;libfreetypegl.lib;libtinyxml.lib;libopenal.lib;libsndfile.lib;libmpg.lib;liblame.lib;libflac.lib;winmm.lib;shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libsoil2.lib;libimgui.lib;libfreetype.lib;libbullet.lib;libtinyxml.lib;libopenal.lib;libsndfile.lib;libmpg.lib;liblame.lib;libflac.lib;winmm.lib;shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -156,7 +156,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>..\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libsoil2.lib;libimgui.lib;libfreetype.lib;libbullet.lib;libfreetypegl.lib;libtinyxml.lib;libopenal.lib;libsndfile.lib;libmpg.lib;liblame.lib;libflac.lib;winmm.lib;shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libsoil2.lib;libimgui.lib;libfreetype.lib;libbullet.lib;libtinyxml.lib;libopenal.lib;libsndfile.lib;libmpg.lib;liblame.lib;libflac.lib;winmm.lib;shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

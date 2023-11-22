@@ -76,7 +76,7 @@ void Texture::flipVertical(unsigned char* data, unsigned int padWidth, unsigned 
 	unsigned char *pSrcRow = 0;
 	unsigned char *pDestRow = 0;
 
-	for (int i = 0; i < height; ++i) {
+	for (unsigned int i = 0; i < height; ++i) {
 
 		pSrcRow = &srcPixels[(height - 1 - i) * padWidth];
 		pDestRow = &data[i * padWidth];
@@ -89,7 +89,7 @@ void Texture::flipHorizontal(unsigned char* data, unsigned int width, unsigned i
 	unsigned char *pBack = 0;
 	unsigned char pixel[4] = { 0 };
 
-	for (int i = 0; i < height; ++i) {
+	for (unsigned int i = 0; i < height; ++i) {
 		pFront = &data[i * width * numCompontents];
 		pBack = &pFront[(width -1) * numCompontents];
 
@@ -122,7 +122,7 @@ void Texture::FlipVertical(unsigned char* data, unsigned int padWidth, unsigned 
 	unsigned char *pSrcRow = 0;
 	unsigned char *pDestRow = 0;
 
-	for (int i = 0; i < height; ++i) {
+	for (unsigned int i = 0; i < height; ++i) {
 
 		pSrcRow = &srcPixels[(height - 1 - i) * padWidth];
 		pDestRow = &data[i * padWidth];

@@ -76,7 +76,7 @@ void Texture::flipVertical(unsigned char* data, unsigned int padWidth, unsigned 
 	unsigned char *pSrcRow = 0;
 	unsigned char *pDestRow = 0;
 
-	for (int i = 0; i < height; ++i) {
+	for (unsigned int i = 0; i < height; ++i) {
 
 		pSrcRow = &srcPixels[(height - 1 - i) * padWidth];
 		pDestRow = &data[i * padWidth];
@@ -89,7 +89,7 @@ void Texture::flipHorizontal(unsigned char* data, unsigned int width, unsigned i
 	unsigned char *pBack = 0;
 	unsigned char pixel[4] = { 0 };
 
-	for (int i = 0; i < height; ++i) {
+	for (unsigned int i = 0; i < height; ++i) {
 		pFront = &data[i * width * numCompontents];
 		pBack = &pFront[(width -1) * numCompontents];
 
@@ -122,7 +122,7 @@ void Texture::FlipVertical(unsigned char* data, unsigned int padWidth, unsigned 
 	unsigned char *pSrcRow = 0;
 	unsigned char *pDestRow = 0;
 
-	for (int i = 0; i < height; ++i) {
+	for (unsigned int i = 0; i < height; ++i) {
 
 		pSrcRow = &srcPixels[(height - 1 - i) * padWidth];
 		pDestRow = &data[i * padWidth];
@@ -135,7 +135,7 @@ void Texture::FlipHorizontal(unsigned char* data, unsigned int width, unsigned i
 	unsigned char *pBack = 0;
 	unsigned char pixel[4] = { 0 };
 
-	for (int i = 0; i < height; ++i) {
+	for (unsigned int i = 0; i < height; ++i) {
 		pFront = &data[i * width * numCompontents];
 		pBack = &pFront[(width - 1) * numCompontents];
 
@@ -704,7 +704,7 @@ void Texture::createNoise(unsigned int width, unsigned int height) {
 	unsigned char* pixels = (unsigned char*)malloc(width * height);
 
 	unsigned char* pDest = pixels;
-	for (int i = 0; i < width * height; i++) {
+	for (unsigned int i = 0; i < width * height; i++) {
 		*pDest++ = rand() % 256;
 	}
 
@@ -1118,7 +1118,7 @@ unsigned char* Texture::LoadFromFile(std::string pictureFile, const bool _flipVe
 	if (alphaChannel >= 0) {
 		unsigned char* bytesNew = (unsigned char*)malloc(width *  width * (numCompontents + 1));
 
-		for (unsigned int i = 0, k = 0; i < width * width * 4; i = i + 4, k = k + 3) {
+		for (int i = 0, k = 0; i < width * width * 4; i = i + 4, k = k + 3) {
 			bytesNew[i] = bytes[k];
 			bytesNew[i + 1] = bytes[k + 1];
 			bytesNew[i + 2] = bytes[k + 2];

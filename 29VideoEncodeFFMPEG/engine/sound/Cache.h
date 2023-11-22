@@ -72,12 +72,14 @@ public:
 		}
 	}
 
-	const Value& Get(const Key& key) const {
+	const Value& Get(const Key& key) {
 		//operation_guard og{ safe_op };
 		auto it = cache_items_map.find(key);
 
 		if (it == cache_items_map.end()) {
-			return Value();
+			cache_items_list.push_front(std::make_pair(key, Value(key, std::distance(cache_items_map.begin(), it))));
+			cache_items_map[key] = cache_items_list.begin();
+			return cache_items_list.front().second;
 		} else {
 			cache_items_list.splice(cache_items_list.begin(), cache_items_list,
 				it->second);
