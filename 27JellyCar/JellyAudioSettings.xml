@@ -1,6 +1,0 @@
-<?xml version="1.0" ?>
-<Settings>
-  <SoundLevel name="Car" volume="0.3" />
-  <SoundLevel name="Sounds" volume="0.3" />
-  <SoundLevel name="Music" volume="0.1" />
-</Settings>
