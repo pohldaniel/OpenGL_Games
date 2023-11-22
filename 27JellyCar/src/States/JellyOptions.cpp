@@ -35,7 +35,7 @@ JellyOptions::JellyOptions(StateMachine& machine) : State(machine, States::JELLY
 	m_screenBounds = Vector4f(-20.0f + 0, 0 + 20.0f, -4.2f - 5, -5 + 18.2f);
 	m_jellyProjection = Matrix4f::Orthographic(-20.0f + 0, 0 + 20.0f, -4.2f - 5, -5 + 18.2f, -1.0f, 1.0f);
 
-	//TileSetManager::Get().getTileSet("options").loadTileSet({
+	//TileSetManager::Get().getTileSet("options").loadTileSetCpu({
 	//		"Assets/Jelly/Options/credits.png",
 	//		"Assets/Jelly/Options/libs.png",
 	//		"Assets/Jelly/Options/keyboard.png",
@@ -44,6 +44,7 @@ JellyOptions::JellyOptions(StateMachine& machine) : State(machine, States::JELLY
 	//		"Assets/Jelly/Options/volume.png" });
 	//
 	//
+	//TileSetManager::Get().getTileSet("options").loadTileSetGpu();
 	//m_options = TileSetManager::Get().getTileSet("options").getAtlas();
 	//Spritesheet::Safe("Options", m_options);
 

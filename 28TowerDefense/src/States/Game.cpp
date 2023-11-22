@@ -9,7 +9,7 @@
 #include "Globals.h"
 #include "Menu.h"
 
-Game::Game(StateMachine& machine) : State(machine, States::GAME) {
+Game::Game(StateMachine& machine) : State(machine, States::GAME), m_level(m_camera, static_cast<float>(Application::Width) / 48.0f, static_cast<float>(Application::Height) / 48.0f) {
 
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
@@ -113,18 +113,24 @@ void Game::update() {
 
 void Game::render() {
 
-	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	m_background.draw();
+	//m_background.draw();
+	
 
-	if (m_drawUi)
-		renderUi();
+	m_level.draw(tileSize);
+
+
+	//if (m_drawUi)
+		//renderUi();
 }
 
 void Game::OnMouseMotion(Event::MouseMoveEvent& event) {	
 	m_trackball.motion(event.x, event.y);
 	applyTransformation(m_trackball);
 	
+	Vector2f posMouse((float)event.x / tileSize, (float)(Application::Height - event.y) / tileSize);
+	m_level.setTargetAndCalculateFlowField((int)posMouse[0], (int)posMouse[1]);
+
 } 
 
 void Game::OnMouseButtonDown(Event::MouseButtonEvent& event) {

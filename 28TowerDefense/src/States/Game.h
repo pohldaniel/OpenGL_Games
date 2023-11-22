@@ -15,6 +15,7 @@
 
 #include <States/StateMachine.h>
 #include "Background.h"
+#include "Level.h"
 
 class Game : public State, public MouseEventListener, public KeyboardEventListener {
 
@@ -46,4 +47,6 @@ private:
 	TrackBall m_trackball;
 	Transform m_transform;
 	Camera m_camera;
+	Level m_level;
+	const int tileSize = 48;
 };

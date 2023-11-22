@@ -10,8 +10,8 @@
 #include <engine/Spritesheet.h>
 #include <Physics/Physics.h>
 
-#define WIDTH 1600
-#define HEIGHT 900
+#define WIDTH 768
+#define HEIGHT 768
 
 #define DEBUG 1
 #define DEVBUILD 1

@@ -165,6 +165,7 @@
     <ClCompile Include="engine\sound\SoundDevice.cpp" />
     <ClCompile Include="engine\Thread.cpp" />
     <ClCompile Include="engine\ZoomableQuad.cpp" />
+    <ClCompile Include="src\Level.cpp" />
     <ClCompile Include="src\LoadingManager.cpp" />
     <ClCompile Include="src\MousePickerFBO.cpp" />
     <ClCompile Include="src\States\Controlls.cpp" />
@@ -309,6 +310,7 @@
     <ClInclude Include="src\Application.h" />
     <ClInclude Include="src\Background.h" />
     <ClInclude Include="src\Globals.h" />
+    <ClInclude Include="src\Level.h" />
     <ClInclude Include="src\LoadingManager.h" />
     <ClInclude Include="src\MousePickerFBO.h" />
     <ClInclude Include="src\RandomColor.h" />
