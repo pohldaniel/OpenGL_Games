@@ -80,7 +80,11 @@ public:
 	const float* getVec()const;
 	bool zero();
 	Vector2f& normalize();
+	
 	bool compare(const Vector2f& rhs, float epsilon);
+	float dot(const Vector2f& other);
+	float cross(const Vector2f& other);
+	float angleBetween(const Vector2f& other);
 
 	float &operator[](int index);
 	const float operator[](int index) const;

@@ -2367,6 +2367,18 @@ bool Vector2f::compare(const Vector2f& rhs, float epsilon) {
 	return true;
 }
 
+float Vector2f::dot(const Vector2f& other) { 
+	return  vec[0] * other[0] + vec[1] * other[1]; 
+}
+
+float Vector2f::cross(const Vector2f& other) { 
+	return vec[0] * other[1] - vec[1] * other[0]; 
+}
+
+float Vector2f::angleBetween(const Vector2f& other) { 
+	return atan2(cross(other), dot(other)); 
+}
+
 float &Vector2f::operator[](int index) {
 	return vec[index];
 }

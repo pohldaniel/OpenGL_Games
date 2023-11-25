@@ -109,6 +109,8 @@ void Game::update() {
 	Vector2f posMouse((float)m_mouseX / tileSize, (float)(Application::Height - m_mouseY) / tileSize);
 	m_level.setTargetAndCalculateFlowField((int)posMouse[0], (int)posMouse[1]);
 
+
+
 	if (m_mouseDownLeft || m_mouseDownRight) {
 		if (m_mouseDownRight) {
 			m_level.setTileWall((int)posMouse[0], (int)posMouse[1], false);
@@ -116,13 +118,21 @@ void Game::update() {
 		}
 
 		if (m_mouseDownLeft) {
-			m_level.setTileWall((int)posMouse[0], (int)posMouse[1], true);
+			if (keyboard.keyDown(Keyboard::KEY_CTRL)) {
+				addUnit(posMouse);
+			}else {
+				m_level.setTileWall((int)posMouse[0], (int)posMouse[1], true);
+			}
+			
 		}
 	}
 
 	m_background.update(m_dt);
 	m_trackball.idle();
 	m_transform.fromMatrix(m_trackball.getTransform());
+
+	for (auto& unitSelected : listUnits)
+		unitSelected.update(m_dt, m_level, listUnits);
 }
 
 void Game::render() {
@@ -132,17 +142,21 @@ void Game::render() {
 	
 	m_level.draw(tileSize);
 
+	for (auto& unitSelected : listUnits)
+		unitSelected.drawBatched(tileSize);
+
+	Batchrenderer::Get().drawBuffer();
+
 	//if (m_drawUi)
 		//renderUi();
 }
 
 void Game::OnMouseMotion(Event::MouseMoveEvent& event) {	
+	m_mouseX = event.x;
+	m_mouseY = event.y;
 
 	m_trackball.motion(event.x, event.y);
 	applyTransformation(m_trackball);
-
-	m_mouseX = event.x;
-	m_mouseY = event.y;	
 } 
 
 void Game::OnMouseButtonDown(Event::MouseButtonEvent& event) {
@@ -244,17 +258,17 @@ void Game::renderUi() {
 }
 
 void Game::addUnit(const Vector2f& posMouse) {
-	//listUnits.push_back(Unit(posMouse));
+	listUnits.push_back(Unit(posMouse));
 }
 
 
 
 void Game::removeUnitsAtMousePosition(const Vector2f& posMouse) {
-	//for (int count = 0; count < listUnits.size(); count++) {
-	//	auto& unitSelected = listUnits[count];
-	//	if (unitSelected.checkOverlap(posMouse, 0.0f)) {
-	//		listUnits.erase(listUnits.begin() + count);
-	//		count--;
-	//	}
-	//}
+	for (int count = 0; count < listUnits.size(); count++) {
+		auto& unitSelected = listUnits[count];
+		if (unitSelected.checkOverlap(posMouse, 0.0f)) {
+			listUnits.erase(listUnits.begin() + count);
+			count--;
+		}
+	}
 }

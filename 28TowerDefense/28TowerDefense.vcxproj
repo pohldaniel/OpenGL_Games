@@ -175,6 +175,7 @@
     <ClCompile Include="src\Thread\EventClass.cpp" />
     <ClCompile Include="src\Thread\MutexClass.cpp" />
     <ClCompile Include="src\TileSet.cpp" />
+    <ClCompile Include="src\Unit.cpp" />
     <ClCompile Include="src\Utils\Rasterizer.cpp" />
     <ClCompile Include="engine\ArrayBuffer.cpp" />
     <ClCompile Include="engine\Batchrenderer.cpp" />
@@ -321,6 +322,7 @@
     <ClInclude Include="src\Thread\EventClass.h" />
     <ClInclude Include="src\Thread\MutexClass.h" />
     <ClInclude Include="src\TileSet.h" />
+    <ClInclude Include="src\Unit.h" />
     <ClInclude Include="src\Utils\Rasterizer.h" />
     <ClInclude Include="Physics\BspConverter.h" />
     <ClInclude Include="Physics\BspLoader.h" />

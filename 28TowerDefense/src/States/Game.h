@@ -16,6 +16,7 @@
 #include <States/StateMachine.h>
 #include "Background.h"
 #include "Level.h"
+#include "Unit.h"
 
 class Game : public State, public MouseEventListener, public KeyboardEventListener {
 
@@ -56,4 +57,6 @@ private:
 	Camera m_camera;
 	Level m_level;
 	const int tileSize = 48;
+
+	std::vector<Unit> listUnits;
 };

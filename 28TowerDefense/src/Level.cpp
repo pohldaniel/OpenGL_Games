@@ -16,12 +16,15 @@ Level::Level(const Camera& _camera, int setTileCountX, int setTileCountY) : came
 			"res/images/Tile Arrow Down Left.bmp",
 			"res/images/Tile Arrow Left.bmp",
 			"res/images/Tile Arrow Up Left.bmp",
-			"res/images/Tile Target.bmp" });
+			"res/images/Tile Target.bmp",
+			"res/images/Unit.bmp" });
 	
 	TileSetManager::Get().getTileSet("arrows").loadTileSetGpu();
 	m_arrows = TileSetManager::Get().getTileSet("arrows").getAtlas();
 	//Spritesheet::Safe("arrows", m_arrows);
 	m_rextureRects = TileSetManager::Get().getTileSet("arrows").getTextureRects();
+
+	Spritesheet::Bind(m_arrows);
 
 	size_t listTilesSize = (size_t)tileCountX * tileCountY;
 	m_tiles.assign(listTilesSize, Tile());
@@ -78,9 +81,9 @@ void Level::draw(float size) {
 		count++;
 	}
 	
-	Spritesheet::Bind(m_arrows);
+
 	Batchrenderer::Get().drawBuffer();
-	Spritesheet::Unbind();
+
 }
 
 bool Level::isTileWall(int x, int y) {
