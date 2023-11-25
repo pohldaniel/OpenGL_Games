@@ -92,7 +92,7 @@ void Level::setTileWall(int x, int y, bool setWall) {
 
 
 Vector2f Level::getTargetPos() {
-	return Vector2f((float)targetX, (float)targetY);
+	return Vector2f((float)targetX + 0.5f, (float)targetY + 0.5f);
 }
 
 

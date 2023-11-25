@@ -131,8 +131,15 @@ void Game::update() {
 		}
 	}
 
-	for (auto& unitSelected : listUnits)
-		unitSelected.update(m_dt, m_level, listUnits);
+	//Update the units.
+	for (auto it = listUnits.begin(); it != listUnits.end();) {
+		(*it).update(m_dt, m_level, listUnits);
+
+		if ((*it).getIsAlive() == false)
+			it = listUnits.erase(it);
+		else
+			it++;
+	}
 }
 
 void Game::render() {
