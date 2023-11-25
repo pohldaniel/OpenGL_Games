@@ -106,6 +106,20 @@ void Game::update() {
 		}
 	}
 
+	Vector2f posMouse((float)m_mouseX / tileSize, (float)(Application::Height - m_mouseY) / tileSize);
+	m_level.setTargetAndCalculateFlowField((int)posMouse[0], (int)posMouse[1]);
+
+	if (m_mouseDownLeft || m_mouseDownRight) {
+		if (m_mouseDownRight) {
+			m_level.setTileWall((int)posMouse[0], (int)posMouse[1], false);
+			removeUnitsAtMousePosition(posMouse);
+		}
+
+		if (m_mouseDownLeft) {
+			m_level.setTileWall((int)posMouse[0], (int)posMouse[1], true);
+		}
+	}
+
 	m_background.update(m_dt);
 	m_trackball.idle();
 	m_transform.fromMatrix(m_trackball.getTransform());
@@ -116,40 +130,44 @@ void Game::render() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	//m_background.draw();
 	
-
 	m_level.draw(tileSize);
-
 
 	//if (m_drawUi)
 		//renderUi();
 }
 
 void Game::OnMouseMotion(Event::MouseMoveEvent& event) {	
+
 	m_trackball.motion(event.x, event.y);
 	applyTransformation(m_trackball);
-	
-	Vector2f posMouse((float)event.x / tileSize, (float)(Application::Height - event.y) / tileSize);
-	m_level.setTargetAndCalculateFlowField((int)posMouse[0], (int)posMouse[1]);
 
+	m_mouseX = event.x;
+	m_mouseY = event.y;	
 } 
 
 void Game::OnMouseButtonDown(Event::MouseButtonEvent& event) {
+	m_mouseDownLeft = event.button == 1u;
+	m_mouseDownRight = event.button == 2u;
+	m_mouseX = event.x;
+	m_mouseY = event.y;
 
 	if (event.button == 1u) {
 		m_trackball.mouse(TrackBall::Button::ELeftButton, TrackBall::Modifier::ENoModifier, true, event.x, event.y);
 		applyTransformation(m_trackball);
 	}else if (event.button == 2u) {
-		Mouse::instance().attach(Application::GetWindow());
+		//Mouse::instance().attach(Application::GetWindow());
 	}
 }
 
 void Game::OnMouseButtonUp(Event::MouseButtonEvent& event) {
-	
-	if (event.button == 1u) {
+	m_mouseDownLeft = false;
+	m_mouseDownRight = false;
+
+	if (event.button == 1u) {		
 		m_trackball.mouse(TrackBall::Button::ELeftButton, TrackBall::Modifier::ENoModifier, false, event.x, event.y);
 		applyTransformation(m_trackball);
 	}else if (event.button == 2u) {
-		Mouse::instance().detach();
+		//Mouse::instance().detach();
 	}
 }
 
@@ -223,4 +241,20 @@ void Game::renderUi() {
 
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+}
+
+void Game::addUnit(const Vector2f& posMouse) {
+	//listUnits.push_back(Unit(posMouse));
+}
+
+
+
+void Game::removeUnitsAtMousePosition(const Vector2f& posMouse) {
+	//for (int count = 0; count < listUnits.size(); count++) {
+	//	auto& unitSelected = listUnits[count];
+	//	if (unitSelected.checkOverlap(posMouse, 0.0f)) {
+	//		listUnits.erase(listUnits.begin() + count);
+	//		count--;
+	//	}
+	//}
 }

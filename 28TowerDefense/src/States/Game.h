@@ -39,10 +39,17 @@ private:
 
 	void applyTransformation(TrackBall& arc);
 	void renderUi();
-	
+	void addUnit(const Vector2f& posMouse);
+	void removeUnitsAtMousePosition(const Vector2f& posMouse);
+
 	bool m_initUi = true;
 	bool m_drawUi = true;
-	
+	bool m_mouseDownLeft = false;
+	bool m_mouseDownRight = false;
+	bool m_mouseMove = false;
+	int m_mouseX;
+	int m_mouseY;
+
 	Background m_background;
 	TrackBall m_trackball;
 	Transform m_transform;

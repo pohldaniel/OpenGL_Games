@@ -41,35 +41,39 @@ void Level::draw(float size) {
 		int y = (count / tileCountY);
 
 		Tile& tileSelected = m_tiles[x + y * tileCountX];
+		if (!tileSelected.isWall) {
+			
+			if ((x == targetX && y == targetY)) {
+				const TextureRect& target = m_rextureRects[10];
+				Batchrenderer::Get().addQuadAA(Vector4f(static_cast<float>(targetX * size), static_cast<float>(targetY * size), size, size), Vector4f(target.textureOffsetX, target.textureOffsetY, target.textureWidth, target.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), target.frame);
+			}else {
 
-		if (tileSelected.isWall) {
-			const TextureRect& rect = m_rextureRects[0];
-			Batchrenderer::Get().addQuadAA(Vector4f(static_cast<float>(x * size), static_cast<float>(y* size), size, size), Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureWidth, rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), rect.frame);
-		}else {
-			int index = 1;
-			if (tileSelected.flowDirectionX == 0 && tileSelected.flowDirectionY == -1) {
-				index = 6;
-			}else if (tileSelected.flowDirectionX == 1 && tileSelected.flowDirectionY == -1) {
-				index = 5;
-			}else if (tileSelected.flowDirectionX == 1 && tileSelected.flowDirectionY == 0) {
-				index = 4;
-			}else if (tileSelected.flowDirectionX == 1 && tileSelected.flowDirectionY == 1) {
-				index = 3;
-			}else if (tileSelected.flowDirectionX == 0 && tileSelected.flowDirectionY == 1) {
-				index = 2;
-			}else if (tileSelected.flowDirectionX == -1 && tileSelected.flowDirectionY == 1) {
-				index = 9;
-			}else if (tileSelected.flowDirectionX == -1 && tileSelected.flowDirectionY == 0) {
-				index = 8;
-			}else if (tileSelected.flowDirectionX == -1 && tileSelected.flowDirectionY == -1) {
-				index = 7;
+				int index = 1;
+				if (tileSelected.flowDirectionX == 0 && tileSelected.flowDirectionY == -1) {
+					index = 2;
+				}else if (tileSelected.flowDirectionX == 1 && tileSelected.flowDirectionY == -1) {
+					index = 3;
+				}else if (tileSelected.flowDirectionX == 1 && tileSelected.flowDirectionY == 0) {
+					index = 4;
+				}else if (tileSelected.flowDirectionX == 1 && tileSelected.flowDirectionY == 1) {
+					index = 5;
+				}else if (tileSelected.flowDirectionX == 0 && tileSelected.flowDirectionY == 1) {
+					index = 6;
+				}else if (tileSelected.flowDirectionX == -1 && tileSelected.flowDirectionY == 1) {
+					index = 7;
+				}else if (tileSelected.flowDirectionX == -1 && tileSelected.flowDirectionY == 0) {
+					index = 8;
+				}else if (tileSelected.flowDirectionX == -1 && tileSelected.flowDirectionY == -1) {
+					index = 9;
+				}
+
+				const TextureRect& rect = m_rextureRects[index];
+				Batchrenderer::Get().addQuadAA(Vector4f(static_cast<float>(x * size), static_cast<float>(y * size), size, size), Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureWidth, rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), rect.frame);
 			}
 
-			const TextureRect& rect = m_rextureRects[index];
-			Batchrenderer::Get().addQuadAA(Vector4f(static_cast<float>(x * size), static_cast<float>(y * size), size, size), Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureWidth, rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), rect.frame);
-
-			const TextureRect& target = m_rextureRects[10];
-			Batchrenderer::Get().addQuadAA(Vector4f(static_cast<float>(targetX * size), static_cast<float>(targetY * size), size, size), Vector4f(target.textureOffsetX, target.textureOffsetY, target.textureWidth, target.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), target.frame);
+		}else {
+			const TextureRect& wall = m_rextureRects[0];
+			Batchrenderer::Get().addQuadAA(Vector4f(static_cast<float>(x * size), static_cast<float>(y* size), size, size), Vector4f(wall.textureOffsetX, wall.textureOffsetY, wall.textureWidth, wall.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), wall.frame);
 		}
 		count++;
 	}
