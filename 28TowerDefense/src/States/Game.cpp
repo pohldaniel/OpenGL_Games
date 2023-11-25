@@ -8,6 +8,7 @@
 #include "Application.h"
 #include "Globals.h"
 #include "Menu.h"
+#include "TileSet.h"
 
 Game::Game(StateMachine& machine) : State(machine, States::GAME), m_level(m_camera, static_cast<float>(Application::Width) / 48.0f, static_cast<float>(Application::Height) / 48.0f) {
 
@@ -22,20 +23,29 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME), m_level(m_came
 	m_camera.setRotationSpeed(0.1f);
 	m_camera.setMovingSpeed(10.0f);
 
-	m_trackball.reshape(Application::Width, Application::Height);
-	m_trackball.setDollyPosition(-5.0f);
-	applyTransformation(m_trackball);
-
 	glClearColor(0.494f, 0.686f, 0.796f, 1.0f);
 	glClearDepth(1.0f);
 
-	m_background.setLayer(std::vector<BackgroundLayer>{
-		{ &Globals::textureManager.get("forest_1"), 1, 1.0f },
-		{ &Globals::textureManager.get("forest_2"), 1, 2.0f },
-		{ &Globals::textureManager.get("forest_3"), 1, 3.0f },
-		{ &Globals::textureManager.get("forest_4"), 1, 4.0f },
-		{ &Globals::textureManager.get("forest_5"), 1, 5.0f }});
-	m_background.setSpeed(0.005f);
+	TileSetManager::Get().getTileSet("sprites").loadTileSetCpu({
+		"res/images/Tile Wall.bmp",
+		"res/images/Tile Empty.bmp",
+		"res/images/Tile Arrow Up.bmp",
+		"res/images/Tile Arrow Up Right.bmp",
+		"res/images/Tile Arrow Right.bmp",
+		"res/images/Tile Arrow Down Right.bmp",
+		"res/images/Tile Arrow Down.bmp",
+		"res/images/Tile Arrow Down Left.bmp",
+		"res/images/Tile Arrow Left.bmp",
+		"res/images/Tile Arrow Up Left.bmp",
+		"res/images/Tile Target.bmp",
+		"res/images/Unit.bmp" });
+
+
+	TileSetManager::Get().getTileSet("sprites").loadTileSetGpu();
+	m_sprites = TileSetManager::Get().getTileSet("sprites").getAtlas();
+	m_level.init(std::vector<TextureRect> (TileSetManager::Get().getTileSet("sprites").getTextureRects().begin(), TileSetManager::Get().getTileSet("sprites").getTextureRects().begin() + 11 ));
+	Unit::Inti(TileSetManager::Get().getTileSet("sprites").getTextureRects()[11]);
+	Spritesheet::Bind(m_sprites);
 }
 
 Game::~Game() {
@@ -67,15 +77,11 @@ void Game::update() {
 
 	if (keyboard.keyDown(Keyboard::KEY_A)) {
 		directrion += Vector3f(-1.0f, 0.0f, 0.0f);
-		m_background.addOffset(-0.001f);
-		m_background.setSpeed(-0.005f);
 		move |= true;
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_D)) {
 		directrion += Vector3f(1.0f, 0.0f, 0.0f);
-		m_background.addOffset(0.001f);
-		m_background.setSpeed(0.005f);
 		move |= true;
 	}
 
@@ -127,10 +133,6 @@ void Game::update() {
 		}
 	}
 
-	m_background.update(m_dt);
-	m_trackball.idle();
-	m_transform.fromMatrix(m_trackball.getTransform());
-
 	for (auto& unitSelected : listUnits)
 		unitSelected.update(m_dt, m_level, listUnits);
 }
@@ -138,8 +140,6 @@ void Game::update() {
 void Game::render() {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	//m_background.draw();
-	
 	m_level.draw(tileSize);
 
 	for (auto& unitSelected : listUnits)
@@ -154,9 +154,6 @@ void Game::render() {
 void Game::OnMouseMotion(Event::MouseMoveEvent& event) {	
 	m_mouseX = event.x;
 	m_mouseY = event.y;
-
-	m_trackball.motion(event.x, event.y);
-	applyTransformation(m_trackball);
 } 
 
 void Game::OnMouseButtonDown(Event::MouseButtonEvent& event) {
@@ -164,25 +161,11 @@ void Game::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 	m_mouseDownRight = event.button == 2u;
 	m_mouseX = event.x;
 	m_mouseY = event.y;
-
-	if (event.button == 1u) {
-		m_trackball.mouse(TrackBall::Button::ELeftButton, TrackBall::Modifier::ENoModifier, true, event.x, event.y);
-		applyTransformation(m_trackball);
-	}else if (event.button == 2u) {
-		//Mouse::instance().attach(Application::GetWindow());
-	}
 }
 
 void Game::OnMouseButtonUp(Event::MouseButtonEvent& event) {
 	m_mouseDownLeft = false;
 	m_mouseDownRight = false;
-
-	if (event.button == 1u) {		
-		m_trackball.mouse(TrackBall::Button::ELeftButton, TrackBall::Modifier::ENoModifier, false, event.x, event.y);
-		applyTransformation(m_trackball);
-	}else if (event.button == 2u) {
-		//Mouse::instance().detach();
-	}
 }
 
 void Game::OnMouseWheel(Event::MouseWheelEvent& event) {
@@ -208,10 +191,6 @@ void Game::OnKeyUp(Event::KeyboardEvent& event) {
 void Game::resize(int deltaW, int deltaH) {
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
-}
-
-void Game::applyTransformation(TrackBall& arc) {
-	m_transform.fromMatrix(arc.getTransform());
 }
 
 void Game::renderUi() {

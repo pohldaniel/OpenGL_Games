@@ -5,35 +5,17 @@
 #include "Level.h"
 
 Level::Level(const Camera& _camera, int setTileCountX, int setTileCountY) : camera(_camera), tileCountX(setTileCountX), tileCountY(setTileCountY) {
-	TileSetManager::Get().getTileSet("arrows").loadTileSetCpu({
-			"res/images/Tile Wall.bmp",
-			"res/images/Tile Empty.bmp",
-			"res/images/Tile Arrow Up.bmp",
-			"res/images/Tile Arrow Up Right.bmp",
-			"res/images/Tile Arrow Right.bmp",
-			"res/images/Tile Arrow Down Right.bmp",
-			"res/images/Tile Arrow Down.bmp",
-			"res/images/Tile Arrow Down Left.bmp",
-			"res/images/Tile Arrow Left.bmp",
-			"res/images/Tile Arrow Up Left.bmp",
-			"res/images/Tile Target.bmp",
-			"res/images/Unit.bmp" });
-	
-	TileSetManager::Get().getTileSet("arrows").loadTileSetGpu();
-	m_arrows = TileSetManager::Get().getTileSet("arrows").getAtlas();
-	//Spritesheet::Safe("arrows", m_arrows);
-	m_rextureRects = TileSetManager::Get().getTileSet("arrows").getTextureRects();
-
-	Spritesheet::Bind(m_arrows);
-
 	size_t listTilesSize = (size_t)tileCountX * tileCountY;
 	m_tiles.assign(listTilesSize, Tile());
-
 	setTargetAndCalculateFlowField(12, 12);
 }
 
 Level::~Level() {
 
+}
+
+void Level::init(std::vector<TextureRect>& textureRects) {
+	m_rextureRects = textureRects;
 }
 
 void Level::draw(float size) {

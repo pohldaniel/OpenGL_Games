@@ -22,7 +22,7 @@ public:
 
 	void draw(float size);
 
-
+	void init(std::vector<TextureRect>& textureRects);
 	bool isTileWall(int x, int y);
 	void setTileWall(int x, int y, bool setWall);
 	Vector2f getTargetPos();
@@ -37,6 +37,5 @@ private:
 	std::vector<Tile> m_tiles;
 	std::vector<TextureRect> m_rextureRects;
 	const int tileCountX, tileCountY;
-	unsigned int m_arrows;
 	int targetX = -1, targetY = -1;
 };

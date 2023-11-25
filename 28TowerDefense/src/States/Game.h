@@ -38,7 +38,6 @@ public:
 
 private:
 
-	void applyTransformation(TrackBall& arc);
 	void renderUi();
 	void addUnit(const Vector2f& posMouse);
 	void removeUnitsAtMousePosition(const Vector2f& posMouse);
@@ -51,12 +50,10 @@ private:
 	int m_mouseX;
 	int m_mouseY;
 
-	Background m_background;
-	TrackBall m_trackball;
-	Transform m_transform;
 	Camera m_camera;
 	Level m_level;
 	const int tileSize = 48;
 
 	std::vector<Unit> listUnits;
+	unsigned int m_sprites;
 };
