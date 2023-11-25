@@ -113,9 +113,6 @@ void Game::update() {
 	}
 
 	Vector2f posMouse((float)m_mouseX / tileSize, (float)(Application::Height - m_mouseY) / tileSize);
-	m_level.setTargetAndCalculateFlowField((int)posMouse[0], (int)posMouse[1]);
-
-
 
 	if (m_mouseDownLeft || m_mouseDownRight) {
 		if (m_mouseDownRight) {
@@ -126,6 +123,7 @@ void Game::update() {
 		if (m_mouseDownLeft) {
 			if (keyboard.keyDown(Keyboard::KEY_CTRL)) {
 				addUnit(posMouse);
+				m_mouseDownLeft = false;
 			}else {
 				m_level.setTileWall((int)posMouse[0], (int)posMouse[1], true);
 			}

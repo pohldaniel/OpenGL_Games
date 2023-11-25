@@ -20,7 +20,7 @@ public:
 
 private:
 
-	Vector2f pos, posDraw;
+	Vector2f pos;
 	static const float speed;
 	static const float size;
 	static TextureRect Rect;

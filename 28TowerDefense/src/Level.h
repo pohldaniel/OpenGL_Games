@@ -26,16 +26,19 @@ public:
 	bool isTileWall(int x, int y);
 	void setTileWall(int x, int y, bool setWall);
 	Vector2f getTargetPos();
-	void setTargetAndCalculateFlowField(int targetXNew, int targetYNew);
+	
 	void calculateDistances();
 	Vector2f getFlowNormal(int x, int y);
 	void calculateFlowDirections();
 
 private:
 
-	const Camera& camera;
+	void calculateFlowField();
+
 	std::vector<Tile> m_tiles;
 	std::vector<TextureRect> m_rextureRects;
 	const int tileCountX, tileCountY;
-	int targetX = -1, targetY = -1;
+	const int targetX = 0, targetY = 0;
+
+	const Camera& camera;
 };

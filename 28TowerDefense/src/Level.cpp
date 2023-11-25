@@ -4,10 +4,10 @@
 
 #include "Level.h"
 
-Level::Level(const Camera& _camera, int setTileCountX, int setTileCountY) : camera(_camera), tileCountX(setTileCountX), tileCountY(setTileCountY) {
+Level::Level(const Camera& _camera, int setTileCountX, int setTileCountY) : camera(_camera), tileCountX(setTileCountX), tileCountY(setTileCountY), targetX(setTileCountX / 2), targetY(setTileCountY / 2) {
 	size_t listTilesSize = (size_t)tileCountX * tileCountY;
 	m_tiles.assign(listTilesSize, Tile());
-	setTargetAndCalculateFlowField(12, 12);
+	calculateFlowField();
 }
 
 Level::~Level() {
@@ -83,8 +83,10 @@ void Level::setTileWall(int x, int y, bool setWall) {
 	int index = x + y * tileCountX;
 	if (index > -1 && index < m_tiles.size() &&
 		x > -1 && x < tileCountX &&
-		y > -1 && y < tileCountY)
+		y > -1 && y < tileCountY) {
 		m_tiles[index].isWall = setWall;
+		calculateFlowField();
+	}
 }
 
 
@@ -94,33 +96,26 @@ Vector2f Level::getTargetPos() {
 }
 
 
-void Level::setTargetAndCalculateFlowField(int targetXNew, int targetYNew) {
-	//Check if the target is new.
-	if (targetX != targetXNew || targetY != targetYNew) {
-		targetX = targetXNew;
-		targetY = targetYNew;
-		
-		//Ensure the target is in bounds.
-		int indexTarget = targetX + targetY * tileCountX;
+void Level::calculateFlowField() {
+	//Ensure the target is in bounds.
+	int indexTarget = targetX + targetY * tileCountX;
 
-		if (indexTarget > -1 && indexTarget < m_tiles.size() &&
-			targetX > -1 && targetX < tileCountX &&
-			targetY > -1 && targetY < tileCountY) {
+	if (indexTarget > -1 && indexTarget < m_tiles.size() &&
+		targetX > -1 && targetX < tileCountX &&
+		targetY > -1 && targetY < tileCountY) {
 			
-			//Reset the tile flow data.
-			for (auto& tileSelected : m_tiles) {
-				tileSelected.flowDirectionX = 0;
-				tileSelected.flowDirectionY = 0;
-				tileSelected.flowDistance = flowDistanceMax;
-			}
-
-			//Calculate the flow field.
-			calculateDistances();
-			calculateFlowDirections();
+		//Reset the tile flow data.
+		for (auto& tileSelected : m_tiles) {
+			tileSelected.flowDirectionX = 0;
+			tileSelected.flowDirectionY = 0;
+			tileSelected.flowDistance = flowDistanceMax;
 		}
-	}
-}
 
+		//Calculate the flow field.
+		calculateDistances();
+		calculateFlowDirections();
+	}	
+}
 
 void Level::calculateDistances() {
 	int indexTarget = targetX + targetY * tileCountX;
