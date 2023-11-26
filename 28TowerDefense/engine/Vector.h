@@ -70,6 +70,7 @@ class Vector2f {
 public:
 
 	Vector2f();
+	Vector2f(float x_);
 	Vector2f(float x_, float y_);
 	Vector2f(const Vector2f &rhs);
 	~Vector2f();
@@ -85,6 +86,7 @@ public:
 	float dot(const Vector2f& other);
 	float cross(const Vector2f& other);
 	float angleBetween(const Vector2f& other);
+	float angle();
 
 	float &operator[](int index);
 	const float operator[](int index) const;

@@ -2325,6 +2325,11 @@ Vector2f::Vector2f(const Vector2f &rhs) {
 	vec[1] = rhs.vec[1];
 }
 
+Vector2f::Vector2f(float x_) {
+	vec[0] = x_;
+	vec[1] = x_;
+}
+
 Vector2f::Vector2f(float x_, float y_) {
 	vec[0] = x_;
 	vec[1] = y_;
@@ -2377,6 +2382,10 @@ float Vector2f::cross(const Vector2f& other) {
 
 float Vector2f::angleBetween(const Vector2f& other) { 
 	return atan2(cross(other), dot(other)); 
+}
+
+float Vector2f::angle() {
+	return atan2(vec[1], vec[0]);
 }
 
 float &Vector2f::operator[](int index) {

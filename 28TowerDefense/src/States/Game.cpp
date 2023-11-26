@@ -45,7 +45,8 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME), m_level(m_came
 		"res/images/Empty.bmp",
 		"res/images/Unit.bmp",
 		"res/images/Turret.bmp",
-		"res/images/Turret Shadow.bmp" });
+		"res/images/Turret Shadow.bmp",
+		"res/images/Projectile.bmp" });
 
 
 	TileSetManager::Get().getTileSet("sprites").loadTileSetGpu();
@@ -54,6 +55,7 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME), m_level(m_came
 	Unit::Init(TileSetManager::Get().getTileSet("sprites").getTextureRects()[13]);
 
 	Turret::Init(std::vector<TextureRect>(TileSetManager::Get().getTileSet("sprites").getTextureRects().begin() + 14, TileSetManager::Get().getTileSet("sprites").getTextureRects().begin() + 16));
+	Projectile::Init(TileSetManager::Get().getTileSet("sprites").getTextureRects()[16]);
 
 	Spritesheet::Bind(m_sprites);
 
@@ -144,16 +146,51 @@ void Game::update() {
 	}
 
 	//Update the units.
-	for (auto it = listUnits.begin(); it != listUnits.end();) {
-		(*it).update(m_dt, m_level, listUnits);
+	updateUnits(m_dt);
 
-		if ((*it).getIsAlive() == false)
-			it = listUnits.erase(it);
+	//Update the turrets.
+	for (auto& turretSelected : listTurrets)
+		turretSelected.update(m_dt, listUnits, listProjectiles);
+
+	//Update the projectiles.
+	updateProjectiles(m_dt);
+
+	updateSpawnUnitsIfRequired(m_dt);
+}
+
+void Game::updateUnits(float dt) {
+	//Loop through the list of units and update all of them.
+	auto it = listUnits.begin();
+	while (it != listUnits.end()) {
+		bool increment = true;
+
+		if ((*it) != nullptr) {
+			(*it)->update(dt, m_level, listUnits);
+
+			//Check if the unit is still alive.  If not then erase it and don't increment the iterator.
+			if ((*it)->getIsAlive() == false) {
+				it = listUnits.erase(it);
+				increment = false;
+			}
+		}
+
+		if (increment)
+			it++;
+	}
+}
+
+void Game::updateProjectiles(float dt) {
+	//Loop through the list of projectiles and update all of them.
+	auto it = listProjectiles.begin();
+	while (it != listProjectiles.end()) {
+		(*it).update(dt);
+
+		//Check if the projectile has collided or not, erase it if needed, and update the iterator.
+		if ((*it).getCollisionOccurred())
+			it = listProjectiles.erase(it);
 		else
 			it++;
 	}
-
-	updateSpawnUnitsIfRequired(m_dt);
 }
 
 void Game::render() {
@@ -162,11 +199,16 @@ void Game::render() {
 	m_level.draw(TileSize);
 
 	for (auto& unitSelected : listUnits)
-		unitSelected.drawBatched(TileSize);
+		if (unitSelected != nullptr)
+			unitSelected->drawBatched(TileSize);
 
 	//Draw the turrets.
 	for (auto& turretSelected : listTurrets)
 		turretSelected.drawBatched(TileSize);
+
+	//Draw the projectiles.
+	for (auto& projectileSelected : listProjectiles)
+		projectileSelected.drawBatched(TileSize);
 
 	Batchrenderer::Get().drawBuffer();
 
@@ -260,7 +302,7 @@ void Game::renderUi() {
 }
 
 void Game::addUnit(const Vector2f& posMouse) {
-	listUnits.push_back(Unit(posMouse));
+	listUnits.push_back(std::make_shared<Unit>(posMouse));
 }
 
 void Game::addTurret(const Vector2f& posMouse) {
@@ -288,9 +330,6 @@ void Game::updateSpawnUnitsIfRequired(float dt) {
 			roundTimer.resetToMax();
 		}
 	}
-
-	for (auto& turretSelected : listTurrets)
-		turretSelected.update(m_dt);
 
 	//Add a unit if needed.
 	if (spawnUnitCount > 0 && spawnTimer.timeSIsZero()) {

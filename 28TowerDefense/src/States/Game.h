@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include <engine/input/MouseEventListener.h>
 #include <engine/input/KeyboardEventListener.h>
 #include <engine/Camera.h>
@@ -19,6 +20,7 @@
 #include "Unit.h"
 #include "Timer.h"
 #include "Turret.h"
+#include "Projectile.h"
 
 class Game : public State, public MouseEventListener, public KeyboardEventListener {
 
@@ -45,7 +47,8 @@ private:
 	void addUnit(const Vector2f& posMouse);
 	void addTurret(const Vector2f& posMouse);
 	void removeTurretsAtMousePosition(const Vector2f& posMouse);
-	
+	void updateUnits(float dt);
+	void updateProjectiles(float dt);
 
 	bool m_initUi = true;
 	bool m_drawUi = true;
@@ -59,8 +62,10 @@ private:
 	Level m_level;
 	
 
-	std::vector<Unit> listUnits;
+	std::vector<std::shared_ptr<Unit>> listUnits;
 	std::vector<Turret> listTurrets;
+	std::vector<Projectile> listProjectiles;
+
 	unsigned int m_sprites;
 
 	Timer spawnTimer, roundTimer;

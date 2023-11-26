@@ -9,7 +9,7 @@ TextureRect Unit::Rect;
 Unit::Unit(const Vector2f& setPos) : pos(setPos) {
 }
 
-void Unit::update(float dT, Level& level, std::vector<Unit>& listUnits) {
+void Unit::update(float dT, Level& level, std::vector<std::shared_ptr<Unit>>& listUnits) {
 	//Determine the distance to the target from the unit's current position.
 	float distanceToTarget = (level.getTargetPos() - pos).length();
 
@@ -33,9 +33,10 @@ void Unit::update(float dT, Level& level, std::vector<Unit>& listUnits) {
 		bool moveOk = true;
 		for (int count = 0; count < listUnits.size() && moveOk; count++) {
 			auto& unitSelected = listUnits[count];
-			if (&unitSelected != this && unitSelected.checkOverlap(pos, size)) {
+			if (unitSelected != nullptr && unitSelected.get() != this &&
+				unitSelected->checkOverlap(pos, size)) {
 				//They overlap so check and see if this unit is moving towards or away from the unit it overlaps.
-				Vector2f directionToOther = (unitSelected.pos - pos);
+				Vector2f directionToOther = (unitSelected->pos - pos);
 				//Ensure that they're not directly on top of each other.
 				if (directionToOther.length() > 0.01f) {
 					//Check the angle between the units positions and the direction that this unit is traveling.
@@ -102,6 +103,10 @@ Vector2f Unit::computeNormalSeparation(std::vector<Unit>& listUnits) {
 
 bool Unit::getIsAlive() {
 	return isAlive;
+}
+
+Vector2f Unit::getPos() {
+	return pos;
 }
 
 void Unit::Init(const TextureRect& rect) {
