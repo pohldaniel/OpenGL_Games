@@ -335,7 +335,6 @@ void Application::initOpenGL(int msaaSamples) {
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-	glClearColor(0.494f, 0.686f, 0.796f, 1.0f);
 }
 
 void Application::initImGUI() {

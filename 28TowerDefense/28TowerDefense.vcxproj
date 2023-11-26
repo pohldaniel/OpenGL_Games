@@ -167,6 +167,7 @@
     <ClCompile Include="engine\ZoomableQuad.cpp" />
     <ClCompile Include="src\Level.cpp" />
     <ClCompile Include="src\LoadingManager.cpp" />
+    <ClCompile Include="src\MathAddon.cpp" />
     <ClCompile Include="src\MousePickerFBO.cpp" />
     <ClCompile Include="src\States\Controlls.cpp" />
     <ClCompile Include="src\States\Settings.cpp" />
@@ -175,6 +176,8 @@
     <ClCompile Include="src\Thread\EventClass.cpp" />
     <ClCompile Include="src\Thread\MutexClass.cpp" />
     <ClCompile Include="src\TileSet.cpp" />
+    <ClCompile Include="src\Timer.cpp" />
+    <ClCompile Include="src\Turret.cpp" />
     <ClCompile Include="src\Unit.cpp" />
     <ClCompile Include="src\Utils\Rasterizer.cpp" />
     <ClCompile Include="engine\ArrayBuffer.cpp" />
@@ -216,7 +219,6 @@
     <ClCompile Include="engine\Spritesheet.cpp" />
     <ClCompile Include="engine\Tetraedron.cpp" />
     <ClCompile Include="engine\Texture.cpp" />
-    <ClCompile Include="engine\Timer.cpp" />
     <ClCompile Include="engine\TrackBall.cpp" />
     <ClCompile Include="engine\Transform.cpp" />
     <ClCompile Include="engine\Vector.cpp" />
@@ -302,7 +304,6 @@
     <ClInclude Include="engine\Tetraedron.h" />
     <ClInclude Include="engine\Texture.h" />
     <ClInclude Include="engine\Thread.h" />
-    <ClInclude Include="engine\Timer.h" />
     <ClInclude Include="engine\TrackBall.h" />
     <ClInclude Include="engine\Transform.h" />
     <ClInclude Include="engine\Vector.h" />
@@ -313,6 +314,7 @@
     <ClInclude Include="src\Globals.h" />
     <ClInclude Include="src\Level.h" />
     <ClInclude Include="src\LoadingManager.h" />
+    <ClInclude Include="src\MathAddon.h" />
     <ClInclude Include="src\MousePickerFBO.h" />
     <ClInclude Include="src\RandomColor.h" />
     <ClInclude Include="src\States\Controls.h" />
@@ -322,6 +324,8 @@
     <ClInclude Include="src\Thread\EventClass.h" />
     <ClInclude Include="src\Thread\MutexClass.h" />
     <ClInclude Include="src\TileSet.h" />
+    <ClInclude Include="src\Timer.h" />
+    <ClInclude Include="src\Turret.h" />
     <ClInclude Include="src\Unit.h" />
     <ClInclude Include="src\Utils\Rasterizer.h" />
     <ClInclude Include="Physics\BspConverter.h" />

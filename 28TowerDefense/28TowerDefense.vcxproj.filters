@@ -159,9 +159,6 @@
     <ClCompile Include="engine\Texture.cpp">
       <Filter>engine</Filter>
     </ClCompile>
-    <ClCompile Include="engine\Timer.cpp">
-      <Filter>engine</Filter>
-    </ClCompile>
     <ClCompile Include="engine\TrackBall.cpp">
       <Filter>engine</Filter>
     </ClCompile>
@@ -327,6 +324,15 @@
     <ClCompile Include="src\Unit.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Timer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Turret.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MathAddon.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="convhull\convhull_3d.h">
@@ -441,9 +447,6 @@
       <Filter>engine</Filter>
     </ClInclude>
     <ClInclude Include="engine\Texture.h">
-      <Filter>engine</Filter>
-    </ClInclude>
-    <ClInclude Include="engine\Timer.h">
       <Filter>engine</Filter>
     </ClInclude>
     <ClInclude Include="engine\TrackBall.h">
@@ -621,6 +624,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Unit.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Timer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Turret.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MathAddon.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

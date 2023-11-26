@@ -45,9 +45,9 @@ void TextureAtlasCreator::addTexture(unsigned char *texture, unsigned int w, uns
 	}
 
 	textureRects.push_back({ static_cast<float>(curX) / static_cast<float>(width),
-		flipTextureRect ? static_cast<float>(curY) / static_cast<float>(height) : static_cast<float>(curY + h) / static_cast<float>(height),
+		flipTextureRect ?  static_cast<float>(curY + h) / static_cast<float>(height) : static_cast<float>(curY) / static_cast<float>(height),
 		static_cast<float>(w) / static_cast<float>(width),
-		flipTextureRect ?  static_cast<float>(h) / static_cast<float>(height) : -static_cast<float>(h) / static_cast<float>(height),
+		flipTextureRect ?  -static_cast<float>(h) / static_cast<float>(height) : static_cast<float>(h) / static_cast<float>(height),
 		w,
 		h,
 		frame });
@@ -82,9 +82,9 @@ void TextureAtlasCreator::addTexture(unsigned char *texture, unsigned int w, uns
 
 	for (auto rect : prepacked) {
 		textureRects.push_back({ (static_cast<float>(curX) + rect.textureOffsetX * static_cast<float>(w)) / static_cast<float>(width),
-			flipTextureRect ? (static_cast<float>(curY) + rect.textureOffsetY * static_cast<float>(h)) / static_cast<float>(height) : (static_cast<float>(curY) + (rect.textureOffsetY + rect.textureHeight) * static_cast<float>(h)) / static_cast<float>(height),
+			flipTextureRect ? (static_cast<float>(curY) + (rect.textureOffsetY + rect.textureHeight) * static_cast<float>(h)) / static_cast<float>(height) : (static_cast<float>(curY) + rect.textureOffsetY * static_cast<float>(h)) / static_cast<float>(height),
 			((rect.textureWidth)  * static_cast<float>(w)) / static_cast<float>(width),
-			flipTextureRect ? ((rect.textureHeight) * static_cast<float>(h)) / static_cast<float>(height) : -((rect.textureHeight) * static_cast<float>(h)) / static_cast<float>(height),
+			flipTextureRect ?  -((rect.textureHeight) * static_cast<float>(h)) / static_cast<float>(height) : ((rect.textureHeight) * static_cast<float>(h)) / static_cast<float>(height) ,
 			rect.width,
 			rect.height,
 			frame });

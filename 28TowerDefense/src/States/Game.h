@@ -17,6 +17,8 @@
 #include "Background.h"
 #include "Level.h"
 #include "Unit.h"
+#include "Timer.h"
+#include "Turret.h"
 
 class Game : public State, public MouseEventListener, public KeyboardEventListener {
 
@@ -39,8 +41,11 @@ public:
 private:
 
 	void renderUi();
+	void updateSpawnUnitsIfRequired(float dt);
 	void addUnit(const Vector2f& posMouse);
-	void removeUnitsAtMousePosition(const Vector2f& posMouse);
+	void addTurret(const Vector2f& posMouse);
+	void removeTurretsAtMousePosition(const Vector2f& posMouse);
+	
 
 	bool m_initUi = true;
 	bool m_drawUi = true;
@@ -52,8 +57,14 @@ private:
 
 	Camera m_camera;
 	Level m_level;
-	const int tileSize = 48;
+	
 
 	std::vector<Unit> listUnits;
+	std::vector<Turret> listTurrets;
 	unsigned int m_sprites;
+
+	Timer spawnTimer, roundTimer;
+	int spawnUnitCount = 0;
+
+	static float TileSize;
 };

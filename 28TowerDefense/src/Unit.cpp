@@ -2,8 +2,8 @@
 #include "TileSet.h"
 #include "Unit.h"
 
-const float Unit::speed = 5.0f;
-const float Unit::size = 0.4f;
+const float Unit::speed = 1.5f;
+const float Unit::size = 0.48f;
 TextureRect Unit::Rect;
 
 Unit::Unit(const Vector2f& setPos) : pos(setPos) {
@@ -67,8 +67,8 @@ void Unit::update(float dT, Level& level, std::vector<Unit>& listUnits) {
 	}
 }
 
-void Unit::drawBatched(int tileSize) {
-	Batchrenderer::Get().addQuadAA(Vector4f((pos[0] - size *0.5f) * static_cast<float>(tileSize), (pos[1] - size *0.5f) * static_cast<float>(tileSize), size * tileSize, size* tileSize), Vector4f(Rect.textureOffsetX, Rect.textureOffsetY, Rect.textureWidth, Rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), Rect.frame);
+void Unit::drawBatched(float tileSize) {
+	Batchrenderer::Get().addQuadAA(Vector4f(pos[0] * static_cast<float>(tileSize) - static_cast<float>(Rect.width / 2), pos[1] * static_cast<float>(tileSize) - static_cast<float>(Rect.height / 2), static_cast<float>(Rect.width), static_cast<float>(Rect.height)), Vector4f(Rect.textureOffsetX, Rect.textureOffsetY, Rect.textureWidth, Rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), Rect.frame);
 }
 
 bool Unit::checkOverlap(const Vector2f& posOther, float sizeOther) {
@@ -104,6 +104,6 @@ bool Unit::getIsAlive() {
 	return isAlive;
 }
 
-void Unit::Inti(const TextureRect& rect) {
+void Unit::Init(const TextureRect& rect) {
 	Rect = rect;
 }

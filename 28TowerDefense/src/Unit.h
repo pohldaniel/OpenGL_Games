@@ -1,8 +1,7 @@
 #pragma once
 
-#include <vector>
 #include <engine/Vector.h>
-#include <engine/Texture.h>
+#include <engine/Rect.h>
 #include "Level.h"
 
 class Unit{
@@ -11,13 +10,13 @@ public:
 
 	Unit(const Vector2f& setPos);
 	
-	void update(float dT, Level& level, std::vector<Unit>& listUnits);
-	void drawBatched(int tileSize);
+	void update(float dt, Level& level, std::vector<Unit>& listUnits);
+	void drawBatched(float tileSize);
 	bool checkOverlap(const Vector2f& posOther, float sizeOther);
 	Vector2f computeNormalSeparation(std::vector<Unit>& listUnits);
 	bool getIsAlive();
 
-	static void Inti(const TextureRect& rect);
+	static void Init(const TextureRect& rect);
 
 private:
 

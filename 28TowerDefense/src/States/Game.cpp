@@ -10,7 +10,10 @@
 #include "Menu.h"
 #include "TileSet.h"
 
-Game::Game(StateMachine& machine) : State(machine, States::GAME), m_level(m_camera, static_cast<float>(Application::Width) / 48.0f, static_cast<float>(Application::Height) / 48.0f) {
+float Game::TileSize = 64.0f;
+
+Game::Game(StateMachine& machine) : State(machine, States::GAME), m_level(m_camera, static_cast<int>(static_cast<float>(Application::Width) / TileSize), static_cast<int>(static_cast<float>(Application::Height) / TileSize)),
+									spawnTimer(0.25f), roundTimer(5.0f) {
 
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
@@ -29,23 +32,32 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME), m_level(m_came
 	TileSetManager::Get().getTileSet("sprites").loadTileSetCpu({
 		"res/images/Tile Wall.bmp",
 		"res/images/Tile Empty.bmp",
-		"res/images/Tile Arrow Up.bmp",
-		"res/images/Tile Arrow Up Right.bmp",
-		"res/images/Tile Arrow Right.bmp",
-		"res/images/Tile Arrow Down Right.bmp",
 		"res/images/Tile Arrow Down.bmp",
-		"res/images/Tile Arrow Down Left.bmp",
-		"res/images/Tile Arrow Left.bmp",
+		"res/images/Tile Arrow Down Right.bmp",
+		"res/images/Tile Arrow Right.bmp",
+		"res/images/Tile Arrow Up Right.bmp",
+		"res/images/Tile Arrow Up.bmp",
 		"res/images/Tile Arrow Up Left.bmp",
-		"res/images/Tile Target.bmp",
-		"res/images/Unit.bmp" });
+		"res/images/Tile Arrow Left.bmp",
+		"res/images/Tile Arrow Down Left.bmp",
+		"res/images/Tile Target.bmp",	
+		"res/images/Tile Enemy Spawner.bmp",
+		"res/images/Empty.bmp",
+		"res/images/Unit.bmp",
+		"res/images/Turret.bmp",
+		"res/images/Turret Shadow.bmp" });
 
 
 	TileSetManager::Get().getTileSet("sprites").loadTileSetGpu();
 	m_sprites = TileSetManager::Get().getTileSet("sprites").getAtlas();
-	m_level.init(std::vector<TextureRect> (TileSetManager::Get().getTileSet("sprites").getTextureRects().begin(), TileSetManager::Get().getTileSet("sprites").getTextureRects().begin() + 11 ));
-	Unit::Inti(TileSetManager::Get().getTileSet("sprites").getTextureRects()[11]);
+	m_level.init(std::vector<TextureRect> (TileSetManager::Get().getTileSet("sprites").getTextureRects().begin(), TileSetManager::Get().getTileSet("sprites").getTextureRects().begin() + 13 ));
+	Unit::Init(TileSetManager::Get().getTileSet("sprites").getTextureRects()[13]);
+
+	Turret::Init(std::vector<TextureRect>(TileSetManager::Get().getTileSet("sprites").getTextureRects().begin() + 14, TileSetManager::Get().getTileSet("sprites").getTextureRects().begin() + 16));
+
 	Spritesheet::Bind(m_sprites);
+
+	std::srand(std::time(NULL));
 }
 
 Game::~Game() {
@@ -112,17 +124,17 @@ void Game::update() {
 		}
 	}
 
-	Vector2f posMouse((float)m_mouseX / tileSize, (float)(Application::Height - m_mouseY) / tileSize);
+	Vector2f posMouse((float)m_mouseX / TileSize, (float)(Application::Height - m_mouseY) / TileSize);
 
 	if (m_mouseDownLeft || m_mouseDownRight) {
 		if (m_mouseDownRight) {
 			m_level.setTileWall((int)posMouse[0], (int)posMouse[1], false);
-			removeUnitsAtMousePosition(posMouse);
+			removeTurretsAtMousePosition(posMouse);
 		}
 
 		if (m_mouseDownLeft) {
 			if (keyboard.keyDown(Keyboard::KEY_CTRL)) {
-				addUnit(posMouse);
+				addTurret(posMouse);
 				m_mouseDownLeft = false;
 			}else {
 				m_level.setTileWall((int)posMouse[0], (int)posMouse[1], true);
@@ -140,15 +152,21 @@ void Game::update() {
 		else
 			it++;
 	}
+
+	updateSpawnUnitsIfRequired(m_dt);
 }
 
 void Game::render() {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	m_level.draw(tileSize);
+	m_level.draw(TileSize);
 
 	for (auto& unitSelected : listUnits)
-		unitSelected.drawBatched(tileSize);
+		unitSelected.drawBatched(TileSize);
+
+	//Draw the turrets.
+	for (auto& turretSelected : listTurrets)
+		turretSelected.drawBatched(TileSize);
 
 	Batchrenderer::Get().drawBuffer();
 
@@ -245,14 +263,39 @@ void Game::addUnit(const Vector2f& posMouse) {
 	listUnits.push_back(Unit(posMouse));
 }
 
+void Game::addTurret(const Vector2f& posMouse) {
+	Vector2f pos((int)posMouse[0] + 0.5f, (int)posMouse[1] + 0.5f);
+	listTurrets.push_back(Turret(pos));
+}
 
+void Game::removeTurretsAtMousePosition(const Vector2f& posMouse) {
+	for (auto it = listTurrets.begin(); it != listTurrets.end();) {
+		if ((*it).checkIfOnTile((int)posMouse[0], (int)posMouse[1]))
+			it = listTurrets.erase(it);
+		else
+			it++;
+	}
+}
 
-void Game::removeUnitsAtMousePosition(const Vector2f& posMouse) {
-	for (int count = 0; count < listUnits.size(); count++) {
-		auto& unitSelected = listUnits[count];
-		if (unitSelected.checkOverlap(posMouse, 0.0f)) {
-			listUnits.erase(listUnits.begin() + count);
-			count--;
+void Game::updateSpawnUnitsIfRequired(float dt) {
+	spawnTimer.countDown(dt);
+
+	//Check if the round needs to start.
+	if (listUnits.empty() && spawnUnitCount == 0) {
+		roundTimer.countDown(dt);
+		if (roundTimer.timeSIsZero()) {
+			spawnUnitCount = 15;
+			roundTimer.resetToMax();
 		}
+	}
+
+	for (auto& turretSelected : listTurrets)
+		turretSelected.update(m_dt);
+
+	//Add a unit if needed.
+	if (spawnUnitCount > 0 && spawnTimer.timeSIsZero()) {
+		addUnit(m_level.getRandomEnemySpawnerLocation());
+		spawnUnitCount--;
+		spawnTimer.resetToMax();
 	}
 }
