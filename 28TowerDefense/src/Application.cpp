@@ -42,7 +42,7 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	initOpenGL();
 	showWindow();
 	initImGUI();
-	//initOpenAL();
+	initOpenAL();
 	loadAssets();
 
 	Framebuffer::SetDefaultSize(Width, Height);
@@ -601,4 +601,9 @@ void Application::loadAssets() {
 	Globals::textureManager.loadTexture("forest_5", "res/backgrounds/Forest/plx-5.png");
 
 	Globals::shapeManager.buildQuadXY("quad", Vector3f(-1.0f, -1.0f, 0.0f), Vector2f(2.0f, 2.0f), 1, 1, true, false, false);
+
+	SoundBuffer::Init();
+
+	Globals::soundManager.createSoundBuffer("turret", 1u, 20u, 0.3f);
+	Globals::soundManager.createSoundBuffer("spawn", 1u, 20u, 0.3f);
 }

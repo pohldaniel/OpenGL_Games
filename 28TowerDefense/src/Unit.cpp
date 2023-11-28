@@ -6,15 +6,17 @@ const float Unit::speed = 1.5f;
 const float Unit::size = 0.48f;
 TextureRect Unit::Rect;
 
-Unit::Unit(const Vector2f& setPos) : pos(setPos) {
+Unit::Unit(const Vector2f& setPos) : pos(setPos), timerJustHurt(0.25f) {
 }
 
 void Unit::update(float dT, Level& level, std::vector<std::shared_ptr<Unit>>& listUnits) {
+	timerJustHurt.countDown(dT);
+
 	//Determine the distance to the target from the unit's current position.
 	float distanceToTarget = (level.getTargetPos() - pos).length();
 
 	if (distanceToTarget < 0.5f) {
-		isAlive = false;
+		healthCurrent = 0;
 	}else {
 		//Determine the distance to move this frame.
 		float distanceMove = speed * dT;
@@ -69,7 +71,7 @@ void Unit::update(float dT, Level& level, std::vector<std::shared_ptr<Unit>>& li
 }
 
 void Unit::drawBatched(float tileSize) {
-	Batchrenderer::Get().addQuadAA(Vector4f(pos[0] * static_cast<float>(tileSize) - static_cast<float>(Rect.width / 2), pos[1] * static_cast<float>(tileSize) - static_cast<float>(Rect.height / 2), static_cast<float>(Rect.width), static_cast<float>(Rect.height)), Vector4f(Rect.textureOffsetX, Rect.textureOffsetY, Rect.textureWidth, Rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), Rect.frame);
+	Batchrenderer::Get().addQuadAA(Vector4f(pos[0] * static_cast<float>(tileSize) - static_cast<float>(Rect.width / 2), pos[1] * static_cast<float>(tileSize) - static_cast<float>(Rect.height / 2), static_cast<float>(Rect.width), static_cast<float>(Rect.height)), Vector4f(Rect.textureOffsetX, Rect.textureOffsetY, Rect.textureWidth, Rect.textureHeight), !timerJustHurt.timeSIsZero() ? Vector4f(1.0f, 0.0f, 0.0f, 1.0f) : Vector4f(1.0f, 1.0f, 1.0f, 1.0f), Rect.frame);
 }
 
 bool Unit::checkOverlap(const Vector2f& posOther, float sizeOther) {
@@ -101,12 +103,24 @@ Vector2f Unit::computeNormalSeparation(std::vector<Unit>& listUnits) {
 	return output;
 }
 
-bool Unit::getIsAlive() {
-	return isAlive;
+bool Unit::isAlive() {
+	return (healthCurrent > 0);
 }
+
+
 
 Vector2f Unit::getPos() {
 	return pos;
+}
+
+void Unit::removeHealth(int damage) {
+	if (damage > 0) {
+		healthCurrent -= damage;
+		if (healthCurrent < 0)
+			healthCurrent = 0;
+
+		timerJustHurt.resetToMax();
+	}
 }
 
 void Unit::Init(const TextureRect& rect) {

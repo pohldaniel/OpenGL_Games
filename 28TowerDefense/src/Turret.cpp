@@ -1,5 +1,6 @@
 #include <engine/Batchrenderer.h>
 #include "Turret.h"
+#include "Globals.h"
 
 TextureRect Turret::Rect;
 TextureRect Turret::ShadowRect;
@@ -18,7 +19,7 @@ void Turret::update(float dt, std::vector<std::shared_ptr<Unit>>& listUnits, std
 
 	//Check if a target has been found but is no longer alive or is out of weapon range.
 	if (auto unitTargetSP = unitTarget.lock()) {
-		if (unitTargetSP->getIsAlive() == false ||
+		if (unitTargetSP->isAlive() == false ||
 			(unitTargetSP->getPos() - pos).length() > weaponRange) {
 			//Then reset it.
 			unitTarget.reset();
@@ -65,7 +66,7 @@ void Turret::shootProjectile(std::vector<Projectile>& listProjectiles) {
 	//Shoot a projectile towards the target unit if the weapon timer is ready.
 	if (timerWeapon.timeSIsZero()) {
 		listProjectiles.push_back(Projectile(pos, Vector2f(cosf(angle), sinf(angle))));
-
+		Globals::soundManager.get("turret").playStacked("res/sounds/Turret Shoot.ogg");
 		timerWeapon.resetToMax();
 	}
 }

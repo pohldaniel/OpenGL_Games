@@ -58,7 +58,7 @@ private:
 
 	unsigned short m_maxChannels;
 	unsigned short m_parallelIndex;
-	unsigned short m_sourceCutoff = 10u;
+	unsigned short m_sourceCutoff;
 
 	bool m_sourceInit = false;
 

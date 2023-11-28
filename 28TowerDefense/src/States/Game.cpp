@@ -168,7 +168,7 @@ void Game::updateUnits(float dt) {
 			(*it)->update(dt, m_level, listUnits);
 
 			//Check if the unit is still alive.  If not then erase it and don't increment the iterator.
-			if ((*it)->getIsAlive() == false) {
+			if ((*it)->isAlive() == false) {
 				it = listUnits.erase(it);
 				increment = false;
 			}
@@ -183,7 +183,7 @@ void Game::updateProjectiles(float dt) {
 	//Loop through the list of projectiles and update all of them.
 	auto it = listProjectiles.begin();
 	while (it != listProjectiles.end()) {
-		(*it).update(dt);
+		(*it).update(dt, listUnits);
 
 		//Check if the projectile has collided or not, erase it if needed, and update the iterator.
 		if ((*it).getCollisionOccurred())
@@ -334,6 +334,7 @@ void Game::updateSpawnUnitsIfRequired(float dt) {
 	//Add a unit if needed.
 	if (spawnUnitCount > 0 && spawnTimer.timeSIsZero()) {
 		addUnit(m_level.getRandomEnemySpawnerLocation());
+		Globals::soundManager.get("spawn").playStacked("res/sounds/Spawn Unit.ogg");
 		spawnUnitCount--;
 		spawnTimer.resetToMax();
 	}

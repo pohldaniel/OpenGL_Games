@@ -10,12 +10,14 @@ class Projectile{
 public:
 
 	Projectile(const Vector2f& setPos, const Vector2f& setDirectionNormal);
-	void update(float dt);
+	void update(float dt, std::vector<std::shared_ptr<Unit>>& listUnits);
 	void drawBatched(float tileSize);
 	bool getCollisionOccurred();
 
 	static void Init(const TextureRect& textureRect);
+
 private:
+	void checkCollisions(std::vector<std::shared_ptr<Unit>>& listUnits);
 
 	Vector2f pos, directionNormal;
 	static const float speed, size, distanceTraveledMax;

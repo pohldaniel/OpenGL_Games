@@ -32,6 +32,8 @@ void SoundBuffer::create(unsigned short cacheSizeSources, unsigned short channel
 		setVolume(volume);
 		m_source = m_sources[0];
 		m_sourceInit = true;
+
+		m_sourceCutoff = cacheSizeSources;
 	}
 
 	m_maxChannels = channelSize;

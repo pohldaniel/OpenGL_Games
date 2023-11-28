@@ -6,7 +6,7 @@ const float Projectile::speed = 10.0f, Projectile::size = 0.2f, Projectile::dist
 
 Projectile::Projectile(const Vector2f& setPos, const Vector2f& setDirectionNormal) :pos(setPos), directionNormal(setDirectionNormal) { }
 
-void Projectile::update(float dt) {
+void Projectile::update(float dt, std::vector<std::shared_ptr<Unit>>& listUnits) {
 	//Move the projectile forward.
 	float distanceMove = speed * dt;
 	pos += directionNormal * distanceMove;
@@ -14,6 +14,8 @@ void Projectile::update(float dt) {
 	distanceTraveled += distanceMove;
 	if (distanceTraveled >= distanceTraveledMax)
 		collisionOccurred = true;
+
+	checkCollisions(listUnits);
 }
 
 void Projectile::drawBatched(float tileSize) {
@@ -22,6 +24,19 @@ void Projectile::drawBatched(float tileSize) {
 
 bool Projectile::getCollisionOccurred() {
 	return collisionOccurred;
+}
+void Projectile::checkCollisions(std::vector<std::shared_ptr<Unit>>& listUnits) {
+	//Check for a collision with any of the units.
+	if (collisionOccurred == false) {
+		//Check if this overlaps any of the enemy units or not.
+		for (int count = 0; count < listUnits.size() && collisionOccurred == false; count++) {
+			auto& unitSelected = listUnits[count];
+			if (unitSelected != nullptr && unitSelected->checkOverlap(pos, size)) {
+				unitSelected->removeHealth(1);
+				collisionOccurred = true;
+			}
+		}
+	}
 }
 
 void Projectile::Init(const TextureRect& textureRect) {
