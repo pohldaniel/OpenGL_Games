@@ -27,7 +27,7 @@ void UnitBridge::update(float dT, std::vector<std::shared_ptr<Beam>>& listBeams)
 		if (checkOverlapWithBridgeAndLand(posDesired, listBeams, (count == 0)) == false)
 			posDesiredOk = true;
 		else {
-			posDesired[1] -= 0.1f;
+			posDesired[1] += 0.1f;
 			//Reset it's speed in the y direction because it's overlapping something that stopped it.
 			speedY = 0.0f;
 		}
@@ -38,12 +38,13 @@ void UnitBridge::update(float dT, std::vector<std::shared_ptr<Beam>>& listBeams)
 		pos = posDesired;
 
 	//Check if it reached the end of the level
-	if (pos[0] > (960.0f - 64.0f) && pos[1] < 376.0f)
+	if (pos[0] > (960.0f - 64.0f) && pos[1] < static_cast<float>(Application::Height) - 376.0f)
 		reachedEndOfLevel = true;
 
 	//Check if it got stuck.  Either because it wasn't able to move or is below the screen.
-	if (posDesiredOk == false || pos[1] >(540.0f + size / 2.0f))
+	if (posDesiredOk == false || pos[1] < -size / 2.0f)
 		isStuck = true;
+
 }
 
 
@@ -113,16 +114,16 @@ bool UnitBridge::checkOverlapWithBridgeAndLand(const Vector2f& posCheck, std::ve
 	//Check overlap with land
 	if (overlapFound == false) {
 		//Left piece
-		Vector2f posLeft1(0.0f, 387.0f);
-		Vector2f posLeft2(264.0f, 387.0f);
-		if (MathAddon::checkOverlapLineCircle(posLeft1, posLeft2, posCheck, (size / 2.0f + 11.0f)))
+		Vector2f posLeft1(0.0f, static_cast<float>(Application::Height) - 387.0f);
+		Vector2f posLeft2(264.0f, static_cast<float>(Application::Height) - 387.0f);
+		if (MathAddon::checkOverlapLineCircle(posLeft1, posLeft2, posCheck, (size / 2.0f - 11.0f)))
 			overlapFound = true;
 
 		if (overlapFound == false) {
 			//Right piece
-			Vector2f posRight1(696.0f, 387.0f);
-			Vector2f posRight2(960.0f, 387.0f);
-			if (MathAddon::checkOverlapLineCircle(posRight1, posRight2, posCheck, (size / 2.0f + 11.0f)))
+			Vector2f posRight1(696.0f, static_cast<float>(Application::Height) - 387.0f);
+			Vector2f posRight2(960.0f, static_cast<float>(Application::Height) - 387.0f);
+			if (MathAddon::checkOverlapLineCircle(posRight1, posRight2, posCheck, (size / 2.0f - 11.0f)))
 				overlapFound = true;
 		}
 	}

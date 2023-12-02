@@ -5,8 +5,9 @@
 #include "Globals.h"
 #include "Settings.h"
 #include "Controls.h"
-#include "Game.h"
-
+#include "Tower.h"
+#include "Bridge.h"
+#include "Flow.h"
 
 Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 
@@ -20,90 +21,36 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	m_headline.setOffset(5.0f, -7.0f);
 
 	m_buttons = std::initializer_list<std::pair<const std::string, Button>>({
-		{ "start",	  Button() },
-		{ "settings", Button() },
-		{ "controls", Button() },
-		{ "shape",	  Button() },
-		{ "terrain",  Button() },
-		{ "cloud",	  Button() },
-		{ "environment",  Button() }
+		{ "tower",	  Button() },
+		{ "flow",  Button() },
+		{ "bridge",	  Button() }
 	});
 
-	m_buttons.at("start").setCharset(Globals::fontManager.get("upheaval_50"));
-	m_buttons.at("start").setPosition(static_cast<float>(Application::Width - 350), 300.0f);
-	m_buttons.at("start").setSize(Vector2f(100.0f, 50.0f));
-	m_buttons.at("start").setOutlineThickness(5.0f);
-	m_buttons.at("start").setText("New Game");
-	m_buttons.at("start").setOffset(2.0f, 7.0f);
-	m_buttons.at("start").setFunction([&]() {
+	m_buttons.at("tower").setCharset(Globals::fontManager.get("upheaval_50"));
+	m_buttons.at("tower").setPosition(50.0f, 250.0f);
+	m_buttons.at("tower").setOutlineThickness(5.0f);
+	m_buttons.at("tower").setText("Tower Defense");
+	m_buttons.at("tower").setFunction([&]() {
 		m_isRunning = false;
-		m_machine.addStateAtBottom(new Game(m_machine));
+		m_machine.addStateAtBottom(new Tower(m_machine));
 	});
 
-	m_buttons.at("settings").setCharset(Globals::fontManager.get("upheaval_50"));
-	m_buttons.at("settings").setPosition(static_cast<float>(Application::Width - 350), 200.0f);
-	m_buttons.at("settings").setSize(Vector2f(246.0f, 50.0f));
-	m_buttons.at("settings").setOutlineThickness(5.0f);
-	m_buttons.at("settings").setText("Settings");
-	m_buttons.at("settings").setOffset(2.0f, 7.0f);
-	m_buttons.at("settings").setFunction([&]() {
+	m_buttons.at("flow").setCharset(Globals::fontManager.get("upheaval_50"));
+	m_buttons.at("flow").setPosition(50.0f, 150.0f);
+	m_buttons.at("flow").setOutlineThickness(5.0f);
+	m_buttons.at("flow").setText("Flow Field");
+	m_buttons.at("flow").setFunction([&]() {
 		m_isRunning = false;
-		m_machine.addStateAtBottom(new Settings(m_machine));
+		m_machine.addStateAtBottom(new Flow(m_machine));
 	});
 
-	m_buttons.at("controls").setCharset(Globals::fontManager.get("upheaval_50"));
-	m_buttons.at("controls").setPosition(static_cast<float>(Application::Width - 350), 100.0f);
-	m_buttons.at("controls").setSize(Vector2f(246.0f, 50.0f));
-	m_buttons.at("controls").setOutlineThickness(5.0f);
-	m_buttons.at("controls").setText("Controls");
-	m_buttons.at("controls").setOffset(2.0f, 7.0f);
-	m_buttons.at("controls").setFunction([&]() {
+	m_buttons.at("bridge").setCharset(Globals::fontManager.get("upheaval_50"));
+	m_buttons.at("bridge").setPosition(50.0f, 50.0f);
+	m_buttons.at("bridge").setOutlineThickness(5.0f);
+	m_buttons.at("bridge").setText("Bridge");
+	m_buttons.at("bridge").setFunction([&]() {
 		m_isRunning = false;
-		m_machine.addStateAtBottom(new Controls(m_machine));
-	});
-	
-	m_buttons.at("shape").setCharset(Globals::fontManager.get("upheaval_50"));
-	m_buttons.at("shape").setPosition(50.0f, 300.0f);
-	m_buttons.at("shape").setSize(Vector2f(100.0f, 50.0f));
-	m_buttons.at("shape").setOutlineThickness(5.0f);
-	m_buttons.at("shape").setText("Shape Interface");
-	m_buttons.at("shape").setOffset(2.0f, 7.0f);
-	m_buttons.at("shape").setFunction([&]() {
-		m_isRunning = false;
-		m_machine.addStateAtBottom(new Settings(m_machine));
-	});
-
-	m_buttons.at("terrain").setCharset(Globals::fontManager.get("upheaval_50"));
-	m_buttons.at("terrain").setPosition(50.0f, 200.0f);
-	m_buttons.at("terrain").setSize(Vector2f(449.0f, 50.0f));
-	m_buttons.at("terrain").setOutlineThickness(5.0f);
-	m_buttons.at("terrain").setText("Terrain Culling");
-	m_buttons.at("terrain").setOffset(2.0f, 7.0f);
-	m_buttons.at("terrain").setFunction([&]() {
-		m_isRunning = false;
-		m_machine.addStateAtBottom(new Settings(m_machine));
-	});
-
-	m_buttons.at("cloud").setCharset(Globals::fontManager.get("upheaval_50"));
-	m_buttons.at("cloud").setPosition(50.0f, 100.0f);
-	m_buttons.at("cloud").setSize(Vector2f(100.0f, 50.0f));
-	m_buttons.at("cloud").setOutlineThickness(5.0f);
-	m_buttons.at("cloud").setText("Cloud Interface");
-	m_buttons.at("cloud").setOffset(2.0f, 7.0f);
-	m_buttons.at("cloud").setFunction([&]() {
-		m_isRunning = false;
-		m_machine.addStateAtBottom(new Settings(m_machine));
-	});
-
-	m_buttons.at("environment").setCharset(Globals::fontManager.get("upheaval_50"));
-	m_buttons.at("environment").setPosition(50.0f, 400.0f);
-	m_buttons.at("environment").setSize(Vector2f(100.0f, 50.0f));
-	m_buttons.at("environment").setOutlineThickness(5.0f);
-	m_buttons.at("environment").setText("Environment");
-	m_buttons.at("environment").setOffset(2.0f, 7.0f);
-	m_buttons.at("environment").setFunction([&]() {
-		m_isRunning = false;
-		m_machine.addStateAtBottom(new Settings(m_machine));
+		m_machine.addStateAtBottom(new Bridge(m_machine));
 	});
 
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
@@ -148,7 +95,7 @@ void Menu::OnKeyDown(Event::KeyboardEvent& event) {
 void Menu::resize(int deltaW, int deltaH) {
 	m_headline.setPosition(Vector2f(static_cast<float>(Application::Width / 2 - 220), static_cast<float>(Application::Height - 200)));
 
-	m_buttons.at("start").setPosition(static_cast<float>(Application::Width - 350), 300.0f);
-	m_buttons.at("settings").setPosition(static_cast<float>(Application::Width - 350), 200.0f);
-	m_buttons.at("controls").setPosition(static_cast<float>(Application::Width - 350), 100.0f);
+	//m_buttons.at("start").setPosition(static_cast<float>(Application::Width - 350), 300.0f);
+	//m_buttons.at("settings").setPosition(static_cast<float>(Application::Width - 350), 200.0f);
+	//m_buttons.at("controls").setPosition(static_cast<float>(Application::Width - 350), 100.0f);
 }

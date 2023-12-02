@@ -4,16 +4,15 @@
 #include <imgui_internal.h>
 #include <engine/Batchrenderer.h>
 
-#include "Game.h"
+#include "Flow.h"
 #include "Application.h"
 #include "Globals.h"
 #include "Menu.h"
 #include "TileSet.h"
 
-float Game::TileSize = 64.0f;
+float Flow::TileSize = 48.0f;
 
-Game::Game(StateMachine& machine) : State(machine, States::GAME), m_level(m_camera, static_cast<int>(static_cast<float>(Application::Width) / TileSize), static_cast<int>(static_cast<float>(Application::Height) / TileSize)),
-									spawnTimer(0.25f), roundTimer(5.0f) {
+Flow::Flow(StateMachine& machine) : State(machine, States::FLOW), m_level(m_camera, static_cast<int>(static_cast<float>(Application::Width) / TileSize), static_cast<int>(static_cast<float>(Application::Height) / TileSize)) {
 
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
@@ -29,49 +28,40 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME), m_level(m_came
 	glClearColor(0.494f, 0.686f, 0.796f, 1.0f);
 	glClearDepth(1.0f);
 
-	TileSetManager::Get().getTileSet("sprites").loadTileSetCpu({
-		"res/images/Tile Wall.bmp",
-		"res/images/Tile Empty.bmp",
-		"res/images/Tile Arrow Down.bmp",
-		"res/images/Tile Arrow Down Right.bmp",
-		"res/images/Tile Arrow Right.bmp",
-		"res/images/Tile Arrow Up Right.bmp",
-		"res/images/Tile Arrow Up.bmp",
-		"res/images/Tile Arrow Up Left.bmp",
-		"res/images/Tile Arrow Left.bmp",
-		"res/images/Tile Arrow Down Left.bmp",
-		"res/images/Tile Target.bmp",	
-		"res/images/Tile Enemy Spawner.bmp",
-		"res/images/Empty.bmp",
-		"res/images/Unit.bmp",
-		"res/images/Turret.bmp",
-		"res/images/Turret Shadow.bmp",
-		"res/images/Projectile.bmp" });
+	if (!TileSetManager::Get().containsTileset("sprites_flow")) {
 
+		TileSetManager::Get().getTileSet("sprites_flow").loadTileSetCpu({
+			"res/flow/Tile Wall.bmp",
+			"res/images/Tile Empty.bmp",
+			"res/images/Tile Arrow Down.bmp",
+			"res/images/Tile Arrow Down Right.bmp",
+			"res/images/Tile Arrow Right.bmp",
+			"res/images/Tile Arrow Up Right.bmp",
+			"res/images/Tile Arrow Up.bmp",
+			"res/images/Tile Arrow Up Left.bmp",
+			"res/images/Tile Arrow Left.bmp",
+			"res/images/Tile Arrow Down Left.bmp",
+			"res/flow/Tile Target.bmp",
+			"res/flow/Unit.bmp" });
 
-	TileSetManager::Get().getTileSet("sprites").loadTileSetGpu();
-	m_sprites = TileSetManager::Get().getTileSet("sprites").getAtlas();
-	m_level.init(std::vector<TextureRect> (TileSetManager::Get().getTileSet("sprites").getTextureRects().begin(), TileSetManager::Get().getTileSet("sprites").getTextureRects().begin() + 13 ));
-	Unit::Init(TileSetManager::Get().getTileSet("sprites").getTextureRects()[13]);
-
-	Turret::Init(std::vector<TextureRect>(TileSetManager::Get().getTileSet("sprites").getTextureRects().begin() + 14, TileSetManager::Get().getTileSet("sprites").getTextureRects().begin() + 16));
-	Projectile::Init(TileSetManager::Get().getTileSet("sprites").getTextureRects()[16]);
-
+		TileSetManager::Get().getTileSet("sprites_flow").loadTileSetGpu();		
+		UnitFlow::Inti(TileSetManager::Get().getTileSet("sprites_flow").getTextureRects()[11]);
+	}
+	m_sprites = TileSetManager::Get().getTileSet("sprites_flow").getAtlas();
+	m_level.init(std::vector<TextureRect>(TileSetManager::Get().getTileSet("sprites_flow").getTextureRects().begin(), TileSetManager::Get().getTileSet("sprites_flow").getTextureRects().begin() + 11));
 	Spritesheet::Bind(m_sprites);
-
-	std::srand(std::time(NULL));
 }
 
-Game::~Game() {
+Flow::~Flow() {
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
 }
 
-void Game::fixedUpdate() {
+void Flow::fixedUpdate() {
 
 }
 
-void Game::update() {
+void Flow::update() {
 	Keyboard &keyboard = Keyboard::instance();
 	Vector3f directrion = Vector3f();
 
@@ -127,17 +117,17 @@ void Game::update() {
 	}
 
 	Vector2f posMouse((float)m_mouseX / TileSize, (float)(Application::Height - m_mouseY) / TileSize);
+	m_level.setTargetAndCalculateFlowField((int)posMouse[0], (int)posMouse[1]);
 
 	if (m_mouseDownLeft || m_mouseDownRight) {
 		if (m_mouseDownRight) {
 			m_level.setTileWall((int)posMouse[0], (int)posMouse[1], false);
-			removeTurretsAtMousePosition(posMouse);
+			removeUnitsAtMousePosition(posMouse);
 		}
 
 		if (m_mouseDownLeft) {
 			if (keyboard.keyDown(Keyboard::KEY_CTRL)) {
-				addTurret(posMouse);
-				m_mouseDownLeft = false;
+				addUnit(posMouse);
 			}else {
 				m_level.setTileWall((int)posMouse[0], (int)posMouse[1], true);
 			}
@@ -145,70 +135,17 @@ void Game::update() {
 		}
 	}
 
-	//Update the units.
-	updateUnits(m_dt);
-
-	//Update the turrets.
-	for (auto& turretSelected : listTurrets)
-		turretSelected.update(m_dt, listUnits, listProjectiles);
-
-	//Update the projectiles.
-	updateProjectiles(m_dt);
-
-	updateSpawnUnitsIfRequired(m_dt);
+	for (auto& unitSelected : listUnits)
+		unitSelected.update(m_dt, m_level, listUnits);
 }
 
-void Game::updateUnits(float dt) {
-	//Loop through the list of units and update all of them.
-	auto it = listUnits.begin();
-	while (it != listUnits.end()) {
-		bool increment = true;
-
-		if ((*it) != nullptr) {
-			(*it)->update(dt, m_level, listUnits);
-
-			//Check if the unit is still alive.  If not then erase it and don't increment the iterator.
-			if ((*it)->isAlive() == false) {
-				it = listUnits.erase(it);
-				increment = false;
-			}
-		}
-
-		if (increment)
-			it++;
-	}
-}
-
-void Game::updateProjectiles(float dt) {
-	//Loop through the list of projectiles and update all of them.
-	auto it = listProjectiles.begin();
-	while (it != listProjectiles.end()) {
-		(*it).update(dt, listUnits);
-
-		//Check if the projectile has collided or not, erase it if needed, and update the iterator.
-		if ((*it).getCollisionOccurred())
-			it = listProjectiles.erase(it);
-		else
-			it++;
-	}
-}
-
-void Game::render() {
+void Flow::render() {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	m_level.draw(TileSize);
 
 	for (auto& unitSelected : listUnits)
-		if (unitSelected != nullptr)
-			unitSelected->drawBatched(TileSize);
-
-	//Draw the turrets.
-	for (auto& turretSelected : listTurrets)
-		turretSelected.drawBatched(TileSize);
-
-	//Draw the projectiles.
-	for (auto& projectileSelected : listProjectiles)
-		projectileSelected.drawBatched(TileSize);
+		unitSelected.drawBatched(TileSize);
 
 	Batchrenderer::Get().drawBuffer();
 
@@ -216,49 +153,46 @@ void Game::render() {
 		//renderUi();
 }
 
-void Game::OnMouseMotion(Event::MouseMoveEvent& event) {	
+void Flow::OnMouseMotion(Event::MouseMoveEvent& event) {
 	m_mouseX = event.x;
 	m_mouseY = event.y;
 } 
 
-void Game::OnMouseButtonDown(Event::MouseButtonEvent& event) {
+void Flow::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 	m_mouseDownLeft = event.button == 1u;
 	m_mouseDownRight = event.button == 2u;
 	m_mouseX = event.x;
 	m_mouseY = event.y;
 }
 
-void Game::OnMouseButtonUp(Event::MouseButtonEvent& event) {
+void Flow::OnMouseButtonUp(Event::MouseButtonEvent& event) {
 	m_mouseDownLeft = false;
 	m_mouseDownRight = false;
 }
 
-void Game::OnMouseWheel(Event::MouseWheelEvent& event) {
+void Flow::OnMouseWheel(Event::MouseWheelEvent& event) {
 	
 }
 
-void Game::OnKeyDown(Event::KeyboardEvent& event) {
-	if (event.keyCode == VK_LMENU) {
-		m_drawUi = !m_drawUi;
-	}
-
+void Flow::OnKeyDown(Event::KeyboardEvent& event) {
 	if (event.keyCode == VK_ESCAPE) {
 		ImGui::GetIO().WantCaptureMouse = false;
 		Mouse::instance().detach();
 		m_isRunning = false;
+		m_machine.addStateAtBottom(new Menu(m_machine));
 	}
 }
 
-void Game::OnKeyUp(Event::KeyboardEvent& event) {
+void Flow::OnKeyUp(Event::KeyboardEvent& event) {
 
 }
 
-void Game::resize(int deltaW, int deltaH) {
+void Flow::resize(int deltaW, int deltaH) {
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
 }
 
-void Game::renderUi() {
+void Flow::renderUi() {
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
@@ -301,41 +235,18 @@ void Game::renderUi() {
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
-void Game::addUnit(const Vector2f& posMouse) {
-	listUnits.push_back(std::make_shared<Unit>(posMouse));
+void Flow::addUnit(const Vector2f& posMouse) {
+	listUnits.push_back(UnitFlow(posMouse));
 }
 
-void Game::addTurret(const Vector2f& posMouse) {
-	Vector2f pos((int)posMouse[0] + 0.5f, (int)posMouse[1] + 0.5f);
-	listTurrets.push_back(Turret(pos));
-}
 
-void Game::removeTurretsAtMousePosition(const Vector2f& posMouse) {
-	for (auto it = listTurrets.begin(); it != listTurrets.end();) {
-		if ((*it).checkIfOnTile((int)posMouse[0], (int)posMouse[1]))
-			it = listTurrets.erase(it);
-		else
-			it++;
-	}
-}
 
-void Game::updateSpawnUnitsIfRequired(float dt) {
-	spawnTimer.countDown(dt);
-
-	//Check if the round needs to start.
-	if (listUnits.empty() && spawnUnitCount == 0) {
-		roundTimer.countDown(dt);
-		if (roundTimer.timeSIsZero()) {
-			spawnUnitCount = 15;
-			roundTimer.resetToMax();
+void Flow::removeUnitsAtMousePosition(const Vector2f& posMouse) {
+	for (int count = 0; count < listUnits.size(); count++) {
+		auto& unitSelected = listUnits[count];
+		if (unitSelected.checkOverlap(posMouse, 0.0f)) {
+			listUnits.erase(listUnits.begin() + count);
+			count--;
 		}
-	}
-
-	//Add a unit if needed.
-	if (spawnUnitCount > 0 && spawnTimer.timeSIsZero()) {
-		addUnit(m_level.getRandomEnemySpawnerLocation());
-		Globals::soundManager.get("spawn").playStacked("res/sounds/Spawn Unit.ogg");
-		spawnUnitCount--;
-		spawnTimer.resetToMax();
 	}
 }

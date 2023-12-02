@@ -1,29 +1,18 @@
 #pragma once
 
-#include <memory>
 #include <engine/input/MouseEventListener.h>
 #include <engine/input/KeyboardEventListener.h>
 #include <engine/Camera.h>
 
 #include <States/StateMachine.h>
 #include "Background.h"
-#include "Bridge/UnitBridge.h"
-#include "Bridge/Pin.h"
-#include "Bridge/Beam.h"
 
-enum class GameMode {
-	PLAYING,
-	PAUSED,
-	VICTORY,
-	DEFEAT
-};
-
-class Bridge : public State, public MouseEventListener, public KeyboardEventListener {
+class Default : public State, public MouseEventListener, public KeyboardEventListener {
 
 public:
 
-	Bridge(StateMachine& machine);
-	~Bridge();
+	Default(StateMachine& machine);
+	~Default();
 
 	void fixedUpdate() override;
 	void update() override;
@@ -39,18 +28,10 @@ public:
 private:
 
 	void renderUi();
-	void setupBridge1();
-	void setupBridge2();
 	
 	bool m_initUi = true;
 	bool m_drawUi = true;
+
 	Camera m_camera;
-	unsigned int m_sprites;
-
-	std::vector<std::shared_ptr<Beam>> listBeams;
-	std::vector<std::shared_ptr<Pin>> listPins;
-	UnitBridge unitRedCreature;
-
-	GameMode gameModeCurrent = GameMode::PAUSED;
-	bool overlayInstructionsVisible = true;
+	Background m_background;
 };

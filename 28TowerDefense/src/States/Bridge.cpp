@@ -20,37 +20,28 @@ Bridge::Bridge(StateMachine& machine) : State(machine, States::BRIDGE), unitRedC
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
 	m_camera.lookAt(Vector3f(0.0f, 2.0f, 10.0f), Vector3f(0.0f, 2.0f, 10.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
-	m_camera.setRotationSpeed(0.1f);
-	m_camera.setMovingSpeed(10.0f);
 
 	glClearColor(0.494f, 0.686f, 0.796f, 1.0f);
 	glClearDepth(1.0f);
 
-	m_background.setLayer(std::vector<BackgroundLayer>{
-		{ &Globals::textureManager.get("forest_1"), 1, 1.0f },
-		{ &Globals::textureManager.get("forest_2"), 1, 2.0f },
-		{ &Globals::textureManager.get("forest_3"), 1, 3.0f },
-		{ &Globals::textureManager.get("forest_4"), 1, 4.0f },
-		{ &Globals::textureManager.get("forest_5"), 1, 5.0f }});
-	m_background.setSpeed(0.005f);
+	if (!TileSetManager::Get().containsTileset("bridge")) {
+		TileSetManager::Get().getTileSet("bridge").loadTileSetCpu({
+			"res/bridge/Beam Road.bmp",
+			"res/bridge/Beam Wood.bmp",
+			"res/bridge/Pin.bmp",
+			"res/bridge/Red Creature.bmp" });
 
-	TileSetManager::Get().getTileSet("bridge").loadTileSetCpu({
-		"res/bridge/Beam Road.bmp",
-		"res/bridge/Beam Wood.bmp",
-		"res/bridge/Pin.bmp",
-		"res/bridge/Red Creature.bmp"});
+		TileSetManager::Get().getTileSet("bridge").loadTileSetGpu();
+		Beam::Init(std::vector<TextureRect>(TileSetManager::Get().getTileSet("bridge").getTextureRects().begin(), TileSetManager::Get().getTileSet("bridge").getTextureRects().begin() + 2));
+		Pin::Init(TileSetManager::Get().getTileSet("bridge").getTextureRects()[2]);
+		UnitBridge::Init(TileSetManager::Get().getTileSet("bridge").getTextureRects()[3]);
+	}
 
-	TileSetManager::Get().getTileSet("bridge").loadTileSetGpu();
 	m_sprites = TileSetManager::Get().getTileSet("bridge").getAtlas();
-
-	Beam::Init(std::vector<TextureRect>(TileSetManager::Get().getTileSet("bridge").getTextureRects().begin(), TileSetManager::Get().getTileSet("bridge").getTextureRects().begin() + 2));
-	Pin::Init(TileSetManager::Get().getTileSet("bridge").getTextureRects()[2]);
-	UnitBridge::Init(TileSetManager::Get().getTileSet("bridge").getTextureRects()[3]);
-
 	Spritesheet::Bind(m_sprites);
-	Globals::textureManager.get("bridge_background").bind(0);
+	
 	//Setup a default bridge.
-	setupBridge2();
+	setupBridge1();
 }
 
 Bridge::~Bridge() {
@@ -63,66 +54,20 @@ void Bridge::fixedUpdate() {
 }
 
 void Bridge::update() {
+
 	Keyboard &keyboard = Keyboard::instance();
-	Vector3f directrion = Vector3f();
-
-	float dx = 0.0f;
-	float dy = 0.0f;
-	bool move = false;
-
-	if (keyboard.keyDown(Keyboard::KEY_W)) {
-		directrion += Vector3f(0.0f, 0.0f, 1.0f);
-		move |= true;
-	}
-
-	if (keyboard.keyDown(Keyboard::KEY_S)) {
-		directrion += Vector3f(0.0f, 0.0f, -1.0f);
-		move |= true;
-	}
-
-	if (keyboard.keyDown(Keyboard::KEY_A)) {
-		directrion += Vector3f(-1.0f, 0.0f, 0.0f);
-		m_background.addOffset(-0.001f);
-		m_background.setSpeed(-0.005f);
-		move |= true;
-	}
-
-	if (keyboard.keyDown(Keyboard::KEY_D)) {
-		directrion += Vector3f(1.0f, 0.0f, 0.0f);
-		m_background.addOffset(0.001f);
-		m_background.setSpeed(0.005f);
-		move |= true;
-	}
-
-	if (keyboard.keyDown(Keyboard::KEY_Q)) {
-		directrion += Vector3f(0.0f, -1.0f, 0.0f);
-		move |= true;
-	}
-
-	if (keyboard.keyDown(Keyboard::KEY_E)) {
-		directrion += Vector3f(0.0f, 1.0f, 0.0f);
-		move |= true;
-	}
-
-	Mouse &mouse = Mouse::instance();
-
-	if (mouse.buttonDown(Mouse::MouseButton::BUTTON_RIGHT)) {
-		dx = mouse.xDelta();
-		dy = mouse.yDelta();
-	}
-
-	if (move || dx != 0.0f || dy != 0.0f) {
-		if (dx || dy) {
-			m_camera.rotate(dx, dy);
+	if (gameModeCurrent == GameMode::PLAYING || gameModeCurrent == GameMode::PAUSED) {
+		if (keyboard.keyPressed(Keyboard::KEY_1)) {
+			setupBridge1();
+		}else if (keyboard.keyPressed(Keyboard::KEY_2)) {
+			setupBridge2();
+		}else if (keyboard.keyPressed(Keyboard::KEY_R)) {
+			gameModeCurrent = (gameModeCurrent == GameMode::PLAYING ? GameMode::PAUSED : GameMode::PLAYING);
+		}else if (keyboard.keyPressed(Keyboard::KEY_H)) {
+			overlayInstructionsVisible = !overlayInstructionsVisible;
 		}
 
-		if (move) {
-			m_camera.move(directrion * m_dt);
-		}
 	}
-
-	m_background.update(m_dt);
-
 	if (gameModeCurrent == GameMode::PLAYING) {
 		//Update the red creature and check if it's stuck or has reached the end of the level.
 		unitRedCreature.update(m_dt, listBeams);
@@ -157,7 +102,7 @@ void Bridge::update() {
 void Bridge::render() {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	
+	Globals::textureManager.get("bridge_background").bind(0);
 	auto shader = Globals::shaderManager.getAssetPointer("quad_back");
 	shader->use();
 
@@ -180,10 +125,40 @@ void Bridge::render() {
 	
 	Batchrenderer::Get().drawBuffer();
 
-	//m_background.draw();
+	switch (gameModeCurrent) {
+		case GameMode::PLAYING: case GameMode::PAUSED:
+			//Draw the instructions overlay.
+			if (overlayInstructionsVisible) {
+				Globals::textureManager.get("bridge_overlay").bind(0);
+				auto shader = Globals::shaderManager.getAssetPointer("quad");
+				shader->use();
+				shader->loadMatrix("u_transform", m_camera.getOrthographicMatrix() * Matrix4f::Translate(318.0f * 0.5f + 40.0f, Application::Height - (40.0f + 203.0f * 0.5f), 0.0f) * Matrix4f::Scale(318.0f * 0.5f, 203.0f * 0.5f, 0.0f));
+				shader->loadVector("u_texRect", Vector4f(0.0f, 0.0f, 1.0f, 1.0f));
+				Globals::shapeManager.get("quad").drawRaw();
+				shader->unuse();
+			}
+			break;
 
-	//if (m_drawUi)
-	//	renderUi();
+
+		case GameMode::VICTORY:
+			Globals::textureManager.get("bridge_victory").bind(0);
+			shader = Globals::shaderManager.getAssetPointer("quad");
+			shader->use();
+			shader->loadMatrix("u_transform", Matrix4f::IDENTITY);
+			shader->loadVector("u_texRect", Vector4f(0.0f, 0.0f, 1.0f, 1.0f));
+			Globals::shapeManager.get("quad").drawRaw();
+			shader->unuse();
+			break;
+		case GameMode::DEFEAT:
+			Globals::textureManager.get("bridge_defeat").bind(0);
+			shader = Globals::shaderManager.getAssetPointer("quad");
+			shader->use();
+			shader->loadMatrix("u_transform", Matrix4f::IDENTITY);
+			shader->loadVector("u_texRect", Vector4f(0.0f, 0.0f, 1.0f, 1.0f));
+			Globals::shapeManager.get("quad").drawRaw();
+			shader->unuse();
+			break;
+	}
 }
 
 void Bridge::OnMouseMotion(Event::MouseMoveEvent& event) {
@@ -203,14 +178,11 @@ void Bridge::OnMouseWheel(Event::MouseWheelEvent& event) {
 }
 
 void Bridge::OnKeyDown(Event::KeyboardEvent& event) {
-	if (event.keyCode == VK_LMENU) {
-		m_drawUi = !m_drawUi;
-	}
-
 	if (event.keyCode == VK_ESCAPE) {
 		ImGui::GetIO().WantCaptureMouse = false;
 		Mouse::instance().detach();
 		m_isRunning = false;
+		m_machine.addStateAtBottom(new Menu(m_machine));
 	}
 }
 
@@ -219,8 +191,6 @@ void Bridge::OnKeyUp(Event::KeyboardEvent& event) {
 }
 
 void Bridge::resize(int deltaW, int deltaH) {
-	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
-	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
 }
 
 void Bridge::renderUi() {
@@ -272,15 +242,15 @@ void Bridge::setupBridge1() {
 	listPins.clear();
 	listBeams.clear();
 
-	listPins.push_back(std::make_shared<Pin>(Vector2f(264.0f, static_cast<float>(Application::Height) - 387.0f), true));
-	listPins.push_back(std::make_shared<Pin>(Vector2f(372.0f, static_cast<float>(Application::Height) - 387.0f)));
-	listPins.push_back(std::make_shared<Pin>(Vector2f(480.0f, static_cast<float>(Application::Height) - 387.0f)));
-	listPins.push_back(std::make_shared<Pin>(Vector2f(588.0f, static_cast<float>(Application::Height) - 387.0f)));
-	listPins.push_back(std::make_shared<Pin>(Vector2f(696.0f, static_cast<float>(Application::Height) - 387.0f), true));
+	listPins.push_back(std::make_shared<Pin>(Vector2f(264.0f, static_cast<float>(Application::Height) - 387.0f - 28.0f), true));
+	listPins.push_back(std::make_shared<Pin>(Vector2f(372.0f, static_cast<float>(Application::Height) - 387.0f - 28.0f)));
+	listPins.push_back(std::make_shared<Pin>(Vector2f(480.0f, static_cast<float>(Application::Height) - 387.0f - 28.0f)));
+	listPins.push_back(std::make_shared<Pin>(Vector2f(588.0f, static_cast<float>(Application::Height) - 387.0f - 28.0f)));
+	listPins.push_back(std::make_shared<Pin>(Vector2f(696.0f, static_cast<float>(Application::Height) - 387.0f - 28.0f), true));
 
-	listPins.push_back(std::make_shared<Pin>(Vector2f(372.0f, static_cast<float>(Application::Height) - 293.5f)));
-	listPins.push_back(std::make_shared<Pin>(Vector2f(480.0f, static_cast<float>(Application::Height) - 293.5f)));
-	listPins.push_back(std::make_shared<Pin>(Vector2f(588.0f, static_cast<float>(Application::Height) - 293.5f)));
+	listPins.push_back(std::make_shared<Pin>(Vector2f(372.0f, static_cast<float>(Application::Height) - 293.5f - 28.0f)));
+	listPins.push_back(std::make_shared<Pin>(Vector2f(480.0f, static_cast<float>(Application::Height) - 293.5f - 28.0f)));
+	listPins.push_back(std::make_shared<Pin>(Vector2f(588.0f, static_cast<float>(Application::Height) - 293.5f - 28.0f)));
 
 	listBeams.push_back(std::make_shared<Beam>(listPins[0], listPins[1], true));
 	listBeams.push_back(std::make_shared<Beam>(listPins[1], listPins[2], true));
@@ -303,15 +273,15 @@ void Bridge::setupBridge2() {
 	listPins.clear();
 	listBeams.clear();
 
-	listPins.push_back(std::make_shared<Pin>(Vector2f(264.0f, static_cast<float>(Application::Height) - 387.0f), true));
-	listPins.push_back(std::make_shared<Pin>(Vector2f(372.0f, static_cast<float>(Application::Height) - 387.0f)));
-	listPins.push_back(std::make_shared<Pin>(Vector2f(480.0f, static_cast<float>(Application::Height) - 387.0f)));
-	listPins.push_back(std::make_shared<Pin>(Vector2f(588.0f, static_cast<float>(Application::Height) - 387.0f)));
-	listPins.push_back(std::make_shared<Pin>(Vector2f(696.0f, static_cast<float>(Application::Height) - 387.0f), true));
+	listPins.push_back(std::make_shared<Pin>(Vector2f(264.0f, static_cast<float>(Application::Height) - 387.0f - 28.0f), true));
+	listPins.push_back(std::make_shared<Pin>(Vector2f(372.0f, static_cast<float>(Application::Height) - 387.0f - 28.0f)));
+	listPins.push_back(std::make_shared<Pin>(Vector2f(480.0f, static_cast<float>(Application::Height) - 387.0f - 28.0f)));
+	listPins.push_back(std::make_shared<Pin>(Vector2f(588.0f, static_cast<float>(Application::Height) - 387.0f - 28.0f)));
+	listPins.push_back(std::make_shared<Pin>(Vector2f(696.0f, static_cast<float>(Application::Height) - 387.0f - 28.0f), true));
 
-	listPins.push_back(std::make_shared<Pin>(Vector2f(372.0f, static_cast<float>(Application::Height) - 293.5f)));
-	listPins.push_back(std::make_shared<Pin>(Vector2f(480.0f, static_cast<float>(Application::Height) - 293.5f)));
-	listPins.push_back(std::make_shared<Pin>(Vector2f(588.0f, static_cast<float>(Application::Height) - 293.5f)));
+	listPins.push_back(std::make_shared<Pin>(Vector2f(372.0f, static_cast<float>(Application::Height) - 293.5f - 28.0f)));
+	listPins.push_back(std::make_shared<Pin>(Vector2f(480.0f, static_cast<float>(Application::Height) - 293.5f - 28.0f)));
+	listPins.push_back(std::make_shared<Pin>(Vector2f(588.0f, static_cast<float>(Application::Height) - 293.5f - 28.0f)));
 
 	listBeams.push_back(std::make_shared<Beam>(listPins[0], listPins[1], true));
 	listBeams.push_back(std::make_shared<Beam>(listPins[1], listPins[2], true));

@@ -1,29 +1,29 @@
 #pragma once
 
-#include <memory>
 #include <engine/input/MouseEventListener.h>
 #include <engine/input/KeyboardEventListener.h>
 #include <engine/Camera.h>
+#include <engine/TrackBall.h>
+#include <engine/Clock.h>
+#include <engine/Pixelbuffer.h>
+#include <engine/Framebuffer.h>
+#include <engine/Spritesheet.h>
+#include <engine/ZoomableQuad.h>
+#include <engine/ObjModel.h>
+#include <engine/SlicedCube.h>
+#include <engine/Transform.h>
 
 #include <States/StateMachine.h>
 #include "Background.h"
-#include "Bridge/UnitBridge.h"
-#include "Bridge/Pin.h"
-#include "Bridge/Beam.h"
+#include "Flow/LevelFlow.h"
+#include "Flow/UnitFlow.h"
 
-enum class GameMode {
-	PLAYING,
-	PAUSED,
-	VICTORY,
-	DEFEAT
-};
-
-class Bridge : public State, public MouseEventListener, public KeyboardEventListener {
+class Flow : public State, public MouseEventListener, public KeyboardEventListener {
 
 public:
 
-	Bridge(StateMachine& machine);
-	~Bridge();
+	Flow(StateMachine& machine);
+	~Flow();
 
 	void fixedUpdate() override;
 	void update() override;
@@ -39,18 +39,22 @@ public:
 private:
 
 	void renderUi();
-	void setupBridge1();
-	void setupBridge2();
-	
+	void addUnit(const Vector2f& posMouse);
+	void removeUnitsAtMousePosition(const Vector2f& posMouse);
+
 	bool m_initUi = true;
 	bool m_drawUi = true;
+	bool m_mouseDownLeft = false;
+	bool m_mouseDownRight = false;
+	bool m_mouseMove = false;
+	int m_mouseX;
+	int m_mouseY;
+
 	Camera m_camera;
+	LevelFlow m_level;
+
+	std::vector<UnitFlow> listUnits;
 	unsigned int m_sprites;
 
-	std::vector<std::shared_ptr<Beam>> listBeams;
-	std::vector<std::shared_ptr<Pin>> listPins;
-	UnitBridge unitRedCreature;
-
-	GameMode gameModeCurrent = GameMode::PAUSED;
-	bool overlayInstructionsVisible = true;
+	static float TileSize;
 };

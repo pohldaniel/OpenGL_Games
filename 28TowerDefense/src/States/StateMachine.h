@@ -6,10 +6,11 @@ enum States {
 	MENU,
 	SETTINGS,
 	CONTROLLS,
-	GAME,
-	BRIDGE
+	DEFAULT,
+	FLOW,
+	BRIDGE,
+	TOWER
 };
-
 
 class State;
 class StateMachine : public IStateMachine<State> {

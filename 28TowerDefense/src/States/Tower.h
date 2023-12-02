@@ -22,12 +22,12 @@
 #include "Turret.h"
 #include "Projectile.h"
 
-class Game : public State, public MouseEventListener, public KeyboardEventListener {
+class Tower : public State, public MouseEventListener, public KeyboardEventListener {
 
 public:
 
-	Game(StateMachine& machine);
-	~Game();
+	Tower(StateMachine& machine);
+	~Tower();
 
 	void fixedUpdate() override;
 	void update() override;

@@ -80,11 +80,11 @@ void TextField::draw() {
 
 	if (!m_text.empty()) {
 		glDisable(GL_DEPTH_TEST);
-		glEnable(GL_BLEND);
+		//glEnable(GL_BLEND);
 		m_charset->bind(0);
 		Fontrenderer::Get().addText(*m_charset, m_position[0] + m_thickness + m_padding[0] * 0.5f + m_offset[0], m_position[1] + m_thickness + m_padding[1] * 0.5f + m_offset[1], m_text, Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
 		Fontrenderer::Get().drawBuffer();
-		glDisable(GL_BLEND);
+		//glDisable(GL_BLEND);
 		glEnable(GL_DEPTH_TEST);
 	}
 }

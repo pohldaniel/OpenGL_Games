@@ -168,6 +168,8 @@
     <ClCompile Include="src\Bridge\Beam.cpp" />
     <ClCompile Include="src\Bridge\Pin.cpp" />
     <ClCompile Include="src\Bridge\UnitBridge.cpp" />
+    <ClCompile Include="src\Flow\LevelFlow.cpp" />
+    <ClCompile Include="src\Flow\UnitFlow.cpp" />
     <ClCompile Include="src\Level.cpp" />
     <ClCompile Include="src\LoadingManager.cpp" />
     <ClCompile Include="src\MathAddon.cpp" />
@@ -175,8 +177,11 @@
     <ClCompile Include="src\Projectile.cpp" />
     <ClCompile Include="src\States\Bridge.cpp" />
     <ClCompile Include="src\States\Controlls.cpp" />
+    <ClCompile Include="src\States\Default.cpp" />
+    <ClCompile Include="src\States\Flow.cpp" />
     <ClCompile Include="src\States\Settings.cpp" />
     <ClCompile Include="src\States\StateMachine.cpp" />
+    <ClCompile Include="src\States\Tower.cpp" />
     <ClCompile Include="src\Thread\CThread.cpp" />
     <ClCompile Include="src\Thread\EventClass.cpp" />
     <ClCompile Include="src\Thread\MutexClass.cpp" />
@@ -247,7 +252,6 @@
     <ClCompile Include="src\Objects\Object.cpp" />
     <ClCompile Include="src\Objects\RenderableObject.cpp" />
     <ClCompile Include="src\RandomColor.cpp" />
-    <ClCompile Include="src\States\Game.cpp" />
     <ClCompile Include="src\States\Menu.cpp" />
     <ClCompile Include="src\UI\Button.cpp" />
     <ClCompile Include="src\UI\CheckBox.cpp" />
@@ -319,6 +323,8 @@
     <ClInclude Include="src\Bridge\Beam.h" />
     <ClInclude Include="src\Bridge\Pin.h" />
     <ClInclude Include="src\Bridge\UnitBridge.h" />
+    <ClInclude Include="src\Flow\LevelFlow.h" />
+    <ClInclude Include="src\Flow\UnitFlow.h" />
     <ClInclude Include="src\Globals.h" />
     <ClInclude Include="src\Level.h" />
     <ClInclude Include="src\LoadingManager.h" />
@@ -328,8 +334,11 @@
     <ClInclude Include="src\RandomColor.h" />
     <ClInclude Include="src\States\Bridge.h" />
     <ClInclude Include="src\States\Controls.h" />
+    <ClInclude Include="src\States\Default.h" />
+    <ClInclude Include="src\States\Flow.h" />
     <ClInclude Include="src\States\Settings.h" />
     <ClInclude Include="src\States\StateMachine.h" />
+    <ClInclude Include="src\States\Tower.h" />
     <ClInclude Include="src\Thread\CThread.h" />
     <ClInclude Include="src\Thread\EventClass.h" />
     <ClInclude Include="src\Thread\MutexClass.h" />
@@ -354,7 +363,6 @@
     <ClInclude Include="src\Objects\Object.h" />
     <ClInclude Include="src\Objects\RenderableObject.h" />
     <ClInclude Include="Miniball\Miniball.h" />
-    <ClInclude Include="src\States\Game.h" />
     <ClInclude Include="src\States\Menu.h" />
     <ClInclude Include="src\UI\Button.h" />
     <ClInclude Include="src\UI\CheckBox.h" />

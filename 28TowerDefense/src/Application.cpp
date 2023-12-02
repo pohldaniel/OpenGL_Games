@@ -12,8 +12,9 @@
 #include <Globals.h>
 
 #include <States/Menu.h>
-#include <States/Game.h>
+#include <States/Tower.h>
 #include <States/Bridge.h>
+#include <States/Flow.h>
 #include <UI/Widget.h>
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -41,7 +42,7 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	initOpenGL();
 	showWindow();
 	initImGUI();
-	//initOpenAL();
+	initOpenAL();
 	loadAssets();
 
 	Framebuffer::SetDefaultSize(Width, Height);
@@ -90,7 +91,9 @@ Application::~Application() {
 	wglDeleteContext(wglGetCurrentContext());
 	ReleaseDC(Window, hdc);
 
-	//SoundDevice::shutDown();
+	Globals::soundManager.get("turret").cleanup();
+	Globals::soundManager.get("spawn").cleanup();
+	SoundDevice::shutDown();
 
 	UnregisterClass("WINDOWCLASS", (HINSTANCE)GetModuleHandle(NULL));
 }
@@ -391,9 +394,10 @@ void Application::fixedUpdate() {
 
 void Application::initStates() {	
 	Machine = new StateMachine(m_dt, m_fdt);
-	//Machine->addStateAtTop(new Menu(*Machine));
-	//Machine->addStateAtTop(new Game(*Machine));
-	Machine->addStateAtTop(new Bridge(*Machine));
+	Machine->addStateAtTop(new Menu(*Machine));
+	//Machine->addStateAtTop(new Tower(*Machine));
+	//Machine->addStateAtTop(new Bridge(*Machine));
+	//Machine->addStateAtTop(new Flow(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -603,10 +607,13 @@ void Application::loadAssets() {
 
 	Globals::shapeManager.buildQuadXY("quad", Vector3f(-1.0f, -1.0f, 0.0f), Vector2f(2.0f, 2.0f), 1, 1, true, false, false);
 
-	//SoundBuffer::Init();
+	SoundBuffer::Init();
 
-	//Globals::soundManager.createSoundBuffer("turret", 1u, 20u, 0.3f);
-	//Globals::soundManager.createSoundBuffer("spawn", 1u, 20u, 0.3f);
+	Globals::soundManager.createSoundBuffer("turret", 1u, 20u, 0.1f);
+	Globals::soundManager.createSoundBuffer("spawn", 1u, 20u, 0.1f);
 
 	Globals::textureManager.loadTexture("bridge_background", "res/bridge/Background.bmp");
+	Globals::textureManager.loadTexture("bridge_victory", "res/bridge/Overlay Won.bmp");
+	Globals::textureManager.loadTexture("bridge_defeat", "res/bridge/Overlay Lost.bmp");
+	Globals::textureManager.loadTexture("bridge_overlay", "res/bridge/Overlay Instructions.bmp");
 }

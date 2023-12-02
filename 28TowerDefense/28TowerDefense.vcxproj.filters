@@ -61,6 +61,9 @@
     <Filter Include="Source Files\Bridge">
       <UniqueIdentifier>{c1767527-b054-4291-bb1d-bc29ecae75c0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Flow">
+      <UniqueIdentifier>{7b34b0da-40d9-4421-be36-b158a7c2cb39}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\input\ApplicationEventListener.cpp">
@@ -258,9 +261,6 @@
     <ClCompile Include="src\UI\CheckBox.cpp">
       <Filter>Source Files\UI</Filter>
     </ClCompile>
-    <ClCompile Include="src\States\Game.cpp">
-      <Filter>Source Files\States</Filter>
-    </ClCompile>
     <ClCompile Include="engine\Pixelbuffer.cpp">
       <Filter>engine</Filter>
     </ClCompile>
@@ -350,6 +350,21 @@
     </ClCompile>
     <ClCompile Include="src\Bridge\UnitBridge.cpp">
       <Filter>Source Files\Bridge</Filter>
+    </ClCompile>
+    <ClCompile Include="src\States\Default.cpp">
+      <Filter>Source Files\States</Filter>
+    </ClCompile>
+    <ClCompile Include="src\States\Tower.cpp">
+      <Filter>Source Files\States</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Flow\LevelFlow.cpp">
+      <Filter>Source Files\Flow</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Flow\UnitFlow.cpp">
+      <Filter>Source Files\Flow</Filter>
+    </ClCompile>
+    <ClCompile Include="src\States\Flow.cpp">
+      <Filter>Source Files\States</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -560,9 +575,6 @@
     <ClInclude Include="src\UI\CheckBox.h">
       <Filter>Source Files\UI</Filter>
     </ClInclude>
-    <ClInclude Include="src\States\Game.h">
-      <Filter>Source Files\States</Filter>
-    </ClInclude>
     <ClInclude Include="engine\Pixelbuffer.h">
       <Filter>engine</Filter>
     </ClInclude>
@@ -667,6 +679,21 @@
     </ClInclude>
     <ClInclude Include="src\Bridge\UnitBridge.h">
       <Filter>Source Files\Bridge</Filter>
+    </ClInclude>
+    <ClInclude Include="src\States\Default.h">
+      <Filter>Source Files\States</Filter>
+    </ClInclude>
+    <ClInclude Include="src\States\Tower.h">
+      <Filter>Source Files\States</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Flow\LevelFlow.h">
+      <Filter>Source Files\Flow</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Flow\UnitFlow.h">
+      <Filter>Source Files\Flow</Filter>
+    </ClInclude>
+    <ClInclude Include="src\States\Flow.h">
+      <Filter>Source Files\States</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
