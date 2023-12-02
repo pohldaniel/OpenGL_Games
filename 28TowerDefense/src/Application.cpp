@@ -13,9 +13,8 @@
 
 #include <States/Menu.h>
 #include <States/Game.h>
+#include <States/Bridge.h>
 #include <UI/Widget.h>
-
-
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -31,7 +30,7 @@ DWORD Application::SavedExStyle;
 DWORD Application::SavedStyle;
 RECT Application::Savedrc;
 HCURSOR Application::Cursor = LoadCursor(nullptr, IDC_ARROW);
-HANDLE Application::Icon = LoadImage(NULL, "res/icon1.ico", IMAGE_ICON, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
+HANDLE Application::Icon = LoadImage(NULL, "res/icon.ico", IMAGE_ICON, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
 bool Application::VerticalSync = true;
 
 Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fdt) {
@@ -42,7 +41,7 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	initOpenGL();
 	showWindow();
 	initImGUI();
-	initOpenAL();
+	//initOpenAL();
 	loadAssets();
 
 	Framebuffer::SetDefaultSize(Width, Height);
@@ -323,15 +322,16 @@ void Application::initOpenGL(int msaaSamples) {
 
 	ToggleVerticalSync();
 
+	//glDisable(GL_CULL_FACE);
+	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
 	glFrontFace(GL_CCW);
-	glEnable(GL_CULL_FACE);
-	//glDisable(GL_CULL_FACE);
-
+	
 	//glDisable(GL_DEPTH_TEST);
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);
 
+	//glDisable(GL_BLEND);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
@@ -392,7 +392,8 @@ void Application::fixedUpdate() {
 void Application::initStates() {	
 	Machine = new StateMachine(m_dt, m_fdt);
 	//Machine->addStateAtTop(new Menu(*Machine));
-	Machine->addStateAtTop(new Game(*Machine));
+	//Machine->addStateAtTop(new Game(*Machine));
+	Machine->addStateAtTop(new Bridge(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -602,8 +603,8 @@ void Application::loadAssets() {
 
 	Globals::shapeManager.buildQuadXY("quad", Vector3f(-1.0f, -1.0f, 0.0f), Vector2f(2.0f, 2.0f), 1, 1, true, false, false);
 
-	SoundBuffer::Init();
+	//SoundBuffer::Init();
 
-	Globals::soundManager.createSoundBuffer("turret", 1u, 20u, 0.3f);
-	Globals::soundManager.createSoundBuffer("spawn", 1u, 20u, 0.3f);
+	//Globals::soundManager.createSoundBuffer("turret", 1u, 20u, 0.3f);
+	//Globals::soundManager.createSoundBuffer("spawn", 1u, 20u, 0.3f);
 }

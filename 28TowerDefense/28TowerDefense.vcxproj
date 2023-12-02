@@ -170,6 +170,7 @@
     <ClCompile Include="src\MathAddon.cpp" />
     <ClCompile Include="src\MousePickerFBO.cpp" />
     <ClCompile Include="src\Projectile.cpp" />
+    <ClCompile Include="src\States\Bridge.cpp" />
     <ClCompile Include="src\States\Controlls.cpp" />
     <ClCompile Include="src\States\Settings.cpp" />
     <ClCompile Include="src\States\StateMachine.cpp" />
@@ -319,6 +320,7 @@
     <ClInclude Include="src\MousePickerFBO.h" />
     <ClInclude Include="src\Projectile.h" />
     <ClInclude Include="src\RandomColor.h" />
+    <ClInclude Include="src\States\Bridge.h" />
     <ClInclude Include="src\States\Controls.h" />
     <ClInclude Include="src\States\Settings.h" />
     <ClInclude Include="src\States\StateMachine.h" />

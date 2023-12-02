@@ -6,7 +6,8 @@ enum States {
 	MENU,
 	SETTINGS,
 	CONTROLLS,
-	GAME
+	GAME,
+	BRIDGE
 };
 
 
