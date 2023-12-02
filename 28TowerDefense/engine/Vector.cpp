@@ -2388,6 +2388,10 @@ float Vector2f::angle() {
 	return atan2(vec[1], vec[0]);
 }
 
+Vector2f Vector2f::getNegativeReciprocal() {
+	return Vector2f(-vec[1], vec[0]); 
+}
+
 float &Vector2f::operator[](int index) {
 	return vec[index];
 }

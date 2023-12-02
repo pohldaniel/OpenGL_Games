@@ -87,6 +87,7 @@ public:
 	float cross(const Vector2f& other);
 	float angleBetween(const Vector2f& other);
 	float angle();
+	Vector2f getNegativeReciprocal();
 
 	float &operator[](int index);
 	const float operator[](int index) const;

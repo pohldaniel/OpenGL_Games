@@ -165,6 +165,9 @@
     <ClCompile Include="engine\sound\SoundDevice.cpp" />
     <ClCompile Include="engine\Thread.cpp" />
     <ClCompile Include="engine\ZoomableQuad.cpp" />
+    <ClCompile Include="src\Bridge\Beam.cpp" />
+    <ClCompile Include="src\Bridge\Pin.cpp" />
+    <ClCompile Include="src\Bridge\UnitBridge.cpp" />
     <ClCompile Include="src\Level.cpp" />
     <ClCompile Include="src\LoadingManager.cpp" />
     <ClCompile Include="src\MathAddon.cpp" />
@@ -313,6 +316,9 @@
     <ClInclude Include="engine\ZoomableQuad.h" />
     <ClInclude Include="src\Application.h" />
     <ClInclude Include="src\Background.h" />
+    <ClInclude Include="src\Bridge\Beam.h" />
+    <ClInclude Include="src\Bridge\Pin.h" />
+    <ClInclude Include="src\Bridge\UnitBridge.h" />
     <ClInclude Include="src\Globals.h" />
     <ClInclude Include="src\Level.h" />
     <ClInclude Include="src\LoadingManager.h" />

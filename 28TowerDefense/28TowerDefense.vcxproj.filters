@@ -58,6 +58,9 @@
     <Filter Include="engine\interfaces">
       <UniqueIdentifier>{d0201a6b-300d-429e-b832-577cfae6b06f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Bridge">
+      <UniqueIdentifier>{c1767527-b054-4291-bb1d-bc29ecae75c0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\input\ApplicationEventListener.cpp">
@@ -338,6 +341,15 @@
     </ClCompile>
     <ClCompile Include="src\States\Bridge.cpp">
       <Filter>Source Files\States</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Bridge\Beam.cpp">
+      <Filter>Source Files\Bridge</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Bridge\Pin.cpp">
+      <Filter>Source Files\Bridge</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Bridge\UnitBridge.cpp">
+      <Filter>Source Files\Bridge</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -646,6 +658,15 @@
     </ClInclude>
     <ClInclude Include="src\States\Bridge.h">
       <Filter>Source Files\States</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Bridge\Beam.h">
+      <Filter>Source Files\Bridge</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Bridge\Pin.h">
+      <Filter>Source Files\Bridge</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Bridge\UnitBridge.h">
+      <Filter>Source Files\Bridge</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

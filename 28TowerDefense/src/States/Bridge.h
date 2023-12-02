@@ -16,11 +16,17 @@
 
 #include <States/StateMachine.h>
 #include "Background.h"
-#include "Level.h"
-#include "Unit.h"
-#include "Timer.h"
-#include "Turret.h"
-#include "Projectile.h"
+#include "Bridge/UnitBridge.h"
+#include "Bridge/Pin.h"
+#include "Bridge/Beam.h"
+
+enum class GameMode {
+	PLAYING,
+	PAUSED,
+	VICTORY,
+	DEFEAT
+};
+
 
 class Bridge : public State, public MouseEventListener, public KeyboardEventListener {
 
@@ -43,16 +49,19 @@ public:
 private:
 
 	void renderUi();
-	void updateSpawnUnitsIfRequired(float dt);
-	void addUnit(const Vector2f& posMouse);
-	void addTurret(const Vector2f& posMouse);
-	void removeTurretsAtMousePosition(const Vector2f& posMouse);
-	void updateUnits(float dt);
-	void updateProjectiles(float dt);
-
+	void setupBridge1();
+	void setupBridge2();
+	
 	bool m_initUi = true;
 	bool m_drawUi = true;
 	
 	Camera m_camera;
 	Background m_background;
+	unsigned int m_sprites;
+
+	std::vector<std::shared_ptr<Beam>> listBeams;
+	std::vector<std::shared_ptr<Pin>> listPins;
+	UnitBridge unitRedCreature;
+
+	GameMode gameModeCurrent = GameMode::PLAYING;
 };

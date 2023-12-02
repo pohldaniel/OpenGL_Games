@@ -24,7 +24,7 @@ Level::~Level() {
 }
 
 void Level::init(std::vector<TextureRect>& textureRects) {
-	m_rextureRects = textureRects;
+	m_textureRects = textureRects;
 }
 
 void Level::draw(float tileSize) {
@@ -58,7 +58,7 @@ void Level::draw(float tileSize) {
 			const TextureRect& rect = m_rextureRects[index];
 			Batchrenderer::Get().addQuadAA(Vector4f(static_cast<float>(x * tileSize), static_cast<float>(y * tileSize), tileSize, tileSize), Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureWidth, rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), rect.frame);
 			*/
-			const TextureRect& rect = m_rextureRects[12];
+			const TextureRect& rect = m_textureRects[12];
 			Batchrenderer::Get().addQuadAA(Vector4f(static_cast<float>(x * tileSize), static_cast<float>(y * tileSize), tileSize, tileSize), Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureWidth, rect.textureHeight), (x + y) % 2 == 0 ? Vector4f(0.94118f, 0.94118f, 0.94118f, 1.0f) : Vector4f(1.0f, 1.0f, 1.0f, 1.0f), rect.frame);
 			
 		//}
@@ -75,7 +75,7 @@ void Level::draw(float tileSize) {
 		if (tileSelected.type == TileType::EMPTY) {
 			
 			if ((x == targetX && y == targetY)) {
-				const TextureRect& target = m_rextureRects[10];
+				const TextureRect& target = m_textureRects[10];
 				Batchrenderer::Get().addQuadAA(Vector4f(static_cast<float>(targetX * tileSize), static_cast<float>(targetY * tileSize), tileSize, tileSize), Vector4f(target.textureOffsetX, target.textureOffsetY, target.textureWidth, target.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), target.frame);
 			}/*else {
 				int index = 1;
@@ -109,10 +109,10 @@ void Level::draw(float tileSize) {
 			}*/
 
 		}else if (tileSelected.type == TileType::ENEMY_SPAWNER) {
-			const TextureRect& wall = m_rextureRects[11];
+			const TextureRect& wall = m_textureRects[11];
 			Batchrenderer::Get().addQuadAA(Vector4f(static_cast<float>(x * tileSize), static_cast<float>(y * tileSize), tileSize, tileSize), Vector4f(wall.textureOffsetX, wall.textureOffsetY, wall.textureWidth, wall.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), wall.frame);
 		}else if (tileSelected.type == TileType::WALL) {
-			const TextureRect& wall = m_rextureRects[0];
+			const TextureRect& wall = m_textureRects[0];
 			Batchrenderer::Get().addQuadAA(Vector4f(static_cast<float>(x * tileSize + tileSize / 2 ) - static_cast<float>(wall.width / 2), static_cast<float>(y * tileSize + tileSize / 2) - static_cast<float>(wall.height / 2), static_cast<float>(wall.width), static_cast<float>(wall.height)), Vector4f(wall.textureOffsetX, wall.textureOffsetY, wall.textureWidth, wall.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), wall.frame);
 			
 			//Batchrenderer::Get().addQuadAA(Vector4f(static_cast<float>(x * tileSize), static_cast<float>(y* tileSize), tileSize, tileSize), Vector4f(wall.textureOffsetX, wall.textureOffsetY, wall.textureWidth, wall.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), wall.frame);

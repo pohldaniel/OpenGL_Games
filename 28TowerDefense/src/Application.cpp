@@ -607,4 +607,6 @@ void Application::loadAssets() {
 
 	//Globals::soundManager.createSoundBuffer("turret", 1u, 20u, 0.3f);
 	//Globals::soundManager.createSoundBuffer("spawn", 1u, 20u, 0.3f);
+
+	Globals::textureManager.loadTexture("bridge_background", "res/bridge/Background.bmp");
 }

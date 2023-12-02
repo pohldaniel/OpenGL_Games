@@ -44,7 +44,7 @@ private:
 	TileType getTileType(int x, int y);
 
 	std::vector<Tile> m_tiles;
-	std::vector<TextureRect> m_rextureRects;
+	std::vector<TextureRect> m_textureRects;
 	const int tileCountX, tileCountY;
 	const int targetX = 0, targetY = 0;
 
