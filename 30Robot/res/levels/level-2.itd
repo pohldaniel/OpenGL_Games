@@ -1,0 +1,25 @@
+@ITD 1++
+# ITD ameliore, pas besoin de donnees de graphes, et infos en plus.
+
+carte level-2.png
+background-img level-2-background.png
+intro-img level-2-intro.png
+intro-text Right click on a mirror to open options menu
+exit-text You're awake now ?
+
+chemin 255 255 255
+noeud 0 0 0
+construct 0 0 255
+in 0 255 0
+out 255 0 0
+
+energie 2
+slow 0
+mirror 0
+
+robot 4
+kamikaze 0
+wave-rate 10
+
+build-laser 2 6 0
+build-mirror 12 6 7

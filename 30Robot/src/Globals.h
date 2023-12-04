@@ -1,5 +1,6 @@
 #pragma once
 
+#include <engine/Clock.h>
 #include <engine/MeshObject/Shape.h>
 #include <engine/sound/SoundBuffer.h>
 #include <engine/sound/MusicBuffer.h>
@@ -32,4 +33,5 @@ namespace Globals {
 	extern AssetManager<SoundBuffer> soundManager;
 	extern AssetManager<MusicBuffer> musicManager;
 	extern Physics *physics;
+	extern Clock clock;
 }

@@ -1,0 +1,161 @@
+<Grid xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    x:Class="LevelHud">
+  <!-- Global Styling -->
+  <Grid.Resources>
+    <Style x:Key="MenuBtn" TargetType="Button">
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="Button">
+            <Grid Width="{TemplateBinding Width}" Height="{TemplateBinding Height}" ClipToBounds="True">
+              <!-- Inner Rectangle with rounded corners. -->
+              <Rectangle x:Name="innerRectangle" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stroke="Transparent" StrokeThickness="2" Fill="{TemplateBinding Background}" RadiusX="4" RadiusY="4" />
+              <!-- Present Content (text) of the button. -->
+              <ContentPresenter x:Name="myContentPresenter" Content="{TemplateBinding Content}" />
+            </Grid>
+
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Rectangle.Opacity" Value="0.5" TargetName="innerRectangle" />
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+
+    <Style x:Key="Btn" TargetType="Button">
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="Button">
+            <Grid Width="{TemplateBinding Width}" Height="{TemplateBinding Height}" HorizontalAlignment="Center" VerticalAlignment="Center">
+              <!-- Inner Rectangle with rounded corners. -->
+              <Rectangle x:Name="innerRectangle" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stroke="Transparent" StrokeThickness="2" Fill="{TemplateBinding Background}" RadiusX="4" RadiusY="4" />
+              <ContentPresenter x:Name="myContentPresenter" Content="{TemplateBinding Content}" Width="Auto" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5,5" />
+            </Grid>
+
+            <!-- Event Triggers -->
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Rectangle.Opacity" Value="0.5" TargetName="innerRectangle" />
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+  </Grid.Resources>
+
+  <!-- Option floating menu -->
+  <Canvas>
+    <Grid Canvas.Left="{Binding OptionsPosX}" Canvas.Top="{Binding OptionsPosY}" Visibility="{Binding OptionsVisibility}">
+      <Grid.RowDefinitions>
+        <RowDefinition/>
+      </Grid.RowDefinitions>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition/>
+      </Grid.ColumnDefinitions>
+
+      <Button Background="#FF4D4D4D" Style="{StaticResource Btn}" Click="onDeleteEntity">
+        <Image Source="../images/icons/delete.png" Width="24" Height="24"/>
+      </Button>
+    </Grid>
+  </Canvas>
+
+  <Grid x:Name="BottomMenu" Height="104" Width="226" HorizontalAlignment="Center" VerticalAlignment="Bottom" RenderTransformOrigin="0.5,0.5" Margin="269,0">
+    <Grid.RenderTransform>
+      <TransformGroup>
+        <ScaleTransform ScaleX="0.8" ScaleY="0.8"/>
+        <SkewTransform/>
+        <RotateTransform/>
+        <TranslateTransform X="-8"/>
+      </TransformGroup>
+    </Grid.RenderTransform>
+    <Grid.Background>
+      <ImageBrush ImageSource="../images/textures/panel.png"/>
+    </Grid.Background>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="19*"/>
+      <ColumnDefinition Width="94*"/>
+      <ColumnDefinition Width="94*"/>
+      <ColumnDefinition Width="19*"/>
+    </Grid.ColumnDefinitions>
+
+    <Button Style="{StaticResource MenuBtn}" Click="onSelectMirror" Grid.Column="1" x:Name="Mirror" Height="70" Margin="12,17" VerticalAlignment="Center" Width="69.3" HorizontalAlignment="Center" Background="White" Padding="0" Grid.IsSharedSizeScope="True">
+      <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+        <!-- Top Button with number -->
+        <Border BorderThickness="1" CornerRadius="3" BorderBrush="#014D4D4D" Background="#FF4D4D4D"  HorizontalAlignment="Right" VerticalAlignment="Top" Width="27.47" Height="27.363">
+          <TextBlock x:Name="mirrorNumber" HorizontalAlignment="Center" TextWrapping="Wrap" Text="{Binding MirrorNumber}" VerticalAlignment="Center" Foreground="White" FontSize="20" FontWeight="Normal" FontFamily="./#Sniglet"/>
+        </Border>
+        <Image Source="../images/icons/mirror.png" OpacityMask="{x:Null}" Margin="10,10,10.333,7.333" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+
+        <!-- Conditional cross when number is 0 -->
+        <Image Source="../images/icons/unavailable.png" OpacityMask="{x:Null}" Margin="10,10,10.333,7.333" HorizontalAlignment="Center" VerticalAlignment="Center">
+          <Image.Style>
+            <Style TargetType="Image">
+              <Setter Property="Visibility" Value="Hidden"></Setter>
+              <Style.Triggers>
+                <DataTrigger Binding="{Binding ElementName=mirrorNumber, Path=Text}" Value="0">
+                    <Setter Property="Visibility" Value="Visible"></Setter>
+                </DataTrigger>
+              </Style.Triggers>
+            </Style>
+          </Image.Style>
+        </Image>
+      </Grid>
+      
+    </Button>
+    <Button Style="{StaticResource MenuBtn}" Click="onSelectTowerSlow" Grid.Column="2" x:Name="Slow" Height="70" Margin="12,17" VerticalAlignment="Center" Width="70" HorizontalAlignment="Center" Background="White">
+      <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+        <!-- Top Button with number -->
+        <Border BorderThickness="1" CornerRadius="3" BorderBrush="#014D4D4D" Background="#FF4D4D4D"  HorizontalAlignment="Right" VerticalAlignment="Top" Width="27.47" Height="27.363">
+          <TextBlock x:Name="slowNumber" HorizontalAlignment="Center" TextWrapping="Wrap" Text="{Binding SlowNumber}" VerticalAlignment="Center" Foreground="White" FontSize="20" FontWeight="Normal" FontFamily="./#Sniglet"/>
+        </Border>
+        <Image Source="../images/icons/snowflake.png" OpacityMask="{x:Null}" Margin="10,10,10.333,7.333" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+
+        <!-- Conditional cross when number is 0 -->
+        <Image Source="../images/icons/unavailable.png" OpacityMask="{x:Null}" Margin="10,10,10.333,7.333" HorizontalAlignment="Center" VerticalAlignment="Center">
+          <Image.Style>
+            <Style TargetType="Image">
+              <Setter Property="Visibility" Value="Hidden"></Setter>
+              <Style.Triggers>
+                <DataTrigger Binding="{Binding ElementName=slowNumber, Path=Text}" Value="0">
+                    <Setter Property="Visibility" Value="Visible"></Setter>
+                </DataTrigger>
+              </Style.Triggers>
+            </Style>
+          </Image.Style>
+        </Image>
+      </Grid>
+    </Button>
+  </Grid>
+
+  <Grid x:Name="start" HorizontalAlignment="Center" VerticalAlignment="Center" Height="70" Width="100">
+  <Button Style="{StaticResource Btn}" Click="onStartWave" Background="#FF707070" Content="Start Wave" FontFamily="Sniglet" RenderTransformOrigin="0.5,0.5">
+    <Button.RenderTransform>
+      <TransformGroup>
+        <ScaleTransform/>
+        <SkewTransform/>
+        <RotateTransform/>
+        <TranslateTransform Y="{Binding StartWaveBtnPosY}"/>
+      </TransformGroup>
+    </Button.RenderTransform>
+  </Button>
+  </Grid>
+  
+  <Grid x:Name="TopMenu" HorizontalAlignment="Center" Margin="0,15,0,0" VerticalAlignment="Top" Height="70">
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="50"/>
+      <ColumnDefinition Width="70"/>
+      <ColumnDefinition Width="25"/>
+      <ColumnDefinition Width="50"/>
+      <ColumnDefinition Width="30"/>
+    </Grid.ColumnDefinitions>
+
+    <Image  Grid.Column="0" Source="../images/icons/heart.png" OpacityMask="{x:Null}" Margin="0,0,15,0" HorizontalAlignment="Center" VerticalAlignment="Center" Height="35" Width="35"/>
+    <TextBlock  Grid.Column="1" x:Name="textBlock" TextWrapping="Wrap" Text="{Binding Timer}" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,13.186,0,13.187" FontFamily="./#Sniglet" FontSize="16"/>
+    <Image  Grid.Column="3" Source="../images/icons/clock.png" OpacityMask="{x:Null}" Margin="0,0,15,0" HorizontalAlignment="Center" VerticalAlignment="Center" Height="35" Width="35"/>
+    <TextBlock  Grid.Column="4" x:Name="textBlock2" HorizontalAlignment="Left" TextWrapping="Wrap" Text="{Binding Life}" VerticalAlignment="Center" Height="15.96" Margin="0,13.186,0,13.187" FontFamily="./#Sniglet" FontSize="16"/>
+    
+  </Grid>
+</Grid>

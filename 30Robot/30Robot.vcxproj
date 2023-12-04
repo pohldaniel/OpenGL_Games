@@ -22,32 +22,32 @@
     <ProjectGuid>{c6e35c59-3c74-4dfd-bf89-47247024395d}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>_30Robot</RootNamespace>
-    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
@@ -88,14 +88,14 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;ANDROMEDA_GL3;ANDROMEDA_GLFW;ANDROMEDA_PC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;src;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;..\libfreetypegl;..\libtinyxml;..\openal\include;..\sndfile\include;..\entt\include;..\05UniversityRacer\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;src;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;..\libfreetypegl;..\libtinyxml;..\openal\include;..\sndfile\include;..\entt\include;..\05UniversityRacer\glm;..\libbox2d\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4005;</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>..\libd\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libsoil2.lib;libimgui.lib;libfreetype.lib;libbullet.lib;libopenal.lib;libsndfile.lib;libmpg.lib;liblame.lib;libflac.lib;winmm.lib;shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libsoil2.lib;libimgui.lib;libfreetype.lib;libbullet.lib;libopenal.lib;libsndfile.lib;libmpg.lib;liblame.lib;libflac.lib;winmm.lib;shlwapi.lib;libbox2d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -105,14 +105,14 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;ANDROMEDA_GL3;ANDROMEDA_GLFW;ANDROMEDA_PC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;src;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;..\libfreetypegl;..\libtinyxml;..\openal\include;..\sndfile\include;..\entt\include;..\05UniversityRacer\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;src;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;..\libfreetypegl;..\libtinyxml;..\openal\include;..\sndfile\include;..\entt\include;..\05UniversityRacer\glm;..\libbox2d\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4005;</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>..\libd\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libsoil2.lib;libimgui.lib;libfreetype.lib;libbullet.lib;libopenal.lib;libsndfile.lib;libmpg.lib;liblame.lib;libflac.lib;winmm.lib;shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libsoil2.lib;libimgui.lib;libfreetype.lib;libbullet.lib;libopenal.lib;libsndfile.lib;libmpg.lib;liblame.lib;libflac.lib;winmm.lib;shlwapi.lib;libbox2d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -124,7 +124,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;ANDROMEDA_GL3;ANDROMEDA_GLFW;ANDROMEDA_PC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;src;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;..\libfreetypegl;..\libtinyxml;..\openal\include;..\sndfile\include;..\entt\include;..\05UniversityRacer\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;src;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;..\libfreetypegl;..\libtinyxml;..\openal\include;..\sndfile\include;..\entt\include;..\05UniversityRacer\glm;..\libbox2d\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <DisableSpecificWarnings>4005;</DisableSpecificWarnings>
     </ClCompile>
@@ -134,7 +134,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>..\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libsoil2.lib;libimgui.lib;libfreetype.lib;libbullet.lib;libopenal.lib;libsndfile.lib;libmpg.lib;liblame.lib;libflac.lib;winmm.lib;shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libsoil2.lib;libimgui.lib;libfreetype.lib;libbullet.lib;libopenal.lib;libsndfile.lib;libmpg.lib;liblame.lib;libflac.lib;winmm.lib;shlwapi.lib;libbox2d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -146,7 +146,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;_WINDOWS;_CRT_SECURE_NO_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;src;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;..\libfreetypegl;..\libtinyxml;..\openal\include;..\sndfile\include;..\entt\include;..\05UniversityRacer\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;src;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;..\libfreetypegl;..\libtinyxml;..\openal\include;..\sndfile\include;..\entt\include;..\05UniversityRacer\glm;..\libbox2d\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <DisableSpecificWarnings>4005;</DisableSpecificWarnings>
     </ClCompile>
@@ -156,7 +156,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>..\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libsoil2.lib;libimgui.lib;libfreetype.lib;libbullet.lib;libopenal.lib;libsndfile.lib;libmpg.lib;liblame.lib;libflac.lib;winmm.lib;shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libsoil2.lib;libimgui.lib;libfreetype.lib;libbullet.lib;libopenal.lib;libsndfile.lib;libmpg.lib;liblame.lib;libflac.lib;winmm.lib;shlwapi.lib;libbox2d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -165,8 +165,31 @@
     <ClCompile Include="engine\sound\SoundDevice.cpp" />
     <ClCompile Include="engine\Thread.cpp" />
     <ClCompile Include="engine\ZoomableQuad.cpp" />
+    <ClCompile Include="src\constants.cpp" />
+    <ClCompile Include="src\debug-draw-service.cpp" />
+    <ClCompile Include="src\Entity\enemy-factory.cpp" />
+    <ClCompile Include="src\Entity\mirror-factory.cpp" />
+    <ClCompile Include="src\Entity\projectile-factory.cpp" />
+    <ClCompile Include="src\Entity\tile-factory.cpp" />
+    <ClCompile Include="src\Entity\tower-factory.cpp" />
+    <ClCompile Include="src\Entity\vfx-factory.cpp" />
+    <ClCompile Include="src\Graphics\frame-buffer.cpp" />
+    <ClCompile Include="src\Graphics\index-buffer.cpp" />
+    <ClCompile Include="src\Graphics\shaderRo.cpp" />
+    <ClCompile Include="src\Graphics\texture-array.cpp" />
+    <ClCompile Include="src\Graphics\textureRo.cpp" />
+    <ClCompile Include="src\Graphics\vertex-array.cpp" />
+    <ClCompile Include="src\Graphics\vertex-buffer.cpp" />
+    <ClCompile Include="src\helper-service.cpp" />
+    <ClCompile Include="src\Level\graph.cpp" />
+    <ClCompile Include="src\Level\level.cpp" />
     <ClCompile Include="src\LoadingManager.cpp" />
+    <ClCompile Include="src\maths.cpp" />
     <ClCompile Include="src\MousePickerFBO.cpp" />
+    <ClCompile Include="src\primitive-factory.cpp" />
+    <ClCompile Include="src\progression.cpp" />
+    <ClCompile Include="src\random-service.cpp" />
+    <ClCompile Include="src\sprite-factory.cpp" />
     <ClCompile Include="src\States\Controlls.cpp" />
     <ClCompile Include="src\States\Default.cpp" />
     <ClCompile Include="src\States\Game.cpp" />
@@ -308,11 +331,73 @@
     <ClInclude Include="engine\ZoomableQuad.h" />
     <ClInclude Include="src\Application.h" />
     <ClInclude Include="src\Background.h" />
+    <ClInclude Include="src\Components\age.hpp" />
+    <ClInclude Include="src\Components\animated.hpp" />
+    <ClInclude Include="src\Components\animation-alpha.hpp" />
+    <ClInclude Include="src\Components\animation-dark.hpp" />
+    <ClInclude Include="src\Components\animation-pixels-vanish.hpp" />
+    <ClInclude Include="src\Components\animation-scale.hpp" />
+    <ClInclude Include="src\Components\attached-to.hpp" />
+    <ClInclude Include="src\Components\constrained-rotation.hpp" />
+    <ClInclude Include="src\Components\direction.hpp" />
+    <ClInclude Include="src\Components\entity-explosion-association.hpp" />
+    <ClInclude Include="src\Components\entity-on.hpp" />
+    <ClInclude Include="src\Components\growing-circle.hpp" />
+    <ClInclude Include="src\Components\health-bar.hpp" />
+    <ClInclude Include="src\Components\health.hpp" />
+    <ClInclude Include="src\Components\hitbox.hpp" />
+    <ClInclude Include="src\Components\look-at-mouse.hpp" />
+    <ClInclude Include="src\Components\move-towards-mouse.hpp" />
+    <ClInclude Include="src\Components\pathfinding.hpp" />
+    <ClInclude Include="src\Components\primitive.hpp" />
+    <ClInclude Include="src\Components\rigid-body.hpp" />
+    <ClInclude Include="src\Components\shake.hpp" />
+    <ClInclude Include="src\Components\shoot-at.hpp" />
+    <ClInclude Include="src\Components\shoot-laser.hpp" />
+    <ClInclude Include="src\Components\sprite-animation.hpp" />
+    <ClInclude Include="src\Components\sprite.hpp" />
+    <ClInclude Include="src\Components\targeting.hpp" />
+    <ClInclude Include="src\Components\tint-colour.hpp" />
+    <ClInclude Include="src\Components\trajectory.hpp" />
+    <ClInclude Include="src\Components\transform.hpp" />
+    <ClInclude Include="src\Components\velocity.hpp" />
+    <ClInclude Include="src\Components\wiggle.hpp" />
+    <ClInclude Include="src\constants.hpp" />
+    <ClInclude Include="src\debug-draw-service.hpp" />
+    <ClInclude Include="src\Entity\enemy-factory.hpp" />
+    <ClInclude Include="src\Entity\factory.hpp" />
+    <ClInclude Include="src\Entity\mirror-factory.hpp" />
+    <ClInclude Include="src\Entity\projectile-factory.hpp" />
+    <ClInclude Include="src\Entity\tile-factory.hpp" />
+    <ClInclude Include="src\Entity\tower-factory.hpp" />
+    <ClInclude Include="src\Entity\vfx-factory.hpp" />
     <ClInclude Include="src\Event\EventEmitter.h" />
+    <ClInclude Include="src\Event\loose.hpp" />
+    <ClInclude Include="src\Event\progression-updated.hpp" />
     <ClInclude Include="src\Globals.h" />
+    <ClInclude Include="src\Graphics\frame-buffer.hpp" />
+    <ClInclude Include="src\Graphics\index-buffer.hpp" />
+    <ClInclude Include="src\Graphics\shaderRo.hpp" />
+    <ClInclude Include="src\Graphics\texture-array.hpp" />
+    <ClInclude Include="src\Graphics\textureRo.hpp" />
+    <ClInclude Include="src\Graphics\vertex-array.hpp" />
+    <ClInclude Include="src\Graphics\vertex-buffer-layout.hpp" />
+    <ClInclude Include="src\Graphics\vertex-buffer.hpp" />
+    <ClInclude Include="src\helper-service.hpp" />
+    <ClInclude Include="src\i-debug-draw.hpp" />
+    <ClInclude Include="src\i-helper.hpp" />
+    <ClInclude Include="src\i-random.hpp" />
+    <ClInclude Include="src\Level\graph.hpp" />
+    <ClInclude Include="src\Level\level.hpp" />
     <ClInclude Include="src\LoadingManager.h" />
+    <ClInclude Include="src\locator.hpp" />
+    <ClInclude Include="src\maths.hpp" />
     <ClInclude Include="src\MousePickerFBO.h" />
+    <ClInclude Include="src\primitive-factory.hpp" />
+    <ClInclude Include="src\progression.hpp" />
+    <ClInclude Include="src\random-service.hpp" />
     <ClInclude Include="src\RandomColor.h" />
+    <ClInclude Include="src\sprite-factory.hpp" />
     <ClInclude Include="src\States\Controls.h" />
     <ClInclude Include="src\States\Default.h" />
     <ClInclude Include="src\States\Game.h" />
@@ -320,6 +405,7 @@
     <ClInclude Include="src\States\StateMachine.h" />
     <ClInclude Include="src\System\AttackSystem.h" />
     <ClInclude Include="src\System\ISystem.h" />
+    <ClInclude Include="src\tags.hpp" />
     <ClInclude Include="src\Thread\CThread.h" />
     <ClInclude Include="src\Thread\EventClass.h" />
     <ClInclude Include="src\Thread\MutexClass.h" />

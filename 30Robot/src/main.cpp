@@ -17,6 +17,7 @@ extern AssetManager<SoundBuffer> Globals::soundManager = AssetManager<SoundBuffe
 extern AssetManager<MusicBuffer> Globals::musicManager = AssetManager<MusicBuffer>();
 
 extern Physics* Globals::physics = NULL;
+extern Clock Globals::clock = Clock();
 
 DebugDrawer debugDrawer;
 
@@ -53,11 +54,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	Clock deltaClock;
 	Clock fixedDeltaClock;
-
-	const float FRAMERATE = 60.0f;
-	const float TARGET_DELTA_MS = 1000.0f / FRAMERATE; // 60 FPS
-	const float MAX_DELTA_MS = 1000.0f; // one second
-
+	Globals::clock.restart();
 
 	while (application.isRunning()) {
 

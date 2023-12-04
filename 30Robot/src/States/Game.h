@@ -9,7 +9,6 @@
 
 #include <Event/EventEmitter.h>
 #include <System/AttackSystem.h>
-#include <entt/entt.hpp>
 
 class Game : public State, public MouseEventListener, public KeyboardEventListener {
 
