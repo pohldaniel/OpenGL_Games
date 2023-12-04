@@ -115,7 +115,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libfreetype", "libfreetype\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libopenal", "libopenal\libopenal.vcxproj", "{897C5FC6-9EF7-4EE9-BAF8-BDACA2827BC1}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "openal", "openal\openal.vcxproj", "{2960C69F-C728-452D-A08F-42A7436567FE}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "openal", "OpenAL\openal.vcxproj", "{2960C69F-C728-452D-A08F-42A7436567FE}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "08Decals", "08Decals\08Decals.vcxproj", "{725AE08F-6A32-4D7A-A359-96716B96DD3D}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -246,6 +246,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "28TowerDefense", "28TowerDefense\28TowerDefense.vcxproj", "{1B3796DC-8A47-4E76-A7B9-2B0EE9A0128D}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "29VideoEncodeFFMPEG", "29VideoEncodeFFMPEG\29VideoEncodeFFMPEG.vcxproj", "{FFAB625D-99DC-4D1B-8E3F-3ECB8F53AAF3}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "30Robot", "30Robot\30Robot.vcxproj", "{C6E35C59-3C74-4DFD-BF89-47247024395D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -887,6 +889,14 @@ Global
 		{FFAB625D-99DC-4D1B-8E3F-3ECB8F53AAF3}.Release|x64.Build.0 = Release|x64
 		{FFAB625D-99DC-4D1B-8E3F-3ECB8F53AAF3}.Release|x86.ActiveCfg = Release|Win32
 		{FFAB625D-99DC-4D1B-8E3F-3ECB8F53AAF3}.Release|x86.Build.0 = Release|Win32
+		{C6E35C59-3C74-4DFD-BF89-47247024395D}.Debug|x64.ActiveCfg = Debug|x64
+		{C6E35C59-3C74-4DFD-BF89-47247024395D}.Debug|x64.Build.0 = Debug|x64
+		{C6E35C59-3C74-4DFD-BF89-47247024395D}.Debug|x86.ActiveCfg = Debug|Win32
+		{C6E35C59-3C74-4DFD-BF89-47247024395D}.Debug|x86.Build.0 = Debug|Win32
+		{C6E35C59-3C74-4DFD-BF89-47247024395D}.Release|x64.ActiveCfg = Release|x64
+		{C6E35C59-3C74-4DFD-BF89-47247024395D}.Release|x64.Build.0 = Release|x64
+		{C6E35C59-3C74-4DFD-BF89-47247024395D}.Release|x86.ActiveCfg = Release|Win32
+		{C6E35C59-3C74-4DFD-BF89-47247024395D}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -5,9 +5,7 @@
 #include "Globals.h"
 #include "Settings.h"
 #include "Controls.h"
-#include "Tower.h"
-#include "Bridge.h"
-#include "Flow.h"
+#include "Default.h"
 
 Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 
@@ -29,28 +27,28 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	m_buttons.at("tower").setCharset(Globals::fontManager.get("upheaval_50"));
 	m_buttons.at("tower").setPosition(50.0f, 250.0f);
 	m_buttons.at("tower").setOutlineThickness(5.0f);
-	m_buttons.at("tower").setText("Tower Defense");
+	m_buttons.at("tower").setText("Default");
 	m_buttons.at("tower").setFunction([&]() {
 		m_isRunning = false;
-		m_machine.addStateAtBottom(new Tower(m_machine));
+		m_machine.addStateAtBottom(new Default(m_machine));
 	});
 
 	m_buttons.at("flow").setCharset(Globals::fontManager.get("upheaval_50"));
 	m_buttons.at("flow").setPosition(50.0f, 150.0f);
 	m_buttons.at("flow").setOutlineThickness(5.0f);
-	m_buttons.at("flow").setText("Flow Field");
+	m_buttons.at("flow").setText("Default");
 	m_buttons.at("flow").setFunction([&]() {
 		m_isRunning = false;
-		m_machine.addStateAtBottom(new Flow(m_machine));
+		m_machine.addStateAtBottom(new Default(m_machine));
 	});
 
 	m_buttons.at("bridge").setCharset(Globals::fontManager.get("upheaval_50"));
 	m_buttons.at("bridge").setPosition(50.0f, 50.0f);
 	m_buttons.at("bridge").setOutlineThickness(5.0f);
-	m_buttons.at("bridge").setText("Bridge");
+	m_buttons.at("bridge").setText("Default");
 	m_buttons.at("bridge").setFunction([&]() {
 		m_isRunning = false;
-		m_machine.addStateAtBottom(new Bridge(m_machine));
+		m_machine.addStateAtBottom(new Default(m_machine));
 	});
 
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
