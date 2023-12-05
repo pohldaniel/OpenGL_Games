@@ -85,7 +85,7 @@
       <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
         <!-- Top Button with number -->
         <Border BorderThickness="1" CornerRadius="3" BorderBrush="#014D4D4D" Background="#FF4D4D4D"  HorizontalAlignment="Right" VerticalAlignment="Top" Width="27.47" Height="27.363">
-          <TextBlock x:Name="mirrorNumber" HorizontalAlignment="Center" TextWrapping="Wrap" Text="{Binding MirrorNumber}" VerticalAlignment="Center" Foreground="White" FontSize="20" FontWeight="Normal" FontFamily="./#Sniglet"/>
+          <TextBlock x:Name="mirrorNumber" HorizontalAlignment="Center" TextWrapping="Wrap" Text="{Binding MirrorNumber}" VerticalAlignment="Center" Foreground="White" FontSize="20" FontWeight="Normal" FontFamily="../fonts/#Sniglet"/>
         </Border>
         <Image Source="../images/icons/mirror.png" OpacityMask="{x:Null}" Margin="10,10,10.333,7.333" HorizontalAlignment="Center" VerticalAlignment="Center"/>
 
@@ -109,7 +109,7 @@
       <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
         <!-- Top Button with number -->
         <Border BorderThickness="1" CornerRadius="3" BorderBrush="#014D4D4D" Background="#FF4D4D4D"  HorizontalAlignment="Right" VerticalAlignment="Top" Width="27.47" Height="27.363">
-          <TextBlock x:Name="slowNumber" HorizontalAlignment="Center" TextWrapping="Wrap" Text="{Binding SlowNumber}" VerticalAlignment="Center" Foreground="White" FontSize="20" FontWeight="Normal" FontFamily="./#Sniglet"/>
+          <TextBlock x:Name="slowNumber" HorizontalAlignment="Center" TextWrapping="Wrap" Text="{Binding SlowNumber}" VerticalAlignment="Center" Foreground="White" FontSize="20" FontWeight="Normal" FontFamily="../fonts/#Sniglet"/>
         </Border>
         <Image Source="../images/icons/snowflake.png" OpacityMask="{x:Null}" Margin="10,10,10.333,7.333" HorizontalAlignment="Center" VerticalAlignment="Center"/>
 
@@ -131,7 +131,7 @@
   </Grid>
 
   <Grid x:Name="start" HorizontalAlignment="Center" VerticalAlignment="Center" Height="70" Width="100">
-  <Button Style="{StaticResource Btn}" Click="onStartWave" Background="#FF707070" Content="Start Wave" FontFamily="Sniglet" RenderTransformOrigin="0.5,0.5">
+  <Button Style="{StaticResource Btn}" Click="onStartWave" Background="#FF707070" Content="Start Wave" FontFamily="../fonts/#Sniglet" RenderTransformOrigin="0.5,0.5">
     <Button.RenderTransform>
       <TransformGroup>
         <ScaleTransform/>
@@ -153,9 +153,9 @@
     </Grid.ColumnDefinitions>
 
     <Image  Grid.Column="0" Source="../images/icons/heart.png" OpacityMask="{x:Null}" Margin="0,0,15,0" HorizontalAlignment="Center" VerticalAlignment="Center" Height="35" Width="35"/>
-    <TextBlock  Grid.Column="1" x:Name="textBlock" TextWrapping="Wrap" Text="{Binding Timer}" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,13.186,0,13.187" FontFamily="./#Sniglet" FontSize="16"/>
+    <TextBlock  Grid.Column="1" x:Name="textBlock" TextWrapping="Wrap" Text="{Binding Timer}" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,13.186,0,13.187" FontFamily="../fonts/#Sniglet" FontSize="16"/>
     <Image  Grid.Column="3" Source="../images/icons/clock.png" OpacityMask="{x:Null}" Margin="0,0,15,0" HorizontalAlignment="Center" VerticalAlignment="Center" Height="35" Width="35"/>
-    <TextBlock  Grid.Column="4" x:Name="textBlock2" HorizontalAlignment="Left" TextWrapping="Wrap" Text="{Binding Life}" VerticalAlignment="Center" Height="15.96" Margin="0,13.186,0,13.187" FontFamily="./#Sniglet" FontSize="16"/>
+    <TextBlock  Grid.Column="4" x:Name="textBlock2" HorizontalAlignment="Left" TextWrapping="Wrap" Text="{Binding Life}" VerticalAlignment="Center" Height="15.96" Margin="0,13.186,0,13.187" FontFamily="../fonts/#Sniglet" FontSize="16"/>
     
   </Grid>
 </Grid>

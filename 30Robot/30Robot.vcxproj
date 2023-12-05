@@ -88,14 +88,14 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;ANDROMEDA_GL3;ANDROMEDA_GLFW;ANDROMEDA_PC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;src;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;..\libfreetypegl;..\libtinyxml;..\openal\include;..\sndfile\include;..\entt\include;..\05UniversityRacer\glm;..\libbox2d\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;src;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;..\libfreetypegl;..\libtinyxml;..\openal\include;..\sndfile\include;..\entt\include;..\05UniversityRacer\glm;..\libbox2d\include;NoesisGUI\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4005;</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>..\libd\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libsoil2.lib;libimgui.lib;libfreetype.lib;libbullet.lib;libopenal.lib;libsndfile.lib;libmpg.lib;liblame.lib;libflac.lib;winmm.lib;shlwapi.lib;libbox2d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\libd\x86;NoesisGUI\Lib\windows_x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libsoil2.lib;libimgui.lib;libfreetype.lib;libbullet.lib;libopenal.lib;libsndfile.lib;libmpg.lib;liblame.lib;libflac.lib;winmm.lib;shlwapi.lib;libbox2d.lib;Noesis.lib;NoesisApp.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -105,14 +105,14 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;ANDROMEDA_GL3;ANDROMEDA_GLFW;ANDROMEDA_PC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;src;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;..\libfreetypegl;..\libtinyxml;..\openal\include;..\sndfile\include;..\entt\include;..\05UniversityRacer\glm;..\libbox2d\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;src;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;..\libfreetypegl;..\libtinyxml;..\openal\include;..\sndfile\include;..\entt\include;..\05UniversityRacer\glm;..\libbox2d\include;NoesisGUI\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4005;</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>..\libd\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libsoil2.lib;libimgui.lib;libfreetype.lib;libbullet.lib;libopenal.lib;libsndfile.lib;libmpg.lib;liblame.lib;libflac.lib;winmm.lib;shlwapi.lib;libbox2d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\libd\x64;NoesisGUI\Lib\windows_x86_64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libsoil2.lib;libimgui.lib;libfreetype.lib;libbullet.lib;libopenal.lib;libsndfile.lib;libmpg.lib;liblame.lib;libflac.lib;winmm.lib;shlwapi.lib;libbox2d.lib;Noesis.lib;NoesisApp.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -124,7 +124,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;ANDROMEDA_GL3;ANDROMEDA_GLFW;ANDROMEDA_PC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;src;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;..\libfreetypegl;..\libtinyxml;..\openal\include;..\sndfile\include;..\entt\include;..\05UniversityRacer\glm;..\libbox2d\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;src;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;..\libfreetypegl;..\libtinyxml;..\openal\include;..\sndfile\include;..\entt\include;..\05UniversityRacer\glm;..\libbox2d\include;NoesisGUI\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <DisableSpecificWarnings>4005;</DisableSpecificWarnings>
     </ClCompile>
@@ -133,8 +133,8 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>..\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libsoil2.lib;libimgui.lib;libfreetype.lib;libbullet.lib;libopenal.lib;libsndfile.lib;libmpg.lib;liblame.lib;libflac.lib;winmm.lib;shlwapi.lib;libbox2d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\lib\x86;NoesisGUI\Lib\windows_x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libsoil2.lib;libimgui.lib;libfreetype.lib;libbullet.lib;libopenal.lib;libsndfile.lib;libmpg.lib;liblame.lib;libflac.lib;winmm.lib;shlwapi.lib;libbox2d.lib;Noesis.lib;NoesisApp.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -146,7 +146,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;_WINDOWS;_CRT_SECURE_NO_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;src;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;..\libfreetypegl;..\libtinyxml;..\openal\include;..\sndfile\include;..\entt\include;..\05UniversityRacer\glm;..\libbox2d\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;src;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;..\libfreetypegl;..\libtinyxml;..\openal\include;..\sndfile\include;..\entt\include;..\05UniversityRacer\glm;..\libbox2d\include;NoesisGUI\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <DisableSpecificWarnings>4005;</DisableSpecificWarnings>
     </ClCompile>
@@ -155,8 +155,8 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>..\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libsoil2.lib;libimgui.lib;libfreetype.lib;libbullet.lib;libopenal.lib;libsndfile.lib;libmpg.lib;liblame.lib;libflac.lib;winmm.lib;shlwapi.lib;libbox2d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\lib\x64;NoesisGUI\Lib\windows_x86_64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libsoil2.lib;libimgui.lib;libfreetype.lib;libbullet.lib;libopenal.lib;libsndfile.lib;libmpg.lib;liblame.lib;libflac.lib;winmm.lib;shlwapi.lib;libbox2d.lib;Noesis.lib;NoesisApp.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -173,6 +173,8 @@
     <ClCompile Include="src\Entity\tile-factory.cpp" />
     <ClCompile Include="src\Entity\tower-factory.cpp" />
     <ClCompile Include="src\Entity\vfx-factory.cpp" />
+    <ClCompile Include="src\Event\contact-listener.cpp" />
+    <ClCompile Include="src\Event\input-handler.cpp" />
     <ClCompile Include="src\Graphics\frame-buffer.cpp" />
     <ClCompile Include="src\Graphics\index-buffer.cpp" />
     <ClCompile Include="src\Graphics\shaderRo.cpp" />
@@ -180,6 +182,15 @@
     <ClCompile Include="src\Graphics\textureRo.cpp" />
     <ClCompile Include="src\Graphics\vertex-array.cpp" />
     <ClCompile Include="src\Graphics\vertex-buffer.cpp" />
+    <ClCompile Include="src\GUI\end-screen.cpp" />
+    <ClCompile Include="src\GUI\game-over.cpp" />
+    <ClCompile Include="src\GUI\level-exit-bindings.cpp" />
+    <ClCompile Include="src\GUI\level-exit.cpp" />
+    <ClCompile Include="src\GUI\level-hud-bindings.cpp" />
+    <ClCompile Include="src\GUI\level-hud.cpp" />
+    <ClCompile Include="src\GUI\level-intro-bindings.cpp" />
+    <ClCompile Include="src\GUI\level-intro.cpp" />
+    <ClCompile Include="src\GUI\title-screen.cpp" />
     <ClCompile Include="src\helper-service.cpp" />
     <ClCompile Include="src\Level\graph.cpp" />
     <ClCompile Include="src\Level\level.cpp" />
@@ -189,13 +200,16 @@
     <ClCompile Include="src\primitive-factory.cpp" />
     <ClCompile Include="src\progression.cpp" />
     <ClCompile Include="src\random-service.cpp" />
+    <ClCompile Include="src\rigid-body-factory.cpp" />
     <ClCompile Include="src\sprite-factory.cpp" />
     <ClCompile Include="src\States\Controlls.cpp" />
     <ClCompile Include="src\States\Default.cpp" />
     <ClCompile Include="src\States\Game.cpp" />
+    <ClCompile Include="src\States\i-game-state.cpp" />
     <ClCompile Include="src\States\Settings.cpp" />
     <ClCompile Include="src\States\StateMachine.cpp" />
     <ClCompile Include="src\System\AttackSystem.cpp" />
+    <ClCompile Include="src\System\wave-system.cpp" />
     <ClCompile Include="src\Thread\CThread.cpp" />
     <ClCompile Include="src\Thread\EventClass.cpp" />
     <ClCompile Include="src\Thread\MutexClass.cpp" />
@@ -371,9 +385,27 @@
     <ClInclude Include="src\Entity\tile-factory.hpp" />
     <ClInclude Include="src\Entity\tower-factory.hpp" />
     <ClInclude Include="src\Entity\vfx-factory.hpp" />
+    <ClInclude Include="src\Event\change-game-state.hpp" />
+    <ClInclude Include="src\Event\contact-listener.hpp" />
     <ClInclude Include="src\Event\EventEmitter.h" />
+    <ClInclude Include="src\Event\input-handler.hpp" />
+    <ClInclude Include="src\Event\Inputs\left-click-down.hpp" />
+    <ClInclude Include="src\Event\Inputs\left-click-up.hpp" />
+    <ClInclude Include="src\Event\Inputs\mouse-move.hpp" />
+    <ClInclude Include="src\Event\Inputs\mouse-scrolled.hpp" />
+    <ClInclude Include="src\Event\Inputs\right-click-down.hpp" />
+    <ClInclude Include="src\Event\Inputs\right-click-up.hpp" />
+    <ClInclude Include="src\Event\Interactions\change-cursor.hpp" />
+    <ClInclude Include="src\Event\Interactions\construct-selection.hpp" />
+    <ClInclude Include="src\Event\Interactions\delete-entity.hpp" />
+    <ClInclude Include="src\Event\Interactions\scale-view.hpp" />
+    <ClInclude Include="src\Event\Interactions\select-rotation.hpp" />
+    <ClInclude Include="src\Event\Interactions\translate-view.hpp" />
     <ClInclude Include="src\Event\loose.hpp" />
     <ClInclude Include="src\Event\progression-updated.hpp" />
+    <ClInclude Include="src\Event\selected.hpp" />
+    <ClInclude Include="src\Event\start-wave.hpp" />
+    <ClInclude Include="src\Event\wave-updated.hpp" />
     <ClInclude Include="src\Globals.h" />
     <ClInclude Include="src\Graphics\frame-buffer.hpp" />
     <ClInclude Include="src\Graphics\index-buffer.hpp" />
@@ -383,6 +415,15 @@
     <ClInclude Include="src\Graphics\vertex-array.hpp" />
     <ClInclude Include="src\Graphics\vertex-buffer-layout.hpp" />
     <ClInclude Include="src\Graphics\vertex-buffer.hpp" />
+    <ClInclude Include="src\GUI\end-screen.hpp" />
+    <ClInclude Include="src\GUI\game-over.hpp" />
+    <ClInclude Include="src\GUI\level-exit-bindings.hpp" />
+    <ClInclude Include="src\GUI\level-exit.hpp" />
+    <ClInclude Include="src\GUI\level-hud-bindings.hpp" />
+    <ClInclude Include="src\GUI\level-hud.hpp" />
+    <ClInclude Include="src\GUI\level-intro-bindings.hpp" />
+    <ClInclude Include="src\GUI\level-intro.hpp" />
+    <ClInclude Include="src\GUI\title-screen.hpp" />
     <ClInclude Include="src\helper-service.hpp" />
     <ClInclude Include="src\i-debug-draw.hpp" />
     <ClInclude Include="src\i-helper.hpp" />
@@ -397,14 +438,17 @@
     <ClInclude Include="src\progression.hpp" />
     <ClInclude Include="src\random-service.hpp" />
     <ClInclude Include="src\RandomColor.h" />
+    <ClInclude Include="src\rigid-body-factory.hpp" />
     <ClInclude Include="src\sprite-factory.hpp" />
     <ClInclude Include="src\States\Controls.h" />
     <ClInclude Include="src\States\Default.h" />
     <ClInclude Include="src\States\Game.h" />
+    <ClInclude Include="src\States\i-game-state.hpp" />
     <ClInclude Include="src\States\Settings.h" />
     <ClInclude Include="src\States\StateMachine.h" />
     <ClInclude Include="src\System\AttackSystem.h" />
     <ClInclude Include="src\System\ISystem.h" />
+    <ClInclude Include="src\System\wave-system.hpp" />
     <ClInclude Include="src\tags.hpp" />
     <ClInclude Include="src\Thread\CThread.h" />
     <ClInclude Include="src\Thread\EventClass.h" />

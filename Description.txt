@@ -45,3 +45,5 @@ https://www.shadertoy.com/view/XslGRr
 https://github.com/earjuice/Cinder-SinglePassCube/tree/master
 
 https://wiki.wolfire.com/index.php/Binary_File_Formats
+
+https://www.noesisengine.com/forums/viewtopic.php?t=1491

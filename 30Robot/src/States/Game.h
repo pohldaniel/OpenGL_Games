@@ -28,6 +28,8 @@ public:
 	void OnKeyDown(Event::KeyboardEvent& event) override;
 	void OnKeyUp(Event::KeyboardEvent& event) override;
 
+	static EventEmitter Emitter;
+
 private:
 
 	void renderUi();
@@ -40,7 +42,5 @@ private:
 
 	entt::DefaultRegistry registry;
 
-	AttackSystem* attackSystem;
-
-	static EventEmitter Emitter;
+	AttackSystem* attackSystem;	
 };

@@ -76,6 +76,15 @@
     <Filter Include="Source Files\Graphics">
       <UniqueIdentifier>{fb4872cb-5307-4057-b36e-f15b480eb4a0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\GUI">
+      <UniqueIdentifier>{0ec559fb-f6e7-4b41-9cc8-cf98b05fc9c5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Event\Inputs">
+      <UniqueIdentifier>{50a43d59-a60c-47dd-9fa4-0983c9bcb928}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Event\Interactions">
+      <UniqueIdentifier>{869b06e7-3687-4ace-878b-dea6e65ebe2a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\input\ApplicationEventListener.cpp">
@@ -410,6 +419,48 @@
     </ClCompile>
     <ClCompile Include="src\primitive-factory.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\rigid-body-factory.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GUI\end-screen.cpp">
+      <Filter>Source Files\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GUI\game-over.cpp">
+      <Filter>Source Files\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GUI\level-exit.cpp">
+      <Filter>Source Files\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GUI\level-exit-bindings.cpp">
+      <Filter>Source Files\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GUI\level-hud.cpp">
+      <Filter>Source Files\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GUI\level-hud-bindings.cpp">
+      <Filter>Source Files\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GUI\level-intro.cpp">
+      <Filter>Source Files\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GUI\level-intro-bindings.cpp">
+      <Filter>Source Files\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GUI\title-screen.cpp">
+      <Filter>Source Files\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\States\i-game-state.cpp">
+      <Filter>Source Files\States</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Event\contact-listener.cpp">
+      <Filter>Source Files\Event</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Event\input-handler.cpp">
+      <Filter>Source Files\Event</Filter>
+    </ClCompile>
+    <ClCompile Include="src\System\wave-system.cpp">
+      <Filter>Source Files\System</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -898,6 +949,96 @@
     </ClInclude>
     <ClInclude Include="src\primitive-factory.hpp">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\rigid-body-factory.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GUI\end-screen.hpp">
+      <Filter>Source Files\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GUI\game-over.hpp">
+      <Filter>Source Files\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GUI\level-exit.hpp">
+      <Filter>Source Files\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GUI\level-exit-bindings.hpp">
+      <Filter>Source Files\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GUI\level-hud.hpp">
+      <Filter>Source Files\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GUI\level-hud-bindings.hpp">
+      <Filter>Source Files\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GUI\level-intro.hpp">
+      <Filter>Source Files\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GUI\level-intro-bindings.hpp">
+      <Filter>Source Files\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GUI\title-screen.hpp">
+      <Filter>Source Files\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Event\change-game-state.hpp">
+      <Filter>Source Files\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="src\States\i-game-state.hpp">
+      <Filter>Source Files\States</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Event\contact-listener.hpp">
+      <Filter>Source Files\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Event\input-handler.hpp">
+      <Filter>Source Files\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Event\Inputs\left-click-down.hpp">
+      <Filter>Source Files\Event\Inputs</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Event\Inputs\left-click-up.hpp">
+      <Filter>Source Files\Event\Inputs</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Event\Inputs\mouse-move.hpp">
+      <Filter>Source Files\Event\Inputs</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Event\Inputs\mouse-scrolled.hpp">
+      <Filter>Source Files\Event\Inputs</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Event\Inputs\right-click-down.hpp">
+      <Filter>Source Files\Event\Inputs</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Event\Inputs\right-click-up.hpp">
+      <Filter>Source Files\Event\Inputs</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Event\selected.hpp">
+      <Filter>Source Files\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Event\Interactions\change-cursor.hpp">
+      <Filter>Source Files\Event\Interactions</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Event\Interactions\construct-selection.hpp">
+      <Filter>Source Files\Event\Interactions</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Event\Interactions\delete-entity.hpp">
+      <Filter>Source Files\Event\Interactions</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Event\Interactions\scale-view.hpp">
+      <Filter>Source Files\Event\Interactions</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Event\Interactions\select-rotation.hpp">
+      <Filter>Source Files\Event\Interactions</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Event\Interactions\translate-view.hpp">
+      <Filter>Source Files\Event\Interactions</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Event\wave-updated.hpp">
+      <Filter>Source Files\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="src\System\wave-system.hpp">
+      <Filter>Source Files\System</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Event\start-wave.hpp">
+      <Filter>Source Files\Event</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
