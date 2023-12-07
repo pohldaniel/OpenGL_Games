@@ -7,6 +7,8 @@
 #include <engine/input/Mouse.h>
 #include <States/StateMachine.h>
 
+#include <NsGui/IRenderer.h>
+
 class Application {
 
 public:
@@ -61,4 +63,5 @@ public:
 	static HANDLE Icon;
 	static bool VerticalSync;
 	static bool Fullscreen;
+	static Noesis::Ptr<Noesis::RenderDevice> NoesisDevice;
 };

@@ -2,15 +2,24 @@
 #include <imgui_impl_win32.h>
 #include <imgui_impl_opengl3.h>
 #include <imgui_internal.h>
+
+
+
 #include <engine/Batchrenderer.h>
+#include <glm/gtx/transform.hpp>
 
 #include "Game.h"
 #include "Application.h"
 #include "Globals.h"
 
+#include "locator.hpp"
+#include "debug-draw-service.hpp"
+#include "random-service.hpp"
+#include "helper-service.hpp"
+
 EventEmitter Game::Emitter;
 
-Game::Game(StateMachine& machine) : State(machine, States::GAME), attackSystem(nullptr) {
+Game::Game(StateMachine& machine) : State(machine, States::GAME), m_titleScreen(Emitter), progression(Emitter) {
 
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
@@ -34,8 +43,41 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME), attackSystem(n
 		{ &Globals::textureManager.get("forest_5"), 1, 5.0f }});
 	m_background.setSpeed(0.005f);
 
+	
 
+	m_projMat = glm::ortho(0.0f, PROJ_WIDTH_RAT, 0.0f, PROJ_HEIGHT, -10.0f, 10.0f);
+	m_viewMat = glm::mat4(1.0f);
+	m_viewTranslation= glm::vec2(0.0f);
+	m_viewScale = 1.0f;
+
+	locator::debugDraw::set<DebugDrawService>();
+	IDebugDraw& debugDraw = locator::debugDraw::ref();
+	debugDraw.setProjMat(m_projMat);
+	debugDraw.setViewMat(m_viewMat);
+	locator::random::set<RandomService>();
+	locator::helper::set<HelperService>();
+
+	// Level
+	level = new Level(registry, progression, 1, m_viewTranslation, m_viewScale);
+
+	// Special service helper
+	IHelper& helper = locator::helper::ref();
+	helper.setRegistry(&registry);
+	helper.setEmitter(&Emitter);
+	helper.setLevel(level);
+
+	renderSystem = new RenderSystem(registry, Emitter, m_viewMat, m_projMat);
+	animationSystem = new AnimationSystem(registry, Emitter);
+	movementSystem = new MovementSystem(registry, Emitter);
+	waveSystem = new WaveSystem(registry, Emitter, progression, *level);
 	attackSystem = new AttackSystem(registry, Emitter);
+	lifeAndDeathSystem = new LifeAndDeathSystem(registry, Emitter, progression);
+
+	m_xaml = m_titleScreen;
+	m_ui = Noesis::GUI::CreateView(m_xaml).GiveOwnership();
+	m_ui->SetIsPPAAEnabled(true);
+	m_ui->GetRenderer()->Init(Application::NoesisDevice);
+	m_ui->SetSize(Application::Width, Application::Height);
 }
 
 Game::~Game() {
@@ -111,23 +153,34 @@ void Game::update() {
 
 void Game::render() {
 
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	/*glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	m_background.draw();
 
 	if (m_drawUi)
-		renderUi();
+		renderUi();*/
+
+		// Noesis gui update
+	m_ui->Update(Globals::clock.getElapsedTimeSec());
+	m_ui->GetRenderer()->UpdateRenderTree();
+	m_ui->GetRenderer()->RenderOffscreen();
+
+	// Need to restore the GPU state because noesis changes it
+	restoreGpuState();
+
+	// Render
+	m_ui->GetRenderer()->Render();
 }
 
 void Game::OnMouseMotion(Event::MouseMoveEvent& event) {
-
+	m_ui->MouseMove(event.x, event.y);
 }
 
 void Game::OnMouseButtonDown(Event::MouseButtonEvent& event) {
-
+	m_ui->MouseButtonDown(event.x, event.y, Noesis::MouseButton_Left);
 }
 
 void Game::OnMouseButtonUp(Event::MouseButtonEvent& event) {
-
+	m_ui->MouseButtonUp(event.x, event.y, Noesis::MouseButton_Left);
 }
 
 void Game::OnMouseWheel(Event::MouseWheelEvent& event) {
@@ -153,6 +206,8 @@ void Game::OnKeyUp(Event::KeyboardEvent& event) {
 void Game::resize(int deltaW, int deltaH) {
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
+
+	m_ui->SetSize(Application::Width, Application::Height);
 }
 
 void Game::renderUi() {
@@ -196,4 +251,14 @@ void Game::renderUi() {
 
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+}
+
+void Game::enter() {
+	// Subscribe self to inputs
+	connectInputs();
+}
+
+void Game::exit() {
+	// Remove input listenner
+	disconnectInputs();
 }

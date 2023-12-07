@@ -1,3 +1,4 @@
+#include "Application.h"
 #include "i-game-state.hpp"
 
 #include <GL/glew.h>
@@ -6,12 +7,12 @@
 #include "constants.hpp"
 #include <States/Game.h>
 
-IGameState::IGameState(Game& game) : InputHandler(Game::Emitter), m_game(game) {}
+IGameState::IGameState() : InputHandler(Game::Emitter) {}
 
 void IGameState::restoreGpuState() {
 	// Framebuffer
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glViewport(0, 0, WIN_WIDTH, WIN_HEIGHT);
+	glViewport(0, 0, Application::Width, Application::Height);
 	glClearStencil(0);
 
 	// Z-buffer

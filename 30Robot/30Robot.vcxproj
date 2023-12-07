@@ -197,6 +197,7 @@
     <ClCompile Include="src\LoadingManager.cpp" />
     <ClCompile Include="src\maths.cpp" />
     <ClCompile Include="src\MousePickerFBO.cpp" />
+    <ClCompile Include="src\noesis-log-handler.cpp" />
     <ClCompile Include="src\primitive-factory.cpp" />
     <ClCompile Include="src\progression.cpp" />
     <ClCompile Include="src\random-service.cpp" />
@@ -208,7 +209,11 @@
     <ClCompile Include="src\States\i-game-state.cpp" />
     <ClCompile Include="src\States\Settings.cpp" />
     <ClCompile Include="src\States\StateMachine.cpp" />
+    <ClCompile Include="src\System\animation-system.cpp" />
     <ClCompile Include="src\System\AttackSystem.cpp" />
+    <ClCompile Include="src\System\life-and-death-system.cpp" />
+    <ClCompile Include="src\System\movement-system.cpp" />
+    <ClCompile Include="src\System\render-system.cpp" />
     <ClCompile Include="src\System\wave-system.cpp" />
     <ClCompile Include="src\Thread\CThread.cpp" />
     <ClCompile Include="src\Thread\EventClass.cpp" />
@@ -387,7 +392,12 @@
     <ClInclude Include="src\Entity\vfx-factory.hpp" />
     <ClInclude Include="src\Event\change-game-state.hpp" />
     <ClInclude Include="src\Event\contact-listener.hpp" />
+    <ClInclude Include="src\Event\enemy-dead.hpp" />
+    <ClInclude Include="src\Event\enemy-reached-end.hpp" />
+    <ClInclude Include="src\Event\enter-trigger.hpp" />
+    <ClInclude Include="src\Event\entity-damaged.hpp" />
     <ClInclude Include="src\Event\EventEmitter.h" />
+    <ClInclude Include="src\Event\exit-trigger.hpp" />
     <ClInclude Include="src\Event\input-handler.hpp" />
     <ClInclude Include="src\Event\Inputs\left-click-down.hpp" />
     <ClInclude Include="src\Event\Inputs\left-click-up.hpp" />
@@ -401,10 +411,13 @@
     <ClInclude Include="src\Event\Interactions\scale-view.hpp" />
     <ClInclude Include="src\Event\Interactions\select-rotation.hpp" />
     <ClInclude Include="src\Event\Interactions\translate-view.hpp" />
+    <ClInclude Include="src\Event\laser-particle-dead.hpp" />
     <ClInclude Include="src\Event\loose.hpp" />
     <ClInclude Include="src\Event\progression-updated.hpp" />
     <ClInclude Include="src\Event\selected.hpp" />
     <ClInclude Include="src\Event\start-wave.hpp" />
+    <ClInclude Include="src\Event\tower-dead.hpp" />
+    <ClInclude Include="src\Event\victory-delay-ends.hpp" />
     <ClInclude Include="src\Event\wave-updated.hpp" />
     <ClInclude Include="src\Globals.h" />
     <ClInclude Include="src\Graphics\frame-buffer.hpp" />
@@ -434,6 +447,7 @@
     <ClInclude Include="src\locator.hpp" />
     <ClInclude Include="src\maths.hpp" />
     <ClInclude Include="src\MousePickerFBO.h" />
+    <ClInclude Include="src\noesis-log-handler.hpp" />
     <ClInclude Include="src\primitive-factory.hpp" />
     <ClInclude Include="src\progression.hpp" />
     <ClInclude Include="src\random-service.hpp" />
@@ -446,8 +460,12 @@
     <ClInclude Include="src\States\i-game-state.hpp" />
     <ClInclude Include="src\States\Settings.h" />
     <ClInclude Include="src\States\StateMachine.h" />
+    <ClInclude Include="src\System\animation-system.hpp" />
     <ClInclude Include="src\System\AttackSystem.h" />
     <ClInclude Include="src\System\ISystem.h" />
+    <ClInclude Include="src\System\life-and-death-system.hpp" />
+    <ClInclude Include="src\System\movement-system.hpp" />
+    <ClInclude Include="src\System\render-system.hpp" />
     <ClInclude Include="src\System\wave-system.hpp" />
     <ClInclude Include="src\tags.hpp" />
     <ClInclude Include="src\Thread\CThread.h" />

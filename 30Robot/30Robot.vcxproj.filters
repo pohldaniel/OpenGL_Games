@@ -462,6 +462,21 @@
     <ClCompile Include="src\System\wave-system.cpp">
       <Filter>Source Files\System</Filter>
     </ClCompile>
+    <ClCompile Include="src\System\animation-system.cpp">
+      <Filter>Source Files\System</Filter>
+    </ClCompile>
+    <ClCompile Include="src\System\life-and-death-system.cpp">
+      <Filter>Source Files\System</Filter>
+    </ClCompile>
+    <ClCompile Include="src\System\movement-system.cpp">
+      <Filter>Source Files\System</Filter>
+    </ClCompile>
+    <ClCompile Include="src\System\render-system.cpp">
+      <Filter>Source Files\System</Filter>
+    </ClCompile>
+    <ClCompile Include="src\noesis-log-handler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="convhull\convhull_3d.h">
@@ -1039,6 +1054,45 @@
     </ClInclude>
     <ClInclude Include="src\Event\start-wave.hpp">
       <Filter>Source Files\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="src\System\animation-system.hpp">
+      <Filter>Source Files\System</Filter>
+    </ClInclude>
+    <ClInclude Include="src\System\life-and-death-system.hpp">
+      <Filter>Source Files\System</Filter>
+    </ClInclude>
+    <ClInclude Include="src\System\movement-system.hpp">
+      <Filter>Source Files\System</Filter>
+    </ClInclude>
+    <ClInclude Include="src\System\render-system.hpp">
+      <Filter>Source Files\System</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Event\enemy-dead.hpp">
+      <Filter>Source Files\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Event\enemy-reached-end.hpp">
+      <Filter>Source Files\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Event\enter-trigger.hpp">
+      <Filter>Source Files\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Event\entity-damaged.hpp">
+      <Filter>Source Files\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Event\exit-trigger.hpp">
+      <Filter>Source Files\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Event\laser-particle-dead.hpp">
+      <Filter>Source Files\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Event\tower-dead.hpp">
+      <Filter>Source Files\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Event\victory-delay-ends.hpp">
+      <Filter>Source Files\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="src\noesis-log-handler.hpp">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

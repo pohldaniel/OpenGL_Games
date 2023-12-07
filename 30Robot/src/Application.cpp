@@ -5,6 +5,11 @@
 #include <imgui_impl_win32.h>
 #include <imgui_impl_opengl3.h>
 
+#include <NsApp/LocalFontProvider.h>
+#include <NsApp/LocalTextureProvider.h>
+#include <NsApp/LocalXamlProvider.h>
+#include <NsRender/GLFactory.h>
+
 #include <engine/sound/SoundDevice.h>
 #include <engine/Framebuffer.h>
 #include <engine/Fontrenderer.h>
@@ -12,7 +17,10 @@
 #include <Globals.h>
 
 #include <States/Default.h>
+#include <States/Game.h>
 #include <UI/Widget.h>
+
+#include "noesis-log-handler.hpp"
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -30,6 +38,7 @@ RECT Application::Savedrc;
 HCURSOR Application::Cursor = LoadCursor(nullptr, IDC_ARROW);
 HANDLE Application::Icon = LoadImage(NULL, "res/icon.ico", IMAGE_ICON, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
 bool Application::VerticalSync = true;
+Noesis::Ptr<Noesis::RenderDevice> Application::NoesisDevice = nullptr;
 
 Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fdt) {
 	Width = WIDTH;
@@ -41,6 +50,12 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	initImGUI();
 	//initOpenAL();
 	loadAssets();
+
+	Noesis::GUI::Init(noelog::errorHandler, noelog::messageCallback, nullptr);
+	Noesis::GUI::SetXamlProvider(Noesis::MakePtr<NoesisApp::LocalXamlProvider>("./res/gui"));
+	Noesis::GUI::SetTextureProvider(Noesis::MakePtr<NoesisApp::LocalTextureProvider>("./res/images"));
+	Noesis::GUI::SetFontProvider(Noesis::MakePtr<NoesisApp::LocalFontProvider>("./res/fonts"));
+	NoesisDevice = NoesisApp::GLFactory::CreateDevice();
 
 	Framebuffer::SetDefaultSize(Width, Height);
 	Widget::Init(Width, Height);
@@ -389,7 +404,9 @@ void Application::fixedUpdate() {
 
 void Application::initStates() {	
 	Machine = new StateMachine(m_dt, m_fdt);
-	Machine->addStateAtTop(new Default(*Machine));
+	//Machine->addStateAtTop(new Default(*Machine));
+
+	Machine->addStateAtTop(new Game(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {

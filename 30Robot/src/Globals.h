@@ -12,7 +12,7 @@
 #include <Physics/Physics.h>
 
 #define WIDTH 960
-#define HEIGHT 576
+#define HEIGHT 540
 
 #define DEBUG 1
 #define DEVBUILD 1
