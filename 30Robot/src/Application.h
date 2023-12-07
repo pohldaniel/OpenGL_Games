@@ -36,6 +36,7 @@ public:
 	void initOpenGL(int msaaSamples = 0);
 	void showWindow();
 	void initImGUI();
+	void initNoesisGUI();
 	void initOpenAL();
 	void loadAssets();
 	void initStates();

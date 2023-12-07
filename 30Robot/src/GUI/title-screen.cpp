@@ -1,3 +1,4 @@
+#include <iostream>
 #include "title-screen.hpp"
 
 #include <NsGui/Button.h>
@@ -23,9 +24,10 @@ bool TitleScreen::ConnectEvent(Noesis::BaseComponent* source, const char* event,
 }
 
 void TitleScreen::onStartGame(Noesis::BaseComponent* sender, const Noesis::RoutedEventArgs& args) {
+	std::cout << "onstartGame" << std::endl;
 	m_emitter.publish<evnt::ChangeGameState>(GameState::LEVEL_INTRO, 1);
 }
 
 void TitleScreen::onQuitGame(Noesis::BaseComponent* sender, const Noesis::RoutedEventArgs& args) {
-
+	std::cout << "onQuitGame" << std::endl;
 }

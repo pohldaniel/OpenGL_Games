@@ -48,14 +48,9 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	initOpenGL();
 	showWindow();
 	initImGUI();
+	initNoesisGUI();
 	//initOpenAL();
 	loadAssets();
-
-	Noesis::GUI::Init(noelog::errorHandler, noelog::messageCallback, nullptr);
-	Noesis::GUI::SetXamlProvider(Noesis::MakePtr<NoesisApp::LocalXamlProvider>("./res/gui"));
-	Noesis::GUI::SetTextureProvider(Noesis::MakePtr<NoesisApp::LocalTextureProvider>("./res/images"));
-	Noesis::GUI::SetFontProvider(Noesis::MakePtr<NoesisApp::LocalFontProvider>("./res/fonts"));
-	NoesisDevice = NoesisApp::GLFactory::CreateDevice();
 
 	Framebuffer::SetDefaultSize(Width, Height);
 	Widget::Init(Width, Height);
@@ -358,6 +353,14 @@ void Application::initImGUI() {
 
 	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
 	ImGui_ImplOpenGL3_Init("#version 410 core");
+}
+
+void Application::initNoesisGUI() {
+	Noesis::GUI::Init(noelog::errorHandler, noelog::messageCallback, nullptr);
+	Noesis::GUI::SetXamlProvider(Noesis::MakePtr<NoesisApp::LocalXamlProvider>("./res/gui"));
+	Noesis::GUI::SetTextureProvider(Noesis::MakePtr<NoesisApp::LocalTextureProvider>("./res/images"));
+	Noesis::GUI::SetFontProvider(Noesis::MakePtr<NoesisApp::LocalFontProvider>("./res/fonts"));
+	NoesisDevice = NoesisApp::GLFactory::CreateDevice();
 }
 
 void Application::initOpenAL() {
