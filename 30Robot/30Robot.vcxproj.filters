@@ -1112,5 +1112,8 @@
     <ClInclude Include="src\States\LevelIntro.h">
       <Filter>Source Files\States</Filter>
     </ClInclude>
+    <ClInclude Include="EventListener.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

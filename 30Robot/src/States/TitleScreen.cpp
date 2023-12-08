@@ -4,7 +4,10 @@
 #include "Globals.h"
 #include "Renderer.h"
 
-TitleScreenS::TitleScreenS(StateMachine& machine) : State(machine, States::TITLESCREEN), InputHandler(Application::Emitter), m_titleScreen(Application::Emitter) {
+#include <Event/change-game-state.hpp>
+#include <States/LevelIntro.h>
+
+TitleScreenS::TitleScreenS(StateMachine& machine) : State(machine, States::TITLESCREEN), m_titleScreen(Application::Emitter) {
 
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
@@ -20,6 +23,9 @@ TitleScreenS::TitleScreenS(StateMachine& machine) : State(machine, States::TITLE
 TitleScreenS::~TitleScreenS() {
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
+
+	m_ui->GetRenderer()->Shutdown();
+	delete m_ui;
 }
 
 void TitleScreenS::fixedUpdate() {
@@ -71,12 +77,11 @@ void TitleScreenS::resize(int deltaW, int deltaH) {
 	m_ui->SetSize(Application::Width, Application::Height);
 }
 
-void TitleScreenS::enter() {
-	// Subscribe self to inputs
-	connectInputs();
+void TitleScreenS::OnStateChange(States states) {
+	m_isRunning = false;
+	m_machine.addStateAtBottom(new LevelIntroS(m_machine));
 }
 
-void TitleScreenS::exit() {
-	// Remove input listenner
-	disconnectInputs();
+void TitleScreenS::OnApplicationQuit() {
+	m_isRunning = false;
 }

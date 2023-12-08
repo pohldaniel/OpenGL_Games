@@ -3,6 +3,7 @@
 
 #include <NsGui/Button.h>
 #include "Event/change-game-state.hpp"
+#include "EventListener.h"
 #include "States/i-game-state.hpp"
 
 NS_IMPLEMENT_REFLECTION(TitleScreen) {
@@ -24,10 +25,9 @@ bool TitleScreen::ConnectEvent(Noesis::BaseComponent* source, const char* event,
 }
 
 void TitleScreen::onStartGame(Noesis::BaseComponent* sender, const Noesis::RoutedEventArgs& args) {
-	std::cout << "onstartGame" << std::endl;
-	m_emitter.publish<evnt::ChangeGameState>(GameState::LEVEL_INTRO, 1);
+	m_emitter.publish<evnt::ChangeGameStateNew>(States::LEVELINTRO);
 }
 
 void TitleScreen::onQuitGame(Noesis::BaseComponent* sender, const Noesis::RoutedEventArgs& args) {
-	std::cout << "onQuitGame" << std::endl;
+	m_emitter.publish<evnt::ApplicationExit>();
 }

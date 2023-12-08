@@ -351,6 +351,7 @@
     <ClInclude Include="engine\Vector.h" />
     <ClInclude Include="engine\VolumeBuffer.h" />
     <ClInclude Include="engine\ZoomableQuad.h" />
+    <ClInclude Include="EventListener.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="src\Application.h" />
     <ClInclude Include="src\Background.h" />

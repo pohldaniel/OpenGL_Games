@@ -4,6 +4,7 @@
 
 #include "Event/change-game-state.hpp"
 #include "Event/progression-updated.hpp"
+#include "EventListener.h"
 #include "States/i-game-state.hpp"
 
 NS_IMPLEMENT_REFLECTION(LevelIntro) {
@@ -42,11 +43,11 @@ void LevelIntro::OnInitialized(BaseComponent*, const Noesis::EventArgs&) {
 }
 
 void LevelIntro::onStartLevel(Noesis::BaseComponent* sender, const Noesis::RoutedEventArgs& args) {
-	m_emitter.publish<evnt::ChangeGameState>(GameState::LEVEL, m_progression.getLevelNumber());
+	m_emitter.publish<evnt::ChangeGameStateNew>(States::DEFAULT);
 }
 
 void LevelIntro::onExit(Noesis::BaseComponent* sender, const Noesis::RoutedEventArgs& args) {
-	m_emitter.publish<evnt::ChangeGameState>(GameState::TITLE_SCREEN);
+	m_emitter.publish<evnt::ChangeGameStateNew>(States::TITLESCREEN);
 }
 
 std::string LevelIntro::decimalToRoman(int num) {

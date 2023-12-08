@@ -20,8 +20,9 @@
 
 #include "Event/input-handler.hpp"
 #include "GUI/level-intro.hpp"
+#include "EventListener.h"
 
-class LevelIntroS : public State, public InputHandler, public MouseEventListener, public KeyboardEventListener {
+class LevelIntroS : public State, public MouseEventListener, public KeyboardEventListener, public EventListener {
 
 public:
 
@@ -32,9 +33,6 @@ public:
 	void update() override;
 	void render() override;
 
-	void enter();
-	void exit();
-
 	void resize(int deltaW, int deltaH) override;
 	void OnMouseMotion(Event::MouseMoveEvent& event) override;
 	void OnMouseWheel(Event::MouseWheelEvent& event) override;
@@ -42,6 +40,8 @@ public:
 	void OnMouseButtonUp(Event::MouseButtonEvent& event) override;
 	void OnKeyDown(Event::KeyboardEvent& event) override;
 	void OnKeyUp(Event::KeyboardEvent& event) override;
+
+	void OnStateChange(States states) override;
 
 private:
 

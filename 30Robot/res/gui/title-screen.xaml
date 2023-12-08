@@ -40,6 +40,11 @@
                 <EasingDoubleKeyFrame KeyTime="0:0:2.6" Value="25"/>
                 <EasingDoubleKeyFrame KeyTime="0:0:3" Value="0"/>
             </DoubleAnimationUsingKeyFrames>
+			<DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[3].(TranslateTransform.Y)" Storyboard.TargetName="Exit">
+                <EasingDoubleKeyFrame KeyTime="0" Value="25"/>
+                <EasingDoubleKeyFrame KeyTime="0:0:2.6" Value="25"/>
+                <EasingDoubleKeyFrame KeyTime="0:0:3" Value="0"/>
+            </DoubleAnimationUsingKeyFrames>
             <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[3].(TranslateTransform.Y)" Storyboard.TargetName="Credits">
                 <EasingDoubleKeyFrame KeyTime="0" Value="39"/>
                 <EasingDoubleKeyFrame KeyTime="0:0:2.6" Value="39"/>
@@ -51,6 +56,11 @@
                 <EasingDoubleKeyFrame KeyTime="0:0:3" Value="1"/>
             </DoubleAnimationUsingKeyFrames>
             <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="Play">
+                <EasingDoubleKeyFrame KeyTime="0" Value="0"/>
+                <EasingDoubleKeyFrame KeyTime="0:0:2.6" Value="0"/>
+                <EasingDoubleKeyFrame KeyTime="0:0:3" Value="1"/>
+            </DoubleAnimationUsingKeyFrames>
+			<DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="Exit">
                 <EasingDoubleKeyFrame KeyTime="0" Value="0"/>
                 <EasingDoubleKeyFrame KeyTime="0:0:2.6" Value="0"/>
                 <EasingDoubleKeyFrame KeyTime="0:0:3" Value="1"/>
@@ -168,7 +178,30 @@
       <Image x:Name="image2"  Source="../images/textures/title-robot.png" OpacityMask="{x:Null}" Margin="0" HorizontalAlignment="Center" VerticalAlignment="Top" Height="22"/>
     </StackPanel>
 
-    <Button Style="{StaticResource Btn}" x:Name="Play" Click="onStartGame" Content="PLAY" HorizontalAlignment="Center" Margin="0,0,0,88" VerticalAlignment="Bottom" FontFamily="../fonts/#Sniglet" FontSize="18" Background="#FFD4D4D4">
+	<StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,-41">
+      <Button Style="{StaticResource Btn}" x:Name="Exit" Click="onQuitGame" Content="EXIT" HorizontalAlignment="Center" Margin="0,0,46,88" VerticalAlignment="Bottom" FontFamily="../fonts/#Sniglet" FontSize="18"  Background="#FFDDDDDD">
+	    <Button.RenderTransform>
+          <TransformGroup>
+            <ScaleTransform/>
+            <SkewTransform/>
+            <RotateTransform/>
+            <TranslateTransform/>
+          </TransformGroup>
+        </Button.RenderTransform>
+	  </Button>
+      <Button Style="{StaticResource Btn}" x:Name="Play" Click="onStartGame" Content="PLAY" HorizontalAlignment="Center" Margin="0,0,0,88" VerticalAlignment="Bottom" FontFamily="../fonts/#Sniglet" FontSize="18" Background="#FFDDDDDD">
+	    <Button.RenderTransform>
+          <TransformGroup>
+            <ScaleTransform/>
+            <SkewTransform/>
+            <RotateTransform/>
+            <TranslateTransform/>
+          </TransformGroup>
+        </Button.RenderTransform>
+	  </Button>
+    </StackPanel>
+
+    <!--<Button Style="{StaticResource Btn}" x:Name="Play" Click="onStartGame" Content="PLAY" HorizontalAlignment="Center" Margin="0,0,0,88" VerticalAlignment="Bottom" FontFamily="../fonts/#Sniglet" FontSize="18" Background="#FFD4D4D4">
       <Button.RenderTransform>
         <TransformGroup>
           <ScaleTransform/>
@@ -177,7 +210,7 @@
           <TranslateTransform/>
         </TransformGroup>
       </Button.RenderTransform>
-    </Button>
+    </Button>-->
     <TextBlock x:Name="Credits" Foreground="Black" HorizontalAlignment="Center" Margin="0,0,0,20" TextWrapping="Wrap" Text="Cyrielle Lassarre, Guillaume Haerinck &amp; Jules Fouchy" VerticalAlignment="Bottom" FontFamily="../fonts/#Sniglet" FontSize="14">
       <TextBlock.RenderTransform>
         <TransformGroup>

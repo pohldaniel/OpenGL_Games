@@ -8,7 +8,8 @@ enum States {
 	CONTROLLS,
 	DEFAULT,
 	GAME,
-	TITLESCREEN
+	TITLESCREEN,
+	LEVELINTRO
 };
 
 class State;
@@ -49,7 +50,7 @@ public:
 	virtual ~State();
 
 	States getCurrentState();
-	
+
 protected:
 
 	StateMachine& m_machine;

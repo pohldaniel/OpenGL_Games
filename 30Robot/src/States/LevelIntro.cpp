@@ -4,7 +4,11 @@
 #include "Globals.h"
 #include "Renderer.h"
 
-LevelIntroS::LevelIntroS(StateMachine& machine) : State(machine, States::TITLESCREEN), InputHandler(Application::Emitter), m_levelIntro(Application::Emitter, Application::s_Progression) {
+#include <Event/change-game-state.hpp>
+#include <States/TitleScreen.h>
+#include <States/Default.h>
+
+LevelIntroS::LevelIntroS(StateMachine& machine) : State(machine, States::LEVELINTRO), m_levelIntro(Application::Emitter, Application::s_Progression) {
 
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
@@ -20,6 +24,9 @@ LevelIntroS::LevelIntroS(StateMachine& machine) : State(machine, States::TITLESC
 LevelIntroS::~LevelIntroS() {
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
+
+	m_ui->GetRenderer()->Shutdown();
+	delete m_ui;
 }
 
 void LevelIntroS::fixedUpdate() {
@@ -71,10 +78,7 @@ void LevelIntroS::resize(int deltaW, int deltaH) {
 	m_ui->SetSize(Application::Width, Application::Height);
 }
 
-void LevelIntroS::enter() {
-	connectInputs();
-}
-
-void LevelIntroS::exit() {
-	disconnectInputs();
+void LevelIntroS::OnStateChange(States states) {
+	m_isRunning = false;
+	m_machine.addStateAtBottom(states == States::DEFAULT ? static_cast<State*>(new Default(m_machine)) : static_cast<State*>(new TitleScreenS(m_machine)));
 }
