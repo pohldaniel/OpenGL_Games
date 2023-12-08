@@ -7,6 +7,7 @@
 #include <Event/change-game-state.hpp>
 #include <States/TitleScreen.h>
 #include <States/Default.h>
+#include <States/LevelS.h>
 
 LevelIntroS::LevelIntroS(StateMachine& machine) : State(machine, States::LEVELINTRO), m_levelIntro(Application::Emitter, Application::s_Progression) {
 
@@ -50,6 +51,10 @@ void LevelIntroS::render() {
 	m_ui->GetRenderer()->Render();
 }
 
+void LevelIntroS::resize(int deltaW, int deltaH) {
+	m_ui->SetSize(Application::Width, Application::Height);
+}
+
 void LevelIntroS::OnMouseMotion(Event::MouseMoveEvent& event) {
 	m_ui->MouseMove(event.x, event.y);
 }
@@ -74,11 +79,7 @@ void LevelIntroS::OnKeyUp(Event::KeyboardEvent& event) {
 
 }
 
-void LevelIntroS::resize(int deltaW, int deltaH) {
-	m_ui->SetSize(Application::Width, Application::Height);
-}
-
 void LevelIntroS::OnStateChange(States states) {
 	m_isRunning = false;
-	m_machine.addStateAtBottom(states == States::DEFAULT ? static_cast<State*>(new Default(m_machine)) : static_cast<State*>(new TitleScreenS(m_machine)));
+	m_machine.addStateAtBottom(states == States::LEVEL ? static_cast<State*>(new LevelS(m_machine)) : static_cast<State*>(new TitleScreenS(m_machine)));
 }

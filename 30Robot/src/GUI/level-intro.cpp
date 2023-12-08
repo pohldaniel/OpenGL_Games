@@ -43,7 +43,7 @@ void LevelIntro::OnInitialized(BaseComponent*, const Noesis::EventArgs&) {
 }
 
 void LevelIntro::onStartLevel(Noesis::BaseComponent* sender, const Noesis::RoutedEventArgs& args) {
-	m_emitter.publish<evnt::ChangeGameStateNew>(States::DEFAULT);
+	m_emitter.publish<evnt::ChangeGameStateNew>(States::LEVEL);
 }
 
 void LevelIntro::onExit(Noesis::BaseComponent* sender, const Noesis::RoutedEventArgs& args) {

@@ -464,8 +464,8 @@ void Application::initStates() {
 	//Machine->addStateAtTop(new Default(*Machine));
 
 	//Machine->addStateAtTop(new Game(*Machine));
-	Machine->addStateAtTop(new TitleScreenS(*Machine));
-	//Machine->addStateAtTop(new LevelIntroS(*Machine));
+	//Machine->addStateAtTop(new TitleScreenS(*Machine));
+	Machine->addStateAtTop(new LevelIntroS(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {

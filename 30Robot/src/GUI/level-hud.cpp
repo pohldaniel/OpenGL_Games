@@ -1,3 +1,4 @@
+#include <iostream>
 #include "level-hud.hpp"
 
 #include <NsGui/Button.h>
@@ -101,6 +102,7 @@ void LevelHud::onDeleteEntity(Noesis::BaseComponent* sender, const Noesis::Route
 }
 
 void LevelHud::onStartWave(Noesis::BaseComponent* sender, const Noesis::RoutedEventArgs& args) {
+	std::cout << "Start Wave: " << std::endl;
 	m_emitter.publish<evnt::StartWave>();
 	m_bindings->setStartWaveBtnPosY(-500);
 }

@@ -49,6 +49,10 @@ void TitleScreenS::render() {
 	m_ui->GetRenderer()->Render();
 }
 
+void TitleScreenS::resize(int deltaW, int deltaH) {
+	m_ui->SetSize(Application::Width, Application::Height);
+}
+
 void TitleScreenS::OnMouseMotion(Event::MouseMoveEvent& event) {
 	m_ui->MouseMove(event.x, event.y);
 }
@@ -71,10 +75,6 @@ void TitleScreenS::OnKeyDown(Event::KeyboardEvent& event) {
 
 void TitleScreenS::OnKeyUp(Event::KeyboardEvent& event) {
 
-}
-
-void TitleScreenS::resize(int deltaW, int deltaH) {
-	m_ui->SetSize(Application::Width, Application::Height);
 }
 
 void TitleScreenS::OnStateChange(States states) {

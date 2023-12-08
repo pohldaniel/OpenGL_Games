@@ -1,6 +1,6 @@
 #pragma once
 
-#include <NsGui/IView.h>
+#include <NsGui/IntegrationAPI.h>
 #include <glm/gtx/transform.hpp>
 
 #include <engine/input/MouseEventListener.h>
@@ -9,16 +9,9 @@
 #include <States/StateMachine.h>
 
 #include <Event/EventEmitter.h>
-#include <System/AttackSystem.h>
-#include <System/render-system.hpp>
-#include <System/movement-system.hpp>
-#include <System/animation-system.hpp>
-#include <System/wave-system.hpp>
-#include <System/life-and-death-system.hpp>
-
 #include <Level/level.hpp>
 
-#include "Event/input-handler.hpp"
+
 #include "GUI/level-intro.hpp"
 #include "EventListener.h"
 
