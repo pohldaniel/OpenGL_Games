@@ -8,6 +8,15 @@
 #include <States/StateMachine.h>
 
 #include <NsGui/IRenderer.h>
+#include <Event/EventEmitter.h>
+
+#include <System/AttackSystem.h>
+#include <System/render-system.hpp>
+#include <System/movement-system.hpp>
+#include <System/animation-system.hpp>
+#include <System/wave-system.hpp>
+#include <System/life-and-death-system.hpp>
+
 
 class Application {
 
@@ -64,5 +73,17 @@ public:
 	static HANDLE Icon;
 	static bool VerticalSync;
 	static bool Fullscreen;
+
 	static Noesis::Ptr<Noesis::RenderDevice> NoesisDevice;
+	static EventEmitter Emitter;
+	static entt::DefaultRegistry Registry;
+	static RenderSystem* s_RenderSystem;
+	static AnimationSystem* s_AnimationSystem;
+	static MovementSystem* s_MovementSystem;
+	static WaveSystem* s_WaveSystem;
+	static AttackSystem* s_AttackSystem;
+	static LifeAndDeathSystem* s_LifeAndDeathSystem;
+	static Progression s_Progression;
+	static Level* s_Level;
+
 };

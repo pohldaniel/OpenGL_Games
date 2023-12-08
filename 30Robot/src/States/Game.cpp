@@ -3,23 +3,19 @@
 #include <imgui_impl_opengl3.h>
 #include <imgui_internal.h>
 
-
-
 #include <engine/Batchrenderer.h>
 #include <glm/gtx/transform.hpp>
 
 #include "Game.h"
 #include "Application.h"
 #include "Globals.h"
+#include "Renderer.h"
 
-#include "locator.hpp"
-#include "debug-draw-service.hpp"
-#include "random-service.hpp"
-#include "helper-service.hpp"
 
-EventEmitter Game::Emitter;
 
-Game::Game(StateMachine& machine) : State(machine, States::GAME), m_titleScreen(Emitter), progression(Emitter) {
+#include "Event/input-handler.hpp"
+
+Game::Game(StateMachine& machine) : State(machine, States::GAME), InputHandler(Application::Emitter), m_titleScreen(Application::Emitter) {
 
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
@@ -42,36 +38,6 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME), m_titleScreen(
 		{ &Globals::textureManager.get("forest_4"), 1, 4.0f },
 		{ &Globals::textureManager.get("forest_5"), 1, 5.0f }});
 	m_background.setSpeed(0.005f);
-
-	
-
-	m_projMat = glm::ortho(0.0f, PROJ_WIDTH_RAT, 0.0f, PROJ_HEIGHT, -10.0f, 10.0f);
-	m_viewMat = glm::mat4(1.0f);
-	m_viewTranslation= glm::vec2(0.0f);
-	m_viewScale = 1.0f;
-
-	locator::debugDraw::set<DebugDrawService>();
-	IDebugDraw& debugDraw = locator::debugDraw::ref();
-	debugDraw.setProjMat(m_projMat);
-	debugDraw.setViewMat(m_viewMat);
-	locator::random::set<RandomService>();
-	locator::helper::set<HelperService>();
-
-	// Level
-	level = new Level(registry, progression, 1, m_viewTranslation, m_viewScale);
-
-	// Special service helper
-	IHelper& helper = locator::helper::ref();
-	helper.setRegistry(&registry);
-	helper.setEmitter(&Emitter);
-	helper.setLevel(level);
-
-	renderSystem = new RenderSystem(registry, Emitter, m_viewMat, m_projMat);
-	animationSystem = new AnimationSystem(registry, Emitter);
-	movementSystem = new MovementSystem(registry, Emitter);
-	waveSystem = new WaveSystem(registry, Emitter, progression, *level);
-	attackSystem = new AttackSystem(registry, Emitter);
-	lifeAndDeathSystem = new LifeAndDeathSystem(registry, Emitter, progression);
 
 	m_xaml = m_titleScreen;
 	m_ui = Noesis::GUI::CreateView(m_xaml).GiveOwnership();
@@ -153,20 +119,13 @@ void Game::update() {
 
 void Game::render() {
 
-	/*glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	m_background.draw();
-
-	if (m_drawUi)
-		renderUi();*/
-
-		// Noesis gui update
+	// Noesis gui update
 	m_ui->Update(Globals::clock.getElapsedTimeSec());
 	m_ui->GetRenderer()->UpdateRenderTree();
 	m_ui->GetRenderer()->RenderOffscreen();
 
-	// Need to restore the GPU state because noesis changes it
-	restoreGpuState();
-
+	// Need to restore the GPU state because noesis changes it	
+	Renderer::RestoreGpuState();
 	// Render
 	m_ui->GetRenderer()->Render();
 }

@@ -2,12 +2,9 @@
 #include "i-game-state.hpp"
 
 #include <GL/glew.h>
-
-
 #include "constants.hpp"
-#include <States/Game.h>
 
-IGameState::IGameState() : InputHandler(Game::Emitter) {}
+IGameState::IGameState() : InputHandler(Application::Emitter) {}
 
 void IGameState::restoreGpuState() {
 	// Framebuffer

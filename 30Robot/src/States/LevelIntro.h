@@ -1,27 +1,32 @@
 #pragma once
 
 #include <NsGui/IView.h>
+#include <glm/gtx/transform.hpp>
 
 #include <engine/input/MouseEventListener.h>
 #include <engine/input/KeyboardEventListener.h>
-#include <engine/Camera.h>
 
 #include <States/StateMachine.h>
-#include "Background.h"
 
 #include <Event/EventEmitter.h>
+#include <System/AttackSystem.h>
+#include <System/render-system.hpp>
+#include <System/movement-system.hpp>
+#include <System/animation-system.hpp>
+#include <System/wave-system.hpp>
+#include <System/life-and-death-system.hpp>
 
 #include <Level/level.hpp>
 
 #include "Event/input-handler.hpp"
-#include "GUI/title-screen.hpp"
+#include "GUI/level-intro.hpp"
 
-class Game : public State, public InputHandler,  public MouseEventListener, public KeyboardEventListener {
+class LevelIntroS : public State, public InputHandler, public MouseEventListener, public KeyboardEventListener {
 
 public:
 
-	Game(StateMachine& machine);
-	~Game();
+	LevelIntroS(StateMachine& machine);
+	~LevelIntroS();
 
 	void fixedUpdate() override;
 	void update() override;
@@ -40,18 +45,8 @@ public:
 
 private:
 
-	void renderUi();
-
-	bool m_initUi = true;
-	bool m_drawUi = true;
-
-	Camera m_camera;
-	Background m_background;
-
-	
 	Noesis::Ptr<Noesis::FrameworkElement> m_xaml;
 	Noesis::IView* m_ui;
-	TitleScreen m_titleScreen;
-
+	LevelIntro m_levelIntro;
 };
 

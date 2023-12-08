@@ -18,9 +18,15 @@
 
 #include <States/Default.h>
 #include <States/Game.h>
+#include <States/TitleScreen.h>
+#include <States/LevelIntro.h>
 #include <UI/Widget.h>
 
 #include "noesis-log-handler.hpp"
+#include "locator.hpp"
+#include "debug-draw-service.hpp"
+#include "random-service.hpp"
+#include "helper-service.hpp"
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -38,7 +44,18 @@ RECT Application::Savedrc;
 HCURSOR Application::Cursor = LoadCursor(nullptr, IDC_ARROW);
 HANDLE Application::Icon = LoadImage(NULL, "res/icon.ico", IMAGE_ICON, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
 bool Application::VerticalSync = true;
+
 Noesis::Ptr<Noesis::RenderDevice> Application::NoesisDevice = nullptr;
+EventEmitter Application::Emitter;
+entt::DefaultRegistry Application::Registry;
+RenderSystem* Application::s_RenderSystem;
+AnimationSystem* Application::s_AnimationSystem;
+MovementSystem* Application::s_MovementSystem;
+WaveSystem* Application::s_WaveSystem;
+AttackSystem* Application::s_AttackSystem;
+LifeAndDeathSystem* Application::s_LifeAndDeathSystem;
+Progression Application::s_Progression = Progression(Emitter);
+Level* Application::s_Level;
 
 Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fdt) {
 	Width = WIDTH;
@@ -82,6 +99,33 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	shader->use();
 	shader->loadMatrix("u_transform", Matrix4f::Orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f));
 	shader->unuse();
+
+	locator::debugDraw::set<DebugDrawService>();
+	IDebugDraw& debugDraw = locator::debugDraw::ref();
+	debugDraw.setProjMat(glm::ortho(0.0f, PROJ_WIDTH_RAT, 0.0f, PROJ_HEIGHT, -10.0f, 10.0f));
+	debugDraw.setViewMat(glm::mat4(1.0f));
+	locator::random::set<RandomService>();
+	locator::helper::set<HelperService>();
+
+	// Level
+	glm::vec2 viewTranslation = glm::vec2(0.0f);
+	float viewScale = 1.0f;
+	s_Level = new Level(Application::Registry, s_Progression, 1, viewTranslation, viewScale);
+
+	// Special service helper
+	IHelper& helper = locator::helper::ref();
+	helper.setRegistry(&Application::Registry);
+	helper.setEmitter(&Application::Emitter);
+	helper.setLevel(s_Level);
+
+	
+
+	s_RenderSystem = new RenderSystem(Application::Registry, Application::Emitter, glm::mat4(1.0f), glm::ortho(0.0f, PROJ_WIDTH_RAT, 0.0f, PROJ_HEIGHT, -10.0f, 10.0f));
+	s_AnimationSystem = new AnimationSystem(Application::Registry, Application::Emitter);
+	s_MovementSystem = new MovementSystem(Application::Registry, Application::Emitter);
+	s_WaveSystem = new WaveSystem(Application::Registry, Application::Emitter, s_Progression, *s_Level);
+	s_AttackSystem = new AttackSystem(Application::Registry, Application::Emitter);
+	s_LifeAndDeathSystem = new LifeAndDeathSystem(Application::Registry, Application::Emitter, s_Progression);
 
 	initStates();
 }
@@ -409,7 +453,9 @@ void Application::initStates() {
 	Machine = new StateMachine(m_dt, m_fdt);
 	//Machine->addStateAtTop(new Default(*Machine));
 
-	Machine->addStateAtTop(new Game(*Machine));
+	//Machine->addStateAtTop(new Game(*Machine));
+	//Machine->addStateAtTop(new TitleScreenS(*Machine));
+	Machine->addStateAtTop(new LevelIntroS(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {

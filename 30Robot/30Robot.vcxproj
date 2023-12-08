@@ -165,6 +165,7 @@
     <ClCompile Include="engine\sound\SoundDevice.cpp" />
     <ClCompile Include="engine\Thread.cpp" />
     <ClCompile Include="engine\ZoomableQuad.cpp" />
+    <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="src\constants.cpp" />
     <ClCompile Include="src\debug-draw-service.cpp" />
     <ClCompile Include="src\Entity\enemy-factory.cpp" />
@@ -207,8 +208,10 @@
     <ClCompile Include="src\States\Default.cpp" />
     <ClCompile Include="src\States\Game.cpp" />
     <ClCompile Include="src\States\i-game-state.cpp" />
+    <ClCompile Include="src\States\LevelIntro.cpp" />
     <ClCompile Include="src\States\Settings.cpp" />
     <ClCompile Include="src\States\StateMachine.cpp" />
+    <ClCompile Include="src\States\TitleScreen.cpp" />
     <ClCompile Include="src\System\animation-system.cpp" />
     <ClCompile Include="src\System\AttackSystem.cpp" />
     <ClCompile Include="src\System\life-and-death-system.cpp" />
@@ -348,6 +351,7 @@
     <ClInclude Include="engine\Vector.h" />
     <ClInclude Include="engine\VolumeBuffer.h" />
     <ClInclude Include="engine\ZoomableQuad.h" />
+    <ClInclude Include="Renderer.h" />
     <ClInclude Include="src\Application.h" />
     <ClInclude Include="src\Background.h" />
     <ClInclude Include="src\Components\age.hpp" />
@@ -458,8 +462,10 @@
     <ClInclude Include="src\States\Default.h" />
     <ClInclude Include="src\States\Game.h" />
     <ClInclude Include="src\States\i-game-state.hpp" />
+    <ClInclude Include="src\States\LevelIntro.h" />
     <ClInclude Include="src\States\Settings.h" />
     <ClInclude Include="src\States\StateMachine.h" />
+    <ClInclude Include="src\States\TitleScreen.h" />
     <ClInclude Include="src\System\animation-system.hpp" />
     <ClInclude Include="src\System\AttackSystem.h" />
     <ClInclude Include="src\System\ISystem.h" />
