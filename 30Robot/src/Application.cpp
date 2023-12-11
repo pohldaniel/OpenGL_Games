@@ -43,8 +43,15 @@ bool Application::Init = false;
 DWORD Application::SavedExStyle;
 DWORD Application::SavedStyle;
 RECT Application::Savedrc;
+
 HCURSOR Application::Cursor = LoadCursor(nullptr, IDC_ARROW);
-HANDLE Application::Icon = LoadImage(NULL, "res/icon.ico", IMAGE_ICON, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
+//HCURSOR Application::Cursor = LoadCursor(nullptr, IDC_NO);
+//HCURSOR Application::Cursor = LoadCursorFromFileA("res/cursors/rotate.cur");
+
+HICON Application::Icon = (HICON)LoadImage(NULL, "res/icon.ico", IMAGE_ICON, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
+//HICON Application::Icon = LoadIcon(NULL, IDI_QUESTION);
+//HICON Application::Icon = (HICON)LoadImage(NULL, IDI_HAND, IMAGE_ICON, 0, 0, LR_SHARED);
+
 bool Application::VerticalSync = true;
 
 Noesis::Ptr<Noesis::RenderDevice> Application::NoesisDevice = nullptr;
@@ -168,12 +175,12 @@ void Application::createWindow() {
 	windowClass.cbClsExtra = 0;
 	windowClass.cbWndExtra = 0;
 	windowClass.hInstance = (HINSTANCE)GetModuleHandle(NULL);
-	windowClass.hIcon = LoadIcon(NULL, IDI_APPLICATION);
-	windowClass.hCursor = LoadCursor(NULL, IDC_ARROW);
+	windowClass.hIcon = (HICON)Icon;
+	windowClass.hCursor = (HCURSOR)Cursor;
 	windowClass.hbrBackground = (HBRUSH)GetStockObject(WHITE_BRUSH);
 	windowClass.lpszMenuName = NULL;
 	windowClass.lpszClassName = "WINDOWCLASS";
-	windowClass.hIconSm = LoadIcon(NULL, IDI_APPLICATION);
+	windowClass.hIconSm = (HICON)Icon;
 
 	if (!RegisterClassEx(&windowClass))
 		return;
@@ -181,7 +188,7 @@ void Application::createWindow() {
 	Window = CreateWindowEx(
 		NULL,
 		"WINDOWCLASS",
-		"Tower Defense",
+		"Robot",
 		WS_OVERLAPPEDWINDOW,
 		CW_USEDEFAULT, CW_USEDEFAULT,
 		Width,
@@ -193,7 +200,6 @@ void Application::createWindow() {
 
 	if (!Window)
 		return;
-
 }
 
 void Application::showWindow() {

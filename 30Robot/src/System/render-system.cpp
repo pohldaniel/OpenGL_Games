@@ -26,7 +26,9 @@
 #include "locator.hpp"
 #include "i-helper.hpp"
 
-RenderSystem::RenderSystem(entt::DefaultRegistry& registry, EventEmitter& emitter, glm::mat4& viewMat, glm::mat4& projMat) : ISystem(registry, emitter), m_view(viewMat), m_projection(projMat) {
+#include "Application.h"
+
+RenderSystem::RenderSystem(entt::DefaultRegistry& registry, EventEmitter& emitter, glm::mat4& viewMat, glm::mat4& projMat) : ISystem(registry, emitter), m_view(viewMat), m_projection(projMat), m_currentCursor(CursorType::ARROW){
 	
 	m_emitter.on<evnt::EntityDamaged>([this](const evnt::EntityDamaged & event, EventEmitter & emitter) {
 		if (m_registry.valid(event.entity)) {
@@ -40,9 +42,28 @@ RenderSystem::RenderSystem(entt::DefaultRegistry& registry, EventEmitter& emitte
 	});
 
 	//initCursors();
-	//m_emitter.on<evnt::ChangeCursor>([this](const evnt::ChangeCursor & event, EventEmitter & emitter) {
-	//	SDL_SetCursor(this->m_cursors.at(event.cursor));
-	//});
+	m_emitter.on<evnt::ChangeCursor>([this](const evnt::ChangeCursor & event, EventEmitter & emitter) {
+		if (m_currentCursor != event.cursor) {
+
+			switch (event.cursor) {
+			case CursorType::ROTATION:
+				Application::SetCursorIconFromFile("res/cursors/rotate.cur");
+				break;
+			case CursorType::ACTIVATE:
+				break;
+			case CursorType::DESACTIVATE:
+				break;
+			case CursorType::NO:
+				Application::SetCursorIcon(IDC_NO);
+				break;
+			default: case CursorType::ARROW:
+				Application::SetCursorIcon(IDC_ARROW);
+				break;
+			}
+
+			m_currentCursor = event.cursor;
+		}
+	});
 }
 
 /*void RenderSystem::initCursors() {

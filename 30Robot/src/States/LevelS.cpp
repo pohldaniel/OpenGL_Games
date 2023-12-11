@@ -13,6 +13,7 @@
 #include "Event/loose.hpp"
 #include "Event/Interactions/delete-entity.hpp"
 #include "Event/tower-dead.hpp"
+#include "Event/Interactions/select-rotation.hpp"
 
 #include "Components/age.hpp"
 #include "Components/shoot-laser.hpp"
@@ -20,6 +21,9 @@
 #include "Components/animated.hpp"
 #include "Components/animation-alpha.hpp"
 #include "Components/look-at-mouse.hpp"
+#include "Components/shoot-at.hpp"
+
+#include "maths.hpp"
 
 LevelS::LevelS(StateMachine& machine) : State(machine, States::LEVEL),
 	m_levelHud(Application::Emitter, Application::s_Progression), 
@@ -93,6 +97,62 @@ void LevelS::resize(int deltaW, int deltaH) {
 
 void LevelS::OnMouseMotion(Event::MouseMoveEvent& event) {
 	m_ui->MouseMove(event.x, event.y);
+
+	const glm::vec2 normMousePos = glm::vec2(
+		imaths::rangeMapping(event.x, 0, Application::Width, 0, 101.3f),
+		imaths::rangeMapping(Application::Height - event.y, 0, Application::Height, 0, PROJ_HEIGHT)
+	);
+
+	Application::Emitter.mousePos = normMousePos;
+
+	if (Application::Emitter.focus == FocusMode::GAME) {
+		switch (m_state) {
+		case LevelInteractionState::FREE:
+		{
+			std::uint32_t entityId = Application::s_Level->getEntityOnTileFromProjCoord(normMousePos.x, normMousePos.y);
+			if (Application::Registry.valid(entityId)) {
+				if (Application::Registry.has<entityTag::Mirror>(entityId)) {
+					Application::Emitter.publish<evnt::ChangeCursor>(CursorType::ROTATION);
+				}
+				else if (Application::Registry.has<towerTag::LaserTower>(entityId)) {
+					if (Application::Registry.get<cmpt::ShootLaser>(entityId).isActiv) {
+						Application::Emitter.publish<evnt::ChangeCursor>(CursorType::DESACTIVATE);
+					}
+					else {
+						Application::Emitter.publish<evnt::ChangeCursor>(CursorType::ACTIVATE);
+					}
+				}
+				else if (Application::Registry.has<towerTag::SlowTower>(entityId)) {
+					if (Application::Registry.has<cmpt::ShootAt>(entityId)) {
+						Application::Emitter.publish<evnt::ChangeCursor>(CursorType::DESACTIVATE);
+					}
+					else {
+						Application::Emitter.publish<evnt::ChangeCursor>(CursorType::ACTIVATE);
+					}
+				}
+			}
+			else {
+				Application::Emitter.publish<evnt::ChangeCursor>(CursorType::ARROW);
+			}
+			break;
+		}
+
+		case LevelInteractionState::ROTATE:
+			Application::Emitter.publish<evnt::SelectRotation>(normMousePos);
+			break;
+
+		case LevelInteractionState::INVALID:
+			break;
+
+		case LevelInteractionState::OPTIONS:
+			break;
+
+		case LevelInteractionState::BUILD:
+			break;
+		default:
+			break;
+		}
+	}
 }
 
 void LevelS::OnMouseButtonDown(Event::MouseButtonEvent& event) {

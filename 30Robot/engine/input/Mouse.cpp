@@ -2,24 +2,13 @@
 #include "Mouse.h"
 #include "hidusage.h"
 
-HCURSOR Mouse::Cursor = LoadCursor(nullptr, IDC_ARROW);
-
 const float Mouse::WEIGHT_MODIFIER = 0.2f;
 BYTE Mouse::m_tempBuffer[TEMP_BUFFER_SIZE];
 
 Mouse &Mouse::instance(){
 
-	static Mouse theInstance;
-	return theInstance;
-}
-
-void Mouse::SetCursorIcon(std::string file) {
-	Mouse::Cursor = LoadCursorFromFileA(file.c_str());
-	SetCursor(Cursor);
-}
-
-HCURSOR Mouse::GetCursorIcon() {
-	return Mouse::Cursor;
+	static Mouse Instance;
+	return Instance;
 }
 
 Mouse::Mouse(){

@@ -76,10 +76,8 @@ public:
 	void update();
 	void updateWheelDelta(int delta);
 
-	static void SetCursorIcon(std::string file);
-	static HCURSOR GetCursorIcon();
-
 private:
+
 	Mouse();
 	Mouse(const Mouse &);
 	Mouse &operator=(const Mouse &);
@@ -118,6 +116,4 @@ private:
 
 	int m_centerX;
 	int m_centerY;
-
-	static HCURSOR Cursor;
 };

@@ -11,7 +11,7 @@
 
 LevelIntroS::LevelIntroS(StateMachine& machine) : State(machine, States::LEVELINTRO), m_levelIntro(Application::Emitter, Application::s_Progression) {
 
-	Application::SetCursorIcon(IDC_ARROW);
+	//Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
 	EventDispatcher::AddMouseListener(this);
 

@@ -37,4 +37,6 @@ private:
 	//std::array<SDL_Cursor*, 7> m_cursors;
 	//std::vector<unsigned char*> m_cursorImages;
 	//std::vector<SDL_Surface*> m_cursorSurfaces;
+
+	CursorType m_currentCursor;
 };

@@ -71,7 +71,7 @@ public:
 	static RECT Savedrc;
 	static DEVMODE DefaultScreen;
 	static HCURSOR Cursor;
-	static HANDLE Icon;
+	static HICON Icon;
 	static bool VerticalSync;
 	static bool Fullscreen;
 
