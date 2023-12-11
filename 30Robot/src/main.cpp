@@ -30,7 +30,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	freopen("CON", "w", stderr);
 	SetConsoleTitle("Debug console");
 
-	MoveWindow(GetConsoleWindow(), 1300, 0, 550, 300, true);
+	MoveWindow(GetConsoleWindow(), 1300, 0, 570, 300, true);
 	std::cout << "right mouse      : capture game" << std::endl;
 	std::cout << "alt              : toggle ui" << std::endl;
 	std::cout << "ESC              : quit" << std::endl;

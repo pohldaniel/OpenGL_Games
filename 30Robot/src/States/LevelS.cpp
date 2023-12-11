@@ -38,6 +38,8 @@ LevelS::LevelS(StateMachine& machine) : State(machine, States::LEVEL),
 	m_ui->GetRenderer()->Init(Application::NoesisDevice);
 	m_ui->SetSize(Application::Width, Application::Height);
 
+	Application::s_Level->setLevel(1);
+
 	handleVictoryConditions();
 	handleConstructions();
 }
@@ -67,7 +69,6 @@ void LevelS::render() {
 		m_invalidTimeCounter = 0;
 		changeState(LevelInteractionState::FREE);
 	}
-
 
 	// Noesis gui update
 	m_ui->Update(Globals::clock.getElapsedTimeSec());

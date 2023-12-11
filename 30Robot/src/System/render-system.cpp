@@ -2,6 +2,7 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <GL/glew.h>
+#include <iostream>
 
 #include "components/sprite.hpp"
 #include "components/sprite-animation.hpp"
@@ -25,8 +26,8 @@
 #include "locator.hpp"
 #include "i-helper.hpp"
 
-RenderSystem::RenderSystem(entt::DefaultRegistry& registry, EventEmitter& emitter, glm::mat4& viewMat, glm::mat4& projMat)
-: ISystem(registry, emitter), m_view(viewMat), m_projection(projMat) {
+RenderSystem::RenderSystem(entt::DefaultRegistry& registry, EventEmitter& emitter, glm::mat4& viewMat, glm::mat4& projMat) : ISystem(registry, emitter), m_view(viewMat), m_projection(projMat) {
+	
 	m_emitter.on<evnt::EntityDamaged>([this](const evnt::EntityDamaged & event, EventEmitter & emitter) {
 		if (m_registry.valid(event.entity)) {
 			//Shake
@@ -171,6 +172,7 @@ void RenderSystem::renderSprite(std::uint32_t entity, cmpt::Sprite & sprite) con
 	// Updates
 	glm::mat4 mvp = m_projection * this->getViewMatrix() * this->getModelMatrix(entity);
 	sprite.shader->setUniformMat4f("u_mvp", mvp);
+
 	if (m_registry.valid(entity)) {
 		sprite.shader->setUniform4f("tintColour", helper.getColour(entity));
 		sprite.shader->setUniform1f("u_alpha", helper.getAlpha(entity));
@@ -206,7 +208,7 @@ void RenderSystem::renderSprite(std::uint32_t entity, cmpt::Sprite & sprite) con
 }
 
 void RenderSystem::update(float deltatime) {
-    /* 
+	/* 
         TODO find a way to use only a few glDraw by sharing buffer or using vertex array. Each draw call should draw all sprites of a particular type. For uniforms, transfer them to vertex attributes
         https://community.khronos.org/t/best-practices-to-render-multiple-2d-sprite-with-vbo/74096
     */
@@ -240,6 +242,7 @@ void RenderSystem::update(float deltatime) {
         primitive.shader->unbind();
     });
 
+	
 	//Render tiles
 	m_registry.view<renderTag::Single, cmpt::Sprite, renderOrderTag::o_Tile>().each([this](auto entity, auto, cmpt::Sprite & sprite, auto) {
 		this->renderSprite(entity, sprite);

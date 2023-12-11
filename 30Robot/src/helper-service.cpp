@@ -18,7 +18,7 @@
 #include "maths.hpp"
 #include "Globals.h"
 
-HelperService::HelperService() : m_screenShaking(false) {}
+HelperService::HelperService() : m_screenShaking(false), m_screenShake(glm::vec2(0.0f)) {}
 
 glm::vec4 HelperService::getColour(std::uint32_t entityId) {
 	glm::vec4 actualColour = glm::vec4(0.0f);

@@ -17,6 +17,7 @@
 #include <System/wave-system.hpp>
 #include <System/life-and-death-system.hpp>
 
+#include <glm/gtx/transform.hpp>
 
 class Application {
 
@@ -86,4 +87,6 @@ public:
 	static Progression s_Progression;
 	static Level* s_Level;
 
+	glm::mat4 projection;
+	glm::mat4 view;
 };

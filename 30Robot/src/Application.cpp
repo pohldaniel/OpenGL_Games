@@ -120,15 +120,17 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	helper.setEmitter(&Application::Emitter);
 	helper.setLevel(s_Level);
 
-	
+	projection = glm::ortho(0.0f, PROJ_WIDTH_RAT, 0.0f, PROJ_HEIGHT, -10.0f, 10.0f);
+	view = glm::mat4(1.0f);
 
-	s_RenderSystem = new RenderSystem(Application::Registry, Application::Emitter, glm::mat4(1.0f), glm::ortho(0.0f, PROJ_WIDTH_RAT, 0.0f, PROJ_HEIGHT, -10.0f, 10.0f));
+	s_RenderSystem = new RenderSystem(Application::Registry, Application::Emitter, view, projection);
 	s_AnimationSystem = new AnimationSystem(Application::Registry, Application::Emitter);
 	s_MovementSystem = new MovementSystem(Application::Registry, Application::Emitter);
 	s_WaveSystem = new WaveSystem(Application::Registry, Application::Emitter, s_Progression, *s_Level);
 	s_AttackSystem = new AttackSystem(Application::Registry, Application::Emitter);
 	s_LifeAndDeathSystem = new LifeAndDeathSystem(Application::Registry, Application::Emitter, s_Progression);
 
+	Application::s_RenderSystem->update(m_dt);
 	initStates();
 
 	Application::Emitter.on<evnt::ChangeGameStateNew>([this](const evnt::ChangeGameStateNew& event, EventEmitter& emitter) {

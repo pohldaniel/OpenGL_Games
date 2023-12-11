@@ -1,5 +1,6 @@
 #include "level.hpp"
 
+#include <iostream>
 #include <fstream>
 #include <sstream>
 #include <SOIL2/SOIL2.h>
