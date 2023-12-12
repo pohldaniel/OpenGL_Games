@@ -1,4 +1,5 @@
 #pragma once
+#include <Windows.h>
 
 #include <glm/glm.hpp>
 #include <entt/entt.hpp>
@@ -28,13 +29,13 @@ private:
 	glm::mat4 getModelMatrix(unsigned int entityId) const;
 	glm::mat4 getModelMatrix(cmpt::Transform& transform) const;
 	glm::mat4 getViewMatrix() const;
-	//void initCursors();
+	void initCursors();
 	//SDL_Cursor* createCustomCursor(std::string imagePath);
 
 private:
 	const glm::mat4& m_view;
 	const glm::mat4& m_projection;
-	//std::array<SDL_Cursor*, 7> m_cursors;
+	std::array<HCURSOR, 5> m_cursors;
 	//std::vector<unsigned char*> m_cursorImages;
 	//std::vector<SDL_Surface*> m_cursorSurfaces;
 

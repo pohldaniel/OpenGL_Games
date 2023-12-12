@@ -34,6 +34,7 @@ public:
 	static void ToggleVerticalSync();
 	static void SetCursorIconFromFile(std::string file);
 	static void SetCursorIcon(LPCSTR resource);
+	static void SetCursorIcon(HCURSOR cursor);
 	static const HWND& GetWindow();
 
 	static int Width;
@@ -89,4 +90,6 @@ public:
 
 	glm::mat4 projection;
 	glm::mat4 view;
+	glm::vec2 viewTranslation;
+	float viewScale;
 };

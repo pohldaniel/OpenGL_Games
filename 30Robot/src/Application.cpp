@@ -117,8 +117,8 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	locator::helper::set<HelperService>();
 
 	// Level
-	glm::vec2 viewTranslation = glm::vec2(0.0f);
-	float viewScale = 1.0f;
+	viewTranslation = glm::vec2(0.0f);
+	viewScale = 1.0f;
 	s_Level = new Level(Application::Registry, s_Progression, 1, viewTranslation, viewScale);
 
 	// Special service helper
@@ -581,8 +581,8 @@ void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 		}case WM_MOUSEWHEEL: {
 			Event event;
 			event.type = Event::MOUSEWHEEL;
-			event.data.mouseWheel.delta = GET_WHEEL_DELTA_WPARAM(wParam);
-			event.data.mouseWheel.direction = GET_WHEEL_DELTA_WPARAM(wParam) > 0 ? Event::MouseWheelEvent::WheelDirection::UP : Event::MouseWheelEvent::WheelDirection::DOWN;			
+			event.data.mouseWheel.delta = GET_WHEEL_DELTA_WPARAM(wParam) / WHEEL_DELTA;
+			event.data.mouseWheel.direction = event.data.mouseWheel.delta > 0 ? Event::MouseWheelEvent::WheelDirection::UP : Event::MouseWheelEvent::WheelDirection::DOWN;
 			EventDispatcher.pushEvent(event);
 			break;
 		}
@@ -659,6 +659,12 @@ void Application::SetCursorIconFromFile(std::string file) {
 
 void Application::SetCursorIcon(LPCSTR resource) {
 	Application::Cursor = LoadCursor(nullptr, resource);
+	SetCursor(Cursor);
+	SetClassLongPtr(Window, GCLP_HCURSOR, LONG_PTR(Cursor));
+}
+
+void  Application::SetCursorIcon(HCURSOR cursor) {
+	Application::Cursor = cursor;
 	SetCursor(Cursor);
 	SetClassLongPtr(Window, GCLP_HCURSOR, LONG_PTR(Cursor));
 }

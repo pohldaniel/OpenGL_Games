@@ -3,11 +3,9 @@
 enum CursorType {
 	ROTATION = 0,
 	ARROW = 1,
-	LOADING = 2,
-	NO = 3,
-	CLICK = 4,
-	ACTIVATE = 5,
-	DESACTIVATE = 6
+	NO = 2,
+	ACTIVATE = 3,
+	DESACTIVATE = 4
 };
 
 namespace evnt {

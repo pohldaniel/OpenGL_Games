@@ -13,6 +13,7 @@
 #include "Event/loose.hpp"
 #include "Event/Interactions/delete-entity.hpp"
 #include "Event/tower-dead.hpp"
+#include "Event/progression-updated.hpp"
 #include "Event/Interactions/select-rotation.hpp"
 
 #include "Components/age.hpp"
@@ -22,6 +23,7 @@
 #include "Components/animation-alpha.hpp"
 #include "Components/look-at-mouse.hpp"
 #include "Components/shoot-at.hpp"
+#include "Components/constrained-rotation.hpp"
 
 #include "maths.hpp"
 
@@ -156,15 +158,232 @@ void LevelS::OnMouseMotion(Event::MouseMoveEvent& event) {
 }
 
 void LevelS::OnMouseButtonDown(Event::MouseButtonEvent& event) {
-	m_ui->MouseButtonDown(event.x, event.y, Noesis::MouseButton_Left);
+	
+
+	if (event.button == Event::MouseButtonEvent::BUTTON_LEFT) {
+		m_ui->MouseButtonDown(event.x, event.y, Noesis::MouseButton_Left);
+
+		const glm::vec2 normMousePos = glm::vec2(imaths::rangeMapping(event.x, 0, Application::Width, 0, 101.3f),imaths::rangeMapping(Application::Height - event.y, 0, Application::Height, 0, PROJ_HEIGHT));
+
+		if (Application::Emitter.focus == FocusMode::GAME) {
+			switch (m_state) {
+			case LevelInteractionState::FREE:
+			case LevelInteractionState::INVALID:{
+				// Get entity.
+				int entityId = Application::s_Level->getEntityOnTileFromProjCoord(normMousePos.x, normMousePos.y);
+				if (Application::Registry.valid(entityId)) {
+					//If valid mirror then rotate.
+					if (Application::Registry.has<entityTag::Mirror>(entityId)) {
+						changeState(LevelInteractionState::ROTATE);
+						Application::Registry.accommodate<stateTag::IsBeingControlled>(entityId);
+						Application::Registry.accommodate<cmpt::LookAtMouse>(entityId);
+
+						m_lastSelectedEntity = entityId;
+						m_levelHud.setSelectedEntity(entityId);
+					}
+					//If tower then switch on or off
+					if (Application::Registry.has<cmpt::ShootLaser>(entityId)) {
+						cmpt::ShootLaser& shootLaser = Application::Registry.get<cmpt::ShootLaser>(entityId);
+						shootLaser.isActiv = !shootLaser.isActiv;
+					}
+					if (Application::Registry.has<towerTag::SlowTower>(entityId)) {
+						if (Application::Registry.has<cmpt::ShootAt>(entityId)) {
+							Application::Registry.remove<cmpt::ShootAt>(entityId);
+						}
+						else {
+							Application::Registry.assign<cmpt::ShootAt>(entityId, SLOW_TOWER_TIME_BETWEEN_TWO_SHOTS);
+						}
+					}
+				}
+				else {
+					std::cout << "No valid entity on tile" << std::endl;
+					changeState(LevelInteractionState::INVALID);
+				}
+				break;
+			}
+
+			case LevelInteractionState::ROTATE:
+				break;
+
+			case LevelInteractionState::OPTIONS:
+				// Click outside option menu closes it
+				changeState(LevelInteractionState::FREE);
+				break;
+
+			case LevelInteractionState::BUILD:
+			{
+				// Build selected type on tile if valid
+				int tileId = Application::s_Level->getTileFromProjCoord(normMousePos.x, normMousePos.y);
+				if (Application::Registry.valid(tileId)) {
+					if (Application::Registry.has<tileTag::Constructible>(tileId)) {
+						Application::Emitter.entityBeingPlaced = false;
+						cmpt::Transform trans = Application::Registry.get<cmpt::Transform>(tileId);
+
+						Application::Registry.remove<tileTag::Constructible>(tileId);
+						Application::Registry.assign<cmpt::EntityOnTile>(tileId, m_lastSelectedEntity);
+
+						Application::Registry.remove<positionTag::IsOnHoveredTile>(m_lastSelectedEntity);
+						Application::Registry.reset<stateTag::IsBeingControlled>(m_lastSelectedEntity);
+						Application::Registry.get<cmpt::Transform>(m_lastSelectedEntity).position += trans.position;
+						if (Application::Registry.has<cmpt::ShootLaser>(m_lastSelectedEntity)) {
+							Application::Registry.get<cmpt::ShootLaser>(m_lastSelectedEntity).isActiv = false;
+						}
+
+						// Rotatable on build
+						if (Application::Registry.has<stateTag::RotateableByMouse>(m_lastSelectedEntity)) {
+							Application::Registry.accommodate<stateTag::IsBeingControlled>(m_lastSelectedEntity);
+							Application::Registry.accommodate<cmpt::LookAtMouse>(m_lastSelectedEntity);
+							changeState(LevelInteractionState::ROTATE);
+						}
+						else {
+							changeState(LevelInteractionState::FREE);
+						}
+					}
+					else {
+						std::cout << "Not a constructible tile" << std::endl;
+						//changeState(LevelInteractionState::INVALID);
+					}
+				}
+				else {
+					std::cout << "Invalid tile" << std::endl;
+					//changeState(LevelInteractionState::INVALID);
+				}
+				break;
+			}
+
+			default:
+				break;
+			}
+		}
+		return;
+	}
+
+	if (event.button == Event::MouseButtonEvent::BUTTON_RIGHT) {
+
+		const glm::vec2 normMousePos = glm::vec2(imaths::rangeMapping(event.x, 0, Application::Width, 0, 101.3f), imaths::rangeMapping(Application::Height - event.y, 0, Application::Height, 0, PROJ_HEIGHT));
+
+		if (Application::Emitter.focus == FocusMode::GAME) {
+			switch (m_state) {
+			case LevelInteractionState::FREE:
+			case LevelInteractionState::INVALID:
+			case LevelInteractionState::OPTIONS:
+			{
+				// Get entity. If valid open options. Else Invalid
+				std::uint32_t entityId = Application::s_Level->getEntityOnTileFromProjCoord(normMousePos.x, normMousePos.y);
+				if (Application::Registry.valid(entityId)) {
+					changeState(LevelInteractionState::OPTIONS);
+					m_levelHud.setSelectedEntity(entityId);
+					cmpt::Transform trans = Application::Registry.get<cmpt::Transform>(entityId);
+					glm::vec2 posWindow = glm::vec2(
+						imaths::rangeMapping(trans.position.x, 0.0f, PROJ_WIDTH_RAT, 0.0f, WIN_WIDTH),
+						imaths::rangeMapping(trans.position.y, 0.0f, PROJ_HEIGHT, 0.0f, WIN_HEIGHT)
+					);
+
+					if (Application::Registry.has<entityTag::Mirror>(entityId)) {
+						m_levelHud.setOptionsPosition(posWindow);
+					}else if (Application::Registry.has<towerTag::SlowTower>(entityId)) {
+						m_levelHud.setOptionsPosition(posWindow);
+					}else {
+						changeState(LevelInteractionState::INVALID);
+					}
+				}else {
+					std::cout << "No valid entity on tile" << std::endl;
+					changeState(LevelInteractionState::INVALID);
+				}
+				break;
+			}
+
+			case LevelInteractionState::ROTATE:
+				break;
+
+			case LevelInteractionState::BUILD:
+				//Give the count back in the shop
+				if (Application::Registry.has<entityTag::Mirror>(m_lastSelectedEntity)) {
+					Application::s_Progression.setMirrorNumber(Application::s_Progression.getMirrorNumbers() + 1);
+				}
+				else if (Application::Registry.has<towerTag::SlowTower>(m_lastSelectedEntity)) {
+					Application::s_Progression.setSlowNumber(Application::s_Progression.getSlowNumbers() + 1);
+				}
+				//Reset
+				Application::Emitter.entityBeingPlaced = false;
+				changeState(LevelInteractionState::FREE);
+				Application::Registry.destroy(m_lastSelectedEntity);
+				m_lastSelectedEntity = entt::null;
+				//Update info bar
+				Application::Emitter.publish<evnt::ProgressionUpdated>();
+				break;
+
+			default:
+				break;
+			}
+		}
+	}
 }
 
 void LevelS::OnMouseButtonUp(Event::MouseButtonEvent& event) {
-	m_ui->MouseButtonUp(event.x, event.y, Noesis::MouseButton_Left);
+	if (event.button == Event::MouseButtonEvent::BUTTON_LEFT) {
+		m_ui->MouseButtonUp(event.x, event.y, Noesis::MouseButton_Left);
+
+		if (Application::Emitter.focus == FocusMode::GAME) {
+			switch (m_state) {
+			case LevelInteractionState::FREE:
+				break;
+
+			case LevelInteractionState::ROTATE:
+				// Stop rotating when mouse not pressed
+				changeState(LevelInteractionState::FREE);
+				if (Application::Registry.has<cmpt::ShootLaser>(m_lastSelectedEntity)) {
+					Application::Registry.get<cmpt::ShootLaser>(m_lastSelectedEntity) = true;
+				}
+				if (Application::Registry.has<entityTag::Tower>(m_lastSelectedEntity)) {
+					Application::Registry.reset<stateTag::RotateableByMouse>(m_lastSelectedEntity);
+				}
+				m_lastSelectedEntity = entt::null;
+				break;
+
+			case LevelInteractionState::INVALID:
+				break;
+
+			case LevelInteractionState::OPTIONS:
+				break;
+
+			case LevelInteractionState::BUILD:
+				break;
+
+			default:
+				break;
+			}
+		}
+	}
+	
 }
 
 void LevelS::OnMouseWheel(Event::MouseWheelEvent& event) {
+	std::uint32_t entity;
+	if (Application::Registry.valid(m_lastSelectedEntity)) {
+		entity = m_lastSelectedEntity;
+	}else {
+		glm::vec2 mousePos = Application::Emitter.mousePos;
+		entity = Application::s_Level->getEntityOnTileFromProjCoord(mousePos.x, mousePos.y);
+	}
+	if (Application::Registry.valid(entity) && Application::Registry.has<stateTag::RotateableByMouse>(entity)) {
+		if (Application::Registry.has<cmpt::ConstrainedRotation>(entity)) {
+			cmpt::ConstrainedRotation& constRot = Application::Registry.get<cmpt::ConstrainedRotation>(entity);
+			constRot.angleIndex = (constRot.angleIndex + event.delta + constRot.nbAngles) % constRot.nbAngles;
+			// Rotate
+			Application::Registry.get<cmpt::Transform>(entity).rotation += event.delta*constRot.angleStep;
+			// Update sprite
+			if (Application::Registry.has<cmpt::SpriteAnimation>(entity)) {
+				cmpt::SpriteAnimation& spriteAnim = Application::Registry.get<cmpt::SpriteAnimation>(entity);
+				spriteAnim.activeTile = constRot.angleIndex;
+				spriteAnim.startTile = constRot.angleIndex;
+				spriteAnim.endTile = constRot.angleIndex;
+			}
+		}else {			
+			Application::Registry.get<cmpt::Transform>(entity).rotation += imaths::TAU / 32 * event.delta;
 
+		}
+	}
 }
 
 void LevelS::OnStateChange(States states) {
