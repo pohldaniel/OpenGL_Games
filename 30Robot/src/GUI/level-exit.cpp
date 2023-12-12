@@ -18,7 +18,7 @@ LevelExit::LevelExit(EventEmitter& emitter, Progression& progression) : m_emitte
 
 	m_bindings->setText(m_progression.getExitText());
 	m_emitter.on<evnt::ProgressionUpdated>([this](const evnt::ProgressionUpdated & event, EventEmitter & emitter) {
-		this->m_bindings->setText(this->m_progression.getExitText());
+		//this->m_bindings->setText(this->m_progression.getExitText());
 	});
 }
 

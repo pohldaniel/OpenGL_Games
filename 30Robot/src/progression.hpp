@@ -11,10 +11,10 @@ public:
 	void resetValues();
 
 	void setIntroImgPath(std::string imgPath);
-	const char* getIntroImgPath();
+	const char* getIntroImgPath() const;
 
 	void setIntroText(std::string text);
-	const char* getIntroText();
+	const char* getIntroText() const;
 
 	void setExitText(std::string text);
 	const char* getExitText();
@@ -51,7 +51,7 @@ public:
 	int getWaveRate();
 
 	void setLevelNumber(int value);
-	int getLevelNumber();
+	int getLevelNumber() const;
 
 private:
 	EventEmitter& m_emitter;

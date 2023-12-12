@@ -66,6 +66,8 @@ LifeAndDeathSystem* Application::s_LifeAndDeathSystem;
 Progression Application::s_Progression = Progression(Emitter);
 Level* Application::s_Level;
 
+
+
 Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fdt) {
 	Width = WIDTH;
 	Height = HEIGHT;

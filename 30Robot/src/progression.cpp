@@ -24,7 +24,7 @@ void Progression::setIntroImgPath(std::string imgPath) {
 	m_introImgPath = imgPath;
 	m_emitter.publish<evnt::ProgressionUpdated>();
 }
-const char* Progression::getIntroImgPath() {
+const char* Progression::getIntroImgPath() const {
 	return m_introImgPath.c_str();
 }
 
@@ -32,7 +32,7 @@ void Progression::setIntroText(std::string text) {
 	m_introText = text;
 	m_emitter.publish<evnt::ProgressionUpdated>();
 }
-const char* Progression::getIntroText() {
+const char* Progression::getIntroText() const {
 	return m_introText.c_str();
 }
 
@@ -132,6 +132,6 @@ int Progression::getWaveRate() {
 void Progression::setLevelNumber(int value) {
 	m_levelNumber = value;
 }
-int Progression::getLevelNumber() {
+int Progression::getLevelNumber() const {
 	return m_levelNumber;
 }

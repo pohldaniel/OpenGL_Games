@@ -79,7 +79,7 @@ void TitleScreenS::OnKeyUp(Event::KeyboardEvent& event) {
 
 void TitleScreenS::OnStateChange(States states) {
 	m_isRunning = false;
-	m_machine.addStateAtBottom(new LevelIntroS(m_machine));
+	//m_machine.addStateAtBottom(new LevelIntroS(m_machine));
 }
 
 void TitleScreenS::OnApplicationQuit() {

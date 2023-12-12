@@ -82,4 +82,14 @@ void LevelIntroS::OnKeyUp(Event::KeyboardEvent& event) {
 void LevelIntroS::OnStateChange(States states) {
 	m_isRunning = false;
 	m_machine.addStateAtBottom(states == States::LEVEL ? static_cast<State*>(new LevelS(m_machine)) : static_cast<State*>(new TitleScreenS(m_machine)));
+
+	/*if (states == States::LEVEL) {
+		m_machine.addStateAtTop(new LevelS(m_machine));
+		return;
+	}
+
+	if (states == States::TITLESCREEN) {
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new TitleScreenS(m_machine));
+	}*/
 }

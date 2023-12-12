@@ -6,7 +6,7 @@
 #include "Event/progression-updated.hpp"
 #include "EventListener.h"
 #include "States/i-game-state.hpp"
-
+#include <iostream>
 NS_IMPLEMENT_REFLECTION(LevelIntro) {
 	NsMeta<Noesis::TypeId>("LevelIntro");
 }
@@ -20,12 +20,20 @@ LevelIntro::LevelIntro(EventEmitter& emitter, Progression& progression) : m_emit
 	m_bindings->setTitle(title.c_str());
 	m_bindings->setText(m_progression.getIntroText());
 	m_bindings->setImagePath(m_progression.getIntroImgPath());
-	m_emitter.on<evnt::ProgressionUpdated>([this](const evnt::ProgressionUpdated & event, EventEmitter & emitter) {
-		std::string title = "LEVEL " + decimalToRoman(this->m_progression.getLevelNumber());
+
+	m_emitter.on<evnt::ProgressionUpdated>([this, &m_progression = m_progression, m_bindings = m_bindings](const evnt::ProgressionUpdated & event, EventEmitter & emitter) {
+		std::string title = "LEVEL " + this->decimalToRoman(m_progression.getLevelNumber());
+		m_bindings->setTitle(title.c_str());
+		m_bindings->setText(m_progression.getIntroText());
+		m_bindings->setImagePath(m_progression.getIntroImgPath());
+	});
+
+	/*m_emitter.on<evnt::ProgressionUpdated>([this](const evnt::ProgressionUpdated & event, EventEmitter & emitter) {
+		std::string title = "LEVEL " + this->decimalToRoman(this->m_progression.getLevelNumber());
 		this->m_bindings->setTitle(title.c_str());
 		this->m_bindings->setText(this->m_progression.getIntroText());
 		this->m_bindings->setImagePath(this->m_progression.getIntroImgPath());
-	});
+	});*/
 }
 
 void LevelIntro::InitializeComponent() {

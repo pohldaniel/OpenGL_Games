@@ -18,6 +18,7 @@
 #include <System/life-and-death-system.hpp>
 
 #include <glm/gtx/transform.hpp>
+#include <GUI/level-intro.hpp>
 
 class Application {
 
@@ -47,7 +48,7 @@ public:
 	void initOpenGL(int msaaSamples = 0);
 	void showWindow();
 	void initImGUI();
-	void initNoesisGUI();
+	static void initNoesisGUI();
 	void initOpenAL();
 	void loadAssets();
 	void initStates();

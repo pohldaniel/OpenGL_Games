@@ -63,7 +63,11 @@ void LevelS::fixedUpdate() {
 }
 
 void LevelS::update() {
-
+	Keyboard &keyboard = Keyboard::instance();
+	
+	if (keyboard.keyPressed(Keyboard::KEY_W)) {
+		Application::Emitter.publish<evnt::ProgressionUpdated>();
+	}
 }
 
 void LevelS::render() {
@@ -109,31 +113,26 @@ void LevelS::OnMouseMotion(Event::MouseMoveEvent& event) {
 
 	if (Application::Emitter.focus == FocusMode::GAME) {
 		switch (m_state) {
-		case LevelInteractionState::FREE:
-		{
+		case LevelInteractionState::FREE:{
+
 			std::uint32_t entityId = Application::s_Level->getEntityOnTileFromProjCoord(normMousePos.x, normMousePos.y);
 			if (Application::Registry.valid(entityId)) {
 				if (Application::Registry.has<entityTag::Mirror>(entityId)) {
 					Application::Emitter.publish<evnt::ChangeCursor>(CursorType::ROTATION);
-				}
-				else if (Application::Registry.has<towerTag::LaserTower>(entityId)) {
+				}else if (Application::Registry.has<towerTag::LaserTower>(entityId)) {
 					if (Application::Registry.get<cmpt::ShootLaser>(entityId).isActiv) {
 						Application::Emitter.publish<evnt::ChangeCursor>(CursorType::DESACTIVATE);
-					}
-					else {
+					}else {
 						Application::Emitter.publish<evnt::ChangeCursor>(CursorType::ACTIVATE);
 					}
-				}
-				else if (Application::Registry.has<towerTag::SlowTower>(entityId)) {
+				}else if (Application::Registry.has<towerTag::SlowTower>(entityId)) {
 					if (Application::Registry.has<cmpt::ShootAt>(entityId)) {
 						Application::Emitter.publish<evnt::ChangeCursor>(CursorType::DESACTIVATE);
-					}
-					else {
+					}else {
 						Application::Emitter.publish<evnt::ChangeCursor>(CursorType::ACTIVATE);
 					}
 				}
-			}
-			else {
+			}else {
 				Application::Emitter.publish<evnt::ChangeCursor>(CursorType::ARROW);
 			}
 			break;
@@ -189,13 +188,11 @@ void LevelS::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 					if (Application::Registry.has<towerTag::SlowTower>(entityId)) {
 						if (Application::Registry.has<cmpt::ShootAt>(entityId)) {
 							Application::Registry.remove<cmpt::ShootAt>(entityId);
-						}
-						else {
+						}else {
 							Application::Registry.assign<cmpt::ShootAt>(entityId, SLOW_TOWER_TIME_BETWEEN_TWO_SHOTS);
 						}
 					}
-				}
-				else {
+				}else {
 					std::cout << "No valid entity on tile" << std::endl;
 					changeState(LevelInteractionState::INVALID);
 				}
@@ -210,8 +207,7 @@ void LevelS::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 				changeState(LevelInteractionState::FREE);
 				break;
 
-			case LevelInteractionState::BUILD:
-			{
+			case LevelInteractionState::BUILD:{
 				// Build selected type on tile if valid
 				int tileId = Application::s_Level->getTileFromProjCoord(normMousePos.x, normMousePos.y);
 				if (Application::Registry.valid(tileId)) {
@@ -234,17 +230,14 @@ void LevelS::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 							Application::Registry.accommodate<stateTag::IsBeingControlled>(m_lastSelectedEntity);
 							Application::Registry.accommodate<cmpt::LookAtMouse>(m_lastSelectedEntity);
 							changeState(LevelInteractionState::ROTATE);
-						}
-						else {
+						}else {
 							changeState(LevelInteractionState::FREE);
 						}
-					}
-					else {
+					}else {
 						std::cout << "Not a constructible tile" << std::endl;
 						//changeState(LevelInteractionState::INVALID);
 					}
-				}
-				else {
+				}else {
 					std::cout << "Invalid tile" << std::endl;
 					//changeState(LevelInteractionState::INVALID);
 				}
@@ -323,7 +316,6 @@ void LevelS::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 void LevelS::OnMouseButtonUp(Event::MouseButtonEvent& event) {
 	if (event.button == Event::MouseButtonEvent::BUTTON_LEFT) {
 		m_ui->MouseButtonUp(event.x, event.y, Noesis::MouseButton_Left);
-
 		if (Application::Emitter.focus == FocusMode::GAME) {
 			switch (m_state) {
 			case LevelInteractionState::FREE:
@@ -502,7 +494,7 @@ void LevelS::handleConstructions() {
 				Application::s_Progression.increaseMirrorNumberBy1();
 			}
 			if (Application::Registry.has<entityTag::Tower>(event.entityId)) {
-				Application::s_Progression.increaseSlowNumberBy1();
+				//Application::s_Progression.increaseSlowNumberBy1();
 			}
 
 			std::uint32_t tileId = Application::s_Level->getTileFromProjCoord(position.x / WIN_RATIO, position.y);
