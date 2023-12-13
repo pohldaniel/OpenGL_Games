@@ -435,9 +435,6 @@
     <ClCompile Include="src\GUI\level-exit-bindings.cpp">
       <Filter>Source Files\GUI</Filter>
     </ClCompile>
-    <ClCompile Include="src\GUI\level-hud.cpp">
-      <Filter>Source Files\GUI</Filter>
-    </ClCompile>
     <ClCompile Include="src\GUI\level-hud-bindings.cpp">
       <Filter>Source Files\GUI</Filter>
     </ClCompile>
@@ -494,6 +491,9 @@
     </ClCompile>
     <ClCompile Include="src\States\LevelIntroS.cpp">
       <Filter>Source Files\States</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GUI\LevelHud.cpp">
+      <Filter>Source Files\GUI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -998,9 +998,6 @@
     <ClInclude Include="src\GUI\level-exit-bindings.hpp">
       <Filter>Source Files\GUI</Filter>
     </ClInclude>
-    <ClInclude Include="src\GUI\level-hud.hpp">
-      <Filter>Source Files\GUI</Filter>
-    </ClInclude>
     <ClInclude Include="src\GUI\level-hud-bindings.hpp">
       <Filter>Source Files\GUI</Filter>
     </ClInclude>
@@ -1132,6 +1129,9 @@
     </ClInclude>
     <ClInclude Include="src\States\LevelIntroS.h">
       <Filter>Source Files\States</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GUI\LevelHud.h">
+      <Filter>Source Files\GUI</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

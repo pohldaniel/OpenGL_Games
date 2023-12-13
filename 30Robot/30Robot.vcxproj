@@ -188,8 +188,8 @@
     <ClCompile Include="src\GUI\level-exit-bindings.cpp" />
     <ClCompile Include="src\GUI\level-exit.cpp" />
     <ClCompile Include="src\GUI\level-hud-bindings.cpp" />
-    <ClCompile Include="src\GUI\level-hud.cpp" />
     <ClCompile Include="src\GUI\level-intro-bindings.cpp" />
+    <ClCompile Include="src\GUI\LevelHud.cpp" />
     <ClCompile Include="src\GUI\LevelIntro.cpp" />
     <ClCompile Include="src\GUI\title-screen.cpp" />
     <ClCompile Include="src\helper-service.cpp" />
@@ -441,8 +441,8 @@
     <ClInclude Include="src\GUI\level-exit-bindings.hpp" />
     <ClInclude Include="src\GUI\level-exit.hpp" />
     <ClInclude Include="src\GUI\level-hud-bindings.hpp" />
-    <ClInclude Include="src\GUI\level-hud.hpp" />
     <ClInclude Include="src\GUI\level-intro-bindings.hpp" />
+    <ClInclude Include="src\GUI\LevelHud.h" />
     <ClInclude Include="src\GUI\LevelIntro.h" />
     <ClInclude Include="src\GUI\title-screen.hpp" />
     <ClInclude Include="src\helper-service.hpp" />

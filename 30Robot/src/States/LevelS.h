@@ -10,7 +10,6 @@
 #include <States/StateMachine.h>
 
 #include "EventListener.h"
-#include "GUI/level-hud.hpp"
 #include "Entity/tower-factory.hpp"
 #include "Entity/mirror-factory.hpp"
 #include "Event/Interactions/construct-selection.hpp"
@@ -54,7 +53,6 @@ private:
 
 	Noesis::Ptr<Noesis::FrameworkElement> m_xaml;
 	Noesis::IView* m_ui;
-	LevelHud m_levelHud;
 	LevelInteractionState m_state;
 
 	TowerFactory m_towerFactory;

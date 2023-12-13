@@ -29,9 +29,9 @@
 
 #include <States/GameOverS.h>
 #include <States/LevelExitS.h>
+#include <GUI/LevelHud.h>
 
 LevelS::LevelS(StateMachine& machine) : State(machine, States::LEVEL),
-	m_levelHud(Application::Emitter, Application::s_Progression), 
 	m_state(LevelInteractionState::FREE),
 	m_towerFactory(Application::Registry), 
 	m_mirrorFactory(Application::Registry), 
@@ -41,7 +41,7 @@ LevelS::LevelS(StateMachine& machine) : State(machine, States::LEVEL),
 	EventDispatcher::AddKeyboardListener(this);
 	EventDispatcher::AddMouseListener(this);
 
-	m_xaml = m_levelHud;
+	m_xaml = LevelHud::Get().m_grid;
 	m_ui = Noesis::GUI::CreateView(m_xaml).GiveOwnership();
 	m_ui->SetIsPPAAEnabled(true);
 	m_ui->GetRenderer()->Init(Application::NoesisDevice);
@@ -181,7 +181,7 @@ void LevelS::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 						Application::Registry.accommodate<cmpt::LookAtMouse>(entityId);
 
 						m_lastSelectedEntity = entityId;
-						m_levelHud.setSelectedEntity(entityId);
+						LevelHud::Get().setSelectedEntity(entityId);
 					}
 					//If tower then switch on or off
 					if (Application::Registry.has<cmpt::ShootLaser>(entityId)) {
@@ -268,7 +268,7 @@ void LevelS::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 				std::uint32_t entityId = Application::s_Level->getEntityOnTileFromProjCoord(normMousePos.x, normMousePos.y);
 				if (Application::Registry.valid(entityId)) {
 					changeState(LevelInteractionState::OPTIONS);
-					m_levelHud.setSelectedEntity(entityId);
+					LevelHud::Get().setSelectedEntity(entityId);
 					cmpt::Transform trans = Application::Registry.get<cmpt::Transform>(entityId);
 					glm::vec2 posWindow = glm::vec2(
 						imaths::rangeMapping(trans.position.x, 0.0f, PROJ_WIDTH_RAT, 0.0f, WIN_WIDTH),
@@ -276,9 +276,9 @@ void LevelS::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 					);
 
 					if (Application::Registry.has<entityTag::Mirror>(entityId)) {
-						m_levelHud.setOptionsPosition(posWindow);
+						LevelHud::Get().setOptionsPosition(posWindow);
 					}else if (Application::Registry.has<towerTag::SlowTower>(entityId)) {
-						m_levelHud.setOptionsPosition(posWindow);
+						LevelHud::Get().setOptionsPosition(posWindow);
 					}else {
 						changeState(LevelInteractionState::INVALID);
 					}
@@ -526,7 +526,7 @@ void LevelS::changeState(LevelInteractionState state) {
 		break;
 
 	case LevelInteractionState::OPTIONS:
-		m_levelHud.setOptionsVisibilityTo(false);
+		LevelHud::Get().setOptionsVisibilityTo(false);
 		break;
 
 	case LevelInteractionState::BUILD:
@@ -539,12 +539,12 @@ void LevelS::changeState(LevelInteractionState state) {
 	switch (state) {
 	case LevelInteractionState::FREE:
 		Application::Emitter.publish<evnt::ChangeCursor>(CursorType::ARROW);
-		m_levelHud.setSelectedEntity(entt::null);
+		LevelHud::Get().setSelectedEntity(entt::null);
 		break;
 
 	case LevelInteractionState::INVALID:
 		Application::Emitter.publish<evnt::ChangeCursor>(CursorType::NO);
-		m_levelHud.setSelectedEntity(entt::null);
+		LevelHud::Get().setSelectedEntity(entt::null);
 		break;
 
 	case LevelInteractionState::ROTATE:

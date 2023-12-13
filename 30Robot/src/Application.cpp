@@ -31,6 +31,7 @@
 #include "EventListener.h"
 
 #include <GUI/LevelIntro.h>
+#include <GUI/LevelHud.h>
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -153,6 +154,7 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	});
 
 	LevelIntro::Get().init();
+	LevelHud::Get().init(Application::Emitter, Application::s_Progression);
 }
 
 Application::~Application() {

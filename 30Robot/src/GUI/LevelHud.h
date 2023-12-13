@@ -9,21 +9,18 @@
 #include "progression.hpp"
 #include "level-hud-bindings.hpp"
 
-class LevelHud : public Noesis::Grid {
+class LevelHudGrid : public Noesis::Grid {
 public:
-	LevelHud(EventEmitter& emitter, Progression& progression);
+	LevelHudGrid(EventEmitter& emitter, Progression& progression);
 
 	// Setters
-	void setOptionsPosition(glm::vec2 pos);
-	void setOptionsVisibilityTo(bool show);
+	
+	
 
-	void setSelectedEntity(std::uint32_t id);
 
 	// Getters
 
-private:
 	// Init 
-	void InitializeComponent();
 	void OnInitialized(BaseComponent*, const Noesis::EventArgs&);
 
 	// Events
@@ -38,11 +35,32 @@ private:
 	void OnMouseLeave(const Noesis::MouseEventArgs& e) override;
 	void OnMouseDown(const Noesis::MouseButtonEventArgs& e) override;
 
-private:
-	NS_DECLARE_REFLECTION(LevelHud, Grid)
+
 
 	Noesis::Ptr<LevelHudBindings> m_bindings;
 	EventEmitter& m_emitter;
 	Progression& m_progression;
 	std::uint32_t m_lastSelectedEntity;
+
+private:
+	NS_DECLARE_REFLECTION(LevelHudGrid, Grid)
+};
+
+class LevelHud {
+
+public:
+
+	static LevelHud& Get();
+	void init(EventEmitter& emitter, Progression& progression);
+	void setSelectedEntity(std::uint32_t id);
+	void setOptionsVisibilityTo(bool show);
+	void setOptionsPosition(glm::vec2 pos);
+
+	Noesis::Ptr<LevelHudGrid> m_grid;
+	
+
+private:
+	LevelHud() = default;
+
+	static LevelHud s_instance;
 };

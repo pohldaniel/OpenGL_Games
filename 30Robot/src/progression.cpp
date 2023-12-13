@@ -63,7 +63,7 @@ void Progression::reduceLifeBy(int value) {
 		m_emitter.publish<evnt::Loose>();
 	}
 }
-int Progression::getLife() {
+int Progression::getLife() const {
 	return m_life;
 }
 
@@ -81,7 +81,7 @@ void Progression::increaseMirrorNumberBy1() {
 	m_mirrorNumber++;
 	m_emitter.publish<evnt::ProgressionUpdated>();
 }
-int Progression::getMirrorNumbers() {
+int Progression::getMirrorNumbers() const {
 	return m_mirrorNumber;
 }
 
@@ -98,7 +98,7 @@ void Progression::increaseSlowNumberBy1() {
 	m_slowNumber++;
 	m_emitter.publish<evnt::ProgressionUpdated>();
 }
-int Progression::getSlowNumbers() {
+int Progression::getSlowNumbers() const {
 	return m_slowNumber;
 }
 

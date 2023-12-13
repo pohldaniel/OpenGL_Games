@@ -24,12 +24,12 @@ public:
 
 	void setLife(int value);
 	void reduceLifeBy(int value);
-	int getLife();
+	int getLife() const;
 
 	void setMirrorNumber(int value);
 	void reduceMirrorNumberBy1();
 	void increaseMirrorNumberBy1();
-	int getMirrorNumbers();
+	int getMirrorNumbers() const;
 
 	void setMaxSlowNumber(int value);
 	int getMaxSlowNumber();
@@ -37,7 +37,7 @@ public:
 	void setSlowNumber(int value);
 	void reduceSlowNumberBy1();
 	void increaseSlowNumberBy1();
-	int getSlowNumbers();
+	int getSlowNumbers() const;
 
 	int getRobotNumber();
 	void setRobotNumber(int value);
