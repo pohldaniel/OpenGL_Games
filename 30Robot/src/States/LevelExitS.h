@@ -1,4 +1,5 @@
 #pragma once
+#pragma once
 
 #include <NsGui/IntegrationAPI.h>
 #include <glm/gtx/transform.hpp>
@@ -12,15 +13,15 @@
 #include <Level/level.hpp>
 
 
-#include "GUI/level-intro.hpp"
+#include "GUI/level-exit.hpp"
 #include "EventListener.h"
 
-class LevelIntroS : public State, public MouseEventListener, public KeyboardEventListener, public EventListener {
+class LevelExitS : public State, public MouseEventListener, public KeyboardEventListener, public EventListener {
 
 public:
 
-	LevelIntroS(StateMachine& machine);
-	~LevelIntroS();
+	LevelExitS(StateMachine& machine);
+	~LevelExitS();
 
 	void fixedUpdate() override;
 	void update() override;
@@ -40,6 +41,6 @@ private:
 
 	Noesis::Ptr<Noesis::FrameworkElement> m_xaml;
 	Noesis::IView* m_ui;
-	LevelIntro m_levelIntro;
+	LevelExit m_levelExit;
 };
 

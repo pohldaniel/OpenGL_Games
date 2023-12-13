@@ -39,13 +39,6 @@ public:
 	void OnMouseButtonDown(Event::MouseButtonEvent& event) override;
 	void OnMouseButtonUp(Event::MouseButtonEvent& event) override;
 
-	// Events
-	//void onLeftClickUp(const evnt::LeftClickUp& event) override;
-	//void onLeftClickDown(const evnt::LeftClickDown& event) override;
-	//void onRightClickDown(const evnt::RightClickDown& event) override;
-	//void onMouseMove(const evnt::MouseMove& event) override;
-	//void onMouseScrolled(const evnt::MouseScrolled& event) override;
-
 	// Getters
 	LevelInteractionState getInteractionState() const;
 
@@ -55,10 +48,10 @@ public:
 	void OnStateChange(States states) override;
 
 private:
+
 	void handleVictoryConditions();
 	void handleConstructions();
 
-private:
 	Noesis::Ptr<Noesis::FrameworkElement> m_xaml;
 	Noesis::IView* m_ui;
 	LevelHud m_levelHud;

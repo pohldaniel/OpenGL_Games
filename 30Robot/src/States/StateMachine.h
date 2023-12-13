@@ -10,7 +10,9 @@ enum States {
 	GAME,
 	TITLESCREEN,
 	LEVELINTRO,
-	LEVEL
+	LEVEL,
+	GAMEOVER,
+	LEVELEXIT
 };
 
 class State;

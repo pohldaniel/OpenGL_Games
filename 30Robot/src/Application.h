@@ -18,7 +18,6 @@
 #include <System/life-and-death-system.hpp>
 
 #include <glm/gtx/transform.hpp>
-#include <GUI/level-intro.hpp>
 
 class Application {
 

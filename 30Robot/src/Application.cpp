@@ -20,7 +20,7 @@
 #include <States/Default.h>
 #include <States/Game.h>
 #include <States/TitleScreen.h>
-#include <States/LevelIntro.h>
+#include <States/LevelIntroS.h>
 #include <UI/Widget.h>
 
 #include "noesis-log-handler.hpp"
@@ -29,6 +29,8 @@
 #include "random-service.hpp"
 #include "helper-service.hpp"
 #include "EventListener.h"
+
+#include <GUI/LevelIntro.h>
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -149,6 +151,8 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	Application::Emitter.on<evnt::ApplicationExit>([this](const evnt::ApplicationExit& event, EventEmitter& emitter) {
 		dynamic_cast<EventListener*>(Machine->getStates().top())->OnApplicationQuit();
 	});
+
+	LevelIntro::Get().init();
 }
 
 Application::~Application() {
@@ -474,8 +478,8 @@ void Application::initStates() {
 	//Machine->addStateAtTop(new Default(*Machine));
 
 	//Machine->addStateAtTop(new Game(*Machine));
-	//Machine->addStateAtTop(new TitleScreenS(*Machine));
-	Machine->addStateAtTop(new LevelIntroS(*Machine));
+	Machine->addStateAtTop(new TitleScreenS(*Machine));
+	//Machine->addStateAtTop(new LevelIntroS(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {

@@ -28,9 +28,9 @@ LevelHud::LevelHud(EventEmitter& emitter, Progression& progression) : m_emitter(
 	m_bindings->setSlowNumber(std::to_string(m_progression.getSlowNumbers()).c_str());
 
 	m_emitter.on<evnt::ProgressionUpdated>([this](const evnt::ProgressionUpdated & event, EventEmitter & emitter) {
-		//this->m_bindings->setLife(std::to_string(this->m_progression.getLife()).c_str());
-		//this->m_bindings->setMirrorNumber(std::to_string(this->m_progression.getMirrorNumbers()).c_str());
-		//this->m_bindings->setSlowNumber(std::to_string(this->m_progression.getSlowNumbers()).c_str());
+		this->m_bindings->setLife(std::to_string(this->m_progression.getLife()).c_str());
+		this->m_bindings->setMirrorNumber(std::to_string(this->m_progression.getMirrorNumbers()).c_str());
+		this->m_bindings->setSlowNumber(std::to_string(this->m_progression.getSlowNumbers()).c_str());
 	});
 
 	m_emitter.on<evnt::WaveUpdated>([this](const evnt::WaveUpdated & event, EventEmitter & emitter) {

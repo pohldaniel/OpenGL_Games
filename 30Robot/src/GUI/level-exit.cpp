@@ -7,6 +7,8 @@
 #include "Event/change-game-state.hpp"
 #include "States/i-game-state.hpp"
 
+#include "EventListener.h"
+
 NS_IMPLEMENT_REFLECTION(LevelExit) {
 	NsMeta<Noesis::TypeId>("LevelExit");
 }
@@ -18,7 +20,7 @@ LevelExit::LevelExit(EventEmitter& emitter, Progression& progression) : m_emitte
 
 	m_bindings->setText(m_progression.getExitText());
 	m_emitter.on<evnt::ProgressionUpdated>([this](const evnt::ProgressionUpdated & event, EventEmitter & emitter) {
-		//this->m_bindings->setText(this->m_progression.getExitText());
+		this->m_bindings->setText(this->m_progression.getExitText());
 	});
 }
 
@@ -37,10 +39,10 @@ bool LevelExit::ConnectEvent(Noesis::BaseComponent* source, const char* event, c
 }
 
 void LevelExit::onExit(Noesis::BaseComponent* sender, const Noesis::RoutedEventArgs& args) {
-	m_emitter.publish<evnt::ChangeGameState>(GameState::TITLE_SCREEN, 0);
+	m_emitter.publish<evnt::ChangeGameStateNew>(States::TITLESCREEN);
 }
 
 void LevelExit::onNextLevel(Noesis::BaseComponent* sender, const Noesis::RoutedEventArgs& args) {
-	m_emitter.publish<evnt::ChangeGameState>(GameState::LEVEL_INTRO, m_progression.getLevelNumber() + 1);
+	m_emitter.publish<evnt::ChangeGameStateNew>(States::LEVELINTRO);
 }
 

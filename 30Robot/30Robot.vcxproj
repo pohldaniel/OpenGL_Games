@@ -190,7 +190,7 @@
     <ClCompile Include="src\GUI\level-hud-bindings.cpp" />
     <ClCompile Include="src\GUI\level-hud.cpp" />
     <ClCompile Include="src\GUI\level-intro-bindings.cpp" />
-    <ClCompile Include="src\GUI\level-intro.cpp" />
+    <ClCompile Include="src\GUI\LevelIntro.cpp" />
     <ClCompile Include="src\GUI\title-screen.cpp" />
     <ClCompile Include="src\helper-service.cpp" />
     <ClCompile Include="src\Level\graph.cpp" />
@@ -207,8 +207,10 @@
     <ClCompile Include="src\States\Controlls.cpp" />
     <ClCompile Include="src\States\Default.cpp" />
     <ClCompile Include="src\States\Game.cpp" />
+    <ClCompile Include="src\States\GameOverS.cpp" />
     <ClCompile Include="src\States\i-game-state.cpp" />
-    <ClCompile Include="src\States\LevelIntro.cpp" />
+    <ClCompile Include="src\States\LevelExitS.cpp" />
+    <ClCompile Include="src\States\LevelIntroS.cpp" />
     <ClCompile Include="src\States\LevelS.cpp" />
     <ClCompile Include="src\States\Settings.cpp" />
     <ClCompile Include="src\States\StateMachine.cpp" />
@@ -441,7 +443,7 @@
     <ClInclude Include="src\GUI\level-hud-bindings.hpp" />
     <ClInclude Include="src\GUI\level-hud.hpp" />
     <ClInclude Include="src\GUI\level-intro-bindings.hpp" />
-    <ClInclude Include="src\GUI\level-intro.hpp" />
+    <ClInclude Include="src\GUI\LevelIntro.h" />
     <ClInclude Include="src\GUI\title-screen.hpp" />
     <ClInclude Include="src\helper-service.hpp" />
     <ClInclude Include="src\i-debug-draw.hpp" />
@@ -463,8 +465,10 @@
     <ClInclude Include="src\States\Controls.h" />
     <ClInclude Include="src\States\Default.h" />
     <ClInclude Include="src\States\Game.h" />
+    <ClInclude Include="src\States\GameOverS.h" />
     <ClInclude Include="src\States\i-game-state.hpp" />
-    <ClInclude Include="src\States\LevelIntro.h" />
+    <ClInclude Include="src\States\LevelExitS.h" />
+    <ClInclude Include="src\States\LevelIntroS.h" />
     <ClInclude Include="src\States\LevelS.h" />
     <ClInclude Include="src\States\Settings.h" />
     <ClInclude Include="src\States\StateMachine.h" />

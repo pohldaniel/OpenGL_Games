@@ -4,6 +4,8 @@
 #include "Event/change-game-state.hpp"
 #include "States/i-game-state.hpp"
 
+#include "EventListener.h"
+
 NS_IMPLEMENT_REFLECTION(GameOver) {
 	NsMeta<Noesis::TypeId>("GameOver");
 }
@@ -23,9 +25,9 @@ bool GameOver::ConnectEvent(Noesis::BaseComponent* source, const char* event, co
 }
 
 void GameOver::onExit(Noesis::BaseComponent* sender, const Noesis::RoutedEventArgs& args) {
-	m_emitter.publish<evnt::ChangeGameState>(GameState::TITLE_SCREEN, 0);
+	m_emitter.publish<evnt::ChangeGameStateNew>(States::TITLESCREEN);
 }
 
 void GameOver::onRestart(Noesis::BaseComponent* sender, const Noesis::RoutedEventArgs& args) {
-	m_emitter.publish<evnt::ChangeGameState>(GameState::LEVEL_INTRO, m_progression.getLevelNumber());
+	m_emitter.publish<evnt::ChangeGameStateNew>(States::LEVELINTRO);
 }

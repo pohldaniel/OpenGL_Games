@@ -27,6 +27,9 @@
 
 #include "maths.hpp"
 
+#include <States/GameOverS.h>
+#include <States/LevelExitS.h>
+
 LevelS::LevelS(StateMachine& machine) : State(machine, States::LEVEL),
 	m_levelHud(Application::Emitter, Application::s_Progression), 
 	m_state(LevelInteractionState::FREE),
@@ -378,10 +381,6 @@ void LevelS::OnMouseWheel(Event::MouseWheelEvent& event) {
 	}
 }
 
-void LevelS::OnStateChange(States states) {
-	
-}
-
 void LevelS::handleVictoryConditions() {
 	Application::Emitter.on<evnt::WaveUpdated>([this](const evnt::WaveUpdated & event, EventEmitter & emitter) {
 		switch (event.state) {
@@ -440,7 +439,7 @@ void LevelS::handleVictoryConditions() {
 
 	Application::Emitter.on<evnt::Loose>([this](const evnt::Loose & event, EventEmitter & emitter) {
 		// TODO play an outro
-		Application::Emitter.publish<evnt::ChangeGameState>(GameState::GAME_OVER);
+		Application::Emitter.publish<evnt::ChangeGameStateNew>(States::GAMEOVER);
 	});
 }
 
@@ -494,7 +493,7 @@ void LevelS::handleConstructions() {
 				Application::s_Progression.increaseMirrorNumberBy1();
 			}
 			if (Application::Registry.has<entityTag::Tower>(event.entityId)) {
-				//Application::s_Progression.increaseSlowNumberBy1();
+				Application::s_Progression.increaseSlowNumberBy1();
 			}
 
 			std::uint32_t tileId = Application::s_Level->getTileFromProjCoord(position.x / WIN_RATIO, position.y);
@@ -570,4 +569,10 @@ void LevelS::changeState(LevelInteractionState state) {
 
 LevelInteractionState LevelS::getInteractionState() const {
 	return m_state;
+}
+
+
+void LevelS::OnStateChange(States states) {
+	m_isRunning = false;
+	m_machine.addStateAtTop(states == States::GAMEOVER ? static_cast<State*>(new GameOverS(m_machine)) : static_cast<State*>(new LevelExitS(m_machine)));
 }
