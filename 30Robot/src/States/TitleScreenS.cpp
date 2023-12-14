@@ -24,6 +24,8 @@ TitleScreenS::TitleScreenS(StateMachine& machine) : State(machine, States::TITLE
 }
 
 TitleScreenS::~TitleScreenS() {
+	std::cout << "Destructor Title: " << std::endl;
+
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
 

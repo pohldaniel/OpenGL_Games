@@ -47,6 +47,8 @@ public:
 
 	static LevelHud& Get();
 	void init(EventEmitter& emitter, Progression& progression);
+	void reset();
+
 	void setSelectedEntity(std::uint32_t id);
 	void setOptionsVisibilityTo(bool show);
 	void setOptionsPosition(glm::vec2 pos);

@@ -118,6 +118,11 @@ void LevelHud::init(EventEmitter& emitter, Progression& progression) {
 	});
 }
 
+void LevelHud::reset() {
+	m_grid->m_bindings->setLife("6");
+	m_grid->m_bindings->setStartWaveBtnPosY(0);
+}
+
 void LevelHud::setSelectedEntity(std::uint32_t id) {
 	m_grid->m_lastSelectedEntity = id;
 }

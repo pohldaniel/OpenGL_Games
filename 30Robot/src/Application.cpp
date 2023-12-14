@@ -36,6 +36,27 @@
 #include <GUI/GameOver.h>
 #include <GUI/LevelExit.h>
 
+#include "tags.hpp"
+#include "Event/wave-updated.hpp"
+#include "Event/enemy-dead.hpp"
+#include "Event/victory-delay-ends.hpp"
+#include "Event/change-game-state.hpp"
+#include "Event/enemy-reached-end.hpp"
+#include "Event/loose.hpp"
+#include "Event/Interactions/delete-entity.hpp"
+#include "Event/tower-dead.hpp"
+#include "Event/progression-updated.hpp"
+#include "Event/Interactions/select-rotation.hpp"
+
+#include "Components/age.hpp"
+#include "Components/shoot-laser.hpp"
+#include "Components/entity-on.hpp"
+#include "Components/animated.hpp"
+#include "Components/animation-alpha.hpp"
+#include "Components/look-at-mouse.hpp"
+#include "Components/shoot-at.hpp"
+#include "Components/constrained-rotation.hpp"
+
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 EventDispatcher& Application::EventDispatcher = EventDispatcher::Get();
@@ -155,6 +176,56 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	Application::Emitter.on<evnt::ApplicationExit>([this](const evnt::ApplicationExit& event, EventEmitter& emitter) {
 		dynamic_cast<EventListener*>(Machine->getStates().top())->OnApplicationQuit();
 	});
+
+	// TODO use a safer and more global way, because if tile is invalid, it will cause a problem
+	// Start by using only one type of event for entity deletion, and see if there is a way to check the grid for deletion
+	/*Application::Emitter.on<evnt::DeleteEntity>([this](const evnt::DeleteEntity & event, EventEmitter & emitter) {
+		if (Application::Registry.valid(event.entityId)) {
+			glm::vec2 position = Application::Registry.get<cmpt::Transform>(event.entityId).position;
+			//this->m_game.registry.destroy(event.entityId);
+			Application::Registry.assign<cmpt::Animated>(event.entityId, 1, true);
+			Application::Registry.assign<cmpt::AnimationAlpha>(event.entityId, false);
+
+			if (Application::Registry.has<entityTag::Mirror>(event.entityId)) {
+				Application::s_Progression.increaseMirrorNumberBy1();
+			}
+			if (Application::Registry.has<entityTag::Tower>(event.entityId)) {
+				Application::s_Progression.increaseSlowNumberBy1();
+			}
+
+			std::uint32_t tileId = Application::s_Level->getTileFromProjCoord(position.x / WIN_RATIO, position.y);
+			std::cout << "ID: " << tileId << std::endl;
+			Application::Registry.assign<tileTag::Constructible>(tileId);
+			Application::Registry.remove<cmpt::EntityOnTile>(tileId);
+			//this->changeState(LevelInteractionState::FREE);
+
+			std::cout << "########"  << std::endl;
+		}
+	});
+
+	Application::Emitter.on<evnt::DeleteEntity>([this](const evnt::DeleteEntity & event, EventEmitter & emitter) {
+		if (Application::Registry.valid(event.entityId)) {
+			glm::vec2 position = Application::Registry.get<cmpt::Transform>(event.entityId).position;
+			//this->m_game.registry.destroy(event.entityId);
+			Application::Registry.assign<cmpt::Animated>(event.entityId, 1, true);
+			Application::Registry.assign<cmpt::AnimationAlpha>(event.entityId, false);
+
+			if (Application::Registry.has<entityTag::Mirror>(event.entityId)) {
+				Application::s_Progression.increaseMirrorNumberBy1();
+			}
+			if (Application::Registry.has<entityTag::Tower>(event.entityId)) {
+				Application::s_Progression.increaseSlowNumberBy1();
+			}
+
+			std::uint32_t tileId = Application::s_Level->getTileFromProjCoord(position.x / WIN_RATIO, position.y);
+			std::cout << "ID: " << tileId << std::endl;
+			Application::Registry.assign<tileTag::Constructible>(tileId);
+			Application::Registry.remove<cmpt::EntityOnTile>(tileId);
+			//this->changeState(LevelInteractionState::FREE);
+
+			std::cout << "########" << std::endl;
+		}
+	});*/
 
 	TitleScreen::Get().init(Application::Emitter, Application::s_Progression);
 	LevelIntro::Get().init(Application::Emitter, Application::s_Progression);

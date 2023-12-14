@@ -26,6 +26,8 @@ LevelIntroS::LevelIntroS(StateMachine& machine) : State(machine, States::LEVELIN
 }
 
 LevelIntroS::~LevelIntroS() {
+	std::cout << "Destructor Intro: " << std::endl;
+
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
 

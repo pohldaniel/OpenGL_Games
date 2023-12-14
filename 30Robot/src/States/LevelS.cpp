@@ -11,7 +11,7 @@
 #include "Event/change-game-state.hpp"
 #include "Event/enemy-reached-end.hpp"
 #include "Event/loose.hpp"
-#include "Event/Interactions/delete-entity.hpp"
+
 #include "Event/tower-dead.hpp"
 #include "Event/progression-updated.hpp"
 #include "Event/Interactions/select-rotation.hpp"
@@ -31,15 +31,22 @@
 #include <States/LevelExitS.h>
 #include <GUI/LevelHud.h>
 
-LevelS::LevelS(StateMachine& machine) : State(machine, States::LEVEL),
-	m_state(LevelInteractionState::FREE),
-	m_towerFactory(Application::Registry), 
-	m_mirrorFactory(Application::Registry), 
-	m_invalidTimeCounter(0), 
-	m_invalidTimeMax(1 * 60){
+bool LevelS::Init = false;
+bool LevelS::WaveDone = false;
+TowerFactory LevelS::TowerFactory(Application::Registry);
+MirrorFactory LevelS::MirrorFactory(Application::Registry);
+LevelInteractionState LevelS::_State = LevelInteractionState::FREE;
+std::uint32_t LevelS::LastSelectedEntity = 0;
+
+LevelS::LevelS(StateMachine& machine) : State(machine, States::LEVEL), m_invalidTimeCounter(0), m_invalidTimeMax(1 * 60) {
 
 	EventDispatcher::AddKeyboardListener(this);
 	EventDispatcher::AddMouseListener(this);
+
+	LevelHud::Get().reset();
+	WaveDone = false;
+	_State = LevelInteractionState::FREE;
+	LastSelectedEntity = 0;
 
 	m_xaml = LevelHud::Get().m_grid;
 	m_ui = Noesis::GUI::CreateView(m_xaml).GiveOwnership();
@@ -49,11 +56,21 @@ LevelS::LevelS(StateMachine& machine) : State(machine, States::LEVEL),
 
 	Application::s_Level->setLevel(1);
 
-	handleVictoryConditions();
-	handleConstructions();
+	if (!Init) {
+		TowerFactory.init();
+		MirrorFactory.init();
+		handleVictoryConditions();
+		handleConstructions();
+		Init = true;
+	}
 }
 
 LevelS::~LevelS() {
+	std::cout << "Destructor Level: " << std::endl;
+
+	//Application::Emitter.clear<evnt::DeleteEntity>();
+	//Application::Emitter.erase<evnt::DeleteEntity>(connection);
+
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
 
@@ -67,20 +84,20 @@ void LevelS::fixedUpdate() {
 
 void LevelS::update() {
 	Keyboard &keyboard = Keyboard::instance();
-	
+
 	if (keyboard.keyPressed(Keyboard::KEY_W)) {
 		Application::Emitter.publish<evnt::ProgressionUpdated>();
 	}
 }
 
 void LevelS::render() {
-	if (m_state == LevelInteractionState::INVALID) {
+	if (_State == LevelInteractionState::INVALID) {
 		m_invalidTimeCounter++;
 	}
 
 	if (m_invalidTimeCounter >= m_invalidTimeMax) {
 		m_invalidTimeCounter = 0;
-		changeState(LevelInteractionState::FREE);
+		ChangeState(LevelInteractionState::FREE);
 	}
 
 	// Noesis gui update
@@ -115,27 +132,32 @@ void LevelS::OnMouseMotion(Event::MouseMoveEvent& event) {
 	Application::Emitter.mousePos = normMousePos;
 
 	if (Application::Emitter.focus == FocusMode::GAME) {
-		switch (m_state) {
-		case LevelInteractionState::FREE:{
+		switch (_State) {
+		case LevelInteractionState::FREE: {
 
 			std::uint32_t entityId = Application::s_Level->getEntityOnTileFromProjCoord(normMousePos.x, normMousePos.y);
 			if (Application::Registry.valid(entityId)) {
 				if (Application::Registry.has<entityTag::Mirror>(entityId)) {
 					Application::Emitter.publish<evnt::ChangeCursor>(CursorType::ROTATION);
-				}else if (Application::Registry.has<towerTag::LaserTower>(entityId)) {
+				}
+				else if (Application::Registry.has<towerTag::LaserTower>(entityId)) {
 					if (Application::Registry.get<cmpt::ShootLaser>(entityId).isActiv) {
 						Application::Emitter.publish<evnt::ChangeCursor>(CursorType::DESACTIVATE);
-					}else {
-						Application::Emitter.publish<evnt::ChangeCursor>(CursorType::ACTIVATE);
 					}
-				}else if (Application::Registry.has<towerTag::SlowTower>(entityId)) {
-					if (Application::Registry.has<cmpt::ShootAt>(entityId)) {
-						Application::Emitter.publish<evnt::ChangeCursor>(CursorType::DESACTIVATE);
-					}else {
+					else {
 						Application::Emitter.publish<evnt::ChangeCursor>(CursorType::ACTIVATE);
 					}
 				}
-			}else {
+				else if (Application::Registry.has<towerTag::SlowTower>(entityId)) {
+					if (Application::Registry.has<cmpt::ShootAt>(entityId)) {
+						Application::Emitter.publish<evnt::ChangeCursor>(CursorType::DESACTIVATE);
+					}
+					else {
+						Application::Emitter.publish<evnt::ChangeCursor>(CursorType::ACTIVATE);
+					}
+				}
+			}
+			else {
 				Application::Emitter.publish<evnt::ChangeCursor>(CursorType::ARROW);
 			}
 			break;
@@ -160,27 +182,27 @@ void LevelS::OnMouseMotion(Event::MouseMoveEvent& event) {
 }
 
 void LevelS::OnMouseButtonDown(Event::MouseButtonEvent& event) {
-	
+
 
 	if (event.button == Event::MouseButtonEvent::BUTTON_LEFT) {
 		m_ui->MouseButtonDown(event.x, event.y, Noesis::MouseButton_Left);
 
-		const glm::vec2 normMousePos = glm::vec2(imaths::rangeMapping(event.x, 0, Application::Width, 0, 101.3f),imaths::rangeMapping(Application::Height - event.y, 0, Application::Height, 0, PROJ_HEIGHT));
+		const glm::vec2 normMousePos = glm::vec2(imaths::rangeMapping(event.x, 0, Application::Width, 0, 101.3f), imaths::rangeMapping(Application::Height - event.y, 0, Application::Height, 0, PROJ_HEIGHT));
 
 		if (Application::Emitter.focus == FocusMode::GAME) {
-			switch (m_state) {
+			switch (_State) {
 			case LevelInteractionState::FREE:
-			case LevelInteractionState::INVALID:{
+			case LevelInteractionState::INVALID: {
 				// Get entity.
 				int entityId = Application::s_Level->getEntityOnTileFromProjCoord(normMousePos.x, normMousePos.y);
 				if (Application::Registry.valid(entityId)) {
 					//If valid mirror then rotate.
 					if (Application::Registry.has<entityTag::Mirror>(entityId)) {
-						changeState(LevelInteractionState::ROTATE);
+						ChangeState(LevelInteractionState::ROTATE);
 						Application::Registry.accommodate<stateTag::IsBeingControlled>(entityId);
 						Application::Registry.accommodate<cmpt::LookAtMouse>(entityId);
 
-						m_lastSelectedEntity = entityId;
+						LastSelectedEntity = entityId;
 						LevelHud::Get().setSelectedEntity(entityId);
 					}
 					//If tower then switch on or off
@@ -191,13 +213,15 @@ void LevelS::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 					if (Application::Registry.has<towerTag::SlowTower>(entityId)) {
 						if (Application::Registry.has<cmpt::ShootAt>(entityId)) {
 							Application::Registry.remove<cmpt::ShootAt>(entityId);
-						}else {
+						}
+						else {
 							Application::Registry.assign<cmpt::ShootAt>(entityId, SLOW_TOWER_TIME_BETWEEN_TWO_SHOTS);
 						}
 					}
-				}else {
+				}
+				else {
 					std::cout << "No valid entity on tile" << std::endl;
-					changeState(LevelInteractionState::INVALID);
+					ChangeState(LevelInteractionState::INVALID);
 				}
 				break;
 			}
@@ -207,10 +231,10 @@ void LevelS::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 
 			case LevelInteractionState::OPTIONS:
 				// Click outside option menu closes it
-				changeState(LevelInteractionState::FREE);
+				ChangeState(LevelInteractionState::FREE);
 				break;
 
-			case LevelInteractionState::BUILD:{
+			case LevelInteractionState::BUILD: {
 				// Build selected type on tile if valid
 				int tileId = Application::s_Level->getTileFromProjCoord(normMousePos.x, normMousePos.y);
 				if (Application::Registry.valid(tileId)) {
@@ -219,28 +243,31 @@ void LevelS::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 						cmpt::Transform trans = Application::Registry.get<cmpt::Transform>(tileId);
 
 						Application::Registry.remove<tileTag::Constructible>(tileId);
-						Application::Registry.assign<cmpt::EntityOnTile>(tileId, m_lastSelectedEntity);
+						Application::Registry.assign<cmpt::EntityOnTile>(tileId, LastSelectedEntity);
 
-						Application::Registry.remove<positionTag::IsOnHoveredTile>(m_lastSelectedEntity);
-						Application::Registry.reset<stateTag::IsBeingControlled>(m_lastSelectedEntity);
-						Application::Registry.get<cmpt::Transform>(m_lastSelectedEntity).position += trans.position;
-						if (Application::Registry.has<cmpt::ShootLaser>(m_lastSelectedEntity)) {
-							Application::Registry.get<cmpt::ShootLaser>(m_lastSelectedEntity).isActiv = false;
+						Application::Registry.remove<positionTag::IsOnHoveredTile>(LastSelectedEntity);
+						Application::Registry.reset<stateTag::IsBeingControlled>(LastSelectedEntity);
+						Application::Registry.get<cmpt::Transform>(LastSelectedEntity).position += trans.position;
+						if (Application::Registry.has<cmpt::ShootLaser>(LastSelectedEntity)) {
+							Application::Registry.get<cmpt::ShootLaser>(LastSelectedEntity).isActiv = false;
 						}
 
 						// Rotatable on build
-						if (Application::Registry.has<stateTag::RotateableByMouse>(m_lastSelectedEntity)) {
-							Application::Registry.accommodate<stateTag::IsBeingControlled>(m_lastSelectedEntity);
-							Application::Registry.accommodate<cmpt::LookAtMouse>(m_lastSelectedEntity);
-							changeState(LevelInteractionState::ROTATE);
-						}else {
-							changeState(LevelInteractionState::FREE);
+						if (Application::Registry.has<stateTag::RotateableByMouse>(LastSelectedEntity)) {
+							Application::Registry.accommodate<stateTag::IsBeingControlled>(LastSelectedEntity);
+							Application::Registry.accommodate<cmpt::LookAtMouse>(LastSelectedEntity);
+							ChangeState(LevelInteractionState::ROTATE);
 						}
-					}else {
+						else {
+							ChangeState(LevelInteractionState::FREE);
+						}
+					}
+					else {
 						std::cout << "Not a constructible tile" << std::endl;
 						//changeState(LevelInteractionState::INVALID);
 					}
-				}else {
+				}
+				else {
 					std::cout << "Invalid tile" << std::endl;
 					//changeState(LevelInteractionState::INVALID);
 				}
@@ -259,7 +286,7 @@ void LevelS::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 		const glm::vec2 normMousePos = glm::vec2(imaths::rangeMapping(event.x, 0, Application::Width, 0, 101.3f), imaths::rangeMapping(Application::Height - event.y, 0, Application::Height, 0, PROJ_HEIGHT));
 
 		if (Application::Emitter.focus == FocusMode::GAME) {
-			switch (m_state) {
+			switch (_State) {
 			case LevelInteractionState::FREE:
 			case LevelInteractionState::INVALID:
 			case LevelInteractionState::OPTIONS:
@@ -267,7 +294,7 @@ void LevelS::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 				// Get entity. If valid open options. Else Invalid
 				std::uint32_t entityId = Application::s_Level->getEntityOnTileFromProjCoord(normMousePos.x, normMousePos.y);
 				if (Application::Registry.valid(entityId)) {
-					changeState(LevelInteractionState::OPTIONS);
+					ChangeState(LevelInteractionState::OPTIONS);
 					LevelHud::Get().setSelectedEntity(entityId);
 					cmpt::Transform trans = Application::Registry.get<cmpt::Transform>(entityId);
 					glm::vec2 posWindow = glm::vec2(
@@ -277,14 +304,17 @@ void LevelS::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 
 					if (Application::Registry.has<entityTag::Mirror>(entityId)) {
 						LevelHud::Get().setOptionsPosition(posWindow);
-					}else if (Application::Registry.has<towerTag::SlowTower>(entityId)) {
-						LevelHud::Get().setOptionsPosition(posWindow);
-					}else {
-						changeState(LevelInteractionState::INVALID);
 					}
-				}else {
+					else if (Application::Registry.has<towerTag::SlowTower>(entityId)) {
+						LevelHud::Get().setOptionsPosition(posWindow);
+					}
+					else {
+						ChangeState(LevelInteractionState::INVALID);
+					}
+				}
+				else {
 					std::cout << "No valid entity on tile" << std::endl;
-					changeState(LevelInteractionState::INVALID);
+					ChangeState(LevelInteractionState::INVALID);
 				}
 				break;
 			}
@@ -294,17 +324,17 @@ void LevelS::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 
 			case LevelInteractionState::BUILD:
 				//Give the count back in the shop
-				if (Application::Registry.has<entityTag::Mirror>(m_lastSelectedEntity)) {
+				if (Application::Registry.has<entityTag::Mirror>(LastSelectedEntity)) {
 					Application::s_Progression.setMirrorNumber(Application::s_Progression.getMirrorNumbers() + 1);
 				}
-				else if (Application::Registry.has<towerTag::SlowTower>(m_lastSelectedEntity)) {
+				else if (Application::Registry.has<towerTag::SlowTower>(LastSelectedEntity)) {
 					Application::s_Progression.setSlowNumber(Application::s_Progression.getSlowNumbers() + 1);
 				}
 				//Reset
 				Application::Emitter.entityBeingPlaced = false;
-				changeState(LevelInteractionState::FREE);
-				Application::Registry.destroy(m_lastSelectedEntity);
-				m_lastSelectedEntity = entt::null;
+				ChangeState(LevelInteractionState::FREE);
+				Application::Registry.destroy(LastSelectedEntity);
+				LastSelectedEntity = entt::null;
 				//Update info bar
 				Application::Emitter.publish<evnt::ProgressionUpdated>();
 				break;
@@ -320,20 +350,20 @@ void LevelS::OnMouseButtonUp(Event::MouseButtonEvent& event) {
 	if (event.button == Event::MouseButtonEvent::BUTTON_LEFT) {
 		m_ui->MouseButtonUp(event.x, event.y, Noesis::MouseButton_Left);
 		if (Application::Emitter.focus == FocusMode::GAME) {
-			switch (m_state) {
+			switch (_State) {
 			case LevelInteractionState::FREE:
 				break;
 
 			case LevelInteractionState::ROTATE:
 				// Stop rotating when mouse not pressed
-				changeState(LevelInteractionState::FREE);
-				if (Application::Registry.has<cmpt::ShootLaser>(m_lastSelectedEntity)) {
-					Application::Registry.get<cmpt::ShootLaser>(m_lastSelectedEntity) = true;
+				ChangeState(LevelInteractionState::FREE);
+				if (Application::Registry.has<cmpt::ShootLaser>(LastSelectedEntity)) {
+					Application::Registry.get<cmpt::ShootLaser>(LastSelectedEntity) = true;
 				}
-				if (Application::Registry.has<entityTag::Tower>(m_lastSelectedEntity)) {
-					Application::Registry.reset<stateTag::RotateableByMouse>(m_lastSelectedEntity);
+				if (Application::Registry.has<entityTag::Tower>(LastSelectedEntity)) {
+					Application::Registry.reset<stateTag::RotateableByMouse>(LastSelectedEntity);
 				}
-				m_lastSelectedEntity = entt::null;
+				LastSelectedEntity = entt::null;
 				break;
 
 			case LevelInteractionState::INVALID:
@@ -350,14 +380,15 @@ void LevelS::OnMouseButtonUp(Event::MouseButtonEvent& event) {
 			}
 		}
 	}
-	
+
 }
 
 void LevelS::OnMouseWheel(Event::MouseWheelEvent& event) {
 	std::uint32_t entity;
-	if (Application::Registry.valid(m_lastSelectedEntity)) {
-		entity = m_lastSelectedEntity;
-	}else {
+	if (Application::Registry.valid(LastSelectedEntity)) {
+		entity = LastSelectedEntity;
+	}
+	else {
 		glm::vec2 mousePos = Application::Emitter.mousePos;
 		entity = Application::s_Level->getEntityOnTileFromProjCoord(mousePos.x, mousePos.y);
 	}
@@ -374,7 +405,8 @@ void LevelS::OnMouseWheel(Event::MouseWheelEvent& event) {
 				spriteAnim.startTile = constRot.angleIndex;
 				spriteAnim.endTile = constRot.angleIndex;
 			}
-		}else {			
+		}
+		else {
 			Application::Registry.get<cmpt::Transform>(entity).rotation += imaths::TAU / 32 * event.delta;
 
 		}
@@ -382,16 +414,16 @@ void LevelS::OnMouseWheel(Event::MouseWheelEvent& event) {
 }
 
 void LevelS::handleVictoryConditions() {
-	Application::Emitter.on<evnt::WaveUpdated>([this](const evnt::WaveUpdated & event, EventEmitter & emitter) {
+	Application::Emitter.on<evnt::WaveUpdated>([](const evnt::WaveUpdated & event, EventEmitter & emitter) {
 		switch (event.state) {
 		case WaveState::NOT_STARTED:
 		case WaveState::PENDING:
 		case WaveState::DURING:
-			this->m_bWaveDone = false;
+			WaveDone = false;
 			break;
 
 		case WaveState::DONE:
-			this->m_bWaveDone = true;
+			WaveDone = true;
 			break;
 
 		default:
@@ -399,10 +431,10 @@ void LevelS::handleVictoryConditions() {
 		}
 	});
 
-	Application::Emitter.on<evnt::EnemyDead>([this](const evnt::EnemyDead & event, EventEmitter & emitter) {
-		if (this->m_bWaveDone) {
+	Application::Emitter.on<evnt::EnemyDead>([](const evnt::EnemyDead & event, EventEmitter & emitter) {
+		if (WaveDone) {
 			int enemyRemaining = 0;
-			Application::Registry.view<entityTag::Enemy>().each([this, &enemyRemaining](auto entity, auto) {
+			Application::Registry.view<entityTag::Enemy>().each([&enemyRemaining](auto entity, auto) {
 				if (!Application::Registry.has<stateTag::IsDisappearing>(entity)) {
 					enemyRemaining++;
 				}
@@ -416,14 +448,14 @@ void LevelS::handleVictoryConditions() {
 		}
 	});
 
-	Application::Emitter.on<evnt::VictoryDelayEnds>([this](const evnt::VictoryDelayEnds & event, EventEmitter & emitter) {
+	Application::Emitter.on<evnt::VictoryDelayEnds>([](const evnt::VictoryDelayEnds & event, EventEmitter & emitter) {
 		Application::Emitter.publish<evnt::ChangeGameState>(GameState::LEVEL_EXIT, Application::s_Progression.getLevelNumber());
 	});
 
-	Application::Emitter.on<evnt::EnemyReachedEnd>([this](const evnt::EnemyReachedEnd & event, EventEmitter & emitter) {
-		if (this->m_bWaveDone) {
+	Application::Emitter.on<evnt::EnemyReachedEnd>([](const evnt::EnemyReachedEnd & event, EventEmitter & emitter) {
+		if (WaveDone) {
 			int enemyRemaining = 0;
-			Application::Registry.view<entityTag::Enemy>().each([this, &enemyRemaining](auto entity, auto) {
+			Application::Registry.view<entityTag::Enemy>().each([&enemyRemaining](auto entity, auto) {
 				if (!Application::Registry.has<stateTag::IsDisappearing>(entity)) {
 					enemyRemaining++;
 				}
@@ -444,24 +476,26 @@ void LevelS::handleVictoryConditions() {
 }
 
 void LevelS::handleConstructions() {
-	Application::Emitter.on<evnt::ConstructSelection>([this](const evnt::ConstructSelection & event, EventEmitter & emitter) {
-		switch (m_state) {
+
+
+	Application::Emitter.on<evnt::ConstructSelection>([](const evnt::ConstructSelection & event, EventEmitter & emitter) {
+		switch (_State) {
 		case LevelInteractionState::INVALID:
 		case LevelInteractionState::FREE:
 			Application::Emitter.entityBeingPlaced = true;
-			this->m_constructType = event.type;
-			this->changeState(LevelInteractionState::BUILD);
+
+			ChangeState(LevelInteractionState::BUILD);
 			unsigned int entityId;
 
-			switch (m_constructType) {
+			switch (event.type) {
 			case ConstructibleType::MIRROR_BASIC:
-				entityId = m_mirrorFactory.create(0, 0);
+				entityId = MirrorFactory.create(0, 0);
 				Application::Registry.assign<positionTag::IsOnHoveredTile>(entityId);
 				Application::s_Progression.reduceMirrorNumberBy1();
 				break;
 
 			case ConstructibleType::TOWER_LASER:
-				entityId = m_towerFactory.createLaser(0, 0);
+				entityId = TowerFactory.createLaser(0, 0);
 				Application::Registry.assign<stateTag::IsBeingControlled>(entityId);
 				Application::Registry.assign<positionTag::IsOnHoveredTile>(entityId);
 				Application::Registry.assign<stateTag::RotateableByMouse>(entityId);
@@ -469,20 +503,22 @@ void LevelS::handleConstructions() {
 				break;
 
 			case ConstructibleType::TOWER_SLOW:
-				entityId = m_towerFactory.createSlow(0, 0);
+				entityId = TowerFactory.createSlow(0, 0);
 				Application::Registry.assign<stateTag::IsBeingControlled>(entityId);
 				Application::Registry.assign<positionTag::IsOnHoveredTile>(entityId);
 				Application::s_Progression.reduceSlowNumberBy1();
 				break;
 			}
-			m_lastSelectedEntity = entityId;
+			LastSelectedEntity = entityId;
 			break;
 		}
 	});
 
 	// TODO use a safer and more global way, because if tile is invalid, it will cause a problem
 	// Start by using only one type of event for entity deletion, and see if there is a way to check the grid for deletion
-	Application::Emitter.on<evnt::DeleteEntity>([this](const evnt::DeleteEntity & event, EventEmitter & emitter) {
+
+
+	auto connection = Application::Emitter.on<evnt::DeleteEntity>([](const evnt::DeleteEntity & event, EventEmitter & emitter) {
 		if (Application::Registry.valid(event.entityId)) {
 			glm::vec2 position = Application::Registry.get<cmpt::Transform>(event.entityId).position;
 			//this->m_game.registry.destroy(event.entityId);
@@ -499,27 +535,27 @@ void LevelS::handleConstructions() {
 			std::uint32_t tileId = Application::s_Level->getTileFromProjCoord(position.x / WIN_RATIO, position.y);
 			Application::Registry.assign<tileTag::Constructible>(tileId);
 			Application::Registry.remove<cmpt::EntityOnTile>(tileId);
-
-			this->changeState(LevelInteractionState::FREE);
+			ChangeState(LevelInteractionState::FREE);
 		}
 	});
 
-	Application::Emitter.on<evnt::TowerDead>([this](const evnt::TowerDead & event, EventEmitter & emitter) {
+
+	Application::Emitter.on<evnt::TowerDead>([](const evnt::TowerDead & event, EventEmitter & emitter) {
 		std::uint32_t tileId = Application::s_Level->getTileFromProjCoord(event.position.x / WIN_RATIO, event.position.y);
 		Application::Registry.accommodate<tileTag::Constructible>(tileId);
 		Application::Registry.reset<cmpt::EntityOnTile>(tileId);
 	});
 }
 
-void LevelS::changeState(LevelInteractionState state) {
+void LevelS::ChangeState(LevelInteractionState state) {
 	// Exit current state
-	switch (m_state) {
+	switch (_State) {
 	case LevelInteractionState::FREE:
 		break;
 
 	case LevelInteractionState::ROTATE:
-		Application::Registry.remove<stateTag::IsBeingControlled>(m_lastSelectedEntity);
-		Application::Registry.remove<cmpt::LookAtMouse>(m_lastSelectedEntity);
+		Application::Registry.remove<stateTag::IsBeingControlled>(LastSelectedEntity);
+		Application::Registry.remove<cmpt::LookAtMouse>(LastSelectedEntity);
 		break;
 
 	case LevelInteractionState::INVALID:
@@ -564,15 +600,15 @@ void LevelS::changeState(LevelInteractionState state) {
 	}
 
 	// Change state
-	m_state = state;
+	_State = state;
 }
 
 LevelInteractionState LevelS::getInteractionState() const {
-	return m_state;
+	return _State;
 }
 
 
 void LevelS::OnStateChange(States states) {
 	m_isRunning = false;
-	m_machine.addStateAtTop(states == States::GAMEOVER ? static_cast<State*>(new GameOverS(m_machine)) : static_cast<State*>(new LevelExitS(m_machine)));
+	m_machine.addStateAtBottom(states == States::GAMEOVER ? static_cast<State*>(new GameOverS(m_machine)) : static_cast<State*>(new LevelExitS(m_machine)));
 }

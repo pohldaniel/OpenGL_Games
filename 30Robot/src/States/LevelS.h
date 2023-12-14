@@ -8,11 +8,18 @@
 #include <engine/input/KeyboardEventListener.h>
 
 #include <States/StateMachine.h>
+#include <entt/entt.hpp>
 
-#include "EventListener.h"
+
 #include "Entity/tower-factory.hpp"
 #include "Entity/mirror-factory.hpp"
+
+#include "EventListener.h"
+
+#include "Event/EventEmitter.h"
 #include "Event/Interactions/construct-selection.hpp"
+#include "Event/Interactions/delete-entity.hpp"
+#include "Event/EventEmitter.h"
 
 enum class LevelInteractionState {
 	FREE,
@@ -21,6 +28,8 @@ enum class LevelInteractionState {
 	OPTIONS,
 	BUILD
 };
+
+
 
 class LevelS : public State, public MouseEventListener, public KeyboardEventListener, public EventListener {
 public:
@@ -42,7 +51,7 @@ public:
 	LevelInteractionState getInteractionState() const;
 
 	// Setters
-	void changeState(LevelInteractionState state);
+	static void ChangeState(LevelInteractionState state);
 
 	void OnStateChange(States states) override;
 
@@ -53,14 +62,20 @@ private:
 
 	Noesis::Ptr<Noesis::FrameworkElement> m_xaml;
 	Noesis::IView* m_ui;
-	LevelInteractionState m_state;
 
-	TowerFactory m_towerFactory;
-	MirrorFactory m_mirrorFactory;
 
 	unsigned int m_invalidTimeCounter;
 	unsigned int m_invalidTimeMax;
-	ConstructibleType m_constructType;
-	std::uint32_t m_lastSelectedEntity;
+
+
 	bool m_bWaveDone;
+
+	static bool Init;
+	static bool WaveDone;
+	static TowerFactory TowerFactory;
+	static MirrorFactory MirrorFactory;
+	static LevelInteractionState _State;
+	static std::uint32_t LastSelectedEntity;
+
+	//entt::Emitter<EventEmitter>::Connection<evnt::DeleteEntity> connection;
 };

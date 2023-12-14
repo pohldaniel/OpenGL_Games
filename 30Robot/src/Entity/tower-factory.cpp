@@ -22,10 +22,17 @@
 
 TowerFactory::TowerFactory(entt::DefaultRegistry& registry) : Factory(registry)
 {
-	m_laserTowerSprite = m_spriteFactory.createAtlas("res/images/spritesheets/tower-laser-100x100.png", glm::vec2(TOWER_HITBOX_RADIUS*2), glm::vec2(100));
-	m_slowTowerSprite = m_spriteFactory.createSingle("res/images/textures/tower-slow.png", glm::vec2(TOWER_HITBOX_RADIUS * 2));
-	m_healthBackground = m_primitiveFactory.createRect(glm::vec4(0, 0, 0, 1), glm::vec2(6.0f, 1.0f), PivotPoint::MIDDLE_LEFT);
-	m_healthBar = m_primitiveFactory.createRect(glm::vec4(0, 1, 0, 1), glm::vec2(6.0f, 1.0f), PivotPoint::MIDDLE_LEFT);
+	
+}
+
+void TowerFactory::init() {
+	m_spriteFactory = new SpriteFactory();
+	m_primitiveFactory = new PrimitiveFactory();
+
+	m_laserTowerSprite = m_spriteFactory->createAtlas("res/images/spritesheets/tower-laser-100x100.png", glm::vec2(TOWER_HITBOX_RADIUS * 2), glm::vec2(100));
+	m_slowTowerSprite = m_spriteFactory->createSingle("res/images/textures/tower-slow.png", glm::vec2(TOWER_HITBOX_RADIUS * 2));
+	m_healthBackground = m_primitiveFactory->createRect(glm::vec4(0, 0, 0, 1), glm::vec2(6.0f, 1.0f), PivotPoint::MIDDLE_LEFT);
+	m_healthBar = m_primitiveFactory->createRect(glm::vec4(0, 1, 0, 1), glm::vec2(6.0f, 1.0f), PivotPoint::MIDDLE_LEFT);
 }
 
 TowerFactory::~TowerFactory() {

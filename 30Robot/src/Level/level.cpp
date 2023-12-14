@@ -22,6 +22,8 @@ Level::Level(entt::DefaultRegistry& registry, Progression& progression, unsigned
   m_viewTranslation(viewTranslation), m_viewScale(viewScale),
   m_graph(nullptr), m_pathfindingGraph(nullptr), m_gridHeight(0), m_gridWidth(0)
 {
+	m_towerFactory.init();
+	m_mirrorFactory.init();
 	setLevel(levelNumber);
 }
 

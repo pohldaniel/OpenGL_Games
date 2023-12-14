@@ -24,6 +24,8 @@ GameOverS::GameOverS(StateMachine& machine) : State(machine, States::GAMEOVER) {
 }
 
 GameOverS::~GameOverS() {
+	std::cout << "Destructor Game Over: " << std::endl;
+
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
 
