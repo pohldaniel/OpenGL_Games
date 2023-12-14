@@ -1,6 +1,8 @@
 #pragma once
 
-#include <NsGui/IntegrationAPI.h>
+#include <NsGui/IView.h>
+#include <NsGui/FrameworkElement.h>
+
 #include <glm/gtx/transform.hpp>
 
 #include <engine/input/MouseEventListener.h>
@@ -38,6 +40,5 @@ private:
 
 	Noesis::Ptr<Noesis::FrameworkElement> m_xaml;
 	Noesis::IView* m_ui;
-	//LevelIntro m_levelIntro;
 };
 

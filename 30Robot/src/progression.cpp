@@ -40,7 +40,7 @@ void Progression::setExitText(std::string text) {
 	m_exitText = text;
 	m_emitter.publish<evnt::ProgressionUpdated>();
 }
-const char* Progression::getExitText() {
+const char* Progression::getExitText() const {
 	return m_exitText.c_str();
 }
 

@@ -17,6 +17,11 @@ NS_IMPLEMENT_REFLECTION(LevelIntroGrid) {
 LevelIntroGrid::LevelIntroGrid() {
 	m_bindings = *new LevelIntroBindings();
 	Initialized() += MakeDelegate(this, &LevelIntroGrid::OnInitialized);
+	InitializeComponent();
+}
+
+void LevelIntroGrid::InitializeComponent() {
+	Noesis::GUI::LoadComponent(this, "level-intro.xaml");
 }
 
 bool LevelIntroGrid::ConnectEvent(Noesis::BaseComponent* source, const char* event, const char* handler) {
@@ -44,27 +49,19 @@ LevelIntro& LevelIntro::Get() {
 	return s_instance;
 }
 
-void LevelIntro::init() {
+void LevelIntro::init(EventEmitter& emitter, Progression& progression) {
 	m_grid = *new LevelIntroGrid();
-	Noesis::GUI::LoadComponent(m_grid, "level-intro.xaml");
 
 	std::string title = "LEVEL " + decimalToRoman(Application::s_Progression.getLevelNumber());
 	m_grid->m_bindings->setTitle(title.c_str());
-	m_grid->m_bindings->setText(Application::s_Progression.getIntroText());
-	m_grid->m_bindings->setImagePath(Application::s_Progression.getIntroImgPath());
+	m_grid->m_bindings->setText(progression.getIntroText());
+	m_grid->m_bindings->setImagePath(progression.getIntroImgPath());
 
-	/*m_emitter.on<evnt::ProgressionUpdated>([this, &m_progression = m_progression, m_bindings = m_bindings](const evnt::ProgressionUpdated & event, EventEmitter & emitter) {
-		std::string title = "LEVEL " + this->decimalToRoman(m_progression.getLevelNumber());
-		m_bindings->setTitle(title.c_str());
-		m_bindings->setText(m_progression.getIntroText());
-		m_bindings->setImagePath(m_progression.getIntroImgPath());
-	});*/
-
-	Application::Emitter.on<evnt::ProgressionUpdated>([this](const evnt::ProgressionUpdated & event, EventEmitter & emitter) {
-		std::string title = "LEVEL " + this->decimalToRoman(Application::s_Progression.getLevelNumber());
+	emitter.on<evnt::ProgressionUpdated>([this, &progression](const evnt::ProgressionUpdated & event, EventEmitter & emitter) {
+		std::string title = "LEVEL " + this->decimalToRoman(progression.getLevelNumber());
 		this->m_grid->m_bindings->setTitle(title.c_str());
-		this->m_grid->m_bindings->setText(Application::s_Progression.getIntroText());
-		this->m_grid->m_bindings->setImagePath(Application::s_Progression.getIntroImgPath());
+		this->m_grid->m_bindings->setText(progression.getIntroText());
+		this->m_grid->m_bindings->setImagePath(progression.getIntroImgPath());
 	});
 }
 

@@ -1,3 +1,5 @@
+#include <NsGui/IntegrationAPI.h>
+
 #include "LevelIntroS.h"
 
 #include "Application.h"
@@ -5,7 +7,7 @@
 #include "Renderer.h"
 
 #include <Event/change-game-state.hpp>
-#include <States/TitleScreen.h>
+#include <States/TitleScreenS.h>
 #include <States/Default.h>
 #include <States/LevelS.h>
 

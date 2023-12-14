@@ -6,21 +6,39 @@
 #include <glm/glm.hpp>
 
 #include "Event/EventEmitter.h"
+#include "progression.hpp"
 
-class TitleScreen: public Noesis::Grid {
+class TitleScreenGrid: public Noesis::Grid {
+
 public:
-    TitleScreen(EventEmitter& emitter);
+
+	TitleScreenGrid(EventEmitter& emitter);
 
 private:
+
+	void InitializeComponent();
+
     // Events
     bool ConnectEvent(Noesis::BaseComponent* source, const char* event, const char* handler) override;
 	void onStartGame(Noesis::BaseComponent* sender, const Noesis::RoutedEventArgs& args);
 	void onQuitGame(Noesis::BaseComponent* sender, const Noesis::RoutedEventArgs& args);
 
-    // Init 
-    void InitializeComponent();
-	
 private:
-	NS_DECLARE_REFLECTION(TitleScreen, Grid);
+	NS_DECLARE_REFLECTION(TitleScreenGrid, Grid);
 	EventEmitter& m_emitter;
+};
+
+class TitleScreen {
+
+public:
+
+	static TitleScreen& Get();
+	void init(EventEmitter& emitter, Progression& progression);
+
+	Noesis::Ptr<TitleScreenGrid> m_grid;
+
+private:
+	TitleScreen() = default;
+
+	static TitleScreen s_instance;
 };

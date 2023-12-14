@@ -1,6 +1,6 @@
 <Grid xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    x:Class="GameOver">
+    x:Class="GameOverGrid">
   <Grid.Resources>
     <Style x:Key="Btn" TargetType="Button">
       <Setter Property="Template">

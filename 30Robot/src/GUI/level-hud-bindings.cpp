@@ -1,3 +1,4 @@
+#include <iostream>
 #include "level-hud-bindings.hpp"
 
 #include "Event/change-game-state.hpp"

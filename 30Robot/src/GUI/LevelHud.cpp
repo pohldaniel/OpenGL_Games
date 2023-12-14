@@ -12,6 +12,7 @@
 #include "Event/progression-updated.hpp"
 #include "Event/wave-updated.hpp"
 #include "System/wave-system.hpp"
+#include "Application.h"
 
 NS_IMPLEMENT_REFLECTION(LevelHudGrid) {
 	NsMeta<Noesis::TypeId>("LevelHudGrid");
@@ -20,6 +21,11 @@ NS_IMPLEMENT_REFLECTION(LevelHudGrid) {
 LevelHudGrid::LevelHudGrid(EventEmitter& emitter, Progression& progression) : m_emitter(emitter), m_progression(progression){
 	m_bindings = *new LevelHudBindings();
 	Initialized() += MakeDelegate(this, &LevelHudGrid::OnInitialized);	
+	InitializeComponent();
+}
+
+void LevelHudGrid::InitializeComponent() {
+	Noesis::GUI::LoadComponent(this, "level-hud.xaml");
 }
 
 bool LevelHudGrid::ConnectEvent(Noesis::BaseComponent* source, const char* event, const char* handler) {
@@ -75,19 +81,19 @@ LevelHud& LevelHud::Get() {
 
 void LevelHud::init(EventEmitter& emitter, Progression& progression) {
 	m_grid = *new LevelHudGrid(emitter, progression);
-	Noesis::GUI::LoadComponent(m_grid, "level-hud.xaml");
-
+	
 	m_grid->m_bindings->setLife(std::to_string(progression.getLife()).c_str());
 	m_grid->m_bindings->setMirrorNumber(std::to_string(progression.getMirrorNumbers()).c_str());
 	m_grid->m_bindings->setSlowNumber(std::to_string(progression.getSlowNumbers()).c_str());
 
-	emitter.on<evnt::ProgressionUpdated>([this, progression](const evnt::ProgressionUpdated & event, EventEmitter & emitter) {
+
+	emitter.on<evnt::ProgressionUpdated>([this, &progression](const evnt::ProgressionUpdated& event, EventEmitter& emitter) {
 		this->m_grid->m_bindings->setLife(std::to_string(progression.getLife()).c_str());
 		this->m_grid->m_bindings->setMirrorNumber(std::to_string(progression.getMirrorNumbers()).c_str());
 		this->m_grid->m_bindings->setSlowNumber(std::to_string(progression.getSlowNumbers()).c_str());
 	});
 
-	emitter.on<evnt::WaveUpdated>([this](const evnt::WaveUpdated & event, EventEmitter & emitter) {
+	emitter.on<evnt::WaveUpdated>([this](const evnt::WaveUpdated& event, EventEmitter& emitter) {
 		switch (event.state) {
 		case WaveState::NOT_STARTED:
 			this->m_grid->m_bindings->setTimer("-");

@@ -12,8 +12,6 @@
 #include <Event/EventEmitter.h>
 #include <Level/level.hpp>
 
-
-#include "GUI/game-over.hpp"
 #include "EventListener.h"
 
 class GameOverS : public State, public MouseEventListener, public KeyboardEventListener, public EventListener {
@@ -41,6 +39,5 @@ private:
 
 	Noesis::Ptr<Noesis::FrameworkElement> m_xaml;
 	Noesis::IView* m_ui;
-	GameOver m_gameOver;
 };
 

@@ -1,3 +1,5 @@
+#include <NsGui/IntegrationAPI.h>
+
 #include "GameOverS.h"
 
 #include "Application.h"
@@ -5,15 +7,16 @@
 #include "Renderer.h"
 
 #include <Event/change-game-state.hpp>
-#include <States/TitleScreen.h>
+#include <States/TitleScreenS.h>
 #include <States/LevelIntroS.h>
+#include <GUI/GameOver.h>
 
-GameOverS::GameOverS(StateMachine& machine) : State(machine, States::GAMEOVER), m_gameOver(Application::Emitter, Application::s_Progression) {
+GameOverS::GameOverS(StateMachine& machine) : State(machine, States::GAMEOVER) {
 
 	EventDispatcher::AddKeyboardListener(this);
 	EventDispatcher::AddMouseListener(this);
 
-	m_xaml = m_gameOver;
+	m_xaml = GameOver::Get().m_grid;
 	m_ui = Noesis::GUI::CreateView(m_xaml).GiveOwnership();
 	m_ui->SetIsPPAAEnabled(true);
 	m_ui->GetRenderer()->Init(Application::NoesisDevice);

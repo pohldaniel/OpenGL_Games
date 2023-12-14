@@ -1,7 +1,9 @@
 #pragma once
 #pragma once
 
-#include <NsGui/IntegrationAPI.h>
+#include <NsGui/IView.h>
+#include <NsGui/FrameworkElement.h>
+
 #include <glm/gtx/transform.hpp>
 
 #include <engine/input/MouseEventListener.h>
@@ -12,8 +14,6 @@
 #include <Event/EventEmitter.h>
 #include <Level/level.hpp>
 
-
-#include "GUI/level-exit.hpp"
 #include "EventListener.h"
 
 class LevelExitS : public State, public MouseEventListener, public KeyboardEventListener, public EventListener {
@@ -41,6 +41,5 @@ private:
 
 	Noesis::Ptr<Noesis::FrameworkElement> m_xaml;
 	Noesis::IView* m_ui;
-	LevelExit m_levelExit;
 };
 

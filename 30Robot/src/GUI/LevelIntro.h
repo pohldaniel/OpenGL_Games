@@ -5,12 +5,18 @@
 #include <NsGui/IntegrationAPI.h>
 #include <NsApp/DelegateCommand.h>
 
+#include "Event/EventEmitter.h"
+#include "progression.hpp"
+
 #include "GUI/level-intro-bindings.hpp"
 
 class LevelIntroGrid : public Noesis::Grid {
 
 public:
+
 	LevelIntroGrid();
+
+	void InitializeComponent();
 
 	void OnInitialized(BaseComponent*, const Noesis::EventArgs&);
 	bool ConnectEvent(Noesis::BaseComponent* source, const char* event, const char* handler) override;
@@ -28,7 +34,7 @@ class LevelIntro {
 public:
 
 	static LevelIntro& Get();
-	void init();
+	void init(EventEmitter& emitter, Progression& progression);
 
 	std::string decimalToRoman(int num);
 	Noesis::Ptr<LevelIntroGrid> m_grid;

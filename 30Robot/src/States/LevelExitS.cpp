@@ -1,3 +1,4 @@
+#include <NsGui/IntegrationAPI.h>
 #include "LevelExitS.h"
 
 #include "Application.h"
@@ -5,16 +6,17 @@
 #include "Renderer.h"
 
 #include <Event/change-game-state.hpp>
-#include <States/TitleScreen.h>
+#include <States/TitleScreenS.h>
 #include <States/Default.h>
 #include <States/LevelS.h>
+#include <GUI/LevelExit.h>
 
-LevelExitS::LevelExitS(StateMachine& machine) : State(machine, States::LEVELEXIT), m_levelExit(Application::Emitter, Application::s_Progression) {
+LevelExitS::LevelExitS(StateMachine& machine) : State(machine, States::LEVELEXIT) {
 
 	EventDispatcher::AddKeyboardListener(this);
 	EventDispatcher::AddMouseListener(this);
 
-	m_xaml = m_levelExit;
+	m_xaml = LevelExit::Get().m_grid;
 	m_ui = Noesis::GUI::CreateView(m_xaml).GiveOwnership();
 	m_ui->SetIsPPAAEnabled(true);
 	m_ui->GetRenderer()->Init(Application::NoesisDevice);

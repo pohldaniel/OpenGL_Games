@@ -1,6 +1,7 @@
 #pragma once
 
 #include <NsGui/IView.h>
+#include <NsGui/FrameworkElement.h>
 
 #include <engine/input/MouseEventListener.h>
 #include <engine/input/KeyboardEventListener.h>
@@ -14,7 +15,6 @@
 #include <Level/level.hpp>
 
 #include "Event/input-handler.hpp"
-#include "GUI/title-screen.hpp"
 
 class Game : public State, public InputHandler,  public MouseEventListener, public KeyboardEventListener {
 
@@ -51,7 +51,6 @@ private:
 	
 	Noesis::Ptr<Noesis::FrameworkElement> m_xaml;
 	Noesis::IView* m_ui;
-	TitleScreen m_titleScreen;
 
 };
 

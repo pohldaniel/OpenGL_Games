@@ -1,6 +1,9 @@
 #pragma once
 
 #include <NsGui/IView.h>
+#include <NsGui/FrameworkElement.h>
+#include <NsGui/Grid.h>
+
 #include <glm/gtx/transform.hpp>
 
 #include <engine/input/MouseEventListener.h>
@@ -19,7 +22,6 @@
 #include <Level/level.hpp>
 
 #include "Event/input-handler.hpp"
-#include "GUI/title-screen.hpp"
 #include "EventListener.h"
 
 class TitleScreenS : public State, public MouseEventListener, public KeyboardEventListener, public EventListener {
@@ -48,6 +50,7 @@ private:
 
 	Noesis::Ptr<Noesis::FrameworkElement> m_xaml;
 	Noesis::IView* m_ui;
-	TitleScreen m_titleScreen;
+
+	Noesis::Ptr<Noesis::Grid> xaml;
 };
 

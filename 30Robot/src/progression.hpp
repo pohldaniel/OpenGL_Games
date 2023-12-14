@@ -17,7 +17,7 @@ public:
 	const char* getIntroText() const;
 
 	void setExitText(std::string text);
-	const char* getExitText();
+	const char* getExitText() const;
 
 	void setMaxLife(int value);
 	int getMaxLife();

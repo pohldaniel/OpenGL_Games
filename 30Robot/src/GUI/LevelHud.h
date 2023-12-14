@@ -10,17 +10,12 @@
 #include "level-hud-bindings.hpp"
 
 class LevelHudGrid : public Noesis::Grid {
+
 public:
 	LevelHudGrid(EventEmitter& emitter, Progression& progression);
 
-	// Setters
-	
-	
-
-
-	// Getters
-
 	// Init 
+	void InitializeComponent();
 	void OnInitialized(BaseComponent*, const Noesis::EventArgs&);
 
 	// Events

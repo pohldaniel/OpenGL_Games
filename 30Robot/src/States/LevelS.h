@@ -1,7 +1,7 @@
 #pragma once
 
-#include <NsGui/IntegrationAPI.h>
 #include <NsGui/IView.h>
+#include <NsGui/FrameworkElement.h>
 
 #include <glm/gtx/transform.hpp>
 #include <engine/input/MouseEventListener.h>

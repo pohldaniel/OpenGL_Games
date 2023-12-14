@@ -8,9 +8,9 @@
 #include "Event/EventEmitter.h"
 #include "progression.hpp"
 
-class GameOver : public Noesis::Grid {
+class GameOverGrid : public Noesis::Grid {
 public:
-	GameOver(EventEmitter& emitter, Progression& progression);
+	GameOverGrid(EventEmitter& emitter, Progression& progression);
 
 private:
 	// Init 
@@ -22,7 +22,22 @@ private:
 	void onRestart(Noesis::BaseComponent* sender, const Noesis::RoutedEventArgs& args);
 
 private:
-	NS_DECLARE_REFLECTION(GameOver, Grid);
+	NS_DECLARE_REFLECTION(GameOverGrid, Grid);
 	EventEmitter& m_emitter;
 	Progression& m_progression;
+};
+
+class GameOver {
+
+public:
+
+	static GameOver& Get();
+	void init(EventEmitter& emitter, Progression& progression);
+
+	Noesis::Ptr<GameOverGrid> m_grid;
+
+private:
+	GameOver() = default;
+
+	static GameOver s_instance;
 };

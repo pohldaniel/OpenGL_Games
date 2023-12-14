@@ -3,6 +3,8 @@
 #include <imgui_impl_opengl3.h>
 #include <imgui_internal.h>
 
+#include <NsGui/IntegrationAPI.h>
+
 #include <engine/Batchrenderer.h>
 #include <glm/gtx/transform.hpp>
 
@@ -11,11 +13,11 @@
 #include "Globals.h"
 #include "Renderer.h"
 
-
-
 #include "Event/input-handler.hpp"
 
-Game::Game(StateMachine& machine) : State(machine, States::GAME), InputHandler(Application::Emitter), m_titleScreen(Application::Emitter) {
+#include <GUI/TitleScreen.h>
+
+Game::Game(StateMachine& machine) : State(machine, States::GAME), InputHandler(Application::Emitter) {
 
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
@@ -39,7 +41,7 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME), InputHandler(A
 		{ &Globals::textureManager.get("forest_5"), 1, 5.0f }});
 	m_background.setSpeed(0.005f);
 
-	m_xaml = m_titleScreen;
+	m_xaml = TitleScreen::Get().m_grid;
 	m_ui = Noesis::GUI::CreateView(m_xaml).GiveOwnership();
 	m_ui->SetIsPPAAEnabled(true);
 	m_ui->GetRenderer()->Init(Application::NoesisDevice);

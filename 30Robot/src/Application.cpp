@@ -19,7 +19,7 @@
 
 #include <States/Default.h>
 #include <States/Game.h>
-#include <States/TitleScreen.h>
+#include <States/TitleScreenS.h>
 #include <States/LevelIntroS.h>
 #include <UI/Widget.h>
 
@@ -30,8 +30,11 @@
 #include "helper-service.hpp"
 #include "EventListener.h"
 
+#include <GUI/TitleScreen.h>
 #include <GUI/LevelIntro.h>
 #include <GUI/LevelHud.h>
+#include <GUI/GameOver.h>
+#include <GUI/LevelExit.h>
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -143,7 +146,7 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	s_LifeAndDeathSystem = new LifeAndDeathSystem(Application::Registry, Application::Emitter, s_Progression);
 
 	Application::s_RenderSystem->update(m_dt);
-	initStates();
+	
 
 	Application::Emitter.on<evnt::ChangeGameStateNew>([this](const evnt::ChangeGameStateNew& event, EventEmitter& emitter) {
 		dynamic_cast<EventListener*>(Machine->getStates().top())->OnStateChange(event.state);
@@ -153,8 +156,13 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 		dynamic_cast<EventListener*>(Machine->getStates().top())->OnApplicationQuit();
 	});
 
-	LevelIntro::Get().init();
-	LevelHud::Get().init(Application::Emitter, Application::s_Progression);
+	TitleScreen::Get().init(Application::Emitter, Application::s_Progression);
+	LevelIntro::Get().init(Application::Emitter, Application::s_Progression);
+	LevelHud::Get().init(Application::Emitter, Application::s_Progression);	
+	GameOver::Get().init(Application::Emitter, Application::s_Progression);
+	LevelExit::Get().init(Application::Emitter, Application::s_Progression);
+
+	initStates();
 }
 
 Application::~Application() {
