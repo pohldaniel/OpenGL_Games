@@ -5,9 +5,6 @@
 #include "Renderer.h"
 
 #include "tags.hpp"
-
-#include "Event/change-game-state.hpp"
-
 #include "Event/progression-updated.hpp"
 #include "Event/Interactions/select-rotation.hpp"
 
@@ -21,6 +18,7 @@
 #include "Components/constrained-rotation.hpp"
 
 #include "maths.hpp"
+#include "i-helper.hpp"
 
 #include <States/GameOverS.h>
 #include <States/LevelExitS.h>
@@ -250,7 +248,7 @@ LevelConnections::LevelConnections(LevelS& level) :
 		}
 	})), 
 	connection6(Application::Emitter.on<evnt::VictoryDelayEnds>([](const evnt::VictoryDelayEnds & event, EventEmitter & emitter) {
-		Application::Emitter.publish<evnt::ChangeGameState>(GameState::LEVEL_EXIT, Application::s_Progression.getLevelNumber());
+		Application::Emitter.publish<evnt::ChangeGameStateNew>(States::LEVELEXIT);
 	})), 
 	connection7(Application::Emitter.on<evnt::EnemyReachedEnd>([this](const evnt::EnemyReachedEnd & event, EventEmitter & emitter) {
 		if (waveDone) {
@@ -315,6 +313,8 @@ LevelS::~LevelS() {
 
 	m_ui->GetRenderer()->Shutdown();
 	delete m_ui;
+
+	entt::ServiceLocator<IHelper>::ref().reset();
 }
 
 void LevelS::fixedUpdate() {

@@ -31,6 +31,7 @@ public:
 	void setRegistry(entt::DefaultRegistry* registry) override;
 	void setEmitter(EventEmitter* emitter) override;
 	void setLevel(Level* level) override;
+	void reset() override;
 
 private:
 	glm::vec2 m_screenShake;

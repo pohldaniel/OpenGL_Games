@@ -1,17 +1,13 @@
 #include <NsGui/IntegrationAPI.h>
-
-#include "LevelIntroS.h"
-
-#include "Application.h"
-#include "Globals.h"
-#include "Renderer.h"
-
-#include <Event/change-game-state.hpp>
 #include <States/TitleScreenS.h>
 #include <States/Default.h>
 #include <States/LevelS.h>
-
 #include <GUI/LevelIntro.h>
+
+#include "LevelIntroS.h"
+#include "Application.h"
+#include "Globals.h"
+#include "Renderer.h"
 
 LevelIntroS::LevelIntroS(StateMachine& machine) : State(machine, States::LEVELINTRO) {
 

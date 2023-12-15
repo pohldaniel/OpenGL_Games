@@ -1,12 +1,7 @@
-#include "LevelExit.h"
-
 #include <NsGui/Button.h>
 
-#include "Event/change-game-state.hpp"
+#include "LevelExit.h"
 #include "Event/progression-updated.hpp"
-#include "Event/change-game-state.hpp"
-#include "States/i-game-state.hpp"
-
 #include "EventListener.h"
 
 NS_IMPLEMENT_REFLECTION(LevelExitBindings) {

@@ -25,5 +25,6 @@ public:
 	virtual void setRegistry(entt::DefaultRegistry* registry) = 0;
 	virtual void setEmitter(EventEmitter* emitter) = 0;
 	virtual void setLevel(Level* level) = 0;
+	virtual void reset() = 0;
 };
 

@@ -1,15 +1,11 @@
 #include <NsGui/IntegrationAPI.h>
+#include <States/LevelIntroS.h>
+#include <GUI/TitleScreen.h>
 
 #include "TitleScreenS.h"
-
 #include "Application.h"
 #include "Globals.h"
 #include "Renderer.h"
-
-#include <Event/change-game-state.hpp>
-#include <States/LevelIntroS.h>
-
-#include <GUI/TitleScreen.h>
 
 TitleScreenS::TitleScreenS(StateMachine& machine) : State(machine, States::TITLESCREEN) {
 

@@ -423,9 +423,6 @@
     <ClCompile Include="src\rigid-body-factory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\States\i-game-state.cpp">
-      <Filter>Source Files\States</Filter>
-    </ClCompile>
     <ClCompile Include="src\Event\contact-listener.cpp">
       <Filter>Source Files\Event</Filter>
     </ClCompile>
@@ -976,12 +973,6 @@
     </ClInclude>
     <ClInclude Include="src\rigid-body-factory.hpp">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Event\change-game-state.hpp">
-      <Filter>Source Files\Event</Filter>
-    </ClInclude>
-    <ClInclude Include="src\States\i-game-state.hpp">
-      <Filter>Source Files\States</Filter>
     </ClInclude>
     <ClInclude Include="src\Event\contact-listener.hpp">
       <Filter>Source Files\Event</Filter>

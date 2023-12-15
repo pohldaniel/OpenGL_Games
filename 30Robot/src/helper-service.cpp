@@ -236,6 +236,12 @@ void HelperService::startScreenShake(float duration) {
 	m_screenShakeTimeRemmaining = duration;
 }
 
+void HelperService::reset() {
+	m_screenShaking = false;
+	m_screenShake = glm::vec2(0.0f);
+	m_screenShakeTimeRemmaining = 0.0f;
+}
+
 std::uint32_t HelperService::getTile(unsigned int x, unsigned int y) {
 	return m_level->getTile(x, y);
 }

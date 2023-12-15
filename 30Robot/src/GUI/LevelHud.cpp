@@ -6,7 +6,6 @@
 #include <glm/glm.hpp>
 
 #include "constants.hpp"
-#include "States/i-game-state.hpp"
 #include "Event/Interactions/construct-selection.hpp"
 #include "Event/Interactions/delete-entity.hpp"
 #include "Event/progression-updated.hpp"
@@ -267,8 +266,7 @@ void LevelHud::setSelectedEntity(std::uint32_t id) {
 void LevelHud::setOptionsVisibilityTo(bool show) {
 	if (show) {
 		m_grid->m_bindings->setOptionsVisibility("Visible");
-	}
-	else {
+	}else {
 		m_grid->m_bindings->setOptionsVisibility("Collapsed");
 	}
 }

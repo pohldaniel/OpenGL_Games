@@ -1,10 +1,7 @@
-#include <iostream>
-#include "TitleScreen.h"
-
 #include <NsGui/Button.h>
-#include "Event/change-game-state.hpp"
+
+#include "TitleScreen.h"
 #include "EventListener.h"
-#include "States/i-game-state.hpp"
 
 NS_IMPLEMENT_REFLECTION(TitleScreenGrid) {
 	NsMeta<Noesis::TypeId>("TitleScreenGrid");

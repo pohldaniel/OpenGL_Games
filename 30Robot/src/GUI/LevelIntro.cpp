@@ -2,7 +2,6 @@
 
 #include "LevelIntro.h"
 
-#include "Event/change-game-state.hpp"
 #include "Event/progression-updated.hpp"
 #include "EventListener.h"
 #include "Application.h"

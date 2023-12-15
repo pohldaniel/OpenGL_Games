@@ -205,7 +205,6 @@
     <ClCompile Include="src\States\Default.cpp" />
     <ClCompile Include="src\States\Game.cpp" />
     <ClCompile Include="src\States\GameOverS.cpp" />
-    <ClCompile Include="src\States\i-game-state.cpp" />
     <ClCompile Include="src\States\LevelExitS.cpp" />
     <ClCompile Include="src\States\LevelIntroS.cpp" />
     <ClCompile Include="src\States\LevelS.cpp" />
@@ -395,7 +394,6 @@
     <ClInclude Include="src\Entity\tile-factory.hpp" />
     <ClInclude Include="src\Entity\tower-factory.hpp" />
     <ClInclude Include="src\Entity\vfx-factory.hpp" />
-    <ClInclude Include="src\Event\change-game-state.hpp" />
     <ClInclude Include="src\Event\contact-listener.hpp" />
     <ClInclude Include="src\Event\enemy-dead.hpp" />
     <ClInclude Include="src\Event\enemy-reached-end.hpp" />
@@ -460,7 +458,6 @@
     <ClInclude Include="src\States\Default.h" />
     <ClInclude Include="src\States\Game.h" />
     <ClInclude Include="src\States\GameOverS.h" />
-    <ClInclude Include="src\States\i-game-state.hpp" />
     <ClInclude Include="src\States\LevelExitS.h" />
     <ClInclude Include="src\States\LevelIntroS.h" />
     <ClInclude Include="src\States\LevelS.h" />

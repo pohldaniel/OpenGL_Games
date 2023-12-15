@@ -15,7 +15,6 @@
 #include <engine/Fontrenderer.h>
 #include <Application.h>
 #include <Globals.h>
-#include <Event/change-game-state.hpp>
 
 #include <States/Default.h>
 #include <States/Game.h>
@@ -40,7 +39,6 @@
 #include "Event/wave-updated.hpp"
 #include "Event/enemy-dead.hpp"
 #include "Event/victory-delay-ends.hpp"
-#include "Event/change-game-state.hpp"
 #include "Event/enemy-reached-end.hpp"
 #include "Event/loose.hpp"
 #include "Event/Interactions/delete-entity.hpp"
