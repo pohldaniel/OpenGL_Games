@@ -15,24 +15,47 @@
 #include "Entity/mirror-factory.hpp"
 
 #include "EventListener.h"
-
 #include "Event/EventEmitter.h"
 #include "Event/Interactions/construct-selection.hpp"
 #include "Event/Interactions/delete-entity.hpp"
+#include "Event/loose.hpp"
+#include "Event/tower-dead.hpp"
+#include "Event/wave-updated.hpp"
+#include "Event/enemy-dead.hpp"
 #include "Event/EventEmitter.h"
+#include "Event/victory-delay-ends.hpp"
+#include "Event/enemy-reached-end.hpp"
 
-enum class LevelInteractionState {
-	FREE,
-	ROTATE,
-	INVALID,
-	OPTIONS,
-	BUILD
+
+/*struct LevelConnections {
+	LevelConnections();
+};*/
+
+class LevelS;
+
+struct LevelConnections {
+	LevelConnections(LevelS& level);
+
+	entt::Emitter<EventEmitter>::Connection<evnt::ConstructSelection> connection1;
+	entt::Emitter<EventEmitter>::Connection<evnt::DeleteEntity> connection2;
+	entt::Emitter<EventEmitter>::Connection<evnt::TowerDead> connection3;
+	entt::Emitter<EventEmitter>::Connection<evnt::WaveUpdated> connection4;
+	entt::Emitter<EventEmitter>::Connection<evnt::EnemyDead> connection5;
+	entt::Emitter<EventEmitter>::Connection<evnt::VictoryDelayEnds> connection6;
+	entt::Emitter<EventEmitter>::Connection<evnt::EnemyReachedEnd> connection7;
+	entt::Emitter<EventEmitter>::Connection<evnt::Loose> connection8;
+
+	bool waveDone;
+	LevelInteractionState state;
+	std::uint32_t lastSelectedEntity;
 };
 
-
-
 class LevelS : public State, public MouseEventListener, public KeyboardEventListener, public EventListener {
+
+	friend struct LevelConnections;
+
 public:
+
 	LevelS(StateMachine& machine);
 	virtual ~LevelS();
 
@@ -47,18 +70,13 @@ public:
 	void OnMouseButtonDown(Event::MouseButtonEvent& event) override;
 	void OnMouseButtonUp(Event::MouseButtonEvent& event) override;
 
-	// Getters
 	LevelInteractionState getInteractionState() const;
-
-	// Setters
-	static void ChangeState(LevelInteractionState state);
-
-	void OnStateChange(States states) override;
 
 private:
 
-	void handleVictoryConditions();
-	void handleConstructions();
+	void OnStateChange(States states) override;
+	void OnLevelInteractionStateChange(LevelInteractionState state) override;
+
 
 	Noesis::Ptr<Noesis::FrameworkElement> m_xaml;
 	Noesis::IView* m_ui;
@@ -66,16 +84,8 @@ private:
 
 	unsigned int m_invalidTimeCounter;
 	unsigned int m_invalidTimeMax;
-
-
-	bool m_bWaveDone;
-
-	static bool Init;
-	static bool WaveDone;
-	static TowerFactory TowerFactory;
-	static MirrorFactory MirrorFactory;
-	static LevelInteractionState _State;
-	static std::uint32_t LastSelectedEntity;
-
-	//entt::Emitter<EventEmitter>::Connection<evnt::DeleteEntity> connection;
+	TowerFactory m_towerFactory;
+	MirrorFactory m_mirrorFactory;
+	LevelConnections m_connections;
 };
+

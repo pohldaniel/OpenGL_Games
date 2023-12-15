@@ -38,7 +38,13 @@ void GameOverS::fixedUpdate() {
 }
 
 void GameOverS::update() {
+	Keyboard &keyboard = Keyboard::instance();
 
+	if (keyboard.keyPressed(Keyboard::KEY_W)) {
+		m_isRunning = false;
+		//m_machine.addStateAtBottom(states == States::LEVELINTRO ? static_cast<State*>(new LevelIntroS(m_machine)) : static_cast<State*>(new TitleScreenS(m_machine)));
+		m_machine.addStateAtBottom(static_cast<State*>(new LevelIntroS(m_machine)));
+	}
 }
 
 void GameOverS::render() {

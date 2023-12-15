@@ -1,13 +1,26 @@
 #pragma once
 
-#include <NsGui/Grid.h>
 #include <NsGui/IntegrationAPI.h>
+#include <NsGui/Grid.h>
 #include <NsApp/DelegateCommand.h>
-#include <glm/glm.hpp>
+#include <NsApp/NotifyPropertyChangedBase.h>
 
 #include "Event/EventEmitter.h"
 #include "progression.hpp"
-#include "level-exit-bindings.hpp"
+
+class LevelExitBindings : public NoesisApp::NotifyPropertyChangedBase {
+public:
+	LevelExitBindings();
+
+	const char* getText() const;
+	void setText(const char* value);
+
+private:
+	NS_DECLARE_REFLECTION(LevelExitBindings, NotifyPropertyChangedBase)
+
+		NsString m_text;
+};
+
 
 class LevelExitGrid : public Noesis::Grid {
 

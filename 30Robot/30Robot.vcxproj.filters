@@ -477,19 +477,10 @@
     <ClCompile Include="src\GUI\LevelExit.cpp">
       <Filter>Source Files\GUI</Filter>
     </ClCompile>
-    <ClCompile Include="src\GUI\level-exit-bindings.cpp">
-      <Filter>Source Files\GUI</Filter>
-    </ClCompile>
     <ClCompile Include="src\GUI\LevelHud.cpp">
       <Filter>Source Files\GUI</Filter>
     </ClCompile>
-    <ClCompile Include="src\GUI\level-hud-bindings.cpp">
-      <Filter>Source Files\GUI</Filter>
-    </ClCompile>
     <ClCompile Include="src\GUI\LevelIntro.cpp">
-      <Filter>Source Files\GUI</Filter>
-    </ClCompile>
-    <ClCompile Include="src\GUI\level-intro-bindings.cpp">
       <Filter>Source Files\GUI</Filter>
     </ClCompile>
     <ClCompile Include="src\GUI\TitleScreen.cpp">
@@ -1115,19 +1106,10 @@
     <ClInclude Include="src\GUI\LevelExit.h">
       <Filter>Source Files\GUI</Filter>
     </ClInclude>
-    <ClInclude Include="src\GUI\level-exit-bindings.hpp">
-      <Filter>Source Files\GUI</Filter>
-    </ClInclude>
     <ClInclude Include="src\GUI\LevelHud.h">
       <Filter>Source Files\GUI</Filter>
     </ClInclude>
-    <ClInclude Include="src\GUI\level-hud-bindings.hpp">
-      <Filter>Source Files\GUI</Filter>
-    </ClInclude>
     <ClInclude Include="src\GUI\LevelIntro.h">
-      <Filter>Source Files\GUI</Filter>
-    </ClInclude>
-    <ClInclude Include="src\GUI\level-intro-bindings.hpp">
       <Filter>Source Files\GUI</Filter>
     </ClInclude>
     <ClInclude Include="src\GUI\TitleScreen.h">

@@ -177,6 +177,10 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 		dynamic_cast<EventListener*>(Machine->getStates().top())->OnApplicationQuit();
 	});
 
+	Application::Emitter.on<evnt::ChangeLevelInteractionState>([this](const evnt::ChangeLevelInteractionState& event, EventEmitter& emitter) {
+		dynamic_cast<EventListener*>(Machine->getStates().top())->OnLevelInteractionStateChange(event.state);
+	});
+
 	// TODO use a safer and more global way, because if tile is invalid, it will cause a problem
 	// Start by using only one type of event for entity deletion, and see if there is a way to check the grid for deletion
 	/*Application::Emitter.on<evnt::DeleteEntity>([this](const evnt::DeleteEntity & event, EventEmitter & emitter) {

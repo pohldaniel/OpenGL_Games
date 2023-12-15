@@ -1,13 +1,62 @@
 #pragma once
 
-#include <NsGui/Grid.h>
 #include <NsGui/IntegrationAPI.h>
+#include <NsGui/Grid.h>
 #include <NsApp/DelegateCommand.h>
-#include <glm/glm.hpp>
+#include <NsApp/NotifyPropertyChangedBase.h>
 
 #include "Event/EventEmitter.h"
 #include "progression.hpp"
-#include "level-hud-bindings.hpp"
+
+class LevelHudBindings : public NoesisApp::NotifyPropertyChangedBase {
+
+public:
+	LevelHudBindings();
+
+	// Flying option menu
+	const char* getOptionsVisibility() const;
+	void setOptionsVisibility(const char* value);
+
+	void setOptionsPosX(float pos);
+	float getOptionsPosX() const;
+
+	void setOptionsPosY(float pos);
+	float getOptionsPosY() const;
+
+	// Start wave btn
+	const char* getStartWaveBtnVisibility() const;
+	void setStartWaveBtnVisibility(const char* value);
+
+	void setStartWaveBtnPosY(float pos);
+	float getStartWaveBtnPosY() const;
+
+	// TopBar
+	const char* getTimer() const;
+	void setTimer(const char* value);
+
+	const char* getLife() const;
+	void setLife(const char* value);
+
+	// BottomBar
+	const char* getMirrorNumber() const;
+	void setMirrorNumber(const char* value);
+
+	const char* getSlowNumber() const;
+	void setSlowNumber(const char* value);
+
+private:
+	NS_DECLARE_REFLECTION(LevelHudBindings, NotifyPropertyChangedBase)
+
+	float m_optionsPosX;
+	float m_optionsPosY;
+	NsString m_optionsVisibility;
+	NsString m_startWaveBtnVisibility;
+	float m_startWaveBtnPosY;
+	NsString m_timer;
+	NsString m_life;
+	NsString m_mirrorNumber;
+	NsString m_slowNumber;
+};
 
 class LevelHudGrid : public Noesis::Grid {
 
@@ -29,8 +78,6 @@ public:
 	void OnMouseEnter(const Noesis::MouseEventArgs& e) override;
 	void OnMouseLeave(const Noesis::MouseEventArgs& e) override;
 	void OnMouseDown(const Noesis::MouseButtonEventArgs& e) override;
-
-
 
 	Noesis::Ptr<LevelHudBindings> m_bindings;
 	EventEmitter& m_emitter;

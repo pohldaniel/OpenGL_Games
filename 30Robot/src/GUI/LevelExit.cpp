@@ -9,6 +9,25 @@
 
 #include "EventListener.h"
 
+NS_IMPLEMENT_REFLECTION(LevelExitBindings) {
+	NsMeta<Noesis::TypeId>("LevelExitBindings");
+	NsProp("Text", &LevelExitBindings::getText, &LevelExitBindings::setText);
+}
+
+LevelExitBindings::LevelExitBindings() : m_text("") {
+}
+
+const char* LevelExitBindings::getText() const {
+	return m_text.c_str();
+}
+
+void LevelExitBindings::setText(const char* value) {
+	if (m_text != value) {
+		m_text = value;
+		OnPropertyChanged("Text");
+	}
+}
+
 NS_IMPLEMENT_REFLECTION(LevelExitGrid) {
 	NsMeta<Noesis::TypeId>("LevelExitGrid");
 }
