@@ -24,6 +24,13 @@
 #include "Event/input-handler.hpp"
 #include "EventListener.h"
 
+
+struct TitleScreenConnections {
+	TitleScreenConnections();
+
+	
+};
+
 class TitleScreenS : public State, public MouseEventListener, public KeyboardEventListener, public EventListener {
 
 public:
@@ -52,5 +59,7 @@ private:
 	Noesis::IView* m_ui;
 
 	Noesis::Ptr<Noesis::Grid> xaml;
+
+	static TitleScreenConnections TitleScreenSConnections;
 };
 

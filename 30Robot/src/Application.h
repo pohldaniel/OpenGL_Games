@@ -36,10 +36,29 @@ public:
 	static void SetCursorIcon(LPCSTR resource);
 	static void SetCursorIcon(HCURSOR cursor);
 	static const HWND& GetWindow();
+	static StateMachine* GetMachine();
 
 	static int Width;
 	static int Height;
 
+	static Noesis::Ptr<Noesis::RenderDevice> NoesisDevice;
+	static EventEmitter Emitter;
+	static entt::DefaultRegistry Registry;
+	static RenderSystem* s_RenderSystem;
+	static AnimationSystem* s_AnimationSystem;
+	static MovementSystem* s_MovementSystem;
+	static WaveSystem* s_WaveSystem;
+	static AttackSystem* s_AttackSystem;
+	static LifeAndDeathSystem* s_LifeAndDeathSystem;
+	static Progression s_Progression;
+	static Level* s_Level;
+
+	glm::mat4 projection;
+	glm::mat4 view;
+	glm::vec2 viewTranslation;
+	float viewScale;
+
+private:
 	static LRESULT CALLBACK StaticWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 	LRESULT DisplayWndProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam);
 
@@ -75,21 +94,4 @@ public:
 	static HICON Icon;
 	static bool VerticalSync;
 	static bool Fullscreen;
-
-	static Noesis::Ptr<Noesis::RenderDevice> NoesisDevice;
-	static EventEmitter Emitter;
-	static entt::DefaultRegistry Registry;
-	static RenderSystem* s_RenderSystem;
-	static AnimationSystem* s_AnimationSystem;
-	static MovementSystem* s_MovementSystem;
-	static WaveSystem* s_WaveSystem;
-	static AttackSystem* s_AttackSystem;
-	static LifeAndDeathSystem* s_LifeAndDeathSystem;
-	static Progression s_Progression;
-	static Level* s_Level;
-
-	glm::mat4 projection;
-	glm::mat4 view;
-	glm::vec2 viewTranslation;
-	float viewScale;
 };

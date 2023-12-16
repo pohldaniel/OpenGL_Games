@@ -40,7 +40,7 @@
                 <EasingDoubleKeyFrame KeyTime="0:0:2.6" Value="25"/>
                 <EasingDoubleKeyFrame KeyTime="0:0:3" Value="0"/>
             </DoubleAnimationUsingKeyFrames>
-			<DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[3].(TranslateTransform.Y)" Storyboard.TargetName="Exit">
+			<DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[3].(TranslateTransform.Y)" Storyboard.TargetName="Quit">
                 <EasingDoubleKeyFrame KeyTime="0" Value="25"/>
                 <EasingDoubleKeyFrame KeyTime="0:0:2.6" Value="25"/>
                 <EasingDoubleKeyFrame KeyTime="0:0:3" Value="0"/>
@@ -60,7 +60,7 @@
                 <EasingDoubleKeyFrame KeyTime="0:0:2.6" Value="0"/>
                 <EasingDoubleKeyFrame KeyTime="0:0:3" Value="1"/>
             </DoubleAnimationUsingKeyFrames>
-			<DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="Exit">
+			<DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="Quit">
                 <EasingDoubleKeyFrame KeyTime="0" Value="0"/>
                 <EasingDoubleKeyFrame KeyTime="0:0:2.6" Value="0"/>
                 <EasingDoubleKeyFrame KeyTime="0:0:3" Value="1"/>
@@ -179,7 +179,7 @@
     </StackPanel>
 
 	<StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,-41">
-      <Button Style="{StaticResource Btn}" x:Name="Exit" Click="onQuitGame" Content="EXIT" HorizontalAlignment="Center" Margin="0,0,46,88" VerticalAlignment="Bottom" FontFamily="../fonts/#Sniglet" FontSize="18"  Background="#FFDDDDDD">
+      <Button Style="{StaticResource Btn}" x:Name="Quit" Click="onQuitGame" Content="Quit" HorizontalAlignment="Center" Margin="0,0,46,88" VerticalAlignment="Bottom" FontFamily="../fonts/#Sniglet" FontSize="18"  Background="#FFDDDDDD">
 	    <Button.RenderTransform>
           <TransformGroup>
             <ScaleTransform/>

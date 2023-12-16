@@ -26,10 +26,13 @@
 #include "Event/victory-delay-ends.hpp"
 #include "Event/enemy-reached-end.hpp"
 
-
-/*struct LevelConnections {
-	LevelConnections();
-};*/
+enum class LevelInteractionState {
+	FREE,
+	ROTATE,
+	INVALID,
+	OPTIONS,
+	BUILD
+};
 
 class LevelS;
 
@@ -75,8 +78,7 @@ public:
 private:
 
 	void OnStateChange(States states) override;
-	void OnLevelInteractionStateChange(LevelInteractionState state) override;
-
+	void changeState(LevelInteractionState state);
 
 	Noesis::Ptr<Noesis::FrameworkElement> m_xaml;
 	Noesis::IView* m_ui;

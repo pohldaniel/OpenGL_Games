@@ -2,18 +2,9 @@
 
 #include <States/StateMachine.h>
 
-enum class LevelInteractionState {
-	FREE,
-	ROTATE,
-	INVALID,
-	OPTIONS,
-	BUILD
-};
-
 struct EventListener{
 	virtual void OnStateChange(States states) = 0;
 	virtual void OnApplicationQuit() {};
-	virtual void OnLevelInteractionStateChange(LevelInteractionState state) {};
 };
 
 namespace evnt {
@@ -24,10 +15,5 @@ namespace evnt {
 	struct ChangeGameStateNew {
 		ChangeGameStateNew(States state) : state(state) {}
 		States state;
-	};
-
-	struct ChangeLevelInteractionState {
-		ChangeLevelInteractionState(LevelInteractionState state) : state(state) {}
-		LevelInteractionState state;
 	};
 }

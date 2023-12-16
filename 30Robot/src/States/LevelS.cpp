@@ -24,143 +24,13 @@
 #include <States/LevelExitS.h>
 #include <GUI/LevelHud.h>
 
-/*LevelConnections LevelS::Connections;
-LevelConnections::LevelConnections() {
-	Application::Emitter.on<evnt::ConstructSelection>([](const evnt::ConstructSelection & event, EventEmitter & emitter) {
-		switch (LevelS::_State) {
-		case LevelInteractionState::INVALID:
-		case LevelInteractionState::FREE:
-			Application::Emitter.entityBeingPlaced = true;
-
-
-			emitter.publish<evnt::ChangeLevelInteractionState>(LevelInteractionState::BUILD);
-			unsigned int entityId;
-
-			switch (event.type) {
-			case ConstructibleType::MIRROR_BASIC:
-				entityId = LevelS::MirrorFactory.create(0, 0);
-				Application::Registry.assign<positionTag::IsOnHoveredTile>(entityId);
-				Application::s_Progression.reduceMirrorNumberBy1();
-				break;
-
-			case ConstructibleType::TOWER_LASER:
-				entityId = LevelS::TowerFactory.createLaser(0, 0);
-				Application::Registry.assign<stateTag::IsBeingControlled>(entityId);
-				Application::Registry.assign<positionTag::IsOnHoveredTile>(entityId);
-				Application::Registry.assign<stateTag::RotateableByMouse>(entityId);
-				Application::Registry.get<cmpt::ShootLaser>(entityId).isActiv = false;
-				break;
-
-			case ConstructibleType::TOWER_SLOW:
-				entityId = LevelS::TowerFactory.createSlow(0, 0);
-				Application::Registry.assign<stateTag::IsBeingControlled>(entityId);
-				Application::Registry.assign<positionTag::IsOnHoveredTile>(entityId);
-				Application::s_Progression.reduceSlowNumberBy1();
-				break;
-			}
-			LevelS::LastSelectedEntity = entityId;
-			break;
-		}
-	});
-
-	Application::Emitter.on<evnt::DeleteEntity>(
-		[](const evnt::DeleteEntity & event, EventEmitter & emitter) {
-		if (Application::Registry.valid(event.entityId)) {
-			glm::vec2 position = Application::Registry.get<cmpt::Transform>(event.entityId).position;
-			//this->m_game.registry.destroy(event.entityId);
-			Application::Registry.assign<cmpt::Animated>(event.entityId, 1, true);
-			Application::Registry.assign<cmpt::AnimationAlpha>(event.entityId, false);
-
-			if (Application::Registry.has<entityTag::Mirror>(event.entityId)) {
-				Application::s_Progression.increaseMirrorNumberBy1();
-			}
-			if (Application::Registry.has<entityTag::Tower>(event.entityId)) {
-				Application::s_Progression.increaseSlowNumberBy1();
-			}
-
-			std::uint32_t tileId = Application::s_Level->getTileFromProjCoord(position.x / WIN_RATIO, position.y);
-			Application::Registry.assign<tileTag::Constructible>(tileId);
-			Application::Registry.remove<cmpt::EntityOnTile>(tileId);
-			//level.ChangeState(LevelInteractionState::FREE);
-
-			emitter.publish<evnt::ChangeLevelInteractionState>(LevelInteractionState::FREE);
-		}
-	});
-
-	Application::Emitter.on<evnt::TowerDead>([](const evnt::TowerDead & event, EventEmitter & emitter) {
-		std::uint32_t tileId = Application::s_Level->getTileFromProjCoord(event.position.x / WIN_RATIO, event.position.y);
-		Application::Registry.accommodate<tileTag::Constructible>(tileId);
-		Application::Registry.reset<cmpt::EntityOnTile>(tileId);
-	});
-
-	Application::Emitter.on<evnt::WaveUpdated>([](const evnt::WaveUpdated & event, EventEmitter & emitter) {
-		switch (event.state) {
-		case WaveState::NOT_STARTED:
-		case WaveState::PENDING:
-		case WaveState::DURING:
-			LevelS::WaveDone = false;
-			break;
-
-		case WaveState::DONE:
-			LevelS::WaveDone = true;
-			break;
-
-		default:
-			break;
-		}
-	});
-
-	Application::Emitter.on<evnt::EnemyDead>([](const evnt::EnemyDead & event, EventEmitter & emitter) {
-		if (LevelS::WaveDone) {
-			int enemyRemaining = 0;
-			Application::Registry.view<entityTag::Enemy>().each([&enemyRemaining](auto entity, auto) {
-				if (!Application::Registry.has<stateTag::IsDisappearing>(entity)) {
-					enemyRemaining++;
-				}
-			});
-			if (enemyRemaining == 1) {
-				//Set delay before victory and changing game state
-				std::uint32_t timer = Application::Registry.create();
-				Application::Registry.assign<cmpt::Age>(timer, DELAY_BETWEEN_VICTORY_AND_CHANGE_GAME_STATE);
-				Application::Registry.assign<entityTag::VictoryDelayTimer>(timer);
-			}
-		}
-	});
-
-	Application::Emitter.on<evnt::VictoryDelayEnds>([](const evnt::VictoryDelayEnds & event, EventEmitter & emitter) {
-		Application::Emitter.publish<evnt::ChangeGameState>(GameState::LEVEL_EXIT, Application::s_Progression.getLevelNumber());
-	});
-
-	Application::Emitter.on<evnt::EnemyReachedEnd>([](const evnt::EnemyReachedEnd & event, EventEmitter & emitter) {
-		if (LevelS::WaveDone) {
-			int enemyRemaining = 0;
-			Application::Registry.view<entityTag::Enemy>().each([&enemyRemaining](auto entity, auto) {
-				if (!Application::Registry.has<stateTag::IsDisappearing>(entity)) {
-					enemyRemaining++;
-				}
-			});
-			if (enemyRemaining == 0) {
-				//Set delay before victory and changing game state
-				std::uint32_t timer = Application::Registry.create();
-				Application::Registry.assign<cmpt::Age>(timer, DELAY_BETWEEN_VICTORY_AND_CHANGE_GAME_STATE);
-				Application::Registry.assign<entityTag::VictoryDelayTimer>(timer);
-			}
-		}
-	});
-
-	Application::Emitter.on<evnt::Loose>([this](const evnt::Loose & event, EventEmitter & emitter) {
-		// TODO play an outro
-		Application::Emitter.publish<evnt::ChangeGameStateNew>(States::GAMEOVER);
-	});
-}*/
-
 LevelConnections::LevelConnections(LevelS& level) :
 	connection1(Application::Emitter.on<evnt::ConstructSelection>([this, &level](const evnt::ConstructSelection & event, EventEmitter & emitter) {
 		switch (state) {
 			case LevelInteractionState::INVALID:
 			case LevelInteractionState::FREE:
 				Application::Emitter.entityBeingPlaced = true;
-				level.OnLevelInteractionStateChange(LevelInteractionState::BUILD);
+				level.changeState(LevelInteractionState::BUILD);
 				unsigned int entityId;
 
 				switch (event.type) {
@@ -205,7 +75,7 @@ LevelConnections::LevelConnections(LevelS& level) :
 			std::uint32_t tileId = Application::s_Level->getTileFromProjCoord(position.x / WIN_RATIO, position.y);
 			Application::Registry.assign<tileTag::Constructible>(tileId);
 			Application::Registry.remove<cmpt::EntityOnTile>(tileId);
-			level.OnLevelInteractionStateChange(LevelInteractionState::FREE);
+			level.changeState(LevelInteractionState::FREE);
 
 
 		}
@@ -336,7 +206,7 @@ void LevelS::render() {
 
 	if (m_invalidTimeCounter >= m_invalidTimeMax) {
 		m_invalidTimeCounter = 0;
-		OnLevelInteractionStateChange(LevelInteractionState::FREE);
+		changeState(LevelInteractionState::FREE);
 	}
 
 	// Noesis gui update
@@ -437,7 +307,7 @@ void LevelS::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 				if (Application::Registry.valid(entityId)) {
 					//If valid mirror then rotate.
 					if (Application::Registry.has<entityTag::Mirror>(entityId)) {
-						OnLevelInteractionStateChange(LevelInteractionState::ROTATE);
+						changeState(LevelInteractionState::ROTATE);
 						Application::Registry.accommodate<stateTag::IsBeingControlled>(entityId);
 						Application::Registry.accommodate<cmpt::LookAtMouse>(entityId);
 
@@ -460,7 +330,7 @@ void LevelS::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 				}
 				else {
 					std::cout << "No valid entity on tile" << std::endl;
-					OnLevelInteractionStateChange(LevelInteractionState::INVALID);
+					changeState(LevelInteractionState::INVALID);
 				}
 				break;
 			}
@@ -470,7 +340,7 @@ void LevelS::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 
 			case LevelInteractionState::OPTIONS:
 				// Click outside option menu closes it
-				OnLevelInteractionStateChange(LevelInteractionState::FREE);
+				changeState(LevelInteractionState::FREE);
 				break;
 
 			case LevelInteractionState::BUILD: {
@@ -495,10 +365,10 @@ void LevelS::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 						if (Application::Registry.has<stateTag::RotateableByMouse>(m_connections.lastSelectedEntity)) {
 							Application::Registry.accommodate<stateTag::IsBeingControlled>(m_connections.lastSelectedEntity);
 							Application::Registry.accommodate<cmpt::LookAtMouse>(m_connections.lastSelectedEntity);
-							OnLevelInteractionStateChange(LevelInteractionState::ROTATE);
+							changeState(LevelInteractionState::ROTATE);
 						}
 						else {
-							OnLevelInteractionStateChange(LevelInteractionState::FREE);
+							changeState(LevelInteractionState::FREE);
 						}
 					}
 					else {
@@ -533,7 +403,7 @@ void LevelS::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 				// Get entity. If valid open options. Else Invalid
 				std::uint32_t entityId = Application::s_Level->getEntityOnTileFromProjCoord(normMousePos.x, normMousePos.y);
 				if (Application::Registry.valid(entityId)) {
-					OnLevelInteractionStateChange(LevelInteractionState::OPTIONS);
+					changeState(LevelInteractionState::OPTIONS);
 					LevelHud::Get().setSelectedEntity(entityId);
 					cmpt::Transform trans = Application::Registry.get<cmpt::Transform>(entityId);
 					glm::vec2 posWindow = glm::vec2(
@@ -548,12 +418,12 @@ void LevelS::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 						LevelHud::Get().setOptionsPosition(posWindow);
 					}
 					else {
-						OnLevelInteractionStateChange(LevelInteractionState::INVALID);
+						changeState(LevelInteractionState::INVALID);
 					}
 				}
 				else {
 					std::cout << "No valid entity on tile" << std::endl;
-					OnLevelInteractionStateChange(LevelInteractionState::INVALID);
+					changeState(LevelInteractionState::INVALID);
 				}
 				break;
 			}
@@ -571,7 +441,7 @@ void LevelS::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 				}
 				//Reset
 				Application::Emitter.entityBeingPlaced = false;
-				OnLevelInteractionStateChange(LevelInteractionState::FREE);
+				changeState(LevelInteractionState::FREE);
 				Application::Registry.destroy(m_connections.lastSelectedEntity);
 				m_connections.lastSelectedEntity = entt::null;
 				//Update info bar
@@ -595,7 +465,7 @@ void LevelS::OnMouseButtonUp(Event::MouseButtonEvent& event) {
 
 			case LevelInteractionState::ROTATE:
 				// Stop rotating when mouse not pressed
-				OnLevelInteractionStateChange(LevelInteractionState::FREE);
+				changeState(LevelInteractionState::FREE);
 				if (Application::Registry.has<cmpt::ShootLaser>(m_connections.lastSelectedEntity)) {
 					Application::Registry.get<cmpt::ShootLaser>(m_connections.lastSelectedEntity) = true;
 				}
@@ -662,7 +532,7 @@ void LevelS::OnStateChange(States states) {
 	m_machine.addStateAtBottom(states == States::GAMEOVER ? static_cast<State*>(new GameOverS(m_machine)) : static_cast<State*>(new LevelExitS(m_machine)));
 }
 
-void LevelS::OnLevelInteractionStateChange(LevelInteractionState state) {
+void LevelS::changeState(LevelInteractionState state) {
 	// Exit current state
 	switch (m_connections.state) {
 		case LevelInteractionState::FREE:

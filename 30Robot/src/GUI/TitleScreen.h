@@ -1,14 +1,16 @@
 #pragma once
 
 #include <NsGui/Grid.h>
+#include <NsGui/Storyboard.h>
 #include <NsGui/IntegrationAPI.h>
-#include <NsApp/DelegateCommand.h>
 #include <glm/glm.hpp>
 
 #include "Event/EventEmitter.h"
 #include "progression.hpp"
 
 class TitleScreenGrid: public Noesis::Grid {
+
+	friend class TitleScreen;
 
 public:
 
@@ -24,8 +26,11 @@ private:
 	void onQuitGame(Noesis::BaseComponent* sender, const Noesis::RoutedEventArgs& args);
 
 private:
+
 	NS_DECLARE_REFLECTION(TitleScreenGrid, Grid);
 	EventEmitter& m_emitter;
+
+	Noesis::Ptr <Noesis::Storyboard> m_storyBoard;
 };
 
 class TitleScreen {
@@ -34,6 +39,7 @@ public:
 
 	static TitleScreen& Get();
 	void init(EventEmitter& emitter, Progression& progression);
+	void clearAnimations();
 
 	Noesis::Ptr<TitleScreenGrid> m_grid;
 

@@ -7,6 +7,18 @@
 #include "Globals.h"
 #include "Renderer.h"
 
+TitleScreenConnections::TitleScreenConnections() {
+	Application::Emitter.on<evnt::ChangeGameStateNew>([this](const evnt::ChangeGameStateNew& event, EventEmitter& emitter) {
+		dynamic_cast<EventListener*>(Application::GetMachine()->getStates().top())->OnStateChange(event.state);
+	});
+
+	Application::Emitter.on<evnt::ApplicationExit>([this](const evnt::ApplicationExit& event, EventEmitter& emitter) {
+		dynamic_cast<EventListener*>(Application::GetMachine()->getStates().top())->OnApplicationQuit();
+	});
+}
+
+TitleScreenConnections TitleScreenS::TitleScreenSConnections;
+
 TitleScreenS::TitleScreenS(StateMachine& machine) : State(machine, States::TITLESCREEN) {
 
 	EventDispatcher::AddKeyboardListener(this);
@@ -24,6 +36,8 @@ TitleScreenS::~TitleScreenS() {
 
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
+
+	TitleScreen::Get().clearAnimations();
 
 	m_ui->GetRenderer()->Shutdown();
 	delete m_ui;
