@@ -1,6 +1,5 @@
 #include <NsGui/Button.h>
 #include <Event/EventListener.h>
-#include <Event/progression-updated.hpp>
 
 #include "LevelIntro.h"
 #include "Application.h"

@@ -1,4 +1,5 @@
 #pragma once
+
 #include <Windows.h>
 
 #include <glm/glm.hpp>
@@ -7,16 +8,16 @@
 #include <vector>
 #include <string>
 
+#include <Event/EventEmitter.h>
+#include <Event/EventListener.h>
+
 #include "Isystem.h"
-#include "Event/EventEmitter.h"
 #include "components/transform.hpp"
 #include "components/sprite.hpp"
 #include "components/sprite-animation.hpp"
-#include "Event/interactions/change-cursor.hpp"
-
-/* TODO use framebuffer */
 
 class RenderSystem : public ISystem {
+
 public:
     RenderSystem(entt::DefaultRegistry& registry, EventEmitter& emitter, glm::mat4& viewMat, glm::mat4& projMat);
 	virtual ~RenderSystem();

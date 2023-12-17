@@ -16,15 +16,6 @@
 
 #include <Event/EventListener.h>
 #include <Event/EventEmitter.h>
-#include <Event/Interactions/construct-selection.hpp>
-#include <Event/Interactions/delete-entity.hpp>
-#include <Event/loose.hpp>
-#include <Event/tower-dead.hpp>
-#include <Event/wave-updated.hpp>
-#include <Event/enemy-dead.hpp>
-#include <Event/EventEmitter.h>
-#include <Event/victory-delay-ends.hpp>
-#include <Event/enemy-reached-end.hpp>
 
 enum class LevelInteractionState {
 	FREE,

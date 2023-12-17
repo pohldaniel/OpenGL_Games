@@ -1,3 +1,5 @@
+#include <Event/EventListener.h>
+
 #include "movement-system.hpp"
 
 #define _USE_MATH_DEFINES
@@ -9,9 +11,7 @@
 #include "constants.hpp"
 #include "tags.hpp"
 #include "level/graph.hpp"
-#include "Event/entity-damaged.hpp"
-#include "Event/enemy-reached-end.hpp"
-#include "Event/interactions/select-rotation.hpp"
+
 #include "components/transform.hpp"
 #include "components/rigid-body.hpp"
 #include "components/look-at-mouse.hpp"

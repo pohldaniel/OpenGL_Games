@@ -1,8 +1,7 @@
-#include "progression.hpp"
+#include <Event/EventListener.h>
+#include <Event/EventEmitter.h>
 
-#include "Event/EventEmitter.h"
-#include "Event/progression-updated.hpp"
-#include "Event/loose.hpp"
+#include "progression.hpp"
 
 Progression::Progression(EventEmitter& emitter)
 	: m_emitter(emitter), m_introImgPath(""), m_introText(""), m_exitText(""),

@@ -1,20 +1,14 @@
 #pragma once
 
 #include <entt/entt.hpp>
+#include <Event/EventEmitter.h>
+#include <Event/EventListener.h>
 
 #include "ISystem.h"
-#include "Event/EventEmitter.h"
-#include "Event/start-wave.hpp"
 #include "Level/level.hpp"
 #include "Entity/enemy-factory.hpp"
 #include "progression.hpp"
 
-enum class WaveState {
-	NOT_STARTED,
-	PENDING,
-	DURING,
-	DONE
-};
 
 class WaveSystem : public ISystem {
 public:

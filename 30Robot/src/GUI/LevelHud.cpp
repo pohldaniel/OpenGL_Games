@@ -6,10 +6,6 @@
 #include <glm/glm.hpp>
 
 #include "constants.hpp"
-#include "Event/Interactions/construct-selection.hpp"
-#include "Event/Interactions/delete-entity.hpp"
-#include "Event/progression-updated.hpp"
-#include "Event/wave-updated.hpp"
 #include "System/wave-system.hpp"
 
 

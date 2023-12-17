@@ -1,10 +1,7 @@
+#include <Event/EventListener.h>
+
 #include "life-and-death-system.hpp"
 
-#include "Event/entity-damaged.hpp"
-#include "Event/enemy-dead.hpp"
-#include "Event/tower-dead.hpp"
-#include "Event/enemy-reached-end.hpp"
-#include "Event/victory-delay-ends.hpp"
 #include "components/health.hpp"
 #include "components/transform.hpp"
 #include "components/entity-explosion-association.hpp"

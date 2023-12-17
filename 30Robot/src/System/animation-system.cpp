@@ -6,8 +6,7 @@
 #include "components/sprite-animation.hpp"
 #include "components/transform.hpp"
 
-#include "Event/enemy-dead.hpp"
-#include "Event/tower-dead.hpp"
+#include <Event/EventListener.h>
 
 AnimationSystem::AnimationSystem(entt::DefaultRegistry& registry, EventEmitter& emitter)
 : ISystem(registry, emitter), m_vfxFactory(registry)

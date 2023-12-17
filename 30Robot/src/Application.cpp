@@ -36,15 +36,6 @@
 
 #include "tags.hpp"
 #include <Event/EventListener.h>
-#include "Event/wave-updated.hpp"
-#include "Event/enemy-dead.hpp"
-#include "Event/victory-delay-ends.hpp"
-#include "Event/enemy-reached-end.hpp"
-#include "Event/loose.hpp"
-#include "Event/Interactions/delete-entity.hpp"
-#include "Event/tower-dead.hpp"
-#include "Event/progression-updated.hpp"
-#include "Event/Interactions/select-rotation.hpp"
 
 #include "Components/age.hpp"
 #include "Components/shoot-laser.hpp"

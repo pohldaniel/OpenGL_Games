@@ -1,9 +1,7 @@
-#include "wave-system.hpp"
-
-#include "locator.hpp"
 #include <Event/EventListener.h>
-#include <Event/wave-updated.hpp>
 
+#include "wave-system.hpp"
+#include "locator.hpp"
 
 WaveSystem::WaveSystem(entt::DefaultRegistry& registry, EventEmitter& emitter, Progression& progression, Level& level)
 : ISystem(registry, emitter), m_progression(progression), m_enemyFactory(registry, level), m_waveState(WaveState::NOT_STARTED),

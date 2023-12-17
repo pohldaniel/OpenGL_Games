@@ -1,5 +1,4 @@
 #include <NsGui/Button.h>
-#include <Event/progression-updated.hpp>
 #include <Event/EventListener.h>
 
 #include "LevelExit.h"

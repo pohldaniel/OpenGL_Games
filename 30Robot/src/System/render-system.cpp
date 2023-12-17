@@ -3,6 +3,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <GL/glew.h>
 #include <iostream>
+#include <Event/EventListener.h>
 
 #include "components/sprite.hpp"
 #include "components/sprite-animation.hpp"
@@ -20,8 +21,6 @@
 #include "components/animated.hpp"
 #include "components/animation-pixels-vanish.hpp"
 #include "components/growing-circle.hpp"
-#include "Event/laser-particle-dead.hpp"
-#include "Event/entity-damaged.hpp"
 
 #include "locator.hpp"
 #include "i-helper.hpp"

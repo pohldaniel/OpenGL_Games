@@ -12,8 +12,8 @@
 #include "i-helper.hpp"
 #include "i-debug-draw.hpp"
 
-#include "Event/laser-particle-dead.hpp"
-#include "Event/entity-damaged.hpp"
+#include <Event/EventListener.h>
+
 
 #include "Components/targeting.hpp"
 #include "Components/shoot-at.hpp"

@@ -5,8 +5,6 @@
 #include "Renderer.h"
 
 #include "tags.hpp"
-#include "Event/progression-updated.hpp"
-#include "Event/Interactions/select-rotation.hpp"
 
 #include "Components/age.hpp"
 #include "Components/shoot-laser.hpp"

@@ -79,9 +79,6 @@
     <Filter Include="Source Files\GUI">
       <UniqueIdentifier>{0ec559fb-f6e7-4b41-9cc8-cf98b05fc9c5}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Event\Interactions">
-      <UniqueIdentifier>{869b06e7-3687-4ace-878b-dea6e65ebe2a}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\input\ApplicationEventListener.cpp">
@@ -887,12 +884,6 @@
     <ClInclude Include="src\tags.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Event\loose.hpp">
-      <Filter>Source Files\Event</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Event\progression-updated.hpp">
-      <Filter>Source Files\Event</Filter>
-    </ClInclude>
     <ClInclude Include="src\Entity\enemy-factory.hpp">
       <Filter>Source Files\Entity</Filter>
     </ClInclude>
@@ -962,35 +953,8 @@
     <ClInclude Include="src\rigid-body-factory.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Event\selected.hpp">
-      <Filter>Source Files\Event</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Event\Interactions\change-cursor.hpp">
-      <Filter>Source Files\Event\Interactions</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Event\Interactions\construct-selection.hpp">
-      <Filter>Source Files\Event\Interactions</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Event\Interactions\delete-entity.hpp">
-      <Filter>Source Files\Event\Interactions</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Event\Interactions\scale-view.hpp">
-      <Filter>Source Files\Event\Interactions</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Event\Interactions\select-rotation.hpp">
-      <Filter>Source Files\Event\Interactions</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Event\Interactions\translate-view.hpp">
-      <Filter>Source Files\Event\Interactions</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Event\wave-updated.hpp">
-      <Filter>Source Files\Event</Filter>
-    </ClInclude>
     <ClInclude Include="src\System\wave-system.hpp">
       <Filter>Source Files\System</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Event\start-wave.hpp">
-      <Filter>Source Files\Event</Filter>
     </ClInclude>
     <ClInclude Include="src\System\animation-system.hpp">
       <Filter>Source Files\System</Filter>
@@ -1003,30 +967,6 @@
     </ClInclude>
     <ClInclude Include="src\System\render-system.hpp">
       <Filter>Source Files\System</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Event\enemy-dead.hpp">
-      <Filter>Source Files\Event</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Event\enemy-reached-end.hpp">
-      <Filter>Source Files\Event</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Event\enter-trigger.hpp">
-      <Filter>Source Files\Event</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Event\entity-damaged.hpp">
-      <Filter>Source Files\Event</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Event\exit-trigger.hpp">
-      <Filter>Source Files\Event</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Event\laser-particle-dead.hpp">
-      <Filter>Source Files\Event</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Event\tower-dead.hpp">
-      <Filter>Source Files\Event</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Event\victory-delay-ends.hpp">
-      <Filter>Source Files\Event</Filter>
     </ClInclude>
     <ClInclude Include="src\noesis-log-handler.hpp">
       <Filter>Header Files</Filter>

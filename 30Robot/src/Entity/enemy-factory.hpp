@@ -11,10 +11,7 @@
 
 #include <Level/level.hpp>
 
-enum class EnemyType {
-	ROBOT,
-	KAMIKAZE
-};
+
 
 class EnemyFactory : public Factory {
 public:

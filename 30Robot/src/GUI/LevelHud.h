@@ -5,7 +5,7 @@
 #include <NsApp/DelegateCommand.h>
 #include <NsApp/NotifyPropertyChangedBase.h>
 
-#include "Event/EventEmitter.h"
+#include <Event/EventEmitter.h>
 #include "progression.hpp"
 
 class LevelHudBindings : public NoesisApp::NotifyPropertyChangedBase {
