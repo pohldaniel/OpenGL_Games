@@ -1,9 +1,8 @@
 #include <NsGui/Button.h>
+#include <Event/EventListener.h>
+#include <Event/progression-updated.hpp>
 
 #include "LevelIntro.h"
-
-#include "Event/progression-updated.hpp"
-#include "EventListener.h"
 #include "Application.h"
 
 NS_IMPLEMENT_REFLECTION(LevelIntroBindings) {
@@ -75,11 +74,11 @@ void LevelIntroGrid::OnInitialized(BaseComponent*, const Noesis::EventArgs&) {
 }
 
 void LevelIntroGrid::onStartLevel(Noesis::BaseComponent* sender, const Noesis::RoutedEventArgs& args) {
-	Application::Emitter.publish<evnt::ChangeGameStateNew>(States::LEVEL);
+	Application::Emitter.publish<evnt::ChangeGameState>(States::LEVEL);
 }
 
 void LevelIntroGrid::onExit(Noesis::BaseComponent* sender, const Noesis::RoutedEventArgs& args) {
-	Application::Emitter.publish<evnt::ChangeGameStateNew>(States::TITLESCREEN);
+	Application::Emitter.publish<evnt::ChangeGameState>(States::TITLESCREEN);
 }
 
 

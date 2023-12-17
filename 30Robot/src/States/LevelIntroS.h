@@ -11,9 +11,9 @@
 #include <States/StateMachine.h>
 
 #include <Event/EventEmitter.h>
-#include <Level/level.hpp>
+#include <Event/EventListener.h>
 
-#include "EventListener.h"
+#include <Level/level.hpp>
 
 class LevelIntroS : public State, public MouseEventListener, public KeyboardEventListener, public EventListener {
 

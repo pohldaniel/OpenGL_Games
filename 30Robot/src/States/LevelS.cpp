@@ -118,7 +118,7 @@ LevelConnections::LevelConnections(LevelS& level) :
 		}
 	})), 
 	connection6(Application::Emitter.on<evnt::VictoryDelayEnds>([](const evnt::VictoryDelayEnds & event, EventEmitter & emitter) {
-		Application::Emitter.publish<evnt::ChangeGameStateNew>(States::LEVELEXIT);
+		Application::Emitter.publish<evnt::ChangeGameState>(States::LEVELEXIT);
 	})), 
 	connection7(Application::Emitter.on<evnt::EnemyReachedEnd>([this](const evnt::EnemyReachedEnd & event, EventEmitter & emitter) {
 		if (waveDone) {
@@ -137,7 +137,7 @@ LevelConnections::LevelConnections(LevelS& level) :
 	}})), 
 	connection8(Application::Emitter.on<evnt::Loose>([this](const evnt::Loose & event, EventEmitter & emitter) {
 		// TODO play an outro
-		Application::Emitter.publish<evnt::ChangeGameStateNew>(States::GAMEOVER);
+		Application::Emitter.publish<evnt::ChangeGameState>(States::GAMEOVER);
 	})), 
 	waveDone(false),
 	lastSelectedEntity(0),

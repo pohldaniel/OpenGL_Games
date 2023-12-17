@@ -9,7 +9,6 @@
 #include <NsGui/ResourceDictionary.h>
 
 #include "TitleScreen.h"
-#include "EventListener.h"
 
 NS_IMPLEMENT_REFLECTION(TitleScreenGrid) {
 	NsMeta<Noesis::TypeId>("TitleScreenGrid");
@@ -58,7 +57,7 @@ bool TitleScreenGrid::ConnectEvent(Noesis::BaseComponent* source, const char* ev
 }
 
 void TitleScreenGrid::onStartGame(Noesis::BaseComponent* sender, const Noesis::RoutedEventArgs& args) {
-	m_emitter.publish<evnt::ChangeGameStateNew>(States::LEVELINTRO);
+	m_emitter.publish<evnt::ChangeGameState>(States::LEVELINTRO);
 }
 
 void TitleScreenGrid::onQuitGame(Noesis::BaseComponent* sender, const Noesis::RoutedEventArgs& args) {

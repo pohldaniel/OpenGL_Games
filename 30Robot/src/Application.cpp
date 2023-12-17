@@ -27,7 +27,6 @@
 #include "debug-draw-service.hpp"
 #include "random-service.hpp"
 #include "helper-service.hpp"
-#include "EventListener.h"
 
 #include <GUI/TitleScreen.h>
 #include <GUI/LevelIntro.h>
@@ -36,6 +35,7 @@
 #include <GUI/LevelExit.h>
 
 #include "tags.hpp"
+#include <Event/EventListener.h>
 #include "Event/wave-updated.hpp"
 #include "Event/enemy-dead.hpp"
 #include "Event/victory-delay-ends.hpp"

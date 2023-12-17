@@ -1,8 +1,7 @@
 #pragma once
-#pragma once
+#include <glm/gtx/transform.hpp>
 
 #include <NsGui/IntegrationAPI.h>
-#include <glm/gtx/transform.hpp>
 
 #include <engine/input/MouseEventListener.h>
 #include <engine/input/KeyboardEventListener.h>
@@ -10,9 +9,9 @@
 #include <States/StateMachine.h>
 
 #include <Event/EventEmitter.h>
-#include <Level/level.hpp>
+#include <Event/EventListener.h>
 
-#include "EventListener.h"
+#include <Level/level.hpp>
 
 class GameOverS : public State, public MouseEventListener, public KeyboardEventListener, public EventListener {
 

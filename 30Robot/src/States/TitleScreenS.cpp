@@ -8,7 +8,7 @@
 #include "Renderer.h"
 
 TitleScreenConnections::TitleScreenConnections() {
-	Application::Emitter.on<evnt::ChangeGameStateNew>([this](const evnt::ChangeGameStateNew& event, EventEmitter& emitter) {
+	Application::Emitter.on<evnt::ChangeGameState>([this](const evnt::ChangeGameState& event, EventEmitter& emitter) {
 		dynamic_cast<EventListener*>(Application::GetMachine()->getStates().top())->OnStateChange(event.state);
 	});
 

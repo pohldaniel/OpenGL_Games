@@ -1,7 +1,7 @@
 #include "GameOver.h"
 
 #include <NsGui/Button.h>
-#include "EventListener.h"
+#include <Event/EventListener.h>
 
 NS_IMPLEMENT_REFLECTION(GameOverGrid) {
 	NsMeta<Noesis::TypeId>("GameOverGrid");
@@ -22,11 +22,11 @@ bool GameOverGrid::ConnectEvent(Noesis::BaseComponent* source, const char* event
 }
 
 void GameOverGrid::onExit(Noesis::BaseComponent* sender, const Noesis::RoutedEventArgs& args) {
-	m_emitter.publish<evnt::ChangeGameStateNew>(States::TITLESCREEN);
+	m_emitter.publish<evnt::ChangeGameState>(States::TITLESCREEN);
 }
 
 void GameOverGrid::onRestart(Noesis::BaseComponent* sender, const Noesis::RoutedEventArgs& args) {
-	m_emitter.publish<evnt::ChangeGameStateNew>(States::LEVELINTRO);
+	m_emitter.publish<evnt::ChangeGameState>(States::LEVELINTRO);
 }
 
 GameOver GameOver::s_instance;

@@ -1,11 +1,14 @@
 #pragma once
 
+#include <glm/glm.hpp>
+
 #include <NsGui/Grid.h>
 #include <NsGui/Storyboard.h>
 #include <NsGui/IntegrationAPI.h>
-#include <glm/glm.hpp>
 
-#include "Event/EventEmitter.h"
+#include <Event/EventEmitter.h>
+#include <Event/EventListener.h>
+
 #include "progression.hpp"
 
 class TitleScreenGrid: public Noesis::Grid {

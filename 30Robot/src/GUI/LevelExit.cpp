@@ -1,8 +1,8 @@
 #include <NsGui/Button.h>
+#include <Event/progression-updated.hpp>
+#include <Event/EventListener.h>
 
 #include "LevelExit.h"
-#include "Event/progression-updated.hpp"
-#include "EventListener.h"
 
 NS_IMPLEMENT_REFLECTION(LevelExitBindings) {
 	NsMeta<Noesis::TypeId>("LevelExitBindings");
@@ -48,11 +48,11 @@ bool LevelExitGrid::ConnectEvent(Noesis::BaseComponent* source, const char* even
 }
 
 void LevelExitGrid::onExit(Noesis::BaseComponent* sender, const Noesis::RoutedEventArgs& args) {
-	m_emitter.publish<evnt::ChangeGameStateNew>(States::TITLESCREEN);
+	m_emitter.publish<evnt::ChangeGameState>(States::TITLESCREEN);
 }
 
 void LevelExitGrid::onNextLevel(Noesis::BaseComponent* sender, const Noesis::RoutedEventArgs& args) {
-	m_emitter.publish<evnt::ChangeGameStateNew>(States::LEVELINTRO);
+	m_emitter.publish<evnt::ChangeGameState>(States::LEVELINTRO);
 }
 
 LevelExit LevelExit::s_instance;

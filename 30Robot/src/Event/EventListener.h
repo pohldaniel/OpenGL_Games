@@ -8,12 +8,13 @@ struct EventListener{
 };
 
 namespace evnt {
-	struct ApplicationExit {
-		ApplicationExit() {}
+
+	struct ChangeGameState {
+		ChangeGameState(States state) : state(state) {}
+		States state;
 	};
 
-	struct ChangeGameStateNew {
-		ChangeGameStateNew(States state) : state(state) {}
-		States state;
+	struct ApplicationExit {
+		ApplicationExit() {}
 	};
 }

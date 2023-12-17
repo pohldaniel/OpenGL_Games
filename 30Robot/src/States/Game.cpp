@@ -13,11 +13,9 @@
 #include "Globals.h"
 #include "Renderer.h"
 
-#include "Event/input-handler.hpp"
-
 #include <GUI/TitleScreen.h>
 
-Game::Game(StateMachine& machine) : State(machine, States::GAME), InputHandler(Application::Emitter) {
+Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
@@ -212,14 +210,4 @@ void Game::renderUi() {
 
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-}
-
-void Game::enter() {
-	// Subscribe self to inputs
-	connectInputs();
-}
-
-void Game::exit() {
-	// Remove input listenner
-	disconnectInputs();
 }

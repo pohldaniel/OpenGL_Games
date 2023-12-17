@@ -12,6 +12,8 @@
 #include <States/StateMachine.h>
 
 #include <Event/EventEmitter.h>
+#include <Event/EventListener.h>
+
 #include <System/AttackSystem.h>
 #include <System/render-system.hpp>
 #include <System/movement-system.hpp>
@@ -21,14 +23,9 @@
 
 #include <Level/level.hpp>
 
-#include "Event/input-handler.hpp"
-#include "EventListener.h"
-
 
 struct TitleScreenConnections {
-	TitleScreenConnections();
-
-	
+	TitleScreenConnections();	
 };
 
 class TitleScreenS : public State, public MouseEventListener, public KeyboardEventListener, public EventListener {

@@ -79,9 +79,6 @@
     <Filter Include="Source Files\GUI">
       <UniqueIdentifier>{0ec559fb-f6e7-4b41-9cc8-cf98b05fc9c5}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Event\Inputs">
-      <UniqueIdentifier>{50a43d59-a60c-47dd-9fa4-0983c9bcb928}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Event\Interactions">
       <UniqueIdentifier>{869b06e7-3687-4ace-878b-dea6e65ebe2a}</UniqueIdentifier>
     </Filter>
@@ -422,12 +419,6 @@
     </ClCompile>
     <ClCompile Include="src\rigid-body-factory.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Event\contact-listener.cpp">
-      <Filter>Source Files\Event</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Event\input-handler.cpp">
-      <Filter>Source Files\Event</Filter>
     </ClCompile>
     <ClCompile Include="src\System\wave-system.cpp">
       <Filter>Source Files\System</Filter>
@@ -779,9 +770,6 @@
     <ClInclude Include="src\System\ISystem.h">
       <Filter>Source Files\System</Filter>
     </ClInclude>
-    <ClInclude Include="src\Event\EventEmitter.h">
-      <Filter>Source Files\Event</Filter>
-    </ClInclude>
     <ClInclude Include="src\Components\age.hpp">
       <Filter>Source Files\Components</Filter>
     </ClInclude>
@@ -974,30 +962,6 @@
     <ClInclude Include="src\rigid-body-factory.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Event\contact-listener.hpp">
-      <Filter>Source Files\Event</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Event\input-handler.hpp">
-      <Filter>Source Files\Event</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Event\Inputs\left-click-down.hpp">
-      <Filter>Source Files\Event\Inputs</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Event\Inputs\left-click-up.hpp">
-      <Filter>Source Files\Event\Inputs</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Event\Inputs\mouse-move.hpp">
-      <Filter>Source Files\Event\Inputs</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Event\Inputs\mouse-scrolled.hpp">
-      <Filter>Source Files\Event\Inputs</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Event\Inputs\right-click-down.hpp">
-      <Filter>Source Files\Event\Inputs</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Event\Inputs\right-click-up.hpp">
-      <Filter>Source Files\Event\Inputs</Filter>
-    </ClInclude>
     <ClInclude Include="src\Event\selected.hpp">
       <Filter>Source Files\Event</Filter>
     </ClInclude>
@@ -1070,9 +1034,6 @@
     <ClInclude Include="Renderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="EventListener.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\States\LevelS.h">
       <Filter>Source Files\States</Filter>
     </ClInclude>
@@ -1105,6 +1066,12 @@
     </ClInclude>
     <ClInclude Include="src\GUI\TitleScreen.h">
       <Filter>Source Files\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Event\EventEmitter.h">
+      <Filter>Source Files\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Event\EventListener.h">
+      <Filter>Source Files\Event</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

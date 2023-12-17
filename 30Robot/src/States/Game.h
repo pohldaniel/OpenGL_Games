@@ -14,9 +14,7 @@
 
 #include <Level/level.hpp>
 
-#include "Event/input-handler.hpp"
-
-class Game : public State, public InputHandler,  public MouseEventListener, public KeyboardEventListener {
+class Game : public State, public MouseEventListener, public KeyboardEventListener {
 
 public:
 
@@ -26,9 +24,6 @@ public:
 	void fixedUpdate() override;
 	void update() override;
 	void render() override;
-
-	void enter();
-	void exit();
 
 	void resize(int deltaW, int deltaH) override;
 	void OnMouseMotion(Event::MouseMoveEvent& event) override;
