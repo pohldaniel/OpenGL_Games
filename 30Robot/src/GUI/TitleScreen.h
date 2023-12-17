@@ -30,7 +30,7 @@ private:
 	NS_DECLARE_REFLECTION(TitleScreenGrid, Grid);
 	EventEmitter& m_emitter;
 
-	Noesis::Ptr <Noesis::Storyboard> m_storyBoard;
+	Noesis::Storyboard* m_storyBoard;
 };
 
 class TitleScreen {

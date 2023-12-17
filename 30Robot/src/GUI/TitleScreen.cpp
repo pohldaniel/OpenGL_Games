@@ -6,6 +6,7 @@
 #include <NsGui/PropertyPath.h>
 #include <NsGui/Animation.h>
 #include <NsGui/FreezableCollection.h>
+#include <NsGui/ResourceDictionary.h>
 
 #include "TitleScreen.h"
 #include "EventListener.h"
@@ -23,7 +24,8 @@ void TitleScreenGrid::InitializeComponent() {
 	Noesis::GUI::LoadComponent(this, "title-screen.xaml");
 
 	Noesis::Ptr<Noesis::ResourceKeyString> key = Noesis::ResourceKeyString::Create("Reveal");
-	m_storyBoard = *this->FindResource<Noesis::Storyboard>(key.GetPtr());
+	m_storyBoard = this->FindResource<Noesis::Storyboard>(key.GetPtr());
+
 	/*Noesis::TimelineCollection* animations = m_storyBoard->GetChildren();
 	Noesis::Timeline* timeline = animations->Get(0);
 	std::cout << "Name: " << m_storyBoard->GetTargetName(timeline) << std::endl;
