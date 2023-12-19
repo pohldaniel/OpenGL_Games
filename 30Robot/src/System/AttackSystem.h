@@ -1,9 +1,10 @@
 #pragma once
 
+#include <Components/Components.h>
+
 #include "ISystem.h"
 #include "Entity/projectile-factory.hpp"
 #include "Entity/vfx-factory.hpp"
-#include "Components/transform.hpp"
 
 class AttackSystem : public ISystem {
 public:

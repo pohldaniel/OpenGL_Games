@@ -1,3 +1,5 @@
+#include <Components/Components.h>
+
 #include "LevelS.h"
 
 #include "Globals.h"
@@ -5,15 +7,6 @@
 #include "Renderer.h"
 
 #include "tags.hpp"
-
-#include "Components/age.hpp"
-#include "Components/shoot-laser.hpp"
-#include "Components/entity-on.hpp"
-#include "Components/animated.hpp"
-#include "Components/animation-alpha.hpp"
-#include "Components/look-at-mouse.hpp"
-#include "Components/shoot-at.hpp"
-#include "Components/constrained-rotation.hpp"
 
 #include "maths.hpp"
 #include "i-helper.hpp"

@@ -5,11 +5,7 @@
 
 #include "tags.hpp"
 #include "constants.hpp"
-#include "components/transform.hpp"
-#include "components/hitbox.hpp"
-#include "components/sprite-animation.hpp"
-
-#include "components/constrained-rotation.hpp"
+#include <Components/Components.h>
 
 #include "locator.hpp"
 #include "i-random.hpp"

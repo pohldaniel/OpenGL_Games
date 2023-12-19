@@ -10,11 +10,9 @@
 
 #include <Event/EventEmitter.h>
 #include <Event/EventListener.h>
+#include <Components/Components.h>
 
 #include "Isystem.h"
-#include "components/transform.hpp"
-#include "components/sprite.hpp"
-#include "components/sprite-animation.hpp"
 
 class RenderSystem : public ISystem {
 

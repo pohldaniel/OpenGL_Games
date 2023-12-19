@@ -1,13 +1,12 @@
 #pragma once
 
 #include <entt/entt.hpp>
+#include <Components/Components.h>
 
 #include "factory.hpp"
 #include "sprite-factory.hpp"
 #include "primitive-factory.hpp"
 #include "projectile-factory.hpp"
-#include <Components/sprite.hpp>
-#include <Components/primitive.hpp>
 
 #include <Level/level.hpp>
 

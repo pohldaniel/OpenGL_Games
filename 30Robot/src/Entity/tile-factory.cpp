@@ -2,9 +2,7 @@
 
 #include "constants.hpp"
 #include "tags.hpp"
-#include "components/transform.hpp"
-#include "components/primitive.hpp"
-#include "components/sprite-animation.hpp"
+#include <Components/Components.h>
 
 TileFactory::TileFactory(entt::DefaultRegistry& registry) : Factory(registry) {
 	m_spawn = m_spriteFactory.createSingle("res/images/textures/spawn.png", glm::vec2(TILE_SIZE));

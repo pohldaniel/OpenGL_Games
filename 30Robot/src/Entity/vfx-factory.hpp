@@ -1,10 +1,10 @@
 #pragma once
 
 #include <entt/entt.hpp>
+#include <Components/Components.h>
 
 #include "factory.hpp"
 #include "sprite-factory.hpp"
-#include "components/sprite.hpp"
 
 class VFXFactory : public Factory {
 public:

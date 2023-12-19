@@ -4,9 +4,7 @@
 
 #include "tags.hpp"
 #include "constants.hpp"
-#include "components/transform.hpp"
-#include "components/targeting.hpp"
-#include "components/velocity.hpp"
+#include <Components/Components.h>
 
 ProjectileFactory::ProjectileFactory(entt::DefaultRegistry& registry) : Factory(registry) {
 	m_projectileSprite = m_spriteFactory.createSingle("res/images/textures/projectile_snowflake.png", glm::vec2(6.0f));

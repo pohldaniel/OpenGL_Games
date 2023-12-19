@@ -1,4 +1,5 @@
 #include <Event/EventListener.h>
+#include <Components/Components.h>
 
 #include "movement-system.hpp"
 
@@ -10,24 +11,8 @@
 #include "maths.hpp"
 #include "constants.hpp"
 #include "tags.hpp"
+#include "level/level.hpp"
 #include "level/graph.hpp"
-
-#include "components/transform.hpp"
-#include "components/rigid-body.hpp"
-#include "components/look-at-mouse.hpp"
-#include "components/constrained-rotation.hpp"
-#include "components/trajectory.hpp"
-#include "components/pathfinding.hpp"
-#include "components/targeting.hpp"
-#include "components/move-towards-mouse.hpp"
-#include "components/attached-to.hpp"
-#include "components/velocity.hpp"
-#include "components/direction.hpp"
-#include "components/hitbox.hpp"
-#include "components/animated.hpp"
-#include "components/sprite-animation.hpp"
-#include "components/animation-pixels-vanish.hpp"
-#include "components/health.hpp"
 
 MovementSystem::MovementSystem(entt::DefaultRegistry& registry, EventEmitter& emitter)
 : ISystem(registry, emitter)

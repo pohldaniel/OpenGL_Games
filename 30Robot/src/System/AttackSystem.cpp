@@ -13,16 +13,7 @@
 #include "i-debug-draw.hpp"
 
 #include <Event/EventListener.h>
-
-
-#include "Components/targeting.hpp"
-#include "Components/shoot-at.hpp"
-#include "Components/shoot-laser.hpp"
-#include "Components/hitbox.hpp"
-#include "Components/health.hpp"
-#include "Components/velocity.hpp"
-#include "Components/animated.hpp"
-#include "Components/tint-colour.hpp"
+#include <Components/Components.h>
 
 AttackSystem::AttackSystem(entt::DefaultRegistry& registry, EventEmitter& emitter) : ISystem(registry, emitter), m_projectileFactory(registry), m_vfxFactory(registry) {
 	m_emitter.on<evnt::LaserParticleDead>([this](const evnt::LaserParticleDead & event, EventEmitter & emitter) {

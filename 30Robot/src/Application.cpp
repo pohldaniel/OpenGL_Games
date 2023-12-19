@@ -37,14 +37,7 @@
 #include "tags.hpp"
 #include <Event/EventListener.h>
 
-#include "Components/age.hpp"
-#include "Components/shoot-laser.hpp"
-#include "Components/entity-on.hpp"
-#include "Components/animated.hpp"
-#include "Components/animation-alpha.hpp"
-#include "Components/look-at-mouse.hpp"
-#include "Components/shoot-at.hpp"
-#include "Components/constrained-rotation.hpp"
+#include <Components/Components.h>
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 

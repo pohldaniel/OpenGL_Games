@@ -2,10 +2,11 @@
 
 #include <GL/glew.h>
 #include <glm/glm.hpp>
+#include <Components/Components.h>
 
 #include "graphics/shaderRo.hpp"
 #include "graphics/index-buffer.hpp"
-#include "components/sprite.hpp"
+
 
 enum class ShaderType {
 	BASIC_SINGLE,

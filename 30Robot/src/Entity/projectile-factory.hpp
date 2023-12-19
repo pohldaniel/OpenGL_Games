@@ -1,8 +1,9 @@
 #pragma once
 
+#include <Components/Components.h>
 #include "factory.hpp"
 #include "sprite-factory.hpp"
-#include "components/sprite.hpp"
+
 
 enum class ProjectileType {
 	SLOW,

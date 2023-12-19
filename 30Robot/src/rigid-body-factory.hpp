@@ -2,8 +2,7 @@
 
 #include <Box2D/Box2D.h>
 
-#include "components/rigid-body.hpp"
-#include "components/transform.hpp"
+#include <Components/Components.h>
 
 class RigidBodyFactory {
 public:

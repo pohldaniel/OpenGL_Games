@@ -1,12 +1,11 @@
 #pragma once
 
 #include <entt/entt.hpp>
+#include <Components/Components.h>
 
 #include "factory.hpp"
 #include "sprite-factory.hpp"
 #include "primitive-factory.hpp"
-#include "components/sprite.hpp"
-#include "components/primitive.hpp"
 
 class TowerFactory : public Factory {
 public:

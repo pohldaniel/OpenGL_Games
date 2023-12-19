@@ -4,27 +4,13 @@
 #include <GL/glew.h>
 #include <iostream>
 #include <Event/EventListener.h>
+#include <Components/Components.h>
 
-#include "components/sprite.hpp"
-#include "components/sprite-animation.hpp"
-#include "components/primitive.hpp"
-#include "components/health.hpp"
-#include "components/health-bar.hpp"
 #include "tags.hpp"
 #include "maths.hpp"
 #include "constants.hpp"
-#include "components/wiggle.hpp"
-#include "components/attached-to.hpp"
-#include "components/age.hpp"
-#include "components/shake.hpp"
-#include "components/tint-colour.hpp"
-#include "components/animated.hpp"
-#include "components/animation-pixels-vanish.hpp"
-#include "components/growing-circle.hpp"
-
 #include "locator.hpp"
 #include "i-helper.hpp"
-
 #include "Application.h"
 
 RenderSystem::RenderSystem(entt::DefaultRegistry& registry, EventEmitter& emitter, glm::mat4& viewMat, glm::mat4& projMat) : ISystem(registry, emitter), m_view(viewMat), m_projection(projMat), m_currentCursor(CursorType::ARROW){

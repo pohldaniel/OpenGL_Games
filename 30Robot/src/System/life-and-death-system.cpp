@@ -1,19 +1,8 @@
 #include <Event/EventListener.h>
+#include <Components/Components.h>
 
 #include "life-and-death-system.hpp"
 
-#include "components/health.hpp"
-#include "components/transform.hpp"
-#include "components/entity-explosion-association.hpp"
-#include "components/growing-circle.hpp"
-#include "components/shake.hpp"
-#include "components/attached-to.hpp"
-#include "components/age.hpp"
-#include "components/animated.hpp"
-#include "components/animation-dark.hpp"
-#include "components/animation-alpha.hpp"
-#include "components/animation-scale.hpp"
-#include "components/animation-pixels-vanish.hpp"
 #include "tags.hpp"
 #include "constants.hpp"
 #include "maths.hpp"

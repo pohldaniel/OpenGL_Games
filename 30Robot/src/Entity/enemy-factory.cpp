@@ -1,32 +1,13 @@
 #include "enemy-factory.hpp"
 
 #include <GL/glew.h>
+#include <Components/Components.h>
 
 #include "tags.hpp"
 #include "constants.hpp"
-
-#include "components/transform.hpp"
-#include "components/sprite-animation.hpp"
-#include "components/trajectory.hpp"
-#include "components/pathfinding.hpp"
-#include "components/targeting.hpp"
-#include "components/shoot-at.hpp"
-#include "components/hitbox.hpp"
-#include "components/health-bar.hpp"
-#include "components/health.hpp"
 #include "locator.hpp"
 #include "i-random.hpp"
-#include "components/wiggle.hpp"
-#include "components/attached-to.hpp"
-#include "components/look-at-mouse.hpp"
-#include "components/move-towards-mouse.hpp"
-#include "components/velocity.hpp"
-#include "components/shake.hpp"
-#include "components/tint-colour.hpp"
-#include "components/animated.hpp"
-#include "components/animation-scale.hpp"
-#include "components/animation-dark.hpp"
-#include "components/animation-alpha.hpp"
+
 
 // TODO doc ENTT partie "prototype" pour avoir des entity factory plus optimis�s en m�moire
 

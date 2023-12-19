@@ -1,21 +1,10 @@
 #include "vfx-factory.hpp"
 
 #include <GL/glew.h>
+#include <Components/Components.h>
 
 #include "tags.hpp"
 #include "constants.hpp"
-#include "constants.hpp"
-#include "components/transform.hpp"
-#include "components/health.hpp"
-#include "components/entity-explosion-association.hpp"
-#include "components/sprite-animation.hpp"
-#include "components/direction.hpp"
-#include "components/velocity.hpp"
-#include "components/age.hpp"
-#include "components/animated.hpp"
-#include "components/animation-alpha.hpp"
-#include "components/tint-colour.hpp"
-#include "components/growing-circle.hpp"
 
 
 VFXFactory::VFXFactory(entt::DefaultRegistry& registry)

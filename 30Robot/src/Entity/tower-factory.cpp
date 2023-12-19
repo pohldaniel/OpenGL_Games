@@ -2,23 +2,12 @@
 
 #include <glm/glm.hpp>
 #include <GL/glew.h>
+#include <Components/Components.h>
 
 #include "tags.hpp"
 #include "constants.hpp"
-#include "components/transform.hpp"
-#include "components/shoot-at.hpp"
-#include "components/rigid-body.hpp"
-#include "components/targeting.hpp"
-#include "components/hitbox.hpp"
-#include "components/shoot-laser.hpp"
-#include "components/health-bar.hpp"
-#include "components/health.hpp"
-#include "components/shake.hpp"
-#include "components/sprite-animation.hpp"
 #include "locator.hpp"
 #include "i-random.hpp"
-
-#include "components/constrained-rotation.hpp"
 
 TowerFactory::TowerFactory(entt::DefaultRegistry& registry) : Factory(registry)
 {

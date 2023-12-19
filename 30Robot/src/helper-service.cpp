@@ -1,20 +1,8 @@
-#include "helper-service.hpp"
+#include <Components/Components.h>
 
-#include "components/transform.hpp"
-#include "components/attached-to.hpp"
-#include "components/wiggle.hpp"
-#include "components/move-towards-mouse.hpp"
-#include "components/shake.hpp"
-#include "components/tint-colour.hpp"
-#include "components/velocity.hpp"
-#include "components/animated.hpp"
-#include "components/animation-scale.hpp"
-#include "components/animation-dark.hpp"
-#include "components/animation-alpha.hpp"
-#include "components/hitbox.hpp"
+#include "helper-service.hpp"
 #include "constants.hpp"
 #include "tags.hpp"
-
 #include "maths.hpp"
 #include "Globals.h"
 

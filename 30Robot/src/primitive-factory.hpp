@@ -1,12 +1,14 @@
 #pragma once
 
+#include <array>
 #include <GL/glew.h>
 #include <glm/glm.hpp>
-#include <array>
+
+#include <Components/Components.h>
+
 
 #include "graphics/index-buffer.hpp"
 #include "graphics/shaderRo.hpp"
-#include "components/primitive.hpp"
 #include "constants.hpp"
 
 enum class PivotPoint {

@@ -6,8 +6,8 @@
 #include <vector>
 
 #include <Entity/tile-factory.hpp>
-#include  <Entity/tower-factory.hpp>
-#include  <Entity/mirror-factory.hpp>
+#include <Entity/tower-factory.hpp>
+#include <Entity/mirror-factory.hpp>
 #include "progression.hpp"
 #include "graph.hpp"
 

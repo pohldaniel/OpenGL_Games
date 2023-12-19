@@ -1,12 +1,12 @@
-#include "animation-system.hpp"
+#include <Event/EventListener.h>
+#include <Components/Components.h>
 
+#include "animation-system.hpp"
 #include "constants.hpp"
 #include "tags.hpp"
-#include "components/sprite.hpp"
-#include "components/sprite-animation.hpp"
-#include "components/transform.hpp"
 
-#include <Event/EventListener.h>
+
+
 
 AnimationSystem::AnimationSystem(entt::DefaultRegistry& registry, EventEmitter& emitter)
 : ISystem(registry, emitter), m_vfxFactory(registry)

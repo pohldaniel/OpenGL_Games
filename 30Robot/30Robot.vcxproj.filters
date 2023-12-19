@@ -767,99 +767,6 @@
     <ClInclude Include="src\System\ISystem.h">
       <Filter>Source Files\System</Filter>
     </ClInclude>
-    <ClInclude Include="src\Components\age.hpp">
-      <Filter>Source Files\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Components\animated.hpp">
-      <Filter>Source Files\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Components\animation-alpha.hpp">
-      <Filter>Source Files\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Components\animation-dark.hpp">
-      <Filter>Source Files\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Components\animation-pixels-vanish.hpp">
-      <Filter>Source Files\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Components\animation-scale.hpp">
-      <Filter>Source Files\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Components\attached-to.hpp">
-      <Filter>Source Files\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Components\constrained-rotation.hpp">
-      <Filter>Source Files\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Components\direction.hpp">
-      <Filter>Source Files\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Components\entity-explosion-association.hpp">
-      <Filter>Source Files\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Components\entity-on.hpp">
-      <Filter>Source Files\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Components\growing-circle.hpp">
-      <Filter>Source Files\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Components\health.hpp">
-      <Filter>Source Files\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Components\health-bar.hpp">
-      <Filter>Source Files\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Components\hitbox.hpp">
-      <Filter>Source Files\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Components\look-at-mouse.hpp">
-      <Filter>Source Files\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Components\move-towards-mouse.hpp">
-      <Filter>Source Files\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Components\pathfinding.hpp">
-      <Filter>Source Files\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Components\primitive.hpp">
-      <Filter>Source Files\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Components\rigid-body.hpp">
-      <Filter>Source Files\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Components\shake.hpp">
-      <Filter>Source Files\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Components\shoot-at.hpp">
-      <Filter>Source Files\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Components\shoot-laser.hpp">
-      <Filter>Source Files\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Components\sprite.hpp">
-      <Filter>Source Files\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Components\sprite-animation.hpp">
-      <Filter>Source Files\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Components\targeting.hpp">
-      <Filter>Source Files\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Components\tint-colour.hpp">
-      <Filter>Source Files\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Components\trajectory.hpp">
-      <Filter>Source Files\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Components\transform.hpp">
-      <Filter>Source Files\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Components\velocity.hpp">
-      <Filter>Source Files\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Components\wiggle.hpp">
-      <Filter>Source Files\Components</Filter>
-    </ClInclude>
     <ClInclude Include="src\maths.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -1012,6 +919,9 @@
     </ClInclude>
     <ClInclude Include="src\Event\EventListener.h">
       <Filter>Source Files\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Components\Components.h">
+      <Filter>Source Files\Components</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

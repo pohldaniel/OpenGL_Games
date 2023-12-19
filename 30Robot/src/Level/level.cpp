@@ -5,17 +5,13 @@
 #include <sstream>
 #include <SOIL2/SOIL2.h>
 #include <engine/Texture.h>
+#include <Components/Components.h>
 
 #include "locator.hpp"
 #include "i-debug-draw.hpp"
 #include "constants.hpp"
 #include "maths.hpp"
 #include "tags.hpp"
-#include "components/entity-on.hpp"
-#include "components/transform.hpp"
-#include "components/sprite-animation.hpp"
-#include "components/shoot-laser.hpp"
-#include "components/constrained-rotation.hpp"
 
 Level::Level(entt::DefaultRegistry& registry, Progression& progression, unsigned int levelNumber, glm::vec2& viewTranslation, float& viewScale)
 : m_registry(registry), m_progression(progression), m_tileFactory(registry), m_towerFactory(registry), m_mirrorFactory(registry),
