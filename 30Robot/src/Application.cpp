@@ -22,11 +22,9 @@
 #include <States/LevelIntroS.h>
 #include <UI/Widget.h>
 
-#include "noesis-log-handler.hpp"
-#include "locator.hpp"
-#include "debug-draw-service.hpp"
-#include "random-service.hpp"
-#include "helper-service.hpp"
+#include <Services/DebugDrawService.h>
+#include <Services/RandomService.h>
+#include <Services/HelperService.h>
 
 #include <GUI/TitleScreen.h>
 #include <GUI/LevelIntro.h>
@@ -34,10 +32,12 @@
 #include <GUI/GameOver.h>
 #include <GUI/LevelExit.h>
 
-#include "tags.hpp"
+#include <Components/Components.h>
 #include <Event/EventListener.h>
 
-#include <Components/Components.h>
+#include "tags.hpp"
+#include "noesis-log-handler.hpp"
+#include "locator.hpp"
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 

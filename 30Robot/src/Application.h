@@ -10,12 +10,12 @@
 #include <NsGui/IRenderer.h>
 #include <Event/EventEmitter.h>
 
-#include <System/AttackSystem.h>
-#include <System/render-system.hpp>
-#include <System/movement-system.hpp>
-#include <System/animation-system.hpp>
-#include <System/wave-system.hpp>
-#include <System/life-and-death-system.hpp>
+#include <Systems/AttackSystem.h>
+#include <Systems/RenderSystem.h>
+#include <Systems/MovementSystem.h>
+#include <Systems/AnimationSystem.h>
+#include <Systems/WaveSystem.h>
+#include <Systems/LifeAndDeathSystem.h>
 
 #include <glm/gtx/transform.hpp>
 

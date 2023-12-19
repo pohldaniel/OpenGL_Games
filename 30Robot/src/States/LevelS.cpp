@@ -1,19 +1,16 @@
 #include <Components/Components.h>
-
-#include "LevelS.h"
-
-#include "Globals.h"
-#include "Application.h"
-#include "Renderer.h"
-
-#include "tags.hpp"
-
-#include "maths.hpp"
-#include "i-helper.hpp"
-
 #include <States/GameOverS.h>
 #include <States/LevelExitS.h>
 #include <GUI/LevelHud.h>
+
+#include <Services/IHelper.h>
+
+#include "LevelS.h"
+#include "Globals.h"
+#include "Application.h"
+#include "Renderer.h"
+#include "tags.hpp"
+#include "maths.hpp"
 
 LevelConnections::LevelConnections(LevelS& level) :
 	connection1(Application::Emitter.on<evnt::ConstructSelection>([this, &level](const evnt::ConstructSelection & event, EventEmitter & emitter) {

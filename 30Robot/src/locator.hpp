@@ -1,9 +1,8 @@
 #include <entt/entt.hpp>
 
-#include "i-debug-draw.hpp"
-//#include "audio/i-audio.hpp"
-#include "i-random.hpp"
-#include "i-helper.hpp"
+#include <Services/IDebugDraw.h>
+#include <Services/IRandom.h>
+#include <Services/IHelper.h>
 
 // Is init in the constructor of Game class in core folder
 struct locator {

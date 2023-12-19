@@ -3,19 +3,17 @@
 #include <NsGui/IView.h>
 #include <NsGui/FrameworkElement.h>
 
+#include <entt/entt.hpp>
 #include <glm/gtx/transform.hpp>
 #include <engine/input/MouseEventListener.h>
 #include <engine/input/KeyboardEventListener.h>
-
 #include <States/StateMachine.h>
-#include <entt/entt.hpp>
-
-
-#include "Entity/tower-factory.hpp"
-#include "Entity/mirror-factory.hpp"
 
 #include <Event/EventListener.h>
 #include <Event/EventEmitter.h>
+
+#include <EntityFactories/TowerFactory.h>
+#include <EntityFactories/MirrorFactory.h>
 
 enum class LevelInteractionState {
 	FREE,

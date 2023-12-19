@@ -13,15 +13,7 @@
 
 #include <Event/EventEmitter.h>
 #include <Event/EventListener.h>
-
-#include <System/AttackSystem.h>
-#include <System/render-system.hpp>
-#include <System/movement-system.hpp>
-#include <System/animation-system.hpp>
-#include <System/wave-system.hpp>
-#include <System/life-and-death-system.hpp>
-
-#include <Level/level.hpp>
+#include <Level/Level.h>
 
 
 struct TitleScreenConnections {

@@ -61,23 +61,26 @@
     <Filter Include="Source Files\Event">
       <UniqueIdentifier>{9e0303a2-5b52-46f7-9665-5af239a8ace3}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\System">
-      <UniqueIdentifier>{fa39fda9-d03f-4408-9595-764d99419051}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Components">
       <UniqueIdentifier>{de68f12b-4efe-410e-9fee-51c7151469e4}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Level">
       <UniqueIdentifier>{a47d4fea-4234-4b73-961e-eb5be7666e40}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Entity">
-      <UniqueIdentifier>{eb2befd4-ea8d-4a30-bada-12fab9cdf99e}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Graphics">
       <UniqueIdentifier>{fb4872cb-5307-4057-b36e-f15b480eb4a0}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\GUI">
       <UniqueIdentifier>{0ec559fb-f6e7-4b41-9cc8-cf98b05fc9c5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Systems">
+      <UniqueIdentifier>{fa39fda9-d03f-4408-9595-764d99419051}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\EntityFactories">
+      <UniqueIdentifier>{eb2befd4-ea8d-4a30-bada-12fab9cdf99e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Services">
+      <UniqueIdentifier>{3b733e82-a182-4abf-a688-bb761b97d816}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -342,52 +345,13 @@
     <ClCompile Include="src\States\Game.cpp">
       <Filter>Source Files\States</Filter>
     </ClCompile>
-    <ClCompile Include="src\System\AttackSystem.cpp">
-      <Filter>Source Files\System</Filter>
-    </ClCompile>
     <ClCompile Include="src\maths.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Level\graph.cpp">
-      <Filter>Source Files\Level</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Level\level.cpp">
-      <Filter>Source Files\Level</Filter>
-    </ClCompile>
-    <ClCompile Include="src\random-service.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\constants.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\progression.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Entity\enemy-factory.cpp">
-      <Filter>Source Files\Entity</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Entity\mirror-factory.cpp">
-      <Filter>Source Files\Entity</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Entity\projectile-factory.cpp">
-      <Filter>Source Files\Entity</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Entity\tile-factory.cpp">
-      <Filter>Source Files\Entity</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Entity\tower-factory.cpp">
-      <Filter>Source Files\Entity</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Entity\vfx-factory.cpp">
-      <Filter>Source Files\Entity</Filter>
-    </ClCompile>
-    <ClCompile Include="src\sprite-factory.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\helper-service.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\debug-draw-service.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Graphics\frame-buffer.cpp">
@@ -410,27 +374,6 @@
     </ClCompile>
     <ClCompile Include="src\Graphics\textureRo.cpp">
       <Filter>Source Files\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="src\primitive-factory.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\rigid-body-factory.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\System\wave-system.cpp">
-      <Filter>Source Files\System</Filter>
-    </ClCompile>
-    <ClCompile Include="src\System\animation-system.cpp">
-      <Filter>Source Files\System</Filter>
-    </ClCompile>
-    <ClCompile Include="src\System\life-and-death-system.cpp">
-      <Filter>Source Files\System</Filter>
-    </ClCompile>
-    <ClCompile Include="src\System\movement-system.cpp">
-      <Filter>Source Files\System</Filter>
-    </ClCompile>
-    <ClCompile Include="src\System\render-system.cpp">
-      <Filter>Source Files\System</Filter>
     </ClCompile>
     <ClCompile Include="src\noesis-log-handler.cpp">
       <Filter>Source Files</Filter>
@@ -470,6 +413,66 @@
     </ClCompile>
     <ClCompile Include="src\GUI\TitleScreen.cpp">
       <Filter>Source Files\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\EntityFactories\EnemyFactory.cpp">
+      <Filter>Source Files\EntityFactories</Filter>
+    </ClCompile>
+    <ClCompile Include="src\EntityFactories\MirrorFactory.cpp">
+      <Filter>Source Files\EntityFactories</Filter>
+    </ClCompile>
+    <ClCompile Include="src\EntityFactories\PrimitiveFactory.cpp">
+      <Filter>Source Files\EntityFactories</Filter>
+    </ClCompile>
+    <ClCompile Include="src\EntityFactories\ProjectileFactory.cpp">
+      <Filter>Source Files\EntityFactories</Filter>
+    </ClCompile>
+    <ClCompile Include="src\EntityFactories\RigidBodyFactory.cpp">
+      <Filter>Source Files\EntityFactories</Filter>
+    </ClCompile>
+    <ClCompile Include="src\EntityFactories\SpriteFactory.cpp">
+      <Filter>Source Files\EntityFactories</Filter>
+    </ClCompile>
+    <ClCompile Include="src\EntityFactories\TileFactory.cpp">
+      <Filter>Source Files\EntityFactories</Filter>
+    </ClCompile>
+    <ClCompile Include="src\EntityFactories\TowerFactory.cpp">
+      <Filter>Source Files\EntityFactories</Filter>
+    </ClCompile>
+    <ClCompile Include="src\EntityFactories\VfxFactory.cpp">
+      <Filter>Source Files\EntityFactories</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Systems\AnimationSystem.cpp">
+      <Filter>Source Files\Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Systems\AttackSystem.cpp">
+      <Filter>Source Files\Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Systems\LifeAndDeathSystem.cpp">
+      <Filter>Source Files\Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Systems\MovementSystem.cpp">
+      <Filter>Source Files\Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Systems\RenderSystem.cpp">
+      <Filter>Source Files\Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Systems\WaveSystem.cpp">
+      <Filter>Source Files\Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Services\HelperService.cpp">
+      <Filter>Source Files\Services</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Services\RandomService.cpp">
+      <Filter>Source Files\Services</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Services\DebugDrawService.cpp">
+      <Filter>Source Files\Services</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Level\Graph.cpp">
+      <Filter>Source Files\Level</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Level\Level.cpp">
+      <Filter>Source Files\Level</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -761,22 +764,7 @@
     <ClInclude Include="src\States\Game.h">
       <Filter>Source Files\States</Filter>
     </ClInclude>
-    <ClInclude Include="src\System\AttackSystem.h">
-      <Filter>Source Files\System</Filter>
-    </ClInclude>
-    <ClInclude Include="src\System\ISystem.h">
-      <Filter>Source Files\System</Filter>
-    </ClInclude>
     <ClInclude Include="src\maths.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Level\graph.hpp">
-      <Filter>Source Files\Level</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Level\level.hpp">
-      <Filter>Source Files\Level</Filter>
-    </ClInclude>
-    <ClInclude Include="src\i-random.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\random-service.hpp">
@@ -791,43 +779,7 @@
     <ClInclude Include="src\tags.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Entity\enemy-factory.hpp">
-      <Filter>Source Files\Entity</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Entity\factory.hpp">
-      <Filter>Source Files\Entity</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Entity\mirror-factory.hpp">
-      <Filter>Source Files\Entity</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Entity\projectile-factory.hpp">
-      <Filter>Source Files\Entity</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Entity\tile-factory.hpp">
-      <Filter>Source Files\Entity</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Entity\tower-factory.hpp">
-      <Filter>Source Files\Entity</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Entity\vfx-factory.hpp">
-      <Filter>Source Files\Entity</Filter>
-    </ClInclude>
-    <ClInclude Include="src\sprite-factory.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\locator.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\helper-service.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\i-helper.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\debug-draw-service.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\i-debug-draw.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Graphics\frame-buffer.hpp">
@@ -853,27 +805,6 @@
     </ClInclude>
     <ClInclude Include="src\Graphics\textureRo.hpp">
       <Filter>Source Files\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="src\primitive-factory.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\rigid-body-factory.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\System\wave-system.hpp">
-      <Filter>Source Files\System</Filter>
-    </ClInclude>
-    <ClInclude Include="src\System\animation-system.hpp">
-      <Filter>Source Files\System</Filter>
-    </ClInclude>
-    <ClInclude Include="src\System\life-and-death-system.hpp">
-      <Filter>Source Files\System</Filter>
-    </ClInclude>
-    <ClInclude Include="src\System\movement-system.hpp">
-      <Filter>Source Files\System</Filter>
-    </ClInclude>
-    <ClInclude Include="src\System\render-system.hpp">
-      <Filter>Source Files\System</Filter>
     </ClInclude>
     <ClInclude Include="src\noesis-log-handler.hpp">
       <Filter>Header Files</Filter>
@@ -922,6 +853,81 @@
     </ClInclude>
     <ClInclude Include="src\Components\Components.h">
       <Filter>Source Files\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="src\EntityFactories\EnemyFactory.h">
+      <Filter>Source Files\EntityFactories</Filter>
+    </ClInclude>
+    <ClInclude Include="src\EntityFactories\IFactory.h">
+      <Filter>Source Files\EntityFactories</Filter>
+    </ClInclude>
+    <ClInclude Include="src\EntityFactories\MirrorFactory.h">
+      <Filter>Source Files\EntityFactories</Filter>
+    </ClInclude>
+    <ClInclude Include="src\EntityFactories\PrimitiveFactory.h">
+      <Filter>Source Files\EntityFactories</Filter>
+    </ClInclude>
+    <ClInclude Include="src\EntityFactories\ProjectileFactory.h">
+      <Filter>Source Files\EntityFactories</Filter>
+    </ClInclude>
+    <ClInclude Include="src\EntityFactories\RigidBodyFactory.h">
+      <Filter>Source Files\EntityFactories</Filter>
+    </ClInclude>
+    <ClInclude Include="src\EntityFactories\SpriteFactory.h">
+      <Filter>Source Files\EntityFactories</Filter>
+    </ClInclude>
+    <ClInclude Include="src\EntityFactories\TileFactory.h">
+      <Filter>Source Files\EntityFactories</Filter>
+    </ClInclude>
+    <ClInclude Include="src\EntityFactories\TowerFactory.h">
+      <Filter>Source Files\EntityFactories</Filter>
+    </ClInclude>
+    <ClInclude Include="src\EntityFactories\VfxFactory.h">
+      <Filter>Source Files\EntityFactories</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Systems\AnimationSystem.h">
+      <Filter>Source Files\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Systems\AttackSystem.h">
+      <Filter>Source Files\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Systems\ISystem.h">
+      <Filter>Source Files\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Systems\LifeAndDeathSystem.h">
+      <Filter>Source Files\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Systems\MovementSystem.h">
+      <Filter>Source Files\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Systems\RenderSystem.h">
+      <Filter>Source Files\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Systems\WaveSystem.h">
+      <Filter>Source Files\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Services\DebugDrawService.h">
+      <Filter>Source Files\Services</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Services\HelperService.h">
+      <Filter>Source Files\Services</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Services\IDebugDraw.h">
+      <Filter>Source Files\Services</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Services\IHelper.h">
+      <Filter>Source Files\Services</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Services\IRandom.h">
+      <Filter>Source Files\Services</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Services\RandomService.h">
+      <Filter>Source Files\Services</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Level\Graph.h">
+      <Filter>Source Files\Level</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Level\Level.h">
+      <Filter>Source Files\Level</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

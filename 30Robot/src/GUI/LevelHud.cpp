@@ -5,8 +5,8 @@
 #include <string>
 #include <glm/glm.hpp>
 
+#include <Systems/WaveSystem.h>
 #include "constants.hpp"
-#include "System/wave-system.hpp"
 
 
 NS_IMPLEMENT_REFLECTION(LevelHudBindings) {

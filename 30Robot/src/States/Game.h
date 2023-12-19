@@ -12,7 +12,7 @@
 
 #include <Event/EventEmitter.h>
 
-#include <Level/level.hpp>
+#include <Level/Level.h>
 
 class Game : public State, public MouseEventListener, public KeyboardEventListener {
 

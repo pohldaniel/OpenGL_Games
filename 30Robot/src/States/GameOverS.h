@@ -11,7 +11,7 @@
 #include <Event/EventEmitter.h>
 #include <Event/EventListener.h>
 
-#include <Level/level.hpp>
+#include <Level/Level.h>
 
 class GameOverS : public State, public MouseEventListener, public KeyboardEventListener, public EventListener {
 
