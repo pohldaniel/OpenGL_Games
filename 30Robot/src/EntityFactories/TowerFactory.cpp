@@ -4,8 +4,8 @@
 #include <Services/IRandom.h>
 
 #include "TowerFactory.h"
-#include "tags.hpp"
-#include "constants.hpp"
+#include "Tags.h"
+#include "Constants.h"
 
 TowerFactory::TowerFactory(entt::DefaultRegistry& registry) : Factory(registry)
 {

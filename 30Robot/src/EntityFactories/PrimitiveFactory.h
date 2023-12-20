@@ -3,13 +3,11 @@
 #include <array>
 #include <GL/glew.h>
 #include <glm/glm.hpp>
-
 #include <Components/Components.h>
-
-
 #include "graphics/index-buffer.hpp"
 #include "graphics/shaderRo.hpp"
-#include "constants.hpp"
+
+#include "Constants.h"
 
 enum class PivotPoint {
 	CENTER,

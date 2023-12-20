@@ -4,8 +4,8 @@
 #include <Services/IRandom.h>
 
 #include "MirrorFactory.h"
-#include "tags.hpp"
-#include "constants.hpp"
+#include "Tags.h"
+#include "Constants.h"
 
 MirrorFactory::MirrorFactory(entt::DefaultRegistry& registry) : Factory(registry)
 {

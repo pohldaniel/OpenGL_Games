@@ -1,8 +1,7 @@
-#include <NsGui/IntegrationAPI.h>
-#include <States/LevelIntroS.h>
+#include <States/TitleScreenState.h>
+#include <States/LevelIntroState.h>
 #include <GUI/TitleScreen.h>
 
-#include "TitleScreenS.h"
 #include "Application.h"
 #include "Globals.h"
 #include "Renderer.h"
@@ -17,21 +16,20 @@ TitleScreenConnections::TitleScreenConnections() {
 	});
 }
 
-TitleScreenConnections TitleScreenS::TitleScreenSConnections;
+TitleScreenConnections TitleScreenState::TitleScreenSConnections;
 
-TitleScreenS::TitleScreenS(StateMachine& machine) : State(machine, States::TITLESCREEN) {
+TitleScreenState::TitleScreenState(StateMachine& machine) : State(machine, States::TITLESCREEN) {
 
 	EventDispatcher::AddKeyboardListener(this);
 	EventDispatcher::AddMouseListener(this);
 
-	m_xaml = TitleScreen::Get().m_grid;
-	m_ui = Noesis::GUI::CreateView(m_xaml).GiveOwnership();
+	m_ui = Noesis::GUI::CreateView(TitleScreen::Get().m_grid).GiveOwnership();
 	m_ui->SetIsPPAAEnabled(true);
 	m_ui->GetRenderer()->Init(Application::NoesisDevice);
 	m_ui->SetSize(Application::Width, Application::Height);
 }
 
-TitleScreenS::~TitleScreenS() {
+TitleScreenState::~TitleScreenState() {
 	std::cout << "Destructor Title: " << std::endl;
 
 	EventDispatcher::RemoveKeyboardListener(this);
@@ -43,15 +41,15 @@ TitleScreenS::~TitleScreenS() {
 	delete m_ui;
 }
 
-void TitleScreenS::fixedUpdate() {
+void TitleScreenState::fixedUpdate() {
 
 }
 
-void TitleScreenS::update() {
+void TitleScreenState::update() {
 
 }
 
-void TitleScreenS::render() {
+void TitleScreenState::render() {
 
 	// Noesis gui update
 	m_ui->Update(Globals::clock.getElapsedTimeSec());
@@ -64,39 +62,39 @@ void TitleScreenS::render() {
 	m_ui->GetRenderer()->Render();
 }
 
-void TitleScreenS::resize(int deltaW, int deltaH) {
+void TitleScreenState::resize(int deltaW, int deltaH) {
 	m_ui->SetSize(Application::Width, Application::Height);
 }
 
-void TitleScreenS::OnMouseMotion(Event::MouseMoveEvent& event) {
+void TitleScreenState::OnMouseMotion(Event::MouseMoveEvent& event) {
 	m_ui->MouseMove(event.x, event.y);
 }
 
-void TitleScreenS::OnMouseButtonDown(Event::MouseButtonEvent& event) {
+void TitleScreenState::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 	m_ui->MouseButtonDown(event.x, event.y, Noesis::MouseButton_Left);
 }
 
-void TitleScreenS::OnMouseButtonUp(Event::MouseButtonEvent& event) {
+void TitleScreenState::OnMouseButtonUp(Event::MouseButtonEvent& event) {
 	m_ui->MouseButtonUp(event.x, event.y, Noesis::MouseButton_Left);
 }
 
-void TitleScreenS::OnMouseWheel(Event::MouseWheelEvent& event) {
+void TitleScreenState::OnMouseWheel(Event::MouseWheelEvent& event) {
 
 }
 
-void TitleScreenS::OnKeyDown(Event::KeyboardEvent& event) {
+void TitleScreenState::OnKeyDown(Event::KeyboardEvent& event) {
 
 }
 
-void TitleScreenS::OnKeyUp(Event::KeyboardEvent& event) {
+void TitleScreenState::OnKeyUp(Event::KeyboardEvent& event) {
 
 }
 
-void TitleScreenS::OnStateChange(States states) {
+void TitleScreenState::OnStateChange(States states) {
 	m_isRunning = false;
-	m_machine.addStateAtBottom(new LevelIntroS(m_machine));
+	m_machine.addStateAtBottom(new LevelIntroState(m_machine));
 }
 
-void TitleScreenS::OnApplicationQuit() {
+void TitleScreenState::OnApplicationQuit() {
 	m_isRunning = false;
 }

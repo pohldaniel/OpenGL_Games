@@ -1,8 +1,8 @@
 #include <Components/Components.h>
 #include "TileFactory.h"
 
-#include "constants.hpp"
-#include "tags.hpp"
+#include "Constants.h"
+#include "Tags.h"
 
 TileFactory::TileFactory(entt::DefaultRegistry& registry) : Factory(registry) {
 	m_spawn = m_spriteFactory.createSingle("res/images/textures/spawn.png", glm::vec2(TILE_SIZE));

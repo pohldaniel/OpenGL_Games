@@ -4,13 +4,12 @@
 #include <Components/Components.h>
 #include <Event/EventListener.h>
 #include <Services/IHelper.h>
+#include <Services/Locator.h>
 
 #include "RenderSystem.h"
-#include "tags.hpp"
-#include "maths.hpp"
-#include "constants.hpp"
-#include "locator.hpp"
-
+#include "Tags.h"
+#include "Maths.h"
+#include "Constants.h"
 #include "Application.h"
 
 RenderSystem::RenderSystem(entt::DefaultRegistry& registry, EventEmitter& emitter, glm::mat4& viewMat, glm::mat4& projMat) : ISystem(registry, emitter), m_view(viewMat), m_projection(projMat), m_currentCursor(CursorType::ARROW){

@@ -4,8 +4,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "DebugDrawService.h"
-#include "constants.hpp"
-#include "maths.hpp"
+#include "Constants.h"
+#include "Maths.h"
 #include "Globals.h"
 
 DebugDrawService::DebugDrawService(glm::mat4 viewMat, glm::mat4 projMat)

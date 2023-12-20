@@ -1,10 +1,7 @@
 #pragma once
 
 #include <NsGui/IView.h>
-#include <NsGui/FrameworkElement.h>
-
 #include <glm/gtx/transform.hpp>
-
 #include <engine/input/MouseEventListener.h>
 #include <engine/input/KeyboardEventListener.h>
 
@@ -15,12 +12,12 @@
 
 #include <Level/Level.h>
 
-class LevelIntroS : public State, public MouseEventListener, public KeyboardEventListener, public EventListener {
+class LevelIntroState : public State, public MouseEventListener, public KeyboardEventListener, public EventListener {
 
 public:
 
-	LevelIntroS(StateMachine& machine);
-	~LevelIntroS();
+	LevelIntroState(StateMachine& machine);
+	~LevelIntroState();
 
 	void fixedUpdate() override;
 	void update() override;
@@ -38,7 +35,6 @@ public:
 
 private:
 
-	Noesis::Ptr<Noesis::FrameworkElement> m_xaml;
 	Noesis::IView* m_ui;
 };
 

@@ -2,8 +2,8 @@
 #include <Components/Components.h>
 
 #include "AnimationSystem.h"
-#include "constants.hpp"
-#include "tags.hpp"
+#include "Constants.h"
+#include "Tags.h"
 
 AnimationSystem::AnimationSystem(entt::DefaultRegistry& registry, EventEmitter& emitter)
 : ISystem(registry, emitter), m_vfxFactory(registry)

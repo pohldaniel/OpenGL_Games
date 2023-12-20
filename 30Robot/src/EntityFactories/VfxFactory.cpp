@@ -2,8 +2,8 @@
 #include <Components/Components.h>
 
 #include "VfxFactory.h"
-#include "tags.hpp"
-#include "constants.hpp"
+#include "Tags.h"
+#include "Constants.h"
 
 
 VFXFactory::VFXFactory(entt::DefaultRegistry& registry)

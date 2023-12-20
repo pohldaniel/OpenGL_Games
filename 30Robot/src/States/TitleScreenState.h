@@ -1,9 +1,6 @@
 #pragma once
 
 #include <NsGui/IView.h>
-#include <NsGui/FrameworkElement.h>
-#include <NsGui/Grid.h>
-
 #include <glm/gtx/transform.hpp>
 
 #include <engine/input/MouseEventListener.h>
@@ -20,18 +17,18 @@ struct TitleScreenConnections {
 	TitleScreenConnections();	
 };
 
-class TitleScreenS : public State, public MouseEventListener, public KeyboardEventListener, public EventListener {
+class TitleScreenState : public State, public MouseEventListener, public KeyboardEventListener, public EventListener {
 
 public:
 
-	TitleScreenS(StateMachine& machine);
-	~TitleScreenS();
+	TitleScreenState(StateMachine& machine);
+	~TitleScreenState();
 
 	void fixedUpdate() override;
 	void update() override;
 	void render() override;
-
 	void resize(int deltaW, int deltaH) override;
+
 	void OnMouseMotion(Event::MouseMoveEvent& event) override;
 	void OnMouseWheel(Event::MouseWheelEvent& event) override;
 	void OnMouseButtonDown(Event::MouseButtonEvent& event) override;
@@ -44,10 +41,7 @@ public:
 
 private:
 
-	Noesis::Ptr<Noesis::FrameworkElement> m_xaml;
 	Noesis::IView* m_ui;
-
-	Noesis::Ptr<Noesis::Grid> xaml;
 
 	static TitleScreenConnections TitleScreenSConnections;
 };

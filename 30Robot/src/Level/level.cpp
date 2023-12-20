@@ -5,13 +5,12 @@
 #include <engine/Texture.h>
 #include <Components/Components.h>
 #include <Services/IDebugDraw.h>
+#include <Services/Locator.h>
 
 #include "Level.h"
-#include "locator.hpp"
-
-#include "constants.hpp"
-#include "maths.hpp"
-#include "tags.hpp"
+#include "Constants.h"
+#include "Maths.h"
+#include "Tags.h"
 
 Level::Level(entt::DefaultRegistry& registry, Progression& progression, unsigned int levelNumber, glm::vec2& viewTranslation, float& viewScale)
 : m_registry(registry), m_progression(progression), m_tileFactory(registry), m_towerFactory(registry), m_mirrorFactory(registry),

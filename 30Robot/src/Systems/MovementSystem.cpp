@@ -8,9 +8,9 @@
 #include <Level/Graph.h>
 
 #include "MovementSystem.h"
-#include "maths.hpp"
-#include "constants.hpp"
-#include "tags.hpp"
+#include "Maths.h"
+#include "Constants.h"
+#include "Tags.h"
 
 
 MovementSystem::MovementSystem(entt::DefaultRegistry& registry, EventEmitter& emitter)

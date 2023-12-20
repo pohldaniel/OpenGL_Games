@@ -18,13 +18,14 @@
 
 #include <States/Default.h>
 #include <States/Game.h>
-#include <States/TitleScreenS.h>
-#include <States/LevelIntroS.h>
+#include <States/TitleScreenState.h>
+#include <States/LevelIntroState.h>
 #include <UI/Widget.h>
 
 #include <Services/DebugDrawService.h>
 #include <Services/RandomService.h>
 #include <Services/HelperService.h>
+#include <Services/Locator.h>
 
 #include <GUI/TitleScreen.h>
 #include <GUI/LevelIntro.h>
@@ -35,9 +36,7 @@
 #include <Components/Components.h>
 #include <Event/EventListener.h>
 
-#include "tags.hpp"
-#include "noesis-log-handler.hpp"
-#include "locator.hpp"
+#include "Tags.h"
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -429,7 +428,18 @@ void Application::initImGUI() {
 }
 
 void Application::initNoesisGUI() {
-	Noesis::GUI::Init(noelog::errorHandler, noelog::messageCallback, nullptr);
+
+	auto logHandler = [](const char*, uint32_t, uint32_t level, const char*, const char* message){
+		const char* prefixes[] = { "T", "D", "I", "W", "E" };
+		printf("[NOESIS/%s] %s\n", prefixes[level], message);
+	};
+
+	auto errorHandler = [](const char* file, uint32_t line, const char* message, bool fatal) {
+		printf("[NOESIS/%s] %s\n", "E", message);
+
+	};
+
+	Noesis::GUI::Init(errorHandler, logHandler, nullptr);
 	Noesis::GUI::SetXamlProvider(Noesis::MakePtr<NoesisApp::LocalXamlProvider>("./res/gui"));
 	Noesis::GUI::SetTextureProvider(Noesis::MakePtr<NoesisApp::LocalTextureProvider>("./res/images"));
 	Noesis::GUI::SetFontProvider(Noesis::MakePtr<NoesisApp::LocalFontProvider>("./res/fonts"));
@@ -484,11 +494,7 @@ void Application::fixedUpdate() {
 
 void Application::initStates() {	
 	Machine = new StateMachine(m_dt, m_fdt);
-	//Machine->addStateAtTop(new Default(*Machine));
-
-	//Machine->addStateAtTop(new Game(*Machine));
-	Machine->addStateAtTop(new TitleScreenS(*Machine));
-	//Machine->addStateAtTop(new LevelIntroS(*Machine));
+	Machine->addStateAtTop(new TitleScreenState(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {

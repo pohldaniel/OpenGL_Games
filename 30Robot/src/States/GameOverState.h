@@ -1,24 +1,20 @@
 #pragma once
+
+#include <NsGui/IView.h>
 #include <glm/gtx/transform.hpp>
-
-#include <NsGui/IntegrationAPI.h>
-
 #include <engine/input/MouseEventListener.h>
 #include <engine/input/KeyboardEventListener.h>
-
 #include <States/StateMachine.h>
-
 #include <Event/EventEmitter.h>
 #include <Event/EventListener.h>
-
 #include <Level/Level.h>
 
-class GameOverS : public State, public MouseEventListener, public KeyboardEventListener, public EventListener {
+class GameOverState : public State, public MouseEventListener, public KeyboardEventListener, public EventListener {
 
 public:
 
-	GameOverS(StateMachine& machine);
-	~GameOverS();
+	GameOverState(StateMachine& machine);
+	~GameOverState();
 
 	void fixedUpdate() override;
 	void update() override;
@@ -36,7 +32,6 @@ public:
 
 private:
 
-	Noesis::Ptr<Noesis::FrameworkElement> m_xaml;
 	Noesis::IView* m_ui;
 };
 

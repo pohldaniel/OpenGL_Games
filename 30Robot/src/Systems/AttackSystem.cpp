@@ -5,14 +5,13 @@
 #include <Services/IRandom.h>
 #include <Services/IHelper.h>
 #include <Services/IDebugDraw.h>
+#include <Services/Locator.h>
 
 #include "AttackSystem.h"
-
-#include "tags.hpp"
-#include "constants.hpp"
+#include "Tags.h"
+#include "Constants.h"
 #include "Globals.h"
-#include "locator.hpp"
-#include "maths.hpp"
+#include "Maths.h"
 
 AttackSystem::AttackSystem(entt::DefaultRegistry& registry, EventEmitter& emitter) : ISystem(registry, emitter), m_projectileFactory(registry), m_vfxFactory(registry) {
 	m_emitter.on<evnt::LaserParticleDead>([this](const evnt::LaserParticleDead & event, EventEmitter & emitter) {

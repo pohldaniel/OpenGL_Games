@@ -2,8 +2,8 @@
 #include <Services/IRandom.h>
 
 #include "EnemyFactory.h"
-#include "tags.hpp"
-#include "constants.hpp"
+#include "Tags.h"
+#include "Constants.h"
 
 
 // TODO doc ENTT partie "prototype" pour avoir des entity factory plus optimis�s en m�moire

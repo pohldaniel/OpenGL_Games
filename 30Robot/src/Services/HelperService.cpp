@@ -1,9 +1,9 @@
 #include <Components/Components.h>
 
 #include "HelperService.h"
-#include "constants.hpp"
-#include "tags.hpp"
-#include "maths.hpp"
+#include "Constants.h"
+#include "Tags.h"
+#include "Maths.h"
 #include "Globals.h"
 
 HelperService::HelperService() : m_screenShaking(false), m_screenShake(glm::vec2(0.0f)) {}

@@ -2,13 +2,12 @@
 #include <Components/Components.h>
 #include <Event/EventListener.h>
 #include <Services/IHelper.h>
+#include <Services/Locator.h>
 
 #include "LifeAndDeathSystem.h"
-#include "tags.hpp"
-#include "constants.hpp"
-#include "maths.hpp"
-
-#include "locator.hpp"
+#include "Tags.h"
+#include "Constants.h"
+#include "Maths.h"
 
 LifeAndDeathSystem::LifeAndDeathSystem(entt::DefaultRegistry& registry, EventEmitter& emitter, Progression& progression)
 : ISystem(registry, emitter), m_progression(progression)

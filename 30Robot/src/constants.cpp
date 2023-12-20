@@ -1,4 +1,4 @@
-#include "constants.hpp"
+#include "Constants.h"
 
 const int WIN_WIDTH = 1920 / 2;
 const int WIN_HEIGHT = 1080 / 2;

@@ -2,8 +2,8 @@
 #include <Components/Components.h>
 
 #include "ProjectileFactory.h"
-#include "tags.hpp"
-#include "constants.hpp"
+#include "Tags.h"
+#include "Constants.h"
 
 ProjectileFactory::ProjectileFactory(entt::DefaultRegistry& registry) : Factory(registry) {
 	m_projectileSprite = m_spriteFactory.createSingle("res/images/textures/projectile_snowflake.png", glm::vec2(6.0f));

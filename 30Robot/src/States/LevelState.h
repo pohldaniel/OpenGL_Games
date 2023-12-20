@@ -23,10 +23,10 @@ enum class LevelInteractionState {
 	BUILD
 };
 
-class LevelS;
+class LevelState;
 
 struct LevelConnections {
-	LevelConnections(LevelS& level);
+	LevelConnections(LevelState& level);
 
 	entt::Emitter<EventEmitter>::Connection<evnt::ConstructSelection> connection1;
 	entt::Emitter<EventEmitter>::Connection<evnt::DeleteEntity> connection2;
@@ -42,14 +42,14 @@ struct LevelConnections {
 	std::uint32_t lastSelectedEntity;
 };
 
-class LevelS : public State, public MouseEventListener, public KeyboardEventListener, public EventListener {
+class LevelState : public State, public MouseEventListener, public KeyboardEventListener, public EventListener {
 
 	friend struct LevelConnections;
 
 public:
 
-	LevelS(StateMachine& machine);
-	virtual ~LevelS();
+	LevelState(StateMachine& machine);
+	virtual ~LevelState();
 
 	void fixedUpdate() override;
 	void update() override;
@@ -69,9 +69,7 @@ private:
 	void OnStateChange(States states) override;
 	void changeState(LevelInteractionState state);
 
-	Noesis::Ptr<Noesis::FrameworkElement> m_xaml;
 	Noesis::IView* m_ui;
-
 
 	unsigned int m_invalidTimeCounter;
 	unsigned int m_invalidTimeMax;
@@ -79,4 +77,3 @@ private:
 	MirrorFactory m_mirrorFactory;
 	LevelConnections m_connections;
 };
-

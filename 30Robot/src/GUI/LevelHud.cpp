@@ -6,7 +6,7 @@
 #include <glm/glm.hpp>
 
 #include <Systems/WaveSystem.h>
-#include "constants.hpp"
+#include "Constants.h"
 
 
 NS_IMPLEMENT_REFLECTION(LevelHudBindings) {

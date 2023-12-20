@@ -1,18 +1,19 @@
 #include <Components/Components.h>
-#include <States/GameOverS.h>
-#include <States/LevelExitS.h>
+#include <States/GameOverState.h>
+#include <States/LevelExitState.h>
+#include <States/LevelState.h>
 #include <GUI/LevelHud.h>
 
 #include <Services/IHelper.h>
 
-#include "LevelS.h"
+
 #include "Globals.h"
 #include "Application.h"
 #include "Renderer.h"
-#include "tags.hpp"
-#include "maths.hpp"
+#include "Tags.h"
+#include "Maths.h"
 
-LevelConnections::LevelConnections(LevelS& level) :
+LevelConnections::LevelConnections(LevelState& level) :
 	connection1(Application::Emitter.on<evnt::ConstructSelection>([this, &level](const evnt::ConstructSelection & event, EventEmitter & emitter) {
 		switch (state) {
 			case LevelInteractionState::INVALID:
@@ -131,7 +132,7 @@ LevelConnections::LevelConnections(LevelS& level) :
 	lastSelectedEntity(0),
 	state(LevelInteractionState::FREE){}
 
-LevelS::LevelS(StateMachine& machine) : State(machine, States::LEVEL), 
+LevelState::LevelState(StateMachine& machine) : State(machine, States::LEVEL),
 m_towerFactory(Application::Registry), 
 m_mirrorFactory(Application::Registry), 
 m_connections(*this),
@@ -143,8 +144,7 @@ m_invalidTimeMax(1 * 60) {
 
 	LevelHud::Get().reset();
 	
-	m_xaml = LevelHud::Get().m_grid;
-	m_ui = Noesis::GUI::CreateView(m_xaml).GiveOwnership();
+	m_ui = Noesis::GUI::CreateView(LevelHud::Get().m_grid).GiveOwnership();
 	m_ui->SetIsPPAAEnabled(true);
 	m_ui->GetRenderer()->Init(Application::NoesisDevice);
 	m_ui->SetSize(Application::Width, Application::Height);
@@ -154,7 +154,7 @@ m_invalidTimeMax(1 * 60) {
 	m_mirrorFactory.init();
 }
 
-LevelS::~LevelS() {
+LevelState::~LevelState() {
 	std::cout << "Destructor Level: " << std::endl;
 
 	Application::Emitter.erase(m_connections.connection1);
@@ -175,19 +175,15 @@ LevelS::~LevelS() {
 	entt::ServiceLocator<IHelper>::ref().reset();
 }
 
-void LevelS::fixedUpdate() {
+void LevelState::fixedUpdate() {
 
 }
 
-void LevelS::update() {
+void LevelState::update() {
 	Keyboard &keyboard = Keyboard::instance();
-
-	if (keyboard.keyPressed(Keyboard::KEY_W)) {
-		Application::Emitter.publish<evnt::ProgressionUpdated>();
-	}
 }
 
-void LevelS::render() {
+void LevelState::render() {
 	if (m_connections.state == LevelInteractionState::INVALID) {
 		m_invalidTimeCounter++;
 	}
@@ -214,11 +210,11 @@ void LevelS::render() {
 	m_ui->GetRenderer()->Render();
 }
 
-void LevelS::resize(int deltaW, int deltaH) {
+void LevelState::resize(int deltaW, int deltaH) {
 	m_ui->SetSize(Application::Width, Application::Height);
 }
 
-void LevelS::OnMouseMotion(Event::MouseMoveEvent& event) {
+void LevelState::OnMouseMotion(Event::MouseMoveEvent& event) {
 	m_ui->MouseMove(event.x, event.y);
 
 	const glm::vec2 normMousePos = glm::vec2(
@@ -278,7 +274,7 @@ void LevelS::OnMouseMotion(Event::MouseMoveEvent& event) {
 	}
 }
 
-void LevelS::OnMouseButtonDown(Event::MouseButtonEvent& event) {
+void LevelState::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 
 
 	if (event.button == Event::MouseButtonEvent::BUTTON_LEFT) {
@@ -443,7 +439,7 @@ void LevelS::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 	}
 }
 
-void LevelS::OnMouseButtonUp(Event::MouseButtonEvent& event) {
+void LevelState::OnMouseButtonUp(Event::MouseButtonEvent& event) {
 	if (event.button == Event::MouseButtonEvent::BUTTON_LEFT) {
 		m_ui->MouseButtonUp(event.x, event.y, Noesis::MouseButton_Left);
 		if (Application::Emitter.focus == FocusMode::GAME) {
@@ -481,7 +477,7 @@ void LevelS::OnMouseButtonUp(Event::MouseButtonEvent& event) {
 
 }
 
-void LevelS::OnMouseWheel(Event::MouseWheelEvent& event) {
+void LevelState::OnMouseWheel(Event::MouseWheelEvent& event) {
 	std::uint32_t entity;
 	if (Application::Registry.valid(m_connections.lastSelectedEntity)) {
 		entity = m_connections.lastSelectedEntity;
@@ -511,16 +507,16 @@ void LevelS::OnMouseWheel(Event::MouseWheelEvent& event) {
 	}
 }
 
-LevelInteractionState LevelS::getInteractionState() const {
+LevelInteractionState LevelState::getInteractionState() const {
 	return m_connections.state;
 }
 
-void LevelS::OnStateChange(States states) {
+void LevelState::OnStateChange(States states) {
 	m_isRunning = false;
-	m_machine.addStateAtBottom(states == States::GAMEOVER ? static_cast<State*>(new GameOverS(m_machine)) : static_cast<State*>(new LevelExitS(m_machine)));
+	m_machine.addStateAtBottom(states == States::GAMEOVER ? static_cast<State*>(new GameOverState(m_machine)) : static_cast<State*>(new LevelExitState(m_machine)));
 }
 
-void LevelS::changeState(LevelInteractionState state) {
+void LevelState::changeState(LevelInteractionState state) {
 	// Exit current state
 	switch (m_connections.state) {
 		case LevelInteractionState::FREE:
