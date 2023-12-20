@@ -4,6 +4,7 @@
 #include <States/LevelState.h>
 #include <GUI/LevelHud.h>
 #include <Services/IHelper.h>
+#include <Services/IAudio.h>
 #include <Level/Level.h>
 
 #include "Globals.h"
@@ -519,6 +520,8 @@ LevelInteractionState LevelState::getInteractionState() const {
 }
 
 void LevelState::OnStateChange(States states) {
+	entt::ServiceLocator<IAudio>::ref().stopAllSounds();
+
 	m_isRunning = false;
 	m_machine.addStateAtBottom(states == States::GAMEOVER ? static_cast<State*>(new GameOverState(m_machine)) : static_cast<State*>(new LevelExitState(m_machine)));
 }

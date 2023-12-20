@@ -1,6 +1,5 @@
 #pragma once
 #include <windows.h>
-#include <memory>
 #include <glm/gtx/transform.hpp>
 #include <engine/input/Event.h>
 #include <engine/input/EventDispatcher.h>

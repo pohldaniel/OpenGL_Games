@@ -25,6 +25,7 @@
 #include <Services/DebugDrawService.h>
 #include <Services/RandomService.h>
 #include <Services/HelperService.h>
+#include <Services/AudioService.h>
 #include <Services/Locator.h>
 
 #include <GUI/TitleScreen.h>
@@ -126,6 +127,7 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	debugDraw.setViewMat(glm::mat4(1.0f));
 	locator::random::set<RandomService>();
 	locator::helper::set<HelperService>();
+	locator::audio::set<AudioService>();
 
 	// Level
 	viewTranslation = glm::vec2(0.0f);
