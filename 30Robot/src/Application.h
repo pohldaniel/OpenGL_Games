@@ -1,6 +1,7 @@
 #pragma once
 #include <windows.h>
 #include <memory>
+#include <glm/gtx/transform.hpp>
 #include <engine/input/Event.h>
 #include <engine/input/EventDispatcher.h>
 #include <engine/input/Keyboard.h>
@@ -17,7 +18,9 @@
 #include <Systems/WaveSystem.h>
 #include <Systems/LifeAndDeathSystem.h>
 
-#include <glm/gtx/transform.hpp>
+#include "progression.hpp"
+
+class Level;
 
 class Application {
 

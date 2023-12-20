@@ -20,8 +20,6 @@ GameOverState::GameOverState(StateMachine& machine) : State(machine, States::GAM
 }
 
 GameOverState::~GameOverState() {
-	std::cout << "Destructor Game Over: " << std::endl;
-
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
 

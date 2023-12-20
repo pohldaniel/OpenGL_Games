@@ -2,12 +2,13 @@
 
 #include <entt/entt.hpp>
 #include <Components/Components.h>
-#include <Level/Level.h>
 
 #include "IFactory.h"
 #include "SpriteFactory.h"
 #include "PrimitiveFactory.h"
 #include "ProjectileFactory.h"
+
+class Level;
 
 class EnemyFactory : public Factory {
 public:

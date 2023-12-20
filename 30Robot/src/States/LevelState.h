@@ -76,4 +76,5 @@ private:
 	TowerFactory m_towerFactory;
 	MirrorFactory m_mirrorFactory;
 	LevelConnections m_connections;
+	bool m_debugDraw;
 };

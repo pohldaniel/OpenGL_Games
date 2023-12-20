@@ -7,7 +7,6 @@
 #include <States/StateMachine.h>
 #include <Event/EventEmitter.h>
 #include <Event/EventListener.h>
-#include <Level/Level.h>
 
 class GameOverState : public State, public MouseEventListener, public KeyboardEventListener, public EventListener {
 

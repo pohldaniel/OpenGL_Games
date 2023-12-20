@@ -5,13 +5,9 @@
 
 #include <engine/input/MouseEventListener.h>
 #include <engine/input/KeyboardEventListener.h>
-
 #include <States/StateMachine.h>
-
 #include <Event/EventEmitter.h>
 #include <Event/EventListener.h>
-#include <Level/Level.h>
-
 
 struct TitleScreenConnections {
 	TitleScreenConnections();	

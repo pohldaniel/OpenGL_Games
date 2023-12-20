@@ -4,13 +4,9 @@
 #include <glm/gtx/transform.hpp>
 #include <engine/input/MouseEventListener.h>
 #include <engine/input/KeyboardEventListener.h>
-
 #include <States/StateMachine.h>
-
 #include <Event/EventEmitter.h>
 #include <Event/EventListener.h>
-
-#include <Level/Level.h>
 
 class LevelIntroState : public State, public MouseEventListener, public KeyboardEventListener, public EventListener {
 

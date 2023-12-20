@@ -6,9 +6,7 @@
 #include <Event/EventEmitter.h>
 #include <Event/EventListener.h>
 
-#include <Level/Level.h>
 #include "progression.hpp"
-
 
 class WaveSystem : public ISystem {
 public:
@@ -16,7 +14,7 @@ public:
 	void update(float deltatime) override;
 
 private:
-	Progression & m_progression;
+	Progression& m_progression;
 	EnemyFactory m_enemyFactory;
 	WaveState m_waveState;
 	unsigned int m_frameCount;

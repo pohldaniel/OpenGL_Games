@@ -1,7 +1,6 @@
 #include <States/TitleScreenState.h>
 #include <States/LevelState.h>
 #include <States/LevelIntroState.h>
-
 #include <GUI/LevelIntro.h>
 
 #include "Application.h"
@@ -20,8 +19,6 @@ LevelIntroState::LevelIntroState(StateMachine& machine) : State(machine, States:
 }
 
 LevelIntroState::~LevelIntroState() {
-	std::cout << "Destructor Intro: " << std::endl;
-
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
 

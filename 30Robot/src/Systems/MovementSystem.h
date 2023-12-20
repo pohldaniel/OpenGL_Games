@@ -2,9 +2,8 @@
 
 #include <glm/glm.hpp>
 #include <Box2D/Box2D.h>
-
-#include "Isystem.h"
-#include "Event/EventEmitter.h"
+#include <Event/EventEmitter.h>
+#include "ISystem.h"
 
 class MovementSystem : public ISystem {
 public:

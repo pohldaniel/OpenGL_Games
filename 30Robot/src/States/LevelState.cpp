@@ -3,9 +3,8 @@
 #include <States/LevelExitState.h>
 #include <States/LevelState.h>
 #include <GUI/LevelHud.h>
-
 #include <Services/IHelper.h>
-
+#include <Level/Level.h>
 
 #include "Globals.h"
 #include "Application.h"
@@ -137,7 +136,8 @@ m_towerFactory(Application::Registry),
 m_mirrorFactory(Application::Registry), 
 m_connections(*this),
 m_invalidTimeCounter(0),
-m_invalidTimeMax(1 * 60) {
+m_invalidTimeMax(1 * 60),
+m_debugDraw(false){
 
 	EventDispatcher::AddKeyboardListener(this);
 	EventDispatcher::AddMouseListener(this);
@@ -155,8 +155,6 @@ m_invalidTimeMax(1 * 60) {
 }
 
 LevelState::~LevelState() {
-	std::cout << "Destructor Level: " << std::endl;
-
 	Application::Emitter.erase(m_connections.connection1);
 	Application::Emitter.erase(m_connections.connection2);
 	Application::Emitter.erase(m_connections.connection3);
@@ -181,6 +179,10 @@ void LevelState::fixedUpdate() {
 
 void LevelState::update() {
 	Keyboard &keyboard = Keyboard::instance();
+
+	if (keyboard.keyPressed(Keyboard::KEY_T)) {
+		m_debugDraw = !m_debugDraw;
+	}
 }
 
 void LevelState::render() {
@@ -208,6 +210,11 @@ void LevelState::render() {
 	Application::s_LifeAndDeathSystem->update(m_dt);
 	Application::s_WaveSystem->update(m_dt);
 	m_ui->GetRenderer()->Render();
+
+	if (m_debugDraw) {
+		Application::s_Level->drawGraph();
+		Application::s_Level->drawGrid();
+	}
 }
 
 void LevelState::resize(int deltaW, int deltaH) {

@@ -1,11 +1,10 @@
 #pragma once
 
-#include <Level/Level.h>
-
 #include "IRandom.h"
 #include "IHelper.h"
 
-class Game; // Forward declaration
+class Game;
+class Level;
 
 class HelperService : public IHelper {
 public:

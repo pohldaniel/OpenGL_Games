@@ -3,7 +3,8 @@
 #include <glm/glm.hpp>
 #include <entt/entt.hpp>
 #include <Event/EventEmitter.h>
-#include <Level/Level.h>
+
+class Level;
 
 class IHelper {
 public:

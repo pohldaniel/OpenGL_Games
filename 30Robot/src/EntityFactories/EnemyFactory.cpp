@@ -1,5 +1,6 @@
 #include <Components/Components.h>
 #include <Services/IRandom.h>
+#include <Level/Level.h>
 
 #include "EnemyFactory.h"
 #include "Tags.h"

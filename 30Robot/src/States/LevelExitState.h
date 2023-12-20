@@ -12,8 +12,6 @@
 #include <Event/EventEmitter.h>
 #include <Event/EventListener.h>
 
-#include <Level/Level.h>
-
 class LevelExitState : public State, public MouseEventListener, public KeyboardEventListener, public EventListener {
 
 public:
