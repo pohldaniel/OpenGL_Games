@@ -177,7 +177,6 @@
     <ClCompile Include="src\EntityFactories\VfxFactory.cpp" />
     <ClCompile Include="src\Graphics\frame-buffer.cpp" />
     <ClCompile Include="src\Graphics\index-buffer.cpp" />
-    <ClCompile Include="src\Graphics\shaderRo.cpp" />
     <ClCompile Include="src\Graphics\texture-array.cpp" />
     <ClCompile Include="src\Graphics\textureRo.cpp" />
     <ClCompile Include="src\Graphics\vertex-array.cpp" />
@@ -367,7 +366,6 @@
     <ClInclude Include="src\Globals.h" />
     <ClInclude Include="src\Graphics\frame-buffer.hpp" />
     <ClInclude Include="src\Graphics\index-buffer.hpp" />
-    <ClInclude Include="src\Graphics\shaderRo.hpp" />
     <ClInclude Include="src\Graphics\texture-array.hpp" />
     <ClInclude Include="src\Graphics\textureRo.hpp" />
     <ClInclude Include="src\Graphics\vertex-array.hpp" />

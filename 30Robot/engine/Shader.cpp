@@ -103,6 +103,30 @@ void Shader::loadVector(const char* location, Vector2f vector) const {
 	glUniform2fv(getUnifromLocation(location), 1, &vector[0]);
 }
 
+void Shader::loadVector(const char* location, const float vector[4]) const {
+	glUniform4fv(getUnifromLocation(location), 1, vector);
+}
+
+/*void Shader::loadVector(const char* location, const float vector[3]) const {
+	glUniform3fv(getUnifromLocation(location), 1, vector);
+}
+
+void Shader::loadVector(const char* location, const float vector[2]) const {
+	glUniform2fv(getUnifromLocation(location), 1, vector);
+}*/
+
+void Shader::loadVector(const char* location, float v0, float v1) const {
+	glUniform2f(getUnifromLocation(location), v0, v1);
+}
+
+void Shader::loadVector(const char* location, float v0, float v1, float v2) const {
+	glUniform3f(getUnifromLocation(location), v0, v1, v2);
+}
+
+void Shader::loadVector(const char* location, float v0, float v1, float v2, float v3) const {
+	glUniform4f(getUnifromLocation(location), v0, v1, v2, v3);
+}
+
 void Shader::loadVector(const char* location, std::array<int, 3> vector) const {
 	glUniform3iv(getUnifromLocation(location), 1, &vector[0]);
 }
@@ -111,8 +135,8 @@ void Shader::loadVector(const char* location, std::array<int, 2> vector) const {
 	glUniform2iv(getUnifromLocation(location), 1, &vector[0]);
 }
 
-void Shader::loadVectorArray(const char* location, const std::vector<std::array<float, 4>> vectorArray, const unsigned short count) const {
-	glUniform4fv(getUnifromLocation(location), count, vectorArray.data()->data());
+void Shader::loadVectorArray(const char* location, const std::vector<std::array<float, 4>> vectorArray) const {
+	glUniform4fv(getUnifromLocation(location), vectorArray.size(), vectorArray.data()->data());
 }
 
 void Shader::loadFloat(const char* location, float value) const {

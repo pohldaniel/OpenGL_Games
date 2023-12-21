@@ -1,10 +1,10 @@
 #pragma once
 
 #include <engine/Vector.h>
+#include <engine/Shader.h>
 #include <glm/glm.hpp>
 
 #include "IDebugDraw.h"
-#include "graphics/shaderRo.hpp"
 #include "graphics/vertex-array.hpp"
 
 /**
@@ -51,13 +51,13 @@ public:
 	void setColor(float r, float g, float b, float a) override;
 
 	//Shaders
-	ShaderRo& getShader(BasicShaderType shaderType);
+	Shader& getShader(BasicShaderType shaderType);
 
 private:
-	ShaderRo m_shaderBasic;
-	ShaderRo m_shaderLaser;
-	ShaderRo m_shaderCircleWithGlow;
-	ShaderRo m_shaderCircleExplosion;
+	Shader m_shaderBasic;
+	Shader m_shaderLaser;
+	Shader m_shaderCircleWithGlow;
+	Shader m_shaderCircleExplosion;
 	VertexArray m_va;
 	VertexBuffer m_vb;
 	unsigned int m_vbMaxSize;

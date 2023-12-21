@@ -9,5 +9,5 @@ namespace imaths {
 	float max(float a, float b);
 	float distance(glm::vec2 v1, glm::vec2 v2);
 	float distanceSq(glm::vec2 v1, glm::vec2 v2);
-	const float TAU = 6.28318530717958647692528676655900576839433879875021;
+	const float TAU = 6.28318530717958647692528676655900576839433879875021f;
 }

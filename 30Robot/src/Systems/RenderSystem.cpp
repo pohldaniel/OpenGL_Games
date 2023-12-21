@@ -50,7 +50,7 @@ RenderSystem::~RenderSystem() {
 void RenderSystem::renderSpritesheet(std::uint32_t entity, cmpt::Sprite& sprite, cmpt::SpriteAnimation& animation) const {
 	IHelper& helper = entt::ServiceLocator<IHelper>::ref();
 	// Binding
-	sprite.shader->bind();
+	sprite.shader->use();
 	glBindVertexArray(sprite.vaID);
 	glActiveTexture(GL_TEXTURE0); // Texture unit 0 for images, must be called before binding texture
 	glBindTexture(sprite.target, sprite.textureID);
@@ -58,11 +58,11 @@ void RenderSystem::renderSpritesheet(std::uint32_t entity, cmpt::Sprite& sprite,
 
 	// Updates
 	glm::mat4 mvp = this->m_projection * this->getViewMatrix() * this->getModelMatrix(entity);
-	sprite.shader->setUniformMat4f("u_mvp", mvp);
-	sprite.shader->setUniform1i("u_activeTile", animation.activeTile);
+	sprite.shader->loadMatrix("u_mvp", (const float*)glm::value_ptr(mvp));
+	sprite.shader->loadInt("u_activeTile", animation.activeTile);
 	if (m_registry.valid(entity)) {
-		sprite.shader->setUniform4f("tintColour", helper.getColour(entity));
-		sprite.shader->setUniform1f("u_alpha", helper.getAlpha(entity));
+		sprite.shader->loadVector("tintColour", (const float*)glm::value_ptr(helper.getColour(entity)));
+		sprite.shader->loadFloat("u_alpha", helper.getAlpha(entity));
 		if (m_registry.has<cmpt::AnimationPixelsVanish>(entity) || (m_registry.has<cmpt::AttachedTo>(entity) && m_registry.has<cmpt::AnimationPixelsVanish>(m_registry.get<cmpt::AttachedTo>(entity).mainEntity))) {
 			cmpt::Animated animated = cmpt::Animated(0);
 			bool bForward;
@@ -75,14 +75,14 @@ void RenderSystem::renderSpritesheet(std::uint32_t entity, cmpt::Sprite& sprite,
 				bForward = m_registry.get<cmpt::AnimationPixelsVanish>(m_registry.get<cmpt::AttachedTo>(entity).mainEntity).bForward;
 			}
 			if (bForward) {
-				sprite.shader->setUniform1f("probaDisappear", 1 - animated.age / animated.duration);
+				sprite.shader->loadFloat("probaDisappear", 1 - animated.age / animated.duration);
 			}
 			else {
-				sprite.shader->setUniform1f("probaDisappear", animated.age / animated.duration);
+				sprite.shader->loadFloat("probaDisappear", animated.age / animated.duration);
 			}
 		}
 		else {
-			sprite.shader->setUniform1f("probaDisappear", 0);
+			sprite.shader->loadFloat("probaDisappear", 0);
 		}
 	}
 	glDrawElements(GL_TRIANGLES, sprite.ib->getCount(), GL_UNSIGNED_INT, nullptr);
@@ -91,13 +91,13 @@ void RenderSystem::renderSpritesheet(std::uint32_t entity, cmpt::Sprite& sprite,
 	sprite.ib->unbind();
 	glBindTexture(sprite.target, 0);
 	glBindVertexArray(0);
-	sprite.shader->unbind();
+	sprite.shader->unuse();
 }
 
 void RenderSystem::renderSprite(std::uint32_t entity, cmpt::Sprite & sprite) const {
 	IHelper& helper = entt::ServiceLocator<IHelper>::ref();
 	// Binding
-	sprite.shader->bind();
+	sprite.shader->use();
 	glBindVertexArray(sprite.vaID);
 	glActiveTexture(GL_TEXTURE0); // Texture unit 0 for images, must be called before binding texture
 	glBindTexture(sprite.target, sprite.textureID);
@@ -105,11 +105,11 @@ void RenderSystem::renderSprite(std::uint32_t entity, cmpt::Sprite & sprite) con
 
 	// Updates
 	glm::mat4 mvp = m_projection * this->getViewMatrix() * this->getModelMatrix(entity);
-	sprite.shader->setUniformMat4f("u_mvp", mvp);
+	sprite.shader->loadMatrix("u_mvp", (const float*)glm::value_ptr(mvp));
 
 	if (m_registry.valid(entity)) {
-		sprite.shader->setUniform4f("tintColour", helper.getColour(entity));
-		sprite.shader->setUniform1f("u_alpha", helper.getAlpha(entity));
+		sprite.shader->loadVector("tintColour", (const float*)glm::value_ptr(helper.getColour(entity)));
+		sprite.shader->loadFloat("u_alpha", helper.getAlpha(entity));
 		if (m_registry.has<cmpt::AnimationPixelsVanish>(entity) || (m_registry.has<cmpt::AttachedTo>(entity) && m_registry.has<cmpt::AnimationPixelsVanish>(m_registry.get<cmpt::AttachedTo>(entity).mainEntity))) {
 			cmpt::Animated animated = cmpt::Animated(0);
 			bool bForward;
@@ -122,14 +122,14 @@ void RenderSystem::renderSprite(std::uint32_t entity, cmpt::Sprite & sprite) con
 				bForward = m_registry.get<cmpt::AnimationPixelsVanish>(m_registry.get<cmpt::AttachedTo>(entity).mainEntity).bForward;
 			}
 			if (bForward) {
-				sprite.shader->setUniform1f("probaDisappear", 1 - animated.age / animated.duration);
+				sprite.shader->loadFloat("probaDisappear", 1 - animated.age / animated.duration);
 			}
 			else {
-				sprite.shader->setUniform1f("probaDisappear", animated.age / animated.duration);
+				sprite.shader->loadFloat("probaDisappear", animated.age / animated.duration);
 			}
 		}
 		else {
-			sprite.shader->setUniform1f("probaDisappear", 0);
+			sprite.shader->loadFloat("probaDisappear", 0);
 		}
 	}
 	glDrawElements(GL_TRIANGLES, sprite.ib->getCount(), GL_UNSIGNED_INT, nullptr);
@@ -138,7 +138,7 @@ void RenderSystem::renderSprite(std::uint32_t entity, cmpt::Sprite & sprite) con
 	sprite.ib->unbind();
 	glBindTexture(sprite.target, 0);
 	glBindVertexArray(0);
-	sprite.shader->unbind();
+	sprite.shader->unuse();
 }
 
 void RenderSystem::update(float deltatime) {
@@ -152,28 +152,28 @@ void RenderSystem::update(float deltatime) {
 
     m_registry.view<cmpt::Transform, cmpt::Primitive>().each([this](auto entity, cmpt::Transform& transform, cmpt::Primitive& primitive) {
         // Binding
-        primitive.shader->bind();
+        primitive.shader->use();
         glBindVertexArray(primitive.vaID);
 
         // Updates
         glm::mat4 mvp = this->m_projection * this->getViewMatrix() * this->getModelMatrix(entity);
-        primitive.shader->setUniformMat4f("u_mvp", mvp);
-        primitive.shader->setUniform4f("u_color", primitive.color.r, primitive.color.g, primitive.color.b, primitive.color.a);
+        primitive.shader->loadMatrix("u_mvp", (const float*)glm::value_ptr(mvp));
+        primitive.shader->loadVector("u_color", primitive.color.r, primitive.color.g, primitive.color.b, primitive.color.a);
 		if (m_registry.valid(entity) && m_registry.has<cmpt::TintColour>(entity)) {
 			cmpt::TintColour& tint = m_registry.get<cmpt::TintColour>(entity);
-			primitive.shader->setUniform4f("tintColour", tint.col.r, tint.col.g, tint.col.b, tint.col.a);
+			primitive.shader->loadVector("tintColour", tint.col.r, tint.col.g, tint.col.b, tint.col.a);
 			if (tint.bOneTimeOnly) {
 				m_registry.remove<cmpt::TintColour>(entity);
 			}
 		}
 		else {
-			primitive.shader->setUniform4f("tintColour", 0, 0, 0, 0);
+			primitive.shader->loadVector("tintColour", 0.0f, 0.0f, 0.0f, 0.0f);
 		}
        glDrawArrays(primitive.type, 0, primitive.vertexCount);
 
         // Unbinding
         glBindVertexArray(0);
-        primitive.shader->unbind();
+        primitive.shader->unuse();
     });
 
 	
@@ -242,7 +242,7 @@ void RenderSystem::update(float deltatime) {
 			// Background
 			{
 				// Binding
-				healthbar.background.shader->bind();
+				healthbar.background.shader->use();
 				glBindVertexArray(healthbar.background.vaID);
 
 				// Update pos
@@ -251,19 +251,19 @@ void RenderSystem::update(float deltatime) {
 
 				// Updates
 				glm::mat4 mvp = this->m_projection * this->getViewMatrix() * this->getModelMatrix(healthTransform);
-				healthbar.background.shader->setUniformMat4f("u_mvp", mvp);
-				healthbar.background.shader->setUniform4f("u_color", healthbar.background.color.r, healthbar.background.color.g, healthbar.background.color.b, healthbar.background.color.a);
+				healthbar.background.shader->loadMatrix("u_mvp", (const float*)glm::value_ptr(mvp));
+				healthbar.background.shader->loadVector("u_color", healthbar.background.color.r, healthbar.background.color.g, healthbar.background.color.b, healthbar.background.color.a);
 				glDrawArrays(healthbar.background.type, 0, healthbar.background.vertexCount);
 
 				// Unbinding
 				glBindVertexArray(0);
-				healthbar.background.shader->unbind();
+				healthbar.background.shader->unuse();
 			}
 
 			// Foreground
 			{
 				// Binding
-				healthbar.bar.shader->bind();
+				healthbar.bar.shader->use();
 				glBindVertexArray(healthbar.bar.vaID);
 
 				// Update pos
@@ -274,18 +274,18 @@ void RenderSystem::update(float deltatime) {
 
 				// Updates
 				glm::mat4 mvp = this->m_projection * this->getViewMatrix() * this->getModelMatrix(healthTransform);
-				healthbar.bar.shader->setUniformMat4f("u_mvp", mvp);
+				healthbar.bar.shader->loadMatrix("u_mvp", (const float*)glm::value_ptr(mvp));
 				if (scale > 0.4f) {
-					healthbar.bar.shader->setUniform4f("u_color", healthbar.bar.color.r, healthbar.bar.color.g, healthbar.bar.color.b, healthbar.bar.color.a);
+					healthbar.bar.shader->loadVector("u_color", healthbar.bar.color.r, healthbar.bar.color.g, healthbar.bar.color.b, healthbar.bar.color.a);
 				}
 				else {
-					healthbar.bar.shader->setUniform4f("u_color", 1, 0, 0, healthbar.bar.color.a);
+					healthbar.bar.shader->loadVector("u_color", 1.0f, 0.0f, 0.0f, healthbar.bar.color.a);
 				}
 				glDrawArrays(healthbar.bar.type, 0, healthbar.bar.vertexCount);
 
 				// Unbinding
 				glBindVertexArray(0);
-				healthbar.background.shader->unbind();
+				healthbar.background.shader->unuse();
 			}
 		}
 	});

@@ -41,14 +41,14 @@ cmpt::Sprite SpriteFactory::createSingle(const std::string& textureFilepath, glm
 	va.addBuffer(vb, vbLayout);
 
     /* Uniforms */
-    m_shaderTex.bind();
-    m_shaderTex.setUniformMat4f("u_mvp", glm::mat4(1.0f));
+    m_shaderTex.use();
+    m_shaderTex.loadMatrix("u_mvp", (const float*)glm::value_ptr(glm::mat4(1.0f)));
     TextureRo texture(textureFilepath);
     texture.bind();
-	m_shaderTex.setUniform1i("u_texture", 0);
+	m_shaderTex.loadInt("u_texture", 0);
     
     /* Cleanup */
-    m_shaderTex.unbind();
+    m_shaderTex.unuse();
     va.unbind();
     vb.unbind();
     texture.unbind();
@@ -63,7 +63,7 @@ cmpt::Sprite SpriteFactory::createAtlas(const std::string& textureFilepath, glm:
 }
 
 cmpt::Sprite SpriteFactory::createAtlas(const std::string& textureFilepath, glm::vec2 displaySize, glm::vec2 tileSize, ShaderType shaderType) {
-	ShaderRo& shader = getShader(shaderType);
+	Shader& shader = getShader(shaderType);
 	displaySize /= 2;
     float positions[] = {
         // Pos                           // Inverted UV to start at topleft
@@ -83,15 +83,15 @@ cmpt::Sprite SpriteFactory::createAtlas(const std::string& textureFilepath, glm:
 	va.addBuffer(vb, vbLayout);
 	
     /* Uniforms */
-	shader.bind();
-	shader.setUniformMat4f("u_mvp", glm::mat4(1.0f));
+	shader.use();
+	shader.loadMatrix("u_mvp", (const float*)glm::value_ptr(glm::mat4(1.0f)));
     TextureArray texture(textureFilepath, (GLsizei) tileSize.x, (GLsizei) tileSize.y);
     texture.bind();
-	shader.setUniform1i("u_texture", 0);
-	shader.setUniform1i("u_activeTile", 0);
+	shader.loadInt("u_texture", 0);
+	shader.loadInt("u_activeTile", 0);
     
     /* Cleanup */
-	shader.unbind();
+	shader.unuse();
     va.unbind();
     vb.unbind();
     texture.unbind();
@@ -104,7 +104,7 @@ cmpt::Sprite SpriteFactory::createAtlas(const std::string& textureFilepath, glm:
 
 // TODO ajouter fonctions "createAtlasInstanced" + "createSingleInstanced" pour des sprites partagés entre plusieurs entités (fonctions opengl spéciales)
 
-ShaderRo& SpriteFactory::getShader(ShaderType shaderType) {
+Shader& SpriteFactory::getShader(ShaderType shaderType) {
 	switch (shaderType) {
 	case ShaderType::BASIC_SINGLE :
 		return m_shaderTex;

@@ -363,9 +363,6 @@
     <ClCompile Include="src\Graphics\vertex-buffer.cpp">
       <Filter>Source Files\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="src\Graphics\shaderRo.cpp">
-      <Filter>Source Files\Graphics</Filter>
-    </ClCompile>
     <ClCompile Include="src\Graphics\textureRo.cpp">
       <Filter>Source Files\Graphics</Filter>
     </ClCompile>
@@ -783,9 +780,6 @@
       <Filter>Source Files\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="src\Graphics\vertex-buffer-layout.hpp">
-      <Filter>Source Files\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Graphics\shaderRo.hpp">
       <Filter>Source Files\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="src\Graphics\textureRo.hpp">

@@ -9,20 +9,20 @@
 #include "Maths.h"
 
 class Level;
-class ShaderRo;
+class Shader;
 class IndexBuffer;
 
 namespace cmpt {
 
 	struct Primitive {
-		Primitive(glm::vec4 color = glm::vec4(0), unsigned int vaID = 0, unsigned int type = 0, ShaderRo* shader = nullptr, unsigned int vertexCount = 0)
+		Primitive(glm::vec4 color = glm::vec4(0), unsigned int vaID = 0, unsigned int type = 0, Shader* shader = nullptr, unsigned int vertexCount = 0)
 			: color(color), vaID(vaID), type(type), shader(shader), vertexCount(vertexCount) {}
 
 		glm::vec4 color;
 		unsigned int vaID;
 		unsigned int vertexCount;
 		unsigned int type;
-		ShaderRo* shader;
+		Shader* shader;
 	};
 
 	struct Age {
@@ -207,13 +207,13 @@ namespace cmpt {
 	};
 
 	struct Sprite {
-		Sprite(unsigned int textureID = 0, unsigned int vaID = 0, unsigned int target = 0, ShaderRo* shader = nullptr, IndexBuffer* ib = nullptr)
+		Sprite(unsigned int textureID = 0, unsigned int vaID = 0, unsigned int target = 0, Shader* shader = nullptr, IndexBuffer* ib = nullptr)
 			: textureID(textureID), vaID(vaID), target(target), shader(shader), ib(ib) {}
 
 		unsigned int textureID;
 		unsigned int vaID;
 		unsigned int target;
-		ShaderRo* shader;
+		Shader* shader;
 		IndexBuffer* ib;
 	};
 

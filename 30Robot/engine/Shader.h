@@ -41,9 +41,18 @@ public:
 	void loadVector(const char* location, Vector4f vector) const;
 	void loadVector(const char* location, Vector3f vector) const;
 	void loadVector(const char* location, Vector2f vector) const;
+
+	void loadVector(const char* location, const float vector[4]) const;
+	//void loadVector(const char* location, const float vector[3]) const;
+	//void loadVector(const char* location, const float vector[2]) const;
+
+	void loadVector(const char* location, float v0, float v1, float v2, float v3) const;
+	void loadVector(const char* location, float v0, float v1, float v2) const;
+	void loadVector(const char* location, float v0, float v1) const;
+
 	void loadVector(const char* location, std::array<int, 3> vector) const;
 	void loadVector(const char* location, std::array<int, 2> vector) const;
-	void loadVectorArray(const char* location, const std::vector<std::array<float, 4>> vectorArray, const unsigned short count) const;
+	void loadVectorArray(const char* location, const std::vector<std::array<float, 4>> vectorArray) const;
 
 
 	void loadFloat(const char* location, float value) const;

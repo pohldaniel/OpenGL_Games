@@ -3,9 +3,10 @@
 #include <array>
 #include <GL/glew.h>
 #include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <engine/Shader.h>
 #include <Components/Components.h>
 #include "graphics/index-buffer.hpp"
-#include "graphics/shaderRo.hpp"
 
 #include "Constants.h"
 
@@ -27,5 +28,5 @@ private:
 	std::array<float, 8> getVertexPositions(glm::vec2 displaySize, PivotPoint pivot);
 
 private:
-    ShaderRo m_shaderBasic;
+    Shader m_shaderBasic;
 };

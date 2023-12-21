@@ -1,7 +1,6 @@
 #include "PrimitiveFactory.h"
 
 #include "graphics/vertex-array.hpp"
-#include "graphics/shaderRo.hpp"
 #include "graphics/textureRo.hpp"
 #include "graphics/texture-array.hpp"
 
@@ -20,12 +19,12 @@ cmpt::Primitive PrimitiveFactory::createRect(glm::vec4 color, glm::vec2 displayS
 	va.addBuffer(vb, vbLayout);
 
     /* Uniforms */
-    m_shaderBasic.bind();
-    m_shaderBasic.setUniformMat4f("u_mvp", glm::mat4(1.0f));
-	m_shaderBasic.setUniform4f("u_color", color.r, color.g, color.b, color.a);
+    m_shaderBasic.use();
+    m_shaderBasic.loadMatrix("u_mvp", (const float*)glm::value_ptr(glm::mat4(1.0f)));
+	m_shaderBasic.loadVector("u_color", color.r, color.g, color.b, color.a);
 
     /* Cleanup */
-    m_shaderBasic.unbind();
+    m_shaderBasic.unuse();
     va.unbind();
     vb.unbind();
 
@@ -44,12 +43,12 @@ cmpt::Primitive PrimitiveFactory::createRectOutline(glm::vec4 color, glm::vec2 d
 	va.addBuffer(vb, vbLayout);
 
     /* Uniforms */
-    m_shaderBasic.bind();
-    m_shaderBasic.setUniformMat4f("u_mvp", glm::mat4(1.0f));
-	m_shaderBasic.setUniform4f("u_color", color.r, color.g, color.b, color.a);
+    m_shaderBasic.use();
+    m_shaderBasic.loadMatrix("u_mvp", (const float*)glm::value_ptr(glm::mat4(1.0f)));
+	m_shaderBasic.loadVector("u_color", color.r, color.g, color.b, color.a);
 
     /* Cleanup */
-    m_shaderBasic.unbind();
+    m_shaderBasic.unuse();
     va.unbind();
     vb.unbind();
 

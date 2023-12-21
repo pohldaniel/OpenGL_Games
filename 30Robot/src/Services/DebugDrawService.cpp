@@ -2,7 +2,7 @@
 #include <vector>
 #include <GL/glew.h>
 #include <glm/gtc/matrix_transform.hpp>
-
+#include <glm/gtc/type_ptr.hpp>
 #include "DebugDrawService.h"
 #include "Constants.h"
 #include "Maths.h"
@@ -27,12 +27,12 @@ DebugDrawService::DebugDrawService(glm::mat4 viewMat, glm::mat4 projMat)
 	m_va.addBuffer(m_vb, vbLayout);
 
     // Uniforms
-    m_shaderBasic.bind();
-    m_shaderBasic.setUniformMat4f("u_mvp", glm::mat4(1.0f));
-	m_shaderBasic.setUniform4f("u_color", 1.0f, 0.0f, 0.0f, 1.0f);
+    m_shaderBasic.use();
+    m_shaderBasic.loadMatrix("u_mvp", (const float*)glm::value_ptr(glm::mat4(1.0f)));
+	m_shaderBasic.loadVector("u_color", 1.0f, 0.0f, 0.0f, 1.0f);
 
     // Cleanup
-    m_shaderBasic.unbind();
+    m_shaderBasic.unuse();
     m_va.unbind();
     m_vb.unbind();
 }
@@ -49,7 +49,7 @@ void DebugDrawService::DrawPolygon(const b2Vec2* vertices, int32 vertexCount, co
     assert(vertexCount < m_vbMaxSize * 2);
     
     // Binding
-    m_shaderBasic.bind();
+    m_shaderBasic.use();
     m_va.bind();
     m_vb.bind();
 
@@ -67,21 +67,21 @@ void DebugDrawService::DrawPolygon(const b2Vec2* vertices, int32 vertexCount, co
 	glm::mat4 model = glm::mat4(1.0f);
 	model = glm::translate(model, glm::vec3(0.0f, 0.0f, Z_INDEX_DEBUG_DRAW));
 	glm::mat4 mvp = m_projMat * m_viewMat * model;
-    m_shaderBasic.setUniformMat4f("u_mvp", mvp);
-    m_shaderBasic.setUniform4f("u_color", color.r, color.g, color.b, color.a);
+    m_shaderBasic.loadMatrix("u_mvp", (const float*)glm::value_ptr(mvp));
+	m_shaderBasic.loadVector("u_color", color.r, color.g, color.b, color.a);
     glDrawArrays(GL_LINE_LOOP, 0, vertexCount);
     
     // Unbinding
     m_vb.unbind();
     m_va.unbind();
-    m_shaderBasic.unbind();
+    m_shaderBasic.unuse();
 }
 
 void DebugDrawService::DrawSolidPolygon(const b2Vec2* vertices, int32 vertexCount, const b2Color& color) {
     assert(vertexCount < m_vbMaxSize * 2);
     
     // Binding
-    m_shaderBasic.bind();
+    m_shaderBasic.use();
     m_va.bind();
     m_vb.bind();
 
@@ -99,24 +99,24 @@ void DebugDrawService::DrawSolidPolygon(const b2Vec2* vertices, int32 vertexCoun
 	glm::mat4 model = glm::mat4(1.0f);
 	model = glm::translate(model, glm::vec3(0.0f, 0.0f, Z_INDEX_DEBUG_DRAW));
 	glm::mat4 mvp = m_projMat * m_viewMat * model;
-    m_shaderBasic.setUniformMat4f("u_mvp", mvp);
-    m_shaderBasic.setUniform4f("u_color", color.r, color.g, color.b, color.a);
+    m_shaderBasic.loadMatrix("u_mvp", (const float*)glm::value_ptr(mvp));
+	m_shaderBasic.loadVector("u_color", color.r, color.g, color.b, color.a );
     glDrawArrays(GL_LINE_LOOP, 0, vertexCount);
     
     // Render inside TODO use a tesselation shader to fill the inside completely no matter the shape
     // polygon triangulation
-    m_shaderBasic.setUniform4f("u_color", color.r * 0.5f, color.g * 0.5f, color.b * 0.5f, color.a * 0.5f);
+	m_shaderBasic.loadVector("u_color", color.r * 0.5f, color.g * 0.5f, color.b * 0.5f, color.a * 0.5f);
     glDrawArrays(GL_TRIANGLES, 0, vertexCount);
     
     // Unbinding
     m_vb.unbind();
     m_va.unbind();
-    m_shaderBasic.unbind();
+    m_shaderBasic.unuse();
 }
 
 void DebugDrawService::DrawCircle(const b2Vec2& center, float radius, const b2Color& color) {
     // Binding
-    m_shaderBasic.bind();
+    m_shaderBasic.use();
     m_va.bind();
     m_vb.bind();
 
@@ -134,19 +134,19 @@ void DebugDrawService::DrawCircle(const b2Vec2& center, float radius, const b2Co
 	glm::mat4 model = glm::mat4(1.0f);
 	model = glm::translate(model, glm::vec3(0.0f, 0.0f, Z_INDEX_DEBUG_DRAW));
 	glm::mat4 mvp = m_projMat * m_viewMat * model;
-    m_shaderBasic.setUniformMat4f("u_mvp", mvp);
-    m_shaderBasic.setUniform4f("u_color", color.r, color.g, color.b, color.a);
+    m_shaderBasic.loadMatrix("u_mvp", (const float*)glm::value_ptr(mvp));
+	m_shaderBasic.loadVector("u_color", color.r, color.g, color.b, color.a);
     glDrawArrays(GL_LINE_STRIP, 0, segmentNumber + 1);
 
     // Unbinding
     m_vb.unbind();
     m_va.unbind();
-    m_shaderBasic.unbind();
+    m_shaderBasic.unuse();
 }
 
 void DebugDrawService::DrawSolidCircle(const b2Vec2& center, float radius, const b2Vec2& axis, const b2Color& color) {
     // Binding
-    m_shaderBasic.bind();
+    m_shaderBasic.use();
     m_va.bind();
     m_vb.bind();
 
@@ -166,14 +166,14 @@ void DebugDrawService::DrawSolidCircle(const b2Vec2& center, float radius, const
 	glm::mat4 model = glm::mat4(1.0f);
 	model = glm::translate(model, glm::vec3(0.0f, 0.0f, Z_INDEX_DEBUG_DRAW));
 	glm::mat4 mvp = m_projMat * m_viewMat * model;
-    m_shaderBasic.setUniformMat4f("u_mvp", mvp);
-    m_shaderBasic.setUniform4f("u_color", color.r * 0.5f, color.g * 0.5f, color.b * 0.5f, color.a * 0.5f);
+    m_shaderBasic.loadMatrix("u_mvp", (const float*)glm::value_ptr(mvp));
+	m_shaderBasic.loadVector("u_color", color.r * 0.5f, color.g * 0.5f, color.b * 0.5f, color.a * 0.5f);
     glDrawArrays(GL_TRIANGLE_FAN, 0, segmentNumber + 1);
 
     // Unbinding
     m_vb.unbind();
     m_va.unbind();
-    m_shaderBasic.unbind();
+    m_shaderBasic.unuse();
 
     // Draw a line fixed in the circle to animate rotation.
 	b2Vec2 endpoint = center + radius * axis;
@@ -182,7 +182,7 @@ void DebugDrawService::DrawSolidCircle(const b2Vec2& center, float radius, const
 
 void DebugDrawService::DrawSegment(const b2Vec2& p1, const b2Vec2& p2, const b2Color& color) {
     // Binding
-    m_shaderBasic.bind();
+    m_shaderBasic.use();
     m_va.bind();
     m_vb.bind();
 
@@ -197,19 +197,19 @@ void DebugDrawService::DrawSegment(const b2Vec2& p1, const b2Vec2& p2, const b2C
 	glm::mat4 model = glm::mat4(1.0f);
 	model = glm::translate(model, glm::vec3(0.0f, 0.0f, Z_INDEX_DEBUG_DRAW));
 	glm::mat4 mvp = m_projMat * m_viewMat * model;
-    m_shaderBasic.setUniformMat4f("u_mvp", mvp);
-    m_shaderBasic.setUniform4f("u_color", color.r, color.g, color.b, color.a);
+    m_shaderBasic.loadMatrix("u_mvp", (const float*)glm::value_ptr(mvp));
+	m_shaderBasic.loadVector("u_color", color.r, color.g, color.b, color.a);
     glDrawArrays(GL_LINES, 0, 2);
     
     // Unbinding
     m_vb.unbind();
     m_va.unbind();
-    m_shaderBasic.unbind();
+    m_shaderBasic.unuse();
 }
 
 void DebugDrawService::DrawTransform(const b2Transform& xf) {
     // Binding
-    m_shaderBasic.bind();
+    m_shaderBasic.use();
     m_va.bind();
     m_vb.bind();
 
@@ -227,8 +227,8 @@ void DebugDrawService::DrawTransform(const b2Transform& xf) {
 	glm::mat4 model = glm::mat4(1.0f);
 	model = glm::translate(model, glm::vec3(0.0f, 0.0f, Z_INDEX_DEBUG_DRAW));
 	glm::mat4 mvp = m_projMat * m_viewMat * model;
-    m_shaderBasic.setUniformMat4f("u_mvp", mvp);
-    m_shaderBasic.setUniform4f("u_color", 0.0f, 1.0f, 0.0f, 1.0f); // Y axis in Green
+    m_shaderBasic.loadMatrix("u_mvp", (const float*)glm::value_ptr(mvp));
+	m_shaderBasic.loadVector("u_color", 0.0f, 1.0f, 0.0f, 1.0f); // Y axis in Green
    glDrawArrays(GL_LINES, 0, 4);
 
     // Update X axis
@@ -240,18 +240,18 @@ void DebugDrawService::DrawTransform(const b2Transform& xf) {
     glBufferSubData(GL_ARRAY_BUFFER, 0, 4 * sizeof(float), &xAxis);
 
     // Render X axis
-    m_shaderBasic.setUniform4f("u_color", 1.0f, 0.0f, 0.0f, 1.0f); // X axis in Red
+	m_shaderBasic.loadVector("u_color", 1.0f, 0.0f, 0.0f, 1.0f); // X axis in Red
     glDrawArrays(GL_LINES, 0, 2);
     
     // Unbinding
     m_vb.unbind();
     m_va.unbind();
-    m_shaderBasic.unbind();
+    m_shaderBasic.unuse();
 }
 
 void DebugDrawService::DrawPoint(const b2Vec2& p, float size, const b2Color& color) {
     // Binding
-    m_shaderBasic.bind();
+    m_shaderBasic.use();
     m_va.bind();
     m_vb.bind();
    glPointSize(size);
@@ -264,22 +264,22 @@ void DebugDrawService::DrawPoint(const b2Vec2& p, float size, const b2Color& col
 	glm::mat4 model = glm::mat4(1.0f);
 	model = glm::translate(model, glm::vec3(0.0f, 0.0f, Z_INDEX_DEBUG_DRAW));
 	glm::mat4 mvp = m_projMat * m_viewMat * model;
-    m_shaderBasic.setUniformMat4f("u_mvp", mvp);
-    m_shaderBasic.setUniform4f("u_color", color.r, color.g, color.b, color.a);
+    m_shaderBasic.loadMatrix("u_mvp", (const float*)glm::value_ptr(mvp));
+	m_shaderBasic.loadVector("u_color", color.r, color.g, color.b, color.a );
     glDrawArrays(GL_POINTS, 0, 1);
 
     // Unbinding
     glPointSize(1);
     m_vb.unbind();
     m_va.unbind();
-    m_shaderBasic.unbind();
+    m_shaderBasic.unuse();
 }
 
 /* ---------------------------- PROCESSING-LIKE API --------------------------- */
 
 void DebugDrawService::triangle(float x1, float y1, float x2, float y2, float x3, float y3) {
 	// Binding
-	m_shaderBasic.bind();
+	m_shaderBasic.use();
 	m_va.bind();
 	m_vb.bind();
 
@@ -295,19 +295,19 @@ void DebugDrawService::triangle(float x1, float y1, float x2, float y2, float x3
 	glm::mat4 model = glm::mat4(1.0f);
 	model = glm::translate(model, glm::vec3(0.0f, 0.0f, Z_INDEX_DEBUG_DRAW));
 	glm::mat4 mvp = m_projMat * m_viewMat * model;
-	m_shaderBasic.setUniformMat4f("u_mvp", mvp);
-	m_shaderBasic.setUniform4f("u_color", m_color.r / 255.0f, m_color.g / 255.0f, m_color.b / 255.0f, m_color.a);
+	m_shaderBasic.loadMatrix("u_mvp", (const float*)glm::value_ptr(mvp));
+	m_shaderBasic.loadVector("u_color", m_color.r / 255.0f, m_color.g / 255.0f, m_color.b / 255.0f, m_color.a);
 	glDrawArrays(GL_TRIANGLES, 0, 3);
 
 	// Unbinding
 	m_vb.unbind();
 	m_va.unbind();
-	m_shaderBasic.unbind();
+	m_shaderBasic.unuse();
 }
 
 void DebugDrawService::rect(float x1, float y1, float x2, float y2, int zIndex) {
 	// Binding
-	m_shaderBasic.bind();
+	m_shaderBasic.use();
 	m_va.bind();
 	m_vb.bind();
 
@@ -327,14 +327,14 @@ void DebugDrawService::rect(float x1, float y1, float x2, float y2, int zIndex) 
 	glm::mat4 model = glm::mat4(1.0f);
 	model = glm::translate(model, glm::vec3(0.0f, 0.0f, zIndex));
 	glm::mat4 mvp = m_projMat * m_viewMat * model;
-	m_shaderBasic.setUniformMat4f("u_mvp", mvp);
-	m_shaderBasic.setUniform4f("u_color", m_color.r / 255.0f, m_color.g / 255.0f, m_color.b / 255.0f, m_color.a);
+	m_shaderBasic.loadMatrix("u_mvp", (const float*)glm::value_ptr(mvp));
+	m_shaderBasic.loadVector("u_color", m_color.r / 255.0f, m_color.g / 255.0f, m_color.b / 255.0f, m_color.a);
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 
 	// Unbinding
 	m_vb.unbind();
 	m_va.unbind();
-	m_shaderBasic.unbind();
+	m_shaderBasic.unuse();
 }
 
 void DebugDrawService::square(float x, float y, float extent) {
@@ -347,7 +347,7 @@ void DebugDrawService::ellipse(float a, float b, float c, float d) {
 
 void DebugDrawService::circleExplosion(float x, float y, float r, float maxR) {
 	// Binding
-	m_shaderCircleExplosion.bind();
+	m_shaderCircleExplosion.use();
 	m_va.bind();
 	m_vb.bind();
 
@@ -366,21 +366,21 @@ void DebugDrawService::circleExplosion(float x, float y, float r, float maxR) {
 	glm::mat4 model = glm::mat4(1.0f);
 	model = glm::translate(model, glm::vec3(0.0f, 0.0f, Z_INDEX_DEBUG_DRAW));
 	glm::mat4 mvp = m_projMat * m_viewMat * model;
-	m_shaderCircleExplosion.setUniformMat4f("u_mvp", mvp);
-	m_shaderCircleExplosion.setUniform2f("u_pos", x / 100 / WIN_RATIO * WIN_WIDTH, y / 100 * WIN_HEIGHT);
-	m_shaderCircleExplosion.setUniform1f("u_radius", r / 100 / WIN_RATIO * WIN_WIDTH);
-	m_shaderCircleExplosion.setUniform1f("u_maxR", maxR / 100 / WIN_RATIO * WIN_WIDTH);
+	m_shaderCircleExplosion.loadMatrix("u_mvp", (const float*)glm::value_ptr(mvp));
+	m_shaderCircleExplosion.loadVector("u_pos", x / 100 / WIN_RATIO * WIN_WIDTH, y / 100 * WIN_HEIGHT);
+	m_shaderCircleExplosion.loadFloat("u_radius", r / 100 / WIN_RATIO * WIN_WIDTH);
+	m_shaderCircleExplosion.loadFloat("u_maxR", maxR / 100 / WIN_RATIO * WIN_WIDTH);
 	glDrawArrays(GL_TRIANGLE_FAN, 0, segmentNumber + 2);
 
 	// Unbinding
 	m_vb.unbind();
 	m_va.unbind();
-	m_shaderCircleExplosion.unbind();
+	m_shaderCircleExplosion.unuse();
 }
 
 void DebugDrawService::circleWithGlow(float x, float y, float r) {
 	// Binding
-	m_shaderCircleWithGlow.bind();
+	m_shaderCircleWithGlow.use();
 	m_va.bind();
 	m_vb.bind();
 
@@ -399,17 +399,17 @@ void DebugDrawService::circleWithGlow(float x, float y, float r) {
 	glm::mat4 model = glm::mat4(1.0f);
 	model = glm::translate(model, glm::vec3(0.0f, 0.0f, Z_INDEX_DEBUG_DRAW));
 	glm::mat4 mvp = m_projMat * m_viewMat * model;
-	m_shaderCircleWithGlow.setUniformMat4f("u_mvp", mvp);
-	m_shaderCircleWithGlow.setUniform4f("u_color", m_color.r/255, m_color.g/255, m_color.b/255, m_color.a);
-	m_shaderCircleWithGlow.setUniform2f("u_pos", x/100/WIN_RATIO*WIN_WIDTH, y/100*WIN_HEIGHT);
-	m_shaderCircleWithGlow.setUniform1f("u_radius", r/100/WIN_RATIO*WIN_WIDTH);
-	m_shaderCircleWithGlow.setUniform1f("u_waveR", imaths::rangeMapping(Globals::clock.getElapsedTimeSinceRestartMilli()%500,0,500,0,r / 100 / WIN_RATIO * WIN_WIDTH));
+	m_shaderCircleWithGlow.loadMatrix("u_mvp", (const float*)glm::value_ptr(mvp));
+	m_shaderCircleWithGlow.loadVector("u_color", m_color.r/255, m_color.g/255, m_color.b/255, m_color.a);
+	m_shaderCircleWithGlow.loadVector("u_pos", x/100/WIN_RATIO*WIN_WIDTH, y/100*WIN_HEIGHT);
+	m_shaderCircleWithGlow.loadFloat("u_radius", r/100/WIN_RATIO*WIN_WIDTH);
+	m_shaderCircleWithGlow.loadFloat("u_waveR", imaths::rangeMapping(Globals::clock.getElapsedTimeSinceRestartMilli()%500,0,500,0,r / 100 / WIN_RATIO * WIN_WIDTH));
 	glDrawArrays(GL_TRIANGLE_FAN, 0, segmentNumber + 2);
 
 	// Unbinding
 	m_vb.unbind();
 	m_va.unbind();
-	m_shaderCircleWithGlow.unbind();
+	m_shaderCircleWithGlow.unuse();
 }
 
 void DebugDrawService::quad(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4) {
@@ -417,9 +417,9 @@ void DebugDrawService::quad(float x1, float y1, float x2, float y2, float x3, fl
 }
 
 void DebugDrawService::line(float x1, float y1, float x2, float y2, BasicShaderType shaderType) {
-	ShaderRo& shader = getShader(shaderType);
+	Shader& shader = getShader(shaderType);
 	// Binding
-	shader.bind();
+	shader.use();
 	m_va.bind();
 	m_vb.bind();
 
@@ -434,26 +434,26 @@ void DebugDrawService::line(float x1, float y1, float x2, float y2, BasicShaderT
 	glm::mat4 model = glm::mat4(1.0f);
 	model = glm::translate(model, glm::vec3(0.0f, 0.0f, Z_INDEX_DEBUG_DRAW));
 	glm::mat4 mvp = m_projMat * m_viewMat * model;
-	shader.setUniformMat4f("u_mvp", mvp);
-	shader.setUniform4f("u_color", m_color.r/255.0f, m_color.g / 255.0f, m_color.b / 255.0f, m_color.a);
+	shader.loadMatrix("u_mvp", (const float*)glm::value_ptr(mvp));
+	shader.loadVector("u_color", m_color.r/255.0f, m_color.g / 255.0f, m_color.b / 255.0f, m_color.a);
 	if (shaderType == BasicShaderType::LASER) {
 		float halfWidth = LASER_WIDTH/2;
 		float dist = sqrt((x1 - x2)*(x1 - x2) + (y1 - y2)*(y1 - y2));
-		shader.setUniform2f("normal", (y1-y2)/ dist, (x2-x1)/ dist);
-		shader.setUniform2f("startPos", x1/100/WIN_RATIO* WIN_WIDTH,y1/100*WIN_HEIGHT);
-		shader.setUniform1f("halfWidth", halfWidth);
+		shader.loadVector("normal", (y1-y2)/ dist, (x2-x1)/ dist);
+		shader.loadVector("startPos", x1/100/WIN_RATIO* WIN_WIDTH,y1/100*WIN_HEIGHT);
+		shader.loadFloat("halfWidth", halfWidth);
 	}
 	glDrawArrays(GL_LINES, 0, 2);
 
 	// Unbinding
 	m_vb.unbind();
 	m_va.unbind();
-	shader.unbind();
+	shader.unuse();
 }
 
 void DebugDrawService::point(float x, float y) {
 	// Binding
-	m_shaderBasic.bind();
+	m_shaderBasic.use();
 	m_va.bind();
 	m_vb.bind();
 
@@ -465,14 +465,14 @@ void DebugDrawService::point(float x, float y) {
 	glm::mat4 model = glm::mat4(1.0f);
 	model = glm::translate(model, glm::vec3(0.0f, 0.0f, Z_INDEX_DEBUG_DRAW));
 	glm::mat4 mvp = m_projMat * m_viewMat * model;
-	m_shaderBasic.setUniformMat4f("u_mvp", mvp);
-	m_shaderBasic.setUniform4f("u_color", m_color.r / 255.0f, m_color.g / 255.0f, m_color.b / 255.0f, m_color.a);
+	m_shaderBasic.loadMatrix("u_mvp", (const float*)glm::value_ptr(mvp));
+	m_shaderBasic.loadVector("u_color", m_color.r / 255.0f, m_color.g / 255.0f, m_color.b / 255.0f, m_color.a);
 	glDrawArrays(GL_POINTS, 0, 1);
 
 	// Unbinding
 	m_vb.unbind();
 	m_va.unbind();
-	m_shaderBasic.unbind();
+	m_shaderBasic.unuse();
 }
 
 void DebugDrawService::shape(glm::vec2* vertices) {
@@ -487,7 +487,7 @@ void DebugDrawService::setColor(float r, float g, float b, float a) { m_color = 
 
 //Shaders
 
-ShaderRo& DebugDrawService::getShader(BasicShaderType shaderType) {
+Shader& DebugDrawService::getShader(BasicShaderType shaderType) {
 	switch (shaderType) {
 	case BasicShaderType::BASIC:
 		return m_shaderBasic;

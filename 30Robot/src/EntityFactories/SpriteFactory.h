@@ -2,9 +2,10 @@
 
 #include <GL/glew.h>
 #include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <engine/Shader.h>
 #include <Components/Components.h>
 
-#include "graphics/shaderRo.hpp"
 #include "graphics/index-buffer.hpp"
 
 
@@ -30,11 +31,11 @@ private:
 
 	IndexBuffer m_ib;    // All sprites shares the same index buffer
 	//Shaders
-	ShaderRo& getShader(ShaderType shaderType);
+	Shader& getShader(ShaderType shaderType);
 		//Default
-	ShaderRo m_shaderTex;
-	ShaderRo m_shaderTexArray;
+	Shader m_shaderTex;
+	Shader m_shaderTexArray;
 		//Custom
-	ShaderRo m_towerExplosionShader;
-	ShaderRo m_enemyExplosionShader;
+	Shader m_towerExplosionShader;
+	Shader m_enemyExplosionShader;
 };
