@@ -67,9 +67,6 @@
     <Filter Include="Source Files\Level">
       <UniqueIdentifier>{a47d4fea-4234-4b73-961e-eb5be7666e40}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Graphics">
-      <UniqueIdentifier>{fb4872cb-5307-4057-b36e-f15b480eb4a0}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\GUI">
       <UniqueIdentifier>{0ec559fb-f6e7-4b41-9cc8-cf98b05fc9c5}</UniqueIdentifier>
     </Filter>
