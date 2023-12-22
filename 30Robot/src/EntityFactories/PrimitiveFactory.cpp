@@ -1,7 +1,6 @@
 #include "PrimitiveFactory.h"
 
 #include "graphics/vertex-array.hpp"
-#include "graphics/texture-array.hpp"
 
 PrimitiveFactory::PrimitiveFactory() 
 : m_shaderBasic("res/shaders/basic/basic.vert", "res/shaders/basic/basic.frag")

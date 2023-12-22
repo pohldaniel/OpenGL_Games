@@ -1,8 +1,6 @@
 #include "SpriteFactory.h"
 
 #include "graphics/vertex-array.hpp"
-#include "graphics/textureRo.hpp"
-#include "graphics/texture-array.hpp"
 
 SpriteFactory::SpriteFactory()
 :	m_shaderTex("res/shaders/texture/texture.vert", "res/shaders/texture/texture.frag"),

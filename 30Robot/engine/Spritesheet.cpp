@@ -32,40 +32,33 @@ Spritesheet::Spritesheet(std::string fileName, unsigned short tileWidth, unsigne
 }
 
 void Spritesheet::loadFromFile(std::string fileName, unsigned short tileWidth, unsigned short tileHeight, unsigned short spacing, bool reverse, bool _flipVertical, int row, int minColumn, int maxColumn, unsigned int _format) {
-	int width, height, numCompontents;
-	unsigned char* imageData = SOIL_load_image(fileName.c_str(), &width, &height, &numCompontents, SOIL_LOAD_AUTO);
-	unsigned internalFormat = _format == 0 && numCompontents == 3 ? GL_RGB8 : _format == 0 ? GL_RGBA8 : _format;
+	int width, height, channels;
+	
+	unsigned char* imageData = SOIL_load_image(fileName.c_str(), &width, &height, &channels, 4u);
+	m_width = width;
+	m_height = height;
+	m_channels = channels;
+
+	unsigned internalFormat = _format == 0 && m_channels == 3u ? GL_RGB8 : _format == 0u ? GL_RGBA8 : _format;
 
 	if (_flipVertical)
-		Texture::FlipVertical(imageData, numCompontents * width, height);
+		Texture::FlipVertical(imageData, m_channels * m_width, m_height);
 
-	m_tileCountX = width / (tileWidth + spacing);
-	m_tileCountY = height / (tileHeight + spacing);
+	m_tileCountX = m_width / (tileWidth + spacing);
+	m_tileCountY = m_height / (tileHeight + spacing);
 	m_totalFrames = maxColumn > -1 ? ((maxColumn - minColumn) + 1) : m_tileCountX * m_tileCountY;
 
 	glGenTextures(1, &m_texture);
+	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D_ARRAY, m_texture);
-	glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, internalFormat, tileWidth, tileHeight, m_totalFrames, 0, numCompontents == 3 ? GL_RGB : GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+	glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA8, tileWidth, tileHeight, m_totalFrames, 0, m_channels == 3 ? GL_RGB : GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 	//glTexStorage3D(GL_TEXTURE_2D_ARRAY, 1, internalFormat, tileWidth, tileHeight, m_totalFrames);
+	
+	glTexParameterf(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameterf(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-	/*{
-		GLuint tempTexture = 0;
-		glGenTextures(1, &tempTexture);
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, tempTexture);
-		glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA8, width, height);
-		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, imageData);
-
-		for (GLsizei i = 0; i < m_totalFrames; ++i) {
-			GLint x = (i % m_tileCountX) * tileWidth, y = (i / m_tileCountX) * tileHeight;
-			glCopyImageSubData(tempTexture, GL_TEXTURE_2D, 0, x, y, 0, m_texture, GL_TEXTURE_2D_ARRAY, 0, 0, 0, i, tileWidth, tileHeight, 1);
-		}
-		glDeleteTextures(1, &tempTexture);
-	}*/
-
-
-
-	//default row = 0
 	row = row > 0 ? row - 1 : row;
 	unsigned short image = 0;
 	unsigned short posX = minColumn > 0 ? minColumn - 1 : 0;
@@ -76,15 +69,15 @@ void Spritesheet::loadFromFile(std::string fileName, unsigned short tileWidth, u
 			if (reverse) posY--; else posY++;
 			posX = minColumn > 0 ? minColumn - 1 : 0;
 		}
-		unsigned char* subImage = (unsigned char*)malloc((tileWidth)* numCompontents * (tileHeight));
-		unsigned int subImageSize = (tileWidth)* numCompontents * tileHeight;
+		unsigned char* subImage = (unsigned char*)malloc((tileWidth)* m_channels * (tileHeight));
+		unsigned int subImageSize = (tileWidth)* m_channels * tileHeight;
 		unsigned int count = 0, row = 0;
-		unsigned int offset = width * numCompontents * ((tileHeight + spacing) * posY + spacing) + posX * (tileWidth + spacing) * numCompontents;
+		unsigned int offset = m_width * m_channels * ((tileHeight + spacing) * posY + spacing) + posX * (tileWidth + spacing) * m_channels;
 		unsigned int x = offset;
 
 		while (count < subImageSize) {
-			if (count % (tileWidth * numCompontents) == 0 && count > 0) {
-				row = row + width * numCompontents;
+			if (count % (tileWidth * m_channels) == 0 && count > 0) {
+				row = row + m_width * m_channels;
 				x = row + offset;
 
 			}
@@ -93,18 +86,26 @@ void Spritesheet::loadFromFile(std::string fileName, unsigned short tileWidth, u
 			count++;
 		}
 
-		glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, image, tileWidth, tileHeight, 1, numCompontents == 3 ? GL_RGB : GL_RGBA, GL_UNSIGNED_BYTE, subImage);
+		glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, image, tileWidth, tileHeight, 1, m_channels == 3 ? GL_RGB : GL_RGBA, GL_UNSIGNED_BYTE, subImage);
 		posX++;
 		image++;
 		free(subImage);
 	}
 
-	glTexParameterf(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameterf(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
+	/*unsigned int tempTexture = 0;
+	glGenTextures(1, &tempTexture);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, tempTexture);
+	glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA8, m_width, m_height);
+	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_width, m_height, GL_RGBA, GL_UNSIGNED_BYTE, imageData);
 
+	for (unsigned short i = 0; i < m_totalFrames; ++i) {
+		unsigned int x = (i % m_tileCountX) * tileWidth, y = (i / m_tileCountX) * tileHeight;
+		glCopyImageSubData(tempTexture, GL_TEXTURE_2D, 0, x, y, 0, m_texture, GL_TEXTURE_2D_ARRAY, 0, 0, 0, i, tileWidth, tileHeight, 1);
+	}
+	glDeleteTextures(1, &tempTexture);*/
+
+	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
 	SOIL_free_image_data(imageData);
 }
 

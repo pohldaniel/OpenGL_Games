@@ -354,9 +354,6 @@
     <ClCompile Include="src\Graphics\index-buffer.cpp">
       <Filter>Source Files\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="src\Graphics\texture-array.cpp">
-      <Filter>Source Files\Graphics</Filter>
-    </ClCompile>
     <ClCompile Include="src\Graphics\vertex-array.cpp">
       <Filter>Source Files\Graphics</Filter>
     </ClCompile>
@@ -467,9 +464,6 @@
     </ClCompile>
     <ClCompile Include="src\Renderer.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Graphics\textureRo.cpp">
-      <Filter>Source Files\Graphics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -770,9 +764,6 @@
     <ClInclude Include="src\Graphics\index-buffer.hpp">
       <Filter>Source Files\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="src\Graphics\texture-array.hpp">
-      <Filter>Source Files\Graphics</Filter>
-    </ClInclude>
     <ClInclude Include="src\Graphics\vertex-array.hpp">
       <Filter>Source Files\Graphics</Filter>
     </ClInclude>
@@ -919,9 +910,6 @@
     </ClInclude>
     <ClInclude Include="src\Renderer.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Graphics\textureRo.hpp">
-      <Filter>Source Files\Graphics</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

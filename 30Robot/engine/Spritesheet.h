@@ -53,13 +53,16 @@ public:
 
 private:
 
-	unsigned int m_texture;
-	unsigned short m_tileCountX = 0;
-	unsigned short m_tileCountY = 0;
-	unsigned short m_totalFrames = 0;
+	unsigned int m_texture = 0u;
+	unsigned short m_tileCountX = 0u;
+	unsigned short m_tileCountY = 0u;
+	unsigned short m_totalFrames = 0u;
+	unsigned int m_width = 0u;
+	unsigned int m_height = 0u;
+	unsigned short m_channels = 0u;
 
-	unsigned int m_format = 0;
-	unsigned int m_internalFormat = 0;
+	unsigned int m_format = 0u;
+	unsigned int m_internalFormat = 0u;
 };
 
 #endif

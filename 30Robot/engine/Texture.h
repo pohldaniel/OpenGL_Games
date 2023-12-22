@@ -94,16 +94,16 @@ public:
 
 private:
 
-	unsigned int m_texture = 0;
-	unsigned int m_width = 0;
-	unsigned int m_height = 0;
-	unsigned int m_depth = 0;
-	unsigned short m_channels = 0;
-	unsigned int m_format = 0;
-	unsigned int m_internalFormat = 0;
-	unsigned int m_type = 0;
+	unsigned int m_texture = 0u;
+	unsigned int m_width = 0u;
+	unsigned int m_height = 0u;
+	unsigned int m_depth = 0u;
+	unsigned short m_channels = 0u;
+	unsigned int m_format = 0u;
+	unsigned int m_internalFormat = 0u;
+	unsigned int m_type = 0u;
 	unsigned int m_target;
-	unsigned int m_textureHandle = 0;
+	unsigned int m_textureHandle = 0u;
 };
 
 #endif
