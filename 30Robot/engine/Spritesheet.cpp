@@ -15,8 +15,23 @@ Spritesheet::Spritesheet(unsigned int& textureAtlas) {
 	m_totalFrames = depth;
 }
 
-Spritesheet::Spritesheet(std::string fileName, unsigned short tileWidth, unsigned short tileHeight, unsigned short spacing, bool reverse, bool _flipVertical, int row, int minColumn, int maxColumn, unsigned int _format) {
 
+Spritesheet::~Spritesheet() {
+	cleanup();
+}
+
+void Spritesheet::cleanup() {
+	if (m_texture) {
+		glDeleteTextures(1, &m_texture);
+		m_texture = 0;
+	}
+}
+
+Spritesheet::Spritesheet(std::string fileName, unsigned short tileWidth, unsigned short tileHeight, unsigned short spacing, bool reverse, bool _flipVertical, int row, int minColumn, int maxColumn, unsigned int _format) {
+	loadFromFile(fileName, tileWidth, tileHeight, spacing, reverse, _flipVertical, row, minColumn, maxColumn, _format);
+}
+
+void Spritesheet::loadFromFile(std::string fileName, unsigned short tileWidth, unsigned short tileHeight, unsigned short spacing, bool reverse, bool _flipVertical, int row, int minColumn, int maxColumn, unsigned int _format) {
 	int width, height, numCompontents;
 	unsigned char* imageData = SOIL_load_image(fileName.c_str(), &width, &height, &numCompontents, SOIL_LOAD_AUTO);
 	unsigned internalFormat = _format == 0 && numCompontents == 3 ? GL_RGB8 : _format == 0 ? GL_RGBA8 : _format;
@@ -32,6 +47,23 @@ Spritesheet::Spritesheet(std::string fileName, unsigned short tileWidth, unsigne
 	glBindTexture(GL_TEXTURE_2D_ARRAY, m_texture);
 	glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, internalFormat, tileWidth, tileHeight, m_totalFrames, 0, numCompontents == 3 ? GL_RGB : GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 	//glTexStorage3D(GL_TEXTURE_2D_ARRAY, 1, internalFormat, tileWidth, tileHeight, m_totalFrames);
+
+	/*{
+		GLuint tempTexture = 0;
+		glGenTextures(1, &tempTexture);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, tempTexture);
+		glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA8, width, height);
+		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, imageData);
+
+		for (GLsizei i = 0; i < m_totalFrames; ++i) {
+			GLint x = (i % m_tileCountX) * tileWidth, y = (i / m_tileCountX) * tileHeight;
+			glCopyImageSubData(tempTexture, GL_TEXTURE_2D, 0, x, y, 0, m_texture, GL_TEXTURE_2D_ARRAY, 0, 0, 0, i, tileWidth, tileHeight, 1);
+		}
+		glDeleteTextures(1, &tempTexture);
+	}*/
+
+
 
 	//default row = 0
 	row = row > 0 ? row - 1 : row;
@@ -582,7 +614,7 @@ void Spritesheet::addSpritesheetToSpritesheet(unsigned int spritesheet, bool del
 	m_texture = atlas_new;
 }
 
-unsigned int Spritesheet::getAtlas() {
+const unsigned int& Spritesheet::getAtlas() const{
 	return m_texture;
 }
 
@@ -726,13 +758,6 @@ void Spritesheet::Safe(std::string name, unsigned int textureAtlas) {
 	}
 
 	free(bytes);
-}
-
-Spritesheet::~Spritesheet() {
-	if (m_texture) {
-		glDeleteTextures(1, &m_texture);
-		m_texture = 0;
-	}
 }
 
 void Spritesheet::bind(unsigned int unit) const {

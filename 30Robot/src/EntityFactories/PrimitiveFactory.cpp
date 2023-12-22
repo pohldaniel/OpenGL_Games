@@ -1,7 +1,6 @@
 #include "PrimitiveFactory.h"
 
 #include "graphics/vertex-array.hpp"
-#include "graphics/textureRo.hpp"
 #include "graphics/texture-array.hpp"
 
 PrimitiveFactory::PrimitiveFactory() 

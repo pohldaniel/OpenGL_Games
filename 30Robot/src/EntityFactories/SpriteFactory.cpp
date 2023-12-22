@@ -43,18 +43,20 @@ cmpt::Sprite SpriteFactory::createSingle(const std::string& textureFilepath, glm
     /* Uniforms */
     m_shaderTex.use();
     m_shaderTex.loadMatrix("u_mvp", (const float*)glm::value_ptr(glm::mat4(1.0f)));
-    TextureRo texture(textureFilepath);
-    texture.bind();
+	//Texture texture(textureFilepath, true, GL_RGBA8, GL_RGBA);
+	TextureCache::Get().addTexture(textureFilepath);
+
+    //texture.bind();
 	m_shaderTex.loadInt("u_texture", 0);
     
     /* Cleanup */
     m_shaderTex.unuse();
     va.unbind();
     vb.unbind();
-    texture.unbind();
+	//texture.unbind();
 
     /* Send copy of object */
-    cmpt::Sprite mySprite(texture.getID(), va.getID(), GL_TEXTURE_2D, &m_shaderTex, &m_ib);
+    cmpt::Sprite mySprite(TextureCache::Get().getTexture(textureFilepath).getTexture(), va.getID(), GL_TEXTURE_2D, &m_shaderTex, &m_ib);
     return mySprite;
 }
 
@@ -85,8 +87,8 @@ cmpt::Sprite SpriteFactory::createAtlas(const std::string& textureFilepath, glm:
     /* Uniforms */
 	shader.use();
 	shader.loadMatrix("u_mvp", (const float*)glm::value_ptr(glm::mat4(1.0f)));
-    TextureArray texture(textureFilepath, (GLsizei) tileSize.x, (GLsizei) tileSize.y);
-    texture.bind();
+	SpritesheetCache::Get().addSpritesheet(textureFilepath, (unsigned short)tileSize.x, (unsigned short)tileSize.y);
+
 	shader.loadInt("u_texture", 0);
 	shader.loadInt("u_activeTile", 0);
     
@@ -94,10 +96,10 @@ cmpt::Sprite SpriteFactory::createAtlas(const std::string& textureFilepath, glm:
 	shader.unuse();
     va.unbind();
     vb.unbind();
-    texture.unbind();
+
     
     /* Send copy of object */
-    cmpt::Sprite mySprite(texture.getID(), va.getID(), GL_TEXTURE_2D_ARRAY, &shader, &m_ib);
+    cmpt::Sprite mySprite(SpritesheetCache::Get().getSpritesheet(textureFilepath).getAtlas(), va.getID(), GL_TEXTURE_2D_ARRAY, &shader, &m_ib);
     return mySprite;
 }
 
@@ -119,4 +121,40 @@ Shader& SpriteFactory::getShader(ShaderType shaderType) {
 		return m_enemyExplosionShader;
 		break;
 	}
+}
+
+TextureCache TextureCache::s_instance;
+
+const Texture& TextureCache::getTexture(std::string name) const {
+	return m_textures.at(name);
+}
+
+void TextureCache::addTexture(std::string name) {
+	m_textures[name].loadFromFile(name, true, GL_RGBA8, GL_RGBA);
+}
+
+bool TextureCache::containsTexture(std::string name) {
+	return m_textures.count(name) == 1;
+}
+
+TextureCache& TextureCache::Get() {
+	return s_instance;
+}
+
+SpritesheetCache SpritesheetCache::s_instance;
+
+const Spritesheet& SpritesheetCache::getSpritesheet(std::string name) const {
+	return m_spritesheets.at(name);
+}
+
+void SpritesheetCache::addSpritesheet(std::string name, unsigned short tileWidth, unsigned short tileHeight) {
+	m_spritesheets[name].loadFromFile(name, tileWidth, tileHeight, 0u, false, false);
+}
+
+bool SpritesheetCache::containsSpritesheet(std::string name) {
+	return m_spritesheets.count(name) == 1;
+}
+
+SpritesheetCache& SpritesheetCache::Get() {
+	return s_instance;
 }

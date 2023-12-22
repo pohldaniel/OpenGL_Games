@@ -4,10 +4,46 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <engine/Shader.h>
+#include <engine/Texture.h>
+#include <engine/Spritesheet.h>
 #include <Components/Components.h>
 
 #include "graphics/index-buffer.hpp"
 
+
+class SpritesheetCache {
+
+public:
+
+	const Spritesheet& getSpritesheet(std::string name) const;
+	void addSpritesheet(std::string name, unsigned short tileWidth, unsigned short tileHeight);
+	static SpritesheetCache& Get();
+
+	bool containsSpritesheet(std::string name);
+
+private:
+	SpritesheetCache() = default;
+
+	std::unordered_map<std::string, Spritesheet> m_spritesheets;
+	static SpritesheetCache s_instance;
+};
+
+class TextureCache {
+
+public:
+
+	const Texture& getTexture(std::string name) const;
+	void addTexture(std::string name);
+	static TextureCache& Get();
+
+	bool containsTexture(std::string name);
+
+private:
+	TextureCache() = default;
+
+	std::unordered_map<std::string, Texture> m_textures;
+	static TextureCache s_instance;
+};
 
 enum class ShaderType {
 	BASIC_SINGLE,

@@ -363,9 +363,6 @@
     <ClCompile Include="src\Graphics\vertex-buffer.cpp">
       <Filter>Source Files\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="src\Graphics\textureRo.cpp">
-      <Filter>Source Files\Graphics</Filter>
-    </ClCompile>
     <ClCompile Include="src\GUI\EndScreen.cpp">
       <Filter>Source Files\GUI</Filter>
     </ClCompile>
@@ -470,6 +467,9 @@
     </ClCompile>
     <ClCompile Include="src\Renderer.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Graphics\textureRo.cpp">
+      <Filter>Source Files\Graphics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -782,9 +782,6 @@
     <ClInclude Include="src\Graphics\vertex-buffer-layout.hpp">
       <Filter>Source Files\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="src\Graphics\textureRo.hpp">
-      <Filter>Source Files\Graphics</Filter>
-    </ClInclude>
     <ClInclude Include="src\GUI\EndScreen.h">
       <Filter>Source Files\GUI</Filter>
     </ClInclude>
@@ -922,6 +919,9 @@
     </ClInclude>
     <ClInclude Include="src\Renderer.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Graphics\textureRo.hpp">
+      <Filter>Source Files\Graphics</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
