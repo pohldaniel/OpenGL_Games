@@ -1,6 +1,4 @@
 #include "SpriteFactory.h"
-
-#include "graphics/vertex-array.hpp"
 #include "Globals.h"
 
 SpriteFactory::SpriteFactory()

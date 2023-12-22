@@ -7,14 +7,8 @@
 #include <engine/Shader.h>
 #include <engine/MeshObject/Shape.h>
 #include <Components/Components.h>
-#include "graphics/index-buffer.hpp"
 
 #include "Constants.h"
-
-enum class PivotPoint {
-	CENTER,
-	MIDDLE_LEFT
-};
 
 class PrimitiveFactory {
 

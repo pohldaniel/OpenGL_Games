@@ -5,7 +5,6 @@
 #include <glm/glm.hpp>
 
 #include "IDebugDraw.h"
-#include "graphics/vertex-array.hpp"
 
 /**
  * @brief Immediate-mode debug drawing
@@ -58,11 +57,13 @@ private:
 	Shader m_shaderLaser;
 	Shader m_shaderCircleWithGlow;
 	Shader m_shaderCircleExplosion;
-	VertexArray m_va;
-	VertexBuffer m_vb;
+
 	unsigned int m_vbMaxSize;
 	glm::mat4 m_viewMat;
 	glm::mat4 m_projMat;
 	glm::vec4 m_color;
+
+	unsigned int m_vao = 0;
+	unsigned int m_vbo = 0;
 };
 

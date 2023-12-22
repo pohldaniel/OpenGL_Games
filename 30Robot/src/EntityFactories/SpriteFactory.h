@@ -9,9 +9,6 @@
 #include <engine/MeshObject/Shape.h>
 #include <Components/Components.h>
 
-#include "graphics/index-buffer.hpp"
-
-
 class SpritesheetCache {
 
 public:
@@ -63,16 +60,13 @@ public:
     // TODO batch rendering with glTextureView ? https://learnopengl.com/Advanced-OpenGL/Instancing for all since they share vertex data
 
 private:
-	// TODO make shader static because shared among each instance
-	// -> Init problem because glad is not up at compile time to create the shader
-
-	IndexBuffer m_ib;    // All sprites shares the same index buffer
+	
 	//Shaders
 	Shader& getShader(ShaderType shaderType);
-		//Default
+	//Default
 	Shader m_shaderTex;
 	Shader m_shaderTexArray;
-		//Custom
+	//Custom
 	Shader m_towerExplosionShader;
 	Shader m_enemyExplosionShader;
 };

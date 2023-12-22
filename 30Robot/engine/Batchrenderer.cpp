@@ -32,6 +32,16 @@ Batchrenderer& Batchrenderer::Get() {
 Batchrenderer::~Batchrenderer() {
 	delete[] buffer;
 	buffer = nullptr;	
+
+	if (m_vao) {
+		glDeleteVertexArrays(1, &m_vao);
+		m_vao = 0u;
+	}
+
+	if (m_vbo) {
+		glDeleteBuffers(1, &m_vbo);
+		m_vbo = 0u;
+	}
 }
 
 void Batchrenderer::init(size_t size, bool drawSingle, bool drawRaw) {
@@ -77,15 +87,16 @@ void Batchrenderer::init(size_t size, bool drawSingle, bool drawRaw) {
 		index_offset += 4;
 	}
 
-	glGenBuffers(1, &m_ibo);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
+	unsigned int ibo;
+	glGenBuffers(1, &ibo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint32_t) * m_maxIndex, indices, GL_STATIC_DRAW);
 
 	// unbind vbo and vao
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 
-	glDeleteBuffers(1, &m_ibo);
+	glDeleteBuffers(1, &ibo);
 
 	delete[] indices;
 
@@ -114,15 +125,16 @@ void Batchrenderer::init(size_t size, bool drawSingle, bool drawRaw) {
 
 		const GLushort _indices[] = { 0, 1, 2, 2, 3, 0 };
 
-		glGenBuffers(1, &m_iboSingle);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_iboSingle);
+		unsigned int iboSingle;
+		glGenBuffers(1, &iboSingle);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iboSingle);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(_indices), _indices, GL_STATIC_DRAW);
 
 		// unbind vbo and vao
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindVertexArray(0);
 
-		glDeleteBuffers(1, &m_iboSingle);
+		glDeleteBuffers(1, &iboSingle);
 	}
 }
 

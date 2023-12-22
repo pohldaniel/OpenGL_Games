@@ -60,13 +60,11 @@ private:
 	size_t m_maxVert = 0;
 	size_t m_maxIndex = 0;
 	
-	unsigned int m_vao = 0;
-	unsigned int m_vbo = 0;
-	unsigned int m_ibo= 0;
+	unsigned int m_vao = 0u;
+	unsigned int m_vbo = 0u;
 
-	unsigned int m_vaoSingle = 0;
-	unsigned int m_vboSingle = 0;
-	unsigned int m_iboSingle = 0;
+	unsigned int m_vaoSingle = 0u;
+	unsigned int m_vboSingle = 0u;
 
 	uint32_t indexCount = 0;
 	bool m_drawRaw = false;

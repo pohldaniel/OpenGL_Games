@@ -348,15 +348,6 @@
     <ClCompile Include="src\progression.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Graphics\index-buffer.cpp">
-      <Filter>Source Files\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Graphics\vertex-array.cpp">
-      <Filter>Source Files\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Graphics\vertex-buffer.cpp">
-      <Filter>Source Files\Graphics</Filter>
-    </ClCompile>
     <ClCompile Include="src\GUI\EndScreen.cpp">
       <Filter>Source Files\GUI</Filter>
     </ClCompile>
@@ -754,18 +745,6 @@
     </ClInclude>
     <ClInclude Include="src\progression.hpp">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Graphics\index-buffer.hpp">
-      <Filter>Source Files\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Graphics\vertex-array.hpp">
-      <Filter>Source Files\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Graphics\vertex-buffer.hpp">
-      <Filter>Source Files\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Graphics\vertex-buffer-layout.hpp">
-      <Filter>Source Files\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="src\GUI\EndScreen.h">
       <Filter>Source Files\GUI</Filter>
