@@ -5,18 +5,16 @@
 #include "EnemyFactory.h"
 #include "Tags.h"
 #include "Constants.h"
-
+#include "Globals.h"
 
 // TODO doc ENTT partie "prototype" pour avoir des entity factory plus optimis�s en m�moire
 
-EnemyFactory::EnemyFactory(entt::DefaultRegistry& registry, Level& level)
-: Factory(registry), m_level(level)
-{
-	m_robotSprite = m_spriteFactory.createAtlas("res/images/spritesheets/enemy-small-robot-77x117.png", glm::vec2(TILE_SIZE * 0.66, TILE_SIZE), glm::vec2(77, 117));
-	m_droneSprite = m_spriteFactory.createSingle("res/images/textures/drone-no-eye.png", glm::vec2(13.0f));
-	m_droneEyeSprite = m_spriteFactory.createSingle("res/images/textures/drone-eye.png", glm::vec2(13.0f));
-	m_healthBackground = m_primitiveFactory.createRect(glm::vec4(0, 0, 0, 1), glm::vec2(6.0f, 1.0f), PivotPoint::MIDDLE_LEFT);
-	m_healthBar = m_primitiveFactory.createRect(glm::vec4(0, 1, 0, 1), glm::vec2(6.0f, 1.0f), PivotPoint::MIDDLE_LEFT);
+EnemyFactory::EnemyFactory(entt::DefaultRegistry& registry, Level& level): Factory(registry), m_level(level){
+	m_robotSprite = m_spriteFactory.createAtlas("res/images/spritesheets/enemy-small-robot-77x117.png", glm::vec2(TILE_SIZE * 0.66, TILE_SIZE), glm::vec2(77, 117), &Globals::shapeManager.get("_quad"), TILE_SIZE * 0.66, TILE_SIZE);
+	m_droneSprite = m_spriteFactory.createSingle("res/images/textures/drone-no-eye.png", glm::vec2(13.0f), &Globals::shapeManager.get("_quad"), 13.0f, 13.0f);
+	m_droneEyeSprite = m_spriteFactory.createSingle("res/images/textures/drone-eye.png", glm::vec2(13.0f), &Globals::shapeManager.get("_quad"), 13.0f, 13.0f);
+	m_healthBackground = m_primitiveFactory.createRect(glm::vec4(0, 0, 0, 1), &Globals::shapeManager.get("quad"));
+	m_healthBar = m_primitiveFactory.createRect(glm::vec4(0, 1, 0, 1), &Globals::shapeManager.get("quad"));
 }
 
 EnemyFactory::~EnemyFactory() {
@@ -26,8 +24,6 @@ EnemyFactory::~EnemyFactory() {
 	glDeleteVertexArrays(1, &m_droneEyeSprite.vaID);
 	glDeleteTextures(1, &m_robotSprite.textureID);
 	glDeleteVertexArrays(1, &m_robotSprite.vaID);
-	glDeleteVertexArrays(1, &m_healthBackground.vaID);
-	glDeleteVertexArrays(1, &m_healthBar.vaID);
 }
 
 void EnemyFactory::createRobot() {

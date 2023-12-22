@@ -4,6 +4,7 @@
 #include <entt/locator/locator.hpp>
 #include <glm/glm.hpp>
 #include <Box2D/Box2D.h>
+#include <engine/MeshObject/Shape.h>
 #include <Services/IRandom.h>
 
 #include "Maths.h"
@@ -15,14 +16,12 @@ class IndexBuffer;
 namespace cmpt {
 
 	struct Primitive {
-		Primitive(glm::vec4 color = glm::vec4(0), unsigned int vaID = 0, unsigned int type = 0, Shader* shader = nullptr, unsigned int vertexCount = 0)
-			: color(color), vaID(vaID), type(type), shader(shader), vertexCount(vertexCount) {}
+		Primitive(glm::vec4 color = glm::vec4(0), Shader* shader = nullptr, Shape* shape = nullptr)
+			: color(color), shader(shader), shape(shape) {}
 
 		glm::vec4 color;
-		unsigned int vaID;
-		unsigned int vertexCount;
-		unsigned int type;
 		Shader* shader;
+		Shape* shape = nullptr;
 	};
 
 	struct Age {
@@ -207,14 +206,17 @@ namespace cmpt {
 	};
 
 	struct Sprite {
-		Sprite(unsigned int textureID = 0, unsigned int vaID = 0, unsigned int target = 0, Shader* shader = nullptr, IndexBuffer* ib = nullptr)
-			: textureID(textureID), vaID(vaID), target(target), shader(shader), ib(ib) {}
+		Sprite(float scaleX = 1.0f, float scaleY = 1.0f, Shape* shape = nullptr, unsigned int textureID = 0, unsigned int vaID = 0, unsigned int target = 0, Shader* shader = nullptr, IndexBuffer* ib = nullptr)
+			: textureID(textureID), vaID(vaID), target(target), shader(shader), ib(ib), shape(shape), scaleX(scaleX), scaleY(scaleY)  {}
 
 		unsigned int textureID;
 		unsigned int vaID;
 		unsigned int target;
 		Shader* shader;
 		IndexBuffer* ib;
+		Shape* shape = nullptr;
+		float scaleX = 1.0f;
+		float scaleY = 1.0f;
 	};
 
 	struct SpriteAnimation {

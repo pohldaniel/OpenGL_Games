@@ -6,6 +6,7 @@
 #include <engine/Shader.h>
 #include <engine/Texture.h>
 #include <engine/Spritesheet.h>
+#include <engine/MeshObject/Shape.h>
 #include <Components/Components.h>
 
 #include "graphics/index-buffer.hpp"
@@ -56,9 +57,9 @@ class SpriteFactory {
 public:
     SpriteFactory();
 
-    cmpt::Sprite createSingle(const std::string& textureFilepath, glm::vec2 displaySize);
-    cmpt::Sprite createAtlas(const std::string& textureFilepath, glm::vec2 displaySize, glm::vec2 tileSize, ShaderType shaderType);
-	cmpt::Sprite createAtlas(const std::string& textureFilepath, glm::vec2 displaySize, glm::vec2 tileSize);
+    cmpt::Sprite createSingle(const std::string& textureFilepath, glm::vec2 displaySize, Shape* shape, float scaleX, float scaleY);
+    cmpt::Sprite createAtlas(const std::string& textureFilepath, glm::vec2 displaySize, glm::vec2 tileSize, ShaderType shaderType, Shape* shape, float scaleX, float scaleY);
+	cmpt::Sprite createAtlas(const std::string& textureFilepath, glm::vec2 displaySize, glm::vec2 tileSize, Shape* shape, float scaleX, float scaleY);
     // TODO batch rendering with glTextureView ? https://learnopengl.com/Advanced-OpenGL/Instancing for all since they share vertex data
 
 private:

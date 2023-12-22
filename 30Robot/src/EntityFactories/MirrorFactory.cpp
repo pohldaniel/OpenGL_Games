@@ -6,6 +6,7 @@
 #include "MirrorFactory.h"
 #include "Tags.h"
 #include "Constants.h"
+#include "Globals.h"
 
 MirrorFactory::MirrorFactory(entt::DefaultRegistry& registry) : Factory(registry)
 {
@@ -14,7 +15,7 @@ MirrorFactory::MirrorFactory(entt::DefaultRegistry& registry) : Factory(registry
 
 void MirrorFactory::init() {
 	m_spriteFactory = new SpriteFactory();
-	m_mirrorSprite = m_spriteFactory->createAtlas("res/images/spritesheets/tower-mirror-100x100.png", glm::vec2(TILE_SIZE), glm::vec2(100));
+	m_mirrorSprite = m_spriteFactory->createAtlas("res/images/spritesheets/tower-mirror-100x100.png", glm::vec2(TILE_SIZE), glm::vec2(100), &Globals::shapeManager.get("_quad"), TILE_SIZE, TILE_SIZE);
 }
 
 MirrorFactory::~MirrorFactory() {

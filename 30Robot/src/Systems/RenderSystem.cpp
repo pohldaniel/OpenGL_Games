@@ -11,6 +11,7 @@
 #include "Maths.h"
 #include "Constants.h"
 #include "Application.h"
+#include "Globals.h"
 
 RenderSystem::RenderSystem(entt::DefaultRegistry& registry, EventEmitter& emitter, glm::mat4& viewMat, glm::mat4& projMat) : ISystem(registry, emitter), m_view(viewMat), m_projection(projMat), m_currentCursor(CursorType::ARROW){
 	
@@ -47,98 +48,94 @@ RenderSystem::~RenderSystem() {
 	
 }
 
-void RenderSystem::renderSpritesheet(std::uint32_t entity, cmpt::Sprite& sprite, cmpt::SpriteAnimation& animation) const {
-	IHelper& helper = entt::ServiceLocator<IHelper>::ref();
-	// Binding
-	sprite.shader->use();
-	glBindVertexArray(sprite.vaID);
-	glActiveTexture(GL_TEXTURE0); // Texture unit 0 for images, must be called before binding texture
-	glBindTexture(sprite.target, sprite.textureID);
-	sprite.ib->bind();
+void RenderSystem::renderSpritesheet(std::uint32_t entity, cmpt::Sprite& sprite, cmpt::SpriteAnimation& animation) const {	
+	
+	if (sprite.shape) {
+	
+		IHelper& helper = entt::ServiceLocator<IHelper>::ref();
 
-	// Updates
-	glm::mat4 mvp = this->m_projection * this->getViewMatrix() * this->getModelMatrix(entity);
-	sprite.shader->loadMatrix("u_mvp", (const float*)glm::value_ptr(mvp));
-	sprite.shader->loadInt("u_activeTile", animation.activeTile);
-	if (m_registry.valid(entity)) {
-		sprite.shader->loadVector("tintColour", (const float*)glm::value_ptr(helper.getColour(entity)));
-		sprite.shader->loadFloat("u_alpha", helper.getAlpha(entity));
-		if (m_registry.has<cmpt::AnimationPixelsVanish>(entity) || (m_registry.has<cmpt::AttachedTo>(entity) && m_registry.has<cmpt::AnimationPixelsVanish>(m_registry.get<cmpt::AttachedTo>(entity).mainEntity))) {
-			cmpt::Animated animated = cmpt::Animated(0);
-			bool bForward;
-			if (m_registry.has<cmpt::AnimationPixelsVanish>(entity)) {
-				animated = m_registry.get<cmpt::Animated>(entity);
-				bForward = m_registry.get<cmpt::AnimationPixelsVanish>(entity).bForward;
+		sprite.shader->use();
+
+		glm::mat4 mvp = m_projection * this->getViewMatrix() * this->getModelMatrix(entity, sprite.scaleX, sprite.scaleY);
+		sprite.shader->loadMatrix("u_mvp", (const float*)glm::value_ptr(mvp));
+		sprite.shader->loadInt("u_activeTile", animation.activeTile);
+		if (m_registry.valid(entity)) {
+			sprite.shader->loadVector("tintColour", (const float*)glm::value_ptr(helper.getColour(entity)));
+			sprite.shader->loadFloat("u_alpha", helper.getAlpha(entity));
+			if (m_registry.has<cmpt::AnimationPixelsVanish>(entity) || (m_registry.has<cmpt::AttachedTo>(entity) && m_registry.has<cmpt::AnimationPixelsVanish>(m_registry.get<cmpt::AttachedTo>(entity).mainEntity))) {
+				cmpt::Animated animated = cmpt::Animated(0);
+				bool bForward;
+				if (m_registry.has<cmpt::AnimationPixelsVanish>(entity)) {
+					animated = m_registry.get<cmpt::Animated>(entity);
+					bForward = m_registry.get<cmpt::AnimationPixelsVanish>(entity).bForward;
+				}
+				else {
+					animated = m_registry.get<cmpt::Animated>(m_registry.get<cmpt::AttachedTo>(entity).mainEntity);
+					bForward = m_registry.get<cmpt::AnimationPixelsVanish>(m_registry.get<cmpt::AttachedTo>(entity).mainEntity).bForward;
+				}
+				if (bForward) {
+					sprite.shader->loadFloat("probaDisappear", 1 - animated.age / animated.duration);
+				}
+				else {
+					sprite.shader->loadFloat("probaDisappear", animated.age / animated.duration);
+				}
 			}
 			else {
-				animated = m_registry.get<cmpt::Animated>(m_registry.get<cmpt::AttachedTo>(entity).mainEntity);
-				bForward = m_registry.get<cmpt::AnimationPixelsVanish>(m_registry.get<cmpt::AttachedTo>(entity).mainEntity).bForward;
-			}
-			if (bForward) {
-				sprite.shader->loadFloat("probaDisappear", 1 - animated.age / animated.duration);
-			}
-			else {
-				sprite.shader->loadFloat("probaDisappear", animated.age / animated.duration);
+				sprite.shader->loadFloat("probaDisappear", 0);
 			}
 		}
-		else {
-			sprite.shader->loadFloat("probaDisappear", 0);
-		}
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(sprite.target, sprite.textureID);
+
+		sprite.shape->drawRaw();
+
+		glBindTexture(sprite.target, 0);
+		sprite.shader->unuse();
 	}
-	glDrawElements(GL_TRIANGLES, sprite.ib->getCount(), GL_UNSIGNED_INT, nullptr);
-
-	// Unbinding
-	sprite.ib->unbind();
-	glBindTexture(sprite.target, 0);
-	glBindVertexArray(0);
-	sprite.shader->unuse();
 }
 
 void RenderSystem::renderSprite(std::uint32_t entity, cmpt::Sprite & sprite) const {
-	IHelper& helper = entt::ServiceLocator<IHelper>::ref();
-	// Binding
-	sprite.shader->use();
-	glBindVertexArray(sprite.vaID);
-	glActiveTexture(GL_TEXTURE0); // Texture unit 0 for images, must be called before binding texture
-	glBindTexture(sprite.target, sprite.textureID);
-	sprite.ib->bind();
+	if (sprite.shape) {
+		IHelper& helper = entt::ServiceLocator<IHelper>::ref();
 
-	// Updates
-	glm::mat4 mvp = m_projection * this->getViewMatrix() * this->getModelMatrix(entity);
-	sprite.shader->loadMatrix("u_mvp", (const float*)glm::value_ptr(mvp));
-
-	if (m_registry.valid(entity)) {
-		sprite.shader->loadVector("tintColour", (const float*)glm::value_ptr(helper.getColour(entity)));
-		sprite.shader->loadFloat("u_alpha", helper.getAlpha(entity));
-		if (m_registry.has<cmpt::AnimationPixelsVanish>(entity) || (m_registry.has<cmpt::AttachedTo>(entity) && m_registry.has<cmpt::AnimationPixelsVanish>(m_registry.get<cmpt::AttachedTo>(entity).mainEntity))) {
-			cmpt::Animated animated = cmpt::Animated(0);
-			bool bForward;
-			if (m_registry.has<cmpt::AnimationPixelsVanish>(entity)) {
-				animated = m_registry.get<cmpt::Animated>(entity);
-				bForward = m_registry.get<cmpt::AnimationPixelsVanish>(entity).bForward;
+		sprite.shader->use();
+		glm::mat4 mvp = m_projection * this->getViewMatrix() * this->getModelMatrix(entity, sprite.scaleX, sprite.scaleY);
+		sprite.shader->loadMatrix("u_mvp", (const float*)glm::value_ptr(mvp));
+		if (m_registry.valid(entity)) {
+			sprite.shader->loadVector("tintColour", (const float*)glm::value_ptr(helper.getColour(entity)));
+			sprite.shader->loadFloat("u_alpha", helper.getAlpha(entity));
+			if (m_registry.has<cmpt::AnimationPixelsVanish>(entity) || (m_registry.has<cmpt::AttachedTo>(entity) && m_registry.has<cmpt::AnimationPixelsVanish>(m_registry.get<cmpt::AttachedTo>(entity).mainEntity))) {
+				cmpt::Animated animated = cmpt::Animated(0);
+				bool bForward;
+				if (m_registry.has<cmpt::AnimationPixelsVanish>(entity)) {
+					animated = m_registry.get<cmpt::Animated>(entity);
+					bForward = m_registry.get<cmpt::AnimationPixelsVanish>(entity).bForward;
+				}
+				else {
+					animated = m_registry.get<cmpt::Animated>(m_registry.get<cmpt::AttachedTo>(entity).mainEntity);
+					bForward = m_registry.get<cmpt::AnimationPixelsVanish>(m_registry.get<cmpt::AttachedTo>(entity).mainEntity).bForward;
+				}
+				if (bForward) {
+					sprite.shader->loadFloat("probaDisappear", 1 - animated.age / animated.duration);
+				}
+				else {
+					sprite.shader->loadFloat("probaDisappear", animated.age / animated.duration);
+				}
 			}
 			else {
-				animated = m_registry.get<cmpt::Animated>(m_registry.get<cmpt::AttachedTo>(entity).mainEntity);
-				bForward = m_registry.get<cmpt::AnimationPixelsVanish>(m_registry.get<cmpt::AttachedTo>(entity).mainEntity).bForward;
-			}
-			if (bForward) {
-				sprite.shader->loadFloat("probaDisappear", 1 - animated.age / animated.duration);
-			}
-			else {
-				sprite.shader->loadFloat("probaDisappear", animated.age / animated.duration);
+				sprite.shader->loadFloat("probaDisappear", 0);
 			}
 		}
-		else {
-			sprite.shader->loadFloat("probaDisappear", 0);
-		}
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(sprite.target, sprite.textureID);
+
+		sprite.shape->drawRaw();
+
+		glBindTexture(sprite.target, 0);
+		sprite.shader->unuse();
 	}
-	glDrawElements(GL_TRIANGLES, sprite.ib->getCount(), GL_UNSIGNED_INT, nullptr);
-
-	// Unbinding
-	sprite.ib->unbind();
-	glBindTexture(sprite.target, 0);
-	glBindVertexArray(0);
-	sprite.shader->unuse();
 }
 
 void RenderSystem::update(float deltatime) {
@@ -151,29 +148,23 @@ void RenderSystem::update(float deltatime) {
 	helper.updateScreenShake(deltatime);
 
     m_registry.view<cmpt::Transform, cmpt::Primitive>().each([this](auto entity, cmpt::Transform& transform, cmpt::Primitive& primitive) {
-        // Binding
-        primitive.shader->use();
-        glBindVertexArray(primitive.vaID);
 
-        // Updates
-        glm::mat4 mvp = this->m_projection * this->getViewMatrix() * this->getModelMatrix(entity);
-        primitive.shader->loadMatrix("u_mvp", (const float*)glm::value_ptr(mvp));
-        primitive.shader->loadVector("u_color", primitive.color.r, primitive.color.g, primitive.color.b, primitive.color.a);
+		primitive.shader->use();
+		glm::mat4 mvp = this->m_projection * this->getViewMatrix() * this->getModelMatrix(entity);
+		primitive.shader->loadMatrix("u_mvp", (const float*)glm::value_ptr(mvp));
+		primitive.shader->loadVector("u_color", primitive.color.r, primitive.color.g, primitive.color.b, primitive.color.a);
 		if (m_registry.valid(entity) && m_registry.has<cmpt::TintColour>(entity)) {
 			cmpt::TintColour& tint = m_registry.get<cmpt::TintColour>(entity);
 			primitive.shader->loadVector("tintColour", tint.col.r, tint.col.g, tint.col.b, tint.col.a);
 			if (tint.bOneTimeOnly) {
 				m_registry.remove<cmpt::TintColour>(entity);
 			}
-		}
-		else {
+		}else {
 			primitive.shader->loadVector("tintColour", 0.0f, 0.0f, 0.0f, 0.0f);
 		}
-       glDrawArrays(primitive.type, 0, primitive.vertexCount);
+		primitive.shape->drawRaw();
+		primitive.shader->unuse();
 
-        // Unbinding
-        glBindVertexArray(0);
-        primitive.shader->unuse();
     });
 
 	
@@ -241,10 +232,8 @@ void RenderSystem::update(float deltatime) {
 			IHelper& helper = entt::ServiceLocator<IHelper>::ref();
 			// Background
 			{
-				// Binding
-				healthbar.background.shader->use();
-				glBindVertexArray(healthbar.background.vaID);
 
+				healthbar.background.shader->use();
 				// Update pos
 				cmpt::Transform healthTransform(helper.getPosition(entity), Z_INDEX_HUD - 1);
 				healthTransform.position += healthbar.relativePos;
@@ -253,19 +242,15 @@ void RenderSystem::update(float deltatime) {
 				glm::mat4 mvp = this->m_projection * this->getViewMatrix() * this->getModelMatrix(healthTransform);
 				healthbar.background.shader->loadMatrix("u_mvp", (const float*)glm::value_ptr(mvp));
 				healthbar.background.shader->loadVector("u_color", healthbar.background.color.r, healthbar.background.color.g, healthbar.background.color.b, healthbar.background.color.a);
-				glDrawArrays(healthbar.background.type, 0, healthbar.background.vertexCount);
-
-				// Unbinding
-				glBindVertexArray(0);
+					
+				healthbar.background.shape->drawRaw();
 				healthbar.background.shader->unuse();
+
 			}
 
 			// Foreground
 			{
-				// Binding
-				healthbar.bar.shader->use();
-				glBindVertexArray(healthbar.bar.vaID);
-
+				healthbar.background.shader->use();
 				// Update pos
 				cmpt::Transform healthTransform(helper.getPosition(entity), Z_INDEX_HUD);
 				healthTransform.position += healthbar.relativePos;
@@ -276,16 +261,14 @@ void RenderSystem::update(float deltatime) {
 				glm::mat4 mvp = this->m_projection * this->getViewMatrix() * this->getModelMatrix(healthTransform);
 				healthbar.bar.shader->loadMatrix("u_mvp", (const float*)glm::value_ptr(mvp));
 				if (scale > 0.4f) {
-					healthbar.bar.shader->loadVector("u_color", healthbar.bar.color.r, healthbar.bar.color.g, healthbar.bar.color.b, healthbar.bar.color.a);
+						healthbar.bar.shader->loadVector("u_color", healthbar.bar.color.r, healthbar.bar.color.g, healthbar.bar.color.b, healthbar.bar.color.a);
+				}else {
+						healthbar.bar.shader->loadVector("u_color", 1.0f, 0.0f, 0.0f, healthbar.bar.color.a);
 				}
-				else {
-					healthbar.bar.shader->loadVector("u_color", 1.0f, 0.0f, 0.0f, healthbar.bar.color.a);
-				}
-				glDrawArrays(healthbar.bar.type, 0, healthbar.bar.vertexCount);
 
-				// Unbinding
-				glBindVertexArray(0);
+				healthbar.background.shape->drawRaw();
 				healthbar.background.shader->unuse();
+
 			}
 		}
 	});
@@ -308,6 +291,19 @@ glm::mat4 RenderSystem::getModelMatrix(unsigned int entityId) const {
 	}
 	model = glm::scale(model, glm::vec3(helper.getScale(entityId), 0.0f));
     return model;
+}
+
+glm::mat4 RenderSystem::getModelMatrix(unsigned int entityId, float scaleX, float scaleY) const {
+	IHelper& helper = entt::ServiceLocator<IHelper>::ref();
+	glm::mat4 model(1.0f);
+	cmpt::Transform& transform = m_registry.get<cmpt::Transform>(entityId);
+	model = glm::translate(model, glm::vec3(helper.getPosition(entityId), transform.zIndex));
+	if (!m_registry.has<entityTag::Tower>(entityId) && !m_registry.has<entityTag::Mirror>(entityId)) {
+		model = glm::rotate(model, transform.rotation, glm::vec3(0, 0, 1));
+	}
+	model = glm::scale(model, glm::vec3(helper.getScale(entityId), 0.0f));
+	model = glm::scale(model, glm::vec3(scaleX, scaleY, 1.0f));
+	return model;
 }
 
 glm::mat4 RenderSystem::getModelMatrix(cmpt::Transform& transform) const {

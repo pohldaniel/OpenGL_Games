@@ -307,14 +307,11 @@ void JellyOptions::renderLevel() {
 void JellyOptions::renderControls() {
 	auto shader = Globals::shaderManager.getAssetPointer("quad");
 	shader->use();
-
-	Globals::textureManager.get("controls").bind(0);
-
 	shader->loadMatrix("u_transform", Matrix4f::Orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f) * Matrix4f::Translate(static_cast<float>(Application::Width / 2), static_cast<float>(25), 0.0f)* Matrix4f::Scale(static_cast<float>(78 * 0.4f), static_cast<float>(78 * 0.4f), 1.0f));
 	shader->loadVector("u_texRect", Vector4f(102.0f / m_controlsWidth, (m_controlsHeight - (5.0f + 78.0f)) / m_controlsHeight, (102.0f + 78.0f) / m_controlsWidth, (m_controlsHeight - 5.0f) / m_controlsHeight));
-
+	
+	Globals::textureManager.get("controls").bind(0);
 	Globals::shapeManager.get("quad_half").drawRaw();
-
 	Globals::textureManager.get("controls").unbind(0);
 	shader->unuse();
 }

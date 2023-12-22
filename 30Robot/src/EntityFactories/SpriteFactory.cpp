@@ -1,6 +1,7 @@
 #include "SpriteFactory.h"
 
 #include "graphics/vertex-array.hpp"
+#include "Globals.h"
 
 SpriteFactory::SpriteFactory()
 :	m_shaderTex("res/shaders/texture/texture.vert", "res/shaders/texture/texture.frag"),
@@ -18,7 +19,7 @@ SpriteFactory::SpriteFactory()
     m_ib.unbind();
 }
 
-cmpt::Sprite SpriteFactory::createSingle(const std::string& textureFilepath, glm::vec2 displaySize) {
+cmpt::Sprite SpriteFactory::createSingle(const std::string& textureFilepath, glm::vec2 displaySize, Shape* shape, float scaleX, float scaleY) {
 	displaySize /= 2;
 	/* Vertex buffer */
 	float positions[] = {
@@ -54,23 +55,23 @@ cmpt::Sprite SpriteFactory::createSingle(const std::string& textureFilepath, glm
 	//texture.unbind();
 
     /* Send copy of object */
-    cmpt::Sprite mySprite(TextureCache::Get().getTexture(textureFilepath).getTexture(), va.getID(), GL_TEXTURE_2D, &m_shaderTex, &m_ib);
+    cmpt::Sprite mySprite(scaleX, scaleY, shape, TextureCache::Get().getTexture(textureFilepath).getTexture(), va.getID(), GL_TEXTURE_2D, &m_shaderTex, &m_ib);
     return mySprite;
 }
 
-cmpt::Sprite SpriteFactory::createAtlas(const std::string& textureFilepath, glm::vec2 displaySize, glm::vec2 tileSize) {
-	return createAtlas(textureFilepath, displaySize, tileSize, ShaderType::BASIC_ATLAS);
+cmpt::Sprite SpriteFactory::createAtlas(const std::string& textureFilepath, glm::vec2 displaySize, glm::vec2 tileSize, Shape* shape, float scaleX, float scaleY) {
+	return createAtlas(textureFilepath, displaySize, tileSize, ShaderType::BASIC_ATLAS, shape, scaleX, scaleY);
 }
 
-cmpt::Sprite SpriteFactory::createAtlas(const std::string& textureFilepath, glm::vec2 displaySize, glm::vec2 tileSize, ShaderType shaderType) {
+cmpt::Sprite SpriteFactory::createAtlas(const std::string& textureFilepath, glm::vec2 displaySize, glm::vec2 tileSize, ShaderType shaderType, Shape* shape, float scaleX, float scaleY) {
 	Shader& shader = getShader(shaderType);
 	displaySize /= 2;
     float positions[] = {
         // Pos                           // Inverted UV to start at topleft
-		-displaySize.x,  displaySize.y,  0.0f, 0.0f, // 0 topleft
-		 displaySize.x,  displaySize.y,  1.0f, 0.0f, // 1 topright
-		-displaySize.x, -displaySize.y,  0.0f, 1.0f, // 2 bottomleft
-		 displaySize.x, -displaySize.y,  1.0f, 1.0f  // 3 bottomright
+		-displaySize.x,  displaySize.y,  0.0f, 1.0f, // 0 topleft
+		 displaySize.x,  displaySize.y,  1.0f, 1.0f, // 1 topright
+		-displaySize.x, -displaySize.y,  0.0f, 0.0f, // 2 bottomleft
+		 displaySize.x, -displaySize.y,  1.0f, 0.0f  // 3 bottomright
 	};
     unsigned int arraySize = sizeof(positions) / sizeof(float);
     VertexBuffer vb(positions, arraySize * sizeof(float), GL_STATIC_DRAW);
@@ -97,7 +98,7 @@ cmpt::Sprite SpriteFactory::createAtlas(const std::string& textureFilepath, glm:
 
     
     /* Send copy of object */
-    cmpt::Sprite mySprite(SpritesheetCache::Get().getSpritesheet(textureFilepath).getAtlas(), va.getID(), GL_TEXTURE_2D_ARRAY, &shader, &m_ib);
+    cmpt::Sprite mySprite(scaleX, scaleY, shape, SpritesheetCache::Get().getSpritesheet(textureFilepath).getAtlas(), va.getID(), GL_TEXTURE_2D_ARRAY, &shader, &m_ib);
     return mySprite;
 }
 
@@ -146,7 +147,7 @@ const Spritesheet& SpritesheetCache::getSpritesheet(std::string name) const {
 }
 
 void SpritesheetCache::addSpritesheet(std::string name, unsigned short tileWidth, unsigned short tileHeight) {
-	m_spritesheets[name].loadFromFile(name, tileWidth, tileHeight, 0u, false, false);
+	m_spritesheets[name].loadFromFile(name, tileWidth, tileHeight, 0u, false, true);
 }
 
 bool SpritesheetCache::containsSpritesheet(std::string name) {

@@ -150,7 +150,7 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	s_AttackSystem = new AttackSystem(Application::Registry, Application::Emitter);
 	s_LifeAndDeathSystem = new LifeAndDeathSystem(Application::Registry, Application::Emitter, s_Progression);
 
-	Application::s_RenderSystem->update(m_dt);
+	//Application::s_RenderSystem->update(m_dt);
 	
 
 	TitleScreen::Get().init(Application::Emitter, Application::s_Progression);
@@ -711,7 +711,9 @@ void Application::loadAssets() {
 	Globals::textureManager.loadTexture("forest_4", "res/backgrounds/Forest/plx-4.png");
 	Globals::textureManager.loadTexture("forest_5", "res/backgrounds/Forest/plx-5.png");
 
-	Globals::shapeManager.buildQuadXY("quad", Vector3f(-1.0f, -1.0f, 0.0f), Vector2f(2.0f, 2.0f), 1, 1, true, false, false);
+	Globals::shapeManager.buildQuadXY("_quad", Vector3f(-0.5f, -0.5f, 0.0f), Vector2f(1.0f, 1.0f), 1, 1, true, false, false);
 
+	Globals::shapeManager.buildQuadXY("quad", Vector3f(0.0f, 0.0f, 0.0f), Vector2f(6.0f, 1.0f), 1, 1, true, false, false);
+	Globals::shapeManager.buildQuadXY("quad_locked", Vector3f(-5.5f, -5.5f, 0.0f), Vector2f(5.5f, 5.5f), 1, 1, true, false, false);
 	//SoundBuffer::Init();
 }

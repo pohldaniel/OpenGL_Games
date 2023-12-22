@@ -5,6 +5,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <engine/Shader.h>
+#include <engine/MeshObject/Shape.h>
 #include <Components/Components.h>
 #include "graphics/index-buffer.hpp"
 
@@ -16,17 +17,13 @@ enum class PivotPoint {
 };
 
 class PrimitiveFactory {
+
 public:
+
     PrimitiveFactory();
-
-    cmpt::Primitive createRect(glm::vec4 color, glm::vec2 displaySize, PivotPoint pivot = PivotPoint::CENTER);
-    cmpt::Primitive createRectOutline(glm::vec4 color, glm::vec2 displaySize, PivotPoint pivot = PivotPoint::CENTER);
-
-    // TODO circle and line
-
-private:
-	std::array<float, 8> getVertexPositions(glm::vec2 displaySize, PivotPoint pivot);
+    cmpt::Primitive createRect(glm::vec4 color, Shape* shape = nullptr);
 
 private:
     Shader m_shaderBasic;
+
 };
