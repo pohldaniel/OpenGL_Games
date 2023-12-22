@@ -5,16 +5,13 @@
 #include "EnemyFactory.h"
 #include "Tags.h"
 #include "Constants.h"
-#include "Globals.h"
-
-// TODO doc ENTT partie "prototype" pour avoir des entity factory plus optimis�s en m�moire
 
 EnemyFactory::EnemyFactory(entt::DefaultRegistry& registry, Level& level): Factory(registry), m_level(level){
-	m_robotSprite = m_spriteFactory.createAtlas("res/images/spritesheets/enemy-small-robot-77x117.png", glm::vec2(TILE_SIZE * 0.66, TILE_SIZE), glm::vec2(77, 117), &Globals::shapeManager.get("_quad"), TILE_SIZE * 0.66, TILE_SIZE);
-	m_droneSprite = m_spriteFactory.createSingle("res/images/textures/drone-no-eye.png", glm::vec2(13.0f), &Globals::shapeManager.get("_quad"), 13.0f, 13.0f);
-	m_droneEyeSprite = m_spriteFactory.createSingle("res/images/textures/drone-eye.png", glm::vec2(13.0f), &Globals::shapeManager.get("_quad"), 13.0f, 13.0f);
-	m_healthBackground = m_primitiveFactory.createRect(glm::vec4(0, 0, 0, 1), &Globals::shapeManager.get("_quad"), 6.0f, 1.0f, 0.5f, 0.5f);
-	m_healthBar = m_primitiveFactory.createRect(glm::vec4(0, 1, 0, 1), &Globals::shapeManager.get("_quad"), 6.0f, 1.0f, 0.5f, 0.5f);
+	m_robotSprite = m_spriteFactory.createAtlas("res/images/spritesheets/enemy-small-robot-77x117.png", glm::vec2(77, 117), TILE_SIZE * 0.66, TILE_SIZE);
+	m_droneSprite = m_spriteFactory.createSingle("res/images/textures/drone-no-eye.png", 13.0f, 13.0f);
+	m_droneEyeSprite = m_spriteFactory.createSingle("res/images/textures/drone-eye.png", 13.0f, 13.0f);
+	m_healthBackground = m_primitiveFactory.createRect(glm::vec4(0, 0, 0, 1), 6.0f, 1.0f, 0.5f, 0.5f);
+	m_healthBar = m_primitiveFactory.createRect(glm::vec4(0, 1, 0, 1), 6.0f, 1.0f, 0.5f, 0.5f);
 }
 
 EnemyFactory::~EnemyFactory() {

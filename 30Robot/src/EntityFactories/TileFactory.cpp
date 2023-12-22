@@ -3,13 +3,12 @@
 
 #include "Constants.h"
 #include "Tags.h"
-#include "Globals.h"
 
 TileFactory::TileFactory(entt::DefaultRegistry& registry) : Factory(registry) {
-	m_spawn = m_spriteFactory.createSingle("res/images/textures/spawn.png", glm::vec2(TILE_SIZE), &Globals::shapeManager.get("_quad"), TILE_SIZE, TILE_SIZE);
-	m_arrival = m_spriteFactory.createSingle("res/images/textures/exit.png", glm::vec2(TILE_SIZE), &Globals::shapeManager.get("_quad"), TILE_SIZE, TILE_SIZE);
-	m_path = m_spriteFactory.createAtlas("res/images/spritesheets/tile-100x100.png", glm::vec2(TILE_SIZE), glm::vec2(100), &Globals::shapeManager.get("_quad"), TILE_SIZE, TILE_SIZE);
-	m_locked = m_primitiveFactory.createRect(glm::vec4(0.5, 0.5, 0.5, 1), &Globals::shapeManager.get("_quad"), 11.0f, 11.0f);
+	m_spawn = m_spriteFactory.createSingle("res/images/textures/spawn.png", TILE_SIZE, TILE_SIZE);
+	m_arrival = m_spriteFactory.createSingle("res/images/textures/exit.png", TILE_SIZE, TILE_SIZE);
+	m_path = m_spriteFactory.createAtlas("res/images/spritesheets/tile-100x100.png", glm::vec2(100), TILE_SIZE, TILE_SIZE);
+	m_locked = m_primitiveFactory.createRect(glm::vec4(0.5, 0.5, 0.5, 1), 11.0f, 11.0f);
 }
 
 TileFactory::~TileFactory() {

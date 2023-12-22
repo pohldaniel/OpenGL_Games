@@ -4,12 +4,11 @@
 #include "VfxFactory.h"
 #include "Tags.h"
 #include "Constants.h"
-#include "Globals.h"
 
 VFXFactory::VFXFactory(entt::DefaultRegistry& registry) : Factory(registry){
-	m_towerExplosionSprite = m_spriteFactory.createAtlas("res/images/spritesheets/explosion0-100x100.png", glm::vec2(30.0f), glm::vec2(100, 100), ShaderType::TOWER_EXPLOSION, &Globals::shapeManager.get("_quad"), 30.0f, 30.0f);
-	m_enemyExplosionSprite = m_spriteFactory.createAtlas("res/images/spritesheets/explosion0-100x100.png", glm::vec2(30.0f), glm::vec2(100, 100), ShaderType::ENEMY_EXPLOSION, &Globals::shapeManager.get("_quad"), 30.0f, 30.0f);
-	m_laserParticleSprite = m_spriteFactory.createSingle("res/images/textures/etincelle.png", glm::vec2(5.0f), &Globals::shapeManager.get("_quad"), 5.0f, 5.0f);
+	m_towerExplosionSprite = m_spriteFactory.createAtlas("res/images/spritesheets/explosion0-100x100.png", glm::vec2(100, 100), ShaderType::TOWER_EXPLOSION, 30.0f, 30.0f);
+	m_enemyExplosionSprite = m_spriteFactory.createAtlas("res/images/spritesheets/explosion0-100x100.png", glm::vec2(100, 100), ShaderType::ENEMY_EXPLOSION, 30.0f, 30.0f);
+	m_laserParticleSprite = m_spriteFactory.createSingle("res/images/textures/etincelle.png", 5.0f, 5.0f);
 }
 
 VFXFactory::~VFXFactory() {

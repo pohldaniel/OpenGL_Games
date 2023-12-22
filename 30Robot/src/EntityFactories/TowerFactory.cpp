@@ -6,7 +6,6 @@
 #include "TowerFactory.h"
 #include "Tags.h"
 #include "Constants.h"
-#include "Globals.h"
 
 TowerFactory::TowerFactory(entt::DefaultRegistry& registry) : Factory(registry)
 {
@@ -17,12 +16,10 @@ void TowerFactory::init() {
 	m_spriteFactory = new SpriteFactory();
 	m_primitiveFactory = new PrimitiveFactory();
 
-	//m_laserTowerSprite = m_spriteFactory->createAtlas("res/images/spritesheets/tile-100x100.png", glm::vec2(TILE_SIZE), glm::vec2(100), &Globals::shapeManager.get("_quad"), TILE_SIZE, TILE_SIZE);
-
-	m_laserTowerSprite = m_spriteFactory->createAtlas("res/images/spritesheets/tower-laser-100x100.png", glm::vec2(TOWER_HITBOX_RADIUS * 2), glm::vec2(100), ShaderType::BASIC_ATLAS, &Globals::shapeManager.get("_quad"), TOWER_HITBOX_RADIUS * 2, TOWER_HITBOX_RADIUS * 2);
-	m_slowTowerSprite = m_spriteFactory->createSingle("res/images/textures/tower-slow.png", glm::vec2(TOWER_HITBOX_RADIUS * 2), &Globals::shapeManager.get("_quad"), TOWER_HITBOX_RADIUS * 2, TOWER_HITBOX_RADIUS * 2);
-	m_healthBackground = m_primitiveFactory->createRect(glm::vec4(0, 0, 0, 1), &Globals::shapeManager.get("_quad"), 6.0f, 1.0f, 0.5f, 0.5f);
-	m_healthBar = m_primitiveFactory->createRect(glm::vec4(0, 1, 0, 1), &Globals::shapeManager.get("_quad"), 6.0f, 1.0f, 0.5f, 0.5f);
+	m_laserTowerSprite = m_spriteFactory->createAtlas("res/images/spritesheets/tower-laser-100x100.png", glm::vec2(100), TOWER_HITBOX_RADIUS * 2, TOWER_HITBOX_RADIUS * 2);
+	m_slowTowerSprite = m_spriteFactory->createSingle("res/images/textures/tower-slow.png", TOWER_HITBOX_RADIUS * 2, TOWER_HITBOX_RADIUS * 2);
+	m_healthBackground = m_primitiveFactory->createRect(glm::vec4(0, 0, 0, 1), 6.0f, 1.0f, 0.5f, 0.5f);
+	m_healthBar = m_primitiveFactory->createRect(glm::vec4(0, 1, 0, 1), 6.0f, 1.0f, 0.5f, 0.5f);
 }
 
 TowerFactory::~TowerFactory() {

@@ -10,19 +10,19 @@ SpriteFactory::SpriteFactory()
    
 }
 
-cmpt::Sprite SpriteFactory::createSingle(const std::string& textureFilepath, glm::vec2 displaySize, Shape* shape, float scaleX, float scaleY) {
+cmpt::Sprite SpriteFactory::createSingle(const std::string& textureFilepath, float scaleX, float scaleY) {
 	TextureCache::Get().addTexture(textureFilepath);
-    return cmpt::Sprite(TextureCache::Get().getTexture(textureFilepath).getTexture(), GL_TEXTURE_2D, &m_shaderTex, shape, scaleX, scaleY, 0.0f, 0.0f);
+    return cmpt::Sprite(TextureCache::Get().getTexture(textureFilepath).getTexture(), GL_TEXTURE_2D, &m_shaderTex, &Globals::shapeManager.get("quad"), scaleX, scaleY, 0.0f, 0.0f);
 }
 
-cmpt::Sprite SpriteFactory::createAtlas(const std::string& textureFilepath, glm::vec2 displaySize, glm::vec2 tileSize, Shape* shape, float scaleX, float scaleY) {
-	return createAtlas(textureFilepath, displaySize, tileSize, ShaderType::BASIC_ATLAS, shape, scaleX, scaleY);
+cmpt::Sprite SpriteFactory::createAtlas(const std::string& textureFilepath, glm::vec2 tileSize, float scaleX, float scaleY) {
+	return createAtlas(textureFilepath, tileSize, ShaderType::BASIC_ATLAS, scaleX, scaleY);
 }
 
-cmpt::Sprite SpriteFactory::createAtlas(const std::string& textureFilepath, glm::vec2 displaySize, glm::vec2 tileSize, ShaderType shaderType, Shape* shape, float scaleX, float scaleY) {
+cmpt::Sprite SpriteFactory::createAtlas(const std::string& textureFilepath, glm::vec2 tileSize, ShaderType shaderType, float scaleX, float scaleY) {
 	Shader& shader = getShader(shaderType);
 	SpritesheetCache::Get().addSpritesheet(textureFilepath, (unsigned short)tileSize.x, (unsigned short)tileSize.y);
-    return cmpt::Sprite(SpritesheetCache::Get().getSpritesheet(textureFilepath).getAtlas(), GL_TEXTURE_2D_ARRAY, &shader, shape, scaleX, scaleY, 0.0f, 0.0f);
+    return cmpt::Sprite(SpritesheetCache::Get().getSpritesheet(textureFilepath).getAtlas(), GL_TEXTURE_2D_ARRAY, &shader, &Globals::shapeManager.get("quad"), scaleX, scaleY, 0.0f, 0.0f);
 }
 
 Shader& SpriteFactory::getShader(ShaderType shaderType) {

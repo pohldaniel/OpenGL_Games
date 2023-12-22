@@ -54,9 +54,9 @@ class SpriteFactory {
 public:
     SpriteFactory();
 
-    cmpt::Sprite createSingle(const std::string& textureFilepath, glm::vec2 displaySize, Shape* shape, float scaleX, float scaleY);
-    cmpt::Sprite createAtlas(const std::string& textureFilepath, glm::vec2 displaySize, glm::vec2 tileSize, ShaderType shaderType, Shape* shape, float scaleX, float scaleY);
-	cmpt::Sprite createAtlas(const std::string& textureFilepath, glm::vec2 displaySize, glm::vec2 tileSize, Shape* shape, float scaleX, float scaleY);
+    cmpt::Sprite createSingle(const std::string& textureFilepath, float scaleX, float scaleY);
+    cmpt::Sprite createAtlas(const std::string& textureFilepath, glm::vec2 tileSize, ShaderType shaderType, float scaleX, float scaleY);
+	cmpt::Sprite createAtlas(const std::string& textureFilepath, glm::vec2 tileSize, float scaleX, float scaleY);
     // TODO batch rendering with glTextureView ? https://learnopengl.com/Advanced-OpenGL/Instancing for all since they share vertex data
 
 private:

@@ -4,10 +4,9 @@
 #include "ProjectileFactory.h"
 #include "Tags.h"
 #include "Constants.h"
-#include "Globals.h"
 
 ProjectileFactory::ProjectileFactory(entt::DefaultRegistry& registry) : Factory(registry) {
-	m_projectileSprite = m_spriteFactory.createSingle("res/images/textures/projectile_snowflake.png", glm::vec2(6.0f), &Globals::shapeManager.get("_quad"), 6.0f, 6.0f);
+	m_projectileSprite = m_spriteFactory.createSingle("res/images/textures/projectile_snowflake.png", 6.0f, 6.0f);
 }
 
 ProjectileFactory::~ProjectileFactory() {
