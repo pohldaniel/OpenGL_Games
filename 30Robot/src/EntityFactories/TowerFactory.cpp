@@ -21,15 +21,13 @@ void TowerFactory::init() {
 
 	m_laserTowerSprite = m_spriteFactory->createAtlas("res/images/spritesheets/tower-laser-100x100.png", glm::vec2(TOWER_HITBOX_RADIUS * 2), glm::vec2(100), ShaderType::BASIC_ATLAS, &Globals::shapeManager.get("_quad"), TOWER_HITBOX_RADIUS * 2, TOWER_HITBOX_RADIUS * 2);
 	m_slowTowerSprite = m_spriteFactory->createSingle("res/images/textures/tower-slow.png", glm::vec2(TOWER_HITBOX_RADIUS * 2), &Globals::shapeManager.get("_quad"), TOWER_HITBOX_RADIUS * 2, TOWER_HITBOX_RADIUS * 2);
-	m_healthBackground = m_primitiveFactory->createRect(glm::vec4(0, 0, 0, 1), &Globals::shapeManager.get("quad"));
-	m_healthBar = m_primitiveFactory->createRect(glm::vec4(0, 1, 0, 1), &Globals::shapeManager.get("quad"));
+	m_healthBackground = m_primitiveFactory->createRect(glm::vec4(0, 0, 0, 1), &Globals::shapeManager.get("_quad"), 6.0f, 1.0f, 0.5f, 0.5f);
+	m_healthBar = m_primitiveFactory->createRect(glm::vec4(0, 1, 0, 1), &Globals::shapeManager.get("_quad"), 6.0f, 1.0f, 0.5f, 0.5f);
 }
 
 TowerFactory::~TowerFactory() {
 	glDeleteTextures(1, &m_laserTowerSprite.textureID);
-	glDeleteVertexArrays(1, &m_laserTowerSprite.vaID);
 	glDeleteTextures(1, &m_slowTowerSprite.textureID);
-	glDeleteVertexArrays(1, &m_slowTowerSprite.vaID);
 }
 
 /* ---------------------- Public methods ----------------- */

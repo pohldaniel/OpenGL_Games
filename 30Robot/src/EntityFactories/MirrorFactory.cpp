@@ -8,8 +8,7 @@
 #include "Constants.h"
 #include "Globals.h"
 
-MirrorFactory::MirrorFactory(entt::DefaultRegistry& registry) : Factory(registry)
-{
+MirrorFactory::MirrorFactory(entt::DefaultRegistry& registry) : Factory(registry) {
 	
 }
 
@@ -20,7 +19,6 @@ void MirrorFactory::init() {
 
 MirrorFactory::~MirrorFactory() {
 	glDeleteTextures(1, &m_mirrorSprite.textureID);
-	glDeleteVertexArrays(1, &m_mirrorSprite.vaID);
 }
 
 std::uint32_t MirrorFactory::create(float posX, float posY) {

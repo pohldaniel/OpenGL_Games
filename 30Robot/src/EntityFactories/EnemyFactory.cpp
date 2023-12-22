@@ -13,17 +13,14 @@ EnemyFactory::EnemyFactory(entt::DefaultRegistry& registry, Level& level): Facto
 	m_robotSprite = m_spriteFactory.createAtlas("res/images/spritesheets/enemy-small-robot-77x117.png", glm::vec2(TILE_SIZE * 0.66, TILE_SIZE), glm::vec2(77, 117), &Globals::shapeManager.get("_quad"), TILE_SIZE * 0.66, TILE_SIZE);
 	m_droneSprite = m_spriteFactory.createSingle("res/images/textures/drone-no-eye.png", glm::vec2(13.0f), &Globals::shapeManager.get("_quad"), 13.0f, 13.0f);
 	m_droneEyeSprite = m_spriteFactory.createSingle("res/images/textures/drone-eye.png", glm::vec2(13.0f), &Globals::shapeManager.get("_quad"), 13.0f, 13.0f);
-	m_healthBackground = m_primitiveFactory.createRect(glm::vec4(0, 0, 0, 1), &Globals::shapeManager.get("quad"));
-	m_healthBar = m_primitiveFactory.createRect(glm::vec4(0, 1, 0, 1), &Globals::shapeManager.get("quad"));
+	m_healthBackground = m_primitiveFactory.createRect(glm::vec4(0, 0, 0, 1), &Globals::shapeManager.get("_quad"), 6.0f, 1.0f, 0.5f, 0.5f);
+	m_healthBar = m_primitiveFactory.createRect(glm::vec4(0, 1, 0, 1), &Globals::shapeManager.get("_quad"), 6.0f, 1.0f, 0.5f, 0.5f);
 }
 
 EnemyFactory::~EnemyFactory() {
 	glDeleteTextures(1, &m_droneSprite.textureID);
-	glDeleteVertexArrays(1, &m_droneSprite.vaID);
 	glDeleteTextures(1, &m_droneEyeSprite.textureID);
-	glDeleteVertexArrays(1, &m_droneEyeSprite.vaID);
 	glDeleteTextures(1, &m_robotSprite.textureID);
-	glDeleteVertexArrays(1, &m_robotSprite.vaID);
 }
 
 void EnemyFactory::createRobot() {

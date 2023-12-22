@@ -12,7 +12,6 @@ ProjectileFactory::ProjectileFactory(entt::DefaultRegistry& registry) : Factory(
 
 ProjectileFactory::~ProjectileFactory() {
 	glDeleteTextures(1, &m_projectileSprite.textureID);
-	glDeleteVertexArrays(1, &m_projectileSprite.vaID);
 }
 
 unsigned int ProjectileFactory::create(glm::vec2 initialPos, unsigned int targetId) {

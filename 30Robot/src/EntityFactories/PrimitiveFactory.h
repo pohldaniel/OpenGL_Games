@@ -21,7 +21,7 @@ class PrimitiveFactory {
 public:
 
     PrimitiveFactory();
-    cmpt::Primitive createRect(glm::vec4 color, Shape* shape = nullptr);
+    cmpt::Primitive createRect(glm::vec4 color, Shape* shape = nullptr, float scaleX = 1.0f, float scaleY = 1.0f, float pivotX = 0.0f, float pivotY = 0.0f);
 
 private:
     Shader m_shaderBasic;

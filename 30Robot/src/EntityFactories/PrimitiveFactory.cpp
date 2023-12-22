@@ -7,6 +7,6 @@ PrimitiveFactory::PrimitiveFactory() : m_shaderBasic("res/shaders/basic/basic.ve
 
 }
 
-cmpt::Primitive PrimitiveFactory::createRect(glm::vec4 color, Shape* shape) {
-    return cmpt::Primitive(color, &m_shaderBasic, shape);
+cmpt::Primitive PrimitiveFactory::createRect(glm::vec4 color, Shape* shape, float scaleX, float scaleY, float pivotX, float pivotY) {
+    return cmpt::Primitive(color, &m_shaderBasic, shape, scaleX, scaleY, pivotX, pivotY);
 }

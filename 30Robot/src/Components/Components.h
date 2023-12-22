@@ -16,12 +16,16 @@ class IndexBuffer;
 namespace cmpt {
 
 	struct Primitive {
-		Primitive(glm::vec4 color = glm::vec4(0), Shader* shader = nullptr, Shape* shape = nullptr)
-			: color(color), shader(shader), shape(shape) {}
+		Primitive(glm::vec4 color = glm::vec4(0), Shader* shader = nullptr, Shape* shape = nullptr, float scaleX = 1.0f, float scaleY = 1.0f, float pivotX = 0.0f, float pivotY = 0.0f)
+			: color(color), shader(shader), shape(shape), scaleX(scaleX), scaleY(scaleY), pivotX(pivotX), pivotY(pivotY) {}
 
 		glm::vec4 color;
 		Shader* shader;
-		Shape* shape = nullptr;
+		Shape* shape;
+		float scaleX;
+		float scaleY;
+		float pivotX;
+		float pivotY;
 	};
 
 	struct Age {
@@ -206,17 +210,18 @@ namespace cmpt {
 	};
 
 	struct Sprite {
-		Sprite(float scaleX = 1.0f, float scaleY = 1.0f, Shape* shape = nullptr, unsigned int textureID = 0, unsigned int vaID = 0, unsigned int target = 0, Shader* shader = nullptr, IndexBuffer* ib = nullptr)
-			: textureID(textureID), vaID(vaID), target(target), shader(shader), ib(ib), shape(shape), scaleX(scaleX), scaleY(scaleY)  {}
+		Sprite(unsigned int textureID = 0, unsigned int target = 0, Shader* shader = nullptr, Shape* shape = nullptr, float scaleX = 1.0f, float scaleY = 1.0f, float pivotX = 0.0f, float pivotY = 0.0f)
+			: textureID(textureID), target(target), shader(shader), shape(shape), scaleX(scaleX), scaleY(scaleY), pivotX(pivotX), pivotY(pivotY) {}
 
 		unsigned int textureID;
-		unsigned int vaID;
 		unsigned int target;
 		Shader* shader;
-		IndexBuffer* ib;
+
 		Shape* shape = nullptr;
 		float scaleX = 1.0f;
 		float scaleY = 1.0f;
+		float pivotX;
+		float pivotY;
 	};
 
 	struct SpriteAnimation {

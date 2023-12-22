@@ -26,9 +26,8 @@ private:
 
 	void renderSprite(std::uint32_t entity, cmpt::Sprite & sprite) const;
 	void renderSpritesheet(std::uint32_t entity, cmpt::Sprite& sprite, cmpt::SpriteAnimation& animation) const;
-	glm::mat4 getModelMatrix(unsigned int entityId) const;
-	glm::mat4 getModelMatrix(cmpt::Transform& transform) const;
-	glm::mat4 getModelMatrix(unsigned int entityId, float scaleX, float scaleY) const;
+	glm::mat4 getModelMatrix(cmpt::Transform& transform, float pivotX, float pivotY, float scaleX, float scaleY) const;
+	glm::mat4 getModelMatrix(unsigned int entityId, float pivotX, float pivotY, float scaleX, float scaleY) const;
 
 	glm::mat4 getViewMatrix() const;
 	void initCursors();

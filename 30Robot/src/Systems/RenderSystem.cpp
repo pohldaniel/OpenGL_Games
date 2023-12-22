@@ -56,7 +56,7 @@ void RenderSystem::renderSpritesheet(std::uint32_t entity, cmpt::Sprite& sprite,
 
 		sprite.shader->use();
 
-		glm::mat4 mvp = m_projection * this->getViewMatrix() * this->getModelMatrix(entity, sprite.scaleX, sprite.scaleY);
+		glm::mat4 mvp = m_projection * this->getViewMatrix() * this->getModelMatrix(entity, 0.0f, 0.0f, sprite.scaleX, sprite.scaleY);
 		sprite.shader->loadMatrix("u_mvp", (const float*)glm::value_ptr(mvp));
 		sprite.shader->loadInt("u_activeTile", animation.activeTile);
 		if (m_registry.valid(entity)) {
@@ -100,7 +100,7 @@ void RenderSystem::renderSprite(std::uint32_t entity, cmpt::Sprite & sprite) con
 		IHelper& helper = entt::ServiceLocator<IHelper>::ref();
 
 		sprite.shader->use();
-		glm::mat4 mvp = m_projection * this->getViewMatrix() * this->getModelMatrix(entity, sprite.scaleX, sprite.scaleY);
+		glm::mat4 mvp = m_projection * this->getViewMatrix() * this->getModelMatrix(entity, 0.0f, 0.0f, sprite.scaleX, sprite.scaleY);
 		sprite.shader->loadMatrix("u_mvp", (const float*)glm::value_ptr(mvp));
 		if (m_registry.valid(entity)) {
 			sprite.shader->loadVector("tintColour", (const float*)glm::value_ptr(helper.getColour(entity)));
@@ -150,7 +150,7 @@ void RenderSystem::update(float deltatime) {
     m_registry.view<cmpt::Transform, cmpt::Primitive>().each([this](auto entity, cmpt::Transform& transform, cmpt::Primitive& primitive) {
 
 		primitive.shader->use();
-		glm::mat4 mvp = this->m_projection * this->getViewMatrix() * this->getModelMatrix(entity);
+		glm::mat4 mvp = this->m_projection * this->getViewMatrix() * this->getModelMatrix(entity, primitive.pivotX, primitive.pivotY, primitive.scaleX, primitive.scaleY);
 		primitive.shader->loadMatrix("u_mvp", (const float*)glm::value_ptr(mvp));
 		primitive.shader->loadVector("u_color", primitive.color.r, primitive.color.g, primitive.color.b, primitive.color.a);
 		if (m_registry.valid(entity) && m_registry.has<cmpt::TintColour>(entity)) {
@@ -239,7 +239,7 @@ void RenderSystem::update(float deltatime) {
 				healthTransform.position += healthbar.relativePos;
 
 				// Updates
-				glm::mat4 mvp = this->m_projection * this->getViewMatrix() * this->getModelMatrix(healthTransform);
+				glm::mat4 mvp = this->m_projection * this->getViewMatrix() * this->getModelMatrix(healthTransform, healthbar.background.pivotX, healthbar.background.pivotY, healthbar.background.scaleX, healthbar.background.scaleY);
 				healthbar.background.shader->loadMatrix("u_mvp", (const float*)glm::value_ptr(mvp));
 				healthbar.background.shader->loadVector("u_color", healthbar.background.color.r, healthbar.background.color.g, healthbar.background.color.b, healthbar.background.color.a);
 					
@@ -258,7 +258,7 @@ void RenderSystem::update(float deltatime) {
 				healthTransform.scale = glm::vec2(scale, 1.0f);
 
 				// Updates
-				glm::mat4 mvp = this->m_projection * this->getViewMatrix() * this->getModelMatrix(healthTransform);
+				glm::mat4 mvp = this->m_projection * this->getViewMatrix() * this->getModelMatrix(healthTransform, healthbar.background.pivotX, healthbar.background.pivotY, healthbar.background.scaleX, healthbar.background.scaleY);
 				healthbar.bar.shader->loadMatrix("u_mvp", (const float*)glm::value_ptr(mvp));
 				if (scale > 0.4f) {
 						healthbar.bar.shader->loadVector("u_color", healthbar.bar.color.r, healthbar.bar.color.g, healthbar.bar.color.b, healthbar.bar.color.a);
@@ -281,19 +281,7 @@ void RenderSystem::update(float deltatime) {
 	});
 }
 
-glm::mat4 RenderSystem::getModelMatrix(unsigned int entityId) const {
-	IHelper& helper = entt::ServiceLocator<IHelper>::ref();
-	glm::mat4 model(1.0f);
-	cmpt::Transform& transform = m_registry.get<cmpt::Transform>(entityId);
-	model = glm::translate(model, glm::vec3(helper.getPosition(entityId), transform.zIndex));
-	if (!m_registry.has<entityTag::Tower>(entityId) && !m_registry.has<entityTag::Mirror>(entityId)) {
-		model = glm::rotate(model, transform.rotation, glm::vec3(0, 0, 1));
-	}
-	model = glm::scale(model, glm::vec3(helper.getScale(entityId), 0.0f));
-    return model;
-}
-
-glm::mat4 RenderSystem::getModelMatrix(unsigned int entityId, float scaleX, float scaleY) const {
+glm::mat4 RenderSystem::getModelMatrix(unsigned int entityId, float pivotX, float pivotY, float scaleX, float scaleY) const {
 	IHelper& helper = entt::ServiceLocator<IHelper>::ref();
 	glm::mat4 model(1.0f);
 	cmpt::Transform& transform = m_registry.get<cmpt::Transform>(entityId);
@@ -303,14 +291,17 @@ glm::mat4 RenderSystem::getModelMatrix(unsigned int entityId, float scaleX, floa
 	}
 	model = glm::scale(model, glm::vec3(helper.getScale(entityId), 0.0f));
 	model = glm::scale(model, glm::vec3(scaleX, scaleY, 1.0f));
+	model = glm::translate(model, glm::vec3(pivotX, pivotY, 1.0f));
 	return model;
 }
 
-glm::mat4 RenderSystem::getModelMatrix(cmpt::Transform& transform) const {
+glm::mat4 RenderSystem::getModelMatrix(cmpt::Transform& transform, float pivotX, float pivotY, float scaleX, float scaleY) const {
 	glm::mat4 model(1.0f);
 	model = glm::translate(model, glm::vec3(transform.position, transform.zIndex));
 	model = glm::rotate(model, transform.rotation, glm::vec3(0, 0, 1));
 	model = glm::scale(model, glm::vec3(transform.scale, 0.0f));
+	model = glm::scale(model, glm::vec3(scaleX, scaleY, 1.0f));
+	model = glm::translate(model, glm::vec3(pivotX, pivotY, 1.0f));
 	return model;
 }
 
