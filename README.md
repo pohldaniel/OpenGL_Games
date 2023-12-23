@@ -50,3 +50,5 @@ The project 24Ragdoll contains files from https://github.com/urho3d/Urho3D and h
 The project 25FallingSand is based on https://github.com/PieKing1215/FallingSandSurvival
 
 The project 26SDF is based on https://github.com/diharaw/sdf-baking. I also had to modify my TdrDelay described here https://helpx.adobe.com/substance-3d-painter/technical-support/technical-issues/gpu-issues/gpu-drivers-crash-with-long-computations-tdr-crash.html According to the long SDF computation time.
+
+The project 27JellyCar is based on https://github.com/DrakonPL/JellyCar. 
