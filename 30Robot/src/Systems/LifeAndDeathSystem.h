@@ -5,7 +5,7 @@
 #include <EntityFactories/VfxFactory.h>
 #include <Event/EventEmitter.h>
 
-#include "progression.hpp"
+#include "Progression.h"
 
 class LifeAndDeathSystem : public ISystem {
 public:

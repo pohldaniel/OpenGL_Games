@@ -35,7 +35,7 @@ std::uint32_t TileFactory::createPath(glm::vec2 position) {
 	std::uint32_t myEntity = create(position);
 	m_registry.assign<cmpt::Sprite>(myEntity, m_path);
 	m_registry.assign<renderTag::Atlas>(myEntity);
-	m_registry.assign<cmpt::SpriteAnimation>(myEntity, 0, 0, 0);
+	m_registry.assign<cmpt::SpriteAnimation>(myEntity, 0u, 0u, 0.0f);
 	m_registry.assign<tileTag::Path>(myEntity);
 	return myEntity;
 }

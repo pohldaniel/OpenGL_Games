@@ -4,9 +4,9 @@
 #include <NsGui/Grid.h>
 #include <NsApp/DelegateCommand.h>
 #include <NsApp/NotifyPropertyChangedBase.h>
-
 #include <Event/EventEmitter.h>
-#include "progression.hpp"
+
+#include "Progression.h"
 
 class LevelHudBindings : public NoesisApp::NotifyPropertyChangedBase {
 

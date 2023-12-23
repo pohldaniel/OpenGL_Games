@@ -35,7 +35,7 @@ std::uint32_t TowerFactory::createLaser(float posX, float posY) {
 	m_registry.assign<cmpt::Sprite>(myEntity, m_laserTowerSprite);
 	m_registry.assign<renderTag::Atlas>(myEntity);
 	m_registry.assign<cmpt::ShootLaser>(myEntity);
-	m_registry.assign<cmpt::SpriteAnimation>(myEntity, 0, 0, 0);
+	m_registry.assign<cmpt::SpriteAnimation>(myEntity, 0u, 0u, 0.0f);
 	m_registry.assign<cmpt::ConstrainedRotation>(myEntity, 4);
 	m_registry.assign<towerTag::LaserTower>(myEntity);
 	return myEntity;

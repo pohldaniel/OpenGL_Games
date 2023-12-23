@@ -186,7 +186,7 @@
     <ClCompile Include="src\LoadingManager.cpp" />
     <ClCompile Include="src\Maths.cpp" />
     <ClCompile Include="src\MousePickerFBO.cpp" />
-    <ClCompile Include="src\progression.cpp" />
+    <ClCompile Include="src\Progression.cpp" />
     <ClCompile Include="src\Renderer.cpp" />
     <ClCompile Include="src\Services\AudioService.cpp" />
     <ClCompile Include="src\Services\DebugDrawService.cpp" />
@@ -369,7 +369,7 @@
     <ClInclude Include="src\LoadingManager.h" />
     <ClInclude Include="src\Maths.h" />
     <ClInclude Include="src\MousePickerFBO.h" />
-    <ClInclude Include="src\progression.hpp" />
+    <ClInclude Include="src\Progression.h" />
     <ClInclude Include="src\RandomColor.h" />
     <ClInclude Include="src\Renderer.h" />
     <ClInclude Include="src\Services\AudioService.h" />

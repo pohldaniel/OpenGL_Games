@@ -1,6 +1,7 @@
 #include <States/TitleScreenState.h>
 #include <States/LevelIntroState.h>
 #include <GUI/TitleScreen.h>
+#include <Level/Level.h>
 
 #include "Application.h"
 #include "Globals.h"
@@ -8,6 +9,7 @@
 
 TitleScreenConnections::TitleScreenConnections() {
 	Application::Emitter.on<evnt::ChangeGameState>([this](const evnt::ChangeGameState& event, EventEmitter& emitter) {
+		if(event.levelNumber != 0) Application::s_Level->setLevel(event.levelNumber);
 		dynamic_cast<EventListener*>(Application::GetMachine()->getStates().top())->OnStateChange(event.state);
 	});
 

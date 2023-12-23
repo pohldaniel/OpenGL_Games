@@ -63,7 +63,7 @@ void RenderSystem::renderSpritesheet(std::uint32_t entity, cmpt::Sprite& sprite,
 			sprite.shader->loadVector("tintColour", (const float*)glm::value_ptr(helper.getColour(entity)));
 			sprite.shader->loadFloat("u_alpha", helper.getAlpha(entity));
 			if (m_registry.has<cmpt::AnimationPixelsVanish>(entity) || (m_registry.has<cmpt::AttachedTo>(entity) && m_registry.has<cmpt::AnimationPixelsVanish>(m_registry.get<cmpt::AttachedTo>(entity).mainEntity))) {
-				cmpt::Animated animated = cmpt::Animated(0);
+				cmpt::Animated animated = cmpt::Animated(0.0f);
 				bool bForward;
 				if (m_registry.has<cmpt::AnimationPixelsVanish>(entity)) {
 					animated = m_registry.get<cmpt::Animated>(entity);
@@ -106,7 +106,7 @@ void RenderSystem::renderSprite(std::uint32_t entity, cmpt::Sprite & sprite) con
 			sprite.shader->loadVector("tintColour", (const float*)glm::value_ptr(helper.getColour(entity)));
 			sprite.shader->loadFloat("u_alpha", helper.getAlpha(entity));
 			if (m_registry.has<cmpt::AnimationPixelsVanish>(entity) || (m_registry.has<cmpt::AttachedTo>(entity) && m_registry.has<cmpt::AnimationPixelsVanish>(m_registry.get<cmpt::AttachedTo>(entity).mainEntity))) {
-				cmpt::Animated animated = cmpt::Animated(0);
+				cmpt::Animated animated = cmpt::Animated(0.0f);
 				bool bForward;
 				if (m_registry.has<cmpt::AnimationPixelsVanish>(entity)) {
 					animated = m_registry.get<cmpt::Animated>(entity);

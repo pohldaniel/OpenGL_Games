@@ -7,7 +7,7 @@
 #include "Constants.h"
 
 EnemyFactory::EnemyFactory(entt::DefaultRegistry& registry, Level& level): Factory(registry), m_level(level){
-	m_robotSprite = m_spriteFactory.createAtlas("res/images/spritesheets/enemy-small-robot-77x117.png", glm::vec2(77, 117), TILE_SIZE * 0.66, TILE_SIZE);
+	m_robotSprite = m_spriteFactory.createAtlas("res/images/spritesheets/enemy-small-robot-77x117.png", glm::vec2(77, 117), TILE_SIZE * 0.66f, TILE_SIZE);
 	m_droneSprite = m_spriteFactory.createSingle("res/images/textures/drone-no-eye.png", 13.0f, 13.0f);
 	m_droneEyeSprite = m_spriteFactory.createSingle("res/images/textures/drone-eye.png", 13.0f, 13.0f);
 	m_healthBackground = m_primitiveFactory.createRect(glm::vec4(0, 0, 0, 1), 6.0f, 1.0f, 0.5f, 0.5f);
@@ -27,7 +27,7 @@ void EnemyFactory::createRobot() {
 	m_registry.assign<cmpt::Health>(entity, ENEMY_DRONE_HEALTH + randomService.random(-ENEMY_HEALTH_RANDOM_VARIATION, ENEMY_HEALTH_RANDOM_VARIATION));
 	m_registry.assign<cmpt::Sprite>(entity, m_robotSprite);
 	m_registry.assign<renderTag::Atlas>(entity);
-	m_registry.assign<cmpt::SpriteAnimation>(entity, 0, 11, 0.5);
+	m_registry.assign<cmpt::SpriteAnimation>(entity, 0u, 11u, 0.5f);
 }
 
 void EnemyFactory::createKamikaze() {
@@ -44,7 +44,7 @@ void EnemyFactory::createKamikaze() {
 	m_registry.assign<cmpt::AttachedTo>(eye, entity);
 	m_registry.assign<cmpt::Sprite>(eye, m_droneEyeSprite);
 	m_registry.assign<renderTag::Single>(eye);
-	m_registry.assign<cmpt::MoveTowardsMouse>(eye, 0.8);
+	m_registry.assign<cmpt::MoveTowardsMouse>(eye, 0.8f);
 	m_registry.assign<renderOrderTag::o_Enemy2>(eye);
 	//m_registry.assign<cmpt::Wiggle>(eye,0.7);
 }
@@ -63,11 +63,11 @@ std::uint32_t EnemyFactory::create() {
 	m_registry.assign<cmpt::Pathfinding>(myEntity, &m_level, startNode);
 	m_registry.assign<cmpt::HealthBar>(myEntity, glm::vec2(-3.0f, -7.0f), m_healthBackground, m_healthBar);
 	m_registry.assign<cmpt::Hitbox>(myEntity, 5.0f);
-	m_registry.assign<cmpt::Wiggle>(myEntity, 1);
+	m_registry.assign<cmpt::Wiggle>(myEntity, 1.0f);
 	m_registry.assign<cmpt::Velocity>(myEntity, ENEMY_VELOCITY);
 	m_registry.assign<cmpt::Shake>(myEntity);
 	//m_registry.assign<cmpt::TintColour>(myEntity, glm::vec4(randomService.random(), randomService.random(), randomService.random(), 0.5));
-	m_registry.assign<cmpt::Animated>(myEntity, 2, false);
+	m_registry.assign<cmpt::Animated>(myEntity, 2.0f, false);
 	m_registry.assign<cmpt::AnimationScale>(myEntity, true);
 	m_registry.assign<cmpt::AnimationDark>(myEntity, true);
 	m_registry.assign<cmpt::AnimationAlpha>(myEntity, true);

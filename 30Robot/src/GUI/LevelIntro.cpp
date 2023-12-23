@@ -73,11 +73,11 @@ void LevelIntroGrid::OnInitialized(BaseComponent*, const Noesis::EventArgs&) {
 }
 
 void LevelIntroGrid::onStartLevel(Noesis::BaseComponent* sender, const Noesis::RoutedEventArgs& args) {
-	Application::Emitter.publish<evnt::ChangeGameState>(States::LEVEL);
+	Application::Emitter.publish<evnt::ChangeGameState>(States::LEVEL, 0);
 }
 
 void LevelIntroGrid::onExit(Noesis::BaseComponent* sender, const Noesis::RoutedEventArgs& args) {
-	Application::Emitter.publish<evnt::ChangeGameState>(States::TITLESCREEN);
+	Application::Emitter.publish<evnt::ChangeGameState>(States::TITLESCREEN, 1);
 }
 
 

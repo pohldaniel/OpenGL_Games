@@ -22,11 +22,11 @@ bool GameOverGrid::ConnectEvent(Noesis::BaseComponent* source, const char* event
 }
 
 void GameOverGrid::onExit(Noesis::BaseComponent* sender, const Noesis::RoutedEventArgs& args) {
-	m_emitter.publish<evnt::ChangeGameState>(States::TITLESCREEN);
+	m_emitter.publish<evnt::ChangeGameState>(States::TITLESCREEN, 1);
 }
 
 void GameOverGrid::onRestart(Noesis::BaseComponent* sender, const Noesis::RoutedEventArgs& args) {
-	m_emitter.publish<evnt::ChangeGameState>(States::LEVELINTRO);
+	m_emitter.publish<evnt::ChangeGameState>(States::LEVELINTRO, m_progression.getLevelNumber());
 }
 
 GameOver GameOver::s_instance;

@@ -129,15 +129,15 @@ void Level::setLevel(unsigned int number) {
 			else if (line.find("build-laser") != std::string::npos) {
 				 glm::vec3 position = getVec3FromString(line);
 				 //Get tile
-				 std::uint32_t tile = getTile(position.x, position.y);
-				 glm::vec2 tilePos = gridToProj(position.x, position.y);
+				 std::uint32_t tile = getTile((unsigned int)position.x, (unsigned int)position.y);
+				 glm::vec2 tilePos = gridToProj((unsigned int)position.x, (unsigned int)position.y);
 				 //Create tower
 				 int tower = m_towerFactory.createLaser(tilePos.x, tilePos.y);
 				 m_registry.get<cmpt::ShootLaser>(tower).isActiv = true;
 				 //Set rotation
 				 cmpt::ConstrainedRotation& rot = m_registry.get<cmpt::ConstrainedRotation>(tower);
 				 m_registry.get<cmpt::Transform>(tower).rotation = rot.angleStep*position.z ;
-				 rot.angleIndex = position.z;
+				 rot.angleIndex = (int)position.z;
 				 //Choose right sprite orientation
 				 cmpt::SpriteAnimation& spriteAnim = m_registry.get<cmpt::SpriteAnimation>(tower);
 				 spriteAnim.activeTile = rot.angleIndex;
@@ -150,8 +150,8 @@ void Level::setLevel(unsigned int number) {
 			else if (line.find("build-slow") != std::string::npos) {
 				glm::vec3 position = getVec3FromString(line);
 				//Get tile
-				std::uint32_t tile = getTile(position.x, position.y);
-				glm::vec2 tilePos = gridToProj(position.x, position.y);
+				std::uint32_t tile = getTile((unsigned int)position.x, (unsigned int)position.y);
+				glm::vec2 tilePos = gridToProj((unsigned int)position.x, (unsigned int)position.y);
 				//Create tower
 				int tower = m_towerFactory.createSlow(tilePos.x, tilePos.y);
 				//Put tower on tile
@@ -161,14 +161,14 @@ void Level::setLevel(unsigned int number) {
 			else if (line.find("build-mirror") != std::string::npos) {
 				glm::vec3 position = getVec3FromString(line);
 				//Get tile
-				std::uint32_t tile = getTile(position.x, position.y);
-				glm::vec2 tilePos = gridToProj(position.x, position.y);
+				std::uint32_t tile = getTile((unsigned int)position.x, (unsigned int)position.y);
+				glm::vec2 tilePos = gridToProj((unsigned int)position.x, (unsigned int)position.y);
 				//Create mirror
 				int mirror = m_mirrorFactory.create(tilePos.x, tilePos.y);
 				//Set rotation
 				cmpt::ConstrainedRotation& rot = m_registry.get<cmpt::ConstrainedRotation>(mirror);
 				m_registry.get<cmpt::Transform>(mirror).rotation = rot.angleStep*position.z;
-				rot.angleIndex = position.z;
+				rot.angleIndex = (int)position.z;
 				//Choose right sprite orientation
 				cmpt::SpriteAnimation& spriteAnim = m_registry.get<cmpt::SpriteAnimation>(mirror);
 				spriteAnim.activeTile = rot.angleIndex;
@@ -212,12 +212,12 @@ std::uint32_t Level::getTile(unsigned int x, unsigned int y) const {
 
 std::uint32_t Level::getTileFromProjCoord(float x, float y) const {
 	glm::vec2 tilePosition = projToGrid(x, y);
-	return getTile(tilePosition.x, tilePosition.y);
+	return getTile((unsigned int)tilePosition.x, (unsigned int)tilePosition.y);
 }
 
 std::uint32_t Level::getEntityOnTileFromProjCoord(float x, float y) const {
 	glm::vec2 tilePosition = projToGrid(x, y);
-	unsigned int tileId = getTile(tilePosition.x, tilePosition.y);
+	unsigned int tileId = getTile((unsigned int)tilePosition.x, (unsigned int)tilePosition.y);
 	if (m_registry.valid(tileId)) {
 		if (m_registry.has<cmpt::EntityOnTile>(tileId)) {
 			return m_registry.get<cmpt::EntityOnTile>(tileId).entityId;

@@ -1,3 +1,4 @@
+#include <iostream>
 #include <NsGui/Button.h>
 #include <Event/EventListener.h>
 
@@ -47,11 +48,11 @@ bool LevelExitGrid::ConnectEvent(Noesis::BaseComponent* source, const char* even
 }
 
 void LevelExitGrid::onExit(Noesis::BaseComponent* sender, const Noesis::RoutedEventArgs& args) {
-	m_emitter.publish<evnt::ChangeGameState>(States::TITLESCREEN);
+	m_emitter.publish<evnt::ChangeGameState>(States::TITLESCREEN, 1);
 }
 
 void LevelExitGrid::onNextLevel(Noesis::BaseComponent* sender, const Noesis::RoutedEventArgs& args) {
-	m_emitter.publish<evnt::ChangeGameState>(States::LEVELINTRO);
+	m_emitter.publish<evnt::ChangeGameState>(States::LEVELINTRO, m_progression.getLevelNumber() + 1);
 }
 
 LevelExit LevelExit::s_instance;

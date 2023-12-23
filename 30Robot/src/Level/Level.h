@@ -10,7 +10,7 @@
 #include <EntityFactories/TowerFactory.h>
 #include <EntityFactories/MirrorFactory.h>
 
-#include "progression.hpp"
+#include "Progression.h"
 #include "Graph.h"
 
 class Level {

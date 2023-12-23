@@ -1,6 +1,5 @@
 #include <States/TitleScreenState.h>
-#include <States/Default.h>
-#include <States/LevelState.h>
+#include <States/LevelIntroState.h>
 #include <GUI/LevelExit.h>
 
 #include "LevelExitState.h"
@@ -78,5 +77,5 @@ void LevelExitState::OnKeyUp(Event::KeyboardEvent& event) {
 
 void LevelExitState::OnStateChange(States states) {
 	m_isRunning = false;
-	m_machine.addStateAtBottom(states == States::LEVEL ? static_cast<State*>(new LevelState(m_machine)) : static_cast<State*>(new TitleScreenState(m_machine)));
+	m_machine.addStateAtBottom(states == States::LEVELINTRO ? static_cast<State*>(new LevelIntroState(m_machine)) : static_cast<State*>(new TitleScreenState(m_machine)));
 }

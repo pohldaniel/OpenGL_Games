@@ -76,8 +76,6 @@ LifeAndDeathSystem* Application::s_LifeAndDeathSystem;
 Progression Application::s_Progression = Progression(Emitter);
 Level* Application::s_Level;
 
-
-
 Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fdt) {
 	Width = WIDTH;
 	Height = HEIGHT;
@@ -149,9 +147,6 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	s_WaveSystem = new WaveSystem(Application::Registry, Application::Emitter, s_Progression, *s_Level);
 	s_AttackSystem = new AttackSystem(Application::Registry, Application::Emitter);
 	s_LifeAndDeathSystem = new LifeAndDeathSystem(Application::Registry, Application::Emitter, s_Progression);
-
-	//Application::s_RenderSystem->update(m_dt);
-	
 
 	TitleScreen::Get().init(Application::Emitter, Application::s_Progression);
 	LevelIntro::Get().init(Application::Emitter, Application::s_Progression);
@@ -442,7 +437,8 @@ void Application::initNoesisGUI() {
 
 	};
 
-	Noesis::GUI::Init(errorHandler, logHandler, nullptr);
+	//Noesis::GUI::Init(errorHandler, logHandler, nullptr);
+	Noesis::GUI::Init(errorHandler, nullptr, nullptr);
 	Noesis::GUI::SetXamlProvider(Noesis::MakePtr<NoesisApp::LocalXamlProvider>("./res/gui"));
 	Noesis::GUI::SetTextureProvider(Noesis::MakePtr<NoesisApp::LocalTextureProvider>("./res/images"));
 	Noesis::GUI::SetFontProvider(Noesis::MakePtr<NoesisApp::LocalFontProvider>("./res/fonts"));

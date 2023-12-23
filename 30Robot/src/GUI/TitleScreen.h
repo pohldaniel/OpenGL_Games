@@ -9,7 +9,7 @@
 #include <Event/EventEmitter.h>
 #include <Event/EventListener.h>
 
-#include "progression.hpp"
+#include "Progression.h"
 
 class TitleScreenGrid: public Noesis::Grid {
 

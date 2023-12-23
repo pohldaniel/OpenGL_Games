@@ -51,7 +51,7 @@ LevelConnections::LevelConnections(LevelState& level) :
 	connection2(Application::Emitter.on<evnt::DeleteEntity>([&level](const evnt::DeleteEntity & event, EventEmitter & emitter) {
 		if (Application::Registry.valid(event.entityId)) {
 			glm::vec2 position = Application::Registry.get<cmpt::Transform>(event.entityId).position;
-			Application::Registry.assign<cmpt::Animated>(event.entityId, 1, true);
+			Application::Registry.assign<cmpt::Animated>(event.entityId, 1.0f, true);
 			Application::Registry.assign<cmpt::AnimationAlpha>(event.entityId, false);
 
 			if (Application::Registry.has<entityTag::Mirror>(event.entityId)) {
@@ -107,7 +107,7 @@ LevelConnections::LevelConnections(LevelState& level) :
 		}
 	})), 
 	connection6(Application::Emitter.on<evnt::VictoryDelayEnds>([](const evnt::VictoryDelayEnds & event, EventEmitter & emitter) {
-		Application::Emitter.publish<evnt::ChangeGameState>(States::LEVELEXIT);
+		Application::Emitter.publish<evnt::ChangeGameState>(States::LEVELEXIT, 0);
 	})), 
 	connection7(Application::Emitter.on<evnt::EnemyReachedEnd>([this](const evnt::EnemyReachedEnd & event, EventEmitter & emitter) {
 		if (waveDone) {
@@ -126,7 +126,7 @@ LevelConnections::LevelConnections(LevelState& level) :
 	}})), 
 	connection8(Application::Emitter.on<evnt::Loose>([this](const evnt::Loose & event, EventEmitter & emitter) {
 		// TODO play an outro
-		Application::Emitter.publish<evnt::ChangeGameState>(States::GAMEOVER);
+		Application::Emitter.publish<evnt::ChangeGameState>(States::GAMEOVER, 0);
 	})), 
 	waveDone(false),
 	lastSelectedEntity(0),
@@ -150,7 +150,6 @@ m_debugDraw(false){
 	m_ui->GetRenderer()->Init(Application::NoesisDevice);
 	m_ui->SetSize(Application::Width, Application::Height);
 
-	Application::s_Level->setLevel(1);
 	m_towerFactory.init();
 	m_mirrorFactory.init();
 }

@@ -3,19 +3,19 @@
 #include <glm/glm.hpp>
 #include <States/StateMachine.h>
 
-enum class WaveState {
+enum WaveState {
 	NOT_STARTED,
 	PENDING,
 	DURING,
 	DONE
 };
 
-enum class EnemyType {
+enum EnemyType {
 	ROBOT,
 	KAMIKAZE
 };
 
-enum class ConstructibleType {
+enum ConstructibleType {
 	TOWER_LASER,
 	TOWER_SLOW,
 	MIRROR_BASIC
@@ -37,8 +37,9 @@ struct EventListener{
 namespace evnt {
 
 	struct ChangeGameState {
-		ChangeGameState(States state) : state(state) {}
+		ChangeGameState(States state, int levelNumber) : state(state), levelNumber(levelNumber){}
 		States state;
+		int levelNumber;
 	};
 
 	struct ApplicationExit {

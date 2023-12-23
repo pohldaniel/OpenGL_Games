@@ -4,9 +4,9 @@
 #include <NsGui/IntegrationAPI.h>
 #include <NsApp/DelegateCommand.h>
 #include <glm/glm.hpp>
+#include <Event/EventEmitter.h>
 
-#include "Event/EventEmitter.h"
-#include "progression.hpp"
+#include "Progression.h"
 
 class EndScreenGrid : public Noesis::Grid {
 public:

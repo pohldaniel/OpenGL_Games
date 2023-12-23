@@ -26,7 +26,7 @@ void VFXFactory::createExplosion(glm::vec2 pos, ShaderType type = ShaderType::EN
 	}
 	m_registry.assign<renderTag::Atlas>(myEntity);
 	m_registry.assign<renderTag::OneTimeAtlas>(myEntity);
-	m_registry.assign<cmpt::SpriteAnimation>(myEntity, 0, 99, 2);
+	m_registry.assign<cmpt::SpriteAnimation>(myEntity, 0u, 99u, 2.0f);
 	m_registry.assign<cmpt::Transform>(myEntity, pos, Z_INDEX_VISUAL_EFFECTS);
 	m_registry.assign<renderOrderTag::o_VFX>(myEntity);
 }

@@ -6,7 +6,7 @@
 #include <Event/EventEmitter.h>
 #include <Event/EventListener.h>
 
-#include "progression.hpp"
+#include "Progression.h"
 
 class WaveSystem : public ISystem {
 public:

@@ -17,7 +17,7 @@
 #include <Systems/WaveSystem.h>
 #include <Systems/LifeAndDeathSystem.h>
 
-#include "progression.hpp"
+#include "Progression.h"
 
 class Level;
 
