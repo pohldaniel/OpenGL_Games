@@ -37,7 +37,7 @@ The project also contains some code from https://prideout.net/blog/old/blog/inde
 
 The project 12Thikness is based on https://prideout.net/blog/old/blog/index.html@p=51.html
 
-The project 13DepthPeeling is a port of https://developer.download.nvidia.com/SDK/10.5/opengl/screenshots/samples/dual_depth_peeling.html using modern OpenGl.
+The project 13DepthPeeling is a port of https://developer.download.nvidia.com/SDK/10.5/opengl/screenshots/samples/dual_depth_peeling.html using modern OpenGl. See also https://developer.download.nvidia.com/SDK/10/opengl/samples.html
 
 The project 21Lugaru is heavily based on https://gitlab.com/osslugaru/lugaru.
 
@@ -52,3 +52,9 @@ The project 25FallingSand is based on https://github.com/PieKing1215/FallingSand
 The project 26SDF is based on https://github.com/diharaw/sdf-baking. I also had to modify my TdrDelay described here https://helpx.adobe.com/substance-3d-painter/technical-support/technical-issues/gpu-issues/gpu-drivers-crash-with-long-computations-tdr-crash.html According to the long SDF computation time.
 
 The project 27JellyCar is based on https://github.com/DrakonPL/JellyCar. 
+
+The project 28TowerDefense is from https://www.funneractic.com/
+
+The project 30Robot is from https://github.com/guillaume-haerinck/imac-tower-defense. The needed SDK's are from https://www.fmod.com/ and https://www.noesisengine.com/forums/viewtopic.php?f=14&t=1491.
+
+The project Hexagonal contains files from https://github.com/tmf7/Engine-of-Evil
