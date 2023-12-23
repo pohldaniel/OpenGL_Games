@@ -2599,9 +2599,9 @@ Vector3f Vector3f::Max(const Vector3f &p, const Vector3f &q) {
 }
 
 Vector3f& Vector3f::Clamp(Vector3f &v, float min, float max) {
-	std::max(min, std::min(v[0], max));
-	std::max(min, std::min(v[1], max));
-	std::max(min, std::min(v[2], max));
+	v[0] = std::max(min, std::min(v[0], max));
+	v[1] = std::max(min, std::min(v[1], max));
+	v[2] = std::max(min, std::min(v[2], max));
 	return v;
 }
 
