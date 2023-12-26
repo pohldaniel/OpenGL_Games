@@ -21,7 +21,7 @@ void TextureAtlasCreator::init(unsigned int _width, unsigned int _height) {
 	spritesheet = nullptr;
 }
 
-void TextureAtlasCreator::addTexture(unsigned char *texture, unsigned int w, unsigned int h, bool flipTextureRect, unsigned int _maxWidth, unsigned int _maxHeight, std::vector<TextureRect>& textureRects) {
+void TextureAtlasCreator::addTexture(unsigned char* texture, unsigned int w, unsigned int h, bool flipTextureRect, unsigned int _maxWidth, unsigned int _maxHeight, std::vector<TextureRect>& textureRects) {
 
 	unsigned int maxWidth = _maxWidth > 0 ? _maxWidth : width;
 	unsigned int maxHeight = _maxHeight > 0 ? _maxHeight : height;
@@ -58,7 +58,7 @@ void TextureAtlasCreator::addTexture(unsigned char *texture, unsigned int w, uns
 	maxY = (std::max)(maxY, curY + h);
 }
 
-void TextureAtlasCreator::addTexture(unsigned char *texture, unsigned int w, unsigned int h, std::vector<TextureRect>& prepacked, bool flipTextureRect, unsigned int _maxWidth, unsigned int _maxHeight, std::vector<TextureRect>& textureRects) {
+void TextureAtlasCreator::addTexture(unsigned char* texture, unsigned int w, unsigned int h, std::vector<TextureRect>& prepacked, bool flipTextureRect, unsigned int _maxWidth, unsigned int _maxHeight, std::vector<TextureRect>& textureRects) {
 	unsigned int maxWidth = _maxWidth > 0 ? _maxWidth : width;
 	unsigned int maxHeight = _maxHeight > 0 ? _maxHeight : height;
 

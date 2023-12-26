@@ -15,6 +15,9 @@ public:
 	unsigned short getTileCountX();
 	unsigned short getTileCountY();
 	unsigned short getTotalFrames();
+	unsigned int getWidth() const;
+	unsigned int getHeight() const;
+	unsigned int getChannels() const;
 
 	void setAtlas(unsigned int texture);
 
@@ -25,7 +28,7 @@ public:
 	void createSpritesheetFromSpritesheet(unsigned int spritesheet, unsigned int format = 0, unsigned int internalFormat = 0, int unpackAlignment = 4, bool deleteSpritesheet = false);
 	void addToSpritesheet(std::string fileName, unsigned short tileWidth, unsigned short tileHeight, unsigned short spacing = 0, bool reverse = false, bool flipVertical = false, int row = 0, int minColumn = 0, int maxColumn = -1, unsigned int format = 0);
 
-	void createSpritesheet(std::string fileName, unsigned int format = 0, unsigned int internalFormat = 0, bool flipVertical = true, int unpackAlignment = 4);
+	void createSpritesheet(std::string fileName, bool flipVertical = true, unsigned int format = 0, unsigned int internalFormat = 0, int unpackAlignment = 4);
 	void addToSpritesheet(std::string fileName, unsigned int format = 0, unsigned int internalFormat = 0, bool flipVertical = true, int unpackAlignment = 4);
 	void addToSpritesheet(unsigned int texture, unsigned int format = 0, unsigned int internalFormat = 0, int unpackAlignment = 4);
 	void addToSpritesheet(unsigned char* bytes, unsigned int width, unsigned int height, unsigned int format = 0);

@@ -346,16 +346,16 @@ void Spritesheet::createSpritesheetFromSpritesheet(unsigned int spritesheet, uns
 		glDeleteTextures(1, &spritesheet);
 }
 
-void Spritesheet::createSpritesheet(std::string fileName, unsigned int _format, unsigned int _internalFormat,  bool _flipVertical, int _unpackAlignment) {
-	int width, height, numCompontents;
-	unsigned char* imageData = SOIL_load_image(fileName.c_str(), &width, &height, &numCompontents, SOIL_LOAD_AUTO);
+void Spritesheet::createSpritesheet(std::string fileName,  bool _flipVertical, unsigned int _format, unsigned int _internalFormat, int _unpackAlignment) {
+	int width, height, channels;
+	unsigned char* imageData = SOIL_load_image(fileName.c_str(), &width, &height, &channels, SOIL_LOAD_AUTO);
 
-	unsigned internalFormat = _internalFormat == 0 && numCompontents == 3 ? GL_RGB8 : _internalFormat == 0 ? GL_RGBA8 : _internalFormat;
-	unsigned format = _format == 0 && numCompontents == 3 ? GL_RGB : _format == 0 && numCompontents == 4 ? GL_RGBA : _format;
+	unsigned internalFormat = _internalFormat == 0 && channels == 3 ? GL_RGB8 : _internalFormat == 0 ? GL_RGBA8 : _internalFormat;
+	unsigned format = _format == 0 && channels == 3 ? GL_RGB : _format == 0 && channels == 4 ? GL_RGBA : _format;
 	m_totalFrames++;
 
 	if (_flipVertical)
-		Texture::FlipVertical(imageData, numCompontents * width, height);
+		Texture::FlipVertical(imageData, channels * width, height);
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, _unpackAlignment);
 
@@ -373,6 +373,10 @@ void Spritesheet::createSpritesheet(std::string fileName, unsigned int _format, 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
 
 	SOIL_free_image_data(imageData);
+
+	m_width = width;
+	m_height = height;
+	m_channels = channels;
 }
 
 void Spritesheet::addToSpritesheet(std::string fileName, unsigned int _format, unsigned int _internalFormat, bool _flipVertical, int _unpackAlignment) {
@@ -631,6 +635,18 @@ unsigned short Spritesheet::getTotalFrames() {
 	return m_totalFrames;
 }
 
+unsigned int Spritesheet::getWidth() const {
+	return m_width;
+}
+
+unsigned int Spritesheet::getHeight() const {
+	return m_height;
+}
+
+unsigned int Spritesheet::getChannels() const {
+	return m_channels;
+}
+
 void Spritesheet::setAtlas(unsigned int texture) {
 	m_texture = texture;
 }
@@ -750,6 +766,8 @@ void Spritesheet::Safe(std::string name, unsigned int textureAtlas) {
 	glGetTexLevelParameteriv(GL_TEXTURE_2D_ARRAY, miplevel, GL_TEXTURE_HEIGHT, &height);
 	glGetTexLevelParameteriv(GL_TEXTURE_2D_ARRAY, miplevel, GL_TEXTURE_DEPTH, &depth);
 	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
+
+	std::cout << "Width: " << width << " Height: " << height << " Depth: " << depth << std::endl;
 
 	unsigned char* bytes = (unsigned char*)malloc(width * 4 * height);
 

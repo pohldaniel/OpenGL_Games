@@ -48,8 +48,8 @@ void TextureAtlasCreator::addTexture(unsigned char *texture, unsigned int w, uns
 		flipTextureRect ?  static_cast<float>(curY + h) / static_cast<float>(height) : static_cast<float>(curY) / static_cast<float>(height),
 		static_cast<float>(w) / static_cast<float>(width),
 		flipTextureRect ?  -static_cast<float>(h) / static_cast<float>(height) : static_cast<float>(h) / static_cast<float>(height),
-		w,
-		h,
+		static_cast<float>(w),
+		static_cast<float>(h),
 		frame });
 
 

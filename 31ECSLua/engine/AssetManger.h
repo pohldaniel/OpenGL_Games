@@ -86,9 +86,9 @@ public:
 		m_assetPointer[name]->createSpritesheet(texture, width, height, format);
 	}
 
-	void createSpritesheet(const std::string& name, const std::string fileName, unsigned int format = 0u, unsigned int internalFormat = 0u, bool flipVertical = true, int unpackAlignment = 4) {
+	void createSpritesheet(const std::string& name, const std::string fileName, bool flipVertical = true, unsigned int format = 0u, unsigned int internalFormat = 0u, int unpackAlignment = 4) {
 		m_assetPointer[name] = new T();
-		m_assetPointer[name]->createSpritesheet(fileName, format, internalFormat, flipVertical, unpackAlignment);
+		m_assetPointer[name]->createSpritesheet(fileName, flipVertical, format, internalFormat, unpackAlignment);
 	}
 
 	void createSpritesheetFromTexture(const std::string& name, unsigned int texture, unsigned int format = 0u, unsigned int internalFormat = 0u, int unpackAlignment = 4) {

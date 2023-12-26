@@ -35,11 +35,12 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 	m_camera = Camera();
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
-	m_camera.lookAt(Vector3f(0.0f, 2.0f, 10.0f), Vector3f(0.0f, 2.0f, 10.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
+	m_camera.lookAt(Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 0.0f, 0.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
 	m_camera.setRotationSpeed(0.1f);
-	m_camera.setMovingSpeed(10.0f);
+	m_camera.setMovingSpeed(1000.0f);
 
 	glClearColor(0.494f, 0.686f, 0.796f, 1.0f);
+	//glClearColor(0.2148f, 0.3086f, 0.6211f, 1.0f);
 	glClearDepth(1.0f);
 
 	m_background.setLayer(std::vector<BackgroundLayer>{
@@ -55,6 +56,8 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 	eventBus = std::make_unique<EventBus>();
 
 	init();
+
+	camera = { 0, 0, static_cast<float>(Application::Width), static_cast<float>(Application::Height) };
 }
 
 Game::~Game() {
@@ -75,12 +78,12 @@ void Game::update() {
 	bool move = false;
 
 	if (keyboard.keyDown(Keyboard::KEY_W)) {
-		directrion += Vector3f(0.0f, 0.0f, 1.0f);
+		directrion += Vector3f(0.0f, 1.0f, 0.0f);
 		move |= true;
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_S)) {
-		directrion += Vector3f(0.0f, 0.0f, -1.0f);
+		directrion += Vector3f(0.0f, -1.0f, 0.0f);
 		move |= true;
 	}
 
@@ -99,12 +102,12 @@ void Game::update() {
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_Q)) {
-		directrion += Vector3f(0.0f, -1.0f, 0.0f);
+		directrion += Vector3f(0.0f, 0.0f, -1.0f);
 		move |= true;
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_E)) {
-		directrion += Vector3f(0.0f, 1.0f, 0.0f);
+		directrion += Vector3f(0.0f, 0.0f, 1.0f);
 		move |= true;
 	}
 
@@ -126,15 +129,53 @@ void Game::update() {
 	}
 
 	m_background.update(m_dt);
+
+	// Reset all event handlers for the current frame
+	eventBus->Reset();
+
+	// Perform the subscription of the events for all systems
+	registry->GetSystem<MovementSystem>().SubscribeToEvents(eventBus);
+	registry->GetSystem<DamageSystem>().SubscribeToEvents(eventBus);
+	registry->GetSystem<KeyboardControlSystem>().SubscribeToEvents(eventBus);
+	registry->GetSystem<ProjectileEmitSystem>().SubscribeToEvents(eventBus);
+
+	// Update the registry to process the entities that are waiting to be created/deleted
+	registry->Update();
+
+	// Invoke all the systems that need to update 
+	registry->GetSystem<MovementSystem>().Update(static_cast<double>(m_dt));
+	registry->GetSystem<AnimationSystem>().Update();
+	registry->GetSystem<CollisionSystem>().Update(eventBus);
+	registry->GetSystem<ProjectileEmitSystem>().Update(registry);
+	registry->GetSystem<CameraMovementSystem>().Update(camera);
+	registry->GetSystem<ProjectileLifecycleSystem>().Update();
+	registry->GetSystem<ScriptSystem>().Update(static_cast<double>(m_dt), (int)Globals::clock.getElapsedTimeMilli());
 }
 
 void Game::render() {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	m_background.draw();
+	//m_background.draw();
 
-	if (m_drawUi)
-		renderUi();
+	for (auto cell : LevelLoader::Cells) {
+		Batchrenderer::Get().addQuadAA(Vector4f(cell.posX, cell.posY, cell.rect.width, cell.rect.height), Vector4f(cell.rect.textureOffsetX, cell.rect.textureOffsetY, cell.rect.textureWidth, cell.rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), cell.rect.frame);		
+	}
+	
+	auto shader = Globals::shaderManager.getAssetPointer("batch");
+	shader->use();
+	shader->loadMatrix("u_transform", m_camera.getOrthographicMatrix() * m_camera.getViewMatrix());
+	Globals::spritesheetManager.getAssetPointer("desert")->bind();
+	Batchrenderer::Get().drawBufferRaw();
+	Globals::spritesheetManager.getAssetPointer("desert")->unbind();
+	shader->unuse();
+
+	// Invoke all the systems that need to render 
+	//registry->GetSystem<RenderSystem>().Update(camera);
+	//registry->GetSystem<RenderTextSystem>().Update(camera);
+	//registry->GetSystem<RenderHealthBarSystem>().Update(camera);
+
+	/*if (m_drawUi)
+		renderUi();*/
 }
 
 void Game::OnMouseMotion(Event::MouseMoveEvent& event) {

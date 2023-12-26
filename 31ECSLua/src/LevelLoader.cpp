@@ -18,6 +18,9 @@
 
 #include "LevelLoader.h"
 #include "Application.h"
+#include "Globals.h"
+
+std::vector<Cell> LevelLoader::Cells;
 
 LevelLoader::LevelLoader() {
     //Logger::Log("LevelLoader constructor called!");    
@@ -79,27 +82,32 @@ void LevelLoader::LoadLevel(sol::state& lua, const std::unique_ptr<Registry>& re
     std::string mapTextureAssetId = map["texture_asset_id"];
     int mapNumRows = map["num_rows"];
     int mapNumCols = map["num_cols"];
+    float tileSize = map["tile_size"];
+    float mapScale = map["scale"];
 
-	std::cout << "Num Rows: " << mapNumRows << std::endl;
-	std::cout << "Num Cols: " << mapNumCols << std::endl;
-
-    int tileSize = map["tile_size"];
-    double mapScale = map["scale"];
+	float tileWidth = tileSize;
+	float tileHeight = tileSize;
+	float width = static_cast<float>(Globals::spritesheetManager.getAssetPointer("desert")->getWidth());
+	float height = static_cast<float>(Globals::spritesheetManager.getAssetPointer("desert")->getHeight());
 
     std::fstream mapFile;
     mapFile.open(mapFilePath);
     for (int y = 0; y < mapNumRows; y++) {
-        for (int x = 0; x < mapNumCols; x++) {
-            char ch;
-            mapFile.get(ch);
-            int srcRectY = std::atoi(&ch) * tileSize;
-            mapFile.get(ch);
-            int srcRectX = std::atoi(&ch) * tileSize;
-            mapFile.ignore();
+		for (int x = 0; x < mapNumCols; x++) {
+			char ch;
+			mapFile.get(ch);
+			int srcRectY = std::atoi(&ch) * tileSize;
+			mapFile.get(ch);
+			int srcRectX = std::atoi(&ch) * tileSize;
+			mapFile.ignore();
 
-            Entity tile = registry->CreateEntity();
-            tile.AddComponent<TransformComponent>(glm::vec2(x * (mapScale * tileSize), y * (mapScale * tileSize)), glm::vec2(mapScale, mapScale), 0.0);
+			Entity tile = registry->CreateEntity();
+			tile.AddComponent<TransformComponent>(glm::vec2(x * (mapScale * tileSize), y * (mapScale * tileSize)), glm::vec2(mapScale, mapScale), 0.0);
             tile.AddComponent<SpriteComponent>(mapTextureAssetId, tileSize, tileSize, 0, false, srcRectX, srcRectY);
+
+			Cells.push_back({ { static_cast<float>(srcRectX + 0.5f) / width, static_cast<float>(height - srcRectY - tileHeight) / height, (tileWidth - 0.5f) / width, tileHeight / height, tileWidth * mapScale, tileHeight * mapScale, 0u }, x * (mapScale * tileSize), Application::Height - y * (mapScale * tileSize) });
+			//flipped
+			//Cells.push_back({ { static_cast<float>(srcRectX + 0.5f) / width, static_cast<float>(height - srcRectY) / height, (tileWidth - 0.5f) / width, -tileHeight / height, tileWidth * mapScale, tileHeight * mapScale, 0u }, x * (mapScale * tileSize), Application::Height -  y * (mapScale * tileSize) });
         }
     }
     mapFile.close();
