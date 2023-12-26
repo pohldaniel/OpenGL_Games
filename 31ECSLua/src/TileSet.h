@@ -17,6 +17,7 @@ public:
 
 	void addTexture(unsigned char *texture, unsigned int w, unsigned int h, bool flipTextureRect, unsigned int _maxWidth, unsigned int _maxHeight, std::vector<TextureRect>& textureRects);
 	void addTexture(unsigned char *texture, unsigned int w, unsigned int h, std::vector<TextureRect>& prepacked, bool flipTextureRect, unsigned int _maxWidth, unsigned int _maxHeight, std::vector<TextureRect>& textureRects);
+	void addTexture(unsigned char *texture, unsigned int w, unsigned int h);
 	void resetLine();
 	void addFrame();
 	void getAtlas(unsigned int& textureRef);
@@ -49,6 +50,7 @@ public:
 
 	TileSet();
 	void loadTileSetCpu(std::vector<std::string>  texturePaths, unsigned int width = 1024u, unsigned int height = 1024u, bool resetLine = false);
+	void loadTileSetCpu(std::string mapPath, std::string texturePath,  unsigned int columns, unsigned int rows, float tileSize, const bool flipVertical = true, bool flipTextureRects = false);
 	void loadTileSetGpu();
 	const std::vector<TextureRect>& getTextureRects() const;
 	const unsigned int& getAtlas() const;

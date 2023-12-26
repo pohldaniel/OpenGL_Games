@@ -25,6 +25,7 @@
 #include <Systems/ScriptSystem.h>
 
 #include "LevelLoader.h"
+#include "TileSet.h"
 
 Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 
@@ -156,17 +157,18 @@ void Game::render() {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	//m_background.draw();
-
+	float mapScale = 2.0f;
 	for (auto cell : LevelLoader::Cells) {
-		Batchrenderer::Get().addQuadAA(Vector4f(cell.posX, cell.posY, cell.rect.width, cell.rect.height), Vector4f(cell.rect.textureOffsetX, cell.rect.textureOffsetY, cell.rect.textureWidth, cell.rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), cell.rect.frame);		
+		Batchrenderer::Get().addQuadAA(Vector4f(cell.posX, cell.posY, cell.rect.width * mapScale, cell.rect.height * mapScale), Vector4f(cell.rect.textureOffsetX, cell.rect.textureOffsetY, cell.rect.textureWidth, cell.rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), cell.rect.frame);
 	}
 	
 	auto shader = Globals::shaderManager.getAssetPointer("batch");
+
 	shader->use();
 	shader->loadMatrix("u_transform", m_camera.getOrthographicMatrix() * m_camera.getViewMatrix());
-	Globals::spritesheetManager.getAssetPointer("desert")->bind();
+	Spritesheet::Bind(LevelLoader::Atlas);
 	Batchrenderer::Get().drawBufferRaw();
-	Globals::spritesheetManager.getAssetPointer("desert")->unbind();
+	Spritesheet::Unbind();
 	shader->unuse();
 
 	// Invoke all the systems that need to render 

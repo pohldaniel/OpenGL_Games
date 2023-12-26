@@ -18,6 +18,7 @@ class LevelLoader {
 	void LoadLevel(sol::state& lua, const std::unique_ptr<Registry>& registry, int level);
 
 	static std::vector<Cell> Cells;
+	static unsigned int Atlas;
 };
 
 #endif

@@ -15,7 +15,6 @@ void main(void) {
 	gl_Position = u_transform * vec4(i_position, 0.0, 1.0);  
 	
     v_texCoord  = i_texCoord;
-	//v_texCoord.y = 1.0 - v_texCoord.y;
 	v_color = i_color;	
 	v_layer = i_drawState;
 }

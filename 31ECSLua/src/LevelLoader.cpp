@@ -19,8 +19,10 @@
 #include "LevelLoader.h"
 #include "Application.h"
 #include "Globals.h"
+#include "TileSet.h"
 
 std::vector<Cell> LevelLoader::Cells;
+unsigned int LevelLoader::Atlas = 0;
 
 LevelLoader::LevelLoader() {
     //Logger::Log("LevelLoader constructor called!");    
@@ -74,6 +76,9 @@ void LevelLoader::LoadLevel(sol::state& lua, const std::unique_ptr<Registry>& re
         i++;
     }
 
+	TileSetManager::Get().getTileSet("desert").loadTileSetCpu("assets/tilemaps/desert.map", "assets/tilemaps/desert.png", 40, 30, 32.0f);
+	TileSetManager::Get().getTileSet("desert").loadTileSetGpu();
+	Atlas = TileSetManager::Get().getTileSet("desert").getAtlas();
     ////////////////////////////////////////////////////////////////////////////
     // Read the level tilemap information
     ////////////////////////////////////////////////////////////////////////////
@@ -95,19 +100,17 @@ void LevelLoader::LoadLevel(sol::state& lua, const std::unique_ptr<Registry>& re
     for (int y = 0; y < mapNumRows; y++) {
 		for (int x = 0; x < mapNumCols; x++) {
 			char ch;
-			mapFile.get(ch);
+			mapFile.get(ch);			
 			int srcRectY = std::atoi(&ch) * tileSize;
 			mapFile.get(ch);
-			int srcRectX = std::atoi(&ch) * tileSize;
+			int srcRectX = std::atoi(&ch) * tileSize;		
 			mapFile.ignore();
 
 			Entity tile = registry->CreateEntity();
 			tile.AddComponent<TransformComponent>(glm::vec2(x * (mapScale * tileSize), y * (mapScale * tileSize)), glm::vec2(mapScale, mapScale), 0.0);
             tile.AddComponent<SpriteComponent>(mapTextureAssetId, tileSize, tileSize, 0, false, srcRectX, srcRectY);
 
-			Cells.push_back({ { static_cast<float>(srcRectX + 0.5f) / width, static_cast<float>(height - srcRectY - tileHeight) / height, (tileWidth - 0.5f) / width, tileHeight / height, tileWidth * mapScale, tileHeight * mapScale, 0u }, x * (mapScale * tileSize), Application::Height - y * (mapScale * tileSize) });
-			//flipped
-			//Cells.push_back({ { static_cast<float>(srcRectX + 0.5f) / width, static_cast<float>(height - srcRectY) / height, (tileWidth - 0.5f) / width, -tileHeight / height, tileWidth * mapScale, tileHeight * mapScale, 0u }, x * (mapScale * tileSize), Application::Height -  y * (mapScale * tileSize) });
+			Cells.push_back({ TileSetManager::Get().getTileSet("desert").getTextureRects()[y * mapNumCols + x], x * (mapScale * tileSize), Application::Height - y * (mapScale * tileSize) });
         }
     }
     mapFile.close();

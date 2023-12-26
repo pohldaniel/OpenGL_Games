@@ -94,6 +94,14 @@ void TextureAtlasCreator::addTexture(unsigned char *texture, unsigned int w, uns
 	maxY = (std::max)(maxY, curY + h);
 }
 
+void TextureAtlasCreator::addTexture(unsigned char *texture, unsigned int w, unsigned int h) {
+	for (unsigned int row = 0; row < h; ++row) {
+		memcpy(bufferPtr + (((curY + row) * width + curX) * 4), texture + (w * row * 4), 4 * w);
+	}
+	curX = w;
+	curY = h;
+}
+
 void TextureAtlasCreator::resetLine() {
 	curX = 0;
 	curY = maxY;
@@ -157,6 +165,61 @@ void TileSet::loadTileSetCpu(std::vector<std::string>  texturePaths, unsigned in
 
 		free(bytes);
 	}	
+}
+
+void TileSet::loadTileSetCpu(std::string mapPath, std::string texturePath, unsigned int columns, unsigned int rows, float tileSize, const bool flipVertical, bool flipTextureRects) {
+	if (m_init) return;
+	std::ifstream file(mapPath);
+
+	unsigned int* ids = new unsigned int[columns * rows];
+	
+	if (file){
+		for (unsigned int i, index = 0; file >> i; index++) {
+			ids[index] = i;
+			if (file.peek() == ',')
+				file.ignore();
+		}
+		file.close();
+	}
+
+	int imageWidth, imageHeight;
+	unsigned char* bytes = Texture::LoadFromFile(texturePath, imageWidth, imageHeight, true);
+	int tileCountX = imageWidth / static_cast<int>(tileSize);
+	int tileCountY = imageHeight / static_cast<int>(tileSize);
+
+	float tileWidth = tileSize;
+	float tileHeight = tileSize;
+
+	for (int y = 0; y < rows; y++) {
+		for (int x = 0; x < columns; x++) {
+
+			unsigned int id = ids[y * columns + x];
+			int srcRectX = (id % tileCountX) * tileSize;
+			int srcRectY = (id / tileCountX) * tileSize;
+
+			if (!flipTextureRects) {
+				m_textureRects.push_back({ (static_cast<float>(srcRectX) + 0.5f) / static_cast<float>(imageWidth),
+										   static_cast<float>(imageHeight - srcRectY - tileHeight) / static_cast<float>(imageHeight),
+										   (tileWidth - 0.5f) / static_cast<float>(imageWidth),
+										   tileHeight / static_cast<float>(imageHeight),
+										   tileWidth,
+										   tileHeight,
+										   0u });
+			}else {
+				m_textureRects.push_back({ (static_cast<float>(srcRectX) + 0.5f) / static_cast<float>(imageWidth),
+										   static_cast<float>(imageHeight - srcRectY) / static_cast<float>(imageHeight),
+										   (tileWidth - 0.5f) / static_cast<float>(imageWidth),
+										   -tileHeight / static_cast<float>(imageHeight),
+										   tileWidth,
+										   tileHeight,
+										   0u });
+			}
+		}
+	}
+	delete[] ids;
+
+	TextureAtlasCreator::Get().init(imageWidth, imageHeight);
+	TextureAtlasCreator::Get().addTexture(bytes, imageWidth, imageHeight);
 }
 
 void TileSet::loadTileSetGpu() {
