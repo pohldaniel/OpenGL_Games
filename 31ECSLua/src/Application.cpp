@@ -13,6 +13,7 @@
 #include <Globals.h>
 
 #include <States/Default.h>
+#include <States/Game.h>
 #include <UI/Widget.h>
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -38,6 +39,9 @@ HICON Application::Icon = (HICON)LoadImage(NULL, "res/icon.ico", IMAGE_ICON, 0, 
 //HICON Application::Icon = (HICON)LoadImage(NULL, IDI_HAND, IMAGE_ICON, 0, 0, LR_SHARED);
 
 bool Application::VerticalSync = true;
+
+int Application::MapWidth;
+int Application::MapHeight;
 
 Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fdt) {
 	Width = WIDTH;
@@ -90,6 +94,7 @@ Application::~Application() {
 	delete Machine;
 	Globals::shaderManager.clear();
 	Widget::CleanUp();
+	ImGui::DestroyContext();
 
 	HDC hdc = GetDC(Window);
 	wglMakeCurrent(hdc, 0);
@@ -157,8 +162,9 @@ LRESULT CALLBACK Application::StaticWndProc(HWND hWnd, UINT message, WPARAM wPar
 
 	switch (message) {
 		case WM_CREATE: {
-			application = static_cast<Application*>(reinterpret_cast<CREATESTRUCT*>(lParam)->lpCreateParams);
-			SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(application));
+			//application = static_cast<Application*>(reinterpret_cast<CREATESTRUCT*>(lParam)->lpCreateParams);
+			//SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(application));
+			SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(reinterpret_cast<CREATESTRUCT*>(lParam)->lpCreateParams));
 			break;
 		}default: {
 			application = reinterpret_cast<Application*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
@@ -182,13 +188,13 @@ LRESULT CALLBACK Application::StaticWndProc(HWND hWnd, UINT message, WPARAM wPar
 	
 	if (application) {	
 		application->processEvent(hWnd, message, wParam, lParam);
-		return application->DisplayWndProc(hWnd, message, wParam, lParam);
+		return application->ApplicationWndProc(hWnd, message, wParam, lParam);
 	}
 
 	return DefWindowProc(hWnd, message, wParam, lParam);
 }
 
-LRESULT Application::DisplayWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
+LRESULT Application::ApplicationWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
 
 	switch (message) {
 		case WM_CREATE: {
@@ -205,10 +211,7 @@ LRESULT Application::DisplayWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 					if ((HIWORD(lParam) & KF_ALTDOWN))
 						ToggleFullScreen(!Fullscreen);
 					break;
-				}/*case VK_MENU: {
-					ToggleFullScreen(!Fullscreen);
-					break;
-				}*/
+				}
 			}
 			break;
 		//ignore left alt
@@ -400,7 +403,8 @@ void Application::fixedUpdate() {
 
 void Application::initStates() {	
 	Machine = new StateMachine(m_dt, m_fdt);
-	Machine->addStateAtTop(new Default(*Machine));
+	//Machine->addStateAtTop(new Default(*Machine));
+	Machine->addStateAtTop(new Game(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {

@@ -28,9 +28,12 @@ public:
 	static int Width;
 	static int Height;
 
+	static int MapWidth;
+	static int MapHeight;
+
 private:
 	static LRESULT CALLBACK StaticWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
-	LRESULT DisplayWndProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam);
+	LRESULT ApplicationWndProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam);
 
 	void createWindow();
 	void initOpenGL(int msaaSamples = 0);
