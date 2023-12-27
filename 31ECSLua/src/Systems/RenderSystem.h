@@ -2,10 +2,11 @@
 #define RENDERSYSTEM_H
 
 #include <algorithm>
+#include <engine/Batchrenderer.h>
 #include "../ECS/ECS.h"
 #include "../Components/TransformComponent.h"
 #include "../Components/SpriteComponent.h"
-
+#include "LevelLoader.h"
 
 class RenderSystem: public System {
     public:
@@ -28,15 +29,15 @@ class RenderSystem: public System {
 
                 // Check if the entity sprite is outside the camera view
                 bool isOutsideCameraView = (
-                    renderableEntity.transformComponent.position.x + (renderableEntity.transformComponent.scale.x * renderableEntity.spriteComponent.width) < camera.posX ||
+                    renderableEntity.transformComponent.position.x + (renderableEntity.transformComponent.scale.x * renderableEntity.spriteComponent.textureRect.width) < camera.posX ||
                     renderableEntity.transformComponent.position.x > camera.posX + camera.width ||
-                    renderableEntity.transformComponent.position.y + (renderableEntity.transformComponent.scale.y * renderableEntity.spriteComponent.height) < camera.posY ||
+                    renderableEntity.transformComponent.position.y + (renderableEntity.transformComponent.scale.y * renderableEntity.spriteComponent.textureRect.height) < camera.posY ||
                     renderableEntity.transformComponent.position.y > camera.posY + camera.height
                 );
 
                 // Cull sprites that are outside the camera viww (and are not fixed)
                 if (isOutsideCameraView && !renderableEntity.spriteComponent.isFixed) {
-                    continue;
+                    //continue;
                 }
 
                 renderableEntities.emplace_back(renderableEntity);
@@ -49,31 +50,14 @@ class RenderSystem: public System {
 
             // Loop all entities that the system is interested in
             for (auto entity: renderableEntities) {
+				
                 const auto transform = entity.transformComponent;
-                const auto sprite = entity.spriteComponent;
-
                 // Set the source rectangle of our original sprite texture
-                Rect srcRect = sprite.srcRect;
+				const TextureRect& srcRect = entity.spriteComponent.textureRect;
+				Batchrenderer::Get().addQuadAA(Vector4f(transform.position.x, transform.position.y, srcRect.width * transform.scale.x, srcRect.height * transform.scale.y), Vector4f(srcRect.textureOffsetX, srcRect.textureOffsetY, srcRect.textureWidth, srcRect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), srcRect.frame);
 
-                // Set the destination rectangle with the x,y position to be rendered
-				Rect dstRect = {
-                    static_cast<int>(transform.position.x - (sprite.isFixed ? 0 : camera.posX)),
-                    static_cast<int>(transform.position.y - (sprite.isFixed ? 0 : camera.posY)),
-                    static_cast<int>(sprite.width * transform.scale.x),
-                    static_cast<int>(sprite.height * transform.scale.y)
-                };
-
-                // Draw the texture on the destination renderer
-                /*SDL_RenderCopyEx(
-                    renderer,
-                    assetStore->GetTexture(sprite.assetId),
-                    &srcRect,
-                    &dstRect,
-                    transform.rotation,
-                    NULL,
-                    sprite.flip
-                );*/
             }
+
         }
 };
 

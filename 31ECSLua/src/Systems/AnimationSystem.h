@@ -19,7 +19,7 @@ class AnimationSystem: public System {
                 auto& sprite = entity.GetComponent<SpriteComponent>();
 
                 animation.currentFrame = ((Globals::clock.getElapsedTimeMilli() - animation.startTime) * animation.frameSpeedRate / 1000) % animation.numFrames;
-                sprite.srcRect.posX = animation.currentFrame * sprite.width;
+                sprite.textureRect.textureOffsetX = animation.currentFrame * sprite.textureRect.width;
             }
         }
 };

@@ -25,9 +25,9 @@ class RenderHealthBarSystem: public System {
 
                 // Bypass rendering if entities are outside the camera view
                 bool isOutsideCameraView = (
-                    transform.position.x + (transform.scale.x * sprite.width) < camera.posX ||
+                    transform.position.x + (transform.scale.x * sprite.textureRect.width) < camera.posX ||
                     transform.position.x > camera.posX + camera.width ||
-                    transform.position.y + (transform.scale.y * sprite.height) < camera.posY ||
+                    transform.position.y + (transform.scale.y * sprite.textureRect.height) < camera.posY ||
                     transform.position.y > camera.posY + camera.height
                 );
                 
@@ -54,7 +54,7 @@ class RenderHealthBarSystem: public System {
                 // Position the health bar indicator in the top-right part of the entity sprite
                 int healthBarWidth = 15;
                 int healthBarHeight = 3;
-                double healthBarPosX = (transform.position.x + (sprite.width * transform.scale.x)) - camera.posX;
+                double healthBarPosX = (transform.position.x + (sprite.textureRect.width * transform.scale.x)) - camera.posX;
                 double healthBarPosY = (transform.position.y) - camera.posY;
 
                 Rect healthBarRectangle = {

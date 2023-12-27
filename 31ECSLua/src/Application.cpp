@@ -72,7 +72,7 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	Fontrenderer::Get().init();
 	Fontrenderer::Get().setShader(Globals::shaderManager.getAssetPointer("font"));
 
-	Batchrenderer::Get().init(1200, false, true);
+	Batchrenderer::Get().init(1000, false, true);
 	Batchrenderer::Get().setShader(Globals::shaderManager.getAssetPointer("batch"));
 
 	auto shader = Globals::shaderManager.getAssetPointer("font");
@@ -340,9 +340,9 @@ void Application::initOpenGL(int msaaSamples) {
 	glDepthFunc(GL_LEQUAL);
 
 	//glDisable(GL_BLEND);
-	//glEnable(GL_BLEND);
-	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	//glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 }
 
 void Application::initImGUI() {

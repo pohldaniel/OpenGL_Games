@@ -157,22 +157,18 @@ void Game::render() {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	//m_background.draw();
-	float mapScale = 2.0f;
-	for (auto cell : LevelLoader::Cells) {
-		Batchrenderer::Get().addQuadAA(Vector4f(cell.posX, cell.posY, cell.rect.width * mapScale, cell.rect.height * mapScale), Vector4f(cell.rect.textureOffsetX, cell.rect.textureOffsetY, cell.rect.textureWidth, cell.rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), cell.rect.frame);
-	}
 	
 	auto shader = Globals::shaderManager.getAssetPointer("batch");
 
 	shader->use();
 	shader->loadMatrix("u_transform", m_camera.getOrthographicMatrix() * m_camera.getViewMatrix());
 	Spritesheet::Bind(LevelLoader::Atlas);
+	registry->GetSystem<RenderSystem>().Update(camera);
 	Batchrenderer::Get().drawBufferRaw();
 	Spritesheet::Unbind();
 	shader->unuse();
 
-	// Invoke all the systems that need to render 
-	//registry->GetSystem<RenderSystem>().Update(camera);
+
 	//registry->GetSystem<RenderTextSystem>().Update(camera);
 	//registry->GetSystem<RenderHealthBarSystem>().Update(camera);
 

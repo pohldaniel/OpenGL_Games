@@ -88,7 +88,7 @@ class RenderGUISystem: public System {
                     enemy.Group("enemies");
                     enemy.AddComponent<TransformComponent>(glm::vec2(posX, posY), glm::vec2(scaleX, scaleY), glm::degrees(rotation));
                     enemy.AddComponent<RigidBodyComponent>(glm::vec2(velX, velY));
-                    enemy.AddComponent<SpriteComponent>(sprites[selectedSpriteIndex], 32, 32, 2);
+                    //enemy.AddComponent<SpriteComponent>(sprites[selectedSpriteIndex], 32, 32, 2);
                     enemy.AddComponent<BoxColliderComponent>(25, 20, glm::vec2(5, 5));
                     double projVelX = cos(projAngle) * projSpeed; // convert from angle-speed to x-value
                     double projVelY = sin(projAngle) * projSpeed; // convert from angle-speed to y-value

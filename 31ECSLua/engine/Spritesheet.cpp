@@ -767,8 +767,6 @@ void Spritesheet::Safe(std::string name, unsigned int textureAtlas) {
 	glGetTexLevelParameteriv(GL_TEXTURE_2D_ARRAY, miplevel, GL_TEXTURE_DEPTH, &depth);
 	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
 
-	std::cout << "Width: " << width << " Height: " << height << " Depth: " << depth << std::endl;
-
 	unsigned char* bytes = (unsigned char*)malloc(width * 4 * height);
 
 	for (unsigned short layer = 0; layer < depth; ++layer) {

@@ -35,8 +35,8 @@ class ProjectileEmitSystem: public System {
                         glm::vec2 projectilePosition = transform.position;
                         if (entity.HasComponent<SpriteComponent>()) {
                             auto sprite = entity.GetComponent<SpriteComponent>();
-                            projectilePosition.x += (transform.scale.x * sprite.width / 2);
-                            projectilePosition.y += (transform.scale.y * sprite.height / 2);
+                            projectilePosition.x += (transform.scale.x * sprite.textureRect.width / 2);
+                            projectilePosition.y += (transform.scale.y * sprite.textureRect.height / 2);
                         }
 
                         // If parent entity direction is controlled by the keyboard keys, modify the direction of the projectile accordingly
@@ -55,7 +55,7 @@ class ProjectileEmitSystem: public System {
                         projectile.Group("projectiles");
                         projectile.AddComponent<TransformComponent>(projectilePosition, glm::vec2(1.0, 1.0), 0.0);
                         projectile.AddComponent<RigidBodyComponent>(projectileVelocity);
-                        projectile.AddComponent<SpriteComponent>("bullet-texture", 4, 4, 4);
+                        //projectile.AddComponent<SpriteComponent>("bullet-texture", 4, 4, 4);
                         projectile.AddComponent<BoxColliderComponent>(4, 4);
                         projectile.AddComponent<ProjectileComponent>(projectileEmitter.isFriendly, projectileEmitter.hitPercentDamage, projectileEmitter.projectileDuration);
                     }
@@ -78,8 +78,8 @@ class ProjectileEmitSystem: public System {
                     glm::vec2 projectilePosition = transform.position;
                     if (entity.HasComponent<SpriteComponent>()) {
                         const auto sprite = entity.GetComponent<SpriteComponent>();
-                        projectilePosition.x += (transform.scale.x * sprite.width / 2);
-                        projectilePosition.y += (transform.scale.y * sprite.height / 2);
+                        projectilePosition.x += (transform.scale.x * sprite.textureRect.width / 2);
+                        projectilePosition.y += (transform.scale.y * sprite.textureRect.height / 2);
                     }
 
                     // Add a new projectile entity to the registry
@@ -87,7 +87,7 @@ class ProjectileEmitSystem: public System {
                     projectile.Group("projectiles");
                     projectile.AddComponent<TransformComponent>(projectilePosition, glm::vec2(1.0, 1.0), 0.0);
                     projectile.AddComponent<RigidBodyComponent>(projectileEmitter.projectileVelocity);
-                    projectile.AddComponent<SpriteComponent>("bullet-texture", 4, 4, 4);
+                    //projectile.AddComponent<SpriteComponent>("bullet-texture", 4, 4, 4);
                     projectile.AddComponent<BoxColliderComponent>(4, 4);
                     projectile.AddComponent<ProjectileComponent>(projectileEmitter.isFriendly, projectileEmitter.hitPercentDamage, projectileEmitter.projectileDuration);
                 
