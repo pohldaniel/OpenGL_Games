@@ -58,7 +58,7 @@ class MovementSystem: public System {
 
                 // Update the entity position based on its velocity
                 transform.position.x += rigidbody.velocity.x * deltaTime; 
-                transform.position.y -= rigidbody.velocity.y * deltaTime; 
+                transform.position.y += rigidbody.velocity.y * deltaTime; 
 
                 // Prevent the main player from moving outside the map boundaries
                 if (entity.HasTag("player")) {

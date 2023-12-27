@@ -64,9 +64,9 @@ Level = {
                     friendly = true
                 },
                 keyboard_controller = {
-                    up_velocity = { x = 0, y = -30 },
+                    up_velocity = { x = 0, y = 30 },
                     right_velocity = { x = 30, y = 0 },
-                    down_velocity = { x = 0, y = 30 },
+                    down_velocity = { x = 0, y = -30 },
                     left_velocity = { x = -30, y = 0 }
                 },
                 camera_follow = {
