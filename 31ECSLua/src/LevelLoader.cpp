@@ -92,7 +92,7 @@ void LevelLoader::LoadLevel(sol::state& lua, const std::unique_ptr<Registry>& re
 
 	TileSetManager::Get().getTileSet("desert").loadTileSetGpu();
 	Atlas = TileSetManager::Get().getTileSet("desert").getAtlas();
-	//Spritesheet::Safe("tmp", Atlas);
+	Spritesheet::Safe("tmp", Atlas);
 
     ////////////////////////////////////////////////////////////////////////////
     // Read the level tilemap information
@@ -105,17 +105,8 @@ void LevelLoader::LoadLevel(sol::state& lua, const std::unique_ptr<Registry>& re
     float tileSize = map["tile_size"];
     float mapScale = map["scale"];
 
-    std::fstream mapFile;
-    mapFile.open(mapFilePath);
     for (int y = 0; y < mapNumRows; y++) {
-		for (int x = 0; x < mapNumCols; x++) {
-			char ch;
-			mapFile.get(ch);			
-			int srcRectY = std::atoi(&ch) * tileSize;
-			mapFile.get(ch);
-			int srcRectX = std::atoi(&ch) * tileSize;		
-			mapFile.ignore();
-
+		for (int x = 0; x < mapNumCols; x++) {			
 			Entity tile = registry->CreateEntity();
 			tile.AddComponent<TransformComponent>(glm::vec2(x * (mapScale * tileSize), Application::Height - y * (mapScale * tileSize)), glm::vec2(mapScale, mapScale), 0.0);
 
@@ -124,7 +115,7 @@ void LevelLoader::LoadLevel(sol::state& lua, const std::unique_ptr<Registry>& re
 			//tile.GetComponent<SpriteComponent>().init(std::vector<TextureRect>(TileSetManager::Get().getTileSet("desert").getTextureRects().begin() + y * mapNumCols + x, TileSetManager::Get().getTileSet("desert").getTextureRects().begin() + y * mapNumCols + x + 1));
         }
     }
-    mapFile.close();
+
 	Application::MapWidth = mapNumCols * tileSize * mapScale;
 	Application::MapHeight = mapNumRows * tileSize * mapScale;
 
@@ -192,6 +183,7 @@ void LevelLoader::LoadLevel(sol::state& lua, const std::unique_ptr<Registry>& re
 
 				std::string assetId = entity["components"]["sprite"]["texture_asset_id"];
 				int beginFrame = spriteMap.at(assetId).first;
+				int endFrame = spriteMap.at(assetId).second;
 				const TextureRect& rect = TileSetManager::Get().getTileSet("desert").getTextureRects()[beginFrame];
                 newEntity.AddComponent<SpriteComponent>(
 					assetId,
@@ -199,6 +191,9 @@ void LevelLoader::LoadLevel(sol::state& lua, const std::unique_ptr<Registry>& re
                     entity["components"]["sprite"]["z_index"].get_or(1),
                     entity["components"]["sprite"]["fixed"].get_or(false)
                 );
+
+				if(beginFrame != endFrame)
+					newEntity.GetComponent<SpriteComponent>().init(std::vector<TextureRect>(TileSetManager::Get().getTileSet("desert").getTextureRects().begin() + beginFrame, TileSetManager::Get().getTileSet("desert").getTextureRects().begin() + endFrame + 1));
             }
 
             // Animation

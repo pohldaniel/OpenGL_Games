@@ -28,6 +28,53 @@ Level = {
     entities = {
         [0] =
 		{
+            -- Player
+            tag = "player",
+            components = {
+                transform = {
+                    position = { x = 750, y = 450 },
+                    scale = { x = 1.0, y = 1.0 },
+                    rotation = 0.0, -- degrees
+                },
+                rigidbody = {
+                    velocity = { x = 0.0, y = 0.0 }
+                },
+                sprite = {
+                    texture_asset_id = "tank-texture",
+                    width = 32,
+                    height = 32,
+                    z_index = 6,
+                    fixed = false,
+                    src_rect_x = 0,
+                    src_rect_y = 0
+                },
+                boxcollider = {
+                    width = 32,
+                    height = 25,
+                    offset = { x = 0, y = 5 }
+                },
+                health = {
+                    health_percentage = 100
+                },
+                projectile_emitter = {
+                    projectile_velocity = { x = 200, y = 200 },
+                    projectile_duration = 10, -- seconds
+                    repeat_frequency = 0, -- seconds
+                    hit_percentage_damage = 10,
+                    friendly = true
+                },
+                keyboard_controller = {
+                    up_velocity = { x = 0, y = -30 },
+                    right_velocity = { x = 30, y = 0 },
+                    down_velocity = { x = 0, y = 30 },
+                    left_velocity = { x = -30, y = 0 }
+                },
+                camera_follow = {
+                    follow = true
+                }
+            }
+        },
+		{
             -- Carrier
             components = {
                 transform = {

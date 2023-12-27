@@ -202,6 +202,8 @@ void Game::OnKeyDown(Event::KeyboardEvent& event) {
 		Mouse::instance().detach();
 		m_isRunning = false;
 	}
+
+	eventBus->EmitEvent<KeyPressedEvent>(static_cast<Keyboard::Key>(event.keyCode));
 }
 
 void Game::OnKeyUp(Event::KeyboardEvent& event) {

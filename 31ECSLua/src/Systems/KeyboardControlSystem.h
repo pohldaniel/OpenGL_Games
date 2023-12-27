@@ -29,19 +29,19 @@ class KeyboardControlSystem: public System {
                 switch (event.symbol) {
 				case Keyboard::KEY_UP:
                         rigidbody.velocity = keyboardcontrol.upVelocity;
-                        //sprite.srcRect.posY = sprite.srcRect.height * 0;
+                        sprite.textureRect = sprite.animationRects[0];
                         break;
                     case Keyboard::KEY_RIGHT:
                         rigidbody.velocity = keyboardcontrol.rightVelocity;
-                        //sprite.srcRect.posX = sprite.srcRect.height * 1;
+						sprite.textureRect = sprite.animationRects[1];
                         break;
                     case Keyboard::KEY_DOWN:
                         rigidbody.velocity = keyboardcontrol.downVelocity;
-                        //sprite.srcRect.posY = sprite.srcRect.height * 2;
+						sprite.textureRect = sprite.animationRects[2];
                         break;
                     case Keyboard::KEY_LEFT:
                         rigidbody.velocity = keyboardcontrol.leftVelocity;
-                        //sprite.srcRect.posX = sprite.srcRect.height * 3;
+						sprite.textureRect = sprite.animationRects[3];
                         break;
                 }
             }

@@ -456,14 +456,38 @@ void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 				case VK_ESCAPE: {
 					Event event;
 					event.type = Event::KEYDOWN;
-					event.data.keyboard.keyCode = VK_ESCAPE;
+					event.data.keyboard.keyCode = wParam;
 					EventDispatcher.pushEvent(event);
 					//SendMessage(Window, WM_DESTROY, NULL, NULL);
 					break;
 				}case VK_SPACE: {
 					Event event;
 					event.type = Event::KEYDOWN;
-					event.data.keyboard.keyCode = VK_SPACE;
+					event.data.keyboard.keyCode = wParam;
+					EventDispatcher.pushEvent(event);
+					break;
+				}case VK_UP: {
+					Event event;
+					event.type = Event::KEYDOWN;
+					event.data.keyboard.keyCode = wParam;
+					EventDispatcher.pushEvent(event);
+					break;
+				}case VK_DOWN: {
+					Event event;
+					event.type = Event::KEYDOWN;
+					event.data.keyboard.keyCode = wParam;
+					EventDispatcher.pushEvent(event);
+					break;
+				}case VK_LEFT: {
+					Event event;
+					event.type = Event::KEYDOWN;
+					event.data.keyboard.keyCode = wParam;
+					EventDispatcher.pushEvent(event);
+					break;
+				}case VK_RIGHT: {
+					Event event;
+					event.type = Event::KEYDOWN;
+					event.data.keyboard.keyCode = wParam;
 					EventDispatcher.pushEvent(event);
 					break;
 				}
