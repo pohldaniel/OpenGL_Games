@@ -111,6 +111,10 @@ void Game::update() {
 		move |= true;
 	}
 
+	if (keyboard.keyPressed(Keyboard::KEY_T)) {
+		m_debug = !m_debug;
+	}
+
 	Mouse &mouse = Mouse::instance();
 
 	if (mouse.buttonDown(Mouse::MouseButton::BUTTON_RIGHT)) {
@@ -168,9 +172,11 @@ void Game::render() {
 	Spritesheet::Unbind();
 	shader->unuse();
 
+	if (m_debug) {
+		registry->GetSystem<RenderColliderSystem>().Update(camera);
+		registry->GetSystem<RenderGUISystem>().Update(registry, camera);
+	}
 
-	//registry->GetSystem<RenderTextSystem>().Update(camera);
-	//registry->GetSystem<RenderHealthBarSystem>().Update(camera);
 
 	/*if (m_drawUi)
 		renderUi();*/
