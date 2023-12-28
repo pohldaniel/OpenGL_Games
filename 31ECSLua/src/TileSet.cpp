@@ -95,7 +95,7 @@ void TextureAtlasCreator::addTexture(unsigned char *texture, unsigned int w, uns
 	maxY = (std::max)(maxY, curY + h);
 }
 
-void TextureAtlasCreator::addTexture2(unsigned char *texture, unsigned int w, unsigned int h, std::vector<TextureRect>& prepacked, bool flipTextureRect, unsigned int _maxWidth, unsigned int _maxHeight, std::vector<TextureRect>& textureRects) {
+void TextureAtlasCreator::addCharset(unsigned char *texture, unsigned int w, unsigned int h, CharacterSet& characterSet, bool flipTextureRect, unsigned int _maxWidth, unsigned int _maxHeight, std::vector<TextureRect>& textureRects) {
 	unsigned int maxWidth = _maxWidth > 0 ? _maxWidth : width;
 	unsigned int maxHeight = _maxHeight > 0 ? _maxHeight : height;
 
@@ -116,9 +116,22 @@ void TextureAtlasCreator::addTexture2(unsigned char *texture, unsigned int w, un
 	for (unsigned int row = 0; row < h; ++row) {
 		memcpy(bufferPtr + (((curY + row) * width + curX) * 4), texture + (w * row * 4), 4 * w);
 	}
+	std::map<char, Char>::iterator it;
+	for (it = characterSet.characters.begin(); it != characterSet.characters.end(); it++) {
+		if (flipTextureRect) {
+			it->second.textureOffset[0] = (static_cast<float>(curX) + it->second.textureOffset[0] * static_cast<float>(w)) / static_cast<float>(width);
+			it->second.textureOffset[1] = (static_cast<float>(curY) + (it->second.textureOffset[1] + it->second.textureSize[1]) * static_cast<float>(h)) / static_cast<float>(height);
+			it->second.textureSize[0] =  ((it->second.textureSize[0]) * static_cast<float>(w)) / static_cast<float>(width);
+			it->second.textureSize[1] = -((it->second.textureSize[1]) * static_cast<float>(h)) / static_cast<float>(height);
+		}else {
+			it->second.textureOffset[0] = (static_cast<float>(curX) + it->second.textureOffset[0] * static_cast<float>(w)) / static_cast<float>(width);
+			it->second.textureOffset[1] = (static_cast<float>(curY) + it->second.textureOffset[1] * static_cast<float>(h)) / static_cast<float>(height);
+			it->second.textureSize[0] = ((it->second.textureSize[0]) * static_cast<float>(w)) / static_cast<float>(width);
+			it->second.textureSize[1] = ((it->second.textureSize[1]) * static_cast<float>(h)) / static_cast<float>(height);
+		}
+	}
 
-	for (auto rect : prepacked) {
-		std::cout << textureRects.size() << "QQQQQ: " << ((rect.textureWidth)  * static_cast<float>(w)) / static_cast<float>(width) << std::endl;
+	/*for (auto rect : prepacked) {
 		textureRects.push_back({ (static_cast<float>(curX) + rect.textureOffsetX * static_cast<float>(w)) / static_cast<float>(width),
 			flipTextureRect ? (static_cast<float>(curY) + (rect.textureOffsetY + rect.textureHeight) * static_cast<float>(h)) / static_cast<float>(height) : (static_cast<float>(curY) + rect.textureOffsetY * static_cast<float>(h)) / static_cast<float>(height),
 			((rect.textureWidth)  * static_cast<float>(w)) / static_cast<float>(width),
@@ -126,8 +139,7 @@ void TextureAtlasCreator::addTexture2(unsigned char *texture, unsigned int w, un
 			rect.width,
 			rect.height,
 			frame });
-		
-	}
+	}*/
 
 	curX += w;
 	maxY = (std::max)(maxY, curY + h);
@@ -327,7 +339,7 @@ void TileSet::loadTileSetCpu(std::string texturePath, float tileWidth, float til
 	TextureAtlasCreator::Get().addTexture(bytes, imageWidth, imageHeight, textureRects, false, 0u, 0u, m_textureRects);
 }
 
-void TileSet::loadTileSetCpu2(std::string texturePath, const bool flipVertical, bool flipTextureRects) {
+void TileSet::loadTileSetCpu(std::string texturePath, const bool flipVertical, bool flipTextureRects) {
 	if (m_init) return;
 
 	int imageWidth, imageHeight;
@@ -365,14 +377,7 @@ void TileSet::addCharset(CharacterSet& characterSet) {
 	if (m_init) return;
 
 	int cutOff = characterSet.characters.size();
-	int begin = m_textureRects.size();
-
-	std::vector<TextureRect> textureRects;
-	std::map<char, Char>::iterator it;
-	for (it = characterSet.characters.begin(); it != characterSet.characters.end(); it++){
-		textureRects.push_back({ it->second.textureOffset[0], it->second.textureOffset[1], it->second.textureSize[0], it->second.textureSize[1]});
-	}
-
+	
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	unsigned char* bytes = (unsigned char*)malloc(characterSet.maxWidth * characterSet.maxHeight * sizeof(unsigned char));
 	glBindTexture(GL_TEXTURE_2D_ARRAY, characterSet.spriteSheet);
@@ -389,19 +394,9 @@ void TileSet::addCharset(CharacterSet& characterSet) {
 		bytesNew[i + 3] = bytes[k] >= 127 ? 255 : 0;
 	}
 
-	TextureAtlasCreator::Get().addTexture(bytesNew, characterSet.maxWidth, characterSet.maxHeight, textureRects, false, 0u, 0u, m_textureRects);
+	TextureAtlasCreator::Get().addCharset(bytesNew, characterSet.maxWidth, characterSet.maxHeight, characterSet, false, 0u, 0u, m_textureRects);
 	free(bytes);
 	free(bytesNew);
-
-	for (it = characterSet.characters.begin(); it != characterSet.characters.end(); it++) {
-		size_t index = std::distance(std::begin(characterSet.characters), it) + begin;
-		const TextureRect& rect = m_textureRects[index];
-		it->second.textureOffset[0] = rect.textureOffsetX;
-		it->second.textureOffset[1] = rect.textureOffsetY;
-		it->second.textureSize[0] = rect.textureWidth;
-		it->second.textureSize[1] = rect.textureHeight;
-	}
-	characterSet.frame = 1u;
 }
 
 void TileSet::loadTileSetGpu() {

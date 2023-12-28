@@ -75,7 +75,7 @@ void LevelLoader::LoadLevel(sol::state& lua, const std::unique_ptr<Registry>& re
 				SpriteMap.insert({ assetId, {asset["begin_frame"], asset["end_frame"]} });
 			}
 		}else if (assetType == "texture") {
-			TileSetManager::Get().getTileSet("desert").loadTileSetCpu2(asset["file"]);
+			TileSetManager::Get().getTileSet("desert").loadTileSetCpu(asset["file"], true, false);
 			if (SpriteMap.count(assetId) == 0) {
 				SpriteMap.insert({ assetId, {asset["begin_frame"], asset["end_frame"]} });
 			}

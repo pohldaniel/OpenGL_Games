@@ -18,8 +18,7 @@ public:
 
 	void addTexture(unsigned char *texture, unsigned int w, unsigned int h, bool flipTextureRect, unsigned int _maxWidth, unsigned int _maxHeight, std::vector<TextureRect>& textureRects);
 	void addTexture(unsigned char *texture, unsigned int w, unsigned int h, std::vector<TextureRect>& prepacked, bool flipTextureRect, unsigned int _maxWidth, unsigned int _maxHeight, std::vector<TextureRect>& textureRects);
-	void addTexture2(unsigned char *texture, unsigned int w, unsigned int h, std::vector<TextureRect>& prepacked, bool flipTextureRect, unsigned int _maxWidth, unsigned int _maxHeight, std::vector<TextureRect>& textureRects);
-
+	void addCharset(unsigned char *texture, unsigned int w, unsigned int h, CharacterSet& characterSet, bool flipTextureRect, unsigned int _maxWidth, unsigned int _maxHeight, std::vector<TextureRect>& textureRects);
 	void addTexture(unsigned char *texture, unsigned int w, unsigned int h, unsigned int maxWidth, unsigned int maxHeight);
 	void resetLine();
 	void addFrame();
@@ -55,7 +54,7 @@ public:
 	void loadTileSetCpu(std::vector<std::string> texturePaths, unsigned int width = 1024u, unsigned int height = 1024u, bool resetLine = false);
 	void loadTileSetCpu(std::string mapPath, std::string texturePath, unsigned int columns, unsigned int rows, float tileSize, const bool flipVertical = true, bool flipTextureRects = false);
 	void loadTileSetCpu(std::string texturePath, float tileHWidth, float tileHeight, const bool flipVertical = true, bool flipTextureRects = false);
-	void loadTileSetCpu2(std::string texturePath, const bool flipVertical = true, bool flipTextureRects = false);
+	void loadTileSetCpu(std::string texturePath, const bool flipVertical = true, bool flipTextureRects = false);
 	void addCharset(CharacterSet& characterSet);
 	
 	const std::vector<TextureRect> getLastTextureRects() const;
