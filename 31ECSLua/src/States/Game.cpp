@@ -53,7 +53,6 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 	m_background.setSpeed(0.005f);
 
 	registry = std::make_unique<Registry>();
-	//assetStore = std::make_unique<AssetStore>();
 	eventBus = std::make_unique<EventBus>();
 
 	init();
@@ -164,6 +163,7 @@ void Game::render() {
 	shader->loadMatrix("u_transform", m_camera.getOrthographicMatrix() * m_camera.getViewMatrix());
 	Spritesheet::Bind(LevelLoader::Atlas);
 	registry->GetSystem<RenderSystem>().Update(camera);
+	registry->GetSystem<RenderHealthBarSystem>().Update(camera);
 	Batchrenderer::Get().drawBufferRaw();
 	Spritesheet::Unbind();
 	shader->unuse();

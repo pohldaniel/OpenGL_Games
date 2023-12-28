@@ -27,11 +27,11 @@ public:
 		m_assets[name].loadFromFile(path, offsetX, offsetY, width, height, flipVertical, format);
 	}
 
-	void createNullTexture(const std::string& name, unsigned int width = 2, unsigned int height = 2, unsigned int color = 255) {
+	void createNullTexture(const std::string& name, unsigned int width = 2u, unsigned int height = 2u, unsigned int color = 255u) {
 		m_assets[name].createNullTexture(width, height, color);
 	}
 
-	void createPerlinNoise(const std::string& name, unsigned int width = 2, unsigned int height = 2, unsigned int seed = 0) {
+	void createPerlinNoise(const std::string& name, unsigned int width = 2u, unsigned int height = 2u, unsigned int seed = 0u) {
 		m_assets[name].createPerlinNoise(width, height, seed);
 	}
 
@@ -39,11 +39,11 @@ public:
 		m_assets[name].createNoise(width, height);
 	}
 
-	void createEmptyTexture(const std::string& name, unsigned int width, unsigned int height, unsigned int internalFormat = 0, unsigned int format = 0, unsigned int type = 0) {
+	void createEmptyTexture(const std::string& name, unsigned int width, unsigned int height, unsigned int internalFormat = 0u, unsigned int format = 0u, unsigned int type = 0u) {
 		m_assets[name].createEmptyTexture(width, height, internalFormat, format, type);
 	}
 
-	void loadCharacterSet(const std::string& name, const std::string& path, const unsigned int characterSize, const unsigned int paddingX = 1, const unsigned int paddingY = 10, unsigned int minHeight = 0u, int spacing = 0, const bool flipVertical = true, unsigned int frame = 0u) {
+	void loadCharacterSet(const std::string& name, const std::string& path, const unsigned int characterSize, const unsigned int paddingX = 1u, const unsigned int paddingY = 10u, unsigned int minHeight = 0u, int spacing = 0, const bool flipVertical = true, unsigned int frame = 0u) {
 		m_assets.insert(std::pair<std::string, T>(name, T()));
 		m_assets[name].loadFromFile(path, characterSize, paddingX, paddingY, minHeight, spacing, flipVertical, frame);
 	}

@@ -89,10 +89,9 @@ void LevelLoader::LoadLevel(sol::state& lua, const std::unique_ptr<Registry>& re
 			if (SpriteMap.count(assetId) == 0) {
 				SpriteMap.insert({ assetId, {asset["begin_frame"], asset["end_frame"]} });
 			}
-		}/*else (assetType == "font") {
-            //assetStore->AddFont(assetId, asset["file"], asset["font_size"]);
-            //Logger::Log("A new font asset was added to the asset store, id: " + assetId);
-        }*/
+		}else if(assetType == "font") {
+			TileSetManager::Get().getTileSet("desert").addCharset(Globals::fontManager.get(assetId));
+        }
         i++;
     }
 

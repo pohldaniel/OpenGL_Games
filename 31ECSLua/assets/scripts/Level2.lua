@@ -11,6 +11,10 @@ Level = {
 		{ type = "texture", 	id = "bullet-texture",	file = "./assets/images/bullet.png", begin_frame = 1207, end_frame = 1207},
 		{ type = "spritesheet", id = "bomber-texture",	file = "./assets/images/bomber-spritesheet.png", begin_frame = 1208, end_frame = 1209},
 		{ type = "texture",		id = "runway-texture",	file = "./assets/images/runway.png", begin_frame = 1210, end_frame = 1210},
+		{ type = "texture",		id = "boat-texture",	file = "./assets/images/boat.png", begin_frame = 1211, end_frame = 1211},
+		{ type = "texture",		id = "empty-texture",	file = "./assets/images/empty.png", begin_frame = 1212, end_frame = 1212},
+		{ type = "font"   ,		id = "pico8_5",			file = "./assets/fonts/pico8.ttf", font_size = 5 },
+        { type = "font"   ,		id = "pico8_10",		file = "./assets/fonts/pico8.ttf", font_size = 10 }
     },
 
     ----------------------------------------------------
@@ -302,6 +306,75 @@ Level = {
                         local angle_in_degrees = 180 + angle * 180 / math.pi
                         set_rotation(entity, angle_in_degrees)
                     end
+                }
+            }
+        },
+		{
+            -- Boat
+            components = {
+                transform = {
+                    position = { x = 1000, y = 160 },
+                    scale = { x = 0.8, y = 0.8 },
+                    rotation = 270, -- degrees
+                },
+                sprite = {
+                    texture_asset_id = "boat-texture",
+                    width = 21,
+                    height = 126,
+                    z_index = 1
+                },
+                projectile_emitter = {
+                    projectile_velocity = { x = 0, y = -300 },
+                    projectile_duration = 1, -- seconds
+                    repeat_frequency = 1, -- seconds
+                    hit_percentage_damage = 5,
+                    friendly = false
+                }
+            }
+        },
+        {
+            -- Boat
+            components = {
+                transform = {
+                    position = { x = 1200, y = 160 },
+                    scale = { x = 0.8, y = 0.8 },
+                    rotation = 270, -- degrees
+                },
+                sprite = {
+                    texture_asset_id = "boat-texture",
+                    width = 21,
+                    height = 126,
+                    z_index = 1
+                },
+                projectile_emitter = {
+                    projectile_velocity = { x = 0, y = -300 },
+                    projectile_duration = 1, -- seconds
+                    repeat_frequency = 1, -- seconds
+                    hit_percentage_damage = 5,
+                    friendly = false
+                }
+            }
+        },
+        {
+            -- Boat
+            components = {
+                transform = {
+                    position = { x = 1400, y = 160 },
+                    scale = { x = 0.8, y = 0.8 },
+                    rotation = 270, -- degrees
+                },
+                sprite = {
+                    texture_asset_id = "boat-texture",
+                    width = 21,
+                    height = 126,
+                    z_index = 1
+                },
+                projectile_emitter = {
+                    projectile_velocity = { x = 0, y = -300 },
+                    projectile_duration = 1, -- seconds
+                    repeat_frequency = 1, -- seconds
+                    hit_percentage_damage = 5,
+                    friendly = false
                 }
             }
         },

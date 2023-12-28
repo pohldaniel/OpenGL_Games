@@ -142,7 +142,7 @@ void CharacterSet::loadFromFile(const std::string& path, unsigned int characterS
 			}
 
 			for (unsigned int i = 0; i < g->bitmap.width * g->bitmap.rows; i++, index++) {
-				bytes[index] = g->bitmap.buffer[i];
+				bytes[index] = g->bitmap.buffer[i];				
 			}
 
 			for (unsigned int i = 0; i < g->bitmap.width * std::max(0, yOffset); i++, index++) {
@@ -155,11 +155,11 @@ void CharacterSet::loadFromFile(const std::string& path, unsigned int characterS
 
 			Char character = {
 				{ g->bitmap_left, g->bitmap_top },
-				{ g->bitmap.width, height },				
+				{ g->bitmap.width, height },
 				//{ static_cast<float>(ox - shiftX) / (float)maxWidth, static_cast<float>(oy) / (float)maxHeight },
 				{ static_cast<float>(ox) / (float)maxWidth, static_cast<float>(oy) / (float)maxHeight },
-				{ static_cast<float>(g->bitmap.width ) / static_cast<float>(maxWidth), static_cast<float>(height) / static_cast<float>(maxHeight) },
-				{ static_cast<unsigned int>((g->advance.x >> 6) +  spacing) }
+				{ static_cast<float>(g->bitmap.width) / static_cast<float>(maxWidth), static_cast<float>(height) / static_cast<float>(maxHeight) },
+				{ (g->advance.x >> 6) + spacing }
 			};
 
 			characters.insert(std::pair<char, Char>(i, character));
@@ -177,14 +177,14 @@ void CharacterSet::loadFromFile(const std::string& path, unsigned int characterS
 	//safeFont();
 }
 
-void CharacterSet::safeFont() {
+void CharacterSet::safeFont(std::string name) {
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	unsigned char* bytes = (unsigned char*)malloc(maxWidth * maxHeight * sizeof(unsigned char));
-
 	glBindTexture(GL_TEXTURE_2D_ARRAY, spriteSheet);
-	//glGetTextureSubImage(GL_TEXTURE_2D_ARRAY, 0, 0, 0, 0, maxWidth, maxWidth, 1, GL_RED, GL_UNSIGNED_BYTE, sizeof(unsigned char) * maxWidth * maxWidth, bytes);
 	glGetTexImage(GL_TEXTURE_2D_ARRAY, 0, GL_RED, GL_UNSIGNED_BYTE, bytes);
 	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
-	
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+
 	std::vector<unsigned char> srcPixels(maxWidth * maxHeight);
 	memcpy(&srcPixels[0], bytes, maxWidth * maxHeight);
 
@@ -199,17 +199,17 @@ void CharacterSet::safeFont() {
 
 	unsigned char* bytesNew = (unsigned char*)malloc(maxWidth * maxHeight * 4);
 
-	for (unsigned int i = 0, k = 0; i < maxWidth * maxHeight * 4; i = i + 4, k = k++) {
+	for (unsigned int i = 0, k = 0; i < maxWidth * maxHeight * 4; i = i + 4, k++) {
 		bytesNew[i] = (int)bytes[k];
 		bytesNew[i + 1] = (int)bytes[k];
 		bytesNew[i + 2] = (int)bytes[k];
 		bytesNew[i + 3] = 255;
 	}
 
-	Texture::Safe("font2.png", bytesNew, maxWidth, maxHeight, 4);
+	Texture::Safe((name + ".png").c_str(), bytesNew, maxWidth, maxHeight, 4);
 
 	free(bytes);
-	free(bytesNew);
+	free(bytesNew);	
 }
 
 void CharacterSet::addSpacing(std::string chars, int spacing) {

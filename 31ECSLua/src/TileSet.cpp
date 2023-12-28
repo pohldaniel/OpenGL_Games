@@ -1,3 +1,4 @@
+#include <iterator>
 #include <engine/Texture.h>
 #include <engine/Spritesheet.h>
 
@@ -88,6 +89,44 @@ void TextureAtlasCreator::addTexture(unsigned char *texture, unsigned int w, uns
 			rect.width,
 			rect.height,
 			frame });
+	}
+
+	curX += w;
+	maxY = (std::max)(maxY, curY + h);
+}
+
+void TextureAtlasCreator::addTexture2(unsigned char *texture, unsigned int w, unsigned int h, std::vector<TextureRect>& prepacked, bool flipTextureRect, unsigned int _maxWidth, unsigned int _maxHeight, std::vector<TextureRect>& textureRects) {
+	unsigned int maxWidth = _maxWidth > 0 ? _maxWidth : width;
+	unsigned int maxHeight = _maxHeight > 0 ? _maxHeight : height;
+
+	if (maxWidth - curX < w) {
+		curX = 0;
+		curY = maxY;
+	}
+
+	if (maxHeight - curY < h) {
+		addFrame();
+	}
+
+	if (maxHeight < h || maxWidth < w) {
+		std::cout << "Texture to large for TextrueAtlas" << std::endl;
+		return;
+	}
+
+	for (unsigned int row = 0; row < h; ++row) {
+		memcpy(bufferPtr + (((curY + row) * width + curX) * 4), texture + (w * row * 4), 4 * w);
+	}
+
+	for (auto rect : prepacked) {
+		std::cout << textureRects.size() << "QQQQQ: " << ((rect.textureWidth)  * static_cast<float>(w)) / static_cast<float>(width) << std::endl;
+		textureRects.push_back({ (static_cast<float>(curX) + rect.textureOffsetX * static_cast<float>(w)) / static_cast<float>(width),
+			flipTextureRect ? (static_cast<float>(curY) + (rect.textureOffsetY + rect.textureHeight) * static_cast<float>(h)) / static_cast<float>(height) : (static_cast<float>(curY) + rect.textureOffsetY * static_cast<float>(h)) / static_cast<float>(height),
+			((rect.textureWidth)  * static_cast<float>(w)) / static_cast<float>(width),
+			flipTextureRect ? -((rect.textureHeight) * static_cast<float>(h)) / static_cast<float>(height) : ((rect.textureHeight) * static_cast<float>(h)) / static_cast<float>(height) ,
+			rect.width,
+			rect.height,
+			frame });
+		
 	}
 
 	curX += w;
@@ -322,6 +361,49 @@ void TileSet::loadTileSetCpu2(std::string texturePath, const bool flipVertical, 
 	TextureAtlasCreator::Get().addTexture(bytes, imageWidth, imageHeight, textureRects, false, 0u, 0u, m_textureRects);
 }
 
+void TileSet::addCharset(CharacterSet& characterSet) {
+	if (m_init) return;
+
+	int cutOff = characterSet.characters.size();
+	int begin = m_textureRects.size();
+
+	std::vector<TextureRect> textureRects;
+	std::map<char, Char>::iterator it;
+	for (it = characterSet.characters.begin(); it != characterSet.characters.end(); it++){
+		textureRects.push_back({ it->second.textureOffset[0], it->second.textureOffset[1], it->second.textureSize[0], it->second.textureSize[1]});
+	}
+
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+	unsigned char* bytes = (unsigned char*)malloc(characterSet.maxWidth * characterSet.maxHeight * sizeof(unsigned char));
+	glBindTexture(GL_TEXTURE_2D_ARRAY, characterSet.spriteSheet);
+	glGetTexImage(GL_TEXTURE_2D_ARRAY, 0, GL_RED, GL_UNSIGNED_BYTE, bytes);
+	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+	
+	unsigned char* bytesNew = (unsigned char*)malloc(characterSet.maxWidth * characterSet.maxHeight * 4);
+
+	for (unsigned int i = 0, k = 0; i < characterSet.maxWidth * characterSet.maxHeight * 4; i = i + 4, k++) {
+		bytesNew[i] = (int)bytes[k];
+		bytesNew[i + 1] = (int)bytes[k];
+		bytesNew[i + 2] = (int)bytes[k];
+		bytesNew[i + 3] = bytes[k] >= 127 ? 255 : 0;
+	}
+
+	TextureAtlasCreator::Get().addTexture(bytesNew, characterSet.maxWidth, characterSet.maxHeight, textureRects, false, 0u, 0u, m_textureRects);
+	free(bytes);
+	free(bytesNew);
+
+	for (it = characterSet.characters.begin(); it != characterSet.characters.end(); it++) {
+		size_t index = std::distance(std::begin(characterSet.characters), it) + begin;
+		const TextureRect& rect = m_textureRects[index];
+		it->second.textureOffset[0] = rect.textureOffsetX;
+		it->second.textureOffset[1] = rect.textureOffsetY;
+		it->second.textureSize[0] = rect.textureWidth;
+		it->second.textureSize[1] = rect.textureHeight;
+	}
+	characterSet.frame = 1u;
+}
+
 void TileSet::loadTileSetGpu() {
 	if (m_init) return;
 	TextureAtlasCreator::Get().getAtlas(m_atlas);
@@ -336,7 +418,7 @@ const std::vector<TextureRect>& TileSet::getTextureRects() const {
 	return m_textureRects;
 }
 
-const std::vector<TextureRect>& TileSet::getLastTextureRects() const {
+const std::vector<TextureRect> TileSet::getLastTextureRects() const {
 	return std::vector<TextureRect>(m_textureRects.end() - cutOff, m_textureRects.end());
 }
 

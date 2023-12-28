@@ -41,7 +41,7 @@ class ProjectileEmitSystem: public System {
                         if (entity.HasComponent<SpriteComponent>()) {
                             auto sprite = entity.GetComponent<SpriteComponent>();
                             projectilePosition.x += (transform.scale.x * sprite.textureRect.width / 2);
-                            projectilePosition.y += (transform.scale.y * sprite.textureRect.height / 2);
+                            projectilePosition.y -= (transform.scale.y * sprite.textureRect.height / 2);
                         }
 
                         // If parent entity direction is controlled by the keyboard keys, modify the direction of the projectile accordingly
@@ -84,7 +84,7 @@ class ProjectileEmitSystem: public System {
                     if (entity.HasComponent<SpriteComponent>()) {
                         const auto sprite = entity.GetComponent<SpriteComponent>();
                         projectilePosition.x += (transform.scale.x * sprite.textureRect.width / 2);
-                        projectilePosition.y += (transform.scale.y * sprite.textureRect.height / 2);
+                        projectilePosition.y -= (transform.scale.y * sprite.textureRect.height / 2);
                     }
 
                     // Add a new projectile entity to the registry
