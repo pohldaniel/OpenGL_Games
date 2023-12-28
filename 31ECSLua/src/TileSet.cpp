@@ -249,25 +249,22 @@ void TileSet::loadTileSetCpu(std::string mapPath, std::string texturePath, unsig
 	TextureAtlasCreator::Get().addTexture(bytes, imageWidth, imageHeight, textureRects, false, 0u, 0u, m_textureRects);
 }
 
-void TileSet::loadTileSetCpu(std::string texturePath, float tileSize, const bool flipVertical, bool flipTextureRects) {
+void TileSet::loadTileSetCpu(std::string texturePath, float tileWidth, float tileHeight, const bool flipVertical, bool flipTextureRects) {
 	if (m_init) return;
-	
-	
+		
 	int imageWidth, imageHeight;
 	unsigned char* bytes = Texture::LoadFromFile(texturePath, imageWidth, imageHeight, true);
-	int tileCountX = imageWidth / static_cast<int>(tileSize);
-	int tileCountY = imageHeight / static_cast<int>(tileSize);
+	int tileCountX = imageWidth / static_cast<int>(tileWidth);
+	int tileCountY = imageHeight / static_cast<int>(tileHeight);
 	cutOff = tileCountX * tileCountY;
 
-	float tileWidth = tileSize;
-	float tileHeight = tileSize;
 	std::vector<TextureRect> textureRects;
 
 	for (int y = 0; y < tileCountY; y++) {
 		for (int x = 0; x < tileCountX; x++) {
 			unsigned int id = y * tileCountX + x;
-			float srcRectX = (id % tileCountX) * tileSize;
-			float srcRectY = (id / tileCountX) * tileSize;
+			float srcRectX = (id % tileCountX) * tileWidth;
+			float srcRectY = (id / tileCountX) * tileHeight;
 
 			if (!flipTextureRects) {
 				textureRects.push_back({ (srcRectX + 0.5f) / static_cast<float>(imageWidth),

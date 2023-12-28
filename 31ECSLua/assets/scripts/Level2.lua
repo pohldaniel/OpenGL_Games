@@ -9,6 +9,8 @@ Level = {
 		{ type = "spritesheet", id = "su27-texture",	file = "./assets/images/su27-spritesheet.png", begin_frame = 1204, end_frame = 1205},
 		{ type = "texture",		id = "carrier-texture",	file = "./assets/images/carrier.png", begin_frame = 1206, end_frame = 1206},
 		{ type = "texture", 	id = "bullet-texture",	file = "./assets/images/bullet.png", begin_frame = 1207, end_frame = 1207},
+		{ type = "spritesheet", id = "bomber-texture",	file = "./assets/images/bomber-spritesheet.png", begin_frame = 1208, end_frame = 1209},
+		{ type = "texture",		id = "runway-texture",	file = "./assets/images/runway.png", begin_frame = 1210, end_frame = 1210},
     },
 
     ----------------------------------------------------
@@ -76,6 +78,234 @@ Level = {
             }
         },
 		{
+            -- SU-27 fighter jet
+            group = "enemies",
+            components = {
+                transform = {
+                    position = { x = 725, y = 1480 },
+                    scale = { x = 1.0, y = 1.0 },
+                    rotation = 90.0, -- degrees
+                },
+                rigidbody = {
+                    velocity = { x = 20 , y = 0.0 }
+                },
+                sprite = {
+                    texture_asset_id = "su27-texture",
+                    width = 32,
+                    height = 32,
+                    z_index = 8
+                },
+                animation = {
+                    num_frames = 2,
+                    speed_rate = 10 -- fps
+                },
+                boxcollider = {
+                    width = 25,
+                    height = 30,
+                    offset = { x = 5, y = 0 }
+                },
+                health = {
+                    health_percentage = 100
+                }
+            }
+        },
+		{
+            -- SU-27 fighter jet
+            group = "enemies",
+            components = {
+                transform = {
+                    position = { x = 288, y = 810 },
+                    scale = { x = 1.0, y = 1.0 },
+                    rotation = -10.0, -- degrees
+                },
+                rigidbody = {
+                    velocity = { x = -5.5 , y = 35.0 }
+                },
+                sprite = {
+                    texture_asset_id = "su27-texture",
+                    width = 32,
+                    height = 32,
+                    z_index = 5
+                },
+                animation = {
+                    num_frames = 2,
+                    speed_rate = 10 -- fps
+                },
+                boxcollider = {
+                    width = 25,
+                    height = 30,
+                    offset = { x = 5, y = 0 }
+                },
+                health = {
+                    health_percentage = 100
+                }
+            }
+        },
+        {
+            -- SU-27 fighter jet
+            group = "enemies",
+            components = {
+                transform = {
+                    position = { x = 288, y = 1410 },
+                    scale = { x = 1.0, y = 1.0 },
+                    rotation = -10.0, -- degrees
+                },
+                rigidbody = {
+                    velocity = { x = -5.5 , y = 35.0 }
+                },
+                sprite = {
+                    texture_asset_id = "su27-texture",
+                    width = 32,
+                    height = 32,
+                    z_index = 5
+                },
+                animation = {
+                    num_frames = 2,
+                    speed_rate = 10 -- fps
+                },
+                boxcollider = {
+                    width = 25,
+                    height = 30,
+                    offset = { x = 5, y = 0 }
+                },
+                health = {
+                    health_percentage = 100
+                }
+            }
+        },
+        {
+            -- SU-27 fighter jet
+            group = "enemies",
+            components = {
+                transform = {
+                    position = { x = 1100, y = 1000 },
+                    scale = { x = 1.0, y = 1.0 },
+                    rotation = 0.0, -- degrees
+                },
+                rigidbody = {
+                    velocity = { x = 0.0, y = 100.0 }
+                },
+                sprite = {
+                    texture_asset_id = "su27-texture",
+                    width = 32,
+                    height = 32,
+                    z_index = 5
+                },
+                animation = {
+                    num_frames = 2,
+                    speed_rate = 10 -- fps
+                },
+                boxcollider = {
+                    width = 32,
+                    height = 32
+                },
+                health = {
+                    health_percentage = 100
+                },
+                on_update_script = {
+                    [0] =
+                    function(entity, delta_time, ellapsed_time)
+                        -- this function makes the fighter jet move up and down the map shooting projectiles
+                        local current_position_x, current_position_y = get_position(entity)
+                        local current_velocity_x, current_velocity_y = get_velocity(entity)
+						
+                         -- if it reaches the top or the bottom of the map
+                        if current_position_y > 10 or current_position_y < 32 - map_height  then
+                            set_velocity(entity, 0, current_velocity_y * -1); -- flip the entity y-velocity
+                        else
+                            set_velocity(entity, 0, current_velocity_y); -- do not flip y-velocity
+                        end
+
+                        -- set the transform rotation to match going up or down
+                        if (current_velocity_y < 0) then
+                            set_rotation(entity, 180) -- point up
+                        else
+                            set_rotation(entity, 0) -- point down
+                        end
+                    end
+                }
+            }
+        },
+		{
+            -- Bomber plane
+            group = "enemies",
+            components = {
+                transform = {
+                    position = { x = 464, y = 520 },
+                    scale = { x = 1.0, y = 1.0 },
+                    rotation = 0.0, -- degrees
+                },
+                sprite = {
+                    texture_asset_id = "bomber-texture",
+                    width = 32,
+                    height = 24,
+                    z_index = 5
+                },
+                animation = {
+                    num_frames = 2,
+                    speed_rate = 10 -- fps
+                },
+                boxcollider = {
+                    width = 32,
+                    height = 32,
+                    offset = { x = 0, y = 0 }
+                },
+                health = {
+                    health_percentage = 100
+                }
+            }
+        },
+		{
+            -- Bomber airplane
+            group = "enemies",
+            components = {
+                transform = {
+                    position = { x = 317, y = 985 },
+                    scale = { x = 1.0, y = 1.0 },
+                    rotation = 0.0, -- degrees
+                },
+                rigidbody = {
+                    velocity = { x = 0.0, y = -50.0 }
+                },
+                sprite = {
+                    texture_asset_id = "bomber-texture",
+                    width = 32,
+                    height = 24,
+                    z_index = 8
+                },
+                animation = {
+                    num_frames = 2,
+                    speed_rate = 10 -- fps
+                },
+                boxcollider = {
+                    width = 32,
+                    height = 24
+                },
+                health = {
+                    health_percentage = 100
+                },
+                on_update_script = {
+                    [0] =
+                    function(entity, delta_time, ellapsed_time)
+                        -- change the position of the the airplane to follow a circular path
+                        local radius = 170
+                        local distance_from_origin = 500
+
+                        local angle = ellapsed_time * 0.0009
+
+                        -- calculate the new x-y cartesian position using polar coordinates
+                        local new_x = distance_from_origin + (math.cos(angle) * radius)
+                        local new_y = distance_from_origin - (math.sin(angle) * radius)  
+                        set_position(entity, new_x, new_y)
+
+                        -- change the rotation of the sprite to match the circular motion
+                        local angle_in_degrees = 180 + angle * 180 / math.pi
+                        set_rotation(entity, angle_in_degrees)
+                    end
+                }
+            }
+        },
+		{
             -- Carrier
             components = {
                 transform = {
@@ -107,6 +337,118 @@ Level = {
                 },
             }
         },
+		{
+            -- Runway
+            components = {
+                transform = {
+                    position = { x = 470, y = 385 },
+                    scale = { x = 1.0, y = 1.0 },
+                    rotation = 0.0, -- degrees
+                },
+                sprite = {
+                    texture_asset_id = "runway-texture",
+                    width = 21,
+                    height = 191,
+                    z_index = 1
+                }
+            }
+        },
+        {
+            -- Runway
+            components = {
+                transform = {
+                    position = { x = 800, y = 1400 },
+                    scale = { x = 1.0, y = 1.0 },
+                    rotation = 90.0, -- degrees
+                },
+                sprite = {
+                    texture_asset_id = "runway-texture",
+                    width = 21,
+                    height = 191,
+                    z_index = 1
+                }
+            }
+        },
+        {
+            -- Runway
+            components = {
+                transform = {
+                    position = { x = 800, y = 1500 },
+                    scale = { x = 1.0, y = 1.0 },
+                    rotation = 90.0, -- degrees
+                },
+                sprite = {
+                    texture_asset_id = "runway-texture",
+                    width = 21,
+                    height = 191,
+                    z_index = 1
+                }
+            }
+        },
+        {
+            -- Runway
+            components = {
+                transform = {
+                    position = { x = 800, y = 1600 },
+                    scale = { x = 1.0, y = 1.0 },
+                    rotation = 90.0, -- degrees
+                },
+                sprite = {
+                    texture_asset_id = "runway-texture",
+                    width = 21,
+                    height = 191,
+                    z_index = 1
+                }
+            }
+        },
+        {
+            -- Runway
+            components = {
+                transform = {
+                    position = { x = 1300, y = 1400 },
+                    scale = { x = 1.0, y = 1.0 },
+                    rotation = 90.0, -- degrees
+                },
+                sprite = {
+                    texture_asset_id = "runway-texture",
+                    width = 21,
+                    height = 191,
+                    z_index = 1
+                }
+            }
+        },
+        {
+            -- Runway
+            components = {
+                transform = {
+                    position = { x = 1300, y = 1500 },
+                    scale = { x = 1.0, y = 1.0 },
+                    rotation = 90.0, -- degrees
+                },
+                sprite = {
+                    texture_asset_id = "runway-texture",
+                    width = 21,
+                    height = 191,
+                    z_index = 1
+                }
+            }
+        },
+        {
+            -- Runway
+            components = {
+                transform = {
+                    position = { x = 1300, y = 1600 },
+                    scale = { x = 1.0, y = 1.0 },
+                    rotation = 90.0, -- degrees
+                },
+                sprite = {
+                    texture_asset_id = "runway-texture",
+                    width = 21,
+                    height = 191,
+                    z_index = 1
+                }
+            }
+        }
 	}
 
 }

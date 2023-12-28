@@ -84,7 +84,7 @@ class MovementSystem: public System {
 
                 // Kill all entities that move outside the map boundaries
                 if (isEntityOutsideMap && !entity.HasTag("player")) {
-                    entity.Kill();
+                    //entity.Kill();
                 }
             }
         }

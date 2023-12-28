@@ -80,7 +80,12 @@ void LevelLoader::LoadLevel(sol::state& lua, const std::unique_ptr<Registry>& re
 				SpriteMap.insert({ assetId, {asset["begin_frame"], asset["end_frame"]} });
 			}
 		}else if (assetType == "spritesheet") {
-			TileSetManager::Get().getTileSet("desert").loadTileSetCpu(asset["file"], 32.0f);
+			if (assetId == "bomber-texture") {
+				TileSetManager::Get().getTileSet("desert").loadTileSetCpu(asset["file"], 32.0f, 24.0f);
+			}else {
+				TileSetManager::Get().getTileSet("desert").loadTileSetCpu(asset["file"], 32.0f, 32.0f);
+			}
+
 			if (SpriteMap.count(assetId) == 0) {
 				SpriteMap.insert({ assetId, {asset["begin_frame"], asset["end_frame"]} });
 			}
@@ -94,7 +99,7 @@ void LevelLoader::LoadLevel(sol::state& lua, const std::unique_ptr<Registry>& re
 	TileSetManager::Get().getTileSet("desert").loadTileSetGpu();
 	Atlas = TileSetManager::Get().getTileSet("desert").getAtlas();
 	Spritesheet::Safe("tmp", Atlas);
-
+	//std::cout << "Size: " << TileSetManager::Get().getTileSet("desert").getTextureRects().size() << std::endl;
     ////////////////////////////////////////////////////////////////////////////
     // Read the level tilemap information
     ////////////////////////////////////////////////////////////////////////////

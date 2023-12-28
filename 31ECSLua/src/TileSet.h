@@ -51,7 +51,7 @@ public:
 	TileSet();
 	void loadTileSetCpu(std::vector<std::string> texturePaths, unsigned int width = 1024u, unsigned int height = 1024u, bool resetLine = false);
 	void loadTileSetCpu(std::string mapPath, std::string texturePath, unsigned int columns, unsigned int rows, float tileSize, const bool flipVertical = true, bool flipTextureRects = false);
-	void loadTileSetCpu(std::string texturePath, float tileSize, const bool flipVertical = true, bool flipTextureRects = false);
+	void loadTileSetCpu(std::string texturePath, float tileHWidth, float tileHeight, const bool flipVertical = true, bool flipTextureRects = false);
 	void loadTileSetCpu2(std::string texturePath, const bool flipVertical = true, bool flipTextureRects = false);
 	
 	const std::vector<TextureRect>& getLastTextureRects() const;

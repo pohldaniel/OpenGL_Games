@@ -1,18 +1,21 @@
 #ifndef SCRIPTSYSTEM_H
 #define SCRIPTSYSTEM_H
+
 #include <iostream>
+#include <tuple>
 #include "../ECS/ECS.h"
 #include "../Components/ScriptComponent.h"
 #include "../Components/TransformComponent.h"
 #include "../Components/RigidBodyComponent.h"
 #include "../Components/AnimationComponent.h"
 #include "../Components/ProjectileEmitterComponent.h"
-#include <tuple>
+
+#include "Application.h"
 
 std::tuple<double, double> GetEntityPosition(Entity entity) {
     if (entity.HasComponent<TransformComponent>()) {
         const auto transform = entity.GetComponent<TransformComponent>();
-        return std::make_tuple(transform.position.x, transform.position.y);
+        return std::make_tuple(transform.position.x, transform.position.y - static_cast<float>(Application::Height));
     } else {
         //Logger::Err("Trying to get the position of an entity that has no transform component");
 		std::cout << "Trying to get the position of an entity that has no transform component" << std::endl;
