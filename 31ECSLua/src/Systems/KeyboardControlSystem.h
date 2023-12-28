@@ -22,24 +22,28 @@ class KeyboardControlSystem: public System {
 
         void OnKeyPressed(KeyPressedEvent& event) {
             for (auto entity: GetSystemEntities()) {
-                const auto keyboardcontrol = entity.GetComponent<KeyboardControlledComponent>();
+				auto& keyboardcontrol = entity.GetComponent<KeyboardControlledComponent>();
                 auto& sprite = entity.GetComponent<SpriteComponent>();
                 auto& rigidbody = entity.GetComponent<RigidBodyComponent>();
 
                 switch (event.symbol) {
 				case Keyboard::KEY_UP:
-                        rigidbody.velocity = keyboardcontrol.upVelocity;
+						keyboardcontrol.direction = Direction::NORTH;
+                        rigidbody.velocity = keyboardcontrol.upVelocity;					
                         sprite.textureRect = sprite.animationRects[0];
                         break;
                     case Keyboard::KEY_RIGHT:
-                        rigidbody.velocity = keyboardcontrol.rightVelocity;
+						keyboardcontrol.direction = Direction::EAST;
+                        rigidbody.velocity = keyboardcontrol.rightVelocity;						
 						sprite.textureRect = sprite.animationRects[1];
                         break;
                     case Keyboard::KEY_DOWN:
+						keyboardcontrol.direction = Direction::SOUTH;
                         rigidbody.velocity = keyboardcontrol.downVelocity;
 						sprite.textureRect = sprite.animationRects[2];
                         break;
                     case Keyboard::KEY_LEFT:
+						keyboardcontrol.direction = Direction::WEST;
                         rigidbody.velocity = keyboardcontrol.leftVelocity;
 						sprite.textureRect = sprite.animationRects[3];
                         break;

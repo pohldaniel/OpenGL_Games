@@ -7,7 +7,8 @@ Level = {
         { type = "tileset",		id = "tilemap-texture",	file = "./assets/tilemaps/desert.png", begin_frame = 0, end_frame = 1199 },
         { type = "spritesheet", id = "tank-texture",	file = "./assets/images/tank-panther-spritesheet.png", begin_frame = 1200, end_frame = 1203 },
 		{ type = "spritesheet", id = "su27-texture",	file = "./assets/images/su27-spritesheet.png", begin_frame = 1204, end_frame = 1205},
-		{ type = "texture",		id = "carrier-texture",	file = "./assets/images/carrier.png", begin_frame = 1206, end_frame = 1207}
+		{ type = "texture",		id = "carrier-texture",	file = "./assets/images/carrier.png", begin_frame = 1206, end_frame = 1206},
+		{ type = "texture", 	id = "bullet-texture",	file = "./assets/images/bullet.png", begin_frame = 1207, end_frame = 1207},
     },
 
     ----------------------------------------------------

@@ -18,6 +18,7 @@ class LevelLoader {
 	void LoadLevel(sol::state& lua, const std::unique_ptr<Registry>& registry, int level);
 
 	static unsigned int Atlas;
+	static std::unordered_map<std::string, std::pair<int, int>> SpriteMap;
 };
 
 #endif

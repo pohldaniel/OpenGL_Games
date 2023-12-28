@@ -23,6 +23,7 @@
 #include "TileSet.h"
 
 unsigned int LevelLoader::Atlas = 0;
+std::unordered_map<std::string, std::pair<int, int>> LevelLoader::SpriteMap;
 
 LevelLoader::LevelLoader() {
     //Logger::Log("LevelLoader constructor called!");    
@@ -35,7 +36,7 @@ LevelLoader::~LevelLoader() {
 }
 
 void LevelLoader::LoadLevel(sol::state& lua, const std::unique_ptr<Registry>& registry, int levelNumber) {
-	std::unordered_map<std::string, std::pair<int, int>> spriteMap;
+	
 	
 	// This checks the syntax of our script, but it does not execute the script
     sol::load_result script = lua.load_file("./assets/scripts/Level" + std::to_string(levelNumber) + ".lua");
@@ -70,18 +71,18 @@ void LevelLoader::LoadLevel(sol::state& lua, const std::unique_ptr<Registry>& re
         std::string assetId = asset["id"];
 		if (assetType == "tileset") {		
 			TileSetManager::Get().getTileSet("desert").loadTileSetCpu("assets/tilemaps/desert.map", asset["file"], 40, 30, 32.0f);
-			if (spriteMap.count(assetId) == 0) {
-				spriteMap.insert({ assetId, {asset["begin_frame"], asset["end_frame"]} });
+			if (SpriteMap.count(assetId) == 0) {
+				SpriteMap.insert({ assetId, {asset["begin_frame"], asset["end_frame"]} });
 			}
 		}else if (assetType == "texture") {
 			TileSetManager::Get().getTileSet("desert").loadTileSetCpu2(asset["file"]);
-			if (spriteMap.count(assetId) == 0) {
-				spriteMap.insert({ assetId, {asset["begin_frame"], asset["end_frame"]} });
+			if (SpriteMap.count(assetId) == 0) {
+				SpriteMap.insert({ assetId, {asset["begin_frame"], asset["end_frame"]} });
 			}
 		}else if (assetType == "spritesheet") {
 			TileSetManager::Get().getTileSet("desert").loadTileSetCpu(asset["file"], 32.0f);
-			if (spriteMap.count(assetId) == 0) {
-				spriteMap.insert({ assetId, {asset["begin_frame"], asset["end_frame"]} });
+			if (SpriteMap.count(assetId) == 0) {
+				SpriteMap.insert({ assetId, {asset["begin_frame"], asset["end_frame"]} });
 			}
 		}/*else (assetType == "font") {
             //assetStore->AddFont(assetId, asset["file"], asset["font_size"]);
@@ -182,8 +183,8 @@ void LevelLoader::LoadLevel(sol::state& lua, const std::unique_ptr<Registry>& re
             if (sprite != sol::nullopt) {
 
 				std::string assetId = entity["components"]["sprite"]["texture_asset_id"];
-				int beginFrame = spriteMap.at(assetId).first;
-				int endFrame = spriteMap.at(assetId).second;
+				int beginFrame = SpriteMap.at(assetId).first;
+				int endFrame = SpriteMap.at(assetId).second;
 				const TextureRect& rect = TileSetManager::Get().getTileSet("desert").getTextureRects()[beginFrame];
                 newEntity.AddComponent<SpriteComponent>(
 					assetId,
