@@ -213,12 +213,20 @@ void LevelLoader::LoadLevel(sol::state& lua, const std::unique_ptr<Registry>& re
             // BoxCollider
             sol::optional<sol::table> collider = entity["components"]["boxcollider"];
             if (collider != sol::nullopt) {
-                newEntity.AddComponent<BoxColliderComponent>(
-                    entity["components"]["boxcollider"]["width"],
-                    entity["components"]["boxcollider"]["height"],
-                    glm::vec2(
-                        entity["components"]["boxcollider"]["offset"]["x"].get_or(0),
-                        entity["components"]["boxcollider"]["offset"]["y"].get_or(0)
+
+				std::string assetId = entity["components"]["sprite"]["texture_asset_id"];
+				int beginFrame = SpriteMap.at(assetId).first;
+				int endFrame = SpriteMap.at(assetId).second;
+				const TextureRect& rect = TileSetManager::Get().getTileSet("desert").getTextureRects()[beginFrame];
+
+				const auto transform = newEntity.GetComponent<TransformComponent>();
+
+				newEntity.AddComponent<BoxColliderComponent>(
+					entity["components"]["boxcollider"]["width"],
+					entity["components"]["boxcollider"]["height"],
+					glm::vec2(
+						entity["components"]["boxcollider"]["offset"]["x"].get_or(0),
+						entity["components"]["boxcollider"]["offset"]["y"].get_or(0) - rect.height * transform.scale.y
                     )
                 );
             }

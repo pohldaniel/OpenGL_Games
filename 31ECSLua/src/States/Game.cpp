@@ -169,17 +169,21 @@ void Game::render() {
 	registry->GetSystem<RenderSystem>().Update(camera);
 	registry->GetSystem<RenderHealthBarSystem>().Update(camera);
 	Batchrenderer::Get().drawBufferRaw();
+	
+
+	if (m_debug) {
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		registry->GetSystem<RenderColliderSystem>().Update(m_camera);
+		Batchrenderer::Get().drawBufferRaw();
+		glPolygonMode(GL_FRONT_AND_BACK, StateMachine::GetEnableWireframe() ? GL_LINE : GL_FILL);
+	}
+
+	
 	Spritesheet::Unbind();
 	shader->unuse();
 
-	if (m_debug) {
-		registry->GetSystem<RenderColliderSystem>().Update(camera);
+	if (m_drawUi)
 		registry->GetSystem<RenderGUISystem>().Update(registry, camera);
-	}
-
-
-	/*if (m_drawUi)
-		renderUi();*/
 }
 
 void Game::OnMouseMotion(Event::MouseMoveEvent& event) {

@@ -61,7 +61,7 @@ class ProjectileEmitSystem: public System {
                         projectile.AddComponent<TransformComponent>(projectilePosition, glm::vec2(1.0, 1.0), 0.0);
                         projectile.AddComponent<RigidBodyComponent>(projectileVelocity);
                         projectile.AddComponent<SpriteComponent>("bullet-texture", TileSetManager::Get().getTileSet("desert").getTextureRects()[LevelLoader::SpriteMap.at("bullet-texture").first], 4);
-                        projectile.AddComponent<BoxColliderComponent>(4, 4);
+                        projectile.AddComponent<BoxColliderComponent>(4, 4, glm::vec2(0.0f, -4.0f ));
                         projectile.AddComponent<ProjectileComponent>(projectileEmitter.isFriendly, projectileEmitter.hitPercentDamage, projectileEmitter.projectileDuration);
                     }
                 }
@@ -93,7 +93,7 @@ class ProjectileEmitSystem: public System {
                     projectile.AddComponent<TransformComponent>(projectilePosition, glm::vec2(1.0, 1.0), 0.0);
                     projectile.AddComponent<RigidBodyComponent>(projectileEmitter.projectileVelocity);
 					projectile.AddComponent<SpriteComponent>("bullet-texture", TileSetManager::Get().getTileSet("desert").getTextureRects()[LevelLoader::SpriteMap.at("bullet-texture").first], 4);
-                    projectile.AddComponent<BoxColliderComponent>(4, 4);
+					projectile.AddComponent<BoxColliderComponent>(4, 4, glm::vec2(0.0f, -4.0f));
                     projectile.AddComponent<ProjectileComponent>(projectileEmitter.isFriendly, projectileEmitter.hitPercentDamage, projectileEmitter.projectileDuration);
                 
                     // Update the projectile emitter component last emission to the current milliseconds

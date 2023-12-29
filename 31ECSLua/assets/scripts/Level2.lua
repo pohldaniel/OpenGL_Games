@@ -12,7 +12,7 @@ Level = {
 		{ type = "spritesheet", id = "bomber-texture",	file = "./assets/images/bomber-spritesheet.png", begin_frame = 1208, end_frame = 1209},
 		{ type = "texture",		id = "runway-texture",	file = "./assets/images/runway.png", begin_frame = 1210, end_frame = 1210},
 		{ type = "texture",		id = "boat-texture",	file = "./assets/images/boat.png", begin_frame = 1211, end_frame = 1211},
-		{ type = "texture",		id = "empty-texture",	file = "./assets/images/empty.png", begin_frame = 1212, end_frame = 1212},
+		{ type = "texture",		id = "empty-texture",	file = "./assets/images/empty_2.png", begin_frame = 1212, end_frame = 1212},
 		{ type = "font"   ,		id = "pico8_5",			file = "./assets/fonts/pico8.ttf", font_size = 5 },
         { type = "font"   ,		id = "pico8_10",		file = "./assets/fonts/pico8.ttf", font_size = 10 }
     },
