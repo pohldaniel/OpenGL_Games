@@ -21,22 +21,14 @@ class RenderHealthBarSystem: public System {
             RequireComponent<HealthComponent>();
         }
 
-        void Update(const Rect& camera) {
+        void Update() {
             for (auto entity: GetSystemEntities()) {
                 const auto transform = entity.GetComponent<TransformComponent>();
                 const auto sprite = entity.GetComponent<SpriteComponent>();
                 const auto health = entity.GetComponent<HealthComponent>();
-
-                // Bypass rendering if entities are outside the camera view
-                bool isOutsideCameraView = (
-                    transform.position.x + (transform.scale.x * sprite.textureRect.width) < camera.posX ||
-                    transform.position.x > camera.posX + camera.width ||
-                    transform.position.y + (transform.scale.y * sprite.textureRect.height) < camera.posY ||
-                    transform.position.y > camera.posY + camera.height
-                );
-                
-                if (isOutsideCameraView) {
-                    //continue;
+           
+                if (!ViewPort::IsRectOnScreen(transform.position.x, transform.position.y, transform.scale.x * sprite.textureRect.width, transform.scale.y * sprite.textureRect.height)) {
+                    continue;
                 }
 
                 // Draw a the health bar with the correct color for the percentage
@@ -58,8 +50,8 @@ class RenderHealthBarSystem: public System {
                 // Position the health bar indicator in the top-right part of the entity sprite
 				float healthBarWidth = 15.0f;
 				float healthBarHeight = 3.0f;
-                float healthBarPosX = (transform.position.x + (sprite.textureRect.width * transform.scale.x)) - camera.posX;
-				float healthBarPosY = (transform.position.y) - camera.posY;
+                float healthBarPosX = (transform.position.x + (sprite.textureRect.width * transform.scale.x));
+				float healthBarPosY = (transform.position.y);
 				const TextureRect& rect = TileSetManager::Get().getTileSet("desert").getTextureRects()[LevelLoader::SpriteMap.at("empty-texture").first];
 				Batchrenderer::Get().addQuadAA(Vector4f(healthBarPosX, healthBarPosY, healthBarWidth * (health.healthPercentage / 100.0f), healthBarHeight),
 					Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureWidth, rect.textureHeight),

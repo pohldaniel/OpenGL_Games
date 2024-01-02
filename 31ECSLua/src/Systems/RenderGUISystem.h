@@ -18,7 +18,7 @@ class RenderGUISystem: public System {
     public:
         RenderGUISystem() = default;
 
-        void Update(const std::unique_ptr<Registry>& registry, const Rect& camera) {
+        void Update(const std::unique_ptr<Registry>& registry) {
 			ImGui_ImplOpenGL3_NewFrame();
 			ImGui_ImplWin32_NewFrame();
 			ImGui::NewFrame();
@@ -40,7 +40,7 @@ class RenderGUISystem: public System {
                 static int projDuration = 10;
                 const char* sprites[] = {"tank-image", "truck-image"};
                 static int selectedSpriteIndex = 0;
-
+				static float screenBorder = -50.0f;
                 // Section to input enemy sprite texture id 
                 if (ImGui::CollapsingHeader("Sprite", ImGuiTreeNodeFlags_DefaultOpen)) {
                     ImGui::Combo("texture id", &selectedSpriteIndex, sprites, IM_ARRAYSIZE(sprites));
@@ -102,6 +102,10 @@ class RenderGUISystem: public System {
                     projSpeed = 100;
                     health = 100;
                 }
+				ImGui::Spacing();
+				if (ImGui::SliderFloat("Screen Border", &screenBorder, -100.0f, 100.0f)) {
+					ViewPort::Get().setScreenBorder(screenBorder);
+				}
             }
             ImGui::End();
 
@@ -112,8 +116,8 @@ class RenderGUISystem: public System {
             if (ImGui::Begin("Map coordinates", NULL, windowFlags)) {
                 ImGui::Text(
                     "Map coordinates (x=%.1f, y=%.1f)",
-                    ImGui::GetIO().MousePos.x + camera.posX,
-                    ImGui::GetIO().MousePos.y + camera.posY
+                    ImGui::GetIO().MousePos.x,
+                    ImGui::GetIO().MousePos.y
                 );
             }
             ImGui::End();

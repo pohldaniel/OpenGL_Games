@@ -6,7 +6,9 @@
 #include "../ECS/ECS.h"
 #include "../Components/TransformComponent.h"
 #include "../Components/SpriteComponent.h"
+
 #include "LevelLoader.h"
+#include "ViewPort.h"
 
 class RenderSystem: public System {
     public:
@@ -15,7 +17,7 @@ class RenderSystem: public System {
             RequireComponent<SpriteComponent>();
         }
 
-        void Update(Rect& camera) {
+        void Update() {
             // Create a vector with both Sprite and Transform component of all entities
             struct RenderableEntity {
                 TransformComponent transformComponent;
@@ -27,17 +29,9 @@ class RenderSystem: public System {
                 renderableEntity.spriteComponent = entity.GetComponent<SpriteComponent>();
                 renderableEntity.transformComponent = entity.GetComponent<TransformComponent>();
 
-                // Check if the entity sprite is outside the camera view
-                bool isOutsideCameraView = (
-                    renderableEntity.transformComponent.position.x + (renderableEntity.transformComponent.scale.x * renderableEntity.spriteComponent.textureRect.width) < camera.posX ||
-                    renderableEntity.transformComponent.position.x > camera.posX + camera.width ||
-                    renderableEntity.transformComponent.position.y + (renderableEntity.transformComponent.scale.y * renderableEntity.spriteComponent.textureRect.height) < camera.posY ||
-                    renderableEntity.transformComponent.position.y > camera.posY + camera.height
-                );
-
-                // Cull sprites that are outside the camera viww (and are not fixed)
-                if (isOutsideCameraView && !renderableEntity.spriteComponent.isFixed) {
-                    //continue;
+              
+                if (!ViewPort::IsRectOnScreen(renderableEntity.transformComponent.position.x, renderableEntity.transformComponent.position.y, renderableEntity.spriteComponent.textureRect.width * renderableEntity.transformComponent.scale.x, renderableEntity.transformComponent.scale.y * renderableEntity.spriteComponent.textureRect.height) && !renderableEntity.spriteComponent.isFixed) {
+                    continue;
                 }
 
                 renderableEntities.emplace_back(renderableEntity);

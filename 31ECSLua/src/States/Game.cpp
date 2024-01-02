@@ -26,20 +26,16 @@
 
 #include "LevelLoader.h"
 #include "TileSet.h"
+#include "ViewPort.h"
 
-Game::Game(StateMachine& machine) : State(machine, States::GAME) {
+Game::Game(StateMachine& machine) : State(machine, States::GAME), m_camera(ViewPort::Get().getCamera()) {
 
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
 	EventDispatcher::AddMouseListener(this);
+	ViewPort::Get().resize();
 
-	m_camera = Camera();
-	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
-	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
-	m_camera.lookAt(Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 0.0f, 0.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
-	m_camera.setRotationSpeed(0.1f);
-	m_camera.setMovingSpeed(1000.0f);
-
+	
 	glClearColor(0.494f, 0.686f, 0.796f, 1.0f);
 	//glClearColor(0.2148f, 0.3086f, 0.6211f, 1.0f);
 	glClearDepth(1.0f);
@@ -56,8 +52,6 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 	eventBus = std::make_unique<EventBus>();
 
 	init();
-
-	camera = { 0, 0, static_cast<float>(Application::Width), static_cast<float>(Application::Height) };
 }
 
 Game::~Game() {
@@ -128,7 +122,8 @@ void Game::update() {
 		}
 
 		if (move) {
-			m_camera.move(directrion * m_dt);
+			//m_camera.move(directrion * m_dt);
+			ViewPort::Get().move(directrion * m_dt);
 		}
 	}
 
@@ -151,7 +146,7 @@ void Game::update() {
 	registry->GetSystem<AnimationSystem>().Update();
 	registry->GetSystem<CollisionSystem>().Update(eventBus);
 	registry->GetSystem<ProjectileEmitSystem>().Update(registry);
-	registry->GetSystem<CameraMovementSystem>().Update(camera);
+	registry->GetSystem<CameraMovementSystem>().Update(m_camera);
 	registry->GetSystem<ProjectileLifecycleSystem>().Update();
 	registry->GetSystem<ScriptSystem>().Update(static_cast<double>(m_dt), (int)Globals::clock.getElapsedTimeMilli());
 }
@@ -166,8 +161,8 @@ void Game::render() {
 	shader->use();
 	shader->loadMatrix("u_transform", m_camera.getOrthographicMatrix() * m_camera.getViewMatrix());
 	Spritesheet::Bind(LevelLoader::Atlas);
-	registry->GetSystem<RenderSystem>().Update(camera);
-	registry->GetSystem<RenderHealthBarSystem>().Update(camera);
+	registry->GetSystem<RenderSystem>().Update();
+	registry->GetSystem<RenderHealthBarSystem>().Update();
 	Batchrenderer::Get().drawBufferRaw();
 	
 
@@ -183,7 +178,7 @@ void Game::render() {
 	shader->unuse();
 
 	if (m_drawUi)
-		registry->GetSystem<RenderGUISystem>().Update(registry, camera);
+		registry->GetSystem<RenderGUISystem>().Update(registry);
 }
 
 void Game::OnMouseMotion(Event::MouseMoveEvent& event) {

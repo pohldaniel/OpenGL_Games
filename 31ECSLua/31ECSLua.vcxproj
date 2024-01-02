@@ -253,6 +253,7 @@
     <ClCompile Include="src\UI\Widget.cpp" />
     <ClCompile Include="src\Utils\SolidIO.cpp" />
     <ClCompile Include="src\Utils\Utils.cpp" />
+    <ClCompile Include="src\ViewPort.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine\ArrayBuffer.h" />
@@ -383,6 +384,7 @@
     <ClInclude Include="src\UI\Widget.h" />
     <ClInclude Include="src\Utils\SolidIO.h" />
     <ClInclude Include="src\Utils\Utils.h" />
+    <ClInclude Include="src\ViewPort.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

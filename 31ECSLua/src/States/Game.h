@@ -39,11 +39,8 @@ private:
 	bool m_drawUi = true;
 	bool m_debug = true;
 
-	Camera m_camera;
+	Camera& m_camera;
 	Background m_background;
-
-	Rect camera;
-
 	sol::state lua;
 
 	std::unique_ptr<Registry> registry;
