@@ -131,16 +131,6 @@ void TextureAtlasCreator::addCharset(unsigned char *texture, unsigned int w, uns
 		}
 	}
 
-	/*for (auto rect : prepacked) {
-		textureRects.push_back({ (static_cast<float>(curX) + rect.textureOffsetX * static_cast<float>(w)) / static_cast<float>(width),
-			flipTextureRect ? (static_cast<float>(curY) + (rect.textureOffsetY + rect.textureHeight) * static_cast<float>(h)) / static_cast<float>(height) : (static_cast<float>(curY) + rect.textureOffsetY * static_cast<float>(h)) / static_cast<float>(height),
-			((rect.textureWidth)  * static_cast<float>(w)) / static_cast<float>(width),
-			flipTextureRect ? -((rect.textureHeight) * static_cast<float>(h)) / static_cast<float>(height) : ((rect.textureHeight) * static_cast<float>(h)) / static_cast<float>(height) ,
-			rect.width,
-			rect.height,
-			frame });
-	}*/
-
 	curX += w;
 	maxY = (std::max)(maxY, curY + h);
 }
@@ -277,15 +267,15 @@ void TileSet::loadTileSetCpu(std::string mapPath, std::string texturePath, unsig
 			if (!flipTextureRects) {
 				textureRects.push_back({ (srcRectX + 0.5f) / static_cast<float>(imageWidth),
 										   (static_cast<float>(imageHeight) - srcRectY - tileHeight) / static_cast<float>(imageHeight),
-										   (tileWidth - 0.5f) / static_cast<float>(imageWidth),
+										   (tileWidth - 0.5002f) / static_cast<float>(imageWidth),
 										   tileHeight / static_cast<float>(imageHeight),
 										   tileWidth,
 										   tileHeight,
 										   0u });
 			}else {
 				textureRects.push_back({ (srcRectX + 0.5f) / static_cast<float>(imageWidth),
-										   (static_cast<float>(imageHeight) - srcRectY) / static_cast<float>(imageHeight),
-										   (tileWidth - 0.5f) / static_cast<float>(imageWidth),
+										   (static_cast<float>(imageHeight) - srcRectY - 0.5f) / static_cast<float>(imageHeight),
+										   (tileWidth - 0.5002f) / static_cast<float>(imageWidth),
 										   -tileHeight / static_cast<float>(imageHeight),
 										   tileWidth,
 										   tileHeight,
@@ -295,8 +285,6 @@ void TileSet::loadTileSetCpu(std::string mapPath, std::string texturePath, unsig
 	}
 	delete[] ids;
 
-	
-	//TextureAtlasCreator::Get().addTexture(bytes, imageWidth, imageHeight, 0u, 0u);
 	TextureAtlasCreator::Get().addTexture(bytes, imageWidth, imageHeight, textureRects, false, 0u, 0u, m_textureRects);
 }
 
@@ -320,15 +308,15 @@ void TileSet::loadTileSetCpu(std::string texturePath, float tileWidth, float til
 			if (!flipTextureRects) {
 				textureRects.push_back({ (srcRectX + 0.5f) / static_cast<float>(imageWidth),
 										   (static_cast<float>(imageHeight) - srcRectY - tileHeight) / static_cast<float>(imageHeight),
-										   (tileWidth - 0.5f) / static_cast<float>(imageWidth),
+										   (tileWidth - 0.5002f) / static_cast<float>(imageWidth),
 										   tileHeight / static_cast<float>(imageHeight),
 										   tileWidth,
 										   tileHeight,
 										   0u });
 			}else {
 				textureRects.push_back({ (srcRectX + 0.5f) / static_cast<float>(imageWidth),
-										   (static_cast<float>(imageHeight) - srcRectY) / static_cast<float>(imageHeight),
-										   (tileWidth - 0.5f) / static_cast<float>(imageWidth),
+										   (static_cast<float>(imageHeight) - srcRectY - 0.5f) / static_cast<float>(imageHeight),
+										   (tileWidth - 0.5002f) / static_cast<float>(imageWidth),
 										   -tileHeight / static_cast<float>(imageHeight),
 										   tileWidth,
 										   tileHeight,
@@ -356,15 +344,15 @@ void TileSet::loadTileSetCpu(std::string texturePath, const bool flipVertical, b
 	if (!flipTextureRects) {
 		textureRects.push_back({ (srcRectX + 0.5f) / static_cast<float>(imageWidth),
 								   (static_cast<float>(imageHeight) - srcRectY - tileHeight) / static_cast<float>(imageHeight),
-								   (tileWidth - 0.5f) / static_cast<float>(imageWidth),
-								   tileHeight / static_cast<float>(imageHeight),
+								   (tileWidth - 0.5002f) / static_cast<float>(imageWidth),
+								   (tileHeight - 0.5f) / static_cast<float>(imageHeight),
 								   tileWidth,
 								   tileHeight,
 								   0u });
 	}else {
 		textureRects.push_back({ (srcRectX + 0.5f) / static_cast<float>(imageWidth),
-								   (static_cast<float>(imageHeight) - srcRectY) / static_cast<float>(imageHeight),
-								   (tileWidth - 0.5f) / static_cast<float>(imageWidth),
+								   (static_cast<float>(imageHeight) - srcRectY - 0.5f) / static_cast<float>(imageHeight),
+								   (tileWidth - 0.5002f) / static_cast<float>(imageWidth),
 								   -tileHeight / static_cast<float>(imageHeight),
 								   tileWidth,
 								   tileHeight,

@@ -4,15 +4,15 @@ Level = {
     ----------------------------------------------------
     assets = {
         [0] =
-        { type = "tileset",		id = "tilemap-texture",	file = "./assets/tilemaps/desert.png", begin_frame = 0, end_frame = 1199 },
-        { type = "spritesheet", id = "tank-texture",	file = "./assets/images/tank-panther-spritesheet.png", begin_frame = 1200, end_frame = 1203 },
-		{ type = "spritesheet", id = "su27-texture",	file = "./assets/images/su27-spritesheet.png", begin_frame = 1204, end_frame = 1205},
-		{ type = "texture",		id = "carrier-texture",	file = "./assets/images/carrier.png", begin_frame = 1206, end_frame = 1206},
-		{ type = "texture", 	id = "bullet-texture",	file = "./assets/images/bullet.png", begin_frame = 1207, end_frame = 1207},
-		{ type = "spritesheet", id = "bomber-texture",	file = "./assets/images/bomber-spritesheet.png", begin_frame = 1208, end_frame = 1209},
-		{ type = "texture",		id = "runway-texture",	file = "./assets/images/runway.png", begin_frame = 1210, end_frame = 1210},
-		{ type = "texture",		id = "boat-texture",	file = "./assets/images/boat.png", begin_frame = 1211, end_frame = 1211},
-		{ type = "texture",		id = "empty-texture",	file = "./assets/images/empty_2.png", begin_frame = 1212, end_frame = 1212},
+        { type = "tileset",		id = "tilemap-texture",	file = "./assets/tilemaps/desert.png", begin_frame = 0, end_frame = 29 },
+        { type = "spritesheet", id = "tank-texture",	file = "./assets/images/tank-panther-spritesheet.png", begin_frame = 30, end_frame = 33 },
+		{ type = "spritesheet", id = "su27-texture",	file = "./assets/images/su27-spritesheet.png", begin_frame = 34, end_frame = 35},
+		{ type = "texture",		id = "carrier-texture",	file = "./assets/images/carrier.png", begin_frame = 36, end_frame = 36},
+		{ type = "texture", 	id = "bullet-texture",	file = "./assets/images/bullet.png", begin_frame = 37, end_frame = 37},
+		{ type = "spritesheet", id = "bomber-texture",	file = "./assets/images/bomber-spritesheet.png", begin_frame = 38, end_frame = 39},
+		{ type = "texture",		id = "runway-texture",	file = "./assets/images/runway.png", begin_frame = 40, end_frame = 40},
+		{ type = "texture",		id = "boat-texture",	file = "./assets/images/boat.png", begin_frame = 41, end_frame = 41},
+		{ type = "texture",		id = "empty-texture",	file = "./assets/images/empty.png", begin_frame = 42, end_frame = 42},
 		{ type = "font"   ,		id = "pico8_5",			file = "./assets/fonts/pico8.ttf", font_size = 5 },
         { type = "font"   ,		id = "pico8_10",		file = "./assets/fonts/pico8.ttf", font_size = 10 }
     },

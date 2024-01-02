@@ -70,7 +70,8 @@ void LevelLoader::LoadLevel(sol::state& lua, const std::unique_ptr<Registry>& re
         std::string assetType = asset["type"];
         std::string assetId = asset["id"];
 		if (assetType == "tileset") {		
-			TileSetManager::Get().getTileSet("desert").loadTileSetCpu("assets/tilemaps/desert.map", asset["file"], 40, 30, 32.0f);
+			//TileSetManager::Get().getTileSet("desert").loadTileSetCpu("assets/tilemaps/desert.map", asset["file"], 40, 30, 32.0f);
+			TileSetManager::Get().getTileSet("desert").loadTileSetCpu(asset["file"], 32.0f, 32.0f);
 			if (SpriteMap.count(assetId) == 0) {
 				SpriteMap.insert({ assetId, {asset["begin_frame"], asset["end_frame"]} });
 			}
@@ -110,17 +111,31 @@ void LevelLoader::LoadLevel(sol::state& lua, const std::unique_ptr<Registry>& re
     float tileSize = map["tile_size"];
     float mapScale = map["scale"];
 
+	std::ifstream file(mapFilePath);
+
+	unsigned int* ids = new unsigned int[mapNumCols * mapNumRows];
+
+	if (file) {
+		for (unsigned int i, index = 0; file >> i; index++) {
+			ids[index] = i;
+			if (file.peek() == ',')
+				file.ignore();
+		}
+		file.close();
+	}
+
     for (int y = 0; y < mapNumRows; y++) {
 		for (int x = 0; x < mapNumCols; x++) {			
 			Entity tile = registry->CreateEntity();
 			tile.AddComponent<TransformComponent>(glm::vec2(x * (mapScale * tileSize), Application::Height - y * (mapScale * tileSize)), glm::vec2(mapScale, mapScale), 0.0);
 
-			const TextureRect& rect = TileSetManager::Get().getTileSet("desert").getTextureRects()[y * mapNumCols + x];
+			unsigned int id = ids[y * mapNumCols + x];
+			const TextureRect& rect = TileSetManager::Get().getTileSet("desert").getTextureRects()[id];
 			tile.AddComponent<SpriteComponent>(mapTextureAssetId, rect, 0, false);
 			//tile.GetComponent<SpriteComponent>().init(std::vector<TextureRect>(TileSetManager::Get().getTileSet("desert").getTextureRects().begin() + y * mapNumCols + x, TileSetManager::Get().getTileSet("desert").getTextureRects().begin() + y * mapNumCols + x + 1));
         }
     }
-
+	delete[] ids;
 	Application::MapWidth = mapNumCols * tileSize * mapScale;
 	Application::MapHeight = mapNumRows * tileSize * mapScale;
 
