@@ -734,5 +734,14 @@
     <ClInclude Include="src\ViewPort.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Components\MouseClickedComponent.h">
+      <Filter>Source Files\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Systems\MouseClickSystem.h">
+      <Filter>Source Files\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Events\MouseClickedEvent.h">
+      <Filter>Source Files\Events</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -78,7 +78,10 @@ Level = {
                 },
                 camera_follow = {
                     follow = true
-                }
+                },
+				text_label = {
+					label = "player"
+				}
             }
         },
 		{
@@ -256,7 +259,10 @@ Level = {
                 },
                 health = {
                     health_percentage = 100
-                }
+                },
+				text_label = {
+					label = "Bomber 1"
+				}
             }
         },
 		{
@@ -288,6 +294,9 @@ Level = {
                 health = {
                     health_percentage = 100
                 },
+				text_label = {
+					label = "Bomber 2"
+				},
                 on_update_script = {
                     [0] =
                     function(entity, delta_time, ellapsed_time)

@@ -1,3 +1,4 @@
+#include <iostream>
 #include "ViewPort.h"
 #include "Application.h"
 
@@ -8,7 +9,7 @@ float ViewPort::ViewBottom = 0.0f;
 float ViewPort::ViewTop = 0.0f;
 bool ViewPort::Update = false;
 
-ViewPort::ViewPort() : postition(m_camera.getPosition()) {
+ViewPort::ViewPort() : position(m_camera.getPosition()) {
 	m_camera.setRotationSpeed(0.1f);
 	m_camera.setMovingSpeed(1000.0f);
 	m_screeBorder = -200.0f;
@@ -59,23 +60,40 @@ void ViewPort::setScreenBorder(float screeBorder) {
 }
 
 const Vector3f& ViewPort::getPosition() {
-	return postition;
+	return position;
+}
+
+float ViewPort::getPositionX() {
+	return position[0];
+}
+
+float ViewPort::getPositionY() {
+	return position[1];
 }
 
 float ViewPort::getLeft() {
-	return postition[0] + m_left + m_screeBorder;
+	return position[0] + m_left + m_screeBorder;
 }
 
 float ViewPort::getRight() {
-	return postition[0] + m_right - m_screeBorder;
+	return position[0] + m_right - m_screeBorder;
 }
 
 float ViewPort::getBottom() {
-	return postition[1] + m_bottom +  m_screeBorder;
+	return position[1] + m_bottom +  m_screeBorder;
 }
 
 float ViewPort::getTop() {
-	return postition[1] + m_top - m_screeBorder;
+	return position[1] + m_top - m_screeBorder;
+}
+
+const int ViewPort::getCursorPosX(int posX) {
+	std::cout << "#########" << position[0] << std::endl;
+	return static_cast<int>(position[0]) + posX;
+}
+
+const int ViewPort::getCursorPosY(int posY) {
+	return static_cast<int>(position[1]) + posY;
 }
 
 bool ViewPort::IsRectOnScreen(float posX, float posY, float width,  float height) {

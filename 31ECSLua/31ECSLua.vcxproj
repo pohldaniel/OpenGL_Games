@@ -319,6 +319,7 @@
     <ClInclude Include="src\Components\CameraFollowComponent.h" />
     <ClInclude Include="src\Components\HealthComponent.h" />
     <ClInclude Include="src\Components\KeyboardControlledComponent.h" />
+    <ClInclude Include="src\Components\MouseClickedComponent.h" />
     <ClInclude Include="src\Components\ProjectileComponent.h" />
     <ClInclude Include="src\Components\ProjectileEmitterComponent.h" />
     <ClInclude Include="src\Components\RigidBodyComponent.h" />
@@ -331,6 +332,7 @@
     <ClInclude Include="src\EventBus\EventBus.h" />
     <ClInclude Include="src\Events\CollisionEvent.h" />
     <ClInclude Include="src\Events\KeyPressedEvent.h" />
+    <ClInclude Include="src\Events\MouseClickedEvent.h" />
     <ClInclude Include="src\Globals.h" />
     <ClInclude Include="src\LevelLoader.h" />
     <ClInclude Include="src\LoadingManager.h" />
@@ -346,6 +348,7 @@
     <ClInclude Include="src\Systems\CollisionSystem.h" />
     <ClInclude Include="src\Systems\DamageSystem.h" />
     <ClInclude Include="src\Systems\KeyboardControlSystem.h" />
+    <ClInclude Include="src\Systems\MouseClickSystem.h" />
     <ClInclude Include="src\Systems\MovementSystem.h" />
     <ClInclude Include="src\Systems\ProjectileEmitSystem.h" />
     <ClInclude Include="src\Systems\ProjectileLifecycleSystem.h" />

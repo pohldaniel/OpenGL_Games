@@ -47,6 +47,10 @@ class KeyboardControlSystem: public System {
                         rigidbody.velocity = keyboardcontrol.leftVelocity;
 						sprite.textureRect = sprite.animationRects[3];
                         break;
+					case Keyboard::KEY_LCTRL:
+						rigidbody.velocity.x = 0.0f;
+						rigidbody.velocity.y = 0.0f;
+						break;					
                 }
             }
         }

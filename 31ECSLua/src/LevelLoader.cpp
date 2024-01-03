@@ -8,6 +8,7 @@
 #include <Components/AnimationComponent.h>
 #include <Components/BoxColliderComponent.h>
 #include <Components/KeyboardControlledComponent.h>
+#include <Components/MouseClickedComponent.h>
 #include <Components/CameraFollowComponent.h>
 #include <Components/ProjectileEmitterComponent.h>
 #include <Components/HealthComponent.h>
@@ -156,7 +157,7 @@ void LevelLoader::LoadLevel(sol::state& lua, const std::unique_ptr<Registry>& re
         // Tag
         sol::optional<std::string> tag = entity["tag"];
         if (tag != sol::nullopt) {
-            newEntity.Tag(entity["tag"]);
+            newEntity.Tag(entity["tag"]);			
         }
 
         // Group
@@ -194,7 +195,7 @@ void LevelLoader::LoadLevel(sol::state& lua, const std::unique_ptr<Registry>& re
                         entity["components"]["rigidbody"]["velocity"]["x"].get_or(0.0),
                         entity["components"]["rigidbody"]["velocity"]["y"].get_or(0.0)
                     )
-                );
+                );				
             }
 
             // Sprite
@@ -243,7 +244,7 @@ void LevelLoader::LoadLevel(sol::state& lua, const std::unique_ptr<Registry>& re
 						entity["components"]["boxcollider"]["offset"]["x"].get_or(0),
 						entity["components"]["boxcollider"]["offset"]["y"].get_or(0) - rect.height * transform.scale.y
                     )
-                );
+                );				
             }
             
             // Health
@@ -304,6 +305,17 @@ void LevelLoader::LoadLevel(sol::state& lua, const std::unique_ptr<Registry>& re
                 sol::function func = entity["components"]["on_update_script"][0];
                 newEntity.AddComponent<ScriptComponent>(func);
             }
+
+			//
+			sol::optional<sol::table> textLabel = entity["components"]["text_label"];
+			if (textLabel != sol::nullopt) {
+				newEntity.AddComponent<TextLabelComponent>(
+					glm::vec2(0.0f, 0.0f), 
+					entity["components"]["text_label"]["label"],
+					Vector4f(1.0f, 1.0f, 0.0f, 1.0f),
+					true);
+				newEntity.AddComponent<MouseClickedComponent>(false);
+			}
         }
         i++;
     }

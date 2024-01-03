@@ -2,9 +2,8 @@
 #define KEYPRESSEDEVENT_H
 
 #include <engine/input/Keyboard.h>
-#include "../ECS/ECS.h"
-#include "../EventBus/Event.h"
-
+#include <ECS/ECS.h>
+#include <EventBus/Event.h>
 
 class KeyPressedEvent: public EventNew {
     public:

@@ -18,6 +18,7 @@
 #include <Systems/DamageSystem.h>
 #include <Systems/ProjectileEmitSystem.h>
 #include <Systems/KeyboardControlSystem.h>
+#include <Systems/MouseClickSystem.h>
 #include <Systems/ProjectileLifecycleSystem.h>
 #include <Systems/RenderTextSystem.h>
 #include <Systems/RenderHealthBarSystem.h>
@@ -133,6 +134,7 @@ void Game::update() {
 	registry->GetSystem<MovementSystem>().SubscribeToEvents(eventBus);
 	registry->GetSystem<DamageSystem>().SubscribeToEvents(eventBus);
 	registry->GetSystem<KeyboardControlSystem>().SubscribeToEvents(eventBus);
+	registry->GetSystem<MouseClickSystem>().SubscribeToEvents(eventBus);
 	registry->GetSystem<ProjectileEmitSystem>().SubscribeToEvents(eventBus);
 
 	// Update the registry to process the entities that are waiting to be created/deleted
@@ -160,6 +162,7 @@ void Game::render() {
 	Spritesheet::Bind(LevelLoader::Atlas);
 	registry->GetSystem<RenderSystem>().Update();
 	registry->GetSystem<RenderHealthBarSystem>().Update();
+	registry->GetSystem<RenderTextSystem>().Update();
 	Batchrenderer::Get().drawBufferRaw();
 	
 
@@ -183,7 +186,8 @@ void Game::OnMouseMotion(Event::MouseMoveEvent& event) {
 }
 
 void Game::OnMouseButtonDown(Event::MouseButtonEvent& event) {
-
+	ViewPort& viewPort = ViewPort::Get();
+	eventBus->EmitEvent<MouseClickedEvent>(static_cast<Mouse::MouseButton>(event.button), viewPort.getCursorPosX(event.x), viewPort.getCursorPosY(Application::Height - event.y));
 }
 
 void Game::OnMouseButtonUp(Event::MouseButtonEvent& event) {
@@ -267,6 +271,7 @@ void Game::init() {
 	registry->AddSystem<RenderColliderSystem>();
 	registry->AddSystem<DamageSystem>();
 	registry->AddSystem<KeyboardControlSystem>();
+	registry->AddSystem<MouseClickSystem>();
 	registry->AddSystem<CameraMovementSystem>();
 	registry->AddSystem<ProjectileEmitSystem>();
 	registry->AddSystem<ProjectileLifecycleSystem>();
