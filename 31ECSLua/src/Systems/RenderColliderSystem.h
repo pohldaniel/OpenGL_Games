@@ -17,26 +17,14 @@ class RenderColliderSystem: public System {
             RequireComponent<BoxColliderComponent>();
         }
 
-        void Update(const Camera& camera) {
+        void Update() {
             for (auto entity: GetSystemEntities()) {
                 const auto transform = entity.GetComponent<TransformComponent>();
                 const auto collider = entity.GetComponent<BoxColliderComponent>();
-
-                // Bypass rendering if entities are outside the camera view
-                /*bool isOutsideCameraView = (
-                    transform.position.x + (transform.scale.x * collider.width) < camera.posX ||
-                    transform.position.x > camera.posX + camera.width ||
-                    transform.position.y + (transform.scale.y * collider.height) < camera.posY ||
-                    transform.position.y > camera.posY + camera.height
-                );
-
-                if (isOutsideCameraView) {
-                    //continue;
-                }*/
-
-				
-                //SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-                //SDL_RenderDrawRect(renderer, &colliderRect);
+           
+				if (!ViewPort::IsRectOnScreen(transform.position.x + collider.offset.x, transform.position.y + collider.offset.y, collider.width * transform.scale.x, collider.height * transform.scale.y)) {
+					continue;
+				}
 
 				const TextureRect& rect = TileSetManager::Get().getTileSet("desert").getTextureRects()[LevelLoader::SpriteMap.at("empty-texture").first];
 

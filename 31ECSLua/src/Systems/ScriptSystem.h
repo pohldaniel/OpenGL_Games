@@ -34,7 +34,7 @@ std::tuple<double, double> GetEntityVelocity(Entity entity) {
     }
 }
 
-void SetEntityPosition(Entity entity, double x, double y) {
+void SetEntityPosition(Entity entity, float x, float y) {
     if (entity.HasComponent<TransformComponent>()) {
         auto& transform = entity.GetComponent<TransformComponent>();
         transform.position.x = x;
@@ -45,7 +45,7 @@ void SetEntityPosition(Entity entity, double x, double y) {
     }
 }
 
-void SetEntityVelocity(Entity entity, double x, double y) {
+void SetEntityVelocity(Entity entity, float x, float y) {
     if (entity.HasComponent<RigidBodyComponent>()) {
         auto& rigidbody = entity.GetComponent<RigidBodyComponent>();
         rigidbody.velocity.x = x;
@@ -56,7 +56,7 @@ void SetEntityVelocity(Entity entity, double x, double y) {
     }
 }
 
-void SetEntityRotation(Entity entity, double angle) {
+void SetEntityRotation(Entity entity, float angle) {
     if (entity.HasComponent<TransformComponent>()) {
         auto& transform = entity.GetComponent<TransformComponent>();
         transform.rotation = angle;
@@ -76,7 +76,7 @@ void SetEntityAnimationFrame(Entity entity, int frame) {
     }
 }
 
-void SetProjectileVelocity(Entity entity, double x, double y) {
+void SetProjectileVelocity(Entity entity, float x, float y) {
     if (entity.HasComponent<ProjectileEmitterComponent>()) {
         auto& projectileEmitter = entity.GetComponent<ProjectileEmitterComponent>();
         projectileEmitter.projectileVelocity.x = x;
@@ -113,7 +113,7 @@ class ScriptSystem: public System {
             lua.set_function("set_animation_frame", SetEntityAnimationFrame);
         }
 
-        void Update(double deltaTime, int ellapsedTime) {
+        void Update(float deltaTime, int ellapsedTime) {
             // Loop all entities that have a script component and invoke their Lua function
             for (auto entity: GetSystemEntities()) {
                 const auto script = entity.GetComponent<ScriptComponent>();

@@ -40,7 +40,7 @@ class RenderGUISystem: public System {
                 static int projDuration = 10;
                 const char* sprites[] = {"tank-image", "truck-image"};
                 static int selectedSpriteIndex = 0;
-				static float screenBorder = -50.0f;
+				static float screenBorder = -200.0f;
                 // Section to input enemy sprite texture id 
                 if (ImGui::CollapsingHeader("Sprite", ImGuiTreeNodeFlags_DefaultOpen)) {
                     ImGui::Combo("texture id", &selectedSpriteIndex, sprites, IM_ARRAYSIZE(sprites));
@@ -103,7 +103,7 @@ class RenderGUISystem: public System {
                     health = 100;
                 }
 				ImGui::Spacing();
-				if (ImGui::SliderFloat("Screen Border", &screenBorder, -100.0f, 100.0f)) {
+				if (ImGui::SliderFloat("Screen Border", &screenBorder, -500.0f, 500.0f)) {
 					ViewPort::Get().setScreenBorder(screenBorder);
 				}
             }

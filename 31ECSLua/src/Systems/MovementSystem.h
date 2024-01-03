@@ -39,17 +39,15 @@ class MovementSystem: public System {
 
                 if (rigidbody.velocity.x != 0) {
                     rigidbody.velocity.x *= -1;
-                    //sprite.flip = (sprite.flip == SDL_FLIP_NONE) ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
                 }
                 
                 if (rigidbody.velocity.y != 0) {
                     rigidbody.velocity.y *= -1;
-                    //sprite.flip = (sprite.flip == SDL_FLIP_NONE) ? SDL_FLIP_VERTICAL : SDL_FLIP_NONE;
                 }
             }
         }
 
-        void Update(double deltaTime) {
+        void Update(float deltaTime) {
             // Loop all entities that the system is interested in
             for (auto entity: GetSystemEntities()) {
                 // Update entity position based on its velocity
@@ -68,23 +66,23 @@ class MovementSystem: public System {
                     int paddingBottom = 50;
                     transform.position.x = transform.position.x < paddingLeft ? paddingLeft : transform.position.x;
                     transform.position.x = transform.position.x > Application::MapWidth - paddingRight ? Application::MapWidth - paddingRight : transform.position.x;
-                    transform.position.y = transform.position.y < paddingTop ? paddingTop : transform.position.y;
-                    transform.position.y = transform.position.y > Application::MapHeight - paddingBottom ? Application::MapHeight - paddingBottom : transform.position.y;
+                    transform.position.y = transform.position.y > (Application::Height + paddingBottom) - Application::MapHeight ? transform.position.y : (paddingBottom + Application::Height) - Application::MapHeight;
+                    transform.position.y = transform.position.y < Application::Height - paddingTop ? transform.position.y : Application::Height - paddingTop;
                 }
 
                 // Check if entity is outside the map boundaries (with a 200 pixels forgiving culling margin)
                 int cullingMargin = 200;
-                
-                bool isEntityOutsideMap = (
-                    transform.position.x < -cullingMargin ||
-                    transform.position.x > Application::MapWidth + cullingMargin ||
-                    transform.position.y < -cullingMargin ||
-                    transform.position.y > Application::MapHeight + cullingMargin
+			
+				bool isEntityOutsideMap = (
+					transform.position.x < -cullingMargin ||
+					transform.position.x > Application::MapWidth + cullingMargin ||
+					transform.position.y < Application::Height - cullingMargin - Application::MapHeight ||
+					transform.position.y > cullingMargin + Application::Height
                 );
 
                 // Kill all entities that move outside the map boundaries
                 if (isEntityOutsideMap && !entity.HasTag("player")) {
-                    //entity.Kill();
+                    entity.Kill();
                 }
             }
         }

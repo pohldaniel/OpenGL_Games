@@ -8,10 +8,10 @@ float ViewPort::ViewBottom = 0.0f;
 float ViewPort::ViewTop = 0.0f;
 bool ViewPort::Update = false;
 
-ViewPort::ViewPort() : m_postition(m_camera.getPosition()) {
+ViewPort::ViewPort() : postition(m_camera.getPosition()) {
 	m_camera.setRotationSpeed(0.1f);
 	m_camera.setMovingSpeed(1000.0f);
-	m_screeBorder = -50.0f;
+	m_screeBorder = -200.0f;
 }
 
 ViewPort& ViewPort::Get() {
@@ -43,6 +43,11 @@ void ViewPort::setPosition(const Vector3f& position) {
 	m_camera.setPosition(position);
 }
 
+void ViewPort::setPosition(float x, float y, float z) {
+	Update = true;
+	m_camera.setPosition(x, y, z);
+}
+
 void ViewPort::move(const Vector3f& delta) {
 	Update = true;
 	m_camera.move(delta);
@@ -54,29 +59,29 @@ void ViewPort::setScreenBorder(float screeBorder) {
 }
 
 const Vector3f& ViewPort::getPosition() {
-	return m_postition;
+	return postition;
 }
 
 float ViewPort::getLeft() {
-	return m_postition[0] + m_left + m_screeBorder;
+	return postition[0] + m_left + m_screeBorder;
 }
 
 float ViewPort::getRight() {
-	return m_postition[0] + m_right - m_screeBorder;
+	return postition[0] + m_right - m_screeBorder;
 }
 
 float ViewPort::getBottom() {
-	return m_postition[1] + m_bottom +  m_screeBorder;
+	return postition[1] + m_bottom +  m_screeBorder;
 }
 
 float ViewPort::getTop() {
-	return m_postition[1] + m_top - m_screeBorder;
+	return postition[1] + m_top - m_screeBorder;
 }
 
 bool ViewPort::IsRectOnScreen(float posX, float posY, float width,  float height) {
-	ViewPort& viewPort = ViewPort::Get();
-
+	
 	if (Update) {
+		ViewPort& viewPort = ViewPort::Get();
 		ViewLeft = viewPort.getLeft();
 		ViewRight = viewPort.getRight();
 		ViewBottom = viewPort.getBottom();

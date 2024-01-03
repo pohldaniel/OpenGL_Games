@@ -17,6 +17,7 @@ public:
 	float getTop();
 
 	void setPosition(const Vector3f& position);
+	void setPosition(float x, float y, float z);
 	void setScreenBorder(float screeBorder);
 
 	static ViewPort& Get();
@@ -29,7 +30,7 @@ private:
 
 	Camera m_camera;
 	float m_left, m_right, m_bottom, m_top;
-	const Vector3f& m_postition;
+	const Vector3f& postition;
 	float m_screeBorder;
 
 	static ViewPort s_instance;

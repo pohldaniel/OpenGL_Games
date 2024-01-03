@@ -36,10 +36,10 @@ private:
 	void init();
 
 	bool m_initUi = true;
-	bool m_drawUi = true;
-	bool m_debug = true;
+	bool m_drawUi = false;
+	bool m_debug = false;
 
-	Camera& m_camera;
+	Camera& camera;
 	Background m_background;
 	sol::state lua;
 

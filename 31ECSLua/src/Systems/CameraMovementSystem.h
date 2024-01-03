@@ -7,6 +7,7 @@
 #include "../Components/TransformComponent.h"
 
 #include "Application.h"
+#include "ViewPort.h"
 
 class CameraMovementSystem: public System {
     public:
@@ -15,24 +16,21 @@ class CameraMovementSystem: public System {
             RequireComponent<TransformComponent>();
         }
 
-        void Update(Camera& camera) {
-            /*for (auto entity: GetSystemEntities()) {
-                auto transform = entity.GetComponent<TransformComponent>();
-
-                if (transform.position.x + (camera.width / 2) < Application::MapWidth) {
-                    camera.posX = transform.position.x - (Application::Width / 2);
-                }
-
-                if (transform.position.y + (camera.height / 2) < Application::MapHeight) {
-                    camera.posY = transform.position.y - (Application::Height / 2);
-                }
-
+        void Update() {
+            for (auto entity: GetSystemEntities()) {
+				auto transform = entity.GetComponent<TransformComponent>();
+				
+				float posX = transform.position.x - (Application::Width / 2);
+				float posY = transform.position.y - (Application::Height / 2);
+				
                 // Keep camera rectangle view inside the screen limits
-                camera.posX = camera.posX < 0 ? 0 : camera.posX;
-                camera.posY = camera.posY < 0 ? 0 : camera.posY;
-                camera.posX = camera.posX > camera.width ? camera.width : camera.posX;
-                camera.posY = camera.posY > camera.height ? camera.height : camera.posY;
-            }*/
+				posX = posX < 0.0f ? 0.0f : posX;
+				posY = posY > 0.0f ? 0.0f : posY;			
+				posX = posX > Application::MapWidth - Application::Width ? Application::MapWidth - Application::Width : posX;
+				posY = posY < -(Application::MapHeight - Application::Height) ? -(Application::MapHeight - Application::Height) : posY;
+
+				ViewPort::Get().setPosition(posX, posY, 0.0f);
+            }
         }
 };
 
