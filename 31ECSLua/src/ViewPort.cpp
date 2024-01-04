@@ -88,7 +88,6 @@ float ViewPort::getTop() {
 }
 
 const int ViewPort::getCursorPosX(int posX) {
-	std::cout << "#########" << position[0] << std::endl;
 	return static_cast<int>(position[0]) + posX;
 }
 

@@ -49,13 +49,22 @@ class RenderSystem: public System {
                 // Set the source rectangle of our original sprite texture
 				const TextureRect& srcRect = entity.spriteComponent.textureRect;
 
-				//Batchrenderer::Get().addQuadAA(Vector4f(transform.position.x, transform.position.y, srcRect.width * transform.scale.x, srcRect.height * transform.scale.y), Vector4f(srcRect.textureOffsetX, srcRect.textureOffsetY, srcRect.textureWidth, srcRect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), srcRect.frame);
-				Batchrenderer::Get().addRotatedQuadLH(Vector4f(transform.position.x, transform.position.y - srcRect.height * transform.scale.y, srcRect.width * transform.scale.x, srcRect.height * transform.scale.y),
-					transform.rotation,
-					srcRect.width * transform.scale.x * 0.5f,
-					srcRect.height * transform.scale.y * 0.5f,
-					Vector4f(srcRect.textureOffsetX, srcRect.textureOffsetY, srcRect.textureWidth, srcRect.textureHeight),
-					Vector4f(1.0f, 1.0f, 1.0f, 1.0f), srcRect.frame);
+				if (!entity.spriteComponent.isFixed) {
+					Batchrenderer::Get().addRotatedQuadLH(Vector4f(transform.position.x, transform.position.y - srcRect.height * transform.scale.y, srcRect.width * transform.scale.x, srcRect.height * transform.scale.y),
+						transform.rotation,
+						srcRect.width * transform.scale.x * 0.5f,
+						srcRect.height * transform.scale.y * 0.5f,
+						Vector4f(srcRect.textureOffsetX, srcRect.textureOffsetY, srcRect.textureWidth, srcRect.textureHeight),
+						Vector4f(1.0f, 1.0f, 1.0f, 1.0f), srcRect.frame);
+				}else {
+					ViewPort& viewPort = ViewPort::Get();
+					Batchrenderer::Get().addRotatedQuadLH(Vector4f(viewPort.getPositionX() + transform.position.x, viewPort.getPositionY() + static_cast<float>(Application::Height) - ( transform.position.y + srcRect.height * transform.scale.y), srcRect.width * transform.scale.x, srcRect.height * transform.scale.y),
+						transform.rotation,
+						srcRect.width * transform.scale.x * 0.5f,
+						srcRect.height * transform.scale.y * 0.5f,
+						Vector4f(srcRect.textureOffsetX, srcRect.textureOffsetY, srcRect.textureWidth, srcRect.textureHeight),
+						Vector4f(1.0f, 1.0f, 1.0f, 1.0f), srcRect.frame);
+				}
             }
 
         }

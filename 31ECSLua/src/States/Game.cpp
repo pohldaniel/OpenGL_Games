@@ -158,7 +158,7 @@ void Game::render() {
 	auto shader = Globals::shaderManager.getAssetPointer("batch");
 
 	shader->use();
-	shader->loadMatrix("u_transform", camera.getOrthographicMatrix() * camera.getViewMatrix());
+	shader->loadMatrix("u_transform", camera.getOrthographicMatrix() * camera.getViewMatrix() );
 	Spritesheet::Bind(LevelLoader::Atlas);
 	registry->GetSystem<RenderSystem>().Update();
 	registry->GetSystem<RenderHealthBarSystem>().Update();

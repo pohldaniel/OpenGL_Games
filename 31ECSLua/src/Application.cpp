@@ -492,6 +492,11 @@ void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 					EventDispatcher.pushEvent(event);
 					break;
 				}case VK_CONTROL: {
+
+					//Alt Graph
+					//if (HIWORD(lParam) == 29)
+					//	break;
+					
 					Event event;
 					event.type = Event::KEYDOWN;
 					event.data.keyboard.keyCode = (lParam & 0x01000000) != 0 ? VK_RCONTROL : VK_LCONTROL;

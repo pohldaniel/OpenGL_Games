@@ -70,28 +70,50 @@ void LevelLoader::LoadLevel(sol::state& lua, const std::unique_ptr<Registry>& re
         sol::table asset = assets[i];
         std::string assetType = asset["type"];
         std::string assetId = asset["id"];
-		if (assetType == "tileset") {		
-			//TileSetManager::Get().getTileSet("desert").loadTileSetCpu("assets/tilemaps/desert.map", asset["file"], 40, 30, 32.0f);
+		if (assetType == "tileset") {	
+			int begin = TileSetManager::Get().getTileSet("desert").getTextureRects().size();
 			TileSetManager::Get().getTileSet("desert").loadTileSetCpu(asset["file"], 32.0f, 32.0f);
 			if (SpriteMap.count(assetId) == 0) {
-				SpriteMap.insert({ assetId, {asset["begin_frame"], asset["end_frame"]} });
+				
+				SpriteMap.insert({ assetId, {begin, (int)(TileSetManager::Get().getTileSet("desert").getTextureRects().size() - 1)} });
 			}
 		}else if (assetType == "texture") {
-			TileSetManager::Get().getTileSet("desert").loadTileSetCpu(asset["file"], true, false);
+			int begin = TileSetManager::Get().getTileSet("desert").getTextureRects().size();
+			TileSetManager::Get().getTileSet("desert").loadTileSetCpu(asset["file"].get<std::string>(), true, false);
 			if (SpriteMap.count(assetId) == 0) {
-				SpriteMap.insert({ assetId, {asset["begin_frame"], asset["end_frame"]} });
+				SpriteMap.insert({ assetId, {begin, (int)(TileSetManager::Get().getTileSet("desert").getTextureRects().size() - 1)} });
 			}
 		}else if (assetType == "spritesheet") {
+			int begin = TileSetManager::Get().getTileSet("desert").getTextureRects().size();
 			if (assetId == "bomber-texture") {
 				TileSetManager::Get().getTileSet("desert").loadTileSetCpu(asset["file"], 32.0f, 24.0f);
+			}else if (assetId == "radar-texture") {
+				TileSetManager::Get().getTileSet("desert").loadTileSetCpu(asset["file"], 64.0f, 64.0f);
 			}else {
 				TileSetManager::Get().getTileSet("desert").loadTileSetCpu(asset["file"], 32.0f, 32.0f);
 			}
 
 			if (SpriteMap.count(assetId) == 0) {
-				SpriteMap.insert({ assetId, {asset["begin_frame"], asset["end_frame"]} });
+				SpriteMap.insert({ assetId, {begin, (int)(TileSetManager::Get().getTileSet("desert").getTextureRects().size() - 1)} });
 			}
-		}else if(assetType == "font") {
+		}else if (assetType == "splitted") {
+			std::vector<std::string> paths;
+			sol::table table = asset["file"];
+
+			for (const auto& entry : table) {
+				std::string path = entry.second.as<std::string>();
+				paths.push_back(path);
+			}
+			int begin = TileSetManager::Get().getTileSet("desert").getTextureRects().size();
+			TileSetManager::Get().getTileSet("desert").loadTileSetCpu(paths, true, false);
+			paths.clear();
+			paths.shrink_to_fit();
+
+			if (SpriteMap.count(assetId) == 0) {
+				SpriteMap.insert({ assetId, {begin, (int)(TileSetManager::Get().getTileSet("desert").getTextureRects().size() - 1)} });
+			}
+		}
+		else if(assetType == "font") {
 			TileSetManager::Get().getTileSet("desert").addCharset(Globals::fontManager.get(assetId));
         }
         i++;
@@ -99,8 +121,6 @@ void LevelLoader::LoadLevel(sol::state& lua, const std::unique_ptr<Registry>& re
 
 	TileSetManager::Get().getTileSet("desert").loadTileSetGpu();
 	Atlas = TileSetManager::Get().getTileSet("desert").getAtlas();
-	//Spritesheet::Safe("tmp", Atlas);
-	//std::cout << "Size: " << TileSetManager::Get().getTileSet("desert").getTextureRects().size() << std::endl;
     ////////////////////////////////////////////////////////////////////////////
     // Read the level tilemap information
     ////////////////////////////////////////////////////////////////////////////
@@ -128,7 +148,7 @@ void LevelLoader::LoadLevel(sol::state& lua, const std::unique_ptr<Registry>& re
     for (int y = 0; y < mapNumRows; y++) {
 		for (int x = 0; x < mapNumCols; x++) {			
 			Entity tile = registry->CreateEntity();
-			tile.AddComponent<TransformComponent>(glm::vec2(x * (mapScale * tileSize), Application::Height - y * (mapScale * tileSize)), glm::vec2(mapScale, mapScale), 0.0);
+			tile.AddComponent<TransformComponent>(glm::vec2(x * (mapScale * tileSize), static_cast<float>(Application::Height) - y * (mapScale * tileSize)), glm::vec2(mapScale, mapScale), 0.0);
 
 			unsigned int id = ids[y * mapNumCols + x];
 			const TextureRect& rect = TileSetManager::Get().getTileSet("desert").getTextureRects()[id];
@@ -215,6 +235,10 @@ void LevelLoader::LoadLevel(sol::state& lua, const std::unique_ptr<Registry>& re
 
 				if(beginFrame != endFrame)
 					newEntity.GetComponent<SpriteComponent>().init(std::vector<TextureRect>(TileSetManager::Get().getTileSet("desert").getTextureRects().begin() + beginFrame, TileSetManager::Get().getTileSet("desert").getTextureRects().begin() + endFrame + 1));
+
+				if (newEntity.GetComponent<SpriteComponent>().isFixed && transform != sol::nullopt) {
+					newEntity.GetComponent<TransformComponent>().position.y = entity["components"]["transform"]["position"]["y"];
+				}
             }
 
             // Animation

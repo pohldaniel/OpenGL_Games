@@ -214,15 +214,13 @@ TileSet::TileSet() : m_init(false) {
 
 }
 
-void TileSet::loadTileSetCpu(std::vector<std::string> texturePaths, unsigned int width, unsigned int height, bool resetLine) {
+void TileSet::loadTileSetCpu(const std::vector<std::string>& texturePaths, bool flipVertical, bool resetLine) {
 	if (m_init) return;
 	cutOff = texturePaths.size();
 
-	TextureAtlasCreator::Get().init(width, height);
-	
 	for(auto& path: texturePaths){ 
 		int imageWidth, imageHeight;
-		unsigned char* bytes = Texture::LoadFromFile(path, imageWidth, imageHeight, true);
+		unsigned char* bytes = Texture::LoadFromFile(path, imageWidth, imageHeight, flipVertical);
 
 		TextureAtlasCreator::Get().addTexture(bytes, imageWidth, imageHeight, false, 0u, 0u, m_textureRects);
 		if (resetLine)
@@ -232,7 +230,7 @@ void TileSet::loadTileSetCpu(std::vector<std::string> texturePaths, unsigned int
 	}	
 }
 
-void TileSet::loadTileSetCpu(std::string mapPath, std::string texturePath, unsigned int columns, unsigned int rows, float tileSize, const bool flipVertical, bool flipTextureRects) {
+void TileSet::loadTileSetCpu(std::string mapPath, std::string texturePath, unsigned int columns, unsigned int rows, float tileSize, bool flipVertical, bool flipTextureRects) {
 	if (m_init) return;
 	cutOff = columns * rows;
 
@@ -288,7 +286,7 @@ void TileSet::loadTileSetCpu(std::string mapPath, std::string texturePath, unsig
 	TextureAtlasCreator::Get().addTexture(bytes, imageWidth, imageHeight, textureRects, false, 0u, 0u, m_textureRects);
 }
 
-void TileSet::loadTileSetCpu(std::string texturePath, float tileWidth, float tileHeight, const bool flipVertical, bool flipTextureRects) {
+void TileSet::loadTileSetCpu(std::string texturePath, float tileWidth, float tileHeight, bool flipVertical, bool flipTextureRects) {
 	if (m_init) return;
 		
 	int imageWidth, imageHeight;
@@ -327,7 +325,7 @@ void TileSet::loadTileSetCpu(std::string texturePath, float tileWidth, float til
 	TextureAtlasCreator::Get().addTexture(bytes, imageWidth, imageHeight, textureRects, false, 0u, 0u, m_textureRects);
 }
 
-void TileSet::loadTileSetCpu(std::string texturePath, const bool flipVertical, bool flipTextureRects) {
+void TileSet::loadTileSetCpu(std::string texturePath, bool flipVertical, bool flipTextureRects) {
 	if (m_init) return;
 
 	int imageWidth, imageHeight;
