@@ -344,6 +344,9 @@ void Application::initOpenGL(int msaaSamples) {
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+
+	//glClipControl(GL_UPPER_LEFT, GL_ZERO_TO_ONE);
+	//glClipControl(GL_UPPER_LEFT, GL_NEGATIVE_ONE_TO_ONE);
 }
 
 void Application::initImGUI() {

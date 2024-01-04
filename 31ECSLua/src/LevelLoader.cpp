@@ -72,7 +72,7 @@ void LevelLoader::LoadLevel(sol::state& lua, const std::unique_ptr<Registry>& re
         std::string assetId = asset["id"];
 		if (assetType == "tileset") {	
 			int begin = TileSetManager::Get().getTileSet("desert").getTextureRects().size();
-			TileSetManager::Get().getTileSet("desert").loadTileSetCpu(asset["file"], 32.0f, 32.0f);
+			TileSetManager::Get().getTileSet("desert").loadTileSetCpu(asset["file"], 32.0f, 32.0f, true, false);
 			if (SpriteMap.count(assetId) == 0) {
 				
 				SpriteMap.insert({ assetId, {begin, (int)(TileSetManager::Get().getTileSet("desert").getTextureRects().size() - 1)} });
@@ -86,11 +86,11 @@ void LevelLoader::LoadLevel(sol::state& lua, const std::unique_ptr<Registry>& re
 		}else if (assetType == "spritesheet") {
 			int begin = TileSetManager::Get().getTileSet("desert").getTextureRects().size();
 			if (assetId == "bomber-texture") {
-				TileSetManager::Get().getTileSet("desert").loadTileSetCpu(asset["file"], 32.0f, 24.0f);
+				TileSetManager::Get().getTileSet("desert").loadTileSetCpu(asset["file"], 32.0f, 24.0f, true, false);
 			}else if (assetId == "radar-texture") {
-				TileSetManager::Get().getTileSet("desert").loadTileSetCpu(asset["file"], 64.0f, 64.0f);
+				TileSetManager::Get().getTileSet("desert").loadTileSetCpu(asset["file"], 64.0f, 64.0f, true, false);
 			}else {
-				TileSetManager::Get().getTileSet("desert").loadTileSetCpu(asset["file"], 32.0f, 32.0f);
+				TileSetManager::Get().getTileSet("desert").loadTileSetCpu(asset["file"], 32.0f, 32.0f, true, false);
 			}
 
 			if (SpriteMap.count(assetId) == 0) {
@@ -105,7 +105,7 @@ void LevelLoader::LoadLevel(sol::state& lua, const std::unique_ptr<Registry>& re
 				paths.push_back(path);
 			}
 			int begin = TileSetManager::Get().getTileSet("desert").getTextureRects().size();
-			TileSetManager::Get().getTileSet("desert").loadTileSetCpu(paths, true, false);
+			TileSetManager::Get().getTileSet("desert").loadTileSetCpu(paths, true, false, false);
 			paths.clear();
 			paths.shrink_to_fit();
 
@@ -121,6 +121,7 @@ void LevelLoader::LoadLevel(sol::state& lua, const std::unique_ptr<Registry>& re
 
 	TileSetManager::Get().getTileSet("desert").loadTileSetGpu();
 	Atlas = TileSetManager::Get().getTileSet("desert").getAtlas();
+	//Spritesheet::Safe("desert", Atlas);
     ////////////////////////////////////////////////////////////////////////////
     // Read the level tilemap information
     ////////////////////////////////////////////////////////////////////////////
