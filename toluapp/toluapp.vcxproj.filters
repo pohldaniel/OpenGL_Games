@@ -13,13 +13,189 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="libtolua">
+      <UniqueIdentifier>{74be3808-5886-4fdf-9fb8-6d96ab058193}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="liblua">
+      <UniqueIdentifier>{fa97d947-d344-4402-a773-4e953fae6325}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\libtolua\src\bin\tolua.c">
+    <ClCompile Include="libtolua\tolua_event.c">
+      <Filter>libtolua</Filter>
+    </ClCompile>
+    <ClCompile Include="libtolua\tolua_is.c">
+      <Filter>libtolua</Filter>
+    </ClCompile>
+    <ClCompile Include="libtolua\tolua_map.c">
+      <Filter>libtolua</Filter>
+    </ClCompile>
+    <ClCompile Include="libtolua\tolua_push.c">
+      <Filter>libtolua</Filter>
+    </ClCompile>
+    <ClCompile Include="libtolua\tolua_to.c">
+      <Filter>libtolua</Filter>
+    </ClCompile>
+    <ClCompile Include="liblua\lapi.c">
+      <Filter>liblua</Filter>
+    </ClCompile>
+    <ClCompile Include="liblua\lauxlib.c">
+      <Filter>liblua</Filter>
+    </ClCompile>
+    <ClCompile Include="liblua\lbaselib.c">
+      <Filter>liblua</Filter>
+    </ClCompile>
+    <ClCompile Include="liblua\lcode.c">
+      <Filter>liblua</Filter>
+    </ClCompile>
+    <ClCompile Include="liblua\ldblib.c">
+      <Filter>liblua</Filter>
+    </ClCompile>
+    <ClCompile Include="liblua\ldebug.c">
+      <Filter>liblua</Filter>
+    </ClCompile>
+    <ClCompile Include="liblua\ldo.c">
+      <Filter>liblua</Filter>
+    </ClCompile>
+    <ClCompile Include="liblua\ldump.c">
+      <Filter>liblua</Filter>
+    </ClCompile>
+    <ClCompile Include="liblua\lfunc.c">
+      <Filter>liblua</Filter>
+    </ClCompile>
+    <ClCompile Include="liblua\lgc.c">
+      <Filter>liblua</Filter>
+    </ClCompile>
+    <ClCompile Include="liblua\linit.c">
+      <Filter>liblua</Filter>
+    </ClCompile>
+    <ClCompile Include="liblua\liolib.c">
+      <Filter>liblua</Filter>
+    </ClCompile>
+    <ClCompile Include="liblua\llex.c">
+      <Filter>liblua</Filter>
+    </ClCompile>
+    <ClCompile Include="liblua\lmathlib.c">
+      <Filter>liblua</Filter>
+    </ClCompile>
+    <ClCompile Include="liblua\lmem.c">
+      <Filter>liblua</Filter>
+    </ClCompile>
+    <ClCompile Include="liblua\loadlib.c">
+      <Filter>liblua</Filter>
+    </ClCompile>
+    <ClCompile Include="liblua\lobject.c">
+      <Filter>liblua</Filter>
+    </ClCompile>
+    <ClCompile Include="liblua\lopcodes.c">
+      <Filter>liblua</Filter>
+    </ClCompile>
+    <ClCompile Include="liblua\loslib.c">
+      <Filter>liblua</Filter>
+    </ClCompile>
+    <ClCompile Include="liblua\lparser.c">
+      <Filter>liblua</Filter>
+    </ClCompile>
+    <ClCompile Include="liblua\lstate.c">
+      <Filter>liblua</Filter>
+    </ClCompile>
+    <ClCompile Include="liblua\lstring.c">
+      <Filter>liblua</Filter>
+    </ClCompile>
+    <ClCompile Include="liblua\lstrlib.c">
+      <Filter>liblua</Filter>
+    </ClCompile>
+    <ClCompile Include="liblua\ltable.c">
+      <Filter>liblua</Filter>
+    </ClCompile>
+    <ClCompile Include="liblua\ltablib.c">
+      <Filter>liblua</Filter>
+    </ClCompile>
+    <ClCompile Include="liblua\ltm.c">
+      <Filter>liblua</Filter>
+    </ClCompile>
+    <ClCompile Include="liblua\lundump.c">
+      <Filter>liblua</Filter>
+    </ClCompile>
+    <ClCompile Include="liblua\lvm.c">
+      <Filter>liblua</Filter>
+    </ClCompile>
+    <ClCompile Include="liblua\lzio.c">
+      <Filter>liblua</Filter>
+    </ClCompile>
+    <ClCompile Include="liblua\print.c">
+      <Filter>liblua</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tolua.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\libtolua\src\bin\toluabind.c">
+    <ClCompile Include="src\toluabind.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="libtolua\tolua_event.h">
+      <Filter>libtolua</Filter>
+    </ClInclude>
+    <ClInclude Include="liblua\lapi.h">
+      <Filter>liblua</Filter>
+    </ClInclude>
+    <ClInclude Include="liblua\lcode.h">
+      <Filter>liblua</Filter>
+    </ClInclude>
+    <ClInclude Include="liblua\ldebug.h">
+      <Filter>liblua</Filter>
+    </ClInclude>
+    <ClInclude Include="liblua\ldo.h">
+      <Filter>liblua</Filter>
+    </ClInclude>
+    <ClInclude Include="liblua\lfunc.h">
+      <Filter>liblua</Filter>
+    </ClInclude>
+    <ClInclude Include="liblua\lgc.h">
+      <Filter>liblua</Filter>
+    </ClInclude>
+    <ClInclude Include="liblua\llex.h">
+      <Filter>liblua</Filter>
+    </ClInclude>
+    <ClInclude Include="liblua\llimits.h">
+      <Filter>liblua</Filter>
+    </ClInclude>
+    <ClInclude Include="liblua\lmem.h">
+      <Filter>liblua</Filter>
+    </ClInclude>
+    <ClInclude Include="liblua\lobject.h">
+      <Filter>liblua</Filter>
+    </ClInclude>
+    <ClInclude Include="liblua\lopcodes.h">
+      <Filter>liblua</Filter>
+    </ClInclude>
+    <ClInclude Include="liblua\lparser.h">
+      <Filter>liblua</Filter>
+    </ClInclude>
+    <ClInclude Include="liblua\lstate.h">
+      <Filter>liblua</Filter>
+    </ClInclude>
+    <ClInclude Include="liblua\lstring.h">
+      <Filter>liblua</Filter>
+    </ClInclude>
+    <ClInclude Include="liblua\ltable.h">
+      <Filter>liblua</Filter>
+    </ClInclude>
+    <ClInclude Include="liblua\ltm.h">
+      <Filter>liblua</Filter>
+    </ClInclude>
+    <ClInclude Include="liblua\lundump.h">
+      <Filter>liblua</Filter>
+    </ClInclude>
+    <ClInclude Include="liblua\lvm.h">
+      <Filter>liblua</Filter>
+    </ClInclude>
+    <ClInclude Include="liblua\lzio.h">
+      <Filter>liblua</Filter>
+    </ClInclude>
+    <ClInclude Include="src\toluabind.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
