@@ -646,7 +646,8 @@ void Application::ToggleFullScreen(bool isFullScreen, unsigned int width, unsign
 
 void Application::WriteConfigurationToFile() {
 	std::ofstream oss("res/_lua/save/settings.lua");
-	oss << "setfenv(1, Globals);" << std::endl;
+	oss << "--setfenv(1, Globals);" << std::endl;
+	oss << "_ENV = Globals;" << std::endl;
 	oss << "setResolution(" << Globals::width << ", " << Globals::height << ");" << std::endl;
 	oss << "useDisplaymode(" << std::boolalpha << Globals::applyDisplaymode << ");" << std::endl;
 	oss << "isFullscreen(" << std::boolalpha << Globals::fullscreen << ");" << std::endl;

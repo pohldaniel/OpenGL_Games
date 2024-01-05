@@ -13,9 +13,9 @@
 
 namespace LuaFunctions{
 
-	static const luaL_reg lualibs[] = {
-		{ "",     luaopen_base },
-		{ "io",   luaopen_io },
+	static const luaL_Reg lualibs[] = {
+		//{ "",     luaopen_base },
+		//{ "io",   luaopen_io },
 		{ "DawnInterface", tolua_Luainterface_open },
 		{ NULL,         NULL }
 	};
@@ -31,10 +31,10 @@ namespace LuaFunctions{
 
 	lua_State* createAndInitNewLuaState(){
 		// initialize lua script interpreter
-		lua_State *luaState = lua_open();
-
+		lua_State *luaState = luaL_newstate();
+		luaL_openlibs(luaState);
 		// open lua libs
-		for (const luaL_reg *lib = lualibs; lib->func != NULL; lib++) {
+		for (const luaL_Reg *lib = lualibs; lib->func != NULL; lib++) {
 			lua_pushcfunction(luaState, lib->func);
 			lua_pushstring(luaState, lib->name);
 			lua_call(luaState, 1, 0);

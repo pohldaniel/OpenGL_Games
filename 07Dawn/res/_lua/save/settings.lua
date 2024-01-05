@@ -1,4 +1,5 @@
-setfenv(1, Globals);
+--setfenv(1, Globals);
+_ENV = Globals;
 setResolution(1024, 768);
 useDisplaymode(false);
 isFullscreen(false);

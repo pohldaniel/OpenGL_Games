@@ -23,12 +23,12 @@
 static void storeatubox (lua_State* L, int lo)
 {
 	#ifdef LUA_VERSION_NUM
-		lua_getfenv(L, lo);
+		lua_getuservalue(L, lo);
 		if (lua_rawequal(L, -1, TOLUA_NOPEER)) {
 			lua_pop(L, 1);
 			lua_newtable(L);
 			lua_pushvalue(L, -1);
-			lua_setfenv(L, lo);	/* stack: k,v,table  */
+			lua_setuservalue(L, lo);	/* stack: k,v,table  */
 		};
 		lua_insert(L, -3);
 		lua_settable(L, -3); /* on lua 5.1, we trade the "tolua_peers" lookup for a settable call */
@@ -141,7 +141,7 @@ static int class_index_event (lua_State* L)
 	{
 		/* Access alternative table */
 		#ifdef LUA_VERSION_NUM /* new macro on version 5.1 */
-		lua_getfenv(L,1);
+		lua_getuservalue(L,1);
 		if (!lua_rawequal(L, -1, TOLUA_NOPEER)) {
 			lua_pushvalue(L, 2); /* key */
 			lua_gettable(L, -2); /* on lua 5.1, we trade the "tolua_peers" lookup for a gettable call */
@@ -205,7 +205,7 @@ static int class_index_event (lua_State* L)
 					else if (lua_istable(L,-1))
 					{
 						/* deal with array: create table to be returned and cache it in ubox */
-						void* u = *((void**)lua_touserdata(L,1));
+						void* u = *((void**)lua_newuserdata(L,1));
 						lua_newtable(L);                /* stack: obj key mt value table */
 						lua_pushstring(L,".self");
 						lua_pushlightuserdata(L,u);
@@ -420,7 +420,7 @@ static int class_gc_event (lua_State* L)
 */
 TOLUA_API int class_gc_event (lua_State* L)
 {
-	void* u = *((void**)lua_touserdata(L,1));
+	void* u = *((void**)lua_newuserdata(L,1));
 	int top;
 	/*fprintf(stderr, "collecting: looking at %p\n", u);*/
 	/*

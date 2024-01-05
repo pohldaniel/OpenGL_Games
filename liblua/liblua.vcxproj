@@ -23,6 +23,8 @@
     <ClCompile Include="..\lua\src\lauxlib.c" />
     <ClCompile Include="..\lua\src\lbaselib.c" />
     <ClCompile Include="..\lua\src\lcode.c" />
+    <ClCompile Include="..\lua\src\lcorolib.c" />
+    <ClCompile Include="..\lua\src\lctype.c" />
     <ClCompile Include="..\lua\src\ldblib.c" />
     <ClCompile Include="..\lua\src\ldebug.c" />
     <ClCompile Include="..\lua\src\ldo.c" />
@@ -45,24 +47,34 @@
     <ClCompile Include="..\lua\src\ltable.c" />
     <ClCompile Include="..\lua\src\ltablib.c" />
     <ClCompile Include="..\lua\src\ltm.c" />
+    <ClCompile Include="..\lua\src\lua.c" />
     <ClCompile Include="..\lua\src\lundump.c" />
+    <ClCompile Include="..\lua\src\lutf8lib.c" />
     <ClCompile Include="..\lua\src\lvm.c" />
     <ClCompile Include="..\lua\src\lzio.c" />
-    <ClCompile Include="..\lua\src\print.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\lua\include\lauxlib.h" />
+    <ClInclude Include="..\lua\include\lua.h" />
+    <ClInclude Include="..\lua\include\lua.hpp" />
+    <ClInclude Include="..\lua\include\luaconf.h" />
+    <ClInclude Include="..\lua\include\lualib.h" />
     <ClInclude Include="..\lua\src\lapi.h" />
     <ClInclude Include="..\lua\src\lcode.h" />
+    <ClInclude Include="..\lua\src\lctype.h" />
     <ClInclude Include="..\lua\src\ldebug.h" />
     <ClInclude Include="..\lua\src\ldo.h" />
     <ClInclude Include="..\lua\src\lfunc.h" />
     <ClInclude Include="..\lua\src\lgc.h" />
+    <ClInclude Include="..\lua\src\ljumptab.h" />
     <ClInclude Include="..\lua\src\llex.h" />
     <ClInclude Include="..\lua\src\llimits.h" />
     <ClInclude Include="..\lua\src\lmem.h" />
     <ClInclude Include="..\lua\src\lobject.h" />
     <ClInclude Include="..\lua\src\lopcodes.h" />
+    <ClInclude Include="..\lua\src\lopnames.h" />
     <ClInclude Include="..\lua\src\lparser.h" />
+    <ClInclude Include="..\lua\src\lprefix.h" />
     <ClInclude Include="..\lua\src\lstate.h" />
     <ClInclude Include="..\lua\src\lstring.h" />
     <ClInclude Include="..\lua\src\ltable.h" />

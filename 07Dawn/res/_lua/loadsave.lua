@@ -81,6 +81,7 @@ function printValue( surroundingName, varname, value )
 end
 
 function saveGame( fileprefix )
+
 	local oldOut = io.output()
 	io.output( fileprefix..'.lua' )
 

@@ -27,6 +27,12 @@
     <ClCompile Include="src\lcode.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\lcorolib.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lctype.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="src\ldblib.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -93,7 +99,13 @@
     <ClCompile Include="src\ltm.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\lua.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="src\lundump.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lutf8lib.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\lvm.c">
@@ -102,15 +114,15 @@
     <ClCompile Include="src\lzio.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\print.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\lapi.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="src\lcode.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lctype.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="src\ldebug.h">
@@ -123,6 +135,9 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="src\lgc.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ljumptab.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="src\llex.h">
@@ -140,7 +155,13 @@
     <ClInclude Include="src\lopcodes.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\lopnames.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
     <ClInclude Include="src\lparser.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lprefix.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="src\lstate.h">
@@ -163,6 +184,21 @@
     </ClInclude>
     <ClInclude Include="src\lzio.h">
       <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\lauxlib.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\lua.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\lua.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\luaconf.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\lualib.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

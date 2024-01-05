@@ -49,3 +49,7 @@ https://wiki.wolfire.com/index.php/Binary_File_Formats
 https://www.noesisengine.com/forums/viewtopic.php?t=1491
 
 https://github.com/danielmapar/Cpp2dGameEngine
+
+https://stackoverflow.com/questions/10087226/lua-5-2-lua-globalsindex-alternative
+
+https://stackoverflow.com/questions/10087226/lua-5-2-lua-globalsindex-alternative

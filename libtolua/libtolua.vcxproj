@@ -25,6 +25,9 @@
     <ClCompile Include="src\lib\tolua_push.c" />
     <ClCompile Include="src\lib\tolua_to.c" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\tolua++.h" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{627E7E0F-C1B5-4011-A268-DAFA767FC326}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
