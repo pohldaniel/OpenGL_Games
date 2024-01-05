@@ -96,10 +96,6 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libtolua", "libtolua\libtolua.vcxproj", "{627E7E0F-C1B5-4011-A268-DAFA767FC326}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "toluapp", "toluapp\toluapp.vcxproj", "{DD5B87D9-48D4-43E2-A566-8B614880A97C}"
-	ProjectSection(ProjectDependencies) = postProject
-		{627E7E0F-C1B5-4011-A268-DAFA767FC326} = {627E7E0F-C1B5-4011-A268-DAFA767FC326}
-		{CAE547BA-A0F1-4422-A586-FDBA2481828B} = {CAE547BA-A0F1-4422-A586-FDBA2481828B}
-	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "07Dawn", "07Dawn\07Dawn.vcxproj", "{D893A0F4-9B11-474D-AA4D-35FC3D878105}"
 	ProjectSection(ProjectDependencies) = postProject
