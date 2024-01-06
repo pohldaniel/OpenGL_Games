@@ -42,8 +42,8 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 	//UserInterface::lua_openui(this->L, &this->UI);
 
 	this->scene.getResources().loadPrimitives();
-	this->scene.createSystem<BehaviourSystem>(this->L);
-	this->scene.createSystem<CollisionSystem>(this->L, &this->scene.getResources());
+	//this->scene.createSystem<BehaviourSystem>(this->L);
+	//this->scene.createSystem<CollisionSystem>(this->L, &this->scene.getResources());
 	this->scene.setScene(this->L, "menuScene.lua");
 }
 
@@ -205,4 +205,10 @@ void Game::renderUi() {
 
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+}
+
+void Game::lua_openmetatables(lua_State* L) {
+	luaL_loadfile(L, "Scripts/vector.lua");
+	lua_pcall(L, 0, 1, 0);
+	lua_setglobal(L, "vector");
 }

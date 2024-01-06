@@ -184,6 +184,7 @@ public:
 
 	Vector4f();
 	Vector4f(float x_, float y_, float z_, float w_);
+	Vector4f(float value);
 	Vector4f(const Vector3f &rhs, float w = 1.0f);
 	~Vector4f();
 

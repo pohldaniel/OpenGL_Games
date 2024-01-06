@@ -63,7 +63,7 @@ public:
 
 	inline Resources& getResources() { return this->resources; }
 	void setCamera(const Vector3f& pos, const Vector3f& rotation, float fov);
-	Vector3f getCameraPos() const;
+	const Vector3f& getCameraPos() const;
 	void setCameraPos(const Vector3f& pos);
 	void setCameraRot(const Vector3f& rot);
 

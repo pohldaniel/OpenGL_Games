@@ -30,10 +30,10 @@ const float PROJECTILE_HITBOX_RADIUS = 1.0f;
 const float SLOW_PROJECTILE_VELOCITY = 1.0f;
 const int SLOW_TOWER_TIME_BETWEEN_TWO_SHOTS = 25;
 
-const float TOWER_SLOW_AMOUNT = 0.4;
-const float SLOW_DURATION = 4;
+const float TOWER_SLOW_AMOUNT = 0.4f;
+const float SLOW_DURATION = 4.0f;
 
-const float SCREEN_SHAKE_DURATION = 0.4;
+const float SCREEN_SHAKE_DURATION = 0.4f;
 
 const float FRAMERATE = 60.0f;
 const float TARGET_DELTA_MS = 1000.0f / FRAMERATE; // 60 FPS

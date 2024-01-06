@@ -1344,8 +1344,8 @@ void Texture::unbind(unsigned int unit) const {
 
 void Texture::setLinear(unsigned int mode) const {
 	glBindTexture(m_target, m_texture);
-	glTexParameterf(m_target, GL_TEXTURE_MIN_FILTER, mode);
-	glTexParameterf(m_target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(m_target, GL_TEXTURE_MIN_FILTER, mode);
+	glTexParameteri(m_target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	if(mode == 9987)
 		glGenerateMipmap(m_target);
 	glBindTexture(m_target, 0);
@@ -1353,8 +1353,8 @@ void Texture::setLinear(unsigned int mode) const {
 
 void Texture::setNearest() const {
 	glBindTexture(m_target, m_texture);
-	glTexParameterf(m_target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameterf(m_target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(m_target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(m_target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glBindTexture(m_target, 0);
 }
 

@@ -1,3 +1,4 @@
+#include <limits>
 #include <Components/Components.h>
 #include <States/GameOverState.h>
 #include <States/LevelExitState.h>
@@ -129,7 +130,7 @@ LevelConnections::LevelConnections(LevelState& level) :
 		Application::Emitter.publish<evnt::ChangeGameState>(States::GAMEOVER, 0);
 	})), 
 	waveDone(false),
-	lastSelectedEntity(0),
+	lastSelectedEntity(std::numeric_limits<std::uint32_t>::max()),
 	state(LevelInteractionState::FREE){}
 
 LevelState::LevelState(StateMachine& machine) : State(machine, States::LEVEL),
@@ -492,7 +493,7 @@ void LevelState::OnMouseWheel(Event::MouseWheelEvent& event) {
 		glm::vec2 mousePos = Application::Emitter.mousePos;
 		entity = Application::s_Level->getEntityOnTileFromProjCoord(mousePos.x, mousePos.y);
 	}
-
+	
 	if (Application::Registry.valid(entity) && Application::Registry.has<stateTag::RotateableByMouse>(entity)) {
 		if (Application::Registry.has<cmpt::ConstrainedRotation>(entity)) {
 			cmpt::ConstrainedRotation& constRot = Application::Registry.get<cmpt::ConstrainedRotation>(entity);

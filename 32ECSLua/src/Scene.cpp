@@ -1,8 +1,19 @@
+#include <Components/TransformComp.h>
+#include <Components/Behaviour.h>
+#include <Components/UIElement.h>
+#include <Components/MeshComp.h>
+
 #include "Scene.h"
 #include "StringHelper.h"
+#include "Application.h"
+
 
 Scene::Scene(): quit(false) {
-	this->setCamera(Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 0.0f, 0.0f), 90.0f);
+
+	this->cam.cam3D = Camera();
+	this->cam.cam3D.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
+	this->cam.cam3D.lookAt(Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 0.0f, 0.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 0.0f, 1.0f));
+	//this->setCamera(Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 0.0f, 0.0f), 90.0f);
 }
 
 Scene::~Scene() {
@@ -63,7 +74,7 @@ void Scene::setScene(lua_State* L, std::string path)
 
 void Scene::render()
 {
-	BeginMode3D(this->cam.cam3D);
+	/*BeginMode3D(this->cam.cam3D);
 
 	auto view = this->reg.view<TransformComp, MeshComp>();
 	view.each([&](const TransformComp& transform, const MeshComp& meshComp)
@@ -95,48 +106,34 @@ void Scene::render()
 			elem.position.x + (elem.dimensions.x - size.x) * 0.5f, 
 			elem.position.y + (elem.dimensions.y - size.y) * 0.5f, 
 			elem.fontSize, WHITE);
-	});
+	});*/
 }
 
-bool Scene::shouldQuit()
-{
+bool Scene::shouldQuit(){
 	return this->quit;
 }
 
-void Scene::setCamera(Vector3 pos, Vector3 rotation, float fov)
-{
-	this->cam.cam3D.position = pos;
+void Scene::setCamera(const Vector3f& pos, const Vector3f& rotation, float fov){
+	this->cam.cam3D.setPosition(pos);
 	this->cam.rotation = rotation;
-	this->cam.cam3D.fovy = fov;
-	this->cam.cam3D.projection = CameraProjection::CAMERA_PERSPECTIVE;
-
-	Vector3 forwardDir = { 0.0f, 0.0f, 1.0f };
-	Vector3 upDir = { 0.0f, 1.0f, 0.0f };
-	Quaternion quaternion = QuaternionFromEuler(rotation.x * DEG2RAD, rotation.y * DEG2RAD, rotation.z * DEG2RAD);
-
-	this->cam.cam3D.target = Vector3Add(pos, Vector3RotateByQuaternion(forwardDir, quaternion));
-	this->cam.cam3D.up = Vector3RotateByQuaternion(upDir, quaternion);
+	this->cam.cam3D.setRotation(rotation[0], rotation[1], rotation[2]);
 }
 
-Vector3 Scene::getCameraPos() const
-{
-	return this->cam.cam3D.position;
+const Vector3f& Scene::getCameraPos() const{
+	return this->cam.cam3D.getPosition();
 }
 
-void Scene::setCameraPos(Vector3 pos)
-{
-	this->setCamera(pos, this->cam.rotation, this->cam.cam3D.fovy);
+void Scene::setCameraPos(const Vector3f& pos){
+	this->setCamera(pos, this->cam.rotation, this->cam.cam3D.getFovXRad());
 }
 
-void Scene::setCameraRot(Vector3 rot)
-{
-	this->setCamera(this->cam.cam3D.position, rot, this->cam.cam3D.fovy);
+void Scene::setCameraRot(const Vector3f& rot){
+	this->setCamera(this->cam.cam3D.getPosition(), rot, this->cam.cam3D.getFovXRad());
 }
 
-void Scene::updateSystems(float deltaTime)
-{
-	for (auto it = this->systems.begin(); it != this->systems.end();)
-	{
+void Scene::updateSystems(float deltaTime){
+
+	/*for (auto it = this->systems.begin(); it != this->systems.end();){
 		if ((*it)->update(this->reg, deltaTime))
 		{
 			delete (*it);
@@ -146,36 +143,31 @@ void Scene::updateSystems(float deltaTime)
 		{
 			it++;
 		}
-	}
+	}*/
 }
 
-int Scene::getEntityCount() const
-{
-	return (int)this->reg.alive();
+int Scene::getEntityCount() const{
+	return (int)this->reg.storage<entt::entity>()->in_use();
 }
 
-bool Scene::entityValid(int entity) const
-{
+bool Scene::entityValid(int entity) const{
 	return this->reg.valid((entt::entity)entity);
 }
 
-int Scene::createEntity()
-{
+int Scene::createEntity(){
 	int entity = (int)this->reg.create();
 	this->setComponent<TransformComp>(entity);
 	return entity;
 }
 
-bool Scene::removeEntity(int entity)
-{
+bool Scene::removeEntity(int entity) {
 	bool valid = this->entityValid(entity);
 	if (valid)
 		this->reg.destroy((entt::entity)entity);
 	return valid;
 }
 
-int Scene::lua_createSystem(lua_State* L)
-{
+int Scene::lua_createSystem(lua_State* L) {
 	Scene* scene = (Scene*)lua_touserdata(L, lua_upvalueindex(1));
 	int type = (int)lua_tointeger(L, 1);
 
@@ -192,8 +184,7 @@ int Scene::lua_loadResource(lua_State* L)
 	return 0;
 }
 
-int Scene::lua_setScene(lua_State* L)
-{
+int Scene::lua_setScene(lua_State* L) {
 	Scene* scene = (Scene*)lua_touserdata(L, lua_upvalueindex(1));
 	std::string path = lua_tostring(L, 1);
 	scene->setScene(L, path);
@@ -201,41 +192,36 @@ int Scene::lua_setScene(lua_State* L)
 	return 0;
 }
 
-int Scene::lua_quit(lua_State* L)
-{
+int Scene::lua_quit(lua_State* L) {
 	Scene* scene = (Scene*)lua_touserdata(L, lua_upvalueindex(1));
 	scene->quit = true;
 	return 0;
 }
 
-int Scene::lua_setCamera(lua_State* L)
-{
+int Scene::lua_setCamera(lua_State* L) {
 	Scene* scene = (Scene*)lua_touserdata(L, lua_upvalueindex(1));
-	Vector3 pos = lua_tovector(L, 1);
-	Vector3 rot = lua_tovector(L, 2);
+	Vector3f pos = lua_tovector(L, 1);
+	Vector3f rot = lua_tovector(L, 2);
 	float fov = lua_tonumber(L, 3);
 	scene->setCamera(pos, rot, fov);
 
 	return 0;
 }
 
-int Scene::lua_getCameraPos(lua_State* L)
-{
+int Scene::lua_getCameraPos(lua_State* L) {
 	Scene* scene = (Scene*)lua_touserdata(L, lua_upvalueindex(1));
-	lua_pushvector(L, scene->cam.cam3D.position);
+	lua_pushvector(L, scene->cam.cam3D.getPosition());
 	return 1;
 }
 
-int Scene::lua_setCameraPos(lua_State* L)
-{
+int Scene::lua_setCameraPos(lua_State* L){
 	Scene* scene = (Scene*)lua_touserdata(L, lua_upvalueindex(1));
-	Vector3 pos = lua_tovector(L, 1);
+	Vector3f pos = lua_tovector(L, 1);
 	scene->setCameraPos(pos);
 	return 0;
 }
 
-int Scene::lua_getCameraRot(lua_State* L)
-{
+int Scene::lua_getCameraRot(lua_State* L){
 	Scene* scene = (Scene*)lua_touserdata(L, lua_upvalueindex(1));
 	lua_pushvector(L, scene->cam.rotation);
 	return 1;
@@ -248,8 +234,7 @@ int Scene::lua_getEntityCount(lua_State* L)
 	return 1;
 }
 
-int Scene::lua_entityValid(lua_State* L)
-{
+int Scene::lua_entityValid(lua_State* L){
 	Scene* scene = (Scene*)lua_touserdata(L, lua_upvalueindex(1));
 	lua_pushboolean(L, scene->entityValid((int)lua_tointeger(L, 1)));
 	return 1;
@@ -262,15 +247,13 @@ int Scene::lua_createEntity(lua_State* L)
 	return 1;
 }
 
-int Scene::lua_removeEntity(lua_State* L)
-{
+int Scene::lua_removeEntity(lua_State* L){
 	Scene* scene = (Scene*)lua_touserdata(L, lua_upvalueindex(1));
 	lua_pushboolean(L, scene->removeEntity((int)lua_tointeger(L, 1)));
 	return 1;
 }
 
-int Scene::lua_hasComponent(lua_State* L)
-{
+int Scene::lua_hasComponent(lua_State* L){
 	Scene* scene = (Scene*)lua_touserdata(L, lua_upvalueindex(1));
 	int entity = (int)lua_tointeger(L, 1);
 	int type = (int)lua_tointeger(L, 2);
@@ -287,8 +270,7 @@ int Scene::lua_hasComponent(lua_State* L)
 	return 1;
 }
 
-int Scene::lua_getComponent(lua_State* L)
-{
+int Scene::lua_getComponent(lua_State* L){
 	Scene* scene = (Scene*)lua_touserdata(L, lua_upvalueindex(1));
 	int entity = (int)lua_tointeger(L, 1);
 	int type = (int)lua_tointeger(L, 2);
@@ -318,7 +300,7 @@ int Scene::lua_setComponent(lua_State* L)
 	else if (compTypes.at(type) == "UIElement")
 	{
 		UIElement elem = lua_touielement(L, 3);
-		if(elem.dimensions.x == 0 && elem.dimensions.y == 0)
+		if(elem.dimensions[0] == 0 && elem.dimensions[1] == 0)
 			scene->setComponent<UIElement>(entity);
 		else
 			scene->setComponent<UIElement>(entity, lua_touielement(L, 3));

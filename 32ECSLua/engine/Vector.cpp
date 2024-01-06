@@ -2686,6 +2686,13 @@ Vector4f::Vector4f(float x_, float y_, float z_, float w_) {
 	vec[3] = w_;
 }
 
+Vector4f::Vector4f(float value) {
+	vec[0] = value;
+	vec[1] = value;
+	vec[2] = value;
+	vec[3] = value;
+}
+
 Vector4f::Vector4f(const Vector3f &rhs, float w) {
 	vec[0] = rhs[0];
 	vec[1] = rhs[1];

@@ -757,6 +757,49 @@ void Camera::setPositionZ(float z) {
 	m_invViewMatrix[3][2] = m_eye[2];
 }
 
+void Camera::setRotation(float pitch, float yaw, float roll) {
+	pitch = pitch * PI_ON_180;
+	yaw = yaw * PI_ON_180;
+	roll = roll * PI_ON_180;
+
+	float cosY = cosf(yaw);
+	float cosP = cosf(pitch);
+	float cosR = cosf(roll);
+	float sinY = sinf(yaw);
+	float sinP = sinf(pitch);
+	float sinR = sinf(roll);
+
+	m_xAxis = Vector3f(cosP * cosY, cosP * sinY, sinP);
+	m_yAxis = Vector3f(-sinY, cosY, 0.0f);
+	WORLD_YAXIS = m_yAxis;
+
+	m_zAxis = Vector3f::Cross(m_xAxis, m_yAxis);
+
+	m_viewDir = -m_zAxis;
+
+	m_viewMatrix[0][0] = m_xAxis[0];
+	m_viewMatrix[0][1] = m_yAxis[0];
+	m_viewMatrix[0][2] = m_zAxis[0];
+	m_viewMatrix[0][3] = 0.0f;
+
+	m_viewMatrix[1][0] = m_xAxis[1];
+	m_viewMatrix[1][1] = m_yAxis[1];
+	m_viewMatrix[1][2] = m_zAxis[1];
+	m_viewMatrix[1][3] = 0.0f;
+
+	m_viewMatrix[2][0] = m_xAxis[2];
+	m_viewMatrix[2][1] = m_yAxis[2];
+	m_viewMatrix[2][2] = m_zAxis[2];
+	m_viewMatrix[2][3] = 0.0f;
+
+	m_viewMatrix[3][0] = -Vector3f::Dot(m_xAxis, m_eye);
+	m_viewMatrix[3][1] = -Vector3f::Dot(m_yAxis, m_eye);
+	m_viewMatrix[3][2] = -Vector3f::Dot(m_zAxis, m_eye);
+	m_viewMatrix[3][3] = 1.0f;
+
+	m_accumPitchDegrees = -asinf(m_viewMatrix[2][1]) * _180_ON_PI;
+}
+
 void Camera::setRotationSpeed(float rotationSpeed){
 	m_rotationSpeed = rotationSpeed;
 }

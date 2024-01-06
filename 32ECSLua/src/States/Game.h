@@ -6,6 +6,7 @@
 
 #include <States/StateMachine.h>
 #include "Background.h"
+#include "LuaHelper.h"
 #include "Scene.h"
 
 class Game : public State, public MouseEventListener, public KeyboardEventListener {
@@ -29,6 +30,7 @@ public:
 private:
 
 	void renderUi();
+	void lua_openmetatables(lua_State* L);
 
 	bool m_initUi = true;
 	bool m_drawUi = true;
