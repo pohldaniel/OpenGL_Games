@@ -140,12 +140,21 @@ void Batchrenderer::init(size_t size, bool drawSingle, bool drawRaw) {
 
 void Batchrenderer::shutdown() {
 
-	glDeleteBuffers(1, &m_vbo);
-	glDeleteVertexArrays(1, &m_vao);
+	if (m_vao) {
+		glDeleteVertexArrays(1, &m_vao);
+		m_vao = 0u;
+	}
+
+	if (m_vbo) {
+		glDeleteBuffers(1, &m_vbo);
+		m_vbo = 0u;
+	}
 	
 	if (m_vboSingle) {
 		glDeleteBuffers(1, &m_vboSingle);
+		m_vboSingle = 0u;
 		glDeleteVertexArrays(1, &m_vaoSingle);
+		m_vaoSingle = 0u;
 	}
 }
 

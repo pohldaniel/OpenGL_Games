@@ -1,3 +1,6 @@
+#include <engine/Batchrenderer.h>
+#include <engine/Fontrenderer.h>
+
 #include <Components/TransformComp.h>
 #include <Components/Behaviour.h>
 #include <Components/UIElement.h>
@@ -6,7 +9,8 @@
 #include "Scene.h"
 #include "StringHelper.h"
 #include "Application.h"
-
+#include "Globals.h"
+#include "TileSet.h"
 
 Scene::Scene(): quit(false) {
 
@@ -92,19 +96,55 @@ void Scene::render()
 			}
 		}
 	});
-	EndMode3D();
+	EndMode3D();*/
 
+
+	Spritesheet::Bind(TileSetManager::Get().getTileSet("ui").getAtlas());
 	auto buttonView = this->reg.view<UIElement>();
-	buttonView.each([&](const UIElement& elem)
-	{
-		if(elem.visibleBG)
-			DrawRectangle(elem.position.x, elem.position.y, elem.dimensions.x, elem.dimensions.y, elem.colour);
-		Vector2 size = MeasureTextEx(GetFontDefault(), elem.text.c_str(), elem.fontSize, 1);
-		DrawText(elem.text.c_str(), 
-			elem.position.x + (elem.dimensions.x - size.x) * 0.5f, 
-			elem.position.y + (elem.dimensions.y - size.y) * 0.5f, 
-			elem.fontSize, WHITE);
-	});*/
+	buttonView.each([&](const UIElement& elem){
+		if (elem.visibleBG) {
+			const TextureRect& rect = TileSetManager::Get().getTileSet("ui").getTextureRects()[0];
+			Batchrenderer::Get().addQuadAA(Vector4f(elem.position[0], Application::Height - (elem.position[1] + elem.dimensions[1]), elem.dimensions[0], elem.dimensions[1]),
+				Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureWidth, rect.textureHeight),
+				elem.colour / 255.0f,
+				rect.frame);
+		}
+
+		std::string id = elem.fontSize == 80 ? "acme9_80" : "acme9_22";
+		Fontrenderer::Get().addText(Globals::fontManager.get(id),
+									elem.position[0] + (elem.dimensions[0] - Globals::fontManager.get(id).getWidth(elem.text)) * 0.5f,
+									Application::Height - (elem.position[1] + (elem.dimensions[1] + Globals::fontManager.get(id).lineHeight) * 0.5f),
+									elem.text, 
+									Vector4f(1.0f, 1.0f, 1.0f,1.0f));
+	});
+	Batchrenderer::Get().drawBuffer();
+	Spritesheet::Unbind();
+
+
+	/*Fontrenderer::Get().bindTexture(Globals::fontManager.get("acme9_80"));
+	auto buttonView = this->reg.view<UIElement>();
+	buttonView.each([&](const UIElement& elem) {
+		if (elem.visibleBG) {
+			const TextureRect& rect = TileSetManager::Get().getTileSet("font").getTextureRects()[0];
+			Batchrenderer::Get().addQuadAA(Vector4f(elem.position[0], Application::Height - (elem.position[1] + elem.dimensions[1]), elem.dimensions[0], elem.dimensions[1]),
+				Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureWidth, rect.textureHeight),
+				elem.colour, 
+				rect.frame);
+		}
+
+		//std::string id = elem.fontSize == 80 ? "acme9_80" : "acme9_36";
+		std::string id = "acme9_80";
+		float scale = static_cast<float>(elem.fontSize) / 80.0f;
+
+		Fontrenderer::Get().addText(Globals::fontManager.get(id),
+			elem.position[0] + (elem.dimensions[0] - Globals::fontManager.get(id).getWidth(elem.text) * scale) * 0.5f,
+			Application::Height - (elem.position[1] + (elem.dimensions[1] + Globals::fontManager.get(id).lineHeight * scale) * 0.5f),
+			elem.text,
+			Vector4f(1.0f, 1.0f, 1.0f, 1.0f),
+			scale);
+	});
+	Fontrenderer::Get().drawBuffer();
+	Fontrenderer::Get().unbindTexture();*/
 }
 
 bool Scene::shouldQuit(){

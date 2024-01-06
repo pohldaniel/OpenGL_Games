@@ -131,6 +131,8 @@ void TextureAtlasCreator::addCharset(unsigned char *texture, unsigned int w, uns
 		}
 	}
 
+	characterSet.frame = frame;
+
 	curX += w;
 	maxY = (std::max)(maxY, curY + h);
 }
@@ -377,7 +379,7 @@ void TileSet::addCharset(CharacterSet& characterSet) {
 		bytesNew[i] = (int)bytes[k];
 		bytesNew[i + 1] = (int)bytes[k];
 		bytesNew[i + 2] = (int)bytes[k];
-		bytesNew[i + 3] = bytes[k] >= 127 ? 255 : 0;
+		bytesNew[i + 3] = bytes[k] >= 220 ? 255 : 0;
 	}
 
 	TextureAtlasCreator::Get().addCharset(bytesNew, characterSet.maxWidth, characterSet.maxHeight, characterSet, false, 0u, 0u, m_textureRects);

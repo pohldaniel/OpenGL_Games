@@ -15,6 +15,8 @@
 #include <States/Game.h>
 #include <UI/Widget.h>
 
+#include "TileSet.h"
+
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 EventDispatcher& Application::EventDispatcher = EventDispatcher::Get();
@@ -403,8 +405,8 @@ void Application::fixedUpdate() {
 
 void Application::initStates() {	
 	Machine = new StateMachine(m_dt, m_fdt);
-	//Machine->addStateAtTop(new Default(*Machine));
-	Machine->addStateAtTop(new Game(*Machine));
+	Machine->addStateAtTop(new Default(*Machine));
+	//Machine->addStateAtTop(new Game(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -650,8 +652,18 @@ void Application::loadAssets() {
 	Globals::textureManager.loadTexture("forest_4", "res/backgrounds/Forest/plx-4.png");
 	Globals::textureManager.loadTexture("forest_5", "res/backgrounds/Forest/plx-5.png");
 
-	Globals::fontManager.loadCharacterSet("upheaval_200", "res/fonts/upheavtt.ttf", 200, 0u, 30u, 128u, 0, true, 0u);
-	Globals::fontManager.loadCharacterSet("upheaval_50", "res/fonts/upheavtt.ttf",  50,  0u, 3u,  0u,   0, true, 1u);
+	//Globals::fontManager.loadCharacterSet("upheaval_200", "res/fonts/upheavtt.ttf", 200, 10u, 30u, 128u, 0, true, 0u);
+	//Globals::fontManager.loadCharacterSet("upheaval_50", "res/fonts/upheavtt.ttf",  50,  3u, 3u,  0u,   0, true, 1u);
+	//Globals::fontManager.loadCharacterSet("acme9_22", "res/fonts/Acme-9-Regular-Bold.ttf", 22, 10u, 30u, 128u, 0, true, 0u);
+	//Globals::fontManager.loadCharacterSet("acme9_80", "res/fonts/Acme-9-Regular.ttf", 80, 10u, 30u, 128u, 0, true, 0u);
 
 	Globals::shapeManager.buildQuadXY("quad", Vector3f(-1.0f, -1.0f, 0.0f), Vector2f(2.0f, 2.0f), 1, 1, true, false, false);
+
+	/*TextureAtlasCreator::Get().init(1024u, 1024u);
+	TileSetManager::Get().getTileSet("ui").loadTileSetCpu("res/textures/empty.png", true, false);
+	TileSetManager::Get().getTileSet("ui").addCharset(Globals::fontManager.get("acme9_22"));
+	TileSetManager::Get().getTileSet("ui").addCharset(Globals::fontManager.get("acme9_80"));
+	TileSetManager::Get().getTileSet("ui").loadTileSetGpu();*/
+
+	//Spritesheet::Safe("ui", TileSetManager::Get().getTileSet("ui").getAtlas());
 }

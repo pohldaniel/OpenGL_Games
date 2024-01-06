@@ -1,3 +1,4 @@
+#include <engine/input/Mouse.h>
 #include "Input.h"
 
 Input::Input(){
@@ -113,10 +114,10 @@ int Input::lua_isMouseButtonUp(lua_State* L)
 	return 1;
 }
 
-int Input::lua_isMouseButtonPressed(lua_State* L)
-{
-	int button = (int)lua_tointeger(L, 1);
-	//lua_pushboolean(L, IsMouseButtonPressed(button));
+int Input::lua_isMouseButtonPressed(lua_State* L){
+	Mouse &mouse = Mouse::instance();
+	int button = (int)lua_tointeger(L, 1);	
+	lua_pushboolean(L, mouse.buttonPressed(static_cast<Mouse::MouseButton>(button)));
 	return 1;
 }
 

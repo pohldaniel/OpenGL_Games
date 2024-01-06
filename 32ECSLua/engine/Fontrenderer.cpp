@@ -42,29 +42,29 @@ void Fontrenderer::resetRenderer() {
 	batchrenderer = nullptr;
 }
 
-void Fontrenderer::drawText(const CharacterSet& characterSet, float posX, float posY, std::string text, Vector4f color) {
+void Fontrenderer::drawText(const CharacterSet& characterSet, float posX, float posY, std::string text, Vector4f color, float size) {
 	glBindTexture(GL_TEXTURE_2D_ARRAY, characterSet.spriteSheet);
 	std::string::const_iterator c;
 	for (c = text.begin(); c != text.end(); c++) {
 
 		const Char& ch = characterSet.getCharacter(*c);
 
-		m_batchrenderer->addQuadAA(Vector4f(posX, posY, static_cast<float>(ch.size[0]), static_cast<float>(ch.size[1])), Vector4f(ch.textureOffset[0], ch.textureOffset[1], ch.textureSize[0], ch.textureSize[1]), color, characterSet.frame);
-		posX = posX + ch.advance;
+		m_batchrenderer->addQuadAA(Vector4f(posX, posY, static_cast<float>(ch.size[0]) * size, static_cast<float>(ch.size[1])) * size, Vector4f(ch.textureOffset[0], ch.textureOffset[1], ch.textureSize[0], ch.textureSize[1]), color, characterSet.frame);
+		posX = posX + ch.advance * size;
 	}
 	m_batchrenderer->drawBuffer();
 	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
 }
 
-void Fontrenderer::addText(const CharacterSet& characterSet, float posX, float posY, std::string text, Vector4f color) {
+void Fontrenderer::addText(const CharacterSet& characterSet, float posX, float posY, std::string text, Vector4f color, float size) {
 	std::string::const_iterator c;
 
 	for (c = text.begin(); c != text.end(); c++) {
 
 		const Char& ch = characterSet.getCharacter(*c);
 
-		m_batchrenderer->addQuadAA(Vector4f(posX, posY, static_cast<float>(ch.size[0]), static_cast<float>(ch.size[1])), Vector4f(ch.textureOffset[0], ch.textureOffset[1], ch.textureSize[0], ch.textureSize[1]), color, characterSet.frame);
-		posX = posX + ch.advance;
+		m_batchrenderer->addQuadAA(Vector4f(posX, posY, static_cast<float>(ch.size[0]) * size, static_cast<float>(ch.size[1]) * size), Vector4f(ch.textureOffset[0], ch.textureOffset[1], ch.textureSize[0], ch.textureSize[1]), color, characterSet.frame);
+		posX = posX + ch.advance * size;
 	}
 }
 

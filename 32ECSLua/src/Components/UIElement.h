@@ -10,7 +10,7 @@ struct UIElement{
 	int fontSize;
 	Vector2f position;
 	Vector2f dimensions;
-	Vector4f colour;
+	Vector3f colour;
 
 	UIElement() : visibleBG(true), fontSize(36), position({ 0.0f, 0.0f }), dimensions({ 100.0f, 100.0f }), colour(1.0f){}
 };

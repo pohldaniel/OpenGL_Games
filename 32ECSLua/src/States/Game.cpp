@@ -133,8 +133,8 @@ void Game::render() {
 
 	scene.render();
 
-	if (m_drawUi)
-		renderUi();
+	//if (m_drawUi)
+	//	renderUi();
 }
 
 void Game::OnMouseMotion(Event::MouseMoveEvent& event) {
