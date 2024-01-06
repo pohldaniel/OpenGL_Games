@@ -247,7 +247,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "30Robot", "30Robot\30Robot.
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "31ECSLua", "31ECSLua\31ECSLua.vcxproj", "{C00B1E95-C3E7-4312-B166-BED8E80240F7}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "32ECSLua", "32ECSLua\32ECSLua.vcxproj", "{2F0B44A9-F642-4900-A230-8E14687D3014}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "32CrimsonRush", "32CrimsonRush\32CrimsonRush.vcxproj", "{2F0B44A9-F642-4900-A230-8E14687D3014}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

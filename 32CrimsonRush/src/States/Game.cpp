@@ -123,7 +123,7 @@ void Game::update() {
 
 	m_background.update(m_dt);
 
-	this->scene.updateSystems(m_dt);
+	scene.updateSystems(m_dt);
 }
 
 void Game::render() {

@@ -40,7 +40,6 @@ private:
 	Camera m_camera;
 	Background m_background;
 
-
 	Scene scene;
 	Input input;
 	UserInterface UI;

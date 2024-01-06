@@ -21,7 +21,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{2f0b44a9-f642-4900-a230-8e14687d3014}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>_32ECSLua</RootNamespace>
+    <RootNamespace>_32CrimsonRush</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
