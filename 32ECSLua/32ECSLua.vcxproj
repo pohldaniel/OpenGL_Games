@@ -164,11 +164,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="engine\BoundingBox.cpp" />
     <ClCompile Include="engine\sound\MusicBuffer.cpp" />
     <ClCompile Include="engine\sound\SoundBuffer.cpp" />
     <ClCompile Include="engine\sound\SoundDevice.cpp" />
     <ClCompile Include="engine\Thread.cpp" />
     <ClCompile Include="engine\ZoomableQuad.cpp" />
+    <ClCompile Include="src\Input.cpp" />
     <ClCompile Include="src\LoadingManager.cpp" />
     <ClCompile Include="src\MousePickerFBO.cpp" />
     <ClCompile Include="src\Resources.cpp" />
@@ -182,6 +184,7 @@
     <ClCompile Include="src\Thread\EventClass.cpp" />
     <ClCompile Include="src\Thread\MutexClass.cpp" />
     <ClCompile Include="src\TileSet.cpp" />
+    <ClCompile Include="src\UserInterace.cpp" />
     <ClCompile Include="src\Utils\Rasterizer.cpp" />
     <ClCompile Include="engine\ArrayBuffer.cpp" />
     <ClCompile Include="engine\Batchrenderer.cpp" />
@@ -257,6 +260,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine\ArrayBuffer.h" />
+    <ClInclude Include="engine\BoundingBox.h" />
     <ClInclude Include="engine\collision\Collider.h" />
     <ClInclude Include="engine\collision\Collision.h" />
     <ClInclude Include="engine\CubeBuffer.h" />
@@ -319,6 +323,7 @@
     <ClInclude Include="src\Components\TransformComp.h" />
     <ClInclude Include="src\Components\UIElement.h" />
     <ClInclude Include="src\Globals.h" />
+    <ClInclude Include="src\Input.h" />
     <ClInclude Include="src\LoadingManager.h" />
     <ClInclude Include="src\LuaHelper.h" />
     <ClInclude Include="src\MousePickerFBO.h" />
@@ -331,10 +336,15 @@
     <ClInclude Include="src\States\Settings.h" />
     <ClInclude Include="src\States\StateMachine.h" />
     <ClInclude Include="src\StringHelper.h" />
+    <ClInclude Include="src\Systems\BehaviourSystem.h" />
+    <ClInclude Include="src\Systems\CollisionSystem.h" />
+    <ClInclude Include="src\Systems\System.h" />
+    <ClInclude Include="src\Systems\Systempch.h" />
     <ClInclude Include="src\Thread\CThread.h" />
     <ClInclude Include="src\Thread\EventClass.h" />
     <ClInclude Include="src\Thread\MutexClass.h" />
     <ClInclude Include="src\TileSet.h" />
+    <ClInclude Include="src\UserInterface.h" />
     <ClInclude Include="src\Utils\Rasterizer.h" />
     <ClInclude Include="Physics\BspConverter.h" />
     <ClInclude Include="Physics\BspLoader.h" />

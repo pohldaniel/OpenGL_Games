@@ -61,6 +61,9 @@
     <Filter Include="Source Files\Components">
       <UniqueIdentifier>{d1555b75-3ee0-40b9-883d-ee44f0db1e25}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Systems">
+      <UniqueIdentifier>{d2008f3f-9229-4796-a362-90c4060a3ed3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\input\ApplicationEventListener.cpp">
@@ -331,6 +334,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Resources.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\BoundingBox.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\UserInterace.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Input.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -649,6 +661,27 @@
     </ClInclude>
     <ClInclude Include="src\Components\MeshComp.h">
       <Filter>Source Files\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Systems\BehaviourSystem.h">
+      <Filter>Source Files\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Systems\CollisionSystem.h">
+      <Filter>Source Files\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Systems\System.h">
+      <Filter>Source Files\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Systems\Systempch.h">
+      <Filter>Source Files\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\BoundingBox.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UserInterface.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Input.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

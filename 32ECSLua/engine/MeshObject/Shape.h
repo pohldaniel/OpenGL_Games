@@ -8,6 +8,7 @@
 #include <iterator>
 #include <map>
 #include "../Vector.h"
+#include "../BoundingBox.h"
 
 class Shape {
 
@@ -60,7 +61,10 @@ public:
 	std::vector<Vector3f>& getPositions();
 	std::vector<unsigned int>& getIndexBuffer();
 	const std::vector<Matrix4f>& getInstances() const;
+	BoundingBox& getAABB();
+
 	void cleanup();
+	void createBoundingBox();
 
 private:
 
@@ -80,6 +84,7 @@ private:
 	std::vector<Vector3f> m_tangents;
 	std::vector<Vector3f> m_bitangents;
 	std::vector<Matrix4f> m_instances;
+	BoundingBox m_aabb;
 
 	void createBuffer();
 	int whitespaces(const char c[]);

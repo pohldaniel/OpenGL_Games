@@ -406,6 +406,24 @@ void Shape::fromObj(const char* filename) {
 	createBuffer();
 }
 
+void Shape::createBoundingBox() {
+	float xmin = FLT_MAX, ymin = FLT_MAX, zmin = FLT_MAX;
+	float xmax = -FLT_MAX, ymax = -FLT_MAX, zmax = -FLT_MAX;
+
+	for (std::vector<Vector3f>::iterator pit = m_positions.begin(); pit != m_positions.end(); pit += 3) {
+		xmin = (std::min)((*pit)[0], xmin);
+		ymin = (std::min)((*pit)[1], ymin);
+		zmin = (std::min)((*pit)[2], zmin);
+
+		xmax = (std::max)((*pit)[0], xmax);
+		ymax = (std::max)((*pit)[1], ymax);
+		zmax = (std::max)((*pit)[2], zmax);
+	}
+
+	m_aabb.position = Vector3f(xmin, ymin, zmin);
+	m_aabb.size = Vector3f(xmax, ymax, zmax) - Vector3f(xmin, ymin, zmin);
+}
+
 int Shape::whitespaces(const char c[]) {
 	int count = 0;
 	size_t n = std::strlen(c);
@@ -466,6 +484,10 @@ std::vector<unsigned int>& Shape::getIndexBuffer() {
 
 unsigned int Shape::getNumberOfTriangles() {
 	return m_drawCount / 3;
+}
+
+BoundingBox& Shape::getAABB() {
+	return m_aabb;
 }
 
 Shape::~Shape() {

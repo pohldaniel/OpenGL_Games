@@ -3,6 +3,7 @@
 #include <entt/entt.hpp>
 #include <engine/Vector.h>
 #include <engine/Camera.h>
+#include <Systems/System.h>
 
 #include "LuaHelper.h"
 #include "Resources.h"
@@ -16,7 +17,7 @@ class Scene {
 private:
 	entt::registry reg;
 	Resources resources;
-	//std::vector<System*> systems;
+	std::vector<System*> systems;
 	CameraStruct cam;
 	bool quit;
 

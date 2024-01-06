@@ -8,6 +8,8 @@
 #include "Background.h"
 #include "LuaHelper.h"
 #include "Scene.h"
+#include "UserInterface.h"
+#include "Input.h"
 
 class Game : public State, public MouseEventListener, public KeyboardEventListener {
 
@@ -40,7 +42,7 @@ private:
 
 
 	Scene scene;
-	//Input input;
-	//UserInterface UI;
+	Input input;
+	UserInterface UI;
 	lua_State* L;
 };

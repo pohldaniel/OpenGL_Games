@@ -1,67 +1,114 @@
-#ifndef COLLISIONSYSTEM_H
-#define COLLISIONSYSTEM_H
+#pragma once
 
-#include "../ECS/ECS.h"
-#include "../EventBus/EventBus.h"
-#include "../Events/CollisionEvent.h"
-#include "../Components/BoxColliderComponent.h"
-#include "../Components/TransformComponent.h"
+#include <engine/MeshObject/Shape.h>
+#include <Systems/System.h>
+#include <Components/TransformComp.h>
+#include <Components/MeshComp.h>
+#include <Components/Behaviour.h>
+#include <Components/UIElement.h>
 
-class CollisionSystem: public System {
-    public:
-        CollisionSystem() {
-            RequireComponent<TransformComponent>();
-            RequireComponent<BoxColliderComponent>();
-        }
+#include "LuaHelper.h"
+#include "Resources.h"
 
-        void Update(std::unique_ptr<EventBus>& eventBus) {
-            auto entities = GetSystemEntities();
+class CollisionSystem : public System{
 
-            // Loop all the entities that the system is interested in
-            for (auto i = entities.begin(); i != entities.end(); i++) {
-                Entity a = *i;
-                auto aTransform = a.GetComponent<TransformComponent>();
-                auto aCollider = a.GetComponent<BoxColliderComponent>();
+public:
 
-                // Loop all the entities that still need to be checked (to the right of i)
-                for (auto j = i; j != entities.end(); j++) {
-                    Entity b = *j;
+	CollisionSystem(lua_State* L, Resources* resource) : L(L), resource(resource){}
 
-                    // Bypass if we are trying to test the same entity
-                    if (a == b) {
-                        continue;
-                    }
+	bool update(entt::registry& reg, float deltaTime) final{
 
-                    auto bTransform = b.GetComponent<TransformComponent>();
-                    auto bCollider = b.GetComponent<BoxColliderComponent>();
-                 
-                    // Perform the AABB collision check between entities a and b
-                    bool collisionHappened = CheckAABBCollision(
-                        aTransform.position.x + aCollider.offset.x,
-                        aTransform.position.y + aCollider.offset.y,
-                        aCollider.width,
-                        aCollider.height,
-                        bTransform.position.x + bCollider.offset.x,
-                        bTransform.position.y + bCollider.offset.y,
-                        bCollider.width,
-                        bCollider.height
-                    );
+		auto view = reg.view<Behaviour, MeshComp, TransformComp>();
+		view.each([&](Behaviour& script1, MeshComp& mesh1, TransformComp& transform1){
 
-                    if (collisionHappened) {
-                        eventBus->EmitEvent<CollisionEvent>(a, b);
-                    }
-                }
-            }
-        }
+			auto view2 = reg.view<Behaviour, MeshComp, TransformComp>();
+			view2.each([&](Behaviour& script2, MeshComp& mesh2, TransformComp& transform2){
 
-        bool CheckAABBCollision(double aX, double aY, double aW, double aH, double bX, double bY, double bW, double bH) {
-            return (
-                aX < bX + bW &&
-                aX + aW > bX &&
-                aY < bY + bH &&
-                aY + aH > bY
-            );
-        }
+				Shape* model1 = resource->getModel(mesh1.modelName);
+				Shape* model2 = resource->getModel(mesh2.modelName);
+				if (!model1 || !model2)
+					return;
+
+				BoundingBox& box1 = model1->getAABB();
+				box1.position += transform1.position;
+				
+				BoundingBox& box2 = model2->getAABB();
+				box1.position += transform2.position;
+				
+				if (&script1 == &script2 || !CheckCollisionBoxes(box1, box2))
+					return;
+
+				lua_rawgeti(L, LUA_REGISTRYINDEX, script1.luaRef);
+				if (luaL_dofile(L, ("Scripts/Behaviour/" + std::string(script1.path)).c_str()) != LUA_OK)
+					LuaHelper::dumpError(L);
+				else{
+					lua_getfield(L, -1, "collision"); // Get new collision function
+					lua_setfield(L, -3, "collision"); // Set instance collision function to the new one
+					lua_pop(L, 1);
+				}
+
+				lua_getfield(L, -1, "collision");
+				if (lua_type(L, -1) == LUA_TNIL){
+					lua_pop(L, 1);
+				}else{
+					lua_pushvalue(L, -2);
+					lua_rawgeti(L, LUA_REGISTRYINDEX, script2.luaRef);
+
+					if (lua_pcall(L, 2, 0, 0) != LUA_OK)
+						LuaHelper::dumpError(L);
+					else
+						lua_pop(L, 1);
+				}
+
+				lua_rawgeti(L, LUA_REGISTRYINDEX, script2.luaRef);
+				if (luaL_dofile(L, ("Scripts/Behaviour/" + std::string(script2.path)).c_str()) != LUA_OK)
+					LuaHelper::dumpError(L);
+				else{
+					lua_getfield(L, -1, "collision"); // Get new collision function
+					lua_setfield(L, -3, "collision"); // Set instance collision function to the new one
+					lua_pop(L, 1);
+				}
+
+				lua_getfield(L, -1, "collision");
+				if (lua_type(L, -1) == LUA_TNIL){
+					lua_pop(L, 1);
+				}else{
+					lua_pushvalue(L, -2);
+					lua_rawgeti(L, LUA_REGISTRYINDEX, script1.luaRef);
+
+					if (lua_pcall(L, 2, 0, 0) != LUA_OK)
+						LuaHelper::dumpError(L);
+					else
+						lua_pop(L, 1);
+				}
+			});
+		});
+
+		return false;
+	}
+
+	bool CheckCollisionBoxes(const BoundingBox& box1, const BoundingBox& box2){
+		/*bool collision = true;
+
+		if ((box1.max.x >= box2.min.x) && (box1.min.x <= box2.max.x)){
+			if ((box1.max.y < box2.min.y) || (box1.min.y > box2.max.y)) collision = false;
+			if ((box1.max.z < box2.min.z) || (box1.min.z > box2.max.z)) collision = false;
+		}
+		else collision = false;
+
+		return collision;*/
+
+		return (
+			box1.position[0]				<= box2.position[0] + box2.size[0] &&
+			box1.position[0] + box1.size[0] >= box2.position[0] &&
+			box1.position[1]				<= box2.position[1] + box2.size[1] &&
+			box1.position[1] + box1.size[1] >= box2.position[1] &&
+			box1.position[2]				<= box2.position[2] + box2.size[2] &&
+			box1.position[2] + box1.size[2] >= box2.position[2]
+			);
+	}
+
+	private:
+		lua_State* L;
+		Resources* resource;
 };
-
-#endif

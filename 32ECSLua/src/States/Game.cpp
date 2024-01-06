@@ -4,6 +4,10 @@
 #include <imgui_internal.h>
 #include <engine/Batchrenderer.h>
 
+#include <Systems/BehaviourSystem.h>
+#include <Systems/CollisionSystem.h>
+#include <Components/UIElement.h>
+
 #include "Game.h"
 #include "Application.h"
 #include "Globals.h"
@@ -14,6 +18,7 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
 	EventDispatcher::AddMouseListener(this);
+	Mouse::instance().attach(Application::GetWindow(), false);
 
 	m_camera = Camera();
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
@@ -22,7 +27,7 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 	m_camera.setRotationSpeed(0.1f);
 	m_camera.setMovingSpeed(10.0f);
 
-	glClearColor(0.494f, 0.686f, 0.796f, 1.0f);
+	glClearColor(0.5078f, 0.5078f, 0.5078f, 1.0f);
 	glClearDepth(1.0f);
 
 	m_background.setLayer(std::vector<BackgroundLayer>{
@@ -38,18 +43,19 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 	luaL_openlibs(this->L);
 	this->lua_openmetatables(this->L);
 	Scene::lua_openscene(this->L, &this->scene);
-	//Input::lua_openinput(this->L, &this->input);
-	//UserInterface::lua_openui(this->L, &this->UI);
+	Input::lua_openinput(this->L, &this->input);
+	UserInterface::lua_openui(this->L, &this->UI);
 
 	this->scene.getResources().loadPrimitives();
-	//this->scene.createSystem<BehaviourSystem>(this->L);
-	//this->scene.createSystem<CollisionSystem>(this->L, &this->scene.getResources());
+	this->scene.createSystem<BehaviourSystem>(this->L);
+	this->scene.createSystem<CollisionSystem>(this->L, &this->scene.getResources());
 	this->scene.setScene(this->L, "menuScene.lua");
 }
 
 Game::~Game() {
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
+	lua_close(L);
 }
 
 void Game::fixedUpdate() {
@@ -116,12 +122,16 @@ void Game::update() {
 	}
 
 	m_background.update(m_dt);
+
+	this->scene.updateSystems(m_dt);
 }
 
 void Game::render() {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	m_background.draw();
+	//m_background.draw();
+
+	scene.render();
 
 	if (m_drawUi)
 		renderUi();

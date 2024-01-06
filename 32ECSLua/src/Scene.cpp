@@ -17,8 +17,8 @@ Scene::Scene(): quit(false) {
 }
 
 Scene::~Scene() {
-	//for (auto& s : this->systems)
-		//delete s;
+	for (auto& s : this->systems)
+		delete s;
 }
 
 void Scene::lua_openscene(lua_State* L, Scene* scene) {
@@ -49,16 +49,14 @@ void Scene::lua_openscene(lua_State* L, Scene* scene) {
 	lua_setglobal(L, "scene");
 
 	lua_newtable(L);
-	for (size_t i = 0; i < systemTypes.size(); i++)
-	{
+	for (size_t i = 0; i < systemTypes.size(); i++){
 		lua_pushnumber(L, (int)i);
 		lua_setfield(L, -2, systemTypes[i].c_str());
 	}
 	lua_setglobal(L, "SystemType");
 
 	lua_newtable(L);
-	for (size_t i = 0; i < compTypes.size(); i++)
-	{
+	for (size_t i = 0; i < compTypes.size(); i++){
 		lua_pushnumber(L, (int)i);
 		lua_setfield(L, -2, compTypes[i].c_str());
 	}
@@ -133,17 +131,14 @@ void Scene::setCameraRot(const Vector3f& rot){
 
 void Scene::updateSystems(float deltaTime){
 
-	/*for (auto it = this->systems.begin(); it != this->systems.end();){
-		if ((*it)->update(this->reg, deltaTime))
-		{
+	for (auto it = this->systems.begin(); it != this->systems.end();){
+		if ((*it)->update(this->reg, deltaTime)){
 			delete (*it);
 			it = this->systems.erase(it);
-		}
-		else
-		{
+		}else{
 			it++;
 		}
-	}*/
+	}
 }
 
 int Scene::getEntityCount() const{
@@ -297,20 +292,18 @@ int Scene::lua_setComponent(lua_State* L)
 		scene->setComponent<TransformComp>(entity, lua_totransform(L, 3));
 	else if (compTypes.at(type) == "MeshComp")
 		scene->setComponent<MeshComp>(entity, lua_tostring(L, 3));
-	else if (compTypes.at(type) == "UIElement")
-	{
+	else if (compTypes.at(type) == "UIElement"){
 		UIElement elem = lua_touielement(L, 3);
 		if(elem.dimensions[0] == 0 && elem.dimensions[1] == 0)
 			scene->setComponent<UIElement>(entity);
 		else
 			scene->setComponent<UIElement>(entity, lua_touielement(L, 3));
-	}
-	else if (compTypes.at(type) == "Behaviour")
-	{
+	}else if (compTypes.at(type) == "Behaviour"){
 		if (scene->hasComponents<Behaviour>(entity))
 			scene->removeComponent<Behaviour>(entity);
 
 		std::string path = lua_tostring(L, 3);
+		std::cout << "Path: " << path << std::endl;
 		if (luaL_dofile(L, ("Scripts/Behaviour/" + path).c_str()) != LUA_OK)
 			LuaHelper::dumpError(L);
 		else
