@@ -244,6 +244,12 @@ void Mouse::setPosition(UINT x, UINT y){
 	}
 }
 
+void Mouse::resetCursor() {
+	//SetCursorPos(m_xPos, m_yPos);
+	m_xDelta = 0.0f;
+	m_yDelta = 0.0f;
+}
+
 void Mouse::setCursorToMiddle() {
 	SetCursorPos(m_centerX, m_centerY);
 }

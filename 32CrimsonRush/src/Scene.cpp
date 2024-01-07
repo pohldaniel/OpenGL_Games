@@ -67,20 +67,26 @@ void Scene::lua_openscene(lua_State* L, Scene* scene) {
 	lua_setglobal(L, "ComponentType");
 }
 
-void Scene::setScene(lua_State* L, std::string path)
-{
+void Scene::setScene(lua_State* L, std::string path){
 	this->reg.clear();
 	if (luaL_dofile(L, ("Scripts/Scenes/" + path).c_str()) != LUA_OK)
 		LuaHelper::dumpError(L);
 }
 
-void Scene::render()
-{
+void Scene::render(const Camera& camera){
 
 
 	auto view = this->reg.view<TransformComp, MeshComp>();
 	view.each([&](const TransformComp& transform, const MeshComp& meshComp){
-		std::cout << "Name: " << meshComp.modelName << " r: " << meshComp.color[0] << " g: " << meshComp.color[1] << " b: " << meshComp.color[2] << " a: " << meshComp.color[3] << std::endl;
+		
+		if (strcmp(meshComp.modelName, "Player") == 0) {
+			//std::cout << "Name: " << meshComp.modelName << " r: " << meshComp.color[0] << " g: " << meshComp.color[1] << " b: " << meshComp.color[2] << " a: " << meshComp.color[3] << std::endl;
+			ObjModel* model = this->resources.getModel(meshComp.modelName);
+			//std::cout << "Name: " << meshComp.modelName << " count: " << model->getMeshes().size() << std::endl;
+
+			model->draw(camera);
+		}
+		
 		/*Model* model = this->resources.getModel(meshComp.modelName);
 		if (model)
 		{

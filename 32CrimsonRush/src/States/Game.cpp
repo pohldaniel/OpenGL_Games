@@ -23,7 +23,7 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 	m_camera = Camera();
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
-	m_camera.lookAt(Vector3f(0.0f, 2.0f, 10.0f), Vector3f(0.0f, 2.0f, 10.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
+	m_camera.lookAt(Vector3f(0.0f, 0.0f, 10.0f), Vector3f(0.0f, 0.0f, 10.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
 	m_camera.setRotationSpeed(0.1f);
 	m_camera.setMovingSpeed(10.0f);
 
@@ -109,6 +109,8 @@ void Game::update() {
 	if (mouse.buttonDown(Mouse::MouseButton::BUTTON_RIGHT)) {
 		dx = mouse.xDelta();
 		dy = mouse.yDelta();
+
+		//std::cout << "Dy: " << dx << " Dy: " << dy << std::endl;
 	}
 
 	if (move || dx != 0.0f || dy != 0.0f) {
@@ -131,7 +133,7 @@ void Game::render() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	//m_background.draw();
 
-	scene.render();
+	scene.render(m_camera);
 
 	//if (m_drawUi)
 	//	renderUi();
@@ -142,11 +144,18 @@ void Game::OnMouseMotion(Event::MouseMoveEvent& event) {
 }
 
 void Game::OnMouseButtonDown(Event::MouseButtonEvent& event) {
-
+	if (event.button == 2u) {
+		Mouse::instance().detach();
+		//Mouse::instance().resetCursor();
+		Mouse::instance().attach(Application::GetWindow());
+	}
 }
 
 void Game::OnMouseButtonUp(Event::MouseButtonEvent& event) {
-
+	if (event.button == 2u) {
+		Mouse::instance().detach();
+		Mouse::instance().attach(Application::GetWindow(), false);
+	}
 }
 
 void Game::OnMouseWheel(Event::MouseWheelEvent& event) {

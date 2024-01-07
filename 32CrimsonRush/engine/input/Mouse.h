@@ -75,7 +75,7 @@ public:
 	void smoothMouse(bool smooth);
 	void update();
 	void updateWheelDelta(int delta);
-
+	void resetCursor();
 private:
 
 	Mouse();

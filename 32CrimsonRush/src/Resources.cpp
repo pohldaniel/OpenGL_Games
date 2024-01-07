@@ -11,6 +11,8 @@ Resources::~Resources(){
 }
 
 void Resources::loadPrimitives(){
+	//models["Cube"].loadModel("Resources/Models/Floor.obj");
+	
 	//this->models.insert(std::pair<std::string, Model>("Cube", LoadModelFromMesh(GenMeshCube(1.0f, 0.5f, 1.0f))));
 	//this->models.insert(std::pair<std::string, Model>("Sphere", LoadModelFromMesh(GenMeshSphere(0.5f, 16, 16))));
 	//this->models.insert(std::pair<std::string, Model>("Bullet", LoadModelFromMesh(GenMeshSphere(0.1f, 16, 16))));
@@ -23,8 +25,8 @@ bool Resources::hasModel(std::string name){
 	return this->models.count(name) > 0;
 }
 
-Shape* Resources::getModel(std::string name){
-	Shape* model = nullptr;
+ObjModel* Resources::getModel(std::string name){
+	ObjModel* model = nullptr;
 	if (this->hasModel(name))
 		model = &models[name];
 
@@ -32,12 +34,12 @@ Shape* Resources::getModel(std::string name){
 }
 
 void Resources::loadModel(std::string path, std::string name){
-	if (this->hasModel(name))
-	{
+	if (this->hasModel(name)){
 		std::cout << name << " has already been loaded\n";
 		return;
 	}
-
+	models[name].loadModel(("Resources/Models/" + path).c_str());
+	models[name].initAssets();
 	//Model model = LoadModel(("Resources/Models/" + path).c_str());
 	//this->models.insert(std::pair<std::string, Model>(name, model));
 }

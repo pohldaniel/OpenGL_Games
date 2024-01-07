@@ -59,7 +59,7 @@ public:
 
 	// @param Name of lua script to open scene
 	void setScene(lua_State* L, std::string path);
-	void render();
+	void render(const Camera& camera);
 	bool shouldQuit();
 
 	inline Resources& getResources() { return this->resources; }

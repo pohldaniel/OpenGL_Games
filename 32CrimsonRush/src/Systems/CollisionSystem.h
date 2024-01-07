@@ -1,6 +1,7 @@
 #pragma once
 
 #include <engine/MeshObject/Shape.h>
+#include <engine/ObjModel.h>
 #include <Systems/System.h>
 #include <Components/TransformComp.h>
 #include <Components/MeshComp.h>
@@ -24,8 +25,8 @@ public:
 			auto view2 = reg.view<Behaviour, MeshComp, TransformComp>();
 			view2.each([&](Behaviour& script2, MeshComp& mesh2, TransformComp& transform2){
 
-				Shape* model1 = resource->getModel(mesh1.modelName);
-				Shape* model2 = resource->getModel(mesh2.modelName);
+				ObjModel* model1 = resource->getModel(mesh1.modelName);
+				ObjModel* model2 = resource->getModel(mesh2.modelName);
 				if (!model1 || !model2)
 					return;
 

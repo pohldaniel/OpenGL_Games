@@ -3,11 +3,12 @@
 #include <string>
 #include <unordered_map>
 #include <engine/MeshObject/Shape.h>
+#include <engine/ObjModel.h>
 
 class Resources{
 
 private:
-	std::unordered_map<std::string, Shape> models;
+	std::unordered_map<std::string, ObjModel> models;
 public:
 	Resources();
 	virtual ~Resources();
@@ -15,7 +16,7 @@ public:
 	void loadPrimitives();
 
 	bool hasModel(std::string name);
-	Shape* getModel(std::string name);
+	ObjModel* getModel(std::string name);
 	void loadModel(std::string path, std::string name);
 };
 
