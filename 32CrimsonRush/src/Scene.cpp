@@ -76,12 +76,12 @@ void Scene::setScene(lua_State* L, std::string path)
 
 void Scene::render()
 {
-	/*BeginMode3D(this->cam.cam3D);
+
 
 	auto view = this->reg.view<TransformComp, MeshComp>();
-	view.each([&](const TransformComp& transform, const MeshComp& meshComp)
-	{
-		Model* model = this->resources.getModel(meshComp.modelName);
+	view.each([&](const TransformComp& transform, const MeshComp& meshComp){
+		std::cout << "Name: " << meshComp.modelName << " r: " << meshComp.color[0] << " g: " << meshComp.color[1] << " b: " << meshComp.color[2] << " a: " << meshComp.color[3] << std::endl;
+		/*Model* model = this->resources.getModel(meshComp.modelName);
 		if (model)
 		{
 			Matrix matTranslation = MatrixTranslate(transform.position.x, transform.position.y, transform.position.z);
@@ -94,9 +94,9 @@ void Scene::render()
 			{
 				DrawMesh(model->meshes[i], model->materials[model->meshMaterial[i]], matTransform);
 			}
-		}
+		}*/
 	});
-	EndMode3D();*/
+
 
 
 	Spritesheet::Bind(TileSetManager::Get().getTileSet("ui").getAtlas());
@@ -331,7 +331,7 @@ int Scene::lua_setComponent(lua_State* L)
 	if (compTypes.at(type) == "Transform")
 		scene->setComponent<TransformComp>(entity, lua_totransform(L, 3));
 	else if (compTypes.at(type) == "MeshComp")
-		scene->setComponent<MeshComp>(entity, lua_tostring(L, 3));
+		scene->setComponent<MeshComp>(entity, lua_tostring(L, 3), lua_tocolor(L, 4));
 	else if (compTypes.at(type) == "UIElement"){
 		UIElement elem = lua_touielement(L, 3);
 		if(elem.dimensions[0] == 0 && elem.dimensions[1] == 0)

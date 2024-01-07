@@ -1,5 +1,8 @@
 #include <engine/input/Mouse.h>
+#include <engine/input/Keyboard.h>
+#include <Components/TransformComp.h>
 #include "Input.h"
+#include "Application.h"
 
 const std::unordered_map<std::string, int> Input::keys{
 		{ "NULL", 0 },
@@ -160,8 +163,9 @@ int Input::lua_isKeyUp(lua_State* L)
 
 int Input::lua_isKeyPressed(lua_State* L)
 {
+	Keyboard &keyboard = Keyboard::instance();
 	int key = (int)lua_tointeger(L, 1);
-	//lua_pushboolean(L, IsKeyPressed(key));
+	lua_pushboolean(L, keyboard.keyPressed(static_cast<Keyboard::Key>(key)));
 	return 1;
 }
 
@@ -222,8 +226,10 @@ int Input::lua_getMousePosition(lua_State* L)
 
 int Input::lua_getMousePositionCenter(lua_State* L)
 {
-	//Vector2 pos = GetMousePosition();
-	//lua_pushvector(L, { pos.x - GetScreenWidth() / 2, pos.y - GetScreenHeight() / 2, 0.0f });
+	Mouse &mouse = Mouse::instance();
+	float mouseX = static_cast<float>(mouse.xPos());
+	float mouseY = static_cast<float>(mouse.yPos());
+	lua_pushvector(L, { mouseX - (Application::Width / 2), mouseY - (Application::Height / 2), 0.0f });
 	return 1;
 }
 

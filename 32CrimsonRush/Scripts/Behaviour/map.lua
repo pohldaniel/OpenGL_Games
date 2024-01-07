@@ -67,32 +67,32 @@ function map:spawnroom(index)
 			local transform = scene.getComponent(entity, ComponentType.Transform)
 			transform.position = vector(x, -1, z) - offset
 			if (r[x][z] == "Floor") then
-				scene.setComponent(entity, ComponentType.MeshComp, "Floor")
+				scene.setComponent(entity, ComponentType.MeshComp, "Floor", color(162, 237, 255, 255))
 			elseif (r[x][z] == "Wall") then
-				scene.setComponent(entity, ComponentType.MeshComp, "Wall")
+				scene.setComponent(entity, ComponentType.MeshComp, "Wall", color(162, 237, 255, 255))
 			elseif (r[x][z] == "Door") then
 				for i, v in ipairs(r.doors) do
 					if(v.x == x and v.y == z) then
 						if (v.z == 0) then
-							scene.setComponent(entity, ComponentType.MeshComp, "Wall")
+							scene.setComponent(entity, ComponentType.MeshComp, "Wall", color(162, 237, 255, 255))
 							r[x][z] = "Wall"
 							table.remove(r.doors, i)
 						else
-							scene.setComponent(entity, ComponentType.MeshComp, "Door")
+							scene.setComponent(entity, ComponentType.MeshComp, "Door", color(162, 237, 255, 255))
 							table.insert(self.DoorIDs, entity)
 						end
 						break
 					end
 				end
 			elseif (r[x][z] == "Enemy") then
-				scene.setComponent(entity, ComponentType.MeshComp, "Floor")
+				scene.setComponent(entity, ComponentType.MeshComp, "Floor", color(162, 237, 255, 255))
 
 				local enemy = scene.createEntity();
 				local enemyTransform = scene.getComponent(enemy, ComponentType.Transform)
 				enemyTransform.position = transform.position + vector(0, 1, 0)
 
 				scene.setComponent(enemy, ComponentType.Transform, enemyTransform)
-				scene.setComponent(enemy, ComponentType.MeshComp, "Enemy")
+				scene.setComponent(enemy, ComponentType.MeshComp, "Enemy", color(162, 237, 255, 255))
 				scene.setComponent(enemy, ComponentType.Behaviour, "enemy.lua")
 				scene.getComponent(enemy, ComponentType.Behaviour).playerID = self.playerID
 				scene.getComponent(enemy, ComponentType.Behaviour).mapID = self.ID
@@ -105,7 +105,7 @@ function map:spawnroom(index)
 	end
 	if (index == self.roomCount) then
 		local entity = scene.createEntity()
-		scene.setComponent(entity, ComponentType.MeshComp, "Goal")
+		scene.setComponent(entity, ComponentType.MeshComp, "Goal", color(162, 237, 255, 255))
 		table.insert(self.IDs, entity)
 	end
 
@@ -310,7 +310,7 @@ function map:update()
 	if (#self.EnemyIDs == 0 and self.locked == true) then
 		self.locked = false
 		for _, v in ipairs(self.DoorIDs) do
-			scene.setComponent(v, ComponentType.MeshComp, "Floor")
+			scene.setComponent(v, ComponentType.MeshComp, "Floor", color(162, 237, 255, 255))
 		end
 		for _, v in ipairs(self.curRoom.enemies) do
 			self.curRoom[v.x][v.y] = "Floor" 

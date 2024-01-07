@@ -221,4 +221,8 @@ void Game::lua_openmetatables(lua_State* L) {
 	luaL_loadfile(L, "Scripts/vector.lua");
 	lua_pcall(L, 0, 1, 0);
 	lua_setglobal(L, "vector");
+
+	luaL_loadfile(L, "Scripts/color.lua");
+	lua_pcall(L, 0, 1, 0);
+	lua_setglobal(L, "color");
 }

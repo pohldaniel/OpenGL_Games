@@ -35,6 +35,33 @@ static Vector3f lua_tovector(lua_State* L, int index){
 	return vec;
 }
 
+static Vector4f lua_tocolor(lua_State* L, int index) {
+	Vector4f col;
+	// Sanity check
+	if (!lua_istable(L, index)) {
+		std::cout << "Error: not table" << std::endl;
+		return col;
+	}
+
+	lua_getfield(L, index, "r");
+	col[0] = (float)lua_tonumber(L, -1);
+	lua_pop(L, 1);
+
+	lua_getfield(L, index, "g");
+	col[1] = (float)lua_tonumber(L, -1);
+	lua_pop(L, 1);
+
+	lua_getfield(L, index, "b");
+	col[2] = (float)lua_tonumber(L, -1);
+	lua_pop(L, 1);
+
+	lua_getfield(L, index, "a");
+	col[3] = (float)lua_tonumber(L, -1);
+	lua_pop(L, 1);
+
+	return col;
+}
+
 static void lua_pushvector(lua_State* L, const Vector3f& vec){
 	lua_newtable(L);
 

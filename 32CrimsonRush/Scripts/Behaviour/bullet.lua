@@ -7,7 +7,7 @@ bullet.damage = 40
 bullet.velocity = vector(0, 0, 1)
 
 function bullet:init()
-	scene.setComponent(self.ID, ComponentType.MeshComp, "Bullet")
+	scene.setComponent(self.ID, ComponentType.MeshComp, "Bullet", color(0, 0, 0, 255))
 end
 
 function bullet:update(deltaTime)

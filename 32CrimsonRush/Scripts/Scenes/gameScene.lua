@@ -8,7 +8,7 @@ scene.setCamera(vector(0, 2, 0), vector(90, 0, 0), 90)
 
 local playerEntity = scene.createEntity();
 scene.setComponent(playerEntity, ComponentType.Behaviour, "player.lua")
-scene.setComponent(playerEntity, ComponentType.MeshComp, "Player")
+scene.setComponent(playerEntity, ComponentType.MeshComp, "Player", color(162, 237, 255, 255))
 
 local entity = scene.createEntity()
 scene.setComponent(entity, ComponentType.Behaviour, "map.lua")
