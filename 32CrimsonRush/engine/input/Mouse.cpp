@@ -28,7 +28,7 @@ Mouse::Mouse(){
 	m_weightModifier = WEIGHT_MODIFIER;
 	m_historyBufferSize = HISTORY_BUFFER_SIZE;
 	m_attached = false;
-	m_reset = true;
+	m_reset = false;
 
 	m_pCurrButtonStates = m_buttonStates[0];
 	m_pPrevButtonStates = m_buttonStates[1];
@@ -306,10 +306,11 @@ void Mouse::update(){
 			m_yPos = CursorPos.y;
 		}
 	}
+	
 }
 
-void Mouse::attach(HWND hWnd, bool _hideCursor) {
-	if (m_attached) return;
+void Mouse::attach(HWND hWnd, bool _hideCursor, bool reattach) {
+	if (m_attached && !reattach) return;
 	m_hWnd = hWnd;
 
 	if (!m_reset) {
@@ -337,6 +338,7 @@ void Mouse::attach(HWND hWnd, bool _hideCursor) {
 	}
 	m_attached = true;
 	m_reset = _hideCursor;
+	
 }
 
 void Mouse::detach() {

@@ -83,10 +83,9 @@ public:
 	void setPositionX(float x);
 	void setPositionY(float y);
 	void setPositionZ(float z);
-	void setRotation(float pitch, float yaw, float roll);
-	virtual void setTarget(const Vector3f& target);
-	
+	void setRotation(float pitch, float yaw, float roll = 0.0f);
 
+	virtual void setTarget(const Vector3f& target);
 	void setMovingSpeed(float movingSpeed);
 	void setOffsetDistance(float offsetDistance);
 	void setRotationSpeed(float rotationSpeed);
