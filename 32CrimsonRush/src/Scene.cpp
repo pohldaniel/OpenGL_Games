@@ -85,6 +85,12 @@ void Scene::render(const Camera& camera){
 			shader->loadMatrix("u_view", camera.getViewMatrix());
 			shader->loadMatrix("u_model", model);
 			shader->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(camera.getViewMatrix() * model));
+			shader->loadVector("u_color", Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
+
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+			shape->drawRaw();
+			glPolygonMode(GL_FRONT_AND_BACK, StateMachine::GetEnableWireframe() ? GL_LINE : GL_FILL);
+
 			shader->loadVector("u_color", meshComp.color);
 			shape->drawRaw();
 			if (drawBox) {
@@ -99,13 +105,23 @@ void Scene::render(const Camera& camera){
 			}
 
 			shader->unuse();
-
-
-
-
 		}else {
 			ObjModel* model = this->resources.getModel(meshComp.modelName);
 			model->getTransform().setRotPosScale(Vector3f(0.0f, 1.0f, 0.0f), -transform.rotation[1], transform.position[0], transform.position[1], transform.position[2], transform.scale[0], transform.scale[0], transform.scale[0]);
+			
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+			auto shader = Globals::shaderManager.getAssetPointer("color");
+			shader->use();
+			shader->loadMatrix("u_projection", camera.getPerspectiveMatrix());
+			shader->loadMatrix("u_view", camera.getViewMatrix());
+			shader->loadMatrix("u_model", model->getTransform().getTransformationMatrix());
+			shader->loadMatrix("u_normal", Matrix4f::IDENTITY);
+			shader->loadVector("u_color", Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
+			model->drawRaw();
+			
+			shader->unuse();
+			glPolygonMode(GL_FRONT_AND_BACK, StateMachine::GetEnableWireframe() ? GL_LINE : GL_FILL);
+
 			model->draw(camera);
 
 			if (drawBox) {
