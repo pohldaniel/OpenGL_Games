@@ -8,17 +8,12 @@
 #include "LuaHelper.h"
 #include "Resources.h"
 
-struct CameraStruct{
-	Camera cam3D;
-	Vector3f rotation;
-};
-
 class Scene {
 private:
 	entt::registry reg;
 	Resources resources;
 	std::vector<System*> systems;
-	CameraStruct cam;
+
 	bool quit;
 	Camera& camera;
 	bool drawBox;

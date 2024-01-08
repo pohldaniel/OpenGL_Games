@@ -14,10 +14,6 @@
 
 Scene::Scene(Camera& camera): camera(camera), quit(false), drawBox(false) {
 
-	this->cam.cam3D = Camera();
-	this->cam.cam3D.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
-	this->cam.cam3D.lookAt(Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 0.0f, 0.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 0.0f, 1.0f));
-	//this->setCamera(Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 0.0f, 0.0f), 90.0f);
 }
 
 Scene::~Scene() {
@@ -36,7 +32,6 @@ void Scene::lua_openscene(lua_State* L, Scene* scene) {
 		{ "setCamera", lua_setCamera },
 		{ "getCameraPos", lua_getCameraPos },
 		{ "setCameraPos", lua_setCameraPos },
-		{ "getCameraRot", lua_getCameraRot },
 		{ "getEntityCount", lua_getEntityCount },
 		{ "entityValid", lua_entityValid },
 		{ "createEntity", lua_createEntity },
@@ -189,27 +184,23 @@ bool& Scene::getDrawBox() {
 }
 
 void Scene::setCamera(const Vector3f& pos, const Vector3f& rotation, float fov){
-	//this->cam.cam3D.setPosition(pos);
-	//this->cam.rotation = rotation;
-	//this->cam.cam3D.setRotation(rotation[0], rotation[1], rotation[2]);
-
 	camera.setPosition(pos);
+	camera.lookAt(pos, rotation[0], rotation[1]);
 }
 
 const Vector3f& Scene::getCameraPos() const{
-	return this->cam.cam3D.getPosition();
+	return camera.getPosition();
 }
 
 void Scene::setCameraPos(const Vector3f& pos){
-	this->setCamera(pos, this->cam.rotation, this->cam.cam3D.getFovXRad());
+	camera.setPosition(pos);
 }
 
 void Scene::setCameraRot(const Vector3f& rot){
-	this->setCamera(this->cam.cam3D.getPosition(), rot, this->cam.cam3D.getFovXRad());
+	camera.setRotation(rot[0], rot[1], rot[2]);
 }
 
 void Scene::updateSystems(float deltaTime){
-
 	for (auto it = this->systems.begin(); it != this->systems.end();){
 		if ((*it)->update(this->reg, deltaTime)){
 			delete (*it);
@@ -248,8 +239,7 @@ int Scene::lua_createSystem(lua_State* L) {
 	return 0;
 }
 
-int Scene::lua_loadResource(lua_State* L)
-{
+int Scene::lua_loadResource(lua_State* L){
 	Scene* scene = (Scene*)lua_touserdata(L, lua_upvalueindex(1));
 	std::string path = lua_tostring(L, 1);
 	std::string name = lua_tostring(L, 2);
@@ -284,7 +274,7 @@ int Scene::lua_setCamera(lua_State* L) {
 
 int Scene::lua_getCameraPos(lua_State* L) {
 	Scene* scene = (Scene*)lua_touserdata(L, lua_upvalueindex(1));
-	lua_pushvector(L, scene->cam.cam3D.getPosition());
+	lua_pushvector(L, scene->camera.getPosition());
 	return 1;
 }
 
@@ -295,14 +285,7 @@ int Scene::lua_setCameraPos(lua_State* L){
 	return 0;
 }
 
-int Scene::lua_getCameraRot(lua_State* L){
-	Scene* scene = (Scene*)lua_touserdata(L, lua_upvalueindex(1));
-	lua_pushvector(L, scene->cam.rotation);
-	return 1;
-}
-
-int Scene::lua_getEntityCount(lua_State* L)
-{
+int Scene::lua_getEntityCount(lua_State* L){
 	Scene* scene = (Scene*)lua_touserdata(L, lua_upvalueindex(1));
 	lua_pushnumber(L, scene->getEntityCount());
 	return 1;
@@ -314,8 +297,7 @@ int Scene::lua_entityValid(lua_State* L){
 	return 1;
 }
 
-int Scene::lua_createEntity(lua_State* L)
-{
+int Scene::lua_createEntity(lua_State* L){
 	Scene* scene = (Scene*)lua_touserdata(L, lua_upvalueindex(1));
 	lua_pushnumber(L, scene->createEntity());
 	return 1;
@@ -361,8 +343,7 @@ int Scene::lua_getComponent(lua_State* L){
 	return 1;
 }
 
-int Scene::lua_setComponent(lua_State* L)
-{
+int Scene::lua_setComponent(lua_State* L){
 	Scene* scene = (Scene*)lua_touserdata(L, lua_upvalueindex(1));
 	int entity = (int)lua_tointeger(L, 1);
 	int type = (int)lua_tointeger(L, 2);
@@ -382,7 +363,6 @@ int Scene::lua_setComponent(lua_State* L)
 			scene->removeComponent<Behaviour>(entity);
 
 		std::string path = lua_tostring(L, 3);
-		std::cout << "Path: " << path << std::endl;
 		if (luaL_dofile(L, ("Scripts/Behaviour/" + path).c_str()) != LUA_OK)
 			LuaHelper::dumpError(L);
 		else
@@ -417,8 +397,7 @@ int Scene::lua_setComponent(lua_State* L)
 	return 0;
 }
 
-int Scene::lua_removeComponent(lua_State* L)
-{
+int Scene::lua_removeComponent(lua_State* L){
 	Scene* scene = (Scene*)lua_touserdata(L, lua_upvalueindex(1));
 	int entity = (int)lua_tointeger(L, 1);
 	int type = (int)lua_tointeger(L, 2);

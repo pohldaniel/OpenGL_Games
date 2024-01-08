@@ -171,6 +171,12 @@ function map:init()
 	scene.setComponent(self.intMenu, ComponentType.Behaviour, "intMenu.lua")
 end
 
+function math.clamp(x, min, max)
+    if x < min then return min end
+    if x > max then return max end
+    return x
+end
+
 function map:update()
 	local menu = scene.getComponent(self.intMenu, ComponentType.Behaviour)
 	local player = scene.getComponent(self.playerID, ComponentType.Behaviour)
@@ -273,7 +279,8 @@ function map:update()
 	-- Collision with wall (edge)
 	if(pos.x <= 1 or pos.z <= 1 or pos.x > self.curRoom.width - 1 or pos.z > self.curRoom.height - 1) then
 		-- Collision with door
-		if(self.curRoom[pos.x][pos.z] == "Door" and self.locked == false) then
+		
+		if(self.curRoom[math.clamp(pos.x,1,self.curRoom.width)][math.clamp(pos.z,1,self.curRoom.height)] == "Door" and self.locked == false) then
 			-- Find right door
 			for _, v in ipairs(self.curRoom.doors) do
 				if(v.x == pos.x and v.y == pos.z) then
@@ -281,7 +288,8 @@ function map:update()
 					local spawnPos = vector()
 					for __, v1 in ipairs(self.rooms[v.z].doors) do
 						if(v1.z == self.curRoomIndex) then
-							spawnPos = vector(v1.x, 0, v1.y) + player.lastMove * 5
+							spawnPos = vector(v1.x, 0, v1.y) + player.lastMove * 7
+							--spawnPos = vector(v1.x + player.lastMove.x * 6, 0, v1.y + player.lastMove.z * 8) 
 							player.damageCooldown = 1
 							break
 						end

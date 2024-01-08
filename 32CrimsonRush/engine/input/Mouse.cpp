@@ -342,12 +342,13 @@ void Mouse::attach(HWND hWnd, bool _hideCursor, bool reattach) {
 }
 
 void Mouse::detach() {
-	if (!m_attached) return;
-
-	SetCursorPos(m_xLastPos, m_yLastPos);
+	if (!m_attached) return;	
 	m_attached = false;
-	if(!m_cursorVisible)
+
+	if (!m_cursorVisible) {
+		SetCursorPos(m_xLastPos, m_yLastPos);
 		hideCursor(false);
+	}
 	m_xDelta = 0.0f;
 	m_yDelta = 0.0f;
 	m_hWnd = 0;

@@ -50,8 +50,8 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME), scene(m_camera
 	this->scene.getResources().loadPrimitives();
 	this->scene.createSystem<BehaviourSystem>(this->L);
 	this->scene.createSystem<CollisionSystem>(this->L, &this->scene.getResources());
-	//this->scene.setScene(this->L, "menuScene.lua");
-	this->scene.setScene(this->L, "gameScene.lua");
+	this->scene.setScene(this->L, "menuScene.lua");
+	//this->scene.setScene(this->L, "gameScene.lua");
 }
 
 Game::~Game() {
@@ -122,6 +122,12 @@ void Game::update() {
 		if (move) {
 			m_camera.move(directrion * m_dt);
 		}
+	}
+
+	if (scene.shouldQuit()) {
+		ImGui::GetIO().WantCaptureMouse = false;
+		Mouse::instance().detach();
+		m_isRunning = false;
 	}
 
 	m_background.update(m_dt);
