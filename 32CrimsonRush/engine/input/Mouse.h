@@ -75,7 +75,10 @@ public:
 	void smoothMouse(bool smooth);
 	void update();
 	void updateWheelDelta(int delta);
+
+	bool isAttached();
 	void resetCursor();
+
 private:
 
 	Mouse();
@@ -113,6 +116,7 @@ private:
 	bool *m_pCurrButtonStates;
 	bool *m_pPrevButtonStates;
 	bool m_attached;
+	bool m_reset;
 
 	int m_centerX;
 	int m_centerY;

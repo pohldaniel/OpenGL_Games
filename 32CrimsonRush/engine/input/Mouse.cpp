@@ -28,6 +28,7 @@ Mouse::Mouse(){
 	m_weightModifier = WEIGHT_MODIFIER;
 	m_historyBufferSize = HISTORY_BUFFER_SIZE;
 	m_attached = false;
+	m_reset = true;
 
 	m_pCurrButtonStates = m_buttonStates[0];
 	m_pPrevButtonStates = m_buttonStates[1];
@@ -219,15 +220,16 @@ void Mouse::handleEvent(Event event) {
 void Mouse::hideCursor(bool hideCursor){
 
 	if (hideCursor) {
-		m_cursorVisible = false;
-
 		while (ShowCursor(FALSE) >= 0); // do nothing
-
+		m_cursorVisible = false;
 	}else {
-		m_cursorVisible = true;
-
 		while (ShowCursor(TRUE) < 0); // do nothing
+		m_cursorVisible = true;
 	}
+}
+
+bool Mouse::isAttached() {
+	return m_attached;
 }
 
 void Mouse::setPosition(UINT x, UINT y){
@@ -245,9 +247,23 @@ void Mouse::setPosition(UINT x, UINT y){
 }
 
 void Mouse::resetCursor() {
-	//SetCursorPos(m_xPos, m_yPos);
-	m_xDelta = 0.0f;
-	m_yDelta = 0.0f;
+	if (!m_reset) {
+		m_xDelta = 0.0f;
+		m_yDelta = 0.0f;
+
+		POINT        CursorPos;
+		GetCursorPos(&CursorPos);
+		m_xLastPos = CursorPos.x;
+		m_yLastPos = CursorPos.y;
+
+		ScreenToClient(m_hWnd, &CursorPos);
+		m_xPos = CursorPos.x;
+		m_yPos = CursorPos.y;
+
+		hideCursor(true);
+		setCursorToMiddle();
+		m_reset = true;
+	}
 }
 
 void Mouse::setCursorToMiddle() {
@@ -296,14 +312,16 @@ void Mouse::attach(HWND hWnd, bool _hideCursor) {
 	if (m_attached) return;
 	m_hWnd = hWnd;
 
-	POINT        CursorPos;
-	GetCursorPos(&CursorPos);
-	m_xLastPos = CursorPos.x;
-	m_yLastPos = CursorPos.y;
+	if (!m_reset) {
+		POINT        CursorPos;
+		GetCursorPos(&CursorPos);
+		m_xLastPos = CursorPos.x;
+		m_yLastPos = CursorPos.y;
 
-	ScreenToClient(m_hWnd, &CursorPos);
-	m_xPos = CursorPos.x;
-	m_yPos = CursorPos.y;
+		ScreenToClient(m_hWnd, &CursorPos);
+		m_xPos = CursorPos.x;
+		m_yPos = CursorPos.y;
+	}
 
 	RECT rectClient, rectWindow;
 	GetWindowRect(m_hWnd, &rectWindow);
@@ -318,6 +336,7 @@ void Mouse::attach(HWND hWnd, bool _hideCursor) {
 		setCursorToMiddle();
 	}
 	m_attached = true;
+	m_reset = _hideCursor;
 }
 
 void Mouse::detach() {

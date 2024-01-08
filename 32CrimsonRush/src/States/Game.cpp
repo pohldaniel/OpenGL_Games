@@ -49,7 +49,8 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 	this->scene.getResources().loadPrimitives();
 	this->scene.createSystem<BehaviourSystem>(this->L);
 	this->scene.createSystem<CollisionSystem>(this->L, &this->scene.getResources());
-	this->scene.setScene(this->L, "menuScene.lua");
+	//this->scene.setScene(this->L, "menuScene.lua");
+	this->scene.setScene(this->L, "gameScene.lua");
 }
 
 Game::~Game() {
@@ -105,12 +106,11 @@ void Game::update() {
 	}
 
 	Mouse &mouse = Mouse::instance();
-
+	
 	if (mouse.buttonDown(Mouse::MouseButton::BUTTON_RIGHT)) {
+		mouse.resetCursor();
 		dx = mouse.xDelta();
 		dy = mouse.yDelta();
-
-		//std::cout << "Dy: " << dx << " Dy: " << dy << std::endl;
 	}
 
 	if (move || dx != 0.0f || dy != 0.0f) {
@@ -146,8 +146,7 @@ void Game::OnMouseMotion(Event::MouseMoveEvent& event) {
 void Game::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 	if (event.button == 2u) {
 		Mouse::instance().detach();
-		//Mouse::instance().resetCursor();
-		Mouse::instance().attach(Application::GetWindow());
+		Mouse::instance().attach(Application::GetWindow(), true);
 	}
 }
 

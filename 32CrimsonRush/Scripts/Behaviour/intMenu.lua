@@ -44,7 +44,6 @@ function intMenu:destroy()
 	scene.removeEntity(self.title)
 	scene.removeEntity(self.resumeButton)
 	scene.removeEntity(self.menuButton)
-	scene.removeEntity(self.exitButton)
 	scene.removeEntity(self.background)
 end
 
