@@ -37,6 +37,8 @@ public:
 
 	void drawRaw() const;
 	void drawRawInstanced() const;
+	void drawAABB() const;
+
 	void addInstance(const Matrix4f& value, unsigned int divisor = 1u);
 	void removeInstance(unsigned int index);
 	void insertInstance(const Matrix4f& value, unsigned int index);

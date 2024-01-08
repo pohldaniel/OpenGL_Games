@@ -149,8 +149,9 @@ void Input::lua_openinput(lua_State* L, Input* input)
 
 int Input::lua_isKeyDown(lua_State* L)
 {
+	Keyboard &keyboard = Keyboard::instance();
 	int key = (int)lua_tointeger(L, 1);
-	//lua_pushboolean(L, IsKeyDown(key));
+	lua_pushboolean(L, keyboard.keyDown(static_cast<Keyboard::Key>(key)));
 	return 1;
 }
 

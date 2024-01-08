@@ -12,7 +12,7 @@
 #include "Globals.h"
 #include "TileSet.h"
 
-Scene::Scene(): quit(false) {
+Scene::Scene(Camera& camera): camera(camera), quit(false), drawBox(false) {
 
 	this->cam.cam3D = Camera();
 	this->cam.cam3D.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
@@ -92,12 +92,42 @@ void Scene::render(const Camera& camera){
 			shader->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(camera.getViewMatrix() * model));
 			shader->loadVector("u_color", meshComp.color);
 			shape->drawRaw();
+			if (drawBox) {
+				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+				shader->loadMatrix("u_projection", camera.getPerspectiveMatrix());
+				shader->loadMatrix("u_view", camera.getViewMatrix());
+				shader->loadMatrix("u_model", model);
+				shader->loadMatrix("u_normal", Matrix4f::IDENTITY);
+				shader->loadVector("u_color", Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
+				shape->drawAABB();
+				glPolygonMode(GL_FRONT_AND_BACK, StateMachine::GetEnableWireframe() ? GL_LINE : GL_FILL);
+			}
+
 			shader->unuse();
+
+
+
 
 		}else {
 			ObjModel* model = this->resources.getModel(meshComp.modelName);
 			model->getTransform().setRotPosScale(Vector3f(0.0f, 1.0f, 0.0f), -transform.rotation[1], transform.position[0], transform.position[1], transform.position[2], transform.scale[0], transform.scale[0], transform.scale[0]);
 			model->draw(camera);
+
+			if (drawBox) {
+				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+				auto shader = Globals::shaderManager.getAssetPointer("color");
+				shader->use();
+				shader->loadMatrix("u_projection", camera.getPerspectiveMatrix());
+				shader->loadMatrix("u_view", camera.getViewMatrix());
+				shader->loadMatrix("u_model", model->getTransform().getTransformationMatrix());
+				shader->loadMatrix("u_normal", Matrix4f::IDENTITY);
+				shader->loadVector("u_color", Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+
+				model->drawAABB();
+
+				shader->unuse();
+				glPolygonMode(GL_FRONT_AND_BACK, StateMachine::GetEnableWireframe() ? GL_LINE : GL_FILL);
+			}
 		}
 
 	});
@@ -154,10 +184,16 @@ bool Scene::shouldQuit(){
 	return this->quit;
 }
 
+bool& Scene::getDrawBox() {
+	return drawBox;
+}
+
 void Scene::setCamera(const Vector3f& pos, const Vector3f& rotation, float fov){
-	this->cam.cam3D.setPosition(pos);
-	this->cam.rotation = rotation;
-	this->cam.cam3D.setRotation(rotation[0], rotation[1], rotation[2]);
+	//this->cam.cam3D.setPosition(pos);
+	//this->cam.rotation = rotation;
+	//this->cam.cam3D.setRotation(rotation[0], rotation[1], rotation[2]);
+
+	camera.setPosition(pos);
 }
 
 const Vector3f& Scene::getCameraPos() const{

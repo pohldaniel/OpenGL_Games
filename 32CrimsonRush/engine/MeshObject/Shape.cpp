@@ -410,7 +410,9 @@ void Shape::createBoundingBox() {
 	float xmin = FLT_MAX, ymin = FLT_MAX, zmin = FLT_MAX;
 	float xmax = -FLT_MAX, ymax = -FLT_MAX, zmax = -FLT_MAX;
 
-	for (std::vector<Vector3f>::iterator pit = m_positions.begin(); pit != m_positions.end(); pit += 3) {
+	//std::cout << "Size: " << m_positions.size() << std::endl;
+
+	for (std::vector<Vector3f>::iterator pit = m_positions.begin(); pit != m_positions.end(); pit += 1) {
 		xmin = (std::min)((*pit)[0], xmin);
 		ymin = (std::min)((*pit)[1], ymin);
 		zmin = (std::min)((*pit)[2], zmin);
@@ -643,6 +645,10 @@ void Shape::addInstance(const Matrix4f& value, unsigned int divisor) {
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindVertexArray(0);
 	}
+}
+
+void Shape::drawAABB() const {
+	m_aabb.drawRaw();
 }
 
 void Shape::removeInstance(unsigned int index) {

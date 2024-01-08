@@ -11,17 +11,9 @@ Resources::~Resources(){
 }
 
 void Resources::loadPrimitives(){
-
 	shapes["Bullet"].buildSphere(0.1f, Vector3f(0.0f, 0.0f, 0.0f), 16, 16, false, true, false);
-
-	//models["Cube"].loadModel("Resources/Models/Floor.obj");
-	
-	//this->models.insert(std::pair<std::string, Model>("Cube", LoadModelFromMesh(GenMeshCube(1.0f, 0.5f, 1.0f))));
-	//this->models.insert(std::pair<std::string, Model>("Sphere", LoadModelFromMesh(GenMeshSphere(0.5f, 16, 16))));
-	//this->models.insert(std::pair<std::string, Model>("Bullet", LoadModelFromMesh(GenMeshSphere(0.1f, 16, 16))));
-	//this->models["Bullet"].materials[0].maps[MaterialMapIndex::MATERIAL_MAP_ALBEDO].color = GRAY;
-	//this->models.insert(std::pair<std::string, Model>("Cylinder", LoadModelFromMesh(GenMeshCylinder(1.0f, 2.0f, 16))));
-	//this->models.insert(std::pair<std::string, Model>("Plane", LoadModelFromMesh(GenMeshPlane(1.0f, 1.0f, 1, 1))));
+	shapes["Bullet"].createBoundingBox();
+	shapes["Bullet"].getAABB().createBuffer();
 }
 
 bool Resources::hasModel(std::string name){
@@ -55,6 +47,7 @@ void Resources::loadModel(std::string path, std::string name){
 	}
 	models[name].loadModel(("Resources/Models/" + path).c_str());
 	models[name].initAssets();
+	models[name].createAABB();
 	//Model model = LoadModel(("Resources/Models/" + path).c_str());
 	//this->models.insert(std::pair<std::string, Model>(name, model));
 }

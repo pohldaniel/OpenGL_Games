@@ -13,7 +13,7 @@
 #include "Globals.h"
 
 
-Game::Game(StateMachine& machine) : State(machine, States::GAME) {
+Game::Game(StateMachine& machine) : State(machine, States::GAME), scene(m_camera) {
 
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
@@ -21,7 +21,7 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 	Mouse::instance().attach(Application::GetWindow(), false);
 
 	m_camera = Camera();
-	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
+	m_camera.perspective(90.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
 	m_camera.lookAt(Vector3f(0.0f, 12.0f, 0.0f), 90.0f, 0.0f);
 	
@@ -50,8 +50,8 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 	this->scene.getResources().loadPrimitives();
 	this->scene.createSystem<BehaviourSystem>(this->L);
 	this->scene.createSystem<CollisionSystem>(this->L, &this->scene.getResources());
-	this->scene.setScene(this->L, "menuScene.lua");
-	//this->scene.setScene(this->L, "gameScene.lua");
+	//this->scene.setScene(this->L, "menuScene.lua");
+	this->scene.setScene(this->L, "gameScene.lua");
 }
 
 Game::~Game() {
@@ -100,6 +100,10 @@ void Game::update() {
 	if (keyboard.keyDown(Keyboard::KEY_DOWN)) {
 		directrion += Vector3f(0.0f, -1.0f, 0.0f);
 		move |= true;
+	}
+
+	if (keyboard.keyPressed(Keyboard::KEY_T)) {
+		scene.getDrawBox() = !scene.getDrawBox();
 	}
 
 	Mouse &mouse = Mouse::instance();

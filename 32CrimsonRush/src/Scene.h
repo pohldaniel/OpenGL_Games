@@ -20,6 +20,8 @@ private:
 	std::vector<System*> systems;
 	CameraStruct cam;
 	bool quit;
+	Camera& camera;
+	bool drawBox;
 
 	inline static const std::vector<std::string> compTypes{
 		"Transform",
@@ -51,8 +53,10 @@ private:
 	static int lua_getComponent(lua_State* L);
 	static int lua_setComponent(lua_State* L);
 	static int lua_removeComponent(lua_State* L);
+
 public:
-	Scene();
+
+	Scene(Camera& camera);
 	virtual ~Scene();
 
 	static void lua_openscene(lua_State* L, Scene* scene);
@@ -61,6 +65,7 @@ public:
 	void setScene(lua_State* L, std::string path);
 	void render(const Camera& camera);
 	bool shouldQuit();
+	bool& getDrawBox();
 
 	inline Resources& getResources() { return this->resources; }
 	void setCamera(const Vector3f& pos, const Vector3f& rotation, float fov);
