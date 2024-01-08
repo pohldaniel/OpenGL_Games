@@ -23,10 +23,13 @@ public:
 	void translate(float dx, float dy, float dz);
 	void translate(const Vector3f& trans);
 
-	void rotate(const Vector3f& axis, float degrees, const Vector3f& centerOfRotation);
-	void rotate(const Quaternion& quat, const Vector3f& centerOfRotation);
 	void rotate(const Vector3f& axis, float degrees);
 	void rotate(const Quaternion& quat);
+	void rotate(float pitch, float yaw, float roll);
+
+	void rotate(const Vector3f& axis, float degrees, const Vector3f& centerOfRotation);
+	void rotate(const Quaternion& quat, const Vector3f& centerOfRotation);
+	void rotate(float pitch, float yaw, float roll, const Vector3f& centerOfRotation);
 
 	void scale(float s);
 	void scale(float a, float b, float c);

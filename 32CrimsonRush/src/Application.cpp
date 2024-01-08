@@ -646,6 +646,8 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("quad", "res/shader/quad.vert", "res/shader/quad.frag");
 	Globals::shaderManager.loadShader("quad_array", "res/shader/quad_array.vert", "res/shader/quad_array.frag");
 
+	Globals::shaderManager.loadShader("color", "res/shader/color.vert", "res/shader/color.frag");
+
 	Globals::textureManager.loadTexture("forest_1", "res/backgrounds/Forest/plx-1.png");
 	Globals::textureManager.loadTexture("forest_2", "res/backgrounds/Forest/plx-2.png");
 	Globals::textureManager.loadTexture("forest_3", "res/backgrounds/Forest/plx-3.png");
@@ -656,6 +658,7 @@ void Application::loadAssets() {
 	Globals::fontManager.loadCharacterSet("upheaval_50", "res/fonts/upheavtt.ttf",  50,  3u, 3u,  0u,   0, true, 1u);
 	Globals::fontManager.loadCharacterSet("acme9_22", "res/fonts/Acme-9-Regular-Bold.ttf", 22, 10u, 30u, 128u, 0, true, 0u);
 	Globals::fontManager.loadCharacterSet("acme9_80", "res/fonts/Acme-9-Regular.ttf", 80, 10u, 30u, 128u, 0, true, 0u);
+	Globals::fontManager.loadCharacterSet("acme9_72", "res/fonts/Acme-9-Regular.ttf", 72, 10u, 30u, 128u, 0, true, 0u);
 
 	Globals::shapeManager.buildQuadXY("quad", Vector3f(-1.0f, -1.0f, 0.0f), Vector2f(2.0f, 2.0f), 1, 1, true, false, false);
 
@@ -663,6 +666,7 @@ void Application::loadAssets() {
 	TileSetManager::Get().getTileSet("ui").loadTileSetCpu("res/textures/empty.png", true, false);
 	TileSetManager::Get().getTileSet("ui").addCharset(Globals::fontManager.get("acme9_22"));
 	TileSetManager::Get().getTileSet("ui").addCharset(Globals::fontManager.get("acme9_80"));
+	TileSetManager::Get().getTileSet("ui").addCharset(Globals::fontManager.get("acme9_72"));
 	TileSetManager::Get().getTileSet("ui").loadTileSetGpu();
 
 	//Spritesheet::Safe("ui", TileSetManager::Get().getTileSet("ui").getAtlas());

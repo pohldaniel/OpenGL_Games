@@ -55,8 +55,16 @@ ObjModel::~ObjModel() {
 	m_shader.clear();	
 }
 
+void ObjModel::setPosition(float x, float y, float z) {
+	m_transform.setPosition(x, y, z);
+}
+
 void ObjModel::rotate(const Vector3f &axis, float degrees) {
 	m_transform.rotate(axis, degrees);
+}
+
+void  ObjModel::rotate(float pitch, float yaw, float roll) {
+	m_transform.rotate(pitch, yaw, roll);
 }
 
 void ObjModel::translate(float dx, float dy, float dz) {

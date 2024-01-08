@@ -23,7 +23,7 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 	m_camera = Camera();
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
-	m_camera.lookAt(Vector3f(0.0f, 4.0f, 0.0f), 90.0f, 0.0f);
+	m_camera.lookAt(Vector3f(0.0f, 12.0f, 0.0f), 90.0f, 0.0f);
 	
 	m_camera.setRotationSpeed(0.1f);
 	m_camera.setMovingSpeed(10.0f);
@@ -50,8 +50,8 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 	this->scene.getResources().loadPrimitives();
 	this->scene.createSystem<BehaviourSystem>(this->L);
 	this->scene.createSystem<CollisionSystem>(this->L, &this->scene.getResources());
-	//this->scene.setScene(this->L, "menuScene.lua");
-	this->scene.setScene(this->L, "gameScene.lua");
+	this->scene.setScene(this->L, "menuScene.lua");
+	//this->scene.setScene(this->L, "gameScene.lua");
 }
 
 Game::~Game() {
@@ -72,7 +72,7 @@ void Game::update() {
 	float dy = 0.0f;
 	bool move = false;
 
-	if (keyboard.keyDown(Keyboard::KEY_W)) {
+	/*if (keyboard.keyDown(Keyboard::KEY_W)) {
 		directrion += Vector3f(0.0f, 0.0f, 1.0f);
 		move |= true;
 	}
@@ -80,29 +80,25 @@ void Game::update() {
 	if (keyboard.keyDown(Keyboard::KEY_S)) {
 		directrion += Vector3f(0.0f, 0.0f, -1.0f);
 		move |= true;
-	}
+	}*/
 
-	if (keyboard.keyDown(Keyboard::KEY_A)) {
+	if (keyboard.keyDown(Keyboard::KEY_LEFT)) {
 		directrion += Vector3f(-1.0f, 0.0f, 0.0f);
-		m_background.addOffset(-0.001f);
-		m_background.setSpeed(-0.005f);
 		move |= true;
 	}
 
-	if (keyboard.keyDown(Keyboard::KEY_D)) {
+	if (keyboard.keyDown(Keyboard::KEY_RIGHT)) {
 		directrion += Vector3f(1.0f, 0.0f, 0.0f);
-		m_background.addOffset(0.001f);
-		m_background.setSpeed(0.005f);
 		move |= true;
 	}
 
-	if (keyboard.keyDown(Keyboard::KEY_Q)) {
-		directrion += Vector3f(0.0f, -1.0f, 0.0f);
-		move |= true;
-	}
-
-	if (keyboard.keyDown(Keyboard::KEY_E)) {
+	if (keyboard.keyDown(Keyboard::KEY_UP)) {
 		directrion += Vector3f(0.0f, 1.0f, 0.0f);
+		move |= true;
+	}
+
+	if (keyboard.keyDown(Keyboard::KEY_DOWN)) {
+		directrion += Vector3f(0.0f, -1.0f, 0.0f);
 		move |= true;
 	}
 
@@ -125,15 +121,12 @@ void Game::update() {
 	}
 
 	m_background.update(m_dt);
-
 	scene.updateSystems(m_dt);
 }
 
 void Game::render() {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	//m_background.draw();
-
 	scene.render(m_camera);
 
 	//if (m_drawUi)

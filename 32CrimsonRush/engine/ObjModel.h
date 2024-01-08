@@ -95,7 +95,10 @@ public:
 	const Matrix4f &getTransformationMatrix() const;
 	const Matrix4f &getInvTransformationMatrix();
 
+	void setPosition(float x, float y, float z);
+
 	void rotate(const Vector3f& axis, float degrees);
+	void rotate(float pitch, float yaw, float roll);
 	void translate(float dx, float dy, float dz);
 	void scale(float a, float b, float c);
 
@@ -119,7 +122,7 @@ public:
 	void drawHull() const;
 
 	bool loadModel(const char* filename, bool isStacked = false, bool withoutNormals = false, bool generateSmoothNormals = false, bool generateFlatNormals = false, bool generateSmoothTangents = false, bool rescale = false);
-	bool loadModel(const char* a_filename, Vector3f& rotate, float degree, Vector3f& translate = Vector3f(0.0f, 0.0f, 0.0f), float scale = 1.0f, bool asStacked = false, bool withoutNormals = false, bool generateSmoothNormals = false, bool generateFlatNormals = false, bool generateSmoothTangents = false, bool rescale = false);
+	bool loadModel(const char* filename, Vector3f& rotate, float degree, Vector3f& translate = Vector3f(0.0f, 0.0f, 0.0f), float scale = 1.0f, bool asStacked = false, bool withoutNormals = false, bool generateSmoothNormals = false, bool generateFlatNormals = false, bool generateSmoothTangents = false, bool rescale = false);
 
 	std::string getMltPath();
 	std::string getModelDirectory();

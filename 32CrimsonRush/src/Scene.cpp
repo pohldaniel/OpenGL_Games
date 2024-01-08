@@ -78,29 +78,28 @@ void Scene::render(const Camera& camera){
 
 	auto view = this->reg.view<TransformComp, MeshComp>();
 	view.each([&](const TransformComp& transform, const MeshComp& meshComp){
-		
-		if (strcmp(meshComp.modelName, "Player") == 0) {
-			//std::cout << "Name: " << meshComp.modelName << " r: " << meshComp.color[0] << " g: " << meshComp.color[1] << " b: " << meshComp.color[2] << " a: " << meshComp.color[3] << std::endl;
-			ObjModel* model = this->resources.getModel(meshComp.modelName);
-			//std::cout << "Name: " << meshComp.modelName << " count: " << model->getMeshes().size() << std::endl;
 
+		if (strcmp(meshComp.modelName, "Bullet") == 0) {
+			Shape* shape = resources.getShape(meshComp.modelName);
+
+			Matrix4f model = Matrix4f::Translate(transform.position[0], transform.position[1], transform.position[2]);
+
+			auto shader = Globals::shaderManager.getAssetPointer("color");
+			shader->use();
+			shader->loadMatrix("u_projection", camera.getPerspectiveMatrix());
+			shader->loadMatrix("u_view", camera.getViewMatrix());
+			shader->loadMatrix("u_model", model);
+			shader->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(camera.getViewMatrix() * model));
+			shader->loadVector("u_color", meshComp.color);
+			shape->drawRaw();
+			shader->unuse();
+
+		}else {
+			ObjModel* model = this->resources.getModel(meshComp.modelName);
+			model->getTransform().setRotPosScale(Vector3f(0.0f, 1.0f, 0.0f), -transform.rotation[1], transform.position[0], transform.position[1], transform.position[2], transform.scale[0], transform.scale[0], transform.scale[0]);
 			model->draw(camera);
 		}
-		
-		/*Model* model = this->resources.getModel(meshComp.modelName);
-		if (model)
-		{
-			Matrix matTranslation = MatrixTranslate(transform.position.x, transform.position.y, transform.position.z);
-			Matrix matRotation = MatrixRotateXYZ(Vector3Scale(transform.rotation, DEG2RAD));
-			Matrix matScale = MatrixScale(transform.scale.x, transform.scale.y, transform.scale.z);
-			Matrix matTransform = MatrixMultiply(MatrixMultiply(matScale, matRotation), matTranslation);
-			DrawModelWiresEx(*model, transform.position, { 0.0f, 1.0f, 0.0f }, -transform.rotation.y, transform.scale, BLACK);
 
-			for (int i = 0; i < model->meshCount; i++)
-			{
-				DrawMesh(model->meshes[i], model->materials[model->meshMaterial[i]], matTransform);
-			}
-		}*/
 	});
 
 
@@ -116,7 +115,7 @@ void Scene::render(const Camera& camera){
 				rect.frame);
 		}
 
-		std::string id = elem.fontSize == 80 ? "acme9_80" : "acme9_22";
+		std::string id = elem.fontSize == 80 ? "acme9_80" : elem.fontSize == 80 ? "acme9_72" :  "acme9_22";
 		Fontrenderer::Get().addText(Globals::fontManager.get(id),
 									elem.position[0] + (elem.dimensions[0] - Globals::fontManager.get(id).getWidth(elem.text)) * 0.5f,
 									Application::Height - (elem.position[1] + (elem.dimensions[1] + Globals::fontManager.get(id).lineHeight) * 0.5f),
@@ -126,19 +125,17 @@ void Scene::render(const Camera& camera){
 	Batchrenderer::Get().drawBuffer();
 	Spritesheet::Unbind();
 
-
-	/*Fontrenderer::Get().bindTexture(Globals::fontManager.get("acme9_80"));
+	/*Spritesheet::Bind(TileSetManager::Get().getTileSet("ui").getAtlas());
 	auto buttonView = this->reg.view<UIElement>();
 	buttonView.each([&](const UIElement& elem) {
 		if (elem.visibleBG) {
-			const TextureRect& rect = TileSetManager::Get().getTileSet("font").getTextureRects()[0];
+			const TextureRect& rect = TileSetManager::Get().getTileSet("ui").getTextureRects()[0];
 			Batchrenderer::Get().addQuadAA(Vector4f(elem.position[0], Application::Height - (elem.position[1] + elem.dimensions[1]), elem.dimensions[0], elem.dimensions[1]),
 				Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureWidth, rect.textureHeight),
-				elem.colour, 
+				elem.colour / 255.0f,
 				rect.frame);
 		}
 
-		//std::string id = elem.fontSize == 80 ? "acme9_80" : "acme9_36";
 		std::string id = "acme9_80";
 		float scale = static_cast<float>(elem.fontSize) / 80.0f;
 
@@ -149,8 +146,8 @@ void Scene::render(const Camera& camera){
 			Vector4f(1.0f, 1.0f, 1.0f, 1.0f),
 			scale);
 	});
-	Fontrenderer::Get().drawBuffer();
-	Fontrenderer::Get().unbindTexture();*/
+	Batchrenderer::Get().drawBuffer();
+	Spritesheet::Unbind();*/
 }
 
 bool Scene::shouldQuit(){
