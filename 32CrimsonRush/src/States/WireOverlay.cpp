@@ -97,7 +97,26 @@ void WireOverlay::update() {
 void WireOverlay::render() {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	m_model.draw(m_camera);
+	//m_model.draw(m_camera);
+
+	auto shader = Globals::shaderManager.getAssetPointer("wire_overlay");
+	shader->use();
+	shader->loadMatrix("u_mvp", m_camera.getPerspectiveMatrix() * m_camera.getViewMatrix() * m_model.getTransformationMatrix());
+	shader->loadMatrix("u_model", m_model.getTransformationMatrix());
+	shader->loadMatrix("u_viewportMatrix", GetViewportMatrix());
+	shader->loadFloat("u_wireframeWidth", 0.4f);
+	shader->loadVector("u_wireframeColor", Vector4f(0.3842f, 0.02353f, 0.74902f, 1.0f));
+	shader->loadBool("u_drawOverlay", m_drawOverlay);
+	shader->loadInt("u_diffuse", 0);
+
+	for (AssimpMesh* mesh : m_model.getMeshes()) {
+		Material& material = Material::GetMaterials()[mesh->getMaterialIndex()];
+		material.updateMaterialUbo(BuiltInShader::materialUbo);
+		material.bind();
+		mesh->drawRaw();
+	}
+
+	shader->unuse();
 
 	if (m_drawUi)
 		renderUi();
@@ -181,8 +200,22 @@ void WireOverlay::renderUi() {
 	// render widgets
 	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 	ImGui::Checkbox("Draw Wirframe", &StateMachine::GetEnableWireframe());
+	ImGui::Checkbox("Draw Overlay", &m_drawOverlay);
 	ImGui::End();
 
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+}
+
+Matrix4f WireOverlay::GetViewportMatrix() const
+{
+	float HalfW = static_cast<float>(Application::Width / 2.0f);
+	float HalfH = static_cast<float>(Application::Height / 2.0f);
+
+	Matrix4f Viewport = Matrix4f(HalfW, 0.0f, 0.0f, HalfW,
+		0.0f, HalfH, 0.0f, HalfH,
+		0.0f, 0.0f, 1.0f, 0.0f,
+		0.0f, 0.0f, 0.0f, 1.0f);
+
+	return Viewport;
 }

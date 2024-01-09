@@ -32,8 +32,10 @@ private:
 
 	bool m_initUi = true;
 	bool m_drawUi = true;
+	bool m_drawOverlay = true;
 
 	Camera m_camera;
 	Background m_background;
 	AssimpModel m_model;
+	Matrix4f GetViewportMatrix() const;
 };
