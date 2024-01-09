@@ -46,7 +46,7 @@ void Resources::loadModel(std::string path, std::string name){
 		return;
 	}
 	models[name].loadModel(("Resources/Models/" + path).c_str());
-	models[name].initAssets();
+	models[name].initShader();
 	models[name].createAABB();
 	//Model model = LoadModel(("Resources/Models/" + path).c_str());
 	//this->models.insert(std::pair<std::string, Model>(name, model));

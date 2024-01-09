@@ -100,7 +100,7 @@ public:
 	void rotate(const Vector3f& axis, float degrees);
 	void rotate(float pitch, float yaw, float roll);
 	void translate(float dx, float dy, float dz);
-	void scale(float a, float b, float c);
+	void scale(float sx, float sy, float sz);
 
 	void drawRaw() const;
 	void drawRawInstanced();
@@ -142,8 +142,8 @@ public:
 	void addInstance(const Matrix4f& modelMTX);
 	void updateInstances(std::vector<Matrix4f>& modelMTX);
 
-	void initAssets(bool instanced = false);
-	void initAssets(AssetManager<Shader>& shaderManager, bool instanced = false);
+	void initShader(bool instanced = false);
+	void initShader(AssetManager<Shader>& shaderManager, bool instanced = false);
 
 	const unsigned int& getVbo() const;
 	const unsigned int& getIbo() const;

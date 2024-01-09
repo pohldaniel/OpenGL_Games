@@ -63,7 +63,7 @@ void ObjModel::rotate(const Vector3f &axis, float degrees) {
 	m_transform.rotate(axis, degrees);
 }
 
-void  ObjModel::rotate(float pitch, float yaw, float roll) {
+void ObjModel::rotate(float pitch, float yaw, float roll) {
 	m_transform.rotate(pitch, yaw, roll);
 }
 
@@ -71,8 +71,8 @@ void ObjModel::translate(float dx, float dy, float dz) {
 	m_transform.translate(dx, dy, dz);
 }
 
-void ObjModel::scale(float a, float b, float c) {
-	m_transform.scale(a, b, c);
+void ObjModel::scale(float sx, float sy, float sz) {
+	m_transform.scale(sx, sy, sz);
 }
 
 const Matrix4f &ObjModel::getTransformationMatrix() const {
@@ -1217,7 +1217,7 @@ void ObjModel::updateInstances(std::vector<Matrix4f>& modelMTX) {
 	}
 }
 
-void ObjModel::initAssets(bool instanced) {
+void ObjModel::initShader(bool instanced) {
 
 	if (!BuiltInShader::materialUbo) {
 		glGenBuffers(1, &BuiltInShader::materialUbo);
@@ -1256,7 +1256,7 @@ void ObjModel::initAssets(bool instanced) {
 	}
 }
 
-void ObjModel::initAssets(AssetManager<Shader>& shaderManager, bool instanced) {
+void ObjModel::initShader(AssetManager<Shader>& shaderManager, bool instanced) {
 
 	if (!BuiltInShader::materialUbo) {
 		glGenBuffers(1, &BuiltInShader::materialUbo);
