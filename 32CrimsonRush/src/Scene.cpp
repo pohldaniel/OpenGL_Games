@@ -12,8 +12,11 @@
 #include "Globals.h"
 #include "TileSet.h"
 
-Scene::Scene(Camera& camera): camera(camera), quit(false), drawBox(false) {
+Scene::Scene(Camera& camera): camera(camera), quit(false), drawBox(false), useGS(true), drawOverlay(true){
+	Matrix4f::GetViewPortMatrix(viewPortMtx, static_cast<float>(Application::Width), static_cast<float>(Application::Height));
 
+	auto shader = Globals::shaderManager.getAssetPointer("wire_overlay_material");
+	glUniformBlockBinding(shader->m_program, glGetUniformBlockIndex(shader->m_program, "u_material"), BuiltInShader::materialBinding);
 }
 
 Scene::~Scene() {
@@ -76,24 +79,42 @@ void Scene::render(const Camera& camera){
 
 		if (strcmp(meshComp.modelName, "Bullet") == 0) {
 			Shape* shape = resources.getShape(meshComp.modelName);
-
 			Matrix4f model = Matrix4f::Translate(transform.position[0], transform.position[1], transform.position[2]);
+			if(useGS){
+				auto shader = Globals::shaderManager.getAssetPointer("wire_overlay_color");
+				shader->use();
+				shader->loadMatrix("u_mvp", camera.getPerspectiveMatrix() * camera.getViewMatrix() * model);
+				shader->loadMatrix("u_model", model);
+				shader->loadMatrix("u_viewportMatrix", viewPortMtx);
+				shader->loadVector("u_color", meshComp.color);
+				shader->loadFloat("u_wireframeWidth", 0.6f);
+				shader->loadVector("u_wireframeColor", Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
+				shader->loadBool("u_drawOverlay", drawOverlay);
+				shape->drawRaw();
 
-			auto shader = Globals::shaderManager.getAssetPointer("color");
-			shader->use();
-			shader->loadMatrix("u_projection", camera.getPerspectiveMatrix());
-			shader->loadMatrix("u_view", camera.getViewMatrix());
-			shader->loadMatrix("u_model", model);
-			shader->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(camera.getViewMatrix() * model));
-			shader->loadVector("u_color", Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
+				shader->unuse();
+			}else {
+				auto shader = Globals::shaderManager.getAssetPointer("color");
+				shader->use();
+				shader->loadMatrix("u_projection", camera.getPerspectiveMatrix());
+				shader->loadMatrix("u_view", camera.getViewMatrix());
+				shader->loadMatrix("u_model", model);
+				shader->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(camera.getViewMatrix() * model));
+				
+				if (drawOverlay) {
+					shader->loadVector("u_color", Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
+					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+					shape->drawRaw();
+					glPolygonMode(GL_FRONT_AND_BACK, StateMachine::GetEnableWireframe() ? GL_LINE : GL_FILL);
+				}
+				shader->loadVector("u_color", meshComp.color);
+				shape->drawRaw();
+				shader->unuse();
+			}
 
-			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-			shape->drawRaw();
-			glPolygonMode(GL_FRONT_AND_BACK, StateMachine::GetEnableWireframe() ? GL_LINE : GL_FILL);
-
-			shader->loadVector("u_color", meshComp.color);
-			shape->drawRaw();
 			if (drawBox) {
+				auto shader = Globals::shaderManager.getAssetPointer("color");
+				shader->use();
 				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 				shader->loadMatrix("u_projection", camera.getPerspectiveMatrix());
 				shader->loadMatrix("u_view", camera.getViewMatrix());
@@ -102,27 +123,47 @@ void Scene::render(const Camera& camera){
 				shader->loadVector("u_color", Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
 				shape->drawAABB();
 				glPolygonMode(GL_FRONT_AND_BACK, StateMachine::GetEnableWireframe() ? GL_LINE : GL_FILL);
+				shader->unuse();
 			}
 
-			shader->unuse();
 		}else {
 			ObjModel* model = this->resources.getModel(meshComp.modelName);
 			model->getTransform().setRotPosScale(Vector3f(0.0f, 1.0f, 0.0f), -transform.rotation[1], transform.position[0], transform.position[1], transform.position[2], transform.scale[0], transform.scale[0], transform.scale[0]);
-			
-			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-			auto shader = Globals::shaderManager.getAssetPointer("color");
-			shader->use();
-			shader->loadMatrix("u_projection", camera.getPerspectiveMatrix());
-			shader->loadMatrix("u_view", camera.getViewMatrix());
-			shader->loadMatrix("u_model", model->getTransform().getTransformationMatrix());
-			shader->loadMatrix("u_normal", Matrix4f::IDENTITY);
-			shader->loadVector("u_color", Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
-			model->drawRaw();
-			
-			shader->unuse();
-			glPolygonMode(GL_FRONT_AND_BACK, StateMachine::GetEnableWireframe() ? GL_LINE : GL_FILL);
+			if (useGS) {
+				auto shader = Globals::shaderManager.getAssetPointer("wire_overlay_material");
+				shader->use();
+				shader->loadMatrix("u_mvp", camera.getPerspectiveMatrix() * camera.getViewMatrix() * model->getTransformationMatrix());
+				shader->loadMatrix("u_model", model->getTransformationMatrix());
+				shader->loadMatrix("u_viewportMatrix", viewPortMtx);
+				shader->loadFloat("u_wireframeWidth", 0.4f);
+				shader->loadVector("u_wireframeColor", Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
+				shader->loadBool("u_drawOverlay", drawOverlay);
+				shader->loadInt("u_diffuse", 0);
 
-			model->draw(camera);
+				for (ObjMesh* mesh : model->getMeshes()) {
+					Material& material = Material::GetMaterials()[mesh->getMaterialIndex()];
+					material.updateMaterialUbo(BuiltInShader::materialUbo);
+					mesh->drawRaw();
+				}
+
+				shader->unuse();
+			}else{
+				if (drawOverlay) {
+					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+					auto shader = Globals::shaderManager.getAssetPointer("color");
+					shader->use();
+					shader->loadMatrix("u_projection", camera.getPerspectiveMatrix());
+					shader->loadMatrix("u_view", camera.getViewMatrix());
+					shader->loadMatrix("u_model", model->getTransform().getTransformationMatrix());
+					shader->loadMatrix("u_normal", Matrix4f::IDENTITY);
+					shader->loadVector("u_color", Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
+					model->drawRaw();
+
+					shader->unuse();
+					glPolygonMode(GL_FRONT_AND_BACK, StateMachine::GetEnableWireframe() ? GL_LINE : GL_FILL);
+				}
+				model->draw(camera);
+			}
 
 			if (drawBox) {
 				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -132,7 +173,7 @@ void Scene::render(const Camera& camera){
 				shader->loadMatrix("u_view", camera.getViewMatrix());
 				shader->loadMatrix("u_model", model->getTransform().getTransformationMatrix());
 				shader->loadMatrix("u_normal", Matrix4f::IDENTITY);
-				shader->loadVector("u_color", Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+				shader->loadVector("u_color", Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
 
 				model->drawAABB();
 
@@ -197,6 +238,14 @@ bool Scene::shouldQuit(){
 
 bool& Scene::getDrawBox() {
 	return drawBox;
+}
+
+bool& Scene::getUseGS() {
+	return useGS;
+}
+
+bool& Scene::getDrawOverlay() {
+	return drawOverlay;
 }
 
 void Scene::setCamera(const Vector3f& pos, const Vector3f& rotation, float fov){

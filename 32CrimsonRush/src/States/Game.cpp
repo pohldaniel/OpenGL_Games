@@ -139,8 +139,8 @@ void Game::render() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	scene.render(m_camera);
 
-	//if (m_drawUi)
-	//	renderUi();
+	if (m_drawUi)
+		renderUi();
 }
 
 void Game::OnMouseMotion(Event::MouseMoveEvent& event) {
@@ -150,7 +150,6 @@ void Game::OnMouseMotion(Event::MouseMoveEvent& event) {
 void Game::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 	if (event.button == 2u) {
 		Mouse::instance().attach(Application::GetWindow(), true, true);
-		m_mouseDown = true;
 	}
 }
 
@@ -158,7 +157,6 @@ void Game::OnMouseButtonUp(Event::MouseButtonEvent& event) {
 	if (event.button == 2u) {
 		Mouse::instance().detach();
 		Mouse::instance().attach(Application::GetWindow(), false, false);
-		m_mouseDown = false;
 	}
 }
 
@@ -224,6 +222,9 @@ void Game::renderUi() {
 	// render widgets
 	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 	ImGui::Checkbox("Draw Wirframe", &StateMachine::GetEnableWireframe());
+	ImGui::Checkbox("Draw Box", &scene.getDrawBox());
+	ImGui::Checkbox("Use GS", &scene.getUseGS());
+	ImGui::Checkbox("Draw Overlay", &scene.getDrawOverlay());
 	ImGui::End();
 
 	ImGui::Render();

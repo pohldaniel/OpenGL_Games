@@ -1682,6 +1682,43 @@ Matrix4f &Matrix4f::GetNormalMatrix(Matrix4f &mtx, const Matrix4f &modelViewMatr
 	return mtx;
 }
 
+Matrix4f Matrix4f::GetViewPortMatrix(float width, float height) {
+	float halfWidth = width * 0.5f;
+	float halfHeight = height * 0.5f;
+
+	return Matrix4f(halfWidth, 0.0f, 0.0f, halfWidth,
+					0.0f, halfHeight, 0.0f, halfHeight,
+					0.0f, 0.0f, 1.0f, 0.0f,
+					0.0f, 0.0f, 0.0f, 1.0f);
+}
+
+Matrix4f &Matrix4f::GetViewPortMatrix(Matrix4f &mtx, float width, float height) {
+	float halfWidth = width * 0.5f;
+	float halfHeight = height * 0.5f;
+
+	mtx[0][0] = halfWidth;
+	mtx[1][0] = 0.0f;
+	mtx[2][0] = 0.0f;
+	mtx[3][0] = halfWidth;
+
+	mtx[0][1] = 0.0f;
+	mtx[1][1] = halfHeight;
+	mtx[2][1] = 0.0f;
+	mtx[3][1] = halfHeight;
+
+	mtx[0][2] = 0.0f;
+	mtx[1][2] = 0.0f;
+	mtx[2][2] = 1.0f;
+	mtx[3][2] = 0.0f;
+
+	mtx[0][3] = 0.0f;
+	mtx[1][3] = 0.0f;
+	mtx[2][3] = 0.0f;
+	mtx[3][3] = 1.0f;
+
+	return mtx;
+}
+
 Matrix4f Matrix4f::Perspective(float fovx, float aspect, float znear, float zfar) {
 	Matrix4f perspective;
 

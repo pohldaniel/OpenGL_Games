@@ -1250,9 +1250,6 @@ void ObjModel::initShader(bool instanced) {
 			}
 		}
 		m_shader[i] = m_shaderManager.getAssetPointer(instanced ? "diffuse_instance" : "diffuse");
-
-
-		
 	}
 }
 
@@ -1913,6 +1910,10 @@ std::vector<unsigned int>& ObjMesh::getIndexBuffer() {
 
 int ObjMesh::getStride() {
 	return m_stride;
+}
+
+short ObjMesh::getMaterialIndex() {
+	return m_materialIndex;
 }
 
 unsigned int ObjMesh::getNumberOfTriangles() {

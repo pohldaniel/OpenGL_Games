@@ -97,7 +97,6 @@ void WireOverlay::update() {
 void WireOverlay::render() {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	//m_model.draw(m_camera);
 
 	auto shader = Globals::shaderManager.getAssetPointer("wire_overlay");
 	shader->use();
@@ -117,6 +116,19 @@ void WireOverlay::render() {
 	}
 
 	shader->unuse();
+
+	/*auto shader = Globals::shaderManager.getAssetPointer("wire_overlay_color");
+	shader->use();
+	shader->loadMatrix("u_mvp", m_camera.getPerspectiveMatrix() * m_camera.getViewMatrix());
+	shader->loadMatrix("u_model", Matrix4f::IDENTITY);
+	shader->loadMatrix("u_viewportMatrix", GetViewportMatrix());
+	shader->loadVector("u_color", Vector4f(0.5f, 0.5f,0.5f, 1.0f));
+	shader->loadFloat("u_wireframeWidth", 0.6f);
+	shader->loadVector("u_wireframeColor", Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
+	shader->loadBool("m_drawOverlay", m_drawOverlay);
+	Globals::shapeManager.get("sphere").drawRaw();
+
+	shader->unuse();*/
 
 	if (m_drawUi)
 		renderUi();

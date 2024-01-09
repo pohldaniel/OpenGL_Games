@@ -212,11 +212,12 @@ public:
 
 	void drawRaw() const;
 	void drawRawInstanced();
-	const Material& getMaterial() const;
 	
 	std::vector<float>& getVertexBuffer();
 	std::vector<unsigned int>& getIndexBuffer();
 	int getStride();
+	short getMaterialIndex();
+	const Material& getMaterial() const;
 	void cleanup();
 
 	unsigned int getNumberOfTriangles();

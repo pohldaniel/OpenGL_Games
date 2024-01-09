@@ -35,8 +35,7 @@ private:
 	void lua_openmetatables(lua_State* L);
 
 	bool m_initUi = true;
-	bool m_drawUi = true;
-	bool m_mouseDown = false;
+	bool m_drawUi = false;
 
 	Camera m_camera;
 	Background m_background;

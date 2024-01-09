@@ -407,8 +407,8 @@ void Application::fixedUpdate() {
 void Application::initStates() {
 	Machine = new StateMachine(m_dt, m_fdt);
 	//Machine->addStateAtTop(new Default(*Machine));
-	//Machine->addStateAtTop(new Game(*Machine)); 
-	Machine->addStateAtTop(new WireOverlay(*Machine));
+	Machine->addStateAtTop(new Game(*Machine)); 
+	//Machine->addStateAtTop(new WireOverlay(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -650,6 +650,8 @@ void Application::loadAssets() {
 
 	Globals::shaderManager.loadShader("color", "res/shader/color.vert", "res/shader/color.frag");
 	Globals::shaderManager.loadShader("wire_overlay", "res/shader/wire_overlay.vert", "res/shader/wire_overlay.frag", "res/shader/wire_overlay.gem");
+	Globals::shaderManager.loadShader("wire_overlay_material", "res/shader/wire_overlay.vert", "res/shader/wire_overlay_material.frag", "res/shader/wire_overlay.gem");
+	Globals::shaderManager.loadShader("wire_overlay_color", "res/shader/wire_overlay.vert", "res/shader/wire_overlay_color.frag", "res/shader/wire_overlay.gem");
 
 	Globals::textureManager.loadTexture("forest_1", "res/backgrounds/Forest/plx-1.png");
 	Globals::textureManager.loadTexture("forest_2", "res/backgrounds/Forest/plx-2.png");
@@ -664,6 +666,7 @@ void Application::loadAssets() {
 	Globals::fontManager.loadCharacterSet("acme9_72", "res/fonts/Acme-9-Regular.ttf", 72, 10u, 30u, 128u, 0, true, 0u);
 
 	Globals::shapeManager.buildQuadXY("quad", Vector3f(-1.0f, -1.0f, 0.0f), Vector2f(2.0f, 2.0f), 1, 1, true, false, false);
+	Globals::shapeManager.buildSphere("sphere", 0.1f, Vector3f(0.0f, 0.0f, 0.0f), 16, 16, false, true, false);
 
 	TextureAtlasCreator::Get().init(1024u, 1024u);
 	TileSetManager::Get().getTileSet("ui").loadTileSetCpu("res/textures/empty.png", true, false);

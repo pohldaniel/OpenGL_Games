@@ -44,19 +44,19 @@ static Vector4f lua_tocolor(lua_State* L, int index) {
 	}
 
 	lua_getfield(L, index, "r");
-	col[0] = (float)lua_tonumber(L, -1);
+	col[0] = (float)lua_tonumber(L, -1) / 255.0f;
 	lua_pop(L, 1);
 
 	lua_getfield(L, index, "g");
-	col[1] = (float)lua_tonumber(L, -1);
+	col[1] = (float)lua_tonumber(L, -1) / 255.0f;
 	lua_pop(L, 1);
 
 	lua_getfield(L, index, "b");
-	col[2] = (float)lua_tonumber(L, -1);
+	col[2] = (float)lua_tonumber(L, -1) / 255.0f;
 	lua_pop(L, 1);
 
 	lua_getfield(L, index, "a");
-	col[3] = (float)lua_tonumber(L, -1);
+	col[3] = (float)lua_tonumber(L, -1) / 255.0f;
 	lua_pop(L, 1);
 
 	return col;

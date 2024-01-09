@@ -17,6 +17,9 @@ private:
 	bool quit;
 	Camera& camera;
 	bool drawBox;
+	bool useGS;
+	bool drawOverlay;
+	Matrix4f viewPortMtx;
 
 	inline static const std::vector<std::string> compTypes{
 		"Transform",
@@ -61,6 +64,8 @@ public:
 	void render(const Camera& camera);
 	bool shouldQuit();
 	bool& getDrawBox();
+	bool& getUseGS();
+	bool& getDrawOverlay();
 
 	inline Resources& getResources() { return this->resources; }
 	void setCamera(const Vector3f& pos, const Vector3f& rotation, float fov);
