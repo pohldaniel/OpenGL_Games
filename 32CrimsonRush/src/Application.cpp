@@ -94,6 +94,7 @@ Application::~Application() {
 	delete Machine;
 	Globals::shaderManager.clear();
 	Widget::CleanUp();
+
 	ImGui::DestroyContext();
 
 	HDC hdc = GetDC(Window);

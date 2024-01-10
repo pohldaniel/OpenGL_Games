@@ -31,6 +31,7 @@ WireOverlay::WireOverlay(StateMachine& machine) : State(machine, States::WIREOVE
 WireOverlay::~WireOverlay() {
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
+	AssimpModel::Cleanup();
 }
 
 void WireOverlay::fixedUpdate() {

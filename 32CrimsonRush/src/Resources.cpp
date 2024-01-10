@@ -6,8 +6,9 @@ Resources::Resources(){
 }
 
 Resources::~Resources(){
-	//for (auto& element : this->models)
-		//UnloadModel(element.second);
+	
+
+	ObjModel::Cleanup();
 }
 
 void Resources::loadPrimitives(){

@@ -1,0 +1,69 @@
+#version 410 core                                                                       
+                                                                                    
+layout(triangles) in;                                                                  
+layout(triangle_strip) out;                                                         
+layout(max_vertices = 3) out;                                                       
+                         
+in vec2 texCoord[];
+in vec3 normal[];
+in vec3 position[];
+in vec3 worldPos[];
+
+out vec2 v_texCoord;
+out vec3 v_normal;
+out vec3 v_position;
+out vec3 v_worldPos;                      
+noperspective out vec3 v_edgeDistance;
+
+uniform mat4 u_viewportMatrix;
+                                                                                   
+void main()                                                                         
+{        
+    vec4 p;
+
+    p = gl_in[0].gl_Position;
+    vec2 p0 = vec2(u_viewportMatrix * (p / p.w));
+
+    p = gl_in[1].gl_Position;
+    vec2 p1 = vec2(u_viewportMatrix * (p / p.w));
+
+    p = gl_in[2].gl_Position;
+    vec2 p2 = vec2(u_viewportMatrix * (p / p.w));
+
+    float a = length(p1 - p2);
+    float b = length(p2 - p0);
+    float c = length(p1 - p0);
+
+    float alpha = acos((b * b + c * c - a * a) / (2.0 * b * c));
+    float beta  = acos((a * a + c * c - b * b) / (2.0 * a * c));
+
+    float ha = abs(c * sin(beta));
+    float hb = abs(c * sin(alpha));
+    float hc = abs(b * sin(alpha));
+
+    gl_Position = gl_in[0].gl_Position;
+    v_texCoord = texCoord[0];
+    v_normal = normal[0];
+    v_position = position[0];
+    v_worldPos = worldPos[0];
+    v_edgeDistance = vec3(ha, 0.0, 0.0);
+    EmitVertex();
+                  
+    gl_Position = gl_in[1].gl_Position;
+    v_texCoord = texCoord[1];
+    v_normal = normal[1];
+    v_position = position[1];
+    v_worldPos = worldPos[1];
+    v_edgeDistance = vec3(0.0, hb, 0.0);
+    EmitVertex();                                                                   
+    
+    gl_Position = gl_in[2].gl_Position;
+    v_texCoord = texCoord[2];
+    v_normal = normal[2];
+    v_position = position[2];
+    v_worldPos = worldPos[2];
+    v_edgeDistance = vec3(0.0, 0.0, hc);
+    EmitVertex();
+                                                                                    
+    EndPrimitive();                                                                 
+}                                                                                   
