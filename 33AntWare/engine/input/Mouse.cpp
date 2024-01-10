@@ -309,7 +309,7 @@ void Mouse::update(){
 	
 }
 
-void Mouse::attach(HWND hWnd, bool _hideCursor, bool reattach) {
+void Mouse::attach(HWND hWnd, bool _hideCursor, bool reattach, bool reset) {
 	if (m_attached && !reattach) return;
 	m_hWnd = hWnd;
 
@@ -337,7 +337,7 @@ void Mouse::attach(HWND hWnd, bool _hideCursor, bool reattach) {
 		setCursorToMiddle();
 	}
 	m_attached = true;
-	m_reset = _hideCursor;
+	m_reset = reset;
 	
 }
 

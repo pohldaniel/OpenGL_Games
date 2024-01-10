@@ -18,7 +18,7 @@
 #include "ObjModel.h"
 
 //#define ASSIMP_LOAD_FLAGS (aiProcess_JoinIdenticalVertices | aiProcess_RemoveRedundantMaterials | aiProcess_PreTransformVertices | aiProcess_Triangulate)
-#define ASSIMP_LOAD_FLAGS (aiProcess_Triangulate | aiProcess_FindDegenerates| aiProcess_FlipWindingOrder)
+#define ASSIMP_LOAD_FLAGS (aiProcess_Triangulate | aiProcess_FindDegenerates)
 
 class AssimpMesh;
 class AssimpModel {
@@ -46,7 +46,7 @@ public:
 	void drawRawStacked();
 	void drawRawInstancedStacked();
 
-	void draw(const Camera& camera) ;
+	void draw(const Camera& camera);
 	void drawInstanced(const Camera& camera);
 	void drawStacked(const Camera& camera);
 	void drawInstancedStacked(const Camera& camera);
@@ -54,7 +54,7 @@ public:
 	void createAABB();
 	void drawAABB();
 
-	bool loadModel(const char* filename, bool isStacked = false, bool generateTangents = false, bool flipYZ = false);
+	bool loadModel(const char* filename, bool isStacked = false, bool generateTangents = false, bool flipYZ = false, bool flipWinding = false);
 
 	std::string getModelDirectory();
 	BoundingBox& getAABB();
@@ -74,7 +74,7 @@ public:
 	static void Cleanup();
 
 private:
-	
+
 	unsigned int m_numberOfVertices, m_numberOfTriangles, m_numberOfMeshes, m_stride;
 
 	bool m_hasTextureCoords, m_hasNormals, m_hasTangents, m_hasMaterial;
@@ -88,7 +88,7 @@ private:
 	BoundingBox m_aabb;
 
 	std::vector<Shader*> m_shader;
-	
+
 
 	Transform m_transform;
 

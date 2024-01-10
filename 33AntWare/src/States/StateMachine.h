@@ -7,8 +7,7 @@ enum States {
 	SETTINGS,
 	CONTROLLS,
 	DEFAULT,
-	GAME,
-	WIREOVERLAY
+	GAME
 };
 
 class State;

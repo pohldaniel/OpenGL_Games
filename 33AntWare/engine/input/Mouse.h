@@ -62,7 +62,7 @@ public:
 
 	bool attachRaw(HWND hWnd);
 	void detachRaw();
-	void attach(HWND hWnd, bool hideCursor = true, bool reattach = false);
+	void attach(HWND hWnd, bool hideCursor = true, bool reattach = false, bool reset = false);
 	void detach();
 	void handleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 	void handleEvent(Event event);

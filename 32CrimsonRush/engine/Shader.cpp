@@ -4,28 +4,28 @@ Shader::Shader() : m_use(false) {
 	m_program = glCreateProgram();
 }
 
-Shader::Shader(const char* vertex, const char* fragment, bool fromFile) {
+Shader::Shader(const char* vertex, const char* fragment, bool fromFile) : m_use(false) {
 	if (fromFile)
 		createProgramFromFile(vertex, fragment);
 	else
 		createProgram(vertex, fragment);
 }
 
-Shader::Shader(const char* vertex, const char* fragment, const char* geometry, bool fromFile) {
+Shader::Shader(const char* vertex, const char* fragment, const char* geometry, bool fromFile) : m_use(false) {
 	if (fromFile)
 		createProgramFromFile(vertex, fragment, geometry);
 	else
 		createProgram(vertex, fragment, geometry);
 }
 
-Shader::Shader(const char* compute, bool fromFile) {
+Shader::Shader(const char* compute, bool fromFile) : m_use(false) {
 	if (fromFile)
 		createProgramFromFile(compute);
 	else
 		createProgram(compute);
 }
 
-Shader::Shader(Shader* shader) {
+Shader::Shader(Shader* shader) : m_use(false) {
 	m_program = shader->m_program;
 }
 
