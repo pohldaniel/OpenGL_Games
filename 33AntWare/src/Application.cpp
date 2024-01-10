@@ -647,6 +647,7 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("quad", "res/shader/quad.vert", "res/shader/quad.frag");
 	Globals::shaderManager.loadShader("quad_array", "res/shader/quad_array.vert", "res/shader/quad_array.frag");
 	Globals::shaderManager.loadShader("color", "res/shader/color.vert", "res/shader/color.frag");
+	Globals::shaderManager.loadShader("texture", "res/shader/texture.vert", "res/shader/texture.frag");
 
 	Globals::shaderManager.loadShader("wire_overlay", "res/shader/wire_overlay.vert", "res/shader/wire_overlay.frag", "res/shader/wire_overlay.gem");
 	Globals::shaderManager.loadShader("wire_overlay_material", "res/shader/wire_overlay.vert", "res/shader/wire_overlay_material.frag", "res/shader/wire_overlay.gem");
@@ -657,6 +658,8 @@ void Application::loadAssets() {
 	Globals::textureManager.loadTexture("forest_3", "res/backgrounds/Forest/plx-3.png");
 	Globals::textureManager.loadTexture("forest_4", "res/backgrounds/Forest/plx-4.png");
 	Globals::textureManager.loadTexture("forest_5", "res/backgrounds/Forest/plx-5.png");
+
+	Globals::textureManager.loadTexture("ant", "res/textures/Ant.png");
 
 	Globals::fontManager.loadCharacterSet("upheaval_200", "res/fonts/upheavtt.ttf", 200, 10u, 30u, 128u, 0, true, 0u);
 	Globals::fontManager.loadCharacterSet("upheaval_50", "res/fonts/upheavtt.ttf",  50,  3u, 3u,  0u,   0, true, 1u);

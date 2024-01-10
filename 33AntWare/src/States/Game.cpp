@@ -37,6 +37,23 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 	Material& material = Material::GetMaterials()[m_model.getMeshes()[0]->getMaterialIndex()];
 	material.textures[0].loadFromFile("res/textures/Ant.png", true);
 	m_model.initShader();
+	m_model.setPosition(2.5f, 0.0f, 0.0f);
+	
+	const char *path = "res/animations/ant_walkcycle";
+	const char *name = "Ant-Walkcycle";
+	const char *format = "obj";
+	int count = 41;
+	char buffer[256];
+	for (unsigned i = 1; i <= count; ++i){
+		sprintf(buffer, "%s/%s_%06d.%s", path, name, i, format);
+		std::shared_ptr<aw::Mesh> mesh(new aw::Mesh(buffer));
+		animation.push_back(mesh);
+	}
+
+	m_ant = std::make_shared<aw::Mesh>("res/models/Ant.glb");
+	m_ragedAnt = new aw::RagedAnt(animation, m_ant);
+
+	aw::Mesh::constructVAO(animation);
 }
 
 Game::~Game() {
@@ -45,7 +62,7 @@ Game::~Game() {
 }
 
 void Game::fixedUpdate() {
-
+	m_ragedAnt->fixedUpdate(m_fdt);
 }
 
 void Game::update() {
@@ -116,6 +133,18 @@ void Game::render() {
 	//m_background.draw();
 
 	m_model.draw(m_camera);
+
+	auto shader = Globals::shaderManager.getAssetPointer("texture");
+	shader->use();
+	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
+	shader->loadMatrix("u_view", m_camera.getViewMatrix());
+	shader->loadMatrix("u_model", Matrix4f::Translate(-2.5f, 0.0f, 0.0f));
+	Globals::textureManager.get("ant").bind();
+
+	m_ragedAnt->draw();
+
+	Globals::textureManager.get("ant").unbind();
+	shader->unuse();
 
 	if (m_drawUi)
 		renderUi();

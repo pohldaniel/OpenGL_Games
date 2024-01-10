@@ -252,6 +252,8 @@ GLuint Shader::LoadShaderProgram(GLenum type, const char *pszFilename) {
 
 	if (buffer.length() > 0) {
 		shader = CompileShader(type, reinterpret_cast<const char *>(&buffer[0]));
+	}else {
+		std::cout << "Could not find: " << pszFilename << std::endl;
 	}
 
 	return shader;

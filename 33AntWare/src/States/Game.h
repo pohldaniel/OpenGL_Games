@@ -7,6 +7,8 @@
 
 #include <States/StateMachine.h>
 #include "Background.h"
+#include "Mesh.h"
+#include "RagedAnt.h"
 
 class Game : public State, public MouseEventListener, public KeyboardEventListener {
 
@@ -36,4 +38,7 @@ private:
 	Camera m_camera;
 	Background m_background;
 	AssimpModel m_model;
+	std::vector<std::shared_ptr<aw::Mesh>> animation;
+	aw::RagedAnt* m_ragedAnt;
+	std::shared_ptr<aw::Mesh> m_ant;
 };
