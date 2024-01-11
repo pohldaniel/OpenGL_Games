@@ -189,19 +189,16 @@ void ObjSequence::loadSequence(const char* _path, Vector3f& axis, float degree, 
 							p1 = p;
 							t1 = t;
 							n1 = n;
-						}
-						else if (index == 1) {
+						}else if (index == 1) {
 							p2 = p;
 							t2 = t;
 							n2 = n;
-						}
-						else if (index == 2) {
+						}else if (index == 2) {
 							p3 = p;
 							t3 = t;
 							n3 = n;
 							face.push_back({ p1 + offsetPos, p2 + offsetPos, p3 + offsetPos, t1 + offsetTex, t2 + offsetTex, t3 + offsetTex, n1 + offsetNorm, n2 + offsetNorm, n3 + offsetNorm, assign });
-						}
-						else if (index > 2) {
+						}else if (index > 2) {
 							p2 = p3;
 							t2 = t3;
 							n2 = n3;
@@ -213,24 +210,20 @@ void ObjSequence::loadSequence(const char* _path, Vector3f& axis, float degree, 
 						}
 						index++;
 					}
-				}
-				else if (!normalCoords.empty()) {
+				}else if (!normalCoords.empty()) {
 					while (sscanf(buffer + acc, "%d//%d%n", &p, &n, &read) > 0) {
 						acc += read;
 						if (index == 0) {
 							p1 = p;
 							n1 = n;
-						}
-						else if (index == 1) {
+						}else if (index == 1) {
 							p2 = p;
 							n2 = n;
-						}
-						else if (index == 2) {
+						}else if (index == 2) {
 							p3 = p;
 							n3 = n;
 							face.push_back({ p1 + offsetPos, p2 + offsetPos, p3 + offsetPos, 0, 0, 0, n1 + offsetNorm, n2 + offsetNorm, n3 + offsetNorm, assign });
-						}
-						else if (index > 2) {
+						}else if (index > 2) {
 							p2 = p3;
 							n2 = n3;
 
@@ -240,8 +233,7 @@ void ObjSequence::loadSequence(const char* _path, Vector3f& axis, float degree, 
 						}
 						index++;
 					}
-				}
-				else if (!textureCoords.empty()) {
+				}else if (!textureCoords.empty()) {
 					if (!withoutNormals) {
 						while (sscanf(buffer + acc, "%d/%d/%d%n", &p, &t, &n, &read) > 0) {
 							acc += read;
@@ -254,15 +246,13 @@ void ObjSequence::loadSequence(const char* _path, Vector3f& axis, float degree, 
 								p2 = p;
 								t2 = t;
 								n2 = n;
-							}
-							else if (index == 2) {
+							}else if (index == 2) {
 								p3 = p;
 								t3 = t;
 								n3 = n;
 								face.push_back({ p1 + offsetPos, p2 + offsetPos, p3 + offsetPos, t1 + offsetTex, t2 + offsetTex, t3 + offsetTex, 0, 0, 0, assign });
 
-							}
-							else if (index > 2) {
+							}else if (index > 2) {
 								p2 = p3;
 								t2 = t3;
 								n2 = n3;
@@ -274,24 +264,20 @@ void ObjSequence::loadSequence(const char* _path, Vector3f& axis, float degree, 
 							}
 							index++;
 						}
-					}
-					else {
+					}else {
 						while (sscanf(buffer + acc, "%d/%d%n", &p, &t, &read) > 0) {
 							acc += read;
 							if (index == 0) {
 								p1 = p;
 								t1 = t;
-							}
-							else if (index == 1) {
+							}else if (index == 1) {
 								p2 = p;
 								t2 = t;
-							}
-							else if (index == 2) {
+							}else if (index == 2) {
 								p3 = p;
 								t3 = t;
 								face.push_back({ p1 + offsetPos, p2 + offsetPos, p3 + offsetPos, t1 + offsetTex, t2 + offsetTex, t3 + offsetTex, 0, 0, 0, assign });
-							}
-							else if (index > 2) {
+							}else if (index > 2) {
 								p2 = p3;
 								t2 = t3;
 
@@ -302,21 +288,17 @@ void ObjSequence::loadSequence(const char* _path, Vector3f& axis, float degree, 
 							index++;
 						}
 					}
-				}
-				else {
+				}else {
 					while (sscanf(buffer + acc, "%d%n", &p, &read) > 0) {
 						acc += read;
 						if (index == 0) {
 							p1 = p;
-						}
-						else if (index == 1) {
+						}else if (index == 1) {
 							p2 = p;
-						}
-						else if (index == 2) {
+						}else if (index == 2) {
 							p3 = p;
 							face.push_back({ p1 + offsetPos, p2 + offsetPos, p3 + offsetPos, 0, 0, 0, 0, 0, 0, assign });
-						}
-						else if (index > 2) {
+						}else if (index > 2) {
 							p2 = p3;
 							p3 = p;
 							face.push_back({ p1 + offsetPos, p2 + offsetPos, p3 + offsetPos, 0, 0, 0, 0, 0, 0, assign });
@@ -420,9 +402,6 @@ void ObjSequence::loadSequence(const char* _path, Vector3f& axis, float degree, 
 		indexBufferCreator.vertexBufferOut.shrink_to_fit();
 	}
 
-
-	ObjModel::CreateBuffer(m_vertexBuffer, m_indexBuffer, m_vao, m_vbo, m_ibo, m_stride);
-
 	indexBufferCreator.positionCoordsIn.clear();
 	indexBufferCreator.positionCoordsIn.shrink_to_fit();
 	indexBufferCreator.normalCoordsIn.clear();
@@ -435,7 +414,26 @@ void ObjSequence::loadSequence(const char* _path, Vector3f& axis, float degree, 
 	indexBufferCreator.bitangentCoordsIn.shrink_to_fit();
 }
 
-void ObjSequence::drawRawSequence(unsigned short frame) {
+void ObjSequence::addMesh(std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer) {
+	m_numberOfMeshes++;
+	m_meshes.push_back({ static_cast<unsigned int>(indexBuffer.size()) / 3, 0u, 0u, 0u });
+	m_meshes.back().baseIndex = m_indexBuffer.size();
+	m_meshes.back().baseVertex = m_vertexBuffer.size() / m_stride;
+	m_meshes.back().drawCount = indexBuffer.size();
+
+	m_vertexBuffer.insert(m_vertexBuffer.end(), vertexBuffer.begin(), vertexBuffer.end());
+	m_indexBuffer.insert(m_indexBuffer.end(), indexBuffer.begin(), indexBuffer.end());
+}
+
+unsigned int ObjSequence::getNumberOfMeshes() {
+	return m_numberOfMeshes;
+}
+
+void ObjSequence::loadSequenceGpu() {
+	ObjModel::CreateBuffer(m_vertexBuffer, m_indexBuffer, m_vao, m_vbo, m_ibo, m_stride);
+}
+
+void ObjSequence::drawRaw(unsigned short frame) {
 	glBindVertexArray(m_vao);
 	glDrawElementsBaseVertex(GL_TRIANGLES, m_meshes[frame].drawCount, GL_UNSIGNED_INT, (void*)(sizeof(unsigned int) * m_meshes[frame].baseIndex), m_meshes[frame].baseVertex);
 	glBindVertexArray(0);

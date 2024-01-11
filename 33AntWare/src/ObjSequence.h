@@ -11,7 +11,7 @@
 
 class ObjSequence {
 
-	struct Frame{		
+	struct Mesh{		
 		unsigned int numberOfTriangles;
 		unsigned int baseVertex;
 		unsigned int baseIndex;
@@ -33,16 +33,21 @@ public:
 	void translate(float dx, float dy, float dz);
 	void scale(float sx, float sy, float sz);
 
-	void drawRawSequence(unsigned short frame);
+	void drawRaw(unsigned short frame);
 
 	void loadSequence(const char* path, bool isStacked = false, bool withoutNormals = false, bool generateSmoothNormals = false, bool generateFlatNormals = false, bool generateSmoothTangents = false, bool rescale = false);
 	void loadSequence(const char* path, Vector3f& axis, float degree, Vector3f& translate = Vector3f(0.0f, 0.0f, 0.0f), float scale = 1.0f, bool isStacked = false, bool withoutNormals = false, bool generateSmoothNormals = false, bool generateFlatNormals = false, bool generateSmoothTangents = false, bool rescale = false);
+	void addMesh(std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer);
+	void loadSequenceGpu();
+
 	void cleanup();
+
+	unsigned int getNumberOfMeshes();
 
 private:
 
 	unsigned int m_numberOfMeshes, m_stride;
-	std::vector<Frame> m_meshes;
+	std::vector<Mesh> m_meshes;
 	Transform m_transform;
 
 	std::vector<float> m_vertexBuffer;

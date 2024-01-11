@@ -84,8 +84,16 @@ Transform& AssimpModel::getTransform() {
 	return m_transform;
 }
 
-std::vector<AssimpMesh*> AssimpModel::getMeshes() {
+std::vector<AssimpMesh*>& AssimpModel::getMeshes() {
 	return m_meshes;
+}
+
+std::vector<float>& AssimpModel::getVertexBuffer() {
+	return m_vertexBuffer;
+}
+
+std::vector<unsigned int>& AssimpModel::getIndexBuffer() {
+	return m_indexBuffer;
 }
 
 const AssimpMesh* AssimpModel::getMesh(unsigned short index) const {
@@ -705,8 +713,7 @@ void AssimpModel::ReadAiMaterial(const aiMaterial* aiMaterial, short& index, std
 			material.textures[2].loadFromFile(GetTexturePath(name.data, modelDirectory), true);
 			material.textures[2].setFilter(GL_LINEAR_MIPMAP_LINEAR);
 		}
-	}
-	else {
+	}else {
 		index = std::distance(Material::GetMaterials().begin(), it);
 	}
 }

@@ -59,8 +59,11 @@ public:
 	std::string getModelDirectory();
 	BoundingBox& getAABB();
 	Transform& getTransform();
-	std::vector<AssimpMesh*> getMeshes();
 	const AssimpMesh* getMesh(unsigned short index = 0) const;
+	std::vector<AssimpMesh*>& getMeshes();
+	std::vector<float>& getVertexBuffer();
+	std::vector<unsigned int>& getIndexBuffer();
+
 
 	void addInstances(const std::vector<Matrix4f>& modelMTX);
 	void addInstance(const Matrix4f& modelMTX);

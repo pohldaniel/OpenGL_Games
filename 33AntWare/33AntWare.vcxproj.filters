@@ -333,16 +333,13 @@
     <ClCompile Include="Mesh.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="RagedAnt.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Ant.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="AABB.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\ObjSequence.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Ant.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -647,16 +644,13 @@
     <ClInclude Include="Mesh.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="RagedAnt.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Ant.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="AABB.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="src\ObjSequence.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Ant.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -35,26 +35,13 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 
 	m_model.loadModel("res/models/Ant.glb", false, false, false);
 	Material& material = Material::GetMaterials()[m_model.getMeshes()[0]->getMaterialIndex()];
-	material.textures[0].loadFromFile("res/textures/Ant.png", true);
-	m_model.initShader();
-	m_model.setPosition(2.5f, 0.0f, 0.0f);
-	
-	const char *path = "res/animations/ant_walkcycle";
-	const char *name = "Ant-Walkcycle";
-	const char *format = "obj";
-	int count = 41;
-	char buffer[256];
-	for (unsigned i = 1; i <= count; ++i){
-		sprintf(buffer, "%s/%s_%06d.%s", path, name, i, format);
-		std::shared_ptr<aw::Mesh> mesh(new aw::Mesh(buffer));
-		animation.push_back(mesh);
-	}
 
-	m_ant = std::make_shared<aw::Mesh>("res/models/Ant.glb");
-	m_ragedAnt = new aw::RagedAnt(animation, m_ant);
-	aw::Mesh::constructVAO(animation);
-
-	m_ragedAnt->m_antWalk.setPosition(2.5f, 0.0f, 0.0f);
+	m_ant = new Ant();
+	m_ant->loadSequence("res/animations/ant_walkcycle");
+	m_ant->addMesh(m_model.getMeshes()[0]->getVertexBuffer(), m_model.getMeshes()[0]->getIndexBuffer());
+	m_ant->loadSequenceGpu();
+	m_ant->setPosition(0.0f, 0.0f, 0.0f);
+	m_ant->start();
 }
 
 Game::~Game() {
@@ -63,7 +50,7 @@ Game::~Game() {
 }
 
 void Game::fixedUpdate() {
-	m_ragedAnt->fixedUpdate(m_fdt);
+	
 }
 
 void Game::update() {
@@ -126,7 +113,9 @@ void Game::update() {
 	}
 
 	m_background.update(m_dt);
-	//m_ragedAnt->m_antWalk.rotate(0.0f, 0.2f, 0.0f);
+	m_ant->update(m_dt);
+	m_ant->rotate(0.0f, 30.0f * m_dt, 0.0f);
+	
 }
 
 void Game::render() {
@@ -137,14 +126,9 @@ void Game::render() {
 	shader->use();
 	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
 	shader->loadMatrix("u_view", m_camera.getViewMatrix());
-	shader->loadMatrix("u_model", Matrix4f::Translate(-2.5f, 0.0f, 0.0f));
+	shader->loadMatrix("u_model", m_ant->getTransformationMatrix());
 	Globals::textureManager.get("ant").bind();
-
-	m_ragedAnt->draw();
-
-	shader->loadMatrix("u_model", m_ragedAnt->m_antWalk.getTransformationMatrix());
-	m_ragedAnt->draw2();
-
+	m_ant->drawRaw();
 	Globals::textureManager.get("ant").unbind();
 	shader->unuse();
 

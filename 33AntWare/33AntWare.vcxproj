@@ -165,7 +165,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AABB.cpp" />
-    <ClCompile Include="Ant.cpp" />
     <ClCompile Include="engine\AssimpModel.cpp" />
     <ClCompile Include="engine\BoundingBox.cpp" />
     <ClCompile Include="engine\sound\MusicBuffer.cpp" />
@@ -174,7 +173,7 @@
     <ClCompile Include="engine\Thread.cpp" />
     <ClCompile Include="engine\ZoomableQuad.cpp" />
     <ClCompile Include="Mesh.cpp" />
-    <ClCompile Include="RagedAnt.cpp" />
+    <ClCompile Include="src\Ant.cpp" />
     <ClCompile Include="src\LoadingManager.cpp" />
     <ClCompile Include="src\MousePickerFBO.cpp" />
     <ClCompile Include="src\ObjSequence.cpp" />
@@ -262,7 +261,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AABB.h" />
-    <ClInclude Include="Ant.h" />
     <ClInclude Include="engine\ArrayBuffer.h" />
     <ClInclude Include="engine\AssimpModel.h" />
     <ClInclude Include="engine\BoundingBox.h" />
@@ -322,7 +320,7 @@
     <ClInclude Include="engine\VolumeBuffer.h" />
     <ClInclude Include="engine\ZoomableQuad.h" />
     <ClInclude Include="Mesh.h" />
-    <ClInclude Include="RagedAnt.h" />
+    <ClInclude Include="src\Ant.h" />
     <ClInclude Include="src\Application.h" />
     <ClInclude Include="src\Background.h" />
     <ClInclude Include="src\Globals.h" />
