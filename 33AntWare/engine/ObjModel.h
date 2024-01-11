@@ -79,14 +79,15 @@ private:
 	int addVertex(int hash, const float *pVertex, int stride);
 };
 
-
 class ObjMesh;
+class ObjSequence;
 class ObjModel {
 
 	friend ObjMesh;
 	friend BoundingBox;
 	friend BoundingSphere;
 	friend ConvexHull;
+	friend ObjSequence;
 
 public:
 
@@ -127,9 +128,6 @@ public:
 	bool loadModel(const char* filename, bool isStacked = false, bool withoutNormals = false, bool generateSmoothNormals = false, bool generateFlatNormals = false, bool generateSmoothTangents = false, bool rescale = false);
 	bool loadModel(const char* filename, Vector3f& axis, float degree, Vector3f& translate = Vector3f(0.0f, 0.0f, 0.0f), float scale = 1.0f, bool asStacked = false, bool withoutNormals = false, bool generateSmoothNormals = false, bool generateFlatNormals = false, bool generateSmoothTangents = false, bool rescale = false);
 
-	void loadSequence(const char* _path, bool isStacked = false, bool withoutNormals = false, bool generateSmoothNormals = false, bool generateFlatNormals = false, bool generateSmoothTangents = false, bool rescale = false);
-	void loadSequence(const char* _path, Vector3f& axis, float degree, Vector3f& translate = Vector3f(0.0f, 0.0f, 0.0f), float scale = 1.0f, bool isStacked = false, bool withoutNormals = false, bool generateSmoothNormals = false, bool generateFlatNormals = false, bool generateSmoothTangents = false, bool rescale = false);
-
 	std::string getMltPath();
 	std::string getModelDirectory();
 	BoundingBox& getAABB();
@@ -158,8 +156,6 @@ public:
 	static void Cleanup();
 
 private:
-
-	
 
 	unsigned int m_numberOfVertices, m_numberOfTriangles, m_numberOfMeshes, m_stride;
 

@@ -1,33 +1,36 @@
 #pragma once
-#include <engine/ObjModel.h>
+
+#include "ObjSequence.h"
 #include "Ant.h"
 
 namespace aw{
 
-  class RagedAnt : public Ant{
+	class RagedAnt : public Ant{
 
-private:
+	private:
 
-    float speed = 8.0f;
-    float detectionRaduis = 25.0f;
-    std::vector<std::shared_ptr<Mesh>> walkcycleAnim;
-    std::shared_ptr<Mesh> baseMesh;
-    float animTime = 0.0f;
-    float walkcycleLength = 1.0f;
-    void animate(float deltaTime);
-	int index = 0;
-public:
+		float speed = 8.0f;
+		float detectionRaduis = 25.0f;
+		std::vector<std::shared_ptr<Mesh>> walkcycleAnim;
+		std::shared_ptr<Mesh> baseMesh;
+		float animTime = 0.0f;
+		float walkcycleLength = 1.0f;
+		void animate(float deltaTime);
+		int index = 0;
+
+	public:
     
-    RagedAnt(std::vector<std::shared_ptr<Mesh>> walkcycleAnim,std::shared_ptr<Mesh> mesh);
+		RagedAnt(std::vector<std::shared_ptr<Mesh>> walkcycleAnim,std::shared_ptr<Mesh> mesh);
 
-    void die() override;
-    void start() override;
-    void update() override;
-    void fixedUpdate(float deltaTime) override;
-	void draw() override;
+		void die() override;
+		void start() override;
+		void update() override;
+		void fixedUpdate(float deltaTime) override;
+		void draw() override;
 
-	void draw2();
-
-	ObjModel m_sequence;
-  };
+		void draw2();
+		ObjSequence m_antWalk;
+	
+	
+	};
 }

@@ -6,7 +6,7 @@ using namespace std;
 using namespace glm;
 
 RagedAnt::RagedAnt(std::vector<std::shared_ptr<Mesh>> walkcycleAnim,shared_ptr<Mesh> mesh) : Ant(mesh), walkcycleAnim(walkcycleAnim) {
-	m_sequence.loadSequence("res/animations/ant_walkcycle");
+	m_antWalk.loadSequence("res/animations/ant_walkcycle");
 }
 
 void RagedAnt::start() {
@@ -76,13 +76,9 @@ void RagedAnt::animate(float deltaTime){
 }
 
 void RagedAnt::draw() {
-	//material.apply();
-	//transformationMat = applyTransform();
-	//glUniformMatrix4fv(modelLocation, 1, GL_FALSE, &transformationMat[0][0]);
-	//recalculateAABB();
 	meshPtr->draw();
 }
 
 void RagedAnt::draw2() {
-	m_sequence.drawRawSequence(index);
+	m_antWalk.drawRawSequence(index);
 }

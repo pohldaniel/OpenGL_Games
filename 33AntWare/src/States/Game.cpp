@@ -52,8 +52,9 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 
 	m_ant = std::make_shared<aw::Mesh>("res/models/Ant.glb");
 	m_ragedAnt = new aw::RagedAnt(animation, m_ant);
-
 	aw::Mesh::constructVAO(animation);
+
+	m_ragedAnt->m_antWalk.setPosition(2.5f, 0.0f, 0.0f);
 }
 
 Game::~Game() {
@@ -125,12 +126,13 @@ void Game::update() {
 	}
 
 	m_background.update(m_dt);
+	//m_ragedAnt->m_antWalk.rotate(0.0f, 0.2f, 0.0f);
 }
 
 void Game::render() {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	
+
 	auto shader = Globals::shaderManager.getAssetPointer("texture");
 	shader->use();
 	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
@@ -140,7 +142,7 @@ void Game::render() {
 
 	m_ragedAnt->draw();
 
-	shader->loadMatrix("u_model", Matrix4f::Translate(2.5f, 0.0f, 0.0f));
+	shader->loadMatrix("u_model", m_ragedAnt->m_antWalk.getTransformationMatrix());
 	m_ragedAnt->draw2();
 
 	Globals::textureManager.get("ant").unbind();

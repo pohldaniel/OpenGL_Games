@@ -10,6 +10,7 @@
 #include "Background.h"
 #include "Mesh.h"
 #include "RagedAnt.h"
+#include "ObjSequence.h"
 
 class Game : public State, public MouseEventListener, public KeyboardEventListener {
 
