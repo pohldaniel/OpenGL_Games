@@ -1,3 +1,4 @@
+#include <iostream>
 #include <RagedAnt.h>
 
 using namespace aw;
@@ -5,7 +6,7 @@ using namespace std;
 using namespace glm;
 
 RagedAnt::RagedAnt(std::vector<std::shared_ptr<Mesh>> walkcycleAnim,shared_ptr<Mesh> mesh) : Ant(mesh), walkcycleAnim(walkcycleAnim) {
-
+	m_sequence.loadSequence("res/animations/ant_walkcycle");
 }
 
 void RagedAnt::start() {
@@ -67,7 +68,7 @@ void RagedAnt::animate(float deltaTime){
 
     float progress = animTime / walkcycleLength;
     progress *= walkcycleAnim.size();
-    int index = round(progress);
+    index = round(progress);
     if (index >= walkcycleAnim.size()){
         index = 0;
     }
@@ -80,4 +81,8 @@ void RagedAnt::draw() {
 	//glUniformMatrix4fv(modelLocation, 1, GL_FALSE, &transformationMat[0][0]);
 	//recalculateAABB();
 	meshPtr->draw();
+}
+
+void RagedAnt::draw2() {
+	m_sequence.drawRawSequence(index);
 }

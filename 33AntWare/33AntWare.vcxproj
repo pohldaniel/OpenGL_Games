@@ -177,6 +177,7 @@
     <ClCompile Include="RagedAnt.cpp" />
     <ClCompile Include="src\LoadingManager.cpp" />
     <ClCompile Include="src\MousePickerFBO.cpp" />
+    <ClCompile Include="src\ObjSequence.cpp" />
     <ClCompile Include="src\States\Controlls.cpp" />
     <ClCompile Include="src\States\Default.cpp" />
     <ClCompile Include="src\States\Game.cpp" />
@@ -327,6 +328,7 @@
     <ClInclude Include="src\Globals.h" />
     <ClInclude Include="src\LoadingManager.h" />
     <ClInclude Include="src\MousePickerFBO.h" />
+    <ClInclude Include="src\ObjSequence.h" />
     <ClInclude Include="src\RandomColor.h" />
     <ClInclude Include="src\States\Controls.h" />
     <ClInclude Include="src\States\Default.h" />

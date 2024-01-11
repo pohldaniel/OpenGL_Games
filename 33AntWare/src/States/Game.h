@@ -4,6 +4,7 @@
 #include <engine/input/KeyboardEventListener.h>
 #include <engine/Camera.h>
 #include <engine/AssimpModel.h>
+#include <engine/ObjModel.h>
 
 #include <States/StateMachine.h>
 #include "Background.h"
@@ -38,6 +39,7 @@ private:
 	Camera m_camera;
 	Background m_background;
 	AssimpModel m_model;
+
 	std::vector<std::shared_ptr<aw::Mesh>> animation;
 	aw::RagedAnt* m_ragedAnt;
 	std::shared_ptr<aw::Mesh> m_ant;

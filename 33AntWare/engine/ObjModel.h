@@ -12,6 +12,8 @@
 #include <cctype>
 #include <unordered_map>
 #include <functional>
+#include <filesystem>
+#include <numeric>
 
 #include "Vector.h"
 #include "Shader.h"
@@ -106,6 +108,7 @@ public:
 	void drawRawInstanced();
 	void drawRawStacked();
 	void drawRawInstancedStacked();
+	void drawRawSequence(unsigned short frame);
 
 	void draw(const Camera& camera);
 	void drawInstanced(const Camera& camera);
@@ -122,7 +125,10 @@ public:
 	void drawHull() const;
 
 	bool loadModel(const char* filename, bool isStacked = false, bool withoutNormals = false, bool generateSmoothNormals = false, bool generateFlatNormals = false, bool generateSmoothTangents = false, bool rescale = false);
-	bool loadModel(const char* filename, Vector3f& rotate, float degree, Vector3f& translate = Vector3f(0.0f, 0.0f, 0.0f), float scale = 1.0f, bool asStacked = false, bool withoutNormals = false, bool generateSmoothNormals = false, bool generateFlatNormals = false, bool generateSmoothTangents = false, bool rescale = false);
+	bool loadModel(const char* filename, Vector3f& axis, float degree, Vector3f& translate = Vector3f(0.0f, 0.0f, 0.0f), float scale = 1.0f, bool asStacked = false, bool withoutNormals = false, bool generateSmoothNormals = false, bool generateFlatNormals = false, bool generateSmoothTangents = false, bool rescale = false);
+
+	void loadSequence(const char* _path, bool isStacked = false, bool withoutNormals = false, bool generateSmoothNormals = false, bool generateFlatNormals = false, bool generateSmoothTangents = false, bool rescale = false);
+	void loadSequence(const char* _path, Vector3f& axis, float degree, Vector3f& translate = Vector3f(0.0f, 0.0f, 0.0f), float scale = 1.0f, bool isStacked = false, bool withoutNormals = false, bool generateSmoothNormals = false, bool generateFlatNormals = false, bool generateSmoothTangents = false, bool rescale = false);
 
 	std::string getMltPath();
 	std::string getModelDirectory();
@@ -153,7 +159,7 @@ public:
 
 private:
 
-	int whitespaces(char c[]);
+	
 
 	unsigned int m_numberOfVertices, m_numberOfTriangles, m_numberOfMeshes, m_stride;
 
@@ -171,7 +177,6 @@ private:
 	BoundingSphere m_boundingSphere;
 	ConvexHull m_convexHull;
 
-	//std::unordered_map<int, Shader*> m_shader;
 	std::vector<Shader*> m_shader;
 
 	Transform m_transform;

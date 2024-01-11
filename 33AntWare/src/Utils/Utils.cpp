@@ -1,3 +1,5 @@
+#include <string.h>
+
 #include "Utils.h"
 
 long Utils::floatToLong(float f) {
@@ -13,4 +15,15 @@ long Utils::floatToLong(float f) {
 	result &= ~((((fpBits & 0x7fffffff) >> 23) - 127) >> 31);
 
 	return result;
+}
+
+int Utils::whitespaces(char c[]) {
+	int count = 0;
+	char *ptr = c;
+	while ((ptr = strchr(ptr, ' ')) != NULL) {
+		count++;
+		ptr++;
+	}
+
+	return count;
 }

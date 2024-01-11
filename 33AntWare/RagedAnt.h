@@ -1,5 +1,6 @@
 #pragma once
-#include <Ant.h>
+#include <engine/ObjModel.h>
+#include "Ant.h"
 
 namespace aw{
 
@@ -14,7 +15,7 @@ private:
     float animTime = 0.0f;
     float walkcycleLength = 1.0f;
     void animate(float deltaTime);
-
+	int index = 0;
 public:
     
     RagedAnt(std::vector<std::shared_ptr<Mesh>> walkcycleAnim,std::shared_ptr<Mesh> mesh);
@@ -25,5 +26,8 @@ public:
     void fixedUpdate(float deltaTime) override;
 	void draw() override;
 
+	void draw2();
+
+	ObjModel m_sequence;
   };
 }

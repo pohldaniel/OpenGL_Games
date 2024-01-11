@@ -130,10 +130,7 @@ void Game::update() {
 void Game::render() {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	//m_background.draw();
-
-	m_model.draw(m_camera);
-
+	
 	auto shader = Globals::shaderManager.getAssetPointer("texture");
 	shader->use();
 	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
@@ -142,6 +139,9 @@ void Game::render() {
 	Globals::textureManager.get("ant").bind();
 
 	m_ragedAnt->draw();
+
+	shader->loadMatrix("u_model", Matrix4f::Translate(2.5f, 0.0f, 0.0f));
+	m_ragedAnt->draw2();
 
 	Globals::textureManager.get("ant").unbind();
 	shader->unuse();

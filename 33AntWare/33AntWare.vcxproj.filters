@@ -342,6 +342,9 @@
     <ClCompile Include="AABB.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\ObjSequence.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="convhull\convhull_3d.h">
@@ -652,6 +655,9 @@
     </ClInclude>
     <ClInclude Include="AABB.h">
       <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ObjSequence.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
