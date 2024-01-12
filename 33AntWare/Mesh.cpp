@@ -1,3 +1,4 @@
+#include <engine/Texture.h>
 #include <iostream>
 #include <Mesh.h>
 
@@ -70,18 +71,11 @@ Mesh::Mesh(const char *path, glm::vec4 color, const char *texPath) : Mesh(path, 
 Mesh::Mesh(const char *path, glm::vec3 color, const char *texPath) : Mesh(path,
                                                                           glm::vec4(color, 1),
                                                                           texPath) {}
-void Mesh::loadTexture(const char *path)
-{
-    /*Image image;
-    if (!image.loadFromFile(path))
-    {
-        throw runtime_error(path); // TODO prettier formatting
-    }
-    image.flipVertically();
+void Mesh::loadTexture(const char *path){
     hasTexture = true;
-    int imgHeight = image.getSize().y;
-    int imgWidth = image.getSize().x;
-    const unsigned char* imgData = image.getPixelsPtr();
+    int imgHeight;
+    int imgWidth;
+    const unsigned char* imgData = Texture::LoadFromFile(path, imgWidth, imgHeight, true);
 
     glGenTextures(1, &texture);
     glBindTexture(GL_TEXTURE_2D, texture);
@@ -92,19 +86,14 @@ void Mesh::loadTexture(const char *path)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, imgWidth, imgHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, imgData);
-    glGenerateMipmap(GL_TEXTURE_2D);*/
+    glGenerateMipmap(GL_TEXTURE_2D);
 }
-int Mesh::createTexture(const char *path)
-{
-    /*Image image;
-    if (!image.loadFromFile(path))
-    {
-        throw runtime_error(path);
-    }
-    image.flipVertically();
-    int imgHeight = image.getSize().y;
-    int imgWidth = image.getSize().x;
-    const unsigned char* imgData = image.getPixelsPtr();
+
+int Mesh::createTexture(const char *path){
+
+    int imgHeight;
+    int imgWidth;
+    const unsigned char* imgData = Texture::LoadFromFile(path, imgWidth, imgHeight, true);
     GLuint texture;
     glGenTextures(1, &texture);
     glBindTexture(GL_TEXTURE_2D, texture);
@@ -116,8 +105,7 @@ int Mesh::createTexture(const char *path)
 
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, imgWidth, imgHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, imgData);
     glGenerateMipmap(GL_TEXTURE_2D);
-    return texture;*/
-	return 0;
+    return texture;
 }
 void Mesh::draw(){
    

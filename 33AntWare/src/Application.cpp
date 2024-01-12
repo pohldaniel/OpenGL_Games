@@ -408,8 +408,8 @@ void Application::fixedUpdate() {
 void Application::initStates() {
 	Machine = new StateMachine(m_dt, m_fdt);
 	//Machine->addStateAtTop(new Default(*Machine));
-	//Machine->addStateAtTop(new Game(*Machine));
-	Machine->addStateAtTop(new Menu(*Machine));
+	Machine->addStateAtTop(new Game(*Machine));
+	//Machine->addStateAtTop(new Menu(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {

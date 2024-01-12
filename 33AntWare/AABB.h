@@ -5,11 +5,11 @@ namespace aw{
 
   class AABB {
 
-  private:
+  public:
 
     float up, down, right, left, forward, backward;
 
-  public:
+ 
 
     glm::vec3 bounds[8];
     bool isColliding(const AABB &other);

@@ -12,6 +12,7 @@
 #include "Mesh.h"
 #include "Ant.h"
 #include "ObjSequence.h"
+#include "Player.h"
 
 class Game : public State, public MouseEventListener, public KeyboardEventListener {
 
@@ -41,6 +42,10 @@ private:
 	Camera m_camera;
 	Background m_background;
 	AssimpModel m_model;
+	AssimpModel m_gun;
 
 	Ant* m_ant;
+	Player* m_player;
+	std::shared_ptr<aw::Mesh> m_bullet;
+	std::vector<std::shared_ptr<aw::Mesh>> m_meshes;
 };

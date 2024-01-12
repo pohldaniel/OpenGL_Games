@@ -35,12 +35,28 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 	m_model.loadModel("res/models/Ant.glb", false, false, false);
 	Material& material = Material::GetMaterials()[m_model.getMeshes()[0]->getMaterialIndex()];
 
+	m_gun.loadModel("res/models/Gun.glb", false, false, false);
+	Material::GetMaterials()[m_gun.getMeshes()[0]->getMaterialIndex()].textures[0].loadFromFile("res/textures/Gun.png", true);
+	m_gun.initShader();
+
 	m_ant = new Ant();
 	m_ant->loadSequence("res/animations/ant_walkcycle");
 	m_ant->addMesh(m_model.getMeshes()[0]->getVertexBuffer(), m_model.getMeshes()[0]->getIndexBuffer());
 	m_ant->loadSequenceGpu();
 	m_ant->setPosition(0.0f, 0.0f, 0.0f);
 	m_ant->start();
+
+	m_bullet = std::make_shared<aw::Mesh>("res/models/Bullet.glb", "res/textures/Bullet.png");
+
+	m_player = new Player(std::make_shared<aw::Mesh>("res/models/PlayerCube.glb"), 
+		aw::Material(), 
+		m_bullet,
+		glm::vec2(-51.5f, -51.5f), 
+		glm::vec2(51.5f, 51.5f),
+		nullptr);
+
+	m_meshes.push_back(m_bullet);
+	aw::Mesh::constructVAO(m_meshes);
 }
 
 Game::~Game() {
@@ -121,7 +137,7 @@ void Game::render() {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	auto shader = Globals::shaderManager.getAssetPointer("texture");
+	/*auto shader = Globals::shaderManager.getAssetPointer("texture");
 	shader->use();
 	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
 	shader->loadMatrix("u_view", m_camera.getViewMatrix());
@@ -129,8 +145,17 @@ void Game::render() {
 	Globals::textureManager.get("ant").bind();
 	m_ant->drawRaw();
 	Globals::textureManager.get("ant").unbind();
-	shader->unuse();
+	shader->unuse();*/
 
+	//m_gun.draw(m_camera);
+
+	auto shader = Globals::shaderManager.getAssetPointer("texture");
+	shader->use();
+	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
+	shader->loadMatrix("u_view", m_camera.getViewMatrix());
+	shader->loadMatrix("u_model", Matrix4f::IDENTITY);
+	m_bullet->draw();
+	shader->unuse();
 	if (m_drawUi)
 		renderUi();
 }
