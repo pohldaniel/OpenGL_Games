@@ -1,11 +1,11 @@
-#include "engine/Fontrenderer.h"
+#include <engine/Fontrenderer.h>
+#include <States/Settings.h>
+#include <States/Controls.h>
+#include <States/Default.h>
 
 #include "Menu.h"
 #include "Application.h"
 #include "Globals.h"
-#include "Settings.h"
-#include "Controls.h"
-#include "Default.h"
 
 Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 
@@ -27,19 +27,19 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	m_buttons.at("tower").setCharset(Globals::fontManager.get("upheaval_50"));
 	m_buttons.at("tower").setPosition(50.0f, 250.0f);
 	m_buttons.at("tower").setOutlineThickness(5.0f);
-	m_buttons.at("tower").setText("Default");
+	m_buttons.at("tower").setText("Settings");
 	m_buttons.at("tower").setFunction([&]() {
 		m_isRunning = false;
-		m_machine.addStateAtBottom(new Default(m_machine));
+		m_machine.addStateAtBottom(new Settings(m_machine));
 	});
 
 	m_buttons.at("flow").setCharset(Globals::fontManager.get("upheaval_50"));
 	m_buttons.at("flow").setPosition(50.0f, 150.0f);
 	m_buttons.at("flow").setOutlineThickness(5.0f);
-	m_buttons.at("flow").setText("Default");
+	m_buttons.at("flow").setText("Controls");
 	m_buttons.at("flow").setFunction([&]() {
 		m_isRunning = false;
-		m_machine.addStateAtBottom(new Default(m_machine));
+		m_machine.addStateAtBottom(new Controls(m_machine));
 	});
 
 	m_buttons.at("bridge").setCharset(Globals::fontManager.get("upheaval_50"));

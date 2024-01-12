@@ -35,8 +35,7 @@ void CharacterSet::loadFromFile(const std::string& path, unsigned int characterS
 	FT_Face face;
 	if (FT_New_Face(ft, path.c_str(), 0, &face)) {
 		std::cout << "ERROR::FREETYPE: Failed to load font" << std::endl;
-	}
-	else {
+	}else {
 		FT_Set_Pixel_Sizes(face, 0, characterSize);
 		FT_GlyphSlot g = face->glyph;
 
@@ -199,14 +198,14 @@ void CharacterSet::safeFont() {
 
 	unsigned char* bytesNew = (unsigned char*)malloc(maxWidth * maxHeight * 4);
 
-	for (unsigned int i = 0, k = 0; i < maxWidth * maxHeight * 4; i = i + 4, k = k++) {
+	for (unsigned int i = 0, k = 0; i < maxWidth * maxHeight * 4; i = i + 4, k++) {
 		bytesNew[i] = (int)bytes[k];
 		bytesNew[i + 1] = (int)bytes[k];
 		bytesNew[i + 2] = (int)bytes[k];
 		bytesNew[i + 3] = 255;
 	}
 
-	Texture::Safe("font2.png", bytesNew, maxWidth, maxHeight, 4);
+	Texture::Safe("font.png", bytesNew, maxWidth, maxHeight, 4);
 
 	free(bytes);
 	free(bytesNew);

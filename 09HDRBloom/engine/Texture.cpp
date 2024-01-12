@@ -470,7 +470,7 @@ unsigned char* Texture::AddRemoveLeftPadding(unsigned char* imageData, int& widt
 	if (padding < 0) {
 
 		int row = 0, x = -padding * numCompontents;
-		for (int i = 0; i < numCompontents * height * (width + padding); i = i++) {
+		for (int i = 0; i < numCompontents * height * (width + padding); i++) {
 			if (i % ((width + padding) * numCompontents) == 0 && i > 0) {
 				row = row + width * numCompontents;
 				x = row - padding * numCompontents;
@@ -483,7 +483,7 @@ unsigned char* Texture::AddRemoveLeftPadding(unsigned char* imageData, int& widt
 
 	if (padding > 0) {
 		int row = 0, x = 0;
-		for (int i = 0; i < numCompontents * height * (width + padding); i = i++) {
+		for (int i = 0; i < numCompontents * height * (width + padding); i++) {
 			if (i % ((width + padding) * numCompontents) == 0 && i > 0) {
 				row = row + width * numCompontents;
 				x = row;
@@ -507,7 +507,7 @@ unsigned char* Texture::AddRemoveRightPadding(unsigned char* imageData, int& wid
 	if (padding < 0) {
 
 		int row = 0, x = 0;
-		for (int i = 0; i < numCompontents * height * (width + padding); i = i++) {
+		for (int i = 0; i < numCompontents * height * (width + padding); i++) {
 			if (i % ((width + padding) * numCompontents) == 0 && i > 0) {
 				row = row + width * numCompontents;
 				x = row;
@@ -520,7 +520,7 @@ unsigned char* Texture::AddRemoveRightPadding(unsigned char* imageData, int& wid
 
 	if (padding > 0) {
 		int row = 0, x = 0;
-		for (int i = 0; i < numCompontents * height * (width + padding); i = i++) {
+		for (int i = 0; i < numCompontents * height * (width + padding); i++) {
 			if (i % ((width + padding) * numCompontents) == 0 && i > 0) {
 				row = row + width * numCompontents;
 				x = row;
@@ -544,7 +544,7 @@ unsigned char* Texture::AddRemoveTopPadding(unsigned char* imageData, int width,
 
 	if (padding < 0) {
 		int  row = 0, x = -(padding * width * numCompontents);
-		for (int i = 0; i < numCompontents * width * (height + padding); i = i++) {
+		for (int i = 0; i < numCompontents * width * (height + padding); i++) {
 
 			if (i % (width  * numCompontents) == 0 && i > 0) {
 				row = (row + width * numCompontents);
@@ -558,7 +558,7 @@ unsigned char* Texture::AddRemoveTopPadding(unsigned char* imageData, int width,
 
 	if (padding > 0) {
 		int  row = 0, x = -(padding * width * numCompontents);
-		for (int i = 0; i < numCompontents * width * (height + padding); i = i++) {
+		for (int i = 0; i < numCompontents * width * (height + padding); i++) {
 			if (i % (width  * numCompontents) == 0 && i > 0) {
 				row = (row + width * numCompontents);
 				x = row - (padding * width * numCompontents);
@@ -581,7 +581,7 @@ unsigned char* Texture::AddRemoveBottomPadding(unsigned char* imageData, int wid
 
 	if (padding < 0) {
 		int  row = 0, x = 0;
-		for (int i = 0; i < numCompontents * width * (height + padding); i = i++) {
+		for (int i = 0; i < numCompontents * width * (height + padding); i++) {
 
 			if (i % (width  * numCompontents) == 0 && i > 0) {
 				row = (row + width * numCompontents);
@@ -595,7 +595,7 @@ unsigned char* Texture::AddRemoveBottomPadding(unsigned char* imageData, int wid
 
 	if (padding > 0) {
 		int  row = 0, x = 0;
-		for (int i = 0; i < numCompontents * width * (height + padding); i = i++) {
+		for (int i = 0; i < numCompontents * width * (height + padding); i++) {
 			if (i % (width  * numCompontents) == 0 && i > 0) {
 				row = (row + width * numCompontents);
 				x = row;

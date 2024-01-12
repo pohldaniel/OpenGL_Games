@@ -1,11 +1,13 @@
 #pragma once
+
 #include <math.h>
-#include "engine/input/MouseEventListener.h"
-#include "engine/input/KeyboardEventListener.h"
-#include "engine/input/Mouse.h"
-#include "engine/Transform.h"
-#include "StateMachine.h"
+#include <engine/input/MouseEventListener.h>
+#include <engine/input/KeyboardEventListener.h>
+#include <engine/input/Mouse.h>
+#include <engine/Transform.h>
 #include <UI/Button.h>
+
+#include <States/StateMachine.h>
 
 class Controls : public State, public MouseEventListener, public KeyboardEventListener {
 

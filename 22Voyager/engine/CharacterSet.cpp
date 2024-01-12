@@ -203,7 +203,7 @@ void CharacterSet::safeFont() {
 
 	unsigned char* bytesNew = (unsigned char*)malloc(maxWidth * maxHeight * 4);
 
-	for (unsigned int i = 0, k = 0; i < maxWidth * maxHeight * 4; i = i + 4, k = k++) {
+	for (unsigned int i = 0, k = 0; i < maxWidth * maxHeight * 4; i = i + 4, k++) {
 		bytesNew[i] = (int)bytes[k];
 		bytesNew[i + 1] = (int)bytes[k];
 		bytesNew[i + 2] = (int)bytes[k];

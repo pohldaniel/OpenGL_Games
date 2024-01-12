@@ -7,6 +7,7 @@
 #include <engine/ObjModel.h>
 
 #include <States/StateMachine.h>
+
 #include "Background.h"
 #include "Mesh.h"
 #include "Ant.h"

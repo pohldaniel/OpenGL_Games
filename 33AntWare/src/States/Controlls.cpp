@@ -1,8 +1,9 @@
-#include "engine/Fontrenderer.h"
+#include <engine/Fontrenderer.h>
+#include <States/Menu.h>
+
 #include "Controls.h"
 #include "Application.h"
 #include "Globals.h"
-#include "Menu.h"
 
 Controls::Controls(StateMachine& machine) : State(machine, States::CONTROLLS) {
 

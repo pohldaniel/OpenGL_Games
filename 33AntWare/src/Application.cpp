@@ -13,6 +13,7 @@
 
 #include <States/Default.h>
 #include <States/Game.h>
+#include <States/Menu.h>
 #include <UI/Widget.h>
 
 #include "TileSet.h"
@@ -72,7 +73,7 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 
 	Batchrenderer::Get().init(1000, false, true);
 	Batchrenderer::Get().setShader(Globals::shaderManager.getAssetPointer("batch"));
-	Fontrenderer::Get().setRenderer(&Batchrenderer::Get());
+	//Fontrenderer::Get().setRenderer(&Batchrenderer::Get());
 
 	auto shader = Globals::shaderManager.getAssetPointer("font");
 	shader->use();
@@ -176,7 +177,7 @@ LRESULT CALLBACK Application::StaticWndProc(HWND hWnd, UINT message, WPARAM wPar
 		return 0;
 	}
 
-	if ((message == WM_KEYDOWN && (wParam == 'v' || wParam == 'V')) || (message == WM_KEYDOWN && wParam == VK_ESCAPE) || (message == WM_KEYDOWN && wParam == VK_RETURN && ((HIWORD(lParam) & KF_ALTDOWN))) || (message == WM_SYSKEYDOWN && wParam == VK_RETURN && ((HIWORD(lParam) & KF_ALTDOWN)))) {
+	if ((message == WM_KEYDOWN && (wParam == 'v' || wParam == 'V' || wParam == 'z' || wParam == 'Z')) || (message == WM_KEYDOWN && wParam == VK_ESCAPE) || (message == WM_KEYDOWN && wParam == VK_RETURN && ((HIWORD(lParam) & KF_ALTDOWN))) || (message == WM_SYSKEYDOWN && wParam == VK_RETURN && ((HIWORD(lParam) & KF_ALTDOWN)))) {
 		ImGui::GetIO().WantCaptureMouse = false;
 	}
 
@@ -407,7 +408,8 @@ void Application::fixedUpdate() {
 void Application::initStates() {
 	Machine = new StateMachine(m_dt, m_fdt);
 	//Machine->addStateAtTop(new Default(*Machine));
-	Machine->addStateAtTop(new Game(*Machine));
+	//Machine->addStateAtTop(new Game(*Machine));
+	Machine->addStateAtTop(new Menu(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {

@@ -5,6 +5,7 @@
 #include <engine/Camera.h>
 
 #include <States/StateMachine.h>
+
 #include "Background.h"
 
 class Default : public State, public MouseEventListener, public KeyboardEventListener {

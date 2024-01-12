@@ -1,5 +1,5 @@
 #include <GL/glew.h>
-
+#include <imgui.h>
 #include "StateMachine.h"
 #include "Application.h"
 #include <iostream>
@@ -21,6 +21,7 @@ void StateMachine::update() {
 		if (!m_states.top()->isRunning()) {
 			delete m_states.top();
 			m_states.pop();
+			ImGui::GetIO().WantCaptureMouse = false;
 		}
 	}else {		
 		m_isRunning = false;

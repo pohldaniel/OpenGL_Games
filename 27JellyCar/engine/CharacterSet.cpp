@@ -206,7 +206,7 @@ void CharacterSet::safeFont() {
 		bytesNew[i + 3] = 255;
 	}
 
-	Texture::Safe("font2.png", bytesNew, maxWidth, maxHeight, 4);
+	Texture::Safe("font.png", bytesNew, maxWidth, maxHeight, 4);
 
 	free(bytes);
 	free(bytesNew);

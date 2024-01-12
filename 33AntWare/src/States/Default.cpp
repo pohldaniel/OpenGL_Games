@@ -8,7 +8,6 @@
 #include "Application.h"
 #include "Globals.h"
 
-
 Default::Default(StateMachine& machine) : State(machine, States::DEFAULT) {
 
 	Application::SetCursorIcon(IDC_ARROW);
@@ -137,7 +136,6 @@ void Default::OnKeyDown(Event::KeyboardEvent& event) {
 	}
 
 	if (event.keyCode == VK_ESCAPE) {
-		ImGui::GetIO().WantCaptureMouse = false;
 		Mouse::instance().detach();
 		m_isRunning = false;
 	}

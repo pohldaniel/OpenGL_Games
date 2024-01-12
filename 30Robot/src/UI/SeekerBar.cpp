@@ -65,7 +65,7 @@ void SeekerBar::draw() {
 		m_batchrenderer->addQuadAA(Vector4f(posX, m_position[1], m_size[0], m_size[1]), Vector4f(0.0f, 0.0f, 1.0f, 1.0f), Vector4f(1.0f, 0.0f, 0.0f, 1.0f), 0u);
 	}
 
-	for (unsigned int i = m_currentBlock; i < m_blocks; i = i++) {
+	for (unsigned int i = m_currentBlock; i < m_blocks; i++) {
 		posX = m_position[0] + (m_size[0] + m_spacing) * i;
 		m_batchrenderer->addQuadAA(Vector4f(posX, m_position[1], m_size[0], m_size[1]), Vector4f(0.0f, 0.0f, 1.0f, 1.0f), Vector4f(0.0f, 0.0f, 0.0f, 1.0f), 0u);
 	}

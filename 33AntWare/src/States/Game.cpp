@@ -8,7 +8,6 @@
 #include "Application.h"
 #include "Globals.h"
 
-
 Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 
 	Application::SetCursorIcon(IDC_ARROW);
@@ -162,7 +161,6 @@ void Game::OnKeyDown(Event::KeyboardEvent& event) {
 	}
 
 	if (event.keyCode == VK_ESCAPE) {
-		ImGui::GetIO().WantCaptureMouse = false;
 		Mouse::instance().detach();
 		m_isRunning = false;
 	}
