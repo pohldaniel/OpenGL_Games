@@ -13,10 +13,10 @@ Player::Player(shared_ptr<Mesh> mesh, Material material, shared_ptr<Mesh> bullet
 	mapMinLimit(mapMinLimit),
 	mapMaxLimit(mapMaxLimit)
 {
-	//gunShotSoundBuffer.loadFromFile("Assets/Audio/gunshot.wav");
-	//reloadSoundBuffer.loadFromFile("Assets/Audio/reload.wav");
-	//hurtSoundBuffer.loadFromFile("Assets/Audio/playerHurt.wav");
-	//footstepsSoundBuffer.loadFromFile("Assets/Audio/playerFootsteps.ogg");
+	//gunShotSoundBuffer.loadFromFile("res/audio/gunshot.wav");
+	//reloadSoundBuffer.loadFromFile("res/audio/reload.wav");
+	//hurtSoundBuffer.loadFromFile("res/audio/playerHurt.wav");
+	//footstepsSoundBuffer.loadFromFile("res/audio/playerFootsteps.ogg");
 
 	//gunShotSound.setBuffer(gunShotSoundBuffer);
 	//reloadSound.setBuffer(reloadSoundBuffer);
@@ -28,8 +28,8 @@ Player::Player(shared_ptr<Mesh> mesh, Material material, shared_ptr<Mesh> bullet
 }
 void Player::start()
 {
-	transparentTexture = Mesh::createTexture("./Assets/Textures/transparent.png");
-	flashTexture = Mesh::createTexture("./Assets/Textures/flash.png");
+	transparentTexture = Mesh::createTexture("res/textures/transparent.png");
+	flashTexture = Mesh::createTexture("res/textures/flash.png");
 	children[0]->getMesh()->setTexture(transparentTexture);
 	isStatic = false;
 	rigidbody.lockLinear(AXIS::y);
@@ -48,19 +48,19 @@ void Player::update() {
 
 	if (!hasFallen){
 		
-		if (keyboard.keyPressed(Keyboard::KEY_W)){
+		if (keyboard.keyDown(Keyboard::KEY_W)){
 			rigidbody.velocity.z -= 1;
 		}
 
-		if (keyboard.keyPressed(Keyboard::KEY_S)){
+		if (keyboard.keyDown(Keyboard::KEY_S)){
 			rigidbody.velocity.z += 1;
 		}
 
-		if (keyboard.keyPressed(Keyboard::KEY_D)){
+		if (keyboard.keyDown(Keyboard::KEY_D)){
 			rigidbody.velocity.x += 1;
 		}
 
-		if (keyboard.keyPressed(Keyboard::KEY_A)){
+		if (keyboard.keyDown(Keyboard::KEY_A)){
 			rigidbody.velocity.x -= 1;
 		}
 	}

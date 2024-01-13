@@ -1,4 +1,6 @@
+#include <iostream>
 #include <GameObject.h>
+
 using namespace aw;
 using namespace glm;
 using namespace std;
@@ -28,6 +30,8 @@ mat4 GameObject::applyTransform()
 	if (parent != nullptr)
 		parentMat = parent->applyTransform();
 
+	
+
 	vec3 translation = transform.getPosition();
 	vec3 scale = transform.getScale();
 
@@ -36,6 +40,13 @@ mat4 GameObject::applyTransform()
 	mat4 scaleMat = glm::scale(mat4(1.0f), scale);
 
 	mat4 transform = transMat * rotationMat * scaleMat;
+
+	/*std::cout << parentMat[0][0] << "  " << parentMat[0][1] << "  " << parentMat[0][2] << "  " << parentMat[0][3] << std::endl;
+	std::cout << parentMat[1][0] << "  " << parentMat[1][1] << "  " << parentMat[1][2] << "  " << parentMat[1][3] << std::endl;
+	std::cout << parentMat[2][0] << "  " << parentMat[2][1] << "  " << parentMat[2][2] << "  " << parentMat[2][3] << std::endl;
+	std::cout << parentMat[3][0] << "  " << parentMat[3][1] << "  " << parentMat[3][2] << "  " << parentMat[3][3] << std::endl;
+	std::cout << "###################" << std::endl;*/
+
 
 	return parentMat * transform;
 }

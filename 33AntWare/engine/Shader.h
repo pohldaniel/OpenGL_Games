@@ -68,6 +68,8 @@ public:
 	void attachShader(GLuint compShader, bool reload = false);
 	void linkShaders();
 	bool inUse();
+	unsigned int getUnifromLocation(const std::string& name) const;
+
 	GLuint m_program;
 
 	static GLuint LoadShaderProgram(GLenum type, const char *pszFilename);
@@ -95,7 +97,6 @@ protected:
 
 private:
 
-	unsigned int getUnifromLocation(const std::string& name) const;
 	bool m_use;
 	mutable std::unordered_map<std::string, unsigned int> m_uniformLocationCache;
 };

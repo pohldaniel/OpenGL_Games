@@ -13,9 +13,10 @@ GLuint Mesh::VAO;
 GLuint Mesh::VBO;
 GLuint Mesh::EBO;
 
-Mesh::Mesh(const char *path, const char *texPath)
+Mesh::Mesh(const char *path, const char *texPath, bool flipWinding)
 {
-    const aiScene *scene = importer.ReadFile(path, aiProcess_Triangulate);
+
+    const aiScene *scene = importer.ReadFile(path, flipWinding ? aiProcess_Triangulate | aiProcess_FlipWindingOrder : aiProcess_Triangulate);
     if (!scene)
         throw runtime_error(path); // TODO prettier formatting
     aiMesh *mesh = scene->mMeshes[0];
@@ -24,14 +25,15 @@ Mesh::Mesh(const char *path, const char *texPath)
     if (texPath)
     {
         loadTexture(texPath);
-    }
-    else
-    {
+    }else{
         hasTexture = false;
     }
+
     vertices.resize(mesh->mNumVertices);
-    for (unsigned i = 0; i < vertices.size(); ++i)
-        vertices[i] = {mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z};
+	for (unsigned i = 0; i < vertices.size(); ++i) {
+		vertices[i] = { mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z };
+	}
+
     if (mesh->HasFaces())
     {
         hasIndices = true;
@@ -63,14 +65,15 @@ Mesh::Mesh(const char *path, const char *texPath)
 
 
 }
-Mesh::Mesh(const char *path, glm::vec4 color, const char *texPath) : Mesh(path, texPath)
+Mesh::Mesh(const char *path, glm::vec4 color, const char *texPath, bool flipWinding) : Mesh(path, texPath, flipWinding)
 {
     hasUniformColor = true;
     uniformColor = color;
 }
-Mesh::Mesh(const char *path, glm::vec3 color, const char *texPath) : Mesh(path,
+Mesh::Mesh(const char *path, glm::vec3 color, const char *texPath, bool flipWinding) : Mesh(path,
                                                                           glm::vec4(color, 1),
-                                                                          texPath) {}
+                                                                          texPath,
+																		  flipWinding) {}
 void Mesh::loadTexture(const char *path){
     hasTexture = true;
     int imgHeight;
@@ -108,10 +111,13 @@ int Mesh::createTexture(const char *path){
     return texture;
 }
 void Mesh::draw(){
-   
+
+	if (hasTexture){
+		glBindTexture(GL_TEXTURE_2D, texture);
+	}
     glBindVertexArray(VAO);
     glDrawElementsBaseVertex(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, (void *)(offsets[INDEX_BUFFER]), baseVertex);
-
+	glBindTexture(GL_TEXTURE_2D, 0);
 }
 bool Mesh::getTexture(GLuint &texture)
 {

@@ -19,6 +19,10 @@ extern AssetManager<MusicBuffer> Globals::musicManager = AssetManager<MusicBuffe
 extern Physics* Globals::physics = NULL;
 extern Clock Globals::clock = Clock();
 
+extern unsigned int Globals::lightUbo = 0;
+extern const unsigned int Globals::lightBinding = 0;
+
+
 DebugDrawer debugDrawer;
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd) {

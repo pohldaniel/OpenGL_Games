@@ -13,6 +13,25 @@
 #include "Ant.h"
 #include "ObjSequence.h"
 #include "Player.h"
+#include "StaticGO.h"
+#include "CameraAW.h"
+
+enum LightType{
+	DIRECTIONAL,
+	POINTAW,
+	SPOT
+};
+
+struct LightStruct{
+	int enabled;
+	LightType type;
+	float padding0, padding1;
+	glm::vec4 ambient, diffuse, specular;
+	glm::vec3 direction;
+	float angle;
+	glm::vec3 position;
+	float padding2;
+};
 
 class Game : public State, public MouseEventListener, public KeyboardEventListener {
 
@@ -45,7 +64,24 @@ private:
 	AssimpModel m_gun;
 
 	Ant* m_ant;
-	Player* m_player;
-	std::shared_ptr<aw::Mesh> m_bullet;
+
+	std::shared_ptr<aw::Mesh> m_muzzleMesh = nullptr;
+	std::shared_ptr<aw::Mesh> m_bulletMesh = nullptr;
+	std::shared_ptr<aw::Mesh> m_gunMesh = nullptr;
+	std::shared_ptr<aw::Mesh> m_handsMesh = nullptr;
+	std::shared_ptr<aw::Mesh> m_glovesMesh = nullptr;
+	std::shared_ptr<aw::Mesh> m_cpuMesh = nullptr;
+	std::shared_ptr<aw::Mesh> m_platformMesh = nullptr;
+
+
+	Player* m_player = nullptr;
+	aw::StaticGO* m_muzzleGO = nullptr;
+	aw::StaticGO* m_gunGO = nullptr;
+	aw::StaticGO* m_handsGO = nullptr;
+	aw::StaticGO* m_glovesGO = nullptr;
+	aw::StaticGO* m_cpuGO = nullptr;
+	aw::StaticGO* m_platformGO = nullptr;
+
 	std::vector<std::shared_ptr<aw::Mesh>> m_meshes;
+	aw::Camera* m_cameraAW;
 };

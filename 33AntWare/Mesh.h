@@ -57,13 +57,13 @@ namespace aw
          * \param path The path of the Assimp's supported mesh file.
          * \param texPath The path of the sf::Image's supported image file, can be null for no texture.
          */
-        Mesh(const char *path, const char *texPath = nullptr);
+        Mesh(const char *path, const char *texPath = nullptr, bool flipWinding = false);
         /** \brief [Deprecated since the modern edition shaders rely
          * on color (albedo) textures only for fragment colors]*/
-        Mesh(const char *path, glm::vec4 color, const char *texPath = nullptr);
+        Mesh(const char *path, glm::vec4 color, const char *texPath = nullptr, bool flipWinding = false);
         /** \brief [Deprecated since the modern edition shaders rely
          * on color (albedo) textures only for fragment colors]*/
-        Mesh(const char *path, glm::vec3 color, const char *texPath = nullptr);
+        Mesh(const char *path, glm::vec3 color, const char *texPath = nullptr, bool flipWinding = false);
         /** \brief Draws the mesh with ::texture.
          *
          * Assumes the shader's uniform variables are set correctly (including

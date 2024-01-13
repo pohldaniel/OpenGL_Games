@@ -37,4 +37,7 @@ namespace Globals {
 	extern AssetManager<MusicBuffer> musicManager;
 	extern Physics *physics;
 	extern Clock clock;
+
+	extern unsigned int lightUbo;
+	extern const unsigned int lightBinding;
 }
