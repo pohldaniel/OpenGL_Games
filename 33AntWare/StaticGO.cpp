@@ -9,5 +9,5 @@ void StaticGO::start(){
     isStatic = true;
 }
 
-void StaticGO::update(){
+void StaticGO::update(const float dt){
 }

@@ -8,13 +8,11 @@
 
 #include <States/StateMachine.h>
 
-#include "Background.h"
 #include "Mesh.h"
 #include "Ant.h"
 #include "ObjSequence.h"
 #include "Player.h"
 #include "StaticGO.h"
-#include "CameraAW.h"
 
 enum LightType{
 	DIRECTIONAL,
@@ -59,7 +57,6 @@ private:
 	bool m_drawUi = true;
 
 	Camera m_camera;
-	Background m_background;
 	AssimpModel m_model;
 	AssimpModel m_gun;
 
@@ -83,5 +80,4 @@ private:
 	aw::StaticGO* m_platformGO = nullptr;
 
 	std::vector<std::shared_ptr<aw::Mesh>> m_meshes;
-	aw::Camera* m_cameraAW;
 };

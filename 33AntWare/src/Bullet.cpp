@@ -2,19 +2,19 @@
 using namespace aw;
 using namespace std;
 using namespace glm;
-Bullet::Bullet(shared_ptr<Mesh> mesh,Material material, GameObject *parent, vec3 projectVec) : GameObject(mesh,material, parent, false)
-{
+
+Bullet::Bullet(shared_ptr<Mesh> mesh,Material material, GameObject *parent, vec3 projectVec) : GameObject(mesh,material, parent, false){
     rigidbody.velocity = normalize(projectVec) * speed;
 }
-void Bullet::start()
-{
+
+void Bullet::start(){
     //timer.restart();
 }
-void Bullet::update()
-{
+
+void Bullet::update(const float dt){
 }
-bool Bullet::timeOut()
-{
+
+bool Bullet::timeOut(){
     //if (timer.getElapsedTime().asSeconds() >= lifeSpan)
     //{
         //return true;

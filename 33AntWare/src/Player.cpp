@@ -1,3 +1,4 @@
+#include <iostream>
 #include <engine/input/Mouse.h>
 #include <engine/input/Keyboard.h>
 #include <Player.h>
@@ -7,11 +8,12 @@ using namespace aw;
 using namespace std;
 using namespace glm;
 
-Player::Player(shared_ptr<Mesh> mesh, Material material, shared_ptr<Mesh> bulletMesh, vec2 mapMinLimit, vec2 mapMaxLimit,
+Player::Player(Camera& camera, shared_ptr<Mesh> mesh, Material material, shared_ptr<Mesh> bulletMesh, vec2 mapMinLimit, vec2 mapMaxLimit,
 	GameObject *parent) : GameObject(mesh, material, parent, false, 2),
 	bulletMesh(bulletMesh),
 	mapMinLimit(mapMinLimit),
-	mapMaxLimit(mapMaxLimit)
+	mapMaxLimit(mapMaxLimit),
+	camera(camera)
 {
 	//gunShotSoundBuffer.loadFromFile("res/audio/gunshot.wav");
 	//reloadSoundBuffer.loadFromFile("res/audio/reload.wav");
@@ -23,9 +25,14 @@ Player::Player(shared_ptr<Mesh> mesh, Material material, shared_ptr<Mesh> bullet
 	//hurtSound.setBuffer(hurtSoundBuffer);
 	//footstepsSound.setBuffer(footstepsSoundBuffer);
 	//footstepsSound.setLoop(true);
-
+	EventDispatcher::AddMouseListener(this);
 	aabb.maximize(0.2f);
 }
+
+Player::~Player() {
+	EventDispatcher::RemoveMouseListener(this);
+}
+
 void Player::start()
 {
 	transparentTexture = Mesh::createTexture("res/textures/transparent.png");
@@ -40,51 +47,73 @@ void Player::start()
 
 }
 
-void Player::update() {
+void Player::update(const float dt) {
 	Keyboard &keyboard = Keyboard::instance();
+	Mouse &mouse = Mouse::instance();
 
 	rigidbody.velocity = { 0, 0, 0 };
 	rigidbody.angularVelocity = { 0, 0, 0 };
 
-	if (!hasFallen){
-		
-		if (keyboard.keyDown(Keyboard::KEY_W)){
+	if (!hasFallen) {
+
+		if (keyboard.keyDown(Keyboard::KEY_W)) {
 			rigidbody.velocity.z -= 1;
 		}
 
-		if (keyboard.keyDown(Keyboard::KEY_S)){
+		if (keyboard.keyDown(Keyboard::KEY_S)) {
 			rigidbody.velocity.z += 1;
 		}
 
-		if (keyboard.keyDown(Keyboard::KEY_D)){
+		if (keyboard.keyDown(Keyboard::KEY_D)) {
 			rigidbody.velocity.x += 1;
 		}
 
-		if (keyboard.keyDown(Keyboard::KEY_A)){
+		if (keyboard.keyDown(Keyboard::KEY_A)) {
 			rigidbody.velocity.x -= 1;
+		}
+
+		if (keyboard.keyPressed(Keyboard::KEY_R)) {
+			reload();
+		}
+
+		//if (mouse.buttonPressed(Mouse::BUTTON_LEFT)) {
+		//	dispatchBullet();
+		//}
+
+		if (m_mouseDown) {
+			dispatchBullet();
+			m_mouseDown = false;
 		}
 	}
 
-	if (rigidbody.velocity != glm::vec3(0, 0, 0)){
+	if (rigidbody.velocity != glm::vec3(0, 0, 0)) {
 		//footstepsSound.setPitch(Keyboard::isKeyPressed(Keyboard::LShift) ? 1.5f : 1.0f);
 		//if (footstepsSound.getStatus() != sf::Sound::Playing)
 			//footstepsSound.play();
-	}else{
+	}
+	else {
 		//footstepsSound.pause();
 	}
 
 	if (length(rigidbody.velocity) > 0)
 		rigidbody.velocity = normalize(rigidbody.velocity);
 
-	rigidbody.velocity *= keyboard.keyPressed(Keyboard::KEY_LSHIFT) ? runningSpeed : speed;
+	rigidbody.velocity *= keyboard.keyDown(Keyboard::KEY_LSHIFT) ? runningSpeed : speed;
 
-	Mouse &mouse = Mouse::instance();
-	mouseDelta = { mouse.xDelta(), mouse.yDelta() };
-	mouseDelta *= -mouseSenstivity;
-	//Mouse::setPosition(glm::Vector2i{ static_cast<int>(WINDOW.internal.getSize().x / 2.0f), static_cast<int>(WINDOW.internal.getSize().y / 2.0f) }, WINDOW.internal);
+	
+	eularAngles.x -= mouse.yDelta() * mouseSenstivity;
+	eularAngles.y -= mouse.xDelta() * mouseSenstivity;
+	eularAngles.x = glm::clamp<float>(eularAngles.x, -60.0f, 80.0f);
+	
+	camera.setPosition(transform.getPosition().x, transform.getPosition().y, transform.getPosition().z);
+	camera.setRotation(-eularAngles.x, -eularAngles.y);
+	camera.moveRelative(Vector3f(0.0f, 0.5f, 0.0f));
+
+	transform.setRotation(eularAngles);
+
 	auto bulletsSize = bullets.size();
-	for (unsigned i = 0; i < bulletsSize; ++i){
-		if (bullets[i].timeOut()){
+	for (unsigned i = 0; i < bulletsSize; ++i) {
+		if (bullets[i].timeOut()) {
 			destroyBullet(i);
 			--i;
 			--bulletsSize;
@@ -93,7 +122,7 @@ void Player::update() {
 
 	vec2 positionOnY = { transform.getPosition().x, transform.getPosition().z };
 	if ((positionOnY.x < mapMinLimit.x || positionOnY.y < mapMinLimit.y ||
-		positionOnY.x > mapMaxLimit.x || positionOnY.y > mapMaxLimit.y) && !hasFallen){
+		positionOnY.x > mapMaxLimit.x || positionOnY.y > mapMaxLimit.y) && !hasFallen) {
 		hasFallen = true;
 		rigidbody.lockLinear(AXIS::x);
 		rigidbody.lockLinear(AXIS::z);
@@ -101,36 +130,32 @@ void Player::update() {
 		rigidbody.acceleration = { 0, -fallingAcceleration, 0 };
 	}
 
-	if (fallingTime >= dieAfter){
+	if (isRecoiling) {
+		recoilAnim(dt);
+	}
+
+	if (isReloading) {
+		reloadAnim(dt);
+	}
+
+	if (hasFallen) {
+		fallingTime += dt;
+	}
+
+	if (fallingTime >= dieAfter) {
 		damage(hp);
 		killSound();
 	}
 }
 
-void Player::fixedUpdate(float deltaTime){
+void Player::fixedUpdate(float deltaTime) {
 	GameObject::fixedUpdate(deltaTime);
-	eularAngles.x += mouseDelta.y * deltaTime * 10.0f;
-	eularAngles.y += mouseDelta.x * deltaTime * 10.0f;
-	eularAngles.x = glm::clamp<float>(eularAngles.x, -60.0f, 80.0f);
-	transform.setRotation(eularAngles);
-	for (unsigned i = 0; i < bullets.size(); ++i){
+	for (unsigned i = 0; i < bullets.size(); ++i) {
 		bullets[i].fixedUpdate(deltaTime);
-	}
-
-	if (isRecoiling){
-		recoilAnim(deltaTime);
-	}
-
-	if (isReloading){
-		reloadAnim(deltaTime);
-	}
-
-	if (hasFallen){
-		fallingTime += deltaTime;
-	}
+	}	
 }
 
-void Player::dispatchBullet(){
+void Player::dispatchBullet() {
 	//gunShotSound.play();
 	bullets.push_back(Bullet(bulletMesh, Material(), nullptr, vec3(0, 0, -1))); // TODO custom mat
 	bullets[bullets.size() - 1].transform = transform;
@@ -140,98 +165,111 @@ void Player::dispatchBullet(){
 	children[0]->getMesh()->setTexture(flashTexture);
 }
 
-void Player::reload(){
+void Player::reload() {
 	isReloading = true;
 	reloadTime = 0.0f;
 	if (totalAmmo > 0)
 		//reloadSound.play();
 
-	if (totalAmmo > maxAmmo){
-		inHandAmmo = maxAmmo;
-		totalAmmo -= maxAmmo;
-	}else if (totalAmmo > 0){
-		inHandAmmo = totalAmmo;
-		totalAmmo = 0;
-	}
+		if (totalAmmo > maxAmmo) {
+			inHandAmmo = maxAmmo;
+			totalAmmo -= maxAmmo;
+		}
+		else if (totalAmmo > 0) {
+			inHandAmmo = totalAmmo;
+			totalAmmo = 0;
+		}
 
 	//HUD.setInHandAmmo(inHandAmmo);
 	//HUD.setTotalAmmo(totalAmmo);
 }
 
-void Player::draw(){
+void Player::draw() {
 
 	GameObject::draw();
-	for (unsigned i = 0; i < bullets.size(); ++i){
+	for (unsigned i = 0; i < bullets.size(); ++i) {
 		bullets[i].draw();
 	}
 }
 
-void Player::destroyBullet(int index){
+void Player::destroyBullet(int index) {
 	bullets.erase(bullets.begin() + index);
 }
 
-bool Player::damage(float amount){
+bool Player::damage(float amount) {
 	//hurtSound.play();
 	hp -= amount;
 	return hp <= 0.0f;
 }
 
-void Player::recoilAnim(float deltaTime){
-	if (recoilTimeOut <= recoilTime){
+void Player::recoilAnim(float deltaTime) {
+	
+
+	if (recoilTimeOut <= recoilTime) {
 		isRecoiling = false;
 		childrenEular = { 0, 0, 0 };
 		childrenTranslation = { 0, 0, 0 };
 
-	}else{
+	}
+	else {
 		recoilTime += deltaTime;
-		if (recoilTime < (recoilTimeOut / 2.0f)){
+		if (recoilTime < (recoilTimeOut / 2.0f)) {
 			childrenEular.x += recoilImpact * deltaTime;
 			childrenTranslation.z += recoilImpact * deltaTime * 0.05f;
 
-		}else{
+		}
+		else {
 			childrenEular.x -= recoilImpact * deltaTime;
 			childrenTranslation.z -= recoilImpact * deltaTime * 0.05f;
 			children[0]->getMesh()->setTexture(transparentTexture);
 		}
 	}
 
-	for (unsigned i = 0; i < children.size(); ++i){
+	for (unsigned i = 0; i < children.size(); ++i) {
 		children[i]->transform.setRotation(childrenEular);
 		children[i]->transform.setPosition(childrenTranslation);
 	}
 }
 
-void Player::reloadAnim(float deltaTime){
+void Player::reloadAnim(float deltaTime) {
 
-	if (reloadTimeOut <= reloadTime){
+	if (reloadTimeOut <= reloadTime) {
 		isReloading = false;
 		childrenEular = { 0, 0, 0 };
 		childrenTranslation = { 0, 0, 0 };
 
-	}else{
+	}
+	else {
 		reloadTime += deltaTime;
-		if (reloadTime < (reloadTimeOut / 2.0f)){
+		if (reloadTime < (reloadTimeOut / 2.0f)) {
 			childrenEular.x -= reloadPlaybackSpeed * deltaTime;
 			childrenTranslation.z += reloadPlaybackSpeed * deltaTime * 0.005f;
-		}else{
+		}
+		else {
 			childrenEular.x += reloadPlaybackSpeed * deltaTime;
 			childrenTranslation.z -= reloadPlaybackSpeed * deltaTime * 0.005f;
 		}
 	}
 
-	for (unsigned i = 0; i < children.size(); ++i){
+	for (unsigned i = 0; i < children.size(); ++i) {
 		children[i]->transform.setRotation(childrenEular);
 		children[i]->transform.setPosition(childrenTranslation);
 	}
 }
 
-bool Player::isDead(){
+bool Player::isDead() {
 
 	return hp <= 0.0f;
 }
 
-void Player::killSound(){
+void Player::killSound() {
 	//footstepsSound.resetBuffer();
 	//reloadSound.resetBuffer();
 	//gunShotSound.resetBuffer();
+}
+
+void Player::OnMouseButtonDown(Event::MouseButtonEvent& event) {
+	if (event.button == 1u) {		
+		m_mouseDown = true;
+	}
 }

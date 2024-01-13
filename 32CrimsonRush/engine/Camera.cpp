@@ -768,7 +768,7 @@ void Camera::setRotation(float pitch, float yaw, float roll) {
 
 	float cosY = cosf(yaw);
 	float cosP = cosf(pitch);
-	float cosR = -cosf(roll);
+	float cosR = cosf(roll);
 	float sinY = sinf(yaw);
 	float sinP = sinf(pitch);
 	float sinR = sinf(roll);

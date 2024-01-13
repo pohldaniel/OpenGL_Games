@@ -1,13 +1,16 @@
 #pragma once
 #include <glm/glm.hpp>
+#include <engine/Camera.h>
+#include <engine/input/MouseEventListener.h>
+
 #include "GameObject.h"
 #include "Mesh.h"
 #include "Bullet.h"
 
-class Player : public aw::GameObject{
+class Player : public aw::GameObject, public MouseEventListener{
 
 	float speed = 10.0f, runningSpeed = 20.0f;
-	float mouseSenstivity = 10.0f;
+	float mouseSenstivity = 0.1f;
 	/** \brief Used for rotation since they are easier to work with in this
 	 * use-case.*/
 	glm::vec3 eularAngles = { 0, 0, 0 };
@@ -17,7 +20,7 @@ class Player : public aw::GameObject{
 	/** \brief Used for animating by translation, for the whole character
 	 * body.*/
 	glm::vec3 childrenTranslation = { 0, 0, 0 };
-	glm::vec2 mouseDelta;
+
 	std::shared_ptr<aw::Mesh> bulletMesh;
 	//sf::SoundBuffer gunShotSoundBuffer, footstepsSoundBuffer, reloadSoundBuffer, hurtSoundBuffer;
 	//sf::Sound gunShotSound, footstepsSound, reloadSound, hurtSound;
@@ -58,6 +61,10 @@ class Player : public aw::GameObject{
 	float fallingTime = 0.0f;
 	float dieAfter = 5.0f;
 
+	Camera& camera;
+	void OnMouseButtonDown(Event::MouseButtonEvent& event) override;
+	bool m_mouseDown = false;
+
 public:
 	/** \brief Active Bullet instances fired at the Scene.*/
 	std::vector<aw::Bullet> bullets;
@@ -72,7 +79,9 @@ public:
 	 * \param maxMinLimit The map's rectangle XZ maximum point.
 	 * \param parent The Player's parent.
 	 */
-	Player(std::shared_ptr<aw::Mesh> mesh, aw::Material material, std::shared_ptr<aw::Mesh> bulletMesh, glm::vec2 mapMinLimit, glm::vec2 mapMaxLimit, GameObject *parent = nullptr);
+	Player(Camera& camera, std::shared_ptr<aw::Mesh> mesh, aw::Material material, std::shared_ptr<aw::Mesh> bulletMesh, glm::vec2 mapMinLimit, glm::vec2 mapMaxLimit, GameObject *parent = nullptr);
+	~Player();
+	
 	/** \brief Sets up the player resources and physics state.
 	 *
 	 * Locks the Player linear movement on the Y (up) axis.
@@ -84,14 +93,14 @@ public:
 	 * Handles the player movement input and mouse motion, destroys timedout
 	 * Bullets, Kills the player if he ::fallingTime exceeds ::dieAfter.
 	 */
-	void update() override;
+	void update(const float dt) override;
 	/** \brief In addition to GameObject::fixedUpdate, it handles camera movement
 	 * correctly runs Bullet::fixedUpdate on ::bullets, updates fallingTime if
 	 * ::hasFallen and runs animations if their bool values are true.
 	 *
 	 * \param deltaTime Passed to GameObject::fixedUpdate and Bullet::fixedUpdate.
 	 */
-	void fixedUpdate(float deltaTime) override;
+	void fixedUpdate(float fdt) override;
 	/** \brief Draws the Player and ::bullets.*/
 	void draw() override;
 	/** \brief Fires a Bullet and adds it to ::bullets.*/

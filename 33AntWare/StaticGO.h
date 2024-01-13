@@ -9,6 +9,6 @@ public:
   StaticGO(std::shared_ptr<Mesh> mesh, Material material,GameObject *parent = nullptr);
 
   void start() override;
-  void update() override;
+  void update(const float dt) override;
 };
 } 

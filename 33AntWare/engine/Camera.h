@@ -16,6 +16,7 @@ public:
 	void orthographic(float left, float right, float bottom, float top, float znear, float zfar);
 	void lookAt(const Vector3f &eye, const Vector3f &target, const Vector3f &up);
 	void lookAt(const Vector3f &pos, float pitch, float yaw);
+	void lookAt(const Vector3f &pos, float pitch, float yaw, float roll);
 	void follow(const Matrix4f& targetMat, const Vector3f& targetVelocity, const float dt);
 
 	void move(float dx, float dy, float dz);

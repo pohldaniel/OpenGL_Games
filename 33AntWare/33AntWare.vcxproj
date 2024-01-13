@@ -165,7 +165,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AABB.cpp" />
-    <ClCompile Include="CameraAW.cpp" />
     <ClCompile Include="engine\AssimpModel.cpp" />
     <ClCompile Include="engine\BoundingBox.cpp" />
     <ClCompile Include="engine\sound\MusicBuffer.cpp" />
@@ -269,7 +268,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AABB.h" />
-    <ClInclude Include="CameraAW.h" />
     <ClInclude Include="engine\ArrayBuffer.h" />
     <ClInclude Include="engine\AssimpModel.h" />
     <ClInclude Include="engine\BoundingBox.h" />

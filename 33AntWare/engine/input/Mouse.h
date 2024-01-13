@@ -8,9 +8,10 @@
 class Mouse{
 public:
 	enum MouseButton{
-		BUTTON_LEFT = 0,
-		BUTTON_RIGHT = 1,
-		BUTTON_MIDDLE = 2
+		NONE = 0,
+		BUTTON_LEFT = 1,
+		BUTTON_RIGHT = 2,
+		BUTTON_MIDDLE = 3
 	};
 
 	static Mouse &instance();
@@ -112,7 +113,7 @@ private:
 	float m_mouseMovementY[2];
 	bool m_cursorVisible;
 	bool m_enableFiltering;
-	bool m_buttonStates[2][3];
+	bool m_buttonStates[2][4];
 	bool *m_pCurrButtonStates;
 	bool *m_pPrevButtonStates;
 	bool m_attached;

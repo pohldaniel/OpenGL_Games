@@ -84,7 +84,7 @@ namespace aw
 		 * Transform. \param deltaTime The time (in seconds) between the last time
 		 * physics were applied and the present (commonly known as the timestep).
 		 */
-		virtual void fixedUpdate(float deltaTime);
+		virtual void fixedUpdate(float fdt);
 		/** \brief Adds \a gameObject to ::children.
 		 * \param gameObject The GameObject to be added to ::children.
 		 */
@@ -94,7 +94,7 @@ namespace aw
 		/** \brief Abstract function, is called at Scene::start.*/
 		virtual void start() = 0;
 		/** \brief Abstract function, is called at Scene::update.*/
-		virtual void update() = 0;
+		virtual void update(const float dt) = 0;
 
 		/** \param location Overwrites ::modelLocation, the handle to the M matrix in
 		 * Shaders/main.vert*/

@@ -216,13 +216,13 @@ private:
 class Quaternion;
 class Matrix4f {
 
-	friend Vector3f operator*(const Vector4f &lhs, const Matrix4f &rhs);
-	friend Vector3f operator*(const Matrix4f &rhs, const Vector4f &lhs);
-	friend Vector3f operator*(const Vector3f &lhs, const Matrix4f &rhs);
-	friend Vector3f operator*(const Matrix4f &lhs, const Vector3f &rhs);
-	friend Vector4f operator^(const Vector4f &rhs, const Matrix4f &lhs);
-	friend Vector4f operator^(const Matrix4f &lhs, const Vector4f &rhs);
-	friend Matrix4f operator*(float scalar, const Matrix4f &rhs);
+	friend Vector3f operator*(const Vector4f& lhs, const Matrix4f& rhs);
+	friend Vector3f operator*(const Matrix4f& rhs, const Vector4f& lhs);
+	friend Vector3f operator*(const Vector3f& lhs, const Matrix4f& rhs);
+	friend Vector3f operator*(const Matrix4f& lhs, const Vector3f& rhs);
+	friend Vector4f operator^(const Vector4f& rhs, const Matrix4f& lhs);
+	friend Vector4f operator^(const Matrix4f& lhs, const Vector4f& rhs);
+	friend Matrix4f operator*(float scalar, const Matrix4f& rhs);
 	
 public:
 
@@ -241,14 +241,14 @@ public:
 
 	float *operator[](int row);
 	const float *operator[](int row) const;
-	Matrix4f &operator+=(const Matrix4f &rhs);
-	Matrix4f &operator*=(const Matrix4f &rhs);
-	Matrix4f &operator^=(const Matrix4f &rhs);
-	//Matrix4f &operator= (const Matrix4f &rhs);
+	Matrix4f& operator+=(const Matrix4f& rhs);
+	Matrix4f& operator*=(const Matrix4f& rhs);
+	Matrix4f& operator^=(const Matrix4f& rhs);
+	//Matrix4f& operator= (const Matrix4f& rhs);
 
-	Matrix4f operator+(const Matrix4f &rhs) const;
-	Matrix4f operator*(const Matrix4f &rhs) const;
-	Matrix4f operator^(const Matrix4f &rhs) const;
+	Matrix4f operator+(const Matrix4f& rhs) const;
+	Matrix4f operator*(const Matrix4f& rhs) const;
+	Matrix4f operator^(const Matrix4f& rhs) const;
 	void transpose();
 	void transpose3();
 	Matrix4f inverse() const;
@@ -256,39 +256,39 @@ public:
 
 	void identity();
 
-	void rotate(const Vector3f &axis, float degrees);
-	void rotate(const Quaternion &orientation);
+	void rotate(const Vector3f& axis, float degrees);
+	void rotate(const Quaternion& orientation);
 	void rotate(float pitch, float yaw, float roll);
 
-	void rotate(const Vector3f &axis, float degrees, const Vector3f &centerOfRotation);
-	void rotate(const Quaternion &orientation, const Vector3f &centerOfRotation);
-	void rotate(float pitch, float yaw, float roll, const Vector3f &centerOfRotation);
+	void rotate(const Vector3f& axis, float degrees, const Vector3f& centerOfRotation);
+	void rotate(const Quaternion& orientation, const Vector3f& centerOfRotation);
+	void rotate(float pitch, float yaw, float roll, const Vector3f& centerOfRotation);
 
-	void invRotate(const Vector3f &axis, float degrees);
-	void invRotate(const Quaternion &orientation);
+	void invRotate(const Vector3f& axis, float degrees);
+	void invRotate(const Quaternion& orientation);
 	void invRotate(float pitch, float yaw, float roll);
 
-	void invRotate(const Vector3f &axis, float degrees, const Vector3f &centerOfRotation);
-	void invRotate(const Quaternion &orientation, const Vector3f &centerOfRotation);
-	void invRotate(float pitch, float yaw, float roll, const Vector3f &centerOfRotation);
+	void invRotate(const Vector3f& axis, float degrees, const Vector3f& centerOfRotation);
+	void invRotate(const Quaternion& orientation, const Vector3f& centerOfRotation);
+	void invRotate(float pitch, float yaw, float roll, const Vector3f& centerOfRotation);
 
 	void translate(float dx, float dy, float dz);
-	void translate(const Vector3f &trans);
+	void translate(const Vector3f& trans);
 
 	void invTranslate(float dx, float dy, float dz);
-	void invTranslate(const Vector3f &trans);
+	void invTranslate(const Vector3f& trans);
 
 	void scale(float a, float b, float c);
-	void scale(const Vector3f &scale);
+	void scale(const Vector3f& scale);
 
-	void scale(float a, float b, float c, const Vector3f &centerOfScale);
-	void scale(const Vector3f &scale, const Vector3f &centerOfScale);
+	void scale(float a, float b, float c, const Vector3f& centerOfScale);
+	void scale(const Vector3f& scale, const Vector3f& centerOfScale);
 
 	void invScale(float a, float b, float c);
-	void invScale(const Vector3f &scale);
+	void invScale(const Vector3f& scale);
 
-	void invScale(float a, float b, float c, const Vector3f &centerOfScale);
-	void invScale(const Vector3f &scale, const Vector3f &centerOfScale);
+	void invScale(float a, float b, float c, const Vector3f& centerOfScale);
+	void invScale(const Vector3f& scale, const Vector3f& centerOfScale);
 
 	void perspective(float fovx, float aspect, float znear, float zfar);
 	//void perspective(float left, float right, float bottom, float top, float znear, float zfar);
@@ -297,10 +297,10 @@ public:
 	void linearPerspectiveD3D(float fovx, float aspect, float znear, float zfar);
 	void invPerspective(float fovx, float aspect, float znear, float zfar);
 	void invOrthographic(float left, float right, float bottom, float top, float znear, float zfar);
-	void lookAt(const Vector3f &eye, const Vector3f &target, const Vector3f &up);
-	void invLookAt(const Vector3f &eye, const Vector3f &target, const Vector3f &up);
+	void lookAt(const Vector3f& eye, const Vector3f& target, const Vector3f& up);
+	void invLookAt(const Vector3f &eye, const Vector3f& target, const Vector3f& up);
 
-	void toHeadPitchRoll(float &pitch, float &yaw, float &roll) const;
+	void toHeadPitchRoll(float& pitch, float& yaw, float& roll) const;
 
 	void print() const;
 	void set(float m11, float m12, float m13, float m14,
@@ -308,74 +308,74 @@ public:
              float m31, float m32, float m33, float m34,
              float m41, float m42, float m43, float m44);
 
-	void set(const Matrix4f &rhs);
+	void set(const Matrix4f& rhs);
 
-	static Matrix4f GetNormalMatrix(const Matrix4f &modelViewMatrix);
-	static Matrix4f &GetNormalMatrix(Matrix4f &mtx, const Matrix4f &modelViewMatrix);
+	static Matrix4f GetNormalMatrix(const Matrix4f& modelViewMatrix);
+	static Matrix4f &GetNormalMatrix(Matrix4f& mtx, const Matrix4f& modelViewMatrix);
 
 	static Matrix4f GetViewPortMatrix(float width, float height);
-	static Matrix4f &GetViewPortMatrix(Matrix4f &mtx, float width, float height);
+	static Matrix4f &GetViewPortMatrix(Matrix4f& mtx, float width, float height);
 
 	static Matrix4f Scale(float x, float y, float z);
-	static Matrix4f Scale(const Vector3f &scale);
-	static Matrix4f &Scale(Matrix4f &mtx, float x, float y, float z);
-	static Matrix4f Scale(float x, float y, float z, const Vector3f &centerOfScale);
+	static Matrix4f Scale(const Vector3f& scale);
+	static Matrix4f &Scale(Matrix4f& mtx, float x, float y, float z);
+	static Matrix4f Scale(float x, float y, float z, const Vector3f& centerOfScale);
 
 	static Matrix4f Translate(float dx, float dy, float dz);
-	static Matrix4f Translate(const Vector3f &trans);
-	static Matrix4f &Translate(Matrix4f &mtx, float dx, float dy, float dz);
+	static Matrix4f Translate(const Vector3f & trans);
+	static Matrix4f &Translate(Matrix4f& mtx, float dx, float dy, float dz);
 
 	static Matrix4f InvTranslate(float dx, float dy, float dz);
-	static Matrix4f InvTranslate(const Vector3f &trans);
-	static Matrix4f &InvTranslate(Matrix4f &mtx, float dx, float dy, float dz);
+	static Matrix4f InvTranslate(const Vector3f& trans);
+	static Matrix4f &InvTranslate(Matrix4f& mtx, float dx, float dy, float dz);
 
-	static Matrix4f Rotate(const Vector3f &axis, float degrees);
-	static Matrix4f Rotate(const Quaternion &orientation);
+	static Matrix4f Rotate(const Vector3f& axis, float degrees);
+	static Matrix4f Rotate(const Quaternion& orientation);
 	static Matrix4f Rotate(float pitch, float yaw, float roll);
 
-	static Matrix4f Rotate(const Vector3f &axis, float degrees, const Vector3f &centerOfRotation);
-	static Matrix4f Rotate(const Quaternion &orientation, const Vector3f &centerOfRotation);
-	static Matrix4f Rotate(float pitch, float yaw, float roll, const Vector3f &centerOfRotation);
+	static Matrix4f Rotate(const Vector3f& axis, float degrees, const Vector3f& centerOfRotation);
+	static Matrix4f Rotate(const Quaternion& orientation, const Vector3f& centerOfRotation);
+	static Matrix4f Rotate(float pitch, float yaw, float roll, const Vector3f& centerOfRotation);
 
-	static Matrix4f &Rotate(Matrix4f &mtx, const Vector3f &axis, float degrees);
-	static Matrix4f &Rotate(Matrix4f &mtx, const Vector3f &axis, float degrees, const Vector3f &centerOfRotation);
+	static Matrix4f &Rotate(Matrix4f& mtx, const Vector3f& axis, float degrees);
+	static Matrix4f &Rotate(Matrix4f& mtx, const Vector3f& axis, float degrees, const Vector3f&centerOfRotation);
 
-	static Matrix4f Rotate(const Vector3f &direction);
-	static Matrix4f Rotate(const Vector3f &direction, const Vector3f &poisiton);
+	static Matrix4f Rotate(const Vector3f& direction);
+	static Matrix4f Rotate(const Vector3f& direction, const Vector3f&poisiton);
 
-	static Matrix4f InvRotate(const Vector3f &axis, float degrees);
-	static Matrix4f InvRotate(const Quaternion &orientation);
+	static Matrix4f InvRotate(const Vector3f& axis, float degrees);
+	static Matrix4f InvRotate(const Quaternion& orientation);
 	static Matrix4f InvRotate(float pitch, float yaw, float roll);
 
-	static Matrix4f InvRotate(const Vector3f &axis, float degrees, const Vector3f &centerOfRotation);
-	static Matrix4f InvRotate(const Quaternion &orientation, const Vector3f &centerOfRotation);
-	static Matrix4f InvRotate(float pitch, float yaw, float roll, const Vector3f &centerOfRotation);
+	static Matrix4f InvRotate(const Vector3f& axis, float degrees, const Vector3f& centerOfRotation);
+	static Matrix4f InvRotate(const Quaternion& orientation, const Vector3f& centerOfRotation);
+	static Matrix4f InvRotate(float pitch, float yaw, float roll, const Vector3f & centerOfRotation);
 
-	static Matrix4f &InvRotate(Matrix4f &mtx, const Vector3f &axis, float degrees);
-	static Matrix4f &InvRotate(Matrix4f &mtx, const Vector3f &axis, float degrees, const Vector3f &centerOfRotation);
+	static Matrix4f &InvRotate(Matrix4f& mtx, const Vector3f& axis, float degrees);
+	static Matrix4f &InvRotate(Matrix4f& mtx, const Vector3f& axis, float degrees, const Vector3f& centerOfRotation);
 
 	static Matrix4f Perspective(float fovx, float aspect, float znear, float zfar);
-	static Matrix4f &Perspective(Matrix4f &mtx, float fovx, float aspect, float znear, float zfar);
+	static Matrix4f &Perspective(Matrix4f& mtx, float fovx, float aspect, float znear, float zfar);
 	static Matrix4f Perspective(float left, float right, float bottom, float top, float znear, float zfar);
 
-	static Matrix4f LookAt(const Vector3f &eye, const Vector3f &target, const Vector3f &up);
+	static Matrix4f LookAt(const Vector3f& eye, const Vector3f& target, const Vector3f& up);
 
 	static Matrix4f InvPerspective(float fovx, float aspect, float znear, float zfar);
-	static Matrix4f &InvPerspective(Matrix4f &mtx, float fovx, float aspect, float znear, float zfar);
-	static Matrix4f InvPerspective(const Matrix4f &pers);
+	static Matrix4f &InvPerspective(Matrix4f& mtx, float fovx, float aspect, float znear, float zfar);
+	static Matrix4f InvPerspective(const Matrix4f& pers);
 
 	static Matrix4f Orthographic(float left, float right, float bottom, float top, float znear, float zfar);
-	static Matrix4f &Orthographic(Matrix4f &mtx, float left, float right, float bottom, float top, float znear, float zfar);
+	static Matrix4f &Orthographic(Matrix4f& mtx, float left, float right, float bottom, float top, float znear, float zfar);
 
 	static Matrix4f InvOrthographic(float left, float right, float bottom, float top, float znear, float zfar);
-	static Matrix4f &InvOrthographic(Matrix4f &mtx, float left, float right, float bottom, float top, float znear, float zfar);
-	static Matrix4f InvOrthographic(const Matrix4f &ortho);
+	static Matrix4f &InvOrthographic(Matrix4f& mtx, float left, float right, float bottom, float top, float znear, float zfar);
+	static Matrix4f InvOrthographic(const Matrix4f& ortho);
 
-	static Matrix4f InvViewMatrix(const Matrix4f &viewMatrix);
+	static Matrix4f InvViewMatrix(const Matrix4f& viewMatrix);
 
-	static Matrix4f &Transpose(Matrix4f &m);
-	static Matrix4f Transpose(const Matrix4f &m);
-	static Matrix4f Inverse(const Matrix4f &m);
+	static Matrix4f &Transpose(Matrix4f& m);
+	static Matrix4f Transpose(const Matrix4f& m);
+	static Matrix4f Inverse(const Matrix4f& m);
 
 private:
 

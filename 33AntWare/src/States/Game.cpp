@@ -14,24 +14,19 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
 	EventDispatcher::AddMouseListener(this);
+	//Mouse::instance().attach(Application::GetWindow());
 
 	m_camera = Camera();
-	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
+	m_camera.perspective(45.0f * _180_ON_PI, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 120.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
-	m_camera.lookAt(Vector3f(0.0f, 2.0f, -10.0f), Vector3f(0.0f, 2.0f, -10.0f) + Vector3f(0.0f, 0.0f, 1.0f), Vector3f(0.0f, 1.0f, 0.0f));
-	m_camera.setRotationSpeed(0.1f);
-	m_camera.setMovingSpeed(10.0f);
+	m_camera.lookAt(Vector3f(0.0f, 0.5f, 0.0f), Vector3f(0.0f, 0.5f, 0.0f) - Vector3f(0.0f, 0.0f, 1.0f), Vector3f(0.0f, 1.0f, 0.0f));
+
+	m_camera.setPosition(10.0f, 0.5f, 0.0f);
+	m_camera.setRotationSpeed(1.0f);
+	m_camera.setMovingSpeed(1.0f);
 
 	glClearColor(0.494f, 0.686f, 0.796f, 1.0f);
 	glClearDepth(1.0f);
-
-	m_background.setLayer(std::vector<BackgroundLayer>{
-		{ &Globals::textureManager.get("forest_1"), 1, 1.0f },
-		{ &Globals::textureManager.get("forest_2"), 1, 2.0f },
-		{ &Globals::textureManager.get("forest_3"), 1, 3.0f },
-		{ &Globals::textureManager.get("forest_4"), 1, 4.0f },
-		{ &Globals::textureManager.get("forest_5"), 1, 5.0f }});
-	m_background.setSpeed(0.005f);
 
 	glGenBuffers(1, &Globals::lightUbo);
 	glBindBuffer(GL_UNIFORM_BUFFER, Globals::lightUbo);
@@ -41,8 +36,6 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 
 	auto shader = Globals::shaderManager.getAssetPointer("antware");
 	aw::Material::setUniformsLocation(shader->m_program);
-
-	//glUniformBlockBinding(shader->m_program, glGetUniformBlockIndex(shader->m_program, "Lights"), Globals::lightBinding);
 
 	m_model.loadModel("res/models/Ant.glb", false, false, false);
 	Material& material = Material::GetMaterials()[m_model.getMeshes()[0]->getMaterialIndex()];
@@ -55,7 +48,7 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 	m_ant->loadSequence("res/animations/ant_walkcycle");
 	m_ant->addMesh(m_model.getMeshes()[0]->getVertexBuffer(), m_model.getMeshes()[0]->getIndexBuffer());
 	m_ant->loadSequenceGpu();
-	m_ant->setPosition(0.0f, 0.0f, 0.0f);
+	m_ant->setPosition(0.0f, 0.0f, -10.0f);
 	m_ant->start();
 
 	m_muzzleMesh = std::make_shared<aw::Mesh>("res/models/MuzzleQuad.glb", nullptr, false);
@@ -66,7 +59,7 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 	m_cpuMesh = std::make_shared<aw::Mesh>("res/models/CPU.glb", "res/textures/CPU.jpg", false);
 	m_platformMesh = std::make_shared<aw::Mesh>("res/models/Platform.glb", nullptr, false);
 
-
+	m_meshes.push_back(m_muzzleMesh);
 	m_meshes.push_back(m_bulletMesh);
 	m_meshes.push_back(m_gunMesh);
 	m_meshes.push_back(m_handsMesh);
@@ -75,12 +68,13 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 	m_meshes.push_back(m_platformMesh);
 	aw::Mesh::constructVAO(m_meshes);
 
-	m_player = new Player(std::make_shared<aw::Mesh>("res/models/PlayerCube.glb"),
+	m_player = new Player(m_camera,std::make_shared<aw::Mesh>("res/models/PlayerCube.glb"),
 		aw::Material(),
 		m_bulletMesh,
 		glm::vec2(-51.5f, -51.5f),
 		glm::vec2(51.5f, 51.5f),
 		nullptr);
+	m_player->transform = aw::Transform(glm::vec3(0.0f, 0.0f, 5.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
 
 	m_muzzleGO = new aw::StaticGO(m_muzzleMesh, aw::Material(), m_player);
 	m_gunGO = new aw::StaticGO(m_gunMesh, aw::Material(), m_player);
@@ -90,13 +84,6 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 	m_platformGO = new aw::StaticGO(m_platformMesh, aw::Material(), nullptr);
 
 	m_player->start();
-
-	m_cameraAW = new aw::Camera(45.0f);
-
-	
-	m_cameraAW->setViewPerspectiveLocation(Globals::shaderManager.getAssetPointer("antware")->getUnifromLocation("u_view"));
-	m_cameraAW->setPosLoaction(Globals::shaderManager.getAssetPointer("antware")->getUnifromLocation("u_campos"));
-	
 }
 
 Game::~Game() {
@@ -106,87 +93,19 @@ Game::~Game() {
 
 void Game::fixedUpdate() {
 	m_player->fixedUpdate(m_fdt);
-	m_cameraAW->fixedUpdate(m_fdt);
 }
 
 void Game::update() {
-	Keyboard &keyboard = Keyboard::instance();
-	Vector3f directrion = Vector3f();
-
-	float dx = 0.0f;
-	float dy = 0.0f;
-	bool move = false;
-
-	if (keyboard.keyDown(Keyboard::KEY_W)) {
-		directrion += Vector3f(0.0f, 0.0f, 1.0f);
-		move |= true;
-	}
-
-	if (keyboard.keyDown(Keyboard::KEY_S)) {
-		directrion += Vector3f(0.0f, 0.0f, -1.0f);
-		move |= true;
-	}
-
-	if (keyboard.keyDown(Keyboard::KEY_A)) {
-		directrion += Vector3f(-1.0f, 0.0f, 0.0f);
-		m_background.addOffset(-0.001f);
-		m_background.setSpeed(-0.005f);
-		move |= true;
-	}
-
-	if (keyboard.keyDown(Keyboard::KEY_D)) {
-		directrion += Vector3f(1.0f, 0.0f, 0.0f);
-		m_background.addOffset(0.001f);
-		m_background.setSpeed(0.005f);
-		move |= true;
-	}
-
-	if (keyboard.keyDown(Keyboard::KEY_Q)) {
-		directrion += Vector3f(0.0f, -1.0f, 0.0f);
-		move |= true;
-	}
-
-	if (keyboard.keyDown(Keyboard::KEY_E)) {
-		directrion += Vector3f(0.0f, 1.0f, 0.0f);
-		move |= true;
-	}
-
-	Mouse &mouse = Mouse::instance();
-
-	if (mouse.buttonDown(Mouse::MouseButton::BUTTON_RIGHT)) {
-		dx = mouse.xDelta();
-		dy = mouse.yDelta();
-	}
-
-	/*if (move || dx != 0.0f || dy != 0.0f) {
-		if (dx || dy) {
-			m_camera.rotate(dx, dy);
-		}
-
-		if (move) {
-			m_camera.move(directrion * m_dt);
-		}
-	}*/
-
-	m_background.update(m_dt);
 	m_ant->update(m_dt);
 	m_ant->rotate(0.0f, 30.0f * m_dt, 0.0f);
-
-	m_player->update();
-	m_cameraAW->transform = m_player->transform;
-	m_cameraAW->transform.translate({ 0, 0.5f, 0 });
-
-
-	Globals::shaderManager.getAssetPointer("antware")->use();
-	m_cameraAW->update();
-	Globals::shaderManager.getAssetPointer("antware")->unuse();
+	m_player->update(m_dt);
 }
 
 void Game::render() {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	/*auto shader = Globals::shaderManager.getAssetPointer("texture");
+	auto shader = Globals::shaderManager.getAssetPointer("texture");
 	shader->use();
 	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
 	shader->loadMatrix("u_view", m_camera.getViewMatrix());
@@ -194,14 +113,14 @@ void Game::render() {
 	Globals::textureManager.get("ant").bind();
 	m_ant->drawRaw();
 	Globals::textureManager.get("ant").unbind();
-	shader->unuse();*/
+	shader->unuse();
 
 	//m_gun.draw(m_camera);
-
-	auto shader = Globals::shaderManager.getAssetPointer("antware");
+	
+	shader = Globals::shaderManager.getAssetPointer("antware");
 	shader->use();
-	//shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
-	//shader->loadMatrix("u_view", Matrix4f::IDENTITY);
+	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
+	shader->loadMatrix("u_view", m_camera.getViewMatrix());
 	shader->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(m_camera.getViewMatrix() * Matrix4f::IDENTITY));
 	//shader->loadMatrix("u_model", Matrix4f::IDENTITY);
 
@@ -218,9 +137,10 @@ void Game::render() {
 
 	shader->loadMatrix("u_model", (const float*)glm::value_ptr(m_cpuGO->applyTransform()));
 	m_cpuGO->draw();
-
 	shader->loadMatrix("u_model", (const float*)glm::value_ptr(m_platformGO->applyTransform()));
 	m_platformGO->draw();
+	shader->loadMatrix("u_model", (const float*)glm::value_ptr(m_muzzleGO->applyTransform()));
+	m_muzzleGO->draw();
 
 	//m_player->draw();
 

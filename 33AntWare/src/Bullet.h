@@ -24,7 +24,7 @@ namespace aw
     /** \brief Restarts ::timer.*/
     void start() override;
     /** \brief Does nothing.*/
-    void update() override;
+    void update(const float dt) override;
     /** \return true if the ::timer has elapsed more than ::lifeSpan.
      * \return false otherwise.
      */

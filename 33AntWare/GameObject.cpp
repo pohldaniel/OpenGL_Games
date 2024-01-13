@@ -59,12 +59,12 @@ void GameObject::draw()
 	recalculateAABB();
 	meshPtr->draw();
 }
-void GameObject::fixedUpdate(float deltaTime)
+void GameObject::fixedUpdate(float fdt)
 {
 	if (isStatic)
 		return;
-	rigidbody.velocity += rigidbody.acceleration * deltaTime;
-	rigidbody.angularVelocity += rigidbody.angularAcceleration * deltaTime;
+	rigidbody.velocity += rigidbody.acceleration * fdt;
+	rigidbody.angularVelocity += rigidbody.angularAcceleration * fdt;
 	vec3 appliedVelocity = mat3(transform.getRotation()) * rigidbody.velocity;
 	vec3 appliedAngularVelocity = mat3(transform.getRotation()) * rigidbody.angularVelocity;
 	if (rigidbody.isLinearLocked(AXIS::x))
@@ -79,8 +79,8 @@ void GameObject::fixedUpdate(float deltaTime)
 		appliedAngularVelocity.y = 0;
 	if (rigidbody.isAngularLocked(AXIS::z))
 		appliedAngularVelocity.z = 0;
-	transform.translateGlobal(appliedVelocity * deltaTime);
-	transform.rotateGlobal(appliedAngularVelocity * deltaTime);
+	transform.translateGlobal(appliedVelocity * fdt);
+	transform.rotateGlobal(appliedAngularVelocity * fdt);
 }
 void GameObject::constructAABB()
 {
