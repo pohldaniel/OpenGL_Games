@@ -3,6 +3,7 @@
 #include <engine/input/Keyboard.h>
 #include <Player.h>
 #include "Application.h"
+#include "HUD.h"
 
 using namespace aw;
 using namespace std;
@@ -27,15 +28,6 @@ Player::Player(Camera& camera, shared_ptr<Mesh> mesh, Material material, shared_
 	//footstepsSound.setLoop(true);
 	EventDispatcher::AddMouseListener(this);
 	aabb.maximize(0.2f);
-
-	/*std::cout << "AABB: " << aabb.bounds[0].x << "  " << aabb.bounds[0].y << "  " << aabb.bounds[0].z << std::endl;
-	std::cout << "AABB: " << aabb.bounds[1].x << "  " << aabb.bounds[1].y << "  " << aabb.bounds[1].z << std::endl;
-	std::cout << "AABB: " << aabb.bounds[2].x << "  " << aabb.bounds[2].y << "  " << aabb.bounds[2].z << std::endl;
-	std::cout << "AABB: " << aabb.bounds[3].x << "  " << aabb.bounds[3].y << "  " << aabb.bounds[3].z << std::endl;
-	std::cout << "AABB: " << aabb.bounds[4].x << "  " << aabb.bounds[4].y << "  " << aabb.bounds[4].z << std::endl;
-	std::cout << "AABB: " << aabb.bounds[5].x << "  " << aabb.bounds[5].y << "  " << aabb.bounds[5].z << std::endl;
-	std::cout << "AABB: " << aabb.bounds[6].x << "  " << aabb.bounds[6].y << "  " << aabb.bounds[6].z << std::endl;
-	std::cout << "AABB: " << aabb.bounds[7].x << "  " << aabb.bounds[7].y << "  " << aabb.bounds[7].z << std::endl;*/
 }
 
 Player::~Player() {
@@ -49,9 +41,6 @@ void Player::start(){
 	isStatic = false;
 	rigidbody.lockLinear(AXIS::y);
 	rigidbody.lockAngular(AXIS::z);
-
-	// Reset mouse's position on player (and therefore scene) start
-	Mouse::instance().setPosition(Application::Width / 2, Application::Height / 2);
 }
 
 void Player::update(const float dt) {
@@ -79,16 +68,38 @@ void Player::update(const float dt) {
 			rigidbody.velocity.x -= 1;
 		}
 
-		if (keyboard.keyPressed(Keyboard::KEY_R)) {
-			reload();
+		//if (keyboard.keyPressed(Keyboard::KEY_R)) {
+		//	reload();
+		//}
+
+		if (keyboard.keyPressed(Keyboard::KEY_R) && reloadTimer.getElapsedTimeSec() > 1.5f){
+			if (totalAmmo > 0 && inHandAmmo < maxAmmo){
+				reloadTimer.reset();
+				reload();
+			}
 		}
 
 		//if (mouse.buttonPressed(Mouse::BUTTON_LEFT)) {
 		//	dispatchBullet();
 		//}
 
-		if (m_mouseDown) {
+		if (m_mouseDown && reloadTimer.getElapsedTimeSec() > 1.5f && shootTimer.getElapsedTimeSec() > 0.2f) {
 			dispatchBullet();
+
+			if (inHandAmmo > 0){
+				dispatchBullet();
+				inHandAmmo--;
+				shootTimer.reset();
+				HUD.setInHandAmmo(inHandAmmo);
+				HUD.setTotalAmmo(totalAmmo);
+			}else{
+
+				if (totalAmmo > 0 && reloadTimer.getElapsedTimeSec() > 1.5f){
+					reloadTimer.reset();
+					reload();
+				}
+			}
+
 			m_mouseDown = false;
 		}
 	}

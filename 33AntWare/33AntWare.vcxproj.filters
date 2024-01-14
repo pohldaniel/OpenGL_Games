@@ -363,6 +363,9 @@
     <ClCompile Include="StaticGO.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="HUD.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="convhull\convhull_3d.h">
@@ -693,6 +696,9 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="StaticGO.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="HUD.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

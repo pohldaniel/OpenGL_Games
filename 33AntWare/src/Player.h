@@ -1,7 +1,8 @@
 #pragma once
 #include <glm/glm.hpp>
-#include <engine/Camera.h>
 #include <engine/input/MouseEventListener.h>
+#include <engine/Camera.h>
+#include <engine/Clock.h>
 
 #include "GameObject.h"
 #include "Mesh.h"
@@ -64,6 +65,7 @@ class Player : public aw::GameObject, public MouseEventListener{
 	Camera& camera;
 	void OnMouseButtonDown(Event::MouseButtonEvent& event) override;
 	bool m_mouseDown = false;
+	Clock shootTimer, reloadTimer;
 
 public:
 	/** \brief Active Bullet instances fired at the Scene.*/

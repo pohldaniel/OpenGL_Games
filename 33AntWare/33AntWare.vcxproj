@@ -173,6 +173,7 @@
     <ClCompile Include="engine\Thread.cpp" />
     <ClCompile Include="engine\ZoomableQuad.cpp" />
     <ClCompile Include="GameObject.cpp" />
+    <ClCompile Include="HUD.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="src\Ant.cpp" />
     <ClCompile Include="src\Bullet.cpp" />
@@ -327,6 +328,7 @@
     <ClInclude Include="engine\VolumeBuffer.h" />
     <ClInclude Include="engine\ZoomableQuad.h" />
     <ClInclude Include="GameObject.h" />
+    <ClInclude Include="HUD.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="src\Ant.h" />
     <ClInclude Include="src\Application.h" />

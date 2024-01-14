@@ -14,7 +14,7 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
 	EventDispatcher::AddMouseListener(this);
-	//Mouse::instance().attach(Application::GetWindow());
+	Mouse::instance().attach(Application::GetWindow());
 
 	m_camera = Camera();
 	m_camera.perspective(45.0f * _180_ON_PI, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 120.0f);
@@ -44,16 +44,9 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 	Material::GetMaterials()[m_gun.getMeshes()[0]->getMaterialIndex()].textures[0].loadFromFile("res/textures/Gun.png", true);
 	m_gun.initShader();
 
-
 	m_objSequence.loadSequence("res/animations/ant_walkcycle");
 	m_objSequence.addMesh(m_model.getMeshes()[0]->getVertexBuffer(), m_model.getMeshes()[0]->getIndexBuffer());
 	m_objSequence.loadSequenceGpu();
-
-	/*m_ant->loadSequence("res/animations/ant_walkcycle");
-	m_ant->addMesh(m_model.getMeshes()[0]->getVertexBuffer(), m_model.getMeshes()[0]->getIndexBuffer());
-	m_ant->loadSequenceGpu();
-	m_ant->setPosition(0.0f, 0.0f, -10.0f);
-	m_ant->start();*/
 
 	m_muzzleMesh = std::make_shared<aw::Mesh>("res/models/MuzzleQuad.glb", nullptr, false);
 	m_bulletMesh = std::make_shared<aw::Mesh>("res/models/Bullet.glb", "res/textures/Bullet.png", false);
@@ -147,6 +140,32 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 	m_ant9->isStatic = false;
 	m_ant9->rigidbody = aw::Rigidbody();
 	m_ant9->start();
+
+	m_gameObjects.push_back(m_player);
+	m_gameObjects.push_back(m_muzzleGO);
+	m_gameObjects.push_back(m_gunGO);
+	m_gameObjects.push_back(m_handsGO);
+	m_gameObjects.push_back(m_glovesGO);
+	m_gameObjects.push_back(m_cpuGO);
+	m_gameObjects.push_back(m_platformGO);
+
+	m_ants.push_back(m_ant1);
+	m_ants.push_back(m_ant2);
+	m_ants.push_back(m_ant3);
+	m_ants.push_back(m_ant4);
+	m_ants.push_back(m_ant5);
+	m_ants.push_back(m_ant6);
+	m_ants.push_back(m_ant7);
+	m_ants.push_back(m_ant8);
+	m_ants.push_back(m_ant9);
+
+	HUD.setHP(m_player->hp * 10);
+	HUD.setInHandAmmo(m_player->inHandAmmo);
+	HUD.setTotalAmmo(m_player->totalAmmo);
+	HUD.setStatus(aw::ONGOING);
+	HUD.setShaderProgram(Globals::shaderManager.getAssetPointer("hud")->m_program);
+
+	gameStatus = aw::ONGOING;
 }
 
 Game::~Game() {
@@ -155,58 +174,83 @@ Game::~Game() {
 }
 
 void Game::fixedUpdate() {
-	m_ant1->fixedUpdate(m_dt);
-	m_ant2->fixedUpdate(m_dt);
-	m_ant3->fixedUpdate(m_dt);
-	m_ant4->fixedUpdate(m_dt);
-	m_ant5->fixedUpdate(m_dt);
-	m_ant6->fixedUpdate(m_dt);
-	m_ant7->fixedUpdate(m_dt);
-	m_ant8->fixedUpdate(m_dt);
-	m_ant9->fixedUpdate(m_dt);
-	m_player->fixedUpdate(m_fdt);
+
+	for(auto gameObject : m_gameObjects)
+		gameObject->fixedUpdate(m_fdt);
+
+	for (auto ant : m_ants)
+		ant->fixedUpdate(m_fdt);
 }
 
 void Game::update() {
-	m_ant1->update(m_dt);
-	m_ant2->update(m_dt);
-	m_ant3->update(m_dt);
-	m_ant4->update(m_dt);
-	m_ant5->update(m_dt);
-	m_ant6->update(m_dt);
-	m_ant7->update(m_dt);
-	m_ant8->update(m_dt);
-	m_ant9->update(m_dt);
-	m_player->update(m_dt);
+
+	for (auto gameObject : m_gameObjects)
+		gameObject->update(m_dt);
+
+	for (auto ant : m_ants)
+		ant->update(m_dt);
+
+	auto player = m_player;
+	auto bullets = player->bullets;
+	auto antsSize = m_ants.size();
+	auto bulletsSize = player->bullets.size();
+	bool isWin = true;
+	for (unsigned i = 0; i < antsSize; ++i){
+
+		if (m_ants[i]->getClass() == 3){
+
+			isWin = false;
+			auto ant = ((Ant *)(m_ants[i]));
+			if (ant->timeToDestroy()){
+				destroyGameObject(i);
+				--i;
+				--antsSize;
+			}
+
+			for (unsigned j = 0; j < bulletsSize; ++j){
+				if (ant->aabb.isColliding(bullets[j].transform.getPosition()))
+				{
+					ant->damage(1);
+					player->destroyBullet(j);
+					--j;
+					--bulletsSize;
+				}
+			}
+
+			if (ant->aabb.isColliding(m_player->aabb) && Globals::clock.getElapsedTimeSec() > 2.0f && ant->timeSinceDealtDamage.getElapsedTimeSec() >= 1.0f){
+				ant->timeSinceDealtDamage.reset();
+				player->damage(1.0f);
+				HUD.setIsHurting(true);
+				player->timeSinceDamage = Globals::clock.getElapsedTimeSec();
+				HUD.setHP(player->hp * 10);
+			}
+		}
+	}
+
+	if (Globals::clock.getElapsedTimeSec() - player->timeSinceDamage > 0.25f){
+		HUD.setIsHurting(false);
+	}
+
+	if (isWin){
+		gameStatus = aw::WIN;
+		HUD.setStatus(aw::WIN);
+		player->killSound();
+	}else if (player->isDead() || (player->inHandAmmo <= 0 && player->totalAmmo <= 0)){
+		gameStatus = aw::LOSE;
+		HUD.setStatus(aw::LOSE);
+		player->killSound();
+	}
 }
 
 void Game::render() {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	/*auto shader = Globals::shaderManager.getAssetPointer("texture");
-	shader->use();
-	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
-	shader->loadMatrix("u_view", m_camera.getViewMatrix());
-	shader->loadMatrix("u_model", m_ant->getTransformationMatrix());
-	Globals::textureManager.get("ant").bind();
-	m_ant->drawRaw();
-	Globals::textureManager.get("ant").unbind();
-	shader->unuse();*/
-
-	//m_gun.draw(m_camera);
-	
 	auto shader = Globals::shaderManager.getAssetPointer("antware");
 	shader->use();
 	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
 	shader->loadMatrix("u_view", m_camera.getViewMatrix());
 	shader->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(m_camera.getViewMatrix() * Matrix4f::IDENTITY));
-	//shader->loadMatrix("u_model", Matrix4f::IDENTITY);
-
-	//m_bulletMesh->draw();
-	//m_gunMesh->draw();
-	//m_handsMesh->draw();
-	//m_glovesMesh->draw();
 	
 	shader->loadMatrix("u_model", (const float*)glm::value_ptr(m_cpuGO->applyTransform()));
 	m_cpuGO->draw();
@@ -214,47 +258,27 @@ void Game::render() {
 	m_platformGO->draw();
 
 	Globals::textureManager.get("ant").bind();
-	shader->loadMatrix("u_model", (const float*)glm::value_ptr(m_ant1->applyTransform()));
-	m_ant1->draw();
 
-	shader->loadMatrix("u_model", (const float*)glm::value_ptr(m_ant2->applyTransform()));
-	m_ant2->draw();
-
-	shader->loadMatrix("u_model", (const float*)glm::value_ptr(m_ant3->applyTransform()));
-	m_ant3->draw();
-
-	shader->loadMatrix("u_model", (const float*)glm::value_ptr(m_ant4->applyTransform()));
-	m_ant4->draw();
-
-	shader->loadMatrix("u_model", (const float*)glm::value_ptr(m_ant5->applyTransform()));
-	m_ant5->draw();
-
-	shader->loadMatrix("u_model", (const float*)glm::value_ptr(m_ant6->applyTransform()));
-	m_ant6->draw();
-
-	shader->loadMatrix("u_model", (const float*)glm::value_ptr(m_ant7->applyTransform()));
-	m_ant7->draw();
-
-	shader->loadMatrix("u_model", (const float*)glm::value_ptr(m_ant8->applyTransform()));
-	m_ant8->draw();
-
-	shader->loadMatrix("u_model", (const float*)glm::value_ptr(m_ant9->applyTransform()));
-	m_ant9->draw();
+	for (auto ant : m_ants) {
+		shader->loadMatrix("u_model", (const float*)glm::value_ptr(ant->applyTransform()));
+		ant->draw();
+	}
 	Globals::textureManager.get("ant").unbind();
 
+	glDisable(GL_DEPTH_TEST);
+	shader->loadMatrix("u_model", (const float*)glm::value_ptr(m_muzzleGO->applyTransform()));
+	m_muzzleGO->draw();
 	shader->loadMatrix("u_model", (const float*)glm::value_ptr(m_gunGO->applyTransform()));
 	m_gunGO->draw();
 	shader->loadMatrix("u_model", (const float*)glm::value_ptr(m_handsGO->applyTransform()));
 	m_handsGO->draw();
 	shader->loadMatrix("u_model", (const float*)glm::value_ptr(m_glovesGO->applyTransform()));
 	m_glovesGO->draw();
-
-	shader->loadMatrix("u_model", (const float*)glm::value_ptr(m_muzzleGO->applyTransform()));
-	m_muzzleGO->draw();
-
-	//m_player->draw();
+	glEnable(GL_DEPTH_TEST);
 
 	shader->unuse();
+
+	HUD.draw();
 
 	if (m_drawUi)
 		renderUi();
@@ -341,4 +365,9 @@ void Game::renderUi() {
 
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+}
+
+void Game::destroyGameObject(int index) {
+	delete m_ants[index];
+	m_ants.erase(m_ants.begin() + index);
 }

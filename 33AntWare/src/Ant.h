@@ -22,6 +22,8 @@ public:
 	void die();
 	bool timeToDestroy();
 
+	Clock timeSinceDealtDamage;
+
 private:
 
 	void animate(float deltaTime);
