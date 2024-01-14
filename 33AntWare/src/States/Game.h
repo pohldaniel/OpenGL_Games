@@ -56,11 +56,12 @@ private:
 	bool m_initUi = true;
 	bool m_drawUi = true;
 
+	ObjSequence m_objSequence;
 	Camera m_camera;
 	AssimpModel m_model;
 	AssimpModel m_gun;
 
-	Ant* m_ant;
+	
 
 	std::shared_ptr<aw::Mesh> m_muzzleMesh = nullptr;
 	std::shared_ptr<aw::Mesh> m_bulletMesh = nullptr;
@@ -69,6 +70,8 @@ private:
 	std::shared_ptr<aw::Mesh> m_glovesMesh = nullptr;
 	std::shared_ptr<aw::Mesh> m_cpuMesh = nullptr;
 	std::shared_ptr<aw::Mesh> m_platformMesh = nullptr;
+	std::shared_ptr<aw::Mesh> m_antMesh = nullptr;
+	std::shared_ptr<aw::Mesh> m_cubeMesh = nullptr;
 
 
 	Player* m_player = nullptr;
@@ -78,6 +81,7 @@ private:
 	aw::StaticGO* m_glovesGO = nullptr;
 	aw::StaticGO* m_cpuGO = nullptr;
 	aw::StaticGO* m_platformGO = nullptr;
+	Ant *m_ant1 = nullptr, *m_ant2 = nullptr, *m_ant3 = nullptr, *m_ant4 = nullptr, *m_ant5 = nullptr, *m_ant6 = nullptr, *m_ant7 = nullptr, *m_ant8 = nullptr, *m_ant9 = nullptr;
 
 	std::vector<std::shared_ptr<aw::Mesh>> m_meshes;
 };

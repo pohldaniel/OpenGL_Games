@@ -15,6 +15,7 @@ material(material)
 	setParent(parent);
 	constructAABB();
 }
+
 GameObject::GameObject(Mesh mesh, Material material, GameObject *parent, bool isStatic, int type) : meshPtr(make_shared<Mesh>(mesh)),
 isStatic(isStatic),
 classType(type),
@@ -24,13 +25,11 @@ material(material)
 	constructAABB();
 }
 
-mat4 GameObject::applyTransform()
-{
+mat4 GameObject::applyTransform(){
+
 	mat4 parentMat(1.0f);
 	if (parent != nullptr)
 		parentMat = parent->applyTransform();
-
-	
 
 	vec3 translation = transform.getPosition();
 	vec3 scale = transform.getScale();
@@ -40,27 +39,21 @@ mat4 GameObject::applyTransform()
 	mat4 scaleMat = glm::scale(mat4(1.0f), scale);
 
 	mat4 transform = transMat * rotationMat * scaleMat;
+	transformationMat = parentMat * transform;
+	
+	if(!isStatic)
+		recalculateAABB();
 
-	/*std::cout << parentMat[0][0] << "  " << parentMat[0][1] << "  " << parentMat[0][2] << "  " << parentMat[0][3] << std::endl;
-	std::cout << parentMat[1][0] << "  " << parentMat[1][1] << "  " << parentMat[1][2] << "  " << parentMat[1][3] << std::endl;
-	std::cout << parentMat[2][0] << "  " << parentMat[2][1] << "  " << parentMat[2][2] << "  " << parentMat[2][3] << std::endl;
-	std::cout << parentMat[3][0] << "  " << parentMat[3][1] << "  " << parentMat[3][2] << "  " << parentMat[3][3] << std::endl;
-	std::cout << "###################" << std::endl;*/
-
-
-	return parentMat * transform;
+	return transformationMat;
 }
 
-void GameObject::draw()
-{
+void GameObject::draw(){
 	material.apply();
-	transformationMat = applyTransform();
-	glUniformMatrix4fv(modelLocation, 1, GL_FALSE, &transformationMat[0][0]);
-	recalculateAABB();
 	meshPtr->draw();
 }
-void GameObject::fixedUpdate(float fdt)
-{
+
+void GameObject::fixedUpdate(float fdt){
+
 	if (isStatic)
 		return;
 	rigidbody.velocity += rigidbody.acceleration * fdt;
@@ -82,8 +75,9 @@ void GameObject::fixedUpdate(float fdt)
 	transform.translateGlobal(appliedVelocity * fdt);
 	transform.rotateGlobal(appliedAngularVelocity * fdt);
 }
-void GameObject::constructAABB()
-{
+
+void GameObject::constructAABB(){
+
 	auto vertices = meshPtr->getVertices();
 	aabb.backward = vertices[0].z;
 	aabb.forward = vertices[0].z;
@@ -91,8 +85,8 @@ void GameObject::constructAABB()
 	aabb.up = vertices[0].y;
 	aabb.right = vertices[0].x;
 	aabb.left = vertices[0].x;
-	for (unsigned i = 0; i < vertices.size(); ++i)
-	{
+
+	for (unsigned i = 0; i < vertices.size(); ++i){
 		aabb.backward = glm::min(aabb.backward, vertices[i].z);
 		aabb.forward = glm::max(aabb.forward, vertices[i].z);
 		aabb.down = glm::min(aabb.down, vertices[i].y);
@@ -100,20 +94,23 @@ void GameObject::constructAABB()
 		aabb.left = glm::min(aabb.left, vertices[i].x);
 		aabb.right = glm::max(aabb.right, vertices[i].x);
 	}
+
 	for (unsigned i = 0; i < 8; ++i)
 		aabb.bounds[i] = { 0, 0, 0 };
+
 	aabb.bounds[0] = { aabb.right, aabb.up, aabb.forward };
 	aabb.bounds[1] = { aabb.right, aabb.up, aabb.backward };
 	aabb.bounds[2] = { aabb.right, aabb.down, aabb.forward };
 	aabb.bounds[3] = { aabb.right, aabb.down, aabb.backward };
-	for (unsigned i = 4; i < 8; ++i)
-	{
+
+	for (unsigned i = 4; i < 8; ++i){
 		aabb.bounds[i] = aabb.bounds[i - 4];
 		aabb.bounds[i].x = aabb.left;
 	}
 }
-void GameObject::recalculateAABB()
-{
+
+void GameObject::recalculateAABB(){
+
 	vec3 transformedBound = transformationMat * vec4(aabb.bounds[0], 1);
 	aabb.backward = transformedBound.z;
 	aabb.forward = transformedBound.z;
@@ -121,8 +118,8 @@ void GameObject::recalculateAABB()
 	aabb.up = transformedBound.y;
 	aabb.right = transformedBound.x;
 	aabb.left = transformedBound.x;
-	for (unsigned i = 0; i < 8; ++i)
-	{
+
+	for (unsigned i = 0; i < 8; ++i){
 		transformedBound = transformationMat * vec4(aabb.bounds[i], 1);
 		aabb.backward = glm::min(aabb.backward, transformedBound.z);
 		aabb.forward = glm::max(aabb.forward, transformedBound.z);
@@ -131,42 +128,45 @@ void GameObject::recalculateAABB()
 		aabb.left = glm::min(aabb.left, transformedBound.x);
 		aabb.right = glm::max(aabb.right, transformedBound.x);
 	}
+
 }
-GameObject *GameObject::getParent()
-{
+
+GameObject *GameObject::getParent(){
 	return parent;
 }
-void GameObject::setParent(GameObject *gameObject)
-{
+
+void GameObject::setParent(GameObject *gameObject){
 	parent = gameObject;
 	if (parent)
 		parent->addChild(this);
 }
-void GameObject::addChild(GameObject *child)
-{
+
+void GameObject::addChild(GameObject *child){
 	children.push_back(child);
 }
-vector<GameObject *> GameObject::getChildren()
-{
+
+vector<GameObject *> GameObject::getChildren(){
 	return children;
 }
-void GameObject::setMesh(shared_ptr<Mesh> mesh)
-{
+
+void GameObject::setMesh(shared_ptr<Mesh> mesh){
 	this->meshPtr = mesh;
 }
-int GameObject::getClass()
-{
+
+int GameObject::getClass(){
 	return classType;
 }
-std::shared_ptr<Mesh> GameObject::getMesh()
-{
+
+std::shared_ptr<Mesh> GameObject::getMesh(){
 	return meshPtr;
 }
+
 void GameObject::setModelLocation(GLuint location) {
 	modelLocation = location;
 }
-void GameObject::drawAABB(vec3 color)
-{
+
+void GameObject::drawAABB(vec3 color){
+
 	vec3 corners[8];
 	for (unsigned i = 0; i < 8; ++i)
 		corners[i] = { 0, 0, 0 };
@@ -174,18 +174,16 @@ void GameObject::drawAABB(vec3 color)
 	corners[1] = { aabb.right, aabb.up, aabb.backward };
 	corners[2] = { aabb.right, aabb.down, aabb.forward };
 	corners[3] = { aabb.right, aabb.down, aabb.backward };
-	for (unsigned i = 4; i < 8; ++i)
-	{
+	for (unsigned i = 4; i < 8; ++i){
 		corners[i] = corners[i - 4];
 		corners[i].x = aabb.left;
 	}
+
 	glPushMatrix();
 	glLoadIdentity();
-	for (unsigned i = 0; i < 8; ++i)
-	{
+	for (unsigned i = 0; i < 8; ++i){
 		vec3 first = corners[i];
-		for (unsigned j = 0; j < 7; ++j)
-		{
+		for (unsigned j = 0; j < 7; ++j){
 			vec3 second = corners[j];
 			glBegin(GL_LINES);
 			glColor3f(color.r, color.g, color.b);

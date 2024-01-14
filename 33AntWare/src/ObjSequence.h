@@ -33,7 +33,7 @@ public:
 	void translate(float dx, float dy, float dz);
 	void scale(float sx, float sy, float sz);
 
-	void drawRaw(unsigned short frame);
+	const void drawRaw(unsigned short frame) const;
 
 	void loadSequence(const char* path, bool isStacked = false, bool withoutNormals = false, bool generateSmoothNormals = false, bool generateFlatNormals = false, bool generateSmoothTangents = false, bool rescale = false);
 	void loadSequence(const char* path, Vector3f& axis, float degree, Vector3f& translate = Vector3f(0.0f, 0.0f, 0.0f), float scale = 1.0f, bool isStacked = false, bool withoutNormals = false, bool generateSmoothNormals = false, bool generateFlatNormals = false, bool generateSmoothTangents = false, bool rescale = false);
@@ -42,7 +42,7 @@ public:
 
 	void cleanup();
 
-	unsigned int getNumberOfMeshes();
+	const unsigned int getNumberOfMeshes() const;
 
 private:
 

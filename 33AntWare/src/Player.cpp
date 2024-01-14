@@ -27,14 +27,22 @@ Player::Player(Camera& camera, shared_ptr<Mesh> mesh, Material material, shared_
 	//footstepsSound.setLoop(true);
 	EventDispatcher::AddMouseListener(this);
 	aabb.maximize(0.2f);
+
+	/*std::cout << "AABB: " << aabb.bounds[0].x << "  " << aabb.bounds[0].y << "  " << aabb.bounds[0].z << std::endl;
+	std::cout << "AABB: " << aabb.bounds[1].x << "  " << aabb.bounds[1].y << "  " << aabb.bounds[1].z << std::endl;
+	std::cout << "AABB: " << aabb.bounds[2].x << "  " << aabb.bounds[2].y << "  " << aabb.bounds[2].z << std::endl;
+	std::cout << "AABB: " << aabb.bounds[3].x << "  " << aabb.bounds[3].y << "  " << aabb.bounds[3].z << std::endl;
+	std::cout << "AABB: " << aabb.bounds[4].x << "  " << aabb.bounds[4].y << "  " << aabb.bounds[4].z << std::endl;
+	std::cout << "AABB: " << aabb.bounds[5].x << "  " << aabb.bounds[5].y << "  " << aabb.bounds[5].z << std::endl;
+	std::cout << "AABB: " << aabb.bounds[6].x << "  " << aabb.bounds[6].y << "  " << aabb.bounds[6].z << std::endl;
+	std::cout << "AABB: " << aabb.bounds[7].x << "  " << aabb.bounds[7].y << "  " << aabb.bounds[7].z << std::endl;*/
 }
 
 Player::~Player() {
 	EventDispatcher::RemoveMouseListener(this);
 }
 
-void Player::start()
-{
+void Player::start(){
 	transparentTexture = Mesh::createTexture("res/textures/transparent.png");
 	flashTexture = Mesh::createTexture("res/textures/flash.png");
 	children[0]->getMesh()->setTexture(transparentTexture);
@@ -44,7 +52,6 @@ void Player::start()
 
 	// Reset mouse's position on player (and therefore scene) start
 	Mouse::instance().setPosition(Application::Width / 2, Application::Height / 2);
-
 }
 
 void Player::update(const float dt) {
@@ -90,8 +97,7 @@ void Player::update(const float dt) {
 		//footstepsSound.setPitch(Keyboard::isKeyPressed(Keyboard::LShift) ? 1.5f : 1.0f);
 		//if (footstepsSound.getStatus() != sf::Sound::Playing)
 			//footstepsSound.play();
-	}
-	else {
+	}else {
 		//footstepsSound.pause();
 	}
 
@@ -103,10 +109,8 @@ void Player::update(const float dt) {
 	
 	eularAngles.x -= mouse.yDelta() * mouseSenstivity;
 	eularAngles.y -= mouse.xDelta() * mouseSenstivity;
-	eularAngles.x = glm::clamp<float>(eularAngles.x, -60.0f, 80.0f);
-	
-	camera.setPosition(transform.getPosition().x, transform.getPosition().y, transform.getPosition().z);
-	camera.setRotation(-eularAngles.x, -eularAngles.y);
+	camera.lookAt({ transform.getPosition().x, transform.getPosition().y, transform.getPosition().z },
+				    -eularAngles.x, -eularAngles.y, 180.0f);
 	camera.moveRelative(Vector3f(0.0f, 0.5f, 0.0f));
 
 	transform.setRotation(eularAngles);
@@ -204,21 +208,18 @@ bool Player::damage(float amount) {
 
 void Player::recoilAnim(float deltaTime) {
 	
-
 	if (recoilTimeOut <= recoilTime) {
 		isRecoiling = false;
 		childrenEular = { 0, 0, 0 };
 		childrenTranslation = { 0, 0, 0 };
 
-	}
-	else {
+	}else {
 		recoilTime += deltaTime;
 		if (recoilTime < (recoilTimeOut / 2.0f)) {
 			childrenEular.x += recoilImpact * deltaTime;
 			childrenTranslation.z += recoilImpact * deltaTime * 0.05f;
 
-		}
-		else {
+		}else {
 			childrenEular.x -= recoilImpact * deltaTime;
 			childrenTranslation.z -= recoilImpact * deltaTime * 0.05f;
 			children[0]->getMesh()->setTexture(transparentTexture);

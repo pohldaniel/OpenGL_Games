@@ -425,7 +425,7 @@ void ObjSequence::addMesh(std::vector<float>& vertexBuffer, std::vector<unsigned
 	m_indexBuffer.insert(m_indexBuffer.end(), indexBuffer.begin(), indexBuffer.end());
 }
 
-unsigned int ObjSequence::getNumberOfMeshes() {
+const unsigned int ObjSequence::getNumberOfMeshes() const{
 	return m_numberOfMeshes;
 }
 
@@ -433,7 +433,7 @@ void ObjSequence::loadSequenceGpu() {
 	ObjModel::CreateBuffer(m_vertexBuffer, m_indexBuffer, m_vao, m_vbo, m_ibo, m_stride);
 }
 
-void ObjSequence::drawRaw(unsigned short frame) {
+const void ObjSequence::drawRaw(unsigned short frame) const{
 	glBindVertexArray(m_vao);
 	glDrawElementsBaseVertex(GL_TRIANGLES, m_meshes[frame].drawCount, GL_UNSIGNED_INT, (void*)(sizeof(unsigned int) * m_meshes[frame].baseIndex), m_meshes[frame].baseVertex);
 	glBindVertexArray(0);
