@@ -2,8 +2,11 @@
 
 #include <list>
 #include <memory>
+#include <vector>
+
 #include "Object.h"
 
+class Entity;
 class SceneNode : public Object {
 
 public:
@@ -18,6 +21,9 @@ public:
 	void updateSelfAndChild();
 	void removeChild(std::unique_ptr<SceneNode> node);
 	template<typename... TArgs> void addChild(TArgs&... args);
+
+	void addChild2(SceneNode* node);
+
 	const std::list<std::unique_ptr<SceneNode>>& getChildren() const;
 	void markForRemove();
 
@@ -29,3 +35,4 @@ void SceneNode::addChild(TArgs&... args){
 	m_children.emplace_back(std::make_unique<SceneNode>(args...));
 	m_children.back()->m_parent = this;
 }
+

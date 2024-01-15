@@ -1365,7 +1365,7 @@ Matrix4f &Matrix4f::InvRotate(Matrix4f &mtx, const Vector3f &axis, float degrees
 	return mtx;
 }
 
-Matrix4f Matrix4f::Rotate(const Vector3f &direction) {
+/*Matrix4f Matrix4f::Rotate(const Vector3f &direction) {
 	Vector3f xaxis = Vector3f::Cross(direction, Vector3f(0.0f, 1.0f, 0.0f));
 	Vector3f::Normalize(xaxis);
 
@@ -1376,9 +1376,27 @@ Matrix4f Matrix4f::Rotate(const Vector3f &direction) {
 		yaxis[0], yaxis[1], yaxis[2], 0.0f,
 		direction[0], direction[1], direction[2], 0.0f,
 		0.0f, 0.0f, 0.0f, 1.0f);
+}*/
+
+Matrix4f Matrix4f::Rotate(const Vector3f& eulerAngles) {
+	float pitch = eulerAngles[0] * PI_ON_180;
+	float yaw = eulerAngles[1] * PI_ON_180;
+	float roll = eulerAngles[2] * PI_ON_180;
+
+	float cosY = cosf(yaw);
+	float cosP = cosf(pitch);
+	float cosR = cosf(roll);
+	float sinY = sinf(yaw);
+	float sinP = sinf(pitch);
+	float sinR = sinf(roll);
+
+	return Matrix4f(cosR * cosY - sinR * sinP * sinY, sinR * cosY + cosR * sinP * sinY, -cosP * sinY, 0.0f,
+					-sinR * cosP, cosR * cosP, sinP, 0.0f,
+					cosR * sinY + sinR * sinP * cosY, sinR * sinY - cosR * sinP * cosY, cosP * cosY, 0.0f,
+					0.0f, 0.0f, 0.0f, 1.0f);
 }
 
-Matrix4f Matrix4f::Rotate(const Vector3f &direction, const Vector3f &poisiton) {
+/*Matrix4f Matrix4f::Rotate(const Vector3f &direction, const Vector3f &poisiton) {
 	Vector3f xaxis = Vector3f::Cross(direction, Vector3f(0.0f, 1.0f, 0.0f));
 	Vector3f::Normalize(xaxis);
 
@@ -1389,8 +1407,39 @@ Matrix4f Matrix4f::Rotate(const Vector3f &direction, const Vector3f &poisiton) {
 		yaxis[0], yaxis[1], yaxis[2], 0.0f,
 		direction[0], direction[1], direction[2], 0.0f,
 		poisiton[0], poisiton[1], poisiton[2], 1.0f);
-}
+}*/
 
+Matrix4f Matrix4f::Rotate(const Vector3f& eulerAngles, const Vector3f& centerOfRotation) {
+	float pitch = centerOfRotation[0] * PI_ON_180;
+	float yaw = centerOfRotation[1] * PI_ON_180;
+	float roll = centerOfRotation[2] * PI_ON_180;
+
+	float cosY = cosf(yaw);
+	float cosP = cosf(pitch);
+	float cosR = cosf(roll);
+	float sinY = sinf(yaw);
+	float sinP = sinf(pitch);
+	float sinR = sinf(roll);
+
+	float mtx00 = cosR * cosY - sinR * sinP * sinY;
+	float mtx01 = sinR * cosY + cosR * sinP * sinY;
+	float mtx02 = -cosP * sinY;
+
+	float mtx10 = -sinR * cosP;
+	float mtx11 = cosR * cosP;
+	float mtx12 = sinP;
+
+	float mtx20 = cosR * sinY + sinR * sinP * cosY;
+	float mtx21 = sinR * sinY - cosR * sinP * cosY;
+	float mtx22 = cosP * cosY;
+
+	return Matrix4f(mtx00, mtx01, mtx02, 0.0f,
+		mtx10, mtx11, mtx12, 0.0f,
+		mtx20, mtx21, mtx22, 0.0f,
+		centerOfRotation[0] * (1.0f - mtx00) - centerOfRotation[1] * mtx10 - centerOfRotation[2] * mtx20,
+		centerOfRotation[1] * (1.0f - mtx11) - centerOfRotation[0] * mtx01 - centerOfRotation[2] * mtx21,
+		centerOfRotation[2] * (1.0f - mtx22) - centerOfRotation[0] * mtx02 - centerOfRotation[1] * mtx12, 1.0);
+}
 
 Matrix4f Matrix4f::Rotate(const Vector3f &axis, float degrees) {
 	float rad = degrees * PI_ON_180;
@@ -1423,9 +1472,9 @@ Matrix4f Matrix4f::Rotate(const Quaternion &orientation) {
 	float wz = orientation[3] * z2;
 
 	return Matrix4f(1.0f - (yy + zz), xy - wz, xz + wy, 0.0f,
-		xy + wz, 1.0f - (xx + zz), yz - wx, 0.0f,
-		xz - wy, yz + wx, 1.0f - (xx + yy), 0.0f,
-		0.0f, 0.0f, 0.0f, 1.0f);
+					xy + wz, 1.0f - (xx + zz), yz - wx, 0.0f,
+					xz - wy, yz + wx, 1.0f - (xx + yy), 0.0f,
+					0.0f, 0.0f, 0.0f, 1.0f);
 }
 
 Matrix4f Matrix4f::Rotate(float pitch, float yaw, float roll) {
@@ -3056,9 +3105,9 @@ void Quaternion::fromMatrix(const Matrix4f &m) {
 
 //https://math.stackexchange.com/questions/2975109/how-to-convert-euler-angles-to-quaternions-and-get-the-same-euler-angles-back-fr
 void Quaternion::fromPitchYawRoll(float pitch, float yaw, float roll) {
-	//Matrix4f m;
-	//m.roate(pitch, yaw, roll);
-	//fromMatrix(m);
+	Matrix4f m;
+	m.rotate(pitch, yaw, roll);
+	fromMatrix(m);
 
 	pitch = pitch * HALF_PI_ON_180;
 	yaw = yaw * HALF_PI_ON_180;
@@ -3066,15 +3115,15 @@ void Quaternion::fromPitchYawRoll(float pitch, float yaw, float roll) {
 
 	float cosP = cosf(pitch);
 	float sinP = sinf(pitch);
-	float cosH = cosf(yaw);
-	float sinH = sinf(yaw);
+	float cosY = cosf(yaw);
+	float sinY = sinf(yaw);
 	float cosR = cosf(roll);
 	float sinR = sinf(roll);
 
-	quat[0] = -(sinP * cosH * cosR + cosP * sinH * sinR);
-	quat[1] = sinP * cosH * sinR - cosP * sinH * cosR;
-	quat[2] = -(sinP * sinH * cosR + cosP * cosH * sinR);
-	quat[3] = cosP * cosH * cosR - sinP * sinH * sinR;
+	quat[0] = sinP * cosY * cosR + cosP * sinY * sinR;
+	quat[1] = cosP * sinY * cosR - sinP * cosY * sinR;
+	quat[2] = sinP * sinY * cosR + cosP * cosY * sinR;
+	quat[3] = cosP * cosY * cosR - sinP * sinY * sinR;
 }
 
 void Quaternion::rotate(float pitch, float yaw, float roll) {
@@ -3084,15 +3133,15 @@ void Quaternion::rotate(float pitch, float yaw, float roll) {
 
 	float cosP = cosf(pitch);
 	float sinP = sinf(pitch);
-	float cosH = cosf(yaw);
-	float sinH = sinf(yaw);
+	float cosY = cosf(yaw);
+	float sinY = sinf(yaw);
 	float cosR = cosf(roll);
 	float sinR = sinf(roll);
 
-	float rot0 = -(sinP * cosH * cosR + cosP * sinH * sinR);
-	float rot1 = sinP * cosH * sinR - cosP * sinH * cosR;
-	float rot2 = -(sinP * sinH * cosR + cosP * cosH * sinR);
-	float rot3 = cosP * cosH * cosR - sinP * sinH * sinR;
+	float rot0 = sinP * cosY * cosR + cosP * sinY * sinR;
+	float rot1 = cosP * sinY * cosR - sinP * cosY * sinR;
+	float rot2 = sinP * sinY * cosR + cosP * cosY * sinR;
+	float rot3 = cosP * cosY * cosR - sinP * sinY * sinR;
 
 	//Quaternion rot;
 	//rot.fromPitchYawRoll(pitch, yaw, roll);
@@ -3175,8 +3224,7 @@ void Quaternion::toAxisAngle(Vector3f &axis, float &degrees) const {
 		axis[0] = 1.0f, axis[1] = axis[2] = 0.0f;
 		degrees = 0.0f;
 
-	}
-	else {
+	}else {
 
 		float invSinHalfTheta = 1.0f / sqrtf(sinHalfThetaSq);
 
@@ -3258,6 +3306,17 @@ Quaternion& Quaternion::Conjugate(Quaternion &quat) {
 Quaternion& Quaternion::Inverse(Quaternion &quat) {
 	quat.inverse();
 	return quat;
+}
+
+//https://gamedev.stackexchange.com/questions/28395/rotating-vector3-by-a-quaternion
+Vector3f Quaternion::Rotate(Quaternion &quat, const Vector3f &v) {
+	//Vector3f u(quat[0], quat[1], quat[2]);
+	//float s = quat[3];
+	//return 2.0f * Vector3f::Dot(u, v) * u + (s*s - Vector3f::Dot(u, u)) * v + 2.0f * s *  Vector3f::Cross(u, v);
+
+	Vector3f u(quat[0], quat[1], quat[2]);
+	float s = quat[3];
+	return 2.0f * Vector3f::Dot(u, v) * u + (s*s - Vector3f::Dot(u, u)) * v + 2.0f * s *  Vector3f::Cross(v, u);
 }
 
 //friend operator

@@ -332,16 +332,15 @@ public:
 	static Matrix4f Rotate(const Vector3f& axis, float degrees);
 	static Matrix4f Rotate(const Quaternion& orientation);
 	static Matrix4f Rotate(float pitch, float yaw, float roll);
+	static Matrix4f Rotate(const Vector3f& eulerAngles);
 
 	static Matrix4f Rotate(const Vector3f& axis, float degrees, const Vector3f& centerOfRotation);
 	static Matrix4f Rotate(const Quaternion& orientation, const Vector3f& centerOfRotation);
 	static Matrix4f Rotate(float pitch, float yaw, float roll, const Vector3f& centerOfRotation);
+	static Matrix4f Rotate(const Vector3f& eulerAngles, const Vector3f&centerOfRotation);
 
 	static Matrix4f &Rotate(Matrix4f& mtx, const Vector3f& axis, float degrees);
 	static Matrix4f &Rotate(Matrix4f& mtx, const Vector3f& axis, float degrees, const Vector3f&centerOfRotation);
-
-	static Matrix4f Rotate(const Vector3f& direction);
-	static Matrix4f Rotate(const Vector3f& direction, const Vector3f&poisiton);
 
 	static Matrix4f InvRotate(const Vector3f& axis, float degrees);
 	static Matrix4f InvRotate(const Quaternion& orientation);
@@ -441,6 +440,7 @@ public:
 	static Quaternion& Conjugate(Quaternion &quat);
 	static Quaternion& Inverse(Quaternion &quat);
 	static void Normalize(Quaternion &p);
+	static Vector3f Rotate(Quaternion &quat, const Vector3f &v);
 
 private:
 

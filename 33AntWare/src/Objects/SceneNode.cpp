@@ -1,3 +1,4 @@
+#include "Entity.h"
 #include "SceneNode.h"
 
 SceneNode::SceneNode() : Object(), m_parent(nullptr), m_markForRemove(false){
@@ -51,4 +52,9 @@ const std::list<std::unique_ptr<SceneNode>>& SceneNode::getChildren() const {
 
 void SceneNode::markForRemove() {
 	m_markForRemove = true;
+}
+
+void SceneNode::addChild2(SceneNode* node) {
+	m_children.emplace_back(std::unique_ptr<SceneNode>(node));
+	m_children.back()->m_parent = this;
 }

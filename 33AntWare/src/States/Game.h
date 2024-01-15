@@ -15,6 +15,8 @@
 #include "Player.h"
 #include "StaticGO.h"
 #include "HUD.h"
+#include "PlayerNew.h"
+#include "Entity.h"
 
 enum LightType{
 	DIRECTIONAL,
@@ -88,4 +90,12 @@ private:
 	std::vector<aw::GameObject*> m_ants;
 
 	aw::Status gameStatus;
+
+	PlayerNew* playerNew;
+	Entity* m_muzzleE = nullptr;
+	Entity* m_gunE = nullptr;
+	Entity* m_handsE = nullptr;
+	Entity* m_glovesE = nullptr;
+
+	std::vector<Entity*> m_entities;
 };

@@ -6,6 +6,7 @@ Object::Object() {
 	m_scale.set(1.0f, 1.0f, 1.0f);
 	m_position.set(0.0f, 0.0f, 0.0f);
 	m_orientation.set(0.0f, 0.0f, 0.0f, 1.0f);
+	//m_rotation.set(0.0f, 0.0f, 0.0f);
 	m_isDirty = true;
 }
 
@@ -36,16 +37,19 @@ void Object::setPosition(const Vector3f &position) {
 
 void Object::setOrientation(const Vector3f &axis, float degrees) {
 	m_orientation.set(axis, degrees);
+	//m_rotation[0] = axis[0] * degrees; m_rotation[0] = axis[1] * degrees; m_rotation[0] = axis[2] * degrees;
 	m_isDirty = true;
 }
 
-void Object::setOrientation(const float degreesX, const float degreesY, const float degreesZ) {
-	m_orientation.fromPitchYawRoll(degreesX, degreesY, degreesZ);
+void Object::setOrientation(const float pitch, const float yaw, const float roll) {
+	m_orientation.fromPitchYawRoll(pitch, yaw, roll);
+	//m_rotation[0] = pitch; m_rotation[0] = yaw; m_rotation[0] = roll;
 	m_isDirty = true;
 }
 
 void Object::setOrientation(const Vector3f &eulerAngle) {
 	m_orientation.fromPitchYawRoll(eulerAngle[0], eulerAngle[1], eulerAngle[2]);
+	//m_rotation = eulerAngle;
 	m_isDirty = true;
 }
 
@@ -81,16 +85,19 @@ void Object::scale(const float s) {
 
 void Object::rotate(const float pitch, const float yaw, const float roll) {
 	m_orientation.rotate(pitch, yaw, roll);
+	//m_rotation[0] += pitch; m_rotation[0] += yaw; m_rotation[0] += roll;
 	m_isDirty = true;
 }
 
 void Object::rotate(const Vector3f& eulerAngle) {
 	m_orientation.rotate(eulerAngle[0], eulerAngle[1], eulerAngle[2]);
+	//m_rotation += eulerAngle;
 	m_isDirty = true;
 }
 
 void Object::rotate(const Vector3f &axis, float degrees) {
 	m_orientation.rotate(axis, degrees);
+	//m_rotation[0] += axis[0] * degrees; m_rotation[0] += axis[1] * degrees; m_rotation[0] += axis[2] * degrees;
 	m_isDirty = true;
 }
 
@@ -106,15 +113,21 @@ const Quaternion &Object::getOrientation() const {
 	return m_orientation;
 }
 
+/*const Vector3f& Object::getRotation() const {
+	return m_rotation;
+}*/
+
 const Matrix4f &Object::getTransformationSOP() {
 	Transformation.translate(m_position);
 	Transformation *= Matrix4f::Rotate(m_orientation);
+	//Transformation *= Matrix4f::Rotate(m_rotation);
 	Transformation *= Matrix4f::Scale(m_scale);
 	return Transformation;
 }
 
 const Matrix4f &Object::getTransformationSO() {
 	Transformation.rotate(m_orientation);
+	//Transformation *= Matrix4f::Rotate(m_rotation);
 	Transformation *= Matrix4f::Scale(m_scale);
 	return Transformation;
 }
@@ -133,11 +146,13 @@ const Matrix4f &Object::getTransformationP() {
 const Matrix4f &Object::getTransformationOP() {
 	Transformation.translate(m_position);
 	Transformation *= Matrix4f::Rotate(m_orientation);
+	//Transformation *= Matrix4f::Rotate(m_rotation);
 	return Transformation;
 }
 
 const Matrix4f &Object::getTransformationO() {
 	Transformation.rotate(m_orientation);
+	//Transformation *= Matrix4f::Rotate(m_rotation);
 	return Transformation;
 }
 

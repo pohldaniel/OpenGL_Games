@@ -20,12 +20,12 @@ namespace aw
      */
     class Transform
     {
-    private:
+	public:
         glm::vec3 position;
         glm::qua<double> rotation;
         glm::vec3 scaling;
 
-    public:
+ 
         /** \brief Creates a transfomation object from the provided parameters.
          *
          * \param position The position of the object.

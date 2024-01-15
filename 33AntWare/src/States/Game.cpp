@@ -166,6 +166,30 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 	HUD.setShaderProgram(Globals::shaderManager.getAssetPointer("hud")->m_program);
 
 	gameStatus = aw::ONGOING;
+
+	m_muzzleE = new Entity(m_muzzleMesh, aw::Material());
+	m_muzzleE->m_isStatic = true;
+	m_gunE = new Entity(m_gunMesh, aw::Material());
+	m_gunE->m_isStatic = true;
+	m_handsE = new Entity(m_handsMesh, aw::Material());
+	m_handsE->m_isStatic = true;
+	m_glovesE = new Entity(m_glovesMesh, aw::Material());
+	m_glovesE->m_isStatic = true;
+
+	playerNew = new PlayerNew(m_camera, m_cubeMesh, aw::Material(), Vector2f(-51.5f, -51.5f), Vector2f(51.5f, 51.5f));
+	playerNew->addChild2(m_muzzleE);
+	playerNew->addChild2(m_gunE);
+	playerNew->addChild2(m_handsE);
+	playerNew->addChild2(m_glovesE);
+	playerNew->start();
+
+	m_entities.push_back(playerNew);
+	m_entities.push_back(m_muzzleE);
+	m_entities.push_back(m_gunE);
+	m_entities.push_back(m_handsE);
+	m_entities.push_back(m_glovesE);
+
+	playerNew->updateSelfAndChild();
 }
 
 Game::~Game() {
@@ -175,11 +199,14 @@ Game::~Game() {
 
 void Game::fixedUpdate() {
 
-	for(auto gameObject : m_gameObjects)
+	for (auto gameObject : m_gameObjects)
 		gameObject->fixedUpdate(m_fdt);
 
-	for (auto ant : m_ants)
-		ant->fixedUpdate(m_fdt);
+	for (auto entity : m_entities)
+		entity->fixedUpdate(m_fdt);
+
+	//for (auto ant : m_ants)
+	//	ant->fixedUpdate(m_fdt);
 }
 
 void Game::update() {
@@ -187,10 +214,13 @@ void Game::update() {
 	for (auto gameObject : m_gameObjects)
 		gameObject->update(m_dt);
 
-	for (auto ant : m_ants)
-		ant->update(m_dt);
+	for (auto entity : m_entities)
+		entity->update(m_dt);
 
-	auto player = m_player;
+	//for (auto ant : m_ants)
+	//	ant->update(m_dt);
+
+	/*auto player = m_player;
 	auto bullets = player->bullets;
 	auto antsSize = m_ants.size();
 	auto bulletsSize = player->bullets.size();
@@ -239,7 +269,7 @@ void Game::update() {
 		gameStatus = aw::LOSE;
 		HUD.setStatus(aw::LOSE);
 		player->killSound();
-	}
+	}*/
 }
 
 void Game::render() {
@@ -265,16 +295,21 @@ void Game::render() {
 	}
 	Globals::textureManager.get("ant").unbind();
 
-	glDisable(GL_DEPTH_TEST);
-	shader->loadMatrix("u_model", (const float*)glm::value_ptr(m_muzzleGO->applyTransform()));
+	//glDisable(GL_DEPTH_TEST);
+	/*shader->loadMatrix("u_model", (const float*)glm::value_ptr(m_muzzleGO->applyTransform()));
 	m_muzzleGO->draw();
 	shader->loadMatrix("u_model", (const float*)glm::value_ptr(m_gunGO->applyTransform()));
 	m_gunGO->draw();
 	shader->loadMatrix("u_model", (const float*)glm::value_ptr(m_handsGO->applyTransform()));
 	m_handsGO->draw();
 	shader->loadMatrix("u_model", (const float*)glm::value_ptr(m_glovesGO->applyTransform()));
-	m_glovesGO->draw();
-	glEnable(GL_DEPTH_TEST);
+	m_glovesGO->draw();*/
+	//glEnable(GL_DEPTH_TEST);
+
+	for (auto entity : m_entities) {
+		shader->loadMatrix("u_model", entity->getTransformation());
+		entity->draw(m_camera);
+	}
 
 	shader->unuse();
 

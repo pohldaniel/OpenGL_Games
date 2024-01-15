@@ -22,6 +22,7 @@ RenderableObject::RenderableObject(RenderableObject const& rhs) {
 	m_position = rhs.m_position;
 	m_scale = rhs.m_scale;
 	m_orientation = rhs.m_orientation;
+	//m_rotation = rhs.m_rotation;
 	
 	m_shape = rhs.m_shape;
 	m_shader = rhs.m_shader;
@@ -35,6 +36,7 @@ RenderableObject &RenderableObject::operator=(const RenderableObject &rhs) {
 	m_position = rhs.m_position;
 	m_scale = rhs.m_scale;
 	m_orientation = rhs.m_orientation;
+	//m_rotation = rhs.m_rotation;
 
 	m_shape = rhs.m_shape;
 	m_shader = rhs.m_shader;
