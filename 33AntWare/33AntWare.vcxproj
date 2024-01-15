@@ -180,12 +180,14 @@
     <ClCompile Include="src\LoadingManager.cpp" />
     <ClCompile Include="src\MaterialAW.cpp" />
     <ClCompile Include="src\MousePickerFBO.cpp" />
+    <ClCompile Include="src\Objects\SceneNode.cpp" />
     <ClCompile Include="src\ObjSequence.cpp" />
     <ClCompile Include="src\Player.cpp" />
     <ClCompile Include="src\Rigidbody.cpp" />
     <ClCompile Include="src\States\Controlls.cpp" />
     <ClCompile Include="src\States\Default.cpp" />
     <ClCompile Include="src\States\Game.cpp" />
+    <ClCompile Include="src\States\SceneGraph.cpp" />
     <ClCompile Include="src\States\Settings.cpp" />
     <ClCompile Include="src\States\StateMachine.cpp" />
     <ClCompile Include="src\Thread\CThread.cpp" />
@@ -338,6 +340,7 @@
     <ClInclude Include="src\LoadingManager.h" />
     <ClInclude Include="src\MaterialAW.h" />
     <ClInclude Include="src\MousePickerFBO.h" />
+    <ClInclude Include="src\Objects\SceneNode.h" />
     <ClInclude Include="src\ObjSequence.h" />
     <ClInclude Include="src\Player.h" />
     <ClInclude Include="src\RandomColor.h" />
@@ -345,6 +348,7 @@
     <ClInclude Include="src\States\Controls.h" />
     <ClInclude Include="src\States\Default.h" />
     <ClInclude Include="src\States\Game.h" />
+    <ClInclude Include="src\States\SceneGraph.h" />
     <ClInclude Include="src\States\Settings.h" />
     <ClInclude Include="src\States\StateMachine.h" />
     <ClInclude Include="src\Thread\CThread.h" />

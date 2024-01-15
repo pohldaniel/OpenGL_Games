@@ -1,5 +1,5 @@
 #pragma once
-
+#include <filesystem>
 #include <engine/input/MouseEventListener.h>
 #include <engine/input/KeyboardEventListener.h>
 #include <engine/Camera.h>
@@ -7,6 +7,7 @@
 #include <engine/ObjModel.h>
 
 #include <States/StateMachine.h>
+#include <Objects/SceneNode.h>
 
 #include "Mesh.h"
 #include "Ant.h"
@@ -62,6 +63,7 @@ private:
 	Camera m_camera;
 	AssimpModel m_model;
 	AssimpModel m_gun;
+
 
 	std::shared_ptr<aw::Mesh> m_muzzleMesh = nullptr;
 	std::shared_ptr<aw::Mesh> m_bulletMesh = nullptr;

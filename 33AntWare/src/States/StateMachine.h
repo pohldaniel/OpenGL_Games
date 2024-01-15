@@ -7,7 +7,8 @@ enum States {
 	SETTINGS,
 	CONTROLLS,
 	DEFAULT,
-	GAME
+	GAME,
+	SCENEGRAPH
 };
 
 class State;

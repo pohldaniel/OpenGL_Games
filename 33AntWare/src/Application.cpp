@@ -14,6 +14,7 @@
 #include <States/Default.h>
 #include <States/Game.h>
 #include <States/Menu.h>
+#include <States/SceneGraph.h>
 #include <UI/Widget.h>
 
 #include "TileSet.h"
@@ -408,8 +409,9 @@ void Application::fixedUpdate() {
 void Application::initStates() {
 	Machine = new StateMachine(m_dt, m_fdt);
 	//Machine->addStateAtTop(new Default(*Machine));
-	Machine->addStateAtTop(new Game(*Machine));
+	//Machine->addStateAtTop(new Game(*Machine));
 	//Machine->addStateAtTop(new Menu(*Machine));
+	Machine->addStateAtTop(new SceneGraph(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -664,6 +666,7 @@ void Application::loadAssets() {
 	Globals::textureManager.loadTexture("forest_5", "res/backgrounds/Forest/plx-5.png");
 
 	Globals::textureManager.loadTexture("ant", "res/textures/Ant.png");
+	Globals::textureManager.loadTexture("mars", "res/models/planet/mars.png");
 
 	Globals::fontManager.loadCharacterSet("upheaval_200", "res/fonts/upheavtt.ttf", 200, 10u, 30u, 128u, 0, true, 0u);
 	Globals::fontManager.loadCharacterSet("upheaval_50", "res/fonts/upheavtt.ttf",  50,  3u, 3u,  0u,   0, true, 1u);
