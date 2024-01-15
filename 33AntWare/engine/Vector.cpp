@@ -148,17 +148,17 @@ void Matrix4f::rotate(const Quaternion &orientation) {
 	float wz = orientation[3] * z2;
 
 	mtx[0][0] = 1.0f - (yy + zz);
-	mtx[0][1] = xy - wz;
-	mtx[0][2] = xz + wy;
+	mtx[0][1] = xy + wz;
+	mtx[0][2] = xz - wy;
 	mtx[0][3] = 0.0f;
 
-	mtx[1][0] = xy + wz;
+	mtx[1][0] = xy - wz;
 	mtx[1][1] = 1.0f - (xx + zz);
-	mtx[1][2] = yz - wx;
+	mtx[1][2] = yz + wx;
 	mtx[1][3] = 0.0f;
 
-	mtx[2][0] = xz - wy;
-	mtx[2][1] = yz + wx;
+	mtx[2][0] = xz + wy;
+	mtx[2][1] = yz - wx;
 	mtx[2][2] = 1.0f - (xx + yy);
 	mtx[2][3] = 0.0f;
 
@@ -248,17 +248,17 @@ void Matrix4f::rotate(const Quaternion &orientation, const Vector3f &centerOfRot
 	float wz = orientation[3] * z2;
 
 	mtx[0][0] = 1.0f - (yy + zz);
-	mtx[0][1] = xy - wz;
-	mtx[0][2] = xz + wy;
+	mtx[0][1] = xy + wz;
+	mtx[0][2] = xz - wy;
 	mtx[0][3] = 0.0f;
 
-	mtx[1][0] = xy + wz;
+	mtx[1][0] = xy - wz;
 	mtx[1][1] = 1.0f - (xx + zz);
-	mtx[1][2] = yz - wx;
+	mtx[1][2] = yz + wx;
 	mtx[1][3] = 0.0f;
 
-	mtx[2][0] = xz - wy;
-	mtx[2][1] = yz + wx;
+	mtx[2][0] = xz + wy;
+	mtx[2][1] = yz - wx;
 	mtx[2][2] = 1.0f - (xx + yy);
 	mtx[2][3] = 0.0f;
 
@@ -316,17 +316,17 @@ void Matrix4f::invRotate(const Quaternion &orientation) {
 	float wz = orientation[3] * z2;
 
 	mtx[0][0] = 1.0f - (yy + zz);
-	mtx[0][1] = xy + wz;
-	mtx[0][2] = xz - wy;
+	mtx[0][1] = xy - wz;
+	mtx[0][2] = xz + wy;
 	mtx[0][3] = 0.0f;
 
-	mtx[1][0] = xy - wz;
+	mtx[1][0] = xy + wz;
 	mtx[1][1] = 1.0f - (xx + zz);
-	mtx[1][2] = yz + wx;
+	mtx[1][2] = yz - wx;
 	mtx[1][3] = 0.0f;
 
-	mtx[2][0] = xz + wy;
-	mtx[2][1] = yz - wx;
+	mtx[2][0] = xz - wy;
+	mtx[2][1] = yz + wx;
 	mtx[2][2] = 1.0f - (xx + yy);
 	mtx[2][3] = 0.0f;
 
@@ -351,17 +351,17 @@ void Matrix4f::invRotate(const Quaternion &orientation, const Vector3f &centerOf
 	float wz = orientation[3] * z2;
 
 	mtx[0][0] = 1.0f - (yy + zz);
-	mtx[0][1] = xy + wz;
-	mtx[0][2] = xz - wy;
+	mtx[0][1] = xy - wz;
+	mtx[0][2] = xz + wy;
 	mtx[0][3] = 0.0f;
 
-	mtx[1][0] = xy - wz;
+	mtx[1][0] = xy + wz;
 	mtx[1][1] = 1.0f - (xx + zz);
-	mtx[1][2] = yz + wx;
+	mtx[1][2] = yz - wx;
 	mtx[1][3] = 0.0f;
 
-	mtx[2][0] = xz + wy;
-	mtx[2][1] = yz - wx;
+	mtx[2][0] = xz - wy;
+	mtx[2][1] = yz + wx;
 	mtx[2][2] = 1.0f - (xx + yy);
 	mtx[2][3] = 0.0f;
 
@@ -530,7 +530,6 @@ void Matrix4f::invTranslate(const Vector3f &trans) {
 }
 
 void Matrix4f::scale(float a, float b, float c) {
-
 	//if (a == 0) a = 1.0;
 	//if (b == 0) b = 1.0;
 	//if (c == 0) c = 1.0;
@@ -744,7 +743,6 @@ void Matrix4f::lookAt(const Vector3f &eye, const Vector3f &target, const Vector3
 	mtx[3][1] = -Vector3f::Dot(yAxis, eye);
 	mtx[3][2] = -Vector3f::Dot(zAxis, eye);
 	mtx[3][3] = 1.0f;
-
 }
 
 void Matrix4f::invLookAt(const Vector3f &eye, const Vector3f &target, const Vector3f &up) {
@@ -832,7 +830,6 @@ void Matrix4f::perspectiveD3D(float fovx, float aspect, float znear, float zfar)
 	mtx[3][1] = 0.0f;
 	mtx[3][2] = (zfar * znear) / (znear - zfar);
 	mtx[3][3] = 0.0f;
-
 }
 
 void Matrix4f::linearPerspectiveD3D(float fovx, float aspect, float znear, float zfar) {
@@ -864,7 +861,6 @@ void Matrix4f::linearPerspectiveD3D(float fovx, float aspect, float znear, float
 	mtx[3][1] = 0.0f;
 	mtx[3][2] = znear / (znear - zfar);
 	mtx[3][3] = 0.0f;
-
 }
 
 void Matrix4f::invPerspective(float fovx, float aspect, float znear, float zfar) {
@@ -972,6 +968,13 @@ void Matrix4f::set(const Matrix4f &rhs) {
 	mtx[1][0] = rhs[1][0], mtx[1][1] = rhs[1][1], mtx[1][2] = rhs[1][2], mtx[1][3] = rhs[1][3];
 	mtx[2][0] = rhs[2][0], mtx[2][1] = rhs[2][1], mtx[2][2] = rhs[2][2], mtx[2][3] = rhs[2][3];
 	mtx[3][0] = rhs[3][0], mtx[3][1] = rhs[3][1], mtx[3][2] = rhs[3][2], mtx[3][3] = rhs[3][3];
+}
+
+void Matrix4f::set(float array[16]) {
+	mtx[0][0] = array[0], mtx[0][1] = array[1], mtx[0][2] = array[2], mtx[0][3] = array[3];
+	mtx[1][0] = array[4], mtx[1][1] = array[5], mtx[1][2] = array[6], mtx[1][3] = array[7];
+	mtx[2][0] = array[8], mtx[2][1] = array[9], mtx[2][2] = array[10], mtx[2][3] = array[11];
+	mtx[3][0] = array[12], mtx[3][1] = array[13], mtx[3][2] = array[14], mtx[3][3] = array[15];
 }
 
 void Matrix4f::toHeadPitchRoll(float &pitch, float &yaw, float &roll) const {
@@ -1177,9 +1180,9 @@ Matrix4f Matrix4f::InvRotate(const Quaternion &orientation) {
 	float wy = orientation[3] * y2;
 	float wz = orientation[3] * z2;
 
-	return Matrix4f(1.0f - (yy + zz), xy + wz, xz - wy, 0.0f,
-					xy - wz, 1.0f - (xx + zz), yz + wx, 0.0f,
-					xz + wy, yz - wx, 1.0f - (xx + yy), 0.0f,
+	return Matrix4f(1.0f - (yy + zz), xy - wz, xz + wy, 0.0f,
+					xy + wz, 1.0f - (xx + zz), yz - wx, 0.0f,
+					xz - wy, yz + wx, 1.0f - (xx + yy), 0.0f,
 					0.0f, 0.0f, 0.0f, 1.0f);
 }
 
@@ -1246,15 +1249,15 @@ Matrix4f Matrix4f::InvRotate(const Quaternion &orientation, const Vector3f &cent
 	float wz = orientation[3] * z2;
 
 	float mtx00 = 1.0f - (yy + zz);
-	float mtx01 = xy + wz;
-	float mtx02 = xz - wy;
+	float mtx01 = xy - wz;
+	float mtx02 = xz + wy;
 
-	float mtx10 = xy - wz;
+	float mtx10 = xy + wz;
 	float mtx11 = 1.0f - (xx + zz);
-	float mtx12 = yz + wx;
+	float mtx12 = yz - wx;
 
-	float mtx20 = xz + wy;
-	float mtx21 = yz - wx;
+	float mtx20 = xz - wy;
+	float mtx21 = yz + wx;
 	float mtx22 = 1.0f - (xx + yy);
 
 	return Matrix4f(mtx00, mtx01, mtx02, 0.0f,
@@ -1365,19 +1368,6 @@ Matrix4f &Matrix4f::InvRotate(Matrix4f &mtx, const Vector3f &axis, float degrees
 	return mtx;
 }
 
-/*Matrix4f Matrix4f::Rotate(const Vector3f &direction) {
-	Vector3f xaxis = Vector3f::Cross(direction, Vector3f(0.0f, 1.0f, 0.0f));
-	Vector3f::Normalize(xaxis);
-
-	Vector3f yaxis = Vector3f::Cross(xaxis, direction);
-	Vector3f::Normalize(yaxis);
-
-	return Matrix4f(xaxis[0], xaxis[1], xaxis[2], 0.0f,
-		yaxis[0], yaxis[1], yaxis[2], 0.0f,
-		direction[0], direction[1], direction[2], 0.0f,
-		0.0f, 0.0f, 0.0f, 1.0f);
-}*/
-
 Matrix4f Matrix4f::Rotate(const Vector3f& eulerAngles) {
 	float pitch = eulerAngles[0] * PI_ON_180;
 	float yaw = eulerAngles[1] * PI_ON_180;
@@ -1395,19 +1385,6 @@ Matrix4f Matrix4f::Rotate(const Vector3f& eulerAngles) {
 					cosR * sinY + sinR * sinP * cosY, sinR * sinY - cosR * sinP * cosY, cosP * cosY, 0.0f,
 					0.0f, 0.0f, 0.0f, 1.0f);
 }
-
-/*Matrix4f Matrix4f::Rotate(const Vector3f &direction, const Vector3f &poisiton) {
-	Vector3f xaxis = Vector3f::Cross(direction, Vector3f(0.0f, 1.0f, 0.0f));
-	Vector3f::Normalize(xaxis);
-
-	Vector3f yaxis = Vector3f::Cross(xaxis, direction);
-	Vector3f::Normalize(yaxis);
-
-	return Matrix4f(xaxis[0], xaxis[1], xaxis[2], 0.0f,
-		yaxis[0], yaxis[1], yaxis[2], 0.0f,
-		direction[0], direction[1], direction[2], 0.0f,
-		poisiton[0], poisiton[1], poisiton[2], 1.0f);
-}*/
 
 Matrix4f Matrix4f::Rotate(const Vector3f& eulerAngles, const Vector3f& centerOfRotation) {
 	float pitch = centerOfRotation[0] * PI_ON_180;
@@ -1471,10 +1448,10 @@ Matrix4f Matrix4f::Rotate(const Quaternion &orientation) {
 	float wy = orientation[3] * y2;
 	float wz = orientation[3] * z2;
 
-	return Matrix4f(1.0f - (yy + zz), xy - wz, xz + wy, 0.0f,
-					xy + wz, 1.0f - (xx + zz), yz - wx, 0.0f,
-					xz - wy, yz + wx, 1.0f - (xx + yy), 0.0f,
-					0.0f, 0.0f, 0.0f, 1.0f);
+	return Matrix4f(1.0f - (yy + zz), xy + wz, xz - wy, 0.0f,
+		xy - wz, 1.0f - (xx + zz), yz + wx, 0.0f,
+		xz + wy, yz - wx, 1.0f - (xx + yy), 0.0f,
+		0.0f, 0.0f, 0.0f, 1.0f);
 }
 
 Matrix4f Matrix4f::Rotate(float pitch, float yaw, float roll) {
@@ -1544,15 +1521,15 @@ Matrix4f Matrix4f::Rotate(const Quaternion &orientation, const Vector3f &centerO
 	float wz = orientation[3] * z2;
 
 	float mtx00 = 1.0f - (yy + zz);
-	float mtx01 = xy - wz;
-	float mtx02 = xz + wy;
+	float mtx01 = xy + wz;
+	float mtx02 = xz - wy;
 
-	float mtx10 = xy + wz;
+	float mtx10 = xy - wz;
 	float mtx11 = 1.0f - (xx + zz);
-	float mtx12 = yz - wx;
+	float mtx12 = yz + wx;
 
-	float mtx20 = xz - wy;
-	float mtx21 = yz + wx;
+	float mtx20 = xz + wy;
+	float mtx21 = yz - wx;
 	float mtx22 = 1.0f - (xx + yy);
 
 	return Matrix4f(mtx00, mtx01, mtx02, 0.0f,
@@ -1668,8 +1645,8 @@ Matrix4f Matrix4f::GetNormalMatrix(const Matrix4f &modelViewMatrix) {
 	float invDet;
 
 	det = modelViewMatrix[0][0] * (modelViewMatrix[1][1] * modelViewMatrix[2][2] - modelViewMatrix[2][1] * modelViewMatrix[1][2]) +
-		modelViewMatrix[0][1] * (modelViewMatrix[1][2] * modelViewMatrix[2][0] - modelViewMatrix[2][2] * modelViewMatrix[1][0]) +
-		modelViewMatrix[0][2] * (modelViewMatrix[1][0] * modelViewMatrix[2][1] - modelViewMatrix[1][1] * modelViewMatrix[2][0]);
+		  modelViewMatrix[0][1] * (modelViewMatrix[1][2] * modelViewMatrix[2][0] - modelViewMatrix[2][2] * modelViewMatrix[1][0]) +
+		  modelViewMatrix[0][2] * (modelViewMatrix[1][0] * modelViewMatrix[2][1] - modelViewMatrix[1][1] * modelViewMatrix[2][0]);
 
 	invDet = 1.0f / det;
 
@@ -1693,7 +1670,6 @@ Matrix4f Matrix4f::GetNormalMatrix(const Matrix4f &modelViewMatrix) {
 	normalMatrix[2][3] = 0.0f;
 	normalMatrix[3][3] = 1.0f;
 
-
 	return normalMatrix;
 }
 
@@ -1702,8 +1678,8 @@ Matrix4f &Matrix4f::GetNormalMatrix(Matrix4f &mtx, const Matrix4f &modelViewMatr
 	float invDet;
 
 	det = modelViewMatrix[0][0] * (modelViewMatrix[1][1] * modelViewMatrix[2][2] - modelViewMatrix[2][1] * modelViewMatrix[1][2]) +
-		modelViewMatrix[0][1] * (modelViewMatrix[1][2] * modelViewMatrix[2][0] - modelViewMatrix[2][2] * modelViewMatrix[1][0]) +
-		modelViewMatrix[0][2] * (modelViewMatrix[1][0] * modelViewMatrix[2][1] - modelViewMatrix[1][1] * modelViewMatrix[2][0]);
+		  modelViewMatrix[0][1] * (modelViewMatrix[1][2] * modelViewMatrix[2][0] - modelViewMatrix[2][2] * modelViewMatrix[1][0]) +
+		  modelViewMatrix[0][2] * (modelViewMatrix[1][0] * modelViewMatrix[2][1] - modelViewMatrix[1][1] * modelViewMatrix[2][0]);
 
 	invDet = 1.0f / det;
 
@@ -1726,7 +1702,6 @@ Matrix4f &Matrix4f::GetNormalMatrix(Matrix4f &mtx, const Matrix4f &modelViewMatr
 	mtx[1][3] = 0.0f;
 	mtx[2][3] = 0.0f;
 	mtx[3][3] = 1.0f;
-
 
 	return mtx;
 }
@@ -1809,8 +1784,6 @@ Matrix4f Matrix4f::Perspective(float left, float right, float bottom, float top,
 	inv_tb = (1.0f / (top - bottom));
 	inv_nf = (1.0f / (znear - zfar));
 	n2 = (znear + znear);
-
-
 
 	perspective[0][0] = (n2 * inv_rl);
 	perspective[0][1] = 0.0f;
@@ -1930,9 +1903,9 @@ Matrix4f Matrix4f::InvPerspective(const Matrix4f &pers) {
 
 
 	return Matrix4f(1.0f / pers[0][0], 0.0f, 0.0f, 0.0f,
-		0.0f, 1.0f / pers[1][1], 0.0f, 0.0f,
-		0.0f, 0.0f, 0.0f, 1.0f / pers[3][2],
-		0.0f, 0.0f, -1.0f, pers[2][2] / pers[3][2]);
+                    0.0f, 1.0f / pers[1][1], 0.0f, 0.0f,
+                    0.0f, 0.0f, 0.0f, 1.0f / pers[3][2],
+                    0.0f, 0.0f, -1.0f, pers[2][2] / pers[3][2]);
 }
 
 Matrix4f Matrix4f::Orthographic(float left, float right, float bottom, float top, float znear, float zfar) {
@@ -2045,9 +2018,9 @@ Matrix4f Matrix4f::InvOrthographic(const Matrix4f &ortho) {
 	float far = -(1.0f / ortho[2][2]) * (1.0f + ortho[3][2]);
 
 	return Matrix4f((right - left) * 0.5f, 0.0f, 0.0f, 0.0f,
-		0.0f, (top - bottom) * 0.5f, 0.0f, 0.0f,
-		0.0f, 0.0f, (near - far) * 0.5f, 0.0f,
-		(right + left) * 0.5f, (top + bottom) * 0.5f, -(far + near) * 0.5f, 1.0f);
+                    0.0f, (top - bottom) * 0.5f, 0.0f, 0.0f,
+                    0.0f, 0.0f, (near - far) * 0.5f, 0.0f,
+                    (right + left) * 0.5f, (top + bottom) * 0.5f, -(far + near) * 0.5f, 1.0f);
 }
 
 Matrix4f Matrix4f::LookAt(const Vector3f &eye, const Vector3f &target, const Vector3f &up) {
@@ -2084,7 +2057,6 @@ const float *Matrix4f::operator[](int row) const {
 }
 
 void Matrix4f::identity() {
-
 	mtx[0][0] = 1.0f, mtx[0][1] = 0.0f, mtx[0][2] = 0.0f, mtx[0][3] = 0.0f;
 	mtx[1][0] = 0.0f, mtx[1][1] = 1.0f, mtx[1][2] = 0.0f, mtx[1][3] = 0.0f;
 	mtx[2][0] = 0.0f, mtx[2][1] = 0.0f, mtx[2][2] = 1.0f, mtx[2][3] = 0.0f;
@@ -2120,7 +2092,6 @@ Matrix4f &Matrix4f::operator+=(const Matrix4f &rhs) {
 }
 
 Matrix4f &Matrix4f::operator*=(const Matrix4f &rhs) {
-
 	Matrix4f tmp;
 
 	// Row 1.
@@ -2153,7 +2124,6 @@ Matrix4f &Matrix4f::operator*=(const Matrix4f &rhs) {
 
 
 Matrix4f &Matrix4f::operator^=(const Matrix4f &rhs) {
-
 	Matrix4f tmp;
 
 	// Row 1.
@@ -2185,24 +2155,20 @@ Matrix4f &Matrix4f::operator^=(const Matrix4f &rhs) {
 }
 
 Matrix4f Matrix4f::operator+(const Matrix4f &rhs) const {
-
 	Matrix4f tmp(*this);
 	tmp += rhs;
 	return tmp;
 }
 
 Matrix4f Matrix4f::operator*(const Matrix4f &rhs) const {
-
 	Matrix4f tmp(*this);
 	tmp *= rhs;
 	return tmp;
 }
 
 Matrix4f Matrix4f::operator^(const Matrix4f &rhs) const {
-
 	Matrix4f tmp(*this);
 	tmp ^= rhs;
-
 	return tmp;
 }
 
@@ -2279,8 +2245,7 @@ Matrix4f Matrix4f::inverse() const {
 	if (fabsf(d) < 0.0001f) {
 		tmp.identity();
 
-	}
-	else {
+	}else {
 		d = 1.0f / d;
 
 		tmp.mtx[0][0] = d * (mtx[1][1] * (mtx[2][2] * mtx[3][3] - mtx[3][2] * mtx[2][3]) + mtx[2][1] * (mtx[3][2] * mtx[1][3] - mtx[1][2] * mtx[3][3]) + mtx[3][1] * (mtx[1][2] * mtx[2][3] - mtx[2][2] * mtx[1][3]));
@@ -2313,8 +2278,7 @@ Matrix4f Matrix4f::Inverse(const Matrix4f &m) {
 
 	if (fabsf(d) < 0.0001f) {
 		tmp.identity();
-	}
-	else {
+	}else {
 		d = 1.0f / d;
 
 		tmp.mtx[0][0] = d * (m[1][1] * (m[2][2] * m[3][3] - m[3][2] * m[2][3]) + m[2][1] * (m[3][2] * m[1][3] - m[1][2] * m[3][3]) + m[3][1] * (m[1][2] * m[2][3] - m[2][2] * m[1][3]));
@@ -2343,7 +2307,6 @@ Matrix4f Matrix4f::Inverse(const Matrix4f &m) {
 
 //friend operator
 Matrix4f operator*(float scalar, const Matrix4f &rhs) {
-
 	Matrix4f tmp(rhs);
 
 	tmp[0][0] *= scalar, tmp[0][1] *= scalar, tmp[0][2] *= scalar, tmp[0][3] *= scalar;
@@ -2383,7 +2346,6 @@ Vector3f operator*(const Vector3f &lhs, const Matrix4f &rhs) {
 
 //friend operator
 Vector4f operator^(const Matrix4f &rhs, const Vector4f &lhs) {
-
 	return Vector4f((lhs[0] * rhs.mtx[0][0]) + (lhs[1] * rhs.mtx[0][1]) + (lhs[2] * rhs.mtx[0][2]) + (lhs[3] * rhs.mtx[0][3]),
 		(lhs[0] * rhs.mtx[1][0]) + (lhs[1] * rhs.mtx[1][1]) + (lhs[2] * rhs.mtx[1][2]) + (lhs[3] * rhs.mtx[1][3]),
 		(lhs[0] * rhs.mtx[2][0]) + (lhs[1] * rhs.mtx[2][1]) + (lhs[2] * rhs.mtx[2][2]) + (lhs[3] * rhs.mtx[2][3]),
@@ -3077,8 +3039,7 @@ void Quaternion::fromMatrix(const Matrix4f &m) {
 		q[0] = (m[2][1] - m[1][2]) * s;
 		q[1] = (m[0][2] - m[2][0]) * s;
 		q[2] = (m[1][0] - m[0][1]) * s;
-	}
-	else {
+	}else {
 
 		int nxt[3] = { 1, 2, 0 };
 		int i = 0, j = 0, k = 0;
@@ -3105,10 +3066,6 @@ void Quaternion::fromMatrix(const Matrix4f &m) {
 
 //https://math.stackexchange.com/questions/2975109/how-to-convert-euler-angles-to-quaternions-and-get-the-same-euler-angles-back-fr
 void Quaternion::fromPitchYawRoll(float pitch, float yaw, float roll) {
-	Matrix4f m;
-	m.rotate(pitch, yaw, roll);
-	fromMatrix(m);
-
 	pitch = pitch * HALF_PI_ON_180;
 	yaw = yaw * HALF_PI_ON_180;
 	roll = roll * HALF_PI_ON_180;
@@ -3120,10 +3077,10 @@ void Quaternion::fromPitchYawRoll(float pitch, float yaw, float roll) {
 	float cosR = cosf(roll);
 	float sinR = sinf(roll);
 
-	quat[0] = sinP * cosY * cosR + cosP * sinY * sinR;
-	quat[1] = cosP * sinY * cosR - sinP * cosY * sinR;
-	quat[2] = sinP * sinY * cosR + cosP * cosY * sinR;
-	quat[3] = cosP * cosY * cosR - sinP * sinY * sinR;
+	quat[0] = sinP * cosY * cosR - cosP * sinY * sinR;
+	quat[1] = cosP * sinY * cosR + sinP * cosY * sinR;
+	quat[2] = cosP * cosY * sinR - sinP * sinY * cosR;
+	quat[3] = cosP * cosY * cosR + sinP * sinY * sinR;
 }
 
 void Quaternion::rotate(float pitch, float yaw, float roll) {
@@ -3138,13 +3095,10 @@ void Quaternion::rotate(float pitch, float yaw, float roll) {
 	float cosR = cosf(roll);
 	float sinR = sinf(roll);
 
-	float rot0 = sinP * cosY * cosR + cosP * sinY * sinR;
-	float rot1 = cosP * sinY * cosR - sinP * cosY * sinR;
-	float rot2 = sinP * sinY * cosR + cosP * cosY * sinR;
-	float rot3 = cosP * cosY * cosR - sinP * sinY * sinR;
-
-	//Quaternion rot;
-	//rot.fromPitchYawRoll(pitch, yaw, roll);
+	float rot0 = sinP * cosY * cosR - cosP * sinY * sinR;
+	float rot1 = cosP * sinY * cosR + sinP * cosY * sinR;
+	float rot2 = cosP * cosY * sinR - sinP * sinY * cosR;
+	float rot3 = cosP * cosY * cosR + sinP * sinY * sinR;
 
 	float q0 = quat[0];
 	float q1 = quat[1];
@@ -3155,8 +3109,6 @@ void Quaternion::rotate(float pitch, float yaw, float roll) {
 	quat[1] = (q3 * rot1) + (q0 * rot2) + (q1 * rot3) - (q2 * rot0);
 	quat[2] = (q3 * rot2) - (q0 * rot1) + (q1 * rot0) + (q2 * rot3);
 	quat[3] = (q3 * rot3) - (q0 * rot0) - (q1 * rot1) - (q2 * rot2);
-
-	//*this *= rot;
 }
 
 void Quaternion::rotate(const Vector3f &axis, float degrees) {
@@ -3256,20 +3208,14 @@ const Matrix4f Quaternion::toMatrix4f() const {
 	float wy = quat[3] * y2;
 	float wz = quat[3] * z2;
 
-	return Matrix4f(1.0f - (yy + zz), xy - wz, xz + wy, 0.0f,
-		xy + wz, 1.0f - (xx + zz), yz - wx, 0.0f,
-		xz - wy, yz + wx, 1.0f - (xx + yy), 0.0f,
+	return Matrix4f(1.0f - (yy + zz), xy + wz, xz - wy, 0.0f,
+		xy - wz, 1.0f - (xx + zz), yz + wx, 0.0f,
+		xz + wy, yz - wx, 1.0f - (xx + yy), 0.0f,
 		0.0f, 0.0f, 0.0f, 1.0f);
 }
 
 const Matrix4f Quaternion::toMatrix4f(const Vector3f &centerOfRotation) const {
-	// Converts this quaternion to a rotation matrix.
-	//
-	//  | 1 - 2(y^2 + z^2)	2(xy - wz)			2(xz + wy)			0  |
-	//  | 2(xy + wz)		1 - 2(x^2 + z^2)	2(yz - wx)			0  |
-	//  | 2(xz - wy)		2(yz + wx)			1 - 2(x^2 + y^2)	0  |
-	//  | 0					0					0					1  |
-
+	
 	float x2 = quat[0] + quat[0];
 	float y2 = quat[1] + quat[1];
 	float z2 = quat[2] + quat[2];
@@ -3283,9 +3229,9 @@ const Matrix4f Quaternion::toMatrix4f(const Vector3f &centerOfRotation) const {
 	float wy = quat[3] * y2;
 	float wz = quat[3] * z2;
 
-	return Matrix4f(1.0f - (yy + zz), xy - wz, xz + wy, 0.0f,
-		xy + wz, 1.0f - (xx + zz), yz - wx, 0.0f,
-		xz - wy, yz + wx, 1.0f - (xx + yy), 0.0f,
+	return Matrix4f(1.0f - (yy + zz), xy + wz, xz - wy, 0.0f,
+		xy - wz, 1.0f + (xx + zz), yz - wx, 0.0f,
+		xz + wy, yz - wx, 1.0f - (xx + yy), 0.0f,
 		centerOfRotation[0] * (yy + zz) - centerOfRotation[1] * (xy + wz) - centerOfRotation[2] * (xz - wy), centerOfRotation[1] * (xx + zz) - centerOfRotation[0] * (xy - wz) - centerOfRotation[2] * (yz + wx), centerOfRotation[2] * (xx + yy) - centerOfRotation[0] * (xz + wy) - centerOfRotation[1] * (yz - wx), 1.0f);;
 }
 
@@ -3310,13 +3256,13 @@ Quaternion& Quaternion::Inverse(Quaternion &quat) {
 
 //https://gamedev.stackexchange.com/questions/28395/rotating-vector3-by-a-quaternion
 Vector3f Quaternion::Rotate(Quaternion &quat, const Vector3f &v) {
-	//Vector3f u(quat[0], quat[1], quat[2]);
-	//float s = quat[3];
-	//return 2.0f * Vector3f::Dot(u, v) * u + (s*s - Vector3f::Dot(u, u)) * v + 2.0f * s *  Vector3f::Cross(u, v);
-
 	Vector3f u(quat[0], quat[1], quat[2]);
 	float s = quat[3];
-	return 2.0f * Vector3f::Dot(u, v) * u + (s*s - Vector3f::Dot(u, u)) * v + 2.0f * s *  Vector3f::Cross(v, u);
+	return 2.0f * Vector3f::Dot(u, v) * u + (s*s - Vector3f::Dot(u, u)) * v + 2.0f * s *  Vector3f::Cross(u, v);
+
+	//Vector3f u(quat[0], quat[1], quat[2]);
+	//float s = quat[3];
+	//return 2.0f * Vector3f::Dot(u, v) * u + (s*s - Vector3f::Dot(u, u)) * v + 2.0f * s *  Vector3f::Cross(v, u);
 }
 
 //friend operator

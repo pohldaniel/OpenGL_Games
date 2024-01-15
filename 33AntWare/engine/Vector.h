@@ -307,8 +307,8 @@ public:
 			 float m21, float m22, float m23, float m24,
              float m31, float m32, float m33, float m34,
              float m41, float m42, float m43, float m44);
-
 	void set(const Matrix4f& rhs);
+	void set(float array[16]);
 
 	static Matrix4f GetNormalMatrix(const Matrix4f& modelViewMatrix);
 	static Matrix4f &GetNormalMatrix(Matrix4f& mtx, const Matrix4f& modelViewMatrix);

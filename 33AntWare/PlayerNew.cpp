@@ -99,9 +99,9 @@ void PlayerNew::update(const float dt) {
 	rigidbody.velocity *= keyboard.keyDown(Keyboard::KEY_LSHIFT) ? runningSpeed : speed;
 
 
-	eularAngles[0] += mouse.yDelta() * mouseSenstivity;
-	eularAngles[1] += mouse.xDelta() * mouseSenstivity;
-	camera.lookAt({ m_position[0], m_position[1], m_position[2] }, eularAngles[0], eularAngles[1], 180.0f);
+	eularAngles[0] -= mouse.yDelta() * mouseSenstivity;
+	eularAngles[1] -= mouse.xDelta() * mouseSenstivity;
+	camera.lookAt({ m_position[0], m_position[1], m_position[2] }, -eularAngles[0], -eularAngles[1], 180.0f);
 	camera.moveRelative(Vector3f(0.0f, 0.5f, 0.0f));
 
 	setOrientation(Vector3f(eularAngles[0], eularAngles[1], eularAngles[2]));
@@ -211,11 +211,11 @@ void PlayerNew::recoilAnim(float deltaTime) {
 	}else {
 		recoilTime += deltaTime;
 		if (recoilTime < (recoilTimeOut / 2.0f)) {
-			childrenEular[0] -= recoilImpact * deltaTime;
+			childrenEular[0] += recoilImpact * deltaTime;
 			childrenTranslation[2] += recoilImpact * deltaTime * 0.05f;
 
 		}else {
-			childrenEular[0] += recoilImpact * deltaTime;
+			childrenEular[0] -= recoilImpact * deltaTime;
 			childrenTranslation[2] -= recoilImpact * deltaTime * 0.05f;
 			//m_children.front()->getMesh()->setTexture(transparentTexture);
 		}
@@ -237,10 +237,10 @@ void PlayerNew::reloadAnim(float deltaTime) {
 	}else {
 		reloadTime += deltaTime;
 		if (reloadTime < (reloadTimeOut / 2.0f)) {
-			childrenEular[0] += reloadPlaybackSpeed * deltaTime;
+			childrenEular[0] -= reloadPlaybackSpeed * deltaTime;
 			childrenTranslation[2] += reloadPlaybackSpeed * deltaTime * 0.005f;
 		}else {
-			childrenEular[0] -= reloadPlaybackSpeed * deltaTime;
+			childrenEular[0] += reloadPlaybackSpeed * deltaTime;
 			childrenTranslation[2] -= reloadPlaybackSpeed * deltaTime * 0.005f;
 		}
 	}
