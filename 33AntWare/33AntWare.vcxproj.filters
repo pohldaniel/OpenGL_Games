@@ -61,6 +61,9 @@
     <Filter Include="engine\animation\render">
       <UniqueIdentifier>{dc65e16c-d3ee-450e-9928-08111a249301}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Entities">
+      <UniqueIdentifier>{76e1eccc-1e53-4b77-a0a7-958fcf929a13}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\input\ApplicationEventListener.cpp">
@@ -342,12 +345,6 @@
     <ClCompile Include="src\ObjSequence.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Ant.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Player.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="GameObject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -360,12 +357,6 @@
     <ClCompile Include="src\MaterialAW.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Bullet.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="StaticGO.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="HUD.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -374,12 +365,6 @@
     </ClCompile>
     <ClCompile Include="src\States\SceneGraph.cpp">
       <Filter>Source Files\States</Filter>
-    </ClCompile>
-    <ClCompile Include="Entity.cpp">
-      <Filter>Source Files\Objects</Filter>
-    </ClCompile>
-    <ClCompile Include="PlayerNew.cpp">
-      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="engine\animation\AssimpAnimatedModel.cpp">
       <Filter>engine\animation</Filter>
@@ -393,8 +378,17 @@
     <ClCompile Include="engine\animation\render\AnimationShader.cpp">
       <Filter>engine\animation\render</Filter>
     </ClCompile>
-    <ClCompile Include="AntNew.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="src\Entities\Ant.cpp">
+      <Filter>Source Files\Entities</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Entities\Bullet.cpp">
+      <Filter>Source Files\Entities</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Entities\Entity.cpp">
+      <Filter>Source Files\Entities</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Entities\Player.cpp">
+      <Filter>Source Files\Entities</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -704,12 +698,6 @@
     <ClInclude Include="src\ObjSequence.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Ant.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Player.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="GameObject.h">
       <Filter>Source Files</Filter>
     </ClInclude>
@@ -722,12 +710,6 @@
     <ClInclude Include="src\MaterialAW.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Bullet.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="StaticGO.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="HUD.h">
       <Filter>Source Files</Filter>
     </ClInclude>
@@ -736,12 +718,6 @@
     </ClInclude>
     <ClInclude Include="src\States\SceneGraph.h">
       <Filter>Source Files\States</Filter>
-    </ClInclude>
-    <ClInclude Include="Entity.h">
-      <Filter>Source Files\Objects</Filter>
-    </ClInclude>
-    <ClInclude Include="PlayerNew.h">
-      <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="engine\animation\AssimpAnimatedModel.h">
       <Filter>engine\animation</Filter>
@@ -755,8 +731,17 @@
     <ClInclude Include="engine\animation\render\AnimationShader.h">
       <Filter>engine\animation\render</Filter>
     </ClInclude>
-    <ClInclude Include="AntNew.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="src\Entities\Ant.h">
+      <Filter>Source Files\Entities</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Entities\Bullet.h">
+      <Filter>Source Files\Entities</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Entities\Entity.h">
+      <Filter>Source Files\Entities</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Entities\Player.h">
+      <Filter>Source Files\Entities</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

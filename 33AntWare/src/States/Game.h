@@ -1,5 +1,5 @@
 #pragma once
-#include <filesystem>
+
 #include <engine/input/MouseEventListener.h>
 #include <engine/input/KeyboardEventListener.h>
 #include <engine/Camera.h>
@@ -9,15 +9,13 @@
 #include <States/StateMachine.h>
 #include <Objects/SceneNode.h>
 
-#include "Mesh.h"
-#include "Ant.h"
 #include "ObjSequence.h"
-#include "Player.h"
-#include "StaticGO.h"
 #include "HUD.h"
-#include "PlayerNew.h"
-#include "AntNew.h"
-#include "Entity.h"
+
+#include <Entities/Player.h>
+#include <Entities/Ant.h>
+#include <Entities/Bullet.h>
+#include "Mesh.h"
 
 enum LightType{
 	DIRECTIONAL,
@@ -57,7 +55,7 @@ public:
 private:
 
 	void renderUi();
-	void destroyGameObject(int index);
+	void destroyAnt(int index);
 
 	bool m_initUi = true;
 	bool m_drawUi = false;
@@ -79,26 +77,18 @@ private:
 	std::shared_ptr<aw::Mesh> m_cubeMesh = nullptr;
 	std::vector<std::shared_ptr<aw::Mesh>> m_meshes;
 
-	Player* m_player = nullptr;
-	aw::StaticGO* m_muzzleGO = nullptr;
-	aw::StaticGO* m_gunGO = nullptr;
-	aw::StaticGO* m_handsGO = nullptr;
-	aw::StaticGO* m_glovesGO = nullptr;
-	aw::StaticGO* m_cpuGO = nullptr;
-	aw::StaticGO* m_platformGO = nullptr;
-	Ant *m_ant1 = nullptr, *m_ant2 = nullptr, *m_ant3 = nullptr, *m_ant4 = nullptr, *m_ant5 = nullptr, *m_ant6 = nullptr, *m_ant7 = nullptr, *m_ant8 = nullptr, *m_ant9 = nullptr;
-	std::vector<aw::GameObject*> m_gameObjects;
-	std::vector<aw::GameObject*> m_ants;
-
 	aw::Status gameStatus;
 
-	PlayerNew* playerNew;
+	Player* m_player;
 	Entity* m_muzzleE = nullptr;
 	Entity* m_gunE = nullptr;
 	Entity* m_handsE = nullptr;
 	Entity* m_glovesE = nullptr;
+	Entity* m_cpuE = nullptr;
+	Entity* m_platformE = nullptr;
 
-	AntNew *m_ant1New = nullptr;
+	Ant *m_ant1 = nullptr, *m_ant2 = nullptr, *m_ant3 = nullptr, *m_ant4 = nullptr, *m_ant5 = nullptr, *m_ant6 = nullptr, *m_ant7 = nullptr, *m_ant8 = nullptr, *m_ant9 = nullptr;
 	std::vector<Entity*> m_entities;
-	std::vector<AntNew*> m_antsNew;
+	std::vector<Ant*> m_ants;
+	std::vector<Bullet> m_nodes;
 };

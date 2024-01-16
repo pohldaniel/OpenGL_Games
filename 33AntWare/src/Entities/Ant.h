@@ -6,11 +6,11 @@
 #include "ObjSequence.h"
 
 
-class AntNew : public Entity {
+class Ant : public Entity {
 
 public:
 
-	AntNew(const ObjSequence& objSequence, std::shared_ptr<aw::Mesh> mesh, aw::Material material, Entity* target);
+	Ant(const ObjSequence& objSequence, std::shared_ptr<aw::Mesh> mesh, aw::Material material, Entity* target);
 
 	void start();
 	void update(const float dt);

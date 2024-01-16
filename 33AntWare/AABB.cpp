@@ -1,4 +1,6 @@
 #include <AABB.h>
+#include <iostream>
+
 using namespace aw;
 using namespace glm;
 bool AABB::isColliding(const AABB &other)
@@ -55,6 +57,26 @@ bool AABB::isColliding(vec3 point)
     }
     return intersectZ && intersectY && intersectX;
 }
+
+bool AABB::isColliding(Vector3f point) {
+	bool intersectX = false, intersectY = false, intersectZ = false;
+	if (point[1] <= up && point[1] >= down){
+		intersectY = true;
+	}
+
+	if (point[0] <= right && point[0] >= left){
+		intersectX = true;
+	}
+
+	if (point[2] <= forward && point[2] >= backward){
+		intersectZ = true;
+	}
+
+	//std::cout << "Box: " << up << "  " << down << "  " << left << "  " << right << "  " << forward << "  " << backward << std::endl;
+
+	return intersectZ && intersectY && intersectX;
+}
+
 vec3 AABB::getCenter()
 {
     vec3 corner = {left, down, backward};

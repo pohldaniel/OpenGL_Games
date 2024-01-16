@@ -1,4 +1,5 @@
 #pragma once
+#include <engine/Vector.h>
 #include <glm/glm.hpp>
 
 namespace aw{
@@ -14,6 +15,8 @@ namespace aw{
     glm::vec3 bounds[8];
     bool isColliding(const AABB &other);
     bool isColliding(glm::vec3 point);
+	bool isColliding(Vector3f point);
+
     glm::vec3 getCenter();
     void minmize(float factor);
     void maximize(float factor);

@@ -17,6 +17,24 @@ Material::Material() : ambient({0.1f, 0.1f, 0.1f, 1.0f}),
 					   diffuse({0.6f, 0.6f, 0.6f, 1.0f}),
 					   specular({0.3f, 0.3f, 0.3f, 1.0f}),
 					   shininess(8.0f) {}
+
+Material::Material(Material const& rhs) {
+	ambient = rhs.ambient;
+	diffuse = rhs.diffuse;
+	specular = rhs.specular;
+	shininess = rhs.shininess;
+	alpha = rhs.alpha;
+}
+
+Material& Material::operator=(const Material& rhs) {
+	ambient = rhs.ambient;
+	diffuse = rhs.diffuse;
+	specular = rhs.specular;
+	shininess = rhs.shininess;
+	alpha = rhs.alpha;
+	return *this;
+}
+
 void Material::setAmbient(vec4 ambient)
 {
 	this->ambient = ambient;

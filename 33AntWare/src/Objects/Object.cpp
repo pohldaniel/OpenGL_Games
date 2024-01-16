@@ -10,16 +10,12 @@ Object::Object() {
 	m_isDirty = true;
 }
 
-void Object::setScale(const float sx, const float sy, const float sz) {
-	m_scale.set(sx, sy, sz);
-	m_isDirty = true;
-}
-
 Object::Object(Object const& rhs) {
 	m_position = rhs.m_position;
 	m_scale = rhs.m_scale;
-	m_orientation = rhs.m_orientation;
+	m_orientation = rhs.m_orientation;	
 	//m_rotation = rhs.m_rotation;
+	m_isDirty = rhs.m_isDirty;
 }
 
 Object& Object::operator=(const Object& rhs) {
@@ -27,7 +23,13 @@ Object& Object::operator=(const Object& rhs) {
 	m_scale = rhs.m_scale;
 	m_orientation = rhs.m_orientation;
 	//m_rotation = rhs.m_rotation;
+	m_isDirty = rhs.m_isDirty;
 	return *this;
+}
+
+void Object::setScale(const float sx, const float sy, const float sz) {
+	m_scale.set(sx, sy, sz);
+	m_isDirty = true;
 }
 
 void Object::setScale(const Vector3f &scale) {

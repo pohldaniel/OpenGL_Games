@@ -1,9 +1,17 @@
-#include "Entity.h"
 #include "SceneNode.h"
 
 SceneNode::SceneNode() : Object(), m_parent(nullptr), m_markForRemove(false){
 	m_modelMatrix.identity();
 }
+
+/*SceneNode::SceneNode(SceneNode const& rhs) : Object(rhs) {
+
+}
+
+SceneNode& SceneNode::operator=(const SceneNode& rhs) {
+	Object::operator=(rhs);
+	return *this;
+}*/
 
 void SceneNode::computeTransformation() {
 	m_modelMatrix = getTransformationSOP();

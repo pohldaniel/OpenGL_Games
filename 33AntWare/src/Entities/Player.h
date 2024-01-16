@@ -7,11 +7,11 @@
 #include "Entity.h"
 #include "Bullet.h"
 
-class PlayerNew : public Entity, public MouseEventListener {
+class Player: public Entity, public MouseEventListener {
 
 public:
 
-	PlayerNew(Camera& camera, std::shared_ptr<aw::Mesh> mesh, aw::Material material, const Vector2f& mapMinLimit, const Vector2f& mapMaxLimit);
+	Player(Camera& camera, std::shared_ptr<aw::Mesh> mesh, aw::Material material, const Vector2f& mapMinLimit, const Vector2f& mapMaxLimit);
 
 	float speed = 10.0f, runningSpeed = 20.0f;
 	float mouseSenstivity = 0.1f;
@@ -51,7 +51,7 @@ public:
 	Vector3f childrenEular;
 	Vector3f childrenTranslation;
 	Vector3f eularAngles;
-	std::vector<aw::Bullet> bullets;
+	std::vector<Bullet> bullets;
 
 	bool isDead();
 	void killSound();

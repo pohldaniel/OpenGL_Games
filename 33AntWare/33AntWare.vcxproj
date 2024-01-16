@@ -165,7 +165,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AABB.cpp" />
-    <ClCompile Include="AntNew.cpp" />
     <ClCompile Include="engine\animation\AssimpAnimatedModel.cpp" />
     <ClCompile Include="engine\animation\AssimpAnimation.cpp" />
     <ClCompile Include="engine\animation\AssimpAnimator.cpp" />
@@ -177,19 +176,18 @@
     <ClCompile Include="engine\sound\SoundDevice.cpp" />
     <ClCompile Include="engine\Thread.cpp" />
     <ClCompile Include="engine\ZoomableQuad.cpp" />
-    <ClCompile Include="Entity.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="HUD.cpp" />
     <ClCompile Include="Mesh.cpp" />
-    <ClCompile Include="PlayerNew.cpp" />
-    <ClCompile Include="src\Ant.cpp" />
-    <ClCompile Include="src\Bullet.cpp" />
+    <ClCompile Include="src\Entities\Ant.cpp" />
+    <ClCompile Include="src\Entities\Bullet.cpp" />
+    <ClCompile Include="src\Entities\Entity.cpp" />
+    <ClCompile Include="src\Entities\Player.cpp" />
     <ClCompile Include="src\LoadingManager.cpp" />
     <ClCompile Include="src\MaterialAW.cpp" />
     <ClCompile Include="src\MousePickerFBO.cpp" />
     <ClCompile Include="src\Objects\SceneNode.cpp" />
     <ClCompile Include="src\ObjSequence.cpp" />
-    <ClCompile Include="src\Player.cpp" />
     <ClCompile Include="src\Rigidbody.cpp" />
     <ClCompile Include="src\States\Controlls.cpp" />
     <ClCompile Include="src\States\Default.cpp" />
@@ -274,11 +272,9 @@
     <ClCompile Include="src\Utils\SolidIO.cpp" />
     <ClCompile Include="src\Utils\Utils.cpp" />
     <ClCompile Include="src\ViewPort.cpp" />
-    <ClCompile Include="StaticGO.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AABB.h" />
-    <ClInclude Include="AntNew.h" />
     <ClInclude Include="engine\animation\AssimpAnimatedModel.h" />
     <ClInclude Include="engine\animation\AssimpAnimation.h" />
     <ClInclude Include="engine\animation\AssimpAnimator.h" />
@@ -341,22 +337,21 @@
     <ClInclude Include="engine\Vector.h" />
     <ClInclude Include="engine\VolumeBuffer.h" />
     <ClInclude Include="engine\ZoomableQuad.h" />
-    <ClInclude Include="Entity.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="HUD.h" />
     <ClInclude Include="Mesh.h" />
-    <ClInclude Include="PlayerNew.h" />
-    <ClInclude Include="src\Ant.h" />
     <ClInclude Include="src\Application.h" />
     <ClInclude Include="src\Background.h" />
-    <ClInclude Include="src\Bullet.h" />
+    <ClInclude Include="src\Entities\Ant.h" />
+    <ClInclude Include="src\Entities\Bullet.h" />
+    <ClInclude Include="src\Entities\Entity.h" />
+    <ClInclude Include="src\Entities\Player.h" />
     <ClInclude Include="src\Globals.h" />
     <ClInclude Include="src\LoadingManager.h" />
     <ClInclude Include="src\MaterialAW.h" />
     <ClInclude Include="src\MousePickerFBO.h" />
     <ClInclude Include="src\Objects\SceneNode.h" />
     <ClInclude Include="src\ObjSequence.h" />
-    <ClInclude Include="src\Player.h" />
     <ClInclude Include="src\RandomColor.h" />
     <ClInclude Include="src\Rigidbody.h" />
     <ClInclude Include="src\States\Controls.h" />
@@ -396,7 +391,6 @@
     <ClInclude Include="src\Utils\SolidIO.h" />
     <ClInclude Include="src\Utils\Utils.h" />
     <ClInclude Include="src\ViewPort.h" />
-    <ClInclude Include="StaticGO.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

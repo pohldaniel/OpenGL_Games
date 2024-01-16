@@ -1,6 +1,10 @@
 #include "Entity.h"
 #include "Globals.h"
 
+Entity::Entity() {
+
+}
+
 Entity::Entity(std::shared_ptr<aw::Mesh> mesh, aw::Material material) : SceneNode(), meshPtr(mesh), material(material), m_isStatic(false){
 
 }

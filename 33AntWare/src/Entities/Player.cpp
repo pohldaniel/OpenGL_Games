@@ -1,10 +1,10 @@
 #include <engine/input/Keyboard.h>
 #include <engine/input/Mouse.h>
 
-#include "PlayerNew.h"
+#include "Player.h"
 #include "HUD.h"
 
-PlayerNew::PlayerNew(Camera& camera, std::shared_ptr<aw::Mesh> mesh, aw::Material material, const Vector2f& mapMinLimit, const Vector2f& mapMaxLimit) : 
+Player::Player(Camera& camera, std::shared_ptr<aw::Mesh> mesh, aw::Material material, const Vector2f& mapMinLimit, const Vector2f& mapMaxLimit) :
 	Entity(mesh, material), 
 	camera(camera),
 	mapMinLimit(mapMinLimit),
@@ -18,15 +18,15 @@ PlayerNew::PlayerNew(Camera& camera, std::shared_ptr<aw::Mesh> mesh, aw::Materia
 	aabb.maximize(0.2f);
 }
 
-void PlayerNew::draw(const Camera& camera) {
+void Player::draw(const Camera& camera) {
 
 	Entity::draw(camera);
 	for (unsigned i = 0; i < bullets.size(); ++i) {
-		bullets[i].draw();
+		bullets[i].draw(camera);
 	}
 }
 
-void PlayerNew::update(const float dt) {
+void Player::update(const float dt) {
 	Keyboard &keyboard = Keyboard::instance();
 	Mouse &mouse = Mouse::instance();
 
@@ -67,7 +67,7 @@ void PlayerNew::update(const float dt) {
 		//}
 
 		if (m_mouseDown && reloadTimer.getElapsedTimeSec() > 1.5f && shootTimer.getElapsedTimeSec() > 0.2f) {
-			dispatchBullet();
+			//dispatchBullet();
 
 			if (inHandAmmo > 0) {
 				dispatchBullet();
@@ -148,35 +148,35 @@ void PlayerNew::update(const float dt) {
 	recalculateAABB();
 }
 
-void PlayerNew::fixedUpdate(float fdt) {
+void Player::fixedUpdate(float fdt) {
 	Entity::fixedUpdate(fdt);
 	for (unsigned i = 0; i < bullets.size(); ++i) {
 		bullets[i].fixedUpdate(fdt);
 	}
 }
 
-void PlayerNew::start() {
+void Player::start() {
 	transparentTexture = aw::Mesh::createTexture("res/textures/transparent.png");
 	flashTexture = aw::Mesh::createTexture("res/textures/flash.png");
-	//m_children.front()->getMesh()->setTexture(transparentTexture);
+	dynamic_cast<Entity*>(m_children.front().get())->meshPtr->setTexture(transparentTexture);
 	m_isStatic = false;
 	rigidbody.lockLinear(aw::AXIS::y);
 	rigidbody.lockAngular(aw::AXIS::z);
 }
 
-void PlayerNew::dispatchBullet() {
+void Player::dispatchBullet() {
 	//gunShotSound.play();
-	/*bullets.push_back(aw::Bullet(bulletMesh, Material(), nullptr, vec3(0, 0, -1)));
-	bullets[bullets.size() - 1].transform = transform;
-	bullets[bullets.size() - 1].transform.translate({ 0.249067f, 0.47149f, -1.25759f });
-
-	m_children.front()->getMesh()->setTexture(flashTexture);*/
+	bullets.push_back(Bullet(Vector3f(0.0f, 0.0f, -1.0f)));
+	bullets.back().setOrientation(m_orientation);
+	bullets.back().setPosition(m_position);
+	bullets.back().translate(0.249067f, 0.47149f, -1.25759f);
+	dynamic_cast<Entity*>(m_children.front().get())->meshPtr->setTexture(flashTexture);
 
 	isRecoiling = true;
 	recoilTime = 0.0f;
 }
 
-void PlayerNew::reload() {
+void Player::reload() {
 	isReloading = true;
 	reloadTime = 0.0f;
 	if (totalAmmo > 0)
@@ -194,17 +194,17 @@ void PlayerNew::reload() {
 	HUD.setTotalAmmo(totalAmmo);
 }
 
-void PlayerNew::destroyBullet(int index) {
+void Player::destroyBullet(int index) {
 	bullets.erase(bullets.begin() + index);
 }
 
-bool PlayerNew::damage(float amount) {
+bool Player::damage(float amount) {
 	//hurtSound.play();
 	hp -= amount;
 	return hp <= 0.0f;
 }
 
-void PlayerNew::recoilAnim(float deltaTime) {
+void Player::recoilAnim(float deltaTime) {
 
 	if (recoilTimeOut <= recoilTime) {
 		isRecoiling = false;
@@ -220,7 +220,7 @@ void PlayerNew::recoilAnim(float deltaTime) {
 		}else {
 			childrenEular[0] -= recoilImpact * deltaTime;
 			childrenTranslation[2] -= recoilImpact * deltaTime * 0.05f;
-			//m_children.front()->getMesh()->setTexture(transparentTexture);
+			dynamic_cast<Entity*>(m_children.front().get())->meshPtr->setTexture(transparentTexture);
 		}
 	}
 
@@ -230,7 +230,7 @@ void PlayerNew::recoilAnim(float deltaTime) {
 	}
 }
 
-void PlayerNew::reloadAnim(float deltaTime) {
+void Player::reloadAnim(float deltaTime) {
 	
 	if (reloadTimeOut <= reloadTime) {
 		isReloading = false;
@@ -254,18 +254,17 @@ void PlayerNew::reloadAnim(float deltaTime) {
 	}
 }
 
-bool PlayerNew::isDead() {
-
+bool Player::isDead() {
 	return hp <= 0.0f;
 }
 
-void PlayerNew::killSound() {
+void Player::killSound() {
 	//footstepsSound.resetBuffer();
 	//reloadSound.resetBuffer();
 	//gunShotSound.resetBuffer();
 }
 
-void PlayerNew::OnMouseButtonDown(Event::MouseButtonEvent& event) {
+void Player::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 	if (event.button == 1u) {
 		m_mouseDown = true;
 	}

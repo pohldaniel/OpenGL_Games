@@ -16,8 +16,11 @@
 class Entity : public SceneNode {
 
 public:
-
+	Entity();
 	Entity(std::shared_ptr<aw::Mesh> mesh, aw::Material material);
+	//Entity(Entity const& rhs);
+	//Entity& operator=(const Entity& rhs);
+
 
 	virtual void draw(const Camera& camera);
 	virtual void update(const float dt);

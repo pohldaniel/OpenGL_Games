@@ -1,6 +1,6 @@
-#include "AntNew.h"
+#include "Ant.h"
 
-AntNew::AntNew(const ObjSequence& objSequence, std::shared_ptr<aw::Mesh> mesh, aw::Material material, Entity* target) :
+Ant::Ant(const ObjSequence& objSequence, std::shared_ptr<aw::Mesh> mesh, aw::Material material, Entity* target) :
 	Entity(mesh, material),
     objSequence(objSequence),
     target(target) {
@@ -29,16 +29,16 @@ AntNew::AntNew(const ObjSequence& objSequence, std::shared_ptr<aw::Mesh> mesh, a
 	}
 }
 
-void AntNew::start() {
+void Ant::start() {
 	baseIndex = objSequence.getNumberOfMeshes() - 1;
 	index = baseIndex;
 }
 
-void AntNew::fixedUpdate(float fdt) {
+void Ant::fixedUpdate(float fdt) {
 	Entity::fixedUpdate(fdt);
 }
 
-void AntNew::update(float dt) {
+void Ant::update(float dt) {
 
 	if (isAlive && isHurting && timeSinceDamage.getElapsedTimeSec() >= 0.3f) {
 		isHurting = false;
@@ -62,11 +62,6 @@ void AntNew::update(float dt) {
 		setOrientation(rotation);
 		Vector3f rotationAxis = rotation.getRotationAxis();
 
-		float pitch, yaw, roll;
-		lookAt.toHeadPitchRoll(pitch, yaw, roll);
-
-		std::cout << "YPR: " << pitch << "  " << yaw << "  " << roll << std::endl;
-		std::cout << "##########" << std::endl;
 		if (rotationAxis.lengthSq() > 0.0f)
 			setOrientation(rotationAxis, -rotation.getYaw());
 		else
@@ -90,7 +85,7 @@ void AntNew::update(float dt) {
 	recalculateAABB();
 }
 
-void AntNew::animate(float dt) {
+void Ant::animate(float dt) {
 
 	animTime += dt;
 	if (animTime > walkcycleLength) {
@@ -105,12 +100,12 @@ void AntNew::animate(float dt) {
 	}
 }
 
-void AntNew::draw(const Camera& camera) {
+void Ant::draw(const Camera& camera) {
 	objSequence.drawRaw(index);
 }
 
 
-void AntNew::damage(unsigned int amount) {
+void Ant::damage(unsigned int amount) {
 	if (!isAlive)
 		return;
 
@@ -127,19 +122,19 @@ void AntNew::damage(unsigned int amount) {
 	}
 }
 
-unsigned AntNew::getHp() {
+unsigned Ant::getHp() {
 	return hp;
 }
 
-void AntNew::die() {
+void Ant::die() {
 	isAlive = false;
 	isHurting = false;
 	material = originalMaterial;
 	rotate({ 1.0f, 0, 0 }, 180.0f);
-	translate(0.0f, -1.0f, 0.0f);
+	translate(0.0f, 1.0f, 0.0f);
 	rigidbody.velocity = { 0, 0, 0 };
 }
 
-bool AntNew::timeToDestroy() {
+bool Ant::timeToDestroy() {
 	return !isAlive && material.getAlpha() <= 0.0f;
 }

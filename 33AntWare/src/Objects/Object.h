@@ -48,7 +48,7 @@ public:
 
 	static const Matrix4f &GetTransformation();
 
-protected:
+
 
 	Vector3f m_position;
 	Vector3f m_scale;

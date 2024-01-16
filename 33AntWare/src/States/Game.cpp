@@ -69,101 +69,7 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 	m_meshes.push_back(m_cubeMesh);
 	aw::Mesh::constructVAO(m_meshes);
 
-	m_player = new Player(m_camera,
-						  m_cubeMesh,
-						  aw::Material(),
-						  m_bulletMesh,
-						  glm::vec2(-51.5f, -51.5f),
-						  glm::vec2(51.5f, 51.5f),
-						  nullptr);
-	m_player->transform = aw::Transform(glm::vec3(0.0f, 0.0f, 5.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
 	
-	m_muzzleGO = new aw::StaticGO(m_muzzleMesh, aw::Material(), m_player);
-	m_gunGO = new aw::StaticGO(m_gunMesh, aw::Material(), m_player);
-	m_handsGO = new aw::StaticGO(m_handsMesh, aw::Material(), m_player);
-	m_glovesGO = new aw::StaticGO(m_glovesMesh, aw::Material(), m_player);
-	m_cpuGO = new aw::StaticGO(m_cpuMesh, aw::Material(), nullptr);
-	m_platformGO = new aw::StaticGO(m_platformMesh, aw::Material(), nullptr);
-
-	m_player->start();
-
-	m_ant1 = new Ant(m_objSequence, m_antMesh, aw::Material(), nullptr, m_player);
-	m_ant1->transform = aw::Transform(glm::vec3(-21.3863f, -0.978558f, -1.92476f), glm::vec3(0.0f, 262.062f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
-	m_ant1->isStatic = false;
-	m_ant1->rigidbody = aw::Rigidbody();
-	m_ant1->start();
-
-	/*m_ant2 = new Ant(m_objSequence, m_antMesh, aw::Material(), nullptr, m_player);
-	m_ant2->transform = aw::Transform(glm::vec3(-23.6894f, -0.978558f, 34.7609f), glm::vec3(0.0f, -11.0968f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
-	m_ant2->isStatic = false;
-	m_ant2->rigidbody = aw::Rigidbody();
-	m_ant2->start();
-
-	m_ant3 = new Ant(m_objSequence, m_antMesh, aw::Material(), nullptr, m_player);
-	m_ant3->transform = aw::Transform(glm::vec3(23.6894f, -0.978558f, 34.1029f), glm::vec3(0.0f, 18.5357f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
-	m_ant3->isStatic = false;
-	m_ant3->rigidbody = aw::Rigidbody();
-	m_ant3->start();
-
-	m_ant4 = new Ant(m_objSequence, m_antMesh, aw::Material(), nullptr, m_player);
-	m_ant4->transform = aw::Transform(glm::vec3(33.3955f, -0.978558f, 16.0068f), glm::vec3(0.0f, 86.8875f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
-	m_ant4->isStatic = false;
-	m_ant4->rigidbody = aw::Rigidbody();
-	m_ant4->start();
-
-	m_ant5 = new Ant(m_objSequence, m_antMesh, aw::Material(), nullptr, m_player);
-	m_ant5->transform = aw::Transform(glm::vec3(33.0665f, -0.978558f, -18.3758f), glm::vec3(0.0f, 110.727f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
-	m_ant5->isStatic = false;
-	m_ant5->rigidbody = aw::Rigidbody();
-	m_ant5->start();
-
-	m_ant6 = new Ant(m_objSequence, m_antMesh, aw::Material(), nullptr, m_player);
-	m_ant6->transform = aw::Transform(glm::vec3(16.78f, -0.978558f, -35.4848f), glm::vec3(0.0f, 169.316f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
-	m_ant6->isStatic = false;
-	m_ant6->rigidbody = aw::Rigidbody();
-	m_ant6->start();
-
-	m_ant7 = new Ant(m_objSequence, m_antMesh, aw::Material(), nullptr, m_player);
-	m_ant7->transform = aw::Transform(glm::vec3(-17.9316f, -0.978558f, -35.1558f), glm::vec3(0.0f, 193.526f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
-	m_ant7->isStatic = false;
-	m_ant7->rigidbody = aw::Rigidbody();
-	m_ant7->start();
-
-	m_ant8 = new Ant(m_objSequence, m_antMesh, aw::Material(), nullptr, m_player);
-	m_ant8->transform = aw::Transform(glm::vec3(-33.889f, -0.978558f, -20.1854f), glm::vec3(0.0f, 238.843f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
-	m_ant8->isStatic = false;
-	m_ant8->rigidbody = aw::Rigidbody();
-	m_ant8->start();
-
-	m_ant9 = new Ant(m_objSequence, m_antMesh, aw::Material(), nullptr, m_player);
-	m_ant9->transform = aw::Transform(glm::vec3(-35.6987f, -0.978558f, 14.5262f), glm::vec3(0.0f, 272.3f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
-	m_ant9->isStatic = false;
-	m_ant9->rigidbody = aw::Rigidbody();
-	m_ant9->start();*/
-
-	m_gameObjects.push_back(m_player);
-	m_gameObjects.push_back(m_muzzleGO);
-	m_gameObjects.push_back(m_gunGO);
-	m_gameObjects.push_back(m_handsGO);
-	m_gameObjects.push_back(m_glovesGO);
-	m_gameObjects.push_back(m_cpuGO);
-	m_gameObjects.push_back(m_platformGO);
-
-	m_ants.push_back(m_ant1);
-	/*m_ants.push_back(m_ant2);
-	m_ants.push_back(m_ant3);
-	m_ants.push_back(m_ant4);
-	m_ants.push_back(m_ant5);
-	m_ants.push_back(m_ant6);
-	m_ants.push_back(m_ant7);
-	m_ants.push_back(m_ant8);
-	m_ants.push_back(m_ant9);*/
-
-	HUD.setHP(m_player->hp * 10);
-	HUD.setInHandAmmo(m_player->inHandAmmo);
-	HUD.setTotalAmmo(m_player->totalAmmo);
-	HUD.setStatus(aw::ONGOING);
-	HUD.setShaderProgram(Globals::shaderManager.getAssetPointer("hud")->m_program);
 
 	gameStatus = aw::ONGOING;
 
@@ -175,31 +81,108 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 	m_handsE->m_isStatic = true;
 	m_glovesE = new Entity(m_glovesMesh, aw::Material());
 	m_glovesE->m_isStatic = true;
+	m_cpuE = new Entity(m_cpuMesh, aw::Material());
+	m_cpuE->m_isStatic = true;
+	m_platformE = new Entity(m_platformMesh, aw::Material());
+	m_platformE->m_isStatic = true;
 
-	playerNew = new PlayerNew(m_camera, m_cubeMesh, aw::Material(), Vector2f(-51.5f, -51.5f), Vector2f(51.5f, 51.5f));
-	playerNew->setPosition(0.0f, 0.0f, 5.0f);
-	playerNew->addChild(m_muzzleE);
-	playerNew->addChild(m_gunE);
-	playerNew->addChild(m_handsE);
-	playerNew->addChild(m_glovesE);
-	playerNew->start();
+	m_player = new Player(m_camera, m_cubeMesh, aw::Material(), Vector2f(-51.5f, -51.5f), Vector2f(51.5f, 51.5f));
+	m_player->setPosition(0.0f, 0.0f, 5.0f);
+	m_player->addChild(m_muzzleE);
+	m_player->addChild(m_gunE);
+	m_player->addChild(m_handsE);
+	m_player->addChild(m_glovesE);
+	m_player->start();
 
-	m_entities.push_back(playerNew);
+	m_entities.push_back(m_player);
 	m_entities.push_back(m_muzzleE);
 	m_entities.push_back(m_gunE);
 	m_entities.push_back(m_handsE);
 	m_entities.push_back(m_glovesE);
+	//m_entities.push_back(m_cpuE);
+	//m_entities.push_back(m_platformE);
 
-	playerNew->updateSelfAndChild();
+	m_player->updateSelfAndChild();
 
-	m_ant1New = new AntNew(m_objSequence, m_antMesh, aw::Material(), playerNew);
-	m_ant1New->setPosition(-21.3863f, -0.978558f, -1.92476f);
-	m_ant1New->setOrientation(0.0f, 262.062f, 0.0f);
-	m_ant1New->m_isStatic = false;
-	m_ant1New->rigidbody = aw::Rigidbody();
-	m_ant1New->start();
+	m_ant1 = new Ant(m_objSequence, m_antMesh, aw::Material(), m_player);
+	m_ant1->setPosition(-21.3863f, -0.978558f, -1.92476f);
+	m_ant1->setOrientation(0.0f, 262.062f, 0.0f);
+	m_ant1->m_isStatic = false;
+	m_ant1->rigidbody = aw::Rigidbody();
+	m_ant1->start();
 
-	m_antsNew.push_back(m_ant1New);
+	m_ant2 = new Ant(m_objSequence, m_antMesh, aw::Material(), m_player);
+	m_ant2->setPosition(-23.6894f, -0.978558f, 34.7609f);
+	m_ant2->setOrientation(0.0f, -11.0968f, 0.0f);
+	m_ant2->m_isStatic = false;
+	m_ant2->rigidbody = aw::Rigidbody();
+	m_ant2->start();
+
+	m_ant3 = new Ant(m_objSequence, m_antMesh, aw::Material(), m_player);
+	m_ant3->setPosition(23.6894f, -0.978558f, 34.1029f);
+	m_ant3->setOrientation(0.0f, 18.5357f, 0.0f);
+	m_ant3->m_isStatic = false;
+	m_ant3->rigidbody = aw::Rigidbody();
+	m_ant3->start();
+
+	m_ant4 = new Ant(m_objSequence, m_antMesh, aw::Material(), m_player);
+	m_ant4->setPosition(33.3955f, -0.978558f, 16.0068f);
+	m_ant4->setOrientation(0.0f, 86.8875f, 0.0f);
+	m_ant4->m_isStatic = false;
+	m_ant4->rigidbody = aw::Rigidbody();
+	m_ant4->start();
+
+	m_ant5 = new Ant(m_objSequence, m_antMesh, aw::Material(), m_player);
+	m_ant5->setPosition(33.0665f, -0.978558f, -18.3758f);
+	m_ant5->setOrientation(0.0f, 110.727f, 0.0f);
+	m_ant5->m_isStatic = false;
+	m_ant5->rigidbody = aw::Rigidbody();
+	m_ant5->start();
+
+	m_ant6 = new Ant(m_objSequence, m_antMesh, aw::Material(), m_player);
+	m_ant6->setPosition(16.78f, -0.978558f, -35.4848f);
+	m_ant6->setOrientation(0.0f, 169.316f, 0.0f);
+	m_ant6->m_isStatic = false;
+	m_ant6->rigidbody = aw::Rigidbody();
+	m_ant6->start();
+
+	m_ant7 = new Ant(m_objSequence, m_antMesh, aw::Material(), m_player);
+	m_ant7->setPosition(-17.9316f, -0.978558f, -35.1558f);
+	m_ant7->setOrientation(0.0f, 193.526f, 0.0f);
+	m_ant7->m_isStatic = false;
+	m_ant7->rigidbody = aw::Rigidbody();
+	m_ant7->start();
+
+	m_ant8 = new Ant(m_objSequence, m_antMesh, aw::Material(), m_player);
+	m_ant8->setPosition(-33.889f, -0.978558f, -20.1854f);
+	m_ant8->setOrientation(0.0f, 238.843f, 0.0f);
+	m_ant8->m_isStatic = false;
+	m_ant8->rigidbody = aw::Rigidbody();
+	m_ant8->start();
+
+	m_ant9 = new Ant(m_objSequence, m_antMesh, aw::Material(), m_player);
+	m_ant9->setPosition(-35.6987f, -0.978558f, 14.5262f);
+	m_ant9->setOrientation(0.0f, 272.3f, 0.0f);
+	m_ant9->m_isStatic = false;
+	m_ant9->rigidbody = aw::Rigidbody();
+	m_ant9->start();
+
+	m_ants.push_back(m_ant1);
+	m_ants.push_back(m_ant2);
+	m_ants.push_back(m_ant3);
+	m_ants.push_back(m_ant4);
+	m_ants.push_back(m_ant5);
+	m_ants.push_back(m_ant6);
+	m_ants.push_back(m_ant7);
+	m_ants.push_back(m_ant8);
+	m_ants.push_back(m_ant9);
+
+	Bullet::Init(m_bulletMesh, aw::Material());
+	HUD.setHP(m_player->hp * 10);
+	HUD.setInHandAmmo(m_player->inHandAmmo);
+	HUD.setTotalAmmo(m_player->totalAmmo);
+	HUD.setStatus(aw::ONGOING);
+	HUD.setShaderProgram(Globals::shaderManager.getAssetPointer("hud")->m_program);
 }
 
 Game::~Game() {
@@ -208,69 +191,55 @@ Game::~Game() {
 }
 
 void Game::fixedUpdate() {
-
-	for (auto gameObject : m_gameObjects)
-		gameObject->fixedUpdate(m_fdt);
-
 	for (auto entity : m_entities)
 		entity->fixedUpdate(m_fdt);
 
 	for (auto ant : m_ants)
 		ant->fixedUpdate(m_fdt);
-
-	for (auto ant : m_antsNew)
-		ant->fixedUpdate(m_fdt);
 }
 
 void Game::update() {
-
-	for (auto gameObject : m_gameObjects)
-		gameObject->update(m_dt);
 
 	for (auto entity : m_entities)
 		entity->update(m_dt);
 
 	for (auto ant : m_ants)
-		ant->update(m_dt);
-
-	for (auto ant : m_antsNew)
 		ant->update(m_fdt);
 
-	/*auto player = m_player;
-	auto bullets = player->bullets;
+	auto player = m_player;
+	auto& bullets = player->bullets;
 	auto antsSize = m_ants.size();
-	auto bulletsSize = player->bullets.size();
+	auto bulletsSize = bullets.size();
 	bool isWin = true;
+
 	for (unsigned i = 0; i < antsSize; ++i){
 
-		if (m_ants[i]->getClass() == 3){
+		isWin = false;
+		auto ant = m_ants[i];
+		if (ant->timeToDestroy()){
+			destroyAnt(i);
+			--i;
+			--antsSize;
+		}
 
-			isWin = false;
-			auto ant = ((Ant *)(m_ants[i]));
-			if (ant->timeToDestroy()){
-				destroyGameObject(i);
-				--i;
-				--antsSize;
-			}
+		for (unsigned j = 0; j < bulletsSize; ++j){
 
-			for (unsigned j = 0; j < bulletsSize; ++j){
-				if (ant->aabb.isColliding(bullets[j].transform.getPosition()))
-				{
-					ant->damage(1);
-					player->destroyBullet(j);
-					--j;
-					--bulletsSize;
-				}
-			}
-
-			if (ant->aabb.isColliding(m_player->aabb) && Globals::clock.getElapsedTimeSec() > 2.0f && ant->timeSinceDealtDamage.getElapsedTimeSec() >= 1.0f){
-				ant->timeSinceDealtDamage.reset();
-				player->damage(1.0f);
-				HUD.setIsHurting(true);
-				player->timeSinceDamage = Globals::clock.getElapsedTimeSec();
-				HUD.setHP(player->hp * 10);
+			if (ant->aabb.isColliding(bullets[j].getPosition())){
+				ant->damage(1);
+				player->destroyBullet(j);
+				--j;
+				--bulletsSize;
 			}
 		}
+
+		if (ant->aabb.isColliding(m_player->aabb) && Globals::clock.getElapsedTimeSec() > 2.0f && ant->timeSinceDealtDamage.getElapsedTimeSec() >= 1.0f){
+			ant->timeSinceDealtDamage.reset();
+			player->damage(1.0f);
+			HUD.setIsHurting(true);
+			player->timeSinceDamage = Globals::clock.getElapsedTimeSec();
+			HUD.setHP(player->hp * 10);
+		}
+		
 	}
 
 	if (Globals::clock.getElapsedTimeSec() - player->timeSinceDamage > 0.25f){
@@ -285,7 +254,7 @@ void Game::update() {
 		gameStatus = aw::LOSE;
 		HUD.setStatus(aw::LOSE);
 		player->killSound();
-	}*/
+	}
 }
 
 void Game::render() {
@@ -298,19 +267,14 @@ void Game::render() {
 	shader->loadMatrix("u_view", m_camera.getViewMatrix());
 	shader->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(m_camera.getViewMatrix() * Matrix4f::IDENTITY));
 	
-	shader->loadMatrix("u_model", (const float*)glm::value_ptr(m_cpuGO->applyTransform()));
-	m_cpuGO->draw();
-	shader->loadMatrix("u_model", (const float*)glm::value_ptr(m_platformGO->applyTransform()));
-	m_platformGO->draw();
+	shader->loadMatrix("u_model", m_cpuE->getTransformation());
+	m_cpuE->draw(m_camera);
+	shader->loadMatrix("u_model", m_platformE->getTransformation());
+	m_platformE->draw(m_camera);
 
 	Globals::textureManager.get("ant").bind();
 
 	for (auto ant : m_ants) {
-		shader->loadMatrix("u_model", (const float*)glm::value_ptr(ant->applyTransform()));
-		ant->draw();
-	}
-
-	for (auto ant : m_antsNew) {
 		shader->loadMatrix("u_model", ant->getTransformation());
 		ant->draw(m_camera);
 	}
@@ -318,20 +282,10 @@ void Game::render() {
 	Globals::textureManager.get("ant").unbind();
 	glClear(GL_DEPTH_BUFFER_BIT);
 
-
-	shader->loadMatrix("u_model", (const float*)glm::value_ptr(m_muzzleGO->applyTransform()));
-	m_muzzleGO->draw();
-	shader->loadMatrix("u_model", (const float*)glm::value_ptr(m_gunGO->applyTransform()));
-	m_gunGO->draw();
-	shader->loadMatrix("u_model", (const float*)glm::value_ptr(m_handsGO->applyTransform()));
-	m_handsGO->draw();
-	shader->loadMatrix("u_model", (const float*)glm::value_ptr(m_glovesGO->applyTransform()));
-	m_glovesGO->draw();
-	
-	/*for (auto entity : m_entities) {
+	for (auto entity : m_entities) {
 		shader->loadMatrix("u_model", entity->getTransformation());
 		entity->draw(m_camera);
-	}*/
+	}
 
 	shader->unuse();
 
@@ -424,7 +378,7 @@ void Game::renderUi() {
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
-void Game::destroyGameObject(int index) {
+void Game::destroyAnt(int index) {
 	delete m_ants[index];
 	m_ants.erase(m_ants.begin() + index);
 }
