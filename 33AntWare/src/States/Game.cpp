@@ -93,7 +93,7 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 	m_ant1->rigidbody = aw::Rigidbody();
 	m_ant1->start();
 
-	m_ant2 = new Ant(m_objSequence, m_antMesh, aw::Material(), nullptr, m_player);
+	/*m_ant2 = new Ant(m_objSequence, m_antMesh, aw::Material(), nullptr, m_player);
 	m_ant2->transform = aw::Transform(glm::vec3(-23.6894f, -0.978558f, 34.7609f), glm::vec3(0.0f, -11.0968f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
 	m_ant2->isStatic = false;
 	m_ant2->rigidbody = aw::Rigidbody();
@@ -139,7 +139,7 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 	m_ant9->transform = aw::Transform(glm::vec3(-35.6987f, -0.978558f, 14.5262f), glm::vec3(0.0f, 272.3f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
 	m_ant9->isStatic = false;
 	m_ant9->rigidbody = aw::Rigidbody();
-	m_ant9->start();
+	m_ant9->start();*/
 
 	m_gameObjects.push_back(m_player);
 	m_gameObjects.push_back(m_muzzleGO);
@@ -150,14 +150,14 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 	m_gameObjects.push_back(m_platformGO);
 
 	m_ants.push_back(m_ant1);
-	m_ants.push_back(m_ant2);
+	/*m_ants.push_back(m_ant2);
 	m_ants.push_back(m_ant3);
 	m_ants.push_back(m_ant4);
 	m_ants.push_back(m_ant5);
 	m_ants.push_back(m_ant6);
 	m_ants.push_back(m_ant7);
 	m_ants.push_back(m_ant8);
-	m_ants.push_back(m_ant9);
+	m_ants.push_back(m_ant9);*/
 
 	HUD.setHP(m_player->hp * 10);
 	HUD.setInHandAmmo(m_player->inHandAmmo);
@@ -177,10 +177,11 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 	m_glovesE->m_isStatic = true;
 
 	playerNew = new PlayerNew(m_camera, m_cubeMesh, aw::Material(), Vector2f(-51.5f, -51.5f), Vector2f(51.5f, 51.5f));
-	playerNew->addChild2(m_muzzleE);
-	playerNew->addChild2(m_gunE);
-	playerNew->addChild2(m_handsE);
-	playerNew->addChild2(m_glovesE);
+	playerNew->setPosition(0.0f, 0.0f, 5.0f);
+	playerNew->addChild(m_muzzleE);
+	playerNew->addChild(m_gunE);
+	playerNew->addChild(m_handsE);
+	playerNew->addChild(m_glovesE);
 	playerNew->start();
 
 	m_entities.push_back(playerNew);
@@ -190,6 +191,15 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 	m_entities.push_back(m_glovesE);
 
 	playerNew->updateSelfAndChild();
+
+	m_ant1New = new AntNew(m_objSequence, m_antMesh, aw::Material(), playerNew);
+	m_ant1New->setPosition(-21.3863f, -0.978558f, -1.92476f);
+	m_ant1New->setOrientation(0.0f, 262.062f, 0.0f);
+	m_ant1New->m_isStatic = false;
+	m_ant1New->rigidbody = aw::Rigidbody();
+	m_ant1New->start();
+
+	m_antsNew.push_back(m_ant1New);
 }
 
 Game::~Game() {
@@ -205,8 +215,11 @@ void Game::fixedUpdate() {
 	for (auto entity : m_entities)
 		entity->fixedUpdate(m_fdt);
 
-	//for (auto ant : m_ants)
-	//	ant->fixedUpdate(m_fdt);
+	for (auto ant : m_ants)
+		ant->fixedUpdate(m_fdt);
+
+	for (auto ant : m_antsNew)
+		ant->fixedUpdate(m_fdt);
 }
 
 void Game::update() {
@@ -217,8 +230,11 @@ void Game::update() {
 	for (auto entity : m_entities)
 		entity->update(m_dt);
 
-	//for (auto ant : m_ants)
-	//	ant->update(m_dt);
+	for (auto ant : m_ants)
+		ant->update(m_dt);
+
+	for (auto ant : m_antsNew)
+		ant->update(m_fdt);
 
 	/*auto player = m_player;
 	auto bullets = player->bullets;
@@ -293,23 +309,29 @@ void Game::render() {
 		shader->loadMatrix("u_model", (const float*)glm::value_ptr(ant->applyTransform()));
 		ant->draw();
 	}
-	Globals::textureManager.get("ant").unbind();
 
-	//glDisable(GL_DEPTH_TEST);
-	/*shader->loadMatrix("u_model", (const float*)glm::value_ptr(m_muzzleGO->applyTransform()));
+	for (auto ant : m_antsNew) {
+		shader->loadMatrix("u_model", ant->getTransformation());
+		ant->draw(m_camera);
+	}
+
+	Globals::textureManager.get("ant").unbind();
+	glClear(GL_DEPTH_BUFFER_BIT);
+
+
+	shader->loadMatrix("u_model", (const float*)glm::value_ptr(m_muzzleGO->applyTransform()));
 	m_muzzleGO->draw();
 	shader->loadMatrix("u_model", (const float*)glm::value_ptr(m_gunGO->applyTransform()));
 	m_gunGO->draw();
 	shader->loadMatrix("u_model", (const float*)glm::value_ptr(m_handsGO->applyTransform()));
 	m_handsGO->draw();
 	shader->loadMatrix("u_model", (const float*)glm::value_ptr(m_glovesGO->applyTransform()));
-	m_glovesGO->draw();*/
-	//glEnable(GL_DEPTH_TEST);
-	glClear(GL_DEPTH_BUFFER_BIT);
-	for (auto entity : m_entities) {
+	m_glovesGO->draw();
+	
+	/*for (auto entity : m_entities) {
 		shader->loadMatrix("u_model", entity->getTransformation());
 		entity->draw(m_camera);
-	}
+	}*/
 
 	shader->unuse();
 

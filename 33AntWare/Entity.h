@@ -11,6 +11,7 @@
 #include "Rigidbody.h"
 #include "MaterialAW.h"
 #include "Mesh.h"
+#include "AABB.h"
 
 class Entity : public SceneNode {
 
@@ -22,10 +23,14 @@ public:
 	virtual void update(const float dt);
 	virtual void fixedUpdate(float fdt);
 
+	void constructAABB();
+	void recalculateAABB();
+
 	bool m_disabled;
 	bool m_isStatic;
 
 	aw::Rigidbody rigidbody;
 	std::shared_ptr<aw::Mesh> meshPtr;
 	aw::Material material;
+	aw::AABB aabb;
 };

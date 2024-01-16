@@ -18,12 +18,7 @@ RenderableObject::RenderableObject(std::string shader) : Object() {
 	m_shape = std::string();
 }
 
-RenderableObject::RenderableObject(RenderableObject const& rhs) {
-	m_position = rhs.m_position;
-	m_scale = rhs.m_scale;
-	m_orientation = rhs.m_orientation;
-	//m_rotation = rhs.m_rotation;
-	
+RenderableObject::RenderableObject(RenderableObject const& rhs) : Object(rhs) {
 	m_shape = rhs.m_shape;
 	m_shader = rhs.m_shader;
 	m_texture = rhs.m_texture;
@@ -33,10 +28,7 @@ RenderableObject::RenderableObject(RenderableObject const& rhs) {
 }
 
 RenderableObject &RenderableObject::operator=(const RenderableObject &rhs) {
-	m_position = rhs.m_position;
-	m_scale = rhs.m_scale;
-	m_orientation = rhs.m_orientation;
-	//m_rotation = rhs.m_rotation;
+	Object::operator=(rhs);
 
 	m_shape = rhs.m_shape;
 	m_shader = rhs.m_shader;

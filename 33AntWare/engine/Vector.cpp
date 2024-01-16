@@ -1001,16 +1001,14 @@ void Matrix4f::toHeadPitchRoll(float &pitch, float &yaw, float &roll) const {
 			thetaZ = atan2f(-mtx[1][0], mtx[1][1]);
 			thetaY = atan2f(-mtx[0][2], mtx[2][2]);
 
-		}
-		else {
+		}else {
 
 			// Not a unique solution.
 			thetaZ = -atan2f(mtx[2][0], mtx[0][0]);
 			thetaY = 0.0f;
 		}
 
-	}
-	else {
+	}else {
 
 		// Not a unique solution.
 		thetaZ = atan2f(mtx[2][0], mtx[0][0]);
@@ -3158,8 +3156,9 @@ float Quaternion::getPitch() const {
 }
 
 float Quaternion::getYaw() const {
-	float yaw = atan2f(2.0f * (quat[0] * quat[2] - quat[3] * quat[1]), 1.0f - 2.0f * (quat[0] * quat[0] + quat[1] * quat[1])) * _180_ON_PI;
-	return yaw < 0.0f ? yaw + 360.0f : yaw;
+	//float yaw = atan2f(2.0f * (quat[0] * quat[2] - quat[3] * quat[1]), 1.0f - 2.0f * (quat[0] * quat[0] + quat[1] * quat[1])) * _180_ON_PI;
+	//return yaw < 0.0f ? yaw + 360.0f : yaw;
+	return 2 * acosf(quat[3]) * _180_ON_PI;
 }
 
 float Quaternion::getRoll() const {
@@ -3184,6 +3183,16 @@ void Quaternion::toAxisAngle(Vector3f &axis, float &degrees) const {
 		axis[1] = quat[1] * invSinHalfTheta;
 		axis[2] = quat[2] * invSinHalfTheta;
 		degrees = acosf(quat[2]) * _180_ON_PI * 2.0f;
+	}
+}
+
+Vector3f Quaternion::getRotationAxis() {
+	float sinHalfThetaSq = 1.0f - quat[3] * quat[3];
+	if (sinHalfThetaSq <= 0.0f) {
+		return Vector3f(1.0f, 0.0f, 0.0f);
+	}else {
+		float invSinHalfTheta = 1.0f / sqrtf(sinHalfThetaSq);
+		return Vector3f(quat[0] * invSinHalfTheta, quat[1] * invSinHalfTheta, quat[2] * invSinHalfTheta);
 	}
 }
 

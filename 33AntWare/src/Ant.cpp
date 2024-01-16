@@ -60,14 +60,14 @@ void Ant::update(float dt) {
 		transform.setRotation(rotation);
 		glm::vec3 rotationAxis = transform.getRotationAxis();
 
+		std::cout << "Yaw : " << transform.getRotationAngle() << std::endl;
+
 		if(length(rotationAxis) > 0.0f)
 			transform.setRotation(transform.getRotationAxis(), -transform.getRotationAngle());
 		else
 			transform.setRotation(glm::vec3{1.0f, 0.0f, 0.0f }, 0.0f);
 
-		bool _isColliding = aabb.isColliding(target->aabb);
-
-		if(_isColliding)
+		if(aabb.isColliding(target->aabb))
 			rigidbody.velocity = {0.0f, 0.0f, 0.0f };
 		else
 			rigidbody.velocity = {0.0f, 0.0f, -speed};

@@ -15,6 +15,21 @@ void Object::setScale(const float sx, const float sy, const float sz) {
 	m_isDirty = true;
 }
 
+Object::Object(Object const& rhs) {
+	m_position = rhs.m_position;
+	m_scale = rhs.m_scale;
+	m_orientation = rhs.m_orientation;
+	//m_rotation = rhs.m_rotation;
+}
+
+Object& Object::operator=(const Object& rhs) {
+	m_position = rhs.m_position;
+	m_scale = rhs.m_scale;
+	m_orientation = rhs.m_orientation;
+	//m_rotation = rhs.m_rotation;
+	return *this;
+}
+
 void Object::setScale(const Vector3f &scale) {
 	m_scale = scale;
 	m_isDirty = true;
@@ -168,3 +183,11 @@ const Matrix4f &Object::GetTransformation() {
 const bool Object::isDirty() const {
 	return m_isDirty;
 }
+
+/*Vector3f Object::getRotationAxis(){
+	if (m_orientation[3] == 0.0f)
+		return Vector3f(1.0f, 0.0f, 0.0f);
+	float sqrtOneMinWSquered = sqrt(1 - pow(m_orientation[3], 2));
+
+	return Vector3f(m_orientation[0] / sqrtOneMinWSquered, m_orientation[1] / sqrtOneMinWSquered, m_orientation[2] / sqrtOneMinWSquered);
+}*/

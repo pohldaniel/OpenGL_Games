@@ -12,8 +12,10 @@ PlayerNew::PlayerNew(Camera& camera, std::shared_ptr<aw::Mesh> mesh, aw::Materia
 	childrenEular.set(0.0f, 0.0f, 0.0f);
 	childrenTranslation.set(0.0f, 0.0f, 0.0f);
 	eularAngles.set(0.0f, 0.0f, 0.0f);
+	constructAABB();
 
 	EventDispatcher::AddMouseListener(this);
+	aabb.maximize(0.2f);
 }
 
 void PlayerNew::draw(const Camera& camera) {
@@ -143,6 +145,7 @@ void PlayerNew::update(const float dt) {
 	}
 
 	updateSelfAndChild();
+	recalculateAABB();
 }
 
 void PlayerNew::fixedUpdate(float fdt) {

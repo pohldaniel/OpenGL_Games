@@ -393,6 +393,9 @@
     <ClCompile Include="engine\animation\render\AnimationShader.cpp">
       <Filter>engine\animation\render</Filter>
     </ClCompile>
+    <ClCompile Include="AntNew.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="convhull\convhull_3d.h">
@@ -751,6 +754,9 @@
     </ClInclude>
     <ClInclude Include="engine\animation\render\AnimationShader.h">
       <Filter>engine\animation\render</Filter>
+    </ClInclude>
+    <ClInclude Include="AntNew.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

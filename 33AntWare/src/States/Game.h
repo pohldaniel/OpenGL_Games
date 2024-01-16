@@ -16,6 +16,7 @@
 #include "StaticGO.h"
 #include "HUD.h"
 #include "PlayerNew.h"
+#include "AntNew.h"
 #include "Entity.h"
 
 enum LightType{
@@ -97,5 +98,7 @@ private:
 	Entity* m_handsE = nullptr;
 	Entity* m_glovesE = nullptr;
 
+	AntNew *m_ant1New = nullptr;
 	std::vector<Entity*> m_entities;
+	std::vector<AntNew*> m_antsNew;
 };

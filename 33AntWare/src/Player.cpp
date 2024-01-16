@@ -122,7 +122,6 @@ void Player::update(const float dt) {
 	eularAngles.y -= mouse.xDelta() * mouseSenstivity;
 	camera.lookAt({ transform.getPosition().x, transform.getPosition().y, transform.getPosition().z }, -eularAngles.x, -eularAngles.y, 180.0f);
 	camera.moveRelative(Vector3f(0.0f, 0.5f, 0.0f));
-
 	transform.setRotation(eularAngles);
 
 	auto bulletsSize = bullets.size();

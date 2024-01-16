@@ -54,7 +54,13 @@ void SceneNode::markForRemove() {
 	m_markForRemove = true;
 }
 
-void SceneNode::addChild2(SceneNode* node) {
+void SceneNode::addChild(SceneNode* node) {
 	m_children.emplace_back(std::unique_ptr<SceneNode>(node));
+	m_children.back()->m_parent = this;
+}
+
+
+void SceneNode::addChild() {
+	m_children.emplace_back(std::make_unique<SceneNode>());
 	m_children.back()->m_parent = this;
 }

@@ -423,6 +423,7 @@ public:
 	void inverse();
 	void rotate(float pitch, float yaw, float roll);
 	void rotate(const Vector3f &axis, float degrees);
+	Vector3f getRotationAxis();
 
 	void fromAxisAngle(const Vector3f &axis, float degrees);
 	void fromMatrix(const Matrix4f &m);
@@ -430,6 +431,7 @@ public:
 
 	void toPitchYawRoll(float& pitch, float& yaw, float& roll) const;
 	void toAxisAngle(Vector3f &axis, float &degrees) const;
+
 	const Matrix4f toMatrix4f() const;
 	const Matrix4f toMatrix4f(const Vector3f &centerOfRotation) const;
 	float getPitch() const;

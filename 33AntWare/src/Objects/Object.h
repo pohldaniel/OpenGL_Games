@@ -8,6 +8,8 @@ class Object {
 public:
 
 	Object();
+	Object(Object const& rhs);
+	Object& operator=(const Object& rhs);
 
 	virtual void setScale(const float sx, const float sy, const float sz);
 	virtual void setScale(const Vector3f& scale);
@@ -42,7 +44,8 @@ public:
 	const Matrix4f& getTransformationP();
 	const Matrix4f& getTransformationS();
 	const bool isDirty() const;
-	
+	//Vector3f getRotationAxis();
+
 	static const Matrix4f &GetTransformation();
 
 protected:
