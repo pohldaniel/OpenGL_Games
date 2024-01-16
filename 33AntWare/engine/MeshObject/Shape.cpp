@@ -410,8 +410,6 @@ void Shape::createBoundingBox() {
 	float xmin = FLT_MAX, ymin = FLT_MAX, zmin = FLT_MAX;
 	float xmax = -FLT_MAX, ymax = -FLT_MAX, zmax = -FLT_MAX;
 
-	//std::cout << "Size: " << m_positions.size() << std::endl;
-
 	for (std::vector<Vector3f>::iterator pit = m_positions.begin(); pit != m_positions.end(); pit += 1) {
 		xmin = (std::min)((*pit)[0], xmin);
 		ymin = (std::min)((*pit)[1], ymin);

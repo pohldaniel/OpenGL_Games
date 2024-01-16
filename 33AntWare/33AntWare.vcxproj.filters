@@ -58,6 +58,9 @@
     <Filter Include="engine\interfaces">
       <UniqueIdentifier>{d0201a6b-300d-429e-b832-577cfae6b06f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="engine\animation\render">
+      <UniqueIdentifier>{dc65e16c-d3ee-450e-9928-08111a249301}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\input\ApplicationEventListener.cpp">
@@ -377,6 +380,18 @@
     </ClCompile>
     <ClCompile Include="PlayerNew.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\animation\AssimpAnimatedModel.cpp">
+      <Filter>engine\animation</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\animation\AssimpAnimation.cpp">
+      <Filter>engine\animation</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\animation\AssimpAnimator.cpp">
+      <Filter>engine\animation</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\animation\render\AnimationShader.cpp">
+      <Filter>engine\animation\render</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -724,6 +739,18 @@
     </ClInclude>
     <ClInclude Include="PlayerNew.h">
       <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\animation\AssimpAnimatedModel.h">
+      <Filter>engine\animation</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\animation\AssimpAnimation.h">
+      <Filter>engine\animation</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\animation\AssimpAnimator.h">
+      <Filter>engine\animation</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\animation\render\AnimationShader.h">
+      <Filter>engine\animation\render</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -165,6 +165,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AABB.cpp" />
+    <ClCompile Include="engine\animation\AssimpAnimatedModel.cpp" />
+    <ClCompile Include="engine\animation\AssimpAnimation.cpp" />
+    <ClCompile Include="engine\animation\AssimpAnimator.cpp" />
+    <ClCompile Include="engine\animation\render\AnimationShader.cpp" />
     <ClCompile Include="engine\AssimpModel.cpp" />
     <ClCompile Include="engine\BoundingBox.cpp" />
     <ClCompile Include="engine\sound\MusicBuffer.cpp" />
@@ -273,6 +277,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AABB.h" />
+    <ClInclude Include="engine\animation\AssimpAnimatedModel.h" />
+    <ClInclude Include="engine\animation\AssimpAnimation.h" />
+    <ClInclude Include="engine\animation\AssimpAnimator.h" />
+    <ClInclude Include="engine\animation\render\AnimationShader.h" />
     <ClInclude Include="engine\ArrayBuffer.h" />
     <ClInclude Include="engine\AssimpModel.h" />
     <ClInclude Include="engine\BoundingBox.h" />

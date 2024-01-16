@@ -17,7 +17,7 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 	//Mouse::instance().attach(Application::GetWindow());
 
 	m_camera = Camera();
-	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 120.0f);
+	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 5000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
 	m_camera.lookAt(Vector3f(0.0f, 0.5f, 0.0f), Vector3f(0.0f, 0.5f, 0.0f) - Vector3f(0.0f, 0.0f, 1.0f), Vector3f(0.0f, 1.0f, 0.0f));
 
@@ -305,7 +305,7 @@ void Game::render() {
 	shader->loadMatrix("u_model", (const float*)glm::value_ptr(m_glovesGO->applyTransform()));
 	m_glovesGO->draw();*/
 	//glEnable(GL_DEPTH_TEST);
-
+	glClear(GL_DEPTH_BUFFER_BIT);
 	for (auto entity : m_entities) {
 		shader->loadMatrix("u_model", entity->getTransformation());
 		entity->draw(m_camera);

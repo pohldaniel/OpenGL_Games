@@ -248,7 +248,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(
 	assimpAnimated.getAnimator()->startAnimation("cowboy_run");*/
 
 
-	/*Globals::animationManager.loadAnimation("vampire_dance", "res/models/vampire/dancing_vampire.dae", "", "vampire_dance");
+	/*Globals::animationManager.loadAnimation("vampire_dance", "res/models/vampire/dancing_vampire.dae", "Hips", "vampire_dance", false, 0u, 0u, 1000.0f);
 	assimpAnimated.loadModel("res/models/vampire/dancing_vampire.dae", "res/models/vampire/textures/Vampire_diffuse.png");
 	assimpAnimated.rotate(Vector3f(0.0f, 1.0f, 0.0f), 180.0f);
 	assimpAnimated.translate(position[0], position[1], position[2]);
