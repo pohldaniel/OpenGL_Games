@@ -85,6 +85,16 @@ void Object::translate(const float dx, const float dy, const float dz) {
 	m_isDirty = true;
 }
 
+void Object::translateRelative(const Vector3f& trans) {
+	m_position += Quaternion::Rotate(m_orientation, trans);
+	m_isDirty = true;
+}
+
+void Object::translateRelative(const float dx, const float dy, const float dz) {
+	m_position += Quaternion::Rotate(m_orientation, Vector3f(dx, dy, dz));
+	m_isDirty = true;
+}
+
 void Object::scale(const Vector3f &scale) {
 	m_scale.scale(scale);
 	m_isDirty = true;
@@ -115,6 +125,11 @@ void Object::rotate(const Vector3f& eulerAngle) {
 void Object::rotate(const Vector3f &axis, float degrees) {
 	m_orientation.rotate(axis, degrees);
 	//m_rotation[0] += axis[0] * degrees; m_rotation[0] += axis[1] * degrees; m_rotation[0] += axis[2] * degrees;
+	m_isDirty = true;
+}
+
+void Object::rotate(const Quaternion& orientation) {
+	m_orientation *= orientation;
 	m_isDirty = true;
 }
 

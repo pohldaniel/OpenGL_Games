@@ -186,9 +186,9 @@ void Player::start() {
 
 void Player::dispatchBullet() {
 	bullets.push_back(Bullet({ 0.0f, 0.0f, -1.0f }));
-	//bullets.back().transform.translate({ 0.249067f, 0.47149f, -1.25759f });
-	bullets.back().setPosition(m_position);
 	bullets.back().setOrientation(m_orientation);
+	bullets.back().setPosition(m_position);
+	bullets.back().translateRelative({ 0.249067f, 0.47149f, -1.25759f });
 	isRecoiling = true;
 	recoilTime = 0.0f;
 	dynamic_cast<Entity*>(m_children.front().get())->meshPtr->setTexture(flashTexture);
