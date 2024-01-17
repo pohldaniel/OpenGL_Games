@@ -162,6 +162,7 @@ public:
 	static Vector3f Cross(const Vector3f &p, const Vector3f &q);
 	static float Dot(const Vector3f &p, const Vector3f &q);	
 	static Vector3f& Normalize(Vector3f &p);
+	static Vector3f Normalize(const Vector3f &p);
 	static Vector3f Min(const Vector3f &p, const Vector3f &q);
 	static Vector3f Max(const Vector3f &p, const Vector3f &q);
 	static Vector3f& Clamp(Vector3f &v, float min, float max);

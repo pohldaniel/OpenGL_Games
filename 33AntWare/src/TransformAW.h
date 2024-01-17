@@ -50,6 +50,11 @@ namespace aw
         Transform(glm::vec3 position,
                   glm::vec3 rotation,
                   glm::vec3 scale = {1.0f, 1.0f, 1.0f});
+
+		Transform(Transform const& rhs);
+		Transform(Transform&& rhs);
+		Transform& operator=(const Transform& rhs);
+
         /** \return ::position.*/
         glm::vec3 getPosition();
         /** \return ::rotation (Quaternion).*/

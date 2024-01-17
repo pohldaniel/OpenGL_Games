@@ -21,9 +21,7 @@ Player::Player(Camera& camera, std::shared_ptr<aw::Mesh> mesh, aw::Material mate
 void Player::draw(const Camera& camera) {
 
 	Entity::draw(camera);
-	for (unsigned i = 0; i < bullets.size(); ++i) {
-		bullets[i].draw(camera);
-	}
+	
 }
 
 void Player::update(const float dt) {
@@ -62,11 +60,12 @@ void Player::update(const float dt) {
 			}
 		}
 
-		//if (mouse.buttonPressed(Mouse::BUTTON_LEFT)) {
-		//	dispatchBullet();
-		//}
+		if (m_mouseDown) {
+			dispatchBullet();
+			m_mouseDown = false;
+		}
 
-		if (m_mouseDown && reloadTimer.getElapsedTimeSec() > 1.5f && shootTimer.getElapsedTimeSec() > 0.2f) {
+		/*if (m_mouseDown && reloadTimer.getElapsedTimeSec() > 1.5f && shootTimer.getElapsedTimeSec() > 0.2f) {
 			//dispatchBullet();
 
 			if (inHandAmmo > 0) {
@@ -84,7 +83,7 @@ void Player::update(const float dt) {
 			}
 
 			m_mouseDown = false;
-		}
+		}*/
 	}
 
 	if (rigidbody.velocity != glm::vec3(0, 0, 0)) {
@@ -107,6 +106,7 @@ void Player::update(const float dt) {
 	camera.moveRelative(Vector3f(0.0f, 0.5f, 0.0f));
 
 	setOrientation(Vector3f(eularAngles[0], eularAngles[1], eularAngles[2]));
+	transform.setRotation({ eularAngles[0], eularAngles[1], eularAngles[2] });
 
 	auto bulletsSize = bullets.size();
 	for (unsigned i = 0; i < bulletsSize; ++i) {
@@ -145,7 +145,7 @@ void Player::update(const float dt) {
 	}
 
 	updateSelfAndChild();
-	recalculateAABB();
+	recalculateAABB();	
 }
 
 void Player::fixedUpdate(float fdt) {
@@ -162,18 +162,29 @@ void Player::start() {
 	m_isStatic = false;
 	rigidbody.lockLinear(aw::AXIS::y);
 	rigidbody.lockAngular(aw::AXIS::z);
+	shootTimer.reset();
+	reloadTimer.reset();
 }
 
 void Player::dispatchBullet() {
 	//gunShotSound.play();
-	bullets.push_back(Bullet(Vector3f(0.0f, 0.0f, -1.0f)));
+	/*bullets.push_back(Bullet(Vector3f(0.0f, 0.0f, -1.0f)));
 	bullets.back().setOrientation(m_orientation);
 	bullets.back().setPosition(m_position);
 	bullets.back().translate(0.249067f, 0.47149f, -1.25759f);
 	dynamic_cast<Entity*>(m_children.front().get())->meshPtr->setTexture(flashTexture);
 
 	isRecoiling = true;
+	recoilTime = 0.0f;*/
+
+	//std::cout << "Rotation: " << transform.rotation.x << "   " << transform.rotation.y << "   " << transform.rotation.z << "   " << transform.rotation.w << std::endl;
+
+	bullets.push_back(Bullet({0.0f, 0.0f, -1.0f})); // TODO custom mat
+	bullets.back().transform = transform;
+	bullets.back().transform.translate({ 0.249067f, 0.47149f, -1.25759f });
+	isRecoiling = true;
 	recoilTime = 0.0f;
+	dynamic_cast<Entity*>(m_children.front().get())->meshPtr->setTexture(flashTexture);
 }
 
 void Player::reload() {
@@ -268,4 +279,8 @@ void Player::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 	if (event.button == 1u) {
 		m_mouseDown = true;
 	}
+}
+
+std::vector<Bullet>& Player::getBullets() {
+	return bullets;
 }

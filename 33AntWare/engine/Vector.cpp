@@ -2642,6 +2642,11 @@ Vector3f& Vector3f::Normalize(Vector3f &p) {
 	return p;
 }
 
+Vector3f Vector3f::Normalize(const Vector3f &p) {
+	float invMag = p.length() != 0.0f ? 1.0f / p.length() : 1.0f;
+	return Vector3f(p[0] * invMag, p[1] * invMag, p[2] * invMag);
+}
+
 Vector3f Vector3f::Min(const Vector3f &p, const Vector3f &q) {
 	return Vector3f(std::min(p[0], q[0]), std::min(p[1], q[1]), std::min(p[2], q[2]));
 }
@@ -2671,7 +2676,6 @@ Vector3f& Vector3f::normalize() {
 	vec[0] *= invMag, vec[1] *= invMag, vec[2] *= invMag;
 	return *this;
 }
-
 
 void Vector3f::set(float x_, float y_, float z_) {
 	vec[0] = x_, vec[1] = y_, vec[2] = z_;

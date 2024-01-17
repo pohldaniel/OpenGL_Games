@@ -15,13 +15,19 @@ namespace aw
     class Rigidbody
     {
     public:
-        glm::vec3 velocity = {0, 0, 0};
-        glm::vec3 angularVelocity = {0, 0, 0};
-        glm::vec3 acceleration = {0, 0, 0};
-        glm::vec3 angularAcceleration = {0, 0, 0};
-        float mass = 1.0f;
-        int linearLock = 0;
-        int angularLock = 0;
+
+		Rigidbody();
+		Rigidbody(Rigidbody const& rhs);
+		Rigidbody(Rigidbody&& rhs);
+		Rigidbody& operator=(const Rigidbody& rhs);
+
+        glm::vec3 velocity;
+        glm::vec3 angularVelocity;
+        glm::vec3 acceleration;
+        glm::vec3 angularAcceleration;
+        float mass;
+        int linearLock;
+        int angularLock;
 
         /** \brief Locks linear movement.
          *

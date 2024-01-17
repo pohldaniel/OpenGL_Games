@@ -167,7 +167,7 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 	m_ant9->rigidbody = aw::Rigidbody();
 	m_ant9->start();
 
-	m_ants.push_back(m_ant1);
+	/*m_ants.push_back(m_ant1);
 	m_ants.push_back(m_ant2);
 	m_ants.push_back(m_ant3);
 	m_ants.push_back(m_ant4);
@@ -175,7 +175,7 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 	m_ants.push_back(m_ant6);
 	m_ants.push_back(m_ant7);
 	m_ants.push_back(m_ant8);
-	m_ants.push_back(m_ant9);
+	m_ants.push_back(m_ant9);*/
 
 	Bullet::Init(m_bulletMesh, aw::Material());
 	HUD.setHP(m_player->hp * 10);
@@ -194,8 +194,9 @@ void Game::fixedUpdate() {
 	for (auto entity : m_entities)
 		entity->fixedUpdate(m_fdt);
 
-	for (auto ant : m_ants)
-		ant->fixedUpdate(m_fdt);
+	//for (auto ant : m_ants)
+	//	ant->fixedUpdate(m_fdt);
+
 }
 
 void Game::update() {
@@ -203,10 +204,10 @@ void Game::update() {
 	for (auto entity : m_entities)
 		entity->update(m_dt);
 
-	for (auto ant : m_ants)
-		ant->update(m_fdt);
+	//for (auto ant : m_ants)
+	//	ant->update(m_fdt);
 
-	auto player = m_player;
+	/*auto player = m_player;
 	auto& bullets = player->bullets;
 	auto antsSize = m_ants.size();
 	auto bulletsSize = bullets.size();
@@ -240,9 +241,9 @@ void Game::update() {
 			HUD.setHP(player->hp * 10);
 		}
 		
-	}
+	}*/
 
-	if (Globals::clock.getElapsedTimeSec() - player->timeSinceDamage > 0.25f){
+	/*if (Globals::clock.getElapsedTimeSec() - player->timeSinceDamage > 0.25f){
 		HUD.setIsHurting(false);
 	}
 
@@ -254,7 +255,7 @@ void Game::update() {
 		gameStatus = aw::LOSE;
 		HUD.setStatus(aw::LOSE);
 		player->killSound();
-	}
+	}*/
 }
 
 void Game::render() {
@@ -280,6 +281,13 @@ void Game::render() {
 	}
 
 	Globals::textureManager.get("ant").unbind();
+
+	for (auto& bullet : m_player->getBullets()) {
+		//shader->loadMatrix("u_model", bullet.getTransformationSOP());
+		shader->loadMatrix("u_model", (const float*)glm::value_ptr(bullet.getModelMatrix()));
+		bullet.draw(m_camera);
+	}
+
 	glClear(GL_DEPTH_BUFFER_BIT);
 
 	for (auto entity : m_entities) {

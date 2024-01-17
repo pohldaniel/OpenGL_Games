@@ -7,6 +7,27 @@ Transform::Transform(vec3 position, qua<double> rotation, vec3 scale) : position
 Transform::Transform(vec3 position, vec3 rotation, vec3 scale) : position(position),
                                                                  rotation(radians(rotation)),
                                                                  scaling(scale) {}
+
+
+Transform::Transform(Transform const& rhs) {
+	rotation = rhs.rotation;
+	position = rhs.position;
+	scaling = rhs.scaling;
+}
+
+Transform::Transform(Transform&& rhs) {
+	rotation = rhs.rotation;
+	position = rhs.position;
+	scaling = rhs.scaling;
+}
+
+Transform& Transform::operator=(const Transform& rhs) {
+	rotation = rhs.rotation;
+	position = rhs.position;
+	scaling = rhs.scaling;
+	return *this;
+}
+
 vec3 Transform::getPosition()
 {
     return position;

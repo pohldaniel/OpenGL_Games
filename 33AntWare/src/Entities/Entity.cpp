@@ -44,6 +44,23 @@ void Entity::fixedUpdate(float fdt) {
 
 	translate(appliedVelocity * fdt);
 	rotate(appliedAngularVelocity * fdt);
+
+	glm::vec3 _appliedVelocity = glm::mat3(transform.getRotation()) * rigidbody.velocity;
+	glm::vec3 _appliedAngularVelocity = glm::mat3(transform.getRotation()) * rigidbody.angularVelocity;
+	if (rigidbody.isLinearLocked(aw::AXIS::x))
+		_appliedVelocity.x = 0;
+	if (rigidbody.isLinearLocked(aw::AXIS::y))
+		_appliedVelocity.y = 0;
+	if (rigidbody.isLinearLocked(aw::AXIS::z))
+		_appliedVelocity.z = 0;
+	if (rigidbody.isAngularLocked(aw::AXIS::x))
+		_appliedAngularVelocity.x = 0;
+	if (rigidbody.isAngularLocked(aw::AXIS::y))
+		_appliedAngularVelocity.y = 0;
+	if (rigidbody.isAngularLocked(aw::AXIS::z))
+		_appliedAngularVelocity.z = 0;
+	transform.translateGlobal(_appliedVelocity * fdt);
+	transform.rotateGlobal(_appliedAngularVelocity * fdt);
 }
 
 void Entity::constructAABB() {

@@ -60,6 +60,7 @@ public:
 	void destroyBullet(int index);
 	bool damage(float amount);
 	void start();
+	std::vector<Bullet>& getBullets();
 
 	Vector2f mapMinLimit;
 	Vector2f mapMaxLimit;
