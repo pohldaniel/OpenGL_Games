@@ -10,8 +10,7 @@
 #include <engine/CharacterSet.h>
 #include <engine/Spritesheet.h>
 #include <Physics/Physics.h>
-#include <engine/animation/AssimpAnimation.h>
-
+#include <engine/animation/AssimpAnimation.h>
 //#define WIDTH 1600
 //#define HEIGHT 900
 

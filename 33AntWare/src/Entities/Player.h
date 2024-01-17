@@ -1,17 +1,23 @@
 #pragma once
-#include <engine/input/EventDispatcher.h>
+#include <glm/glm.hpp>
 #include <engine/input/MouseEventListener.h>
+#include <engine/Vector.h>
 #include <engine/Camera.h>
 #include <engine/Clock.h>
 
-#include "Entity.h"
-#include "Bullet.h"
+#include <Entities/Entity.h>
+#include <Entities/Bullet.h>
 
-class Player: public Entity, public MouseEventListener {
+#include "Rigidbody.h"
+#include "MaterialAW.h"
+#include "Mesh.h"
+
+class Player : public Entity, public MouseEventListener {
 
 public:
 
 	Player(Camera& camera, std::shared_ptr<aw::Mesh> mesh, aw::Material material, const Vector2f& mapMinLimit, const Vector2f& mapMaxLimit);
+	~Player();
 
 	float speed = 10.0f, runningSpeed = 20.0f;
 	float mouseSenstivity = 0.1f;

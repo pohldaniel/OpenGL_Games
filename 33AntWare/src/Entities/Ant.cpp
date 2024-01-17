@@ -1,29 +1,31 @@
+#include <iostream>
 #include "Ant.h"
 
-Ant::Ant(const ObjSequence& objSequence, std::shared_ptr<aw::Mesh> mesh, aw::Material material, Entity* target) :
+Ant::Ant(const ObjSequence& objSequence, std::shared_ptr<aw::Mesh> mesh, aw::Material material, Entity *target) :
 	Entity(mesh, material),
-    objSequence(objSequence),
-    target(target) {
-
-	constructAABB();
+	objSequence(objSequence),
+	target(target){
 
 	originalMaterial = material;
-	for (unsigned i = 0; i < 8; ++i) {
-		if (i < 4) {
+	m_isStatic = false;
+	constructAABB();
+	
+	for (unsigned i = 0; i < 8; ++i){
+		if (i < 4){
 			aabb.bounds[i].x -= 2.5f;
-		}else {
+		}else{
 			aabb.bounds[i].x += 2.5f;
 		}
 
-		if (i < 2 || i == 4 || i == 5) {
+		if (i < 2 || i == 4 || i == 5){
 			aabb.bounds[i].y -= 0.1f;
-		}else {
+		}else{
 			aabb.bounds[i].y += 0.6f;
 		}
 
-		if (i % 2 == 0) {
+		if (i % 2 == 0){
 			aabb.bounds[i].z -= 0.5f;
-		}else {
+		}else{
 			aabb.bounds[i].z += 1.3f;
 		}
 	}
@@ -35,7 +37,28 @@ void Ant::start() {
 }
 
 void Ant::fixedUpdate(float fdt) {
-	Entity::fixedUpdate(fdt);
+	
+	if (m_isStatic)
+		return;
+
+	Vector3f appliedVelocity = Quaternion::Rotate(m_orientation, Vector3f(rigidbody.velocity.x, rigidbody.velocity.y, rigidbody.velocity.z));
+	Vector3f appliedAngularVelocity = Quaternion::Rotate(m_orientation, Vector3f(rigidbody.angularVelocity.x, rigidbody.angularVelocity.y, rigidbody.angularVelocity.z));
+
+	if (rigidbody.isLinearLocked(aw::AXIS::x))
+		appliedVelocity[0] = 0;
+	if (rigidbody.isLinearLocked(aw::AXIS::y))
+		appliedVelocity[1] = 0;
+	if (rigidbody.isLinearLocked(aw::AXIS::z))
+		appliedVelocity[2] = 0;
+	if (rigidbody.isAngularLocked(aw::AXIS::x))
+		appliedAngularVelocity[0] = 0;
+	if (rigidbody.isAngularLocked(aw::AXIS::y))
+		appliedAngularVelocity[1] = 0;
+	if (rigidbody.isAngularLocked(aw::AXIS::z))
+		appliedAngularVelocity[2] = 0;
+
+	translate(appliedVelocity * fdt);
+	rotate(appliedAngularVelocity * fdt);
 }
 
 void Ant::update(float dt) {
@@ -85,27 +108,26 @@ void Ant::update(float dt) {
 	recalculateAABB();
 }
 
-void Ant::animate(float dt) {
+void Ant::animate(float dt){
 
-	animTime += dt;
-	if (animTime > walkcycleLength) {
-		animTime = 0.0f;
-	}
+    animTime += dt;
+    if (animTime > walkcycleLength){
+        animTime = 0.0f;
+    }
 
-	float progress = animTime / walkcycleLength;
-	progress *= baseIndex;
-	index = round(progress);
-	if (index >= baseIndex) {
-		index = 0;
-	}
+    float progress = animTime / walkcycleLength;
+    progress *= baseIndex;
+    index = round(progress);
+    if (index >= baseIndex){
+        index = 0;
+    }
 }
 
 void Ant::draw(const Camera& camera) {
 	objSequence.drawRaw(index);
 }
 
-
-void Ant::damage(unsigned int amount) {
+void Ant::damage(unsigned int amount){
 	if (!isAlive)
 		return;
 
@@ -114,19 +136,19 @@ void Ant::damage(unsigned int amount) {
 	timeSinceDamage.reset();
 	material.setDiffuse({ 1, 0, 0, 1 });
 
-	if (hp <= amount) {
+	if (hp <= amount){
 		hp = 0;
 		die();
-	}else {
+	}else{
 		hp -= amount;
 	}
 }
 
-unsigned Ant::getHp() {
+unsigned Ant::getHp(){
 	return hp;
 }
 
-void Ant::die() {
+void Ant::die(){
 	isAlive = false;
 	isHurting = false;
 	material = originalMaterial;
@@ -135,6 +157,6 @@ void Ant::die() {
 	rigidbody.velocity = { 0, 0, 0 };
 }
 
-bool Ant::timeToDestroy() {
+bool Ant::timeToDestroy(){
 	return !isAlive && material.getAlpha() <= 0.0f;
 }

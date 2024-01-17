@@ -12,16 +12,12 @@
 #include "MaterialAW.h"
 #include "Mesh.h"
 #include "AABB.h"
-#include "TransformAW.h"
 
 class Entity : public SceneNode {
 
 public:
-	Entity();
-	Entity(std::shared_ptr<aw::Mesh> mesh, aw::Material material);
-	//Entity(Entity const& rhs);
-	//Entity& operator=(const Entity& rhs);
 
+	Entity(std::shared_ptr<aw::Mesh> mesh, aw::Material material);
 
 	virtual void draw(const Camera& camera);
 	virtual void update(const float dt);
@@ -37,5 +33,4 @@ public:
 	std::shared_ptr<aw::Mesh> meshPtr;
 	aw::Material material;
 	aw::AABB aabb;
-	aw::Transform transform;
 };

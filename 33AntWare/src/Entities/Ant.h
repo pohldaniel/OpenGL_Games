@@ -1,19 +1,18 @@
 #pragma once
 
 #include <engine/Clock.h>
-#include <engine/Camera.h>
-#include "Entity.h"
-#include "ObjSequence.h"
+#include <Entities/Entity.h>
 
+#include "ObjSequence.h"
 
 class Ant : public Entity {
 
 public:
-
-	Ant(const ObjSequence& objSequence, std::shared_ptr<aw::Mesh> mesh, aw::Material material, Entity* target);
+    
+	Ant(const ObjSequence& objSequence, std::shared_ptr<aw::Mesh> mesh, aw::Material material, Entity *target);
 
 	void start();
-	void update(const float dt);
+	void update(const float dt) override;
 	void draw(const Camera& camera) override;
 	void fixedUpdate(float fdt) override;
 
@@ -21,7 +20,6 @@ public:
 	unsigned getHp();
 	void die();
 	bool timeToDestroy();
-
 	Clock timeSinceDealtDamage;
 
 private:
@@ -31,7 +29,7 @@ private:
 	float detectionRaduis = 25.0f;
 	float animTime = 0.0f;
 	float walkcycleLength = 1.0f;
-	Entity* target;
+	Entity *target;
 
 	int index = 0;
 	int baseIndex = 0;

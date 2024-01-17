@@ -31,14 +31,14 @@ namespace aw
          */
         Material(glm::vec4 ambient, glm::vec4 diffuse, glm::vec4 specular,
                  float shininess);
-
-		Material(Material const& rhs);
-		Material& operator=(const Material& rhs);
-
         /** \brief Creates a material using predefine parameters, check out
          * the implementation for the parameters values.
          */
         Material();
+
+		Material(Material const& rhs);
+		Material & operator=(const Material& rhs);
+
         /** \param ambient Overwrites ::ambient*/
         void setAmbient(glm::vec4 ambient);
         /** \param diffure Overwrites ::diffuse*/

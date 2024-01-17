@@ -17,7 +17,7 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 	//Mouse::instance().attach(Application::GetWindow());
 
 	m_camera = Camera();
-	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 5000.0f);
+	m_camera.perspective(45.0f * _180_ON_PI, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 120.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
 	m_camera.lookAt(Vector3f(0.0f, 0.5f, 0.0f), Vector3f(0.0f, 0.5f, 0.0f) - Vector3f(0.0f, 0.0f, 1.0f), Vector3f(0.0f, 1.0f, 0.0f));
 
@@ -69,10 +69,6 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 	m_meshes.push_back(m_cubeMesh);
 	aw::Mesh::constructVAO(m_meshes);
 
-	
-
-	gameStatus = aw::ONGOING;
-
 	m_muzzleE = new Entity(m_muzzleMesh, aw::Material());
 	m_muzzleE->m_isStatic = true;
 	m_gunE = new Entity(m_gunMesh, aw::Material());
@@ -86,23 +82,36 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 	m_platformE = new Entity(m_platformMesh, aw::Material());
 	m_platformE->m_isStatic = true;
 
-	m_player = new Player(m_camera, m_cubeMesh, aw::Material(), Vector2f(-51.5f, -51.5f), Vector2f(51.5f, 51.5f));
+	m_player = new Player(m_camera,
+						  m_cubeMesh,
+						  aw::Material(),
+						  Vector2f(-51.5f, -51.5f),
+						  Vector2f(51.5f, 51.5f));
+
 	m_player->setPosition(0.0f, 0.0f, 5.0f);
-	m_player->addChild(m_muzzleE);
-	m_player->addChild(m_gunE);
-	m_player->addChild(m_handsE);
-	m_player->addChild(m_glovesE);
+	m_player->SceneNode::addChild(m_muzzleE);
+	m_player->SceneNode::addChild(m_gunE);
+	m_player->SceneNode::addChild(m_handsE);
+	m_player->SceneNode::addChild(m_glovesE);
 	m_player->start();
 
-	m_entities.push_back(m_player);
+	//m_entities.push_back(m_player);
 	m_entities.push_back(m_muzzleE);
 	m_entities.push_back(m_gunE);
 	m_entities.push_back(m_handsE);
 	m_entities.push_back(m_glovesE);
 	//m_entities.push_back(m_cpuE);
 	//m_entities.push_back(m_platformE);
+	
+	HUD.setHP(m_player->hp * 10);
+	HUD.setInHandAmmo(m_player->inHandAmmo);
+	HUD.setTotalAmmo(m_player->totalAmmo);
+	HUD.setStatus(aw::ONGOING);
+	HUD.setShaderProgram(Globals::shaderManager.getAssetPointer("hud")->m_program);
 
-	m_player->updateSelfAndChild();
+	gameStatus = aw::ONGOING;
+
+	Bullet::Init(m_bulletMesh, aw::Material());
 
 	m_ant1 = new Ant(m_objSequence, m_antMesh, aw::Material(), m_player);
 	m_ant1->setPosition(-21.3863f, -0.978558f, -1.92476f);
@@ -167,7 +176,7 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 	m_ant9->rigidbody = aw::Rigidbody();
 	m_ant9->start();
 
-	/*m_ants.push_back(m_ant1);
+	m_ants.push_back(m_ant1);
 	m_ants.push_back(m_ant2);
 	m_ants.push_back(m_ant3);
 	m_ants.push_back(m_ant4);
@@ -175,14 +184,7 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 	m_ants.push_back(m_ant6);
 	m_ants.push_back(m_ant7);
 	m_ants.push_back(m_ant8);
-	m_ants.push_back(m_ant9);*/
-
-	Bullet::Init(m_bulletMesh, aw::Material());
-	HUD.setHP(m_player->hp * 10);
-	HUD.setInHandAmmo(m_player->inHandAmmo);
-	HUD.setTotalAmmo(m_player->totalAmmo);
-	HUD.setStatus(aw::ONGOING);
-	HUD.setShaderProgram(Globals::shaderManager.getAssetPointer("hud")->m_program);
+	m_ants.push_back(m_ant9);
 }
 
 Game::~Game() {
@@ -191,41 +193,46 @@ Game::~Game() {
 }
 
 void Game::fixedUpdate() {
+
+	m_player->fixedUpdate(m_fdt);
+
 	for (auto entity : m_entities)
 		entity->fixedUpdate(m_fdt);
 
-	//for (auto ant : m_ants)
-	//	ant->fixedUpdate(m_fdt);
+	for (auto ant : m_ants)
+		ant->fixedUpdate(m_fdt);
 
 }
 
 void Game::update() {
 
+	m_player->update(m_dt);
+
 	for (auto entity : m_entities)
 		entity->update(m_dt);
 
-	//for (auto ant : m_ants)
-	//	ant->update(m_fdt);
+	for (auto ant : m_ants)
+		ant->update(m_dt);
 
-	/*auto player = m_player;
+	auto player = m_player;
 	auto& bullets = player->bullets;
 	auto antsSize = m_ants.size();
 	auto bulletsSize = bullets.size();
 	bool isWin = true;
 
-	for (unsigned i = 0; i < antsSize; ++i){
+	for (unsigned i = 0; i < antsSize; ++i) {
 
 		isWin = false;
 		auto ant = m_ants[i];
-		if (ant->timeToDestroy()){
+		if (ant->timeToDestroy()) {
 			destroyAnt(i);
 			--i;
 			--antsSize;
 		}
 
-		for (unsigned j = 0; j < bulletsSize; ++j){
+		for (unsigned j = 0; j < bulletsSize; ++j) {
 
-			if (ant->aabb.isColliding(bullets[j].getPosition())){
+			if (ant->aabb.isColliding(bullets[j].getPosition())) {
 				ant->damage(1);
 				player->destroyBullet(j);
 				--j;
@@ -233,17 +240,17 @@ void Game::update() {
 			}
 		}
 
-		if (ant->aabb.isColliding(m_player->aabb) && Globals::clock.getElapsedTimeSec() > 2.0f && ant->timeSinceDealtDamage.getElapsedTimeSec() >= 1.0f){
+		if (ant->aabb.isColliding(m_player->aabb) && Globals::clock.getElapsedTimeSec() > 2.0f && ant->timeSinceDealtDamage.getElapsedTimeSec() >= 1.0f) {
 			ant->timeSinceDealtDamage.reset();
 			player->damage(1.0f);
 			HUD.setIsHurting(true);
 			player->timeSinceDamage = Globals::clock.getElapsedTimeSec();
 			HUD.setHP(player->hp * 10);
 		}
-		
-	}*/
 
-	/*if (Globals::clock.getElapsedTimeSec() - player->timeSinceDamage > 0.25f){
+	}
+
+	if (Globals::clock.getElapsedTimeSec() - player->timeSinceDamage > 0.25f){
 		HUD.setIsHurting(false);
 	}
 
@@ -255,7 +262,7 @@ void Game::update() {
 		gameStatus = aw::LOSE;
 		HUD.setStatus(aw::LOSE);
 		player->killSound();
-	}*/
+	}
 }
 
 void Game::render() {
@@ -274,17 +281,15 @@ void Game::render() {
 	m_platformE->draw(m_camera);
 
 	Globals::textureManager.get("ant").bind();
-
 	for (auto ant : m_ants) {
 		shader->loadMatrix("u_model", ant->getTransformation());
 		ant->draw(m_camera);
 	}
 
 	Globals::textureManager.get("ant").unbind();
-
+	
 	for (auto& bullet : m_player->getBullets()) {
-		//shader->loadMatrix("u_model", bullet.getTransformationSOP());
-		shader->loadMatrix("u_model", (const float*)glm::value_ptr(bullet.getModelMatrix()));
+		shader->loadMatrix("u_model", bullet.getTransformationSOP());
 		bullet.draw(m_camera);
 	}
 

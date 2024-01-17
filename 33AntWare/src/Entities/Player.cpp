@@ -1,14 +1,17 @@
-#include <engine/input/Keyboard.h>
+#include <iostream>
 #include <engine/input/Mouse.h>
+#include <engine/input/Keyboard.h>
 
 #include "Player.h"
+#include "Application.h"
 #include "HUD.h"
 
-Player::Player(Camera& camera, std::shared_ptr<aw::Mesh> mesh, aw::Material material, const Vector2f& mapMinLimit, const Vector2f& mapMaxLimit) :
+Player::Player(Camera& camera, std::shared_ptr<aw::Mesh> mesh, aw::Material material, const Vector2f& mapMinLimit, const Vector2f& mapMaxLimit) : 
 	Entity(mesh, material), 
 	camera(camera),
 	mapMinLimit(mapMinLimit),
-	mapMaxLimit(mapMaxLimit) {
+	mapMaxLimit(mapMaxLimit){
+
 	childrenEular.set(0.0f, 0.0f, 0.0f);
 	childrenTranslation.set(0.0f, 0.0f, 0.0f);
 	eularAngles.set(0.0f, 0.0f, 0.0f);
@@ -18,10 +21,13 @@ Player::Player(Camera& camera, std::shared_ptr<aw::Mesh> mesh, aw::Material mate
 	aabb.maximize(0.2f);
 }
 
-void Player::draw(const Camera& camera) {
+Player::~Player() {
+	EventDispatcher::RemoveMouseListener(this);
+}
 
-	Entity::draw(camera);
-	
+void Player::draw(const Camera& camera) {
+	material.apply();
+	meshPtr->draw();
 }
 
 void Player::update(const float dt) {
@@ -49,10 +55,6 @@ void Player::update(const float dt) {
 			rigidbody.velocity.x -= 1;
 		}
 
-		//if (keyboard.keyPressed(Keyboard::KEY_R)) {
-		//	reload();
-		//}
-
 		if (keyboard.keyPressed(Keyboard::KEY_R) && reloadTimer.getElapsedTimeSec() > 1.5f) {
 			if (totalAmmo > 0 && inHandAmmo < maxAmmo) {
 				reloadTimer.reset();
@@ -60,13 +62,7 @@ void Player::update(const float dt) {
 			}
 		}
 
-		if (m_mouseDown) {
-			dispatchBullet();
-			m_mouseDown = false;
-		}
-
-		/*if (m_mouseDown && reloadTimer.getElapsedTimeSec() > 1.5f && shootTimer.getElapsedTimeSec() > 0.2f) {
-			//dispatchBullet();
+		if (m_mouseDown && reloadTimer.getElapsedTimeSec() > 1.5f && shootTimer.getElapsedTimeSec() > 0.2f) {
 
 			if (inHandAmmo > 0) {
 				dispatchBullet();
@@ -83,7 +79,7 @@ void Player::update(const float dt) {
 			}
 
 			m_mouseDown = false;
-		}*/
+		}
 	}
 
 	if (rigidbody.velocity != glm::vec3(0, 0, 0)) {
@@ -104,9 +100,7 @@ void Player::update(const float dt) {
 	eularAngles[1] -= mouse.xDelta() * mouseSenstivity;
 	camera.lookAt({ m_position[0], m_position[1], m_position[2] }, -eularAngles[0], -eularAngles[1], 180.0f);
 	camera.moveRelative(Vector3f(0.0f, 0.5f, 0.0f));
-
-	setOrientation(Vector3f(eularAngles[0], eularAngles[1], eularAngles[2]));
-	transform.setRotation({ eularAngles[0], eularAngles[1], eularAngles[2] });
+	setOrientation(eularAngles);
 
 	auto bulletsSize = bullets.size();
 	for (unsigned i = 0; i < bulletsSize; ++i) {
@@ -145,11 +139,37 @@ void Player::update(const float dt) {
 	}
 
 	updateSelfAndChild();
-	recalculateAABB();	
+	recalculateAABB();
 }
 
 void Player::fixedUpdate(float fdt) {
-	Entity::fixedUpdate(fdt);
+	if (m_isStatic)
+		return;
+
+	rigidbody.velocity += rigidbody.acceleration * fdt;
+	rigidbody.angularVelocity += rigidbody.angularAcceleration * fdt;
+
+	Vector3f appliedVelocity = Quaternion::Rotate(m_orientation, Vector3f(rigidbody.velocity.x, rigidbody.velocity.y, rigidbody.velocity.z));
+	Vector3f appliedAngularVelocity = Quaternion::Rotate(m_orientation, Vector3f(rigidbody.angularVelocity.x, rigidbody.angularVelocity.y, rigidbody.angularVelocity.z));
+
+
+	if (rigidbody.isLinearLocked(aw::AXIS::x))
+		appliedVelocity[0] = 0;
+	if (rigidbody.isLinearLocked(aw::AXIS::y))
+		appliedVelocity[1] = 0;
+	if (rigidbody.isLinearLocked(aw::AXIS::z))
+		appliedVelocity[2] = 0;
+	if (rigidbody.isAngularLocked(aw::AXIS::x))
+		appliedAngularVelocity[0] = 0;
+	if (rigidbody.isAngularLocked(aw::AXIS::y))
+		appliedAngularVelocity[1] = 0;
+	if (rigidbody.isAngularLocked(aw::AXIS::z))
+		appliedAngularVelocity[2] = 0;
+
+	translate(appliedVelocity * fdt);
+	rotate(appliedAngularVelocity * fdt);
+
+
 	for (unsigned i = 0; i < bullets.size(); ++i) {
 		bullets[i].fixedUpdate(fdt);
 	}
@@ -162,26 +182,13 @@ void Player::start() {
 	m_isStatic = false;
 	rigidbody.lockLinear(aw::AXIS::y);
 	rigidbody.lockAngular(aw::AXIS::z);
-	shootTimer.reset();
-	reloadTimer.reset();
 }
 
 void Player::dispatchBullet() {
-	//gunShotSound.play();
-	/*bullets.push_back(Bullet(Vector3f(0.0f, 0.0f, -1.0f)));
-	bullets.back().setOrientation(m_orientation);
+	bullets.push_back(Bullet({ 0.0f, 0.0f, -1.0f }));
+	//bullets.back().transform.translate({ 0.249067f, 0.47149f, -1.25759f });
 	bullets.back().setPosition(m_position);
-	bullets.back().translate(0.249067f, 0.47149f, -1.25759f);
-	dynamic_cast<Entity*>(m_children.front().get())->meshPtr->setTexture(flashTexture);
-
-	isRecoiling = true;
-	recoilTime = 0.0f;*/
-
-	//std::cout << "Rotation: " << transform.rotation.x << "   " << transform.rotation.y << "   " << transform.rotation.z << "   " << transform.rotation.w << std::endl;
-
-	bullets.push_back(Bullet({0.0f, 0.0f, -1.0f})); // TODO custom mat
-	bullets.back().transform = transform;
-	bullets.back().transform.translate({ 0.249067f, 0.47149f, -1.25759f });
+	bullets.back().setOrientation(m_orientation);
 	isRecoiling = true;
 	recoilTime = 0.0f;
 	dynamic_cast<Entity*>(m_children.front().get())->meshPtr->setTexture(flashTexture);
@@ -201,8 +208,8 @@ void Player::reload() {
 			totalAmmo = 0;
 		}
 
-	HUD.setInHandAmmo(inHandAmmo);
-	HUD.setTotalAmmo(totalAmmo);
+	//HUD.setInHandAmmo(inHandAmmo);
+	//HUD.setTotalAmmo(totalAmmo);
 }
 
 void Player::destroyBullet(int index) {
@@ -236,13 +243,13 @@ void Player::recoilAnim(float deltaTime) {
 	}
 
 	for (auto const& child : m_children) {
-		child->setOrientation(childrenEular);
-		child->setPosition(childrenTranslation);
+		child->setOrientation(Vector3f(childrenEular[0], childrenEular[1], childrenEular[2]));
+		child->setPosition({ childrenTranslation[0], childrenTranslation[1], childrenTranslation[2] });
 	}
 }
 
 void Player::reloadAnim(float deltaTime) {
-	
+
 	if (reloadTimeOut <= reloadTime) {
 		isReloading = false;
 		childrenEular = { 0, 0, 0 };
@@ -253,19 +260,21 @@ void Player::reloadAnim(float deltaTime) {
 		if (reloadTime < (reloadTimeOut / 2.0f)) {
 			childrenEular[0] -= reloadPlaybackSpeed * deltaTime;
 			childrenTranslation[2] += reloadPlaybackSpeed * deltaTime * 0.005f;
-		}else {
+		}
+		else {
 			childrenEular[0] += reloadPlaybackSpeed * deltaTime;
 			childrenTranslation[2] -= reloadPlaybackSpeed * deltaTime * 0.005f;
 		}
 	}
 
 	for (auto const& child : m_children) {
-		child->setOrientation(childrenEular);
-		child->setPosition(childrenTranslation);
+		child->setOrientation(Vector3f(childrenEular[0], childrenEular[1],childrenEular[2]));
+		child->setPosition({ childrenTranslation[0], childrenTranslation[1], childrenTranslation[2] });
 	}
 }
 
 bool Player::isDead() {
+
 	return hp <= 0.0f;
 }
 

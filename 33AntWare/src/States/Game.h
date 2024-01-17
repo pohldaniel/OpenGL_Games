@@ -7,15 +7,12 @@
 #include <engine/ObjModel.h>
 
 #include <States/StateMachine.h>
-#include <Objects/SceneNode.h>
-
-#include "ObjSequence.h"
-#include "HUD.h"
-
-#include <Entities/Player.h>
+#include <Entities/Entity.h>
 #include <Entities/Ant.h>
-#include <Entities/Bullet.h>
+#include <Entities/Player.h>
+
 #include "Mesh.h"
+#include "HUD.h"
 
 enum LightType{
 	DIRECTIONAL,
@@ -65,7 +62,6 @@ private:
 	AssimpModel m_model;
 	AssimpModel m_gun;
 
-
 	std::shared_ptr<aw::Mesh> m_muzzleMesh = nullptr;
 	std::shared_ptr<aw::Mesh> m_bulletMesh = nullptr;
 	std::shared_ptr<aw::Mesh> m_gunMesh = nullptr;
@@ -90,5 +86,4 @@ private:
 	Ant *m_ant1 = nullptr, *m_ant2 = nullptr, *m_ant3 = nullptr, *m_ant4 = nullptr, *m_ant5 = nullptr, *m_ant6 = nullptr, *m_ant7 = nullptr, *m_ant8 = nullptr, *m_ant9 = nullptr;
 	std::vector<Entity*> m_entities;
 	std::vector<Ant*> m_ants;
-	std::vector<Bullet> m_nodes;
 };
