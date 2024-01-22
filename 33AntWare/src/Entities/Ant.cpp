@@ -104,7 +104,7 @@ void Ant::update(float dt) {
 		index = baseIndex;
 	}
 
-	updateSelfAndChild();
+	//updateSelfAndChild();
 	recalculateAABB();
 }
 

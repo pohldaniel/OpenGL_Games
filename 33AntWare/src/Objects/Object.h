@@ -50,17 +50,16 @@ public:
 	const Matrix4f& getTransformationO();
 	const Matrix4f& getTransformationP();
 	const Matrix4f& getTransformationS();
-	const bool isDirty() const;
-	//Vector3f getRotationAxis();
+	
 
 	static const Matrix4f &GetTransformation();
+
+protected:
 
 	Vector3f m_position;
 	Vector3f m_scale;
 	//Vector3f m_rotation;
 	Quaternion m_orientation;
-
-	bool m_isDirty;
 
 private:
 

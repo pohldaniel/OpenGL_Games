@@ -185,6 +185,7 @@
     <ClCompile Include="src\LoadingManager.cpp" />
     <ClCompile Include="src\MaterialAW.cpp" />
     <ClCompile Include="src\MousePickerFBO.cpp" />
+    <ClCompile Include="src\Objects\MeshNew.cpp" />
     <ClCompile Include="src\Objects\SceneNode.cpp" />
     <ClCompile Include="src\ObjSequence.cpp" />
     <ClCompile Include="src\Rigidbody.cpp" />
@@ -348,6 +349,7 @@
     <ClInclude Include="src\LoadingManager.h" />
     <ClInclude Include="src\MaterialAW.h" />
     <ClInclude Include="src\MousePickerFBO.h" />
+    <ClInclude Include="src\Objects\MeshNew.h" />
     <ClInclude Include="src\Objects\SceneNode.h" />
     <ClInclude Include="src\ObjSequence.h" />
     <ClInclude Include="src\RandomColor.h" />

@@ -138,7 +138,7 @@ void Player::update(const float dt) {
 		killSound();
 	}
 
-	updateSelfAndChild();
+	//updateSelfAndChild();
 	recalculateAABB();
 }
 

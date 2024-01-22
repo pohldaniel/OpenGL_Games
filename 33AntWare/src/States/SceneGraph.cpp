@@ -38,8 +38,6 @@ SceneGraph::SceneGraph(StateMachine& machine) : State(machine, States::SCENEGRAP
 		lastNode->setPosition({ 10, 0, 0 });
 		lastNode->setScale({ scale, scale, scale });
 	}
-
-	root->updateSelfAndChild();
 }
 
 SceneGraph::~SceneGraph() {
@@ -106,8 +104,8 @@ void SceneGraph::update() {
 		}
 	}
 
-	root->rotate({ 0.f, 20.0f * m_dt, 0.f });
-	root->updateSelfAndChild();
+	root->rotate(0.f, 20.0f * m_dt, 0.f);
+	root->OnTransformChanged();
 }
 
 void SceneGraph::render() {
