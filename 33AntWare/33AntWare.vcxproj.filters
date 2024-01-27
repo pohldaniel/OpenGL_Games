@@ -390,6 +390,9 @@
     <ClCompile Include="src\Objects\MeshNew.cpp">
       <Filter>Source Files\Objects</Filter>
     </ClCompile>
+    <ClCompile Include="src\Objects\BoundingBoxNew.cpp">
+      <Filter>Source Files\Objects</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="convhull\convhull_3d.h">
@@ -741,6 +744,9 @@
       <Filter>Source Files\Entities</Filter>
     </ClInclude>
     <ClInclude Include="src\Objects\MeshNew.h">
+      <Filter>Source Files\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Objects\BoundingBoxNew.h">
       <Filter>Source Files\Objects</Filter>
     </ClInclude>
   </ItemGroup>

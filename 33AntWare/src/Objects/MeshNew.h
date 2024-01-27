@@ -2,6 +2,8 @@
 #include <engine/Vector.h>
 #include <Objects/SceneNode.h>
 
+#include "BoundingBoxNew.h"
+
 class MeshNew {
 
 public:
@@ -17,4 +19,5 @@ private:
 
 	Matrix4f* worldTransform;
 	SceneNode* owner;
+	BoundingBoxNew boundingBox;
 };

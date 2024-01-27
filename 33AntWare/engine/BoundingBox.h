@@ -10,8 +10,8 @@ struct BoundingBox {
 	void drawRaw() const;
 	void cleanup();
 
-	std::vector<float> m_vertexBuffer;
-	std::vector<unsigned int> m_indexBuffer;
+	//std::vector<float> m_vertexBuffer;
+	//std::vector<unsigned int> m_indexBuffer;
 
 	unsigned int m_vao = 0;
 	unsigned int m_vbo = 0;
