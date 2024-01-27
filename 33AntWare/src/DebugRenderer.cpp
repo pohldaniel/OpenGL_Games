@@ -1,14 +1,66 @@
 #include "DebugRenderer.h"
 #include "Globals.h"
 
-DebugRenderer::DebugRenderer(){
-	//vertexElements.push_back(VertexElement(ELEM_VECTOR3, SEM_POSITION));
-	//vertexElements.push_back(VertexElement(ELEM_UBYTE4, SEM_COLOR));
+DebugRenderer DebugRenderer::s_instance;
 
-	//indexBuffer = new IndexBuffer();
-	//vertexBuffer = new VertexBuffer();
+DebugRenderer::~DebugRenderer() {
+	shutdown();
+}
 
+void DebugRenderer::init(size_t size) {
 	shader = std::make_shared<Shader>(Globals::shaderManager.getAssetPointer("debug_lines"));
+
+	m_maxBoxes = size;
+	m_maxVert = m_maxBoxes * 8;
+	m_maxIndex = m_maxBoxes * 24;
+
+	vertices = new DebugVertex[m_maxVert];
+	indices = new unsigned int[m_maxIndex];
+
+	glGenBuffers(1, &m_ibo);
+	glGenBuffers(1, &m_vbo);
+	glGenVertexArrays(1, &m_vao);
+	glBindVertexArray(m_vao);
+
+	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+	glBufferData(GL_ARRAY_BUFFER, m_maxVert * sizeof(DebugVertex), nullptr, GL_DYNAMIC_DRAW);
+
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(DebugVertex), (const void*)0);
+
+	glEnableVertexAttribArray(1);
+	//glVertexAttribIPointer(1, 4, GL_UNSIGNED_BYTE, sizeof(DebugVertex), (const void*)(3 * sizeof(float)));
+	glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(DebugVertex), (const void*)(3 * sizeof(float)));
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_maxIndex * sizeof(unsigned int), nullptr, GL_DYNAMIC_DRAW);
+
+	//glBindBuffer(GL_ARRAY_BUFFER, 0);
+	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+}
+
+void DebugRenderer::shutdown() {
+	delete[] vertices;
+	vertices = nullptr;
+
+	delete[] indices;
+	indices = nullptr;
+
+	if (m_vao) {
+		glDeleteVertexArrays(1, &m_vao);
+		m_vao = 0u;
+	}
+
+	if (m_vbo) {
+		glDeleteBuffers(1, &m_vbo);
+		m_vbo = 0u;
+	}
+
+	if (m_ibo) {
+		glDeleteBuffers(1, &m_ibo);
+		m_ibo = 0u;
+	}
 }
 
 void DebugRenderer::SetView(Camera* camera){
@@ -20,126 +72,208 @@ void DebugRenderer::SetView(Camera* camera){
 	projection = camera->getPerspectiveMatrix();
 }
 
-void DebugRenderer::AddLine(const Vector3f& start, const Vector3f& end, const Vector4f& color){
-	AddLine(start, end, color.toUInt());
-}
+void DebugRenderer::AddLine(const Vector3f& start, const Vector3f& end, unsigned int color){
 
-void DebugRenderer::AddLine(const Vector3f& start, const Vector3f& end, unsigned color){
-	unsigned startVertex = (unsigned)vertices.size();
+	if (m_maxIndex - indexCount < 2) {
+		drawBuffer();
+	}
+	
+	verticesPtr->position = start;
+	verticesPtr->color = color;
+	verticesPtr++;
 
-	vertices.push_back(DebugVertex(start, color));
-	vertices.push_back(DebugVertex(end, color));
+	verticesPtr->position = start;
+	verticesPtr->color = color;
+	verticesPtr++;
+
+	*indicesPtr = vertexCount;
+	indicesPtr++;
+
+	*indicesPtr = vertexCount + 1;
+	indicesPtr++;
+
+	vertexCount += 2;
+	indexCount += 2;
+	
+	/*vertices.push_back({ start, color });
+	vertices.push_back({ end, color });
 
 	indices.push_back(startVertex);
-	indices.push_back(startVertex + 1);
+	indices.push_back(startVertex + 1);*/
+}
+
+void DebugRenderer::AddLine(const Vector3f& start, const Vector3f& end, const Vector4f& color) {
+	AddLine(start, end, color.toUInt());
 }
 
 void DebugRenderer::AddBoundingBox(const BoundingBoxNew& box, const Vector4f& color){
 
-	unsigned startVertex = (unsigned)vertices.size();
-	unsigned uintColor = color.toUInt();
+	if (m_maxIndex - indexCount < 24) {
+		drawBuffer();
+	}
 
+	unsigned int uintColor = color.toUInt();
 	const Vector3f& min = box.min;
 	const Vector3f& max = box.max;
 
-	vertices.push_back(DebugVertex(min, uintColor));
-	vertices.push_back(DebugVertex(Vector3f(max[0], min[1], min[2]), uintColor));
-	vertices.push_back(DebugVertex(Vector3f(max[0], max[1], min[2]), uintColor));
-	vertices.push_back(DebugVertex(Vector3f(min[0], max[1], min[2]), uintColor));
-	vertices.push_back(DebugVertex(Vector3f(min[0], min[1], max[2]), uintColor));
-	vertices.push_back(DebugVertex(Vector3f(max[0], min[1], max[2]), uintColor));
-	vertices.push_back(DebugVertex(Vector3f(min[0], max[1], max[2]), uintColor));
-	vertices.push_back(DebugVertex(max, uintColor));
+	verticesPtr->position = min;
+	verticesPtr->color = uintColor;
+	verticesPtr++;
 
-	indices.push_back(startVertex);
-	indices.push_back(startVertex + 1);
+	verticesPtr->position = { max[0], min[1], min[2] };
+	verticesPtr->color = uintColor;
+	verticesPtr++;
 
-	indices.push_back(startVertex + 1);
-	indices.push_back(startVertex + 2);
+	verticesPtr->position = { max[0], max[1], min[2] };
+	verticesPtr->color = uintColor;
+	verticesPtr++;
 
-	indices.push_back(startVertex + 2);
-	indices.push_back(startVertex + 3);
+	verticesPtr->position = { min[0], max[1], min[2] };
+	verticesPtr->color = uintColor;
+	verticesPtr++;
 
-	indices.push_back(startVertex + 3);
-	indices.push_back(startVertex);
+	verticesPtr->position = { min[0], min[1], max[2] };
+	verticesPtr->color = uintColor;
+	verticesPtr++;
 
-	indices.push_back(startVertex + 4);
-	indices.push_back(startVertex + 5);
+	verticesPtr->position = { max[0], min[1], max[2] };
+	verticesPtr->color = uintColor;
+	verticesPtr++;
 
-	indices.push_back(startVertex + 5);
-	indices.push_back(startVertex + 7);
+	verticesPtr->position = { min[0], max[1], max[2] };
+	verticesPtr->color = uintColor;
+	verticesPtr++;
 
-	indices.push_back(startVertex + 7);
-	indices.push_back(startVertex + 6);
+	verticesPtr->position = max;
+	verticesPtr->color = uintColor;
+	verticesPtr++;
 
-	indices.push_back(startVertex + 6);
-	indices.push_back(startVertex + 4);
 
-	indices.push_back(startVertex + 0);
-	indices.push_back(startVertex + 4);
+	*indicesPtr = vertexCount;
+	*(indicesPtr + 1) = vertexCount + 1;
 
-	indices.push_back(startVertex + 1);
-	indices.push_back(startVertex + 5);
+	*(indicesPtr + 2) = vertexCount + 1;
+	*(indicesPtr + 3) = vertexCount + 2;
 
-	indices.push_back(startVertex + 2);
-	indices.push_back(startVertex + 7);
+	*(indicesPtr + 4) = vertexCount + 2;
+	*(indicesPtr + 5) = vertexCount + 3;
 
-	indices.push_back(startVertex + 3);
-	indices.push_back(startVertex + 6);
+	*(indicesPtr + 6) = vertexCount + 3;
+	*(indicesPtr + 7) = vertexCount;
+
+	*(indicesPtr + 8) = vertexCount + 4;
+	*(indicesPtr + 9) = vertexCount + 5;
+
+	*(indicesPtr + 10) = vertexCount + 5;
+	*(indicesPtr + 11) = vertexCount + 7;
+
+	*(indicesPtr + 12) = vertexCount + 7;
+	*(indicesPtr + 13) = vertexCount + 6;
+
+	*(indicesPtr + 14) = vertexCount + 6;
+	*(indicesPtr + 15) = vertexCount + 4;
+
+	*(indicesPtr + 16) = vertexCount + 0;
+	*(indicesPtr + 17) = vertexCount + 4;
+
+	*(indicesPtr + 18) = vertexCount + 1;
+	*(indicesPtr + 19) = vertexCount + 5;
+
+	*(indicesPtr + 20) = vertexCount + 2;
+	*(indicesPtr + 21) = vertexCount + 7;
+
+	*(indicesPtr + 22) = vertexCount + 3;
+	*(indicesPtr + 23) = vertexCount + 6;
+
+	indicesPtr += 24;
+
+	vertexCount += 8;
+	indexCount += 22;
 }
 
 void DebugRenderer::AddBoundingBox(const BoundingBoxNew& box, const Matrix4f& transform, const Vector4f& color){
 
-	unsigned startVertex = (unsigned)vertices.size();
-	unsigned uintColor = color.toUInt();
+	if (m_maxIndex - indexCount < 24) {
+		drawBuffer();
+	}
 
+	unsigned uintColor = color.toUInt();
 	const Vector3f& min = box.min;
 	const Vector3f& max = box.max;
 
-	vertices.push_back(DebugVertex(Vector3f(transform * min), uintColor));
-	vertices.push_back(DebugVertex(Vector3f(transform * Vector3f(max[0], min[1], min[2])), uintColor));
-	vertices.push_back(DebugVertex(Vector3f(transform * Vector3f(max[0], max[1], min[2])), uintColor));
-	vertices.push_back(DebugVertex(Vector3f(transform * Vector3f(min[0], max[1], min[2])), uintColor));
-	vertices.push_back(DebugVertex(Vector3f(transform * Vector3f(min[0], min[1], max[2])), uintColor));
-	vertices.push_back(DebugVertex(Vector3f(transform * Vector3f(max[0], min[1], max[2])), uintColor));
-	vertices.push_back(DebugVertex(Vector3f(transform * Vector3f(min[0], max[1], max[2])), uintColor));
-	vertices.push_back(DebugVertex(Vector3f(transform * max), uintColor));
+	verticesPtr->position = transform * min;
+	verticesPtr->color = uintColor;
+	verticesPtr++;
 
-	indices.push_back(startVertex);
-	indices.push_back(startVertex + 1);
+	verticesPtr->position = transform * Vector3f(max[0], min[1], min[2]);
+	verticesPtr->color = uintColor;
+	verticesPtr++;
 
-	indices.push_back(startVertex + 1);
-	indices.push_back(startVertex + 2);
+	verticesPtr->position = transform * Vector3f(max[0], max[1], min[2]);
+	verticesPtr->color = uintColor;
+	verticesPtr++;
 
-	indices.push_back(startVertex + 2);
-	indices.push_back(startVertex + 3);
+	verticesPtr->position = transform * Vector3f(min[0], max[1], min[2]);
+	verticesPtr->color = uintColor;
+	verticesPtr++;
 
-	indices.push_back(startVertex + 3);
-	indices.push_back(startVertex);
+	verticesPtr->position = transform * Vector3f(min[0], min[1], max[2]);
+	verticesPtr->color = uintColor;
+	verticesPtr++;
 
-	indices.push_back(startVertex + 4);
-	indices.push_back(startVertex + 5);
+	verticesPtr->position = transform * Vector3f(max[0], min[1], max[2]);
+	verticesPtr->color = uintColor;
+	verticesPtr++;
 
-	indices.push_back(startVertex + 5);
-	indices.push_back(startVertex + 7);
+	verticesPtr->position = transform * Vector3f(min[0], max[1], max[2]);
+	verticesPtr->color = uintColor;
+	verticesPtr++;
 
-	indices.push_back(startVertex + 7);
-	indices.push_back(startVertex + 6);
+	verticesPtr->position = transform * max;
+	verticesPtr->color = uintColor;
+	verticesPtr++;
 
-	indices.push_back(startVertex + 6);
-	indices.push_back(startVertex + 4);
 
-	indices.push_back(startVertex + 0);
-	indices.push_back(startVertex + 4);
+	*indicesPtr = vertexCount;
+	*(indicesPtr + 1) = vertexCount + 1;
 
-	indices.push_back(startVertex + 1);
-	indices.push_back(startVertex + 5);
+	*(indicesPtr + 2) = vertexCount + 1;
+	*(indicesPtr + 3) = vertexCount + 2;
 
-	indices.push_back(startVertex + 2);
-	indices.push_back(startVertex + 7);
+	*(indicesPtr + 4) = vertexCount + 2;
+	*(indicesPtr + 5) = vertexCount + 3;
 
-	indices.push_back(startVertex + 3);
-	indices.push_back(startVertex + 6);
+	*(indicesPtr + 6) = vertexCount + 3;
+	*(indicesPtr + 7) = vertexCount;
+
+	*(indicesPtr + 8) = vertexCount + 4;
+	*(indicesPtr + 9) = vertexCount + 5;
+
+	*(indicesPtr + 10) = vertexCount + 5;
+	*(indicesPtr + 11) = vertexCount + 7;
+
+	*(indicesPtr + 12) = vertexCount + 7;
+	*(indicesPtr + 13) = vertexCount + 6;
+
+	*(indicesPtr + 14) = vertexCount + 6;
+	*(indicesPtr + 15) = vertexCount + 4;
+
+	*(indicesPtr + 16) = vertexCount + 0;
+	*(indicesPtr + 17) = vertexCount + 4;
+
+	*(indicesPtr + 18) = vertexCount + 1;
+	*(indicesPtr + 19) = vertexCount + 5;
+
+	*(indicesPtr + 20) = vertexCount + 2;
+	*(indicesPtr + 21) = vertexCount + 7;
+
+	*(indicesPtr + 22) = vertexCount + 3;
+	*(indicesPtr + 23) = vertexCount + 6;
+
+	indicesPtr += 24;
+
+	vertexCount += 8;
+	indexCount += 22;
 }
 
 void DebugRenderer::AddCylinder(const Vector3f& position, float radius, float height, const Vector4f& color){
@@ -161,6 +295,59 @@ void DebugRenderer::AddCylinder(const Vector3f& position, float radius, float he
 	AddLine(position - offsetZVec, position + heightVec - offsetZVec, color);
 }
 
-void DebugRenderer::Render(){
+void DebugRenderer::drawBuffer() {
+	GLsizeiptr size = (uint8_t*)verticesPtr - (uint8_t*)vertices;
+	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, size, vertices);
+	//glBindBuffer(GL_ARRAY_BUFFER, 0);
 
+	size = (uint8_t*)indices - (uint8_t*)indicesPtr;
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
+	glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, size, indices);
+	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+	glUseProgram(shader->m_program);
+
+	shader->loadMatrix("u_projection", view);
+	shader->loadMatrix("u_view", projection);
+	glBindVertexArray(m_vao);
+	glDrawElements(GL_LINES, indexCount, GL_UNSIGNED_INT, nullptr);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+	glUseProgram(0);
+
+	vertexCount = 0;
+	indexCount = 0;
+	verticesPtr = vertices;
+	indicesPtr = indices;
+
+	/*glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(btVector3), buffer);
+
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(btVector3), 0);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
+	glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, indices.size() * sizeof(unsigned int), _indices);
+
+	glUseProgram(shader->m_program);
+
+	shader->loadMatrix("u_projection", view);
+	shader->loadMatrix("u_view", projection);
+
+
+	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+
+	glUseProgram(0);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	bufferPtr = buffer;
+	_indicesPtr = _indices;*/
+}
+
+DebugRenderer& DebugRenderer::Get() {
+	return s_instance;
 }

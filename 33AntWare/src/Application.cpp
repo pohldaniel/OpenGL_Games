@@ -18,6 +18,7 @@
 #include <UI/Widget.h>
 
 #include "TileSet.h"
+#include "DebugRenderer.h"
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -69,12 +70,15 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	SavedExStyle = GetWindowLong(Window, GWL_EXSTYLE);
 	SavedStyle = GetWindowLong(Window, GWL_STYLE);
 
+	initStates();
+
 	Fontrenderer::Get().init();
 	Fontrenderer::Get().setShader(Globals::shaderManager.getAssetPointer("font"));
 
 	Batchrenderer::Get().init(1000, false, true);
 	Batchrenderer::Get().setShader(Globals::shaderManager.getAssetPointer("batch"));
-	//Fontrenderer::Get().setRenderer(&Batchrenderer::Get());
+
+	DebugRenderer::Get().init();
 
 	auto shader = Globals::shaderManager.getAssetPointer("font");
 	shader->use();
@@ -86,7 +90,7 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	shader->loadMatrix("u_transform", Matrix4f::Orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f));
 	shader->unuse();
 
-	initStates();
+	
 }
 
 Application::~Application() {
