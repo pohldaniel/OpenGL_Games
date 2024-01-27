@@ -2120,7 +2120,6 @@ Matrix4f &Matrix4f::operator*=(const Matrix4f &rhs) {
 	return *this;
 }
 
-
 Matrix4f &Matrix4f::operator^=(const Matrix4f &rhs) {
 	Matrix4f tmp;
 
@@ -2171,7 +2170,6 @@ Matrix4f Matrix4f::operator^(const Matrix4f &rhs) const {
 }
 
 void Matrix4f::transpose() {
-
 	float tmp = mtx[0][1]; mtx[0][1] = mtx[1][0]; mtx[1][0] = tmp;
 	tmp = mtx[0][2]; mtx[0][2] = mtx[2][0]; mtx[2][0] = tmp;
 	tmp = mtx[0][3]; mtx[0][3] = mtx[3][0]; mtx[3][0] = tmp;
@@ -2183,7 +2181,6 @@ void Matrix4f::transpose() {
 }
 
 void Matrix4f::transpose3() {
-
 	float tmp = mtx[0][1]; mtx[0][1] = mtx[1][0]; mtx[1][0] = tmp;
 	tmp = mtx[0][2]; mtx[0][2] = mtx[2][0]; mtx[2][0] = tmp;
 
@@ -2191,7 +2188,6 @@ void Matrix4f::transpose3() {
 }
 
 Matrix4f& Matrix4f::Transpose(Matrix4f &m) {
-
 	float tmp = m[0][1]; m[0][1] = m[1][0]; m[1][0] = tmp;
 	tmp = m[0][2]; m[0][2] = m[2][0]; m[2][0] = tmp;
 	tmp = m[0][3]; m[0][3] = m[3][0]; m[3][0] = tmp;
@@ -2216,17 +2212,17 @@ Matrix4f Matrix4f::Transpose(const Matrix4f &m) {
 float Matrix4f::determinant() const {
 
 	return (mtx[0][0] * mtx[1][1] - mtx[1][0] * mtx[0][1])
-		* (mtx[2][2] * mtx[3][3] - mtx[3][2] * mtx[2][3])
-		- (mtx[0][0] * mtx[2][1] - mtx[2][0] * mtx[0][1])
-		* (mtx[1][2] * mtx[3][3] - mtx[3][2] * mtx[1][3])
-		+ (mtx[0][0] * mtx[3][1] - mtx[3][0] * mtx[0][1])
-		* (mtx[1][2] * mtx[2][3] - mtx[2][2] * mtx[1][3])
-		+ (mtx[1][0] * mtx[2][1] - mtx[2][0] * mtx[1][1])
-		* (mtx[0][2] * mtx[3][3] - mtx[3][2] * mtx[0][3])
-		- (mtx[1][0] * mtx[3][1] - mtx[3][0] * mtx[1][1])
-		* (mtx[0][2] * mtx[2][3] - mtx[2][2] * mtx[0][3])
-		+ (mtx[2][0] * mtx[3][1] - mtx[3][0] * mtx[2][1])
-		* (mtx[0][2] * mtx[1][3] - mtx[1][2] * mtx[0][3]);
+		 * (mtx[2][2] * mtx[3][3] - mtx[3][2] * mtx[2][3])
+		 - (mtx[0][0] * mtx[2][1] - mtx[2][0] * mtx[0][1])
+		 * (mtx[1][2] * mtx[3][3] - mtx[3][2] * mtx[1][3])
+		 + (mtx[0][0] * mtx[3][1] - mtx[3][0] * mtx[0][1])
+		 * (mtx[1][2] * mtx[2][3] - mtx[2][2] * mtx[1][3])
+		 + (mtx[1][0] * mtx[2][1] - mtx[2][0] * mtx[1][1])
+		 * (mtx[0][2] * mtx[3][3] - mtx[3][2] * mtx[0][3])
+		 - (mtx[1][0] * mtx[3][1] - mtx[3][0] * mtx[1][1])
+		 * (mtx[0][2] * mtx[2][3] - mtx[2][2] * mtx[0][3])
+		 + (mtx[2][0] * mtx[3][1] - mtx[3][0] * mtx[2][1])
+		 * (mtx[0][2] * mtx[1][3] - mtx[1][2] * mtx[0][3]);
 }
 
 Matrix4f Matrix4f::inverse() const {
@@ -2242,7 +2238,6 @@ Matrix4f Matrix4f::inverse() const {
 
 	if (fabsf(d) < 0.0001f) {
 		tmp.identity();
-
 	}else {
 		d = 1.0f / d;
 
@@ -2306,12 +2301,39 @@ Matrix4f Matrix4f::Inverse(const Matrix4f &m) {
 //friend operator
 Matrix4f operator*(float scalar, const Matrix4f &rhs) {
 	Matrix4f tmp(rhs);
-
 	tmp[0][0] *= scalar, tmp[0][1] *= scalar, tmp[0][2] *= scalar, tmp[0][3] *= scalar;
 	tmp[1][0] *= scalar, tmp[1][1] *= scalar, tmp[1][2] *= scalar, tmp[1][3] *= scalar;
 	tmp[2][0] *= scalar, tmp[2][1] *= scalar, tmp[2][2] *= scalar, tmp[2][3] *= scalar;
 	tmp[3][0] *= scalar, tmp[3][1] *= scalar, tmp[3][2] *= scalar, tmp[3][3] *= scalar;
 	return tmp;
+}
+
+//friend operator
+Vector3f operator*(const Matrix4f &rhs, const Vector3f &lhs) {
+	return Vector3f((lhs[0] * rhs.mtx[0][0]) + (lhs[1] * rhs.mtx[0][1]) + (lhs[2] * rhs.mtx[0][2]),
+					(lhs[0] * rhs.mtx[1][0]) + (lhs[1] * rhs.mtx[1][1]) + (lhs[2] * rhs.mtx[1][2]),
+					(lhs[0] * rhs.mtx[2][0]) + (lhs[1] * rhs.mtx[2][1]) + (lhs[2] * rhs.mtx[2][2]));
+}
+
+//friend operator
+Vector3f operator*(const Vector3f &lhs, const Matrix4f &rhs) {
+	return Vector3f((lhs[0] * rhs.mtx[0][0]) + (lhs[1] * rhs.mtx[1][0]) + (lhs[2] * rhs.mtx[2][0]),
+					(lhs[0] * rhs.mtx[0][1]) + (lhs[1] * rhs.mtx[1][1]) + (lhs[2] * rhs.mtx[2][1]),
+					(lhs[0] * rhs.mtx[0][2]) + (lhs[1] * rhs.mtx[1][2]) + (lhs[2] * rhs.mtx[2][2]));
+}
+
+//friend operator
+Vector3f operator^(const Matrix4f &rhs, const Vector3f &lhs) {
+	return Vector3f((lhs[0] * rhs.mtx[0][0]) + (lhs[1] * rhs.mtx[1][0]) + (lhs[2] * rhs.mtx[2][0]),
+					(lhs[0] * rhs.mtx[0][1]) + (lhs[1] * rhs.mtx[1][1]) + (lhs[2] * rhs.mtx[2][1]),
+					(lhs[0] * rhs.mtx[0][2]) + (lhs[1] * rhs.mtx[1][2]) + (lhs[2] * rhs.mtx[2][2]));
+}
+
+//friend operator
+Vector3f operator^(const Vector3f &lhs, const Matrix4f &rhs) {
+	return Vector3f((lhs[0] * rhs.mtx[0][0]) + (lhs[1] * rhs.mtx[0][1]) + (lhs[2] * rhs.mtx[0][2]),
+					(lhs[0] * rhs.mtx[1][0]) + (lhs[1] * rhs.mtx[1][1]) + (lhs[2] * rhs.mtx[1][2]),
+					(lhs[0] * rhs.mtx[2][0]) + (lhs[1] * rhs.mtx[2][1]) + (lhs[2] * rhs.mtx[2][2]));
 }
 
 //friend operator
@@ -2325,37 +2347,23 @@ Vector3f operator*(const Vector4f &lhs, const Matrix4f &rhs) {
 Vector3f operator*(const Matrix4f &rhs, const Vector4f &lhs) {
 	return Vector3f((lhs[0] * rhs.mtx[0][0]) + (lhs[1] * rhs.mtx[0][1]) + (lhs[2] * rhs.mtx[0][2]) + (lhs[3] * rhs.mtx[0][3]),
 					(lhs[0] * rhs.mtx[1][0]) + (lhs[1] * rhs.mtx[1][1]) + (lhs[2] * rhs.mtx[1][2]) + (lhs[3] * rhs.mtx[1][3]),
-					(lhs[0] * rhs.mtx[2][0]) + (lhs[1] * rhs.mtx[2][1]) + (lhs[2] * rhs.mtx[2][2]) + (lhs[3] * rhs.mtx[2][3]));	
-}
-
-//friend operator
-Vector3f operator*(const Matrix4f &rhs, const Vector3f &lhs) {
-	return Vector3f((lhs[0] * rhs.mtx[0][0]) + (lhs[1] * rhs.mtx[0][1]) + (lhs[2] * rhs.mtx[0][2]),
-		(lhs[0] * rhs.mtx[1][0]) + (lhs[1] * rhs.mtx[1][1]) + (lhs[2] * rhs.mtx[1][2]),
-		(lhs[0] * rhs.mtx[2][0]) + (lhs[1] * rhs.mtx[2][1]) + (lhs[2] * rhs.mtx[2][2]));
-}
-
-//friend operator
-Vector3f operator*(const Vector3f &lhs, const Matrix4f &rhs) {
-	return Vector3f((lhs[0] * rhs.mtx[0][0]) + (lhs[1] * rhs.mtx[1][0]) + (lhs[2] * rhs.mtx[2][0]),
-					(lhs[0] * rhs.mtx[0][1]) + (lhs[1] * rhs.mtx[1][1]) + (lhs[2] * rhs.mtx[2][1]),
-					(lhs[0] * rhs.mtx[0][2]) + (lhs[1] * rhs.mtx[1][2]) + (lhs[2] * rhs.mtx[2][2]));
+					(lhs[0] * rhs.mtx[2][0]) + (lhs[1] * rhs.mtx[2][1]) + (lhs[2] * rhs.mtx[2][2]) + (lhs[3] * rhs.mtx[2][3]));
 }
 
 //friend operator
 Vector4f operator^(const Matrix4f &rhs, const Vector4f &lhs) {
+	return Vector4f((lhs[0] * rhs.mtx[0][0]) + (lhs[1] * rhs.mtx[1][0]) + (lhs[2] * rhs.mtx[2][0]) + (lhs[3] * rhs.mtx[3][0]),
+					(lhs[0] * rhs.mtx[0][1]) + (lhs[1] * rhs.mtx[1][1]) + (lhs[2] * rhs.mtx[2][1]) + (lhs[3] * rhs.mtx[3][1]),
+					(lhs[0] * rhs.mtx[0][2]) + (lhs[1] * rhs.mtx[1][2]) + (lhs[2] * rhs.mtx[2][2]) + (lhs[3] * rhs.mtx[3][2]),
+					(lhs[0] * rhs.mtx[0][3]) + (lhs[1] * rhs.mtx[1][3]) + (lhs[2] * rhs.mtx[2][3]) + (lhs[3] * rhs.mtx[3][3])
+	);
+}
+
+Vector4f operator^(const Vector4f &lhs, const Matrix4f &rhs) {	
 	return Vector4f((lhs[0] * rhs.mtx[0][0]) + (lhs[1] * rhs.mtx[0][1]) + (lhs[2] * rhs.mtx[0][2]) + (lhs[3] * rhs.mtx[0][3]),
 		(lhs[0] * rhs.mtx[1][0]) + (lhs[1] * rhs.mtx[1][1]) + (lhs[2] * rhs.mtx[1][2]) + (lhs[3] * rhs.mtx[1][3]),
 		(lhs[0] * rhs.mtx[2][0]) + (lhs[1] * rhs.mtx[2][1]) + (lhs[2] * rhs.mtx[2][2]) + (lhs[3] * rhs.mtx[2][3]),
 		(lhs[0] * rhs.mtx[3][0]) + (lhs[1] * rhs.mtx[3][1]) + (lhs[2] * rhs.mtx[3][2]) + (lhs[3] * rhs.mtx[3][3]));
-}
-
-Vector4f operator^(const Vector4f &lhs, const Matrix4f &rhs) {
-	return Vector4f((lhs[0] * rhs.mtx[0][0]) + (lhs[1] * rhs.mtx[1][0]) + (lhs[2] * rhs.mtx[2][0]) + (lhs[3] * rhs.mtx[3][0]),
-		(lhs[0] * rhs.mtx[0][1]) + (lhs[1] * rhs.mtx[1][1]) + (lhs[2] * rhs.mtx[2][1]) + (lhs[3] * rhs.mtx[3][1]),
-		(lhs[0] * rhs.mtx[0][2]) + (lhs[1] * rhs.mtx[1][2]) + (lhs[2] * rhs.mtx[2][2]) + (lhs[3] * rhs.mtx[3][2]),
-		(lhs[0] * rhs.mtx[0][3]) + (lhs[1] * rhs.mtx[1][3]) + (lhs[2] * rhs.mtx[2][3]) + (lhs[3] * rhs.mtx[3][3])
-	);
 }
 
 void Matrix4f::print() const {
@@ -2535,6 +2543,12 @@ Vector3f::Vector3f(float x_, float y_, float z_) {
 	vec[0] = x_;
 	vec[1] = y_;
 	vec[2] = z_;
+}
+
+Vector3f::Vector3f(const Vector4f& _vec) {
+	vec[0] = _vec[0];
+	vec[1] = _vec[1];
+	vec[2] = _vec[2];
 }
 
 float &Vector3f::operator[](int index) {

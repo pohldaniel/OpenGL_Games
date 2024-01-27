@@ -112,6 +112,7 @@ private:
 
 };
 
+class Vector4f;
 class Vector3f {
 
 	friend Vector3f operator-(const Vector3f &v);
@@ -124,6 +125,7 @@ public:
 	Vector3f();
 	Vector3f(float x_);
 	Vector3f(float x_, float y_, float z_);
+	Vector3f(const Vector4f& vec);
 	~Vector3f();
 
 	Vector3f& normalize();
@@ -217,12 +219,18 @@ private:
 class Quaternion;
 class Matrix4f {
 
-	friend Vector3f operator*(const Vector4f& lhs, const Matrix4f& rhs);
-	friend Vector3f operator*(const Matrix4f& rhs, const Vector4f& lhs);
-	friend Vector3f operator*(const Vector3f& lhs, const Matrix4f& rhs);
 	friend Vector3f operator*(const Matrix4f& lhs, const Vector3f& rhs);
+	friend Vector3f operator*(const Vector3f& lhs, const Matrix4f& rhs);
+	
+	friend Vector3f operator^(const Matrix4f& lhs, const Vector3f& rhs);
+	friend Vector3f operator^(const Vector3f& lhs, const Matrix4f& rhs);
+	
+	friend Vector3f operator*(const Matrix4f& rhs, const Vector4f& lhs);
+	friend Vector3f operator*(const Vector4f& lhs, const Matrix4f& rhs);
+
 	friend Vector4f operator^(const Vector4f& rhs, const Matrix4f& lhs);
 	friend Vector4f operator^(const Matrix4f& lhs, const Vector4f& rhs);
+
 	friend Matrix4f operator*(float scalar, const Matrix4f& rhs);
 	
 public:
