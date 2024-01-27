@@ -2851,6 +2851,14 @@ void Vector4f::normalize3() {
 	vec[3] = vec[3] * invDistance;
 }
 
+unsigned int Vector4f::toUInt() const{
+	unsigned int r = Math::Clamp(((unsigned int)(vec[0] * 255.0f)), 0u, 255u);
+	unsigned int g = Math::Clamp(((unsigned int)(vec[1] * 255.0f)), 0u, 255u);
+	unsigned int b = Math::Clamp(((unsigned int)(vec[2] * 255.0f)), 0u, 255u);
+	unsigned int a = Math::Clamp(((unsigned int)(vec[3] * 255.0f)), 0u, 255u);
+	return (a << 24) | (b << 16) | (g << 8) | r;
+}
+
 float Vector4f::Dot(const Vector4f &p, const Vector4f &q) {
 
 	return (p[0] * q[0]) + (p[1] * q[1]) + (p[2] * q[2]) + (p[3] * q[3]);
