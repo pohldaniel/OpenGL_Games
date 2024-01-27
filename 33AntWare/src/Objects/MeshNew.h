@@ -1,8 +1,6 @@
 #pragma once
 #include <engine/Vector.h>
-#include <Objects/SceneNode.h>
-
-#include "BoundingBoxNew.h"
+#include <Scene/MeshNode.h>
 
 class MeshNew {
 
@@ -11,13 +9,16 @@ public:
 	void setOwner(SceneNode* owner);
 	SceneNode* getOwner() const;
 
-	//Vector3f getPosition() const { return WorldTransform().Translation(); }
-	//Quaternion getdRotation() const { return WorldTransform().Rotation(); }
-	//Vector3f getScale() const { return WorldTransform().Scale(); }
+	const Vector3f& getPosition() const;
+	const Quaternion& getdOrientation() const;
+	const Vector3f& getScale() const;
+
+	const BoundingBoxNew& getLocalBoundingBox() const;
+	void setLocalBoundingBox(const BoundingBox& box);
 
 private:
 
-	Matrix4f* worldTransform;
 	SceneNode* owner;
-	BoundingBoxNew boundingBox;
+	Matrix4f* worldTransform;	
+	BoundingBoxNew localBoundingBox;
 };

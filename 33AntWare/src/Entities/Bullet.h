@@ -1,7 +1,7 @@
 #pragma once
 #include <engine/Camera.h>
 #include <engine/Clock.h>
-#include <Objects/Object.h>
+#include <Scene/Object.h>
 
 #include "MaterialAW.h"
 #include "Mesh.h"

@@ -43,13 +43,13 @@ public:
 	const Quaternion& getOrientation() const;
 	//const Vector3f& getRotation() const;
 
-	const Matrix4f& getTransformationSOP();
-	const Matrix4f& getTransformationSO();
-	const Matrix4f& getTransformationSP();
-	const Matrix4f& getTransformationOP();
-	const Matrix4f& getTransformationO();
-	const Matrix4f& getTransformationP();
-	const Matrix4f& getTransformationS();
+	const Matrix4f& getTransformationSOP() const;
+	const Matrix4f& getTransformationSO() const;
+	const Matrix4f& getTransformationSP() const;
+	const Matrix4f& getTransformationOP() const;
+	const Matrix4f& getTransformationO() const;
+	const Matrix4f& getTransformationP() const;
+	const Matrix4f& getTransformationS() const;
 	
 
 	static const Matrix4f &GetTransformation();

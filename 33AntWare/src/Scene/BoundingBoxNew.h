@@ -28,6 +28,9 @@ public:
 
 	}
 
+	BoundingBoxNew transformed(const Matrix4f& transform) const;
+	void define(const Vector3f& point);
+
 private:
 
 	void merge(const Vector3f& point);
@@ -35,4 +38,7 @@ private:
 	void undefine();
 	void minmize(float factor);
 	void maximize(float factor);
+	Vector3f center() const;
+
+	
 };

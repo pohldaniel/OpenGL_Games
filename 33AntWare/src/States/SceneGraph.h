@@ -6,7 +6,7 @@
 #include <engine/ObjModel.h>
 
 #include <States/StateMachine.h>
-#include <Objects/SceneNode.h>
+#include <Scene/SceneNode.h>
 
 #include "Background.h"
 

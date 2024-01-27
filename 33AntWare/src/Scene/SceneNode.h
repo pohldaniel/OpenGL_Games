@@ -14,7 +14,7 @@ public:
 	//SceneNode(SceneNode const& rhs);
 	//SceneNode& operator=(const SceneNode& rhs);
 
-	const Matrix4f& getTransformation();
+	const Matrix4f& getTransformation() const;
 	void OnTransformChanged();
 
 	void setScale(const float sx, const float sy, const float sz) override;
@@ -51,9 +51,9 @@ public:
 	const std::list<std::unique_ptr<SceneNode>>& getChildren() const;
 	void markForRemove();
 
-	Matrix4f m_modelMatrix;
+	mutable Matrix4f m_modelMatrix;
 	std::list<std::unique_ptr<SceneNode>> m_children;
 
 private:
 
-	SceneNode* m_parent;	bool m_markForRemove;	bool m_isDirty;};
+	SceneNode* m_parent;	bool m_markForRemove;	mutable bool m_isDirty;};

@@ -38,7 +38,7 @@ void SceneNode::addChild() {
 	m_children.back()->m_parent = this;
 }
 
-const Matrix4f& SceneNode::getTransformation() {
+const Matrix4f& SceneNode::getTransformation() const {
 
 	if (m_isDirty) {
 		if (m_parent) {

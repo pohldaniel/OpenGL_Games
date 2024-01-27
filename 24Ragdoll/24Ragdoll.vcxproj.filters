@@ -1133,9 +1133,6 @@
     <ClInclude Include="turso3d\Renderer\MaterialTu.h">
       <Filter>turso3d\Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="turso3d\Renderer\Model.h">
-      <Filter>turso3d\Renderer</Filter>
-    </ClInclude>
     <ClInclude Include="turso3d\Renderer\Octree.h">
       <Filter>turso3d\Renderer</Filter>
     </ClInclude>
@@ -1237,6 +1234,9 @@
     </ClInclude>
     <ClInclude Include="CheckBox.h">
       <Filter>Source Files\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="turso3d\Renderer\Model.h">
+      <Filter>turso3d\Renderer</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

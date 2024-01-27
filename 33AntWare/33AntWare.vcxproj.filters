@@ -64,6 +64,9 @@
     <Filter Include="Source Files\Entities">
       <UniqueIdentifier>{76e1eccc-1e53-4b77-a0a7-958fcf929a13}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Scene">
+      <UniqueIdentifier>{a9be687f-884a-4bac-9f18-88bc73f75c28}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\input\ApplicationEventListener.cpp">
@@ -231,9 +234,6 @@
     <ClCompile Include="src\Application.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Objects\Object.cpp">
-      <Filter>Source Files\Objects</Filter>
-    </ClCompile>
     <ClCompile Include="src\Objects\RenderableObject.cpp">
       <Filter>Source Files\Objects</Filter>
     </ClCompile>
@@ -357,9 +357,6 @@
     <ClCompile Include="HUD.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Objects\SceneNode.cpp">
-      <Filter>Source Files\Objects</Filter>
-    </ClCompile>
     <ClCompile Include="src\States\SceneGraph.cpp">
       <Filter>Source Files\States</Filter>
     </ClCompile>
@@ -390,8 +387,17 @@
     <ClCompile Include="src\Objects\MeshNew.cpp">
       <Filter>Source Files\Objects</Filter>
     </ClCompile>
-    <ClCompile Include="src\Objects\BoundingBoxNew.cpp">
-      <Filter>Source Files\Objects</Filter>
+    <ClCompile Include="src\Scene\BoundingBoxNew.cpp">
+      <Filter>Source Files\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Scene\MeshNode.cpp">
+      <Filter>Source Files\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Scene\Object.cpp">
+      <Filter>Source Files\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Scene\SceneNode.cpp">
+      <Filter>Source Files\Scene</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -572,9 +578,6 @@
     <ClInclude Include="Physics\StaticTrigger.h">
       <Filter>Physics</Filter>
     </ClInclude>
-    <ClInclude Include="src\Objects\Object.h">
-      <Filter>Source Files\Objects</Filter>
-    </ClInclude>
     <ClInclude Include="src\Objects\RenderableObject.h">
       <Filter>Source Files\Objects</Filter>
     </ClInclude>
@@ -713,9 +716,6 @@
     <ClInclude Include="HUD.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Objects\SceneNode.h">
-      <Filter>Source Files\Objects</Filter>
-    </ClInclude>
     <ClInclude Include="src\States\SceneGraph.h">
       <Filter>Source Files\States</Filter>
     </ClInclude>
@@ -746,8 +746,17 @@
     <ClInclude Include="src\Objects\MeshNew.h">
       <Filter>Source Files\Objects</Filter>
     </ClInclude>
-    <ClInclude Include="src\Objects\BoundingBoxNew.h">
-      <Filter>Source Files\Objects</Filter>
+    <ClInclude Include="src\Scene\BoundingBoxNew.h">
+      <Filter>Source Files\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Scene\MeshNode.h">
+      <Filter>Source Files\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Scene\Object.h">
+      <Filter>Source Files\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Scene\SceneNode.h">
+      <Filter>Source Files\Scene</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

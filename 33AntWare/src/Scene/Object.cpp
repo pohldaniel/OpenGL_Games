@@ -126,7 +126,7 @@ const Quaternion &Object::getOrientation() const {
 	return m_rotation;
 }*/
 
-const Matrix4f &Object::getTransformationSOP() {
+const Matrix4f &Object::getTransformationSOP() const{
 	Transformation.translate(m_position);
 	Transformation *= Matrix4f::Rotate(m_orientation);
 	//Transformation *= Matrix4f::Rotate(m_rotation);
@@ -134,38 +134,38 @@ const Matrix4f &Object::getTransformationSOP() {
 	return Transformation;
 }
 
-const Matrix4f &Object::getTransformationSO() {
+const Matrix4f &Object::getTransformationSO() const{
 	Transformation.rotate(m_orientation);
 	//Transformation *= Matrix4f::Rotate(m_rotation);
 	Transformation *= Matrix4f::Scale(m_scale);
 	return Transformation;
 }
 
-const Matrix4f &Object::getTransformationSP() {
+const Matrix4f &Object::getTransformationSP() const{
 	Transformation.translate(m_position);
 	Transformation *= Matrix4f::Scale(m_scale);
 	return Transformation;
 }
 
-const Matrix4f &Object::getTransformationP() {
+const Matrix4f &Object::getTransformationP() const{
 	Transformation.translate(m_position);
 	return Transformation;
 }
 
-const Matrix4f &Object::getTransformationOP() {
+const Matrix4f &Object::getTransformationOP()  const{
 	Transformation.translate(m_position);
 	Transformation *= Matrix4f::Rotate(m_orientation);
 	//Transformation *= Matrix4f::Rotate(m_rotation);
 	return Transformation;
 }
 
-const Matrix4f &Object::getTransformationO() {
+const Matrix4f &Object::getTransformationO()  const{
 	Transformation.rotate(m_orientation);
 	//Transformation *= Matrix4f::Rotate(m_rotation);
 	return Transformation;
 }
 
-const Matrix4f &Object::getTransformationS() {
+const Matrix4f &Object::getTransformationS()  const{
 	Transformation = Matrix4f::Scale(m_scale);
 	return Transformation;
 }

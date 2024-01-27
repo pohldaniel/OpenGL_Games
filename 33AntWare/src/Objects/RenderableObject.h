@@ -1,8 +1,8 @@
 #pragma once
+
 #include <functional>
-#include "engine/MeshObject/Shape.h"
-#include "engine/Camera.h"
-#include "Object.h"
+#include <engine/Camera.h>
+#include <Scene/Object.h>
 
 class RenderableObject : public Object {
 

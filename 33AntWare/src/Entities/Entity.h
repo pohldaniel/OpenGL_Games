@@ -6,7 +6,7 @@
 #include <engine/ObjModel.h>
 #include <engine/AssimpModel.h>
 
-#include <Objects/SceneNode.h>
+#include <Scene/SceneNode.h>
 
 #include "Rigidbody.h"
 #include "MaterialAW.h"
