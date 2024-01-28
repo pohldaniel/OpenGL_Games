@@ -4,7 +4,7 @@
 DebugRenderer DebugRenderer::s_instance;
 
 DebugRenderer::~DebugRenderer() {
-	//shutdown();
+	shutdown();
 }
 
 void DebugRenderer::init(size_t size) {
