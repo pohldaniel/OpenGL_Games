@@ -8,6 +8,7 @@
 #include "Game.h"
 #include "Application.h"
 #include "Globals.h"
+#include "DebugRenderer.h"
 
 Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 
@@ -36,15 +37,19 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 	auto shader = Globals::shaderManager.getAssetPointer("antware");
 	aw::Material::setUniformsLocation(shader->m_program);
 
-	m_model.loadModel("res/models/Ant.glb", false, false, false);
-	Material& material = Material::GetMaterials()[m_model.getMeshes()[0]->getMaterialIndex()];
+	m_model = new AssimpModel();
+	m_model->loadModel("res/models/Ant.glb", false, false, false);
+	Material& material = Material::GetMaterials()[m_model->getMeshes()[0]->getMaterialIndex()];
+
+	const BoundingBox& box = m_model->getAABB();
+	box.inset(Vector3f(-(2.0f * box.min[0] + 2.5f), 0.6f, 1.3f), Vector3f(2.0f * box.max[0] - 2.5f, 0.1f, 0.5f));
 
 	m_gun.loadModel("res/models/Gun.glb", false, false, false);
 	Material::GetMaterials()[m_gun.getMeshes()[0]->getMaterialIndex()].textures[0].loadFromFile("res/textures/Gun.png", true);
 	m_gun.initShader();
 
 	m_objSequence.loadSequence("res/animations/ant_walkcycle");
-	m_objSequence.addMesh(m_model.getMeshes()[0]->getVertexBuffer(), m_model.getMeshes()[0]->getIndexBuffer());
+	m_objSequence.addMesh(m_model->getMeshes()[0]->getVertexBuffer(), m_model->getMeshes()[0]->getIndexBuffer());
 	m_objSequence.loadSequenceGpu();
 
 	m_muzzleMesh = std::make_shared<aw::Mesh>("res/models/MuzzleQuad.glb", nullptr, false);
@@ -112,63 +117,64 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 
 	Bullet::Init(m_bulletMesh, aw::Material());
 
-	m_ant1 = new Ant(m_objSequence, m_antMesh, aw::Material(), m_player);
+	m_ant1 = new Ant(m_objSequence, m_antMesh, m_model, aw::Material(), m_player);
 	m_ant1->setPosition(-21.3863f, -0.978558f, -1.92476f);
 	m_ant1->setOrientation(0.0f, 262.062f, 0.0f);
 	m_ant1->m_isStatic = false;
 	m_ant1->rigidbody = aw::Rigidbody();
 	m_ant1->start();
 
-	m_ant2 = new Ant(m_objSequence, m_antMesh, aw::Material(), m_player);
+	m_ant2 = new Ant(m_objSequence, m_antMesh, m_model, aw::Material(), m_player);
 	m_ant2->setPosition(-23.6894f, -0.978558f, 34.7609f);
 	m_ant2->setOrientation(0.0f, -11.0968f, 0.0f);
+	//m_ant2->setOrientation(30.0f, 0.0f, 0.0f);
 	m_ant2->m_isStatic = false;
 	m_ant2->rigidbody = aw::Rigidbody();
 	m_ant2->start();
 
-	m_ant3 = new Ant(m_objSequence, m_antMesh, aw::Material(), m_player);
+	m_ant3 = new Ant(m_objSequence, m_antMesh, m_model, aw::Material(), m_player);
 	m_ant3->setPosition(23.6894f, -0.978558f, 34.1029f);
 	m_ant3->setOrientation(0.0f, 18.5357f, 0.0f);
 	m_ant3->m_isStatic = false;
 	m_ant3->rigidbody = aw::Rigidbody();
 	m_ant3->start();
 
-	m_ant4 = new Ant(m_objSequence, m_antMesh, aw::Material(), m_player);
+	m_ant4 = new Ant(m_objSequence, m_antMesh, m_model, aw::Material(), m_player);
 	m_ant4->setPosition(33.3955f, -0.978558f, 16.0068f);
 	m_ant4->setOrientation(0.0f, 86.8875f, 0.0f);
 	m_ant4->m_isStatic = false;
 	m_ant4->rigidbody = aw::Rigidbody();
 	m_ant4->start();
 
-	m_ant5 = new Ant(m_objSequence, m_antMesh, aw::Material(), m_player);
+	m_ant5 = new Ant(m_objSequence, m_antMesh, m_model, aw::Material(), m_player);
 	m_ant5->setPosition(33.0665f, -0.978558f, -18.3758f);
 	m_ant5->setOrientation(0.0f, 110.727f, 0.0f);
 	m_ant5->m_isStatic = false;
 	m_ant5->rigidbody = aw::Rigidbody();
 	m_ant5->start();
 
-	m_ant6 = new Ant(m_objSequence, m_antMesh, aw::Material(), m_player);
+	m_ant6 = new Ant(m_objSequence, m_antMesh, m_model, aw::Material(), m_player);
 	m_ant6->setPosition(16.78f, -0.978558f, -35.4848f);
 	m_ant6->setOrientation(0.0f, 169.316f, 0.0f);
 	m_ant6->m_isStatic = false;
 	m_ant6->rigidbody = aw::Rigidbody();
 	m_ant6->start();
 
-	m_ant7 = new Ant(m_objSequence, m_antMesh, aw::Material(), m_player);
+	m_ant7 = new Ant(m_objSequence, m_antMesh, m_model, aw::Material(), m_player);
 	m_ant7->setPosition(-17.9316f, -0.978558f, -35.1558f);
 	m_ant7->setOrientation(0.0f, 193.526f, 0.0f);
 	m_ant7->m_isStatic = false;
 	m_ant7->rigidbody = aw::Rigidbody();
 	m_ant7->start();
 
-	m_ant8 = new Ant(m_objSequence, m_antMesh, aw::Material(), m_player);
+	m_ant8 = new Ant(m_objSequence, m_antMesh, m_model, aw::Material(), m_player);
 	m_ant8->setPosition(-33.889f, -0.978558f, -20.1854f);
 	m_ant8->setOrientation(0.0f, 238.843f, 0.0f);
 	m_ant8->m_isStatic = false;
 	m_ant8->rigidbody = aw::Rigidbody();
 	m_ant8->start();
 
-	m_ant9 = new Ant(m_objSequence, m_antMesh, aw::Material(), m_player);
+	m_ant9 = new Ant(m_objSequence, m_antMesh, m_model, aw::Material(), m_player);
 	m_ant9->setPosition(-35.6987f, -0.978558f, 14.5262f);
 	m_ant9->setOrientation(0.0f, 272.3f, 0.0f);
 	m_ant9->m_isStatic = false;
@@ -266,6 +272,8 @@ void Game::update() {
 
 void Game::render() {
 
+	DebugRenderer::Get().SetView(&m_camera);
+
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	auto shader = Globals::shaderManager.getAssetPointer("antware");
@@ -276,6 +284,7 @@ void Game::render() {
 	
 	shader->loadMatrix("u_model", m_cpuE->getTransformation());
 	m_cpuE->draw(m_camera);
+
 	shader->loadMatrix("u_model", m_platformE->getTransformation());
 	m_platformE->draw(m_camera);
 
@@ -283,6 +292,7 @@ void Game::render() {
 	for (auto ant : m_ants) {
 		shader->loadMatrix("u_model", ant->getTransformation());
 		ant->draw(m_camera);
+		ant->OnRenderDebug();
 	}
 
 	Globals::textureManager.get("ant").unbind();
@@ -299,7 +309,10 @@ void Game::render() {
 		entity->draw(m_camera);
 	}
 
+	glBindVertexArray(0);
 	shader->unuse();
+
+	DebugRenderer::Get().drawBuffer();
 
 	HUD.draw();
 

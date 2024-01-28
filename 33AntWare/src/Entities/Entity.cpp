@@ -1,13 +1,27 @@
 #include "Entity.h"
 #include "Globals.h"
 
-Entity::Entity(std::shared_ptr<aw::Mesh> mesh, aw::Material material) : SceneNode(), m_isStatic(false), meshPtr(mesh), material(material){
+Entity::Entity(std::shared_ptr<aw::Mesh> mesh, aw::Material material) : MeshNode(mesh), m_isStatic(false), material(material){
+
+}
+
+Entity::Entity(AssimpModel* model, aw::Material material) : MeshNode(model), m_isStatic(false), material(material) {
+
+}
+
+Entity::Entity(std::shared_ptr<aw::Mesh> mesh, AssimpModel* model, aw::Material material) : MeshNode(mesh, model), m_isStatic(false), material(material) {
 
 }
 
 void Entity::draw(const Camera& camera) {
-	material.apply();
-	meshPtr->draw();
+	
+
+	if (m_model) {
+		m_model->drawRaw();
+	}else {
+		material.apply();
+		meshPtr->draw();
+	}
 }
 
 void Entity::update(const float dt) {

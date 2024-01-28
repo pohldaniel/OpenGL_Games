@@ -21,7 +21,7 @@ const Vector3f& MeshNew::getScale() const {
 	return owner->getScale(); 
 }
 
-const BoundingBoxNew& MeshNew::getLocalBoundingBox() const {
+const BoundingBox& MeshNew::getLocalBoundingBox() const {
 	return localBoundingBox;
 }
 

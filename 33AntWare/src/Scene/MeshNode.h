@@ -1,22 +1,39 @@
 #pragma once
+#include <memory>
+#include <engine/BoundingBox.h>
+#include <engine/AssimpModel.h>
+#include <Scene/SceneNode.h>
 
-#include "SceneNode.h"
-#include "BoundingBoxNew.h"
+#include "Mesh.h"
 
 class MeshNew;
 class MeshNode : public SceneNode {
 
+public:
+
 	MeshNode();
+	MeshNode(std::shared_ptr<aw::Mesh> mesh);
+	MeshNode(AssimpModel* model);
+	MeshNode(std::shared_ptr<aw::Mesh> mesh, AssimpModel* model);
+
+	void OnTransformChanged() override;
 
 	void OnWorldBoundingBoxUpdate() const;
-	void MeshNode::OnRenderDebug();
+	void OnBoundingBoxChanged() const;
+	void OnRenderDebug();
 
-	const BoundingBoxNew& getWorldBoundingBox() const;
+	const BoundingBox& getWorldBoundingBox() const;
+	const BoundingBox& getLocalBoundingBox() const;
 
 	void setMesh(MeshNew* mesh);
+	void setModel(AssimpModel* model);
 
 	MeshNew* m_mesh;
-	mutable BoundingBoxNew worldBoundingBox;
+	AssimpModel* m_model;
+
+	std::shared_ptr<aw::Mesh> meshPtr;
+
+	mutable BoundingBox worldBoundingBox;
 
 	mutable bool m_worldBoundingBoxDirty;
 };

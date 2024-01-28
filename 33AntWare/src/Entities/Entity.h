@@ -3,21 +3,22 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <engine/Camera.h>
-#include <engine/ObjModel.h>
 #include <engine/AssimpModel.h>
 
-#include <Scene/SceneNode.h>
+#include <Scene/MeshNode.h>
 
 #include "Rigidbody.h"
 #include "MaterialAW.h"
-#include "Mesh.h"
+
 #include "AABB.h"
 
-class Entity : public SceneNode {
+class Entity : public MeshNode {
 
 public:
 
 	Entity(std::shared_ptr<aw::Mesh> mesh, aw::Material material);
+	Entity(AssimpModel* model, aw::Material material);
+	Entity(std::shared_ptr<aw::Mesh> mesh, AssimpModel* model, aw::Material material);
 
 	virtual void draw(const Camera& camera);
 	virtual void update(const float dt);
@@ -30,7 +31,9 @@ public:
 	bool m_isStatic;
 
 	aw::Rigidbody rigidbody;
-	std::shared_ptr<aw::Mesh> meshPtr;
+	
 	aw::Material material;
 	aw::AABB aabb;
+
+
 };

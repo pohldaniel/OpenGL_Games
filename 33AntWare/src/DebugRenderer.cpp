@@ -4,7 +4,7 @@
 DebugRenderer DebugRenderer::s_instance;
 
 DebugRenderer::~DebugRenderer() {
-	shutdown();
+	//shutdown();
 }
 
 void DebugRenderer::init(size_t size) {
@@ -38,6 +38,9 @@ void DebugRenderer::init(size_t size) {
 	//glBindBuffer(GL_ARRAY_BUFFER, 0);
 	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
+
+	verticesPtr = vertices;
+	indicesPtr = indices;
 }
 
 void DebugRenderer::shutdown() {
@@ -106,12 +109,12 @@ void DebugRenderer::AddLine(const Vector3f& start, const Vector3f& end, const Ve
 	AddLine(start, end, color.toUInt());
 }
 
-void DebugRenderer::AddBoundingBox(const BoundingBoxNew& box, const Vector4f& color){
+void DebugRenderer::AddBoundingBox(const BoundingBox& box, const Vector4f& color){
 
 	if (m_maxIndex - indexCount < 24) {
 		drawBuffer();
 	}
-
+	
 	unsigned int uintColor = color.toUInt();
 	const Vector3f& min = box.min;
 	const Vector3f& max = box.max;
@@ -188,10 +191,10 @@ void DebugRenderer::AddBoundingBox(const BoundingBoxNew& box, const Vector4f& co
 	indicesPtr += 24;
 
 	vertexCount += 8;
-	indexCount += 22;
+	indexCount += 24;
 }
 
-void DebugRenderer::AddBoundingBox(const BoundingBoxNew& box, const Matrix4f& transform, const Vector4f& color){
+void DebugRenderer::AddBoundingBox(const BoundingBox& box, const Matrix4f& transform, const Vector4f& color){
 
 	if (m_maxIndex - indexCount < 24) {
 		drawBuffer();
@@ -201,35 +204,35 @@ void DebugRenderer::AddBoundingBox(const BoundingBoxNew& box, const Matrix4f& tr
 	const Vector3f& min = box.min;
 	const Vector3f& max = box.max;
 
-	verticesPtr->position = transform * min;
+	verticesPtr->position = transform ^ min;
 	verticesPtr->color = uintColor;
 	verticesPtr++;
 
-	verticesPtr->position = transform * Vector3f(max[0], min[1], min[2]);
+	verticesPtr->position = transform ^ Vector3f(max[0], min[1], min[2]);
 	verticesPtr->color = uintColor;
 	verticesPtr++;
 
-	verticesPtr->position = transform * Vector3f(max[0], max[1], min[2]);
+	verticesPtr->position = transform ^ Vector3f(max[0], max[1], min[2]);
 	verticesPtr->color = uintColor;
 	verticesPtr++;
 
-	verticesPtr->position = transform * Vector3f(min[0], max[1], min[2]);
+	verticesPtr->position = transform ^ Vector3f(min[0], max[1], min[2]);
 	verticesPtr->color = uintColor;
 	verticesPtr++;
 
-	verticesPtr->position = transform * Vector3f(min[0], min[1], max[2]);
+	verticesPtr->position = transform ^ Vector3f(min[0], min[1], max[2]);
 	verticesPtr->color = uintColor;
 	verticesPtr++;
 
-	verticesPtr->position = transform * Vector3f(max[0], min[1], max[2]);
+	verticesPtr->position = transform ^ Vector3f(max[0], min[1], max[2]);
 	verticesPtr->color = uintColor;
 	verticesPtr++;
 
-	verticesPtr->position = transform * Vector3f(min[0], max[1], max[2]);
+	verticesPtr->position = transform ^ Vector3f(min[0], max[1], max[2]);
 	verticesPtr->color = uintColor;
 	verticesPtr++;
 
-	verticesPtr->position = transform * max;
+	verticesPtr->position = transform ^ max;
 	verticesPtr->color = uintColor;
 	verticesPtr++;
 
@@ -273,7 +276,7 @@ void DebugRenderer::AddBoundingBox(const BoundingBoxNew& box, const Matrix4f& tr
 	indicesPtr += 24;
 
 	vertexCount += 8;
-	indexCount += 22;
+	indexCount += 24;
 }
 
 void DebugRenderer::AddCylinder(const Vector3f& position, float radius, float height, const Vector4f& color){
@@ -296,56 +299,31 @@ void DebugRenderer::AddCylinder(const Vector3f& position, float radius, float he
 }
 
 void DebugRenderer::drawBuffer() {
+
+	glBindVertexArray(m_vao);
 	GLsizeiptr size = (uint8_t*)verticesPtr - (uint8_t*)vertices;
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
 	glBufferSubData(GL_ARRAY_BUFFER, 0, size, vertices);
 	//glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-	size = (uint8_t*)indices - (uint8_t*)indicesPtr;
+	size = (uint8_t*)indicesPtr - (uint8_t*)indices;
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
 	glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, size, indices);
 	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
+	
 	glUseProgram(shader->m_program);
 
-	shader->loadMatrix("u_projection", view);
-	shader->loadMatrix("u_view", projection);
-	glBindVertexArray(m_vao);
+	shader->loadMatrix("u_vp", projection * view);
 	glDrawElements(GL_LINES, indexCount, GL_UNSIGNED_INT, nullptr);
 
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
 	glUseProgram(0);
+	glBindVertexArray(0);
 
 	vertexCount = 0;
 	indexCount = 0;
 	verticesPtr = vertices;
 	indicesPtr = indices;
-
-	/*glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-	glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(btVector3), buffer);
-
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(btVector3), 0);
-
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
-	glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, indices.size() * sizeof(unsigned int), _indices);
-
-	glUseProgram(shader->m_program);
-
-	shader->loadMatrix("u_projection", view);
-	shader->loadMatrix("u_view", projection);
-
-
-	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
-
-	glUseProgram(0);
-
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-	bufferPtr = buffer;
-	_indicesPtr = _indices;*/
 }
 
 DebugRenderer& DebugRenderer::Get() {

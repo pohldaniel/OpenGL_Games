@@ -5,18 +5,41 @@
 
 struct BoundingBox {
 
+	BoundingBox();
+	BoundingBox(BoundingBox const& rhs);
+	BoundingBox(BoundingBox&& source);
+	BoundingBox &operator=(const BoundingBox& rhs);
+
+
+	BoundingBox(const Vector3f& min, const Vector3f& max);
+	BoundingBox(float min, float max);
+
 	~BoundingBox();
+
+	BoundingBox transformed(const Matrix4f& transform) const;
+	Vector3f getSize() const;
+
+	void define(const Vector3f& point);	
+	void inset(const Vector3f& min, const Vector3f& max) const;
+	void setMin(const Vector3f& min) const;
+	void setMax(const Vector3f& max) const;
+
 	void createBuffer();
 	void drawRaw() const;
 	void cleanup();
 
-	//std::vector<float> m_vertexBuffer;
-	//std::vector<unsigned int> m_indexBuffer;
+	Vector3f min;
+	Vector3f max;
 
-	unsigned int m_vao = 0;
-	unsigned int m_vbo = 0;
-	unsigned int m_ibo = 0;
+private:
 
-	Vector3f position;
-	Vector3f size;
+	void merge(const Vector3f& point);
+	void merge(const Vector3f* vertices, size_t count);
+	void undefine();
+
+	Vector3f center() const;
+	
+	unsigned int m_vao = 0u;
+	unsigned int m_vbo = 0u;
+	unsigned int m_ibo = 0u;
 };

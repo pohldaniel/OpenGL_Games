@@ -13,12 +13,12 @@ public:
 	const Quaternion& getdOrientation() const;
 	const Vector3f& getScale() const;
 
-	const BoundingBoxNew& getLocalBoundingBox() const;
+	const BoundingBox& getLocalBoundingBox() const;
 	void setLocalBoundingBox(const BoundingBox& box);
 
 private:
 
 	SceneNode* owner;
 	Matrix4f* worldTransform;	
-	BoundingBoxNew localBoundingBox;
+	BoundingBox localBoundingBox;
 };

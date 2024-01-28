@@ -1,6 +1,97 @@
 #include <GL/glew.h>
 #include "BoundingBox.h"
 
+BoundingBox::BoundingBox() : min(Vector3f(FLT_MAX, FLT_MAX, FLT_MAX)), max(Vector3f(-FLT_MAX, -FLT_MAX, -FLT_MAX)) {
+
+}
+
+BoundingBox::BoundingBox(BoundingBox const& rhs) : min(rhs.min), max(rhs.max){
+}
+
+BoundingBox::BoundingBox(BoundingBox&& rhs) : min(rhs.min), max(rhs.max){
+
+}
+
+BoundingBox& BoundingBox::operator=(const BoundingBox& rhs) {
+	min = rhs.min;
+	max = rhs.max;
+	return *this;
+}
+
+BoundingBox::BoundingBox(const Vector3f& min, const Vector3f& max) : min(min), max(max){
+
+}
+
+BoundingBox::BoundingBox(float min, float max) : min(Vector3f(min)), max(Vector3f(max)){
+
+}
+
+Vector3f BoundingBox::getSize() const {
+	return max - min;
+}
+
+Vector3f BoundingBox::center() const {
+	return (max + min) * 0.5f;
+}
+
+void BoundingBox::merge(const Vector3f* vertices, size_t count) {
+	while (count--)
+		merge(*vertices++);
+}
+
+void BoundingBox::merge(const Vector3f& point) {
+
+	if (point[0] < min[0])
+		min[0] = point[0];
+	if (point[1] < min[1])
+		min[1] = point[1];
+	if (point[2] < min[2])
+		min[2] = point[2];
+	if (point[0] > max[0])
+		max[0] = point[0];
+	if (point[1] > max[1])
+		max[1] = point[1];
+	if (point[2] > max[2])
+		max[2] = point[2];
+}
+
+void BoundingBox::define(const Vector3f& point) {
+	min = max = point;
+}
+
+void BoundingBox::undefine() {
+	min = Vector3f(FLT_MAX, FLT_MAX, FLT_MAX);
+	max = -min;
+}
+
+void BoundingBox::setMin(const Vector3f& _min) const {
+	BoundingBox* ptr = const_cast<BoundingBox*>(this);
+	ptr->min = _min;
+}
+
+void BoundingBox::setMax(const Vector3f& _max) const {
+	BoundingBox* ptr = const_cast<BoundingBox*>(this);
+	ptr->max = _max;
+}
+
+void BoundingBox::inset(const Vector3f& _min, const Vector3f& _max) const {
+	BoundingBox* ptr = const_cast<BoundingBox*>(this);
+	ptr->min += _min;
+	ptr->max -= _max;
+}
+
+BoundingBox BoundingBox::transformed(const Matrix4f& transform) const {
+	Vector3f oldCenter = center();
+	Vector3f oldEdge = max - oldCenter;
+	Vector3f newCenter = transform ^ oldCenter;
+	Vector3f newEdge(
+		std::fabs(transform[0][0]) * oldEdge[0] + std::fabs(transform[1][0]) * oldEdge[1] + std::fabs(transform[2][0]) * oldEdge[2],
+		std::fabs(transform[0][1]) * oldEdge[0] + std::fabs(transform[1][1]) * oldEdge[1] + std::fabs(transform[2][1]) * oldEdge[2],
+		std::fabs(transform[0][2]) * oldEdge[0] + std::fabs(transform[1][2]) * oldEdge[1] + std::fabs(transform[2][2]) * oldEdge[2]
+	);
+	return BoundingBox(newCenter - newEdge, newCenter + newEdge);
+}
+
 BoundingBox::~BoundingBox() {
 	cleanup();
 }
@@ -9,14 +100,16 @@ void BoundingBox::createBuffer() {
 	std::vector<float> vertexBuffer;
 	std::vector<unsigned int> indexBuffer;
 
-	vertexBuffer.push_back(position[0]); vertexBuffer.push_back(position[1]); vertexBuffer.push_back(position[2]);
-	vertexBuffer.push_back(position[0] + size[0]); vertexBuffer.push_back(position[1]); vertexBuffer.push_back(position[2]);
-	vertexBuffer.push_back(position[0] + size[0]); vertexBuffer.push_back(position[1] + size[1]); vertexBuffer.push_back(position[2]);
-	vertexBuffer.push_back(position[0]); vertexBuffer.push_back(position[1] + size[1]); vertexBuffer.push_back(position[2]);
-	vertexBuffer.push_back(position[0]); vertexBuffer.push_back(position[1]); vertexBuffer.push_back(position[2] + size[2]);
-	vertexBuffer.push_back(position[0] + size[0]); vertexBuffer.push_back(position[1]); vertexBuffer.push_back(position[2] + size[2]);
-	vertexBuffer.push_back(position[0] + size[0]); vertexBuffer.push_back(position[1] + size[1]); vertexBuffer.push_back(position[2] + size[2]);
-	vertexBuffer.push_back(position[0]); vertexBuffer.push_back(position[1] + size[1]); vertexBuffer.push_back(position[2] + size[2]);
+	Vector3f size = getSize();
+
+	vertexBuffer.push_back(min[0]);			  vertexBuffer.push_back(min[1]);			vertexBuffer.push_back(min[2]);
+	vertexBuffer.push_back(min[0] + size[0]); vertexBuffer.push_back(min[1]);			vertexBuffer.push_back(min[2]);
+	vertexBuffer.push_back(min[0] + size[0]); vertexBuffer.push_back(min[1] + size[1]); vertexBuffer.push_back(min[2]);
+	vertexBuffer.push_back(min[0]);			  vertexBuffer.push_back(min[1] + size[1]); vertexBuffer.push_back(min[2]);
+	vertexBuffer.push_back(min[0]);			  vertexBuffer.push_back(min[1]);			vertexBuffer.push_back(min[2] + size[2]);
+	vertexBuffer.push_back(min[0] + size[0]); vertexBuffer.push_back(min[1]);			vertexBuffer.push_back(min[2] + size[2]);
+	vertexBuffer.push_back(min[0] + size[0]); vertexBuffer.push_back(min[1] + size[1]); vertexBuffer.push_back(min[2] + size[2]);
+	vertexBuffer.push_back(min[0]);			  vertexBuffer.push_back(min[1] + size[1]); vertexBuffer.push_back(min[2] + size[2]);
 
 	indexBuffer.push_back(1); indexBuffer.push_back(0); indexBuffer.push_back(2);
 	indexBuffer.push_back(3); indexBuffer.push_back(2); indexBuffer.push_back(0);

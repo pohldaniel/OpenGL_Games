@@ -31,6 +31,36 @@ Ant::Ant(const ObjSequence& objSequence, std::shared_ptr<aw::Mesh> mesh, aw::Mat
 	}
 }
 
+Ant::Ant(const ObjSequence& objSequence, std::shared_ptr<aw::Mesh> mesh, AssimpModel* model, aw::Material material, Entity *target) :
+	Entity(mesh, model, material),
+	objSequence(objSequence),
+	target(target) {
+
+	originalMaterial = material;
+	m_isStatic = false;
+	constructAABB();
+
+	for (unsigned i = 0; i < 8; ++i) {
+		if (i < 4) {
+			aabb.bounds[i].x -= 2.5f;
+		}else {
+			aabb.bounds[i].x += 2.5f;
+		}
+
+		if (i < 2 || i == 4 || i == 5) {
+			aabb.bounds[i].y -= 0.1f;
+		}else {
+			aabb.bounds[i].y += 0.6f;
+		}
+
+		if (i % 2 == 0) {
+				aabb.bounds[i].z -= 0.5f;
+		}else {
+			aabb.bounds[i].z += 1.3f;
+		}
+	}
+}
+
 void Ant::start() {
 	baseIndex = objSequence.getNumberOfMeshes() - 1;
 	index = baseIndex;

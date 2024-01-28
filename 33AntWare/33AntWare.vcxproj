@@ -189,7 +189,6 @@
     <ClCompile Include="src\Objects\MeshNew.cpp" />
     <ClCompile Include="src\ObjSequence.cpp" />
     <ClCompile Include="src\Rigidbody.cpp" />
-    <ClCompile Include="src\Scene\BoundingBoxNew.cpp" />
     <ClCompile Include="src\Scene\MeshNode.cpp" />
     <ClCompile Include="src\Scene\Object.cpp" />
     <ClCompile Include="src\Scene\SceneNode.cpp" />
@@ -357,7 +356,6 @@
     <ClInclude Include="src\ObjSequence.h" />
     <ClInclude Include="src\RandomColor.h" />
     <ClInclude Include="src\Rigidbody.h" />
-    <ClInclude Include="src\Scene\BoundingBoxNew.h" />
     <ClInclude Include="src\Scene\MeshNode.h" />
     <ClInclude Include="src\Scene\Object.h" />
     <ClInclude Include="src\Scene\SceneNode.h" />

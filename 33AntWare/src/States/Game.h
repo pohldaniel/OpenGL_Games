@@ -59,7 +59,7 @@ private:
 
 	ObjSequence m_objSequence;
 	Camera m_camera;
-	AssimpModel m_model;
+	AssimpModel* m_model;
 	AssimpModel m_gun;
 
 	std::shared_ptr<aw::Mesh> m_muzzleMesh = nullptr;

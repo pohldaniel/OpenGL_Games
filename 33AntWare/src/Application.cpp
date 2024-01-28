@@ -70,8 +70,6 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	SavedExStyle = GetWindowLong(Window, GWL_EXSTYLE);
 	SavedStyle = GetWindowLong(Window, GWL_STYLE);
 
-	initStates();
-
 	Fontrenderer::Get().init();
 	Fontrenderer::Get().setShader(Globals::shaderManager.getAssetPointer("font"));
 
@@ -90,7 +88,7 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	shader->loadMatrix("u_transform", Matrix4f::Orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f));
 	shader->unuse();
 
-	
+	initStates();
 }
 
 Application::~Application() {
@@ -336,8 +334,8 @@ void Application::initOpenGL(int msaaSamples) {
 
 	ToggleVerticalSync();
 
-	//glDisable(GL_CULL_FACE);
-	glEnable(GL_CULL_FACE);
+	glDisable(GL_CULL_FACE);
+	//glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
 	glFrontFace(GL_CCW);
 

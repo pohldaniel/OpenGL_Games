@@ -387,9 +387,6 @@
     <ClCompile Include="src\Objects\MeshNew.cpp">
       <Filter>Source Files\Objects</Filter>
     </ClCompile>
-    <ClCompile Include="src\Scene\BoundingBoxNew.cpp">
-      <Filter>Source Files\Scene</Filter>
-    </ClCompile>
     <ClCompile Include="src\Scene\MeshNode.cpp">
       <Filter>Source Files\Scene</Filter>
     </ClCompile>
@@ -748,9 +745,6 @@
     </ClInclude>
     <ClInclude Include="src\Objects\MeshNew.h">
       <Filter>Source Files\Objects</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Scene\BoundingBoxNew.h">
-      <Filter>Source Files\Scene</Filter>
     </ClInclude>
     <ClInclude Include="src\Scene\MeshNode.h">
       <Filter>Source Files\Scene</Filter>

@@ -420,8 +420,8 @@ void Shape::createBoundingBox() {
 		zmax = (std::max)((*pit)[2], zmax);
 	}
 
-	m_aabb.position = Vector3f(xmin, ymin, zmin);
-	m_aabb.size = Vector3f(xmax, ymax, zmax) - Vector3f(xmin, ymin, zmin);
+	m_aabb.min = Vector3f(xmin, ymin, zmin);
+	m_aabb.max = Vector3f(xmax, xmax, xmax);
 }
 
 int Shape::whitespaces(const char c[]) {

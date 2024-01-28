@@ -15,7 +15,7 @@ public:
 	//SceneNode& operator=(const SceneNode& rhs);
 
 	const Matrix4f& getTransformation() const;
-	void OnTransformChanged();
+	virtual void OnTransformChanged();
 
 	void setScale(const float sx, const float sy, const float sz) override;
 	void setScale(const Vector3f& scale) override;
