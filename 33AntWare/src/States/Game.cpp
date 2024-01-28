@@ -301,7 +301,7 @@ void Game::render() {
 		shader->loadMatrix("u_model", bullet.getTransformationSOP());
 		bullet.draw(m_camera);
 	}
-
+	
 	glClear(GL_DEPTH_BUFFER_BIT);
 
 	for (auto entity : m_entities) {
@@ -310,6 +310,7 @@ void Game::render() {
 	}
 
 	glBindVertexArray(0);
+
 	shader->unuse();
 
 	DebugRenderer::Get().drawBuffer();

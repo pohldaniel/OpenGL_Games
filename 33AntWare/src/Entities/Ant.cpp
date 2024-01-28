@@ -182,7 +182,7 @@ void Ant::die(){
 	isAlive = false;
 	isHurting = false;
 	material = originalMaterial;
-	rotate({ 1.0f, 0, 0 }, 180.0f);
+	rotate({ 1.0f, 0.0f, 0.0f }, 180.0f);
 	translate(0.0f, 1.0f, 0.0f);
 	rigidbody.velocity = { 0, 0, 0 };
 }

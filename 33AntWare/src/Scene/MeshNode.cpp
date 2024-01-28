@@ -23,15 +23,16 @@ void MeshNode::OnWorldBoundingBoxUpdate() const{
 
 	if (m_model) {
 		worldBoundingBox = m_model->getAABB().transformed(getTransformation());
-	}else if (m_mesh)
+	}else if (m_mesh) {		
 		worldBoundingBox = m_mesh->getLocalBoundingBox().transformed(getTransformation());
-	else
+	}else {
 		worldBoundingBox.define(m_position);
+	}
 }
 
 void MeshNode::OnRenderDebug(){
 	DebugRenderer::Get().AddBoundingBox(getWorldBoundingBox(), Vector4f(0.0f, 1.0f, 0.0f, 1.0f));
-	//DebugRenderer::Get().AddBoundingBox(getLocalBoundingBox(), getTransformation(), Vector4f(0.0f, 1.0f, 0.0f, 1.0f));
+	DebugRenderer::Get().AddBoundingBox(getLocalBoundingBox(), getTransformation(), Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
 }
 
 void MeshNode::OnTransformChanged(){

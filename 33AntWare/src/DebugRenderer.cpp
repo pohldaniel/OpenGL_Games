@@ -97,12 +97,6 @@ void DebugRenderer::AddLine(const Vector3f& start, const Vector3f& end, unsigned
 
 	vertexCount += 2;
 	indexCount += 2;
-	
-	/*vertices.push_back({ start, color });
-	vertices.push_back({ end, color });
-
-	indices.push_back(startVertex);
-	indices.push_back(startVertex + 1);*/
 }
 
 void DebugRenderer::AddLine(const Vector3f& start, const Vector3f& end, const Vector4f& color) {

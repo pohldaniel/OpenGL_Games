@@ -2948,19 +2948,19 @@ Quaternion &Quaternion::operator-=(const Quaternion &rhs) {
 Quaternion &Quaternion::operator*=(const Quaternion &rhs) {
 
 	// Multiply so that rotations are applied in a left to right order.
-	Quaternion tmp(
+	/*Quaternion tmp(
 		(quat[3] * rhs[0]) + (quat[0] * rhs[3]) - (quat[1] * rhs[2]) + (quat[2] * rhs[1]),
 		(quat[3] * rhs[1]) + (quat[0] * rhs[2]) + (quat[1] * rhs[3]) - (quat[2] * rhs[0]),
 		(quat[3] * rhs[2]) - (quat[0] * rhs[1]) + (quat[1] * rhs[0]) + (quat[2] * rhs[3]),
-		(quat[3] * rhs[3]) - (quat[0] * rhs[0]) - (quat[1] * rhs[1]) - (quat[2] * rhs[2]));
+		(quat[3] * rhs[3]) - (quat[0] * rhs[0]) - (quat[1] * rhs[1]) - (quat[2] * rhs[2]));*/
 
 
 	// Multiply so that rotations are applied in a right to left order.
-	/*Quaternion tmp(
+	Quaternion tmp(
 	(quat[3] * rhs[0]) + (quat[0] * rhs[3]) + (quat[1] * rhs[2]) - (quat[2] * rhs[1]),
 	(quat[3] * rhs[1]) - (quat[0] * rhs[2]) + (quat[1] * rhs[3]) + (quat[2] * rhs[0]),
 	(quat[3] * rhs[2]) + (quat[0] * rhs[1]) - (quat[1] * rhs[0]) + (quat[2] * rhs[3]),
-	(quat[3] * rhs[3]) - (quat[0] * rhs[0]) - (quat[1] * rhs[1]) - (quat[2] * rhs[2]));*/
+	(quat[3] * rhs[3]) - (quat[0] * rhs[0]) - (quat[1] * rhs[1]) - (quat[2] * rhs[2]));
 	*this = tmp;
 	return *this;
 }
@@ -3129,9 +3129,9 @@ void Quaternion::rotate(float pitch, float yaw, float roll) {
 	float q2 = quat[2];
 	float q3 = quat[3];
 
-	quat[0] = (q3 * rot0) + (q0 * rot3) - (q1 * rot2) + (q2 * rot1);
-	quat[1] = (q3 * rot1) + (q0 * rot2) + (q1 * rot3) - (q2 * rot0);
-	quat[2] = (q3 * rot2) - (q0 * rot1) + (q1 * rot0) + (q2 * rot3);
+	quat[0] = (q3 * rot0) + (q0 * rot3) + (q1 * rot2) - (q2 * rot1);
+	quat[1] = (q3 * rot1) - (q0 * rot2) + (q1 * rot3) + (q2 * rot0);
+	quat[2] = (q3 * rot2) + (q0 * rot1) - (q1 * rot0) + (q2 * rot3);
 	quat[3] = (q3 * rot3) - (q0 * rot0) - (q1 * rot1) - (q2 * rot2);
 }
 
@@ -3147,9 +3147,9 @@ void Quaternion::rotate(const Vector3f &axis, float degrees) {
 	float q2 = quat[2];
 	float q3 = quat[3];
 
-	quat[0] = (q3 * rot0) + (q0 * rot3) - (q1 * rot2) + (q2 * rot1);
-	quat[1] = (q3 * rot1) + (q0 * rot2) + (q1 * rot3) - (q2 * rot0);
-	quat[2] = (q3 * rot2) - (q0 * rot1) + (q1 * rot0) + (q2 * rot3);
+	quat[0] = (q3 * rot0) + (q0 * rot3) + (q1 * rot2) - (q2 * rot1);
+	quat[1] = (q3 * rot1) - (q0 * rot2) + (q1 * rot3) + (q2 * rot0);
+	quat[2] = (q3 * rot2) + (q0 * rot1) - (q1 * rot0) + (q2 * rot3);
 	quat[3] = (q3 * rot3) - (q0 * rot0) - (q1 * rot1) - (q2 * rot2);
 }
 

@@ -2,6 +2,7 @@
 
 #include <engine/input/MouseEventListener.h>
 #include <engine/input/KeyboardEventListener.h>
+#include <engine/animation/AssimpAnimatedModel.h>
 #include <engine/Camera.h>
 #include <engine/AssimpModel.h>
 #include <engine/ObjModel.h>
