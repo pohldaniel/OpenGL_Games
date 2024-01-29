@@ -4,11 +4,6 @@
 
 #include "Texture.h"
 
-#define DEFAULT_MIN_FILTER	GL_NEAREST
-#define DEFAULT_MAG_FILTER	GL_NEAREST
-#define DEFAULT_WRAP_S	GL_CLAMP_TO_EDGE
-#define DEFAULT_WRAP_T	GL_CLAMP_TO_EDGE
-
 bool operator==(const Texture& t1, const Texture& t2) {
 	return t1.m_texture == t2.m_texture && t1.m_width == t2.m_width && t1.m_height == t2.m_height && t1.m_depth == t2.m_depth && t1.m_channels == t2.m_channels && t1.m_format == t2.m_format && t1.m_internalFormat == t2.m_internalFormat && t1.m_type == t2.m_type && t1.m_target == t2.m_target;
 }
@@ -28,7 +23,91 @@ Texture::Texture(Texture const& rhs){
 	m_internalFormat = rhs.m_internalFormat;
 	m_type = rhs.m_type;
 	m_target = rhs.m_target;
+	m_textureHandle = rhs.m_textureHandle;
+
+	if (m_target == GL_TEXTURE_2D) {
+		unsigned char* bytes = (unsigned char*)malloc(m_width * m_height * m_channels);
+		int magFilter, minFilter, wrapS, wrapT;
+
+		glBindTexture(GL_TEXTURE_2D, rhs.m_texture);
+		glGetTexImage(GL_TEXTURE_2D, 0, m_format, GL_UNSIGNED_BYTE, bytes);
+		glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, &magFilter);
+		glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, &minFilter);
+		glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, &wrapS);
+		glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, &wrapT);
+		glBindTexture(GL_TEXTURE_2D, 0);
+
+		glGenTextures(1, &m_texture);
+		glBindTexture(GL_TEXTURE_2D, m_texture);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapS);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter);
+		glTexImage2D(GL_TEXTURE_2D, 0, m_internalFormat, m_width, m_height, 0, m_format, m_type, bytes);
+
+		if (minFilter == 9984 || minFilter == 9985 || minFilter == 9986 || minFilter == 9987)
+			glGenerateMipmap(GL_TEXTURE_2D);
+
+		glBindTexture(GL_TEXTURE_2D, 0);
+		free(bytes);
+	}
 }
+
+Texture::Texture(Texture&& rhs){
+	m_texture = rhs.m_texture;
+	m_width = rhs.m_width;
+	m_height = rhs.m_height;
+	m_depth = rhs.m_depth;
+	m_channels = rhs.m_channels;
+	m_format = rhs.m_format;
+	m_internalFormat = rhs.m_internalFormat;
+	m_type = rhs.m_type;
+	m_target = rhs.m_target;
+	m_textureHandle = rhs.m_textureHandle;
+
+	if (m_target == GL_TEXTURE_2D) {
+		unsigned char* bytes = (unsigned char*)malloc(m_width * m_height * m_channels);
+		int magFilter, minFilter, wrapS, wrapT;
+
+		glBindTexture(GL_TEXTURE_2D, rhs.m_texture);
+		glGetTexImage(GL_TEXTURE_2D, 0, m_format, GL_UNSIGNED_BYTE, bytes);
+		glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, &magFilter);
+		glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, &minFilter);
+		glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, &wrapS);
+		glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, &wrapT);
+		glBindTexture(GL_TEXTURE_2D, 0);
+
+		glGenTextures(1, &m_texture);
+		glBindTexture(GL_TEXTURE_2D, m_texture);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapS);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter);
+		glTexImage2D(GL_TEXTURE_2D, 0, m_internalFormat, m_width, m_height, 0, m_format, m_type, bytes);
+
+		if (minFilter == 9984 || minFilter == 9985 || minFilter == 9986 || minFilter == 9987)
+			glGenerateMipmap(GL_TEXTURE_2D);
+
+		glBindTexture(GL_TEXTURE_2D, 0);
+		free(bytes);
+	}
+}
+
+Texture& Texture::operator=(const Texture& rhs) {
+	m_texture = rhs.m_texture;
+	m_width = rhs.m_width;
+	m_height = rhs.m_height;
+	m_depth = rhs.m_depth;
+	m_channels = rhs.m_channels;
+	m_format = rhs.m_format;
+	m_internalFormat = rhs.m_internalFormat;
+	m_type = rhs.m_type;
+	m_target = rhs.m_target;
+	m_textureHandle = rhs.m_textureHandle;
+	return *this;
+}
+
+
 
 void Texture::copy(const Texture& rhs) {
 
@@ -40,6 +119,7 @@ void Texture::copy(const Texture& rhs) {
 	m_internalFormat = rhs.m_internalFormat;
 	m_type = rhs.m_type;
 	m_target = rhs.m_target;
+	m_textureHandle = rhs.m_textureHandle;
 
 	if (m_target == GL_TEXTURE_2D) {
 		unsigned char* bytes = (unsigned char*)malloc(m_width * m_height * m_channels);

@@ -80,6 +80,18 @@ void BoundingBox::inset(const Vector3f& _min, const Vector3f& _max) const {
 	ptr->max -= _max;
 }
 
+void BoundingBox::minmize(float factor) const {
+	BoundingBox* ptr = const_cast<BoundingBox*>(this);
+	ptr->min += Vector3f(factor);
+	ptr->max -= Vector3f(factor);
+}
+
+void BoundingBox::maximize(float factor) const {
+	BoundingBox* ptr = const_cast<BoundingBox*>(this);
+	ptr->min -= Vector3f(factor);
+	ptr->max += Vector3f(factor);
+}
+
 BoundingBox BoundingBox::transformed(const Matrix4f& transform) const {
 	Vector3f oldCenter = center();
 	Vector3f oldEdge = max - oldCenter;

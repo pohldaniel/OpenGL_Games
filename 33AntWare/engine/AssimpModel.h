@@ -64,7 +64,6 @@ public:
 	std::vector<float>& getVertexBuffer();
 	std::vector<unsigned int>& getIndexBuffer();
 
-
 	void addInstances(const std::vector<Matrix4f>& modelMTX);
 	void addInstance(const Matrix4f& modelMTX);
 	void createInstancesDynamic(unsigned int numberOfInstances);
@@ -131,6 +130,10 @@ public:
 	std::vector<unsigned int>& getIndexBuffer();
 	unsigned int getStride();
 	short getMaterialIndex();
+	void setMaterialIndex(short index) const;
+	short getTextureIndex();
+	void setTextureIndex(short index) const;
+
 	const Material& getMaterial() const;
 	void cleanup();
 
@@ -155,5 +158,7 @@ private:
 
 	bool m_hasTextureCoords, m_hasNormals, m_hasTangents;
 	unsigned int m_numberOfTriangles, m_stride, m_baseVertex, m_baseIndex;
-	short m_materialIndex = -1;
+	
+	mutable short m_materialIndex = -1;
+	mutable short m_textureIndex = -1;
 };

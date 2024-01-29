@@ -2,6 +2,7 @@
 #include "Material.h"
 
 std::vector<Material> Material::Materials;
+std::vector<Texture> Material::Textures;
 
 bool operator== (const Material& m1, const Material& m2){
 	return m1.textures.size() == m2.textures.size() 
@@ -69,4 +70,26 @@ std::vector<Material>& Material::GetMaterials() {
 void Material::Cleanup(unsigned short index) {
 	Materials[index].textures.clear();
 	Materials.erase(Materials.begin() + index);
+}
+
+Material& Material::AddDefault() {
+	Materials.resize(Materials.size() + 1);
+	Material& material = Materials.back();
+
+	material.diffuse[0] = 1.0f;
+	material.diffuse[1] = 1.0f;
+	material.diffuse[2] = 1.0f;
+	material.diffuse[3] = 1.0f;
+	return material;
+}
+
+Texture& Material::AddTexture(std::string path) {
+	Textures.resize(Textures.size() + 1);
+	Texture& texture = Textures.back();
+	texture.loadFromFile(path, true);
+	return texture;
+}
+
+std::vector<Texture>& Material::GetTextures() {
+	return Textures;
 }

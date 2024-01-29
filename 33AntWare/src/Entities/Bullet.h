@@ -1,10 +1,10 @@
 #pragma once
 #include <engine/Camera.h>
 #include <engine/Clock.h>
+#include <engine/AssimpModel.h>
 #include <Scene/Object.h>
 
 #include "MaterialAW.h"
-#include "Mesh.h"
 #include "Rigidbody.h"
 #include "TransformAW.h"
 
@@ -23,13 +23,13 @@ public:
 	void fixedUpdate(float fdt);
 	bool timeOut();
 
-	static void Init(std::shared_ptr<aw::Mesh> mesh, aw::Material material);
+	static void Init(AssimpModel* model, aw::Material material);
 
-	aw::Rigidbody rigidbody;
 	float lifeSpan = 5.0f;
 	float speed = 40.0f;
 	Clock timer;
 
-	static std::shared_ptr<aw::Mesh> Mesh;
+	aw::Rigidbody rigidbody;
+	static AssimpModel* Model;
 	static aw::Material Material;
 };

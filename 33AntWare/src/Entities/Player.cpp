@@ -6,19 +6,19 @@
 #include "Application.h"
 #include "HUD.h"
 
-Player::Player(Camera& camera, std::shared_ptr<aw::Mesh> mesh, aw::Material material, const Vector2f& mapMinLimit, const Vector2f& mapMaxLimit) : 
-	Entity(mesh, material), 
+Player::Player(Camera& camera, std::shared_ptr<aw::Mesh> mesh, AssimpModel* model, aw::Material material, const Vector2f& mapMinLimit, const Vector2f& mapMaxLimit) :
+	Entity(mesh, model, material),
 	camera(camera),
 	mapMinLimit(mapMinLimit),
-	mapMaxLimit(mapMaxLimit){
+	mapMaxLimit(mapMaxLimit) {
 
 	childrenEular.set(0.0f, 0.0f, 0.0f);
 	childrenTranslation.set(0.0f, 0.0f, 0.0f);
 	eularAngles.set(0.0f, 0.0f, 0.0f);
 	constructAABB();
+	aabb.maximize(0.2f);
 
 	EventDispatcher::AddMouseListener(this);
-	aabb.maximize(0.2f);
 }
 
 Player::~Player() {
@@ -26,8 +26,7 @@ Player::~Player() {
 }
 
 void Player::draw(const Camera& camera) {
-	material.apply();
-	meshPtr->draw();
+	m_model->drawRaw();
 }
 
 void Player::update(const float dt) {
@@ -176,22 +175,20 @@ void Player::fixedUpdate(float fdt) {
 }
 
 void Player::start() {
-	transparentTexture = aw::Mesh::createTexture("res/textures/transparent.png");
-	flashTexture = aw::Mesh::createTexture("res/textures/flash.png");
-	dynamic_cast<Entity*>(m_children.front().get())->meshPtr->setTexture(transparentTexture);
+	dynamic_cast<Entity*>(m_children.front().get())->m_model->getMesh()->setTextureIndex(6);
 	m_isStatic = false;
 	rigidbody.lockLinear(aw::AXIS::y);
 	rigidbody.lockAngular(aw::AXIS::z);
 }
 
 void Player::dispatchBullet() {
+	dynamic_cast<Entity*>(m_children.front().get())->m_model->getMesh()->setTextureIndex(7);
 	bullets.push_back(Bullet({ 0.0f, 0.0f, -1.0f }));
 	bullets.back().setOrientation(m_orientation);
 	bullets.back().setPosition(m_position);
 	bullets.back().translateRelative({ 0.249067f, 0.47149f, -1.25759f });
 	isRecoiling = true;
-	recoilTime = 0.0f;
-	dynamic_cast<Entity*>(m_children.front().get())->meshPtr->setTexture(flashTexture);
+	recoilTime = 0.0f;	
 }
 
 void Player::reload() {
@@ -238,7 +235,7 @@ void Player::recoilAnim(float deltaTime) {
 		}else {
 			childrenEular[0] -= recoilImpact * deltaTime;
 			childrenTranslation[2] -= recoilImpact * deltaTime * 0.05f;
-			dynamic_cast<Entity*>(m_children.front().get())->meshPtr->setTexture(transparentTexture);
+			dynamic_cast<Entity*>(m_children.front().get())->m_model->getMesh()->setTextureIndex(6);
 		}
 	}
 

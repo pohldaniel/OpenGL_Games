@@ -12,6 +12,7 @@ struct Material {
 	float diffuse[4] = { 0.0f };
 	float specular[4] = { 0.0f };
 	float shininess =  0.0f;
+
 	//avoid unwanted copy costructor calls using std::unordered_map over std::vector
 	std::unordered_map<unsigned short, Texture> textures;
 	void updateMaterialUbo(unsigned int& ubo);
@@ -26,5 +27,10 @@ struct Material {
 	static std::vector<Material>& GetMaterials();
 	static std::vector<Material> Materials;
 	static void Cleanup(unsigned short index);
+	static Material& AddDefault();
+
+	static Texture& AddTexture(std::string path);
+	static std::vector<Texture>& GetTextures();
+	static std::vector<Texture> Textures;
 };
 #endif

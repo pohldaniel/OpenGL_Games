@@ -13,15 +13,8 @@ Entity::Entity(std::shared_ptr<aw::Mesh> mesh, AssimpModel* model, aw::Material 
 
 }
 
-void Entity::draw(const Camera& camera) {
-	
-
-	if (m_model) {
-		m_model->drawRaw();
-	}else {
-		material.apply();
-		meshPtr->draw();
-	}
+void Entity::draw(const Camera& camera) {	
+	m_model->drawRaw();
 }
 
 void Entity::update(const float dt) {

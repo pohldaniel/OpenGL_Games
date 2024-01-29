@@ -2,6 +2,7 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
+#include <engine/Texture.h>
 #include <engine/Camera.h>
 #include <engine/AssimpModel.h>
 
@@ -35,5 +36,5 @@ public:
 	aw::Material material;
 	aw::AABB aabb;
 
-
+	//const Texture& m_texture;
 };

@@ -14,6 +14,8 @@ public:
 	Texture() = default;
 	Texture(std::string fileName, const bool flipVertical = false, unsigned int internalFormat = 0u, unsigned int format = 0u, int paddingLeft = 0, int paddingRight = 0, int paddingTop = 0, int paddingBottom = 0, unsigned int SOIL_FLAG = 0u);
 	Texture(Texture const& rhs);
+	Texture(Texture&& source);
+	Texture &operator=(const Texture& rhs);
 	~Texture();
 	
 	const unsigned int& getTexture() const;
@@ -104,6 +106,7 @@ private:
 	unsigned int m_type = 0u;
 	unsigned int m_target;
 	unsigned int m_textureHandle = 0u;
+	bool m_deepCopy = false;
 };
 
 #endif

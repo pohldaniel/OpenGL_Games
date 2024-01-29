@@ -6,15 +6,6 @@ SceneNode::SceneNode() : Object(), m_parent(nullptr), m_markForRemove(false){
 	m_isDirty = true;
 }
 
-/*SceneNode::SceneNode(SceneNode const& rhs) : Object(rhs) {
-
-}
-
-SceneNode& SceneNode::operator=(const SceneNode& rhs) {
-	Object::operator=(rhs);
-	return *this;
-}*/
-
 void SceneNode::removeChild(std::unique_ptr<SceneNode> node){
 	m_children.remove(node);
 }
@@ -25,6 +16,10 @@ const std::list<std::unique_ptr<SceneNode>>& SceneNode::getChildren() const {
 
 void SceneNode::markForRemove() {
 	m_markForRemove = true;
+}
+
+void SceneNode::setParent(SceneNode* node) {
+	m_parent = node;
 }
 
 void SceneNode::addChild(SceneNode* node) {

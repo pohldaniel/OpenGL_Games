@@ -137,7 +137,6 @@ bool AssimpModel::loadModel(const char* a_filename, bool isStacked, bool generat
 		mesh->m_numberOfTriangles = aiMesh->mNumFaces;
 
 		const aiMaterial* aiMaterial = pScene->mMaterials[aiMesh->mMaterialIndex];
-
 		AssimpModel::ReadAiMaterial(aiMaterial, mesh->m_materialIndex, m_modelDirectory);
 
 		m_isStacked ? m_hasTextureCoords = aiMesh->HasTextureCoords(0) : mesh->m_hasTextureCoords = aiMesh->HasTextureCoords(0);
@@ -371,16 +370,18 @@ void AssimpModel::drawRawInstanced() {
 
 void  AssimpModel::drawRawStacked() {
 	glBindVertexArray(m_vao);
-	for (int i = 0; i < m_meshes.size(); i++) {
-		glDrawElementsBaseVertex(GL_TRIANGLES, m_meshes[i]->m_drawCount, GL_UNSIGNED_INT, (void*)(sizeof(unsigned int) * m_meshes[i]->m_baseIndex), m_meshes[i]->m_baseVertex);
+	for (auto mesh : m_meshes) {
+		Material::GetTextures()[mesh->m_textureIndex].bind();
+		glDrawElementsBaseVertex(GL_TRIANGLES, mesh->m_drawCount, GL_UNSIGNED_INT, (void*)(sizeof(unsigned int) * mesh->m_baseIndex), mesh->m_baseVertex);
 	}
 	glBindVertexArray(0);
 }
 
 void AssimpModel::drawRawInstancedStacked() {
 	glBindVertexArray(m_vao);
-	for (int i = 0; i < m_meshes.size(); i++) {
-		glDrawElementsInstancedBaseVertexBaseInstance(GL_TRIANGLES, m_meshes[i]->m_drawCount, GL_UNSIGNED_INT, (void*)(sizeof(unsigned int) * m_meshes[i]->m_baseIndex), m_instanceCount, m_meshes[i]->m_baseVertex, 0);
+	for (auto mesh : m_meshes) {		
+		Material::GetTextures()[mesh->m_textureIndex].bind();
+		glDrawElementsInstancedBaseVertexBaseInstance(GL_TRIANGLES, mesh->m_drawCount, GL_UNSIGNED_INT, (void*)(sizeof(unsigned int) * mesh->m_baseIndex), m_instanceCount, mesh->m_baseVertex, 0);
 	}
 	glBindVertexArray(0);
 }
@@ -648,7 +649,7 @@ void AssimpModel::ReadAiMaterial(const aiMaterial* aiMaterial, short& index, std
 		index = Material::GetMaterials().size() - 1;
 		Material& material = Material::GetMaterials().back();
 		material.name = modelDirectory;
-
+		
 		float shininess = 0.0f;
 		aiColor4D diffuse = aiColor4D(0.0f, 0.0f, 0.0f, 0.0f);
 		aiColor4D ambient = aiColor4D(0.0f, 0.0f, 0.0f, 0.0f);
@@ -754,12 +755,16 @@ void AssimpMesh::cleanup() {
 }
 
 void AssimpMesh::drawRaw() {
+	m_textureIndex >= 0 ? Material::GetTextures()[m_textureIndex].bind() : Texture::Unbind();
+
 	glBindVertexArray(m_vao);
 	glDrawElements(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
 }
 
 void AssimpMesh::drawRawInstanced() {
+	m_textureIndex >= 0 ? Material::GetTextures()[m_textureIndex].bind() : Texture::Unbind();
+
 	glBindVertexArray(m_vao);
 	glDrawElementsInstanced(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0, m_instanceCount);
 	glBindVertexArray(0);
@@ -779,6 +784,18 @@ unsigned int AssimpMesh::getStride() {
 
 short AssimpMesh::getMaterialIndex() {
 	return m_materialIndex;
+}
+
+void AssimpMesh::setMaterialIndex(short index) const {
+	m_materialIndex = index;
+}
+
+short AssimpMesh::getTextureIndex() {
+	return m_textureIndex;
+}
+
+void AssimpMesh::setTextureIndex(short index) const {
+	m_textureIndex = index;
 }
 
 const Material& AssimpMesh::getMaterial() const {

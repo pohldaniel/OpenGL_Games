@@ -3,19 +3,19 @@
 #include "MeshNode.h"
 #include "DebugRenderer.h"
 
-MeshNode::MeshNode() : SceneNode(), meshPtr(nullptr), m_model(nullptr) {
+MeshNode::MeshNode() : SceneNode(), meshPtr(nullptr), m_model(nullptr), m_drawDebug(true){
 	OnBoundingBoxChanged();
 }
 
-MeshNode::MeshNode(std::shared_ptr<aw::Mesh> mesh) : SceneNode(), meshPtr(mesh), m_model(nullptr) {
+MeshNode::MeshNode(std::shared_ptr<aw::Mesh> mesh) : SceneNode(), meshPtr(mesh), m_model(nullptr), m_drawDebug(true) {
 	OnBoundingBoxChanged();
 }
 
-MeshNode::MeshNode(AssimpModel* model) : SceneNode(), meshPtr(nullptr), m_model(model) {
+MeshNode::MeshNode(AssimpModel* model) : SceneNode(), meshPtr(nullptr), m_model(model), m_drawDebug(true) {
 	OnBoundingBoxChanged();
 }
 
-MeshNode::MeshNode(std::shared_ptr<aw::Mesh> mesh, AssimpModel* model) : SceneNode(), meshPtr(mesh), m_model(model) {
+MeshNode::MeshNode(std::shared_ptr<aw::Mesh> mesh, AssimpModel* model) : SceneNode(), meshPtr(mesh), m_model(model), m_drawDebug(true) {
 	OnBoundingBoxChanged();
 }
 
@@ -30,9 +30,19 @@ void MeshNode::OnWorldBoundingBoxUpdate() const{
 	}
 }
 
-void MeshNode::OnRenderDebug(){
-	DebugRenderer::Get().AddBoundingBox(getWorldBoundingBox(), Vector4f(0.0f, 1.0f, 0.0f, 1.0f));
-	DebugRenderer::Get().AddBoundingBox(getLocalBoundingBox(), getTransformation(), Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
+void MeshNode::OnRenderOBB(const Vector4f& color){
+
+	if (!m_drawDebug)
+		return;
+
+	DebugRenderer::Get().AddBoundingBox(getLocalBoundingBox(), getTransformation(), color);
+}
+
+void MeshNode::OnRenderAABB(const Vector4f& color) {
+	if (!m_drawDebug)
+		return;
+	
+	DebugRenderer::Get().AddBoundingBox(getWorldBoundingBox(), color);
 }
 
 void MeshNode::OnTransformChanged(){
@@ -42,6 +52,11 @@ void MeshNode::OnTransformChanged(){
 
 void MeshNode::OnBoundingBoxChanged() const{
 	m_worldBoundingBoxDirty = true;
+}
+
+void MeshNode::addChild(MeshNode* node, bool drawDebug) {
+	SceneNode::addChild(node);
+	node->setDrawDebug(drawDebug);
 }
 
 const BoundingBox& MeshNode::getWorldBoundingBox() const {
@@ -64,4 +79,8 @@ void MeshNode::setMesh(MeshNew* mesh) {
 void MeshNode::setModel(AssimpModel* model) {
 	m_model = model;
 	OnBoundingBoxChanged();
+}
+
+void MeshNode::setDrawDebug(bool drawDebug) {
+	m_drawDebug = drawDebug;
 }

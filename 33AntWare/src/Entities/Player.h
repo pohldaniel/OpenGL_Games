@@ -4,6 +4,7 @@
 #include <engine/Vector.h>
 #include <engine/Camera.h>
 #include <engine/Clock.h>
+#include <engine/AssimpModel.h>
 
 #include <Entities/Entity.h>
 #include <Entities/Bullet.h>
@@ -16,7 +17,7 @@ class Player : public Entity, public MouseEventListener {
 
 public:
 
-	Player(Camera& camera, std::shared_ptr<aw::Mesh> mesh, aw::Material material, const Vector2f& mapMinLimit, const Vector2f& mapMaxLimit);
+	Player(Camera& camera, std::shared_ptr<aw::Mesh> mesh, AssimpModel* model, aw::Material material, const Vector2f& mapMinLimit, const Vector2f& mapMaxLimit);
 	~Player();
 
 	float speed = 10.0f, runningSpeed = 20.0f;

@@ -11,9 +11,7 @@ class SceneNode : public Object {
 public:
 
 	SceneNode();
-	//SceneNode(SceneNode const& rhs);
-	//SceneNode& operator=(const SceneNode& rhs);
-
+	
 	const Matrix4f& getTransformation() const;
 	virtual void OnTransformChanged();
 
@@ -50,6 +48,7 @@ public:
 
 	const std::list<std::unique_ptr<SceneNode>>& getChildren() const;
 	void markForRemove();
+	void setParent(SceneNode* node);
 
 	mutable Matrix4f m_modelMatrix;
 	std::list<std::unique_ptr<SceneNode>> m_children;

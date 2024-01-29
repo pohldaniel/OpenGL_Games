@@ -1,6 +1,6 @@
 #include "Bullet.h"
 
-std::shared_ptr<aw::Mesh> Bullet::Mesh = nullptr;
+AssimpModel* Bullet::Model = nullptr;
 aw::Material Bullet::Material;
 
 Bullet::Bullet(const Vector3f& projectVec) : Object(){
@@ -11,18 +11,15 @@ Bullet::Bullet(const Vector3f& projectVec) : Object(){
 } 
 
 Bullet::Bullet(Bullet const& rhs) : Object(rhs){
-	//transform = rhs.transform;
 	rigidbody = rhs.rigidbody;
 }
 
 Bullet::Bullet(Bullet&& rhs) : Object(rhs) {
-	//transform = rhs.transform;
 	rigidbody = rhs.rigidbody;
 }
 
 Bullet& Bullet::operator=(const Bullet& rhs) {
 	Object::operator=(rhs);
-	//transform = rhs.transform;
 	rigidbody = rhs.rigidbody;
 	return *this;
 }
@@ -32,8 +29,7 @@ void Bullet::start() {
 }
 
 void Bullet::draw(const Camera& camera) {
-	Material.apply();
-	Mesh->draw();
+	Model->drawRaw();		
 }
 
 void Bullet::update(const float dt) {
@@ -71,7 +67,7 @@ bool Bullet::timeOut() {
 	return false;
 }
 
-void Bullet::Init(std::shared_ptr<aw::Mesh> mesh, aw::Material material) {
-	Bullet::Mesh = mesh;
+void Bullet::Init(AssimpModel* model, aw::Material material) {
+	Bullet::Model = model;
 	Bullet::Material = material;
 }
