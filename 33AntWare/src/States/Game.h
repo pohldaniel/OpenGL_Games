@@ -12,7 +12,6 @@
 #include <Entities/Ant.h>
 #include <Entities/Player.h>
 
-#include "Mesh.h"
 #include "HUD.h"
 
 enum LightType{
@@ -56,34 +55,16 @@ private:
 	void destroyAnt(int index);
 
 	bool m_initUi = true;
-	bool m_drawUi = false;
+	bool m_drawUi = true;
 
 	ObjSequence m_objSequence;
 	Camera m_camera;
 	AssimpModel *m_ant = nullptr, *m_bullet = nullptr, *m_gun = nullptr, *m_hands = nullptr, *m_gloves = nullptr, *m_cpu = nullptr, *m_platform = nullptr, *m_muzzle = nullptr, *m_cube = nullptr;
-
-	std::shared_ptr<aw::Mesh> m_muzzleMesh = nullptr;
-	std::shared_ptr<aw::Mesh> m_bulletMesh = nullptr;
-	std::shared_ptr<aw::Mesh> m_gunMesh = nullptr;
-	std::shared_ptr<aw::Mesh> m_handsMesh = nullptr;
-	std::shared_ptr<aw::Mesh> m_glovesMesh = nullptr;
-	std::shared_ptr<aw::Mesh> m_cpuMesh = nullptr;
-	std::shared_ptr<aw::Mesh> m_platformMesh = nullptr;
-	std::shared_ptr<aw::Mesh> m_antMesh = nullptr;
-	std::shared_ptr<aw::Mesh> m_cubeMesh = nullptr;
-	std::vector<std::shared_ptr<aw::Mesh>> m_meshes;
-
-	aw::Status gameStatus;
-
 	Player* m_player;
-	Entity* m_muzzleE = nullptr;
-	Entity* m_gunE = nullptr;
-	Entity* m_handsE = nullptr;
-	Entity* m_glovesE = nullptr;
-	Entity* m_cpuE = nullptr;
-	Entity* m_platformE = nullptr;
-
+	Entity *m_muzzleE = nullptr, *m_gunE = nullptr, *m_handsE = nullptr, *m_glovesE = nullptr, *m_cpuE = nullptr, *m_platformE = nullptr;
 	Ant *m_ant1 = nullptr, *m_ant2 = nullptr, *m_ant3 = nullptr, *m_ant4 = nullptr, *m_ant5 = nullptr, *m_ant6 = nullptr, *m_ant7 = nullptr, *m_ant8 = nullptr, *m_ant9 = nullptr;
 	std::vector<Entity*> m_entities;
 	std::vector<Ant*> m_ants;
+
+	aw::Status gameStatus;
 };

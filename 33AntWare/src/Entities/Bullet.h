@@ -4,9 +4,7 @@
 #include <engine/AssimpModel.h>
 #include <Scene/Object.h>
 
-#include "MaterialAW.h"
 #include "Rigidbody.h"
-#include "TransformAW.h"
 
 class Bullet : public Object {
 
@@ -23,7 +21,7 @@ public:
 	void fixedUpdate(float fdt);
 	bool timeOut();
 
-	static void Init(AssimpModel* model, aw::Material material);
+	static void Init(AssimpModel* model);
 
 	float lifeSpan = 5.0f;
 	float speed = 40.0f;
@@ -31,5 +29,4 @@ public:
 
 	aw::Rigidbody rigidbody;
 	static AssimpModel* Model;
-	static aw::Material Material;
 };

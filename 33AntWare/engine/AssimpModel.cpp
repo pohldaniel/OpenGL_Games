@@ -137,7 +137,9 @@ bool AssimpModel::loadModel(const char* a_filename, bool isStacked, bool generat
 		mesh->m_numberOfTriangles = aiMesh->mNumFaces;
 
 		const aiMaterial* aiMaterial = pScene->mMaterials[aiMesh->mMaterialIndex];
-		AssimpModel::ReadAiMaterial(aiMaterial, mesh->m_materialIndex, m_modelDirectory);
+
+		if(aiMaterial->GetName().length != 0)
+			AssimpModel::ReadAiMaterial(aiMaterial, mesh->m_materialIndex, m_modelDirectory, aiMaterial->GetName().length == 0 ? "default" : aiMaterial->GetName().data);
 
 		m_isStacked ? m_hasTextureCoords = aiMesh->HasTextureCoords(0) : mesh->m_hasTextureCoords = aiMesh->HasTextureCoords(0);
 		m_isStacked ? m_hasNormals = aiMesh->HasNormals() : mesh->m_hasNormals = aiMesh->HasNormals();
@@ -371,7 +373,10 @@ void AssimpModel::drawRawInstanced() {
 void  AssimpModel::drawRawStacked() {
 	glBindVertexArray(m_vao);
 	for (auto mesh : m_meshes) {
-		Material::GetTextures()[mesh->m_textureIndex].bind();
+		if(mesh->m_materialIndex >= 0)
+			Material::GetMaterials()[mesh->m_materialIndex].updateMaterialUbo(BuiltInShader::materialUbo);
+
+		mesh->m_textureIndex >= 0 ? Material::GetTextures()[mesh->m_textureIndex].bind() : Texture::Unbind();
 		glDrawElementsBaseVertex(GL_TRIANGLES, mesh->m_drawCount, GL_UNSIGNED_INT, (void*)(sizeof(unsigned int) * mesh->m_baseIndex), mesh->m_baseVertex);
 	}
 	glBindVertexArray(0);
@@ -379,8 +384,11 @@ void  AssimpModel::drawRawStacked() {
 
 void AssimpModel::drawRawInstancedStacked() {
 	glBindVertexArray(m_vao);
-	for (auto mesh : m_meshes) {		
-		Material::GetTextures()[mesh->m_textureIndex].bind();
+	for (auto mesh : m_meshes) {
+		if (mesh->m_materialIndex >= 0)
+			Material::GetMaterials()[mesh->m_materialIndex].updateMaterialUbo(BuiltInShader::materialUbo);
+
+		mesh->m_textureIndex >= 0 ? Material::GetTextures()[mesh->m_textureIndex].bind() : Texture::Unbind();
 		glDrawElementsInstancedBaseVertexBaseInstance(GL_TRIANGLES, mesh->m_drawCount, GL_UNSIGNED_INT, (void*)(sizeof(unsigned int) * mesh->m_baseIndex), m_instanceCount, mesh->m_baseVertex, 0);
 	}
 	glBindVertexArray(0);
@@ -480,19 +488,19 @@ void AssimpModel::initShader(bool instanced) {
 	if (!BuiltInShader::materialUbo) {
 		glGenBuffers(1, &BuiltInShader::materialUbo);
 		glBindBuffer(GL_UNIFORM_BUFFER, BuiltInShader::materialUbo);
-		glBufferData(GL_UNIFORM_BUFFER, 52, NULL, GL_STATIC_DRAW);
+		glBufferData(GL_UNIFORM_BUFFER, 56, NULL, GL_STATIC_DRAW);
 		glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-		glBindBufferRange(GL_UNIFORM_BUFFER, BuiltInShader::materialBinding, BuiltInShader::materialUbo, 0, 52);
+		glBindBufferRange(GL_UNIFORM_BUFFER, BuiltInShader::materialBinding, BuiltInShader::materialUbo, 0, 56);
 	}
 
 	if (!BuiltInShader::viewUbo && instanced) {
-		glGenBuffers(1, &BuiltInShader::materialUbo);
-		glBindBuffer(GL_UNIFORM_BUFFER, BuiltInShader::materialUbo);
+		glGenBuffers(1, &BuiltInShader::viewUbo);
+		glBindBuffer(GL_UNIFORM_BUFFER, BuiltInShader::viewUbo);
 		glBufferData(GL_UNIFORM_BUFFER, 64, NULL, GL_STATIC_DRAW);
 		glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-		glBindBufferRange(GL_UNIFORM_BUFFER, BuiltInShader::viewBinding, BuiltInShader::viewUbo, 0, 52);
+		glBindBufferRange(GL_UNIFORM_BUFFER, BuiltInShader::viewBinding, BuiltInShader::viewUbo, 0, 64);
 	}
 
 	for (int i = 0; i < m_meshes.size(); i++) {
@@ -529,10 +537,10 @@ void AssimpModel::initShader(AssetManager<Shader>& shaderManager, bool instanced
 	if (!BuiltInShader::materialUbo) {
 		glGenBuffers(1, &BuiltInShader::materialUbo);
 		glBindBuffer(GL_UNIFORM_BUFFER, BuiltInShader::materialUbo);
-		glBufferData(GL_UNIFORM_BUFFER, 52, NULL, GL_STATIC_DRAW);
+		glBufferData(GL_UNIFORM_BUFFER, 56, NULL, GL_STATIC_DRAW);
 		glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-		glBindBufferRange(GL_UNIFORM_BUFFER, BuiltInShader::materialBinding, BuiltInShader::materialUbo, 0, 52);
+		glBindBufferRange(GL_UNIFORM_BUFFER, BuiltInShader::materialBinding, BuiltInShader::materialUbo, 0, 56);
 	}
 
 	if (!BuiltInShader::viewUbo && instanced) {
@@ -641,53 +649,47 @@ std::string AssimpModel::GetTexturePath(std::string texPath, std::string modelDi
 	return textureName, foundSlash < 0 ? modelDirectory + "/" + texPath.substr(foundSlash + 1) : texPath;
 }
 
-void AssimpModel::ReadAiMaterial(const aiMaterial* aiMaterial, short& index, std::string modelDirectory) {
-	std::vector<Material>::iterator it = std::find_if(Material::GetMaterials().begin(), Material::GetMaterials().end(), std::bind(compareMaterial, std::placeholders::_1, modelDirectory));
+void AssimpModel::ReadAiMaterial(const aiMaterial* aiMaterial, short& index, std::string modelDirectory, std::string mltName) {
+	std::cout << "Name: " << mltName << std::endl;
+	
+	std::vector<Material>::iterator it = std::find_if(Material::GetMaterials().begin(), Material::GetMaterials().end(), std::bind(compareMaterial, std::placeholders::_1, mltName));
 	if (it == Material::GetMaterials().end()) {
 
 		Material::GetMaterials().resize(Material::GetMaterials().size() + 1);
 		index = Material::GetMaterials().size() - 1;
 		Material& material = Material::GetMaterials().back();
-		material.name = modelDirectory;
+		material.name = mltName;
 		
 		float shininess = 0.0f;
 		aiColor4D diffuse = aiColor4D(0.0f, 0.0f, 0.0f, 0.0f);
 		aiColor4D ambient = aiColor4D(0.0f, 0.0f, 0.0f, 0.0f);
 		aiColor4D specular = aiColor4D(0.0f, 0.0f, 0.0f, 0.0f);
 
-		if (AI_SUCCESS == aiGetMaterialColor(aiMaterial, AI_MATKEY_COLOR_DIFFUSE, &diffuse)) {
-			//std::cout << "Diffuse: " << diffuse.r << "  " << diffuse.g << "  " << diffuse.b << "  " << diffuse.a << std::endl;
-		}
+		if (AI_SUCCESS == aiGetMaterialColor(aiMaterial, AI_MATKEY_COLOR_DIFFUSE, &diffuse)) { }
 
 		material.diffuse[0] = diffuse.r;
 		material.diffuse[1] = diffuse.g;
 		material.diffuse[2] = diffuse.b;
 		material.diffuse[3] = diffuse.a;
 
-		if (AI_SUCCESS == aiGetMaterialColor(aiMaterial, AI_MATKEY_COLOR_AMBIENT, &ambient)) {
-			//std::cout << "Ambient: " << ambient.r << "  " << ambient.g << "  " << ambient.b << "  " << ambient.a << std::endl;
-		}
+		if (AI_SUCCESS == aiGetMaterialColor(aiMaterial, AI_MATKEY_COLOR_AMBIENT, &ambient)) { }
 
 		material.ambient[0] = ambient.r;
 		material.ambient[1] = ambient.g;
 		material.ambient[2] = ambient.b;
 		material.ambient[3] = ambient.a;
 
-		if (AI_SUCCESS == aiGetMaterialColor(aiMaterial, AI_MATKEY_COLOR_SPECULAR, &specular)) {
-			//std::cout << "Specular: " << specular.r << "  " << specular.g << "  " << specular.b << "  " << specular.a << std::endl;
-		}
+		if (AI_SUCCESS == aiGetMaterialColor(aiMaterial, AI_MATKEY_COLOR_SPECULAR, &specular)) { }
 
 		material.specular[0] = specular.r;
 		material.specular[1] = specular.g;
 		material.specular[2] = specular.b;
 		material.specular[3] = specular.a;
 
-		if (AI_SUCCESS == aiGetMaterialFloat(aiMaterial, AI_MATKEY_SHININESS, &shininess)) {
-			//std::cout << "Shininess: " << shininess << std::endl;
-		}
+		if (AI_SUCCESS == aiGetMaterialFloat(aiMaterial, AI_MATKEY_SHININESS, &shininess)) { }
 
 		material.shininess = shininess;
-
+		material.print();
 		int numTextures = aiMaterial->GetTextureCount(aiTextureType_DIFFUSE);
 		if (numTextures > 0) {
 			aiString name;
@@ -717,6 +719,8 @@ void AssimpModel::ReadAiMaterial(const aiMaterial* aiMaterial, short& index, std
 	}else {
 		index = std::distance(Material::GetMaterials().begin(), it);
 	}
+
+	//std::cout << "Index: " << index << std::endl;
 }
 
 void AssimpModel::Cleanup() {
@@ -755,6 +759,9 @@ void AssimpMesh::cleanup() {
 }
 
 void AssimpMesh::drawRaw() {
+	if (m_materialIndex >= 0) 
+		Material::GetMaterials()[m_materialIndex].updateMaterialUbo(BuiltInShader::materialUbo);
+
 	m_textureIndex >= 0 ? Material::GetTextures()[m_textureIndex].bind() : Texture::Unbind();
 
 	glBindVertexArray(m_vao);
@@ -763,6 +770,9 @@ void AssimpMesh::drawRaw() {
 }
 
 void AssimpMesh::drawRawInstanced() {
+	if (m_materialIndex >= 0)
+		Material::GetMaterials()[m_materialIndex].updateMaterialUbo(BuiltInShader::materialUbo);
+
 	m_textureIndex >= 0 ? Material::GetTextures()[m_textureIndex].bind() : Texture::Unbind();
 
 	glBindVertexArray(m_vao);

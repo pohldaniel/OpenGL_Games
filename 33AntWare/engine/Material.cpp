@@ -1,3 +1,4 @@
+#include <iostream>
 #include <GL/glew.h>
 #include "Material.h"
 
@@ -28,10 +29,11 @@ const Texture& Material::getTexture(unsigned short index) const{
 
 void Material::updateMaterialUbo(unsigned int& ubo) {
 	glBindBuffer(GL_UNIFORM_BUFFER, ubo);
-	glBufferSubData(GL_UNIFORM_BUFFER, 0, 16, &ambient);
-	glBufferSubData(GL_UNIFORM_BUFFER, 16, 32, &diffuse);
-	glBufferSubData(GL_UNIFORM_BUFFER, 32, 48, &specular);
-	glBufferSubData(GL_UNIFORM_BUFFER, 48, 52, &shininess);
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, 16, ambient);
+	glBufferSubData(GL_UNIFORM_BUFFER, 16, 16, diffuse);
+	glBufferSubData(GL_UNIFORM_BUFFER, 32, 16, specular);
+	glBufferSubData(GL_UNIFORM_BUFFER, 48, 4, &shininess);
+	glBufferSubData(GL_UNIFORM_BUFFER, 52, 4, &alpha);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
@@ -72,20 +74,74 @@ void Material::Cleanup(unsigned short index) {
 	Materials.erase(Materials.begin() + index);
 }
 
-Material& Material::AddDefault() {
+Material& Material::AddMaterial(const Material& _material) {
 	Materials.resize(Materials.size() + 1);
 	Material& material = Materials.back();
 
-	material.diffuse[0] = 1.0f;
-	material.diffuse[1] = 1.0f;
-	material.diffuse[2] = 1.0f;
-	material.diffuse[3] = 1.0f;
+	material.ambient[0] = _material.ambient[0];
+	material.ambient[1] = _material.ambient[1];
+	material.ambient[2] = _material.ambient[2];
+	material.ambient[3] = _material.ambient[3];
+
+	material.diffuse[0] = _material.diffuse[0];
+	material.diffuse[1] = _material.diffuse[1];
+	material.diffuse[2] = _material.diffuse[2];
+	material.diffuse[3] = _material.diffuse[3];
+
+	material.specular[0] = _material.specular[0];
+	material.specular[1] = _material.specular[1];
+	material.specular[2] = _material.specular[2];
+	material.specular[3] = _material.specular[3];
+
+	material.shininess = _material.shininess;
 	return material;
+}
+
+void Material::print() {
+	std::cout << "Ambient: " << ambient[0] << "  " << ambient[1] << "  " << ambient[2] << "  " << ambient[3] << std::endl;
+	std::cout << "Diffuse: " << diffuse[0] << "  " << diffuse[1] << "  " << diffuse[2] << "  " << diffuse[3] << std::endl;
+	std::cout << "Specular: " << specular[0] << "  " << specular[1] << "  " << specular[2] << "  " << specular[3] << std::endl;
+	std::cout << "Shininess: " << shininess << std::endl;
+	std::cout << "-------------------" << std::endl;
+}
+
+void Material::setAmbient(std::array<float, 4> _ambient) const {
+	ambient[0] = _ambient[0];
+	ambient[1] = _ambient[1];
+	ambient[2] = _ambient[2];
+	ambient[3] = _ambient[3];
+}
+
+void Material::setDiffuse(std::array<float, 4> _diffuse) const {
+	diffuse[0] = _diffuse[0];
+	diffuse[1] = _diffuse[1];
+	diffuse[2] = _diffuse[2];
+	diffuse[3] = _diffuse[3];
+}
+
+void Material::setSpecular(std::array<float, 4> _specular) const {
+	specular[0] = _specular[0];
+	specular[1] = _specular[1];
+	specular[2] = _specular[2];
+	specular[3] = _specular[3];
+}
+
+void Material::setShininess(float _shininess) const {
+	shininess = _shininess;
+}
+
+void Material::setAlpha(float _alpha) const {
+	alpha = _alpha;
+}
+
+const float Material::getAlpha() const {
+	return alpha;
 }
 
 Texture& Material::AddTexture(std::string path) {
 	Textures.resize(Textures.size() + 1);
 	Texture& texture = Textures.back();
+	texture.setDeepCopy(true);
 	texture.loadFromFile(path, true);
 	return texture;
 }

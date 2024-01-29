@@ -1,7 +1,6 @@
 #include "Bullet.h"
 
 AssimpModel* Bullet::Model = nullptr;
-aw::Material Bullet::Material;
 
 Bullet::Bullet(const Vector3f& projectVec) : Object(){
 	Vector3f directon = Vector3f::Normalize(projectVec) * speed;
@@ -67,7 +66,6 @@ bool Bullet::timeOut() {
 	return false;
 }
 
-void Bullet::Init(AssimpModel* model, aw::Material material) {
+void Bullet::Init(AssimpModel* model) {
 	Bullet::Model = model;
-	Bullet::Material = material;
 }

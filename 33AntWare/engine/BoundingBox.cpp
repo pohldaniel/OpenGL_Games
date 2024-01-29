@@ -92,6 +92,14 @@ void BoundingBox::maximize(float factor) const {
 	ptr->max += Vector3f(factor);
 }
 
+bool BoundingBox::isColliding(Vector3f point) const {
+	return min[0] < point[0] && point[0] < max[0] && min[1] < point[1] && point[1] < max[1] && min[2] < point[2] && point[2] < max[2];
+}
+
+bool BoundingBox::isColliding(const BoundingBox &box) const {
+	return min[0] <= box.max[0] && max[0] >= box.min[0] && min[1] <= box.max[1] && max[1] >= box.min[1] && min[2] <= box.max[2] && max[2] >= box.min[2];
+}
+
 BoundingBox BoundingBox::transformed(const Matrix4f& transform) const {
 	Vector3f oldCenter = center();
 	Vector3f oldEdge = max - oldCenter;

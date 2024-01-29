@@ -1,34 +1,16 @@
 #include <iostream>
 #include "Ant.h"
 
-Ant::Ant(const ObjSequence& objSequence, std::shared_ptr<aw::Mesh> mesh, AssimpModel* model, aw::Material material, Entity *target) :
-	Entity(mesh, model, material),
+Ant::Ant(const ObjSequence& objSequence, AssimpModel* model, Entity *target) : Entity(model),
 	objSequence(objSequence),
 	target(target) {
-
-	originalMaterial = material;
 	m_isStatic = false;
-	constructAABB();
 
-	for (unsigned i = 0; i < 8; ++i) {
-		if (i < 4) {
-			aabb.bounds[i].x -= 2.5f;
-		}else {
-			aabb.bounds[i].x += 2.5f;
-		}
-
-		if (i < 2 || i == 4 || i == 5) {
-			aabb.bounds[i].y -= 0.1f;
-		}else {
-			aabb.bounds[i].y += 0.6f;
-		}
-
-		if (i % 2 == 0) {
-				aabb.bounds[i].z -= 0.5f;
-		}else {
-			aabb.bounds[i].z += 1.3f;
-		}
-	}
+	m_material.setAmbient({ 0.1f, 0.1f, 0.1f, 1.0f });
+	m_material.setDiffuse({ 0.6f, 0.6f, 0.6f, 1.0f });
+	m_material.setSpecular({ 0.3f, 0.3f, 0.3f, 1.0f });
+	m_material.setShininess(8.0f);
+	m_material.setAlpha(1.0f);
 }
 
 void Ant::start() {
@@ -65,12 +47,11 @@ void Ant::update(float dt) {
 
 	if (isAlive && isHurting && timeSinceDamage.getElapsedTimeSec() >= 0.3f) {
 		isHurting = false;
-		material = originalMaterial;
 	}
 
 	if (!isAlive && timeSinceLastAlphaDecrease.getElapsedTimeSec() >= 0.1f) {
-		if (material.getAlpha() > 0.0f) {
-			material.setAlpha(material.getAlpha() - 0.05f);
+		if (getMaterial().getAlpha() > 0.0f) {
+			getMaterial().setAlpha(getMaterial().getAlpha() - 0.05f);
 		}
 		timeSinceLastAlphaDecrease.reset();
 	}
@@ -90,7 +71,7 @@ void Ant::update(float dt) {
 		else
 			setOrientation({ 1.0f, 0.0f, 0.0f }, 0.0f);
 
-		if (aabb.isColliding(target->aabb))
+		if (getWorldBoundingBox().isColliding(target->getWorldBoundingBox()))
 			rigidbody.velocity = { 0.0f, 0.0f, 0.0f };
 		else
 			rigidbody.velocity = { 0.0f, 0.0f, -speed };
@@ -103,9 +84,6 @@ void Ant::update(float dt) {
 	}else {
 		index = baseIndex;
 	}
-
-	//updateSelfAndChild();
-	recalculateAABB();
 }
 
 void Ant::animate(float dt){
@@ -124,6 +102,7 @@ void Ant::animate(float dt){
 }
 
 void Ant::draw(const Camera& camera) {
+	m_material.updateMaterialUbo(BuiltInShader::materialUbo);
 	objSequence.drawRaw(index);
 }
 
@@ -134,8 +113,7 @@ void Ant::damage(unsigned int amount){
 	isHurting = true;
 	//hurtSound.play();
 	timeSinceDamage.reset();
-	material.setDiffuse({ 1, 0, 0, 1 });
-
+	getMaterial().setDiffuse({ 1.0f, 0.0f, 0.0f, 1.0f });
 	if (hp <= amount){
 		hp = 0;
 		die();
@@ -151,12 +129,15 @@ unsigned Ant::getHp(){
 void Ant::die(){
 	isAlive = false;
 	isHurting = false;
-	material = originalMaterial;
 	rotate({ 1.0f, 0.0f, 0.0f }, 180.0f);
 	translate(0.0f, 1.0f, 0.0f);
 	rigidbody.velocity = { 0, 0, 0 };
 }
 
 bool Ant::timeToDestroy(){
-	return !isAlive && material.getAlpha() <= 0.0f;
+	return !isAlive && m_material.getAlpha() <= 0.0f;
+}
+
+const Material& Ant::getMaterial() const {
+	return m_material;
 }

@@ -1309,10 +1309,10 @@ void ObjModel::initShader(bool instanced) {
 	if (!BuiltInShader::materialUbo) {
 		glGenBuffers(1, &BuiltInShader::materialUbo);
 		glBindBuffer(GL_UNIFORM_BUFFER, BuiltInShader::materialUbo);
-		glBufferData(GL_UNIFORM_BUFFER, 52, NULL, GL_STATIC_DRAW);
+		glBufferData(GL_UNIFORM_BUFFER, 56, NULL, GL_STATIC_DRAW);
 		glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-		glBindBufferRange(GL_UNIFORM_BUFFER, BuiltInShader::materialBinding, BuiltInShader::materialUbo, 0, 52);
+		glBindBufferRange(GL_UNIFORM_BUFFER, BuiltInShader::materialBinding, BuiltInShader::materialUbo, 0, 56);
 	}
 
 	if (!BuiltInShader::viewUbo && instanced) {
@@ -1360,10 +1360,10 @@ void ObjModel::initShader(AssetManager<Shader>& shaderManager, bool instanced) {
 	if (!BuiltInShader::materialUbo) {
 		glGenBuffers(1, &BuiltInShader::materialUbo);
 		glBindBuffer(GL_UNIFORM_BUFFER, BuiltInShader::materialUbo);
-		glBufferData(GL_UNIFORM_BUFFER, 52, NULL, GL_STATIC_DRAW);
+		glBufferData(GL_UNIFORM_BUFFER, 56, NULL, GL_STATIC_DRAW);
 		glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-		glBindBufferRange(GL_UNIFORM_BUFFER, BuiltInShader::materialBinding, BuiltInShader::materialUbo, 0, 52);
+		glBindBufferRange(GL_UNIFORM_BUFFER, BuiltInShader::materialBinding, BuiltInShader::materialUbo, 0, 56);
 	}
 
 	if (!BuiltInShader::viewUbo && instanced) {

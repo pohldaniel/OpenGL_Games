@@ -108,7 +108,7 @@ private:
 
 	void unuseAllShader();
 	void static CreateBuffer(std::vector<float>& vertexBuffer, std::vector<unsigned int> indexBuffer, unsigned int& vao, unsigned int vbo, unsigned int& ibo, unsigned int stride);
-	void static ReadAiMaterial(const aiMaterial* aiMaterial, short& index, std::string modelDirectory);
+	void static ReadAiMaterial(const aiMaterial* aiMaterial, short& index, std::string modelDirectory, std::string mltName);
 	std::string static GetTexturePath(std::string texPath, std::string modelDirectory);
 
 	static AssetManager<Shader> ShaderManager;

@@ -1638,9 +1638,9 @@ void Mesh::drawRawInstanced() {
 void Mesh::updateMaterialUbo(unsigned int& ubo) {
 	glBindBuffer(GL_UNIFORM_BUFFER, ubo);
 	glBufferSubData(GL_UNIFORM_BUFFER, 0, 16, &m_material.ambient);
-	glBufferSubData(GL_UNIFORM_BUFFER, 16, 32, &m_material.diffuse);
-	glBufferSubData(GL_UNIFORM_BUFFER, 32, 48, &m_material.specular);
-	glBufferSubData(GL_UNIFORM_BUFFER, 48, 52, &m_material.shininess);
+	glBufferSubData(GL_UNIFORM_BUFFER, 16, 16, &m_material.diffuse);
+	glBufferSubData(GL_UNIFORM_BUFFER, 32, 16, &m_material.specular);
+	glBufferSubData(GL_UNIFORM_BUFFER, 48, 4, &m_material.shininess);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 

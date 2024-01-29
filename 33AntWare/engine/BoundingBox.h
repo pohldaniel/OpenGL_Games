@@ -25,6 +25,8 @@ struct BoundingBox {
 	void setMax(const Vector3f& max) const;
 	void minmize(float factor) const;
 	void maximize(float factor) const;
+	bool isColliding(Vector3f point) const;
+	bool isColliding(const BoundingBox &box) const;
 
 	void createBuffer();
 	void drawRaw() const;

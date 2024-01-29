@@ -344,12 +344,12 @@ void AssimpModel::initAssets(bool instanced) {
 	}
 
 	if (!BuiltInShader::viewUbo && instanced) {
-		glGenBuffers(1, &BuiltInShader::materialUbo);
-		glBindBuffer(GL_UNIFORM_BUFFER, BuiltInShader::materialUbo);
+		glGenBuffers(1, &BuiltInShader::viewUbo);
+		glBindBuffer(GL_UNIFORM_BUFFER, BuiltInShader::viewUbo);
 		glBufferData(GL_UNIFORM_BUFFER, 64, NULL, GL_STATIC_DRAW);
 		glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-		glBindBufferRange(GL_UNIFORM_BUFFER, BuiltInShader::viewBinding, BuiltInShader::viewUbo, 0, 52);
+		glBindBufferRange(GL_UNIFORM_BUFFER, BuiltInShader::viewBinding, BuiltInShader::viewUbo, 0, 64);
 	}
 
 	for (int i = 0; i < m_meshes.size(); i++) {
@@ -618,8 +618,8 @@ void AssimpMesh::drawRawInstanced() {
 void AssimpMesh::updateMaterialUbo(unsigned int& ubo) {
 	glBindBuffer(GL_UNIFORM_BUFFER, ubo);
 	glBufferSubData(GL_UNIFORM_BUFFER, 0, 16, &m_material.ambient);
-	glBufferSubData(GL_UNIFORM_BUFFER, 16, 32, &m_material.diffuse);
-	glBufferSubData(GL_UNIFORM_BUFFER, 32, 48, &m_material.specular);
-	glBufferSubData(GL_UNIFORM_BUFFER, 48, 52, &m_material.shininess);
+	glBufferSubData(GL_UNIFORM_BUFFER, 16, 16, &m_material.diffuse);
+	glBufferSubData(GL_UNIFORM_BUFFER, 32, 16, &m_material.specular);
+	glBufferSubData(GL_UNIFORM_BUFFER, 48, 4, &m_material.shininess);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }

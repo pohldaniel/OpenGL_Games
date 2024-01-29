@@ -28,9 +28,9 @@ const Texture& Material::getTexture(unsigned short index) const{
 void Material::updateMaterialUbo(unsigned int& ubo) {
 	glBindBuffer(GL_UNIFORM_BUFFER, ubo);
 	glBufferSubData(GL_UNIFORM_BUFFER, 0, 16, &ambient);
-	glBufferSubData(GL_UNIFORM_BUFFER, 16, 32, &diffuse);
-	glBufferSubData(GL_UNIFORM_BUFFER, 32, 48, &specular);
-	glBufferSubData(GL_UNIFORM_BUFFER, 48, 52, &shininess);
+	glBufferSubData(GL_UNIFORM_BUFFER, 16, 16, &diffuse);
+	glBufferSubData(GL_UNIFORM_BUFFER, 32, 16, &specular);
+	glBufferSubData(GL_UNIFORM_BUFFER, 48, 4, &shininess);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 

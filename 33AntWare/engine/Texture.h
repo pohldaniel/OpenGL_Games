@@ -58,6 +58,7 @@ public:
 	void setWrapMode(unsigned int mode = 10497 /*GL_REPEAT*/) const;
 	void setAnisotropy(float aniso) const;
 	void cleanup();
+	void setDeepCopy(bool deepCopy);
 
 	static void Bind(unsigned int textureRef, unsigned int unit = 0u, unsigned int target = 3553u);
 	static void Unbind(unsigned int unit = 0u, unsigned int target = 3553u);

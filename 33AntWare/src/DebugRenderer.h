@@ -17,42 +17,29 @@ public:
 	DebugRenderer() = default;
 	~DebugRenderer();
 
-	/// Set the camera viewpoint. Call before rendering, or before adding geometry if you want to use culling.
+
 	void SetView(Camera* camera);
 	void SetViewProjection(const Matrix4f& projection, const Matrix4f& view);
-	/// Add a line.
 	void AddLine(const Vector3f& start, const Vector3f& end, const Vector4f& color);
-	/// Add a line with color already converted to unsigned.
 	void AddLine(const Vector3f& start, const Vector3f& end, unsigned int color);
-	/// Add a bounding box.
 	void AddBoundingBox(const BoundingBox& box, const Vector4f& color);
-	/// Add a bounding box with transform.
 	void AddBoundingBox(const BoundingBox& box, const Matrix4f& transform, const Vector4f& color);
-	/// Add a cylinder.
 	void AddCylinder(const Vector3f& position, float radius, float height, const Vector4f& color);
-	/// Update vertex buffer and render all debug lines to the currently set framebuffer and viewport. Then clear the lines for the next frame.
-
 
 	void init(size_t size = 400);
 	void shutdown();
 	void drawBuffer();
+	void disable();
+	void enable();
 
 	static DebugRenderer& Get();
+	static bool& Enabled();
 
 private:
 
-	/// Debug geometry vertices.
-	/// View transform.
 	Matrix4f view;
-	/// Projection transform.
 	Matrix4f projection;
-	/// Vertex buffer for the debug geometry.
-	//std::vector<DebugVertex> vertices;
-	/// Index buffer for the debug geometry.
-	//std::vector<unsigned int> indices;
-	/// Cached shader program.
 	std::shared_ptr<Shader> shader;
-
 
 	DebugVertex* vertices;
 	DebugVertex* verticesPtr;
@@ -72,4 +59,5 @@ private:
 	uint32_t vertexCount = 0;
 
 	static DebugRenderer s_instance;
+	static bool s_enabled;
 };

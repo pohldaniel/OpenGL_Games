@@ -9,7 +9,7 @@ class Ant : public Entity {
 
 public:
     
-	Ant(const ObjSequence& objSequence, std::shared_ptr<aw::Mesh> mesh, AssimpModel* model, aw::Material material, Entity *target);
+	Ant(const ObjSequence& objSequence, AssimpModel* model, Entity *target);
 
 	void start();
 	void update(const float dt) override;
@@ -25,6 +25,8 @@ public:
 private:
 
 	void animate(float deltaTime);
+	const Material& getMaterial() const override;
+
 	float speed = 8.0f;
 	float detectionRaduis = 25.0f;
 	float animTime = 0.0f;
@@ -37,7 +39,8 @@ private:
 
 	unsigned int hp = 5;
 	Clock timeSinceDamage, timeSinceLastAlphaDecrease;
-	aw::Material originalMaterial;
 	bool isHurting = false;
 	bool isAlive = true;
+
+	Material m_material;
 };

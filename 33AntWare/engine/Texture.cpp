@@ -9,7 +9,6 @@ bool operator==(const Texture& t1, const Texture& t2) {
 }
 
 Texture::Texture(std::string fileName, const bool flipVertical, unsigned int internalFormat, unsigned int format, int paddingLeft, int paddingRight, int paddingTop, int paddingBottom , unsigned int SOIL_FLAG) {
-	
 	loadFromFile(fileName, flipVertical, internalFormat, format, paddingLeft, paddingRight, paddingTop, paddingBottom, SOIL_FLAG);
 }
 
@@ -24,32 +23,35 @@ Texture::Texture(Texture const& rhs){
 	m_type = rhs.m_type;
 	m_target = rhs.m_target;
 	m_textureHandle = rhs.m_textureHandle;
+	m_deepCopy = rhs.m_deepCopy;
 
-	if (m_target == GL_TEXTURE_2D) {
-		unsigned char* bytes = (unsigned char*)malloc(m_width * m_height * m_channels);
-		int magFilter, minFilter, wrapS, wrapT;
+	if (m_deepCopy) {
+		if (m_target == GL_TEXTURE_2D) {
+			unsigned char* bytes = (unsigned char*)malloc(m_width * m_height * m_channels);
+			int magFilter, minFilter, wrapS, wrapT;
 
-		glBindTexture(GL_TEXTURE_2D, rhs.m_texture);
-		glGetTexImage(GL_TEXTURE_2D, 0, m_format, GL_UNSIGNED_BYTE, bytes);
-		glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, &magFilter);
-		glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, &minFilter);
-		glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, &wrapS);
-		glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, &wrapT);
-		glBindTexture(GL_TEXTURE_2D, 0);
+			glBindTexture(GL_TEXTURE_2D, rhs.m_texture);
+			glGetTexImage(GL_TEXTURE_2D, 0, m_format, GL_UNSIGNED_BYTE, bytes);
+			glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, &magFilter);
+			glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, &minFilter);
+			glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, &wrapS);
+			glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, &wrapT);
+			glBindTexture(GL_TEXTURE_2D, 0);
 
-		glGenTextures(1, &m_texture);
-		glBindTexture(GL_TEXTURE_2D, m_texture);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapS);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter);
-		glTexImage2D(GL_TEXTURE_2D, 0, m_internalFormat, m_width, m_height, 0, m_format, m_type, bytes);
+			glGenTextures(1, &m_texture);
+			glBindTexture(GL_TEXTURE_2D, m_texture);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapS);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapT);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter);
+			glTexImage2D(GL_TEXTURE_2D, 0, m_internalFormat, m_width, m_height, 0, m_format, m_type, bytes);
 
-		if (minFilter == 9984 || minFilter == 9985 || minFilter == 9986 || minFilter == 9987)
-			glGenerateMipmap(GL_TEXTURE_2D);
+			if (minFilter == 9984 || minFilter == 9985 || minFilter == 9986 || minFilter == 9987)
+				glGenerateMipmap(GL_TEXTURE_2D);
 
-		glBindTexture(GL_TEXTURE_2D, 0);
-		free(bytes);
+			glBindTexture(GL_TEXTURE_2D, 0);
+			free(bytes);
+		}
 	}
 }
 
@@ -64,32 +66,35 @@ Texture::Texture(Texture&& rhs){
 	m_type = rhs.m_type;
 	m_target = rhs.m_target;
 	m_textureHandle = rhs.m_textureHandle;
+	m_deepCopy = rhs.m_deepCopy;
 
-	if (m_target == GL_TEXTURE_2D) {
-		unsigned char* bytes = (unsigned char*)malloc(m_width * m_height * m_channels);
-		int magFilter, minFilter, wrapS, wrapT;
+	if (m_deepCopy) {
+		if (m_target == GL_TEXTURE_2D) {
+			unsigned char* bytes = (unsigned char*)malloc(m_width * m_height * m_channels);
+			int magFilter, minFilter, wrapS, wrapT;
 
-		glBindTexture(GL_TEXTURE_2D, rhs.m_texture);
-		glGetTexImage(GL_TEXTURE_2D, 0, m_format, GL_UNSIGNED_BYTE, bytes);
-		glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, &magFilter);
-		glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, &minFilter);
-		glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, &wrapS);
-		glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, &wrapT);
-		glBindTexture(GL_TEXTURE_2D, 0);
+			glBindTexture(GL_TEXTURE_2D, rhs.m_texture);
+			glGetTexImage(GL_TEXTURE_2D, 0, m_format, GL_UNSIGNED_BYTE, bytes);
+			glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, &magFilter);
+			glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, &minFilter);
+			glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, &wrapS);
+			glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, &wrapT);
+			glBindTexture(GL_TEXTURE_2D, 0);
 
-		glGenTextures(1, &m_texture);
-		glBindTexture(GL_TEXTURE_2D, m_texture);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapS);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter);
-		glTexImage2D(GL_TEXTURE_2D, 0, m_internalFormat, m_width, m_height, 0, m_format, m_type, bytes);
+			glGenTextures(1, &m_texture);
+			glBindTexture(GL_TEXTURE_2D, m_texture);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapS);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapT);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter);
+			glTexImage2D(GL_TEXTURE_2D, 0, m_internalFormat, m_width, m_height, 0, m_format, m_type, bytes);
 
-		if (minFilter == 9984 || minFilter == 9985 || minFilter == 9986 || minFilter == 9987)
-			glGenerateMipmap(GL_TEXTURE_2D);
+			if (minFilter == 9984 || minFilter == 9985 || minFilter == 9986 || minFilter == 9987)
+				glGenerateMipmap(GL_TEXTURE_2D);
 
-		glBindTexture(GL_TEXTURE_2D, 0);
-		free(bytes);
+			glBindTexture(GL_TEXTURE_2D, 0);
+			free(bytes);
+		}
 	}
 }
 
@@ -104,10 +109,10 @@ Texture& Texture::operator=(const Texture& rhs) {
 	m_type = rhs.m_type;
 	m_target = rhs.m_target;
 	m_textureHandle = rhs.m_textureHandle;
+	m_deepCopy = rhs.m_deepCopy;
+
 	return *this;
 }
-
-
 
 void Texture::copy(const Texture& rhs) {
 
@@ -250,6 +255,10 @@ void Texture::cleanup() {
 		glDeleteTextures(1, &m_texture);
 		m_texture = 0;
 	}
+}
+
+void Texture::setDeepCopy(bool deepCopy) {
+	m_deepCopy = deepCopy;
 }
 
 void Texture::loadFromFile(std::string fileName, const bool _flipVertical, unsigned int _internalFormat, unsigned int _format, int paddingLeft, int paddingRight, int paddingTop, int paddingBottom, unsigned int SOIL_FLAG) {

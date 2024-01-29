@@ -36,8 +36,18 @@ layout(std140, binding = 0) uniform Lights {
 	LightStruct lights[MAX_LIGHTS]; 
 };
 
+layout(std140, binding = 1) uniform u_material {
+	vec4 ambient;
+	vec4 diffuse;
+	vec4 specular;
+	float shininess;
+	float alpha;
+	
+};	
+
 out vec4 color;
 
 void main(void){
-	color = texture2D( u_texture, v_texCoord );
+	color = texture2D( u_texture, v_texCoord ) * specular;
+	color.a *= alpha;
 }

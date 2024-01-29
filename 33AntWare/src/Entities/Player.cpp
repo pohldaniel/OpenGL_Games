@@ -6,8 +6,7 @@
 #include "Application.h"
 #include "HUD.h"
 
-Player::Player(Camera& camera, std::shared_ptr<aw::Mesh> mesh, AssimpModel* model, aw::Material material, const Vector2f& mapMinLimit, const Vector2f& mapMaxLimit) :
-	Entity(mesh, model, material),
+Player::Player(Camera& camera, AssimpModel* model, const Vector2f& mapMinLimit, const Vector2f& mapMaxLimit) : Entity(model),
 	camera(camera),
 	mapMinLimit(mapMinLimit),
 	mapMaxLimit(mapMaxLimit) {
@@ -15,8 +14,6 @@ Player::Player(Camera& camera, std::shared_ptr<aw::Mesh> mesh, AssimpModel* mode
 	childrenEular.set(0.0f, 0.0f, 0.0f);
 	childrenTranslation.set(0.0f, 0.0f, 0.0f);
 	eularAngles.set(0.0f, 0.0f, 0.0f);
-	constructAABB();
-	aabb.maximize(0.2f);
 
 	EventDispatcher::AddMouseListener(this);
 }
@@ -136,9 +133,6 @@ void Player::update(const float dt) {
 		damage(hp);
 		killSound();
 	}
-
-	//updateSelfAndChild();
-	recalculateAABB();
 }
 
 void Player::fixedUpdate(float fdt) {

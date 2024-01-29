@@ -2,6 +2,7 @@
 #include "Globals.h"
 
 DebugRenderer DebugRenderer::s_instance;
+bool DebugRenderer::s_enabled = true;
 
 DebugRenderer::~DebugRenderer() {
 	shutdown();
@@ -66,6 +67,14 @@ void DebugRenderer::shutdown() {
 	}
 }
 
+void DebugRenderer::disable() {
+	s_enabled = false;
+}
+
+void DebugRenderer::enable() {
+	s_enabled = true;
+}
+
 void DebugRenderer::SetView(Camera* camera){
 	
 	if (!camera)
@@ -76,6 +85,8 @@ void DebugRenderer::SetView(Camera* camera){
 }
 
 void DebugRenderer::AddLine(const Vector3f& start, const Vector3f& end, unsigned int color){
+	if (!s_enabled)
+		return;
 
 	if (m_maxIndex - indexCount < 2) {
 		drawBuffer();
@@ -104,6 +115,8 @@ void DebugRenderer::AddLine(const Vector3f& start, const Vector3f& end, const Ve
 }
 
 void DebugRenderer::AddBoundingBox(const BoundingBox& box, const Vector4f& color){
+	if (!s_enabled)
+		return;
 
 	if (m_maxIndex - indexCount < 24) {
 		drawBuffer();
@@ -189,6 +202,8 @@ void DebugRenderer::AddBoundingBox(const BoundingBox& box, const Vector4f& color
 }
 
 void DebugRenderer::AddBoundingBox(const BoundingBox& box, const Matrix4f& transform, const Vector4f& color){
+	if (!s_enabled)
+		return;
 
 	if (m_maxIndex - indexCount < 24) {
 		drawBuffer();
@@ -293,6 +308,8 @@ void DebugRenderer::AddCylinder(const Vector3f& position, float radius, float he
 }
 
 void DebugRenderer::drawBuffer() {
+	if (!s_enabled)
+		return;
 
 	glBindVertexArray(m_vao);
 	GLsizeiptr size = (uint8_t*)verticesPtr - (uint8_t*)vertices;
@@ -322,4 +339,8 @@ void DebugRenderer::drawBuffer() {
 
 DebugRenderer& DebugRenderer::Get() {
 	return s_instance;
+}
+
+bool& DebugRenderer::Enabled() {
+	return s_enabled;
 }

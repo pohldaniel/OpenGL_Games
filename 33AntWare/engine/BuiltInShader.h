@@ -24,7 +24,8 @@
 						vec4 ambient;													\n \
 						vec4 diffuse;													\n \
 						vec4 specular;													\n \
-						int shininess;													\n \
+						float shininess;												\n \
+						float alpha;													\n \
 					};																	\n \
 																						\n \
 					out vec4 color;														\n \
@@ -58,7 +59,8 @@
 								vec4 ambient;													\n \
 								vec4 diffuse;													\n \
 								vec4 specular;													\n \
-								int shininess;													\n \
+								float shininess;												\n \
+								float alpha;													\n \
 							};																	\n \
 																								\n \
 							in vec2 v_texCoord;													\n \
@@ -94,7 +96,8 @@
 						vec4 ambient;													\n \
 						vec4 diffuse;													\n \
 						vec4 specular;													\n \
-						int shininess;													\n \
+						float shininess;												\n \
+						float alpha;													\n \
 					};																	\n \
 																						\n \
 					out vec4 color;														\n \
@@ -131,7 +134,8 @@
 						vec4 ambient;														\n \
 						vec4 diffuse;														\n \
 						vec4 specular;														\n \
-						int shininess;														\n \
+						float shininess;													\n \
+						float alpha;														\n \
 					};																		\n \
 																							\n \
 					in vec2 v_texCoord;														\n \
