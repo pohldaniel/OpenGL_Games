@@ -48,6 +48,6 @@ layout(std140, binding = 1) uniform u_material {
 out vec4 color;
 
 void main(void){
-	color = texture2D( u_texture, v_texCoord ) * specular;
+	color = texture2D( u_texture, v_texCoord ) * diffuse;
 	color.a *= alpha;
 }

@@ -9,49 +9,52 @@
     ],
     "camera": {
         "fov": 45.0,
-        "transform": {
-            "position": [
-                0,
-                0,
-                0
-            ],
-            "rotation": [
-                0,
-                0,
-                0
-            ],
-            "scale": [
-                1,
-                1,
-                1
-            ]
-        },
-        "rigidbody": {
-            "velocity": [
-                0,
-                0,
-                0
-            ],
-            "angularVelocity": [
-                0,
-                0,
-                0
-            ],
-            "acceleration": [
-                0,
-                0,
-                0
-            ],
-            "angularAcceleration": [
-                0,
-                0,
-                0
-            ],
-            "mass": 1.0,
-            "linearLock": 0,
-            "angularLock": 0
-        }
+		"near": 0.1,
+		"far": 120.0,
+		"lookAt": {
+			"position": [0.0, 0.0, 0.0],
+			"target": [0.0, 0.0, -1.0],
+			"up": [0.0, 1.0, 0.0]
+		}
     },
+	"textures":[
+		"res/textures/Ant.png",
+		"res/textures/Gun.png",
+		"res/textures/Hands.png",
+		"res/textures/Gloves.png",
+		"res/textures/CPU.jpg",
+		"res/textures/Bullet.png",
+		"res/textures/transparent.png",
+		"res/textures/flash.png"
+	],
+	"materials": [
+        {
+            "ambient": [0.0, 0.0, 0.0, 1.0],
+            "diffuse": [0.6, 0.6, 0.6, 1.0],
+            "specular": [0.3, 0.3, 0.3, 1.0],
+            "shininess": 2.0
+        },
+        {
+            "ambient": [0.2, 0.2, 0.2, 1.0],
+            "diffuse": [0.4, 0.4, 0.4, 1.0],
+            "specular": [0.9, 0.9, 0.9, 1.0],
+            "shininess": 120.0
+        },
+        {
+            "tag": "Polished Gold",
+            "ambient": [0.24725, 0.2245, 0.0645, 1.0],
+            "diffuse": [0.34615, 0.3143, 0.0903, 1.0],
+            "specular": [0.797357, 0.723991, 0.208006, 1.0],
+            "shininess": 83.2
+        },
+        {
+            "tag": "Polished Silver",
+            "ambient": [0.19225, 0.19225, 0.19225, 1.0],
+            "diffuse": [0.50754, 0.50754, 0.50754, 1.0],
+            "specular": [0.508273, 0.508273, 0.508273, 1.0],
+            "shininess": 51.2
+        }
+    ],
     "meshes": [
         {
             "path": "./Assets/Models/Ant.glb",
@@ -210,94 +213,6 @@
                 -1,
                 0
             ]
-        }
-    ],
-    "materials": [
-        {
-            "ambient": [
-                0.0,
-                0.0,
-                0.0,
-                1.0
-            ],
-            "diffuse": [
-                0.6,
-                0.6,
-                0.6,
-                1.0
-            ],
-            "specular": [
-                0.3,
-                0.3,
-                0.3,
-                1.0
-            ],
-            "shininess": 2.0
-        },
-        {
-            "ambient": [
-                0.2,
-                0.2,
-                0.2,
-                1.0
-            ],
-            "diffuse": [
-                0.4,
-                0.4,
-                0.4,
-                1.0
-            ],
-            "specular": [
-                0.9,
-                0.9,
-                0.9,
-                1.0
-            ],
-            "shininess": 120.0
-        },
-        {
-            "tag": "Polished Gold",
-            "ambient": [
-                0.24725,
-                0.2245,
-                0.0645,
-                1.0
-            ],
-            "diffuse": [
-                0.34615,
-                0.3143,
-                0.0903,
-                1.0
-            ],
-            "specular": [
-                0.797357,
-                0.723991,
-                0.208006,
-                1.0
-            ],
-            "shininess": 83.2
-        },
-        {
-            "tag": "Polished Silver",
-            "ambient": [
-                0.19225,
-                0.19225,
-                0.19225,
-                1.0
-            ],
-            "diffuse": [
-                0.50754,
-                0.50754,
-                0.50754,
-                1.0
-            ],
-            "specular": [
-                0.508273,
-                0.508273,
-                0.508273,
-                1.0
-            ],
-            "shininess": 51.2
         }
     ],
     "gameobjects": [

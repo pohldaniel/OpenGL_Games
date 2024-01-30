@@ -9,6 +9,7 @@
 #include "Application.h"
 #include "Globals.h"
 #include "DebugRenderer.h"
+#include "SceneManager.h"
 
 Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 
@@ -17,13 +18,13 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 	EventDispatcher::AddMouseListener(this);
 	//Mouse::instance().attach(Application::GetWindow());
 
-	m_camera = Camera();
-	m_camera.perspective(45.0f * _180_ON_PI, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 120.0f);
-	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
-	m_camera.lookAt(Vector3f(0.0f, 0.5f, 0.0f), Vector3f(0.0f, 0.5f, 0.0f) - Vector3f(0.0f, 0.0f, 1.0f), Vector3f(0.0f, 1.0f, 0.0f));
-	m_camera.setPosition(10.0f, 0.5f, 0.0f);
-	m_camera.setRotationSpeed(1.0f);
-	m_camera.setMovingSpeed(1.0f);
+	SceneManager::Get().loadSettings("res/default_settings.json");
+	SceneManager::Get().getScene("scene").loadScene(SceneManager::Get().getCurrentSceneFile());
+
+	Scene scene = SceneManager::Get().getScene("scene");
+
+	m_camera = Camera(scene.getCamera());
+
 
 	glClearColor(0.494f, 0.686f, 0.796f, 1.0f);
 	glClearDepth(1.0f);
@@ -43,16 +44,19 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 	
 
 	auto shader = Globals::shaderManager.getAssetPointer("antware");
-	Material::AddTexture("res/textures/Ant.png");
+	/*Material::AddTexture("res/textures/Ant.png");
 	Material::AddTexture("res/textures/Gun.png");
 	Material::AddTexture("res/textures/Hands.png");
 	Material::AddTexture("res/textures/Gloves.png");
 	Material::AddTexture("res/textures/CPU.jpg");
 	Material::AddTexture("res/textures/Bullet.png");
 	Material::AddTexture("res/textures/transparent.png");
-	Material::AddTexture("res/textures/flash.png");
+	Material::AddTexture("res/textures/flash.png");*/
 
-	Material::AddMaterial({ {0.1f, 0.1f, 0.1f, 1.0f}, {0.6f, 0.6f, 0.6f, 1.0f}, {0.3f, 0.3f, 0.3f, 1.0f}, 8.0f, 1.0f });
+	//Material::AddMaterial({ {0.1f, 0.1f, 0.1f, 1.0f}, {0.6f, 0.6f, 0.6f, 1.0f}, {0.3f, 0.3f, 0.3f, 1.0f}, 8.0f, 1.0f });
+
+	Material::SetTextures(scene.getTextures());
+	Material::SetMaterials(scene.getMaterials());
 
 	m_ant = new AssimpModel();
 	m_ant->loadModel("res/models/Ant.glb", false, false, false);

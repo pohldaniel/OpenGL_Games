@@ -666,29 +666,17 @@ void AssimpModel::ReadAiMaterial(const aiMaterial* aiMaterial, short& index, std
 		aiColor4D specular = aiColor4D(0.0f, 0.0f, 0.0f, 0.0f);
 
 		if (AI_SUCCESS == aiGetMaterialColor(aiMaterial, AI_MATKEY_COLOR_DIFFUSE, &diffuse)) { }
-
-		material.diffuse[0] = diffuse.r;
-		material.diffuse[1] = diffuse.g;
-		material.diffuse[2] = diffuse.b;
-		material.diffuse[3] = diffuse.a;
+		material.setDiffuse({ diffuse.r , diffuse.g , diffuse.b , diffuse.a });
 
 		if (AI_SUCCESS == aiGetMaterialColor(aiMaterial, AI_MATKEY_COLOR_AMBIENT, &ambient)) { }
-
-		material.ambient[0] = ambient.r;
-		material.ambient[1] = ambient.g;
-		material.ambient[2] = ambient.b;
-		material.ambient[3] = ambient.a;
+		material.setAmbient({ ambient.r , ambient.g , ambient.b , ambient.a });
 
 		if (AI_SUCCESS == aiGetMaterialColor(aiMaterial, AI_MATKEY_COLOR_SPECULAR, &specular)) { }
-
-		material.specular[0] = specular.r;
-		material.specular[1] = specular.g;
-		material.specular[2] = specular.b;
-		material.specular[3] = specular.a;
+		material.setSpecular({ specular.r , specular.g , specular.b , specular.a });
 
 		if (AI_SUCCESS == aiGetMaterialFloat(aiMaterial, AI_MATKEY_SHININESS, &shininess)) { }
 
-		material.shininess = shininess;
+		material.setShininess(shininess);
 		material.print();
 		int numTextures = aiMaterial->GetTextureCount(aiTextureType_DIFFUSE);
 		if (numTextures > 0) {

@@ -72,8 +72,10 @@ public:
 	Vector2f();
 	Vector2f(float x_);
 	Vector2f(float x_, float y_);
-	Vector2f(const Vector2f &rhs);
-	~Vector2f();
+	Vector2f(float array[2]);
+	Vector2f(Vector2f const& rhs);
+	Vector2f(Vector2f&& rhs);
+	~Vector2f() = default;
 
 	void set(float x_, float y_);
 	float length() const;
@@ -92,12 +94,12 @@ public:
 	float &operator[](int index);
 	const float operator[](int index) const;
 
-	Vector2f& operator= (const Vector2f& rhs);
+	Vector2f& operator=(const Vector2f& rhs);
 
-	Vector2f &operator+=(const Vector2f &rhs);
-	Vector2f &operator-=(const Vector2f &rhs);
-	Vector2f &operator*=(float scalar);
-	Vector2f &operator/=(float scalar);
+	Vector2f& operator+=(const Vector2f &rhs);
+	Vector2f& operator-=(const Vector2f &rhs);
+	Vector2f& operator*=(float scalar);
+	Vector2f& operator/=(float scalar);
 
 	Vector2f operator+(const Vector2f &rhs) const;
 	Vector2f operator-(const Vector2f &rhs) const;
@@ -125,8 +127,11 @@ public:
 	Vector3f();
 	Vector3f(float x_);
 	Vector3f(float x_, float y_, float z_);
+	Vector3f(float array[3]);
+	Vector3f(Vector3f const& rhs);
+	Vector3f(Vector3f&& rhs);
 	Vector3f(const Vector4f& vec);
-	~Vector3f();
+	~Vector3f() = default;
 
 	Vector3f& normalize();
 	float length() const;
@@ -144,6 +149,7 @@ public:
 
 	const float* getVec()const;
 
+	Vector3f &operator=(const Vector3f& rhs);
 	Vector3f &operator+=(const Vector3f &rhs);
 	Vector3f &operator-=(const Vector3f &rhs);
 	Vector3f &operator*=(const Vector3f &rhs);
@@ -188,13 +194,16 @@ public:
 	Vector4f();
 	Vector4f(float x_, float y_, float z_, float w_);
 	Vector4f(float value);
-	Vector4f(const Vector3f &rhs, float w = 1.0f);
 	Vector4f(float array[4]);
-	~Vector4f();
+	Vector4f(const Vector3f &rhs, float w = 1.0f);
+	Vector4f(Vector4f const& rhs);
+	Vector4f(Vector4f&& rhs);
+	~Vector4f() = default;
 
 	float &operator[](int index);
 	const float operator[](int index) const;
 
+	Vector4f &operator=(const Vector4f &rhs);
 	Vector4f &operator+=(const Vector4f &rhs);
 	Vector4f &operator-=(const Vector4f &rhs);
 	Vector4f &operator*=(const Vector4f &rhs);
@@ -243,20 +252,21 @@ public:
 
 	Matrix4f();
 	Matrix4f(float m11, float m12, float m13, float m14,
-		float m21, float m22, float m23, float m24,
-		float m31, float m32, float m33, float m34,
-		float m41, float m42, float m43, float m44);
+             float m21, float m22, float m23, float m24,
+            float m31, float m32, float m33, float m34,
+            float m41, float m42, float m43, float m44);
 	Matrix4f(float array[16]);
-	//Matrix4f(const Matrix4f& rhs);
-	~Matrix4f();
+	Matrix4f(Matrix4f const& rhs);
+	Matrix4f(Matrix4f&& rhs);
+	~Matrix4f() = default;
 
 	float *operator[](int row);
 	const float *operator[](int row) const;
+	Matrix4f& operator= (const Matrix4f& rhs);
 	Matrix4f& operator+=(const Matrix4f& rhs);
 	Matrix4f& operator*=(const Matrix4f& rhs);
 	Matrix4f& operator^=(const Matrix4f& rhs);
-	//Matrix4f& operator= (const Matrix4f& rhs);
-
+	
 	Matrix4f operator+(const Matrix4f& rhs) const;
 	Matrix4f operator*(const Matrix4f& rhs) const;
 	Matrix4f operator^(const Matrix4f& rhs) const;
@@ -403,16 +413,20 @@ public:
 
 	Quaternion();
 	Quaternion(float x, float y, float z, float w);
+	Quaternion(float array[4]);
 	Quaternion(float pitch, float yaw, float roll);
 	Quaternion(const Vector3f &axis, float degrees);
+	Quaternion(Quaternion const& rhs);
+	Quaternion(Quaternion&& rhs);
 	explicit Quaternion(const Matrix4f &m);
-	~Quaternion() {}
+	~Quaternion() = default;
 
 	float &operator[](int index);
 	const float operator[](int index) const;
 	bool operator==(const Quaternion &rhs) const;
 	bool operator!=(const Quaternion &rhs) const;
 
+	Quaternion &operator=(const Quaternion &rhs);
 	Quaternion &operator+=(const Quaternion &rhs);
 	Quaternion &operator-=(const Quaternion &rhs);
 	Quaternion &operator*=(const Quaternion &rhs);

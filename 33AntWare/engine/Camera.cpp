@@ -4,7 +4,7 @@
 #include "Camera.h"
 
 Camera::Camera(){
-	
+
 	WORLD_XAXIS = Vector3f(1.0f, 0.0f, 0.0f);
 	WORLD_YAXIS = Vector3f(0.0f, 1.0f, 0.0f);
 	WORLD_ZAXIS = Vector3f(0.0f, 0.0f, 1.0f);
@@ -27,6 +27,86 @@ Camera::Camera(){
 
 	orthogonalize();
 	updateViewMatrix();
+}
+
+Camera::Camera(Camera const& rhs) {
+
+	WORLD_XAXIS = rhs.WORLD_XAXIS;
+	WORLD_YAXIS = rhs.WORLD_YAXIS;
+	WORLD_ZAXIS = rhs.WORLD_ZAXIS;
+
+	m_accumPitchDegrees = rhs.m_accumPitchDegrees;
+	m_rotationSpeed = rhs.m_rotationSpeed;
+	m_movingSpeed = rhs.m_movingSpeed;
+	m_offsetDistance = rhs.m_offsetDistance;
+
+	m_eye = rhs.m_eye;
+	m_xAxis = rhs.m_xAxis;
+	m_yAxis = rhs.m_yAxis;
+	m_zAxis = rhs.m_zAxis;
+	m_viewDir = rhs.m_viewDir;
+	m_target = rhs.m_target;
+
+	m_viewMatrix = rhs.m_viewMatrix;
+	m_invViewMatrix = rhs.m_invViewMatrix;
+
+	m_persMatrix = rhs.m_persMatrix;
+	m_invPersMatrix = rhs.m_invPersMatrix;
+	m_orthMatrix = rhs.m_orthMatrix;
+	m_invOrthMatrix = rhs.m_invOrthMatrix;
+}
+
+Camera::Camera(Camera&& rhs) {
+	WORLD_XAXIS = rhs.WORLD_XAXIS;
+	WORLD_YAXIS = rhs.WORLD_YAXIS;
+	WORLD_ZAXIS = rhs.WORLD_ZAXIS;
+
+	m_accumPitchDegrees = rhs.m_accumPitchDegrees;
+	m_rotationSpeed = rhs.m_rotationSpeed;
+	m_movingSpeed = rhs.m_movingSpeed;
+	m_offsetDistance = rhs.m_offsetDistance;
+
+	m_eye = rhs.m_eye;
+	m_xAxis = rhs.m_xAxis;
+	m_yAxis = rhs.m_yAxis;
+	m_zAxis = rhs.m_zAxis;
+	m_viewDir = rhs.m_viewDir;
+	m_target = rhs.m_target;
+
+	m_viewMatrix = rhs.m_viewMatrix;
+	m_invViewMatrix = rhs.m_invViewMatrix;
+
+	m_persMatrix = rhs.m_persMatrix;
+	m_invPersMatrix = rhs.m_invPersMatrix;
+	m_orthMatrix = rhs.m_orthMatrix;
+	m_invOrthMatrix = rhs.m_invOrthMatrix;
+}
+
+Camera& Camera::operator=(const Camera& rhs) {
+	WORLD_XAXIS = rhs.WORLD_XAXIS;
+	WORLD_YAXIS = rhs.WORLD_YAXIS;
+	WORLD_ZAXIS = rhs.WORLD_ZAXIS;
+
+	m_accumPitchDegrees = rhs.m_accumPitchDegrees;
+	m_rotationSpeed = rhs.m_rotationSpeed;
+	m_movingSpeed = rhs.m_movingSpeed;
+	m_offsetDistance = rhs.m_offsetDistance;
+
+	m_eye = rhs.m_eye;
+	m_xAxis = rhs.m_xAxis;
+	m_yAxis = rhs.m_yAxis;
+	m_zAxis = rhs.m_zAxis;
+	m_viewDir = rhs.m_viewDir;
+	m_target = rhs.m_target;
+
+	m_viewMatrix = rhs.m_viewMatrix;
+	m_invViewMatrix = rhs.m_invViewMatrix;
+
+	m_persMatrix = rhs.m_persMatrix;
+	m_invPersMatrix = rhs.m_invPersMatrix;
+	m_orthMatrix = rhs.m_orthMatrix;
+	m_invOrthMatrix = rhs.m_invOrthMatrix;
+	return *this;
 }
 
 Camera::Camera(const Vector3f &eye, const Vector3f &target, const Vector3f &up) {

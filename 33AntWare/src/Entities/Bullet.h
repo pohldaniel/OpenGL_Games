@@ -12,7 +12,7 @@ public:
 
 	Bullet(const Vector3f& projectVec);
 	Bullet(Bullet const& rhs);
-	Bullet(Bullet&& source);
+	Bullet(Bullet&& rhs);
 	Bullet &operator=(const Bullet& rhs);
 
 	void start();

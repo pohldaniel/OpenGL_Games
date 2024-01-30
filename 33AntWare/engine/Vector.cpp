@@ -1,27 +1,6 @@
 #include <iostream>
 #include "vector.h"
 
-Matrix4f::Matrix4f() {
-	identity();
-}
-
-/*Matrix4f::Matrix4f(const Matrix4f& rhs) {
-mtx[0][0] = rhs[0][0]; mtx[0][1] = rhs[0][1]; mtx[0][2] = rhs[0][2]; mtx[0][3] = rhs[0][3];
-mtx[1][0] = rhs[1][0]; mtx[1][1] = rhs[1][1]; mtx[1][2] = rhs[1][2]; mtx[1][3] = rhs[1][3];
-mtx[2][0] = rhs[2][0]; mtx[2][1] = rhs[2][1]; mtx[2][2] = rhs[2][2]; mtx[2][3] = rhs[2][3];
-mtx[3][0] = rhs[3][0]; mtx[3][1] = rhs[3][1]; mtx[3][2] = rhs[3][2]; mtx[3][3] = rhs[3][3];
-}
-
-Matrix4f &Matrix4f::operator= (const Matrix4f &rhs) {
-mtx[0][0] = rhs[0][0]; mtx[0][1] = rhs[0][1]; mtx[0][2] = rhs[0][2]; mtx[0][3] = rhs[0][3];
-mtx[1][0] = rhs[1][0]; mtx[1][1] = rhs[1][1]; mtx[1][2] = rhs[1][2]; mtx[1][3] = rhs[1][3];
-mtx[2][0] = rhs[2][0]; mtx[2][1] = rhs[2][1]; mtx[2][2] = rhs[2][2]; mtx[2][3] = rhs[2][3];
-mtx[3][0] = rhs[3][0]; mtx[3][1] = rhs[3][1]; mtx[3][2] = rhs[3][2]; mtx[3][3] = rhs[3][3];
-return *this;
-}*/
-
-Matrix4f::~Matrix4f() {}
-
 const Matrix4f Matrix4f::IDENTITY(1.0f, 0.0f, 0.0f, 0.0f,
 	0.0f, 1.0f, 0.0f, 0.0f,
 	0.0f, 0.0f, 1.0f, 0.0f,
@@ -36,6 +15,24 @@ const Matrix4f Matrix4f::SIGN(1.0f, 0.0f, 0.0f, 0.0f,
 	0.0f, 1.0f, 0.0f, 0.0f,
 	0.0f, 0.0f, -1.0f, 0.0f,
 	0.0f, 0.0f, 0.0f, 1.0f);
+
+Matrix4f::Matrix4f() {
+	identity();
+}
+
+Matrix4f::Matrix4f(const Matrix4f& rhs) {
+	mtx[0][0] = rhs[0][0]; mtx[0][1] = rhs[0][1]; mtx[0][2] = rhs[0][2]; mtx[0][3] = rhs[0][3];
+	mtx[1][0] = rhs[1][0]; mtx[1][1] = rhs[1][1]; mtx[1][2] = rhs[1][2]; mtx[1][3] = rhs[1][3];
+	mtx[2][0] = rhs[2][0]; mtx[2][1] = rhs[2][1]; mtx[2][2] = rhs[2][2]; mtx[2][3] = rhs[2][3];
+	mtx[3][0] = rhs[3][0]; mtx[3][1] = rhs[3][1]; mtx[3][2] = rhs[3][2]; mtx[3][3] = rhs[3][3];
+}
+
+Matrix4f::Matrix4f(Matrix4f&& rhs) {
+	mtx[0][0] = rhs[0][0]; mtx[0][1] = rhs[0][1]; mtx[0][2] = rhs[0][2]; mtx[0][3] = rhs[0][3];
+	mtx[1][0] = rhs[1][0]; mtx[1][1] = rhs[1][1]; mtx[1][2] = rhs[1][2]; mtx[1][3] = rhs[1][3];
+	mtx[2][0] = rhs[2][0]; mtx[2][1] = rhs[2][1]; mtx[2][2] = rhs[2][2]; mtx[2][3] = rhs[2][3];
+	mtx[3][0] = rhs[3][0]; mtx[3][1] = rhs[3][1]; mtx[3][2] = rhs[3][2]; mtx[3][3] = rhs[3][3];
+}
 
 void Matrix4f::invRotate(const Vector3f &axis, float degrees) {
 
@@ -2061,6 +2058,14 @@ void Matrix4f::identity() {
 	mtx[3][0] = 0.0f, mtx[3][1] = 0.0f, mtx[3][2] = 0.0f, mtx[3][3] = 1.0f;
 }
 
+Matrix4f &Matrix4f::operator=(const Matrix4f &rhs) {
+	mtx[0][0] = rhs[0][0]; mtx[0][1] = rhs[0][1]; mtx[0][2] = rhs[0][2]; mtx[0][3] = rhs[0][3];
+	mtx[1][0] = rhs[1][0]; mtx[1][1] = rhs[1][1]; mtx[1][2] = rhs[1][2]; mtx[1][3] = rhs[1][3];
+	mtx[2][0] = rhs[2][0]; mtx[2][1] = rhs[2][1]; mtx[2][2] = rhs[2][2]; mtx[2][3] = rhs[2][3];
+	mtx[3][0] = rhs[3][0]; mtx[3][1] = rhs[3][1]; mtx[3][2] = rhs[3][2]; mtx[3][3] = rhs[3][3];
+	return *this;
+}
+
 Matrix4f &Matrix4f::operator+=(const Matrix4f &rhs) {
 	// Row 1.
 	mtx[0][0] = mtx[0][0] + rhs.mtx[0][0];
@@ -2380,7 +2385,12 @@ Vector2f::Vector2f() {
 	vec[1] = 0.0f;
 }
 
-Vector2f::Vector2f(const Vector2f &rhs) {
+Vector2f::Vector2f(Vector2f const& rhs) {
+	vec[0] = rhs.vec[0];
+	vec[1] = rhs.vec[1];
+}
+
+Vector2f::Vector2f(Vector2f&& rhs) {
 	vec[0] = rhs.vec[0];
 	vec[1] = rhs.vec[1];
 }
@@ -2395,7 +2405,10 @@ Vector2f::Vector2f(float x_, float y_) {
 	vec[1] = y_;
 }
 
-Vector2f::~Vector2f() {}
+Vector2f::Vector2f(float array[2]) {
+	vec[0] = array[0];
+	vec[1] = array[1];
+}
 
 void Vector2f::set(float x_, float y_) {
 	vec[0] = x_, vec[1] = y_;
@@ -2530,8 +2543,6 @@ Vector3f::Vector3f() {
 	vec[2] = 0.0f;
 }
 
-Vector3f::~Vector3f() {}
-
 Vector3f::Vector3f(float x_) {
 	vec[0] = x_;
 	vec[1] = x_;
@@ -2539,10 +2550,27 @@ Vector3f::Vector3f(float x_) {
 }
 
 Vector3f::Vector3f(float x_, float y_, float z_) {
-
 	vec[0] = x_;
 	vec[1] = y_;
 	vec[2] = z_;
+}
+
+Vector3f::Vector3f(float array[3]) {
+	vec[0] = array[0];
+	vec[1] = array[1];
+	vec[2] = array[2];
+}
+
+Vector3f::Vector3f(Vector3f const& rhs) {
+	vec[0] = rhs.vec[0];
+	vec[1] = rhs.vec[1];
+	vec[2] = rhs.vec[2];
+}
+
+Vector3f::Vector3f(Vector3f&& rhs) {
+	vec[0] = rhs.vec[0];
+	vec[1] = rhs.vec[1];
+	vec[2] = rhs.vec[2];
 }
 
 Vector3f::Vector3f(const Vector4f& _vec) {
@@ -2557,6 +2585,11 @@ float &Vector3f::operator[](int index) {
 
 const float Vector3f::operator[](int index) const {
 	return vec[index];
+}
+
+Vector3f &Vector3f::operator=(const Vector3f& rhs) {
+	vec[0] = rhs.vec[0], vec[1] = rhs.vec[1], vec[2] = rhs.vec[2];
+	return *this;
 }
 
 Vector3f &Vector3f::operator+=(const Vector3f &rhs) {
@@ -2749,7 +2782,6 @@ Vector4f::Vector4f() {
 	vec[2] = 0.0f;
 	vec[3] = 0.0f;
 }
-Vector4f::~Vector4f() {}
 
 Vector4f::Vector4f(float x_, float y_, float z_, float w_) {
 	vec[0] = x_;
@@ -2779,6 +2811,20 @@ Vector4f::Vector4f(float array[4]) {
 	vec[3] = array[3];
 }
 
+Vector4f::Vector4f(Vector4f const& rhs) {
+	vec[0] = rhs.vec[0];
+	vec[1] = rhs.vec[1];
+	vec[2] = rhs.vec[2];
+	vec[3] = rhs.vec[3];
+}
+
+Vector4f::Vector4f(Vector4f&& rhs) {
+	vec[0] = rhs.vec[0];
+	vec[1] = rhs.vec[1];
+	vec[2] = rhs.vec[2];
+	vec[3] = rhs.vec[3];
+}
+
 void Vector4f::set(float x_, float y_, float z_, float w_) {
 	vec[0] = x_;
 	vec[1] = y_;
@@ -2793,6 +2839,11 @@ float &Vector4f::operator[](int index) {
 
 const float Vector4f::operator[](int index) const {
 	return vec[index];
+}
+
+Vector4f &Vector4f::operator=(const Vector4f &rhs) {
+	vec[0] = rhs.vec[0], vec[1] = rhs.vec[1], vec[2] = rhs.vec[2], vec[3] = rhs.vec[3];
+	return *this;
 }
 
 Vector4f &Vector4f::operator+=(const Vector4f &rhs) {
@@ -2915,8 +2966,29 @@ Quaternion::Quaternion(float x, float y, float z, float w) {
 	quat[3] = w;
 }
 
+Quaternion::Quaternion(float array[4]) {
+	quat[0] = array[0];
+	quat[1] = array[1];
+	quat[2] = array[2];
+	quat[3] = array[3];
+}
+
 Quaternion::Quaternion(float pitch, float roll, float yaw) {
 	fromPitchYawRoll(pitch, roll, yaw);
+}
+
+Quaternion::Quaternion(Quaternion const& rhs) {
+	quat[0] = rhs.quat[0];
+	quat[1] = rhs.quat[1];
+	quat[2] = rhs.quat[2];
+	quat[3] = rhs.quat[3];
+}
+
+Quaternion::Quaternion(Quaternion&& rhs) {
+	quat[0] = rhs.quat[0];
+	quat[1] = rhs.quat[1];
+	quat[2] = rhs.quat[2];
+	quat[3] = rhs.quat[3];
 }
 
 Quaternion::Quaternion(const Vector3f &axis, float degrees) {
@@ -2944,13 +3016,18 @@ bool Quaternion::operator!=(const Quaternion &rhs) const {
 	return !Quaternion::operator==(rhs);
 }
 
+Quaternion &Quaternion::operator=(const Quaternion &rhs) {
+	quat[3] = rhs.quat[3], quat[0] = rhs.quat[0], quat[1] = rhs.quat[1], quat[2] = rhs.quat[2];
+	return *this;
+}
+
 Quaternion &Quaternion::operator+=(const Quaternion &rhs) {
-	quat[3] += rhs[3], quat[0] += rhs[0], quat[1] += rhs[1], quat[2] += rhs[2];
+	quat[3] += rhs.quat[3], quat[0] += rhs.quat[0], quat[1] += rhs.quat[1], quat[2] += rhs.quat[2];
 	return *this;
 }
 
 Quaternion &Quaternion::operator-=(const Quaternion &rhs) {
-	quat[3] -= rhs[3], quat[0] -= rhs[0], quat[1] -= rhs[1], quat[2] -= rhs[2];
+	quat[3] -= rhs.quat[3], quat[0] -= rhs.quat[0], quat[1] -= rhs.quat[1], quat[2] -= rhs.quat[2];
 	return *this;
 }
 

@@ -1,21 +1,21 @@
 {
     "Note": "DO NOT MODIFY ME UNLESS YOU ARE ADDING A NEW FIELD OR CHANGING THE DEFAULTS",
-    "fullscreen":false,
+    "fullscreen": false,
     "levels": [
-        [
-            "scenes/cpu.json",
-            "Assets/Textures/cpu - label.png",
-            "Assets/Audio/music02.ogg"
-        ],
-        [
-            "scenes/laptop.json",
-            "Assets/Textures/laptop - label.png",
-            "Assets/Audio/music01.ogg"
-        ],
-        [
-            "scenes/cd drive.json",
-            "Assets/Textures/cd drive - label.png",
-            "Assets/Audio/music03.ogg"
-        ]
+        {
+            "file": "res/scenes/cpu.json",
+            "thumb": "res/textures/cpu - label.png",
+            "music": "res/audio/music02.ogg"
+        },
+        {
+            "file": "res/scenes/laptop.json",
+            "thumb": "res/textures/laptop - label.png",
+            "music": "res/audio/music01.ogg"
+        },
+        {
+            "file": "res/scenes/cd drive.json",
+            "thumb": "res/textures/cd drive - label.png",
+            "music": "res/audio/music03.ogg"
+        }
     ]
 }

@@ -5,15 +5,18 @@
 #include <array>
 #include "Texture.h"
 
+struct MaterialBuffer {
+	float ambient[4] = { 0.0f };
+	float diffuse[4] = { 0.0f };
+	float specular[4] = { 0.0f };
+	float shininess = 0.0f;
+	float alpha = 1.0f;
+};
+
 struct Material {
 
 	friend bool operator== (const Material& m1, const Material& m2);
-
-	mutable float ambient[4] = { 0.0f };
-	mutable float diffuse[4] = { 0.0f };
-	mutable float specular[4] = { 0.0f };
-	mutable float shininess =  0.0f;
-	mutable float alpha = 1.0f;
+	mutable MaterialBuffer buffer;
 
 	//avoid unwanted copy costructor calls using std::unordered_map over std::vector
 	std::unordered_map<unsigned short, Texture> textures;
@@ -37,12 +40,14 @@ struct Material {
 	std::string name;
 
 	static std::vector<Material>& GetMaterials();
+	static void SetMaterials(const std::vector<Material>& materials);
 	static std::vector<Material> Materials;
 	static void Cleanup(unsigned short index);
-	static Material& AddMaterial(const Material& material = { {0.0f, 0.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 0.0f}, 1.0f});
+	static Material& AddMaterial(const MaterialBuffer& material =  { {0.0f, 0.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 0.0f}, 1.0f} );
 
 	static Texture& AddTexture(std::string path);
 	static std::vector<Texture>& GetTextures();
+	static void SetTextures(const std::vector<Texture>& textures);
 	static std::vector<Texture> Textures;
 };
 #endif

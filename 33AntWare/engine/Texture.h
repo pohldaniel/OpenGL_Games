@@ -59,6 +59,7 @@ public:
 	void setAnisotropy(float aniso) const;
 	void cleanup();
 	void setDeepCopy(bool deepCopy);
+	void markForDelete();
 
 	static void Bind(unsigned int textureRef, unsigned int unit = 0u, unsigned int target = 3553u);
 	static void Unbind(unsigned int unit = 0u, unsigned int target = 3553u);
@@ -108,6 +109,9 @@ private:
 	unsigned int m_target;
 	unsigned int m_textureHandle = 0u;
 	bool m_deepCopy = false;
+	bool m_markForDelete = false;
+
+	static int Count;
 };
 
 #endif

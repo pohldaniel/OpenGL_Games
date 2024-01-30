@@ -17,30 +17,37 @@ public:
 
 	void loadTexture(const std::string& name, const std::string& path, const bool flipVertical = true, unsigned int internalFormat = 0u, unsigned int format = 0u, unsigned int SOIL_FLAG = 0u) {
 		m_assets[name].loadFromFile(path, flipVertical, internalFormat, format, 0, 0, 0, 0, SOIL_FLAG);
+		m_assets[name].markForDelete();
 	}
 
 	void loadTexture(const std::string& name, const std::string& path, unsigned short tileWidth, unsigned short tileHeight, unsigned short spacing, unsigned int posY, unsigned int posX, const bool flipVertical = true, unsigned int format = 0) {
 		m_assets[name].loadFromFile(path, tileWidth, tileHeight, spacing, posY, posX, flipVertical, format);
+		m_assets[name].markForDelete();
 	}
 
 	void loadTexture(const std::string& name, const std::string& path, unsigned int offsetX, unsigned int offsetY, unsigned int width, unsigned int height, const bool flipVertical = true, unsigned int format = 0) {
 		m_assets[name].loadFromFile(path, offsetX, offsetY, width, height, flipVertical, format);
+		m_assets[name].markForDelete();
 	}
 
 	void createNullTexture(const std::string& name, unsigned int width = 2u, unsigned int height = 2u, unsigned int color = 255u) {
 		m_assets[name].createNullTexture(width, height, color);
+		m_assets[name].markForDelete();
 	}
 
 	void createPerlinNoise(const std::string& name, unsigned int width = 2u, unsigned int height = 2u, unsigned int seed = 0u) {
 		m_assets[name].createPerlinNoise(width, height, seed);
+		m_assets[name].markForDelete();
 	}
 
 	void createNoise(const std::string& name, unsigned int width = 2, unsigned int height = 2) {
 		m_assets[name].createNoise(width, height);
+		m_assets[name].markForDelete();
 	}
 
 	void createEmptyTexture(const std::string& name, unsigned int width, unsigned int height, unsigned int internalFormat = 0u, unsigned int format = 0u, unsigned int type = 0u) {
 		m_assets[name].createEmptyTexture(width, height, internalFormat, format, type);
+		m_assets[name].markForDelete();
 	}
 
 	void loadCharacterSet(const std::string& name, const std::string& path, const unsigned int characterSize, const unsigned int paddingX = 1u, const unsigned int paddingY = 10u, unsigned int minHeight = 0u, int spacing = 0, const bool flipVertical = true, unsigned int frame = 0u) {
@@ -113,14 +120,17 @@ public:
 
 	void loadCubeMap(const std::string& name, std::string* textureFiles, const bool flipVertical = true, unsigned int internalFormat = 0u, unsigned int format = 0u) {
 		m_assets[name].loadCubeFromFile(textureFiles, flipVertical, internalFormat, format);
+		m_assets[name].markForDelete();
 	}
 
 	void loadCubeMapFromCross(const std::string& name, const std::string& path, const bool flipVertical = true, unsigned int internalFormat = 0u, unsigned int format = 0u) {
 		m_assets[name].loadCrossCubeFromFile(path, flipVertical, internalFormat, format);
+		m_assets[name].markForDelete();
 	}
 
 	void createNullCubemap(const std::string& name, unsigned int width = 2, unsigned int height = 2, unsigned int color = 255) {
 		m_assets[name].createNullCubemap(width, height, color);
+		m_assets[name].markForDelete();
 	}
 
 	void loadSoundEffect(const std::string& name, const std::string& path) {

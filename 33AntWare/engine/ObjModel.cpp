@@ -1786,34 +1786,22 @@ void ObjModel::ReadMaterialFromFile(std::string path, std::string mltName, short
 			}else if ((*lines[i])[0] == 'N' && (*lines[i])[1] == 's') {
 				int tmp;
 				sscanf(lines[i]->c_str(), "Ns %i", &tmp);
-				material.shininess = tmp;
+				material.setShininess(tmp);
 
 			}else if ((*lines[i])[0] == 'K' && (*lines[i])[1] == 'a') {
 				float tmpx, tmpy, tmpz;
 				sscanf(lines[i]->c_str(), "Ka %f %f %f", &tmpx, &tmpy, &tmpz);
-
-				material.ambient[0] = tmpx;
-				material.ambient[1] = tmpy;
-				material.ambient[2] = tmpz;
-				material.ambient[3] = 0.0f;
-
+				material.setAmbient({ tmpx, tmpx, tmpz, 1.0f });
+	
 			}else if ((*lines[i])[0] == 'K' && (*lines[i])[1] == 'd') {
 				float tmpx, tmpy, tmpz;
 				sscanf(lines[i]->c_str(), "Kd %f %f %f", &tmpx, &tmpy, &tmpz);
-
-				material.diffuse[0] = tmpx;
-				material.diffuse[1] = tmpy;
-				material.diffuse[2] = tmpz;
-				material.diffuse[3] = 0.0f;
+				material.setDiffuse({ tmpx, tmpx, tmpz, 1.0f });
 
 			}else if ((*lines[i])[0] == 'K' && (*lines[i])[1] == 's') {
 				float tmpx, tmpy, tmpz;
 				sscanf(lines[i]->c_str(), "Ks %f %f %f", &tmpx, &tmpy, &tmpz);
-
-				material.specular[0] = tmpx;
-				material.specular[1] = tmpy;
-				material.specular[2] = tmpz;
-				material.specular[3] = 0.0f;
+				material.setSpecular({ tmpx, tmpx, tmpz, 1.0f });
 
 			}else if ((*lines[i])[0] == 'm') {
 

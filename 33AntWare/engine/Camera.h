@@ -9,7 +9,10 @@ class Camera {
 public:
 
 	Camera();
-	Camera(const Vector3f &eye, const Vector3f &target, const Vector3f &up);
+	Camera(Camera const& rhs);
+	Camera(Camera&& source);
+	Camera& operator=(const Camera& rhs);
+	Camera(const Vector3f &eye, const Vector3f &target, const Vector3f &up);	
 	~Camera();
 
 	void perspective(float fovx, float aspect, float znear, float zfar);
