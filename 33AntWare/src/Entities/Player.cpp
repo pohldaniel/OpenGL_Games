@@ -36,19 +36,19 @@ void Player::update(const float dt) {
 	if (!hasFallen) {
 
 		if (keyboard.keyDown(Keyboard::KEY_W)) {
-			rigidbody.velocity.z -= 1;
+			rigidbody.velocity[2] -= 1;
 		}
 
 		if (keyboard.keyDown(Keyboard::KEY_S)) {
-			rigidbody.velocity.z += 1;
+			rigidbody.velocity[2] += 1;
 		}
 
 		if (keyboard.keyDown(Keyboard::KEY_D)) {
-			rigidbody.velocity.x += 1;
+			rigidbody.velocity[1] += 1;
 		}
 
 		if (keyboard.keyDown(Keyboard::KEY_A)) {
-			rigidbody.velocity.x -= 1;
+			rigidbody.velocity[1] -= 1;
 		}
 
 		if (keyboard.keyPressed(Keyboard::KEY_R) && reloadTimer.getElapsedTimeSec() > 1.5f) {
@@ -78,7 +78,7 @@ void Player::update(const float dt) {
 		}
 	}
 
-	if (rigidbody.velocity != glm::vec3(0, 0, 0)) {
+	if (rigidbody.velocity != Vector3f(0.0f, 0.0f, 0.0f)) {
 		//footstepsSound.setPitch(Keyboard::isKeyPressed(Keyboard::LShift) ? 1.5f : 1.0f);
 		//if (footstepsSound.getStatus() != sf::Sound::Playing)
 			//footstepsSound.play();
@@ -86,8 +86,8 @@ void Player::update(const float dt) {
 		//footstepsSound.pause();
 	}
 
-	if (length(rigidbody.velocity) > 0)
-		rigidbody.velocity = normalize(rigidbody.velocity);
+	if (rigidbody.velocity.lengthSq() > 0)
+		Vector3f::Normalize(rigidbody.velocity);
 
 	rigidbody.velocity *= keyboard.keyDown(Keyboard::KEY_LSHIFT) ? runningSpeed : speed;
 
@@ -111,9 +111,9 @@ void Player::update(const float dt) {
 	if ((positionOnY[0] < mapMinLimit[0] || positionOnY[1] < mapMinLimit[1] ||
 		positionOnY[0] > mapMaxLimit[0] || positionOnY[1] > mapMaxLimit[1]) && !hasFallen) {
 		hasFallen = true;
-		rigidbody.lockLinear(aw::AXIS::x);
-		rigidbody.lockLinear(aw::AXIS::z);
-		rigidbody.unlockLinear(aw::AXIS::y);
+		rigidbody.lockLinear(AXIS::x);
+		rigidbody.lockLinear(AXIS::z);
+		rigidbody.unlockLinear(AXIS::y);
 		rigidbody.acceleration = { 0, -fallingAcceleration, 0 };
 	}
 
@@ -136,32 +136,7 @@ void Player::update(const float dt) {
 }
 
 void Player::fixedUpdate(float fdt) {
-	if (m_isStatic)
-		return;
-
-	rigidbody.velocity += rigidbody.acceleration * fdt;
-	rigidbody.angularVelocity += rigidbody.angularAcceleration * fdt;
-
-	Vector3f appliedVelocity = Quaternion::Rotate(m_orientation, Vector3f(rigidbody.velocity.x, rigidbody.velocity.y, rigidbody.velocity.z));
-	Vector3f appliedAngularVelocity = Quaternion::Rotate(m_orientation, Vector3f(rigidbody.angularVelocity.x, rigidbody.angularVelocity.y, rigidbody.angularVelocity.z));
-
-
-	if (rigidbody.isLinearLocked(aw::AXIS::x))
-		appliedVelocity[0] = 0;
-	if (rigidbody.isLinearLocked(aw::AXIS::y))
-		appliedVelocity[1] = 0;
-	if (rigidbody.isLinearLocked(aw::AXIS::z))
-		appliedVelocity[2] = 0;
-	if (rigidbody.isAngularLocked(aw::AXIS::x))
-		appliedAngularVelocity[0] = 0;
-	if (rigidbody.isAngularLocked(aw::AXIS::y))
-		appliedAngularVelocity[1] = 0;
-	if (rigidbody.isAngularLocked(aw::AXIS::z))
-		appliedAngularVelocity[2] = 0;
-
-	translate(appliedVelocity * fdt);
-	rotate(appliedAngularVelocity * fdt);
-
+	Entity::fixedUpdate(fdt);
 
 	for (unsigned i = 0; i < bullets.size(); ++i) {
 		bullets[i].fixedUpdate(fdt);
@@ -171,8 +146,8 @@ void Player::fixedUpdate(float fdt) {
 void Player::start() {
 	dynamic_cast<Entity*>(m_children.front().get())->m_model->getMesh()->setTextureIndex(6);
 	m_isStatic = false;
-	rigidbody.lockLinear(aw::AXIS::y);
-	rigidbody.lockAngular(aw::AXIS::z);
+	rigidbody.lockLinear(AXIS::y);
+	rigidbody.lockAngular(AXIS::z);
 }
 
 void Player::dispatchBullet() {

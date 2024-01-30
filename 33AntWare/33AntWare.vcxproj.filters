@@ -686,9 +686,6 @@
     <ClInclude Include="src\ObjSequence.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Rigidbody.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="HUD.h">
       <Filter>Source Files</Filter>
     </ClInclude>
@@ -732,6 +729,9 @@
       <Filter>Source Files\Scene</Filter>
     </ClInclude>
     <ClInclude Include="src\DebugRenderer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Rigidbody.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

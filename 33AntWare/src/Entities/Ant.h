@@ -14,7 +14,7 @@ public:
 	void start();
 	void update(const float dt) override;
 	void draw(const Camera& camera) override;
-	void fixedUpdate(float fdt) override;
+
 
 	void damage(unsigned int amount);
 	unsigned getHp();

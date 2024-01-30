@@ -2,7 +2,7 @@
 #include <imgui_impl_win32.h>
 #include <imgui_impl_opengl3.h>
 #include <imgui_internal.h>
-#include <glm/gtc/type_ptr.hpp>
+
 #include <engine/Batchrenderer.h>
 
 #include "Game.h"
@@ -147,63 +147,63 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 	m_ant1->setPosition(-21.3863f, -0.978558f, -1.92476f);
 	m_ant1->setOrientation(0.0f, 262.062f, 0.0f);
 	m_ant1->m_isStatic = false;
-	m_ant1->rigidbody = aw::Rigidbody();
+	m_ant1->rigidbody = Rigidbody();
 	m_ant1->start();
 
 	m_ant2 = new Ant(m_objSequence, m_ant, m_player);
 	m_ant2->setPosition(-23.6894f, -0.978558f, 34.7609f);
 	m_ant2->setOrientation(0.0f, -11.0968f, 0.0f);
 	m_ant2->m_isStatic = false;
-	m_ant2->rigidbody = aw::Rigidbody();
+	m_ant2->rigidbody = Rigidbody();
 	m_ant2->start();
 
 	m_ant3 = new Ant(m_objSequence, m_ant, m_player);
 	m_ant3->setPosition(23.6894f, -0.978558f, 34.1029f);
 	m_ant3->setOrientation(0.0f, 18.5357f, 0.0f);
 	m_ant3->m_isStatic = false;
-	m_ant3->rigidbody = aw::Rigidbody();
+	m_ant3->rigidbody = Rigidbody();
 	m_ant3->start();
 
 	m_ant4 = new Ant(m_objSequence, m_ant, m_player);
 	m_ant4->setPosition(33.3955f, -0.978558f, 16.0068f);
 	m_ant4->setOrientation(0.0f, 86.8875f, 0.0f);
 	m_ant4->m_isStatic = false;
-	m_ant4->rigidbody = aw::Rigidbody();
+	m_ant4->rigidbody = Rigidbody();
 	m_ant4->start();
 
 	m_ant5 = new Ant(m_objSequence, m_ant, m_player);
 	m_ant5->setPosition(33.0665f, -0.978558f, -18.3758f);
 	m_ant5->setOrientation(0.0f, 110.727f, 0.0f);
 	m_ant5->m_isStatic = false;
-	m_ant5->rigidbody = aw::Rigidbody();
+	m_ant5->rigidbody = Rigidbody();
 	m_ant5->start();
 
 	m_ant6 = new Ant(m_objSequence, m_ant, m_player);
 	m_ant6->setPosition(16.78f, -0.978558f, -35.4848f);
 	m_ant6->setOrientation(0.0f, 169.316f, 0.0f);
 	m_ant6->m_isStatic = false;
-	m_ant6->rigidbody = aw::Rigidbody();
+	m_ant6->rigidbody = Rigidbody();
 	m_ant6->start();
 
 	m_ant7 = new Ant(m_objSequence, m_ant, m_player);
 	m_ant7->setPosition(-17.9316f, -0.978558f, -35.1558f);
 	m_ant7->setOrientation(0.0f, 193.526f, 0.0f);
 	m_ant7->m_isStatic = false;
-	m_ant7->rigidbody = aw::Rigidbody();
+	m_ant7->rigidbody = Rigidbody();
 	m_ant7->start();
 
 	m_ant8 = new Ant(m_objSequence, m_ant,  m_player);
 	m_ant8->setPosition(-33.889f, -0.978558f, -20.1854f);
 	m_ant8->setOrientation(0.0f, 238.843f, 0.0f);
 	m_ant8->m_isStatic = false;
-	m_ant8->rigidbody = aw::Rigidbody();
+	m_ant8->rigidbody = Rigidbody();
 	m_ant8->start();
 
 	m_ant9 = new Ant(m_objSequence, m_ant, m_player);
 	m_ant9->setPosition(-35.6987f, -0.978558f, 14.5262f);
 	m_ant9->setOrientation(0.0f, 272.3f, 0.0f);
 	m_ant9->m_isStatic = false;
-	m_ant9->rigidbody = aw::Rigidbody();
+	m_ant9->rigidbody = Rigidbody();
 	m_ant9->start();
 
 	m_ants.push_back(m_ant1);

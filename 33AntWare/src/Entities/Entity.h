@@ -1,6 +1,5 @@
 #pragma once
 
-#include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <engine/Texture.h>
 #include <engine/Camera.h>
@@ -24,5 +23,5 @@ public:
 	bool m_disabled;
 	bool m_isStatic;
 
-	aw::Rigidbody rigidbody;
+	Rigidbody rigidbody;
 };

@@ -39,21 +39,21 @@ void Bullet::fixedUpdate(float fdt) {
 	rigidbody.velocity += rigidbody.acceleration * fdt;
 	rigidbody.angularVelocity += rigidbody.angularAcceleration * fdt;
 
-	Vector3f appliedVelocity = Quaternion::Rotate(m_orientation, Vector3f(rigidbody.velocity.x, rigidbody.velocity.y, rigidbody.velocity.z));
-	Vector3f appliedAngularVelocity = Quaternion::Rotate(m_orientation, Vector3f(rigidbody.angularVelocity.x, rigidbody.angularVelocity.y, rigidbody.angularVelocity.z));
+	Vector3f appliedVelocity = Quaternion::Rotate(m_orientation, Vector3f(rigidbody.velocity[0], rigidbody.velocity[1], rigidbody.velocity[2]));
+	Vector3f appliedAngularVelocity = Quaternion::Rotate(m_orientation, Vector3f(rigidbody.angularVelocity[0], rigidbody.angularVelocity[1], rigidbody.angularVelocity[2]));
 
-	if (rigidbody.isLinearLocked(aw::AXIS::x))
-		appliedVelocity[0] = 0;
-	if (rigidbody.isLinearLocked(aw::AXIS::y))
-		appliedVelocity[1] = 0;
-	if (rigidbody.isLinearLocked(aw::AXIS::z))
-		appliedVelocity[2] = 0;
-	if (rigidbody.isAngularLocked(aw::AXIS::x))
-		appliedAngularVelocity[0] = 0;
-	if (rigidbody.isAngularLocked(aw::AXIS::y))
-		appliedAngularVelocity[1] = 0;
-	if (rigidbody.isAngularLocked(aw::AXIS::z))
-		appliedAngularVelocity[2] = 0;
+	if (rigidbody.isLinearLocked(AXIS::x))
+		appliedVelocity[0] = 0.0f;
+	if (rigidbody.isLinearLocked(AXIS::y))
+		appliedVelocity[1] = 0.0f;
+	if (rigidbody.isLinearLocked(AXIS::z))
+		appliedVelocity[2] = 0.0f;
+	if (rigidbody.isAngularLocked(AXIS::x))
+		appliedAngularVelocity[0] = 0.0f;
+	if (rigidbody.isAngularLocked(AXIS::y))
+		appliedAngularVelocity[1] = 0.0f;
+	if (rigidbody.isAngularLocked(AXIS::z))
+		appliedAngularVelocity[2] = 0.0f;
 
 	translate(appliedVelocity * fdt);
 	rotate(appliedAngularVelocity * fdt);

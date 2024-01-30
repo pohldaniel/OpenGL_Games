@@ -18,31 +18,6 @@ void Ant::start() {
 	index = baseIndex;
 }
 
-void Ant::fixedUpdate(float fdt) {
-	
-	if (m_isStatic)
-		return;
-
-	Vector3f appliedVelocity = Quaternion::Rotate(m_orientation, Vector3f(rigidbody.velocity.x, rigidbody.velocity.y, rigidbody.velocity.z));
-	Vector3f appliedAngularVelocity = Quaternion::Rotate(m_orientation, Vector3f(rigidbody.angularVelocity.x, rigidbody.angularVelocity.y, rigidbody.angularVelocity.z));
-
-	if (rigidbody.isLinearLocked(aw::AXIS::x))
-		appliedVelocity[0] = 0;
-	if (rigidbody.isLinearLocked(aw::AXIS::y))
-		appliedVelocity[1] = 0;
-	if (rigidbody.isLinearLocked(aw::AXIS::z))
-		appliedVelocity[2] = 0;
-	if (rigidbody.isAngularLocked(aw::AXIS::x))
-		appliedAngularVelocity[0] = 0;
-	if (rigidbody.isAngularLocked(aw::AXIS::y))
-		appliedAngularVelocity[1] = 0;
-	if (rigidbody.isAngularLocked(aw::AXIS::z))
-		appliedAngularVelocity[2] = 0;
-
-	translate(appliedVelocity * fdt);
-	rotate(appliedAngularVelocity * fdt);
-}
-
 void Ant::update(float dt) {
 
 	if (isAlive && isHurting && timeSinceDamage.getElapsedTimeSec() >= 0.3f) {
@@ -79,7 +54,7 @@ void Ant::update(float dt) {
 		rigidbody.velocity = { 0.0f, 0.0f, 0.0f };
 	}
 
-	if (length(rigidbody.velocity) > 0.0f) {
+	if (rigidbody.velocity.lengthSq() > 0.0f) {
 		animate(dt);
 	}else {
 		index = baseIndex;

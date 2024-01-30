@@ -2651,13 +2651,15 @@ float Vector3f::lengthSq() const {
 }
 
 Vector3f& Vector3f::Normalize(Vector3f &p) {
-	float invMag = p.length() != 0.0f ? 1.0f / p.length() : 1.0f;
+	float length = p.length();
+	float invMag = length != 0.0f ? 1.0f / length : 1.0f;
 	p[0] *= invMag, p[1] *= invMag, p[2] *= invMag;
 	return p;
 }
 
 Vector3f Vector3f::Normalize(const Vector3f &p) {
-	float invMag = p.length() != 0.0f ? 1.0f / p.length() : 1.0f;
+	float length = p.length();
+	float invMag = length != 0.0f ? 1.0f / length : 1.0f;
 	return Vector3f(p[0] * invMag, p[1] * invMag, p[2] * invMag);
 }
 
@@ -3045,7 +3047,6 @@ void Quaternion::conjugate() {
 void Quaternion::inverse() {
 	float invMag = 1.0f / length();
 	conjugate();
-
 	quat[0] = quat[0] * invMag; quat[1] = quat[1] * invMag; quat[2] = quat[2] * invMag; quat[3] = quat[3] * invMag;
 }
 
