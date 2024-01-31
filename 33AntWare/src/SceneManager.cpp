@@ -28,7 +28,7 @@ void Scene::parseCamera(rapidjson::GenericObject<false, rapidjson::Value> object
                   { up[0].GetFloat(),  up[1].GetFloat(), up[2].GetFloat() });
 }
 
-Texture& Scene::addTexture(std::string path) {
+Texture& Scene::addTexture(std::string path, std::vector<Texture>& texures) {
 	textures.resize(textures.size() + 1);
 	Texture& texture = textures.back();
 	texture.loadFromFile(path, true);
@@ -37,13 +37,13 @@ Texture& Scene::addTexture(std::string path) {
 
 void Scene::parseTextures(rapidjson::GenericArray<false, rapidjson::Value> array, std::vector<Texture>& texures) {
 	for (rapidjson::Value::ConstValueIterator texture = array.Begin(); texture != array.End(); ++texture) {
-		addTexture(texture->GetString());
+		addTexture(texture->GetString(), texures);
 	}
 
 	std::for_each(textures.begin(), textures.end(), std::mem_fn(&Texture::markForDelete));
 }
 
-Material& Scene::addMaterial(const MaterialBuffer& _material) {
+Material& Scene::addMaterial(const MaterialBuffer& _material, std::vector<Material>& materials) {
 	materials.resize(materials.size() + 1);
 	Material& material = materials.back();
 
@@ -79,8 +79,59 @@ void Scene::parseMaterials(rapidjson::GenericArray<false, rapidjson::Value> arra
 					  {diffuse[0].GetFloat(), diffuse[1].GetFloat(), diffuse[2].GetFloat(), diffuse[3].GetFloat()},
 					  {specular[0].GetFloat(), specular[1].GetFloat(), specular[2].GetFloat(), specular[3].GetFloat()}, 
 			          mat["shininess"].GetFloat() 
-			       });
+			       }, materials);
 
+	}
+}
+
+AssimpModel* Scene::addMesh(rapidjson::GenericObject<true, rapidjson::Value> object, std::vector<AssimpModel*>& meshes) {
+	meshes.push_back(new AssimpModel());
+	AssimpModel* mesh = meshes.back();
+
+	mesh->loadModel(object["path"].GetString(), false, false, false);
+	if (object.HasMember("materialIndex")){
+		mesh->getMeshes()[0]->setMaterialIndex(object["materialIndex"].GetInt());
+	}
+
+	if (object.HasMember("textureIndex")) {
+		mesh->getMeshes()[0]->setTextureIndex(object["textureIndex"].GetInt());
+	}
+
+	return mesh;
+}
+
+void Scene::parseMeshes(rapidjson::GenericArray<false, rapidjson::Value> array, std::vector<AssimpModel*>& meshes) {
+	for (rapidjson::Value::ConstValueIterator mesh = array.Begin(); mesh != array.End(); ++mesh) {
+		addMesh(mesh->GetObject(), meshes);
+	}
+
+}
+
+ObjSequence& Scene::addObjSequence(const rapidjson::GenericObject<true, rapidjson::Value> object, ObjSequence& objSequence) {
+	objSequence.loadSequence(object["path"].GetString());
+	if (object.HasMember("materialIndex")) {
+		objSequence.setMaterialIndex(object["materialIndex"].GetInt());
+	}
+
+	if (object.HasMember("textureIndex")) {
+		objSequence.setTextureIndex(object["textureIndex"].GetInt());
+	}
+
+	if (object.HasMember("additionalMeshes")) {
+		rapidjson::GenericArray<true, rapidjson::Value> array = object["additionalMeshes"].GetArray();
+		for (rapidjson::Value::ConstValueIterator mesh = array.Begin(); mesh != array.End(); ++mesh) {
+			objSequence.addMesh(meshes[(*mesh).GetInt()]->getMeshes()[0]->getVertexBuffer(), meshes[(*mesh).GetInt()]->getMeshes()[0]->getIndexBuffer());
+		}
+	}
+
+	objSequence.loadSequenceGpu();
+	objSequence.markForDelete();
+	return objSequence;
+}
+
+void Scene::parseObjSequences(rapidjson::GenericArray<false, rapidjson::Value> array, ObjSequence& objSequence) {
+	for (rapidjson::Value::ConstValueIterator mesh = array.Begin(); mesh != array.End(); ++mesh) {
+		addObjSequence(mesh->GetObject(), objSequence);
 	}
 }
 
@@ -102,6 +153,8 @@ void Scene::loadScene(std::string path) {
 	parseCamera(doc["camera"].GetObject(), camera);
 	parseTextures(doc["textures"].GetArray(), textures);
 	parseMaterials(doc["materials"].GetArray(), materials);
+	parseMeshes(doc["meshes"].GetArray(), meshes);
+	parseObjSequences(doc["objSequences"].GetArray(), objSequence);
 }
 
 const Camera& Scene::getCamera() const {
@@ -114,6 +167,14 @@ const std::vector<Texture>& Scene::getTextures() const {
 
 const std::vector<Material>& Scene::getMaterials() const {
 	return materials;
+}
+
+const std::vector<AssimpModel*>& Scene::getMeshes() const {
+	return meshes;
+}
+
+const ObjSequence& Scene::getObjSequence() const {
+	return objSequence;
 }
 
 ///////////////////////ScenetManager//////////////////////////

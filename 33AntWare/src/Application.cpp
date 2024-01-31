@@ -334,8 +334,8 @@ void Application::initOpenGL(int msaaSamples) {
 
 	ToggleVerticalSync();
 
-	//glDisable(GL_CULL_FACE);
-	glEnable(GL_CULL_FACE);
+	glDisable(GL_CULL_FACE);
+	//glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
 	glFrontFace(GL_CCW);
 

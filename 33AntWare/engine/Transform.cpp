@@ -9,6 +9,22 @@ Transform::Transform(const Matrix4f& m) {
 	fromMatrix(m);
 }
 
+Transform::Transform(Transform const& rhs) {
+	T = rhs.T;
+	invT = rhs.invT;
+}
+
+Transform::Transform(Transform&& rhs) {
+	T = rhs.T;
+	invT = rhs.invT;
+}
+
+Transform& Transform::operator=(const Transform& rhs) {
+	T = rhs.T;
+	invT = rhs.invT;
+	return *this;
+}
+
 void Transform::reset() {
 	T.identity();
 	invT.identity();
@@ -47,7 +63,7 @@ void Transform::setRotPos(const Vector3f& axis, float degrees, float dx, float d
 	//invT[3][2] = invT[3][2] - dx*invT[0][2] - dz*invT[2][2] - dy*invT[1][2];
 }
 
-void Transform::setRotPosScale(const Vector3f& axis, float degrees, float dx, float dy, float dz, float x, float y, float z) {
+void Transform::setRotPosScale(const Vector3f& axis, float degrees, float dx, float dy, float dz, float sx, float sy, float sz) {
 	T.identity();
 	invT.identity();
 
@@ -77,14 +93,14 @@ void Transform::setRotPosScale(const Vector3f& axis, float degrees, float dx, fl
 	//invT[3][2] = invT[3][2] - dx*invT[0][2] - dz*invT[2][2] - dy*invT[1][2];
 
 	
-	T[0][0] = T[0][0] * x;  T[1][0] = T[1][0] * y; T[2][0] = T[2][0] * z;
-	T[0][1] = T[0][1] * x;  T[1][1] = T[1][1] * y; T[2][1] = T[2][1] * z;
-	T[0][2] = T[0][2] * x;  T[1][2] = T[1][2] * y; T[2][2] = T[2][2] * z;
+	T[0][0] = T[0][0] * sx;  T[1][0] = T[1][0] * sy; T[2][0] = T[2][0] * sz;
+	T[0][1] = T[0][1] * sx;  T[1][1] = T[1][1] * sy; T[2][1] = T[2][1] * sz;
+	T[0][2] = T[0][2] * sx;  T[1][2] = T[1][2] * sy; T[2][2] = T[2][2] * sz;
 
-	//invT[0][0] = invT[0][0] * (1.0 / x); invT[0][1] = invT[0][1] * (1.0 / y); invT[0][2] = invT[0][2] * (1.0 / z);
-	//invT[1][0] = invT[1][0] * (1.0 / x); invT[1][1] = invT[1][1] * (1.0 / y); invT[1][2] = invT[1][2] * (1.0 / z);
-	//invT[2][0] = invT[2][0] * (1.0 / x); invT[2][1] = invT[2][1] * (1.0 / y); invT[2][2] = invT[2][2] * (1.0 / z);
-	//invT[3][0] = invT[3][0] * (1.0 / x); invT[3][1] = invT[3][1] * (1.0 / y); invT[3][2] = invT[3][2] * (1.0 / z);
+	//invT[0][0] = invT[0][0] * (1.0 / sx); invT[0][1] = invT[0][1] * (1.0 / sy); invT[0][2] = invT[0][2] * (1.0 / sz);
+	//invT[1][0] = invT[1][0] * (1.0 / sx); invT[1][1] = invT[1][1] * (1.0 / sy); invT[1][2] = invT[1][2] * (1.0 / sz);
+	//invT[2][0] = invT[2][0] * (1.0 / sx); invT[2][1] = invT[2][1] * (1.0 / sy); invT[2][2] = invT[2][2] * (1.0 / sz);
+	//invT[3][0] = invT[3][0] * (1.0 / sx); invT[3][1] = invT[3][1] * (1.0 / sy); invT[3][2] = invT[3][2] * (1.0 / sz);
 }
 
 void Transform::rotate(const Vector3f& axis, float degrees) {

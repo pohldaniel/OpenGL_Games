@@ -9,13 +9,16 @@ public:
 
 	Transform();
 	Transform(const Matrix4f& m);
+	Transform(Transform const& rhs);
+	Transform(Transform&& rhs);
+	Transform &operator=(const Transform& rhs);
 	~Transform();
 
 	const Matrix4f& getTransformationMatrix() const;
 	const Matrix4f& getInvTransformationMatrix();
 
 	void setRotPos(const Vector3f& axis, float degrees, float dx, float dy, float dz);
-	void setRotPosScale(const Vector3f& axis, float degrees, float dx, float dy, float dz, float x = 1.0f, float y = 1.0f, float z = 1.0f);
+	void setRotPosScale(const Vector3f& axis, float degrees, float dx, float dy, float dz, float sx = 1.0f, float sy = 1.0f, float sz = 1.0f);
 
 	void setPosition(float x, float y, float z);
 	void setPosition(const Vector3f& position);

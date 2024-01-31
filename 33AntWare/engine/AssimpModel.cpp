@@ -376,7 +376,9 @@ void  AssimpModel::drawRawStacked() {
 		if(mesh->m_materialIndex >= 0)
 			Material::GetMaterials()[mesh->m_materialIndex].updateMaterialUbo(BuiltInShader::materialUbo);
 
-		mesh->m_textureIndex >= 0 ? Material::GetTextures()[mesh->m_textureIndex].bind() : Texture::Unbind();
+		if (mesh->m_textureIndex >= 0)
+			Material::GetTextures()[mesh->m_textureIndex].bind();
+
 		glDrawElementsBaseVertex(GL_TRIANGLES, mesh->m_drawCount, GL_UNSIGNED_INT, (void*)(sizeof(unsigned int) * mesh->m_baseIndex), mesh->m_baseVertex);
 	}
 	glBindVertexArray(0);
@@ -388,7 +390,9 @@ void AssimpModel::drawRawInstancedStacked() {
 		if (mesh->m_materialIndex >= 0)
 			Material::GetMaterials()[mesh->m_materialIndex].updateMaterialUbo(BuiltInShader::materialUbo);
 
-		mesh->m_textureIndex >= 0 ? Material::GetTextures()[mesh->m_textureIndex].bind() : Texture::Unbind();
+		if (mesh->m_textureIndex >= 0)
+			Material::GetTextures()[mesh->m_textureIndex].bind();
+
 		glDrawElementsInstancedBaseVertexBaseInstance(GL_TRIANGLES, mesh->m_drawCount, GL_UNSIGNED_INT, (void*)(sizeof(unsigned int) * mesh->m_baseIndex), m_instanceCount, mesh->m_baseVertex, 0);
 	}
 	glBindVertexArray(0);
@@ -408,7 +412,7 @@ void AssimpModel::draw(const Camera& camera) {
 		m_meshes[i]->drawRaw();
 	}
 	unuseAllShader();
-	Texture::Unbind();
+	//Texture::Unbind();
 }
 
 void AssimpModel::drawInstanced(const Camera& camera) {
@@ -425,7 +429,7 @@ void AssimpModel::drawInstanced(const Camera& camera) {
 
 	}
 	unuseAllShader();
-	Texture::Unbind();
+	//Texture::Unbind();
 }
 
 void AssimpModel::drawStacked(const Camera& camera) {
@@ -444,7 +448,7 @@ void AssimpModel::drawStacked(const Camera& camera) {
 		glDrawElementsBaseVertex(GL_TRIANGLES, m_meshes[i]->m_drawCount, GL_UNSIGNED_INT, (void*)(sizeof(unsigned int) * m_meshes[i]->m_baseIndex), m_meshes[i]->m_baseVertex);
 	}
 	unuseAllShader();
-	Texture::Unbind();
+	//Texture::Unbind();
 	glBindVertexArray(0);
 }
 
@@ -747,10 +751,12 @@ void AssimpMesh::cleanup() {
 }
 
 void AssimpMesh::drawRaw() {
+
 	if (m_materialIndex >= 0) 
 		Material::GetMaterials()[m_materialIndex].updateMaterialUbo(BuiltInShader::materialUbo);
 
-	m_textureIndex >= 0 ? Material::GetTextures()[m_textureIndex].bind() : Texture::Unbind();
+	if (m_textureIndex >= 0)
+		Material::GetTextures()[m_textureIndex].bind();
 
 	glBindVertexArray(m_vao);
 	glDrawElements(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0);
@@ -758,10 +764,12 @@ void AssimpMesh::drawRaw() {
 }
 
 void AssimpMesh::drawRawInstanced() {
+
 	if (m_materialIndex >= 0)
 		Material::GetMaterials()[m_materialIndex].updateMaterialUbo(BuiltInShader::materialUbo);
 
-	m_textureIndex >= 0 ? Material::GetTextures()[m_textureIndex].bind() : Texture::Unbind();
+	if (m_textureIndex >= 0)
+		Material::GetTextures()[m_textureIndex].bind();
 
 	glBindVertexArray(m_vao);
 	glDrawElementsInstanced(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0, m_instanceCount);

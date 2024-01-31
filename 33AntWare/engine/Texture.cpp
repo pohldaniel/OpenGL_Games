@@ -5,6 +5,7 @@
 #include "Texture.h"
 
 int Texture::Count = 0;
+std::map<unsigned int, unsigned int> Texture::ActiveTextures;
 
 bool operator==(const Texture& t1, const Texture& t2) {
 	return t1.m_texture == t2.m_texture && t1.m_width == t2.m_width && t1.m_height == t2.m_height && t1.m_depth == t2.m_depth && t1.m_channels == t2.m_channels && t1.m_format == t2.m_format && t1.m_internalFormat == t2.m_internalFormat && t1.m_type == t2.m_type && t1.m_target == t2.m_target;
@@ -1465,13 +1466,17 @@ unsigned int Texture::getTarget() const {
 }
 
 void Texture::bind(unsigned int unit) const {
-	glActiveTexture(GL_TEXTURE0 + unit);
-	glBindTexture(m_target, m_texture);
+	if (ActiveTextures[unit] != m_texture) {
+		ActiveTextures[unit] = m_texture;
+		glActiveTexture(GL_TEXTURE0 + unit);
+		glBindTexture(m_target, m_texture);
+	}
 }
 
 void Texture::unbind(unsigned int unit) const {	
+	ActiveTextures[unit] = 0u;
 	glActiveTexture(GL_TEXTURE0 + unit);
-	glBindTexture(m_target, 0);
+	glBindTexture(m_target, 0);	
 }
 
 void Texture::setLinear(unsigned int mode) const {
@@ -1524,11 +1529,15 @@ void Texture::setAnisotropy(float aniso) const {
 }
 
 void Texture::Bind(unsigned int textureRef, unsigned int unit, unsigned int target) {
-	glActiveTexture(GL_TEXTURE0 + unit);
-	glBindTexture(target, textureRef);
+	if (ActiveTextures[unit] != textureRef) {
+		ActiveTextures[unit] = textureRef;
+		glActiveTexture(GL_TEXTURE0 + unit);
+		glBindTexture(target, textureRef);
+	}
 }
 
 void Texture::Unbind(unsigned int unit, unsigned int target) {	
+	ActiveTextures[unit] = 0u;
 	glActiveTexture(GL_TEXTURE0 + unit);
 	glBindTexture(target, 0);
 }

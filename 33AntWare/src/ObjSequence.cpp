@@ -1,5 +1,4 @@
 #include <GL/glew.h>
-#include <engine/ObjModel.h>
 #include "ObjSequence.h"
 
 ObjSequence::ObjSequence() {
@@ -15,8 +14,56 @@ ObjSequence::ObjSequence() {
 	m_ibo = 0;
 }
 
+ObjSequence::ObjSequence(ObjSequence const& rhs) {
+	m_vao = rhs.m_vao;
+	m_vbo = rhs.m_vbo;
+	m_ibo = rhs.m_ibo;
+	m_transform = rhs.m_transform;
+	m_stride = rhs.m_stride;
+	m_meshes = rhs.m_meshes;
+	m_materialIndex = rhs.m_materialIndex;
+	m_textureIndex = rhs.m_textureIndex;
+	m_numberOfMeshes = rhs.m_numberOfMeshes;
+	m_numberOfVertices = rhs.m_numberOfVertices;
+	m_numberOfIndices = rhs.m_numberOfIndices;
+	m_markForDelete = false;	
+}
+
+ObjSequence::ObjSequence(ObjSequence&& rhs) {
+	m_vao = rhs.m_vao;
+	m_vbo = rhs.m_vbo;
+	m_ibo = rhs.m_ibo;
+	m_transform = rhs.m_transform;
+	m_stride = rhs.m_stride;
+	m_meshes = rhs.m_meshes;
+	m_materialIndex = rhs.m_materialIndex;
+	m_textureIndex = rhs.m_textureIndex;
+	m_numberOfMeshes = rhs.m_numberOfMeshes;
+	m_numberOfVertices = rhs.m_numberOfVertices;
+	m_numberOfIndices = rhs.m_numberOfIndices;
+	m_markForDelete = false;
+}
+
+ObjSequence& ObjSequence::operator=(const ObjSequence& rhs) {
+	m_vao = rhs.m_vao;
+	m_vbo = rhs.m_vbo;
+	m_ibo = rhs.m_ibo;
+	m_transform = rhs.m_transform;
+	m_stride = rhs.m_stride;
+	m_meshes = rhs.m_meshes;
+	m_materialIndex = rhs.m_materialIndex;
+	m_textureIndex = rhs.m_textureIndex;
+	m_numberOfMeshes = rhs.m_numberOfMeshes;
+	m_numberOfVertices = rhs.m_numberOfVertices;
+	m_numberOfIndices = rhs.m_numberOfIndices;
+	m_markForDelete = false;
+	return *this;
+}
+
 ObjSequence::~ObjSequence() {
-	cleanup();
+	if (m_markForDelete) {
+		cleanup();
+	}
 }
 
 void ObjSequence::cleanup() {
@@ -42,6 +89,10 @@ void ObjSequence::cleanup() {
 	m_indexBuffer.shrink_to_fit();
 	m_meshes.clear();
 	m_meshes.shrink_to_fit();
+}
+
+void ObjSequence::markForDelete() {
+	m_markForDelete = true;
 }
 
 void ObjSequence::setPosition(float x, float y, float z) {
@@ -412,17 +463,106 @@ void ObjSequence::loadSequence(const char* _path, Vector3f& axis, float degree, 
 	indexBufferCreator.tangentCoordsIn.shrink_to_fit();
 	indexBufferCreator.bitangentCoordsIn.clear();
 	indexBufferCreator.bitangentCoordsIn.shrink_to_fit();
+
+	m_numberOfVertices = m_vertexBuffer.size() / m_stride;
+	m_numberOfIndices = m_indexBuffer.size();
 }
 
 void ObjSequence::addMesh(std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer) {
 	m_numberOfMeshes++;
 	m_meshes.push_back({ static_cast<unsigned int>(indexBuffer.size()) / 3, 0u, 0u, 0u });
-	m_meshes.back().baseIndex = m_indexBuffer.size();
-	m_meshes.back().baseVertex = m_vertexBuffer.size() / m_stride;
+	m_meshes.back().baseIndex = m_numberOfIndices;
+	m_meshes.back().baseVertex = m_numberOfVertices;
 	m_meshes.back().drawCount = indexBuffer.size();
 
 	m_vertexBuffer.insert(m_vertexBuffer.end(), vertexBuffer.begin(), vertexBuffer.end());
 	m_indexBuffer.insert(m_indexBuffer.end(), indexBuffer.begin(), indexBuffer.end());
+
+	m_numberOfVertices = m_vertexBuffer.size() / m_stride;
+	m_numberOfIndices = m_indexBuffer.size();
+}
+
+void ObjSequence::addMeshAfter(std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer) {
+	
+	m_numberOfMeshes++;
+	m_meshes.push_back({ static_cast<unsigned int>(indexBuffer.size()) / 3, 0u, 0u, 0u });
+	m_meshes.back().baseIndex = m_numberOfIndices;
+	m_meshes.back().baseVertex = m_numberOfVertices;
+	m_meshes.back().drawCount = indexBuffer.size();
+
+	float* vertices = (float*)malloc(((m_numberOfVertices * m_stride) + vertexBuffer.size()) * sizeof(float));
+
+	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+	glGetBufferSubData(GL_ARRAY_BUFFER, 0, m_numberOfVertices * m_stride * sizeof(float), vertices);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	for (unsigned int i = 0; i < vertexBuffer.size(); i++) {
+		vertices[m_numberOfVertices * m_stride + i] = vertexBuffer[i];
+	}
+	m_numberOfVertices += vertexBuffer.size() / m_stride;
+
+	unsigned int* indices = (unsigned int*)malloc((m_numberOfIndices + indexBuffer.size()) * sizeof(unsigned int));
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
+	glGetBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, m_numberOfIndices * sizeof(unsigned int), indices);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+	for (unsigned int i = 0; i < indexBuffer.size(); i++) {
+		indices[m_numberOfIndices + i] = indexBuffer[i];
+	}
+	m_numberOfIndices += indexBuffer.size();
+
+	glDeleteBuffers(1, &m_vbo);
+	m_vbo = 0;
+
+	glDeleteBuffers(1, &m_ibo);
+	m_ibo = 0;
+
+	glGenBuffers(1, &m_vbo);
+	glGenBuffers(1, &m_ibo);
+
+	glBindVertexArray(m_vao);
+
+	//Positions
+	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+	glBufferData(GL_ARRAY_BUFFER, m_numberOfVertices * m_stride * sizeof(float), vertices, GL_STATIC_DRAW);
+
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, m_stride * sizeof(float), (void*)0);
+
+	//Texture Coordinates
+	if (m_stride == 5 || m_stride == 8 || m_stride == 14) {
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, m_stride * sizeof(float), (void*)(3 * sizeof(float)));
+	}
+
+	//Normals
+	if (m_stride == 6 || m_stride == 8 || m_stride == 14) {
+		glEnableVertexAttribArray(2);
+		glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, m_stride * sizeof(float), (void*)((m_stride == 8 || m_stride == 14) ? 5 * sizeof(float) : 3 * sizeof(float)));
+	}
+
+	//Tangents Bitangents
+	if (m_stride == 14) {
+		glEnableVertexAttribArray(3);
+		glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, m_stride * sizeof(float), (void*)(8 * sizeof(float)));
+
+		glEnableVertexAttribArray(4);
+		glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, m_stride * sizeof(float), (void*)(11 * sizeof(float)));
+
+	}
+
+	//Indices
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_numberOfIndices * sizeof(unsigned int), indices, GL_STATIC_DRAW);	
+	glBindVertexArray(0);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+	free(vertices);
+	free(indices);
+
 }
 
 const unsigned int ObjSequence::getNumberOfMeshes() const{
@@ -434,7 +574,30 @@ void ObjSequence::loadSequenceGpu() {
 }
 
 const void ObjSequence::drawRaw(unsigned short frame) const{
+
+	if (m_materialIndex >= 0)
+		Material::GetMaterials()[m_materialIndex].updateMaterialUbo(BuiltInShader::materialUbo);
+
+	if (m_textureIndex >= 0)
+		Material::GetTextures()[m_textureIndex].bind();
+
 	glBindVertexArray(m_vao);
 	glDrawElementsBaseVertex(GL_TRIANGLES, m_meshes[frame].drawCount, GL_UNSIGNED_INT, (void*)(sizeof(unsigned int) * m_meshes[frame].baseIndex), m_meshes[frame].baseVertex);
 	glBindVertexArray(0);
+}
+
+short ObjSequence::getMaterialIndex() {
+	return m_materialIndex;
+}
+
+void ObjSequence::setMaterialIndex(short index) const {
+	m_materialIndex = index;
+}
+
+short ObjSequence::getTextureIndex() {
+	return m_textureIndex;
+}
+
+void ObjSequence::setTextureIndex(short index) const {
+	m_textureIndex = index;
 }

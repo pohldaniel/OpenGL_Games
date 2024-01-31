@@ -57,102 +57,60 @@
     ],
     "meshes": [
         {
-            "path": "./Assets/Models/Ant.glb",
-            "texture": "Assets/Textures/Ant.png",
-            "color": [
-                1,
-                1,
-                1,
-                1
-            ]
+            "path": "res/models/Ant.glb",
+			"materialIndex": 0,
+            "textureIndex": 0           
         },
         {
-            "path": "./Assets/Models/CPU.glb",
-            "texture": "Assets/Textures/CPU.jpg",
-            "color": [
-                1,
-                1,
-                1,
-                1
-            ]
+            "path": "res/models/CPU.glb",
+			"materialIndex": 0,
+            "textureIndex": 4           
         },
         {
-            "path": "Assets/Models/Gun.glb",
-            "texture": "Assets/Textures/Gun.png",
-            "color": [
-                1,
-                1,
-                1,
-                1
-            ]
+            "path": "res/models/Gun.glb",
+			"materialIndex": 0,
+            "textureIndex": 1          
         },
         {
-            "path": "Assets/Models/Hands.glb",
-            "texture": "Assets/Textures/Hand.png",
-            "color": [
-                1,
-                1,
-                1,
-                1
-            ]
+            "path": "res/models/Hands.glb",
+			"materialIndex": 0,
+            "textureIndex": 2           
         },
         {
-            "path": "Assets/Models/Glove.glb",
-            "texture": "Assets/Textures/Glove.png",
-            "color": [
-                1,
-                1,
-                1,
-                1
-            ]
+            "path": "res/models/Gloves.glb",
+			"materialIndex": 0,
+            "textureIndex": 3           
         },
         {
-            "path": "Assets/Models/Bullet.glb",
-            "texture": "Assets/Textures/Bullet.png",
-            "color": [
-                1,
-                1,
-                1,
-                1
-            ]
+            "path": "res/models/Bullet.glb",
+			"materialIndex": 0,
+            "textureIndex": 5           
         },
         {
-            "path": "./Assets/Models/PlayerCube.glb",
-            "color": [
-                1,
-                1,
-                1,
-                1
-            ]
+            "path": "res/models/PlayerCube.glb",
+			"materialIndex": 0        
         },
         {
-            "path": "./Assets/Models/MuzzleQuad.glb",
-            "color": [
-                1,
-                1,
-                1,
-                1
-            ]
+            "path": "res/models/MuzzleQuad.glb",
+			"materialIndex": 0,
+			"textureIndex": 6          
         },
         {
-            "path": "./Assets/Models/Platform.glb",
-            "color": [
-                1,
-                1,
-                1,
-                1
-            ]
+            "path": "res/models/Platform.glb",
+			"materialIndex": 0           
         }
     ],
-    "animations": [
-        {
-            "path": "Assets/Animations/Ant-Walkcycle",
-            "name": "Ant-Walkcycle",
-            "format": "obj",
-            "count": 41,
-            "texture": "Assets/Textures/Ant.png"
+	"objSequences": [
+		{
+            "path": "res/animations/ant_walkcycle",
+			"materialIndex": 0,
+			"textureIndex": 0,
+			"additionalMeshes": [
+				0
+			]			
         }
-    ],
+	
+	],
     "lights": [
         {
             "tag": "flashlight & required",

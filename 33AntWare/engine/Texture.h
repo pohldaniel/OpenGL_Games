@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <string>
+#include <map>
 #include "PerlinNoise.h"
 
 class Texture{
@@ -112,6 +113,7 @@ private:
 	bool m_markForDelete = false;
 
 	static int Count;
+	static std::map<unsigned int, unsigned int> ActiveTextures;
 };
 
 #endif
