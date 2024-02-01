@@ -1,7 +1,7 @@
 #include "Entity.h"
 #include "Globals.h"
 
-Entity::Entity(AssimpModel* model) : MeshNode(model), m_isStatic(false) {
+Entity::Entity(AssimpModel* model) : MeshNode(model), m_isStatic(false), m_markForDelete(false){
 
 }
 
@@ -43,4 +43,12 @@ void Entity::fixedUpdate(float fdt) {
 
 const Material& Entity::getMaterial() const{
 	return m_model->getMeshes()[0]->getMaterial();
+}
+
+void Entity::markForDelete() {
+	m_markForDelete = true;
+}
+
+bool Entity::isMarkForDelete() {
+	return m_markForDelete;
 }

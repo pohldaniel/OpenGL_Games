@@ -62,7 +62,6 @@ public:
 	void killSound();
 	void dispatchBullet();
 	void reload();
-	void destroyBullet(int index);
 	bool damage(float amount);
 	void start();
 	std::vector<Bullet>& getBullets();

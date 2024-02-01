@@ -98,15 +98,7 @@ void Player::update(const float dt) {
 	camera.moveRelative(Vector3f(0.0f, 0.5f, 0.0f));
 	setOrientation(eularAngles);
 
-	auto bulletsSize = bullets.size();
-	for (unsigned i = 0; i < bulletsSize; ++i) {
-		if (bullets[i].timeOut()) {
-			destroyBullet(i);
-			--i;
-			--bulletsSize;
-		}
-	}
-
+	
 	Vector2f positionOnY = { m_position[0], m_position[2] };
 	if ((positionOnY[0] < mapMinLimit[0] || positionOnY[1] < mapMinLimit[1] ||
 		positionOnY[0] > mapMaxLimit[0] || positionOnY[1] > mapMaxLimit[1]) && !hasFallen) {
@@ -132,6 +124,17 @@ void Player::update(const float dt) {
 	if (fallingTime >= dieAfter) {
 		damage(hp);
 		killSound();
+	}
+
+
+	std::vector<Bullet>::iterator it = bullets.begin();
+	while (it != bullets.end()) {
+
+		if ((*it).timeOut()) {
+			it = bullets.erase(it);
+			damage(1);
+		}
+		else ++it;
 	}
 }
 
@@ -176,10 +179,6 @@ void Player::reload() {
 
 	//HUD.setInHandAmmo(inHandAmmo);
 	//HUD.setTotalAmmo(totalAmmo);
-}
-
-void Player::destroyBullet(int index) {
-	bullets.erase(bullets.begin() + index);
 }
 
 bool Player::damage(float amount) {

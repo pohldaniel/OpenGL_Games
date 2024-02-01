@@ -52,7 +52,7 @@ public:
 private:
 
 	void renderUi();
-	void destroyAnt(int index);
+	void deleteEntities();
 
 	bool m_initUi = true;
 	bool m_drawUi = true;
@@ -62,8 +62,11 @@ private:
 	Player* m_player;
 	Entity *m_muzzleE = nullptr, *m_gunE = nullptr, *m_handsE = nullptr, *m_glovesE = nullptr, *m_cpuE = nullptr, *m_platformE = nullptr;
 	Ant *m_ant1 = nullptr, *m_ant2 = nullptr, *m_ant3 = nullptr, *m_ant4 = nullptr, *m_ant5 = nullptr, *m_ant6 = nullptr, *m_ant7 = nullptr, *m_ant8 = nullptr, *m_ant9 = nullptr;
-	std::vector<Entity*> m_entities;
+	
 	std::vector<Ant*> m_ants;
+
+	std::vector<Entity*> m_entities;
+	std::vector<Entity*> m_entitiesAfterClear;
 
 	aw::Status gameStatus;
 

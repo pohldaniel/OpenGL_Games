@@ -740,5 +740,8 @@
     <ClInclude Include="src\SceneManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="engine\interfaces\ICounter.h">
+      <Filter>engine\interfaces</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

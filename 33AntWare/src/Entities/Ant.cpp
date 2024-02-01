@@ -1,7 +1,10 @@
 #include <iostream>
 #include "Ant.h"
 
-Ant::Ant(const ObjSequence& objSequence, AssimpModel* model, Entity *target) : Entity(model),
+#include "Globals.h"
+#include "HUD.h"
+
+Ant::Ant(const ObjSequence& objSequence, AssimpModel* model, Player* target) : Entity(model),
 	objSequence(objSequence),
 	target(target) {
 	m_isStatic = false;
@@ -58,6 +61,30 @@ void Ant::update(float dt) {
 		animate(dt);
 	}else {
 		index = baseIndex;
+	}
+
+	std::vector<Bullet>& bullets = target->getBullets();
+	std::vector<Bullet>::iterator it = bullets.begin();
+	while (it != bullets.end()) {
+
+		if (getWorldBoundingBox().isColliding((*it).getPosition())) {
+			it = bullets.erase(it);
+			damage(1);
+		}
+		else ++it;
+	}
+
+	if (timeToDestroy()) {
+		markForDelete();
+		//markForRemove();
+	}
+
+	if (getWorldBoundingBox().isColliding(target->getWorldBoundingBox()) && Globals::clock.getElapsedTimeSec() > 2.0f && timeSinceDealtDamage.getElapsedTimeSec() >= 1.0f) {
+		timeSinceDealtDamage.reset();
+		target->damage(1.0f);
+		HUD.setIsHurting(true);
+		target->timeSinceDamage = Globals::clock.getElapsedTimeSec();
+		HUD.setHP(target->hp * 10);
 	}
 }
 

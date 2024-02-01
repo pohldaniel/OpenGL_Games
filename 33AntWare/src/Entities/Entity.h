@@ -13,6 +13,7 @@ class Entity : public MeshNode {
 public:
 
 	Entity(AssimpModel* model);
+	virtual ~Entity() = default;
 
 	virtual void draw(const Camera& camera);
 	virtual void update(const float dt);
@@ -20,8 +21,12 @@ public:
 
 	virtual const Material& getMaterial() const;
 
+	void markForDelete();
+	bool isMarkForDelete();
+
 	bool m_disabled;
 	bool m_isStatic;
+	bool m_markForDelete;
 
 	Rigidbody rigidbody;
 };

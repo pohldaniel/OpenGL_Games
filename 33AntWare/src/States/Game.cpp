@@ -64,10 +64,6 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 
 	m_objSequence = scene.getObjSequence();
 
-
-	
-	
-
 	m_muzzleE = new Entity(m_meshes[7]);
 	m_muzzleE->m_isStatic = true;
 	m_gunE = new Entity(m_meshes[2]);
@@ -76,11 +72,7 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 	m_handsE->m_isStatic = true;
 	m_glovesE = new Entity(m_meshes[4]);
 	m_glovesE->m_isStatic = true;
-	m_cpuE = new Entity(m_meshes[1]);
-	m_cpuE->m_isStatic = true;
-	m_platformE = new Entity(m_meshes[8]);
-	m_platformE->m_isStatic = true;
-
+	
 	m_player = new Player(m_camera, m_meshes[6], Vector2f(-51.5f, -51.5f), Vector2f(51.5f, 51.5f));
 
 	m_player->setPosition(0.0f, 0.0f, 5.0f);
@@ -90,14 +82,16 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 	m_player->addChild(m_glovesE, true);
 	m_player->start();
 
-	//m_entities.push_back(m_player);
-	m_entities.push_back(m_muzzleE);
-	m_entities.push_back(m_gunE);
-	m_entities.push_back(m_handsE);
-	m_entities.push_back(m_glovesE);
-	//m_entities.push_back(m_cpuE);
-	//m_entities.push_back(m_platformE);
+	m_entitiesAfterClear.push_back(m_muzzleE);
+	m_entitiesAfterClear.push_back(m_gunE);
+	m_entitiesAfterClear.push_back(m_handsE);
+	m_entitiesAfterClear.push_back(m_glovesE);
 
+	m_entities.push_back(new Entity(m_meshes[1]));
+	m_entities.back()->m_isStatic = true;
+	m_entities.push_back(new Entity(m_meshes[8]));
+	m_entities.back()->m_isStatic = true;
+	
 	HUD.setHP(m_player->hp * 10);
 	HUD.setInHandAmmo(m_player->inHandAmmo);
 	HUD.setTotalAmmo(m_player->totalAmmo);
@@ -171,15 +165,15 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 	m_ant9->rigidbody = Rigidbody();
 	m_ant9->start();
 
-	m_ants.push_back(m_ant1);
-	m_ants.push_back(m_ant2);
-	m_ants.push_back(m_ant3);
-	m_ants.push_back(m_ant4);
-	m_ants.push_back(m_ant5);
-	m_ants.push_back(m_ant6);
-	m_ants.push_back(m_ant7);
-	m_ants.push_back(m_ant8);
-	m_ants.push_back(m_ant9);
+	m_entities.push_back(m_ant1);
+	m_entities.push_back(m_ant2);
+	m_entities.push_back(m_ant3);
+	m_entities.push_back(m_ant4);
+	m_entities.push_back(m_ant5);
+	m_entities.push_back(m_ant6);
+	m_entities.push_back(m_ant7);
+	m_entities.push_back(m_ant8);
+	m_entities.push_back(m_ant9);
 }
 
 Game::~Game() {
@@ -190,71 +184,40 @@ Game::~Game() {
 void Game::fixedUpdate() {
 	m_player->fixedUpdate(m_fdt);
 
-	for (auto entity : m_entities)
+	for (auto entity : m_entitiesAfterClear)
 		entity->fixedUpdate(m_fdt);
 
-	for (auto ant : m_ants)
-		ant->fixedUpdate(m_fdt);
+	for (auto entity : m_entities)
+		entity->fixedUpdate(m_fdt);
 }
 
 void Game::update() {
 	m_player->update(m_dt);
 
-	for (auto entity : m_entities)
+	for (auto entity : m_entitiesAfterClear)
 		entity->update(m_dt);
 
-	for (auto ant : m_ants)
-		ant->update(m_dt);
+	for (auto entity : m_entities)
+		entity->update(m_fdt);
 
-	auto player = m_player;
-	auto& bullets = player->bullets;
-	auto antsSize = m_ants.size();
-	auto bulletsSize = bullets.size();
-	bool isWin = true;
+	
+	bool isWin = Ant::GetCount() == 0;
 
-	for (unsigned i = 0; i < antsSize; ++i) {
-
-		isWin = false;
-		auto ant = m_ants[i];
-		if (ant->timeToDestroy()) {
-			destroyAnt(i);
-			--i;
-			--antsSize;
-		}
-
-		for (unsigned j = 0; j < bulletsSize; ++j) {
-
-			if (ant->getWorldBoundingBox().isColliding(bullets[j].getPosition())) {
-				ant->damage(1);
-				player->destroyBullet(j);
-				--j;
-				--bulletsSize;
-			}
-		}
-
-		if (ant->getWorldBoundingBox().isColliding(m_player->getWorldBoundingBox()) && Globals::clock.getElapsedTimeSec() > 2.0f && ant->timeSinceDealtDamage.getElapsedTimeSec() >= 1.0f) {
-			ant->timeSinceDealtDamage.reset();
-			player->damage(1.0f);
-			HUD.setIsHurting(true);
-			player->timeSinceDamage = Globals::clock.getElapsedTimeSec();
-			HUD.setHP(player->hp * 10);
-		}
-
-	}
-
-	if (Globals::clock.getElapsedTimeSec() - player->timeSinceDamage > 0.25f){
+	if (Globals::clock.getElapsedTimeSec() - m_player->timeSinceDamage > 0.25f){
 		HUD.setIsHurting(false);
 	}
 
 	if (isWin){
 		gameStatus = aw::WIN;
 		HUD.setStatus(aw::WIN);
-		player->killSound();
-	}else if (player->isDead() || (player->inHandAmmo <= 0 && player->totalAmmo <= 0)){
+		m_player->killSound();
+	}else if (m_player->isDead() || (m_player->inHandAmmo <= 0 && m_player->totalAmmo <= 0)){
 		gameStatus = aw::LOSE;
 		HUD.setStatus(aw::LOSE);
-		player->killSound();
+		m_player->killSound();
 	}
+
+	deleteEntities();
 }
 
 void Game::render() {
@@ -269,18 +232,10 @@ void Game::render() {
 	shader->loadMatrix("u_view", m_camera.getViewMatrix());
 	shader->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(m_camera.getViewMatrix() * Matrix4f::IDENTITY));
 
-	shader->loadMatrix("u_model", m_cpuE->getTransformation());
-	m_cpuE->draw(m_camera);
-	m_cpuE->OnRenderOBB();
-
-	shader->loadMatrix("u_model", m_platformE->getTransformation());
-	m_platformE->draw(m_camera);
-	m_platformE->OnRenderOBB();
-
-	for (auto ant : m_ants) {
-		shader->loadMatrix("u_model", ant->getTransformation());
-		ant->draw(m_camera);
-		ant->OnRenderOBB();
+	for (auto entity : m_entities) {
+		shader->loadMatrix("u_model", entity->getTransformation());
+		entity->draw(m_camera);
+		entity->OnRenderOBB();
 	}
 
 	for (auto& bullet : m_player->getBullets()) {
@@ -291,7 +246,7 @@ void Game::render() {
 	glClear(GL_DEPTH_BUFFER_BIT);
 
 	m_player->OnRenderOBB({ 1.0f, 1.0f, 0.0f, 1.0f });
-	for (auto entity : m_entities) {
+	for (auto entity : m_entitiesAfterClear) {
 		shader->loadMatrix("u_model", entity->getTransformation());
 		entity->draw(m_camera);
 		entity->OnRenderOBB({0.0f, 0.0f, 1.0f, 1.0f});
@@ -390,7 +345,27 @@ void Game::renderUi() {
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
-void Game::destroyAnt(int index) {
-	delete m_ants[index];
-	m_ants.erase(m_ants.begin() + index);
+void Game::deleteEntities() {
+	/*m_entities.erase(
+		std::remove_if(m_entities.begin(), m_entities.end(),
+			[](Entity *entity) -> bool{
+				if (entity->isMarkForDelete()) {
+					delete entity;
+					return true;
+				}
+				return false; 
+	
+			}), 
+		m_entities.end()
+	);*/
+
+	std::vector<Entity*>::iterator it = m_entities.begin();
+	while (it != m_entities.end()) {
+
+		if ((*it)->isMarkForDelete()) {
+			delete (*it);
+			it = m_entities.erase(it);;
+		}
+		else ++it;
+	}
 }

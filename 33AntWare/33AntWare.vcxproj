@@ -284,6 +284,7 @@
     <ClInclude Include="engine\collision\Collision.h" />
     <ClInclude Include="engine\CubeBuffer.h" />
     <ClInclude Include="engine\input\Mouse.h" />
+    <ClInclude Include="engine\interfaces\ICounter.h" />
     <ClInclude Include="engine\interfaces\IStateMachine.h" />
     <ClInclude Include="engine\OctreeNew.h" />
     <ClInclude Include="convhull\convhull_3d.h" />
