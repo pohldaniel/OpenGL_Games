@@ -156,5 +156,8 @@ namespace BuiltInShader {
 	extern unsigned int viewUbo;
 	extern const unsigned int viewBinding;
 
+	extern unsigned int lightUbo;
+	extern const unsigned int lightBinding;
+
 	extern void UpdateViewUbo(const Camera& camera);
 }

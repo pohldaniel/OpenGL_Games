@@ -43,27 +43,27 @@ void Scene::parseTextures(rapidjson::GenericArray<false, rapidjson::Value> array
 	std::for_each(textures.begin(), textures.end(), std::mem_fn(&Texture::markForDelete));
 }
 
-Material& Scene::addMaterial(const MaterialBuffer& _material, std::vector<Material>& materials) {
+Material& Scene::addMaterial(const MaterialBuffer& materialBuffer, std::vector<Material>& materials) {
 	materials.resize(materials.size() + 1);
 	Material& material = materials.back();
 
-	material.buffer.ambient[0] = _material.ambient[0];
-	material.buffer.ambient[1] = _material.ambient[1];
-	material.buffer.ambient[2] = _material.ambient[2];
-	material.buffer.ambient[3] = _material.ambient[3];
+	material.buffer.ambient[0] = materialBuffer.ambient[0];
+	material.buffer.ambient[1] = materialBuffer.ambient[1];
+	material.buffer.ambient[2] = materialBuffer.ambient[2];
+	material.buffer.ambient[3] = materialBuffer.ambient[3];
 
-	material.buffer.diffuse[0] = _material.diffuse[0];
-	material.buffer.diffuse[1] = _material.diffuse[1];
-	material.buffer.diffuse[2] = _material.diffuse[2];
-	material.buffer.diffuse[3] = _material.diffuse[3];
+	material.buffer.diffuse[0] = materialBuffer.diffuse[0];
+	material.buffer.diffuse[1] = materialBuffer.diffuse[1];
+	material.buffer.diffuse[2] = materialBuffer.diffuse[2];
+	material.buffer.diffuse[3] = materialBuffer.diffuse[3];
 
-	material.buffer.specular[0] = _material.specular[0];
-	material.buffer.specular[1] = _material.specular[1];
-	material.buffer.specular[2] = _material.specular[2];
-	material.buffer.specular[3] = _material.specular[3];
+	material.buffer.specular[0] = materialBuffer.specular[0];
+	material.buffer.specular[1] = materialBuffer.specular[1];
+	material.buffer.specular[2] = materialBuffer.specular[2];
+	material.buffer.specular[3] = materialBuffer.specular[3];
 
-	material.buffer.shininess = _material.shininess;
-	material.buffer.alpha = _material.alpha;
+	material.buffer.shininess = materialBuffer.shininess;
+	material.buffer.alpha = materialBuffer.alpha;
 	return material;
 }
 
@@ -80,6 +80,66 @@ void Scene::parseMaterials(rapidjson::GenericArray<false, rapidjson::Value> arra
 					  {specular[0].GetFloat(), specular[1].GetFloat(), specular[2].GetFloat(), specular[3].GetFloat()}, 
 			          mat["shininess"].GetFloat() 
 			       }, materials);
+
+	}
+}
+
+Light& Scene::addLight(const LightBuffer& lightBuffer, std::vector<Light>& lights) {
+	lights.resize(lights.size() + 1);
+	Light& light = lights.back();
+
+	int index = lights.size() - 1;
+
+	Light::Buffer[index].ambient[0] = lightBuffer.ambient[0];
+	Light::Buffer[index].ambient[1] = lightBuffer.ambient[1];
+	Light::Buffer[index].ambient[2] = lightBuffer.ambient[2];
+	Light::Buffer[index].ambient[3] = lightBuffer.ambient[3];
+
+	Light::Buffer[index].diffuse[0] = lightBuffer.diffuse[0];
+	Light::Buffer[index].diffuse[1] = lightBuffer.diffuse[1];
+	Light::Buffer[index].diffuse[2] = lightBuffer.diffuse[2];
+	Light::Buffer[index].diffuse[3] = lightBuffer.diffuse[3];
+
+	Light::Buffer[index].specular[0] = lightBuffer.specular[0];
+	Light::Buffer[index].specular[1] = lightBuffer.specular[1];
+	Light::Buffer[index].specular[2] = lightBuffer.specular[2];
+	Light::Buffer[index].specular[3] = lightBuffer.specular[3];
+
+	Light::Buffer[index].position[0] = lightBuffer.position[0];
+	Light::Buffer[index].position[1] = lightBuffer.position[1];
+	Light::Buffer[index].position[2] = lightBuffer.position[2];
+
+	Light::Buffer[index].direction[0] = lightBuffer.direction[0];
+	Light::Buffer[index].direction[1] = lightBuffer.direction[1];
+	Light::Buffer[index].direction[2] = lightBuffer.direction[2];
+
+	Light::Buffer[index].angle = lightBuffer.angle;
+	Light::Buffer[index].type = lightBuffer.type;
+	Light::Buffer[index].enabled = lightBuffer.enabled;
+
+	return light;
+}
+
+void Scene::parseLights(rapidjson::GenericArray<false, rapidjson::Value> array, std::vector<Light>& lights) {
+	
+	for (rapidjson::Value::ConstValueIterator light = array.Begin(); light != array.End(); ++light) {
+		const rapidjson::Value& _light = *light;
+		rapidjson::GenericArray<true, rapidjson::Value>  ambient = _light["ambient"].GetArray();
+		rapidjson::GenericArray<true, rapidjson::Value>  diffuse = _light["diffuse"].GetArray();
+		rapidjson::GenericArray<true, rapidjson::Value>  specular = _light["specular"].GetArray();
+		rapidjson::GenericArray<true, rapidjson::Value>  position = _light["position"].GetArray();
+		rapidjson::GenericArray<true, rapidjson::Value>  direction = _light["direction"].GetArray();
+		int  type = _light["type"].GetInt();
+		bool enabled = _light["enabled"].GetBool();
+
+		addLight({ {ambient[0].GetFloat(), ambient[1].GetFloat(), ambient[2].GetFloat(), ambient[3].GetFloat()},
+				   {diffuse[0].GetFloat(), diffuse[1].GetFloat(), diffuse[2].GetFloat(), diffuse[3].GetFloat()},
+                   {specular[0].GetFloat(), specular[1].GetFloat(), specular[2].GetFloat(), specular[3].GetFloat()},
+				   {position[0].GetFloat(), position[1].GetFloat(), position[2].GetFloat()}, _light["angle"].GetFloat(),
+			       {direction[0].GetFloat(), direction[1].GetFloat(), direction[2].GetFloat()}, 0.0f,
+                   static_cast<LightType2>(type),
+				   enabled },
+			     lights);
 
 	}
 }
@@ -153,6 +213,7 @@ void Scene::loadScene(std::string path) {
 	parseCamera(doc["camera"].GetObject(), camera);
 	parseTextures(doc["textures"].GetArray(), textures);
 	parseMaterials(doc["materials"].GetArray(), materials);
+	parseLights(doc["lights"].GetArray(), lights);
 	parseMeshes(doc["meshes"].GetArray(), meshes);
 	parseObjSequences(doc["objSequences"].GetArray(), objSequence);
 }
@@ -167,6 +228,10 @@ const std::vector<Texture>& Scene::getTextures() const {
 
 const std::vector<Material>& Scene::getMaterials() const {
 	return materials;
+}
+
+const std::vector<Light>& Scene::getLights() const {
+	return lights;
 }
 
 const std::vector<AssimpModel*>& Scene::getMeshes() const {

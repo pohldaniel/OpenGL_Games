@@ -17,10 +17,10 @@ bool operator== (const Material& m1, const Material& m2){
 
 void Material::cleanup() {
 	
-	std::vector<Material>::iterator position = std::find(Materials.begin(), Materials.end(), *this);
-	if (position != Materials.end()) {
-		(*position).textures.clear();
-		//Materials.erase(position);
+	std::vector<Material>::iterator material = std::find(Materials.begin(), Materials.end(), *this);
+	if (material != Materials.end()) {
+		(*material).textures.clear();
+		//Materials.erase(material);
 	}
 }
 
@@ -65,39 +65,6 @@ void Material::unbind(unsigned short index) const {
 		glActiveTexture(GL_TEXTURE0 + i);
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
-}
-
-std::vector<Material>& Material::GetMaterials() {
-	return Materials;
-}
-
-void Material::Cleanup(unsigned short index) {
-	Materials[index].textures.clear();
-	Materials.erase(Materials.begin() + index);
-}
-
-Material& Material::AddMaterial(const MaterialBuffer& _material) {
-	Materials.resize(Materials.size() + 1);
-	Material& material = Materials.back();
-
-	material.buffer.ambient[0] = _material.ambient[0];
-	material.buffer.ambient[1] = _material.ambient[1];
-	material.buffer.ambient[2] = _material.ambient[2];
-	material.buffer.ambient[3] = _material.ambient[3];
-
-	material.buffer.diffuse[0] = _material.diffuse[0];
-	material.buffer.diffuse[1] = _material.diffuse[1];
-	material.buffer.diffuse[2] = _material.diffuse[2];
-	material.buffer.diffuse[3] = _material.diffuse[3];
-
-	material.buffer.specular[0] = _material.specular[0];
-	material.buffer.specular[1] = _material.specular[1];
-	material.buffer.specular[2] = _material.specular[2];
-	material.buffer.specular[3] = _material.specular[3];
-
-	material.buffer.shininess = _material.shininess;
-	material.buffer.alpha = _material.alpha;
-	return material;
 }
 
 void Material::print() {
@@ -160,4 +127,37 @@ void Material::SetTextures(const std::vector<Texture>& textures) {
 
 void Material::SetMaterials(const std::vector<Material>& materials) {
 	Materials = materials;
+}
+
+std::vector<Material>& Material::GetMaterials() {
+	return Materials;
+}
+
+void Material::Cleanup(unsigned short index) {
+	Materials[index].textures.clear();
+	Materials.erase(Materials.begin() + index);
+}
+
+Material& Material::AddMaterial(const MaterialBuffer& _material) {
+	Materials.resize(Materials.size() + 1);
+	Material& material = Materials.back();
+
+	material.buffer.ambient[0] = _material.ambient[0];
+	material.buffer.ambient[1] = _material.ambient[1];
+	material.buffer.ambient[2] = _material.ambient[2];
+	material.buffer.ambient[3] = _material.ambient[3];
+
+	material.buffer.diffuse[0] = _material.diffuse[0];
+	material.buffer.diffuse[1] = _material.diffuse[1];
+	material.buffer.diffuse[2] = _material.diffuse[2];
+	material.buffer.diffuse[3] = _material.diffuse[3];
+
+	material.buffer.specular[0] = _material.specular[0];
+	material.buffer.specular[1] = _material.specular[1];
+	material.buffer.specular[2] = _material.specular[2];
+	material.buffer.specular[3] = _material.specular[3];
+
+	material.buffer.shininess = _material.shininess;
+	material.buffer.alpha = _material.alpha;
+	return material;
 }

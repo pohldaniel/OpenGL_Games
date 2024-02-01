@@ -33,7 +33,7 @@ SceneGraph::SceneGraph(StateMachine& machine) : State(machine, States::SCENEGRAP
 	SceneNode* lastNode = root;
 
 	for (unsigned int i = 0; i < 10; ++i) {
-		lastNode->addChild();
+		lastNode->addChild(lastNode);
 		lastNode = lastNode->getChildren().back().get();
 		lastNode->setPosition({ 10, 0, 0 });
 		lastNode->setScale({ scale, scale, scale });

@@ -50,4 +50,5 @@ struct Material {
 	static void SetTextures(const std::vector<Texture>& textures);
 	static std::vector<Texture> Textures;
 };
+
 #endif

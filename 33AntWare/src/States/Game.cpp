@@ -29,10 +29,10 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 	glClearColor(0.494f, 0.686f, 0.796f, 1.0f);
 	glClearDepth(1.0f);
 
-	glGenBuffers(1, &Globals::lightUbo);
-	glBindBuffer(GL_UNIFORM_BUFFER, Globals::lightUbo);
-	glBufferData(GL_UNIFORM_BUFFER, sizeof(LightStruct) * 20, NULL, GL_DYNAMIC_DRAW);
-	glBindBufferBase(GL_UNIFORM_BUFFER, 0, Globals::lightUbo);
+	glGenBuffers(1, &BuiltInShader::lightUbo);
+	glBindBuffer(GL_UNIFORM_BUFFER, BuiltInShader::lightUbo);
+	glBufferData(GL_UNIFORM_BUFFER, sizeof(LightBuffer) * 20, NULL, GL_DYNAMIC_DRAW);
+	glBindBufferBase(GL_UNIFORM_BUFFER, 0, BuiltInShader::lightUbo);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 	
@@ -57,6 +57,7 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 
 	Material::SetTextures(scene.getTextures());
 	Material::SetMaterials(scene.getMaterials());
+	Light::SetLights(scene.getLights());
 	m_meshes = scene.getMeshes();
 
 	const BoundingBox& box = m_meshes[0]->getAABB();
@@ -75,11 +76,14 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 	
 	m_player = new Player(m_camera, m_meshes[6], Vector2f(-51.5f, -51.5f), Vector2f(51.5f, 51.5f));
 
+	//Light* light = new Light();
+
 	m_player->setPosition(0.0f, 0.0f, 5.0f);
 	m_player->addChild(m_muzzleE, true);
 	m_player->addChild(m_gunE, true);
 	m_player->addChild(m_handsE, false);
 	m_player->addChild(m_glovesE, true);
+	//m_player->addChild(light, m_player);
 	m_player->start();
 
 	m_entitiesAfterClear.push_back(m_muzzleE);
