@@ -4,6 +4,7 @@
 #include <array>
 #include <engine/interfaces/ICounter.h>
 #include <Scene/Object.h>
+#include <Scene/ObjectNode.h>
 
 enum LightType2 {
 	DIRECTIONAL2,
@@ -23,7 +24,7 @@ struct LightBuffer {
 	bool enabled;
 };
 
-class Light : public Object , private ICounter<Light> {
+class Light : public ObjectNode2, private ICounter<Light> {
 
 public:
 

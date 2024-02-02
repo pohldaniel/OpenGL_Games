@@ -1,5 +1,8 @@
+#include <GL/glew.h>
 #include <iostream>
 #include "ObjectNode.h"
+
+#include <engine/BuiltInShader.h>
 
 ObjectNode::ObjectNode()  : IObjectNode() {
 
@@ -34,4 +37,8 @@ void ObjectNode::updateSOP() const {
 		}
 		m_isDirty = false;
 	}
+}
+
+ObjectNode2::ObjectNode2() : ObjectNode() {
+
 }

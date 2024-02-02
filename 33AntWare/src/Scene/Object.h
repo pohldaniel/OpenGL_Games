@@ -51,7 +51,6 @@ public:
 	const Matrix4f& getTransformationP() const;
 	const Matrix4f& getTransformationS() const;
 	
-
 	static const Matrix4f &GetTransformation();
 
 protected:

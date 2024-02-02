@@ -1,3 +1,7 @@
+#pragma once
+
+#include <engine/interfaces/ICounter.h>
+
 #include "IObjectNode.h"
 
 class ObjectNode : public IObjectNode<ObjectNode> {
@@ -17,4 +21,11 @@ private:
 	mutable Vector3f worldPosition;
 	mutable Vector3f worldScale;
 	mutable Quaternion worldOrientation;
+};
+
+class ObjectNode2 : public ObjectNode {
+
+public:
+
+	ObjectNode2();
 };

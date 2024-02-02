@@ -34,7 +34,7 @@ SceneGraph::SceneGraph(StateMachine& machine) : State(machine, States::SCENEGRAP
 
 	for (unsigned int i = 0; i < 10; ++i) {
 		lastNode->addChild(lastNode);
-		lastNode = lastNode->getChildren().back().get();
+		lastNode = dynamic_cast<SceneNode*>(lastNode->getChildren().back().get());
 		lastNode->setPosition({ 10, 0, 0 });
 		lastNode->setScale({ scale, scale, scale });
 	}
@@ -122,7 +122,7 @@ void SceneGraph::render() {
 	while (lastNode->getChildren().size()) {
 		shader->loadMatrix("u_model", lastNode->getTransformation());
 		model.drawRaw();
-		lastNode = lastNode->getChildren().back().get();
+		lastNode = dynamic_cast<SceneNode*>(lastNode->getChildren().back().get());
 	}
 
 	Globals::textureManager.get("unbind").bind();

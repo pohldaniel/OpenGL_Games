@@ -11,6 +11,8 @@
 #include "DebugRenderer.h"
 #include "SceneManager.h"
 
+#include <Scene/ObjectNode.h>
+
 Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 
 	Application::SetCursorIcon(IDC_ARROW);
@@ -76,14 +78,15 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 	
 	m_player = new Player(m_camera, m_meshes[6], Vector2f(-51.5f, -51.5f), Vector2f(51.5f, 51.5f));
 
-	//Light* light = new Light();
+	Light* light = new Light();
+
 
 	m_player->setPosition(0.0f, 0.0f, 5.0f);
 	m_player->addChild(m_muzzleE, true);
 	m_player->addChild(m_gunE, true);
 	m_player->addChild(m_handsE, false);
 	m_player->addChild(m_glovesE, true);
-	//m_player->addChild(light, m_player);
+	m_player->addChild(light, m_player);
 	m_player->start();
 
 	m_entitiesAfterClear.push_back(m_muzzleE);

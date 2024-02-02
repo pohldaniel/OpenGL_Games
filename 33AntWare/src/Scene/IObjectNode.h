@@ -13,6 +13,12 @@ public:
 
 	}
 
+	IObjectNode(const IObjectNode& rhs) : Object(rhs) {}
+	IObjectNode& operator=(const IObjectNode& rhs) {
+		Object::operator=(rhs);
+		return *this;
+	}
+
 	const std::list<std::unique_ptr<T>>& getChildren() const {
 		return m_children;
 	}
@@ -150,6 +156,10 @@ public:
 	void rotate(const Quaternion& orientation) override {
 		Object::rotate(orientation);
 		OnTransformChanged();
+	}
+
+	virtual const Matrix4f& getTransformation() const {
+		return getTransformationSOP();
 	}
 
 protected:

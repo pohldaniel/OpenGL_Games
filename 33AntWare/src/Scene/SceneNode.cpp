@@ -1,7 +1,7 @@
 #include <iostream>
 #include "SceneNode.h"
 
-SceneNode::SceneNode() : IObjectNode() {
+SceneNode::SceneNode() : ObjectNode() {
 	m_modelMatrix.identity();
 }
 
@@ -18,4 +18,16 @@ const Matrix4f& SceneNode::getTransformation() const {
 	}
 
 	return m_modelMatrix;
+}
+
+const Vector3f& SceneNode::getPosition() const {
+	return m_position;
+}
+
+const Vector3f& SceneNode::getScale() const {
+	return m_scale;
+}
+
+const Quaternion& SceneNode::getOrientation() const {
+	return m_orientation;
 }
