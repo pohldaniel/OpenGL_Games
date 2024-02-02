@@ -121,7 +121,6 @@
             "direction":[0.0, 0.0, -5.0],
             "angle": 45.0,           
 			"enabled": false,
-			"parent": 0
         },
         {
             "type": 0,
@@ -140,21 +139,9 @@
             "class": 2,
             "ammo": 40,
             "transform": {
-                "position": [
-                    0,
-                    0,
-                    5
-                ],
-                "rotation": [
-                    0,
-                    0,
-                    0
-                ],
-                "scale": [
-                    1,
-                    1,
-                    1
-                ]
+                "position": [0.0, 0.0, 5.0],
+                "rotation": [0.0, 0.0, 0.0],
+                "scale": [1.0, 1.0, 1.0]
             },
             "mesh": 6
         },
@@ -162,21 +149,9 @@
             "tag": "muzzle fire & required",
             "class": 1,
             "transform": {
-                "position": [
-                    0,
-                    0,
-                    0
-                ],
-                "rotation": [
-                    0,
-                    0,
-                    0
-                ],
-                "scale": [
-                    1,
-                    1,
-                    1
-                ]
+                "position": [0.0, 0.0, 0.0],
+                "rotation": [0.0, 0.0, 0.0],
+                "scale": [1.0, 1.0, 1.0]
             },
             "mesh": 7,
             "parent": 0
@@ -184,21 +159,9 @@
         {
             "class": 1,
             "transform": {
-                "position": [
-                    0,
-                    0,
-                    0
-                ],
-                "rotation": [
-                    0,
-                    0,
-                    0
-                ],
-                "scale": [
-                    1,
-                    1,
-                    1
-                ]
+                "position": [0.0, 0.0, 0.0],
+                "rotation": [0.0, 0.0, 0.0],
+                "scale": [1.0, 1.0, 1.0]
             },
             "mesh": 4,
             "parent": 0
@@ -206,21 +169,9 @@
         {
             "class": 1,
             "transform": {
-                "position": [
-                    0,
-                    0,
-                    0
-                ],
-                "rotation": [
-                    0,
-                    0,
-                    0
-                ],
-                "scale": [
-                    1,
-                    1,
-                    1
-                ]
+                "position": [0.0, 0.0, 0.0],
+                "rotation": [0.0, 0.0, 0.0],
+                "scale": [1.0, 1.0, 1.0]
             },
             "mesh": 3,
             "parent": 0
@@ -229,21 +180,9 @@
             "class": 1,
             "tag": "gun",
             "transform": {
-                "position": [
-                    0,
-                    0,
-                    0
-                ],
-                "rotation": [
-                    0,
-                    0,
-                    0
-                ],
-                "scale": [
-                    1,
-                    1,
-                    1
-                ]
+                "position": [0.0, 0.0, 0.0],
+                "rotation": [0.0, 0.0, 0.0],
+                "scale": [1.0, 1.0, 1.0]
             },
             "mesh": 2,
             "parent": 0
