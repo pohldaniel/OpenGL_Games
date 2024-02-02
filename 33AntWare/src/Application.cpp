@@ -667,9 +667,9 @@ void Application::loadAssets() {
 	Globals::textureManager.loadTexture("forest_3", "res/backgrounds/Forest/plx-3.png");
 	Globals::textureManager.loadTexture("forest_4", "res/backgrounds/Forest/plx-4.png");
 	Globals::textureManager.loadTexture("forest_5", "res/backgrounds/Forest/plx-5.png");
-
-	Globals::textureManager.loadTexture("mars", "res/models/planet/mars.png");*/
-	Globals::textureManager.loadTexture("ant", "res/textures/Ant.png");
+	Globals::textureManager.loadTexture("ant", "res/textures/Ant.png");*/
+	
+	Globals::textureManager.loadTexture("mars", "res/models/planet/mars.png");
 
 	Globals::fontManager.loadCharacterSet("upheaval_200", "res/fonts/upheavtt.ttf", 200, 10u, 30u, 128u, 0, true, 0u);
 	Globals::fontManager.loadCharacterSet("upheaval_50", "res/fonts/upheavtt.ttf",  50,  3u, 3u,  0u,   0, true, 1u);

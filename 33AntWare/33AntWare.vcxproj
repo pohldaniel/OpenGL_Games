@@ -188,6 +188,7 @@
     <ClCompile Include="src\ObjSequence.cpp" />
     <ClCompile Include="src\Rigidbody.cpp" />
     <ClCompile Include="src\SceneManager.cpp" />
+    <ClCompile Include="src\Scene\BaseNode.cpp" />
     <ClCompile Include="src\Scene\MeshNode.cpp" />
     <ClCompile Include="src\Scene\Object.cpp" />
     <ClCompile Include="src\Scene\ObjectNode.cpp" />
@@ -355,7 +356,8 @@
     <ClInclude Include="src\RandomColor.h" />
     <ClInclude Include="src\Rigidbody.h" />
     <ClInclude Include="src\SceneManager.h" />
-    <ClInclude Include="src\Scene\IObjectNode.h" />
+    <ClInclude Include="src\Scene\BaseNode.h" />
+    <ClInclude Include="src\Scene\IBaseNode.h" />
     <ClInclude Include="src\Scene\MeshNode.h" />
     <ClInclude Include="src\Scene\Object.h" />
     <ClInclude Include="src\Scene\ObjectNode.h" />

@@ -4,7 +4,7 @@
 
 #include <engine/BuiltInShader.h>
 
-ObjectNode::ObjectNode()  : IObjectNode() {
+ObjectNode::ObjectNode()  : BaseNode() {
 
 }
 
@@ -37,8 +37,4 @@ void ObjectNode::updateSOP() const {
 		}
 		m_isDirty = false;
 	}
-}
-
-ObjectNode2::ObjectNode2() : ObjectNode() {
-
 }

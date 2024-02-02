@@ -396,6 +396,9 @@
     <ClCompile Include="src\Scene\ObjectNode.cpp">
       <Filter>Source Files\Scene</Filter>
     </ClCompile>
+    <ClCompile Include="src\Scene\BaseNode.cpp">
+      <Filter>Source Files\Scene</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="convhull\convhull_3d.h">
@@ -755,7 +758,10 @@
     <ClInclude Include="src\Scene\ObjectNode.h">
       <Filter>Source Files\Scene</Filter>
     </ClInclude>
-    <ClInclude Include="src\Scene\IObjectNode.h">
+    <ClInclude Include="src\Scene\BaseNode.h">
+      <Filter>Source Files\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Scene\IBaseNode.h">
       <Filter>Source Files\Scene</Filter>
     </ClInclude>
   </ItemGroup>

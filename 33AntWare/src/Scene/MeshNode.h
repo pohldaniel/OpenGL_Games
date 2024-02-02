@@ -20,7 +20,6 @@ public:
 
 	using SceneNode::addChild;
 	void addChild(MeshNode* node, bool drawDebug);
-	//void addChild(SceneNode* node);
 
 	const BoundingBox& getWorldBoundingBox() const;
 	const BoundingBox& getLocalBoundingBox() const;

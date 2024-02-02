@@ -27,16 +27,14 @@ SceneGraph::SceneGraph(StateMachine& machine) : State(machine, States::SCENEGRAP
 	model.loadModel("res/models/planet/planet.obj");
 	float scale = 0.75f;
 	root = new SceneNode();
-	root->setPosition({ 10, 0, 0 });
+	root->setPosition({ 10.0f, 0.0f, 0.0f });
 	root->setScale({ scale, scale, scale });
 
 	SceneNode* lastNode = root;
-
 	for (unsigned int i = 0; i < 10; ++i) {
-		lastNode->addChild(lastNode);
-		lastNode = dynamic_cast<SceneNode*>(lastNode->getChildren().back().get());
-		lastNode->setPosition({ 10, 0, 0 });
-		lastNode->setScale({ scale, scale, scale });
+		lastNode = dynamic_cast<SceneNode*>(lastNode->addChild(new SceneNode(), lastNode));
+		lastNode->setPosition({ 10.0f, 0.0f, 0.0f });
+		lastNode->setScale({ scale, scale, scale });		
 	}
 }
 
@@ -105,7 +103,6 @@ void SceneGraph::update() {
 	}
 
 	root->rotate(0.f, 20.0f * m_dt, 0.f);
-	root->OnTransformChanged();
 }
 
 void SceneGraph::render() {
@@ -117,8 +114,8 @@ void SceneGraph::render() {
 	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
 	shader->loadMatrix("u_view", m_camera.getViewMatrix());
 	Globals::textureManager.get("mars").bind();
+	
 	SceneNode* lastNode = root;
-
 	while (lastNode->getChildren().size()) {
 		shader->loadMatrix("u_model", lastNode->getTransformation());
 		model.drawRaw();

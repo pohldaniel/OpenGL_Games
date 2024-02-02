@@ -27,7 +27,6 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 
 	m_camera = Camera(scene.getCamera());
 
-
 	glClearColor(0.494f, 0.686f, 0.796f, 1.0f);
 	glClearDepth(1.0f);
 
@@ -78,15 +77,12 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 	
 	m_player = new Player(m_camera, m_meshes[6], Vector2f(-51.5f, -51.5f), Vector2f(51.5f, 51.5f));
 
-	Light* light = new Light();
-
-
 	m_player->setPosition(0.0f, 0.0f, 5.0f);
 	m_player->addChild(m_muzzleE, true);
 	m_player->addChild(m_gunE, true);
 	m_player->addChild(m_handsE, false);
 	m_player->addChild(m_glovesE, true);
-	m_player->addChild(light, m_player);
+	m_player->addChild(&Light::GetLights()[0], m_player);
 	m_player->start();
 
 	m_entitiesAfterClear.push_back(m_muzzleE);
@@ -207,7 +203,9 @@ void Game::update() {
 	for (auto entity : m_entities)
 		entity->update(m_fdt);
 
-	
+	//Vector3f lightPos = Light::GetLights()[0].getPosition();
+	//std::cout << "Position: " << lightPos[0] << "  " << lightPos[1] << "  " << lightPos[2] << std::endl;
+
 	bool isWin = Ant::GetCount() == 0;
 
 	if (Globals::clock.getElapsedTimeSec() - m_player->timeSinceDamage > 0.25f){

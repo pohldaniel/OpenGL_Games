@@ -1,17 +1,13 @@
 #pragma once
 
-#include "ObjectNode.h"
+#include "BaseNode.h"
 
-class SceneNode : public ObjectNode {
+class SceneNode : public BaseNode {
 
 public:
 
 	SceneNode();
 	const Matrix4f& getTransformation() const override;
-
-	const Vector3f& getPosition() const override;
-	const Vector3f& getScale() const override;
-	const Quaternion& getOrientation() const override;
 
 private:
 

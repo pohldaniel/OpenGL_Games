@@ -30,8 +30,8 @@ void Player::update(const float dt) {
 	Keyboard &keyboard = Keyboard::instance();
 	Mouse &mouse = Mouse::instance();
 
-	rigidbody.velocity = { 0, 0, 0 };
-	rigidbody.angularVelocity = { 0, 0, 0 };
+	rigidbody.velocity = { 0.0f, 0.0f, 0.0f };
+	rigidbody.angularVelocity = { 0.0f, 0.0f, 0.0f };
 
 	if (!hasFallen) {
 
@@ -44,11 +44,11 @@ void Player::update(const float dt) {
 		}
 
 		if (keyboard.keyDown(Keyboard::KEY_D)) {
-			rigidbody.velocity[1] += 1;
+			rigidbody.velocity[0] += 1;
 		}
 
 		if (keyboard.keyDown(Keyboard::KEY_A)) {
-			rigidbody.velocity[1] -= 1;
+			rigidbody.velocity[0] -= 1;
 		}
 
 		if (keyboard.keyPressed(Keyboard::KEY_R) && reloadTimer.getElapsedTimeSec() > 1.5f) {

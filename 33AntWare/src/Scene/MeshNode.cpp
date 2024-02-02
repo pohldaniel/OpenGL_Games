@@ -1,5 +1,3 @@
-#include <Objects/MeshNew.h>
-
 #include "MeshNode.h"
 #include "DebugRenderer.h"
 #include "ObjectNode.h"
@@ -49,10 +47,6 @@ void MeshNode::addChild(MeshNode* node, bool drawDebug) {
 	SceneNode::addChild(node, this);
 	node->setDrawDebug(drawDebug);
 }
-
-/*void MeshNode::addChild(SceneNode* node) {
-	SceneNode::addChild(node, this);
-}*/
 
 const BoundingBox& MeshNode::getWorldBoundingBox() const {
 	if (m_worldBoundingBoxDirty){

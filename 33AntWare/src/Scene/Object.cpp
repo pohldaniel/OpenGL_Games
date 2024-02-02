@@ -1,3 +1,4 @@
+#include <iostream>
 #include "Object.h"
 
 Matrix4f Object::Transformation;
@@ -17,6 +18,21 @@ Object::Object(Object const& rhs) {
 }
 
 Object& Object::operator=(const Object& rhs) {
+	m_position = rhs.m_position;
+	m_scale = rhs.m_scale;
+	m_orientation = rhs.m_orientation;
+	//m_rotation = rhs.m_rotation;
+	return *this;
+}
+
+Object::Object(Object&& rhs) : Object(rhs) {
+	m_position = rhs.m_position;
+	m_scale = rhs.m_scale;
+	m_orientation = rhs.m_orientation;
+	//m_rotation = rhs.m_rotation;
+}
+
+Object& Object::operator=(Object&& rhs) {
 	m_position = rhs.m_position;
 	m_scale = rhs.m_scale;
 	m_orientation = rhs.m_orientation;

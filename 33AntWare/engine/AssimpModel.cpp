@@ -654,8 +654,6 @@ std::string AssimpModel::GetTexturePath(std::string texPath, std::string modelDi
 }
 
 void AssimpModel::ReadAiMaterial(const aiMaterial* aiMaterial, short& index, std::string modelDirectory, std::string mltName) {
-	std::cout << "Name: " << mltName << std::endl;
-	
 	std::vector<Material>::iterator it = std::find_if(Material::GetMaterials().begin(), Material::GetMaterials().end(), std::bind(compareMaterial, std::placeholders::_1, mltName));
 	if (it == Material::GetMaterials().end()) {
 
@@ -711,8 +709,6 @@ void AssimpModel::ReadAiMaterial(const aiMaterial* aiMaterial, short& index, std
 	}else {
 		index = std::distance(Material::GetMaterials().begin(), it);
 	}
-
-	//std::cout << "Index: " << index << std::endl;
 }
 
 void AssimpModel::Cleanup() {

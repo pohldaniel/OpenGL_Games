@@ -16,7 +16,7 @@ LightBuffer Light::Buffer[20];
 		&& l1.buffer.angle == l2.buffer.angle;
 }*/
 
-Light::Light() : ObjectNode2() {
+Light::Light() : ObjectNode() {
 
 }
 
