@@ -1,12 +1,17 @@
 #pragma once
+#include <list>
+#include <memory>
+#include "Object.h"
 
-#include "IBaseNode.h"
-
-class BaseNode : public IBaseNode<BaseNode> {
+class BaseNode : public Object {
 
 public:
 
 	BaseNode();
+	BaseNode(const BaseNode& rhs);
+	BaseNode& operator=(const BaseNode& rhs);
+	BaseNode(BaseNode&& rhs);
+	BaseNode& operator=(BaseNode&& rhs);
 
 	virtual void OnTransformChanged();
 
@@ -37,10 +42,20 @@ public:
 	void rotate(const Vector3f& axis, float degrees) override;
 	void rotate(const Quaternion& orientation) override;
 
-	virtual const Matrix4f& getTransformation() const;
+	virtual const Matrix4f& getTransformation() const = 0;
+	virtual const Vector3f& getScalePosition() const;
+
 	void markForRemove();
+
+	const std::list<std::unique_ptr<BaseNode>>& getChildren() const;
+	void removeChild(std::unique_ptr<BaseNode> node);
+	BaseNode* addChild(BaseNode* node);
+	BaseNode* addChild();
+	void setParent(BaseNode* node);
 
 protected:
 
+	
+	BaseNode* m_parent;	std::list<std::unique_ptr<BaseNode>> m_children;
 	bool m_markForRemove;	mutable bool m_isDirty;
 };

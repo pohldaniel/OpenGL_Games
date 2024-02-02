@@ -1,8 +1,23 @@
 #include <iostream>
 #include "BaseNode.h"
+#include "SceneNode.h"
 
-BaseNode::BaseNode() : IBaseNode(), m_markForRemove(false), m_isDirty(true) {
+BaseNode::BaseNode() : Object(), m_markForRemove(false), m_isDirty(true), m_parent(nullptr) {
 
+}
+
+BaseNode::BaseNode(const BaseNode& rhs) : Object(rhs) {}
+
+BaseNode& BaseNode::operator=(const BaseNode& rhs) {
+	Object::operator=(rhs);
+	return *this;
+}
+
+BaseNode::BaseNode(BaseNode&& rhs) : Object(rhs) {}
+
+BaseNode& BaseNode::operator=(BaseNode&& rhs) {
+	Object::operator=(rhs);
+	return *this;
 }
 
 void BaseNode::markForRemove() {
@@ -122,6 +137,30 @@ void BaseNode::rotate(const Quaternion& orientation) {
 	OnTransformChanged();
 }
 
-const Matrix4f& BaseNode::getTransformation() const {
-	return getTransformationSOP();
+const std::list<std::unique_ptr<BaseNode>>& BaseNode::getChildren() const {
+	return m_children;
+}
+
+void BaseNode::removeChild(std::unique_ptr<BaseNode> node) {
+	m_children.remove(node);
+}
+
+BaseNode* BaseNode::addChild(BaseNode* node) {
+	m_children.emplace_back(std::unique_ptr<BaseNode>(node));
+	m_children.back()->m_parent = this;
+	return m_children.back().get();
+}
+
+BaseNode* BaseNode::addChild() {
+	m_children.emplace_back(std::make_unique<SceneNode>());
+	m_children.back()->m_parent = this;
+	return m_children.back().get();
+}
+
+void BaseNode::setParent(BaseNode* node) {
+	m_parent = node;
+}
+
+const Vector3f& BaseNode::getScalePosition() const {
+	return m_position;
 }

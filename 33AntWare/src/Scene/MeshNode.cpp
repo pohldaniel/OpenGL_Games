@@ -1,6 +1,5 @@
 #include "MeshNode.h"
 #include "DebugRenderer.h"
-#include "ObjectNode.h"
 
 MeshNode::MeshNode() : SceneNode(), m_model(nullptr), m_drawDebug(true){
 	OnBoundingBoxChanged();
@@ -44,7 +43,7 @@ void MeshNode::OnBoundingBoxChanged() const{
 }
 
 void MeshNode::addChild(MeshNode* node, bool drawDebug) {
-	SceneNode::addChild(node, this);
+	SceneNode::addChild(node);
 	node->setDrawDebug(drawDebug);
 }
 

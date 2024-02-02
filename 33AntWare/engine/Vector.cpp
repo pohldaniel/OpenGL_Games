@@ -1145,6 +1145,31 @@ Matrix4f Matrix4f::Scale(float x, float y, float z, const Vector3f &centerOfScal
 		centerOfScale[2] * (1.0f - z), 1.0f);
 }
 
+/*Matrix4f Matrix4f::Scale(const Vector3f& scale, const Vector3f& centerOfScale) {
+	return Matrix4f(1.0f * scale[0], 0.0f, 0.0f, 0.0f,
+                    0.0f, 1.0f * scale[1], 0.0f, 0.0f,
+                    0.0f, 0.0f, 1.0f * scale[2], 0.0f,
+		centerOfScale[0] * (1.0f - scale[0]),
+		centerOfScale[1] * (1.0f - scale[1]),
+		centerOfScale[2] * (1.0f - scale[2]), 1.0f);
+}
+
+Matrix4f Matrix4f::Scale(const Vector3f& scale, const Vector3f& a, const Vector3f& b) {
+	
+	return Matrix4f(1.0f * scale[0], 0.0f, 0.0f, 0.0f,
+					0.0f, 1.0f * scale[1], 0.0f, 0.0f,
+					0.0f, 0.0f, 1.0f * scale[2], 0.0f,
+                    b[0]  + a[0], b[1]  + a[1], b[2]  + a[2], 1.0f);
+
+}*/
+
+Matrix4f Matrix4f::Scale(const Vector3f& scale, const Vector3f& centerOfScale) {
+	return Matrix4f(1.0f * scale[0], 0.0f, 0.0f, 0.0f,
+                    0.0f, 1.0f * scale[1], 0.0f, 0.0f,
+                    0.0f, 0.0f, 1.0f * scale[2], 0.0f,
+                    centerOfScale[0], centerOfScale[1], centerOfScale[2], 1.0f);
+}
+
 Matrix4f Matrix4f::InvRotate(const Vector3f &axis, float degrees) {
 	float rad = degrees * PI_ON_180;
 	float magnitude = axis.length();
@@ -1528,11 +1553,11 @@ Matrix4f Matrix4f::Rotate(const Quaternion &orientation, const Vector3f &centerO
 	float mtx22 = 1.0f - (xx + yy);
 
 	return Matrix4f(mtx00, mtx01, mtx02, 0.0f,
-		mtx10, mtx11, mtx12, 0.0f,
-		mtx20, mtx21, mtx22, 0.0f,
-		centerOfRotation[0] * (1.0f - mtx00) - centerOfRotation[1] * mtx10 - centerOfRotation[2] * mtx20,
-		centerOfRotation[1] * (1.0f - mtx11) - centerOfRotation[0] * mtx01 - centerOfRotation[2] * mtx21,
-		centerOfRotation[2] * (1.0f - mtx22) - centerOfRotation[0] * mtx02 - centerOfRotation[1] * mtx12, 1.0);
+                    mtx10, mtx11, mtx12, 0.0f,
+                    mtx20, mtx21, mtx22, 0.0f,
+                    centerOfRotation[0] * (1.0f - mtx00) - centerOfRotation[1] * mtx10 - centerOfRotation[2] * mtx20,
+                    centerOfRotation[1] * (1.0f - mtx11) - centerOfRotation[0] * mtx01 - centerOfRotation[2] * mtx21,
+                    centerOfRotation[2] * (1.0f - mtx22) - centerOfRotation[0] * mtx02 - centerOfRotation[1] * mtx12, 1.0);
 }
 
 Matrix4f Matrix4f::Rotate(float pitch, float yaw, float roll, const Vector3f &centerOfRotation) {
@@ -2669,6 +2694,10 @@ Vector3f Vector3f::Cross(const Vector3f &p, const Vector3f &q) {
 	return Vector3f((p.vec[1] * q.vec[2]) - (p.vec[2] * q.vec[1]),
 		(p.vec[2] * q.vec[0]) - (p.vec[0] * q.vec[2]),
 		(p.vec[0] * q.vec[1]) - (p.vec[1] * q.vec[0]));
+}
+
+Vector3f Vector3f::Inverse(const Vector3f &p) {
+	return Vector3f(p[0] != 0 ? 1.0f / p[0] : p[0], p[1] != 0 ? 1.0f / p[1] : p[1], p[2] != 0 ? 1.0f / p[2] : p[2]);
 }
 
 float Vector3f::Dot(const Vector3f &p, const Vector3f &q) {

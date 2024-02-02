@@ -11,8 +11,6 @@
 #include "DebugRenderer.h"
 #include "SceneManager.h"
 
-#include <Scene/ObjectNode.h>
-
 Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 
 	Application::SetCursorIcon(IDC_ARROW);
@@ -82,7 +80,7 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 	m_player->addChild(m_gunE, true);
 	m_player->addChild(m_handsE, false);
 	m_player->addChild(m_glovesE, true);
-	m_player->addChild(&Light::GetLights()[0], m_player);
+	m_player->addChild(&Light::GetLights()[0]);
 	m_player->start();
 
 	m_entitiesAfterClear.push_back(m_muzzleE);

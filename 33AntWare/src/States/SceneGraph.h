@@ -7,6 +7,7 @@
 
 #include <States/StateMachine.h>
 #include <Scene/SceneNode.h>
+#include <Scene/SceneNodeOld.h>
 
 #include "Background.h"
 

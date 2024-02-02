@@ -3,7 +3,7 @@
 #include <vector>
 #include <array>
 #include <engine/interfaces/ICounter.h>
-#include <Scene/ObjectNode.h>
+#include <Scene/SceneNode.h>
 
 enum LightType2 {
 	DIRECTIONAL2,
@@ -23,7 +23,7 @@ struct LightBuffer {
 	bool enabled;
 };
 
-class Light : public ObjectNode, private ICounter<Light> {
+class Light : public SceneNode, private ICounter<Light> {
 
 public:
 

@@ -168,6 +168,7 @@ public:
 	bool zero();
 
 	static Vector3f Cross(const Vector3f &p, const Vector3f &q);
+	static Vector3f Inverse(const Vector3f &p);
 	static float Dot(const Vector3f &p, const Vector3f &q);	
 	static Vector3f& Normalize(Vector3f &p);
 	static Vector3f Normalize(const Vector3f &p);
@@ -341,6 +342,9 @@ public:
 	static Matrix4f Scale(const Vector3f& scale);
 	static Matrix4f &Scale(Matrix4f& mtx, float x, float y, float z);
 	static Matrix4f Scale(float x, float y, float z, const Vector3f& centerOfScale);
+	//static Matrix4f Scale(const Vector3f& scale, const Vector3f& centerOfScale);
+	//static Matrix4f Scale(const Vector3f& scale, const Vector3f& a, const Vector3f& b);
+	static Matrix4f Scale(const Vector3f& scale, const Vector3f& centerOfScale);
 
 	static Matrix4f Translate(float dx, float dy, float dz);
 	static Matrix4f Translate(const Vector3f & trans);

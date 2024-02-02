@@ -30,9 +30,9 @@ SceneGraph::SceneGraph(StateMachine& machine) : State(machine, States::SCENEGRAP
 	root->setPosition({ 10.0f, 0.0f, 0.0f });
 	root->setScale({ scale, scale, scale });
 
-	SceneNode* lastNode = root;
+	BaseNode* lastNode = root;
 	for (unsigned int i = 0; i < 10; ++i) {
-		lastNode = dynamic_cast<SceneNode*>(lastNode->addChild(new SceneNode(), lastNode));
+		lastNode = lastNode->addChild(new SceneNode());
 		lastNode->setPosition({ 10.0f, 0.0f, 0.0f });
 		lastNode->setScale({ scale, scale, scale });		
 	}
@@ -115,11 +115,11 @@ void SceneGraph::render() {
 	shader->loadMatrix("u_view", m_camera.getViewMatrix());
 	Globals::textureManager.get("mars").bind();
 	
-	SceneNode* lastNode = root;
+	BaseNode* lastNode = root;
 	while (lastNode->getChildren().size()) {
 		shader->loadMatrix("u_model", lastNode->getTransformation());
 		model.drawRaw();
-		lastNode = dynamic_cast<SceneNode*>(lastNode->getChildren().back().get());
+		lastNode = lastNode->getChildren().back().get();
 	}
 
 	Globals::textureManager.get("unbind").bind();

@@ -62,7 +62,5 @@ protected:
 	//Vector3f m_rotation;
 	Quaternion m_orientation;
 
-private:
-
 	static Matrix4f Transformation;
 };
