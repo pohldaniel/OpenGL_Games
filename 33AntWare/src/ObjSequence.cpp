@@ -95,6 +95,10 @@ void ObjSequence::markForDelete() {
 	m_markForDelete = true;
 }
 
+const std::vector<ObjSequence::Mesh>& ObjSequence::getMeshes() const {
+	return m_meshes;
+}
+
 void ObjSequence::setPosition(float x, float y, float z) {
 	m_transform.setPosition(x, y, z);
 }
@@ -137,8 +141,8 @@ void ObjSequence::loadSequence(const char* _path, Vector3f& axis, float degree, 
 	std::vector<float> tangentCoords;
 	std::vector<float> bitangentCoords;
 
-	std::map<std::string, int> name;
 	std::vector<unsigned int> numberOfTriangles;
+	std::vector<BoundingBox> boundingBoxes;
 
 	int assign = 0;
 
@@ -292,8 +296,7 @@ void ObjSequence::loadSequence(const char* _path, Vector3f& axis, float degree, 
 								p1 = p;
 								t1 = t;
 								n1 = n;
-							}
-							else if (index == 1) {
+							}else if (index == 1) {
 								p2 = p;
 								t2 = t;
 								n2 = n;
@@ -366,7 +369,7 @@ void ObjSequence::loadSequence(const char* _path, Vector3f& axis, float degree, 
 			}//end switch
 		}// end while
 		fclose(pFile);
-
+		
 		numberOfTriangles.push_back(face.size() - std::accumulate(numberOfTriangles.begin(), numberOfTriangles.end(), 0));
 		///////////////////////Rescale/////////////////////////////
 		if (rescale) {
@@ -393,6 +396,7 @@ void ObjSequence::loadSequence(const char* _path, Vector3f& axis, float degree, 
 				zmax = (std::max)(*(pit + 2), zmax);
 			}
 		}
+		boundingBoxes.push_back(BoundingBox({ xmin , ymin , zmin }, { xmax , ymax , zmax }));
 
 		if (!withoutNormals) {
 			if (generateSmoothNormals) {
@@ -415,14 +419,13 @@ void ObjSequence::loadSequence(const char* _path, Vector3f& axis, float degree, 
 	}
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	for (int i = 0; i < numberOfTriangles.size(); i++) {
-		m_meshes.push_back({ numberOfTriangles[i], 0u, 0u, 0u});
+		m_meshes.push_back({ numberOfTriangles[i], 0u, 0u, 0u, boundingBoxes[i]});
 		if (m_meshes.size() > 1) {
 			m_meshes[m_meshes.size() - 1].baseIndex = m_meshes[m_meshes.size() - 2].numberOfTriangles + m_meshes[m_meshes.size() - 2].baseIndex;
 		}
 	}
 
 	m_numberOfMeshes = m_meshes.size();
-	name.clear();
 
 	IndexBufferCreator indexBufferCreator;
 	indexBufferCreator.positionCoordsIn = vertexCoords;
@@ -463,6 +466,11 @@ void ObjSequence::loadSequence(const char* _path, Vector3f& axis, float degree, 
 	indexBufferCreator.tangentCoordsIn.shrink_to_fit();
 	indexBufferCreator.bitangentCoordsIn.clear();
 	indexBufferCreator.bitangentCoordsIn.shrink_to_fit();
+
+	numberOfTriangles.clear();
+	numberOfTriangles.shrink_to_fit();
+	boundingBoxes.clear();
+	boundingBoxes.shrink_to_fit();
 
 	m_numberOfVertices = m_vertexBuffer.size() / m_stride;
 	m_numberOfIndices = m_indexBuffer.size();

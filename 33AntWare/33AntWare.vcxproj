@@ -192,7 +192,8 @@
     <ClCompile Include="src\Scene\MeshNode.cpp" />
     <ClCompile Include="src\Scene\Object.cpp" />
     <ClCompile Include="src\Scene\SceneNode.cpp" />
-    <ClCompile Include="src\Scene\SceneNodeOld.cpp" />
+    <ClCompile Include="src\Scene\SceneNodeLC.cpp" />
+    <ClCompile Include="src\Scene\SequenceNode.cpp" />
     <ClCompile Include="src\States\Controlls.cpp" />
     <ClCompile Include="src\States\Default.cpp" />
     <ClCompile Include="src\States\Game.cpp" />
@@ -361,7 +362,8 @@
     <ClInclude Include="src\Scene\MeshNode.h" />
     <ClInclude Include="src\Scene\Object.h" />
     <ClInclude Include="src\Scene\SceneNode.h" />
-    <ClInclude Include="src\Scene\SceneNodeOld.h" />
+    <ClInclude Include="src\Scene\SceneNodeLC.h" />
+    <ClInclude Include="src\Scene\SequenceNode.h" />
     <ClInclude Include="src\States\Controls.h" />
     <ClInclude Include="src\States\Default.h" />
     <ClInclude Include="src\States\Game.h" />

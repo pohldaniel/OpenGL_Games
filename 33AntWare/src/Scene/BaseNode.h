@@ -44,6 +44,9 @@ public:
 
 	virtual const Matrix4f& getTransformation() const = 0;
 	virtual const Vector3f& getScalePosition() const;
+	virtual const Vector3f& getWorldPosition() const;
+	virtual const Vector3f& getWorldScale() const;
+	virtual const Quaternion& getWorldOrientation() const;
 
 	void markForRemove();
 

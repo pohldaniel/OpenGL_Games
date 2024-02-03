@@ -2,11 +2,11 @@
 
 #include "BaseNode.h"
 
-class SceneNodeOld : public BaseNode {
+class SceneNodeLC : public BaseNode {
 
 public:
 
-	SceneNodeOld();
+	SceneNodeLC();
 	const Matrix4f& getTransformation() const override;
 
 private:

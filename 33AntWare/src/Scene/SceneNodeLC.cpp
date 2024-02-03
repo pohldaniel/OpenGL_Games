@@ -1,11 +1,11 @@
 #include <iostream>
-#include "SceneNodeOld.h"
+#include "SceneNodeLC.h"
 
-SceneNodeOld::SceneNodeOld() : BaseNode() {
+SceneNodeLC::SceneNodeLC() : BaseNode() {
 	m_modelMatrix.identity();
 }
 
-const Matrix4f& SceneNodeOld::getTransformation() const {
+const Matrix4f& SceneNodeLC::getTransformation() const {
 	if (m_isDirty) {
 		if (m_parent) {			
 			m_modelMatrix = m_parent->getTransformation() * getTransformationSOP();

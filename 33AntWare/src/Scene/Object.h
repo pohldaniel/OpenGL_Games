@@ -40,9 +40,9 @@ public:
 	virtual void rotate(const Vector3f& axis, float degrees);
 	virtual void rotate(const Quaternion& orientation);
 
-	virtual const Vector3f& getPosition() const;
-	virtual const Vector3f& getScale() const;
-	virtual const Quaternion& getOrientation() const;
+	const Vector3f& getPosition() const;
+	const Vector3f& getScale() const;
+	const Quaternion& getOrientation() const;
 	//const Vector3f& getRotation() const;
 
 	const Matrix4f& getTransformationSOP() const;

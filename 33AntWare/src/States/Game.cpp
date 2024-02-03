@@ -75,7 +75,7 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 	
 	m_player = new Player(m_camera, m_meshes[6], Vector2f(-51.5f, -51.5f), Vector2f(51.5f, 51.5f));
 
-	m_player->setPosition(0.0f, 0.0f, 5.0f);
+	m_player->setPosition(0.0f, 0.0f, 0.0f);
 	m_player->addChild(m_muzzleE, true);
 	m_player->addChild(m_gunE, true);
 	m_player->addChild(m_handsE, false);
@@ -248,7 +248,7 @@ void Game::render() {
 
 	glClear(GL_DEPTH_BUFFER_BIT);
 
-	m_player->OnRenderOBB({ 1.0f, 1.0f, 0.0f, 1.0f });
+	//m_player->OnRenderOBB({ 1.0f, 1.0f, 0.0f, 1.0f });
 	for (auto entity : m_entitiesAfterClear) {
 		shader->loadMatrix("u_model", entity->getTransformation());
 		entity->draw(m_camera);

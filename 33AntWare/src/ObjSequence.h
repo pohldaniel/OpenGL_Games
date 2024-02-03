@@ -15,6 +15,7 @@ class ObjSequence {
 		unsigned int baseVertex;
 		unsigned int baseIndex;
 		unsigned int drawCount;
+		BoundingBox localBoundingBox;
 	};
 
 public:
@@ -50,6 +51,7 @@ public:
 	void setMaterialIndex(short index) const;
 	short getTextureIndex();
 	void setTextureIndex(short index) const;
+	const std::vector<Mesh>& getMeshes() const;
 
 private:
 

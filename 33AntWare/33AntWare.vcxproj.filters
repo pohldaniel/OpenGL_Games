@@ -393,10 +393,13 @@
     <ClCompile Include="src\Scene\BaseNode.cpp">
       <Filter>Source Files\Scene</Filter>
     </ClCompile>
-    <ClCompile Include="src\Scene\SceneNodeOld.cpp">
+    <ClCompile Include="src\Scene\SceneNode.cpp">
       <Filter>Source Files\Scene</Filter>
     </ClCompile>
-    <ClCompile Include="src\Scene\SceneNode.cpp">
+    <ClCompile Include="src\Scene\SceneNodeLC.cpp">
+      <Filter>Source Files\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Scene\SequenceNode.cpp">
       <Filter>Source Files\Scene</Filter>
     </ClCompile>
   </ItemGroup>
@@ -758,10 +761,13 @@
     <ClInclude Include="src\Scene\IBaseNode.h">
       <Filter>Source Files\Scene</Filter>
     </ClInclude>
-    <ClInclude Include="src\Scene\SceneNodeOld.h">
+    <ClInclude Include="src\Scene\SceneNode.h">
       <Filter>Source Files\Scene</Filter>
     </ClInclude>
-    <ClInclude Include="src\Scene\SceneNode.h">
+    <ClInclude Include="src\Scene\SceneNodeLC.h">
+      <Filter>Source Files\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Scene\SequenceNode.h">
       <Filter>Source Files\Scene</Filter>
     </ClInclude>
   </ItemGroup>
