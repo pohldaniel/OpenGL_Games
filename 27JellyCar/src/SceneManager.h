@@ -107,8 +107,8 @@ public:
 	void saveCompiledLevel(const std::string path);
 	void saveLevel(const std::string path);
 
-	void buildLevel(World *world, std::vector<LevelSoftBody*>& gameBodies);
-	void buildCar(World *world, Car*& car, const std::string& carFileName);
+	void buildLevel(World* world, std::vector<LevelSoftBody*>& gameBodies);
+	void buildCar(World* world, Car*& car, const std::string& carFileName);
 
 	int m_currentPosition;
 	int m_carCurrentPosition;

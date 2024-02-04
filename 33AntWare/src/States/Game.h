@@ -65,8 +65,8 @@ private:
 	
 	std::vector<Ant*> m_ants;
 
-	std::vector<Entity*> m_entities;
 	std::vector<Entity*> m_entitiesAfterClear;
+	std::vector<Entity*> m_entities;
 
 	aw::Status gameStatus;
 

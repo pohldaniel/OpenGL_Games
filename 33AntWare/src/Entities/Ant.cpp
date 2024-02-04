@@ -10,11 +10,10 @@ Ant::Ant(const ObjSequence& objSequence, AssimpModel* model, Player* target) : E
 	m_material.setSpecular({ 0.3f, 0.3f, 0.3f, 1.0f });
 	m_material.setShininess(8.0f);
 	m_material.setAlpha(1.0f);
-}
 
-void Ant::start() {
 	baseIndex = objSequence.getNumberOfMeshes() - 1;
 	index = baseIndex;
+	m_isSubroot = true;
 }
 
 void Ant::update(float dt) {
@@ -99,7 +98,7 @@ void Ant::animate(float dt){
     }
 }
 
-void Ant::draw(const Camera& camera) {
+void Ant::draw() {
 	m_material.updateMaterialUbo(BuiltInShader::materialUbo);
 	objSequence.drawRaw(index);
 }

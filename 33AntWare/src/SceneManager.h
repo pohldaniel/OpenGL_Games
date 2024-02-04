@@ -3,16 +3,30 @@
 #include <string>
 #include <unordered_map>
 #include <rapidjson/document.h>
+
 #include <engine/Vector.h>
 #include <engine/Camera.h>
 #include <engine/Texture.h>
 #include <engine/Material.h>
 #include <engine/AssimpModel.h>
 
+#include <Scene/SceneNode.h>
+#include <Scene/SceneNodeLC.h>
 #include <Entities/Light.h>
+
 
 #include "ObjSequence.h"
 
+class Player;
+class Entity;
+
+enum Types {
+	ENTITY,
+	PLAYER,
+	LIGHT,
+	ANT,
+	INVALID
+};
 
 struct Level {
 	std::string sceneFile;
@@ -34,20 +48,26 @@ public:
 	const std::vector<Material>& getMaterials() const;
 	const std::vector<Light>& getLights() const;
 	const std::vector<AssimpModel*>& getMeshes() const;
+	const std::vector<Entity*>& getEntitiesAfterClear() const;
+	const std::vector<Entity*>& getEntities() const;
 	const ObjSequence& getObjSequence() const;
-	
+	Player* getPlayer() const;
+
 	void parseCamera(rapidjson::GenericObject<false, rapidjson::Value> object, Camera& camera);
 	void parseTextures(rapidjson::GenericArray<false, rapidjson::Value> array, std::vector<Texture>& texures);
 	void parseMaterials(rapidjson::GenericArray<false, rapidjson::Value> array, std::vector<Material>& materials);
 	void parseLights(rapidjson::GenericArray<false, rapidjson::Value> array, std::vector<Light>& lights);
 	void parseMeshes(rapidjson::GenericArray<false, rapidjson::Value> array, std::vector<AssimpModel*>& meshes);
 	void parseObjSequences(rapidjson::GenericArray<false, rapidjson::Value> array, ObjSequence& objSequence);
+	void parseNodes(rapidjson::GenericArray<false, rapidjson::Value> array, SceneNode*& root);
 
 	Texture& addTexture(std::string path, std::vector<Texture>& texures);
 	Material& addMaterial(const MaterialBuffer& materialBuffer, std::vector<Material>& materials);
 	Light& addLight(const LightBuffer& lightBuffer, std::vector<Light>& lights);
 	AssimpModel* addMesh(const rapidjson::GenericObject<true, rapidjson::Value> object, std::vector<AssimpModel*>& meshes);
 	ObjSequence& addObjSequence(const rapidjson::GenericObject<true, rapidjson::Value> object, ObjSequence& objSequence);
+	SceneNode* addNode(const rapidjson::GenericObject<false, rapidjson::Value> object, SceneNode*& root);
+	Types resolveOption(std::string type);
 
 	Vector2f mapMinLimit, mapMaxLimit;
 	Camera camera;
@@ -56,6 +76,11 @@ public:
 	std::vector<Light> lights;
 	std::vector<AssimpModel*> meshes;
 	ObjSequence objSequence;
+	SceneNode* root;
+	Player* player;
+
+	std::vector<Entity*> entitiesAfterClear;
+	std::vector<Entity*> entities;
 };
 
 class SceneManager {

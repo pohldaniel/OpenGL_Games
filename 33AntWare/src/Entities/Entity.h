@@ -15,7 +15,7 @@ public:
 	Entity(AssimpModel* model);
 	virtual ~Entity() = default;
 
-	virtual void draw(const Camera& camera);
+	virtual void draw();
 	virtual void update(const float dt);
 	virtual void fixedUpdate(float fdt);
 

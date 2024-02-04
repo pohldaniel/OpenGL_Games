@@ -5,7 +5,7 @@ Entity::Entity(AssimpModel* model) : MeshNode(model), m_isStatic(false), m_markF
 
 }
 
-void Entity::draw(const Camera& camera) {	
+void Entity::draw() {	
 	if(m_model)
 		m_model->drawRaw();
 }

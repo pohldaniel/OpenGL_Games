@@ -49,7 +49,6 @@ public:
 	bool m_mouseDown = false;
 	Clock shootTimer, reloadTimer;
 
-	void draw(const Camera& camera) override;
 	void update(const float dt) override;
 	void fixedUpdate(float fdt) override;
 

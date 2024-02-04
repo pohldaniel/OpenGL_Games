@@ -2,7 +2,7 @@
 #include <iostream>
 #include "SceneNode.h"
 
-SceneNode::SceneNode() : BaseNode() {
+SceneNode::SceneNode() : BaseNode(), m_isSubroot(false) {
 
 }
 
@@ -30,7 +30,7 @@ void SceneNode::updateSOP() const {
 	if (m_isDirty) {
 		if (m_parent) {
 			m_worldPosition = m_parent->getWorldPosition() + BaseNode::m_position * m_parent->getWorldScale();
-			m_worldOrigin = m_parent->getWorldOrigin() + BaseNode::m_position * m_parent->getWorldScale();
+			m_worldOrigin = (m_parent->getWorldOrigin() + BaseNode::m_position * m_parent->getWorldScale()) * !m_isSubroot;
 			m_worldScale = m_parent->getWorldScale() * BaseNode::m_scale;
 			m_worldOrientation = m_parent->getWorldOrientation() * BaseNode::m_orientation;
 		}else {

@@ -3,6 +3,9 @@
 #include <functional>
 
 #include <rapidjson/istreamwrapper.h>
+#include <Entities/Entity.h>
+#include <Entities/Player.h>
+#include <Entities/Ant.h>
 
 #include "SceneManager.h"
 #include "Application.h"
@@ -195,6 +198,78 @@ void Scene::parseObjSequences(rapidjson::GenericArray<false, rapidjson::Value> a
 	}
 }
 
+Types Scene::resolveOption(std::string input) {
+	if (input == "player") return PLAYER;
+	if (input == "entity") return ENTITY;
+	if (input == "light") return LIGHT;
+	if (input == "ant") return ANT;
+	return INVALID;
+}
+
+SceneNode* Scene::addNode(const rapidjson::GenericObject<false, rapidjson::Value> object, SceneNode*& root) {
+	std::string type = object["type"].GetString();
+
+	std::cout << "Tag: " << object["tag"].GetString() << std::endl;
+
+	int reference;
+	if (object.HasMember("mesh")) {
+		reference = object["mesh"].GetInt();
+	}else if (object.HasMember("light")) {
+		reference = object["light"].GetInt();
+	}else if (object.HasMember("sequence")) {
+		reference = object["sequence"].GetInt();
+	}
+
+	SceneNode* child = nullptr;
+	switch (resolveOption(type)){
+		case PLAYER:
+			player = new Player(camera, meshes[reference], Vector2f(-51.5f, -51.5f), Vector2f(51.5f, 51.5f));
+			root->addChild(player);
+			child = player;
+			break;
+		case ENTITY:
+
+			if(strcmp(object["tag"].GetString(), "muzzle") == 0 || 
+			   strcmp(object["tag"].GetString(), "gun") == 0 ||
+			   strcmp(object["tag"].GetString(), "hands") == 0 ||
+			   strcmp(object["tag"].GetString(), "gloves") == 0) {
+				entitiesAfterClear.push_back(new Entity(meshes[reference]));
+				child = dynamic_cast<SceneNode*>(root->addChild(entitiesAfterClear.back()));
+			}else {
+				entities.push_back(new Entity(meshes[reference]));
+				child = dynamic_cast<SceneNode*>(root->addChild(entities.back()));
+			}
+
+			break;
+		case LIGHT:
+			child = dynamic_cast<SceneNode*>(root->addChild(&lights[reference]));
+			break;
+		case ANT:
+			entities.push_back(new Ant(objSequence, meshes[0], player));
+			entities.back()->setPosition(object["position"].GetArray()[0].GetFloat(), object["position"].GetArray()[1].GetFloat(), object["position"].GetArray()[2].GetFloat());
+			entities.back()->setOrientation(object["rotation"].GetArray()[0].GetFloat(), object["rotation"].GetArray()[1].GetFloat(), object["rotation"].GetArray()[2].GetFloat());
+			entities.back()->setScale(object["scale"].GetArray()[0].GetFloat(), object["scale"].GetArray()[1].GetFloat(), object["scale"].GetArray()[2].GetFloat());
+			entities.back()->setRigidbody(Rigidbody());
+			child = dynamic_cast<SceneNode*>(root->addChild(entities.back()));
+			break;
+		default:
+			child = new SceneNode();
+			break;
+	}
+
+	if (object.HasMember("nodes")) {
+		parseNodes(object["nodes"].GetArray(), child);
+	}
+
+	return child;
+}
+
+void Scene::parseNodes(rapidjson::GenericArray<false, rapidjson::Value> array, SceneNode*& root) {
+	for (rapidjson::Value::ValueIterator mesh = array.Begin(); mesh != array.End(); ++mesh) {
+		addNode(mesh->GetObject(), root);
+	}
+}
+
 void Scene::loadScene(std::string path) {
 	std::ifstream file(path, std::ios::in);
 	if (!file.is_open()) {
@@ -216,6 +291,9 @@ void Scene::loadScene(std::string path) {
 	parseLights(doc["lights"].GetArray(), lights);
 	parseMeshes(doc["meshes"].GetArray(), meshes);
 	parseObjSequences(doc["objSequences"].GetArray(), objSequence);
+	
+	root = new SceneNode();
+	parseNodes(doc["nodes"].GetArray(), root);
 }
 
 const Camera& Scene::getCamera() const {
@@ -240,6 +318,18 @@ const std::vector<AssimpModel*>& Scene::getMeshes() const {
 
 const ObjSequence& Scene::getObjSequence() const {
 	return objSequence;
+}
+
+Player* Scene::getPlayer() const {
+	return player;
+}
+
+const std::vector<Entity*>& Scene::getEntitiesAfterClear() const {
+	return entitiesAfterClear;
+}
+
+const std::vector<Entity*>& Scene::getEntities() const {
+	return entities;
 }
 
 ///////////////////////ScenetManager//////////////////////////

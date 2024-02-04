@@ -16,11 +16,18 @@ public:
 	const Vector3f& getWorldOrigin() const override;
 	const Quaternion& getWorldOrientation() const override;
 
-	private:
+protected:
+
+	bool m_isSubroot;
+
+private:
 
 	void updateSOP() const;
 	mutable Vector3f m_worldPosition;
 	mutable Vector3f m_worldScale;
 	mutable Vector3f m_worldOrigin;
 	mutable Quaternion m_worldOrientation;
+
+	mutable Matrix4f m_modelMatrix;
+	
 };

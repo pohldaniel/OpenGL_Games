@@ -27,7 +27,7 @@ void Bullet::start() {
 	timer.reset();
 }
 
-void Bullet::draw(const Camera& camera) {
+void Bullet::draw() {
 	Model->drawRaw();		
 }
 

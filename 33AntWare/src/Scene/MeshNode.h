@@ -3,6 +3,7 @@
 #include <engine/BoundingBox.h>
 #include <engine/AssimpModel.h>
 #include <Scene/SceneNode.h>
+#include <Scene/SceneNodeLC.h>
 
 class MeshNode : public SceneNode {
 

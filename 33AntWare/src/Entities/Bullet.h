@@ -16,7 +16,7 @@ public:
 	Bullet &operator=(const Bullet& rhs);
 
 	void start();
-	void draw(const Camera& camera);
+	void draw();
 	void update(const float dt);
 	void fixedUpdate(float fdt);
 	bool timeOut();

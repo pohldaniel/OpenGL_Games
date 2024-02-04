@@ -16,9 +16,8 @@ public:
 	Ant(const ObjSequence& objSequence, AssimpModel* model, Player* target);
 	~Ant() = default;
 
-	void start();
 	void update(const float dt) override;
-	void draw(const Camera& camera) override;
+	void draw() override;
 
 
 	void damage(unsigned int amount);
