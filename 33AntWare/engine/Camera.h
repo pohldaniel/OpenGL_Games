@@ -17,9 +17,10 @@ public:
 
 	void perspective(float fovx, float aspect, float znear, float zfar);
 	void orthographic(float left, float right, float bottom, float top, float znear, float zfar);
-	void lookAt(const Vector3f &eye, const Vector3f &target, const Vector3f &up);
-	void lookAt(const Vector3f &pos, float pitch, float yaw);
-	void lookAt(const Vector3f &pos, float pitch, float yaw, float roll);
+	void lookAt(const Vector3f& eye, const Vector3f &target, const Vector3f &up);
+	void lookAt(const Vector3f& pos, float pitch, float yaw);
+	void lookAt(const Vector3f& pos, float pitch, float yaw, float roll);
+	void lookAt(const Vector3f& pos, const Vector3f& target, float pitch, float yaw, float roll);
 	void follow(const Matrix4f& targetMat, const Vector3f& targetVelocity, const float dt);
 
 	void move(float dx, float dy, float dz);
@@ -94,6 +95,7 @@ public:
 	void setMovingSpeed(float movingSpeed);
 	void setOffsetDistance(float offsetDistance);
 	void setRotationSpeed(float rotationSpeed);
+	void setAspect(float aspect);
 
 	Matrix4f lightView;
 	Matrix4f lightPerspective;

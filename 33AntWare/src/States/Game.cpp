@@ -22,7 +22,7 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 	SceneManager::Get().getScene("scene").loadScene(SceneManager::Get().getCurrentSceneFile());
 
 	Scene scene = SceneManager::Get().getScene("scene");
-	m_camera = Camera(scene.getCamera());
+	
 
 
 	glClearColor(0.494f, 0.686f, 0.796f, 1.0f);
@@ -52,10 +52,9 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 	m_objSequence = scene.getObjSequence();
 	m_entitiesAfterClear = scene.getEntitiesAfterClear();
 	m_player = scene.getPlayer();
-	m_player->setPosition(0.0f, 0.0f, 0.0f);
-	m_player->start();
+	m_camera = &m_player->camera;
+	m_camera->setOffsetDistance(m_offsetDistance);
 	m_entities = scene.getEntities();
-
 	
 	HUD.setHP(m_player->hp * 10);
 	HUD.setInHandAmmo(m_player->inHandAmmo);
@@ -117,23 +116,24 @@ void Game::update() {
 void Game::render() {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	DebugRenderer::Get().SetView(&m_player->camera);
+	DebugRenderer::Get().SetView(m_camera);
 
 	auto shader = Globals::shaderManager.getAssetPointer("antware");
 	shader->use();
-	shader->loadMatrix("u_projection", m_player->camera.getPerspectiveMatrix());
-	shader->loadMatrix("u_view", m_player->camera.getViewMatrix());
-	shader->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(m_player->camera.getViewMatrix() * Matrix4f::IDENTITY));
+	shader->loadMatrix("u_projection", m_camera->getPerspectiveMatrix());
+	shader->loadMatrix("u_view", m_camera->getViewMatrix());
+	
 
 	for (auto entity : m_entities) {
 		shader->loadMatrix("u_model", entity->getWorldTransformation());
+		shader->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(m_camera->getViewMatrix() * entity->GetTransformation()));
 		entity->draw();
 		entity->OnRenderOBB();
 	}
 
-	for (auto& bullet : m_player->getBullets()) {
+	for (auto bullet : m_player->getBullets()) {
 		shader->loadMatrix("u_model", bullet.getTransformationSOP());
+		shader->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(m_camera->getViewMatrix() * bullet.GetTransformation()));
 		bullet.draw();
 	}
 
@@ -142,6 +142,7 @@ void Game::render() {
 	m_player->OnRenderOBB({ 1.0f, 1.0f, 0.0f, 1.0f });
 	for (auto entity : m_entitiesAfterClear) {
 		shader->loadMatrix("u_model", entity->getWorldTransformation());
+		shader->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(m_camera->getViewMatrix() * entity->GetTransformation()));
 		entity->draw();
 		entity->OnRenderOBB({0.0f, 0.0f, 1.0f, 1.0f});
 	}
@@ -172,9 +173,18 @@ void Game::OnMouseButtonUp(Event::MouseButtonEvent& event) {
 }
 
 void Game::OnMouseWheel(Event::MouseWheelEvent& event) {
+	if (event.direction == 1u) {
+		m_offsetDistance += 2.0f;
+		m_offsetDistance = std::max(0.0f, std::min(m_offsetDistance, 150.0f));
+		m_camera->setOffsetDistance(m_offsetDistance);
+	}
 
+	if (event.direction == 0u) {
+		m_offsetDistance -= 2.0f;
+		m_offsetDistance = std::max(0.0f, std::min(m_offsetDistance, 150.0f));
+		m_camera->setOffsetDistance(m_offsetDistance);
+	}
 }
-
 void Game::OnKeyDown(Event::KeyboardEvent& event) {
 	if (event.keyCode == VK_LMENU) {
 		m_drawUi = !m_drawUi;
@@ -191,8 +201,8 @@ void Game::OnKeyUp(Event::KeyboardEvent& event) {
 }
 
 void Game::resize(int deltaW, int deltaH) {
-	//m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
-	//m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
+	m_camera->setAspect(static_cast<float>(Application::Width) / static_cast<float>(Application::Height));
+	m_camera->orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
 }
 
 void Game::renderUi() {

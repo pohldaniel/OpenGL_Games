@@ -62,7 +62,6 @@ public:
 	void dispatchBullet();
 	void reload();
 	bool damage(float amount);
-	void start();
 	std::vector<Bullet>& getBullets();
 
 	Vector2f mapMinLimit;

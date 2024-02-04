@@ -58,7 +58,7 @@ private:
 	bool m_drawUi = true;
 
 	ObjSequence m_objSequence;
-	Camera m_camera;
+	Camera* m_camera;
 	Player* m_player;
 	Entity *m_muzzleE = nullptr, *m_gunE = nullptr, *m_handsE = nullptr, *m_glovesE = nullptr, *m_cpuE = nullptr, *m_platformE = nullptr;
 	Ant *m_ant1 = nullptr, *m_ant2 = nullptr, *m_ant3 = nullptr, *m_ant4 = nullptr, *m_ant5 = nullptr, *m_ant6 = nullptr, *m_ant7 = nullptr, *m_ant8 = nullptr, *m_ant9 = nullptr;
@@ -71,4 +71,5 @@ private:
 	aw::Status gameStatus;
 
 	std::vector<AssimpModel*> m_meshes;
+	float m_offsetDistance = 0.0f;
 };

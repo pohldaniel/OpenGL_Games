@@ -43,7 +43,7 @@ public:
 	Scene();
 	void loadScene(std::string path);
 	
-	const Camera& getCamera() const;
+	Camera& getCamera();
 	const std::vector<Texture>& getTextures() const;
 	const std::vector<Material>& getMaterials() const;
 	const std::vector<Light>& getLights() const;
@@ -64,8 +64,8 @@ public:
 	Texture& addTexture(std::string path, std::vector<Texture>& texures);
 	Material& addMaterial(const MaterialBuffer& materialBuffer, std::vector<Material>& materials);
 	Light& addLight(const LightBuffer& lightBuffer, std::vector<Light>& lights);
-	AssimpModel* addMesh(const rapidjson::GenericObject<true, rapidjson::Value> object, std::vector<AssimpModel*>& meshes);
-	ObjSequence& addObjSequence(const rapidjson::GenericObject<true, rapidjson::Value> object, ObjSequence& objSequence);
+	AssimpModel* addMesh(const rapidjson::GenericObject<false, rapidjson::Value> object, std::vector<AssimpModel*>& meshes);
+	ObjSequence& addObjSequence(const rapidjson::GenericObject<false, rapidjson::Value> object, ObjSequence& objSequence);
 	SceneNode* addNode(const rapidjson::GenericObject<false, rapidjson::Value> object, SceneNode*& root);
 	Types resolveOption(std::string type);
 

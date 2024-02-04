@@ -5,6 +5,7 @@
 #include "Player.h"
 #include "Application.h"
 #include "HUD.h"
+#include "Light.h"
 
 Player::Player(Camera& camera, AssimpModel* model, const Vector2f& mapMinLimit, const Vector2f& mapMaxLimit) : Entity(model),
 	camera(camera),
@@ -15,6 +16,10 @@ Player::Player(Camera& camera, AssimpModel* model, const Vector2f& mapMinLimit, 
 	childrenTranslation.set(0.0f, 0.0f, 0.0f);
 	eularAngles.set(0.0f, 0.0f, 0.0f);
 	m_isSubroot = true;
+
+	m_rigidbody.lockLinear(AXIS::y);
+	m_rigidbody.lockAngular(AXIS::z);
+
 	EventDispatcher::AddMouseListener(this);
 }
 
@@ -54,6 +59,13 @@ void Player::update(const float dt) {
 			}
 		}
 
+		if (keyboard.keyPressed(Keyboard::KEY_F)) {
+			std::list<std::unique_ptr<BaseNode>>::iterator it = m_children.begin();
+			std::advance(it, 4);		
+			Vector3f lightPos = dynamic_cast<Light*>((*it).get())->getWorldPosition();
+			std::cout << "Light Pos: " << lightPos[0] << "  " << lightPos[1] << "  " << lightPos[2] << std::endl;
+		}
+
 		if (m_mouseDown && reloadTimer.getElapsedTimeSec() > 1.5f && shootTimer.getElapsedTimeSec() > 0.2f) {
 
 			if (inHandAmmo > 0) {
@@ -90,11 +102,19 @@ void Player::update(const float dt) {
 
 	eularAngles[0] -= mouse.yDelta() * mouseSenstivity;
 	eularAngles[1] -= mouse.xDelta() * mouseSenstivity;
-	camera.lookAt({ m_position[0], m_position[1], m_position[2] }, -eularAngles[0], -eularAngles[1], 180.0f);
-	camera.moveRelative(Vector3f(0.0f, 0.5f, 0.0f));
+	//camera.lookAt({ m_position[0], m_position[1], m_position[2] }, -eularAngles[0], -eularAngles[1], 180.0f);
+	//camera.moveRelative(Vector3f(0.0f, 0.5f, 0.0f));
+	//camera.lookAt({ m_position[0], m_position[1], m_position[2] }, { m_position[0], m_position[1] + 0.5f, m_position[2] }, -eularAngles[0], -eularAngles[1], 180.0f);
+
+	camera.setTarget({ m_position[0], m_position[1] + 0.5f, m_position[2] });
+
+	float dx = mouse.xDelta();
+	float dy = mouse.yDelta();
+
+	if (dx != 0.0f || dy != 0.0f) {
+		camera.rotate(dx, dy, Vector3f(m_position[0], m_position[1] + 0.5f, m_position[2]));
+	}
 	setOrientation(eularAngles);
-	//Vector3f camPos = camera.getPosition();
-	//std::cout << "Cam Pos: " << camPos[0] << "  " << camPos[1] << "  " << camPos[2] << std::endl;
 	
 	Vector2f positionOnY = { m_position[0], m_position[2] };
 	if ((positionOnY[0] < mapMinLimit[0] || positionOnY[1] < mapMinLimit[1] ||
@@ -141,12 +161,6 @@ void Player::fixedUpdate(float fdt) {
 	for (unsigned i = 0; i < bullets.size(); ++i) {
 		bullets[i].fixedUpdate(fdt);
 	}
-}
-
-void Player::start() {
-	dynamic_cast<Entity*>(m_children.front().get())->getModel()->getMesh()->setTextureIndex(6);
-	m_rigidbody.lockLinear(AXIS::y);
-	m_rigidbody.lockAngular(AXIS::z);
 }
 
 void Player::dispatchBullet() {

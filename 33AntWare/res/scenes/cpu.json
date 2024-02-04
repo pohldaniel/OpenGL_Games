@@ -10,7 +10,7 @@
     "camera": {
         "fov": 45.0,
 		"near": 0.1,
-		"far": 120.0,
+		"far": 2000.0,
 		"lookAt": {
 			"position": [0.0, 0.0, 0.0],
 			"target": [0.0, 0.0, -1.0],
@@ -138,6 +138,7 @@
 			"type": "player",
 			"tag": "player",
 			"mesh": 6,
+			"position": [0.0, 0.0, 0.0],
 			"nodes": [
 				{
 					"type": "entity",

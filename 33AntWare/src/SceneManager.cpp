@@ -147,7 +147,7 @@ void Scene::parseLights(rapidjson::GenericArray<false, rapidjson::Value> array, 
 	}
 }
 
-AssimpModel* Scene::addMesh(rapidjson::GenericObject<true, rapidjson::Value> object, std::vector<AssimpModel*>& meshes) {
+AssimpModel* Scene::addMesh(rapidjson::GenericObject<false, rapidjson::Value> object, std::vector<AssimpModel*>& meshes) {
 	meshes.push_back(new AssimpModel());
 	AssimpModel* mesh = meshes.back();
 
@@ -164,13 +164,13 @@ AssimpModel* Scene::addMesh(rapidjson::GenericObject<true, rapidjson::Value> obj
 }
 
 void Scene::parseMeshes(rapidjson::GenericArray<false, rapidjson::Value> array, std::vector<AssimpModel*>& meshes) {
-	for (rapidjson::Value::ConstValueIterator mesh = array.Begin(); mesh != array.End(); ++mesh) {
+	for (rapidjson::Value::ValueIterator mesh = array.Begin(); mesh != array.End(); ++mesh) {
 		addMesh(mesh->GetObject(), meshes);
 	}
 
 }
 
-ObjSequence& Scene::addObjSequence(const rapidjson::GenericObject<true, rapidjson::Value> object, ObjSequence& objSequence) {
+ObjSequence& Scene::addObjSequence(const rapidjson::GenericObject<false, rapidjson::Value> object, ObjSequence& objSequence) {
 	objSequence.loadSequence(object["path"].GetString());
 	if (object.HasMember("materialIndex")) {
 		objSequence.setMaterialIndex(object["materialIndex"].GetInt());
@@ -181,8 +181,8 @@ ObjSequence& Scene::addObjSequence(const rapidjson::GenericObject<true, rapidjso
 	}
 
 	if (object.HasMember("additionalMeshes")) {
-		rapidjson::GenericArray<true, rapidjson::Value> array = object["additionalMeshes"].GetArray();
-		for (rapidjson::Value::ConstValueIterator mesh = array.Begin(); mesh != array.End(); ++mesh) {
+		rapidjson::GenericArray<false, rapidjson::Value> array = object["additionalMeshes"].GetArray();
+		for (rapidjson::Value::ValueIterator mesh = array.Begin(); mesh != array.End(); ++mesh) {
 			objSequence.addMesh(meshes[(*mesh).GetInt()]->getMeshes()[0]->getVertexBuffer(), meshes[(*mesh).GetInt()]->getMeshes()[0]->getIndexBuffer());
 		}
 	}
@@ -193,7 +193,7 @@ ObjSequence& Scene::addObjSequence(const rapidjson::GenericObject<true, rapidjso
 }
 
 void Scene::parseObjSequences(rapidjson::GenericArray<false, rapidjson::Value> array, ObjSequence& objSequence) {
-	for (rapidjson::Value::ConstValueIterator mesh = array.Begin(); mesh != array.End(); ++mesh) {
+	for (rapidjson::Value::ValueIterator mesh = array.Begin(); mesh != array.End(); ++mesh) {
 		addObjSequence(mesh->GetObject(), objSequence);
 	}
 }
@@ -209,8 +209,6 @@ Types Scene::resolveOption(std::string input) {
 SceneNode* Scene::addNode(const rapidjson::GenericObject<false, rapidjson::Value> object, SceneNode*& root) {
 	std::string type = object["type"].GetString();
 
-	std::cout << "Tag: " << object["tag"].GetString() << std::endl;
-
 	int reference;
 	if (object.HasMember("mesh")) {
 		reference = object["mesh"].GetInt();
@@ -224,6 +222,7 @@ SceneNode* Scene::addNode(const rapidjson::GenericObject<false, rapidjson::Value
 	switch (resolveOption(type)){
 		case PLAYER:
 			player = new Player(camera, meshes[reference], Vector2f(-51.5f, -51.5f), Vector2f(51.5f, 51.5f));
+			player->setPosition(object["position"].GetArray()[0].GetFloat(), object["position"].GetArray()[1].GetFloat(), object["position"].GetArray()[2].GetFloat());
 			root->addChild(player);
 			child = player;
 			break;
@@ -296,7 +295,7 @@ void Scene::loadScene(std::string path) {
 	parseNodes(doc["nodes"].GetArray(), root);
 }
 
-const Camera& Scene::getCamera() const {
+Camera& Scene::getCamera(){
 	return camera;
 }
 
