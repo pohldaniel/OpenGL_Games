@@ -117,7 +117,7 @@ void SceneGraph::render() {
 	
 	BaseNode* lastNode = root;
 	while (lastNode->getChildren().size()) {
-		shader->loadMatrix("u_model", lastNode->getTransformation());
+		shader->loadMatrix("u_model", lastNode->getWorldTransformation());
 		model.drawRaw();
 		lastNode = lastNode->getChildren().back().get();
 	}

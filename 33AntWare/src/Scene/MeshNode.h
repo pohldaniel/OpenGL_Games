@@ -26,8 +26,13 @@ public:
 
 	void setModel(AssimpModel* model);
 	void setDrawDebug(bool drawDebug);
+	AssimpModel* getModel() const;
+
+protected:
 
 	AssimpModel* m_model;
+
+private:
 
 	mutable BoundingBox worldBoundingBox;
 	mutable bool m_worldBoundingBoxDirty;

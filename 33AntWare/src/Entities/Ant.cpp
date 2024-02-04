@@ -4,11 +4,7 @@
 #include "Globals.h"
 #include "HUD.h"
 
-Ant::Ant(const ObjSequence& objSequence, AssimpModel* model, Player* target) : Entity(model),
-	objSequence(objSequence),
-	target(target) {
-	m_isStatic = false;
-
+Ant::Ant(const ObjSequence& objSequence, AssimpModel* model, Player* target) : Entity(model), objSequence(objSequence), target(target) {
 	m_material.setAmbient({ 0.1f, 0.1f, 0.1f, 1.0f });
 	m_material.setDiffuse({ 0.6f, 0.6f, 0.6f, 1.0f });
 	m_material.setSpecular({ 0.3f, 0.3f, 0.3f, 1.0f });
@@ -50,14 +46,14 @@ void Ant::update(float dt) {
 			setOrientation({ 1.0f, 0.0f, 0.0f }, 0.0f);
 
 		if (getWorldBoundingBox().isColliding(target->getWorldBoundingBox()))
-			rigidbody.velocity = { 0.0f, 0.0f, 0.0f };
+			m_rigidbody.velocity = { 0.0f, 0.0f, 0.0f };
 		else
-			rigidbody.velocity = { 0.0f, 0.0f, -speed };
+			m_rigidbody.velocity = { 0.0f, 0.0f, -speed };
 	}else {
-		rigidbody.velocity = { 0.0f, 0.0f, 0.0f };
+		m_rigidbody.velocity = { 0.0f, 0.0f, 0.0f };
 	}
 
-	if (rigidbody.velocity.lengthSq() > 0.0f) {
+	if (m_rigidbody.velocity.lengthSq() > 0.0f) {
 		animate(dt);
 	}else {
 		index = baseIndex;
@@ -133,7 +129,7 @@ void Ant::die(){
 	isHurting = false;
 	rotate({ 1.0f, 0.0f, 0.0f }, 180.0f);
 	translate(0.0f, 1.0f, 0.0f);
-	rigidbody.velocity = { 0, 0, 0 };
+	m_rigidbody.velocity = { 0, 0, 0 };
 }
 
 bool Ant::timeToDestroy(){

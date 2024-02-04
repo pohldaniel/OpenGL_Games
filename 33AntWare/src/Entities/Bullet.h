@@ -27,6 +27,6 @@ public:
 	float speed = 40.0f;
 	Clock timer;
 
-	Rigidbody rigidbody;
+	Rigidbody m_rigidbody;
 	static AssimpModel* Model;
 };

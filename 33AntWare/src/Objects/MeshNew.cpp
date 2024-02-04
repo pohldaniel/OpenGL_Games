@@ -6,7 +6,7 @@ SceneNode* MeshNew::getOwner() const {
 
 void MeshNew::setOwner(SceneNode* _owner){
 	owner = _owner;
-	worldTransform = const_cast<Matrix4f*>(&owner->getTransformation());
+	worldTransform = const_cast<Matrix4f*>(&owner->getWorldTransformation());
 }
 
 const Vector3f& MeshNew::getPosition() const {

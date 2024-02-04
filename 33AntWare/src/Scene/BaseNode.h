@@ -5,6 +5,8 @@
 
 class BaseNode : public Object {
 
+	friend class SceneNode;
+
 public:
 
 	BaseNode();
@@ -13,6 +15,7 @@ public:
 	BaseNode(BaseNode&& rhs);
 	BaseNode& operator=(BaseNode&& rhs);
 
+	virtual const Matrix4f& getWorldTransformation() const = 0;
 	virtual void OnTransformChanged();
 
 	void setScale(const float sx, const float sy, const float sz) override;
@@ -42,12 +45,6 @@ public:
 	void rotate(const Vector3f& axis, float degrees) override;
 	void rotate(const Quaternion& orientation) override;
 
-	virtual const Matrix4f& getTransformation() const = 0;
-	virtual const Vector3f& getScalePosition() const;
-	virtual const Vector3f& getWorldPosition() const;
-	virtual const Vector3f& getWorldScale() const;
-	virtual const Quaternion& getWorldOrientation() const;
-
 	void markForRemove();
 
 	const std::list<std::unique_ptr<BaseNode>>& getChildren() const;
@@ -58,7 +55,11 @@ public:
 
 protected:
 
-	
+	virtual const Vector3f& getWorldPosition() const;
+	virtual const Vector3f& getWorldOrigin() const;
+	virtual const Vector3f& getWorldScale() const;
+	virtual const Quaternion& getWorldOrientation() const;
+
 	BaseNode* m_parent;	std::list<std::unique_ptr<BaseNode>> m_children;
 	bool m_markForRemove;	mutable bool m_isDirty;
 };

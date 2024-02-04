@@ -7,7 +7,7 @@ class SceneNodeLC : public BaseNode {
 public:
 
 	SceneNodeLC();
-	const Matrix4f& getTransformation() const override;
+	const Matrix4f& getWorldTransformation() const override;
 
 private:
 

@@ -161,16 +161,17 @@ void BaseNode::setParent(BaseNode* node) {
 	m_parent = node;
 }
 
-const Vector3f& BaseNode::getScalePosition() const {
-	return m_position;
-}
-
 const Vector3f& BaseNode::getWorldPosition() const {
 	return Vector3f();
 }
 const Vector3f& BaseNode::getWorldScale() const {
 	return Vector3f();
 }
+
+const Vector3f& BaseNode::getWorldOrigin() const {
+	return Vector3f();
+}
+
 const Quaternion& BaseNode::getWorldOrientation() const {
-	return Quaternion();
+	return Quaternion::IDENTITY;
 }

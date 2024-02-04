@@ -18,23 +18,23 @@ void Entity::fixedUpdate(float fdt) {
 	if (m_isStatic)
 		return;
 
-	rigidbody.velocity += rigidbody.acceleration * fdt;
-	rigidbody.angularVelocity += rigidbody.angularAcceleration * fdt;
+	m_rigidbody.velocity += m_rigidbody.acceleration * fdt;
+	m_rigidbody.angularVelocity += m_rigidbody.angularAcceleration * fdt;
 
-	Vector3f appliedVelocity = Quaternion::Rotate(m_orientation, Vector3f(rigidbody.velocity[0], rigidbody.velocity[1], rigidbody.velocity[2]));
-	Vector3f appliedAngularVelocity = Quaternion::Rotate(m_orientation, Vector3f(rigidbody.angularVelocity[0], rigidbody.angularVelocity[1], rigidbody.angularVelocity[2]));
+	Vector3f appliedVelocity = Quaternion::Rotate(m_orientation, Vector3f(m_rigidbody.velocity[0], m_rigidbody.velocity[1], m_rigidbody.velocity[2]));
+	Vector3f appliedAngularVelocity = Quaternion::Rotate(m_orientation, Vector3f(m_rigidbody.angularVelocity[0], m_rigidbody.angularVelocity[1], m_rigidbody.angularVelocity[2]));
 
-	if (rigidbody.isLinearLocked(AXIS::x))
+	if (m_rigidbody.isLinearLocked(AXIS::x))
 		appliedVelocity[0] = 0.0f;
-	if (rigidbody.isLinearLocked(AXIS::y))
+	if (m_rigidbody.isLinearLocked(AXIS::y))
 		appliedVelocity[1] = 0.0f;
-	if (rigidbody.isLinearLocked(AXIS::z))
+	if (m_rigidbody.isLinearLocked(AXIS::z))
 		appliedVelocity[2] = 0.0f;
-	if (rigidbody.isAngularLocked(AXIS::x))
+	if (m_rigidbody.isAngularLocked(AXIS::x))
 		appliedAngularVelocity[0] = 0.0f;
-	if (rigidbody.isAngularLocked(AXIS::y))
+	if (m_rigidbody.isAngularLocked(AXIS::y))
 		appliedAngularVelocity[1] = 0.0f;
-	if (rigidbody.isAngularLocked(AXIS::z))
+	if (m_rigidbody.isAngularLocked(AXIS::z))
 		appliedAngularVelocity[2] = 0.0f;
 
 	translate(appliedVelocity * fdt);
@@ -51,4 +51,12 @@ void Entity::markForDelete() {
 
 bool Entity::isMarkForDelete() {
 	return m_markForDelete;
+}
+
+void Entity::setRigidbody(const Rigidbody& rigidbody) {
+	m_rigidbody = rigidbody;
+}
+
+void Entity::setIsStatic(bool isStatic) {
+	m_isStatic = isStatic;
 }

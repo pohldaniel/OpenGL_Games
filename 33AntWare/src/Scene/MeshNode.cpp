@@ -12,7 +12,7 @@ MeshNode::MeshNode(AssimpModel* model) : SceneNode(), m_model(model), m_drawDebu
 void MeshNode::OnWorldBoundingBoxUpdate() const{
 
 	if (m_model) {
-		worldBoundingBox = m_model->getAABB().transformed(getTransformation());
+		worldBoundingBox = m_model->getAABB().transformed(getWorldTransformation());
 	}else {
 		worldBoundingBox.define(m_position);
 	}
@@ -23,7 +23,7 @@ void MeshNode::OnRenderOBB(const Vector4f& color){
 	if (!m_drawDebug)
 		return;
 
-	DebugRenderer::Get().AddBoundingBox(getLocalBoundingBox(), getTransformation(), color);
+	DebugRenderer::Get().AddBoundingBox(getLocalBoundingBox(), getWorldTransformation(), color);
 }
 
 void MeshNode::OnRenderAABB(const Vector4f& color) {
@@ -66,4 +66,8 @@ void MeshNode::setModel(AssimpModel* model) {
 
 void MeshNode::setDrawDebug(bool drawDebug) {
 	m_drawDebug = drawDebug;
+}
+
+AssimpModel* MeshNode::getModel() const {
+	return m_model;
 }

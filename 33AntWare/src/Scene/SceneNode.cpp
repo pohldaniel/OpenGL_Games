@@ -16,8 +16,9 @@ const Vector3f& SceneNode::getWorldScale() const {
 	return m_worldScale;
 }
 
-const Vector3f& SceneNode::getScalePosition() const {
-	return m_scalePosition;
+const Vector3f& SceneNode::getWorldOrigin() const {
+	updateSOP();
+	return m_worldOrigin;
 }
 
 const Quaternion& SceneNode::getWorldOrientation() const {
@@ -28,36 +29,23 @@ const Quaternion& SceneNode::getWorldOrientation() const {
 void SceneNode::updateSOP() const {
 	if (m_isDirty) {
 		if (m_parent) {
-			m_worldPosition = m_parent->getWorldPosition() + BaseNode::m_position;
-			m_scalePosition = m_parent->getScalePosition() + BaseNode::m_position * m_parent->getScale();
+			m_worldPosition = m_parent->getWorldPosition() + BaseNode::m_position * m_parent->getWorldScale();
+			m_worldOrigin = m_parent->getWorldOrigin() + BaseNode::m_position * m_parent->getWorldScale();
 			m_worldScale = m_parent->getWorldScale() * BaseNode::m_scale;
 			m_worldOrientation = m_parent->getWorldOrientation() * BaseNode::m_orientation;
 		}else {
 			m_worldPosition = BaseNode::m_position;
-			m_scalePosition = BaseNode::m_position;
 			m_worldScale = BaseNode::m_scale;
 			m_worldOrientation = BaseNode::m_orientation;
-
+			m_worldOrigin = Vector3f(0.0f);
 		}
 		m_isDirty = false;
 	}
 }
 
-const Matrix4f& SceneNode::getTransformation() const {
-	//Transformation.translate(getPosition());
-	//Transformation *= Matrix4f::Rotate(m_worldOrientation, BaseNode::m_position - m_worldPosition);
-	//Transformation *= Matrix4f::Scale(getScale(), m_scalePosition - m_worldPosition);
-	//return Transformation;
-
-	if (m_isDirty) {
-		if (m_parent) {
-			m_modelMatrix = m_parent->getTransformation() * getTransformationSOP();
-		}
-		else {
-			m_modelMatrix = getTransformationSOP();
-		}
-		m_isDirty = false;
-	}
-
-	return m_modelMatrix;
+const Matrix4f& SceneNode::getWorldTransformation() const {
+	Transformation.translate(getWorldPosition());
+	Transformation *= Matrix4f::Rotate(m_worldOrientation, -m_worldOrigin);
+	Transformation *= Matrix4f::Scale(m_worldScale);
+	return Transformation;
 }

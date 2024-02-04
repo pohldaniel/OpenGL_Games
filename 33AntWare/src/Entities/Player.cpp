@@ -30,25 +30,25 @@ void Player::update(const float dt) {
 	Keyboard &keyboard = Keyboard::instance();
 	Mouse &mouse = Mouse::instance();
 
-	rigidbody.velocity = { 0.0f, 0.0f, 0.0f };
-	rigidbody.angularVelocity = { 0.0f, 0.0f, 0.0f };
+	m_rigidbody.velocity = { 0.0f, 0.0f, 0.0f };
+	m_rigidbody.angularVelocity = { 0.0f, 0.0f, 0.0f };
 
 	if (!hasFallen) {
 
 		if (keyboard.keyDown(Keyboard::KEY_W)) {
-			rigidbody.velocity[2] -= 1;
+			m_rigidbody.velocity[2] -= 1;
 		}
 
 		if (keyboard.keyDown(Keyboard::KEY_S)) {
-			rigidbody.velocity[2] += 1;
+			m_rigidbody.velocity[2] += 1;
 		}
 
 		if (keyboard.keyDown(Keyboard::KEY_D)) {
-			rigidbody.velocity[0] += 1;
+			m_rigidbody.velocity[0] += 1;
 		}
 
 		if (keyboard.keyDown(Keyboard::KEY_A)) {
-			rigidbody.velocity[0] -= 1;
+			m_rigidbody.velocity[0] -= 1;
 		}
 
 		if (keyboard.keyPressed(Keyboard::KEY_R) && reloadTimer.getElapsedTimeSec() > 1.5f) {
@@ -78,7 +78,7 @@ void Player::update(const float dt) {
 		}
 	}
 
-	if (rigidbody.velocity != Vector3f(0.0f, 0.0f, 0.0f)) {
+	if (m_rigidbody.velocity != Vector3f(0.0f, 0.0f, 0.0f)) {
 		//footstepsSound.setPitch(Keyboard::isKeyPressed(Keyboard::LShift) ? 1.5f : 1.0f);
 		//if (footstepsSound.getStatus() != sf::Sound::Playing)
 			//footstepsSound.play();
@@ -86,10 +86,10 @@ void Player::update(const float dt) {
 		//footstepsSound.pause();
 	}
 
-	if (rigidbody.velocity.lengthSq() > 0)
-		Vector3f::Normalize(rigidbody.velocity);
+	if (m_rigidbody.velocity.lengthSq() > 0)
+		Vector3f::Normalize(m_rigidbody.velocity);
 
-	rigidbody.velocity *= keyboard.keyDown(Keyboard::KEY_LSHIFT) ? runningSpeed : speed;
+	m_rigidbody.velocity *= keyboard.keyDown(Keyboard::KEY_LSHIFT) ? runningSpeed : speed;
 
 
 	eularAngles[0] -= mouse.yDelta() * mouseSenstivity;
@@ -103,10 +103,10 @@ void Player::update(const float dt) {
 	if ((positionOnY[0] < mapMinLimit[0] || positionOnY[1] < mapMinLimit[1] ||
 		positionOnY[0] > mapMaxLimit[0] || positionOnY[1] > mapMaxLimit[1]) && !hasFallen) {
 		hasFallen = true;
-		rigidbody.lockLinear(AXIS::x);
-		rigidbody.lockLinear(AXIS::z);
-		rigidbody.unlockLinear(AXIS::y);
-		rigidbody.acceleration = { 0, -fallingAcceleration, 0 };
+		m_rigidbody.lockLinear(AXIS::x);
+		m_rigidbody.lockLinear(AXIS::z);
+		m_rigidbody.unlockLinear(AXIS::y);
+		m_rigidbody.acceleration = { 0, -fallingAcceleration, 0 };
 	}
 
 	if (isRecoiling) {
@@ -147,14 +147,13 @@ void Player::fixedUpdate(float fdt) {
 }
 
 void Player::start() {
-	dynamic_cast<Entity*>(m_children.front().get())->m_model->getMesh()->setTextureIndex(6);
-	m_isStatic = false;
-	rigidbody.lockLinear(AXIS::y);
-	rigidbody.lockAngular(AXIS::z);
+	dynamic_cast<Entity*>(m_children.front().get())->getModel()->getMesh()->setTextureIndex(6);
+	m_rigidbody.lockLinear(AXIS::y);
+	m_rigidbody.lockAngular(AXIS::z);
 }
 
 void Player::dispatchBullet() {
-	dynamic_cast<Entity*>(m_children.front().get())->m_model->getMesh()->setTextureIndex(7);
+	dynamic_cast<Entity*>(m_children.front().get())->getModel()->getMesh()->setTextureIndex(7);
 	bullets.push_back(Bullet({ 0.0f, 0.0f, -1.0f }));
 	bullets.back().setOrientation(m_orientation);
 	bullets.back().setPosition(m_position);
@@ -203,7 +202,7 @@ void Player::recoilAnim(float deltaTime) {
 		}else {
 			childrenEular[0] -= recoilImpact * deltaTime;
 			childrenTranslation[2] -= recoilImpact * deltaTime * 0.05f;
-			dynamic_cast<Entity*>(m_children.front().get())->m_model->getMesh()->setTextureIndex(6);
+			dynamic_cast<Entity*>(m_children.front().get())->getModel()->getMesh()->setTextureIndex(6);
 		}
 	}
 

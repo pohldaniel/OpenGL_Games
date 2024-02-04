@@ -342,9 +342,8 @@ public:
 	static Matrix4f Scale(const Vector3f& scale);
 	static Matrix4f &Scale(Matrix4f& mtx, float x, float y, float z);
 	static Matrix4f Scale(float x, float y, float z, const Vector3f& centerOfScale);
-	//static Matrix4f Scale(const Vector3f& scale, const Vector3f& centerOfScale);
-	//static Matrix4f Scale(const Vector3f& scale, const Vector3f& a, const Vector3f& b);
 	static Matrix4f Scale(const Vector3f& scale, const Vector3f& centerOfScale);
+	static Matrix4f Scale(const Vector3f& scale, const Vector3f& a, const Vector3f& b);
 
 	static Matrix4f Translate(float dx, float dy, float dz);
 	static Matrix4f Translate(const Vector3f & trans);

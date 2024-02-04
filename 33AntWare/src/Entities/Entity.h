@@ -23,10 +23,16 @@ public:
 
 	void markForDelete();
 	bool isMarkForDelete();
+	void setRigidbody(const Rigidbody& rigidbody);
+	void setIsStatic(bool isStatic);
+
+protected:
+
+	Rigidbody m_rigidbody;
+
+private:
 
 	bool m_disabled;
 	bool m_isStatic;
 	bool m_markForDelete;
-
-	Rigidbody rigidbody;
 };

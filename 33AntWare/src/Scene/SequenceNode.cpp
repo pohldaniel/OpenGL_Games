@@ -1,22 +1,21 @@
 #include "SequenceNode.h"
 #include "DebugRenderer.h"
 
-SequenceNode::SequenceNode(const ObjSequence& objSequence) : SceneNode(), 
-objSequence(objSequence), m_meshIndex(m_meshIndex),
+SequenceNode::SequenceNode(const ObjSequence& objSequence) : SceneNode(), objSequence(objSequence), m_meshIndex(m_meshIndex),
 localBoundingBox(objSequence.getMeshes()[m_meshIndex].localBoundingBox)
 {
 	OnBoundingBoxChanged();
 }
 
 void SequenceNode::OnWorldBoundingBoxUpdate() const {
-	m_worldBoundingBox = localBoundingBox.transformed(getTransformation());
+	m_worldBoundingBox = localBoundingBox.transformed(getWorldTransformation());
 }
 
 void SequenceNode::OnRenderOBB(const Vector4f& color) {
 	if (!m_drawDebug)
 		return;
 
-	DebugRenderer::Get().AddBoundingBox(getLocalBoundingBox(), getTransformation(), color);
+	DebugRenderer::Get().AddBoundingBox(getLocalBoundingBox(), getWorldTransformation(), color);
 }
 
 void SequenceNode::OnRenderAABB(const Vector4f& color) {
