@@ -125,7 +125,7 @@ Light& Scene::addLight(const LightBuffer& lightBuffer, std::vector<Light>& light
 		light.m_isStatic = false;
 
 	light.setPosition({ lightBuffer.position[0], lightBuffer.position[1], lightBuffer.position[2] });
-	//light.setDirection({ lightBuffer.direction[0], lightBuffer.direction[1], lightBuffer.direction[2] });
+	light.setDirection({ lightBuffer.direction[0], lightBuffer.direction[1], lightBuffer.direction[2] });
 
 	return light;
 }

@@ -56,7 +56,6 @@ public:
 	BaseNode* addChild(BaseNode* node);
 	BaseNode* addChild();
 	
-
 protected:
 
 	virtual const Vector3f& getWorldPosition() const = 0;	

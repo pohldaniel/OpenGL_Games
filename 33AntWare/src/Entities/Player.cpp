@@ -103,16 +103,19 @@ void Player::update(const float dt) {
 	eularAngles[1] -= mouse.xDelta() * mouseSenstivity;
 	//camera.lookAt({ m_position[0], m_position[1], m_position[2] }, -eularAngles[0], -eularAngles[1], 180.0f);
 	//camera.moveRelative(Vector3f(0.0f, 0.5f, 0.0f));
-	//camera.lookAt({ m_position[0], m_position[1], m_position[2] }, { m_position[0], m_position[1] + 0.5f, m_position[2] }, -eularAngles[0], -eularAngles[1], 180.0f);
+	//camera.lookAt({ m_position[0], m_position[1], m_position[2] }, { m_position[0], m_position[1], m_position[2] }, -eularAngles[0], -eularAngles[1], 180.0f);
 
-	camera.setTarget({ m_position[0], m_position[1] + 0.5f, m_position[2] });
+	camera.setTarget({ m_position[0], m_position[1], m_position[2] });
 
 	float dx = mouse.xDelta();
 	float dy = mouse.yDelta();
 
 	if (dx != 0.0f || dy != 0.0f) {
-		camera.rotate(dx, dy, Vector3f(m_position[0], m_position[1] + 0.5f, m_position[2]));
+		camera.rotate(dx, dy, Vector3f(m_position[0], m_position[1], m_position[2]));
 	}
+
+	camera.moveRelative(Vector3f(0.0f, 0.5f, 0.0f));
+
 	setOrientation(eularAngles);
 	
 	Vector2f positionOnY = { m_position[0], m_position[2] };

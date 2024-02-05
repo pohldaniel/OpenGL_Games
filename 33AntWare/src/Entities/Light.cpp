@@ -24,17 +24,20 @@ Light::Light() : SceneNode(), m_isStatic(true) {
 Light::Light(Light const& rhs) : SceneNode(rhs) {
 	m_index = rhs.m_index;
 	m_isStatic = rhs.m_isStatic;
+	m_direction = rhs.m_direction;
 }
 
 Light::Light(Light&& rhs) : SceneNode(rhs) {
 	m_index = rhs.m_index;
 	m_isStatic = rhs.m_isStatic;
+	m_direction = rhs.m_direction;
 }
 
 Light& Light::operator=(const Light& rhs) {
 	SceneNode::operator=(rhs);
 	m_index = rhs.m_index;
 	m_isStatic = rhs.m_isStatic;
+	m_direction = rhs.m_direction;
 	return *this;
 }
 
@@ -42,6 +45,7 @@ Light& Light::operator=(Light&& rhs) {
 	SceneNode::operator=(rhs);
 	m_index = rhs.m_index;
 	m_isStatic = rhs.m_isStatic;
+	m_direction = rhs.m_direction;
 	return *this;
 }
 
@@ -49,7 +53,8 @@ void Light::update(const float dt) {
 	if (m_isStatic)
 		return;
 
-	setUboPosition(getWorldPosition());
+	setUboPosition(getWorldTransformation() ^ Vector4f(m_position));
+	setUboDirection(Quaternion::Rotate(m_worldOrientation, m_direction));
 }
 
 void Light::cleanup() {
@@ -65,6 +70,10 @@ void Light::print() {
 	std::cout << "Angle: " << Buffer[m_index].angle << std::endl;
 	std::cout << "Type: " << Buffer[m_index].type << std::endl;
 	std::cout << "-------------------" << std::endl;
+}
+
+void Light::setDirection(const Vector3f& direction) {
+	m_direction = direction;
 }
 
 void Light::setUboAmbient(std::array<float, 4> ambient) const {
@@ -94,7 +103,7 @@ void Light::setUboPosition(const Vector3f& position) {
 	Buffer[m_index].position[2] = position[2];
 }
 
-void Light::setUboDirection(std::array<float, 3> direction) const {
+void Light::setUboDirection(const Vector3f& direction) const {
 	Buffer[m_index].direction[0] = direction[0];
 	Buffer[m_index].direction[1] = direction[1];
 	Buffer[m_index].direction[2] = direction[2];

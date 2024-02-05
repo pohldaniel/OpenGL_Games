@@ -4,6 +4,7 @@
 #include <array>
 #include <engine/interfaces/ICounter.h>
 #include <Scene/SceneNode.h>
+#include <Scene/SceneNodeLC.h>
 
 enum LightType2 {
 	DIRECTIONAL2,
@@ -44,7 +45,8 @@ public:
 	void setUboDiffuse(std::array<float, 4> diffuse) const;
 	void setUboSpecular(std::array<float, 4> specular) const;
 	void setUboPosition(const Vector3f& position);
-	void setUboDirection(std::array<float, 3> direction) const;
+	void setUboDirection(const Vector3f& direction) const;
+	void setDirection(const Vector3f& direction);
 	void setUboAngle(float angle) const;
 	void setUboType(int type);
 	void toggle() const;
@@ -58,6 +60,7 @@ public:
 
 	int m_index;
 	bool m_isStatic;
+	Vector3f m_direction;
 
 	static std::vector<Light> Lights;
 	static LightBuffer Buffer[20];

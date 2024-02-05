@@ -3408,9 +3408,9 @@ const Matrix4f Quaternion::toMatrix4f(const Vector3f &centerOfRotation) const {
 	float wz = quat[3] * z2;
 
 	return Matrix4f(1.0f - (yy + zz), xy + wz, xz - wy, 0.0f,
-		xy - wz, 1.0f + (xx + zz), yz - wx, 0.0f,
-		xz + wy, yz - wx, 1.0f - (xx + yy), 0.0f,
-		centerOfRotation[0] * (yy + zz) - centerOfRotation[1] * (xy + wz) - centerOfRotation[2] * (xz - wy), centerOfRotation[1] * (xx + zz) - centerOfRotation[0] * (xy - wz) - centerOfRotation[2] * (yz + wx), centerOfRotation[2] * (xx + yy) - centerOfRotation[0] * (xz + wy) - centerOfRotation[1] * (yz - wx), 1.0f);;
+                    xy - wz, 1.0f + (xx + zz), yz - wx, 0.0f,
+                    xz + wy, yz - wx, 1.0f - (xx + yy), 0.0f,
+                    centerOfRotation[0] * (yy + zz) - centerOfRotation[1] * (xy + wz) - centerOfRotation[2] * (xz - wy), centerOfRotation[1] * (xx + zz) - centerOfRotation[0] * (xy - wz) - centerOfRotation[2] * (yz + wx), centerOfRotation[2] * (xx + yy) - centerOfRotation[0] * (xz + wy) - centerOfRotation[1] * (yz - wx), 1.0f);;
 }
 
 void Quaternion::Normalize(Quaternion &q) {
@@ -3433,7 +3433,7 @@ Quaternion& Quaternion::Inverse(Quaternion &quat) {
 }
 
 //https://gamedev.stackexchange.com/questions/28395/rotating-vector3-by-a-quaternion
-Vector3f Quaternion::Rotate(Quaternion &quat, const Vector3f &v) {
+Vector3f Quaternion::Rotate(const Quaternion &quat, const Vector3f &v) {
 	Vector3f u(quat[0], quat[1], quat[2]);
 	float s = quat[3];
 	return 2.0f * Vector3f::Dot(u, v) * u + (s*s - Vector3f::Dot(u, u)) * v + 2.0f * s *  Vector3f::Cross(u, v);

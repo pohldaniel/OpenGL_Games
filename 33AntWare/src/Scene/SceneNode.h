@@ -24,11 +24,12 @@ protected:
 
 	bool m_isSubroot;
 
-private:
-
-	void updateSOP() const;
 	mutable Vector3f m_worldPosition;
 	mutable Vector3f m_worldScale;
 	mutable Vector3f m_worldOrigin;
 	mutable Quaternion m_worldOrientation;
+
+private:
+
+	void updateSOP() const;
 };

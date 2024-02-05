@@ -7,6 +7,11 @@ class SceneNodeLC : public BaseNode {
 public:
 
 	SceneNodeLC();
+	SceneNodeLC(const SceneNodeLC& rhs);
+	SceneNodeLC& operator=(const SceneNodeLC& rhs);
+	SceneNodeLC(SceneNodeLC&& rhs);
+	SceneNodeLC& operator=(SceneNodeLC&& rhs);
+
 	const Matrix4f& getWorldTransformation() const override;
 
 	const Vector3f& getWorldPosition() const;

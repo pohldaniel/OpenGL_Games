@@ -117,10 +117,10 @@
             "ambient":  [0.0, 0.0, 0.0, 1.0],
             "diffuse":  [1.0, 1.0, 1.0, 1.0],
 			"specular": [1.0, 1.0, 1.0, 1.0],
-			"position": [0.0, 0.5,  5.0],           
+			"position": [0.0, 0.5,  2.5],           
             "direction":[0.0, 0.0, -5.0],
-            "angle": 45.0,           
-			"enabled": false
+            "angle": 22.5,           
+			"enabled": true
         },
         {
             "type": 0,

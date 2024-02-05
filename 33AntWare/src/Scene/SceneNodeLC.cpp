@@ -9,6 +9,24 @@ SceneNodeLC::SceneNodeLC() : BaseNode() {
 	m_modelMatrix.identity();
 }
 
+SceneNodeLC::SceneNodeLC(const SceneNodeLC& rhs) : BaseNode(rhs) {
+
+}
+
+SceneNodeLC::SceneNodeLC(SceneNodeLC&& rhs) : BaseNode(rhs) {
+
+}
+
+SceneNodeLC& SceneNodeLC::operator=(const SceneNodeLC& rhs) {
+	BaseNode::operator=(rhs);
+	return *this;
+}
+
+SceneNodeLC& SceneNodeLC::operator=(SceneNodeLC&& rhs) {
+	BaseNode::operator=(rhs);
+	return *this;
+}
+
 const Matrix4f& SceneNodeLC::getWorldTransformation() const {
 	if (m_isDirty) {
 		if (m_parent) {			

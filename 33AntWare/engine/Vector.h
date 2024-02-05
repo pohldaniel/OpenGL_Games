@@ -476,7 +476,7 @@ public:
 	static Quaternion& Conjugate(Quaternion &quat);
 	static Quaternion& Inverse(Quaternion &quat);
 	static void Normalize(Quaternion &p);
-	static Vector3f Rotate(Quaternion &quat, const Vector3f &v);
+	static Vector3f Rotate(const Quaternion &quat, const Vector3f &v);
 
 private:
 
