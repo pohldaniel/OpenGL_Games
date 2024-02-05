@@ -273,8 +273,10 @@ SceneNode* Scene::addNode(const rapidjson::GenericObject<false, rapidjson::Value
 }
 
 void Scene::parseNodes(rapidjson::GenericArray<false, rapidjson::Value> array, SceneNode*& root) {
-	for (rapidjson::Value::ValueIterator mesh = array.Begin(); mesh != array.End(); ++mesh) {
-		addNode(mesh->GetObject(), root);
+	for (rapidjson::Value::ValueIterator node = array.Begin(); node != array.End(); ++node) {
+		if (!node->HasMember("addin")) {
+			addNode(node->GetObject(), root);
+		}
 	}
 }
 

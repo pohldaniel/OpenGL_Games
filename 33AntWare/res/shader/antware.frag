@@ -64,7 +64,24 @@ void main(void){
 					specFactor * lights[i].specular * material.specular +
 					ambientFactor * lights[i].ambient * material.ambient;
 				
-		    }else if (lights[i].type == 2) { 
+		    }else if (lights[i].type == 1) { // Point
+			
+				vec3 fragToLight = normalize(-v_position + lights[i].position);
+				float quadraticAtten =
+					((pow(distance(v_position, lights[i].position), 2)) *
+					 QUADRATIC_ATTEN);
+				float diffuseFactor = max(dot(fragToLight, nWorld), 0) / quadraticAtten;
+				vec3 fragToObserver = normalize(-v_position + u_campos);
+				vec3 halfWay = normalize(fragToLight + fragToObserver);
+				float specFactor =
+					max(pow(dot(halfWay, nWorld), material.shininess), 0) /
+					(quadraticAtten + distance(v_position, u_campos) * LINEAR_ATTEN);
+				color +=
+					diffuseFactor * lights[i].diffuse * material.diffuse * texColor +
+					specFactor * lights[i].specular * material.specular +
+					ambientFactor * lights[i].ambient * material.ambient;
+					
+			}else if (lights[i].type == 2) { // Spot
 			
 				vec3 fragToLight = normalize(-v_position + lights[i].position);
 				float dirToLight = dot(-fragToLight, normalize(lights[i].direction));
@@ -87,6 +104,5 @@ void main(void){
 		}
 	}
 
-	//color = texture2D( u_texture, v_texCoord ) * lights[0].specular * float(lights[0].enabled);
-	color.a *= material.alpha;
+	color.a = texColor.a * material.alpha;
 }
