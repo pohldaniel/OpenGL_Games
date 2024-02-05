@@ -124,6 +124,8 @@ class Vector3f {
 
 public:
 
+	static const Vector3f ZERO;
+
 	Vector3f();
 	Vector3f(float x_);
 	Vector3f(float x_, float y_, float z_);
@@ -311,6 +313,10 @@ public:
 
 	void invScale(float a, float b, float c, const Vector3f& centerOfScale);
 	void invScale(const Vector3f& scale, const Vector3f& centerOfScale);
+
+	Vector3f getTranslation() const;
+	Vector3f getScale() const;
+	Matrix4f getRotation() const;
 
 	void perspective(float fovx, float aspect, float znear, float zfar);
 	//void perspective(float left, float right, float bottom, float top, float znear, float zfar);

@@ -22,8 +22,6 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 	SceneManager::Get().getScene("scene").loadScene(SceneManager::Get().getCurrentSceneFile());
 
 	Scene scene = SceneManager::Get().getScene("scene");
-	
-
 
 	glClearColor(0.494f, 0.686f, 0.796f, 1.0f);
 	glClearDepth(1.0f);
@@ -33,17 +31,16 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 	glBufferData(GL_UNIFORM_BUFFER, sizeof(LightBuffer) * 20, NULL, GL_DYNAMIC_DRAW);
 	glBindBufferBase(GL_UNIFORM_BUFFER, 0, BuiltInShader::lightUbo);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
 	
 	glGenBuffers(1, &BuiltInShader::materialUbo);
 	glBindBuffer(GL_UNIFORM_BUFFER, BuiltInShader::materialUbo);
 	glBufferData(GL_UNIFORM_BUFFER, 56, NULL, GL_DYNAMIC_DRAW);
 	glBindBufferRange(GL_UNIFORM_BUFFER, 1, BuiltInShader::materialUbo, 0, 56);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
 	
 	Material::SetTextures(scene.getTextures());
 	Material::SetMaterials(scene.getMaterials());
-	Light::SetLights(scene.getLights());
 	m_meshes = scene.getMeshes();
 
 	const BoundingBox& box = m_meshes[0]->getAABB();
@@ -91,8 +88,9 @@ void Game::update() {
 	for (auto entity : m_entities)
 		entity->update(m_fdt);
 
-	//Vector3f lightPos = Light::GetLights()[0].getWorldPosition();
-	//std::cout << "Position: " << lightPos[0] << "  " << lightPos[1] << "  " << lightPos[2] << std::endl;
+	for (auto& light : Light::GetLights()) {
+		light.update(m_dt);
+	}
 
 	bool isWin = Ant::GetCount() == 0;
 
@@ -111,6 +109,7 @@ void Game::update() {
 	}
 
 	deleteEntities();
+	Light::UpdateLightUbo(BuiltInShader::lightUbo, 2);
 }
 
 void Game::render() {
@@ -122,7 +121,7 @@ void Game::render() {
 	shader->use();
 	shader->loadMatrix("u_projection", m_camera->getPerspectiveMatrix());
 	shader->loadMatrix("u_view", m_camera->getViewMatrix());
-	
+	shader->loadVector("u_campos", m_camera->getPosition());
 
 	for (auto entity : m_entities) {
 		shader->loadMatrix("u_model", entity->getWorldTransformation());
@@ -131,7 +130,7 @@ void Game::render() {
 		entity->OnRenderOBB();
 	}
 
-	for (auto bullet : m_player->getBullets()) {
+	for (auto& bullet : m_player->getBullets()) {
 		shader->loadMatrix("u_model", bullet.getTransformationSOP());
 		shader->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(m_camera->getViewMatrix() * bullet.GetTransformation()));
 		bullet.draw();

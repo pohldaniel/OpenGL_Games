@@ -2,21 +2,31 @@
 #include "BaseNode.h"
 #include "SceneNode.h"
 
-BaseNode::BaseNode() : Object(), m_markForRemove(false), m_isDirty(true), m_parent(nullptr) {
+BaseNode::BaseNode() : Object(), m_markForRemove(false), m_isDirty(true), m_parent(nullptr), m_isFixed(false) {
 
 }
 
-BaseNode::BaseNode(const BaseNode& rhs) : Object(rhs) {}
+BaseNode::BaseNode(const BaseNode& rhs) : Object(rhs) {
+	m_isDirty = rhs.m_isDirty;
+	m_markForRemove = rhs.m_markForRemove;
+}
 
 BaseNode& BaseNode::operator=(const BaseNode& rhs) {
 	Object::operator=(rhs);
+	m_isDirty = rhs.m_isDirty;
+	m_markForRemove = rhs.m_markForRemove;
 	return *this;
 }
 
-BaseNode::BaseNode(BaseNode&& rhs) : Object(rhs) {}
+BaseNode::BaseNode(BaseNode&& rhs) : Object(rhs) {
+	m_isDirty = rhs.m_isDirty;
+	m_markForRemove = rhs.m_markForRemove;
+}
 
 BaseNode& BaseNode::operator=(BaseNode&& rhs) {
 	Object::operator=(rhs);
+	m_isDirty = rhs.m_isDirty;
+	m_markForRemove = rhs.m_markForRemove;
 	return *this;
 }
 
@@ -161,18 +171,14 @@ void BaseNode::setParent(BaseNode* node) {
 	m_parent = node;
 }
 
-const Vector3f& BaseNode::getWorldPosition() const {
-	return m_position;
-}
-
 const Vector3f& BaseNode::getWorldOrigin() const {
-	return m_position;
+	return Vector3f::ZERO;
 }
 
-const Vector3f& BaseNode::getWorldScale() const {
-	return m_scale;
+void BaseNode::setIsFixed(bool isFixed) {
+	m_isFixed = isFixed;
 }
 
-const Quaternion& BaseNode::getWorldOrientation() const {
-	return m_orientation;
+const bool BaseNode::isFixed() const{
+	return m_isFixed;
 }

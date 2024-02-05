@@ -6,6 +6,26 @@ SceneNode::SceneNode() : BaseNode(), m_isSubroot(false) {
 
 }
 
+SceneNode::SceneNode(const SceneNode& rhs) : BaseNode(rhs){
+	m_isSubroot = rhs.m_isSubroot;
+}
+
+SceneNode::SceneNode(SceneNode&& rhs) : BaseNode(rhs) {
+	m_isSubroot = rhs.m_isSubroot;
+}
+
+SceneNode& SceneNode::operator=(const SceneNode& rhs) {
+	BaseNode::operator=(rhs);
+	m_isSubroot = rhs.m_isSubroot;
+	return *this;
+}
+
+SceneNode& SceneNode::operator=(SceneNode&& rhs) {
+	BaseNode::operator=(rhs);
+	m_isSubroot = rhs.m_isSubroot;
+	return *this;
+}
+
 const Vector3f& SceneNode::getWorldPosition() const {
 	updateSOP();
 	return m_worldPosition;

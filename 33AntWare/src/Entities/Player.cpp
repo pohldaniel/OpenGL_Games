@@ -61,9 +61,8 @@ void Player::update(const float dt) {
 
 		if (keyboard.keyPressed(Keyboard::KEY_F)) {
 			std::list<std::unique_ptr<BaseNode>>::iterator it = m_children.begin();
-			std::advance(it, 4);		
-			Vector3f lightPos = dynamic_cast<Light*>((*it).get())->getWorldPosition();
-			std::cout << "Light Pos: " << lightPos[0] << "  " << lightPos[1] << "  " << lightPos[2] << std::endl;
+			std::advance(it, 4);
+			dynamic_cast<Light*>((*it).get())->toggle();			
 		}
 
 		if (m_mouseDown && reloadTimer.getElapsedTimeSec() > 1.5f && shootTimer.getElapsedTimeSec() > 0.2f) {
@@ -156,6 +155,8 @@ void Player::update(const float dt) {
 }
 
 void Player::fixedUpdate(float fdt) {
+
+	
 	Entity::fixedUpdate(fdt);
 
 	for (unsigned i = 0; i < bullets.size(); ++i) {
@@ -218,6 +219,8 @@ void Player::recoilAnim(float deltaTime) {
 	}
 
 	for (auto const& child : m_children) {
+		if (child->isFixed())
+			continue;
 		child->setOrientation(Vector3f(childrenEular[0], childrenEular[1], childrenEular[2]));
 		child->setPosition({ childrenTranslation[0], childrenTranslation[1], childrenTranslation[2] });
 	}
@@ -243,6 +246,8 @@ void Player::reloadAnim(float deltaTime) {
 	}
 
 	for (auto const& child : m_children) {
+		if (child->isFixed())
+			continue;
 		child->setOrientation(Vector3f(childrenEular[0], childrenEular[1],childrenEular[2]));
 		child->setPosition({ childrenTranslation[0], childrenTranslation[1], childrenTranslation[2] });
 	}

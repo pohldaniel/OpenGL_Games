@@ -11,24 +11,13 @@
 #include <Entities/Entity.h>
 #include <Entities/Ant.h>
 #include <Entities/Player.h>
-
+#include <Entities/Light.h>
 #include "HUD.h"
 
 enum LightType{
 	DIRECTIONAL,
 	POINTAW,
 	SPOT
-};
-
-struct LightStruct{
-	int enabled;
-	LightType type;
-	float padding0, padding1;
-	glm::vec4 ambient, diffuse, specular;
-	glm::vec3 direction;
-	float angle;
-	glm::vec3 position;
-	float padding2;
 };
 
 class Game : public State, public MouseEventListener, public KeyboardEventListener {
@@ -55,7 +44,7 @@ private:
 	void deleteEntities();
 
 	bool m_initUi = true;
-	bool m_drawUi = true;
+	bool m_drawUi = false;
 
 	ObjSequence m_objSequence;
 	Camera* m_camera;

@@ -710,6 +710,32 @@ void Matrix4f::invScale(const Vector3f &scale, const Vector3f &centerOfScale) {
 	mtx[3][3] = 1.0f;
 }
 
+Vector3f Matrix4f::getTranslation() const {
+	return Vector3f(mtx[3][0], mtx[3][1], mtx[3][2]);
+}
+
+Vector3f Matrix4f::getScale() const {
+	return Vector3f(
+		sqrtf(mtx[0][0] * mtx[0][0] + mtx[1][0] * mtx[1][0] + mtx[2][0] * mtx[2][0]),
+		sqrtf(mtx[0][1] * mtx[0][1] + mtx[1][1] * mtx[1][1] + mtx[2][1] * mtx[2][1]),
+		sqrtf(mtx[0][2] * mtx[0][2] + mtx[1][2] * mtx[1][2] + mtx[2][2] * mtx[2][2])
+	);
+}
+
+Matrix4f Matrix4f::getRotation() const {
+
+	float scaleX = 1.0f / (mtx[0][0] * mtx[0][0] + mtx[1][0] * mtx[1][0] + mtx[2][0] * mtx[2][0]);
+	float scaleY = 1.0f / (mtx[0][1] * mtx[0][1] + mtx[1][1] * mtx[1][1] + mtx[2][1] * mtx[2][1]);
+	float scaleZ = 1.0f / (mtx[0][2] * mtx[0][2] + mtx[1][2] * mtx[1][2] + mtx[2][2] * mtx[2][2]);
+
+	
+
+	return Matrix4f(mtx[0][0] * scaleX, mtx[0][1] * scaleX, mtx[0][2] * scaleX, mtx[0][3],
+		            mtx[1][0] * scaleY, mtx[1][1] * scaleY, mtx[1][2] * scaleY, mtx[1][3],
+		            mtx[2][0] * scaleZ, mtx[2][1] * scaleZ, mtx[2][2] * scaleZ, mtx[2][3],
+		            mtx[3][0],          mtx[3][1],          mtx[3][2],          mtx[3][3]);
+}
+
 void Matrix4f::lookAt(const Vector3f &eye, const Vector3f &target, const Vector3f &up) {
 
 	Vector3f zAxis = eye - target;
@@ -2562,6 +2588,9 @@ float Vector2f::Dot(const Vector2f &p, const Vector2f &q) {
 }
 
 //////////////////////////////////////////////////////////////////////
+
+const Vector3f Vector3f::ZERO(0.0f, 0.0f, 0.0f);
+
 Vector3f::Vector3f() {
 	vec[0] = 0.0f;
 	vec[1] = 0.0f;

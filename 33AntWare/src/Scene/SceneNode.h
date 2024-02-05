@@ -9,6 +9,10 @@ class SceneNode : public BaseNode {
 public:
 
 	SceneNode();
+	SceneNode(const SceneNode& rhs);
+	SceneNode& operator=(const SceneNode& rhs);
+	SceneNode(SceneNode&& rhs);
+	SceneNode& operator=(SceneNode&& rhs);
 
 	const Matrix4f& getWorldTransformation() const override;
 	const Vector3f& getWorldPosition() const override;
@@ -27,7 +31,4 @@ private:
 	mutable Vector3f m_worldScale;
 	mutable Vector3f m_worldOrigin;
 	mutable Quaternion m_worldOrientation;
-
-	mutable Matrix4f m_modelMatrix;
-	
 };

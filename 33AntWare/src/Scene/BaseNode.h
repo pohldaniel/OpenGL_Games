@@ -46,20 +46,24 @@ public:
 	void rotate(const Quaternion& orientation) override;
 
 	void markForRemove();
+	void setIsFixed(bool isFixed);
+	void setParent(BaseNode* node);
+	const bool isFixed() const;
+
 
 	const std::list<std::unique_ptr<BaseNode>>& getChildren() const;
 	void removeChild(std::unique_ptr<BaseNode> node);
 	BaseNode* addChild(BaseNode* node);
 	BaseNode* addChild();
-	void setParent(BaseNode* node);
+	
 
 protected:
 
-	virtual const Vector3f& getWorldPosition() const;
+	virtual const Vector3f& getWorldPosition() const = 0;	
+	virtual const Vector3f& getWorldScale() const = 0;
+	virtual const Quaternion& getWorldOrientation() const = 0;
 	virtual const Vector3f& getWorldOrigin() const;
-	virtual const Vector3f& getWorldScale() const;
-	virtual const Quaternion& getWorldOrientation() const;
 
 	BaseNode* m_parent;	std::list<std::unique_ptr<BaseNode>> m_children;
-	bool m_markForRemove;	mutable bool m_isDirty;
+	bool m_markForRemove;	bool m_isFixed;	mutable bool m_isDirty;
 };

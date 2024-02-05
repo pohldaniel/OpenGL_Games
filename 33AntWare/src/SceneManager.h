@@ -46,7 +46,6 @@ public:
 	Camera& getCamera();
 	const std::vector<Texture>& getTextures() const;
 	const std::vector<Material>& getMaterials() const;
-	const std::vector<Light>& getLights() const;
 	const std::vector<AssimpModel*>& getMeshes() const;
 	const std::vector<Entity*>& getEntitiesAfterClear() const;
 	const std::vector<Entity*>& getEntities() const;
@@ -67,13 +66,12 @@ public:
 	AssimpModel* addMesh(const rapidjson::GenericObject<false, rapidjson::Value> object, std::vector<AssimpModel*>& meshes);
 	ObjSequence& addObjSequence(const rapidjson::GenericObject<false, rapidjson::Value> object, ObjSequence& objSequence);
 	SceneNode* addNode(const rapidjson::GenericObject<false, rapidjson::Value> object, SceneNode*& root);
-	Types resolveOption(std::string type);
+	Types resolveType(std::string type);
 
 	Vector2f mapMinLimit, mapMaxLimit;
 	Camera camera;
 	std::vector<Texture> textures;
 	std::vector<Material> materials;
-	std::vector<Light> lights;
 	std::vector<AssimpModel*> meshes;
 	ObjSequence objSequence;
 	SceneNode* root;

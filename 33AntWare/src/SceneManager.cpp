@@ -92,6 +92,7 @@ Light& Scene::addLight(const LightBuffer& lightBuffer, std::vector<Light>& light
 	Light& light = lights.back();
 
 	int index = lights.size() - 1;
+	light.m_index = index;
 
 	Light::Buffer[index].ambient[0] = lightBuffer.ambient[0];
 	Light::Buffer[index].ambient[1] = lightBuffer.ambient[1];
@@ -120,6 +121,12 @@ Light& Scene::addLight(const LightBuffer& lightBuffer, std::vector<Light>& light
 	Light::Buffer[index].type = lightBuffer.type;
 	Light::Buffer[index].enabled = lightBuffer.enabled;
 
+	if (Light::Buffer[index].type == SPOT2)
+		light.m_isStatic = false;
+
+	light.setPosition({ lightBuffer.position[0], lightBuffer.position[1], lightBuffer.position[2] });
+	//light.setDirection({ lightBuffer.direction[0], lightBuffer.direction[1], lightBuffer.direction[2] });
+
 	return light;
 }
 
@@ -139,9 +146,10 @@ void Scene::parseLights(rapidjson::GenericArray<false, rapidjson::Value> array, 
 				   {diffuse[0].GetFloat(), diffuse[1].GetFloat(), diffuse[2].GetFloat(), diffuse[3].GetFloat()},
                    {specular[0].GetFloat(), specular[1].GetFloat(), specular[2].GetFloat(), specular[3].GetFloat()},
 				   {position[0].GetFloat(), position[1].GetFloat(), position[2].GetFloat()}, _light["angle"].GetFloat(),
-			       {direction[0].GetFloat(), direction[1].GetFloat(), direction[2].GetFloat()}, 0.0f,
+			       {direction[0].GetFloat(), direction[1].GetFloat(), direction[2].GetFloat()},
                    static_cast<LightType2>(type),
-				   enabled },
+				   enabled, 
+			       false, 0, 0.0f, 0.0f, 0.0f },
 			     lights);
 
 	}
@@ -198,7 +206,7 @@ void Scene::parseObjSequences(rapidjson::GenericArray<false, rapidjson::Value> a
 	}
 }
 
-Types Scene::resolveOption(std::string input) {
+Types Scene::resolveType(std::string input) {
 	if (input == "player") return PLAYER;
 	if (input == "entity") return ENTITY;
 	if (input == "light") return LIGHT;
@@ -219,7 +227,7 @@ SceneNode* Scene::addNode(const rapidjson::GenericObject<false, rapidjson::Value
 	}
 
 	SceneNode* child = nullptr;
-	switch (resolveOption(type)){
+	switch (resolveType(type)){
 		case PLAYER:
 			player = new Player(camera, meshes[reference], Vector2f(-51.5f, -51.5f), Vector2f(51.5f, 51.5f));
 			player->setPosition(object["position"].GetArray()[0].GetFloat(), object["position"].GetArray()[1].GetFloat(), object["position"].GetArray()[2].GetFloat());
@@ -241,7 +249,8 @@ SceneNode* Scene::addNode(const rapidjson::GenericObject<false, rapidjson::Value
 
 			break;
 		case LIGHT:
-			child = dynamic_cast<SceneNode*>(root->addChild(&lights[reference]));
+			child = dynamic_cast<SceneNode*>(root->addChild(&Light::GetLights()[reference]));
+			child->setIsFixed(true);
 			break;
 		case ANT:
 			entities.push_back(new Ant(objSequence, meshes[0], player));
@@ -287,7 +296,7 @@ void Scene::loadScene(std::string path) {
 	parseCamera(doc["camera"].GetObject(), camera);
 	parseTextures(doc["textures"].GetArray(), textures);
 	parseMaterials(doc["materials"].GetArray(), materials);
-	parseLights(doc["lights"].GetArray(), lights);
+	parseLights(doc["lights"].GetArray(), Light::GetLights());
 	parseMeshes(doc["meshes"].GetArray(), meshes);
 	parseObjSequences(doc["objSequences"].GetArray(), objSequence);
 	
@@ -305,10 +314,6 @@ const std::vector<Texture>& Scene::getTextures() const {
 
 const std::vector<Material>& Scene::getMaterials() const {
 	return materials;
-}
-
-const std::vector<Light>& Scene::getLights() const {
-	return lights;
 }
 
 const std::vector<AssimpModel*>& Scene::getMeshes() const {
@@ -349,7 +354,6 @@ void SceneManager::loadSettings(std::string path)  {
 	doc.ParseStream(streamWrapper);
 	for (rapidjson::Value::ConstValueIterator levels = doc["levels"].Begin(); levels != doc["levels"].End(); ++levels) {
 		m_levels.push_back({ levels->GetObject()["file"].GetString(), levels->GetObject()["thumb"].GetString(), levels->GetObject()["music"].GetString() });		
-		//std::cout << m_levels.back().sceneFile << "  " << m_levels.back().thumb << "  " << m_levels.back().music << std::endl;
 	}
 	file.close();
 }
