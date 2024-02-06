@@ -13,7 +13,7 @@ class Ant : public Entity, private ICounter<Ant>{
 
 public:
     
-	Ant(const ObjSequence& objSequence, AssimpModel* model, Player* target);
+	Ant(const ObjSequence& objSequence, AssimpModel* model, Player* target, const Material& material);
 	~Ant() = default;
 
 	void update(const float dt) override;

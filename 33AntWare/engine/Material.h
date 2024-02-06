@@ -35,6 +35,7 @@ struct Material {
 	void setAlpha(float alpha) const;
 
 	const float getAlpha() const;
+	const float getShininess() const;
 
 	const Texture& getTexture(unsigned short index) const;
 	std::string name;

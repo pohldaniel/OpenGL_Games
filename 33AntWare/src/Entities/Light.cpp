@@ -53,8 +53,8 @@ void Light::update(const float dt) {
 	if (m_isStatic)
 		return;
 
-	setUboPosition(getWorldTransformation() ^ Vector4f(m_position));
-	setUboDirection(Quaternion::Rotate(m_worldOrientation, m_direction));
+	setUboPosition(m_parent->getWorldTransformation() ^ Vector4f(m_position));
+	setUboDirection(Quaternion::Rotate(getWorldOrientation(), m_direction));
 }
 
 void Light::cleanup() {

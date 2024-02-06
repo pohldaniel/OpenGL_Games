@@ -376,8 +376,7 @@ void  AssimpModel::drawRawStacked() {
 		if(mesh->m_materialIndex >= 0)
 			Material::GetMaterials()[mesh->m_materialIndex].updateMaterialUbo(BuiltInShader::materialUbo);
 
-		if (mesh->m_textureIndex >= 0)
-			Material::GetTextures()[mesh->m_textureIndex].bind();
+		mesh->m_textureIndex >= 0 ? Material::GetTextures()[mesh->m_textureIndex].bind() : Texture::Unbind();
 
 		glDrawElementsBaseVertex(GL_TRIANGLES, mesh->m_drawCount, GL_UNSIGNED_INT, (void*)(sizeof(unsigned int) * mesh->m_baseIndex), mesh->m_baseVertex);
 	}
@@ -390,8 +389,7 @@ void AssimpModel::drawRawInstancedStacked() {
 		if (mesh->m_materialIndex >= 0)
 			Material::GetMaterials()[mesh->m_materialIndex].updateMaterialUbo(BuiltInShader::materialUbo);
 
-		if (mesh->m_textureIndex >= 0)
-			Material::GetTextures()[mesh->m_textureIndex].bind();
+		mesh->m_textureIndex >= 0 ? Material::GetTextures()[mesh->m_textureIndex].bind() : Texture::Unbind();
 
 		glDrawElementsInstancedBaseVertexBaseInstance(GL_TRIANGLES, mesh->m_drawCount, GL_UNSIGNED_INT, (void*)(sizeof(unsigned int) * mesh->m_baseIndex), m_instanceCount, mesh->m_baseVertex, 0);
 	}
@@ -751,8 +749,7 @@ void AssimpMesh::drawRaw() {
 	if (m_materialIndex >= 0) 
 		Material::GetMaterials()[m_materialIndex].updateMaterialUbo(BuiltInShader::materialUbo);
 
-	if (m_textureIndex >= 0)
-		Material::GetTextures()[m_textureIndex].bind();
+	m_textureIndex >= 0 ? Material::GetTextures()[m_textureIndex].bind() : Texture::Unbind();
 
 	glBindVertexArray(m_vao);
 	glDrawElements(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0);
@@ -764,8 +761,7 @@ void AssimpMesh::drawRawInstanced() {
 	if (m_materialIndex >= 0)
 		Material::GetMaterials()[m_materialIndex].updateMaterialUbo(BuiltInShader::materialUbo);
 
-	if (m_textureIndex >= 0)
-		Material::GetTextures()[m_textureIndex].bind();
+	m_textureIndex >= 0 ? Material::GetTextures()[m_textureIndex].bind() : Texture::Unbind();
 
 	glBindVertexArray(m_vao);
 	glDrawElementsInstanced(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0, m_instanceCount);
@@ -784,7 +780,7 @@ unsigned int AssimpMesh::getStride() {
 	return m_stride;
 }
 
-short AssimpMesh::getMaterialIndex() {
+short AssimpMesh::getMaterialIndex() const {
 	return m_materialIndex;
 }
 
@@ -792,7 +788,7 @@ void AssimpMesh::setMaterialIndex(short index) const {
 	m_materialIndex = index;
 }
 
-short AssimpMesh::getTextureIndex() {
+short AssimpMesh::getTextureIndex()const {
 	return m_textureIndex;
 }
 

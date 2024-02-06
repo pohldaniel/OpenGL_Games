@@ -15,6 +15,9 @@ Player::Player(Camera& camera, AssimpModel* model, const Vector2f& mapMinLimit, 
 	childrenEular.set(0.0f, 0.0f, 0.0f);
 	childrenTranslation.set(0.0f, 0.0f, 0.0f);
 	eularAngles.set(0.0f, 0.0f, 0.0f);
+	setOrientation(eularAngles);
+	camera.lookAt({ m_position[0], m_position[1], m_position[2] }, -eularAngles[0], -eularAngles[1], 180.0f);
+
 	m_isSubroot = true;
 
 	m_rigidbody.lockLinear(AXIS::y);
@@ -101,6 +104,7 @@ void Player::update(const float dt) {
 
 	eularAngles[0] -= mouse.yDelta() * mouseSenstivity;
 	eularAngles[1] -= mouse.xDelta() * mouseSenstivity;
+
 	//camera.lookAt({ m_position[0], m_position[1], m_position[2] }, -eularAngles[0], -eularAngles[1], 180.0f);
 	//camera.moveRelative(Vector3f(0.0f, 0.5f, 0.0f));
 	//camera.lookAt({ m_position[0], m_position[1], m_position[2] }, { m_position[0], m_position[1], m_position[2] }, -eularAngles[0], -eularAngles[1], 180.0f);

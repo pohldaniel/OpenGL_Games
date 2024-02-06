@@ -48,6 +48,7 @@ void main(void){
 
 	color = vec4(0);
 	vec3 nWorld = normalize(v_normal);
+	
 	for (int i = 0; i < MAX_LIGHTS; i++) {
 		if (lights[i].enabled) {
 			if (lights[i].type == 0) { // Directional
@@ -89,20 +90,18 @@ void main(void){
 				  continue;
 				  
 				float quadraticAtten = ((pow(distance(v_position, lights[i].position), 2)) * QUADRATIC_ATTEN);
-				float diffuseFactor = max(dot(fragToLight, nWorld), 0) / quadraticAtten;
+				float diffuseFactor = max(dot(fragToLight, nWorld), 0) / quadraticAtten;	
 				vec3 fragToObserver = normalize(-v_position + u_campos);
-				vec3 halfWay = normalize(fragToLight + fragToObserver);
-				
+				vec3 halfWay = normalize(fragToLight + fragToObserver);	
 				float specFactor =
 					max(pow(dot(halfWay, nWorld), material.shininess), 0) /
 					(quadraticAtten + distance(v_position, u_campos) * LINEAR_ATTEN);
 				color +=
-				diffuseFactor * lights[i].diffuse * material.diffuse * texture2D( u_texture, v_texCoord ) +
+				diffuseFactor * lights[i].diffuse * material.diffuse * texColor +
 				specFactor * lights[i].specular * material.specular +
 				ambientFactor * lights[i].ambient * material.ambient;
 			}
 		}
 	}
-
 	color.a = texColor.a * material.alpha;
 }

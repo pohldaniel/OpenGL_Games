@@ -125,14 +125,14 @@ void Game::render() {
 
 	for (auto entity : m_entities) {
 		shader->loadMatrix("u_model", entity->getWorldTransformation());
-		shader->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(m_camera->getViewMatrix() * entity->GetTransformation()));
+		shader->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(entity->GetTransformation()));
 		entity->draw();
 		entity->OnRenderOBB();
 	}
 
 	for (auto& bullet : m_player->getBullets()) {
 		shader->loadMatrix("u_model", bullet.getTransformationSOP());
-		shader->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(m_camera->getViewMatrix() * bullet.GetTransformation()));
+		shader->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(bullet.GetTransformation()));
 		bullet.draw();
 	}
 
@@ -141,7 +141,7 @@ void Game::render() {
 	m_player->OnRenderOBB({ 1.0f, 1.0f, 0.0f, 1.0f });
 	for (auto entity : m_entitiesAfterClear) {
 		shader->loadMatrix("u_model", entity->getWorldTransformation());
-		shader->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(m_camera->getViewMatrix() * entity->GetTransformation()));
+		shader->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(entity->GetTransformation()));
 		entity->draw();
 		entity->OnRenderOBB({0.0f, 0.0f, 1.0f, 1.0f});
 	}

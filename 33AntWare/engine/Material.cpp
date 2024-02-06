@@ -97,12 +97,16 @@ void Material::setSpecular(std::array<float, 4> _specular) const {
 	buffer.specular[3] = _specular[3];
 }
 
-void Material::setShininess(float _shininess) const {
-	buffer.shininess = _shininess;
+void Material::setShininess(float shininess) const {
+	buffer.shininess = shininess;
 }
 
-void Material::setAlpha(float _alpha) const {
-	buffer.alpha = _alpha;
+const float Material::getShininess() const {
+	return buffer.shininess;
+}
+
+void Material::setAlpha(float alpha) const {
+	buffer.alpha = alpha;
 }
 
 const float Material::getAlpha() const {

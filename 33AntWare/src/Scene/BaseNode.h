@@ -15,8 +15,11 @@ public:
 	BaseNode(BaseNode&& rhs);
 	BaseNode& operator=(BaseNode&& rhs);
 
-	virtual const Matrix4f& getWorldTransformation() const = 0;
 	virtual void OnTransformChanged();
+	virtual const Matrix4f& getWorldTransformation() const = 0;
+	virtual const Vector3f& getWorldPosition() const = 0;
+	virtual const Vector3f& getWorldScale() const = 0;
+	virtual const Quaternion& getWorldOrientation() const = 0;
 
 	void setScale(const float sx, const float sy, const float sz) override;
 	void setScale(const Vector3f& scale) override;
@@ -58,9 +61,6 @@ public:
 	
 protected:
 
-	virtual const Vector3f& getWorldPosition() const = 0;	
-	virtual const Vector3f& getWorldScale() const = 0;
-	virtual const Quaternion& getWorldOrientation() const = 0;
 	virtual const Vector3f& getWorldOrigin() const;
 
 	BaseNode* m_parent;	std::list<std::unique_ptr<BaseNode>> m_children;

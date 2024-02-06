@@ -4,12 +4,12 @@
 #include "Globals.h"
 #include "HUD.h"
 
-Ant::Ant(const ObjSequence& objSequence, AssimpModel* model, Player* target) : Entity(model), objSequence(objSequence), target(target) {
-	m_material.setAmbient({ 0.1f, 0.1f, 0.1f, 1.0f });
-	m_material.setDiffuse({ 0.6f, 0.6f, 0.6f, 1.0f });
-	m_material.setSpecular({ 0.3f, 0.3f, 0.3f, 1.0f });
-	m_material.setShininess(8.0f);
-	m_material.setAlpha(1.0f);
+Ant::Ant(const ObjSequence& objSequence, AssimpModel* model, Player* target, const Material& material) : Entity(model), objSequence(objSequence), target(target) {
+	m_material.setAmbient({ material.buffer.ambient[0], material.buffer.ambient[1], material.buffer.ambient[2], material.buffer.ambient[3] });
+	m_material.setDiffuse({ material.buffer.diffuse[0], material.buffer.diffuse[1], material.buffer.diffuse[2], material.buffer.diffuse[3] });
+	m_material.setSpecular({ material.buffer.specular[0], material.buffer.specular[1], material.buffer.specular[2], material.buffer.specular[3] });
+	m_material.setShininess(material.getShininess());
+	m_material.setAlpha(material.getAlpha());
 
 	baseIndex = objSequence.getNumberOfMeshes() - 1;
 	index = baseIndex;

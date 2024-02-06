@@ -35,6 +35,8 @@ Texture& Scene::addTexture(std::string path, std::vector<Texture>& texures) {
 	textures.resize(textures.size() + 1);
 	Texture& texture = textures.back();
 	texture.loadFromFile(path, true);
+	texture.setFilter(GL_LINEAR);
+	texture.setWrapMode(GL_REPEAT);
 	return texture;
 }
 
@@ -253,7 +255,7 @@ SceneNode* Scene::addNode(const rapidjson::GenericObject<false, rapidjson::Value
 			child->setIsFixed(true);
 			break;
 		case ANT:
-			entities.push_back(new Ant(objSequence, meshes[0], player));
+			entities.push_back(new Ant(objSequence, meshes[0], player, materials[meshes[0]->getMesh(0)->getMaterialIndex()]));
 			entities.back()->setPosition(object["position"].GetArray()[0].GetFloat(), object["position"].GetArray()[1].GetFloat(), object["position"].GetArray()[2].GetFloat());
 			entities.back()->setOrientation(object["rotation"].GetArray()[0].GetFloat(), object["rotation"].GetArray()[1].GetFloat(), object["rotation"].GetArray()[2].GetFloat());
 			entities.back()->setScale(object["scale"].GetArray()[0].GetFloat(), object["scale"].GetArray()[1].GetFloat(), object["scale"].GetArray()[2].GetFloat());
@@ -274,7 +276,7 @@ SceneNode* Scene::addNode(const rapidjson::GenericObject<false, rapidjson::Value
 
 void Scene::parseNodes(rapidjson::GenericArray<false, rapidjson::Value> array, SceneNode*& root) {
 	for (rapidjson::Value::ValueIterator node = array.Begin(); node != array.End(); ++node) {
-		if (!node->HasMember("addin")) {
+		if (!node->HasMember("guard")) {
 			addNode(node->GetObject(), root);
 		}
 	}

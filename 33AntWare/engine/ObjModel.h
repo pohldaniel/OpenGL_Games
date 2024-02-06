@@ -223,7 +223,11 @@ public:
 	std::vector<float>& getVertexBuffer();
 	std::vector<unsigned int>& getIndexBuffer();
 	int getStride();
-	short getMaterialIndex();
+	short getMaterialIndex() const;
+	void setMaterialIndex(short index) const;
+	short getTextureIndex() const;
+	void setTextureIndex(short index) const;
+
 	const Material& getMaterial() const;
 	void cleanup();
 
@@ -254,5 +258,6 @@ private:
 
 	bool m_hasTextureCoords, m_hasNormals, m_hasTangents;
 	unsigned int m_triangleOffset, m_numberOfTriangles, m_stride, m_baseVertex, m_baseIndex;	
-	short m_materialIndex = -1;
+	mutable short m_materialIndex = -1;
+	mutable short m_textureIndex = -1;
 };

@@ -129,9 +129,9 @@ public:
 	std::vector<float>& getVertexBuffer();
 	std::vector<unsigned int>& getIndexBuffer();
 	unsigned int getStride();
-	short getMaterialIndex();
+	short getMaterialIndex() const;
 	void setMaterialIndex(short index) const;
-	short getTextureIndex();
+	short getTextureIndex() const;
 	void setTextureIndex(short index) const;
 
 	const Material& getMaterial() const;

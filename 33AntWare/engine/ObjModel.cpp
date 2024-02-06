@@ -1900,10 +1900,6 @@ void ObjMesh::cleanup(){
 	m_indexBuffer.shrink_to_fit();
 }
 
-const Material& ObjMesh::getMaterial() const{
-	return Material::GetMaterials()[m_materialIndex];
-}
-
 void ObjMesh::createInstancesStatic(std::vector<Matrix4f>& modelMTX){
 	m_instanceCount = modelMTX.size();
 	
@@ -2001,12 +1997,24 @@ void ObjMesh::updateInstances(std::vector<Matrix4f>& modelMTX) {
 }
 
 void ObjMesh::drawRaw() const {
+
+	if (m_materialIndex >= 0)
+		Material::GetMaterials()[m_materialIndex].updateMaterialUbo(BuiltInShader::materialUbo);
+
+	m_textureIndex >= 0 ? Material::GetTextures()[m_textureIndex].bind() : Texture::Unbind();
+
 	glBindVertexArray(m_vao);
 	glDrawElements(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
 }
 
 void ObjMesh::drawRawInstanced() {
+
+	if (m_materialIndex >= 0)
+		Material::GetMaterials()[m_materialIndex].updateMaterialUbo(BuiltInShader::materialUbo);
+
+	m_textureIndex >= 0 ? Material::GetTextures()[m_textureIndex].bind() : Texture::Unbind();
+
 	glBindVertexArray(m_vao);
 	glDrawElementsInstanced(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0, m_instanceCount);
 	glBindVertexArray(0);
@@ -2024,8 +2032,24 @@ int ObjMesh::getStride() {
 	return m_stride;
 }
 
-short ObjMesh::getMaterialIndex() {
+short ObjMesh::getMaterialIndex() const {
 	return m_materialIndex;
+}
+
+void ObjMesh::setMaterialIndex(short index) const {
+	m_materialIndex = index;
+}
+
+short ObjMesh::getTextureIndex()const {
+	return m_textureIndex;
+}
+
+void ObjMesh::setTextureIndex(short index) const {
+	m_textureIndex = index;
+}
+
+const Material& ObjMesh::getMaterial() const {
+	return Material::GetMaterials()[m_materialIndex];
 }
 
 unsigned int ObjMesh::getNumberOfTriangles() {

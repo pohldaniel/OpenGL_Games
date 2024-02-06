@@ -32,7 +32,7 @@
             "ambient": [0.0, 0.0, 0.0, 1.0],
             "diffuse": [0.6, 0.6, 0.6, 1.0],
             "specular": [0.3, 0.3, 0.3, 1.0],
-            "shininess": 2.0
+            "shininess": 8.0
         },
         {
             "ambient": [0.2, 0.2, 0.2, 1.0],
@@ -58,12 +58,12 @@
     "meshes": [
         {
             "path": "res/models/Ant.glb",
-			"materialIndex": 0,
+			"materialIndex": 1,
             "textureIndex": 0           
         },
         {
             "path": "res/models/CPU.glb",
-			"materialIndex": 0,
+			"materialIndex": 2,
             "textureIndex": 4           
         },
         {
@@ -97,7 +97,7 @@
         },
         {
             "path": "res/models/Platform.glb",
-			"materialIndex": 0           
+			"materialIndex": 3           
         }
     ],
 	"objSequences": [
@@ -115,12 +115,12 @@
             "tag": "flashlight & required",
             "type": 2,          
             "ambient":  [0.0, 0.0, 0.0, 1.0],
-            "diffuse":  [1.0, 1.0, 1.0, 1.0],
-			"specular": [1.0, 1.0, 1.0, 1.0],
-			"position": [0.0, 0.5,  2.5],           
+            "diffuse":  [0.5, 0.5, 0.5, 1.0],
+			"specular": [0.5, 0.5, 0.5, 1.0],
+			"position": [0.0, 0.5,  5.0],           
             "direction":[0.0, 0.0, -5.0],
             "angle": 22.5,           
-			"enabled": true
+			"enabled": false
         },
         {
             "type": 0,
@@ -138,7 +138,7 @@
 			"type": "player",
 			"tag": "player",
 			"mesh": 6,
-			"position": [0.0, 0.0, 0.0],
+			"position": [0.0, 0.0, 5.0],
 			"nodes": [
 				{
 					"type": "entity",
@@ -184,7 +184,7 @@
 			"position": [-21.3863, -0.978558, -1.92476],
             "rotation": [0.0, 262.062, 0.0],
             "scale": [1.0, 1.0, 1.0],
-			"addin": false
+			"guard": true
 		},
 		{
 			"type": "ant",
