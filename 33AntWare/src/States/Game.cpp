@@ -23,7 +23,8 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 
 	Scene scene = SceneManager::Get().getScene("scene");
 
-	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	//glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	glClearColor(0.494f, 0.686f, 0.796f, 1.0f);
 	glClearDepth(1.0f);
 
 	glGenBuffers(1, &BuiltInShader::lightUbo);
@@ -62,7 +63,7 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 	Bullet::Init(scene.getMeshes()[5]);
 
 	std::for_each(m_entitiesAfterClear.begin(), m_entitiesAfterClear.end(), std::mem_fn(&Entity::start));
-	std::for_each(m_entitiesAfterClear.begin(), m_entitiesAfterClear.end(), std::mem_fn(&Entity::start));
+	std::for_each(m_entities.begin(), m_entities.end(), std::mem_fn(&Entity::start));
 }
 
 Game::~Game() {

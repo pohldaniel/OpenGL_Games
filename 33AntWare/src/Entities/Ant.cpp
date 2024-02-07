@@ -5,13 +5,12 @@
 #include "HUD.h"
 
 Ant::Ant(const MeshSequence& meshSequence, AssimpModel* model, Player* target) : Entity(model), meshSequence(meshSequence), target(target) {
-	baseIndex = meshSequence.getNumberOfMeshes() - 1;
-	index = baseIndex;
 	m_isSubroot = true;
 }
 
 void Ant::start() {
-	const Material& material = Material::GetMaterials()[index];
+
+	const Material& material = Material::GetMaterials()[m_materialIndex];
 	m_material.setAmbient({ material.buffer.ambient[0], material.buffer.ambient[1], material.buffer.ambient[2], material.buffer.ambient[3] });
 	m_material.setDiffuse({ material.buffer.diffuse[0], material.buffer.diffuse[1], material.buffer.diffuse[2], material.buffer.diffuse[3] });
 	m_material.setSpecular({ material.buffer.specular[0], material.buffer.specular[1], material.buffer.specular[2], material.buffer.specular[3] });
@@ -58,7 +57,7 @@ void Ant::update(float dt) {
 	if (m_rigidbody.velocity.lengthSq() > 0.0f) {
 		animate(dt);
 	}else {
-		index = baseIndex;
+		m_anmIndex = m_meshIndex;
 	}
 
 	std::vector<Bullet>& bullets = target->getBullets();
@@ -94,17 +93,18 @@ void Ant::animate(float dt){
     }
 
     float progress = animTime / walkcycleLength;
-    progress *= baseIndex;
-    index = round(progress);
-    if (index >= baseIndex){
-        index = 0;
+    progress *= m_meshIndex;
+
+
+	m_anmIndex = round(progress);
+    if (m_anmIndex >= m_meshIndex){
+		m_anmIndex = 0;
     }
 }
 
 void Ant::draw() {
-
 	m_material.updateMaterialUbo(BuiltInShader::materialUbo);
-	meshSequence.draw(index, m_textureIndex);
+	meshSequence.draw(m_anmIndex, m_textureIndex);
 }
 
 void Ant::damage(unsigned int amount){

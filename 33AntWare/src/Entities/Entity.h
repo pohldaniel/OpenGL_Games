@@ -6,6 +6,7 @@
 #include <engine/AssimpModel.h>
 #include <engine/Material.h>
 #include <Scene/MeshNode.h>
+#include <Scene/SequenceNode.h>
 #include "Rigidbody.h"
 
 class Entity : public MeshNode {
@@ -31,12 +32,15 @@ public:
 	virtual void setMaterialIndex(short index) const;
 	short getTextureIndex() const;
 	void setTextureIndex(short index) const;
+	int getMeshIndex() const;
+	void setMeshIndex(int index) const;
 
 protected:
 
 	Rigidbody m_rigidbody;
 	mutable short m_materialIndex;
 	mutable short m_textureIndex;
+	mutable int m_meshIndex = 0;
 
 private:
 

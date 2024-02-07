@@ -227,6 +227,18 @@ SceneNode* Scene::addNode(const rapidjson::GenericObject<false, rapidjson::Value
 		case PLAYER:
 			player = new Player(camera, meshes[reference], Vector2f(-51.5f, -51.5f), Vector2f(51.5f, 51.5f));
 			player->setPosition(object["position"].GetArray()[0].GetFloat(), object["position"].GetArray()[1].GetFloat(), object["position"].GetArray()[2].GetFloat());
+			if (object.HasMember("materialIndex")) {
+				player->setMaterialIndex(object["materialIndex"].GetInt());
+			}
+
+			if (object.HasMember("textureIndex")) {
+				player->setTextureIndex(object["textureIndex"].GetInt());
+			}
+
+			if (object.HasMember("meshIndex")) {
+				player->setMeshIndex(object["meshIndex"].GetInt());
+			}
+
 			root->addChild(player);
 			child = player;
 			break;
@@ -237,9 +249,32 @@ SceneNode* Scene::addNode(const rapidjson::GenericObject<false, rapidjson::Value
 			   strcmp(object["tag"].GetString(), "hands") == 0 ||
 			   strcmp(object["tag"].GetString(), "gloves") == 0) {
 				entitiesAfterClear.push_back(new Entity(meshes[reference]));
+				if (object.HasMember("materialIndex")) {
+					entitiesAfterClear.back()->setMaterialIndex(object["materialIndex"].GetInt());
+				}
+
+				if (object.HasMember("textureIndex")) {
+					entitiesAfterClear.back()->setTextureIndex(object["textureIndex"].GetInt());
+				}
+
+				if (object.HasMember("meshIndex")) {
+					entitiesAfterClear.back()->setMeshIndex(object["meshIndex"].GetInt());
+				}
+
 				child = dynamic_cast<SceneNode*>(root->addChild(entitiesAfterClear.back()));
 			}else {
 				entities.push_back(new Entity(meshes[reference]));
+				if (object.HasMember("materialIndex")) {
+					entitiesAfterClear.back()->setMaterialIndex(object["materialIndex"].GetInt());
+				}
+
+				if (object.HasMember("textureIndex")) {
+					entitiesAfterClear.back()->setTextureIndex(object["textureIndex"].GetInt());
+				}
+
+				if (object.HasMember("meshIndex")) {
+					entitiesAfterClear.back()->setMeshIndex(object["meshIndex"].GetInt());
+				}
 				child = dynamic_cast<SceneNode*>(root->addChild(entities.back()));
 			}
 
@@ -258,6 +293,9 @@ SceneNode* Scene::addNode(const rapidjson::GenericObject<false, rapidjson::Value
 				entities.back()->setTextureIndex(object["textureIndex"].GetInt());
 			}
 
+			if (object.HasMember("meshIndex")) {
+				entities.back()->setMeshIndex(object["meshIndex"].GetInt());
+			}
 
 			entities.back()->setPosition(object["position"].GetArray()[0].GetFloat(), object["position"].GetArray()[1].GetFloat(), object["position"].GetArray()[2].GetFloat());
 			entities.back()->setOrientation(object["rotation"].GetArray()[0].GetFloat(), object["rotation"].GetArray()[1].GetFloat(), object["rotation"].GetArray()[2].GetFloat());

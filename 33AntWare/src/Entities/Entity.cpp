@@ -1,7 +1,7 @@
 #include "Entity.h"
 #include "Globals.h"
 
-Entity::Entity(AssimpModel* model) : MeshNode(model), m_isStatic(false), m_markForDelete(false), m_textureIndex(-1), m_materialIndex(-1){
+Entity::Entity(AssimpModel* model) : MeshNode(model), m_isStatic(false), m_markForDelete(false), m_textureIndex(-1), m_materialIndex(-1), m_meshIndex(0){
 
 }
 
@@ -79,4 +79,12 @@ short Entity::getTextureIndex()const {
 
 void Entity::setTextureIndex(short index) const {
 	m_textureIndex = index;
+}
+
+int Entity::getMeshIndex() const {
+	return m_meshIndex;
+}
+
+void Entity::setMeshIndex(int index) const {
+	m_meshIndex = index;
 }

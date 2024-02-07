@@ -41,8 +41,8 @@ private:
 	float walkcycleLength = 1.0f;
 	Player* target;
 
-	int index = 0;
-	int baseIndex = 0;
+	
+	int m_anmIndex = 0;
 	const MeshSequence& meshSequence;
 
 	unsigned int hp = 5;
