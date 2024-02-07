@@ -336,9 +336,6 @@
     <ClCompile Include="src\States\Game.cpp">
       <Filter>Source Files\States</Filter>
     </ClCompile>
-    <ClCompile Include="src\ObjSequence.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\Rigidbody.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -401,6 +398,9 @@
     </ClCompile>
     <ClCompile Include="src\Scene\SequenceNode.cpp">
       <Filter>Source Files\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MeshSequence.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -698,9 +698,6 @@
     <ClInclude Include="src\States\Game.h">
       <Filter>Source Files\States</Filter>
     </ClInclude>
-    <ClInclude Include="src\ObjSequence.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="HUD.h">
       <Filter>Source Files</Filter>
     </ClInclude>
@@ -769,6 +766,9 @@
     </ClInclude>
     <ClInclude Include="src\Scene\SequenceNode.h">
       <Filter>Source Files\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MeshSequence.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

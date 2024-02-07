@@ -8,8 +8,8 @@ struct BoundingBox {
 	BoundingBox();
 	BoundingBox(BoundingBox const& rhs);
 	BoundingBox(BoundingBox&& source);
-	BoundingBox &operator=(const BoundingBox& rhs);
-
+	BoundingBox& operator=(const BoundingBox& rhs);
+	BoundingBox& operator=(BoundingBox&& rhs);
 
 	BoundingBox(const Vector3f& min, const Vector3f& max);
 	BoundingBox(float min, float max);

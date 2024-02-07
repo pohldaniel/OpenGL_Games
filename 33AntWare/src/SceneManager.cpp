@@ -180,31 +180,25 @@ void Scene::parseMeshes(rapidjson::GenericArray<false, rapidjson::Value> array, 
 
 }
 
-ObjSequence& Scene::addObjSequence(const rapidjson::GenericObject<false, rapidjson::Value> object, ObjSequence& objSequence) {
-	objSequence.loadSequence(object["path"].GetString());
-	if (object.HasMember("materialIndex")) {
-		objSequence.setMaterialIndex(object["materialIndex"].GetInt());
-	}
-
-	if (object.HasMember("textureIndex")) {
-		objSequence.setTextureIndex(object["textureIndex"].GetInt());
-	}
+MeshSequence& Scene::addMeshSequence(const rapidjson::GenericObject<false, rapidjson::Value> object, MeshSequence& meshSequence) {
+	meshSequence.loadSequence(object["path"].GetString());
+	
 
 	if (object.HasMember("additionalMeshes")) {
 		rapidjson::GenericArray<false, rapidjson::Value> array = object["additionalMeshes"].GetArray();
 		for (rapidjson::Value::ValueIterator mesh = array.Begin(); mesh != array.End(); ++mesh) {
-			objSequence.addMesh(meshes[(*mesh).GetInt()]->getMeshes()[0]->getVertexBuffer(), meshes[(*mesh).GetInt()]->getMeshes()[0]->getIndexBuffer());
+			meshSequence.addMesh(meshes[(*mesh).GetInt()]->getMeshes()[0]->getVertexBuffer(), meshes[(*mesh).GetInt()]->getMeshes()[0]->getIndexBuffer());
 		}
 	}
 
-	objSequence.loadSequenceGpu();
-	objSequence.markForDelete();
-	return objSequence;
+	meshSequence.loadSequenceGpu();
+	meshSequence.markForDelete();
+	return meshSequence;
 }
 
-void Scene::parseObjSequences(rapidjson::GenericArray<false, rapidjson::Value> array, ObjSequence& objSequence) {
+void Scene::parseMeshSequences(rapidjson::GenericArray<false, rapidjson::Value> array, MeshSequence& meshSequence) {
 	for (rapidjson::Value::ValueIterator mesh = array.Begin(); mesh != array.End(); ++mesh) {
-		addObjSequence(mesh->GetObject(), objSequence);
+		addMeshSequence(mesh->GetObject(), meshSequence);
 	}
 }
 
@@ -255,7 +249,16 @@ SceneNode* Scene::addNode(const rapidjson::GenericObject<false, rapidjson::Value
 			child->setIsFixed(true);
 			break;
 		case ANT:
-			entities.push_back(new Ant(objSequence, meshes[0], player, materials[meshes[0]->getMesh(0)->getMaterialIndex()]));
+			entities.push_back(new Ant(meshSequence, meshes[0], player));
+			if (object.HasMember("materialIndex")) {
+				entities.back()->setMaterialIndex(object["materialIndex"].GetInt());
+			}
+
+			if (object.HasMember("textureIndex")) {
+				entities.back()->setTextureIndex(object["textureIndex"].GetInt());
+			}
+
+
 			entities.back()->setPosition(object["position"].GetArray()[0].GetFloat(), object["position"].GetArray()[1].GetFloat(), object["position"].GetArray()[2].GetFloat());
 			entities.back()->setOrientation(object["rotation"].GetArray()[0].GetFloat(), object["rotation"].GetArray()[1].GetFloat(), object["rotation"].GetArray()[2].GetFloat());
 			entities.back()->setScale(object["scale"].GetArray()[0].GetFloat(), object["scale"].GetArray()[1].GetFloat(), object["scale"].GetArray()[2].GetFloat());
@@ -302,7 +305,7 @@ void Scene::loadScene(std::string path) {
 	parseMaterials(doc["materials"].GetArray(), materials);
 	parseLights(doc["lights"].GetArray(), Light::GetLights());
 	parseMeshes(doc["meshes"].GetArray(), meshes);
-	parseObjSequences(doc["objSequences"].GetArray(), objSequence);
+	parseMeshSequences(doc["meshSequences"].GetArray(), meshSequence);
 	
 	root = new SceneNode();
 	parseNodes(doc["nodes"].GetArray(), root);
@@ -324,8 +327,8 @@ const std::vector<AssimpModel*>& Scene::getMeshes() const {
 	return meshes;
 }
 
-const ObjSequence& Scene::getObjSequence() const {
-	return objSequence;
+const MeshSequence& Scene::getMeshSequence() const {
+	return meshSequence;
 }
 
 Player* Scene::getPlayer() const {

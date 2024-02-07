@@ -1,8 +1,8 @@
 #include "SequenceNode.h"
 #include "DebugRenderer.h"
 
-SequenceNode::SequenceNode(const ObjSequence& objSequence) : SceneNode(), objSequence(objSequence), m_meshIndex(m_meshIndex),
-localBoundingBox(objSequence.getMeshes()[m_meshIndex].localBoundingBox)
+SequenceNode::SequenceNode(const MeshSequence& meshSequence) : SceneNode(), meshSequence(meshSequence), m_meshIndex(m_meshIndex),
+localBoundingBox(meshSequence.getMeshes()[m_meshIndex].localBoundingBox)
 {
 	OnBoundingBoxChanged();
 }

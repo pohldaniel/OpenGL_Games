@@ -14,12 +14,6 @@
 #include <Entities/Light.h>
 #include "HUD.h"
 
-enum LightType{
-	DIRECTIONAL,
-	POINTAW,
-	SPOT
-};
-
 class Game : public State, public MouseEventListener, public KeyboardEventListener {
 
 public:
@@ -46,19 +40,14 @@ private:
 	bool m_initUi = true;
 	bool m_drawUi = false;
 
-	ObjSequence m_objSequence;
+
 	Camera* m_camera;
 	Player* m_player;
-	Entity *m_muzzleE = nullptr, *m_gunE = nullptr, *m_handsE = nullptr, *m_glovesE = nullptr, *m_cpuE = nullptr, *m_platformE = nullptr;
-	Ant *m_ant1 = nullptr, *m_ant2 = nullptr, *m_ant3 = nullptr, *m_ant4 = nullptr, *m_ant5 = nullptr, *m_ant6 = nullptr, *m_ant7 = nullptr, *m_ant8 = nullptr, *m_ant9 = nullptr;
 	
-	std::vector<Ant*> m_ants;
 
 	std::vector<Entity*> m_entitiesAfterClear;
 	std::vector<Entity*> m_entities;
 
-	aw::Status gameStatus;
-
-	std::vector<AssimpModel*> m_meshes;
 	float m_offsetDistance = 0.0f;
+	aw::Status gameStatus;
 };

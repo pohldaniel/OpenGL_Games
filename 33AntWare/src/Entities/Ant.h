@@ -5,7 +5,7 @@
 
 #include <Entities/Entity.h>
 
-#include "ObjSequence.h"
+#include "MeshSequence.h"
 #include "Player.h"
 
 
@@ -13,9 +13,10 @@ class Ant : public Entity, private ICounter<Ant>{
 
 public:
     
-	Ant(const ObjSequence& objSequence, AssimpModel* model, Player* target, const Material& material);
+	Ant(const MeshSequence& meshSequence, AssimpModel* model, Player* target);
 	~Ant() = default;
 
+	void start() override;
 	void update(const float dt) override;
 	void draw() override;
 
@@ -24,6 +25,8 @@ public:
 	unsigned getHp();
 	void die();
 	bool timeToDestroy();
+	
+
 	Clock timeSinceDealtDamage;
 	using ICounter<Ant>::GetCount;
 
@@ -40,7 +43,7 @@ private:
 
 	int index = 0;
 	int baseIndex = 0;
-	const ObjSequence& objSequence;
+	const MeshSequence& meshSequence;
 
 	unsigned int hp = 5;
 	Clock timeSinceDamage, timeSinceLastAlphaDecrease;

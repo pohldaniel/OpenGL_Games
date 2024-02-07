@@ -4,16 +4,19 @@
 #include "Globals.h"
 #include "HUD.h"
 
-Ant::Ant(const ObjSequence& objSequence, AssimpModel* model, Player* target, const Material& material) : Entity(model), objSequence(objSequence), target(target) {
+Ant::Ant(const MeshSequence& meshSequence, AssimpModel* model, Player* target) : Entity(model), meshSequence(meshSequence), target(target) {
+	baseIndex = meshSequence.getNumberOfMeshes() - 1;
+	index = baseIndex;
+	m_isSubroot = true;
+}
+
+void Ant::start() {
+	const Material& material = Material::GetMaterials()[index];
 	m_material.setAmbient({ material.buffer.ambient[0], material.buffer.ambient[1], material.buffer.ambient[2], material.buffer.ambient[3] });
 	m_material.setDiffuse({ material.buffer.diffuse[0], material.buffer.diffuse[1], material.buffer.diffuse[2], material.buffer.diffuse[3] });
 	m_material.setSpecular({ material.buffer.specular[0], material.buffer.specular[1], material.buffer.specular[2], material.buffer.specular[3] });
 	m_material.setShininess(material.getShininess());
 	m_material.setAlpha(material.getAlpha());
-
-	baseIndex = objSequence.getNumberOfMeshes() - 1;
-	index = baseIndex;
-	m_isSubroot = true;
 }
 
 void Ant::update(float dt) {
@@ -99,8 +102,9 @@ void Ant::animate(float dt){
 }
 
 void Ant::draw() {
+
 	m_material.updateMaterialUbo(BuiltInShader::materialUbo);
-	objSequence.drawRaw(index);
+	meshSequence.draw(index, m_textureIndex);
 }
 
 void Ant::damage(unsigned int amount){

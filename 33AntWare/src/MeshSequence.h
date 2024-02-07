@@ -8,7 +8,7 @@
 #include <numeric>
 #include <array>
 
-class ObjSequence {
+class MeshSequence {
 
 	struct Mesh{		
 		unsigned int numberOfTriangles;
@@ -20,11 +20,11 @@ class ObjSequence {
 
 public:
 
-	ObjSequence();
-	ObjSequence(ObjSequence const& rhs);
-	ObjSequence(ObjSequence&& rhs);
-	ObjSequence &operator=(const ObjSequence& rhs);
-	~ObjSequence();
+	MeshSequence();
+	MeshSequence(MeshSequence const& rhs);
+	MeshSequence(MeshSequence&& rhs);
+	MeshSequence &operator=(const MeshSequence& rhs);
+	~MeshSequence();
 
 	const Matrix4f &getTransformationMatrix() const;
 	const Matrix4f &getInvTransformationMatrix();
@@ -36,7 +36,7 @@ public:
 	void translate(float dx, float dy, float dz);
 	void scale(float sx, float sy, float sz);
 
-	const void drawRaw(unsigned short frame) const;
+	const void draw(unsigned short frame, short textureIndex = -1, short materialIndex = -1) const;
 
 	void loadSequence(const char* path, bool isStacked = false, bool withoutNormals = false, bool generateSmoothNormals = false, bool generateFlatNormals = false, bool generateSmoothTangents = false, bool rescale = false);
 	void loadSequence(const char* path, Vector3f& axis, float degree, Vector3f& translate = Vector3f(0.0f, 0.0f, 0.0f), float scale = 1.0f, bool isStacked = false, bool withoutNormals = false, bool generateSmoothNormals = false, bool generateFlatNormals = false, bool generateSmoothTangents = false, bool rescale = false);
@@ -47,10 +47,6 @@ public:
 	void cleanup();
 	void markForDelete();
 	const unsigned int getNumberOfMeshes() const;
-	short getMaterialIndex();
-	void setMaterialIndex(short index) const;
-	short getTextureIndex();
-	void setTextureIndex(short index) const;
 	const std::vector<Mesh>& getMeshes() const;
 
 private:
@@ -66,7 +62,6 @@ private:
 	unsigned int m_vbo;
 	unsigned int m_ibo;
 
-	mutable short m_materialIndex = -1;
-	mutable short m_textureIndex = -1;
+	
 	bool m_markForDelete = false;
 };

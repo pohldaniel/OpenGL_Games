@@ -100,10 +100,9 @@
 			"materialIndex": 3           
         }
     ],
-	"objSequences": [
+	"meshSequences": [
 		{
             "path": "res/animations/ant_walkcycle",
-			"textureIndex": 0,
 			"additionalMeshes": [
 				0
 			]			
@@ -181,6 +180,8 @@
 			"type": "ant",
 			"tag": "ant1",
 			"sequence": 0,
+			"textureIndex": 0,
+			"materialIndex": 1, 
 			"position": [-21.3863, -0.978558, -1.92476],
             "rotation": [0.0, 262.062, 0.0],
             "scale": [1.0, 1.0, 1.0],
@@ -190,6 +191,8 @@
 			"type": "ant",
 			"tag": "ant2",
 			"sequence": 0,
+			"textureIndex": 0,
+			"materialIndex": 1,
 			"position": [-23.6894, -0.978558, 34.7609],
             "rotation": [0.0, -11.0968, 0.0],
             "scale": [1.0, 1.0, 1.0]
@@ -198,6 +201,8 @@
 			"type": "ant",
 			"tag": "ant3",
 			"sequence": 0,
+			"textureIndex": 0,
+			"materialIndex": 1,
 			"position": [23.6894, -0.978558, 34.7609],
             "rotation": [0.0, 18.5357, 0.0],
             "scale": [1.0, 1.0, 1.0]
@@ -206,6 +211,8 @@
 			"type": "ant",
 			"tag": "ant4",
 			"sequence": 0,
+			"textureIndex": 0,
+			"materialIndex": 1,
 			"position": [33.3955, -0.978558, 16.0068],
             "rotation": [0.0, 86.8875, 0.0],
             "scale": [1.0, 1.0, 1.0]
@@ -214,6 +221,8 @@
 			"type": "ant",
 			"tag": "ant5",
 			"sequence": 0,
+			"textureIndex": 0,
+			"materialIndex": 1,
 			"position": [33.0665, -0.978558, -18.3758],
             "rotation": [0.0, 110.727, 0.0],
             "scale": [1.0, 1.0, 1.0]
@@ -222,6 +231,8 @@
 			"type": "ant",
 			"tag": "ant6",
 			"sequence": 0,
+			"textureIndex": 0,
+			"materialIndex": 1,
 			"position": [16.78, -0.978558, -35.4848],
             "rotation": [0.0, 169.316, 0.0],
             "scale": [1.0, 1.0, 1.0]
@@ -230,6 +241,8 @@
 			"type": "ant",
 			"tag": "ant7",
 			"sequence": 0,
+			"textureIndex": 0,
+			"materialIndex": 1,
 			"position": [-17.9316, -0.978558, -35.1558],
             "rotation": [0.0, 193.526, 0.0],
             "scale": [1.0, 1.0, 1.0]
@@ -238,6 +251,8 @@
 			"type": "ant",
 			"tag": "ant8",
 			"sequence": 0,
+			"textureIndex": 0,
+			"materialIndex": 1,
 			"position": [-33.889, -0.978558, -20.1854],
             "rotation": [0.0, 238.843, 0.0],
             "scale": [1.0, 1.0, 1.0]
@@ -246,6 +261,8 @@
 			"type": "ant",
 			"tag": "ant9",
 			"sequence": 0,
+			"textureIndex": 0,
+			"materialIndex": 1,
 			"position": [-35.6987, -0.978558, 14.5262],
             "rotation": [0.0, 272.3, 0.0],
             "scale": [1.0, 1.0, 1.0]

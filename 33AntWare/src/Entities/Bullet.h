@@ -14,6 +14,7 @@ public:
 	Bullet(Bullet const& rhs);
 	Bullet(Bullet&& rhs);
 	Bullet &operator=(const Bullet& rhs);
+	Bullet& operator=(Bullet&& rhs);
 
 	void start();
 	void draw();

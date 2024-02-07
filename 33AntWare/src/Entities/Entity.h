@@ -15,6 +15,7 @@ public:
 	Entity(AssimpModel* model);
 	virtual ~Entity() = default;
 
+	virtual void start();
 	virtual void draw();
 	virtual void update(const float dt);
 	virtual void fixedUpdate(float fdt);
@@ -26,13 +27,20 @@ public:
 	void setRigidbody(const Rigidbody& rigidbody);
 	void setIsStatic(bool isStatic);
 
+	short getMaterialIndex() const;
+	virtual void setMaterialIndex(short index) const;
+	short getTextureIndex() const;
+	void setTextureIndex(short index) const;
+
 protected:
 
 	Rigidbody m_rigidbody;
+	mutable short m_materialIndex;
+	mutable short m_textureIndex;
 
 private:
 
 	bool m_disabled;
 	bool m_isStatic;
-	bool m_markForDelete;
+	bool m_markForDelete;	
 };

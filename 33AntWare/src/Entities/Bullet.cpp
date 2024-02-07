@@ -23,6 +23,12 @@ Bullet& Bullet::operator=(const Bullet& rhs) {
 	return *this;
 }
 
+Bullet& Bullet::operator=(Bullet&& rhs) {
+	Object::operator=(rhs);
+	m_rigidbody = rhs.m_rigidbody;
+	return *this;
+}
+
 void Bullet::start() {
 	timer.reset();
 }

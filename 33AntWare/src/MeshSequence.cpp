@@ -1,7 +1,7 @@
 #include <GL/glew.h>
-#include "ObjSequence.h"
+#include "MeshSequence.h"
 
-ObjSequence::ObjSequence() {
+MeshSequence::MeshSequence() {
 	m_numberOfMeshes = 0;
 	m_stride = 0;
 
@@ -14,45 +14,39 @@ ObjSequence::ObjSequence() {
 	m_ibo = 0;
 }
 
-ObjSequence::ObjSequence(ObjSequence const& rhs) {
+MeshSequence::MeshSequence(MeshSequence const& rhs) {
 	m_vao = rhs.m_vao;
 	m_vbo = rhs.m_vbo;
 	m_ibo = rhs.m_ibo;
 	m_transform = rhs.m_transform;
 	m_stride = rhs.m_stride;
 	m_meshes = rhs.m_meshes;
-	m_materialIndex = rhs.m_materialIndex;
-	m_textureIndex = rhs.m_textureIndex;
 	m_numberOfMeshes = rhs.m_numberOfMeshes;
 	m_numberOfVertices = rhs.m_numberOfVertices;
 	m_numberOfIndices = rhs.m_numberOfIndices;
 	m_markForDelete = false;	
 }
 
-ObjSequence::ObjSequence(ObjSequence&& rhs) {
+MeshSequence::MeshSequence(MeshSequence&& rhs) {
 	m_vao = rhs.m_vao;
 	m_vbo = rhs.m_vbo;
 	m_ibo = rhs.m_ibo;
 	m_transform = rhs.m_transform;
 	m_stride = rhs.m_stride;
 	m_meshes = rhs.m_meshes;
-	m_materialIndex = rhs.m_materialIndex;
-	m_textureIndex = rhs.m_textureIndex;
 	m_numberOfMeshes = rhs.m_numberOfMeshes;
 	m_numberOfVertices = rhs.m_numberOfVertices;
 	m_numberOfIndices = rhs.m_numberOfIndices;
 	m_markForDelete = false;
 }
 
-ObjSequence& ObjSequence::operator=(const ObjSequence& rhs) {
+MeshSequence& MeshSequence::operator=(const MeshSequence& rhs) {
 	m_vao = rhs.m_vao;
 	m_vbo = rhs.m_vbo;
 	m_ibo = rhs.m_ibo;
 	m_transform = rhs.m_transform;
 	m_stride = rhs.m_stride;
 	m_meshes = rhs.m_meshes;
-	m_materialIndex = rhs.m_materialIndex;
-	m_textureIndex = rhs.m_textureIndex;
 	m_numberOfMeshes = rhs.m_numberOfMeshes;
 	m_numberOfVertices = rhs.m_numberOfVertices;
 	m_numberOfIndices = rhs.m_numberOfIndices;
@@ -60,13 +54,13 @@ ObjSequence& ObjSequence::operator=(const ObjSequence& rhs) {
 	return *this;
 }
 
-ObjSequence::~ObjSequence() {
+MeshSequence::~MeshSequence() {
 	if (m_markForDelete) {
 		cleanup();
 	}
 }
 
-void ObjSequence::cleanup() {
+void MeshSequence::cleanup() {
 
 	if (m_vao) {
 		glDeleteVertexArrays(1, &m_vao);
@@ -91,47 +85,47 @@ void ObjSequence::cleanup() {
 	m_meshes.shrink_to_fit();
 }
 
-void ObjSequence::markForDelete() {
+void MeshSequence::markForDelete() {
 	m_markForDelete = true;
 }
 
-const std::vector<ObjSequence::Mesh>& ObjSequence::getMeshes() const {
+const std::vector<MeshSequence::Mesh>& MeshSequence::getMeshes() const {
 	return m_meshes;
 }
 
-void ObjSequence::setPosition(float x, float y, float z) {
+void MeshSequence::setPosition(float x, float y, float z) {
 	m_transform.setPosition(x, y, z);
 }
 
-void ObjSequence::rotate(const Vector3f &axis, float degrees) {
+void MeshSequence::rotate(const Vector3f &axis, float degrees) {
 	m_transform.rotate(axis, degrees);
 }
 
-void ObjSequence::rotate(float pitch, float yaw, float roll) {
+void MeshSequence::rotate(float pitch, float yaw, float roll) {
 	m_transform.rotate(pitch, yaw, roll);
 }
 
-void ObjSequence::translate(float dx, float dy, float dz) {
+void MeshSequence::translate(float dx, float dy, float dz) {
 	m_transform.translate(dx, dy, dz);
 }
 
-void ObjSequence::scale(float sx, float sy, float sz) {
+void MeshSequence::scale(float sx, float sy, float sz) {
 	m_transform.scale(sx, sy, sz);
 }
 
-const Matrix4f &ObjSequence::getTransformationMatrix() const {
+const Matrix4f &MeshSequence::getTransformationMatrix() const {
 	return m_transform.getTransformationMatrix();
 }
 
-const Matrix4f &ObjSequence::getInvTransformationMatrix() {
+const Matrix4f &MeshSequence::getInvTransformationMatrix() {
 	return m_transform.getInvTransformationMatrix();
 }
 
-void ObjSequence::loadSequence(const char* _path, bool isStacked, bool withoutNormals, bool generateSmoothNormals, bool generateFlatNormals, bool generateSmoothTangents, bool rescale) {
+void MeshSequence::loadSequence(const char* _path, bool isStacked, bool withoutNormals, bool generateSmoothNormals, bool generateFlatNormals, bool generateSmoothTangents, bool rescale) {
 	return loadSequence(_path, Vector3f(0.0, 1.0, 0.0), 0.0, Vector3f(0.0, 0.0, 0.0), 1.0, isStacked, withoutNormals, generateSmoothNormals, generateFlatNormals, generateSmoothTangents, rescale);
 }
 
-void ObjSequence::loadSequence(const char* _path, Vector3f& axis, float degree, Vector3f& translate, float scale, bool isStacked, bool withoutNormals, bool generateSmoothNormals, bool generateFlatNormals, bool generateSmoothTangents, bool rescale) {
+void MeshSequence::loadSequence(const char* _path, Vector3f& axis, float degree, Vector3f& translate, float scale, bool isStacked, bool withoutNormals, bool generateSmoothNormals, bool generateFlatNormals, bool generateSmoothTangents, bool rescale) {
 
 	std::vector<std::array<int, 10>> face;
 
@@ -476,7 +470,7 @@ void ObjSequence::loadSequence(const char* _path, Vector3f& axis, float degree, 
 	m_numberOfIndices = m_indexBuffer.size();
 }
 
-void ObjSequence::addMesh(std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer) {
+void MeshSequence::addMesh(std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer) {
 	m_numberOfMeshes++;
 	m_meshes.push_back({ static_cast<unsigned int>(indexBuffer.size()) / 3, 0u, 0u, 0u });
 	m_meshes.back().baseIndex = m_numberOfIndices;
@@ -490,7 +484,7 @@ void ObjSequence::addMesh(std::vector<float>& vertexBuffer, std::vector<unsigned
 	m_numberOfIndices = m_indexBuffer.size();
 }
 
-void ObjSequence::addMeshAfter(std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer) {
+void MeshSequence::addMeshAfter(std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer) {
 	
 	m_numberOfMeshes++;
 	m_meshes.push_back({ static_cast<unsigned int>(indexBuffer.size()) / 3, 0u, 0u, 0u });
@@ -573,39 +567,22 @@ void ObjSequence::addMeshAfter(std::vector<float>& vertexBuffer, std::vector<uns
 
 }
 
-const unsigned int ObjSequence::getNumberOfMeshes() const{
+const unsigned int MeshSequence::getNumberOfMeshes() const{
 	return m_numberOfMeshes;
 }
 
-void ObjSequence::loadSequenceGpu() {
+void MeshSequence::loadSequenceGpu() {
 	ObjModel::CreateBuffer(m_vertexBuffer, m_indexBuffer, m_vao, m_vbo, m_ibo, m_stride);
 }
 
-const void ObjSequence::drawRaw(unsigned short frame) const{
+const void MeshSequence::draw(unsigned short frame, short textureIndex, short materialIndex) const {
 
-	if (m_materialIndex >= 0)
-		Material::GetMaterials()[m_materialIndex].updateMaterialUbo(BuiltInShader::materialUbo);
+	if(materialIndex >= 0)
+		Material::GetMaterials()[materialIndex].updateMaterialUbo(BuiltInShader::materialUbo);
 
-	if (m_textureIndex >= 0)
-		Material::GetTextures()[m_textureIndex].bind();
+	textureIndex >= 0 ? Material::GetTextures()[textureIndex].bind() : Texture::Unbind();
 
 	glBindVertexArray(m_vao);
 	glDrawElementsBaseVertex(GL_TRIANGLES, m_meshes[frame].drawCount, GL_UNSIGNED_INT, (void*)(sizeof(unsigned int) * m_meshes[frame].baseIndex), m_meshes[frame].baseVertex);
 	glBindVertexArray(0);
-}
-
-short ObjSequence::getMaterialIndex() {
-	return m_materialIndex;
-}
-
-void ObjSequence::setMaterialIndex(short index) const {
-	m_materialIndex = index;
-}
-
-short ObjSequence::getTextureIndex() {
-	return m_textureIndex;
-}
-
-void ObjSequence::setTextureIndex(short index) const {
-	m_textureIndex = index;
 }

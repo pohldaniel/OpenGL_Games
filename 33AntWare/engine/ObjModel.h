@@ -80,14 +80,13 @@ private:
 };
 
 class ObjMesh;
-class ObjSequence;
 class ObjModel {
 
 	friend ObjMesh;
 	friend BoundingBox;
 	friend BoundingSphere;
 	friend ConvexHull;
-	friend ObjSequence;
+	friend class MeshSequence;
 
 public:
 

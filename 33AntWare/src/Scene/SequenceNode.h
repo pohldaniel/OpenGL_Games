@@ -1,13 +1,13 @@
 #pragma once
 #include <engine/BoundingBox.h>
 #include <Scene/SceneNode.h>
-#include "ObjSequence.h"
+#include "MeshSequence.h"
 
 class SequenceNode : public SceneNode {
 
 public:
 
-	SequenceNode(const ObjSequence& objSequence);
+	SequenceNode(const MeshSequence& meshSequence);
 
 	void OnTransformChanged() override;
 
@@ -21,7 +21,7 @@ public:
 
 	const BoundingBox& getWorldBoundingBox() const;
 	const BoundingBox& getLocalBoundingBox() const;
-
+	
 private:
 
 	void setDrawDebug(bool drawDebug);
@@ -32,5 +32,5 @@ private:
 	mutable bool m_worldBoundingBoxDirty;
 
 	const BoundingBox& localBoundingBox;
-	const ObjSequence& objSequence;
+	const MeshSequence& meshSequence;
 };

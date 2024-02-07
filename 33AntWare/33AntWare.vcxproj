@@ -183,9 +183,9 @@
     <ClCompile Include="src\Entities\Light.cpp" />
     <ClCompile Include="src\Entities\Player.cpp" />
     <ClCompile Include="src\LoadingManager.cpp" />
+    <ClCompile Include="src\MeshSequence.cpp" />
     <ClCompile Include="src\MousePickerFBO.cpp" />
     <ClCompile Include="src\Objects\MeshNew.cpp" />
-    <ClCompile Include="src\ObjSequence.cpp" />
     <ClCompile Include="src\Rigidbody.cpp" />
     <ClCompile Include="src\SceneManager.cpp" />
     <ClCompile Include="src\Scene\BaseNode.cpp" />
@@ -351,9 +351,9 @@
     <ClInclude Include="src\Entities\Player.h" />
     <ClInclude Include="src\Globals.h" />
     <ClInclude Include="src\LoadingManager.h" />
+    <ClInclude Include="src\MeshSequence.h" />
     <ClInclude Include="src\MousePickerFBO.h" />
     <ClInclude Include="src\Objects\MeshNew.h" />
-    <ClInclude Include="src\ObjSequence.h" />
     <ClInclude Include="src\RandomColor.h" />
     <ClInclude Include="src\Rigidbody.h" />
     <ClInclude Include="src\SceneManager.h" />

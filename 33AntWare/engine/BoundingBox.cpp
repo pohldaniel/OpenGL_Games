@@ -18,6 +18,12 @@ BoundingBox& BoundingBox::operator=(const BoundingBox& rhs) {
 	return *this;
 }
 
+BoundingBox& BoundingBox::operator=(BoundingBox&& rhs) {
+	min = rhs.min;
+	max = rhs.max;
+	return *this;
+}
+
 BoundingBox::BoundingBox(const Vector3f& min, const Vector3f& max) : min(min), max(max){
 
 }
