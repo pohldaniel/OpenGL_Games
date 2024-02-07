@@ -49,7 +49,7 @@ public:
 	const std::vector<AssimpModel*>& getMeshes() const;
 	const std::vector<Entity*>& getEntitiesAfterClear() const;
 	const std::vector<Entity*>& getEntities() const;
-	const MeshSequence& getMeshSequence() const;
+	const std::vector <MeshSequence>& getMeshSequences() const;
 	Player* getPlayer() const;
 
 	void parseCamera(rapidjson::GenericObject<false, rapidjson::Value> object, Camera& camera);
@@ -57,14 +57,14 @@ public:
 	void parseMaterials(rapidjson::GenericArray<false, rapidjson::Value> array, std::vector<Material>& materials);
 	void parseLights(rapidjson::GenericArray<false, rapidjson::Value> array, std::vector<Light>& lights);
 	void parseMeshes(rapidjson::GenericArray<false, rapidjson::Value> array, std::vector<AssimpModel*>& meshes);
-	void parseMeshSequences(rapidjson::GenericArray<false, rapidjson::Value> array, MeshSequence& meshSequence);
+	void parseMeshSequences(rapidjson::GenericArray<false, rapidjson::Value> array, std::vector<MeshSequence>& meshSequences);
 	void parseNodes(rapidjson::GenericArray<false, rapidjson::Value> array, SceneNode*& root);
 
 	Texture& addTexture(std::string path, std::vector<Texture>& texures);
 	Material& addMaterial(const MaterialBuffer& materialBuffer, std::vector<Material>& materials);
 	Light& addLight(const LightBuffer& lightBuffer, std::vector<Light>& lights);
 	AssimpModel* addMesh(const rapidjson::GenericObject<false, rapidjson::Value> object, std::vector<AssimpModel*>& meshes);
-	MeshSequence& addMeshSequence(const rapidjson::GenericObject<false, rapidjson::Value> object, MeshSequence& meshSequence);
+	MeshSequence& addMeshSequence(const rapidjson::GenericObject<false, rapidjson::Value> object, std::vector<MeshSequence>& meshSequences);
 	SceneNode* addNode(const rapidjson::GenericObject<false, rapidjson::Value> object, SceneNode*& root);
 	Types resolveType(std::string type);
 
@@ -73,7 +73,7 @@ public:
 	std::vector<Texture> textures;
 	std::vector<Material> materials;
 	std::vector<AssimpModel*> meshes;
-	MeshSequence meshSequence;
+	std::vector <MeshSequence> meshSequences;
 	SceneNode* root;
 	Player* player;
 

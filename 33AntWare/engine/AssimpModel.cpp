@@ -229,6 +229,7 @@ bool AssimpModel::loadModel(const char* a_filename, bool isStacked, bool generat
 
 	m_aabb.min = Vector3f(xmin, ymin, zmin);
 	m_aabb.max = Vector3f(xmax, ymax, zmax);
+
 	return true;
 }
 

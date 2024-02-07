@@ -2,12 +2,13 @@
 #include <engine/BoundingBox.h>
 #include <Scene/SceneNode.h>
 #include "MeshSequence.h"
+#include <engine/AssimpModel.h>
 
 class SequenceNode : public SceneNode {
 
 public:
 
-	SequenceNode(const MeshSequence& meshSequence);
+	SequenceNode(const MeshSequence& meshSequence, int meshIndex);
 
 	void OnTransformChanged() override;
 
@@ -21,16 +22,21 @@ public:
 
 	const BoundingBox& getWorldBoundingBox() const;
 	const BoundingBox& getLocalBoundingBox() const;
-	
-private:
-
 	void setDrawDebug(bool drawDebug);
 
-	bool m_drawDebug;
-	int m_meshIndex;
+	int getMeshIndex() const;
+
+protected:
+
+	const MeshSequence& meshSequence;
+	mutable int m_meshIndex;
+
+private:
+
 	mutable BoundingBox m_worldBoundingBox;
 	mutable bool m_worldBoundingBoxDirty;
+	bool m_drawDebug;
 
 	const BoundingBox& localBoundingBox;
-	const MeshSequence& meshSequence;
+	
 };

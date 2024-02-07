@@ -1,7 +1,7 @@
 #include "Entity.h"
 #include "Globals.h"
 
-Entity::Entity(AssimpModel* model) : MeshNode(model), m_isStatic(false), m_markForDelete(false), m_textureIndex(-1), m_materialIndex(-1), m_meshIndex(0){
+Entity::Entity(const MeshSequence& meshSequence, int meshIndex) : SequenceNode(meshSequence, meshIndex), m_isStatic(false), m_markForDelete(false), m_textureIndex(-1), m_materialIndex(-1){
 
 }
 
@@ -10,8 +10,7 @@ void Entity::start() {
 }
 
 void Entity::draw() {	
-	if(m_model)
-		m_model->drawRaw();
+	meshSequence.draw(m_meshIndex, m_textureIndex, m_materialIndex);
 }
 
 void Entity::update(const float dt) {
@@ -46,7 +45,7 @@ void Entity::fixedUpdate(float fdt) {
 }
 
 const Material& Entity::getMaterial() const{
-	return m_model->getMeshes()[0]->getMaterial();
+	return Material::GetMaterials()[m_materialIndex];
 }
 
 void Entity::markForDelete() {
@@ -79,12 +78,4 @@ short Entity::getTextureIndex()const {
 
 void Entity::setTextureIndex(short index) const {
 	m_textureIndex = index;
-}
-
-int Entity::getMeshIndex() const {
-	return m_meshIndex;
-}
-
-void Entity::setMeshIndex(int index) const {
-	m_meshIndex = index;
 }

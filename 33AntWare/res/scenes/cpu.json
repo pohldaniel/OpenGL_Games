@@ -136,7 +136,6 @@
 		{
 			"type": "player",
 			"tag": "player",
-			"mesh": 6,
 			"sequence": 0,
 			"meshIndex": 47,
 			"materialIndex": 0,
@@ -145,7 +144,6 @@
 				{
 					"type": "entity",
 					"tag": "muzzle",
-					"mesh": 7,
 					"sequence": 0,
 					"meshIndex": 48,
                     "textureIndex": 6,
@@ -154,7 +152,6 @@
 				{
 					"type": "entity",
 					"tag": "gun",
-					"mesh": 2,
 					"sequence": 0,
 					"meshIndex": 43,
                     "textureIndex": 1,
@@ -163,7 +160,6 @@
 				{
 					"type": "entity",
 					"tag": "hands",
-					"mesh": 3,
 					"sequence": 0,
 					"meshIndex": 44,
                     "textureIndex": 2,
@@ -171,8 +167,7 @@
 				},
 				{
 					"type": "entity",
-					"tag": "gloves",
-					"mesh": 4,					
+					"tag": "gloves",				
 					"sequence": 0,
 					"meshIndex": 45,
                     "textureIndex": 3,
@@ -188,7 +183,6 @@
 		{
 			"type": "entity",
 			"tag": "cpu",
-			"mesh": 1,
 			"sequence": 0,
             "meshIndex": 42,
             "textureIndex": 4,
@@ -197,7 +191,6 @@
 		{
 			"type": "entity",
 			"tag": "platform",
-			"mesh": 8,
             "sequence": 0,
             "meshIndex": 49,
             "materialIndex": 3			
@@ -240,7 +233,7 @@
 			"type": "ant",
 			"tag": "ant4",
 			"sequence": 0,
-			"mesh2": 41,
+			"meshIndex": 41,
 			"textureIndex": 0,
 			"materialIndex": 1,
 			"position": [33.3955, -0.978558, 16.0068],

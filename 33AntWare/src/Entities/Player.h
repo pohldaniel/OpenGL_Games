@@ -15,7 +15,7 @@ class Player : public Entity, public MouseEventListener {
 
 public:
 
-	Player(Camera& camera, AssimpModel* model, const Vector2f& mapMinLimit, const Vector2f& mapMaxLimit);
+	Player(Camera& camera, const MeshSequence& meshSequence, int meshIndex, const Vector2f& mapMinLimit, const Vector2f& mapMaxLimit);
 	~Player();
 
 	float speed = 10.0f, runningSpeed = 20.0f;

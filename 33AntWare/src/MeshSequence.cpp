@@ -471,8 +471,21 @@ void MeshSequence::loadSequence(const char* _path, Vector3f& axis, float degree,
 }
 
 void MeshSequence::addMesh(std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer) {
+	float xmin = FLT_MAX, ymin = FLT_MAX, zmin = FLT_MAX;
+	float xmax = -FLT_MAX, ymax = -FLT_MAX, zmax = -FLT_MAX;
+
+	for (std::vector<float>::iterator pit = vertexBuffer.begin(); pit != vertexBuffer.end(); pit = pit + m_stride) {
+		xmin = (std::min)(*pit, xmin);
+		ymin = (std::min)(*(pit + 1), ymin);
+		zmin = (std::min)(*(pit + 2), zmin);
+
+		xmax = (std::max)(*pit, xmax);
+		ymax = (std::max)(*(pit + 1), ymax);
+		zmax = (std::max)(*(pit + 2), zmax);
+	}
+
 	m_numberOfMeshes++;
-	m_meshes.push_back({ static_cast<unsigned int>(indexBuffer.size()) / 3, 0u, 0u, 0u });
+	m_meshes.push_back({ static_cast<unsigned int>(indexBuffer.size()) / 3, 0u, 0u, 0u,BoundingBox({xmin, ymin, zmin},{xmax, ymax, zmax}) });
 	m_meshes.back().baseIndex = m_numberOfIndices;
 	m_meshes.back().baseVertex = m_numberOfVertices;
 	m_meshes.back().drawCount = indexBuffer.size();

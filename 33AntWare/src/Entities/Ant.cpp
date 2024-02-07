@@ -4,12 +4,11 @@
 #include "Globals.h"
 #include "HUD.h"
 
-Ant::Ant(const MeshSequence& meshSequence, AssimpModel* model, Player* target) : Entity(model), meshSequence(meshSequence), target(target) {
+Ant::Ant(const MeshSequence& meshSequence, int meshIndex, Player* target) : Entity(meshSequence, meshIndex), target(target) {
 	m_isSubroot = true;
 }
 
 void Ant::start() {
-
 	const Material& material = Material::GetMaterials()[m_materialIndex];
 	m_material.setAmbient({ material.buffer.ambient[0], material.buffer.ambient[1], material.buffer.ambient[2], material.buffer.ambient[3] });
 	m_material.setDiffuse({ material.buffer.diffuse[0], material.buffer.diffuse[1], material.buffer.diffuse[2], material.buffer.diffuse[3] });

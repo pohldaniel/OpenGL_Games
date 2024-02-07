@@ -7,7 +7,7 @@
 #include "HUD.h"
 #include "Light.h"
 
-Player::Player(Camera& camera, AssimpModel* model, const Vector2f& mapMinLimit, const Vector2f& mapMaxLimit) : Entity(model),
+Player::Player(Camera& camera, const MeshSequence& meshSequence, int meshIndex, const Vector2f& mapMinLimit, const Vector2f& mapMaxLimit) : Entity(meshSequence, meshIndex),
 	camera(camera),
 	mapMinLimit(mapMinLimit),
 	mapMaxLimit(mapMaxLimit) {
@@ -172,7 +172,7 @@ void Player::fixedUpdate(float fdt) {
 }
 
 void Player::dispatchBullet() {
-	dynamic_cast<Entity*>(m_children.front().get())->getModel()->getMesh()->setTextureIndex(7);
+	dynamic_cast<Entity*>(m_children.front().get())->setTextureIndex(7);
 	bullets.push_back(Bullet({ 0.0f, 0.0f, -1.0f }));
 	bullets.back().setOrientation(m_orientation);
 	bullets.back().setPosition(m_position);
@@ -221,7 +221,7 @@ void Player::recoilAnim(float deltaTime) {
 		}else {
 			childrenEular[0] -= recoilImpact * deltaTime;
 			childrenTranslation[2] -= recoilImpact * deltaTime * 0.05f;
-			dynamic_cast<Entity*>(m_children.front().get())->getModel()->getMesh()->setTextureIndex(6);
+			dynamic_cast<Entity*>(m_children.front().get())->setTextureIndex(6);
 		}
 	}
 

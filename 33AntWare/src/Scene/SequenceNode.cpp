@@ -1,14 +1,13 @@
 #include "SequenceNode.h"
 #include "DebugRenderer.h"
 
-SequenceNode::SequenceNode(const MeshSequence& meshSequence) : SceneNode(), meshSequence(meshSequence), m_meshIndex(m_meshIndex),
-localBoundingBox(meshSequence.getMeshes()[m_meshIndex].localBoundingBox)
-{
+SequenceNode::SequenceNode(const MeshSequence& meshSequence, int meshIndex) : SceneNode(), meshSequence(meshSequence), m_meshIndex(meshIndex), m_drawDebug(true),
+localBoundingBox(meshSequence.getMeshes()[m_meshIndex].localBoundingBox) {
 	OnBoundingBoxChanged();
 }
 
 void SequenceNode::OnWorldBoundingBoxUpdate() const {
-	m_worldBoundingBox = localBoundingBox.transformed(getWorldTransformation());
+	m_worldBoundingBox = getLocalBoundingBox().transformed(getWorldTransformation());
 }
 
 void SequenceNode::OnRenderOBB(const Vector4f& color) {
@@ -53,4 +52,8 @@ const BoundingBox& SequenceNode::getLocalBoundingBox() const {
 
 void SequenceNode::setDrawDebug(bool drawDebug) {
 	m_drawDebug = drawDebug;
+}
+
+int SequenceNode::getMeshIndex() const {
+	return m_meshIndex;
 }

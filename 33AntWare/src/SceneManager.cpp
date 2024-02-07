@@ -180,10 +180,12 @@ void Scene::parseMeshes(rapidjson::GenericArray<false, rapidjson::Value> array, 
 
 }
 
-MeshSequence& Scene::addMeshSequence(const rapidjson::GenericObject<false, rapidjson::Value> object, MeshSequence& meshSequence) {
+MeshSequence& Scene::addMeshSequence(const rapidjson::GenericObject<false, rapidjson::Value> object, std::vector<MeshSequence>& meshSequences) {
+	meshSequences.resize(meshSequences.size() + 1);
+	MeshSequence& meshSequence = meshSequences.back();
+	
 	meshSequence.loadSequence(object["path"].GetString());
 	
-
 	if (object.HasMember("additionalMeshes")) {
 		rapidjson::GenericArray<false, rapidjson::Value> array = object["additionalMeshes"].GetArray();
 		for (rapidjson::Value::ValueIterator mesh = array.Begin(); mesh != array.End(); ++mesh) {
@@ -191,15 +193,22 @@ MeshSequence& Scene::addMeshSequence(const rapidjson::GenericObject<false, rapid
 		}
 	}
 
+	//ant
+	const BoundingBox& box = meshSequence.getMeshes()[41].localBoundingBox;
+	box.inset(Vector3f(-(2.0f * box.min[0] + 2.5f), 0.6f, 1.3f), Vector3f(2.0f * box.max[0] - 2.5f, 0.1f, 0.5f));
+
+	//player
+	meshSequence.getMeshes()[47].localBoundingBox.maximize(0.2f);
+
 	meshSequence.loadSequenceGpu();
-	meshSequence.markForDelete();
 	return meshSequence;
 }
 
-void Scene::parseMeshSequences(rapidjson::GenericArray<false, rapidjson::Value> array, MeshSequence& meshSequence) {
+void Scene::parseMeshSequences(rapidjson::GenericArray<false, rapidjson::Value> array, std::vector<MeshSequence>& meshSequences) {
 	for (rapidjson::Value::ValueIterator mesh = array.Begin(); mesh != array.End(); ++mesh) {
-		addMeshSequence(mesh->GetObject(), meshSequence);
+		addMeshSequence(mesh->GetObject(), meshSequences);
 	}
+	std::for_each(textures.begin(), textures.end(), std::mem_fn(&Texture::markForDelete));
 }
 
 Types Scene::resolveType(std::string input) {
@@ -224,8 +233,8 @@ SceneNode* Scene::addNode(const rapidjson::GenericObject<false, rapidjson::Value
 
 	SceneNode* child = nullptr;
 	switch (resolveType(type)){
-		case PLAYER:
-			player = new Player(camera, meshes[reference], Vector2f(-51.5f, -51.5f), Vector2f(51.5f, 51.5f));
+		case PLAYER: {
+			player = new Player(camera, meshSequences[reference], object["meshIndex"].GetInt(), Vector2f(-51.5f, -51.5f), Vector2f(51.5f, 51.5f));
 			player->setPosition(object["position"].GetArray()[0].GetFloat(), object["position"].GetArray()[1].GetFloat(), object["position"].GetArray()[2].GetFloat());
 			if (object.HasMember("materialIndex")) {
 				player->setMaterialIndex(object["materialIndex"].GetInt());
@@ -234,21 +243,17 @@ SceneNode* Scene::addNode(const rapidjson::GenericObject<false, rapidjson::Value
 			if (object.HasMember("textureIndex")) {
 				player->setTextureIndex(object["textureIndex"].GetInt());
 			}
-
-			if (object.HasMember("meshIndex")) {
-				player->setMeshIndex(object["meshIndex"].GetInt());
-			}
-
+			
 			root->addChild(player);
 			child = player;
-			break;
-		case ENTITY:
+		}break;
+		case ENTITY: {
 
-			if(strcmp(object["tag"].GetString(), "muzzle") == 0 || 
-			   strcmp(object["tag"].GetString(), "gun") == 0 ||
-			   strcmp(object["tag"].GetString(), "hands") == 0 ||
-			   strcmp(object["tag"].GetString(), "gloves") == 0) {
-				entitiesAfterClear.push_back(new Entity(meshes[reference]));
+			if (strcmp(object["tag"].GetString(), "muzzle") == 0 ||
+				strcmp(object["tag"].GetString(), "gun") == 0 ||
+				strcmp(object["tag"].GetString(), "hands") == 0 ||
+				strcmp(object["tag"].GetString(), "gloves") == 0) {
+				entitiesAfterClear.push_back(new Entity(meshSequences[reference], object["meshIndex"].GetInt()));
 				if (object.HasMember("materialIndex")) {
 					entitiesAfterClear.back()->setMaterialIndex(object["materialIndex"].GetInt());
 				}
@@ -257,34 +262,30 @@ SceneNode* Scene::addNode(const rapidjson::GenericObject<false, rapidjson::Value
 					entitiesAfterClear.back()->setTextureIndex(object["textureIndex"].GetInt());
 				}
 
-				if (object.HasMember("meshIndex")) {
-					entitiesAfterClear.back()->setMeshIndex(object["meshIndex"].GetInt());
-				}
+		
 
 				child = dynamic_cast<SceneNode*>(root->addChild(entitiesAfterClear.back()));
 			}else {
-				entities.push_back(new Entity(meshes[reference]));
+				entities.push_back(new Entity(meshSequences[reference], object["meshIndex"].GetInt()));
 				if (object.HasMember("materialIndex")) {
-					entitiesAfterClear.back()->setMaterialIndex(object["materialIndex"].GetInt());
+					entities.back()->setMaterialIndex(object["materialIndex"].GetInt());
 				}
 
 				if (object.HasMember("textureIndex")) {
-					entitiesAfterClear.back()->setTextureIndex(object["textureIndex"].GetInt());
+					entities.back()->setTextureIndex(object["textureIndex"].GetInt());
 				}
 
-				if (object.HasMember("meshIndex")) {
-					entitiesAfterClear.back()->setMeshIndex(object["meshIndex"].GetInt());
-				}
 				child = dynamic_cast<SceneNode*>(root->addChild(entities.back()));
 			}
 
-			break;
-		case LIGHT:
+		}break;
+		case LIGHT: {
 			child = dynamic_cast<SceneNode*>(root->addChild(&Light::GetLights()[reference]));
 			child->setIsFixed(true);
-			break;
-		case ANT:
-			entities.push_back(new Ant(meshSequence, meshes[0], player));
+			
+		}break; 
+		case ANT: {
+			entities.push_back(new Ant(meshSequences[reference], object["meshIndex"].GetInt(), player));
 			if (object.HasMember("materialIndex")) {
 				entities.back()->setMaterialIndex(object["materialIndex"].GetInt());
 			}
@@ -293,19 +294,15 @@ SceneNode* Scene::addNode(const rapidjson::GenericObject<false, rapidjson::Value
 				entities.back()->setTextureIndex(object["textureIndex"].GetInt());
 			}
 
-			if (object.HasMember("meshIndex")) {
-				entities.back()->setMeshIndex(object["meshIndex"].GetInt());
-			}
-
 			entities.back()->setPosition(object["position"].GetArray()[0].GetFloat(), object["position"].GetArray()[1].GetFloat(), object["position"].GetArray()[2].GetFloat());
 			entities.back()->setOrientation(object["rotation"].GetArray()[0].GetFloat(), object["rotation"].GetArray()[1].GetFloat(), object["rotation"].GetArray()[2].GetFloat());
 			entities.back()->setScale(object["scale"].GetArray()[0].GetFloat(), object["scale"].GetArray()[1].GetFloat(), object["scale"].GetArray()[2].GetFloat());
 			entities.back()->setRigidbody(Rigidbody());
-			child = dynamic_cast<SceneNode*>(root->addChild(entities.back()));
-			break;
-		default:
-			child = new SceneNode();
-			break;
+			child = dynamic_cast<SceneNode*>(root->addChild(entities.back()));		
+		}break;
+		default: {
+			child = new SceneNode();			
+		}
 	}
 
 	if (object.HasMember("nodes")) {
@@ -343,7 +340,7 @@ void Scene::loadScene(std::string path) {
 	parseMaterials(doc["materials"].GetArray(), materials);
 	parseLights(doc["lights"].GetArray(), Light::GetLights());
 	parseMeshes(doc["meshes"].GetArray(), meshes);
-	parseMeshSequences(doc["meshSequences"].GetArray(), meshSequence);
+	parseMeshSequences(doc["meshSequences"].GetArray(), meshSequences);
 	
 	root = new SceneNode();
 	parseNodes(doc["nodes"].GetArray(), root);
@@ -365,8 +362,8 @@ const std::vector<AssimpModel*>& Scene::getMeshes() const {
 	return meshes;
 }
 
-const MeshSequence& Scene::getMeshSequence() const {
-	return meshSequence;
+const std::vector <MeshSequence>& Scene::getMeshSequences() const {
+	return meshSequences;
 }
 
 Player* Scene::getPlayer() const {

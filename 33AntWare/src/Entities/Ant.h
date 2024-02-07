@@ -13,7 +13,7 @@ class Ant : public Entity, private ICounter<Ant>{
 
 public:
     
-	Ant(const MeshSequence& meshSequence, AssimpModel* model, Player* target);
+	Ant(const MeshSequence& meshSequence, int meshIndex, Player* target);
 	~Ant() = default;
 
 	void start() override;
@@ -41,10 +41,7 @@ private:
 	float walkcycleLength = 1.0f;
 	Player* target;
 
-	
 	int m_anmIndex = 0;
-	const MeshSequence& meshSequence;
-
 	unsigned int hp = 5;
 	Clock timeSinceDamage, timeSinceLastAlphaDecrease;
 	bool isHurting = false;

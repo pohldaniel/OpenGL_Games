@@ -42,10 +42,6 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 	
 	Material::SetTextures(scene.getTextures());
 	Material::SetMaterials(scene.getMaterials());
-
-	const BoundingBox& box = scene.getMeshes()[0]->getAABB();
-	box.inset(Vector3f(-(2.0f * box.min[0] + 2.5f), 0.6f, 1.3f), Vector3f(2.0f * box.max[0] - 2.5f, 0.1f, 0.5f));
-
 	m_entitiesAfterClear = scene.getEntitiesAfterClear();
 	m_player = scene.getPlayer();
 	m_camera = &m_player->camera;
