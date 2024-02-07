@@ -193,12 +193,19 @@ MeshSequence& Scene::addMeshSequence(const rapidjson::GenericObject<false, rapid
 		}
 	}
 
+	if (object.HasMember("additionalMeshesFromFile")) {
+		rapidjson::GenericArray<false, rapidjson::Value> array = object["additionalMeshesFromFile"].GetArray();
+		for (rapidjson::Value::ValueIterator path = array.Begin(); path != array.End(); ++path) {
+			std::cout << "Paht: " << (*path).GetString() << std::endl;
+		}
+	}
+
 	//ant
-	const BoundingBox& box = meshSequence.getMeshes()[41].localBoundingBox;
+	const BoundingBox& box = meshSequence.getLocalBoundingBox(41);
 	box.inset(Vector3f(-(2.0f * box.min[0] + 2.5f), 0.6f, 1.3f), Vector3f(2.0f * box.max[0] - 2.5f, 0.1f, 0.5f));
 
 	//player
-	meshSequence.getMeshes()[47].localBoundingBox.maximize(0.2f);
+	meshSequence.getLocalBoundingBox(47).maximize(0.2f);
 
 	meshSequence.loadSequenceGpu();
 	return meshSequence;

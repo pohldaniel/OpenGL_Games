@@ -2,7 +2,7 @@
 #include "DebugRenderer.h"
 
 SequenceNode::SequenceNode(const MeshSequence& meshSequence, int meshIndex) : SceneNode(), meshSequence(meshSequence), m_meshIndex(meshIndex), m_drawDebug(true),
-localBoundingBox(meshSequence.getMeshes()[m_meshIndex].localBoundingBox) {
+localBoundingBox(meshSequence.getLocalBoundingBox(m_meshIndex)) {
 	OnBoundingBoxChanged();
 }
 

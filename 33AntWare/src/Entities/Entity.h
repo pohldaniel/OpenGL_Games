@@ -3,7 +3,6 @@
 #include <glm/gtc/quaternion.hpp>
 #include <engine/Texture.h>
 #include <engine/Camera.h>
-#include <engine/AssimpModel.h>
 #include <engine/Material.h>
 #include <Scene/MeshNode.h>
 #include <Scene/SequenceNode.h>

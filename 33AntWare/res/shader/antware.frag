@@ -103,6 +103,6 @@ void main(void){
 			}
 		}
 	}
-	color = texColor * material.diffuse;
+	//color = texColor * material.diffuse;
 	color.a = texColor.a * material.alpha;
 }

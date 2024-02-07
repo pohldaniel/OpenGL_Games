@@ -2,7 +2,6 @@
 #include <engine/BoundingBox.h>
 #include <Scene/SceneNode.h>
 #include "MeshSequence.h"
-#include <engine/AssimpModel.h>
 
 class SequenceNode : public SceneNode {
 

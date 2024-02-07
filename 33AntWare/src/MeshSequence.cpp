@@ -24,6 +24,8 @@ MeshSequence::MeshSequence(MeshSequence const& rhs) {
 	m_numberOfMeshes = rhs.m_numberOfMeshes;
 	m_numberOfVertices = rhs.m_numberOfVertices;
 	m_numberOfIndices = rhs.m_numberOfIndices;
+	m_localBoundingBoxes = rhs.m_localBoundingBoxes;
+	m_boundingBoxCache = rhs.m_boundingBoxCache;
 	m_markForDelete = false;	
 }
 
@@ -37,6 +39,8 @@ MeshSequence::MeshSequence(MeshSequence&& rhs) {
 	m_numberOfMeshes = rhs.m_numberOfMeshes;
 	m_numberOfVertices = rhs.m_numberOfVertices;
 	m_numberOfIndices = rhs.m_numberOfIndices;
+	m_localBoundingBoxes = rhs.m_localBoundingBoxes;
+	m_boundingBoxCache = rhs.m_boundingBoxCache;
 	m_markForDelete = false;
 }
 
@@ -50,6 +54,8 @@ MeshSequence& MeshSequence::operator=(const MeshSequence& rhs) {
 	m_numberOfMeshes = rhs.m_numberOfMeshes;
 	m_numberOfVertices = rhs.m_numberOfVertices;
 	m_numberOfIndices = rhs.m_numberOfIndices;
+	m_localBoundingBoxes = rhs.m_localBoundingBoxes;
+	m_boundingBoxCache = rhs.m_boundingBoxCache;
 	m_markForDelete = false;
 	return *this;
 }
@@ -121,11 +127,11 @@ const Matrix4f &MeshSequence::getInvTransformationMatrix() {
 	return m_transform.getInvTransformationMatrix();
 }
 
-void MeshSequence::loadSequence(const char* _path, bool isStacked, bool withoutNormals, bool generateSmoothNormals, bool generateFlatNormals, bool generateSmoothTangents, bool rescale) {
-	return loadSequence(_path, Vector3f(0.0, 1.0, 0.0), 0.0, Vector3f(0.0, 0.0, 0.0), 1.0, isStacked, withoutNormals, generateSmoothNormals, generateFlatNormals, generateSmoothTangents, rescale);
+void MeshSequence::loadSequence(const char* _path, bool withoutNormals, bool generateSmoothNormals, bool generateFlatNormals, bool generateSmoothTangents, bool rescale) {
+	return loadSequence(_path, Vector3f(0.0, 1.0, 0.0), 0.0, Vector3f(0.0, 0.0, 0.0), 1.0, withoutNormals, generateSmoothNormals, generateFlatNormals, generateSmoothTangents, rescale);
 }
 
-void MeshSequence::loadSequence(const char* _path, Vector3f& axis, float degree, Vector3f& translate, float scale, bool isStacked, bool withoutNormals, bool generateSmoothNormals, bool generateFlatNormals, bool generateSmoothTangents, bool rescale) {
+void MeshSequence::loadSequence(const char* _path, Vector3f& axis, float degree, Vector3f& translate, float scale, bool withoutNormals, bool generateSmoothNormals, bool generateFlatNormals, bool generateSmoothTangents, bool rescale) {
 
 	std::vector<std::array<int, 10>> face;
 
@@ -136,7 +142,7 @@ void MeshSequence::loadSequence(const char* _path, Vector3f& axis, float degree,
 	std::vector<float> bitangentCoords;
 
 	std::vector<unsigned int> numberOfTriangles;
-	std::vector<BoundingBox> boundingBoxes;
+	//std::vector<BoundingBox> boundingBoxes;
 
 	int assign = 0;
 
@@ -364,7 +370,7 @@ void MeshSequence::loadSequence(const char* _path, Vector3f& axis, float degree,
 		}// end while
 		fclose(pFile);
 		
-		numberOfTriangles.push_back(face.size() - std::accumulate(numberOfTriangles.begin(), numberOfTriangles.end(), 0));
+		numberOfTriangles.push_back(static_cast<unsigned int>(face.size() - std::accumulate(numberOfTriangles.begin(), numberOfTriangles.end(), 0)));
 		///////////////////////Rescale/////////////////////////////
 		if (rescale) {
 			Vector3f r = 0.5f * (Vector3f(xmax, ymax, zmax) - Vector3f(xmin, ymin, zmin));
@@ -390,7 +396,7 @@ void MeshSequence::loadSequence(const char* _path, Vector3f& axis, float degree,
 				zmax = (std::max)(*(pit + 2), zmax);
 			}
 		}
-		boundingBoxes.push_back(BoundingBox({ xmin , ymin , zmin }, { xmax , ymax , zmax }));
+		//boundingBoxes.push_back(BoundingBox({ xmin , ymin , zmin }, { xmax , ymax , zmax }));
 
 		if (!withoutNormals) {
 			if (generateSmoothNormals) {
@@ -413,7 +419,7 @@ void MeshSequence::loadSequence(const char* _path, Vector3f& axis, float degree,
 	}
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	for (int i = 0; i < numberOfTriangles.size(); i++) {
-		m_meshes.push_back({ numberOfTriangles[i], 0u, 0u, 0u, boundingBoxes[i]});
+		m_meshes.push_back({ numberOfTriangles[i], 0u, 0u, 0u});
 		if (m_meshes.size() > 1) {
 			m_meshes[m_meshes.size() - 1].baseIndex = m_meshes[m_meshes.size() - 2].numberOfTriangles + m_meshes[m_meshes.size() - 2].baseIndex;
 		}
@@ -463,11 +469,28 @@ void MeshSequence::loadSequence(const char* _path, Vector3f& axis, float degree,
 
 	numberOfTriangles.clear();
 	numberOfTriangles.shrink_to_fit();
-	boundingBoxes.clear();
-	boundingBoxes.shrink_to_fit();
+	//boundingBoxes.clear();
+	//boundingBoxes.shrink_to_fit();
 
 	m_numberOfVertices = m_vertexBuffer.size() / m_stride;
 	m_numberOfIndices = m_indexBuffer.size();
+}
+
+void MeshSequence::addMeshFromFile(const char* path, bool withoutNormals, bool generateSmoothNormals, bool generateFlatNormals, bool generateSmoothTangents, bool rescale) {
+	return addMeshFromFile(path, Vector3f(0.0, 1.0, 0.0), 0.0, Vector3f(0.0, 0.0, 0.0), 1.0, withoutNormals, generateSmoothNormals, generateFlatNormals, generateSmoothTangents, rescale);
+}
+
+void MeshSequence::addMeshFromFile(const char* path, Vector3f& axis, float degree, Vector3f& translate, float scale, bool withoutNormals, bool generateSmoothNormals, bool generateFlatNormals, bool generateSmoothTangents, bool rescale) {
+
+}
+
+
+const std::vector<BoundingBox>& MeshSequence::getLocalBoundingBoxes() const {
+	return m_localBoundingBoxes;
+}
+
+const BoundingBox& MeshSequence::getLocalBoundingBox(unsigned int meshIndex) const {
+	return m_localBoundingBoxes[m_boundingBoxCache.at(meshIndex)];
 }
 
 void MeshSequence::addMesh(std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer) {
@@ -483,9 +506,11 @@ void MeshSequence::addMesh(std::vector<float>& vertexBuffer, std::vector<unsigne
 		ymax = (std::max)(*(pit + 1), ymax);
 		zmax = (std::max)(*(pit + 2), zmax);
 	}
+	m_localBoundingBoxes.push_back({ { xmin, ymin, zmin }, { xmax, ymax, zmax } });
+	m_boundingBoxCache.insert({ m_numberOfMeshes, m_localBoundingBoxes.size() - 1 });
 
 	m_numberOfMeshes++;
-	m_meshes.push_back({ static_cast<unsigned int>(indexBuffer.size()) / 3, 0u, 0u, 0u,BoundingBox({xmin, ymin, zmin},{xmax, ymax, zmax}) });
+	m_meshes.push_back({ static_cast<unsigned int>(indexBuffer.size()) / 3, 0u, 0u, 0u });
 	m_meshes.back().baseIndex = m_numberOfIndices;
 	m_meshes.back().baseVertex = m_numberOfVertices;
 	m_meshes.back().drawCount = indexBuffer.size();
@@ -514,7 +539,7 @@ void MeshSequence::addMeshAfter(std::vector<float>& vertexBuffer, std::vector<un
 	for (unsigned int i = 0; i < vertexBuffer.size(); i++) {
 		vertices[m_numberOfVertices * m_stride + i] = vertexBuffer[i];
 	}
-	m_numberOfVertices += vertexBuffer.size() / m_stride;
+	m_numberOfVertices += static_cast<unsigned int>(vertexBuffer.size()) / m_stride;
 
 	unsigned int* indices = (unsigned int*)malloc((m_numberOfIndices + indexBuffer.size()) * sizeof(unsigned int));
 
@@ -525,7 +550,7 @@ void MeshSequence::addMeshAfter(std::vector<float>& vertexBuffer, std::vector<un
 	for (unsigned int i = 0; i < indexBuffer.size(); i++) {
 		indices[m_numberOfIndices + i] = indexBuffer[i];
 	}
-	m_numberOfIndices += indexBuffer.size();
+	m_numberOfIndices += static_cast<unsigned int>(indexBuffer.size());
 
 	glDeleteBuffers(1, &m_vbo);
 	m_vbo = 0;

@@ -4,7 +4,6 @@
 #include <engine/Vector.h>
 #include <engine/Camera.h>
 #include <engine/Clock.h>
-#include <engine/AssimpModel.h>
 
 #include <Entities/Entity.h>
 #include <Entities/Bullet.h>
