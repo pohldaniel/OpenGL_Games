@@ -78,9 +78,9 @@ void Ant::update(float dt) {
 	if (getWorldBoundingBox().isColliding(target->getWorldBoundingBox()) && Globals::clock.getElapsedTimeSec() > 2.0f && timeSinceDealtDamage.getElapsedTimeSec() >= 1.0f) {
 		timeSinceDealtDamage.reset();
 		target->damage(1.0f);
-		HUD.setIsHurting(true);
+		HUD::Get().setIsHurting(true);
 		target->timeSinceDamage = Globals::clock.getElapsedTimeSec();
-		HUD.setHP(target->hp * 10);
+		HUD::Get().setHP(target->hp * 10);
 	}
 }
 

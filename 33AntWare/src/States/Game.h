@@ -12,8 +12,6 @@
 #include <Entities/Ant.h>
 #include <Entities/Player.h>
 #include <Entities/Light.h>
-#include "HUD.h"
-#include "HUDNew.h"
 
 class Game : public State, public MouseEventListener, public KeyboardEventListener {
 
@@ -41,15 +39,11 @@ private:
 	bool m_initUi = true;
 	bool m_drawUi = false;
 
-
 	Camera* m_camera;
 	Player* m_player;
 	
-
 	std::vector<Entity*> m_entitiesAfterClear;
 	std::vector<Entity*> m_entities;
 
 	float m_offsetDistance = 0.0f;
-	aw::Status gameStatus;
-	HUDNew hud;
 };

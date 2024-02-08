@@ -335,19 +335,19 @@ void Application::initOpenGL(int msaaSamples) {
 
 	ToggleVerticalSync();
 
-	glDisable(GL_CULL_FACE);
-	//glEnable(GL_CULL_FACE);
+	//glDisable(GL_CULL_FACE);
+	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
 	glFrontFace(GL_CCW);
 
 	//glDisable(GL_DEPTH_TEST);
 	glEnable(GL_DEPTH_TEST);
-	//glDepthFunc(GL_LEQUAL);
+	glDepthFunc(GL_LEQUAL);
 
 	//glDisable(GL_BLEND);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	//glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 
 	//glClipControl(GL_UPPER_LEFT, GL_ZERO_TO_ONE);
 	//glClipControl(GL_UPPER_LEFT, GL_NEGATIVE_ONE_TO_ONE);
@@ -678,5 +678,6 @@ void Application::loadAssets() {
 	
 	Globals::shapeManager.buildQuadXY("quad", Vector3f(-1.0f, -1.0f, 0.0f), Vector2f(2.0f, 2.0f), 1, 1, true, false, false);
 	Globals::shapeManager.buildQuadXY("quad_aligned", Vector3f(0.0f, 0.0f, 0.0f), Vector2f(1.0f, 1.0f), 1, 1, true, false, false);
+	Globals::shapeManager.buildQuadXY("quad_half", Vector3f(-0.5f, -0.5f, 0.0f), Vector2f(1.0f, 1.0f), 1, 1, true, false, false);
 	Globals::shapeManager.buildSphere("sphere", 0.1f, Vector3f(0.0f, 0.0f, 0.0f), 16, 16, false, true, false);
 }

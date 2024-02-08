@@ -818,3 +818,23 @@ void Spritesheet::setLinearMipMap() {
 	glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
 	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
 }
+
+void Spritesheet::SetFilter(const unsigned int& textureRef, unsigned int minFilter, unsigned int magFilter) {
+
+	if (magFilter == 0)
+		magFilter = minFilter == 9985 || minFilter == 9987 ? GL_LINEAR : minFilter == 9984 || minFilter == 9986 ? GL_NEAREST : minFilter;
+
+	glBindTexture(GL_TEXTURE_2D_ARRAY, textureRef);
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, minFilter);
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, magFilter);
+	if (minFilter == 9984 || minFilter == 9985 || minFilter == 9986 || minFilter == 9987)
+		glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
+	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
+}
+
+void Spritesheet::SetWrapMode(const unsigned int& textureRef, unsigned int mode) {	
+	glBindTexture(GL_TEXTURE_2D_ARRAY, textureRef);
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, mode);
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, mode);
+	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
+}

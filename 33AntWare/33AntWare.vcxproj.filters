@@ -339,9 +339,6 @@
     <ClCompile Include="src\Rigidbody.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="HUD.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\States\SceneGraph.cpp">
       <Filter>Source Files\States</Filter>
     </ClCompile>
@@ -402,7 +399,7 @@
     <ClCompile Include="src\MeshSequence.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="HUDNew.cpp">
+    <ClCompile Include="src\HUD.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -701,9 +698,6 @@
     <ClInclude Include="src\States\Game.h">
       <Filter>Source Files\States</Filter>
     </ClInclude>
-    <ClInclude Include="HUD.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\States\SceneGraph.h">
       <Filter>Source Files\States</Filter>
     </ClInclude>
@@ -773,7 +767,7 @@
     <ClInclude Include="src\MeshSequence.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="HUDNew.h">
+    <ClInclude Include="src\HUD.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

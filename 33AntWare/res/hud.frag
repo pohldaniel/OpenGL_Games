@@ -10,6 +10,4 @@ uniform sampler2DArray u_texture;
 
 void main(void) {
 	outColor = vertColor * texture(u_texture, vec3(texCoord, layer));
-	
-	//outColor = vec4(1.0, 0.0, 0.0, 1.0);
 }

@@ -74,8 +74,8 @@ void Player::update(const float dt) {
 				dispatchBullet();
 				inHandAmmo--;
 				shootTimer.reset();
-				HUD.setInHandAmmo(inHandAmmo);
-				HUD.setTotalAmmo(totalAmmo);
+				HUD::Get().setInHandAmmo(inHandAmmo);
+				HUD::Get().setTotalAmmo(totalAmmo);
 			}else {
 
 				if (totalAmmo > 0 && reloadTimer.getElapsedTimeSec() > 1.5f) {
@@ -188,16 +188,16 @@ void Player::reload() {
 	if (totalAmmo > 0)
 		//reloadSound.play();
 
-		if (totalAmmo > maxAmmo) {
-			inHandAmmo = maxAmmo;
-			totalAmmo -= maxAmmo;
-		}else if (totalAmmo > 0) {
+	if (totalAmmo > maxAmmo) {
+		inHandAmmo = maxAmmo;
+		totalAmmo -= maxAmmo;
+	}else if (totalAmmo > 0) {
 			inHandAmmo = totalAmmo;
 			totalAmmo = 0;
-		}
+	}
 
-	//HUD.setInHandAmmo(inHandAmmo);
-	//HUD.setTotalAmmo(totalAmmo);
+	HUD::Get().setInHandAmmo(inHandAmmo);
+	HUD::Get().setTotalAmmo(totalAmmo);
 }
 
 bool Player::damage(float amount) {

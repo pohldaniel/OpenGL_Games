@@ -47,6 +47,8 @@ public:
 	void unbind(unsigned int unit = 0u) const;
 	void safe(std::string name);
 
+	static void SetFilter(const unsigned int& textureRef, unsigned int minFilter, unsigned int magFilter = 0u);
+	static void SetWrapMode(const unsigned int& textureRef, unsigned int mode);
 	static void Bind(const unsigned int& textureRef, unsigned int unit = 0u);
 	static void Unbind(const unsigned int unit = 0u);
 	static void Safe(std::string name, unsigned int textureAtlas);

@@ -10,6 +10,7 @@
 #include "Globals.h"
 #include "DebugRenderer.h"
 #include "SceneManager.h"
+#include "HUD.h"
 
 Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 
@@ -17,6 +18,8 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 	EventDispatcher::AddKeyboardListener(this);
 	EventDispatcher::AddMouseListener(this);
 	//Mouse::instance().attach(Application::GetWindow());
+
+	HUD::Get().init();
 
 	SceneManager::Get().loadSettings("res/default_settings.json");
 	SceneManager::Get().getScene("scene").loadScene(SceneManager::Get().getCurrentSceneFile());
@@ -51,18 +54,10 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 	m_camera = &m_player->camera;
 	m_camera->setOffsetDistance(m_offsetDistance);
 	m_entities = scene.getEntities();
-	
-	HUD.setHP(m_player->hp * 10);
-	HUD.setInHandAmmo(m_player->inHandAmmo);
-	HUD.setTotalAmmo(m_player->totalAmmo);
-	HUD.setStatus(aw::ONGOING);
-	HUD.setShaderProgram(Globals::shaderManager.getAssetPointer("hud")->m_program);
 
-	gameStatus = aw::ONGOING;
-
-	//std::cout << "Pointer1: " << &scene.getMeshSequences()[0] << std::endl;
-
-	//Bullet::Init(scene.getMeshes()[0], &scene.getMeshSequences()[0], 49);
+	HUD::Get().setHP(m_player->hp * 10);
+	HUD::Get().setInHandAmmo(m_player->inHandAmmo);
+	HUD::Get().setTotalAmmo(m_player->totalAmmo);
 
 	std::for_each(m_entitiesAfterClear.begin(), m_entitiesAfterClear.end(), std::mem_fn(&Entity::start));
 	std::for_each(m_entities.begin(), m_entities.end(), std::mem_fn(&Entity::start));
@@ -99,16 +94,14 @@ void Game::update() {
 	bool isWin = Ant::GetCount() == 0;
 
 	if (Globals::clock.getElapsedTimeSec() - m_player->timeSinceDamage > 0.25f){
-		HUD.setIsHurting(false);
+		HUD::Get().setIsHurting(false);
 	}
 
 	if (isWin){
-		gameStatus = aw::WIN;
-		HUD.setStatus(aw::WIN);
+		HUD::Get().setWin(true);
 		m_player->killSound();
 	}else if (m_player->isDead() || (m_player->inHandAmmo <= 0 && m_player->totalAmmo <= 0)){
-		gameStatus = aw::LOSE;
-		HUD.setStatus(aw::LOSE);
+		HUD::Get().setLoose(true);
 		m_player->killSound();
 	}
 
@@ -119,7 +112,7 @@ void Game::update() {
 void Game::render() {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	/*DebugRenderer::Get().SetView(m_camera);
+	DebugRenderer::Get().SetView(m_camera);
 
 	auto shader = Globals::shaderManager.getAssetPointer("antware");
 	shader->use();
@@ -153,12 +146,10 @@ void Game::render() {
 	shader->unuse();
 	DebugRenderer::Get().drawBuffer();
 
-	HUD.draw();
+	HUD::Get().draw(*m_camera);
 
 	if (m_drawUi)
-		renderUi();*/
-
-	hud.draw(*m_camera);
+		renderUi();
 }
 
 void Game::OnMouseMotion(Event::MouseMoveEvent& event) {
@@ -207,7 +198,7 @@ void Game::OnKeyUp(Event::KeyboardEvent& event) {
 
 void Game::resize(int deltaW, int deltaH) {
 	m_camera->setAspect(static_cast<float>(Application::Width) / static_cast<float>(Application::Height));
-	m_camera->orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
+	//m_camera->orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
 }
 
 void Game::renderUi() {
