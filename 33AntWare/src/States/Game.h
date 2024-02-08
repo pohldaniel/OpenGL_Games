@@ -13,6 +13,7 @@
 #include <Entities/Player.h>
 #include <Entities/Light.h>
 #include "HUD.h"
+#include "HUDNew.h"
 
 class Game : public State, public MouseEventListener, public KeyboardEventListener {
 
@@ -50,4 +51,5 @@ private:
 
 	float m_offsetDistance = 0.0f;
 	aw::Status gameStatus;
+	HUDNew hud;
 };

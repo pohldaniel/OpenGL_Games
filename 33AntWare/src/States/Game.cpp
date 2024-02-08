@@ -119,7 +119,7 @@ void Game::update() {
 void Game::render() {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	DebugRenderer::Get().SetView(m_camera);
+	/*DebugRenderer::Get().SetView(m_camera);
 
 	auto shader = Globals::shaderManager.getAssetPointer("antware");
 	shader->use();
@@ -156,7 +156,9 @@ void Game::render() {
 	HUD.draw();
 
 	if (m_drawUi)
-		renderUi();
+		renderUi();*/
+
+	hud.draw(*m_camera);
 }
 
 void Game::OnMouseMotion(Event::MouseMoveEvent& event) {

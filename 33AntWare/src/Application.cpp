@@ -658,6 +658,7 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("texture", "res/shader/texture.vert", "res/shader/texture.frag");
 	Globals::shaderManager.loadShader("antware", "res/shader/antware.vert", "res/shader/antware.frag");
 	Globals::shaderManager.loadShader("hud", "res/shader/hud.vert", "res/shader/hud.frag");
+	Globals::shaderManager.loadShader("hud_new", "res/hud.vert", "res/hud.frag");
 
 	Globals::shaderManager.loadShader("wire_overlay", "res/shader/wire_overlay.vert", "res/shader/wire_overlay.frag", "res/shader/wire_overlay.gem");
 	Globals::shaderManager.loadShader("wire_overlay_material", "res/shader/wire_overlay.vert", "res/shader/wire_overlay_material.frag", "res/shader/wire_overlay.gem");
@@ -676,5 +677,6 @@ void Application::loadAssets() {
 	Globals::fontManager.loadCharacterSet("upheaval_50", "res/fonts/upheavtt.ttf",  50,  3u, 3u,  0u,   0, true, 1u);
 	
 	Globals::shapeManager.buildQuadXY("quad", Vector3f(-1.0f, -1.0f, 0.0f), Vector2f(2.0f, 2.0f), 1, 1, true, false, false);
+	Globals::shapeManager.buildQuadXY("quad_aligned", Vector3f(0.0f, 0.0f, 0.0f), Vector2f(1.0f, 1.0f), 1, 1, true, false, false);
 	Globals::shapeManager.buildSphere("sphere", 0.1f, Vector3f(0.0f, 0.0f, 0.0f), 16, 16, false, true, false);
 }

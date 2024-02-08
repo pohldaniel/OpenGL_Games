@@ -19,7 +19,8 @@ Scene::Scene() {
 
 void Scene::parseCamera(rapidjson::GenericObject<false, rapidjson::Value> object, Camera& camera){
 	camera.perspective(object["fov"].GetFloat(), static_cast<float>(Application::Width) / static_cast<float>(Application::Height), object["near"].GetFloat(), object["far"].GetFloat());
-	
+	camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
+
 	rapidjson::GenericObject<false, rapidjson::Value> lookAt = object["lookAt"].GetObject();
 
 	rapidjson::Value::Array positon = lookAt["position"].GetArray();
