@@ -49,7 +49,7 @@ public:
 	const std::vector<AssimpModel*>& getMeshes() const;
 	const std::vector<Entity*>& getEntitiesAfterClear() const;
 	const std::vector<Entity*>& getEntities() const;
-	const std::vector <MeshSequence>& getMeshSequences() const;
+	std::vector <MeshSequence>& getMeshSequences();
 	Player* getPlayer() const;
 
 	void parseCamera(rapidjson::GenericObject<false, rapidjson::Value> object, Camera& camera);
@@ -72,8 +72,8 @@ public:
 	Camera camera;
 	std::vector<Texture> textures;
 	std::vector<Material> materials;
-	std::vector<AssimpModel*> meshes;
 	std::vector <MeshSequence> meshSequences;
+	std::vector<AssimpModel*> meshes;	
 	SceneNode* root;
 	Player* player;
 

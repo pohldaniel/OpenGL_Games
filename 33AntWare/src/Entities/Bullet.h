@@ -1,16 +1,16 @@
 #pragma once
 #include <engine/Camera.h>
 #include <engine/Clock.h>
-#include <engine/AssimpModel.h>
 #include <Scene/Object.h>
 
+#include "MeshSequence.h"
 #include "Rigidbody.h"
 
 class Bullet : public Object {
 
 public:
 
-	Bullet(const Vector3f& projectVec);
+	Bullet(const MeshSequence& meshSequence, const Vector3f& projectVec);
 	Bullet(Bullet const& rhs);
 	Bullet(Bullet&& rhs);
 	Bullet &operator=(const Bullet& rhs);
@@ -22,12 +22,16 @@ public:
 	void fixedUpdate(float fdt);
 	bool timeOut();
 
-	static void Init(AssimpModel* model);
+private:
 
-	float lifeSpan = 5.0f;
-	float speed = 40.0f;
-	Clock timer;
+	float m_lifeSpan;
+	float m_speed;
+	Clock m_timer;
 
 	Rigidbody m_rigidbody;
-	static AssimpModel* Model;
+	short m_meshIndex;
+	short m_textureIndex;
+	short m_materialIndex;
+	
+	std::reference_wrapper<const MeshSequence> meshSequence;
 };

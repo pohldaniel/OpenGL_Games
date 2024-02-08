@@ -23,6 +23,7 @@ public:
 	MeshSequence(MeshSequence const& rhs);
 	MeshSequence(MeshSequence&& rhs);
 	MeshSequence &operator=(const MeshSequence& rhs);
+	MeshSequence& operator=(MeshSequence&& rhs);
 	~MeshSequence();
 
 	const Matrix4f &getTransformationMatrix() const;
@@ -35,12 +36,12 @@ public:
 	void translate(float dx, float dy, float dz);
 	void scale(float sx, float sy, float sz);
 
-	const void draw(unsigned short frame, short textureIndex = -1, short materialIndex = -1) const;
+	const void draw(unsigned short meshIndex, short textureIndex = -1, short materialIndex = -1) const;
 
 	void loadSequence(const char* path, bool withoutNormals = false, bool generateSmoothNormals = false, bool generateFlatNormals = false, bool generateSmoothTangents = false, bool rescale = false);
 	void loadSequence(const char* path, Vector3f& axis, float degree, Vector3f& translate = Vector3f(0.0f, 0.0f, 0.0f), float scale = 1.0f, bool withoutNormals = false, bool generateSmoothNormals = false, bool generateFlatNormals = false, bool generateSmoothTangents = false, bool rescale = false);
-	void addMeshFromFile(const char* path, bool withoutNormals = false, bool generateSmoothNormals = false, bool generateFlatNormals = false, bool generateSmoothTangents = false, bool rescale = false);
-	void addMeshFromFile(const char* path, Vector3f& axis, float degree, Vector3f& translate = Vector3f(0.0f, 0.0f, 0.0f), float scale = 1.0f, bool withoutNormals = false, bool generateSmoothNormals = false, bool generateFlatNormals = false, bool generateSmoothTangents = false, bool rescale = false);
+	void addMeshFromFile(const char* path, bool withoutNormals = false, bool generateSmoothNormals = false, bool generateFlatNormals = false, bool generateSmoothTangents = false, bool rescale = false, bool flipYZ = false, bool flipWinding = false);
+	void addMeshFromFile(const char* path, Vector3f& axis, float degree, Vector3f& translate = Vector3f(0.0f, 0.0f, 0.0f), float scale = 1.0f, bool withoutNormals = false, bool generateSmoothNormals = false, bool generateFlatNormals = false, bool generateSmoothTangents = false, bool rescale = false, bool flipYZ = false, bool flipWinding = false);
 	void addMesh(std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer);
 	void addMeshAfter(std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer);
 	void loadSequenceGpu();

@@ -6,10 +6,10 @@
 #include <Scene/SceneNode.h>
 #include <Scene/SceneNodeLC.h>
 
-enum LightType2 {
-	DIRECTIONAL2,
-	POINTAW2,
-	SPOT2
+enum LightType {
+	DIRECTIONAL_LIGHT,
+	POINT_LIGHT,
+	SPOT_LIGHT
 };
 
 struct LightBuffer {
@@ -19,7 +19,7 @@ struct LightBuffer {
 	float position[3] = { 0.0f };
 	float angle = 0.0f;
 	float direction[3] = { 0.0f };
-	int type = static_cast<LightType2>(1);
+	int type = static_cast<LightType>(1);
 	bool enabled = 0;
 	bool padding0 = false;
 	short padding1 = 0;
@@ -27,6 +27,9 @@ struct LightBuffer {
 };
 
 class Light : public SceneNode {
+
+	friend class Scene;
+	friend bool operator== (const Light& l1, const Light& l2);
 
 public:
 
@@ -38,9 +41,7 @@ public:
 	~Light() = default;
 
 	void update(const float dt);
-	friend bool operator== (const Light& l1, const Light& l2);
-	void cleanup();
-	
+
 	void setUboAmbient(std::array<float, 4> ambient) const;
 	void setUboDiffuse(std::array<float, 4> diffuse) const;
 	void setUboSpecular(std::array<float, 4> specular) const;
@@ -54,9 +55,13 @@ public:
 
 	static std::vector<Light>& GetLights();
 	static void SetLights(const std::vector<Light>& lights);
-	static Light& AddLight(const LightBuffer& light = { {0.0f, 0.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, 30.0f , {0.0f, -1.0f, 0.0f}, LightType2::POINTAW2, false, false, 0, 0.0f, 0.0f, 0.0f });
+	static Light& AddLight(const LightBuffer& light = { {0.0f, 0.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, 30.0f , {0.0f, -1.0f, 0.0f}, LightType::POINT_LIGHT, false, false, 0, 0.0f, 0.0f, 0.0f });
 	static void Print();
 	static void UpdateLightUbo(unsigned int& ubo, size_t size);
+
+private:
+
+	void cleanup();
 
 	int m_index;
 	bool m_isStatic;

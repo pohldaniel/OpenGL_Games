@@ -22,10 +22,14 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 	SceneManager::Get().getScene("scene").loadScene(SceneManager::Get().getCurrentSceneFile());
 
 	Scene scene = SceneManager::Get().getScene("scene");
-
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	//glClearColor(0.494f, 0.686f, 0.796f, 1.0f);
 	glClearDepth(1.0f);
+
+	auto shader = Globals::shaderManager.getAssetPointer("antware");
+	shader->use();
+	shader->loadUnsignedInt("u_num_lights", Light::GetLights().size());
+	shader->unuse();
 
 	glGenBuffers(1, &BuiltInShader::lightUbo);
 	glBindBuffer(GL_UNIFORM_BUFFER, BuiltInShader::lightUbo);
@@ -56,7 +60,9 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 
 	gameStatus = aw::ONGOING;
 
-	Bullet::Init(scene.getMeshes()[5]);
+	//std::cout << "Pointer1: " << &scene.getMeshSequences()[0] << std::endl;
+
+	//Bullet::Init(scene.getMeshes()[0], &scene.getMeshSequences()[0], 49);
 
 	std::for_each(m_entitiesAfterClear.begin(), m_entitiesAfterClear.end(), std::mem_fn(&Entity::start));
 	std::for_each(m_entities.begin(), m_entities.end(), std::mem_fn(&Entity::start));
@@ -80,13 +86,13 @@ void Game::fixedUpdate() {
 void Game::update() {
 	m_player->update(m_dt);
 
-	for (auto entity : m_entitiesAfterClear)
+	for(auto entity : m_entitiesAfterClear)
 		entity->update(m_dt);
 
-	for (auto entity : m_entities)
+	for(auto entity : m_entities)
 		entity->update(m_fdt);
 
-	for (auto& light : Light::GetLights()) {
+	for(auto& light : Light::GetLights()) {
 		light.update(m_dt);
 	}
 

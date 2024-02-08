@@ -30,6 +30,7 @@ in vec3 v_position;
 uniform sampler2D u_texture;
 uniform vec3 u_campos;
 uniform bool shadeless = false;
+uniform uint u_num_lights;
 
 layout(std140, binding = 0) uniform u_lights { 
 	Light lights[MAX_LIGHTS]; 
@@ -49,7 +50,7 @@ void main(void){
 	color = vec4(0);
 	vec3 nWorld = normalize(v_normal);
 	
-	for (int i = 0; i < MAX_LIGHTS; i++) {
+	for (int i = 0; i < u_num_lights; i++) {
 		if (lights[i].enabled) {
 			if (lights[i].type == 0) { // Directional
 			

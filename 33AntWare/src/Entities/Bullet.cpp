@@ -1,40 +1,60 @@
 #include "Bullet.h"
 
-AssimpModel* Bullet::Model = nullptr;
-
-Bullet::Bullet(const Vector3f& projectVec) : Object(){
-	Vector3f directon = Vector3f::Normalize(projectVec) * speed;
+Bullet::Bullet(const MeshSequence& meshSequence, const Vector3f& projectVec) : Object(), meshSequence(meshSequence), m_meshIndex(49), m_textureIndex(5), m_materialIndex(0), m_lifeSpan(5.0f), m_speed(40.0f){
+	Vector3f directon = Vector3f::Normalize(projectVec) * m_speed;
 	m_rigidbody.velocity[0] = directon[0];
 	m_rigidbody.velocity[1] = directon[1];
 	m_rigidbody.velocity[2] = directon[2];
 } 
 
-Bullet::Bullet(Bullet const& rhs) : Object(rhs){
+Bullet::Bullet(Bullet const& rhs) : Object(rhs), meshSequence(rhs.meshSequence) {
+	m_lifeSpan = rhs.m_lifeSpan;
+	m_speed = rhs.m_speed;
 	m_rigidbody = rhs.m_rigidbody;
+	m_textureIndex = rhs.m_textureIndex;
+	m_materialIndex = rhs.m_materialIndex;	
+	m_meshIndex = rhs.m_meshIndex;
 }
 
-Bullet::Bullet(Bullet&& rhs) : Object(rhs) {
+Bullet::Bullet(Bullet&& rhs) : Object(rhs), meshSequence(rhs.meshSequence) {
+	m_lifeSpan = rhs.m_lifeSpan;
+	m_speed = rhs.m_speed;
 	m_rigidbody = rhs.m_rigidbody;
+	m_textureIndex = rhs.m_textureIndex;
+	m_materialIndex = rhs.m_materialIndex;
+	m_meshIndex = rhs.m_meshIndex;
 }
 
 Bullet& Bullet::operator=(const Bullet& rhs) {
 	Object::operator=(rhs);
+	m_lifeSpan = rhs.m_lifeSpan;
+	m_speed = rhs.m_speed;
 	m_rigidbody = rhs.m_rigidbody;
+	m_textureIndex = rhs.m_textureIndex;
+	m_materialIndex = rhs.m_materialIndex;
+	m_meshIndex = rhs.m_meshIndex;
+	meshSequence = rhs.meshSequence;
 	return *this;
 }
 
 Bullet& Bullet::operator=(Bullet&& rhs) {
 	Object::operator=(rhs);
+	m_lifeSpan = rhs.m_lifeSpan;
+	m_speed = rhs.m_speed;
 	m_rigidbody = rhs.m_rigidbody;
+	m_textureIndex = rhs.m_textureIndex;
+	m_materialIndex = rhs.m_materialIndex;
+	m_meshIndex = rhs.m_meshIndex;
+	meshSequence = rhs.meshSequence;
 	return *this;
 }
 
 void Bullet::start() {
-	timer.reset();
+	m_timer.reset();
 }
 
 void Bullet::draw() {
-	Model->drawRaw();		
+	meshSequence.get().draw(m_meshIndex, m_textureIndex, m_materialIndex);
 }
 
 void Bullet::update(const float dt) {
@@ -66,12 +86,8 @@ void Bullet::fixedUpdate(float fdt) {
 }
 
 bool Bullet::timeOut() {
-	if (timer.getElapsedTimeSec() >= lifeSpan){
+	if (m_timer.getElapsedTimeSec() >= m_lifeSpan){
 		return true;
 	}
 	return false;
-}
-
-void Bullet::Init(AssimpModel* model) {
-	Bullet::Model = model;
 }

@@ -123,7 +123,7 @@ Light& Scene::addLight(const LightBuffer& lightBuffer, std::vector<Light>& light
 	Light::Buffer[index].type = lightBuffer.type;
 	Light::Buffer[index].enabled = lightBuffer.enabled;
 
-	if (Light::Buffer[index].type == SPOT2)
+	if (Light::Buffer[index].type == SPOT_LIGHT)
 		light.m_isStatic = false;
 
 	light.setPosition({ lightBuffer.position[0], lightBuffer.position[1], lightBuffer.position[2] });
@@ -149,7 +149,7 @@ void Scene::parseLights(rapidjson::GenericArray<false, rapidjson::Value> array, 
                    {specular[0].GetFloat(), specular[1].GetFloat(), specular[2].GetFloat(), specular[3].GetFloat()},
 				   {position[0].GetFloat(), position[1].GetFloat(), position[2].GetFloat()}, _light["angle"].GetFloat(),
 			       {direction[0].GetFloat(), direction[1].GetFloat(), direction[2].GetFloat()},
-                   static_cast<LightType2>(type),
+                   static_cast<LightType>(type),
 				   enabled, 
 			       false, 0, 0.0f, 0.0f, 0.0f },
 			     lights);
@@ -186,17 +186,20 @@ MeshSequence& Scene::addMeshSequence(const rapidjson::GenericObject<false, rapid
 	
 	meshSequence.loadSequence(object["path"].GetString());
 	
-	if (object.HasMember("additionalMeshes")) {
-		rapidjson::GenericArray<false, rapidjson::Value> array = object["additionalMeshes"].GetArray();
-		for (rapidjson::Value::ValueIterator mesh = array.Begin(); mesh != array.End(); ++mesh) {
-			meshSequence.addMesh(meshes[(*mesh).GetInt()]->getMeshes()[0]->getVertexBuffer(), meshes[(*mesh).GetInt()]->getMeshes()[0]->getIndexBuffer());
-		}
-	}
+	
 
 	if (object.HasMember("additionalMeshesFromFile")) {
 		rapidjson::GenericArray<false, rapidjson::Value> array = object["additionalMeshesFromFile"].GetArray();
 		for (rapidjson::Value::ValueIterator path = array.Begin(); path != array.End(); ++path) {
-			std::cout << "Paht: " << (*path).GetString() << std::endl;
+			//std::cout << "Paht: " << (*path).GetString() << std::endl;
+			meshSequence.addMeshFromFile((*path).GetString());
+		}
+	}
+
+	if (object.HasMember("additionalMeshes")) {
+		rapidjson::GenericArray<false, rapidjson::Value> array = object["additionalMeshes"].GetArray();
+		for (rapidjson::Value::ValueIterator mesh = array.Begin(); mesh != array.End(); ++mesh) {
+			meshSequence.addMesh(meshes[(*mesh).GetInt()]->getMeshes()[0]->getVertexBuffer(), meshes[(*mesh).GetInt()]->getMeshes()[0]->getIndexBuffer());
 		}
 	}
 
@@ -205,7 +208,7 @@ MeshSequence& Scene::addMeshSequence(const rapidjson::GenericObject<false, rapid
 	box.inset(Vector3f(-(2.0f * box.min[0] + 2.5f), 0.6f, 1.3f), Vector3f(2.0f * box.max[0] - 2.5f, 0.1f, 0.5f));
 
 	//player
-	meshSequence.getLocalBoundingBox(47).maximize(0.2f);
+	meshSequence.getLocalBoundingBox(46).maximize(0.2f);
 
 	meshSequence.loadSequenceGpu();
 	return meshSequence;
@@ -369,7 +372,7 @@ const std::vector<AssimpModel*>& Scene::getMeshes() const {
 	return meshes;
 }
 
-const std::vector <MeshSequence>& Scene::getMeshSequences() const {
+std::vector<MeshSequence>& Scene::getMeshSequences(){
 	return meshSequences;
 }
 

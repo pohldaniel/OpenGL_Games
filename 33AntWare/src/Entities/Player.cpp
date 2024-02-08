@@ -173,10 +173,11 @@ void Player::fixedUpdate(float fdt) {
 
 void Player::dispatchBullet() {
 	dynamic_cast<Entity*>(m_children.front().get())->setTextureIndex(7);
-	bullets.push_back(Bullet({ 0.0f, 0.0f, -1.0f }));
+	bullets.push_back(Bullet(meshSequence,{ 0.0f, 0.0f, -1.0f }));
 	bullets.back().setOrientation(m_orientation);
 	bullets.back().setPosition(m_position);
 	bullets.back().translateRelative({ 0.249067f, 0.47149f, -1.25759f });
+	bullets.back().start();
 	isRecoiling = true;
 	recoilTime = 0.0f;	
 }

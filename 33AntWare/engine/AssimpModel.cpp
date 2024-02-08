@@ -159,18 +159,27 @@ bool AssimpModel::loadModel(const char* a_filename, bool isStacked, bool generat
 
 		for (unsigned int i = 0; i < aiMesh->mNumVertices; i++) {
 
-			xmin = (std::min)(aiMesh->mVertices[i].x, xmin);
-			ymin = (std::min)(aiMesh->mVertices[i].y, ymin);
-			zmin = (std::min)(aiMesh->mVertices[i].z, zmin);
+			if (!flipYZ) {
+				xmin = (std::min)(aiMesh->mVertices[i].x, xmin);
+				ymin = (std::min)(aiMesh->mVertices[i].y, ymin);
+				zmin = (std::min)(aiMesh->mVertices[i].z, zmin);
 
-			xmax = (std::max)(aiMesh->mVertices[i].x, xmax);
-			ymax = (std::max)(aiMesh->mVertices[i].y, ymax);
-			zmax = (std::max)(aiMesh->mVertices[i].z, zmax);
+				xmax = (std::max)(aiMesh->mVertices[i].x, xmax);
+				ymax = (std::max)(aiMesh->mVertices[i].y, ymax);
+				zmax = (std::max)(aiMesh->mVertices[i].z, zmax);
+			}else {
+				xmin = (std::min)(aiMesh->mVertices[i].x, xmin);
+				ymin = (std::min)(aiMesh->mVertices[i].z, ymin);
+				zmin = (std::min)(aiMesh->mVertices[i].y, zmin);
+
+				xmax = (std::max)(aiMesh->mVertices[i].x, xmax);
+				ymax = (std::max)(aiMesh->mVertices[i].z, ymax);
+				zmax = (std::max)(aiMesh->mVertices[i].y, zmax);
+			}
 
 			if (!flipYZ) {
 				vertexBuffer.push_back(aiMesh->mVertices[i].x); vertexBuffer.push_back(aiMesh->mVertices[i].y); vertexBuffer.push_back(aiMesh->mVertices[i].z);
-			}
-			else {
+			}else {
 				vertexBuffer.push_back(aiMesh->mVertices[i].x); vertexBuffer.push_back(aiMesh->mVertices[i].z); vertexBuffer.push_back(aiMesh->mVertices[i].y);
 			}
 
@@ -181,8 +190,7 @@ bool AssimpModel::loadModel(const char* a_filename, bool isStacked, bool generat
 			if (m_hasNormals || mesh->m_hasNormals) {
 				if (!flipYZ) {
 					vertexBuffer.push_back(aiMesh->mNormals[i].x); vertexBuffer.push_back(aiMesh->mNormals[i].y); vertexBuffer.push_back(aiMesh->mNormals[i].z);
-				}
-				else {
+				}else {
 					vertexBuffer.push_back(aiMesh->mNormals[i].x); vertexBuffer.push_back(aiMesh->mNormals[i].z); vertexBuffer.push_back(aiMesh->mNormals[i].y);
 				}
 			}
@@ -192,8 +200,7 @@ bool AssimpModel::loadModel(const char* a_filename, bool isStacked, bool generat
 				if (!flipYZ) {
 					vertexBuffer.push_back(aiMesh->mTangents[i].x); vertexBuffer.push_back(aiMesh->mTangents[i].y); vertexBuffer.push_back(aiMesh->mTangents[i].z);
 					vertexBuffer.push_back(aiMesh->mBitangents[i].x); vertexBuffer.push_back(aiMesh->mBitangents[i].y); vertexBuffer.push_back(aiMesh->mBitangents[i].z);
-				}
-				else {
+				}else {
 					vertexBuffer.push_back(aiMesh->mTangents[i].x); vertexBuffer.push_back(aiMesh->mTangents[i].z); vertexBuffer.push_back(aiMesh->mTangents[i].y);
 					vertexBuffer.push_back(aiMesh->mBitangents[i].x); vertexBuffer.push_back(aiMesh->mBitangents[i].z); vertexBuffer.push_back(aiMesh->mBitangents[i].y);
 				}

@@ -1,4 +1,8 @@
 #include <GL/glew.h>
+#include <assimp/Importer.hpp> 
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
+
 #include "MeshSequence.h"
 
 MeshSequence::MeshSequence() {
@@ -45,6 +49,22 @@ MeshSequence::MeshSequence(MeshSequence&& rhs) {
 }
 
 MeshSequence& MeshSequence::operator=(const MeshSequence& rhs) {
+	m_vao = rhs.m_vao;
+	m_vbo = rhs.m_vbo;
+	m_ibo = rhs.m_ibo;
+	m_transform = rhs.m_transform;
+	m_stride = rhs.m_stride;
+	m_meshes = rhs.m_meshes;
+	m_numberOfMeshes = rhs.m_numberOfMeshes;
+	m_numberOfVertices = rhs.m_numberOfVertices;
+	m_numberOfIndices = rhs.m_numberOfIndices;
+	m_localBoundingBoxes = rhs.m_localBoundingBoxes;
+	m_boundingBoxCache = rhs.m_boundingBoxCache;
+	m_markForDelete = false;
+	return *this;
+}
+
+MeshSequence& MeshSequence::operator=(MeshSequence&& rhs) {
 	m_vao = rhs.m_vao;
 	m_vbo = rhs.m_vbo;
 	m_ibo = rhs.m_ibo;
@@ -476,12 +496,102 @@ void MeshSequence::loadSequence(const char* _path, Vector3f& axis, float degree,
 	m_numberOfIndices = m_indexBuffer.size();
 }
 
-void MeshSequence::addMeshFromFile(const char* path, bool withoutNormals, bool generateSmoothNormals, bool generateFlatNormals, bool generateSmoothTangents, bool rescale) {
-	return addMeshFromFile(path, Vector3f(0.0, 1.0, 0.0), 0.0, Vector3f(0.0, 0.0, 0.0), 1.0, withoutNormals, generateSmoothNormals, generateFlatNormals, generateSmoothTangents, rescale);
+void MeshSequence::addMeshFromFile(const char* path, bool withoutNormals, bool generateSmoothNormals, bool generateFlatNormals, bool generateSmoothTangents, bool rescale, bool flipYZ, bool flipWinding) {
+	return addMeshFromFile(path, Vector3f(0.0, 1.0, 0.0), 0.0, Vector3f(0.0, 0.0, 0.0), 1.0, withoutNormals, generateSmoothNormals, generateFlatNormals, generateSmoothTangents, rescale, flipYZ, flipWinding);
 }
 
-void MeshSequence::addMeshFromFile(const char* path, Vector3f& axis, float degree, Vector3f& translate, float scale, bool withoutNormals, bool generateSmoothNormals, bool generateFlatNormals, bool generateSmoothTangents, bool rescale) {
+void MeshSequence::addMeshFromFile(const char* path, Vector3f& axis, float degree, Vector3f& translate, float scale, bool withoutNormals, bool generateSmoothNormals, bool generateFlatNormals, bool generateSmoothTangents, bool rescale, bool flipYZ, bool flipWinding) {
+	
+	Assimp::Importer Importer;
 
+	const aiScene* pScene = Importer.ReadFile(path, (generateSmoothTangents && flipWinding) ? (aiProcess_Triangulate | aiProcess_FindDegenerates) | aiProcess_CalcTangentSpace | aiProcess_FlipWindingOrder :
+                                                     generateSmoothTangents                 ? (aiProcess_Triangulate | aiProcess_FindDegenerates) | aiProcess_CalcTangentSpace :
+                                                     flipWinding                            ? (aiProcess_Triangulate | aiProcess_FindDegenerates) | aiProcess_FlipWindingOrder :
+                                                                                              (aiProcess_Triangulate | aiProcess_FindDegenerates));
+
+	//Importer.GetOrphanedScene();
+	bool exportTangents = generateSmoothTangents;
+	unsigned int numberOfMeshes = pScene->mNumMeshes;
+
+	float xmin = FLT_MAX; float ymin = FLT_MAX; float zmin = FLT_MAX;
+	float xmax = -FLT_MAX; float ymax = -FLT_MAX; float zmax = -FLT_MAX;
+
+	for (int j = 0; j < pScene->mNumMeshes; j++) {
+		const aiMesh* aiMesh = pScene->mMeshes[j];
+		bool hasTextureCoords = aiMesh->HasTextureCoords(0);
+		bool hasNormals = aiMesh->HasNormals();
+		bool hasTangents = aiMesh->HasTangentsAndBitangents();
+		short stride = hasTangents ? 14 : (hasNormals && hasTextureCoords) ? 8 : hasNormals ? 6 : hasTextureCoords ? 5 : 3;
+
+		std::vector<float> vertexBuffer;
+		std::vector<unsigned int> indexBuffer;
+
+		for (unsigned int i = 0; i < aiMesh->mNumVertices; i++) {
+
+			float posY = flipYZ ? aiMesh->mVertices[i].z : aiMesh->mVertices[i].y;
+			float posZ = flipYZ ? aiMesh->mVertices[i].y : aiMesh->mVertices[i].z;
+
+			xmin = (std::min)(aiMesh->mVertices[i].x, xmin);
+			ymin = (std::min)(posY, ymin);
+			zmin = (std::min)(posZ, zmin);
+
+			xmax = (std::max)(aiMesh->mVertices[i].x, xmax);
+			ymax = (std::max)(posY, ymax);
+			zmax = (std::max)(posZ, zmax);
+
+			vertexBuffer.push_back(aiMesh->mVertices[i].x); vertexBuffer.push_back(posY); vertexBuffer.push_back(posZ);
+
+			if (hasTextureCoords) {
+				vertexBuffer.push_back(aiMesh->mTextureCoords[0][i].x); vertexBuffer.push_back(aiMesh->mTextureCoords[0][i].y);
+			}
+
+			if (hasNormals) {
+				float normY = flipYZ ? aiMesh->mNormals[i].z : aiMesh->mNormals[i].y;
+				float normZ = flipYZ ? aiMesh->mNormals[i].y : aiMesh->mNormals[i].z;
+				vertexBuffer.push_back(aiMesh->mNormals[i].x); vertexBuffer.push_back(normY); vertexBuffer.push_back(normZ);
+			}
+
+			if (hasTangents) {
+				float tangY = flipYZ ? aiMesh->mTangents[i].z : aiMesh->mTangents[i].y;
+				float tangZ = flipYZ ? aiMesh->mTangents[i].y : aiMesh->mTangents[i].z;
+
+				float bitangY = flipYZ ? aiMesh->mBitangents[i].z : aiMesh->mBitangents[i].y;
+				float bitangZ = flipYZ ? aiMesh->mBitangents[i].y : aiMesh->mBitangents[i].z;
+
+				vertexBuffer.push_back(aiMesh->mTangents[i].x); vertexBuffer.push_back(tangY); vertexBuffer.push_back(tangZ);
+				vertexBuffer.push_back(aiMesh->mBitangents[i].x); vertexBuffer.push_back(bitangY); vertexBuffer.push_back(bitangZ);
+			}
+								
+		}
+
+		for (unsigned int t = 0; t < aiMesh->mNumFaces; ++t) {
+			const aiFace* face = &aiMesh->mFaces[t];
+			indexBuffer.push_back(face->mIndices[0]);
+			indexBuffer.push_back(face->mIndices[1]);
+			indexBuffer.push_back(face->mIndices[2]);
+		}
+
+		m_localBoundingBoxes.push_back({ { xmin, ymin, zmin }, { xmax, ymax, zmax } });
+		m_boundingBoxCache.insert({ m_numberOfMeshes, m_localBoundingBoxes.size() - 1 });
+
+		m_numberOfMeshes++;
+		m_meshes.push_back({ static_cast<unsigned int>(indexBuffer.size()) / 3, 0u, 0u, 0u });
+		m_meshes.back().baseIndex = m_numberOfIndices;
+		m_meshes.back().baseVertex = m_numberOfVertices;
+		m_meshes.back().drawCount = indexBuffer.size();
+
+		m_vertexBuffer.insert(m_vertexBuffer.end(), vertexBuffer.begin(), vertexBuffer.end());
+		m_indexBuffer.insert(m_indexBuffer.end(), indexBuffer.begin(), indexBuffer.end());
+
+		m_numberOfVertices = m_vertexBuffer.size() / m_stride;
+		m_numberOfIndices = m_indexBuffer.size();
+
+		vertexBuffer.clear();
+		vertexBuffer.shrink_to_fit();
+
+		indexBuffer.clear();
+		indexBuffer.shrink_to_fit();
+	}
 }
 
 
@@ -613,7 +723,7 @@ void MeshSequence::loadSequenceGpu() {
 	ObjModel::CreateBuffer(m_vertexBuffer, m_indexBuffer, m_vao, m_vbo, m_ibo, m_stride);
 }
 
-const void MeshSequence::draw(unsigned short frame, short textureIndex, short materialIndex) const {
+const void MeshSequence::draw(unsigned short meshIndex, short textureIndex, short materialIndex) const {
 
 	if(materialIndex >= 0)
 		Material::GetMaterials()[materialIndex].updateMaterialUbo(BuiltInShader::materialUbo);
@@ -621,6 +731,6 @@ const void MeshSequence::draw(unsigned short frame, short textureIndex, short ma
 	textureIndex >= 0 ? Material::GetTextures()[textureIndex].bind() : Texture::Unbind();
 
 	glBindVertexArray(m_vao);
-	glDrawElementsBaseVertex(GL_TRIANGLES, m_meshes[frame].drawCount, GL_UNSIGNED_INT, (void*)(sizeof(unsigned int) * m_meshes[frame].baseIndex), m_meshes[frame].baseVertex);
+	glDrawElementsBaseVertex(GL_TRIANGLES, m_meshes[meshIndex].drawCount, GL_UNSIGNED_INT, (void*)(sizeof(unsigned int) * m_meshes[meshIndex].baseIndex), m_meshes[meshIndex].baseVertex);
 	glBindVertexArray(0);
 }

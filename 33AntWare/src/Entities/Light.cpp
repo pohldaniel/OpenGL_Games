@@ -57,21 +57,6 @@ void Light::update(const float dt) {
 	setUboDirection(Quaternion::Rotate(getWorldOrientation(), m_direction));
 }
 
-void Light::cleanup() {
-
-}
-
-void Light::print() {
-	std::cout << "Ambient: " << Buffer[m_index].ambient[0] << "  " << Buffer[m_index].ambient[1] << "  " << Buffer[m_index].ambient[2] << "  " << Buffer[m_index].ambient[3] << std::endl;
-	std::cout << "Diffuse: " << Buffer[m_index].diffuse[0] << "  " << Buffer[m_index].diffuse[1] << "  " << Buffer[m_index].diffuse[2] << "  " << Buffer[m_index].diffuse[3] << std::endl;
-	std::cout << "Specular: " << Buffer[m_index].specular[0] << "  " << Buffer[m_index].specular[1] << "  " << Buffer[m_index].specular[2] << "  " << Buffer[m_index].specular[3] << std::endl;
-	std::cout << "Position: " << Buffer[m_index].position[0] << "  " << Buffer[m_index].position[1] << "  " << Buffer[m_index].position[2] << std::endl;
-	std::cout << "Direction: " << Buffer[m_index].direction[0] << "  " << Buffer[m_index].direction[1] << "  " << Buffer[m_index].direction[2] << std::endl;
-	std::cout << "Angle: " << Buffer[m_index].angle << std::endl;
-	std::cout << "Type: " << Buffer[m_index].type << std::endl;
-	std::cout << "-------------------" << std::endl;
-}
-
 void Light::setDirection(const Vector3f& direction) {
 	m_direction = direction;
 }
@@ -114,11 +99,26 @@ void Light::setUboAngle(float _angle) const {
 }
 
 void Light::setUboType(int type) {
-	Buffer[m_index].type = static_cast<LightType2>(type);
+	Buffer[m_index].type = static_cast<LightType>(type);
 }
 
 void Light::toggle() const {
 	Buffer[m_index].enabled = !Buffer[m_index].enabled;
+}
+
+void Light::cleanup() {
+
+}
+
+void Light::print() {
+	std::cout << "Ambient: " << Buffer[m_index].ambient[0] << "  " << Buffer[m_index].ambient[1] << "  " << Buffer[m_index].ambient[2] << "  " << Buffer[m_index].ambient[3] << std::endl;
+	std::cout << "Diffuse: " << Buffer[m_index].diffuse[0] << "  " << Buffer[m_index].diffuse[1] << "  " << Buffer[m_index].diffuse[2] << "  " << Buffer[m_index].diffuse[3] << std::endl;
+	std::cout << "Specular: " << Buffer[m_index].specular[0] << "  " << Buffer[m_index].specular[1] << "  " << Buffer[m_index].specular[2] << "  " << Buffer[m_index].specular[3] << std::endl;
+	std::cout << "Position: " << Buffer[m_index].position[0] << "  " << Buffer[m_index].position[1] << "  " << Buffer[m_index].position[2] << std::endl;
+	std::cout << "Direction: " << Buffer[m_index].direction[0] << "  " << Buffer[m_index].direction[1] << "  " << Buffer[m_index].direction[2] << std::endl;
+	std::cout << "Angle: " << Buffer[m_index].angle << std::endl;
+	std::cout << "Type: " << Buffer[m_index].type << std::endl;
+	std::cout << "-------------------" << std::endl;
 }
 
 void Light::SetLights(const std::vector<Light>& lights) {
@@ -163,7 +163,7 @@ Light& Light::AddLight(const LightBuffer& _light) {
 	Buffer[index].enabled = _light.enabled;
 	Buffer[index].type = _light.type;
 
-	if (Buffer[index].type == SPOT2)
+	if (Buffer[index].type == SPOT_LIGHT)
 		light.m_isStatic = false;
 
 	return light;
