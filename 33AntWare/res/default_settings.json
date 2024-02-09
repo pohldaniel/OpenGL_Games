@@ -16,6 +16,16 @@
             "file": "res/scenes/cd drive.json",
             "thumb": "res/textures/cd drive - label.png",
             "music": "res/audio/music03.ogg"
+        },
+		{
+            "file": "res/scenes/cpu top.json",
+            "thumb": "res/textures/cpu top - label.png",
+            "music": "res/audio/music04.ogg"
+        },
+        {
+            "file": "res/scenes/mobo.json",
+            "thumb": "res/textures/mobo - label.png",
+            "music": "res/audio/music05.ogg"
         }
     ]
 }

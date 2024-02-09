@@ -9,7 +9,8 @@ enum States {
 	DEFAULT,
 	GAME,
 	SCENEGRAPH,
-	MENUNEW
+	MENUNEW,
+	LOADING
 };
 
 class State;

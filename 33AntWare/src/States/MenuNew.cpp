@@ -4,7 +4,7 @@
 #include <imgui_internal.h>
 #include <engine/Batchrenderer.h>
 
-#include <States/Game.h>
+#include <States/Loading.h>
 
 #include "MenuNew.h"
 #include "Application.h"
@@ -29,10 +29,7 @@ currentPosition(SceneManager::Get().m_currentPosition) {
 
 	TextureAtlasCreator::Get().init(2048u, 2048u);
 
-	for(auto thumb : SceneManager::Get().getThumbs()) {
-		TileSetManager::Get().getTileSet("menu").loadTileSetCpu(thumb);
-	}
-
+	TileSetManager::Get().getTileSet("menu").loadTileSetCpu(SceneManager::Get().getThumbs());
 	TileSetManager::Get().getTileSet("menu").loadTileSetCpu(std::vector<std::string>({
 		"res/textures/Main Menu BG.png",
 		"res/textures/Game Label.png",
@@ -164,7 +161,7 @@ void MenuNew::OnKeyUp(Event::KeyboardEvent& event) {
 void MenuNew::processInput() {
 	Keyboard &keyboard = Keyboard::instance();
 	if (keyboard.keyPressed(Keyboard::KEY_ENTER) && !keyboard.keyDown(Keyboard::KEY_RALT)) {
-		//m_machine.addStateAtTop(new Game(m_machine));
+		m_machine.addStateAtTop(new Loading(m_machine));
 		return;
 	}
 
@@ -186,8 +183,8 @@ void MenuNew::processInput() {
 }
 
 void MenuNew::resize(int deltaW, int deltaH) {
-	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
-	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
+	//m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
+	//m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
 }
 
 void MenuNew::renderUi() {

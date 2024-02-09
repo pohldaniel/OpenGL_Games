@@ -15,7 +15,6 @@ void main(void){
 	gl_Position = u_transform * vec4(i_position, 1.0);
 
 	texCoord.y =  u_flip ? 1.0 - i_texCoord.y : i_texCoord.y;
-
 	texCoord.x = i_texCoord.x * (u_texRect.z - u_texRect.x) + u_texRect.x;  
 	texCoord.y = texCoord.y * (u_texRect.w - u_texRect.y) + u_texRect.y;
 	vertColor = u_color;

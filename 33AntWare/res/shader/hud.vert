@@ -7,6 +7,7 @@ flat out int layer;
 out vec2 texCoord;
 out vec4 vertColor;
 
+uniform bool u_flip = false;
 uniform mat4 u_transform = mat4(1.0);
 uniform vec4 u_texRect = vec4(0.0, 0.0, 1.0, 1.0);
 uniform vec4 u_color = vec4(1.0);
@@ -16,6 +17,7 @@ void main(void) {
 	gl_Position = u_transform * vec4(i_position, 1.0);  
 	layer = u_layer;
 	
+	texCoord.y =  u_flip ? 1.0 - i_texCoord.y : i_texCoord.y;
 	texCoord.x = i_texCoord.x * (u_texRect.z - u_texRect.x) + u_texRect.x;  
 	texCoord.y = i_texCoord.y * (u_texRect.w - u_texRect.y) + u_texRect.y;
 	vertColor = u_color;
