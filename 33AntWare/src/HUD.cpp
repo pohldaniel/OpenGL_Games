@@ -41,7 +41,7 @@ void HUD::init() {
 
 	//Spritesheet::Safe("hud", m_hudAtlas);
 
-	auto shader = Globals::shaderManager.getAssetPointer("hud_new");
+	auto shader = Globals::shaderManager.getAssetPointer("hud");
 	shader->use();
 	shader->loadInt("u_texture", 1);
 	shader->unuse();
@@ -50,7 +50,7 @@ void HUD::init() {
 }
 
 void HUD::draw(const Camera& camera) {
-	auto shader = Globals::shaderManager.getAssetPointer("hud_new");
+	auto shader = Globals::shaderManager.getAssetPointer("hud");
 	shader->use();
 	TextureRect rect;
 	if (m_loose) {
@@ -97,7 +97,7 @@ void HUD::drawHP(const Camera& camera) {
 	if (hp < 0)
 		hp = 0;
 	
-	auto shader = Globals::shaderManager.getAssetPointer("hud_new");
+	auto shader = Globals::shaderManager.getAssetPointer("hud");
 	shader->use();
 
 	m_sop.setPosition(plusX, plusY, 0.0f);
@@ -160,7 +160,7 @@ void HUD::drawAmmo(const Camera& camera) {
 		inHandAmmo = 0;
 
 	if (totalAmmo >= 100) {
-		auto shader = Globals::shaderManager.getAssetPointer("hud_new");
+		auto shader = Globals::shaderManager.getAssetPointer("hud");
 		shader->use();
 
 		//drawQuad(ammo, { bulletX, bulletY }, { bulletSize, bulletSize });
@@ -245,7 +245,7 @@ void HUD::drawAmmo(const Camera& camera) {
 		Globals::shapeManager.get("quad_half").drawRaw();
 
 	}else if (totalAmmo >= 10) {
-		auto shader = Globals::shaderManager.getAssetPointer("hud_new");
+		auto shader = Globals::shaderManager.getAssetPointer("hud");
 		shader->use();
 
 		slashX += totalDiff;
@@ -333,10 +333,9 @@ void HUD::drawAmmo(const Camera& camera) {
 		shader->loadInt("u_layer", rect.frame);
 		Globals::shapeManager.get("quad_half").drawRaw();
 
-	}
-	else {
+	}else {
 
-		auto shader = Globals::shaderManager.getAssetPointer("hud_new");
+		auto shader = Globals::shaderManager.getAssetPointer("hud");
 		shader->use();
 
 		slashX += totalDiff * 2;

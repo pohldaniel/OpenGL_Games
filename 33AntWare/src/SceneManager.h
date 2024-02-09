@@ -89,16 +89,19 @@ public:
 	bool containsScene(std::string name);
 	void loadSettings(std::string path);
 	const std::string& getCurrentSceneFile() const;
+	const std::vector<Level>& getLevels() const;
+	const std::vector<std::string> getThumbs();
+
+	int m_currentPosition;
 
 	static SceneManager& Get();
-
+	
 private:
+
 	SceneManager();
 
 	std::vector<Level> m_levels;
 	std::unordered_map<std::string, Scene> m_scenes;
-
-	int m_currentPosition;
 
 	static SceneManager s_instance;
 };

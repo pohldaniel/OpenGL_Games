@@ -402,6 +402,9 @@
     <ClCompile Include="src\HUD.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\States\MenuNew.cpp">
+      <Filter>Source Files\States</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="convhull\convhull_3d.h">
@@ -767,8 +770,11 @@
     <ClInclude Include="src\MeshSequence.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\States\MenuNew.h">
+      <Filter>Source Files\States</Filter>
+    </ClInclude>
     <ClInclude Include="src\HUD.h">
-      <Filter>Source Files</Filter>
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

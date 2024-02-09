@@ -1,11 +1,14 @@
-#version 330 core
-layout(location = 0) out vec4 outColor0;
-in vec2 uv;
-uniform vec3 color;
-uniform sampler2D albedo;
-void main() {
-  vec4 sampledColor = texture(albedo, uv);
-  if (sampledColor.a == 0.0)
-    discard;
-  outColor0 = vec4(color, 1.0) * sampledColor;
+#version 440 core
+
+flat in int layer;
+in vec2 texCoord;
+in vec4 vertColor;
+
+out vec4 outColor;
+
+uniform sampler2DArray u_texture;
+
+void main(void) {
+	outColor = vertColor * texture(u_texture, vec3(texCoord, layer));
+	//outColor = vec4(1.0, 0.0, 0.0, 1.0);
 }

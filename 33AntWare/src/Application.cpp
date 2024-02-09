@@ -15,6 +15,7 @@
 #include <States/Game.h>
 #include <States/Menu.h>
 #include <States/SceneGraph.h>
+#include <States/MenuNew.h>
 #include <UI/Widget.h>
 
 #include "TileSet.h"
@@ -412,9 +413,10 @@ void Application::fixedUpdate() {
 void Application::initStates() {
 	Machine = new StateMachine(m_dt, m_fdt);
 	//Machine->addStateAtTop(new Default(*Machine));
-	Machine->addStateAtTop(new Game(*Machine));
+	//Machine->addStateAtTop(new Game(*Machine));
 	//Machine->addStateAtTop(new Menu(*Machine));
 	//Machine->addStateAtTop(new SceneGraph(*Machine));
+	Machine->addStateAtTop(new MenuNew(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -658,18 +660,17 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("texture", "res/shader/texture.vert", "res/shader/texture.frag");
 	Globals::shaderManager.loadShader("antware", "res/shader/antware.vert", "res/shader/antware.frag");
 	Globals::shaderManager.loadShader("hud", "res/shader/hud.vert", "res/shader/hud.frag");
-	Globals::shaderManager.loadShader("hud_new", "res/hud.vert", "res/hud.frag");
 
 	Globals::shaderManager.loadShader("wire_overlay", "res/shader/wire_overlay.vert", "res/shader/wire_overlay.frag", "res/shader/wire_overlay.gem");
 	Globals::shaderManager.loadShader("wire_overlay_material", "res/shader/wire_overlay.vert", "res/shader/wire_overlay_material.frag", "res/shader/wire_overlay.gem");
 	Globals::shaderManager.loadShader("wire_overlay_color", "res/shader/wire_overlay.vert", "res/shader/wire_overlay_color.frag", "res/shader/wire_overlay.gem");
 
-	/*Globals::textureManager.loadTexture("forest_1", "res/backgrounds/Forest/plx-1.png");
+	Globals::textureManager.loadTexture("forest_1", "res/backgrounds/Forest/plx-1.png");
 	Globals::textureManager.loadTexture("forest_2", "res/backgrounds/Forest/plx-2.png");
 	Globals::textureManager.loadTexture("forest_3", "res/backgrounds/Forest/plx-3.png");
 	Globals::textureManager.loadTexture("forest_4", "res/backgrounds/Forest/plx-4.png");
 	Globals::textureManager.loadTexture("forest_5", "res/backgrounds/Forest/plx-5.png");
-	Globals::textureManager.loadTexture("ant", "res/textures/Ant.png");*/
+
 	
 	Globals::textureManager.loadTexture("mars", "res/models/planet/mars.png");
 

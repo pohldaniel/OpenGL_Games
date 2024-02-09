@@ -8,7 +8,8 @@ enum States {
 	CONTROLLS,
 	DEFAULT,
 	GAME,
-	SCENEGRAPH
+	SCENEGRAPH,
+	MENUNEW
 };
 
 class State;

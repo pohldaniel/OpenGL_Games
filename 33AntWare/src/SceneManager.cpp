@@ -416,6 +416,16 @@ const std::string& SceneManager::getCurrentSceneFile() const {
 	return m_levels[m_currentPosition].sceneFile;
 }
 
+const std::vector<Level>& SceneManager::getLevels() const {
+	return m_levels;
+}
+
+const std::vector<std::string> SceneManager::getThumbs() {
+	std::vector<std::string> sceneFiles;
+	std::transform(m_levels.begin(), m_levels.end(), std::back_inserter(sceneFiles), [](const Level& level)-> std::string { return level.thumb; });
+	return sceneFiles;
+}
+
 Scene& SceneManager::getScene(std::string name) {
 	return m_scenes[name];
 }

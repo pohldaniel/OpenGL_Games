@@ -197,6 +197,7 @@
     <ClCompile Include="src\States\Controlls.cpp" />
     <ClCompile Include="src\States\Default.cpp" />
     <ClCompile Include="src\States\Game.cpp" />
+    <ClCompile Include="src\States\MenuNew.cpp" />
     <ClCompile Include="src\States\SceneGraph.cpp" />
     <ClCompile Include="src\States\Settings.cpp" />
     <ClCompile Include="src\States\StateMachine.cpp" />
@@ -367,6 +368,7 @@
     <ClInclude Include="src\States\Controls.h" />
     <ClInclude Include="src\States\Default.h" />
     <ClInclude Include="src\States\Game.h" />
+    <ClInclude Include="src\States\MenuNew.h" />
     <ClInclude Include="src\States\SceneGraph.h" />
     <ClInclude Include="src\States\Settings.h" />
     <ClInclude Include="src\States\StateMachine.h" />

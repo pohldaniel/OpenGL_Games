@@ -72,7 +72,6 @@ void Ant::update(float dt) {
 
 	if (timeToDestroy()) {
 		markForDelete();
-		//markForRemove();
 	}
 
 	if (getWorldBoundingBox().isColliding(target->getWorldBoundingBox()) && Globals::clock.getElapsedTimeSec() > 2.0f && timeSinceDealtDamage.getElapsedTimeSec() >= 1.0f) {
