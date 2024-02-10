@@ -4,7 +4,7 @@
 #include <array>
 #include <engine/interfaces/ICounter.h>
 #include <Scene/SceneNode.h>
-#include <Scene/SceneNodeLC.h>
+#include <Scene/SceneNode.h>
 
 enum LightType {
 	DIRECTIONAL_LIGHT,

@@ -2,27 +2,25 @@
 #include <iostream>
 #include "SceneNode.h"
 
-SceneNode::SceneNode() : BaseNode(), m_isSubroot(false) {
+SceneNode::SceneNode() : BaseNode() {
 
 }
 
 SceneNode::SceneNode(const SceneNode& rhs) : BaseNode(rhs){
-	m_isSubroot = rhs.m_isSubroot;
+
 }
 
 SceneNode::SceneNode(SceneNode&& rhs) : BaseNode(rhs) {
-	m_isSubroot = rhs.m_isSubroot;
+
 }
 
 SceneNode& SceneNode::operator=(const SceneNode& rhs) {
 	BaseNode::operator=(rhs);
-	m_isSubroot = rhs.m_isSubroot;
 	return *this;
 }
 
 SceneNode& SceneNode::operator=(SceneNode&& rhs) {
 	BaseNode::operator=(rhs);
-	m_isSubroot = rhs.m_isSubroot;
 	return *this;
 }
 
@@ -54,14 +52,14 @@ void SceneNode::updateSOP() const {
 	if (m_isDirty) {
 		if (m_parent) {
 			m_worldPosition = m_parent->getWorldPosition() + BaseNode::m_position * m_parent->getWorldScale();
-			m_worldOrigin = (m_parent->getWorldOrigin() + BaseNode::m_position * m_parent->getWorldScale()) * !m_isSubroot;
+			m_worldOrigin = (m_parent->getWorldOrigin() + BaseNode::m_origin * m_parent->getWorldScale()) ;
 			m_worldScale = m_parent->getWorldScale() * BaseNode::m_scale;
 			m_worldOrientation = m_parent->getWorldOrientation() * BaseNode::m_orientation;
 		}else {
 			m_worldPosition = BaseNode::m_position;
 			m_worldScale = BaseNode::m_scale;
 			m_worldOrientation = BaseNode::m_orientation;
-			m_worldOrigin = Vector3f(0.0f);
+			m_worldOrigin = BaseNode::m_origin;
 		}
 		m_isDirty = false;
 	}

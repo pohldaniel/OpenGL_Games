@@ -26,6 +26,7 @@ public:
 	bool isMarkForDelete();
 	void setRigidbody(const Rigidbody& rigidbody);
 	void setIsStatic(bool isStatic);
+	bool isStatic();
 
 	short getMaterialIndex() const;
 	virtual void setMaterialIndex(short index) const;

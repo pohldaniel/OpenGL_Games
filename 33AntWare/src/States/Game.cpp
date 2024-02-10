@@ -90,7 +90,7 @@ void Game::update() {
 		entity->update(m_dt);
 
 	for(auto&& entity : m_entities)
-		entity->update(m_fdt);
+		entity->update(m_dt);
 
 	for(auto&& light : Light::GetLights()) {
 		light->update(m_dt);

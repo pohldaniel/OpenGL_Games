@@ -5,7 +5,7 @@
 #include "HUD.h"
 
 Ant::Ant(const MeshSequence& meshSequence, int meshIndex, Player* target) : Entity(meshSequence, meshIndex), target(target) {
-	m_isSubroot = true;
+	setIsStatic(false);
 }
 
 void Ant::start() {
@@ -30,34 +30,38 @@ void Ant::update(float dt) {
 		timeSinceLastAlphaDecrease.reset();
 	}
 
-	if (isAlive && Vector3f::Length(m_position, target->getPosition()) <= detectionRaduis) {
-		Vector3f targetPos = target->getPosition();
-		targetPos[1] = m_position[1];
+	//if (!isStatic()) {
+		if (isAlive && Vector3f::Length(m_position, target->getPosition()) <= detectionRaduis) {
+			Vector3f targetPos = target->getPosition();
+			targetPos[1] = m_position[1];
 
-		Matrix4f lookAt = Matrix4f::LookAt(m_position, targetPos, { 0.0f, 1.0f, 0.0f });
-		Quaternion rotation = Quaternion(lookAt);
+			Matrix4f lookAt = Matrix4f::LookAt(m_position, targetPos, { 0.0f, 1.0f, 0.0f });
+			Quaternion rotation = Quaternion(lookAt);
 
-		setOrientation(rotation);
-		Vector3f rotationAxis = rotation.getRotationAxis();
+			setOrientation(rotation);
+			Vector3f rotationAxis = rotation.getRotationAxis();
 
-		if (rotationAxis.lengthSq() > 0.0f)
-			setOrientation(rotationAxis, -rotation.getYaw());
-		else
-			setOrientation({ 1.0f, 0.0f, 0.0f }, 0.0f);
+			if (rotationAxis.lengthSq() > 0.0f)
+				setOrientation(rotationAxis, -rotation.getYaw());
+			else
+				setOrientation({ 1.0f, 0.0f, 0.0f }, 0.0f);
 
-		if (getWorldBoundingBox().isColliding(target->getWorldBoundingBox()))
+			if (getWorldBoundingBox().isColliding(target->getWorldBoundingBox()))
+				m_rigidbody.velocity = { 0.0f, 0.0f, 0.0f };
+			else
+				m_rigidbody.velocity = { 0.0f, 0.0f, -speed };
+		}
+		else {
 			m_rigidbody.velocity = { 0.0f, 0.0f, 0.0f };
-		else
-			m_rigidbody.velocity = { 0.0f, 0.0f, -speed };
-	}else {
-		m_rigidbody.velocity = { 0.0f, 0.0f, 0.0f };
-	}
+		}
 
-	if (m_rigidbody.velocity.lengthSq() > 0.0f) {
-		animate(dt);
-	}else {
-		m_anmIndex = m_meshIndex;
-	}
+		if (m_rigidbody.velocity.lengthSq() > 0.0f) {
+			animate(dt);
+		}
+		else {
+			m_anmIndex = m_meshIndex;
+		}
+	//}
 
 	std::vector<Bullet>& bullets = target->getBullets();
 	std::vector<Bullet>::iterator it = bullets.begin();
@@ -85,19 +89,30 @@ void Ant::update(float dt) {
 
 void Ant::animate(float dt){
 
-    animTime += dt;
-    if (animTime > walkcycleLength){
-        animTime = 0.0f;
-    }
+	if (isStatic())
+		return;
 
-    float progress = animTime / walkcycleLength;
-    progress *= m_meshIndex;
+    /*animTime += dt;
+	while (animTime >= walkcycleLength2) {
+		animTime -= walkcycleLength2;
+		if (++m_anmIndex >= m_meshIndex) {
+			m_anmIndex = 0;
+		}
+	}*/
+
+	animTime += dt;
+	if (animTime > walkcycleLength) {
+		animTime = 0.0f;
+	}
+
+	float progress = animTime / walkcycleLength;
+	progress *= m_meshIndex;
 
 
 	m_anmIndex = round(progress);
-    if (m_anmIndex >= m_meshIndex){
+	if (m_anmIndex >= m_meshIndex) {
 		m_anmIndex = 0;
-    }
+	}
 }
 
 void Ant::draw() {
@@ -129,7 +144,7 @@ void Ant::die(){
 	isAlive = false;
 	isHurting = false;
 	rotate({ 1.0f, 0.0f, 0.0f }, 180.0f);
-	translate(0.0f, 1.0f, 0.0f);
+	translateRelative(0.0f, -1.0f, 0.0f);
 	m_rigidbody.velocity = { 0, 0, 0 };
 }
 

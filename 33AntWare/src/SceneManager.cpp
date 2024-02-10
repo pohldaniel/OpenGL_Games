@@ -152,7 +152,7 @@ void Scene::parseLights(rapidjson::GenericArray<false, rapidjson::Value> array, 
                    static_cast<LightType>(type),
 				   enabled, 
 			       false, 0, 0.0f, 0.0f, 0.0f },
-			     lights);
+			       lights);
 
 	}
 }
@@ -185,13 +185,6 @@ MeshSequence& Scene::addMeshSequence(const rapidjson::GenericObject<false, rapid
 	MeshSequence& meshSequence = meshSequences.back();
 	meshSequence.loadSequence(object["path"].GetString());
 
-	if (object.HasMember("additionalMeshesFromFile")) {
-		rapidjson::GenericArray<false, rapidjson::Value> array = object["additionalMeshesFromFile"].GetArray();
-		for (rapidjson::Value::ValueIterator path = array.Begin(); path != array.End(); ++path) {
-			meshSequence.addMeshFromFile((*path).GetString());
-		}
-	}
-
 	if (object.HasMember("additionalMeshes")) {
 		rapidjson::GenericArray<false, rapidjson::Value> array = object["additionalMeshes"].GetArray();
 		for (rapidjson::Value::ValueIterator mesh = array.Begin(); mesh != array.End(); ++mesh) {
@@ -199,8 +192,17 @@ MeshSequence& Scene::addMeshSequence(const rapidjson::GenericObject<false, rapid
 		}
 	}
 
+	if (object.HasMember("additionalMeshesFromFile")) {
+		rapidjson::GenericArray<false, rapidjson::Value> array = object["additionalMeshesFromFile"].GetArray();
+		for (rapidjson::Value::ValueIterator path = array.Begin(); path != array.End(); ++path) {
+			meshSequence.addMeshFromFile((*path).GetString());
+		}
+	}
+
+	
+
 	//ant
-	const BoundingBox& box = meshSequence.getLocalBoundingBox(41);
+	const BoundingBox& box = meshSequence.getLocalBoundingBox(42);
 	box.inset(Vector3f(-(2.0f * box.min[0] + 2.5f), 0.6f, 1.3f), Vector3f(2.0f * box.max[0] - 2.5f, 0.1f, 0.5f));
 
 	//player
@@ -239,7 +241,7 @@ SceneNode* Scene::addNode(const rapidjson::GenericObject<false, rapidjson::Value
 	SceneNode* child = nullptr;
 	switch (resolveType(type)){
 		case PLAYER: {
-			player = new Player(camera, meshSequences[reference], object["meshIndex"].GetInt(), Vector2f(-51.5f, -51.5f), Vector2f(51.5f, 51.5f));
+			player = new Player(camera, meshSequences[reference], object["meshIndex"].GetInt(), mapMinLimit, mapMaxLimit);
 			player->setPosition(object["position"].GetArray()[0].GetFloat(), object["position"].GetArray()[1].GetFloat(), object["position"].GetArray()[2].GetFloat());
 			if (object.HasMember("materialIndex")) {
 				player->setMaterialIndex(object["materialIndex"].GetInt());
@@ -267,7 +269,17 @@ SceneNode* Scene::addNode(const rapidjson::GenericObject<false, rapidjson::Value
 					entitiesAfterClear.back()->setTextureIndex(object["textureIndex"].GetInt());
 				}
 
-		
+				if (object.HasMember("position")) {
+					entitiesAfterClear.back()->setPosition(object["position"].GetArray()[0].GetFloat(), object["position"].GetArray()[1].GetFloat(), object["position"].GetArray()[2].GetFloat());
+				}
+
+				if (object.HasMember("rotation")) {
+					entitiesAfterClear.back()->setOrientation(object["rotation"].GetArray()[0].GetFloat(), object["rotation"].GetArray()[1].GetFloat(), object["rotation"].GetArray()[2].GetFloat());
+				}
+
+				if (object.HasMember("scale")) {
+					entitiesAfterClear.back()->setScale(object["scale"].GetArray()[0].GetFloat(), object["scale"].GetArray()[1].GetFloat(), object["scale"].GetArray()[2].GetFloat());
+				}
 
 				child = dynamic_cast<SceneNode*>(root->addChild(entitiesAfterClear.back()));
 			}else {
@@ -278,6 +290,23 @@ SceneNode* Scene::addNode(const rapidjson::GenericObject<false, rapidjson::Value
 
 				if (object.HasMember("textureIndex")) {
 					entities.back()->setTextureIndex(object["textureIndex"].GetInt());
+				}
+
+				if (object.HasMember("position")) {
+					entities.back()->setPosition(object["position"].GetArray()[0].GetFloat(), object["position"].GetArray()[1].GetFloat(), object["position"].GetArray()[2].GetFloat());
+				}
+
+				if (object.HasMember("rotation")) {
+					entities.back()->setOrientation(object["rotation"].GetArray()[0].GetFloat(), object["rotation"].GetArray()[1].GetFloat(), object["rotation"].GetArray()[2].GetFloat());
+				}
+
+				if (object.HasMember("scale")) {
+					entities.back()->setScale(object["scale"].GetArray()[0].GetFloat(), object["scale"].GetArray()[1].GetFloat(), object["scale"].GetArray()[2].GetFloat());
+				}
+
+				if (strcmp(object["tag"].GetString(), "ant5") == 0) {
+					Matrix4f trans = entities.back()->getWorldTransformation();
+					trans.print();
 				}
 
 				child = dynamic_cast<SceneNode*>(root->addChild(entities.back()));
@@ -302,10 +331,15 @@ SceneNode* Scene::addNode(const rapidjson::GenericObject<false, rapidjson::Value
 			entities.back()->setOrientation(object["rotation"].GetArray()[0].GetFloat(), object["rotation"].GetArray()[1].GetFloat(), object["rotation"].GetArray()[2].GetFloat());
 			entities.back()->setScale(object["scale"].GetArray()[0].GetFloat(), object["scale"].GetArray()[1].GetFloat(), object["scale"].GetArray()[2].GetFloat());
 			entities.back()->setRigidbody(Rigidbody());
+
+			if (strcmp(object["tag"].GetString(), "ant5") == 0) {
+				entities.back()->setIsStatic(true);
+			}
+
 			child = dynamic_cast<SceneNode*>(root->addChild(entities.back()));
 		}break;
 		default: {
-			child = new SceneNode();			
+			child = new SceneNode();
 		}
 	}
 
@@ -339,15 +373,28 @@ void Scene::loadScene(std::string path) {
 	mapMinLimit = { mapMinLimitData[0].GetFloat(), mapMinLimitData[1].GetFloat() };
 	mapMaxLimit = { mapMaxLimitData[0].GetFloat(), mapMaxLimitData[1].GetFloat() };
 
-	parseCamera(doc["camera"].GetObject(), camera);
-	parseTextures(doc["textures"].GetArray(), textures);
-	parseMaterials(doc["materials"].GetArray(), Material::GetMaterials());
-	parseLights(doc["lights"].GetArray(), Light::GetLights());
-	parseMeshes(doc["meshes"].GetArray(), meshes);
-	parseMeshSequences(doc["meshSequences"].GetArray(), meshSequences);
+	if(doc.HasMember("camera"))
+		parseCamera(doc["camera"].GetObject(), camera);
+
+	if(doc.HasMember("textures"))
+		parseTextures(doc["textures"].GetArray(), textures);
+
+	if(doc.HasMember("materials"))
+		parseMaterials(doc["materials"].GetArray(), Material::GetMaterials());
+
+	if(doc.HasMember("lights"))
+		parseLights(doc["lights"].GetArray(), Light::GetLights());
+
+	if(doc.HasMember("meshes"))
+		parseMeshes(doc["meshes"].GetArray(), meshes);
+
+	if(doc.HasMember("meshSequences"))
+		parseMeshSequences(doc["meshSequences"].GetArray(), meshSequences);
 	
-	root = new SceneNode();
-	parseNodes(doc["nodes"].GetArray(), root);
+	if (doc.HasMember("nodes")) {
+		root = new SceneNode();
+		parseNodes(doc["nodes"].GetArray(), root);
+	}
 }
 
 void Scene::loadSceneGpu() {

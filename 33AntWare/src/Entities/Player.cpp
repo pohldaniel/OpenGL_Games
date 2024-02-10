@@ -18,11 +18,11 @@ Player::Player(Camera& camera, const MeshSequence& meshSequence, int meshIndex, 
 	setOrientation(eularAngles);
 	camera.lookAt({ m_position[0], m_position[1], m_position[2] }, -eularAngles[0], -eularAngles[1], 180.0f);
 
-	m_isSubroot = true;
-
+	setIsStatic(false);
+	setOrigin(0.0f, 0.0f, 0.0f);
 	m_rigidbody.lockLinear(AXIS::y);
 	m_rigidbody.lockAngular(AXIS::z);
-
+	
 	EventDispatcher::AddMouseListener(this);
 }
 
@@ -173,7 +173,7 @@ void Player::fixedUpdate(float fdt) {
 }
 
 void Player::dispatchBullet() {
-	dynamic_cast<Entity*>(m_children.front().get())->setTextureIndex(7);
+	dynamic_cast<Entity*>(m_children.front().get())->setTextureIndex(6);
 	bullets.push_back(Bullet(meshSequence,{ 0.0f, 0.0f, -1.0f }));
 	bullets.back().setOrientation(m_orientation);
 	bullets.back().setPosition(m_position);
@@ -223,7 +223,7 @@ void Player::recoilAnim(float deltaTime) {
 		}else {
 			childrenEular[0] -= recoilImpact * deltaTime;
 			childrenTranslation[2] -= recoilImpact * deltaTime * 0.05f;
-			dynamic_cast<Entity*>(m_children.front().get())->setTextureIndex(6);
+			dynamic_cast<Entity*>(m_children.front().get())->setTextureIndex(5);
 		}
 	}
 
@@ -232,6 +232,7 @@ void Player::recoilAnim(float deltaTime) {
 			continue;
 		child->setOrientation(Vector3f(childrenEular[0], childrenEular[1], childrenEular[2]));
 		child->setPosition({ childrenTranslation[0], childrenTranslation[1], childrenTranslation[2] });
+		child->setOrigin({ childrenTranslation[0], childrenTranslation[1], childrenTranslation[2] });
 	}
 }
 
@@ -259,6 +260,7 @@ void Player::reloadAnim(float deltaTime) {
 			continue;
 		child->setOrientation(Vector3f(childrenEular[0], childrenEular[1],childrenEular[2]));
 		child->setPosition({ childrenTranslation[0], childrenTranslation[1], childrenTranslation[2] });
+		child->setOrigin({ childrenTranslation[0], childrenTranslation[1], childrenTranslation[2] });
 	}
 }
 

@@ -1,7 +1,7 @@
 #include "Entity.h"
 #include "Globals.h"
 
-Entity::Entity(const MeshSequence& meshSequence, int meshIndex) : SequenceNode(meshSequence, meshIndex), m_isStatic(false), m_markForDelete(false), m_textureIndex(-1), m_materialIndex(-1){
+Entity::Entity(const MeshSequence& meshSequence, int meshIndex) : SequenceNode(meshSequence, meshIndex), m_isStatic(true), m_markForDelete(false), m_textureIndex(-1), m_materialIndex(-1){
 
 }
 
@@ -66,6 +66,10 @@ void Entity::setRigidbody(const Rigidbody& rigidbody) {
 
 void Entity::setIsStatic(bool isStatic) {
 	m_isStatic = isStatic;
+}
+
+bool Entity::isStatic() {
+	return m_isStatic;
 }
 
 short Entity::getMaterialIndex() const {

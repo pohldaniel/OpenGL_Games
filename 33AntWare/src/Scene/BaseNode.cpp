@@ -1,6 +1,7 @@
 #include <iostream>
 #include "BaseNode.h"
 #include "SceneNode.h"
+#include "SceneNodeLC.h"
 
 BaseNode::BaseNode() : Object(), m_markForRemove(false), m_isDirty(true), m_parent(nullptr), m_isFixed(false), m_isSelfCared(false){
 
@@ -82,6 +83,16 @@ void BaseNode::setPosition(const float x, const float y, const float z) {
 void BaseNode::setPosition(const Vector3f& position) {
 	Object::setPosition(position);
 	OnTransformChanged();	
+}
+
+void BaseNode::setOrigin(const float x, const float y, const float z) {
+	Object::setOrigin(x, y, z);
+	OnTransformChanged();
+}
+
+void BaseNode::setOrigin(const Vector3f& origin) {
+	Object::setOrigin(origin);
+	OnTransformChanged();
 }
 
 void BaseNode::setOrientation(const Vector3f& axis, float degrees) {
@@ -233,7 +244,8 @@ void BaseNode::removeChild(BaseNode* child) {
 		return;
 
 	child->m_parent = nullptr;
-	std::remove_if(m_children.begin(), m_children.end(), [child](const std::unique_ptr<BaseNode>& node) { return node.get() == child; });
+
+	std::remove_if(m_children.begin(), m_children.end(), [child](const std::unique_ptr<BaseNode>& node) -> bool { return node.get() == child; });
 }
 
 void BaseNode::removeSelf() {

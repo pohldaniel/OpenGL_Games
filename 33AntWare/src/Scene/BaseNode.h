@@ -7,6 +7,7 @@
 class BaseNode : public Object {
 
 	friend class SceneNode;
+	friend class SceneNodeLC;
 
 public:
 
@@ -29,6 +30,9 @@ public:
 
 	void setPosition(const float x, const float y, const float z) override;
 	void setPosition(const Vector3f& position) override;
+
+	void setOrigin(const float x, const float y, const float z) override;
+	void setOrigin(const Vector3f& origin);
 
 	void setOrientation(const Vector3f& axis, float degrees) override;
 	void setOrientation(const float degreesX, const float degreesY, const float degreesZ) override;

@@ -1,6 +1,6 @@
 #include "Bullet.h"
 
-Bullet::Bullet(const MeshSequence& meshSequence, const Vector3f& projectVec) : Object(), meshSequence(meshSequence), m_meshIndex(49), m_textureIndex(5), m_materialIndex(0), m_lifeSpan(5.0f), m_speed(40.0f){
+Bullet::Bullet(const MeshSequence& meshSequence, const Vector3f& projectVec) : Object(), meshSequence(meshSequence), m_meshIndex(42), m_textureIndex(4), m_materialIndex(0), m_lifeSpan(5.0f), m_speed(40.0f){
 	Vector3f directon = Vector3f::Normalize(projectVec) * m_speed;
 	m_rigidbody.velocity[0] = directon[0];
 	m_rigidbody.velocity[1] = directon[1];

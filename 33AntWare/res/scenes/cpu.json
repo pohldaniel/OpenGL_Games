@@ -1,12 +1,6 @@
 {
-    "mapMinLimit": [
-        -51.5,
-        -51.5
-    ],
-    "mapMaxLimit": [
-        51.5,
-        51.5
-    ],
+    "mapMinLimit": [-51.5, -51.5],
+    "mapMaxLimit": [51.5, 51.5],
     "camera": {
         "fov": 45.0,
 		"near": 0.1,
@@ -21,15 +15,15 @@
 		"res/textures/Ant.png",
 		"res/textures/Gun.png",
 		"res/textures/Hands.png",
-		"res/textures/Gloves.png",
-		"res/textures/CPU.jpg",
+		"res/textures/Gloves.png",		
 		"res/textures/Bullet.png",
 		"res/textures/transparent.png",
-		"res/textures/flash.png"
+		"res/textures/flash.png",
+		"res/textures/CPU.jpg"
 	],
 	"materials": [
         {
-            "ambient": [0.0, 0.0, 0.0, 1.0],
+            "ambient": [0.1, 0.1, 0.1, 1.0],
             "diffuse": [0.6, 0.6, 0.6, 1.0],
             "specular": [0.3, 0.3, 0.3, 1.0],
             "shininess": 8.0
@@ -55,33 +49,7 @@
             "shininess": 51.2
         }
     ],
-    "meshes": [
-		{
-            "path": "res/models/Bullet.glb",
-			"materialIndex": 0,
-            "textureIndex": 5           
-        }
-    ],
-	"meshSequences": [
-		{
-            "path": "res/animations/ant_walkcycle",	
-			"additionalMeshesFromFile": [
-				"res/models/Ant.glb",
-				"res/models/CPU.glb",
-				"res/models/Gun.glb",
-				"res/models/Hands.glb",
-				"res/models/Gloves.glb",
-				"res/models/PlayerCube.glb",
-				"res/models/MuzzleQuad.glb",
-				"res/models/Platform.glb"				
-			],
-			"additionalMeshes": [
-				0
-			]			
-        }
-	
-	],
-    "lights": [
+	"lights": [
         {
             "tag": "flashlight & required",
             "type": 2,          
@@ -104,6 +72,35 @@
 			"enabled": true
         }
     ],
+    "meshes": [
+		{
+            "path": "res/models/Ant.glb",
+			"materialIndex": 1,
+            "textureIndex": 0           
+        },
+		{
+            "path": "res/models/Bullet.glb",
+			"materialIndex": 0,
+            "textureIndex": 4           
+        }
+    ],
+	"meshSequences": [
+		{
+            "path": "res/animations/ant_walkcycle",	
+			"additionalMeshes": [
+				0, 1
+			],	
+			"additionalMeshesFromFile": [			
+				"res/models/Gun.glb",
+				"res/models/Hands.glb",
+				"res/models/Gloves.glb",
+				"res/models/PlayerCube.glb",
+				"res/models/MuzzleQuad.glb",
+				"res/models/CPU.glb",
+				"res/models/Platform.glb"				
+			]					
+        }	
+	],   
 	"nodes": [
 		{
 			"type": "player",
@@ -118,7 +115,7 @@
 					"tag": "muzzle",
 					"sequence": 0,
 					"meshIndex": 47,
-                    "textureIndex": 6,
+                    "textureIndex": 5,
                     "materialIndex": 0
 				},
 				{
@@ -156,15 +153,15 @@
 			"type": "entity",
 			"tag": "cpu",
 			"sequence": 0,
-            "meshIndex": 42,
-            "textureIndex": 4,
+            "meshIndex": 48,
+            "textureIndex": 7,
             "materialIndex": 2
 		},
 		{
 			"type": "entity",
 			"tag": "platform",
             "sequence": 0,
-            "meshIndex": 48,
+            "meshIndex": 49,
             "materialIndex": 3			
 		},
 		{

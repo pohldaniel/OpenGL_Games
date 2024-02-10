@@ -38,6 +38,7 @@ private:
 	float speed = 8.0f;
 	float detectionRaduis = 25.0f;
 	float animTime = 0.0f;
+	float walkcycleLength2 = 0.0244f;
 	float walkcycleLength = 1.0f;
 	Player* target;
 

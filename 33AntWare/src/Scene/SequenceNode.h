@@ -1,6 +1,7 @@
 #pragma once
 #include <engine/BoundingBox.h>
 #include <Scene/SceneNode.h>
+#include <Scene/SceneNodeLC.h>
 #include "MeshSequence.h"
 
 class SequenceNode : public SceneNode {

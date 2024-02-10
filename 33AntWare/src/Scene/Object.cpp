@@ -60,6 +60,14 @@ void Object::setPosition(const Vector3f &position) {
 	m_position = position;
 }
 
+void Object::setOrigin(const float x, const float y, const float z) {
+	m_origin.set(x, y, z);
+}
+
+void Object::setOrigin(const Vector3f& origin) {
+	m_origin = origin;
+}
+
 void Object::setOrientation(const Vector3f &axis, float degrees) {
 	m_orientation.set(axis, degrees);
 	//m_rotation[0] = axis[0] * degrees; m_rotation[0] = axis[1] * degrees; m_rotation[0] = axis[2] * degrees;

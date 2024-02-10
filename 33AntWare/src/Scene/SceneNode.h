@@ -1,7 +1,5 @@
 #pragma once
 
-#include <engine/interfaces/ICounter.h>
-
 #include "BaseNode.h"
 
 class SceneNode : public BaseNode {
@@ -21,12 +19,7 @@ public:
 	const Vector3f& getWorldOrigin() const override;
 	const Quaternion& getWorldOrientation() const override;
 
-
-	
-
 protected:
-
-	bool m_isSubroot;
 
 	mutable Vector3f m_worldPosition;
 	mutable Vector3f m_worldScale;

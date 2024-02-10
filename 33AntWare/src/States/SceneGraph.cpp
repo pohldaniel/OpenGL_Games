@@ -34,6 +34,7 @@ SceneGraph::SceneGraph(StateMachine& machine) : State(machine, States::SCENEGRAP
 	for (unsigned int i = 0; i < 10; ++i) {
 		lastNode = lastNode->addChild(new SceneNode());
 		lastNode->setPosition({ 10.0f, 0.0f, 0.0f });
+		lastNode->setOrigin({ 10.0f, 0.0f, 0.0f });
 		lastNode->setScale({ scale, scale, scale });		
 	}
 }

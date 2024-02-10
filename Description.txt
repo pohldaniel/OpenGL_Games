@@ -53,3 +53,6 @@ https://github.com/danielmapar/Cpp2dGameEngine
 https://stackoverflow.com/questions/10087226/lua-5-2-lua-globalsindex-alternative
 
 https://stackoverflow.com/questions/10087226/lua-5-2-lua-globalsindex-alternative
+
+https://www.youtube.com/watch?v=UgC75I1wsTU
+https://www.youtube.com/watch?v=ZzMnu3v_MOw
