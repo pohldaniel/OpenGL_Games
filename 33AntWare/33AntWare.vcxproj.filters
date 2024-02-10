@@ -408,6 +408,12 @@
     <ClCompile Include="src\States\Loading.cpp">
       <Filter>Source Files\States</Filter>
     </ClCompile>
+    <ClCompile Include="src\Scene\ShapeNode.cpp">
+      <Filter>Source Files\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Entities\Skybox.cpp">
+      <Filter>Source Files\Entities</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="convhull\convhull_3d.h">
@@ -781,6 +787,12 @@
     </ClInclude>
     <ClInclude Include="src\States\Loading.h">
       <Filter>Source Files\States</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Scene\ShapeNode.h">
+      <Filter>Source Files\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Entities\Skybox.h">
+      <Filter>Source Files\Entities</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

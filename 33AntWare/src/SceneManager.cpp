@@ -14,7 +14,7 @@
 #undef GetObject
 #endif
 
-Scene::Scene() {
+Scene::Scene() : skybox(nullptr){
 }
 
 void Scene::parseCamera(rapidjson::GenericObject<false, rapidjson::Value> object, Camera& camera){
@@ -199,8 +199,6 @@ MeshSequence& Scene::addMeshSequence(const rapidjson::GenericObject<false, rapid
 		}
 	}
 
-	
-
 	//ant
 	const BoundingBox& box = meshSequence.getLocalBoundingBox(42);
 	box.inset(Vector3f(-(2.0f * box.min[0] + 2.5f), 0.6f, 1.3f), Vector3f(2.0f * box.max[0] - 2.5f, 0.1f, 0.5f));
@@ -250,7 +248,7 @@ SceneNode* Scene::addNode(const rapidjson::GenericObject<false, rapidjson::Value
 			if (object.HasMember("textureIndex")) {
 				player->setTextureIndex(object["textureIndex"].GetInt());
 			}
-			
+			player->setTotalAmmo(object["ammo"].GetInt());
 			root->addChild(player);
 			child = player;
 		}break;
@@ -358,6 +356,15 @@ void Scene::parseNodes(rapidjson::GenericArray<false, rapidjson::Value> array, S
 	}
 }
 
+void Scene::parseSkybox(std::string path, Skybox*& skybox, std::vector<Texture>& textures) {
+	textures.resize(textures.size() + 1);
+	Texture& texture = textures.back();
+	texture.loadCrossCubeFromFileCpu(path, true);
+
+	skybox = new Skybox();
+	skybox->setTextureIndex(textures.size() - 1);
+}
+
 void Scene::loadScene(std::string path) {
 	std::ifstream file(path, std::ios::in);
 	if (!file.is_open()) {
@@ -394,6 +401,11 @@ void Scene::loadScene(std::string path) {
 	if (doc.HasMember("nodes")) {
 		root = new SceneNode();
 		parseNodes(doc["nodes"].GetArray(), root);
+	}
+
+	if (doc.HasMember("skybox")) {
+		root = new SceneNode();
+		parseSkybox(doc["skybox"].GetString(), skybox, textures);
 	}
 }
 
@@ -442,6 +454,11 @@ void Scene::unloadScene() {
 	root = nullptr;
 	player = nullptr;
 
+	if (skybox) {
+		delete skybox;
+		skybox = nullptr;
+	}
+
 	entitiesAfterClear.clear();
 	entitiesAfterClear.shrink_to_fit();
 
@@ -471,6 +488,10 @@ std::vector<MeshSequence>& Scene::getMeshSequences(){
 
 Player* Scene::getPlayer() const {
 	return player;
+}
+
+Skybox* Scene::getSkybox() const {
+	return skybox;
 }
 
 const std::vector<Entity*>& Scene::getEntitiesAfterClear() const {

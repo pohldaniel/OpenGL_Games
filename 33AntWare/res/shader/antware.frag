@@ -29,7 +29,7 @@ in vec3 v_position;
 
 uniform sampler2D u_texture;
 uniform vec3 u_campos;
-uniform bool shadeless = false;
+uniform bool u_shadeless = false;
 uniform uint u_num_lights;
 
 layout(std140, binding = 0) uniform u_lights { 
@@ -46,6 +46,10 @@ out vec4 color;
 void main(void){
 
 	vec4 texColor = texture2D( u_texture, v_texCoord);
+	if (u_shadeless) {
+		color = texColor;
+		return;
+	}
 
 	color = vec4(0);
 	vec3 nWorld = normalize(v_normal);

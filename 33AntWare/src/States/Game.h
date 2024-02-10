@@ -12,6 +12,7 @@
 #include <Entities/Ant.h>
 #include <Entities/Player.h>
 #include <Entities/Light.h>
+#include <Entities/Skybox.h>
 
 class Game : public State, public MouseEventListener, public KeyboardEventListener {
 
@@ -41,7 +42,8 @@ private:
 
 	Camera* m_camera;
 	Player* m_player;
-	
+	Skybox* m_skybox;
+
 	std::vector<Entity*> m_entitiesAfterClear;
 	std::vector<Entity*> m_entities;
 

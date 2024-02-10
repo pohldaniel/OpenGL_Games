@@ -13,7 +13,7 @@
 #include <Scene/SceneNode.h>
 #include <Scene/SceneNodeLC.h>
 #include <Entities/Light.h>
-
+#include <Entities/Skybox.h>
 
 #include "MeshSequence.h"
 
@@ -51,6 +51,7 @@ public:
 	std::vector<Entity*>& getEntities();
 	std::vector <MeshSequence>& getMeshSequences();
 	Player* getPlayer() const;
+	Skybox* getSkybox() const;
 	void unloadScene();
 
 	void parseCamera(rapidjson::GenericObject<false, rapidjson::Value> object, Camera& camera);
@@ -60,6 +61,7 @@ public:
 	void parseMeshes(rapidjson::GenericArray<false, rapidjson::Value> array, std::vector<AssimpModel*>& meshes);
 	void parseMeshSequences(rapidjson::GenericArray<false, rapidjson::Value> array, std::vector<MeshSequence>& meshSequences);
 	void parseNodes(rapidjson::GenericArray<false, rapidjson::Value> array, SceneNode*& root);
+	void parseSkybox(std::string path, Skybox*& skybox, std::vector<Texture>& textures);
 
 	Texture& addTexture(std::string path, std::vector<Texture>& textures);
 	Material& addMaterial(const MaterialBuffer& materialBuffer, std::vector<Material>& materials);
@@ -78,6 +80,7 @@ public:
 
 	SceneNode* root;
 	Player* player;
+	Skybox* skybox;
 	std::vector<Entity*> entitiesAfterClear;
 	std::vector<Entity*> entities;
 };

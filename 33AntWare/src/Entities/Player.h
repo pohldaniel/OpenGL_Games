@@ -22,7 +22,7 @@ public:
 
 	float timeSinceDamage = 0.0f;
 	float hp = 10.0f;
-	unsigned totalAmmo = 36, inHandAmmo = 12, maxAmmo = 12;
+	unsigned int totalAmmo = 36, inHandAmmo = 12, maxAmmo = 12;
 
 	int transparentTexture, flashTexture;
 	bool isRecoiling = false;
@@ -61,6 +61,7 @@ public:
 	void dispatchBullet();
 	void reload();
 	bool damage(float amount);
+	void setTotalAmmo(unsigned int ammo);
 	std::vector<Bullet>& getBullets();
 
 	Vector2f mapMinLimit;

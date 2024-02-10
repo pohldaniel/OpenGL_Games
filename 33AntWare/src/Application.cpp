@@ -660,6 +660,7 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("texture", "res/shader/texture.vert", "res/shader/texture.frag");
 	Globals::shaderManager.loadShader("antware", "res/shader/antware.vert", "res/shader/antware.frag");
 	Globals::shaderManager.loadShader("hud", "res/shader/hud.vert", "res/shader/hud.frag");
+	Globals::shaderManager.loadShader("skybox", "res/shader/skybox.vert", "res/shader/skybox.frag");
 
 	Globals::shaderManager.loadShader("wire_overlay", "res/shader/wire_overlay.vert", "res/shader/wire_overlay.frag", "res/shader/wire_overlay.gem");
 	Globals::shaderManager.loadShader("wire_overlay_material", "res/shader/wire_overlay.vert", "res/shader/wire_overlay_material.frag", "res/shader/wire_overlay.gem");
@@ -670,7 +671,6 @@ void Application::loadAssets() {
 	Globals::textureManager.loadTexture("forest_3", "res/backgrounds/Forest/plx-3.png");
 	Globals::textureManager.loadTexture("forest_4", "res/backgrounds/Forest/plx-4.png");
 	Globals::textureManager.loadTexture("forest_5", "res/backgrounds/Forest/plx-5.png");
-
 	
 	Globals::textureManager.loadTexture("mars", "res/models/planet/mars.png");
 
@@ -681,4 +681,5 @@ void Application::loadAssets() {
 	Globals::shapeManager.buildQuadXY("quad_aligned", Vector3f(0.0f, 0.0f, 0.0f), Vector2f(1.0f, 1.0f), 1, 1, true, false, false);
 	Globals::shapeManager.buildQuadXY("quad_half", Vector3f(-0.5f, -0.5f, 0.0f), Vector2f(1.0f, 1.0f), 1, 1, true, false, false);
 	Globals::shapeManager.buildSphere("sphere", 0.1f, Vector3f(0.0f, 0.0f, 0.0f), 16, 16, false, true, false);
+	Globals::shapeManager.buildCube("cube", Vector3f(-1.0f, -1.0f, -1.0f), Vector3f(2.0f, 2.0f, 2.0f), 1, 1, true, true, false);
 }

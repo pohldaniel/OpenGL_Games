@@ -1,5 +1,4 @@
 #pragma once
-#include <engine/Camera.h>
 #include <engine/Clock.h>
 #include <Scene/Object.h>
 

@@ -173,7 +173,7 @@ Light* Light::AddLight(const LightBuffer& _light) {
 
 void Light::UpdateLightUbo(unsigned int& ubo, size_t size) {
 	glBindBuffer(GL_UNIFORM_BUFFER, ubo);
-	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(LightBuffer) * size, &Buffer);
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(LightBuffer) * (size == 0 ? Lights.size() : size), &Buffer);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 

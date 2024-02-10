@@ -47,10 +47,14 @@ public:
 	void loadHDRIFromFileCpu(std::string fileName, const bool flipVertical = true, unsigned int internalFormat = 0u, unsigned int format = 0u);
 	void loadHDRIFromFileGpu();
 
+	void loadCrossCubeFromFile(std::string fileName, const bool _flipVertical = false, unsigned int _internalFormat = 0u, unsigned int _format = 0u);
+	void loadCrossCubeFromFileCpu(std::string fileName, const bool _flipVertical = false, unsigned int _internalFormat = 0u, unsigned int _format = 0u);
+	void loadCrossCubeFromFileGpu();
+
 	//todo: split up in cpu gpu
 	void loadCrossHDRIFromFile(std::string fileName, const bool flipVertical = true, unsigned int internalFormat = 0u, unsigned int format = 0u, int paddingLeft = 0, int paddingRight = 0, int paddingTop = 0, int paddingBottom = 0);
 	void loadCubeFromFile(std::string* textureFiles, const bool flipVertical = false, unsigned int internalFormat = 0u, unsigned int format = 0u);
-	void loadCrossCubeFromFile(std::string fileName, const bool _flipVertical = false, unsigned int _internalFormat = 0u, unsigned int _format = 0u);
+	
 	
 	void createNullTexture(unsigned int width, unsigned int height, unsigned int color = 255u);
 	void createEmptyTexture(unsigned int width, unsigned int heightu, unsigned int internalFormat = 0u, unsigned int format = 0u, unsigned int type = 0u);
@@ -127,6 +131,7 @@ private:
 	bool m_markForDelete = false;
 	unsigned char* imageData = nullptr;
 	unsigned char* subImage = nullptr;
+	std::vector<unsigned char*> facData;
 
 	static std::map<unsigned int, unsigned int> ActiveTextures;
 };

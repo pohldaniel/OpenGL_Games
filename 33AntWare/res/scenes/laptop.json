@@ -1,5 +1,4 @@
 {
-    "skybox": "res/textures/laptopSkybox.png",
     "mapMinLimit": [-44, -24],
     "mapMaxLimit": [45, 38],
     "camera": {
@@ -29,6 +28,7 @@
 		"res/textures/LapTopMisc_albedo.jpg",
 		"res/textures/LaptopFront_albedo.jpg"
 	],
+	"skybox": "res/textures/laptopSkybox.png",
 	"materials": [
         {
             "ambient": [0.1, 0.1, 0.1, 1.0],
@@ -80,7 +80,7 @@
         {
             "type": 0,
             "ambient":  [0.5, 0.5, 0.5, 1.0],
-            "diffuse":  [0.0, 0.0, 0.0, 1.0],
+            "diffuse":  [0.5, 0.5, 0.5, 1.0],
             "specular": [0.0, 0.0, 0.0, 1.0],
 			"position": [0.0,  0.0, 0.0],
             "direction":[-1.0, -1.0, -1.0],
@@ -119,7 +119,8 @@
 				"res/models/laptop - 5.glb",
 				"res/models/laptop - 6.glb",
 				"res/models/laptop - 7.glb",
-				"res/models/laptop - 8.glb"				
+				"res/models/laptop - 8.glb",
+				"res/models/Skybox.glb"				
 			]					
         }	
 	],   
@@ -131,6 +132,7 @@
 			"meshIndex": 46,
 			"materialIndex": 0,
 			"position": [0.0, 0.0, 5.0],
+			"ammo": 20,
 			"nodes": [
 				{
 					"type": "entity",

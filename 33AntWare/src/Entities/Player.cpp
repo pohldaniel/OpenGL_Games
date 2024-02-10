@@ -284,3 +284,7 @@ void Player::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 std::vector<Bullet>& Player::getBullets() {
 	return bullets;
 }
+
+void Player::setTotalAmmo(unsigned int ammo) {
+	totalAmmo = ammo;
+}

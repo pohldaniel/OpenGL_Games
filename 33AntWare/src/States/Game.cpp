@@ -56,6 +56,7 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 	m_camera = &m_player->camera;
 	m_camera->setOffsetDistance(m_offsetDistance);
 	m_entities = scene.getEntities();
+	m_skybox = scene.getSkybox();
 
 	HUD::Get().setHP(m_player->hp * 10);
 	HUD::Get().setInHandAmmo(m_player->inHandAmmo);
@@ -111,7 +112,7 @@ void Game::update() {
 	}
 
 	deleteEntities();
-	Light::UpdateLightUbo(BuiltInShader::lightUbo, 2);
+	Light::UpdateLightUbo(BuiltInShader::lightUbo);
 }
 
 void Game::render() {
@@ -119,6 +120,7 @@ void Game::render() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	DebugRenderer::Get().SetView(m_camera);
 
+	//glEnable(GL_DEPTH_TEST);
 	auto shader = Globals::shaderManager.getAssetPointer("antware");
 	shader->use();
 	shader->loadMatrix("u_projection", m_camera->getPerspectiveMatrix());
@@ -137,9 +139,12 @@ void Game::render() {
 		shader->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(bullet.GetTransformation()));
 		bullet.draw();
 	}
+	
+	if(m_skybox)
+		m_skybox->draw(*m_camera);
 
 	glClear(GL_DEPTH_BUFFER_BIT);
-
+	shader->use();
 	m_player->OnRenderOBB({ 1.0f, 1.0f, 0.0f, 1.0f });
 	for (auto&& entity : m_entitiesAfterClear) {
 		shader->loadMatrix("u_model", entity->getWorldTransformation());
