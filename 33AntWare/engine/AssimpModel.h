@@ -64,7 +64,7 @@ public:
 	std::string getModelDirectory();
 	BoundingBox& getAABB();
 	Transform& getTransform();
-	const AssimpMesh* getMesh(unsigned short index = 0) const;
+	const AssimpMesh* getMesh(unsigned short index = 0u) const;
 	std::vector<AssimpMesh*>& getMeshes();
 	std::vector<float>& getVertexBuffer();
 	std::vector<unsigned int>& getIndexBuffer();
@@ -90,28 +90,25 @@ private:
 	bool m_isStacked;
 
 	std::vector<AssimpMesh*> m_meshes;
-	std::string m_modelDirectory;
-
-	Vector3f m_center;
-	BoundingBox m_aabb;
-
 	std::vector<Shader*> m_shader;
 
-
+	std::string m_modelDirectory;
+	Vector3f m_center;
+	BoundingBox m_aabb;
 	Transform m_transform;
 
-	unsigned int m_drawCount = 0;
-	unsigned int m_instanceCount = 0;
+	unsigned int m_drawCount;
+	unsigned int m_instanceCount;
 
 	std::vector<float> m_vertexBuffer;
 	std::vector<unsigned int> m_indexBuffer;
 	std::vector<Matrix4f> m_instances;
 
-	unsigned int m_vao = 0;
-	unsigned int m_vbo = 0;
-	unsigned int m_ibo = 0;
-	unsigned int m_vboInstances = 0;
-	bool m_markForDelete = false;
+	unsigned int m_vao;
+	unsigned int m_vbo;
+	unsigned int m_ibo;
+	unsigned int m_vboInstances;
+	bool m_markForDelete;
 
 	void unuseAllShader();
 	void static CreateBuffer(std::vector<float>& vertexBuffer, std::vector<unsigned int> indexBuffer, unsigned int& vao, unsigned int vbo, unsigned int& ibo, unsigned int stride);
@@ -157,14 +154,14 @@ private:
 
 	AssimpModel* m_model;
 
-	unsigned int m_vao = 0;
-	unsigned int m_vbo = 0;
-	unsigned int m_vboInstances = 0;
-	unsigned int m_ibo = 0;
+	unsigned int m_vao;
+	unsigned int m_vbo;
+	unsigned int m_vboInstances;
+	unsigned int m_ibo;
 
-	unsigned int m_drawCount = 0;
-	unsigned int m_instanceCount = 0;
-	bool m_markForDelete = false;
+	unsigned int m_drawCount;
+	unsigned int m_instanceCount;
+	bool m_markForDelete;
 
 	std::vector<float> m_vertexBuffer;
 	std::vector<unsigned int> m_indexBuffer;
@@ -172,6 +169,6 @@ private:
 	bool m_hasTextureCoords, m_hasNormals, m_hasTangents;
 	unsigned int m_numberOfTriangles, m_stride, m_baseVertex, m_baseIndex;
 	
-	mutable short m_materialIndex = -1;
-	mutable short m_textureIndex = -1;
+	mutable short m_materialIndex;
+	mutable short m_textureIndex;
 };

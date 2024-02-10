@@ -8,33 +8,165 @@
 AssetManager<Shader> ObjModel::ShaderManager;
 
 ObjModel::ObjModel()  {
-	m_numberOfMeshes = 0;
-	m_numberOfTriangles = 0;
-	m_numberOfVertices = 0;
-	m_stride = 0;
-
-	m_mltPath = "";
-	m_modelDirectory = "";
-	
-	m_center = Vector3f(0.0f, 0.0f, 0.0f);
 
 	m_hasMaterial = false;
 	m_isStacked = false;
-
 	m_hasTextureCoords = false;
 	m_hasNormals = false;
 	m_hasTangents = false;
-	
 	m_hasAABB = false;
 	m_hasBoundingSphere = false;
 	m_hasConvexHull = false;
-	
-	m_vertexBuffer.clear();
-	m_indexBuffer.clear();
+	m_markForDelete = false;
+
+	m_numberOfMeshes = 0u;
+	m_numberOfTriangles = 0u;
+	m_numberOfVertices = 0u;
+	m_stride = 0u;
+	m_instanceCount = 0u;
+	m_drawCount = 0u;
+	m_vao = 0u;
+	m_vbo = 0u;
+	m_ibo = 0u;
+	m_vboInstances = 0u;
+
+	m_transform.reset();
+}
+
+ObjModel::ObjModel(ObjModel const& rhs) {
+	m_numberOfVertices = rhs.m_numberOfVertices;
+	m_numberOfTriangles = rhs.m_numberOfTriangles;
+	m_numberOfMeshes = rhs.m_numberOfMeshes;
+	m_stride = rhs.m_stride;
+	m_hasTextureCoords = rhs.m_hasTextureCoords;
+	m_hasNormals = rhs.m_hasNormals;
+	m_hasTangents = rhs.m_hasTangents;
+	m_hasMaterial = rhs.m_hasMaterial;
+	m_hasAABB = rhs.m_hasAABB;
+	m_hasBoundingSphere = rhs.m_hasBoundingSphere;
+	m_hasConvexHull = rhs.m_hasConvexHull;
+	m_isStacked = rhs.m_isStacked;
+	m_meshes = rhs.m_meshes;
+	m_modelDirectory = rhs.m_modelDirectory;
+	m_mltPath = rhs.m_mltPath;
+	m_center = rhs.m_center;
+	m_aabb = rhs.m_aabb;
+	m_boundingSphere = rhs.m_boundingSphere;
+	m_convexHull = rhs.m_convexHull;
+	m_shader = rhs.m_shader;
+	m_transform = rhs.m_transform;
+	m_drawCount = rhs.m_drawCount;
+	m_instanceCount = rhs.m_instanceCount;
+	m_instances = rhs.m_instances;
+	m_vao = rhs.m_vao;
+	m_vbo = rhs.m_vbo;
+	m_ibo = rhs.m_ibo;
+	m_vboInstances = rhs.m_vboInstances;
+	m_markForDelete = false;
+}
+
+ObjModel::ObjModel(ObjModel&& rhs) {
+	m_numberOfVertices = rhs.m_numberOfVertices;
+	m_numberOfTriangles = rhs.m_numberOfTriangles;
+	m_numberOfMeshes = rhs.m_numberOfMeshes;
+	m_stride = rhs.m_stride;
+	m_hasTextureCoords = rhs.m_hasTextureCoords;
+	m_hasNormals = rhs.m_hasNormals;
+	m_hasTangents = rhs.m_hasTangents;
+	m_hasMaterial = rhs.m_hasMaterial;
+	m_hasAABB = rhs.m_hasAABB;
+	m_hasBoundingSphere = rhs.m_hasBoundingSphere;
+	m_hasConvexHull = rhs.m_hasConvexHull;
+	m_isStacked = rhs.m_isStacked;
+	m_meshes = rhs.m_meshes;
+	m_modelDirectory = rhs.m_modelDirectory;
+	m_mltPath = rhs.m_mltPath;
+	m_center = rhs.m_center;
+	m_aabb = rhs.m_aabb;
+	m_boundingSphere = rhs.m_boundingSphere;
+	m_convexHull = rhs.m_convexHull;
+	m_shader = rhs.m_shader;
+	m_transform = rhs.m_transform;
+	m_drawCount = rhs.m_drawCount;
+	m_instanceCount = rhs.m_instanceCount;
+	m_instances = rhs.m_instances;
+	m_vao = rhs.m_vao;
+	m_vbo = rhs.m_vbo;
+	m_ibo = rhs.m_ibo;
+	m_vboInstances = rhs.m_vboInstances;
+	m_markForDelete = false;
+}
+
+ObjModel& ObjModel::operator=(const ObjModel& rhs) {
+	m_numberOfVertices = rhs.m_numberOfVertices;
+	m_numberOfTriangles = rhs.m_numberOfTriangles;
+	m_numberOfMeshes = rhs.m_numberOfMeshes;
+	m_stride = rhs.m_stride;
+	m_hasTextureCoords = rhs.m_hasTextureCoords;
+	m_hasNormals = rhs.m_hasNormals;
+	m_hasTangents = rhs.m_hasTangents;
+	m_hasMaterial = rhs.m_hasMaterial;
+	m_hasAABB = rhs.m_hasAABB;
+	m_hasBoundingSphere = rhs.m_hasBoundingSphere;
+	m_hasConvexHull = rhs.m_hasConvexHull;
+	m_isStacked = rhs.m_isStacked;
+	m_meshes = rhs.m_meshes;
+	m_modelDirectory = rhs.m_modelDirectory;
+	m_mltPath = rhs.m_mltPath;
+	m_center = rhs.m_center;
+	m_aabb = rhs.m_aabb;
+	m_boundingSphere = rhs.m_boundingSphere;
+	m_convexHull = rhs.m_convexHull;
+	m_shader = rhs.m_shader;
+	m_transform = rhs.m_transform;
+	m_drawCount = rhs.m_drawCount;
+	m_instanceCount = rhs.m_instanceCount;
+	m_instances = rhs.m_instances;
+	m_vao = rhs.m_vao;
+	m_vbo = rhs.m_vbo;
+	m_ibo = rhs.m_ibo;
+	m_vboInstances = rhs.m_vboInstances;
+	m_markForDelete = false;
+	return *this;
+}
+
+ObjModel& ObjModel::operator=(ObjModel&& rhs) {
+	m_numberOfVertices = rhs.m_numberOfVertices;
+	m_numberOfTriangles = rhs.m_numberOfTriangles;
+	m_numberOfMeshes = rhs.m_numberOfMeshes;
+	m_stride = rhs.m_stride;
+	m_hasTextureCoords = rhs.m_hasTextureCoords;
+	m_hasNormals = rhs.m_hasNormals;
+	m_hasTangents = rhs.m_hasTangents;
+	m_hasMaterial = rhs.m_hasMaterial;
+	m_hasAABB = rhs.m_hasAABB;
+	m_hasBoundingSphere = rhs.m_hasBoundingSphere;
+	m_hasConvexHull = rhs.m_hasConvexHull;
+	m_isStacked = rhs.m_isStacked;
+	m_meshes = rhs.m_meshes;
+	m_modelDirectory = rhs.m_modelDirectory;
+	m_mltPath = rhs.m_mltPath;
+	m_center = rhs.m_center;
+	m_aabb = rhs.m_aabb;
+	m_boundingSphere = rhs.m_boundingSphere;
+	m_convexHull = rhs.m_convexHull;
+	m_shader = rhs.m_shader;
+	m_transform = rhs.m_transform;
+	m_drawCount = rhs.m_drawCount;
+	m_instanceCount = rhs.m_instanceCount;
+	m_instances = rhs.m_instances;
+	m_vao = rhs.m_vao;
+	m_vbo = rhs.m_vbo;
+	m_ibo = rhs.m_ibo;
+	m_vboInstances = rhs.m_vboInstances;
+	m_markForDelete = false;
+	return *this;
 }
 
 ObjModel::~ObjModel() {
-	cleanup();
+	if (m_markForDelete) {
+		cleanup();
+	}
 }
 
 void ObjModel::cleanup() {
@@ -62,6 +194,13 @@ void ObjModel::cleanup() {
 
 	m_shader.clear();
 	m_aabb.cleanup();
+}
+
+void ObjModel::markForDelete() {
+	m_markForDelete = true;
+	for (auto&& mesh : m_meshes) {
+		mesh->markForDelete();
+	}
 }
 
 void ObjModel::setPosition(float x, float y, float z) {
@@ -104,15 +243,25 @@ std::string ObjModel::getModelDirectory() {
 	return m_modelDirectory;
 }
 
-bool ObjModel::loadModel(const char* filename, bool isStacked, bool withoutNormals, bool generateSmoothNormals, bool generateFlatNormals, bool generateSmoothTangents, bool rescale) {
-	return loadModel(filename, Vector3f(0.0, 1.0, 0.0), 0.0, Vector3f(0.0, 0.0, 0.0), 1.0, isStacked, withoutNormals, generateSmoothNormals, generateFlatNormals, generateSmoothTangents, rescale);
+void ObjModel::loadModel(const char* filename, bool isStacked, bool withoutNormals, bool generateSmoothNormals, bool generateFlatNormals, bool generateSmoothTangents, bool rescale) {
+	loadModelCpu(filename, isStacked, withoutNormals, generateSmoothNormals, generateFlatNormals, generateSmoothTangents, rescale);
+	loadModelGpu();
+}
+
+void ObjModel::loadModel(const char* filename, Vector3f& axis, float degree, Vector3f& translate, float scale, bool isStacked, bool withoutNormals, bool generateSmoothNormals, bool generateFlatNormals, bool generateSmoothTangents, bool rescale) {
+	loadModelCpu(filename, axis, degree, translate, scale, isStacked, withoutNormals, generateSmoothNormals, generateFlatNormals, generateSmoothTangents, rescale);
+	loadModelGpu();
+}
+
+void ObjModel::loadModelCpu(const char* filename, bool isStacked, bool withoutNormals, bool generateSmoothNormals, bool generateFlatNormals, bool generateSmoothTangents, bool rescale) {
+	loadModelCpu(filename, Vector3f(0.0, 1.0, 0.0), 0.0, Vector3f(0.0, 0.0, 0.0), 1.0, isStacked, withoutNormals, generateSmoothNormals, generateFlatNormals, generateSmoothTangents, rescale);
 }
 
 bool compare(const std::array<int, 10> &i_lhs, const std::array<int, 10> &i_rhs) {
 	return i_lhs[9] < i_rhs[9];
 }
 
-bool ObjModel::loadModel(const char* _filename, Vector3f& axis, float degree, Vector3f& translate, float scale, bool isStacked, bool withoutNormals, bool generateSmoothNormals, bool generateFlatNormals, bool generateSmoothTangents, bool rescale) {
+void ObjModel::loadModelCpu(const char* _filename, Vector3f& axis, float degree, Vector3f& translate, float scale, bool isStacked, bool withoutNormals, bool generateSmoothNormals, bool generateFlatNormals, bool generateSmoothTangents, bool rescale) {
 
 	std::string filename(_filename);
 	const size_t index = filename.rfind('/');
@@ -142,7 +291,7 @@ bool ObjModel::loadModel(const char* _filename, Vector3f& axis, float degree, Ve
 	FILE * pFile = fopen(_filename, "r");
 	if (pFile == NULL) {
 		std::cout << "File not found" << std::endl;
-		return false;
+		return;
 	}
 
 	while (fscanf(pFile, "%s", buffer) != EOF) {
@@ -537,14 +686,6 @@ bool ObjModel::loadModel(const char* _filename, Vector3f& axis, float degree, Ve
 			m_meshes[j]->m_indexBuffer = indexBufferCreator.indexBufferOut;
 			m_meshes[j]->m_vertexBuffer = indexBufferCreator.vertexBufferOut;
 			m_meshes[j]->m_drawCount = indexBufferCreator.indexBufferOut.size();
-
-			ObjModel::CreateBuffer(m_meshes[j]->m_vertexBuffer,
-					m_meshes[j]->m_indexBuffer,
-					m_meshes[j]->m_vao,
-					m_meshes[j]->m_vbo,
-					m_meshes[j]->m_ibo,
-					m_meshes[j]->m_stride);
-
 			m_drawCount += m_meshes[j]->m_indexBuffer.size();
 
 		}else {
@@ -564,7 +705,6 @@ bool ObjModel::loadModel(const char* _filename, Vector3f& axis, float degree, Ve
 	}
 
 	if (m_isStacked) {
-		ObjModel::CreateBuffer(m_vertexBuffer, m_indexBuffer, m_vao, m_vbo, m_ibo, m_stride);
 		m_drawCount = m_indexBuffer.size();
 	}
 
@@ -579,7 +719,25 @@ bool ObjModel::loadModel(const char* _filename, Vector3f& axis, float degree, Ve
 	indexBufferCreator.bitangentCoordsIn.clear();
 	indexBufferCreator.bitangentCoordsIn.shrink_to_fit();
 
-	return true;
+	return;
+}
+
+void ObjModel::loadModelGpu() {
+	if (m_isStacked) {
+		ObjModel::CreateBuffer(m_vertexBuffer, m_indexBuffer, m_vao, m_vbo, m_ibo, m_stride);
+		//m_vertexBuffer.clear();
+        //m_vertexBuffer.shrink_to_fit();
+        //m_indexBuffer.clear();
+        //m_indexBuffer.shrink_to_fit();
+	}else {
+		for (auto&& mesh : m_meshes) {
+			ObjModel::CreateBuffer(mesh->m_vertexBuffer, mesh->m_indexBuffer, mesh->m_vao, mesh->m_vbo, mesh->m_ibo, mesh->m_stride);
+			//mesh->m_vertexBuffer.clear(); 
+			//mesh->m_vertexBuffer.shrink_to_fit();
+			//mesh->m_indexBuffer.clear();
+			//mesh->m_indexBuffer.shrink_to_fit();
+		}
+	}
 }
 
 void ObjModel::drawRaw() const {
@@ -1840,44 +1998,152 @@ void ObjModel::ReadMaterialFromFile(std::string path, std::string mltName, short
 	}
 }
 
-void ObjModel::Cleanup() {
+void ObjModel::CleanupShader() {
 	ShaderManager.clear();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-ObjMesh::ObjMesh(std::string mltName, int numberTriangles, ObjModel* model) : m_stride(0), m_triangleOffset(0) {
+ObjMesh::ObjMesh(std::string mltName, unsigned int numberTriangles, ObjModel* model){
 	m_numberOfTriangles = numberTriangles;
 	m_mltName = mltName;
 	m_model = model;
 
-	m_vertexBuffer.clear();
-	m_indexBuffer.clear();
-
 	m_hasTextureCoords = false;
 	m_hasNormals = false;
 	m_hasTangents = false;
+	m_markForDelete = false;
 
-	m_baseVertex = 0;
-	m_baseIndex = 0;
+	m_triangleOffset = 0u;
+	m_stride = 0u;
+	m_baseVertex = 0u;
+	m_baseIndex = 0u;
+	m_drawCount = 0u;
+	m_instanceCount = 0u;
+	m_vao = 0u;
+	m_vbo = 0u;
+	m_vboInstances = 0u;
+	m_ibo = 0u;
+	m_materialIndex = -1;
+	m_textureIndex = -1;
 }
 
-ObjMesh::ObjMesh(int numberTriangles, ObjModel* model) : m_stride(0), m_triangleOffset(0){
+ObjMesh::ObjMesh(unsigned int numberTriangles, ObjModel* model){
 	m_numberOfTriangles = numberTriangles;
 	m_model = model;
 
-	m_vertexBuffer.clear();
-	m_indexBuffer.clear();
-
 	m_hasTextureCoords = false;
 	m_hasNormals = false;
 	m_hasTangents = false;
+	m_markForDelete = false;
 
-	m_baseVertex = 0;
-	m_baseIndex = 0;
+	m_triangleOffset = 0u;
+	m_stride = 0u;
+	m_baseVertex = 0u;
+	m_baseIndex = 0u;
+	m_drawCount = 0u;
+	m_instanceCount = 0u;
+	m_vao = 0u;
+	m_vbo = 0u;
+	m_ibo = 0u;
+	m_vboInstances = 0u;
+	
+	m_materialIndex = -1;
+	m_textureIndex = -1;
+}
+
+ObjMesh::ObjMesh(ObjMesh const& rhs) {
+	m_model = rhs.m_model;
+	m_mltName = rhs.m_mltName;
+	m_numberOfTriangles = rhs.m_numberOfTriangles;
+	m_hasTextureCoords = rhs.m_hasTextureCoords;
+	m_hasNormals = rhs.m_hasNormals;
+	m_hasTangents = rhs.m_hasTangents;
+	m_triangleOffset = rhs.m_triangleOffset;
+	m_stride = rhs.m_stride;
+	m_baseVertex = rhs.m_baseVertex;
+	m_baseIndex = rhs.m_baseIndex;
+	m_drawCount = rhs.m_drawCount;
+	m_instanceCount = rhs.m_instanceCount;
+	m_vao = rhs.m_vao;
+	m_vbo = rhs.m_vbo;
+	m_ibo = rhs.m_ibo;
+	m_vboInstances = rhs.m_vboInstances;
+	m_materialIndex = rhs.m_materialIndex;
+	m_textureIndex = rhs.m_textureIndex;
+	m_markForDelete = false;
+}
+
+ObjMesh::ObjMesh(ObjMesh&& rhs) {
+	m_model = rhs.m_model;
+	m_mltName = rhs.m_mltName;
+	m_numberOfTriangles = rhs.m_numberOfTriangles;
+	m_hasTextureCoords = rhs.m_hasTextureCoords;
+	m_hasNormals = rhs.m_hasNormals;
+	m_hasTangents = rhs.m_hasTangents;
+	m_triangleOffset = rhs.m_triangleOffset;
+	m_stride = rhs.m_stride;
+	m_baseVertex = rhs.m_baseVertex;
+	m_baseIndex = rhs.m_baseIndex;
+	m_drawCount = rhs.m_drawCount;
+	m_instanceCount = rhs.m_instanceCount;
+	m_vao = rhs.m_vao;
+	m_vbo = rhs.m_vbo;
+	m_ibo = rhs.m_ibo;
+	m_vboInstances = rhs.m_vboInstances;
+	m_materialIndex = rhs.m_materialIndex;
+	m_textureIndex = rhs.m_textureIndex;
+	m_markForDelete = false;
+}
+
+ObjMesh& ObjMesh::operator=(const ObjMesh& rhs) {
+	m_model = rhs.m_model;
+	m_mltName = rhs.m_mltName;
+	m_numberOfTriangles = rhs.m_numberOfTriangles;
+	m_hasTextureCoords = rhs.m_hasTextureCoords;
+	m_hasNormals = rhs.m_hasNormals;
+	m_hasTangents = rhs.m_hasTangents;
+	m_triangleOffset = rhs.m_triangleOffset;
+	m_stride = rhs.m_stride;
+	m_baseVertex = rhs.m_baseVertex;
+	m_baseIndex = rhs.m_baseIndex;
+	m_drawCount = rhs.m_drawCount;
+	m_instanceCount = rhs.m_instanceCount;
+	m_vao = rhs.m_vao;
+	m_vbo = rhs.m_vbo;
+	m_ibo = rhs.m_ibo;
+	m_vboInstances = rhs.m_vboInstances;
+	m_materialIndex = rhs.m_materialIndex;
+	m_textureIndex = rhs.m_textureIndex;
+	m_markForDelete = false;
+	return *this;
+}
+
+ObjMesh& ObjMesh::operator=(ObjMesh&& rhs) {
+	m_model = rhs.m_model;
+	m_mltName = rhs.m_mltName;
+	m_numberOfTriangles = rhs.m_numberOfTriangles;
+	m_hasTextureCoords = rhs.m_hasTextureCoords;
+	m_hasNormals = rhs.m_hasNormals;
+	m_hasTangents = rhs.m_hasTangents;
+	m_triangleOffset = rhs.m_triangleOffset;
+	m_stride = rhs.m_stride;
+	m_baseVertex = rhs.m_baseVertex;
+	m_baseIndex = rhs.m_baseIndex;
+	m_drawCount = rhs.m_drawCount;
+	m_instanceCount = rhs.m_instanceCount;
+	m_vao = rhs.m_vao;
+	m_vbo = rhs.m_vbo;
+	m_ibo = rhs.m_ibo;
+	m_vboInstances = rhs.m_vboInstances;
+	m_materialIndex = rhs.m_materialIndex;
+	m_textureIndex = rhs.m_textureIndex;
+	m_markForDelete = false;
+	return *this;
 }
 
 ObjMesh::~ObjMesh(){
-	cleanup();
+	if(m_markForDelete)
+		cleanup();
 }
 
 void ObjMesh::cleanup(){
@@ -1898,6 +2164,10 @@ void ObjMesh::cleanup(){
 	m_vertexBuffer.shrink_to_fit();
 	m_indexBuffer.clear();
 	m_indexBuffer.shrink_to_fit();
+}
+
+void ObjMesh::markForDelete() {
+	m_markForDelete = true;
 }
 
 void ObjMesh::createInstancesStatic(std::vector<Matrix4f>& modelMTX){

@@ -189,3 +189,7 @@ void Light::Print() {
 		std::cout << "-------------------" << std::endl;
 	}
 }
+
+void Light::RemoveLight(size_t index) {
+	Lights.erase(Lights.begin() + index);
+}

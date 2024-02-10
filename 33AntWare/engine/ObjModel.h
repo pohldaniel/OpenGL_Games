@@ -91,6 +91,10 @@ class ObjModel {
 public:
 
 	ObjModel();
+	ObjModel(ObjModel const& rhs);
+	ObjModel(ObjModel&& rhs);
+	ObjModel& operator=(const ObjModel& rhs);
+	ObjModel& operator=(ObjModel&& rhs);
 	~ObjModel();
 
 	const Vector3f &getCenter() const;
@@ -124,8 +128,11 @@ public:
 	void drawSphere() const;
 	void drawHull() const;
 
-	bool loadModel(const char* filename, bool isStacked = false, bool withoutNormals = false, bool generateSmoothNormals = false, bool generateFlatNormals = false, bool generateSmoothTangents = false, bool rescale = false);
-	bool loadModel(const char* filename, Vector3f& axis, float degree, Vector3f& translate = Vector3f(0.0f, 0.0f, 0.0f), float scale = 1.0f, bool asStacked = false, bool withoutNormals = false, bool generateSmoothNormals = false, bool generateFlatNormals = false, bool generateSmoothTangents = false, bool rescale = false);
+	void loadModel(const char* filename, bool isStacked = false, bool withoutNormals = false, bool generateSmoothNormals = false, bool generateFlatNormals = false, bool generateSmoothTangents = false, bool rescale = false);
+	void loadModel(const char* filename, Vector3f& axis, float degree, Vector3f& translate = Vector3f(0.0f, 0.0f, 0.0f), float scale = 1.0f, bool isStacked = false, bool withoutNormals = false, bool generateSmoothNormals = false, bool generateFlatNormals = false, bool generateSmoothTangents = false, bool rescale = false);
+	void loadModelCpu(const char* filename, bool isStacked = false, bool withoutNormals = false, bool generateSmoothNormals = false, bool generateFlatNormals = false, bool generateSmoothTangents = false, bool rescale = false);
+	void loadModelCpu(const char* filename, Vector3f& axis, float degree, Vector3f& translate = Vector3f(0.0f, 0.0f, 0.0f), float scale = 1.0f, bool asStacked = false, bool withoutNormals = false, bool generateSmoothNormals = false, bool generateFlatNormals = false, bool generateSmoothTangents = false, bool rescale = false);
+	void loadModelGpu();
 
 	std::string getMltPath();
 	std::string getModelDirectory();
@@ -151,8 +158,9 @@ public:
 	const unsigned int& getVbo() const;
 	const unsigned int& getIbo() const;
 	void cleanup();
+	void markForDelete();
 
-	static void Cleanup();
+	static void CleanupShader();
 
 private:
 
@@ -180,13 +188,14 @@ private:
 	std::vector<unsigned int> m_indexBuffer;
 	std::vector<Matrix4f> m_instances;
 
-	unsigned int m_instanceCount = 0;
-	unsigned int m_drawCount = 0;
+	unsigned int m_instanceCount;
+	unsigned int m_drawCount;
 
-	unsigned int m_vao = 0;
-	unsigned int m_vbo = 0;
-	unsigned int m_ibo = 0;
-	unsigned int m_vboInstances = 0;
+	unsigned int m_vao;
+	unsigned int m_vbo;
+	unsigned int m_ibo;
+	unsigned int m_vboInstances;
+	bool m_markForDelete;
 
 	void unuseAllShader();
 
@@ -212,8 +221,12 @@ class ObjMesh {
 
 public:
 
-	ObjMesh(std::string mltName, int numberTriangles, ObjModel* model);
-	ObjMesh(int numberTriangles, ObjModel* model);
+	ObjMesh(std::string mltName, unsigned int numberTriangles, ObjModel* model);
+	ObjMesh(unsigned int numberTriangles, ObjModel* model);
+	ObjMesh(ObjMesh const& rhs);
+	ObjMesh(ObjMesh&& rhs);
+	ObjMesh& operator=(const ObjMesh& rhs);
+	ObjMesh& operator=(ObjMesh&& rhs);
 	~ObjMesh();
 
 	void drawRaw() const;
@@ -229,6 +242,7 @@ public:
 
 	const Material& getMaterial() const;
 	void cleanup();
+	void markForDelete();
 
 	unsigned int getNumberOfTriangles();
 	const unsigned int& getVbo() const;
@@ -244,19 +258,20 @@ private:
 	void addInstance(ObjModel& model);
 	void updateInstances(std::vector<Matrix4f>& modelMTX);
 
-	unsigned int m_vao = 0;
-	unsigned int m_vbo = 0;
-	unsigned int m_vboInstances = 0;
-	unsigned int m_ibo = 0;
-	
-	unsigned int m_drawCount = 0;
-	unsigned int m_instanceCount = 0;
+	unsigned int m_vao;
+	unsigned int m_vbo;
+	unsigned int m_vboInstances;
+	unsigned int m_ibo;
+	bool m_markForDelete;
+
+	unsigned int m_drawCount;
+	unsigned int m_instanceCount;
 	
 	std::vector<float> m_vertexBuffer;
 	std::vector<unsigned int> m_indexBuffer;
 
 	bool m_hasTextureCoords, m_hasNormals, m_hasTangents;
 	unsigned int m_triangleOffset, m_numberOfTriangles, m_stride, m_baseVertex, m_baseIndex;	
-	mutable short m_materialIndex = -1;
-	mutable short m_textureIndex = -1;
+	mutable short m_materialIndex;
+	mutable short m_textureIndex;
 };

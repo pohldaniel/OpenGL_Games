@@ -286,9 +286,7 @@ SceneNode* Scene::addNode(const rapidjson::GenericObject<false, rapidjson::Value
 		}break;
 		case LIGHT: {
 			child = dynamic_cast<SceneNode*>(root->addChild(Light::GetLights()[reference]));
-			child->setIsFixed(true);
-			child->setIsSelfCared(true);
-			
+			child->setIsFixed(true);			
 		}break; 
 		case ANT: {
 			entities.push_back(new Ant(meshSequences[reference], object["meshIndex"].GetInt(), player));
@@ -382,14 +380,14 @@ void Scene::unloadScene() {
 	for (unsigned int i = 0; i < Light::GetLights().size(); i++) {	
 		BaseNode* parent = Light::GetLights()[i]->getParent();
 		if (parent) {
-			Light::GetLights()[i]->removeSelf();
+			Light::GetLights()[i]->eraseSelf();
 			Light::GetLights()[i] = nullptr;
 		}else{
 			delete Light::GetLights()[i];
 			Light::GetLights()[i] = nullptr;
 		}
 	}
-
+	
 	Light::GetLights().clear();
 	Light::GetLights().shrink_to_fit();
 

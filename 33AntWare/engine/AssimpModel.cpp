@@ -10,6 +10,25 @@ AssimpModel::AssimpModel() {
 	m_hasTextureCoords = false;
 	m_hasNormals = false;
 	m_hasTangents = false;
+	m_hasMaterial = false;
+	m_hasAABB = false;
+	m_hasBoundingSphere = false;
+	m_hasConvexHull = false;
+	m_isStacked = false;
+	m_markForDelete = false;
+
+	m_numberOfVertices = 0u;
+	m_numberOfTriangles = 0u;
+	m_numberOfMeshes = 0u;
+	m_stride = 0u;
+
+	m_drawCount = 0u;
+	m_instanceCount = 0u;
+	m_vao = 0u;
+	m_vbo = 0u;
+	m_ibo = 0u;
+	m_vboInstances = 0u;
+	
 	m_transform.reset();
 }
 
@@ -41,7 +60,7 @@ AssimpModel::AssimpModel(AssimpModel const& rhs) {
 	m_vboInstances = rhs.m_vboInstances;
 
 	//m_vertexBuffer = rhs.m_vertexBuffer;
-   //m_indexBuffer = rhs.m_indexBuffer;
+    //m_indexBuffer = rhs.m_indexBuffer;
 
 	m_markForDelete = false;
 }
@@ -366,9 +385,17 @@ void AssimpModel::loadModelCpu(const char* _filename, bool isStacked, bool gener
 void AssimpModel::loadModelGpu() {
 	if (m_isStacked) {
 		AssimpModel::CreateBuffer(m_vertexBuffer, m_indexBuffer, m_vao, m_vbo, m_ibo, m_stride);
+		//m_vertexBuffer.clear();
+		//m_vertexBuffer.shrink_to_fit();
+		//m_indexBuffer.clear();
+		//m_indexBuffer.shrink_to_fit();
 	}else{
 		for (auto&& mesh : m_meshes) {
 			AssimpModel::CreateBuffer(mesh->m_vertexBuffer, mesh->m_indexBuffer, mesh->m_vao,mesh->m_vbo, mesh->m_ibo, mesh->m_stride);
+			//mesh->m_vertexBuffer.clear(); 
+			//mesh->m_vertexBuffer.shrink_to_fit();
+			//mesh->m_indexBuffer.clear();
+			//mesh->m_indexBuffer.shrink_to_fit();
 		}
 	}
 }
@@ -857,9 +884,26 @@ void AssimpModel::CleanupShader() {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 AssimpMesh::AssimpMesh(AssimpModel* model) {
 	m_model = model;
+	
 	m_hasTextureCoords = false;
 	m_hasNormals = false;
 	m_hasTangents = false;
+	m_markForDelete = false;
+
+	m_numberOfTriangles = 0u;
+	m_stride = 0u;
+	m_baseVertex = 0u;
+	m_baseIndex = 0u;
+
+	m_vao = 0u;
+	m_vbo = 0u;
+	m_vboInstances = 0u;
+	m_ibo = 0u;
+
+	m_drawCount = 0u;
+	m_instanceCount = 0u;
+	m_materialIndex = -1;
+	m_textureIndex = -1;
 }
 
 AssimpMesh::AssimpMesh(AssimpMesh const& rhs) {

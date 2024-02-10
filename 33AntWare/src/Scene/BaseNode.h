@@ -62,6 +62,9 @@ public:
 	void removeChild(BaseNode* child);
 	void removeSelf();
 
+	void eraseChild(BaseNode* child);
+	void eraseSelf();
+
 	BaseNode* addChild(BaseNode* node);
 	BaseNode* addChild();
 	BaseNode* getParent();

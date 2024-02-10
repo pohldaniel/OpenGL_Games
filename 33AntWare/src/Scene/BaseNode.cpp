@@ -180,10 +180,8 @@ BaseNode* BaseNode::getParent() {
 }
 
 void BaseNode::removeAllChildren() {
-
 	for(auto it = m_children.begin(); it != m_children.end(); ++it){
 		BaseNode* child = (*it).release();
-	
 		child->m_parent = nullptr;
 		delete child;	
 		child = nullptr;
@@ -215,15 +213,27 @@ const bool BaseNode::isSelfCared() const {
 	return m_isSelfCared;
 }
 
+void BaseNode::eraseChild(BaseNode* child) {
+
+	if (!child || child->m_parent != this)
+		return;
+
+	child->m_parent = nullptr;
+	m_children.erase(std::remove_if(m_children.begin(), m_children.end(), [child](const std::unique_ptr<BaseNode>& node) { return node.get() == child; }), m_children.end());
+}
+
+void BaseNode::eraseSelf() {
+	if (m_parent)
+		m_parent->eraseChild(this);
+}
+
 void BaseNode::removeChild(BaseNode* child) {
 
 	if (!child || child->m_parent != this)
 		return;
 
-	//BaseNode* node = (*std::find_if(m_children.begin(), m_children.end(), [child](const std::unique_ptr<BaseNode>& node) { return node.get() == child; })).get();
-	//node->m_parent = nullptr;
 	child->m_parent = nullptr;
-	m_children.erase(std::remove_if(m_children.begin(), m_children.end(), [child](const std::unique_ptr<BaseNode>& node) { return node.get() == child; }), m_children.end());
+	std::remove_if(m_children.begin(), m_children.end(), [child](const std::unique_ptr<BaseNode>& node) { return node.get() == child; });
 }
 
 void BaseNode::removeSelf() {

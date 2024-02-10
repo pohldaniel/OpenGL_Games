@@ -270,8 +270,8 @@ void Game::deleteEntities() {
 	while (it != m_entities.end()) {
 
 		if ((*it)->isMarkForDelete()) {
-			// removeSelf -> call destructor
-			(*it)->removeSelf();
+			// eraseSelf -> call destructor -> delete (*it) not neccessary
+			(*it)->eraseSelf();
 			//delete (*it);
 			it = m_entities.erase(it);;
 		}
