@@ -4,7 +4,7 @@
 
 #include "Light.h"
 
-std::vector<Light> Light::Lights;
+std::vector<Light*> Light::Lights;
 LightBuffer Light::Buffer[20];
 
 bool operator== (const Light& l1, const Light& l2) {
@@ -53,8 +53,10 @@ void Light::update(const float dt) {
 	if (m_isStatic)
 		return;
 
-	setUboPosition(m_parent->getWorldTransformation() ^ Vector4f(m_position));
-	setUboDirection(Quaternion::Rotate(getWorldOrientation(), m_direction));
+	if (m_parent) {
+		setUboPosition(m_parent->getWorldTransformation() ^ Vector4f(m_position));
+		setUboDirection(Quaternion::Rotate(getWorldOrientation(), m_direction));
+	}
 }
 
 void Light::setDirection(const Vector3f& direction) {
@@ -121,20 +123,20 @@ void Light::print() {
 	std::cout << "-------------------" << std::endl;
 }
 
-void Light::SetLights(const std::vector<Light>& lights) {
+void Light::SetLights(const std::vector<Light*>& lights) {
 	Lights = lights;
 }
 
-std::vector<Light>& Light::GetLights() {
+std::vector<Light*>& Light::GetLights() {
 	return Lights;
 }
 
-Light& Light::AddLight(const LightBuffer& _light) {
-	Lights.resize(Lights.size() + 1);
-	Light& light = Lights.back();
+Light* Light::AddLight(const LightBuffer& _light) {
+	Lights.push_back(new Light());
+	Light* light = Lights.back();
 
 	int index = Lights.size() - 1;
-	light.m_index = index;
+	light->m_index = index;
 
 	Buffer[index].ambient[0] = _light.ambient[0];
 	Buffer[index].ambient[1] = _light.ambient[1];
@@ -164,7 +166,7 @@ Light& Light::AddLight(const LightBuffer& _light) {
 	Buffer[index].type = _light.type;
 
 	if (Buffer[index].type == SPOT_LIGHT)
-		light.m_isStatic = false;
+		light->m_isStatic = false;
 
 	return light;
 }

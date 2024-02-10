@@ -9,6 +9,10 @@ MeshNode::MeshNode(AssimpModel* model) : SceneNode(), m_model(model), m_drawDebu
 	OnBoundingBoxChanged();
 }
 
+MeshNode::~MeshNode() {
+	//delete m_model;
+}
+
 void MeshNode::OnWorldBoundingBoxUpdate() const{
 
 	if (m_model) {

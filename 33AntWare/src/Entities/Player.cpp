@@ -65,7 +65,8 @@ void Player::update(const float dt) {
 		if (keyboard.keyPressed(Keyboard::KEY_F)) {
 			std::list<std::unique_ptr<BaseNode>>::iterator it = m_children.begin();
 			std::advance(it, 4);
-			dynamic_cast<Light*>((*it).get())->toggle();			
+			dynamic_cast<Light*>((*it).get())->toggle();
+			//dynamic_cast<Light*>(m_children[4].get())->toggle();			
 		}
 
 		if (m_mouseDown && reloadTimer.getElapsedTimeSec() > 1.5f && shootTimer.getElapsedTimeSec() > 0.2f) {

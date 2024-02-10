@@ -193,7 +193,7 @@ std::unordered_map<std::string, Matrix4f> AssimpAnimator::calculateBlendedPose(f
 
 	std::unordered_map<std::string, Matrix4f> currentPose;
 
-	for (auto boneName : curretAnimation.m_boneList) {
+	for (auto&& boneName : curretAnimation.m_boneList) {
 
 		int indexA = keyFramesA.getPositionIndex(currentTime, boneName);
 		float progressionA = getProgression(keyFramesA.positions.at(boneName)[indexA].first, keyFramesA.positions.at(boneName)[indexA + 1].first, currentTime);
@@ -245,7 +245,7 @@ std::unordered_map<std::string, Matrix4f> AssimpAnimator::calculateBlendedPoseDi
 
 	std::set<std::string> bonesB;
 
-	for (auto boneName : animationLayer.m_boneList) {
+	for (auto&& boneName : animationLayer.m_boneList) {
 		float progression;
 		Vector3f position;
 		Vector3f scale;
@@ -283,7 +283,7 @@ std::unordered_map<std::string, Matrix4f> AssimpAnimator::calculateBlendedPoseDi
 
 	}
 
-	for (auto boneName : curretAnimation.m_boneList) {
+	for (auto&& boneName : curretAnimation.m_boneList) {
 		float progressionA;
 		Vector3f positionA;
 		Vector3f scaleA;
@@ -370,7 +370,7 @@ void AssimpAnimator::replaceBasePose(AssimpAnimation& animation) {
 
 	AssimpKeyFrameData keyFrames = animation.m_keyFrames;
 
-	for (auto boneName : animation.m_boneList) {
+	for (auto&& boneName : animation.m_boneList) {
 		float progression = getProgression(keyFrames.positions.at(boneName)[0].first, keyFrames.positions.at(boneName)[1].first, 0.0f);
 		Vector3f position = getInterpolated(keyFrames.positions.at(boneName)[0].second, keyFrames.positions.at(boneName)[1].second, progression);
 
@@ -392,7 +392,7 @@ std::unordered_map<std::string, Matrix4f> AssimpAnimator::calculateAdditiveAnima
 	
 	std::unordered_map<std::string, Matrix4f> currentPose;
 
-	for (auto boneName : animationAdd.m_boneList) {
+	for (auto&& boneName : animationAdd.m_boneList) {
 		
 		int index = keyFrames.getPositionIndex(time, boneName);
 		float progression = getProgression(keyFrames.positions.at(boneName)[index].first, keyFrames.positions.at(boneName)[index + 1].first, time);
@@ -448,7 +448,7 @@ std::unordered_map<std::string, Matrix4f> AssimpAnimator::calculateAdditiveAnima
 	std::set<std::string> bonesCurrent;
 	
 	
-	for (auto boneName : animation.m_boneList) {
+	for (auto&& boneName : animation.m_boneList) {
 
 		int index = keyFrames.getPositionIndex(currentTime, boneName);
 		float progression = getProgression(keyFrames.positions.at(boneName)[index].first, keyFrames.positions.at(boneName)[index + 1].first, currentTime);
@@ -469,7 +469,7 @@ std::unordered_map<std::string, Matrix4f> AssimpAnimator::calculateAdditiveAnima
 		bonesCurrent.insert(boneName);
 	}
 	
-	for (auto boneName : animationLayer.m_boneList) {
+	for (auto&& boneName : animationLayer.m_boneList) {
 		int indexAdd = keyFramesAdd.getPositionIndex(layeredTime, boneName);
 		float progressionAdd = getProgression(keyFramesAdd.positions.at(boneName)[indexAdd].first, keyFramesAdd.positions.at(boneName)[indexAdd + 1].first, layeredTime);
 		Vector3f positionAdd = getInterpolated(keyFramesAdd.positions.at(boneName)[indexAdd].second, keyFramesAdd.positions.at(boneName)[indexAdd + 1].second, progressionAdd);
@@ -539,7 +539,7 @@ std::unordered_map<std::string, Matrix4f> AssimpAnimator::calculateCurrentAnimat
 	AssimpKeyFrameData keyFrames = m_currentAnimation->m_keyFrames;
 	std::unordered_map<std::string, Matrix4f> currentPose;
 
-	for (auto boneName : m_currentAnimation->m_boneList) {
+	for (auto&& boneName : m_currentAnimation->m_boneList) {
 
 		int index = keyFrames.getPositionIndex(currentTime, boneName);
 	

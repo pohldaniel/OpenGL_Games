@@ -53,9 +53,9 @@ public:
 	void toggle() const;
 	void print();
 
-	static std::vector<Light>& GetLights();
-	static void SetLights(const std::vector<Light>& lights);
-	static Light& AddLight(const LightBuffer& light = { {0.0f, 0.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, 30.0f , {0.0f, -1.0f, 0.0f}, LightType::POINT_LIGHT, false, false, 0, 0.0f, 0.0f, 0.0f });
+	static std::vector<Light*>& GetLights();
+	static void SetLights(const std::vector<Light*>& lights);
+	static Light* AddLight(const LightBuffer& light = { {0.0f, 0.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, 30.0f , {0.0f, -1.0f, 0.0f}, LightType::POINT_LIGHT, false, false, 0, 0.0f, 0.0f, 0.0f });
 	static void Print();
 	static void UpdateLightUbo(unsigned int& ubo, size_t size);
 
@@ -67,6 +67,6 @@ private:
 	bool m_isStatic;
 	Vector3f m_direction;
 
-	static std::vector<Light> Lights;
+	static std::vector<Light*> Lights;
 	static LightBuffer Buffer[20];
 };

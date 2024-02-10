@@ -33,18 +33,16 @@ void Scene::parseCamera(rapidjson::GenericObject<false, rapidjson::Value> object
                   { up[0].GetFloat(),  up[1].GetFloat(), up[2].GetFloat() });
 }
 
-Texture& Scene::addTexture(std::string path, std::vector<Texture>& texures) {
+Texture& Scene::addTexture(std::string path, std::vector<Texture>& textures) {
 	textures.resize(textures.size() + 1);
 	Texture& texture = textures.back();
-	texture.loadFromFile(path, true);
-	texture.setFilter(GL_LINEAR);
-	texture.setWrapMode(GL_REPEAT);
+	texture.loadFromFileCpu(path, true);
 	return texture;
 }
 
-void Scene::parseTextures(rapidjson::GenericArray<false, rapidjson::Value> array, std::vector<Texture>& texures) {
+void Scene::parseTextures(rapidjson::GenericArray<false, rapidjson::Value> array, std::vector<Texture>& textures) {
 	for (rapidjson::Value::ConstValueIterator texture = array.Begin(); texture != array.End(); ++texture) {
-		addTexture(texture->GetString(), texures);
+		addTexture(texture->GetString(), textures);
 	}
 
 	std::for_each(textures.begin(), textures.end(), std::mem_fn(&Texture::markForDelete));
@@ -91,12 +89,12 @@ void Scene::parseMaterials(rapidjson::GenericArray<false, rapidjson::Value> arra
 	}
 }
 
-Light& Scene::addLight(const LightBuffer& lightBuffer, std::vector<Light>& lights) {
-	lights.resize(lights.size() + 1);
-	Light& light = lights.back();
+Light* Scene::addLight(const LightBuffer& lightBuffer, std::vector<Light*>& lights) {
+	lights.push_back(new Light());
+	Light* light = lights.back();
 
 	int index = lights.size() - 1;
-	light.m_index = index;
+	light->m_index = index;
 
 	Light::Buffer[index].ambient[0] = lightBuffer.ambient[0];
 	Light::Buffer[index].ambient[1] = lightBuffer.ambient[1];
@@ -126,15 +124,15 @@ Light& Scene::addLight(const LightBuffer& lightBuffer, std::vector<Light>& light
 	Light::Buffer[index].enabled = lightBuffer.enabled;
 
 	if (Light::Buffer[index].type == SPOT_LIGHT)
-		light.m_isStatic = false;
+		light->m_isStatic = false;
 
-	light.setPosition({ lightBuffer.position[0], lightBuffer.position[1], lightBuffer.position[2] });
-	light.setDirection({ lightBuffer.direction[0], lightBuffer.direction[1], lightBuffer.direction[2] });
+	light->setPosition({ lightBuffer.position[0], lightBuffer.position[1], lightBuffer.position[2] });
+	light->setDirection({ lightBuffer.direction[0], lightBuffer.direction[1], lightBuffer.direction[2] });
 
 	return light;
 }
 
-void Scene::parseLights(rapidjson::GenericArray<false, rapidjson::Value> array, std::vector<Light>& lights) {
+void Scene::parseLights(rapidjson::GenericArray<false, rapidjson::Value> array, std::vector<Light*>& lights) {
 	
 	for (rapidjson::Value::ConstValueIterator light = array.Begin(); light != array.End(); ++light) {
 		const rapidjson::Value& _light = *light;
@@ -163,7 +161,7 @@ AssimpModel* Scene::addMesh(rapidjson::GenericObject<false, rapidjson::Value> ob
 	meshes.push_back(new AssimpModel());
 	AssimpModel* mesh = meshes.back();
 
-	mesh->loadModel(object["path"].GetString(), false, false, false);
+	mesh->loadModelCpu(object["path"].GetString(), false, false, false);
 	if (object.HasMember("materialIndex")){
 		mesh->getMeshes()[0]->setMaterialIndex(object["materialIndex"].GetInt());
 	}
@@ -179,21 +177,17 @@ void Scene::parseMeshes(rapidjson::GenericArray<false, rapidjson::Value> array, 
 	for (rapidjson::Value::ValueIterator mesh = array.Begin(); mesh != array.End(); ++mesh) {
 		addMesh(mesh->GetObject(), meshes);
 	}
-
+	std::for_each(meshes.begin(), meshes.end(), std::mem_fn(&AssimpModel::markForDelete));
 }
 
 MeshSequence& Scene::addMeshSequence(const rapidjson::GenericObject<false, rapidjson::Value> object, std::vector<MeshSequence>& meshSequences) {
 	meshSequences.resize(meshSequences.size() + 1);
 	MeshSequence& meshSequence = meshSequences.back();
-	
 	meshSequence.loadSequence(object["path"].GetString());
-	
-	
 
 	if (object.HasMember("additionalMeshesFromFile")) {
 		rapidjson::GenericArray<false, rapidjson::Value> array = object["additionalMeshesFromFile"].GetArray();
 		for (rapidjson::Value::ValueIterator path = array.Begin(); path != array.End(); ++path) {
-			//std::cout << "Paht: " << (*path).GetString() << std::endl;
 			meshSequence.addMeshFromFile((*path).GetString());
 		}
 	}
@@ -212,7 +206,6 @@ MeshSequence& Scene::addMeshSequence(const rapidjson::GenericObject<false, rapid
 	//player
 	meshSequence.getLocalBoundingBox(46).maximize(0.2f);
 
-	meshSequence.loadSequenceGpu();
 	return meshSequence;
 }
 
@@ -220,7 +213,7 @@ void Scene::parseMeshSequences(rapidjson::GenericArray<false, rapidjson::Value> 
 	for (rapidjson::Value::ValueIterator mesh = array.Begin(); mesh != array.End(); ++mesh) {
 		addMeshSequence(mesh->GetObject(), meshSequences);
 	}
-	std::for_each(textures.begin(), textures.end(), std::mem_fn(&Texture::markForDelete));
+	std::for_each(meshSequences.begin(), meshSequences.end(), std::mem_fn(&MeshSequence::markForDelete));
 }
 
 Types Scene::resolveType(std::string input) {
@@ -292,8 +285,9 @@ SceneNode* Scene::addNode(const rapidjson::GenericObject<false, rapidjson::Value
 
 		}break;
 		case LIGHT: {
-			child = dynamic_cast<SceneNode*>(root->addChild(&Light::GetLights()[reference]));
+			child = dynamic_cast<SceneNode*>(root->addChild(Light::GetLights()[reference]));
 			child->setIsFixed(true);
+			child->setIsSelfCared(true);
 			
 		}break; 
 		case ANT: {
@@ -310,7 +304,7 @@ SceneNode* Scene::addNode(const rapidjson::GenericObject<false, rapidjson::Value
 			entities.back()->setOrientation(object["rotation"].GetArray()[0].GetFloat(), object["rotation"].GetArray()[1].GetFloat(), object["rotation"].GetArray()[2].GetFloat());
 			entities.back()->setScale(object["scale"].GetArray()[0].GetFloat(), object["scale"].GetArray()[1].GetFloat(), object["scale"].GetArray()[2].GetFloat());
 			entities.back()->setRigidbody(Rigidbody());
-			child = dynamic_cast<SceneNode*>(root->addChild(entities.back()));		
+			child = dynamic_cast<SceneNode*>(root->addChild(entities.back()));
 		}break;
 		default: {
 			child = new SceneNode();			
@@ -349,7 +343,7 @@ void Scene::loadScene(std::string path) {
 
 	parseCamera(doc["camera"].GetObject(), camera);
 	parseTextures(doc["textures"].GetArray(), textures);
-	parseMaterials(doc["materials"].GetArray(), materials);
+	parseMaterials(doc["materials"].GetArray(), Material::GetMaterials());
 	parseLights(doc["lights"].GetArray(), Light::GetLights());
 	parseMeshes(doc["meshes"].GetArray(), meshes);
 	parseMeshSequences(doc["meshSequences"].GetArray(), meshSequences);
@@ -358,16 +352,68 @@ void Scene::loadScene(std::string path) {
 	parseNodes(doc["nodes"].GetArray(), root);
 }
 
+void Scene::loadSceneGpu() {
+
+	std::for_each(textures.begin(), textures.end(), std::mem_fn<void()>(&Texture::loadFromFileGpu));
+	std::for_each(textures.begin(), textures.end(), [](auto& act) {act.setFilter(GL_LINEAR); });
+	std::for_each(textures.begin(), textures.end(), std::bind(std::mem_fn<void(unsigned int) const>(&Texture::setWrapMode), std::placeholders::_1, GL_REPEAT));
+
+	std::for_each(meshes.begin(), meshes.end(), std::mem_fn(&AssimpModel::loadModelGpu));
+	std::for_each(meshSequences.begin(), meshSequences.end(), std::mem_fn(&MeshSequence::loadSequenceGpu));
+}
+
+void Scene::unloadScene() {
+	textures.clear();
+	textures.shrink_to_fit();
+
+	for (unsigned int i = 0; i < meshes.size(); i++) {
+		delete meshes[i];
+	}
+
+	meshes.clear();
+	meshes.shrink_to_fit();
+
+	meshSequences.clear();
+	meshSequences.shrink_to_fit();
+
+	Material::GetMaterials().clear();
+	Material::GetMaterials().shrink_to_fit();
+
+	for (unsigned int i = 0; i < Light::GetLights().size(); i++) {	
+		BaseNode* parent = Light::GetLights()[i]->getParent();
+		if (parent) {
+			Light::GetLights()[i]->removeSelf();
+			Light::GetLights()[i] = nullptr;
+		}else{
+			delete Light::GetLights()[i];
+			Light::GetLights()[i] = nullptr;
+		}
+	}
+
+	Light::GetLights().clear();
+	Light::GetLights().shrink_to_fit();
+
+	delete root;
+	root = nullptr;
+	player = nullptr;
+
+	entitiesAfterClear.clear();
+	entitiesAfterClear.shrink_to_fit();
+
+	entities.clear();
+	entities.shrink_to_fit();
+
+	std::vector<Entity*> entitiesAfterClear;
+	std::vector<Entity*> entities;
+	
+}
+
 Camera& Scene::getCamera(){
 	return camera;
 }
 
 const std::vector<Texture>& Scene::getTextures() const {
 	return textures;
-}
-
-const std::vector<Material>& Scene::getMaterials() const {
-	return materials;
 }
 
 const std::vector<AssimpModel*>& Scene::getMeshes() const {
@@ -386,18 +432,20 @@ const std::vector<Entity*>& Scene::getEntitiesAfterClear() const {
 	return entitiesAfterClear;
 }
 
-const std::vector<Entity*>& Scene::getEntities() const {
+std::vector<Entity*>& Scene::getEntities() {
 	return entities;
 }
 
 ///////////////////////ScenetManager//////////////////////////
 SceneManager SceneManager::s_instance;
 
-SceneManager::SceneManager() : m_currentPosition(0){
+SceneManager::SceneManager() : m_currentPosition(0), m_loadSettings(true){
 
 }
 
 void SceneManager::loadSettings(std::string path)  {
+	if (!m_loadSettings) return;
+	
 	std::ifstream file(path, std::ios::in);
 	if (!file.is_open()){
 		std::cerr << "Could not open file: " << path << std::endl;
@@ -410,6 +458,7 @@ void SceneManager::loadSettings(std::string path)  {
 		m_levels.push_back({ levels->GetObject()["file"].GetString(), levels->GetObject()["thumb"].GetString(), levels->GetObject()["music"].GetString() });		
 	}
 	file.close();
+	m_loadSettings = false;
 }
 
 const std::string& SceneManager::getCurrentSceneFile() const {

@@ -29,7 +29,7 @@ void HUD::init() {
 		"res/textures/loading.png",
 		"res/textures/lose.png",
 		"res/textures/win.png",
-		"res/textures/hurt.png" }));
+		"res/textures/hurt.png" }), true);
 
 
 	TileSetManager::Get().getTileSet("hud").loadTileSetGpu();

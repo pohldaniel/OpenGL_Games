@@ -26,6 +26,10 @@ SceneNode& SceneNode::operator=(SceneNode&& rhs) {
 	return *this;
 }
 
+SceneNode::~SceneNode() {
+
+}
+
 const Vector3f& SceneNode::getWorldPosition() const {
 	updateSOP();
 	return m_worldPosition;
@@ -69,3 +73,5 @@ const Matrix4f& SceneNode::getWorldTransformation() const {
 	Transformation *= Matrix4f::Scale(m_worldScale);
 	return Transformation;
 }
+
+

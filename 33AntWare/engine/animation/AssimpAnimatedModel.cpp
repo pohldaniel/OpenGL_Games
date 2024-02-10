@@ -331,7 +331,7 @@ void AssimpAnimatedModel::blendTwoAnimationsDisjoint(float deltaTime, std::strin
 void AssimpAnimatedModel::draw(Camera& camera) {
 
 	m_shader.bind();
-	for (auto mesh : m_meshes) {
+	for (auto&& mesh : m_meshes) {
 
 		m_texture->bind(0);
 		m_shader.update(*this, camera, mesh->getBoneArray());
@@ -340,7 +340,7 @@ void AssimpAnimatedModel::draw(Camera& camera) {
 }
 
 void AssimpAnimatedModel::drawRaw() {
-	for (auto mesh : m_meshes) {
+	for (auto&& mesh : m_meshes) {
 		mesh->drawRaw();
 	}
 }

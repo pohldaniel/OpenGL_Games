@@ -5,7 +5,7 @@
 
 #include "MeshSequence.h"
 
-MeshSequence::MeshSequence() {
+MeshSequence::MeshSequence() : m_markForDelete(false) {
 	m_numberOfMeshes = 0;
 	m_stride = 0;
 

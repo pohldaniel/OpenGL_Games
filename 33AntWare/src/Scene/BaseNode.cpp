@@ -2,32 +2,44 @@
 #include "BaseNode.h"
 #include "SceneNode.h"
 
-BaseNode::BaseNode() : Object(), m_markForRemove(false), m_isDirty(true), m_parent(nullptr), m_isFixed(false) {
+BaseNode::BaseNode() : Object(), m_markForRemove(false), m_isDirty(true), m_parent(nullptr), m_isFixed(false), m_isSelfCared(false){
 
 }
 
 BaseNode::BaseNode(const BaseNode& rhs) : Object(rhs) {
 	m_isDirty = rhs.m_isDirty;
 	m_markForRemove = rhs.m_markForRemove;
+	m_isFixed = rhs.m_isFixed;
+	m_isSelfCared = rhs.m_isSelfCared;
 }
 
 BaseNode& BaseNode::operator=(const BaseNode& rhs) {
 	Object::operator=(rhs);
 	m_isDirty = rhs.m_isDirty;
 	m_markForRemove = rhs.m_markForRemove;
+	m_isFixed = rhs.m_isFixed;
+	m_isSelfCared = rhs.m_isSelfCared;
 	return *this;
 }
 
 BaseNode::BaseNode(BaseNode&& rhs) : Object(rhs) {
 	m_isDirty = rhs.m_isDirty;
 	m_markForRemove = rhs.m_markForRemove;
+	m_isFixed = rhs.m_isFixed;
+	m_isSelfCared = rhs.m_isSelfCared;
 }
 
 BaseNode& BaseNode::operator=(BaseNode&& rhs) {
 	Object::operator=(rhs);
 	m_isDirty = rhs.m_isDirty;
 	m_markForRemove = rhs.m_markForRemove;
+	m_isFixed = rhs.m_isFixed;
+	m_isSelfCared = rhs.m_isSelfCared;
 	return *this;
+}
+
+BaseNode::~BaseNode() {
+	removeAllChildren();
 }
 
 void BaseNode::markForRemove() {
@@ -151,10 +163,6 @@ const std::list<std::unique_ptr<BaseNode>>& BaseNode::getChildren() const {
 	return m_children;
 }
 
-void BaseNode::removeChild(std::unique_ptr<BaseNode> node) {
-	m_children.remove(node);
-}
-
 BaseNode* BaseNode::addChild(BaseNode* node) {
 	m_children.emplace_back(std::unique_ptr<BaseNode>(node));
 	m_children.back()->m_parent = this;
@@ -165,6 +173,22 @@ BaseNode* BaseNode::addChild() {
 	m_children.emplace_back(std::make_unique<SceneNode>());
 	m_children.back()->m_parent = this;
 	return m_children.back().get();
+}
+
+BaseNode* BaseNode::getParent() {
+	return m_parent;
+}
+
+void BaseNode::removeAllChildren() {
+
+	for(auto it = m_children.begin(); it != m_children.end(); ++it){
+		BaseNode* child = (*it).release();
+	
+		child->m_parent = nullptr;
+		delete child;	
+		child = nullptr;
+	}
+	m_children.clear();
 }
 
 void BaseNode::setParent(BaseNode* node) {
@@ -181,4 +205,28 @@ void BaseNode::setIsFixed(bool isFixed) {
 
 const bool BaseNode::isFixed() const{
 	return m_isFixed;
+}
+
+void BaseNode::setIsSelfCared(bool isSelfCared) {
+	m_isSelfCared = isSelfCared;
+}
+
+const bool BaseNode::isSelfCared() const {
+	return m_isSelfCared;
+}
+
+void BaseNode::removeChild(BaseNode* child) {
+
+	if (!child || child->m_parent != this)
+		return;
+
+	//BaseNode* node = (*std::find_if(m_children.begin(), m_children.end(), [child](const std::unique_ptr<BaseNode>& node) { return node.get() == child; })).get();
+	//node->m_parent = nullptr;
+	child->m_parent = nullptr;
+	m_children.erase(std::remove_if(m_children.begin(), m_children.end(), [child](const std::unique_ptr<BaseNode>& node) { return node.get() == child; }), m_children.end());
+}
+
+void BaseNode::removeSelf() {
+	if (m_parent)
+		m_parent->removeChild(this);
 }

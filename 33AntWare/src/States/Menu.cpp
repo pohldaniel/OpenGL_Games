@@ -69,18 +69,18 @@ void Menu::render() {
 	
 	m_headline.draw();
 
-	for (auto& b : m_buttons)
+	for (auto&& b : m_buttons)
 		b.second.draw();
 
 }
 
 void Menu::OnMouseMotion(Event::MouseMoveEvent& event) {
-	for (auto& b : m_buttons)
+	for (auto&& b : m_buttons)
 	  b.second.processInput(event.x, Application::Height - event.y);
 }
 
 void Menu::OnMouseButtonDown(Event::MouseButtonEvent& event) {
-	for (auto& b : m_buttons)
+	for (auto&& b : m_buttons)
 	  b.second.processInput(event.x, Application::Height - event.y, event.button);
 }
 

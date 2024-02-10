@@ -28,6 +28,10 @@ class AssimpModel {
 public:
 
 	AssimpModel();
+	AssimpModel(AssimpModel const& rhs);
+	AssimpModel(AssimpModel&& rhs);
+	AssimpModel& operator=(const AssimpModel& rhs);
+	AssimpModel& operator=(AssimpModel&& rhs);
 	~AssimpModel();
 
 	const Vector3f &getCenter() const;
@@ -53,8 +57,9 @@ public:
 
 	void createAABB();
 	void drawAABB();
-
-	bool loadModel(const char* filename, bool isStacked = false, bool generateTangents = false, bool flipYZ = false, bool flipWinding = false);
+	void loadModel(const char* filename, bool isStacked = false, bool generateTangents = false, bool flipYZ = false, bool flipWinding = false);
+	void loadModelCpu(const char* filename, bool isStacked = false, bool generateTangents = false, bool flipYZ = false, bool flipWinding = false);
+	void loadModelGpu();
 
 	std::string getModelDirectory();
 	BoundingBox& getAABB();
@@ -72,8 +77,9 @@ public:
 	void initShader(bool instanced = false);
 	void initShader(AssetManager<Shader>& shaderManager, bool instanced = false);
 	void cleanup();
+	void markForDelete();
 
-	static void Cleanup();
+	static void CleanupShader();
 
 private:
 
@@ -105,6 +111,7 @@ private:
 	unsigned int m_vbo = 0;
 	unsigned int m_ibo = 0;
 	unsigned int m_vboInstances = 0;
+	bool m_markForDelete = false;
 
 	void unuseAllShader();
 	void static CreateBuffer(std::vector<float>& vertexBuffer, std::vector<unsigned int> indexBuffer, unsigned int& vao, unsigned int vbo, unsigned int& ibo, unsigned int stride);
@@ -121,6 +128,10 @@ class AssimpMesh {
 public:
 
 	AssimpMesh(AssimpModel* model);
+	AssimpMesh(AssimpMesh const& rhs);
+	AssimpMesh(AssimpMesh&& rhs);
+	AssimpMesh& operator=(const AssimpMesh& rhs);
+	AssimpMesh& operator=(AssimpMesh&& rhs);
 	~AssimpMesh();
 
 	void drawRaw();
@@ -136,6 +147,7 @@ public:
 
 	const Material& getMaterial() const;
 	void cleanup();
+	void markForDelete();
 
 private:
 
@@ -152,6 +164,7 @@ private:
 
 	unsigned int m_drawCount = 0;
 	unsigned int m_instanceCount = 0;
+	bool m_markForDelete = false;
 
 	std::vector<float> m_vertexBuffer;
 	std::vector<unsigned int> m_indexBuffer;

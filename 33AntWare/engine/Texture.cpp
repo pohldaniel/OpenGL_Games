@@ -4,7 +4,6 @@
 
 #include "Texture.h"
 
-int Texture::Count = 0;
 std::map<unsigned int, unsigned int> Texture::ActiveTextures;
 
 bool operator==(const Texture& t1, const Texture& t2) {
@@ -27,6 +26,8 @@ Texture::Texture(Texture const& rhs){
 	m_target = rhs.m_target;
 	m_textureHandle = rhs.m_textureHandle;
 	m_deepCopy = rhs.m_deepCopy;
+	imageData = rhs.imageData;
+	subImage = rhs.subImage;
 	//This means the Copy will never call glDeleteTextures(), instead this has to be invoked manually
 	m_markForDelete = false;
 
@@ -72,6 +73,8 @@ Texture::Texture(Texture&& rhs){
 	m_target = rhs.m_target;
 	m_textureHandle = rhs.m_textureHandle;
 	m_deepCopy = rhs.m_deepCopy;
+	imageData = rhs.imageData;
+	subImage = rhs.subImage;
 	m_markForDelete = false;
 
 	if (m_deepCopy) {
@@ -116,6 +119,8 @@ Texture& Texture::operator=(const Texture& rhs) {
 	m_target = rhs.m_target;
 	m_textureHandle = rhs.m_textureHandle;
 	m_deepCopy = rhs.m_deepCopy;
+	imageData = rhs.imageData;
+	subImage = rhs.subImage;
 	m_markForDelete = false;
 
 	if (m_deepCopy) {
@@ -162,6 +167,8 @@ void Texture::copy(const Texture& rhs) {
 	m_target = rhs.m_target;
 	m_textureHandle = rhs.m_textureHandle;
 	m_deepCopy = rhs.m_deepCopy;
+	imageData = rhs.imageData;
+	subImage = rhs.subImage;
 	m_markForDelete = rhs.m_markForDelete;
 
 	if (m_target == GL_TEXTURE_2D) {
@@ -285,15 +292,15 @@ void Texture::FlipHorizontal(unsigned char* data, unsigned int width, unsigned i
 }
 
 Texture::~Texture() {
-	cleanup();
+	if (m_markForDelete) {
+		cleanup();
+	}
 }
 
 void Texture::cleanup() {
-	if (m_texture && m_markForDelete) {
-		Count++;
+	if (m_texture) {	
 		glDeleteTextures(1, &m_texture);
 		m_texture = 0;
-//		std::cout << "Count Texture Delete: " << Count << std::endl;
 	}
 }
 
@@ -305,15 +312,21 @@ void Texture::markForDelete() {
 	m_markForDelete = true;
 }
 
-void Texture::loadFromFile(std::string fileName, const bool _flipVertical, unsigned int _internalFormat, unsigned int _format, int paddingLeft, int paddingRight, int paddingTop, int paddingBottom, unsigned int SOIL_FLAG) {
+void Texture::loadFromFile(std::string fileName, const bool flipVertical, unsigned int internalFormat, unsigned int format, int paddingLeft, int paddingRight, int paddingTop, int paddingBottom, unsigned int SOIL_FLAG) {
+	loadFromFileCpu(fileName, flipVertical, internalFormat, format, paddingLeft, paddingRight, paddingTop, paddingBottom, SOIL_FLAG);
+	loadFromFileGpu();
+}
+
+
+void Texture::loadFromFileCpu(std::string fileName, const bool _flipVertical, unsigned int _internalFormat, unsigned int _format, int paddingLeft, int paddingRight, int paddingTop, int paddingBottom, unsigned int SOIL_FLAG) {
 	int width, height, numCompontents;
-	unsigned char* imageData = SOIL_load_image(fileName.c_str(), &width, &height, &numCompontents, SOIL_FLAG);
+	imageData = SOIL_load_image(fileName.c_str(), &width, &height, &numCompontents, SOIL_FLAG);
 
 	if (numCompontents == 1 && (_format == GL_RGB || _format == GL_RGBA /*|| SOIL_FLAG == 1u*/)) {
 		SOIL_free_image_data(imageData);
 		SOIL_FLAG = _format == GL_RGB ? 3u : 4u;
 		imageData = SOIL_load_image(fileName.c_str(), &width, &height, 0, SOIL_FLAG);
-		numCompontents = 3;
+		numCompontents = _format == GL_RGB ? 3 : 4;
 	}
 	
 	m_internalFormat = _internalFormat == 0 && numCompontents == 1 ? GL_R8 : _internalFormat == 0 && numCompontents == 3 ? GL_RGB8 : _internalFormat == 0 ? GL_RGBA8 : _internalFormat;
@@ -329,6 +342,13 @@ void Texture::loadFromFile(std::string fileName, const bool _flipVertical, unsig
 	imageData = AddRemoveTopPadding(imageData, width, height, numCompontents, paddingTop);
 	imageData = AddRemoveBottomPadding(imageData, width, height, numCompontents, paddingBottom);
 
+	m_width = width;
+	m_height = height;
+	m_channels = numCompontents;	
+}
+
+void Texture::loadFromFileGpu() {
+
 	glGenTextures(1, &m_texture);
 	glBindTexture(m_target, m_texture);
 	glTexParameterf(m_target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -336,24 +356,124 @@ void Texture::loadFromFile(std::string fileName, const bool _flipVertical, unsig
 	glTexParameteri(m_target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(m_target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-	if(SOIL_FLAG == 3 || numCompontents == 3 || numCompontents == 1)
+	if (m_channels == 3 || m_channels == 1)
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-	glTexImage2D(m_target, 0, m_internalFormat, width, height, 0, m_format, m_type, imageData);
+	glTexImage2D(m_target, 0, m_internalFormat, m_width, m_height, 0, m_format, m_type, imageData);
 	glBindTexture(m_target, 0);
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
 
 	SOIL_free_image_data(imageData);
+	imageData = nullptr;
+}
+
+void Texture::loadFromFile(std::string fileName, unsigned short tileWidth, unsigned short tileHeight, unsigned short spacing, unsigned int posY, unsigned int posX, const bool flipVertical, unsigned int internalFormat, unsigned int format) {
+	loadFromFileCpu(fileName, tileWidth, tileHeight, spacing, posY, posX, flipVertical, internalFormat, format);
+	loadFromFileGpu(tileWidth, tileHeight);
+}
+
+void Texture::loadFromFileCpu(std::string fileName, unsigned short tileWidth, unsigned short tileHeight, unsigned short spacing, unsigned int _posY, unsigned int _posX, const bool _flipVertical, unsigned int _internalFormat, unsigned int _format) {
+
+	int width, height, numCompontents;
+	imageData = SOIL_load_image(fileName.c_str(), &width, &height, &numCompontents, SOIL_LOAD_AUTO);
+	m_internalFormat = _internalFormat == 0 && numCompontents == 1 ? GL_R8 : _internalFormat == 0 && numCompontents == 3 ? GL_RGB8 : _internalFormat == 0 ? GL_RGBA8 : _internalFormat;
+	m_format = _format == 0 && numCompontents == 1 ? GL_R : _format == 0 && numCompontents == 3 ? GL_RGB : _format == 0 ? GL_RGBA : _format;
+	m_type = GL_UNSIGNED_BYTE;
+	m_target = GL_TEXTURE_2D;
+
+	if (_flipVertical)
+		flipVertical(imageData, numCompontents * width, height);
+
+	unsigned short tileCountY = height / (tileHeight + spacing);
+	unsigned short posX = _posX;
+	unsigned short posY = _flipVertical ? (tileCountY - 1) - _posY : _posY;
+
+	subImage = (unsigned char*)malloc((tileWidth)* numCompontents * (tileHeight));
+	unsigned int subImageSize = (tileWidth)* numCompontents * tileHeight;
+	unsigned int count = 0, row = 0;
+	unsigned int offset = width * numCompontents * ((tileHeight + spacing) * posY + spacing) + posX * (tileWidth + spacing) * numCompontents;
+	unsigned int x = offset;
+
+	while (count < subImageSize) {
+		if (count % (tileWidth * numCompontents) == 0 && count > 0) {
+			row = row + width * numCompontents;
+			x = row + offset;
+		}
+		subImage[count] = imageData[x];
+		x++;
+		count++;
+	}
 
 	m_width = width;
 	m_height = height;
 	m_channels = numCompontents;
-
-	glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
 }
 
-void Texture::loadHDRIFromFile(std::string fileName, const bool _flipVertical, unsigned int internalFormat, unsigned int format, int paddingLeft, int paddingRight, int paddingTop, int paddingBottom) {
+void Texture::loadFromFile(std::string fileName, unsigned int offsetX, unsigned int offsetY, unsigned int width, unsigned int height, const bool flipVertical, unsigned int internalFormat, unsigned int format) {
+	loadFromFileCpu(fileName, offsetX, offsetY, width, height, flipVertical, internalFormat, format);
+	loadFromFileGpu(width, height);
+}
+
+void Texture::loadFromFileCpu(std::string fileName, unsigned int _offsetX, unsigned int _offsetY, unsigned int _width, unsigned int _height, const bool _flipVertical, unsigned int _internalFormat, unsigned int _format) {
+
 	int width, height, numCompontents;
-	unsigned char* imageData = reinterpret_cast<unsigned char *>(SOIL_load_image_f(fileName.c_str(), &width, &height, &numCompontents, 0));
+	imageData = SOIL_load_image(fileName.c_str(), &width, &height, &numCompontents, SOIL_LOAD_AUTO);
+	m_internalFormat = _internalFormat == 0 && numCompontents == 1 ? GL_R8 : _internalFormat == 0 && numCompontents == 3 ? GL_RGB8 : _internalFormat == 0 ? GL_RGBA8 : _internalFormat;
+	m_format = _format == 0 && numCompontents == 1 ? GL_R : _format == 0 && numCompontents == 3 ? GL_RGB : _format == 0 ? GL_RGBA : _format;
+	m_type = GL_UNSIGNED_BYTE;
+	m_target = GL_TEXTURE_2D;
+
+	if (_flipVertical)
+		flipVertical(imageData, numCompontents * width, height);
+
+	unsigned int offsetY = _flipVertical ? (height - (_offsetY + _height)) : _offsetY;
+
+	subImage = (unsigned char*)malloc(_width * numCompontents * _height);
+	unsigned int subImageSize = _width * numCompontents * _height;
+	unsigned int count = 0, row = 0;
+	unsigned int offset = width * numCompontents * offsetY + numCompontents * _offsetX;
+	unsigned int x = offset;
+
+	while (count < subImageSize) {
+		if (count % (_width * numCompontents) == 0 && count > 0) {
+			row = row + width * numCompontents;
+			x = row + offset;
+		}
+		subImage[count] = imageData[x];
+		x++;
+		count++;
+	}
+
+	m_width = width;
+	m_height = height;
+	m_channels = numCompontents;
+}
+
+void Texture::loadFromFileGpu(unsigned short width, unsigned short height) {
+	glGenTextures(1, &m_texture);
+	glBindTexture(m_target, m_texture);
+	glTexParameterf(m_target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameterf(m_target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(m_target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(m_target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexImage2D(m_target, 0, m_internalFormat, width, height, 0, m_format, m_type, subImage);
+	glBindTexture(m_target, 0);
+
+	free(subImage);
+	subImage = nullptr;
+
+	SOIL_free_image_data(imageData);
+	imageData = nullptr;
+}
+
+void Texture::loadHDRIFromFile(std::string fileName, const bool flipVertical, unsigned int internalFormat, unsigned int format) {
+	loadHDRIFromFileCpu(fileName, flipVertical, internalFormat, format);
+	loadHDRIFromFileGpu();
+}
+
+void Texture::loadHDRIFromFileCpu(std::string fileName, const bool _flipVertical, unsigned int internalFormat, unsigned int format) {
+	int width, height, numCompontents;
+	imageData = reinterpret_cast<unsigned char *>(SOIL_load_image_f(fileName.c_str(), &width, &height, &numCompontents, 0));
 
 	m_internalFormat = internalFormat == 0 && numCompontents == 3 ? GL_RGB32F : internalFormat == 0 ? GL_RGBA32F : internalFormat;
 	m_format = format == 0 && numCompontents == 3 ? GL_RGB : format == 0 ? GL_RGBA : format;
@@ -363,44 +483,26 @@ void Texture::loadHDRIFromFile(std::string fileName, const bool _flipVertical, u
 	if (_flipVertical)
 		FlipVertical(imageData, numCompontents * sizeof(float) * width, height);
 
+	m_width = width;
+	m_height = height;
+	m_channels = numCompontents;
+}
+
+void Texture::loadHDRIFromFileGpu() {
 	glGenTextures(1, &m_texture);
 	glBindTexture(m_target, m_texture);
 	glTexParameterf(m_target, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameterf(m_target, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glTexParameterf(m_target, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	glTexParameterf(m_target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexImage2D(m_target, 0, m_internalFormat, width, height, 0, m_format, m_type, imageData);
+	glTexImage2D(m_target, 0, m_internalFormat, m_width, m_height, 0, m_format, m_type, imageData);
 	glGenerateMipmap(m_target);
 	glBindTexture(m_target, 0);
 
-	m_width = width;
-	m_height = height;
-	m_channels = numCompontents;
-
 	SOIL_free_image_data(imageData);
+	imageData = nullptr;
 }
 
-void Texture::loadCrossDDSFromFile(std::string fileName) {
-	m_target = GL_TEXTURE_CUBE_MAP;
-	m_texture = SOIL_load_OGL_single_cubemap(fileName.c_str(), SOIL_DDS_CUBEMAP_FACE_ORDER, SOIL_LOAD_AUTO, m_texture, SOIL_FLAG_MIPMAPS | SOIL_FLAG_DDS_LOAD_DIRECT);
-}
-
-void Texture::loadDDSRawFromFile(std::string fileName, const int knownInternal) {
-	m_texture = SOIL_direct_load_DDS(fileName.c_str(), m_texture, NULL, false);
-	m_target = GL_TEXTURE_2D;
-
-	int width, height;
-	int miplevel = 0;
-
-	glBindTexture(m_target, m_texture);
-	glGetTexLevelParameteriv(GL_TEXTURE_2D, miplevel, GL_TEXTURE_WIDTH, &width);
-	glGetTexLevelParameteriv(GL_TEXTURE_2D, miplevel, GL_TEXTURE_HEIGHT, &height);
-	glBindTexture(m_target, 0);
-
-	m_width = width;
-	m_height = height;
-	m_internalFormat = knownInternal;
-}
 
 void Texture::loadCubeFromFile(std::string* textureFiles, const bool _flipVertical, unsigned int _internalFormat, unsigned int _format) {
 	int width, height, numCompontents;
@@ -659,103 +761,6 @@ void Texture::loadCrossHDRIFromFile(std::string fileName, const bool _flipVertic
 	SOIL_free_image_data(imageData);
 }
 
-void Texture::loadFromFile(std::string fileName, unsigned short tileWidth, unsigned short tileHeight, unsigned short spacing, unsigned int _posY, unsigned int _posX, const bool _flipVertical, unsigned int _internalFormat, unsigned int _format) {
-	
-	int width, height, numCompontents;
-	unsigned char* imageData = SOIL_load_image(fileName.c_str(), &width, &height, &numCompontents, SOIL_LOAD_AUTO);
-	m_internalFormat = _internalFormat == 0 && numCompontents == 1 ? GL_R8 : _internalFormat == 0 && numCompontents == 3 ? GL_RGB8 : _internalFormat == 0 ? GL_RGBA8 : _internalFormat;
-	m_format = _format == 0 && numCompontents == 1 ? GL_R : _format == 0 && numCompontents == 3 ? GL_RGB : _format == 0 ? GL_RGBA : _format;
-	m_type = GL_UNSIGNED_BYTE;
-	m_target = GL_TEXTURE_2D;
-
-	if (_flipVertical)
-		flipVertical(imageData, numCompontents * width, height);
-
-	unsigned short tileCountY = height / (tileHeight + spacing);
-	unsigned short posX = _posX;
-	unsigned short posY = _flipVertical ? (tileCountY - 1) - _posY : _posY;
-
-	unsigned char* subImage = (unsigned char*)malloc((tileWidth)* numCompontents * (tileHeight));
-	unsigned int subImageSize = (tileWidth)* numCompontents * tileHeight;
-	unsigned int count = 0, row = 0;
-	unsigned int offset = width * numCompontents * ((tileHeight + spacing) * posY + spacing) + posX * (tileWidth + spacing) * numCompontents;
-	unsigned int x = offset;
-
-	while (count < subImageSize) {
-		if (count % (tileWidth * numCompontents) == 0 && count > 0) {
-			row = row + width * numCompontents;
-			x = row + offset;
-		}
-		subImage[count] = imageData[x];
-		x++;
-		count++;
-	}
-
-	glGenTextures(1, &m_texture);
-	glBindTexture(m_target, m_texture);
-	glTexParameterf(m_target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameterf(m_target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(m_target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(m_target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexImage2D(m_target, 0, m_internalFormat, tileWidth, tileHeight, 0, m_format, m_type, subImage);
-	glBindTexture(m_target, 0);
-
-	free(subImage);
-
-	SOIL_free_image_data(imageData);
-
-	m_width = width;
-	m_height = height;
-	m_channels = numCompontents;
-}
-
-void Texture::loadFromFile(std::string fileName, unsigned int _offsetX, unsigned int _offsetY, unsigned int _width, unsigned int _height, const bool _flipVertical, unsigned int _internalFormat, unsigned int _format) {
-
-	int width, height, numCompontents;
-	unsigned char* imageData = SOIL_load_image(fileName.c_str(), &width, &height, &numCompontents, SOIL_LOAD_AUTO);
-	m_internalFormat = _internalFormat == 0 && numCompontents == 1 ? GL_R8 : _internalFormat == 0 && numCompontents == 3 ? GL_RGB8 : _internalFormat == 0 ? GL_RGBA8 : _internalFormat;
-	m_format = _format == 0 && numCompontents == 1 ? GL_R : _format == 0 && numCompontents == 3 ? GL_RGB : _format == 0 ? GL_RGBA : _format;
-	m_type = GL_UNSIGNED_BYTE;
-	m_target = GL_TEXTURE_2D;
-
-	if (_flipVertical)
-		flipVertical(imageData, numCompontents * width, height);
-
-	unsigned int offsetY = _flipVertical ? (height - (_offsetY + _height)) : _offsetY;
-
-	unsigned char* subImage = (unsigned char*)malloc(_width * numCompontents * _height);
-	unsigned int subImageSize = _width * numCompontents * _height;
-	unsigned int count = 0, row = 0;
-	unsigned int offset = width * numCompontents * offsetY + numCompontents * _offsetX;
-	unsigned int x = offset;
-
-	while (count < subImageSize) {
-		if (count % (_width * numCompontents) == 0 && count > 0) {
-			row = row + width * numCompontents;
-			x = row + offset;
-		}
-		subImage[count] = imageData[x];
-		x++;
-		count++;
-	}
-
-	glGenTextures(1, &m_texture);
-	glBindTexture(m_target, m_texture);
-	glTexParameterf(m_target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameterf(m_target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(m_target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(m_target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexImage2D(m_target, 0, m_internalFormat, _width, _height, 0, m_format, GL_UNSIGNED_BYTE, subImage);
-	glBindTexture(m_target, 0);
-
-	free(subImage);
-	SOIL_free_image_data(imageData);
-
-	m_width = width;
-	m_height = height;
-	m_channels = numCompontents;
-}
-
 void Texture::createNullTexture(unsigned int width, unsigned int height, unsigned int color) {
 	int pitch = ((width * 32 + 31) & ~31) >> 3; // align to 4-byte boundaries
 	std::vector<unsigned char> pixels(pitch * height, color);
@@ -838,9 +843,8 @@ void Texture::createNoise(unsigned int width, unsigned int height) {
 		*pDest++ = rand() % 256;
 	}
 
-	GLuint textureHandle;
-	glGenTextures(1, &textureHandle);
-	glBindTexture(GL_TEXTURE_2D, textureHandle);
+	glGenTextures(1, &m_texture);
+	glBindTexture(GL_TEXTURE_2D, m_texture);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -927,6 +931,28 @@ void Texture::createNullCubemap(unsigned int width, unsigned int height, unsigne
 	m_format = GL_RGBA;
 	m_type = GL_UNSIGNED_BYTE;
 	m_target = GL_TEXTURE_CUBE_MAP;
+}
+
+void Texture::loadCrossDDSFromFile(std::string fileName) {
+	m_target = GL_TEXTURE_CUBE_MAP;
+	m_texture = SOIL_load_OGL_single_cubemap(fileName.c_str(), SOIL_DDS_CUBEMAP_FACE_ORDER, SOIL_LOAD_AUTO, m_texture, SOIL_FLAG_MIPMAPS | SOIL_FLAG_DDS_LOAD_DIRECT);
+}
+
+void Texture::loadDDSRawFromFile(std::string fileName, const int knownInternal) {
+	m_texture = SOIL_direct_load_DDS(fileName.c_str(), m_texture, NULL, false);
+	m_target = GL_TEXTURE_2D;
+
+	int width, height;
+	int miplevel = 0;
+
+	glBindTexture(m_target, m_texture);
+	glGetTexLevelParameteriv(GL_TEXTURE_2D, miplevel, GL_TEXTURE_WIDTH, &width);
+	glGetTexLevelParameteriv(GL_TEXTURE_2D, miplevel, GL_TEXTURE_HEIGHT, &height);
+	glBindTexture(m_target, 0);
+
+	m_width = width;
+	m_height = height;
+	m_internalFormat = knownInternal;
 }
 
 void Texture::addAlphaChannel(unsigned int value) {
@@ -1496,6 +1522,7 @@ void Texture::setNearest() const {
 }
 
 void Texture::setFilter(unsigned int minFilter, unsigned int magFilter) const {
+
 	if (magFilter == 0)
 		magFilter = minFilter == GL_LINEAR_MIPMAP_NEAREST || minFilter == GL_LINEAR_MIPMAP_LINEAR ? GL_LINEAR : minFilter == GL_NEAREST_MIPMAP_NEAREST || minFilter == GL_NEAREST_MIPMAP_LINEAR ? GL_NEAREST : minFilter;
 
@@ -1508,6 +1535,7 @@ void Texture::setFilter(unsigned int minFilter, unsigned int magFilter) const {
 }
 
 void Texture::setWrapMode(unsigned int mode) const {
+
 	if (m_target == GL_TEXTURE_CUBE_MAP || m_target == GL_TEXTURE_3D) {
 		glBindTexture(m_target, m_texture);
 		glTexParameteri(m_target, GL_TEXTURE_WRAP_R, mode);

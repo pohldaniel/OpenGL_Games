@@ -5,6 +5,10 @@ Entity::Entity(const MeshSequence& meshSequence, int meshIndex) : SequenceNode(m
 
 }
 
+Entity::~Entity() {
+
+}
+
 void Entity::start() {
 
 }

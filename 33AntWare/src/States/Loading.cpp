@@ -4,18 +4,14 @@
 #include <imgui_internal.h>
 #include <engine/Batchrenderer.h>
 
+#include<States/Game.h>
+
 #include "Loading.h"
-#include "Application.h"
 #include "Globals.h"
+#include "SceneManager.h"
 
 Loading::Loading(StateMachine& machine) : State(machine, States::LOADING) {
 
-	Application::SetCursorIcon(IDC_ARROW);
-	EventDispatcher::AddKeyboardListener(this);
-	EventDispatcher::AddMouseListener(this);
-
-	m_camera = Camera();
-	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.orthographic(-8.0f, 8.0f, -4.5f, 4.5f, -1.0f, 1.0f);
 
 	m_background.loadFromFile("res/textures/loading.png", true);
@@ -24,13 +20,17 @@ Loading::Loading(StateMachine& machine) : State(machine, States::LOADING) {
 	m_sop.setPosition(0.0f, 0.0f, 0.0f);
 	m_sop.setScale(16.0f, 16.0f, 1.0f);
 
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
 	glClearDepth(1.0f);
+
+	LoadingManagerSplitted::Get().addTask(new Loading::LoadSceneTask(this, &Loading::OnProcess, &Loading::OnComplete));
+	LoadingManagerSplitted::Get().startBackgroundThread();
+
+	m_background.bind();
 }
 
 Loading::~Loading() {
-	EventDispatcher::RemoveKeyboardListener(this);
-	EventDispatcher::RemoveMouseListener(this);
+	m_background.unbind();
 }
 
 void Loading::fixedUpdate() {
@@ -38,55 +38,27 @@ void Loading::fixedUpdate() {
 }
 
 void Loading::update() {
-	
+	LoadingManagerSplitted::Get().update();
+
+	if(LoadingManagerSplitted::Get().isFinished()){	
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new Game(m_machine));
+	}
 }
 
 void Loading::render() {
-
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	auto shader = Globals::shaderManager.getAssetPointer("quad");
 	shader->use();
 	shader->loadMatrix("u_transform", m_camera.getOrthographicMatrix() * m_sop.getTransformationSOP());
 
-	m_background.bind();
+	
 	Globals::shapeManager.get("quad_half").drawRaw();
 	shader->unuse();
 }
 
-void Loading::OnMouseMotion(Event::MouseMoveEvent& event) {
-
-}
-
-void Loading::OnMouseButtonDown(Event::MouseButtonEvent& event) {
-
-}
-
-void Loading::OnMouseButtonUp(Event::MouseButtonEvent& event) {
-
-}
-
-void Loading::OnMouseWheel(Event::MouseWheelEvent& event) {
-
-}
-
-void Loading::OnKeyDown(Event::KeyboardEvent& event) {
-	if (event.keyCode == VK_LMENU) {
-		m_drawUi = !m_drawUi;
-	}
-
-	if (event.keyCode == VK_ESCAPE) {
-		Mouse::instance().detach();
-		m_isRunning = false;
-	}
-}
-
-void Loading::OnKeyUp(Event::KeyboardEvent& event) {
-
-}
-
 void Loading::resize(int deltaW, int deltaH) {
-	//m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
-	//m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
+	
 }
 
 void Loading::renderUi() {
@@ -130,4 +102,12 @@ void Loading::renderUi() {
 
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+}
+
+void Loading::OnComplete() {
+	SceneManager::Get().getScene("scene").loadSceneGpu();
+}
+
+void Loading::OnProcess() {
+	SceneManager::Get().getScene("scene").loadScene(SceneManager::Get().getCurrentSceneFile());
 }

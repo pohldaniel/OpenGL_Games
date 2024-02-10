@@ -103,7 +103,7 @@ void Settings::render() {
 	m_checkBox.draw();
 	m_button.draw();
 
-	for (auto& b : m_seekerBars)
+	for (auto&& b : m_seekerBars)
 		b.second.draw();
 
 	glEnable(GL_BLEND);
@@ -118,14 +118,14 @@ void Settings::render() {
 void Settings::OnMouseMotion(Event::MouseMoveEvent& event) {
 	m_button.processInput(event.x, Application::Height - event.y);
 	m_checkBox.processInput(event.x, Application::Height - event.y);
-	for (auto& b : m_seekerBars)
+	for (auto&& b : m_seekerBars)
 		b.second.processInput(event.x, Application::Height - event.y);
 }
 
 void Settings::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 	m_button.processInput(event.x, Application::Height - event.y, event.button);
 	m_checkBox.processInput(event.x, Application::Height - event.y, event.button);
-	for (auto& b : m_seekerBars)
+	for (auto&& b : m_seekerBars)
 		b.second.processInput(event.x, Application::Height - event.y, event.button);
 }
 

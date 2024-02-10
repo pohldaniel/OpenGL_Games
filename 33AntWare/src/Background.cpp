@@ -103,7 +103,7 @@ void Background::draw() {
 	glEnable(GL_BLEND);
 
 	s_shader->use();
-	for (auto &layer : m_layer){
+	for (auto&& layer : m_layer){
 		layer.draw(s_shader.get());
 	}
 	s_shader->unuse();
@@ -111,7 +111,7 @@ void Background::draw() {
 }
 
 void Background::addOffset(float offset) {
-	for (auto &layer : m_layer) {
+	for (auto&& layer : m_layer) {
 		layer.addOffset(offset);
 	}
 }

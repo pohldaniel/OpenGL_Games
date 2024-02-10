@@ -11,6 +11,7 @@ public:
 
 	MeshNode();
 	MeshNode(AssimpModel* model);
+	~MeshNode();
 
 	void OnTransformChanged() override;
 

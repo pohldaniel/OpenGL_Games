@@ -22,7 +22,7 @@ public:
 	MeshSequence();
 	MeshSequence(MeshSequence const& rhs);
 	MeshSequence(MeshSequence&& rhs);
-	MeshSequence &operator=(const MeshSequence& rhs);
+	MeshSequence& operator=(const MeshSequence& rhs);
 	MeshSequence& operator=(MeshSequence&& rhs);
 	~MeshSequence();
 
@@ -42,9 +42,10 @@ public:
 	void loadSequence(const char* path, Vector3f& axis, float degree, Vector3f& translate = Vector3f(0.0f, 0.0f, 0.0f), float scale = 1.0f, bool withoutNormals = false, bool generateSmoothNormals = false, bool generateFlatNormals = false, bool generateSmoothTangents = false, bool rescale = false);
 	void addMeshFromFile(const char* path, bool withoutNormals = false, bool generateSmoothNormals = false, bool generateFlatNormals = false, bool generateSmoothTangents = false, bool rescale = false, bool flipYZ = false, bool flipWinding = false);
 	void addMeshFromFile(const char* path, Vector3f& axis, float degree, Vector3f& translate = Vector3f(0.0f, 0.0f, 0.0f), float scale = 1.0f, bool withoutNormals = false, bool generateSmoothNormals = false, bool generateFlatNormals = false, bool generateSmoothTangents = false, bool rescale = false, bool flipYZ = false, bool flipWinding = false);
+	void loadSequenceGpu();
 	void addMesh(std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer);
 	void addMeshAfter(std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer);
-	void loadSequenceGpu();
+
 
 	void cleanup();
 	void markForDelete();
@@ -68,5 +69,5 @@ private:
 	unsigned int m_vao;
 	unsigned int m_vbo;
 	unsigned int m_ibo;	
-	bool m_markForDelete = false;
+	bool m_markForDelete;
 };

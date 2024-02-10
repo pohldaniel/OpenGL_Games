@@ -8,9 +8,13 @@
 #include <States/StateMachine.h>
 #include <Scene/Object.h>
 
-#include "Background.h"
+#include "Loadingmanager.h"
 
-class Loading : public State, public MouseEventListener, public KeyboardEventListener {
+class Loading : public State {
+
+	struct LoadSceneTask : public MemberFunctionTask<Loading> {
+		LoadSceneTask(Loading* object_, MemberWorkFunctionPtr OnProcess_, MemberWorkFunctionPtr OnComplete_) : MemberFunctionTask<Loading>(object_, OnProcess_, OnComplete_) { }
+	};
 
 public:
 
@@ -21,12 +25,9 @@ public:
 	void update() override;
 	void render() override;
 	void resize(int deltaW, int deltaH) override;
-	void OnMouseMotion(Event::MouseMoveEvent& event) override;
-	void OnMouseWheel(Event::MouseWheelEvent& event) override;
-	void OnMouseButtonDown(Event::MouseButtonEvent& event) override;
-	void OnMouseButtonUp(Event::MouseButtonEvent& event) override;
-	void OnKeyDown(Event::KeyboardEvent& event) override;
-	void OnKeyUp(Event::KeyboardEvent& event) override;
+	
+	void OnComplete();
+	void OnProcess();
 
 private:
 

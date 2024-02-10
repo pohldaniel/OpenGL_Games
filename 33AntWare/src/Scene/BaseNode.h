@@ -1,4 +1,5 @@
 #pragma once
+
 #include <list>
 #include <memory>
 #include "Object.h"
@@ -14,6 +15,7 @@ public:
 	BaseNode& operator=(const BaseNode& rhs);
 	BaseNode(BaseNode&& rhs);
 	BaseNode& operator=(BaseNode&& rhs);
+	virtual ~BaseNode();
 
 	virtual void OnTransformChanged();
 	virtual const Matrix4f& getWorldTransformation() const = 0;
@@ -49,20 +51,25 @@ public:
 	void rotate(const Quaternion& orientation) override;
 
 	void markForRemove();
-	void setIsFixed(bool isFixed);
 	void setParent(BaseNode* node);
+	void setIsFixed(bool isFixed);
+	void setIsSelfCared(bool isSelfCared);
 	const bool isFixed() const;
-
+	const bool isSelfCared() const;
 
 	const std::list<std::unique_ptr<BaseNode>>& getChildren() const;
-	void removeChild(std::unique_ptr<BaseNode> node);
+	void removeAllChildren();
+	void removeChild(BaseNode* child);
+	void removeSelf();
+
 	BaseNode* addChild(BaseNode* node);
 	BaseNode* addChild();
+	BaseNode* getParent();
 	
 protected:
 
 	virtual const Vector3f& getWorldOrigin() const;
 
 	BaseNode* m_parent;	std::list<std::unique_ptr<BaseNode>> m_children;
-	bool m_markForRemove;	bool m_isFixed;	mutable bool m_isDirty;
+	bool m_markForRemove;	bool m_isFixed;	bool m_isSelfCared;	mutable bool m_isDirty;
 };

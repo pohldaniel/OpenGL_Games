@@ -307,7 +307,7 @@ public:
 	}
 
 	void clear() {
-		for (auto& s : m_assetPointer) {
+		for (auto&& s : m_assetPointer) {
 			if (s.second) {
 				delete s.second;
 				s.second = NULL;

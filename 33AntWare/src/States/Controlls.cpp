@@ -113,7 +113,7 @@ void Controls::render() {
 
 	m_headline.draw();
 	m_button.draw();
-	for (auto& b : m_textFields)
+	for (auto&& b : m_textFields)
 		b.second.draw();
 	
 	glEnable(GL_BLEND);

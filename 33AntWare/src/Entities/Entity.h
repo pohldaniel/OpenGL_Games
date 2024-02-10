@@ -13,7 +13,7 @@ class Entity : public SequenceNode {
 public:
 
 	Entity(const MeshSequence& meshSequence, int meshIndex);
-	virtual ~Entity() = default;
+	virtual ~Entity();
 
 	virtual void start();
 	virtual void draw();
@@ -31,7 +31,7 @@ public:
 	virtual void setMaterialIndex(short index) const;
 	short getTextureIndex() const;
 	void setTextureIndex(short index) const;
-	
+
 protected:
 
 	Rigidbody m_rigidbody;

@@ -20,26 +20,23 @@ currentPosition(SceneManager::Get().m_currentPosition) {
 	EventDispatcher::AddKeyboardListener(this);
 	EventDispatcher::AddMouseListener(this);
 
-	m_camera = Camera();
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.orthographic(-8.0f, 8.0f, -4.5f, 4.5f, -1.0f, 1.0f);
 	
 	SceneManager::Get().loadSettings("res/default_settings.json");
 	m_offset = static_cast<short>(SceneManager::Get().getLevels().size());
-
-	TextureAtlasCreator::Get().init(2048u, 2048u);
-
-	TileSetManager::Get().getTileSet("menu").loadTileSetCpu(SceneManager::Get().getThumbs());
+	currentPosition = 0;
+	
+	TileSetManager::Get().getTileSet("menu").loadTileSetCpu(SceneManager::Get().getThumbs(), true);
 	TileSetManager::Get().getTileSet("menu").loadTileSetCpu(std::vector<std::string>({
 		"res/textures/Main Menu BG.png",
 		"res/textures/Game Label.png",
-		"res/textures/Credits.png" }));
+		"res/textures/Credits.png" }), false);
 	TileSetManager::Get().getTileSet("menu").loadTileSetGpu();
 
 	m_tileSet = TileSetManager::Get().getTileSet("menu").getTextureRects();
 	m_menuAtlas = TileSetManager::Get().getTileSet("menu").getAtlas();
 
-	
 	Spritesheet::SetFilter(m_menuAtlas, GL_LINEAR);
 	Spritesheet::SetWrapMode(m_menuAtlas, GL_REPEAT);
 	//Spritesheet::Safe("menu", m_menuAtlas);
@@ -49,7 +46,10 @@ currentPosition(SceneManager::Get().m_currentPosition) {
 	shader->loadInt("u_texture", 2);
 	shader->unuse();
 
-	Spritesheet::Bind(m_menuAtlas, 2u);
+	Spritesheet::Bind(m_menuAtlas, 2u); 
+
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glClearDepth(1.0f);
 
 }
 
@@ -161,7 +161,8 @@ void MenuNew::OnKeyUp(Event::KeyboardEvent& event) {
 void MenuNew::processInput() {
 	Keyboard &keyboard = Keyboard::instance();
 	if (keyboard.keyPressed(Keyboard::KEY_ENTER) && !keyboard.keyDown(Keyboard::KEY_RALT)) {
-		m_machine.addStateAtTop(new Loading(m_machine));
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new Loading(m_machine));
 		return;
 	}
 

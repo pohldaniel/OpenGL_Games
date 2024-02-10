@@ -105,7 +105,7 @@ bool LoadingManagerSplitted::OnTask() {
 
 	m_started = true;
 
-	for (auto& task : m_tasks)
+	for (auto&& task : m_tasks)
 		task->Process();
 
 	//Important Note: The task Complete function will be set after finishing the task Process function

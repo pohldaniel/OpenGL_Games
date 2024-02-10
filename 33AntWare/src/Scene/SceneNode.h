@@ -13,12 +13,16 @@ public:
 	SceneNode& operator=(const SceneNode& rhs);
 	SceneNode(SceneNode&& rhs);
 	SceneNode& operator=(SceneNode&& rhs);
+	virtual ~SceneNode();
 
 	const Matrix4f& getWorldTransformation() const override;
 	const Vector3f& getWorldPosition() const override;
 	const Vector3f& getWorldScale() const override;
 	const Vector3f& getWorldOrigin() const override;
 	const Quaternion& getWorldOrientation() const override;
+
+
+	
 
 protected:
 

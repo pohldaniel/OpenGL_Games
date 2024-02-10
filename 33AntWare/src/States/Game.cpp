@@ -4,6 +4,7 @@
 #include <imgui_internal.h>
 
 #include <engine/Batchrenderer.h>
+#include <States/MenuNew.h>
 
 #include "Game.h"
 #include "Application.h"
@@ -22,11 +23,12 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 	HUD::Get().init();
 
 	SceneManager::Get().loadSettings("res/default_settings.json");
-	SceneManager::Get().getScene("scene").loadScene(SceneManager::Get().getCurrentSceneFile());
+	//SceneManager::Get().getScene("scene").loadScene(SceneManager::Get().getCurrentSceneFile());
+	//SceneManager::Get().getScene("scene").loadSceneGpu();
 
 	Scene scene = SceneManager::Get().getScene("scene");
-	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	//glClearColor(0.494f, 0.686f, 0.796f, 1.0f);
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClearDepth(1.0f);
 
 	auto shader = Globals::shaderManager.getAssetPointer("antware");
@@ -48,7 +50,7 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 
 	
 	Material::SetTextures(scene.getTextures());
-	Material::SetMaterials(scene.getMaterials());
+
 	m_entitiesAfterClear = scene.getEntitiesAfterClear();
 	m_player = scene.getPlayer();
 	m_camera = &m_player->camera;
@@ -60,35 +62,38 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 	HUD::Get().setTotalAmmo(m_player->totalAmmo);
 
 	std::for_each(m_entitiesAfterClear.begin(), m_entitiesAfterClear.end(), std::mem_fn(&Entity::start));
-	std::for_each(m_entities.begin(), m_entities.end(), std::mem_fn(&Entity::start));
+	std::for_each(scene.getEntities().begin(), scene.getEntities().end(), std::mem_fn(&Entity::start));
 }
 
 Game::~Game() {
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
+	SceneManager::Get().getScene("scene").unloadScene();
+	HUD::Get().setWin(false);
+	HUD::Get().setLoose(false);
 }
 
 void Game::fixedUpdate() {
 	m_player->fixedUpdate(m_fdt);
 
-	for (auto entity : m_entitiesAfterClear)
+	for (auto&& entity : m_entitiesAfterClear)
 		entity->fixedUpdate(m_fdt);
 
-	for (auto entity : m_entities)
+	for (auto&& entity : m_entities)
 		entity->fixedUpdate(m_fdt);
 }
 
 void Game::update() {
 	m_player->update(m_dt);
 
-	for(auto entity : m_entitiesAfterClear)
+	for(auto&& entity : m_entitiesAfterClear)
 		entity->update(m_dt);
 
-	for(auto entity : m_entities)
+	for(auto&& entity : m_entities)
 		entity->update(m_fdt);
 
-	for(auto& light : Light::GetLights()) {
-		light.update(m_dt);
+	for(auto&& light : Light::GetLights()) {
+		light->update(m_dt);
 	}
 
 	bool isWin = Ant::GetCount() == 0;
@@ -120,14 +125,14 @@ void Game::render() {
 	shader->loadMatrix("u_view", m_camera->getViewMatrix());
 	shader->loadVector("u_campos", m_camera->getPosition());
 
-	for (auto entity : m_entities) {
+	for (auto&& entity : m_entities) {
 		shader->loadMatrix("u_model", entity->getWorldTransformation());
 		shader->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(entity->GetTransformation()));
 		entity->draw();
 		entity->OnRenderOBB();
 	}
 
-	for (auto& bullet : m_player->getBullets()) {
+	for (auto&& bullet : m_player->getBullets()) {
 		shader->loadMatrix("u_model", bullet.getTransformationSOP());
 		shader->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(bullet.GetTransformation()));
 		bullet.draw();
@@ -136,7 +141,7 @@ void Game::render() {
 	glClear(GL_DEPTH_BUFFER_BIT);
 
 	m_player->OnRenderOBB({ 1.0f, 1.0f, 0.0f, 1.0f });
-	for (auto entity : m_entitiesAfterClear) {
+	for (auto&& entity : m_entitiesAfterClear) {
 		shader->loadMatrix("u_model", entity->getWorldTransformation());
 		shader->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(entity->GetTransformation()));
 		entity->draw();
@@ -189,6 +194,8 @@ void Game::OnKeyDown(Event::KeyboardEvent& event) {
 	if (event.keyCode == VK_ESCAPE) {
 		Mouse::instance().detach();
 		m_isRunning = false;
+		m_machine.addStateAtBottom(new MenuNew(m_machine));
+		
 	}
 }
 
@@ -263,7 +270,9 @@ void Game::deleteEntities() {
 	while (it != m_entities.end()) {
 
 		if ((*it)->isMarkForDelete()) {
-			delete (*it);
+			// removeSelf -> call destructor
+			(*it)->removeSelf();
+			//delete (*it);
 			it = m_entities.erase(it);;
 		}
 		else ++it;

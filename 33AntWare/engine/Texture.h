@@ -32,22 +32,36 @@ public:
 
 	void bind(unsigned int unit = 0u) const;
 	void unbind(unsigned int unit = 0u) const;
+
 	void loadFromFile(std::string fileName, const bool flipVertical = false, unsigned int internalFormat = 0u, unsigned int format = 0u, int paddingLeft = 0, int paddingRight = 0, int paddingTop = 0, int paddingBottom = 0, unsigned int SOIL_FLAG = 0u);
+	void loadFromFileCpu(std::string fileName, const bool flipVertical = false, unsigned int internalFormat = 0u, unsigned int format = 0u, int paddingLeft = 0, int paddingRight = 0, int paddingTop = 0, int paddingBottom = 0, unsigned int SOIL_FLAG = 0u);
+	void loadFromFileGpu();
+	
+	void loadFromFile(std::string fileName, unsigned short tileWidth, unsigned short tileHeight, unsigned short spacing = 0u, unsigned int posY = 0u, unsigned int posX = 0u, const bool flipVertical = false, unsigned int internalFormat = 0u, unsigned int format = 0u);
+	void loadFromFileCpu(std::string fileName, unsigned short tileWidth, unsigned short tileHeight, unsigned short spacing = 0u, unsigned int posY = 0u, unsigned int posX = 0u, const bool flipVertical = false, unsigned int internalFormat = 0u, unsigned int format = 0u);
+	void loadFromFile(std::string fileName, unsigned int offsetX, unsigned int offsetY, unsigned int width = 0u, unsigned int height = 0u, const bool flipVertical = false, unsigned int internalFormat = 0, unsigned int format = 0u);
+	void loadFromFileCpu(std::string fileName, unsigned int offsetX, unsigned int offsetY, unsigned int width = 0u, unsigned int height = 0u, const bool flipVertical = false, unsigned int internalFormat = 0, unsigned int format = 0u);
+	void loadFromFileGpu(unsigned short width, unsigned short height);
+
+	void loadHDRIFromFile(std::string fileName, const bool flipVertical = true, unsigned int internalFormat = 0u, unsigned int format = 0u);
+	void loadHDRIFromFileCpu(std::string fileName, const bool flipVertical = true, unsigned int internalFormat = 0u, unsigned int format = 0u);
+	void loadHDRIFromFileGpu();
+
+	//todo: split up in cpu gpu
 	void loadCrossHDRIFromFile(std::string fileName, const bool flipVertical = true, unsigned int internalFormat = 0u, unsigned int format = 0u, int paddingLeft = 0, int paddingRight = 0, int paddingTop = 0, int paddingBottom = 0);
-	void loadHDRIFromFile(std::string fileName, const bool flipVertical = true, unsigned int internalFormat = 0u, unsigned int format = 0u, int paddingLeft = 0, int paddingRight = 0, int paddingTop = 0, int paddingBottom = 0);
-	void loadCrossDDSFromFile(std::string fileName);
-	void loadDDSRawFromFile(std::string fileName, const int knownInternal = 0);
 	void loadCubeFromFile(std::string* textureFiles, const bool flipVertical = false, unsigned int internalFormat = 0u, unsigned int format = 0u);
 	void loadCrossCubeFromFile(std::string fileName, const bool _flipVertical = false, unsigned int _internalFormat = 0u, unsigned int _format = 0u);
-
-	void loadFromFile(std::string fileName, unsigned short tileWidth, unsigned short tileHeight, unsigned short spacing = 0u, unsigned int posY = 0u, unsigned int posX = 0u, const bool flipVertical = false, unsigned int internalFormat = 0u, unsigned int format = 0u);
-	void loadFromFile(std::string fileName, unsigned int offsetX, unsigned int offsetY, unsigned int width = 0u, unsigned int height = 0u, const bool flipVertical = false, unsigned int internalFormat = 0, unsigned int format = 0u);
+	
 	void createNullTexture(unsigned int width, unsigned int height, unsigned int color = 255u);
 	void createEmptyTexture(unsigned int width, unsigned int heightu, unsigned int internalFormat = 0u, unsigned int format = 0u, unsigned int type = 0u);
 	void createTexture3D(unsigned int width, unsigned int height, unsigned int depth, unsigned int internalFormat = 0u, unsigned int format = 0u, unsigned int type = 0u, unsigned char* data = NULL);
 	void createPerlinNoise(unsigned int width, unsigned int height, unsigned int seed = 0u);
 	void createNoise(unsigned int width, unsigned int height);
 	void createNullCubemap(unsigned int width, unsigned int height, unsigned int color = 255);
+
+	void loadCrossDDSFromFile(std::string fileName);
+	void loadDDSRawFromFile(std::string fileName, const int knownInternal = 0);
+
 	void copy(const Texture& rhs);
 
 	void addAlphaChannel(unsigned int value = 255u);
@@ -111,8 +125,9 @@ private:
 	unsigned int m_textureHandle = 0u;
 	bool m_deepCopy = false;
 	bool m_markForDelete = false;
+	unsigned char* imageData = nullptr;
+	unsigned char* subImage = nullptr;
 
-	static int Count;
 	static std::map<unsigned int, unsigned int> ActiveTextures;
 };
 
