@@ -30,7 +30,7 @@ void Ant::update(float dt) {
 		timeSinceLastAlphaDecrease.reset();
 	}
 
-	//if (!isStatic()) {
+	if (!isStatic()) {
 		if (isAlive && Vector3f::Length(m_position, target->getPosition()) <= detectionRaduis) {
 			Vector3f targetPos = target->getPosition();
 			targetPos[1] = m_position[1];
@@ -61,7 +61,7 @@ void Ant::update(float dt) {
 		else {
 			m_anmIndex = m_meshIndex;
 		}
-	//}
+	}
 
 	std::vector<Bullet>& bullets = target->getBullets();
 	std::vector<Bullet>::iterator it = bullets.begin();
@@ -78,7 +78,7 @@ void Ant::update(float dt) {
 		markForDelete();
 	}
 
-	if (getWorldBoundingBox().isColliding(target->getWorldBoundingBox()) && Globals::clock.getElapsedTimeSec() > 2.0f && timeSinceDealtDamage.getElapsedTimeSec() >= 1.0f) {
+	if (isAlive && getWorldBoundingBox().isColliding(target->getWorldBoundingBox()) && Globals::clock.getElapsedTimeSec() > 2.0f && timeSinceDealtDamage.getElapsedTimeSec() >= 1.0f) {
 		timeSinceDealtDamage.reset();
 		target->damage(1.0f);
 		HUD::Get().setIsHurting(true);
