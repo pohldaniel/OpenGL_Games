@@ -174,8 +174,7 @@
 			"materialIndex": 1, 
 			"position": [-21.3863, -0.978558, -1.92476],
             "rotation": [0.0, 262.062, 0.0],
-            "scale": [1.0, 1.0, 1.0],
-			"guard": true
+            "scale": [1.0, 1.0, 1.0]
 		},
 		{
 			"type": "ant",

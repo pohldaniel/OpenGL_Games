@@ -504,10 +504,10 @@ void MeshSequence::addMeshFromFile(const char* path, Vector3f& axis, float degre
 	
 	Assimp::Importer Importer;
 
-	const aiScene* pScene = Importer.ReadFile(path, (generateSmoothTangents && flipWinding) ? (aiProcess_Triangulate | aiProcess_FindDegenerates) | aiProcess_CalcTangentSpace | aiProcess_FlipWindingOrder :
-                                                     generateSmoothTangents                 ? (aiProcess_Triangulate | aiProcess_FindDegenerates) | aiProcess_CalcTangentSpace :
-                                                     flipWinding                            ? (aiProcess_Triangulate | aiProcess_FindDegenerates) | aiProcess_FlipWindingOrder :
-                                                                                              (aiProcess_Triangulate | aiProcess_FindDegenerates));
+	const aiScene* pScene = Importer.ReadFile(path, (generateSmoothTangents && flipWinding) ? aiProcess_Triangulate | aiProcess_CalcTangentSpace | aiProcess_FlipWindingOrder :
+                                                     generateSmoothTangents                 ? aiProcess_Triangulate | aiProcess_CalcTangentSpace :
+                                                     flipWinding                            ? aiProcess_Triangulate | aiProcess_FlipWindingOrder :
+                                                                                              aiProcess_Triangulate);
 
 	//Importer.GetOrphanedScene();
 	bool exportTangents = generateSmoothTangents;

@@ -344,6 +344,7 @@
     <ClInclude Include="engine\Vector.h" />
     <ClInclude Include="engine\VolumeBuffer.h" />
     <ClInclude Include="engine\ZoomableQuad.h" />
+    <ClInclude Include="Resource.h" />
     <ClInclude Include="src\Application.h" />
     <ClInclude Include="src\Background.h" />
     <ClInclude Include="src\DebugRenderer.h" />
@@ -407,6 +408,9 @@
     <ClInclude Include="src\Utils\SolidIO.h" />
     <ClInclude Include="src\Utils\Utils.h" />
     <ClInclude Include="src\ViewPort.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="resource.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

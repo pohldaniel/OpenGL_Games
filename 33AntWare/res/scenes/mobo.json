@@ -1,800 +1,259 @@
 {
-    "mapMinLimit": [
-        -42.7412,
-        -149.594
-    ],
-    "mapMaxLimit": [
-        113.314,
-        43.7352
-    ],
+    "mapMinLimit": [-42.7412, -149.594],
+    "mapMaxLimit": [113.314, 43.7352],
     "camera": {
         "fov": 45.0,
-        "transform": {
-            "position": [
-                0,
-                0,
-                0
-            ],
-            "rotation": [
-                0,
-                0,
-                0
-            ],
-            "scale": [
-                1,
-                1,
-                1
-            ]
-        },
-        "rigidbody": {
-            "velocity": [
-                0,
-                0,
-                0
-            ],
-            "angularVelocity": [
-                0,
-                0,
-                0
-            ],
-            "acceleration": [
-                0,
-                0,
-                0
-            ],
-            "angularAcceleration": [
-                0,
-                0,
-                0
-            ],
-            "mass": 1.0,
-            "linearLock": 0,
-            "angularLock": 0
-        }
+		"near": 0.1,
+		"far": 120.0,
+		"lookAt": {
+			"position": [0.0, 0.0, 0.0],
+			"target": [0.0, 0.0, -1.0],
+			"up": [0.0, 1.0, 0.0]
+		}
     },
-    "meshes": [
+	"textures":[
+		"res/textures/Ant.png",
+		"res/textures/Gun.png",
+		"res/textures/Hands.png",
+		"res/textures/Gloves.png",		
+		"res/textures/Bullet.png",
+		"res/textures/transparent.png",
+		"res/textures/flash.png",
+		"res/textures/mobo - 1.jpg"
+	],
+	"materials": [
         {
-            "path": "./Assets/Models/Ant.glb",
-            "texture": "Assets/Textures/Ant.png",
-            "color": [
-                1,
-                1,
-                1,
-                1
-            ]
+            "ambient": [0.1, 0.1, 0.1, 1.0],
+            "diffuse": [0.6, 0.6, 0.6, 1.0],
+            "specular": [0.3, 0.3, 0.3, 1.0],
+            "shininess": 8.0
         },
         {
-            "path": "Assets/Models/Gun.glb",
-            "texture": "Assets/Textures/Gun.png",
-            "color": [
-                1,
-                1,
-                1,
-                1
-            ]
-        },
-        {
-            "path": "Assets/Models/Hands.glb",
-            "texture": "Assets/Textures/Hand.png",
-            "color": [
-                1,
-                1,
-                1,
-                1
-            ]
-        },
-        {
-            "path": "Assets/Models/Glove.glb",
-            "texture": "Assets/Textures/Glove.png",
-            "color": [
-                1,
-                1,
-                1,
-                1
-            ]
-        },
-        {
-            "path": "Assets/Models/Bullet.glb",
-            "texture": "Assets/Textures/Bullet.png",
-            "color": [
-                1,
-                1,
-                1,
-                1
-            ]
-        },
-        {
-            "path": "./Assets/Models/PlayerCube.glb",
-            "color": [
-                1,
-                1,
-                1,
-                1
-            ]
-        },
-        {
-            "path": "./Assets/Models/MuzzleQuad.glb",
-            "color": [
-                1,
-                1,
-                1,
-                1
-            ]
-        },
-        {
-            "path": "Assets/Models/Motherboar - 1.glb",
-            "texture": "Assets/Textures/mobo - 1.jpg",
-            "color": [
-                1,
-                1,
-                1,
-                1
-            ]
-        }
-    ],
-    "lights": [
-        {
-            "tag": "flashlight & required",
-            "class": 2,
-            "position": [
-                0,
-                0.5,
-                5
-            ],
-            "ambient": [
-                0.8,
-                0.8,
-                0.8,
-                1
-            ],
-            "diffuse": [
-                1.0,
-                1.0,
-                1.0,
-                1
-            ],
-            "specular": [
-                1.0,
-                1.0,
-                1.0,
-                1
-            ],
-            "direction": [
-                0,
-                0,
-                -5
-            ],
-            "angle": 35.0,
-            "parent": 0
-        },
-        {
-            "class": 0,
-            "ambient": [
-                0.4,
-                0.4,
-                0.4,
-                1
-            ],
-            "diffuse": [
-                0.1,
-                0.1,
-                0.1,
-                1
-            ],
-            "specular": [
-                0.0,
-                0.0,
-                0.0,
-                1
-            ],
-            "direction": [
-                -1,
-                -1,
-                -1
-            ]
-        },
-        {
-            "class": 0,
-            "ambient": [
-                0.2,
-                0.2,
-                0.2,
-                1
-            ],
-            "diffuse": [
-                0.9,
-                0.9,
-                0.9,
-                1
-            ],
-            "specular": [
-                0.6,
-                0.6,
-                0.6,
-                1
-            ],
-            "direction": [
-                -1,
-                -1,
-                -1
-            ]
-        }
-    ],
-    "materials": [
-        {
-            "ambient": [
-                0.0,
-                0.0,
-                0.0,
-                1.0
-            ],
-            "diffuse": [
-                0.6,
-                0.6,
-                0.6,
-                1.0
-            ],
-            "specular": [
-                0.3,
-                0.3,
-                0.3,
-                1.0
-            ],
+            "ambient": [0.0, 0.0, 0.0, 1.0],
+            "diffuse": [0.6, 0.6, 0.6, 1.0],
+            "specular": [0.3, 0.3, 0.3, 1.0],
             "shininess": 2.0
         },
         {
-            "ambient": [
-                0.2,
-                0.2,
-                0.2,
-                1.0
-            ],
-            "diffuse": [
-                0.4,
-                0.4,
-                0.4,
-                1.0
-            ],
-            "specular": [
-                0.9,
-                0.9,
-                0.9,
-                1.0
-            ],
+            "ambient": [0.2, 0.2, 0.2, 1.0],
+            "diffuse": [0.4, 0.4, 0.4, 1.0],
+            "specular": [0.9, 0.9, 0.9, 1.0],
             "shininess": 120.0
         }
     ],
-    "animations": [
+	"lights": [
         {
-            "path": "Assets/Animations/Ant-Walkcycle",
-            "name": "Ant-Walkcycle",
-            "format": "obj",
-            "count": 41,
-            "texture": "Assets/Textures/Ant.png"
+            "tag": "flashlight & required",
+            "type": 2,          
+            "ambient":  [0.8, 0.8, 0.8, 1.0],
+            "diffuse":  [1.0, 1.0, 1.0, 1.0],
+			"specular": [1.0, 1.0, 1.0, 1.0],
+			"position": [0.0, 0.5,  5.0],           
+            "direction":[0.0, 0.0, -5.0],
+            "angle": 17.5,           
+			"enabled": false
+        },
+        {
+            "type": 0,
+            "ambient":  [0.4, 0.4, 0.4, 1.0],
+            "diffuse":  [0.1, 0.1, 0.1, 1.0],
+            "specular": [0.0, 0.0, 0.0, 1.0],
+			"position": [0.0,  0.0, 0.0],
+            "direction":[-1.0, -1.0, -1.0],
+			"angle": 0.0,
+			"enabled": true
+        },
+        {
+            "type": 0,
+            "ambient":  [0.2, 0.2, 0.2, 1.0],
+            "diffuse":  [0.9, 0.9, 0.9, 1.0],
+            "specular": [0.6, 0.6, 0.6, 1.0],
+			"position": [0.0,  0.0, 0.0],
+            "direction":[-1.0, -1.0, -1.0],
+			"angle": 0.0,
+			"enabled": true
         }
     ],
-    "gameobjects": [
-        {
-            "tag": "player's base & required",
-            "class": 2,
-            "ammo": 40,
-            "transform": {
-                "position": [
-                    0,
-                    0,
-                    0
-                ],
-                "rotation": [
-                    0,
-                    0,
-                    0
-                ],
-                "scale": [
-                    1,
-                    1,
-                    1
-                ]
-            },
-            "mesh": 5
+	"meshes": [
+		{
+            "path": "res/models/Ant.glb",
+			"materialIndex": 3,
+            "textureIndex": 0           
         },
-        {
-            "tag": "muzzle fire & required",
-            "class": 1,
-            "transform": {
-                "position": [
-                    0,
-                    0,
-                    0
-                ],
-                "rotation": [
-                    0,
-                    0,
-                    0
-                ],
-                "scale": [
-                    1,
-                    1,
-                    1
-                ]
-            },
-            "mesh": 6,
-            "parent": 0
-        },
-        {
-            "class": 1,
-            "transform": {
-                "position": [
-                    0,
-                    0,
-                    0
-                ],
-                "rotation": [
-                    0,
-                    0,
-                    0
-                ],
-                "scale": [
-                    1,
-                    1,
-                    1
-                ]
-            },
-            "mesh": 3,
-            "parent": 0
-        },
-        {
-            "class": 1,
-            "transform": {
-                "position": [
-                    0,
-                    0,
-                    0
-                ],
-                "rotation": [
-                    0,
-                    0,
-                    0
-                ],
-                "scale": [
-                    1,
-                    1,
-                    1
-                ]
-            },
-            "mesh": 2,
-            "parent": 0
-        },
-        {
-            "class": 1,
-            "tag": "gun",
-            "transform": {
-                "position": [
-                    0,
-                    0,
-                    0
-                ],
-                "rotation": [
-                    0,
-                    0,
-                    0
-                ],
-                "scale": [
-                    1,
-                    1,
-                    1
-                ]
-            },
-            "mesh": 1,
-            "parent": 0
-        },
-        {
-            "class": 3,
-            "tag": "an ant",
-            "transform": {
-                "position": [
-                    -4.51015,
-                    -0.958875,
-                    -11.3365
-                ],
-                "rotation": [
-                    0,
-                    -99.2301,
-                    0
-                ],
-                "scale": [
-                    1,
-                    1,
-                    1
-                ]
-            },
-            "mesh": 0,
-            "material": 1,
-            "rigidbody": {
-                "velocity": [
-                    0,
-                    0,
-                    0
-                ],
-                "angularVelocity": [
-                    0,
-                    0,
-                    0
-                ],
-                "acceleration": [
-                    0,
-                    0,
-                    0
-                ],
-                "angularAcceleration": [
-                    0,
-                    0,
-                    0
-                ],
-                "mass": 1.0,
-                "linearLock": 0,
-                "angularLock": 0
-            }
-        },
-        {
-            "class": 3,
-            "tag": "an ant",
-            "transform": {
-                "position": [
-                    37.3897,
-                    0.984789,
-                    -6.37182
-                ],
-                "rotation": [
-                    -8.8833,
-                    -273.031,
-                    -0.474208
-                ],
-                "scale": [
-                    1,
-                    1,
-                    1
-                ]
-            },
-            "mesh": 0,
-            "material": 1,
-            "rigidbody": {
-                "velocity": [
-                    0,
-                    0,
-                    0
-                ],
-                "angularVelocity": [
-                    0,
-                    0,
-                    0
-                ],
-                "acceleration": [
-                    0,
-                    0,
-                    0
-                ],
-                "angularAcceleration": [
-                    0,
-                    0,
-                    0
-                ],
-                "mass": 1.0,
-                "linearLock": 0,
-                "angularLock": 0
-            }
-        },
-        {
-            "class": 3,
-            "tag": "an ant",
-            "transform": {
-                "position": [
-                    -28.8081,
-                    10.6768,
-                    -53.7393
-                ],
-                "rotation": [
-                    -94.6161,
-                    -140.165,
-                    0.000002
-                ],
-                "scale": [
-                    1,
-                    1,
-                    1
-                ]
-            },
-            "mesh": 0,
-            "material": 1,
-            "rigidbody": {
-                "velocity": [
-                    0,
-                    0,
-                    0
-                ],
-                "angularVelocity": [
-                    0,
-                    0,
-                    0
-                ],
-                "acceleration": [
-                    0,
-                    0,
-                    0
-                ],
-                "angularAcceleration": [
-                    0,
-                    0,
-                    0
-                ],
-                "mass": 1.0,
-                "linearLock": 0,
-                "angularLock": 0
-            }
-        },
-        {
-            "class": 3,
-            "tag": "an ant",
-            "transform": {
-                "position": [
-                    -30.5417,
-                    26.252,
-                    -52.1184
-                ],
-                "rotation": [
-                    -78.6409,
-                    -137.582,
-                    18.2588
-                ],
-                "scale": [
-                    1,
-                    1,
-                    1
-                ]
-            },
-            "mesh": 0,
-            "material": 1,
-            "rigidbody": {
-                "velocity": [
-                    0,
-                    0,
-                    0
-                ],
-                "angularVelocity": [
-                    0,
-                    0,
-                    0
-                ],
-                "acceleration": [
-                    0,
-                    0,
-                    0
-                ],
-                "angularAcceleration": [
-                    0,
-                    0,
-                    0
-                ],
-                "mass": 1.0,
-                "linearLock": 0,
-                "angularLock": 0
-            }
-        },
-        {
-            "class": 5,
-            "tag": "an ant",
-            "transform": {
-                "position": [
-                    0.96841,
-                    -0.936797,
-                    -65.1214
-                ],
-                "rotation": [
-                    0,
-                    86.7699,
-                    0
-                ],
-                "scale": [
-                    1,
-                    1,
-                    1
-                ]
-            },
-            "mesh": 0,
-            "material": 1,
-            "animation": 0,
-            "rigidbody": {
-                "velocity": [
-                    0,
-                    0,
-                    0
-                ],
-                "angularVelocity": [
-                    0,
-                    0,
-                    0
-                ],
-                "acceleration": [
-                    0,
-                    0,
-                    0
-                ],
-                "angularAcceleration": [
-                    0,
-                    0,
-                    0
-                ],
-                "mass": 1.0,
-                "linearLock": 0,
-                "angularLock": 0
-            }
-        },
-        {
-            "class": 5,
-            "tag": "an ant",
-            "transform": {
-                "position": [
-                    -35.7422,
-                    -0.936797,
-                    1.35726
-                ],
-                "rotation": [
-                    0,
-                    -91.8759,
-                    0
-                ],
-                "scale": [
-                    1,
-                    1,
-                    1
-                ]
-            },
-            "mesh": 0,
-            "material": 1,
-            "animation": 0,
-            "rigidbody": {
-                "velocity": [
-                    0,
-                    0,
-                    0
-                ],
-                "angularVelocity": [
-                    0,
-                    0,
-                    0
-                ],
-                "acceleration": [
-                    0,
-                    0,
-                    0
-                ],
-                "angularAcceleration": [
-                    0,
-                    0,
-                    0
-                ],
-                "mass": 1.0,
-                "linearLock": 0,
-                "angularLock": 0
-            }
-        },
-        {
-            "class": 5,
-            "tag": "an ant",
-            "transform": {
-                "position": [
-                    13.2973,
-                    -0.936797,
-                    -103.393
-                ],
-                "rotation": [
-                    0,
-                    -182.403,
-                    0
-                ],
-                "scale": [
-                    1,
-                    1,
-                    1
-                ]
-            },
-            "mesh": 0,
-            "material": 1,
-            "animation": 0,
-            "rigidbody": {
-                "velocity": [
-                    0,
-                    0,
-                    0
-                ],
-                "angularVelocity": [
-                    0,
-                    0,
-                    0
-                ],
-                "acceleration": [
-                    0,
-                    0,
-                    0
-                ],
-                "angularAcceleration": [
-                    0,
-                    0,
-                    0
-                ],
-                "mass": 1.0,
-                "linearLock": 0,
-                "angularLock": 0
-            }
-        },
-        {
-            "class": 3,
-            "tag": "an ant",
-            "transform": {
-                "position": [
-                    8.77879,
-                    1.26601,
-                    -29.9745
-                ],
-                "rotation": [
-                    -90,
-                    -180,
-                    80.7699
-                ],
-                "scale": [
-                    1,
-                    1,
-                    1
-                ]
-            },
-            "mesh": 0,
-            "material": 1,
-            "rigidbody": {
-                "velocity": [
-                    0,
-                    0,
-                    0
-                ],
-                "angularVelocity": [
-                    0,
-                    0,
-                    0
-                ],
-                "acceleration": [
-                    0,
-                    0,
-                    0
-                ],
-                "angularAcceleration": [
-                    0,
-                    0,
-                    0
-                ],
-                "mass": 1.0,
-                "linearLock": 0,
-                "angularLock": 0
-            }
-        },
-        {
-            "class": 1,
-            "transform": {
-                "position": [
-                    0,
-                    -1,
-                    0
-                ],
-                "rotation": [
-                    0,
-                    0,
-                    0
-                ],
-                "scale": [
-                    1,
-                    1,
-                    1
-                ]
-            },
-            "mesh": 7,
-            "material": 0
+		{
+            "path": "res/models/Bullet.glb",
+			"materialIndex": 0,
+            "textureIndex": 4           
         }
-    ]
+    ],
+	"meshSequences": [
+		{
+            "path": "res/animations/ant_walkcycle",	
+			"additionalMeshes": [
+				0, 1
+			],	
+			"additionalMeshesFromFile": [			
+				"res/models/Gun.glb",
+				"res/models/Hands.glb",
+				"res/models/Gloves.glb",
+				"res/models/PlayerCube.glb",
+				"res/models/MuzzleQuad.glb",
+				"res/models/Motherboar - 1.glb"			
+			]					
+        }	
+	],  
+    "nodes": [
+		{
+			"type": "player",
+			"tag": "player",
+			"sequence": 0,
+			"meshIndex": 46,
+			"materialIndex": 0,
+			"position": [0.0, 0.0, 0.0],
+			"ammo": 30,
+			"nodes": [
+				{
+					"type": "entity",
+					"tag": "muzzle",
+					"sequence": 0,
+					"meshIndex": 47,
+                    "textureIndex": 5,
+                    "materialIndex": 0
+				},
+				{
+					"type": "entity",
+					"tag": "gun",
+					"sequence": 0,
+					"meshIndex": 43,
+                    "textureIndex": 1,
+                    "materialIndex": 0
+				},
+				{
+					"type": "entity",
+					"tag": "hands",
+					"sequence": 0,
+					"meshIndex": 44,
+                    "textureIndex": 2,
+                    "materialIndex": 0
+				},
+				{
+					"type": "entity",
+					"tag": "gloves",				
+					"sequence": 0,
+					"meshIndex": 45,
+                    "textureIndex": 3,
+                    "materialIndex": 0
+				},
+				{
+					"type": "light",
+					"tag": "flashlight",
+					"light": 0
+				}
+			]
+		},
+		{
+			"type": "entity",
+			"tag": "motherboad",
+			"sequence": 0,
+            "meshIndex": 48,
+            "textureIndex": 7,
+            "materialIndex": 1,
+			"position": [0.0, -1.0, 0.0],
+			"rotation": [0.0, 0.0, 0.0],
+            "scale": [1.0, 1.0, 1.0]
+		},
+		{
+			"type": "ant",
+			"tag": "ant1",
+			"sequence": 0,
+			"meshIndex": 41,
+			"textureIndex": 0,
+			"materialIndex": 2, 
+			"isStatic": true,
+			"position": [-4.51015, -0.958875, -11.3365],
+            "rotation": [0.0, -99.2301, 0.0],
+            "scale": [1.0, 1.0, 1.0]
+		},
+		{
+			"type": "ant",
+			"tag": "ant2",
+			"sequence": 0,
+			"meshIndex": 41,
+			"textureIndex": 0,
+			"materialIndex": 2, 
+			"isStatic": true,
+			"position": [37.3897, 0.984789, -6.37182],
+            "rotation": [-8.8833, -273.031, -0.474208],
+            "scale": [1.0, 1.0, 1.0]
+		},
+		{
+			"type": "ant",
+			"tag": "ant3",
+			"sequence": 0,
+			"meshIndex": 41,
+			"textureIndex": 0,
+			"materialIndex": 2, 
+			"isStatic": true,
+			"position": [-28.8081, 10.6768, -53.7393],
+            "rotation": [-94.6161, -140.165, 0.000002],
+            "scale": [1.0, 1.0, 1.0]
+		},
+		{
+			"type": "ant",
+			"tag": "ant4",
+			"sequence": 0,
+			"meshIndex": 41,
+			"textureIndex": 0,
+			"materialIndex": 2, 
+			"isStatic": true,
+			"position": [-30.5417, 26.252, -52.1184],
+            "rotation": [-78.6409, -137.582, 18.2588],
+            "scale": [1.0, 1.0, 1.0]
+		},
+		{
+			"type": "ant",
+			"tag": "ant5",
+			"sequence": 0,
+			"meshIndex": 41,
+			"textureIndex": 0,
+			"materialIndex": 2, 
+			"position": [0.96841, -0.936797, -65.1214],
+            "rotation": [0.0, 86.7699, 0.0],
+            "scale": [1.0, 1.0, 1.0]
+		},
+		{
+			"type": "ant",
+			"tag": "ant6",
+			"sequence": 0,
+			"meshIndex": 41,
+			"textureIndex": 0,
+			"materialIndex": 2, 
+			"position": [-35.7422, -0.936797, 1.35726],
+            "rotation": [0.0, -91.8759, 0.0],
+            "scale": [1.0, 1.0, 1.0]
+		},
+		{
+			"type": "ant",
+			"tag": "ant7",
+			"sequence": 0,
+			"meshIndex": 41,
+			"textureIndex": 0,
+			"materialIndex": 2, 
+			"position": [13.2973, -0.936797, -103.393],
+            "rotation": [0.0, -182.403, 0.0],
+            "scale": [1.0, 1.0, 1.0]
+		},
+		{
+			"type": "ant",
+			"tag": "ant8",
+			"sequence": 0,
+			"meshIndex": 41,
+			"textureIndex": 0,
+			"materialIndex": 2, 
+			"isStatic": true,
+			"position": [8.77879, 1.26601, -29.9745],
+            "rotation": [-90.0, -180.0, 80.7699],
+            "scale": [1.0, 1.0, 1.0]
+		}
+	]   
 }

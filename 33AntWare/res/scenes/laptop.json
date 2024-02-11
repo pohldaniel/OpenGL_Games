@@ -1,6 +1,6 @@
 {
-    "mapMinLimit": [-44, -24],
-    "mapMaxLimit": [45, 38],
+    "mapMinLimit": [-44.0, -24.0],
+    "mapMaxLimit": [45.0, 38.0],
     "camera": {
         "fov": 45.0,
 		"near": 0.1,
@@ -119,8 +119,7 @@
 				"res/models/laptop - 5.glb",
 				"res/models/laptop - 6.glb",
 				"res/models/laptop - 7.glb",
-				"res/models/laptop - 8.glb",
-				"res/models/Skybox.glb"				
+				"res/models/laptop - 8.glb"		
 			]					
         }	
 	],   
@@ -270,8 +269,7 @@
 			"materialIndex": 3, 
 			"position": [-3.15716, -1.0, 27.8372],
             "rotation": [0.0, -6.87719, 0.0],
-            "scale": [1.0, 1.0, 1.0],
-			"guard": true
+            "scale": [1.0, 1.0, 1.0]
 		},
 		{
 			"type": "ant",
@@ -313,6 +311,7 @@
 			"meshIndex": 41,
 			"textureIndex": 0,
 			"materialIndex": 3,
+			"isStatic": true,
 			"position": [-26.5041, 4.47183, -26.4918],
             "rotation": [-63.7168, 180.0, 56.3082],
             "scale": [1.0, 1.0, 1.0]

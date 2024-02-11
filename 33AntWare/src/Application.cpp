@@ -39,7 +39,7 @@ HCURSOR Application::Cursor = LoadCursor(nullptr, IDC_ARROW);
 //HCURSOR Application::Cursor = LoadCursor(nullptr, IDC_NO);
 //HCURSOR Application::Cursor = LoadCursorFromFileA("res/cursors/rotate.cur");
 
-HICON Application::Icon = (HICON)LoadImage(NULL, "res/icon.ico", IMAGE_ICON, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
+HICON Application::Icon = (HICON)LoadImage(NULL, "res/antware.ico", IMAGE_ICON, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
 //HICON Application::Icon = LoadIcon(NULL, IDI_QUESTION);
 //HICON Application::Icon = (HICON)LoadImage(NULL, IDI_HAND, IMAGE_ICON, 0, 0, LR_SHARED);
 

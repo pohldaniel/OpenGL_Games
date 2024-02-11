@@ -330,7 +330,7 @@ SceneNode* Scene::addNode(const rapidjson::GenericObject<false, rapidjson::Value
 			entities.back()->setScale(object["scale"].GetArray()[0].GetFloat(), object["scale"].GetArray()[1].GetFloat(), object["scale"].GetArray()[2].GetFloat());
 			entities.back()->setRigidbody(Rigidbody());
 
-			if (strcmp(object["tag"].GetString(), "ant5") == 0) {
+			if (object.HasMember("isStatic")) {
 				entities.back()->setIsStatic(true);
 			}
 
