@@ -41,4 +41,7 @@ namespace Globals {
 
 	extern unsigned int lightUbo;
 	extern const unsigned int lightBinding;
+
+	extern float soundVolume;
+	extern float musicVolume;
 }

@@ -53,7 +53,7 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	initOpenGL();
 	showWindow();
 	initImGUI();
-	//initOpenAL();
+	initOpenAL();
 	loadAssets();
 
 	Framebuffer::SetDefaultSize(Width, Height);
@@ -107,7 +107,11 @@ Application::~Application() {
 	wglDeleteContext(wglGetCurrentContext());
 	ReleaseDC(Window, hdc);
 
-	//SoundDevice::shutDown();
+	Globals::musicManager.get("background").cleanup();
+	Globals::soundManager.get("menu").cleanup();
+	Globals::soundManager.get("ant").cleanup();
+	Globals::soundManager.get("player").cleanup();
+	SoundDevice::shutDown();
 
 	UnregisterClass("WINDOWCLASS", (HINSTANCE)GetModuleHandle(NULL));
 }
@@ -682,4 +686,27 @@ void Application::loadAssets() {
 	Globals::shapeManager.buildQuadXY("quad_half", Vector3f(-0.5f, -0.5f, 0.0f), Vector2f(1.0f, 1.0f), 1, 1, true, false, false);
 	Globals::shapeManager.buildSphere("sphere", 0.1f, Vector3f(0.0f, 0.0f, 0.0f), 16, 16, false, true, false);
 	Globals::shapeManager.buildCube("cube", Vector3f(-1.0f, -1.0f, -1.0f), Vector3f(2.0f, 2.0f, 2.0f), 1, 1, true, true, false);
+
+	MusicBuffer::Init();
+	SoundBuffer::Init();
+
+	Globals::musicManager.createMusicBuffer("background");
+	Globals::musicManager.get("background").run();
+	Globals::musicManager.get("background").setLooping(true);
+	Globals::musicManager.get("background").setVolume(Globals::musicVolume);
+
+	Globals::soundManager.createSoundBuffer("menu", 0u, 2u, Globals::soundVolume);
+	Globals::soundManager.get("menu").loadChannel("res/audio/menuNavigate.wav", 0u);
+	Globals::soundManager.get("menu").loadChannel("res/audio/menuPick.wav", 1u);
+
+	Globals::soundManager.createSoundBuffer("ant", 0u, 1u, Globals::soundVolume);
+	Globals::soundManager.get("ant").loadChannel("res/audio/antHurt.ogg", 0u);
+
+	Globals::soundManager.createSoundBuffer("player", 0u, 4u, Globals::soundVolume);
+	Globals::soundManager.get("player").loadChannel("res/audio/gunshot.wav", 0u);
+	Globals::soundManager.get("player").loadChannel("res/audio/reload.wav", 1u);
+	Globals::soundManager.get("player").loadChannel("res/audio/playerHurt.wav", 2u);
+	Globals::soundManager.get("player").loadChannel("res/audio/playerFootsteps.ogg", 3u);
+	Globals::soundManager.get("player").setLoopingChannel(3u, true);
+
 }

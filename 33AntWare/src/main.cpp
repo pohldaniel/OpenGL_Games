@@ -22,6 +22,8 @@ extern Clock Globals::clock = Clock();
 extern unsigned int Globals::lightUbo = 0;
 extern const unsigned int Globals::lightBinding = 0;
 
+extern float Globals::soundVolume = 0.2f;
+extern float Globals::musicVolume = 0.05f;
 
 DebugDrawer debugDrawer;
 

@@ -21,7 +21,6 @@ public:
 		short* membuf = nullptr;
 		std::size_t frameSize = 0;
 		ALenum format;
-		const int BUFFER_SAMPLES = 8192;
 
 		CacheEntry(const std::string& path);
 		~CacheEntry();

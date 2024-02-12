@@ -11,7 +11,7 @@
 #include "SceneManager.h"
 
 Loading::Loading(StateMachine& machine) : State(machine, States::LOADING) {
-
+	Globals::musicManager.get("background").play(SceneManager::Get().getCurrentMusic());
 	m_camera.orthographic(-8.0f, 8.0f, -4.5f, 4.5f, -1.0f, 1.0f);
 
 	m_background.loadFromFile("res/textures/loading.png", true);

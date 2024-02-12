@@ -38,9 +38,11 @@ public:
 	//////////////////////////////////////////old approach without cache /////////////////////////////
 	void playChannel(unsigned int channel);
 	void stopChannel(unsigned int channel);
+	void replayChannel(unsigned int channel);
 	void pauseChannel(unsigned int channel);
 	void resumeChannel(unsigned int channel);
 	void setVolumeChannel(unsigned int channel, float volume);
+	void setPitchChannel(unsigned int channel, float pitvh);
 	void loadChannel(const std::string& file, unsigned int channel);
 	bool isPlaying(unsigned int channel);
 	void setLoopingChannel(unsigned int channel, const bool& loop);

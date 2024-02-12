@@ -124,8 +124,9 @@ void Ant::damage(unsigned int amount){
 	if (!isAlive)
 		return;
 
+	Globals::soundManager.get("ant").replayChannel(0u);
+
 	isHurting = true;
-	//hurtSound.play();
 	timeSinceDamage.reset();
 	getMaterial().setDiffuse({ 1.0f, 0.0f, 0.0f, 1.0f });
 	if (hp <= amount){

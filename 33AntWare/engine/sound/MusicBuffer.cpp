@@ -200,11 +200,15 @@ void  MusicBuffer::setLooping(const bool& loop) {
 	m_loop = loop;
 }
 
+//https://github.com/kcat/openal-soft/issues/505
 MusicBuffer::CacheEntry::CacheEntry(const std::string& path) {
 	sndFile = sf_open(path.c_str(), SFM_READ, &sfinfo);
 	if (!sndFile) {
 		throw("could not open provided music file -- check path");
 	}
+
+	//sf_command(sndFile, SFC_SET_CLIPPING, NULL, SF_TRUE);
+	sf_command(sndFile, SFC_SET_SCALE_FLOAT_INT_READ, NULL, SF_TRUE);
 
 	// Get the sound format, and figure out the OpenAL format
 	if (sfinfo.channels == 1)

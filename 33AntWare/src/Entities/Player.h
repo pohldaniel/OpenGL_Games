@@ -57,7 +57,6 @@ public:
 	std::vector<Bullet> bullets;
 
 	bool isDead();
-	void killSound();
 	void dispatchBullet();
 	void reload();
 	bool damage(float amount);

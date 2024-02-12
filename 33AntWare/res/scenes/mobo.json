@@ -110,7 +110,7 @@
 			"meshIndex": 46,
 			"materialIndex": 0,
 			"position": [0.0, 0.0, 0.0],
-			"ammo": 30,
+			"ammo": 40,
 			"nodes": [
 				{
 					"type": "entity",

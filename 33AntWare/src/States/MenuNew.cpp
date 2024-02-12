@@ -2,7 +2,6 @@
 #include <imgui_impl_win32.h>
 #include <imgui_impl_opengl3.h>
 #include <imgui_internal.h>
-#include <engine/Batchrenderer.h>
 
 #include <States/Loading.h>
 
@@ -15,6 +14,8 @@
 
 MenuNew::MenuNew(StateMachine& machine) : State(machine, States::MENUNEW),
 currentPosition(SceneManager::Get().m_currentPosition) {
+
+	Globals::musicManager.get("background").play("res/audio/music00.ogg");
 
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
@@ -163,6 +164,8 @@ void MenuNew::processInput() {
 	if (keyboard.keyPressed(Keyboard::KEY_ENTER) && !keyboard.keyDown(Keyboard::KEY_RALT)) {
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new Loading(m_machine));
+		Globals::soundManager.get("menu").stopChannel(0u);
+		Globals::soundManager.get("menu").playChannel(1u);
 		return;
 	}
 
@@ -170,16 +173,18 @@ void MenuNew::processInput() {
 		currentPosition--;
 
 		if (currentPosition < 0) {
-			currentPosition = 0;
+			currentPosition = m_offset-1;
 		}
+		Globals::soundManager.get("menu").replayChannel(0u);
 	}
 
 	if (keyboard.keyPressed(Keyboard::KEY_DOWN)) {
 		currentPosition++;
 
 		if (currentPosition >= m_offset) {
-			currentPosition = m_offset - 1;
+			currentPosition = 0;
 		}
+		Globals::soundManager.get("menu").replayChannel(0u);
 	}
 }
 

@@ -531,6 +531,10 @@ const std::string& SceneManager::getCurrentSceneFile() const {
 	return m_levels[m_currentPosition].sceneFile;
 }
 
+const std::string& SceneManager::getCurrentMusic() const {
+	return m_levels[m_currentPosition].music;
+}
+
 const std::vector<Level>& SceneManager::getLevels() const {
 	return m_levels;
 }

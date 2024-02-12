@@ -6,6 +6,7 @@
 #include "Application.h"
 #include "HUD.h"
 #include "Light.h"
+#include "Globals.h"
 
 Player::Player(Camera& camera, const MeshSequence& meshSequence, int meshIndex, const Vector2f& mapMinLimit, const Vector2f& mapMaxLimit) : Entity(meshSequence, meshIndex),
 	camera(camera),
@@ -65,8 +66,7 @@ void Player::update(const float dt) {
 		if (keyboard.keyPressed(Keyboard::KEY_F)) {
 			std::list<std::unique_ptr<BaseNode>>::iterator it = m_children.begin();
 			std::advance(it, 4);
-			dynamic_cast<Light*>((*it).get())->toggle();
-			//dynamic_cast<Light*>(m_children[4].get())->toggle();			
+			dynamic_cast<Light*>((*it).get())->toggle();			
 		}
 
 		if (m_mouseDown && reloadTimer.getElapsedTimeSec() > 1.5f && shootTimer.getElapsedTimeSec() > 0.2f) {
@@ -90,11 +90,12 @@ void Player::update(const float dt) {
 	}
 
 	if (m_rigidbody.velocity != Vector3f(0.0f, 0.0f, 0.0f)) {
-		//footstepsSound.setPitch(Keyboard::isKeyPressed(Keyboard::LShift) ? 1.5f : 1.0f);
-		//if (footstepsSound.getStatus() != sf::Sound::Playing)
-			//footstepsSound.play();
+		Globals::soundManager.get("player").setPitchChannel(3u, keyboard.keyDown(Keyboard::KEY_LSHIFT) ? 1.5f : 1.0f);
+		if (!Globals::soundManager.get("player").isPlaying(3u)) {
+			Globals::soundManager.get("player").playChannel(3u);
+		}
 	}else {
-		//footstepsSound.pause();
+		Globals::soundManager.get("player").stopChannel(3u);
 	}
 
 	if (m_rigidbody.velocity.lengthSq() > 0)
@@ -105,10 +106,6 @@ void Player::update(const float dt) {
 
 	eularAngles[0] -= mouse.yDelta() * mouseSenstivity;
 	eularAngles[1] -= mouse.xDelta() * mouseSenstivity;
-
-	//camera.lookAt({ m_position[0], m_position[1], m_position[2] }, -eularAngles[0], -eularAngles[1], 180.0f);
-	//camera.moveRelative(Vector3f(0.0f, 0.5f, 0.0f));
-	//camera.lookAt({ m_position[0], m_position[1], m_position[2] }, { m_position[0], m_position[1], m_position[2] }, -eularAngles[0], -eularAngles[1], 180.0f);
 
 	camera.setTarget({ m_position[0], m_position[1], m_position[2] });
 
@@ -147,9 +144,7 @@ void Player::update(const float dt) {
 
 	if (fallingTime >= dieAfter) {
 		damage(hp);
-		killSound();
 	}
-
 
 	std::vector<Bullet>::iterator it = bullets.begin();
 	while (it != bullets.end()) {
@@ -173,6 +168,8 @@ void Player::fixedUpdate(float fdt) {
 }
 
 void Player::dispatchBullet() {
+	Globals::soundManager.get("player").replayChannel(0u);
+
 	dynamic_cast<Entity*>(m_children.front().get())->setTextureIndex(6);
 	bullets.push_back(Bullet(meshSequence,{ 0.0f, 0.0f, -1.0f }));
 	bullets.back().setOrientation(m_orientation);
@@ -187,7 +184,7 @@ void Player::reload() {
 	isReloading = true;
 	reloadTime = 0.0f;
 	if (totalAmmo > 0)
-		//reloadSound.play();
+		Globals::soundManager.get("player").playChannel(1u);
 
 	if (totalAmmo > maxAmmo) {
 		inHandAmmo = maxAmmo;
@@ -202,7 +199,7 @@ void Player::reload() {
 }
 
 bool Player::damage(float amount) {
-	//hurtSound.play();
+	Globals::soundManager.get("player").replayChannel(2u);
 	hp -= amount;
 	return hp <= 0.0f;
 }
@@ -265,14 +262,7 @@ void Player::reloadAnim(float deltaTime) {
 }
 
 bool Player::isDead() {
-
 	return hp <= 0.0f;
-}
-
-void Player::killSound() {
-	//footstepsSound.resetBuffer();
-	//reloadSound.resetBuffer();
-	//gunShotSound.resetBuffer();
 }
 
 void Player::OnMouseButtonDown(Event::MouseButtonEvent& event) {

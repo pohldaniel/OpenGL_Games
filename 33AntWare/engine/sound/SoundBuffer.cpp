@@ -7,6 +7,7 @@
 CacheLRU<std::string, SoundBuffer::CacheEntryBuffer> SoundBuffer::SoundBufferCache;
 std::vector<ALuint> SoundBuffer::Buffer;
 unsigned short SoundBuffer::Instances = 0u;
+
 SoundBuffer::SoundBuffer(SoundBuffer const& rhs) : m_soundSourceCache(rhs.m_soundSourceCache) {}
 
 SoundBuffer& SoundBuffer::operator=(const SoundBuffer& rhs) {	
@@ -179,6 +180,11 @@ void SoundBuffer::stopChannel(unsigned int channel) {
 	alSourceStop(m_sources[channel]);
 }
 
+void SoundBuffer::replayChannel(unsigned int channel) {
+	stopChannel(channel);
+	playChannel(channel);
+}
+
 void SoundBuffer::pauseChannel(unsigned int channel) {
 	alSourcePause(m_sources[channel]);
 }
@@ -189,6 +195,10 @@ void SoundBuffer::resumeChannel(unsigned int channel) {
 
 void SoundBuffer::setVolumeChannel(unsigned int channel, float volume){
 	alSourcef(m_sources[channel], AL_GAIN, volume);
+}
+
+void SoundBuffer::setPitchChannel(unsigned int channel, float pitvh) {
+	alSourcef(m_sources[channel], AL_PITCH, pitvh);
 }
 
 bool SoundBuffer::isPlaying(unsigned int channel) {

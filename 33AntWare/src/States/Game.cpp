@@ -22,7 +22,7 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 
 	HUD::Get().init();
 
-	SceneManager::Get().loadSettings("res/default_settings.json");
+	//SceneManager::Get().loadSettings("res/default_settings.json");
 	//SceneManager::Get().getScene("scene").loadScene(SceneManager::Get().getCurrentSceneFile());
 	//SceneManager::Get().getScene("scene").loadSceneGpu();
 
@@ -105,10 +105,8 @@ void Game::update() {
 
 	if (isWin){
 		HUD::Get().setWin(true);
-		m_player->killSound();
 	}else if (m_player->isDead() || (m_player->inHandAmmo <= 0 && m_player->totalAmmo <= 0)){
 		HUD::Get().setLoose(true);
-		m_player->killSound();
 	}
 
 	deleteEntities();

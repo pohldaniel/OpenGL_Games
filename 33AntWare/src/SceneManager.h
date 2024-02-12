@@ -93,6 +93,7 @@ public:
 	bool containsScene(std::string name);
 	void loadSettings(std::string path);
 	const std::string& getCurrentSceneFile() const;
+	const std::string& getCurrentMusic() const;
 	const std::vector<Level>& getLevels() const;
 	const std::vector<std::string> getThumbs();
 
