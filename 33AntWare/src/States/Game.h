@@ -48,4 +48,5 @@ private:
 	std::vector<Entity*> m_entities;
 
 	float m_offsetDistance = 0.0f;
+	bool m_keyDown = false;
 };

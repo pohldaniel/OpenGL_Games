@@ -486,7 +486,7 @@ unsigned int Shape::getNumberOfTriangles() {
 	return m_drawCount / 3;
 }
 
-BoundingBox& Shape::getAABB() {
+BoundingBox& Shape::getAABB() const {
 	return m_aabb;
 }
 

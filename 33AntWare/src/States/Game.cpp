@@ -18,16 +18,11 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
 	EventDispatcher::AddMouseListener(this);
-	//Mouse::instance().attach(Application::GetWindow());
+	Mouse::instance().attach(Application::GetWindow());
 
 	HUD::Get().init();
 
-	//SceneManager::Get().loadSettings("res/default_settings.json");
-	//SceneManager::Get().getScene("scene").loadScene(SceneManager::Get().getCurrentSceneFile());
-	//SceneManager::Get().getScene("scene").loadSceneGpu();
-
 	Scene scene = SceneManager::Get().getScene("scene");
-	//glClearColor(0.494f, 0.686f, 0.796f, 1.0f);
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClearDepth(1.0f);
 
@@ -118,7 +113,6 @@ void Game::render() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	DebugRenderer::Get().SetView(m_camera);
 
-	//glEnable(GL_DEPTH_TEST);
 	auto shader = Globals::shaderManager.getAssetPointer("antware");
 	shader->use();
 	shader->loadMatrix("u_projection", m_camera->getPerspectiveMatrix());
@@ -130,6 +124,7 @@ void Game::render() {
 		shader->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(entity->GetTransformation()));
 		entity->draw();
 		entity->OnRenderOBB();
+		entity->OnRenderAABB();
 	}
 
 	for (auto&& bullet : m_player->getBullets()) {
@@ -143,12 +138,14 @@ void Game::render() {
 
 	glClear(GL_DEPTH_BUFFER_BIT);
 	shader->use();
-	m_player->OnRenderOBB({ 1.0f, 1.0f, 0.0f, 1.0f });
+	m_player->OnRenderOBB({1.0f, 1.0f, 0.0f, 1.0f});
+	m_player->OnRenderAABB({1.0f, 1.0f, 0.0f, 1.0f});
 	for (auto&& entity : m_entitiesAfterClear) {
 		shader->loadMatrix("u_model", entity->getWorldTransformation());
 		shader->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(entity->GetTransformation()));
 		entity->draw();
 		entity->OnRenderOBB({0.0f, 0.0f, 1.0f, 1.0f});
+		entity->OnRenderAABB({0.0f, 0.0f, 1.0f, 1.0f});
 	}
 
 	shader->unuse();
@@ -165,33 +162,45 @@ void Game::OnMouseMotion(Event::MouseMoveEvent& event) {
 }
 
 void Game::OnMouseButtonDown(Event::MouseButtonEvent& event) {
-	if (event.button == 2u) {
+	if (event.button == 2u && m_drawUi) {
 		Mouse::instance().attach(Application::GetWindow());
 	}
 }
 
 void Game::OnMouseButtonUp(Event::MouseButtonEvent& event) {
-	if (event.button == 2u) {
+	if (event.button == 2u && m_drawUi) {
 		Mouse::instance().detach();
 	}
 }
 
 void Game::OnMouseWheel(Event::MouseWheelEvent& event) {
-	if (event.direction == 1u) {
-		m_offsetDistance += 2.0f;
-		m_offsetDistance = std::max(0.0f, std::min(m_offsetDistance, 150.0f));
-		m_camera->setOffsetDistance(m_offsetDistance);
-	}
+	
+	if (m_drawUi) {
+		if (event.direction == 1u) {
+			m_offsetDistance += 2.0f;
+			m_offsetDistance = std::max(0.0f, std::min(m_offsetDistance, 150.0f));
+			m_camera->setOffsetDistance(m_offsetDistance);
+		}
 
-	if (event.direction == 0u) {
-		m_offsetDistance -= 2.0f;
-		m_offsetDistance = std::max(0.0f, std::min(m_offsetDistance, 150.0f));
-		m_camera->setOffsetDistance(m_offsetDistance);
+		if (event.direction == 0u) {
+			m_offsetDistance -= 2.0f;
+			m_offsetDistance = std::max(0.0f, std::min(m_offsetDistance, 150.0f));
+			m_camera->setOffsetDistance(m_offsetDistance);
+		}
 	}
 }
 void Game::OnKeyDown(Event::KeyboardEvent& event) {
-	if (event.keyCode == VK_LMENU) {
+	if (event.keyCode == VK_LMENU && !m_keyDown) {
 		m_drawUi = !m_drawUi;
+		Globals::soundManager.get("easter").replayChannel(0u);
+
+		if (!m_drawUi) {
+			Mouse::instance().attach(Application::GetWindow());
+			m_offsetDistance = 0.0f;
+		}else {
+			Mouse::instance().detach();
+		}
+		m_keyDown = true;
 	}
 
 	if (event.keyCode == VK_ESCAPE) {
@@ -203,12 +212,13 @@ void Game::OnKeyDown(Event::KeyboardEvent& event) {
 }
 
 void Game::OnKeyUp(Event::KeyboardEvent& event) {
-
+	if (event.keyCode == VK_LMENU && m_keyDown) {
+		m_keyDown = false;
+	}
 }
 
 void Game::resize(int deltaW, int deltaH) {
 	m_camera->setAspect(static_cast<float>(Application::Width) / static_cast<float>(Application::Height));
-	//m_camera->orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
 }
 
 void Game::renderUi() {
@@ -248,7 +258,9 @@ void Game::renderUi() {
 	// render widgets
 	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 	ImGui::Checkbox("Draw Wirframe", &StateMachine::GetEnableWireframe());
-	ImGui::Checkbox("Draw OBB", &DebugRenderer::Enabled());
+	ImGui::Checkbox("Draw Debug", &DebugRenderer::Enabled());
+	ImGui::Text("Scroll Mouse");
+	ImGui::SliderFloat("Camera Offset", &m_offsetDistance, 0.0f, 150.0f);
 	ImGui::End();
 
 	ImGui::Render();

@@ -111,6 +111,7 @@ Application::~Application() {
 	Globals::soundManager.get("menu").cleanup();
 	Globals::soundManager.get("ant").cleanup();
 	Globals::soundManager.get("player").cleanup();
+	Globals::soundManager.get("easter").cleanup();
 	SoundDevice::shutDown();
 
 	UnregisterClass("WINDOWCLASS", (HINSTANCE)GetModuleHandle(NULL));
@@ -551,13 +552,25 @@ void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 	}case WM_SYSKEYDOWN: {
 
 		switch (wParam) {
-		case VK_MENU: {
-			Event event;
-			event.type = Event::KEYDOWN;
-			event.data.keyboard.keyCode = VK_LMENU;
-			EventDispatcher.pushEvent(event);
-			break;
+			case VK_MENU: {
+				Event event;
+				event.type = Event::KEYDOWN;
+				event.data.keyboard.keyCode = VK_LMENU;
+				EventDispatcher.pushEvent(event);
+				break;
+			}
 		}
+		break;
+	}case WM_SYSKEYUP: {
+
+		switch (wParam) {
+			case VK_MENU: {
+				Event event;
+				event.type = Event::KEYUP;
+				event.data.keyboard.keyCode = VK_LMENU;
+				EventDispatcher.pushEvent(event);
+				break;
+			}
 		}
 		break;
 	}case WM_MOUSEWHEEL: {
@@ -708,5 +721,8 @@ void Application::loadAssets() {
 	Globals::soundManager.get("player").loadChannel("res/audio/playerHurt.wav", 2u);
 	Globals::soundManager.get("player").loadChannel("res/audio/playerFootsteps.ogg", 3u);
 	Globals::soundManager.get("player").setLoopingChannel(3u, true);
+
+	Globals::soundManager.createSoundBuffer("easter", 0u, 1u, Globals::soundVolume);
+	Globals::soundManager.get("easter").loadChannel("res/audio/easterEgg.ogg", 0u);
 
 }
