@@ -17,8 +17,8 @@
 #define WIDTH 1280
 #define HEIGHT 720
 
-#define DEBUG 1
-#define DEVBUILD 1
+#define DEBUG 0
+#define DEVBUILD 0
 
 #define PHYSICS_STEP 0.0166666666666667f
 //#define PHYSICS_STEP 0.0083333333333333f

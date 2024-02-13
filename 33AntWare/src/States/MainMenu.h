@@ -8,12 +8,12 @@
 #include <States/StateMachine.h>
 #include <Scene/Object.h>
 
-class MenuNew : public State, public MouseEventListener, public KeyboardEventListener {
+class MainMenu : public State, public MouseEventListener, public KeyboardEventListener {
 
 public:
 
-	MenuNew(StateMachine& machine);
-	~MenuNew();
+	MainMenu(StateMachine& machine);
+	~MainMenu();
 
 	void fixedUpdate() override;
 	void update() override;

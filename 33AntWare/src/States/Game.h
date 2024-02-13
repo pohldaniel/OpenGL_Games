@@ -49,4 +49,6 @@ private:
 
 	float m_offsetDistance = 0.0f;
 	bool m_keyDown = false;
+	bool m_gameEnd = false;
+	float m_gameStateTimer = 0.0f;
 };

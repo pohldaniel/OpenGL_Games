@@ -2,6 +2,7 @@
 
 #include "Globals.h"
 #include "TileSet.h"
+#include "Application.h"
 
 HUD HUD::s_instance;
 
@@ -26,7 +27,6 @@ void HUD::init() {
 		"res/textures/plus.png",
 		"res/textures/crosshair.png",
 		"res/textures/backSlash.png",
-		"res/textures/loading.png",
 		"res/textures/lose.png",
 		"res/textures/win.png",
 		"res/textures/hurt.png" }), true);
@@ -47,370 +47,126 @@ void HUD::init() {
 	shader->unuse();
 
 	Spritesheet::Bind(m_hudAtlas, 1u);
+	Sprite::GetShader()->use();
+	Sprite::GetShader()->loadVector("u_color", Vector4f(0.5f, 0.5f, 0.5f, 1.0f));
+	Sprite::GetShader()->loadInt("u_texture", 1);
+	Sprite::GetShader()->unuse();
+
+	resize(0, 0);
+}
+
+void HUD::resize(int deltaW, int deltaH) {
+	Sprite::Resize(Application::Width, Application::Height);
+
+	m_screenWidth = static_cast<float>(Application::Width);
+	m_screenHeight = static_cast<float>(Application::Height);
+	m_aspect = m_screenWidth / m_screenHeight;
+
+	m_crossHairSize.set(0.0625f * m_screenWidth, 0.0625f * m_aspect * m_screenHeight);
+	m_plusSize.set(0.04f * m_screenWidth, 0.04f * m_aspect * m_screenHeight);
+	m_hpSize.set(0.06f * m_screenWidth, 0.06f * m_aspect * m_screenHeight);
+
+	m_handAmmoSize.set(0.06f * m_screenWidth, 0.06f * m_aspect * m_screenHeight);
+	m_ammoSize.set(0.035f * m_screenWidth, 0.035f * m_aspect * m_screenHeight);
+	m_bulletSize.set(0.025f * m_screenWidth, 0.025f * m_aspect * m_screenHeight);
 }
 
 void HUD::draw(const Camera& camera) {
-	auto shader = Globals::shaderManager.getAssetPointer("hud");
-	shader->use();
-	TextureRect rect;
 	if (m_loose) {
-		rect = m_tileSet[15];
-		shader->loadMatrix("u_transform", Matrix4f::IDENTITY);
-		shader->loadVector("u_texRect", Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureOffsetX + rect.textureWidth, rect.textureOffsetY + rect.textureHeight));
-		shader->loadInt("u_layer", rect.frame);
-		Globals::shapeManager.get("quad").drawRaw();
+		m_sprite.setPosition(0.0f, 0.0f, 0.0f);
+		m_sprite.setScale(m_screenWidth, m_screenHeight, 0.0f);
+		m_sprite.draw(m_tileSet[14]);
 	}else if (m_win) {
-		rect = m_tileSet[16];
-		shader->loadMatrix("u_transform", Matrix4f::IDENTITY);
-		shader->loadVector("u_texRect", Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureOffsetX + rect.textureWidth, rect.textureOffsetY + rect.textureHeight));
-		shader->loadInt("u_layer", rect.frame);
-		Globals::shapeManager.get("quad").drawRaw();
+		m_sprite.setPosition(0.0f, 0.0f, 0.0f);
+		m_sprite.setScale(m_screenWidth, m_screenHeight, 0.0f);
+		m_sprite.draw(m_tileSet[15]);
 	}else {
-		rect = m_tileSet[12];
-		shader->loadMatrix("u_transform", Matrix4f::Orthographic(-8.0f, 8.0f, -4.5f, 4.5f, -1.0f, 1.0f));
-		shader->loadVector("u_texRect", Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureOffsetX + rect.textureWidth, rect.textureOffsetY + rect.textureHeight));
-		shader->loadInt("u_layer", rect.frame);
-		Globals::shapeManager.get("quad_half").drawRaw();
-
+		m_sprite.setPosition(m_screenWidth * 0.5f - m_crossHairSize[0] * 0.5f, m_screenHeight * 0.5f - m_crossHairSize[1] * 0.5f, 0.0f);
+		m_sprite.setScale(m_crossHairSize[0], m_crossHairSize[1], 0.0f);
+		m_sprite.draw(m_tileSet[12]);
 		if (isHurting) {
-
-
-			rect = m_tileSet[17];
-			shader->loadMatrix("u_transform", Matrix4f::IDENTITY);
-			shader->loadVector("u_texRect", Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureOffsetX + rect.textureWidth, rect.textureOffsetY + rect.textureHeight));
-			shader->loadInt("u_layer", rect.frame);
-			Globals::shapeManager.get("quad").drawRaw();
+			m_sprite.setPosition(0.0f, 0.0f, 0.0f);
+			m_sprite.setScale(m_screenWidth, m_screenHeight, 0.0f);
+			m_sprite.draw(m_tileSet[16]);
 		}
 
-		drawHP(camera);
-		drawAmmo(camera);
+		drawHP();
+		drawAmmo();
 	}
+
+	Sprite::UnuseShader();
 }
 
-void HUD::drawHP(const Camera& camera) {
+void HUD::drawHP() {
 
-	float hpY = -3.9f - 0.4f + 4.5f, hpSize = 0.9f;
-	float hpDiff = 0.6f * hpSize;
-	float plusX = -7.0f -0.6f + 8.0f, plusY = -3.75f - 0.85f + 4.5f, plusSize = 1.8f;
-	float hp1X = plusX + hpDiff + 0.1f + 0.5f, hp2X = hp1X + hpDiff, hp3X = hp2X + hpDiff;
-
-	if (hp < 0)
-		hp = 0;
-	
-	auto shader = Globals::shaderManager.getAssetPointer("hud");
-	shader->use();
-
-	m_sop.setPosition(plusX, plusY, 0.0f);
-	m_sop.setScale(plusSize, plusSize, 0.0f);
-
-	TextureRect rect = m_tileSet[11];
-	shader->loadMatrix("u_transform", camera.getOrthographicMatrix() * m_sop.getTransformationSOP());
-	shader->loadVector("u_texRect", Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureOffsetX + rect.textureWidth, rect.textureOffsetY + rect.textureHeight));
-	shader->loadInt("u_layer", rect.frame);
-	Globals::shapeManager.get("quad_aligned").drawRaw();
+	m_sprite.setPosition(0.06f * m_screenWidth, 0.017f * m_aspect * m_screenHeight, 0.0f);
+	m_sprite.setScale(m_plusSize[0], m_plusSize[1], 0.0f);
+	m_sprite.draw(m_tileSet[11]);
 
 	if (hp >= 100) {
-		m_sop.setPosition(hp1X, hpY, 0.0f);
-		m_sop.setScale(hpSize, hpSize, 0.0f);
-
-		rect = m_tileSet[hp / 100];
-		shader->loadMatrix("u_transform", camera.getOrthographicMatrix() * m_sop.getTransformationSOP());
-		shader->loadVector("u_texRect", Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureOffsetX + rect.textureWidth, rect.textureOffsetY + rect.textureHeight));
-		shader->loadInt("u_layer", rect.frame);
-		Globals::shapeManager.get("quad_aligned").drawRaw();
+		m_sprite.setPosition(0.06f * m_screenWidth + m_hpSize[0] * 0.5f, 0.01f * m_aspect * m_screenHeight, 0.0f);
+		m_sprite.setScale(m_hpSize[0], m_hpSize[1], 0.0f);
+		m_sprite.draw(m_tileSet[hp / 100]);
 	}
 
 	if (hp >= 10) {
-		m_sop.setPosition(hp2X, hpY, 0.0f);
-		m_sop.setScale(hpSize, hpSize, 0.0f);
-
-		rect = m_tileSet[(hp / 10) % 10];
-		shader->loadMatrix("u_transform", camera.getOrthographicMatrix() * m_sop.getTransformationSOP());
-		shader->loadVector("u_texRect", Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureOffsetX + rect.textureWidth, rect.textureOffsetY + rect.textureHeight));
-		shader->loadInt("u_layer", rect.frame);
-		Globals::shapeManager.get("quad_aligned").drawRaw();
+		m_sprite.setPosition(0.06f * m_screenWidth + (m_hpSize[0] + 2.0f), 0.01f * m_aspect * m_screenHeight, 0.0f);
+		m_sprite.setScale(m_hpSize[0], m_hpSize[1], 0.0f);
+		m_sprite.draw(m_tileSet[(hp / 10) % 10]);
 	}
 
-	m_sop.setPosition(hp3X, hpY, 0.0f);
-	m_sop.setScale(hpSize, hpSize, 0.0f);
-
-	rect = m_tileSet[hp % 10];
-	shader->loadMatrix("u_transform", camera.getOrthographicMatrix() * m_sop.getTransformationSOP());
-	shader->loadVector("u_texRect", Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureOffsetX + rect.textureWidth, rect.textureOffsetY + rect.textureHeight));
-	shader->loadInt("u_layer", rect.frame);
-	Globals::shapeManager.get("quad_aligned").drawRaw();
-	shader->unuse();
+	m_sprite.setPosition(0.06f * m_screenWidth + (m_hpSize[0] + 7.0f) * 1.5f, 0.01f * m_aspect * m_screenHeight, 0.0f);
+	m_sprite.setScale(m_hpSize[0], m_hpSize[1], 0.0f);
+	m_sprite.draw(m_tileSet[hp % 10]);
 }
 
-void HUD::drawAmmo(const Camera& camera) {
-	Matrix4f ortho = Matrix4f::Orthographic(-8.0f, 8.0f, -4.5f, 4.5f, -1.0f, 1.0f);
-
-	float inHandAmmoY = -3.9f, totalAmmoY = -4.0f;
-	float inHandAmmoSize = 0.8f, totalAmmoSize = 0.5f;
-	float inHandDiff = 0.6 * inHandAmmoSize;
-	float totalDiff = 0.6 * totalAmmoSize;
-	float slashX = 6.0f;
-	float inHand3X = slashX - inHandDiff, inHand2X = inHand3X - inHandDiff, inHand1X = inHand2X - inHandDiff;
-	float total1X = slashX + totalDiff, total2X = total1X + totalDiff, total3X = total2X + totalDiff;
-	float bulletDiff = totalDiff - 0.18f, bulletX = total3X + totalDiff + 0.1f, bulletY = totalAmmoY - 0.1f, bulletSize = 0.4f;
-
-	if (totalAmmo < 0)
-		totalAmmo = 0;
-	if (inHandAmmo < 0)
-		inHandAmmo = 0;
-
-	if (totalAmmo >= 100) {
-		auto shader = Globals::shaderManager.getAssetPointer("hud");
-		shader->use();
-
-		//drawQuad(ammo, { bulletX, bulletY }, { bulletSize, bulletSize });
-		m_sop.setPosition(bulletX, bulletY, 0.0f);
-		m_sop.setScale(bulletSize, bulletSize, 0.0f);
-
-		TextureRect rect = m_tileSet[10];
-		shader->loadMatrix("u_transform", ortho * m_sop.getTransformationSOP());
-		shader->loadVector("u_texRect", Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureOffsetX + rect.textureWidth, rect.textureOffsetY + rect.textureHeight));
-		shader->loadInt("u_layer", rect.frame);
-		Globals::shapeManager.get("quad_half").drawRaw();
-
-		
-		//drawQuad(digits[totalAmmo / 100], { total1X, totalAmmoY }, { totalAmmoSize, totalAmmoSize });
-		m_sop.setPosition(total1X, totalAmmoY, 0.0f);
-		m_sop.setScale(totalAmmoSize, totalAmmoSize, 0.0f);
-		rect = m_tileSet[totalAmmo / 100];
-		shader->loadMatrix("u_transform", ortho * m_sop.getTransformationSOP());
-		shader->loadVector("u_texRect", Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureOffsetX + rect.textureWidth, rect.textureOffsetY + rect.textureHeight));
-		shader->loadInt("u_layer", rect.frame);
-		Globals::shapeManager.get("quad_half").drawRaw();
-
-		
-		//drawQuad(digits[(totalAmmo / 10) % 10], { total2X, totalAmmoY }, { totalAmmoSize, totalAmmoSize });
-		m_sop.setPosition(total2X, totalAmmoY, 0.0f);
-		m_sop.setScale(totalAmmoSize, totalAmmoSize, 0.0f);
-		rect = m_tileSet[(totalAmmo / 10) % 10];
-		shader->loadMatrix("u_transform", ortho * m_sop.getTransformationSOP());
-		shader->loadVector("u_texRect", Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureOffsetX + rect.textureWidth, rect.textureOffsetY + rect.textureHeight));
-		shader->loadInt("u_layer", rect.frame);
-		Globals::shapeManager.get("quad_half").drawRaw();
-
-		//drawQuad(digits[totalAmmo % 10], { total3X, totalAmmoY }, { totalAmmoSize, totalAmmoSize });
-		m_sop.setPosition(total3X, totalAmmoY, 0.0f);
-		m_sop.setScale(totalAmmoSize, totalAmmoSize, 0.0f);
-		rect = m_tileSet[totalAmmo % 10];
-		shader->loadMatrix("u_transform", ortho * m_sop.getTransformationSOP());
-		shader->loadVector("u_texRect", Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureOffsetX + rect.textureWidth, rect.textureOffsetY + rect.textureHeight));
-		shader->loadInt("u_layer", rect.frame);
-		Globals::shapeManager.get("quad_half").drawRaw();
-
-		//drawQuad(backSlash, { slashX, totalAmmoY }, { totalAmmoSize, totalAmmoSize });
-		m_sop.setPosition(slashX, totalAmmoY, 0.0f);
-		m_sop.setScale(totalAmmoSize, totalAmmoSize, 0.0f);
-		rect = m_tileSet[13];
-		shader->loadMatrix("u_transform", ortho * m_sop.getTransformationSOP());
-		shader->loadVector("u_texRect", Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureOffsetX + rect.textureWidth, rect.textureOffsetY + rect.textureHeight));
-		shader->loadInt("u_layer", rect.frame);
-		Globals::shapeManager.get("quad_half").drawRaw();
-
-		if (inHandAmmo >= 100){
-			//drawQuad(digits[inHandAmmo / 100], { inHand1X, inHandAmmoY }, { inHandAmmoSize, inHandAmmoSize });
-
-			m_sop.setPosition(inHand1X, inHandAmmoY, 0.0f);
-			m_sop.setScale(inHandAmmoSize, inHandAmmoSize, 0.0f);
-			rect = m_tileSet[inHandAmmo / 100];
-			shader->loadMatrix("u_transform", ortho * m_sop.getTransformationSOP());
-			shader->loadVector("u_texRect", Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureOffsetX + rect.textureWidth, rect.textureOffsetY + rect.textureHeight));
-			shader->loadInt("u_layer", rect.frame);
-			Globals::shapeManager.get("quad_half").drawRaw();
-		}
-
-		if (inHandAmmo >= 10){
-			//drawQuad(digits[(inHandAmmo / 10) % 10], { inHand2X, inHandAmmoY }, { inHandAmmoSize, inHandAmmoSize });
-
-			m_sop.setPosition(inHand2X, inHandAmmoY, 0.0f);
-			m_sop.setScale(inHandAmmoSize, inHandAmmoSize, 0.0f);
-			rect = m_tileSet[(inHandAmmo / 10) % 10];
-			shader->loadMatrix("u_transform", ortho * m_sop.getTransformationSOP());
-			shader->loadVector("u_texRect", Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureOffsetX + rect.textureWidth, rect.textureOffsetY + rect.textureHeight));
-			shader->loadInt("u_layer", rect.frame);
-			Globals::shapeManager.get("quad_half").drawRaw();
-		}
-		//drawQuad(digits[inHandAmmo % 10], { inHand3X, inHandAmmoY }, { inHandAmmoSize, inHandAmmoSize });
-
-		m_sop.setPosition(inHand3X, inHandAmmoY, 0.0f);
-		m_sop.setScale(inHandAmmoSize, inHandAmmoSize, 0.0f);
-		rect = m_tileSet[inHandAmmo % 10];
-		shader->loadMatrix("u_transform", ortho * m_sop.getTransformationSOP());
-		shader->loadVector("u_texRect", Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureOffsetX + rect.textureWidth, rect.textureOffsetY + rect.textureHeight));
-		shader->loadInt("u_layer", rect.frame);
-		Globals::shapeManager.get("quad_half").drawRaw();
-
-	}else if (totalAmmo >= 10) {
-		auto shader = Globals::shaderManager.getAssetPointer("hud");
-		shader->use();
-
-		slashX += totalDiff;
-		inHand3X = slashX - inHandDiff, inHand2X = inHand3X - inHandDiff, inHand1X = inHand2X - inHandDiff;
-		total1X = slashX + totalDiff, total2X = total1X + totalDiff, total3X = total2X + totalDiff;
-		bulletDiff = totalDiff - 0.18f, bulletX = total2X + totalDiff + 0.1f, bulletY = totalAmmoY - 0.1f, bulletSize = 0.4f;
-
-		//drawQuad(ammo, { bulletX, bulletY }, { bulletSize, bulletSize });
-
-		m_sop.setPosition(bulletX, bulletY, 0.0f);
-		m_sop.setScale(bulletSize, bulletSize, 0.0f);
-		TextureRect rect =  m_tileSet[10];
-
-		shader->loadMatrix("u_transform", ortho * m_sop.getTransformationSOP());
-		shader->loadVector("u_texRect", Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureOffsetX + rect.textureWidth, rect.textureOffsetY + rect.textureHeight));
-		shader->loadInt("u_layer", rect.frame);
-		Globals::shapeManager.get("quad_half").drawRaw();
-
-		//drawQuad(digits[(totalAmmo / 10) % 10], { total1X, totalAmmoY }, { totalAmmoSize, totalAmmoSize });
-
-		m_sop.setPosition(total1X, totalAmmoY, 0.0f);
-		m_sop.setScale(totalAmmoSize, totalAmmoSize, 0.0f);
-		rect = m_tileSet[(totalAmmo / 10) % 10];
-
-		shader->loadMatrix("u_transform", ortho * m_sop.getTransformationSOP());
-		shader->loadVector("u_texRect", Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureOffsetX + rect.textureWidth, rect.textureOffsetY + rect.textureHeight));
-		shader->loadInt("u_layer", rect.frame);
-		Globals::shapeManager.get("quad_half").drawRaw();
-
-		//drawQuad(digits[totalAmmo % 10], { total2X, totalAmmoY }, { totalAmmoSize, totalAmmoSize });
-
-		m_sop.setPosition(total2X, totalAmmoY, 0.0f);
-		m_sop.setScale(totalAmmoSize, totalAmmoSize, 0.0f);
-		rect = m_tileSet[totalAmmo % 10];
-
-		shader->loadMatrix("u_transform", ortho * m_sop.getTransformationSOP());
-		shader->loadVector("u_texRect", Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureOffsetX + rect.textureWidth, rect.textureOffsetY + rect.textureHeight));
-		shader->loadInt("u_layer", rect.frame);
-		Globals::shapeManager.get("quad_half").drawRaw();
-
-		//drawQuad(backSlash, { slashX, totalAmmoY }, { totalAmmoSize, totalAmmoSize });
-
-		m_sop.setPosition(slashX, totalAmmoY, 0.0f);
-		m_sop.setScale(totalAmmoSize, totalAmmoSize, 0.0f);
-		rect = m_tileSet[13];
-
-		shader->loadMatrix("u_transform", ortho * m_sop.getTransformationSOP());
-		shader->loadVector("u_texRect", Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureOffsetX + rect.textureWidth, rect.textureOffsetY + rect.textureHeight));
-		shader->loadInt("u_layer", rect.frame);
-		Globals::shapeManager.get("quad_half").drawRaw();
-
-		if (inHandAmmo >= 100){
-			//drawQuad(digits[inHandAmmo / 100], { inHand1X, inHandAmmoY }, { inHandAmmoSize, inHandAmmoSize });
-
-			m_sop.setPosition(inHand1X, inHandAmmoY, 0.0f);
-			m_sop.setScale(inHandAmmoSize, inHandAmmoSize, 0.0f);
-			rect = m_tileSet[inHandAmmo / 100];
-
-			shader->loadMatrix("u_transform", ortho * m_sop.getTransformationSOP());
-			shader->loadVector("u_texRect", Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureOffsetX + rect.textureWidth, rect.textureOffsetY + rect.textureHeight));
-			shader->loadInt("u_layer", rect.frame);
-			Globals::shapeManager.get("quad_half").drawRaw();
-		}
-
-		if (inHandAmmo >= 10){
-			//drawQuad(digits[(inHandAmmo / 10) % 10], { inHand2X, inHandAmmoY }, { inHandAmmoSize, inHandAmmoSize });
-
-			m_sop.setPosition(inHand2X, inHandAmmoY, 0.0f);
-			m_sop.setScale(inHandAmmoSize, inHandAmmoSize, 0.0f);
-			rect = m_tileSet[(inHandAmmo / 10) % 10];
-
-			shader->loadMatrix("u_transform", ortho * m_sop.getTransformationSOP());
-			shader->loadVector("u_texRect", Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureOffsetX + rect.textureWidth, rect.textureOffsetY + rect.textureHeight));
-			shader->loadInt("u_layer", rect.frame);
-			Globals::shapeManager.get("quad_half").drawRaw();
-		}
-		//drawQuad(digits[inHandAmmo % 10], { inHand3X, inHandAmmoY }, { inHandAmmoSize, inHandAmmoSize });
-
-		m_sop.setPosition(inHand3X, inHandAmmoY, 0.0f);
-		m_sop.setScale(inHandAmmoSize, inHandAmmoSize, 0.0f);
-		rect = m_tileSet[inHandAmmo % 10];
-
-		shader->loadMatrix("u_transform", ortho * m_sop.getTransformationSOP());
-		shader->loadVector("u_texRect", Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureOffsetX + rect.textureWidth, rect.textureOffsetY + rect.textureHeight));
-		shader->loadInt("u_layer", rect.frame);
-		Globals::shapeManager.get("quad_half").drawRaw();
-
-	}else {
-
-		auto shader = Globals::shaderManager.getAssetPointer("hud");
-		shader->use();
-
-		slashX += totalDiff * 2;
-		inHand3X = slashX - inHandDiff, inHand2X = inHand3X - inHandDiff, inHand1X = inHand2X - inHandDiff;
-		total1X = slashX + totalDiff, total2X = total1X + totalDiff, total3X = total2X + totalDiff;
-		bulletDiff = totalDiff - 0.18f, bulletX = total1X + totalDiff + 0.1f, bulletY = totalAmmoY - 0.1f, bulletSize = 0.4f;
-
-		//drawQuad(ammo, { bulletX, bulletY }, { bulletSize, bulletSize });
-		m_sop.setPosition(bulletX, bulletY, 0.0f);
-		m_sop.setScale(bulletSize, bulletSize, 0.0f);
-
-		TextureRect rect = m_tileSet[10];
-		shader->loadMatrix("u_transform", ortho * m_sop.getTransformationSOP());
-		shader->loadVector("u_texRect", Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureOffsetX + rect.textureWidth, rect.textureOffsetY + rect.textureHeight));
-		shader->loadInt("u_layer", rect.frame);
-		Globals::shapeManager.get("quad_half").drawRaw();
-
-		//drawQuad(digits[totalAmmo % 10], { total1X, totalAmmoY }, { totalAmmoSize, totalAmmoSize });
-
-		m_sop.setPosition(total1X, totalAmmoY, 0.0f);
-		m_sop.setScale(totalAmmoSize, totalAmmoSize, 0.0f);
-
-		rect = m_tileSet[totalAmmo % 10];
-		shader->loadMatrix("u_transform", ortho * m_sop.getTransformationSOP());
-		shader->loadVector("u_texRect", Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureOffsetX + rect.textureWidth, rect.textureOffsetY + rect.textureHeight));
-		shader->loadInt("u_layer", rect.frame);
-		Globals::shapeManager.get("quad_half").drawRaw();
-
-		//drawQuad(backSlash, { slashX, totalAmmoY }, { totalAmmoSize, totalAmmoSize });
-
-		m_sop.setPosition(slashX, totalAmmoY, 0.0f);
-		m_sop.setScale(totalAmmoSize, totalAmmoSize, 0.0f);
-
-		rect = m_tileSet[13];
-		shader->loadMatrix("u_transform", ortho * m_sop.getTransformationSOP());
-		shader->loadVector("u_texRect", Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureOffsetX + rect.textureWidth, rect.textureOffsetY + rect.textureHeight));
-		shader->loadInt("u_layer", rect.frame);
-		Globals::shapeManager.get("quad_half").drawRaw();
-
-		if (inHandAmmo >= 100){
-			//drawQuad(digits[inHandAmmo / 100], { inHand1X, inHandAmmoY }, { inHandAmmoSize, inHandAmmoSize });
-
-			m_sop.setPosition(total1X, inHandAmmoY, 0.0f);
-			m_sop.setScale(inHandAmmoSize, inHandAmmoSize, 0.0f);
-
-			rect = m_tileSet[inHandAmmo / 100];
-			shader->loadMatrix("u_transform", ortho * m_sop.getTransformationSOP());
-			shader->loadVector("u_texRect", Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureOffsetX + rect.textureWidth, rect.textureOffsetY + rect.textureHeight));
-			shader->loadInt("u_layer", rect.frame);
-			Globals::shapeManager.get("quad_half").drawRaw();
-		}
-
-		if (inHandAmmo >= 10){
-			//drawQuad(digits[(inHandAmmo / 10) % 10], { inHand2X, inHandAmmoY }, { inHandAmmoSize, inHandAmmoSize });
-
-			m_sop.setPosition(inHand2X, inHandAmmoY, 0.0f);
-			m_sop.setScale(inHandAmmoSize, inHandAmmoSize, 0.0f);
-
-			rect = m_tileSet[(inHandAmmo / 10) % 10];
-			shader->loadMatrix("u_transform", ortho * m_sop.getTransformationSOP());
-			shader->loadVector("u_texRect", Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureOffsetX + rect.textureWidth, rect.textureOffsetY + rect.textureHeight));
-			shader->loadInt("u_layer", rect.frame);
-			Globals::shapeManager.get("quad_half").drawRaw();
-		}
-		//drawQuad(digits[inHandAmmo % 10], { inHand3X, inHandAmmoY }, { inHandAmmoSize, inHandAmmoSize });
-
-		m_sop.setPosition(inHand3X, inHandAmmoY, 0.0f);
-		m_sop.setScale(inHandAmmoSize, inHandAmmoSize, 0.0f);
-
-		rect = m_tileSet[inHandAmmo % 10];
-		shader->loadMatrix("u_transform", ortho * m_sop.getTransformationSOP());
-		shader->loadVector("u_texRect", Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureOffsetX + rect.textureWidth, rect.textureOffsetY + rect.textureHeight));
-		shader->loadInt("u_layer", rect.frame);
-		Globals::shapeManager.get("quad_half").drawRaw();
+void HUD::drawAmmo() {
+	if (inHandAmmo >= 100) {
+		m_sprite.setPosition(m_screenWidth - 0.22f * m_screenWidth, 0.01f * m_aspect * m_screenHeight, 0.0f);
+		m_sprite.setScale(m_handAmmoSize[0], m_handAmmoSize[1], 0.0f);
+		m_sprite.draw(m_tileSet[inHandAmmo / 100]);
 	}
+
+	if (inHandAmmo >= 10) {
+		m_sprite.setPosition(m_screenWidth - 0.22f * m_screenWidth + m_handAmmoSize[0] * 0.5f, 0.01f * m_aspect * m_screenHeight, 0.0f);
+		m_sprite.setScale(m_handAmmoSize[0], m_handAmmoSize[1], 0.0f);
+		m_sprite.draw(m_tileSet[(inHandAmmo / 10) % 10]);
+	}
+
+	m_sprite.setPosition(m_screenWidth - 0.22f * m_screenWidth + m_handAmmoSize[0] * 1.1f, 0.01f * m_aspect * m_screenHeight, 0.0f);
+	m_sprite.setScale(m_handAmmoSize[0], m_handAmmoSize[1], 0.0f);
+	m_sprite.draw(m_tileSet[inHandAmmo % 10]);
+
+	m_sprite.setPosition(m_screenWidth - 0.22f * m_screenWidth + m_handAmmoSize[0] * 1.85f, 0.015f * m_aspect * m_screenHeight, 0.0f);
+	m_sprite.setScale(m_ammoSize[0], m_ammoSize[1], 0.0f);
+	m_sprite.draw(m_tileSet[13]);
+
+
+	float offset = 0.0f;
+	if (totalAmmo >= 100) {
+		m_sprite.setPosition(m_screenWidth - 0.22f * m_screenWidth + m_handAmmoSize[0] * 1.85f + m_ammoSize[0] * 0.5f, 0.012f * m_aspect * m_screenHeight, 0.0f);
+		m_sprite.setScale(m_ammoSize[0], m_ammoSize[1], 0.0f);
+		m_sprite.draw(m_tileSet[totalAmmo / 100]);
+		offset = 0.6f;
+
+	}
+
+	if (totalAmmo >= 10) {
+		m_sprite.setPosition(m_screenWidth - 0.22f * m_screenWidth + m_handAmmoSize[0] * 1.85f + m_ammoSize[0] * (offset + 0.5), 0.012f * m_aspect * m_screenHeight, 0.0f);
+		m_sprite.setScale(m_ammoSize[0], m_ammoSize[1], 0.0f);
+		m_sprite.draw(m_tileSet[(totalAmmo / 10) % 10]);
+		offset += 0.6f;
+
+	}
+
+	m_sprite.setPosition(m_screenWidth - 0.22f * m_screenWidth + m_handAmmoSize[0] * 1.85f + m_ammoSize[0] * (offset + 0.5), 0.012f * m_aspect * m_screenHeight, 0.0f);
+	m_sprite.setScale(m_ammoSize[0], m_ammoSize[1], 0.0f);
+	m_sprite.draw(m_tileSet[totalAmmo % 10]);
+
+	offset += 0.9f;
+	m_sprite.setPosition(m_screenWidth - 0.22f * m_screenWidth + m_handAmmoSize[0] * 1.85f + m_ammoSize[0] * (offset + 0.5), 0.015f * m_aspect * m_screenHeight, 0.0f);
+	m_sprite.setScale(m_bulletSize[0], m_bulletSize[1], 0.0f);
+	m_sprite.draw(m_tileSet[10]);
 }
 
 void HUD::setHP(unsigned int hp) {

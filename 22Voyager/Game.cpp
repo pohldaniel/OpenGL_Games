@@ -144,7 +144,6 @@ void Game::update() {
 		}
 
 		if (m_endGame) {
-			//Renderer::GetInstance().GetComponent(PLAYER_VICTORY_SCREEN).Draw(m_cameraHUD);
 			m_gameStateTimer += 1.15f * m_dt;
 
 			if (m_gameStateTimer >= 5.0f) {

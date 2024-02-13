@@ -5,14 +5,14 @@
 
 #include <States/Loading.h>
 
-#include "MenuNew.h"
+#include "MainMenu.h"
 #include "Application.h"
 #include "Globals.h"
 
 #include "SceneManager.h"
 #include "TileSet.h"
 
-MenuNew::MenuNew(StateMachine& machine) : State(machine, States::MENUNEW),
+MainMenu::MainMenu(StateMachine& machine) : State(machine, States::MAINMENU),
 currentPosition(SceneManager::Get().m_currentPosition) {
 
 	Globals::musicManager.get("background").play("res/audio/music00.ogg");
@@ -40,7 +40,6 @@ currentPosition(SceneManager::Get().m_currentPosition) {
 
 	Spritesheet::SetFilter(m_menuAtlas, GL_LINEAR);
 	Spritesheet::SetWrapMode(m_menuAtlas, GL_REPEAT);
-	//Spritesheet::Safe("menu", m_menuAtlas);
 
 	auto shader = Globals::shaderManager.getAssetPointer("hud");
 	shader->use();
@@ -51,23 +50,22 @@ currentPosition(SceneManager::Get().m_currentPosition) {
 
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClearDepth(1.0f);
-
 }
 
-MenuNew::~MenuNew() {
+MainMenu::~MainMenu() {
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
 }
 
-void MenuNew::fixedUpdate() {
+void MainMenu::fixedUpdate() {
 
 }
 
-void MenuNew::update() {
+void MainMenu::update() {
 	processInput();
 }
 
-void MenuNew::render() {
+void MainMenu::render() {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	auto shader = Globals::shaderManager.getAssetPointer("hud");
@@ -128,23 +126,23 @@ void MenuNew::render() {
 	shader->unuse();
 }
 
-void MenuNew::OnMouseMotion(Event::MouseMoveEvent& event) {
+void MainMenu::OnMouseMotion(Event::MouseMoveEvent& event) {
 
 }
 
-void MenuNew::OnMouseButtonDown(Event::MouseButtonEvent& event) {
+void MainMenu::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 
 }
 
-void MenuNew::OnMouseButtonUp(Event::MouseButtonEvent& event) {
+void MainMenu::OnMouseButtonUp(Event::MouseButtonEvent& event) {
 
 }
 
-void MenuNew::OnMouseWheel(Event::MouseWheelEvent& event) {
+void MainMenu::OnMouseWheel(Event::MouseWheelEvent& event) {
 
 }
 
-void MenuNew::OnKeyDown(Event::KeyboardEvent& event) {
+void MainMenu::OnKeyDown(Event::KeyboardEvent& event) {
 	if (event.keyCode == VK_LMENU) {
 		m_drawUi = !m_drawUi;
 	}
@@ -155,11 +153,11 @@ void MenuNew::OnKeyDown(Event::KeyboardEvent& event) {
 	}
 }
 
-void MenuNew::OnKeyUp(Event::KeyboardEvent& event) {
+void MainMenu::OnKeyUp(Event::KeyboardEvent& event) {
 
 }
 
-void MenuNew::processInput() {
+void MainMenu::processInput() {
 	Keyboard &keyboard = Keyboard::instance();
 	if (keyboard.keyPressed(Keyboard::KEY_ENTER) && !keyboard.keyDown(Keyboard::KEY_RALT)) {
 		m_isRunning = false;
@@ -188,12 +186,11 @@ void MenuNew::processInput() {
 	}
 }
 
-void MenuNew::resize(int deltaW, int deltaH) {
-	//m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
-	//m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
+void MainMenu::resize(int deltaW, int deltaH) {
+	
 }
 
-void MenuNew::renderUi() {
+void MainMenu::renderUi() {
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();

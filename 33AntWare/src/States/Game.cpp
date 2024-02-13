@@ -4,7 +4,7 @@
 #include <imgui_internal.h>
 
 #include <engine/Batchrenderer.h>
-#include <States/MenuNew.h>
+#include <States/MainMenu.h>
 
 #include "Game.h"
 #include "Application.h"
@@ -80,32 +80,45 @@ void Game::fixedUpdate() {
 }
 
 void Game::update() {
-	m_player->update(m_dt);
 
-	for(auto&& entity : m_entitiesAfterClear)
-		entity->update(m_dt);
+	if(m_gameEnd){
+		m_gameStateTimer += 1.15f * m_dt;
 
-	for(auto&& entity : m_entities)
-		entity->update(m_dt);
-
-	for(auto&& light : Light::GetLights()) {
-		light->update(m_dt);
+		if (m_gameStateTimer >= 5.0f) {
+			Mouse::instance().detach();
+			m_isRunning = false;
+			m_machine.addStateAtBottom(new MainMenu(m_machine));
+		}
+		return;
 	}
 
+	m_player->update(m_dt);
+
+	for (auto&& entity : m_entitiesAfterClear)
+		entity->update(m_dt);
+
+	for (auto&& entity : m_entities)
+		entity->update(m_dt);
+
+	for (auto&& light : Light::GetLights())
+			light->update(m_dt);
+		
 	bool isWin = Ant::GetCount() == 0;
 
-	if (Globals::clock.getElapsedTimeSec() - m_player->timeSinceDamage > 0.25f){
+	if (Globals::clock.getElapsedTimeSec() - m_player->timeSinceDamage > 0.25f) {
 		HUD::Get().setIsHurting(false);
 	}
 
-	if (isWin){
-		HUD::Get().setWin(true);
-	}else if (m_player->isDead() || (m_player->inHandAmmo <= 0 && m_player->totalAmmo <= 0)){
-		HUD::Get().setLoose(true);
+	if (isWin) {
+		m_gameEnd = true;
+		HUD::Get().setWin(m_gameEnd);
+	}else if (m_player->isDead() || (m_player->inHandAmmo <= 0 && m_player->totalAmmo <= 0)) {
+		m_gameEnd = true;
+		HUD::Get().setLoose(m_gameEnd);
 	}
 
 	deleteEntities();
-	Light::UpdateLightUbo(BuiltInShader::lightUbo);
+	Light::UpdateLightUbo(BuiltInShader::lightUbo);	
 }
 
 void Game::render() {
@@ -197,6 +210,7 @@ void Game::OnKeyDown(Event::KeyboardEvent& event) {
 		if (!m_drawUi) {
 			Mouse::instance().attach(Application::GetWindow());
 			m_offsetDistance = 0.0f;
+			m_camera->setOffsetDistance(m_offsetDistance);
 		}else {
 			Mouse::instance().detach();
 		}
@@ -206,8 +220,7 @@ void Game::OnKeyDown(Event::KeyboardEvent& event) {
 	if (event.keyCode == VK_ESCAPE) {
 		Mouse::instance().detach();
 		m_isRunning = false;
-		m_machine.addStateAtBottom(new MenuNew(m_machine));
-		
+		m_machine.addStateAtBottom(new MainMenu(m_machine));
 	}
 }
 
@@ -219,6 +232,7 @@ void Game::OnKeyUp(Event::KeyboardEvent& event) {
 
 void Game::resize(int deltaW, int deltaH) {
 	m_camera->setAspect(static_cast<float>(Application::Width) / static_cast<float>(Application::Height));
+	HUD::Get().resize(deltaW, deltaH);
 }
 
 void Game::renderUi() {
@@ -260,7 +274,9 @@ void Game::renderUi() {
 	ImGui::Checkbox("Draw Wirframe", &StateMachine::GetEnableWireframe());
 	ImGui::Checkbox("Draw Debug", &DebugRenderer::Enabled());
 	ImGui::Text("Scroll Mouse");
-	ImGui::SliderFloat("Camera Offset", &m_offsetDistance, 0.0f, 150.0f);
+	if (ImGui::SliderFloat("Camera Offset", &m_offsetDistance, 0.0f, 150.0f)) {
+		m_camera->setOffsetDistance(m_offsetDistance);
+	}
 	ImGui::End();
 
 	ImGui::Render();

@@ -15,10 +15,11 @@
 #include <States/Game.h>
 #include <States/Menu.h>
 #include <States/SceneGraph.h>
-#include <States/MenuNew.h>
+#include <States/MainMenu.h>
 #include <UI/Widget.h>
 
 #include "TileSet.h"
+#include "Sprite.h"
 #include "DebugRenderer.h"
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -58,6 +59,7 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 
 	Framebuffer::SetDefaultSize(Width, Height);
 	Widget::Init(Width, Height);
+	Sprite::Init(Width, Height);
 
 	EventDispatcher.setProcessOSEvents([&]() {
 		while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
@@ -139,7 +141,7 @@ void Application::createWindow() {
 	Window = CreateWindowEx(
 		NULL,
 		"WINDOWCLASS",
-		"Robot",
+		"AntWare",
 		WS_OVERLAPPEDWINDOW,
 		CW_USEDEFAULT, CW_USEDEFAULT,
 		Width,
@@ -421,7 +423,7 @@ void Application::initStates() {
 	//Machine->addStateAtTop(new Game(*Machine));
 	//Machine->addStateAtTop(new Menu(*Machine));
 	//Machine->addStateAtTop(new SceneGraph(*Machine));
-	Machine->addStateAtTop(new MenuNew(*Machine));
+	Machine->addStateAtTop(new MainMenu(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -668,18 +670,14 @@ void Application::loadAssets() {
 
 	Globals::shaderManager.loadShader("font", "res/shader/batch.vert", "res/shader/font.frag");
 	Globals::shaderManager.loadShader("batch", "res/shader/batch.vert", "res/shader/batch.frag");
-	Globals::shaderManager.loadShader("quad_back", "res/shader/quad_back.vert", "res/shader/quad.frag");
+	Globals::shaderManager.loadShader("quad", "res/shader/quad.vert", "res/shader/quad.frag");
 	Globals::shaderManager.loadShader("debug_lines", "res/shader/debug_lines.vert", "res/shader/debug_lines.frag");
 
-	Globals::shaderManager.loadShader("quad", "res/shader/quad.vert", "res/shader/quad.frag");
-	Globals::shaderManager.loadShader("quad_array", "res/shader/quad_array.vert", "res/shader/quad_array.frag");
-	Globals::shaderManager.loadShader("color", "res/shader/color.vert", "res/shader/color.frag");
-	Globals::shaderManager.loadShader("texture", "res/shader/texture.vert", "res/shader/texture.frag");
 	Globals::shaderManager.loadShader("antware", "res/shader/antware.vert", "res/shader/antware.frag");
 	Globals::shaderManager.loadShader("hud", "res/shader/hud.vert", "res/shader/hud.frag");
 	Globals::shaderManager.loadShader("skybox", "res/shader/skybox.vert", "res/shader/skybox.frag");
 
-	Globals::shaderManager.loadShader("wire_overlay", "res/shader/wire_overlay.vert", "res/shader/wire_overlay.frag", "res/shader/wire_overlay.gem");
+	/*Globals::shaderManager.loadShader("wire_overlay", "res/shader/wire_overlay.vert", "res/shader/wire_overlay.frag", "res/shader/wire_overlay.gem");
 	Globals::shaderManager.loadShader("wire_overlay_material", "res/shader/wire_overlay.vert", "res/shader/wire_overlay_material.frag", "res/shader/wire_overlay.gem");
 	Globals::shaderManager.loadShader("wire_overlay_color", "res/shader/wire_overlay.vert", "res/shader/wire_overlay_color.frag", "res/shader/wire_overlay.gem");
 
@@ -698,8 +696,11 @@ void Application::loadAssets() {
 	Globals::shapeManager.buildQuadXY("quad_aligned", Vector3f(0.0f, 0.0f, 0.0f), Vector2f(1.0f, 1.0f), 1, 1, true, false, false);
 	Globals::shapeManager.buildQuadXY("quad_half", Vector3f(-0.5f, -0.5f, 0.0f), Vector2f(1.0f, 1.0f), 1, 1, true, false, false);
 	Globals::shapeManager.buildSphere("sphere", 0.1f, Vector3f(0.0f, 0.0f, 0.0f), 16, 16, false, true, false);
-	Globals::shapeManager.buildCube("cube", Vector3f(-1.0f, -1.0f, -1.0f), Vector3f(2.0f, 2.0f, 2.0f), 1, 1, true, true, false);
+	
 
+	Globals::textureManager.loadTexture("mars", "res/models/planet/mars.png");*/
+	Globals::shapeManager.buildQuadXY("quad_half", Vector3f(-0.5f, -0.5f, 0.0f), Vector2f(1.0f, 1.0f), 1, 1, true, false, false);
+	Globals::shapeManager.buildCube("cube", Vector3f(-1.0f, -1.0f, -1.0f), Vector3f(2.0f, 2.0f, 2.0f), 1, 1, true, true, false);
 	MusicBuffer::Init();
 	SoundBuffer::Init();
 

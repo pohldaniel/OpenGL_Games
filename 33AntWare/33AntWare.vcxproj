@@ -196,11 +196,12 @@
     <ClCompile Include="src\Scene\SceneNodeLC.cpp" />
     <ClCompile Include="src\Scene\SequenceNode.cpp" />
     <ClCompile Include="src\Scene\ShapeNode.cpp" />
+    <ClCompile Include="src\Sprite.cpp" />
     <ClCompile Include="src\States\Controlls.cpp" />
     <ClCompile Include="src\States\Default.cpp" />
     <ClCompile Include="src\States\Game.cpp" />
     <ClCompile Include="src\States\Loading.cpp" />
-    <ClCompile Include="src\States\MenuNew.cpp" />
+    <ClCompile Include="src\States\MainMenu.cpp" />
     <ClCompile Include="src\States\SceneGraph.cpp" />
     <ClCompile Include="src\States\Settings.cpp" />
     <ClCompile Include="src\States\StateMachine.cpp" />
@@ -371,11 +372,12 @@
     <ClInclude Include="src\Scene\SceneNodeLC.h" />
     <ClInclude Include="src\Scene\SequenceNode.h" />
     <ClInclude Include="src\Scene\ShapeNode.h" />
+    <ClInclude Include="src\Sprite.h" />
     <ClInclude Include="src\States\Controls.h" />
     <ClInclude Include="src\States\Default.h" />
     <ClInclude Include="src\States\Game.h" />
     <ClInclude Include="src\States\Loading.h" />
-    <ClInclude Include="src\States\MenuNew.h" />
+    <ClInclude Include="src\States\MainMenu.h" />
     <ClInclude Include="src\States\SceneGraph.h" />
     <ClInclude Include="src\States\Settings.h" />
     <ClInclude Include="src\States\StateMachine.h" />
