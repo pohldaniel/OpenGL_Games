@@ -363,6 +363,9 @@
     <ClCompile Include="engine\Sprite.cpp">
       <Filter>engine</Filter>
     </ClCompile>
+    <ClCompile Include="src\States\Game.cpp">
+      <Filter>Source Files\States</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="convhull\convhull_3d.h">
@@ -697,6 +700,9 @@
     </ClInclude>
     <ClInclude Include="engine\Sprite.h">
       <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="src\States\Game.h">
+      <Filter>Source Files\States</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

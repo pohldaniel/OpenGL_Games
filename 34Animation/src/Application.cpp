@@ -13,6 +13,7 @@
 
 #include <States/Default.h>
 #include <States/Menu.h>
+#include <States/Game.h>
 #include <UI/Widget.h>
 
 #include "Application.h"
@@ -407,7 +408,8 @@ void Application::fixedUpdate() {
 
 void Application::initStates() {
 	Machine = new StateMachine(m_dt, m_fdt);
-	Machine->addStateAtTop(new Default(*Machine));
+	//Machine->addStateAtTop(new Default(*Machine));
+	Machine->addStateAtTop(new Game(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
