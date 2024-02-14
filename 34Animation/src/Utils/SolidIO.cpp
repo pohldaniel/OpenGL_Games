@@ -226,15 +226,7 @@ void Utils::SolidIO::solidToBuffer(const char* filename, bool flipVertical, std:
 	delete bufferTris;
 }
 
-const unsigned ELEMENT_TYPESIZES[] = {
-	sizeof(int),
-	sizeof(float),
-	2 * sizeof(float),
-	3 * sizeof(float),
-	4 * sizeof(float),
-	sizeof(unsigned),
-	sizeof(unsigned)
-};
+
 
 void Utils::MdlIO::mdlToObj(const char* filename, const char* outFileObj, const char* outFileMtl, const char* texturePath) {
 	std::filesystem::path mltPath(outFileMtl);

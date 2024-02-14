@@ -366,6 +366,12 @@
     <ClCompile Include="src\States\Game.cpp">
       <Filter>Source Files\States</Filter>
     </ClCompile>
+    <ClCompile Include="StringHash.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="StringUtils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="convhull\convhull_3d.h">
@@ -703,6 +709,12 @@
     </ClInclude>
     <ClInclude Include="src\States\Game.h">
       <Filter>Source Files\States</Filter>
+    </ClInclude>
+    <ClInclude Include="StringHash.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="StringUtils.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

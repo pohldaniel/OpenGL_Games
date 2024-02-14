@@ -7,6 +7,34 @@
 #include <engine/ObjModel.h>
 #include <States/StateMachine.h>
 
+#include "StringHash.h"
+
+static const float BONE_SIZE_THRESHOLD = 0.05f;
+
+struct GeometryDesc{
+	float lodDistance;
+	unsigned vbRef;
+	unsigned ibRef;
+	unsigned drawStart;
+	unsigned drawCount;
+};
+
+struct ModelBone{
+
+	ModelBone();
+	~ModelBone();
+	std::string name;
+	StringHash nameHash;
+	Vector3f initialPosition;
+	Quaternion initialRotation;
+	Vector3f initialScale;
+	Matrix4f offsetMatrix;
+	float radius;
+	BoundingBox boundingBox;
+	size_t parentIndex;
+	bool active;
+};
+
 class Game : public State, public MouseEventListener, public KeyboardEventListener {
 
 public:
@@ -34,5 +62,14 @@ private:
 
 	Camera m_camera;
 	AssimpAnimatedModel assimpAnimated;
+	void readMdl(std::string path);
 
+	std::vector<std::array<float, 3>> positions;
+	std::vector<std::array<float, 3>> normals;
+	std::vector <std::array<float, 2>> uvCoords;
+
+	std::vector<std::array<short, 3>> faces;
+	std::vector<std::vector<GeometryDesc>> geomDescs;
+	std::vector<ModelBone> bones;
+	BoundingBox boundingBox;
 };

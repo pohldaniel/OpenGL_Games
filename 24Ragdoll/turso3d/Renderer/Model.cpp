@@ -374,15 +374,18 @@ bool Model::BeginLoad(Stream& source)
 		{
 			// Read bone mappings
 			size_t boneMappingCount = source.Read<unsigned>();
+
 			boneMappings[i].resize(boneMappingCount);
 			if (boneMappingCount)
 				source.Read(&boneMappings[i][0], boneMappingCount * sizeof(unsigned));
-
+			
 			size_t numLodLevels = source.Read<unsigned>();
 			geomDescs[i].resize(numLodLevels);
 
+
 			for (size_t j = 0; j < numLodLevels; ++j)
-			{
+			{		
+
 				GeometryDesc& geomDesc = geomDescs[i][j];
 
 				geomDesc.lodDistance = source.Read<float>();
@@ -391,7 +394,6 @@ bool Model::BeginLoad(Stream& source)
 				geomDesc.ibRef = source.Read<unsigned>();
 				geomDesc.drawStart = source.Read<unsigned>();
 				geomDesc.drawCount = source.Read<unsigned>();
-
 				// Apply bone mappings to geometry
 				if (boneMappingCount)
 					ApplyBoneMappings(geomDesc, boneMappings[i], processedVertices);

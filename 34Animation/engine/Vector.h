@@ -125,6 +125,7 @@ class Vector3f {
 public:
 
 	static const Vector3f ZERO;
+	static const Vector3f ONE;
 
 	Vector3f();
 	Vector3f(float x_);

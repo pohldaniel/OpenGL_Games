@@ -2590,6 +2590,7 @@ float Vector2f::Dot(const Vector2f &p, const Vector2f &q) {
 //////////////////////////////////////////////////////////////////////
 
 const Vector3f Vector3f::ZERO(0.0f, 0.0f, 0.0f);
+const Vector3f Vector3f::ONE(1.0f, 1.0f, 1.0f);
 
 Vector3f::Vector3f() {
 	vec[0] = 0.0f;
