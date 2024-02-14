@@ -5,6 +5,9 @@
 #include <engine/Shader.h>
 #include <engine/BoundingBox.h>
 
+#include "ModelBone.h"
+#include "Bone.h"
+
 #define DEBUG_VERTEX       "#version 410 core                                 \n \
                                                                               \n \
 							layout(location = 0) in vec3 i_position;          \n \
@@ -49,6 +52,7 @@ public:
 	void AddBoundingBox(const BoundingBox& box, const Vector4f& color);
 	void AddBoundingBox(const BoundingBox& box, const Matrix4f& transform, const Vector4f& color);
 	void AddCylinder(const Vector3f& position, float radius, float height, const Vector4f& color);
+	void AddSkeleton(Bone**& bones, unsigned short numBones, const Vector4f& color);
 
 	void init(size_t size = 400);
 	void shutdown();

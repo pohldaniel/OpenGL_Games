@@ -71,7 +71,7 @@ public:
 
 	BaseNode* addChild(BaseNode* node);
 	BaseNode* addChild();
-	BaseNode* getParent();
+	const BaseNode* getParent() const;
 	
 protected:
 

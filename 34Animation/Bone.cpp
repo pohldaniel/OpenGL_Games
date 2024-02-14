@@ -1,0 +1,32 @@
+#include "Bone.h"
+
+Bone::Bone() : animationEnabled(true), numChildBones(0)
+	//,drawable(nullptr)
+{
+}
+
+Bone::~Bone(){
+}
+
+
+void Bone::SetAnimationEnabled(bool enable){
+	animationEnabled = enable;
+}
+
+void Bone::CountChildBones(){
+	numChildBones = 0;
+
+	for (auto it = m_children.begin(); it != m_children.end(); ++it){
+		//if ((*it)->Type() == Bone::TypeStatic())
+			++numChildBones;
+	}
+}
+
+void Bone::OnTransformChanged(){
+	SceneNode::OnTransformChanged();
+
+	// Avoid duplicate dirtying calls if model's skinning is already dirty. Do not signal changes either during animation update,
+	// as the model will set the hierarchy dirty when finished. This is also used to optimize when only the model node moves.
+	//if (drawable && !(drawable->AnimatedModelFlags() & (AMF_IN_ANIMATION_UPDATE | AMF_SKINNING_DIRTY)))
+	//	drawable->OnBoneTransformChanged();
+}

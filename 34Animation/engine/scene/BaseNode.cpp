@@ -186,7 +186,7 @@ BaseNode* BaseNode::addChild() {
 	return m_children.back().get();
 }
 
-BaseNode* BaseNode::getParent() {
+const BaseNode* BaseNode::getParent() const {
 	return m_parent;
 }
 

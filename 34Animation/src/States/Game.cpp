@@ -3,6 +3,7 @@
 #include <imgui_impl_opengl3.h>
 #include <imgui_internal.h>
 #include <engine/Batchrenderer.h>
+#include <engine/DebugRenderer.h>
 
 #include "Game.h"
 #include "Application.h"
@@ -18,11 +19,12 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 	m_camera = Camera();
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
-	m_camera.lookAt(Vector3f(0.0f, 2.5f, 20.0f), Vector3f(0.0f, 2.5f, 20.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
+	m_camera.lookAt(Vector3f(0.0f, 1.0f, -5.0f), Vector3f(0.0f, 1.0f, -5.0f) + Vector3f(0.0f, 0.0f, 1.0f), Vector3f(0.0f, 1.0f, 0.0f));
 	m_camera.setRotationSpeed(0.1f);
 	m_camera.setMovingSpeed(10.0f);
 
-	glClearColor(0.494f, 0.686f, 0.796f, 1.0f);
+	//glClearColor(0.494f, 0.686f, 0.796f, 1.0f);
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClearDepth(1.0f);
 
 	Globals::animationManager.loadAnimation("vampire_dance", "res/models/vampire/dancing_vampire.dae", "Hips", "vampire_dance", false, 0u, 0u, 1000.0f);
@@ -33,6 +35,9 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 	assimpAnimated.getAnimator()->startAnimation("vampire_dance");
 
 	readMdl("res/models/BetaLowpoly/Beta.mdl");
+	CreateBones();
+
+	DebugRenderer::Get().setEnable(true);
 }
 
 Game::~Game() {
@@ -105,9 +110,13 @@ void Game::update() {
 void Game::render() {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	DebugRenderer::Get().SetView(&m_camera);
 
-	assimpAnimated.draw(m_camera);
+	DebugRenderer::Get().AddBoundingBox(boundingBox, {1.0f, 0.0f, 0.0f, 1.0f});
+	DebugRenderer::Get().AddSkeleton(bones, numBones, { 0.0f, 1.0f, 0.0f, 1.0f });
 
+	DebugRenderer::Get().drawBuffer();
+	
 	if (m_drawUi)
 		renderUi();
 }
@@ -193,22 +202,6 @@ void Game::renderUi() {
 
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-}
-
-ModelBone::ModelBone() :
-	initialPosition(Vector3f::ZERO),
-	initialRotation(Quaternion::IDENTITY),
-	initialScale(Vector3f::ONE),
-	offsetMatrix(Matrix4f::IDENTITY),
-	radius(0.0f),
-	boundingBox(0.0f, 0.0f),
-	parentIndex(0),
-	active(true)
-{
-}
-
-ModelBone::~ModelBone()
-{
 }
 
 void Game::readMdl(std::string path) {
@@ -336,9 +329,10 @@ void Game::readMdl(std::string path) {
 	file.read(metaData, sizeof(unsigned int));
 	unsigned int numBones = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
 
-	bones.resize(numBones);
+	modelBones.resize(numBones);
+
 	for (size_t i = 0; i < numBones; ++i){
-		ModelBone& bone = bones[i];
+		ModelBone& bone = modelBones[i];
 
 		std::string boneName;
 		while(true){
@@ -453,4 +447,86 @@ void Game::readMdl(std::string path) {
 	//std::cout << "Box Min: " << boundingBox.min[0] << "  " << boundingBox.min[1] << "  " << boundingBox.min[2] << std::endl;
 	//std::cout << "Box Max: " << boundingBox.max[0] << "  " << boundingBox.max[1] << "  " << boundingBox.max[2] << std::endl;
 	file.close();
+}
+
+void Game::RemoveBones(){
+	if (!numBones)
+		return;
+
+	// Do not signal transform changes back to the model during deletion
+	//for (size_t i = 0; i < numBones; ++i)
+		//bones[i]->SetDrawable(nullptr);
+
+	if (rootBone){
+		rootBone->removeSelf();
+		rootBone = nullptr;
+	}
+
+	bones = nullptr;
+	skinMatrices = nullptr;
+	//skinMatrixBuffer = nullptr;
+	numBones = 0;
+}
+
+void Game::CreateBones() {
+
+	//if (!model){
+		//skinMatrixBuffer.Reset();
+		//RemoveBones();
+		//return;
+	//}
+
+	//const std::vector<ModelBone>& modelBones = modelBones;
+	if (numBones != modelBones.size())
+		RemoveBones();
+
+	numBones = (unsigned short)modelBones.size();
+
+	bones = new Bone*[numBones];
+	skinMatrices = new Matrix4f[numBones];
+
+	for (size_t i = 0; i < modelBones.size(); ++i){
+		const ModelBone& modelBone = modelBones[i];
+
+		// Try to find existing bone from scene hierarchy, if not found create new
+		//bones[i] = owner->FindChild<Bone>(modelBone.nameHash, true);
+
+		//if (!bones[i]){
+			bones[i] = new Bone();
+			bones[i]->SetName(modelBone.name);
+			//std::cout << "Name: " << modelBone.name << std::endl;
+			//std::cout << "Pos: " << modelBone.initialPosition[0] << "  " << modelBone.initialPosition[1] << "  " << modelBone.initialPosition[2] << std::endl;
+			bones[i]->setPosition(modelBone.initialPosition);
+			//std::cout << "Rotation: " << modelBone.initialRotation[0] << "  " << modelBone.initialRotation[1] << "  " << modelBone.initialRotation[2] << "  " << modelBone.initialRotation[3] << std::endl;
+			bones[i]->setOrientation(modelBone.initialRotation);
+			//std::cout << "Scale: " << modelBone.initialScale[0] << "  " << modelBone.initialScale[1] << "  " << modelBone.initialScale[2] << std::endl;
+			bones[i]->setScale(modelBone.initialScale);
+			//bones[i]->SetTransform(modelBone.initialPosition, modelBone.initialRotation, modelBone.initialScale);
+		//}
+
+		//bones[i]->SetDrawable(this);
+	}
+
+	// Loop through bones again to set the correct parents
+	for (size_t i = 0; i < modelBones.size(); ++i){
+		const ModelBone& desc = modelBones[i];
+		if (desc.parentIndex == i){
+			bones[i]->setParent(nullptr);
+			rootBone = bones[i];
+		}
+		else
+			bones[i]->setParent(bones[desc.parentIndex]);
+	}
+
+	// Count child bones now for optimized transform dirtying
+	for (size_t i = 0; i < modelBones.size(); ++i)
+		bones[i]->CountChildBones();
+
+	//if (!skinMatrixBuffer)
+		//skinMatrixBuffer = new UniformBuffer();
+	//skinMatrixBuffer->Define(USAGE_DYNAMIC, numBones * sizeof(Matrix3x4));
+
+	// Set initial bone bounding box recalculation and skinning dirty. Also calculate a valid bone bounding box immediately to ensure models can enter the view without updating animation first
+	//OnBoneTransformChanged();
+	//OnWorldBoundingBoxUpdate();
 }

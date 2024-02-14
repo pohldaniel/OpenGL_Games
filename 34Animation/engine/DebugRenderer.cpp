@@ -1,6 +1,5 @@
 #include "DebugRenderer.h"
 
-
 DebugRenderer DebugRenderer::s_instance;
 bool DebugRenderer::s_enabled = true;
 std::unique_ptr<Shader> DebugRenderer::DebugShader = nullptr;
@@ -104,7 +103,7 @@ void DebugRenderer::AddLine(const Vector3f& start, const Vector3f& end, unsigned
 	verticesPtr->color = color;
 	verticesPtr++;
 
-	verticesPtr->position = start;
+	verticesPtr->position = end;
 	verticesPtr->color = color;
 	verticesPtr++;
 
@@ -313,6 +312,15 @@ void DebugRenderer::AddCylinder(const Vector3f& position, float radius, float he
 	AddLine(position - offsetXVec, position + heightVec - offsetXVec, color);
 	AddLine(position + offsetZVec, position + heightVec + offsetZVec, color);
 	AddLine(position - offsetZVec, position + heightVec - offsetZVec, color);
+}
+
+void DebugRenderer::AddSkeleton(Bone**& bones, unsigned short numBones, const Vector4f& color) {
+	for (size_t i = 0; i < numBones; ++i){
+		// Skip the root bone, as it has no sensible connection point
+		const Bone* bone = bones[i];
+		if (i != 0)
+			AddLine(bone->getWorldPosition(), bone->getParent()->getWorldPosition(), color);
+	}
 }
 
 void DebugRenderer::drawBuffer() {
