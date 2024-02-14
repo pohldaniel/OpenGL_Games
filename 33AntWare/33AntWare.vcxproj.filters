@@ -52,9 +52,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Source Files\Thread">
-      <UniqueIdentifier>{7712cef3-2f9b-41d0-9186-557e6f4dc8ab}</UniqueIdentifier>
-    </Filter>
     <Filter Include="engine\interfaces">
       <UniqueIdentifier>{d0201a6b-300d-429e-b832-577cfae6b06f}</UniqueIdentifier>
     </Filter>
@@ -64,8 +61,11 @@
     <Filter Include="Source Files\Entities">
       <UniqueIdentifier>{76e1eccc-1e53-4b77-a0a7-958fcf929a13}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Scene">
-      <UniqueIdentifier>{a9be687f-884a-4bac-9f18-88bc73f75c28}</UniqueIdentifier>
+    <Filter Include="engine\scene">
+      <UniqueIdentifier>{58fa22b4-9086-4be7-bf5c-c6be43650c2b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="engine\thread">
+      <UniqueIdentifier>{7a3cb299-0e80-46a4-b690-67a56e836b00}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -288,12 +288,6 @@
     <ClCompile Include="src\TileSet.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Thread\EventClass.cpp">
-      <Filter>Source Files\Thread</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Thread\MutexClass.cpp">
-      <Filter>Source Files\Thread</Filter>
-    </ClCompile>
     <ClCompile Include="src\LoadingManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -305,12 +299,6 @@
     </ClCompile>
     <ClCompile Include="engine\sound\SoundDevice.cpp">
       <Filter>engine\sound</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Thread\CThread.cpp">
-      <Filter>Source Files\Thread</Filter>
-    </ClCompile>
-    <ClCompile Include="engine\Thread.cpp">
-      <Filter>engine</Filter>
     </ClCompile>
     <ClCompile Include="src\States\Controlls.cpp">
       <Filter>Source Files\States</Filter>
@@ -369,35 +357,11 @@
     <ClCompile Include="src\Objects\MeshNew.cpp">
       <Filter>Source Files\Objects</Filter>
     </ClCompile>
-    <ClCompile Include="src\Scene\MeshNode.cpp">
-      <Filter>Source Files\Scene</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Scene\Object.cpp">
-      <Filter>Source Files\Scene</Filter>
-    </ClCompile>
-    <ClCompile Include="src\DebugRenderer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\SceneManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Entities\Light.cpp">
       <Filter>Source Files\Entities</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Scene\BaseNode.cpp">
-      <Filter>Source Files\Scene</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Scene\SceneNode.cpp">
-      <Filter>Source Files\Scene</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Scene\SceneNodeLC.cpp">
-      <Filter>Source Files\Scene</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Scene\SequenceNode.cpp">
-      <Filter>Source Files\Scene</Filter>
-    </ClCompile>
-    <ClCompile Include="src\MeshSequence.cpp">
-      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\HUD.cpp">
       <Filter>Source Files</Filter>
@@ -405,17 +369,53 @@
     <ClCompile Include="src\States\Loading.cpp">
       <Filter>Source Files\States</Filter>
     </ClCompile>
-    <ClCompile Include="src\Scene\ShapeNode.cpp">
-      <Filter>Source Files\Scene</Filter>
-    </ClCompile>
     <ClCompile Include="src\Entities\Skybox.cpp">
       <Filter>Source Files\Entities</Filter>
     </ClCompile>
-    <ClCompile Include="src\Sprite.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\States\MainMenu.cpp">
       <Filter>Source Files\States</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\thread\CThread.cpp">
+      <Filter>engine\thread</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\thread\EventClass.cpp">
+      <Filter>engine\thread</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\thread\MutexClass.cpp">
+      <Filter>engine\thread</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\thread\Thread.cpp">
+      <Filter>engine\thread</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\scene\BaseNode.cpp">
+      <Filter>engine\scene</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\scene\MeshNode.cpp">
+      <Filter>engine\scene</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\scene\Object.cpp">
+      <Filter>engine\scene</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\scene\SceneNode.cpp">
+      <Filter>engine\scene</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\scene\SceneNodeLC.cpp">
+      <Filter>engine\scene</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\scene\SequenceNode.cpp">
+      <Filter>engine\scene</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\scene\ShapeNode.cpp">
+      <Filter>engine\scene</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\DebugRenderer.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\MeshSequence.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\Sprite.cpp">
+      <Filter>engine</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -659,12 +659,6 @@
     <ClInclude Include="src\TileSet.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Thread\EventClass.h">
-      <Filter>Source Files\Thread</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Thread\MutexClass.h">
-      <Filter>Source Files\Thread</Filter>
-    </ClInclude>
     <ClInclude Include="engine\interfaces\IStateMachine.h">
       <Filter>engine\interfaces</Filter>
     </ClInclude>
@@ -682,12 +676,6 @@
     </ClInclude>
     <ClInclude Include="engine\sound\SoundDevice.h">
       <Filter>engine\sound</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Thread\CThread.h">
-      <Filter>Source Files\Thread</Filter>
-    </ClInclude>
-    <ClInclude Include="engine\Thread.h">
-      <Filter>engine</Filter>
     </ClInclude>
     <ClInclude Include="src\States\Controls.h">
       <Filter>Source Files\States</Filter>
@@ -743,15 +731,6 @@
     <ClInclude Include="src\Objects\MeshNew.h">
       <Filter>Source Files\Objects</Filter>
     </ClInclude>
-    <ClInclude Include="src\Scene\MeshNode.h">
-      <Filter>Source Files\Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Scene\Object.h">
-      <Filter>Source Files\Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="src\DebugRenderer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\Rigidbody.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -764,32 +743,11 @@
     <ClInclude Include="src\Entities\Light.h">
       <Filter>Source Files\Entities</Filter>
     </ClInclude>
-    <ClInclude Include="src\Scene\BaseNode.h">
-      <Filter>Source Files\Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Scene\IBaseNode.h">
-      <Filter>Source Files\Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Scene\SceneNode.h">
-      <Filter>Source Files\Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Scene\SceneNodeLC.h">
-      <Filter>Source Files\Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Scene\SequenceNode.h">
-      <Filter>Source Files\Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="src\MeshSequence.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\HUD.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\States\Loading.h">
       <Filter>Source Files\States</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Scene\ShapeNode.h">
-      <Filter>Source Files\Scene</Filter>
     </ClInclude>
     <ClInclude Include="src\Entities\Skybox.h">
       <Filter>Source Files\Entities</Filter>
@@ -797,11 +755,53 @@
     <ClInclude Include="Resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Sprite.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\States\MainMenu.h">
       <Filter>Source Files\States</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\thread\CThread.h">
+      <Filter>engine\thread</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\thread\EventClass.h">
+      <Filter>engine\thread</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\thread\MutexClass.h">
+      <Filter>engine\thread</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\thread\Thread.h">
+      <Filter>engine\thread</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\scene\BaseNode.h">
+      <Filter>engine\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\scene\IBaseNode.h">
+      <Filter>engine\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\scene\MeshNode.h">
+      <Filter>engine\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\scene\Object.h">
+      <Filter>engine\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\scene\SceneNode.h">
+      <Filter>engine\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\scene\SceneNodeLC.h">
+      <Filter>engine\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\scene\SequenceNode.h">
+      <Filter>engine\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\scene\ShapeNode.h">
+      <Filter>engine\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\DebugRenderer.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\MeshSequence.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\Sprite.h">
+      <Filter>engine</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

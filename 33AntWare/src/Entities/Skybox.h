@@ -1,7 +1,7 @@
 #pragma once
 
+#include <engine/scene/Object.h>
 #include <engine/Camera.h>
-#include <Scene/Object.h>
 
 class Skybox : public Object {
 

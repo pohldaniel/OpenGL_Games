@@ -2,11 +2,10 @@
 //head up display
 
 #include <vector>
+#include <engine/scene/Object.h>
 #include <engine/Camera.h>
 #include <engine/Rect.h>
-#include <Scene/Object.h>
-
-#include "Sprite.h"
+#include <engine/Sprite.h>
 
 class HUD{
 

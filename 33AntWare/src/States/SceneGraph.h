@@ -2,11 +2,10 @@
 
 #include <engine/input/MouseEventListener.h>
 #include <engine/input/KeyboardEventListener.h>
+#include <engine/scene/SceneNode.h>
 #include <engine/Camera.h>
 #include <engine/ObjModel.h>
-
 #include <States/StateMachine.h>
-#include <Scene/SceneNode.h>
 
 #include "Background.h"
 

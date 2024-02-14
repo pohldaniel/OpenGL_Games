@@ -1,14 +1,14 @@
 #pragma once
-#include <engine/BoundingBox.h>
-#include <Scene/SceneNode.h>
-#include <Scene/SceneNodeLC.h>
-#include "MeshSequence.h"
 
-class SequenceNode : public SceneNode {
+#include <engine/MeshObject/Shape.h>
+#include <engine/scene/SceneNode.h>
+#include <engine/BoundingBox.h>
+
+class ShapeNode : public SceneNode {
 
 public:
 
-	SequenceNode(const MeshSequence& meshSequence, int meshIndex);
+	ShapeNode(const Shape& shape);
 
 	void OnTransformChanged() override;
 
@@ -18,18 +18,15 @@ public:
 	void OnRenderAABB(const Vector4f& color = { 0.0f, 1.0f, 0.0f, 1.0f });
 
 	using SceneNode::addChild;
-	void addChild(SequenceNode* node, bool drawDebug);
+	void addChild(ShapeNode* node, bool drawDebug);
 
 	const BoundingBox& getWorldBoundingBox() const;
 	const BoundingBox& getLocalBoundingBox() const;
 	void setDrawDebug(bool drawDebug);
 
-	int getMeshIndex() const;
-
 protected:
 
-	const MeshSequence& meshSequence;
-	mutable int m_meshIndex;
+	const Shape& shape;
 
 private:
 
@@ -38,5 +35,5 @@ private:
 	bool m_drawDebug;
 
 	const BoundingBox& localBoundingBox;
-	
+
 };

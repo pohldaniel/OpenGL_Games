@@ -61,6 +61,7 @@ public:
 	void reload();
 	bool damage(float amount);
 	void setTotalAmmo(unsigned int ammo);
+	void stopFootstepsSound();
 	std::vector<Bullet>& getBullets();
 
 	Vector2f mapMinLimit;

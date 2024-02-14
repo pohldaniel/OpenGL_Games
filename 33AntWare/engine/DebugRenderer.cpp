@@ -1,15 +1,16 @@
 #include "DebugRenderer.h"
-#include "Globals.h"
+
 
 DebugRenderer DebugRenderer::s_instance;
 bool DebugRenderer::s_enabled = true;
+std::unique_ptr<Shader> DebugRenderer::DebugShader = nullptr;
 
 DebugRenderer::~DebugRenderer() {
 	shutdown();
 }
 
 void DebugRenderer::init(size_t size) {
-	shader = std::make_shared<Shader>(Globals::shaderManager.getAssetPointer("debug_lines"));
+	DebugShader = std::unique_ptr<Shader>(new Shader(DEBUG_VERTEX, DEBUG_FRGAMENT, false));
 
 	m_maxBoxes = size;
 	m_maxVert = m_maxBoxes * 8;
@@ -30,15 +31,16 @@ void DebugRenderer::init(size_t size) {
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(DebugVertex), (const void*)0);
 
 	glEnableVertexAttribArray(1);
-	//glVertexAttribIPointer(1, 4, GL_UNSIGNED_BYTE, sizeof(DebugVertex), (const void*)(3 * sizeof(float)));
 	glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(DebugVertex), (const void*)(3 * sizeof(float)));
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_maxIndex * sizeof(unsigned int), nullptr, GL_DYNAMIC_DRAW);
 
-	//glBindBuffer(GL_ARRAY_BUFFER, 0);
-	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
+
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 	verticesPtr = vertices;
 	indicesPtr = indices;
@@ -65,6 +67,8 @@ void DebugRenderer::shutdown() {
 		glDeleteBuffers(1, &m_ibo);
 		m_ibo = 0u;
 	}
+
+	//std::default_delete<Shader> DebugShader;
 }
 
 void DebugRenderer::disable() {
@@ -73,6 +77,10 @@ void DebugRenderer::disable() {
 
 void DebugRenderer::enable() {
 	s_enabled = true;
+}
+
+void DebugRenderer::setEnable(bool enable) {
+	s_enabled = enable;
 }
 
 void DebugRenderer::SetView(Camera* camera){
@@ -323,9 +331,9 @@ void DebugRenderer::drawBuffer() {
 	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 	
-	glUseProgram(shader->m_program);
+	glUseProgram(DebugShader->m_program);
 
-	shader->loadMatrix("u_vp", projection * view);
+	DebugShader->loadMatrix("u_vp", projection * view);
 	glDrawElements(GL_LINES, indexCount, GL_UNSIGNED_INT, nullptr);
 
 	glUseProgram(0);

@@ -5,8 +5,8 @@
 #include <malloc.h>
 #include <iostream>
 
+#include "../thread/Thread.h"
 #include "Cache.h"
-#include "../Thread.h"
 
 static const int BUFFER_SAMPLES = 8192;
 static const int NUM_BUFFERS = 4;

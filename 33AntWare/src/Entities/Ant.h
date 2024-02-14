@@ -2,12 +2,10 @@
 
 #include <engine/interfaces/ICounter.h>
 #include <engine/Clock.h>
+#include <engine/MeshSequence.h>
 
 #include <Entities/Entity.h>
-
-#include "MeshSequence.h"
 #include "Player.h"
-
 
 class Ant : public Entity, private ICounter<Ant>{
 

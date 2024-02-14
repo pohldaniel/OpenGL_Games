@@ -1,9 +1,9 @@
 #pragma once
 #include <memory>
+#include <engine/scene/SceneNode.h>
+#include <engine/scene/sceneNodeLC.h>
 #include <engine/BoundingBox.h>
 #include <engine/AssimpModel.h>
-#include <Scene/SceneNode.h>
-#include <Scene/SceneNodeLC.h>
 
 class MeshNode : public SceneNode {
 
@@ -27,7 +27,6 @@ public:
 	const BoundingBox& getLocalBoundingBox() const;
 
 	void setModel(AssimpModel* model);
-	void setDrawDebug(bool drawDebug);
 	AssimpModel* getModel() const;
 
 protected:
@@ -38,5 +37,4 @@ private:
 
 	mutable BoundingBox worldBoundingBox;
 	mutable bool m_worldBoundingBoxDirty;
-	bool m_drawDebug;
 };

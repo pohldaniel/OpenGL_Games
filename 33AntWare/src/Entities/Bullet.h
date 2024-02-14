@@ -1,8 +1,9 @@
 #pragma once
-#include <engine/Clock.h>
-#include <Scene/Object.h>
 
-#include "MeshSequence.h"
+#include <engine/scene/Object.h>
+#include <engine/MeshSequence.h>
+#include <engine/Clock.h>
+
 #include "Rigidbody.h"
 
 class Bullet : public Object {

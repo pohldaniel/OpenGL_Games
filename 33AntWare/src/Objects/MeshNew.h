@@ -1,6 +1,6 @@
 #pragma once
-#include <engine/Vector.h>
-#include <Scene/MeshNode.h>
+
+#include <engine/scene/MeshNode.h>
 
 class MeshNew {
 

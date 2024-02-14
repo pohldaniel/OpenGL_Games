@@ -4,12 +4,13 @@
 #include <imgui_internal.h>
 
 #include <engine/Batchrenderer.h>
+#include <engine/DebugRenderer.h>
+
 #include <States/MainMenu.h>
 
 #include "Game.h"
 #include "Application.h"
 #include "Globals.h"
-#include "DebugRenderer.h"
 #include "SceneManager.h"
 #include "HUD.h"
 
@@ -70,6 +71,9 @@ Game::~Game() {
 }
 
 void Game::fixedUpdate() {
+	if(m_gameEnd)
+		return;
+
 	m_player->fixedUpdate(m_fdt);
 
 	for (auto&& entity : m_entitiesAfterClear)
@@ -112,9 +116,11 @@ void Game::update() {
 	if (isWin) {
 		m_gameEnd = true;
 		HUD::Get().setWin(m_gameEnd);
+		m_player->stopFootstepsSound();
 	}else if (m_player->isDead() || (m_player->inHandAmmo <= 0 && m_player->totalAmmo <= 0)) {
 		m_gameEnd = true;
 		HUD::Get().setLoose(m_gameEnd);
+		m_player->stopFootstepsSound();
 	}
 
 	deleteEntities();
@@ -136,8 +142,11 @@ void Game::render() {
 		shader->loadMatrix("u_model", entity->getWorldTransformation());
 		shader->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(entity->GetTransformation()));
 		entity->draw();
-		entity->OnRenderOBB();
-		entity->OnRenderAABB();
+
+		if (m_drawOBB)
+			entity->OnRenderOBB();
+		if (m_drawAABB)
+			entity->OnRenderAABB();
 	}
 
 	for (auto&& bullet : m_player->getBullets()) {
@@ -151,14 +160,22 @@ void Game::render() {
 
 	glClear(GL_DEPTH_BUFFER_BIT);
 	shader->use();
-	m_player->OnRenderOBB({1.0f, 1.0f, 0.0f, 1.0f});
-	m_player->OnRenderAABB({1.0f, 1.0f, 0.0f, 1.0f});
+
+	if(m_drawOBB)
+		m_player->OnRenderOBB({1.0f, 1.0f, 0.0f, 1.0f});
+	if(m_drawAABB)
+		m_player->OnRenderAABB({1.0f, 1.0f, 0.0f, 1.0f});
+
 	for (auto&& entity : m_entitiesAfterClear) {
 		shader->loadMatrix("u_model", entity->getWorldTransformation());
 		shader->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(entity->GetTransformation()));
 		entity->draw();
-		entity->OnRenderOBB({0.0f, 0.0f, 1.0f, 1.0f});
-		entity->OnRenderAABB({0.0f, 0.0f, 1.0f, 1.0f});
+
+		if (m_drawOBB)
+			entity->OnRenderOBB({0.0f, 0.0f, 1.0f, 1.0f});
+
+		if (m_drawAABB)
+			entity->OnRenderAABB({0.0f, 0.0f, 1.0f, 1.0f});
 	}
 
 	shader->unuse();
@@ -208,16 +225,19 @@ void Game::OnKeyDown(Event::KeyboardEvent& event) {
 		Globals::soundManager.get("easter").replayChannel(0u);
 
 		if (!m_drawUi) {
+			DebugRenderer::Get().setEnable(false);
 			Mouse::instance().attach(Application::GetWindow());
 			m_offsetDistance = 0.0f;
 			m_camera->setOffsetDistance(m_offsetDistance);
 		}else {
+			DebugRenderer::Get().setEnable(m_drawOBB | m_drawAABB);
 			Mouse::instance().detach();
 		}
 		m_keyDown = true;
 	}
 
 	if (event.keyCode == VK_ESCAPE) {
+		DebugRenderer::Get().setEnable(false);
 		Mouse::instance().detach();
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new MainMenu(m_machine));
@@ -272,7 +292,14 @@ void Game::renderUi() {
 	// render widgets
 	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 	ImGui::Checkbox("Draw Wirframe", &StateMachine::GetEnableWireframe());
-	ImGui::Checkbox("Draw Debug", &DebugRenderer::Enabled());
+	if (ImGui::Checkbox("Draw OOB", &m_drawOBB)) {
+		DebugRenderer::Get().setEnable(m_drawOBB | m_drawAABB);
+	}
+
+	if (ImGui::Checkbox("Draw AABB", &m_drawAABB)) {
+		DebugRenderer::Get().setEnable(m_drawOBB | m_drawAABB);
+	}
+
 	ImGui::Text("Scroll Mouse");
 	if (ImGui::SliderFloat("Camera Offset", &m_offsetDistance, 0.0f, 150.0f)) {
 		m_camera->setOffsetDistance(m_offsetDistance);
@@ -301,7 +328,7 @@ void Game::deleteEntities() {
 	while (it != m_entities.end()) {
 
 		if ((*it)->isMarkForDelete()) {
-			// eraseSelf -> call destructor -> delete (*it) not neccessary
+			// eraseSelf -> calls destructor -> delete (*it) not neccessary
 			(*it)->eraseSelf();
 			//delete (*it);
 			it = m_entities.erase(it);;

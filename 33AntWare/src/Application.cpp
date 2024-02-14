@@ -8,8 +8,8 @@
 #include <engine/sound/SoundDevice.h>
 #include <engine/Framebuffer.h>
 #include <engine/Fontrenderer.h>
-#include <Application.h>
-#include <Globals.h>
+#include <engine/DebugRenderer.h>
+#include <engine/Sprite.h>
 
 #include <States/Default.h>
 #include <States/Game.h>
@@ -18,9 +18,8 @@
 #include <States/MainMenu.h>
 #include <UI/Widget.h>
 
-#include "TileSet.h"
-#include "Sprite.h"
-#include "DebugRenderer.h"
+#include "Application.h"
+#include "Globals.h"
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -671,7 +670,6 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("font", "res/shader/batch.vert", "res/shader/font.frag");
 	Globals::shaderManager.loadShader("batch", "res/shader/batch.vert", "res/shader/batch.frag");
 	Globals::shaderManager.loadShader("quad", "res/shader/quad.vert", "res/shader/quad.frag");
-	Globals::shaderManager.loadShader("debug_lines", "res/shader/debug_lines.vert", "res/shader/debug_lines.frag");
 
 	Globals::shaderManager.loadShader("antware", "res/shader/antware.vert", "res/shader/antware.frag");
 	Globals::shaderManager.loadShader("hud", "res/shader/hud.vert", "res/shader/hud.frag");

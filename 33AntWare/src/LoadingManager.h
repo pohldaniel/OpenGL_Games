@@ -3,7 +3,7 @@
 #include <deque>
 #include <iterator>
 #include <functional>
-#include <Thread/CThread.h>
+#include <engine/thread/CThread.h>
 
 struct Task {
 	Task();

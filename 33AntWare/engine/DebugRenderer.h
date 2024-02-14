@@ -5,6 +5,30 @@
 #include <engine/Shader.h>
 #include <engine/BoundingBox.h>
 
+#define DEBUG_VERTEX       "#version 410 core                                 \n \
+                                                                              \n \
+							layout(location = 0) in vec3 i_position;          \n \
+							layout(location = 1) in vec4 i_color;             \n \
+                                                                              \n \
+							uniform mat4 u_vp;                                \n \
+							out vec4 v_color;                                 \n \
+                                                                              \n \
+                                                                              \n \
+							void main() {                                     \n \
+								gl_Position = u_vp * vec4(i_position, 1.0);   \n \
+								v_color = i_color;                            \n \
+							}"
+
+
+#define DEBUG_FRGAMENT     "#version 410 core           \n \
+														\n \
+                             in vec4 v_color;           \n \
+                             out vec4 outColor;         \n \
+														\n \
+                             void main() {              \n \
+                                 outColor = v_color;    \n \
+                             }"
+
 struct DebugVertex {
 	Vector3f position;
 	unsigned int color;
@@ -31,6 +55,7 @@ public:
 	void drawBuffer();
 	void disable();
 	void enable();
+	void setEnable(bool enable);
 
 	static DebugRenderer& Get();
 	static bool& Enabled();
@@ -39,7 +64,6 @@ private:
 
 	Matrix4f view;
 	Matrix4f projection;
-	std::shared_ptr<Shader> shader;
 
 	DebugVertex* vertices;
 	DebugVertex* verticesPtr;
@@ -60,4 +84,5 @@ private:
 
 	static DebugRenderer s_instance;
 	static bool s_enabled;
+	static std::unique_ptr<Shader> DebugShader;
 };

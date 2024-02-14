@@ -4,18 +4,16 @@
 #include <unordered_map>
 #include <rapidjson/document.h>
 
-#include <engine/Vector.h>
+#include <engine/scene/SceneNode.h>
+#include <engine/scene/SceneNodeLC.h>
 #include <engine/Camera.h>
 #include <engine/Texture.h>
 #include <engine/Material.h>
 #include <engine/AssimpModel.h>
+#include <engine/MeshSequence.h>
 
-#include <Scene/SceneNode.h>
-#include <Scene/SceneNodeLC.h>
 #include <Entities/Light.h>
 #include <Entities/Skybox.h>
-
-#include "MeshSequence.h"
 
 class Player;
 class Entity;

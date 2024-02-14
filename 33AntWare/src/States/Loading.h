@@ -2,11 +2,11 @@
 
 #include <engine/input/MouseEventListener.h>
 #include <engine/input/KeyboardEventListener.h>
+#include <engine/scene/Object.h>
 #include <engine/Texture.h>
 #include <engine/Camera.h>
 
 #include <States/StateMachine.h>
-#include <Scene/Object.h>
 
 #include "Loadingmanager.h"
 

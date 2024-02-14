@@ -1,7 +1,7 @@
 #include "SequenceNode.h"
-#include "DebugRenderer.h"
+#include "../DebugRenderer.h"
 
-SequenceNode::SequenceNode(const MeshSequence& meshSequence, int meshIndex) : SceneNode(), meshSequence(meshSequence), m_meshIndex(meshIndex), m_drawDebug(true),
+SequenceNode::SequenceNode(const MeshSequence& meshSequence, int meshIndex) : SceneNode(), meshSequence(meshSequence), m_meshIndex(meshIndex),
 localBoundingBox(meshSequence.getLocalBoundingBox(m_meshIndex)) {
 	OnBoundingBoxChanged();
 }
@@ -11,16 +11,10 @@ void SequenceNode::OnWorldBoundingBoxUpdate() const {
 }
 
 void SequenceNode::OnRenderOBB(const Vector4f& color) {
-	if (!m_drawDebug)
-		return;
-
 	DebugRenderer::Get().AddBoundingBox(getLocalBoundingBox(), getWorldTransformation(), color);
 }
 
 void SequenceNode::OnRenderAABB(const Vector4f& color) {
-	if (!m_drawDebug)
-		return;
-
 	DebugRenderer::Get().AddBoundingBox(getWorldBoundingBox(), color);
 }
 
@@ -35,7 +29,6 @@ void SequenceNode::OnBoundingBoxChanged() const {
 
 void SequenceNode::addChild(SequenceNode* node, bool drawDebug) {
 	SceneNode::addChild(node);
-	node->setDrawDebug(drawDebug);
 }
 
 const BoundingBox& SequenceNode::getWorldBoundingBox() const {
@@ -48,10 +41,6 @@ const BoundingBox& SequenceNode::getWorldBoundingBox() const {
 
 const BoundingBox& SequenceNode::getLocalBoundingBox() const {
 	return localBoundingBox;
-}
-
-void SequenceNode::setDrawDebug(bool drawDebug) {
-	m_drawDebug = drawDebug;
 }
 
 int SequenceNode::getMeshIndex() const {

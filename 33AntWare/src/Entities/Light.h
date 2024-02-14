@@ -3,8 +3,8 @@
 #include <vector>
 #include <array>
 #include <engine/interfaces/ICounter.h>
-#include <Scene/SceneNode.h>
-#include <Scene/SceneNode.h>
+#include <engine/scene/SceneNode.h>
+#include <engine/scene/SceneNode.h>
 
 enum LightType {
 	DIRECTIONAL_LIGHT,

@@ -51,4 +51,6 @@ private:
 	bool m_keyDown = false;
 	bool m_gameEnd = false;
 	float m_gameStateTimer = 0.0f;
+	bool m_drawOBB = true;
+	bool m_drawAABB = false;
 };

@@ -1,11 +1,10 @@
 #pragma once
 
-#include <glm/gtc/quaternion.hpp>
 #include <engine/Texture.h>
 #include <engine/Camera.h>
 #include <engine/Material.h>
-#include <Scene/MeshNode.h>
-#include <Scene/SequenceNode.h>
+#include <engine/scene/SequenceNode.h>
+
 #include "Rigidbody.h"
 
 class Entity : public SequenceNode {

@@ -278,3 +278,7 @@ std::vector<Bullet>& Player::getBullets() {
 void Player::setTotalAmmo(unsigned int ammo) {
 	totalAmmo = ammo;
 }
+
+void Player::stopFootstepsSound() {
+	Globals::soundManager.get("player").stopChannel(3u);
+}

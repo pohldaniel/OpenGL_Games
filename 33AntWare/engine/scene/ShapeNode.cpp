@@ -1,5 +1,5 @@
 #include "ShapeNode.h"
-#include "DebugRenderer.h"
+#include "../DebugRenderer.h"
 
 ShapeNode::ShapeNode(const Shape& shape) : SceneNode(), shape(shape), m_drawDebug(true),
 localBoundingBox(shape.getAABB()) {
