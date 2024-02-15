@@ -62,8 +62,6 @@ void Animation::loadAni(std::string path) {
 		}
 		AnimationTrack* newTrack = CreateTrack(name);
 
-		std::cout << "Name: " << name << std::endl;
-
 		file.read(metaData, sizeof(unsigned char));
 		newTrack->channelMask = metaData[0];
 
@@ -96,7 +94,7 @@ void Animation::loadAni(std::string path) {
 				orientation[1].c[0] = buffer[4]; orientation[1].c[1] = buffer[5]; orientation[1].c[2] = buffer[6]; orientation[1].c[3] = buffer[7];
 				orientation[2].c[0] = buffer[8]; orientation[2].c[1] = buffer[9]; orientation[2].c[2] = buffer[10]; orientation[2].c[3] = buffer[11];
 				orientation[3].c[0] = buffer[12]; orientation[3].c[1] = buffer[13]; orientation[3].c[2] = buffer[14]; orientation[3].c[3] = buffer[15];
-				newKeyFrame.rotation.set(orientation[0].flt, orientation[1].flt, orientation[2].flt, orientation[3].flt);
+				newKeyFrame.rotation.set(orientation[1].flt, orientation[2].flt, orientation[3].flt, orientation[0].flt);
 			}
 
 			if (newTrack->channelMask & CHANNEL_SCALE) {

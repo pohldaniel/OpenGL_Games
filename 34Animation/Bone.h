@@ -1,9 +1,10 @@
 #pragma once
 
 #include <engine/scene/SceneNode.h>
+#include <engine/scene/SceneNodeLC.h>
 #include "StringHash.h"
 
-class Bone : public SceneNode {
+class Bone : public SceneNodeLC {
 
 public:
 
@@ -32,6 +33,9 @@ public:
 	size_t NumChildBones() const { return numChildBones; }
 	StringHash nameHash;
 	std::string name;
+
+	Matrix4f offsetMatrix;
+
 protected:
 
 	void OnTransformChanged() override;

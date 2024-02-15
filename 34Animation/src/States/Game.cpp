@@ -27,12 +27,12 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClearDepth(1.0f);
 
-	Globals::animationManager.loadAnimation("vampire_dance", "res/models/vampire/dancing_vampire.dae", "Hips", "vampire_dance", false, 0u, 0u, 1000.0f);
-	assimpAnimated.loadModel("res/models/vampire/dancing_vampire.dae", "res/models/vampire/textures/Vampire_diffuse.png");
-	assimpAnimated.translate(0.0f, 0.0f, 0.0f);
-	assimpAnimated.scale(0.03f, 0.03f, 0.03f);
-	assimpAnimated.getAnimator()->addAnimation(Globals::animationManager.getAssetPointer("vampire_dance"));
-	assimpAnimated.getAnimator()->startAnimation("vampire_dance");
+	//Globals::animationManager.loadAnimation("vampire_dance", "res/models/vampire/dancing_vampire.dae", "Hips", "vampire_dance", false, 0u, 0u, 1000.0f);
+	//assimpAnimated.loadModel("res/models/vampire/dancing_vampire.dae", "res/models/vampire/textures/Vampire_diffuse.png");
+	//assimpAnimated.translate(0.0f, 0.0f, 0.0f);
+	//assimpAnimated.scale(0.03f, 0.03f, 0.03f);
+	//assimpAnimated.getAnimator()->addAnimation(Globals::animationManager.getAssetPointer("vampire_dance"));
+	//assimpAnimated.getAnimator()->startAnimation("vampire_dance");
 
 	readMdl("res/models/BetaLowpoly/Beta.mdl");
 	CreateBones();
@@ -43,6 +43,12 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 	state->SetLooped(true);
 	animationStates.push_back(std::shared_ptr<AnimationState>(state));
 	DebugRenderer::Get().setEnable(true);
+
+	glGenBuffers(1, &BuiltInShader::matrixUbo);
+	glBindBuffer(GL_UNIFORM_BUFFER, BuiltInShader::matrixUbo);
+	glBufferData(GL_UNIFORM_BUFFER, sizeof(Matrix4f) * numBones, NULL, GL_DYNAMIC_DRAW);
+	glBindBufferRange(GL_UNIFORM_BUFFER, 3, BuiltInShader::matrixUbo, 0, sizeof(Matrix4f) * numBones);
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
 Game::~Game() {
@@ -109,11 +115,16 @@ void Game::update() {
 		}
 	}
 
-	assimpAnimated.update(m_dt);
+	//assimpAnimated.update(m_dt);
 	UpdateAnimation();
 }
 
 void Game::render() {
+	UpdateSkinning();
+
+	glBindBuffer(GL_UNIFORM_BUFFER, BuiltInShader::matrixUbo);
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(Matrix4f) * numBones, skinMatrices);
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	DebugRenderer::Get().SetView(&m_camera);
@@ -371,8 +382,8 @@ void Game::readMdl(std::string path) {
 		orientation[1].c[0] = bufferBoneTrans[4]; orientation[1].c[1] = bufferBoneTrans[5]; orientation[1].c[2] = bufferBoneTrans[6]; orientation[1].c[3] = bufferBoneTrans[7];
 		orientation[2].c[0] = bufferBoneTrans[8]; orientation[2].c[1] = bufferBoneTrans[9]; orientation[2].c[2] = bufferBoneTrans[10]; orientation[2].c[3] = bufferBoneTrans[11];
 		orientation[3].c[0] = bufferBoneTrans[12]; orientation[3].c[1] = bufferBoneTrans[13]; orientation[3].c[2] = bufferBoneTrans[14]; orientation[3].c[3] = bufferBoneTrans[15];
-		bone.initialRotation.set(orientation[0].flt, orientation[1].flt, orientation[2].flt, orientation[3].flt);
-
+		bone.initialRotation.set(orientation[1].flt, orientation[2].flt, orientation[3].flt, orientation[0].flt);
+		
 		file.read(bufferBoneTrans, 12);
 		Utils::UFloat scale[3];
 		scale[0].c[0] = bufferBoneTrans[0]; scale[0].c[1] = bufferBoneTrans[1]; scale[0].c[2] = bufferBoneTrans[2]; scale[0].c[3] = bufferBoneTrans[3];
@@ -387,21 +398,25 @@ void Game::readMdl(std::string path) {
 		offset[2].c[0] = bufferBoneTrans[8]; offset[2].c[1] = bufferBoneTrans[9]; offset[2].c[2] = bufferBoneTrans[10]; offset[2].c[3] = bufferBoneTrans[11];
 		offset[3].c[0] = bufferBoneTrans[12]; offset[3].c[1] = bufferBoneTrans[13]; offset[3].c[2] = bufferBoneTrans[14]; offset[3].c[3] = bufferBoneTrans[15];
 
-
 		offset[4].c[0] = bufferBoneTrans[16]; offset[4].c[1] = bufferBoneTrans[17]; offset[4].c[2] = bufferBoneTrans[18]; offset[4].c[3] = bufferBoneTrans[19];
 		offset[5].c[0] = bufferBoneTrans[20]; offset[5].c[1] = bufferBoneTrans[21]; offset[5].c[2] = bufferBoneTrans[22]; offset[5].c[3] = bufferBoneTrans[23];
 		offset[6].c[0] = bufferBoneTrans[24]; offset[6].c[1] = bufferBoneTrans[25]; offset[6].c[2] = bufferBoneTrans[26]; offset[6].c[3] = bufferBoneTrans[27];
 		offset[7].c[0] = bufferBoneTrans[28]; offset[7].c[1] = bufferBoneTrans[29]; offset[7].c[2] = bufferBoneTrans[30]; offset[7].c[3] = bufferBoneTrans[31];
 
-		offset[8].c[0] = bufferBoneTrans[32]; offset[8].c[1] = bufferBoneTrans[33]; offset[8].c[2] = bufferBoneTrans[34]; offset[0].c[8] = bufferBoneTrans[35];
-		offset[9].c[0] = bufferBoneTrans[36]; offset[9].c[1] = bufferBoneTrans[37]; offset[9].c[2] = bufferBoneTrans[38]; offset[1].c[9] = bufferBoneTrans[39];
-		offset[10].c[0] = bufferBoneTrans[40]; offset[10].c[1] = bufferBoneTrans[41]; offset[10].c[2] = bufferBoneTrans[42]; offset[2].c[10] = bufferBoneTrans[43];
-		offset[11].c[0] = bufferBoneTrans[44]; offset[11].c[1] = bufferBoneTrans[45]; offset[11].c[2] = bufferBoneTrans[46]; offset[3].c[11] = bufferBoneTrans[47];
+		offset[8].c[0]  = bufferBoneTrans[32]; offset[8].c[1]  = bufferBoneTrans[33]; offset[8].c[2]  = bufferBoneTrans[34]; offset[8].c[3] = bufferBoneTrans[35];
+		offset[9].c[0]  = bufferBoneTrans[36]; offset[9].c[1]  = bufferBoneTrans[37]; offset[9].c[2]  = bufferBoneTrans[38]; offset[9].c[3] = bufferBoneTrans[39];
+		offset[10].c[0] = bufferBoneTrans[40]; offset[10].c[1] = bufferBoneTrans[41]; offset[10].c[2] = bufferBoneTrans[42]; offset[10].c[3] = bufferBoneTrans[43];
+		offset[11].c[0] = bufferBoneTrans[44]; offset[11].c[1] = bufferBoneTrans[45]; offset[11].c[2] = bufferBoneTrans[46]; offset[11].c[3] = bufferBoneTrans[47];
 
 		bone.offsetMatrix.set(offset[0].flt, offset[4].flt, offset[8].flt, 0.0f,
 							  offset[1].flt, offset[5].flt, offset[9].flt, 0.0f,
-                              offset[2].flt, offset[6].flt, offset[10].flt, 0.0f, 
-                              offset[4].flt, offset[7].flt, offset[11].flt, 1.0f);
+		                      offset[2].flt, offset[6].flt, offset[10].flt, 0.0f, 
+		                      offset[3].flt, offset[7].flt, offset[11].flt, 1.0f);
+
+		//bone.offsetMatrix.set(offset[0].flt, offset[1].flt, offset[2].flt, offset[3].flt,
+		//	offset[4].flt, offset[5].flt, offset[6].flt, offset[7].flt,
+		//	offset[8].flt, offset[8].flt, offset[10].flt, offset[11].flt,
+		//	0.0f, 0.0f, 0.0f, 1.0f);
 		
 		delete bufferBoneTrans;
 
@@ -500,12 +515,8 @@ void Game::CreateBones() {
 		//if (!bones[i]){
 			bones[i] = new Bone();
 			bones[i]->SetName(modelBone.name);
-			//std::cout << "Name: " << modelBone.name << std::endl;
-			//std::cout << "Pos: " << modelBone.initialPosition[0] << "  " << modelBone.initialPosition[1] << "  " << modelBone.initialPosition[2] << std::endl;
 			bones[i]->setPosition(modelBone.initialPosition);
-			//std::cout << "Rotation: " << modelBone.initialRotation[0] << "  " << modelBone.initialRotation[1] << "  " << modelBone.initialRotation[2] << "  " << modelBone.initialRotation[3] << std::endl;
-			bones[i]->setOrientation(modelBone.initialRotation);
-			//std::cout << "Scale: " << modelBone.initialScale[0] << "  " << modelBone.initialScale[1] << "  " << modelBone.initialScale[2] << std::endl;
+			bones[i]->setOrientation({ modelBone.initialRotation[0], modelBone.initialRotation[1], modelBone.initialRotation[2], modelBone.initialRotation[3] });
 			bones[i]->setScale(modelBone.initialScale);
 			//bones[i]->SetTransform(modelBone.initialPosition, modelBone.initialRotation, modelBone.initialScale);
 		//}
@@ -519,8 +530,10 @@ void Game::CreateBones() {
 		if (desc.parentIndex == i){
 			bones[i]->setParent(nullptr);
 			rootBone = bones[i];
+			bones[i]->offsetMatrix = modelBones[i].offsetMatrix;
 		}else{					
 			bones[i]->setParent(bones[desc.parentIndex]);
+			bones[i]->offsetMatrix = modelBones[i].offsetMatrix;
 		}
 	}
 
@@ -577,4 +590,13 @@ void Game::UpdateAnimation(){
 	}
 
 	animatedModelFlags |= AMF_SKINNING_DIRTY;*/
+}
+
+void Game::UpdateSkinning(){
+
+	for (size_t i = 0; i < numBones; ++i)
+		skinMatrices[i] = bones[i]->getWorldTransformation() * modelBones[i].offsetMatrix;
+
+	//animatedModelFlags &= ~AMF_SKINNING_DIRTY;
+	//animatedModelFlags |= AMF_SKINNING_BUFFER_DIRTY;
 }

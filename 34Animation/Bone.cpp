@@ -7,7 +7,7 @@ Bone::Bone() : animationEnabled(true), numChildBones(0)
 }
 
 Bone::~Bone(){
-	std::cout << "Bone Destructor" << std::endl;
+
 }
 
 
@@ -25,7 +25,7 @@ void Bone::CountChildBones(){
 }
 
 void Bone::OnTransformChanged(){
-	SceneNode::OnTransformChanged();
+	SceneNodeLC::OnTransformChanged();
 
 	// Avoid duplicate dirtying calls if model's skinning is already dirty. Do not signal changes either during animation update,
 	// as the model will set the hierarchy dirty when finished. This is also used to optimize when only the model node moves.

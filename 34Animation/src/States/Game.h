@@ -55,6 +55,7 @@ private:
 	void CreateBones();
 	void RemoveBones();
 	void UpdateAnimation();
+	void UpdateSkinning();
 
 	std::vector<std::array<float, 3>> positions;
 	std::vector<std::array<float, 3>> normals;

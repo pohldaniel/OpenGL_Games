@@ -1,4 +1,4 @@
-#version 410 core
+#version 430 core
 
 const int MAX_JOINTS = 96;
 const int MAX_WEIGHTS = 4;
@@ -10,7 +10,7 @@ layout(location = 3) in ivec4 i_jointIds;
 layout(location = 4) in vec4 i_jointWeights;
 
 
-layout(std140) uniform u_skinMatrices{
+layout(std140, binding = 3) uniform u_skinMatrices{
     mat4 skinMatrices[MAX_JOINTS];
 };
 

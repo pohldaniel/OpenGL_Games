@@ -248,9 +248,7 @@ void AnimationState::ApplyToNodes(){
 			else
 				nextFrame = 0;
 		}
-		//std::cout << "Name: " << node->name << std::endl;
-		//std::cout << "Old Position: " << node->getPosition()[0] << "  " << node->getPosition()[1] << "  " << node->getPosition()[2] << std::endl;
-
+	
 		Vector3f newPosition = node->getPosition();
 		Quaternion newRotation = node->getOrientation();
 		Vector3f newScale = node->getScale();
@@ -284,8 +282,5 @@ void AnimationState::ApplyToNodes(){
 		node->setOrientation(newRotation);
 		node->setScale(newScale);
 		//node->SetTransform(newPosition, newRotation, newScale);
-
-		//std::cout << "New Position: " << node->getPosition()[0] << "  " << node->getPosition()[1] << "  " << node->getPosition()[2] << std::endl;
-		//std::cout << "---------------" << std::endl;
 	}
 }
