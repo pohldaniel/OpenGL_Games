@@ -36,7 +36,12 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 
 	readMdl("res/models/BetaLowpoly/Beta.mdl");
 	CreateBones();
-
+	animation = new Animation();
+	//animation->loadAni("res/models/BetaLowpoly/Beta_Idle.ani");
+	animation->loadAni("res/models/BetaLowpoly/Beta_Run.ani");
+	AnimationState* state = new AnimationState(animation, rootBone);
+	state->SetLooped(true);
+	animationStates.push_back(std::shared_ptr<AnimationState>(state));
 	DebugRenderer::Get().setEnable(true);
 }
 
@@ -105,6 +110,7 @@ void Game::update() {
 	}
 
 	assimpAnimated.update(m_dt);
+	UpdateAnimation();
 }
 
 void Game::render() {
@@ -513,9 +519,9 @@ void Game::CreateBones() {
 		if (desc.parentIndex == i){
 			bones[i]->setParent(nullptr);
 			rootBone = bones[i];
-		}
-		else
+		}else{					
 			bones[i]->setParent(bones[desc.parentIndex]);
+		}
 	}
 
 	// Count child bones now for optimized transform dirtying
@@ -529,4 +535,46 @@ void Game::CreateBones() {
 	// Set initial bone bounding box recalculation and skinning dirty. Also calculate a valid bone bounding box immediately to ensure models can enter the view without updating animation first
 	//OnBoneTransformChanged();
 	//OnWorldBoundingBoxUpdate();
+}
+
+void Game::UpdateAnimation(){
+
+	//if (animatedModelFlags & AMF_ANIMATION_ORDER_DIRTY)
+	//	std::sort(animationStates.begin(), animationStates.end(), CompareAnimationStates);
+
+	//animatedModelFlags |= AMF_IN_ANIMATION_UPDATE | AMF_BONE_BOUNDING_BOX_DIRTY;
+
+	// Reset bones to initial pose, then apply animations
+	for (size_t i = 0; i < numBones; ++i){
+		Bone* bone = bones[i];
+		const ModelBone& modelBone = modelBones[i];
+		if (bone->AnimationEnabled())
+			bone->SetTransformSilent(modelBone.initialPosition, modelBone.initialRotation, modelBone.initialScale);
+	}
+
+	for (auto it = animationStates.begin(); it != animationStates.end(); ++it){
+		AnimationState* state = (*it).get();
+		if (state->Enabled()) {
+			state->AddTime(m_dt);
+			state->Apply();
+		}
+	}
+
+	/*// Dirty the bone hierarchy now. This will also dirty and queue reinsertion for attached models
+	SetBoneTransformsDirty();
+
+	animatedModelFlags &= ~(AMF_ANIMATION_ORDER_DIRTY | AMF_ANIMATION_DIRTY | AMF_IN_ANIMATION_UPDATE);
+
+	// Update bounding box already here to take advantage of threaded update, and also to update bone world transforms for skinning
+	OnWorldBoundingBoxUpdate();
+
+	// If updating only when visible, queue octree reinsertion for next frame. This also ensures shadowmap rendering happens correctly
+	// Else just dirty the skinning
+	if (!TestFlag(DF_UPDATE_INVISIBLE))
+	{
+		if (octree && octant && !TestFlag(DF_OCTREE_REINSERT_QUEUED))
+			octree->QueueUpdate(this);
+	}
+
+	animatedModelFlags |= AMF_SKINNING_DIRTY;*/
 }

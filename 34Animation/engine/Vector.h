@@ -57,6 +57,11 @@ namespace Math {
 		return std::max(lower, std::min(n, upper));
 	}
 
+	template <typename T>
+	T Lerp(const T &a, const T &b, float t) {
+		return a * (1 - t) + t *b;
+	}
+
 	template <typename T> int sgn(T val) {
 		return (T(0) < val) - (val < T(0));
 	}
@@ -478,6 +483,8 @@ public:
 	static Quaternion& Inverse(Quaternion &quat);
 	static void Normalize(Quaternion &p);
 	static Vector3f Rotate(const Quaternion &quat, const Vector3f &v);
+	static Quaternion SLerp(const Quaternion &a, const Quaternion &b, float t);
+	static Quaternion SLerp2(const Quaternion &a, const Quaternion &b, float t);
 
 private:
 

@@ -9,6 +9,8 @@
 
 #include "ModelBone.h"
 #include "Bone.h"
+#include "AnimationState.h"
+#include "Animation.h"
 
 static const float BONE_SIZE_THRESHOLD = 0.05f;
 
@@ -52,6 +54,7 @@ private:
 	void readMdl(std::string path);
 	void CreateBones();
 	void RemoveBones();
+	void UpdateAnimation();
 
 	std::vector<std::array<float, 3>> positions;
 	std::vector<std::array<float, 3>> normals;
@@ -63,7 +66,9 @@ private:
 	BoundingBox boundingBox;
 	unsigned short numBones = 0;
 
+	Animation* animation;
 	Bone* rootBone;
 	Bone* *bones;
 	Matrix4f* skinMatrices;
+	std::vector<std::shared_ptr<AnimationState>> animationStates;
 };

@@ -164,6 +164,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Animation.cpp" />
+    <ClCompile Include="AnimationState.cpp" />
     <ClCompile Include="Bone.cpp" />
     <ClCompile Include="engine\animation\AssimpAnimatedModel.cpp" />
     <ClCompile Include="engine\animation\AssimpAnimation.cpp" />
@@ -271,6 +273,8 @@
     <ClCompile Include="StringUtils.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Animation.h" />
+    <ClInclude Include="AnimationState.h" />
     <ClInclude Include="Bone.h" />
     <ClInclude Include="engine\animation\AssimpAnimatedModel.h" />
     <ClInclude Include="engine\animation\AssimpAnimation.h" />

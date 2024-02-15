@@ -170,7 +170,7 @@ void BaseNode::rotate(const Quaternion& orientation) {
 	OnTransformChanged();
 }
 
-const std::list<std::unique_ptr<BaseNode>>& BaseNode::getChildren() const {
+std::list<std::unique_ptr<BaseNode>>& BaseNode::getChildren() const{
 	return m_children;
 }
 
@@ -201,7 +201,18 @@ void BaseNode::removeAllChildren() {
 }
 
 void BaseNode::setParent(BaseNode* node) {
-	m_parent = node;
+
+	if (node && m_parent) {	
+		std::list<std::unique_ptr<BaseNode>>::iterator it = std::find_if(m_parent->getChildren().begin(), m_parent->getChildren().end(), [node](std::unique_ptr<BaseNode>& _node) { return _node.get() == node; });
+		
+		if (it != m_parent->getChildren().end()) {
+			node->getChildren().splice(m_parent->getChildren().end(), m_parent->getChildren(), it);
+		}
+	}else if(node){
+		node->addChild(this);
+	}else if(m_parent){
+		m_parent->eraseChild(this);
+	}
 }
 
 const Vector3f& BaseNode::getWorldOrigin() const {

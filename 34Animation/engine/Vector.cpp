@@ -3454,3 +3454,51 @@ bool operator ==(const Quaternion &lhs, const Quaternion &rhs) {
 	float epsilon = 0.000001f;
 	return fabs(lhs[0] - rhs[0]) <= epsilon && fabs(lhs[1] - rhs[1]) <= epsilon && fabs(lhs[2] - rhs[2]) <= epsilon && fabs(lhs[3] - rhs[3]) <= epsilon;
 }
+
+Quaternion Quaternion::SLerp(const Quaternion &a, const Quaternion &b, float t) {
+	Quaternion result = Quaternion(0.0f, 0.0f, 0.0f, 1.0f);
+	float dot = a[3] * b[3] + a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+	float t1 = 1.0f - t;
+
+	if (dot < 0.0f) {
+		result[3] = t1 * a[3] - t * b[3];
+		result[0] = t1 * a[0] - t * b[0];
+		result[1] = t1 * a[1] - t * b[1];
+		result[2] = t1 * a[2] - t * b[2];
+
+	}else {
+		result[3] = t1 * a[3] + t * b[3];
+		result[0] = t1 * a[0] + t * b[0];
+		result[1] = t1 * a[1] + t * b[1];
+		result[2] = t1 * a[2] + t * b[2];
+	}
+
+	Quaternion::Normalize(result);
+	return result;
+}
+
+Quaternion Quaternion::SLerp2(const Quaternion &a, const Quaternion &b, float t) {
+	float cosAngle = a[0] * b[0] + a[1] * b[1] + a[2] * b[2] + a[3] * b[3] ;
+	float sign = 1.0f;
+
+	if (cosAngle < 0.0f){
+		cosAngle = -cosAngle;
+		sign = -sign;
+	}
+
+	float angle = acosf(cosAngle);
+	float sinAngle = sinf(angle);
+	float t1, t2;
+
+	if (sinAngle > 0.001f){
+		float invSinAngle = 1.0f / sinAngle;
+		t1 = sinf((1.0f - t) * angle) * invSinAngle;
+		t2 = sinf(t * angle) * invSinAngle;
+
+	}else{
+		t1 = 1.0f - t;
+		t2 = t;
+	}
+
+	return a * t1 + sign * b * t2;
+}

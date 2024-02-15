@@ -1,3 +1,4 @@
+#include <iostream>
 #include "Bone.h"
 
 Bone::Bone() : animationEnabled(true), numChildBones(0)
@@ -6,6 +7,7 @@ Bone::Bone() : animationEnabled(true), numChildBones(0)
 }
 
 Bone::~Bone(){
+	std::cout << "Bone Destructor" << std::endl;
 }
 
 
@@ -29,4 +31,27 @@ void Bone::OnTransformChanged(){
 	// as the model will set the hierarchy dirty when finished. This is also used to optimize when only the model node moves.
 	//if (drawable && !(drawable->AnimatedModelFlags() & (AMF_IN_ANIMATION_UPDATE | AMF_SKINNING_DIRTY)))
 	//	drawable->OnBoneTransformChanged();
+}
+
+Bone* Bone::FindChildOfType(StringHash childNameHash, bool recursive) const{
+	
+	
+	//std::list<std::unique_ptr<BaseNode>>::iterator it = std::find_if(m_children.begin(), m_children.end(), [childNameHash](std::unique_ptr<BaseNode>& _node) { return dynamic_cast<Bone*>(_node.get())->nameHash == childNameHash; });
+	//if (it != m_children.end())
+		//return dynamic_cast<Bone*>((*it).get());
+	//else
+		//return nullptr;
+
+	for (auto it = m_children.begin(); it != m_children.end(); ++it){
+		Bone* child = dynamic_cast<Bone*>((*it).get());
+		if (child->nameHash == childNameHash)
+			return child;
+		else if (recursive && child->m_children.size()){
+			Bone* childResult = child->FindChildOfType(childNameHash, recursive);
+			if (childResult)
+				return childResult;
+		}
+	}
+
+	return nullptr;
 }

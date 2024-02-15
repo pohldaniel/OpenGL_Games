@@ -61,7 +61,7 @@ public:
 	const bool isFixed() const;
 	const bool isSelfCared() const;
 
-	const std::list<std::unique_ptr<BaseNode>>& getChildren() const;
+	std::list<std::unique_ptr<BaseNode>>& getChildren() const;
 	void removeAllChildren();
 	void removeChild(BaseNode* child);
 	void removeSelf();
@@ -77,6 +77,6 @@ protected:
 
 	virtual const Vector3f& getWorldOrigin() const;
 
-	BaseNode* m_parent;	std::list<std::unique_ptr<BaseNode>> m_children;
+	BaseNode* m_parent;	mutable std::list<std::unique_ptr<BaseNode>> m_children;
 	bool m_markForRemove;	bool m_isFixed;	bool m_isSelfCared;	mutable bool m_isDirty;
 };
