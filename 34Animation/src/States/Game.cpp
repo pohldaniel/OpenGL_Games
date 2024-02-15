@@ -49,6 +49,10 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 	glBufferData(GL_UNIFORM_BUFFER, sizeof(Matrix4f) * numBones, NULL, GL_DYNAMIC_DRAW);
 	glBindBufferRange(GL_UNIFORM_BUFFER, 3, BuiltInShader::matrixUbo, 0, sizeof(Matrix4f) * numBones);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+	CreateBuffer(m_vertexBuffer, m_indexBuffer, m_vao, m_vbo, m_ibo, 8, m_weights, m_boneIds);
+
+	StateMachine::ToggleWireframe();
 }
 
 Game::~Game() {
@@ -127,6 +131,18 @@ void Game::render() {
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	auto shader = Globals::shaderManager.getAssetPointer("animation_new");
+	shader->use();
+	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
+	shader->loadMatrix("u_view", m_camera.getViewMatrix());
+
+	glBindVertexArray(m_vao);
+	glDrawElements(GL_TRIANGLES, m_indexBuffer.size(), GL_UNSIGNED_INT, 0);
+	glBindVertexArray(0);
+
+	shader->unuse();
+
 	DebugRenderer::Get().SetView(&m_camera);
 
 	DebugRenderer::Get().AddBoundingBox(boundingBox, {1.0f, 0.0f, 0.0f, 1.0f});
@@ -254,20 +270,31 @@ void Game::readMdl(std::string path) {
 
 	for (unsigned int i = 0; i < vertexCount * vertexSize; i = i + vertexSize) {
 
-		Utils::UFloat value[3];
+		Utils::UFloat value[4];
 		value[0].c[0] = buffer[i + 0]; value[0].c[1] = buffer[i + 1]; value[0].c[2] = buffer[i + 2]; value[0].c[3] = buffer[i + 3];
 		value[1].c[0] = buffer[i + 4]; value[1].c[1] = buffer[i + 5]; value[1].c[2] = buffer[i + 6]; value[1].c[3] = buffer[i + 7];
 		value[2].c[0] = buffer[i + 8]; value[2].c[1] = buffer[i + 9]; value[2].c[2] = buffer[i + 10]; value[2].c[3] = buffer[i + 11];
 		positions.push_back({ value[0].flt , value[1].flt , value[2].flt });
+		m_vertexBuffer.push_back(value[0].flt); m_vertexBuffer.push_back(value[1].flt); m_vertexBuffer.push_back(value[2].flt);
+
+		value[0].c[0] = buffer[i + 24]; value[0].c[1] = buffer[i + 25]; value[0].c[2] = buffer[i + 26]; value[0].c[3] = buffer[i + 27];
+		value[1].c[0] = buffer[i + 28]; value[1].c[1] = buffer[i + 29]; value[1].c[2] = buffer[i + 30]; value[1].c[3] = buffer[i + 31];
+		uvCoords.push_back({ value[0].flt , value[1].flt });
+		m_vertexBuffer.push_back(value[0].flt); m_vertexBuffer.push_back(value[1].flt);
 
 		value[0].c[0] = buffer[i + 12]; value[0].c[1] = buffer[i + 13]; value[0].c[2] = buffer[i + 14]; value[0].c[3] = buffer[i + 15];
 		value[1].c[0] = buffer[i + 16]; value[1].c[1] = buffer[i + 17]; value[1].c[2] = buffer[i + 18]; value[1].c[3] = buffer[i + 19];
 		value[2].c[0] = buffer[i + 20]; value[2].c[1] = buffer[i + 21]; value[2].c[2] = buffer[i + 22]; value[2].c[3] = buffer[i + 23];
 		normals.push_back({ value[0].flt , value[1].flt , value[2].flt });
+		m_vertexBuffer.push_back(value[0].flt); m_vertexBuffer.push_back(value[1].flt); m_vertexBuffer.push_back(value[2].flt);
 
-		value[0].c[0] = buffer[i + 24]; value[0].c[1] = buffer[i + 25]; value[0].c[2] = buffer[i + 26]; value[0].c[3] = buffer[i + 27];
-		value[1].c[0] = buffer[i + 28]; value[1].c[1] = buffer[i + 29]; value[1].c[2] = buffer[i + 30]; value[1].c[3] = buffer[i + 31];
-		uvCoords.push_back({ value[0].flt , value[1].flt });
+		value[0].c[0] = buffer[i + 32]; value[0].c[1] = buffer[i + 33]; value[0].c[2] = buffer[i + 34]; value[0].c[3] = buffer[i + 35];
+		value[1].c[0] = buffer[i + 36]; value[1].c[1] = buffer[i + 37]; value[1].c[2] = buffer[i + 38]; value[1].c[3] = buffer[i + 39];
+		value[2].c[0] = buffer[i + 40]; value[2].c[1] = buffer[i + 41]; value[2].c[2] = buffer[i + 42]; value[2].c[3] = buffer[i + 43];
+		value[3].c[0] = buffer[i + 44]; value[3].c[1] = buffer[i + 45]; value[3].c[2] = buffer[i + 46]; value[3].c[3] = buffer[i + 47];
+		m_weights.push_back({ value[0].flt , value[1].flt , value[2].flt ,  value[3].flt });
+		m_boneIds.push_back({ static_cast<unsigned int>(buffer[i + 48]),  static_cast<unsigned int>(buffer[i + 49]), static_cast<unsigned int>(buffer[i + 50]), static_cast<unsigned int>(buffer[i + 51]) });
+
 	}
 	delete buffer;
 
@@ -291,6 +318,7 @@ void Game::readMdl(std::string path) {
 		value[2].c[0] = buffer[i + 4]; value[2].c[1] = buffer[i + 5];
 
 		faces.push_back({ value[0].shrt, value[1].shrt, value[2].shrt });
+		m_indexBuffer.push_back(value[0].shrt); m_indexBuffer.push_back(value[1].shrt); m_indexBuffer.push_back(value[2].shrt);
 	}
 	delete buffer;
 
@@ -412,12 +440,7 @@ void Game::readMdl(std::string path) {
 							  offset[1].flt, offset[5].flt, offset[9].flt, 0.0f,
 		                      offset[2].flt, offset[6].flt, offset[10].flt, 0.0f, 
 		                      offset[3].flt, offset[7].flt, offset[11].flt, 1.0f);
-
-		//bone.offsetMatrix.set(offset[0].flt, offset[1].flt, offset[2].flt, offset[3].flt,
-		//	offset[4].flt, offset[5].flt, offset[6].flt, offset[7].flt,
-		//	offset[8].flt, offset[8].flt, offset[10].flt, offset[11].flt,
-		//	0.0f, 0.0f, 0.0f, 1.0f);
-		
+	
 		delete bufferBoneTrans;
 
 		file.read(metaData, sizeof(unsigned char));
@@ -599,4 +622,81 @@ void Game::UpdateSkinning(){
 
 	//animatedModelFlags &= ~AMF_SKINNING_DIRTY;
 	//animatedModelFlags |= AMF_SKINNING_BUFFER_DIRTY;
+}
+
+void Game::CreateBuffer(std::vector<float>& vertexBuffer, std::vector<unsigned int> indexBuffer, unsigned int& vao, unsigned int(&vbo)[3], unsigned int& ibo, unsigned int stride, std::vector<std::array<float, 4>>& weights, std::vector<std::array<unsigned int, 4>>& boneIds) {
+
+	if (vao)
+		glDeleteVertexArrays(1, &vao);
+
+	if (vbo[0])
+		glDeleteBuffers(1, &vbo[0]);
+
+	if (vbo[1])
+		glDeleteBuffers(1, &vbo[1]);
+
+	if (vbo[2])
+		glDeleteBuffers(1, &vbo[2]);
+
+	if (ibo)
+		glDeleteBuffers(1, &ibo);
+
+
+	glGenBuffers(3, vbo);
+	glGenBuffers(1, &ibo);
+
+	glGenVertexArrays(1, &vao);
+	glBindVertexArray(vao);
+
+	//Positions
+	glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
+	glBufferData(GL_ARRAY_BUFFER, vertexBuffer.size() * sizeof(float), &vertexBuffer[0], GL_STATIC_DRAW);
+
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)0);
+
+	//Texture Coordinates
+	if (stride == 5 || stride == 8 || stride == 14) {
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)(3 * sizeof(float)));
+	}
+
+	//Normals
+	if (stride == 6 || stride == 8 || stride == 14) {
+		glEnableVertexAttribArray(2);
+		glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)((stride == 8 || stride == 14) ? 5 * sizeof(float) : 3 * sizeof(float)));
+	}
+
+	//Tangents Bitangents
+	if (stride == 14) {
+		glEnableVertexAttribArray(3);
+		glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)(8 * sizeof(float)));
+
+		glEnableVertexAttribArray(4);
+		glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)(11 * sizeof(float)));
+
+	}
+
+	//bone weights and id's
+	if (!weights.empty()) {
+
+		glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
+		glBufferData(GL_ARRAY_BUFFER, weights.size() * sizeof(float) * 4, &weights.front(), GL_STATIC_DRAW);
+
+		glEnableVertexAttribArray(5);
+		glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, 0, 0);
+
+		glBindBuffer(GL_ARRAY_BUFFER, vbo[2]);
+		glBufferData(GL_ARRAY_BUFFER, boneIds.size() * sizeof(std::array<unsigned int, 4>), &boneIds.front(), GL_STATIC_DRAW);
+
+		glEnableVertexAttribArray(6);
+		glVertexAttribIPointer(6, 4, GL_UNSIGNED_INT, 0, 0);
+
+	}
+
+	//Indices
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexBuffer.size() * sizeof(unsigned int), &indexBuffer[0], GL_STATIC_DRAW);
+
+	glBindVertexArray(0);
 }

@@ -6,8 +6,8 @@ const int MAX_WEIGHTS = 4;
 layout(location = 0) in vec3 i_position;
 layout(location = 1) in vec2 i_texCoord;
 layout(location = 2) in vec3 i_normal;
-layout(location = 3) in ivec4 i_jointIds;
-layout(location = 4) in vec4 i_jointWeights;
+layout(location = 5) in vec4 i_jointWeights;
+layout(location = 6) in ivec4 i_jointIds;
 
 
 layout(std140, binding = 3) uniform u_skinMatrices{
@@ -27,7 +27,7 @@ mat4 GetWorldMatrix(){
 }
 
 void main(){
-	mat4 world = GetWorldMatrix();   
+	mat4 world = GetWorldMatrix();   	
 	v_worldPos = world * vec4(i_position, 1.0);   
 	v_texCoord = i_texCoord;
 	v_normal = (world * vec4(i_normal, 0.0)).xyz; 	

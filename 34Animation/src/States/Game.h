@@ -44,6 +44,10 @@ public:
 
 private:
 
+	unsigned int m_vao;
+	unsigned int m_vbo[3];
+	unsigned int m_ibo;
+
 	void renderUi();
 
 	bool m_initUi = true;
@@ -57,9 +61,16 @@ private:
 	void UpdateAnimation();
 	void UpdateSkinning();
 
+	std::vector<float> m_vertexBuffer;
+	std::vector<unsigned int> m_indexBuffer;
+
+	
+
 	std::vector<std::array<float, 3>> positions;
 	std::vector<std::array<float, 3>> normals;
 	std::vector <std::array<float, 2>> uvCoords;
+	std::vector<std::array<float, 4>> m_weights;
+	std::vector<std::array<unsigned int, 4>> m_boneIds;
 
 	std::vector<std::array<short, 3>> faces;
 	std::vector<std::vector<GeometryDesc>> geomDescs;
@@ -72,4 +83,6 @@ private:
 	Bone* *bones;
 	Matrix4f* skinMatrices;
 	std::vector<std::shared_ptr<AnimationState>> animationStates;
+
+	void CreateBuffer(std::vector<float>& vertexBuffer, std::vector<unsigned int> indexBuffer, unsigned int& vao, unsigned int(&vbo)[3], unsigned int& ibo, unsigned int stride, std::vector<std::array<float, 4>>& weights, std::vector<std::array<unsigned int, 4>>& boneIds);
 };
