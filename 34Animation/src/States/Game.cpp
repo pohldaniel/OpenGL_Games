@@ -16,10 +16,9 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 	EventDispatcher::AddKeyboardListener(this);
 	EventDispatcher::AddMouseListener(this);
 
-	m_camera = Camera();
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
-	m_camera.lookAt(Vector3f(-100.0f, 100.0f, 400.0f), Vector3f(-100.0f, 100.0f, 400.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
+	m_camera.lookAt(Vector3f(-100.0f, 100.0f, 500.0f), Vector3f(-100.0f, 100.0f, 500.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
 	m_camera.setRotationSpeed(0.1f);
 	m_camera.setMovingSpeed(100.0f);
 
@@ -27,15 +26,7 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClearDepth(1.0f);
 
-	Globals::animationManager.loadAnimation("vampire_dance", "res/models/vampire/dancing_vampire.dae", "Hips", "vampire_dance", false, 0u, 0u, 1000.0f);
 	assimpAnimated.loadModel("res/models/vampire/dancing_vampire.dae", "res/models/vampire/textures/Vampire_diffuse.png");
-	assimpAnimated.translate(0.0f, 0.0f, 0.0f);
-	//assimpAnimated.scale(0.5f, 0.5f, 0.5f);
-	assimpAnimated.getAnimator()->addAnimation(Globals::animationManager.getAssetPointer("vampire_dance"));
-	assimpAnimated.getAnimator()->startAnimation("vampire_dance");
-
-	//assimpAnimated.rootBone->scale(0.5f, 0.5f, 0.5f);
-
 	animation2 = new Animation();
 	animation2->loadAni2("res/models/vampire/dancing_vampire.dae", "Hips", "vampire_dance");
 
@@ -44,10 +35,14 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 	animationStates2.push_back(std::shared_ptr<AnimationState>(state2));
 
 	readMdl("res/models/BetaLowpoly/Beta.mdl");
+	modelBones[0].initialScale.set(100.0f, 100.0f, 100.0f);
+	modelBones[0].initialPosition.translate(-250.0f, 0.0f, 0.0f);
+	modelBones[0].initialRotation.rotate(0.0f, 180.0f, 0.0f);
 	CreateBones();
 	animation = new Animation();
 	//animation->loadAni("res/models/BetaLowpoly/Beta_Idle.ani");
 	animation->loadAni("res/models/BetaLowpoly/Beta_Run.ani");
+
 	AnimationState* state = new AnimationState(animation, rootBone);
 	state->SetLooped(true);
 	animationStates.push_back(std::shared_ptr<AnimationState>(state));
@@ -55,7 +50,7 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 
 	glGenBuffers(1, &BuiltInShader::matrixUbo);
 	glBindBuffer(GL_UNIFORM_BUFFER, BuiltInShader::matrixUbo);
-	glBufferData(GL_UNIFORM_BUFFER, sizeof(Matrix4f) * assimpAnimated.numBones, NULL, GL_DYNAMIC_DRAW);
+	glBufferData(GL_UNIFORM_BUFFER, sizeof(Matrix4f) * 96, NULL, GL_DYNAMIC_DRAW);
 	glBindBufferRange(GL_UNIFORM_BUFFER, 3, BuiltInShader::matrixUbo, 0, sizeof(Matrix4f) * assimpAnimated.numBones);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
@@ -134,38 +129,49 @@ void Game::update() {
 }
 
 void Game::render() {
-
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	/*UpdateSkinning();
+	UpdateSkinning();
 
 	glBindBuffer(GL_UNIFORM_BUFFER, BuiltInShader::matrixUbo);
 	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(Matrix4f) * numBones, skinMatrices);
-	glBindBuffer(GL_UNIFORM_BUFFER, 0);*/
-
-	UpdateSkinning2();
-
-	glBindBuffer(GL_UNIFORM_BUFFER, BuiltInShader::matrixUbo);
-	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(Matrix4f) * assimpAnimated.numBones, assimpAnimated.skinMatrices);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-	
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	auto shader = Globals::shaderManager.getAssetPointer("animation_new");
 	shader->use();
 	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
 	shader->loadMatrix("u_view", m_camera.getViewMatrix());
+	shader->loadVector("u_color", Vector4f(0.0f, 0.0f, 1.0f, 1.0f));
+	Globals::textureManager.get("null").bind();
+	glBindVertexArray(m_vao);
+	glDrawElements(GL_TRIANGLES, m_indexBuffer.size(), GL_UNSIGNED_INT, 0);
+	glBindVertexArray(0);
+
+	shader->unuse();
+
+	UpdateSkinning2();
+	glBindBuffer(GL_UNIFORM_BUFFER, BuiltInShader::matrixUbo);
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(Matrix4f) * assimpAnimated.numBones, assimpAnimated.skinMatrices);
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+	//auto shader = Globals::shaderManager.getAssetPointer("animation_new");
+	shader->use();
+	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
+	shader->loadMatrix("u_view", m_camera.getViewMatrix());
+	shader->loadVector("u_color", Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
 
 	Globals::textureManager.get("vampire").bind();
+
 	assimpAnimated.drawRaw();
 	shader->unuse();
 
 	DebugRenderer::Get().SetView(&m_camera);
-	//DebugRenderer::Get().AddBoundingBox(boundingBox, {1.0f, 0.0f, 0.0f, 1.0f});
-	//DebugRenderer::Get().AddSkeleton(bones, numBones, { 0.0f, 1.0f, 0.0f, 1.0f });
+
+	//DebugRenderer::Get().AddBoundingBox(boundingBox, { 1.0f, 0.0f, 0.0f, 1.0f });
+	DebugRenderer::Get().AddSkeleton(bones, numBones, { 0.0f, 1.0f, 0.0f, 1.0f });
 	DebugRenderer::Get().AddSkeleton(assimpAnimated.bones, assimpAnimated.numBones, { 0.0f, 1.0f, 0.0f, 1.0f });
 	DebugRenderer::Get().drawBuffer();
-	
+
 	if (m_drawUi)
 		renderUi();
 }
@@ -346,7 +352,7 @@ void Game::readMdl(std::string path) {
 	//std::set<std::pair<unsigned, unsigned> > processedVertices;
 	//boneMappings.resize(numGeometries);
 
-	for (size_t i = 0; i < numGeometries; ++i){
+	for (size_t i = 0; i < numGeometries; ++i) {
 		file.read(metaData, sizeof(unsigned int));
 		unsigned int boneMappingCount = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
 
@@ -355,7 +361,7 @@ void Game::readMdl(std::string path) {
 
 		geomDescs[i].resize(numLodLevels);
 
-		for (size_t j = 0; j < numLodLevels; ++j){
+		for (size_t j = 0; j < numLodLevels; ++j) {
 
 			GeometryDesc& geomDesc = geomDescs[i][j];
 
@@ -392,11 +398,11 @@ void Game::readMdl(std::string path) {
 
 	modelBones.resize(numBones);
 
-	for (size_t i = 0; i < numBones; ++i){
+	for (size_t i = 0; i < numBones; ++i) {
 		ModelBone& bone = modelBones[i];
 
 		std::string boneName;
-		while(true){
+		while (true) {
 			file.read(metaData, sizeof(char));
 			if (!metaData[0])
 				break;
@@ -409,7 +415,7 @@ void Game::readMdl(std::string path) {
 
 		file.read(metaData, sizeof(unsigned int));
 		bone.parentIndex = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
-		//std::cout << "Parent Index: " << bone.parentIndex << std::endl;
+
 
 		char* bufferBoneTrans = new char[48];
 
@@ -427,7 +433,7 @@ void Game::readMdl(std::string path) {
 		orientation[2].c[0] = bufferBoneTrans[8]; orientation[2].c[1] = bufferBoneTrans[9]; orientation[2].c[2] = bufferBoneTrans[10]; orientation[2].c[3] = bufferBoneTrans[11];
 		orientation[3].c[0] = bufferBoneTrans[12]; orientation[3].c[1] = bufferBoneTrans[13]; orientation[3].c[2] = bufferBoneTrans[14]; orientation[3].c[3] = bufferBoneTrans[15];
 		bone.initialRotation.set(orientation[1].flt, orientation[2].flt, orientation[3].flt, orientation[0].flt);
-		
+
 		file.read(bufferBoneTrans, 12);
 		Utils::UFloat scale[3];
 		scale[0].c[0] = bufferBoneTrans[0]; scale[0].c[1] = bufferBoneTrans[1]; scale[0].c[2] = bufferBoneTrans[2]; scale[0].c[3] = bufferBoneTrans[3];
@@ -447,36 +453,36 @@ void Game::readMdl(std::string path) {
 		offset[6].c[0] = bufferBoneTrans[24]; offset[6].c[1] = bufferBoneTrans[25]; offset[6].c[2] = bufferBoneTrans[26]; offset[6].c[3] = bufferBoneTrans[27];
 		offset[7].c[0] = bufferBoneTrans[28]; offset[7].c[1] = bufferBoneTrans[29]; offset[7].c[2] = bufferBoneTrans[30]; offset[7].c[3] = bufferBoneTrans[31];
 
-		offset[8].c[0]  = bufferBoneTrans[32]; offset[8].c[1]  = bufferBoneTrans[33]; offset[8].c[2]  = bufferBoneTrans[34]; offset[8].c[3] = bufferBoneTrans[35];
-		offset[9].c[0]  = bufferBoneTrans[36]; offset[9].c[1]  = bufferBoneTrans[37]; offset[9].c[2]  = bufferBoneTrans[38]; offset[9].c[3] = bufferBoneTrans[39];
+		offset[8].c[0] = bufferBoneTrans[32]; offset[8].c[1] = bufferBoneTrans[33]; offset[8].c[2] = bufferBoneTrans[34]; offset[8].c[3] = bufferBoneTrans[35];
+		offset[9].c[0] = bufferBoneTrans[36]; offset[9].c[1] = bufferBoneTrans[37]; offset[9].c[2] = bufferBoneTrans[38]; offset[9].c[3] = bufferBoneTrans[39];
 		offset[10].c[0] = bufferBoneTrans[40]; offset[10].c[1] = bufferBoneTrans[41]; offset[10].c[2] = bufferBoneTrans[42]; offset[10].c[3] = bufferBoneTrans[43];
 		offset[11].c[0] = bufferBoneTrans[44]; offset[11].c[1] = bufferBoneTrans[45]; offset[11].c[2] = bufferBoneTrans[46]; offset[11].c[3] = bufferBoneTrans[47];
 
 		bone.offsetMatrix.set(offset[0].flt, offset[4].flt, offset[8].flt, 0.0f,
-							  offset[1].flt, offset[5].flt, offset[9].flt, 0.0f,
-		                      offset[2].flt, offset[6].flt, offset[10].flt, 0.0f, 
-		                      offset[3].flt, offset[7].flt, offset[11].flt, 1.0f);
-	
+			offset[1].flt, offset[5].flt, offset[9].flt, 0.0f,
+			offset[2].flt, offset[6].flt, offset[10].flt, 0.0f,
+			offset[3].flt, offset[7].flt, offset[11].flt, 1.0f);
+
 		delete bufferBoneTrans;
 
 		file.read(metaData, sizeof(unsigned char));
 		unsigned char boneCollisionType = metaData[0];
 
-		if (boneCollisionType & 1){
+		if (boneCollisionType & 1) {
 			file.read(metaData, sizeof(float));
 			bone.radius = Utils::bytesToFloatLE(metaData[0], metaData[1], metaData[2], metaData[3]);
 			if (bone.radius < BONE_SIZE_THRESHOLD * 0.5f)
 				bone.active = false;
 		}
 
-		if (boneCollisionType & 2){
+		if (boneCollisionType & 2) {
 			char* bufferBox = new char[24];
 			file.read(bufferBox, 24);
 			Utils::UFloat box[6];
 			box[0].c[0] = bufferBox[0]; box[0].c[1] = bufferBox[1]; box[0].c[2] = bufferBox[2]; box[0].c[3] = bufferBox[3];
 			box[1].c[0] = bufferBox[4]; box[1].c[1] = bufferBox[5]; box[1].c[2] = bufferBox[6]; box[1].c[3] = bufferBox[7];
 			box[2].c[0] = bufferBox[8]; box[2].c[1] = bufferBox[9]; box[2].c[2] = bufferBox[10]; box[2].c[3] = bufferBox[11];
-			
+
 			box[3].c[0] = bufferBox[12]; box[3].c[1] = bufferBox[13]; box[3].c[2] = bufferBox[14]; box[3].c[3] = bufferBox[15];
 			box[4].c[0] = bufferBox[16]; box[4].c[1] = bufferBox[17]; box[4].c[2] = bufferBox[18]; box[4].c[3] = bufferBox[19];
 			box[5].c[0] = bufferBox[20]; box[5].c[1] = bufferBox[21]; box[5].c[2] = bufferBox[22]; box[5].c[3] = bufferBox[23];
@@ -509,7 +515,7 @@ void Game::readMdl(std::string path) {
 	file.close();
 }
 
-void Game::RemoveBones(){
+void Game::RemoveBones() {
 	if (!numBones)
 		return;
 
@@ -517,7 +523,7 @@ void Game::RemoveBones(){
 	//for (size_t i = 0; i < numBones; ++i)
 		//bones[i]->SetDrawable(nullptr);
 
-	if (rootBone){
+	if (rootBone) {
 		rootBone->removeSelf();
 		rootBone = nullptr;
 	}
@@ -545,32 +551,33 @@ void Game::CreateBones() {
 	bones = new Bone*[numBones];
 	skinMatrices = new Matrix4f[numBones];
 
-	for (size_t i = 0; i < modelBones.size(); ++i){
+	for (size_t i = 0; i < modelBones.size(); ++i) {
 		const ModelBone& modelBone = modelBones[i];
 
 		// Try to find existing bone from scene hierarchy, if not found create new
 		//bones[i] = owner->FindChild<Bone>(modelBone.nameHash, true);
 
 		//if (!bones[i]){
-			bones[i] = new Bone();
-			bones[i]->SetName(modelBone.name);
-			bones[i]->setPosition(modelBone.initialPosition);
-			bones[i]->setOrientation({ modelBone.initialRotation[0], modelBone.initialRotation[1], modelBone.initialRotation[2], modelBone.initialRotation[3] });
-			bones[i]->setScale(modelBone.initialScale);
-			//bones[i]->SetTransform(modelBone.initialPosition, modelBone.initialRotation, modelBone.initialScale);
-		//}
+		bones[i] = new Bone();
+		bones[i]->SetName(modelBone.name);
+		bones[i]->setPosition(modelBone.initialPosition);
+		bones[i]->setOrientation({ modelBone.initialRotation[0], modelBone.initialRotation[1], modelBone.initialRotation[2], modelBone.initialRotation[3] });
+		bones[i]->setScale(modelBone.initialScale);
+		//bones[i]->SetTransform(modelBone.initialPosition, modelBone.initialRotation, modelBone.initialScale);
+	//}
 
-		//bones[i]->SetDrawable(this);
+	//bones[i]->SetDrawable(this);
 	}
 
 	// Loop through bones again to set the correct parents
-	for (size_t i = 0; i < modelBones.size(); ++i){
+	for (size_t i = 0; i < modelBones.size(); ++i) {
 		const ModelBone& desc = modelBones[i];
-		if (desc.parentIndex == i){
+		if (desc.parentIndex == i) {
 			bones[i]->setParent(nullptr);
 			rootBone = bones[i];
 			bones[i]->offsetMatrix = modelBones[i].offsetMatrix;
-		}else{					
+		}
+		else {
 			bones[i]->setParent(bones[desc.parentIndex]);
 			bones[i]->offsetMatrix = modelBones[i].offsetMatrix;
 		}
@@ -589,7 +596,7 @@ void Game::CreateBones() {
 	//OnWorldBoundingBoxUpdate();
 }
 
-void Game::UpdateAnimation(){
+void Game::UpdateAnimation() {
 
 	//if (animatedModelFlags & AMF_ANIMATION_ORDER_DIRTY)
 	//	std::sort(animationStates.begin(), animationStates.end(), CompareAnimationStates);
@@ -597,14 +604,14 @@ void Game::UpdateAnimation(){
 	//animatedModelFlags |= AMF_IN_ANIMATION_UPDATE | AMF_BONE_BOUNDING_BOX_DIRTY;
 
 	// Reset bones to initial pose, then apply animations
-	for (size_t i = 0; i < numBones; ++i){
+	for (size_t i = 0; i < numBones; ++i) {
 		Bone* bone = bones[i];
 		const ModelBone& modelBone = modelBones[i];
 		if (bone->AnimationEnabled())
 			bone->SetTransformSilent(modelBone.initialPosition, modelBone.initialRotation, modelBone.initialScale);
 	}
 
-	for (auto it = animationStates.begin(); it != animationStates.end(); ++it){
+	for (auto it = animationStates.begin(); it != animationStates.end(); ++it) {
 		AnimationState* state = (*it).get();
 		if (state->Enabled()) {
 			state->AddTime(m_dt);
@@ -631,7 +638,7 @@ void Game::UpdateAnimation(){
 	animatedModelFlags |= AMF_SKINNING_DIRTY;*/
 }
 
-void Game::UpdateSkinning(){
+void Game::UpdateSkinning() {
 
 	for (size_t i = 0; i < numBones; ++i)
 		skinMatrices[i] = bones[i]->getWorldTransformation() * modelBones[i].offsetMatrix;
@@ -642,7 +649,7 @@ void Game::UpdateSkinning(){
 
 void Game::UpdateAnimation2() {
 	for (size_t i = 0; i < assimpAnimated.numBones; ++i) {
-		Bone* bone = bones[i];
+		Bone* bone = assimpAnimated.bones[i];
 		const ModelBone& modelBone = assimpAnimated.m_meshes[0]->meshBones[i];
 		if (bone->AnimationEnabled())
 			bone->SetTransformSilent(modelBone.initialPosition, modelBone.initialRotation, modelBone.initialScale);
