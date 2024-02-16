@@ -18,6 +18,8 @@
 #include "Render/AnimationShader.h"
 #include "AssimpAnimation.h"
 #include "AssimpAnimator.h"
+#include "ModelBone.h"
+#include "Bone.h"
 
 struct AssimpWeightData {
 	unsigned int vertexId;
@@ -117,7 +119,7 @@ public:
 	std::shared_ptr<AssimpAnimator> getAnimator() { return m_animator; }
 	
 	int m_numberOfTriangles;
-	AssimpBoneData fetchAiHierarchy(aiNode *node, std::vector<std::string>& boneList, std::vector<Matrix4f>& offsetMatrices);
+	AssimpBoneData fetchAiHierarchy(aiNode *node, std::vector<std::string>& boneList, std::vector<Matrix4f>& offsetMatrices, std::vector<ModelBone>& meshBones, int parentIndex = 0);
 	AssimpSkeletonData skeletonData;
 
 	aiNode* searchNode(aiNode *node, std::vector<std::string> &boneList);
@@ -125,6 +127,11 @@ public:
 	void printSkeletonData(AssimpBoneData& boneData);
 	void printAiHierarchy(aiNode *node);
 
+	Bone* rootBone;
+	Bone* *bones;
+	void AssimpAnimatedModel::CreateBones(std::vector<ModelBone>& meshBones);
+	unsigned short numBones = 0;
+	Matrix4f* skinMatrices;
 
 private:
 	Transform m_transform;
@@ -177,4 +184,6 @@ public:
 
 	AssimpAnimatedModel::AssimpBone GetLocalTransform(std::string joint);
 	AssimpAnimatedModel::AssimpBone GetLocalTransform(AssimpAnimatedModel::AssimpBone& joint, std::string jointName);
+
+	std::vector<ModelBone> meshBones;
 };

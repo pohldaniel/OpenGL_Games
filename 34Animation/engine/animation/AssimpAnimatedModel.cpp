@@ -22,12 +22,12 @@ void AssimpAnimatedModel::loadModel(const std::string &a_filename, const std::st
 	std::priority_queue<AssimpWeightData> pq;
 
 	unsigned short maxBones = 4;
-	std::vector<std::array<unsigned int, 4>> vertexIds;
 
 	std::vector<Matrix4f> offsetMatrices;
 
 	AssimpAnimatedMesh* mesh;
-	for (int j = 0; j < 1; j++) {
+
+	for (int j = 0; j < pScene->mNumMeshes; j++) {
 
 		const aiMesh* aiMesh = pScene->mMeshes[j];
 		const aiMaterial* aiMaterial = pScene->mMaterials[aiMesh->mMaterialIndex];
@@ -46,11 +46,24 @@ void AssimpAnimatedModel::loadModel(const std::string &a_filename, const std::st
 
 		if (aiMesh->HasBones()) {
 			
-			unsigned int boneId = 0;
-			for (unsigned int boneIndex = 0; boneIndex < aiMesh->mNumBones; boneIndex++) {
+			mesh->meshBones.resize(aiMesh->mNumBones);
+			for (int boneIndex = aiMesh->mNumBones -1 ; boneIndex >= 0; boneIndex--) {
+				ModelBone& _bone = mesh->meshBones[(aiMesh->mNumBones - 1) - boneIndex];
+
 				aiBone *bone = aiMesh->mBones[boneIndex];
 				const std::string boneName = bone->mName.C_Str();
+
+				//std::cout << "Bone Name: " << boneName << std::endl;
+
 				mesh->m_boneList.push_back(boneName);
+
+				_bone.name = boneName;
+				_bone.nameHash = StringHash(boneName);
+				_bone.offsetMatrix.set(bone->mOffsetMatrix.a1, bone->mOffsetMatrix.b1, bone->mOffsetMatrix.c1, bone->mOffsetMatrix.d1,
+									   bone->mOffsetMatrix.a2, bone->mOffsetMatrix.b2, bone->mOffsetMatrix.c2, bone->mOffsetMatrix.d2,
+                                       bone->mOffsetMatrix.a3, bone->mOffsetMatrix.b3, bone->mOffsetMatrix.c3, bone->mOffsetMatrix.d3,
+                                       bone->mOffsetMatrix.a4, bone->mOffsetMatrix.b4, bone->mOffsetMatrix.c4, bone->mOffsetMatrix.d4);
+
 
 				offsetMatrices.push_back(Matrix4f(bone->mOffsetMatrix.a1, bone->mOffsetMatrix.b1, bone->mOffsetMatrix.c1, bone->mOffsetMatrix.d1,
 												  bone->mOffsetMatrix.a2, bone->mOffsetMatrix.b2, bone->mOffsetMatrix.c2, bone->mOffsetMatrix.d2,
@@ -59,17 +72,14 @@ void AssimpAnimatedModel::loadModel(const std::string &a_filename, const std::st
 			
 				for (unsigned int weightIndex = 0; weightIndex < bone->mNumWeights; weightIndex++) {
 					aiVertexWeight w = bone->mWeights[weightIndex];
-					pq.push(AssimpWeightData(w.mVertexId, w.mWeight, boneId));
+					pq.push(AssimpWeightData(w.mVertexId, w.mWeight,(aiMesh->mNumBones - 1)- boneIndex));
 				}
-
-				boneId++;
 			}
 
 			AssimpWeightData first = pq.top();
 			short k = -1;
 					
 			std::array<unsigned int, 4> jointId = { 0, 0, 0, 0 };
-			std::array<unsigned int, 4> vertexId = { 0, 0, 0, 0 };
 			Vector4f jointWeight = { 0.0f, 0.0f, 0.0f, 0.0f };
 
 			while (!pq.empty()) {
@@ -78,12 +88,10 @@ void AssimpAnimatedModel::loadModel(const std::string &a_filename, const std::st
 				if (first.vertexId == current.vertexId) {
 					k++;					
 				}else {
-					vertexIds.push_back(vertexId);
 					m_jointWeights.push_back(jointWeight);
 					m_jointIds.push_back(jointId);
 
 					jointId = { 0, 0, 0, 0 };
-					vertexId = { 0, 0, 0, 0 };
 					jointWeight = { 0.0f, 0.0f, 0.0f, 0.0f };
 					k = 0;
 					first = current;
@@ -91,30 +99,21 @@ void AssimpAnimatedModel::loadModel(const std::string &a_filename, const std::st
 
 				if (k < maxBones) {					
 					jointWeight[k] = pq.top().weight;
-					vertexId[k] = pq.top().vertexId;
 					jointId[k] = pq.top().boneId;
 				}				
 				pq.pop();
 			}
 			
-			vertexIds.push_back(vertexId);
 			m_jointWeights.push_back(jointWeight);
 			m_jointIds.push_back(jointId);
 	
-			
-
-			//for (int i = 0; i < jointWeights.size(); i++) {
-				
-			//}
-
 			aiNode *meshRootNode = searchNode(pScene->mRootNode, mesh->m_boneList);			
-			//std::cout << "AI Hierarchy" << std::endl;
 			//printAiHierarchy(pScene->mRootNode);
 			
-			skeletonData.headJoint = fetchAiHierarchy(meshRootNode, mesh->m_boneList, offsetMatrices);
+			skeletonData.headJoint = fetchAiHierarchy(meshRootNode, mesh->m_boneList, offsetMatrices, mesh->meshBones);
 			skeletonData.jointCount = mesh->m_boneList.size();
 
-			//printSkeletonData(skeletonData.headJoint);
+			printSkeletonData(skeletonData.headJoint);
 			CreateJoints(mesh->m_rootBone, skeletonData, mesh->m_boneList);
 		}
 		
@@ -128,6 +127,8 @@ void AssimpAnimatedModel::loadModel(const std::string &a_filename, const std::st
 		mesh->m_drawCount = aiMesh->mNumFaces * 3;
 		CreateBuffer(m_positions, m_texCoords, m_normals, m_jointIds, m_jointWeights, m_indexBuffer, mesh->m_vao, mesh->m_vbo, mesh->m_ibo);	
 	}
+
+	CreateBones(mesh->meshBones);
 }
 
 void AssimpAnimatedModel::CreateBuffer(std::vector<Vector3f>& positions, std::vector<Vector2f>& texCoords, std::vector<Vector3f>& normals, std::vector<std::array<unsigned int, 4>>& jointIds, std::vector<Vector4f>& jointWeights, std::vector<unsigned int>& indices, unsigned int& vao, unsigned int(&vbo)[5], unsigned int& ibo){
@@ -181,19 +182,20 @@ void AssimpAnimatedModel::CreateBuffer(std::vector<Vector3f>& positions, std::ve
 	glEnableVertexAttribArray(2);
 	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
-	// Joint Ids
-	glBindBuffer(GL_ARRAY_BUFFER, vbo[3]);
-	glBufferData(GL_ARRAY_BUFFER, jointIds.size() * sizeof(std::array<unsigned int, 4>), &jointIds.front(), GL_STATIC_DRAW);
-
-	glEnableVertexAttribArray(3);
-	glVertexAttribIPointer(3, 4, GL_UNSIGNED_INT, 0, 0);
 
 	//Joint Weights
 	glBindBuffer(GL_ARRAY_BUFFER, vbo[4]);
 	glBufferData(GL_ARRAY_BUFFER, jointWeights.size() * sizeof(Vector4f), &jointWeights.front(), GL_STATIC_DRAW);
 
-	glEnableVertexAttribArray(4);
-	glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(5);
+	glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, 0, 0);
+
+	// Joint Ids
+	glBindBuffer(GL_ARRAY_BUFFER, vbo[3]);
+	glBufferData(GL_ARRAY_BUFFER, jointIds.size() * sizeof(std::array<unsigned int, 4>), &jointIds.front(), GL_STATIC_DRAW);
+
+	glEnableVertexAttribArray(6);
+	glVertexAttribIPointer(6, 4, GL_UNSIGNED_INT, 0, 0);
 
 	//Indices
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
@@ -211,8 +213,8 @@ void AssimpAnimatedModel::printAiHierarchy(aiNode *node) {
 }
 
 void AssimpAnimatedModel::printSkeletonData(AssimpBoneData& boneData) {
-	boneData.localBindTransform.print();
-
+	//std::cout << "H Name: " << boneData.nameId << std::endl;
+	//boneData.localBindTransform.print();
 	for (unsigned int i = 0; i < boneData.children.size(); i++) {
 		printSkeletonData(boneData.children[i]);
 	}
@@ -228,8 +230,6 @@ void AssimpAnimatedModel::CreateJoints(AssimpBone& bone, AssimpSkeletonData& ske
 	for (AssimpBoneData child : skeletonData.headJoint.children) {
 		bone.children.push_back(CreateJoints(child, bone.localBindTransform, boneList));
 	}
-		
-	
 }
 
 AssimpAnimatedModel::AssimpBone AssimpAnimatedModel::CreateJoints(AssimpBoneData data, Matrix4f parentBindTransform, std::vector<std::string> &boneList) {
@@ -266,7 +266,7 @@ AssimpAnimatedModel::AssimpBone AssimpAnimatedMesh::GetLocalTransform(AssimpAnim
 	return AssimpAnimatedModel::AssimpBone();
 }
 
-AssimpBoneData AssimpAnimatedModel::fetchAiHierarchy(aiNode *node, std::vector<std::string> &boneList, std::vector<Matrix4f>& offsetMatrices) {
+AssimpBoneData AssimpAnimatedModel::fetchAiHierarchy(aiNode *node, std::vector<std::string> &boneList, std::vector<Matrix4f>& offsetMatrices, std::vector<ModelBone>& meshBones, int parentIndex) {
 
 	std::vector<std::string>::iterator it = std::find(boneList.begin(), boneList.end(), node->mName.C_Str());
 	
@@ -278,10 +278,30 @@ AssimpBoneData AssimpAnimatedModel::fetchAiHierarchy(aiNode *node, std::vector<s
 
 	AssimpBoneData data;
 	unsigned int index = std::distance(boneList.begin(), it);
+
+	std::vector<ModelBone>::iterator it2 = std::find_if(meshBones.begin(), meshBones.end(), [node](ModelBone& _node) { return strcmp(node->mName.C_Str(), _node.name.c_str()) == 0; });
+	int _parentIndex = -1;
+	
+	if (it2 != meshBones.end()) {
+		aiVector3D pos, scale;
+		aiQuaternion rot;
+		tmp.Decompose(scale, rot, pos);
+
+		(*it2).initialPosition.set(pos.x, pos.y, pos.z);
+		(*it2).initialRotation.set(rot.x, rot.y, rot.z, rot.w);
+		(*it2).initialScale.set(scale.x, scale.y, scale.z);
+
+		(*it2).parentIndex = parentIndex;
+		_parentIndex = std::distance(meshBones.begin(), it2);
+		//std::cout << "Name: " << (*it2).name << "  " << node->mNumChildren << "  " << parentIndex  << std::endl;
+	}/*else {
+		std::cout << "Name: " << node->mName.C_Str()<< "  " << node->mNumChildren  << std::endl;
+	}*/
+
 	data = AssimpBoneData(index, node->mName.data, transMatrix, offsetMatrices[index]);
 	
 	for (unsigned int i = 0; i < node->mNumChildren; i++) {
-		AssimpBoneData innerData = fetchAiHierarchy(node->mChildren[i], boneList, offsetMatrices);
+		AssimpBoneData innerData = fetchAiHierarchy(node->mChildren[i], boneList, offsetMatrices, meshBones, _parentIndex);
 		std::vector<std::string>::iterator innerIt = std::find(boneList.begin(), boneList.end(), innerData.nameId);
 		if (innerIt != boneList.end()) {
 			data.addChild(innerData);
@@ -367,6 +387,41 @@ const Matrix4f &AssimpAnimatedModel::getTransformationMatrix() const {
 
 const Matrix4f &AssimpAnimatedModel::getInvTransformationMatrix() {
 	return m_transform.getInvTransformationMatrix();
+}
+
+void AssimpAnimatedModel::CreateBones(std::vector<ModelBone>& meshBones) {
+
+	numBones = (unsigned short)meshBones.size();
+
+	bones = new Bone*[numBones];
+	skinMatrices = new Matrix4f[numBones];
+
+	for (size_t i = 0; i < meshBones.size(); ++i) {
+		const ModelBone& modelBone = meshBones[i];
+		bones[i] = new Bone();
+		bones[i]->SetName(modelBone.name);
+		bones[i]->setPosition(modelBone.initialPosition);
+		bones[i]->setOrientation({ modelBone.initialRotation[0], modelBone.initialRotation[1], modelBone.initialRotation[2], modelBone.initialRotation[3] });
+		bones[i]->setScale(modelBone.initialScale);
+
+	}
+
+	for (size_t i = 0; i < meshBones.size(); ++i) {
+		const ModelBone& desc = meshBones[i];
+		if (desc.parentIndex == i) {
+			bones[i]->setParent(nullptr);
+			rootBone = bones[i];
+			bones[i]->offsetMatrix = meshBones[i].offsetMatrix;
+		}
+		else {
+			bones[i]->setParent(bones[desc.parentIndex]);
+			bones[i]->offsetMatrix = meshBones[i].offsetMatrix;
+		}
+	}
+
+	for (size_t i = 0; i < meshBones.size(); ++i)
+		bones[i]->CountChildBones();
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////

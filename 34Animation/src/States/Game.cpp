@@ -19,20 +19,29 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 	m_camera = Camera();
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
-	m_camera.lookAt(Vector3f(0.0f, 1.0f, -5.0f), Vector3f(0.0f, 1.0f, -5.0f) + Vector3f(0.0f, 0.0f, 1.0f), Vector3f(0.0f, 1.0f, 0.0f));
+	m_camera.lookAt(Vector3f(-100.0f, 100.0f, 400.0f), Vector3f(-100.0f, 100.0f, 400.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
 	m_camera.setRotationSpeed(0.1f);
-	m_camera.setMovingSpeed(10.0f);
+	m_camera.setMovingSpeed(100.0f);
 
 	//glClearColor(0.494f, 0.686f, 0.796f, 1.0f);
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClearDepth(1.0f);
 
-	//Globals::animationManager.loadAnimation("vampire_dance", "res/models/vampire/dancing_vampire.dae", "Hips", "vampire_dance", false, 0u, 0u, 1000.0f);
-	//assimpAnimated.loadModel("res/models/vampire/dancing_vampire.dae", "res/models/vampire/textures/Vampire_diffuse.png");
-	//assimpAnimated.translate(0.0f, 0.0f, 0.0f);
-	//assimpAnimated.scale(0.03f, 0.03f, 0.03f);
-	//assimpAnimated.getAnimator()->addAnimation(Globals::animationManager.getAssetPointer("vampire_dance"));
-	//assimpAnimated.getAnimator()->startAnimation("vampire_dance");
+	Globals::animationManager.loadAnimation("vampire_dance", "res/models/vampire/dancing_vampire.dae", "Hips", "vampire_dance", false, 0u, 0u, 1000.0f);
+	assimpAnimated.loadModel("res/models/vampire/dancing_vampire.dae", "res/models/vampire/textures/Vampire_diffuse.png");
+	assimpAnimated.translate(0.0f, 0.0f, 0.0f);
+	//assimpAnimated.scale(0.5f, 0.5f, 0.5f);
+	assimpAnimated.getAnimator()->addAnimation(Globals::animationManager.getAssetPointer("vampire_dance"));
+	assimpAnimated.getAnimator()->startAnimation("vampire_dance");
+
+	//assimpAnimated.rootBone->scale(0.5f, 0.5f, 0.5f);
+
+	animation2 = new Animation();
+	animation2->loadAni2("res/models/vampire/dancing_vampire.dae", "Hips", "vampire_dance");
+
+	AnimationState* state2 = new AnimationState(animation2, assimpAnimated.rootBone);
+	state2->SetLooped(true);
+	animationStates2.push_back(std::shared_ptr<AnimationState>(state2));
 
 	readMdl("res/models/BetaLowpoly/Beta.mdl");
 	CreateBones();
@@ -46,8 +55,8 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 
 	glGenBuffers(1, &BuiltInShader::matrixUbo);
 	glBindBuffer(GL_UNIFORM_BUFFER, BuiltInShader::matrixUbo);
-	glBufferData(GL_UNIFORM_BUFFER, sizeof(Matrix4f) * numBones, NULL, GL_DYNAMIC_DRAW);
-	glBindBufferRange(GL_UNIFORM_BUFFER, 3, BuiltInShader::matrixUbo, 0, sizeof(Matrix4f) * numBones);
+	glBufferData(GL_UNIFORM_BUFFER, sizeof(Matrix4f) * assimpAnimated.numBones, NULL, GL_DYNAMIC_DRAW);
+	glBindBufferRange(GL_UNIFORM_BUFFER, 3, BuiltInShader::matrixUbo, 0, sizeof(Matrix4f) * assimpAnimated.numBones);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 	CreateBuffer(m_vertexBuffer, m_indexBuffer, m_vao, m_vbo, m_ibo, 8, m_weights, m_boneIds);
@@ -121,33 +130,40 @@ void Game::update() {
 
 	//assimpAnimated.update(m_dt);
 	UpdateAnimation();
+	UpdateAnimation2();
 }
 
 void Game::render() {
-	UpdateSkinning();
+
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	/*UpdateSkinning();
 
 	glBindBuffer(GL_UNIFORM_BUFFER, BuiltInShader::matrixUbo);
 	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(Matrix4f) * numBones, skinMatrices);
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);*/
+
+	UpdateSkinning2();
+
+	glBindBuffer(GL_UNIFORM_BUFFER, BuiltInShader::matrixUbo);
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(Matrix4f) * assimpAnimated.numBones, assimpAnimated.skinMatrices);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	
 
 	auto shader = Globals::shaderManager.getAssetPointer("animation_new");
 	shader->use();
 	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
 	shader->loadMatrix("u_view", m_camera.getViewMatrix());
 
-	glBindVertexArray(m_vao);
-	glDrawElements(GL_TRIANGLES, m_indexBuffer.size(), GL_UNSIGNED_INT, 0);
-	glBindVertexArray(0);
-
+	Globals::textureManager.get("vampire").bind();
+	assimpAnimated.drawRaw();
 	shader->unuse();
 
 	DebugRenderer::Get().SetView(&m_camera);
-
-	DebugRenderer::Get().AddBoundingBox(boundingBox, {1.0f, 0.0f, 0.0f, 1.0f});
-	DebugRenderer::Get().AddSkeleton(bones, numBones, { 0.0f, 1.0f, 0.0f, 1.0f });
-
+	//DebugRenderer::Get().AddBoundingBox(boundingBox, {1.0f, 0.0f, 0.0f, 1.0f});
+	//DebugRenderer::Get().AddSkeleton(bones, numBones, { 0.0f, 1.0f, 0.0f, 1.0f });
+	DebugRenderer::Get().AddSkeleton(assimpAnimated.bones, assimpAnimated.numBones, { 0.0f, 1.0f, 0.0f, 1.0f });
 	DebugRenderer::Get().drawBuffer();
 	
 	if (m_drawUi)
@@ -393,7 +409,7 @@ void Game::readMdl(std::string path) {
 
 		file.read(metaData, sizeof(unsigned int));
 		bone.parentIndex = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
-
+		//std::cout << "Parent Index: " << bone.parentIndex << std::endl;
 
 		char* bufferBoneTrans = new char[48];
 
@@ -622,6 +638,31 @@ void Game::UpdateSkinning(){
 
 	//animatedModelFlags &= ~AMF_SKINNING_DIRTY;
 	//animatedModelFlags |= AMF_SKINNING_BUFFER_DIRTY;
+}
+
+void Game::UpdateAnimation2() {
+	for (size_t i = 0; i < assimpAnimated.numBones; ++i) {
+		Bone* bone = bones[i];
+		const ModelBone& modelBone = assimpAnimated.m_meshes[0]->meshBones[i];
+		if (bone->AnimationEnabled())
+			bone->SetTransformSilent(modelBone.initialPosition, modelBone.initialRotation, modelBone.initialScale);
+	}
+
+	for (auto it = animationStates2.begin(); it != animationStates2.end(); ++it) {
+		AnimationState* state = (*it).get();
+		if (state->Enabled()) {
+			state->AddTime(m_dt);
+			state->Apply();
+		}
+	}
+
+}
+
+void Game::UpdateSkinning2() {
+
+	for (size_t i = 0; i < assimpAnimated.numBones; ++i) {
+		assimpAnimated.skinMatrices[i] = assimpAnimated.bones[i]->getWorldTransformation() * assimpAnimated.m_meshes[0]->meshBones[i].offsetMatrix;
+	}
 }
 
 void Game::CreateBuffer(std::vector<float>& vertexBuffer, std::vector<unsigned int> indexBuffer, unsigned int& vao, unsigned int(&vbo)[3], unsigned int& ibo, unsigned int stride, std::vector<std::array<float, 4>>& weights, std::vector<std::array<unsigned int, 4>>& boneIds) {

@@ -65,7 +65,6 @@ void Animation::loadAni(std::string path) {
 		file.read(metaData, sizeof(unsigned char));
 		newTrack->channelMask = metaData[0];
 
-
 		file.read(metaData, sizeof(unsigned int));
 		unsigned int numKeyFrames = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
 		newTrack->keyFrames.resize(numKeyFrames);
@@ -108,7 +107,53 @@ void Animation::loadAni(std::string path) {
 			delete buffer;
 		}
 	}
+}
 
+void Animation::loadAni2(const std::string &filename, std::string sourceName, std::string destName) {
+	Assimp::Importer Importer;
+	const aiScene* aiScene = Importer.ReadFile(filename, NULL);
+
+	if (!aiScene) {
+		std::cout << filename << "  " << Importer.GetErrorString() << std::endl;
+		return;
+	}
+
+	for (unsigned int i = 0; i < aiScene->mNumAnimations; i++) {
+		const aiAnimation* aiAnimation = aiScene->mAnimations[i];
+		if (sourceName.compare(aiAnimation->mName.data) != 0) {
+			continue;
+		}
+
+		animationName = destName;
+		animationNameHash = animationName;
+		length = aiAnimation->mDuration / 1000.0f;
+		tracks.clear();
+
+		for(unsigned int c = 0; c < aiAnimation->mNumChannels; c++) {
+
+			AnimationTrack* newTrack = CreateTrack(aiAnimation->mChannels[c]->mNodeName.data);
+			newTrack->channelMask = CHANNEL_POSITION  + CHANNEL_ROTATION + CHANNEL_SCALE;
+
+
+
+			unsigned int numKeyFrames = aiAnimation->mChannels[c]->mNumPositionKeys;
+
+			newTrack->keyFrames.resize(numKeyFrames);
+			for (size_t j = 0; j < numKeyFrames; ++j) {
+				AnimationKeyFrame& newKeyFrame = newTrack->keyFrames[j];
+				newKeyFrame.time = aiAnimation->mChannels[c]->mPositionKeys[j].mTime / 1000.0f;
+
+				//std::cout << "Num Key1: " << newKeyFrame.time << std::endl;
+
+				newKeyFrame.position.set(aiAnimation->mChannels[c]->mPositionKeys[j].mValue.x, aiAnimation->mChannels[c]->mPositionKeys[j].mValue.y, aiAnimation->mChannels[c]->mPositionKeys[j].mValue.z);
+				newKeyFrame.scale.set(aiAnimation->mChannels[c]->mScalingKeys[j].mValue.x, aiAnimation->mChannels[c]->mScalingKeys[j].mValue.y, aiAnimation->mChannels[c]->mScalingKeys[j].mValue.z);
+				
+				aiQuaternion quat = aiAnimation->mChannels[c]->mRotationKeys[j].mValue;
+				newKeyFrame.rotation.set(quat.x, quat.y, quat.z, quat.w);
+			}
+			
+		}
+	}
 }
 
 void Animation::SetAnimationName(const std::string& name_){

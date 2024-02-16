@@ -16,10 +16,12 @@ layout(std140, binding = 3) uniform u_skinMatrices{
 
 uniform mat4 u_view;
 uniform mat4 u_projection;
+uniform vec4 u_color = vec4(1.0); 
 
 out vec4 v_worldPos;
 out vec2 v_texCoord;
 out vec3 v_normal;
+out vec4 vertColor; 
 
 mat4 GetWorldMatrix(){
     return skinMatrices[i_jointIds.x] * i_jointWeights.x + skinMatrices[i_jointIds.y] * i_jointWeights.y +
@@ -31,5 +33,6 @@ void main(){
 	v_worldPos = world * vec4(i_position, 1.0);   
 	v_texCoord = i_texCoord;
 	v_normal = (world * vec4(i_normal, 0.0)).xyz; 	
+	vertColor = u_color;
 	gl_Position = u_projection * u_view * v_worldPos;
 }

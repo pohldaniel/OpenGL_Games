@@ -60,6 +60,8 @@ private:
 	void RemoveBones();
 	void UpdateAnimation();
 	void UpdateSkinning();
+	void UpdateAnimation2();
+	void UpdateSkinning2();
 
 	std::vector<float> m_vertexBuffer;
 	std::vector<unsigned int> m_indexBuffer;
@@ -79,10 +81,12 @@ private:
 	unsigned short numBones = 0;
 
 	Animation* animation;
+	Animation* animation2;
 	Bone* rootBone;
 	Bone* *bones;
 	Matrix4f* skinMatrices;
 	std::vector<std::shared_ptr<AnimationState>> animationStates;
+	std::vector<std::shared_ptr<AnimationState>> animationStates2;
 
 	void CreateBuffer(std::vector<float>& vertexBuffer, std::vector<unsigned int> indexBuffer, unsigned int& vao, unsigned int(&vbo)[3], unsigned int& ibo, unsigned int stride, std::vector<std::array<float, 4>>& weights, std::vector<std::array<unsigned int, 4>>& boneIds);
 };

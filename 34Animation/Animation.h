@@ -6,6 +6,10 @@
 #include <engine/Vector.h>
 #include "StringHash.h"
 
+#include <assimp/Importer.hpp> 
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
+
 static const unsigned char CHANNEL_POSITION = 1;
 static const unsigned char CHANNEL_ROTATION = 2;
 static const unsigned char CHANNEL_SCALE = 4;
@@ -41,6 +45,7 @@ public:
 	static void RegisterObject();
 
 	void loadAni(std::string path);
+	void loadAni2(const std::string &filename, std::string sourceName, std::string destName);
 
 	/// Load animation from a stream. Return true on success.
 	//bool BeginLoad(Stream& source) override;
