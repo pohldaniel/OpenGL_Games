@@ -665,6 +665,7 @@ void Application::loadAssets() {
 	Globals::textureManager.loadTexture("forest_5", "res/backgrounds/Forest/plx-5.png");
 	
 	Globals::textureManager.loadTexture("vampire", "res/models/vampire/textures/Vampire_diffuse.png", false);
+	Globals::textureManager.loadTexture("cowboy", "res/models/cowboy/cowboy.png", false);
 	Globals::textureManager.createNullTexture("null");
 
 	Globals::fontManager.loadCharacterSet("upheaval_200", "res/fonts/upheavtt.ttf", 200, 10u, 30u, 128u, 0, true, 0u);

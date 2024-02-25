@@ -283,7 +283,6 @@ void AnimationState::ApplyToNodes(){
 				newScale = keyFrame.scale;
 		}
 		
-		
 		node->setPosition(newPosition);
 		node->setOrientation(newRotation);
 		node->setScale(newScale);

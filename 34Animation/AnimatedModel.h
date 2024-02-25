@@ -4,6 +4,7 @@
 #include <string>
 #include <queue>
 #include <array>
+#include <memory>
 
 #include <assimp/Importer.hpp> 
 #include <assimp/scene.h>
@@ -13,6 +14,7 @@
 
 #include "ModelBone.h"
 #include "Bone.h"
+#include "AnimationState.h"
 
 struct WeightData {
 	unsigned int vertexId;
@@ -35,8 +37,10 @@ public:
 	virtual ~AnimatedModel() {}
 
 	void drawRaw();
+	void update(float dt);
+	void updateSkinning();
 
-	void loadModelAssimp(const std::string& path, const bool addVirtualRoot = false);
+	void loadModelAssimp(const std::string& path, const bool addVirtualRoot = false, const bool reverseBoneList = false);
 	void loadModelMdl(const std::string& path);
 	std::vector<AnimatedMesh*> m_meshes;
 
@@ -57,8 +61,11 @@ public:
 	virtual ~AnimatedMesh();
 
 	void drawRaw();
+	void update(float dt);
+	void updateSkinning();
 
 	AnimatedModel* m_model;
+	std::vector<std::shared_ptr<AnimationState>> m_animationStates;
 
 	Bone* m_rootBone;
 	Bone** m_bones;

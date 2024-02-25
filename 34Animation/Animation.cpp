@@ -134,11 +134,7 @@ void Animation::loadAnimationAssimp(const std::string &filename, std::string sou
 
 			AnimationTrack* newTrack = CreateTrack(aiAnimation->mChannels[c]->mNodeName.data);
 			newTrack->channelMask = CHANNEL_POSITION  + CHANNEL_ROTATION + CHANNEL_SCALE;
-
-
-
 			unsigned int numKeyFrames = aiAnimation->mChannels[c]->mNumPositionKeys;
-
 			newTrack->keyFrames.resize(numKeyFrames);
 			for (size_t j = 0; j < numKeyFrames; ++j) {
 				AnimationKeyFrame& newKeyFrame = newTrack->keyFrames[j];

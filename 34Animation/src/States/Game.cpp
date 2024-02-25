@@ -26,25 +26,24 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClearDepth(1.0f);
 
-	animatedModel.loadModelAssimp("res/models/vampire/dancing_vampire.dae", true);
-	animatedModel.m_meshes[0]->m_meshBones[0].initialPosition.translate(1.0f, 0.0f, 0.0f);
-	animatedModel.m_meshes[0]->m_meshBones[0].initialRotation.rotate(Vector3f(0.0f, 1.0f, 0.0f), 180.0f);
+	vampire.loadModelAssimp("res/models/vampire/dancing_vampire.dae", true, true);
+	vampire.m_meshes[0]->m_meshBones[0].initialPosition.translate(1.0f, 0.0f, 0.0f);
+	vampire.m_meshes[0]->m_meshBones[0].initialRotation.rotate(Vector3f(0.0f, 1.0f, 0.0f), 180.0f);
 	
-	animatedModel.m_meshes[0]->m_meshBones[1].initialPosition.set(0.0f, 0.0f, 0.0f);
-	animatedModel.m_meshes[0]->m_meshBones[1].initialScale.set(0.01f, 0.01f, 0.01f);
-	animatedModel.m_meshes[0]->m_meshBones[1].initialPosition.translate(0.0f, 1.0f, 0.0f);
-	animatedModel.m_meshes[0]->createBones();
+	vampire.m_meshes[0]->m_meshBones[1].initialPosition.set(0.0f, 1.0f, 0.0f);
+	vampire.m_meshes[0]->m_meshBones[1].initialScale.scale(0.01f, 0.01f, 0.01f);
 
-	animation2 = new Animation();
-	animation2->loadAnimationAssimp("res/models/vampire/dancing_vampire.dae", "Hips", "vampire_dance");
-	animation2->setPositionOfTrack("Hips", 0.0f, 1.0f, 0.0f);
-	animation2->setScaleOfTrack("Hips", 0.01f, 0.01f, 0.01f);
+	vampire.m_meshes[0]->createBones();
 
+	Animation* animation = new Animation();
+	animation->loadAnimationAssimp("res/models/vampire/dancing_vampire.dae", "Hips", "vampire_dance");
+	animation->setPositionOfTrack("Hips", 0.0f, 1.0f, 0.0f);
+	animation->scaleTrack("Hips", 0.01f, 0.01f, 0.01f);
 	
-	AnimationState* state2 = new AnimationState(animation2, animatedModel.m_meshes[0]->m_rootBone);
-	state2->SetLooped(true);
-	state2->SetEnabled(m_playAnimation);
-	animationStates2.push_back(std::shared_ptr<AnimationState>(state2));
+	vampire.m_meshes[0]->m_animationStates.push_back(std::shared_ptr<AnimationState>(new AnimationState(animation, vampire.m_meshes[0]->m_rootBone)));
+	vampire.m_meshes[0]->m_animationStates.back()->SetLooped(true);
+	vampire.m_meshes[0]->m_animationStates.back()->SetEnabled(m_playAnimation);
+	
 
 	beta.loadModelMdl("res/models/BetaLowpoly/Beta.mdl");
 	beta.m_meshes[0]->m_meshBones[0].initialPosition.translate(-1.0f, 0.0f, 0.0f);
@@ -55,18 +54,29 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 	//animation->loadAnimation("res/models/BetaLowpoly/Beta_Idle.ani");
 	animation->loadAnimation("res/models/BetaLowpoly/Beta_Run.ani");
 
-	AnimationState* state = new AnimationState(animation, beta.m_meshes[0]->m_rootBone);
-	state->SetLooped(true);
-	//state->SetEnabled(false);
-	animationStates.push_back(std::shared_ptr<AnimationState>(state));
+	beta.m_meshes[0]->m_animationStates.push_back(std::shared_ptr<AnimationState>(new AnimationState(animation, beta.m_meshes[0]->m_rootBone)));
+	beta.m_meshes[0]->m_animationStates.back()->SetLooped(true);
+	//beta.m_meshes[0]->m_animationStates.back()->SetEnabled(false);*/
 
+	cowboy.loadModelAssimp("res/models/cowboy/cowboy.dae", true, false);
+	cowboy.m_meshes[0]->m_meshBones[1].initialPosition.set(0.0f, 0.3f, 0.0f);
+	cowboy.m_meshes[0]->m_meshBones[1].initialScale.scale(0.1f, 0.1f, 0.1f);
+	cowboy.m_meshes[0]->createBones();
+
+	animation = new Animation();
+	animation->loadAnimationAssimp("res/models/cowboy/cowboy.dae", "Armature_Armature", "cowboy_run");
+	animation->setPositionOfTrack("Armature_Torso", 0.0f, 0.3f, 0.0f);
+	animation->scaleTrack("Armature_Torso", 0.1f, 0.1f, 0.1f);
+
+	cowboy.m_meshes[0]->m_animationStates.push_back(std::shared_ptr<AnimationState>(new AnimationState(animation, cowboy.m_meshes[0]->m_rootBone)));
+	cowboy.m_meshes[0]->m_animationStates.back()->SetLooped(true);
 
 	DebugRenderer::Get().setEnable(true);
 
 	glGenBuffers(1, &BuiltInShader::matrixUbo);
 	glBindBuffer(GL_UNIFORM_BUFFER, BuiltInShader::matrixUbo);
 	glBufferData(GL_UNIFORM_BUFFER, sizeof(Matrix4f) * 96, NULL, GL_DYNAMIC_DRAW);
-	glBindBufferRange(GL_UNIFORM_BUFFER, 3, BuiltInShader::matrixUbo, 0, sizeof(Matrix4f) * animatedModel.m_meshes[0]->m_numBones);
+	glBindBufferRange(GL_UNIFORM_BUFFER, 3, BuiltInShader::matrixUbo, 0, sizeof(Matrix4f) * 96);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 	StateMachine::ToggleWireframe();
@@ -136,15 +146,18 @@ void Game::update() {
 		}
 	}
 
-	UpdateAnimation();
-	UpdateAnimation2();
+	beta.update(m_dt);
+	vampire.update(m_dt);
+	cowboy.update(m_dt);
+
+	beta.updateSkinning();
+	vampire.updateSkinning();
+	cowboy.updateSkinning();
 }
 
 void Game::render() {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	UpdateSkinning();
 
 	glBindBuffer(GL_UNIFORM_BUFFER, BuiltInShader::matrixUbo);
 	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(Matrix4f) * beta.m_meshes[0]->m_numBones, beta.m_meshes[0]->m_skinMatrices);
@@ -162,9 +175,8 @@ void Game::render() {
 
 	shader->unuse();
 	
-	UpdateSkinning2();
 	glBindBuffer(GL_UNIFORM_BUFFER, BuiltInShader::matrixUbo);
-	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(Matrix4f) * animatedModel.m_meshes[0]->m_numBones, animatedModel.m_meshes[0]->m_skinMatrices);
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(Matrix4f) * vampire.m_meshes[0]->m_numBones, vampire.m_meshes[0]->m_skinMatrices);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 	//auto shader = Globals::shaderManager.getAssetPointer("animation_new");
@@ -175,7 +187,23 @@ void Game::render() {
 	shader->loadVector("u_color", Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
 
 	Globals::textureManager.get("vampire").bind();
-	animatedModel.drawRaw();
+	vampire.drawRaw();
+
+	shader->unuse();
+
+	glBindBuffer(GL_UNIFORM_BUFFER, BuiltInShader::matrixUbo);
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(Matrix4f) * cowboy.m_meshes[0]->m_numBones, cowboy.m_meshes[0]->m_skinMatrices);
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+	//auto shader = Globals::shaderManager.getAssetPointer("animation_new");
+	shader->use();
+	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
+	shader->loadMatrix("u_view", m_camera.getViewMatrix());
+	//shader->loadMatrix("u_model", Matrix4f::Rotate(Vector3f(0.0f, 1.0f, 0.0f), 90.0f, Vector3f(1.0f, 0.0f, 0.0f)));
+	shader->loadVector("u_color", Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+
+	Globals::textureManager.get("cowboy").bind();
+	cowboy.drawRaw();
 
 	shader->unuse();
 
@@ -183,7 +211,8 @@ void Game::render() {
 
 	//DebugRenderer::Get().AddBoundingBox(boundingBox, { 1.0f, 0.0f, 0.0f, 1.0f });
 	DebugRenderer::Get().AddSkeleton(beta.m_meshes[0]->m_bones, beta.m_meshes[0]->m_numBones, { 0.0f, 1.0f, 0.0f, 1.0f });
-	DebugRenderer::Get().AddSkeleton(animatedModel.m_meshes[0]->m_bones, animatedModel.m_meshes[0]->m_numBones, { 0.0f, 1.0f, 0.0f, 1.0f });
+	DebugRenderer::Get().AddSkeleton(vampire.m_meshes[0]->m_bones, vampire.m_meshes[0]->m_numBones, { 0.0f, 1.0f, 0.0f, 1.0f });
+	DebugRenderer::Get().AddSkeleton(cowboy.m_meshes[0]->m_bones, cowboy.m_meshes[0]->m_numBones, { 0.0f, 1.0f, 0.0f, 1.0f });
 	DebugRenderer::Get().drawBuffer();
 
 	if (m_drawUi)
@@ -268,7 +297,7 @@ void Game::renderUi() {
 	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 	ImGui::Checkbox("Draw Wirframe", &StateMachine::GetEnableWireframe());
 	if(ImGui::Checkbox("Play Dance", &m_playAnimation)){
-		animationStates2[0]->SetEnabled(m_playAnimation);
+		vampire.m_meshes[0]->m_animationStates[0]->SetEnabled(m_playAnimation);
 	}
 
 	ImGui::End();
@@ -277,82 +306,3 @@ void Game::renderUi() {
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
-void Game::UpdateAnimation() {
-
-	//if (animatedModelFlags & AMF_ANIMATION_ORDER_DIRTY)
-	//	std::sort(animationStates.begin(), animationStates.end(), CompareAnimationStates);
-
-	//animatedModelFlags |= AMF_IN_ANIMATION_UPDATE | AMF_BONE_BOUNDING_BOX_DIRTY;
-
-	// Reset bones to initial pose, then apply animations
-	for (size_t i = 0; i < beta.m_meshes[0]->m_numBones; ++i) {
-		Bone* bone = beta.m_meshes[0]->m_bones[i];
-		const ModelBone& modelBone = beta.m_meshes[0]->m_meshBones[i];
-		if (bone->AnimationEnabled()) {
-			bone->SetTransformSilent(modelBone.initialPosition, modelBone.initialRotation, modelBone.initialScale);
-		}
-	}
-
-	for (auto it = animationStates.begin(); it != animationStates.end(); ++it) {
-		AnimationState* state = (*it).get();
-
-		if (state->Enabled()) {
-			state->AddTime(m_dt);
-			state->Apply();
-		}
-	}
-
-	/*// Dirty the bone hierarchy now. This will also dirty and queue reinsertion for attached models
-	SetBoneTransformsDirty();
-
-	animatedModelFlags &= ~(AMF_ANIMATION_ORDER_DIRTY | AMF_ANIMATION_DIRTY | AMF_IN_ANIMATION_UPDATE);
-
-	// Update bounding box already here to take advantage of threaded update, and also to update bone world transforms for skinning
-	OnWorldBoundingBoxUpdate();
-
-	// If updating only when visible, queue octree reinsertion for next frame. This also ensures shadowmap rendering happens correctly
-	// Else just dirty the skinning
-	if (!TestFlag(DF_UPDATE_INVISIBLE))
-	{
-		if (octree && octant && !TestFlag(DF_OCTREE_REINSERT_QUEUED))
-			octree->QueueUpdate(this);
-	}
-
-	animatedModelFlags |= AMF_SKINNING_DIRTY;*/
-}
-
-void Game::UpdateSkinning() {
-
-	for (size_t i = 0; i < beta.m_meshes[0]->m_numBones; ++i) {
-		beta.m_meshes[0]->m_skinMatrices[i] = beta.m_meshes[0]->m_bones[i]->getWorldTransformation() * beta.m_meshes[0]->m_meshBones[i].offsetMatrix;
-	}
-
-	//animatedModelFlags &= ~AMF_SKINNING_DIRTY;
-	//animatedModelFlags |= AMF_SKINNING_BUFFER_DIRTY;
-}
-
-void Game::UpdateAnimation2() {
-	for (size_t i = 0; i < animatedModel.m_meshes[0]->m_numBones; ++i) {
-		Bone* bone = animatedModel.m_meshes[0]->m_bones[i];
-		const ModelBone& modelBone = animatedModel.m_meshes[0]->m_meshBones[i];
-		
-		if (bone->AnimationEnabled()) {
-			bone->SetTransformSilent(modelBone.initialPosition, modelBone.initialRotation, modelBone.initialScale);		
-		}
-	}
-
-	for (auto it = animationStates2.begin(); it != animationStates2.end(); ++it) {
-		AnimationState* state = (*it).get();
-		if (state->Enabled()) {
-			state->AddTime(m_dt);
-			state->Apply();
-		}
-	}
-}
-
-void Game::UpdateSkinning2() {
-	for (size_t i = 0; i < animatedModel.m_meshes[0]->m_numBones; ++i) {
-		animatedModel.m_meshes[0]->m_skinMatrices[i] = animatedModel.m_meshes[0]->m_bones[i]->getWorldTransformation() * animatedModel.m_meshes[0]->m_meshBones[i].offsetMatrix;
-	}
-
-}
