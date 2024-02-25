@@ -319,13 +319,8 @@ void DebugRenderer::AddSkeleton(Bone**& bones, unsigned short numBones, const Ve
 		// Skip the root bone, as it has no sensible connection point
 		const Bone* bone = bones[i];
 		if (i != 0) {
-
-			Vector3f pos1 = bone->getWorldPosition();
-
-			Vector3f pos2 = bone->getParent()->getWorldPosition();
-
-			
-			AddLine(pos1, pos2, color);
+			Vector3f pos = bone->getParent()->getWorldPosition();
+			AddLine(bone->getWorldPosition(), pos, color);
 		}
 	}
 

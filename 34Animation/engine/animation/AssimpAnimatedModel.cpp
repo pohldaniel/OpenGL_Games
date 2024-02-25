@@ -435,6 +435,7 @@ void AssimpAnimatedModel::CreateBones(std::vector<ModelBone>& meshBones) {
 			rootBone = bones[i];
 		}else {
 			bones[i]->setParent(bones[desc.parentIndex]);
+			//bones[i]->setOrigin(bones[i]->getPosition());
 		}
 	}
 

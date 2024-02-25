@@ -157,7 +157,7 @@ void Game::render() {
 	shader->use();
 	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
 	shader->loadMatrix("u_view", m_camera.getViewMatrix());
-	shader->loadMatrix("u_model", Matrix4f::IDENTITY);
+	//shader->loadMatrix("u_model", Matrix4f::IDENTITY);
 	shader->loadVector("u_color", Vector4f(0.0f, 0.0f, 1.0f, 1.0f));
 	Globals::textureManager.get("null").bind();
 	glBindVertexArray(m_vao);
@@ -175,7 +175,7 @@ void Game::render() {
 	shader->use();
 	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
 	shader->loadMatrix("u_view", m_camera.getViewMatrix());
-	shader->loadMatrix("u_model", Matrix4f::Rotate(Vector3f(0.0f, 1.0f, 0.0f), 90.0f, Vector3f(1.0f, 0.0f, 0.0f)));
+	//shader->loadMatrix("u_model", Matrix4f::Rotate(Vector3f(0.0f, 1.0f, 0.0f), 90.0f, Vector3f(1.0f, 0.0f, 0.0f)));
 	shader->loadVector("u_color", Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
 
 	Globals::textureManager.get("vampire").bind();
@@ -585,6 +585,7 @@ void Game::CreateBones() {
 		bones[i]->setPosition(modelBone.initialPosition);
 		bones[i]->setOrientation({ modelBone.initialRotation[0], modelBone.initialRotation[1], modelBone.initialRotation[2], modelBone.initialRotation[3] });
 		bones[i]->setScale(modelBone.initialScale);
+		bones[i]->offsetMatrix = modelBone.offsetMatrix;
 		//bones[i]->SetTransform(modelBone.initialPosition, modelBone.initialRotation, modelBone.initialScale);
 	//}
 
@@ -597,11 +598,9 @@ void Game::CreateBones() {
 		if (desc.parentIndex == i) {
 			bones[i]->setParent(nullptr);
 			rootBone = bones[i];
-			bones[i]->offsetMatrix = modelBones[i].offsetMatrix;
-		}
-		else {
+		}else {
 			bones[i]->setParent(bones[desc.parentIndex]);
-			bones[i]->offsetMatrix = modelBones[i].offsetMatrix;
+			//bones[i]->setOrigin(bones[i]->getPosition());
 		}
 	}
 
