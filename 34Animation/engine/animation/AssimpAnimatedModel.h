@@ -100,7 +100,7 @@ public:
 	void draw(Camera& camera);
 	void drawRaw();
 
-	void loadModel(const std::string &filename, const std::string &texture);
+	void loadModel(const std::string &filename, const std::string &texture, const bool addVirtualRoot = false);
 
 	const Matrix4f &getTransformationMatrix() const;
 	const Matrix4f &getInvTransformationMatrix();
@@ -129,7 +129,7 @@ public:
 
 	Bone* rootBone;
 	Bone* *bones;
-	void AssimpAnimatedModel::CreateBones(std::vector<ModelBone>& meshBones);
+	void CreateBones(std::vector<ModelBone>& meshBones);
 	unsigned short numBones = 0;
 	Matrix4f* skinMatrices;
 
@@ -164,6 +164,8 @@ public:
 	void drawRaw();
 	std::vector<Matrix4f> getBoneArray();
 	void applyPoseToJoints(std::unordered_map<std::string, Matrix4f>& currentPose, std::vector<Matrix4f>& boneArray);
+
+	void createBones();
 
 //private:
 

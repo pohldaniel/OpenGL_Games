@@ -6,11 +6,12 @@ AssimpAnimatedModel::AssimpAnimatedModel() : m_shader("res/shader/animation.vert
 	m_transform = Transform();
 }
 
-void AssimpAnimatedModel::loadModel(const std::string &a_filename, const std::string &texture) {
+void AssimpAnimatedModel::loadModel(const std::string &a_filename, const std::string &texture, const bool addVirtualRoot) {
 	m_texture = std::make_shared<Texture>(texture);
 
 	Assimp::Importer Importer;
 	Importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_PRESERVE_PIVOTS, false);
+	Importer.SetPropertyBool(AI_CONFIG_IMPORT_REMOVE_EMPTY_BONES, false);
 
 	const aiScene* pScene = Importer.ReadFile(a_filename, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs);
 
@@ -47,13 +48,12 @@ void AssimpAnimatedModel::loadModel(const std::string &a_filename, const std::st
 		if (aiMesh->HasBones()) {
 			
 			mesh->meshBones.resize(aiMesh->mNumBones);
+
 			for (int boneIndex = aiMesh->mNumBones -1 ; boneIndex >= 0; boneIndex--) {
 				ModelBone& _bone = mesh->meshBones[(aiMesh->mNumBones - 1) - boneIndex];
 
 				aiBone *bone = aiMesh->mBones[boneIndex];
 				const std::string boneName = bone->mName.C_Str();
-
-				//std::cout << "Bone Name: " << boneName << std::endl;
 
 				mesh->m_boneList.push_back(boneName);
 
@@ -99,7 +99,7 @@ void AssimpAnimatedModel::loadModel(const std::string &a_filename, const std::st
 
 				if (k < maxBones) {					
 					jointWeight[k] = pq.top().weight;
-					jointId[k] = pq.top().boneId;
+					jointId[k] = pq.top().boneId + addVirtualRoot;
 				}				
 				pq.pop();
 			}
@@ -126,9 +126,26 @@ void AssimpAnimatedModel::loadModel(const std::string &a_filename, const std::st
 
 		mesh->m_drawCount = aiMesh->mNumFaces * 3;
 		CreateBuffer(m_positions, m_texCoords, m_normals, m_jointIds, m_jointWeights, m_indexBuffer, mesh->m_vao, mesh->m_vbo, mesh->m_ibo);	
+
+		if (addVirtualRoot) {
+			for (size_t i = 0; i < mesh->meshBones.size(); ++i) {
+				ModelBone& modelBone = mesh->meshBones[i];
+				if (modelBone.parentIndex != i) {
+					modelBone.parentIndex++;
+				}
+			}		
+
+			mesh->meshBones.insert(mesh->meshBones.begin(), ModelBone());
+			mesh->meshBones[0].name = "Root";
+			mesh->meshBones[0].nameHash = StringHash("Root");
+		}
 	}
 
-	CreateBones(mesh->meshBones);
+
+
+
+
+	//CreateBones(mesh->meshBones);
 }
 
 void AssimpAnimatedModel::CreateBuffer(std::vector<Vector3f>& positions, std::vector<Vector2f>& texCoords, std::vector<Vector3f>& normals, std::vector<std::array<unsigned int, 4>>& jointIds, std::vector<Vector4f>& jointWeights, std::vector<unsigned int>& indices, unsigned int& vao, unsigned int(&vbo)[5], unsigned int& ibo){
@@ -391,19 +408,24 @@ const Matrix4f &AssimpAnimatedModel::getInvTransformationMatrix() {
 
 void AssimpAnimatedModel::CreateBones(std::vector<ModelBone>& meshBones) {
 
+	
 	numBones = (unsigned short)meshBones.size();
 
 	bones = new Bone*[numBones];
 	skinMatrices = new Matrix4f[numBones];
 
 	for (size_t i = 0; i < meshBones.size(); ++i) {
-		const ModelBone& modelBone = meshBones[i];
+		ModelBone& modelBone = meshBones[i];
+		
+
 		bones[i] = new Bone();
 		bones[i]->SetName(modelBone.name);
 		bones[i]->setPosition(modelBone.initialPosition);
 		bones[i]->setOrientation({ modelBone.initialRotation[0], modelBone.initialRotation[1], modelBone.initialRotation[2], modelBone.initialRotation[3] });
 		bones[i]->setScale(modelBone.initialScale);
-
+		bones[i]->offsetMatrix = modelBone.offsetMatrix;
+		//bones[i]->SetAnimationEnabled(false);
+		//std::cout << "Parent Index: " << modelBone.parentIndex << "  " << modelBone.name << "  " << bones[i] << std::endl;
 	}
 
 	for (size_t i = 0; i < meshBones.size(); ++i) {
@@ -411,11 +433,8 @@ void AssimpAnimatedModel::CreateBones(std::vector<ModelBone>& meshBones) {
 		if (desc.parentIndex == i) {
 			bones[i]->setParent(nullptr);
 			rootBone = bones[i];
-			bones[i]->offsetMatrix = meshBones[i].offsetMatrix;
-		}
-		else {
+		}else {
 			bones[i]->setParent(bones[desc.parentIndex]);
-			bones[i]->offsetMatrix = meshBones[i].offsetMatrix;
 		}
 	}
 
@@ -466,4 +485,8 @@ void AssimpAnimatedMesh::applyPoseToJoints(std::unordered_map<std::string, Matri
 	for (int i = 0; i < joint.children.size(); i++) {
 		applyPoseToJoints(currentPose, joint.children[i], boneArray, currentTransform);
 	}
+}
+
+void AssimpAnimatedMesh::createBones() {
+
 }

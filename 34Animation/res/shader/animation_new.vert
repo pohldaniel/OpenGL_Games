@@ -14,6 +14,7 @@ layout(std140, binding = 3) uniform u_skinMatrices{
     mat4 skinMatrices[MAX_JOINTS];
 };
 
+uniform mat4 u_model = mat4(1.0);
 uniform mat4 u_view;
 uniform mat4 u_projection;
 uniform vec4 u_color = vec4(1.0); 
@@ -29,7 +30,7 @@ mat4 GetWorldMatrix(){
 }
 
 void main(){
-	mat4 world = GetWorldMatrix();   	
+	mat4 world = u_model * GetWorldMatrix();   	
 	v_worldPos = world * vec4(i_position, 1.0);   
 	v_texCoord = i_texCoord;
 	v_normal = (world * vec4(i_normal, 0.0)).xyz; 	

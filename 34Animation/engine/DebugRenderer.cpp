@@ -321,7 +321,11 @@ void DebugRenderer::AddSkeleton(Bone**& bones, unsigned short numBones, const Ve
 		if (i != 0) {
 
 			Vector3f pos1 = bone->getWorldPosition();
-			AddLine(pos1, bone->getParent()->getWorldPosition(), color);
+
+			Vector3f pos2 = bone->getParent()->getWorldPosition();
+
+			
+			AddLine(pos1, pos2, color);
 		}
 	}
 
@@ -345,7 +349,7 @@ void DebugRenderer::drawBuffer() {
 	
 	glUseProgram(DebugShader->m_program);
 
-	DebugShader->loadMatrix("u_vp", projection * view);
+	DebugShader->loadMatrix("u_vp", projection * view );
 	glDrawElements(GL_LINES, indexCount, GL_UNSIGNED_INT, nullptr);
 
 	glUseProgram(0);

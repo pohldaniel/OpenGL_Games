@@ -51,7 +51,7 @@ private:
 	void renderUi();
 
 	bool m_initUi = true;
-	bool m_drawUi = false;
+	bool m_drawUi = true;
 
 	Camera m_camera;
 	AssimpAnimatedModel assimpAnimated;
@@ -89,4 +89,6 @@ private:
 	std::vector<std::shared_ptr<AnimationState>> animationStates2;
 
 	void CreateBuffer(std::vector<float>& vertexBuffer, std::vector<unsigned int> indexBuffer, unsigned int& vao, unsigned int(&vbo)[3], unsigned int& ibo, unsigned int stride, std::vector<std::array<float, 4>>& weights, std::vector<std::array<unsigned int, 4>>& boneIds);
+
+	bool m_playAnimation = true;
 };

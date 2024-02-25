@@ -17,4 +17,7 @@ struct ModelBone {
 	BoundingBox boundingBox;
 	size_t parentIndex;
 	bool active;
+
+	void scale(const float sx, const float sy, const float sz);
+	void rotate(const float pitch, const float yaw, const float roll);
 };

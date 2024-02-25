@@ -55,6 +55,8 @@ public:
 	/// Set blending layer.
 	void SetBlendLayer(unsigned char layer);
 
+	void SetEnabled(bool enable);
+
 	/// Return animation.
 	Animation* GetAnimation() const { return animation.get(); }
 	/// Return start bone.
@@ -72,7 +74,7 @@ public:
 	/// Return track index by bone name hash, or M_MAX_UNSIGNED if not found.
 	size_t FindTrackIndex(StringHash nameHash) const;
 	/// Return whether weight is nonzero.
-	bool Enabled() const { return weight > 0.0f; }
+	bool Enabled() const { return weight > 0.0f && m_enabled; }
 	/// Return whether is looped.
 	bool Looped() const { return looped; }
 	/// Return blending weight.
@@ -83,7 +85,6 @@ public:
 	float Length() const;
 	/// Return blending layer.
 	unsigned char BlendLayer() const { return blendLayer; }
-
 	/// Apply the animation at the current time position. Called by AnimatedModel. Needs to be called manually for node hierarchies.
 	void Apply();
 
@@ -92,7 +93,6 @@ private:
 	void ApplyToModel();
 	/// Apply animation to a scene node hierarchy.
 	void ApplyToNodes();
-
 	/// Animated model drawable (model mode.)
 	///AnimatedModelDrawable* drawable;
 	/// Root scene node (node hierarchy mode.)
@@ -112,4 +112,6 @@ private:
 	float time;
 	/// Blending layer.
 	unsigned char blendLayer;
+
+	bool m_enabled;
 };

@@ -23,7 +23,7 @@ Animation::Animation() :length(0.0f) {
 Animation::~Animation() {
 }
 
-void Animation::loadAni(std::string path) {
+void Animation::loadAnimation(std::string path) {
 	std::ifstream file(path, std::ios::binary);
 
 	std::string ret;
@@ -109,7 +109,7 @@ void Animation::loadAni(std::string path) {
 	}
 }
 
-void Animation::loadAni2(const std::string &filename, std::string sourceName, std::string destName) {
+void Animation::loadAnimationAssimp(const std::string &filename, std::string sourceName, std::string destName) {
 	Assimp::Importer Importer;
 	const aiScene* aiScene = Importer.ReadFile(filename, NULL);
 
@@ -120,6 +120,7 @@ void Animation::loadAni2(const std::string &filename, std::string sourceName, st
 
 	for (unsigned int i = 0; i < aiScene->mNumAnimations; i++) {
 		const aiAnimation* aiAnimation = aiScene->mAnimations[i];
+
 		if (sourceName.compare(aiAnimation->mName.data) != 0) {
 			continue;
 		}
@@ -142,12 +143,8 @@ void Animation::loadAni2(const std::string &filename, std::string sourceName, st
 			for (size_t j = 0; j < numKeyFrames; ++j) {
 				AnimationKeyFrame& newKeyFrame = newTrack->keyFrames[j];
 				newKeyFrame.time = aiAnimation->mChannels[c]->mPositionKeys[j].mTime / 1000.0f;
-
-				//std::cout << "Num Key1: " << newKeyFrame.time << std::endl;
-
 				newKeyFrame.position.set(aiAnimation->mChannels[c]->mPositionKeys[j].mValue.x, aiAnimation->mChannels[c]->mPositionKeys[j].mValue.y, aiAnimation->mChannels[c]->mPositionKeys[j].mValue.z);
-				newKeyFrame.scale.set(aiAnimation->mChannels[c]->mScalingKeys[j].mValue.x, aiAnimation->mChannels[c]->mScalingKeys[j].mValue.y, aiAnimation->mChannels[c]->mScalingKeys[j].mValue.z);
-				
+				newKeyFrame.scale.set(aiAnimation->mChannels[c]->mScalingKeys[j].mValue.x, aiAnimation->mChannels[c]->mScalingKeys[j].mValue.y, aiAnimation->mChannels[c]->mScalingKeys[j].mValue.z);		
 				aiQuaternion quat = aiAnimation->mChannels[c]->mRotationKeys[j].mValue;
 				newKeyFrame.rotation.set(quat.x, quat.y, quat.z, quat.w);
 			}
@@ -209,4 +206,94 @@ AnimationTrack* Animation::FindTrack(const std::string& name_) const{
 AnimationTrack* Animation::FindTrack(StringHash nameHash_) const{
 	auto it = tracks.find(nameHash_);
 	return it != tracks.end() ? const_cast<AnimationTrack*>(&(it->second)) : nullptr;
+}
+
+void Animation::setPositionOfTrack(const std::string& name, const Vector3f& position) {
+	AnimationTrack* track = FindTrack(name);
+	if (track) {
+		for (auto& keyFrame : track->keyFrames) {
+			keyFrame.position = position;
+		}
+	}
+}
+
+void Animation::setPositionOfTrack(const std::string& name, const float x, const float y, const float z) {
+	AnimationTrack* track = FindTrack(name);
+	if (track) {
+		for (auto& keyFrame : track->keyFrames) {
+			keyFrame.position.set(x, y, z);
+		}
+	}
+}
+
+void Animation::translateTrack(const std::string& name, const Vector3f& trans) {
+	AnimationTrack* track = FindTrack(name);
+	if (track) {
+		for (auto& keyFrame : track->keyFrames) {
+			keyFrame.position.translate(trans);
+		}
+	}
+}
+
+void Animation::translateTrack(const std::string& name, const float dx, const float dy, const float dz) {
+	AnimationTrack* track = FindTrack(name);
+	if (track) {
+		for (auto& keyFrame : track->keyFrames) {
+			keyFrame.position.translate(dx, dy, dz);
+		}
+	}
+}
+
+void Animation::setScaleOfTrack(const std::string& name, const Vector3f& scale) {
+	AnimationTrack* track = FindTrack(name);
+	if (track) {
+		for (auto& keyFrame : track->keyFrames) {
+			keyFrame.scale = scale;
+		}
+	}
+}
+
+void Animation::setScaleOfTrack(const std::string& name, const float sx, const float sy, const float sz) {
+	AnimationTrack* track = FindTrack(name);
+	if (track) {
+		for (auto& keyFrame : track->keyFrames) {
+			keyFrame.scale.set(sx, sy, sz);
+		}
+	}
+}
+
+void Animation::setScaleOfTrack(const std::string& name, const float s) {
+	AnimationTrack* track = FindTrack(name);
+	if (track) {
+		for (auto& keyFrame : track->keyFrames) {
+			keyFrame.scale.set(s, s, s);
+		}
+	}
+}
+
+void Animation::scaleTrack(const std::string& name, const Vector3f& scale) {
+	AnimationTrack* track = FindTrack(name);
+	if (track) {
+		for (auto& keyFrame : track->keyFrames) {
+			keyFrame.scale.scale(scale);
+		}
+	}
+}
+
+void Animation::scaleTrack(const std::string& name, const float sx, const float sy, const float sz) {
+	AnimationTrack* track = FindTrack(name);
+	if (track) {
+		for (auto& keyFrame : track->keyFrames) {
+			keyFrame.scale.scale(sx, sy, sz);
+		}
+	}
+}
+
+void Animation::scaleTrack(const std::string& name, const float s) {
+	AnimationTrack* track = FindTrack(name);
+	if (track) {
+		for (auto& keyFrame : track->keyFrames) {
+			keyFrame.scale.scale(s, s, s);
+		}
+	}
 }

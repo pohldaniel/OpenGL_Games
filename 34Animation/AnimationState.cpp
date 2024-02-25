@@ -20,7 +20,8 @@ AnimationState::AnimationState(Animation* animation_, Bone* root) :
 	weight(0.0f),
 	time(0.0f),
 	blendLayer(0),
-	rootBone(root)
+	rootBone(root),
+	m_enabled(true)
 {
 	//assert(drawable);
 	//assert(animation);
@@ -253,30 +254,27 @@ void AnimationState::ApplyToNodes(){
 		Quaternion newRotation = node->getOrientation();
 		Vector3f newScale = node->getScale();
 
-		//std::cout << "Pos: " << newPosition[0] << "  " << newPosition[1] << "  " << newPosition[2] << std::endl;
-
 		if (interpolate) {
-			//std::cout << "-----------" << std::endl;
+
 			const AnimationKeyFrame& nextKeyFrame = track->keyFrames[nextFrame];
 			float timeInterval = nextKeyFrame.time - keyFrame.time;
 			if (timeInterval < 0.0f)
 				timeInterval += animation->Length();
 
-			//std::cout << "Time: " << time << "  " << keyFrame.time << "  " << timeInterval << std::endl;
 
 			float t = timeInterval > 0.0f ? (time - keyFrame.time) / timeInterval : 1.0f;
 
-			if(track->channelMask & CHANNEL_POSITION) {
-				
+			if(track->channelMask & CHANNEL_POSITION)
 				newPosition = Math::Lerp(keyFrame.position, nextKeyFrame.position, t);
-			}
 
-			if(track->channelMask & CHANNEL_ROTATION)
+			if(track->channelMask & CHANNEL_ROTATION) {
 				newRotation = Quaternion::SLerp2(keyFrame.rotation, nextKeyFrame.rotation, t);
+			}
 
 			if(track->channelMask & CHANNEL_SCALE)
 				newScale = Math::Lerp(keyFrame.scale, nextKeyFrame.scale, t);
 		}else{
+
 			if(track->channelMask & CHANNEL_POSITION)
 				newPosition = keyFrame.position;
 			if(track->channelMask & CHANNEL_ROTATION)
@@ -284,11 +282,14 @@ void AnimationState::ApplyToNodes(){
 			if(track->channelMask & CHANNEL_SCALE)
 				newScale = keyFrame.scale;
 		}
+		
+		
 		node->setPosition(newPosition);
 		node->setOrientation(newRotation);
 		node->setScale(newScale);
-		//node->SetTransform(newPosition, newRotation, newScale);
-		//std::cout << "Pos: " << newPosition[0] << "  " << newPosition[1] << "  " << newPosition[2] << std::endl;
-		//std::cout << "###########" << std::endl;
 	}
+}
+
+void AnimationState::SetEnabled(bool enable) {
+	m_enabled = enable;
 }

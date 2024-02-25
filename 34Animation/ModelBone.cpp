@@ -15,3 +15,11 @@ ModelBone::ModelBone() :
 ModelBone::~ModelBone()
 {
 }
+
+void ModelBone::scale(const float sx, const float sy, const float sz) {
+	offsetMatrix *= Matrix4f::Scale(sx, sy, sz);
+}
+
+void ModelBone::rotate(const float pitch, const float yaw, const float roll) {
+	offsetMatrix *= Matrix4f::Rotate(pitch, yaw, roll);
+}

@@ -44,8 +44,8 @@ public:
 
 	static void RegisterObject();
 
-	void loadAni(std::string path);
-	void loadAni2(const std::string &filename, std::string sourceName, std::string destName);
+	void loadAnimation(std::string path);
+	void loadAnimationAssimp(const std::string &filename, std::string sourceName, std::string destName);
 
 	/// Load animation from a stream. Return true on success.
 	//bool BeginLoad(Stream& source) override;
@@ -65,6 +65,21 @@ public:
 	AnimationTrack* Track(size_t index) const;
 	AnimationTrack* FindTrack(const std::string& name) const;
 	AnimationTrack* FindTrack(StringHash nameHash) const;
+
+
+	void setPositionOfTrack(const std::string& name, const Vector3f& position);
+	void setPositionOfTrack(const std::string& name, const float x, const float y, const float z);
+
+	void translateTrack(const std::string& name, const Vector3f& trans);
+	void translateTrack(const std::string& name, const float dx, const float dy, const float dz);
+
+	void setScaleOfTrack(const std::string& name, const Vector3f& scale);
+	void setScaleOfTrack(const std::string& name, const float sx, const float sy, const float sz);	
+	void setScaleOfTrack(const std::string& name, const float s);
+
+	void scaleTrack(const std::string& name, const Vector3f& scale);
+	void scaleTrack(const std::string& name, const float sx, const float sy, const float sz);
+	void scaleTrack(const std::string& name, const float s);
 
 private:
 

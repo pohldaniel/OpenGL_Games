@@ -18,34 +18,49 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
-	m_camera.lookAt(Vector3f(-100.0f, 100.0f, 500.0f), Vector3f(-100.0f, 100.0f, 500.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
+	m_camera.lookAt(Vector3f(0.0f, 0.0f, 5.0f), Vector3f(0.0f, 0.0f, 5.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
 	m_camera.setRotationSpeed(0.1f);
-	m_camera.setMovingSpeed(100.0f);
+	m_camera.setMovingSpeed(5.0f);
 
 	//glClearColor(0.494f, 0.686f, 0.796f, 1.0f);
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClearDepth(1.0f);
 
-	assimpAnimated.loadModel("res/models/vampire/dancing_vampire.dae", "res/models/vampire/textures/Vampire_diffuse.png");
-	animation2 = new Animation();
-	animation2->loadAni2("res/models/vampire/dancing_vampire.dae", "Hips", "vampire_dance");
+	assimpAnimated.loadModel("res/models/vampire/dancing_vampire.dae", "res/models/vampire/textures/Vampire_diffuse.png", true);
+	assimpAnimated.m_meshes[0]->meshBones[0].initialPosition.translate(1.0f, 0.0f, 0.0f);
+	assimpAnimated.m_meshes[0]->meshBones[0].initialRotation.rotate(Vector3f(0.0f, 1.0f, 0.0f), 180.0f);
+	
+	assimpAnimated.m_meshes[0]->meshBones[1].initialPosition.set(0.0f, 0.0f, 0.0f);
+	assimpAnimated.m_meshes[0]->meshBones[1].initialScale.set(0.01f, 0.01f, 0.01f);
+	assimpAnimated.m_meshes[0]->meshBones[1].initialPosition.translate(0.0f, 1.0f, 0.0f);
+	assimpAnimated.CreateBones(assimpAnimated.m_meshes[0]->meshBones);
 
+	animation2 = new Animation();
+	animation2->loadAnimationAssimp("res/models/vampire/dancing_vampire.dae", "Hips", "vampire_dance");
+	animation2->setPositionOfTrack("Hips", 0.0f, 1.0f, 0.0f);
+	animation2->setScaleOfTrack("Hips", 0.01f, 0.01f, 0.01f);
+
+	
 	AnimationState* state2 = new AnimationState(animation2, assimpAnimated.rootBone);
 	state2->SetLooped(true);
+	state2->SetEnabled(m_playAnimation);
 	animationStates2.push_back(std::shared_ptr<AnimationState>(state2));
 
 	readMdl("res/models/BetaLowpoly/Beta.mdl");
-	modelBones[0].initialScale.set(100.0f, 100.0f, 100.0f);
-	modelBones[0].initialPosition.translate(-250.0f, 0.0f, 0.0f);
+	modelBones[0].initialPosition.translate(-1.0f, 0.0f, 0.0f);
 	modelBones[0].initialRotation.rotate(0.0f, 180.0f, 0.0f);
 	CreateBones();
+
 	animation = new Animation();
-	//animation->loadAni("res/models/BetaLowpoly/Beta_Idle.ani");
-	animation->loadAni("res/models/BetaLowpoly/Beta_Run.ani");
+	//animation->loadAnimation("res/models/BetaLowpoly/Beta_Idle.ani");
+	animation->loadAnimation("res/models/BetaLowpoly/Beta_Run.ani");
 
 	AnimationState* state = new AnimationState(animation, rootBone);
 	state->SetLooped(true);
+	//state->SetEnabled(false);
 	animationStates.push_back(std::shared_ptr<AnimationState>(state));
+
+
 	DebugRenderer::Get().setEnable(true);
 
 	glGenBuffers(1, &BuiltInShader::matrixUbo);
@@ -129,18 +144,20 @@ void Game::update() {
 }
 
 void Game::render() {
+
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 	UpdateSkinning();
 
 	glBindBuffer(GL_UNIFORM_BUFFER, BuiltInShader::matrixUbo);
 	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(Matrix4f) * numBones, skinMatrices);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 	auto shader = Globals::shaderManager.getAssetPointer("animation_new");
 	shader->use();
 	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
 	shader->loadMatrix("u_view", m_camera.getViewMatrix());
+	shader->loadMatrix("u_model", Matrix4f::IDENTITY);
 	shader->loadVector("u_color", Vector4f(0.0f, 0.0f, 1.0f, 1.0f));
 	Globals::textureManager.get("null").bind();
 	glBindVertexArray(m_vao);
@@ -148,7 +165,7 @@ void Game::render() {
 	glBindVertexArray(0);
 
 	shader->unuse();
-
+	
 	UpdateSkinning2();
 	glBindBuffer(GL_UNIFORM_BUFFER, BuiltInShader::matrixUbo);
 	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(Matrix4f) * assimpAnimated.numBones, assimpAnimated.skinMatrices);
@@ -158,6 +175,7 @@ void Game::render() {
 	shader->use();
 	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
 	shader->loadMatrix("u_view", m_camera.getViewMatrix());
+	shader->loadMatrix("u_model", Matrix4f::Rotate(Vector3f(0.0f, 1.0f, 0.0f), 90.0f, Vector3f(1.0f, 0.0f, 0.0f)));
 	shader->loadVector("u_color", Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
 
 	Globals::textureManager.get("vampire").bind();
@@ -253,6 +271,10 @@ void Game::renderUi() {
 	// render widgets
 	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 	ImGui::Checkbox("Draw Wirframe", &StateMachine::GetEnableWireframe());
+	if(ImGui::Checkbox("Play Dance", &m_playAnimation)){
+		animationStates2[0]->SetEnabled(m_playAnimation);
+	}
+
 	ImGui::End();
 
 	ImGui::Render();
@@ -607,12 +629,14 @@ void Game::UpdateAnimation() {
 	for (size_t i = 0; i < numBones; ++i) {
 		Bone* bone = bones[i];
 		const ModelBone& modelBone = modelBones[i];
-		if (bone->AnimationEnabled())
+		if (bone->AnimationEnabled()) {
 			bone->SetTransformSilent(modelBone.initialPosition, modelBone.initialRotation, modelBone.initialScale);
+		}
 	}
 
 	for (auto it = animationStates.begin(); it != animationStates.end(); ++it) {
 		AnimationState* state = (*it).get();
+
 		if (state->Enabled()) {
 			state->AddTime(m_dt);
 			state->Apply();
@@ -640,8 +664,9 @@ void Game::UpdateAnimation() {
 
 void Game::UpdateSkinning() {
 
-	for (size_t i = 0; i < numBones; ++i)
+	for (size_t i = 0; i < numBones; ++i) {
 		skinMatrices[i] = bones[i]->getWorldTransformation() * modelBones[i].offsetMatrix;
+	}
 
 	//animatedModelFlags &= ~AMF_SKINNING_DIRTY;
 	//animatedModelFlags |= AMF_SKINNING_BUFFER_DIRTY;
@@ -651,8 +676,10 @@ void Game::UpdateAnimation2() {
 	for (size_t i = 0; i < assimpAnimated.numBones; ++i) {
 		Bone* bone = assimpAnimated.bones[i];
 		const ModelBone& modelBone = assimpAnimated.m_meshes[0]->meshBones[i];
-		if (bone->AnimationEnabled())
-			bone->SetTransformSilent(modelBone.initialPosition, modelBone.initialRotation, modelBone.initialScale);
+		
+		if (bone->AnimationEnabled()) {
+			bone->SetTransformSilent(modelBone.initialPosition, modelBone.initialRotation, modelBone.initialScale);		
+		}
 	}
 
 	for (auto it = animationStates2.begin(); it != animationStates2.end(); ++it) {
@@ -666,10 +693,10 @@ void Game::UpdateAnimation2() {
 }
 
 void Game::UpdateSkinning2() {
-
 	for (size_t i = 0; i < assimpAnimated.numBones; ++i) {
 		assimpAnimated.skinMatrices[i] = assimpAnimated.bones[i]->getWorldTransformation() * assimpAnimated.m_meshes[0]->meshBones[i].offsetMatrix;
 	}
+
 }
 
 void Game::CreateBuffer(std::vector<float>& vertexBuffer, std::vector<unsigned int> indexBuffer, unsigned int& vao, unsigned int(&vbo)[3], unsigned int& ibo, unsigned int stride, std::vector<std::array<float, 4>>& weights, std::vector<std::array<unsigned int, 4>>& boneIds) {
