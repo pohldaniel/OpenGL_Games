@@ -12,17 +12,8 @@
 #include "AnimationState.h"
 #include "Animation.h"
 
-static const float BONE_SIZE_THRESHOLD = 0.05f;
-
-struct GeometryDesc{
-	float lodDistance;
-	unsigned vbRef;
-	unsigned ibRef;
-	unsigned drawStart;
-	unsigned drawCount;
-};
-
-
+#include "Utils/SolidIO.h"
+#include "AnimatedModel.h"
 
 class Game : public State, public MouseEventListener, public KeyboardEventListener {
 
@@ -54,41 +45,21 @@ private:
 	bool m_drawUi = true;
 
 	Camera m_camera;
-	AssimpAnimatedModel assimpAnimated;
-	void readMdl(std::string path);
-	void CreateBones();
-	void RemoveBones();
+	AnimatedModel animatedModel;
+	AnimatedModel beta;
+
 	void UpdateAnimation();
 	void UpdateSkinning();
 	void UpdateAnimation2();
 	void UpdateSkinning2();
 
-	std::vector<float> m_vertexBuffer;
-	std::vector<unsigned int> m_indexBuffer;
-
-	
-
-	std::vector<std::array<float, 3>> positions;
-	std::vector<std::array<float, 3>> normals;
-	std::vector <std::array<float, 2>> uvCoords;
-	std::vector<std::array<float, 4>> m_weights;
-	std::vector<std::array<unsigned int, 4>> m_boneIds;
-
-	std::vector<std::array<short, 3>> faces;
-	std::vector<std::vector<GeometryDesc>> geomDescs;
-	std::vector<ModelBone> modelBones;
-	BoundingBox boundingBox;
-	unsigned short numBones = 0;
-
 	Animation* animation;
 	Animation* animation2;
-	Bone* rootBone;
-	Bone* *bones;
-	Matrix4f* skinMatrices;
+	
 	std::vector<std::shared_ptr<AnimationState>> animationStates;
 	std::vector<std::shared_ptr<AnimationState>> animationStates2;
 
-	void CreateBuffer(std::vector<float>& vertexBuffer, std::vector<unsigned int> indexBuffer, unsigned int& vao, unsigned int(&vbo)[3], unsigned int& ibo, unsigned int stride, std::vector<std::array<float, 4>>& weights, std::vector<std::array<unsigned int, 4>>& boneIds);
-
+	
 	bool m_playAnimation = true;
+
 };

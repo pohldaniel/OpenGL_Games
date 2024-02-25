@@ -1,0 +1,319 @@
+#include <GL/glew.h>
+#include "AnimatedModel.h"
+
+#include "Utils/SolidIO.h"
+
+void AnimatedModel::loadModelAssimp(const std::string& path, const bool addVirtualRoot) {
+
+	Assimp::Importer Importer;
+	Importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_PRESERVE_PIVOTS, false);
+	Importer.SetPropertyBool(AI_CONFIG_IMPORT_REMOVE_EMPTY_BONES, false);
+
+	const aiScene* pScene = Importer.ReadFile(path, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs);
+
+	if (!pScene) {
+		std::cout << path << "  " << Importer.GetErrorString() << std::endl;
+		return;
+	}
+
+	std::priority_queue<WeightData> pq;
+
+	unsigned short maxBones = 4;
+
+	std::vector<Matrix4f> offsetMatrices;
+
+	AnimatedMesh* mesh;
+
+	for (unsigned int j = 0; j < pScene->mNumMeshes; j++) {
+
+		const aiMesh* aiMesh = pScene->mMeshes[j];
+		const aiMaterial* aiMaterial = pScene->mMaterials[aiMesh->mMaterialIndex];
+
+		m_meshes.push_back(new AnimatedMesh(this));
+		mesh = m_meshes.back();
+		mesh->m_numberOfTriangles = aiMesh->mNumFaces;
+
+		for (unsigned int i = 0; i < aiMesh->mNumVertices; i++) {		
+			mesh->m_vertexBuffer.push_back(aiMesh->mVertices[i].x); mesh->m_vertexBuffer.push_back(aiMesh->mVertices[i].y); mesh->m_vertexBuffer.push_back(aiMesh->mVertices[i].z);
+			mesh->m_vertexBuffer.push_back(aiMesh->mTextureCoords[0][i].x); mesh->m_vertexBuffer.push_back(aiMesh->mTextureCoords[0][i].y);
+			mesh->m_vertexBuffer.push_back(aiMesh->mNormals[i].x); mesh->m_vertexBuffer.push_back(aiMesh->mNormals[i].y); mesh->m_vertexBuffer.push_back(aiMesh->mNormals[i].z);
+		}
+
+		if (aiMesh->HasBones()) {
+
+			mesh->m_meshBones.resize(aiMesh->mNumBones);
+
+			for (int boneIndex = aiMesh->mNumBones - 1; boneIndex >= 0; boneIndex--) {
+				ModelBone& _bone = mesh->m_meshBones[(aiMesh->mNumBones - 1) - boneIndex];
+
+				aiBone *bone = aiMesh->mBones[boneIndex];
+				const std::string boneName = bone->mName.C_Str();
+
+				mesh->m_boneList.push_back(boneName);
+
+				_bone.name = boneName;
+				_bone.nameHash = StringHash(boneName);
+				_bone.offsetMatrix.set(bone->mOffsetMatrix.a1, bone->mOffsetMatrix.b1, bone->mOffsetMatrix.c1, bone->mOffsetMatrix.d1,
+					bone->mOffsetMatrix.a2, bone->mOffsetMatrix.b2, bone->mOffsetMatrix.c2, bone->mOffsetMatrix.d2,
+					bone->mOffsetMatrix.a3, bone->mOffsetMatrix.b3, bone->mOffsetMatrix.c3, bone->mOffsetMatrix.d3,
+					bone->mOffsetMatrix.a4, bone->mOffsetMatrix.b4, bone->mOffsetMatrix.c4, bone->mOffsetMatrix.d4);
+
+
+				offsetMatrices.push_back(Matrix4f(bone->mOffsetMatrix.a1, bone->mOffsetMatrix.b1, bone->mOffsetMatrix.c1, bone->mOffsetMatrix.d1,
+					bone->mOffsetMatrix.a2, bone->mOffsetMatrix.b2, bone->mOffsetMatrix.c2, bone->mOffsetMatrix.d2,
+					bone->mOffsetMatrix.a3, bone->mOffsetMatrix.b3, bone->mOffsetMatrix.c3, bone->mOffsetMatrix.d3,
+					bone->mOffsetMatrix.a4, bone->mOffsetMatrix.b4, bone->mOffsetMatrix.c4, bone->mOffsetMatrix.d4));
+
+				for (unsigned int weightIndex = 0; weightIndex < bone->mNumWeights; weightIndex++) {
+					aiVertexWeight w = bone->mWeights[weightIndex];
+					pq.push(WeightData(w.mVertexId, w.mWeight, (aiMesh->mNumBones - 1) - boneIndex));
+				}
+			}
+
+			WeightData first = pq.top();
+			short k = -1;
+
+			std::array<unsigned int, 4> jointId = { 0, 0, 0, 0 };
+			std::array<float, 4> jointWeight = { 0.0f, 0.0f, 0.0f, 0.0f };
+
+			while (!pq.empty()) {
+				WeightData current = pq.top();
+
+				if (first.vertexId == current.vertexId) {
+					k++;
+				}else {
+					mesh->m_weights.push_back(jointWeight);
+					mesh->m_boneIds.push_back(jointId);
+
+					jointId = { 0, 0, 0, 0 };
+					jointWeight = { 0.0f, 0.0f, 0.0f, 0.0f };
+					k = 0;
+					first = current;
+				}
+
+				if (k < maxBones) {
+					jointWeight[k] = pq.top().weight;
+					jointId[k] = pq.top().boneId + addVirtualRoot;
+				}
+				pq.pop();
+			}
+
+			mesh->m_weights.push_back(jointWeight);
+			mesh->m_boneIds.push_back(jointId);
+
+			aiNode *meshRootNode = searchNode(pScene->mRootNode, mesh->m_boneList);
+			fetchAiHierarchy(meshRootNode, mesh->m_meshBones);
+		}
+
+		for (unsigned int t = 0; t < aiMesh->mNumFaces; ++t) {
+			const aiFace* face = &aiMesh->mFaces[t];
+			mesh->m_indexBuffer.push_back(face->mIndices[0]);
+			mesh->m_indexBuffer.push_back(face->mIndices[1]);
+			mesh->m_indexBuffer.push_back(face->mIndices[2]);
+		}
+
+		mesh->m_drawCount = aiMesh->mNumFaces * 3;
+		CreateBuffer(mesh->m_vertexBuffer, mesh->m_indexBuffer, mesh->m_vao, mesh->m_vbo, mesh->m_ibo, 8, mesh->m_weights, mesh->m_boneIds);
+
+		if (addVirtualRoot) {
+			for (size_t i = 0; i < mesh->m_meshBones.size(); ++i) {
+				ModelBone& modelBone = mesh->m_meshBones[i];
+				if (modelBone.parentIndex != i) {
+					modelBone.parentIndex++;
+				}
+			}
+
+			mesh->m_meshBones.insert(mesh->m_meshBones.begin(), ModelBone());
+			mesh->m_meshBones[0].name = "Root";
+			mesh->m_meshBones[0].nameHash = StringHash("Root");
+		}
+	}
+}
+
+aiNode* AnimatedModel::searchNode(aiNode *node, std::vector<std::string> &boneList) {
+	std::vector<std::string>::iterator it = std::find(boneList.begin(), boneList.end(), node->mName.C_Str());
+
+	if (it != boneList.end()) {
+		return node;
+	}
+
+	for (unsigned int i = 0; i < node->mNumChildren; i++) {
+		aiNode *result = searchNode(node->mChildren[i], boneList);
+		if (result) {
+			return result;
+		}
+	}
+
+	return nullptr;
+}
+
+void AnimatedModel::fetchAiHierarchy(aiNode *node, std::vector<ModelBone>& meshBones, int parentIndex) {
+	aiMatrix4x4 transMatrix = node->mTransformation;
+	
+	std::vector<ModelBone>::iterator it2 = std::find_if(meshBones.begin(), meshBones.end(), [node](ModelBone& _node) { return strcmp(node->mName.C_Str(), _node.name.c_str()) == 0; });
+	int _parentIndex = -1;
+
+	if (it2 != meshBones.end()) {
+		aiVector3D pos, scale;
+		aiQuaternion rot;
+		transMatrix.Decompose(scale, rot, pos);
+
+		(*it2).initialPosition.set(pos.x, pos.y, pos.z);
+		(*it2).initialRotation.set(rot.x, rot.y, rot.z, rot.w);
+		(*it2).initialScale.set(scale.x, scale.y, scale.z);
+
+		(*it2).parentIndex = parentIndex;
+		_parentIndex = static_cast<int>(std::distance(meshBones.begin(), it2));
+		//std::cout << "Name: " << (*it2).name << "  " << node->mNumChildren << "  " << parentIndex  << std::endl;
+	}/*else {
+		std::cout << "Name: " << node->mName.C_Str()<< "  " << node->mNumChildren  << std::endl;
+	}*/
+
+	std::string nodeName = node->mName.data;
+
+	for (unsigned int i = 0; i < node->mNumChildren; i++) {
+		fetchAiHierarchy(node->mChildren[i], meshBones, _parentIndex);
+	}
+}
+
+void AnimatedModel::loadModelMdl(const std::string& path) {
+	Utils::MdlIO mdlConverter;
+	m_meshes.push_back(new AnimatedMesh(this));
+	AnimatedMesh* mesh = m_meshes.back();
+
+	BoundingBox box;
+	std::vector<std::vector<Utils::GeometryDesc>> geomDescs;
+
+	mdlConverter.mdlToBuffer(path.c_str(), 1.0f, mesh->m_vertexBuffer, mesh->m_indexBuffer, mesh->m_weights, mesh->m_boneIds, geomDescs, mesh->m_meshBones, box);
+	mesh->m_drawCount = static_cast<unsigned int>(mesh->m_indexBuffer.size());
+
+	CreateBuffer(mesh->m_vertexBuffer, mesh->m_indexBuffer, mesh->m_vao, mesh->m_vbo, mesh->m_ibo, 8, mesh->m_weights, mesh->m_boneIds);
+}
+
+void AnimatedModel::drawRaw() {
+	for (auto&& mesh : m_meshes) {
+		mesh->drawRaw();
+	}
+}
+
+void AnimatedModel::CreateBuffer(std::vector<float>& vertexBuffer, std::vector<unsigned int> indexBuffer, unsigned int& vao, unsigned int(&vbo)[3], unsigned int& ibo, unsigned int stride, std::vector<std::array<float, 4>>& weights, std::vector<std::array<unsigned int, 4>>& boneIds) {
+	if (vao)
+		glDeleteVertexArrays(1, &vao);
+
+	if (vbo[0])
+		glDeleteBuffers(1, &vbo[0]);
+
+	if (vbo[1])
+		glDeleteBuffers(1, &vbo[1]);
+
+	if (vbo[2])
+		glDeleteBuffers(1, &vbo[2]);
+
+	if (ibo)
+		glDeleteBuffers(1, &ibo);
+
+
+	glGenBuffers(3, vbo);
+	glGenBuffers(1, &ibo);
+
+	glGenVertexArrays(1, &vao);
+	glBindVertexArray(vao);
+
+	//Positions
+	glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
+	glBufferData(GL_ARRAY_BUFFER, vertexBuffer.size() * sizeof(float), &vertexBuffer[0], GL_STATIC_DRAW);
+
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)0);
+
+	//Texture Coordinates
+	if (stride == 5 || stride == 8 || stride == 14) {
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)(3 * sizeof(float)));
+	}
+
+	//Normals
+	if (stride == 6 || stride == 8 || stride == 14) {
+		glEnableVertexAttribArray(2);
+		glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)((stride == 8 || stride == 14) ? 5 * sizeof(float) : 3 * sizeof(float)));
+	}
+
+	//Tangents Bitangents
+	if (stride == 14) {
+		glEnableVertexAttribArray(3);
+		glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)(8 * sizeof(float)));
+
+		glEnableVertexAttribArray(4);
+		glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)(11 * sizeof(float)));
+
+	}
+
+	//bone weights and id's
+	if (!weights.empty()) {
+
+		glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
+		glBufferData(GL_ARRAY_BUFFER, weights.size() * sizeof(float) * 4, &weights.front(), GL_STATIC_DRAW);
+
+		glEnableVertexAttribArray(5);
+		glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, 0, 0);
+
+		glBindBuffer(GL_ARRAY_BUFFER, vbo[2]);
+		glBufferData(GL_ARRAY_BUFFER, boneIds.size() * sizeof(std::array<unsigned int, 4>), &boneIds.front(), GL_STATIC_DRAW);
+
+		glEnableVertexAttribArray(6);
+		glVertexAttribIPointer(6, 4, GL_UNSIGNED_INT, 0, 0);
+
+	}
+
+	//Indices
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexBuffer.size() * sizeof(unsigned int), &indexBuffer[0], GL_STATIC_DRAW);
+
+	glBindVertexArray(0);
+}
+
+AnimatedMesh::AnimatedMesh(AnimatedModel* model) {
+	m_model = model;
+}
+
+AnimatedMesh::~AnimatedMesh() {
+	glDeleteVertexArrays(1, &m_vao);
+}
+
+void AnimatedMesh::createBones() {
+	m_numBones = static_cast<unsigned short>(m_meshBones.size());
+
+	m_bones = new Bone*[m_numBones];
+	m_skinMatrices = new Matrix4f[m_numBones];
+
+	for (size_t i = 0; i < m_meshBones.size(); ++i) {
+		ModelBone& modelBone = m_meshBones[i];
+		m_bones[i] = new Bone();
+		m_bones[i]->SetName(modelBone.name);
+		m_bones[i]->setPosition(modelBone.initialPosition);
+		m_bones[i]->setOrientation({ modelBone.initialRotation[0], modelBone.initialRotation[1], modelBone.initialRotation[2], modelBone.initialRotation[3] });
+		m_bones[i]->setScale(modelBone.initialScale);
+		m_bones[i]->offsetMatrix = modelBone.offsetMatrix;
+	}
+
+	for (size_t i = 0; i < m_meshBones.size(); ++i) {
+		const ModelBone& desc = m_meshBones[i];
+		if (desc.parentIndex == i) {
+			m_bones[i]->setParent(nullptr);
+			m_rootBone = m_bones[i];
+		}
+		else {
+			m_bones[i]->setParent(m_bones[desc.parentIndex]);
+			//bones[i]->setOrigin(bones[i]->getPosition());
+		}
+	}
+
+	for (size_t i = 0; i < m_meshBones.size(); ++i)
+		m_bones[i]->CountChildBones();
+}
+
+void AnimatedMesh::drawRaw() {
+	glBindVertexArray(m_vao);
+	glDrawElements(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0);
+	glBindVertexArray(0);
+}

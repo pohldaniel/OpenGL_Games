@@ -77,7 +77,20 @@ namespace std {
 #include <iostream>
 #include <algorithm>
 
+#include "StringUtils.h"
+#include "ModelBone.h"
+
 namespace Utils {
+
+	static const float BONE_SIZE_THRESHOLD = 0.05f;
+
+	struct GeometryDesc {
+		float lodDistance;
+		unsigned vbRef;
+		unsigned ibRef;
+		unsigned drawStart;
+		unsigned drawCount;
+	};
 
 	const unsigned ELEMENT_TYPESIZES[] = {
 		sizeof(int),
@@ -123,9 +136,6 @@ namespace Utils {
 		void solidToObj(const char* filename, const char* outFileObj, const char* outFileMtl, const char* texturePath, bool flipVertical = true);
 		void solidToBuffer(const char* filename, bool flipVertical, std::vector<float>& vertexBufferOut, std::vector<unsigned int>& indexBufferOut);
 
-
-		
-
 		private:
 
 			bool getSimilarVertexIndex(std::array<float, 2>& packed, std::map<std::array<float, 2>, short, ComparerUv>& uvToOutIndex, short & result);
@@ -135,10 +145,9 @@ namespace Utils {
 
 	struct MdlIO {
 		
-
-		void mdlToObj(const char* filename, const char* outFileObj, const char* outFileMtl, const char* texturePath);
-		void mdlToBuffer(const char* filename, float scale, std::vector<float>& vertexBufferOut, std::vector<unsigned int>& indexBufferOut);
-		void mdlToBuffer(const char* filename, std::array<float,3> scale, std::vector<float>& vertexBufferOut, std::vector<unsigned int>& indexBufferOut);
+		void mdlToObj(const char* path, const char* outFileObj, const char* outFileMtl, const char* texturePath);
+		void mdlToBuffer(const char* path, float scale, std::vector<float>& vertexBufferOut, std::vector<unsigned int>& indexBufferOut, std::vector<std::array<float,4>>& weightsOut, std::vector<std::array<unsigned int, 4>>& boneIdsOut, std::vector<std::vector<GeometryDesc>>& geomDescs, std::vector<ModelBone>& bones, BoundingBox& boundingBox);
+		void mdlToBuffer(const char* path, std::array<float,3> scale, std::vector<float>& vertexBufferOut, std::vector<unsigned int>& indexBufferOut, std::vector<std::array<float,4>>& weightsOut, std::vector<std::array<unsigned int, 4>>& boneIdsOut, std::vector<std::vector<GeometryDesc>>& geomDescs, std::vector<ModelBone>& bones, BoundingBox& boundingBox);
 	};
 
 }

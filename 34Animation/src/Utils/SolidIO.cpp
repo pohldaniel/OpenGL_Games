@@ -226,9 +226,7 @@ void Utils::SolidIO::solidToBuffer(const char* filename, bool flipVertical, std:
 	delete bufferTris;
 }
 
-
-
-void Utils::MdlIO::mdlToObj(const char* filename, const char* outFileObj, const char* outFileMtl, const char* texturePath) {
+void Utils::MdlIO::mdlToObj(const char* path, const char* outFileObj, const char* outFileMtl, const char* texturePath) {
 	std::filesystem::path mltPath(outFileMtl);
 	
 	std::vector<std::array<float, 3>> positions;
@@ -237,7 +235,7 @@ void Utils::MdlIO::mdlToObj(const char* filename, const char* outFileObj, const 
 
 	std::vector<std::array<short, 3>> faces;
 
-	std::ifstream file(filename, std::ios::binary);
+	std::ifstream file(path, std::ios::binary);
 
 	std::string ret;
 	ret.resize(4);
@@ -360,196 +358,247 @@ void Utils::MdlIO::mdlToObj(const char* filename, const char* outFileObj, const 
 	fileOut.close();
 }
 
-void Utils::MdlIO::mdlToBuffer(const char* filename, float scale, std::vector<float>& vertexBufferOut, std::vector<unsigned int>& indexBufferOut) {
-	mdlToBuffer(filename, { scale, scale, scale }, vertexBufferOut, indexBufferOut);
+void Utils::MdlIO::mdlToBuffer(const char* path, float scale, std::vector<float>& vertexBufferOut, std::vector<unsigned int>& indexBufferOut, std::vector<std::array<float, 4>>& weightsOut, std::vector<std::array<unsigned int, 4>>& boneIdsOut, std::vector<std::vector<GeometryDesc>>& geomDescs, std::vector<ModelBone>& bones, BoundingBox& boundingBox) {
+	mdlToBuffer(path, { scale, scale, scale }, vertexBufferOut, indexBufferOut, weightsOut, boneIdsOut, geomDescs, bones, boundingBox);
 }
 
-void Utils::MdlIO::mdlToBuffer(const char* filename, std::array<float,3> scale, std::vector<float>& vertexBufferOut, std::vector<unsigned int>& indexBufferOut) {
-	std::ifstream file(filename, std::ios::binary);
+void Utils::MdlIO::mdlToBuffer(const char* path, std::array<float,3> scale, std::vector<float>& vertexBufferOut, std::vector<unsigned int>& indexBufferOut, std::vector<std::array<float, 4>>& weightsOut, std::vector<std::array<unsigned int, 4>>& boneIdsOut, std::vector<std::vector<GeometryDesc>>& geomDescs, std::vector<ModelBone>& bones, BoundingBox& boundingBox) {
+	std::ifstream file(path, std::ios::binary);
 
 	std::string ret;
 	ret.resize(4);
 	file.read(&ret[0], 4 * sizeof(char));
+	char metaData[4];
 
-	if (ret.compare("UMD2") == 0) {
-		char metaData[4];
+	//Num VertexBuffer
+	file.read(metaData, sizeof(unsigned int));
 
-		// num Vertexbuffer
+	file.read(metaData, sizeof(unsigned int));
+	unsigned int vertexCount = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
+
+	file.read(metaData, sizeof(unsigned int));
+	unsigned int numElements = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
+
+	unsigned int vertexSize = 0;
+
+	for (unsigned j = 0; j < numElements; ++j) {
 		file.read(metaData, sizeof(unsigned int));
-
-		file.read(metaData, sizeof(unsigned int));
-		unsigned int vertexCount = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
-
-		file.read(metaData, sizeof(unsigned int));
-		unsigned int numElements = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
-
-		unsigned int vertexSize = 0;
-
-		for (unsigned j = 0; j < numElements; ++j) {
-			file.read(metaData, sizeof(unsigned int));
-			unsigned int elementDesc = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
-			vertexSize += ELEMENT_TYPESIZES[elementDesc & 0xff];
-		}
-
-		//morph
-		file.read(metaData, sizeof(unsigned int));
-		file.read(metaData, sizeof(unsigned int));
-
-		char* buffer = new char[vertexCount * vertexSize];
-		file.read(buffer, vertexCount * vertexSize);
-
-		for (unsigned int i = 0; i < vertexCount * vertexSize; i = i + vertexSize) {
-
-			UFloat value[3];
-			value[0].c[0] = buffer[i + 0]; value[0].c[1] = buffer[i + 1]; value[0].c[2] = buffer[i + 2]; value[0].c[3] = buffer[i + 3];
-			value[1].c[0] = buffer[i + 4]; value[1].c[1] = buffer[i + 5]; value[1].c[2] = buffer[i + 6]; value[1].c[3] = buffer[i + 7];
-			value[2].c[0] = buffer[i + 8]; value[2].c[1] = buffer[i + 9]; value[2].c[2] = buffer[i + 10]; value[2].c[3] = buffer[i + 11];
-			vertexBufferOut.push_back(value[0].flt * scale[0]); vertexBufferOut.push_back(value[1].flt * scale[1]); vertexBufferOut.push_back(value[2].flt * scale[2]);
-
-			value[0].c[0] = buffer[i + 24]; value[0].c[1] = buffer[i + 25]; value[0].c[2] = buffer[i + 26]; value[0].c[3] = buffer[i + 27];
-			value[1].c[0] = buffer[i + 28]; value[1].c[1] = buffer[i + 29]; value[1].c[2] = buffer[i + 30]; value[1].c[3] = buffer[i + 31];
-			vertexBufferOut.push_back(value[0].flt); vertexBufferOut.push_back(value[1].flt);
-
-			value[0].c[0] = buffer[i + 12]; value[0].c[1] = buffer[i + 13]; value[0].c[2] = buffer[i + 14]; value[0].c[3] = buffer[i + 15];
-			value[1].c[0] = buffer[i + 16]; value[1].c[1] = buffer[i + 17]; value[1].c[2] = buffer[i + 18]; value[1].c[3] = buffer[i + 19];
-			value[2].c[0] = buffer[i + 20]; value[2].c[1] = buffer[i + 21]; value[2].c[2] = buffer[i + 22]; value[2].c[3] = buffer[i + 23];
-			vertexBufferOut.push_back(value[0].flt); vertexBufferOut.push_back(value[1].flt); vertexBufferOut.push_back(value[2].flt);
-
-		}
-		delete buffer;
-
-		file.read(metaData, sizeof(unsigned int));
-		//std::cout << "Num IndexBuffer: " << Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]) << std::endl;
-
-		file.read(metaData, sizeof(unsigned int));
-		unsigned int indexCount = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
-		//std::cout << "Index Count: " << indexCount << std::endl;
-
-		file.read(metaData, sizeof(unsigned int));
-		unsigned int indexSize = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
-		//std::cout << "Index Size: " << indexSize << std::endl;
-
-		buffer = new char[indexCount * indexSize];
-		file.read(buffer, indexCount * indexSize);
-
-		for (unsigned int i = 0; i < indexCount * indexSize; i = i + indexSize * 3) {
-			UShort value[3];
-
-			value[0].c[0] = buffer[i + 0]; value[0].c[1] = buffer[i + 1];
-			value[1].c[0] = buffer[i + 2]; value[1].c[1] = buffer[i + 3];
-			value[2].c[0] = buffer[i + 4]; value[2].c[1] = buffer[i + 5];
-			indexBufferOut.push_back(value[0].shrt); indexBufferOut.push_back(value[1].shrt); indexBufferOut.push_back(value[2].shrt);
-		}
-		delete buffer;
-		
-	}else if (ret.compare("UMDL") == 0) {
-		char metaData[4];
-
-		// num Vertexbuffer
-		file.read(metaData, sizeof(unsigned int));
-
-		file.read(metaData, sizeof(unsigned int));
-		unsigned int vertexCount = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
-
-		file.read(metaData, sizeof(unsigned int));
-		unsigned elementMask = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
-
-		unsigned int vertexSize = 0;
-
-		if (elementMask & 1){
-			vertexSize += sizeof(float) * 3;
-		}
-		if (elementMask & 2)
-		{
-			vertexSize += sizeof(float) * 3;
-		}
-		if (elementMask & 4)
-		{
-			vertexSize += 4;
-		}
-		if (elementMask & 8)
-		{		
-			vertexSize += sizeof(float) * 2;
-		}
-		if (elementMask & 16)
-		{
-			vertexSize += sizeof(float) * 2;
-		}
-		if (elementMask & 32)
-		{
-			vertexSize += sizeof(float) * 3;
-		}
-		if (elementMask & 64)
-		{
-			vertexSize += sizeof(float) * 3;		
-		}
-		if (elementMask & 128)
-		{
-			vertexSize += sizeof(float) * 4;
-		}
-		if (elementMask & 256)
-		{
-			vertexSize += sizeof(float) * 4;
-		}
-		if (elementMask & 512)
-		{
-			vertexSize += 4;
-		}
-
-		//morph
-		file.read(metaData, sizeof(unsigned int));
-		file.read(metaData, sizeof(unsigned int));
-
-		char* buffer = new char[vertexCount * vertexSize];
-		file.read(buffer, vertexCount * vertexSize);
-
-		for (unsigned int i = 0; i < vertexCount * vertexSize; i = i + vertexSize) {
-
-			UFloat value[3];
-			value[0].c[0] = buffer[i + 0]; value[0].c[1] = buffer[i + 1]; value[0].c[2] = buffer[i + 2]; value[0].c[3] = buffer[i + 3];
-			value[1].c[0] = buffer[i + 4]; value[1].c[1] = buffer[i + 5]; value[1].c[2] = buffer[i + 6]; value[1].c[3] = buffer[i + 7];
-			value[2].c[0] = buffer[i + 8]; value[2].c[1] = buffer[i + 9]; value[2].c[2] = buffer[i + 10]; value[2].c[3] = buffer[i + 11];
-			vertexBufferOut.push_back(value[0].flt * scale[0]); vertexBufferOut.push_back(value[1].flt * scale[1]); vertexBufferOut.push_back(value[2].flt * scale[2]);
-
-			if (elementMask & 4) {
-				value[0].c[0] = buffer[i + 28]; value[0].c[1] = buffer[i + 29]; value[0].c[2] = buffer[i + 30]; value[0].c[3] = buffer[i + 31];
-				value[1].c[0] = buffer[i + 32]; value[1].c[1] = buffer[i + 33]; value[1].c[2] = buffer[i + 34]; value[1].c[3] = buffer[i + 35];
-			}else {
-				value[0].c[0] = buffer[i + 24]; value[0].c[1] = buffer[i + 25]; value[0].c[2] = buffer[i + 26]; value[0].c[3] = buffer[i + 27];
-				value[1].c[0] = buffer[i + 28]; value[1].c[1] = buffer[i + 29]; value[1].c[2] = buffer[i + 30]; value[1].c[3] = buffer[i + 31];			
-			}
-			vertexBufferOut.push_back(value[0].flt); vertexBufferOut.push_back(value[1].flt);
-
-			value[0].c[0] = buffer[i + 12]; value[0].c[1] = buffer[i + 13]; value[0].c[2] = buffer[i + 14]; value[0].c[3] = buffer[i + 15];
-			value[1].c[0] = buffer[i + 16]; value[1].c[1] = buffer[i + 17]; value[1].c[2] = buffer[i + 18]; value[1].c[3] = buffer[i + 19];
-			value[2].c[0] = buffer[i + 20]; value[2].c[1] = buffer[i + 21]; value[2].c[2] = buffer[i + 22]; value[2].c[3] = buffer[i + 23];
-			vertexBufferOut.push_back(value[0].flt); vertexBufferOut.push_back(value[1].flt); vertexBufferOut.push_back(value[2].flt);
-		}
-		delete buffer;
-
-		file.read(metaData, sizeof(unsigned int));
-		//std::cout << "Num IndexBuffer: " << Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]) << std::endl;
-
-		file.read(metaData, sizeof(unsigned int));
-		unsigned int indexCount = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
-		//std::cout << "Index Count: " << indexCount << std::endl;
-
-		file.read(metaData, sizeof(unsigned int));
-		unsigned int indexSize = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
-		//std::cout << "Index Size: " << indexSize << std::endl;
-
-		buffer = new char[indexCount * indexSize];
-		file.read(buffer, indexCount * indexSize);
-
-		for (unsigned int i = 0; i < indexCount * indexSize; i = i + indexSize * 3) {
-			UShort value[3];
-
-			value[0].c[0] = buffer[i + 0]; value[0].c[1] = buffer[i + 1];
-			value[1].c[0] = buffer[i + 2]; value[1].c[1] = buffer[i + 3];
-			value[2].c[0] = buffer[i + 4]; value[2].c[1] = buffer[i + 5];
-			indexBufferOut.push_back(value[0].shrt); indexBufferOut.push_back(value[1].shrt); indexBufferOut.push_back(value[2].shrt);
-		}
-		delete buffer;
+		unsigned int elementDesc = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
+		vertexSize += Utils::ELEMENT_TYPESIZES[elementDesc & 0xff];
 	}
+
+	file.read(metaData, sizeof(unsigned int));
+	file.read(metaData, sizeof(unsigned int));
+
+	char* buffer = new char[vertexCount * vertexSize];
+	file.read(buffer, vertexCount * vertexSize);
+
+	for (unsigned int i = 0; i < vertexCount * vertexSize; i = i + vertexSize) {
+
+		Utils::UFloat value[4];
+		value[0].c[0] = buffer[i + 0]; value[0].c[1] = buffer[i + 1]; value[0].c[2] = buffer[i + 2]; value[0].c[3] = buffer[i + 3];
+		value[1].c[0] = buffer[i + 4]; value[1].c[1] = buffer[i + 5]; value[1].c[2] = buffer[i + 6]; value[1].c[3] = buffer[i + 7];
+		value[2].c[0] = buffer[i + 8]; value[2].c[1] = buffer[i + 9]; value[2].c[2] = buffer[i + 10]; value[2].c[3] = buffer[i + 11];
+		vertexBufferOut.push_back(value[0].flt); vertexBufferOut.push_back(value[1].flt); vertexBufferOut.push_back(value[2].flt);
+
+		value[0].c[0] = buffer[i + 24]; value[0].c[1] = buffer[i + 25]; value[0].c[2] = buffer[i + 26]; value[0].c[3] = buffer[i + 27];
+		value[1].c[0] = buffer[i + 28]; value[1].c[1] = buffer[i + 29]; value[1].c[2] = buffer[i + 30]; value[1].c[3] = buffer[i + 31];
+		vertexBufferOut.push_back(value[0].flt); vertexBufferOut.push_back(value[1].flt);
+
+		value[0].c[0] = buffer[i + 12]; value[0].c[1] = buffer[i + 13]; value[0].c[2] = buffer[i + 14]; value[0].c[3] = buffer[i + 15];
+		value[1].c[0] = buffer[i + 16]; value[1].c[1] = buffer[i + 17]; value[1].c[2] = buffer[i + 18]; value[1].c[3] = buffer[i + 19];
+		value[2].c[0] = buffer[i + 20]; value[2].c[1] = buffer[i + 21]; value[2].c[2] = buffer[i + 22]; value[2].c[3] = buffer[i + 23];
+		vertexBufferOut.push_back(value[0].flt); vertexBufferOut.push_back(value[1].flt); vertexBufferOut.push_back(value[2].flt);
+
+		value[0].c[0] = buffer[i + 32]; value[0].c[1] = buffer[i + 33]; value[0].c[2] = buffer[i + 34]; value[0].c[3] = buffer[i + 35];
+		value[1].c[0] = buffer[i + 36]; value[1].c[1] = buffer[i + 37]; value[1].c[2] = buffer[i + 38]; value[1].c[3] = buffer[i + 39];
+		value[2].c[0] = buffer[i + 40]; value[2].c[1] = buffer[i + 41]; value[2].c[2] = buffer[i + 42]; value[2].c[3] = buffer[i + 43];
+		value[3].c[0] = buffer[i + 44]; value[3].c[1] = buffer[i + 45]; value[3].c[2] = buffer[i + 46]; value[3].c[3] = buffer[i + 47];
+		weightsOut.push_back({ value[0].flt , value[1].flt , value[2].flt ,  value[3].flt });
+		boneIdsOut.push_back({ static_cast<unsigned int>(buffer[i + 48]),  static_cast<unsigned int>(buffer[i + 49]), static_cast<unsigned int>(buffer[i + 50]), static_cast<unsigned int>(buffer[i + 51]) });
+
+	}
+	delete buffer;
+
+	// Num IndexBuffer
+	file.read(metaData, sizeof(unsigned int));
+
+	file.read(metaData, sizeof(unsigned int));
+	unsigned int indexCount = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
+
+	file.read(metaData, sizeof(unsigned int));
+	unsigned int indexSize = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
+
+	buffer = new char[indexCount * indexSize];
+	file.read(buffer, indexCount * indexSize);
+
+	for (unsigned int i = 0; i < indexCount * indexSize; i = i + indexSize * 3) {
+		Utils::UShort value[3];
+
+		value[0].c[0] = buffer[i + 0]; value[0].c[1] = buffer[i + 1];
+		value[1].c[0] = buffer[i + 2]; value[1].c[1] = buffer[i + 3];
+		value[2].c[0] = buffer[i + 4]; value[2].c[1] = buffer[i + 5];
+		indexBufferOut.push_back(value[0].shrt); indexBufferOut.push_back(value[1].shrt); indexBufferOut.push_back(value[2].shrt);
+	}
+	delete buffer;
+
+	file.read(metaData, sizeof(unsigned int));
+	unsigned int numGeometries = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
+	geomDescs.resize(numGeometries);
+
+	for (size_t i = 0; i < numGeometries; ++i) {
+		file.read(metaData, sizeof(unsigned int));
+		unsigned int boneMappingCount = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
+
+		file.read(metaData, sizeof(unsigned int));
+		unsigned int numLodLevels = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
+
+		geomDescs[i].resize(numLodLevels);
+
+		for (size_t j = 0; j < numLodLevels; ++j) {
+
+			GeometryDesc& geomDesc = geomDescs[i][j];
+
+			file.read(metaData, sizeof(float));
+			geomDesc.lodDistance = Utils::bytesToFloatLE(metaData[0], metaData[1], metaData[2], metaData[3]);
+
+			// Primitive type
+			file.read(metaData, sizeof(unsigned int));
+
+			file.read(metaData, sizeof(unsigned int));
+			geomDesc.vbRef = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
+
+			file.read(metaData, sizeof(unsigned int));
+			geomDesc.ibRef = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
+
+			file.read(metaData, sizeof(unsigned int));
+			geomDesc.drawStart = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
+
+			file.read(metaData, sizeof(unsigned int));
+			geomDesc.drawCount = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
+
+		}
+	}
+
+	//Num Morphs
+	file.read(metaData, sizeof(unsigned int));
+	unsigned int numMorphs = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
+
+	file.read(metaData, sizeof(unsigned int));
+	unsigned int numBones = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
+
+	bones.resize(numBones);
+
+	for (size_t i = 0; i < numBones; ++i) {
+		ModelBone& bone = bones[i];
+
+		std::string boneName;
+		while (true) {
+			file.read(metaData, sizeof(char));
+			if (!metaData[0])
+				break;
+			else
+				boneName += metaData[0];
+		}
+
+		bone.name = boneName;
+		bone.nameHash = StringHash(bone.name);
+
+		file.read(metaData, sizeof(unsigned int));
+		bone.parentIndex = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
+
+		char* bufferBoneTrans = new char[48];
+
+		file.read(bufferBoneTrans, 12);
+		Utils::UFloat position[3];
+		position[0].c[0] = bufferBoneTrans[0]; position[0].c[1] = bufferBoneTrans[1]; position[0].c[2] = bufferBoneTrans[2]; position[0].c[3] = bufferBoneTrans[3];
+		position[1].c[0] = bufferBoneTrans[4]; position[1].c[1] = bufferBoneTrans[5]; position[1].c[2] = bufferBoneTrans[6]; position[1].c[3] = bufferBoneTrans[7];
+		position[2].c[0] = bufferBoneTrans[8]; position[2].c[1] = bufferBoneTrans[9]; position[2].c[2] = bufferBoneTrans[10]; position[2].c[3] = bufferBoneTrans[11];
+		bone.initialPosition.set(position[0].flt, position[1].flt, position[2].flt);
+
+		file.read(bufferBoneTrans, 16);
+		Utils::UFloat orientation[4];
+		orientation[0].c[0] = bufferBoneTrans[0]; orientation[0].c[1] = bufferBoneTrans[1]; orientation[0].c[2] = bufferBoneTrans[2]; orientation[0].c[3] = bufferBoneTrans[3];
+		orientation[1].c[0] = bufferBoneTrans[4]; orientation[1].c[1] = bufferBoneTrans[5]; orientation[1].c[2] = bufferBoneTrans[6]; orientation[1].c[3] = bufferBoneTrans[7];
+		orientation[2].c[0] = bufferBoneTrans[8]; orientation[2].c[1] = bufferBoneTrans[9]; orientation[2].c[2] = bufferBoneTrans[10]; orientation[2].c[3] = bufferBoneTrans[11];
+		orientation[3].c[0] = bufferBoneTrans[12]; orientation[3].c[1] = bufferBoneTrans[13]; orientation[3].c[2] = bufferBoneTrans[14]; orientation[3].c[3] = bufferBoneTrans[15];
+		bone.initialRotation.set(orientation[1].flt, orientation[2].flt, orientation[3].flt, orientation[0].flt);
+
+		file.read(bufferBoneTrans, 12);
+		Utils::UFloat scale[3];
+		scale[0].c[0] = bufferBoneTrans[0]; scale[0].c[1] = bufferBoneTrans[1]; scale[0].c[2] = bufferBoneTrans[2]; scale[0].c[3] = bufferBoneTrans[3];
+		scale[1].c[0] = bufferBoneTrans[4]; scale[1].c[1] = bufferBoneTrans[5]; scale[1].c[2] = bufferBoneTrans[6]; scale[1].c[3] = bufferBoneTrans[7];
+		scale[2].c[0] = bufferBoneTrans[8]; scale[2].c[1] = bufferBoneTrans[9]; scale[2].c[2] = bufferBoneTrans[10]; scale[2].c[3] = bufferBoneTrans[11];
+		bone.initialScale.set(scale[0].flt, scale[1].flt, scale[2].flt);
+
+		file.read(bufferBoneTrans, 48);
+		Utils::UFloat offset[12];
+		offset[0].c[0] = bufferBoneTrans[0]; offset[0].c[1] = bufferBoneTrans[1]; offset[0].c[2] = bufferBoneTrans[2]; offset[0].c[3] = bufferBoneTrans[3];
+		offset[1].c[0] = bufferBoneTrans[4]; offset[1].c[1] = bufferBoneTrans[5]; offset[1].c[2] = bufferBoneTrans[6]; offset[1].c[3] = bufferBoneTrans[7];
+		offset[2].c[0] = bufferBoneTrans[8]; offset[2].c[1] = bufferBoneTrans[9]; offset[2].c[2] = bufferBoneTrans[10]; offset[2].c[3] = bufferBoneTrans[11];
+		offset[3].c[0] = bufferBoneTrans[12]; offset[3].c[1] = bufferBoneTrans[13]; offset[3].c[2] = bufferBoneTrans[14]; offset[3].c[3] = bufferBoneTrans[15];
+
+		offset[4].c[0] = bufferBoneTrans[16]; offset[4].c[1] = bufferBoneTrans[17]; offset[4].c[2] = bufferBoneTrans[18]; offset[4].c[3] = bufferBoneTrans[19];
+		offset[5].c[0] = bufferBoneTrans[20]; offset[5].c[1] = bufferBoneTrans[21]; offset[5].c[2] = bufferBoneTrans[22]; offset[5].c[3] = bufferBoneTrans[23];
+		offset[6].c[0] = bufferBoneTrans[24]; offset[6].c[1] = bufferBoneTrans[25]; offset[6].c[2] = bufferBoneTrans[26]; offset[6].c[3] = bufferBoneTrans[27];
+		offset[7].c[0] = bufferBoneTrans[28]; offset[7].c[1] = bufferBoneTrans[29]; offset[7].c[2] = bufferBoneTrans[30]; offset[7].c[3] = bufferBoneTrans[31];
+
+		offset[8].c[0] = bufferBoneTrans[32]; offset[8].c[1] = bufferBoneTrans[33]; offset[8].c[2] = bufferBoneTrans[34]; offset[8].c[3] = bufferBoneTrans[35];
+		offset[9].c[0] = bufferBoneTrans[36]; offset[9].c[1] = bufferBoneTrans[37]; offset[9].c[2] = bufferBoneTrans[38]; offset[9].c[3] = bufferBoneTrans[39];
+		offset[10].c[0] = bufferBoneTrans[40]; offset[10].c[1] = bufferBoneTrans[41]; offset[10].c[2] = bufferBoneTrans[42]; offset[10].c[3] = bufferBoneTrans[43];
+		offset[11].c[0] = bufferBoneTrans[44]; offset[11].c[1] = bufferBoneTrans[45]; offset[11].c[2] = bufferBoneTrans[46]; offset[11].c[3] = bufferBoneTrans[47];
+
+		bone.offsetMatrix.set(offset[0].flt, offset[4].flt, offset[8].flt, 0.0f,
+			offset[1].flt, offset[5].flt, offset[9].flt, 0.0f,
+			offset[2].flt, offset[6].flt, offset[10].flt, 0.0f,
+			offset[3].flt, offset[7].flt, offset[11].flt, 1.0f);
+
+		delete bufferBoneTrans;
+
+		file.read(metaData, sizeof(unsigned char));
+		unsigned char boneCollisionType = metaData[0];
+
+		if (boneCollisionType & 1) {
+			file.read(metaData, sizeof(float));
+			bone.radius = Utils::bytesToFloatLE(metaData[0], metaData[1], metaData[2], metaData[3]);
+			if (bone.radius < BONE_SIZE_THRESHOLD * 0.5f)
+				bone.active = false;
+		}
+
+		if (boneCollisionType & 2) {
+			char* bufferBox = new char[24];
+			file.read(bufferBox, 24);
+			Utils::UFloat box[6];
+			box[0].c[0] = bufferBox[0]; box[0].c[1] = bufferBox[1]; box[0].c[2] = bufferBox[2]; box[0].c[3] = bufferBox[3];
+			box[1].c[0] = bufferBox[4]; box[1].c[1] = bufferBox[5]; box[1].c[2] = bufferBox[6]; box[1].c[3] = bufferBox[7];
+			box[2].c[0] = bufferBox[8]; box[2].c[1] = bufferBox[9]; box[2].c[2] = bufferBox[10]; box[2].c[3] = bufferBox[11];
+
+			box[3].c[0] = bufferBox[12]; box[3].c[1] = bufferBox[13]; box[3].c[2] = bufferBox[14]; box[3].c[3] = bufferBox[15];
+			box[4].c[0] = bufferBox[16]; box[4].c[1] = bufferBox[17]; box[4].c[2] = bufferBox[18]; box[4].c[3] = bufferBox[19];
+			box[5].c[0] = bufferBox[20]; box[5].c[1] = bufferBox[21]; box[5].c[2] = bufferBox[22]; box[5].c[3] = bufferBox[23];
+
+			bone.boundingBox.min.set(box[0].flt, box[1].flt, box[2].flt);
+			bone.boundingBox.max.set(box[3].flt, box[4].flt, box[5].flt);
+			delete bufferBox;
+			if (bone.boundingBox.getSize().length() < BONE_SIZE_THRESHOLD)
+				bone.active = false;
+		}
+	}
+
+	char* bufferBox = new char[24];
+	file.read(bufferBox, 24);
+	Utils::UFloat box[6];
+	box[0].c[0] = bufferBox[0]; box[0].c[1] = bufferBox[1]; box[0].c[2] = bufferBox[2]; box[0].c[3] = bufferBox[3];
+	box[1].c[0] = bufferBox[4]; box[1].c[1] = bufferBox[5]; box[1].c[2] = bufferBox[6]; box[1].c[3] = bufferBox[7];
+	box[2].c[0] = bufferBox[8]; box[2].c[1] = bufferBox[9]; box[2].c[2] = bufferBox[10]; box[2].c[3] = bufferBox[11];
+
+	box[3].c[0] = bufferBox[12]; box[3].c[1] = bufferBox[13]; box[3].c[2] = bufferBox[14]; box[3].c[3] = bufferBox[15];
+	box[4].c[0] = bufferBox[16]; box[4].c[1] = bufferBox[17]; box[4].c[2] = bufferBox[18]; box[4].c[3] = bufferBox[19];
+	box[5].c[0] = bufferBox[20]; box[5].c[1] = bufferBox[21]; box[5].c[2] = bufferBox[22]; box[5].c[3] = bufferBox[23];
+
+	boundingBox.min.set(box[0].flt, box[1].flt, box[2].flt);
+	boundingBox.max.set(box[3].flt, box[4].flt, box[5].flt);
+	delete bufferBox;
+
 	file.close();
 }
