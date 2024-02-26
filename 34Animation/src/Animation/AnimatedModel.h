@@ -42,6 +42,21 @@ public:
 
 	void loadModelAssimp(const std::string& path, const bool addVirtualRoot = false, const bool reverseBoneList = false);
 	void loadModelMdl(const std::string& path);
+
+	AnimationState* addAnimationState(Animation* animation);
+	AnimationState* getAnimationState(size_t index) const;
+	AnimationState* findAnimationState(Animation* animation) const;
+	AnimationState* findAnimationState(const std::string& animationName) const;
+	AnimationState* findAnimationState(const char* animationName) const;
+	AnimationState* findAnimationState(StringHash animationNameHash) const;
+	void removeAnimationState(Animation* animation);
+	void removeAnimationState(const std::string& animationName);
+	void removeAnimationState(const char* animationName);
+	void removeAnimationState(StringHash animationNameHash);
+	void removeAnimationState(AnimationState* state);
+	void removeAnimationState(size_t index);
+	void removeAllAnimationStates();
+
 	std::vector<AnimatedMesh*> m_meshes;
 
 private:

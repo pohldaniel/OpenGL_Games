@@ -26,7 +26,7 @@ struct AnimationStateTrack{
 
 class AnimationState {
 public:
-	AnimationState(Animation* animation, Bone* root);
+	AnimationState(Animation* animation, Bone* startBone);
 	/// Construct with animated model drawable and animation pointers.
 	//AnimationState(AnimatedModelDrawable* drawable, Animation* animation);
 	/// Construct with root scene node and animation pointers.
@@ -101,7 +101,6 @@ private:
 	std::shared_ptr<Animation> animation;
 	/// Start bone.
 	Bone* startBone;
-	Bone* rootBone;
 	/// Per-track data.
 	std::vector<AnimationStateTrack> stateTracks;
 	/// Looped flag.

@@ -1,4 +1,7 @@
 #include <Utils/SolidIO.h>
+#include <assimp/Importer.hpp> 
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
 #include "Animation.h"
 
 void AnimationTrack::FindKeyFrameIndex(float time, size_t& index) const {
@@ -23,7 +26,7 @@ Animation::Animation() :length(0.0f) {
 Animation::~Animation() {
 }
 
-void Animation::loadAnimation(std::string path) {
+void Animation::loadAnimationAni(std::string path) {
 	std::ifstream file(path, std::ios::binary);
 
 	std::string ret;

@@ -10,7 +10,10 @@
 #include <engine/CharacterSet.h>
 #include <engine/Spritesheet.h>
 #include <Physics/Physics.h>
-#include <engine/animation/AssimpAnimation.h>
+
+#include <Animation/Animation.h>
+#include <engine/animation/AssimpAnimation.h>
+
 #define WIDTH 1600
 #define HEIGHT 900
 
@@ -32,6 +35,7 @@ namespace Globals {
 	extern AssetManager<SoundBuffer> soundManager;
 	extern AssetManager<MusicBuffer> musicManager;
 	extern AssetManager<AssimpAnimation> animationManager;
+	extern AssetManager<Animation> animationManagerNew;
 	extern Physics *physics;
 	extern Clock clock;
 

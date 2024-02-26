@@ -61,6 +61,9 @@
     <Filter Include="engine\thread">
       <UniqueIdentifier>{7a3cb299-0e80-46a4-b690-67a56e836b00}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Animation">
+      <UniqueIdentifier>{9f08d314-c171-4eae-8407-e9470e7cf559}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\input\ApplicationEventListener.cpp">
@@ -378,14 +381,17 @@
     <ClCompile Include="Bone.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="AnimationState.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="src\Animation\AnimatedModel.cpp">
+      <Filter>Source Files\Animation</Filter>
     </ClCompile>
-    <ClCompile Include="Animation.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="src\Animation\Animation.cpp">
+      <Filter>Source Files\Animation</Filter>
     </ClCompile>
-    <ClCompile Include="AnimatedModel.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="src\Animation\AnimationState.cpp">
+      <Filter>Source Files\Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Animation\AnimationController.cpp">
+      <Filter>Source Files\Animation</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -737,14 +743,17 @@
     <ClInclude Include="Bone.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="AnimationState.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="src\Animation\AnimatedModel.h">
+      <Filter>Source Files\Animation</Filter>
     </ClInclude>
-    <ClInclude Include="Animation.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="src\Animation\Animation.h">
+      <Filter>Source Files\Animation</Filter>
     </ClInclude>
-    <ClInclude Include="AnimatedModel.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="src\Animation\AnimationState.h">
+      <Filter>Source Files\Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Animation\AnimationController.h">
+      <Filter>Source Files\Animation</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

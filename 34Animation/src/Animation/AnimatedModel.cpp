@@ -340,6 +340,106 @@ void AnimatedMesh::createBones() {
 		m_bones[i]->CountChildBones();
 }
 
+AnimationState* AnimatedModel::addAnimationState(Animation* animation) {
+
+	if (!animation || !m_meshes[0]->m_numBones)
+		return nullptr;
+
+	// Check for not adding twice
+	AnimationState* existing = findAnimationState(animation);
+	if (existing)
+		return existing;
+
+	m_meshes[0]->m_animationStates.push_back(std::shared_ptr<AnimationState>(new AnimationState(animation, m_meshes[0]->m_rootBone)));
+	//modelDrawable->OnAnimationOrderChanged();
+
+	return m_meshes[0]->m_animationStates.back().get();
+}
+
+AnimationState* AnimatedModel::getAnimationState(size_t index) const {
+	return (index < m_meshes[0]->m_animationStates.size()) ? m_meshes[0]->m_animationStates[index].get() : nullptr;
+}
+
+AnimationState* AnimatedModel::findAnimationState(Animation* animation) const {
+	
+	for (auto it = m_meshes[0]->m_animationStates.begin(); it != m_meshes[0]->m_animationStates.end(); ++it){
+		if ((*it)->GetAnimation() == animation)
+			return (*it).get();
+	}
+
+	return nullptr;
+}
+
+AnimationState* AnimatedModel::findAnimationState(const std::string& animationName) const{
+	return getAnimationState(StringHash(animationName));
+}
+
+AnimationState* AnimatedModel::findAnimationState(const char* animationName) const{
+	return getAnimationState(StringHash(animationName));
+}
+
+AnimationState* AnimatedModel::findAnimationState(StringHash animationNameHash) const{
+	for (auto it = m_meshes[0]->m_animationStates.begin(); it != m_meshes[0]->m_animationStates.end(); ++it){
+		Animation* animation = (*it)->GetAnimation();
+		if (animation->animationNameHash == animationNameHash)
+			return (*it).get();
+	}
+
+	return nullptr;
+}
+
+void AnimatedModel::removeAnimationState(Animation* animation){
+	if (animation)
+		removeAnimationState(animation->animationNameHash);
+}
+
+void AnimatedModel::removeAnimationState(const std::string& animationName){
+	removeAnimationState(StringHash(animationName));
+}
+
+void AnimatedModel::removeAnimationState(const char* animationName){
+	removeAnimationState(StringHash(animationName));
+}
+
+void AnimatedModel::removeAnimationState(StringHash animationNameHash){
+	for (auto it = m_meshes[0]->m_animationStates.begin(); it != m_meshes[0]->m_animationStates.end(); ++it){
+		AnimationState* state = (*it).get();
+		Animation* animation = state->GetAnimation();
+
+		if (animation->animationNameHash == animationNameHash){
+			m_meshes[0]->m_animationStates.erase(it);
+			//modelDrawable->OnAnimationChanged();
+			return;
+		}
+	}
+}
+
+void AnimatedModel::removeAnimationState(AnimationState* state){
+	
+	for (auto it = m_meshes[0]->m_animationStates.begin(); it != m_meshes[0]->m_animationStates.end(); ++it){
+		if ((*it).get() == state){
+			m_meshes[0]->m_animationStates.erase(it);
+			//modelDrawable->OnAnimationChanged();
+			return;
+		}
+	}
+}
+
+void AnimatedModel::removeAnimationState(size_t index){
+	if (index < m_meshes[0]->m_animationStates.size()){
+		m_meshes[0]->m_animationStates.erase(m_meshes[0]->m_animationStates.begin() + index);
+		//modelDrawable->OnAnimationChanged();
+	}
+}
+
+void AnimatedModel::removeAllAnimationStates(){
+	if (m_meshes[0]->m_animationStates.size()){
+		m_meshes[0]->m_animationStates.clear();
+		//modelDrawable->OnAnimationChanged();
+	}
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void AnimatedMesh::drawRaw() {
 	glBindVertexArray(m_vao);
 	glDrawElements(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0);

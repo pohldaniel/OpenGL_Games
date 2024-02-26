@@ -4,11 +4,8 @@
 #include <map>
 #include <fstream>
 #include <engine/Vector.h>
-#include "StringHash.h"
 
-#include <assimp/Importer.hpp> 
-#include <assimp/scene.h>
-#include <assimp/postprocess.h>
+#include "StringHash.h"
 
 static const unsigned char CHANNEL_POSITION = 1;
 static const unsigned char CHANNEL_ROTATION = 2;
@@ -44,7 +41,7 @@ public:
 
 	static void RegisterObject();
 
-	void loadAnimation(std::string path);
+	void loadAnimationAni(std::string path);
 	void loadAnimationAssimp(const std::string &filename, std::string sourceName, std::string destName);
 
 	/// Load animation from a stream. Return true on success.
@@ -81,7 +78,7 @@ public:
 	void scaleTrack(const std::string& name, const float sx, const float sy, const float sz);
 	void scaleTrack(const std::string& name, const float s);
 
-private:
+//private:
 
 	std::string animationName;
 	StringHash animationNameHash;

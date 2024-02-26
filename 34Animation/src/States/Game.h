@@ -7,7 +7,7 @@
 #include <engine/ObjModel.h>
 #include <States/StateMachine.h>
 
-#include "AnimatedModel.h"
+#include <Animation/AnimatedModel.h>
 
 class Game : public State, public MouseEventListener, public KeyboardEventListener {
 
@@ -35,7 +35,7 @@ private:
 	bool m_drawUi = true;
 
 	Camera m_camera;
-	AnimatedModel vampire, beta, cowboy, mushroom, dragon;
+	AnimatedModel vampire, beta, cowboy, mushroom, dragon, woman;
 
 	bool m_playAnimation = true;
 };

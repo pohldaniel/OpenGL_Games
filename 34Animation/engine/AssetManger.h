@@ -158,6 +158,16 @@ public:
 		m_assetPointer[name]->loadAnimationFbx(path, sourceName, destName, looping, animationOffset, animationCuttOff, timeShift);
 	}
 
+	void loadAnimationAni(const std::string& name, const std::string& path) {
+		m_assetPointer[name] = new T();
+		m_assetPointer[name]->loadAnimationAni(path);
+	}
+
+	void loadAnimationAssimp(const std::string& name, const std::string& path, std::string sourceName, std::string destName) {
+		m_assetPointer[name] = new T();
+		m_assetPointer[name]->loadAnimationAssimp(path, sourceName, destName);
+	}
+
 	void buildCapsule(const std::string& name, float radius = 1.0f, float length = 1.0f, const Vector3f& position = Vector3f(0.0f, 0.0f, 0.0f), int uResolution = 20, int vResolution = 20, bool generateTexels = true, bool generateNormals = true, bool generateTangents = false) {
 		m_assets[name].buildCapsule(radius, length, position, uResolution, vResolution, generateTexels, generateNormals, generateTangents);
 	}

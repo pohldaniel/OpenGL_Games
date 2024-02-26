@@ -668,6 +668,7 @@ void Application::loadAssets() {
 	Globals::textureManager.loadTexture("cowboy", "res/models/cowboy/cowboy.png", false);
 	Globals::textureManager.loadTexture("mushroom", "res/models/mushroom/mushroom.png", false);
 	Globals::textureManager.loadTexture("dragon", "res/models/dragon/dragon.png", false);
+	Globals::textureManager.loadTexture("woman", "res/models/woman/Woman.png", false);
 	Globals::textureManager.createNullTexture("null");
 
 	Globals::fontManager.loadCharacterSet("upheaval_200", "res/fonts/upheavtt.ttf", 200, 10u, 30u, 128u, 0, true, 0u);
@@ -678,4 +679,27 @@ void Application::loadAssets() {
 	Globals::shapeManager.buildSphere("sphere", 0.1f, Vector3f(0.0f, 0.0f, 0.0f), 16, 16, false, true, false);
 	Globals::shapeManager.buildQuadXY("quad_half", Vector3f(-0.5f, -0.5f, 0.0f), Vector2f(1.0f, 1.0f), 1, 1, true, false, false);
 	Globals::shapeManager.buildCube("cube", Vector3f(-1.0f, -1.0f, -1.0f), Vector3f(2.0f, 2.0f, 2.0f), 1, 1, true, true, false);
+
+	Globals::animationManagerNew.loadAnimationAssimp("vampire_dance", "res/models/vampire/dancing_vampire.dae", "Hips", "vampire_dance");
+	Globals::animationManagerNew.getAssetPointer("vampire_dance")->setPositionOfTrack("Hips", 0.0f, 1.0f, 0.0f);
+	Globals::animationManagerNew.getAssetPointer("vampire_dance")->scaleTrack("Hips", 0.01f, 0.01f, 0.01f);
+
+	Globals::animationManagerNew.loadAnimationAni("beta_idle", "res/models/BetaLowpoly/Beta_Idle.ani");
+	Globals::animationManagerNew.loadAnimationAni("beta_run", "res/models/BetaLowpoly/Beta_Run.ani");
+
+	Globals::animationManagerNew.loadAnimationAssimp("cowboy_run", "res/models/cowboy/cowboy.dae", "Armature_Armature", "cowboy_run");
+	Globals::animationManagerNew.getAssetPointer("cowboy_run")->setPositionOfTrack("Armature_Torso", 0.0f, 0.3f, 0.0f);
+	Globals::animationManagerNew.getAssetPointer("cowboy_run")->scaleTrack("Armature_Torso", 0.1f, 0.1f, 0.1f);
+
+	Globals::animationManagerNew.loadAnimationAssimp("mushroom_jump", "res/models/mushroom/mushroom.dae", "Armature_Armature", "mushroom_jump");
+	Globals::animationManagerNew.getAssetPointer("mushroom_jump")->setPositionOfTrack("Armature_stalk", 0.0f, 0.1f, 0.0f);
+	Globals::animationManagerNew.getAssetPointer("mushroom_jump")->scaleTrack("Armature_stalk", 0.1f, 0.1f, 0.1f);
+
+	Globals::animationManagerNew.loadAnimationAssimp("both_wing", "res/models/dragon/dragon.dae", "both_wing", "both_wing");
+	Globals::animationManagerNew.loadAnimationAssimp("right_wing", "res/models/dragon/dragon.dae", "right_wing", "right_wing");
+	Globals::animationManagerNew.loadAnimationAssimp("left_wing", "res/models/dragon/dragon.dae", "left_wing", "left_wing");
+
+	Globals::animationManagerNew.loadAnimationAssimp("woman_walk", "res/models/woman/Woman.gltf", "Walking", "woman_walk");
+	Globals::animationManagerNew.loadAnimationAssimp("woman_lean_left", "res/models/woman/Woman.gltf", "Lean_Left", "woman_lean_left");
+	Globals::animationManagerNew.loadAnimationAssimp("woman_run", "res/models/woman/Woman.gltf", "Running", "woman_run");
 }

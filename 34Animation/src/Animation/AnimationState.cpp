@@ -13,14 +13,14 @@ AnimationStateTrack::~AnimationStateTrack()
 {
 }
 
-AnimationState::AnimationState(Animation* animation_, Bone* root) :
+AnimationState::AnimationState(Animation* animation_, Bone* startBone) :
 	//drawable(drawable_),
 	animation(animation_),
 	looped(false),
 	weight(0.0f),
 	time(0.0f),
 	blendLayer(0),
-	rootBone(root),
+	startBone(startBone),
 	m_enabled(true)
 {
 	//assert(drawable);
@@ -40,10 +40,10 @@ void AnimationState::SetStartBone(Bone* startBone_){
 		//return;
 
 	if (!startBone_)
-		startBone_ = rootBone;
+		startBone_ = startBone;
 
 	// Do not reassign if the start bone did not actually change, and we already have valid bone nodes
-	if (startBone_ == startBone && !stateTracks.empty())
+	if (!stateTracks.empty())
 		return;
 
 	startBone = startBone_;
