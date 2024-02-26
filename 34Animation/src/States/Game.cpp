@@ -26,7 +26,7 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClearDepth(1.0f);
 
-	vampire.loadModelAssimp("res/models/vampire/dancing_vampire.dae", true, true);
+	vampire.loadModelAssimp("res/models/vampire/dancing_vampire.dae", true, false);
 	vampire.m_meshes[0]->m_meshBones[0].initialPosition.translate(1.0f, 0.0f, 0.0f);
 	vampire.m_meshes[0]->m_meshBones[0].initialRotation.rotate(Vector3f(0.0f, 1.0f, 0.0f), 180.0f);
 	
@@ -56,7 +56,7 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 
 	beta.m_meshes[0]->m_animationStates.push_back(std::shared_ptr<AnimationState>(new AnimationState(animation, beta.m_meshes[0]->m_rootBone)));
 	beta.m_meshes[0]->m_animationStates.back()->SetLooped(true);
-	//beta.m_meshes[0]->m_animationStates.back()->SetEnabled(false);*/
+	//beta.m_meshes[0]->m_animationStates.back()->SetEnabled(false);
 
 	cowboy.loadModelAssimp("res/models/cowboy/cowboy.dae", true, false);
 	cowboy.m_meshes[0]->m_meshBones[1].initialPosition.set(0.0f, 0.3f, 0.0f);
@@ -70,6 +70,33 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 
 	cowboy.m_meshes[0]->m_animationStates.push_back(std::shared_ptr<AnimationState>(new AnimationState(animation, cowboy.m_meshes[0]->m_rootBone)));
 	cowboy.m_meshes[0]->m_animationStates.back()->SetLooped(true);
+
+	mushroom.loadModelAssimp("res/models/mushroom/mushroom.dae", true, false);
+	mushroom.m_meshes[0]->m_meshBones[0].initialPosition.translate(0.0f, 1.0f, 0.0f);
+	mushroom.m_meshes[0]->m_meshBones[2].initialPosition.set(0.0f, 0.1f, 0.0f);
+	mushroom.m_meshes[0]->m_meshBones[2].initialScale.scale(0.1f, 0.1f, 0.1f);
+	mushroom.m_meshes[0]->createBones();
+
+	animation = new Animation();
+	animation->loadAnimationAssimp("res/models/mushroom/mushroom.dae", "Armature_Armature", "mushroom_jump");
+	animation->setPositionOfTrack("Armature_stalk", 0.0f, 0.1f, 0.0f);
+	animation->scaleTrack("Armature_stalk", 0.1f, 0.1f, 0.1f);
+
+	mushroom.m_meshes[0]->m_animationStates.push_back(std::shared_ptr<AnimationState>(new AnimationState(animation, mushroom.m_meshes[0]->m_rootBone)));
+	mushroom.m_meshes[0]->m_animationStates.back()->SetLooped(true);
+
+	dragon.loadModelAssimp("res/models/dragon/dragon.dae", true, false);
+	dragon.m_meshes[0]->m_meshBones[0].initialScale.scale(0.1f, 0.1f, 0.1f);
+	dragon.m_meshes[0]->m_meshBones[0].initialPosition.translate(0.0f, -1.0f, 0.0f);
+	dragon.m_meshes[0]->createBones();
+
+	animation = new Animation();
+	animation->loadAnimationAssimp("res/models/dragon/dragon.dae", "both_wing", "both_wing");
+	//animation->loadAnimationAssimp("res/models/dragon/dragon.dae", "right_wing", "right_wing");
+	//animation->loadAnimationAssimp("res/models/dragon/dragon.dae", "left_wing", "left_wing");
+
+	dragon.m_meshes[0]->m_animationStates.push_back(std::shared_ptr<AnimationState>(new AnimationState(animation, dragon.m_meshes[0]->m_rootBone)));
+	dragon.m_meshes[0]->m_animationStates.back()->SetLooped(true);
 
 	DebugRenderer::Get().setEnable(true);
 
@@ -149,10 +176,14 @@ void Game::update() {
 	beta.update(m_dt);
 	vampire.update(m_dt);
 	cowboy.update(m_dt);
+	mushroom.update(m_dt);
+	dragon.update(m_dt);
 
 	beta.updateSkinning();
 	vampire.updateSkinning();
 	cowboy.updateSkinning();
+	mushroom.updateSkinning();
+	dragon.updateSkinning();
 }
 
 void Game::render() {
@@ -207,12 +238,44 @@ void Game::render() {
 
 	shader->unuse();
 
+	glBindBuffer(GL_UNIFORM_BUFFER, BuiltInShader::matrixUbo);
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(Matrix4f) * mushroom.m_meshes[0]->m_numBones, mushroom.m_meshes[0]->m_skinMatrices);
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+	//auto shader = Globals::shaderManager.getAssetPointer("animation_new");
+	shader->use();
+	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
+	shader->loadMatrix("u_view", m_camera.getViewMatrix());
+	shader->loadVector("u_color", Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+
+	Globals::textureManager.get("mushroom").bind();
+	mushroom.drawRaw();
+
+	shader->unuse();
+
+	glBindBuffer(GL_UNIFORM_BUFFER, BuiltInShader::matrixUbo);
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(Matrix4f) * dragon.m_meshes[0]->m_numBones, dragon.m_meshes[0]->m_skinMatrices);
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+	//auto shader = Globals::shaderManager.getAssetPointer("animation_new");
+	shader->use();
+	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
+	shader->loadMatrix("u_view", m_camera.getViewMatrix());
+	shader->loadVector("u_color", Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+
+	Globals::textureManager.get("dragon").bind();
+	dragon.drawRaw();
+
+	shader->unuse();
+
 	DebugRenderer::Get().SetView(&m_camera);
 
 	//DebugRenderer::Get().AddBoundingBox(boundingBox, { 1.0f, 0.0f, 0.0f, 1.0f });
 	DebugRenderer::Get().AddSkeleton(beta.m_meshes[0]->m_bones, beta.m_meshes[0]->m_numBones, { 0.0f, 1.0f, 0.0f, 1.0f });
 	DebugRenderer::Get().AddSkeleton(vampire.m_meshes[0]->m_bones, vampire.m_meshes[0]->m_numBones, { 0.0f, 1.0f, 0.0f, 1.0f });
 	DebugRenderer::Get().AddSkeleton(cowboy.m_meshes[0]->m_bones, cowboy.m_meshes[0]->m_numBones, { 0.0f, 1.0f, 0.0f, 1.0f });
+	DebugRenderer::Get().AddSkeleton(mushroom.m_meshes[0]->m_bones, mushroom.m_meshes[0]->m_numBones, { 0.0f, 1.0f, 0.0f, 1.0f });
+	DebugRenderer::Get().AddSkeleton(dragon.m_meshes[0]->m_bones, dragon.m_meshes[0]->m_numBones, { 1.0f, 0.0f, 0.0f, 1.0f });
 	DebugRenderer::Get().drawBuffer();
 
 	if (m_drawUi)

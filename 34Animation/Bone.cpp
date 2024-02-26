@@ -1,7 +1,7 @@
 #include <iostream>
 #include "Bone.h"
 
-Bone::Bone() : animationEnabled(true), numChildBones(0)
+Bone::Bone() : animationEnabled(true), numChildBones(0), m_rootBone(false)
 	//,drawable(nullptr)
 {
 }
@@ -54,4 +54,12 @@ Bone* Bone::FindChildOfType(StringHash childNameHash, bool recursive) const{
 	}
 
 	return nullptr;
+}
+
+void Bone::setRootBone(bool rootBone) {
+	m_rootBone = rootBone;
+}
+
+const bool Bone::isRootBone() const {
+	return m_rootBone;
 }

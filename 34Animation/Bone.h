@@ -14,6 +14,9 @@ public:
 	//void SetDrawable(AnimatedModelDrawable* drawable);
 	void SetAnimationEnabled(bool enable);
 	void CountChildBones();
+	void setRootBone(bool rootBone);
+	const bool isRootBone() const;
+
 
 	void SetTransformSilent(const Vector3f& position_, const Quaternion& rotation_, const Vector3f& scale_){
 		m_position = position_;
@@ -45,6 +48,6 @@ private:
 	//AnimatedModelDrawable* drawable;
 	bool animationEnabled;
 	size_t numChildBones;
-	
+	bool m_rootBone;
 	
 };

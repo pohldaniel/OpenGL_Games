@@ -316,14 +316,11 @@ void DebugRenderer::AddCylinder(const Vector3f& position, float radius, float he
 
 void DebugRenderer::AddSkeleton(Bone**& bones, unsigned short numBones, const Vector4f& color) {
 	for (size_t i = 0; i < numBones; ++i){
-		// Skip the root bone, as it has no sensible connection point
+
 		const Bone* bone = bones[i];
-		if (i != 0) {
+		if (!bone->isRootBone()) {
 			Vector3f pos1 = bone->getWorldPosition();
 			Vector3f pos2 = bone->getParent()->getWorldPosition();
-
-			//std::cout << "Pos1: " << pos1[0] << "  " << pos1[1] << "  " << pos1[2] << std::endl;
-			//std::cout << "Pos2: " << pos2[0] << "  " << pos2[1] << "  " << pos2[2] << std::endl;
 
 			AddLine(pos1, pos2, color);
 		}

@@ -35,7 +35,7 @@ private:
 	bool m_drawUi = true;
 
 	Camera m_camera;
-	AnimatedModel vampire, beta, cowboy;
+	AnimatedModel vampire, beta, cowboy, mushroom, dragon;
 
 	bool m_playAnimation = true;
 };
