@@ -33,6 +33,7 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 	vampire.m_meshes[0]->m_meshBones[1].initialScale.scale(0.01f, 0.01f, 0.01f);
 	vampire.m_meshes[0]->createBones();
 	vampire.addAnimationState(Globals::animationManagerNew.getAssetPointer("vampire_dance"));
+	vampire.getAnimationState(0)->SetEnabled(true);
 	vampire.getAnimationState(0)->SetLooped(true);
 	vampire.getAnimationState(0)->SetLooped(m_playAnimation);
 	
@@ -41,13 +42,17 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 	beta.m_meshes[0]->m_meshBones[0].initialRotation.rotate(0.0f, 180.0f, 0.0f);
 	beta.m_meshes[0]->createBones();
 	beta.addAnimationState(Globals::animationManagerNew.getAssetPointer("beta_run"));
+	beta.getAnimationState(0)->SetEnabled(true);
 	beta.getAnimationState(0)->SetLooped(true);
+
+	m_animationController = new AnimationController(&beta);
 
 	cowboy.loadModelAssimp("res/models/cowboy/cowboy.dae", true, false);
 	cowboy.m_meshes[0]->m_meshBones[1].initialPosition.set(0.0f, 0.3f, 0.0f);
 	cowboy.m_meshes[0]->m_meshBones[1].initialScale.scale(0.1f, 0.1f, 0.1f);
 	cowboy.m_meshes[0]->createBones();
 	cowboy.addAnimationState(Globals::animationManagerNew.getAssetPointer("cowboy_run"));
+	cowboy.getAnimationState(0)->SetEnabled(true);
 	cowboy.getAnimationState(0)->SetLooped(true);
 	
 	mushroom.loadModelAssimp("res/models/mushroom/mushroom.dae", true, false);
@@ -56,6 +61,7 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 	mushroom.m_meshes[0]->m_meshBones[2].initialScale.scale(0.1f, 0.1f, 0.1f);
 	mushroom.m_meshes[0]->createBones();
 	mushroom.addAnimationState(Globals::animationManagerNew.getAssetPointer("mushroom_jump"));
+	mushroom.getAnimationState(0)->SetEnabled(true);
 	mushroom.getAnimationState(0)->SetLooped(true);
 	
 	dragon.loadModelAssimp("res/models/dragon/dragon.dae", true, false);
@@ -63,14 +69,28 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 	dragon.m_meshes[0]->m_meshBones[0].initialPosition.translate(0.0f, -1.0f, 0.0f);
 	dragon.m_meshes[0]->createBones();
 	dragon.addAnimationState(Globals::animationManagerNew.getAssetPointer("both_wing"));
+	dragon.getAnimationState(0)->SetEnabled(true);
 	dragon.getAnimationState(0)->SetLooped(true);
 	
 	woman.loadModelAssimp("res/models/woman/Woman.gltf", true, false);
 	woman.m_meshes[0]->m_meshBones[0].initialScale.scale(0.001f, 0.001f, 0.001f);
 	woman.m_meshes[0]->m_meshBones[0].initialPosition.translate(0.0f, 0.0f, 2.0f);
+	//woman.m_meshes[0]->m_meshBones[0].initialRotation.rotate(Vector3f(0.0f, 1.0f, 0.0f), 90.0f);
 	woman.m_meshes[0]->createBones();
-	woman.addAnimationState(Globals::animationManagerNew.getAssetPointer("woman_run"));
+	woman.addAnimationState(Globals::animationManagerNew.getAssetPointer("woman_walk"));
+	woman.addAnimationState(Globals::animationManagerNew.getAssetPointer("woman_lean_left"));
+	
+	woman.getAnimationState(0)->SetEnabled(true);
 	woman.getAnimationState(0)->SetLooped(true);
+	woman.getAnimationState(0)->SetWeight(0.7f);
+	woman.getAnimationState(0)->SetDrawable(true);
+	woman.getAnimationState(0)->SetBlendMode(ABM_LERP);
+
+	woman.getAnimationState(1)->SetEnabled(true);
+	woman.getAnimationState(1)->SetBackward(true);
+	woman.getAnimationState(1)->SetWeight(1.0f);
+	woman.getAnimationState(1)->SetDrawable(true);
+	woman.getAnimationState(1)->SetBlendMode(ABM_ADDITIVE);
 
 	DebugRenderer::Get().setEnable(true);
 
@@ -260,8 +280,6 @@ void Game::render() {
 	shader->unuse();
 
 	DebugRenderer::Get().SetView(&m_camera);
-
-	//DebugRenderer::Get().AddBoundingBox(boundingBox, { 1.0f, 0.0f, 0.0f, 1.0f });
 	DebugRenderer::Get().AddSkeleton(beta.m_meshes[0]->m_bones, beta.m_meshes[0]->m_numBones, { 0.0f, 1.0f, 0.0f, 1.0f });
 	DebugRenderer::Get().AddSkeleton(vampire.m_meshes[0]->m_bones, vampire.m_meshes[0]->m_numBones, { 0.0f, 1.0f, 0.0f, 1.0f });
 	DebugRenderer::Get().AddSkeleton(cowboy.m_meshes[0]->m_bones, cowboy.m_meshes[0]->m_numBones, { 0.0f, 1.0f, 0.0f, 1.0f });

@@ -3162,6 +3162,11 @@ void Quaternion::normalize() {
 	quat[3] *= invMag, quat[0] *= invMag, quat[1] *= invMag, quat[2] *= invMag;
 }
 
+Quaternion Quaternion::normalize() const {
+	float invMag = 1.0f / length();
+	return Quaternion(quat[0], quat[1], quat[2], quat[3]) * invMag;
+}
+
 void Quaternion::set(float x, float y, float z, float w) {
 	quat[0] = x, quat[1] = y, quat[2] = z, quat[3] = w;
 }

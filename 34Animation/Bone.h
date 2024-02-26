@@ -6,6 +6,8 @@
 
 class Bone : public SceneNodeLC {
 
+	friend class AnimationState;
+
 public:
 
 	Bone();

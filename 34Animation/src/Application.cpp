@@ -683,10 +683,7 @@ void Application::loadAssets() {
 	Globals::animationManagerNew.loadAnimationAssimp("vampire_dance", "res/models/vampire/dancing_vampire.dae", "Hips", "vampire_dance");
 	Globals::animationManagerNew.getAssetPointer("vampire_dance")->setPositionOfTrack("Hips", 0.0f, 1.0f, 0.0f);
 	Globals::animationManagerNew.getAssetPointer("vampire_dance")->scaleTrack("Hips", 0.01f, 0.01f, 0.01f);
-
-	Globals::animationManagerNew.loadAnimationAni("beta_idle", "res/models/BetaLowpoly/Beta_Idle.ani");
-	Globals::animationManagerNew.loadAnimationAni("beta_run", "res/models/BetaLowpoly/Beta_Run.ani");
-
+	
 	Globals::animationManagerNew.loadAnimationAssimp("cowboy_run", "res/models/cowboy/cowboy.dae", "Armature_Armature", "cowboy_run");
 	Globals::animationManagerNew.getAssetPointer("cowboy_run")->setPositionOfTrack("Armature_Torso", 0.0f, 0.3f, 0.0f);
 	Globals::animationManagerNew.getAssetPointer("cowboy_run")->scaleTrack("Armature_Torso", 0.1f, 0.1f, 0.1f);
@@ -694,6 +691,9 @@ void Application::loadAssets() {
 	Globals::animationManagerNew.loadAnimationAssimp("mushroom_jump", "res/models/mushroom/mushroom.dae", "Armature_Armature", "mushroom_jump");
 	Globals::animationManagerNew.getAssetPointer("mushroom_jump")->setPositionOfTrack("Armature_stalk", 0.0f, 0.1f, 0.0f);
 	Globals::animationManagerNew.getAssetPointer("mushroom_jump")->scaleTrack("Armature_stalk", 0.1f, 0.1f, 0.1f);
+
+	Globals::animationManagerNew.loadAnimationAni("beta_idle", "res/models/BetaLowpoly/Beta_Idle.ani");
+	Globals::animationManagerNew.loadAnimationAni("beta_run", "res/models/BetaLowpoly/Beta_Run.ani");
 
 	Globals::animationManagerNew.loadAnimationAssimp("both_wing", "res/models/dragon/dragon.dae", "both_wing", "both_wing");
 	Globals::animationManagerNew.loadAnimationAssimp("right_wing", "res/models/dragon/dragon.dae", "right_wing", "right_wing");

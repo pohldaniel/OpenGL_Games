@@ -30,6 +30,10 @@ namespace Math {
 		return fabsf((f1 - f2) / ((f2 == 0.0f) ? 1.0f : f2)) < EPSILON;
 	}
 
+	inline bool Equals(float lhs, float rhs, float epsilon = EPSILON) { 
+		return lhs + epsilon >= rhs && lhs - epsilon <= rhs; 
+	}
+
 	template <typename T>
 	inline T bilerp(const T &a, const T &b, const T &c, const T &d, float u, float v) {
 		// Performs a bilinear interpolation.
@@ -457,6 +461,7 @@ public:
 	void identity();
 	float length() const;
 	void normalize();
+	Quaternion normalize() const;
 	void set(float x, float y, float z, float w);
 	void set(const Vector3f &axis, float degrees);
 	void conjugate();

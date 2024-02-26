@@ -21,7 +21,10 @@ AnimationState::AnimationState(Animation* animation_, Bone* startBone) :
 	time(0.0f),
 	blendLayer(0),
 	startBone(startBone),
-	m_enabled(true)
+	m_enabled(false),
+	m_drawable(false),
+	m_blenMode(AnimationBlendMode::ABM_LERP),
+	m_backward(false)
 {
 	//assert(drawable);
 	//assert(animation);
@@ -54,7 +57,7 @@ void AnimationState::SetStartBone(Bone* startBone_){
 	for (auto it = tracks.begin(); it != tracks.end(); ++it){
 		if (it->second.keyFrames.empty())
 			continue;
-
+		//std::cout << "Name: " << it->second.name << std::endl;
 		AnimationStateTrack stateTrack;
 		stateTrack.track = &it->second;
 
@@ -67,11 +70,17 @@ void AnimationState::SetStartBone(Bone* startBone_){
 			stateTrack.node = startBone->FindChildOfType(nameHash, true);
 		}
 
+		stateTrack.m_initialPosition = it->second.keyFrames[0].position;
+		stateTrack.m_initialScale = it->second.keyFrames[0].scale;
+		stateTrack.m_initialOrientation = it->second.keyFrames[0].rotation;
+		stateTrack.m_initialOrientation.inverse();
+
 		if (stateTrack.node)
 			stateTracks.push_back(stateTrack);
 	}
 
 	//drawable->OnAnimationOrderChanged();
+
 }
 
 void AnimationState::SetLooped(bool looped_)
@@ -143,16 +152,15 @@ void AnimationState::AddWeight(float delta)
 		SetWeight(Weight() + delta);
 }
 
-void AnimationState::AddTime(float delta)
+void AnimationState::AddTime(float dt)
 {
 	float length = animation->Length();
-	if (delta == 0.0f || length == 0.0f)
+	if (dt == 0.0f || length == 0.0f)
 		return;
 
 	float oldTime = time;
-	float newTime = oldTime + delta;
-	if (looped)
-	{
+	float newTime = oldTime + dt;
+	if (looped){
 		while (newTime >= length)
 			newTime -= length;
 		while (newTime < 0.0f)
@@ -160,6 +168,27 @@ void AnimationState::AddTime(float delta)
 	}
 
 	SetTime(newTime);
+
+	if (m_blenMode != ABM_ADDITIVE)
+		return;
+
+	float speed = 1.0f;
+	float ticksPerSecond = 1.0f;
+	float startTime = 0.0f;
+
+	if (m_blenMode == ABM_ADDITIVE) {
+		m_layeredTime += dt * m_additiveDirection * ticksPerSecond * speed;
+		if (m_layeredTime < 0.0f) {
+			m_layeredTime = 0.0f;
+			m_additiveDirection *= -1.0f;
+		}
+
+		if (m_layeredTime > 1.0f) {
+			m_layeredTime = 1.0f;
+			m_additiveDirection *= -1.0f;
+		}
+		m_addTime = startTime + (length * m_layeredTime);
+	}
 }
 
 void AnimationState::SetBlendLayer(unsigned char layer)
@@ -221,11 +250,108 @@ float AnimationState::Length() const{
 
 void AnimationState::Apply(){
 
-	//if (drawable)
-		//ApplyToModel();
-	//else
+	if (m_drawable)
+		ApplyToModel();
+	else
 		ApplyToNodes();
 }
+
+void AnimationState::ApplyToModel(){
+
+	for (auto it = stateTracks.begin(); it != stateTracks.end(); ++it){
+		AnimationStateTrack& stateTrack = *it;
+		const AnimationTrack* track = stateTrack.track;
+		float finalWeight = weight * stateTrack.weight;
+		Bone* bone = stateTrack.node;
+
+		if (Math::Equals(finalWeight, 0.0f) || !bone->AnimationEnabled())
+			continue;
+		
+		
+		if (m_blenMode == ABM_ADDITIVE) 
+			track->FindKeyFrameIndex(m_addTime, stateTrack.keyFrame);		
+		else
+			track->FindKeyFrameIndex(time, stateTrack.keyFrame);
+
+		const AnimationKeyFrame& keyFrame = track->keyFrames[stateTrack.keyFrame];
+
+		size_t nextFrame = stateTrack.keyFrame + 1;
+		bool interpolate = true;
+		if (nextFrame >= track->keyFrames.size()) {
+			if (m_backward)
+				nextFrame = track->keyFrames.size();
+			else if (looped) {
+				nextFrame = 0;
+			}else {
+				nextFrame = stateTrack.keyFrame;
+				interpolate = false;
+			}
+				
+		}
+		
+		Vector3f newPosition = bone->getPosition();
+		Quaternion newRotation = bone->getOrientation();
+		Vector3f newScale = bone->getScale();
+
+		const AnimationKeyFrame& nextKeyFrame = track->keyFrames[nextFrame];
+		float timeInterval = nextKeyFrame.time - keyFrame.time;
+		if (timeInterval < 0.0f)
+			timeInterval += animation->Length();
+
+		float t;
+		if (m_blenMode == ABM_ADDITIVE) {
+			t = timeInterval > 0.0f ? (m_addTime - keyFrame.time) / timeInterval : 1.0f;
+		}else {
+			t = timeInterval > 0.0f ? (time - keyFrame.time) / timeInterval : 1.0f;
+		}
+
+		if (track->channelMask & CHANNEL_POSITION)
+			newPosition = Math::Lerp(keyFrame.position, nextKeyFrame.position, t);
+		if (track->channelMask & CHANNEL_ROTATION)
+			newRotation = Quaternion::SLerp2(keyFrame.rotation, nextKeyFrame.rotation, t);
+		if (track->channelMask & CHANNEL_SCALE)
+			newScale = Math::Lerp(keyFrame.scale, nextKeyFrame.scale, t);
+		
+
+		if (m_blenMode == ABM_ADDITIVE) {
+			if (track->channelMask & CHANNEL_POSITION){
+				Vector3f delta = newPosition - stateTrack.m_initialPosition;
+				newPosition = bone->getPosition() + delta * finalWeight;
+			}
+
+			if (track->channelMask & CHANNEL_ROTATION){
+				Quaternion delta = newRotation * stateTrack.m_initialOrientation;
+				newRotation = (delta * bone->getOrientation());
+				newRotation.normalize();
+				if (!Math::Equals(weight, 1.0f))
+					newRotation = Quaternion::SLerp2(bone->getOrientation(), newRotation, finalWeight);				
+			}
+
+			if (track->channelMask & CHANNEL_SCALE){
+				Vector3f delta = newScale - stateTrack.m_initialScale;
+				newScale = bone->getScale() + delta * finalWeight;
+			}
+
+		}else {
+			if (weight < 1.0f)
+			{
+				if (track->channelMask & CHANNEL_POSITION)
+					newPosition = Math::Lerp(bone->getPosition(), newPosition, weight);
+				if (track->channelMask & CHANNEL_ROTATION)
+					newRotation = Quaternion::SLerp2(bone->getOrientation(), newRotation, weight);
+				if (track->channelMask & CHANNEL_SCALE)
+					newScale = Math::Lerp(bone->getScale(), newScale, weight);
+			}
+
+			
+		}
+
+		bone->SetTransformSilent(newPosition, newRotation, newScale);
+		bone->OnTransformChanged();
+		
+	}
+}
+
 
 void AnimationState::ApplyToNodes(){
 	
@@ -291,4 +417,16 @@ void AnimationState::ApplyToNodes(){
 
 void AnimationState::SetEnabled(bool enable) {
 	m_enabled = enable;
+}
+
+void AnimationState::SetDrawable(bool drawable) {
+	m_drawable = drawable;
+}
+
+void AnimationState::SetBlendMode(AnimationBlendMode mode){
+	m_blenMode = mode;
+}
+
+void AnimationState::SetBackward(bool backward) {
+	m_backward = backward;
 }

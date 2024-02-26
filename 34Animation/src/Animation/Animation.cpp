@@ -133,12 +133,17 @@ void Animation::loadAnimationAssimp(const std::string &filename, std::string sou
 		length = aiAnimation->mDuration / 1000.0f;
 		tracks.clear();
 
+		//std::cout << "Name: " << animationName << "Length: " << length << std::endl;
+
 		for(unsigned int c = 0; c < aiAnimation->mNumChannels; c++) {
 			AnimationTrack* newTrack = CreateTrack(aiAnimation->mChannels[c]->mNodeName.data);
 
 			newTrack->channelMask = CHANNEL_POSITION  + CHANNEL_ROTATION + CHANNEL_SCALE;
 			unsigned int numKeyFrames = aiAnimation->mChannels[c]->mNumPositionKeys;
 			newTrack->keyFrames.resize(numKeyFrames);
+
+			//std::cout << "Name: " << newTrack->name << " Num: " << numKeyFrames << std::endl;
+
 			for (size_t j = 0; j < numKeyFrames; ++j) {
 				AnimationKeyFrame& newKeyFrame = newTrack->keyFrames[j];
 				newKeyFrame.time = aiAnimation->mChannels[c]->mPositionKeys[j].mTime / 1000.0f;

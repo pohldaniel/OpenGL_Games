@@ -8,6 +8,7 @@
 #include <States/StateMachine.h>
 
 #include <Animation/AnimatedModel.h>
+#include <Animation/AnimationController.h>
 
 class Game : public State, public MouseEventListener, public KeyboardEventListener {
 
@@ -36,6 +37,7 @@ private:
 
 	Camera m_camera;
 	AnimatedModel vampire, beta, cowboy, mushroom, dragon, woman;
+	AnimationController* m_animationController;
 
 	bool m_playAnimation = true;
 };

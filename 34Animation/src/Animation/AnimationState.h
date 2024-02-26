@@ -8,6 +8,14 @@
 
 static const unsigned M_MAX_UNSIGNED = 0xffffffff;
 
+/// %Animation blending mode.
+enum AnimationBlendMode{
+	// Lerp blending (default)
+	ABM_LERP = 0,
+	// Additive blending based on difference from bind pose
+	ABM_ADDITIVE
+};
+
 struct AnimationStateTrack{
 	/// Construct.
 	AnimationStateTrack();
@@ -22,6 +30,10 @@ struct AnimationStateTrack{
 	float weight;
 	/// Last key frame.
 	size_t keyFrame;
+
+	Vector3f m_initialPosition;
+	Vector3f m_initialScale;
+	Quaternion m_initialOrientation;
 };
 
 class AnimationState {
@@ -38,8 +50,13 @@ public:
 	void SetStartBone(Bone* startBone);
 	/// Set looping enabled/disabled.
 	void SetLooped(bool looped);
+	/// Set looping enabled/disabled.
+	void SetBackward(bool backward);
+
 	/// Set blending weight.
 	void SetWeight(float weight);
+	/// Set blending mode.
+	void SetBlendMode(AnimationBlendMode mode);
 	/// Set time position.
 	void SetTime(float time);
 	/// Set per-bone blending weight by track index. Default is 1.0 (full), is multiplied  with the state's blending weight when applying the animation. Optionally recurses to child bones.
@@ -51,11 +68,12 @@ public:
 	/// Modify blending weight.
 	void AddWeight(float delta);
 	/// Modify time position.
-	void AddTime(float delta);
+	void AddTime(float dt);
 	/// Set blending layer.
 	void SetBlendLayer(unsigned char layer);
 
 	void SetEnabled(bool enable);
+	void SetDrawable(bool drawable);
 
 	/// Return animation.
 	Animation* GetAnimation() const { return animation.get(); }
@@ -105,6 +123,7 @@ private:
 	std::vector<AnimationStateTrack> stateTracks;
 	/// Looped flag.
 	bool looped;
+	bool m_backward;
 	/// Blending weight.
 	float weight;
 	/// Time position.
@@ -113,4 +132,10 @@ private:
 	unsigned char blendLayer;
 
 	bool m_enabled;
+	bool m_drawable;
+	AnimationBlendMode m_blenMode;
+
+	float m_layeredTime = 0.0f;
+	float m_additiveDirection = 1.0f;
+	float m_addTime = 0.0f;
 };
