@@ -57,7 +57,7 @@ void AnimationState::SetStartBone(Bone* startBone_){
 	for (auto it = tracks.begin(); it != tracks.end(); ++it){
 		if (it->second.keyFrames.empty())
 			continue;
-		//std::cout << "Name: " << it->second.name << std::endl;
+
 		AnimationStateTrack stateTrack;
 		stateTrack.track = &it->second;
 
@@ -70,9 +70,9 @@ void AnimationState::SetStartBone(Bone* startBone_){
 			stateTrack.node = startBone->FindChildOfType(nameHash, true);
 		}
 
-		stateTrack.m_initialPosition = it->second.keyFrames[0].position;
-		stateTrack.m_initialScale = it->second.keyFrames[0].scale;
-		stateTrack.m_initialOrientation = it->second.keyFrames[0].rotation;
+		stateTrack.m_initialPosition = Math::Lerp(it->second.keyFrames[0].position, it->second.keyFrames[1].position, EPSILON * 3.0f);
+		stateTrack.m_initialScale = Math::Lerp(it->second.keyFrames[0].scale, it->second.keyFrames[1].scale, EPSILON * 3.0f);
+		stateTrack.m_initialOrientation = Quaternion::SLerp2(it->second.keyFrames[0].rotation, it->second.keyFrames[1].rotation, EPSILON * 3.0f);		
 		stateTrack.m_initialOrientation.inverse();
 
 		if (stateTrack.node)
@@ -295,15 +295,19 @@ void AnimationState::ApplyToModel(){
 
 		const AnimationKeyFrame& nextKeyFrame = track->keyFrames[nextFrame];
 		float timeInterval = nextKeyFrame.time - keyFrame.time;
+
 		if (timeInterval < 0.0f)
 			timeInterval += animation->Length();
 
 		float t;
 		if (m_blenMode == ABM_ADDITIVE) {
-			t = timeInterval > 0.0f ? (m_addTime - keyFrame.time) / timeInterval : 1.0f;
+			t = timeInterval + EPSILON > 0.0f ? (m_addTime - keyFrame.time) / (timeInterval + EPSILON) : 1.0f;
 		}else {
 			t = timeInterval > 0.0f ? (time - keyFrame.time) / timeInterval : 1.0f;
 		}
+
+		//if (m_blenMode == ABM_ADDITIVE)
+		//	std::cout << "Time: " << t << "  " << timeInterval << "  " << m_addTime << std::endl;
 
 		if (track->channelMask & CHANNEL_POSITION)
 			newPosition = Math::Lerp(keyFrame.position, nextKeyFrame.position, t);
@@ -322,7 +326,7 @@ void AnimationState::ApplyToModel(){
 			if (track->channelMask & CHANNEL_ROTATION){
 				Quaternion delta = newRotation * stateTrack.m_initialOrientation;
 				newRotation = (delta * bone->getOrientation());
-				newRotation.normalize();
+				//newRotation.normalize();
 				if (!Math::Equals(weight, 1.0f))
 					newRotation = Quaternion::SLerp2(bone->getOrientation(), newRotation, finalWeight);				
 			}

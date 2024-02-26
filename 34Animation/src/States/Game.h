@@ -40,4 +40,5 @@ private:
 	AnimationController* m_animationController;
 
 	bool m_playAnimation = true;
+	float m_weight = 1.0f;
 };

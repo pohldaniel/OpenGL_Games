@@ -373,6 +373,10 @@ void Game::renderUi() {
 		vampire.getAnimationState(0)->SetLooped(m_playAnimation);
 	}
 
+	if (ImGui::SliderFloat("Weight", &m_weight, 0.0f, 1.0f)) {
+		woman.getAnimationState(1)->SetWeight(m_weight);
+	}
+
 	ImGui::End();
 
 	ImGui::Render();
