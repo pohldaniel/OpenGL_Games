@@ -2,7 +2,7 @@
 #include "Globals.h"
 
 AnimationController::AnimationController(AnimatedModel* model) : model(model) {
-
+	model->m_hasAnimationController = true;
 }
 
 AnimationController::~AnimationController(){
@@ -14,7 +14,7 @@ void AnimationController::Update(float timeStep)
 	// Loop through animations
 	for (unsigned i = 0; i < animations.size();)
 	{
-
+		
 		AnimationControl& ctrl = animations[i];
 
 
@@ -99,8 +99,9 @@ void AnimationController::Update(float timeStep)
 	}
 
 	// Node hierarchy animations need to be applied manually
-	for (std::vector<std::shared_ptr<AnimationState> >::iterator i = nodeAnimationStates.begin(); i != nodeAnimationStates.end(); ++i)
+	for (std::vector<std::shared_ptr<AnimationState> >::iterator i = nodeAnimationStates.begin(); i != nodeAnimationStates.end(); ++i) {
 		(*i)->Apply();
+	}
 }
 
 bool AnimationController::Play(const std::string& name, unsigned char layer, bool looped, float fadeInTime){
@@ -108,6 +109,7 @@ bool AnimationController::Play(const std::string& name, unsigned char layer, boo
 	// (avoids potential adding of duplicate animations)
 	
 	Animation* newAnimation = Globals::animationManagerNew.getAssetPointer(name);
+
 	if (!newAnimation)
 		return false;
 
@@ -116,10 +118,14 @@ bool AnimationController::Play(const std::string& name, unsigned char layer, boo
 	AnimationState* state;
 	FindAnimation(newAnimation->animationName, index, state);
 
+	
+
 	if (!state){
 		state = AddAnimationState(newAnimation);
 		if (!state)
 			return false;
+		state->SetEnabled(true);
+		state->SetDrawable(true);
 	}
 
 	if (index == M_MAX_UNSIGNED){
@@ -129,7 +135,7 @@ bool AnimationController::Play(const std::string& name, unsigned char layer, boo
 		animations.push_back(newControl);
 		index = animations.size() - 1;
 	}
-
+	
 	state->SetBlendLayer(layer);
 	state->SetLooped(looped);
 	animations[index].targetWeight_ = 1.0f;
@@ -329,10 +335,8 @@ void AnimationController::FindAnimation(const std::string& name, unsigned& index
 
 	// Find the internal control structure
 	index = M_MAX_UNSIGNED;
-	for (unsigned i = 0; i < animations.size(); ++i)
-	{
-		if (animations[i].hash_ == nameHash)
-		{
+	for (unsigned i = 0; i < animations.size(); ++i){
+		if (animations[i].hash_ == nameHash){
 			index = i;
 			break;
 		}

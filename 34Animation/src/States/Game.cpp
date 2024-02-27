@@ -41,11 +41,10 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 	beta.m_meshes[0]->m_meshBones[0].initialPosition.translate(-1.0f, 0.0f, 0.0f);
 	beta.m_meshes[0]->m_meshBones[0].initialRotation.rotate(0.0f, 180.0f, 0.0f);
 	beta.m_meshes[0]->createBones();
+
 	beta.addAnimationState(Globals::animationManagerNew.getAssetPointer("beta_run"));
 	beta.getAnimationState(0)->SetEnabled(true);
 	beta.getAnimationState(0)->SetLooped(true);
-
-	m_animationController = new AnimationController(&beta);
 
 	cowboy.loadModelAssimp("res/models/cowboy/cowboy.dae", true, false);
 	cowboy.m_meshes[0]->m_meshBones[1].initialPosition.set(0.0f, 0.3f, 0.0f);
@@ -68,29 +67,54 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 	dragon.m_meshes[0]->m_meshBones[0].initialScale.scale(0.1f, 0.1f, 0.1f);
 	dragon.m_meshes[0]->m_meshBones[0].initialPosition.translate(0.0f, -1.0f, 0.0f);
 	dragon.m_meshes[0]->createBones();
-	dragon.addAnimationState(Globals::animationManagerNew.getAssetPointer("both_wing"));
+	//dragon.addAnimationState(Globals::animationManagerNew.getAssetPointer("both_wing"));
+
+	dragon.addAnimationState(Globals::animationManagerNew.getAssetPointer("right_wing"));
+	dragon.addAnimationState(Globals::animationManagerNew.getAssetPointer("left_wing"));
+
 	dragon.getAnimationState(0)->SetEnabled(true);
 	dragon.getAnimationState(0)->SetLooped(true);
+	dragon.getAnimationState(0)->SetWeight(1.0f);
+	dragon.getAnimationState(0)->SetDrawable(false);
+	dragon.getAnimationState(0)->SetBlendMode(ABM_LERP);
+
+	dragon.getAnimationState(1)->SetEnabled(true);
+	dragon.getAnimationState(1)->SetLooped(true);
+	dragon.getAnimationState(1)->SetWeight(1.0f);
+	dragon.getAnimationState(1)->SetDrawable(false);
+	dragon.getAnimationState(1)->SetBlendMode(ABM_LERP);
 	
 	woman.loadModelAssimp("res/models/woman/Woman.gltf", true, false);
 	woman.m_meshes[0]->m_meshBones[0].initialScale.scale(0.001f, 0.001f, 0.001f);
 	woman.m_meshes[0]->m_meshBones[0].initialPosition.translate(0.0f, 0.0f, 2.0f);
-	//woman.m_meshes[0]->m_meshBones[0].initialRotation.rotate(Vector3f(0.0f, 1.0f, 0.0f), 90.0f);
+
 	woman.m_meshes[0]->createBones();
+
 	woman.addAnimationState(Globals::animationManagerNew.getAssetPointer("woman_walk"));
+	woman.addAnimationState(Globals::animationManagerNew.getAssetPointer("woman_run"));	
+	woman.addAnimationState(Globals::animationManagerNew.getAssetPointer("woman_jump_1"));
 	woman.addAnimationState(Globals::animationManagerNew.getAssetPointer("woman_lean_left"));
 	
-	woman.getAnimationState(0)->SetEnabled(true);
+	woman.getAnimationState(0)->SetEnabled(false);
 	woman.getAnimationState(0)->SetLooped(true);
-	woman.getAnimationState(0)->SetWeight(0.7f);
+	woman.getAnimationState(0)->SetWeight(1.0f);
 	woman.getAnimationState(0)->SetDrawable(true);
 	woman.getAnimationState(0)->SetBlendMode(ABM_LERP);
 
 	woman.getAnimationState(1)->SetEnabled(true);
-	woman.getAnimationState(1)->SetBackward(true);
+	woman.getAnimationState(1)->SetLooped(true);
 	woman.getAnimationState(1)->SetWeight(1.0f);
 	woman.getAnimationState(1)->SetDrawable(true);
-	woman.getAnimationState(1)->SetBlendMode(ABM_ADDITIVE);
+	woman.getAnimationState(1)->SetBlendMode(ABM_LERP);
+	woman.getAnimationState(1)->SetFadeLayerLength(woman.getAnimationState(0)->Length());
+
+	woman.getAnimationState(2)->SetEnabled(false);
+	woman.getAnimationState(2)->SetBackward(true);
+	woman.getAnimationState(2)->SetWeight(0.0f);
+	woman.getAnimationState(2)->SetDrawable(true);
+	woman.getAnimationState(2)->SetBlendMode(ABM_ADDITIVE);
+
+	m_animationController = new AnimationController(&woman);
 
 	DebugRenderer::Get().setEnable(true);
 
@@ -100,7 +124,7 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 	glBindBufferRange(GL_UNIFORM_BUFFER, 3, BuiltInShader::matrixUbo, 0, sizeof(Matrix4f) * 96);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-	StateMachine::ToggleWireframe();
+	//StateMachine::ToggleWireframe();
 }
 
 Game::~Game() {
@@ -114,6 +138,8 @@ void Game::fixedUpdate() {
 
 void Game::update() {
 	Keyboard &keyboard = Keyboard::instance();
+	Mouse &mouse = Mouse::instance();
+
 	Vector3f directrion = Vector3f();
 
 	float dx = 0.0f;
@@ -150,7 +176,22 @@ void Game::update() {
 		move |= true;
 	}
 
-	Mouse &mouse = Mouse::instance();
+	if (keyboard.keyPressed(Keyboard::KEY_SPACE)) {
+		
+		//m_animationController->StopLayer(0);
+		//m_animationController->PlayExclusive("beta_jump_start", 0, false, 0.2f);
+		//m_animationController->SetTime("beta_jump_start", 0);
+
+		m_animationController->PlayExclusive("woman_jump_2", 0, false, Globals::animationManagerNew.getAssetPointer("woman_run")->Length());
+		m_length = Globals::animationManagerNew.getAssetPointer("woman_jump_2")->Length();
+	}
+
+	if (mouse.buttonPressed(Mouse::MouseButton::BUTTON_LEFT)) {
+		m_animationController->PlayExclusive("woman_punch", 0, false, Globals::animationManagerNew.getAssetPointer("woman_run")->Length());
+		m_length = Globals::animationManagerNew.getAssetPointer("woman_punch")->Length();
+	}
+
+	m_animationController->PlayExclusive("woman_run", 0, true, m_length);
 
 	if (mouse.buttonDown(Mouse::MouseButton::BUTTON_RIGHT)) {
 		dx = mouse.xDelta();
@@ -173,6 +214,7 @@ void Game::update() {
 	mushroom.update(m_dt);
 	dragon.update(m_dt);
 	woman.update(m_dt);
+	m_animationController->Update(m_dt);
 
 	beta.updateSkinning();
 	vampire.updateSkinning();
@@ -180,6 +222,7 @@ void Game::update() {
 	mushroom.updateSkinning();
 	dragon.updateSkinning();
 	woman.updateSkinning();
+
 }
 
 void Game::render() {
@@ -192,6 +235,7 @@ void Game::render() {
 
 	auto shader = Globals::shaderManager.getAssetPointer("animation_new");
 	shader->use();
+	shader->loadVector("u_light", Vector3f(1.0f, 1.0f, 1.0f));
 	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
 	shader->loadMatrix("u_view", m_camera.getViewMatrix());
 	//shader->loadMatrix("u_model", Matrix4f::IDENTITY);
@@ -280,12 +324,12 @@ void Game::render() {
 	shader->unuse();
 
 	DebugRenderer::Get().SetView(&m_camera);
-	DebugRenderer::Get().AddSkeleton(beta.m_meshes[0]->m_bones, beta.m_meshes[0]->m_numBones, { 0.0f, 1.0f, 0.0f, 1.0f });
-	DebugRenderer::Get().AddSkeleton(vampire.m_meshes[0]->m_bones, vampire.m_meshes[0]->m_numBones, { 0.0f, 1.0f, 0.0f, 1.0f });
-	DebugRenderer::Get().AddSkeleton(cowboy.m_meshes[0]->m_bones, cowboy.m_meshes[0]->m_numBones, { 0.0f, 1.0f, 0.0f, 1.0f });
-	DebugRenderer::Get().AddSkeleton(mushroom.m_meshes[0]->m_bones, mushroom.m_meshes[0]->m_numBones, { 0.0f, 1.0f, 0.0f, 1.0f });
-	DebugRenderer::Get().AddSkeleton(dragon.m_meshes[0]->m_bones, dragon.m_meshes[0]->m_numBones, { 1.0f, 0.0f, 0.0f, 1.0f });
-	DebugRenderer::Get().AddSkeleton(woman.m_meshes[0]->m_bones, woman.m_meshes[0]->m_numBones, { 0.0f, 1.0f, 0.0f, 1.0f });
+	//DebugRenderer::Get().AddSkeleton(beta.m_meshes[0]->m_bones, beta.m_meshes[0]->m_numBones, { 0.0f, 1.0f, 0.0f, 1.0f });
+	//DebugRenderer::Get().AddSkeleton(vampire.m_meshes[0]->m_bones, vampire.m_meshes[0]->m_numBones, { 0.0f, 1.0f, 0.0f, 1.0f });
+	//DebugRenderer::Get().AddSkeleton(cowboy.m_meshes[0]->m_bones, cowboy.m_meshes[0]->m_numBones, { 0.0f, 1.0f, 0.0f, 1.0f });
+	//DebugRenderer::Get().AddSkeleton(mushroom.m_meshes[0]->m_bones, mushroom.m_meshes[0]->m_numBones, { 0.0f, 1.0f, 0.0f, 1.0f });
+	//DebugRenderer::Get().AddSkeleton(dragon.m_meshes[0]->m_bones, dragon.m_meshes[0]->m_numBones, { 1.0f, 0.0f, 0.0f, 1.0f });
+	//DebugRenderer::Get().AddSkeleton(woman.m_meshes[0]->m_bones, woman.m_meshes[0]->m_numBones, { 0.0f, 1.0f, 0.0f, 1.0f });
 	DebugRenderer::Get().drawBuffer();
 
 	if (m_drawUi)
@@ -300,10 +344,14 @@ void Game::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 	if (event.button == 2u) {
 		Mouse::instance().attach(Application::GetWindow());
 	}
+
+	if (event.button == 1u) {
+		Mouse::instance().attach(Application::GetWindow(), false, false, false);
+	}
 }
 
 void Game::OnMouseButtonUp(Event::MouseButtonEvent& event) {
-	if (event.button == 2u) {
+	if (event.button == 2u || event.button == 1u) {
 		Mouse::instance().detach();
 	}
 }
@@ -372,9 +420,23 @@ void Game::renderUi() {
 	if(ImGui::Checkbox("Play Dance", &m_playAnimation)){
 		vampire.getAnimationState(0)->SetLooped(m_playAnimation);
 	}
+		
+	if (ImGui::SliderFloat("Weight Left", &m_weightLeft, 0.0f, 1.0f)) {
+		dragon.getAnimationState(0)->SetWeight(m_weightLeft);
+	}
 
-	if (ImGui::SliderFloat("Weight", &m_weight, 0.0f, 1.0f)) {
-		woman.getAnimationState(1)->SetWeight(m_weight);
+	if (ImGui::SliderFloat("Weight Right", &m_weightRight, 0.0f, 1.0f)) {
+		dragon.getAnimationState(1)->SetWeight(m_weightRight);
+	}
+
+	if (ImGui::Button("Jump")){
+		m_animationController->PlayExclusive("woman_jump_2", 0, false, Globals::animationManagerNew.getAssetPointer("woman_run")->Length());
+		m_length = Globals::animationManagerNew.getAssetPointer("woman_jump_2")->Length();
+	}
+
+	if (ImGui::Button("Punch")) {
+		m_animationController->PlayExclusive("woman_punch", 0, false, Globals::animationManagerNew.getAssetPointer("woman_run")->Length());
+		m_length = Globals::animationManagerNew.getAssetPointer("woman_punch")->Length();
 	}
 
 	ImGui::End();

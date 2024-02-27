@@ -5,7 +5,7 @@
 
 #include <cctype>
 #include <cstdio>
-
+#include <iostream>
 const StringHash StringHash::ZERO;
 
 std::string StringHash::ToString() const
@@ -21,6 +21,5 @@ unsigned StringHash::Calculate(const char* str)
         hash = (tolower(*str)) + (hash << 6) + (hash << 16) - hash;
         ++str;
     }
-
     return hash;
 }

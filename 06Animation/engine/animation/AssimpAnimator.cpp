@@ -125,17 +125,28 @@ void AssimpAnimator::addTwoAnimationsDisjoint(float deltaTime, std::string curre
 	m_model->m_meshes[0]->currentPose = calculateAdditiveAnimationPoseDisjoint(m_animationTime, addTime, *m_currentAnimation, *m_layeredAnimation);
 }
 
-void AssimpAnimator::blendTwoAnimations(float deltaTime, std::string current, std::string layer, float blendTime,  float speed) {
+void AssimpAnimator::blendTwoAnimations(float deltaTime, std::string current, std::string layer,  float speed) {
 	m_currentAnimation = m_animations.at(current);
 	m_layeredAnimation = m_animations.at(layer);
 
+	mBlendTime += deltaTime;
+	if (mBlendTime >= 2.0f) {
+		mBlendTime = 0.0f;
+		mInvertBlend = !mInvertBlend;
+	}
+
+	float bt = mBlendTime;
+	if (bt < 0.0f) { bt = 0.0f; }
+	if (bt > 1.0f) { bt = 1.0f; }
+	if (mInvertBlend) { bt = 1.0f - bt; }
+
 	float a = 1.0f;
 	float b = m_currentAnimation->getDuration() / m_layeredAnimation->getDuration();
-	const float animSpeedMultiplierUp = (1.0f - blendTime) * a + b * blendTime;
+	const float animSpeedMultiplierUp = (1.0f - bt) * a + b * bt;
 
 	a = m_layeredAnimation->getDuration() / m_currentAnimation->getDuration();
 	b = 1.0f;
-	const float animSpeedMultiplierDown = (1.0f - blendTime) * a + b * blendTime;
+	const float animSpeedMultiplierDown = (1.0f - bt) * a + b * bt;
 
 	m_animationTime += m_currentAnimation->m_ticksPerSecond * deltaTime * animSpeedMultiplierUp;
 	if (m_animationTime > m_currentAnimation->getDuration()) {
@@ -147,26 +158,31 @@ void AssimpAnimator::blendTwoAnimations(float deltaTime, std::string current, st
 		m_layeredTime = fmod(m_layeredTime, m_layeredAnimation->getDuration());
 	}
 
-	m_model->m_meshes[0]->currentPose = calculateBlendedPose(m_animationTime, m_layeredTime, *m_currentAnimation, *m_layeredAnimation, blendTime);
-
-	mBlendTime += deltaTime;
-	if (mBlendTime >= 2.0f) {
-		mBlendTime = 0.0f;
-		mInvertBlend = !mInvertBlend;
-	}
+	m_model->m_meshes[0]->currentPose = calculateBlendedPose(m_animationTime, m_layeredTime, *m_currentAnimation, *m_layeredAnimation, bt);
 }
 
-void AssimpAnimator::blendTwoAnimationsDisjoint(float deltaTime, std::string current, std::string layer, float blendTime, float speed) {
+void AssimpAnimator::blendTwoAnimationsDisjoint(float deltaTime, std::string current, std::string layer, float speed) {
 	m_currentAnimation = m_animations.at(current);
 	m_layeredAnimation = m_animations.at(layer);
 
+	mBlendTime += deltaTime;
+	if (mBlendTime >= 2.0f) {
+		mBlendTime = 0.0f;
+		mInvertBlend = !mInvertBlend;
+	}
+
+	float bt = mBlendTime;
+	if (bt < 0.0f) { bt = 0.0f; }
+	if (bt > 1.0f) { bt = 1.0f; }
+	if (mInvertBlend) { bt = 1.0f - bt; }
+
 	float a = 1.0f;
 	float b = m_currentAnimation->getDuration() / m_layeredAnimation->getDuration();
-	const float animSpeedMultiplierUp = (1.0f - blendTime) * a + b * blendTime;
+	const float animSpeedMultiplierUp = (1.0f - bt) * a + b * bt;
 
 	a = m_layeredAnimation->getDuration() / m_currentAnimation->getDuration();
 	b = 1.0f;
-	const float animSpeedMultiplierDown = (1.0f - blendTime) * a + b * blendTime;
+	const float animSpeedMultiplierDown = (1.0f - bt) * a + b * bt;
 
 
 	m_animationTime += m_currentAnimation->m_ticksPerSecond * deltaTime * animSpeedMultiplierUp;
@@ -179,13 +195,7 @@ void AssimpAnimator::blendTwoAnimationsDisjoint(float deltaTime, std::string cur
 		m_layeredTime = fmod(m_layeredTime, m_layeredAnimation->getDuration());
 	}
 
-	m_model->m_meshes[0]->currentPose = calculateBlendedPoseDisjoint(m_animationTime, m_layeredTime, *m_currentAnimation, *m_layeredAnimation, blendTime);
-
-	mBlendTime += deltaTime;
-	if (mBlendTime >= 2.0f) {
-		mBlendTime = 0.0f;
-		mInvertBlend = !mInvertBlend;
-	}
+	m_model->m_meshes[0]->currentPose = calculateBlendedPoseDisjoint(m_animationTime, m_layeredTime, *m_currentAnimation, *m_layeredAnimation, bt);
 }
 
 std::unordered_map<std::string, Matrix4f> AssimpAnimator::calculateBlendedPose(float currentTime, float layeredTime, AssimpAnimation& curretAnimation, AssimpAnimation& animationLayer, float blendTime) {

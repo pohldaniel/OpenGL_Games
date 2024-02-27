@@ -40,5 +40,12 @@ private:
 	AnimationController* m_animationController;
 
 	bool m_playAnimation = true;
-	float m_weight = 1.0f;
+	float m_weightLean = 1.0f;
+	float m_weightWalk = 1.0f;
+	float m_weightRun = 1.0f;
+	
+	float m_weightLeft = 1.0f;
+	float m_weightRight = 1.0f;
+
+	float m_length = 0.0f;
 };

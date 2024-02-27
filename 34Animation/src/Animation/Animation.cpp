@@ -44,7 +44,9 @@ void Animation::loadAnimationAni(std::string path) {
 	}
 
 	animationName = name;
-	animationNameHash = animationName;
+	animationNameHash = StringHash(name);
+
+	//std::cout << "Ani1: " << name << "  " << animationNameHash.Value() << std::endl;
 
 	file.read(metaData, sizeof(float));
 	length = Utils::bytesToFloatLE(metaData[0], metaData[1], metaData[2], metaData[3]);
@@ -133,16 +135,12 @@ void Animation::loadAnimationAssimp(const std::string &filename, std::string sou
 		length = aiAnimation->mDuration / 1000.0f;
 		tracks.clear();
 
-		//std::cout << "Name: " << animationName << "Length: " << length << std::endl;
-
 		for(unsigned int c = 0; c < aiAnimation->mNumChannels; c++) {
 			AnimationTrack* newTrack = CreateTrack(aiAnimation->mChannels[c]->mNodeName.data);
 
 			newTrack->channelMask = CHANNEL_POSITION  + CHANNEL_ROTATION + CHANNEL_SCALE;
 			unsigned int numKeyFrames = aiAnimation->mChannels[c]->mNumPositionKeys;
 			newTrack->keyFrames.resize(numKeyFrames);
-
-			//std::cout << "Name: " << newTrack->name << " Num: " << numKeyFrames << std::endl;
 
 			for (size_t j = 0; j < numKeyFrames; ++j) {
 				AnimationKeyFrame& newKeyFrame = newTrack->keyFrames[j];

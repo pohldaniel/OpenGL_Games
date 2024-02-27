@@ -78,7 +78,7 @@ void AssimpAnimation::loadAnimation(const std::string &filename, std::string sou
 		m_duration = (animationCuttOff == 0 && animationOffset == 0) ? aiAnimation->mDuration : 0;
 		m_startTime = 0.0f;
 		m_endTime = m_startTime + m_duration;
-
+		 
 		for (unsigned int c = 0; c < aiAnimation->mNumChannels; c++) {
 			m_animationTicks = std::max(aiAnimation->mChannels[c]->mNumPositionKeys, std::max(aiAnimation->mChannels[c]->mNumScalingKeys, aiAnimation->mChannels[c]->mNumRotationKeys));
 			animationCuttOff = animationCuttOff == 0 ? 0 : m_animationTicks;

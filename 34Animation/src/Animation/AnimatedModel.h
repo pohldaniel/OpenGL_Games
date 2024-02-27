@@ -33,7 +33,7 @@ class AnimatedModel {
 
 public:
 
-	AnimatedModel() = default;
+	AnimatedModel();
 	virtual ~AnimatedModel() {}
 
 	void drawRaw();
@@ -58,7 +58,7 @@ public:
 	void removeAllAnimationStates();
 
 	std::vector<AnimatedMesh*> m_meshes;
-
+	bool m_hasAnimationController;
 private:
 
 	aiNode* searchNode(aiNode *node, std::vector<std::string> &boneList);
@@ -80,7 +80,7 @@ public:
 	void updateSkinning();
 
 	AnimatedModel* m_model;
-	std::vector<std::shared_ptr<AnimationState>> m_animationStates;
+	std::vector<AnimationState*> m_animationStates;
 
 	Bone* m_rootBone;
 	Bone** m_bones;

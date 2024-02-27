@@ -462,24 +462,14 @@ void Game::update() {
 
 	m_mousePicker.update(m_dt);
 
-	float bt = m_blendTime;
-	if (bt < 0.0f) { bt = 0.0f; }
-	if (bt > 1.0f) { bt = 1.0f; }
-	if (m_invertBlend) { bt = 1.0f - bt; }
-
+	
 	//assimpAnimated.update("left_wing", "both_wing", std::min(std::max(m_blend, 0.0f), 1.0f), m_dt);
 	//assimpAnimated.update(m_dt);
-	assimpAnimated.blendTwoAnimationsDisjoint(m_dt, "left_wing", "right_wing", bt, 1.0f);
+	assimpAnimated.blendTwoAnimationsDisjoint(m_dt, "left_wing", "right_wing", 1.0f);
 	//assimpAnimated.addTwoAnimationsDisjoint(m_dt, "left_wing", "right_wing", 1.0f);
 	//woman.update(m_dt);
-	woman.addTwoAnimationsDisjoint(m_dt, "woman_walk", "lean_left", 1.0f);
-	//woman.blendTwoAnimations(m_dt, "woman_run", "woman_walk", bt, 1.0f);
-
-	m_blendTime += m_dt;
-	if (m_blendTime >= 2.0f) {
-		m_blendTime = 0.0f;
-		m_invertBlend = !m_invertBlend;
-	}
+	woman.addTwoAnimations(m_dt, "woman_walk", "lean_left", 1.0f);
+	//woman.blendTwoAnimations(m_dt, "woman_run", "woman_walk", 1.0f);
 };
 
 void Game::toggleDayNight() {

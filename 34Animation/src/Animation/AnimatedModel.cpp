@@ -3,6 +3,10 @@
 
 #include "Utils/SolidIO.h"
 
+AnimatedModel::AnimatedModel() : m_hasAnimationController(false){
+
+}
+
 void AnimatedModel::loadModelAssimp(const std::string& path, const bool addVirtualRoot, const bool reverseBoneList) {
 
 	Assimp::Importer Importer;
@@ -350,21 +354,21 @@ AnimationState* AnimatedModel::addAnimationState(Animation* animation) {
 	if (existing)
 		return existing;
 
-	m_meshes[0]->m_animationStates.push_back(std::shared_ptr<AnimationState>(new AnimationState(animation, m_meshes[0]->m_rootBone)));
+	m_meshes[0]->m_animationStates.push_back(new AnimationState(animation, m_meshes[0]->m_rootBone));
 	//modelDrawable->OnAnimationOrderChanged();
 
-	return m_meshes[0]->m_animationStates.back().get();
+	return m_meshes[0]->m_animationStates.back();
 }
 
 AnimationState* AnimatedModel::getAnimationState(size_t index) const {
-	return (index < m_meshes[0]->m_animationStates.size()) ? m_meshes[0]->m_animationStates[index].get() : nullptr;
+	return (index < m_meshes[0]->m_animationStates.size()) ? m_meshes[0]->m_animationStates[index] : nullptr;
 }
 
 AnimationState* AnimatedModel::findAnimationState(Animation* animation) const {
 	
 	for (auto it = m_meshes[0]->m_animationStates.begin(); it != m_meshes[0]->m_animationStates.end(); ++it){
 		if ((*it)->GetAnimation() == animation)
-			return (*it).get();
+			return (*it);
 	}
 
 	return nullptr;
@@ -382,7 +386,7 @@ AnimationState* AnimatedModel::findAnimationState(StringHash animationNameHash) 
 	for (auto it = m_meshes[0]->m_animationStates.begin(); it != m_meshes[0]->m_animationStates.end(); ++it){
 		Animation* animation = (*it)->GetAnimation();
 		if (animation->animationNameHash == animationNameHash)
-			return (*it).get();
+			return (*it);
 	}
 
 	return nullptr;
@@ -403,7 +407,7 @@ void AnimatedModel::removeAnimationState(const char* animationName){
 
 void AnimatedModel::removeAnimationState(StringHash animationNameHash){
 	for (auto it = m_meshes[0]->m_animationStates.begin(); it != m_meshes[0]->m_animationStates.end(); ++it){
-		AnimationState* state = (*it).get();
+		AnimationState* state = (*it);
 		Animation* animation = state->GetAnimation();
 
 		if (animation->animationNameHash == animationNameHash){
@@ -415,9 +419,8 @@ void AnimatedModel::removeAnimationState(StringHash animationNameHash){
 }
 
 void AnimatedModel::removeAnimationState(AnimationState* state){
-	
 	for (auto it = m_meshes[0]->m_animationStates.begin(); it != m_meshes[0]->m_animationStates.end(); ++it){
-		if ((*it).get() == state){
+		if ((*it) == state){
 			m_meshes[0]->m_animationStates.erase(it);
 			//modelDrawable->OnAnimationChanged();
 			return;
@@ -456,11 +459,18 @@ void AnimatedMesh::update(float dt) {
 	}
 
 	for (auto it = m_animationStates.begin(); it != m_animationStates.end(); ++it) {
-		AnimationState* state = (*it).get();
+		AnimationState* state = (*it);
 
-		if (state->Enabled()) {
-			state->AddTime(dt);
-			state->Apply();
+		if (m_model->m_hasAnimationController) {
+			if (state->Enabled()) {
+				state->Apply();
+			}
+		}else {
+
+			if (state->Enabled() || state->m_blenMode == ABM_FADE) {
+				state->AddTime(dt);
+				state->Apply();
+			}
 		}
 	}
 }

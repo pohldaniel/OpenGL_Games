@@ -10,10 +10,9 @@ static const unsigned M_MAX_UNSIGNED = 0xffffffff;
 
 /// %Animation blending mode.
 enum AnimationBlendMode{
-	// Lerp blending (default)
 	ABM_LERP = 0,
-	// Additive blending based on difference from bind pose
-	ABM_ADDITIVE
+	ABM_ADDITIVE,
+	ABM_FADE
 };
 
 struct AnimationStateTrack{
@@ -71,6 +70,7 @@ public:
 	void AddTime(float dt);
 	/// Set blending layer.
 	void SetBlendLayer(unsigned char layer);
+	void SetFadeLayerLength(float length);
 
 	void SetEnabled(bool enable);
 	void SetDrawable(bool drawable);
@@ -106,7 +106,9 @@ public:
 	/// Apply the animation at the current time position. Called by AnimatedModel. Needs to be called manually for node hierarchies.
 	void Apply();
 
-private:
+	
+	AnimationBlendMode m_blenMode;
+//private:
 	/// Apply animation to a skeleton. Transform changes are applied silently, so the model needs to dirty its root model afterward.
 	void ApplyToModel();
 	/// Apply animation to a scene node hierarchy.
@@ -133,9 +135,12 @@ private:
 
 	bool m_enabled;
 	bool m_drawable;
-	AnimationBlendMode m_blenMode;
+	
+
+	float m_blendWeight = 0.0f;
 
 	float m_layeredTime = 0.0f;
+	float m_fadeLayerLength = 1.0f;
 	float m_additiveDirection = 1.0f;
-	float m_addTime = 0.0f;
+	bool m_invertBlend = false;
 };
