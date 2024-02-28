@@ -421,11 +421,11 @@ void Game::renderUi() {
 		vampire.getAnimationState(0)->SetLooped(m_playAnimation);
 	}
 		
-	if (ImGui::SliderFloat("Weight Left", &m_weightLeft, 0.0f, 1.0f)) {
+	if (ImGui::SliderFloat("Weight Left Wing", &m_weightLeft, 0.0f, 1.0f)) {
 		dragon.getAnimationState(0)->SetWeight(m_weightLeft);
 	}
 
-	if (ImGui::SliderFloat("Weight Right", &m_weightRight, 0.0f, 1.0f)) {
+	if (ImGui::SliderFloat("Weight Right Wing", &m_weightRight, 0.0f, 1.0f)) {
 		dragon.getAnimationState(1)->SetWeight(m_weightRight);
 	}
 

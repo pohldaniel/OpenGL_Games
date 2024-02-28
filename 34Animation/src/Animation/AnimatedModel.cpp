@@ -354,21 +354,21 @@ AnimationState* AnimatedModel::addAnimationState(Animation* animation) {
 	if (existing)
 		return existing;
 
-	m_meshes[0]->m_animationStates.push_back(new AnimationState(animation, m_meshes[0]->m_rootBone));
+	m_meshes[0]->m_animationStates.push_back(std::make_shared<AnimationState>(animation, m_meshes[0]->m_rootBone));
 	//modelDrawable->OnAnimationOrderChanged();
 
-	return m_meshes[0]->m_animationStates.back();
+	return m_meshes[0]->m_animationStates.back().get();
 }
 
 AnimationState* AnimatedModel::getAnimationState(size_t index) const {
-	return (index < m_meshes[0]->m_animationStates.size()) ? m_meshes[0]->m_animationStates[index] : nullptr;
+	return (index < m_meshes[0]->m_animationStates.size()) ? m_meshes[0]->m_animationStates[index].get() : nullptr;
 }
 
 AnimationState* AnimatedModel::findAnimationState(Animation* animation) const {
 	
 	for (auto it = m_meshes[0]->m_animationStates.begin(); it != m_meshes[0]->m_animationStates.end(); ++it){
 		if ((*it)->GetAnimation() == animation)
-			return (*it);
+			return (*it).get();
 	}
 
 	return nullptr;
@@ -386,7 +386,7 @@ AnimationState* AnimatedModel::findAnimationState(StringHash animationNameHash) 
 	for (auto it = m_meshes[0]->m_animationStates.begin(); it != m_meshes[0]->m_animationStates.end(); ++it){
 		Animation* animation = (*it)->GetAnimation();
 		if (animation->animationNameHash == animationNameHash)
-			return (*it);
+			return (*it).get();
 	}
 
 	return nullptr;
@@ -407,7 +407,7 @@ void AnimatedModel::removeAnimationState(const char* animationName){
 
 void AnimatedModel::removeAnimationState(StringHash animationNameHash){
 	for (auto it = m_meshes[0]->m_animationStates.begin(); it != m_meshes[0]->m_animationStates.end(); ++it){
-		AnimationState* state = (*it);
+		AnimationState* state = (*it).get();
 		Animation* animation = state->GetAnimation();
 
 		if (animation->animationNameHash == animationNameHash){
@@ -420,7 +420,7 @@ void AnimatedModel::removeAnimationState(StringHash animationNameHash){
 
 void AnimatedModel::removeAnimationState(AnimationState* state){
 	for (auto it = m_meshes[0]->m_animationStates.begin(); it != m_meshes[0]->m_animationStates.end(); ++it){
-		if ((*it) == state){
+		if ((*it).get() == state){
 			m_meshes[0]->m_animationStates.erase(it);
 			//modelDrawable->OnAnimationChanged();
 			return;
@@ -459,7 +459,7 @@ void AnimatedMesh::update(float dt) {
 	}
 
 	for (auto it = m_animationStates.begin(); it != m_animationStates.end(); ++it) {
-		AnimationState* state = (*it);
+		AnimationState* state = (*it).get();
 
 		if (m_model->m_hasAnimationController) {
 			if (state->Enabled()) {
@@ -467,7 +467,7 @@ void AnimatedMesh::update(float dt) {
 			}
 		}else {
 
-			if (state->Enabled() || state->m_blenMode == ABM_FADE) {
+			if (state->Enabled() || state->getAnimationBlendMode() == ABM_FADE) {
 				state->AddTime(dt);
 				state->Apply();
 			}

@@ -80,7 +80,7 @@ public:
 	void updateSkinning();
 
 	AnimatedModel* m_model;
-	std::vector<AnimationState*> m_animationStates;
+	std::vector<std::shared_ptr<AnimationState>> m_animationStates;
 
 	Bone* m_rootBone;
 	Bone** m_bones;

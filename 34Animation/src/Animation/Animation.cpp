@@ -24,6 +24,7 @@ Animation::Animation() :length(0.0f) {
 }
 
 Animation::~Animation() {
+	std::cout << "Destructor Animation: " << std::endl;
 }
 
 void Animation::loadAnimationAni(std::string path) {

@@ -1,33 +1,26 @@
 #pragma once
 
+#include <functional>
+#include <engine/scene/SceneNode.h>
+
 #include "Bone.h"
 #include "StringHash.h"
 #include "Animation.h"
 
-#include <engine/scene/SceneNode.h>
-
-static const unsigned M_MAX_UNSIGNED = 0xffffffff;
-
-/// %Animation blending mode.
 enum AnimationBlendMode{
-	ABM_LERP = 0,
+	ABM_NONE = 0,
+	ABM_LERP,
 	ABM_ADDITIVE,
 	ABM_FADE
 };
 
 struct AnimationStateTrack{
-	/// Construct.
 	AnimationStateTrack();
-	/// Destruct
 	~AnimationStateTrack();
 
-	/// Animation track.
 	const AnimationTrack* track;
-	/// %Scene node. May be a model's bone or a plain scene node.
 	Bone* node;
-	/// Blending weight.
 	float weight;
-	/// Last key frame.
 	size_t keyFrame;
 
 	Vector3f m_initialPosition;
@@ -36,111 +29,75 @@ struct AnimationStateTrack{
 };
 
 class AnimationState {
+
 public:
+
 	AnimationState(Animation* animation, Bone* startBone);
-	/// Construct with animated model drawable and animation pointers.
-	//AnimationState(AnimatedModelDrawable* drawable, Animation* animation);
-	/// Construct with root scene node and animation pointers.
-	//AnimationState(SpatialNode* node, Animation* animation);
-	/// Destruct.
 	~AnimationState();
 
-	/// Set start bone. Not supported in node animation mode. Resets any assigned per-bone weights.
 	void SetStartBone(Bone* startBone);
-	/// Set looping enabled/disabled.
 	void SetLooped(bool looped);
-	/// Set looping enabled/disabled.
 	void SetBackward(bool backward);
-
-	/// Set blending weight.
 	void SetWeight(float weight);
-	/// Set blending mode.
 	void SetBlendMode(AnimationBlendMode mode);
-	/// Set time position.
 	void SetTime(float time);
-	/// Set per-bone blending weight by track index. Default is 1.0 (full), is multiplied  with the state's blending weight when applying the animation. Optionally recurses to child bones.
 	void SetBoneWeight(size_t index, float weight, bool recursive = false);
-	/// Set per-bone blending weight by name.
 	void SetBoneWeight(const std::string& name, float weight, bool recursive = false);
-	/// Set per-bone blending weight by name hash.
 	void SetBoneWeight(StringHash nameHash, float weight, bool recursive = false);
-	/// Modify blending weight.
 	void AddWeight(float delta);
-	/// Modify time position.
 	void AddTime(float dt);
-	/// Set blending layer.
 	void SetBlendLayer(unsigned char layer);
 	void SetFadeLayerLength(float length);
 
 	void SetEnabled(bool enable);
 	void SetDrawable(bool drawable);
 
-	/// Return animation.
 	Animation* GetAnimation() const { return animation.get(); }
-	/// Return start bone.
+	const AnimationBlendMode getAnimationBlendMode() const;
+
 	Bone* StartBone() const { return startBone; }
-	/// Return per-bone blending weight by track index.
 	float BoneWeight(size_t index) const;
-	/// Return per-bone blending weight by name.
 	float BoneWeight(const std::string& name) const;
-	/// Return per-bone blending weight by name.
 	float BoneWeight(StringHash nameHash) const;
-	/// Return track index with matching bone node, or M_MAX_UNSIGNED if not found.
+
+
+
 	size_t FindTrackIndex(BaseNode* node) const;
-	/// Return track index by bone name, or M_MAX_UNSIGNED if not found.
 	size_t FindTrackIndex(const std::string& name) const;
-	/// Return track index by bone name hash, or M_MAX_UNSIGNED if not found.
 	size_t FindTrackIndex(StringHash nameHash) const;
-	/// Return whether weight is nonzero.
 	bool Enabled() const { return weight > 0.0f && m_enabled; }
-	/// Return whether is looped.
 	bool Looped() const { return looped; }
-	/// Return blending weight.
 	float Weight() const { return weight; }
-	/// Return time position.
 	float Time() const { return time; }
-	/// Return animation length.
 	float Length() const;
-	/// Return blending layer.
 	unsigned char BlendLayer() const { return blendLayer; }
-	/// Apply the animation at the current time position. Called by AnimatedModel. Needs to be called manually for node hierarchies.
 	void Apply();
 
 	
-	AnimationBlendMode m_blenMode;
-//private:
-	/// Apply animation to a skeleton. Transform changes are applied silently, so the model needs to dirty its root model afterward.
+private:
+	
 	void ApplyToModel();
-	/// Apply animation to a scene node hierarchy.
 	void ApplyToNodes();
-	/// Animated model drawable (model mode.)
-	///AnimatedModelDrawable* drawable;
-	/// Root scene node (node hierarchy mode.)
-	///WeakPtr<SpatialNode> rootNode;
-	/// %Animation resource.
-	std::shared_ptr<Animation> animation;
-	/// Start bone.
+	std::function<void(Animation* animation)> m_fun;
+	//Just for fanciness the raw pointer is the way to go
+	std::unique_ptr<Animation, decltype(m_fun)> animation;
+	//Animation* animation;
+
 	Bone* startBone;
-	/// Per-track data.
 	std::vector<AnimationStateTrack> stateTracks;
-	/// Looped flag.
 	bool looped;
 	bool m_backward;
-	/// Blending weight.
 	float weight;
-	/// Time position.
 	float time;
-	/// Blending layer.
 	unsigned char blendLayer;
 
 	bool m_enabled;
 	bool m_drawable;
-	
 
 	float m_blendWeight = 0.0f;
-
 	float m_layeredTime = 0.0f;
 	float m_fadeLayerLength = 1.0f;
 	float m_additiveDirection = 1.0f;
 	bool m_invertBlend = false;
+	AnimationBlendMode m_animationBlendMode;
 };

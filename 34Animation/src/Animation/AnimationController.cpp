@@ -128,7 +128,7 @@ bool AnimationController::Play(const std::string& name, unsigned char layer, boo
 		state->SetDrawable(true);
 	}
 
-	if (index == M_MAX_UNSIGNED){
+	if (index == UINT_MAX){
 		AnimationControl newControl;
 		newControl.name_ = newAnimation->animationName;
 		newControl.hash_ = newAnimation->animationNameHash;
@@ -159,13 +159,13 @@ bool AnimationController::Stop(const std::string& name, float fadeOutTime){
 	unsigned index;
 	AnimationState* state;
 	FindAnimation(name, index, state);
-	if (index != M_MAX_UNSIGNED){
+	if (index != UINT_MAX){
 		animations[index].targetWeight_ = 0.0f;
 		animations[index].fadeTime_ = fadeOutTime;
 		//MarkNetworkUpdate();
 	}
 
-	return index != M_MAX_UNSIGNED || state != 0;
+	return index != UINT_MAX || state != 0;
 }
 
 void AnimationController::StopLayer(unsigned char layer, float fadeOutTime)
@@ -205,7 +205,7 @@ bool AnimationController::Fade(const std::string& name, float targetWeight, floa
 	unsigned index;
 	AnimationState* state;
 	FindAnimation(name, index, state);
-	if (index == M_MAX_UNSIGNED)
+	if (index == UINT_MAX)
 		return false;
 
 	animations[index].targetWeight_ = Math::Clamp(targetWeight, 0.0f, 1.0f);
@@ -220,7 +220,7 @@ bool AnimationController::FadeOthers(const std::string& name, float targetWeight
 	unsigned index;
 	AnimationState* state;
 	FindAnimation(name, index, state);
-	if (index == M_MAX_UNSIGNED || !state)
+	if (index == UINT_MAX || !state)
 		return false;
 
 	unsigned char layer = state->BlendLayer();
@@ -251,7 +251,7 @@ bool AnimationController::SetTime(const std::string& name, float time)
 	unsigned index;
 	AnimationState* state;
 	FindAnimation(name, index, state);
-	if (index == M_MAX_UNSIGNED || !state)
+	if (index == UINT_MAX || !state)
 		return false;
 
 	time = Math::Clamp(time, 0.0f, state->Length());
@@ -269,7 +269,7 @@ bool AnimationController::IsAtEnd(const std::string& name) const
 	unsigned index;
 	AnimationState* state;
 	FindAnimation(name, index, state);
-	if (index == M_MAX_UNSIGNED || !state)
+	if (index == UINT_MAX || !state)
 		return false;
 	else
 		return state->Time() >= state->Length();
@@ -334,7 +334,7 @@ void AnimationController::FindAnimation(const std::string& name, unsigned& index
 	}
 
 	// Find the internal control structure
-	index = M_MAX_UNSIGNED;
+	index = UINT_MAX;
 	for (unsigned i = 0; i < animations.size(); ++i){
 		if (animations[i].hash_ == nameHash){
 			index = i;

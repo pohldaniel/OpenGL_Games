@@ -1,21 +1,21 @@
 #include <iostream>
 #include "AnimationState.h"
 
-AnimationStateTrack::AnimationStateTrack() :
-	track(nullptr),
-	//node(nullptr),
-	weight(1.0f),
-	keyFrame(0)
-{
+AnimationStateTrack::AnimationStateTrack() : track(nullptr), weight(1.0f),keyFrame(0){
+
 }
 
-AnimationStateTrack::~AnimationStateTrack()
-{
+AnimationStateTrack::~AnimationStateTrack(){
+
 }
+
+//const auto deleter = [](Animation* animation) {
+	//delete animation;
+//};
+
 
 AnimationState::AnimationState(Animation* animation_, Bone* startBone) :
-	//drawable(drawable_),
-	animation(animation_),
+	animation(animation_, [&](Animation* animation) {/*delete animation;*/}),
 	looped(false),
 	weight(0.0f),
 	time(0.0f),
@@ -23,13 +23,10 @@ AnimationState::AnimationState(Animation* animation_, Bone* startBone) :
 	startBone(startBone),
 	m_enabled(false),
 	m_drawable(false),
-	m_blenMode(AnimationBlendMode::ABM_LERP),
+	m_animationBlendMode(AnimationBlendMode::ABM_LERP),
 	m_backward(false)
 {
-	//assert(drawable);
-	//assert(animation);
 
-	// Set default start bone (use all tracks.)
 	SetStartBone(nullptr);
 	SetWeight(1.0f);
 }
@@ -171,7 +168,7 @@ void AnimationState::AddTime(float dt)
 
 	float ticksPerSecond = 1.0f;
 
-	if (m_blenMode == ABM_FADE) {
+	if (m_animationBlendMode == ABM_FADE) {
 		m_blendWeight += dt;
 		if (m_blendWeight >= 2.0f) {
 			m_blendWeight = 0.0f;
@@ -189,33 +186,31 @@ void AnimationState::AddTime(float dt)
 
 		m_layeredTime += ticksPerSecond * dt * animSpeedMultiplierDown;
 
-		//std::cout << "Time: " << m_layeredTime << std::endl;
-
 		if (m_layeredTime > length) {
 			m_layeredTime = fmod(m_layeredTime, length);
 		}
 		SetWeight(blendWeight);
 	}
 	
-	if (m_blenMode != ABM_ADDITIVE)
+	if (m_animationBlendMode != ABM_ADDITIVE)
 		return;
 
 	float speed = 1.0f;
 	float startTime = 0.0f;
 
-	if (m_blenMode == ABM_ADDITIVE) {
-		m_layeredTime += dt * m_additiveDirection * ticksPerSecond * speed;
-		if (m_layeredTime < 0.0f) {
-			m_layeredTime = 0.0f;
-			m_additiveDirection *= -1.0f;
-		}
 
-		if (m_layeredTime > 1.0f) {
-			m_layeredTime = 1.0f;
-			m_additiveDirection *= -1.0f;
-		}
-		m_layeredTime = startTime + (length * m_layeredTime);
+	m_layeredTime += dt * m_additiveDirection * ticksPerSecond * speed;
+	if (m_layeredTime < 0.0f) {
+		m_layeredTime = 0.0f;
+		m_additiveDirection *= -1.0f;
 	}
+
+	if (m_layeredTime > 1.0f) {
+		m_layeredTime = 1.0f;
+		m_additiveDirection *= -1.0f;
+	}
+
+	m_layeredTime = startTime + (length * m_layeredTime);	
 }
 
 void AnimationState::SetBlendLayer(unsigned char layer){
@@ -244,7 +239,7 @@ size_t AnimationState::FindTrackIndex(BaseNode* node) const{
 			return i;
 	}
 
-	return M_MAX_UNSIGNED;
+	return UINT_MAX;
 }
 
 size_t AnimationState::FindTrackIndex(const std::string& name) const{
@@ -254,7 +249,7 @@ size_t AnimationState::FindTrackIndex(const std::string& name) const{
 			return i;
 	}
 
-	return M_MAX_UNSIGNED;
+	return UINT_MAX;
 }
 
 size_t AnimationState::FindTrackIndex(StringHash nameHash) const
@@ -266,7 +261,7 @@ size_t AnimationState::FindTrackIndex(StringHash nameHash) const
 			return i;
 	}
 
-	return M_MAX_UNSIGNED;
+	return UINT_MAX;
 }
 
 float AnimationState::Length() const{
@@ -275,15 +270,13 @@ float AnimationState::Length() const{
 
 void AnimationState::Apply(){
 
-	if (m_drawable)
-		ApplyToModel();
+	if (m_animationBlendMode == ABM_NONE)
+		ApplyToNodes();		
 	else
-		ApplyToNodes();
+		ApplyToModel();
 }
 
 void AnimationState::ApplyToModel(){
-
-	//std::cout << "Name: " << animation->animationName << std::endl;
 
 	for (auto it = stateTracks.begin(); it != stateTracks.end(); ++it){
 		AnimationStateTrack& stateTrack = *it;
@@ -294,7 +287,7 @@ void AnimationState::ApplyToModel(){
 		if (Math::Equals(finalWeight, 0.0f) || !bone->AnimationEnabled())
 			continue;
 				
-		if (m_blenMode != ABM_LERP)
+		if (m_animationBlendMode != ABM_LERP)
 			track->FindKeyFrameIndex(m_layeredTime, stateTrack.keyFrame);
 		else
 			track->FindKeyFrameIndex(time, stateTrack.keyFrame);
@@ -326,9 +319,9 @@ void AnimationState::ApplyToModel(){
 			timeInterval += animation->Length();
 
 		float t;
-		if (m_blenMode == ABM_ADDITIVE) {
-			t = timeInterval > 0.0f ? (m_layeredTime - keyFrame.time) / (timeInterval) : 1.0f;
-		}else if (m_blenMode == ABM_FADE) {
+		if (m_animationBlendMode == ABM_ADDITIVE) {
+			t = timeInterval + EPSILON > 0.0f ? (m_layeredTime - keyFrame.time) / (timeInterval + EPSILON) : 1.0f;
+		}else if (m_animationBlendMode == ABM_FADE) {
 			t = timeInterval > 0.0f ? (m_layeredTime - keyFrame.time) / timeInterval : 1.0f;
 		}else {
 			t = timeInterval > 0.0f ? (time - keyFrame.time) / timeInterval : 1.0f;
@@ -342,7 +335,7 @@ void AnimationState::ApplyToModel(){
 			newScale = Math::Lerp(keyFrame.scale, nextKeyFrame.scale, t);
 		
 
-		if (m_blenMode == ABM_ADDITIVE) {
+		if (m_animationBlendMode == ABM_ADDITIVE) {
 			if (track->channelMask & CHANNEL_POSITION){
 				Vector3f delta = newPosition - stateTrack.m_initialPosition;
 				newPosition = bone->getPosition() + delta * finalWeight;
@@ -372,8 +365,7 @@ void AnimationState::ApplyToModel(){
 		}
 
 		bone->SetTransformSilent(newPosition, newRotation, newScale);
-		bone->OnTransformChanged();
-		
+		bone->OnTransformChanged();		
 	}
 }
 
@@ -388,7 +380,6 @@ void AnimationState::ApplyToNodes(){
 		track->FindKeyFrameIndex(time, stateTrack.keyFrame);
 		const AnimationKeyFrame& keyFrame = track->keyFrames[stateTrack.keyFrame];
 
-		// Check if next frame to interpolate to is valid, or if wrapping is needed (looping animation only)
 		size_t nextFrame = stateTrack.keyFrame + 1;
 		bool interpolate = true;
 		if (nextFrame >= track->keyFrames.size()){
@@ -450,7 +441,7 @@ void AnimationState::SetDrawable(bool drawable) {
 }
 
 void AnimationState::SetBlendMode(AnimationBlendMode mode){
-	m_blenMode = mode;
+	m_animationBlendMode = mode;
 }
 
 void AnimationState::SetBackward(bool backward) {
@@ -459,4 +450,8 @@ void AnimationState::SetBackward(bool backward) {
 
 void AnimationState::SetFadeLayerLength(float length) {
 	m_fadeLayerLength = length;
+}
+
+const AnimationBlendMode AnimationState::getAnimationBlendMode() const {
+	return m_animationBlendMode;
 }
