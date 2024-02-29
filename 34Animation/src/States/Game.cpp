@@ -101,6 +101,8 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 
 	m_animationController = new AnimationController(&woman);
 
+	std::cout << "Length: " << Globals::animationManagerNew.getAssetPointer("woman_jump_2")->Length() << std::endl;
+
 	m_currentAnimation = { "woman_walk",  0.0f };
 
 	DebugRenderer::Get().setEnable(true);
@@ -419,8 +421,17 @@ void Game::renderUi() {
 
 	if (ImGui::Button("Walk")) {
 
-		if (m_currentAnimation.name == "woman_punch") {
-			m_currentAnimation = { "woman_run",  Globals::animationManagerNew.getAssetPointer("woman_run")->Length() };
+		if (m_currentAnimation.name == "woman_jump_2") {
+
+			std::cout << "----------------------" << std::endl;
+
+			m_animationController->AddAnimationStateFront(Globals::animationManagerNew.getAssetPointer("woman_walk"), true);
+			//m_animationController->AddAnimationState(Globals::animationManagerNew.getAssetPointer("woman_walk"));
+			m_currentAnimation = { "woman_walk",  Globals::animationManagerNew.getAssetPointer("woman_walk")->Length() };
+			m_animationController->FadeOtherExclusive(m_currentAnimation.name, 0.0f, "woman_jump_2");
+			//m_animationController->FadeOthers(m_currentAnimation.name, 0.0f, m_currentAnimation.fadeLength);
+		}else if (m_currentAnimation.name == "woman_punch") {
+			m_currentAnimation = { "woman_walk",  Globals::animationManagerNew.getAssetPointer("woman_walk")->Length() };
 			m_animationController->FadeOthers(m_currentAnimation.name, 0.0f, m_currentAnimation.fadeLength);
 		}else {
 			m_animationController->AddAnimationStateFront(Globals::animationManagerNew.getAssetPointer("woman_walk"));
@@ -431,7 +442,12 @@ void Game::renderUi() {
 
 	if (ImGui::Button("Run")) {
 
-		if (m_currentAnimation.name == "woman_punch") {
+		if (m_currentAnimation.name == "woman_jump_2") {
+			m_animationController->AddAnimationStateFront(Globals::animationManagerNew.getAssetPointer("woman_run"));
+			m_currentAnimation = { "woman_run",  Globals::animationManagerNew.getAssetPointer("woman_run")->Length() };
+			m_animationController->FadeOtherExclusive(m_currentAnimation.name, 0.0f, "woman_jump_2");
+
+		}else if (m_currentAnimation.name == "woman_punch") {
 			m_currentAnimation = { "woman_run",  Globals::animationManagerNew.getAssetPointer("woman_run")->Length() };
 			m_animationController->FadeOthers(m_currentAnimation.name, 0.0f, m_currentAnimation.fadeLength);
 		}else {
@@ -442,12 +458,12 @@ void Game::renderUi() {
 	}
 
 	if (ImGui::Button("Jump")){
-		//m_animationController->AddAnimationStateFront(Globals::animationManagerNew.getAssetPointer("woman_jump_2"));
+		m_animationController->AddAnimationStateFront(Globals::animationManagerNew.getAssetPointer("woman_jump_2"));
+		m_currentAnimation = { "woman_jump_2",  Globals::animationManagerNew.getAssetPointer("woman_jump_2")->Length() };
+		m_animationController->FadeOthers(m_currentAnimation.name, 0.0f, 0.2f);
+
 		//m_currentAnimation = { "woman_jump_2",  Globals::animationManagerNew.getAssetPointer("woman_jump_2")->Length() };
 		//m_animationController->FadeOthers(m_currentAnimation.name, 0.0f, m_currentAnimation.fadeLength);
-
-		m_currentAnimation = { "woman_jump_2",  Globals::animationManagerNew.getAssetPointer("woman_jump_2")->Length() };
-		m_animationController->FadeOthers(m_currentAnimation.name, 0.0f, m_currentAnimation.fadeLength);
 	}
 
 	if (ImGui::Button("Punch")) {
@@ -455,6 +471,25 @@ void Game::renderUi() {
 		m_currentAnimation = { "woman_punch",  Globals::animationManagerNew.getAssetPointer("woman_punch")->Length() };
 		m_animationController->FadeOthers(m_currentAnimation.name, 0.0f, m_currentAnimation.fadeLength);
 
+
+		//m_animationController->AddAnimationStateFront(Globals::animationManagerNew.getAssetPointer("woman_punch"));
+		//m_currentAnimation = { "woman_punch",  Globals::animationManagerNew.getAssetPointer("woman_punch")->Length() };
+		//m_animationController->FadeOthers(m_currentAnimation.name, 0.0f, m_currentAnimation.fadeLength);
+	}
+
+	if (ImGui::Button("Pick Up")) {
+
+		if (m_currentAnimation.name == "woman_jump_2") {
+			m_animationController->AddAnimationStateFront(Globals::animationManagerNew.getAssetPointer("woman_pick_up"));
+			m_currentAnimation = { "woman_pick_up",  Globals::animationManagerNew.getAssetPointer("woman_pick_up")->Length()};
+			m_animationController->FadeOtherExclusive(m_currentAnimation.name, 0.0f, "woman_jump_2");
+		}else {
+			m_animationController->Stop(m_currentAnimation.name, 0.2f);
+
+			m_animationController->AddAnimationStateFront(Globals::animationManagerNew.getAssetPointer("woman_pick_up"));
+			m_currentAnimation = { "woman_pick_up",  Globals::animationManagerNew.getAssetPointer("woman_pick_up")->Length() };
+			m_animationController->FadeOthers(m_currentAnimation.name, 0.0f, 0.0f);
+		}
 
 		//m_animationController->AddAnimationStateFront(Globals::animationManagerNew.getAssetPointer("woman_punch"));
 		//m_currentAnimation = { "woman_punch",  Globals::animationManagerNew.getAssetPointer("woman_punch")->Length() };

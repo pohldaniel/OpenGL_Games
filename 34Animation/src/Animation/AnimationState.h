@@ -69,6 +69,8 @@ public:
 	unsigned char BlendLayer() const { return m_blendLayer; }
 	void Apply();
 
+	float getRestTime();
+
 private:
 	
 	void ApplyToModel();

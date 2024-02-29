@@ -373,7 +373,7 @@ AnimationState* AnimatedModel::addAnimationStateFront(Animation* animation) {
 	m_meshes[0]->m_animationStates.insert(m_meshes[0]->m_animationStates.begin(), std::make_shared<AnimationState>(animation, m_meshes[0]->m_rootBone));
 	//modelDrawable->OnAnimationOrderChanged();
 
-	return m_meshes[0]->m_animationStates.back().get();
+	return m_meshes[0]->m_animationStates.front().get();
 }
 
 AnimationState* AnimatedModel::getAnimationState(size_t index) const {

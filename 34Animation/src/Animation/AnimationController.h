@@ -5,6 +5,7 @@
 #include "AnimatedModel.h"
 
 static const float COMMAND_STAY_TIME = 0.25f;
+static const float FADE_FALLBACK_TIME = 0.5f;
 
 struct AnimationControl{
 	/// Construct with defaults.
@@ -22,7 +23,8 @@ struct AnimationControl{
 		removeOnCompletion_(true),
 		ragdollRecovery_(false),
 		ragdollRecoverTime_(0.0f),
-		ragdollTimeElapsed_(0.0f)
+		ragdollTimeElapsed_(0.0f),
+		invertWeight_(false)
 	{
 	}
 
@@ -52,6 +54,8 @@ struct AnimationControl{
 	unsigned char setWeightRev_;
 	/// Sets whether this should automatically be removed when it finishes playing.
 	bool removeOnCompletion_;
+
+	bool invertWeight_;
 
 	/// ragdoll
 	bool  ragdollRecovery_;
@@ -84,14 +88,19 @@ public:
 	bool Fade(const std::string& name, float targetWeight, float fadeTime);
 	/// Fade other animations on the same layer to target weight. Return true on success.
 	bool FadeOthers(const std::string& name, float targetWeight, float fadeTime);
+
+	bool FadeOtherExclusive(const std::string& targetName, float targetWeight, const std::string& sourceName);
+
 	/// Set animation time position. Return true on success.
 	bool SetTime(const std::string& name, float time);
 	/// Return whether an animation is at its end. Will return false if the animation is not active at all.
 	bool IsAtEnd(const std::string& name) const;
 
-	AnimationState* GetAnimationState(StringHash nameHash, std::string name = "EMPTY") const;
+	AnimationState* GetAnimationState(StringHash nameHash) const;
+
 	AnimationState* AddAnimationState(Animation* animation);
-	AnimationState* AddAnimationStateFront(Animation* animation);
+	AnimationState* AddAnimationState2(Animation* animation);
+	AnimationState* AddAnimationStateFront(Animation* animation, bool ivertWeight = false);
 
 	void RemoveAnimationState(AnimationState* state);
 	void FindAnimation(const std::string& name, unsigned& index, AnimationState*& state) const;

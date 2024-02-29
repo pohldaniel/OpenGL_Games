@@ -11,6 +11,7 @@ AnimationController::~AnimationController(){
 
 void AnimationController::Update(float timeStep)
 {
+	
 	// Loop through animations
 	for (unsigned i = 0; i < animations.size();)
 	{
@@ -57,17 +58,32 @@ void AnimationController::Update(float timeStep)
 			}
 
 			// Process weight fade
-			float currentWeight = state->Weight();
+			float currentWeight =  state->Weight();
+
+			std::cout << "Name: " << state->GetAnimation()->animationName << "  " << currentWeight << std::endl;
+
 			if (currentWeight != targetWeight)
 			{
 				if (fadeTime > 0.0f)
 				{
-					float weightDelta = 1.0f / fadeTime * timeStep;
-					if (currentWeight < targetWeight)
-						currentWeight = std::min(currentWeight + weightDelta, targetWeight);
-					else if (currentWeight > targetWeight)
-						currentWeight = std::max(currentWeight - weightDelta, targetWeight);
-					state->SetWeight(currentWeight);
+					if (ctrl.invertWeight_) {
+						float weightDelta = 1.0f / fadeTime * timeStep;
+						if (currentWeight > targetWeight)
+							currentWeight = std::max(currentWeight - weightDelta, targetWeight);
+						else if (currentWeight < targetWeight)
+							currentWeight = std::min(currentWeight + weightDelta, targetWeight);
+
+						//std::cout << "Current Weight: " << currentWeight << std::endl;
+
+						state->SetWeight(currentWeight);
+					}else {
+						float weightDelta = 1.0f / fadeTime * timeStep;
+						if (currentWeight < targetWeight)
+							currentWeight = std::min(currentWeight + weightDelta, targetWeight);
+						else if (currentWeight > targetWeight)
+							currentWeight = std::max(currentWeight - weightDelta, targetWeight);
+						state->SetWeight(ctrl.invertWeight_ ? 1.0f - currentWeight : currentWeight);
+					}
 				}
 				else
 					state->SetWeight(targetWeight);
@@ -244,6 +260,42 @@ bool AnimationController::FadeOthers(const std::string& name, float targetWeight
 	return true;
 }
 
+bool AnimationController::FadeOtherExclusive(const std::string& targetName, float targetWeight, const std::string& sourceName) {
+	unsigned index;
+	AnimationState* targetState;
+	FindAnimation(targetName, index, targetState);
+
+	if (index == UINT_MAX || !targetState)
+		return false;
+
+	unsigned char layer = targetState->BlendLayer();
+
+	bool needUpdate = false;
+
+	for (unsigned i = 0; i < animations.size(); ++i)
+	{
+		if (i != index)
+		{
+			AnimationControl& control = animations[i];
+			AnimationState* otherState = GetAnimationState(control.hash_);
+			
+			if (otherState && otherState->BlendLayer() == layer)
+			{
+				AnimationState* sourceState = GetAnimationState(StringHash(sourceName));
+
+				control.targetWeight_ = Math::Clamp(targetWeight, 0.0f, 1.0f);
+				control.fadeTime_ = sourceState->getRestTime();
+				//control.invertWeight_ = true;
+				needUpdate = true;
+			}
+		}
+	}
+
+	//if (needUpdate)
+		//MarkNetworkUpdate();
+	return true;
+}
+
 bool AnimationController::SetTime(const std::string& name, float time)
 {
 	unsigned index;
@@ -273,7 +325,7 @@ bool AnimationController::IsAtEnd(const std::string& name) const
 		return state->Time() >= state->Length();
 }
 
-AnimationState* AnimationController::GetAnimationState(StringHash nameHash, std::string name) const{
+AnimationState* AnimationController::GetAnimationState(StringHash nameHash) const{
 	// Model mode
 	if (model)
 		return model->findAnimationState(nameHash);
@@ -288,18 +340,26 @@ AnimationState* AnimationController::GetAnimationState(StringHash nameHash, std:
 	return 0;
 }
 
-AnimationState* AnimationController::AddAnimationStateFront(Animation* animation) {
+AnimationState* AnimationController::AddAnimationStateFront(Animation* animation, bool invertWeight) {
 	if (!animation)
 		return nullptr;
 
 	AnimationControl newControl;
 	newControl.name_ = animation->animationName;
 	newControl.hash_ = animation->animationNameHash;
-	animations.push_back(newControl);
+	newControl.invertWeight_ = invertWeight;
+
+	if(!GetAnimationState(newControl.hash_))
+		animations.push_back(newControl);
 	
 	// Model mode
-	if (model)
-		return model->addAnimationStateFront(animation);
+	if (model) {
+		AnimationState* state = model->addAnimationStateFront(animation);
+		if (invertWeight) {
+			state->SetWeight(0.0f);		
+		}
+		return state;
+	}
 
 	// Node hierarchy mode
 	std::shared_ptr<AnimationState> newState(new AnimationState(animation, model->m_meshes[0]->m_rootBone));
@@ -307,6 +367,30 @@ AnimationState* AnimationController::AddAnimationStateFront(Animation* animation
 	return newState.get();
 
 }
+
+AnimationState* AnimationController::AddAnimationState2(Animation* animation) {
+	if (!animation)
+		return nullptr;
+
+	AnimationControl newControl;
+	newControl.name_ = animation->animationName;
+	newControl.hash_ = animation->animationNameHash;
+
+	if (!GetAnimationState(newControl.hash_))
+		animations.push_back(newControl);
+
+	// Model mode
+	if (model) {
+		AnimationState* state = model->addAnimationState(animation);
+		return state;
+	}
+
+	// Node hierarchy mode
+	std::shared_ptr<AnimationState> newState(new AnimationState(animation, model->m_meshes[0]->m_rootBone));
+	nodeAnimationStates.insert(nodeAnimationStates.begin(), newState);
+	return newState.get();
+}
+
 
 AnimationState* AnimationController::AddAnimationState(Animation* animation){
 	if (!animation)
@@ -345,7 +429,7 @@ void AnimationController::FindAnimation(const std::string& name, unsigned& index
 	StringHash nameHash(name);
 
 	// Find the AnimationState
-	state = GetAnimationState(nameHash, name);
+	state = GetAnimationState(nameHash);
 	if (state){
 		// Either a resource name or animation name may be specified. We store resource names, so correct the hash if necessary
 		nameHash = state->GetAnimation()->animationNameHash;

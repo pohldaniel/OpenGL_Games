@@ -276,6 +276,8 @@ void AnimationState::Apply(){
 
 void AnimationState::ApplyToModel(){
 	 
+	//std::cout << "Name: " << animation->animationName << "  " << m_stateTime << std::endl;
+
 	for (auto it = stateTracks.begin(); it != stateTracks.end(); ++it){
 		AnimationStateTrack& stateTrack = *it;
 		const AnimationTrack* track = stateTrack.track;
@@ -444,4 +446,11 @@ void AnimationState::SetFadeLayerLength(float length) {
 
 const AnimationBlendMode AnimationState::getAnimationBlendMode() const {
 	return m_animationBlendMode;
+}
+
+float AnimationState::getRestTime() {
+	float rest = Length() - m_stateTime;
+	std::cout << "Rest Time: " << rest << "  " << Length() << "  " << m_stateTime <<  std::endl;
+
+	return rest;
 }
