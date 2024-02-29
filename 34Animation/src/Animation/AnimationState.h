@@ -49,10 +49,7 @@ public:
 	void SetBlendLayer(unsigned char layer);
 	void SetFadeLayerLength(float length);
 
-	void SetEnabled(bool enable);
-	void SetDrawable(bool drawable);
-
-	Animation* GetAnimation() const { return animation.get(); }
+	Animation* GetAnimation() const { return animation; }
 	const AnimationBlendMode getAnimationBlendMode() const;
 
 	Bone* StartBone() const { return startBone; }
@@ -60,41 +57,39 @@ public:
 	float BoneWeight(const std::string& name) const;
 	float BoneWeight(StringHash nameHash) const;
 
-
-
 	size_t FindTrackIndex(BaseNode* node) const;
 	size_t FindTrackIndex(const std::string& name) const;
 	size_t FindTrackIndex(StringHash nameHash) const;
-	bool Enabled() const { return weight > 0.0f && m_enabled; }
-	bool Looped() const { return looped; }
-	float Weight() const { return weight; }
-	float Time() const { return time; }
+
+	bool Enabled() const { return m_blendWeight > 0.0f; }
+	bool Looped() const { return m_looped; }
+	float Weight() const { return m_blendWeight; }
+	float Time() const { return m_stateTime; }
 	float Length() const;
-	unsigned char BlendLayer() const { return blendLayer; }
+	unsigned char BlendLayer() const { return m_blendLayer; }
 	void Apply();
 
-	
 private:
 	
 	void ApplyToModel();
 	void ApplyToNodes();
-	std::function<void(Animation* animation)> m_fun;
+
 	//Just for fanciness the raw pointer is the way to go
-	std::unique_ptr<Animation, decltype(m_fun)> animation;
-	//Animation* animation;
+	//std::unique_ptr<Animation, std::function<void(Animation* animation)>> animation;
+	Animation* animation;
 
 	Bone* startBone;
 	std::vector<AnimationStateTrack> stateTracks;
-	bool looped;
+	
+	float m_stateTime;
+	unsigned char m_blendLayer;
+
+
+	bool m_looped;
 	bool m_backward;
-	float weight;
-	float time;
-	unsigned char blendLayer;
+	float m_blendWeight;
 
-	bool m_enabled;
-	bool m_drawable;
-
-	float m_blendWeight = 0.0f;
+	float m_blendWeight2 = 0.0f;
 	float m_layeredTime = 0.0f;
 	float m_fadeLayerLength = 1.0f;
 	float m_additiveDirection = 1.0f;

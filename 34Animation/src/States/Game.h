@@ -10,6 +10,11 @@
 #include <Animation/AnimatedModel.h>
 #include <Animation/AnimationController.h>
 
+struct CurrentAnimation {
+	std::string name;
+	float fadeLength;
+};
+
 class Game : public State, public MouseEventListener, public KeyboardEventListener {
 
 public:
@@ -48,4 +53,6 @@ private:
 	float m_weightRight = 1.0f;
 
 	float m_length = 0.0f;
+
+	CurrentAnimation m_currentAnimation;
 };

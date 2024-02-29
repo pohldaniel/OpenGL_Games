@@ -360,6 +360,22 @@ AnimationState* AnimatedModel::addAnimationState(Animation* animation) {
 	return m_meshes[0]->m_animationStates.back().get();
 }
 
+AnimationState* AnimatedModel::addAnimationStateFront(Animation* animation) {
+
+	if (!animation || !m_meshes[0]->m_numBones)
+		return nullptr;
+
+	// Check for not adding twice
+	AnimationState* existing = findAnimationState(animation);
+	if (existing)
+		return existing;
+
+	m_meshes[0]->m_animationStates.insert(m_meshes[0]->m_animationStates.begin(), std::make_shared<AnimationState>(animation, m_meshes[0]->m_rootBone));
+	//modelDrawable->OnAnimationOrderChanged();
+
+	return m_meshes[0]->m_animationStates.back().get();
+}
+
 AnimationState* AnimatedModel::getAnimationState(size_t index) const {
 	return (index < m_meshes[0]->m_animationStates.size()) ? m_meshes[0]->m_animationStates[index].get() : nullptr;
 }
@@ -462,6 +478,9 @@ void AnimatedMesh::update(float dt) {
 		AnimationState* state = (*it).get();
 
 		if (m_model->m_hasAnimationController) {
+
+			//std::cout << "Name: " << state->GetAnimation()->animationName << " Weight: " << state->Weight() << std::endl;
+
 			if (state->Enabled()) {
 				state->Apply();
 			}

@@ -13,7 +13,7 @@ static const unsigned char CHANNEL_SCALE = 4;
 
 struct AnimationKeyFrame{
 
-	AnimationKeyFrame() :time(0.0f),scale(Vector3f::ONE) {
+	AnimationKeyFrame() :time(0.0f), scale(Vector3f::ONE), position(Vector3f::ZERO), rotation(Quaternion::IDENTITY) {
 	}
 
 	float time;
@@ -44,9 +44,6 @@ public:
 	void loadAnimationAni(std::string path);
 	void loadAnimationAssimp(const std::string &filename, std::string sourceName, std::string destName);
 
-	/// Load animation from a stream. Return true on success.
-	//bool BeginLoad(Stream& source) override;
-
 	void SetAnimationName(const std::string& name);
 	void SetLength(float length);
 	AnimationTrack* CreateTrack(const std::string& name);
@@ -62,7 +59,6 @@ public:
 	AnimationTrack* Track(size_t index) const;
 	AnimationTrack* FindTrack(const std::string& name) const;
 	AnimationTrack* FindTrack(StringHash nameHash) const;
-
 
 	void setPositionOfTrack(const std::string& name, const Vector3f& position);
 	void setPositionOfTrack(const std::string& name, const float x, const float y, const float z);

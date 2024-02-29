@@ -44,6 +44,8 @@ public:
 	void loadModelMdl(const std::string& path);
 
 	AnimationState* addAnimationState(Animation* animation);
+	AnimationState* addAnimationStateFront(Animation* animation);
+
 	AnimationState* getAnimationState(size_t index) const;
 	AnimationState* findAnimationState(Animation* animation) const;
 	AnimationState* findAnimationState(const std::string& animationName) const;

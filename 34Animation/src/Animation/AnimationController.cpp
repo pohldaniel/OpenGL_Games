@@ -118,14 +118,10 @@ bool AnimationController::Play(const std::string& name, unsigned char layer, boo
 	AnimationState* state;
 	FindAnimation(newAnimation->animationName, index, state);
 
-	
-
 	if (!state){
 		state = AddAnimationState(newAnimation);
 		if (!state)
 			return false;
-		state->SetEnabled(true);
-		state->SetDrawable(true);
 	}
 
 	if (index == UINT_MAX){
@@ -220,12 +216,14 @@ bool AnimationController::FadeOthers(const std::string& name, float targetWeight
 	unsigned index;
 	AnimationState* state;
 	FindAnimation(name, index, state);
+
 	if (index == UINT_MAX || !state)
 		return false;
 
 	unsigned char layer = state->BlendLayer();
 
 	bool needUpdate = false;
+
 	for (unsigned i = 0; i < animations.size(); ++i)
 	{
 		if (i != index)
@@ -275,7 +273,7 @@ bool AnimationController::IsAtEnd(const std::string& name) const
 		return state->Time() >= state->Length();
 }
 
-AnimationState* AnimationController::GetAnimationState(StringHash nameHash) const{
+AnimationState* AnimationController::GetAnimationState(StringHash nameHash, std::string name) const{
 	// Model mode
 	if (model)
 		return model->findAnimationState(nameHash);
@@ -288,6 +286,26 @@ AnimationState* AnimationController::GetAnimationState(StringHash nameHash) cons
 	}
 
 	return 0;
+}
+
+AnimationState* AnimationController::AddAnimationStateFront(Animation* animation) {
+	if (!animation)
+		return nullptr;
+
+	AnimationControl newControl;
+	newControl.name_ = animation->animationName;
+	newControl.hash_ = animation->animationNameHash;
+	animations.push_back(newControl);
+	
+	// Model mode
+	if (model)
+		return model->addAnimationStateFront(animation);
+
+	// Node hierarchy mode
+	std::shared_ptr<AnimationState> newState(new AnimationState(animation, model->m_meshes[0]->m_rootBone));
+	nodeAnimationStates.insert(nodeAnimationStates.begin(),newState);
+	return newState.get();
+
 }
 
 AnimationState* AnimationController::AddAnimationState(Animation* animation){
@@ -327,7 +345,7 @@ void AnimationController::FindAnimation(const std::string& name, unsigned& index
 	StringHash nameHash(name);
 
 	// Find the AnimationState
-	state = GetAnimationState(nameHash);
+	state = GetAnimationState(nameHash, name);
 	if (state){
 		// Either a resource name or animation name may be specified. We store resource names, so correct the hash if necessary
 		nameHash = state->GetAnimation()->animationNameHash;
@@ -335,6 +353,7 @@ void AnimationController::FindAnimation(const std::string& name, unsigned& index
 
 	// Find the internal control structure
 	index = UINT_MAX;
+
 	for (unsigned i = 0; i < animations.size(); ++i){
 		if (animations[i].hash_ == nameHash){
 			index = i;

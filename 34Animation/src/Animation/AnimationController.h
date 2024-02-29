@@ -89,8 +89,10 @@ public:
 	/// Return whether an animation is at its end. Will return false if the animation is not active at all.
 	bool IsAtEnd(const std::string& name) const;
 
-	AnimationState* GetAnimationState(StringHash nameHash) const;
+	AnimationState* GetAnimationState(StringHash nameHash, std::string name = "EMPTY") const;
 	AnimationState* AddAnimationState(Animation* animation);
+	AnimationState* AddAnimationStateFront(Animation* animation);
+
 	void RemoveAnimationState(AnimationState* state);
 	void FindAnimation(const std::string& name, unsigned& index, AnimationState*& state) const;
 
