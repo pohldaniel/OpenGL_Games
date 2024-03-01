@@ -12,7 +12,8 @@
 
 struct CurrentAnimation {
 	std::string name;
-	float fadeLength;
+	float fadeLength = 0.0f;
+	AnimationState* state = nullptr;
 };
 
 class Game : public State, public MouseEventListener, public KeyboardEventListener {

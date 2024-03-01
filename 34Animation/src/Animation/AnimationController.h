@@ -24,7 +24,9 @@ struct AnimationControl{
 		ragdollRecovery_(false),
 		ragdollRecoverTime_(0.0f),
 		ragdollTimeElapsed_(0.0f),
-		invertWeight_(false)
+		invertWeight_(false),
+		weightOffset_(0.0f),
+		fadeTimeOffset_(0.0f)
 	{
 	}
 
@@ -56,6 +58,8 @@ struct AnimationControl{
 	bool removeOnCompletion_;
 
 	bool invertWeight_;
+	float weightOffset_;
+	float fadeTimeOffset_;
 
 	/// ragdoll
 	bool  ragdollRecovery_;
@@ -89,7 +93,7 @@ public:
 	/// Fade other animations on the same layer to target weight. Return true on success.
 	bool FadeOthers(const std::string& name, float targetWeight, float fadeTime);
 
-	bool FadeOtherExclusive(const std::string& targetName, float targetWeight, const std::string& sourceName);
+	bool FadeOtherExclusive(const std::string& targetName, float targetWeight, const float restTime, float weightOffset = 0.0f);
 
 	/// Set animation time position. Return true on success.
 	bool SetTime(const std::string& name, float time);
@@ -100,10 +104,13 @@ public:
 
 	AnimationState* AddAnimationState(Animation* animation);
 	AnimationState* AddAnimationState2(Animation* animation);
-	AnimationState* AddAnimationStateFront(Animation* animation, bool ivertWeight = false);
+	AnimationState* AddAnimationStateFront(Animation* animation, bool invertWeight = false, float weightOffset = 0.0f, float fadeTimeOffset = 0.0f);
 
 	void RemoveAnimationState(AnimationState* state);
 	void FindAnimation(const std::string& name, unsigned& index, AnimationState*& state) const;
+
+	float getRestTime(const std::string& name);
+
 
 	std::vector<AnimationControl> animations;
 	std::vector<std::shared_ptr<AnimationState>> nodeAnimationStates;

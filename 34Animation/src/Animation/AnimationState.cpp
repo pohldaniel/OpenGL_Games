@@ -448,9 +448,6 @@ const AnimationBlendMode AnimationState::getAnimationBlendMode() const {
 	return m_animationBlendMode;
 }
 
-float AnimationState::getRestTime() {
-	float rest = Length() - m_stateTime;
-	std::cout << "Rest Time: " << rest << "  " << Length() << "  " << m_stateTime <<  std::endl;
-
-	return rest;
+const float AnimationState::getRestTime() const {
+	return std::max(Length() - m_stateTime, m_stateTime);
 }

@@ -9,16 +9,12 @@ AnimationController::~AnimationController(){
 
 }
 
-void AnimationController::Update(float timeStep)
-{
+void AnimationController::Update(float timeStep) {
 	
 	// Loop through animations
-	for (unsigned i = 0; i < animations.size();)
-	{
+	for (unsigned i = 0; i < animations.size();){
 		
 		AnimationControl& ctrl = animations[i];
-
-
 		AnimationState* state = GetAnimationState(ctrl.hash_);
 		bool remove = false;
 
@@ -45,44 +41,50 @@ void AnimationController::Update(float timeStep)
 
 			float targetWeight = ctrl.targetWeight_;
 			float fadeTime = ctrl.fadeTime_;
+			float fadeTimeOffset = ctrl.fadeTimeOffset_;
 
 			// If non-looped animation at the end, activate autofade as applicable
 			if (!state->Looped() && state->Time() >= state->Length() && ctrl.autoFadeTime_ > 0.0f)
 			{
 				targetWeight = 0.0f;
 				fadeTime = ctrl.autoFadeTime_;
+				//fadeTimeOffset = ctrl.autoFadeTime_;
 			}
 			if (ctrl.ragdollRecovery_ && ctrl.ragdollRecoverTime_ > 0.0f)
 			{
 				fadeTime = ctrl.ragdollRecoverTime_ * 10.0f;
+				//fadeTimeOffset = ctrl.ragdollRecoverTime_ * 10.0f;
 			}
 
 			// Process weight fade
 			float currentWeight =  state->Weight();
 
-			std::cout << "Name: " << state->GetAnimation()->animationName << "  " << currentWeight << std::endl;
-
+			//std::cout << "Name: " << state->GetAnimation()->animationName << " Weight: " << currentWeight << std::endl;
 			if (currentWeight != targetWeight)
 			{
 				if (fadeTime > 0.0f)
-				{
-					if (ctrl.invertWeight_) {
-						float weightDelta = 1.0f / fadeTime * timeStep;
-						if (currentWeight > targetWeight)
-							currentWeight = std::max(currentWeight - weightDelta, targetWeight);
-						else if (currentWeight < targetWeight)
-							currentWeight = std::min(currentWeight + weightDelta, targetWeight);
+				{					
+					if (ctrl.weightOffset_ > 0.0f) {
+						float weightDelta = 1.0f / fadeTimeOffset * timeStep;
 
-						//std::cout << "Current Weight: " << currentWeight << std::endl;
-
-						state->SetWeight(currentWeight);
+						ctrl.weightOffset_ -= weightDelta;
 					}else {
 						float weightDelta = 1.0f / fadeTime * timeStep;
-						if (currentWeight < targetWeight)
-							currentWeight = std::min(currentWeight + weightDelta, targetWeight);
-						else if (currentWeight > targetWeight)
-							currentWeight = std::max(currentWeight - weightDelta, targetWeight);
-						state->SetWeight(ctrl.invertWeight_ ? 1.0f - currentWeight : currentWeight);
+						if (ctrl.invertWeight_) {
+
+							if (currentWeight > targetWeight)
+								currentWeight = std::max(currentWeight - weightDelta, targetWeight);
+							else if (currentWeight < targetWeight)
+								currentWeight = std::min(currentWeight + weightDelta, targetWeight);
+							state->SetWeight(currentWeight);
+						}
+						else {
+							if (currentWeight < targetWeight)
+								currentWeight = std::min(currentWeight + weightDelta, targetWeight);
+							else if (currentWeight > targetWeight)
+								currentWeight = std::max(currentWeight - weightDelta, targetWeight);
+							state->SetWeight(ctrl.invertWeight_ ? 1.0f - currentWeight : currentWeight);
+						}
 					}
 				}
 				else
@@ -260,7 +262,12 @@ bool AnimationController::FadeOthers(const std::string& name, float targetWeight
 	return true;
 }
 
-bool AnimationController::FadeOtherExclusive(const std::string& targetName, float targetWeight, const std::string& sourceName) {
+float AnimationController::getRestTime(const std::string& name) {
+	AnimationState* state = GetAnimationState(StringHash(name));
+	return state ? state->getRestTime() : 0.0f;
+}
+
+bool AnimationController::FadeOtherExclusive(const std::string& targetName, float targetWeight, const float restTime, float weightOffset) {
 	unsigned index;
 	AnimationState* targetState;
 	FindAnimation(targetName, index, targetState);
@@ -272,20 +279,17 @@ bool AnimationController::FadeOtherExclusive(const std::string& targetName, floa
 
 	bool needUpdate = false;
 
-	for (unsigned i = 0; i < animations.size(); ++i)
-	{
-		if (i != index)
-		{
+	for (unsigned i = 0; i < animations.size(); ++i){
+		if (i != index){
 			AnimationControl& control = animations[i];
 			AnimationState* otherState = GetAnimationState(control.hash_);
 			
 			if (otherState && otherState->BlendLayer() == layer)
 			{
-				AnimationState* sourceState = GetAnimationState(StringHash(sourceName));
-
 				control.targetWeight_ = Math::Clamp(targetWeight, 0.0f, 1.0f);
-				control.fadeTime_ = sourceState->getRestTime();
-				//control.invertWeight_ = true;
+				control.fadeTimeOffset_ = restTime;
+				control.weightOffset_ = weightOffset;
+				control.fadeTime_ = 1.0f - control.weightOffset_;
 				needUpdate = true;
 			}
 		}
@@ -340,7 +344,7 @@ AnimationState* AnimationController::GetAnimationState(StringHash nameHash) cons
 	return 0;
 }
 
-AnimationState* AnimationController::AddAnimationStateFront(Animation* animation, bool invertWeight) {
+AnimationState* AnimationController::AddAnimationStateFront(Animation* animation, bool invertWeight, float weightOffset, float fadeTimeOffset) {
 	if (!animation)
 		return nullptr;
 
@@ -348,6 +352,8 @@ AnimationState* AnimationController::AddAnimationStateFront(Animation* animation
 	newControl.name_ = animation->animationName;
 	newControl.hash_ = animation->animationNameHash;
 	newControl.invertWeight_ = invertWeight;
+	newControl.weightOffset_ = weightOffset;
+	newControl.fadeTimeOffset_ = fadeTimeOffset;
 
 	if(!GetAnimationState(newControl.hash_))
 		animations.push_back(newControl);
