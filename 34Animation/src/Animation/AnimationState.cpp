@@ -276,7 +276,7 @@ void AnimationState::Apply(){
 
 void AnimationState::ApplyToModel(){
 	 
-	//std::cout << "Name: " << animation->animationName << "  " << m_stateTime << std::endl;
+	//std::cout << "Name: " << animation->animationName << " Weight: " << m_blendWeight  << std::endl;
 
 	for (auto it = stateTracks.begin(); it != stateTracks.end(); ++it){
 		AnimationStateTrack& stateTrack = *it;

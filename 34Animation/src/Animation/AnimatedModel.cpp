@@ -3,6 +3,18 @@
 
 #include "Utils/SolidIO.h"
 
+const Vector3f& AnimatedModel::getWorldPosition() const {
+	return m_meshes[0]->m_rootBone->getWorldPosition();
+}
+
+const Vector3f& AnimatedModel::getWorldScale() const {
+	return m_meshes[0]->m_rootBone->getWorldScale();
+}
+
+const Quaternion& AnimatedModel::getWorldOrientation() const {
+	return m_meshes[0]->m_rootBone->getWorldOrientation();
+}
+
 AnimatedModel::AnimatedModel() : m_hasAnimationController(false){
 
 }
@@ -478,9 +490,6 @@ void AnimatedMesh::update(float dt) {
 		AnimationState* state = (*it).get();
 
 		if (m_model->m_hasAnimationController) {
-
-			//std::cout << "Name: " << state->GetAnimation()->animationName << " Weight: " << state->Weight() << std::endl;
-
 			if (state->Enabled()) {
 				state->Apply();
 			}

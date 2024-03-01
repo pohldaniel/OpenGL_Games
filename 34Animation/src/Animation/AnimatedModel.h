@@ -59,6 +59,10 @@ public:
 	void removeAnimationState(size_t index);
 	void removeAllAnimationStates();
 
+	const Vector3f& getWorldPosition() const;
+	const Vector3f& getWorldScale() const;
+	const Quaternion& getWorldOrientation() const;
+
 	std::vector<AnimatedMesh*> m_meshes;
 	bool m_hasAnimationController;
 //private:

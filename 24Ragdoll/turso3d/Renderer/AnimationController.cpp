@@ -20,12 +20,10 @@ void AnimationController::Update(float timeStep)
 {
 	// Loop through animations
 	for (unsigned i = 0; i < animations.size();)
-	{
-		
-		AnimationControl& ctrl = animations[i];
-
-		
+	{		
+		AnimationControl& ctrl = animations[i];		
 		AnimationState* state = GetAnimationState(ctrl.hash_);
+
 		bool remove = false;
 
 		if (!state) {

@@ -49,7 +49,7 @@ private:
 	float m_weightLean = 1.0f;
 	float m_weightWalk = 1.0f;
 	float m_weightRun = 1.0f;
-	
+
 	float m_weightLeft = 1.0f;
 	float m_weightRight = 1.0f;
 

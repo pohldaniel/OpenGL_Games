@@ -13,9 +13,10 @@ void AnimationController::Update(float timeStep) {
 	
 	// Loop through animations
 	for (unsigned i = 0; i < animations.size();){
-		
+
 		AnimationControl& ctrl = animations[i];
 		AnimationState* state = GetAnimationState(ctrl.hash_);
+
 		bool remove = false;
 
 		if (!state) {
@@ -140,6 +141,7 @@ bool AnimationController::Play(const std::string& name, unsigned char layer, boo
 		state = AddAnimationState(newAnimation);
 		if (!state)
 			return false;
+		state->SetWeight(0.0f);
 	}
 
 	if (index == UINT_MAX){

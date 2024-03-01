@@ -1,5 +1,5 @@
 // For conditions of distribution and use, see copyright notice in License.txt
-
+#include <iostream>
 #include "../IO/Log.h"
 #include "AnimatedModel.h"
 #include "Animation.h"

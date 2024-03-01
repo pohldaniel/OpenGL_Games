@@ -1,0 +1,32 @@
+#pragma once
+
+#pragma once
+
+#include <unordered_map>
+#include <engine/input/Keyboard.h>
+#include <engine/Camera.h>
+
+#include <Animation/AnimationController.h>
+
+const float INAIR_THRESHOLD_TIME = 0.1f;
+
+class Character {
+
+public:
+
+	Character();
+
+	void draw(const Camera& camera);
+	void update(const float dt);
+	void fixedUpdate(float fdt);
+
+	AnimatedModel m_model;
+	AnimationController* m_animationController;
+
+	bool m_onGround;
+	bool m_okToJump;
+	bool m_isJumping;
+	bool m_jumpStarted;
+	float m_inAirTimer;
+	Vector3f m_curMoveDir;
+};

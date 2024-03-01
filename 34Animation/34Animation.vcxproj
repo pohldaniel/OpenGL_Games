@@ -165,6 +165,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Bone.cpp" />
+    <ClCompile Include="Character.cpp" />
     <ClCompile Include="engine\animation\AssimpAnimatedModel.cpp" />
     <ClCompile Include="engine\animation\AssimpAnimation.cpp" />
     <ClCompile Include="engine\animation\AssimpAnimator.cpp" />
@@ -196,6 +197,7 @@
     <ClCompile Include="src\Animation\AnimationState.cpp" />
     <ClCompile Include="src\LoadingManager.cpp" />
     <ClCompile Include="src\MousePickerFBO.cpp" />
+    <ClCompile Include="src\States\CharacterState.cpp" />
     <ClCompile Include="src\States\Controlls.cpp" />
     <ClCompile Include="src\States\Default.cpp" />
     <ClCompile Include="src\States\Game.cpp" />
@@ -276,6 +278,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Bone.h" />
+    <ClInclude Include="Character.h" />
     <ClInclude Include="engine\animation\AssimpAnimatedModel.h" />
     <ClInclude Include="engine\animation\AssimpAnimation.h" />
     <ClInclude Include="engine\animation\AssimpAnimator.h" />
@@ -364,6 +367,7 @@
     <ClInclude Include="src\LoadingManager.h" />
     <ClInclude Include="src\MousePickerFBO.h" />
     <ClInclude Include="src\RandomColor.h" />
+    <ClInclude Include="src\States\CharacterState.h" />
     <ClInclude Include="src\States\Controls.h" />
     <ClInclude Include="src\States\Default.h" />
     <ClInclude Include="src\States\Game.h" />
