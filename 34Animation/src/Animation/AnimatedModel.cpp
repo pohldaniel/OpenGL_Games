@@ -15,11 +15,23 @@ const Quaternion& AnimatedModel::getWorldOrientation() const {
 	return m_meshes[0]->m_rootBone->getWorldOrientation();
 }
 
+void AnimatedModel::translate(const Vector3f& trans) {
+	return m_meshes[0]->m_rootBone->translate(trans);
+}
+
+void AnimatedModel::translateRelative(const Vector3f& trans) {
+	return m_meshes[0]->m_rootBone->translateRelative(trans);
+}
+
+void AnimatedModel::rotate(const float pitch, const float yaw, const float roll) {
+	return m_meshes[0]->m_rootBone->rotate(pitch, yaw, roll);
+}
+
 AnimatedModel::AnimatedModel() : m_hasAnimationController(false){
 
 }
 
-void AnimatedModel::loadModelAssimp(const std::string& path, const bool addVirtualRoot, const bool reverseBoneList) {
+void AnimatedModel::loadModelAssimp(const std::string& path, const short addVirtualRoots, const bool reverseBoneList) {
 
 	Assimp::Importer Importer;
 	Importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_PRESERVE_PIVOTS, false);
@@ -122,7 +134,7 @@ void AnimatedModel::loadModelAssimp(const std::string& path, const bool addVirtu
 
 				if (k < maxBones) {
 					jointWeight[k] = pq.top().weight;
-					jointId[k] = pq.top().boneId + addVirtualRoot;
+					jointId[k] = pq.top().boneId + addVirtualRoots;
 				}
 				pq.pop();
 			}
@@ -147,19 +159,22 @@ void AnimatedModel::loadModelAssimp(const std::string& path, const bool addVirtu
 		mesh->m_drawCount = aiMesh->mNumFaces * 3;
 		CreateBuffer(mesh->m_vertexBuffer, mesh->m_indexBuffer, mesh->m_vao, mesh->m_vbo, mesh->m_ibo, 8, mesh->m_weights, mesh->m_boneIds);
 
-		if (addVirtualRoot) {
+		if (addVirtualRoots) {
+			
 			for (size_t i = 0; i < mesh->m_meshBones.size(); ++i) {
 				ModelBone& modelBone = mesh->m_meshBones[i];
 				if (modelBone.parentIndex != i) {
-					modelBone.parentIndex++;
+					modelBone.parentIndex = modelBone.parentIndex + addVirtualRoots;
 				}else {
-					modelBone.parentIndex = 0;
+					modelBone.parentIndex = (addVirtualRoots - 1);
 				}
 			}
 
-			mesh->m_meshBones.insert(mesh->m_meshBones.begin(), ModelBone());
-			mesh->m_meshBones[0].name = "Root";
-			mesh->m_meshBones[0].nameHash = StringHash("Root");
+			for (unsigned short count = 0; count < addVirtualRoots; count++) {
+				mesh->m_meshBones.insert(mesh->m_meshBones.begin(), ModelBone());
+				mesh->m_meshBones[0].name = "Root_" + count;
+				mesh->m_meshBones[0].nameHash = StringHash(mesh->m_meshBones[0].name);
+			}
 		}
 	}
 }

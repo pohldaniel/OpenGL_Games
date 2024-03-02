@@ -18,12 +18,14 @@ CharacterState::CharacterState(StateMachine& machine) : State(machine, States::C
 
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
-	m_camera.lookAt(Vector3f(0.0f, 0.0f, 5.0f), Vector3f(0.0f, 0.0f, 5.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
+	//m_camera.lookAt(Vector3f(0.0f, 0.0f, 5.0f), Vector3f(0.0f, 0.0f, 5.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
+	m_camera.rotate(0.0f, 22.5f);
 	m_camera.setRotationSpeed(0.1f);
 	m_camera.setMovingSpeed(5.0f);
+	m_camera.setOffsetDistance(m_offsetDistance);
 
-	//glClearColor(0.494f, 0.686f, 0.796f, 1.0f);
-	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	glClearColor(0.494f, 0.686f, 0.796f, 1.0f);
+	//glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClearDepth(1.0f);
 
 	DebugRenderer::Get().setEnable(true);
@@ -47,17 +49,45 @@ void CharacterState::fixedUpdate() {
 }
 
 void CharacterState::update() {
+	
+	Mouse &mouse = Mouse::instance();
+	float dx = 0.0f;
+	float dy = 0.0f;
+	
+	Vector3f pos = m_character.m_model.getWorldPosition();
+	m_camera.Camera::setTarget(pos);
+
+	if (mouse.buttonDown(Mouse::MouseButton::BUTTON_RIGHT)) {
+		dx = mouse.xDelta();
+		dy = mouse.yDelta();
+	}
+
+	if (dx || dy) {
+		m_camera.rotate(dx, dy, pos);
+		m_character.m_model.rotate(0.0f, -dx * 0.1f, 0.0f);
+	}
+
 	m_character.update(m_dt);
 }
 
 void CharacterState::render() {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	auto shader = Globals::shaderManager.getAssetPointer("texture");
+	shader->use();
+	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
+	shader->loadMatrix("u_view", m_camera.getViewMatrix());
+	shader->loadInt("u_texture", 1);
+	Globals::textureManager.get("floor").bind(1);
+	Globals::shapeManager.get("floor").drawRaw();
+	shader->unuse();
+
+	
 	m_character.draw(m_camera);
 
-	DebugRenderer::Get().SetView(&m_camera);
-	//DebugRenderer::Get().AddSkeleton(beta.m_meshes[0]->m_bones, beta.m_meshes[0]->m_numBones, { 0.0f, 1.0f, 0.0f, 1.0f });
-	DebugRenderer::Get().drawBuffer();
+	//DebugRenderer::Get().SetView(&m_camera);
+	//DebugRenderer::Get().AddSkeleton(m_character.m_model.m_meshes[0]->m_bones, m_character.m_model.m_meshes[0]->m_numBones, { 0.0f, 1.0f, 0.0f, 1.0f });
+	//DebugRenderer::Get().drawBuffer();
 
 	if (m_drawUi)
 		renderUi();
@@ -84,7 +114,17 @@ void CharacterState::OnMouseButtonUp(Event::MouseButtonEvent& event) {
 }
 
 void CharacterState::OnMouseWheel(Event::MouseWheelEvent& event) {
+	if (event.direction == 1u) {
+		m_offsetDistance += 2.0f;
+		m_offsetDistance = std::max(0.0f, std::min(m_offsetDistance, 150.0f));
+		m_camera.setOffsetDistance(m_offsetDistance);
+	}
 
+	if (event.direction == 0u) {
+		m_offsetDistance -= 2.0f;
+		m_offsetDistance = std::max(0.0f, std::min(m_offsetDistance, 150.0f));
+		m_camera.setOffsetDistance(m_offsetDistance);
+	}
 }
 
 void CharacterState::OnKeyDown(Event::KeyboardEvent& event) {

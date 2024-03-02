@@ -40,7 +40,7 @@ public:
 	void update(float dt);
 	void updateSkinning();
 
-	void loadModelAssimp(const std::string& path, const bool addVirtualRoot = false, const bool reverseBoneList = false);
+	void loadModelAssimp(const std::string& path, const short addVirtualRoots = 0, const bool reverseBoneList = false);
 	void loadModelMdl(const std::string& path);
 
 	AnimationState* addAnimationState(Animation* animation);
@@ -62,6 +62,9 @@ public:
 	const Vector3f& getWorldPosition() const;
 	const Vector3f& getWorldScale() const;
 	const Quaternion& getWorldOrientation() const;
+	void translate(const Vector3f& trans);
+	void translateRelative(const Vector3f& trans);
+	void rotate(const float pitch, const float yaw, const float roll);
 
 	std::vector<AnimatedMesh*> m_meshes;
 	bool m_hasAnimationController;

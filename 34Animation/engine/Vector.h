@@ -494,6 +494,7 @@ public:
 	static Quaternion& Inverse(Quaternion &quat);
 	static void Normalize(Quaternion &p);
 	static Vector3f Rotate(const Quaternion &quat, const Vector3f &v);
+	static Vector3f InvRotate(const Quaternion &quat, const Vector3f &v);
 	static Quaternion SLerp(const Quaternion &a, const Quaternion &b, float t);
 	static Quaternion SLerp2(const Quaternion &a, const Quaternion &b, float t);
 

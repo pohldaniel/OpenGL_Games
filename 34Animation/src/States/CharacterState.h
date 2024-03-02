@@ -40,4 +40,5 @@ private:
 	Camera m_camera;
 	AnimationController* m_animationController;
 	Character m_character;
+	float m_offsetDistance = 15.0f;
 };

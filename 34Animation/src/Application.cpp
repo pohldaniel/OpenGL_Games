@@ -659,6 +659,7 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("batch", "res/shader/batch.vert", "res/shader/batch.frag");
 	Globals::shaderManager.loadShader("quad", "res/shader/quad.vert", "res/shader/quad.frag");
 	Globals::shaderManager.loadShader("animation_new", "res/shader/animation_new.vert", "res/shader/animation_new.frag");
+	Globals::shaderManager.loadShader("texture", "res/shader/texture.vert", "res/shader/texture.frag");
 
 	Globals::textureManager.loadTexture("forest_1", "res/backgrounds/Forest/plx-1.png");
 	Globals::textureManager.loadTexture("forest_2", "res/backgrounds/Forest/plx-2.png");
@@ -671,6 +672,7 @@ void Application::loadAssets() {
 	Globals::textureManager.loadTexture("mushroom", "res/models/mushroom/mushroom.png", false);
 	Globals::textureManager.loadTexture("dragon", "res/models/dragon/dragon.png", false);
 	Globals::textureManager.loadTexture("woman", "res/models/woman/Woman.png", false);
+	Globals::textureManager.loadTexture("floor", "res/textures/floor.png", false);
 	Globals::textureManager.createNullTexture("null");
 
 	Globals::fontManager.loadCharacterSet("upheaval_200", "res/fonts/upheavtt.ttf", 200, 10u, 30u, 128u, 0, true, 0u);
@@ -681,6 +683,7 @@ void Application::loadAssets() {
 	Globals::shapeManager.buildSphere("sphere", 0.1f, Vector3f(0.0f, 0.0f, 0.0f), 16, 16, false, true, false);
 	Globals::shapeManager.buildQuadXY("quad_half", Vector3f(-0.5f, -0.5f, 0.0f), Vector2f(1.0f, 1.0f), 1, 1, true, false, false);
 	Globals::shapeManager.buildCube("cube", Vector3f(-1.0f, -1.0f, -1.0f), Vector3f(2.0f, 2.0f, 2.0f), 1, 1, true, true, false);
+	Globals::shapeManager.buildQuadXZ("floor", Vector3f(-50.0f, 0.0f, -50.0f), Vector2f(100.0f, 100.0f), 1, 1, true, false, false);
 
 	Globals::animationManagerNew.loadAnimationAssimp("vampire_dance", "res/models/vampire/dancing_vampire.dae", "Hips", "vampire_dance");
 	Globals::animationManagerNew.getAssetPointer("vampire_dance")->setPositionOfTrack("Hips", 0.0f, 1.0f, 0.0f);
@@ -712,7 +715,7 @@ void Application::loadAssets() {
 
 	Globals::animationManagerNew.loadAnimationAssimp("woman_pick_up", "res/models/woman/Woman.gltf", "PickUp", "woman_pick_up");
 	Globals::animationManagerNew.loadAnimationAssimp("woman_sit_idle", "res/models/woman/Woman.gltf", "SitIdle", "woman_sit_idle");
-	Globals::animationManagerNew.loadAnimationAssimp("woman_idle", "res/models/woman/Woman.gltf", "Running", "woman_idle");
+	Globals::animationManagerNew.loadAnimationAssimp("woman_idle", "res/models/woman/Woman.gltf", "Idle", "woman_idle");
 	Globals::animationManagerNew.loadAnimationAssimp("woman_punch", "res/models/woman/Woman.gltf", "Punch", "woman_punch");
 	Globals::animationManagerNew.loadAnimationAssimp("woman_sit", "res/models/woman/Woman.gltf", "Sitting", "woman_sit");
 }
