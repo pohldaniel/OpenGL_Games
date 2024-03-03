@@ -8,32 +8,26 @@ class QueInput {
 public:
 	QueInput() : input_(UINT_MAX), holdTime_(1200) {}
 
-	void SetInput(unsigned input)
-	{
+	void SetInput(unsigned input){
 		input_ = input;
 		queTimer_.reset();
 	}
 
-	unsigned GetInput() const
-	{
+	unsigned GetInput() const{
 		return input_;
 	}
 
-	void Update()
-	{
-		if (queTimer_.getElapsedTimeMilli() >= holdTime_)
-		{
+	void Update(){
+		if (queTimer_.getElapsedTimeMilli() >= holdTime_){
 			input_ = UINT_MAX;
 		}
 	}
 
-	bool Empty() const
-	{
+	bool Empty() const{
 		return (input_ == UINT_MAX);
 	}
 
-	void Reset()
-	{
+	void Reset(){
 		input_ = UINT_MAX;
 	}
 
@@ -48,6 +42,7 @@ class CharacterSkinned {
 
 	const float INAIR_THRESHOLD_TIME = 0.1f;
 	const float MOVE_SPEED = 8.0f;
+	const float JUMP_TIMER = 1.0f;
 
 public:
 
@@ -63,9 +58,9 @@ public:
 
 	bool m_onGround;
 	bool m_okToJump;
-	bool m_isJumping;
 	bool m_jumpStarted;
 	float m_inAirTimer;
+	float m_jumpTimer;
 	Vector3f m_curMoveDir;
 
 	std::string weaponActionAnim_;
