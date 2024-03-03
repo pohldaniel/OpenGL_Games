@@ -67,7 +67,7 @@ void Shape::buildDiskXZ(float radius, const Vector3f& position, int uResolution,
 	createBuffer();
 }
 
-void Shape::fromBuffer(std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer, unsigned int stride) {
+void Shape::fromBuffer(const std::vector<float>& vertexBuffer, const std::vector<unsigned int>& indexBuffer, unsigned int stride, bool _createBuffer) {
 
 	if (stride == 3) {
 		for (unsigned int i = 0; i < vertexBuffer.size(); i = i + stride) {
@@ -111,6 +111,19 @@ void Shape::fromBuffer(std::vector<float>& vertexBuffer, std::vector<unsigned in
 
 	m_indexBuffer.reserve(indexBuffer.size());
 	std::copy(indexBuffer.begin(), indexBuffer.end(), std::back_inserter(m_indexBuffer));
+
+	if(_createBuffer)
+		createBuffer();
+}
+
+void Shape::fromBuffer(const std::vector<float>& vertexBuffer, const std::vector<unsigned int>& indexBuffer, unsigned int stride, const std::vector<std::array<float, 4>>& weights, const std::vector<std::array<unsigned int, 4>>& boneIds) {
+	fromBuffer(vertexBuffer, indexBuffer, stride, false);
+
+	m_weights.reserve(weights.size());
+	std::copy(weights.begin(), weights.end(), std::back_inserter(m_weights));
+
+	m_boneIds.reserve(weights.size());
+	std::copy(boneIds.begin(), boneIds.end(), std::back_inserter(m_boneIds));
 
 	createBuffer();
 }
@@ -514,6 +527,12 @@ void Shape::cleanup() {
 	if (m_vbo[4])
 		glDeleteBuffers(1, &m_vbo[4]);
 
+	if (m_vbo[5])
+		glDeleteBuffers(1, &m_vbo[5]);
+
+	if (m_vbo[6])
+		glDeleteBuffers(1, &m_vbo[6]);
+
 	if (m_vboInstances)
 		glDeleteBuffers(1, &m_vboInstances);
 
@@ -540,7 +559,7 @@ void Shape::createBuffer() {
 
 	unsigned int ibo;
 	glGenBuffers(1, &ibo);
-	glGenBuffers(!m_positions.empty() + !m_texels.empty() + !m_normals.empty() + !m_tangents.empty() + !m_bitangents.empty(), m_vbo);
+	glGenBuffers(!m_positions.empty() + !m_texels.empty() + !m_normals.empty() + !m_tangents.empty() + !m_bitangents.empty() + !m_weights.empty() + !m_boneIds.empty(), m_vbo);
 
 	glGenVertexArrays(1, &m_vao);
 	glBindVertexArray(m_vao);
@@ -552,37 +571,57 @@ void Shape::createBuffer() {
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
+	unsigned short index = 1;
 	//Texture Coordinates
 	if (!m_texels.empty()) {
-		glBindBuffer(GL_ARRAY_BUFFER, m_vbo[1]);
+		glBindBuffer(GL_ARRAY_BUFFER, m_vbo[index]);
 		glBufferData(GL_ARRAY_BUFFER, m_texels.size() * sizeof(m_texels[0]), &m_texels[0], GL_STATIC_DRAW);
 
 		glEnableVertexAttribArray(1);
 		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, 0);
+		index++;
 	}
 
 	//Normals
 	if (!m_normals.empty()) {
-		glBindBuffer(GL_ARRAY_BUFFER, !m_texels.empty() ? m_vbo[2] : m_vbo[1]);
+		glBindBuffer(GL_ARRAY_BUFFER, m_vbo[index]);
 		glBufferData(GL_ARRAY_BUFFER, m_normals.size() * sizeof(m_normals[0]), &m_normals[0], GL_STATIC_DRAW);
 
 		glEnableVertexAttribArray(2);
 		glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, 0);
+		index++;
 	}
 
 	//tangents
 	if (!m_tangents.empty()) {
-		glBindBuffer(GL_ARRAY_BUFFER, (!m_texels.empty() && !m_normals.empty()) ? m_vbo[3] : (!m_texels.empty() || !m_normals.empty()) ? m_vbo[2] : m_vbo[1]);
+		glBindBuffer(GL_ARRAY_BUFFER, m_vbo[index]);
 		glBufferData(GL_ARRAY_BUFFER, m_tangents.size() * sizeof(m_tangents[0]), &m_tangents[0], GL_STATIC_DRAW);
 
 		glEnableVertexAttribArray(3);
 		glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 0, 0);
+		index++;
 
-		glBindBuffer(GL_ARRAY_BUFFER, (!m_texels.empty() && !m_normals.empty()) ? m_vbo[4] : (!m_texels.empty() || !m_normals.empty()) ? m_vbo[3] : m_vbo[2]);
+		glBindBuffer(GL_ARRAY_BUFFER, m_vbo[index]);
 		glBufferData(GL_ARRAY_BUFFER, m_bitangents.size() * sizeof(m_bitangents[0]), &m_bitangents[0], GL_STATIC_DRAW);
 
 		glEnableVertexAttribArray(4);
 		glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, 0, 0);
+		index++;
+	}
+
+	if (!m_weights.empty()) {
+		glBindBuffer(GL_ARRAY_BUFFER, m_vbo[index]);
+		glBufferData(GL_ARRAY_BUFFER, m_weights.size() * sizeof(float) * 4, &m_weights.front(), GL_STATIC_DRAW);
+
+		glEnableVertexAttribArray(5);
+		glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, 0, 0);
+		index++;
+
+		glBindBuffer(GL_ARRAY_BUFFER, m_vbo[index]);
+		glBufferData(GL_ARRAY_BUFFER, m_boneIds.size() * sizeof(std::array<unsigned int, 4>), &m_boneIds.front(), GL_STATIC_DRAW);
+
+		glEnableVertexAttribArray(6);
+		glVertexAttribIPointer(6, 4, GL_UNSIGNED_INT, 0, 0);
 	}
 
 	//Indices
@@ -604,6 +643,10 @@ void Shape::createBuffer() {
 	m_tangents.shrink_to_fit();
 	m_bitangents.clear();
 	m_bitangents.shrink_to_fit();
+	m_weights.clear();
+	m_weights.shrink_to_fit();
+	m_boneIds.clear();
+	m_boneIds.shrink_to_fit();
 }
 
 void Shape::drawRaw() const {

@@ -35,11 +35,12 @@ SkinnedArmor::SkinnedArmor(StateMachine& machine) : State(machine, States::CHARA
 	glBufferData(GL_UNIFORM_BUFFER, sizeof(Matrix4f) * 96, NULL, GL_DYNAMIC_DRAW);
 	glBindBufferRange(GL_UNIFORM_BUFFER, 3, BuiltInShader::matrixUbo, 0, sizeof(Matrix4f) * 96);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
-	//mdlConverter.mdlToObj("res/models/Girlbot/Sword.mdl", "res/sword.obj", "res/sword.mtl", "res/models/Girlbot/Textures/maria_diffuse.png");
 	//StateMachine::ToggleWireframe();
 
 	BoundingBox box;
+
+	std::vector<float> vertexBuffer;
+	std::vector<unsigned int> indexBuffer;
 	std::vector<std::vector<Utils::GeometryDesc>> geomDescs;
 	std::vector<std::array<unsigned int, 4>> boneIds;
 	std::vector<std::array<float, 4>> weights;
@@ -48,12 +49,9 @@ SkinnedArmor::SkinnedArmor(StateMachine& machine) : State(machine, States::CHARA
 
 	mdlConverter.mdlToBuffer("res/models/Girlbot/Sword.mdl", 100.0f, vertexBuffer, indexBuffer, weights, boneIds, geomDescs, meshBones, box);
 	m_sword.fromBuffer(vertexBuffer, indexBuffer, 8);
-	vertexBuffer.clear(); vertexBuffer.shrink_to_fit(); indexBuffer.clear(); indexBuffer.shrink_to_fit();
-
+	vertexBuffer.clear(); vertexBuffer.shrink_to_fit(); indexBuffer.clear(); indexBuffer.shrink_to_fit(); weights.clear(); weights.shrink_to_fit(); boneIds.clear(); boneIds.shrink_to_fit();
 	mdlConverter.mdlToBuffer("res/models/Girlbot/Armor.mdl", 1.0f, vertexBuffer, indexBuffer, weights, boneIds, geomDescs, meshBones, box);
-	m_armor.fromBuffer(vertexBuffer, indexBuffer, 8);
-	vertexBuffer.clear(); vertexBuffer.shrink_to_fit(); indexBuffer.clear(); indexBuffer.shrink_to_fit();
-	
+	m_armor.fromBuffer(vertexBuffer, indexBuffer, 8, weights, boneIds);
 }
 
 SkinnedArmor::~SkinnedArmor() {
@@ -72,6 +70,7 @@ void SkinnedArmor::update() {
 	float dy = 0.0f;
 
 	Vector3f pos = m_character.m_model.getWorldPosition();
+	pos[1] += 1.5f;
 	m_camera.Camera::setTarget(pos);
 
 	if (mouse.buttonDown(Mouse::MouseButton::BUTTON_RIGHT)) {
@@ -104,20 +103,24 @@ void SkinnedArmor::render() {
 	m_character.draw(m_camera);
 
 	shader->use();
-	
 	Globals::textureManager.get("sword").bind(1);
 	shader->loadMatrix("u_model", m_character.m_locatorNode->getWorldTransformation());
 	m_sword.drawRaw();
-
-	Globals::textureManager.get("sword").bind(1);
-	shader->loadMatrix("u_model", m_character.m_armorLocatorNode->getWorldTransformation());
-	m_armor.drawRaw();
-
 	shader->unuse();
 
-	//DebugRenderer::Get().SetView(&m_camera);
+	shader = Globals::shaderManager.getAssetPointer("animation_new");
+	shader->use();
+	shader->loadVector("u_light", Vector3f(1.0f, 1.0f, 1.0f));
+	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
+	shader->loadMatrix("u_view", m_camera.getViewMatrix());
+	shader->loadVector("u_color", Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+	Globals::textureManager.get("sword").bind(0);
+	m_armor.drawRaw();
+	shader->unuse();
+
+	DebugRenderer::Get().SetView(&m_camera);
 	//DebugRenderer::Get().AddSkeleton(m_character.m_model.m_meshes[0]->m_bones, m_character.m_model.m_meshes[0]->m_numBones, { 0.0f, 1.0f, 0.0f, 1.0f });
-	//DebugRenderer::Get().drawBuffer();
+	DebugRenderer::Get().drawBuffer();
 
 	if (m_drawUi)
 		renderUi();

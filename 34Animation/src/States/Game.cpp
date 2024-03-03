@@ -209,7 +209,6 @@ void Game::update() {
 	mushroom.updateSkinning();
 	dragon.updateSkinning();
 	woman.updateSkinning();
-
 }
 
 void Game::render() {

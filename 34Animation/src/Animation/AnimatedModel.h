@@ -89,7 +89,6 @@ public:
 	void drawRaw();
 	void update(float dt);
 	void updateSkinning();
-	
 
 	AnimatedModel* m_model;
 	std::vector<std::shared_ptr<AnimationState>> m_animationStates;

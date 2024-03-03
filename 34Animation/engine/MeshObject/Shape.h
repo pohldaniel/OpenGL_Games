@@ -32,7 +32,8 @@ public:
 	void buildDiskXZ(float radius = 1.0f, const Vector3f& position = Vector3f(-1.0f, 0.0f, -1.0f), int uResolution = 1, int vResolution = 1, bool generateTexels = true, bool generateNormals = true, bool generateTangents = false);
 	
 	//void fromBuffer(std::vector<Vector3f>& positions, std::vector<Vector2f>& texels, std::vector<Vector3f>& normals, std::vector<unsigned int>& indexBuffer);
-	void fromBuffer(std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer, unsigned int stride);
+	void fromBuffer(const std::vector<float>& vertexBuffer, const std::vector<unsigned int>& indexBuffer, unsigned int stride, bool createBuffer = true);
+	void fromBuffer(const std::vector<float>& vertexBuffer, const std::vector<unsigned int>& indexBuffer, unsigned int stride, const std::vector<std::array<float, 4>>& weights, const std::vector<std::array<unsigned int, 4>>& boneIds);
 	void fromObj(const char* filename);
 
 	void drawRaw() const;
@@ -71,7 +72,7 @@ public:
 private:
 
 	unsigned int m_vao;
-	unsigned int m_vbo[5] = { 0 };
+	unsigned int m_vbo[7] = { 0 };
 	unsigned int m_drawCount;
 	unsigned int m_vboInstances = 0;
 	unsigned int m_vboAdd1 = 0;
@@ -85,6 +86,8 @@ private:
 	std::vector<Vector3f> m_normals;
 	std::vector<Vector3f> m_tangents;
 	std::vector<Vector3f> m_bitangents;
+	std::vector<std::array<unsigned int, 4>> m_boneIds;
+	std::vector<std::array<float, 4>> m_weights;
 	std::vector<Matrix4f> m_instances;
 	mutable BoundingBox m_aabb;
 

@@ -236,7 +236,6 @@ void AnimatedModel::loadModelMdl(const std::string& path) {
 
 	mdlConverter.mdlToBuffer(path.c_str(), 1.0f, mesh->m_vertexBuffer, mesh->m_indexBuffer, mesh->m_weights, mesh->m_boneIds, geomDescs, mesh->m_meshBones, box);
 	mesh->m_drawCount = static_cast<unsigned int>(mesh->m_indexBuffer.size());
-
 	CreateBuffer(mesh->m_vertexBuffer, mesh->m_indexBuffer, mesh->m_vao, mesh->m_vbo, mesh->m_ibo, 8, mesh->m_weights, mesh->m_boneIds);
 }
 
@@ -312,7 +311,6 @@ void AnimatedModel::CreateBuffer(std::vector<float>& vertexBuffer, std::vector<u
 
 	//bone weights and id's
 	if (!weights.empty()) {
-
 		glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
 		glBufferData(GL_ARRAY_BUFFER, weights.size() * sizeof(float) * 4, &weights.front(), GL_STATIC_DRAW);
 

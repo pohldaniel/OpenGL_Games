@@ -372,7 +372,8 @@ void Utils::MdlIO::mdlToBuffer(const char* path, std::array<float,3> _scale, std
 
 	//Num VertexBuffer
 	file.read(metaData, sizeof(unsigned int));
-
+	Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
+	
 	file.read(metaData, sizeof(unsigned int));
 	unsigned int vertexCount = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
 
@@ -384,6 +385,7 @@ void Utils::MdlIO::mdlToBuffer(const char* path, std::array<float,3> _scale, std
 	for (unsigned j = 0; j < numElements; ++j) {
 		file.read(metaData, sizeof(unsigned int));
 		unsigned int elementDesc = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
+		VertexElementSemantic semantic = (VertexElementSemantic)((elementDesc >> 8) & 0xff);
 		vertexSize += Utils::ELEMENT_TYPESIZES[elementDesc & 0xff];
 	}
 
@@ -405,17 +407,29 @@ void Utils::MdlIO::mdlToBuffer(const char* path, std::array<float,3> _scale, std
 		value[1].c[0] = buffer[i + 28]; value[1].c[1] = buffer[i + 29]; value[1].c[2] = buffer[i + 30]; value[1].c[3] = buffer[i + 31];
 		vertexBufferOut.push_back(value[0].flt); vertexBufferOut.push_back(value[1].flt);
 
+		//value[0].c[0] = buffer[i + 32]; value[0].c[1] = buffer[i + 33]; value[0].c[2] = buffer[i + 34]; value[0].c[3] = buffer[i + 35];
+		//value[1].c[0] = buffer[i + 36]; value[1].c[1] = buffer[i + 37]; value[1].c[2] = buffer[i + 38]; value[1].c[3] = buffer[i + 39];
+		//vertexBufferOut.push_back(value[0].flt); vertexBufferOut.push_back(value[1].flt);
+
+		//value[0].c[0] = buffer[i + 40]; value[0].c[1] = buffer[i + 41]; value[0].c[2] = buffer[i + 42]; value[0].c[3] = buffer[i + 43];
+		//value[1].c[0] = buffer[i + 44]; value[1].c[1] = buffer[i + 45]; value[1].c[2] = buffer[i + 46]; value[1].c[3] = buffer[i + 47];
+		//vertexBufferOut.push_back(value[0].flt); vertexBufferOut.push_back(value[1].flt);
+
+		//value[0].c[0] = buffer[i + 48]; value[0].c[1] = buffer[i + 49]; value[0].c[2] = buffer[i + 50]; value[0].c[3] = buffer[i + 51];
+		//value[1].c[0] = buffer[i + 52]; value[1].c[1] = buffer[i + 53]; value[1].c[2] = buffer[i + 54]; value[1].c[3] = buffer[i + 55];
+		//vertexBufferOut.push_back(value[0].flt); vertexBufferOut.push_back(value[1].flt);
+
 		value[0].c[0] = buffer[i + 12]; value[0].c[1] = buffer[i + 13]; value[0].c[2] = buffer[i + 14]; value[0].c[3] = buffer[i + 15];
 		value[1].c[0] = buffer[i + 16]; value[1].c[1] = buffer[i + 17]; value[1].c[2] = buffer[i + 18]; value[1].c[3] = buffer[i + 19];
 		value[2].c[0] = buffer[i + 20]; value[2].c[1] = buffer[i + 21]; value[2].c[2] = buffer[i + 22]; value[2].c[3] = buffer[i + 23];
 		vertexBufferOut.push_back(value[0].flt); vertexBufferOut.push_back(value[1].flt); vertexBufferOut.push_back(value[2].flt);
 
-		value[0].c[0] = buffer[i + 32]; value[0].c[1] = buffer[i + 33]; value[0].c[2] = buffer[i + 34]; value[0].c[3] = buffer[i + 35];
-		value[1].c[0] = buffer[i + 36]; value[1].c[1] = buffer[i + 37]; value[1].c[2] = buffer[i + 38]; value[1].c[3] = buffer[i + 39];
-		value[2].c[0] = buffer[i + 40]; value[2].c[1] = buffer[i + 41]; value[2].c[2] = buffer[i + 42]; value[2].c[3] = buffer[i + 43];
-		value[3].c[0] = buffer[i + 44]; value[3].c[1] = buffer[i + 45]; value[3].c[2] = buffer[i + 46]; value[3].c[3] = buffer[i + 47];
+		value[0].c[0] = buffer[i + vertexSize - 20]; value[0].c[1] = buffer[i + vertexSize - 19]; value[0].c[2] = buffer[i + vertexSize - 18]; value[0].c[3] = buffer[i + vertexSize - 17];
+		value[1].c[0] = buffer[i + vertexSize - 16]; value[1].c[1] = buffer[i + vertexSize - 15]; value[1].c[2] = buffer[i + vertexSize - 14]; value[1].c[3] = buffer[i + vertexSize - 13];
+		value[2].c[0] = buffer[i + vertexSize - 12]; value[2].c[1] = buffer[i + vertexSize - 11]; value[2].c[2] = buffer[i + vertexSize - 10]; value[2].c[3] = buffer[i + vertexSize - 9];
+		value[3].c[0] = buffer[i + vertexSize - 8]; value[3].c[1] = buffer[i + vertexSize - 7]; value[3].c[2] = buffer[i + vertexSize - 6]; value[3].c[3] = buffer[i + vertexSize - 5];
 		weightsOut.push_back({ value[0].flt , value[1].flt , value[2].flt ,  value[3].flt });
-		boneIdsOut.push_back({ static_cast<unsigned int>(buffer[i + 48]),  static_cast<unsigned int>(buffer[i + 49]), static_cast<unsigned int>(buffer[i + 50]), static_cast<unsigned int>(buffer[i + 51]) });
+		boneIdsOut.push_back({ static_cast<unsigned int>(buffer[i + vertexSize - 4]),  static_cast<unsigned int>(buffer[i + vertexSize - 3]), static_cast<unsigned int>(buffer[i + vertexSize - 2]), static_cast<unsigned int>(buffer[i + vertexSize - 1]) });
 
 	}
 	delete buffer;
@@ -459,6 +473,8 @@ void Utils::MdlIO::mdlToBuffer(const char* path, std::array<float,3> _scale, std
 
 			GeometryDesc& geomDesc = geomDescs[i][j];
 
+		
+
 			file.read(metaData, sizeof(float));
 			geomDesc.lodDistance = Utils::bytesToFloatLE(metaData[0], metaData[1], metaData[2], metaData[3]);
 
@@ -476,7 +492,6 @@ void Utils::MdlIO::mdlToBuffer(const char* path, std::array<float,3> _scale, std
 
 			file.read(metaData, sizeof(unsigned int));
 			geomDesc.drawCount = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
-
 		}
 	}
 

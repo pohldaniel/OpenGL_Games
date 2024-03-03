@@ -13,7 +13,6 @@ comboAnimsIdx_(0), equipWeapon(false), lMouseB(false){
 	m_model.m_meshes[0]->m_meshBones[0].initialRotation.rotate(0.0f, 0.0f, 0.0f);
 	m_model.m_meshes[0]->createBones();
 	m_model.m_meshes[0]->m_rootBone->SetAnimationEnabled(false);
-	Globals::textureManager.get("null").bind();
 	m_animationController = new AnimationController(&m_model);
 
 	// combo anims
@@ -219,13 +218,13 @@ void CharacterSkinned::draw(const Camera& camera) {
 	glBindBuffer(GL_UNIFORM_BUFFER, BuiltInShader::matrixUbo);
 	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(Matrix4f) * m_model.m_meshes[0]->m_numBones, m_model.m_meshes[0]->m_skinMatrices);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
+	Globals::textureManager.get("null").bind();
 	auto shader = Globals::shaderManager.getAssetPointer("animation_new");
 	shader->use();
 	shader->loadVector("u_light", Vector3f(1.0f, 1.0f, 1.0f));
 	shader->loadMatrix("u_projection", camera.getPerspectiveMatrix());
 	shader->loadMatrix("u_view", camera.getViewMatrix());
-	shader->loadVector("u_color", Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+	shader->loadVector("u_color", Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
 	m_model.drawRaw();
 
 	shader->unuse();

@@ -44,8 +44,4 @@ private:
 	float m_offsetDistance = 10.0f;
 	Utils::MdlIO mdlConverter;
 	Shape m_sword, m_armor;
-
-	std::vector<float> vertexBuffer;
-	std::vector<unsigned int> indexBuffer;
-	
 };
