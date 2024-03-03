@@ -58,7 +58,7 @@ void AnimationState::SetStartBone(Bone* startBone_){
 
 		// Include those tracks that are either the start bone itself, or its children
 		const StringHash& nameHash = it->second.nameHash;
-
+		
 		if (nameHash == startBone->nameHash) {
 			stateTrack.node = startBone;
 		}else {

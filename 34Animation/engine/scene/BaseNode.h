@@ -70,7 +70,6 @@ public:
 	void eraseSelf();
 
 	BaseNode* addChild(BaseNode* node);
-	BaseNode* addChild();
 	const BaseNode* getParent() const;
 	
 protected:

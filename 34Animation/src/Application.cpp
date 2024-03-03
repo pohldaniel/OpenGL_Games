@@ -334,8 +334,8 @@ void Application::initOpenGL(int msaaSamples) {
 
 	ToggleVerticalSync();
 
-	//glDisable(GL_CULL_FACE);
-	glEnable(GL_CULL_FACE);
+	glDisable(GL_CULL_FACE);
+	//glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
 	glFrontFace(GL_CCW);
 
@@ -675,6 +675,7 @@ void Application::loadAssets() {
 	Globals::textureManager.loadTexture("dragon", "res/models/dragon/dragon.png", false);
 	Globals::textureManager.loadTexture("woman", "res/models/woman/Woman.png", false);
 	Globals::textureManager.loadTexture("floor", "res/textures/floor.png", false);
+	Globals::textureManager.loadTexture("sword", "res/models/Girlbot/Textures/maria_diffuse.png", false);
 	Globals::textureManager.createNullTexture("null");
 
 	Globals::fontManager.loadCharacterSet("upheaval_200", "res/fonts/upheavtt.ttf", 200, 10u, 30u, 128u, 0, true, 0u);

@@ -75,4 +75,6 @@ public:
 
 	bool equipWeapon;
 	bool lMouseB;
+
+	Bone *m_rightHandLocatorNode, *m_swordLocatorNode, *m_locatorNode, *m_armorLocatorNode;
 };

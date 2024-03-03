@@ -180,12 +180,6 @@ BaseNode* BaseNode::addChild(BaseNode* node) {
 	return m_children.back().get();
 }
 
-BaseNode* BaseNode::addChild() {
-	m_children.emplace_back(std::make_unique<SceneNode>());
-	m_children.back()->m_parent = this;
-	return m_children.back().get();
-}
-
 const BaseNode* BaseNode::getParent() const {
 	return m_parent;
 }

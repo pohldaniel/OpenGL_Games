@@ -36,7 +36,24 @@ SkinnedArmor::SkinnedArmor(StateMachine& machine) : State(machine, States::CHARA
 	glBindBufferRange(GL_UNIFORM_BUFFER, 3, BuiltInShader::matrixUbo, 0, sizeof(Matrix4f) * 96);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
+	//mdlConverter.mdlToObj("res/models/Girlbot/Sword.mdl", "res/sword.obj", "res/sword.mtl", "res/models/Girlbot/Textures/maria_diffuse.png");
 	//StateMachine::ToggleWireframe();
+
+	BoundingBox box;
+	std::vector<std::vector<Utils::GeometryDesc>> geomDescs;
+	std::vector<std::array<unsigned int, 4>> boneIds;
+	std::vector<std::array<float, 4>> weights;
+	std::vector<std::string> boneList;
+	std::vector<ModelBone> meshBones;
+
+	mdlConverter.mdlToBuffer("res/models/Girlbot/Sword.mdl", 100.0f, vertexBuffer, indexBuffer, weights, boneIds, geomDescs, meshBones, box);
+	m_sword.fromBuffer(vertexBuffer, indexBuffer, 8);
+	vertexBuffer.clear(); vertexBuffer.shrink_to_fit(); indexBuffer.clear(); indexBuffer.shrink_to_fit();
+
+	mdlConverter.mdlToBuffer("res/models/Girlbot/Armor.mdl", 1.0f, vertexBuffer, indexBuffer, weights, boneIds, geomDescs, meshBones, box);
+	m_armor.fromBuffer(vertexBuffer, indexBuffer, 8);
+	vertexBuffer.clear(); vertexBuffer.shrink_to_fit(); indexBuffer.clear(); indexBuffer.shrink_to_fit();
+	
 }
 
 SkinnedArmor::~SkinnedArmor() {
@@ -77,13 +94,26 @@ void SkinnedArmor::render() {
 	shader->use();
 	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
 	shader->loadMatrix("u_view", m_camera.getViewMatrix());
+	shader->loadMatrix("u_model", Matrix4f::IDENTITY);
 	shader->loadInt("u_texture", 1);
 	Globals::textureManager.get("floor").bind(1);
 	Globals::shapeManager.get("floor").drawRaw();
+	
 	shader->unuse();
 
-
 	m_character.draw(m_camera);
+
+	shader->use();
+	
+	Globals::textureManager.get("sword").bind(1);
+	shader->loadMatrix("u_model", m_character.m_locatorNode->getWorldTransformation());
+	m_sword.drawRaw();
+
+	Globals::textureManager.get("sword").bind(1);
+	shader->loadMatrix("u_model", m_character.m_armorLocatorNode->getWorldTransformation());
+	m_armor.drawRaw();
+
+	shader->unuse();
 
 	//DebugRenderer::Get().SetView(&m_camera);
 	//DebugRenderer::Get().AddSkeleton(m_character.m_model.m_meshes[0]->m_bones, m_character.m_model.m_meshes[0]->m_numBones, { 0.0f, 1.0f, 0.0f, 1.0f });
