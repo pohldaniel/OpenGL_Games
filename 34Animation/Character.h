@@ -1,17 +1,14 @@
 #pragma once
 
-#pragma once
-
-#include <unordered_map>
 #include <engine/input/Keyboard.h>
 #include <engine/Camera.h>
 
 #include <Animation/AnimationController.h>
 
-const float INAIR_THRESHOLD_TIME = 0.1f;
-const float MOVE_SPEED = 0.2f;
-
 class Character {
+
+	const float INAIR_THRESHOLD_TIME = 0.1f;
+	const float MOVE_SPEED = 0.2f;
 
 public:
 

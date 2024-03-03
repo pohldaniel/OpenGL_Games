@@ -16,7 +16,7 @@ void AnimationController::Update(float timeStep) {
 
 		AnimationControl& ctrl = animations[i];
 		AnimationState* state = GetAnimationState(ctrl.hash_);
-
+		
 		bool remove = false;
 
 		if (!state) {
@@ -56,11 +56,10 @@ void AnimationController::Update(float timeStep) {
 				fadeTime = ctrl.ragdollRecoverTime_ * 10.0f;
 				//fadeTimeOffset = ctrl.ragdollRecoverTime_ * 10.0f;
 			}
-
+			
 			// Process weight fade
 			float currentWeight =  state->Weight();
 
-			//std::cout << "Name: " << state->GetAnimation()->animationName << " Weight: " << currentWeight << std::endl;
 			if (currentWeight != targetWeight)
 			{
 				if (fadeTime > 0.0f)
@@ -97,8 +96,9 @@ void AnimationController::Update(float timeStep) {
 			}
 
 			// Remove if weight zero and target weight zero
-			if (state->Weight() == 0.0f && (targetWeight == 0.0f || fadeTime == 0.0f) && ctrl.removeOnCompletion_)
+			if (state->Weight() == 0.0f && (targetWeight == 0.0f || fadeTime == 0.0f) && ctrl.removeOnCompletion_) {
 				remove = true;
+			}
 		}
 
 		// Decrement the command time-to-live values
@@ -151,7 +151,7 @@ bool AnimationController::Play(const std::string& name, unsigned char layer, boo
 		animations.push_back(newControl);
 		index = animations.size() - 1;
 	}
-	
+
 	state->SetBlendLayer(layer);
 	state->SetLooped(looped);
 	animations[index].targetWeight_ = 1.0f;
@@ -250,6 +250,7 @@ bool AnimationController::FadeOthers(const std::string& name, float targetWeight
 		{
 			AnimationControl& control = animations[i];
 			AnimationState* otherState = GetAnimationState(control.hash_);
+
 			if (otherState && otherState->BlendLayer() == layer)
 			{
 				control.targetWeight_ = Math::Clamp(targetWeight, 0.0f, 1.0f);
@@ -325,6 +326,7 @@ bool AnimationController::IsAtEnd(const std::string& name) const
 	unsigned index;
 	AnimationState* state;
 	FindAnimation(name, index, state);
+
 	if (index == UINT_MAX || !state)
 		return false;
 	else

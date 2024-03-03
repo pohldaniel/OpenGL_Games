@@ -3,6 +3,10 @@
 
 #include "Utils/SolidIO.h"
 
+static inline bool compareAnimationStates(const std::shared_ptr<AnimationState>& lhs, const std::shared_ptr<AnimationState>& rhs){
+	return lhs->BlendLayer() < rhs->BlendLayer();
+}
+
 const Vector3f& AnimatedModel::getWorldPosition() const {
 	return m_meshes[0]->m_rootBone->getWorldPosition();
 }
@@ -27,7 +31,7 @@ void AnimatedModel::rotate(const float pitch, const float yaw, const float roll)
 	return m_meshes[0]->m_rootBone->rotate(pitch, yaw, roll);
 }
 
-AnimatedModel::AnimatedModel() : m_hasAnimationController(false){
+AnimatedModel::AnimatedModel() : m_hasAnimationController(false), m_animationOrderDirty(false){
 
 }
 
@@ -382,8 +386,7 @@ AnimationState* AnimatedModel::addAnimationState(Animation* animation) {
 		return existing;
 
 	m_meshes[0]->m_animationStates.push_back(std::make_shared<AnimationState>(animation, m_meshes[0]->m_rootBone));
-	//modelDrawable->OnAnimationOrderChanged();
-
+	OnAnimationOrderChanged();
 	return m_meshes[0]->m_animationStates.back().get();
 }
 
@@ -426,13 +429,23 @@ AnimationState* AnimatedModel::findAnimationState(const char* animationName) con
 }
 
 AnimationState* AnimatedModel::findAnimationState(StringHash animationNameHash) const{
-	for (auto it = m_meshes[0]->m_animationStates.begin(); it != m_meshes[0]->m_animationStates.end(); ++it){
-		Animation* animation = (*it)->GetAnimation();
-		if (animation->animationNameHash == animationNameHash)
-			return (*it).get();
-	}
 
-	return nullptr;
+	//std::cout << "Size: " << m_meshes[0]->m_animationStates.size() << std::endl;
+
+	AnimationState* state = nullptr;
+
+	for (auto it = m_meshes[0]->m_animationStates.begin(); it != m_meshes[0]->m_animationStates.end(); ++it){
+		//std::cout << "State Pointer: " << (*it) << std::endl;
+		
+		Animation* animation = (*it)->GetAnimation();
+		if (animation->animationNameHash == animationNameHash) {
+			state = (*it).get();
+			//return (*it).get();
+		}
+			
+	}
+	//std::cout << "---------" << std::endl;
+	return state;
 }
 
 void AnimatedModel::removeAnimationState(Animation* animation){
@@ -485,6 +498,10 @@ void AnimatedModel::removeAllAnimationStates(){
 	}
 }
 
+void AnimatedModel::OnAnimationOrderChanged() {
+	m_animationOrderDirty = true;
+}
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void AnimatedMesh::drawRaw() {
 	glBindVertexArray(m_vao);
@@ -493,6 +510,12 @@ void AnimatedMesh::drawRaw() {
 }
 
 void AnimatedMesh::update(float dt) {
+
+	if (m_model->m_animationOrderDirty) {
+		std::sort(m_animationStates.begin(), m_animationStates.end(), compareAnimationStates);
+		m_model->m_animationOrderDirty = false;
+	}
+
 	for (size_t i = 0; i < m_numBones; ++i) {
 		Bone* bone = m_bones[i];
 		const ModelBone& modelBone = m_meshBones[i];
@@ -516,6 +539,7 @@ void AnimatedMesh::update(float dt) {
 			}
 		}
 	}
+
 }
 
 void AnimatedMesh::updateSkinning() {

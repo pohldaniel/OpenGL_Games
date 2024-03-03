@@ -276,8 +276,6 @@ void AnimationState::Apply(){
 
 void AnimationState::ApplyToModel(){
 	 
-	//std::cout << "Name: " << animation->animationName << " Weight: " << m_blendWeight  << std::endl;
-
 	for (auto it = stateTracks.begin(); it != stateTracks.end(); ++it){
 		AnimationStateTrack& stateTrack = *it;
 		const AnimationTrack* track = stateTrack.track;
@@ -344,7 +342,7 @@ void AnimationState::ApplyToModel(){
 			if (track->channelMask & CHANNEL_ROTATION){
 				newRotation = (newRotation * stateTrack.m_initialOrientation * bone->getOrientation());
 				//newRotation.normalize();
-				if (!Math::Equals(m_blendWeight, 1.0f))
+				if (!Math::Equals(finalWeight, 1.0f))
 					newRotation = Quaternion::SLerp2(bone->getOrientation(), newRotation, finalWeight);				
 			}
 
@@ -354,13 +352,13 @@ void AnimationState::ApplyToModel(){
 			}
 
 		}else {
-			if (m_blendWeight < 1.0f){
+			if (finalWeight < 1.0f){
 				if(track->channelMask & CHANNEL_POSITION)
-					newPosition = Math::Lerp(bone->getPosition(), newPosition, m_blendWeight);
+					newPosition = Math::Lerp(bone->getPosition(), newPosition, finalWeight);
 				if(track->channelMask & CHANNEL_ROTATION)
-					newRotation = Quaternion::SLerp2(bone->getOrientation(), newRotation, m_blendWeight);
+					newRotation = Quaternion::SLerp2(bone->getOrientation(), newRotation, finalWeight);
 				if (track->channelMask & CHANNEL_SCALE)
-					newScale = Math::Lerp(bone->getScale(), newScale, m_blendWeight);
+					newScale = Math::Lerp(bone->getScale(), newScale, finalWeight);
 			}		
 		}
 

@@ -166,6 +166,7 @@
   <ItemGroup>
     <ClCompile Include="Bone.cpp" />
     <ClCompile Include="Character.cpp" />
+    <ClCompile Include="CharacterSkinned.cpp" />
     <ClCompile Include="engine\animation\AssimpAnimatedModel.cpp" />
     <ClCompile Include="engine\animation\AssimpAnimation.cpp" />
     <ClCompile Include="engine\animation\AssimpAnimator.cpp" />
@@ -202,6 +203,7 @@
     <ClCompile Include="src\States\Default.cpp" />
     <ClCompile Include="src\States\Game.cpp" />
     <ClCompile Include="src\States\Settings.cpp" />
+    <ClCompile Include="src\States\SkinnedArmor.cpp" />
     <ClCompile Include="src\States\StateMachine.cpp" />
     <ClCompile Include="src\TileSet.cpp" />
     <ClCompile Include="src\Utils\Rasterizer.cpp" />
@@ -279,6 +281,7 @@
   <ItemGroup>
     <ClInclude Include="Bone.h" />
     <ClInclude Include="Character.h" />
+    <ClInclude Include="CharacterSkinned.h" />
     <ClInclude Include="engine\animation\AssimpAnimatedModel.h" />
     <ClInclude Include="engine\animation\AssimpAnimation.h" />
     <ClInclude Include="engine\animation\AssimpAnimator.h" />
@@ -372,6 +375,7 @@
     <ClInclude Include="src\States\Default.h" />
     <ClInclude Include="src\States\Game.h" />
     <ClInclude Include="src\States\Settings.h" />
+    <ClInclude Include="src\States\SkinnedArmor.h" />
     <ClInclude Include="src\States\StateMachine.h" />
     <ClInclude Include="src\TileSet.h" />
     <ClInclude Include="src\Utils\Rasterizer.h" />

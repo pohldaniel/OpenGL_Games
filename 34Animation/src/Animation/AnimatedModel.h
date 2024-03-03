@@ -58,6 +58,7 @@ public:
 	void removeAnimationState(AnimationState* state);
 	void removeAnimationState(size_t index);
 	void removeAllAnimationStates();
+	void OnAnimationOrderChanged();
 
 	const Vector3f& getWorldPosition() const;
 	const Vector3f& getWorldScale() const;
@@ -73,6 +74,7 @@ public:
 	aiNode* searchNode(aiNode *node, std::vector<std::string> &boneList);
 	void fetchAiHierarchy(aiNode *node, std::vector<ModelBone>& meshBones, int parentIndex = 0);
 	static void CreateBuffer(std::vector<float>& vertexBuffer, std::vector<unsigned int> indexBuffer, unsigned int& vao, unsigned int(&vbo)[3], unsigned int& ibo, unsigned int stride, std::vector<std::array<float, 4>>& weights, std::vector<std::array<unsigned int, 4>>& boneIds);
+	bool m_animationOrderDirty;
 };
 
 class AnimatedMesh {
@@ -87,6 +89,7 @@ public:
 	void drawRaw();
 	void update(float dt);
 	void updateSkinning();
+	
 
 	AnimatedModel* m_model;
 	std::vector<std::shared_ptr<AnimationState>> m_animationStates;
@@ -120,4 +123,5 @@ public:
 
 	mutable short m_materialIndex;
 	mutable short m_textureIndex;
+	
 };

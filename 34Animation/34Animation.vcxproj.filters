@@ -399,6 +399,12 @@
     <ClCompile Include="src\States\CharacterState.cpp">
       <Filter>Source Files\States</Filter>
     </ClCompile>
+    <ClCompile Include="src\States\SkinnedArmor.cpp">
+      <Filter>Source Files\States</Filter>
+    </ClCompile>
+    <ClCompile Include="CharacterSkinned.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="convhull\convhull_3d.h">
@@ -766,6 +772,12 @@
     </ClInclude>
     <ClInclude Include="src\States\CharacterState.h">
       <Filter>Source Files\States</Filter>
+    </ClInclude>
+    <ClInclude Include="src\States\SkinnedArmor.h">
+      <Filter>Source Files\States</Filter>
+    </ClInclude>
+    <ClInclude Include="CharacterSkinned.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

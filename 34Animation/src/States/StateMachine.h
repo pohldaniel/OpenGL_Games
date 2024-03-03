@@ -8,7 +8,8 @@ enum States {
 	CONTROLLS,
 	DEFAULT,
 	GAME,
-	CHARACTER
+	CHARACTER,
+	SKINNED_ARMOR
 };
 
 class State;

@@ -15,6 +15,7 @@
 #include <States/Menu.h>
 #include <States/Game.h>
 #include <States/CharacterState.h>
+#include <States/SkinnedArmor.h>
 #include <UI/Widget.h>
 
 #include "Application.h"
@@ -411,7 +412,8 @@ void Application::initStates() {
 	Machine = new StateMachine(m_dt, m_fdt);
 	//Machine->addStateAtTop(new Default(*Machine));
 	//Machine->addStateAtTop(new Game(*Machine));
-	Machine->addStateAtTop(new CharacterState(*Machine));
+	//Machine->addStateAtTop(new CharacterState(*Machine));
+	Machine->addStateAtTop(new SkinnedArmor(*Machine));	
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -700,7 +702,20 @@ void Application::loadAssets() {
 	Globals::animationManagerNew.loadAnimationAni("beta_idle", "res/models/BetaLowpoly/Beta_Idle.ani");
 	Globals::animationManagerNew.loadAnimationAni("beta_run", "res/models/BetaLowpoly/Beta_Run.ani");
 	Globals::animationManagerNew.loadAnimationAni("beta_jump_start", "res/models/BetaLowpoly/Beta_JumpStart.ani");
-	Globals::animationManagerNew.loadAnimationAni("beta_jump_loop", "res/models/BetaLowpoly/Beta_JumpLoop1.ani");
+	Globals::animationManagerNew.loadAnimationAni("beta_jump_loop", "res/models/BetaLowpoly/Beta_JumpLoop.ani");
+
+	Globals::animationManagerNew.loadAnimationAni("girl_idle", "res/models/Girlbot/Girlbot_Idle.ani");
+	Globals::animationManagerNew.loadAnimationAni("girl_run", "res/models/Girlbot/Girlbot_Run.ani");
+	Globals::animationManagerNew.loadAnimationAni("girl_jump_start", "res/models/Girlbot/Girlbot_JumpStart.ani");
+	Globals::animationManagerNew.loadAnimationAni("girl_jump_loop", "res/models/Girlbot/Girlbot_JumpLoop.ani");
+	Globals::animationManagerNew.loadAnimationAni("girl_equiped_idle", "res/models/Girlbot/Girlbot_EquipIdleLY.ani");
+
+	Globals::animationManagerNew.loadAnimationAni("girl_slash_1", "res/models/Girlbot/Girlbot_SlashCombo1.ani");
+	Globals::animationManagerNew.loadAnimationAni("girl_slash_2", "res/models/Girlbot/Girlbot_SlashCombo2.ani");
+	Globals::animationManagerNew.loadAnimationAni("girl_slash_3", "res/models/Girlbot/Girlbot_SlashCombo3.ani");
+
+	Globals::animationManagerNew.loadAnimationAni("girl_sheath", "res/models/Girlbot/Girlbot_SheathLY.ani");
+	Globals::animationManagerNew.loadAnimationAni("girl_unsheath", "res/models/Girlbot/Girlbot_UnSheathLY.ani");
 
 	Globals::animationManagerNew.loadAnimationAssimp("both_wing", "res/models/dragon/dragon.dae", "both_wing", "both_wing");
 	Globals::animationManagerNew.loadAnimationAssimp("right_wing", "res/models/dragon/dragon.dae", "right_wing", "right_wing");
