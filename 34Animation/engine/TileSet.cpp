@@ -1,8 +1,7 @@
 #include <iterator>
-#include <engine/Texture.h>
-#include <engine/Spritesheet.h>
-
 #include "TileSet.h"
+#include "Texture.h"
+#include "Spritesheet.h"
 
 TextureAtlasCreator TextureAtlasCreator::s_instance;
 

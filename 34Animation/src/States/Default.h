@@ -3,10 +3,11 @@
 #include <engine/input/MouseEventListener.h>
 #include <engine/input/KeyboardEventListener.h>
 #include <engine/Camera.h>
+#include <engine/Background.h>
 
 #include <States/StateMachine.h>
 
-#include "Background.h"
+
 
 class Default : public State, public MouseEventListener, public KeyboardEventListener {
 

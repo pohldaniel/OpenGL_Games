@@ -1,6 +1,6 @@
-#include "ModelBone.h"
+#include "MeshBone.h"
 
-ModelBone::ModelBone() :
+MeshBone::MeshBone() :
 	initialPosition(Vector3f::ZERO),
 	initialRotation(Quaternion::IDENTITY),
 	initialScale(Vector3f::ONE),
@@ -12,14 +12,14 @@ ModelBone::ModelBone() :
 {
 }
 
-ModelBone::~ModelBone()
+MeshBone::~MeshBone()
 {
 }
 
-void ModelBone::scale(const float sx, const float sy, const float sz) {
+void MeshBone::scale(const float sx, const float sy, const float sz) {
 	offsetMatrix *= Matrix4f::Scale(sx, sy, sz);
 }
 
-void ModelBone::rotate(const float pitch, const float yaw, const float roll) {
+void MeshBone::rotate(const float pitch, const float yaw, const float roll) {
 	offsetMatrix *= Matrix4f::Rotate(pitch, yaw, roll);
 }

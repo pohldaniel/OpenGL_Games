@@ -243,12 +243,6 @@
     <ClCompile Include="engine\Pixelbuffer.cpp">
       <Filter>engine</Filter>
     </ClCompile>
-    <ClCompile Include="src\Background.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\RandomColor.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="engine\collision\Collision.cpp">
       <Filter>engine\collision</Filter>
     </ClCompile>
@@ -260,12 +254,6 @@
     </ClCompile>
     <ClCompile Include="src\Utils\Rasterizer.cpp">
       <Filter>Source Files\Utils</Filter>
-    </ClCompile>
-    <ClCompile Include="src\MousePickerFBO.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\TileSet.cpp">
-      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\LoadingManager.cpp">
       <Filter>Source Files</Filter>
@@ -342,9 +330,6 @@
     <ClCompile Include="src\States\Game.cpp">
       <Filter>Source Files\States</Filter>
     </ClCompile>
-    <ClCompile Include="ModelBone.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\Animation\AnimatedModel.cpp">
       <Filter>Source Files\Animation</Filter>
     </ClCompile>
@@ -357,17 +342,11 @@
     <ClCompile Include="src\Animation\AnimationController.cpp">
       <Filter>Source Files\Animation</Filter>
     </ClCompile>
-    <ClCompile Include="Character.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\States\CharacterState.cpp">
       <Filter>Source Files\States</Filter>
     </ClCompile>
     <ClCompile Include="src\States\SkinnedArmor.cpp">
       <Filter>Source Files\States</Filter>
-    </ClCompile>
-    <ClCompile Include="CharacterSkinned.cpp">
-      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="engine\utils\StringHash.cpp">
       <Filter>engine\utils</Filter>
@@ -407,6 +386,27 @@
     </ClCompile>
     <ClCompile Include="engine\ui\Widget.cpp">
       <Filter>engine\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\RandomColor.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\TileSet.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\MousePickerFBO.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\Background.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Character.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\CharacterSkinned.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\MeshBone.cpp">
+      <Filter>engine</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -617,18 +617,6 @@
     <ClInclude Include="src\Application.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\RandomColor.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Background.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\MousePickerFBO.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\TileSet.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="engine\interfaces\IStateMachine.h">
       <Filter>engine\interfaces</Filter>
     </ClInclude>
@@ -716,9 +704,6 @@
     <ClInclude Include="src\States\Game.h">
       <Filter>Source Files\States</Filter>
     </ClInclude>
-    <ClInclude Include="ModelBone.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\Animation\AnimatedModel.h">
       <Filter>Source Files\Animation</Filter>
     </ClInclude>
@@ -731,17 +716,11 @@
     <ClInclude Include="src\Animation\AnimationController.h">
       <Filter>Source Files\Animation</Filter>
     </ClInclude>
-    <ClInclude Include="Character.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\States\CharacterState.h">
       <Filter>Source Files\States</Filter>
     </ClInclude>
     <ClInclude Include="src\States\SkinnedArmor.h">
       <Filter>Source Files\States</Filter>
-    </ClInclude>
-    <ClInclude Include="CharacterSkinned.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="engine\utils\StringHash.h">
       <Filter>engine\utils</Filter>
@@ -781,6 +760,27 @@
     </ClInclude>
     <ClInclude Include="engine\ui\Widget.h">
       <Filter>engine\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\RandomColor.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\TileSet.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\MousePickerFBO.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\Background.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Character.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\CharacterSkinned.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\MeshBone.h">
+      <Filter>engine</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

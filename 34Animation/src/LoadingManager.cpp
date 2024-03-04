@@ -1,6 +1,4 @@
 #include "Loadingmanager.h"
-#include "TileSet.h"
-#include <iostream>
 
 Task::Task(){
 

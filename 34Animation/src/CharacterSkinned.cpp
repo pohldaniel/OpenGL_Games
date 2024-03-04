@@ -34,7 +34,7 @@ comboAnimsIdx_(0), equipWeapon(false), lMouseB(false){
 	std::vector<std::array<unsigned int, 4>> boneIds;
 	std::vector<std::array<float, 4>> weights;
 	std::vector<std::string> boneList;
-	std::vector<ModelBone> meshBones;
+	std::vector<MeshBone> meshBones;
 	BoundingBox box;
 
 	Utils::MdlIO mdlConverter;

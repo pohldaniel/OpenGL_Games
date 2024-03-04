@@ -11,9 +11,9 @@
 #include <assimp/postprocess.h>
 
 #include <engine/Vector.h>
+#include <engine/MeshBone.h>
 #include <engine/scene/BoneNode.h>
 
-#include "ModelBone.h"
 #include "AnimationState.h"
 
 struct WeightData {
@@ -72,7 +72,7 @@ public:
 //private:
 
 	aiNode* searchNode(aiNode *node, std::vector<std::string> &boneList);
-	void fetchAiHierarchy(aiNode *node, std::vector<ModelBone>& meshBones, int parentIndex = 0);
+	void fetchAiHierarchy(aiNode *node, std::vector<MeshBone>& meshBones, int parentIndex = 0);
 	static void CreateBuffer(std::vector<float>& vertexBuffer, std::vector<unsigned int> indexBuffer, unsigned int& vao, unsigned int(&vbo)[3], unsigned int& ibo, unsigned int stride, std::vector<std::array<float, 4>>& weights, std::vector<std::array<unsigned int, 4>>& boneIds);
 	bool m_animationOrderDirty;
 };
@@ -115,7 +115,7 @@ public:
 	std::vector<std::array<unsigned int, 4>> m_boneIds;
 	std::vector<std::array<float, 4>> m_weights;
 	std::vector<std::string> m_boneList;
-	std::vector<ModelBone> m_meshBones;
+	std::vector<MeshBone> m_meshBones;
 
 	bool m_hasTextureCoords, m_hasNormals, m_hasTangents;
 	unsigned int m_numberOfTriangles, m_stride, m_baseVertex, m_baseIndex;

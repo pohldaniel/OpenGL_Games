@@ -1,9 +1,9 @@
 #pragma once
 
 #include <memory>
-#include <engine/Texture.h>
-#include <engine/Vector.h>
-#include <engine/Shader.h>
+#include "Texture.h"
+#include "Vector.h"
+#include "Shader.h"
 
 #define BACKGROUND_VERTEX	"#version 410 core										\n \
 																					\n \
@@ -49,18 +49,21 @@ struct BackgroundLayer {
 
 	void init(Texture* texture, unsigned int zoomX, float speed = 1.0f, float offset = 0.0f, Vector2f textureOffsetY = Vector2f(0.0f, 1.0f));
 	void addOffset(float offset);
-	void draw(Shader* shader);
+	void draw(Shader* shader, unsigned int width);
 
 	Texture* m_texture;
 	unsigned int m_zoomX;
 	float m_speed;
 	float m_offset;
 	
+	static void Init();
 
 private:
 
 	float clampOffset(float input);
 	std::vector<Vector4f> m_textureRects;
+	static unsigned int Vao;
+	static unsigned int Vbo;
 	
 };
 
@@ -77,10 +80,13 @@ public:
 	void addLayer(BackgroundLayer layer);
 	void setLayer(std::vector<BackgroundLayer>& layer);
 	void setSpeed(float speed);
+	void resize(unsigned int width, unsigned int height);
 
 private:
 
 	std::vector<BackgroundLayer> m_layer;
 	static std::unique_ptr<Shader> s_shader;
 	float m_speed;
+	unsigned int m_width;
+	unsigned int m_height;
 };

@@ -6,7 +6,6 @@
 #include "BoundingBox.h"
 
 #include "scene/BoneNode.h"
-#include "ModelBone.h"
 
 
 #define DEBUG_VERTEX       "#version 410 core                                 \n \

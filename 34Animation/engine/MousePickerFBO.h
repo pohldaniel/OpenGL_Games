@@ -1,12 +1,12 @@
 #pragma once
 
-#include <engine/Camera.h>
-#include <engine/Framebuffer.h>
+#include "Camera.h"
+#include "Framebuffer.h"
 
 class MousePickerFBO {
 
 public:
-	MousePickerFBO();
+	MousePickerFBO(unsigned int width, unsigned int height);
 
 	void updateObjectId(unsigned int posX, unsigned int posY);
 	unsigned int getPickedId() const;
@@ -29,4 +29,5 @@ private:
 	unsigned int pboIds[2];
 	int index = 0;
 	int nextIndex = 0;
+	unsigned int m_width, m_height;
 };

@@ -23,7 +23,7 @@ Default::Default(StateMachine& machine) : State(machine, States::DEFAULT) {
 
 	glClearColor(0.494f, 0.686f, 0.796f, 1.0f);
 	glClearDepth(1.0f);
-
+	m_background.resize(Application::Width, Application::Height);
 	m_background.setLayer(std::vector<BackgroundLayer>{
 		{ &Globals::textureManager.get("forest_1"), 1, 1.0f },
 		{ &Globals::textureManager.get("forest_2"), 1, 2.0f },

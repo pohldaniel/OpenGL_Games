@@ -7,8 +7,8 @@
 #include <algorithm>
 #include <unordered_map>
 
-#include <engine/Rect.h>
-#include <engine/CharacterSet.h>
+#include "Rect.h"
+#include "CharacterSet.h"
 
 struct TextureAtlasCreator {
 

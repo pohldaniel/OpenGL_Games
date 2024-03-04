@@ -45,7 +45,7 @@ SkinnedArmor::SkinnedArmor(StateMachine& machine) : State(machine, States::CHARA
 	std::vector<std::array<unsigned int, 4>> boneIds;
 	std::vector<std::array<float, 4>> weights;
 	std::vector<std::string> boneList;
-	std::vector<ModelBone> meshBones;
+	std::vector<MeshBone> meshBones;
 
 	//mdlConverter.mdlToBuffer("res/models/Girlbot/Sword.mdl", 100.0f, vertexBuffer, indexBuffer, weights, boneIds, geomDescs, meshBones, box);
 	//m_sword.fromBuffer(vertexBuffer, indexBuffer, 8);

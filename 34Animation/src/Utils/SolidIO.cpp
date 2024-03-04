@@ -358,11 +358,11 @@ void Utils::MdlIO::mdlToObj(const char* path, const char* outFileObj, const char
 	fileOut.close();
 }
 
-void Utils::MdlIO::mdlToBuffer(const char* path, float scale, std::vector<float>& vertexBufferOut, std::vector<unsigned int>& indexBufferOut, std::vector<std::array<float, 4>>& weightsOut, std::vector<std::array<unsigned int, 4>>& boneIdsOut, std::vector<std::vector<GeometryDesc>>& geomDescs, std::vector<ModelBone>& bones, BoundingBox& boundingBox) {
+void Utils::MdlIO::mdlToBuffer(const char* path, float scale, std::vector<float>& vertexBufferOut, std::vector<unsigned int>& indexBufferOut, std::vector<std::array<float, 4>>& weightsOut, std::vector<std::array<unsigned int, 4>>& boneIdsOut, std::vector<std::vector<GeometryDesc>>& geomDescs, std::vector<MeshBone>& bones, BoundingBox& boundingBox) {
 	mdlToBuffer(path, { scale, scale, scale }, vertexBufferOut, indexBufferOut, weightsOut, boneIdsOut, geomDescs, bones, boundingBox);
 }
 
-void Utils::MdlIO::mdlToBuffer(const char* path, std::array<float,3> _scale, std::vector<float>& vertexBufferOut, std::vector<unsigned int>& indexBufferOut, std::vector<std::array<float, 4>>& weightsOut, std::vector<std::array<unsigned int, 4>>& boneIdsOut, std::vector<std::vector<GeometryDesc>>& geomDescs, std::vector<ModelBone>& bones, BoundingBox& boundingBox) {
+void Utils::MdlIO::mdlToBuffer(const char* path, std::array<float,3> _scale, std::vector<float>& vertexBufferOut, std::vector<unsigned int>& indexBufferOut, std::vector<std::array<float, 4>>& weightsOut, std::vector<std::array<unsigned int, 4>>& boneIdsOut, std::vector<std::vector<GeometryDesc>>& geomDescs, std::vector<MeshBone>& bones, BoundingBox& boundingBox) {
 	std::ifstream file(path, std::ios::binary);
 
 	std::string ret;
@@ -505,7 +505,7 @@ void Utils::MdlIO::mdlToBuffer(const char* path, std::array<float,3> _scale, std
 	bones.resize(numBones);
 
 	for (size_t i = 0; i < numBones; ++i) {
-		ModelBone& bone = bones[i];
+		MeshBone& bone = bones[i];
 
 		std::string boneName;
 		while (true) {

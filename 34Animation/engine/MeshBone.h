@@ -1,12 +1,12 @@
 #pragma once
 
-#include <engine/BoundingBox.h>
-#include <engine/utils/StringHash.h>
+#include "BoundingBox.h"
+#include "utils/StringHash.h"
 
-struct ModelBone {
+struct MeshBone {
 
-	ModelBone();
-	~ModelBone();
+	MeshBone();
+	~MeshBone();
 	std::string name;
 	StringHash nameHash;
 	Vector3f initialPosition;

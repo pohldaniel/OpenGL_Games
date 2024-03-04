@@ -164,16 +164,18 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Character.cpp" />
-    <ClCompile Include="CharacterSkinned.cpp" />
     <ClCompile Include="engine\animation\AssimpAnimatedModel.cpp" />
     <ClCompile Include="engine\animation\AssimpAnimation.cpp" />
     <ClCompile Include="engine\animation\AssimpAnimator.cpp" />
     <ClCompile Include="engine\animation\render\AnimationShader.cpp" />
     <ClCompile Include="engine\AssimpModel.cpp" />
+    <ClCompile Include="engine\Background.cpp" />
     <ClCompile Include="engine\BoundingBox.cpp" />
     <ClCompile Include="engine\DebugRenderer.cpp" />
+    <ClCompile Include="engine\MeshBone.cpp" />
     <ClCompile Include="engine\MeshSequence.cpp" />
+    <ClCompile Include="engine\MousePickerFBO.cpp" />
+    <ClCompile Include="engine\RandomColor.cpp" />
     <ClCompile Include="engine\scene\BaseNode.cpp" />
     <ClCompile Include="engine\scene\BoneNode.cpp" />
     <ClCompile Include="engine\scene\MeshNode.cpp" />
@@ -190,6 +192,7 @@
     <ClCompile Include="engine\thread\EventClass.cpp" />
     <ClCompile Include="engine\thread\MutexClass.cpp" />
     <ClCompile Include="engine\thread\Thread.cpp" />
+    <ClCompile Include="engine\TileSet.cpp" />
     <ClCompile Include="engine\ui\Button.cpp" />
     <ClCompile Include="engine\ui\CheckBox.cpp" />
     <ClCompile Include="engine\ui\SeekerBar.cpp" />
@@ -199,13 +202,13 @@
     <ClCompile Include="engine\utils\StringUtils.cpp" />
     <ClCompile Include="engine\utils\Utils.cpp" />
     <ClCompile Include="engine\ZoomableQuad.cpp" />
-    <ClCompile Include="ModelBone.cpp" />
     <ClCompile Include="src\Animation\AnimatedModel.cpp" />
     <ClCompile Include="src\Animation\Animation.cpp" />
     <ClCompile Include="src\Animation\AnimationController.cpp" />
     <ClCompile Include="src\Animation\AnimationState.cpp" />
+    <ClCompile Include="src\Character.cpp" />
+    <ClCompile Include="src\CharacterSkinned.cpp" />
     <ClCompile Include="src\LoadingManager.cpp" />
-    <ClCompile Include="src\MousePickerFBO.cpp" />
     <ClCompile Include="src\States\CharacterState.cpp" />
     <ClCompile Include="src\States\Controlls.cpp" />
     <ClCompile Include="src\States\Default.cpp" />
@@ -213,7 +216,6 @@
     <ClCompile Include="src\States\Settings.cpp" />
     <ClCompile Include="src\States\SkinnedArmor.cpp" />
     <ClCompile Include="src\States\StateMachine.cpp" />
-    <ClCompile Include="src\TileSet.cpp" />
     <ClCompile Include="src\Utils\Rasterizer.cpp" />
     <ClCompile Include="engine\ArrayBuffer.cpp" />
     <ClCompile Include="engine\Batchrenderer.cpp" />
@@ -272,21 +274,18 @@
     <ClCompile Include="Physics\ShapeDrawer.cpp" />
     <ClCompile Include="Physics\StaticTrigger.cpp" />
     <ClCompile Include="src\Application.cpp" />
-    <ClCompile Include="src\Background.cpp" />
     <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\RandomColor.cpp" />
     <ClCompile Include="src\States\Menu.cpp" />
     <ClCompile Include="src\Utils\SolidIO.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Character.h" />
-    <ClInclude Include="CharacterSkinned.h" />
     <ClInclude Include="engine\animation\AssimpAnimatedModel.h" />
     <ClInclude Include="engine\animation\AssimpAnimation.h" />
     <ClInclude Include="engine\animation\AssimpAnimator.h" />
     <ClInclude Include="engine\animation\render\AnimationShader.h" />
     <ClInclude Include="engine\ArrayBuffer.h" />
     <ClInclude Include="engine\AssimpModel.h" />
+    <ClInclude Include="engine\Background.h" />
     <ClInclude Include="engine\BoundingBox.h" />
     <ClInclude Include="engine\collision\Collider.h" />
     <ClInclude Include="engine\collision\Collision.h" />
@@ -295,7 +294,9 @@
     <ClInclude Include="engine\input\Mouse.h" />
     <ClInclude Include="engine\interfaces\ICounter.h" />
     <ClInclude Include="engine\interfaces\IStateMachine.h" />
+    <ClInclude Include="engine\MeshBone.h" />
     <ClInclude Include="engine\MeshSequence.h" />
+    <ClInclude Include="engine\MousePickerFBO.h" />
     <ClInclude Include="engine\OctreeNew.h" />
     <ClInclude Include="convhull\convhull_3d.h" />
     <ClInclude Include="engine\AssetManger.h" />
@@ -330,6 +331,7 @@
     <ClInclude Include="engine\Pixelbuffer.h" />
     <ClInclude Include="engine\Quad.h" />
     <ClInclude Include="engine\Random.h" />
+    <ClInclude Include="engine\RandomColor.h" />
     <ClInclude Include="engine\Rect.h" />
     <ClInclude Include="engine\scene\BaseNode.h" />
     <ClInclude Include="engine\scene\BoneNode.h" />
@@ -354,6 +356,7 @@
     <ClInclude Include="engine\thread\EventClass.h" />
     <ClInclude Include="engine\thread\MutexClass.h" />
     <ClInclude Include="engine\thread\Thread.h" />
+    <ClInclude Include="engine\TileSet.h" />
     <ClInclude Include="engine\TrackBall.h" />
     <ClInclude Include="engine\Transform.h" />
     <ClInclude Include="engine\ui\Button.h" />
@@ -367,17 +370,15 @@
     <ClInclude Include="engine\Vector.h" />
     <ClInclude Include="engine\VolumeBuffer.h" />
     <ClInclude Include="engine\ZoomableQuad.h" />
-    <ClInclude Include="ModelBone.h" />
     <ClInclude Include="src\Animation\AnimatedModel.h" />
     <ClInclude Include="src\Animation\Animation.h" />
     <ClInclude Include="src\Animation\AnimationController.h" />
     <ClInclude Include="src\Animation\AnimationState.h" />
     <ClInclude Include="src\Application.h" />
-    <ClInclude Include="src\Background.h" />
+    <ClInclude Include="src\Character.h" />
+    <ClInclude Include="src\CharacterSkinned.h" />
     <ClInclude Include="src\Globals.h" />
     <ClInclude Include="src\LoadingManager.h" />
-    <ClInclude Include="src\MousePickerFBO.h" />
-    <ClInclude Include="src\RandomColor.h" />
     <ClInclude Include="src\States\CharacterState.h" />
     <ClInclude Include="src\States\Controls.h" />
     <ClInclude Include="src\States\Default.h" />
@@ -385,7 +386,6 @@
     <ClInclude Include="src\States\Settings.h" />
     <ClInclude Include="src\States\SkinnedArmor.h" />
     <ClInclude Include="src\States\StateMachine.h" />
-    <ClInclude Include="src\TileSet.h" />
     <ClInclude Include="src\Utils\Rasterizer.h" />
     <ClInclude Include="Physics\BspConverter.h" />
     <ClInclude Include="Physics\BspLoader.h" />

@@ -2,10 +2,10 @@
 #include <GL/glew.h>
 
 #include <Memory>
-#include "engine/Shader.h"
-#include "engine/Camera.h"
+#include <engine/Shader.h>
+#include <engine/Camera.h>
+#include <engine/RandomColor.h>
 #include "Physics.h"
-#include "RandomColor.h"
 
 #define SHAPEDRAWER_VERTEX	"#version 410 core															\n \
 																										\n \

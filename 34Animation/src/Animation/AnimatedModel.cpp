@@ -74,7 +74,7 @@ void AnimatedModel::loadModelAssimp(const std::string& path, const short addVirt
 
 			if (reverseBoneList) {
 				for (int boneIndex = aiMesh->mNumBones - 1; boneIndex >= 0; boneIndex--) {
-					ModelBone& _bone = mesh->m_meshBones[(aiMesh->mNumBones - 1) - boneIndex];
+					MeshBone& _bone = mesh->m_meshBones[(aiMesh->mNumBones - 1) - boneIndex];
 
 					aiBone *bone = aiMesh->mBones[boneIndex];
 					const std::string boneName = bone->mName.C_Str();
@@ -95,7 +95,7 @@ void AnimatedModel::loadModelAssimp(const std::string& path, const short addVirt
 				}
 			}else {
 				for (unsigned int boneIndex = 0; boneIndex < aiMesh->mNumBones; boneIndex++) {
-					ModelBone& _bone = mesh->m_meshBones[boneIndex];
+					MeshBone& _bone = mesh->m_meshBones[boneIndex];
 
 					aiBone *bone = aiMesh->mBones[boneIndex];
 					const std::string boneName = bone->mName.C_Str();
@@ -148,7 +148,7 @@ void AnimatedModel::loadModelAssimp(const std::string& path, const short addVirt
 
 			aiNode *meshRootNode = searchNode(pScene->mRootNode, mesh->m_boneList);
 
-			std::vector<ModelBone>::iterator it = std::find_if(mesh->m_meshBones.begin(), mesh->m_meshBones.end(), [meshRootNode](ModelBone& _node) { return strcmp(meshRootNode->mName.C_Str(), _node.name.c_str()) == 0; });
+			std::vector<MeshBone>::iterator it = std::find_if(mesh->m_meshBones.begin(), mesh->m_meshBones.end(), [meshRootNode](MeshBone& meshBone) { return strcmp(meshRootNode->mName.C_Str(), meshBone.name.c_str()) == 0; });
 
 			fetchAiHierarchy(meshRootNode, mesh->m_meshBones, static_cast<int>(std::distance(mesh->m_meshBones.begin(), it)));
 		}
@@ -166,16 +166,16 @@ void AnimatedModel::loadModelAssimp(const std::string& path, const short addVirt
 		if (addVirtualRoots) {
 			
 			for (size_t i = 0; i < mesh->m_meshBones.size(); ++i) {
-				ModelBone& modelBone = mesh->m_meshBones[i];
-				if (modelBone.parentIndex != i) {
-					modelBone.parentIndex = modelBone.parentIndex + addVirtualRoots;
+				MeshBone& meshBone = mesh->m_meshBones[i];
+				if (meshBone.parentIndex != i) {
+					meshBone.parentIndex = meshBone.parentIndex + addVirtualRoots;
 				}else {
-					modelBone.parentIndex = (addVirtualRoots - 1);
+					meshBone.parentIndex = (addVirtualRoots - 1);
 				}
 			}
 
 			for (unsigned short count = 0; count < addVirtualRoots; count++) {
-				mesh->m_meshBones.insert(mesh->m_meshBones.begin(), ModelBone());
+				mesh->m_meshBones.insert(mesh->m_meshBones.begin(), MeshBone());
 				mesh->m_meshBones[0].name = "Root_" + count;
 				mesh->m_meshBones[0].nameHash = StringHash(mesh->m_meshBones[0].name);
 			}
@@ -200,9 +200,9 @@ aiNode* AnimatedModel::searchNode(aiNode *node, std::vector<std::string> &boneLi
 	return nullptr;
 }
 
-void AnimatedModel::fetchAiHierarchy(aiNode *node, std::vector<ModelBone>& meshBones, int parentIndex) {
+void AnimatedModel::fetchAiHierarchy(aiNode *node, std::vector<MeshBone>& meshBones, int parentIndex) {
 	aiMatrix4x4 transMatrix = node->mTransformation;
-	std::vector<ModelBone>::iterator it = std::find_if(meshBones.begin(), meshBones.end(), [node](ModelBone& _node) { return strcmp(node->mName.C_Str(), _node.name.c_str()) == 0; });
+	std::vector<MeshBone>::iterator it = std::find_if(meshBones.begin(), meshBones.end(), [node](MeshBone& meshBone) { return strcmp(node->mName.C_Str(), meshBone.name.c_str()) == 0; });
 	int _parentIndex = -1;
 
 	if (it != meshBones.end()) {
@@ -347,17 +347,17 @@ void AnimatedMesh::createBones() {
 	m_skinMatrices = new Matrix4f[m_numBones];
 
 	for (size_t i = 0; i < m_meshBones.size(); ++i) {
-		ModelBone& modelBone = m_meshBones[i];
+		MeshBone& meshBone = m_meshBones[i];
 		m_bones[i] = new BoneNode();
-		m_bones[i]->SetName(modelBone.name);
-		m_bones[i]->setPosition(modelBone.initialPosition);
-		m_bones[i]->setOrientation({ modelBone.initialRotation[0], modelBone.initialRotation[1], modelBone.initialRotation[2], modelBone.initialRotation[3] });
-		m_bones[i]->setScale(modelBone.initialScale);
-		m_bones[i]->offsetMatrix = modelBone.offsetMatrix;
+		m_bones[i]->SetName(meshBone.name);
+		m_bones[i]->setPosition(meshBone.initialPosition);
+		m_bones[i]->setOrientation({ meshBone.initialRotation[0], meshBone.initialRotation[1], meshBone.initialRotation[2], meshBone.initialRotation[3] });
+		m_bones[i]->setScale(meshBone.initialScale);
+		m_bones[i]->offsetMatrix = meshBone.offsetMatrix;
 	}
 
 	for (size_t i = 0; i < m_meshBones.size(); ++i) {
-		const ModelBone& desc = m_meshBones[i];
+		const MeshBone& desc = m_meshBones[i];
 
 		if (desc.parentIndex == i) {
 			m_bones[i]->setParent(nullptr);
@@ -365,7 +365,7 @@ void AnimatedMesh::createBones() {
 			m_bones[i]->setRootBone(true);
 		}else {
 			m_bones[i]->setParent(m_bones[desc.parentIndex]);
-			//bones[i]->setOrigin(bones[i]->getPosition());
+			//m_bones[i]->setOrigin(m_bones[i]->getPosition());
 		}
 	}
 
@@ -516,9 +516,9 @@ void AnimatedMesh::update(float dt) {
 
 	for (size_t i = 0; i < m_numBones; ++i) {
 		BoneNode* bone = m_bones[i];
-		const ModelBone& modelBone = m_meshBones[i];
+		const MeshBone& meshBone = m_meshBones[i];
 		if (bone->AnimationEnabled()) {
-			bone->SetTransformSilent(modelBone.initialPosition, modelBone.initialRotation, modelBone.initialScale);
+			bone->SetTransformSilent(meshBone.initialPosition, meshBone.initialRotation, meshBone.initialScale);
 		}
 	}
 
