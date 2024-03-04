@@ -1,11 +1,10 @@
-// For conditions of distribution and use, see copyright notice in License.txt
+#include <cctype>
+#include <cstdio>
+#include <iostream>
 
 #include "StringHash.h"
 #include "StringUtils.h"
 
-#include <cctype>
-#include <cstdio>
-#include <iostream>
 const StringHash StringHash::ZERO;
 
 std::string StringHash::ToString() const

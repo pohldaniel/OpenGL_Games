@@ -3,6 +3,7 @@
 #include <engine/Camera.h>
 #include <engine/Clock.h>
 #include <engine/scene/ShapeNode.h>
+#include <engine/scene/BoneNode.h>
 #include <Animation/AnimationController.h>
 
 class QueInput {
@@ -78,7 +79,7 @@ public:
 	bool equipWeapon;
 	bool lMouseB;
 
-	Bone *m_rightHandLocatorNode, *m_swordLocatorNode, *m_armorLocatorNode;
+	BoneNode *m_rightHandLocatorNode, *m_swordLocatorNode, *m_armorLocatorNode;
 	ShapeNode* m_sword;
 	Shape m_swordShape, m_armorShape;
 

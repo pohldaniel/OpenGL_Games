@@ -1,9 +1,9 @@
 #pragma once
 
 #include <memory>
-#include "engine/input/Event.h"
-#include "engine/Vector.h"
-#include "engine/Shader.h"
+#include "../input/Event.h"
+#include "../Vector.h"
+#include "../Shader.h"
 
 #define WIDGET_VERTEX      "#version 410 core										\n \
 																					\n \

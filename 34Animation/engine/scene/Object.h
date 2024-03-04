@@ -1,7 +1,6 @@
 #pragma once
 
-#include <engine/Vector.h>
-#include <engine/Transform.h>
+#include "../Vector.h"
 
 class Object {
 

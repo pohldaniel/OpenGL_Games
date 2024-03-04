@@ -14,7 +14,7 @@ AnimationStateTrack::~AnimationStateTrack(){
 //};
 
 
-AnimationState::AnimationState(Animation* animation_, Bone* startBone) :
+AnimationState::AnimationState(Animation* animation_, BoneNode* startBone) :
 	//animation(animation_, [&](Animation* animation) {/*delete animation;*/}),
 	animation(animation_),
 	m_looped(false),
@@ -33,7 +33,7 @@ AnimationState::~AnimationState(){
 
 }
 
-void AnimationState::SetStartBone(Bone* startBone_){
+void AnimationState::SetStartBone(BoneNode* startBone_){
 	//if (!drawable)
 		//return;
 
@@ -242,7 +242,7 @@ size_t AnimationState::FindTrackIndex(BaseNode* node) const{
 
 size_t AnimationState::FindTrackIndex(const std::string& name) const{
 	for (size_t i = 0; i < stateTracks.size(); ++i){
-		Bone* node = stateTracks[i].node;
+		BoneNode* node = stateTracks[i].node;
 		if (node && node->name == name)
 			return i;
 	}
@@ -254,7 +254,7 @@ size_t AnimationState::FindTrackIndex(StringHash nameHash) const
 {
 	for (unsigned i = 0; i < stateTracks.size(); ++i)
 	{
-		Bone* node = stateTracks[i].node;
+		BoneNode* node = stateTracks[i].node;
 		if (node && node->nameHash == nameHash)
 			return i;
 	}
@@ -280,7 +280,7 @@ void AnimationState::ApplyToModel(){
 		AnimationStateTrack& stateTrack = *it;
 		const AnimationTrack* track = stateTrack.track;
 		float finalWeight = m_blendWeight * stateTrack.weight;
-		Bone* bone = stateTrack.node;
+		BoneNode* bone = stateTrack.node;
 
 		if (Math::Equals(finalWeight, 0.0f) || !bone->AnimationEnabled())
 			continue;
@@ -373,7 +373,7 @@ void AnimationState::ApplyToNodes(){
 
 		AnimationStateTrack& stateTrack = *it;
 		const AnimationTrack* track = stateTrack.track;
-		Bone* node = stateTrack.node;
+		BoneNode* node = stateTrack.node;
 
 		track->FindKeyFrameIndex(m_stateTime, stateTrack.keyFrame);
 		const AnimationKeyFrame& keyFrame = track->keyFrames[stateTrack.keyFrame];

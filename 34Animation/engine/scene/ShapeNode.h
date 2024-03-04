@@ -1,9 +1,9 @@
 #pragma once
 
-#include <engine/MeshObject/Shape.h>
-#include <engine/scene/SceneNode.h>
-#include <engine/scene/SceneNodeLC.h>
-#include <engine/BoundingBox.h>
+#include "../scene/SceneNode.h"
+#include "../scene/SceneNodeLC.h"
+#include "../MeshObject/Shape.h"
+#include "../BoundingBox.h"
 
 class ShapeNode : public SceneNodeLC {
 

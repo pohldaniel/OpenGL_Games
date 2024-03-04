@@ -99,7 +99,6 @@ private:
 	bool m_markForDelete;
 
 	void createBuffer();
-	int whitespaces(const char c[]);
 	int addVertex(int hash, const float *pVertex, int stride, std::map<int, std::vector<int>>& vertexCache, std::vector <float>& vertexBuffer);
 };
 #endif

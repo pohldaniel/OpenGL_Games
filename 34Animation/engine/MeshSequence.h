@@ -1,12 +1,13 @@
 #pragma once
 
-#include <engine/ObjModel.h>
 #include <vector>
 #include <map>
 #include <iostream>
 #include <filesystem>
 #include <numeric>
 #include <array>
+
+#include "ObjModel.h"
 
 class MeshSequence {
 

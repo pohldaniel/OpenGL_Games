@@ -1,6 +1,5 @@
-#include "engine/Fontrenderer.h"
+#include "../Fontrenderer.h"
 #include "TextField.h"
-#include "Globals.h"
 
 TextField::TextField()  {
 

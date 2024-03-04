@@ -3,11 +3,11 @@
 #include <engine/input/MouseEventListener.h>
 #include <engine/input/KeyboardEventListener.h>
 #include <engine/input/Mouse.h>
+#include <engine/ui/Button.h>
+#include <engine/ui/TextField.h>
 #include <engine/Transform.h>
-#include <States/StateMachine.h>
 
-#include <UI/Button.h>
-#include <UI/TextField.h>
+#include <States/StateMachine.h>
 
 class Menu : public State, public MouseEventListener, public KeyboardEventListener {
 

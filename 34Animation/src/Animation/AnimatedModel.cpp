@@ -343,12 +343,12 @@ AnimatedMesh::~AnimatedMesh() {
 void AnimatedMesh::createBones() {
 	m_numBones = static_cast<unsigned short>(m_meshBones.size());
 
-	m_bones = new Bone*[m_numBones];
+	m_bones = new BoneNode*[m_numBones];
 	m_skinMatrices = new Matrix4f[m_numBones];
 
 	for (size_t i = 0; i < m_meshBones.size(); ++i) {
 		ModelBone& modelBone = m_meshBones[i];
-		m_bones[i] = new Bone();
+		m_bones[i] = new BoneNode();
 		m_bones[i]->SetName(modelBone.name);
 		m_bones[i]->setPosition(modelBone.initialPosition);
 		m_bones[i]->setOrientation({ modelBone.initialRotation[0], modelBone.initialRotation[1], modelBone.initialRotation[2], modelBone.initialRotation[3] });
@@ -515,7 +515,7 @@ void AnimatedMesh::update(float dt) {
 	}
 
 	for (size_t i = 0; i < m_numBones; ++i) {
-		Bone* bone = m_bones[i];
+		BoneNode* bone = m_bones[i];
 		const ModelBone& modelBone = m_meshBones[i];
 		if (bone->AnimationEnabled()) {
 			bone->SetTransformSilent(modelBone.initialPosition, modelBone.initialRotation, modelBone.initialScale);

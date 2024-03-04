@@ -1,10 +1,8 @@
-// For conditions of distribution and use, see copyright notice in License.txt
-
-#include "StringUtils.h"
-
 #include <cstdarg>
 #include <cstring>
 #include <cctype>
+
+#include "StringUtils.h"
 
 size_t CountElements(const std::string& string, char separator)
 {

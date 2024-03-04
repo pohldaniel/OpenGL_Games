@@ -11,9 +11,9 @@
 #include <assimp/postprocess.h>
 
 #include <engine/Vector.h>
+#include <engine/scene/BoneNode.h>
 
 #include "ModelBone.h"
-#include "Bone.h"
 #include "AnimationState.h"
 
 struct WeightData {
@@ -93,8 +93,8 @@ public:
 	AnimatedModel* m_model;
 	std::vector<std::shared_ptr<AnimationState>> m_animationStates;
 
-	Bone* m_rootBone;
-	Bone** m_bones;
+	BoneNode* m_rootBone;
+	BoneNode** m_bones;
 
 	unsigned short m_numBones = 0;
 	Matrix4f* m_skinMatrices;

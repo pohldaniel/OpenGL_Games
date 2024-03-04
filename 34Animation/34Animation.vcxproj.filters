@@ -30,9 +30,6 @@
     <Filter Include="engine\sound">
       <UniqueIdentifier>{af2fe3bc-45b1-4b7b-a4bf-f2b78430cea2}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\UI">
-      <UniqueIdentifier>{7b68a3d5-73eb-423e-b48e-9b44561208f6}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Physics">
       <UniqueIdentifier>{25bd00d9-4d5e-4732-bac4-aec51435a245}</UniqueIdentifier>
     </Filter>
@@ -63,6 +60,12 @@
     </Filter>
     <Filter Include="Source Files\Animation">
       <UniqueIdentifier>{9f08d314-c171-4eae-8407-e9470e7cf559}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="engine\utils">
+      <UniqueIdentifier>{2d9e1f13-19d9-499f-8ddb-24bec9f7e795}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="engine\ui">
+      <UniqueIdentifier>{72a9ec7e-009c-4ea8-ad6d-b9eb9566490f}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -234,26 +237,8 @@
     <ClCompile Include="src\States\Menu.cpp">
       <Filter>Source Files\States</Filter>
     </ClCompile>
-    <ClCompile Include="src\UI\Button.cpp">
-      <Filter>Source Files\UI</Filter>
-    </ClCompile>
-    <ClCompile Include="src\UI\SeekerBar.cpp">
-      <Filter>Source Files\UI</Filter>
-    </ClCompile>
-    <ClCompile Include="src\UI\TextField.cpp">
-      <Filter>Source Files\UI</Filter>
-    </ClCompile>
-    <ClCompile Include="src\UI\Widget.cpp">
-      <Filter>Source Files\UI</Filter>
-    </ClCompile>
     <ClCompile Include="src\Utils\SolidIO.cpp">
       <Filter>Source Files\Utils</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Utils\Utils.cpp">
-      <Filter>Source Files\Utils</Filter>
-    </ClCompile>
-    <ClCompile Include="src\UI\CheckBox.cpp">
-      <Filter>Source Files\UI</Filter>
     </ClCompile>
     <ClCompile Include="engine\Pixelbuffer.cpp">
       <Filter>engine</Filter>
@@ -312,18 +297,6 @@
     <ClCompile Include="engine\AssimpModel.cpp">
       <Filter>engine</Filter>
     </ClCompile>
-    <ClCompile Include="engine\animation\AssimpAnimatedModel.cpp">
-      <Filter>engine\animation</Filter>
-    </ClCompile>
-    <ClCompile Include="engine\animation\AssimpAnimation.cpp">
-      <Filter>engine\animation</Filter>
-    </ClCompile>
-    <ClCompile Include="engine\animation\AssimpAnimator.cpp">
-      <Filter>engine\animation</Filter>
-    </ClCompile>
-    <ClCompile Include="engine\animation\render\AnimationShader.cpp">
-      <Filter>engine\animation\render</Filter>
-    </ClCompile>
     <ClCompile Include="engine\thread\CThread.cpp">
       <Filter>engine\thread</Filter>
     </ClCompile>
@@ -369,16 +342,7 @@
     <ClCompile Include="src\States\Game.cpp">
       <Filter>Source Files\States</Filter>
     </ClCompile>
-    <ClCompile Include="StringHash.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="StringUtils.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ModelBone.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Bone.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Animation\AnimatedModel.cpp">
@@ -404,6 +368,45 @@
     </ClCompile>
     <ClCompile Include="CharacterSkinned.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\utils\StringHash.cpp">
+      <Filter>engine\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\utils\StringUtils.cpp">
+      <Filter>engine\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\utils\Utils.cpp">
+      <Filter>engine\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\scene\BoneNode.cpp">
+      <Filter>engine\scene</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\animation\render\AnimationShader.cpp">
+      <Filter>engine\animation\render</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\animation\AssimpAnimatedModel.cpp">
+      <Filter>engine\animation</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\animation\AssimpAnimation.cpp">
+      <Filter>engine\animation</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\animation\AssimpAnimator.cpp">
+      <Filter>engine\animation</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\ui\Button.cpp">
+      <Filter>engine\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\ui\CheckBox.cpp">
+      <Filter>engine\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\ui\SeekerBar.cpp">
+      <Filter>engine\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\ui\TextField.cpp">
+      <Filter>engine\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\ui\Widget.cpp">
+      <Filter>engine\ui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -587,26 +590,8 @@
     <ClInclude Include="src\States\Menu.h">
       <Filter>Source Files\States</Filter>
     </ClInclude>
-    <ClInclude Include="src\UI\Button.h">
-      <Filter>Source Files\UI</Filter>
-    </ClInclude>
-    <ClInclude Include="src\UI\SeekerBar.h">
-      <Filter>Source Files\UI</Filter>
-    </ClInclude>
-    <ClInclude Include="src\UI\TextField.h">
-      <Filter>Source Files\UI</Filter>
-    </ClInclude>
-    <ClInclude Include="src\UI\Widget.h">
-      <Filter>Source Files\UI</Filter>
-    </ClInclude>
     <ClInclude Include="src\Utils\SolidIO.h">
       <Filter>Source Files\Utils</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Utils\Utils.h">
-      <Filter>Source Files\Utils</Filter>
-    </ClInclude>
-    <ClInclude Include="src\UI\CheckBox.h">
-      <Filter>Source Files\UI</Filter>
     </ClInclude>
     <ClInclude Include="engine\Pixelbuffer.h">
       <Filter>engine</Filter>
@@ -680,18 +665,6 @@
     <ClInclude Include="engine\AssimpModel.h">
       <Filter>engine</Filter>
     </ClInclude>
-    <ClInclude Include="engine\animation\AssimpAnimatedModel.h">
-      <Filter>engine\animation</Filter>
-    </ClInclude>
-    <ClInclude Include="engine\animation\AssimpAnimation.h">
-      <Filter>engine\animation</Filter>
-    </ClInclude>
-    <ClInclude Include="engine\animation\AssimpAnimator.h">
-      <Filter>engine\animation</Filter>
-    </ClInclude>
-    <ClInclude Include="engine\animation\render\AnimationShader.h">
-      <Filter>engine\animation\render</Filter>
-    </ClInclude>
     <ClInclude Include="engine\interfaces\ICounter.h">
       <Filter>engine\interfaces</Filter>
     </ClInclude>
@@ -743,16 +716,7 @@
     <ClInclude Include="src\States\Game.h">
       <Filter>Source Files\States</Filter>
     </ClInclude>
-    <ClInclude Include="StringHash.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="StringUtils.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ModelBone.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Bone.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Animation\AnimatedModel.h">
@@ -778,6 +742,45 @@
     </ClInclude>
     <ClInclude Include="CharacterSkinned.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\utils\StringHash.h">
+      <Filter>engine\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\utils\StringUtils.h">
+      <Filter>engine\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\utils\Utils.h">
+      <Filter>engine\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\scene\BoneNode.h">
+      <Filter>engine\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\animation\render\AnimationShader.h">
+      <Filter>engine\animation\render</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\animation\AssimpAnimatedModel.h">
+      <Filter>engine\animation</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\animation\AssimpAnimation.h">
+      <Filter>engine\animation</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\animation\AssimpAnimator.h">
+      <Filter>engine\animation</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\ui\Button.h">
+      <Filter>engine\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\ui\CheckBox.h">
+      <Filter>engine\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\ui\SeekerBar.h">
+      <Filter>engine\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\ui\TextField.h">
+      <Filter>engine\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\ui\Widget.h">
+      <Filter>engine\ui</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

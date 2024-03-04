@@ -2,9 +2,9 @@
 
 #include <functional>
 #include <engine/scene/SceneNode.h>
+#include <engine/scene/BoneNode.h>
+#include <engine/utils/StringHash.h>
 
-#include "Bone.h"
-#include "StringHash.h"
 #include "Animation.h"
 
 enum AnimationBlendMode{
@@ -19,7 +19,7 @@ struct AnimationStateTrack{
 	~AnimationStateTrack();
 
 	const AnimationTrack* track;
-	Bone* node;
+	BoneNode* node;
 	float weight;
 	size_t keyFrame;
 
@@ -32,10 +32,10 @@ class AnimationState {
 
 public:
 
-	AnimationState(Animation* animation, Bone* startBone);
+	AnimationState(Animation* animation, BoneNode* startBone);
 	~AnimationState();
 
-	void SetStartBone(Bone* startBone);
+	void SetStartBone(BoneNode* startBone);
 	void SetLooped(bool looped);
 	void SetBackward(bool backward);
 	void SetWeight(float weight);
@@ -52,7 +52,7 @@ public:
 	Animation* GetAnimation() const { return animation; }
 	const AnimationBlendMode getAnimationBlendMode() const;
 
-	Bone* StartBone() const { return startBone; }
+	BoneNode* StartBone() const { return startBone; }
 	float BoneWeight(size_t index) const;
 	float BoneWeight(const std::string& name) const;
 	float BoneWeight(StringHash nameHash) const;
@@ -80,7 +80,7 @@ private:
 	//std::unique_ptr<Animation, std::function<void(Animation* animation)>> animation;
 	Animation* animation;
 
-	Bone* startBone;
+	BoneNode* startBone;
 	std::vector<AnimationStateTrack> stateTracks;
 	
 	float m_stateTime;

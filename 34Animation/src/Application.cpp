@@ -6,6 +6,7 @@
 #include <imgui_impl_opengl3.h>
 
 #include <engine/sound/SoundDevice.h>
+#include <engine/ui/Widget.h>
 #include <engine/Framebuffer.h>
 #include <engine/Fontrenderer.h>
 #include <engine/DebugRenderer.h>
@@ -16,7 +17,7 @@
 #include <States/Game.h>
 #include <States/CharacterState.h>
 #include <States/SkinnedArmor.h>
-#include <UI/Widget.h>
+
 
 #include "Application.h"
 #include "Globals.h"

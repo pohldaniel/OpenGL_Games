@@ -1,5 +1,4 @@
 #include "SeekerBar.h"
-#include "Globals.h"
 
 SeekerBar::SeekerBar(unsigned int blocks) : Widget() {
 	m_currentBlock = 0u;

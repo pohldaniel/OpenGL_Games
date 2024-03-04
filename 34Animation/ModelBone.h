@@ -1,7 +1,7 @@
 #pragma once
 
 #include <engine/BoundingBox.h>
-#include "StringHash.h"
+#include <engine/utils/StringHash.h>
 
 struct ModelBone {
 

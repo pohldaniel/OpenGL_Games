@@ -1,9 +1,9 @@
 #pragma once
 #include <functional>
-#include "engine/input/Event.h"
-#include "engine/CharacterSet.h"
-#include "engine/Shader.h"
-#include "engine/Batchrenderer.h"
+#include "../input/Event.h"
+#include "../CharacterSet.h"
+#include "../Shader.h"
+#include "../Batchrenderer.h"
 #include "Button.h"
 
 class SeekerBar : public Widget {

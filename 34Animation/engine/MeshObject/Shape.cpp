@@ -1,3 +1,4 @@
+#include <iostream>
 #include "Shape.h"
 #include "MeshCapsule.h"
 #include "MeshTorus.h"
@@ -7,7 +8,7 @@
 #include "MeshQuad.h"
 #include "MeshCube.h"
 #include "MeshDisk.h"
-#include <iostream>
+#include "../utils/Utils.h"
 
 Shape::Shape() : m_markForDelete(false) { }
 
@@ -288,7 +289,7 @@ void Shape::fromObj(const char* filename) {
 			fgets(buffer, sizeof(buffer), pFile);
 
 			if (!check) {
-				quads = whitespaces(buffer) == 4;
+				quads = Utils::whitespaces(buffer) == 4;
 				check = true;
 			}
 			
@@ -524,17 +525,6 @@ void Shape::createBoundingBox() {
 
 	m_aabb.min = Vector3f(xmin, ymin, zmin);
 	m_aabb.max = Vector3f(xmax, xmax, xmax);
-}
-
-int Shape::whitespaces(const char c[]) {
-	int count = 0;
-	size_t n = std::strlen(c);
-
-	for (size_t i = 0; i < n; i++) {
-		if (std::isspace(c[i])) ++count;
-	}
-
-	return (count);
 }
 
 int Shape::addVertex(int hash, const float *pVertex, int stride, std::map<int, std::vector<int>>& vertexCache, std::vector <float>& vertexBuffer) {

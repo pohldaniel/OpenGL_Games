@@ -114,7 +114,7 @@ void AssimpAnimation::loadAnimation(const std::string &filename, std::string sou
 
 			if (looping) {
 				Vector3f scale = Vector3f(aiAnimation->mChannels[c]->mScalingKeys[0].mValue.x, aiAnimation->mChannels[c]->mScalingKeys[0].mValue.y, aiAnimation->mChannels[c]->mScalingKeys[0].mValue.z);
-				m_keyFrames.scales[boneNameId].push_back(ScaleKey((float)aiAnimation->mChannels[c]->mScalingKeys[1 - animationOffset].mTime / timeScale, scale));
+				m_keyFrames.scales[boneNameId].push_back(PositionKey((float)aiAnimation->mChannels[c]->mScalingKeys[1 - animationOffset].mTime / timeScale, scale));
 			}
 
 			keyFrames = animationCuttOff == 0 ? aiAnimation->mChannels[c]->mNumRotationKeys : std::min(aiAnimation->mChannels[c]->mNumRotationKeys, animationCuttOff);

@@ -314,10 +314,10 @@ void DebugRenderer::AddCylinder(const Vector3f& position, float radius, float he
 	AddLine(position - offsetZVec, position + heightVec - offsetZVec, color);
 }
 
-void DebugRenderer::AddSkeleton(Bone**& bones, unsigned short numBones, const Vector4f& color) {
+void DebugRenderer::AddSkeleton(BoneNode**& bones, unsigned short numBones, const Vector4f& color) {
 	for (size_t i = 0; i < numBones; ++i){
 
-		const Bone* bone = bones[i];
+		const BoneNode* bone = bones[i];
 		if (!bone->isRootBone()) {
 			Vector3f pos1 = bone->getWorldPosition();
 			Vector3f pos2 = bone->getParent()->getWorldPosition();

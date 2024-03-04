@@ -3,9 +3,8 @@
 #include <vector>
 #include <map>
 #include <fstream>
+#include <engine/utils/StringHash.h>
 #include <engine/Vector.h>
-
-#include "StringHash.h"
 
 static const unsigned char CHANNEL_POSITION = 1;
 static const unsigned char CHANNEL_ROTATION = 2;

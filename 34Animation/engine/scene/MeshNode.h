@@ -1,9 +1,9 @@
 #pragma once
 #include <memory>
-#include <engine/scene/SceneNode.h>
-#include <engine/scene/sceneNodeLC.h>
-#include <engine/BoundingBox.h>
-#include <engine/AssimpModel.h>
+#include "SceneNode.h"
+#include "sceneNodeLC.h"
+#include "../BoundingBox.h"
+#include "../AssimpModel.h"
 
 class MeshNode : public SceneNode {
 

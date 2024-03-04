@@ -1,8 +1,8 @@
 #pragma once
 
 #include <functional>
-#include "engine/input/Event.h"
-#include "engine/Shader.h"
+#include "../input/Event.h"
+#include "../Shader.h"
 #include "TextField.h"
 
 class Button : public TextField {

@@ -24,8 +24,8 @@ comboAnimsIdx_(0), equipWeapon(false), lMouseB(false){
 	weaponActionState_ = Weapon_Unequipped;
 	m_armorLocatorNode = m_model.m_meshes[0]->m_rootBone;
 	m_rightHandLocatorNode = m_model.m_meshes[0]->m_rootBone->FindChildOfType(StringHash("RighthandLocator"), true);
-	Bone* m_backLocatorNode = m_model.m_meshes[0]->m_rootBone->FindChildOfType(StringHash("BackLocator"), true);
-	m_swordLocatorNode = m_backLocatorNode->addChild<Bone>();
+	BoneNode* m_backLocatorNode = m_model.m_meshes[0]->m_rootBone->FindChildOfType(StringHash("BackLocator"), true);
+	m_swordLocatorNode = m_backLocatorNode->addChild<BoneNode>();
 	m_swordLocatorNode->setPosition(-2.52264f, 1.71661e-05f, 22.4404f);
 
 	std::vector<float> vertexBuffer;

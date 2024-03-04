@@ -1,7 +1,7 @@
 #pragma once
 
 #include <memory>
-#include "StringHash.h"
+#include <engine/utils/StringHash.h>
 #include "AnimatedModel.h"
 
 static const float COMMAND_STAY_TIME = 0.25f;

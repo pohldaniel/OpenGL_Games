@@ -1,13 +1,14 @@
 #pragma once
 #include <math.h>
-#include "engine/input/MouseEventListener.h"
-#include "engine/input/KeyboardEventListener.h"
-#include "engine/input/Mouse.h"
-#include "engine/Transform.h"
-#include "StateMachine.h"
-#include <UI/Button.h>
-#include <UI/SeekerBar.h>
-#include <UI/CheckBox.h>
+#include <engine/input/MouseEventListener.h>
+#include <engine/input/KeyboardEventListener.h>
+#include <engine/input/Mouse.h>
+#include <engine/ui/Button.h>
+#include <engine/ui/SeekerBar.h>
+#include <engine/ui/CheckBox.h>
+#include <engine/Transform.h>
+
+#include <states/StateMachine.h>
 
 class Settings : public State, public MouseEventListener, public KeyboardEventListener {
 

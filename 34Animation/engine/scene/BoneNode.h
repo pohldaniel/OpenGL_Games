@@ -1,39 +1,36 @@
 #pragma once
 
-#include <engine/scene/SceneNode.h>
-#include <engine/scene/SceneNodeLC.h>
-#include "StringHash.h"
+#include "SceneNode.h"
+#include "SceneNodeLC.h"
+#include "../utils/StringHash.h"
 
-class Bone : public SceneNodeLC {
+class BoneNode : public SceneNodeLC {
 
 	friend class AnimationState;
 
 public:
 
-	Bone();
-	~Bone();
+	BoneNode();
+	~BoneNode();
 
-	//void SetDrawable(AnimatedModelDrawable* drawable);
 	void SetAnimationEnabled(bool enable);
 	void CountChildBones();
 	void setRootBone(bool rootBone);
 	const bool isRootBone() const;
 
 
-	void SetTransformSilent(const Vector3f& position_, const Quaternion& rotation_, const Vector3f& scale_){
+	void SetTransformSilent(const Vector3f& position_, const Quaternion& rotation_, const Vector3f& scale_) {
 		m_position = position_;
 		m_orientation = rotation_;
 		m_scale = scale_;
 	}
 
-	void SetName(const std::string& newName){
+	void SetName(const std::string& newName) {
 		name = newName;
 		nameHash = StringHash(newName);
 	}
 
-	Bone* FindChildOfType(StringHash childNameHash, bool recursive) const;
-
-	//AnimatedModelDrawable* GetDrawable() const { return drawable; }
+	BoneNode* FindChildOfType(StringHash childNameHash, bool recursive) const;
 	bool AnimationEnabled() const { return animationEnabled; }
 	size_t NumChildBones() const { return numChildBones; }
 	StringHash nameHash;
@@ -46,10 +43,9 @@ protected:
 	void OnTransformChanged() override;
 
 private:
-	
-	//AnimatedModelDrawable* drawable;
+
 	bool animationEnabled;
 	size_t numChildBones;
 	bool m_rootBone;
-	
+
 };

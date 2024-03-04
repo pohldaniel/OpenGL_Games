@@ -1,8 +1,8 @@
 #pragma once
 #include <memory>
-#include <engine/scene/Object.h>
-#include <engine/Rect.h>
-#include <engine/Shader.h>
+#include "scene/Object.h"
+#include "Rect.h"
+#include "Shader.h"
 
 #define SPRITE_VERTEX      "#version 410 core										                    \n \
 																					                    \n \

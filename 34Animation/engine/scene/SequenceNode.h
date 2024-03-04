@@ -1,10 +1,9 @@
 #pragma once
 
-#include <engine/scene/SceneNode.h>
-#include <engine/scene/SceneNodeLC.h>
-#include <engine/BoundingBox.h>
-
-#include <engine/MeshSequence.h>
+#include "SceneNode.h"
+#include "SceneNodeLC.h"
+#include "../BoundingBox.h"
+#include "../MeshSequence.h"
 
 class SequenceNode : public SceneNode {
 
