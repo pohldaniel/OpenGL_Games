@@ -170,12 +170,15 @@ void BaseNode::rotate(const Quaternion& orientation) {
 	OnTransformChanged();
 }
 
-std::list<std::unique_ptr<BaseNode>>& BaseNode::getChildren() const{
+std::list<std::unique_ptr<BaseNode, std::function<void(BaseNode* animation)>>>& BaseNode::getChildren() const{
 	return m_children;
 }
 
-BaseNode* BaseNode::addChild(BaseNode* node) {
-	m_children.emplace_back(std::unique_ptr<BaseNode>(node));
+BaseNode* BaseNode::addChild(BaseNode* node, bool disableDelete) {
+	if(disableDelete)
+		m_children.emplace_back(std::unique_ptr<BaseNode, std::function<void(BaseNode* animation)>>(node, [&](BaseNode* node) {}));
+	else
+		m_children.emplace_back(std::unique_ptr<BaseNode, std::function<void(BaseNode* animation)>>(node, [&](BaseNode* node) {delete node;}));
 	m_children.back()->m_parent = this;
 	return m_children.back().get();
 }
@@ -197,7 +200,7 @@ void BaseNode::removeAllChildren() {
 void BaseNode::setParent(BaseNode* node) {
 
 	if (node && m_parent) {	
-		std::list<std::unique_ptr<BaseNode>>::iterator it = std::find_if(m_parent->getChildren().begin(), m_parent->getChildren().end(), [node](std::unique_ptr<BaseNode>& _node) { return _node.get() == node; });
+		std::list<std::unique_ptr<BaseNode, std::function<void(BaseNode* animation)>>>::iterator it = std::find_if(m_parent->getChildren().begin(), m_parent->getChildren().end(), [node](std::unique_ptr<BaseNode, std::function<void(BaseNode* animation)>>& _node) { return _node.get() == node; });
 		
 		if (it != m_parent->getChildren().end()) {
 			node->getChildren().splice(m_parent->getChildren().end(), m_parent->getChildren(), it);
@@ -235,7 +238,7 @@ void BaseNode::eraseChild(BaseNode* child) {
 		return;
 
 	child->m_parent = nullptr;
-	m_children.erase(std::remove_if(m_children.begin(), m_children.end(), [child](const std::unique_ptr<BaseNode>& node) { return node.get() == child; }), m_children.end());
+	m_children.erase(std::remove_if(m_children.begin(), m_children.end(), [child](const std::unique_ptr<BaseNode, std::function<void(BaseNode* animation)>>& node) { return node.get() == child; }), m_children.end());
 }
 
 void BaseNode::eraseSelf() {
@@ -250,7 +253,7 @@ void BaseNode::removeChild(BaseNode* child) {
 
 	child->m_parent = nullptr;
 
-	std::remove_if(m_children.begin(), m_children.end(), [child](const std::unique_ptr<BaseNode>& node) -> bool { return node.get() == child; });
+	std::remove_if(m_children.begin(), m_children.end(), [child](const std::unique_ptr<BaseNode, std::function<void(BaseNode* animation)>>& node) -> bool { return node.get() == child; });
 }
 
 void BaseNode::removeSelf() {

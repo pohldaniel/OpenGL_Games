@@ -2,6 +2,7 @@
 
 #include <engine/Camera.h>
 #include <engine/Clock.h>
+#include <engine/scene/ShapeNode.h>
 #include <Animation/AnimationController.h>
 
 class QueInput {
@@ -47,6 +48,7 @@ class CharacterSkinned {
 public:
 
 	CharacterSkinned();
+	~CharacterSkinned();
 
 	void draw(const Camera& camera);
 	void update(const float dt);
@@ -76,5 +78,8 @@ public:
 	bool equipWeapon;
 	bool lMouseB;
 
-	Bone *m_rightHandLocatorNode, *m_swordLocatorNode, *m_locatorNode, *m_armorLocatorNode;
+	Bone *m_rightHandLocatorNode, *m_swordLocatorNode, *m_armorLocatorNode;
+	ShapeNode* m_sword;
+	Shape m_swordShape, m_armorShape;
+
 };

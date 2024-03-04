@@ -2,13 +2,15 @@
 
 #include <engine/MeshObject/Shape.h>
 #include <engine/scene/SceneNode.h>
+#include <engine/scene/SceneNodeLC.h>
 #include <engine/BoundingBox.h>
 
-class ShapeNode : public SceneNode {
+class ShapeNode : public SceneNodeLC {
 
 public:
 
 	ShapeNode(const Shape& shape);
+	~ShapeNode();
 
 	void OnTransformChanged() override;
 
@@ -17,11 +19,12 @@ public:
 	void OnRenderOBB(const Vector4f& color = { 1.0f, 0.0f, 0.0f, 1.0f });
 	void OnRenderAABB(const Vector4f& color = { 0.0f, 1.0f, 0.0f, 1.0f });
 
-	using SceneNode::addChild;
+	using SceneNodeLC::addChild;
 	void addChild(ShapeNode* node, bool drawDebug);
 
 	const BoundingBox& getWorldBoundingBox() const;
-	const BoundingBox& getLocalBoundingBox() const;
+	const BoundingBox& getLocalBoundingBox() const;	
+	const Shape& getShape() const;
 	void setDrawDebug(bool drawDebug);
 
 protected:

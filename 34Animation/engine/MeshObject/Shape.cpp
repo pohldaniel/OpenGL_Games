@@ -9,7 +9,97 @@
 #include "MeshDisk.h"
 #include <iostream>
 
-Shape::Shape() { }
+Shape::Shape() : m_markForDelete(false) { }
+
+Shape::Shape(std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer, unsigned int stride, bool createBuffer) : m_markForDelete(false) {
+	fromBuffer(vertexBuffer, indexBuffer, stride, createBuffer);
+}
+
+Shape::Shape(Shape const& rhs) {
+	m_vao = rhs.m_vao;
+	m_vbo[0] = rhs.m_vbo[0];
+	m_vbo[1] = rhs.m_vbo[1];
+	m_vbo[2] = rhs.m_vbo[2];
+	m_vbo[3] = rhs.m_vbo[3];
+	m_vbo[4] = rhs.m_vbo[4];
+	m_vbo[5] = rhs.m_vbo[5];
+	m_vbo[6] = rhs.m_vbo[6];
+	m_drawCount = rhs.m_drawCount;
+	m_vboInstances = rhs.m_vboInstances;
+	m_vboAdd1 = rhs.m_vboAdd1;
+	m_vboAdd2 = rhs.m_vboAdd2;
+	m_vboAdd3 = rhs.m_vboAdd3;
+	m_instanceCount = rhs.m_instanceCount;
+	m_aabb = rhs.m_aabb;	
+	m_positions.insert(m_positions.end(), rhs.m_positions.begin(),rhs.m_positions.end());
+	m_indexBuffer.insert(m_indexBuffer.end(), rhs.m_indexBuffer.begin(), rhs.m_indexBuffer.end());
+	m_markForDelete = false;
+}
+
+Shape::Shape(Shape&& rhs) {
+	m_vao = rhs.m_vao;
+	m_vbo[0] = rhs.m_vbo[0];
+	m_vbo[1] = rhs.m_vbo[1];
+	m_vbo[2] = rhs.m_vbo[2];
+	m_vbo[3] = rhs.m_vbo[3];
+	m_vbo[4] = rhs.m_vbo[4];
+	m_vbo[5] = rhs.m_vbo[5];
+	m_vbo[6] = rhs.m_vbo[6];
+	m_drawCount = rhs.m_drawCount;
+	m_vboInstances = rhs.m_vboInstances;
+	m_vboAdd1 = rhs.m_vboAdd1;
+	m_vboAdd2 = rhs.m_vboAdd2;
+	m_vboAdd3 = rhs.m_vboAdd3;
+	m_instanceCount = rhs.m_instanceCount;
+	m_aabb = rhs.m_aabb;
+	m_positions = rhs.m_positions;
+	m_indexBuffer = rhs.m_indexBuffer;
+	m_markForDelete = false;
+}
+
+Shape& Shape::operator=(const Shape& rhs) {
+	m_vao = rhs.m_vao;
+	m_vbo[0] = rhs.m_vbo[0];
+	m_vbo[1] = rhs.m_vbo[1];
+	m_vbo[2] = rhs.m_vbo[2];
+	m_vbo[3] = rhs.m_vbo[3];
+	m_vbo[4] = rhs.m_vbo[4];
+	m_vbo[5] = rhs.m_vbo[5];
+	m_vbo[6] = rhs.m_vbo[6];
+	m_drawCount = rhs.m_drawCount;
+	m_vboInstances = rhs.m_vboInstances;
+	m_vboAdd1 = rhs.m_vboAdd1;
+	m_vboAdd2 = rhs.m_vboAdd2;
+	m_vboAdd3 = rhs.m_vboAdd3;
+	m_instanceCount = rhs.m_instanceCount;
+	m_aabb = rhs.m_aabb;
+	m_positions.insert(m_positions.end(), rhs.m_positions.begin(), rhs.m_positions.end());
+	m_indexBuffer.insert(m_indexBuffer.end(), rhs.m_indexBuffer.begin(), rhs.m_indexBuffer.end());
+	m_markForDelete = false;
+	return *this;
+}
+
+Shape& Shape::operator=(Shape&& rhs) {
+	m_vao = rhs.m_vao;
+	m_vbo[0] = rhs.m_vbo[0];
+	m_vbo[1] = rhs.m_vbo[1];
+	m_vbo[2] = rhs.m_vbo[2];
+	m_vbo[3] = rhs.m_vbo[3];
+	m_vbo[4] = rhs.m_vbo[4];
+	m_vbo[5] = rhs.m_vbo[5];
+	m_vbo[6] = rhs.m_vbo[6];
+	m_drawCount = rhs.m_drawCount;
+	m_vboInstances = rhs.m_vboInstances;
+	m_vboAdd1 = rhs.m_vboAdd1;
+	m_vboAdd2 = rhs.m_vboAdd2;
+	m_vboAdd3 = rhs.m_vboAdd3;
+	m_instanceCount = rhs.m_instanceCount;
+	m_aabb = rhs.m_aabb;
+	m_positions = rhs.m_positions;
+	m_indexBuffer = rhs.m_indexBuffer;
+	m_markForDelete = false;
+	return *this;
+}
 
 void Shape::buildCapsule(float radius, float length, const Vector3f& position, int uResolution, int vResolution, bool generateTexels, bool generateNormals, bool generateTangents) {
 	MeshCapsule::BuildMesh(radius, length, position, uResolution, vResolution, generateTexels, generateNormals, generateTangents, m_positions, m_texels, m_normals, m_indexBuffer, m_tangents, m_bitangents);
@@ -68,7 +158,6 @@ void Shape::buildDiskXZ(float radius, const Vector3f& position, int uResolution,
 }
 
 void Shape::fromBuffer(const std::vector<float>& vertexBuffer, const std::vector<unsigned int>& indexBuffer, unsigned int stride, bool _createBuffer) {
-
 	if (stride == 3) {
 		for (unsigned int i = 0; i < vertexBuffer.size(); i = i + stride) {
 			m_positions.push_back(Vector3f(vertexBuffer[i], vertexBuffer[i + 1], vertexBuffer[i + 2]));
@@ -504,7 +593,9 @@ BoundingBox& Shape::getAABB() const {
 }
 
 Shape::~Shape() {
-	cleanup();
+	if (m_markForDelete) {
+		cleanup();
+	}
 }
 
 void Shape::cleanup() {
@@ -554,7 +645,12 @@ void Shape::cleanup() {
 	m_aabb.cleanup();
 }
 
+void Shape::markForDelete() {
+	m_markForDelete = true;
+}
+
 void Shape::createBuffer() {
+
 	m_drawCount = m_indexBuffer.size();
 
 	unsigned int ibo;

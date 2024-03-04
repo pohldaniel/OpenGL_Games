@@ -1,6 +1,7 @@
 #pragma once
 
 #include <list>
+#include <functional>
 #include <memory>
 #include "Object.h"
 
@@ -61,7 +62,7 @@ public:
 	const bool isFixed() const;
 	const bool isSelfCared() const;
 
-	std::list<std::unique_ptr<BaseNode>>& getChildren() const;
+	std::list<std::unique_ptr<BaseNode, std::function<void(BaseNode* animation)>>>& getChildren() const;
 	void removeAllChildren();
 	void removeChild(BaseNode* child);
 	void removeSelf();
@@ -69,13 +70,23 @@ public:
 	void eraseChild(BaseNode* child);
 	void eraseSelf();
 
-	BaseNode* addChild(BaseNode* node);
+	BaseNode* addChild(BaseNode* node, bool disableDelete = false);
+	template <class T> T* addChild(bool disableDelete = false);
 	const BaseNode* getParent() const;
 	
 protected:
 
 	virtual const Vector3f& getWorldOrigin() const;
 
-	BaseNode* m_parent;	mutable std::list<std::unique_ptr<BaseNode>> m_children;
+	BaseNode* m_parent;	mutable std::list<std::unique_ptr<BaseNode, std::function<void(BaseNode* animation)>>> m_children;
 	bool m_markForRemove;	bool m_isFixed;	bool m_isSelfCared;	mutable bool m_isDirty;
 };
+
+template <class T> T* BaseNode::addChild(bool disableDelete) {
+	if (disableDelete)
+		m_children.emplace_back(std::unique_ptr<T, std::function<void(BaseNode* animation)>>(new T(), [&](BaseNode* node) {}));
+	else
+		m_children.emplace_back(std::unique_ptr<T, std::function<void(BaseNode* animation)>>(new T(), [&](BaseNode* node) {delete node;}));
+	m_children.back()->m_parent = this;
+	return dynamic_cast<T*>(m_children.back().get());
+}

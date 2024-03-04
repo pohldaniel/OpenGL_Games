@@ -117,7 +117,7 @@ void AnimationState::SetBoneWeight(size_t index, float weight_, bool recursive){
 	}
 
 	if (recursive && stateTracks[index].node){
-		const std::list<std::unique_ptr<BaseNode>>& children = stateTracks[index].node->getChildren();
+		const std::list<std::unique_ptr<BaseNode, std::function<void(BaseNode* animation)>>>& children = stateTracks[index].node->getChildren();
 		for (auto it = children.begin(); it != children.end(); ++it){
 			BaseNode* node = (*it).get();
 

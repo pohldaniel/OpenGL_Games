@@ -1,9 +1,12 @@
 #include "ShapeNode.h"
 #include "../DebugRenderer.h"
 
-ShapeNode::ShapeNode(const Shape& shape) : SceneNode(), shape(shape), m_drawDebug(true),
-localBoundingBox(shape.getAABB()) {
+ShapeNode::ShapeNode(const Shape& shape) : SceneNodeLC(), shape(shape), m_drawDebug(true), localBoundingBox(shape.getAABB()) {
 	OnBoundingBoxChanged();
+}
+
+ShapeNode::~ShapeNode() {
+	std::cout << "Shape Node Destructor" << std::endl;
 }
 
 void ShapeNode::OnWorldBoundingBoxUpdate() const {
@@ -25,7 +28,7 @@ void ShapeNode::OnRenderAABB(const Vector4f& color) {
 }
 
 void ShapeNode::OnTransformChanged() {
-	SceneNode::OnTransformChanged();
+	SceneNodeLC::OnTransformChanged();
 	OnBoundingBoxChanged();
 }
 
@@ -34,7 +37,7 @@ void ShapeNode::OnBoundingBoxChanged() const {
 }
 
 void ShapeNode::addChild(ShapeNode* node, bool drawDebug) {
-	SceneNode::addChild(node);
+	SceneNodeLC::addChild(node);
 	node->setDrawDebug(drawDebug);
 }
 
@@ -52,4 +55,8 @@ const BoundingBox& ShapeNode::getLocalBoundingBox() const {
 
 void ShapeNode::setDrawDebug(bool drawDebug) {
 	m_drawDebug = drawDebug;
+}
+
+const Shape& ShapeNode::getShape() const {
+	return shape;
 }

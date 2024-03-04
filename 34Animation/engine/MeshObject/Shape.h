@@ -15,6 +15,11 @@ class Shape {
 public:
 
 	Shape();
+	Shape(std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer, unsigned int stride, bool createBuffer = true);
+	Shape(Shape const& rhs);
+	Shape(Shape&& rhs);
+	Shape& operator=(const Shape& rhs);
+	Shape& operator=(Shape&& rhs);
 	~Shape();
 
 	void buildCapsule(float radius = 1.0f, float length = 1.0f, const Vector3f& position = Vector3f(0.0f, 0.0f, 0.0f), int uResolution = 20, int vResolution = 20, bool generateTexels = true, bool generateNormals = true, bool generateTangents = false);
@@ -67,9 +72,10 @@ public:
 	BoundingBox& getAABB() const;
 
 	void cleanup();
+	void markForDelete();
 	void createBoundingBox();
 
-private:
+//private:
 
 	unsigned int m_vao;
 	unsigned int m_vbo[7] = { 0 };
@@ -90,6 +96,7 @@ private:
 	std::vector<std::array<float, 4>> m_weights;
 	std::vector<Matrix4f> m_instances;
 	mutable BoundingBox m_aabb;
+	bool m_markForDelete;
 
 	void createBuffer();
 	int whitespaces(const char c[]);

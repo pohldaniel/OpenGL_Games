@@ -80,6 +80,12 @@ void BoundingBox::setMax(const Vector3f& _max) const {
 	ptr->max = _max;
 }
 
+void BoundingBox::set(const Vector3f& min, const Vector3f& max) const {
+	BoundingBox* ptr = const_cast<BoundingBox*>(this);
+	ptr->min = min;
+	ptr->max = max;
+}
+
 void BoundingBox::inset(const Vector3f& _min, const Vector3f& _max) const {
 	BoundingBox* ptr = const_cast<BoundingBox*>(this);
 	ptr->min += _min;

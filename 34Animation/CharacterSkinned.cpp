@@ -2,6 +2,7 @@
 #include <engine/input/Mouse.h>
 #include <engine/input/Keyboard.h>
 #include <engine/BuiltInShader.h>
+#include <Utils/SolidIO.h>
 #include "CharacterSkinned.h"
 
 #include "Globals.h"
@@ -24,10 +25,35 @@ comboAnimsIdx_(0), equipWeapon(false), lMouseB(false){
 	m_armorLocatorNode = m_model.m_meshes[0]->m_rootBone;
 	m_rightHandLocatorNode = m_model.m_meshes[0]->m_rootBone->FindChildOfType(StringHash("RighthandLocator"), true);
 	Bone* m_backLocatorNode = m_model.m_meshes[0]->m_rootBone->FindChildOfType(StringHash("BackLocator"), true);
-	m_swordLocatorNode = dynamic_cast<Bone*>(m_backLocatorNode->addChild(new Bone()));
+	m_swordLocatorNode = m_backLocatorNode->addChild<Bone>();
 	m_swordLocatorNode->setPosition(-2.52264f, 1.71661e-05f, 22.4404f);
 
-	m_locatorNode = m_swordLocatorNode;
+	std::vector<float> vertexBuffer;
+	std::vector<unsigned int> indexBuffer;
+	std::vector<std::vector<Utils::GeometryDesc>> geomDescs;
+	std::vector<std::array<unsigned int, 4>> boneIds;
+	std::vector<std::array<float, 4>> weights;
+	std::vector<std::string> boneList;
+	std::vector<ModelBone> meshBones;
+	BoundingBox box;
+
+	Utils::MdlIO mdlConverter;
+	mdlConverter.mdlToBuffer("res/models/Girlbot/Armor.mdl", 1.0f, vertexBuffer, indexBuffer, weights, boneIds, geomDescs, meshBones, box);
+	m_armorShape.fromBuffer(vertexBuffer, indexBuffer, 8, weights, boneIds);
+	vertexBuffer.clear(); vertexBuffer.shrink_to_fit(); indexBuffer.clear(); indexBuffer.shrink_to_fit(); weights.clear(); weights.shrink_to_fit(); boneIds.clear(); boneIds.shrink_to_fit();
+	mdlConverter.mdlToBuffer("res/models/Girlbot/Sword.mdl", 100.0f, vertexBuffer, indexBuffer, weights, boneIds, geomDescs, meshBones, box);
+	
+	m_swordShape = Shape(vertexBuffer, indexBuffer, 8);
+	m_sword = new ShapeNode(m_swordShape);
+
+	m_swordLocatorNode->addChild(m_sword, true);
+
+	m_armorShape.markForDelete();
+	m_swordShape.markForDelete();
+}
+
+CharacterSkinned::~CharacterSkinned() {
+	delete m_sword;
 }
 
 void CharacterSkinned::fixedUpdate(float fdt) {
@@ -131,7 +157,7 @@ void CharacterSkinned::processWeaponAction(bool equip, bool lMouseB) {
 			weaponActionAnim_ = "girl_unsheath";
 			m_animationController->Play(weaponActionAnim_, WeaponLayer, false, 0.0f);
 			m_animationController->SetTime(weaponActionAnim_, 0.0f);
-			m_locatorNode = m_rightHandLocatorNode;
+			m_rightHandLocatorNode->addChild(m_sword, true);
 			weaponActionState_ = Weapon_Equipping;
 		}
 		break;
@@ -186,7 +212,7 @@ void CharacterSkinned::processWeaponAction(bool equip, bool lMouseB) {
 			m_animationController->Play(weaponActionAnim_, WeaponLayer, false, 0.1f);
 			if (m_animationController->IsAtEnd(weaponActionAnim_)){
 				m_animationController->StopLayer(WeaponLayer, 0.2f);
-				m_locatorNode = m_swordLocatorNode;
+				m_swordLocatorNode->addChild(m_sword, true);
 				weaponActionState_ = Weapon_Unequipped;
 			}
 			break;
@@ -227,5 +253,24 @@ void CharacterSkinned::draw(const Camera& camera) {
 	shader->loadVector("u_color", Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
 	m_model.drawRaw();
 
+	shader->unuse();
+
+	shader = Globals::shaderManager.getAssetPointer("texture");
+	shader->use();
+	shader->loadMatrix("u_projection", camera.getPerspectiveMatrix());
+	shader->loadMatrix("u_view", camera.getViewMatrix());
+	shader->loadMatrix("u_model", m_sword->getWorldTransformation());
+	Globals::textureManager.get("sword").bind(1);
+	m_sword->getShape().drawRaw();
+	shader->unuse();
+
+	shader = Globals::shaderManager.getAssetPointer("animation_new");
+	shader->use();
+	shader->loadVector("u_light", Vector3f(1.0f, 1.0f, 1.0f));
+	shader->loadMatrix("u_projection", camera.getPerspectiveMatrix());
+	shader->loadMatrix("u_view", camera.getViewMatrix());
+	shader->loadVector("u_color", Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+	Globals::textureManager.get("sword").bind(0);
+	m_armorShape.drawRaw();
 	shader->unuse();
 }
