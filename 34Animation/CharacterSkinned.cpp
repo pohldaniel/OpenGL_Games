@@ -157,7 +157,9 @@ void CharacterSkinned::processWeaponAction(bool equip, bool lMouseB) {
 			weaponActionAnim_ = "girl_unsheath";
 			m_animationController->Play(weaponActionAnim_, WeaponLayer, false, 0.0f);
 			m_animationController->SetTime(weaponActionAnim_, 0.0f);
+			m_sword->eraseSelf();
 			m_rightHandLocatorNode->addChild(m_sword, true);
+			m_sword->OnTransformChanged();
 			weaponActionState_ = Weapon_Equipping;
 		}
 		break;
@@ -212,7 +214,9 @@ void CharacterSkinned::processWeaponAction(bool equip, bool lMouseB) {
 			m_animationController->Play(weaponActionAnim_, WeaponLayer, false, 0.1f);
 			if (m_animationController->IsAtEnd(weaponActionAnim_)){
 				m_animationController->StopLayer(WeaponLayer, 0.2f);
+				m_sword->eraseSelf();
 				m_swordLocatorNode->addChild(m_sword, true);
+				m_sword->OnTransformChanged();
 				weaponActionState_ = Weapon_Unequipped;
 			}
 			break;
@@ -241,6 +245,7 @@ void CharacterSkinned::processWeaponAction(bool equip, bool lMouseB) {
 }
 
 void CharacterSkinned::draw(const Camera& camera) {
+
 	glBindBuffer(GL_UNIFORM_BUFFER, BuiltInShader::matrixUbo);
 	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(Matrix4f) * m_model.m_meshes[0]->m_numBones, m_model.m_meshes[0]->m_skinMatrices);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);

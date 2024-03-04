@@ -75,7 +75,7 @@ public:
 	void markForDelete();
 	void createBoundingBox();
 
-//private:
+private:
 
 	unsigned int m_vao;
 	unsigned int m_vbo[7] = { 0 };

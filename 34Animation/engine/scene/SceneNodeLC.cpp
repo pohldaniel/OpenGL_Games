@@ -29,7 +29,6 @@ SceneNodeLC& SceneNodeLC::operator=(SceneNodeLC&& rhs) {
 
 const Matrix4f& SceneNodeLC::getWorldTransformation() const {
 	if (m_isDirty) {
-		//std::cout << "Parent: " << m_parent << std::endl;
 		if (m_parent) {			
 			m_modelMatrix = m_parent->getWorldTransformation() * getTransformationSOP();
 		}else {
