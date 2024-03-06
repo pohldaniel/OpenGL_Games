@@ -3,6 +3,7 @@
 
 #include "Joint.h"
 #include <vector>
+#include <engine/Vector.h>
 
 enum muscle_type{
 	boneconnect,
@@ -39,6 +40,8 @@ public:
 	void loadVerticesLow(FILE* tfile, int vertexNum);
 	void loadVerticesClothes(FILE* tfile, int vertexNum);
 	void DoConstraint(bool spinny);
+
+	Matrix4f m_worldTransform;
 };
 
 #endif

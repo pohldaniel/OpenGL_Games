@@ -494,6 +494,9 @@ bool Model::load(const std::string& filename){
 	for (i = 0; i < triangleNum; i++) {
 		short vertex[6];
 		funpackf(tfile, "Bs Bs Bs Bs Bs Bs", &vertex[0], &vertex[1], &vertex[2], &vertex[3], &vertex[4], &vertex[5]);
+
+
+
 		Triangles[i].vertex[0] = vertex[0];
 		Triangles[i].vertex[1] = vertex[2];
 		Triangles[i].vertex[2] = vertex[4];

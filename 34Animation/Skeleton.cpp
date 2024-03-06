@@ -309,6 +309,7 @@ void Skeleton::Load(const std::string& filename, const std::string& lowfilename,
 	// for each muscle...
 	for (int i = 0; i < num_muscles; i++) {
 		muscles[i].load(tfile, model[0].vertexNum, joints);
+
 	}
 
 	// read forwardjoints (?)
@@ -333,8 +334,16 @@ void Skeleton::Load(const std::string& filename, const std::string& lowfilename,
 
 	// calculate some stuff
 	FindForwards();
+
+	for (int i = 0; i < num_muscles; i++) {
+		std::cout << "Forward: " << forward.x << "  " << forward.y << "  " << forward.z << std::endl;
+		std::cout << "Low Forward: " << lowforward.x << "  " << lowforward.y << "  " << lowforward.z << std::endl;
+	}
+
 	for (int i = 0; i < num_muscles; i++) {
 		FindRotationMuscle(i, -1);
+
+		std::cout << "Rot: " << muscles[i].rotate3 << "  " << muscles[i].rotate2 << "  " << muscles[i].rotate1 << std::endl;
 	}
 	// this seems to use opengl purely for matrix calculations
 	for (int k = 0; k < num_models; k++) {
@@ -346,6 +355,9 @@ void Skeleton::Load(const std::string& filename, const std::string& lowfilename,
 			glRotatef(muscles[model[k].owner[i]].rotate3, 0, 1, 0);
 			glRotatef(muscles[model[k].owner[i]].rotate2 - 90, 0, 0, 1);
 			glRotatef(muscles[model[k].owner[i]].rotate1 - 90, 0, 1, 0);
+
+			
+
 			glTranslatef(model[k].vertex[i].x, model[k].vertex[i].y, model[k].vertex[i].z);
 			glGetFloatv(GL_MODELVIEW_MATRIX, M);
 			model[k].vertex[i].x = M[12] * 1;

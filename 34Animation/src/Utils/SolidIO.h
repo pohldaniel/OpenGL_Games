@@ -113,6 +113,8 @@ namespace Utils {
 		int parentIndex2;
 		Vector3f initialPosition;
 		void print();
+
+		float rotate1, rotate2, rotate3;
 	};
 
 	struct Skeleton {
@@ -125,6 +127,12 @@ namespace Utils {
 		int lowForwardJoint2;
 		int lowForwardJoint3;
 		void print();
+
+		void findForwards();
+		void findRotationMuscle(int which, int animation);
+		Vector3f specialforward[5];
+		Vector3f forward;
+		Vector3f lowForward;
 	};
 
 	enum VertexElementSemantic{
@@ -138,6 +146,29 @@ namespace Utils {
 		SEM_BLENDINDICES,
 		SEM_OBJECTINDEX,
 		MAX_VERTEX_ELEMENT_SEMANTICS
+	};
+
+	enum bodypart {
+		head,
+		neck,
+		leftshoulder,
+		leftelbow,
+		leftwrist,
+		lefthand,
+		rightshoulder,
+		rightelbow,
+		rightwrist,
+		righthand,
+		abdomen,
+		lefthip,
+		righthip,
+		groin,
+		leftknee,
+		leftankle,
+		leftfoot,
+		rightknee,
+		rightankle,
+		rightfoot
 	};
 
 	struct GeometryDesc {
@@ -210,13 +241,14 @@ namespace Utils {
 		void solidToBuffer(const char* filename, bool flipTextureVertical, std::array<float, 3> eulerAngle, std::array<float, 3> scale, std::vector<float>& vertexBufferOut, std::vector<unsigned int>& indexBufferOut);
 		void loadSkeleton(const char* filename, std::vector<float>& modelVertexBuffer);
 
+		static std::array<float, 3> RotatePoint(std::array<float, 3> point, float xang, float yang, float zang);
+		//static Vector3f RotatePoint(Vector3f point, float xang, float yang, float zang);
+		static std::array<float, 3> ScalePoint(std::array<float, 3> point, float scaleX, float scaleY, float scaleZ);
+
 		private:
 			
-			bool getSimilarVertexIndex(std::array<float, 2>& packed, std::map<std::array<float, 2>, short, ComparerUv>& uvToOutIndex, short & result);
-			bool getSimilarVertexIndex(std::array<float, 5>& packed, std::map<std::array<float, 5>, short, Comparer>& uvToOutIndex, short & result);
-			static std::array<float, 3> RotatePoint(std::array<float, 3> point, float xang, float yang, float zang);
-			static std::array<float, 3> ScalePoint(std::array<float, 3> point, float scaleX, float scaleY, float scaleZ);
-
+		bool getSimilarVertexIndex(std::array<float, 2>& packed, std::map<std::array<float, 2>, short, ComparerUv>& uvToOutIndex, short & result);
+		bool getSimilarVertexIndex(std::array<float, 5>& packed, std::map<std::array<float, 5>, short, Comparer>& uvToOutIndex, short & result);
 	};
 
 	struct MdlIO {

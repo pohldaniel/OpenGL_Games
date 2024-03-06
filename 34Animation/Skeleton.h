@@ -68,4 +68,8 @@ private:
 	inline Joint& joint(int bodypart) { return joints[jointlabels[bodypart]]; }
 	inline XYZ& jointPos(int bodypart) { return joint(bodypart).position; }
 	inline XYZ& jointVel(int bodypart) { return joint(bodypart).velocity; }
+
+	inline Joint& joint2(int bodypart) {
+		return joints[jointlabels[bodypart]];
+	}
 };

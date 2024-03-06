@@ -56,6 +56,7 @@ private:
 
 	void renderUi();
 	void RenderScene();
+	void renderModel();
 
 	bool m_initUi = true;
 	bool m_drawUi = true;

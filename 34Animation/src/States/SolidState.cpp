@@ -211,7 +211,8 @@ SolidState::SolidState(StateMachine& machine) : State(machine, States::SOLID) {
 	std::vector<unsigned int> indexBuffer;
 
 	solidConverter.solidToBuffer("res/Body.solid", true, { 180.0f, 0.0f, 0.0f }, { 0.04f, 0.04f, 0.04f }, vertexBuffer, indexBuffer);
-	//solidConverter.loadSkeleton("res/BasicFigure", vertexBuffer);
+	solidConverter.loadSkeleton("res/BasicFigure", vertexBuffer);
+	std::cout << "######################" << std::endl;
 	m_body.fromBuffer(vertexBuffer, indexBuffer, 5);
 	m_skeleton.Load("res/BasicFigure", "res/BasicFigureLow" , "res/RabbitBelt",
                     "res/Body.solid" , "res/Body2.solid",
@@ -328,11 +329,14 @@ void SolidState::render() {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	//RenderScene();
+	//m_skeleton.model[1].draw();
 
 	//m_skeleton.drawmodel.draw();
+	
+	renderModel();
+	m_skeleton.drawmodel.draw();
 
-	auto shader = Globals::shaderManager.getAssetPointer("texture");
+	/*auto shader = Globals::shaderManager.getAssetPointer("texture");
 	shader->use();
 	shader->loadInt("u_texture", 1);
 	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
@@ -340,7 +344,7 @@ void SolidState::render() {
 	shader->loadMatrix("u_model", Matrix4f::IDENTITY);
 	Globals::textureManager.get("null").bind(1);
 	m_body.drawRaw();
-	shader->unuse();
+	shader->unuse();*/
 
 	if (m_drawUi)
 		renderUi();
@@ -432,4 +436,47 @@ void SolidState::renderUi() {
 
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+}
+
+void SolidState::renderModel(){
+
+	static int start, endthing;
+	static float M[16];
+
+	for (unsigned int i = 0; i < m_skeleton.muscles.size(); i++) {
+		XYZ mid = (m_skeleton.muscles[i].parent1->position + m_skeleton.muscles[i].parent2->position) / 2;
+		glMatrixMode(GL_MODELVIEW);
+		glPushMatrix();
+		glLoadIdentity();
+
+		glTranslatef(mid.x, mid.y, mid.z);
+		glRotatef(m_skeleton.muscles[i].rotate1 - 90, 0, 1, 0);
+		glRotatef(m_skeleton.muscles[i].rotate2 - 90, 0, 0, 1);
+		glRotatef(m_skeleton.muscles[i].rotate3, 0, 1, 0);
+
+		for (unsigned j = 0; j < m_skeleton.muscles[i].vertices.size(); j++) {
+			XYZ& v0 = m_skeleton.model[0].vertex[m_skeleton.muscles[i].vertices[j]];
+			
+			glMatrixMode(GL_MODELVIEW);
+			glPushMatrix();
+			glTranslatef(v0.x, v0.y, v0.z);
+
+			glGetFloatv(GL_MODELVIEW_MATRIX, M);
+
+			//std::cout << M[0] << "  " << M[1] << "  " << M[2] << "  " << M[3] << std::endl;
+			//std::cout << M[4] << "  " << M[5] << "  " << M[6] << "  " << M[7] << std::endl;
+			//std::cout << M[8] << "  " << M[9] << "  " << M[10] << "  " << M[11] << std::endl;
+			//std::cout << M[12] << "  " << M[13] << "  " << M[14] << "  " << M[15] << std::endl;
+
+			m_skeleton.drawmodel.vertex[m_skeleton.muscles[i].vertices[j]].x = M[12];
+			m_skeleton.drawmodel.vertex[m_skeleton.muscles[i].vertices[j]].y = M[13];
+			m_skeleton.drawmodel.vertex[m_skeleton.muscles[i].vertices[j]].z = M[14];
+			glPopMatrix();
+		}
+		
+
+		glPopMatrix();
+	}
+
+	m_skeleton.drawmodel.UpdateVertexArrayNoTexNoNorm();		
 }
