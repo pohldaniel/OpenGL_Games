@@ -166,7 +166,6 @@ void ArrayBuffer::createBuffer() {
 		glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
 		glBufferData(GL_ARRAY_BUFFER, vertex.size() * sizeof(float), &vertex[0], GL_STATIC_DRAW);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
-	
 	}else {
 
 		short stride = 5;
@@ -190,11 +189,13 @@ void ArrayBuffer::createBuffer() {
 		glEnableVertexAttribArray(1);
 		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)(offset * sizeof(float)));
 
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(index), index, GL_STATIC_DRAW);
 
 		glBindVertexArray(0);
-		glDeleteBuffers(1, &ibo);
+		glDeleteBuffers(1, &ibo);		
 	}
 	vertex.clear();
 	vertex.shrink_to_fit();

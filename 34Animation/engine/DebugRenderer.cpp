@@ -336,20 +336,21 @@ void DebugRenderer::drawBuffer() {
 	GLsizeiptr size = (uint8_t*)verticesPtr - (uint8_t*)vertices;
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
 	glBufferSubData(GL_ARRAY_BUFFER, 0, size, vertices);
-	//glBindBuffer(GL_ARRAY_BUFFER, 0);
+	
 
 	size = (uint8_t*)indicesPtr - (uint8_t*)indices;
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
 	glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, size, indices);
-	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-	
+		
 	glUseProgram(DebugShader->m_program);
 
 	DebugShader->loadMatrix("u_vp", projection * view );
 	glDrawElements(GL_LINES, indexCount, GL_UNSIGNED_INT, nullptr);
 
 	glUseProgram(0);
+
+	//glBindBuffer(GL_ARRAY_BUFFER, 0);
+	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 
 	vertexCount = 0;

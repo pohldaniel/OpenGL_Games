@@ -1406,7 +1406,7 @@ void ObjModel::addInstance(const Matrix4f& modelMTX) {
 		glVertexAttribDivisor(6, 1);
 		glVertexAttribDivisor(7, 1);
 		glVertexAttribDivisor(8, 1);
-
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindVertexArray(0);
 	}else {
 
@@ -1441,7 +1441,7 @@ void ObjModel::createInstancesDynamic(unsigned int numberOfInstances){
 		glVertexAttribDivisor(4, 1);
 		glVertexAttribDivisor(5, 1);
 		glVertexAttribDivisor(6, 1);
-
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindVertexArray(0);
 	}else {
 		for (int j = 0; j < m_numberOfMeshes; j++) {
@@ -1610,6 +1610,7 @@ void ObjModel::CreateBuffer(std::vector<float>& vertexBuffer, std::vector<unsign
 		glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)(11 * sizeof(float)));
 
 	}
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	//Indices
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
@@ -2193,7 +2194,7 @@ void ObjMesh::createInstancesStatic(std::vector<Matrix4f>& modelMTX){
 	glVertexAttribDivisor(6, 1);
 	glVertexAttribDivisor(7, 1);
 	glVertexAttribDivisor(8, 1);
-
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 }
 
@@ -2226,7 +2227,7 @@ void ObjMesh::addInstance(ObjModel& model) {
 		glVertexAttribDivisor(6, 1);
 		glVertexAttribDivisor(7, 1);
 		glVertexAttribDivisor(8, 1);
-
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindVertexArray(0);
 	}
 }
@@ -2240,8 +2241,6 @@ void ObjMesh::createInstancesDynamic(unsigned int numberOfInstances) {
 
 	glBindBuffer(GL_ARRAY_BUFFER, m_vboInstances);
 	glBufferData(GL_ARRAY_BUFFER, m_instanceCount * sizeof(GLfloat) * 4 * 4, NULL, GL_DYNAMIC_DRAW);
-	//glBindBuffer(GL_ARRAY_BUFFER, 0);
-
 
 	glEnableVertexAttribArray(3);
 	glEnableVertexAttribArray(4);
@@ -2256,7 +2255,7 @@ void ObjMesh::createInstancesDynamic(unsigned int numberOfInstances) {
 	glVertexAttribDivisor(4, 1);
 	glVertexAttribDivisor(5, 1);
 	glVertexAttribDivisor(6, 1);
-
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 }
 

@@ -275,15 +275,15 @@ void MeshCylinder::createBuffer() {
 		glEnableVertexAttribArray(4);
 		glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, 0, 0);
 	}
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	//Indices
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_indexBuffer.size() * sizeof(m_indexBuffer[0]), &m_indexBuffer[0], GL_STATIC_DRAW);
 
 	glBindVertexArray(0);
-
 	glDeleteBuffers(1, &ibo);
-
+	
 	//m_positions.clear();
 	//m_positions.shrink_to_fit();
 	//m_indexBuffer.clear();
@@ -332,7 +332,8 @@ void MeshCylinder::createInstancesStatic(const std::vector<Matrix4f>& modelMTX) 
 	glVertexAttribDivisor(7, 1);
 	glVertexAttribDivisor(8, 1);
 
-	glBindVertexArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);	
 }
 
 void MeshCylinder::addInstance(const Matrix4f& modelMTX) {
@@ -342,7 +343,7 @@ void MeshCylinder::addInstance(const Matrix4f& modelMTX) {
 	if(m_vboInstances) {
 		glBindBuffer(GL_ARRAY_BUFFER, m_vboInstances);
 		glBufferData(GL_ARRAY_BUFFER, m_instances.size() * sizeof(float) * 4 * 4, m_instances[0][0], GL_STATIC_DRAW);
-
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}else {
 		glGenBuffers(1, &m_vboInstances);
 		glBindVertexArray(m_vao);
@@ -364,7 +365,8 @@ void MeshCylinder::addInstance(const Matrix4f& modelMTX) {
 		glVertexAttribDivisor(7, 1);
 		glVertexAttribDivisor(8, 1);
 
-		glBindVertexArray(0);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindVertexArray(0);		
 	}
 }
 

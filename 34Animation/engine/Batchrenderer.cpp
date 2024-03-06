@@ -79,6 +79,7 @@ void Batchrenderer::init(size_t size, bool drawSingle, bool drawRaw) {
 
 	glEnableVertexAttribArray(3);
 	glVertexAttribIPointer(3, 1, GL_UNSIGNED_INT, sizeof(Vertex), (const void*)(8 * sizeof(float)));
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	uint32_t* indices = new uint32_t[m_maxIndex];
 	uint32_t index_offset = 0;
@@ -99,8 +100,6 @@ void Batchrenderer::init(size_t size, bool drawSingle, bool drawRaw) {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint32_t) * m_maxIndex, indices, GL_STATIC_DRAW);
 
-	// unbind vbo and vao
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 
 	glDeleteBuffers(1, &ibo);
@@ -129,6 +128,7 @@ void Batchrenderer::init(size_t size, bool drawSingle, bool drawRaw) {
 
 		glEnableVertexAttribArray(3);
 		glVertexAttribIPointer(3, 1, GL_UNSIGNED_INT, sizeof(Vertex), (const void*)(8 * sizeof(float)));
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 		const GLushort _indices[] = { 0, 1, 2, 2, 3, 0 };
 
@@ -137,8 +137,6 @@ void Batchrenderer::init(size_t size, bool drawSingle, bool drawRaw) {
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iboSingle);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(_indices), _indices, GL_STATIC_DRAW);
 
-		// unbind vbo and vao
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindVertexArray(0);
 
 		glDeleteBuffers(1, &iboSingle);

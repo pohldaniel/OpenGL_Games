@@ -428,9 +428,10 @@ void AssimpModel::addInstances(const std::vector<Matrix4f>& modelMTX) {
 		glVertexAttribDivisor(7, 1);
 		glVertexAttribDivisor(8, 1);
 
-		glBindVertexArray(0);
-	}
-	else {
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindVertexArray(0);	
+
+	}else {
 
 		for (int j = 0; j < m_numberOfMeshes; j++) {
 			m_meshes[j]->addInstance(*this);
@@ -466,9 +467,10 @@ void AssimpModel::addInstance(const Matrix4f& modelMTX) {
 		glVertexAttribDivisor(7, 1);
 		glVertexAttribDivisor(8, 1);
 
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindVertexArray(0);
-	}
-	else {
+		
+	}else {
 
 		for (int j = 0; j < m_numberOfMeshes; j++) {
 			m_meshes[j]->addInstance(*this);
@@ -486,8 +488,6 @@ void AssimpModel::createInstancesDynamic(unsigned int numberOfInstances) {
 
 		glBindBuffer(GL_ARRAY_BUFFER, m_vboInstances);
 		glBufferData(GL_ARRAY_BUFFER, m_instanceCount * sizeof(GLfloat) * 4 * 4, NULL, GL_DYNAMIC_DRAW);
-		//glBindBuffer(GL_ARRAY_BUFFER, 0);
-
 
 		glEnableVertexAttribArray(5);
 		glEnableVertexAttribArray(6);
@@ -503,9 +503,10 @@ void AssimpModel::createInstancesDynamic(unsigned int numberOfInstances) {
 		glVertexAttribDivisor(7, 1);
 		glVertexAttribDivisor(8, 1);
 
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindVertexArray(0);
-	}
-	else {
+		
+	}else {
 		for (int j = 0; j < m_numberOfMeshes; j++) {
 			m_meshes[j]->createInstancesDynamic(numberOfInstances);
 		}
@@ -798,12 +799,13 @@ void AssimpModel::CreateBuffer(std::vector<float>& vertexBuffer, std::vector<uns
 		glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)(11 * sizeof(float)));
 
 	}
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	//Indices
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexBuffer.size() * sizeof(unsigned int), &indexBuffer[0], GL_STATIC_DRAW);
 
-	glBindVertexArray(0);
+	glBindVertexArray(0);	
 }
 
 
@@ -1097,8 +1099,8 @@ void AssimpMesh::addInstance(const AssimpModel& model) {
 		glBindBuffer(GL_ARRAY_BUFFER, m_vboInstances);
 		glBufferData(GL_ARRAY_BUFFER, instances.size() * sizeof(float) * 4 * 4, instances[0][0], GL_STATIC_DRAW);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
-	}
-	else {
+
+	}else {
 		glGenBuffers(1, &m_vboInstances);
 		glBindVertexArray(m_vao);
 
@@ -1119,7 +1121,8 @@ void AssimpMesh::addInstance(const AssimpModel& model) {
 		glVertexAttribDivisor(7, 1);
 		glVertexAttribDivisor(8, 1);
 
-		glBindVertexArray(0);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindVertexArray(0);	
 	}
 }
 
@@ -1147,6 +1150,7 @@ void AssimpMesh::createInstancesDynamic(unsigned int numberOfInstances) {
 	glVertexAttribDivisor(7, 1);
 	glVertexAttribDivisor(8, 1);
 
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 }
 

@@ -194,13 +194,12 @@ void AssimpAnimatedModel::CreateBuffer(std::vector<Vector3f>& positions, std::ve
 
 	glEnableVertexAttribArray(4);
 	glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, 0, 0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	//Indices
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
-
-	glBindVertexArray(0);
-
+	glBindVertexArray(0);	
 };
 
 void AssimpAnimatedModel::printAiHierarchy(aiNode *node) {

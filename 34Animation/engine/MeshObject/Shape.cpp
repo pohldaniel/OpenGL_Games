@@ -710,16 +710,14 @@ void Shape::createBuffer() {
 		glVertexAttribIPointer(6, 4, GL_UNSIGNED_INT, 0, 0);
 	}
 
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
 	//Indices
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_indexBuffer.size() * sizeof(m_indexBuffer[0]), &m_indexBuffer[0], GL_STATIC_DRAW);
 	glBindVertexArray(0);
 
 	glDeleteBuffers(1, &ibo);
-
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-
 	//m_positions.clear();
 	//m_positions.shrink_to_fit();
 	//m_indexBuffer.clear();
@@ -902,7 +900,7 @@ void Shape::setInstances(unsigned int length, unsigned int divisor, unsigned int
 		glVertexAttribDivisor(8, divisor);
 
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		glBindVertexArray(0);
+		glBindVertexArray(0);		
 	}
 }
 
@@ -917,7 +915,6 @@ void Shape::setVec4Attribute(const std::vector<Vector4f>& values, unsigned int d
 		glBindBuffer(GL_ARRAY_BUFFER, m_vboAdd1);
 		glBufferData(GL_ARRAY_BUFFER, values.size() * sizeof(float) * 4, &values[0], GL_STATIC_DRAW);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
-
 	}else{
 
 		glGenBuffers(1, &m_vboAdd1);
@@ -941,7 +938,6 @@ void Shape::setMat4Attribute(const std::vector<Matrix4f>& values, unsigned int d
 		glBindBuffer(GL_ARRAY_BUFFER, m_vboAdd2);
 		glBufferData(GL_ARRAY_BUFFER, values.size() * sizeof(float) * 4 * 4, values[0][0], GL_STATIC_DRAW);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
-
 	}else {
 
 		glGenBuffers(1, &m_vboAdd2);
@@ -975,7 +971,6 @@ void Shape::setFloatAttribute(const std::vector<float>& values, unsigned int div
 		glBindBuffer(GL_ARRAY_BUFFER, m_vboAdd3);
 		glBufferData(GL_ARRAY_BUFFER, values.size() * sizeof(float), &values[0], GL_STATIC_DRAW);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
-
 	}else{
 
 		glGenBuffers(1, &m_vboAdd3);

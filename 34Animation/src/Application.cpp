@@ -337,7 +337,7 @@ void Application::initOpenGL(int msaaSamples) {
 
 	glDisable(GL_CULL_FACE);
 	//glEnable(GL_CULL_FACE);
-	/*glCullFace(GL_BACK);
+	glCullFace(GL_BACK);
 	glFrontFace(GL_CCW);
 
 	//glDisable(GL_DEPTH_TEST);
@@ -347,7 +347,9 @@ void Application::initOpenGL(int msaaSamples) {
 	glDisable(GL_BLEND);
 	//glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);*/
+	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+
+	glEnable(GL_TEXTURE_2D);
 
 	//glClipControl(GL_UPPER_LEFT, GL_ZERO_TO_ONE);
 	//glClipControl(GL_UPPER_LEFT, GL_NEGATIVE_ONE_TO_ONE);

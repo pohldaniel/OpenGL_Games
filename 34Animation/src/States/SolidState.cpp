@@ -220,7 +220,6 @@ SolidState::SolidState(StateMachine& machine) : State(machine, States::SOLID) {
                     "res/Body7.solid", "res/BodyLow.solid",
                     "res/Belt.solid", true);
 
-	glEnable(GL_TEXTURE_2D);
 	CreateTexture(g_Texture[0], "Texture1.bmp");
 	CreateTexture(g_Texture[1], "Texture2.bmp");
 	CreateTexture(g_Texture[2], "Texture3.bmp");
@@ -331,9 +330,9 @@ void SolidState::render() {
 
 	//RenderScene();
 
-	m_skeleton.drawmodel.draw();
+	//m_skeleton.drawmodel.draw();
 
-	/*auto shader = Globals::shaderManager.getAssetPointer("texture");
+	auto shader = Globals::shaderManager.getAssetPointer("texture");
 	shader->use();
 	shader->loadInt("u_texture", 1);
 	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
@@ -341,7 +340,7 @@ void SolidState::render() {
 	shader->loadMatrix("u_model", Matrix4f::IDENTITY);
 	Globals::textureManager.get("null").bind(1);
 	m_body.drawRaw();
-	shader->unuse();*/
+	shader->unuse();
 
 	if (m_drawUi)
 		renderUi();

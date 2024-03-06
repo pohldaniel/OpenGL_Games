@@ -7,14 +7,6 @@ template<typename T>
 class AssetManager {
 public:
 
-	void create(const std::string& name, T& asset) {
-		m_assets.insert(std::pair<std::string, T>(name, T()));
-		m_assets[name].copy(asset);
-
-		//m_assets.insert(std::pair<std::string, T>(name, asset));
-		//m_assets[name] = T(asset);
-	}
-
 	void loadTexture(const std::string& name, const std::string& path, const bool flipVertical = true, unsigned int internalFormat = 0u, unsigned int format = 0u, unsigned int SOIL_FLAG = 0u) {
 		m_assets[name].loadFromFile(path, flipVertical, internalFormat, format, 0, 0, 0, 0, SOIL_FLAG);
 		m_assets[name].markForDelete();
@@ -174,50 +166,62 @@ public:
 
 	void buildTorus(const std::string& name, float radius = 0.5f, float tubeRadius = 0.25f, const Vector3f& position = Vector3f(0.0f, 0.0f, 0.0f), int uResolution = 49, int vResolution = 49, bool generateTexels = true, bool generateNormals = true, bool generateTangents = false) {
 		m_assets[name].buildTorus(radius, tubeRadius, position, uResolution, vResolution, generateTexels, generateNormals, generateTangents);
+		m_assets[name].markForDelete();
 	}
 
 	void buildSphere(const std::string& name, float radius = 1.0f, const Vector3f& position = Vector3f(0.0f, 0.0f, 0.0f), int uResolution = 49, int vResolution = 49, bool generateTexels = true, bool generateNormals = true, bool generateTangents = false) {
 		m_assets[name].buildSphere(radius, position, uResolution, vResolution, generateTexels, generateNormals, generateTangents);
+		m_assets[name].markForDelete();
 	}
 
 	void buildSpiral(const std::string& name, float radius = 0.5f, float tubeRadius = 0.25f, float length = 1.5f, int numRotations = 2, bool repeatTexture = true, const Vector3f& position = Vector3f(0.0f, -0.75f, 0.0f), int uResolution = 49, int vResolution = 49, bool generateTexels = true, bool generateNormals = true, bool generateTangents = false) {
 		m_assets[name].buildSpiral(radius, tubeRadius, length, numRotations, repeatTexture, position, uResolution, vResolution, generateTexels, generateNormals, generateTangents);
+		m_assets[name].markForDelete();
 	}
 
 	void buildCylinder(const std::string& name, float baseRadius = 1.0f, float topRadius = 1.0f, float length = 1.0f, const Vector3f& position = Vector3f(0.0f, 0.0f, 0.0f), bool top = true, bool bottom = true, int uResolution = 10, int vResolution = 10, bool generateTexels = true, bool generateNormals = true, bool generateTangents = false) {
 		m_assets[name].buildCylinder(baseRadius, topRadius, length, position, top, bottom, uResolution, vResolution, generateTexels, generateNormals, generateTangents);
+		m_assets[name].markForDelete();
 	}
 
 	void buildQuadXY(const std::string& name, const Vector3f& position = Vector3f(-1.0f, -1.0f, 0.0f), const Vector2f& size = Vector2f(2.0f, 2.0f), int uResolution = 1, int vResolution = 1, bool generateTexels = true, bool generateNormals = true, bool generateTangents = false) {
 		m_assets[name].buildQuadXY(position, size, uResolution, vResolution, generateTexels, generateNormals, generateTangents);
+		m_assets[name].markForDelete();
 	}
 
 	void buildQuadXZ(const std::string& name, const Vector3f& position = Vector3f(-1.0f, 0.0f, -1.0f), const Vector2f& size = Vector2f(2.0f, 2.0f), int uResolution = 1, int vResolution = 1, bool generateTexels = true, bool generateNormals = true, bool generateTangents = false) {
 		m_assets[name].buildQuadXZ(position, size, uResolution, vResolution, generateTexels, generateNormals, generateTangents);
+		m_assets[name].markForDelete();
 	}
 
 	void buildDiamondXY(const std::string& name, const Vector2f& size, float border = 0.75f, int uResolution = 1, int vResolution = 1, bool generateTexels = true, bool generateNormals = true, bool generateTangents = false) {
 		m_assets[name].buildDiamondXY(size, border, uResolution, vResolution, generateTexels, generateNormals, generateTangents);
+		m_assets[name].markForDelete();
 	}
 
 	void buildCube(const std::string& name, const Vector3f& position = Vector3f(-1.0f, -1.0f, -1.0f), const Vector3f& size = Vector3f(2.0f, 2.0f, 2.0f), int uResolution = 1, int vResolution = 1, bool generateTexels = true, bool generateNormals = true, bool generateTangents = false) {
 		m_assets[name].buildCube(position, size, uResolution, vResolution, generateTexels, generateNormals, generateTangents);
+		m_assets[name].markForDelete();
 	}
 
 	void buildDiskXY(const std::string& name, float radius = 1.0f, const Vector3f& position = Vector3f(-1.0f, 0.0f, -1.0f), int uResolution = 1, int vResolution = 1, bool generateTexels = true, bool generateNormals = true, bool generateTangents = false) {
 		m_assets[name].buildDiskXY(radius, position, uResolution, vResolution, generateTexels, generateNormals, generateTangents);
+		m_assets[name].markForDelete();
 	}
 
 	void buildDiskXZ(const std::string& name, float radius = 1.0f, const Vector3f& position = Vector3f(-1.0f, 0.0f, -1.0f), int uResolution = 1, int vResolution = 1, bool generateTexels = true, bool generateNormals = true, bool generateTangents = false) {
 		m_assets[name].buildDiskXZ(radius, position, uResolution, vResolution, generateTexels, generateNormals, generateTangents);
+		m_assets[name].markForDelete();
 	}
 
 	void fromBuffer(const std::string& name, std::vector<float>& vertexBuffer, std::vector<unsigned int> indexBuffer, unsigned int stride) {
 		m_assets[name].fromBuffer(vertexBuffer, indexBuffer, stride);
+		m_assets[name].markForDelete();
 	}
 
 	void fromObj(const std::string& name, const char* filename) {
 		m_assets[name].fromObj(filename);
+		m_assets[name].markForDelete();
 	}
 
 	T& get(const std::string& name) {

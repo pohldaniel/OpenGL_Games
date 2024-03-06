@@ -90,8 +90,9 @@ void Quad::createBuffer(unsigned int& vao, bool flippable, float leftEdge, float
 		glEnableVertexAttribArray(1);
 		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)(offset * sizeof(float)));
 	}
-	//Indices
-	
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	//Indices	
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(index), index, GL_STATIC_DRAW);
 
@@ -134,11 +135,13 @@ void Quad::createBuffer() {
 	//Texture Coordinates
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)(offset * sizeof(float)));
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
+	//Indices
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(index), index, GL_STATIC_DRAW);
-
 	glBindVertexArray(0);
+
 	glDeleteBuffers(1, &ibo);
 
 	vertex.clear();
@@ -187,7 +190,9 @@ void Quad::createBuffer(const Vector3f& position, const Vector3f& size) {
 	//Texture Coordinates
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)(offset * sizeof(float)));
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
+	//Indices
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(index), index, GL_STATIC_DRAW);
 
