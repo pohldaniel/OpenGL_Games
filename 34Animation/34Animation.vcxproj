@@ -202,6 +202,10 @@
     <ClCompile Include="engine\utils\StringUtils.cpp" />
     <ClCompile Include="engine\utils\Utils.cpp" />
     <ClCompile Include="engine\ZoomableQuad.cpp" />
+    <ClCompile Include="Joint.cpp" />
+    <ClCompile Include="Model.cpp" />
+    <ClCompile Include="Muscle.cpp" />
+    <ClCompile Include="Skeleton.cpp" />
     <ClCompile Include="src\Animation\AnimatedModel.cpp" />
     <ClCompile Include="src\Animation\Animation.cpp" />
     <ClCompile Include="src\Animation\AnimationController.cpp" />
@@ -215,7 +219,11 @@
     <ClCompile Include="src\States\Game.cpp" />
     <ClCompile Include="src\States\Settings.cpp" />
     <ClCompile Include="src\States\SkinnedArmor.cpp" />
+    <ClCompile Include="src\States\SolidState.cpp" />
     <ClCompile Include="src\States\StateMachine.cpp" />
+    <ClCompile Include="src\Utils\Folders.cpp" />
+    <ClCompile Include="src\Utils\pack.c" />
+    <ClCompile Include="src\Utils\private.c" />
     <ClCompile Include="src\Utils\Rasterizer.cpp" />
     <ClCompile Include="engine\ArrayBuffer.cpp" />
     <ClCompile Include="engine\Batchrenderer.cpp" />
@@ -277,6 +285,8 @@
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\States\Menu.cpp" />
     <ClCompile Include="src\Utils\SolidIO.cpp" />
+    <ClCompile Include="src\Utils\unpack.c" />
+    <ClCompile Include="XYZ.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine\animation\AssimpAnimatedModel.h" />
@@ -370,6 +380,10 @@
     <ClInclude Include="engine\Vector.h" />
     <ClInclude Include="engine\VolumeBuffer.h" />
     <ClInclude Include="engine\ZoomableQuad.h" />
+    <ClInclude Include="Joint.h" />
+    <ClInclude Include="Model.h" />
+    <ClInclude Include="Muscle.h" />
+    <ClInclude Include="Skeleton.h" />
     <ClInclude Include="src\Animation\AnimatedModel.h" />
     <ClInclude Include="src\Animation\Animation.h" />
     <ClInclude Include="src\Animation\AnimationController.h" />
@@ -385,7 +399,11 @@
     <ClInclude Include="src\States\Game.h" />
     <ClInclude Include="src\States\Settings.h" />
     <ClInclude Include="src\States\SkinnedArmor.h" />
+    <ClInclude Include="src\States\SolidState.h" />
     <ClInclude Include="src\States\StateMachine.h" />
+    <ClInclude Include="src\Utils\binio.h" />
+    <ClInclude Include="src\Utils\Folders.hpp" />
+    <ClInclude Include="src\Utils\private.h" />
     <ClInclude Include="src\Utils\Rasterizer.h" />
     <ClInclude Include="Physics\BspConverter.h" />
     <ClInclude Include="Physics\BspLoader.h" />
@@ -403,6 +421,7 @@
     <ClInclude Include="Miniball\Miniball.h" />
     <ClInclude Include="src\States\Menu.h" />
     <ClInclude Include="src\Utils\SolidIO.h" />
+    <ClInclude Include="XYZ.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

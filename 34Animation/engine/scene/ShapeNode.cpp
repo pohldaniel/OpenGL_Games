@@ -6,7 +6,7 @@ ShapeNode::ShapeNode(const Shape& shape) : SceneNodeLC(), shape(shape), m_drawDe
 }
 
 ShapeNode::~ShapeNode() {
-	std::cout << "Shape Node Destructor" << std::endl;
+
 }
 
 void ShapeNode::OnWorldBoundingBoxUpdate() const {

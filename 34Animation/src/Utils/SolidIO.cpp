@@ -14,6 +14,20 @@ short Utils::bytesToShortBE(unsigned char b0, unsigned char b1) {
 	return f;
 }
 
+int Utils::bytesToIntLE(unsigned char b0, unsigned char b1, unsigned char b2, unsigned char b3) {
+	int f;
+	unsigned char b[] = { b0, b1, b2, b3 };
+	memcpy(&f, &b, sizeof(int));
+	return f;
+}
+
+int Utils::bytesToIntBE(unsigned char b0, unsigned char b1, unsigned char b2, unsigned char b3) {
+	int f;
+	unsigned char b[] = { b3, b2, b1, b0 };
+	memcpy(&f, &b, sizeof(int));
+	return f;
+}
+
 unsigned int Utils::bytesToUIntLE(unsigned char b0, unsigned char b1, unsigned char b2, unsigned char b3) {
 	unsigned int f;
 	unsigned char b[] = { b0, b1, b2, b3 };
@@ -40,6 +54,45 @@ float Utils::bytesToFloatBE(unsigned char b0, unsigned char b1, unsigned char b2
 	unsigned char b[] = { b3, b2, b1, b0 };
 	memcpy(&f, &b, sizeof(float));
 	return f;
+}
+
+void Utils::Joint::print() {
+	std::cout << "-------Joint-------" << std::endl;
+	std::cout << "Position: " << position[0] << "  " << position[1] << "  " << position[2] << std::endl;
+	std::cout << "Length: " << length << " Mass: " << mass << std::endl;
+
+	std::cout << "Has Parent: " << hasparent << " Locked: " << locked << std::endl;
+	std::cout << "Modelnum: " << modelnum << std::endl;
+	std::cout << "Visible: " << visible << " Sametwist: " << sametwist << std::endl;
+	std::cout << "Label: " << label << " Has Gun: " << hasgun << std::endl;;
+	std::cout << "Lower: " << lower << std::endl;
+	std::cout << "ParentIndex: " << parentIndex << std::endl;
+	std::cout << "-------------------" << std::endl;
+}
+
+void Utils::Muscle::print() {
+	std::cout << "-------Muscle-------" << std::endl;
+	std::cout << "Length: " << length << " Target Length: "  << targetlength << " Min Length: " << minlength <<  " Max Length: "<< maxlength << " Strength: " << strength << std::endl;
+	std::cout << "Type: " << type << " Num Vertices: " << numvertices << std::endl;
+	for (int index : vertexIndices) {
+		std::cout << "Index: " << index << std::endl;
+	}
+	std::cout << "Visible: " << visible << std::endl;
+	std::cout << "ParentIndex1: " << parentIndex1 << " ParentIndex2: " << parentIndex2 << std::endl;
+	std::cout << "--------------------" << std::endl;
+}
+
+void Utils::Skeleton::print() {
+	std::cout << "###########SKELETON###########" << std::endl;
+	for (auto&& joint : m_joints) {
+		joint.print();
+	}
+
+	for (auto&& muscle : m_muscles) {
+		muscle.print();
+	}
+	std::cout << "Forward: " << forwardJoint1 << "  " << forwardJoint2 << "  " << forwardJoint3 << std::endl;
+	std::cout << "Low Forward: " << lowForwardJoint1 << "  " << lowForwardJoint2 << "  " << lowForwardJoint3 << std::endl;
 }
 
 bool Utils::SolidIO::getSimilarVertexIndex(std::array<float, 2>& packed, std::map<std::array<float, 2>, short, ComparerUv>& uvToOutIndex, short & result) {
@@ -164,7 +217,51 @@ void Utils::SolidIO::solidToObj(const char* filename, const char* outFileObj, co
 	fileOut.close();
 }
 
-void Utils::SolidIO::solidToBuffer(const char* filename, bool flipVertical, std::vector<float>& vertexBufferOut, std::vector<unsigned int>& indexBufferOut) {
+std::array<float, 3> Utils::SolidIO::RotatePoint(std::array<float, 3> thePoint, float xang, float yang, float zang)
+{
+	static std::array<float, 3> newpoint;
+	if (xang) {
+		xang *= 6.283185f;
+		xang /= 360;
+	}
+	if (yang) {
+		yang *= 6.283185f;
+		yang /= 360;
+	}
+	if (zang) {
+		zang *= 6.283185f;
+		zang /= 360;
+	}
+
+	if (yang) {
+		newpoint[2] = thePoint[2] * cosf(yang) - thePoint[0] * sinf(yang);
+		newpoint[0] = thePoint[2] * sinf(yang) + thePoint[0] * cosf(yang);
+		thePoint[2] = newpoint[2];
+		thePoint[0] = newpoint[0];
+	}
+
+	if (zang) {
+		newpoint[0] = thePoint[0] * cosf(zang) - thePoint[1] * sinf(zang);
+		newpoint[1] = thePoint[1] * cosf(zang) + thePoint[0] * sinf(zang);
+		thePoint[0] = newpoint[0];
+		thePoint[1] = newpoint[1];
+	}
+
+	if (xang) {
+		newpoint[1] = thePoint[1] * cosf(xang) - thePoint[2] * sinf(xang);
+		newpoint[2] = thePoint[1] * sinf(xang) + thePoint[2] * cosf(xang);
+		thePoint[2] = newpoint[2];
+		thePoint[1] = newpoint[1];
+	}
+
+	return thePoint;
+}
+
+std::array<float, 3> Utils::SolidIO::ScalePoint(std::array<float, 3> point, float scaleX, float scaleY, float scaleZ) {
+	return { point[0] * scaleX, point[1] * scaleY , point[2] * scaleZ };
+}
+
+void Utils::SolidIO::solidToBuffer(const char* filename, bool flipTextureVertical, std::array<float, 3> eulerAngle, std::array<float, 3> scale, std::vector<float>& vertexBufferOut, std::vector<unsigned int>& indexBufferOut) {
 	std::vector<std::array<float, 3>> vertices;
 	std::map<std::array<float, 5>, short, Comparer> vertexCache;
 
@@ -186,15 +283,20 @@ void Utils::SolidIO::solidToBuffer(const char* filename, bool flipVertical, std:
 		value[0].c[0] = (unsigned int)(buffer[i +  3]); value[0].c[1] = (unsigned int)(buffer[i +  2]); value[0].c[2] = (unsigned int)(buffer[i + 1]); value[0].c[3] = (unsigned int)(buffer[i + 0]);
 		value[1].c[0] = (unsigned int)(buffer[i +  7]); value[1].c[1] = (unsigned int)(buffer[i +  6]); value[1].c[2] = (unsigned int)(buffer[i + 5]); value[1].c[3] = (unsigned int)(buffer[i + 4]);
 		value[2].c[0] = (unsigned int)(buffer[i + 11]); value[2].c[1] = (unsigned int)(buffer[i + 10]); value[2].c[2] = (unsigned int)(buffer[i + 9]); value[2].c[3] = (unsigned int)(buffer[i + 8]);
-		vertices.push_back({ value[0].flt , value[1].flt , value[2].flt });
-	}
+		vertices.push_back({ value[0].flt, value[1].flt, value[2].flt });
+		
+		//std::cout << value[0].flt << "  " << value[1].flt << "  " << value[2].flt << std::endl;
 
+		//vertices.push_back(ScalePoint(RotatePoint({ value[0].flt, value[1].flt, value[2].flt }, eulerAngle[0], eulerAngle[1], eulerAngle[2]), scale[0], scale[1], scale[2]));
+	}
+	
 	char* bufferTris = new char[triangleCount * (6 * (sizeof(short) + sizeof(float)))];
 
 	file.read(bufferTris, triangleCount * (6 * (sizeof(short) + sizeof(float))));
 	file.close();
 
 	std::array<short, 3> ccw = {0, 2, 1};
+	std::array<short, 3> cw =  {0, 1, 2};
 
 	for (int i = 0; i < triangleCount * (6 * (sizeof(short) + sizeof(float))); i = i + 36) {
 	
@@ -202,12 +304,12 @@ void Utils::SolidIO::solidToBuffer(const char* filename, bool flipVertical, std:
 		bool found;
 		std::array<float, 5> vert;
 
-		for (const short &k : ccw){
+		for (const short &k : cw){
 			vert = { vertices[bytesToShortBE(bufferTris[i + k * 4], bufferTris[i + k * 4 + 1])][0],
 					 vertices[bytesToShortBE(bufferTris[i + k * 4], bufferTris[i + k * 4 + 1])][1],
 					 vertices[bytesToShortBE(bufferTris[i + k * 4], bufferTris[i + k * 4 + 1])][2],
 					 bytesToFloatBE(bufferTris[i + (k + 3) * 4], bufferTris[i + (k + 3) * 4 + 1], bufferTris[i + (k + 3) * 4 + 2], bufferTris[i + (k + 3) * 4 + 3]),
-					 flipVertical ? 1.0f - bytesToFloatBE(bufferTris[i + (k + 6) * 4], bufferTris[i + (k + 6) * 4 + 1], bufferTris[i + (k + 6) * 4 + 2], bufferTris[i + (k + 6) * 4 + 3]) : bytesToFloatBE(bufferTris[i + (k + 6) * 4], bufferTris[i + (k + 6) * 4 + 1], bufferTris[i + (k + 6) * 4 + 2], bufferTris[i + (k + 6) * 4 + 3])
+					 flipTextureVertical ? 1.0f - bytesToFloatBE(bufferTris[i + (k + 6) * 4], bufferTris[i + (k + 6) * 4 + 1], bufferTris[i + (k + 6) * 4 + 2], bufferTris[i + (k + 6) * 4 + 3]) : bytesToFloatBE(bufferTris[i + (k + 6) * 4], bufferTris[i + (k + 6) * 4 + 1], bufferTris[i + (k + 6) * 4 + 2], bufferTris[i + (k + 6) * 4 + 3])
 					};
 
 			found = getSimilarVertexIndex(vert, vertexCache, index);
@@ -222,8 +324,149 @@ void Utils::SolidIO::solidToBuffer(const char* filename, bool flipVertical, std:
 		}
 	}
 
+	//for (int i = 0; i < triangleCount; i++) {
+	//	std::cout << vertexBufferOut[indexBufferOut[i] * 5] << "  " << vertexBufferOut[indexBufferOut[i] * 5 + 1] << "  " << vertexBufferOut[indexBufferOut[i] * 5 + 2] << std::endl;
+	//}
+	//std::cout << "################################" << std::endl;
 	delete buffer;
 	delete bufferTris;
+}
+
+void Utils::SolidIO::loadSkeleton(const char* filename, std::vector<float>& modelVertexBuffer) {
+	Skeleton skeleton;
+	
+	std::ifstream file(filename, std::ios::binary);
+	char metaData[4];
+	file.read(&metaData[0], 1);
+	file.read(&metaData[1], 1);
+	file.read(&metaData[2], 1);
+	file.read(&metaData[3], 1);
+
+	int jointCount = bytesToIntBE(metaData[0], metaData[1], metaData[2], metaData[3]);
+
+
+	short offset = 5 * sizeof(float) + 2 * sizeof(bool) + sizeof(int) + 2 * sizeof(bool) + 2 * sizeof(int) + sizeof(bool) + sizeof(int);
+	char* buffer = new char[jointCount * offset];
+	file.read(buffer, jointCount * offset);
+
+	for (int i = 0; i < jointCount; i++) {
+		UFloat flt[5];
+		flt[0].c[0] = buffer[i * offset + 3]; flt[0].c[1] = buffer[i * offset + 2]; flt[0].c[2] = buffer[i * offset + 1]; flt[0].c[3] = buffer[i * offset + 0];
+		flt[1].c[0] = buffer[i * offset + 7]; flt[1].c[1] = buffer[i * offset + 6]; flt[1].c[2] = buffer[i * offset + 5]; flt[1].c[3] = buffer[i * offset + 4];
+		flt[2].c[0] = buffer[i * offset + 11]; flt[2].c[1] = buffer[i * offset + 10]; flt[2].c[2] = buffer[i * offset + 9]; flt[2].c[3] = buffer[i * offset + 8];
+		flt[3].c[0] = buffer[i * offset + 15]; flt[3].c[1] = buffer[i * offset + 14]; flt[3].c[2] = buffer[i * offset + 13]; flt[3].c[3] = buffer[i * offset + 12];
+		flt[4].c[0] = buffer[i * offset + 19]; flt[4].c[1] = buffer[i * offset + 18]; flt[4].c[2] = buffer[i * offset + 17]; flt[4].c[3] = buffer[i * offset + 16];
+
+		UBool bl[5];
+		bl[0].c[0] = buffer[i * offset + 20];
+		bl[1].c[0] = buffer[i * offset + 21];
+
+		UInt nt[4];
+		nt[0].c[0] = buffer[i * offset + 25]; nt[0].c[1] = buffer[i * offset + 24]; nt[0].c[2] = buffer[i * offset + 23]; nt[0].c[3] = buffer[i * offset + 22];
+
+		bl[2].c[0] = buffer[i * offset + 26];
+		bl[3].c[0] = buffer[i * offset + 27];
+
+		nt[1].c[0] = buffer[i * offset + 31]; nt[1].c[1] = buffer[i * offset + 30]; nt[1].c[2] = buffer[i * offset + 29]; nt[1].c[3] = buffer[i * offset + 28];
+		nt[2].c[0] = buffer[i * offset + 35]; nt[2].c[1] = buffer[i * offset + 34]; nt[2].c[2] = buffer[i * offset + 33]; nt[2].c[3] = buffer[i * offset + 32];
+
+		bl[4].c[0] = buffer[i * offset + 36];
+		nt[3].c[0] = buffer[i * offset + 40]; nt[3].c[1] = buffer[i * offset + 39]; nt[3].c[2] = buffer[i * offset + 38]; nt[3].c[3] = buffer[i * offset + 37];
+
+		skeleton.m_joints.push_back({ { flt[0].flt, flt[1].flt, flt[2].flt },
+                                        flt[3].flt, flt[4].flt,
+                                        bl[0].bl, bl[1].bl,
+                                        nt[0].nt,
+                                        bl[2].bl,bl[3].bl,
+                                        nt[1].nt, nt[2].nt,
+                                        bl[4].bl,
+                                        nt[3].nt });
+	}
+	delete buffer;
+
+	file.read(&metaData[0], 1);
+	file.read(&metaData[1], 1);
+	file.read(&metaData[2], 1);
+	file.read(&metaData[3], 1);
+
+	int numMuscles = bytesToIntBE(metaData[0], metaData[1], metaData[2], metaData[3]);
+
+	offset = 5 * sizeof(float) + 2 * sizeof(int);
+	buffer = new char[offset];
+
+	for (int i = 0; i < numMuscles; i++) {
+		skeleton.m_muscles.resize(skeleton.m_muscles.size() + 1);
+		Muscle& muscle = skeleton.m_muscles.back();
+
+		file.read(buffer, offset);
+		UFloat flt[5];
+		flt[0].c[0] = buffer[3]; flt[0].c[1] = buffer[2]; flt[0].c[2] = buffer[1]; flt[0].c[3] = buffer[0];
+		flt[1].c[0] = buffer[7]; flt[1].c[1] = buffer[6]; flt[1].c[2] = buffer[5]; flt[1].c[3] = buffer[4];
+		flt[2].c[0] = buffer[11]; flt[2].c[1] = buffer[10]; flt[2].c[2] = buffer[9]; flt[2].c[3] = buffer[8];
+		flt[3].c[0] = buffer[15]; flt[3].c[1] = buffer[14]; flt[3].c[2] = buffer[13]; flt[3].c[3] = buffer[12];
+		flt[4].c[0] = buffer[19]; flt[4].c[1] = buffer[18]; flt[4].c[2] = buffer[17]; flt[4].c[3] = buffer[16];
+
+		muscle.length = flt[0].flt;
+		muscle.targetlength = flt[1].flt;
+		muscle.minlength = flt[2].flt;
+		muscle.maxlength = flt[3].flt;
+		muscle.strength = flt[4].flt;
+
+		UInt nt[4];
+		nt[0].c[0] = buffer[23]; nt[0].c[1] = buffer[22]; nt[0].c[2] = buffer[21]; nt[0].c[3] = buffer[20];
+		nt[1].c[0] = buffer[27]; nt[1].c[1] = buffer[26]; nt[1].c[2] = buffer[25]; nt[1].c[3] = buffer[24];
+
+		muscle.type = nt[0].nt;
+		muscle.numvertices = nt[1].nt;
+
+		for (int j = 0; j < nt[1].nt; j++) {
+			file.read(&metaData[0], 1);file.read(&metaData[1], 1);file.read(&metaData[2], 1);file.read(&metaData[3], 1);
+			muscle.vertexIndices.push_back(bytesToIntBE(metaData[0], metaData[1], metaData[2], metaData[3]));
+		}
+
+		file.read(buffer, sizeof(bool) + 2 * sizeof(int));
+
+		UBool bl[1];
+		bl[0].c[0] = buffer[0];
+
+		muscle.visible = bl[0].bl;
+
+		nt[2].c[0] = buffer[4]; nt[2].c[1] = buffer[3]; nt[2].c[2] = buffer[2]; nt[2].c[3] = buffer[1];
+		nt[3].c[0] = buffer[8]; nt[3].c[1] = buffer[7]; nt[3].c[2] = buffer[6]; nt[3].c[3] = buffer[5];
+
+		muscle.parentIndex1 = nt[2].nt;
+		muscle.parentIndex2 = nt[3].nt;
+	}
+	delete buffer;
+
+	file.read(&metaData[0], 1); file.read(&metaData[1], 1); file.read(&metaData[2], 1); file.read(&metaData[3], 1);
+	skeleton.forwardJoint1 = bytesToIntBE(metaData[0], metaData[1], metaData[2], metaData[3]);
+
+	file.read(&metaData[0], 1); file.read(&metaData[1], 1); file.read(&metaData[2], 1); file.read(&metaData[3], 1);
+	skeleton.forwardJoint2 = bytesToIntBE(metaData[0], metaData[1], metaData[2], metaData[3]);
+
+	file.read(&metaData[0], 1); file.read(&metaData[1], 1); file.read(&metaData[2], 1); file.read(&metaData[3], 1);
+	skeleton.forwardJoint3 = bytesToIntBE(metaData[0], metaData[1], metaData[2], metaData[3]);
+
+	file.read(&metaData[0], 1); file.read(&metaData[1], 1); file.read(&metaData[2], 1); file.read(&metaData[3], 1);
+	skeleton.lowForwardJoint1 = bytesToIntBE(metaData[0], metaData[1], metaData[2], metaData[3]);
+
+	file.read(&metaData[0], 1); file.read(&metaData[1], 1); file.read(&metaData[2], 1); file.read(&metaData[3], 1);
+	skeleton.lowForwardJoint2 = bytesToIntBE(metaData[0], metaData[1], metaData[2], metaData[3]);
+
+	file.read(&metaData[0], 1); file.read(&metaData[1], 1); file.read(&metaData[2], 1); file.read(&metaData[3], 1);
+	skeleton.lowForwardJoint3 = bytesToIntBE(metaData[0], metaData[1], metaData[2], metaData[3]);
+
+	//skeleton.print();
+
+	for (auto& muscle : skeleton.m_muscles) {
+		muscle.initialPosition = (skeleton.m_joints[muscle.parentIndex1].position + skeleton.m_joints[muscle.parentIndex2].position) * 0.5f;
+		for (int vertIndex : muscle.vertexIndices) {
+			modelVertexBuffer[vertIndex * 5 + 0] -= muscle.initialPosition[0];
+			modelVertexBuffer[vertIndex * 5 + 1] -= muscle.initialPosition[1];
+			modelVertexBuffer[vertIndex * 5 + 2] -= muscle.initialPosition[2];
+		}
+	}
 }
 
 void Utils::MdlIO::mdlToObj(const char* path, const char* outFileObj, const char* outFileMtl, const char* texturePath) {

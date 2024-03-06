@@ -717,6 +717,9 @@ void Shape::createBuffer() {
 
 	glDeleteBuffers(1, &ibo);
 
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
 	//m_positions.clear();
 	//m_positions.shrink_to_fit();
 	//m_indexBuffer.clear();
@@ -733,6 +736,7 @@ void Shape::createBuffer() {
 	m_weights.shrink_to_fit();
 	m_boneIds.clear();
 	m_boneIds.shrink_to_fit();
+
 }
 
 void Shape::drawRaw() const {

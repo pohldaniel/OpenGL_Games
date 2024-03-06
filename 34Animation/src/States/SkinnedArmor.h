@@ -42,6 +42,5 @@ private:
 	AnimationController* m_animationController;
 	CharacterSkinned m_character;
 	float m_offsetDistance = 10.0f;
-	Utils::MdlIO mdlConverter;
-	Shape m_sword, m_armor;
+	
 };

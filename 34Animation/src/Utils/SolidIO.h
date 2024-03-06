@@ -83,6 +83,50 @@ namespace Utils {
 
 	static const float BONE_SIZE_THRESHOLD = 0.05f;
 
+	struct Joint{
+		Vector3f position;		
+		float length;
+		float mass;
+		bool hasparent;
+		bool locked;
+		int modelnum;
+		bool visible;
+		bool sametwist;
+		int label;
+		int hasgun;
+		bool lower;
+		int parentIndex;
+		void print();
+	};
+
+	struct Muscle {
+		float length;
+        float targetlength;
+        float minlength;
+        float maxlength;
+        float strength;
+		int type;
+		int numvertices;
+		std::vector<int> vertexIndices;
+		bool visible;
+		int parentIndex1;
+		int parentIndex2;
+		Vector3f initialPosition;
+		void print();
+	};
+
+	struct Skeleton {
+		std::vector<Joint> m_joints;
+		std::vector<Muscle> m_muscles;
+		int forwardJoint1;
+		int forwardJoint2;
+		int forwardJoint3;
+		int lowForwardJoint1;
+		int lowForwardJoint2;
+		int lowForwardJoint3;
+		void print();
+	};
+
 	enum VertexElementSemantic{
 		SEM_POSITION = 0,
 		SEM_NORMAL,
@@ -124,8 +168,25 @@ namespace Utils {
 		unsigned char c[2];
 	};
 
+	union UBool {
+		bool bl;
+		unsigned char c[1];
+	};
+
+	union UInt {
+		int nt;
+		unsigned char c[4];
+	};
+
+	union UUint {
+		unsigned int unt;
+		unsigned char c[4];
+	};
+
 	float bytesToFloatLE(unsigned char b0, unsigned char b1, unsigned char b2, unsigned char b3);
 	float bytesToFloatBE(unsigned char b0, unsigned char b1, unsigned char b2, unsigned char b3);
+	int bytesToIntLE(unsigned char b0, unsigned char b1, unsigned char b2, unsigned char b3);
+	int bytesToIntBE(unsigned char b0, unsigned char b1, unsigned char b2, unsigned char b3);
 	unsigned int bytesToUIntLE(unsigned char b0, unsigned char b1, unsigned char b2, unsigned char b3);
 	unsigned int bytesToUIntBE(unsigned char b0, unsigned char b1, unsigned char b2, unsigned char b3);
 	short bytesToShortLE(unsigned char b0, unsigned char b1);
@@ -146,12 +207,15 @@ namespace Utils {
 		};
 
 		void solidToObj(const char* filename, const char* outFileObj, const char* outFileMtl, const char* texturePath, bool flipVertical = true);
-		void solidToBuffer(const char* filename, bool flipVertical, std::vector<float>& vertexBufferOut, std::vector<unsigned int>& indexBufferOut);
+		void solidToBuffer(const char* filename, bool flipTextureVertical, std::array<float, 3> eulerAngle, std::array<float, 3> scale, std::vector<float>& vertexBufferOut, std::vector<unsigned int>& indexBufferOut);
+		void loadSkeleton(const char* filename, std::vector<float>& modelVertexBuffer);
 
 		private:
-
+			
 			bool getSimilarVertexIndex(std::array<float, 2>& packed, std::map<std::array<float, 2>, short, ComparerUv>& uvToOutIndex, short & result);
 			bool getSimilarVertexIndex(std::array<float, 5>& packed, std::map<std::array<float, 5>, short, Comparer>& uvToOutIndex, short & result);
+			static std::array<float, 3> RotatePoint(std::array<float, 3> point, float xang, float yang, float zang);
+			static std::array<float, 3> ScalePoint(std::array<float, 3> point, float scaleX, float scaleY, float scaleZ);
 
 	};
 

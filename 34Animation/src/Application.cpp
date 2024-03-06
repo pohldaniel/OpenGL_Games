@@ -17,7 +17,7 @@
 #include <States/Game.h>
 #include <States/CharacterState.h>
 #include <States/SkinnedArmor.h>
-
+#include <States/SolidState.h>
 
 #include "Application.h"
 #include "Globals.h"
@@ -337,17 +337,17 @@ void Application::initOpenGL(int msaaSamples) {
 
 	glDisable(GL_CULL_FACE);
 	//glEnable(GL_CULL_FACE);
-	glCullFace(GL_BACK);
+	/*glCullFace(GL_BACK);
 	glFrontFace(GL_CCW);
 
 	//glDisable(GL_DEPTH_TEST);
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);
 
-	//glDisable(GL_BLEND);
-	glEnable(GL_BLEND);
+	glDisable(GL_BLEND);
+	//glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);*/
 
 	//glClipControl(GL_UPPER_LEFT, GL_ZERO_TO_ONE);
 	//glClipControl(GL_UPPER_LEFT, GL_NEGATIVE_ONE_TO_ONE);
@@ -414,7 +414,8 @@ void Application::initStates() {
 	//Machine->addStateAtTop(new Default(*Machine));
 	//Machine->addStateAtTop(new Game(*Machine));
 	//Machine->addStateAtTop(new CharacterState(*Machine));
-	Machine->addStateAtTop(new SkinnedArmor(*Machine));	
+	//Machine->addStateAtTop(new SkinnedArmor(*Machine));	
+	Machine->addStateAtTop(new SolidState(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
