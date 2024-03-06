@@ -222,7 +222,7 @@ void Skeleton::Load(const std::string& filename, const std::string& lowfilename,
 	float lSize;
 	int j, num_joints, num_muscles;
 
-	/*num_models = 7;
+	num_models = 7;
 
 	// load various models
 	// rotate, scale, do normals, do texcoords for each as needed
@@ -239,11 +239,11 @@ void Skeleton::Load(const std::string& filename, const std::string& lowfilename,
 		model[i].Rotate(180, 0, 0);
 		model[i].Scale(.04, .04, .04);
 		model[i].CalculateNormals(0);
-	}*/
+	}
 	
 	drawmodel.load(modelfilename);
-	//drawmodel.Rotate(180, 0, 0);
-	//drawmodel.Scale(1.0, 1.0, 1.0);
+	drawmodel.Rotate(180, 0, 0);
+	drawmodel.Scale(.04, .04, .04);
 	drawmodel.FlipTexCoords();
 	//if ((TutorialLu::active) && (id != 0)) {
 	//	drawmodel.UniformTexCoords();
@@ -251,7 +251,7 @@ void Skeleton::Load(const std::string& filename, const std::string& lowfilename,
 	//}
 	drawmodel.CalculateNormals(0);
 
-	/*modellow.loadnotex(modellowfilename);
+	modellow.loadnotex(modellowfilename);
 	modellow.Rotate(180, 0, 0);
 	modellow.Scale(.04, .04, .04);
 	modellow.CalculateNormals(0);
@@ -279,7 +279,7 @@ void Skeleton::Load(const std::string& filename, const std::string& lowfilename,
 		drawmodelclothes.Scale(.04, .04, .04);
 		drawmodelclothes.FlipTexCoords();
 		drawmodelclothes.CalculateNormals(0);
-	}*/
+	}
 
 	// FIXME: three similar blocks follow, one for each of:
 	// filename, lowfilename, clothesfilename
@@ -321,7 +321,7 @@ void Skeleton::Load(const std::string& filename, const std::string& lowfilename,
 	}
 	fclose(tfile);
 	// ???
-	/*for (j = 0; j < num_muscles; j++) {
+	for (j = 0; j < num_muscles; j++) {
 		for (unsigned i = 0; i < muscles[j].vertices.size(); i++) {
 			for (int k = 0; k < num_models; k++) {
 				if (muscles[j].vertices[i] < model[k].vertexNum) {
@@ -494,5 +494,5 @@ void Skeleton::Load(const std::string& filename, const std::string& lowfilename,
 		}
 	}
 
-	free = 0;*/
+	free = 0;
 }

@@ -283,11 +283,7 @@ void Utils::SolidIO::solidToBuffer(const char* filename, bool flipTextureVertica
 		value[0].c[0] = (unsigned int)(buffer[i +  3]); value[0].c[1] = (unsigned int)(buffer[i +  2]); value[0].c[2] = (unsigned int)(buffer[i + 1]); value[0].c[3] = (unsigned int)(buffer[i + 0]);
 		value[1].c[0] = (unsigned int)(buffer[i +  7]); value[1].c[1] = (unsigned int)(buffer[i +  6]); value[1].c[2] = (unsigned int)(buffer[i + 5]); value[1].c[3] = (unsigned int)(buffer[i + 4]);
 		value[2].c[0] = (unsigned int)(buffer[i + 11]); value[2].c[1] = (unsigned int)(buffer[i + 10]); value[2].c[2] = (unsigned int)(buffer[i + 9]); value[2].c[3] = (unsigned int)(buffer[i + 8]);
-		vertices.push_back({ value[0].flt, value[1].flt, value[2].flt });
-		
-		//std::cout << value[0].flt << "  " << value[1].flt << "  " << value[2].flt << std::endl;
-
-		//vertices.push_back(ScalePoint(RotatePoint({ value[0].flt, value[1].flt, value[2].flt }, eulerAngle[0], eulerAngle[1], eulerAngle[2]), scale[0], scale[1], scale[2]));
+		vertices.push_back(ScalePoint(RotatePoint({ value[0].flt, value[1].flt, value[2].flt }, eulerAngle[0], eulerAngle[1], eulerAngle[2]), scale[0], scale[1], scale[2]));
 	}
 	
 	char* bufferTris = new char[triangleCount * (6 * (sizeof(short) + sizeof(float)))];
