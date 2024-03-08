@@ -225,7 +225,13 @@ namespace Utils {
 	short bytesToShortBE(unsigned char b0, unsigned char b1);
 
 	struct SolidIO{
+	
 		
+		struct Vertex {
+			std::array<float, 5> data;
+			unsigned int index;
+		};
+
 		struct ComparerUv {
 			bool operator()(const std::array<float, 2>& lhs, const std::array<float, 2>& rhs) const {
 				return memcmp(lhs.data(), rhs.data(), 2 * sizeof(float)) < 0;
@@ -233,22 +239,24 @@ namespace Utils {
 		};
 
 		struct Comparer {
-			bool operator()(const std::array<float, 5>& lhs, const std::array<float, 5>& rhs) const {
-				return memcmp(lhs.data(), rhs.data(), 5 * sizeof(float)) < 0;
+			bool operator()(const Vertex& lhs, const Vertex& rhs)const {
+				return memcmp(lhs.data.data(), rhs.data.data(), 5 * sizeof(float)) < 0;
 			}
 		};
 
+
 		void solidToObj(const char* filename, const char* outFileObj, const char* outFileMtl, const char* texturePath, bool flipVertical = true);
-		void solidToBuffer(const char* filename, bool flipTextureVertical, std::array<float, 3> eulerAngle, std::array<float, 3> scale, std::vector<float>& vertexBufferOut, std::vector<unsigned int>& indexBufferOut);
-		void loadSkeleton(const char* filename, const std::vector<float>& vertexBuffer, std::vector<float>& vertexBufferOut, Skeleton& skeleton, std::vector<std::array<float, 4>>& weightsOut, std::vector<std::array<unsigned int, 4>>& boneIdsOut);
+		void solidToBuffer(const char* filename, bool flipTextureVertical, std::array<float, 3> eulerAngle, std::array<float, 3> scale, std::vector<Vertex>& vertexBufferOut, std::vector<unsigned int>& indexBufferOut);
+		void loadSkeleton(const char* filename, const std::vector<Vertex>& vertexBufferMap, std::vector<float>& vertexBufferOut, Skeleton& skeleton, std::vector<std::array<float, 4>>& weightsOut, std::vector<std::array<unsigned int, 4>>& boneIdsOut);
+		void fromBufferMap(const std::vector<Vertex>& bufferMap, std::vector<float>& vertexBufferOut);
 
 		static std::array<float, 3> RotatePoint(std::array<float, 3> point, float xang, float yang, float zang);		
 		static std::array<float, 3> ScalePoint(std::array<float, 3> point, float scaleX, float scaleY, float scaleZ);
 
 		private:
 			
-		bool getSimilarVertexIndex(std::array<float, 2>& packed, std::map<std::array<float, 2>, short, ComparerUv>& uvToOutIndex, short & result);
-		bool getSimilarVertexIndex(std::array<float, 5>& packed, std::map<std::array<float, 5>, short, Comparer>& uvToOutIndex, short & result);
+		bool getSimilarVertexIndex(std::array<float, 2>& packed, std::map<std::array<float, 2>, short, ComparerUv>& uvToOutIndex, short& result);	
+		bool getSimilarVertexIndex(Vertex& packed, std::map<Vertex, short, Comparer>& uvToOutIndex, short & result);		
 	};
 
 	struct MdlIO {

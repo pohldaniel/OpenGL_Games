@@ -362,25 +362,27 @@ void Skeleton::Load(const std::string& filename, const std::string& lowfilename,
 	// this seems to use opengl purely for matrix calculations
 	for (int k = 0; k < 1; k++) {
 		for (int i = 0; i < model[k].vertexNum; i++) {
+
 			model[k].vertex[i] = model[k].vertex[i] - (muscles[model[k].owner[i]].parent1->position + muscles[model[k].owner[i]].parent2->position) / 2;
 			glMatrixMode(GL_MODELVIEW);
 			glPushMatrix();
 			glLoadIdentity();
 
-			//glRotatef(muscles[model[k].owner[i]].rotate3, 0, 1, 0);
-			//glRotatef(muscles[model[k].owner[i]].rotate2 - 90, 0, 0, 1);
-			//glRotatef(muscles[model[k].owner[i]].rotate1 - 90, 0, 1, 0);
-
-			
+			glRotatef(muscles[model[k].owner[i]].rotate3, 0, 1, 0);
+			glRotatef(muscles[model[k].owner[i]].rotate2 - 90, 0, 0, 1);
+			glRotatef(muscles[model[k].owner[i]].rotate1 - 90, 0, 1, 0);
 
 			glTranslatef(model[k].vertex[i].x, model[k].vertex[i].y, model[k].vertex[i].z);
 			glGetFloatv(GL_MODELVIEW_MATRIX, M);
 			model[k].vertex[i].x = M[12] * 1;
 			model[k].vertex[i].y = M[13] * 1;
 			model[k].vertex[i].z = M[14] * 1;
-
-			//std::cout << "Pos: " << M[12] << "  " << M[13] << "  " << M[14] << std::endl;
-
+			
+			//std::cout << M[0] << "  " << M[1] << "  " << M[2] << "  " << M[3] << std::endl;
+			//std::cout << M[4] << "  " << M[5] << "  " << M[6] << "  " << M[7] << std::endl;
+			//std::cout << M[8] << "  " << M[9] << "  " << M[10] << "  " << M[11] << std::endl;
+			//std::cout << M[12] << "  " << M[13] << "  " << M[14] << "  " << M[15] << std::endl;
+			//std::cout << "---------------" << std::endl;
 			glPopMatrix();
 		}
 		model[k].CalculateNormals(0);

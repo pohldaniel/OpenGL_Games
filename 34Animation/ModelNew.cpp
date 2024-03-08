@@ -4,8 +4,9 @@
 
 ModelNew::ModelNew() {
 
-	solidConverter.solidToBuffer("res/Body.solid", true, { 180.0f, 0.0f, 0.0f }, { 0.04f, 0.04f, 0.04f }, m_vertexBufferDraw, m_indexBuffer);
-	solidConverter.loadSkeleton("res/BasicFigure", m_vertexBufferDraw, m_vertexBuffer, m_skeleton, m_weights, m_boneIds);
+	solidConverter.solidToBuffer("res/Body.solid", true, { 180.0f, 0.0f, 0.0f }, { 0.04f, 0.04f, 0.04f }, m_vertexBufferMap, m_indexBuffer);
+	solidConverter.fromBufferMap(m_vertexBufferMap, m_vertexBufferDraw);
+	solidConverter.loadSkeleton("res/BasicFigure", m_vertexBufferMap, m_vertexBuffer, m_skeleton, m_weights, m_boneIds);
 
 	m_vertexNum = m_vertexBufferDraw.size() / 5;
 	m_muscleNum = m_skeleton.m_muscles.size();
@@ -22,6 +23,7 @@ ModelNew::ModelNew() {
 
 	for (size_t i = 0; i < m_muscleNum; ++i) {
 		m_skinMatrices[i] = m_skeleton.m_muscles[i].offsetMatrix;
+		//m_skinMatrices[i] = Matrix4f::IDENTITY;
 	}
 
 	glBindBuffer(GL_UNIFORM_BUFFER, BuiltInShader::matrixUbo);
@@ -73,6 +75,7 @@ ModelNew::ModelNew() {
 }
 
 void ModelNew::draw() {
+
 	for (int i = 0; i < m_vertexNum; i++) {
 		bufferPtr->pos = { m_vertexBuffer[i * 3], m_vertexBuffer[i * 3 + 1], m_vertexBuffer[i * 3 + 2] };
 		bufferPtr->tex = { m_vertexBufferDraw[i * 5 + 3], m_vertexBufferDraw[i * 5 + 4] };

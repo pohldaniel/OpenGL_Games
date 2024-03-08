@@ -23,10 +23,11 @@ public:
 	Utils::Skeleton m_skeleton;
 	
 	std::vector<unsigned int> m_indexBuffer;
-	std::vector<float> m_vertexBufferDraw;
+	std::vector<float> m_vertexBufferDraw;	
 	std::vector<float> m_vertexBuffer;
 	std::vector<std::array<float, 4>> m_weights;
 	std::vector<std::array<unsigned int, 4>> m_boneIds;
+	std::vector<Utils::SolidIO::Vertex> m_vertexBufferMap;
 
 	unsigned int m_vao = 0u;
 	unsigned int m_vbo[3] = { 0u };

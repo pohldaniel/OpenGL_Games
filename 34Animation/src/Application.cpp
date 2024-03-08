@@ -667,6 +667,7 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("batch", "res/shader/batch.vert", "res/shader/batch.frag");
 	Globals::shaderManager.loadShader("quad", "res/shader/quad.vert", "res/shader/quad.frag");
 	Globals::shaderManager.loadShader("animation_new", "res/shader/animation_new.vert", "res/shader/animation_new.frag");
+	Globals::shaderManager.loadShader("animation_new_2", "res/shader/animation_new.vert", "res/shader/animation_new_2.frag");
 	Globals::shaderManager.loadShader("texture", "res/shader/texture.vert", "res/shader/texture.frag");
 
 	Globals::textureManager.loadTexture("forest_1", "res/backgrounds/Forest/plx-1.png");

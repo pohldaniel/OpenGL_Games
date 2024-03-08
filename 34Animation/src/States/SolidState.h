@@ -50,4 +50,5 @@ private:
 	ModelNew modelNew;
 	std::vector<unsigned int> m_indexBuffer;
 	std::vector<float> m_vertexBufferDraw;
+	std::vector<Utils::SolidIO::Vertex> m_vertexBufferMap;
 };

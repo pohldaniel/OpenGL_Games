@@ -26,7 +26,8 @@ SolidState::SolidState(StateMachine& machine) : State(machine, States::SOLID) {
 	glClearDepth(1.0f);
 
 	
-	solidConverter.solidToBuffer("res/Body.solid", true, { 180.0f, 0.0f, 0.0f }, { 0.04f, 0.04f, 0.04f }, m_vertexBufferDraw, m_indexBuffer);
+	solidConverter.solidToBuffer("res/Body.solid", true, { 180.0f, 0.0f, 0.0f }, { 0.04f, 0.04f, 0.04f }, m_vertexBufferMap, m_indexBuffer);
+	solidConverter.fromBufferMap(m_vertexBufferMap, m_vertexBufferDraw);
 	m_body.fromBuffer(m_vertexBufferDraw, m_indexBuffer, 5);
 
 	std::cout << "######################" << std::endl;
@@ -138,7 +139,7 @@ void SolidState::render() {
 	m_body.drawRaw();
 	shader->unuse();*/
 
-	auto shader = Globals::shaderManager.getAssetPointer("animation_new");
+	auto shader = Globals::shaderManager.getAssetPointer("animation_new_2");
 	shader->use();
 	shader->loadInt("u_texture", 0);
 	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
