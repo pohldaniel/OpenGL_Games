@@ -441,6 +441,12 @@
     <ClCompile Include="src\Utils\ImageIO.cpp">
       <Filter>Source Files\Utils</Filter>
     </ClCompile>
+    <ClCompile Include="ModelNew.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\States\Interleaved.cpp">
+      <Filter>Source Files\States</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="convhull\convhull_3d.h">
@@ -844,6 +850,12 @@
     </ClInclude>
     <ClInclude Include="src\Utils\ImageIO.h">
       <Filter>Source Files\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelNew.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\States\Interleaved.h">
+      <Filter>Source Files\States</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

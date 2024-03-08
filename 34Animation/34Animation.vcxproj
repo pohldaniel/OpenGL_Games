@@ -204,6 +204,7 @@
     <ClCompile Include="engine\ZoomableQuad.cpp" />
     <ClCompile Include="Joint.cpp" />
     <ClCompile Include="Model.cpp" />
+    <ClCompile Include="ModelNew.cpp" />
     <ClCompile Include="Muscle.cpp" />
     <ClCompile Include="Skeleton.cpp" />
     <ClCompile Include="src\Animation\AnimatedModel.cpp" />
@@ -217,6 +218,7 @@
     <ClCompile Include="src\States\Controlls.cpp" />
     <ClCompile Include="src\States\Default.cpp" />
     <ClCompile Include="src\States\Game.cpp" />
+    <ClCompile Include="src\States\Interleaved.cpp" />
     <ClCompile Include="src\States\Settings.cpp" />
     <ClCompile Include="src\States\SkinnedArmor.cpp" />
     <ClCompile Include="src\States\SolidState.cpp" />
@@ -383,6 +385,7 @@
     <ClInclude Include="engine\ZoomableQuad.h" />
     <ClInclude Include="Joint.h" />
     <ClInclude Include="Model.h" />
+    <ClInclude Include="ModelNew.h" />
     <ClInclude Include="Muscle.h" />
     <ClInclude Include="Skeleton.h" />
     <ClInclude Include="src\Animation\AnimatedModel.h" />
@@ -398,6 +401,7 @@
     <ClInclude Include="src\States\Controls.h" />
     <ClInclude Include="src\States\Default.h" />
     <ClInclude Include="src\States\Game.h" />
+    <ClInclude Include="src\States\Interleaved.h" />
     <ClInclude Include="src\States\Settings.h" />
     <ClInclude Include="src\States\SkinnedArmor.h" />
     <ClInclude Include="src\States\SolidState.h" />
