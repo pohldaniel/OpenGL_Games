@@ -43,7 +43,6 @@ void Skeleton::FindForwards()
 
 	//Special forwards
 	specialforward[0] = forward;
-
 	specialforward[1] = jointPos(rightshoulder) + jointPos(rightwrist);
 	specialforward[1] = jointPos(rightelbow) - specialforward[1] / 2;
 	specialforward[1] += forward * .4;
@@ -52,7 +51,6 @@ void Skeleton::FindForwards()
 	specialforward[2] = jointPos(leftelbow) - specialforward[2] / 2;
 	specialforward[2] += forward * .4;
 	Normalise(&specialforward[2]);
-
 	specialforward[3] = jointPos(righthip) + jointPos(rightankle);
 	specialforward[3] = specialforward[3] / 2 - jointPos(rightknee);
 	specialforward[3] += lowforward * .4;
@@ -99,6 +97,7 @@ void Skeleton::FindRotationMuscle(int which, int animation)
 	p1 = muscles[which].parent1->position;
 	p2 = muscles[which].parent2->position;
 	dist = findDistance(&p1, &p2);
+
 	if (p1.y - p2.y <= dist) {
 		muscles[which].rotate2 = asin((p1.y - p2.y) / dist);
 	}
@@ -110,6 +109,7 @@ void Skeleton::FindRotationMuscle(int which, int animation)
 	p1.y = 0;
 	p2.y = 0;
 	dist = findDistance(&p1, &p2);
+
 	if (p1.z - p2.z <= dist) {
 		muscles[which].rotate1 = acos((p1.z - p2.z) / dist);
 	}
@@ -129,6 +129,20 @@ void Skeleton::FindRotationMuscle(int which, int animation)
 
 	const int label1 = muscles[which].parent1->label;
 	const int label2 = muscles[which].parent2->label;
+
+
+	//std::cout << "Mu1: " << muscles[which].rotate1 << "  " << muscles[which].rotate1 << "  " << label1 << std::endl;
+	//std::cout << "Mu2: " << muscles[which].rotate2 << "  " << muscles[which].rotate2 << "  " << label2 << std::endl;
+
+	//std::cout << "Mu1: " << muscles[which].parent1->lower << std::endl;
+	//std::cout << "Mu1: " << muscles[which].parent2->lower << std::endl;
+
+	//std::cout << "Forward0: " << specialforward[0].x << "  " << specialforward[0].y << "  " << specialforward[0].z << std::endl;
+	//std::cout << "Forward1: " << specialforward[1].x << "  " << specialforward[1].y << "  " << specialforward[1].z << std::endl;
+	//std::cout << "Forward2: " << specialforward[2].x << "  " << specialforward[2].y << "  " << specialforward[2].z << std::endl;
+	//std::cout << "Forward3: " << specialforward[3].x << "  " << specialforward[3].y << "  " << specialforward[3].z << std::endl;
+	//std::cout << "Forward4: " << specialforward[4].x << "  " << specialforward[4].y << "  " << specialforward[4].z << std::endl;
+
 	switch (label1) {
 	case head:
 		fwd = specialforward[0];
@@ -190,6 +204,7 @@ void Skeleton::FindRotationMuscle(int which, int animation)
 	fwd = DoRotation(fwd, 0, muscles[which].rotate1 - 90, 0);
 	fwd = DoRotation(fwd, 0, 0, muscles[which].rotate2 - 90);
 	fwd.y = 0;
+
 	fwd /= findLength(&fwd);
 	if (fwd.z <= 1 && fwd.z >= -1) {
 		muscles[which].rotate3 = acos(0 - fwd.z);
@@ -245,6 +260,7 @@ void Skeleton::Load(const std::string& filename, const std::string& lowfilename,
 	drawmodel.Rotate(180, 0, 0);
 	drawmodel.Scale(.04, .04, .04);
 	drawmodel.FlipTexCoords();
+
 	//if ((TutorialLu::active) && (id != 0)) {
 	//	drawmodel.UniformTexCoords();
 	//	drawmodel.ScaleTexCoords(0.1);
@@ -336,25 +352,24 @@ void Skeleton::Load(const std::string& filename, const std::string& lowfilename,
 	FindForwards();
 
 	for (int i = 0; i < num_muscles; i++) {
-		std::cout << "Forward: " << forward.x << "  " << forward.y << "  " << forward.z << std::endl;
-		std::cout << "Low Forward: " << lowforward.x << "  " << lowforward.y << "  " << lowforward.z << std::endl;
-	}
-
-	for (int i = 0; i < num_muscles; i++) {
 		FindRotationMuscle(i, -1);
-
-		std::cout << "Rot: " << muscles[i].rotate3 << "  " << muscles[i].rotate2 << "  " << muscles[i].rotate1 << std::endl;
 	}
+
+	//for (int i = 0; i < model[0].vertexNum; i++) {
+	//	std::cout << model[0].vertex[i].x << "  " << model[0].vertex[i].y << "  " << model[0].vertex[i].z << std::endl;
+	//}
+
 	// this seems to use opengl purely for matrix calculations
-	for (int k = 0; k < num_models; k++) {
+	for (int k = 0; k < 1; k++) {
 		for (int i = 0; i < model[k].vertexNum; i++) {
 			model[k].vertex[i] = model[k].vertex[i] - (muscles[model[k].owner[i]].parent1->position + muscles[model[k].owner[i]].parent2->position) / 2;
 			glMatrixMode(GL_MODELVIEW);
 			glPushMatrix();
 			glLoadIdentity();
-			glRotatef(muscles[model[k].owner[i]].rotate3, 0, 1, 0);
-			glRotatef(muscles[model[k].owner[i]].rotate2 - 90, 0, 0, 1);
-			glRotatef(muscles[model[k].owner[i]].rotate1 - 90, 0, 1, 0);
+
+			//glRotatef(muscles[model[k].owner[i]].rotate3, 0, 1, 0);
+			//glRotatef(muscles[model[k].owner[i]].rotate2 - 90, 0, 0, 1);
+			//glRotatef(muscles[model[k].owner[i]].rotate1 - 90, 0, 1, 0);
 
 			
 
@@ -363,6 +378,9 @@ void Skeleton::Load(const std::string& filename, const std::string& lowfilename,
 			model[k].vertex[i].x = M[12] * 1;
 			model[k].vertex[i].y = M[13] * 1;
 			model[k].vertex[i].z = M[14] * 1;
+
+			//std::cout << "Pos: " << M[12] << "  " << M[13] << "  " << M[14] << std::endl;
+
 			glPopMatrix();
 		}
 		model[k].CalculateNormals(0);

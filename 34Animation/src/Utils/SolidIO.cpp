@@ -96,37 +96,28 @@ void Utils::Skeleton::print() {
 }
 
 void Utils::Skeleton::findForwards() {
-	//Find forward vectors
+
 	forward = Vector3f::Cross(m_joints[forwardJoint2].position - m_joints[forwardJoint1].position, m_joints[forwardJoint3].position - m_joints[forwardJoint1].position);
 	specialforward[0] = Vector3f::Normalize(forward);
-	//CrossProduct(joints[forwardjoints[1]].position - joints[forwardjoints[0]].position, joints[forwardjoints[2]].position - joints[forwardjoints[0]].position, &forward);
-	//Normalise(&forward);
-
-	//CrossProduct(joints[lowforwardjoints[1]].position - joints[lowforwardjoints[0]].position, joints[lowforwardjoints[2]].position - joints[lowforwardjoints[0]].position, &lowforward);
-	//Normalise(&lowforward);
-
+	
 	lowForward = Vector3f::Cross(m_joints[lowForwardJoint2].position - m_joints[lowForwardJoint1].position, m_joints[lowForwardJoint3].position - m_joints[lowForwardJoint1].position);
-	specialforward[0] = Vector3f::Normalize(forward);
-
-	//Special forwards
-	specialforward[0] = forward;
+	Vector3f::Normalize(lowForward);
 
 	specialforward[1] = m_joints[0].position + m_joints[0].position;
-	specialforward[1] = m_joints[0].position - m_joints[0].position * 0.5f;
-	specialforward[1] += forward * .4;
+	specialforward[1] = m_joints[0].position - (specialforward[1] * 0.5f);
+	specialforward[1] += forward * 0.4f;
 	Vector3f::Normalize(specialforward[1]);
 	specialforward[2] = m_joints[0].position + m_joints[0].position;
-	specialforward[2] = m_joints[0].position - m_joints[0].position * 0.5;
-	specialforward[2] += forward * .4;
+	specialforward[2] = (m_joints[0].position - (specialforward[2]) * 0.5f);
+	specialforward[2] += forward * 0.4f;
 	Vector3f::Normalize(specialforward[2]);
-
 	specialforward[3] = m_joints[0].position + m_joints[0].position;
-	specialforward[3] = m_joints[0].position * 0.5f - m_joints[0].position;
-	specialforward[3] += lowForward * .4;
+	specialforward[3] = (specialforward[3] * 0.5f) - m_joints[0].position;
+	specialforward[3] += lowForward * 0.4f;
 	Vector3f::Normalize(specialforward[3]);
 	specialforward[4] = m_joints[0].position + m_joints[0].position;
-	specialforward[4] = specialforward[4] * 0.5f - m_joints[0].position;
-	specialforward[4] += lowForward * .4;
+	specialforward[4] = (specialforward[4] * 0.5f) - m_joints[0].position;
+	specialforward[4] += lowForward * 0.4f;
 	Vector3f::Normalize(specialforward[4]);
 }
 
@@ -137,6 +128,8 @@ void Utils::Skeleton::findRotationMuscle(int which, int animation) {
 	p1 = m_joints[m_muscles[which].parentIndex1].position;
 	p2 = m_joints[m_muscles[which].parentIndex2].position;
 	dist = (p2 - p1).length();
+
+	
 	if (p1[1] - p2[1] <= dist) {
 		m_muscles[which].rotate2 = asin((p1[1] - p2[1]) / dist);
 	}
@@ -148,6 +141,7 @@ void Utils::Skeleton::findRotationMuscle(int which, int animation) {
 	p1[1] = 0;
 	p2[1] = 0;
 	dist = (p2 - p1).length();
+
 	if (p1[2] - p2[2] <= dist) {
 		m_muscles[which].rotate1 = acos((p1[2] - p2[2]) / dist);
 	}
@@ -167,6 +161,7 @@ void Utils::Skeleton::findRotationMuscle(int which, int animation) {
 
 	const int label1 = m_joints[m_muscles[which].parentIndex1].label;
 	const int label2 = m_joints[m_muscles[which].parentIndex2].label;
+
 	switch (label1) {
 	case head:
 		fwd = specialforward[0];
@@ -224,12 +219,9 @@ void Utils::Skeleton::findRotationMuscle(int which, int animation) {
 			fwd[1] -= .3;
 		}
 	}
-	std::array<float, 3> _fwd = SolidIO::RotatePoint({ fwd[0], fwd[1] ,fwd[2] }, 0.0f, m_muscles[which].rotate1 - 90.0f, 0.0f);
-	fwd = { _fwd[0], _fwd[1] ,_fwd[2] };
-	_fwd = SolidIO::RotatePoint({ fwd[0], fwd[1] ,fwd[2] }, 0.0f, 0.0f, m_muscles[which].rotate2 - 90.0f);
-	fwd = { _fwd[0], _fwd[1] ,_fwd[2] };
+	fwd = Math::RotatePoint(fwd, 0.0f, m_muscles[which].rotate1 - 90.0f, 0.0f);
+	fwd = Math::RotatePoint(fwd, 0.0f, 0.0f, m_muscles[which].rotate2 - 90.0f);
 	fwd[1] = 0.0f;
-
 	Vector3f::Normalize(fwd);
 
 	if (fwd[2] <= 1 && fwd[2] >= -1) {
@@ -287,9 +279,6 @@ void Utils::SolidIO::solidToObj(const char* filename, const char* outFileObj, co
 
 	short vertexCount = bytesToShortBE(metaData[0], metaData[1]);
 	short triangleCount = bytesToShortBE(metaData[2], metaData[3]);
-
-	std::cout << "Vertex Count: " << vertexCount <<  std::endl;
-	std::cout << "Triangle Count: " << triangleCount << std::endl;
 
 	char* buffer = new char[vertexCount * sizeof(float) * 3];
 	file.read(buffer, vertexCount * sizeof(float) * 3);
@@ -371,19 +360,11 @@ void Utils::SolidIO::solidToObj(const char* filename, const char* outFileObj, co
 
 std::array<float, 3> Utils::SolidIO::RotatePoint(std::array<float, 3> point, float xang, float yang, float zang){
 	std::array<float, 3> newpoint;
-	if (xang) {
-		xang *= 6.283185f;
-		xang /= 360;
-	}
-	if (yang) {
-		yang *= 6.283185f;
-		yang /= 360;
-	}
-	if (zang) {
-		zang *= 6.283185f;
-		zang /= 360;
-	}
 
+	xang = xang * PI_ON_180;
+	yang = yang * PI_ON_180;
+	zang = zang * PI_ON_180;
+	
 	if (yang) {
 		newpoint[2] = point[2] * cosf(yang) - point[0] * sinf(yang);
 		newpoint[0] = point[2] * sinf(yang) + point[0] * cosf(yang);
@@ -407,52 +388,13 @@ std::array<float, 3> Utils::SolidIO::RotatePoint(std::array<float, 3> point, flo
 
 	return point;
 }
-
-/*Vector3f Utils::SolidIO::RotatePoint(Vector3f point, float xang, float yang, float zang){
-	Vector3f newpoint;
-	if (xang) {
-		xang *= 6.283185f;
-		xang /= 360;
-	}
-	if (yang) {
-		yang *= 6.283185f;
-		yang /= 360;
-	}
-	if (zang) {
-		zang *= 6.283185f;
-		zang /= 360;
-	}
-
-	if (yang) {
-		newpoint[2] = point[2] * cosf(yang) - point[0] * sinf(yang);
-		newpoint[0] = point[2] * sinf(yang) + point[0] * cosf(yang);
-		point[2] = point[2];
-		point[0] = point[0];
-	}
-
-	if (zang) {
-		newpoint[0] = point[0] * cosf(zang) - point[1] * sinf(zang);
-		newpoint[1] = point[1] * cosf(zang) + point[0] * sinf(zang);
-		point[0] = newpoint[0];
-		point[1] = newpoint[1];
-	}
-
-	if (xang) {
-		newpoint[1] = point[1] * cosf(xang) - point[2] * sinf(xang);
-		newpoint[2] = point[1] * sinf(xang) + point[2] * cosf(xang);
-		point[2] = newpoint[2];
-		point[1] = newpoint[1];
-	}
-
-	return point;
-}*/
 
 std::array<float, 3> Utils::SolidIO::ScalePoint(std::array<float, 3> point, float scaleX, float scaleY, float scaleZ) {
 	return { point[0] * scaleX, point[1] * scaleY , point[2] * scaleZ };
 }
 
 void Utils::SolidIO::solidToBuffer(const char* filename, bool flipTextureVertical, std::array<float, 3> eulerAngle, std::array<float, 3> scale, std::vector<float>& vertexBufferOut, std::vector<unsigned int>& indexBufferOut) {
-	std::vector<std::array<float, 3>> vertices;
+	/*std::vector<std::array<float, 3>> vertices;
 	std::map<std::array<float, 5>, short, Comparer> vertexCache;
 
 	std::ifstream file(filename, std::ios::binary);
@@ -510,16 +452,62 @@ void Utils::SolidIO::solidToBuffer(const char* filename, bool flipTextureVertica
 		}
 	}
 
-	//for (int i = 0; i < triangleCount; i++) {
-	//	std::cout << vertexBufferOut[indexBufferOut[i] * 5] << "  " << vertexBufferOut[indexBufferOut[i] * 5 + 1] << "  " << vertexBufferOut[indexBufferOut[i] * 5 + 2] << std::endl;
-	//}
-	//std::cout << "################################" << std::endl;
+	
+	delete buffer;
+	delete bufferTris;*/
+
+	std::ifstream file(filename, std::ios::binary);
+	char metaData[4];
+	file.read(&metaData[0], 1);
+	file.read(&metaData[1], 1);
+	file.read(&metaData[2], 1);
+	file.read(&metaData[3], 1);
+
+	short vertexCount = bytesToShortBE(metaData[0], metaData[1]);
+	short triangleCount = bytesToShortBE(metaData[2], metaData[3]);
+
+	char* buffer = new char[vertexCount * sizeof(float) * 3];
+	file.read(buffer, vertexCount * sizeof(float) * 3);
+
+	for (int i = 0; i < vertexCount * 3 * sizeof(float); i = i + 12) {
+		UFloat value[3];
+		value[0].c[0] = (unsigned int)(buffer[i + 3]); value[0].c[1] = (unsigned int)(buffer[i + 2]); value[0].c[2] = (unsigned int)(buffer[i + 1]); value[0].c[3] = (unsigned int)(buffer[i + 0]);
+		value[1].c[0] = (unsigned int)(buffer[i + 7]); value[1].c[1] = (unsigned int)(buffer[i + 6]); value[1].c[2] = (unsigned int)(buffer[i + 5]); value[1].c[3] = (unsigned int)(buffer[i + 4]);
+		value[2].c[0] = (unsigned int)(buffer[i + 11]); value[2].c[1] = (unsigned int)(buffer[i + 10]); value[2].c[2] = (unsigned int)(buffer[i + 9]); value[2].c[3] = (unsigned int)(buffer[i + 8]);
+		std::array<float, 3> vertex = ScalePoint(RotatePoint({ value[0].flt, value[1].flt, value[2].flt }, eulerAngle[0], eulerAngle[1], eulerAngle[2]), scale[0], scale[1], scale[2]);
+		vertexBufferOut.push_back(vertex[0]); vertexBufferOut.push_back(vertex[1]); vertexBufferOut.push_back(vertex[2]);
+		vertexBufferOut.push_back(0.0f); vertexBufferOut.push_back(0.0f);
+	}
+
+	char* bufferTris = new char[triangleCount * (6 * (sizeof(short) + sizeof(float)))];
+
+	file.read(bufferTris, triangleCount * (6 * (sizeof(short) + sizeof(float))));
+	file.close();
+
+	std::array<short, 3> ccw = { 0, 2, 1 };
+	std::array<short, 3> cw = { 0, 1, 2 };
+
+	for (int i = 0; i < triangleCount * (6 * (sizeof(short) + sizeof(float))); i = i + 36) {
+
+		short index;
+		bool found;
+		std::array<float, 5> vert;
+
+		for (const short &k : ccw) {
+			short index = bytesToShortBE(bufferTris[i + k * 4], bufferTris[i + k * 4 + 1]);
+
+			vertexBufferOut[index * 5 + 3] = bytesToFloatBE(bufferTris[i + (k + 3) * 4], bufferTris[i + (k + 3) * 4 + 1], bufferTris[i + (k + 3) * 4 + 2], bufferTris[i + (k + 3) * 4 + 3]);
+			vertexBufferOut[index * 5 + 4] = flipTextureVertical ? 1.0f - bytesToFloatBE(bufferTris[i + (k + 6) * 4], bufferTris[i + (k + 6) * 4 + 1], bufferTris[i + (k + 6) * 4 + 2], bufferTris[i + (k + 6) * 4 + 3]) : bytesToFloatBE(bufferTris[i + (k + 6) * 4], bufferTris[i + (k + 6) * 4 + 1], bufferTris[i + (k + 6) * 4 + 2], bufferTris[i + (k + 6) * 4 + 3]);
+			indexBufferOut.push_back(index);
+		}
+	}
+
 	delete buffer;
 	delete bufferTris;
 }
 
-void Utils::SolidIO::loadSkeleton(const char* filename, std::vector<float>& modelVertexBuffer) {
-	Skeleton skeleton;
+void Utils::SolidIO::loadSkeleton(const char* filename, const std::vector<float>& vertexBuffer, std::vector<float>& vertexBufferOut, Skeleton& skeleton, std::vector<std::array<float, 4>>& weightsOut, std::vector<std::array<unsigned int, 4>>& boneIdsOut) {
+	
 	
 	std::ifstream file(filename, std::ios::binary);
 	char metaData[4];
@@ -643,31 +631,100 @@ void Utils::SolidIO::loadSkeleton(const char* filename, std::vector<float>& mode
 	file.read(&metaData[0], 1); file.read(&metaData[1], 1); file.read(&metaData[2], 1); file.read(&metaData[3], 1);
 	skeleton.lowForwardJoint3 = bytesToIntBE(metaData[0], metaData[1], metaData[2], metaData[3]);
 
-	//skeleton.print();
+	int numVert = vertexBuffer.size() / 5;
 
-	skeleton.findForwards();
-	for (int i = 0; i < numMuscles; i++) {
-		std::cout << "Forward: " << skeleton.forward[0] << "  " << skeleton.forward[1] << "  " << skeleton.forward[2] << std::endl;
-		std::cout << "Low Forward: " << skeleton.lowForward[0] << "  " << skeleton.lowForward[1] << "  " << skeleton.lowForward[2] << std::endl;
+	std::vector<int> owner;
+	owner.resize(numVert);
+
+	for (unsigned j = 0; j < numMuscles; j++) {
+		for (unsigned i = 0; i < skeleton.m_muscles[j].vertexIndices.size(); i++) {
+				if (skeleton.m_muscles[j].vertexIndices[i] < numVert) {
+					owner[skeleton.m_muscles[j].vertexIndices[i]] = j;
+				}			
+		}
 	}
 
+	skeleton.findForwards();
 
 	for (int i = 0; i < numMuscles; i++) {
 		skeleton.findRotationMuscle(i, -1);
-
-		std::cout << "Rot: " << skeleton.m_muscles[i].rotate3 << "  " << skeleton.m_muscles[i].rotate2 << "  " << skeleton.m_muscles[i].rotate1 << std::endl;
 	}
+
+	
+	for (unsigned int i = 0; i < numVert; i++) {
+		for (unsigned int j = 0; j < numMuscles; j++) {
+			for (unsigned int k = 0; k < skeleton.m_muscles[j].vertexIndices.size(); k++) {
+
+				if (i == skeleton.m_muscles[j].vertexIndices[k]) {
+					boneIdsOut.push_back({ j, 0, 0, 0 });
+					weightsOut.push_back({1.0f, 0.0f, 0.0f, 0.0f});
+				}
+			}	
+		}
+	}
+
+	for (unsigned int k = 0; k < 1; k++) {
+		for (unsigned int i = 0; i < numVert; i++) {
+			Vector3f pos = { vertexBuffer[5 * i] , vertexBuffer[5 * i + 1], vertexBuffer[5 * i + 2] };
+			pos = pos - (skeleton.m_joints[skeleton.m_muscles[owner[i]].parentIndex1].position + skeleton.m_joints[skeleton.m_muscles[owner[i]].parentIndex2].position) * 0.5f;
+			vertexBufferOut.push_back(pos[0]); vertexBufferOut.push_back(pos[1]); vertexBufferOut.push_back(pos[2]);
+		
+		}
+	}
+
+	//for (int i = 0; i < vertexBufferOut.size() / 3; i++) {
+	//	std::cout << "Pos: " << vertexBufferOut[i * 3] << "  " << vertexBufferOut[i * 3 + 1] << "  " << vertexBufferOut[i * 3 + 2] << std::endl;
+	//}
+
+	for (unsigned int j = 0; j < numMuscles; j++) {
+		Vector3f mid = (skeleton.m_joints[skeleton.m_muscles[j].parentIndex1].position + skeleton.m_joints[skeleton.m_muscles[j].parentIndex2].position) * 0.5f;
+		skeleton.m_muscles[j].offsetMatrix = Matrix4f::Translate(mid);
+	}
+
+
+	/*for (int k = 0; k < num_models; k++) {
+		for (int i = 0; i < model[k].vertexNum; i++) {
+			model[k].vertex[i] = model[k].vertex[i] - (muscles[model[k].owner[i]].parent1->position + muscles[model[k].owner[i]].parent2->position) / 2;
+			glMatrixMode(GL_MODELVIEW);
+			glPushMatrix();
+			glLoadIdentity();
+			//if(k == 0)
+				//std::cout << muscles[model[k].owner[i]].rotate1 << "  " << muscles[model[k].owner[i]].rotate2 << "  " << muscles[model[k].owner[i]].rotate3 << std::endl;
+
+			glRotatef(muscles[model[k].owner[i]].rotate3, 0, 1, 0);
+			glRotatef(muscles[model[k].owner[i]].rotate2 - 90, 0, 0, 1);
+			glRotatef(muscles[model[k].owner[i]].rotate1 - 90, 0, 1, 0);
+
+
+
+			glTranslatef(model[k].vertex[i].x, model[k].vertex[i].y, model[k].vertex[i].z);
+			glGetFloatv(GL_MODELVIEW_MATRIX, M);
+			model[k].vertex[i].x = M[12] * 1;
+			model[k].vertex[i].y = M[13] * 1;
+			model[k].vertex[i].z = M[14] * 1;
+			glPopMatrix();
+		}
+		model[k].CalculateNormals(0);
+	}*/
 
 	/*for (auto& muscle : skeleton.m_muscles) {
 		muscle.initialPosition = (skeleton.m_joints[muscle.parentIndex1].position + skeleton.m_joints[muscle.parentIndex2].position) * 0.5f;
 		Matrix4f rot;
 		//rot.rotate(Vector3f(0.0f, 0.0f, 1.0f), muscle.rotate1)
 
+		std::cout << muscle.rotate1 << "  " << muscle.rotate2 << "  " << muscle.rotate3 << std::endl;
+
 		for (int vertIndex : muscle.vertexIndices) {
 			modelVertexBuffer[vertIndex * 5 + 0] -= muscle.initialPosition[0];
 			modelVertexBuffer[vertIndex * 5 + 1] -= muscle.initialPosition[1];
 			modelVertexBuffer[vertIndex * 5 + 2] -= muscle.initialPosition[2];
 		}
+	}*/
+
+	
+
+	/*for (int i = 0; i < numVert; i++) {
+		std::cout << skeleton.m_muscles[owner[i]].rotate1 << "  " << skeleton.m_muscles[owner[i]].rotate2 << "  " << skeleton.m_muscles[owner[i]].rotate3 << std::endl;
 	}*/
 }
 

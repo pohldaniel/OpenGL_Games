@@ -86,7 +86,7 @@ public:
 	void ScaleNormals(float xscale, float yscale, float zscale);
 	void Translate(float xtrans, float ytrans, float ztrans);
 	void CalculateNormals(bool facenormalise);
-	void draw();
+	void draw(bool skip = true);
 	void drawimmediate();
 	void Rotate(float xang, float yang, float zang);
 

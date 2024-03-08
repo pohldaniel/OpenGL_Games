@@ -110,11 +110,11 @@ void Rasterizer::fillFlatSideTriangleInt(std::array<int, 2>  v1, std::array<int,
 		return;
 	}
 
-	int signx1 = Math::sgn(v2[0] - v1[0]);
-	int signx2 = Math::sgn(v3[0] - v1[0]);
+	int signx1 = Math::Sgn(v2[0] - v1[0]);
+	int signx2 = Math::Sgn(v3[0] - v1[0]);
 
-	int signy1 = Math::sgn(v2[1] - v1[1]);
-	int signy2 = Math::sgn(v3[1] - v1[1]);
+	int signy1 = Math::Sgn(v2[1] - v1[1]);
+	int signy2 = Math::Sgn(v3[1] - v1[1]);
 
 	if (dy1 > dx1)
 	{   // swap values

@@ -1,7 +1,6 @@
 #version 430 core
 
 const int MAX_JOINTS = 96;
-const int MAX_WEIGHTS = 4;
 
 layout(location = 0) in vec3 i_position;
 layout(location = 1) in vec2 i_texCoord;

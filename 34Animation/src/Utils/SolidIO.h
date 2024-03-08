@@ -115,6 +115,7 @@ namespace Utils {
 		void print();
 
 		float rotate1, rotate2, rotate3;
+		Matrix4f offsetMatrix;
 	};
 
 	struct Skeleton {
@@ -239,10 +240,9 @@ namespace Utils {
 
 		void solidToObj(const char* filename, const char* outFileObj, const char* outFileMtl, const char* texturePath, bool flipVertical = true);
 		void solidToBuffer(const char* filename, bool flipTextureVertical, std::array<float, 3> eulerAngle, std::array<float, 3> scale, std::vector<float>& vertexBufferOut, std::vector<unsigned int>& indexBufferOut);
-		void loadSkeleton(const char* filename, std::vector<float>& modelVertexBuffer);
+		void loadSkeleton(const char* filename, const std::vector<float>& vertexBuffer, std::vector<float>& vertexBufferOut, Skeleton& skeleton, std::vector<std::array<float, 4>>& weightsOut, std::vector<std::array<unsigned int, 4>>& boneIdsOut);
 
-		static std::array<float, 3> RotatePoint(std::array<float, 3> point, float xang, float yang, float zang);
-		//static Vector3f RotatePoint(Vector3f point, float xang, float yang, float zang);
+		static std::array<float, 3> RotatePoint(std::array<float, 3> point, float xang, float yang, float zang);		
 		static std::array<float, 3> ScalePoint(std::array<float, 3> point, float scaleX, float scaleY, float scaleZ);
 
 		private:

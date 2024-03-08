@@ -24,53 +24,6 @@
 #define QUAT_SQRT3 0.43301270189221932338f
 #define TWO_SQRT1_3 1.15470053837925152901f
 
-namespace Math {
-
-	inline bool CloseEnough(float f1, float f2) {
-		return fabsf((f1 - f2) / ((f2 == 0.0f) ? 1.0f : f2)) < EPSILON;
-	}
-
-	inline bool Equals(float lhs, float rhs, float epsilon = EPSILON) { 
-		return lhs + epsilon >= rhs && lhs - epsilon <= rhs; 
-	}
-
-	template <typename T>
-	inline T bilerp(const T &a, const T &b, const T &c, const T &d, float u, float v) {
-		// Performs a bilinear interpolation.
-		//  P(u,v) = e + v(f - e)
-		//  
-		//  where
-		//  e = a + u(b - a)
-		//  f = c + u(d - c)
-		//  u in range [0,1]
-		//  v in range [0,1]
-
-		return a * ((1.0f - u) * (1.0f - v))
-			+ b * (u * (1.0f - v))
-			+ c * (v * (1.0f - u))
-			+ d * (u * v);
-	}
-
-	template <typename T>
-	inline T  Mix(const T &p, const T &q, float a) {
-		return p * (1 - a) + q * a;
-	}
-
-	template <typename T>
-	T Clamp(const T& n, const T& lower, const T& upper) {
-		return std::max(lower, std::min(n, upper));
-	}
-
-	template <typename T>
-	T Lerp(const T &a, const T &b, float t) {
-		return a * (1 - t) + t *b;
-	}
-
-	template <typename T> int sgn(T val) {
-		return (T(0) < val) - (val < T(0));
-	}
-};
-
 class Vector2f {
 
 	friend Vector2f operator-(const Vector2f &v);
@@ -502,4 +455,87 @@ private:
 
 	float quat[4];
 };
+
+namespace Math {
+
+	inline bool CloseEnough(float f1, float f2) {
+		return fabsf((f1 - f2) / ((f2 == 0.0f) ? 1.0f : f2)) < EPSILON;
+	}
+
+	inline bool Equals(float lhs, float rhs, float epsilon = EPSILON) {
+		return lhs + epsilon >= rhs && lhs - epsilon <= rhs;
+	}
+
+	template <typename T>
+	inline T Bilerp(const T &a, const T &b, const T &c, const T &d, float u, float v) {
+		// Performs a bilinear interpolation.
+		//  P(u,v) = e + v(f - e)
+		//  
+		//  where
+		//  e = a + u(b - a)
+		//  f = c + u(d - c)
+		//  u in range [0,1]
+		//  v in range [0,1]
+
+		return a * ((1.0f - u) * (1.0f - v))
+			+ b * (u * (1.0f - v))
+			+ c * (v * (1.0f - u))
+			+ d * (u * v);
+	}
+
+	template <typename T>
+	inline T  Mix(const T &p, const T &q, float a) {
+		return p * (1 - a) + q * a;
+	}
+
+	template <typename T>
+	inline T Clamp(const T& n, const T& lower, const T& upper) {
+		return std::max(lower, std::min(n, upper));
+	}
+
+	template <typename T>
+	inline T Lerp(const T &a, const T &b, float t) {
+		return a * (1 - t) + t * b;
+	}
+
+	template <typename T>
+	inline int Sgn(T val) {
+		return (T(0) < val) - (val < T(0));
+	}
+
+
+
+	inline Vector3f RotatePoint(Vector3f point, float pitch, float yaw, float roll) {
+		Vector3f newpoint;
+
+		pitch = pitch * PI_ON_180;	
+		yaw = yaw * PI_ON_180;
+		roll = roll * PI_ON_180;
+		
+
+		if (yaw) {
+			newpoint[2] = point[2] * cosf(yaw) - point[0] * sinf(yaw);
+			newpoint[0] = point[2] * sinf(yaw) + point[0] * cosf(yaw);
+			point[2] = newpoint[2];
+			point[0] = newpoint[0];
+		}
+
+		if (roll) {
+			newpoint[0] = point[0] * cosf(roll) - point[1] * sinf(roll);
+			newpoint[1] = point[1] * cosf(roll) + point[0] * sinf(roll);
+			point[0] = newpoint[0];
+			point[1] = newpoint[1];
+		}
+
+		if (pitch) {
+			newpoint[1] = point[1] * cosf(pitch) - point[2] * sinf(pitch);
+			newpoint[2] = point[1] * sinf(pitch) + point[2] * cosf(pitch);
+			point[2] = newpoint[2];
+			point[1] = newpoint[1];
+		}
+
+		return point;
+	}
+};
+
 #endif

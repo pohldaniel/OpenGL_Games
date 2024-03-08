@@ -845,12 +845,13 @@ void Model::drawimmediate(){
 	glEnd();
 }
 
-void Model::draw(){
+void Model::draw(bool skip){
 
-	if (type != normaltype && type != decalstype) {
+	if (type != normaltype && type != decalstype && skip) {
+	
 		return;
 	}
-	glBindTexture(GL_TEXTURE_2D, 0);
+
 	glEnableClientState(GL_NORMAL_ARRAY);
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
