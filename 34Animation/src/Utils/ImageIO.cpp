@@ -1,6 +1,6 @@
 #include "ImageIO.h"
 
-#include "Folders.hpp"
+#include "Folders.h"
 #include <iostream>
 #include <jpeglib.h>
 #include <png.h>

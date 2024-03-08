@@ -135,9 +135,7 @@ void SolidState::render() {
 	shader->loadMatrix("u_view", m_camera.getViewMatrix());
 	shader->loadMatrix("u_model", Matrix4f::IDENTITY);
 	
-	//m_body.drawRaw();
-
-	modelNew.draw();
+	m_body.drawRaw();
 	shader->unuse();*/
 
 	auto shader = Globals::shaderManager.getAssetPointer("animation_new");

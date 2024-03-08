@@ -1,7 +1,7 @@
 #include <iostream>
 #include <GL/glew.h>
 #include "Skeleton.h"
-#include "Utils/Folders.hpp"
+#include "Utils/Folders.h"
 
 Skeleton::Skeleton()
 	: selected(0)

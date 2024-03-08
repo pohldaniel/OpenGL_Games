@@ -407,7 +407,7 @@
     <ClInclude Include="src\States\SolidState.h" />
     <ClInclude Include="src\States\StateMachine.h" />
     <ClInclude Include="src\Utils\binio.h" />
-    <ClInclude Include="src\Utils\Folders.hpp" />
+    <ClInclude Include="src\Utils\Folders.h" />
     <ClInclude Include="src\Utils\ImageIO.h" />
     <ClInclude Include="src\Utils\private.h" />
     <ClInclude Include="src\Utils\Rasterizer.h" />

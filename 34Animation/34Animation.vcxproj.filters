@@ -842,9 +842,6 @@
     <ClInclude Include="Model.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Utils\Folders.hpp">
-      <Filter>Source Files\Utils</Filter>
-    </ClInclude>
     <ClInclude Include="src\States\SolidState.h">
       <Filter>Source Files\States</Filter>
     </ClInclude>
@@ -856,6 +853,9 @@
     </ClInclude>
     <ClInclude Include="src\States\Interleaved.h">
       <Filter>Source Files\States</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Utils\Folders.h">
+      <Filter>Source Files\Utils</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
