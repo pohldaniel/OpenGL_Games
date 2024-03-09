@@ -121,6 +121,7 @@ public:
     void Translate(float xtrans, float ytrans, float ztrans);
     void CalculateNormals(bool facenormalise);
     void draw();
+    void draw2();
     void drawdifftex(TextureLu texture);
     void drawimmediate();
     void Rotate(float xang, float yang, float zang);

@@ -58,7 +58,6 @@ void Muscle::load(FILE* tfile, int vertexNum, std::vector<JointLu>& joints)
 
     // read info
     funpackf(tfile, "Bf Bf Bf Bf Bf Bi Bi", &length, &targetlength, &minlength, &maxlength, &strength, &type, &numvertices);
-
     // read vertices
     for (int j = 0; j < numvertices; j++) {
         funpackf(tfile, "Bi", &vertice);

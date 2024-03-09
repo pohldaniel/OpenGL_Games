@@ -167,8 +167,8 @@ void Tutorial::render() {
 	glCullFace(GL_FRONT);
 	glDepthMask(GL_TRUE);
 
-	Person::players[0]->DrawSkeleton();
-	//Person::players[0]->DrawSkeletonSmall();
+	//Person::players[0]->DrawSkeleton();
+	Person::players[0]->DrawSkeletonSmall();
 
 	glPushMatrix();
 	glCullFace(GL_BACK);

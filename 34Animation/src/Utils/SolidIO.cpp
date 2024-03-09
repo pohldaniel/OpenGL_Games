@@ -14,6 +14,13 @@ short Utils::bytesToShortBE(unsigned char b0, unsigned char b1) {
 	return f;
 }
 
+bool Utils::bytesToBool(unsigned char b0) {
+	bool f;
+	unsigned char b[] = { b0 };
+	memcpy(&f, &b, sizeof(bool));
+	return f;
+}
+
 int Utils::bytesToIntLE(unsigned char b0, unsigned char b1, unsigned char b2, unsigned char b3) {
 	int f;
 	unsigned char b[] = { b0, b1, b2, b3 };
@@ -93,6 +100,22 @@ void Utils::Skeleton::print() {
 	}
 	std::cout << "Forward: " << forwardJoint1 << "  " << forwardJoint2 << "  " << forwardJoint3 << std::endl;
 	std::cout << "Low Forward: " << lowForwardJoint1 << "  " << lowForwardJoint2 << "  " << lowForwardJoint3 << std::endl;
+}
+
+void Utils::Animation::print() {
+	std::cout << "###########ANIMATION###########" << std::endl;
+	for (unsigned int i = 0; i < frames.size(); i++) {
+		for (unsigned int j = 0; j < numJoints; j++) {
+			std::cout << "Pos: " << frames[i].joints[j].position[0] << "  " << frames[i].joints[j].position[1] << "  " << frames[i].joints[j].position[2] << std::endl;
+			std::cout << "Twist: " << frames[i].joints[j].twist << std::endl;
+			std::cout << "Twist2: " << frames[i].joints[j].twist2 << std::endl;
+			std::cout << "On Ground: " << frames[i].joints[j].onground << std::endl;
+		}
+		std::cout << "Speed: " << frames[i].speed << std::endl;
+		std::cout << "Label: " << frames[i].label << std::endl;
+		std::cout << "Weapontarget: " << frames[i].weapontarget[0] << "  " << frames[i].weapontarget[1] << "  " << frames[i].weapontarget[2] << std::endl;
+	}
+	std::cout << "Offset: " << offset[0] << "  " << offset[1] << "  " << offset[2] << std::endl;
 }
 
 void Utils::Skeleton::findForwards() {
@@ -616,6 +639,7 @@ void Utils::SolidIO::loadSkeleton(const char* filename, const std::vector<Vertex
 
 	file.read(&metaData[0], 1); file.read(&metaData[1], 1); file.read(&metaData[2], 1); file.read(&metaData[3], 1);
 	skeleton.lowForwardJoint3 = bytesToIntBE(metaData[0], metaData[1], metaData[2], metaData[3]);
+	file.close();
 
 	int numVert = vertexBufferMap.size();
 
@@ -683,6 +707,86 @@ void Utils::SolidIO::loadSkeleton(const char* filename, const std::vector<Vertex
 		Vector3f mid = (skeleton.m_joints[skeleton.m_muscles[j].parentIndex1].position + skeleton.m_joints[skeleton.m_muscles[j].parentIndex2].position) * 0.5f;
 		skeleton.m_muscles[j].offsetMatrix = Matrix4f::Translate(mid) * Matrix4f::Rotate(Vector3f(0.0f, 1.0f, 0.0f), -skeleton.m_muscles[j].rotate3) * Matrix4f::Rotate(Vector3f(0.0f, 0.0f, 1.0f), 90.0f - skeleton.m_muscles[j].rotate2) * Matrix4f::Rotate(Vector3f(0.0f, 1.0f, 0.0f), 90.0f - skeleton.m_muscles[j].rotate1);
 	}
+}
+
+std::ifstream::pos_type filesize(const char* filename){
+	std::ifstream in(filename, std::ifstream::ate | std::ifstream::binary);
+	return in.tellg();
+}
+
+void Utils::SolidIO::loadAnimation(const char* filename, Utils::anim_height_type aheight, Utils::anim_attack_type aattack) {
+	Animation animation;
+	animation.height = aheight;
+	animation.attack = aattack;
+
+	std::ifstream file(filename, std::ios::binary);
+	char metaData[4];
+	
+	file.read(&metaData[0], 1);file.read(&metaData[1], 1);file.read(&metaData[2], 1); file.read(&metaData[3], 1);
+	animation.numFrames = bytesToIntBE(metaData[0], metaData[1], metaData[2], metaData[3]);
+	file.read(&metaData[0], 1); file.read(&metaData[1], 1); file.read(&metaData[2], 1); file.read(&metaData[3], 1);
+	animation.numJoints = bytesToIntBE(metaData[0], metaData[1], metaData[2], metaData[3]);
+	animation.frames.resize(animation.numFrames);
+	
+	short offset = 4 * sizeof(float) + 1 * sizeof(bool);
+	char* buffer = new char[offset * animation.numJoints];
+	
+	for (unsigned int i = 0; i < animation.frames.size(); i++) {
+		file.read(buffer, offset * animation.numJoints);
+		AnimationFrameJointInfo jointInfo;
+		for (unsigned int j = 0, k = 0, l = 0; j < 12 * animation.numJoints; j = j + 12, k = k + 4, l++ ) {
+			animation.frames[i].joints.push_back({
+				{bytesToFloatBE(buffer[j], buffer[j + 1], buffer[j + 2], buffer[j + 3]),
+				 bytesToFloatBE(buffer[j + 4], buffer[j + 5], buffer[j + 6], buffer[j + 7]),
+				 bytesToFloatBE(buffer[j + 8], buffer[j + 9], buffer[j + 10], buffer[j + 11])},
+				 bytesToFloatBE(buffer[12 * animation.numJoints + k], buffer[12 * animation.numJoints + k + 1], buffer[12 * animation.numJoints + k + 2], buffer[12 * animation.numJoints + k + 3]),
+				 0.0f,
+                 buffer[16 * animation.numJoints + l] != 0 });
+		}
+		
+		file.read(metaData, 4);
+		animation.frames[i].speed = bytesToFloatBE(metaData[0], metaData[1], metaData[2], metaData[3]);
+	}
+
+	offset = sizeof(float);
+	for (unsigned int i = 0; i < animation.frames.size(); i++) {
+		file.read(buffer, offset * animation.numJoints);
+
+		for (unsigned int j = 0; j < animation.numJoints; j++) {
+			animation.frames[i].joints[j].twist2 = bytesToFloatBE(buffer[j * offset], buffer[j * offset + 1], buffer[j * offset + 2], buffer[j * offset + 3]);
+		}
+	}
+
+	file.read(buffer, offset * animation.frames.size());
+	for (unsigned int i = 0; i < animation.frames.size(); i++) {
+		animation.frames[i].label = bytesToIntBE(buffer[i * offset], buffer[i * offset + 1], buffer[i * offset + 2], buffer[i * offset + 3]);
+	}
+
+	if (file.peek() != EOF) {
+		file.read(metaData, 4);
+		int weapontargetnum = bytesToIntBE(metaData[0], metaData[1], metaData[2], metaData[3]);
+
+		offset = 3 * sizeof(float);
+		file.read(buffer, offset * animation.frames.size());
+		for (unsigned int i = 0; i < animation.frames.size(); i++) {
+			animation.frames[i].weapontarget[0] = bytesToFloatBE(buffer[i * offset], buffer[i * offset + 1], buffer[i * offset + 2], buffer[i * offset + 3]);
+			animation.frames[i].weapontarget[1] = bytesToFloatBE(buffer[i * offset + 4], buffer[i * offset + 5], buffer[i * offset + 6], buffer[i * offset + 7]);
+			animation.frames[i].weapontarget[2] = bytesToFloatBE(buffer[i * offset + 8], buffer[i * offset + 9], buffer[i * offset + 10], buffer[i * offset + 11]);
+		}
+	}
+
+	delete buffer;
+	file.close();
+
+	Vector3f endoffset = Vector3f(0.0f);
+	for (unsigned int i = 0; i < animation.frames.back().joints.size(); i++) {
+		if (animation.frames.back().joints[i].position[1] < 1.0f) {
+			endoffset += animation.frames.back().joints[i].position;
+		}
+	}
+	endoffset /= animation.numJoints;
+	animation.offset = endoffset;
+	animation.offset[1] = 0.0f;
 }
 
 void Utils::MdlIO::mdlToObj(const char* path, const char* outFileObj, const char* outFileMtl, const char* texturePath) {

@@ -713,7 +713,7 @@ void Skeleton::Load(const std::string& filename, const std::string& lowfilename,
     // load skeleton
 
     tfile = Folders::openMandatoryFile(Folders::getResourcePath(filename), "rb");
-
+	
     // read num_joints
     funpackf(tfile, "Bi", &num_joints);
 
@@ -745,7 +745,7 @@ void Skeleton::Load(const std::string& filename, const std::string& lowfilename,
     for (j = 0; j < 3; j++) {
         funpackf(tfile, "Bi", &lowforwardjoints[j]);
     }
-
+	fclose(tfile);
     // ???
     for (j = 0; j < num_muscles; j++) {
         for (unsigned i = 0; i < muscles[j].vertices.size(); i++) {
@@ -781,7 +781,6 @@ void Skeleton::Load(const std::string& filename, const std::string& lowfilename,
         }
         model[k].CalculateNormals(0);
     }
-    fclose(tfile);
 
     // load ???
 

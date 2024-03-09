@@ -502,7 +502,6 @@ bool ModelLu::load(const std::string& filename)
 
     fseek(tfile, 0, SEEK_SET);
     funpackf(tfile, "Bs Bs", &vertexNum, &triangleNum);
-
     // read the model data
     deallocate();
 
@@ -902,6 +901,40 @@ void ModelLu::draw()
     }
     glDisableClientState(GL_VERTEX_ARRAY);
     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+}
+
+void ModelLu::draw2()
+{
+	if (type != normaltype && type != decalstype) {
+		return;
+	}
+
+	glEnableClientState(GL_NORMAL_ARRAY);
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
+	if (color) {
+		glInterleavedArrays(GL_T2F_C3F_V3F, 8 * sizeof(GLfloat), &vArray[0]);
+	}
+	else {
+		glInterleavedArrays(GL_T2F_N3F_V3F, 8 * sizeof(GLfloat), &vArray[0]);
+	}
+	textureptr.bind();
+
+	//std::cout << vArray[0] << "  " << vArray[1] << "  " << vArray[2] << "  " << vArray[3] << "  " << vArray[4] << "  " << vArray[5] << "  " << vArray[6] << "  " << vArray[7] << std::endl;
+	//std::cout << vArray[8] << "  " << vArray[9] << "  " << vArray[10] << "  " << vArray[11] << "  " << vArray[12] << "  " << vArray[13] << "  " << vArray[14] << "  " << vArray[15] << std::endl;
+	//std::cout << vArray[16] << "  " << vArray[17] << "  " << vArray[18] << "  " << vArray[19] << "  " << vArray[20] << "  " << vArray[21] << "  " << vArray[22] << "  " << vArray[23] << std::endl;
+
+	glDrawArrays(GL_TRIANGLES, 0, Triangles.size() * 3);
+
+	if (color) {
+		glDisableClientState(GL_COLOR_ARRAY);
+	}
+	else {
+		glDisableClientState(GL_NORMAL_ARRAY);
+	}
+	glDisableClientState(GL_VERTEX_ARRAY);
+	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 }
 
 void ModelLu::drawdifftex(TextureLu texture)

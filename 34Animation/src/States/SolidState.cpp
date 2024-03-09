@@ -30,6 +30,8 @@ SolidState::SolidState(StateMachine& machine) : State(machine, States::SOLID) {
 	solidConverter.fromBufferMap(m_vertexBufferMap, m_vertexBufferDraw);
 	m_body.fromBuffer(m_vertexBufferDraw, m_indexBuffer, 5);
 
+	solidConverter.loadAnimation("res/StaffHit", Utils::middleheight, Utils::normalattack);
+
 	std::cout << "######################" << std::endl;
 	m_skeleton.Load("res/BasicFigure", "res/BasicFigureLow" , "res/RabbitBelt",
                     "res/Body.solid" , "res/Body2.solid",

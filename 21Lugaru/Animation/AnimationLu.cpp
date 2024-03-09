@@ -118,10 +118,12 @@ AnimationLu::AnimationLu(const std::string& filename, anim_height_type aheight, 
         frames[i].joints.resize(numjoints);
         frames[i].loadBaseInfo(tfile);
     }
+
     // read twist2 for whole animation
     for (i = 0; i < frames.size(); i++) {
         frames[i].loadTwist2(tfile);
     }
+
     // read label for each frame
     for (i = 0; i < frames.size(); i++) {
         frames[i].loadLabel(tfile);
@@ -129,10 +131,25 @@ AnimationLu::AnimationLu(const std::string& filename, anim_height_type aheight, 
     // read unused weapontargetnum
     int weapontargetnum;
     funpackf(tfile, "Bi", &weapontargetnum);
+
     // read weapontarget positions for each frame
     for (i = 0; i < frames.size(); i++) {
         frames[i].loadWeaponTarget(tfile);
     }
+
+	/*if (filename == "StaffHit") {
+		for (unsigned int i = 0; i < frames.size(); i++) {
+			for (unsigned int j = 0; j < frames[i].joints.size(); j++) {
+				std::cout << "Pos: " << frames[i].joints[j].position.x << "  " << frames[i].joints[j].position.y << "  " << frames[i].joints[j].position.z<< std::endl;
+				std::cout << "Twist: " << frames[i].joints[j].twist << std::endl;
+				std::cout << "Twist2: " << frames[i].joints[j].twist2 << std::endl;
+				std::cout << "On Ground: " << frames[i].joints[j].onground << std::endl;
+			}
+			std::cout << "Speed: " << frames[i].speed << std::endl;
+			std::cout << "Label: " << frames[i].label << std::endl;
+			std::cout << "Weapontarget: " << frames[i].weapontarget.x << "  " << frames[i].weapontarget.y << "  " << frames[i].weapontarget.z << std::endl;
+		}
+	}*/
 
     fclose(tfile);
 
