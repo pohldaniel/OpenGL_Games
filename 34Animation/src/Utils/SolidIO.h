@@ -322,7 +322,6 @@ namespace Utils {
 		dead3anim,
 		dead4anim,
 		tempanim,
-		loadable_anim_end,
 		animation_count
 	};
 
@@ -462,7 +461,6 @@ namespace Utils {
 	   ab_sleep,
 	   ab_sleep,
 	   ab_sleep,
-	   0,
 	   0
 	};
 
@@ -547,7 +545,7 @@ namespace Utils {
 		void solidToBuffer(const char* filename, bool flipTextureVertical, std::array<float, 3> eulerAngle, std::array<float, 3> scale, std::vector<Vertex>& vertexBufferOut, std::vector<unsigned int>& indexBufferOut);
 		void loadSkeleton(const char* filename, const std::vector<Vertex>& vertexBufferMap, std::vector<float>& vertexBufferOut, Skeleton& skeleton, std::vector<std::array<float, 4>>& weightsOut, std::vector<std::array<unsigned int, 4>>& boneIdsOut);
 		void fromBufferMap(const std::vector<Vertex>& bufferMap, std::vector<float>& vertexBufferOut);
-		void loadAnimation(const char* filename, anim_height_type aheight, anim_attack_type aattack);
+		void loadAnimation(const char* filename, anim_height_type aheight, anim_attack_type aattack, Animation& animation);
 
 		static std::array<float, 3> RotatePoint(std::array<float, 3> point, float xang, float yang, float zang);		
 		static std::array<float, 3> ScalePoint(std::array<float, 3> point, float scaleX, float scaleY, float scaleZ);

@@ -447,6 +447,9 @@
     <ClCompile Include="src\States\Interleaved.cpp">
       <Filter>Source Files\States</Filter>
     </ClCompile>
+    <ClCompile Include="AnimationManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="convhull\convhull_3d.h">
@@ -856,6 +859,9 @@
     </ClInclude>
     <ClInclude Include="src\Utils\Folders.h">
       <Filter>Source Files\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="AnimationManager.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

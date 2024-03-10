@@ -714,8 +714,7 @@ std::ifstream::pos_type filesize(const char* filename){
 	return in.tellg();
 }
 
-void Utils::SolidIO::loadAnimation(const char* filename, Utils::anim_height_type aheight, Utils::anim_attack_type aattack) {
-	Animation animation;
+void Utils::SolidIO::loadAnimation(const char* filename, Utils::anim_height_type aheight, Utils::anim_attack_type aattack, Animation& animation) {
 	animation.height = aheight;
 	animation.attack = aattack;
 

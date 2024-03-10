@@ -1,0 +1,554 @@
+{
+	"animations": [
+		{
+			"file": "res/animations/Run",
+			"height": "middleheight",
+			"attack": "neutral"
+		},
+		{
+			"file": "res/animations/Idle",
+			"height": "middleheight",
+			"attack": "neutral"
+		},
+		{
+			"file": "res/animations/Stop",
+			"height": "middleheight",
+			"attack": "neutral"
+		},
+		{
+			"file": "res/animations/JumpUp",
+			"height": "highheight",
+			"attack": "neutral"
+		},
+		{
+			"file": "res/animations/JumpDown",
+			"height": "highheight",
+			"attack": "neutral"
+		},
+		{
+			"file": "res/animations/Landing",
+			"height": "lowheight",
+			"attack": "neutral"
+		},
+		{
+			"file": "res/animations/LandHard",
+			"height": "lowheight",
+			"attack": "neutral"
+		},
+		{
+			"file": "res/animations/Climb",
+			"height": "lowheight",
+			"attack": "neutral"
+		},
+		{
+			"file": "res/animations/HangOn",
+			"height": "lowheight",
+			"attack": "neutral"
+		},
+		{
+			"file": "res/animations/SpinKick",
+			"height": "middleheight",
+			"attack": "normalattack"
+		},
+		{
+			"file": "res/animations/GetUpFromFront",
+			"height": "lowheight",
+			"attack": "neutral"
+		},
+		{
+			"file": "res/animations/GetUpFromBack",
+			"height": "lowheight",
+			"attack": "neutral"
+		},
+		{
+			"file": "res/animations/Crouch",
+			"height": "lowheight",
+			"attack": "neutral"
+		},
+		{
+			"file": "res/animations/Sneak",
+			"height": "lowheight",
+			"attack": "neutral"
+		},
+		{
+			"file": "res/animations/Roll",
+			"height": "lowheight",
+			"attack": "neutral"
+		},
+		{
+			"file": "res/animations/Flip",
+			"height": "highheight",
+			"attack": "neutral"
+		},
+		{
+			"file": "res/animations/Flip",
+			"height": "highheight",
+			"attack": "neutral"
+		},
+		{
+			"file": "res/animations/SpinKickCaught",
+			"height": "middleheight",
+			"attack": "reversed"
+		},
+		{
+			"file": "res/animations/SpinKickCatch",
+			"height": "middleheight",
+			"attack": "reversal"
+		},
+		{
+			"file": "res/animations/LowKick",
+			"height": "middleheight",
+			"attack": "normalattack"
+		},
+		{
+			"file": "res/animations/Sweep",
+			"height": "lowheight",
+			"attack": "normalattack"
+		},
+		{
+			"file": "res/animations/SweepCaught",
+			"height": "lowheight",
+			"attack": "reversed"
+		},
+		{
+			"file": "res/animations/SweepCatch",
+			"height": "middleheight",
+			"attack": "reversal"
+		},
+		{
+			"file": "res/animations/RabbitKick",
+			"height": "middleheight",
+			"attack": "normalattack"
+		},
+		{
+			"file": "res/animations/RabbitKickCaught",
+			"height": "middleheight",
+			"attack": "reversed"
+		},
+		{
+			"file": "res/animations/RabbitKickCatch",
+			"height": "lowheight",
+			"attack": "reversal"
+		},
+		{
+			"file": "res/animations/Upunch",
+			"height": "middleheight",
+			"attack": "normalattack"
+		},
+		{
+			"file": "res/animations/StaggerBackHigh",
+			"height": "middleheight",
+			"attack": "neutral"
+		},
+		{
+			"file": "res/animations/UpunchCaught",
+			"height": "middleheight",
+			"attack": "reversed"
+		},
+		{
+			"file": "res/animations/UpunchCaught",
+			"height": "middleheight",
+			"attack": "reversal"
+		},
+		{
+			"file": "res/animations/HurtIdle",
+			"height": "middleheight",
+			"attack": "neutral"
+		},
+		{
+			"file": "res/animations/BackHandspring",
+			"height": "middleheight",
+			"attack": "neutral"
+		},
+		{
+			"file": "res/animations/FightIdle",
+			"height": "middleheight",
+			"attack": "neutral"
+		},
+		{
+			"file": "res/animations/Walk",
+			"height": "middleheight",
+			"attack": "neutral"
+		},
+		{
+			"file": "res/animations/FightSideStep",
+			"height": "middleheight",
+			"attack": "neutral"
+		},
+		{
+			"file": "res/animations/Kill",
+			"height": "middleheight",
+			"attack": "normalattack"
+		},
+		{
+			"file": "res/animations/SneakAttack",
+			"height": "middleheight",
+			"attack": "reversal"
+		},
+		{
+			"file": "res/animations/SneakAttacked",
+			"height": "middleheight",
+			"attack": "reversed"
+		},
+		{
+			"file": "res/animations/DrawRight",
+			"height": "middleheight",
+			"attack": "neutral"
+		},
+		{
+			"file": "res/animations/SlashStart",
+			"height": "middleheight",
+			"attack": "normalattack"
+		},
+		{
+			"file": "res/animations/CrouchDrawRight",
+			"height": "lowheight",
+			"attack": "neutral"
+		},
+		{
+			"file": "res/animations/CrouchStab",
+			"height": "lowheight",
+			"attack": "normalattack"
+		},
+		{
+			"file": "res/animations/SlashFollow",
+			"height": "middleheight",
+			"attack": "reversal"
+		},
+		{
+			"file": "res/animations/SlashFollowed",
+			"height": "middleheight",
+			"attack": "reversed"
+		},
+		{
+			"file": "res/animations/KnifeThrow",
+			"height": "middleheight",
+			"attack": "normalattack"
+		},
+		{
+			"file": "res/animations/RemoveKnife",
+			"height": "middleheight",
+			"attack": "neutral"
+		},
+		{
+			"file": "res/animations/CrouchRemoveKnife",
+			"height": "lowheight",
+			"attack": "neutral"
+		},
+		{
+			"file": "res/animations/JumpCaught",
+			"height": "middleheight",
+			"attack": "reversed"
+		},
+		{
+			"file": "res/animations/JumpCatch",
+			"height": "middleheight",
+			"attack": "reversal"
+		},
+		{
+			"file": "res/animations/StaggerBackHard",
+			"height": "middleheight",
+			"attack": "neutral"
+		},
+		{
+			"file": "res/animations/DropKick",
+			"height": "middleheight",
+			"attack": "normalattack"
+		},
+		{
+			"file": "res/animations/WindUpPunch",
+			"height": "middleheight",
+			"attack": "normalattack"
+		},
+		{
+			"file": "res/animations/WindUpPunchBlocked",
+			"height": "middleheight",
+			"attack": "normalattack"
+		},
+		{
+			"file": "res/animations/BlockHighLeft",
+			"height": "middleheight",
+			"attack": "normalattack"
+		},
+		{
+			"file": "res/animations/BlockHighLeftStrike",
+			"height": "middleheight",
+			"attack": "normalattack"
+		},
+		{
+			"file": "res/animations/BackFlip",
+			"height": "highheight",
+			"attack": "neutral"
+		},
+		{
+			"file": "res/animations/WallJumpBack",
+			"height": "highheight",
+			"attack": "neutral"
+		},
+		{
+			"file": "res/animations/WallJumpFront",
+			"height": "highheight",
+			"attack": "neutral"
+		},
+		{
+			"file": "res/animations/RightFlip",
+			"height": "highheight",
+			"attack": "neutral"
+		},
+		{
+			"file": "res/animations/WallJumpRight",
+			"height": "highheight",
+			"attack": "neutral"
+		},
+		{
+			"file": "res/animations/LeftFlip",
+			"height": "highheight",
+			"attack": "neutral"
+		},
+		{
+			"file": "res/animations/WallJumpLeft",
+			"height": "highheight",
+			"attack": "neutral"
+		},
+		{
+			"file": "res/animations/WallJumpRightKick",
+			"height": "highheight",
+			"attack": "neutral"
+		},
+		{
+			"file": "res/animations/WallJumpLeftKick",
+			"height": "highheight",
+			"attack": "neutral"
+		},
+		{
+			"file": "res/animations/KnifeFightIdle",
+			"height": "middleheight",
+			"attack": "neutral"
+		},
+		{
+			"file": "res/animations/KnifeSneakAttack",
+			"height": "middleheight",
+			"attack": "reversal"
+		},
+		{
+			"file": "res/animations/KnifeSneakAttacked",
+			"height": "middleheight",
+			"attack": "reversed"
+		},
+		{
+			"file": "res/animations/SwordFightIdle",
+			"height": "middleheight",
+			"attack": "neutral"
+		},
+		{
+			"file": "res/animations/DrawLeft",
+			"height": "middleheight",
+			"attack": "neutral"
+		},
+		{
+			"file": "res/animations/SwordSlash",
+			"height": "middleheight",
+			"attack": "normalattack"
+		},
+		{
+			"file": "res/animations/SwordGroundStab",
+			"height": "lowheight",
+			"attack": "normalattack"
+		},
+		{
+			"file": "res/animations/DodgeBack",
+			"height": "middleheight",
+			"attack": "neutral"
+		},
+		{
+			"file": "res/animations/SwordSneakAttack",
+			"height": "middleheight",
+			"attack": "reversal"
+		},
+		{
+			"file": "res/animations/SwordSneakAttacked",
+			"height": "middleheight",
+			"attack": "reversed"
+		},
+		{
+			"file": "res/animations/SwordSlashCaught",
+			"height": "middleheight",
+			"attack": "reversed"
+		},
+		{
+			"file": "res/animations/SwordSlashCatch",
+			"height": "middleheight",
+			"attack": "reversal"
+		},
+		{
+			"file": "res/animations/KnifeSlashCaught",
+			"height": "middleheight",
+			"attack": "reversed"
+		},
+		{
+			"file": "res/animations/KnifeSlashCatch",
+			"height": "middleheight",
+			"attack": "reversal"
+		},
+		{
+			"file": "res/animations/SwordFightIdleBoth",
+			"height": "middleheight",
+			"attack": "neutral"
+		},
+		{
+			"file": "res/animations/SwordUprightParry",
+			"height": "middleheight",
+			"attack": "normalattack"
+		},
+		{
+			"file": "res/animations/SwordSlashParried",
+			"height": "middleheight",
+			"attack": "normalattack"
+		},
+		{
+			"file": "res/animations/WolfIdle",
+			"height": "middleheight",
+			"attack": "neutral"
+		},
+		{
+			"file": "res/animations/WolfCrouch",
+			"height": "lowheight",
+			"attack": "neutral"
+		},
+		{
+			"file": "res/animations/WolfLanding",
+			"height": "lowheight",
+			"attack": "neutral"
+		},
+		{
+			"file": "res/animations/WolfLandHard",
+			"height": "lowheight",
+			"attack": "neutral"
+		},
+		{
+			"file": "res/animations/WolfRun",
+			"height": "middleheight",
+			"attack": "neutral"
+		},
+		{
+			"file": "res/animations/WolfRunning",
+			"height": "middleheight",
+			"attack": "neutral"
+		},
+		{
+			"file": "res/animations/RabbitRunning",
+			"height": "middleheight",
+			"attack": "neutral"
+		},
+		{
+			"file": "res/animations/WolfStop",
+			"height": "middleheight",
+			"attack": "neutral"
+		},
+		{
+			"file": "res/animations/RabbitTackle",
+			"height": "middleheight",
+			"attack": "neutral"
+		},
+		{
+			"file": "res/animations/RabbitTackling",
+			"height": "middleheight",
+			"attack": "reversal"
+		},
+		{
+			"file": "res/animations/RabbitTackledBack",
+			"height": "middleheight",
+			"attack": "reversed"
+		},
+		{
+			"file": "res/animations/RabbitTackledFront",
+			"height": "middleheight",
+			"attack": "reversed"
+		},
+		{
+			"file": "res/animations/WolfSlap",
+			"height": "middleheight",
+			"attack": "normalattack"
+		},
+		{
+			"file": "res/animations/StaffHit",
+			"height": "middleheight",
+			"attack": "normalattack"
+		},
+		{
+			"file": "res/animations/StaffGroundSmash",
+			"height": "lowheight",
+			"attack": "normalattack"
+		},
+		{
+			"file": "res/animations/SpinWhack",
+			"height": "middleheight",
+			"attack": "normalattack"
+		},
+		{
+			"file": "res/animations/StaffHitCaught",
+			"height": "middleheight",
+			"attack": "reversed"
+		},
+		{
+			"file": "res/animations/StaffHitCatch",
+			"height": "middleheight",
+			"attack": "reversal"
+		},
+		{
+			"file": "res/animations/SpinWhackCaught",
+			"height": "middleheight",
+			"attack": "reversed"
+		},
+		{
+			"file": "res/animations/SpinWhackCatch",
+			"height": "middleheight",
+			"attack": "reversal"
+		},
+		{
+			"file": "res/animations/Sit",
+			"height": "lowheight",
+			"attack": "neutral"
+		},
+		{
+			"file": "res/animations/Sleep",
+			"height": "lowheight",
+			"attack": "neutral"
+		},
+		{
+			"file": "res/animations/TalkIdle",
+			"height": "middleheight",
+			"attack": "neutral"
+		},
+		{
+			"file": "res/animations/Dying",
+			"height": "lowheight",
+			"attack": "neutral"
+		},
+		{
+			"file": "res/animations/Dead1",
+			"height": "lowheight",
+			"attack": "neutral"
+		},
+		{
+			"file": "res/animations/Dead2",
+			"height": "lowheight",
+			"attack": "neutral"
+		},
+		{
+			"file": "res/animations/Dead3",
+			"height": "lowheight",
+			"attack": "neutral"
+		},
+		{
+			"file": "res/animations/Dead4",
+			"height": "lowheight",
+			"attack": "neutral"
+		},
+		{
+			"file": "res/animations/Tempanim",
+			"height": "lowheight",
+			"attack": "neutral"
+		}
+	]
+}

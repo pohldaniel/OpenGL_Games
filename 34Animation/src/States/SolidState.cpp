@@ -9,6 +9,8 @@
 #include "Application.h"
 #include "Globals.h"
 
+#include "AnimationManager.h"
+
 SolidState::SolidState(StateMachine& machine) : State(machine, States::SOLID) {
 
 	Application::SetCursorIcon(IDC_ARROW);
@@ -30,7 +32,8 @@ SolidState::SolidState(StateMachine& machine) : State(machine, States::SOLID) {
 	solidConverter.fromBufferMap(m_vertexBufferMap, m_vertexBufferDraw);
 	m_body.fromBuffer(m_vertexBufferDraw, m_indexBuffer, 5);
 
-	solidConverter.loadAnimation("res/StaffHit", Utils::middleheight, Utils::normalattack);
+	Utils::Animation animation;
+	solidConverter.loadAnimation("res/animations/StaffHit", Utils::middleheight, Utils::normalattack, animation);
 
 	std::cout << "######################" << std::endl;
 	m_skeleton.Load("res/BasicFigure", "res/BasicFigureLow" , "res/RabbitBelt",
@@ -39,6 +42,7 @@ SolidState::SolidState(StateMachine& machine) : State(machine, States::SOLID) {
                     "res/Body5.solid", "res/Body6.solid",
                     "res/Body7.solid", "res/BodyLow.solid",
                     "res/Belt.solid", true);
+	AnimationManager::Get().loadAll("res/animations.json");
 }
 
 SolidState::~SolidState() {
