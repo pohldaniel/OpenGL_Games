@@ -141,6 +141,7 @@ public:
 	static Vector3f Cross(const Vector3f &p, const Vector3f &q);
 	static Vector3f Inverse(const Vector3f &p);
 	static float Dot(const Vector3f &p, const Vector3f &q);	
+	static float NormalDot(const Vector3f &p, const Vector3f &q);
 	static Vector3f& Normalize(Vector3f &p);
 	static Vector3f Normalize(const Vector3f &p);
 	static Vector3f Min(const Vector3f &p, const Vector3f &q);

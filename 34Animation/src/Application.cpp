@@ -683,7 +683,8 @@ void Application::loadAssets() {
 	Globals::textureManager.loadTexture("woman", "res/models/woman/Woman.png", false);
 	Globals::textureManager.loadTexture("floor", "res/textures/floor.png", false);
 	Globals::textureManager.loadTexture("sword", "res/models/Girlbot/Textures/maria_diffuse.png", false);
-	Globals::textureManager.loadTexture("fur", "res/textures/FurBlackWhite.jpg", true);
+	Globals::textureManager.loadTexture("fur_1", "res/textures/FurBlackWhite.jpg", true);
+	Globals::textureManager.loadTexture("fur_2", "res/textures/FurChocolate.jpg", true);
 	Globals::textureManager.get("fur").setFilter(GL_LINEAR);
 	Globals::textureManager.get("fur").setWrapMode(GL_REPEAT);
 

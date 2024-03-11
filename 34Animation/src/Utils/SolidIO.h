@@ -82,6 +82,7 @@ namespace std {
 namespace Utils {
 
 	static const float BONE_SIZE_THRESHOLD = 0.05f;
+	static const int MAX_JOINTS = 50;
 
 	struct Joint{
 		Vector3f position;		
@@ -97,6 +98,8 @@ namespace Utils {
 		bool lower;
 		int parentIndex;
 		void print();
+
+		Vector3f velocity;
 	};
 
 	struct Muscle {
@@ -115,7 +118,10 @@ namespace Utils {
 		void print();
 
 		float rotate1, rotate2, rotate3;
-		Matrix4f offsetMatrix;
+		Matrix4f m_modelMatrixInitial;
+
+		float oldrotate1, oldrotate2, oldrotate3;
+		float newrotate1, newrotate2, newrotate3;
 	};
 
 	struct Skeleton {
@@ -134,6 +140,11 @@ namespace Utils {
 		Vector3f specialforward[5];
 		Vector3f forward;
 		Vector3f lowForward;
+
+		int jointlabels[MAX_JOINTS];
+		int free = 0;
+		bool spinny = false;
+		Joint& joint(int bodypart);
 	};
 
 	struct AnimationFrameJointInfo{

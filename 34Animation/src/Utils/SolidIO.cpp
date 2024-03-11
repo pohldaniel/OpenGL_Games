@@ -118,6 +118,10 @@ void Utils::Animation::print() {
 	std::cout << "Offset: " << offset[0] << "  " << offset[1] << "  " << offset[2] << std::endl;
 }
 
+Utils::Joint& Utils::Skeleton::joint(int bodypart) { 
+	return m_joints[jointlabels[bodypart]]; 
+}
+
 void Utils::Skeleton::findForwards() {
 
 	forward = Vector3f::Cross(m_joints[forwardJoint2].position - m_joints[forwardJoint1].position, m_joints[forwardJoint3].position - m_joints[forwardJoint1].position);
@@ -281,30 +285,6 @@ bool Utils::SolidIO::getSimilarVertexIndex(Vertex& packed, std::map<Vertex, shor
 		return true;
 	}
 }
-
-/*Utils::Tmp Utils::SolidIO::getSimilarVertexIndex(std::array<float,5>& packed, std::map<std::array<float,5>, std::pair<short, Tmp>, Comparer>& uvToOutIndex, short & result) {
-	std::map<std::array<float, 5>, std::pair<short, Tmp>>::iterator it = uvToOutIndex.find(packed);
-	if (it == uvToOutIndex.end()) {
-		return Tmp::NEW;
-	}else {
-
-		if (it->second.second == UNKNOWN) {
-			it->second.second = KNOWN;
-			return UNKNOWN;
-		}else if(it->second.second == KNOWN) {
-			result = it->second.first;
-			return KNOWN;
-		}
-
-		/*if (!it->second.second) {
-			it->second.second = true;
-
-			return false;
-		}
-		result = it->second.first;
-		return true;
-	}
-}*/
 
 void Utils::SolidIO::solidToObj(const char* filename, const char* outFileObj, const char* outFileMtl, const char* texturePath, bool flipVertical) {
 
@@ -688,24 +668,25 @@ void Utils::SolidIO::loadSkeleton(const char* filename, const std::vector<Vertex
 	for (unsigned int k = 0; k < 1; k++) {
 		for (unsigned int i = 0; i < numVert; i++) {
 			Vector3f pos = { vertexBufferMap[i].data[0] , vertexBufferMap[i].data[1], vertexBufferMap[i].data[2] };
-			
-			//pos = Matrix4f::InvTranslate((skeleton.m_joints[skeleton.m_muscles[owner[i]].parentIndex1].position + skeleton.m_joints[skeleton.m_muscles[owner[i]].parentIndex2].position) * 0.5f) ^ pos;
-			//pos = Matrix4f::Rotate(Vector3f(0.0f, 1.0f, 0.0f), skeleton.m_muscles[owner[i]].rotate3) ^ pos;
-			//pos = Matrix4f::Rotate(Vector3f(0.0f, 0.0f, 1.0f), skeleton.m_muscles[owner[i]].rotate2 - 90.0f) ^ pos;
-			//pos = Matrix4f::Rotate(Vector3f(0.0f, 1.0f, 0.0f), skeleton.m_muscles[owner[i]].rotate1 - 90.0f ) ^ pos;
-				
-			//Matrix4f trans =  Matrix4f::Rotate(Vector3f(0.0f, 1.0f, 0.0f), skeleton.m_muscles[owner[i]].rotate1 - 90.0f) * Matrix4f::Rotate(Vector3f(0.0f, 0.0f, 1.0f), skeleton.m_muscles[owner[i]].rotate2 - 90.0f) * Matrix4f::Rotate(Vector3f(0.0f, 1.0f, 0.0f), skeleton.m_muscles[owner[i]].rotate3) *  Matrix4f::Translate(posOrigin - (skeleton.m_joints[skeleton.m_muscles[owner[i]].parentIndex1].position + skeleton.m_joints[skeleton.m_muscles[owner[i]].parentIndex2].position) * 0.5f);
-			Matrix4f trans = Matrix4f::Rotate(Vector3f(0.0f, 1.0f, 0.0f), skeleton.m_muscles[owner[i]].rotate1 - 90.0f) * Matrix4f::Rotate(Vector3f(0.0f, 0.0f, 1.0f), skeleton.m_muscles[owner[i]].rotate2 - 90.0f) * Matrix4f::Rotate(Vector3f(0.0f, 1.0f, 0.0f), skeleton.m_muscles[owner[i]].rotate3) *  Matrix4f::InvTranslate((skeleton.m_joints[skeleton.m_muscles[owner[i]].parentIndex1].position + skeleton.m_joints[skeleton.m_muscles[owner[i]].parentIndex2].position) * 0.5f);
+			Matrix4f trans = Matrix4f::Rotate(Vector3f(0.0f, 1.0f, 0.0f), skeleton.m_muscles[owner[i]].rotate3) * Matrix4f::Rotate(Vector3f(0.0f, 0.0f, 1.0f), skeleton.m_muscles[owner[i]].rotate2 - 90.0f) * Matrix4f::Rotate(Vector3f(0.0f, 1.0f, 0.0f), skeleton.m_muscles[owner[i]].rotate1 - 90.0f) *   Matrix4f::InvTranslate((skeleton.m_joints[skeleton.m_muscles[owner[i]].parentIndex1].position + skeleton.m_joints[skeleton.m_muscles[owner[i]].parentIndex2].position) * 0.5f);
 			pos = trans ^ pos;
-
 			vertexBufferOut.push_back(pos[0]); vertexBufferOut.push_back(pos[1]); vertexBufferOut.push_back(pos[2]);
-			//vertexBufferOut.push_back(vertexBufferMap[i].data[3]); vertexBufferOut.push_back(vertexBufferMap[i].data[4]);		
+			vertexBufferOut.push_back(vertexBufferMap[i].data[3]); vertexBufferOut.push_back(vertexBufferMap[i].data[4]);
 		}
 	}
 
 	for (unsigned int j = 0; j < numMuscles; j++) {
 		Vector3f mid = (skeleton.m_joints[skeleton.m_muscles[j].parentIndex1].position + skeleton.m_joints[skeleton.m_muscles[j].parentIndex2].position) * 0.5f;
-		skeleton.m_muscles[j].offsetMatrix = Matrix4f::Translate(mid) * Matrix4f::Rotate(Vector3f(0.0f, 1.0f, 0.0f), -skeleton.m_muscles[j].rotate3) * Matrix4f::Rotate(Vector3f(0.0f, 0.0f, 1.0f), 90.0f - skeleton.m_muscles[j].rotate2) * Matrix4f::Rotate(Vector3f(0.0f, 1.0f, 0.0f), 90.0f - skeleton.m_muscles[j].rotate1);
+		skeleton.m_muscles[j].m_modelMatrixInitial = Matrix4f::Translate(mid) * Matrix4f::Rotate(Vector3f(0.0f, 1.0f, 0.0f), 90.0f - skeleton.m_muscles[j].rotate1) * Matrix4f::Rotate(Vector3f(0.0f, 0.0f, 1.0f), 90.0f - skeleton.m_muscles[j].rotate2)  * Matrix4f::Rotate(Vector3f(0.0f, 1.0f, 0.0f), -skeleton.m_muscles[j].rotate3);
+	}
+
+	memset(skeleton.jointlabels, 0, sizeof(skeleton.jointlabels));
+	for (int i = 0; i < jointCount; i++) {
+		for (int j = 0; j < jointCount; j++) {
+			if (skeleton.m_joints[i].label == j) {
+				skeleton.jointlabels[j] = i;
+			}
+		}
 	}
 }
 
