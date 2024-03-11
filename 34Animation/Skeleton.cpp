@@ -206,6 +206,8 @@ void Skeleton::FindRotationMuscle(int which, int animation)
 	fwd.y = 0;
 
 	fwd /= findLength(&fwd);
+
+
 	if (fwd.z <= 1 && fwd.z >= -1) {
 		muscles[which].rotate3 = acos(0 - fwd.z);
 	}
@@ -355,10 +357,6 @@ void Skeleton::Load(const std::string& filename, const std::string& lowfilename,
 		FindRotationMuscle(i, -1);
 	}
 
-	//for (int i = 0; i < model[0].vertexNum; i++) {
-	//	std::cout << model[0].vertex[i].x << "  " << model[0].vertex[i].y << "  " << model[0].vertex[i].z << std::endl;
-	//}
-
 	// this seems to use opengl purely for matrix calculations
 	for (int k = 0; k < 1; k++) {
 		for (int i = 0; i < model[k].vertexNum; i++) {
@@ -377,12 +375,7 @@ void Skeleton::Load(const std::string& filename, const std::string& lowfilename,
 			model[k].vertex[i].x = M[12] * 1;
 			model[k].vertex[i].y = M[13] * 1;
 			model[k].vertex[i].z = M[14] * 1;
-			
-			//std::cout << M[0] << "  " << M[1] << "  " << M[2] << "  " << M[3] << std::endl;
-			//std::cout << M[4] << "  " << M[5] << "  " << M[6] << "  " << M[7] << std::endl;
-			//std::cout << M[8] << "  " << M[9] << "  " << M[10] << "  " << M[11] << std::endl;
-			//std::cout << M[12] << "  " << M[13] << "  " << M[14] << "  " << M[15] << std::endl;
-			//std::cout << "---------------" << std::endl;
+
 			glPopMatrix();
 		}
 		model[k].CalculateNormals(0);

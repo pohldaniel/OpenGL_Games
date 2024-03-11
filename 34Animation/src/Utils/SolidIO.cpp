@@ -130,20 +130,20 @@ void Utils::Skeleton::findForwards() {
 	lowForward = Vector3f::Cross(m_joints[lowForwardJoint2].position - m_joints[lowForwardJoint1].position, m_joints[lowForwardJoint3].position - m_joints[lowForwardJoint1].position);
 	Vector3f::Normalize(lowForward);
 
-	specialforward[1] = m_joints[0].position + m_joints[0].position;
-	specialforward[1] = m_joints[0].position - (specialforward[1] * 0.5f);
+	specialforward[1] = joint(rightshoulder).position + joint(rightwrist).position;
+	specialforward[1] = joint(rightelbow).position - (specialforward[1] * 0.5f);
 	specialforward[1] += forward * 0.4f;
 	Vector3f::Normalize(specialforward[1]);
-	specialforward[2] = m_joints[0].position + m_joints[0].position;
-	specialforward[2] = (m_joints[0].position - (specialforward[2]) * 0.5f);
+	specialforward[2] = joint(leftshoulder).position + joint(leftwrist).position;
+	specialforward[2] = (joint(leftelbow).position - (specialforward[2]) * 0.5f);
 	specialforward[2] += forward * 0.4f;
 	Vector3f::Normalize(specialforward[2]);
-	specialforward[3] = m_joints[0].position + m_joints[0].position;
-	specialforward[3] = (specialforward[3] * 0.5f) - m_joints[0].position;
+	specialforward[3] = joint(righthip).position + joint(rightankle).position;
+	specialforward[3] = (specialforward[3] * 0.5f) - joint(rightknee).position;
 	specialforward[3] += lowForward * 0.4f;
 	Vector3f::Normalize(specialforward[3]);
-	specialforward[4] = m_joints[0].position + m_joints[0].position;
-	specialforward[4] = (specialforward[4] * 0.5f) - m_joints[0].position;
+	specialforward[4] = joint(lefthip).position + joint(leftankle).position;
+	specialforward[4] = (specialforward[4] * 0.5f) - joint(leftknee).position;
 	specialforward[4] += lowForward * 0.4f;
 	Vector3f::Normalize(specialforward[4]);
 }
@@ -645,14 +645,13 @@ void Utils::SolidIO::loadSkeleton(const char* filename, const std::vector<Vertex
 				}			
 		}
 	}
-
+	memset(skeleton.jointlabels, 0, sizeof(skeleton.jointlabels));
 	skeleton.findForwards();
 
 	for (int i = 0; i < numMuscles; i++) {
 		skeleton.findRotationMuscle(i, -1);
 	}
 
-	
 	for (unsigned int i = 0; i < numVert; i++) {
 		for (unsigned int j = 0; j < numMuscles; j++) {
 			for (unsigned int k = 0; k < skeleton.m_muscles[j].vertexIndices.size(); k++) {
@@ -680,7 +679,7 @@ void Utils::SolidIO::loadSkeleton(const char* filename, const std::vector<Vertex
 		skeleton.m_muscles[j].m_modelMatrixInitial = Matrix4f::Translate(mid) * Matrix4f::Rotate(Vector3f(0.0f, 1.0f, 0.0f), 90.0f - skeleton.m_muscles[j].rotate1) * Matrix4f::Rotate(Vector3f(0.0f, 0.0f, 1.0f), 90.0f - skeleton.m_muscles[j].rotate2)  * Matrix4f::Rotate(Vector3f(0.0f, 1.0f, 0.0f), -skeleton.m_muscles[j].rotate3);
 	}
 
-	memset(skeleton.jointlabels, 0, sizeof(skeleton.jointlabels));
+
 	for (int i = 0; i < jointCount; i++) {
 		for (int j = 0; j < jointCount; j++) {
 			if (skeleton.m_joints[i].label == j) {

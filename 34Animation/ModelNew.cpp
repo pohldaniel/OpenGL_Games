@@ -101,8 +101,10 @@ void ModelNew::update(float dt) {
 }
 ////////////////////////////////////////////////////////////////////////////////
 Animator::Animator(Utils::Skeleton& skeleton): skeleton(skeleton) {
-	animCurrent = Utils::bounceidleanim;
-	animCurrent = Utils::bounceidleanim;
+	//animTarget = Utils::bounceidleanim;
+	//animCurrent = Utils::bounceidleanim;
+	animTarget = Utils::runanim;
+	animCurrent = Utils::runanim;
 	howactive = typeactive;
 	normalsupdatedelay = 0.0f;
 	id = 0;

@@ -48,8 +48,10 @@ SolidState::SolidState(StateMachine& machine) : State(machine, States::SOLID) {
                     "res/Belt.solid", true);
 	AnimationManager::Get().loadAll("res/animations.json");
 
-	animCurrent = Utils::bounceidleanim;
-	animCurrent = Utils::bounceidleanim;
+	//animTarget = Utils::bounceidleanim;
+	//animCurrent = Utils::bounceidleanim;
+	animTarget = Utils::runanim;
+	animCurrent = Utils::runanim;
 	howactive = typeactive;
 	normalsupdatedelay = 0.0f;
 	id = 0;
@@ -99,6 +101,8 @@ SolidState::SolidState(StateMachine& machine) : State(machine, States::SOLID) {
 	oldframeCurrent = 0;
 	oldframeTarget = 0;
 	calcrot = false;
+
+	glEnable(GL_TEXTURE_2D);
 }
 
 SolidState::~SolidState() {
@@ -166,7 +170,6 @@ void SolidState::update() {
 	}
 
 	doAnimations(m_dt);
-
 	modelNew.update(m_dt);
 }
 
@@ -189,8 +192,8 @@ void SolidState::render() {
 
 	//m_skeleton.drawmodel.draw(false);
 	
-	//updateModel();
-	//m_skeleton.drawmodel.draw();
+	updateModel();
+	m_skeleton.drawmodel.draw();
 
 	/*auto shader = Globals::shaderManager.getAssetPointer("texture");
 	shader->use();
@@ -202,7 +205,7 @@ void SolidState::render() {
 	m_body.drawRaw();
 	shader->unuse();*/
 
-	//Globals::textureManager.get("fur_2").bind(0);
+	Globals::textureManager.get("fur_2").bind(0);
 	auto shader = Globals::shaderManager.getAssetPointer("animation_new_2");
 	shader->use();
 	shader->loadInt("u_texture", 0);
@@ -324,9 +327,8 @@ void SolidState::updateModel(){
 		glGetFloatv(GL_MODELVIEW_MATRIX, M);
 
 		//std::cout << "Index2: " << i << std::endl;
-
 		//std::cout << "Pos: " << mid.x << "  " << mid.y << "  " << mid.z << std::endl;
-		//std::cout << "Rot: " << m_skeleton.muscles[i].rotate1 << "  " << m_skeleton.muscles[i].rotate2 << "  " << m_skeleton.muscles[i].rotate3 << std::endl;
+		//std::cout << "Rot: " << m_skeleton.muscles[i].rotate3 << std::endl;
 
 		//std::cout << M[0] << "  " << M[1] << "  " << M[2] << "  " << M[3] << std::endl;
 		//std::cout << M[4] << "  " << M[5] << "  " << M[6] << "  " << M[7] << std::endl;
