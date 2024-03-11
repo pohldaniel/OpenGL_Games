@@ -1,99 +1,122 @@
-#ifndef _MODELS_HPP_
-#define _MODELS_HPP_
+#pragma once
 
-
-#include <GL/glew.h>
-#include "XYZ.h"
-#include "Utils/binio.h"
-
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
 #include <vector>
+#include <array>
+#include <engine/Vector.h>
+#include <Utils/SolidIO.h>
+#include "Enums.h"
 
-//
-// Textures List
-//
-typedef struct{
-	long xsz, ysz;
-	GLubyte* txt;
-} ModelTexture;
+class Animator {
 
-//
-// Model Structures
-//
-
-class TexturedTriangle{
 public:
-	short vertex[3];
-	float gx[3], gy[3];
-	XYZ facenormal;
+
+	Animator(Utils::Skeleton& skeleton);
+	void doAnimations(float dt);
+	bool isIdle();
+	bool isFlip();
+	bool wasFlip();
+	int getIdle();
+	bool wasIdle();
+	bool wasLanding();
+	bool isLanding();
+	int getLanding();
+	bool wasStop();
+	bool isStop();
+	int getStop();
+	bool wasLandhard();
+	bool isLandhard();
+	int getLandhard();
+	bool wasCrouch();
+	bool isCrouch();
+	int getCrouch();
+	bool wasRun();
+	bool isRun();
+	int getRun();
+	bool hasWeapon();
+	bool isPlayerControlled();
+	void FootLand(bodypart whichfoot, float opacity);
+
+	Utils::AnimationFrame& currentFrame();
+	Utils::AnimationFrame& targetFrame();
+
+	Utils::Skeleton& skeleton;
+
+	int animCurrent;
+	int animTarget;
+	int howactive;
+	float normalsupdatedelay;
+	Utils::Animation tempanimation;
+	unsigned id;
+	Vector3f velocity;
+	bool landhard;
+	bool crouchkeydown;
+	bool crouchtogglekeydown;
+	float targetyaw;
+
+	int frameCurrent;
+	int frameTarget;
+	float target;
+	int numflipped;
+	bool feint;
+	bool lastfeint;
+	int aitype;
+
+	int escapednum;
+	bool reversaltrain;
+	int detail;
+	bool onfire;
+	float deathbleeding;
+	Vector3f facing;
+	float yaw;
+	float transspeed;
+	Vector3f currentoffset, targetoffset, offset;
+	bool hasvictim;
+	bool jumpkeydown;
+	bool attackkeydown;
+	int hostile;
+	int weaponactive;
+	int num_weapons;
+	int weaponids[4];
+	float targetrot;
+	bool superruntoggle;
+	float speed;
+	float velspeed;
+	float speedmult;
+	float scale;
+	float rot;
+	float oldrot;
+
+	int oldanimCurrent;
+	int oldanimTarget;
+	int oldframeCurrent;
+	int oldframeTarget;
+	bool calcrot;
+	void Reverse() {}
 };
 
-#define max_model_decals 300
+class Model {
 
-enum ModelType{
-	nothing = 0,
-	notextype = 1,
-	rawtype = 2,
-	decalstype = 3,
-	normaltype = 4
-};
-
-class Model{
 public:
-	short vertexNum;
-
-	ModelType type;
-
-	int* owner;
-	XYZ* vertex;
-	XYZ* normals;
-	std::vector<TexturedTriangle> Triangles;
-	GLfloat* vArray;
-
-	//TextureLu textureptr;
-	ModelTexture modelTexture;
-	bool color;
-
-	XYZ boundingspherecenter;
-	float boundingsphereradius;
-
-	bool flat;
 
 	Model();
-	~Model();
+	void draw();
+	void update(float dt);
+	void resetPose();
 
+	short m_muscleNum, m_vertexNum;
+	Matrix4f* m_skinMatrices;
+	Utils::Skeleton m_skeleton;
 	
-	const XYZ& getTriangleVertex(unsigned triangleId, unsigned vertexId) const;
+	std::vector<unsigned int> m_indexBuffer;
+	std::vector<float> m_vertexBuffer;
+	std::vector<std::array<float, 4>> m_weights;
+	std::vector<std::array<unsigned int, 4>> m_boneIds;
+	std::vector<Utils::SolidIO::Vertex> m_vertexBufferMap;
 
-	int SphereCheck(XYZ* p1, float radius, XYZ* p, XYZ* move, float* rotate);
-	int SphereCheckPossible(XYZ* p1, float radius, XYZ* move, float* rotate);
-	int LineCheck(XYZ* p1, XYZ* p2, XYZ* p, XYZ* move, float* rotate);
-	int LineCheckPossible(XYZ* p1, XYZ* p2, XYZ* p, XYZ* move, float* rotate);
-	int LineCheckSlidePossible(XYZ* p1, XYZ* p2, XYZ* move, float* rotate);
-	void UpdateVertexArray();
-	void UpdateVertexArrayNoTex();
-	void UpdateVertexArrayNoTexNoNorm();
-	bool loadnotex(const std::string& filename);
-	bool loadraw(const std::string& filename);
-	bool load(const std::string& filename);
-	bool loaddecal(const std::string& filename);
-	void Scale(float xscale, float yscale, float zscale);
-	void FlipTexCoords();
-	void UniformTexCoords();
-	void ScaleTexCoords(float howmuch);
-	void ScaleNormals(float xscale, float yscale, float zscale);
-	void Translate(float xtrans, float ytrans, float ztrans);
-	void CalculateNormals(bool facenormalise);
-	void draw(bool skip = true);
-	void drawimmediate();
-	void Rotate(float xang, float yang, float zang);
+	unsigned int m_vao = 0u;
+	unsigned int m_vbo[3] = { 0u };
+	unsigned int m_drawCount;
 
-private:
-	void deallocate();
-	/* indices of triangles that might collide */
-	std::vector<unsigned int> possible;
+	Utils::SolidIO solidConverter;
+	Animator animator;
 };
-
-#endif

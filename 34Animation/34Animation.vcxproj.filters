@@ -408,46 +408,16 @@
     <ClCompile Include="engine\MeshBone.cpp">
       <Filter>engine</Filter>
     </ClCompile>
-    <ClCompile Include="Skeleton.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Joint.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Muscle.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="XYZ.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Utils\pack.c">
-      <Filter>Source Files\Utils</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Utils\unpack.c">
-      <Filter>Source Files\Utils</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Utils\private.c">
-      <Filter>Source Files\Utils</Filter>
-    </ClCompile>
-    <ClCompile Include="Model.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Utils\Folders.cpp">
-      <Filter>Source Files\Utils</Filter>
-    </ClCompile>
     <ClCompile Include="src\States\SolidState.cpp">
       <Filter>Source Files\States</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Utils\ImageIO.cpp">
-      <Filter>Source Files\Utils</Filter>
-    </ClCompile>
-    <ClCompile Include="ModelNew.cpp">
-      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\States\Interleaved.cpp">
       <Filter>Source Files\States</Filter>
     </ClCompile>
     <ClCompile Include="AnimationManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Model.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -824,46 +794,19 @@
     <ClInclude Include="engine\MeshBone.h">
       <Filter>engine</Filter>
     </ClInclude>
-    <ClInclude Include="Skeleton.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Joint.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Muscle.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="XYZ.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Utils\binio.h">
-      <Filter>Source Files\Utils</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Utils\private.h">
-      <Filter>Source Files\Utils</Filter>
-    </ClInclude>
-    <ClInclude Include="Model.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\States\SolidState.h">
       <Filter>Source Files\States</Filter>
     </ClInclude>
-    <ClInclude Include="src\Utils\ImageIO.h">
-      <Filter>Source Files\Utils</Filter>
-    </ClInclude>
-    <ClInclude Include="ModelNew.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\States\Interleaved.h">
       <Filter>Source Files\States</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Utils\Folders.h">
-      <Filter>Source Files\Utils</Filter>
     </ClInclude>
     <ClInclude Include="AnimationManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Enums.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Model.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

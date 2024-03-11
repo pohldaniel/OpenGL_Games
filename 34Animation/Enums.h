@@ -22,3 +22,27 @@ enum editortypes
 #define gethelptype 6
 #define getweapontype 7
 #define pathfindtype 8
+
+enum bodypart
+{
+	head,
+	neck,
+	leftshoulder,
+	leftelbow,
+	leftwrist,
+	lefthand,
+	rightshoulder,
+	rightelbow,
+	rightwrist,
+	righthand,
+	abdomen,
+	lefthip,
+	righthip,
+	groin,
+	leftknee,
+	leftankle,
+	leftfoot,
+	rightknee,
+	rightankle,
+	rightfoot
+};
