@@ -5,23 +5,23 @@
 AnimationManager AnimationManager::s_instance;
 std::vector<Utils::Animation> AnimationManager::animations;
 
-Enums::anim_attack_type convertAttackType(const std::string& str){
-	if (str == "neutral") return Enums::neutral;
-	else if (str == "normalattack") return Enums::normalattack;
-	else if (str == "reversed") return Enums::reversed;
-	else if (str == "reversal") return Enums::reversal;
+Utils::anim_attack_type convertAttackType(const std::string& str){
+	if (str == "neutral") return Utils::neutral;
+	else if (str == "normalattack") return Utils::normalattack;
+	else if (str == "reversed") return Utils::reversed;
+	else if (str == "reversal") return Utils::reversal;
 
 	assert(!"The default case of convertAttackType was reached.");
-	return Enums::attack_type_count;
+	return Utils::attack_type_count;
 }
 
-Enums::anim_height_type convertHeightType(const std::string& str) {
-	if (str == "lowheight") return Enums::lowheight;
-	else if (str == "middleheight") return Enums::middleheight;
-	else if (str == "highheight") return Enums::highheight;
+Utils::anim_height_type convertHeightType(const std::string& str) {
+	if (str == "lowheight") return Utils::lowheight;
+	else if (str == "middleheight") return Utils::middleheight;
+	else if (str == "highheight") return Utils::highheight;
 
 	assert(!"The default case of convertHeightType was reached.");
-	return Enums::height_type_count;
+	return Utils::height_type_count;
 }
 
 AnimationManager::AnimationManager() : m_loadAnimations(true)  {

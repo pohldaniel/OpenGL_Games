@@ -23,44 +23,6 @@ namespace Enums {
 		typedead4
 	};
 
-	enum bodypart {
-		head,
-		neck,
-		leftshoulder,
-		leftelbow,
-		leftwrist,
-		lefthand,
-		rightshoulder,
-		rightelbow,
-		rightwrist,
-		righthand,
-		abdomen,
-		lefthip,
-		righthip,
-		groin,
-		leftknee,
-		leftankle,
-		leftfoot,
-		rightknee,
-		rightankle,
-		rightfoot
-	};
-
-	enum anim_attack_type {
-		neutral,
-		normalattack,
-		reversed,
-		reversal,
-		attack_type_count
-	};
-
-	enum anim_height_type {
-		lowheight,
-		middleheight,
-		highheight,
-		height_type_count
-	};
-
 	enum animation_type {
 		runanim,
 		bounceidleanim,

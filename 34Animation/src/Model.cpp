@@ -312,9 +312,9 @@ bool Animator::wasIdle() {
 	return Enums::animation_bits[animCurrent] & Enums::ab_idle;
 }
 
-void Animator::FootLand(Enums::bodypart whichfoot, float opacity) {
+void Animator::FootLand(Utils::bodypart whichfoot, float opacity) {
 
-	if ((whichfoot != Enums::leftfoot) && (whichfoot != Enums::rightfoot)) {
+	if ((whichfoot != Utils::leftfoot) && (whichfoot != Utils::rightfoot)) {
 		std::cerr << "FootLand called on wrong bodypart" << std::endl;
 		return;
 	}
@@ -375,7 +375,7 @@ void Animator::doAnimations(float dt) {
 			}
 		}
 
-		if (AnimationManager::animations[animTarget].attack != Enums::reversed) {
+		if (AnimationManager::animations[animTarget].attack != Utils::reversed) {
 			feint = 0;
 		}
 
@@ -386,7 +386,7 @@ void Animator::doAnimations(float dt) {
 			}
 		}
 		else {
-			if (!crouchtogglekeydown && AnimationManager::animations[animTarget].attack == Enums::reversed && isPlayerControlled() && (escapednum < 2 || reversaltrain)) {
+			if (!crouchtogglekeydown && AnimationManager::animations[animTarget].attack == Utils::reversed && isPlayerControlled() && (escapednum < 2 || reversaltrain)) {
 				feint = 1;
 			}
 			if (!isFlip()) {
@@ -559,8 +559,8 @@ void Animator::doAnimations(float dt) {
 			}*/
 
 			if ((!wasLanding() && !wasLandhard()) && animCurrent != getIdle() && (isLanding() || isLandhard())) {
-				FootLand(Enums::bodypart::leftfoot, 1);
-				FootLand(Enums::bodypart::rightfoot, 1);
+				FootLand(Utils::bodypart::leftfoot, 1);
+				FootLand(Utils::bodypart::rightfoot, 1);
 			}
 
 			transspeed = 0.0f;
@@ -781,8 +781,8 @@ void Animator::doAnimations(float dt) {
 				frameTarget = 0;
 				if (wasStop()) {
 					animTarget = getIdle();
-					FootLand(Enums::bodypart::leftfoot, 1);
-					FootLand(Enums::bodypart::rightfoot, 1);
+					FootLand(Utils::bodypart::leftfoot, 1);
+					FootLand(Utils::bodypart::rightfoot, 1);
 				}
 				if (animCurrent == Enums::rabbittackleanim || animCurrent == Enums::rabbittacklinganim) {
 					animTarget = Enums::rollanim;
@@ -832,8 +832,8 @@ void Animator::doAnimations(float dt) {
 				}
 				if (animCurrent == Enums::rollanim) {
 					animTarget = getCrouch();
-					FootLand(Enums::bodypart::leftfoot, 1);
-					FootLand(Enums::bodypart::rightfoot, 1);
+					FootLand(Utils::bodypart::leftfoot, 1);
+					FootLand(Utils::bodypart::rightfoot, 1);
 				}
 				if (isFlip()) {
 					if (animTarget == Enums::walljumprightkickanim) {
@@ -1063,7 +1063,7 @@ void Animator::doAnimations(float dt) {
 					velocity[1] = -5;
 					//RagDoll(0);
 				}
-				if (AnimationManager::animations[animTarget].attack == Enums::reversed) {
+				if (AnimationManager::animations[animTarget].attack == Utils::reversed) {
 					escapednum++;
 					if (animTarget == Enums::sweepreversedanim) {
 						targetyaw += 90;
@@ -1184,7 +1184,7 @@ void Animator::doAnimations(float dt) {
 					animTarget = getupfromfrontanim;
 					lastfeint = 0;
 				}
-				else*/ if (AnimationManager::animations[animCurrent].attack == Enums::normalattack) {
+				else*/ if (AnimationManager::animations[animCurrent].attack == Utils::normalattack) {
 					animTarget = getIdle();
 					lastfeint = 0;
 				}

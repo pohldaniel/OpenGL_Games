@@ -34,7 +34,7 @@ public:
 	int getRun();
 	bool hasWeapon();
 	bool isPlayerControlled();
-	void FootLand(Enums::bodypart whichfoot, float opacity);
+	void FootLand(Utils::bodypart whichfoot, float opacity);
 
 	Utils::AnimationFrame& currentFrame();
 	Utils::AnimationFrame& targetFrame();
