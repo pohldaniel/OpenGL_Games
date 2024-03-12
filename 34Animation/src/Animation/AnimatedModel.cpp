@@ -35,6 +35,12 @@ AnimatedModel::AnimatedModel() : m_hasAnimationController(false), m_animationOrd
 
 }
 
+AnimatedModel::~AnimatedModel() {
+	for (auto&& mesh : m_meshes) {
+		delete mesh;
+	}
+}
+
 void AnimatedModel::loadModelAssimp(const std::string& path, const short addVirtualRoots, const bool reverseBoneList) {
 
 	Assimp::Importer Importer;
@@ -337,7 +343,23 @@ AnimatedMesh::AnimatedMesh(AnimatedModel* model) {
 }
 
 AnimatedMesh::~AnimatedMesh() {
-	glDeleteVertexArrays(1, &m_vao);
+	if (m_vao)
+		glDeleteVertexArrays(1, &m_vao);
+
+	if (m_vbo[0])
+		glDeleteBuffers(1, &m_vbo[0]);
+
+	if (m_vbo[1])
+		glDeleteBuffers(1, &m_vbo[1]);
+
+	if (m_vbo[2])
+		glDeleteBuffers(1, &m_vbo[2]);
+
+	if (m_vboInstances)
+		glDeleteBuffers(1, &m_vboInstances);
+
+	if (m_ibo)
+		glDeleteBuffers(1, &m_ibo);
 }
 
 void AnimatedMesh::createBones() {

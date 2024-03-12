@@ -34,7 +34,7 @@ class AnimatedModel {
 public:
 
 	AnimatedModel();
-	virtual ~AnimatedModel() {}
+	virtual ~AnimatedModel();
 
 	void drawRaw();
 	void update(float dt);

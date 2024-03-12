@@ -5,6 +5,7 @@
 #include <engine/Batchrenderer.h>
 
 #include "Interleaved.h"
+#include "Menu.h"
 #include "Application.h"
 #include "Globals.h"
 
@@ -31,21 +32,7 @@ Interleaved::Interleaved(StateMachine& machine) : State(machine, States::INTERLE
 		{ &Globals::textureManager.get("forest_5"), 1, 5.0f }});
 	m_background.setSpeed(0.005f);
 
-	Globals::textureManager.loadTexture("texture_1", "res/textures/Texture1.bmp", true);
-	Globals::textureManager.get("texture_1").setFilter(GL_LINEAR);
-	Globals::textureManager.get("texture_1").setWrapMode(GL_REPEAT);
-
-	Globals::textureManager.loadTexture("texture_2", "res/textures/Texture2.bmp", true);
-	Globals::textureManager.get("texture_2").setFilter(GL_LINEAR);
-	Globals::textureManager.get("texture_2").setWrapMode(GL_REPEAT);
-
-	Globals::textureManager.loadTexture("texture_3", "res/textures/Texture3.bmp", true);
-	Globals::textureManager.get("texture_3").setFilter(GL_LINEAR);
-	Globals::textureManager.get("texture_3").setWrapMode(GL_REPEAT);
-
-	Globals::textureManager.loadTexture("texture_4", "res/textures/Texture4.bmp", true);
-	Globals::textureManager.get("texture_4").setFilter(GL_LINEAR);
-	Globals::textureManager.get("texture_4").setWrapMode(GL_REPEAT);
+	
 
 	g_Object.m_pTextureCoords = new CVector2[MAX_VERTICES];
 	g_Object.m_pVertices = new CVector3[MAX_VERTICES];
@@ -71,6 +58,10 @@ Interleaved::Interleaved(StateMachine& machine) : State(machine, States::INTERLE
 Interleaved::~Interleaved() {
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
+
+	delete g_Object.m_pTextureCoords;
+	delete g_Object.m_pVertices;
+	delete g_Object.m_pIndices;
 }
 
 void Interleaved::fixedUpdate() {
@@ -181,6 +172,7 @@ void Interleaved::OnKeyDown(Event::KeyboardEvent& event) {
 	if (event.keyCode == VK_ESCAPE) {
 		Mouse::instance().detach();
 		m_isRunning = false;
+		m_machine.addStateAtBottom(new Menu(m_machine));
 	}
 }
 

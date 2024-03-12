@@ -4,6 +4,11 @@
 #include <States/Default.h>
 
 #include "Menu.h"
+#include "SolidState.h"
+#include "SkinnedArmor.h"
+#include "CharacterState.h"
+#include "Basic.h"
+#include "Interleaved.h"
 #include "Application.h"
 #include "Globals.h"
 
@@ -19,36 +24,56 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	m_headline.setOffset(5.0f, -7.0f);
 
 	m_buttons = std::initializer_list<std::pair<const std::string, Button>>({
-		{ "tower",	  Button() },
-		{ "flow",  Button() },
-		{ "bridge",	  Button() }
+		{ "lugaru_anm",	  Button() },
+		{ "skinned_armor",  Button() },
+		{ "character",	  Button() },
+		{ "basic",	  Button() },
+		{ "interleaved",	  Button() }
 	});
 
-	m_buttons.at("tower").setCharset(Globals::fontManager.get("upheaval_50"));
-	m_buttons.at("tower").setPosition(50.0f, 250.0f);
-	m_buttons.at("tower").setOutlineThickness(5.0f);
-	m_buttons.at("tower").setText("Settings");
-	m_buttons.at("tower").setFunction([&]() {
+	m_buttons.at("basic").setCharset(Globals::fontManager.get("upheaval_50"));
+	m_buttons.at("basic").setPosition(50.0f, 450.0f);
+	m_buttons.at("basic").setOutlineThickness(5.0f);
+	m_buttons.at("basic").setText("Basic");
+	m_buttons.at("basic").setFunction([&]() {
 		m_isRunning = false;
-		m_machine.addStateAtBottom(new Settings(m_machine));
+		m_machine.addStateAtBottom(new Basic(m_machine));
 	});
 
-	m_buttons.at("flow").setCharset(Globals::fontManager.get("upheaval_50"));
-	m_buttons.at("flow").setPosition(50.0f, 150.0f);
-	m_buttons.at("flow").setOutlineThickness(5.0f);
-	m_buttons.at("flow").setText("Controls");
-	m_buttons.at("flow").setFunction([&]() {
+	m_buttons.at("skinned_armor").setCharset(Globals::fontManager.get("upheaval_50"));
+	m_buttons.at("skinned_armor").setPosition(50.0f, 350.0f);
+	m_buttons.at("skinned_armor").setOutlineThickness(5.0f);
+	m_buttons.at("skinned_armor").setText("Skinned Armor");
+	m_buttons.at("skinned_armor").setFunction([&]() {
 		m_isRunning = false;
-		m_machine.addStateAtBottom(new Controls(m_machine));
+		m_machine.addStateAtBottom(new SkinnedArmor(m_machine));
 	});
 
-	m_buttons.at("bridge").setCharset(Globals::fontManager.get("upheaval_50"));
-	m_buttons.at("bridge").setPosition(50.0f, 50.0f);
-	m_buttons.at("bridge").setOutlineThickness(5.0f);
-	m_buttons.at("bridge").setText("Default");
-	m_buttons.at("bridge").setFunction([&]() {
+	m_buttons.at("lugaru_anm").setCharset(Globals::fontManager.get("upheaval_50"));
+	m_buttons.at("lugaru_anm").setPosition(50.0f, 250.0f);
+	m_buttons.at("lugaru_anm").setOutlineThickness(5.0f);
+	m_buttons.at("lugaru_anm").setText("Lugaru Animation");
+	m_buttons.at("lugaru_anm").setFunction([&]() {
 		m_isRunning = false;
-		m_machine.addStateAtBottom(new Default(m_machine));
+		m_machine.addStateAtBottom(new SolidState(m_machine));
+	});
+	
+	m_buttons.at("character").setCharset(Globals::fontManager.get("upheaval_50"));
+	m_buttons.at("character").setPosition(50.0f, 150.0f);
+	m_buttons.at("character").setOutlineThickness(5.0f);
+	m_buttons.at("character").setText("Character");
+	m_buttons.at("character").setFunction([&]() {
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new CharacterState(m_machine));
+	});
+
+	m_buttons.at("interleaved").setCharset(Globals::fontManager.get("upheaval_50"));
+	m_buttons.at("interleaved").setPosition(50.0f, 50.0f);
+	m_buttons.at("interleaved").setOutlineThickness(5.0f);
+	m_buttons.at("interleaved").setText("Interleaved");
+	m_buttons.at("interleaved").setFunction([&]() {
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new Interleaved(m_machine));
 	});
 
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);

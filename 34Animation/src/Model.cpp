@@ -5,8 +5,9 @@
 
 Model::Model() : animator(m_skeleton) {
 
-	solidConverter.solidToBuffer("res/Body.solid", true, { 180.0f, 0.0f, 0.0f }, { 0.04f, 0.04f, 0.04f }, m_vertexBufferMap, m_indexBuffer);
-	solidConverter.loadSkeleton("res/BasicFigure", m_vertexBufferMap, m_vertexBuffer, m_skeleton, m_weights, m_boneIds);
+	Utils::SolidIO solidConverter;
+	solidConverter.solidToBuffer("res/body/Body.solid", true, { 180.0f, 0.0f, 0.0f }, { 0.04f, 0.04f, 0.04f }, m_vertexBufferMap, m_indexBuffer);
+	solidConverter.loadSkeleton("res/skeleton/BasicFigure", m_vertexBufferMap, m_vertexBuffer, m_skeleton, m_weights, m_boneIds);
 
 	m_vertexNum = m_vertexBuffer.size() / 5;
 	m_muscleNum = m_skeleton.m_muscles.size();
@@ -15,8 +16,8 @@ Model::Model() : animator(m_skeleton) {
 
 	glGenBuffers(1, &BuiltInShader::matrixUbo);
 	glBindBuffer(GL_UNIFORM_BUFFER, BuiltInShader::matrixUbo);
-	glBufferData(GL_UNIFORM_BUFFER, sizeof(Matrix4f) * 96, NULL, GL_DYNAMIC_DRAW);
-	glBindBufferRange(GL_UNIFORM_BUFFER, 3, BuiltInShader::matrixUbo, 0, sizeof(Matrix4f) * 96);
+	glBufferData(GL_UNIFORM_BUFFER, sizeof(Matrix4f) * Utils::MAX_JOINTS, NULL, GL_DYNAMIC_DRAW);
+	glBindBufferRange(GL_UNIFORM_BUFFER, 3, BuiltInShader::matrixUbo, 0, sizeof(Matrix4f) * Utils::MAX_JOINTS);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 	m_skinMatrices = new Matrix4f[m_muscleNum];
@@ -64,19 +65,58 @@ Model::Model() : animator(m_skeleton) {
 	glBindVertexArray(0);
 
 	glDeleteBuffers(1, &ibo);
+
+	m_bindpose = true;
+}
+
+Model::~Model() {
+	if (m_vao)
+		glDeleteVertexArrays(1, &m_vao);
+
+	if (m_vbo[0])
+		glDeleteBuffers(1, &m_vbo[0]);
+
+	if (m_vbo[1])
+		glDeleteBuffers(1, &m_vbo[1]);
+
+	if (m_vbo[2])
+		glDeleteBuffers(1, &m_vbo[2]);
+
+	m_indexBuffer.clear();
+	m_indexBuffer.shrink_to_fit();
+
+	m_vertexBuffer.clear();
+	m_vertexBuffer.shrink_to_fit();
+
+	m_weights.clear();
+	m_weights.shrink_to_fit();
+
+	m_boneIds.clear();
+	m_boneIds.shrink_to_fit();
+
+	m_vertexBufferMap.clear();
+	m_vertexBufferMap.shrink_to_fit();
 }
 
 void Model::resetPose() {
 	for (size_t i = 0; i < m_muscleNum; ++i) {
 		m_skinMatrices[i] = m_skeleton.m_muscles[i].m_modelMatrixInitial;
 	}
+	m_bindpose = false;
+	animator.frameCurrent = 0;
+}
+
+void Model::bindPose() {
+	m_bindpose = true;
 }
 
 void Model::draw() {
 
-	for (unsigned int j = 0; j < m_muscleNum; j++) {
-		Vector3f mid = (m_skeleton.m_joints[m_skeleton.m_muscles[j].parentIndex1].position + m_skeleton.m_joints[m_skeleton.m_muscles[j].parentIndex2].position) * 0.5f;
-		m_skinMatrices[j] = Matrix4f::Translate(mid) * Matrix4f::Rotate(Vector3f(0.0f, 1.0f, 0.0f), 90.0f - m_skeleton.m_muscles[j].rotate1) * Matrix4f::Rotate(Vector3f(0.0f, 0.0f, 1.0f), 90.0f - m_skeleton.m_muscles[j].rotate2) * Matrix4f::Rotate(Vector3f(0.0f, 1.0f, 0.0f), -m_skeleton.m_muscles[j].rotate3);
+	if (m_bindpose) {
+		for (unsigned int j = 0; j < m_muscleNum; j++) {
+			Vector3f mid = (m_skeleton.m_joints[m_skeleton.m_muscles[j].parentIndex1].position + m_skeleton.m_joints[m_skeleton.m_muscles[j].parentIndex2].position) * 0.5f;
+			m_skinMatrices[j] = Matrix4f::Translate(mid) * Matrix4f::Rotate(Vector3f(0.0f, 1.0f, 0.0f), 90.0f - m_skeleton.m_muscles[j].rotate1) * Matrix4f::Rotate(Vector3f(0.0f, 0.0f, 1.0f), 90.0f - m_skeleton.m_muscles[j].rotate2) * Matrix4f::Rotate(Vector3f(0.0f, 1.0f, 0.0f), -m_skeleton.m_muscles[j].rotate3);
+		}
 	}
 
 	glBindBuffer(GL_UNIFORM_BUFFER, BuiltInShader::matrixUbo);
@@ -95,11 +135,11 @@ void Model::update(float dt) {
 }
 ////////////////////////////////////////////////////////////////////////////////
 Animator::Animator(Utils::Skeleton& skeleton): skeleton(skeleton) {
-	//animTarget = Utils::bounceidleanim;
-	//animCurrent = Utils::bounceidleanim;
-	animTarget = Utils::runanim;
-	animCurrent = Utils::runanim;
-	howactive = typeactive;
+	//animTarget = Enums::bounceidleanim;
+	//animCurrent = Enums::bounceidleanim;
+	animTarget = Enums::runanim;
+	animCurrent = Enums::runanim;
+	howactive = Enums::typeactive;
 	normalsupdatedelay = 0.0f;
 	id = 0;
 	landhard = false;
@@ -151,39 +191,39 @@ Animator::Animator(Utils::Skeleton& skeleton): skeleton(skeleton) {
 }
 
 bool Animator::isIdle() {
-	return Utils::animation_bits[animTarget] & Utils::ab_idle;
+	return Enums::animation_bits[animTarget] & Enums::ab_idle;
 }
 
 bool Animator::isFlip() {
-	return Utils::animation_bits[animTarget] & Utils::ab_flip;
+	return Enums::animation_bits[animTarget] & Enums::ab_flip;
 }
 
 bool Animator::wasFlip() {
-	return Utils::animation_bits[animCurrent] & Utils::ab_flip;
+	return Enums::animation_bits[animCurrent] & Enums::ab_flip;
 }
 
 bool Animator::wasLanding() {
-	return Utils::animation_bits[animCurrent] & Utils::ab_land;
+	return Enums::animation_bits[animCurrent] & Enums::ab_land;
 }
 
 bool Animator::isLanding() {
-	return Utils::animation_bits[animTarget] & Utils::ab_land;
+	return Enums::animation_bits[animTarget] & Enums::ab_land;
 }
 
 bool Animator::wasLandhard() {
-	return Utils::animation_bits[animCurrent] & Utils::ab_landhard;
+	return Enums::animation_bits[animCurrent] & Enums::ab_landhard;
 }
 
 bool Animator::isLandhard() {
-	return Utils::animation_bits[animTarget] & Utils::ab_landhard;
+	return Enums::animation_bits[animTarget] & Enums::ab_landhard;
 }
 
 bool Animator::wasCrouch() {
-	return Utils::animation_bits[animCurrent] & Utils::ab_crouch;
+	return Enums::animation_bits[animCurrent] & Enums::ab_crouch;
 }
 
 bool Animator::isCrouch() {
-	return Utils::animation_bits[animTarget] & Utils::ab_crouch;
+	return Enums::animation_bits[animTarget] & Enums::ab_crouch;
 }
 
 bool Animator::hasWeapon() {
@@ -191,18 +231,18 @@ bool Animator::hasWeapon() {
 }
 
 bool Animator::wasRun() {
-	return Utils::animation_bits[animCurrent] & Utils::ab_run;
+	return Enums::animation_bits[animCurrent] & Enums::ab_run;
 }
 
 bool Animator::isRun() {
-	return Utils::animation_bits[animTarget] & Utils::ab_run;
+	return Enums::animation_bits[animTarget] & Enums::ab_run;
 }
 
 int Animator::getRun() {
 	if (superruntoggle && (!hasWeapon())) {
-		return Utils::rabbitrunninganim;
+		return Enums::rabbitrunninganim;
 	}else {
-		return Utils::runanim;
+		return Enums::runanim;
 	}
 }
 
@@ -216,40 +256,40 @@ Utils::AnimationFrame& Animator::targetFrame() {
 
 int Animator::getIdle() {
 	
-	if (howactive == typesitting) {
-		return Utils::sitanim;
+	if (howactive == Enums::typesitting) {
+		return Enums::sitanim;
 	}
-	if (howactive == typesittingwall) {
-		return Utils::sitwallanim;
+	if (howactive == Enums::typesittingwall) {
+		return Enums::sitwallanim;
 	}
-	if (howactive == typesleeping) {
-		return Utils::sleepanim;
+	if (howactive == Enums::typesleeping) {
+		return Enums::sleepanim;
 	}
-	if (howactive == typedead1) {
-		return Utils::dead1anim;
+	if (howactive == Enums::typedead1) {
+		return Enums::dead1anim;
 	}
-	if (howactive == typedead2) {
-		return Utils::dead2anim;
+	if (howactive == Enums::typedead2) {
+		return Enums::dead2anim;
 	}
-	if (howactive == typedead3) {
-		return Utils::dead3anim;
+	if (howactive == Enums::typedead3) {
+		return Enums::dead3anim;
 	}
-	if (howactive == typedead4) {
-		return Utils::dead4anim;
+	if (howactive == Enums::typedead4) {
+		return Enums::dead4anim;
 	}
-	return Utils::bounceidleanim;
+	return Enums::bounceidleanim;
 }
 
 int Animator::getLanding() {
-	return Utils::landanim;
+	return Enums::landanim;
 }
 
 int Animator::getLandhard() {
-	return  Utils::landhardanim;
+	return  Enums::landhardanim;
 }
 
 int Animator::getCrouch() {
-	return Utils::crouchanim;
+	return Enums::crouchanim;
 }
 
 bool Animator::isPlayerControlled() {
@@ -257,24 +297,24 @@ bool Animator::isPlayerControlled() {
 }
 
 bool Animator::wasStop() {
-	return Utils::animation_bits[animCurrent] & Utils::ab_stop;
+	return Enums::animation_bits[animCurrent] & Enums::ab_stop;
 }
 
 bool Animator::isStop() {
-	return Utils::animation_bits[animTarget] & Utils::ab_stop;
+	return Enums::animation_bits[animTarget] & Enums::ab_stop;
 }
 
 int Animator::getStop() {
-	return Utils::stopanim;
+	return Enums::stopanim;
 }
 
 bool Animator::wasIdle() {
-	return Utils::animation_bits[animCurrent] & Utils::ab_idle;
+	return Enums::animation_bits[animCurrent] & Enums::ab_idle;
 }
 
-void Animator::FootLand(bodypart whichfoot, float opacity) {
+void Animator::FootLand(Enums::bodypart whichfoot, float opacity) {
 
-	if ((whichfoot != leftfoot) && (whichfoot != rightfoot)) {
+	if ((whichfoot != Enums::leftfoot) && (whichfoot != Enums::rightfoot)) {
 		std::cerr << "FootLand called on wrong bodypart" << std::endl;
 		return;
 	}
@@ -292,10 +332,10 @@ void Animator::doAnimations(float dt) {
 			normalsupdatedelay = 0.0f;
 		}
 
-		if (animTarget == Utils::tempanim || animCurrent == Utils::tempanim) {
-			AnimationManager::animations[Utils::tempanim] = tempanimation;
+		if (animTarget == Enums::tempanim || animCurrent == Enums::tempanim) {
+			AnimationManager::animations[Enums::tempanim] = tempanimation;
 		}
-		if (animTarget == Utils::jumpupanim || animTarget == Utils::jumpdownanim || isFlip()) {
+		if (animTarget == Enums::jumpupanim || animTarget == Enums::jumpdownanim || isFlip()) {
 			//float gLoc[3];
 			//gLoc[0] = coords.x;
 			//gLoc[1] = coords.y;
@@ -313,7 +353,7 @@ void Animator::doAnimations(float dt) {
 			}
 		}
 
-		if ((animCurrent == Utils::jumpupanim || animTarget == Utils::jumpdownanim) && !isFlip() && (!isLanding() && !isLandhard()) && ((crouchkeydown && !crouchtogglekeydown))) {
+		if ((animCurrent == Enums::jumpupanim || animTarget == Enums::jumpdownanim) && !isFlip() && (!isLanding() && !isLandhard()) && ((crouchkeydown && !crouchtogglekeydown))) {
 			Vector3f targfacing;
 			targfacing = Vector3f::ZERO;
 			targfacing[2] = 1;
@@ -321,10 +361,10 @@ void Animator::doAnimations(float dt) {
 			targfacing = Math::RotatePoint(targfacing, 0, targetyaw, 0);
 
 			if (Vector3f::NormalDot(targfacing, velocity) >= -.3) {
-				animTarget = Utils::flipanim;
+				animTarget = Enums::flipanim;
 			}
 			else {
-				animTarget = Utils::backflipanim;
+				animTarget = Enums::backflipanim;
 			}
 			crouchtogglekeydown = 1;
 			frameTarget = 0;
@@ -335,7 +375,7 @@ void Animator::doAnimations(float dt) {
 			}
 		}
 
-		if (AnimationManager::animations[animTarget].attack != Utils::reversed) {
+		if (AnimationManager::animations[animTarget].attack != Enums::reversed) {
 			feint = 0;
 		}
 
@@ -346,7 +386,7 @@ void Animator::doAnimations(float dt) {
 			}
 		}
 		else {
-			if (!crouchtogglekeydown && AnimationManager::animations[animTarget].attack == Utils::reversed && isPlayerControlled() && (escapednum < 2 || reversaltrain)) {
+			if (!crouchtogglekeydown && AnimationManager::animations[animTarget].attack == Enums::reversed && isPlayerControlled() && (escapednum < 2 || reversaltrain)) {
 				feint = 1;
 			}
 			if (!isFlip()) {
@@ -354,30 +394,30 @@ void Animator::doAnimations(float dt) {
 			}
 		}
 
-		if (AnimationManager::animations[animTarget].attack || animCurrent == Utils::getupfrombackanim || animCurrent == Utils::getupfromfrontanim) {
+		if (AnimationManager::animations[animTarget].attack || animCurrent == Enums::getupfrombackanim || animCurrent == Enums::getupfromfrontanim) {
 			if (detail) {
 				normalsupdatedelay = 0;
 			}
 		}
 
 		if (target >= 1) {
-			if (animTarget == Utils::rollanim && frameTarget == 3 && onfire) {
+			if (animTarget == Enums::rollanim && frameTarget == 3 && onfire) {
 				onfire = false;
 				//emit_sound_at(fireendsound, coords);
 				//pause_sound(stream_firesound);
 				deathbleeding = 0.0f;
 			}
 
-			if (animTarget == Utils::rabbittacklinganim && frameTarget == 1) {
+			if (animTarget == Enums::rabbittacklinganim && frameTarget == 1) {
 				/*if (victim->aitype == attacktypecutoff && victim->stunned <= 0 && victim->surprised <= 0 && victim->id != 0) {
 					Reverse();
 				}
-				if (animTarget == Utils::rabbittacklinganim && frameTarget == 1 && !victim->isCrouch() && victim->animTarget != Utils::backhandspringanim) {
+				if (animTarget == Enums::rabbittacklinganim && frameTarget == 1 && !victim->isCrouch() && victim->animTarget != Enums::backhandspringanim) {
 					if (Vector3f::NormalDot(victim->facing, facing) > 0) {
-						victim->animTarget = Utils::rabbittackledbackanim;
+						victim->animTarget = Enums::rabbittackledbackanim;
 					}
 					else {
-						victim->animTarget = Utils::rabbittackledfrontanim;
+						victim->animTarget = Enums::rabbittackledfrontanim;
 					}
 					victim->frameTarget = 2;
 					victim->target = 0;
@@ -519,8 +559,8 @@ void Animator::doAnimations(float dt) {
 			}*/
 
 			if ((!wasLanding() && !wasLandhard()) && animCurrent != getIdle() && (isLanding() || isLandhard())) {
-				FootLand(leftfoot, 1);
-				FootLand(rightfoot, 1);
+				FootLand(Enums::bodypart::leftfoot, 1);
+				FootLand(Enums::bodypart::rightfoot, 1);
 			}
 
 			transspeed = 0.0f;
@@ -529,7 +569,7 @@ void Animator::doAnimations(float dt) {
 			animCurrent = animTarget;
 			frameTarget++;
 
-			/*if (animCurrent == Utils::removeknifeanim && currentFrame().label == 5) {
+			/*if (animCurrent == Enums::removeknifeanim && currentFrame().label == 5) {
 				for (unsigned i = 0; i < weapons.size(); i++) {
 					if (weapons[i].owner == -1) {
 						if (distsqflat(&coords, &weapons[i].position) < 4 && !hasWeapon()) {
@@ -633,7 +673,7 @@ void Animator::doAnimations(float dt) {
 				}
 			}*/
 
-			/*if (animCurrent == Utils::drawleftanim && currentFrame().label == 5) {
+			/*if (animCurrent == Enums::drawleftanim && currentFrame().label == 5) {
 				if (!hasWeapon()) {
 					weaponactive = 0;
 					emit_sound_at(knifedrawsound, coords, 128.);
@@ -650,7 +690,7 @@ void Animator::doAnimations(float dt) {
 				}
 			}*/
 
-			if ((animCurrent == Utils::walljumprightkickanim && animTarget == Utils::walljumprightkickanim) || (animCurrent == Utils::walljumpleftkickanim && animTarget == Utils::walljumpleftkickanim)) {
+			if ((animCurrent == Enums::walljumprightkickanim && animTarget == Enums::walljumprightkickanim) || (animCurrent == Enums::walljumpleftkickanim && animTarget == Enums::walljumpleftkickanim)) {
 				Vector3f rotatetarget = Math::RotatePoint(skeleton.forward, 0, yaw, 0);
 				Vector3f::Normalize(rotatetarget);
 				targetyaw = -asin(0 - rotatetarget[0]);
@@ -659,17 +699,17 @@ void Animator::doAnimations(float dt) {
 					targetyaw = 180 - targetyaw;
 				}
 
-				if (animTarget == Utils::walljumprightkickanim) {
+				if (animTarget == Enums::walljumprightkickanim) {
 					targetyaw += 40;
 				}
-				if (animTarget == Utils::walljumpleftkickanim) {
+				if (animTarget == Enums::walljumpleftkickanim) {
 					targetyaw -= 40;
 				}
 			}
 
 			bool dojumpattack;
 			dojumpattack = 0;
-			if ((animTarget == Utils::rabbitrunninganim || animTarget == Utils::wolfrunninganim) && frameTarget == 3 && (jumpkeydown || attackkeydown || id != 0)) {
+			if ((animTarget == Enums::rabbitrunninganim || animTarget == Enums::wolfrunninganim) && frameTarget == 3 && (jumpkeydown || attackkeydown || id != 0)) {
 				dojumpattack = 1;
 			}
 			if (hasvictim) {
@@ -682,8 +722,8 @@ void Animator::doAnimations(float dt) {
 			}
 
 			if (dojumpattack) {
-				if ((animTarget == Utils::rabbitrunninganim || animTarget == Utils::wolfrunninganim) && id == 0) {
-					animTarget = Utils::rabbittackleanim;
+				if ((animTarget == Enums::rabbitrunninganim || animTarget == Enums::wolfrunninganim) && id == 0) {
+					animTarget = Enums::rabbittackleanim;
 					frameTarget = 0;
 					//emit_sound_at(jumpsound, coords);
 				}
@@ -741,38 +781,38 @@ void Animator::doAnimations(float dt) {
 				frameTarget = 0;
 				if (wasStop()) {
 					animTarget = getIdle();
-					FootLand(leftfoot, 1);
-					FootLand(rightfoot, 1);
+					FootLand(Enums::bodypart::leftfoot, 1);
+					FootLand(Enums::bodypart::rightfoot, 1);
 				}
-				if (animCurrent == Utils::rabbittackleanim || animCurrent == Utils::rabbittacklinganim) {
-					animTarget = Utils::rollanim;
+				if (animCurrent == Enums::rabbittackleanim || animCurrent == Enums::rabbittacklinganim) {
+					animTarget = Enums::rollanim;
 					frameTarget = 3;
 					//emit_sound_at(movewhooshsound, coords, 128.);
 				}
-				if (animCurrent == Utils::staggerbackhighanim) {
+				if (animCurrent == Enums::staggerbackhighanim) {
 					animTarget = getIdle();
 				}
-				if (animCurrent == Utils::staggerbackhardanim) {
+				if (animCurrent == Enums::staggerbackhardanim) {
 					animTarget = getIdle();
 				}
-				if (animCurrent == Utils::removeknifeanim) {
+				if (animCurrent == Enums::removeknifeanim) {
 					animTarget = getIdle();
 				}
-				if (animCurrent == Utils::crouchremoveknifeanim) {
+				if (animCurrent == Enums::crouchremoveknifeanim) {
 					animTarget = getCrouch();
 				}
-				if (animCurrent == Utils::backhandspringanim) {
+				if (animCurrent == Enums::backhandspringanim) {
 					animTarget = getIdle();
 				}
-				if (animCurrent == Utils::dodgebackanim) {
+				if (animCurrent == Enums::dodgebackanim) {
 					animTarget = getIdle();
 				}
-				if (animCurrent == Utils::drawleftanim) {
+				if (animCurrent == Enums::drawleftanim) {
 					animTarget = getIdle();
 				}
-				if (animCurrent == Utils::drawrightanim || animCurrent == Utils::crouchdrawrightanim) {
+				if (animCurrent == Enums::drawrightanim || animCurrent == Enums::crouchdrawrightanim) {
 					animTarget = getIdle();
-					if (animCurrent == Utils::crouchdrawrightanim) {
+					if (animCurrent == Enums::crouchdrawrightanim) {
 						animTarget = getCrouch();
 					}
 					if (!hasWeapon()) {
@@ -790,21 +830,21 @@ void Animator::doAnimations(float dt) {
 						//emit_sound_at(knifesheathesound, coords, 128.);
 					}
 				}
-				if (animCurrent == Utils::rollanim) {
+				if (animCurrent == Enums::rollanim) {
 					animTarget = getCrouch();
-					FootLand(leftfoot, 1);
-					FootLand(rightfoot, 1);
+					FootLand(Enums::bodypart::leftfoot, 1);
+					FootLand(Enums::bodypart::rightfoot, 1);
 				}
 				if (isFlip()) {
-					if (animTarget == Utils::walljumprightkickanim) {
+					if (animTarget == Enums::walljumprightkickanim) {
 						targetrot = -190;
 					}
-					if (animTarget == Utils::walljumpleftkickanim) {
+					if (animTarget == Enums::walljumpleftkickanim) {
 						targetrot = 190;
 					}
-					animTarget = Utils::jumpdownanim;
+					animTarget = Enums::jumpdownanim;
 				}
-				if (animCurrent == Utils::climbanim) {
+				if (animCurrent == Enums::climbanim) {
 					animTarget = getCrouch();
 					frameTarget = 1;
 					/*coords += facing * .1;
@@ -819,16 +859,16 @@ void Animator::doAnimations(float dt) {
 					collided = 0;
 					avoidcollided = 0;*/
 				}
-				if (animTarget == Utils::rabbitkickreversalanim) {
+				if (animTarget == Enums::rabbitkickreversalanim) {
 					animTarget = getCrouch();
 					lastfeint = false;
 				}
-				if (animTarget == Utils::jumpreversalanim) {
+				if (animTarget == Enums::jumpreversalanim) {
 					animTarget = getCrouch();
 					lastfeint = false;
 				}
-				if (animTarget == Utils::walljumprightanim || animTarget == Utils::walljumpbackanim || animTarget == Utils::walljumpfrontanim) {
-					if (attackkeydown && animTarget != Utils::walljumpfrontanim) {
+				if (animTarget == Enums::walljumprightanim || animTarget == Enums::walljumpbackanim || animTarget == Enums::walljumpfrontanim) {
+					if (attackkeydown && animTarget != Enums::walljumpfrontanim) {
 						int closest = -1;
 						float closestdist = -1;
 						float distance;
@@ -845,7 +885,7 @@ void Animator::doAnimations(float dt) {
 						}
 						if (closestdist > 0 && closest >= 0 && closestdist < 16) {
 							victim = Person::players[closest];
-							animTarget = Utils::walljumprightkickanim;
+							animTarget = Enums::walljumprightkickanim;
 							frameTarget = 0;
 							XYZ rotatetarget = victim->coords - coords;
 							Normalise(&rotatetarget);
@@ -860,8 +900,8 @@ void Animator::doAnimations(float dt) {
 							transspeed = 40;
 						}*/
 					}
-					if (animTarget == Utils::walljumpbackanim) {
-						animTarget = Utils::backflipanim;
+					if (animTarget == Enums::walljumpbackanim) {
+						animTarget = Enums::backflipanim;
 						frameTarget = 3;
 						velocity = facing * -8;
 						velocity[1] = 4;
@@ -869,16 +909,16 @@ void Animator::doAnimations(float dt) {
 							//resume_stream(whooshsound);
 						}
 					}
-					if (animTarget == Utils::walljumprightanim) {
-						animTarget = Utils::rightflipanim;
+					if (animTarget == Enums::walljumprightanim) {
+						animTarget = Enums::rightflipanim;
 						frameTarget = 4;
 						targetyaw -= 90;
 						yaw -= 90;
 						velocity = Math::RotatePoint(facing, 0, 30, 0) * -8;
 						velocity[1] = 4;
 					}
-					if (animTarget == Utils::walljumpfrontanim) {
-						animTarget = Utils::frontflipanim;
+					if (animTarget == Enums::walljumpfrontanim) {
+						animTarget = Enums::frontflipanim;
 						frameTarget = 2;
 						//targetyaw-=180;
 						////yaw-=180;
@@ -889,7 +929,7 @@ void Animator::doAnimations(float dt) {
 						//resume_stream(whooshsound);
 					}
 				}
-				if (animTarget == Utils::walljumpleftanim) {
+				if (animTarget == Enums::walljumpleftanim) {
 					if (attackkeydown) {
 						int closest = -1;
 						float closestdist = -1;
@@ -922,8 +962,8 @@ void Animator::doAnimations(float dt) {
 							transspeed = 40;
 						}*/
 					}
-					if (animTarget != Utils::walljumpleftkickanim) {
-						animTarget = Utils::leftflipanim;
+					if (animTarget != Enums::walljumpleftkickanim) {
+						animTarget = Enums::leftflipanim;
 						frameTarget = 4;
 						targetyaw += 90;
 						yaw += 90;
@@ -934,7 +974,7 @@ void Animator::doAnimations(float dt) {
 						//resume_stream(whooshsound);
 					}
 				}
-				if (animTarget == Utils::sneakattackanim) {
+				if (animTarget == Enums::sneakattackanim) {
 					animCurrent = getCrouch();
 					animTarget = getCrouch();
 					frameTarget = 1;
@@ -952,7 +992,7 @@ void Animator::doAnimations(float dt) {
 
 					lastfeint = 0;
 				}
-				if (animTarget == Utils::knifesneakattackanim || animTarget == Utils::swordsneakattackanim) {
+				if (animTarget == Enums::knifesneakattackanim || animTarget == Enums::swordsneakattackanim) {
 					animTarget = getIdle();
 					frameTarget = 0;
 					/*if (onterrain) {
@@ -961,11 +1001,11 @@ void Animator::doAnimations(float dt) {
 
 					lastfeint = 0;
 				}
-				if (animCurrent == Utils::knifefollowanim) {
+				if (animCurrent == Enums::knifefollowanim) {
 					animTarget = getIdle();
 					lastfeint = 0;
 				}
-				/*if (AnimationManager::animations[animTarget].attack == Utils::reversal && animCurrent != Utils::sneakattackanim && animCurrent != Utils::knifesneakattackanim && animCurrent != Utils::swordsneakattackanim && animCurrent != Utils::knifefollowanim) {
+				/*if (AnimationManager::animations[animTarget].attack == Enums::reversal && animCurrent != Enums::sneakattackanim && animCurrent != Enums::knifesneakattackanim && animCurrent != Enums::swordsneakattackanim && animCurrent != Enums::knifefollowanim) {
 					float ycoords = oldcoords.y;
 					animTarget = getStop();
 					targetyaw += 180;
@@ -977,13 +1017,13 @@ void Animator::doAnimations(float dt) {
 					if (!isnormal(coords.x)) {
 						coords = oldcoords;
 					}
-					if (animCurrent == Utils::spinkickreversalanim || animCurrent == Utils::swordslashreversalanim) {
+					if (animCurrent == Enums::spinkickreversalanim || animCurrent == Enums::swordslashreversalanim) {
 						oldcoords = coords + facing * .5;
 					}
-					else if (animCurrent == Utils::sweepreversalanim) {
+					else if (animCurrent == Enums::sweepreversalanim) {
 						oldcoords = coords + facing * 1.1;
 					}
-					else if (animCurrent == Utils::upunchreversalanim) {
+					else if (animCurrent == Enums::upunchreversalanim) {
 						oldcoords = coords + facing * 1.5;
 						targetyaw += 180;
 						yaw += 180;
@@ -991,7 +1031,7 @@ void Animator::doAnimations(float dt) {
 						targettilt2 *= -1;
 						tilt2 *= -1;
 					}
-					else if (animCurrent == Utils::knifeslashreversalanim) {
+					else if (animCurrent == Enums::knifeslashreversalanim) {
 						oldcoords = coords + facing * .5;
 						targetyaw += 90;
 						yaw += 90;
@@ -999,7 +1039,7 @@ void Animator::doAnimations(float dt) {
 						targettilt2 = 0;
 						tilt2 = 0;
 					}
-					else if (animCurrent == Utils::staffspinhitreversalanim) {
+					else if (animCurrent == Enums::staffspinhitreversalanim) {
 						targetyaw += 180;
 						yaw += 180;
 						targetheadyaw += 180;
@@ -1018,29 +1058,29 @@ void Animator::doAnimations(float dt) {
 
 					lastfeint = 0;
 				}*/
-				if (animCurrent == Utils::knifesneakattackedanim || animCurrent == Utils::swordsneakattackedanim) {
+				if (animCurrent == Enums::knifesneakattackedanim || animCurrent == Enums::swordsneakattackedanim) {
 					velocity = Vector3f::ZERO;
 					velocity[1] = -5;
 					//RagDoll(0);
 				}
-				if (AnimationManager::animations[animTarget].attack == Utils::reversed) {
+				if (AnimationManager::animations[animTarget].attack == Enums::reversed) {
 					escapednum++;
-					if (animTarget == Utils::sweepreversedanim) {
+					if (animTarget == Enums::sweepreversedanim) {
 						targetyaw += 90;
 					}
-					animTarget = Utils::backhandspringanim;
+					animTarget = Enums::backhandspringanim;
 					frameTarget = 2;
 					//emit_sound_at(landsound, coords, 128);
 
-					if (animCurrent == Utils::upunchreversedanim || animCurrent == Utils::swordslashreversedanim) {
-						animTarget = Utils::rollanim;
+					if (animCurrent == Enums::upunchreversedanim || animCurrent == Enums::swordslashreversedanim) {
+						animTarget = Enums::rollanim;
 						frameTarget = 5;
 						//oldcoords = coords;
 						//coords += (DoRotation(jointPos(leftfoot), 0, yaw, 0) + DoRotation(jointPos(rightfoot), 0, yaw, 0)) / 2 * scale;
 						//coords.y = oldcoords.y;
 					}
-					if (animCurrent == Utils::knifeslashreversedanim) {
-						animTarget = Utils::rollanim;
+					if (animCurrent == Enums::knifeslashreversedanim) {
+						animTarget = Enums::rollanim;
 						frameTarget = 0;
 						targetyaw += 90;
 						yaw += 90;
@@ -1050,7 +1090,7 @@ void Animator::doAnimations(float dt) {
 					}
 				}
 				if (wasFlip()) {
-					animTarget = Utils::jumpdownanim;
+					animTarget = Enums::jumpdownanim;
 				}
 				if (wasLanding()) {
 					animTarget = getIdle();
@@ -1058,7 +1098,7 @@ void Animator::doAnimations(float dt) {
 				if (wasLandhard()) {
 					animTarget = getIdle();
 				}
-				if (animCurrent == Utils::spinkickanim || animCurrent == Utils::getupfrombackanim || animCurrent == Utils::getupfromfrontanim || animCurrent == Utils::lowkickanim) {
+				if (animCurrent == Enums::spinkickanim || animCurrent == Enums::getupfrombackanim || animCurrent == Enums::getupfromfrontanim || animCurrent == Enums::lowkickanim) {
 					animTarget = getIdle();
 					/*oldcoords = coords;
 					coords += (DoRotation(jointPos(leftfoot), 0, yaw, 0) + DoRotation(jointPos(rightfoot), 0, yaw, 0)) / 2 * scale;
@@ -1074,12 +1114,12 @@ void Animator::doAnimations(float dt) {
 					targetoffset = 0;
 					normalsupdatedelay = 0;*/
 				}
-				if (animCurrent == Utils::upunchanim) {
+				if (animCurrent == Enums::upunchanim) {
 					animTarget = getStop();
 					normalsupdatedelay = 0;
 					lastfeint = 0;
 				}
-				if (animCurrent == Utils::rabbitkickanim && animTarget != Utils::backflipanim) {
+				if (animCurrent == Enums::rabbitkickanim && animTarget != Enums::backflipanim) {
 					targetyaw = yaw;
 					bool hasstaff;
 					hasstaff = 0;
@@ -1095,7 +1135,7 @@ void Animator::doAnimations(float dt) {
 					lastfeint = 0;
 					rabbitkickragdoll = 1;*/
 				}
-				if (animCurrent == Utils::rabbitkickreversedanim) {
+				if (animCurrent == Enums::rabbitkickreversedanim) {
 					if (!feint) {
 						velocity = Vector3f::ZERO;
 						velocity[1] = -10;
@@ -1106,7 +1146,7 @@ void Animator::doAnimations(float dt) {
 					}
 					if (feint) {
 						escapednum++;
-						animTarget = Utils::rollanim;
+						animTarget = Enums::rollanim;
 						//coords += facing;
 						if (id == 0) {
 							//pause_sound(whooshsound);
@@ -1114,13 +1154,13 @@ void Animator::doAnimations(float dt) {
 					}
 					lastfeint = 0;
 				}
-				if (animCurrent == Utils::rabbittackledbackanim || animCurrent == Utils::rabbittackledfrontanim) {
+				if (animCurrent == Enums::rabbittackledbackanim || animCurrent == Enums::rabbittackledfrontanim) {
 					velocity = Vector3f::ZERO;
 					velocity[1] = -10;
 					//RagDoll(0);
 					skeleton.spinny = 0;
 				}
-				if (animCurrent == Utils::jumpreversedanim) {
+				if (animCurrent == Enums::jumpreversedanim) {
 					if (!feint) {
 						velocity = Vector3f::ZERO;
 						velocity[1] = -10;
@@ -1131,7 +1171,7 @@ void Animator::doAnimations(float dt) {
 					}
 					if (feint) {
 						escapednum++;
-						animTarget = Utils::rollanim;
+						animTarget = Enums::rollanim;
 						//coords += facing * 2;
 						if (id == 0) {
 							//pause_sound(whooshsound);
@@ -1140,24 +1180,24 @@ void Animator::doAnimations(float dt) {
 					lastfeint = 0;
 				}
 
-				/*if (AnimationManager::animations[animCurrent].attack == Utils::normalattack && !victim->skeleton.free && victim->animTarget != Utils::staggerbackhighanim && victim->animTarget != Utils::staggerbackhardanim && animTarget != Utils::winduppunchblockedanim && animTarget != Utils::blockhighleftanim && animTarget != Utils::swordslashparryanim && animTarget != Utils::swordslashparriedanim && animTarget != Utils::crouchstabanim && animTarget != Utils::swordgroundstabanim) {
+				/*if (AnimationManager::animations[animCurrent].attack == Enums::normalattack && !victim->skeleton.free && victim->animTarget != Enums::staggerbackhighanim && victim->animTarget != Enums::staggerbackhardanim && animTarget != Enums::winduppunchblockedanim && animTarget != Enums::blockhighleftanim && animTarget != Enums::swordslashparryanim && animTarget != Enums::swordslashparriedanim && animTarget != Enums::crouchstabanim && animTarget != Enums::swordgroundstabanim) {
 					animTarget = getupfromfrontanim;
 					lastfeint = 0;
 				}
-				else*/ if (AnimationManager::animations[animCurrent].attack == Utils::normalattack) {
+				else*/ if (AnimationManager::animations[animCurrent].attack == Enums::normalattack) {
 					animTarget = getIdle();
 					lastfeint = 0;
 				}
-				if (animCurrent == Utils::blockhighleftanim && !isPlayerControlled()) {
-					animTarget = Utils::blockhighleftstrikeanim;
+				if (animCurrent == Enums::blockhighleftanim && !isPlayerControlled()) {
+					animTarget = Enums::blockhighleftstrikeanim;
 				}
-				if (animCurrent == Utils::knifeslashstartanim || animCurrent == Utils::knifethrowanim || animCurrent == Utils::swordslashanim || animCurrent == Utils::staffhitanim || animCurrent == Utils::staffgroundsmashanim || animCurrent == Utils::staffspinhitanim) {
+				if (animCurrent == Enums::knifeslashstartanim || animCurrent == Enums::knifethrowanim || animCurrent == Enums::swordslashanim || animCurrent == Enums::staffhitanim || animCurrent == Enums::staffgroundsmashanim || animCurrent == Enums::staffspinhitanim) {
 					animTarget = getIdle();
 					lastfeint = 0;
 				}
-				/*if (animCurrent == Utils::spinkickanim && victim->skeleton.free) {
+				/*if (animCurrent == Enums::spinkickanim && victim->skeleton.free) {
 					if (creature == rabbittype) {
-						animTarget = Utils::fightidleanim;
+						animTarget = Enums::fightidleanim;
 					}
 				}*/
 			}
@@ -1167,8 +1207,8 @@ void Animator::doAnimations(float dt) {
 				normalsupdatedelay = 0;
 			}
 
-			if (animCurrent == Utils::jumpupanim && velocity[1] < 0 && !isFlip()) {
-				animTarget = Utils::jumpdownanim;
+			if (animCurrent == Enums::jumpupanim && velocity[1] < 0 && !isFlip()) {
+				animTarget = Enums::jumpdownanim;
 			}
 		}
 
@@ -1232,10 +1272,7 @@ void Animator::doAnimations(float dt) {
 			if (animCurrent != oldanimCurrent || animTarget != oldanimTarget || ((frameCurrent != oldframeCurrent || frameTarget != oldframeTarget) && !calcrot)) {
 				//Old rotates
 				for (unsigned i = 0; i < skeleton.m_joints.size(); i++) {
-					skeleton.m_joints[i].position = currentFrame().joints[i].position;
-					//m_skeleton.joints[i].position.x = currentFrame().joints[i].position[0];
-					//m_skeleton.joints[i].position.y = currentFrame().joints[i].position[1];
-					//m_skeleton.joints[i].position.z = currentFrame().joints[i].position[2];
+					skeleton.m_joints[i].position = currentFrame().joints[i].position;					
 				}
 
 				skeleton.findForwards();
@@ -1261,10 +1298,7 @@ void Animator::doAnimations(float dt) {
 
 				//New rotates
 				for (unsigned i = 0; i < skeleton.m_joints.size(); i++) {
-					skeleton.m_joints[i].position = currentFrame().joints[i].position;
-					//m_skeleton.joints[i].position.x = currentFrame().joints[i].position[0];
-					//m_skeleton.joints[i].position.y = currentFrame().joints[i].position[1];
-					//m_skeleton.joints[i].position.z = currentFrame().joints[i].position[2];
+					skeleton.m_joints[i].position = currentFrame().joints[i].position;					
 				}
 
 				skeleton.findForwards();
@@ -1313,18 +1347,8 @@ void Animator::doAnimations(float dt) {
 			oldframeCurrent = frameCurrent;
 
 			for (unsigned i = 0; i < skeleton.m_joints.size(); i++) {
-				Vector3f vel = currentFrame().joints[i].position * (1 - target) + targetFrame().joints[i].position * target;
-				skeleton.m_joints[i].velocity[0] = vel[0];
-				skeleton.m_joints[i].velocity[1] = vel[1];
-				skeleton.m_joints[i].velocity[2] = vel[2];
-
-				skeleton.m_joints[i].velocity -= skeleton.m_joints[i].position;
-				skeleton.m_joints[i].velocity /= dt;
-
-				Vector3f pos = currentFrame().joints[i].position * (1 - target) + targetFrame().joints[i].position * target;
-				skeleton.m_joints[i].position[0] = pos[0];
-				skeleton.m_joints[i].position[1] = pos[1];
-				skeleton.m_joints[i].position[2] = pos[2];
+				skeleton.m_joints[i].velocity = (currentFrame().joints[i].position * (1 - target) + targetFrame().joints[i].position * target - skeleton.m_joints[i].position) / dt;
+				skeleton.m_joints[i].position = currentFrame().joints[i].position * (1 - target) + targetFrame().joints[i].position * target;
 			}
 			offset = currentoffset * (1 - target) + targetoffset * target;
 			for (unsigned i = 0; i < skeleton.m_muscles.size(); i++) {
@@ -1335,6 +1359,7 @@ void Animator::doAnimations(float dt) {
 				}
 			}
 		}
+
 		if (isLanding() && landhard) {
 			if (id == 0) {
 				//camerashake += .4;

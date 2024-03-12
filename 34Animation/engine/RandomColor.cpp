@@ -152,20 +152,20 @@ int RandomColor::pickBrightness( int s, const ColorInfo& info, Luminosity lumino
 
     switch (luminosity) {
         case Dark:
-            bRange[1] = bRange[0] + std::min(bRangeSize * 0.3, 30.0);
+            bRange[1] = bRange[0] + std::min(bRangeSize * 0.3f, 30.0f);
             break;
 
         case Light:
-            bRange[0] = bRange[1] - std::min(bRangeSize * 0.3, 15.0);
+            bRange[0] = bRange[1] - std::min(bRangeSize * 0.3f, 15.0f);
             break;
 
         case Bright:
-            bRange[0] = bRange[1] - std::min(bRangeSize * 0.3, 10.0);
+            bRange[0] = bRange[1] - std::min(bRangeSize * 0.3f, 10.0f);
             break;
 
         case Normal:
-            bRange[0] += bRangeSize * 0.5;
-            bRange[1] -= bRangeSize * 0.125;
+            bRange[0] += bRangeSize * 0.5f;
+            bRange[1] -= bRangeSize * 0.125f;
             break;
 
         case RandomLuminosity:

@@ -5,12 +5,12 @@
 #include <engine/Batchrenderer.h>
 #include <engine/DebugRenderer.h>
 
-#include "Game.h"
+#include "Basic.h"
+#include "Menu.h"
 #include "Application.h"
 #include "Globals.h"
 
-
-Game::Game(StateMachine& machine) : State(machine, States::GAME) {
+Basic::Basic(StateMachine& machine) : State(machine, States::BASIC) {
 
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
@@ -44,7 +44,9 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 	beta.addAnimationState(Globals::animationManagerNew.getAssetPointer("beta_run"));
 	beta.getAnimationState(0)->SetLooped(true);
 
-	cowboy.loadModelAssimp("res/models/cowboy/cowboy.dae", true, false);
+	cowboy.loadModelAssimp("res/models/cowboy/cowboy.dae", 1, false);
+	cowboy.m_meshes[0]->m_meshBones[0].initialPosition.set(1.5f, -1.2f, 0.0f);
+
 	cowboy.m_meshes[0]->m_meshBones[1].initialPosition.set(0.0f, 0.3f, 0.0f);
 	cowboy.m_meshes[0]->m_meshBones[1].initialScale.scale(0.1f, 0.1f, 0.1f);
 	cowboy.m_meshes[0]->createBones();
@@ -113,16 +115,16 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME) {
 	//StateMachine::ToggleWireframe();
 }
 
-Game::~Game() {
+Basic::~Basic() {
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
 }
 
-void Game::fixedUpdate() {
+void Basic::fixedUpdate() {
 
 }
 
-void Game::update() {
+void Basic::update() {
 	Keyboard &keyboard = Keyboard::instance();
 	Mouse &mouse = Mouse::instance();
 
@@ -211,7 +213,7 @@ void Game::update() {
 	woman.updateSkinning();
 }
 
-void Game::render() {
+void Basic::render() {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -308,25 +310,26 @@ void Game::render() {
 	woman.drawRaw();
 
 	shader->unuse();
-
-	DebugRenderer::Get().SetView(&m_camera);
-	//DebugRenderer::Get().AddSkeleton(beta.m_meshes[0]->m_bones, beta.m_meshes[0]->m_numBones, { 0.0f, 1.0f, 0.0f, 1.0f });
-	//DebugRenderer::Get().AddSkeleton(vampire.m_meshes[0]->m_bones, vampire.m_meshes[0]->m_numBones, { 0.0f, 1.0f, 0.0f, 1.0f });
-	//DebugRenderer::Get().AddSkeleton(cowboy.m_meshes[0]->m_bones, cowboy.m_meshes[0]->m_numBones, { 0.0f, 1.0f, 0.0f, 1.0f });
-	//DebugRenderer::Get().AddSkeleton(mushroom.m_meshes[0]->m_bones, mushroom.m_meshes[0]->m_numBones, { 0.0f, 1.0f, 0.0f, 1.0f });
-	//DebugRenderer::Get().AddSkeleton(dragon.m_meshes[0]->m_bones, dragon.m_meshes[0]->m_numBones, { 1.0f, 0.0f, 0.0f, 1.0f });
-	//DebugRenderer::Get().AddSkeleton(woman.m_meshes[0]->m_bones, woman.m_meshes[0]->m_numBones, { 0.0f, 1.0f, 0.0f, 1.0f });
-	DebugRenderer::Get().drawBuffer();
+	if (m_debug) {
+		DebugRenderer::Get().SetView(&m_camera);
+		DebugRenderer::Get().AddSkeleton(beta.m_meshes[0]->m_bones, beta.m_meshes[0]->m_numBones, { 0.0f, 1.0f, 0.0f, 1.0f });
+		DebugRenderer::Get().AddSkeleton(vampire.m_meshes[0]->m_bones, vampire.m_meshes[0]->m_numBones, { 0.0f, 1.0f, 0.0f, 1.0f });
+		DebugRenderer::Get().AddSkeleton(cowboy.m_meshes[0]->m_bones, cowboy.m_meshes[0]->m_numBones, { 0.0f, 1.0f, 0.0f, 1.0f });
+		DebugRenderer::Get().AddSkeleton(mushroom.m_meshes[0]->m_bones, mushroom.m_meshes[0]->m_numBones, { 0.0f, 1.0f, 0.0f, 1.0f });
+		DebugRenderer::Get().AddSkeleton(dragon.m_meshes[0]->m_bones, dragon.m_meshes[0]->m_numBones, { 1.0f, 0.0f, 0.0f, 1.0f });
+		DebugRenderer::Get().AddSkeleton(woman.m_meshes[0]->m_bones, woman.m_meshes[0]->m_numBones, { 0.0f, 1.0f, 0.0f, 1.0f });
+		DebugRenderer::Get().drawBuffer();
+	}
 
 	if (m_drawUi)
 		renderUi();
 }
 
-void Game::OnMouseMotion(Event::MouseMoveEvent& event) {
+void Basic::OnMouseMotion(Event::MouseMoveEvent& event) {
 
 }
 
-void Game::OnMouseButtonDown(Event::MouseButtonEvent& event) {
+void Basic::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 	if (event.button == 2u) {
 		Mouse::instance().attach(Application::GetWindow());
 	}
@@ -336,17 +339,17 @@ void Game::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 	}
 }
 
-void Game::OnMouseButtonUp(Event::MouseButtonEvent& event) {
+void Basic::OnMouseButtonUp(Event::MouseButtonEvent& event) {
 	if (event.button == 2u || event.button == 1u) {
 		Mouse::instance().detach();
 	}
 }
 
-void Game::OnMouseWheel(Event::MouseWheelEvent& event) {
+void Basic::OnMouseWheel(Event::MouseWheelEvent& event) {
 
 }
 
-void Game::OnKeyDown(Event::KeyboardEvent& event) {
+void Basic::OnKeyDown(Event::KeyboardEvent& event) {
 	if (event.keyCode == VK_LMENU) {
 		m_drawUi = !m_drawUi;
 	}
@@ -354,19 +357,21 @@ void Game::OnKeyDown(Event::KeyboardEvent& event) {
 	if (event.keyCode == VK_ESCAPE) {
 		Mouse::instance().detach();
 		m_isRunning = false;
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new Menu(m_machine));
 	}
 }
 
-void Game::OnKeyUp(Event::KeyboardEvent& event) {
+void Basic::OnKeyUp(Event::KeyboardEvent& event) {
 
 }
 
-void Game::resize(int deltaW, int deltaH) {
+void Basic::resize(int deltaW, int deltaH) {
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
 }
 
-void Game::renderUi() {
+void Basic::renderUi() {
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
@@ -403,6 +408,14 @@ void Game::renderUi() {
 	// render widgets
 	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 	ImGui::Checkbox("Draw Wirframe", &StateMachine::GetEnableWireframe());
+
+	if (ImGui::Checkbox("Debug", &m_debug)) {
+		if(m_debug)
+			StateMachine::GetEnableWireframe() = true;
+		else
+			StateMachine::GetEnableWireframe() = false;
+	}
+
 	if (ImGui::Checkbox("Play Dance", &m_playAnimation)) {
 		vampire.getAnimationState(0)->SetLooped(m_playAnimation);
 	}

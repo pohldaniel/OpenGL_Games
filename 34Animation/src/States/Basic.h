@@ -16,12 +16,12 @@ struct CurrentAnimation {
 	AnimationState* state = nullptr;
 };
 
-class Game : public State, public MouseEventListener, public KeyboardEventListener {
+class Basic : public State, public MouseEventListener, public KeyboardEventListener {
 
 public:
 
-	Game(StateMachine& machine);
-	~Game();
+	Basic(StateMachine& machine);
+	~Basic();
 
 	void fixedUpdate() override;
 	void update() override;
@@ -46,6 +46,7 @@ private:
 	AnimationController* m_animationController;
 
 	bool m_playAnimation = true;
+	bool m_debug = false;
 	float m_weightLean = 1.0f;
 	float m_weightWalk = 1.0f;
 	float m_weightRun = 1.0f;

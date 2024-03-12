@@ -327,9 +327,6 @@
     <ClCompile Include="engine\Sprite.cpp">
       <Filter>engine</Filter>
     </ClCompile>
-    <ClCompile Include="src\States\Game.cpp">
-      <Filter>Source Files\States</Filter>
-    </ClCompile>
     <ClCompile Include="src\Animation\AnimatedModel.cpp">
       <Filter>Source Files\Animation</Filter>
     </ClCompile>
@@ -414,10 +411,13 @@
     <ClCompile Include="src\States\Interleaved.cpp">
       <Filter>Source Files\States</Filter>
     </ClCompile>
-    <ClCompile Include="AnimationManager.cpp">
+    <ClCompile Include="src\States\Basic.cpp">
+      <Filter>Source Files\States</Filter>
+    </ClCompile>
+    <ClCompile Include="src\AnimationManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Model.cpp">
+    <ClCompile Include="src\Model.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -713,9 +713,6 @@
     <ClInclude Include="engine\Sprite.h">
       <Filter>engine</Filter>
     </ClInclude>
-    <ClInclude Include="src\States\Game.h">
-      <Filter>Source Files\States</Filter>
-    </ClInclude>
     <ClInclude Include="src\Animation\AnimatedModel.h">
       <Filter>Source Files\Animation</Filter>
     </ClInclude>
@@ -800,13 +797,16 @@
     <ClInclude Include="src\States\Interleaved.h">
       <Filter>Source Files\States</Filter>
     </ClInclude>
-    <ClInclude Include="AnimationManager.h">
+    <ClInclude Include="src\States\Basic.h">
+      <Filter>Source Files\States</Filter>
+    </ClInclude>
+    <ClInclude Include="src\AnimationManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Enums.h">
+    <ClInclude Include="src\Enums.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Model.h">
+    <ClInclude Include="src\Model.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

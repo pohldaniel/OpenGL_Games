@@ -130,20 +130,20 @@ void Utils::Skeleton::findForwards() {
 	lowForward = Vector3f::Cross(m_joints[lowForwardJoint2].position - m_joints[lowForwardJoint1].position, m_joints[lowForwardJoint3].position - m_joints[lowForwardJoint1].position);
 	Vector3f::Normalize(lowForward);
 
-	specialforward[1] = joint(rightshoulder).position + joint(rightwrist).position;
-	specialforward[1] = joint(rightelbow).position - (specialforward[1] * 0.5f);
+	specialforward[1] = joint(Enums::rightshoulder).position + joint(Enums::rightwrist).position;
+	specialforward[1] = joint(Enums::rightelbow).position - (specialforward[1] * 0.5f);
 	specialforward[1] += forward * 0.4f;
 	Vector3f::Normalize(specialforward[1]);
-	specialforward[2] = joint(leftshoulder).position + joint(leftwrist).position;
-	specialforward[2] = (joint(leftelbow).position - (specialforward[2]) * 0.5f);
+	specialforward[2] = joint(Enums::leftshoulder).position + joint(Enums::leftwrist).position;
+	specialforward[2] = (joint(Enums::leftelbow).position - (specialforward[2]) * 0.5f);
 	specialforward[2] += forward * 0.4f;
 	Vector3f::Normalize(specialforward[2]);
-	specialforward[3] = joint(righthip).position + joint(rightankle).position;
-	specialforward[3] = (specialforward[3] * 0.5f) - joint(rightknee).position;
+	specialforward[3] = joint(Enums::righthip).position + joint(Enums::rightankle).position;
+	specialforward[3] = (specialforward[3] * 0.5f) - joint(Enums::rightknee).position;
 	specialforward[3] += lowForward * 0.4f;
 	Vector3f::Normalize(specialforward[3]);
-	specialforward[4] = joint(lefthip).position + joint(leftankle).position;
-	specialforward[4] = (specialforward[4] * 0.5f) - joint(leftknee).position;
+	specialforward[4] = joint(Enums::lefthip).position + joint(Enums::leftankle).position;
+	specialforward[4] = (specialforward[4] * 0.5f) - joint(Enums::leftknee).position;
 	specialforward[4] += lowForward * 0.4f;
 	Vector3f::Normalize(specialforward[4]);
 }
@@ -190,31 +190,31 @@ void Utils::Skeleton::findRotationMuscle(int which, int animation) {
 	const int label2 = m_joints[m_muscles[which].parentIndex2].label;
 
 	switch (label1) {
-	case head:
+	case Enums::head:
 		fwd = specialforward[0];
 		break;
-	case rightshoulder:
-	case rightelbow:
-	case rightwrist:
-	case righthand:
+	case Enums::rightshoulder:
+	case Enums::rightelbow:
+	case Enums::rightwrist:
+	case Enums::righthand:
 		fwd = specialforward[1];
 		break;
-	case leftshoulder:
-	case leftelbow:
-	case leftwrist:
-	case lefthand:
+	case Enums::leftshoulder:
+	case Enums::leftelbow:
+	case Enums::leftwrist:
+	case Enums::lefthand:
 		fwd = specialforward[2];
 		break;
-	case righthip:
-	case rightknee:
-	case rightankle:
-	case rightfoot:
+	case Enums::righthip:
+	case Enums::rightknee:
+	case Enums::rightankle:
+	case Enums::rightfoot:
 		fwd = specialforward[3];
 		break;
-	case lefthip:
-	case leftknee:
-	case leftankle:
-	case leftfoot:
+	case Enums::lefthip:
+	case Enums::leftknee:
+	case Enums::leftankle:
+	case Enums::leftfoot:
 		fwd = specialforward[4];
 		break;
 	default:
@@ -239,10 +239,10 @@ void Utils::Skeleton::findRotationMuscle(int which, int animation) {
 	}*/
 
 	if (free == 0) {
-		if (label1 == rightfoot || label2 == rightfoot) {
+		if (label1 == Enums::rightfoot || label2 == Enums::rightfoot) {
 			fwd[1] -= .3;
 		}
-		if (label1 == leftfoot || label2 == leftfoot) {
+		if (label1 == Enums::leftfoot || label2 == Enums::leftfoot) {
 			fwd[1] -= .3;
 		}
 	}
@@ -471,7 +471,7 @@ void Utils::SolidIO::solidToBuffer(const char* filename, bool flipTextureVertica
 		bool found;
 		Vertex vert;
 
-		for (const short &k : cw) {
+		for (const short &k : ccw) {
 			vert = { vertices[bytesToShortBE(bufferTris[i + k * 4], bufferTris[i + k * 4 + 1])].data[0],
 					 vertices[bytesToShortBE(bufferTris[i + k * 4], bufferTris[i + k * 4 + 1])].data[1],
 					 vertices[bytesToShortBE(bufferTris[i + k * 4], bufferTris[i + k * 4 + 1])].data[2],
@@ -679,7 +679,6 @@ void Utils::SolidIO::loadSkeleton(const char* filename, const std::vector<Vertex
 		skeleton.m_muscles[j].m_modelMatrixInitial = Matrix4f::Translate(mid) * Matrix4f::Rotate(Vector3f(0.0f, 1.0f, 0.0f), 90.0f - skeleton.m_muscles[j].rotate1) * Matrix4f::Rotate(Vector3f(0.0f, 0.0f, 1.0f), 90.0f - skeleton.m_muscles[j].rotate2)  * Matrix4f::Rotate(Vector3f(0.0f, 1.0f, 0.0f), -skeleton.m_muscles[j].rotate3);
 	}
 
-
 	for (int i = 0; i < jointCount; i++) {
 		for (int j = 0; j < jointCount; j++) {
 			if (skeleton.m_joints[i].label == j) {
@@ -694,7 +693,7 @@ std::ifstream::pos_type filesize(const char* filename){
 	return in.tellg();
 }
 
-void Utils::SolidIO::loadAnimation(const char* filename, Utils::anim_height_type aheight, Utils::anim_attack_type aattack, Animation& animation) {
+void Utils::SolidIO::loadAnimation(const char* filename, Enums::anim_height_type aheight, Enums::anim_attack_type aattack, Animation& animation) {
 	animation.height = aheight;
 	animation.attack = aattack;
 
@@ -822,14 +821,14 @@ void Utils::MdlIO::mdlToObj(const char* path, const char* outFileObj, const char
 		value[2].c[0] = buffer[i + 8]; value[2].c[1] = buffer[i + 9]; value[2].c[2] = buffer[i + 10]; value[2].c[3] = buffer[i + 11];
 		positions.push_back({ value[0].flt , value[1].flt , value[2].flt });
 
-		value[0].c[0] = buffer[i + 12]; value[0].c[1] = buffer[i + 13]; value[0].c[2] = buffer[i + 14]; value[0].c[3] = buffer[i + 15];
-		value[1].c[0] = buffer[i + 16]; value[1].c[1] = buffer[i + 17]; value[1].c[2] = buffer[i + 18]; value[1].c[3] = buffer[i + 19];
-		value[2].c[0] = buffer[i + 20]; value[2].c[1] = buffer[i + 21]; value[2].c[2] = buffer[i + 22]; value[2].c[3] = buffer[i + 23];
-		normals.push_back({ value[0].flt , value[1].flt , value[2].flt });
-
 		value[0].c[0] = buffer[i + 24]; value[0].c[1] = buffer[i + 25]; value[0].c[2] = buffer[i + 26]; value[0].c[3] = buffer[i + 27];
 		value[1].c[0] = buffer[i + 28]; value[1].c[1] = buffer[i + 29]; value[1].c[2] = buffer[i + 30]; value[1].c[3] = buffer[i + 31];
 		uvCoords.push_back({ value[0].flt , value[1].flt });
+
+		value[0].c[0] = buffer[i + 12]; value[0].c[1] = buffer[i + 13]; value[0].c[2] = buffer[i + 14]; value[0].c[3] = buffer[i + 15];
+		value[1].c[0] = buffer[i + 16]; value[1].c[1] = buffer[i + 17]; value[1].c[2] = buffer[i + 18]; value[1].c[3] = buffer[i + 19];
+		value[2].c[0] = buffer[i + 20]; value[2].c[1] = buffer[i + 21]; value[2].c[2] = buffer[i + 22]; value[2].c[3] = buffer[i + 23];
+		normals.push_back({ value[0].flt , value[1].flt , value[2].flt });	
 	}
 	delete buffer;
 
@@ -948,18 +947,6 @@ void Utils::MdlIO::mdlToBuffer(const char* path, std::array<float,3> _scale, std
 		value[0].c[0] = buffer[i + 24]; value[0].c[1] = buffer[i + 25]; value[0].c[2] = buffer[i + 26]; value[0].c[3] = buffer[i + 27];
 		value[1].c[0] = buffer[i + 28]; value[1].c[1] = buffer[i + 29]; value[1].c[2] = buffer[i + 30]; value[1].c[3] = buffer[i + 31];
 		vertexBufferOut.push_back(value[0].flt); vertexBufferOut.push_back(value[1].flt);
-
-		//value[0].c[0] = buffer[i + 32]; value[0].c[1] = buffer[i + 33]; value[0].c[2] = buffer[i + 34]; value[0].c[3] = buffer[i + 35];
-		//value[1].c[0] = buffer[i + 36]; value[1].c[1] = buffer[i + 37]; value[1].c[2] = buffer[i + 38]; value[1].c[3] = buffer[i + 39];
-		//vertexBufferOut.push_back(value[0].flt); vertexBufferOut.push_back(value[1].flt);
-
-		//value[0].c[0] = buffer[i + 40]; value[0].c[1] = buffer[i + 41]; value[0].c[2] = buffer[i + 42]; value[0].c[3] = buffer[i + 43];
-		//value[1].c[0] = buffer[i + 44]; value[1].c[1] = buffer[i + 45]; value[1].c[2] = buffer[i + 46]; value[1].c[3] = buffer[i + 47];
-		//vertexBufferOut.push_back(value[0].flt); vertexBufferOut.push_back(value[1].flt);
-
-		//value[0].c[0] = buffer[i + 48]; value[0].c[1] = buffer[i + 49]; value[0].c[2] = buffer[i + 50]; value[0].c[3] = buffer[i + 51];
-		//value[1].c[0] = buffer[i + 52]; value[1].c[1] = buffer[i + 53]; value[1].c[2] = buffer[i + 54]; value[1].c[3] = buffer[i + 55];
-		//vertexBufferOut.push_back(value[0].flt); vertexBufferOut.push_back(value[1].flt);
 
 		value[0].c[0] = buffer[i + 12]; value[0].c[1] = buffer[i + 13]; value[0].c[2] = buffer[i + 14]; value[0].c[3] = buffer[i + 15];
 		value[1].c[0] = buffer[i + 16]; value[1].c[1] = buffer[i + 17]; value[1].c[2] = buffer[i + 18]; value[1].c[3] = buffer[i + 19];

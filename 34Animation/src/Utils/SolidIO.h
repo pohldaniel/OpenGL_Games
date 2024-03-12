@@ -79,6 +79,8 @@ namespace std {
 
 #include <engine/MeshBone.h>
 
+#include "Enums.h"
+
 namespace Utils {
 
 	static const float BONE_SIZE_THRESHOLD = 0.05f;
@@ -162,26 +164,14 @@ namespace Utils {
 		float speed;
 	};
 
-	enum anim_attack_type {
-		neutral,
-		normalattack,
-		reversed,
-		reversal
-	};
-
-	enum anim_height_type {
-		lowheight,
-		middleheight,
-		highheight
-	};
-
+	
 	struct Animation {
 		int numFrames;
 		int numJoints;
 		std::vector<AnimationFrame> frames;
 
-		anim_height_type height;
-		anim_attack_type attack;
+		Enums::anim_height_type height;
+		Enums::anim_attack_type attack;
 		Vector3f offset;
 		void print();
 	};
@@ -199,285 +189,7 @@ namespace Utils {
 		MAX_VERTEX_ELEMENT_SEMANTICS
 	};
 
-	enum bodypart {
-		head,
-		neck,
-		leftshoulder,
-		leftelbow,
-		leftwrist,
-		lefthand,
-		rightshoulder,
-		rightelbow,
-		rightwrist,
-		righthand,
-		abdomen,
-		lefthip,
-		righthip,
-		groin,
-		leftknee,
-		leftankle,
-		leftfoot,
-		rightknee,
-		rightankle,
-		rightfoot
-	};
-
-	enum animation_type{
-		runanim,
-		bounceidleanim,
-		stopanim,
-		jumpupanim,
-		jumpdownanim,
-		landanim,
-		landhardanim,
-		climbanim,
-		hanganim,
-		spinkickanim,
-		getupfromfrontanim,
-		getupfrombackanim,
-		crouchanim,
-		sneakanim,
-		rollanim,
-		flipanim,
-		frontflipanim,
-		spinkickreversedanim,
-		spinkickreversalanim,
-		lowkickanim,
-		sweepanim,
-		sweepreversedanim,
-		sweepreversalanim,
-		rabbitkickanim,
-		rabbitkickreversedanim,
-		rabbitkickreversalanim,
-		upunchanim,
-		staggerbackhighanim,
-		upunchreversedanim,
-		upunchreversalanim,
-		hurtidleanim,
-		backhandspringanim,
-		fightidleanim,
-		walkanim,
-		fightsidestep,
-		killanim,
-		sneakattackanim,
-		sneakattackedanim,
-		drawrightanim,
-		knifeslashstartanim,
-		crouchdrawrightanim,
-		crouchstabanim,
-		knifefollowanim,
-		knifefollowedanim,
-		knifethrowanim,
-		removeknifeanim,
-		crouchremoveknifeanim,
-		jumpreversedanim,
-		jumpreversalanim,
-		staggerbackhardanim,
-		dropkickanim,
-		winduppunchanim,
-		winduppunchblockedanim,
-		blockhighleftanim,
-		blockhighleftstrikeanim,
-		backflipanim,
-		walljumpbackanim,
-		rightflipanim,
-		walljumprightanim,
-		walljumpfrontanim,
-		leftflipanim,
-		walljumpleftanim,
-		walljumprightkickanim,
-		walljumpleftkickanim,
-		knifefightidleanim,
-		knifesneakattackanim,
-		knifesneakattackedanim,
-		swordfightidleanim,
-		drawleftanim,
-		swordslashanim,
-		swordgroundstabanim,
-		dodgebackanim,
-		swordsneakattackanim,
-		swordsneakattackedanim,
-		swordslashreversedanim,
-		swordslashreversalanim,
-		knifeslashreversedanim,
-		knifeslashreversalanim,
-		swordfightidlebothanim,
-		swordslashparryanim,
-		swordslashparriedanim,
-		wolfidle,
-		wolfcrouchanim,
-		wolflandanim,
-		wolflandhardanim,
-		wolfrunanim,
-		wolfrunninganim,
-		rabbitrunninganim,
-		wolfstopanim,
-		rabbittackleanim,
-		rabbittacklinganim,
-		rabbittackledbackanim,
-		rabbittackledfrontanim,
-		wolfslapanim,
-		staffhitanim,
-		staffgroundsmashanim,
-		staffspinhitanim,
-		staffhitreversedanim,
-		staffhitreversalanim,
-		staffspinhitreversedanim,
-		staffspinhitreversalanim,
-		sitanim,
-		sleepanim,
-		talkidleanim,
-		sitwallanim,
-		dead1anim,
-		dead2anim,
-		dead3anim,
-		dead4anim,
-		tempanim,
-		animation_count
-	};
-
-	enum animation_bit_offsets {
-		o_ab_idle,
-		o_ab_sit,
-		o_ab_sleep,
-		o_ab_crouch,
-		o_ab_run,
-		o_ab_stop,
-		o_ab_land,
-		o_ab_landhard,
-		o_ab_flip,
-		o_ab_walljump
-	};
-
-	enum animation_bits_def{
-		ab_idle = 1 << o_ab_idle,
-		ab_sit = 1 << o_ab_sit,
-		ab_sleep = 1 << o_ab_sleep,
-		ab_crouch = 1 << o_ab_crouch,
-		ab_run = 1 << o_ab_run,
-		ab_stop = 1 << o_ab_stop,
-		ab_land = 1 << o_ab_land,
-		ab_landhard = 1 << o_ab_landhard,
-		ab_flip = 1 << o_ab_flip,
-		ab_walljump = 1 << o_ab_walljump
-	};
-
-	static int animation_bits[animation_count] = {
-	   ab_run,
-	   ab_idle,
-	   ab_stop ,
-	   0,
-	   0,
-	   ab_land,
-	   ab_landhard,
-	   0,
-	   0,
-	   0,
-	   0,
-	   0,
-	   ab_crouch,
-	   0,
-	   0,
-	   ab_flip,
-	   ab_flip,
-	   0,
-	   0,
-	   0,
-	   0,
-	   0,
-	   0,
-	   0,
-	   0,
-	   0,
-	   0,
-	   0,
-	   0,
-	   0,
-	   ab_idle,
-	   0,
-	   ab_idle,
-	   0,
-	   ab_idle,
-	   0,
-	   0,
-	   0,
-	   0,
-	   0,
-	   0,
-	   0,
-	   0,
-	   0,
-	   0,
-	   0,
-	   0,
-	   0,
-	   0,
-	   0,
-	   0,
-	   0,
-	   0,
-	   0,
-	   0,
-	   ab_flip,
-	   ab_walljump,
-	   ab_walljump,
-	   ab_flip,
-	   ab_walljump,
-	   ab_flip,
-	   ab_walljump,
-	   ab_flip,
-	   ab_flip,
-	   ab_idle,
-	   0,
-	   0,
-	   ab_idle,
-	   0,
-	   0,
-	   0,
-	   0,
-	   0,
-	   0,
-	   0,
-	   0,
-	   0,
-	   0,
-	   ab_idle,
-	   0,
-	   0,
-	   ab_idle,
-	   ab_crouch,
-	   ab_land,
-	   ab_landhard,
-	   ab_run,
-	   ab_run,
-	   ab_run,
-	   ab_stop,
-	   0,
-	   0,
-	   0,
-	   0,
-	   0,
-	   0,
-	   0,
-	   0,
-	   0,
-	   0,
-	   0,
-	   0,
-	   ab_idle | ab_sit,
-	   ab_idle | ab_sleep,
-	   ab_idle,
-	   ab_sit,
-	   ab_sleep,
-	   ab_sleep,
-	   ab_sleep,
-	   ab_sleep,
-	   0
-	};
-
 	
-
-
 	struct GeometryDesc {
 		float lodDistance;
 		unsigned vbRef;
@@ -556,7 +268,7 @@ namespace Utils {
 		void solidToBuffer(const char* filename, bool flipTextureVertical, std::array<float, 3> eulerAngle, std::array<float, 3> scale, std::vector<Vertex>& vertexBufferOut, std::vector<unsigned int>& indexBufferOut);
 		void loadSkeleton(const char* filename, const std::vector<Vertex>& vertexBufferMap, std::vector<float>& vertexBufferOut, Skeleton& skeleton, std::vector<std::array<float, 4>>& weightsOut, std::vector<std::array<unsigned int, 4>>& boneIdsOut);
 		void fromBufferMap(const std::vector<Vertex>& bufferMap, std::vector<float>& vertexBufferOut);
-		void loadAnimation(const char* filename, anim_height_type aheight, anim_attack_type aattack, Animation& animation);
+		void loadAnimation(const char* filename, Enums::anim_height_type height, Enums::anim_attack_type attack, Animation& animation);
 
 		static std::array<float, 3> RotatePoint(std::array<float, 3> point, float xang, float yang, float zang);		
 		static std::array<float, 3> ScalePoint(std::array<float, 3> point, float scaleX, float scaleY, float scaleZ);

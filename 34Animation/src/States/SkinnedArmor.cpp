@@ -6,6 +6,7 @@
 #include <engine/DebugRenderer.h>
 
 #include "SkinnedArmor.h"
+#include "Menu.h"
 #include "Application.h"
 #include "Globals.h"
 
@@ -136,6 +137,7 @@ void SkinnedArmor::OnKeyDown(Event::KeyboardEvent& event) {
 	if (event.keyCode == VK_ESCAPE) {
 		Mouse::instance().detach();
 		m_isRunning = false;
+		m_machine.addStateAtBottom(new Menu(m_machine));
 	}
 }
 

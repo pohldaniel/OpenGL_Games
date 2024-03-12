@@ -6,6 +6,7 @@
 #include <engine/DebugRenderer.h>
 
 #include "SolidState.h"
+#include "Menu.h"
 #include "Application.h"
 #include "Globals.h"
 
@@ -95,26 +96,14 @@ void SolidState::update() {
 		}
 	}
 
-	modelNew.update(m_dt);
-}
-
-void some_func1() {
-
+	if(m_playAnimation)
+		m_model.update(m_dt);
 }
 
 void SolidState::render() {
 
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glLoadMatrixf(&m_camera.getPerspectiveMatrix()[0][0]);
-
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-	glLoadMatrixf(&m_camera.getViewMatrix()[0][0]);
-
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	Globals::textureManager.get("fur_1").bind(0);
-	//Globals::textureManager.get("fur_2").bind(0);
+	Globals::textureManager.get(m_toggleSkin ? "fur_2" : "fur_1").bind(0);
 	auto shader = Globals::shaderManager.getAssetPointer("animation_new_2");
 	shader->use();
 	shader->loadInt("u_texture", 0);
@@ -122,7 +111,7 @@ void SolidState::render() {
 	shader->loadMatrix("u_view", m_camera.getViewMatrix());
 	shader->loadMatrix("u_model", Matrix4f::IDENTITY);
 
-	modelNew.draw();
+	m_model.draw();
 	shader->unuse();
 
 	if (m_drawUi)
@@ -161,6 +150,7 @@ void SolidState::OnKeyDown(Event::KeyboardEvent& event) {
 	if (event.keyCode == VK_ESCAPE) {
 		Mouse::instance().detach();
 		m_isRunning = false;
+		m_machine.addStateAtBottom(new Menu(m_machine));
 	}
 }
 
@@ -210,7 +200,21 @@ void SolidState::renderUi() {
 	// render widgets
 	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 	ImGui::Checkbox("Draw Wirframe", &StateMachine::GetEnableWireframe());
-	
+	ImGui::Checkbox("Play Animation", &m_playAnimation);
+	if (ImGui::Button(m_togglePose ? "Bind Pose###pose" : "Reset Pose###pose")){
+		m_togglePose = !m_togglePose;
+		
+		if (m_togglePose)
+			m_model.resetPose();
+		else
+			m_model.bindPose();
+		
+	}
+
+	if (ImGui::Button("Toggle Skin")){
+		m_toggleSkin = !m_toggleSkin;
+	}
+
 	ImGui::End();
 
 	ImGui::Render();

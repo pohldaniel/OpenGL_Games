@@ -34,7 +34,7 @@ public:
 	int getRun();
 	bool hasWeapon();
 	bool isPlayerControlled();
-	void FootLand(bodypart whichfoot, float opacity);
+	void FootLand(Enums::bodypart whichfoot, float opacity);
 
 	Utils::AnimationFrame& currentFrame();
 	Utils::AnimationFrame& targetFrame();
@@ -99,9 +99,11 @@ class Model {
 public:
 
 	Model();
+	~Model();
 	void draw();
 	void update(float dt);
 	void resetPose();
+	void bindPose();
 
 	short m_muscleNum, m_vertexNum;
 	Matrix4f* m_skinMatrices;
@@ -117,6 +119,6 @@ public:
 	unsigned int m_vbo[3] = { 0u };
 	unsigned int m_drawCount;
 
-	Utils::SolidIO solidConverter;
 	Animator animator;
+	bool m_bindpose;
 };

@@ -14,7 +14,7 @@
 
 #include <States/Default.h>
 #include <States/Menu.h>
-#include <States/Game.h>
+#include <States/Basic.h>
 #include <States/CharacterState.h>
 #include <States/SkinnedArmor.h>
 #include <States/SolidState.h>
@@ -168,14 +168,14 @@ LRESULT CALLBACK Application::StaticWndProc(HWND hWnd, UINT message, WPARAM wPar
 	Application* application = nullptr;
 
 	switch (message) {
-	case WM_CREATE: {
-		application = static_cast<Application*>(reinterpret_cast<CREATESTRUCT*>(lParam)->lpCreateParams);
-		SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(application));
-		break;
-	}default: {
-		application = reinterpret_cast<Application*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
-		break;
-	}
+		case WM_CREATE: {
+			application = static_cast<Application*>(reinterpret_cast<CREATESTRUCT*>(lParam)->lpCreateParams);
+			SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(application));
+			break;
+		}default: {
+			application = reinterpret_cast<Application*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+			break;
+		}
 	}
 
 	if (wParam == SC_KEYMENU && (lParam >> 16) <= 0) {
@@ -336,8 +336,8 @@ void Application::initOpenGL(int msaaSamples) {
 
 	ToggleVerticalSync();
 
-	glDisable(GL_CULL_FACE);
-	//glEnable(GL_CULL_FACE);
+	//glDisable(GL_CULL_FACE);
+	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
 	glFrontFace(GL_CCW);
 
@@ -345,8 +345,8 @@ void Application::initOpenGL(int msaaSamples) {
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);
 
-	glDisable(GL_BLEND);
-	//glEnable(GL_BLEND);
+	//glDisable(GL_BLEND);
+	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 
@@ -415,11 +415,12 @@ void Application::fixedUpdate() {
 void Application::initStates() {
 	Machine = new StateMachine(m_dt, m_fdt);
 	//Machine->addStateAtTop(new Default(*Machine));
-	//Machine->addStateAtTop(new Game(*Machine));
+	//Machine->addStateAtTop(new Basic(*Machine));
 	//Machine->addStateAtTop(new CharacterState(*Machine));
 	//Machine->addStateAtTop(new SkinnedArmor(*Machine));	
-	Machine->addStateAtTop(new SolidState(*Machine));
+	//Machine->addStateAtTop(new SolidState(*Machine));
 	//Machine->addStateAtTop(new Interleaved(*Machine));
+	Machine->addStateAtTop(new Menu(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -689,6 +690,21 @@ void Application::loadAssets() {
 	Globals::textureManager.loadTexture("fur_2", "res/textures/FurChocolate.jpg", true);
 	Globals::textureManager.get("fur_2").setFilter(GL_LINEAR);
 	Globals::textureManager.get("fur_2").setWrapMode(GL_REPEAT);
+	Globals::textureManager.loadTexture("texture_1", "res/textures/Texture1.bmp", true);
+	Globals::textureManager.get("texture_1").setFilter(GL_LINEAR);
+	Globals::textureManager.get("texture_1").setWrapMode(GL_REPEAT);
+
+	Globals::textureManager.loadTexture("texture_2", "res/textures/Texture2.bmp", true);
+	Globals::textureManager.get("texture_2").setFilter(GL_LINEAR);
+	Globals::textureManager.get("texture_2").setWrapMode(GL_REPEAT);
+
+	Globals::textureManager.loadTexture("texture_3", "res/textures/Texture3.bmp", true);
+	Globals::textureManager.get("texture_3").setFilter(GL_LINEAR);
+	Globals::textureManager.get("texture_3").setWrapMode(GL_REPEAT);
+
+	Globals::textureManager.loadTexture("texture_4", "res/textures/Texture4.bmp", true);
+	Globals::textureManager.get("texture_4").setFilter(GL_LINEAR);
+	Globals::textureManager.get("texture_4").setWrapMode(GL_REPEAT);
 
 	Globals::textureManager.createNullTexture("null");
 
@@ -736,7 +752,6 @@ void Application::loadAssets() {
 	Globals::animationManagerNew.loadAnimationAssimp("right_wing", "res/models/dragon/dragon.dae", "right_wing", "right_wing");
 	Globals::animationManagerNew.loadAnimationAssimp("left_wing", "res/models/dragon/dragon.dae", "left_wing", "left_wing");
 
-	
 	Globals::animationManagerNew.loadAnimationAssimp("woman_walk", "res/models/woman/Woman.gltf", "Walking", "woman_walk");
 	Globals::animationManagerNew.loadAnimationAssimp("woman_lean_left", "res/models/woman/Woman.gltf", "Lean_Left", "woman_lean_left");
 	Globals::animationManagerNew.loadAnimationAssimp("woman_run", "res/models/woman/Woman.gltf", "Running", "woman_run");	

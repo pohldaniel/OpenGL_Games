@@ -35,7 +35,9 @@ private:
 	
 	bool m_initUi = true;
 	bool m_drawUi = true;
-
+	bool m_playAnimation = true;
+	bool m_togglePose = false;
+	bool m_toggleSkin = false;
 	Camera m_camera;
-	Model modelNew;
+	Model m_model;
 };
