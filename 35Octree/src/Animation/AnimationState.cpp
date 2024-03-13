@@ -117,9 +117,9 @@ void AnimationState::SetBoneWeight(size_t index, float weight_, bool recursive){
 	}
 
 	if (recursive && stateTracks[index].node){
-		const std::list<std::unique_ptr<BaseNode, std::function<void(BaseNode* animation)>>>& children = stateTracks[index].node->getChildren();
+		const std::list<std::unique_ptr<Node, std::function<void(Node* node)>>>& children = stateTracks[index].node->getChildren();
 		for (auto it = children.begin(); it != children.end(); ++it){
-			BaseNode* node = (*it).get();
+			Node* node = (*it).get();
 
 			//if (node->Type() == Bone::TypeStatic())
 			//{
@@ -231,7 +231,7 @@ float AnimationState::BoneWeight(StringHash nameHash) const{
 	return BoneWeight(FindTrackIndex(nameHash));
 }
 
-size_t AnimationState::FindTrackIndex(BaseNode* node) const{
+size_t AnimationState::FindTrackIndex(Node* node) const{
 	for (unsigned i = 0; i < stateTracks.size(); ++i){
 		if (stateTracks[i].node == node)
 			return i;

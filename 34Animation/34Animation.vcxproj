@@ -175,11 +175,12 @@
     <ClCompile Include="engine\MeshBone.cpp" />
     <ClCompile Include="engine\MeshSequence.cpp" />
     <ClCompile Include="engine\MousePickerFBO.cpp" />
+    <ClCompile Include="engine\Object.cpp" />
     <ClCompile Include="engine\RandomColor.cpp" />
     <ClCompile Include="engine\scene\BaseNode.cpp" />
     <ClCompile Include="engine\scene\BoneNode.cpp" />
     <ClCompile Include="engine\scene\MeshNode.cpp" />
-    <ClCompile Include="engine\scene\Object.cpp" />
+    <ClCompile Include="engine\scene\Node.cpp" />
     <ClCompile Include="engine\scene\SceneNode.cpp" />
     <ClCompile Include="engine\scene\SceneNodeLC.cpp" />
     <ClCompile Include="engine\scene\SequenceNode.cpp" />
@@ -301,6 +302,7 @@
     <ClInclude Include="engine\MeshBone.h" />
     <ClInclude Include="engine\MeshSequence.h" />
     <ClInclude Include="engine\MousePickerFBO.h" />
+    <ClInclude Include="engine\Object.h" />
     <ClInclude Include="engine\OctreeNew.h" />
     <ClInclude Include="convhull\convhull_3d.h" />
     <ClInclude Include="engine\AssetManger.h" />
@@ -341,7 +343,7 @@
     <ClInclude Include="engine\scene\BoneNode.h" />
     <ClInclude Include="engine\scene\IBaseNode.h" />
     <ClInclude Include="engine\scene\MeshNode.h" />
-    <ClInclude Include="engine\scene\Object.h" />
+    <ClInclude Include="engine\scene\Node.h" />
     <ClInclude Include="engine\scene\SceneNode.h" />
     <ClInclude Include="engine\scene\SceneNodeLC.h" />
     <ClInclude Include="engine\scene\SequenceNode.h" />

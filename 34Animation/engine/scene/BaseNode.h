@@ -3,9 +3,11 @@
 #include <list>
 #include <functional>
 #include <memory>
-#include "Object.h"
+#include "Node.h"
+#include "../Object.h"
 
-class BaseNode : public Object {
+
+class BaseNode : public Node, public Object {
 
 	friend class SceneNode;
 	friend class SceneNodeLC;
@@ -55,38 +57,10 @@ public:
 	void rotate(const Vector3f& axis, float degrees) override;
 	void rotate(const Quaternion& orientation) override;
 
-	void markForRemove();
-	void setParent(BaseNode* node);
-	void setIsFixed(bool isFixed);
-	void setIsSelfCared(bool isSelfCared);
 	const bool isFixed() const;
-	const bool isSelfCared() const;
+	void setIsFixed(bool isFixed);
 
-	std::list<std::unique_ptr<BaseNode, std::function<void(BaseNode* animation)>>>& getChildren() const;
-	void removeAllChildren();
-	void removeChild(BaseNode* child);
-	void removeSelf();
-
-	void eraseChild(BaseNode* child);
-	void eraseSelf();
-
-	BaseNode* addChild(BaseNode* node, bool disableDelete = false);
-	template <class T> T* addChild(bool disableDelete = false);
-	const BaseNode* getParent() const;
-	
 protected:
 
-	virtual const Vector3f& getWorldOrigin() const;
-
-	BaseNode* m_parent;	mutable std::list<std::unique_ptr<BaseNode, std::function<void(BaseNode* animation)>>> m_children;
-	bool m_markForRemove;	bool m_isFixed;	bool m_isSelfCared;	mutable bool m_isDirty;
+	virtual const Vector3f& getWorldOrigin() const;	bool m_isFixed;	mutable bool m_isDirty;
 };
-
-template <class T> T* BaseNode::addChild(bool disableDelete) {
-	if (disableDelete)
-		m_children.emplace_back(std::unique_ptr<T, std::function<void(BaseNode* animation)>>(new T(), [&](BaseNode* node) {}));
-	else
-		m_children.emplace_back(std::unique_ptr<T, std::function<void(BaseNode* animation)>>(new T(), [&](BaseNode* node) {delete node;}));
-	m_children.back()->m_parent = this;
-	return dynamic_cast<T*>(m_children.back().get());
-}

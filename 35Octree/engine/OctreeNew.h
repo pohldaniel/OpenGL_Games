@@ -1,7 +1,13 @@
 #pragma once
 
 #include <vector>
-#include "Vector.h"
+#include <engine/scene/Node.h>
+
+
+class Octree : public Node
+{
+
+};
 
 /*namespace Tree {
 

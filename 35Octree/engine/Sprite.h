@@ -1,6 +1,6 @@
 #pragma once
 #include <memory>
-#include "scene/Object.h"
+#include "Object.h"
 #include "Rect.h"
 #include "Shader.h"
 

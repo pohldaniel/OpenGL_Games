@@ -30,7 +30,7 @@ SceneNodeLC& SceneNodeLC::operator=(SceneNodeLC&& rhs) {
 const Matrix4f& SceneNodeLC::getWorldTransformation() const {
 	if (m_isDirty) {
 		if (m_parent) {			
-			m_modelMatrix = m_parent->getWorldTransformation() * getTransformationSOP();
+			m_modelMatrix = static_cast<BaseNode*>(m_parent)->getWorldTransformation() * getTransformationSOP();
 		}else {
 			m_modelMatrix = getTransformationSOP();
 		}

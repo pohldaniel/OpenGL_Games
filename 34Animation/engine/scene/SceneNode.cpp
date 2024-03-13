@@ -50,10 +50,10 @@ const Quaternion& SceneNode::getWorldOrientation() const {
 void SceneNode::updateSOP() const {
 	if (m_isDirty) {
 		if (m_parent) {
-			m_worldPosition = m_parent->getWorldPosition() + BaseNode::m_position * m_parent->getWorldScale();
-			m_worldOrigin = (m_parent->getWorldOrigin() + BaseNode::m_origin * m_parent->getWorldScale()) ;
-			m_worldScale = m_parent->getWorldScale() * BaseNode::m_scale;
-			m_worldOrientation = m_parent->getWorldOrientation() * BaseNode::m_orientation;
+			m_worldPosition = static_cast<BaseNode*>(m_parent)->getWorldPosition() + BaseNode::m_position * static_cast<BaseNode*>(m_parent)->getWorldScale();
+			m_worldOrigin = static_cast<BaseNode*>(m_parent)->getWorldOrigin() + BaseNode::m_origin * static_cast<BaseNode*>(m_parent)->getWorldScale();
+			m_worldScale = static_cast<BaseNode*>(m_parent)->getWorldScale() * BaseNode::m_scale;
+			m_worldOrientation = static_cast<BaseNode*>(m_parent)->getWorldOrientation() * BaseNode::m_orientation;
 		}else {
 			m_worldPosition = BaseNode::m_position;
 			m_worldScale = BaseNode::m_scale;

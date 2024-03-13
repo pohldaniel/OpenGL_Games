@@ -320,7 +320,7 @@ void DebugRenderer::AddSkeleton(BoneNode**& bones, unsigned short numBones, cons
 		const BoneNode* bone = bones[i];
 		if (!bone->isRootBone()) {
 			Vector3f pos1 = bone->getWorldPosition();
-			Vector3f pos2 = bone->getParent()->getWorldPosition();
+			Vector3f pos2 = static_cast<const BaseNode*>(bone->getParent())->getWorldPosition();
 
 			AddLine(pos1, pos2, color);
 		}

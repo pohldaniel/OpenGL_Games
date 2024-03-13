@@ -303,9 +303,6 @@
     <ClCompile Include="engine\scene\MeshNode.cpp">
       <Filter>engine\scene</Filter>
     </ClCompile>
-    <ClCompile Include="engine\scene\Object.cpp">
-      <Filter>engine\scene</Filter>
-    </ClCompile>
     <ClCompile Include="engine\scene\SceneNode.cpp">
       <Filter>engine\scene</Filter>
     </ClCompile>
@@ -395,6 +392,12 @@
     </ClCompile>
     <ClCompile Include="engine\OctreeNew.cpp">
       <Filter>Source Files\Octree</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\scene\Node.cpp">
+      <Filter>engine\scene</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\Object.cpp">
+      <Filter>engine</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -656,13 +659,7 @@
     <ClInclude Include="engine\scene\BaseNode.h">
       <Filter>engine\scene</Filter>
     </ClInclude>
-    <ClInclude Include="engine\scene\IBaseNode.h">
-      <Filter>engine\scene</Filter>
-    </ClInclude>
     <ClInclude Include="engine\scene\MeshNode.h">
-      <Filter>engine\scene</Filter>
-    </ClInclude>
-    <ClInclude Include="engine\scene\Object.h">
       <Filter>engine\scene</Filter>
     </ClInclude>
     <ClInclude Include="engine\scene\SceneNode.h">
@@ -754,6 +751,15 @@
     </ClInclude>
     <ClInclude Include="engine\OctreeNew.h">
       <Filter>Source Files\Octree</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\scene\Node.h">
+      <Filter>engine\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\Object.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\scene\INode.h">
+      <Filter>engine\scene</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

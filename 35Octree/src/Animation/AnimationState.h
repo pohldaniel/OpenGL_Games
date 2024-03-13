@@ -1,7 +1,6 @@
 #pragma once
 
 #include <functional>
-#include <engine/scene/SceneNode.h>
 #include <engine/scene/BoneNode.h>
 #include <engine/utils/StringHash.h>
 
@@ -57,7 +56,7 @@ public:
 	float BoneWeight(const std::string& name) const;
 	float BoneWeight(StringHash nameHash) const;
 
-	size_t FindTrackIndex(BaseNode* node) const;
+	size_t FindTrackIndex(Node* node) const;
 	size_t FindTrackIndex(const std::string& name) const;
 	size_t FindTrackIndex(StringHash nameHash) const;
 

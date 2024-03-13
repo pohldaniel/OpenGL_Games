@@ -13,10 +13,9 @@ public:
 	SceneNodeLC& operator=(SceneNodeLC&& rhs);
 
 	const Matrix4f& getWorldTransformation() const override;
-
-	const Vector3f& getWorldPosition() const;
-	const Vector3f& getWorldScale() const;
-	const Quaternion& getWorldOrientation() const;
+	const Vector3f& getWorldPosition() const override;
+	const Vector3f& getWorldScale() const override;
+	const Quaternion& getWorldOrientation() const override;
 
 private:
 

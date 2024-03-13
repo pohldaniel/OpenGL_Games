@@ -3,48 +3,42 @@
 #include "SceneNode.h"
 #include "SceneNodeLC.h"
 
-BaseNode::BaseNode() : Object(), m_markForRemove(false), m_isDirty(true), m_parent(nullptr), m_isFixed(false), m_isSelfCared(false){
+BaseNode::BaseNode() : Object(), Node(), m_isDirty(true), m_isFixed(false){
 
 }
 
-BaseNode::BaseNode(const BaseNode& rhs) : Object(rhs) {
+BaseNode::BaseNode(const BaseNode& rhs) : Node(rhs)  , Object(rhs){
 	m_isDirty = rhs.m_isDirty;
 	m_markForRemove = rhs.m_markForRemove;
 	m_isFixed = rhs.m_isFixed;
-	m_isSelfCared = rhs.m_isSelfCared;
 }
 
 BaseNode& BaseNode::operator=(const BaseNode& rhs) {
+	Node::operator=(rhs);
 	Object::operator=(rhs);
 	m_isDirty = rhs.m_isDirty;
 	m_markForRemove = rhs.m_markForRemove;
 	m_isFixed = rhs.m_isFixed;
-	m_isSelfCared = rhs.m_isSelfCared;
 	return *this;
 }
 
-BaseNode::BaseNode(BaseNode&& rhs) : Object(rhs) {
+BaseNode::BaseNode(BaseNode&& rhs) : Node(rhs), Object(rhs) {
 	m_isDirty = rhs.m_isDirty;
 	m_markForRemove = rhs.m_markForRemove;
 	m_isFixed = rhs.m_isFixed;
-	m_isSelfCared = rhs.m_isSelfCared;
 }
 
 BaseNode& BaseNode::operator=(BaseNode&& rhs) {
+	Node::operator=(rhs);
 	Object::operator=(rhs);
 	m_isDirty = rhs.m_isDirty;
 	m_markForRemove = rhs.m_markForRemove;
 	m_isFixed = rhs.m_isFixed;
-	m_isSelfCared = rhs.m_isSelfCared;
 	return *this;
 }
 
 BaseNode::~BaseNode() {
-	removeAllChildren();
-}
-
-void BaseNode::markForRemove() {
-	m_markForRemove = true;
+	
 }
 
 void BaseNode::OnTransformChanged() {
@@ -54,7 +48,7 @@ void BaseNode::OnTransformChanged() {
 	}
 	
 	for (auto&& child : m_children) {
-		child->OnTransformChanged();
+		static_cast<BaseNode*>(child.get())->OnTransformChanged();
 	}
 
 	m_isDirty = true;
@@ -170,48 +164,6 @@ void BaseNode::rotate(const Quaternion& orientation) {
 	OnTransformChanged();
 }
 
-std::list<std::unique_ptr<BaseNode, std::function<void(BaseNode* animation)>>>& BaseNode::getChildren() const{
-	return m_children;
-}
-
-BaseNode* BaseNode::addChild(BaseNode* node, bool disableDelete) {
-	if(disableDelete)
-		m_children.emplace_back(std::unique_ptr<BaseNode, std::function<void(BaseNode* animation)>>(node, [&](BaseNode* node) {}));
-	else
-		m_children.emplace_back(std::unique_ptr<BaseNode, std::function<void(BaseNode* animation)>>(node, [&](BaseNode* node) {delete node;}));
-	m_children.back()->m_parent = this;
-	return m_children.back().get();
-}
-
-const BaseNode* BaseNode::getParent() const {
-	return m_parent;
-}
-
-void BaseNode::removeAllChildren() {
-	for(auto it = m_children.begin(); it != m_children.end(); ++it){
-		BaseNode* child = (*it).release();
-		child->m_parent = nullptr;
-		delete child;	
-		child = nullptr;
-	}
-	m_children.clear();
-}
-
-void BaseNode::setParent(BaseNode* node) {
-
-	if (node && m_parent) {	
-		std::list<std::unique_ptr<BaseNode, std::function<void(BaseNode* animation)>>>::iterator it = std::find_if(m_parent->getChildren().begin(), m_parent->getChildren().end(), [node](std::unique_ptr<BaseNode, std::function<void(BaseNode* animation)>>& _node) { return _node.get() == node; });
-		
-		if (it != m_parent->getChildren().end()) {
-			node->getChildren().splice(m_parent->getChildren().end(), m_parent->getChildren(), it);
-		}
-	}else if(node){
-		node->addChild(this);
-	}else if(m_parent){
-		m_parent->eraseChild(this);
-	}
-}
-
 const Vector3f& BaseNode::getWorldOrigin() const {
 	return Vector3f::ZERO;
 }
@@ -222,41 +174,4 @@ void BaseNode::setIsFixed(bool isFixed) {
 
 const bool BaseNode::isFixed() const{
 	return m_isFixed;
-}
-
-void BaseNode::setIsSelfCared(bool isSelfCared) {
-	m_isSelfCared = isSelfCared;
-}
-
-const bool BaseNode::isSelfCared() const {
-	return m_isSelfCared;
-}
-
-void BaseNode::eraseChild(BaseNode* child) {
-
-	if (!child || child->m_parent != this)
-		return;
-
-	child->m_parent = nullptr;
-	m_children.erase(std::remove_if(m_children.begin(), m_children.end(), [child](const std::unique_ptr<BaseNode, std::function<void(BaseNode* animation)>>& node) { return node.get() == child; }), m_children.end());
-}
-
-void BaseNode::eraseSelf() {
-	if (m_parent)
-		m_parent->eraseChild(this);
-}
-
-void BaseNode::removeChild(BaseNode* child) {
-
-	if (!child || child->m_parent != this)
-		return;
-
-	child->m_parent = nullptr;
-
-	std::remove_if(m_children.begin(), m_children.end(), [child](const std::unique_ptr<BaseNode, std::function<void(BaseNode* animation)>>& node) -> bool { return node.get() == child; });
-}
-
-void BaseNode::removeSelf() {
-	if (m_parent)
-		m_parent->removeChild(this);
 }

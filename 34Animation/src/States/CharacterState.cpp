@@ -78,6 +78,7 @@ void CharacterState::render() {
 	shader->use();
 	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
 	shader->loadMatrix("u_view", m_camera.getViewMatrix());
+	shader->loadMatrix("u_model", Matrix4f::IDENTITY);
 	shader->loadInt("u_texture", 1);
 	Globals::textureManager.get("floor").bind(1);
 	Globals::shapeManager.get("floor").drawRaw();
@@ -85,10 +86,6 @@ void CharacterState::render() {
 
 	
 	m_character.draw(m_camera);
-
-	//DebugRenderer::Get().SetView(&m_camera);
-	//DebugRenderer::Get().AddSkeleton(m_character.m_model.m_meshes[0]->m_bones, m_character.m_model.m_meshes[0]->m_numBones, { 0.0f, 1.0f, 0.0f, 1.0f });
-	//DebugRenderer::Get().drawBuffer();
 
 	if (m_drawUi)
 		renderUi();

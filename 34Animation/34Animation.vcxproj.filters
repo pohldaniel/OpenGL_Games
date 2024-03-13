@@ -297,27 +297,6 @@
     <ClCompile Include="engine\thread\Thread.cpp">
       <Filter>engine\thread</Filter>
     </ClCompile>
-    <ClCompile Include="engine\scene\BaseNode.cpp">
-      <Filter>engine\scene</Filter>
-    </ClCompile>
-    <ClCompile Include="engine\scene\MeshNode.cpp">
-      <Filter>engine\scene</Filter>
-    </ClCompile>
-    <ClCompile Include="engine\scene\Object.cpp">
-      <Filter>engine\scene</Filter>
-    </ClCompile>
-    <ClCompile Include="engine\scene\SceneNode.cpp">
-      <Filter>engine\scene</Filter>
-    </ClCompile>
-    <ClCompile Include="engine\scene\SceneNodeLC.cpp">
-      <Filter>engine\scene</Filter>
-    </ClCompile>
-    <ClCompile Include="engine\scene\SequenceNode.cpp">
-      <Filter>engine\scene</Filter>
-    </ClCompile>
-    <ClCompile Include="engine\scene\ShapeNode.cpp">
-      <Filter>engine\scene</Filter>
-    </ClCompile>
     <ClCompile Include="engine\DebugRenderer.cpp">
       <Filter>engine</Filter>
     </ClCompile>
@@ -353,9 +332,6 @@
     </ClCompile>
     <ClCompile Include="engine\utils\Utils.cpp">
       <Filter>engine\utils</Filter>
-    </ClCompile>
-    <ClCompile Include="engine\scene\BoneNode.cpp">
-      <Filter>engine\scene</Filter>
     </ClCompile>
     <ClCompile Include="engine\animation\render\AnimationShader.cpp">
       <Filter>engine\animation\render</Filter>
@@ -419,6 +395,33 @@
     </ClCompile>
     <ClCompile Include="src\Model.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\Object.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\scene\BaseNode.cpp">
+      <Filter>engine\scene</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\scene\BoneNode.cpp">
+      <Filter>engine\scene</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\scene\MeshNode.cpp">
+      <Filter>engine\scene</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\scene\Node.cpp">
+      <Filter>engine\scene</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\scene\SceneNode.cpp">
+      <Filter>engine\scene</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\scene\SceneNodeLC.cpp">
+      <Filter>engine\scene</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\scene\SequenceNode.cpp">
+      <Filter>engine\scene</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\scene\ShapeNode.cpp">
+      <Filter>engine\scene</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -680,30 +683,6 @@
     <ClInclude Include="engine\thread\Thread.h">
       <Filter>engine\thread</Filter>
     </ClInclude>
-    <ClInclude Include="engine\scene\BaseNode.h">
-      <Filter>engine\scene</Filter>
-    </ClInclude>
-    <ClInclude Include="engine\scene\IBaseNode.h">
-      <Filter>engine\scene</Filter>
-    </ClInclude>
-    <ClInclude Include="engine\scene\MeshNode.h">
-      <Filter>engine\scene</Filter>
-    </ClInclude>
-    <ClInclude Include="engine\scene\Object.h">
-      <Filter>engine\scene</Filter>
-    </ClInclude>
-    <ClInclude Include="engine\scene\SceneNode.h">
-      <Filter>engine\scene</Filter>
-    </ClInclude>
-    <ClInclude Include="engine\scene\SceneNodeLC.h">
-      <Filter>engine\scene</Filter>
-    </ClInclude>
-    <ClInclude Include="engine\scene\SequenceNode.h">
-      <Filter>engine\scene</Filter>
-    </ClInclude>
-    <ClInclude Include="engine\scene\ShapeNode.h">
-      <Filter>engine\scene</Filter>
-    </ClInclude>
     <ClInclude Include="engine\DebugRenderer.h">
       <Filter>engine</Filter>
     </ClInclude>
@@ -739,9 +718,6 @@
     </ClInclude>
     <ClInclude Include="engine\utils\Utils.h">
       <Filter>engine\utils</Filter>
-    </ClInclude>
-    <ClInclude Include="engine\scene\BoneNode.h">
-      <Filter>engine\scene</Filter>
     </ClInclude>
     <ClInclude Include="engine\animation\render\AnimationShader.h">
       <Filter>engine\animation\render</Filter>
@@ -808,6 +784,36 @@
     </ClInclude>
     <ClInclude Include="src\Model.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\Object.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\scene\BaseNode.h">
+      <Filter>engine\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\scene\BoneNode.h">
+      <Filter>engine\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\scene\IBaseNode.h">
+      <Filter>engine\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\scene\MeshNode.h">
+      <Filter>engine\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\scene\Node.h">
+      <Filter>engine\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\scene\SceneNode.h">
+      <Filter>engine\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\scene\SceneNodeLC.h">
+      <Filter>engine\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\scene\SequenceNode.h">
+      <Filter>engine\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\scene\ShapeNode.h">
+      <Filter>engine\scene</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
