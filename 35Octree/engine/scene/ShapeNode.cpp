@@ -1,7 +1,8 @@
 #include "ShapeNode.h"
 #include "../DebugRenderer.h"
+#include "Octree/OctreeNew.h"
 
-ShapeNode::ShapeNode(const Shape& shape) : SceneNodeLC(), shape(shape), m_drawDebug(true), localBoundingBox(shape.getAABB()) {
+ShapeNode::ShapeNode(const Shape& shape) : SceneNodeLC(), shape(shape), m_drawDebug(true), localBoundingBox(shape.getAABB()), m_octreeUpdate(true) , m_reinsertQueued(true){
 	OnBoundingBoxChanged();
 }
 
@@ -36,6 +37,10 @@ void ShapeNode::OnBoundingBoxChanged() const {
 	m_worldBoundingBoxDirty = true;
 }
 
+void ShapeNode::OnOctreeUpdate() const {
+	m_octreeUpdate = false;
+}
+
 void ShapeNode::addChild(ShapeNode* node, bool drawDebug) {
 	SceneNodeLC::addChild(node);
 	node->setDrawDebug(drawDebug);
@@ -59,4 +64,8 @@ void ShapeNode::setDrawDebug(bool drawDebug) {
 
 const Shape& ShapeNode::getShape() const {
 	return shape;
+}
+
+Octant* ShapeNode::getOctant() const { 
+	return m_octant; 
 }

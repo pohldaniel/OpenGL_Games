@@ -5,6 +5,8 @@
 #include "../MeshObject/Shape.h"
 #include "../BoundingBox.h"
 
+
+class Octant;
 class ShapeNode : public SceneNodeLC {
 
 public:
@@ -15,6 +17,7 @@ public:
 	void OnTransformChanged() override;
 
 	void OnWorldBoundingBoxUpdate() const;
+	void OnOctreeUpdate() const;
 	void OnBoundingBoxChanged() const;
 	void OnRenderOBB(const Vector4f& color = { 1.0f, 0.0f, 0.0f, 1.0f });
 	void OnRenderAABB(const Vector4f& color = { 0.0f, 1.0f, 0.0f, 1.0f });
@@ -26,6 +29,11 @@ public:
 	const BoundingBox& getLocalBoundingBox() const;	
 	const Shape& getShape() const;
 	void setDrawDebug(bool drawDebug);
+	Octant* getOctant() const;
+
+	Octant* m_octant;
+	mutable bool m_octreeUpdate;
+	mutable bool m_reinsertQueued;
 
 protected:
 

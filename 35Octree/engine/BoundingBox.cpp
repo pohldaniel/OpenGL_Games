@@ -36,8 +36,34 @@ Vector3f BoundingBox::getSize() const {
 	return max - min;
 }
 
-Vector3f BoundingBox::center() const {
+Vector3f BoundingBox::getCenter() const {
 	return (max + min) * 0.5f;
+}
+
+Vector3f BoundingBox::getHalfSize() const { 
+	return (max - min) * 0.5f; 
+}
+
+void BoundingBox::merge(const BoundingBox& box){
+
+	if (min[0] > max[0]){
+		min = box.min;
+		max = box.max;
+		return;
+	}
+
+	if (box.min[0] < min[0])
+		min[0] = box.min[0];
+	if (box.min[1] < min[1])
+		min[1] = box.min[1];
+	if (box.min[2] < min[2])
+		min[2] = box.min[2];
+	if (box.max[0] > max[0])
+		max[0] = box.max[0];
+	if (box.max[1] > max[1])
+		max[1] = box.max[1];
+	if (box.max[2] > max[2])
+		max[2] = box.max[2];
 }
 
 void BoundingBox::merge(const Vector3f* vertices, size_t count) {
@@ -113,7 +139,7 @@ bool BoundingBox::isColliding(const BoundingBox &box) const {
 }
 
 BoundingBox BoundingBox::transformed(const Matrix4f& transform) const {
-	Vector3f oldCenter = center();
+	Vector3f oldCenter = getCenter();
 	Vector3f oldEdge = max - oldCenter;
 	Vector3f newCenter = transform ^ oldCenter;
 	Vector3f newEdge(
@@ -122,6 +148,17 @@ BoundingBox BoundingBox::transformed(const Matrix4f& transform) const {
 		std::fabs(transform[0][2]) * oldEdge[0] + std::fabs(transform[1][2]) * oldEdge[1] + std::fabs(transform[2][2]) * oldEdge[2]
 	);
 	return BoundingBox(newCenter - newEdge, newCenter + newEdge);
+}
+
+Intersection BoundingBox::isInside(const BoundingBox& box) const {
+	if (box.max[0] < min[0] || box.min[0] > max[0] || box.max[1] < min[1] || box.min[1] > max[1] ||
+		box.max[2] < min[2] || box.min[2] > max[2])
+		return OUTSIDE;
+	else if (box.min[0] < min[0] || box.max[0] > max[0] || box.min[1] < min[1] || box.max[1] > max[1] ||
+		box.min[2] < min[2] || box.max[2] > max[2])
+		return INTERSECTS;
+	else
+		return INSIDE;
 }
 
 BoundingBox::~BoundingBox() {

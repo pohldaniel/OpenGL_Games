@@ -3,6 +3,12 @@
 #include <vector>
 #include "Vector.h"
 
+enum Intersection{
+	OUTSIDE = 0,
+	INTERSECTS,
+	INSIDE
+};
+
 struct BoundingBox {
 
 	BoundingBox();
@@ -28,10 +34,14 @@ struct BoundingBox {
 	void maximize(float factor) const;
 	bool isColliding(Vector3f point) const;
 	bool isColliding(const BoundingBox &box) const;
+	Vector3f getCenter() const;
+	Vector3f getHalfSize() const;
+	void merge(const BoundingBox& box);
 
 	void createBuffer();
 	void drawRaw() const;
 	void cleanup();
+	Intersection isInside(const BoundingBox& box) const;
 
 	Vector3f min;
 	Vector3f max;
@@ -42,7 +52,7 @@ private:
 	void merge(const Vector3f* vertices, size_t count);
 	void undefine();
 
-	Vector3f center() const;
+	
 	
 	unsigned int m_vao = 0u;
 	unsigned int m_vbo = 0u;

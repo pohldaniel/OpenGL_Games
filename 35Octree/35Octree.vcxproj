@@ -208,6 +208,9 @@
     <ClCompile Include="src\Animation\AnimationController.cpp" />
     <ClCompile Include="src\Animation\AnimationState.cpp" />
     <ClCompile Include="src\LoadingManager.cpp" />
+    <ClCompile Include="src\Octree\OctreeNew.cpp" />
+    <ClCompile Include="src\Octree\ThreadUtils.cpp" />
+    <ClCompile Include="src\Octree\WorkQueue.cpp" />
     <ClCompile Include="src\States\Controlls.cpp" />
     <ClCompile Include="src\States\Default.cpp" />
     <ClCompile Include="src\States\Settings.cpp" />
@@ -242,7 +245,6 @@
     <ClCompile Include="engine\MeshObject\MeshTorus.cpp" />
     <ClCompile Include="engine\MeshObject\Shape.cpp" />
     <ClCompile Include="engine\ObjModel.cpp" />
-    <ClCompile Include="engine\OctreeNew.cpp" />
     <ClCompile Include="engine\PerlinNoise.cpp" />
     <ClCompile Include="engine\Pixelbuffer.cpp" />
     <ClCompile Include="engine\Quad.cpp" />
@@ -294,7 +296,6 @@
     <ClInclude Include="engine\MeshSequence.h" />
     <ClInclude Include="engine\MousePickerFBO.h" />
     <ClInclude Include="engine\Object.h" />
-    <ClInclude Include="engine\OctreeNew.h" />
     <ClInclude Include="convhull\convhull_3d.h" />
     <ClInclude Include="engine\AssetManger.h" />
     <ClInclude Include="engine\Batchrenderer.h" />
@@ -374,6 +375,10 @@
     <ClInclude Include="src\Application.h" />
     <ClInclude Include="src\Globals.h" />
     <ClInclude Include="src\LoadingManager.h" />
+    <ClInclude Include="src\Octree\AutoPtr.h" />
+    <ClInclude Include="src\Octree\OctreeNew.h" />
+    <ClInclude Include="src\Octree\ThreadUtils.h" />
+    <ClInclude Include="src\Octree\WorkQueue.h" />
     <ClInclude Include="src\States\Controls.h" />
     <ClInclude Include="src\States\Default.h" />
     <ClInclude Include="src\States\Settings.h" />
