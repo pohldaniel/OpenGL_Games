@@ -396,14 +396,20 @@
     <ClCompile Include="engine\Object.cpp">
       <Filter>engine</Filter>
     </ClCompile>
-    <ClCompile Include="src\Octree\OctreeNew.cpp">
-      <Filter>Source Files\Octree</Filter>
-    </ClCompile>
     <ClCompile Include="src\Octree\WorkQueue.cpp">
       <Filter>Source Files\Octree</Filter>
     </ClCompile>
     <ClCompile Include="src\Octree\ThreadUtils.cpp">
       <Filter>Source Files\Octree</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Octree\Octree.cpp">
+      <Filter>Source Files\Octree</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Octree\OctreeNode.cpp">
+      <Filter>Source Files\Octree</Filter>
+    </ClCompile>
+    <ClCompile Include="src\States\OctreeInterface.cpp">
+      <Filter>Source Files\States</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -764,9 +770,6 @@
     <ClInclude Include="engine\scene\INode.h">
       <Filter>engine\scene</Filter>
     </ClInclude>
-    <ClInclude Include="src\Octree\OctreeNew.h">
-      <Filter>Source Files\Octree</Filter>
-    </ClInclude>
     <ClInclude Include="src\Octree\WorkQueue.h">
       <Filter>Source Files\Octree</Filter>
     </ClInclude>
@@ -775,6 +778,15 @@
     </ClInclude>
     <ClInclude Include="src\Octree\AutoPtr.h">
       <Filter>Source Files\Octree</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Octree\Octree.h">
+      <Filter>Source Files\Octree</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Octree\OctreeNode.h">
+      <Filter>Source Files\Octree</Filter>
+    </ClInclude>
+    <ClInclude Include="src\States\OctreeInterface.h">
+      <Filter>Source Files\States</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

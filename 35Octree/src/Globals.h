@@ -43,5 +43,5 @@ namespace Globals {
 	extern const unsigned int lightBinding;
 
 	extern float soundVolume;
-	extern float musicVolume;	
+	extern float musicVolume;
 }

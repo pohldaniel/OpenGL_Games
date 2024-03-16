@@ -5,36 +5,39 @@
 #include <functional>
 #include <engine/thread/CThread.h>
 
-struct Task {
-	Task();
-	virtual ~Task();
-	virtual void Complete() = 0;
-	virtual void Process() = 0;
-
-	bool m_finished = false;
-};
-
-template<class T> struct MemberFunctionTask : public Task {
-	typedef void (T::* MemberWorkFunctionPtr)();
-
-	MemberFunctionTask(T* object_, MemberWorkFunctionPtr OnProcess_, MemberWorkFunctionPtr OnComplete_) : object(object_), OnProcess(OnProcess_), OnComplete(OnComplete_) {
-	}
-
-	void Process() override {
-		(object->*OnProcess)();
-	}
-	
-	void Complete() override {
-		std::invoke(OnComplete, *object);
-	}
-
-	T* object;
-	MemberWorkFunctionPtr OnProcess = nullptr;
-	MemberWorkFunctionPtr OnComplete = nullptr;
-	
-};
-
 class LoadingManager : public CThread {
+
+	friend class LoadingManagerSerialized;
+	friend class LoadingManagerSplitted;
+
+	struct Task {
+		Task();
+		virtual ~Task();
+		virtual void Complete() = 0;
+		virtual void Process() = 0;
+
+		bool m_finished = false;
+	};
+
+	template<class T> struct MemberFunctionTask : public Task {
+		typedef void (T::* MemberWorkFunctionPtr)();
+
+		MemberFunctionTask(T* object_, MemberWorkFunctionPtr OnProcess_, MemberWorkFunctionPtr OnComplete_) : object(object_), OnProcess(OnProcess_), OnComplete(OnComplete_) {
+		}
+
+		void Process() override {
+			(object->*OnProcess)();
+		}
+
+		void Complete() override {
+			std::invoke(OnComplete, *object);
+		}
+
+		T* object;
+		MemberWorkFunctionPtr OnProcess = nullptr;
+		MemberWorkFunctionPtr OnComplete = nullptr;
+
+	};
 
 public:
 

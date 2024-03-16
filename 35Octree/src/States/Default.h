@@ -28,7 +28,7 @@ public:
 private:
 
 	void renderUi();
-	
+
 	bool m_initUi = true;
 	bool m_drawUi = true;
 

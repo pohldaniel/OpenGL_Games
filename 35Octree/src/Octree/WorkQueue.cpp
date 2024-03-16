@@ -4,14 +4,13 @@
 #include "WorkQueue.h"
 
 WorkQueue* WorkQueue::Instance = nullptr;
-
 thread_local unsigned WorkQueue::threadIndex = 0;
 
-TaskOct::TaskOct(){
+Task::Task(){
     numDependencies.store(0);
 }
 
-TaskOct::~TaskOct(){
+Task::~Task(){
 }
 
 WorkQueue::WorkQueue(unsigned numThreads) : shouldExit(false){
@@ -43,10 +42,8 @@ WorkQueue::~WorkQueue()
         it->join();
 }
 
-void WorkQueue::QueueTask(TaskOct* task)
+void WorkQueue::QueueTask(Task* task)
 {
-   
-
     if (threads.size())
     {
         {
@@ -66,12 +63,10 @@ void WorkQueue::QueueTask(TaskOct* task)
     }
 }
 
-void WorkQueue::QueueTasks(size_t count, TaskOct** tasks_)
+void WorkQueue::QueueTasks(size_t count, Task** tasks_)
 {
     if (threads.size())
     {
-       
-
         {
             std::lock_guard<std::mutex> lock(queueMutex);
             for (size_t i = 0; i < count; ++i)
@@ -101,8 +96,8 @@ void WorkQueue::QueueTasks(size_t count, TaskOct** tasks_)
     }
 }
 
-void WorkQueue::AddDependency(TaskOct* task, TaskOct* dependency){
-
+void WorkQueue::AddDependency(Task* task, Task* dependency)
+{
     dependency->dependentTasks.push_back(task);
 
     // If this is the first dependency added, increment the global pending task counter so we know to wait for the dependent task in Complete().
@@ -110,8 +105,9 @@ void WorkQueue::AddDependency(TaskOct* task, TaskOct* dependency){
         numPendingTasks.fetch_add(1);
 }
 
-void WorkQueue::Complete(){
-
+void WorkQueue::Complete()
+{
+    
     if (!threads.size())
         return;
 
@@ -125,7 +121,7 @@ void WorkQueue::Complete(){
             continue;
 
         // Otherwise if have still tasks, execute them in the main thread
-		TaskOct* task;
+        Task* task;
 
         {
             std::lock_guard<std::mutex> lock(queueMutex);
@@ -146,7 +142,7 @@ bool WorkQueue::TryComplete()
     if (!threads.size() || !numPendingTasks.load() || !numQueuedTasks.load())
         return false;
 
-	TaskOct* task;
+    Task* task;
 
     {
         std::lock_guard<std::mutex> lock(queueMutex);
@@ -169,7 +165,7 @@ void WorkQueue::WorkerLoop(unsigned threadIndex_)
 
     for (;;)
     {
-		TaskOct* task;
+        Task* task;
 
         {
             std::unique_lock<std::mutex> lock(queueMutex);
@@ -190,7 +186,7 @@ void WorkQueue::WorkerLoop(unsigned threadIndex_)
     }
 }
 
-void WorkQueue::CompleteTask(TaskOct* task, unsigned threadIndex_)
+void WorkQueue::CompleteTask(Task* task, unsigned threadIndex_)
 {
     task->Complete(threadIndex_);
 
@@ -199,7 +195,7 @@ void WorkQueue::CompleteTask(TaskOct* task, unsigned threadIndex_)
         // Queue dependent tasks now if no more dependencies left
         for (auto it = task->dependentTasks.begin(); it != task->dependentTasks.end(); ++it)
         {
-			TaskOct* dependentTask = *it;
+            Task* dependentTask = *it;
 
             if (dependentTask->numDependencies.fetch_add(-1) == 1)
             {

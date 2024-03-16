@@ -9,26 +9,26 @@
 #include <thread>
 
 /// %Task for execution by worker threads.
-struct TaskOct
+struct Task
 {
     /// Default-construct.
-	TaskOct();
+    Task();
     /// Destruct.
-    virtual ~TaskOct();
+    virtual ~Task();
 
     /// Call the work function. Thread index 0 is the main thread.
     virtual void Complete(unsigned threadIndex) = 0;
 
     /// Dependent tasks.
-    std::vector<TaskOct*> dependentTasks;
+    std::vector<Task*> dependentTasks;
     /// Dependency counter. Once zero, this task will be automatically queue itself.
     std::atomic<int> numDependencies;
 };
 
 /// Free function task.
-struct FunctionTask : public TaskOct
+struct FunctionTask : public Task
 {
-    typedef void (*WorkFunctionPtr)(TaskOct*, unsigned);
+    typedef void (*WorkFunctionPtr)(Task*, unsigned);
 
     /// Construct.
     FunctionTask(WorkFunctionPtr function_) :
@@ -47,9 +47,9 @@ struct FunctionTask : public TaskOct
 };
 
 /// Member function task.
-template<class T> struct MemberFunctionTask : public TaskOct
+template<class T> struct MemberFunctionTask : public Task
 {
-    typedef void (T::* MemberWorkFunctionPtr)(TaskOct*, unsigned);
+    typedef void (T::* MemberWorkFunctionPtr)(Task*, unsigned);
 
     /// Construct.
     MemberFunctionTask(T* object_, MemberWorkFunctionPtr function_) :
@@ -71,8 +71,7 @@ template<class T> struct MemberFunctionTask : public TaskOct
 };
 
 /// Worker thread subsystem for dividing tasks between CPU cores.
-class WorkQueue {
-
+class WorkQueue{
 
 public:
     /// Create with specified amount of threads including the main thread. 1 to use just the main thread. 0 to guess a suitable amount of threads from CPU core count.
@@ -81,11 +80,11 @@ public:
     ~WorkQueue();
 
     /// Queue a task for execution. If no threads, completes immediately in the main thread.
-    void QueueTask(TaskOct* task);
+    void QueueTask(Task* task);
     /// Queue several tasks execution. If no threads, completes immediately in the main thread.
-    void QueueTasks(size_t count, TaskOct** tasks);
+    void QueueTasks(size_t count, Task** tasks);
     /// Add a dependency to a task. These tasks should not be queued via QueueTask(), they will instead queue themselves when the dependencies have finished.
-    void AddDependency(TaskOct* task, TaskOct* dependency);
+    void AddDependency(Task* task, Task* dependency);
     /// Complete all currently queued tasks and tasks with dependencies. To be called only from the main thread. Ensure that all dependencies either have been queued or will be queued by other tasks, otherwise this function never returns.
     void Complete();
     /// Execute a task from the queue if available, then return. To be called only from the main thread. Return true if a task was executed.
@@ -97,13 +96,14 @@ public:
     /// Return thread index when outside of a work function.
     static unsigned ThreadIndex() { return threadIndex; }
 
-	static WorkQueue* Get();
 	static void Init(unsigned numThreads);
+	static WorkQueue* Get();
+
 private:
     /// Worker thread function.
     void WorkerLoop(unsigned threadIndex);
     /// Complete a task by calling its work function and signal dependents.
-    void CompleteTask(TaskOct*, unsigned threadIndex);
+    void CompleteTask(Task*, unsigned threadIndex);
 
     /// Mutex for the work queue.
     std::mutex queueMutex;
@@ -112,7 +112,7 @@ private:
     /// Exit flag.
     volatile bool shouldExit;
     /// Task queue.
-    std::queue<TaskOct*> tasks;
+    std::queue<Task*> tasks;
     /// Worker threads.
     std::vector<std::thread> threads;
     /// Amount of tasks in queue.

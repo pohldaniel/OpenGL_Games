@@ -23,27 +23,29 @@ void StateMachine::update() {
 			m_states.pop();
 			ImGui::GetIO().WantCaptureMouse = false;
 		}
-	}else {		
+	}
+	else {
 		m_isRunning = false;
 	}
 }
 
 void StateMachine::render() {
-	
-	if (!m_states.empty()) {	
+
+	if (!m_states.empty()) {
 		glPolygonMode(GL_FRONT_AND_BACK, EnableWireframe ? GL_LINE : GL_FILL);
 		m_states.top()->render();
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);		
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
 }
 
 
 void StateMachine::resizeState(int deltaW, int deltaH, States state) {
 	if (m_states.empty()) return;
-	
+
 	if (m_states.top()->getCurrentState() == state) {
 		m_states.top()->resize(deltaW, deltaH);
-	}else {
+	}
+	else {
 		State* temp = m_states.top();
 		m_states.pop();
 		resizeState(deltaW, deltaH, state);
@@ -55,7 +57,7 @@ void StateMachine::ToggleWireframe() {
 	EnableWireframe = !EnableWireframe;
 }
 
-bool& StateMachine::GetEnableWireframe(){
+bool& StateMachine::GetEnableWireframe() {
 	return EnableWireframe;
 }
 

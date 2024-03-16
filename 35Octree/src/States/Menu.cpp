@@ -24,7 +24,7 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 		{ "character",	  Button() },
 		{ "basic",	  Button() },
 		{ "interleaved",	  Button() }
-	});
+		});
 
 	m_buttons.at("basic").setCharset(Globals::fontManager.get("upheaval_50"));
 	m_buttons.at("basic").setPosition(50.0f, 450.0f);
@@ -52,7 +52,7 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new Default(m_machine));
 	});
-	
+
 	m_buttons.at("character").setCharset(Globals::fontManager.get("upheaval_50"));
 	m_buttons.at("character").setPosition(50.0f, 150.0f);
 	m_buttons.at("character").setOutlineThickness(5.0f);
@@ -86,7 +86,7 @@ void Menu::update() {}
 void Menu::render() {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-	
+
 	m_headline.draw();
 
 	for (auto&& b : m_buttons)
@@ -96,12 +96,12 @@ void Menu::render() {
 
 void Menu::OnMouseMotion(Event::MouseMoveEvent& event) {
 	for (auto&& b : m_buttons)
-	  b.second.processInput(event.x, Application::Height - event.y);
+		b.second.processInput(event.x, Application::Height - event.y);
 }
 
 void Menu::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 	for (auto&& b : m_buttons)
-	  b.second.processInput(event.x, Application::Height - event.y, event.button);
+		b.second.processInput(event.x, Application::Height - event.y, event.button);
 }
 
 void Menu::OnKeyDown(Event::KeyboardEvent& event) {

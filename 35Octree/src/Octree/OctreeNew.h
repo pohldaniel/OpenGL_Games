@@ -10,6 +10,15 @@
 
 static const size_t NUM_OCTANTS = 8;
 
+enum OctantVisibility
+{
+	VIS_OUTSIDE_FRUSTUM = 0,
+	VIS_OCCLUDED,
+	VIS_OCCLUDED_UNKNOWN,
+	VIS_VISIBLE_UNKNOWN,
+	VIS_VISIBLE
+};
+
 class Octant{
 
 	friend class Octree;
@@ -27,6 +36,13 @@ public:
 	void markCullingBoxDirty();
 	bool FitBoundingBox(const BoundingBox& box, const Vector3f& boxSize) const;
 	unsigned char ChildIndex(const Vector3f& position) const;
+	OctantVisibility Visibility() const;
+	void PushVisibilityToChildren(Octant* octant, OctantVisibility newVisibility);
+	void SetVisibility(OctantVisibility newVisibility, bool pushToChildren = false);
+	const std::vector<ShapeNode*>& getDrawables() const;
+
+	bool hasChildren() const;
+	Octant* getChild(size_t index) const;
 
 private:
 
@@ -37,6 +53,7 @@ private:
 	Vector3f halfSize;
 	Octant* children[NUM_OCTANTS];
 	Octant* parent;
+	OctantVisibility visibility;
 
 	unsigned char numChildren;
 	unsigned char level;
@@ -82,6 +99,8 @@ public:
 	void SetThreadedUpdate(bool enable);
 	bool GetThreadedUpdate() const;
 	void CheckReinsertWork(TaskOct* task, unsigned threadIndex);
+
+	Octant* getRoot() const;
 
 	volatile bool m_threadedUpdate;
 	unsigned short m_frameNumber;

@@ -7,7 +7,7 @@ enum States {
 	SETTINGS,
 	CONTROLLS,
 	DEFAULT,
-	GAME
+	OCTREEINTERFACE
 };
 
 class State;
@@ -23,7 +23,7 @@ public:
 	void update();
 	void render();
 	void resizeState(int deltaW, int deltaH, States state);
-	
+
 	const float& m_fdt;
 	const float& m_dt;
 
@@ -37,7 +37,7 @@ private:
 	unsigned int m_rbDepthStencil;
 
 	static bool EnableWireframe;
-	
+
 };
 
 class State : public IState<State> {
@@ -54,6 +54,6 @@ protected:
 	StateMachine& m_machine;
 	const float& m_fdt;
 	const float& m_dt;
-	
+
 	States m_currentState;
 };

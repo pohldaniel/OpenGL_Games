@@ -47,13 +47,13 @@ private:
 
 	void processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 	bool m_mouseTracking = false;
-	
+
 	static void Resize(int deltaW, int deltaH);
 	static StateMachine* Machine;
 	static EventDispatcher& EventDispatcher;
 
 	static HWND Window;
-	static bool InitWindow;	
+	static bool InitWindow;
 	static bool Init;
 	static DWORD SavedExStyle;
 	static DWORD SavedStyle;

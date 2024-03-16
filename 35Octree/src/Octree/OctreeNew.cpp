@@ -103,9 +103,42 @@ bool Octant::FitBoundingBox(const BoundingBox& box, const Vector3f& boxSize) con
 	return false;
 }
 
+OctantVisibility Octant::Visibility() const { 
+	return (OctantVisibility)visibility; 
+}
+
+void Octant::PushVisibilityToChildren(Octant* octant, OctantVisibility newVisibility){
+	for (size_t i = 0; i < NUM_OCTANTS; ++i){
+		if (octant->children[i]){
+			octant->children[i]->visibility = newVisibility;
+			if (octant->children[i]->numChildren)
+				PushVisibilityToChildren(octant->children[i], newVisibility);
+		}
+	}
+}
+
+void Octant::SetVisibility(OctantVisibility newVisibility, bool pushToChildren){
+	visibility = newVisibility;
+
+	if (pushToChildren)
+		PushVisibilityToChildren(this, newVisibility);
+}
+
 unsigned char Octant::ChildIndex(const Vector3f& position) const {
 	unsigned char ret = position[0] < center[0] ? 0 : 1; ret += position[1] < center[1] ? 0 : 2; ret += position[2] < center[2] ? 0 : 4;
 	return ret;
+}
+
+const std::vector<ShapeNode*>& Octant::getDrawables() const { 
+	return drawables; 
+}
+
+bool Octant::hasChildren() const { 
+	return numChildren > 0; 
+}
+
+Octant*  Octant::getChild(size_t index) const {
+	return children[index]; 
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -416,4 +449,8 @@ void Octree::SetThreadedUpdate(bool enable) {
 
 bool  Octree::GetThreadedUpdate() const { 
 	return m_threadedUpdate; 
+}
+
+Octant* Octree::getRoot() const { 
+	return const_cast<Octant*>(&root); 
 }

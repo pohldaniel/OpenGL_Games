@@ -8,8 +8,6 @@
 #include "Application.h"
 #include "Globals.h"
 
-#include "Octree/WorkQueue.h"
-
 Default::Default(StateMachine& machine) : State(machine, States::DEFAULT) {
 
 	Application::SetCursorIcon(IDC_ARROW);
@@ -33,8 +31,6 @@ Default::Default(StateMachine& machine) : State(machine, States::DEFAULT) {
 		{ &Globals::textureManager.get("forest_4"), 1, 4.0f },
 		{ &Globals::textureManager.get("forest_5"), 1, 5.0f }});
 	m_background.setSpeed(0.005f);
-
-	WorkQueue::Init(0);
 
 }
 

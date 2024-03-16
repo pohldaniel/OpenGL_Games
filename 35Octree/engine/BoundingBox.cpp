@@ -150,7 +150,7 @@ BoundingBox BoundingBox::transformed(const Matrix4f& transform) const {
 	return BoundingBox(newCenter - newEdge, newCenter + newEdge);
 }
 
-Intersection BoundingBox::isInside(const BoundingBox& box) const {
+BoundingBox::Intersection BoundingBox::isInside(const BoundingBox& box) const {
 	if (box.max[0] < min[0] || box.min[0] > max[0] || box.max[1] < min[1] || box.min[1] > max[1] ||
 		box.max[2] < min[2] || box.min[2] > max[2])
 		return OUTSIDE;

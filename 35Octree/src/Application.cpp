@@ -1,4 +1,5 @@
 #include <iostream>
+#include <time.h>
 #include <GL/glew.h>
 #include <GL/wglew.h>
 #include <imgui.h>
@@ -12,6 +13,7 @@
 #include <engine/DebugRenderer.h>
 #include <engine/Sprite.h>
 
+#include <States/OctreeInterface.h>
 #include <States/Default.h>
 #include <States/Menu.h>
 
@@ -90,7 +92,6 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 
 	initStates();
 }
-
 Application::~Application() {
 	Fontrenderer::Get().shutdown();
 
@@ -109,7 +110,7 @@ Application::~Application() {
 }
 
 void Application::createWindow() {
-
+	
 	WNDCLASSEX windowClass;
 	windowClass.cbSize = sizeof(WNDCLASSEX);
 	windowClass.style = CS_HREDRAW | CS_VREDRAW;
@@ -142,6 +143,7 @@ void Application::createWindow() {
 
 	if (!Window)
 		return;
+
 }
 
 void Application::showWindow() {
@@ -163,14 +165,14 @@ LRESULT CALLBACK Application::StaticWndProc(HWND hWnd, UINT message, WPARAM wPar
 	Application* application = nullptr;
 
 	switch (message) {
-		case WM_CREATE: {
-			application = static_cast<Application*>(reinterpret_cast<CREATESTRUCT*>(lParam)->lpCreateParams);
-			SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(application));
-			break;
-		}default: {
-			application = reinterpret_cast<Application*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
-			break;
-		}
+	case WM_CREATE: {
+		application = static_cast<Application*>(reinterpret_cast<CREATESTRUCT*>(lParam)->lpCreateParams);
+		SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(application));
+		break;
+	}default: {
+		application = reinterpret_cast<Application*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+		break;
+	}
 	}
 
 	if (wParam == SC_KEYMENU && (lParam >> 16) <= 0) {
@@ -369,7 +371,9 @@ void Application::ToggleVerticalSync() {
 
 	// WGL_EXT_swap_control.
 	typedef BOOL(WINAPI * PFNWGLSWAPINTERVALEXTPROC)(GLint);
-	static PFNWGLSWAPINTERVALEXTPROC wglSwapIntervalEXT = reinterpret_cast<PFNWGLSWAPINTERVALEXTPROC>(wglGetProcAddress("wglSwapIntervalEXT"));
+	static PFNWGLSWAPINTERVALEXTPROC wglSwapIntervalEXT =
+		reinterpret_cast<PFNWGLSWAPINTERVALEXTPROC>(
+			wglGetProcAddress("wglSwapIntervalEXT"));
 
 	if (wglSwapIntervalEXT) {
 		wglSwapIntervalEXT(VerticalSync);
@@ -407,9 +411,10 @@ void Application::fixedUpdate() {
 	Machine->fixedUpdate();
 }
 
-void Application::initStates() {
+void Application::initStates() {	
 	Machine = new StateMachine(m_dt, m_fdt);
-	Machine->addStateAtTop(new Default(*Machine));
+	Machine->addStateAtTop(new OctreeInterface(*Machine));
+	//Machine->addStateAtTop(new Default(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -539,25 +544,25 @@ void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 	}case WM_SYSKEYDOWN: {
 
 		switch (wParam) {
-			case VK_MENU: {
-				Event event;
-				event.type = Event::KEYDOWN;
-				event.data.keyboard.keyCode = VK_LMENU;
-				EventDispatcher.pushEvent(event);
-				break;
-			}
+		case VK_MENU: {
+			Event event;
+			event.type = Event::KEYDOWN;
+			event.data.keyboard.keyCode = VK_LMENU;
+			EventDispatcher.pushEvent(event);
+			break;
+		}
 		}
 		break;
 	}case WM_SYSKEYUP: {
 
 		switch (wParam) {
-			case VK_MENU: {
-				Event event;
-				event.type = Event::KEYUP;
-				event.data.keyboard.keyCode = VK_LMENU;
-				EventDispatcher.pushEvent(event);
-				break;
-			}
+		case VK_MENU: {
+			Event event;
+			event.type = Event::KEYUP;
+			event.data.keyboard.keyCode = VK_LMENU;
+			EventDispatcher.pushEvent(event);
+			break;
+		}
 		}
 		break;
 	}case WM_MOUSEWHEEL: {
@@ -652,15 +657,22 @@ void  Application::SetCursorIcon(HCURSOR cursor) {
 }
 
 void Application::loadAssets() {
-
+	Globals::shaderManager.loadShader("texture", "res/shader/texture.vert", "res/shader/texture.frag");	
 	Globals::shaderManager.loadShader("font", "res/shader/batch.vert", "res/shader/font.frag");
 	Globals::shaderManager.loadShader("batch", "res/shader/batch.vert", "res/shader/batch.frag");
-	Globals::shaderManager.loadShader("quad", "res/shader/quad.vert", "res/shader/quad.frag");
-	Globals::shaderManager.loadShader("texture", "res/shader/texture.vert", "res/shader/texture.frag");
+
+	Globals::fontManager.loadCharacterSet("upheaval_200", "res/fonts/upheavtt.ttf", 200, 0, 30, 128, 0, true, 0u);
+	Globals::fontManager.loadCharacterSet("upheaval_50", "res/fonts/upheavtt.ttf", 50, 0, 3, 0, 0, true, 0u);
 
 	Globals::textureManager.loadTexture("forest_1", "res/backgrounds/Forest/plx-1.png");
 	Globals::textureManager.loadTexture("forest_2", "res/backgrounds/Forest/plx-2.png");
 	Globals::textureManager.loadTexture("forest_3", "res/backgrounds/Forest/plx-3.png");
 	Globals::textureManager.loadTexture("forest_4", "res/backgrounds/Forest/plx-4.png");
 	Globals::textureManager.loadTexture("forest_5", "res/backgrounds/Forest/plx-5.png");
+	Globals::textureManager.createNullTexture("null");
+	Globals::textureManager.loadTexture("marble", "res/textures/marble.png", true);
+
+	Globals::shapeManager.buildSphere("sphere", 0.5f, Vector3f(0.0f, 0.0f, 0.0f), 16, 16, true, true, false);
+	Globals::shapeManager.buildCube("cube", Vector3f(-1.0f, -1.0f, -1.0f), Vector3f(2.0f, 2.0f, 2.0f), 1, 1, true, true, false);
+	Globals::shapeManager.get("cube").createBoundingBox();
 }

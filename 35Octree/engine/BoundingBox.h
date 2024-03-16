@@ -3,13 +3,13 @@
 #include <vector>
 #include "Vector.h"
 
-enum Intersection{
-	OUTSIDE = 0,
-	INTERSECTS,
-	INSIDE
-};
-
 struct BoundingBox {
+
+	enum Intersection {
+		OUTSIDE = 0,
+		INTERSECTS,
+		INSIDE
+	};
 
 	BoundingBox();
 	BoundingBox(BoundingBox const& rhs);

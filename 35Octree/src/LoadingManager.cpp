@@ -1,10 +1,10 @@
 #include "Loadingmanager.h"
 
-Task::Task(){
+LoadingManager::Task::Task(){
 
 }
 
-Task::~Task(){
+LoadingManager::Task::~Task(){
 }
 
 LoadingManager::LoadingManager() : m_finished(false), m_accessMutex(), m_started(false){
@@ -60,7 +60,7 @@ bool LoadingManagerSerialized::OnTask() {
 void LoadingManagerSerialized::completeCurTask() {
 	if (m_queue.size() > 0) {
 		m_accessMutex.Lock();
-		Task *curEntry = m_queue.front();
+		LoadingManager::Task *curEntry = m_queue.front();
 		m_tasks.front()->m_finished = true;
 		m_accessMutex.Unlock();
 
@@ -118,7 +118,7 @@ bool LoadingManagerSplitted::OnTask() {
 void LoadingManagerSplitted::completeCurTask() {
 	if (m_queue.size() > 0) {
 		m_accessMutex.Lock();
-		Task *curEntry = m_queue.front();
+		LoadingManager::Task *curEntry = m_queue.front();
 		m_accessMutex.Unlock();
 
 		m_tasks.clear();
