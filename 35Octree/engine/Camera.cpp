@@ -1,4 +1,4 @@
-#include <cmath>
+﻿#include <cmath>
 #include <iostream>
 
 #include "Camera.h"
@@ -10,6 +10,7 @@ Camera::Camera(){
 	WORLD_ZAXIS = Vector3f(0.0f, 0.0f, 1.0f);
 
 	m_accumPitchDegrees = 0.0f;
+	m_accumYawDegrees = 0.0f;
 	m_rotationSpeed = 1.0f;
 	m_movingSpeed = 1.0f;
 	m_offsetDistance = 0.0f;
@@ -36,6 +37,7 @@ Camera::Camera(Camera const& rhs) {
 	WORLD_ZAXIS = rhs.WORLD_ZAXIS;
 
 	m_accumPitchDegrees = rhs.m_accumPitchDegrees;
+	m_accumYawDegrees = rhs.m_accumYawDegrees;
 	m_rotationSpeed = rhs.m_rotationSpeed;
 	m_movingSpeed = rhs.m_movingSpeed;
 	m_offsetDistance = rhs.m_offsetDistance;
@@ -62,6 +64,7 @@ Camera::Camera(Camera&& rhs) {
 	WORLD_ZAXIS = rhs.WORLD_ZAXIS;
 
 	m_accumPitchDegrees = rhs.m_accumPitchDegrees;
+	m_accumYawDegrees = rhs.m_accumYawDegrees;
 	m_rotationSpeed = rhs.m_rotationSpeed;
 	m_movingSpeed = rhs.m_movingSpeed;
 	m_offsetDistance = rhs.m_offsetDistance;
@@ -88,6 +91,7 @@ Camera& Camera::operator=(const Camera& rhs) {
 	WORLD_ZAXIS = rhs.WORLD_ZAXIS;
 
 	m_accumPitchDegrees = rhs.m_accumPitchDegrees;
+	m_accumYawDegrees = rhs.m_accumYawDegrees;
 	m_rotationSpeed = rhs.m_rotationSpeed;
 	m_movingSpeed = rhs.m_movingSpeed;
 	m_offsetDistance = rhs.m_offsetDistance;
@@ -116,6 +120,7 @@ Camera::Camera(const Vector3f &eye, const Vector3f &target, const Vector3f &up) 
 	WORLD_ZAXIS = Vector3f(0.0f, 0.0f, 1.0f);
 
 	m_accumPitchDegrees = 0.0f;
+	m_accumYawDegrees = 0.0f;
 	m_rotationSpeed = 0.1f;
 	m_movingSpeed = 1.0f;
 	m_offsetDistance = 0.0f;
@@ -317,6 +322,8 @@ void Camera::lookAt(const Vector3f &eye, const Vector3f &target, const Vector3f 
 
 	// Extract the pitch angle from the view matrix.
 	m_accumPitchDegrees = -asinf(m_viewMatrix[2][1]) * _180_ON_PI;
+	//m_accumPitchDegrees = atan2f(m_zAxis[1], sqrtf(m_zAxis[0] * m_zAxis[0] + m_zAxis[2] * m_zAxis[2])) * _180_ON_PI;
+	m_accumYawDegrees = atan2f(m_zAxis[2], m_zAxis[0]) * _180_ON_PI - 90.0f;
 
 	m_invViewMatrix[0][0] = m_xAxis[0];
 	m_invViewMatrix[0][1] = m_xAxis[1];
@@ -385,6 +392,10 @@ void Camera::lookAt(const Vector3f& pos, float pitch, float yaw) {
 	m_viewMatrix[3][2] = -Vector3f::Dot(m_zAxis, m_eye);
 	m_viewMatrix[3][3] = 1.0f;
 
+	//m_accumPitchDegrees = -asinf(m_viewMatrix[2][1]) * _180_ON_PI;
+	//m_accumPitchDegrees = atan2f(m_zAxis[1], sqrtf(m_zAxis[0] * m_zAxis[0] + m_zAxis[2] * m_zAxis[2])) * _180_ON_PI;
+	m_accumYawDegrees = atan2f(m_zAxis[2], m_zAxis[0]) * _180_ON_PI - 90.0f;
+
 	m_invViewMatrix[0][0] = m_xAxis[0];
 	m_invViewMatrix[0][1] = m_xAxis[1];
 	m_invViewMatrix[0][2] = m_xAxis[2];
@@ -447,6 +458,8 @@ void Camera::lookAt(const Vector3f &pos, float pitch, float yaw, float roll) {
 	m_viewMatrix[3][1] = -Vector3f::Dot(m_yAxis, m_eye);
 	m_viewMatrix[3][2] = -Vector3f::Dot(m_zAxis, m_eye);
 	m_viewMatrix[3][3] = 1.0f;
+
+	m_accumYawDegrees = atan2f(m_zAxis[2], m_zAxis[0]) * _180_ON_PI - 90.0f;
 
 	m_invViewMatrix[0][0] = m_xAxis[0];
 	m_invViewMatrix[0][1] = m_xAxis[1];
@@ -512,6 +525,8 @@ void Camera::lookAt(const Vector3f &pos, const Vector3f &target, float pitch, fl
 	m_viewMatrix[3][1] = -Vector3f::Dot(m_yAxis, m_eye);
 	m_viewMatrix[3][2] = -Vector3f::Dot(m_zAxis, m_eye);
 	m_viewMatrix[3][3] = 1.0f;
+
+	m_accumYawDegrees = atan2f(m_zAxis[2], m_zAxis[0]) * _180_ON_PI - 90.0f;
 
 	m_invViewMatrix[0][0] = m_xAxis[0];
 	m_invViewMatrix[0][1] = m_xAxis[1];
@@ -618,6 +633,7 @@ void Camera::rotate(float yaw, float pitch, const Vector3f &target) {
 void Camera::rotateFirstPerson(float yaw, float pitch){
 
 	m_accumPitchDegrees += pitch;
+	m_accumYawDegrees += yaw;
 	
 	if (m_accumPitchDegrees > 90.0f){
 		pitch = 90.0f - (m_accumPitchDegrees - pitch);
@@ -655,11 +671,11 @@ const float Camera::getNear() const {
 }
 
 const float Camera::getFovXDeg() const {
-	return 2 * atanf(1.0f / m_persMatrix[1][1]) * _180_ON_PI;
+	return 2.0f * atanf(1.0f / m_persMatrix[1][1]) * _180_ON_PI;
 }
 
 const float Camera::getFovXRad() const {
-	return 2 * atanf(1.0f / m_persMatrix[1][1]);
+	return 2.0f * atanf(1.0f / m_persMatrix[1][1]);
 }
 
 const float Camera::getAspect() const {
@@ -690,8 +706,18 @@ const float Camera::getFarOrthographic() const {
 	return -(1.0f / m_orthMatrix[2][2]) * (1.0f + m_orthMatrix[3][2]);
 }
 
+const float Camera::getPitchDegrees() const {
+	return m_accumPitchDegrees;
+	//return -asinf(m_viewMatrix[2][1]) * _180_ON_PI;
+}
+
+const float Camera::getYawDegrees() const {
+	return m_accumPitchDegrees;
+	//return atan2f(m_zAxis[2], m_zAxis[0]) * _180_ON_PI - 90.0f;
+}
+
 const float Camera::getOffsetDistance() const {
-	return m_offsetDistance;
+	return m_accumYawDegrees;
 }
 
 void Camera::calcLightTransformation(Vector3f &direction) {

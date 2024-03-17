@@ -411,6 +411,9 @@
     <ClCompile Include="src\States\OctreeInterface.cpp">
       <Filter>Source Files\States</Filter>
     </ClCompile>
+    <ClCompile Include="src\States\RayMarch.cpp">
+      <Filter>Source Files\States</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="convhull\convhull_3d.h">
@@ -786,6 +789,9 @@
       <Filter>Source Files\Octree</Filter>
     </ClInclude>
     <ClInclude Include="src\States\OctreeInterface.h">
+      <Filter>Source Files\States</Filter>
+    </ClInclude>
+    <ClInclude Include="src\States\RayMarch.h">
       <Filter>Source Files\States</Filter>
     </ClInclude>
   </ItemGroup>

@@ -55,6 +55,8 @@ public:
 	const float getTopOrthographic() const;
 	const float getNearOrthographic() const;
 	const float getFarOrthographic() const;
+	const float getPitchDegrees() const;
+	const float getYawDegrees() const;
 
 	const Matrix4f& getViewMatrix() const;
 	const Matrix4f& getInvViewMatrix() const;
@@ -119,6 +121,7 @@ protected:
 	Vector3f WORLD_ZAXIS;
 
 	float			m_accumPitchDegrees;
+	float			m_accumYawDegrees;
 	float			m_rotationSpeed;
 	float			m_movingSpeed;
 	float			m_offsetDistance;

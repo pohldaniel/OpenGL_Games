@@ -16,6 +16,7 @@
 #include <States/OctreeInterface.h>
 #include <States/Default.h>
 #include <States/Menu.h>
+#include <States/RayMarch.h>
 
 #include "Application.h"
 #include "Globals.h"
@@ -413,8 +414,9 @@ void Application::fixedUpdate() {
 
 void Application::initStates() {	
 	Machine = new StateMachine(m_dt, m_fdt);
-	Machine->addStateAtTop(new OctreeInterface(*Machine));
+	//Machine->addStateAtTop(new OctreeInterface(*Machine));
 	//Machine->addStateAtTop(new Default(*Machine));
+	Machine->addStateAtTop(new RayMarch(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -657,9 +659,11 @@ void  Application::SetCursorIcon(HCURSOR cursor) {
 }
 
 void Application::loadAssets() {
+
 	Globals::shaderManager.loadShader("texture", "res/shader/texture.vert", "res/shader/texture.frag");	
 	Globals::shaderManager.loadShader("font", "res/shader/batch.vert", "res/shader/font.frag");
 	Globals::shaderManager.loadShader("batch", "res/shader/batch.vert", "res/shader/batch.frag");
+	Globals::shaderManager.loadShader("ray_march", "res/shader/ray_march.vert", "res/shader/ray_march.frag");
 
 	Globals::fontManager.loadCharacterSet("upheaval_200", "res/fonts/upheavtt.ttf", 200, 0, 30, 128, 0, true, 0u);
 	Globals::fontManager.loadCharacterSet("upheaval_50", "res/fonts/upheavtt.ttf", 50, 0, 3, 0, 0, true, 0u);
@@ -675,4 +679,5 @@ void Application::loadAssets() {
 	Globals::shapeManager.buildSphere("sphere", 0.5f, Vector3f(0.0f, 0.0f, 0.0f), 16, 16, true, true, false);
 	Globals::shapeManager.buildCube("cube", Vector3f(-1.0f, -1.0f, -1.0f), Vector3f(2.0f, 2.0f, 2.0f), 1, 1, true, true, false);
 	Globals::shapeManager.get("cube").createBoundingBox();
+	Globals::shapeManager.buildQuadXY("quad", Vector3f(-1.0f, -1.0f, 0.0f), Vector2f(2.0f, 2.0f), 1, 1, true, false, false);
 }

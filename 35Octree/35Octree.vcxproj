@@ -215,6 +215,7 @@
     <ClCompile Include="src\States\Controlls.cpp" />
     <ClCompile Include="src\States\Default.cpp" />
     <ClCompile Include="src\States\OctreeInterface.cpp" />
+    <ClCompile Include="src\States\RayMarch.cpp" />
     <ClCompile Include="src\States\Settings.cpp" />
     <ClCompile Include="src\States\StateMachine.cpp" />
     <ClCompile Include="src\Utils\Rasterizer.cpp" />
@@ -385,6 +386,7 @@
     <ClInclude Include="src\States\Controls.h" />
     <ClInclude Include="src\States\Default.h" />
     <ClInclude Include="src\States\OctreeInterface.h" />
+    <ClInclude Include="src\States\RayMarch.h" />
     <ClInclude Include="src\States\Settings.h" />
     <ClInclude Include="src\States\StateMachine.h" />
     <ClInclude Include="src\Utils\Rasterizer.h" />
