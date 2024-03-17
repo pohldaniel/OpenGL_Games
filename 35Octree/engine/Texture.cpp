@@ -1533,8 +1533,8 @@ unsigned int Texture::getTarget() const {
 	return m_target;
 }
 
-void Texture::bind(unsigned int unit) const {
-	if (ActiveTextures[unit] != m_texture) {
+void Texture::bind(unsigned int unit, bool forceBind) const {
+	if (ActiveTextures[unit] != m_texture || forceBind) {
 		ActiveTextures[unit] = m_texture;
 		glActiveTexture(GL_TEXTURE0 + unit);
 		glBindTexture(m_target, m_texture);
@@ -1598,8 +1598,8 @@ void Texture::setAnisotropy(float aniso) const {
 	glBindTexture(m_target, 0);
 }
 
-void Texture::Bind(unsigned int textureRef, unsigned int unit, unsigned int target) {
-	if (ActiveTextures[unit] != textureRef) {
+void Texture::Bind(unsigned int textureRef, unsigned int unit, unsigned int target, bool forceBind) {
+	if (ActiveTextures[unit] != textureRef || forceBind) {
 		ActiveTextures[unit] = textureRef;
 		glActiveTexture(GL_TEXTURE0 + unit);
 		glBindTexture(target, textureRef);

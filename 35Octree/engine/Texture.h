@@ -30,7 +30,7 @@ public:
 	unsigned int getType() const;
 	unsigned int getTarget() const;
 
-	void bind(unsigned int unit = 0u) const;
+	void bind(unsigned int unit = 0u, bool forceBind = false) const;
 	void unbind(unsigned int unit = 0u) const;
 
 	void loadFromFile(std::string fileName, const bool flipVertical = false, unsigned int internalFormat = 0u, unsigned int format = 0u, int paddingLeft = 0, int paddingRight = 0, int paddingTop = 0, int paddingBottom = 0, unsigned int SOIL_FLAG = 0u);
@@ -80,7 +80,7 @@ public:
 	void setDeepCopy(bool deepCopy);
 	void markForDelete();
 
-	static void Bind(unsigned int textureRef, unsigned int unit = 0u, unsigned int target = 3553u);
+	static void Bind(unsigned int textureRef, unsigned int unit = 0u, unsigned int target = 3553u, bool forceBind = false);
 	static void Unbind(unsigned int unit = 0u, unsigned int target = 3553u);
 	static void SetActivateTexture(unsigned int unit = 0u);
 

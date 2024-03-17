@@ -2,6 +2,7 @@
 
 #include <engine/input/MouseEventListener.h>
 #include <engine/input/KeyboardEventListener.h>
+#include <engine/Framebuffer.h>
 #include <engine/Camera.h>
 #include <engine/Background.h>
 
@@ -31,8 +32,10 @@ private:
 
 	bool m_initUi = true;
 	bool m_drawUi = true;
+	bool m_drawOffscreen = false;
 
 	Camera m_camera;
 	Background m_background;
-	float time = 45;
+	Framebuffer m_sceneBuffer;
+	const float maxDistance[1] = { 100000.0f };
 };

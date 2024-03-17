@@ -164,6 +164,9 @@ class Vector4f {
 
 public:
 
+	static const Vector4f ZERO;
+	static const Vector4f ONE;
+
 	Vector4f();
 	Vector4f(float x_, float y_, float z_, float w_);
 	Vector4f(float value);

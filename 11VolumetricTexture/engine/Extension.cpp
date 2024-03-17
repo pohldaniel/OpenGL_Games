@@ -797,6 +797,6 @@ void glBindSampler(GLuint unit, GLuint sampler) {
 void glUniformMatrix3fv(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value) {
 	typedef void(APIENTRY * PFNGLUNIFORMMATRIX3FVPROC)(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value);
 	static PFNGLUNIFORMMATRIX3FVPROC glUniformMatrix3fv = 0;
-	LOAD_ENTRYPOINT("glClearTexImage", glUniformMatrix3fv, PFNGLUNIFORMMATRIX3FVPROC);
+	LOAD_ENTRYPOINT("glUniformMatrix3fv", glUniformMatrix3fv, PFNGLUNIFORMMATRIX3FVPROC);
 	glUniformMatrix3fv(location, count, transpose, value);
 }

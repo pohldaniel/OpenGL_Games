@@ -2842,6 +2842,9 @@ Vector3f operator*(float lhs, const Vector3f &rhs) {
 }
 ////////////////////////////////////////////////////////////////////////////////////////
 
+const Vector4f Vector4f::ZERO(0.0f);
+const Vector4f Vector4f::ONE(1.0f);
+
 Vector4f::Vector4f() {
 	vec[0] = 0.0f;
 	vec[1] = 0.0f;

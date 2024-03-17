@@ -2,15 +2,16 @@
 out vec4 FragColor;
 
 in vec2 texCoord;
-out vec4 vertColor;
+in vec4 vertColor;
 
 uniform sampler2D u_screen_texture;
 uniform sampler2D u_depth_texture;
+
 uniform vec3 u_campos;
 uniform vec3 u_viewdir;
 uniform vec3 u_camright;
 uniform vec3 u_camup;
-uniform float u_fov;
+uniform float u_scaleFactor;
 uniform float u_aspectRatio;
 
 const float inf = uintBitsToFloat(0x7F800000u);
@@ -22,7 +23,7 @@ struct Ray{
 };
 
 vec2 calculateFragementRay(in vec2 uv, in float aspectRatio){ 
-	uv = (uv * 2.0 - 1.0) * tan(u_fov * 0.5);
+	uv = (uv * 2.0 - 1.0) * u_scaleFactor;
 	uv.x *= aspectRatio;	
     return uv;
 }
@@ -112,9 +113,9 @@ void main(){
 	Ray ray = getRay(texCoord, u_aspectRatio, origin);
 
     vec3 texture_color = texture(u_screen_texture, texCoord).rgb;
-	texture_color = vertColor.xyz;
+	//texture_color = vertColor.xyz;
     float rasterized_depth = texture(u_depth_texture, texCoord).r;
-	rasterized_depth = 200.0;
+	//rasterized_depth = 200.0;
 	
     float depth = inf;
     int obj_id = SPHERE_ID;
@@ -142,11 +143,12 @@ void main(){
             default:
             color = vec4(1.0, 0.0, 1.0, 1.0)*pattern_value;
         }
-     }else{
+	}else{
         float re_rasterized_depth = rasterized_depth == inf ? 0.0 : rasterized_depth;
-        color = vec4(0.0, 0.0, 0.0, 0.0);
-     }
-	if(color.a == 0)
-		discard;
+		//texture_color += re_rasterized_depth / 100.f;
+        color = vec4(texture_color, 1.0);
+	}
+	
     FragColor = color;
+	//FragColor = vec4(rasterized_depth, rasterized_depth, rasterized_depth, 1.0);
 }

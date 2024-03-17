@@ -678,6 +678,10 @@ const float Camera::getFovXRad() const {
 	return 2.0f * atanf(1.0f / m_persMatrix[1][1]);
 }
 
+const float Camera::getScaleFactor() const{
+	return 1.0f / m_persMatrix[1][1];
+}
+
 const float Camera::getAspect() const {
 	return m_persMatrix[1][1] / m_persMatrix[0][0];
 }

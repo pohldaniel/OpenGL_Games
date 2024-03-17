@@ -32,6 +32,10 @@ RayMarch::RayMarch(StateMachine& machine) : State(machine, States::DEFAULT) {
 		{ &Globals::textureManager.get("forest_5"), 1, 5.0f }});
 	m_background.setSpeed(0.005f);
 
+	m_sceneBuffer.create(Application::Width, Application::Height);
+	m_sceneBuffer.attachTexture2D(AttachmentTex::RGBA);
+	m_sceneBuffer.attachTexture2D(AttachmentTex::RED32F);
+	m_sceneBuffer.attachTexture2D(AttachmentTex::DEPTH24);
 }
 
 RayMarch::~RayMarch() {
@@ -75,6 +79,12 @@ void RayMarch::update() {
 		move |= true;
 	}
 
+	if (keyboard.keyPressed(Keyboard::KEY_T)) {
+		m_drawOffscreen = !m_drawOffscreen;
+
+		
+	}
+
 	if (keyboard.keyDown(Keyboard::KEY_Q)) {
 		directrion += Vector3f(0.0f, -1.0f, 0.0f);
 		move |= true;
@@ -103,24 +113,54 @@ void RayMarch::update() {
 	}
 
 	m_background.update(m_dt);
+
+	
+
 }
 
 void RayMarch::render() {
 
+	m_sceneBuffer.bind();	
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glClearTexImage(m_sceneBuffer.getColorTexture(1), 0, GL_RED, GL_FLOAT, maxDistance);
 	m_background.draw();
 
-	auto shader = Globals::shaderManager.getAssetPointer("ray_march");
+	auto shader = Globals::shaderManager.getAssetPointer("scene");
+	shader->use();
+	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
+	shader->loadMatrix("u_view", m_camera.getViewMatrix());
+	shader->loadMatrix("u_model", Matrix4f::Translate(2.0f, 0.0f, 0.0f));
+	shader->loadFloat("u_near", m_camera.getNear());
+	shader->loadFloat("u_far", m_camera.getFar());
+
+	Globals::textureManager.get("marble").bind(0, true);
+	Globals::shapeManager.get("cube").drawRaw();
+	shader->unuse();
+	m_sceneBuffer.unbind();
+	
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	
+
+	
+	glDisable(GL_DEPTH_TEST);
+	shader = Globals::shaderManager.getAssetPointer("ray_march");
 	shader->use();	
 	shader->loadVector("u_campos", m_camera.getPosition());
 	shader->loadVector("u_viewdir", m_camera.getViewDirection());
 	shader->loadVector("u_camright", m_camera.getCamX());
 	shader->loadVector("u_camup", m_camera.getCamY());
-	shader->loadFloat("u_fov", m_camera.getFovXRad());
-	shader->loadFloat("u_aspectRatio", static_cast<float>(Application::Width) / static_cast<float>(Application::Height));
+	shader->loadFloat("u_scaleFactor", m_camera.getScaleFactor());
+	shader->loadFloat("u_aspectRatio", m_camera.getAspect());
+
+	shader->loadInt("u_screen_texture", 0);
+	shader->loadInt("u_depth_texture", 1);
+
+	m_sceneBuffer.bindColorTexture(0u, 0u);
+	m_sceneBuffer.bindColorTexture(1u, 1u);
+
 	Globals::shapeManager.get("quad").drawRaw();
 	shader->unuse();
-
+	glEnable(GL_DEPTH_TEST);
 	if (m_drawUi)
 		renderUi();
 }
