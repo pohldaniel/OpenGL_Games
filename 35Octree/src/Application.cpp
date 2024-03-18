@@ -341,14 +341,13 @@ void Application::initOpenGL(int msaaSamples) {
 
 	//glDisable(GL_DEPTH_TEST);
 	glEnable(GL_DEPTH_TEST);
-	//glDepthFunc(GL_LEQUAL);
+	glDepthFunc(GL_LEQUAL);
 
 	//glDisable(GL_BLEND);
-	/*glEnable(GL_BLEND);
+	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 
-	glEnable(GL_TEXTURE_2D);*/
 
 	//glClipControl(GL_UPPER_LEFT, GL_ZERO_TO_ONE);
 	//glClipControl(GL_UPPER_LEFT, GL_NEGATIVE_ONE_TO_ONE);

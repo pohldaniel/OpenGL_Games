@@ -122,19 +122,10 @@ void RayMarch::render() {
 
 	m_sceneBuffer.bind();	
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	/*glDrawBuffer(GL_COLOR_ATTACHMENT1);
-	glColorMask(GL_TRUE, GL_FALSE, GL_FALSE, GL_FALSE);
-	glClearColor(maxDistance[0], 0.0, 0.0, 0.0);
-	glClear(GL_COLOR_BUFFER_BIT);
-	glClearColor(0.494f, 0.686f, 0.796f, 1.0f);
-	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-	glDrawBuffer(GL_COLOR_ATTACHMENT0);*/
-
+	
+	m_background.draw();
 	//glClearTexImage(m_sceneBuffer.getColorTexture(1), 0, GL_RED, GL_FLOAT, maxDistance);
 	glClearBufferfv(GL_COLOR, 1, maxDistance);
-
-	m_background.draw();
-
 	auto shader = Globals::shaderManager.getAssetPointer("scene");
 	shader->use();
 	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
@@ -149,9 +140,6 @@ void RayMarch::render() {
 	m_sceneBuffer.unbind();
 	
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	
-
-	
 	glDisable(GL_DEPTH_TEST);
 	shader = Globals::shaderManager.getAssetPointer("ray_march");
 	shader->use();	

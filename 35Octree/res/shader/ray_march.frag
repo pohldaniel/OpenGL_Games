@@ -112,10 +112,8 @@ void main(){
 	vec3 origin = u_campos;
 	Ray ray = getRay(texCoord, u_aspectRatio, origin);
 
-    vec3 texture_color = texture(u_screen_texture, texCoord).rgb;
-	//texture_color = vertColor.xyz;
+    vec4 texture_color = texture(u_screen_texture, texCoord);
     float rasterized_depth = texture(u_depth_texture, texCoord).r;
-	//rasterized_depth = 200.0;
 	
     float depth = inf;
     int obj_id = SPHERE_ID;
@@ -126,13 +124,6 @@ void main(){
         vec3 endpoint = ray.origin + ray.direction * depth;
         float pattern_value = checkerBoardTexture(endpoint.xz * 4.0);
 
-        if(obj_id == SPHERE_ID){
-            color = vec4(1.0, 1.0, 1.0, 1.0) * pattern_value;
-        }
-        if(obj_id == VSPHERE_ID){
-            color = vec4(0.0,  1.0, 0.0, 1.0) * pattern_value;
-        }
-
         switch(obj_id){
             case SPHERE_ID:
             color = vec4(1.0)*pattern_value;
@@ -141,14 +132,11 @@ void main(){
             color = vec4(0.0,  1.0, 0.0, 1.0) * pattern_value;
             break;
             default:
-            color = vec4(1.0, 0.0, 1.0, 1.0)*pattern_value;
+            color = vec4(1.0, 1.0, 1.0, 1.0) * pattern_value;
         }
-	}else{
-        float re_rasterized_depth = rasterized_depth == inf ? 0.0 : rasterized_depth;
-		//texture_color += re_rasterized_depth / 100.f;
-        color = vec4(texture_color, 1.0);
+	}else{       
+        color = texture_color;
 	}
-	
+
     FragColor = color;
-	//FragColor = vec4(rasterized_depth, rasterized_depth, rasterized_depth, 1.0);
 }
