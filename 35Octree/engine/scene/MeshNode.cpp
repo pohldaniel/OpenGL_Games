@@ -1,25 +1,12 @@
 #include "MeshNode.h"
 #include "../DebugRenderer.h"
 
-MeshNode::MeshNode() : SceneNode(), m_model(nullptr){
+MeshNode::MeshNode(const AssimpModel& model) : SceneNodeLC(), model(model), m_drawDebug(true), localBoundingBox(model.getAABB()) {
 	OnBoundingBoxChanged();
-}
-
-MeshNode::MeshNode(AssimpModel* model) : SceneNode(), m_model(model){
-	OnBoundingBoxChanged();
-}
-
-MeshNode::~MeshNode() {
-	delete m_model;
 }
 
 void MeshNode::OnWorldBoundingBoxUpdate() const{
-
-	if (m_model) {
-		worldBoundingBox = m_model->getAABB().transformed(getWorldTransformation());
-	}else {
-		worldBoundingBox.define(m_position);
-	}
+	m_worldBoundingBox = getLocalBoundingBox().transformed(getWorldTransformation());
 }
 
 void MeshNode::OnRenderOBB(const Vector4f& color){
@@ -31,7 +18,7 @@ void MeshNode::OnRenderAABB(const Vector4f& color) {
 }
 
 void MeshNode::OnTransformChanged(){
-	SceneNode::OnTransformChanged();
+	SceneNodeLC::OnTransformChanged();
 	OnBoundingBoxChanged();
 }
 
@@ -40,7 +27,7 @@ void MeshNode::OnBoundingBoxChanged() const{
 }
 
 void MeshNode::addChild(MeshNode* node, bool drawDebug) {
-	SceneNode::addChild(node);
+	SceneNodeLC::addChild(node);
 }
 
 const BoundingBox& MeshNode::getWorldBoundingBox() const {
@@ -48,18 +35,13 @@ const BoundingBox& MeshNode::getWorldBoundingBox() const {
 		OnWorldBoundingBoxUpdate();
 		m_worldBoundingBoxDirty = false;
 	}
-	return worldBoundingBox;
+	return m_worldBoundingBox;
 }
 
 const BoundingBox& MeshNode::getLocalBoundingBox() const {
-	return m_model->getAABB();
+	return model.getAABB();
 }
 
-void MeshNode::setModel(AssimpModel* model) {
-	m_model = model;
-	OnBoundingBoxChanged();
-}
-
-AssimpModel* MeshNode::getModel() const {
-	return m_model;
+void MeshNode::setDrawDebug(bool drawDebug) {
+	m_drawDebug = drawDebug;
 }

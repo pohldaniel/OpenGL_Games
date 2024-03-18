@@ -10,15 +10,13 @@ Scene::Scene(void)
 	m_fireUp = true;
 	m_rotateRight = false;
 	m_rotateLeft = false;
-	
+	m_deltaTime = 0;
+
 	//create meshes and materials and push objects to the back of the list
 	m_grassMesh = new Mesh("res/models/Grass.obj");
-	m_deltaTime = 0;
-	//m_grass = new ObjectNew(m_grassMesh, m_grassMat, &m_deltaTime, glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(0.0f, -0.3f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f));
 	m_objects.push_back(new ObjectNew(m_grassMesh, glm::vec3(0.5,0.5,0.5), glm::vec3(0,-0.3,0), glm::vec3(0,0,0)));
 	
 	m_logMesh = new Mesh("res/models/Log_pine.obj");
-
 	m_objects.push_back(new ObjectNew(m_logMesh, glm::vec3(0.1f,0.1f,0.1f), glm::vec3(-3.0f,0.1,0), glm::vec3(3.1415,0,0)));
 	m_objects.push_back(new ObjectNew(m_logMesh, glm::vec3(0.1f,0.1f,0.1f), glm::vec3(3.0f,0.1,0), glm::vec3(3.1415,0,0)));
 	m_objects.push_back(new ObjectNew(m_logMesh, glm::vec3(0.1f,0.1f,0.1f), glm::vec3(0,0.1,-3.0f), glm::vec3(3.1415,1.57079632679f,0)));

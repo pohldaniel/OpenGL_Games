@@ -109,15 +109,15 @@ public:
 	void scale(float sx, float sy, float sz);
 
 	void drawRaw() const;
-	void drawRawInstanced();
-	void drawRawStacked();
-	void drawRawInstancedStacked();
-	void drawRawSequence(unsigned short frame);
+	void drawRawInstanced() const;
+	void drawRawStacked() const;
+	void drawRawInstancedStacked() const;
+	void drawRawSequence(unsigned short frame) const;
 
-	void draw(const Camera& camera);
-	void drawInstanced(const Camera& camera);
-	void drawStacked(const Camera& camera);
-	void drawInstancedStacked(const Camera& camera);
+	void draw(const Camera& camera) const;
+	void drawInstanced(const Camera& camera) const;
+	void drawStacked(const Camera& camera) const;
+	void drawInstancedStacked(const Camera& camera) const;
 
 	void createAABB();
 	void createSphere();
@@ -136,10 +136,11 @@ public:
 
 	std::string getMltPath();
 	std::string getModelDirectory();
-	BoundingBox& getAABB();
+	const BoundingBox& getAABB() const;
 	BoundingSphere& getBoundingSphere();
 	ConvexHull& getConvexHull();
 	Transform& getTransform();
+	const ObjMesh* getMesh(unsigned short index = 0u) const;
 	std::vector<ObjMesh*>& getMeshes();
 	unsigned int getNumberOfTriangles();
 
@@ -197,7 +198,7 @@ private:
 	unsigned int m_vboInstances;
 	bool m_markForDelete;
 
-	void unuseAllShader();
+	void unuseAllShader() const;
 
 	void static CreateBuffer(std::vector<float>& vertexBuffer, std::vector<unsigned int> indexBuffer, unsigned int& vao, unsigned int& vbo, unsigned int& ibo, unsigned int stride);
 	void static GenerateNormals(std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer, ObjModel& model, bool& hasNormals, unsigned int& stride, unsigned int startIndex, unsigned int endIndex);
@@ -230,7 +231,7 @@ public:
 	~ObjMesh();
 
 	void drawRaw() const;
-	void drawRawInstanced();
+	void drawRawInstanced() const;
 	
 	std::vector<float>& getVertexBuffer();
 	std::vector<unsigned int>& getIndexBuffer();

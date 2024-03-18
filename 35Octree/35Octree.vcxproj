@@ -203,6 +203,7 @@
     <ClCompile Include="engine\utils\StringUtils.cpp" />
     <ClCompile Include="engine\utils\Utils.cpp" />
     <ClCompile Include="engine\ZoomableQuad.cpp" />
+    <ClCompile Include="Entity.cpp" />
     <ClCompile Include="Flame.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="ObjectNew.cpp" />
@@ -377,6 +378,7 @@
     <ClInclude Include="engine\Vector.h" />
     <ClInclude Include="engine\VolumeBuffer.h" />
     <ClInclude Include="engine\ZoomableQuad.h" />
+    <ClInclude Include="Entity.h" />
     <ClInclude Include="Flame.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="ObjectNew.h" />

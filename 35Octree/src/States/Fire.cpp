@@ -3,8 +3,10 @@
 #include <imgui_impl_opengl3.h>
 #include <imgui_internal.h>
 #include <engine/Batchrenderer.h>
+#include <engine/Material.h>
 
 #include "Fire.h"
+
 #include "Application.h"
 #include "Globals.h"
 
@@ -17,25 +19,64 @@ Fire::Fire(StateMachine& machine) : State(machine, States::DEFAULT) {
 	m_camera = Camera();
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
-	m_camera.lookAt(Vector3f(0.0f, 0.0f, 30.0f), Vector3f(0.0f, 0.0f, 30.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
+	m_camera.lookAt(Vector3f(0.0f, 2.0f, -10.0f), Vector3f(0.0f, 2.0f, -10.0f) + Vector3f(0.0f, 0.0f, 1.0f), Vector3f(0.0f, 1.0f, 0.0f));
 	m_camera.setRotationSpeed(0.1f);
-	m_camera.setMovingSpeed(10.0f);
+	m_camera.setMovingSpeed(5.0f);
 
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClearDepth(1.0f);
-	m_background.resize(Application::Width, Application::Height);
-	m_background.setLayer(std::vector<BackgroundLayer>{
-		{ &Globals::textureManager.get("forest_1"), 1, 1.0f },
-		{ &Globals::textureManager.get("forest_2"), 1, 2.0f },
-		{ &Globals::textureManager.get("forest_3"), 1, 3.0f },
-		{ &Globals::textureManager.get("forest_4"), 1, 4.0f },
-		{ &Globals::textureManager.get("forest_5"), 1, 5.0f }});
-	m_background.setSpeed(0.005f);
+	
+	Material::AddTexture("res/textures/Flame_Particle.png");
+	Material::AddTexture("res/textures/Log_pine_color.png");
+	Material::AddTexture("res/textures/Log_pine_normal.png");
+	Material::AddTexture("res/textures/Grass.png");
+	Material::AddTexture("res/textures/Grass_normal.png");
 
-	m_sceneBuffer.create(Application::Width, Application::Height);
-	m_sceneBuffer.attachTexture2D(AttachmentTex::RGBA);
-	m_sceneBuffer.attachTexture2D(AttachmentTex::RED32F);
-	m_sceneBuffer.attachTexture2D(AttachmentTex::DEPTH24);
+	Material::AddMaterial();
+	Material::GetMaterials().back().addTexture(Material::GetTextures()[1], 0u);
+	Material::GetMaterials().back().addTexture(Material::GetTextures()[2], 1u);
+
+	Material::AddMaterial();
+	Material::GetMaterials().back().addTexture(Material::GetTextures()[3], 0u);
+	Material::GetMaterials().back().addTexture(Material::GetTextures()[4], 1u);
+
+
+	m_logPine.loadModel("res/models/Log_pine.obj", false, false, true);
+	m_logPine.getMesh(0)->setMaterialIndex(0);
+	m_grass.loadModel("res/models/Grass.obj", false, false, true);
+	m_grass.getMesh(0)->setMaterialIndex(1);
+
+	m_root = new SceneNodeLC();
+	Entity* child = dynamic_cast<Entity*>(m_root->addChild(new Entity(m_logPine)));
+	child->setScale(0.1f, 0.1f, 0.1f);
+	child->setPosition(-3.0f, 0.1f, 0.0f);
+	child->setOrientation(180.0f, 0.0f, 0.0f);
+	entities.push_back(child);
+
+	child = dynamic_cast<Entity*>(m_root->addChild(new Entity(m_logPine)));
+	child->setScale(0.1f, 0.1f, 0.1f);
+	child->setPosition(3.0f, 0.1f, 0.0f);
+	child->setOrientation(180.0f, 0.0f, 0.0f);
+	entities.push_back(child);
+
+	child = dynamic_cast<Entity*>(m_root->addChild(new Entity(m_logPine)));
+	child->setScale(0.1f, 0.1f, 0.1f);
+	child->setPosition(0.0f, 0.1f, -3.0f);
+	child->setOrientation(180.0f, 90.0f, 0.0f);
+	entities.push_back(child);
+
+	child = dynamic_cast<Entity*>(m_root->addChild(new Entity(m_logPine)));
+	child->setScale(0.1f, 0.1f, 0.1f);
+	child->setPosition(0.0f, 0.1f, 3.0f);
+	child->setOrientation(180.0f, 90.0f, 0.0f);
+	entities.push_back(child);
+
+	child = dynamic_cast<Entity*>(m_root->addChild(new Entity(m_grass)));
+	child->setScale(0.5f, 0.5f, 0.5f);
+	child->setPosition(0.0f, -0.3f, 0.0f);
+	entities.push_back(child);
+
+	m_lightPosition = Vector3f(0.0f, 1.0f, 0.0f);
 }
 
 Fire::~Fire() {
@@ -106,8 +147,6 @@ void Fire::update() {
 		}
 	}
 
-	//m_background.update(m_dt);
-
 	deltaTime = Globals::clock.getElapsedTimeSinceRestartMilli() - previousTime;
 	previousTime = Globals::clock.getElapsedTimeSinceRestartMilli();
 	
@@ -118,49 +157,24 @@ void Fire::update() {
 
 void Fire::render() {
 
-	Campsite.Draw(m_camera);
-
-	/*m_sceneBuffer.bind();
+	//Campsite.Draw(m_camera);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	m_background.draw();
-	//glClearTexImage(m_sceneBuffer.getColorTexture(1), 0, GL_RED, GL_FLOAT, maxDistance);
-	glClearBufferfv(GL_COLOR, 1, maxDistance);
-	auto shader = Globals::shaderManager.getAssetPointer("scene");
+	
+	auto shader = Globals::shaderManager.getAssetPointer("model_new");
 	shader->use();
 	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
 	shader->loadMatrix("u_view", m_camera.getViewMatrix());
-	shader->loadMatrix("u_model", Matrix4f::Translate(2.0f, 0.0f, 0.0f));
-	shader->loadFloat("u_near", m_camera.getNear());
-	shader->loadFloat("u_far", m_camera.getFar());
+	shader->loadVector("u_lightPos", Vector3f(0.0f, 1.0f, 0.0f));
+	shader->loadInt("u_diffuse", 0);
+	shader->loadInt("u_normal", 1);
+	for (auto&& entity : entities) {
+		shader->loadMatrix("u_model", entity->getWorldTransformation());
+		entity->draw();
+	}
 
-	Globals::textureManager.get("marble").bind(0, true);
-	Globals::shapeManager.get("cube").drawRaw();
-	shader->unuse();
-	m_sceneBuffer.unbind();
-
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glDisable(GL_DEPTH_TEST);
-	shader = Globals::shaderManager.getAssetPointer("ray_march");
-	shader->use();
-	shader->loadVector("u_campos", m_camera.getPosition());
-	shader->loadVector("u_viewdir", m_camera.getViewDirection());
-	shader->loadVector("u_camright", m_camera.getCamX());
-	shader->loadVector("u_camup", m_camera.getCamY());
-	shader->loadFloat("u_scaleFactor", m_camera.getScaleFactor());
-	shader->loadFloat("u_aspectRatio", m_camera.getAspect());
-
-	shader->loadInt("u_screen_texture", 0);
-	shader->loadInt("u_depth_texture", 1);
-
-	m_sceneBuffer.bindColorTexture(0u, 0u);
-	m_sceneBuffer.bindColorTexture(1u, 1u);
-
-	Globals::shapeManager.get("quad").drawRaw();
 	shader->unuse();
 
-	glEnable(GL_DEPTH_TEST);
-	if (m_drawUi)
+	/*if (m_drawUi)
 		renderUi();*/
 }
 
@@ -216,7 +230,6 @@ void Fire::OnKeyUp(Event::KeyboardEvent& event) {
 void Fire::resize(int deltaW, int deltaH) {
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
-	m_sceneBuffer.resize(Application::Width, Application::Height);
 }
 
 void Fire::renderUi() {

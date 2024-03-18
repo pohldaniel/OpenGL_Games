@@ -24,6 +24,13 @@ void Material::cleanup() {
 	}
 }
 
+void Material::addTexture(const Texture& texture, unsigned short index) {
+	textures[index] = texture;
+	textures[index].setFilter(GL_LINEAR_MIPMAP_LINEAR);
+	textures[index].setWrapMode(GL_REPEAT);
+	textures[index].markForDelete();
+}
+
 const Texture& Material::getTexture(unsigned short index) const{
 	return textures.at(index);
 }

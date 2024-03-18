@@ -1,14 +1,14 @@
 #pragma once
-
 #include <engine/input/MouseEventListener.h>
 #include <engine/input/KeyboardEventListener.h>
-#include <engine/Framebuffer.h>
+#include <engine/scene/SceneNodeLC.h>
 #include <engine/Camera.h>
-#include <engine/Background.h>
-
+#include <engine/AssimpModel.h>
+#include <engine/ObjModel.h>
 #include <States/StateMachine.h>
 
 #include "Scene.h"
+#include "Entity.h"
 
 class Fire : public State, public MouseEventListener, public KeyboardEventListener {
 
@@ -41,7 +41,9 @@ private:
 	bool m_drawOffscreen = false;
 
 	Camera m_camera;
-	Background m_background;
-	Framebuffer m_sceneBuffer;
-	const float maxDistance[1] = { 100000.0f };
+
+	SceneNodeLC* m_root;
+	AssimpModel m_logPine, m_grass;
+	std::vector<Entity*> entities;
+	Vector3f m_lightPosition;
 };

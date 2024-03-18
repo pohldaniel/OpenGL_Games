@@ -712,6 +712,7 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("scene", "res/shader/scene.vert", "res/shader/scene.frag");
 
 	Globals::shaderManager.loadShader("model", "res/shader/model.vert", "res/shader/model.frag");
+	Globals::shaderManager.loadShader("model_new", "res/shader/model_new.vert", "res/shader/model_new.frag");
 	Globals::shaderManager.loadShader("particle", "res/shader/particle.vert", "res/shader/particle.frag", "res/shader/particle.gem");
 
 
@@ -730,19 +731,19 @@ void Application::loadAssets() {
 	Globals::textureManager.get("particle").setFilter(GL_LINEAR_MIPMAP_LINEAR);
 	Globals::textureManager.get("particle").setWrapMode(GL_REPEAT);
 
-	Globals::textureManager.loadTexture("pine", "res/textures/Log_pine_color.png", false);
+	Globals::textureManager.loadTexture("pine", "res/textures/Log_pine_color.png", true);
 	Globals::textureManager.get("pine").setFilter(GL_LINEAR_MIPMAP_LINEAR);
 	Globals::textureManager.get("pine").setWrapMode(GL_REPEAT);
 
-	Globals::textureManager.loadTexture("pine_normal", "res/textures/Log_pine_normal.png", false);
+	Globals::textureManager.loadTexture("pine_normal", "res/textures/Log_pine_normal.png", true);
 	Globals::textureManager.get("pine_normal").setFilter(GL_LINEAR_MIPMAP_LINEAR);
 	Globals::textureManager.get("pine_normal").setWrapMode(GL_REPEAT);
 
-	Globals::textureManager.loadTexture("grass", "res/textures/Grass.png", false);
+	Globals::textureManager.loadTexture("grass", "res/textures/Grass.png", true);
 	Globals::textureManager.get("grass").setFilter(GL_LINEAR_MIPMAP_LINEAR);
 	Globals::textureManager.get("grass").setWrapMode(GL_REPEAT);
 
-	Globals::textureManager.loadTexture("grass_normal", "res/textures/Grass_normal.png", false);
+	Globals::textureManager.loadTexture("grass_normal", "res/textures/Grass_normal.png", true);
 	Globals::textureManager.get("grass_normal").setFilter(GL_LINEAR_MIPMAP_LINEAR);
 	Globals::textureManager.get("grass_normal").setWrapMode(GL_REPEAT);
 

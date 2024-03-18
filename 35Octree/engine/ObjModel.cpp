@@ -740,19 +740,19 @@ void ObjModel::loadModelGpu() {
 	}
 }
 
-void ObjModel::drawRaw() const {
+void ObjModel::drawRaw() const{
 	for (int j = 0; j < m_numberOfMeshes; j++) {
 		m_meshes[j]->drawRaw();
 	}
 }
 
-void ObjModel::drawRawInstanced() {
+void ObjModel::drawRawInstanced() const{
 	for (int j = 0; j < m_numberOfMeshes; j++) {
 		m_meshes[j]->drawRawInstanced();
 	}
 }
 
-void ObjModel::drawRawStacked() {
+void ObjModel::drawRawStacked() const{
 	glBindVertexArray(m_vao);
 	for (int i = 0; i < m_meshes.size(); i++) {
 		glDrawElementsBaseVertex(GL_TRIANGLES, m_meshes[i]->m_drawCount, GL_UNSIGNED_INT, (void*)(sizeof(unsigned int) * m_meshes[i]->m_baseIndex), m_meshes[i]->m_baseVertex);
@@ -760,7 +760,7 @@ void ObjModel::drawRawStacked() {
 	glBindVertexArray(0);
 }
 
-void ObjModel::drawRawInstancedStacked() {
+void ObjModel::drawRawInstancedStacked() const{
 	glBindVertexArray(m_vao);
 	for (int i = 0; i < m_meshes.size(); i++) {
 		glDrawElementsInstancedBaseVertexBaseInstance(GL_TRIANGLES, m_meshes[i]->m_drawCount, GL_UNSIGNED_INT, (void*)(sizeof(unsigned int) * m_meshes[i]->m_baseIndex), m_instanceCount, m_meshes[i]->m_baseVertex, 0);
@@ -768,13 +768,13 @@ void ObjModel::drawRawInstancedStacked() {
 	glBindVertexArray(0);
 }
 
-void ObjModel::drawRawSequence(unsigned short frame) {
+void ObjModel::drawRawSequence(unsigned short frame) const{
 	glBindVertexArray(m_vao);
 	glDrawElementsBaseVertex(GL_TRIANGLES, m_meshes[frame]->m_drawCount, GL_UNSIGNED_INT, (void*)(sizeof(unsigned int) * m_meshes[frame]->m_baseIndex), m_meshes[frame]->m_baseVertex);
 	glBindVertexArray(0);
 }
 
-void ObjModel::draw(const Camera& camera) {
+void ObjModel::draw(const Camera& camera) const{
 	for (int i = 0; i < m_meshes.size(); i++) {
 		Material& material = Material::GetMaterials()[m_meshes[i]->m_materialIndex];
 		material.updateMaterialUbo(BuiltInShader::materialUbo);
@@ -795,7 +795,7 @@ void ObjModel::draw(const Camera& camera) {
 	Texture::Unbind();	
 }
 
-void ObjModel::drawInstanced(const Camera& camera) {
+void ObjModel::drawInstanced(const Camera& camera) const{
 	for (int i = 0; i < m_meshes.size(); i++) {
 		Material& material = Material::GetMaterials()[m_meshes[i]->m_materialIndex];
 		material.updateMaterialUbo(BuiltInShader::materialUbo);
@@ -812,7 +812,7 @@ void ObjModel::drawInstanced(const Camera& camera) {
 	Texture::Unbind();
 }
 
-void ObjModel::drawStacked(const Camera& camera) {
+void ObjModel::drawStacked(const Camera& camera) const{
 	glBindVertexArray(m_vao);
 
 	for (int i = 0; i < m_meshes.size(); i++) {
@@ -833,7 +833,7 @@ void ObjModel::drawStacked(const Camera& camera) {
 	glBindVertexArray(0);
 }
 
-void ObjModel::drawInstancedStacked(const Camera& camera) {
+void ObjModel::drawInstancedStacked(const Camera& camera) const{
 	glBindVertexArray(m_vao);
 	for (int i = 0; i < m_meshes.size(); i++) {
 		Material& material = Material::GetMaterials()[m_meshes[i]->m_materialIndex];
@@ -850,7 +850,7 @@ void ObjModel::drawInstancedStacked(const Camera& camera) {
 	glBindVertexArray(0);
 }
 
-void ObjModel::unuseAllShader() {
+void ObjModel::unuseAllShader() const{
 	for (Shader* shader : m_shader) {
 		if (shader->inUse()) {
 			shader->unuse();
@@ -887,7 +887,11 @@ void ObjModel::createConvexHull(const char* filename, Vector3f &rotate, float de
 	m_convexHull.createBuffer(filename, rotate, degree, translate, scale, useConvhull, *this);
 }
 
-BoundingBox& ObjModel::getAABB() {
+const ObjMesh* ObjModel::getMesh(unsigned short index) const {
+	return m_meshes[index];
+}
+
+const BoundingBox& ObjModel::getAABB() const{
 	return m_aabb;
 }
 
@@ -2265,24 +2269,30 @@ void ObjMesh::updateInstances(std::vector<Matrix4f>& modelMTX) {
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-void ObjMesh::drawRaw() const {
+void ObjMesh::drawRaw() const{
 
-	if (m_materialIndex >= 0)
-		Material::GetMaterials()[m_materialIndex].updateMaterialUbo(BuiltInShader::materialUbo);
+	if (m_materialIndex >= 0) {
+		//Material::GetMaterials()[m_materialIndex].updateMaterialUbo(BuiltInShader::materialUbo);
+		Material::GetMaterials()[m_materialIndex].bind();
+	}
 
-	m_textureIndex >= 0 ? Material::GetTextures()[m_textureIndex].bind() : Texture::Unbind();
+	if (m_textureIndex >= 0)
+		Material::GetTextures()[m_textureIndex].bind();
 
 	glBindVertexArray(m_vao);
 	glDrawElements(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
 }
 
-void ObjMesh::drawRawInstanced() {
+void ObjMesh::drawRawInstanced() const{
 
-	if (m_materialIndex >= 0)
-		Material::GetMaterials()[m_materialIndex].updateMaterialUbo(BuiltInShader::materialUbo);
+	if (m_materialIndex >= 0) {
+		//Material::GetMaterials()[m_materialIndex].updateMaterialUbo(BuiltInShader::materialUbo);
+		Material::GetMaterials()[m_materialIndex].bind();
+	}
 
-	m_textureIndex >= 0 ? Material::GetTextures()[m_textureIndex].bind() : Texture::Unbind();
+	if (m_textureIndex >= 0)
+		Material::GetTextures()[m_textureIndex].bind();
 
 	glBindVertexArray(m_vao);
 	glDrawElementsInstanced(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0, m_instanceCount);

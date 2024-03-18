@@ -18,7 +18,7 @@
 #include "ObjModel.h"
 
 //#define ASSIMP_LOAD_FLAGS (aiProcess_JoinIdenticalVertices | aiProcess_RemoveRedundantMaterials | aiProcess_PreTransformVertices | aiProcess_Triangulate)
-#define ASSIMP_LOAD_FLAGS (aiProcess_Triangulate | aiProcess_FindDegenerates)
+#define ASSIMP_LOAD_FLAGS (aiProcess_Triangulate | aiProcess_FindDegenerates | aiProcess_GenUVCoords)
 
 class AssimpMesh;
 class AssimpModel {
@@ -45,24 +45,24 @@ public:
 	void translate(float dx, float dy, float dz);
 	void scale(float sx, float sy, float sz);
 
-	void drawRaw();
-	void drawRawInstanced();
-	void drawRawStacked();
-	void drawRawInstancedStacked();
+	void drawRaw() const;
+	void drawRawInstanced() const;
+	void drawRawStacked() const;
+	void drawRawInstancedStacked() const;
 
-	void draw(const Camera& camera);
-	void drawInstanced(const Camera& camera);
-	void drawStacked(const Camera& camera);
-	void drawInstancedStacked(const Camera& camera);
+	void draw(const Camera& camera) const;
+	void drawInstanced(const Camera& camera) const;
+	void drawStacked(const Camera& camera) const;
+	void drawInstancedStacked(const Camera& camera) const;
 
 	void createAABB();
 	void drawAABB();
-	void loadModel(const char* filename, bool isStacked = false, bool generateTangents = false, bool flipYZ = false, bool flipWinding = false);
-	void loadModelCpu(const char* filename, bool isStacked = false, bool generateTangents = false, bool flipYZ = false, bool flipWinding = false);
+	void loadModel(const char* filename, bool isStacked = false, bool generateNormals = false, bool generateTangents = false, bool flipYZ = false, bool flipWinding = false);
+	void loadModelCpu(const char* filename, bool isStacked = false, bool generateNormals = false, bool generateTangents = false, bool flipYZ = false, bool flipWinding = false);
 	void loadModelGpu();
 
 	std::string getModelDirectory();
-	BoundingBox& getAABB();
+	const BoundingBox& getAABB() const;
 	Transform& getTransform();
 	const AssimpMesh* getMesh(unsigned short index = 0u) const;
 	std::vector<AssimpMesh*>& getMeshes();
@@ -110,7 +110,7 @@ private:
 	unsigned int m_vboInstances;
 	bool m_markForDelete;
 
-	void unuseAllShader();
+	void unuseAllShader() const;
 	void static CreateBuffer(std::vector<float>& vertexBuffer, std::vector<unsigned int> indexBuffer, unsigned int& vao, unsigned int vbo, unsigned int& ibo, unsigned int stride);
 	void static ReadAiMaterial(const aiMaterial* aiMaterial, short& index, std::string modelDirectory, std::string mltName);
 	std::string static GetTexturePath(std::string texPath, std::string modelDirectory);
@@ -131,8 +131,8 @@ public:
 	AssimpMesh& operator=(AssimpMesh&& rhs);
 	~AssimpMesh();
 
-	void drawRaw();
-	void drawRawInstanced();
+	void drawRaw() const;
+	void drawRawInstanced() const;
 
 	std::vector<float>& getVertexBuffer();
 	std::vector<unsigned int>& getIndexBuffer();

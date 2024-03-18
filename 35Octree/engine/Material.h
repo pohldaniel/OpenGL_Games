@@ -16,7 +16,7 @@ struct MaterialBuffer {
 struct Material {
 
 	friend bool operator== (const Material& m1, const Material& m2);
-	mutable MaterialBuffer buffer;
+
 
 	//avoid unwanted copy costructor calls using std::unordered_map over std::vector
 	std::unordered_map<unsigned short, Texture> textures;
@@ -37,7 +37,10 @@ struct Material {
 	const float getAlpha() const;
 	const float getShininess() const;
 
+	void addTexture(const Texture& texture, unsigned short index);
 	const Texture& getTexture(unsigned short index) const;
+
+	mutable MaterialBuffer buffer;
 	std::string name;
 
 	static std::vector<Material>& GetMaterials();
