@@ -17,6 +17,7 @@
 #include <States/Default.h>
 #include <States/Menu.h>
 #include <States/RayMarch.h>
+#include <States/Fire.h>
 
 #include "Application.h"
 #include "Globals.h"
@@ -415,7 +416,8 @@ void Application::initStates() {
 	Machine = new StateMachine(m_dt, m_fdt);
 	//Machine->addStateAtTop(new OctreeInterface(*Machine));
 	//Machine->addStateAtTop(new Default(*Machine));
-	Machine->addStateAtTop(new RayMarch(*Machine));
+	//Machine->addStateAtTop(new RayMarch(*Machine));
+	Machine->addStateAtTop(new Fire(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -538,9 +540,53 @@ void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 		}
 		break;
 	}case WM_KEYUP: {
-		Event event;
-		event.type = Event::KEYUP;
-		EventDispatcher.pushEvent(event);
+
+		switch (wParam) {
+
+		case VK_ESCAPE: {
+			Event event;
+			event.type = Event::KEYUP;
+			event.data.keyboard.keyCode = wParam;
+			EventDispatcher.pushEvent(event);
+			break;
+		}case VK_SPACE: {
+			Event event;
+			event.type = Event::KEYUP;
+			event.data.keyboard.keyCode = wParam;
+			EventDispatcher.pushEvent(event);
+			break;
+		}case VK_UP: {
+			Event event;
+			event.type = Event::KEYUP;
+			event.data.keyboard.keyCode = wParam;
+			EventDispatcher.pushEvent(event);
+			break;
+		}case VK_DOWN: {
+			Event event;
+			event.type = Event::KEYUP;
+			event.data.keyboard.keyCode = wParam;
+			EventDispatcher.pushEvent(event);
+			break;
+		}case VK_LEFT: {
+			Event event;
+			event.type = Event::KEYUP;
+			event.data.keyboard.keyCode = wParam;
+			EventDispatcher.pushEvent(event);
+			break;
+		}case VK_RIGHT: {
+			Event event;
+			event.type = Event::KEYUP;
+			event.data.keyboard.keyCode = wParam;
+			EventDispatcher.pushEvent(event);
+			break;
+		}case VK_CONTROL: {			
+			Event event;
+			event.type = Event::KEYUP;
+			event.data.keyboard.keyCode = (lParam & 0x01000000) != 0 ? VK_RCONTROL : VK_LCONTROL;
+			EventDispatcher.pushEvent(event);
+			break;
+		}
+		}
 		break;
 	}case WM_SYSKEYDOWN: {
 
@@ -665,6 +711,10 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("ray_march", "res/shader/ray_march.vert", "res/shader/ray_march.frag");
 	Globals::shaderManager.loadShader("scene", "res/shader/scene.vert", "res/shader/scene.frag");
 
+	Globals::shaderManager.loadShader("model", "res/shader/model.vert", "res/shader/model.frag");
+	Globals::shaderManager.loadShader("particle", "res/shader/particle.vert", "res/shader/particle.frag", "res/shader/particle.gem");
+
+
 	Globals::fontManager.loadCharacterSet("upheaval_200", "res/fonts/upheavtt.ttf", 200, 0, 30, 128, 0, true, 0u);
 	Globals::fontManager.loadCharacterSet("upheaval_50", "res/fonts/upheavtt.ttf", 50, 0, 3, 0, 0, true, 0u);
 
@@ -675,6 +725,26 @@ void Application::loadAssets() {
 	Globals::textureManager.loadTexture("forest_5", "res/backgrounds/Forest/plx-5.png");
 	Globals::textureManager.createNullTexture("null");
 	Globals::textureManager.loadTexture("marble", "res/textures/marble.png", true);
+
+	Globals::textureManager.loadTexture("particle", "res/textures/Flame_Particle.png", false);
+	Globals::textureManager.get("particle").setFilter(GL_LINEAR_MIPMAP_LINEAR);
+	Globals::textureManager.get("particle").setWrapMode(GL_REPEAT);
+
+	Globals::textureManager.loadTexture("pine", "res/textures/Log_pine_color.png", false);
+	Globals::textureManager.get("pine").setFilter(GL_LINEAR_MIPMAP_LINEAR);
+	Globals::textureManager.get("pine").setWrapMode(GL_REPEAT);
+
+	Globals::textureManager.loadTexture("pine_normal", "res/textures/Log_pine_normal.png", false);
+	Globals::textureManager.get("pine_normal").setFilter(GL_LINEAR_MIPMAP_LINEAR);
+	Globals::textureManager.get("pine_normal").setWrapMode(GL_REPEAT);
+
+	Globals::textureManager.loadTexture("grass", "res/textures/Grass.png", false);
+	Globals::textureManager.get("grass").setFilter(GL_LINEAR_MIPMAP_LINEAR);
+	Globals::textureManager.get("grass").setWrapMode(GL_REPEAT);
+
+	Globals::textureManager.loadTexture("grass_normal", "res/textures/Grass_normal.png", false);
+	Globals::textureManager.get("grass_normal").setFilter(GL_LINEAR_MIPMAP_LINEAR);
+	Globals::textureManager.get("grass_normal").setWrapMode(GL_REPEAT);
 
 	Globals::shapeManager.buildSphere("sphere", 0.5f, Vector3f(0.0f, 0.0f, 0.0f), 16, 16, true, true, false);
 	Globals::shapeManager.buildCube("cube", Vector3f(-1.0f, -1.0f, -1.0f), Vector3f(2.0f, 2.0f, 2.0f), 1, 1, true, true, false);

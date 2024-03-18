@@ -88,7 +88,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;src;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;..\libassimp\include;..\openal\include;..\sndfile\include;..\rapidjson\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;src;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;..\libassimp\include;..\openal\include;..\sndfile\include;..\rapidjson\include;..\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4005;</DisableSpecificWarnings>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
@@ -106,7 +106,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;src;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;..\libassimp\include;..\openal\include;..\sndfile\include;..\rapidjson\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;src;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;..\libassimp\include;..\openal\include;..\sndfile\include;..\rapidjson\include;..\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4005;</DisableSpecificWarnings>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
@@ -126,7 +126,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;src;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;..\libassimp\include;..\openal\include;..\sndfile\include;..\rapidjson\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;src;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;..\libassimp\include;..\openal\include;..\sndfile\include;..\rapidjson\include;..\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <DisableSpecificWarnings>4005;</DisableSpecificWarnings>
       <LanguageStandard>stdcpp17</LanguageStandard>
@@ -149,7 +149,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;src;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;..\libassimp\include;..\openal\include;..\sndfile\include;..\rapidjson\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;src;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;..\libassimp\include;..\openal\include;..\sndfile\include;..\rapidjson\include;..\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <DisableSpecificWarnings>4005;</DisableSpecificWarnings>
       <LanguageStandard>stdcpp17</LanguageStandard>
@@ -203,6 +203,11 @@
     <ClCompile Include="engine\utils\StringUtils.cpp" />
     <ClCompile Include="engine\utils\Utils.cpp" />
     <ClCompile Include="engine\ZoomableQuad.cpp" />
+    <ClCompile Include="Flame.cpp" />
+    <ClCompile Include="Mesh.cpp" />
+    <ClCompile Include="ObjectNew.cpp" />
+    <ClCompile Include="Particle.cpp" />
+    <ClCompile Include="Scene.cpp" />
     <ClCompile Include="src\Animation\AnimatedModel.cpp" />
     <ClCompile Include="src\Animation\Animation.cpp" />
     <ClCompile Include="src\Animation\AnimationController.cpp" />
@@ -214,6 +219,7 @@
     <ClCompile Include="src\Octree\WorkQueue.cpp" />
     <ClCompile Include="src\States\Controlls.cpp" />
     <ClCompile Include="src\States\Default.cpp" />
+    <ClCompile Include="src\States\Fire.cpp" />
     <ClCompile Include="src\States\OctreeInterface.cpp" />
     <ClCompile Include="src\States\RayMarch.cpp" />
     <ClCompile Include="src\States\Settings.cpp" />
@@ -371,6 +377,11 @@
     <ClInclude Include="engine\Vector.h" />
     <ClInclude Include="engine\VolumeBuffer.h" />
     <ClInclude Include="engine\ZoomableQuad.h" />
+    <ClInclude Include="Flame.h" />
+    <ClInclude Include="Mesh.h" />
+    <ClInclude Include="ObjectNew.h" />
+    <ClInclude Include="Particle.h" />
+    <ClInclude Include="Scene.h" />
     <ClInclude Include="src\Animation\AnimatedModel.h" />
     <ClInclude Include="src\Animation\Animation.h" />
     <ClInclude Include="src\Animation\AnimationController.h" />
@@ -385,6 +396,7 @@
     <ClInclude Include="src\Octree\WorkQueue.h" />
     <ClInclude Include="src\States\Controls.h" />
     <ClInclude Include="src\States\Default.h" />
+    <ClInclude Include="src\States\Fire.h" />
     <ClInclude Include="src\States\OctreeInterface.h" />
     <ClInclude Include="src\States\RayMarch.h" />
     <ClInclude Include="src\States\Settings.h" />

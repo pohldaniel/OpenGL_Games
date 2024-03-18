@@ -8,7 +8,8 @@ enum States {
 	CONTROLLS,
 	DEFAULT,
 	OCTREEINTERFACE,
-	RAYMARCH
+	RAYMARCH,
+	FIRE
 };
 
 class State;
