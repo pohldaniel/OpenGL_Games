@@ -67,22 +67,16 @@ void RayMarch::update() {
 
 	if (keyboard.keyDown(Keyboard::KEY_A)) {
 		directrion += Vector3f(-1.0f, 0.0f, 0.0f);
-		m_background.addOffset(-0.001f);
-		m_background.setSpeed(-0.005f);
 		move |= true;
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_D)) {
 		directrion += Vector3f(1.0f, 0.0f, 0.0f);
-		m_background.addOffset(0.001f);
-		m_background.setSpeed(0.005f);
 		move |= true;
 	}
 
 	if (keyboard.keyPressed(Keyboard::KEY_T)) {
-		m_drawOffscreen = !m_drawOffscreen;
-
-		
+		m_drawOffscreen = !m_drawOffscreen;		
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_Q)) {
@@ -113,9 +107,6 @@ void RayMarch::update() {
 	}
 
 	m_background.update(m_dt);
-
-	
-
 }
 
 void RayMarch::render() {
@@ -158,6 +149,7 @@ void RayMarch::render() {
 
 	Globals::shapeManager.get("quad").drawRaw();
 	shader->unuse();
+
 	glEnable(GL_DEPTH_TEST);
 	if (m_drawUi)
 		renderUi();
@@ -201,6 +193,7 @@ void RayMarch::OnKeyUp(Event::KeyboardEvent& event) {
 void RayMarch::resize(int deltaW, int deltaH) {
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
+	m_sceneBuffer.resize(Application::Width, Application::Height);
 }
 
 void RayMarch::renderUi() {

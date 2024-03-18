@@ -59,8 +59,8 @@ const int NULL_ID = -1;
 const int SPHERE_ID = 0;
 const int VSPHERE_ID = 1;
 
-Sphere test_sphere = Sphere(vec3(0.0, 0.0, 0.0),1.0);
-Sphere volume_sphere = Sphere(vec3(0.0, 0.0, 0.0),2.0);
+Sphere test_sphere = Sphere(vec3(0.0, 4.0, 4.0),1.0);
+Sphere volume_sphere = Sphere(vec3(0.0, 1.0, 0.0),2.0);
 
 float signedDistance(vec3 ray_endpoint, out int obj_id){
     float d0 = signedDistance(ray_endpoint, test_sphere);
@@ -116,7 +116,7 @@ void main(){
     float rasterized_depth = texture(u_depth_texture, texCoord).r;
 	
     float depth = inf;
-    int obj_id = SPHERE_ID;
+    int obj_id = NULL_ID;
 
 
     vec4 color;
@@ -132,7 +132,7 @@ void main(){
             color = vec4(0.0,  1.0, 0.0, 1.0) * pattern_value;
             break;
             default:
-            color = vec4(1.0, 1.0, 1.0, 1.0) * pattern_value;
+            color = vec4(1.0, 0.0, 1.0, 1.0) * pattern_value;
         }
 	}else{       
         color = texture_color;
