@@ -7,9 +7,8 @@
 #include <engine/ObjModel.h>
 #include <States/StateMachine.h>
 
-#include "Entity.h"
-#include "Flame.h"
-
+#include <Entities/Entity.h>
+#include <Entities/Flame.h>
 
 class Fire : public State, public MouseEventListener, public KeyboardEventListener {
 

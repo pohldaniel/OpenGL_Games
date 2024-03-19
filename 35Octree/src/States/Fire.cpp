@@ -167,7 +167,7 @@ void Fire::render() {
 
 	
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	auto shader = Globals::shaderManager.getAssetPointer("model_new");
+	auto shader = Globals::shaderManager.getAssetPointer("model");
 	shader->use();
 	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
 	shader->loadMatrix("u_view", m_camera.getViewMatrix());
@@ -180,13 +180,12 @@ void Fire::render() {
 	}
 	
 	glDepthMask(false);
-	shader = Globals::shaderManager.getAssetPointer("particle_new");
+	shader = Globals::shaderManager.getAssetPointer("particle");
 	shader->use();
-	shader->loadMatrix("projMat", m_camera.getPerspectiveMatrix());
-	shader->loadMatrix("viewMat", m_camera.getViewMatrix());
-	shader->loadMatrix("modelMat", Matrix4f::IDENTITY);
-	shader->loadVector("worldSpaceLightPosition", m_lightPosition[0], m_lightPosition[1], m_lightPosition[2], 1.0f);
-	shader->loadInt("colourTexture", 0);
+	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
+	shader->loadMatrix("u_view", m_camera.getViewMatrix());
+	shader->loadMatrix("u_model", Matrix4f::IDENTITY);
+	shader->loadInt("u_diffuse", 0);
 	Globals::textureManager.get("particle").bind(0u);
 	m_flame.draw();
 	shader->unuse();

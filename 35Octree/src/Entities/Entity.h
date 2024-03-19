@@ -18,7 +18,6 @@ public:
 
 	virtual const Material& getMaterial() const;
 
-
 	short getMaterialIndex() const;
 	void setMaterialIndex(short index) const;
 
