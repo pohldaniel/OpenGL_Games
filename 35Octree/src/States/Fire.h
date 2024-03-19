@@ -7,8 +7,9 @@
 #include <engine/ObjModel.h>
 #include <States/StateMachine.h>
 
-#include "Scene.h"
 #include "Entity.h"
+#include "Flame.h"
+
 
 class Fire : public State, public MouseEventListener, public KeyboardEventListener {
 
@@ -28,10 +29,6 @@ public:
 	void OnKeyDown(Event::KeyboardEvent& event) override;
 	void OnKeyUp(Event::KeyboardEvent& event) override;
 
-	Scene Campsite;
-	int previousTime;
-	unsigned int deltaTime = 0u;
-
 private:
 
 	void renderUi();
@@ -39,6 +36,7 @@ private:
 	bool m_initUi = true;
 	bool m_drawUi = true;
 	bool m_drawOffscreen = false;
+	bool m_fireUp;
 
 	Camera m_camera;
 
@@ -46,4 +44,5 @@ private:
 	AssimpModel m_logPine, m_grass;
 	std::vector<Entity*> entities;
 	Vector3f m_lightPosition;
+	Flame m_flame;
 };

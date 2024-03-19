@@ -1,22 +1,19 @@
-#ifndef _PARTICLE_H_
-#define _PARTICLE_H_
-#include <glm/glm.hpp>
-#include <vector>
+#pragma once
 
-//particle class containing neccesary per-particle information and functions for calculating movement and distance of one particle to another
-//as well as some simple get functions
-class Particle
-{
-private:
-	glm::vec3 m_position;
-	int m_lifetime;
-	glm::vec3 m_velocity;
+#include <vector>
+#include <engine/Vector.h>
+
+class Particle{
+
 public:
 	Particle();
-	void Update(std::vector<Particle*> &_particlesInRange, float dt);
-	glm::vec3 GetPos(){return m_position;}
-	int GetLifetime(){return m_lifetime;}
-	float Magnitude(glm::vec3 _vector){return (_vector.x*_vector.x)+(_vector.y*_vector.y)+(_vector.z*_vector.z);}
-};
+	void update(std::vector<Particle*> &_particlesInRange, float dt);
 
-#endif
+	const Vector3f& getPos();
+	int getLifetime();
+
+private:
+	Vector3f m_position;	
+	Vector3f m_velocity;
+	int m_lifetime;
+};

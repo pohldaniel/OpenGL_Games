@@ -714,7 +714,7 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("model", "res/shader/model.vert", "res/shader/model.frag");
 	Globals::shaderManager.loadShader("model_new", "res/shader/model_new.vert", "res/shader/model_new.frag");
 	Globals::shaderManager.loadShader("particle", "res/shader/particle.vert", "res/shader/particle.frag", "res/shader/particle.gem");
-
+	Globals::shaderManager.loadShader("particle_new", "res/shader/particle_new.vert", "res/shader/particle_new.frag", "res/shader/particle_new.gem");
 
 	Globals::fontManager.loadCharacterSet("upheaval_200", "res/fonts/upheavtt.ttf", 200, 0, 30, 128, 0, true, 0u);
 	Globals::fontManager.loadCharacterSet("upheaval_50", "res/fonts/upheavtt.ttf", 50, 0, 3, 0, 0, true, 0u);

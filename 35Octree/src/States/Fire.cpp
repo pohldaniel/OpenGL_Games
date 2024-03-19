@@ -76,7 +76,8 @@ Fire::Fire(StateMachine& machine) : State(machine, States::DEFAULT) {
 	child->setPosition(0.0f, -0.3f, 0.0f);
 	entities.push_back(child);
 
-	m_lightPosition = Vector3f(0.0f, 1.0f, 0.0f);
+	m_lightPosition = Vector3f(0.0f, 1.0f, 0.0f); 
+	m_fireUp = true;
 }
 
 Fire::~Fire() {
@@ -147,32 +148,49 @@ void Fire::update() {
 		}
 	}
 
-	deltaTime = Globals::clock.getElapsedTimeSinceRestartMilli() - previousTime;
-	previousTime = Globals::clock.getElapsedTimeSinceRestartMilli();
-	
+	if (m_fireUp){
+		m_lightPosition[1] += 0.6f * m_dt;
+		if (m_lightPosition[1] > 2.0f){
+			m_fireUp = false;
+		}
+	}else{
+		m_lightPosition[1] -= 0.6f * m_dt;
+		if (m_lightPosition[1] < 1.5f){
+			m_fireUp = true;
+		}
+	}
 
-	Campsite.Update(m_dt);
-	Campsite.SetDeltaTime(deltaTime);
+	m_flame.update(m_dt);
 }
 
 void Fire::render() {
 
-	//Campsite.Draw(m_camera);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	auto shader = Globals::shaderManager.getAssetPointer("model_new");
 	shader->use();
 	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
 	shader->loadMatrix("u_view", m_camera.getViewMatrix());
-	shader->loadVector("u_lightPos", Vector3f(0.0f, 1.0f, 0.0f));
+	shader->loadVector("u_lightPos", m_lightPosition);
 	shader->loadInt("u_diffuse", 0);
 	shader->loadInt("u_normal", 1);
 	for (auto&& entity : entities) {
 		shader->loadMatrix("u_model", entity->getWorldTransformation());
 		entity->draw();
 	}
-
+	
+	glDepthMask(false);
+	shader = Globals::shaderManager.getAssetPointer("particle_new");
+	shader->use();
+	shader->loadMatrix("projMat", m_camera.getPerspectiveMatrix());
+	shader->loadMatrix("viewMat", m_camera.getViewMatrix());
+	shader->loadMatrix("modelMat", Matrix4f::IDENTITY);
+	shader->loadVector("worldSpaceLightPosition", m_lightPosition[0], m_lightPosition[1], m_lightPosition[2], 1.0f);
+	shader->loadInt("colourTexture", 0);
+	Globals::textureManager.get("particle").bind(0u);
+	m_flame.draw();
 	shader->unuse();
+	glDepthMask(true);
 
 	/*if (m_drawUi)
 		renderUi();*/
@@ -207,24 +225,10 @@ void Fire::OnKeyDown(Event::KeyboardEvent& event) {
 		Mouse::instance().detach();
 		m_isRunning = false;
 	}
-
-	if (event.keyCode == VK_LEFT) {
-		Campsite.SetRotateleft(true);
-	}
-
-	if (event.keyCode == VK_RIGHT) {
-		Campsite.SetRotateRight(true);
-	}
 }
 
 void Fire::OnKeyUp(Event::KeyboardEvent& event) {
-	if (event.keyCode == VK_LEFT) {
-		Campsite.SetRotateleft(false);
-	}
-
-	if (event.keyCode == VK_RIGHT) {
-		Campsite.SetRotateRight(false);
-	}
+	
 }
 
 void Fire::resize(int deltaW, int deltaH) {

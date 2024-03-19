@@ -48,29 +48,25 @@ void Material::updateMaterialUbo(unsigned int& ubo) {
 
 void Material::bind(){
 	for (unsigned short i = 0; i < textures.size(); i++) {
-		glActiveTexture(GL_TEXTURE0 + i);
-		glBindTexture(GL_TEXTURE_2D, textures.at(i).getTexture());
+		textures.at(i).bind(i);
 	}
 }
 
 void Material::unbind(){
 	for (unsigned short i = 0; textures.size() < 1; i++) {
-		glActiveTexture(GL_TEXTURE0 + i);
-		glBindTexture(GL_TEXTURE_2D, 0);
+		textures.at(i).unbind(i);
 	}
 }
 
 void Material::bind(unsigned short index) const {
 	for (unsigned short i = 0; i < index; i++) {
-		glActiveTexture(GL_TEXTURE0 + i);
-		glBindTexture(GL_TEXTURE_2D, textures.at(i).getTexture());
+		textures.at(i).bind(i);
 	}
 }
 
 void Material::unbind(unsigned short index) const {
 	for (unsigned short i = 0; i < index; i++) {
-		glActiveTexture(GL_TEXTURE0 + i);
-		glBindTexture(GL_TEXTURE_2D, 0);
+		textures.at(i).unbind(i);
 	}
 }
 

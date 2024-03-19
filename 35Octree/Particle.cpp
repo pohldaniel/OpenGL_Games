@@ -1,43 +1,36 @@
-#include "Particle.h"
 #include <random>
 #include <time.h>
-#include "Flame.h"
+#include "Particle.h"
 
-
-//contructor giving a random starting position (within range)
-Particle::Particle()
-{
+Particle::Particle(){
 	m_lifetime = 200;
-	m_velocity = glm::vec3(0,0,0);
-	m_position = glm::vec3((((float) rand() / (float) RAND_MAX) - 0.5)/3,-0.5,(((float) rand() / (float) RAND_MAX) - 0.5)/3);
+	m_velocity = Vector3f(0,0,0);
+	m_position = Vector3f((((float) rand() / (float) RAND_MAX) - 0.5)/3,-0.5,(((float) rand() / (float) RAND_MAX) - 0.5)/3);
 }
 
-//update loop goes through all of the particles within a small range of itself and either accelerates towards or away from them depending on density
-//though not quite a full fluid dynamics equation it gives a good substitute at a low cost to the cpu
-void Particle::Update(std::vector<Particle*> &_particlesInRange, float dt)
-{
-	glm::vec3 acceleration;
-	//upwards acceleration due to convection added
-	acceleration.y += 0.6f;
-	//lifetime of the particle decreased
+void Particle::update(std::vector<Particle*> &_particlesInRange, float dt){
+	Vector3f acceleration;
+	acceleration[1] += 0.6f;
 	m_lifetime--;
-	//for each particle in range move towards or away from it depending on density 
-	for (unsigned int i = 0; i < _particlesInRange.size(); i++)
-	{
-		if (_particlesInRange[i] != this)
-		{
-			if (_particlesInRange.size() > 20)
-			{
+
+	for (unsigned int i = 0; i < _particlesInRange.size(); i++){
+		if (_particlesInRange[i] != this){
+			if (_particlesInRange.size() > 20){
 				acceleration += (m_position - _particlesInRange[i]->m_position) * 0.02f;
-			}
-			else
-			{
+			}else{
 				acceleration += (m_position - _particlesInRange[i]->m_position) * -2.0f;
 			}
 		}
 	}
-	//accelerate the particle
+
 	m_velocity += acceleration * dt;
-	//move the particle
 	m_position += m_velocity * dt;
+}
+
+const Vector3f& Particle::getPos() { 
+	return m_position; 
+}
+
+int Particle::getLifetime() { 
+	return m_lifetime; 
 }
