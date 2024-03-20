@@ -47,31 +47,31 @@ Fire::Fire(StateMachine& machine) : State(machine, States::DEFAULT) {
 	m_grass.getMesh(0)->setMaterialIndex(1);
 
 	m_root = new SceneNodeLC();
-	Entity* child = dynamic_cast<Entity*>(m_root->addChild(new Entity(m_logPine)));
+	Entity* child = m_root->addChild<Entity, AssimpModel>(m_logPine);
 	child->setScale(0.1f, 0.1f, 0.1f);
 	child->setPosition(-3.0f, 0.1f, 0.0f);
 	child->setOrientation(180.0f, 0.0f, 0.0f);
 	entities.push_back(child);
 
-	child = dynamic_cast<Entity*>(m_root->addChild(new Entity(m_logPine)));
+	child = m_root->addChild<Entity, AssimpModel>(m_logPine);
 	child->setScale(0.1f, 0.1f, 0.1f);
 	child->setPosition(3.0f, 0.1f, 0.0f);
 	child->setOrientation(180.0f, 0.0f, 0.0f);
 	entities.push_back(child);
 
-	child = dynamic_cast<Entity*>(m_root->addChild(new Entity(m_logPine)));
+	child = m_root->addChild<Entity, AssimpModel>(m_logPine);
 	child->setScale(0.1f, 0.1f, 0.1f);
 	child->setPosition(0.0f, 0.1f, -3.0f);
 	child->setOrientation(180.0f, 90.0f, 0.0f);
 	entities.push_back(child);
 
-	child = dynamic_cast<Entity*>(m_root->addChild(new Entity(m_logPine)));
+	child = m_root->addChild<Entity, AssimpModel>(m_logPine);
 	child->setScale(0.1f, 0.1f, 0.1f);
 	child->setPosition(0.0f, 0.1f, 3.0f);
 	child->setOrientation(180.0f, 90.0f, 0.0f);
 	entities.push_back(child);
 
-	child = dynamic_cast<Entity*>(m_root->addChild(new Entity(m_grass)));
+	child = m_root->addChild<Entity, AssimpModel>(m_grass);
 	child->setScale(0.5f, 0.5f, 0.5f);
 	child->setPosition(0.0f, -0.3f, 0.0f);
 	entities.push_back(child);
@@ -185,14 +185,15 @@ void Fire::render() {
 	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
 	shader->loadMatrix("u_view", m_camera.getViewMatrix());
 	shader->loadMatrix("u_model", Matrix4f::IDENTITY);
+	shader->loadFloat("u_resolutionY", static_cast<float>(Application::Height));
 	shader->loadInt("u_diffuse", 0);
 	Globals::textureManager.get("particle").bind(0u);
 	m_flame.draw();
 	shader->unuse();
 	glDepthMask(true);
 
-	/*if (m_drawUi)
-		renderUi();*/
+	if (m_drawUi)
+		renderUi();
 }
 
 void Fire::OnMouseMotion(Event::MouseMoveEvent& event) {

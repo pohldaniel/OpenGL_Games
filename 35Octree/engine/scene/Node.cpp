@@ -93,7 +93,7 @@ void Node::removeChild(Node* child) {
 
 	child->m_parent = nullptr;
 
-	std::remove_if(m_children.begin(), m_children.end(), [child](const std::unique_ptr<Node, std::function<void(Node* node)>>& node) -> bool { return node.get() == child; });
+	[[maybe_unused]]auto tmp = std::remove_if(m_children.begin(), m_children.end(), [child](const std::unique_ptr<Node, std::function<void(Node* node)>>& node) -> bool { return node.get() == child; });
 }
 
 void Node::removeSelf() {

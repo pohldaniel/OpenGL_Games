@@ -56,3 +56,4 @@ https://stackoverflow.com/questions/10087226/lua-5-2-lua-globalsindex-alternativ
 
 https://www.youtube.com/watch?v=UgC75I1wsTU
 https://www.youtube.com/watch?v=ZzMnu3v_MOw
+http://www.humus.name/

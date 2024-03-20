@@ -7,6 +7,7 @@ out vec4 colorOut;
 
 uniform sampler2D u_diffuse;
 uniform mat4 u_view;
+uniform float u_resolutionY;
 
 void main(){ 
 	vec4 worldPosCentre = vec4(0,0.05,0,1);
@@ -26,5 +27,5 @@ void main(){
 	colorOut.g = a.g + (b.g - a.g) * k;
 	colorOut.b = a.b + (b.b - a.b) * k;
 	
-	//colorOut.a *= 1- (gl_FragCoord.y/720);
+	colorOut.a *= 1- (gl_FragCoord.y/u_resolutionY);
 }
