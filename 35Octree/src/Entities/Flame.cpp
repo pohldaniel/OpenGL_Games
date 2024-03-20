@@ -186,7 +186,7 @@ Flame::Flame(){
 
 	m_numParticles = 0;
 	//create the first particle
-	m_particles.push_back(new Particle);
+	//m_particles.push_back(new Particle);
 }
 
 //flame deconstructor

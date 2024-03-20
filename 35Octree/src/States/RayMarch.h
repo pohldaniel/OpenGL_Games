@@ -32,7 +32,6 @@ private:
 
 	bool m_initUi = true;
 	bool m_drawUi = true;
-	bool m_drawOffscreen = false;
 
 	Camera m_camera;
 	Background m_background;

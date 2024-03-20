@@ -9,7 +9,8 @@ enum States {
 	DEFAULT,
 	OCTREEINTERFACE,
 	RAYMARCH,
-	FIRE
+	FIRE,
+	PARTICLE
 };
 
 class State;

@@ -429,6 +429,12 @@
     <ClCompile Include="src\Particle.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\States\ParticleInterface.cpp">
+      <Filter>Source Files\States</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Skybox.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="convhull\convhull_3d.h">
@@ -819,6 +825,12 @@
       <Filter>Source Files\Entities</Filter>
     </ClInclude>
     <ClInclude Include="src\Particle.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\States\ParticleInterface.h">
+      <Filter>Source Files\States</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Skybox.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

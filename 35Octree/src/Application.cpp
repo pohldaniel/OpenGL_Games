@@ -18,6 +18,7 @@
 #include <States/Menu.h>
 #include <States/RayMarch.h>
 #include <States/Fire.h>
+#include <States/ParticleInterface.h>
 
 #include "Application.h"
 #include "Globals.h"
@@ -417,7 +418,8 @@ void Application::initStates() {
 	//Machine->addStateAtTop(new OctreeInterface(*Machine));
 	//Machine->addStateAtTop(new Default(*Machine));
 	//Machine->addStateAtTop(new RayMarch(*Machine));
-	Machine->addStateAtTop(new Fire(*Machine));
+	//Machine->addStateAtTop(new Fire(*Machine));
+	Machine->addStateAtTop(new ParticleInterface(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -710,9 +712,9 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("batch", "res/shader/batch.vert", "res/shader/batch.frag");
 	Globals::shaderManager.loadShader("ray_march", "res/shader/ray_march.vert", "res/shader/ray_march.frag");
 	Globals::shaderManager.loadShader("scene", "res/shader/scene.vert", "res/shader/scene.frag");
-
 	Globals::shaderManager.loadShader("model", "res/shader/model.vert", "res/shader/model.frag");
 	Globals::shaderManager.loadShader("particle", "res/shader/particle.vert", "res/shader/particle.frag", "res/shader/particle.gem");
+	Globals::shaderManager.loadShader("skybox", "res/shader/skybox.vert", "res/shader/skybox.frag");
 
 	Globals::fontManager.loadCharacterSet("upheaval_200", "res/fonts/upheavtt.ttf", 200, 0, 30, 128, 0, true, 0u);
 	Globals::fontManager.loadCharacterSet("upheaval_50", "res/fonts/upheavtt.ttf", 50, 0, 3, 0, 0, true, 0u);
@@ -744,6 +746,13 @@ void Application::loadAssets() {
 	Globals::textureManager.loadTexture("grass_normal", "res/textures/Grass_normal.png", true);
 	Globals::textureManager.get("grass_normal").setFilter(GL_LINEAR_MIPMAP_LINEAR);
 	Globals::textureManager.get("grass_normal").setWrapMode(GL_REPEAT);
+
+	Globals::textureManager.loadTexture("fire", "res/textures/fire.png", true);
+	Globals::textureManager.get("fire").setFilter(GL_LINEAR);
+	Globals::textureManager.get("fire").setWrapMode(GL_REPEAT);
+
+	std::string faces[] = { "res/textures/posx.jpg", "res/textures/negx.jpg", "res/textures/posy.jpg", "res/textures/negy.jpg", "res/textures/posz.jpg", "res/textures/negz.jpg", };
+	Globals::textureManager.loadCubeMap("dessert", faces, false);
 
 	Globals::shapeManager.buildSphere("sphere", 0.5f, Vector3f(0.0f, 0.0f, 0.0f), 16, 16, true, true, false);
 	Globals::shapeManager.buildCube("cube", Vector3f(-1.0f, -1.0f, -1.0f), Vector3f(2.0f, 2.0f, 2.0f), 1, 1, true, true, false);

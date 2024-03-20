@@ -10,7 +10,7 @@
 #include "Application.h"
 #include "Globals.h"
 
-Fire::Fire(StateMachine& machine) : State(machine, States::DEFAULT) {
+Fire::Fire(StateMachine& machine) : State(machine, States::FIRE) {
 
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
@@ -115,10 +115,6 @@ void Fire::update() {
 	if (keyboard.keyDown(Keyboard::KEY_D)) {
 		directrion += Vector3f(1.0f, 0.0f, 0.0f);
 		move |= true;
-	}
-
-	if (keyboard.keyPressed(Keyboard::KEY_T)) {
-		m_drawOffscreen = !m_drawOffscreen;
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_Q)) {

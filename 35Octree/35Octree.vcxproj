@@ -215,10 +215,12 @@
     <ClCompile Include="src\Octree\ThreadUtils.cpp" />
     <ClCompile Include="src\Octree\WorkQueue.cpp" />
     <ClCompile Include="src\Particle.cpp" />
+    <ClCompile Include="src\Skybox.cpp" />
     <ClCompile Include="src\States\Controlls.cpp" />
     <ClCompile Include="src\States\Default.cpp" />
     <ClCompile Include="src\States\Fire.cpp" />
     <ClCompile Include="src\States\OctreeInterface.cpp" />
+    <ClCompile Include="src\States\ParticleInterface.cpp" />
     <ClCompile Include="src\States\RayMarch.cpp" />
     <ClCompile Include="src\States\Settings.cpp" />
     <ClCompile Include="src\States\StateMachine.cpp" />
@@ -390,10 +392,12 @@
     <ClInclude Include="src\Octree\ThreadUtils.h" />
     <ClInclude Include="src\Octree\WorkQueue.h" />
     <ClInclude Include="src\Particle.h" />
+    <ClInclude Include="src\Skybox.h" />
     <ClInclude Include="src\States\Controls.h" />
     <ClInclude Include="src\States\Default.h" />
     <ClInclude Include="src\States\Fire.h" />
     <ClInclude Include="src\States\OctreeInterface.h" />
+    <ClInclude Include="src\States\ParticleInterface.h" />
     <ClInclude Include="src\States\RayMarch.h" />
     <ClInclude Include="src\States\Settings.h" />
     <ClInclude Include="src\States\StateMachine.h" />
