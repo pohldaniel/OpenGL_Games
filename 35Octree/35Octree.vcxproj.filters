@@ -438,6 +438,9 @@
     <ClCompile Include="src\States\BlendedParticle.cpp">
       <Filter>Source Files\States</Filter>
     </ClCompile>
+    <ClCompile Include="engine\MeshObject\MeshTorusKnot.cpp">
+      <Filter>engine\MeshObject</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="convhull\convhull_3d.h">
@@ -838,6 +841,9 @@
     </ClInclude>
     <ClInclude Include="src\States\BlendedParticle.h">
       <Filter>Source Files\States</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\MeshObject\MeshTorusKnot.h">
+      <Filter>engine\MeshObject</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

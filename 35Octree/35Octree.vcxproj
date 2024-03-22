@@ -173,6 +173,7 @@
     <ClCompile Include="engine\BoundingBox.cpp" />
     <ClCompile Include="engine\DebugRenderer.cpp" />
     <ClCompile Include="engine\MeshBone.cpp" />
+    <ClCompile Include="engine\MeshObject\MeshTorusKnot.cpp" />
     <ClCompile Include="engine\MeshSequence.cpp" />
     <ClCompile Include="engine\MousePickerFBO.cpp" />
     <ClCompile Include="engine\Object.cpp" />
@@ -303,6 +304,7 @@
     <ClInclude Include="engine\interfaces\ICounter.h" />
     <ClInclude Include="engine\interfaces\IStateMachine.h" />
     <ClInclude Include="engine\MeshBone.h" />
+    <ClInclude Include="engine\MeshObject\MeshTorusKnot.h" />
     <ClInclude Include="engine\MeshSequence.h" />
     <ClInclude Include="engine\MousePickerFBO.h" />
     <ClInclude Include="engine\Object.h" />
