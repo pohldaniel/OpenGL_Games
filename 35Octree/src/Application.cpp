@@ -348,6 +348,7 @@ void Application::initOpenGL(int msaaSamples) {
 	//glDisable(GL_BLEND);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	
 	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 
 
@@ -713,8 +714,10 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("ray_march", "res/shader/ray_march.vert", "res/shader/ray_march.frag");
 	Globals::shaderManager.loadShader("scene", "res/shader/scene.vert", "res/shader/scene.frag");
 	Globals::shaderManager.loadShader("model", "res/shader/model.vert", "res/shader/model.frag");
-	Globals::shaderManager.loadShader("particle", "res/shader/particle.vert", "res/shader/particle.frag", "res/shader/particle.gem");
+	Globals::shaderManager.loadShader("fire", "res/shader/fire.vert", "res/shader/fire.frag", "res/shader/fire.gem");
 	Globals::shaderManager.loadShader("skybox", "res/shader/skybox.vert", "res/shader/skybox.frag");
+	Globals::shaderManager.loadShader("particle_1", "res/shader/particle1.vert", "res/shader/particle1.frag");
+	Globals::shaderManager.loadShader("color", "res/shader/color.vert", "res/shader/color.frag");
 
 	Globals::fontManager.loadCharacterSet("upheaval_200", "res/fonts/upheavtt.ttf", 200, 0, 30, 128, 0, true, 0u);
 	Globals::fontManager.loadCharacterSet("upheaval_50", "res/fonts/upheavtt.ttf", 50, 0, 3, 0, 0, true, 0u);
@@ -727,9 +730,9 @@ void Application::loadAssets() {
 	Globals::textureManager.createNullTexture("null");
 	Globals::textureManager.loadTexture("marble", "res/textures/marble.png", true);
 
-	Globals::textureManager.loadTexture("particle", "res/textures/Flame_Particle.png", false);
-	Globals::textureManager.get("particle").setFilter(GL_LINEAR_MIPMAP_LINEAR);
-	Globals::textureManager.get("particle").setWrapMode(GL_REPEAT);
+	Globals::textureManager.loadTexture("flame", "res/textures/Flame_Particle.png", false);
+	Globals::textureManager.get("flame").setFilter(GL_LINEAR_MIPMAP_LINEAR);
+	Globals::textureManager.get("flame").setWrapMode(GL_REPEAT);
 
 	Globals::textureManager.loadTexture("pine", "res/textures/Log_pine_color.png", true);
 	Globals::textureManager.get("pine").setFilter(GL_LINEAR_MIPMAP_LINEAR);
@@ -748,8 +751,8 @@ void Application::loadAssets() {
 	Globals::textureManager.get("grass_normal").setWrapMode(GL_REPEAT);
 
 	Globals::textureManager.loadTexture("fire", "res/textures/fire.png", true);
-	Globals::textureManager.get("fire").setFilter(GL_LINEAR);
-	Globals::textureManager.get("fire").setWrapMode(GL_REPEAT);
+	//Globals::textureManager.get("fire").setFilter(GL_LINEAR);
+	//Globals::textureManager.get("fire").setWrapMode(GL_REPEAT);
 
 	std::string faces[] = { "res/textures/posx.jpg", "res/textures/negx.jpg", "res/textures/posy.jpg", "res/textures/negy.jpg", "res/textures/posz.jpg", "res/textures/negz.jpg", };
 	Globals::textureManager.loadCubeMap("dessert", faces, false);

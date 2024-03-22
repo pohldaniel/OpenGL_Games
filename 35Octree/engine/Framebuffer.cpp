@@ -1,4 +1,5 @@
 #include "Framebuffer.h"
+#include "Texture.h"
 
 unsigned int Framebuffer::Width = 1600;
 unsigned int Framebuffer::Height = 800;
@@ -865,26 +866,39 @@ const unsigned int& Framebuffer::getFramebuffer() const {
 }
 
 void Framebuffer::bindColorTexture(unsigned int unit, unsigned short attachment) const {
-	glActiveTexture(GL_TEXTURE0 + unit);
-	glBindTexture(GL_TEXTURE_2D, m_colorTextures[attachment]);
+	if (Texture::ActiveTextures[unit] != m_colorTextures[attachment]) {
+		Texture::ActiveTextures[unit] = m_colorTextures[attachment];
+		glActiveTexture(GL_TEXTURE0 + unit);
+		glBindTexture(GL_TEXTURE_2D, m_colorTextures[attachment]);
+	}
 }
 
 void Framebuffer::bindDepthTexture(unsigned int unit) const {
-	glActiveTexture(GL_TEXTURE0 + unit);
-	glBindTexture(GL_TEXTURE_2D, m_depthTexture);
+	if (Texture::ActiveTextures[unit] != m_depthTexture) {
+		Texture::ActiveTextures[unit] = m_depthTexture;
+		glActiveTexture(GL_TEXTURE0 + unit);
+		glBindTexture(GL_TEXTURE_2D, m_depthTexture);
+	}
 }
 
 void Framebuffer::bindStencilTexture(unsigned int unit) const {
-	glActiveTexture(GL_TEXTURE0 + unit);
-	glBindTexture(GL_TEXTURE_2D, m_stencilTexture);
+	if (Texture::ActiveTextures[unit] != m_stencilTexture) {
+		Texture::ActiveTextures[unit] = m_stencilTexture;
+		glActiveTexture(GL_TEXTURE0 + unit);
+		glBindTexture(GL_TEXTURE_2D, m_stencilTexture);
+	}
 }
 
 void Framebuffer::bindDepthStencilTexture(unsigned int unit) const {
-	glActiveTexture(GL_TEXTURE0 + unit);
-	glBindTexture(GL_TEXTURE_2D, m_depthStencilTexture);
+	if (Texture::ActiveTextures[unit] != m_depthStencilTexture) {
+		Texture::ActiveTextures[unit] = m_depthStencilTexture;
+		glActiveTexture(GL_TEXTURE0 + unit);
+		glBindTexture(GL_TEXTURE_2D, m_depthStencilTexture);
+	}
 }
 
-void Framebuffer::unbindColorTexture() const {
+void Framebuffer::unbindTexture(unsigned int unit) const {
+	Texture::ActiveTextures[unit] = 0u;
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, 0);
 }

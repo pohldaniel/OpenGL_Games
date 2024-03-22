@@ -176,14 +176,14 @@ void Fire::render() {
 	}
 	
 	glDepthMask(false);
-	shader = Globals::shaderManager.getAssetPointer("particle");
+	shader = Globals::shaderManager.getAssetPointer("fire");
 	shader->use();
 	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
 	shader->loadMatrix("u_view", m_camera.getViewMatrix());
 	shader->loadMatrix("u_model", Matrix4f::IDENTITY);
 	shader->loadFloat("u_resolutionY", static_cast<float>(Application::Height));
 	shader->loadInt("u_diffuse", 0);
-	Globals::textureManager.get("particle").bind(0u);
+	Globals::textureManager.get("flame").bind(0u);
 	m_flame.draw();
 	shader->unuse();
 	glDepthMask(true);

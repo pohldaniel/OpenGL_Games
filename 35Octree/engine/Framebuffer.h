@@ -94,7 +94,7 @@ public:
 	void bindStencilTexture(unsigned int unit) const;
 	void bindDepthStencilTexture(unsigned int unit) const;
 
-	void unbindColorTexture() const;
+	void unbindTexture(unsigned int unit = 0u) const;
 
 	const unsigned int& getColorTexture(unsigned short attachment = 0) const;
 	const unsigned int& getDepthTexture() const;

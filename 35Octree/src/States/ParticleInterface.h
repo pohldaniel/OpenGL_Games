@@ -5,6 +5,7 @@
 #include <engine/Camera.h>
 #include <engine/AssimpModel.h>
 #include <engine/ObjModel.h>
+#include <engine/Framebuffer.h>
 #include <States/StateMachine.h>
 #include "Skybox.h"
 
@@ -83,6 +84,7 @@ struct ParticleNew {
 	float maxLife;
 	float angle;
 	float alpha;
+	float cameraDistance;
 };
 
 class ParticleInterface : public State, public MouseEventListener, public KeyboardEventListener {
@@ -102,7 +104,7 @@ public:
 	void OnMouseButtonUp(Event::MouseButtonEvent& event) override;
 	void OnKeyDown(Event::KeyboardEvent& event) override;
 	void OnKeyUp(Event::KeyboardEvent& event) override;
-	void addParticles(float dt);
+	void addParticles(float dt, int count = 0);
 	void updateParticles(float dt);
 	void updateGeometry();
 
@@ -113,6 +115,7 @@ private:
 
 	bool m_initUi = true;
 	bool m_drawUi = true;
+	bool m_addParticle = true;
 
 	Camera m_camera;
 	AssimpModel m_rocket;	
@@ -126,6 +129,7 @@ private:
 	float gdfsghk = 0.0f;
 
 	std::vector<ParticleNew> m_particles;
-	ParticleVertex* particlesBatch;
+	ParticleVertex* particleBatch;
 	ParticleVertex* particleBatchPtr;
+	uint32_t m_particleCount = 0;
 };

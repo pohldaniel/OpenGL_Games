@@ -1,11 +1,9 @@
 #version 410 core
 
-uniform vec4 u_color = vec4(1.0f, 1.0f, 1.0f, 1.0f);
+out vec4 outColor;
 
-in vec3 normal;
-
-out vec4 color;
+in vec4 vertColor; 
 
 void main(void){
-	color = u_color;	
+	outColor = vertColor;	
 }
