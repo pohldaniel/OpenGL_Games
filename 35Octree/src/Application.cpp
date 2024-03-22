@@ -19,6 +19,7 @@
 #include <States/RayMarch.h>
 #include <States/Fire.h>
 #include <States/ParticleInterface.h>
+#include <States/BlendedParticle.h>
 
 #include "Application.h"
 #include "Globals.h"
@@ -420,7 +421,8 @@ void Application::initStates() {
 	//Machine->addStateAtTop(new Default(*Machine));
 	//Machine->addStateAtTop(new RayMarch(*Machine));
 	//Machine->addStateAtTop(new Fire(*Machine));
-	Machine->addStateAtTop(new ParticleInterface(*Machine));
+	//Machine->addStateAtTop(new ParticleInterface(*Machine));
+	Machine->addStateAtTop(new BlendedParticle(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -716,7 +718,8 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("model", "res/shader/model.vert", "res/shader/model.frag");
 	Globals::shaderManager.loadShader("fire", "res/shader/fire.vert", "res/shader/fire.frag", "res/shader/fire.gem");
 	Globals::shaderManager.loadShader("skybox", "res/shader/skybox.vert", "res/shader/skybox.frag");
-	Globals::shaderManager.loadShader("particle_1", "res/shader/particle1.vert", "res/shader/particle1.frag");
+	Globals::shaderManager.loadShader("particle", "res/shader/particle.vert", "res/shader/particle.frag");
+	Globals::shaderManager.loadShader("particle_blend", "res/shader/particle_blend.vert", "res/shader/particle_blend.frag");
 	Globals::shaderManager.loadShader("color", "res/shader/color.vert", "res/shader/color.frag");
 
 	Globals::fontManager.loadCharacterSet("upheaval_200", "res/fonts/upheavtt.ttf", 200, 0, 30, 128, 0, true, 0u);

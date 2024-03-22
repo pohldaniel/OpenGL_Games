@@ -5,12 +5,12 @@
 #include <engine/Batchrenderer.h>
 #include <engine/Material.h>
 
-#include "ParticleInterface.h"
+#include "BlendedParticle.h"
 
 #include "Application.h"
 #include "Globals.h"
 
-ParticleInterface::ParticleInterface(StateMachine& machine) : State(machine, States::PARTICLE) {
+BlendedParticle::BlendedParticle(StateMachine& machine) : State(machine, States::PARTICLE) {
 
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
@@ -19,36 +19,60 @@ ParticleInterface::ParticleInterface(StateMachine& machine) : State(machine, Sta
 	m_camera = Camera();
 	m_camera.perspective(60.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 1.0f, 1000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
-	m_camera.lookAt(Vector3f(25.0f, 10.0f, 0.0f), Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 1.0f, 0.0f));
+	m_camera.lookAt(Vector3f(35.0f, 10.0f, 0.0f), Vector3f(0.0f, 10.0f, 0.0f), Vector3f(0.0f, 1.0f, 0.0f));
 	//m_camera.lookAt(Vector3f(0.0f, 0.0f, 5.0f), Vector3f(0.0f, 0.0f, 5.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
 	m_camera.setRotationSpeed(0.1f);
 	m_camera.setMovingSpeed(15.0f);
 
-	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	glClearColor(0.24705f, 0.30980f, 0.41568f, 1.0f);
 	glClearDepth(1.0f);
 
-	m_rocket.loadModel("res/models/Rocket_Ship_01.gltf");
-	m_rocket.initShader();
+	m_alphaSplineF.addPoint(0.0f, 0.0f);
+	m_alphaSplineF.addPoint(0.1f, 1.0f);
+	m_alphaSplineF.addPoint(0.5f, 1.0f);
+	m_alphaSplineF.addPoint(1.0f, 0.0f);
 
-	m_alphaSpline.addPoint(0.0f, 0.0f);
-	m_alphaSpline.addPoint(0.3f, 1.0f);
-	m_alphaSpline.addPoint(0.6f, 1.0f);
-	m_alphaSpline.addPoint(1.0f, 0.0f);
+	m_sizeSplineF.addPoint(0.0f, 1.0f);
+	m_sizeSplineF.addPoint(0.25f, 7.0f);
+	m_sizeSplineF.addPoint(0.5f, 2.5f);
+	m_sizeSplineF.addPoint(1.0f, 0.0f);
 
-	m_sizeSpline.addPoint(0.0f, 1.0f);
-	m_sizeSpline.addPoint(0.5f, 5.0f);
-	m_sizeSpline.addPoint(1.0f, 1.0f);
+	m_colorSplineF.addPoint(0.0f, Vector4f(1.0f, 1.0f, 0.5019607843137255f, 0.0f));
+	m_colorSplineF.addPoint(1.0f, Vector4f(1.0f, 0.5019607843137255f, 0.5019607843137255f, 0.0f));
 
-	m_colorSpline.addPoint(0.0f, Vector4f(1.0f, 1.0f, 0.5019607843137255f, 0.0f));
-	m_colorSpline.addPoint(1.0f, Vector4f(1.0f, 0.5019607843137255f, 0.5019607843137255f, 0.0f));
 
+	m_alphaSplineS.addPoint(0.0f, 0.0f);
+	m_alphaSplineS.addPoint(0.1f, 1.0f);
+	m_alphaSplineS.addPoint(0.5f, 1.0f);
+	m_alphaSplineS.addPoint(1.0f, 0.0f);
+
+	m_sizeSplineS.addPoint(0.0f, 1.0f);
+	m_sizeSplineS.addPoint(0.5f, 8.0f);
+	m_sizeSplineS.addPoint(1.0f, 16.0f);
+
+	m_colorSplineS.addPoint(0.0f, Vector4f(0.12549019607843137f, 0.12549019607843137f, 0.12549019607843137f, 0.0f));
+	m_colorSplineS.addPoint(1.0f, Vector4f(0.0f, 0.0f, 0.0f, 0.0f));
+
+
+	m_alphaSplineX.addPoint(0.0f, 0.0f);
+	m_alphaSplineX.addPoint(0.1f, 1.0f);
+	m_alphaSplineX.addPoint(0.9f, 1.0f);
+	m_alphaSplineX.addPoint(1.0f, 0.0f);
+
+	m_sizeSplineX.addPoint(0.0f, 1.0f);
+	m_sizeSplineX.addPoint(1.0f, 1.0f);
+
+	m_colorSplineX.addPoint(0.0f, Vector4f(1.0f, 0.5019607843137255f, 0.5019607843137255f, 0.0f));
+	m_colorSplineX.addPoint(1.0f, Vector4f(1.0f, 1.0f, 1.0f, 0.0f));
+
+	rateLimiter = 0.0f;
 
 	glGenVertexArrays(1, &m_vao);
 	glGenBuffers(1, &m_vbo);
 	glBindVertexArray(m_vao);
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
 
-	glBufferData(GL_ARRAY_BUFFER, sizeof(ParticleVertex) * MAXPARTICLES, nullptr, GL_DYNAMIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(ParticleVertex) * MAX_PARTICLES, nullptr, GL_DYNAMIC_DRAW);
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(ParticleVertex), (void*)offsetof(ParticleVertex, position));
 
@@ -61,34 +85,36 @@ ParticleInterface::ParticleInterface(StateMachine& machine) : State(machine, Sta
 	glEnableVertexAttribArray(3);
 	glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(ParticleVertex), (void*)offsetof(ParticleVertex, angle));
 
+	glEnableVertexAttribArray(4);
+	glVertexAttribPointer(4, 1, GL_FLOAT, GL_FALSE, sizeof(ParticleVertex), (void*)offsetof(ParticleVertex, blend));
+
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	srand(time(0));
 
-	particleBatch = new ParticleVertex[MAXPARTICLES];
+	particleBatch = new ParticleVertex[MAX_PARTICLES];
 	particleBatchPtr = particleBatch;
 
-	glEnable(GL_ALPHA_TEST);
-	glAlphaFunc(GL_GREATER, 0.05f);
+	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+	glDepthFunc(GL_ALWAYS);
 
 	glEnable(GL_PROGRAM_POINT_SIZE);
 	glEnable(GL_POINT_SPRITE);
 }
 
-ParticleInterface::~ParticleInterface() {
-	glAlphaFunc(GL_ALWAYS, 0.0f);
-	glDisable(GL_ALPHA_TEST);
+BlendedParticle::~BlendedParticle() {
+	glDepthFunc(GL_LEQUAL);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
 }
 
-void ParticleInterface::fixedUpdate() {
+void BlendedParticle::fixedUpdate() {
 
 }
 
-void ParticleInterface::update() {
+void BlendedParticle::update() {
 	Keyboard &keyboard = Keyboard::instance();
 	Vector3f directrion = Vector3f();
 
@@ -126,8 +152,8 @@ void ParticleInterface::update() {
 		move |= true;
 	}
 
-	if (keyboard.keyDown(Keyboard::KEY_SPACE)) {
-		if(m_particles.size() < MAXPARTICLES)
+	if (keyboard.keyPressed(Keyboard::KEY_SPACE)) {
+		if (m_particles.size() < MAX_PARTICLES)
 			addParticles(0, 1);
 	}
 
@@ -148,29 +174,24 @@ void ParticleInterface::update() {
 		}
 	}
 
-	if(m_addParticle)
+	if (m_addParticle)
 		addParticles(m_dt);
 
 	updateParticles(m_dt);
 }
 
-void ParticleInterface::render() {
+void BlendedParticle::render() {
 
 	updateGeometry();
-	
-	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	m_rocket.draw(m_camera);
-	m_skybox.draw(m_camera);
-	glBlendFunc(GL_ONE, GL_ONE);
 	glBindVertexArray(m_vao);
 	GLsizeiptr size = (uint8_t*)particleBatchPtr - (uint8_t*)particleBatch;
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
 	glBufferSubData(GL_ARRAY_BUFFER, 0, size, particleBatch);
 
-	
-	auto shader = Globals::shaderManager.getAssetPointer("particle");
+
+	auto shader = Globals::shaderManager.getAssetPointer("particle_blend");
 	shader->use();
 	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
 	shader->loadMatrix("u_view", m_camera.getViewMatrix());
@@ -184,33 +205,33 @@ void ParticleInterface::render() {
 
 	particleBatchPtr = particleBatch;
 	m_particleCount = 0;
-	
+
 
 	if (m_drawUi)
 		renderUi();
 }
 
-void ParticleInterface::OnMouseMotion(Event::MouseMoveEvent& event) {
+void BlendedParticle::OnMouseMotion(Event::MouseMoveEvent& event) {
 
 }
 
-void ParticleInterface::OnMouseButtonDown(Event::MouseButtonEvent& event) {
+void BlendedParticle::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 	if (event.button == 2u) {
 		Mouse::instance().attach(Application::GetWindow());
 	}
 }
 
-void ParticleInterface::OnMouseButtonUp(Event::MouseButtonEvent& event) {
+void BlendedParticle::OnMouseButtonUp(Event::MouseButtonEvent& event) {
 	if (event.button == 2u) {
 		Mouse::instance().detach();
 	}
 }
 
-void ParticleInterface::OnMouseWheel(Event::MouseWheelEvent& event) {
+void BlendedParticle::OnMouseWheel(Event::MouseWheelEvent& event) {
 
 }
 
-void ParticleInterface::OnKeyDown(Event::KeyboardEvent& event) {
+void BlendedParticle::OnKeyDown(Event::KeyboardEvent& event) {
 	if (event.keyCode == VK_LMENU) {
 		m_drawUi = !m_drawUi;
 	}
@@ -221,16 +242,16 @@ void ParticleInterface::OnKeyDown(Event::KeyboardEvent& event) {
 	}
 }
 
-void ParticleInterface::OnKeyUp(Event::KeyboardEvent& event) {
+void BlendedParticle::OnKeyUp(Event::KeyboardEvent& event) {
 
 }
 
-void ParticleInterface::resize(int deltaW, int deltaH) {
+void BlendedParticle::resize(int deltaW, int deltaH) {
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
 }
 
-void ParticleInterface::renderUi() {
+void BlendedParticle::renderUi() {
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
@@ -268,7 +289,7 @@ void ParticleInterface::renderUi() {
 	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 	ImGui::Checkbox("Draw Wirframe", &StateMachine::GetEnableWireframe());
 	ImGui::Checkbox("Add Particle", &m_addParticle);
-	if(!m_addParticle)
+	if (!m_addParticle)
 		ImGui::Text("Hold Space");
 
 	ImGui::End();
@@ -276,45 +297,36 @@ void ParticleInterface::renderUi() {
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
-float ParticleInterface::getRand() {
+float BlendedParticle::getRand() {
 	return ((float)rand()) / RAND_MAX;
 }
 
-void ParticleInterface::addParticles(float dt, int count) {
+void BlendedParticle::addParticles(float dt, int count) {
 
 	int n;
 	if (count == 0) {
-		gdfsghk += dt;
-		n = std::floor(gdfsghk * 75.0f);
-		gdfsghk -= n / 75.0f;
+		rateLimiter += dt;
+		n = std::floor(rateLimiter * 120.0f);
+		rateLimiter -= n / 120.0f;
 	}else {
 		n = count;
 	}
-	
+
 
 	for (int i = 0; i < n; i++) {
-		float life = (getRand() * 0.75f + 0.25f) * 10.0f;
-		float size = (getRand() * 0.5f + 0.5f) * 4.0f;
-		m_particles.push_back({
-				{getRand() * 2.0f - 1.0f, getRand() * 2.0f - 1.0f, getRand() * 2.0f - 1.0f},
-				{0.0f, -15.0f, 0.0f},
-				{1.0f, 1.0f, 1.0, 1.0f},
-				size,
-				size,
-				life,
-				life,
-				getRand() * TWO_PI,
-				1.0f,
-				0.0f
-		});
+		m_particles.push_back(createParticleF());
+	}
+
+	for (int i = 0; i < n; i++) {
+		m_particles.push_back(createParticleS());
+	}
+
+	for (int i = 0; i < n * 2; i++) {
+		m_particles.push_back(createParticleX());
 	}
 }
 
-static inline bool compareParticle(const ParticleNew& lhs, const ParticleNew& rhs) {
-	return lhs.cameraDistance >= rhs.cameraDistance;
-}
-
-void ParticleInterface::updateParticles(float dt) {
+void BlendedParticle::updateParticles(float dt) {
 	for (ParticleNew& particle : m_particles) {
 		particle.life -= m_dt;
 	}
@@ -325,13 +337,28 @@ void ParticleInterface::updateParticles(float dt) {
 		float t = 1.0f - particle.life / particle.maxLife;
 
 		particle.angle += dt * 0.5f;
-		particle.alpha = m_alphaSpline.get(t);		
-		particle.color = m_colorSpline.get(t);
-		particle.color[3] = particle.alpha;
 
-		particle.currentSize = particle.size * m_sizeSpline.get(t);
+		if (particle.blend == 0.0f) {
+			if (particle.velocity[0] != 0.0f) {
+				particle.alpha = m_alphaSplineX.get(t);
+				particle.currentSize = particle.size * m_sizeSplineX.get(t);
+				particle.color = m_colorSplineX.get(t);
+				particle.color[3] = particle.alpha;
+			}else {
+				particle.alpha = m_alphaSplineF.get(t);
+				particle.currentSize = particle.size * m_sizeSplineF.get(t);
+				particle.color = m_colorSplineF.get(t);
+				particle.color[3] = particle.alpha;
+			}
+		}else {
+			particle.alpha = m_alphaSplineS.get(t);
+			particle.currentSize = particle.size * m_sizeSplineS.get(t);
+			particle.color = m_colorSplineS.get(t);
+			particle.color[3] = particle.alpha;
+		}
+
 		particle.position += particle.velocity * dt;
-		particle.cameraDistance = (particle.position - m_camera.getPosition()).lengthSq();
+		particle.cameraDistance = (particle.position - m_camera.getPosition()).length();
 
 		Vector3f drag;
 		drag[0] = Math::Sgn(particle.velocity[0]) * std::min(std::fabs(particle.velocity[0] * dt * 0.1f), std::fabs(particle.velocity[0]));
@@ -341,19 +368,67 @@ void ParticleInterface::updateParticles(float dt) {
 
 
 	}
-
-	std::sort(m_particles.begin(), m_particles.end(), compareParticle);
+	std::sort(m_particles.begin(), m_particles.end());
+	
 }
 
-void ParticleInterface::updateGeometry() {
+void BlendedParticle::updateGeometry() {
+
 	for (const ParticleNew& particle : m_particles) {
 		particleBatchPtr->position = particle.position;
 		particleBatchPtr->size = particle.currentSize;
-		particleBatchPtr->color = particle.color;	
+		particleBatchPtr->color = particle.color;
 		particleBatchPtr->angle = particle.angle;
-
+		particleBatchPtr->blend = particle.blend;
 
 		particleBatchPtr++;
 		m_particleCount++;
 	}
+}
+
+BlendedParticle::ParticleNew BlendedParticle::createParticleF() {
+	float life = (getRand() * 0.75f + 0.25f) * 10.0f;
+	return { {(getRand() * 2.0f - 1.0f) * 4.0f, (getRand() * 2.0f - 1.0f) * 4.0f, (getRand() * 2.0f - 1.0f) * 4.0f},
+			 {0.0f, 5.0f, 0.0f},
+			 {1.0f, 1.0f, 1.0f, 0.0f},
+			 (getRand() * 0.5f + 0.5f) * 2.0f,
+			 0.0f,
+			 life ,
+			 life,
+			 getRand() * TWO_PI,
+			 1.0f,
+			 0.0f,
+			 0.0f};
+}
+
+BlendedParticle::ParticleNew BlendedParticle::createParticleS() {
+	float life = (getRand() * 0.75f + 0.25f) * 15.0f;
+	return { {(getRand() * 2.0f - 1.0f) * 4.0f, 10.0f + (getRand() * 2.0f - 1.0f) * 4.0f, (getRand() * 2.0f - 1.0f) * 4.0f },
+			 {0.0f, 5.0f, 0.0f},
+			 {1.0f, 1.0f, 1.0f, 0.0f},
+			 (getRand() * 0.5f + 0.5f) * 2.0f,
+			 0.0f,
+			 life,
+			 life,
+			 getRand() * TWO_PI,
+			 1.0f,
+			 1.0f,
+			 0.0f};
+}
+
+BlendedParticle::ParticleNew BlendedParticle::createParticleX() {
+	float life = (getRand() * 0.75f + 0.25f) * 2.0f;
+	float dirX = (getRand() * 2.0f - 1.0f) * 3.0f;
+	float dirY = (getRand() * 2.0f - 1.0f) * 3.0f;
+	return { {(getRand() * 2.0f - 1.0f) * 4.0f, 10.0f + (getRand() * 2.0f - 1.0f) * 4.0f, (getRand() * 2.0f - 1.0f) * 4.0f },
+			 {dirX, 10.0f, dirY},
+			 {1.0f, 1.0f, 1.0f, 0.0f},
+			 (getRand() * 0.5f + 0.5f) * 0.5f,
+			 0.0f,
+			 life,
+			 life,
+			 getRand() * TWO_PI,
+			 1.0f,
+			 0.0f,
+			 0.0f};
 }

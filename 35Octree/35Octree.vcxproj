@@ -216,6 +216,7 @@
     <ClCompile Include="src\Octree\WorkQueue.cpp" />
     <ClCompile Include="src\Particle.cpp" />
     <ClCompile Include="src\Skybox.cpp" />
+    <ClCompile Include="src\States\BlendedParticle.cpp" />
     <ClCompile Include="src\States\Controlls.cpp" />
     <ClCompile Include="src\States\Default.cpp" />
     <ClCompile Include="src\States\Fire.cpp" />
@@ -393,6 +394,7 @@
     <ClInclude Include="src\Octree\WorkQueue.h" />
     <ClInclude Include="src\Particle.h" />
     <ClInclude Include="src\Skybox.h" />
+    <ClInclude Include="src\States\BlendedParticle.h" />
     <ClInclude Include="src\States\Controls.h" />
     <ClInclude Include="src\States\Default.h" />
     <ClInclude Include="src\States\Fire.h" />

@@ -10,7 +10,8 @@ enum States {
 	OCTREEINTERFACE,
 	RAYMARCH,
 	FIRE,
-	PARTICLE
+	PARTICLE,
+	BLENDEDPARTICLE
 };
 
 class State;
