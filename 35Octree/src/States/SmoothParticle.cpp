@@ -19,11 +19,11 @@ SmoothParticle::SmoothParticle(StateMachine& machine) : State(machine, States::S
 	m_camera = Camera();
 	m_camera.perspective(60.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 1.0f, 1000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
-	m_camera.lookAt(Vector3f(25.0f, 10.0f, 0.0f), Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 1.0f, 0.0f));
+	m_camera.lookAt(Vector3f(0.0f, 0.0f, 10.0f), Vector3f(0.0f, 0.0f, 10.0f) - Vector3f(0.0f, 0.0f, 1.0f), Vector3f(0.0f, 1.0f, 0.0f));
 	m_camera.setRotationSpeed(0.1f);
 	m_camera.setMovingSpeed(15.0f);
 
-	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	glClearColor(0.494f, 0.686f, 0.796f, 1.0f);
 	glClearDepth(1.0f);
 
 	m_rocket.loadModel("res/models/Rocket_Ship_01.gltf");
@@ -150,41 +150,23 @@ void SmoothParticle::update() {
 	if (m_addParticle)
 		addParticles(m_dt);
 
-	updateParticles(m_dt);
+	//updateParticles(m_dt);
 }
 
 void SmoothParticle::render() {
 
-	updateGeometry();
 
-	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	m_rocket.draw(m_camera);
-	m_skybox.draw(m_camera);
-	glBlendFunc(GL_ONE, GL_ONE);
-	glBindVertexArray(m_vao);
-	GLsizeiptr size = (uint8_t*)particleBatchPtr - (uint8_t*)particleBatch;
-	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-	glBufferSubData(GL_ARRAY_BUFFER, 0, size, particleBatch);
-
-
-	auto shader = Globals::shaderManager.getAssetPointer("particle");
+	auto shader = Globals::shaderManager.getAssetPointer("texture");
 	shader->use();
 	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
 	shader->loadMatrix("u_view", m_camera.getViewMatrix());
 	shader->loadMatrix("u_model", Matrix4f::IDENTITY);
-	shader->loadFloat("pointMultiplier", static_cast<float>(Application::Height / 2) / (m_camera.getScaleFactor()));
-	shader->loadInt("u_texture", 0);
-	Globals::textureManager.get("fire").bind(0u);
-	glDrawArrays(GL_POINTS, 0, m_particleCount);
-
+	shader->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(m_camera.getViewMatrix() * Matrix4f::IDENTITY));
+	Globals::textureManager.get("grid").bind(0u);
+	//Globals::shapeManager.get("torus").drawRaw();
+	Globals::shapeManager.get("torus_knot").drawRaw();
 	shader->unuse();
-
-	particleBatchPtr = particleBatch;
-	m_particleCount = 0;
-
-
 	if (m_drawUi)
 		renderUi();
 }

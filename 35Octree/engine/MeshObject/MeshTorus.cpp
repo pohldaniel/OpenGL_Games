@@ -89,9 +89,8 @@ void MeshTorus::BuildMesh(float radius, float tubeRadius, const Vector3f& positi
 			}
 
 			if(generateTangents) {
-				tangents.push_back(Vector3f(sinMainSegment, 0.0, cosMainSegment));
-				bitangents.push_back(Vector3f(-sinTubeSegment *cosMainSegment, cosTubeSegment, -sinTubeSegment *sinMainSegment));
-				
+				tangents.push_back(Vector3f(sinMainSegment, 0.0f, cosMainSegment));
+				bitangents.push_back(Vector3f(-sinTubeSegment *cosMainSegment, cosTubeSegment, -sinTubeSegment *sinMainSegment));				
 			}
 
 			// Update current tube angle

@@ -8,6 +8,7 @@
 #include "MeshQuad.h"
 #include "MeshCube.h"
 #include "MeshDisk.h"
+#include "MeshTorusKnot.h"
 #include "../utils/Utils.h"
 
 Shape::Shape() : m_markForDelete(false) { }
@@ -109,6 +110,11 @@ void Shape::buildCapsule(float radius, float length, const Vector3f& position, i
 
 void Shape::buildTorus(float radius, float tubeRadius, const Vector3f& position, int uResolution, int vResolution, bool generateTexels, bool generateNormals, bool generateTangents) {
 	MeshTorus::BuildMesh(radius, tubeRadius, position, uResolution, vResolution, generateTexels, generateNormals, generateTangents, m_positions, m_texels, m_normals, m_indexBuffer, m_tangents, m_bitangents);
+	createBuffer();
+}
+
+void Shape::buildTorusKnot(float radius, float tubeRadius, int p, int q, const Vector3f& position, int uResolution, int vResolution, bool generateTexels, bool generateNormals, bool generateTangents) {
+	MeshTorusKnot::BuildMesh(radius, tubeRadius, p, q, position, uResolution, vResolution, generateTexels, generateNormals, generateTangents, m_positions, m_texels, m_normals, m_indexBuffer, m_tangents, m_bitangents);
 	createBuffer();
 }
 

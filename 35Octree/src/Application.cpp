@@ -424,8 +424,8 @@ void Application::initStates() {
 	//Machine->addStateAtTop(new RayMarch(*Machine));
 	//Machine->addStateAtTop(new Fire(*Machine));
 	//Machine->addStateAtTop(new ParticleInterface(*Machine));
-	Machine->addStateAtTop(new BlendedParticle(*Machine));
-	//Machine->addStateAtTop(new SmoothParticle(*Machine));
+	//Machine->addStateAtTop(new BlendedParticle(*Machine));
+	Machine->addStateAtTop(new SmoothParticle(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -724,6 +724,7 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("particle", "res/shader/particle.vert", "res/shader/particle.frag");
 	Globals::shaderManager.loadShader("particle_blend", "res/shader/particle_blend.vert", "res/shader/particle_blend.frag");
 	Globals::shaderManager.loadShader("color", "res/shader/color.vert", "res/shader/color.frag");
+	Globals::shaderManager.loadShader("geometry", "res/shader/normalGS.vert", "res/shader/normalGS.frag", "res/shader/normalGS.gem");
 
 	Globals::fontManager.loadCharacterSet("upheaval_200", "res/fonts/upheavtt.ttf", 200, 0, 30, 128, 0, true, 0u);
 	Globals::fontManager.loadCharacterSet("upheaval_50", "res/fonts/upheavtt.ttf", 50, 0, 3, 0, 0, true, 0u);
@@ -761,7 +762,7 @@ void Application::loadAssets() {
 	}
 	Globals::textureManager.loadTexture("fire", "res/textures/fire_pre.png", true);
 	Globals::textureManager.get("fire").setFilter(GL_LINEAR);
-
+	Globals::textureManager.loadTexture("grid", "res/textures/grid512.png");
 
 	std::string faces[] = { "res/textures/posx.jpg", "res/textures/negx.jpg", "res/textures/posy.jpg", "res/textures/negy.jpg", "res/textures/posz.jpg", "res/textures/negz.jpg", };
 	Globals::textureManager.loadCubeMap("dessert", faces, false);
@@ -770,4 +771,6 @@ void Application::loadAssets() {
 	Globals::shapeManager.buildCube("cube", Vector3f(-1.0f, -1.0f, -1.0f), Vector3f(2.0f, 2.0f, 2.0f), 1, 1, true, true, false);
 	Globals::shapeManager.get("cube").createBoundingBox();
 	Globals::shapeManager.buildQuadXY("quad", Vector3f(-1.0f, -1.0f, 0.0f), Vector2f(2.0f, 2.0f), 1, 1, true, false, false);
+	Globals::shapeManager.buildTorus("torus", 1.0f, 0.4f, Vector3f(0.0f, 0.0f, 0.0f), 49, 49, true, true, true);
+	Globals::shapeManager.buildTorusKnot("torus_knot", 1.0f, 0.75f, 2, 3, Vector3f(0.0f, 0.0f, 0.0f), 100, 16, true, true, true);
 }

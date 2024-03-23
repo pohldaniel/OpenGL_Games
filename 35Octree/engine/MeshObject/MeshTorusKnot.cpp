@@ -1,13 +1,15 @@
 #include "MeshTorusKnot.h"
 
-MeshTorusKnot::MeshTorusKnot(int uResolution, int vResolution) : MeshTorusKnot(Vector3f(0.0f, 0.0f, 0.0f), 1.0f, 0.4f, true, true, false, uResolution, vResolution) {}
+MeshTorusKnot::MeshTorusKnot(int uResolution, int vResolution) : MeshTorusKnot(Vector3f(0.0f, 0.0f, 0.0f), 1.0f, 0.4f, 2, 3, true, true, false, uResolution, vResolution) {}
 
-MeshTorusKnot::MeshTorusKnot(bool generateTexels, bool generateNormals, bool generateTangents, int uResolution, int vResolution) : MeshTorusKnot(Vector3f(0.0f, 0.0f, 0.0f), 1.0f, 0.4f, generateTexels, generateNormals, generateTangents, uResolution, vResolution) {}
+MeshTorusKnot::MeshTorusKnot(bool generateTexels, bool generateNormals, bool generateTangents, int uResolution, int vResolution) : MeshTorusKnot(Vector3f(0.0f, 0.0f, 0.0f), 1.0f, 0.4f, 2, 3, generateTexels, generateNormals, generateTangents, uResolution, vResolution) {}
 
-MeshTorusKnot::MeshTorusKnot(const Vector3f &position, float radius, float tubeRadius, bool generateTexels, bool generateNormals, bool generateTangents, int uResolution, int vResolution) {
+MeshTorusKnot::MeshTorusKnot(const Vector3f &position, float radius, float tubeRadius, int p, int q, bool generateTexels, bool generateNormals, bool generateTangents, int uResolution, int vResolution) {
 
 	m_radius = radius;
 	m_tubeRadius = tubeRadius;
+	m_p = p;
+	m_q = q;
 
 	m_position = position;
 	m_generateNormals = generateNormals;
@@ -18,7 +20,7 @@ MeshTorusKnot::MeshTorusKnot(const Vector3f &position, float radius, float tubeR
 	m_vResolution = vResolution;
 
 	m_numBuffers = 1 + generateTexels + generateNormals + 2 * generateTangents;
-	BuildMesh(m_radius, m_tubeRadius, m_position, m_uResolution, m_vResolution, m_generateTexels, m_generateNormals, m_generateTangents, m_positions, m_texels, m_normals, m_indexBuffer, m_tangents, m_bitangents);
+	BuildMesh(m_radius, m_tubeRadius, m_p, m_q, m_position, m_uResolution, m_vResolution, m_generateTexels, m_generateNormals, m_generateTangents, m_positions, m_texels, m_normals, m_indexBuffer, m_tangents, m_bitangents);
 	createBuffer();
 }
 
@@ -63,74 +65,74 @@ void MeshTorusKnot::CalculatePositionOnCurve(float u, float p, float q, float ra
 
 }
 
-void MeshTorusKnot::BuildMesh(float radius, float tubeRadius, const Vector3f& position, int uResolution, int vResolution, bool generateTexels, bool generateNormals, bool generateTangents, std::vector<Vector3f>& positions, std::vector<Vector2f>& texels, std::vector<Vector3f>& normals, std::vector<unsigned int>& indexBuffer, std::vector<Vector3f>& tangents, std::vector<Vector3f>& bitangents) {
-	int p = 3, q = 2;
+void MeshTorusKnot::CalculatePositionOnCurve(float u, float p, float q, float r1, float r2, Vector3f& position) {
 
+	position[0] = (r1 + r2 * std::cosf(q * u)) * std::cosf(p * u);
+	position[1] = (r1 + r2 * std::cosf(q * u)) * std::sinf(p * u);
+	position[2] = -r2 * std::sinf(q * u);
 
+}
+
+void MeshTorusKnot::BuildMesh(float radius, float tubeRadius, int p, int q, const Vector3f& position, int uResolution, int vResolution, bool generateTexels, bool generateNormals, bool generateTangents, std::vector<Vector3f>& positions, std::vector<Vector2f>& texels, std::vector<Vector3f>& normals, std::vector<unsigned int>& indexBuffer, std::vector<Vector3f>& tangents, std::vector<Vector3f>& bitangents) {
+	
 	float mainSegmentAngleStep = 1.0f / float(uResolution);
 	float tubeSegmentAngleStep = 1.0f / float(vResolution);
 
 	Vector3f p1;
 	Vector3f p2;
+	Vector3f p3;
 
-	float currentTubeSegmentAngle = 0.0f;
-	for (unsigned int i = 0; i <= vResolution; ++i) {
+	Vector3f T, B, N;
 
-		float u = currentTubeSegmentAngle * TWO_PI * p;
+	float currentMainSegmentAngle = 0.0f;
+	for (unsigned int i = 0; i <= uResolution; ++i) {
 
-		CalculatePositionOnCurve(u, p, q, radius, p1);
-		CalculatePositionOnCurve(u + 0.01f, p, q, radius, p2);
+		float u = currentMainSegmentAngle * TWO_PI ;
+		CalculatePositionOnCurve(u, p, q, 2.0f * radius, radius, p1);
+		float uNext = (currentMainSegmentAngle + mainSegmentAngleStep) * TWO_PI;
+		CalculatePositionOnCurve(uNext, p, q, 2.0f * radius, radius, p2);
+		CalculatePositionOnCurve(u, p, q, 2.0f * radius, 0.0f, p3);
 
+		T = p2 - p1;
+		B = Vector3f::Normalize(p1 - p3);
+		N = Vector3f::Normalize(Vector3f::Cross(T, B));
+		T = Vector3f::Normalize(Vector3f::Cross(B, N));
 
-		currentTubeSegmentAngle += tubeSegmentAngleStep;
-	}
+		Vector3f::Normalize(B);
+		Vector3f::Normalize(N);
 
-	/*float currentMainSegmentAngle = 0.0f;
-	for (unsigned int i = 0; i <= uResolution; i++) {
-
-		// Calculate sine and cosine of main segment angle
-		float sinMainSegment = sinf((2.0f * PI) * currentMainSegmentAngle);
-		float cosMainSegment = cosf((2.0f * PI) * currentMainSegmentAngle);
 		float currentTubeSegmentAngle = 0.0f;
+		for (unsigned int i = 0; i <= vResolution; ++i) {
+			float v = currentTubeSegmentAngle * TWO_PI;
 
-		for (unsigned int j = 0; j <= vResolution; j++) {
+			float cx = tubeRadius * std::sinf(v);
+			float cy = tubeRadius * std::cosf(v);
 
-			// Calculate sine and cosine of tube segment angle
-			float sinTubeSegment = sinf((2.0f * PI) * currentTubeSegmentAngle);
-			float cosTubeSegment = cosf((2.0f * PI) * currentTubeSegmentAngle);
-
-			// Calculate vertex position on the surface of torus
-			float x = (radius + tubeRadius * cosTubeSegment)*cosMainSegment;
-			float y = tubeRadius * sinTubeSegment;
-			float z = (radius + tubeRadius * cosTubeSegment)*sinMainSegment;
-
-			Vector3f surfacePosition = Vector3f(x, y, z) + position;
+			Vector3f pos = { p1[0] + (cx * N[0] + cy * B[0]), p1[1] + (cx * N[1] + cy * B[1]), p1[2] + (cx * N[2] + cy * B[2]) };		
+			Vector3f surfacePosition = pos + position;
 			positions.push_back(surfacePosition);
 
 			if (generateTexels) {
-				Vector2f textureCoordinate = Vector2f(1.0f - currentMainSegmentAngle, currentTubeSegmentAngle);
+				Vector2f textureCoordinate = Vector2f(currentMainSegmentAngle, 1.0f - currentTubeSegmentAngle);
 				texels.push_back(textureCoordinate);
-
 			}
 
 			if (generateNormals) {
-				Vector3f normal = Vector3f(cosMainSegment*cosTubeSegment, sinTubeSegment, sinMainSegment*cosTubeSegment);
+				Vector3f normal = Vector3f::Normalize(pos - p1);
 				normals.push_back(normal);
 			}
 
 			if (generateTangents) {
-				tangents.push_back(Vector3f(sinMainSegment, 0.0, cosMainSegment));
-				bitangents.push_back(Vector3f(-sinTubeSegment * cosMainSegment, cosTubeSegment, -sinTubeSegment * sinMainSegment));
+				tangents.push_back(T);
+				bitangents.push_back(Vector3f::Cross(tangents.back(), normals.back()));
 
 			}
 
-			// Update current tube angle
 			currentTubeSegmentAngle += tubeSegmentAngleStep;
 		}
 
-		// Update main segment angle
 		currentMainSegmentAngle += mainSegmentAngleStep;
-	}*/
+	}
 
 	//calculate the indices
 	unsigned int currentVertexOffset = 0;
@@ -142,8 +144,7 @@ void MeshTorusKnot::BuildMesh(float radius, float tubeRadius, const Vector3f& po
 
 			if ((j > 0) && ((j + 1) % (vResolution + 1)) == 0) {
 				currentVertexOffset = ((i + 1) * (vResolution + 1));
-			}
-			else {
+			}else {
 
 				vertexIndexA = currentVertexOffset;
 				vertexIndexB = currentVertexOffset + vResolution + 1;

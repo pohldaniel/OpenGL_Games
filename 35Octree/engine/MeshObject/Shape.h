@@ -30,6 +30,7 @@ public:
 	void buildQuadXY(const Vector3f& position = Vector3f(-1.0f, -1.0f, 0.0f), const Vector2f& size = Vector2f(2.0f, 2.0f),  int uResolution = 1, int vResolution = 1, bool generateTexels = true, bool generateNormals = true, bool generateTangents = false);
 	void buildQuadXZ(const Vector3f& position = Vector3f(-1.0f, 0.0f, -1.0f), const Vector2f& size = Vector2f(2.0f, 2.0f), int uResolution = 1, int vResolution = 1, bool generateTexels = true, bool generateNormals = true, bool generateTangents = false);
 	void buildDiamondXY(const Vector2f& size = Vector2f(2.0f, 2.0f), float border = 0.75f, int uResolution = 1, int vResolution = 1, bool generateTexels = true, bool generateNormals = true, bool generateTangents = false);
+	void buildTorusKnot(float radius = 1.0f, float tubeRadius = 0.4f, int p =2, int q =3, const Vector3f& position = Vector3f(0.0f, 0.0f, 0.0f), int uResolution = 100, int vResolution = 16, bool generateTexels = true, bool generateNormals = true, bool generateTangents = false);
 
 	
 	void buildCube(const Vector3f& position = Vector3f(-1.0f, -1.0f, -1.0f), const Vector3f&  size = Vector3f(2.0f, 2.0f, 2.0f), int uResolution = 1, int vResolution = 1, bool generateTexels = true, bool generateNormals = true, bool generateTangents = false);

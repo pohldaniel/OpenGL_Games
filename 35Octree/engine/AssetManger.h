@@ -169,6 +169,11 @@ public:
 		m_assets[name].markForDelete();
 	}
 
+	void buildTorusKnot(const std::string& name, float radius = 1.0f, float tubeRadius = 0.4f, int p = 2, int q = 3, const Vector3f& position = Vector3f(0.0f, 0.0f, 0.0f), int uResolution = 100, int vResolution = 16, bool generateTexels = true, bool generateNormals = true, bool generateTangents = false) {
+		m_assets[name].buildTorusKnot(radius, tubeRadius, p, q, position, uResolution, vResolution, generateTexels, generateNormals, generateTangents);
+		m_assets[name].markForDelete();
+	}
+
 	void buildSphere(const std::string& name, float radius = 1.0f, const Vector3f& position = Vector3f(0.0f, 0.0f, 0.0f), int uResolution = 49, int vResolution = 49, bool generateTexels = true, bool generateNormals = true, bool generateTangents = false) {
 		m_assets[name].buildSphere(radius, position, uResolution, vResolution, generateTexels, generateNormals, generateTangents);
 		m_assets[name].markForDelete();
