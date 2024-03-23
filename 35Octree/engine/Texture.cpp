@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include "Texture.h"
+#include "Vector.h"
 
 std::map<unsigned int, unsigned int> Texture::ActiveTextures;
 
@@ -1673,4 +1674,61 @@ void Texture::ArrayTo3D(const unsigned int& textureRef1, unsigned int& textureRe
 	glBindTexture(GL_TEXTURE_3D, 0);
 
 	free(bytes);
+}
+
+void Texture::PremultiplyAlpha(std::string fileIn, std::string fileOut, const bool _flipVertical) {
+	int width, height, numCompontents;
+	unsigned char* imageData = SOIL_load_image(fileIn.c_str(), &width, &height, &numCompontents, SOIL_LOAD_AUTO);
+	if (numCompontents < 4) {
+		SOIL_free_image_data(imageData);
+		return;
+	}
+
+	if (_flipVertical)
+		Texture::FlipVertical(imageData, numCompontents * width, height);
+
+	std::vector<float> imageDataNew;
+	imageDataNew.resize(width * height * numCompontents);
+	for (uint32_t i = 0; i < (width * height); i++){
+		imageDataNew[i * 4 + 0] = 0.0f;
+		imageDataNew[i * 4 + 1] = 0.0f;
+		imageDataNew[i * 4 + 2] = 0.0f;
+		imageDataNew[i * 4 + 3] = 1.0f;
+	}
+
+	for (unsigned int i = 0; i < static_cast<unsigned int>(width * height); i++) {
+		
+		float color[4] = {
+		float(imageData[i * 4 + 0]) / 255.0f,
+		float(imageData[i * 4 + 1]) / 255.0f,
+		float(imageData[i * 4 + 2]) / 255.0f,
+		float(imageData[i * 4 + 3]) / 255.0f,
+		};
+
+		color[0] *= color[3];
+		color[1] *= color[3];
+		color[2] *= color[3];
+		color[3] = 1.0f - color[3];
+
+		float* dstPixel = &imageDataNew[i * 4];
+		dstPixel[0] = dstPixel[0] * color[3] + color[0];
+		dstPixel[1] = dstPixel[1] * color[3] + color[1];
+		dstPixel[2] = dstPixel[2] * color[3] + color[2];
+		dstPixel[3] = dstPixel[3] * color[3];
+	}
+	SOIL_free_image_data(imageData);
+	std::vector<uint8_t> outputData;
+	outputData.resize(imageDataNew.size());
+	for (uint32_t i = 0; i < (width * height); i++){
+		const float* srcPixel = &imageDataNew[i * 4];
+		uint8_t* dstPixel = &outputData[i * 4];
+		
+		dstPixel[0] = (uint8_t)(Math::Clamp(srcPixel[0], 0.0f, 1.0f) * 255.0f + 0.5f);
+		dstPixel[1] = (uint8_t)(Math::Clamp(srcPixel[1], 0.0f, 1.0f) * 255.0f + 0.5f);
+		dstPixel[2] = (uint8_t)(Math::Clamp(srcPixel[2], 0.0f, 1.0f) * 255.0f + 0.5f);		
+		dstPixel[3] = (uint8_t)(Math::Clamp(1.0f - srcPixel[3], 0.0f, 1.0f) * 255.0f + 0.5f);
+	}
+
+	SOIL_save_image(fileOut.c_str(), SOIL_SAVE_TYPE_PNG, width, height, numCompontents, outputData.data());
+	
 }

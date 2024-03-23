@@ -12,6 +12,7 @@
 #include <engine/Fontrenderer.h>
 #include <engine/DebugRenderer.h>
 #include <engine/Sprite.h>
+#include <engine/utils/Utils.h>
 
 #include <States/OctreeInterface.h>
 #include <States/Default.h>
@@ -20,6 +21,7 @@
 #include <States/Fire.h>
 #include <States/ParticleInterface.h>
 #include <States/BlendedParticle.h>
+#include <States/SmoothParticle.h>
 
 #include "Application.h"
 #include "Globals.h"
@@ -423,6 +425,7 @@ void Application::initStates() {
 	//Machine->addStateAtTop(new Fire(*Machine));
 	//Machine->addStateAtTop(new ParticleInterface(*Machine));
 	Machine->addStateAtTop(new BlendedParticle(*Machine));
+	//Machine->addStateAtTop(new SmoothParticle(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -753,9 +756,12 @@ void Application::loadAssets() {
 	Globals::textureManager.get("grass_normal").setFilter(GL_LINEAR_MIPMAP_LINEAR);
 	Globals::textureManager.get("grass_normal").setWrapMode(GL_REPEAT);
 
-	Globals::textureManager.loadTexture("fire", "res/textures/fire.png", true);
-	//Globals::textureManager.get("fire").setFilter(GL_LINEAR);
-	//Globals::textureManager.get("fire").setWrapMode(GL_REPEAT);
+	if (!Utils::fileExist("res/textures/fire_pre.png")) {
+		Texture::PremultiplyAlpha("res/textures/fire.png", "res/textures/fire_pre.png");
+	}
+	Globals::textureManager.loadTexture("fire", "res/textures/fire_pre.png", true);
+	Globals::textureManager.get("fire").setFilter(GL_LINEAR);
+
 
 	std::string faces[] = { "res/textures/posx.jpg", "res/textures/negx.jpg", "res/textures/posy.jpg", "res/textures/negy.jpg", "res/textures/posz.jpg", "res/textures/negz.jpg", };
 	Globals::textureManager.loadCubeMap("dessert", faces, false);

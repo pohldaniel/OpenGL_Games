@@ -9,7 +9,7 @@
 #include <States/StateMachine.h>
 #include "Skybox.h"
 
-class ParticleInterface : public State, public MouseEventListener, public KeyboardEventListener {
+class SmoothParticle : public State, public MouseEventListener, public KeyboardEventListener {
 	static const int MAX_PARTICLES = 500;
 
 	struct LinearSpline {
@@ -94,8 +94,8 @@ class ParticleInterface : public State, public MouseEventListener, public Keyboa
 
 public:
 
-	ParticleInterface(StateMachine& machine);
-	~ParticleInterface();
+	SmoothParticle(StateMachine& machine);
+	~SmoothParticle();
 
 	void fixedUpdate() override;
 	void update() override;

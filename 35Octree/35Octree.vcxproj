@@ -225,6 +225,7 @@
     <ClCompile Include="src\States\ParticleInterface.cpp" />
     <ClCompile Include="src\States\RayMarch.cpp" />
     <ClCompile Include="src\States\Settings.cpp" />
+    <ClCompile Include="src\States\SmoothParticle.cpp" />
     <ClCompile Include="src\States\StateMachine.cpp" />
     <ClCompile Include="src\Utils\Rasterizer.cpp" />
     <ClCompile Include="engine\ArrayBuffer.cpp" />
@@ -404,6 +405,7 @@
     <ClInclude Include="src\States\ParticleInterface.h" />
     <ClInclude Include="src\States\RayMarch.h" />
     <ClInclude Include="src\States\Settings.h" />
+    <ClInclude Include="src\States\SmoothParticle.h" />
     <ClInclude Include="src\States\StateMachine.h" />
     <ClInclude Include="src\Utils\Rasterizer.h" />
     <ClInclude Include="Physics\BspConverter.h" />

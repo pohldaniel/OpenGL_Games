@@ -441,6 +441,9 @@
     <ClCompile Include="engine\MeshObject\MeshTorusKnot.cpp">
       <Filter>engine\MeshObject</Filter>
     </ClCompile>
+    <ClCompile Include="src\States\SmoothParticle.cpp">
+      <Filter>Source Files\States</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="convhull\convhull_3d.h">
@@ -844,6 +847,9 @@
     </ClInclude>
     <ClInclude Include="engine\MeshObject\MeshTorusKnot.h">
       <Filter>engine\MeshObject</Filter>
+    </ClInclude>
+    <ClInclude Include="src\States\SmoothParticle.h">
+      <Filter>Source Files\States</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

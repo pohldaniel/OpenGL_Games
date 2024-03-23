@@ -1,5 +1,5 @@
 #include <string.h>
-
+# include <filesystem>
 #include "Utils.h"
 
 long Utils::floatToLong(float f) {
@@ -26,4 +26,8 @@ int Utils::whitespaces(char c[]) {
 	}
 
 	return count;
+}
+
+bool Utils::fileExist(const char *fileName) {
+	return std::filesystem::exists(fileName);
 }

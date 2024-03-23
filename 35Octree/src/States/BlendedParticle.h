@@ -79,7 +79,7 @@ class BlendedParticle : public State, public MouseEventListener, public Keyboard
 		float blend;
 	};
 
-	struct ParticleNew {
+	struct Particle {
 		Vector3f position;
 		Vector3f velocity;
 		Vector4f color;
@@ -92,7 +92,7 @@ class BlendedParticle : public State, public MouseEventListener, public Keyboard
 		float blend;
 		float cameraDistance;
 
-		bool operator<(const ParticleNew& that) const {
+		bool operator<(const Particle& that) const {
 			return this->cameraDistance >= that.cameraDistance;
 		}
 	};
@@ -116,9 +116,9 @@ public:
 	void updateParticles(float dt);
 	void updateGeometry();
 
-	ParticleNew createParticleF();
-	ParticleNew createParticleS();
-	ParticleNew createParticleX();
+	Particle createParticleF();
+	Particle createParticleS();
+	Particle createParticleX();
 
 private:
 
@@ -139,7 +139,7 @@ private:
 
 	float rateLimiter;
 
-	std::vector<ParticleNew> m_particles;
+	std::vector<Particle> m_particles;
 	ParticleVertex* particleBatch;
 	ParticleVertex* particleBatchPtr;
 	uint32_t m_particleCount = 0;
