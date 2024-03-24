@@ -296,7 +296,7 @@ void Camera::lookAt(const Vector3f &eye, const Vector3f &target, const Vector3f 
 	m_yAxis = Vector3f::Cross(m_zAxis, m_xAxis);
 	Vector3f::Normalize(m_yAxis);
 
-	WORLD_YAXIS = m_yAxis;
+	//WORLD_YAXIS = m_yAxis;
 
 	m_viewDir = -m_zAxis;
 
@@ -368,7 +368,7 @@ void Camera::lookAt(const Vector3f& pos, float pitch, float yaw) {
 	m_yAxis[0] = -sinY * sinP; m_yAxis[1] = -cosP; m_yAxis[2] = cosY * sinP;
 	m_zAxis[0] = -sinY * cosP; m_zAxis[1] = sinP; m_zAxis[2] = cosP * cosY;
 
-	WORLD_YAXIS = m_yAxis;
+	//WORLD_YAXIS = m_yAxis;
 
 	m_viewDir = -m_zAxis;
 
@@ -436,7 +436,7 @@ void Camera::lookAt(const Vector3f &pos, float pitch, float yaw, float roll) {
 	m_yAxis[0] = sinR * cosY + cosR * sinP * sinY; m_yAxis[1] = cosR * cosP; m_yAxis[2] = sinR * sinY - cosR * sinP * cosY;
 	m_zAxis[0] = -cosP * sinY; m_zAxis[1] = sinP; m_zAxis[2] = cosP * cosY;
 
-	WORLD_YAXIS = m_yAxis;
+	//WORLD_YAXIS = m_yAxis;
 	m_viewDir = -m_zAxis;
 
 	m_viewMatrix[0][0] = m_xAxis[0];
@@ -501,7 +501,7 @@ void Camera::lookAt(const Vector3f &pos, const Vector3f &target, float pitch, fl
 	m_yAxis[0] = sinR * cosY + cosR * sinP * sinY; m_yAxis[1] = cosR * cosP; m_yAxis[2] = sinR * sinY - cosR * sinP * cosY;
 	m_zAxis[0] = -cosP * sinY; m_zAxis[1] = sinP; m_zAxis[2] = cosP * cosY;
 
-	WORLD_YAXIS = m_yAxis;
+	//WORLD_YAXIS = m_yAxis;
 	m_viewDir = -m_zAxis;
 
 	m_eye = m_target - m_offsetDistance * m_viewDir;
@@ -1053,7 +1053,7 @@ void Camera::setRotation(float pitch, float yaw, float roll) {
 	m_yAxis[0] = sinR * cosY + cosR * sinP * sinY; m_yAxis[1] = cosR * cosP; m_yAxis[2] = sinR * sinY - cosR * sinP * cosY;
 	m_zAxis[0] = -cosP * sinY; m_zAxis[1] = sinP; m_zAxis[2] = cosP * cosY;
 
-	WORLD_YAXIS = m_yAxis;
+	//WORLD_YAXIS = m_yAxis;
 	m_viewDir = -m_zAxis;
 
 	m_viewMatrix[0][0] = m_xAxis[0];

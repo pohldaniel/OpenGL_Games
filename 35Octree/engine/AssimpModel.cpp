@@ -1041,10 +1041,8 @@ void AssimpMesh::markForDelete() {
 
 void AssimpMesh::drawRaw() const{
 
-	if (m_materialIndex >= 0) {
-		//Material::GetMaterials()[m_materialIndex].updateMaterialUbo(BuiltInShader::materialUbo);
+	if (m_materialIndex >= 0)
 		Material::GetMaterials()[m_materialIndex].bind();
-	}
 
 	if (m_textureIndex >= 0)
 		Material::GetTextures()[m_textureIndex].bind();
@@ -1056,10 +1054,8 @@ void AssimpMesh::drawRaw() const{
 
 void AssimpMesh::drawRawInstanced() const{
 
-	if (m_materialIndex >= 0) {
-		//Material::GetMaterials()[m_materialIndex].updateMaterialUbo(BuiltInShader::materialUbo);
+	if (m_materialIndex >= 0) 
 		Material::GetMaterials()[m_materialIndex].bind();
-	}
 
 	if (m_textureIndex >= 0)
 		Material::GetTextures()[m_textureIndex].bind();

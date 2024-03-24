@@ -19,7 +19,7 @@ SmoothParticle::SmoothParticle(StateMachine& machine) : State(machine, States::S
 	m_camera = Camera();
 	m_camera.perspective(60.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 1.0f, 1000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
-	m_camera.lookAt(Vector3f(0.0f, 0.0f, 10.0f), Vector3f(0.0f, 0.0f, 10.0f) - Vector3f(0.0f, 0.0f, 1.0f), Vector3f(0.0f, 1.0f, 0.0f));
+	m_camera.lookAt(Vector3f(25.0f, 10.0f, 0.0f), Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 1.0f, 0.0f));
 	m_camera.setRotationSpeed(0.1f);
 	m_camera.setMovingSpeed(15.0f);
 
@@ -73,6 +73,10 @@ SmoothParticle::SmoothParticle(StateMachine& machine) : State(machine, States::S
 
 	glEnable(GL_PROGRAM_POINT_SIZE);
 	glEnable(GL_POINT_SPRITE);
+
+	m_sceneBuffer.create(Application::Width, Application::Height);
+	//m_sceneBuffer.attachTexture2D(AttachmentTex::RGBA);
+	m_sceneBuffer.attachTexture2D(AttachmentTex::DEPTH24);
 }
 
 SmoothParticle::~SmoothParticle() {
@@ -155,18 +159,63 @@ void SmoothParticle::update() {
 
 void SmoothParticle::render() {
 
-
+	m_sceneBuffer.bind();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	auto shader = Globals::shaderManager.getAssetPointer("texture");
+	auto shader = Globals::shaderManager.getAssetPointer("depth");
 	shader->use();
 	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
 	shader->loadMatrix("u_view", m_camera.getViewMatrix());
+
 	shader->loadMatrix("u_model", Matrix4f::IDENTITY);
-	shader->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(m_camera.getViewMatrix() * Matrix4f::IDENTITY));
-	Globals::textureManager.get("grid").bind(0u);
-	//Globals::shapeManager.get("torus").drawRaw();
+	m_rocket.drawRaw();
+
+	shader->loadMatrix("u_model", Matrix4f::Translate(0.0f, -10.0f, 0.0f));
 	Globals::shapeManager.get("torus_knot").drawRaw();
+
+
+	shader->loadMatrix("u_model", Matrix4f::Translate(0.0f, -30.0f, 0.0f));
+	Globals::shapeManager.get("plane").drawRaw();
 	shader->unuse();
+	m_sceneBuffer.unbind();
+
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	m_rocket.draw(m_camera);
+	shader = Globals::shaderManager.getAssetPointer("color");
+	shader->use();
+	
+
+	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
+	shader->loadMatrix("u_view", m_camera.getViewMatrix());
+
+	shader->loadVector("u_color", Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+	shader->loadMatrix("u_model", Matrix4f::Translate(0.0f, -10.0f, 0.0f));
+	Globals::shapeManager.get("torus_knot").drawRaw();
+
+	shader->loadVector("u_color", Vector4f(0.25098039215686274f, 0.25098039215686274f, 0.25098039215686274f, 1.0f));
+	shader->loadMatrix("u_model", Matrix4f::Translate(0.0f, -30.0f, 0.0f));
+
+	Globals::shapeManager.get("plane").drawRaw();
+	shader->unuse();
+	m_skybox.draw(m_camera);
+
+	//shader = Globals::shaderManager.getAssetPointer("particle_smooth");
+	//shader->use();
+	//shader->loadFloat("u_near", m_camera.getNear());
+	//shader->loadFloat("u_far", m_camera.getFar());
+	//shader->loadVector("u_resolution", Vector2f(static_cast<float>(Application::Width), static_cast<float>(Application::Height)));
+	//shader->unuse();
+
+	shader = Globals::shaderManager.getAssetPointer("texture");
+	shader->use();
+	shader->loadMatrix("u_projection", m_camera.getOrthographicMatrix());
+	shader->loadMatrix("u_view", Matrix4f::IDENTITY);
+	shader->loadVector("u_color", Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+	shader->loadMatrix("u_model", Matrix4f::Translate(static_cast<float>(Application::Width) - 205.0f, 205.0f, 0.0f) * Matrix4f::Scale(200.0f, 200.0f, 0.0f));
+	m_sceneBuffer.bindDepthTexture(0u);
+	
+	Globals::shapeManager.get("quad").drawRaw();
+	shader->unuse();
+
 	if (m_drawUi)
 		renderUi();
 }

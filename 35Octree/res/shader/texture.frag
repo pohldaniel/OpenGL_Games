@@ -13,5 +13,4 @@ out vec4 color;
 
 void main(void){
 	color = vertColor * texture2D( u_texture, v_texCoord );
-	color = vec4(v_bitangent, 1.0);
 }

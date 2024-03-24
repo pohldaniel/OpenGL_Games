@@ -723,8 +723,10 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("skybox", "res/shader/skybox.vert", "res/shader/skybox.frag");
 	Globals::shaderManager.loadShader("particle", "res/shader/particle.vert", "res/shader/particle.frag");
 	Globals::shaderManager.loadShader("particle_blend", "res/shader/particle_blend.vert", "res/shader/particle_blend.frag");
+	Globals::shaderManager.loadShader("particle_smooth", "res/shader/particle_smooth.vert", "res/shader/particle_smooth.frag");
 	Globals::shaderManager.loadShader("color", "res/shader/color.vert", "res/shader/color.frag");
 	Globals::shaderManager.loadShader("geometry", "res/shader/normalGS.vert", "res/shader/normalGS.frag", "res/shader/normalGS.gem");
+	Globals::shaderManager.loadShader("depth", "res/shader/depth.vert", "res/shader/depth.frag");
 
 	Globals::fontManager.loadCharacterSet("upheaval_200", "res/fonts/upheavtt.ttf", 200, 0, 30, 128, 0, true, 0u);
 	Globals::fontManager.loadCharacterSet("upheaval_50", "res/fonts/upheavtt.ttf", 50, 0, 3, 0, 0, true, 0u);
@@ -772,5 +774,6 @@ void Application::loadAssets() {
 	Globals::shapeManager.get("cube").createBoundingBox();
 	Globals::shapeManager.buildQuadXY("quad", Vector3f(-1.0f, -1.0f, 0.0f), Vector2f(2.0f, 2.0f), 1, 1, true, false, false);
 	Globals::shapeManager.buildTorus("torus", 1.0f, 0.4f, Vector3f(0.0f, 0.0f, 0.0f), 49, 49, true, true, true);
-	Globals::shapeManager.buildTorusKnot("torus_knot", 1.0f, 0.75f, 2, 3, Vector3f(0.0f, 0.0f, 0.0f), 100, 16, true, true, true);
+	Globals::shapeManager.buildTorusKnot("torus_knot", 2.0f, 0.75f, 2, 3, Vector3f(0.0f, 0.0f, 0.0f), 100, 16, true, true, false);
+	Globals::shapeManager.buildQuadXZ("plane", Vector3f(-50.0f, 0.0f, -50.0f), Vector2f(100.0f, 100.0f), 10, 10, true, true, false);
 }

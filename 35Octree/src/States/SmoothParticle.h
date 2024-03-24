@@ -135,4 +135,6 @@ private:
 	ParticleVertex* particleBatch;
 	ParticleVertex* particleBatchPtr;
 	uint32_t m_particleCount = 0;
+
+	Framebuffer m_sceneBuffer;
 };

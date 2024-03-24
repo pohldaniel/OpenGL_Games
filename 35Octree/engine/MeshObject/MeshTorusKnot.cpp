@@ -88,10 +88,10 @@ void MeshTorusKnot::BuildMesh(float radius, float tubeRadius, int p, int q, cons
 	for (unsigned int i = 0; i <= uResolution; ++i) {
 
 		float u = currentMainSegmentAngle * TWO_PI ;
-		CalculatePositionOnCurve(u, p, q, 2.0f * radius, radius, p1);
+		CalculatePositionOnCurve(u, p, q, radius, radius * 0.5f, p1);
 		float uNext = (currentMainSegmentAngle + mainSegmentAngleStep) * TWO_PI;
-		CalculatePositionOnCurve(uNext, p, q, 2.0f * radius, radius, p2);
-		CalculatePositionOnCurve(u, p, q, 2.0f * radius, 0.0f, p3);
+		CalculatePositionOnCurve(uNext, p, q, radius, radius * 0.5f, p2);
+		CalculatePositionOnCurve(u, p, q, radius, 0.0f, p3);
 
 		T = p2 - p1;
 		B = Vector3f::Normalize(p1 - p3);
