@@ -119,6 +119,7 @@ private:
 	bool m_initUi = true;
 	bool m_drawUi = true;
 	bool m_addParticle = true;
+	float m_fallOff = 0.1;
 
 	Camera m_camera;
 	AssimpModel m_rocket;
@@ -136,5 +137,5 @@ private:
 	ParticleVertex* particleBatchPtr;
 	uint32_t m_particleCount = 0;
 
-	Framebuffer m_sceneBuffer;
+	Framebuffer m_depthBuffer, m_sceneBuffer;
 };

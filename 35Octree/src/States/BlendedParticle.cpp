@@ -181,6 +181,7 @@ void BlendedParticle::update() {
 
 void BlendedParticle::render() {
 
+	//glDepthMask(false);
 	updateGeometry();
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -204,6 +205,7 @@ void BlendedParticle::render() {
 
 	particleBatchPtr = particleBatch;
 	m_particleCount = 0;
+	//glDepthMask(true);
 
 	if (m_drawUi)
 		renderUi();

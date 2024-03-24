@@ -59,3 +59,4 @@ https://www.youtube.com/watch?v=ZzMnu3v_MOw
 http://www.humus.name/
 
 https://github.com/mrdoob/three.js/blob/master/src/geometries/TorusKnotGeometry.js
+https://gist.github.com/greggman/41d93c00649cba78abdbfc1231c9158c
