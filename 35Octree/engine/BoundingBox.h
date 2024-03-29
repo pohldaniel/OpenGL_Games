@@ -37,6 +37,7 @@ struct BoundingBox {
 	Vector3f getCenter() const;
 	Vector3f getHalfSize() const;
 	void merge(const BoundingBox& box);
+	void merge(const Vector3f& min, const Vector3f& max);
 
 	void createBuffer();
 	void drawRaw() const;

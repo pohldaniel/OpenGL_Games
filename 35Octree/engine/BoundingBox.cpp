@@ -66,6 +66,27 @@ void BoundingBox::merge(const BoundingBox& box){
 		max[2] = box.max[2];
 }
 
+void BoundingBox::merge(const Vector3f& _min, const Vector3f& _max) {
+	if (min[0] > max[0]) {
+		min = _min;
+		max = _max;
+		return;
+	}
+
+	if (_min[0] < min[0])
+		min[0] = _min[0];
+	if (_min[1] < min[1])
+		min[1] = _min[1];
+	if (_min[2] < min[2])
+		min[2] = _min[2];
+	if (_max[0] > max[0])
+		max[0] = _max[0];
+	if (_max[1] > max[1])
+		max[1] = _max[1];
+	if (_max[2] > max[2])
+		max[2] = _max[2];
+}
+
 void BoundingBox::merge(const Vector3f* vertices, size_t count) {
 	while (count--)
 		merge(*vertices++);

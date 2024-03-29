@@ -622,7 +622,7 @@ void ObjModel::loadModelCpu(const char* _filename, Vector3f& axis, float degree,
 			for (iterName; iterName != name.end(); iterName++) {
 
 				if (iterDup->first == iterName->second) {
-					m_meshes.push_back(new ObjMesh("newmtl " + iterName->first, iterDup->second, this));
+					m_meshes.push_back(new ObjMesh(iterName->first, iterDup->second, this));
 					if (m_meshes.size() > 1) {
 						m_meshes[m_meshes.size() - 1]->m_triangleOffset = m_meshes[m_meshes.size() - 2]->m_numberOfTriangles + m_meshes[m_meshes.size() - 2]->m_triangleOffset;
 					}
@@ -1894,7 +1894,6 @@ std::string ObjModel::GetTexturePath(std::string texPath, std::string modelDirec
 }
 
 void ObjModel::ReadMaterialFromFile(std::string path, std::string mltName, short& index) {
-
 	std::vector<Material>::iterator it = std::find_if(Material::GetMaterials().begin(), Material::GetMaterials().end(), std::bind([](Material const& s1, std::string const& s2) -> bool { return s1.name == s2;}, std::placeholders::_1, mltName));
 	if (it == Material::GetMaterials().end()) {
 
@@ -1923,7 +1922,7 @@ void ObjModel::ReadMaterialFromFile(std::string path, std::string mltName, short
 
 		for (int i = 0; i < lines.size(); i++) {
 
-			if (strcmp((*lines[i]).c_str(), mltName.c_str()) == 0) {
+			if (strcmp((*lines[i]).c_str(), ("newmtl " + mltName).c_str()) == 0) {
 				start = i;
 				continue;
 			}
@@ -2271,10 +2270,8 @@ void ObjMesh::updateInstances(std::vector<Matrix4f>& modelMTX) {
 
 void ObjMesh::drawRaw() const{
 
-	if (m_materialIndex >= 0) {
-		//Material::GetMaterials()[m_materialIndex].updateMaterialUbo(BuiltInShader::materialUbo);
+	if (m_materialIndex >= 0) 
 		Material::GetMaterials()[m_materialIndex].bind();
-	}
 
 	if (m_textureIndex >= 0)
 		Material::GetTextures()[m_textureIndex].bind();
@@ -2286,10 +2283,8 @@ void ObjMesh::drawRaw() const{
 
 void ObjMesh::drawRawInstanced() const{
 
-	if (m_materialIndex >= 0) {
-		//Material::GetMaterials()[m_materialIndex].updateMaterialUbo(BuiltInShader::materialUbo);
+	if (m_materialIndex >= 0)
 		Material::GetMaterials()[m_materialIndex].bind();
-	}
 
 	if (m_textureIndex >= 0)
 		Material::GetTextures()[m_textureIndex].bind();

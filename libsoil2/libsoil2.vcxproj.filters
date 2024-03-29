@@ -56,12 +56,6 @@
     <ClInclude Include="SOIL2\stbi_DDS_c.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SOIL2\stbi_ext.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SOIL2\stbi_ext_c.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="SOIL2\stbi_pkm.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -78,6 +72,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="SOIL2\stb_image.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SOIL2\stbi_ext.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SOIL2\stbi_ext_c.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

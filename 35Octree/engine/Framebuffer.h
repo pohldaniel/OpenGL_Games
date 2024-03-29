@@ -96,6 +96,8 @@ public:
 
 	void unbindTexture(unsigned int unit = 0u) const;
 
+	void blitBackBufferToDepthTexture() const;
+
 	const unsigned int& getColorTexture(unsigned short attachment = 0) const;
 	const unsigned int& getDepthTexture() const;
 	const unsigned int& getStencilTexture() const;

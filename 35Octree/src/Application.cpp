@@ -22,6 +22,7 @@
 #include <States/ParticleInterface.h>
 #include <States/BlendedParticle.h>
 #include <States/SmoothParticle.h>
+#include <States/SoftParticle.h>
 
 #include "Application.h"
 #include "Globals.h"
@@ -425,7 +426,8 @@ void Application::initStates() {
 	//Machine->addStateAtTop(new Fire(*Machine));
 	//Machine->addStateAtTop(new ParticleInterface(*Machine));
 	//Machine->addStateAtTop(new BlendedParticle(*Machine));
-	Machine->addStateAtTop(new SmoothParticle(*Machine));
+	//Machine->addStateAtTop(new SmoothParticle(*Machine));
+	Machine->addStateAtTop(new SoftParticle(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -724,6 +726,8 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("particle", "res/shader/particle.vert", "res/shader/particle.frag");
 	Globals::shaderManager.loadShader("particle_blend", "res/shader/particle_blend.vert", "res/shader/particle_blend.frag");
 	Globals::shaderManager.loadShader("particle_smooth", "res/shader/particle_smooth.vert", "res/shader/particle_smooth.frag");
+	Globals::shaderManager.loadShader("particle_soft", "res/shader/particle_soft.vert", "res/shader/particle_soft.frag");
+	Globals::shaderManager.loadShader("particle_normal", "res/shader/particle_normal.vert", "res/shader/particle_normal.frag");
 	Globals::shaderManager.loadShader("color", "res/shader/color.vert", "res/shader/color.frag");
 	Globals::shaderManager.loadShader("geometry", "res/shader/normalGS.vert", "res/shader/normalGS.frag", "res/shader/normalGS.gem");
 	Globals::shaderManager.loadShader("depth", "res/shader/depth.vert", "res/shader/depth.frag");
@@ -765,6 +769,10 @@ void Application::loadAssets() {
 	Globals::textureManager.loadTexture("fire", "res/textures/fire_pre.png", true);
 	Globals::textureManager.get("fire").setFilter(GL_LINEAR);
 	Globals::textureManager.loadTexture("grid", "res/textures/grid512.png");
+
+	Globals::textureManager.loadTexture("smoke", "res/textures/smoke.png", false);
+	Globals::textureManager.get("smoke").setFilter(GL_LINEAR_MIPMAP_LINEAR);
+	Globals::textureManager.get("smoke").setWrapMode(GL_REPEAT);
 
 	std::string faces[] = { "res/textures/posx.jpg", "res/textures/negx.jpg", "res/textures/posy.jpg", "res/textures/negy.jpg", "res/textures/posz.jpg", "res/textures/negz.jpg", };
 	Globals::textureManager.loadCubeMap("dessert", faces, false);

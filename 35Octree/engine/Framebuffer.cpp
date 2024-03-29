@@ -902,3 +902,26 @@ void Framebuffer::unbindTexture(unsigned int unit) const {
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
+
+void Framebuffer::blitBackBufferToDepthTexture() const {
+	//GLint last_read_framebuffer;
+	//GLint last_draw_framebuffer;
+	//glGetIntegerv(GL_READ_FRAMEBUFFER_BINDING, &last_read_framebuffer);
+	//glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &last_draw_framebuffer);
+
+	//GLint viewport[4];
+	//glGetIntegerv(GL_VIEWPORT, viewport);
+
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_fbo);
+
+	glReadBuffer(GL_BACK);
+	//glDrawBuffer(GL_DEPTH_ATTACHMENT);
+
+	glBlitFramebuffer(0, 0, Width, Height, 0, 0, m_width, m_height, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+
+	//glBindFramebuffer(GL_READ_FRAMEBUFFER, last_read_framebuffer);
+	//glBindFramebuffer(GL_DRAW_FRAMEBUFFER, last_draw_framebuffer);
+}
