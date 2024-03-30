@@ -120,7 +120,7 @@ private:
 	bool m_drawUi = true;
 	bool m_addParticle = true;
 	bool m_softParticle = true;
-	float m_fallOff = 0.1f;
+	float m_fallOff = 0.25f;
 
 	Camera m_camera;
 	AssimpModel m_rocket;
@@ -131,7 +131,7 @@ private:
 
 	unsigned int m_vao, m_vbo;
 
-	float gdfsghk = 0.0f;
+	float m_rateLimiter = 0.0f;
 
 	std::vector<Particle> m_particles;
 	ParticleVertex* particleBatch;

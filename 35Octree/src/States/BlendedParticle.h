@@ -137,7 +137,7 @@ private:
 
 	unsigned int m_vao, m_vbo;
 
-	float rateLimiter;
+	float m_rateLimiter;
 
 	std::vector<Particle> m_particles;
 	ParticleVertex* particleBatch;

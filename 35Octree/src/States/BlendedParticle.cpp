@@ -64,7 +64,7 @@ BlendedParticle::BlendedParticle(StateMachine& machine) : State(machine, States:
 	m_colorSplineX.addPoint(0.0f, Vector4f(1.0f, 0.5019607843137255f, 0.5019607843137255f, 0.0f));
 	m_colorSplineX.addPoint(1.0f, Vector4f(1.0f, 1.0f, 1.0f, 0.0f));
 
-	rateLimiter = 0.0f;
+	m_rateLimiter = 0.0f;
 
 	glGenVertexArrays(1, &m_vao);
 	glGenBuffers(1, &m_vbo);
@@ -105,6 +105,8 @@ BlendedParticle::BlendedParticle(StateMachine& machine) : State(machine, States:
 BlendedParticle::~BlendedParticle() {
 	glDepthFunc(GL_LEQUAL);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glDisable(GL_PROGRAM_POINT_SIZE);
+	glDisable(GL_POINT_SPRITE);
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
 }
@@ -305,9 +307,9 @@ void BlendedParticle::addParticles(float dt, int count) {
 
 	int n;
 	if (count == 0) {
-		rateLimiter += dt;
-		n = std::floor(rateLimiter * 120.0f);
-		rateLimiter -= n / 120.0f;
+		m_rateLimiter += dt;
+		n = std::floor(m_rateLimiter * 120.0f);
+		m_rateLimiter -= n / 120.0f;
 	}else {
 		n = count;
 	}

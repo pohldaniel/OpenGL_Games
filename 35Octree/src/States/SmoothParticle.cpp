@@ -40,7 +40,7 @@ SmoothParticle::SmoothParticle(StateMachine& machine) : State(machine, States::S
 
 	m_colorSpline.addPoint(0.0f, Vector4f(1.0f, 1.0f, 0.5019607843137255f, 0.0f));
 	m_colorSpline.addPoint(1.0f, Vector4f(1.0f, 0.5019607843137255f, 0.5019607843137255f, 0.0f));
-
+	m_rateLimiter = 0.0f;
 
 	glGenVertexArrays(1, &m_vao);
 	glGenBuffers(1, &m_vbo);
@@ -68,9 +68,6 @@ SmoothParticle::SmoothParticle(StateMachine& machine) : State(machine, States::S
 	particleBatch = new ParticleVertex[MAX_PARTICLES];
 	particleBatchPtr = particleBatch;
 
-	//glEnable(GL_ALPHA_TEST);
-	//glAlphaFunc(GL_GREATER, 0.05f);
-
 	glEnable(GL_PROGRAM_POINT_SIZE);
 	glEnable(GL_POINT_SPRITE);
 
@@ -84,14 +81,11 @@ SmoothParticle::SmoothParticle(StateMachine& machine) : State(machine, States::S
 	m_particleBuffer.create(Application::Width, Application::Height);
 	m_particleBuffer.attachTexture2D(AttachmentTex::RGBA);
 	m_particleBuffer.attachTexture2D(AttachmentTex::DEPTH24);
-
-	//glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ZERO, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 SmoothParticle::~SmoothParticle() {
-	glAlphaFunc(GL_ALWAYS, 0.0f);
-	glDisable(GL_ALPHA_TEST);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glDisable(GL_PROGRAM_POINT_SIZE);
+	glDisable(GL_POINT_SPRITE);
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
 }
@@ -168,7 +162,7 @@ void SmoothParticle::update() {
 
 void SmoothParticle::render() {
 
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	
 	//m_depthBuffer.bind();
 	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	//auto shader = Globals::shaderManager.getAssetPointer("depth");
@@ -263,7 +257,7 @@ void SmoothParticle::render() {
 		m_particleCount = 0;
 		glDepthMask(true);
 	}
-
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	if (m_drawUi)
 		renderUi();
 }
@@ -367,11 +361,10 @@ void SmoothParticle::addParticles(float dt, int count) {
 
 	int n;
 	if (count == 0) {
-		gdfsghk += dt;
-		n = std::floor(gdfsghk * 75.0f);
-		gdfsghk -= n / 75.0f;
-	}
-	else {
+		m_rateLimiter += dt;
+		n = std::floor(m_rateLimiter * 75.0f);
+		m_rateLimiter -= n / 75.0f;
+	}else {
 		n = count;
 	}
 
