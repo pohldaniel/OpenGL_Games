@@ -10,7 +10,7 @@
 #include "Application.h"
 #include "Globals.h"
 
-BlendedParticle::BlendedParticle(StateMachine& machine) : State(machine, States::PARTICLE) {
+BlendedParticle::BlendedParticle(StateMachine& machine) : State(machine, States::BLENDEDPARTICLE) {
 
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);

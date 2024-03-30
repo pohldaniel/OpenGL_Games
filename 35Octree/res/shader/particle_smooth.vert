@@ -8,22 +8,22 @@ layout(location = 3) in float i_angle;
 uniform mat4 u_projection = mat4(1.0);
 uniform mat4 u_view = mat4(1.0);
 uniform mat4 u_model = mat4(1.0);
-uniform float pointMultiplier;
+uniform float u_pointMultiplier;
 
 out vec4 vertColor;
 out vec2 vertAngle;
-out float vertZ;
+flat out float vertZ;
 out float vertSize;
 
 void main(void){
-  vec4 mvPosition = u_view * u_model * vec4(i_position, 1.0);
-  gl_Position = u_projection * mvPosition;
-  gl_PointSize = i_size * pointMultiplier / gl_Position.w;
+  gl_Position = u_projection * u_view * u_model * vec4(i_position, 1.0);
+  gl_PointSize = i_size * u_pointMultiplier / gl_Position.w;
 	
 	
   vertColor = i_color;
   vertAngle = vec2(cos(i_angle), sin(i_angle));
   
-  vertZ = mvPosition.z;
+  //inside frustum [near, far]
+  vertZ = gl_Position.z;
   vertSize = i_size;
 }

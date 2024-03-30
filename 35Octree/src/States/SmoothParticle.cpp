@@ -17,7 +17,7 @@ SmoothParticle::SmoothParticle(StateMachine& machine) : State(machine, States::S
 	EventDispatcher::AddMouseListener(this);
 
 	m_camera = Camera();
-	m_camera.perspective(60.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 1.0f, 1000.0f);
+	m_camera.perspective(60.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 100.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
 	m_camera.lookAt(Vector3f(25.0f, 10.0f, 0.0f), Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 1.0f, 0.0f));
 	m_camera.setRotationSpeed(0.1f);
@@ -80,6 +80,12 @@ SmoothParticle::SmoothParticle(StateMachine& machine) : State(machine, States::S
 	m_sceneBuffer.create(Application::Width, Application::Height);
 	m_sceneBuffer.attachTexture2D(AttachmentTex::RGBA);
 	m_sceneBuffer.attachTexture2D(AttachmentTex::DEPTH24);
+	
+	m_particleBuffer.create(Application::Width, Application::Height);
+	m_particleBuffer.attachTexture2D(AttachmentTex::RGBA);
+	m_particleBuffer.attachTexture2D(AttachmentTex::DEPTH24);
+
+	//glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ZERO, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 SmoothParticle::~SmoothParticle() {
@@ -162,31 +168,31 @@ void SmoothParticle::update() {
 
 void SmoothParticle::render() {
 
-	m_depthBuffer.bind();
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	auto shader = Globals::shaderManager.getAssetPointer("depth");
-	shader->use();
-	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
-	shader->loadMatrix("u_view", m_camera.getViewMatrix());
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	//m_depthBuffer.bind();
+	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	//auto shader = Globals::shaderManager.getAssetPointer("depth");
+	//shader->use();
+	//shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
+	//shader->loadMatrix("u_view", m_camera.getViewMatrix());
 
-	shader->loadMatrix("u_model", Matrix4f::IDENTITY);
-	m_rocket.drawRaw();
+	//shader->loadMatrix("u_model", Matrix4f::IDENTITY);
+	//m_rocket.drawRaw();
 
-	shader->loadMatrix("u_model", Matrix4f::Translate(0.0f, -10.0f, 0.0f));
-	Globals::shapeManager.get("torus_knot").drawRaw();
+	//shader->loadMatrix("u_model", Matrix4f::Translate(0.0f, -10.0f, 0.0f));
+	//Globals::shapeManager.get("torus_knot").drawRaw();
 
+	//shader->loadMatrix("u_model", Matrix4f::Translate(0.0f, -30.0f, 0.0f));
+	//Globals::shapeManager.get("plane").drawRaw();
+	//shader->unuse();
+	//m_depthBuffer.unbind();
 
-	shader->loadMatrix("u_model", Matrix4f::Translate(0.0f, -30.0f, 0.0f));
-	Globals::shapeManager.get("plane").drawRaw();
-	shader->unuse();
-	m_depthBuffer.unbind();
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	m_rocket.draw(m_camera);
-	shader = Globals::shaderManager.getAssetPointer("color");
+	auto shader = Globals::shaderManager.getAssetPointer("color");
 	shader->use();
 	
-
 	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
 	shader->loadMatrix("u_view", m_camera.getViewMatrix());
 
@@ -201,44 +207,62 @@ void SmoothParticle::render() {
 	shader->unuse();
 	m_skybox.draw(m_camera);
 
-	glDepthMask(false);
-	updateGeometry();
-	glBlendFunc(GL_ONE, GL_ONE);
-	glBindVertexArray(m_vao);
-	GLsizeiptr size = (uint8_t*)particleBatchPtr - (uint8_t*)particleBatch;
-	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-	glBufferSubData(GL_ARRAY_BUFFER, 0, size, particleBatch);
-	shader = Globals::shaderManager.getAssetPointer("particle_smooth");
-	shader->use();
-	shader->loadFloat("u_fallOff", m_fallOff);
-	shader->loadFloat("u_near", m_camera.getNear());
-	shader->loadFloat("u_far", m_camera.getFar());
-	shader->loadVector("u_resolution", Vector2f(static_cast<float>(Application::Width), static_cast<float>(Application::Height)));
-	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
-	shader->loadMatrix("u_view", m_camera.getViewMatrix());
-	shader->loadMatrix("u_model", Matrix4f::IDENTITY);
-	shader->loadFloat("pointMultiplier", static_cast<float>(Application::Height / 2) / (m_camera.getScaleFactor()));
-	shader->loadInt("u_texture", 0);
-	shader->loadInt("u_depth", 1);
-	Globals::textureManager.get("fire").bind(0u);
-	m_depthBuffer.bindDepthTexture(1u);
-	glDrawArrays(GL_POINTS, 0, m_particleCount);
-	shader->unuse();
-	particleBatchPtr = particleBatch;
-	m_particleCount = 0;
-	glDepthMask(true);
+	if (m_softParticle) {
+		m_depthBuffer.blitBackBufferToDepthTexture();
 
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	shader = Globals::shaderManager.getAssetPointer("texture");
-	shader->use();
-	shader->loadMatrix("u_projection", m_camera.getOrthographicMatrix());
-	shader->loadMatrix("u_view", Matrix4f::IDENTITY);
-	shader->loadVector("u_color", Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
-	shader->loadMatrix("u_model", Matrix4f::Translate(static_cast<float>(Application::Width) - 205.0f, 205.0f, 0.0f) * Matrix4f::Scale(200.0f, 200.0f, 0.0f));
-	m_depthBuffer.bindDepthTexture(0u);
-	
-	Globals::shapeManager.get("quad").drawRaw();
-	shader->unuse();
+		glDepthMask(false);
+		updateGeometry();
+		glBlendFunc(GL_ONE, GL_ONE);
+		glBindVertexArray(m_vao);
+		GLsizeiptr size = (uint8_t*)particleBatchPtr - (uint8_t*)particleBatch;
+		glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, size, particleBatch);
+		shader = Globals::shaderManager.getAssetPointer("particle_smooth");
+		shader->use();
+		shader->loadFloat("u_fallOff", m_fallOff);
+		shader->loadFloat("u_near", m_camera.getNear());
+		shader->loadFloat("u_far", m_camera.getFar());
+		shader->loadVector("u_resolution", Vector2f(static_cast<float>(Application::Width), static_cast<float>(Application::Height)));
+		shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
+		shader->loadMatrix("u_view", m_camera.getViewMatrix());
+		shader->loadMatrix("u_model", Matrix4f::IDENTITY);
+		shader->loadMatrix("u_invView", m_camera.getInvViewMatrix());
+		shader->loadFloat("u_pointMultiplier", static_cast<float>(Application::Height / 2) / (m_camera.getScaleFactor()));
+		shader->loadInt("u_texture", 0);
+		shader->loadInt("u_depth", 1);
+		Globals::textureManager.get("fire").bind(0u);
+		m_depthBuffer.bindDepthTexture(1u);
+		glDrawArrays(GL_POINTS, 0, m_particleCount);
+		shader->unuse();
+		particleBatchPtr = particleBatch;
+		m_particleCount = 0;
+		glDepthMask(true);
+	}else {
+		glDepthMask(false);
+		updateGeometry();
+		glBlendFunc(GL_ONE, GL_ONE);
+		glBindVertexArray(m_vao);
+		GLsizeiptr size = (uint8_t*)particleBatchPtr - (uint8_t*)particleBatch;
+		glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, size, particleBatch);
+
+
+		auto shader = Globals::shaderManager.getAssetPointer("particle");
+		shader->use();
+		shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
+		shader->loadMatrix("u_view", m_camera.getViewMatrix());
+		shader->loadMatrix("u_model", Matrix4f::IDENTITY);
+		shader->loadFloat("pointMultiplier", static_cast<float>(Application::Height / 2) / (m_camera.getScaleFactor()));
+		shader->loadInt("u_texture", 0);
+		Globals::textureManager.get("fire").bind(0u);
+		glDrawArrays(GL_POINTS, 0, m_particleCount);
+
+		shader->unuse();
+
+		particleBatchPtr = particleBatch;
+		m_particleCount = 0;
+		glDepthMask(true);
+	}
 
 	if (m_drawUi)
 		renderUi();
@@ -280,8 +304,9 @@ void SmoothParticle::OnKeyUp(Event::KeyboardEvent& event) {
 }
 
 void SmoothParticle::resize(int deltaW, int deltaH) {
-	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
+	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 100.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
+	m_depthBuffer.resize(Application::Width, Application::Height);
 }
 
 void SmoothParticle::renderUi() {
@@ -322,7 +347,10 @@ void SmoothParticle::renderUi() {
 	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 	ImGui::Checkbox("Draw Wirframe", &StateMachine::GetEnableWireframe());
 	ImGui::Checkbox("Add Particle", &m_addParticle);
-	ImGui::SliderFloat("Fall Off", &m_fallOff, 0.0f, 1.0f);
+	ImGui::Checkbox("Soft Particle", &m_softParticle);
+	
+	if(m_softParticle)
+		ImGui::SliderFloat("Fall Off", &m_fallOff, 0.0f, 10.0f);
 	if (!m_addParticle)
 		ImGui::Text("Hold Space");
 

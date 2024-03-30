@@ -15,6 +15,7 @@ in vec2 v_texCoord;
 out vec4 colorBlurred;
 
 float getDepthPassSpaceZ(float zWC, float near, float far){
+	//zWC = zWC * 2.0 - 1.0;
 	return (near * far) / (far + zWC * (near - far));	//[near, far]
 }
 

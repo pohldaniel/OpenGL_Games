@@ -9,6 +9,8 @@ in vec2 vertAngle;
 
 void main(void){
 	vec2 coords = (gl_PointCoord - 0.5) * mat2(vertAngle.x, vertAngle.y, -vertAngle.y, vertAngle.x) + 0.5;
-	outColor = vertColor * texture2D(u_texture, coords);
+	outColor = vertColor;
+	
 	outColor.rgb *= vertColor.a;
+	outColor *= texture2D(u_texture, coords);  
 }

@@ -19,7 +19,6 @@
 #include <States/Menu.h>
 #include <States/RayMarch.h>
 #include <States/Fire.h>
-#include <States/ParticleInterface.h>
 #include <States/BlendedParticle.h>
 #include <States/SmoothParticle.h>
 #include <States/SoftParticle.h>
@@ -424,10 +423,9 @@ void Application::initStates() {
 	//Machine->addStateAtTop(new Default(*Machine));
 	//Machine->addStateAtTop(new RayMarch(*Machine));
 	//Machine->addStateAtTop(new Fire(*Machine));
-	//Machine->addStateAtTop(new ParticleInterface(*Machine));
 	//Machine->addStateAtTop(new BlendedParticle(*Machine));
-	//Machine->addStateAtTop(new SmoothParticle(*Machine));
-	Machine->addStateAtTop(new SoftParticle(*Machine));
+	Machine->addStateAtTop(new SmoothParticle(*Machine));
+	//Machine->addStateAtTop(new SoftParticle(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -731,6 +729,7 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("color", "res/shader/color.vert", "res/shader/color.frag");
 	Globals::shaderManager.loadShader("geometry", "res/shader/normalGS.vert", "res/shader/normalGS.frag", "res/shader/normalGS.gem");
 	Globals::shaderManager.loadShader("depth", "res/shader/depth.vert", "res/shader/depth.frag");
+	Globals::shaderManager.loadShader("combiner", "res/shader/combiner.vert", "res/shader/combiner.frag");
 
 	Globals::fontManager.loadCharacterSet("upheaval_200", "res/fonts/upheavtt.ttf", 200, 0, 30, 128, 0, true, 0u);
 	Globals::fontManager.loadCharacterSet("upheaval_50", "res/fonts/upheavtt.ttf", 50, 0, 3, 0, 0, true, 0u);
