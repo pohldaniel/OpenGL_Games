@@ -31,11 +31,11 @@ void Entity::update(float dt) {
 	m_movementPlaner->Update();
 
 	const float moveSpeed = 0.8f;
-	m_directrion.normalize();
-	m_directrion *= moveSpeed;
+	m_direction.normalize();
+	m_direction *= moveSpeed;
 	
 	if(!m_movementPlaner->isMoving())
-	  m_velocity = m_directrion;
+	  m_velocity = m_direction;
 
 	
 	Vector2f facingDirection;
@@ -59,22 +59,22 @@ void Entity::processInput() {
 
 	Keyboard &keyboard = Keyboard::instance();
 
-	m_directrion = Vector2f();
+	m_direction = Vector2f();
 
 	if (keyboard.keyDown(Keyboard::KEY_UP)) {
-		m_directrion += Vector2f(0.0f, 1.0f);
+		m_direction += Vector2f(0.0f, 1.0f);
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_DOWN)) {
-		m_directrion += Vector2f(0.0f, -1.0f);
+		m_direction += Vector2f(0.0f, -1.0f);
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_LEFT)) {
-		m_directrion += Vector2f(-1.0f, 0.0f);
+		m_direction += Vector2f(-1.0f, 0.0f);
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_RIGHT)) {
-		m_directrion += Vector2f(1.0f, 0.0f);
+		m_direction += Vector2f(1.0f, 0.0f);
 	}
 }
 

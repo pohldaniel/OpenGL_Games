@@ -81,23 +81,23 @@ void Game::fixedUpdate() {
 
 void Game::update() {
 	Keyboard &keyboard = Keyboard::instance();
-	Vector3f directrion = Vector3f();
+	Vector3f direction = Vector3f();
 
 	float dx = 0.0f;
 	float dy = 0.0f;
 	bool move = false;
 	if (keyboard.keyDown(Keyboard::KEY_W)) {
-		directrion += Vector3f(0.0f, 0.0f, 1.0f);
+		direction += Vector3f(0.0f, 0.0f, 1.0f);
 		move |= true;
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_S)) {
-		directrion += Vector3f(0.0f, 0.0f, -1.0f);
+		direction += Vector3f(0.0f, 0.0f, -1.0f);
 		move |= true;
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_A)) {
-		directrion += Vector3f(-1.0f, 0.0f, 0.0f);
+		direction += Vector3f(-1.0f, 0.0f, 0.0f);
 		m_background1.addOffset(-0.001f);
 		m_background2.addOffset(-0.001f);
 		m_background1.setSpeed(-0.005f);
@@ -106,7 +106,7 @@ void Game::update() {
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_D)) {
-		directrion += Vector3f(1.0f, 0.0f, 0.0f);
+		direction += Vector3f(1.0f, 0.0f, 0.0f);
 		m_background1.addOffset(0.001f);
 		m_background2.addOffset(0.001f);
 		m_background1.setSpeed(0.005f);
@@ -115,12 +115,12 @@ void Game::update() {
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_Q)) {
-		directrion += Vector3f(0.0f, -1.0f, 0.0f);
+		direction += Vector3f(0.0f, -1.0f, 0.0f);
 		move |= true;
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_E)) {
-		directrion += Vector3f(0.0f, 1.0f, 0.0f);
+		direction += Vector3f(0.0f, 1.0f, 0.0f);
 		move |= true;
 	}
 
@@ -143,7 +143,7 @@ void Game::update() {
 		}
 
 		if (move) {
-			m_camera.move(directrion * 5.0f * m_dt);
+			m_camera.move(direction * 5.0f * m_dt);
 		}
 	}
 	m_trackball.idle();

@@ -57,5 +57,5 @@ private:
 
 	float dx = 0.0f;
 	float dy = 0.0f;
-	Vector3f directrion;
+	Vector3f direction;
 };

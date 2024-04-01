@@ -140,25 +140,25 @@ void TursoInterface::update() {
 		animate = !animate;
 
 
-	Vector3 directrion = Vector3();
+	Vector3 direction = Vector3();
 	bool move = false;
 	if (keyboard.keyDown(Keyboard::KEY_W)) {
-		directrion += Vector3::FORWARD;
+		direction += Vector3::FORWARD;
 		move = true;
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_S)) {
-		directrion += Vector3::BACK;
+		direction += Vector3::BACK;
 		move = true;
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_A)) {
-		directrion += Vector3::LEFT;
+		direction += Vector3::LEFT;
 		move = true;
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_D)) {
-		directrion += Vector3::RIGHT;
+		direction += Vector3::RIGHT;
 		move = true;
 	}
 
@@ -185,7 +185,7 @@ void TursoInterface::update() {
 		if (move) {
 			float moveSpeed = (keyboard.keyDown(Keyboard::KEY_LSHIFT) || keyboard.keyDown(Keyboard::KEY_RSHIFT)) ? 50.0f : 5.0f;
 
-			camera->Translate(directrion * m_dt * moveSpeed);
+			camera->Translate(direction * m_dt * moveSpeed);
 		}
 	}
 	m_trackball.idle();

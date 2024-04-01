@@ -32,7 +32,7 @@ public:
 
 	void updateGridBounds();
 
-	Vector2f m_directrion;
+	Vector2f m_direction;
 	Vector2f m_velocity;
 	Vector2f m_oldFacingDirection;
 	Vector2f m_position;

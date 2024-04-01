@@ -20,7 +20,8 @@ BlobShoot::BlobShoot(StateMachine& machine) : State(machine, States::BLOBSHOOT) 
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
 	m_camera.lookAt(Vector3f(0.0f, 0.0f, 30.0f), Vector3f(0.0f, 0.0f, 30.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
 	m_camera.setRotationSpeed(0.1f);
-	m_camera.setMovingSpeed(10.0f);
+	m_camera.setMovingSpeed(50.0f);
+	m_camera.setOffsetDistance(m_offsetDistance);
 
 	glClearColor(0.494f, 0.686f, 0.796f, 1.0f);
 	glClearDepth(1.0f);
@@ -40,7 +41,15 @@ BlobShoot::BlobShoot(StateMachine& machine) : State(machine, States::BLOBSHOOT) 
 
 	ShapeDrawer::Get().init(32768);
 	ShapeDrawer::Get().setCamera(m_camera);
-	Physics::AddStaticObject(Physics::BtTransform(btVector3(0.0f, -30.0f, 0.0f)), new btBox2dShape(btVector3(50.0f, 0.1f, 50.0f)), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::SPHERE);
+
+	addBox(Vector3f(0, -BOX_SIZE / 2, 0), Vector3f(BOX_SIZE, TINY_SIZE, BOX_SIZE));
+	addBox(Vector3f(0, +BOX_SIZE / 2, 0), Vector3f(BOX_SIZE, TINY_SIZE, BOX_SIZE));
+	addBox(Vector3f(BOX_SIZE / 2, 0, 0), Vector3f(TINY_SIZE, BOX_SIZE, BOX_SIZE));
+	addBox(Vector3f(-BOX_SIZE / 2, 0, 0), Vector3f(TINY_SIZE, BOX_SIZE, BOX_SIZE));
+	addBox(Vector3f(0, 0, -BOX_SIZE / 2), Vector3f(BOX_SIZE, BOX_SIZE, TINY_SIZE));
+	addBox(Vector3f(0, 0, +BOX_SIZE / 2), Vector3f(BOX_SIZE, BOX_SIZE, TINY_SIZE));
+
+	addCharacter(Vector3f(0.0f, 0.0f, 0.0f), Vector2f(0.5f, 1.5f));
 }
 
 BlobShoot::~BlobShoot() {
@@ -54,39 +63,39 @@ void BlobShoot::fixedUpdate() {
 
 void BlobShoot::update() {
 	Keyboard &keyboard = Keyboard::instance();
-	Vector3f directrion = Vector3f();
+	Vector3f direction = Vector3f();
 
 	float dx = 0.0f;
 	float dy = 0.0f;
 	bool move = false;
 
 	if (keyboard.keyDown(Keyboard::KEY_W)) {
-		directrion += Vector3f(0.0f, 0.0f, 1.0f);
+		direction += Vector3f(0.0f, 0.0f, 1.0f);
 		move |= true;
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_S)) {
-		directrion += Vector3f(0.0f, 0.0f, -1.0f);
+		direction += Vector3f(0.0f, 0.0f, -1.0f);
 		move |= true;
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_A)) {
-		directrion += Vector3f(-1.0f, 0.0f, 0.0f);
+		direction += Vector3f(-1.0f, 0.0f, 0.0f);
 		move |= true;
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_D)) {
-		directrion += Vector3f(1.0f, 0.0f, 0.0f);
+		direction += Vector3f(1.0f, 0.0f, 0.0f);
 		move |= true;
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_Q)) {
-		directrion += Vector3f(0.0f, -1.0f, 0.0f);
+		direction += Vector3f(0.0f, -1.0f, 0.0f);
 		move |= true;
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_E)) {
-		directrion += Vector3f(0.0f, 1.0f, 0.0f);
+		direction += Vector3f(0.0f, 1.0f, 0.0f);
 		move |= true;
 	}
 
@@ -97,23 +106,29 @@ void BlobShoot::update() {
 		dy = mouse.yDelta();
 	}
 
+	if (direction.lengthSq() > 0.0f)
+		Vector3f::Normalize(direction);
+
+	direction = m_camera.getViewSpaceDirection(direction);
+	m_kinematicController->setWalkDirection(Physics::VectorFrom(direction * 0.4f));
+
 	if (move || dx != 0.0f || dy != 0.0f) {
 		if (dx || dy) {
 			m_camera.rotate(dx, dy);
 		}
-
-		if (move) {
-			m_camera.move(directrion * m_dt);
-		}
 	}
 
+	m_camera.Camera::setTarget(getPosition());
+	m_camera.moveRelative(Vector3f(0.0f, 1.5f, 0.0f));
+
 	if (mouse.buttonPressed(Mouse::MouseButton::BUTTON_LEFT)) {
-		btRigidBody* sphere = addSphere(m_camera.getPosition(), 5.0f, 10.0, Physics::collisiontypes::SPHERE, Physics::collisiontypes::FLOOR | Physics::collisiontypes::SPHERE);
-		btVector3 direction = Physics::VectorFrom(m_camera.getViewDirection() * 200.0f);
-		sphere->setLinearVelocity(direction);
+		btRigidBody* sphere = addSphere(m_camera.getPosition() + Vector3f(0.0f, 3.0f, 0.0f), 6.0f, 5.0, Physics::collisiontypes::SPHERE, Physics::collisiontypes::FLOOR | Physics::collisiontypes::SPHERE);
+		btVector3 direction = Physics::VectorFrom(m_camera.getViewDirection() * SPHERE_RADIUS * SPHERE_RADIUS * 20.0f);
+		sphere->applyCentralImpulse(direction);
 	}
 
 	m_background.update(m_dt);
+
 }
 
 void BlobShoot::render() {
@@ -136,10 +151,10 @@ void BlobShoot::render() {
 	Globals::textureManager.get("marble").bind();
 	Globals::shapeManager.get("cube").drawRaw();
 
-	shader->loadVector("u_color", Vector4f(0.25098039215686274f, 0.25098039215686274f, 0.25098039215686274f, 1.0f));
-	shader->loadMatrix("u_model", Matrix4f::Translate(0.0f, -30.0f, 0.0f));
-	Globals::textureManager.get("null").bind();
-	Globals::shapeManager.get("floor").drawRaw();
+	//shader->loadVector("u_color", Vector4f(0.25098039215686274f, 0.25098039215686274f, 0.25098039215686274f, 1.0f));
+	//shader->loadMatrix("u_model", Matrix4f::Translate(0.0f, -30.0f, 0.0f));
+	//Globals::textureManager.get("null").bind();
+	//Globals::shapeManager.get("floor").drawRaw();
 
 	shader->unuse();
 
@@ -157,7 +172,7 @@ void BlobShoot::render() {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glDisable(GL_DEPTH_TEST);
-	shader = Globals::shaderManager.getAssetPointer("ray_march");
+	shader = Globals::shaderManager.getAssetPointer("ray_march_new");
 	shader->use();
 	shader->loadVector("u_campos", m_camera.getPosition());
 	shader->loadVector("u_viewdir", m_camera.getViewDirection());
@@ -197,7 +212,17 @@ void BlobShoot::OnMouseButtonUp(Event::MouseButtonEvent& event) {
 }
 
 void BlobShoot::OnMouseWheel(Event::MouseWheelEvent& event) {
+	if (event.direction == 1u) {
+		m_offsetDistance += 2.0f;
+		m_offsetDistance = std::max(0.0f, std::min(m_offsetDistance, 150.0f));
+		m_camera.setOffsetDistance(m_offsetDistance);
+	}
 
+	if (event.direction == 0u) {
+		m_offsetDistance -= 2.0f;
+		m_offsetDistance = std::max(0.0f, std::min(m_offsetDistance, 150.0f));
+		m_camera.setOffsetDistance(m_offsetDistance);
+	}
 }
 
 void BlobShoot::OnKeyDown(Event::KeyboardEvent& event) {
@@ -266,7 +291,42 @@ void BlobShoot::renderUi() {
 }
 
 btRigidBody* BlobShoot::addSphere(const Vector3f& pos, float rad, float mass, int collisionFilterGroup, int collisionFilterMask) {
-
-	m_bodies.push_back(Physics::AddRigidBody(mass, Physics::BtTransform(btVector3(pos[0], pos[1], pos[2])), new btSphereShape(rad), collisionFilterGroup, collisionFilterMask));
+	m_bodies.push_back(Physics::AddRigidBody(mass, Physics::BtTransform(Physics::VectorFrom(pos)), new btSphereShape(rad), collisionFilterGroup, collisionFilterMask, btCollisionObject::CF_DYNAMIC_OBJECT));
+	m_bodies.back()->setRestitution(1.0f);
 	return m_bodies.back();
+}
+
+btCollisionObject* BlobShoot::addBox(const Vector3f& pos, const Vector3f& size) {
+	btCollisionObject* box = Physics::AddStaticObject(Physics::BtTransform(Physics::VectorFrom(pos)), new btBoxShape(Physics::VectorFrom(size * 0.5f)), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::SPHERE);
+	box->setRestitution(0.5f);
+	box->setFriction(10.0f); //may clamped maybe not?
+	return box;
+}
+
+void BlobShoot::addCharacter(const Vector3f& pos, const Vector2f& size) {
+	
+	m_ghostPairCallback = new btGhostPairCallback();
+	Physics::GetDynamicsWorld()->getBroadphase()->getOverlappingPairCache()->setInternalGhostPairCallback(m_ghostPairCallback);
+
+
+	btConvexShape* capsule = new btCapsuleShape(size[0], size[1]);
+
+	m_pairCachingGhostObject = new btPairCachingGhostObject();
+	m_pairCachingGhostObject->setCollisionShape(capsule);
+	m_pairCachingGhostObject->setCollisionFlags(btCollisionObject::CF_CHARACTER_OBJECT);
+
+	
+	m_kinematicController = new btKinematicCharacterController(m_pairCachingGhostObject, static_cast<btConvexShape*>(m_pairCachingGhostObject->getCollisionShape()), 0.35f, btVector3(0.0f, 1.0f, 0.0f));
+
+
+	m_pairCachingGhostObject->setWorldTransform(Physics::BtTransform(Physics::VectorFrom(pos)));
+
+
+	Physics::GetDynamicsWorld()->addCollisionObject(m_pairCachingGhostObject, Physics::collisiontypes::CHARACTER, Physics::collisiontypes::FLOOR);
+	Physics::GetDynamicsWorld()->addAction(m_kinematicController);
+}
+
+const Vector3f BlobShoot::getPosition() {
+	btTransform t = m_pairCachingGhostObject->getWorldTransform();
+	return Physics::VectorFrom(t.getOrigin()) - m_colShapeOffset;
 }

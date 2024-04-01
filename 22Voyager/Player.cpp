@@ -84,7 +84,7 @@ void Player::Update(Terrain& terrain, float dt) {
 		}
 
 		if (m_move) {
-			m_camera.move(directrion * 20.0f * dt);
+			m_camera.move(direction * 20.0f * dt);
 		}
 	}
 
@@ -226,25 +226,25 @@ void Player::ProcessInput() {
 	m_sprinting = false;
 	m_move = false;
 
-	directrion.set(0.0f, 0.0f, 0.0f);
+	direction.set(0.0f, 0.0f, 0.0f);
 
 	if (keyboard.keyDown(Keyboard::KEY_W)) {
-		directrion += Vector3f(0.0f, 0.0f, 1.0f);
+		direction += Vector3f(0.0f, 0.0f, 1.0f);
 		m_move |= true;
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_S)) {
-		directrion += Vector3f(0.0f, 0.0f, -1.0f);
+		direction += Vector3f(0.0f, 0.0f, -1.0f);
 		m_move |= true;
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_A)) {
-		directrion += Vector3f(-1.0f, 0.0f, 0.0f);
+		direction += Vector3f(-1.0f, 0.0f, 0.0f);
 		m_move |= true;
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_D)) {
-		directrion += Vector3f(1.0f, 0.0f, 0.0f);
+		direction += Vector3f(1.0f, 0.0f, 0.0f);
 		m_move |= true;
 	}
 

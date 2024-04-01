@@ -77,39 +77,39 @@ void Tower::fixedUpdate() {
 
 void Tower::update() {
 	Keyboard &keyboard = Keyboard::instance();
-	Vector3f directrion = Vector3f();
+	Vector3f direction = Vector3f();
 
 	float dx = 0.0f;
 	float dy = 0.0f;
 	bool move = false;
 
 	if (keyboard.keyDown(Keyboard::KEY_W)) {
-		directrion += Vector3f(0.0f, 0.0f, 1.0f);
+		direction += Vector3f(0.0f, 0.0f, 1.0f);
 		move |= true;
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_S)) {
-		directrion += Vector3f(0.0f, 0.0f, -1.0f);
+		direction += Vector3f(0.0f, 0.0f, -1.0f);
 		move |= true;
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_A)) {
-		directrion += Vector3f(-1.0f, 0.0f, 0.0f);
+		direction += Vector3f(-1.0f, 0.0f, 0.0f);
 		move |= true;
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_D)) {
-		directrion += Vector3f(1.0f, 0.0f, 0.0f);
+		direction += Vector3f(1.0f, 0.0f, 0.0f);
 		move |= true;
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_Q)) {
-		directrion += Vector3f(0.0f, -1.0f, 0.0f);
+		direction += Vector3f(0.0f, -1.0f, 0.0f);
 		move |= true;
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_E)) {
-		directrion += Vector3f(0.0f, 1.0f, 0.0f);
+		direction += Vector3f(0.0f, 1.0f, 0.0f);
 		move |= true;
 	}
 
@@ -126,7 +126,7 @@ void Tower::update() {
 		}
 
 		if (move) {
-			m_camera.move(directrion * m_dt);
+			m_camera.move(direction * m_dt);
 		}
 	}
 

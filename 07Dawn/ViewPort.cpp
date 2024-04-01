@@ -28,27 +28,27 @@ void ViewPort::init(unsigned int width, unsigned int height) {
 
 void ViewPort::update(float dt) {
 	Keyboard &keyboard = Keyboard::instance();
-	Vector3f directrion = Vector3f();
+	Vector3f direction = Vector3f();
 	
 	
 	float moveSpeed = 500.0f;
 	if (keyboard.keyDown(Keyboard::KEY_W)) {
-		directrion += Vector3f(0.0f, 1.0f, 0.0f);
+		direction += Vector3f(0.0f, 1.0f, 0.0f);
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_S)) {
-		directrion += Vector3f(0.0f, -1.0f, 0.0f);
+		direction += Vector3f(0.0f, -1.0f, 0.0f);
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_A)) {
-		directrion += Vector3f(-1.0f, 0.0f, 0.0f);
+		direction += Vector3f(-1.0f, 0.0f, 0.0f);
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_D)) {
-		directrion += Vector3f(1.0f, 0.0f, 0.0f);
+		direction += Vector3f(1.0f, 0.0f, 0.0f);
 	}
 
-	m_camera.move(directrion[0] * dt * moveSpeed, directrion[1] * dt * moveSpeed, directrion[2] * dt * moveSpeed);
+	m_camera.move(direction[0] * dt * moveSpeed, direction[1] * dt * moveSpeed, direction[2] * dt * moveSpeed);
 }
 
 Camera& ViewPort::getCamera() {

@@ -719,6 +719,7 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("font", "res/shader/batch.vert", "res/shader/font.frag");
 	Globals::shaderManager.loadShader("batch", "res/shader/batch.vert", "res/shader/batch.frag");
 	Globals::shaderManager.loadShader("ray_march", "res/shader/ray_march.vert", "res/shader/ray_march.frag");
+	Globals::shaderManager.loadShader("ray_march_new", "res/shader/ray_march_new.vert", "res/shader/ray_march_new.frag");
 	Globals::shaderManager.loadShader("scene", "res/shader/scene.vert", "res/shader/scene.frag");
 	Globals::shaderManager.loadShader("model", "res/shader/model.vert", "res/shader/model.frag");
 	Globals::shaderManager.loadShader("fire", "res/shader/fire.vert", "res/shader/fire.frag", "res/shader/fire.gem");
