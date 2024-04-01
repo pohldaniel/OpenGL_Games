@@ -226,28 +226,88 @@ std::vector<btCollisionShape*> Physics::CreateStaticCollisionShapes(std::vector<
 	return ret;
 }
 
-btRigidBody* Physics::CreateRigidBody(btScalar mass, const btTransform& startTransform, btCollisionShape* shape, int collisionFlag) {
-	bool isDynamic = (mass != 0.f);
-
+btRigidBody* Physics::CreateRigidBody(btScalar mass, const btTransform& transform, btCollisionShape* shape, int collisionFlag, void* userPointer) {
 	btVector3 localInertia(0.0f, 0.0f, 0.0f);
 	if (mass != 0.0f)
 		shape->calculateLocalInertia(mass, localInertia);
 
-	btDefaultMotionState* motionState = new btDefaultMotionState(startTransform);
+	btDefaultMotionState* motionState = new btDefaultMotionState(transform);
 	btRigidBody::btRigidBodyConstructionInfo cInfo(mass, motionState, shape, localInertia);
 	btRigidBody* body = new btRigidBody(cInfo);
 
 	body->setCollisionFlags(collisionFlag);
+	if (userPointer)
+		body->setUserPointer(userPointer);
 	return body;
 }
 
-btRigidBody* Physics::AddRigidBody(float mass, const btTransform& startTransform, btCollisionShape* shape, int collisionFilterGroup, int collisionFilterMask, int collisionFlag) {
-	btRigidBody* body = CreateRigidBody(mass, startTransform, shape, collisionFlag);
+btRigidBody* Physics::AddRigidBody(float mass, const btTransform& transform, btCollisionShape* shape, int collisionFilterGroup, int collisionFilterMask, int collisionFlag, void* userPointer) {
+	btVector3 localInertia(0.0f, 0.0f, 0.0f);
+	if (mass != 0.0f)
+		shape->calculateLocalInertia(mass, localInertia);
+
+	btDefaultMotionState* motionState = new btDefaultMotionState(transform);
+	btRigidBody::btRigidBodyConstructionInfo cInfo(mass, motionState, shape, localInertia);
+	btRigidBody* body = new btRigidBody(cInfo);
+	body->setCollisionFlags(collisionFlag);
+	if (userPointer)
+		body->setUserPointer(userPointer);
+
 	DynamicsWorld->addRigidBody(body, collisionFilterGroup, collisionFilterMask);
-
 	return body;
 }
 
+btRigidBody* Physics::AddKinematicRigidBody(const btTransform& transform, btCollisionShape* shape, int collisionFilterGroup, int collisionFilterMask, void* userPointer) {
+	btVector3 localInertia(0.0f, 0.0f, 0.0f);
+	btDefaultMotionState* motionState = new btDefaultMotionState(transform);
+	btRigidBody::btRigidBodyConstructionInfo cInfo(0.0f, motionState, shape, localInertia);
+	btRigidBody* body = new btRigidBody(cInfo);
+	if(userPointer)
+		body->setUserPointer(userPointer);
+	body->forceActivationState(DISABLE_DEACTIVATION);
+	body->setCollisionFlags(btCollisionObject::CF_KINEMATIC_OBJECT);
+
+	DynamicsWorld->addRigidBody(body, collisionFilterGroup, collisionFilterMask);
+	return body;
+}
+
+btRigidBody* Physics::AddStaticRigidBody(const btTransform& transform, btCollisionShape* shape, int collisionFilterGroup, int collisionFilterMask, void* userPointer) {	
+	btVector3 localInertia(0.0f, 0.0f, 0.0f);
+	btDefaultMotionState* motionState = new btDefaultMotionState(transform);
+	btRigidBody::btRigidBodyConstructionInfo cInfo(0.0f, motionState, shape, localInertia);
+	btRigidBody* body = new btRigidBody(cInfo);
+	if (userPointer)
+		body->setUserPointer(userPointer);
+	body->setCollisionFlags(btCollisionObject::CF_STATIC_OBJECT);
+
+	DynamicsWorld->addRigidBody(body, collisionFilterGroup, collisionFilterMask);
+	return body;
+}
+
+btCollisionObject* Physics::AddKinematicObject(const btTransform& transform, btCollisionShape* shape, int collisionFilterGroup, int collisionFilterMask, void* userPointer) {
+	btCollisionObject* colObj = new btCollisionObject();
+	colObj->setWorldTransform(transform);
+	colObj->setCollisionShape(shape);
+	colObj->setCollisionFlags(btCollisionObject::CF_KINEMATIC_OBJECT);
+	if (userPointer)
+		colObj->setUserPointer(userPointer);
+	colObj->forceActivationState(DISABLE_DEACTIVATION);
+
+	DynamicsWorld->addCollisionObject(colObj, collisionFilterGroup, collisionFilterMask);
+	return colObj;
+}
+
+btCollisionObject* Physics::AddStaticObject(const btTransform& transform, btCollisionShape* shape, int collisionFilterGroup, int collisionFilterMask, void* userPointer) {
+	btCollisionObject* colObj = new btCollisionObject();
+	colObj->setWorldTransform(transform);
+	colObj->setCollisionShape(shape);
+	colObj->setCollisionFlags(btCollisionObject::CF_STATIC_OBJECT);
+	if (userPointer)
+		colObj->setUserPointer(userPointer);
+
+	DynamicsWorld->addCollisionObject(colObj, collisionFilterGroup, collisionFilterMask);
+	return colObj;
+}
 
 float Physics::SweepSphere(const btVector3& from, const btVector3& to, float radius, int collisionFilterGroup, int collisionFilterMask) {
 	btSphereShape cameraSphere(radius);

@@ -58,10 +58,10 @@ void ShapeDrawer::shutdown() {
 }
 
 void ShapeDrawer::drawDynmicsWorld(btDynamicsWorld* dynamicsWorld) {
-	btScalar	m[16];
-	const int	numObjects = dynamicsWorld->getNumCollisionObjects();
-
-	btVector3 wireColor(1, 0, 0);
+	btScalar m[16];
+	const int numObjects = dynamicsWorld->getNumCollisionObjects();
+	
+	btVector3 wireColor(1.0f, 0.0f, 0.0f);
 	for (int i = 0; i < numObjects; i++) {
 		btCollisionObject* colObj = dynamicsWorld->getCollisionObjectArray()[i];
 		btRigidBody* body = btRigidBody::upcast(colObj);
@@ -78,6 +78,7 @@ void ShapeDrawer::drawDynmicsWorld(btDynamicsWorld* dynamicsWorld) {
 }
 
 void ShapeDrawer::drawShape(btScalar* m, btCollisionShape* shape) {
+	
 	if (shape->getShapeType() == COMPOUND_SHAPE_PROXYTYPE) {
 		const btCompoundShape* compoundShape = static_cast<const btCompoundShape*>(shape);
 		for (int i = compoundShape->getNumChildShapes() - 1; i >= 0; i--) {
@@ -93,7 +94,8 @@ void ShapeDrawer::drawShape(btScalar* m, btCollisionShape* shape) {
 			  shape->getShapeType() == CAPSULE_SHAPE_PROXYTYPE ||
 			  shape->getShapeType() == CONVEX_HULL_SHAPE_PROXYTYPE ||
 			  shape->getShapeType() == SPHERE_SHAPE_PROXYTYPE ||
-			  shape->getShapeType() == CYLINDER_SHAPE_PROXYTYPE) {
+			  shape->getShapeType() == CYLINDER_SHAPE_PROXYTYPE ||
+              shape->getShapeType() == BOX_2D_SHAPE_PROXYTYPE) {
 
 		ShapeCacheConvex* sc = cacheConvex(const_cast<btCollisionShape*>(shape));
 		btShapeHull* hull = &sc->m_shapehull;

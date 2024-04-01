@@ -177,7 +177,7 @@ void SmoothParticle::render() {
 	//Globals::shapeManager.get("torus_knot").drawRaw();
 
 	//shader->loadMatrix("u_model", Matrix4f::Translate(0.0f, -30.0f, 0.0f));
-	//Globals::shapeManager.get("plane").drawRaw();
+	//Globals::shapeManager.get("floor").drawRaw();
 	//shader->unuse();
 	//m_depthBuffer.unbind();
 
@@ -197,7 +197,7 @@ void SmoothParticle::render() {
 	shader->loadVector("u_color", Vector4f(0.25098039215686274f, 0.25098039215686274f, 0.25098039215686274f, 1.0f));
 	shader->loadMatrix("u_model", Matrix4f::Translate(0.0f, -30.0f, 0.0f));
 
-	Globals::shapeManager.get("plane").drawRaw();
+	Globals::shapeManager.get("floor").drawRaw();
 	shader->unuse();
 	m_skybox.draw(m_camera);
 

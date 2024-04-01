@@ -11,7 +11,7 @@ in float vertSize;
 uniform float u_near;
 uniform float u_far;
 uniform vec2 u_resolution;
-uniform float u_fallOff;
+uniform float u_fallOff = 0.25;
 
 out vec4 outColor;
 

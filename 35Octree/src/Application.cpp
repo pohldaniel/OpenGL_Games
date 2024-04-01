@@ -22,6 +22,7 @@
 #include <States/BlendedParticle.h>
 #include <States/SmoothParticle.h>
 #include <States/SoftParticle.h>
+#include <States/BlobShoot.h>
 
 #include "Application.h"
 #include "Globals.h"
@@ -424,8 +425,9 @@ void Application::initStates() {
 	//Machine->addStateAtTop(new RayMarch(*Machine));
 	//Machine->addStateAtTop(new Fire(*Machine));
 	//Machine->addStateAtTop(new BlendedParticle(*Machine));
-	Machine->addStateAtTop(new SmoothParticle(*Machine));
+	//Machine->addStateAtTop(new SmoothParticle(*Machine));
 	//Machine->addStateAtTop(new SoftParticle(*Machine));
+	Machine->addStateAtTop(new BlobShoot(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -782,5 +784,5 @@ void Application::loadAssets() {
 	Globals::shapeManager.buildQuadXY("quad", Vector3f(-1.0f, -1.0f, 0.0f), Vector2f(2.0f, 2.0f), 1, 1, true, false, false);
 	Globals::shapeManager.buildTorus("torus", 1.0f, 0.4f, Vector3f(0.0f, 0.0f, 0.0f), 49, 49, true, true, true);
 	Globals::shapeManager.buildTorusKnot("torus_knot", 2.0f, 0.75f, 2, 3, Vector3f(0.0f, 0.0f, 0.0f), 100, 16, true, true, false);
-	Globals::shapeManager.buildQuadXZ("plane", Vector3f(-50.0f, 0.0f, -50.0f), Vector2f(100.0f, 100.0f), 10, 10, true, true, false);
+	Globals::shapeManager.buildQuadXZ("floor", Vector3f(-50.0f, 0.0f, -50.0f), Vector2f(100.0f, 100.0f), 10, 10, true, true, false);
 }

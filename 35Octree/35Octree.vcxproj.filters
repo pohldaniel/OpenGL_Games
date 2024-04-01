@@ -456,6 +456,9 @@
     <ClCompile Include="src\ParticleSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\States\BlobShoot.cpp">
+      <Filter>Source Files\States</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="convhull\convhull_3d.h">
@@ -1063,6 +1066,9 @@
     </ClInclude>
     <ClInclude Include="MathCore\vec4.h">
       <Filter>MathCore</Filter>
+    </ClInclude>
+    <ClInclude Include="src\States\BlobShoot.h">
+      <Filter>Source Files\States</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

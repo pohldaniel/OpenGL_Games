@@ -20,7 +20,7 @@ void KinematicObject::create(btCollisionShape* shape, const btTransform& transfo
 	m_rigidBody->forceActivationState(DISABLE_DEACTIVATION);
 	m_rigidBody->setCollisionFlags(btCollisionObject::CF_KINEMATIC_OBJECT);
 
-	physicsWorld->addCollisionObject(m_rigidBody, collisionFilterGroup, collisionFilterMask);
+	physicsWorld->addRigidBody(m_rigidBody, collisionFilterGroup, collisionFilterMask);
 }
 
 btRigidBody* KinematicObject::getRigidBody() {
