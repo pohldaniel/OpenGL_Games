@@ -10,13 +10,13 @@ uniform mat4 u_model = mat4(1.0);
 uniform vec4 u_color = vec4(1.0); 
 
 
-out vec2 v_texCoord;
-out vec3 v_normal;
+out vec2 vertTexCoord;
+out vec3 vertNormal;
 out vec4 vertColor; 
 
 void main(void){
    gl_Position = u_projection * u_view * u_model * vec4(i_position, 1.0);
-   v_texCoord = i_texCoord;
-   v_normal = i_normal;
+   vertTexCoord = i_texCoord;
+   vertNormal = i_normal;
    vertColor = u_color;
 }

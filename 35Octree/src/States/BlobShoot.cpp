@@ -40,6 +40,9 @@ BlobShoot::BlobShoot(StateMachine& machine) : State(machine, States::BLOBSHOOT) 
 	m_sceneBuffer.attachTexture2D(AttachmentTex::RED32F);
 	m_sceneBuffer.attachTexture2D(AttachmentTex::DEPTH24);
 
+	m_depthBuffer.create(Application::Width, Application::Height);
+	m_depthBuffer.attachTexture2D(AttachmentTex::DEPTH24);
+
 	ShapeDrawer::Get().init(32768);
 	ShapeDrawer::Get().setCamera(m_camera);
 
@@ -136,7 +139,7 @@ void BlobShoot::update() {
 	}
 
 	m_background.update(m_dt);
-
+	m_accTime += m_dt;
 	for (int i = 0; i < m_bodies.size(); i++) {
 		btRigidBody* sphereBody = m_bodies[i];
 		SphereStruct& sphere = m_spheres[i];
@@ -170,10 +173,10 @@ void BlobShoot::render() {
 	Globals::textureManager.get("marble").bind();
 	Globals::shapeManager.get("cube").drawRaw();
 
-	//shader->loadVector("u_color", Vector4f(0.25098039215686274f, 0.25098039215686274f, 0.25098039215686274f, 1.0f));
-	//shader->loadMatrix("u_model", Matrix4f::Translate(0.0f, -30.0f, 0.0f));
-	//Globals::textureManager.get("null").bind();
-	//Globals::shapeManager.get("floor").drawRaw();
+	shader->loadVector("u_color", Vector4f(0.25098039215686274f, 0.25098039215686274f, 0.25098039215686274f, 1.0f));
+	shader->loadMatrix("u_model", Matrix4f::Translate(0.0f, -30.0f, 0.0f));
+	Globals::textureManager.get("null").bind();
+	Globals::shapeManager.get("floor").drawRaw();
 
 	shader->unuse();
 
@@ -189,23 +192,44 @@ void BlobShoot::render() {
 
 	m_sceneBuffer.unbind();
 
+
+	//m_depthBuffer.blitBackBufferToDepthTexture();
+
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glDisable(GL_DEPTH_TEST);
 	shader = Globals::shaderManager.getAssetPointer("ray_march_new");
 	shader->use();
-	shader->loadVector("u_campos", m_camera.getPosition());
-	shader->loadVector("u_viewdir", m_camera.getViewDirection());
+	shader->loadMatrix("viewMatrix", m_camera.getViewMatrix());
+	shader->loadVector("uCameraPosition", m_camera.getPosition());
+	shader->loadVector("uCameraDirection", m_camera.getViewDirection());
 	shader->loadVector("u_camright", m_camera.getCamX());
 	shader->loadVector("u_camup", m_camera.getCamY());
 	shader->loadFloat("u_scaleFactor", m_camera.getScaleFactor());
-	shader->loadFloat("u_aspectRatio", m_camera.getAspect());
+
+	shader->loadFloat("uCameraAspectRatio", m_camera.getAspect());
+	shader->loadVector("uCameraNearSize", Vector2f(2.0f * m_camera.getScaleFactor() * m_camera.getAspect() * m_camera.getNear(), 2.0f * m_camera.getScaleFactor() * m_camera.getFar()));
+	shader->loadFloat("uCameraNear", m_camera.getNear());
+	shader->loadFloat("uCameraFar", m_camera.getFar());
+	shader->loadFloat("uTime", m_accTime);
+	shader->loadVector("uResolution", Vector2f(static_cast<float>(Application::Width), static_cast<float>(Application::Height)));
 	shader->loadUnsignedInt("u_sphereCount", static_cast<unsigned int>(m_spheres.size()));
 
-	shader->loadInt("u_screen_texture", 0);
-	shader->loadInt("u_depth_texture", 1);
+
+	shader->loadFloat("uRayMarchHitThreshold", 0.0001f);
+	shader->loadFloat("uMaxMarchDistance", 100.0f);
+	shader->loadFloat("uExternalDistanceCutDiff", 0.02f);
+	shader->loadFloat("uSmoothUnion", 3.0f);
+	shader->loadFloat("uContactEdgeOffset", 0.7f);
+	shader->loadFloat("uContactEdgeMin", 0.8f);
+	shader->loadFloat("uContactEdgeMax", 0.95f);
+
+	shader->loadInt("uDiffuseTexture", 0);
+	shader->loadInt("uDepthTexture", 1);
+	shader->loadInt("uStickyDepthTexture", 2);
 
 	m_sceneBuffer.bindColorTexture(0u, 0u);
-	m_sceneBuffer.bindColorTexture(1u, 1u);
+	//m_sceneBuffer.bindColorTexture(1u, 1u);
+	m_sceneBuffer.bindDepthTexture(1u);
 
 	Globals::shapeManager.get("quad").drawRaw();
 	shader->unuse();

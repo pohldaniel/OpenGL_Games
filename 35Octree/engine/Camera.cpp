@@ -679,11 +679,13 @@ const float Camera::getFovXRad() const {
 }
 
 const float Camera::getScaleFactor() const{
-	return 1.0f / m_persMatrix[1][1];
+	//return 1.0f / m_persMatrix[1][1];
+	return m_invPersMatrix[1][1];
 }
 
 const float Camera::getAspect() const {
-	return m_persMatrix[1][1] / m_persMatrix[0][0];
+	//return m_persMatrix[1][1] / m_persMatrix[0][0];
+	return m_invPersMatrix[0][0] / m_invPersMatrix[1][1];
 }
 
 const float Camera::getLeftOrthographic() const {

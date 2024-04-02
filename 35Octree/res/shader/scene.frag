@@ -5,9 +5,8 @@ layout(location = 1) out float depthOut;
 
 uniform sampler2D u_texture;
 
-in vec3 v_color;
-in vec2 v_texCoord;
-in vec3 v_normal;
+in vec2 vertTexCoord;
+in vec3 vertNormal;
 in vec4 vertColor;
 
 uniform float u_near;
@@ -19,7 +18,7 @@ float linearizeDepth(float depth){
 }
 
 void main(void){
-	colorOut = vertColor * texture2D( u_texture, v_texCoord );
+	colorOut = vertColor * texture2D( u_texture, vertTexCoord );
 	colorOut.a = 1.0;
 	
 	depthOut = linearizeDepth(gl_FragCoord.z);

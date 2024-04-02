@@ -57,7 +57,7 @@ private:
 
 	Camera m_camera;
 	Background m_background;
-	Framebuffer m_sceneBuffer;
+	Framebuffer m_sceneBuffer, m_depthBuffer;
 	const float maxDistance[1] = { 100000.0f };
 	std::vector<btRigidBody*> m_bodies;
 	std::vector<SphereStruct> m_spheres;
@@ -67,4 +67,5 @@ private:
 	btGhostPairCallback* m_ghostPairCallback;
 	Vector3f m_colShapeOffset = Vector3f(0.0f, 0.84f, 0.0f);
 	float m_offsetDistance = 10.0f;
+	float m_accTime = 0.0f;
 };
