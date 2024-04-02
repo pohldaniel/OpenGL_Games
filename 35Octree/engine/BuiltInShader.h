@@ -162,5 +162,8 @@ namespace BuiltInShader {
 	extern unsigned int matrixUbo;
 	extern const unsigned int matrixBinding;
 
+	extern unsigned int sphereUbo;
+	extern const unsigned int sphereBinding;
+
 	extern void UpdateViewUbo(const Camera& camera);
 }

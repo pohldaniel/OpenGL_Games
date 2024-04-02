@@ -1,6 +1,9 @@
-#version 410 core
+#version 430 core
 
 const int MAX_SPHERE_COUNT = 24;
+const int NULL_ID = -1;
+const int SPHERE_ID = 0;
+const int VSPHERE_ID = 1;
 
 out vec4 FragColor;
 
@@ -16,13 +19,36 @@ uniform vec3 u_camright;
 uniform vec3 u_camup;
 uniform float u_scaleFactor;
 uniform float u_aspectRatio;
+uniform uint u_sphereCount;
+
 
 const float inf = uintBitsToFloat(0x7F800000u);
+
+struct RayMarchSettings{
+    int max_steps;   
+    float min_distance;
+	float max_distance;
+    float depth_weight;
+};
 
 struct Ray{
     vec3 origin;
     vec3 direction;
     float cosA;
+};
+
+
+struct Sphere {
+      vec3 position;
+      vec4 quaternion;
+      vec3 color;
+      float radius;
+};
+
+RayMarchSettings rm_settings = RayMarchSettings(128, 0.0001, 100000.0, 0.5);
+
+layout(std140, binding = 4) uniform u_spheres{
+    Sphere spheres[MAX_SPHERE_COUNT];
 };
 
 vec2 calculateFragementRay(in vec2 uv, in float aspectRatio){ 
@@ -42,45 +68,18 @@ Ray getRay(in vec2 texccord, in float aspectRatio, in vec3 origin){
     return Ray(ray_origin, rot_ray_dir, cosA);
 }
 
-struct RayMarchSettings{
-    int max_steps;
-    float max_distance;
-    float min_distance;
-    float depth_weight;
-};
-
-struct Sphere{
-    vec3 origin;
-    float radius;
-};
-
-struct SphereNew {
-      vec3 position;
-      vec4 quaternion;
-      vec3 color;
-      float radius;
-};
-
-uniform Sphere u_spheres[MAX_SPHERE_COUNT];
-uniform int u_spheresCount;
-
 float signedDistance(vec3 p, in Sphere sphere){
-    return (length(p - sphere.origin) - sphere.radius);
+    return (length(p - sphere.position) - sphere.radius);
 }
 
-const int NULL_ID = -1;
-const int SPHERE_ID = 0;
-const int VSPHERE_ID = 1;
-
-Sphere test_sphere = Sphere(vec3(0.0, 4.0, 4.0),1.0);
-Sphere volume_sphere = Sphere(vec3(0.0, 1.0, 0.0),2.0);
-
 float signedDistance(vec3 ray_endpoint, out int obj_id){
-    float d0 = signedDistance(ray_endpoint, test_sphere);
-    float d1 = signedDistance(ray_endpoint, volume_sphere);
-    float minval = min(d0, d1);
-    obj_id = minval == d0 ? SPHERE_ID : VSPHERE_ID;
-    return minval;
+	float distance = inf;	
+	for(int i = 0; i < u_sphereCount; i++){
+		distance =  min(signedDistance(ray_endpoint, spheres[i]), distance);
+	}
+	
+    obj_id = SPHERE_ID;
+    return distance;
 }
 
 bool rayMarch(Ray ray, in RayMarchSettings settings, in float rasterized_depth, out float out_depth, out int out_obj_id){
@@ -117,7 +116,7 @@ float fogify(in float dist){
     return  1.0/ (1.0 + dist*dist * 0.1);
 }
 
-RayMarchSettings rm_settings = RayMarchSettings(128, 100000.0, 0.0001, 0.5);
+
 
 
 void main(){

@@ -48,6 +48,8 @@ private:
 	btCollisionObject* addBox(const Vector3f& pos, const Vector3f& size);
 	void addCharacter(const Vector3f& pos, const Vector2f& size);
 	const Vector3f getPosition();
+	const Vector3f getPosition(btRigidBody* body);
+	const Quaternion getOrientation(btRigidBody* body);
 
 	bool m_initUi = true;
 	bool m_drawUi = true;
@@ -58,7 +60,7 @@ private:
 	Framebuffer m_sceneBuffer;
 	const float maxDistance[1] = { 100000.0f };
 	std::vector<btRigidBody*> m_bodies;
-	
+	std::vector<SphereStruct> m_spheres;
 
 	btPairCachingGhostObject* m_pairCachingGhostObject;
 	btKinematicCharacterController* m_kinematicController;

@@ -3,6 +3,7 @@
 #include <imgui_impl_opengl3.h>
 #include <imgui_internal.h>
 #include <engine/Batchrenderer.h>
+#include <engine/BuiltInShader.h>
 #include <Physics/ShapeDrawer.h>
 
 #include "BlobShoot.h"
@@ -50,6 +51,12 @@ BlobShoot::BlobShoot(StateMachine& machine) : State(machine, States::BLOBSHOOT) 
 	addBox(Vector3f(0, 0, +BOX_SIZE / 2), Vector3f(BOX_SIZE, BOX_SIZE, TINY_SIZE));
 
 	addCharacter(Vector3f(0.0f, 0.0f, 0.0f), Vector2f(0.5f, 1.5f));
+
+	glGenBuffers(1, &BuiltInShader::sphereUbo);
+	glBindBuffer(GL_UNIFORM_BUFFER, BuiltInShader::sphereUbo);
+	glBufferData(GL_UNIFORM_BUFFER, sizeof(SphereStruct) * MAX_SPHERE_COUNT, NULL, GL_DYNAMIC_DRAW);
+	glBindBufferRange(GL_UNIFORM_BUFFER, 4, BuiltInShader::sphereUbo, 0, sizeof(SphereStruct) * MAX_SPHERE_COUNT);
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
 BlobShoot::~BlobShoot() {
@@ -59,6 +66,7 @@ BlobShoot::~BlobShoot() {
 
 void BlobShoot::fixedUpdate() {
 	Globals::physics->stepSimulation(m_fdt);
+
 }
 
 void BlobShoot::update() {
@@ -121,7 +129,7 @@ void BlobShoot::update() {
 	m_camera.Camera::setTarget(getPosition());
 	m_camera.moveRelative(Vector3f(0.0f, 1.5f, 0.0f));
 
-	if (mouse.buttonPressed(Mouse::MouseButton::BUTTON_LEFT)) {
+	if (mouse.buttonPressed(Mouse::MouseButton::BUTTON_LEFT) && m_spheres.size() < MAX_SPHERE_COUNT) {
 		btRigidBody* sphere = addSphere(m_camera.getPosition() + Vector3f(0.0f, 3.0f, 0.0f), 6.0f, 5.0, Physics::collisiontypes::SPHERE, Physics::collisiontypes::FLOOR | Physics::collisiontypes::SPHERE);
 		btVector3 direction = Physics::VectorFrom(m_camera.getViewDirection() * SPHERE_RADIUS * SPHERE_RADIUS * 20.0f);
 		sphere->applyCentralImpulse(direction);
@@ -129,6 +137,17 @@ void BlobShoot::update() {
 
 	m_background.update(m_dt);
 
+	for (int i = 0; i < m_bodies.size(); i++) {
+		btRigidBody* sphereBody = m_bodies[i];
+		SphereStruct& sphere = m_spheres[i];
+
+		sphere.position = getPosition(sphereBody);
+		sphere.orientaion = getOrientation(sphereBody);
+	}
+
+	glBindBuffer(GL_UNIFORM_BUFFER, BuiltInShader::sphereUbo);
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(SphereStruct) * m_spheres.size(), m_spheres.data());
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
 void BlobShoot::render() {
@@ -180,6 +199,7 @@ void BlobShoot::render() {
 	shader->loadVector("u_camup", m_camera.getCamY());
 	shader->loadFloat("u_scaleFactor", m_camera.getScaleFactor());
 	shader->loadFloat("u_aspectRatio", m_camera.getAspect());
+	shader->loadUnsignedInt("u_sphereCount", static_cast<unsigned int>(m_spheres.size()));
 
 	shader->loadInt("u_screen_texture", 0);
 	shader->loadInt("u_depth_texture", 1);
@@ -291,8 +311,9 @@ void BlobShoot::renderUi() {
 }
 
 btRigidBody* BlobShoot::addSphere(const Vector3f& pos, float rad, float mass, int collisionFilterGroup, int collisionFilterMask) {
-	m_bodies.push_back(Physics::AddRigidBody(mass, Physics::BtTransform(Physics::VectorFrom(pos)), new btSphereShape(rad), collisionFilterGroup, collisionFilterMask, btCollisionObject::CF_DYNAMIC_OBJECT));
+	m_bodies.push_back(Physics::AddRigidBody(mass, Physics::BtTransform(Physics::VectorFrom(pos)), new btSphereShape(rad * 0.25), collisionFilterGroup, collisionFilterMask, btCollisionObject::CF_DYNAMIC_OBJECT));
 	m_bodies.back()->setRestitution(1.0f);
+	m_spheres.push_back({ pos , 0.0f, {0.0f, 0.0f, 0.0f, 1.0f}, {1.0f, 0.0f, 0.0f}, rad });
 	return m_bodies.back();
 }
 
@@ -329,4 +350,14 @@ void BlobShoot::addCharacter(const Vector3f& pos, const Vector2f& size) {
 const Vector3f BlobShoot::getPosition() {
 	btTransform t = m_pairCachingGhostObject->getWorldTransform();
 	return Physics::VectorFrom(t.getOrigin()) - m_colShapeOffset;
+}
+
+const Vector3f BlobShoot::getPosition(btRigidBody* body) {
+	btTransform t = body->getWorldTransform();
+	return Physics::VectorFrom(t.getOrigin()) - m_colShapeOffset;
+}
+
+const Quaternion BlobShoot::getOrientation(btRigidBody* body) {
+	btTransform t = body->getWorldTransform();
+	return Physics::QuaternionFrom(t.getRotation());
 }
