@@ -224,12 +224,17 @@ void Application::initOpenGL() {
 	enableVerticalSync(true);
 
 
-	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	//glDisable(GL_DEPTH_TEST);
+	//glEnable(GL_DEPTH_TEST);
+	//glDepthFunc(GL_LEQUAL);
 
-	//glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-	//glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+	glDisable(GL_BLEND);
+	//glEnable(GL_BLEND);
+	//glBlendFunc(GL_ONE, GL_ONE);
+
+	//glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 	
-	
+	glEnable(GL_FRAMEBUFFER_SRGB);
 }
 
 void Application::enableVerticalSync(bool enableVerticalSync) {
@@ -395,13 +400,13 @@ void Application::loadAssets() {
 	
 	Globals::textureManager.loadTexture("albedo", "res/models/statue/statue_d.bmp", true);
 	Globals::textureManager.loadTexture("normal", "res/models/statue/statue_n.bmp", true);
-	Globals::textureManager.loadTexture("beckmann", "res/textures/BeckmannMap.png", true);
+	Globals::textureManager.loadTexture("beckmann", "res/textures/BeckmannMap.png", false);
 	Globals::textureManager.get("albedo").addAlphaChannel();
-	Globals::textureManager.get("albedo").setLinear();
+	Globals::textureManager.get("albedo").setLinearMip();
 	//Globals::textureManager.get("albedo").setRepeat();
 
 	Globals::textureManager.get("normal").addAlphaChannel(0);
-	Globals::textureManager.get("normal").setLinear();
+	Globals::textureManager.get("normal").setLinearMip();
 	//Globals::textureManager.get("normal").setRepeat();
 
 	Globals::textureManager.get("beckmann").setLinear();

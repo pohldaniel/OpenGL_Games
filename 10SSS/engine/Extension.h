@@ -210,6 +210,7 @@ extern "C" {
 #define GL_R11F_G11F_B10F 0x8C3A
 #define GL_SRGB 0x8C40
 #define GL_SRGB_ALPHA 0x8C42
+#define GL_FRAMEBUFFER_SRGB 0x8DB9
 
 	extern void glActiveTextureARB(GLenum texture);
 	extern void glMultiTexCoord2fARB(GLenum target, GLfloat s, GLfloat t);

@@ -88,8 +88,8 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	lights[3].bias = -0.01f;
 
 	m_mainRT.create(Application::Width, Application::Height);
-	m_mainRT.attachTexture(AttachmentTex::RGBA);
-	m_mainRT.attachTexture(AttachmentTex::RGBA);
+	m_mainRT.attachTexture(AttachmentTex::SRGBA);
+	m_mainRT.attachTexture(AttachmentTex::SRGBA);
 	m_mainRT.attachTexture(AttachmentTex::RED32F);
 	m_mainRT.attachTexture(AttachmentTex::RG16F);
 	m_mainRT.attachTexture(AttachmentTex::RGBA);
@@ -162,7 +162,7 @@ void Game::update() {
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_ADD)) {
-		m_sssWidth = std::max(15.0f, m_sssWidth - 1.0f);
+		m_sssWidth = std::max(10.0f, m_sssWidth - 1.0f);
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_SUBTRACT)) {
@@ -334,7 +334,7 @@ void Game::renderGBuffer() {
 	shader->loadMatrix("u_modelView", m_camera.getViewMatrix());
 	shader->loadMatrix("u_view", m_camera.getViewMatrix());
 	shader->loadMatrix("u_model", m_transform.getTransformationMatrix());
-	shader->loadMatrix("u_normalMatrix", Matrix4f::GetNormalMatrix(m_camera.getViewMatrix() * m_transform.getTransformationMatrix()));
+	shader->loadMatrix("u_normalMatrix", Matrix4f::GetNormalMatrix(m_transform.getTransformationMatrix()));
 	
 	shader->loadVector("u_cameraPosition", m_camera.getPosition());
 	currViewProj = Globals::projection * m_camera.getViewMatrix();

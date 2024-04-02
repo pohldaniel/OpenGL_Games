@@ -35,6 +35,7 @@ public:
 
 	void setRepeat();
 	void setLinear();
+	void setLinearMip();
 
 	static void Unbind();
 	static void CutSubimage(std::string fileIn, std::string fileOut, unsigned int offsetX, unsigned int offsetY, unsigned int width = 0, unsigned int height = 0, const bool flipVertical = false);

@@ -15,8 +15,8 @@ uniform sampler2D u_normal;
 uniform sampler2D u_beckmann;
 
 uniform float bumpiness = 0.89;
-uniform float specularIntensity = 0.46;
-uniform float specularRoughness = 0.3;
+uniform float specularIntensity = 0.85;
+uniform float specularRoughness = 0.1;
 uniform float specularFresnel = 0.81;
 
 uniform vec3 lightPosition[4];
@@ -95,21 +95,25 @@ float SpecularKSK(sampler2D beckmannTex, vec3 normal, vec3 light, vec3 view, flo
     return ndotl * ksk;    
 }
 
-float getDepthPassSpaceZ(float zWC, float near, float far){
-	return (near * far) / (far + zWC * (near - far));	//[near, far]
+float Shadow(vec3 worldPosition, int i) {
+    vec4 shadowPosition = u_projectionShadowBias[i] * u_viewShadow[i] * vec4(worldPosition, 1.0);
+    shadowPosition.xy /= shadowPosition.w;
+    shadowPosition.z += lightBias;
+	if(texture2D(u_shadowMap[i], shadowPosition.xy).r < shadowPosition.z / lightFarPlane)
+		return 0.5;
+	
+	return 1.0;
+}
+
+float getDepthPassSpaceZ(float z_ndc, float near, float far){
+	z_ndc = z_ndc * 2.0 - 1.0;
+	return (2.0 * near * far) / (far + near + z_ndc * (near - far));
 }
 
 vec3 SSSSTransmittance( float translucency, float sssWidth, vec3 worldNormal, vec3 light, sampler2D shadowMap, vec4 shadowPos){
 
 	float scale = sssWidth * (1.0 - translucency);
 
-	//vec4 shrinkedPos = vec4(v_worldPosition - 0.005 * worldNormal, 1.0);
-	//vec4 shadowPosition = u_projectionShadowBias[0]   * u_viewShadow[0] * shrinkedPos;
-	//vec3 ndc = (shadowPosition.xyz/shadowPosition.w);
-	
-	//float zIn = texture2D(shadowMap, ndc.xy ).r;
-	//float zOut = ndc.z;
-	
 	vec4 ndc = shadowPos/shadowPos.w;
 	float zIn =  texture2D(shadowMap, ndc.xy ).r;
 	float zOut = ndc.z;
@@ -145,9 +149,9 @@ void main(){
 	vec3 n = normalize(v_normal);
 	
 	//not transposed to push view- and light- vector to normal space
-	mat3 TBN = mat3(t.x, b.x, n.x,
-   				 t.y, b.y, n.y,
-   				 t.z, b.z, n.z);
+	mat3 TBN = mat3(t.x, t.y, t.z,
+   				 b.x, b.y, b.z,
+   				 n.x, n.y, n.z);
 
 	vec3 normal = TBN * BumpMap(u_normal, v_texCoord); 
  
@@ -157,7 +161,7 @@ void main(){
 	vec4 albedo = texture2D(u_albedo, v_texCoord);
 	vec3 specularAO = vec3(0.6, 0.2, 0.9);
 
-    float occlusion = specularAO.b;
+	float occlusion = specularAO.b;
     float intensity = specularAO.r * specularIntensity;
     float roughness = (specularAO.g / 0.3) * specularRoughness;
   
@@ -182,13 +186,14 @@ void main(){
 			 
 			 // Calculate some terms we will use later on:
 			 vec3 f1 = lightColor[i] * attenuation * spot;
-             vec3 f2 = albedo.rgb * f1 * 2.0;
+             vec3 f2 = albedo.rgb * f1;
 
 			 // Calculate the diffuse and specular lighting:
              vec3 diffuse = vec3(clamp(dot(light, normal) , 0.0, 1.0));
 			 
 			float specular = intensity * SpecularKSK(u_beckmann, normal, light, view, roughness);
-            float shadow = 1.0;
+            float shadow = Shadow(v_worldPosition, i);
+			shadow = 1.0;
 			
 			outSpecularColor.rgb += shadow * f1 * specular;
 			

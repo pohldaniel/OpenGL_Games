@@ -14,9 +14,9 @@ in vec2 v_texCoord;
 
 out vec4 colorBlurred;
 
-float getDepthPassSpaceZ(float zWC, float near, float far){
-	//zWC = zWC * 2.0 - 1.0;
-	return (near * far) / (far + zWC * (near - far));	//[near, far]
+float getDepthPassSpaceZ(float z_ndc, float near, float far){
+	z_ndc = z_ndc * 2.0 - 1.0;
+	return (2.0 * near * far) / (far + near + z_ndc * (near - far));
 }
 
 const vec4 kernel2[25] = vec4[25] (
@@ -74,19 +74,19 @@ void main(void){
 	
 	if (strength == 0.0 && !u_showBlurRadius) discard;
 	
-	float depthM = texture2D(u_depthTex, v_texCoord).r;
+	float depthM = getDepthPassSpaceZ(texture2D(u_depthTex, v_texCoord).r, 1.0, 100.0);
 	
+	vec2 imageSize = textureSize(u_colorTex, 0); 
 	
-    float distanceToProjectionWindow = 1.0 / tan(0.5 * radians(20.0));
-    float scale = distanceToProjectionWindow / getDepthPassSpaceZ(depthM, 1.0, 100.0);
+    //float distanceToProjectionWindow = 0.5 * imageSize.x / tan(0.5 * radians(45.0));
+    float distanceToProjectionWindow = 1.0 / tan(0.5 * radians(45.0));
+    float scale = distanceToProjectionWindow / depthM;
 
 	
     vec2 finalStep = scale * dir;
-	finalStep = strength == 0.0 ? finalStep : finalStep * strength;
+	finalStep = u_showBlurRadius ? finalStep : finalStep * strength;
     finalStep *= 1.0 / (2.0 * sssWidth); 
 
-	
-    // Accumulate the center sample:
     colorBlurred = colorM;
     colorBlurred.rgb *= kernel2[0].rgb;
 	
@@ -97,6 +97,4 @@ void main(void){
 		
 		colorBlurred.rgb += kernel2[i].xyz * color.rgb;
 	}
-	
-	//colorBlurred = vec4(depthM);
 }
