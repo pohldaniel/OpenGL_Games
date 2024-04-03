@@ -583,6 +583,24 @@ void AssimpModel::draw(const Camera& camera) const{
 	//Texture::Unbind();
 }
 
+void AssimpModel::draw(const Camera& camera, unsigned short meshIndex) const {
+	Material& material = Material::GetMaterials()[m_meshes[meshIndex]->m_materialIndex];
+	material.updateMaterialUbo(BuiltInShader::materialUbo);
+	if (!m_shader[meshIndex]->inUse()) {
+		m_shader[meshIndex]->use();
+
+		m_shader[meshIndex]->loadMatrix("u_projection", camera.getPerspectiveMatrix());
+		m_shader[meshIndex]->loadMatrix("u_view", camera.getViewMatrix());
+		m_shader[meshIndex]->loadMatrix("u_model", m_transform.getTransformationMatrix());
+	}
+
+	material.bind();
+	m_meshes[meshIndex]->drawRaw();
+
+	unuseAllShader();
+	//Texture::Unbind();
+}
+
 void AssimpModel::drawInstanced(const Camera& camera) const{
 	for (int i = 0; i < m_meshes.size(); i++) {
 		Material& material = Material::GetMaterials()[m_meshes[i]->m_materialIndex];

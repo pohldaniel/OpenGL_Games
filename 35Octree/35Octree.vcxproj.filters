@@ -79,6 +79,9 @@
     <Filter Include="MathCore\impl">
       <UniqueIdentifier>{b0ea0aa6-c57c-4f73-8e97-73a012ad2865}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\States\SSS">
+      <UniqueIdentifier>{5d017473-b0f9-4355-a7e2-0ea987f76f8b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\input\ApplicationEventListener.cpp">
@@ -458,6 +461,15 @@
     </ClCompile>
     <ClCompile Include="src\States\BlobShoot.cpp">
       <Filter>Source Files\States</Filter>
+    </ClCompile>
+    <ClCompile Include="src\States\SSS\Separable.cpp">
+      <Filter>Source Files\States\SSS</Filter>
+    </ClCompile>
+    <ClCompile Include="src\States\SSS\SSSGems.cpp">
+      <Filter>Source Files\States\SSS</Filter>
+    </ClCompile>
+    <ClCompile Include="src\States\SSS\SSSApproximation.cpp">
+      <Filter>Source Files\States\SSS</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1069,6 +1081,15 @@
     </ClInclude>
     <ClInclude Include="src\States\BlobShoot.h">
       <Filter>Source Files\States</Filter>
+    </ClInclude>
+    <ClInclude Include="src\States\SSS\Separable.h">
+      <Filter>Source Files\States\SSS</Filter>
+    </ClInclude>
+    <ClInclude Include="src\States\SSS\SSSGems.h">
+      <Filter>Source Files\States\SSS</Filter>
+    </ClInclude>
+    <ClInclude Include="src\States\SSS\SSSApproximation.h">
+      <Filter>Source Files\States\SSS</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

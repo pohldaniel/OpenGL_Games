@@ -24,6 +24,10 @@
 #include <States/SoftParticle.h>
 #include <States/BlobShoot.h>
 
+#include <States/SSS/SSSGems.h>
+#include <States/SSS/SSSApproximation.h>
+#include <States/SSS/Separable.h>
+
 #include "Application.h"
 #include "Globals.h"
 
@@ -427,7 +431,9 @@ void Application::initStates() {
 	//Machine->addStateAtTop(new BlendedParticle(*Machine));
 	//Machine->addStateAtTop(new SmoothParticle(*Machine));
 	//Machine->addStateAtTop(new SoftParticle(*Machine));
-	Machine->addStateAtTop(new BlobShoot(*Machine));
+	//Machine->addStateAtTop(new BlobShoot(*Machine));
+	Machine->addStateAtTop(new SSSApproximation(*Machine));
+	
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -732,7 +738,11 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("color", "res/shader/color.vert", "res/shader/color.frag");
 	Globals::shaderManager.loadShader("geometry", "res/shader/normalGS.vert", "res/shader/normalGS.frag", "res/shader/normalGS.gem");
 	Globals::shaderManager.loadShader("depth", "res/shader/depth.vert", "res/shader/depth.frag");
-	Globals::shaderManager.loadShader("combiner", "res/shader/combiner.vert", "res/shader/combiner.frag");
+	//Globals::shaderManager.loadShader("combiner", "res/shader/combiner.vert", "res/shader/combiner.frag");
+
+	Globals::shaderManager.loadShader("approximate", "res/shader/SSS/approximate.vert", "res/shader/SSS/approximate.frag");
+	Globals::shaderManager.loadShader("irradiance", "res/shader/SSS/irradiance.vert", "res/shader/SSS/irradiance.frag");
+	Globals::shaderManager.loadShader("distance", "res/shader/SSS/distance.vert", "res/shader/SSS/distance.frag");
 
 	Globals::fontManager.loadCharacterSet("upheaval_200", "res/fonts/upheavtt.ttf", 200, 0, 30, 128, 0, true, 0u);
 	Globals::fontManager.loadCharacterSet("upheaval_50", "res/fonts/upheavtt.ttf", 50, 0, 3, 0, 0, true, 0u);

@@ -786,13 +786,30 @@ void ObjModel::draw(const Camera& camera) const{
 			m_shader[i]->loadMatrix("u_model", m_transform.getTransformationMatrix());
 		}
 
-		material.bind();
+		material.bind();		
 		m_meshes[i]->drawRaw();
-
-		
+				
 	}
 	unuseAllShader();
 	Texture::Unbind();	
+}
+
+void ObjModel::draw(const Camera& camera, unsigned short meshIndex) const {
+	Material& material = Material::GetMaterials()[m_meshes[meshIndex]->m_materialIndex];
+	material.updateMaterialUbo(BuiltInShader::materialUbo);
+	if (!m_shader[meshIndex]->inUse()) {
+		m_shader[meshIndex]->use();
+
+		m_shader[meshIndex]->loadMatrix("u_projection", camera.getPerspectiveMatrix());
+		m_shader[meshIndex]->loadMatrix("u_view", camera.getViewMatrix());
+		m_shader[meshIndex]->loadMatrix("u_model", m_transform.getTransformationMatrix());
+	}
+
+	material.bind();
+	m_meshes[meshIndex]->drawRaw();
+
+	unuseAllShader();
+	Texture::Unbind();
 }
 
 void ObjModel::drawInstanced(const Camera& camera) const{
@@ -1894,6 +1911,8 @@ std::string ObjModel::GetTexturePath(std::string texPath, std::string modelDirec
 }
 
 void ObjModel::ReadMaterialFromFile(std::string path, std::string mltName, short& index) {
+	
+
 	std::vector<Material>::iterator it = std::find_if(Material::GetMaterials().begin(), Material::GetMaterials().end(), std::bind([](Material const& s1, std::string const& s2) -> bool { return s1.name == s2;}, std::placeholders::_1, mltName));
 	if (it == Material::GetMaterials().end()) {
 
@@ -1927,7 +1946,7 @@ void ObjModel::ReadMaterialFromFile(std::string path, std::string mltName, short
 				continue;
 			}
 
-			if ((*lines[i]).find("newmtl") != std::string::npos && start > 0) {
+			if ((*lines[i]).find("newmtl") != std::string::npos && start >= 0) {
 				end = i;
 				break;
 			}

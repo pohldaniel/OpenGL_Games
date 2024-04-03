@@ -115,6 +115,7 @@ public:
 	void drawRawSequence(unsigned short frame) const;
 
 	void draw(const Camera& camera) const;
+	void draw(const Camera& camera, unsigned short meshIndex) const;
 	void drawInstanced(const Camera& camera) const;
 	void drawStacked(const Camera& camera) const;
 	void drawInstancedStacked(const Camera& camera) const;
