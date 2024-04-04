@@ -786,7 +786,6 @@ void Matrix4f::invLookAt(const Vector3f &eye, const Vector3f &target, const Vect
 	mtx[1][2] = yAxis[2];
 	mtx[1][3] = 0.0f;
 
-
 	mtx[2][0] = zAxis[0];
 	mtx[2][1] = zAxis[1];
 	mtx[2][2] = zAxis[2];
@@ -2080,6 +2079,23 @@ Matrix4f Matrix4f::LookAt(const Vector3f &eye, const Vector3f &target, const Vec
 					xAxis[1], yAxis[1], zAxis[1], 0.0f,
 					xAxis[2], yAxis[2], zAxis[2], 0.0f,
 					-Vector3f::Dot(xAxis, eye), -Vector3f::Dot(yAxis, eye), -Vector3f::Dot(zAxis, eye), 1.0f);
+}
+
+Matrix4f Matrix4f::InvLookAt(const Vector3f& eye, const Vector3f& target, const Vector3f& up) {
+	Vector3f zAxis = eye - target;
+	Vector3f::Normalize(zAxis);
+
+	Vector3f xAxis = Vector3f::Cross(up, zAxis);
+	Vector3f::Normalize(xAxis);
+
+	Vector3f yAxis = Vector3f::Cross(zAxis, xAxis);
+	Vector3f::Normalize(yAxis);
+
+	return Matrix4f(xAxis[0], xAxis[1], xAxis[2], 0.0f,
+					yAxis[0], yAxis[1], yAxis[2], 0.0f, 
+					zAxis[0], zAxis[1], zAxis[2], 0.0f, 
+					eye[0], eye[1], eye[2], 1.0f);
+
 }
 
 Matrix4f Matrix4f::InvViewMatrix(const Matrix4f &viewMatrix) {

@@ -89,7 +89,7 @@ public:
 	void cleanup();
 	unsigned int getWidth();
 	unsigned int getHeight();
-	void bindColorTexture(unsigned int unit = 0u, unsigned short attachment = 0) const;
+	void bindColorTexture(unsigned short attachment = 0u, unsigned int unit = 0u) const;
 	void bindDepthTexture(unsigned int unit) const;
 	void bindStencilTexture(unsigned int unit) const;
 	void bindDepthStencilTexture(unsigned int unit) const;

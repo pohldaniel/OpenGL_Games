@@ -223,7 +223,7 @@ void Framebuffer::attachTexture2D(AttachmentTex::AttachmentTex _attachment) {
 			type = GL_FLOAT;
 			m_colorAttachments++;
 			m_colorTextureAttachments++;
-
+			
 			m_colorTextures.push_back(tex);
 			texture = &m_colorTextures[m_colorTextureAttachments - 1];
 			m_attachments.push_back(GL_COLOR_ATTACHMENT0 + (m_colorAttachments - 1));
@@ -865,7 +865,7 @@ const unsigned int& Framebuffer::getFramebuffer() const {
 	return  m_fbo;
 }
 
-void Framebuffer::bindColorTexture(unsigned int unit, unsigned short attachment) const {
+void Framebuffer::bindColorTexture(unsigned short attachment, unsigned int unit) const {
 	if (Texture::ActiveTextures[unit] != m_colorTextures[attachment]) {
 		Texture::ActiveTextures[unit] = m_colorTextures[attachment];
 		glActiveTexture(GL_TEXTURE0 + unit);

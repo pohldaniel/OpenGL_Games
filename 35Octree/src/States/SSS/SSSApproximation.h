@@ -2,14 +2,13 @@
 
 #include <engine/input/MouseEventListener.h>
 #include <engine/input/KeyboardEventListener.h>
+#include <engine/Framebuffer.h>
 #include <engine/Camera.h>
 #include <engine/Background.h>
-#include <engine/ObjModel.h>
 #include <engine/AssimpModel.h>
-#include <engine/Framebuffer.h>
 #include <States/StateMachine.h>
 
-class SSSApproximation: public State, public MouseEventListener, public KeyboardEventListener {
+class SSSApproximation : public State, public MouseEventListener, public KeyboardEventListener {
 
 public:
 
@@ -33,15 +32,18 @@ private:
 
 	bool m_initUi = true;
 	bool m_drawUi = true;
+	bool m_useDiffuse = false;
 
 	Camera m_camera;
 	Background m_background;
 	AssimpModel m_model;
 
 	Vector3f m_lightPos;
-	Matrix4f m_lightView;
+	Matrix4f m_lightView, m_lightViewInverse;
+	Matrix4f m_lightProjection;
 	Matrix4f m_lightViewProjection;
 	Matrix4f m_lightTexcoord;
 
-	Framebuffer m_irradiance;
+	Framebuffer m_irradiance, m_distance;
+	const float maxDistance[1] = { 0.0f };
 };

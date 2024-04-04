@@ -1,4 +1,4 @@
-#version 430 core
+#version 410 core
 
 uniform sampler2D u_texture;
 
@@ -28,6 +28,7 @@ void main(void){
 	
 	vec4 vTexColor = texture2D( u_texture, vertTexCoord );
 	
-	//color = vec4(vTexColor.xyz * E, -sign(abs(N.x)));
 	color = vec4(vTexColor.xyz * E, 1.0);
+	//float col = max(0.0f, dot(N, L));
+	//color = vec4(col, col, col, 1.0);
 }

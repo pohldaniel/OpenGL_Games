@@ -1,16 +1,11 @@
-#version 430 core
+#version 410 core
 
-uniform sampler2D u_texture;
+layout(location = 0) out vec4 colorOut;
+layout(location = 1) out float distanceOut;
 
-in vec3 v_color;
-in vec2 v_texCoord;
-in vec3 v_normal;
-in vec3 v_tangent;
-in vec3 v_bitangent;
-in vec4 vertColor;
-
-out vec4 color;
+in float vertDistance;
 
 void main(void){
-	color = vertColor * texture2D( u_texture, v_texCoord );
+	colorOut = vec4(1.0, 1.0, 0.0, 1.0);
+	distanceOut = vertDistance;
 }
