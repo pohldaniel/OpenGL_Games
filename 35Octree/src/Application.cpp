@@ -353,8 +353,8 @@ void Application::initOpenGL(int msaaSamples) {
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);
 
-	//glDisable(GL_BLEND);
-	glEnable(GL_BLEND);
+	glDisable(GL_BLEND);
+	//glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	
 	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
@@ -772,6 +772,10 @@ void Application::loadAssets() {
 	Globals::textureManager.get("grass").setWrapMode(GL_REPEAT);
 
 	Globals::textureManager.loadTexture("grass_normal", "res/textures/Grass_normal.png", true);
+	Globals::textureManager.get("grass_normal").setFilter(GL_LINEAR_MIPMAP_LINEAR);
+	Globals::textureManager.get("grass_normal").setWrapMode(GL_REPEAT);
+
+	Globals::textureManager.loadTexture("statue", "res/models/statue.dds", true);
 	Globals::textureManager.get("grass_normal").setFilter(GL_LINEAR_MIPMAP_LINEAR);
 	Globals::textureManager.get("grass_normal").setWrapMode(GL_REPEAT);
 

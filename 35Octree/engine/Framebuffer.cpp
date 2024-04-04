@@ -1,3 +1,4 @@
+#include <iostream>
 #include "Framebuffer.h"
 #include "Texture.h"
 
@@ -640,9 +641,9 @@ void Framebuffer::resize(unsigned int width, unsigned int height) {
 	for (unsigned short i = 0; i < m_colorTextures.size(); i++) {
 		glBindTexture(GL_TEXTURE_2D, m_colorTextures[i]);
 		glTexImage2D(GL_TEXTURE_2D, 0, std::get<0>(m_resizeTexture[i]), width, height, 0, std::get<1>(m_resizeTexture[i]), std::get<2>(m_resizeTexture[i]), NULL);
-
 	}
 	glBindTexture(GL_TEXTURE_2D, 0);
+	
 
 	if (m_depthRB) {
 		glBindRenderbuffer(GL_RENDERBUFFER, m_depthRB);
@@ -700,6 +701,11 @@ void Framebuffer::resize(unsigned int width, unsigned int height) {
 		}
 	}
 	glBindRenderbuffer(GL_RENDERBUFFER, 0);
+
+	std::map<unsigned int, unsigned int>::iterator it;
+	for (it = Texture::ActiveTextures.begin(); it != Texture::ActiveTextures.end(); it++){
+		it->second = 0u;
+	}
 
 	m_width = width;
 	m_height = height;

@@ -5,19 +5,19 @@ uniform sampler2D u_irradiance;
 uniform sampler2D u_distance;
 
 uniform vec3 u_lightPos = vec3(0.0);
-uniform bool m_useDiffuseColor = false;
+uniform bool u_useDiffuseColor = false;
+uniform float u_thikness = 0.1;
+uniform float u_minThikness = 0.5;
 
-in vec2 v_texCoord;
-in vec3 v_normal;
-in vec3 v_tangent;
-in vec3 v_bitangent;
-in vec4 vertColor;
+in vec2 vertTexCoord;
+in vec3 vertNormal;
 
 in vec4 sc;
 in vec3 lightDirection;
 in vec3 eyeDirection;
 in vec3 vertPosition;
 in float distToLight;
+
 
 out vec4 color;
 
@@ -42,6 +42,11 @@ float blinnPhongSpecular(vec3 normalVec, vec3 lightVec, float specPower){
 	return pow(clamp(dot(normalVec, halfAngle), 0.0, 1.0), specPower);
 }
 
+float getDepth(float depth, float near, float far){
+	float z_ndc = depth * 2.0 - 1.0;
+	return (2.0 * near * far) / (far + near + z_ndc * (near - far));	//[near, far]
+}
+
 void main(void){
 
 	float attenuation = (1.0f/distance(u_lightPos, vertPosition));
@@ -49,8 +54,8 @@ void main(void){
 	
 	vec3 eyeVec      = normalize(eyeDirection);
 	vec3 lightVec    = normalize(lightDirection);
-	vec3 worldNormal = normalize(v_normal);
-	vec4 dotLN      = vec4(halfLambert(lightVec, worldNormal) * attenuation);
+	vec3 worldNormal = normalize(vertNormal);
+    vec4 dotLN       = vec4(vec3(halfLambert(lightVec, worldNormal) * attenuation), 1.0);
 	
 	vec3 indirectLightComponent = vec3(materialThickness * max(0, dot(-worldNormal, lightVec)));
 	
@@ -61,16 +66,20 @@ void main(void){
 	indirectLightComponent.g   *= extinctionCoefficientGreen;
 	indirectLightComponent.b   *= extinctionCoefficientBlue;
 	
-	vec4 ndc = sc/sc.w;
-	float dist = distToLight - texture2D( u_distance, ndc.xy).r;
+	float zIn  =  textureProj(u_distance, sc).r;
+	//float zOut = sc.z /sc.w;	
+    //zOut = getDepth(zOut, 1.0, 1024.0);	
+	//loat dist = (zOut - zIn);
+	float dist = max((distToLight - zIn), u_minThikness) * u_thikness;
+	
 	indirectLightComponent.rgb *= dist;
 	
 	vec3 rim = vec3(1.0f - max(0.0f, dot(worldNormal, eyeVec)));
 	rim *= rim;
 	
 	// diffuse color
-	if (m_useDiffuseColor)
-		dotLN *= texture2D(u_irradiance, ndc.xy);
+	if (u_useDiffuseColor)
+		dotLN *= textureProj(u_irradiance, sc);
 		
 	vec4 finalCol = dotLN + vec4(indirectLightComponent, 1.0f);
 	rim *= max(0.0f, dot(worldNormal, lightVec)) * specColor;
@@ -79,6 +88,6 @@ void main(void){
 	finalCol.rgb += (blinnPhongSpecular(worldNormal, lightVec, specularPower) * attenuation * specColor * finalCol.a * 0.05f);
 	finalCol.rgb *= lightColor;
 
-	color = finalCol * texture2D(u_texture, v_texCoord);
-	//color = vec4(dist, dist, dist, 1.0);
+	color = finalCol * texture2D(u_texture, vertTexCoord);
+	//color = vec4(dotLN.r, dotLN.g, dotLN.b, 1.0);
 }

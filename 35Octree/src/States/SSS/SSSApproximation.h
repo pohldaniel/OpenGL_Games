@@ -6,6 +6,7 @@
 #include <engine/Camera.h>
 #include <engine/Background.h>
 #include <engine/AssimpModel.h>
+#include <engine/ObjModel.h>
 #include <States/StateMachine.h>
 
 class SSSApproximation : public State, public MouseEventListener, public KeyboardEventListener {
@@ -33,6 +34,8 @@ private:
 	bool m_initUi = true;
 	bool m_drawUi = true;
 	bool m_useDiffuse = false;
+	float m_thikness = 0.1f;
+	float m_minThikness = 0.5f;
 
 	Camera m_camera;
 	Background m_background;
