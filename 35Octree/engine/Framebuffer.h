@@ -36,6 +36,7 @@ namespace AttachmentTex {
 		RGB16F,
 		RG16F,
 		R11FG11FB10F,
+		DEPTH16,
 		DEPTH24,
 		DEPTH32,
 		DEPTH32F,

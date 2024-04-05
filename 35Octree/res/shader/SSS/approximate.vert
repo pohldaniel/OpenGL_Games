@@ -38,5 +38,7 @@ void main(void){
 	
 	vertTexCoord = i_texCoord;
 	vertNormal = mat3(u_normal) * i_normal;
-	sc = u_lightTexcoord * vec4(i_position, 1.0);
+	
+	vec3 shrinkedPos = i_position - 0.003 * normalize(i_normal);
+	sc = u_lightTexcoord * vec4(shrinkedPos, 1.0);
 }

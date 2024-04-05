@@ -89,5 +89,5 @@ void main(void){
 	finalCol.rgb *= lightColor;
 
 	color = finalCol * texture2D(u_texture, vertTexCoord);
-	//color = vec4(dotLN.r, dotLN.g, dotLN.b, 1.0);
+	//color = vec4(dist, dist, dist, 1.0);
 }

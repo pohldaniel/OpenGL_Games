@@ -432,7 +432,8 @@ void Application::initStates() {
 	//Machine->addStateAtTop(new SmoothParticle(*Machine));
 	//Machine->addStateAtTop(new SoftParticle(*Machine));
 	//Machine->addStateAtTop(new BlobShoot(*Machine));
-	Machine->addStateAtTop(new SSSApproximation(*Machine));
+	//Machine->addStateAtTop(new SSSApproximation(*Machine));
+	Machine->addStateAtTop(new SSSGems(*Machine));
 	
 }
 
@@ -743,6 +744,9 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("approximate", "res/shader/SSS/approximate.vert", "res/shader/SSS/approximate.frag");
 	Globals::shaderManager.loadShader("irradiance", "res/shader/SSS/irradiance.vert", "res/shader/SSS/irradiance.frag");
 	Globals::shaderManager.loadShader("distance", "res/shader/SSS/distance.vert", "res/shader/SSS/distance.frag");
+
+	Globals::shaderManager.loadShader("main_gems", "res/shader/SSS/main_gems.vert", "res/shader/SSS/main_gems.frag");
+	Globals::shaderManager.loadShader("depth_gems", "res/shader/SSS/depth_gems.vert", "res/shader/SSS/depth_gems.frag");
 
 	Globals::fontManager.loadCharacterSet("upheaval_200", "res/fonts/upheavtt.ttf", 200, 0, 30, 128, 0, true, 0u);
 	Globals::fontManager.loadCharacterSet("upheaval_50", "res/fonts/upheavtt.ttf", 50, 0, 3, 0, 0, true, 0u);

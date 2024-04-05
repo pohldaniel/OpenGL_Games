@@ -33,8 +33,6 @@ SSSApproximation::SSSApproximation(StateMachine& machine) : State(machine, State
 	m_background.setSpeed(0.005f);
 
 	m_model.loadModel("res/models/statue.x",Vector3f(0.0f, 1.0f, 0.0f), -90.0f, Vector3f(0.0f, 15.0f, 0.0f), 0.1f);
-	//m_model.loadModel("res/models/statue.obj");
-	//m_model.initShader();
 
 	m_lightPos = Vector3f(15.0f, 20.0f, 15.0f);
 	m_lightView = Matrix4f::LookAt(m_lightPos, Vector3f(0.0f, 15.0f, 0.0f), Vector3f(0.0f, 1.0f, 0.0f));

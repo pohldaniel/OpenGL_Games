@@ -235,7 +235,15 @@ void Framebuffer::attachTexture2D(AttachmentTex::AttachmentTex _attachment) {
 			std::get<2>(m_resizeTexture[m_colorTextureAttachments - 1]) = type;
 
 			break;
-
+		case AttachmentTex::DEPTH16:
+			internalFormat = GL_DEPTH_COMPONENT16;
+			format = GL_DEPTH_COMPONENT;
+			attachment = GL_DEPTH_ATTACHMENT;
+			texture = &m_depthTexture;
+			std::get<0>(depth) = internalFormat;
+			std::get<1>(depth) = format;
+			std::get<2>(depth) = type;
+			break;
 		case AttachmentTex::DEPTH24:
 			internalFormat = GL_DEPTH_COMPONENT24;
 			format = GL_DEPTH_COMPONENT;
@@ -299,8 +307,8 @@ void Framebuffer::attachTexture2D(AttachmentTex::AttachmentTex _attachment) {
 
 	glGenTextures(1, &*texture);
 	glBindTexture(GL_TEXTURE_2D, *texture);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, (_attachment == AttachmentTex::DEPTH24 || _attachment == AttachmentTex::DEPTH32 || _attachment == AttachmentTex::DEPTH32F || _attachment == AttachmentTex::STENCIL || _attachment == AttachmentTex::DEPTH_STENCIL) ? GL_NEAREST : GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, (_attachment == AttachmentTex::DEPTH24 || _attachment == AttachmentTex::DEPTH32 || _attachment == AttachmentTex::DEPTH32F || _attachment == AttachmentTex::STENCIL || _attachment == AttachmentTex::DEPTH_STENCIL) ? GL_NEAREST : GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, (_attachment == AttachmentTex::DEPTH16 || _attachment == AttachmentTex::DEPTH24 || _attachment == AttachmentTex::DEPTH32 || _attachment == AttachmentTex::DEPTH32F || _attachment == AttachmentTex::STENCIL || _attachment == AttachmentTex::DEPTH_STENCIL) ? GL_NEAREST : GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, (_attachment == AttachmentTex::DEPTH16 || _attachment == AttachmentTex::DEPTH24 || _attachment == AttachmentTex::DEPTH32 || _attachment == AttachmentTex::DEPTH32F || _attachment == AttachmentTex::STENCIL || _attachment == AttachmentTex::DEPTH_STENCIL) ? GL_NEAREST : GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, m_width, m_height, 0, format, type, NULL);

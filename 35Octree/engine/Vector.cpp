@@ -3424,7 +3424,7 @@ const Matrix4f Quaternion::toMatrix4f() const {
 		0.0f, 0.0f, 0.0f, 1.0f);
 }
 
-const Matrix4f Quaternion::toMatrix4f(const Vector3f &centerOfRotation) const {
+const Matrix4f Quaternion::toMatrix4f(const Vector3f &centerOfRotation) const{
 	
 	float x2 = quat[0] + quat[0];
 	float y2 = quat[1] + quat[1];
@@ -3440,9 +3440,11 @@ const Matrix4f Quaternion::toMatrix4f(const Vector3f &centerOfRotation) const {
 	float wz = quat[3] * z2;
 
 	return Matrix4f(1.0f - (yy + zz), xy + wz, xz - wy, 0.0f,
-                    xy - wz, 1.0f + (xx + zz), yz - wx, 0.0f,
-                    xz + wy, yz - wx, 1.0f - (xx + yy), 0.0f,
-                    centerOfRotation[0] * (yy + zz) - centerOfRotation[1] * (xy + wz) - centerOfRotation[2] * (xz - wy), centerOfRotation[1] * (xx + zz) - centerOfRotation[0] * (xy - wz) - centerOfRotation[2] * (yz + wx), centerOfRotation[2] * (xx + yy) - centerOfRotation[0] * (xz + wy) - centerOfRotation[1] * (yz - wx), 1.0f);;
+		xy - wz, 1.0f - (xx + zz), yz - wx, 0.0f,
+		xz + wy, yz - wx, 1.0f - (xx + yy), 0.0f,
+		centerOfRotation[0] * (yy + zz) - centerOfRotation[1] * (xy + wz) - centerOfRotation[2] * (xz - wy), 
+		centerOfRotation[1] * (xx + zz) - centerOfRotation[0] * (xy - wz) - centerOfRotation[2] * (yz + wx), 
+		centerOfRotation[2] * (xx + yy) - centerOfRotation[0] * (xz + wy) - centerOfRotation[1] * (yz - wx), 1.0f);
 }
 
 void Quaternion::Normalize(Quaternion &q) {

@@ -8,30 +8,42 @@
 #include "Application.h"
 #include "Globals.h"
 
-SSSGems::SSSGems(StateMachine& machine) : State(machine, States::DEFAULT) {
+SSSGems::SSSGems(StateMachine& machine) : State(machine, States::RAYMARCH) {
 
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
 	EventDispatcher::AddMouseListener(this);
 
 	m_camera = Camera();
-	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
+	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.01f, 100.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
-	m_camera.lookAt(Vector3f(0.0f, 2.0f, 10.0f), Vector3f(0.0f, 2.0f, 10.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
+	m_camera.lookAt(Vector3f(0.0f, 0.0f, -3.0f), Vector3f(0.0f, 0.0f, 0.0f) + Vector3f(0.0f, 0.0f, 1.0f), Vector3f(0.0f, 1.0f, 0.0f));
 	m_camera.setRotationSpeed(0.1f);
-	m_camera.setMovingSpeed(10.0f);
+	m_camera.setMovingSpeed(5.0f);
 
-	glClearColor(0.494f, 0.686f, 0.796f, 1.0f);
+	glClearColor(0.33333333f, 0.33333333f, 0.33333333f, 1.0f);
 	glClearDepth(1.0f);
-	m_background.resize(Application::Width, Application::Height);
-	m_background.setLayer(std::vector<BackgroundLayer>{
-		{ &Globals::textureManager.get("forest_1"), 1, 1.0f },
-		{ &Globals::textureManager.get("forest_2"), 1, 2.0f },
-		{ &Globals::textureManager.get("forest_3"), 1, 3.0f },
-		{ &Globals::textureManager.get("forest_4"), 1, 4.0f },
-		{ &Globals::textureManager.get("forest_5"), 1, 5.0f }});
-	m_background.setSpeed(0.005f);
+	
+	m_buddha.loadModel("res/models/buddha.obj", Vector3f(1.0f, 0.0f, 0.0f), 90.0f, Vector3f(0.0f, 0.0f, 0.0f), 1.0f);
+	m_bunny.loadModel("res/models/bunny.obj");
+	m_dragon.loadModel("res/models/dragon.obj");
 
+	m_distance.create(SHADOW_RES, SHADOW_RES);
+	//m_distance.create(Application::Width, Application::Height);
+	m_distance.attachTexture2D(AttachmentTex::RGBA32F);
+	m_distance.attachTexture2D(AttachmentTex::DEPTH16);
+
+	m_lightInfo.dir = Vector3f::Normalize(Vector3f(0.0f, -1.0f, -1.0f));
+	m_lightInfo.size = 7.0f;
+	m_lightInfo.proj = Matrix4f::Orthographic(-m_lightInfo.size / 2.0f, m_lightInfo.size / 2.0f, -m_lightInfo.size / 2.0f, m_lightInfo.size / 2.0f, -10.0f, 20.0f);
+	m_lightInfo.view = Matrix4f::LookAt(-m_lightInfo.dir * 1.0f, Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 1.0f,0.0f));
+	m_lightInfo.projView = m_lightInfo.proj * m_lightInfo.view;
+	m_lightInfo.biasProjView = Matrix4f::BIAS * m_lightInfo.projView;
+
+	m_trackball.reshape(Application::Width, Application::Height);
+	//m_trackball.setDollyPosition(-2.5f);
+
+	applyTransformation(m_trackball);
 }
 
 SSSGems::~SSSGems() {
@@ -63,15 +75,11 @@ void SSSGems::update() {
 
 	if (keyboard.keyDown(Keyboard::KEY_A)) {
 		direction += Vector3f(-1.0f, 0.0f, 0.0f);
-		m_background.addOffset(-0.001f);
-		m_background.setSpeed(-0.005f);
 		move |= true;
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_D)) {
 		direction += Vector3f(1.0f, 0.0f, 0.0f);
-		m_background.addOffset(0.001f);
-		m_background.setSpeed(0.005f);
 		move |= true;
 	}
 
@@ -102,28 +110,95 @@ void SSSGems::update() {
 		}
 	}
 
-	m_background.update(m_dt);
+	m_trackball.idle();
+	applyTransformation(m_trackball);
 }
 
 void SSSGems::render() {
+	
+	m_distance.bind();
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glClearBufferfv(GL_COLOR, 1, maxDistance);
+	auto shader = Globals::shaderManager.getAssetPointer("depth_gems");
+	shader->use();
+	shader->loadMatrix("u_lightProj", m_lightInfo.proj);
+	shader->loadMatrix("u_lightView", m_lightInfo.view);
+	shader->loadMatrix("u_model", m_transform.getTransformationMatrix());
+
+	switch (model) {
+	case Model::BUNNY:
+		m_bunny.drawRaw();
+		break;
+	case Model::DRAGON:
+		m_dragon.drawRaw();
+		break;
+	case Model::BUDDHA:
+		m_buddha.drawRaw();
+		break;
+	}
+
+	shader->unuse();
+	m_distance.unbind();
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	m_background.draw();
+	shader = Globals::shaderManager.getAssetPointer("main_gems");
+	shader->use();
+	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
+	shader->loadMatrix("u_view", m_camera.getViewMatrix());
+	shader->loadMatrix("u_model", m_transform.getTransformationMatrix());
+	shader->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(m_camera.getViewMatrix() * m_transform.getTransformationMatrix()));
+	shader->loadFloat("u_thikness", m_thikness);
+
+	shader->loadMatrix("light.biasProjView", m_lightInfo.biasProjView);
+	shader->loadMatrix("light.projView", m_lightInfo.projView);
+	shader->loadMatrix("light.view", m_lightInfo.view);
+	shader->loadVector("light.dir", m_lightInfo.dir);
+
+	shader->loadInt("texDepth", 0);
+	shader->loadInt("texShadow", 1);
+	
+	m_distance.bindColorTexture(0u, 0u);
+	m_distance.bindDepthTexture(1u);
+
+	switch (model) {
+		case Model::BUNNY:
+			m_bunny.drawRaw();
+			break;
+		case Model::DRAGON:
+			m_dragon.drawRaw();
+			break;
+		case Model::BUDDHA:
+			m_buddha.drawRaw();
+			break;
+	}
+
+	shader->unuse();
 
 	if (m_drawUi)
 		renderUi();
 }
 
 void SSSGems::OnMouseMotion(Event::MouseMoveEvent& event) {
-
+	m_trackball.motion(event.x, event.y);
+	applyTransformation(m_trackball);
 }
 
 void SSSGems::OnMouseButtonDown(Event::MouseButtonEvent& event) {
-
+	if (event.button == 1u) {
+		m_trackball.mouse(TrackBall::Button::ELeftButton, TrackBall::Modifier::ENoModifier, true, event.x, event.y);
+		applyTransformation(m_trackball);
+	}else if (event.button == 2u) {
+		Mouse::instance().attach(Application::GetWindow());
+	}
 }
 
 void SSSGems::OnMouseButtonUp(Event::MouseButtonEvent& event) {
-
+	if (event.button == 1u) {
+		m_trackball.mouse(TrackBall::Button::ELeftButton, TrackBall::Modifier::ENoModifier, false, event.x, event.y);
+		applyTransformation(m_trackball);
+	}else if (event.button == 2u) {
+		Mouse::instance().detach();
+	}
 }
 
 void SSSGems::OnMouseWheel(Event::MouseWheelEvent& event) {
@@ -145,9 +220,15 @@ void SSSGems::OnKeyUp(Event::KeyboardEvent& event) {
 
 }
 
+void SSSGems::applyTransformation(TrackBall& arc) {
+	m_transform.fromMatrix(arc.getTransform());
+}
+
 void SSSGems::resize(int deltaW, int deltaH) {
-	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
+	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.01f, 100.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
+	//m_distance.resize(Application::Width, Application::Height);
+	m_trackball.reshape(Application::Width, Application::Height);
 }
 
 void SSSGems::renderUi() {
@@ -187,6 +268,13 @@ void SSSGems::renderUi() {
 	// render widgets
 	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 	ImGui::Checkbox("Draw Wirframe", &StateMachine::GetEnableWireframe());
+	ImGui::SliderFloat("Scattering Power", &m_thikness, 0.0f, 10.0f);
+
+	int currentModel = model;
+	if (ImGui::Combo("Model", &currentModel, "Bunny\0Dragon\0Buddha\0\0")) {
+		model = static_cast<Model>(currentModel);
+	}
+
 	ImGui::End();
 
 	ImGui::Render();

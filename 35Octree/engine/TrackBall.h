@@ -97,7 +97,7 @@ public:
 	//////////////////////////////////////////////////////////////////
 	void motion(int x, int y) {
 		if (_tbActive || _dActive || _pActive) {
-			_dx = x - _x;   _dy = _y - y;
+			_dx = x - _x;   _dy =  y - _y;
 			_x = x;   _y = y;
 			update();
 		}
@@ -108,7 +108,7 @@ public:
 	//////////////////////////////////////////////////////////////////
 	void idle() {
 		//simply increment the rotation
-		_r = _incr*_r;
+		_r = _incr * _r;
 	}
 
 	//
@@ -136,9 +136,9 @@ public:
 
 		//original glh version had an invert flag and a parent frame, do we need one?		
 		_incr.set(axis, rad * _180_ON_PI * _tbScale);
-		//_incr.conjugate();
+		_incr.conjugate();
 
-		_r = _incr*_r;
+		_r = _incr * _r;
 	}
 
 	//
@@ -179,7 +179,6 @@ public:
 		m_transform.rotate(_r, _centroid);
 		m_transform.translate(_pan);
 		m_transform.translate(_dolly);
-
 		return m_transform.getTransformationMatrix();
 	}
 
@@ -189,7 +188,6 @@ public:
 		m_transform.rotate(_r, _centroid);
 		m_transform.translate(_pan);
 		m_transform.translate(_dolly);
-
 		return m_transform.getTransformationMatrix();
 	}
 
