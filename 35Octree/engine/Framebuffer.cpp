@@ -281,16 +281,7 @@ void Framebuffer::attachTexture2D(AttachmentTex::AttachmentTex _attachment) {
 			std::get<0>(depth) = internalFormat;
 			std::get<1>(depth) = format;
 			std::get<2>(depth) = type;
-			break;
-		case AttachmentTex::STENCIL:
-			internalFormat = GL_STENCIL_INDEX8;
-			format = GL_STENCIL_INDEX;
-			attachment = GL_STENCIL_ATTACHMENT;
-			texture = &m_stencilTexture;
-			std::get<0>(stencil) = internalFormat;
-			std::get<1>(stencil) = format;
-			std::get<2>(stencil) = type;
-			break;
+			break;	
 		case AttachmentTex::DEPTH_STENCIL:
 			internalFormat = GL_DEPTH24_STENCIL8;
 			format = GL_DEPTH_STENCIL;
@@ -300,6 +291,15 @@ void Framebuffer::attachTexture2D(AttachmentTex::AttachmentTex _attachment) {
 			std::get<0>(depthStencil) = internalFormat;
 			std::get<1>(depthStencil) = format;
 			std::get<2>(depthStencil) = type;
+			break;
+		case AttachmentTex::STENCIL:
+			internalFormat = GL_STENCIL_INDEX8;
+			format = GL_STENCIL_INDEX;
+			attachment = GL_STENCIL_ATTACHMENT;
+			texture = &m_stencilTexture;
+			std::get<0>(stencil) = internalFormat;
+			std::get<1>(stencil) = format;
+			std::get<2>(stencil) = type;
 			break;
 		default:
 			break;
@@ -520,6 +520,18 @@ void Framebuffer::attachRenderbuffer(AttachmentRB::AttachmentRB attachments, uns
 			std::get<2>(m_resizeRB[m_resizeRB.size() - 1]) = coverageSamples;
 
 			break;
+		case AttachmentRB::RED:
+			internalFormat = GL_R8;
+			m_colorAttachments++;
+			m_colorRB.push_back(renderBuffer);
+			rb = &m_colorRB[m_colorRB.size() - 1];
+
+			m_resizeRB.push_back(std::tuple<unsigned int, unsigned int, unsigned int>());
+			std::get<0>(m_resizeRB[m_resizeRB.size() - 1]) = internalFormat;
+			std::get<1>(m_resizeRB[m_resizeRB.size() - 1]) = samples;
+			std::get<2>(m_resizeRB[m_resizeRB.size() - 1]) = coverageSamples;
+
+			break;
 		case AttachmentRB::RGBA32F:
 			internalFormat = GL_RGBA32F;
 			m_colorAttachments++;
@@ -614,7 +626,7 @@ void Framebuffer::attachRenderbuffer(AttachmentRB::AttachmentRB attachments, uns
 		glRenderbufferStorage(GL_RENDERBUFFER, internalFormat, m_width, m_height);
 	}
 
-	if (attachments == AttachmentRB::RGBA || attachments == AttachmentRB::RGB || attachments == AttachmentRB::RGBA32F || attachments == AttachmentRB::RGBA16F || attachments == AttachmentRB::R11FG11FB10F) {
+	if (attachments == AttachmentRB::RGBA || attachments == AttachmentRB::RGB || attachments == AttachmentRB::RED || attachments == AttachmentRB::RGBA32F || attachments == AttachmentRB::RGBA16F || attachments == AttachmentRB::R11FG11FB10F) {
 		glBindFramebuffer(m_colorAttachments == 1 ? GL_FRAMEBUFFER : GL_DRAW_FRAMEBUFFER, m_fbo);
 		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + (m_colorAttachments - 1), GL_RENDERBUFFER, *rb);
 		glBindFramebuffer(m_colorAttachments == 1 ? GL_FRAMEBUFFER : GL_DRAW_FRAMEBUFFER, 0);

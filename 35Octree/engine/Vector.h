@@ -359,6 +359,8 @@ public:
 	static Matrix4f Perspective(float fovx, float aspect, float znear, float zfar);
 	static Matrix4f &Perspective(Matrix4f& mtx, float fovx, float aspect, float znear, float zfar);
 	static Matrix4f Perspective(float left, float right, float bottom, float top, float znear, float zfar);
+	static Matrix4f Perspective2(float left, float right, float bottom, float top, float znear, float zfar);
+	static Matrix4f PerspectiveX(float fovx, float aspect, float znear, float zfar);
 
 	static Matrix4f LookAt(const Vector3f& eye, const Vector3f& target, const Vector3f& up);
 	static Matrix4f InvLookAt(const Vector3f& eye, const Vector3f& target, const Vector3f& up);

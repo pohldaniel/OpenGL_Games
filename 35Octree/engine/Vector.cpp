@@ -1850,6 +1850,41 @@ Matrix4f Matrix4f::Perspective(float left, float right, float bottom, float top,
 	return perspective;
 }
 
+Matrix4f Matrix4f::Perspective2(float left, float right, float bottom, float top, float near, float far) {
+	Matrix4f perspective;
+	perspective[0][0] = (2.0f * near)/ (right - left);
+	perspective[0][1] = 0.0f;
+	perspective[0][2] = 0.0f;
+	perspective[0][3] = 0.0f;
+
+	perspective[1][0] = 0.0f;
+	perspective[1][1] = (2.0f * near) / (top - bottom);
+	perspective[1][2] = 0.0f;
+	perspective[1][3] = 0.0f;
+
+	perspective[2][0] = (right + left) / (right - left);
+	perspective[2][1] = (top + bottom) / (top - bottom);
+	perspective[2][2] = (far + near) / (near - far);
+	perspective[2][3] = -1.0f;
+
+	perspective[3][0] = 0.0f;
+	perspective[3][1] = 0.0f;
+	perspective[3][2] = (2.0f * far * near) / (near - far);
+	perspective[3][3] = 0.0f;
+
+	return perspective;
+}
+
+Matrix4f Matrix4f::PerspectiveX(float fovx, float aspect, float near, float far) {
+	float right = near * tanf(HALF_PI_ON_180 * fovx);
+	float left = -right;
+
+	float bottom = left / aspect;
+	float top = right / aspect;
+
+	return Perspective2(left, right, bottom, top, near, far);
+}
+
 Matrix4f &Matrix4f::Perspective(Matrix4f &mtx, float fovx, float aspect, float znear, float zfar) {
 	float e = tanf(PI_ON_180 * fovx * 0.5f);
 	float xScale = 1 / (e * aspect);

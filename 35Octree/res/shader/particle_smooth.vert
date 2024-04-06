@@ -12,7 +12,7 @@ uniform float u_pointMultiplier;
 
 out vec4 vertColor;
 out vec2 vertAngle;
-flat out float vertZ;
+out float vertZ;
 out float vertSize;
 
 void main(void){
@@ -22,6 +22,9 @@ void main(void){
 	
   vertColor = i_color;
   vertAngle = vec2(cos(i_angle), sin(i_angle));
+  
+  //gl_FragCoord.z
+  //vertZ = (gl_Position.z / gl_Position.w) * 0.5 + 0.5;
   
   //inside frustum [near, far]
   vertZ = gl_Position.z;

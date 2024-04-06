@@ -40,9 +40,9 @@ namespace AttachmentTex {
 		DEPTH24,
 		DEPTH32,
 		DEPTH32F,
-		DEPTH16F,
+		DEPTH16F,		
+		DEPTH_STENCIL,
 		STENCIL,
-		DEPTH_STENCIL
 	} AttachmentTex;
 }
 
@@ -51,6 +51,7 @@ namespace AttachmentRB {
 	typedef enum AttachmentRB {
 		RGBA,
 		RGB,
+		RED,
 		RGBA32F,
 		RGBA16F,
 		R11FG11FB10F,

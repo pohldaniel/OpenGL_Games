@@ -26,6 +26,7 @@
 
 #include <States/SSS/SSSGems.h>
 #include <States/SSS/SSSApproximation.h>
+#include <States/SSS/SSSOGLP.h>
 #include <States/SSS/Separable.h>
 
 #include "Application.h"
@@ -353,8 +354,8 @@ void Application::initOpenGL(int msaaSamples) {
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);
 
-	glDisable(GL_BLEND);
-	//glEnable(GL_BLEND);
+	//glDisable(GL_BLEND);
+	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	
 	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
@@ -433,8 +434,8 @@ void Application::initStates() {
 	//Machine->addStateAtTop(new SoftParticle(*Machine));
 	//Machine->addStateAtTop(new BlobShoot(*Machine));
 	//Machine->addStateAtTop(new SSSApproximation(*Machine));
-	Machine->addStateAtTop(new SSSGems(*Machine));
-	
+	//Machine->addStateAtTop(new SSSGems(*Machine));
+	Machine->addStateAtTop(new SSSOGLP(*Machine));	
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -745,8 +746,10 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("irradiance", "res/shader/SSS/irradiance.vert", "res/shader/SSS/irradiance.frag");
 	Globals::shaderManager.loadShader("distance", "res/shader/SSS/distance.vert", "res/shader/SSS/distance.frag");
 
-	Globals::shaderManager.loadShader("main_gems", "res/shader/SSS/main_gems.vert", "res/shader/SSS/main_gems.frag");
 	Globals::shaderManager.loadShader("depth_gems", "res/shader/SSS/depth_gems.vert", "res/shader/SSS/depth_gems.frag");
+	Globals::shaderManager.loadShader("main_gems", "res/shader/SSS/main_gems.vert", "res/shader/SSS/main_gems.frag");	
+	Globals::shaderManager.loadShader("depth_oglp", "res/shader/SSS/depth_oglp.vert", "res/shader/SSS/depth_oglp.frag");
+	Globals::shaderManager.loadShader("main_oglp", "res/shader/SSS/main_oglp.vert", "res/shader/SSS/main_oglp.frag", "res/shader/SSS/main_oglp.gem");
 
 	Globals::fontManager.loadCharacterSet("upheaval_200", "res/fonts/upheavtt.ttf", 200, 0, 30, 128, 0, true, 0u);
 	Globals::fontManager.loadCharacterSet("upheaval_50", "res/fonts/upheavtt.ttf", 50, 0, 3, 0, 0, true, 0u);
