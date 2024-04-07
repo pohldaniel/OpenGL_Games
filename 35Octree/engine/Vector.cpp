@@ -1815,42 +1815,7 @@ Matrix4f Matrix4f::Perspective(float fovx, float aspect, float znear, float zfar
 	return perspective;
 }
 
-Matrix4f Matrix4f::Perspective(float left, float right, float bottom, float top, float znear, float zfar) {
-	Matrix4f perspective;
-
-	float sum_rl, sum_tb, sum_nf, inv_rl, inv_tb, inv_nf, n2;
-	sum_rl = (right + left);
-	sum_tb = (top + bottom);
-	sum_nf = (znear + zfar);
-	inv_rl = (1.0f / (right - left));
-	inv_tb = (1.0f / (top - bottom));
-	inv_nf = (1.0f / (znear - zfar));
-	n2 = (znear + znear);
-
-	perspective[0][0] = (n2 * inv_rl);
-	perspective[0][1] = 0.0f;
-	perspective[0][2] = 0.0f;
-	perspective[0][3] = 0.0f;
-
-	perspective[1][0] = 0.0f;
-	perspective[1][1] = (n2 * inv_tb);
-	perspective[1][2] = 0.0f;
-	perspective[1][3] = 0.0f;
-
-	perspective[2][0] = sum_rl * inv_rl;
-	perspective[2][1] = sum_tb * inv_tb;
-	perspective[2][2] = sum_nf * inv_nf;
-	perspective[2][3] = -1.0f;
-
-	perspective[3][0] = 0.0f;
-	perspective[3][1] = 0.0f;
-	perspective[3][2] = (n2 * inv_nf) * zfar;
-	perspective[3][3] = 0.0f;
-
-	return perspective;
-}
-
-Matrix4f Matrix4f::Perspective2(float left, float right, float bottom, float top, float near, float far) {
+Matrix4f Matrix4f::Perspective(float left, float right, float bottom, float top, float near, float far) {
 	Matrix4f perspective;
 	perspective[0][0] = (2.0f * near)/ (right - left);
 	perspective[0][1] = 0.0f;
@@ -1873,16 +1838,6 @@ Matrix4f Matrix4f::Perspective2(float left, float right, float bottom, float top
 	perspective[3][3] = 0.0f;
 
 	return perspective;
-}
-
-Matrix4f Matrix4f::PerspectiveX(float fovx, float aspect, float near, float far) {
-	float right = near * tanf(HALF_PI_ON_180 * fovx);
-	float left = -right;
-
-	float bottom = left / aspect;
-	float top = right / aspect;
-
-	return Perspective2(left, right, bottom, top, near, far);
 }
 
 Matrix4f &Matrix4f::Perspective(Matrix4f &mtx, float fovx, float aspect, float znear, float zfar) {
@@ -2157,7 +2112,15 @@ void Matrix4f::identity() {
 	mtx[3][0] = 0.0f, mtx[3][1] = 0.0f, mtx[3][2] = 0.0f, mtx[3][3] = 1.0f;
 }
 
-Matrix4f &Matrix4f::operator=(const Matrix4f &rhs) {
+Matrix4f& Matrix4f::operator=(const Matrix4f &rhs) {
+	mtx[0][0] = rhs[0][0]; mtx[0][1] = rhs[0][1]; mtx[0][2] = rhs[0][2]; mtx[0][3] = rhs[0][3];
+	mtx[1][0] = rhs[1][0]; mtx[1][1] = rhs[1][1]; mtx[1][2] = rhs[1][2]; mtx[1][3] = rhs[1][3];
+	mtx[2][0] = rhs[2][0]; mtx[2][1] = rhs[2][1]; mtx[2][2] = rhs[2][2]; mtx[2][3] = rhs[2][3];
+	mtx[3][0] = rhs[3][0]; mtx[3][1] = rhs[3][1]; mtx[3][2] = rhs[3][2]; mtx[3][3] = rhs[3][3];
+	return *this;
+}
+
+Matrix4f& Matrix4f::operator=(Matrix4f&& rhs) {
 	mtx[0][0] = rhs[0][0]; mtx[0][1] = rhs[0][1]; mtx[0][2] = rhs[0][2]; mtx[0][3] = rhs[0][3];
 	mtx[1][0] = rhs[1][0]; mtx[1][1] = rhs[1][1]; mtx[1][2] = rhs[1][2]; mtx[1][3] = rhs[1][3];
 	mtx[2][0] = rhs[2][0]; mtx[2][1] = rhs[2][1]; mtx[2][2] = rhs[2][2]; mtx[2][3] = rhs[2][3];
@@ -2581,6 +2544,11 @@ Vector2f &Vector2f::operator=(const Vector2f &rhs) {
 	return *this;
 }
 
+Vector2f &Vector2f::operator=(Vector2f&& rhs) {
+	vec[0] = rhs.vec[0], vec[1] = rhs.vec[1];
+	return *this;
+}
+
 Vector2f &Vector2f::operator-=(const Vector2f &rhs) {
 	vec[0] -= rhs.vec[0], vec[1] -= rhs.vec[1];
 	return *this;
@@ -2697,6 +2665,11 @@ const float Vector3f::operator[](int index) const {
 }
 
 Vector3f &Vector3f::operator=(const Vector3f& rhs) {
+	vec[0] = rhs.vec[0], vec[1] = rhs.vec[1], vec[2] = rhs.vec[2];
+	return *this;
+}
+
+Vector3f &Vector3f::operator=(Vector3f&& rhs) {
 	vec[0] = rhs.vec[0], vec[1] = rhs.vec[1], vec[2] = rhs.vec[2];
 	return *this;
 }
@@ -2966,6 +2939,11 @@ Vector4f &Vector4f::operator=(const Vector4f &rhs) {
 	return *this;
 }
 
+Vector4f &Vector4f::operator=(Vector4f&& rhs) {
+	vec[0] = rhs.vec[0], vec[1] = rhs.vec[1], vec[2] = rhs.vec[2], vec[3] = rhs.vec[3];
+	return *this;
+}
+
 Vector4f &Vector4f::operator+=(const Vector4f &rhs) {
 	vec[0] += rhs.vec[0], vec[1] += rhs.vec[1], vec[2] += rhs.vec[2], vec[3] += rhs.vec[3];
 	return *this;
@@ -3137,6 +3115,11 @@ bool Quaternion::operator!=(const Quaternion &rhs) const {
 }
 
 Quaternion &Quaternion::operator=(const Quaternion &rhs) {
+	quat[3] = rhs.quat[3], quat[0] = rhs.quat[0], quat[1] = rhs.quat[1], quat[2] = rhs.quat[2];
+	return *this;
+}
+
+Quaternion &Quaternion::operator=(Quaternion&& rhs) {
 	quat[3] = rhs.quat[3], quat[0] = rhs.quat[0], quat[1] = rhs.quat[1], quat[2] = rhs.quat[2];
 	return *this;
 }

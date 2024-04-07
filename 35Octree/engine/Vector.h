@@ -57,7 +57,7 @@ public:
 	const float operator[](int index) const;
 
 	Vector2f& operator=(const Vector2f& rhs);
-
+	Vector2f &operator=(Vector2f&& rhs);
 	Vector2f& operator+=(const Vector2f &rhs);
 	Vector2f& operator-=(const Vector2f &rhs);
 	Vector2f& operator*=(float scalar);
@@ -121,6 +121,7 @@ public:
 	const float* getVec()const;
 
 	Vector3f &operator=(const Vector3f& rhs);
+	Vector3f &operator=(Vector3f&& rhs);
 	Vector3f &operator+=(const Vector3f &rhs);
 	Vector3f &operator-=(const Vector3f &rhs);
 	Vector3f &operator*=(const Vector3f &rhs);
@@ -180,6 +181,7 @@ public:
 	const float operator[](int index) const;
 
 	Vector4f &operator=(const Vector4f &rhs);
+	Vector4f &operator=(Vector4f&& rhs);
 	Vector4f &operator+=(const Vector4f &rhs);
 	Vector4f &operator-=(const Vector4f &rhs);
 	Vector4f &operator*=(const Vector4f &rhs);
@@ -238,7 +240,8 @@ public:
 
 	float *operator[](int row);
 	const float *operator[](int row) const;
-	Matrix4f& operator= (const Matrix4f& rhs);
+	Matrix4f& operator=(const Matrix4f& rhs);
+	Matrix4f& operator=(Matrix4f&& rhs);
 	Matrix4f& operator+=(const Matrix4f& rhs);
 	Matrix4f& operator*=(const Matrix4f& rhs);
 	Matrix4f& operator^=(const Matrix4f& rhs);
@@ -359,8 +362,6 @@ public:
 	static Matrix4f Perspective(float fovx, float aspect, float znear, float zfar);
 	static Matrix4f &Perspective(Matrix4f& mtx, float fovx, float aspect, float znear, float zfar);
 	static Matrix4f Perspective(float left, float right, float bottom, float top, float znear, float zfar);
-	static Matrix4f Perspective2(float left, float right, float bottom, float top, float znear, float zfar);
-	static Matrix4f PerspectiveX(float fovx, float aspect, float znear, float zfar);
 
 	static Matrix4f LookAt(const Vector3f& eye, const Vector3f& target, const Vector3f& up);
 	static Matrix4f InvLookAt(const Vector3f& eye, const Vector3f& target, const Vector3f& up);
@@ -412,6 +413,7 @@ public:
 	bool operator!=(const Quaternion &rhs) const;
 
 	Quaternion &operator=(const Quaternion &rhs);
+	Quaternion &operator=(Quaternion&& rhs);
 	Quaternion &operator+=(const Quaternion &rhs);
 	Quaternion &operator-=(const Quaternion &rhs);
 	Quaternion &operator*=(const Quaternion &rhs);

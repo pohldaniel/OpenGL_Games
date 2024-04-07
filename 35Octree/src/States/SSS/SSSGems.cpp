@@ -26,7 +26,7 @@ SSSGems::SSSGems(StateMachine& machine) : State(machine, States::RAYMARCH) {
 	
 	m_buddha.loadModel("res/models/buddha.obj", Vector3f(1.0f, 0.0f, 0.0f), 90.0f, Vector3f(0.0f, 0.0f, 0.0f), 1.0f);
 	m_bunny.loadModel("res/models/bunny.obj");
-	m_dragon.loadModel("res/models/dragon.obj");
+	m_dragon.loadModel("res/models/dragon_low.obj");
 
 	m_distance.create(SHADOW_RES, SHADOW_RES);
 	//m_distance.create(Application::Width, Application::Height);

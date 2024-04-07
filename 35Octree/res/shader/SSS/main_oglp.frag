@@ -10,12 +10,12 @@ in vec3 geomNormal;
 
 uniform sampler2D DepthMap;
 uniform vec2 DepthOffs[32];
+uniform vec3 u_color = vec3(0.2, 0.9, 0.7);
 
-
-out vec3 fragColor;
+out vec4 colorOut;
 
 void main(){
-
+	vec3 fragColor;
 	float LightDist = geomDepthCoord.z/geomDepthCoord.w;
 	vec3 Normal = normalize(geomNormal);
 	vec3 LightDir = normalize(geomLightDir);
@@ -45,9 +45,11 @@ void main(){
     float Shdw = min(pow(abs(Depth-LightDist)*2.0, 8.0), 1.0);
     float Diff  = sqrt(max(dot(LightDir, Normal)+0.1, 0.0))*0.4;
     float Spec  = pow(max(dot(LightRefl, ViewDir), 0.0), 64.0);
-    vec3 Color = vec3(0.2, 0.9, 0.7);
+    vec3 Color = u_color;
     fragColor = (Ambi + Shdw*Diff + SuSS) * Color;
     fragColor += Shdw*Spec * vec3(1.0, 1.0, 1.0);
 	
-	fragColor = vec3(1.0, 0.0, 0.0);
+	//fragColor = vec3(1.0, 0.0, 0.0);
+	
+	colorOut = vec4(fragColor, 1.0);
 }
