@@ -52,8 +52,7 @@ void Material::bind(){
 	}
 }
 
-void Material::unbind(){
-	
+void Material::unbind(){	
 	for (unsigned short i = 0; i < textures.size(); i++) {
 		textures.at(i).unbind(i);
 	}

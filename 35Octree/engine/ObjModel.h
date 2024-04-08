@@ -211,7 +211,7 @@ private:
 	void static GenerateTangents(std::vector<float>& vertexCoords, std::vector<float>& textureCoords, std::vector<float>& normalCoords, std::vector<std::array<int, 10>>& face, std::vector<float>& tangentCoords, std::vector<float>& bitangentCoords);
 
 
-	void static ReadMaterialFromFile(std::string path, std::string mltName, short& index);
+	void static ReadMaterialFromFile(std::string path, std::string mltLib, std::string mltName, short& index);
 	std::string static GetTexturePath(std::string texPath, std::string modelDirectory);
 
 	static AssetManager<Shader> ShaderManager;

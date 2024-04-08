@@ -357,12 +357,7 @@ void Application::initOpenGL(int msaaSamples) {
 	//glDisable(GL_BLEND);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	
 	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-
-
-	//glClipControl(GL_UPPER_LEFT, GL_ZERO_TO_ONE);
-	//glClipControl(GL_UPPER_LEFT, GL_NEGATIVE_ONE_TO_ONE);
 }
 
 void Application::initImGUI() {
@@ -435,7 +430,8 @@ void Application::initStates() {
 	//Machine->addStateAtTop(new BlobShoot(*Machine));
 	//Machine->addStateAtTop(new SSSApproximation(*Machine));
 	//Machine->addStateAtTop(new SSSGems(*Machine));
-	Machine->addStateAtTop(new SSSOGLP(*Machine));	
+	//Machine->addStateAtTop(new SSSOGLP(*Machine));	
+	Machine->addStateAtTop(new Separable(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -643,7 +639,7 @@ void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 
 void Application::Resize(int deltaW, int deltaH) {
 	glViewport(0, 0, Width, Height);
-
+	
 	if (Init) {
 		Framebuffer::SetDefaultSize(Width, Height);
 		Widget::Resize(Width, Height);
@@ -742,9 +738,15 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("depth", "res/shader/depth.vert", "res/shader/depth.frag");
 	//Globals::shaderManager.loadShader("combiner", "res/shader/combiner.vert", "res/shader/combiner.frag");
 
+	Shader::SetIncludeFromFile("SeparableSSS.h", "res/shader/PBR/SeparableSSS.h");
+	Globals::shaderManager.loadShader("pbr", "res/shader/PBR/pbr.vert.glsl", "res/shader/PBR/pbr.frag.glsl");
 	Globals::shaderManager.loadShader("approximate", "res/shader/SSS/approximate.vert", "res/shader/SSS/approximate.frag");
 	Globals::shaderManager.loadShader("irradiance", "res/shader/SSS/irradiance.vert", "res/shader/SSS/irradiance.frag");
 	Globals::shaderManager.loadShader("distance", "res/shader/SSS/distance.vert", "res/shader/SSS/distance.frag");
+
+	Globals::shaderManager.loadShader("depth_sep", "res/shader/SSS/depth.vert", "res/shader/SSS/depth.frag");
+	Globals::shaderManager.loadShader("main_sep", "res/shader/SSS/Main.vert", "res/shader/SSS/Main.frag");
+	Globals::shaderManager.loadShader("sss_sep", "res/shader/SSS/SparableSSS.vert", "res/shader/SSS/SparableSSS.frag");
 
 	Globals::shaderManager.loadShader("depth_gems", "res/shader/SSS/depth_gems.vert", "res/shader/SSS/depth_gems.frag");
 	Globals::shaderManager.loadShader("main_gems", "res/shader/SSS/main_gems.vert", "res/shader/SSS/main_gems.frag");	

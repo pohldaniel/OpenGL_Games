@@ -891,8 +891,8 @@ const unsigned int& Framebuffer::getFramebuffer() const {
 	return  m_fbo;
 }
 
-void Framebuffer::bindColorTexture(unsigned short attachment, unsigned int unit) const {
-	if (Texture::ActiveTextures[unit] != m_colorTextures[attachment]) {
+void Framebuffer::bindColorTexture(unsigned short attachment, unsigned int unit, bool forceBind) const {
+	if (Texture::ActiveTextures[unit] != m_colorTextures[attachment] || forceBind) {
 		Texture::ActiveTextures[unit] = m_colorTextures[attachment];
 		glActiveTexture(GL_TEXTURE0 + unit);
 		glBindTexture(GL_TEXTURE_2D, m_colorTextures[attachment]);

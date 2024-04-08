@@ -679,7 +679,7 @@ void ObjModel::loadModelCpu(const char* _filename, Vector3f& axis, float degree,
 		}
 
 		if (m_hasMaterial) {
-			ObjModel::ReadMaterialFromFile(getModelDirectory() + "/" + getMltPath(), m_meshes[j]->m_mltName, m_meshes[j]->m_materialIndex);
+			ObjModel::ReadMaterialFromFile(getModelDirectory() + "/", getMltPath(), m_meshes[j]->m_mltName, m_meshes[j]->m_materialIndex);
 		}
 
 		if (!m_isStacked) {
@@ -1910,7 +1910,7 @@ std::string ObjModel::GetTexturePath(std::string texPath, std::string modelDirec
 	return textureName, foundSlash < 0 ? modelDirectory + "/" + texPath.substr(foundSlash + 1) : texPath;
 }
 
-void ObjModel::ReadMaterialFromFile(std::string path, std::string mltName, short& index) {
+void ObjModel::ReadMaterialFromFile(std::string path, std::string mltLib, std::string mltName, short& index) {
 	
 
 	std::vector<Material>::iterator it = std::find_if(Material::GetMaterials().begin(), Material::GetMaterials().end(), std::bind([](Material const& s1, std::string const& s2) -> bool { return s1.name == s2;}, std::placeholders::_1, mltName));
@@ -1925,7 +1925,7 @@ void ObjModel::ReadMaterialFromFile(std::string path, std::string mltName, short
 		int start = -1;
 		int end = -1;
 
-		std::ifstream in(path);
+		std::ifstream in(path + mltLib);
 
 		if (!in.is_open()) {
 			std::cout << "mlt file not found" << std::endl;
@@ -2289,7 +2289,7 @@ void ObjMesh::updateInstances(std::vector<Matrix4f>& modelMTX) {
 
 void ObjMesh::drawRaw() const{
 
-	if (m_materialIndex >= 0) 
+	if (m_materialIndex >= 0)
 		Material::GetMaterials()[m_materialIndex].bind();
 
 	if (m_textureIndex >= 0)
