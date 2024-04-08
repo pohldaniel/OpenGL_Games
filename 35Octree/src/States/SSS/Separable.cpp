@@ -10,10 +10,12 @@
 
 Separable::Separable(StateMachine& machine) : State(machine, States::SEPARABLE) {
 
+	Application::SetCursorIcon(IDC_ARROW);
+	EventDispatcher::AddKeyboardListener(this);
 	EventDispatcher::AddMouseListener(this);
 
 	m_camera = Camera();
-	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 1.0f, 100.0f);
+	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 100.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
 	m_camera.lookAt(Vector3f(-1.30592f, 3.5f, 4.11601f), Vector3f(0.00597954f, 3.5f, 0.00461888f), Vector3f(0.0f, 1.0f, 0.0f));
 	m_camera.setRotationSpeed(0.1f);
@@ -35,7 +37,7 @@ Separable::Separable(StateMachine& machine) : State(machine, States::SEPARABLE) 
 	m_statue.getMesh(0)->setMaterialIndex(-1);
 	m_statue.getMesh(1)->setMaterialIndex(-1);
 
-	lights[0].color = Vector3f(1.2f, 1.2f, 1.2f);
+	lights[0].color = Vector3f(0.3f, 0.3f, 0.3f);
 	lights[0].pos = Vector3f(0.0f, 5.0f, 8.0f);
 	lights[0].viewDirection = Vector3f::Normalize(Matrix4f::IDENTITY * m_statue.getCenter() - lights[0].pos);
 	lights[0].m_shadowProjection.perspective(45.0f, 1.0, 1.0f, 100.0f);
@@ -50,7 +52,7 @@ Separable::Separable(StateMachine& machine) : State(machine, States::SEPARABLE) 
 	lights[0].farPlane = 100.0f;
 	lights[0].bias = -0.01f;
 
-	lights[1].color = Vector3f(0.3f, 0.3f, 0.3f);
+	lights[1].color = Vector3f(0.0f, 1.0f, 0.5f);
 	lights[1].pos = Vector3f(0.0f, 5.0f, -8.0f);
 	lights[1].viewDirection = Vector3f::Normalize(Matrix4f::IDENTITY * m_statue.getCenter() - lights[1].pos);
 	lights[1].m_shadowProjection.perspective(45.0f, 1.0, 1.0f, 100.0f);
@@ -117,7 +119,10 @@ Separable::Separable(StateMachine& machine) : State(machine, States::SEPARABLE) 
 	
 }
 
-Separable::~Separable() {}
+Separable::~Separable() {
+	EventDispatcher::RemoveKeyboardListener(this);
+	EventDispatcher::RemoveMouseListener(this);
+}
 
 void Separable::fixedUpdate() {
 
@@ -306,7 +311,8 @@ void Separable::renderGBuffer() {
 	glClearStencil(0);
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
+	//glClearTexImage(m_mainRT.getColorTexture(5), 0, GL_RED, GL_FLOAT, clear);
+	glClearBufferfv(GL_COLOR, 5, clear);
 	auto shader = Globals::shaderManager.getAssetPointer("main_sep");
 	shader->use();
 	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
@@ -324,7 +330,10 @@ void Separable::renderGBuffer() {
 	shader->loadFloat("sssWidth", m_sssWidth);
 	shader->loadFloat("translucency", m_translucency);
 	shader->loadFloat("specularIntensity", m_specularIntensity);
-
+	shader->loadFloat("specularRoughness", m_specularRoughness);
+	shader->loadFloat("specularFresnel", m_specularFresnel);
+	shader->loadFloat("weight", m_weight);
+	shader->loadFloat("u_scale", m_scale);
 	for (int i = 0; i < 4; i++) {
 		shader->loadMatrix(std::string("u_projectionShadowBias[" + std::to_string(i) + "]").c_str(), Matrix4f::BIAS * lights[i].m_shadowProjection);
 		shader->loadMatrix(std::string("u_projectionShadow[" + std::to_string(i) + "]").c_str(), lights[i].m_shadowProjection);
@@ -367,6 +376,7 @@ void Separable::sssPass() {
 	shader->loadVector("dir", Vector2f((GLfloat)Application::Height / (GLfloat)Application::Width, 0.0f));
 	shader->loadFloat("u_showBlurRadius", m_showBlurRadius);
 	shader->loadFloat("sssWidth", m_sssWidth);
+	shader->loadFloat("u_scale", m_scale);
 
 	shader->loadInt("u_colorTex", 0);
 	shader->loadInt("u_strengthTex", 1);
@@ -474,11 +484,23 @@ void Separable::renderUi() {
 
 	// render widgets
 	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
+	ImGui::Checkbox("Draw Debug", &m_debug);
 	ImGui::Checkbox("Draw Wirframe", &StateMachine::GetEnableWireframe());
 	ImGui::Checkbox("SSS", &m_sss);
 	ImGui::Checkbox("Show Blurradius", &m_showBlurRadius);
 	ImGui::SliderFloat("SSS Width", &m_sssWidth, 0.0f, 1000.0f);
 	ImGui::SliderFloat("Translucency", &m_translucency, 0.0f, 1.0f);
+	ImGui::SliderFloat("Weight", &m_weight, 1.0f, 100.0f);
+
+	ImGui::SliderFloat("Specular Intensity", &m_specularIntensity, 0.0f, 1.0f);
+	ImGui::SliderFloat("Specular Roughness", &m_specularRoughness, 0.0f, 1.0f);
+	ImGui::SliderFloat("Specular Fresnel", &m_specularFresnel, 0.0f, 1.0f);
+	ImGui::SliderFloat("Scale", &m_scale, 1.0f, 50.0f);
+	if (ImGui::ColorEdit3("color", m_color)) {
+		lights[1].color[0] = m_color[0];
+		lights[1].color[1] = m_color[1];
+		lights[1].color[2] = m_color[2];
+	}
 	ImGui::End();
 
 	ImGui::Render();

@@ -66,8 +66,14 @@ private:
 	bool m_sss = true;
 	bool m_showBlurRadius = false;
 	bool m_debug = true;
-	float m_sssWidth = 20.0f;
-	float m_translucency = 0.0f;
-	float m_specularIntensity = 0.46f;
+	float m_sssWidth = 200.0f;
+	float m_scale = 10.0f;
+	float m_translucency = 0.4f;
+	float m_specularIntensity = 1.0f;
+	float m_specularRoughness = 0.08f;
+	float m_specularFresnel = 0.81f;
+	float m_weight = 2.0f;
+	const float clear[1] = { 1.0f};
+	float m_color[3] = { 1.0f, 1.0f, 1.0f };
 	Light lights[4];
 };
