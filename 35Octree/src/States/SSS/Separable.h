@@ -6,6 +6,7 @@
 #include <engine/Background.h>
 #include <engine/ObjModel.h>
 #include <engine/Framebuffer.h>
+#include <engine/TrackBall.h>
 
 #include <States/StateMachine.h>
 
@@ -49,12 +50,16 @@ private:
 	void renderGBuffer();
 	void shdowPass();
 	void sssPass();
+	void addSpecular();
+	void applyTransformation(TrackBall& arc);
 
 	bool m_initUi = true;
 	bool m_drawUi = true;
 
 	Camera m_camera;
 	ObjModel m_statue;
+	TrackBall m_trackball;
+	Transform m_transform;
 
 	Framebuffer m_mainRT;
 	Framebuffer m_sssXRT;
@@ -64,9 +69,10 @@ private:
 	Matrix4f prevViewProj;
 
 	bool m_sss = true;
+	bool m_addSpecular = true;
 	bool m_showBlurRadius = false;
 	bool m_debug = true;
-	float m_sssWidth = 200.0f;
+	float m_sssWidth = 100.0f;
 	float m_scale = 10.0f;
 	float m_translucency = 0.4f;
 	float m_specularIntensity = 1.0f;

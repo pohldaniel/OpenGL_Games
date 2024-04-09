@@ -76,6 +76,7 @@ public:
 	void setFilter(unsigned int minFilter, unsigned int magFilter = 0u) const;
 	void setWrapMode(unsigned int mode = 10497 /*GL_REPEAT*/) const;
 	void setAnisotropy(float aniso) const;
+	void setCompareFunc(unsigned int func = 0u) const;
 	void cleanup();
 	void setDeepCopy(bool deepCopy);
 	void markForDelete();
@@ -112,6 +113,7 @@ public:
 	static void SetFilter(const unsigned int& textureRef, unsigned int minFilter, unsigned int magFilter = 0u, unsigned int target = 3553u);
 	static void SetWrapMode(const unsigned int& textureRef, unsigned int mode, unsigned int target = 3553u);
 	static void ArrayTo3D(const unsigned int& textureRef1, unsigned int& textureRef2);
+	static void SetCompareFunc(const unsigned int& textureRef, unsigned int func = 0u, unsigned int target = 3553u);
 
 	void flipVertical(unsigned char* data, unsigned int padWidth, unsigned int height);
 	void flipHorizontal(unsigned char* data, unsigned int width, unsigned int height, int numCompontents);

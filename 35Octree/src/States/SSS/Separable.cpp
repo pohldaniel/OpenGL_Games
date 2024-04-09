@@ -37,13 +37,15 @@ Separable::Separable(StateMachine& machine) : State(machine, States::SEPARABLE) 
 	m_statue.getMesh(0)->setMaterialIndex(-1);
 	m_statue.getMesh(1)->setMaterialIndex(-1);
 
+	m_trackball.reshape(Application::Width, Application::Height);
+	applyTransformation(m_trackball);
+
 	lights[0].color = Vector3f(0.3f, 0.3f, 0.3f);
 	lights[0].pos = Vector3f(0.0f, 5.0f, 8.0f);
-	lights[0].viewDirection = Vector3f::Normalize(Matrix4f::IDENTITY * m_statue.getCenter() - lights[0].pos);
+	lights[0].viewDirection = Vector3f::Normalize(m_transform.getTransformationMatrix() * m_statue.getCenter() - lights[0].pos);
 	lights[0].m_shadowProjection.perspective(45.0f, 1.0, 1.0f, 100.0f);
-	lights[0].m_shadowView.lookAt(lights[0].pos, Matrix4f::IDENTITY * m_statue.getCenter(), Vector3f(0.0f, 1.0f, 0.0f));
+	lights[0].m_shadowView.lookAt(lights[0].pos, m_transform.getTransformationMatrix() * m_statue.getCenter(), Vector3f(0.0f, 1.0f, 0.0f));
 	lights[0].m_depthRT.create(DEPTH_TEXTURE_SIZE, DEPTH_TEXTURE_SIZE);
-	lights[0].m_depthRT.attachTexture2D(AttachmentTex::RED32F);
 	lights[0].m_depthRT.attachTexture2D(AttachmentTex::DEPTH32F);
 
 	lights[0].fov = 45.0f * PI_ON_180;
@@ -54,11 +56,10 @@ Separable::Separable(StateMachine& machine) : State(machine, States::SEPARABLE) 
 
 	lights[1].color = Vector3f(0.0f, 1.0f, 0.5f);
 	lights[1].pos = Vector3f(0.0f, 5.0f, -8.0f);
-	lights[1].viewDirection = Vector3f::Normalize(Matrix4f::IDENTITY * m_statue.getCenter() - lights[1].pos);
+	lights[1].viewDirection = Vector3f::Normalize(m_transform.getTransformationMatrix() * m_statue.getCenter() - lights[1].pos);
 	lights[1].m_shadowProjection.perspective(45.0f, 1.0, 1.0f, 100.0f);
-	lights[1].m_shadowView.lookAt(lights[1].pos, Matrix4f::IDENTITY * m_statue.getCenter(), Vector3f(0.0f, 1.0f, 0.0f));
+	lights[1].m_shadowView.lookAt(lights[1].pos, m_transform.getTransformationMatrix() * m_statue.getCenter(), Vector3f(0.0f, 1.0f, 0.0f));
 	lights[1].m_depthRT.create(DEPTH_TEXTURE_SIZE, DEPTH_TEXTURE_SIZE);
-	lights[1].m_depthRT.attachTexture2D(AttachmentTex::RED32F);
 	lights[1].m_depthRT.attachTexture2D(AttachmentTex::DEPTH32F);
 
 	lights[1].fov = 45.0f * PI_ON_180;
@@ -69,11 +70,10 @@ Separable::Separable(StateMachine& machine) : State(machine, States::SEPARABLE) 
 
 	lights[2].color = Vector3f(0.3f, 0.3f, 0.3f);
 	lights[2].pos = Vector3f(8.0f, 5.0f, 0.0f);
-	lights[2].viewDirection = Vector3f::Normalize(Matrix4f::IDENTITY * m_statue.getCenter() - lights[2].pos);
+	lights[2].viewDirection = Vector3f::Normalize(m_transform.getTransformationMatrix() * m_statue.getCenter() - lights[2].pos);
 	lights[2].m_shadowProjection.perspective(45.0f, 1.0, 1.0f, 100.0f);
-	lights[2].m_shadowView.lookAt(lights[1].pos, Matrix4f::IDENTITY * m_statue.getCenter(), Vector3f(0.0f, 1.0f, 0.0f));
+	lights[2].m_shadowView.lookAt(lights[1].pos, m_transform.getTransformationMatrix() * m_statue.getCenter(), Vector3f(0.0f, 1.0f, 0.0f));
 	lights[2].m_depthRT.create(DEPTH_TEXTURE_SIZE, DEPTH_TEXTURE_SIZE);
-	lights[2].m_depthRT.attachTexture2D(AttachmentTex::RED32F);
 	lights[2].m_depthRT.attachTexture2D(AttachmentTex::DEPTH32F);
 
 	lights[2].fov = 45.0f * PI_ON_180;
@@ -84,11 +84,10 @@ Separable::Separable(StateMachine& machine) : State(machine, States::SEPARABLE) 
 
 	lights[3].color = Vector3f(0.3f, 0.3f, 0.3f);
 	lights[3].pos = Vector3f(-8.0f, 5.0f, 0.0f);
-	lights[3].viewDirection = Vector3f::Normalize(Matrix4f::IDENTITY * m_statue.getCenter() - lights[3].pos);
+	lights[3].viewDirection = Vector3f::Normalize(m_transform.getTransformationMatrix() * m_statue.getCenter() - lights[3].pos);
 	lights[3].m_shadowProjection.perspective(45.0f, 1.0, 1.0f, 100.0f);
-	lights[3].m_shadowView.lookAt(lights[1].pos, Matrix4f::IDENTITY * m_statue.getCenter(), Vector3f(0.0f, 1.0f, 0.0f));
+	lights[3].m_shadowView.lookAt(lights[1].pos, m_transform.getTransformationMatrix() * m_statue.getCenter(), Vector3f(0.0f, 1.0f, 0.0f));
 	lights[3].m_depthRT.create(DEPTH_TEXTURE_SIZE, DEPTH_TEXTURE_SIZE);
-	lights[3].m_depthRT.attachTexture2D(AttachmentTex::RED32F);
 	lights[3].m_depthRT.attachTexture2D(AttachmentTex::DEPTH32F);
 
 	lights[3].fov = 45.0f * PI_ON_180;
@@ -96,6 +95,30 @@ Separable::Separable(StateMachine& machine) : State(machine, States::SEPARABLE) 
 	lights[3].attenuation = 1.0f / 128.0f;
 	lights[3].farPlane = 100.0f;
 	lights[3].bias = -0.01f;
+
+	unsigned int sampler1, sampler2, sampler3, sampler4;
+	glGenSamplers(1, &sampler1);
+	glSamplerParameteri(sampler1, GL_TEXTURE_COMPARE_FUNC, GL_LESS);
+	glSamplerParameteri(sampler1, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
+	glBindSampler(7, sampler1);
+
+	glGenSamplers(1, &sampler2);
+	glSamplerParameteri(sampler2, GL_TEXTURE_COMPARE_FUNC, GL_LESS);
+	glSamplerParameteri(sampler2, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
+	glBindSampler(8, sampler2);
+
+	glGenSamplers(1, &sampler3);
+	glSamplerParameteri(sampler3, GL_TEXTURE_COMPARE_FUNC, GL_LESS);
+	glSamplerParameteri(sampler3, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
+	glBindSampler(9, sampler3);
+
+	glGenSamplers(1, &sampler4);
+	glSamplerParameteri(sampler4, GL_TEXTURE_COMPARE_FUNC, GL_LESS);
+	glSamplerParameteri(sampler4, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
+	glBindSampler(10, sampler4);
+
+
+	m_color[0] = lights[1].color[0]; m_color[1] = lights[1].color[1]; m_color[2] = lights[1].color[2];
 
 	m_mainRT.create(Application::Width, Application::Height);
 	m_mainRT.attachTexture2D(AttachmentTex::SRGBA);
@@ -217,6 +240,9 @@ void Separable::update() {
 			m_camera.move(direction * m_dt);
 		}
 	}
+
+	m_trackball.idle();
+	applyTransformation(m_trackball);
 };
 
 void Separable::render() {
@@ -227,6 +253,9 @@ void Separable::render() {
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	if (m_sss)
 		sssPass();
+
+	if(m_addSpecular)
+		addSpecular();
 
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClearDepth(1.0);
@@ -284,7 +313,6 @@ void Separable::render() {
 
 void Separable::shdowPass() {
 
-	glEnable(GL_DEPTH_TEST);
 	for (int i = 0; i < 4; i++) {
 		lights[i].m_depthRT.bind();
 
@@ -295,15 +323,13 @@ void Separable::shdowPass() {
 		auto shader = Globals::shaderManager.getAssetPointer("depth_sep");
 		shader->use();
 		shader->loadMatrix("u_viewProjection", lights[i].m_shadowProjection * lights[i].m_shadowView);
-		shader->loadMatrix("u_model", Matrix4f::IDENTITY);
+		shader->loadMatrix("u_model", m_transform.getTransformationMatrix());
 		m_statue.drawRaw();
 		lights[i].m_depthRT.unbind();
 	}
-	glDisable(GL_DEPTH_TEST);
 }
 
 void Separable::renderGBuffer() {
-	glEnable(GL_DEPTH_TEST);
 
 	m_mainRT.bind();
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
@@ -318,8 +344,8 @@ void Separable::renderGBuffer() {
 	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
 	shader->loadMatrix("u_modelView", m_camera.getViewMatrix());
 	shader->loadMatrix("u_view", m_camera.getViewMatrix());
-	shader->loadMatrix("u_model", Matrix4f::IDENTITY);
-	shader->loadMatrix("u_normalMatrix", Matrix4f::GetNormalMatrix(Matrix4f::IDENTITY));
+	shader->loadMatrix("u_model", m_transform.getTransformationMatrix());
+	shader->loadMatrix("u_normalMatrix", Matrix4f::GetNormalMatrix(m_transform.getTransformationMatrix()));
 
 	shader->loadVector("u_cameraPosition", m_camera.getPosition());
 	currViewProj = m_camera.getPerspectiveMatrix() * m_camera.getViewMatrix();
@@ -345,24 +371,25 @@ void Separable::renderGBuffer() {
 		shader->loadVector(std::string("lightColor[" + std::to_string(i) + "]").c_str(), lights[i].color);
 		shader->loadFloat(std::string("lightFalloffStart[" + std::to_string(i) + "]").c_str(), cos(0.5f * (45.0f * PI_ON_180)));
 
-		shader->loadInt(std::string("u_shadowMap[" + std::to_string(i) + "]").c_str(), i);
+		shader->loadInt(std::string("u_depthMap[" + std::to_string(i) + "]").c_str(), i);
+		shader->loadInt(std::string("u_shadowMap[" + std::to_string(i) + "]").c_str(), i + 7);
 		lights[i].m_depthRT.bindDepthTexture(i);
+		lights[i].m_depthRT.bindDepthTexture(i + 7);
 	}
 
-	shader->loadInt("u_albedo", 4);
-	shader->loadInt("u_normal", 5);
-	shader->loadInt("u_beckmann", 6);
+	shader->loadInt("u_albedo", 8);
+	shader->loadInt("u_normal", 9);
+	shader->loadInt("u_beckmann", 10);
 
-	Globals::textureManager.get("albedo").bind(4);
-	Globals::textureManager.get("normal").bind(5);
-	Globals::textureManager.get("beckmann").bind(6);
+	Globals::textureManager.get("albedo").bind(8);
+	Globals::textureManager.get("normal").bind(9);
+	Globals::textureManager.get("beckmann").bind(10);
 	m_statue.drawRaw();
 
 	shader->unuse();
 
 	m_mainRT.unbind();
 	prevViewProj = currViewProj;
-	glDisable(GL_DEPTH_TEST);
 }
 
 void Separable::sssPass() {
@@ -404,18 +431,40 @@ void Separable::sssPass() {
 	m_sssYRT.unbind();
 }
 
-void Separable::OnMouseMotion(Event::MouseMoveEvent& event) {
+void Separable::addSpecular() {
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_ONE, GL_ONE);
+	m_sss ? m_sssYRT.bindWrite() : m_mainRT.bindWrite();
+	auto shader = Globals::shaderManager.getAssetPointer("spec_sep");
+	shader->use();
+	shader->loadInt("u_texture", 0);
+	m_mainRT.bindColorTexture(1u, 0u, true);
+	Globals::shapeManager.get("quad").drawRaw();
+	shader->unuse();
+	m_sss ? m_sssYRT.unbind() : m_mainRT.unbind();
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glDisable(GL_BLEND);
+}
 
+void Separable::OnMouseMotion(Event::MouseMoveEvent& event) {
+	m_trackball.motion(event.x, event.y);
+	applyTransformation(m_trackball);
 }
 
 void Separable::OnMouseButtonDown(Event::MouseButtonEvent& event) {
-	if (event.button == 2u) {
+	if (event.button == 1u) {
+		m_trackball.mouse(TrackBall::Button::ELeftButton, TrackBall::Modifier::ENoModifier, true, event.x, event.y);
+		applyTransformation(m_trackball);
+	}else if (event.button == 2u) {
 		Mouse::instance().attach(Application::GetWindow());
 	}
 }
 
 void Separable::OnMouseButtonUp(Event::MouseButtonEvent& event) {
-	if (event.button == 2u) {
+	if (event.button == 1u) {
+		m_trackball.mouse(TrackBall::Button::ELeftButton, TrackBall::Modifier::ENoModifier, false, event.x, event.y);
+		applyTransformation(m_trackball);
+	}else if (event.button == 2u) {
 		Mouse::instance().detach();
 	}
 }
@@ -437,6 +486,10 @@ void Separable::OnKeyDown(Event::KeyboardEvent& event) {
 
 void Separable::OnKeyUp(Event::KeyboardEvent& event) {
 
+}
+
+void Separable::applyTransformation(TrackBall& arc) {
+	m_transform.fromMatrix(arc.getTransform());
 }
 
 void Separable::resize(int deltaW, int deltaH) {
@@ -490,12 +543,14 @@ void Separable::renderUi() {
 	ImGui::Checkbox("Show Blurradius", &m_showBlurRadius);
 	ImGui::SliderFloat("SSS Width", &m_sssWidth, 0.0f, 1000.0f);
 	ImGui::SliderFloat("Translucency", &m_translucency, 0.0f, 1.0f);
-	ImGui::SliderFloat("Weight", &m_weight, 1.0f, 100.0f);
-
 	ImGui::SliderFloat("Specular Intensity", &m_specularIntensity, 0.0f, 1.0f);
 	ImGui::SliderFloat("Specular Roughness", &m_specularRoughness, 0.0f, 1.0f);
 	ImGui::SliderFloat("Specular Fresnel", &m_specularFresnel, 0.0f, 1.0f);
+	ImGui::Checkbox("Add Specular", &m_addSpecular);
+	
+	ImGui::NewLine();
 	ImGui::SliderFloat("Scale", &m_scale, 1.0f, 50.0f);
+	ImGui::SliderFloat("Weight", &m_weight, 1.0f, 100.0f);
 	if (ImGui::ColorEdit3("color", m_color)) {
 		lights[1].color[0] = m_color[0];
 		lights[1].color[1] = m_color[1];

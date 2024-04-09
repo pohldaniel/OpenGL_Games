@@ -744,9 +744,10 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("irradiance", "res/shader/SSS/irradiance.vert", "res/shader/SSS/irradiance.frag");
 	Globals::shaderManager.loadShader("distance", "res/shader/SSS/distance.vert", "res/shader/SSS/distance.frag");
 
-	Globals::shaderManager.loadShader("depth_sep", "res/shader/SSS/depth.vert", "res/shader/SSS/depth.frag");
-	Globals::shaderManager.loadShader("main_sep", "res/shader/SSS/Main.vert", "res/shader/SSS/Main.frag");
-	Globals::shaderManager.loadShader("sss_sep", "res/shader/SSS/SparableSSS.vert", "res/shader/SSS/SparableSSS.frag");
+	Globals::shaderManager.loadShader("depth_sep", "res/shader/SSS/depth_sep.vert", "res/shader/SSS/depth_sep.frag");
+	Globals::shaderManager.loadShader("main_sep", "res/shader/SSS/main_sep.vert", "res/shader/SSS/main_sep.frag");
+	Globals::shaderManager.loadShader("sss_sep", "res/shader/SSS/sss_sep.vert", "res/shader/SSS/sss_sep.frag");
+	Globals::shaderManager.loadShader("spec_sep", "res/shader/SSS/specular_sep.vert", "res/shader/SSS/specular_sep.frag");
 
 	Globals::shaderManager.loadShader("depth_gems", "res/shader/SSS/depth_gems.vert", "res/shader/SSS/depth_gems.frag");
 	Globals::shaderManager.loadShader("main_gems", "res/shader/SSS/main_gems.vert", "res/shader/SSS/main_gems.frag");	

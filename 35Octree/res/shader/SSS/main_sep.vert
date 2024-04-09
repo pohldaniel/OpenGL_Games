@@ -23,17 +23,17 @@ layout(location = 3) in vec3 i_tangent;
 layout(location = 4) in vec3 i_bitangent;
 
 
-varying vec3 v_normal;
-varying vec3 v_tangent;
-varying vec3 v_bitangent;
-varying vec2 v_texCoord;
-varying vec3 v_worldPosition;
-varying vec3 v_view;
-varying vec4 sv_position;
-varying vec4 v_currPosition;
-varying vec4 v_prevPosition;
+out vec3 v_normal;
+out vec3 v_tangent;
+out vec3 v_bitangent;
+out vec2 v_texCoord;
+out vec3 v_worldPosition;
+out vec3 v_view;
+out vec4 sv_position;
+out vec4 v_currPosition;
+out vec4 v_prevPosition;
 
-varying vec4 sc[4];
+out vec4 sc[4];
 
 
 void main(){    

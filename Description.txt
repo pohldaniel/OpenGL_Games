@@ -64,3 +64,5 @@ https://gist.github.com/greggman/41d93c00649cba78abdbfc1231c9158c
 https://github.com/mrdoob/three.js/blob/dev/examples/webgl_materials_subsurface_scattering.html
 https://github.com/mrdoob/three.js/blob/dev/examples/jsm/shaders/SubsurfaceScatteringShader.js
 https://github.com/mrdoob/three.js/blob/dev/src/renderers/shaders/ShaderLib/meshphong.glsl.js
+
+https://www.codeproject.com/Articles/156323/Stencil-Buffer-Glows-Part-2

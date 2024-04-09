@@ -1,5 +1,7 @@
 #version 410 core
 
+#define SEPARATE_SPECULARS 1
+
 layout (location = 0) out vec4  outColor;
 layout (location = 1) out vec4  outSpecularColor;
 layout (location = 2) out float outDepth;
@@ -9,10 +11,11 @@ layout (location = 4) out vec4  outTransmittance;
 uniform float near = 1.0; 
 uniform float far  = 100.0; 
 
-uniform sampler2D u_shadowMap[4];
+uniform sampler2D u_depthMap[4];
 uniform sampler2D u_albedo;
 uniform sampler2D u_normal;
 uniform sampler2D u_beckmann;
+uniform sampler2DShadow u_shadowMap[4];
 
 uniform float bumpiness = 0.89;
 uniform float specularIntensity = 0.85;
@@ -43,17 +46,17 @@ uniform mat4 u_projectionShadow[4];
 uniform mat4 u_viewShadow[4];
 uniform mat4 u_projectionShadowBias[4];
 
-varying vec3 v_normal;
-varying vec3 v_tangent;
-varying vec3 v_bitangent;
-varying vec2 v_texCoord;
-varying vec3 v_worldPosition;
-varying vec3 v_view;
-varying vec4 sv_position;
-varying vec4 v_currPosition;
-varying vec4 v_prevPosition;
+in vec3 v_normal;
+in vec3 v_tangent;
+in vec3 v_bitangent;
+in vec2 v_texCoord;
+in vec3 v_worldPosition;
+in vec3 v_view;
+in vec4 sv_position;
+in vec4 v_currPosition;
+in vec4 v_prevPosition;
 
-varying vec4 sc[4];
+in vec4 sc[4];
 
 const vec3 weights[5] = vec3[5](
 	vec3(0.153845, 0.159644, 0.01224),
@@ -100,11 +103,28 @@ float SpecularKSK(sampler2D beckmannTex, vec3 normal, vec3 light, vec3 view, flo
 float Shadow(vec3 worldPosition, int i) {
     vec4 shadowPosition = u_projectionShadowBias[i] * u_viewShadow[i] * vec4(worldPosition, 1.0);
     shadowPosition.xy /= shadowPosition.w;
-    shadowPosition.z += lightBias;
-	if(texture2D(u_shadowMap[i], shadowPosition.xy).r < shadowPosition.z / lightFarPlane)
-		return 0.5;
+    shadowPosition.z += lightBias;	
+	return texture(u_shadowMap[i], vec3(shadowPosition.xy, shadowPosition.z / lightFarPlane));
+}
+
+float ShadowPCF(vec3 worldPosition, int i, int samples, float width) {
+	vec4 shadowPosition = u_projectionShadowBias[i] * u_viewShadow[i] * vec4(worldPosition, 1.0);
+    shadowPosition.xy /= shadowPosition.w;
+    shadowPosition.z += lightBias;	
 	
-	return 1.0;
+	ivec2 size = textureSize(u_shadowMap[i], 0);
+	
+	float shadow = 0.0;
+    float offset = (samples - 1.0) / 2.0;
+	
+	for (float x = -offset; x <= offset; x += 1.0) {
+        for (float y = -offset; y <= offset; y += 1.0) {
+            vec2 pos = shadowPosition.xy + width * vec2(x, y) / float(size.x);
+            shadow += texture(u_shadowMap[i], vec3(shadowPosition.xy, shadowPosition.z / lightFarPlane));
+        }
+    }
+    shadow /= samples * samples;
+    return shadow;
 }
 
 float getDepthPassSpaceZ(float z_ndc, float near, float far){
@@ -116,16 +136,13 @@ vec3 SSSSTransmittance( float translucency, float sssWidth, vec3 worldNormal, ve
 
 	float scale = (1.0 /u_scale) * sssWidth * (1.0 - translucency);
 
-	vec4 ndc = shadowPos/shadowPos.w;
-	float zIn =  texture2D(shadowMap, ndc.xy ).r;
-	float zOut = ndc.z;
+	float zIn =  texture2DProj(shadowMap, shadowPos).r;
+	float zOut = shadowPos.z/shadowPos.w;
 
 	zIn = getDepthPassSpaceZ(zIn, 1.0, 100.0);
 	zOut = getDepthPassSpaceZ(zOut, 1.0, 100.0);
 
-	//float d =  scale * texture2D(shadowMap, ndc.xy ).r * 100.0;
 	float d = scale *( zOut - zIn); 
-
 	float dd = -d * d;
 
 	vec3 profile = 	 weights[0] * exp(dd / variances[0]) +
@@ -188,21 +205,25 @@ void main(){
 			// And the spot light falloff:
 			spot = clamp((spot - lightFalloffStart[i]) / lightFalloffWidth, 0.0, 1.0);
 			 
-			 // Calculate some terms we will use later on:
-			 vec3 f1 = lightColor[i] * attenuation * spot;
-             vec3 f2 = albedo.rgb * f1;
+			// Calculate some terms we will use later on:
+			vec3 f1 = lightColor[i] * attenuation * spot;
+            vec3 f2 = albedo.rgb * f1;
 
 			 // Calculate the diffuse and specular lighting:
-             vec3 diffuse = vec3(clamp(dot(light, normal) , 0.0, 1.0));
+            vec3 diffuse = vec3(clamp(dot(light, normal) , 0.0, 1.0));
 			 
 			float specular = intensity * SpecularKSK(u_beckmann, normal, light, view, roughness);
-            float shadow = Shadow(v_worldPosition, i);
-			shadow = 1.0;
+            //float shadow = Shadow(v_worldPosition, i);
+			float shadow = ShadowPCF(v_worldPosition, i, 3, 1.0);
 			
-			outSpecularColor.rgb += shadow * f1 * specular;
+			#ifdef SEPARATE_SPECULARS
+            outColor.rgb += shadow * f2 * diffuse;
+            outSpecularColor.rgb += shadow * f1 * specular;
+            #else
+            outColor.rgb += shadow * (f2 * diffuse + f1 * specular);
+            #endif
 			
-			outColor.rgb += shadow * (f2 * diffuse + f1 * specular);
-			vec3 transmittance = SSSSTransmittance(translucency, sssWidth, normalize(v_normal), light, u_shadowMap[i], sc[i]);
+			vec3 transmittance = SSSSTransmittance(translucency, sssWidth, normalize(v_normal), light, u_depthMap[i], sc[i]);
 			
 			outTransmittance.rgb += transmittance;			
 			outColor.rgb += f2 * albedo.a * transmittance * weight;

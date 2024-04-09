@@ -1599,6 +1599,13 @@ void Texture::setAnisotropy(float aniso) const {
 	glBindTexture(m_target, 0);
 }
 
+void Texture::setCompareFunc(unsigned int func) const {
+	glBindTexture(m_target, m_texture);
+	glTexParameteri(m_target, GL_TEXTURE_COMPARE_FUNC, func);
+	glTexParameteri(m_target, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
+	glBindTexture(m_target, 0);
+}
+
 void Texture::Bind(unsigned int textureRef, unsigned int unit, unsigned int target, bool forceBind) {
 	if (ActiveTextures[unit] != textureRef || forceBind) {
 		ActiveTextures[unit] = textureRef;
@@ -1644,6 +1651,13 @@ void Texture::SetWrapMode(const unsigned int& textureRef, unsigned int mode, uns
 		glTexParameteri(target, GL_TEXTURE_WRAP_T, mode);
 		glBindTexture(target, 0);
 	}
+}
+
+void Texture::SetCompareFunc(const unsigned int& textureRef, unsigned int func, unsigned int target) {
+	glBindTexture(target, textureRef);
+	glTexParameteri(target, GL_TEXTURE_COMPARE_FUNC, func);
+	glTexParameteri(target, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
+	glBindTexture(target, 0);
 }
 
 void Texture::ArrayTo3D(const unsigned int& textureRef1, unsigned int& textureRef2) {
