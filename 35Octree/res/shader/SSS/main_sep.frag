@@ -179,7 +179,7 @@ void main(){
 	vec3 view = normalize(v_view);
    
 	vec4 albedo = texture2D(u_albedo, v_texCoord);
-	albedo.rgb *= vertColor.rgb * (1.0 /weight);
+	albedo.rgb = albedo.rgb * vertColor.rgb * (1.0 /weight);
 	vec3 specularAO = vec3(0.6, 0.2, 0.9);
 
 	float occlusion = specularAO.b;

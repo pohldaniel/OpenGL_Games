@@ -118,10 +118,11 @@ Separable::Separable(StateMachine& machine) : State(machine, States::SEPARABLE) 
 	glBindSampler(10, sampler4);
 
 
-	m_color[0] = lights[1].color[0]; m_color[1] = lights[1].color[1]; m_color[2] = lights[1].color[2];
+	m_lightColor[0] = lights[1].color[0]; m_lightColor[1] = lights[1].color[1]; m_lightColor[2] = lights[1].color[2];
 
 	m_mainRT.create(Application::Width, Application::Height);
 	m_mainRT.attachTexture2D(AttachmentTex::SRGBA);
+	//I use a hdr/RGBA32F texture cuz the sss strength could be greater one. According to the reference this should be SRGBA as well.
 	m_mainRT.attachTexture2D(AttachmentTex::RGBA32F);
 	m_mainRT.attachTexture2D(AttachmentTex::RED32F);
 	m_mainRT.attachTexture2D(AttachmentTex::RG16F);
@@ -355,7 +356,7 @@ void Separable::renderGBuffer() {
 	shader->loadMatrix("u_view", m_camera.getViewMatrix());
 	shader->loadMatrix("u_model", m_transform.getTransformationMatrix());
 	shader->loadMatrix("u_normalMatrix", Matrix4f::GetNormalMatrix(m_transform.getTransformationMatrix()));
-
+	shader->loadVector("u_color", Vector4f(m_albedoColor[0], m_albedoColor[1], m_albedoColor[2], 1.0f));
 	shader->loadVector("u_cameraPosition", m_camera.getPosition());
 	currViewProj = m_camera.getPerspectiveMatrix() * m_camera.getViewMatrix();
 
@@ -575,11 +576,13 @@ void Separable::renderUi() {
 	ImGui::SliderFloat("Strength", &m_strength, 3.0f, 50.0f);
 	ImGui::SliderFloat("Weight", &m_weight, 1.0f, 100.0f);
 	
-	if (ImGui::ColorEdit3("color", m_color)) {
-		lights[1].color[0] = m_color[0];
-		lights[1].color[1] = m_color[1];
-		lights[1].color[2] = m_color[2];
+	if (ImGui::ColorEdit3("Light Color", m_lightColor)) {
+		lights[1].color[0] = m_lightColor[0];
+		lights[1].color[1] = m_lightColor[1];
+		lights[1].color[2] = m_lightColor[2];
 	}
+
+	ImGui::ColorEdit3("Albedo Color", m_albedoColor);		
 	ImGui::End();
 
 	ImGui::Render();
