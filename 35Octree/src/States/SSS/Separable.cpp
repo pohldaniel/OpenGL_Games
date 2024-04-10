@@ -122,7 +122,7 @@ Separable::Separable(StateMachine& machine) : State(machine, States::SEPARABLE) 
 
 	m_mainRT.create(Application::Width, Application::Height);
 	m_mainRT.attachTexture2D(AttachmentTex::SRGBA);
-	m_mainRT.attachTexture2D(AttachmentTex::SRGBA);
+	m_mainRT.attachTexture2D(AttachmentTex::RGBA32F);
 	m_mainRT.attachTexture2D(AttachmentTex::RED32F);
 	m_mainRT.attachTexture2D(AttachmentTex::RG16F);
 	m_mainRT.attachTexture2D(AttachmentTex::RGBA);
@@ -130,16 +130,17 @@ Separable::Separable(StateMachine& machine) : State(machine, States::SEPARABLE) 
 
 	m_sssXRT.create(Application::Width, Application::Height);
 	m_sssXRT.attachTexture2D(AttachmentTex::RGBA);
+	m_sssXRT.attachTexture(m_mainRT.getDepthStencilTexture(), Attachment::DEPTH_STENCIL);
 
 	m_sssYRT.create(Application::Width, Application::Height);
 	m_sssYRT.attachTexture2D(AttachmentTex::RGBA);
+	m_sssYRT.attachTexture(m_mainRT.getDepthStencilTexture(), Attachment::DEPTH_STENCIL);
 
 	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 	glClearDepth(1.0f);
+	glClearStencil(0);
 
-	glClearDepth(1.0f);
 	glDisable(GL_BLEND);
-	
 }
 
 Separable::~Separable() {
@@ -331,14 +332,22 @@ void Separable::shdowPass() {
 
 void Separable::renderGBuffer() {
 
+	if (!m_showBlurRadius) {
+		glEnable(GL_STENCIL_TEST);
+		glStencilFunc(GL_ALWAYS, 1, 0xFF);
+		glStencilMask(0xFF);
+	}
+
 	m_mainRT.bind();
-	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-	glClearDepth(1.0);
-	glClearStencil(0);
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-	//glClearTexImage(m_mainRT.getColorTexture(5), 0, GL_RED, GL_FLOAT, clear);
-	glClearBufferfv(GL_COLOR, 5, clear);
+	glClearTexImage(m_mainRT.getColorTexture(5), 0, GL_RED, GL_FLOAT, clear);
+	//glClearBufferfv(GL_COLOR, 5, clear);
+
+	glClearTexImage(m_mainRT.getColorTexture(1), 0, GL_RGBA, GL_FLOAT, m_spec);
+	//glClearTexImage(m_mainRT.getColorTexture(1), 0, GL_RGBA, GL_UNSIGNED_BYTE, m_specu);
+
+	
 	auto shader = Globals::shaderManager.getAssetPointer("main_sep");
 	shader->use();
 	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
@@ -359,7 +368,8 @@ void Separable::renderGBuffer() {
 	shader->loadFloat("specularRoughness", m_specularRoughness);
 	shader->loadFloat("specularFresnel", m_specularFresnel);
 	shader->loadFloat("weight", m_weight);
-	shader->loadFloat("u_scale", m_scale);
+	shader->loadFloat("u_strength", m_strength);
+
 	for (int i = 0; i < 4; i++) {
 		shader->loadMatrix(std::string("u_projectionShadowBias[" + std::to_string(i) + "]").c_str(), Matrix4f::BIAS * lights[i].m_shadowProjection);
 		shader->loadMatrix(std::string("u_projectionShadow[" + std::to_string(i) + "]").c_str(), lights[i].m_shadowProjection);
@@ -390,9 +400,19 @@ void Separable::renderGBuffer() {
 
 	m_mainRT.unbind();
 	prevViewProj = currViewProj;
+
+	if (!m_showBlurRadius) {
+		glDisable(GL_STENCIL_TEST);
+	}
 }
 
 void Separable::sssPass() {
+	if (!m_showBlurRadius) {
+		glEnable(GL_STENCIL_TEST);
+		glStencilFunc(GL_EQUAL, 1, 0xFF);
+		glStencilMask(0x00);
+	}
+
 	m_sssXRT.bind();
 
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -403,7 +423,6 @@ void Separable::sssPass() {
 	shader->loadVector("dir", Vector2f((GLfloat)Application::Height / (GLfloat)Application::Width, 0.0f));
 	shader->loadFloat("u_showBlurRadius", m_showBlurRadius);
 	shader->loadFloat("sssWidth", m_sssWidth);
-	shader->loadFloat("u_scale", m_scale);
 
 	shader->loadInt("u_colorTex", 0);
 	shader->loadInt("u_strengthTex", 1);
@@ -429,6 +448,10 @@ void Separable::sssPass() {
 
 	shader->unuse();
 	m_sssYRT.unbind();
+
+	if (!m_showBlurRadius) {
+		glDisable(GL_STENCIL_TEST);
+	}
 }
 
 void Separable::addSpecular() {
@@ -541,7 +564,7 @@ void Separable::renderUi() {
 	ImGui::Checkbox("Draw Wirframe", &StateMachine::GetEnableWireframe());
 	ImGui::Checkbox("SSS", &m_sss);
 	ImGui::Checkbox("Show Blurradius", &m_showBlurRadius);
-	ImGui::SliderFloat("SSS Width", &m_sssWidth, 0.0f, 1000.0f);
+	ImGui::SliderFloat("SSS Width", &m_sssWidth, 50.0f, 1000.0f);
 	ImGui::SliderFloat("Translucency", &m_translucency, 0.0f, 1.0f);
 	ImGui::SliderFloat("Specular Intensity", &m_specularIntensity, 0.0f, 1.0f);
 	ImGui::SliderFloat("Specular Roughness", &m_specularRoughness, 0.0f, 1.0f);
@@ -549,8 +572,9 @@ void Separable::renderUi() {
 	ImGui::Checkbox("Add Specular", &m_addSpecular);
 	
 	ImGui::NewLine();
-	ImGui::SliderFloat("Scale", &m_scale, 1.0f, 50.0f);
+	ImGui::SliderFloat("Strength", &m_strength, 3.0f, 50.0f);
 	ImGui::SliderFloat("Weight", &m_weight, 1.0f, 100.0f);
+	
 	if (ImGui::ColorEdit3("color", m_color)) {
 		lights[1].color[0] = m_color[0];
 		lights[1].color[1] = m_color[1];

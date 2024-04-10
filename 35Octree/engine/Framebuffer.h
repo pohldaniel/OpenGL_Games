@@ -73,7 +73,7 @@ public:
 	void create();
 	void create(unsigned int width, unsigned int height);
 	void attachTexture2D(AttachmentTex::AttachmentTex attachment);
-	void attachTexture(unsigned int& texture, Attachment::Attachment attachment = Attachment::Attachment::COLOR, Target::Target target = Target::Target::TEXTURE2D, unsigned short layer = 0);
+	void attachTexture(const unsigned int& texture, Attachment::Attachment attachment = Attachment::Attachment::COLOR, Target::Target target = Target::Target::TEXTURE2D, unsigned short layer = 0);
 
 	void attachLayerdTexture(AttachmentTex::AttachmentTex attachment, unsigned short layer);
 	void attachRenderbuffer(AttachmentRB::AttachmentRB attachment, unsigned int samples = 0u, unsigned int coverageSamples = 0u);

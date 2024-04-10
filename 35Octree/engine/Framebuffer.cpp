@@ -334,7 +334,7 @@ void Framebuffer::attachTexture2D(AttachmentTex::AttachmentTex _attachment) {
 	}
 }
 
-void Framebuffer::attachTexture(unsigned int& texture, Attachment::Attachment _attachment, Target::Target target, unsigned short layer) {
+void Framebuffer::attachTexture(const unsigned int& texture, Attachment::Attachment _attachment, Target::Target target, unsigned short layer) {
 	unsigned int attachment;
 
 	switch (_attachment) {

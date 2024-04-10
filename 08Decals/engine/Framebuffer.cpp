@@ -264,8 +264,7 @@ void Framebuffer::attachTexture(Attachments attachments, unsigned int& _texture)
 		glReadBuffer(GL_FRONT);
 		glBindFramebuffer(m_colorAttachments == 1 ? GL_FRAMEBUFFER : GL_DRAW_FRAMEBUFFER, 0);
 
-	}
-	else {
+	}else {
 		glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, GL_TEXTURE_2D, _texture, 0);
 		if (m_colorAttachments == 0) {

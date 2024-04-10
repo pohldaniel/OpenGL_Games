@@ -5,11 +5,7 @@ uniform sampler2D u_strengthTex;
 uniform sampler2D u_depthTex;
 
 uniform float sssWidth = 200.0;
-uniform float u_scale = 1.0;
-uniform float id = 1.0;
 uniform vec2 dir;
-uniform bool initStencil = false;
-uniform bool u_showBlurRadius = false;
 
 in vec2 v_texCoord;
 
@@ -72,9 +68,6 @@ void main(void){
 
 	vec4 colorM = texture2D( u_colorTex, v_texCoord);		
 	float strength = texture2D(u_strengthTex, v_texCoord).a;
-	
-	if (strength == 0.0 && !u_showBlurRadius) discard;
-	
 	float depthM = getDepthPassSpaceZ(texture2D(u_depthTex, v_texCoord).r, 0.1, 100.0);
 	
 	vec2 imageSize = textureSize(u_colorTex, 0); 
@@ -84,8 +77,8 @@ void main(void){
     float scale = distanceToProjectionWindow / depthM;
 
 	
-    vec2 finalStep = scale * dir * u_scale;
-	finalStep = u_showBlurRadius ? finalStep : finalStep * strength;
+    vec2 finalStep = scale * dir;
+	finalStep *= strength;
     finalStep *= 1.0 / (2.0 * sssWidth); 
 
     colorBlurred = colorM;
@@ -98,6 +91,4 @@ void main(void){
 		
 		colorBlurred.rgb += kernel2[i].xyz * color.rgb;
 	}
-	
-	//colorBlurred = vec4(strength, strength, strength, 1.0);
 }

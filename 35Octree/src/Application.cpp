@@ -29,6 +29,8 @@
 #include <States/SSS/SSSOGLP.h>
 #include <States/SSS/Separable.h>
 
+#include <States/Stencil/Stencil1.h>
+
 #include "Application.h"
 #include "Globals.h"
 
@@ -432,6 +434,7 @@ void Application::initStates() {
 	//Machine->addStateAtTop(new SSSGems(*Machine));
 	//Machine->addStateAtTop(new SSSOGLP(*Machine));	
 	Machine->addStateAtTop(new Separable(*Machine));
+	//Machine->addStateAtTop(new Stencil1(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -754,6 +757,8 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("depth_oglp", "res/shader/SSS/depth_oglp.vert", "res/shader/SSS/depth_oglp.frag");
 	Globals::shaderManager.loadShader("main_oglp", "res/shader/SSS/main_oglp.vert", "res/shader/SSS/main_oglp.frag", "res/shader/SSS/main_oglp.gem");
 
+	Globals::shaderManager.loadShader("stencil_1", "res/shader/Stencil/stencil_1.vert", "res/shader/Stencil/stencil_1.frag");
+
 	Globals::fontManager.loadCharacterSet("upheaval_200", "res/fonts/upheavtt.ttf", 200, 0, 30, 128, 0, true, 0u);
 	Globals::fontManager.loadCharacterSet("upheaval_50", "res/fonts/upheavtt.ttf", 50, 0, 3, 0, 0, true, 0u);
 
@@ -807,6 +812,7 @@ void Application::loadAssets() {
 	Globals::shapeManager.buildCube("cube", Vector3f(-1.0f, -1.0f, -1.0f), Vector3f(2.0f, 2.0f, 2.0f), 1, 1, true, true, false);
 	Globals::shapeManager.get("cube").createBoundingBox();
 	Globals::shapeManager.buildQuadXY("quad", Vector3f(-1.0f, -1.0f, 0.0f), Vector2f(2.0f, 2.0f), 1, 1, true, false, false);
+	Globals::shapeManager.buildQuadXZ("quad_xz", Vector3f(-1.0f, 0.0f, -1.0f), Vector2f(2.0f, 2.0f), 1, 1, true, false, false);
 	Globals::shapeManager.buildTorus("torus", 1.0f, 0.4f, Vector3f(0.0f, 0.0f, 0.0f), 49, 49, true, true, true);
 	Globals::shapeManager.buildTorusKnot("torus_knot", 2.0f, 0.75f, 2, 3, Vector3f(0.0f, 0.0f, 0.0f), 100, 16, true, true, false);
 	Globals::shapeManager.buildQuadXZ("floor", Vector3f(-50.0f, 0.0f, -50.0f), Vector2f(100.0f, 100.0f), 10, 10, true, true, false);

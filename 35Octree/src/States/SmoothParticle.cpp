@@ -204,7 +204,7 @@ void SmoothParticle::render() {
 	if (m_softParticle) {
 		m_depthBuffer.blitBackBufferToDepthTexture();
 
-		glDepthMask(false);
+		glDepthMask(GL_FALSE);
 		updateGeometry();
 		glBlendFunc(GL_ONE, GL_ONE);
 		glBindVertexArray(m_vao);
@@ -230,9 +230,9 @@ void SmoothParticle::render() {
 		shader->unuse();
 		particleBatchPtr = particleBatch;
 		m_particleCount = 0;
-		glDepthMask(true);
+		glDepthMask(GL_TRUE);
 	}else {
-		glDepthMask(false);
+		glDepthMask(GL_FALSE);
 		updateGeometry();
 		glBlendFunc(GL_ONE, GL_ONE);
 		glBindVertexArray(m_vao);
@@ -255,7 +255,7 @@ void SmoothParticle::render() {
 
 		particleBatchPtr = particleBatch;
 		m_particleCount = 0;
-		glDepthMask(true);
+		glDepthMask(GL_TRUE);
 	}
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	if (m_drawUi)

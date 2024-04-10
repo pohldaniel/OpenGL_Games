@@ -22,7 +22,7 @@ uniform float specularIntensity = 0.85;
 uniform float specularRoughness = 0.1;
 uniform float specularFresnel = 0.81;
 uniform float weight = 1.0;
-uniform float u_scale = 1.0;
+uniform float u_strength = 3.0;
 
 uniform vec3 lightPosition[4];
 uniform vec3 lightDirection[4];
@@ -55,6 +55,7 @@ in vec3 v_view;
 in vec4 sv_position;
 in vec4 v_currPosition;
 in vec4 v_prevPosition;
+in vec4 vertColor;
 
 in vec4 sc[4];
 
@@ -134,7 +135,7 @@ float getDepthPassSpaceZ(float z_ndc, float near, float far){
 
 vec3 SSSSTransmittance( float translucency, float sssWidth, vec3 worldNormal, vec3 light, sampler2D shadowMap, vec4 shadowPos){
 
-	float scale = (1.0 /u_scale) * sssWidth * (1.0 - translucency);
+	float scale = 3.0 * (1.0 /u_strength) * sssWidth * (1.0 - translucency);
 
 	float zIn =  texture2DProj(shadowMap, shadowPos).r;
 	float zOut = shadowPos.z/shadowPos.w;
@@ -178,8 +179,7 @@ void main(){
 	vec3 view = normalize(v_view);
    
 	vec4 albedo = texture2D(u_albedo, v_texCoord);
-	//albedo.a = 1.0;
-	albedo.rgb = albedo.rgb * (1.0 /weight);
+	albedo.rgb *= vertColor.rgb * (1.0 /weight);
 	vec3 specularAO = vec3(0.6, 0.2, 0.9);
 
 	float occlusion = specularAO.b;
@@ -189,7 +189,7 @@ void main(){
   
 	// Initialize the output:
 	outColor = vec4(0.0, 0.0, 0.0, 0.0);
-	outSpecularColor = vec4(0.0, 0.0, 0.0, 0.0);
+	outSpecularColor.rgb = vec3(0.0, 0.0, 0.0);
    
 	for(int i = 0; i < 4; i++){
 		vec3 light = lightPosition[i] - v_worldPosition;
@@ -233,7 +233,7 @@ void main(){
     outColor.rgb += occlusion * ambient * albedo.rgb ;
  
 	// Store the SSS strength:
-    outSpecularColor.a = albedo.a;
+	outSpecularColor.a = albedo.a * u_strength;
 
     // Store the depth value:
     outDepth = gl_FragCoord.z;

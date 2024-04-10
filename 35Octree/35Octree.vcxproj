@@ -234,6 +234,7 @@
     <ClCompile Include="src\States\SSS\SSSGems.cpp" />
     <ClCompile Include="src\States\SSS\SSSOGLP.cpp" />
     <ClCompile Include="src\States\StateMachine.cpp" />
+    <ClCompile Include="src\States\Stencil\Stencil1.cpp" />
     <ClCompile Include="src\Utils\Rasterizer.cpp" />
     <ClCompile Include="engine\ArrayBuffer.cpp" />
     <ClCompile Include="engine\Batchrenderer.cpp" />
@@ -486,6 +487,7 @@
     <ClInclude Include="src\States\SSS\SSSGems.h" />
     <ClInclude Include="src\States\SSS\SSSOGLP.h" />
     <ClInclude Include="src\States\StateMachine.h" />
+    <ClInclude Include="src\States\Stencil\Stencil1.h" />
     <ClInclude Include="src\Utils\Rasterizer.h" />
     <ClInclude Include="Physics\BspConverter.h" />
     <ClInclude Include="Physics\BspLoader.h" />

@@ -12,7 +12,7 @@ uniform mat4 u_projectionShadowBias[4];
 
 uniform mat4 u_currWorldViewProj;
 uniform mat4 u_prevWorldViewProj;
-
+uniform vec4 u_color = vec4(1.0);
 uniform vec3 u_cameraPosition;
 uniform vec2 u_jitter = vec2(0.0, 0.0);
 
@@ -32,6 +32,7 @@ out vec3 v_view;
 out vec4 sv_position;
 out vec4 v_currPosition;
 out vec4 v_prevPosition;
+out vec4 vertColor;
 
 out vec4 sc[4];
 
@@ -42,6 +43,7 @@ void main(){
 	v_tangent = (u_normalMatrix * vec4(i_tangent, 0.0)).xyz;
 	v_bitangent = (u_normalMatrix * vec4(i_bitangent, 0.0)).xyz;
 	v_texCoord = i_texCoord;
+	vertColor = u_color;
 	
 	v_worldPosition = (u_model * vec4(i_position, 1.0)).xyz;
 	v_view = u_cameraPosition - v_worldPosition;

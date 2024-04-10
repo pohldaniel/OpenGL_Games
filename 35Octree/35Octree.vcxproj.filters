@@ -82,6 +82,9 @@
     <Filter Include="Source Files\States\SSS">
       <UniqueIdentifier>{5d017473-b0f9-4355-a7e2-0ea987f76f8b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\States\Stencil">
+      <UniqueIdentifier>{9e27e0be-66b7-4937-81ba-8887fd084a04}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\input\ApplicationEventListener.cpp">
@@ -473,6 +476,9 @@
     </ClCompile>
     <ClCompile Include="src\States\SSS\SSSOGLP.cpp">
       <Filter>Source Files\States\SSS</Filter>
+    </ClCompile>
+    <ClCompile Include="src\States\Stencil\Stencil1.cpp">
+      <Filter>Source Files\States\Stencil</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1096,6 +1102,9 @@
     </ClInclude>
     <ClInclude Include="src\States\SSS\SSSOGLP.h">
       <Filter>Source Files\States\SSS</Filter>
+    </ClInclude>
+    <ClInclude Include="src\States\Stencil\Stencil1.h">
+      <Filter>Source Files\States\Stencil</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

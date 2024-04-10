@@ -73,13 +73,18 @@ private:
 	bool m_showBlurRadius = false;
 	bool m_debug = true;
 	float m_sssWidth = 100.0f;
-	float m_scale = 10.0f;
-	float m_translucency = 0.4f;
+	float m_translucency = 0.7f;
 	float m_specularIntensity = 1.0f;
 	float m_specularRoughness = 0.08f;
 	float m_specularFresnel = 0.81f;
+
 	float m_weight = 2.0f;
-	const float clear[1] = { 1.0f};
+	float m_strength = 10.0f;
+
 	float m_color[3] = { 1.0f, 1.0f, 1.0f };
+	const float clear[1] = { 1.0f};
+	float m_spec[4] = { 0.0f, 0.0f, 0.0f, m_strength };
+	unsigned int m_specu[4] = { 0, 0, 0, 255 };
+
 	Light lights[4];
 };
