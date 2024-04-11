@@ -1502,6 +1502,10 @@ void Texture::Resize(const unsigned int& textureRef, unsigned int width, unsigne
 	}
 }
 
+unsigned int& Texture::getTextureAccess() {
+	return m_texture;
+}
+
 const unsigned int& Texture::getTexture() const {
 	return m_texture;
 }
@@ -1532,6 +1536,34 @@ unsigned int Texture::getType() const {
 
 unsigned int Texture::getTarget() const {
 	return m_target;
+}
+
+void Texture::setWidth(unsigned int width) {
+	m_width = width;
+}
+
+void Texture::setHeight(unsigned int height) {
+	m_height = height;
+}
+
+void Texture::setChannels(unsigned short channels) {
+	m_channels = channels;
+}
+
+void Texture::setInternalFormat(unsigned int internalFormat) {
+	m_internalFormat = internalFormat;
+}
+
+void Texture::setFormat(unsigned int format) {
+	m_format = format;
+}
+
+void Texture::setType(unsigned int type) {
+	m_type = type;
+}
+
+void Texture::setTarget(unsigned int target) {
+	m_target = target;
 }
 
 void Texture::bind(unsigned int unit, bool forceBind) const {

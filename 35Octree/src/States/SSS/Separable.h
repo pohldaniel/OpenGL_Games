@@ -9,6 +9,7 @@
 #include <engine/TrackBall.h>
 
 #include <States/StateMachine.h>
+#include "nv_dds.h"
 
 #define DEPTH_TEXTURE_SIZE 2048
 
@@ -57,7 +58,7 @@ private:
 	bool m_drawUi = true;
 
 	Camera m_camera;
-	ObjModel m_statue;
+	ObjModel m_statue, m_dragon;
 	TrackBall m_trackball;
 	Transform m_transform;
 
@@ -73,7 +74,7 @@ private:
 	bool m_showBlurRadius = false;
 	bool m_debug = true;
 	float m_sssWidth = 50.0f;
-	float m_translucency = 0.6f;
+	float m_translucency = 0.65f;
 	float m_specularIntensity = 1.0f;
 	float m_specularRoughness = 0.08f;
 	float m_specularFresnel = 0.81f;
@@ -88,4 +89,5 @@ private:
 	unsigned int m_specu[4] = { 0, 0, 0, 255 };
 
 	Light lights[4];
+	int m_currentLight = 0;
 };

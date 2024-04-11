@@ -19,6 +19,7 @@ public:
 	Texture &operator=(const Texture& rhs);
 	~Texture();
 	
+	unsigned int& getTextureAccess();
 	const unsigned int& getTexture() const;
 	const unsigned int& getTextureHandle() const;
 	const unsigned int& makeTextureHandleResident();
@@ -29,6 +30,14 @@ public:
 	unsigned int getFormat() const;
 	unsigned int getType() const;
 	unsigned int getTarget() const;
+
+	void setWidth(unsigned int width);
+	void setHeight(unsigned int height);
+	void setChannels(unsigned short channels);
+	void setInternalFormat(unsigned int internalFormat);
+	void setFormat(unsigned int format);
+	void setType(unsigned int type);
+	void setTarget(unsigned int target);
 
 	void bind(unsigned int unit = 0u, bool forceBind = false) const;
 	void unbind(unsigned int unit = 0u) const;

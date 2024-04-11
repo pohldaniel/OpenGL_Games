@@ -1,0 +1,12 @@
+newmtl Material
+Ns 10.000000
+Ka 0.000000 0.000000 0.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 1
+map_Kd DiffuseMap.dds
+map_bump NormalMap.dds
+map_Kn NormalMap.dds
+#map_Ks SpecularAOMap.dds

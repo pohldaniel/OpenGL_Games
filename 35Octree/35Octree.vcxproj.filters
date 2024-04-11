@@ -480,6 +480,9 @@
     <ClCompile Include="src\States\Stencil\Stencil1.cpp">
       <Filter>Source Files\States\Stencil</Filter>
     </ClCompile>
+    <ClCompile Include="nv_dds.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="convhull\convhull_3d.h">
@@ -1105,6 +1108,9 @@
     </ClInclude>
     <ClInclude Include="src\States\Stencil\Stencil1.h">
       <Filter>Source Files\States\Stencil</Filter>
+    </ClInclude>
+    <ClInclude Include="nv_dds.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

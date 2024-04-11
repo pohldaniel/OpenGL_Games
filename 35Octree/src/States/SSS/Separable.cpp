@@ -17,10 +17,11 @@ Separable::Separable(StateMachine& machine) : State(machine, States::SEPARABLE) 
 	m_camera = Camera();
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 100.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
-	m_camera.lookAt(Vector3f(-1.30592f, 3.5f, 4.11601f), Vector3f(0.00597954f, 3.5f, 0.00461888f), Vector3f(0.0f, 1.0f, 0.0f));
+	m_camera.lookAt(Vector3f(-1.30592f, 3.5f, 24.11601f), Vector3f(0.00597954f, 3.5f, 0.00461888f), Vector3f(0.0f, 1.0f, 0.0f));
 	m_camera.setRotationSpeed(0.1f);
 	m_camera.setMovingSpeed(5.0f);
 	
+	Vector3f center = Vector3f(0.0f, 5.0f, 2.5034e-06f);
 
 	Globals::textureManager.loadTexture("albedo", "res/models/statue/statue_d.bmp", true);
 	Globals::textureManager.loadTexture("normal", "res/models/statue/statue_n.bmp", true);
@@ -40,11 +41,11 @@ Separable::Separable(StateMachine& machine) : State(machine, States::SEPARABLE) 
 	m_trackball.reshape(Application::Width, Application::Height);
 	applyTransformation(m_trackball);
 
-	lights[0].color = Vector3f(0.3f, 0.3f, 0.3f);
+	lights[0].color = Vector3f(1.0f, 1.0f, 1.0f);
 	lights[0].pos = Vector3f(0.0f, 5.0f, 8.0f);
-	lights[0].viewDirection = Vector3f::Normalize(m_transform.getTransformationMatrix() * m_statue.getCenter() - lights[0].pos);
+	lights[0].viewDirection = Vector3f::Normalize(m_transform.getTransformationMatrix() * center - lights[0].pos);
 	lights[0].m_shadowProjection.perspective(45.0f, 1.0, 1.0f, 100.0f);
-	lights[0].m_shadowView.lookAt(lights[0].pos, m_transform.getTransformationMatrix() * m_statue.getCenter(), Vector3f(0.0f, 1.0f, 0.0f));
+	lights[0].m_shadowView.lookAt(lights[0].pos, m_transform.getTransformationMatrix() * center, Vector3f(0.0f, 1.0f, 0.0f));
 	lights[0].m_depthRT.create(DEPTH_TEXTURE_SIZE, DEPTH_TEXTURE_SIZE);
 	lights[0].m_depthRT.attachTexture2D(AttachmentTex::DEPTH32F);
 
@@ -54,11 +55,11 @@ Separable::Separable(StateMachine& machine) : State(machine, States::SEPARABLE) 
 	lights[0].farPlane = 100.0f;
 	lights[0].bias = -0.01f;
 
-	lights[1].color = Vector3f(0.0f, 1.0f, 0.5f);
+	lights[1].color = Vector3f(1.0f, 1.0f, 1.0f);
 	lights[1].pos = Vector3f(0.0f, 5.0f, -8.0f);
-	lights[1].viewDirection = Vector3f::Normalize(m_transform.getTransformationMatrix() * m_statue.getCenter() - lights[1].pos);
+	lights[1].viewDirection = Vector3f::Normalize(m_transform.getTransformationMatrix() * center - lights[1].pos);
 	lights[1].m_shadowProjection.perspective(45.0f, 1.0, 1.0f, 100.0f);
-	lights[1].m_shadowView.lookAt(lights[1].pos, m_transform.getTransformationMatrix() * m_statue.getCenter(), Vector3f(0.0f, 1.0f, 0.0f));
+	lights[1].m_shadowView.lookAt(lights[1].pos, m_transform.getTransformationMatrix() * center, Vector3f(0.0f, 1.0f, 0.0f));
 	lights[1].m_depthRT.create(DEPTH_TEXTURE_SIZE, DEPTH_TEXTURE_SIZE);
 	lights[1].m_depthRT.attachTexture2D(AttachmentTex::DEPTH32F);
 
@@ -68,11 +69,11 @@ Separable::Separable(StateMachine& machine) : State(machine, States::SEPARABLE) 
 	lights[1].farPlane = 100.0f;
 	lights[1].bias = -0.01f;
 
-	lights[2].color = Vector3f(0.3f, 0.3f, 0.3f);
+	lights[2].color = Vector3f(1.0f, 1.0f, 1.0f);
 	lights[2].pos = Vector3f(8.0f, 5.0f, 0.0f);
-	lights[2].viewDirection = Vector3f::Normalize(m_transform.getTransformationMatrix() * m_statue.getCenter() - lights[2].pos);
+	lights[2].viewDirection = Vector3f::Normalize(m_transform.getTransformationMatrix() * center - lights[2].pos);
 	lights[2].m_shadowProjection.perspective(45.0f, 1.0, 1.0f, 100.0f);
-	lights[2].m_shadowView.lookAt(lights[1].pos, m_transform.getTransformationMatrix() * m_statue.getCenter(), Vector3f(0.0f, 1.0f, 0.0f));
+	lights[2].m_shadowView.lookAt(lights[1].pos, m_transform.getTransformationMatrix() * center, Vector3f(0.0f, 1.0f, 0.0f));
 	lights[2].m_depthRT.create(DEPTH_TEXTURE_SIZE, DEPTH_TEXTURE_SIZE);
 	lights[2].m_depthRT.attachTexture2D(AttachmentTex::DEPTH32F);
 
@@ -82,11 +83,11 @@ Separable::Separable(StateMachine& machine) : State(machine, States::SEPARABLE) 
 	lights[2].farPlane = 100.0f;
 	lights[2].bias = -0.01f;
 
-	lights[3].color = Vector3f(0.3f, 0.3f, 0.3f);
+	lights[3].color = Vector3f(1.0f, 1.0f, 1.0f);
 	lights[3].pos = Vector3f(-8.0f, 5.0f, 0.0f);
-	lights[3].viewDirection = Vector3f::Normalize(m_transform.getTransformationMatrix() * m_statue.getCenter() - lights[3].pos);
+	lights[3].viewDirection = Vector3f::Normalize(m_transform.getTransformationMatrix() * center - lights[3].pos);
 	lights[3].m_shadowProjection.perspective(45.0f, 1.0, 1.0f, 100.0f);
-	lights[3].m_shadowView.lookAt(lights[1].pos, m_transform.getTransformationMatrix() * m_statue.getCenter(), Vector3f(0.0f, 1.0f, 0.0f));
+	lights[3].m_shadowView.lookAt(lights[1].pos, m_transform.getTransformationMatrix() * center, Vector3f(0.0f, 1.0f, 0.0f));
 	lights[3].m_depthRT.create(DEPTH_TEXTURE_SIZE, DEPTH_TEXTURE_SIZE);
 	lights[3].m_depthRT.attachTexture2D(AttachmentTex::DEPTH32F);
 
@@ -100,22 +101,22 @@ Separable::Separable(StateMachine& machine) : State(machine, States::SEPARABLE) 
 	glGenSamplers(1, &sampler1);
 	glSamplerParameteri(sampler1, GL_TEXTURE_COMPARE_FUNC, GL_LESS);
 	glSamplerParameteri(sampler1, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
-	glBindSampler(7, sampler1);
+	glBindSampler(8, sampler1);
 
 	glGenSamplers(1, &sampler2);
 	glSamplerParameteri(sampler2, GL_TEXTURE_COMPARE_FUNC, GL_LESS);
 	glSamplerParameteri(sampler2, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
-	glBindSampler(8, sampler2);
+	glBindSampler(9, sampler2);
 
 	glGenSamplers(1, &sampler3);
 	glSamplerParameteri(sampler3, GL_TEXTURE_COMPARE_FUNC, GL_LESS);
 	glSamplerParameteri(sampler3, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
-	glBindSampler(9, sampler3);
+	glBindSampler(10, sampler3);
 
 	glGenSamplers(1, &sampler4);
 	glSamplerParameteri(sampler4, GL_TEXTURE_COMPARE_FUNC, GL_LESS);
 	glSamplerParameteri(sampler4, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
-	glBindSampler(10, sampler4);
+	glBindSampler(11, sampler4);
 
 
 	m_lightColor[0] = lights[1].color[0]; m_lightColor[1] = lights[1].color[1]; m_lightColor[2] = lights[1].color[2];
@@ -142,6 +143,77 @@ Separable::Separable(StateMachine& machine) : State(machine, States::SEPARABLE) 
 	glClearStencil(0);
 
 	glDisable(GL_BLEND);
+	//glDisable(GL_CULL_FACE);
+
+	nv_dds::CDDSImage albedo;
+	albedo.load("res/models/Dragon/DiffuseMap.dds");	
+	Globals::textureManager.get("albedo_dragon").setWidth(albedo.get_width());
+	Globals::textureManager.get("albedo_dragon").setHeight(albedo.get_height());
+	Globals::textureManager.get("albedo_dragon").setFormat(albedo.get_format());
+	Globals::textureManager.get("albedo_dragon").setInternalFormat(GL_RGBA8);
+	Globals::textureManager.get("albedo_dragon").setType(GL_UNSIGNED_BYTE);
+	Globals::textureManager.get("albedo_dragon").setTarget(GL_TEXTURE_2D);
+	Globals::textureManager.get("albedo_dragon").setChannels(albedo.get_components());
+
+	glGenTextures(1, &Globals::textureManager.get("albedo_dragon").getTextureAccess());
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, Globals::textureManager.get("albedo_dragon").getTexture());
+	
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, albedo.get_width(), albedo.get_height(), 0, albedo.get_format(), GL_UNSIGNED_BYTE, albedo);
+	
+	for (int i = 0; i < albedo.get_num_mipmaps(); i++){
+		glTexImage2D(GL_TEXTURE_2D, i+1, GL_RGBA8, albedo.get_mipmap(i).get_width(), albedo.get_mipmap(i).get_height(), 0, albedo.get_format(), GL_UNSIGNED_BYTE, albedo.get_mipmap(i));
+	}
+	glBindTexture(GL_TEXTURE_2D, 0);
+	albedo.clear();
+
+	nv_dds::CDDSImage normal;
+	normal.load("res/models/Dragon/NormalMap.dds");
+	Globals::textureManager.get("normal_dragon").setWidth(normal.get_width());
+	Globals::textureManager.get("normal_dragon").setHeight(normal.get_height());
+	Globals::textureManager.get("normal_dragon").setFormat(normal.get_format());
+	Globals::textureManager.get("normal_dragon").setInternalFormat(GL_RGBA8);
+	Globals::textureManager.get("normal_dragon").setType(GL_UNSIGNED_BYTE);
+	Globals::textureManager.get("normal_dragon").setTarget(GL_TEXTURE_2D);
+	Globals::textureManager.get("normal_dragon").setChannels(normal.get_components());
+
+	glGenTextures(1, &Globals::textureManager.get("normal_dragon").getTextureAccess());
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, Globals::textureManager.get("normal_dragon").getTexture());
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, normal.get_width(), normal.get_height(), 0, normal.get_format(), GL_UNSIGNED_BYTE, normal);
+
+	for (int i = 0; i < normal.get_num_mipmaps(); i++) {
+		glTexImage2D(GL_TEXTURE_2D, i + 1, GL_RGBA8, normal.get_mipmap(i).get_width(), normal.get_mipmap(i).get_height(), 0, normal.get_format(), GL_UNSIGNED_BYTE, normal.get_mipmap(i));
+	}
+	glBindTexture(GL_TEXTURE_2D, 0);
+	normal.clear(); 
+
+	nv_dds::CDDSImage specular;
+	specular.load("res/models/Dragon/SpecularAOMap.dds");
+	Globals::textureManager.get("specular_dragon").setWidth(specular.get_width());
+	Globals::textureManager.get("specular_dragon").setHeight(specular.get_height());
+	Globals::textureManager.get("specular_dragon").setFormat(specular.get_format());
+	Globals::textureManager.get("specular_dragon").setInternalFormat(GL_RGBA8);
+	Globals::textureManager.get("specular_dragon").setType(GL_UNSIGNED_BYTE);
+	Globals::textureManager.get("specular_dragon").setTarget(GL_TEXTURE_2D);
+	Globals::textureManager.get("specular_dragon").setChannels(specular.get_components());
+
+	glGenTextures(1, &Globals::textureManager.get("specular_dragon").getTextureAccess());
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, Globals::textureManager.get("specular_dragon").getTexture());
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, specular.get_width(), specular.get_height(), 0, specular.get_format(), GL_UNSIGNED_BYTE, specular);
+
+	for (int i = 0; i < specular.get_num_mipmaps(); i++) {
+		glTexImage2D(GL_TEXTURE_2D, i + 1, GL_RGBA8, specular.get_mipmap(i).get_width(), specular.get_mipmap(i).get_height(), 0, specular.get_format(), GL_UNSIGNED_BYTE, specular.get_mipmap(i));
+	}
+	glBindTexture(GL_TEXTURE_2D, 0);
+	specular.clear();
+
+
+	m_dragon.loadModel("res/models/Dragon/dragon.obj", Vector3f(0.0f, 1.0f, 0.0f), 0.0f, Vector3f(0.0f, 5.0f, 0.0f), 5.0f, false, false, false, false, true);
+	m_dragon.getMesh(0)->setMaterialIndex(-1);
 }
 
 Separable::~Separable() {
@@ -226,6 +298,22 @@ void Separable::update() {
 		m_specularIntensity = std::min(10.0f, m_specularIntensity + 1.0f);
 	}
 
+	if (keyboard.keyPressed(Keyboard::KEY_1)) {
+		m_currentLight = 0;
+	}
+
+	if (keyboard.keyPressed(Keyboard::KEY_2)) {
+		m_currentLight = 1;
+	}
+
+	if (keyboard.keyPressed(Keyboard::KEY_3)) {
+		m_currentLight = 2;
+	}
+
+	if (keyboard.keyPressed(Keyboard::KEY_4)) {
+		m_currentLight = 3;
+	}
+
 	Mouse &mouse = Mouse::instance();
 
 	if (mouse.buttonDown(Mouse::MouseButton::BUTTON_RIGHT)) {
@@ -248,6 +336,8 @@ void Separable::update() {
 };
 
 void Separable::render() {
+	
+
 	glEnable(GL_FRAMEBUFFER_SRGB);
 	shdowPass();
 	renderGBuffer();
@@ -309,6 +399,22 @@ void Separable::render() {
 	}
 	glDisable(GL_FRAMEBUFFER_SRGB);
 
+	/*glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+	shader = Globals::shaderManager.getAssetPointer("texture");
+	shader->use();
+	shader->loadMatrix("u_projection", Matrix4f::IDENTITY);
+	shader->loadMatrix("u_view", Matrix4f::IDENTITY);
+	shader->loadMatrix("u_model", Matrix4f::IDENTITY);
+	shader->loadInt("u_texture", 0);
+	shader->loadInt("u_depth", 1);
+	//Globals::textureManager.get("albedo_dragon").bind();
+
+	lights[m_currentLight].m_depthRT.bindDepthTexture(1u);
+
+	Globals::shapeManager.get("quad").drawRaw();
+	shader->unuse();*/
+
 	if (m_drawUi)
 		renderUi();
 }
@@ -326,7 +432,8 @@ void Separable::shdowPass() {
 		shader->use();
 		shader->loadMatrix("u_viewProjection", lights[i].m_shadowProjection * lights[i].m_shadowView);
 		shader->loadMatrix("u_model", m_transform.getTransformationMatrix());
-		m_statue.drawRaw();
+		//m_statue.drawRaw();
+		m_dragon.drawRaw();
 		lights[i].m_depthRT.unbind();
 	}
 }
@@ -383,19 +490,26 @@ void Separable::renderGBuffer() {
 		shader->loadFloat(std::string("lightFalloffStart[" + std::to_string(i) + "]").c_str(), cos(0.5f * (45.0f * PI_ON_180)));
 
 		shader->loadInt(std::string("u_depthMap[" + std::to_string(i) + "]").c_str(), i);
-		shader->loadInt(std::string("u_shadowMap[" + std::to_string(i) + "]").c_str(), i + 7);
+		shader->loadInt(std::string("u_shadowMap[" + std::to_string(i) + "]").c_str(), i + 8);
 		lights[i].m_depthRT.bindDepthTexture(i);
-		lights[i].m_depthRT.bindDepthTexture(i + 7);
+		lights[i].m_depthRT.bindDepthTexture(i + 8);
 	}
 
-	shader->loadInt("u_albedo", 8);
-	shader->loadInt("u_normal", 9);
-	shader->loadInt("u_beckmann", 10);
+	shader->loadInt("u_albedo", 4);
+	shader->loadInt("u_normal", 5);
+	shader->loadInt("u_specular", 6);
+	shader->loadInt("u_beckmann", 7);
 
-	Globals::textureManager.get("albedo").bind(8);
-	Globals::textureManager.get("normal").bind(9);
-	Globals::textureManager.get("beckmann").bind(10);
-	m_statue.drawRaw();
+	//Globals::textureManager.get("albedo").bind(4);
+	//Globals::textureManager.get("normal").bind(5);
+	//Globals::textureManager.get("beckmann").bind(7);
+	//m_statue.drawRaw();
+
+	Globals::textureManager.get("albedo_dragon").bind(4);
+	Globals::textureManager.get("normal_dragon").bind(5);
+	Globals::textureManager.get("specular_dragon").bind(6);
+	Globals::textureManager.get("beckmann").bind(7);
+	m_dragon.drawRaw();
 
 	shader->unuse();
 
@@ -565,7 +679,7 @@ void Separable::renderUi() {
 	ImGui::Checkbox("Draw Wirframe", &StateMachine::GetEnableWireframe());
 	ImGui::Checkbox("SSS", &m_sss);
 	ImGui::Checkbox("Show Blurradius", &m_showBlurRadius);
-	ImGui::SliderFloat("SSS Width", &m_sssWidth, 50.0f, 1000.0f);
+	ImGui::SliderFloat("SSS Width", &m_sssWidth, 25.0f, 1000.0f);
 	ImGui::SliderFloat("Translucency", &m_translucency, 0.0f, 1.0f);
 	ImGui::SliderFloat("Specular Intensity", &m_specularIntensity, 0.0f, 1.0f);
 	ImGui::SliderFloat("Specular Roughness", &m_specularRoughness, 0.0f, 1.0f);

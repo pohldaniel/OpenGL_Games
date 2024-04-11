@@ -91,4 +91,5 @@ void main(void){
 		
 		colorBlurred.rgb += kernel2[i].xyz * color.rgb;
 	}
+
 }

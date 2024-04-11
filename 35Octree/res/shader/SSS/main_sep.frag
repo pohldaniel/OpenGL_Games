@@ -14,6 +14,7 @@ uniform float far  = 100.0;
 uniform sampler2D u_depthMap[4];
 uniform sampler2D u_albedo;
 uniform sampler2D u_normal;
+uniform sampler2D u_specular;
 uniform sampler2D u_beckmann;
 uniform sampler2DShadow u_shadowMap[4];
 
@@ -135,7 +136,7 @@ float getDepthPassSpaceZ(float z_ndc, float near, float far){
 
 vec3 SSSSTransmittance( float translucency, float sssWidth, vec3 worldNormal, vec3 light, sampler2D shadowMap, vec4 shadowPos){
 
-	float scale = 3.0 * (1.0 /u_strength) * sssWidth * (1.0 - translucency);
+	float scale = 5.0 * (1.0 /u_strength) * sssWidth * (1.0 - translucency);
 
 	float zIn =  texture2DProj(shadowMap, shadowPos).r;
 	float zOut = shadowPos.z/shadowPos.w;
@@ -215,7 +216,7 @@ void main(){
 			float specular = intensity * SpecularKSK(u_beckmann, normal, light, view, roughness);
             //float shadow = Shadow(v_worldPosition, i);
 			float shadow = ShadowPCF(v_worldPosition, i, 3, 1.0);
-			
+			shadow = 1.0;
 			#ifdef SEPARATE_SPECULARS
             outColor.rgb += shadow * f2 * diffuse;
             outSpecularColor.rgb += shadow * f1 * specular;
