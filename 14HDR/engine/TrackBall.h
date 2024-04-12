@@ -134,7 +134,7 @@ public:
 		_incr.set(axis, rad * _180_ON_PI * _tbScale);
 		_incr.conjugate();
 
-		_r = _incr*_r;	
+		_r = _incr * _r;	
 	}
 
 	//

@@ -77,16 +77,21 @@ private:
 
 	Matrix4f currViewProj;
 	Matrix4f prevViewProj;
+	Vector3f m_center;
 
 	bool m_sss = true;
 	bool m_addSpecular = true;
 	bool m_showBlurRadius = false;
-	bool m_debug = true;
+	bool m_debug = false;
+	bool m_folowSurface = true;
+	bool m_wasFollow = true;
+
 	float m_sssWidth = 50.0f;
 	float m_translucency = 0.65f;
 	float m_specularIntensity = 1.0f;
 	float m_specularRoughness = 0.08f;
 	float m_specularFresnel = 0.81f;
+	float m_bumpiness = 0.89f;
 
 	float m_weight = 2.0f;
 	float m_strength = 10.0f;
@@ -98,6 +103,5 @@ private:
 	unsigned int m_specu[4] = { 0, 0, 0, 255 };
 
 	Light lights[4];
-	int m_currentLight = 0;
-	Model model = Model::DRAGON;
+	Model model;
 };

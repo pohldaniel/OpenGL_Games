@@ -84,8 +84,16 @@ Separable::Separable(StateMachine& machine) : State(machine, States::SEPARABLE) 
 	lights[3].attenuation = 1.0f / 128.0f;
 	lights[3].farPlane = 100.0f;
 	lights[3].bias = -0.01f;
-
-	presetDragon();
+	
+	model = Model::DRAGON;
+	switch (model) {
+	case Model::STATUE:
+		presetStatue();
+		break;
+	case Model::DRAGON:
+		presetDragon();
+		break;
+	}
 
 	unsigned int sampler1, sampler2, sampler3, sampler4;
 	glGenSamplers(1, &sampler1);
@@ -133,7 +141,7 @@ Separable::Separable(StateMachine& machine) : State(machine, States::SEPARABLE) 
 	glClearStencil(0);
 
 	glDisable(GL_BLEND);
-	//glDisable(GL_CULL_FACE);
+	glDisable(GL_CULL_FACE);
 
 	nv_dds::CDDSImage albedo;
 	albedo.load("res/models/Dragon/DiffuseMap.dds");	
@@ -202,7 +210,7 @@ Separable::Separable(StateMachine& machine) : State(machine, States::SEPARABLE) 
 	specular.clear();
 
 
-	m_dragon.loadModel("res/models/Dragon/dragon.obj", Vector3f(0.0f, 1.0f, 0.0f), 0.0f, Vector3f(0.0f, 5.0f, 0.0f), 5.0f, false, false, false, false, true);
+	m_dragon.loadModel("res/models/Dragon/dragon.obj", Vector3f(0.0f, 1.0f, 0.0f), 0.0f, Vector3f(0.0f, 0.0f, 0.0f), 5.0f, false, false, false, false, true);
 	m_dragon.getMesh(0)->setMaterialIndex(-1);
 }
 
@@ -258,50 +266,6 @@ void Separable::update() {
 
 	if (keyboard.keyPressed(Keyboard::KEY_M)) {
 		m_sss = !m_sss;
-	}
-
-	if (keyboard.keyPressed(Keyboard::KEY_B)) {
-		m_showBlurRadius = !m_showBlurRadius;
-	}
-
-	if (keyboard.keyDown(Keyboard::KEY_ADD)) {
-		m_sssWidth = std::max(10.0f, m_sssWidth - 1.0f);
-	}
-
-	if (keyboard.keyDown(Keyboard::KEY_SUBTRACT)) {
-		m_sssWidth = std::min(200.0f, m_sssWidth + 1.0f);
-	}
-
-	if (keyboard.keyPressed(Keyboard::KEY_COMMA)) {
-		m_translucency = std::max(0.0f, m_translucency - 0.1f);
-	}
-
-	if (keyboard.keyPressed(Keyboard::KEY_PERIOD)) {
-		m_translucency = std::min(1.0f, m_translucency + 0.1f);
-	}
-
-	if (keyboard.keyPressed(Keyboard::KEY_K)) {
-		m_specularIntensity = std::max(0.0f, m_specularIntensity - 1.0f);
-	}
-
-	if (keyboard.keyPressed(Keyboard::KEY_L)) {
-		m_specularIntensity = std::min(10.0f, m_specularIntensity + 1.0f);
-	}
-
-	if (keyboard.keyPressed(Keyboard::KEY_1)) {
-		m_currentLight = 0;
-	}
-
-	if (keyboard.keyPressed(Keyboard::KEY_2)) {
-		m_currentLight = 1;
-	}
-
-	if (keyboard.keyPressed(Keyboard::KEY_3)) {
-		m_currentLight = 2;
-	}
-
-	if (keyboard.keyPressed(Keyboard::KEY_4)) {
-		m_currentLight = 3;
 	}
 
 	Mouse &mouse = Mouse::instance();
@@ -474,7 +438,7 @@ void Separable::renderGBuffer() {
 	shader->loadFloat("specularRoughness", m_specularRoughness);
 	shader->loadFloat("specularFresnel", m_specularFresnel);
 	shader->loadFloat("weight", m_weight);
-	shader->loadFloat("u_strength", m_strength);
+	shader->loadFloat("bumpiness", m_bumpiness);
 	shader->loadFloat("u_strength", m_strength);
 	shader->loadBool("tangentSpace", m_tangentSpaceNormal);
 	shader->loadBool("specularAOMap", m_specularAOMap);
@@ -501,17 +465,18 @@ void Separable::renderGBuffer() {
 	shader->loadInt("u_specular", 6);
 	shader->loadInt("u_beckmann", 7);
 
-	
-	Globals::textureManager.get("albedo_dragon").bind(4);
-	Globals::textureManager.get("normal_dragon").bind(5);
-	Globals::textureManager.get("beckmann").bind(7);
-
 	switch (model) {
 	case Model::STATUE:
+		Globals::textureManager.get("albedo").bind(4);
+		Globals::textureManager.get("normal").bind(5);
+		Globals::textureManager.get("beckmann").bind(7);
 		m_statue.drawRaw();
 		break;
 	case Model::DRAGON:
+		Globals::textureManager.get("albedo_dragon").bind(4);
+		Globals::textureManager.get("normal_dragon").bind(5);
 		Globals::textureManager.get("specular_dragon").bind(6);
+		Globals::textureManager.get("beckmann").bind(7);
 		m_dragon.drawRaw();
 		break;
 	}
@@ -543,11 +508,12 @@ void Separable::sssPass() {
 	shader->loadVector("dir", Vector2f((GLfloat)Application::Height / (GLfloat)Application::Width, 0.0f));
 	shader->loadFloat("u_showBlurRadius", m_showBlurRadius);
 	shader->loadFloat("sssWidth", m_sssWidth);
+	shader->loadBool("u_followSurface", m_folowSurface);
 
 	shader->loadInt("u_colorTex", 0);
 	shader->loadInt("u_strengthTex", 1);
 	shader->loadInt("u_depthTex", 2);
-
+	
 	m_mainRT.bindColorTexture(0u, 0u, true);
 	m_mainRT.bindColorTexture(1u, 1u, true);
 	m_mainRT.bindColorTexture(2u, 2u, true);
@@ -683,26 +649,45 @@ void Separable::renderUi() {
 	ImGui::Checkbox("Draw Debug", &m_debug);
 	ImGui::Checkbox("Draw Wirframe", &StateMachine::GetEnableWireframe());
 	ImGui::Checkbox("SSS", &m_sss);
-	ImGui::Checkbox("Show Blurradius", &m_showBlurRadius);
-	ImGui::SliderFloat("SSS Width", &m_sssWidth, 25.0f, 1000.0f);
+	if (ImGui::Checkbox("Show Blurradius", &m_showBlurRadius)) {
+		if (m_showBlurRadius) {
+			m_wasFollow = m_folowSurface;
+			m_folowSurface = false;
+		}else {
+			m_folowSurface = m_wasFollow;
+		}
+	}
+	ImGui::SliderFloat("SSS Width", &m_sssWidth, 5.0f, 1000.0f);
 	ImGui::SliderFloat("Translucency", &m_translucency, 0.0f, 1.0f);
 	ImGui::SliderFloat("Specular Intensity", &m_specularIntensity, 0.0f, 1.0f);
 	ImGui::SliderFloat("Specular Roughness", &m_specularRoughness, 0.0f, 1.0f);
 	ImGui::SliderFloat("Specular Fresnel", &m_specularFresnel, 0.0f, 1.0f);
+	ImGui::SliderFloat("Bumpiness", &m_bumpiness, 0.0f, 1.0f);
 	ImGui::Checkbox("Add Specular", &m_addSpecular);
-	
+	ImGui::Checkbox("Follow Surface", &m_folowSurface);
+
 	ImGui::NewLine();
 	ImGui::SliderFloat("Strength", &m_strength, 3.0f, 50.0f);
 	ImGui::SliderFloat("Weight", &m_weight, 1.0f, 100.0f);
-	
+
 	if (ImGui::ColorEdit3("Light Color", m_lightColor)) {
-		lights[1].color[0] = m_lightColor[0];
-		lights[1].color[1] = m_lightColor[1];
-		lights[1].color[2] = m_lightColor[2];
+
+		switch (model) {
+		case Model::STATUE:
+			lights[1].color[0] = m_lightColor[0]; lights[0].color[1] = m_lightColor[1]; lights[0].color[2] = m_lightColor[2];
+			break;
+		case Model::DRAGON:
+			//lights[0].color[0] = m_lightColor[0]; lights[0].color[1] = m_lightColor[1]; lights[0].color[2] = m_lightColor[2];
+			lights[1].color[0] = m_lightColor[0]; lights[1].color[1] = m_lightColor[1]; lights[1].color[2] = m_lightColor[2];
+			//lights[2].color[0] = m_lightColor[0]; lights[2].color[1] = m_lightColor[1]; lights[2].color[2] = m_lightColor[2];
+			//lights[3].color[0] = m_lightColor[0]; lights[3].color[1] = m_lightColor[1]; lights[3].color[2] = m_lightColor[2];
+			break;
+		}
+
 	}
 
-	ImGui::ColorEdit3("Albedo Color", m_albedoColor);		
-
+	ImGui::ColorEdit3("Albedo Color", m_albedoColor);
+	
 	int currentModel = model;
 	if (ImGui::Combo("Model", &currentModel, "Statue\0Dragon\0\0")) {
 		model = static_cast<Model>(currentModel);
@@ -712,7 +697,7 @@ void Separable::renderUi() {
 			presetStatue();
 			break;
 		case Model::DRAGON:
-			presetStatue();
+			presetDragon();
 			break;
 		}
 	}
@@ -726,50 +711,83 @@ void Separable::renderUi() {
 void Separable::presetDragon() {
 	m_tangentSpaceNormal = false;
 	m_specularAOMap = true;
-	Vector3f center = Vector3f(0.0f, 5.0f, 0.0f);
+	m_sssWidth = 25.0f;
+	m_translucency = 0.1f;
+	m_specularIntensity = 1.0f;
+	m_specularRoughness = 0.100f;
+	m_specularFresnel = 0.409f;
+	m_weight = 4.0f;
+	m_strength = 20.0f;
+
+	m_center = Vector3f(0.0f, 5.0f, 0.0f);
 
 	lights[0].color = Vector3f(1.0f, 1.0f, 1.0f);
-	lights[0].viewDirection = Vector3f::Normalize(m_transform.getTransformationMatrix() * center - lights[0].pos);
-	lights[0].m_shadowView.lookAt(lights[0].pos, m_transform.getTransformationMatrix() * center, Vector3f(0.0f, 1.0f, 0.0f));
+	lights[0].viewDirection = Vector3f::Normalize(m_transform.getTransformationMatrix() * m_center - lights[0].pos);
+	lights[0].m_shadowView.lookAt(lights[0].pos, m_transform.getTransformationMatrix() * m_center, Vector3f(0.0f, 1.0f, 0.0f));
 
 
 	lights[1].color = Vector3f(1.0f, 1.0f, 1.0f);
-	lights[1].viewDirection = Vector3f::Normalize(m_transform.getTransformationMatrix() * center - lights[1].pos);
-	lights[1].m_shadowView.lookAt(lights[1].pos, m_transform.getTransformationMatrix() * center, Vector3f(0.0f, 1.0f, 0.0f));
+	lights[1].viewDirection = Vector3f::Normalize(m_transform.getTransformationMatrix() * m_center - lights[1].pos);
+	lights[1].m_shadowView.lookAt(lights[1].pos, m_transform.getTransformationMatrix() * m_center, Vector3f(0.0f, 1.0f, 0.0f));
 
 
 	lights[2].color = Vector3f(1.0f, 1.0f, 1.0f);
-	lights[2].viewDirection = Vector3f::Normalize(m_transform.getTransformationMatrix() * center - lights[2].pos);
-	lights[2].m_shadowView.lookAt(lights[1].pos, m_transform.getTransformationMatrix() * center, Vector3f(0.0f, 1.0f, 0.0f));
+	lights[2].viewDirection = Vector3f::Normalize(m_transform.getTransformationMatrix() * m_center - lights[2].pos);
+	lights[2].m_shadowView.lookAt(lights[1].pos, m_transform.getTransformationMatrix() * m_center, Vector3f(0.0f, 1.0f, 0.0f));
 
 	lights[3].color = Vector3f(1.0f, 1.0f, 1.0f);
-	lights[3].viewDirection = Vector3f::Normalize(m_transform.getTransformationMatrix() * center - lights[3].pos);
-	lights[3].m_shadowView.lookAt(lights[1].pos, m_transform.getTransformationMatrix() * center, Vector3f(0.0f, 1.0f, 0.0f));
+	lights[3].viewDirection = Vector3f::Normalize(m_transform.getTransformationMatrix() * m_center - lights[3].pos);
+	lights[3].m_shadowView.lookAt(lights[1].pos, m_transform.getTransformationMatrix() * m_center, Vector3f(0.0f, 1.0f, 0.0f));
 
+	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 100.0f);
+	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
+	m_camera.lookAt(Vector3f(-1.30592f, 5.0f, 8.11601f), Vector3f(0.00597954f, 5.0f, 0.00461888f), Vector3f(0.0f, 1.0f, 0.0f));
+	m_camera.setRotationSpeed(0.1f);
+
+	m_trackball.setDollyPosition(m_center);
+	m_trackball.setCenterOfRotation(Vector3f(0.0f, 0.0f, 0.0f));
+	m_trackball.reset();
 }
 
 void Separable::presetStatue() {
 	m_tangentSpaceNormal = true;
 	m_specularAOMap = false;
-	Vector3f center = m_statue.getCenter();
+	m_sssWidth = 50.0f;
+	m_translucency = 0.65f;
+	m_specularIntensity = 1.0f;
+	m_specularRoughness = 0.08f;
+	m_specularFresnel = 0.81f;
+	m_weight = 2.0f;
+	m_strength = 10.0f;
+
+	m_center = m_statue.getCenter();
 
 	lights[0].color = Vector3f(0.3f, 0.3f, 0.3f);
-	lights[0].viewDirection = Vector3f::Normalize(m_transform.getTransformationMatrix() * center - lights[0].pos);
-	lights[0].m_shadowView.lookAt(lights[0].pos, m_transform.getTransformationMatrix() * center, Vector3f(0.0f, 1.0f, 0.0f));
+	lights[0].viewDirection = Vector3f::Normalize(m_transform.getTransformationMatrix() * m_center - lights[0].pos);
+	lights[0].m_shadowView.lookAt(lights[0].pos, m_transform.getTransformationMatrix() * m_center, Vector3f(0.0f, 1.0f, 0.0f));
 
 
 	lights[1].color = Vector3f(0.0f, 1.0f, 0.5f);
-	lights[1].viewDirection = Vector3f::Normalize(m_transform.getTransformationMatrix() * center - lights[1].pos);
-	lights[1].m_shadowView.lookAt(lights[1].pos, m_transform.getTransformationMatrix() * center, Vector3f(0.0f, 1.0f, 0.0f));
+	lights[1].viewDirection = Vector3f::Normalize(m_transform.getTransformationMatrix() * m_center - lights[1].pos);
+	lights[1].m_shadowView.lookAt(lights[1].pos, m_transform.getTransformationMatrix() * m_center, Vector3f(0.0f, 1.0f, 0.0f));
 
 
 	lights[2].color = Vector3f(0.3f, 0.3f, 0.3f);
-	lights[2].viewDirection = Vector3f::Normalize(m_transform.getTransformationMatrix() * center - lights[2].pos);
-	lights[2].m_shadowView.lookAt(lights[1].pos, m_transform.getTransformationMatrix() * center, Vector3f(0.0f, 1.0f, 0.0f));
+	lights[2].viewDirection = Vector3f::Normalize(m_transform.getTransformationMatrix() * m_center - lights[2].pos);
+	lights[2].m_shadowView.lookAt(lights[1].pos, m_transform.getTransformationMatrix() * m_center, Vector3f(0.0f, 1.0f, 0.0f));
 
 	lights[3].color = Vector3f(0.3f, 0.3f, 0.3f);
-	lights[3].viewDirection = Vector3f::Normalize(m_transform.getTransformationMatrix() * center - lights[3].pos);
-	lights[3].m_shadowView.lookAt(lights[1].pos, m_transform.getTransformationMatrix() * center, Vector3f(0.0f, 1.0f, 0.0f));
+	lights[3].viewDirection = Vector3f::Normalize(m_transform.getTransformationMatrix() * m_center - lights[3].pos);
+	lights[3].m_shadowView.lookAt(lights[1].pos, m_transform.getTransformationMatrix() * m_center, Vector3f(0.0f, 1.0f, 0.0f));
 
 	m_lightColor[0] = lights[1].color[0]; m_lightColor[1] = lights[1].color[1]; m_lightColor[2] = lights[1].color[2];
+
+	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 100.0f);
+	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
+	m_camera.lookAt(Vector3f(-1.30592f, 3.5f, 4.11601f), Vector3f(0.00597954f, 3.5f, 0.00461888f), Vector3f(0.0f, 1.0f, 0.0f));
+	m_camera.setRotationSpeed(0.1f);
+
+	m_trackball.setDollyPosition(Vector3f(0.0f, 0.0f, 0.0f));
+	m_trackball.setCenterOfRotation(Vector3f(0.0f, 2.37866f, 0.0f));
+	m_trackball.reset();
 }

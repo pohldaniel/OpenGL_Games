@@ -39,9 +39,9 @@ out vec4 sc[4];
 
 void main(){    
 
-	v_normal  = (u_normalMatrix * vec4(i_normal, 0.0)).xyz;
-	v_tangent = (u_normalMatrix * vec4(i_tangent, 0.0)).xyz;
-	v_bitangent = (u_normalMatrix * vec4(i_bitangent, 0.0)).xyz;
+	v_normal  = normalize(mat3(u_normalMatrix) * i_normal);
+	v_tangent = normalize(mat3(u_normalMatrix) * i_tangent);
+	v_bitangent = normalize(mat3(u_normalMatrix) * i_bitangent);
 	v_texCoord = i_texCoord;
 	vertColor = u_color;
 	

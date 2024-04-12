@@ -269,4 +269,6 @@ void main(){
 	
 	// Compress the velocity for storing it in a 8-bit render target:
     outColor.a = sqrt(5.0 * length(outVelocity));
+	
+	//outColor = vec4(normal, 1.0);
 }

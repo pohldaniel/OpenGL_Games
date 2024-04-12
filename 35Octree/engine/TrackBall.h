@@ -33,6 +33,18 @@ public:
 
 	~TrackBall() {}
 
+	void reset() {
+		_r = Quaternion(0.0f, 0.0f, 0.0f, 1.0f);
+		_incr = Quaternion(0.0f, 0.0f, 0.0f, 1.0f); //no rotation
+		_tbScale = 1.0f;
+		_dScale = 0.01f;
+		_pScale = 0.01f;
+		_tbActive = false;
+		_dActive = false;
+		_pActive = false;
+
+	}
+
 	//
 	//  reshape
 	//
@@ -118,8 +130,8 @@ public:
 		float min = _width < _height ? static_cast<float>(_width) : static_cast<float>(_height);
 		min *= 0.5f;
 		Vector3f offset(static_cast<float>(_width) / 2.0f, static_cast<float>(_height) / 2.0f, 0.0f);
-		Vector3f a(static_cast<float>(_x - _dx), static_cast<float>(_height - (_y + _dy)), 0.0f);
-		Vector3f b(static_cast<float>(_x), static_cast<float>(_height - _y), 0.0f);
+		Vector3f a(static_cast<float>(_x - _dx), static_cast<float>(_y + _dy), 0.0f);
+		Vector3f b(static_cast<float>(_x), static_cast<float>(_y), 0.0f);
 		a -= offset;
 		b -= offset;
 		a /= min;

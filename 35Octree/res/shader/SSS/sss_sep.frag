@@ -1,13 +1,15 @@
 #version 410 core
 
+in vec2 v_texCoord;
+
 uniform sampler2D u_colorTex;
 uniform sampler2D u_strengthTex;
 uniform sampler2D u_depthTex;
 
 uniform float sssWidth = 200.0;
 uniform vec2 dir;
-
-in vec2 v_texCoord;
+uniform bool u_followSurface = true;
+float maxOffsetMm = 1.0;
 
 out vec4 colorBlurred;
 
@@ -88,8 +90,12 @@ void main(void){
         // Fetch color and depth for current sample:
         vec2 offset = v_texCoord + kernel2[i].a * finalStep;
         vec4 color = texture2D( u_colorTex, offset );
-		
+		if(u_followSurface){
+			float depth = getDepthPassSpaceZ(texture2D(u_depthTex, offset).r, 0.1, 100.0);       
+			float s = clamp(abs(depthM - depth) / (distanceToProjectionWindow * (maxOffsetMm / sssWidth)), 0.0, 1.0);
+			s = min(1, s * 1.5);
+			color.rgb = mix(color.rgb, colorM.rgb, s);
+        }
 		colorBlurred.rgb += kernel2[i].xyz * color.rgb;
 	}
-
 }

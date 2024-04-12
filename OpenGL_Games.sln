@@ -257,8 +257,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "33AntWare", "33AntWare\33An
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "35Octree", "35Octree\35Octree.vcxproj", "{B3523CAE-CDF5-4BE8-8416-33AAD2E3CA50}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "InteractiveToolkit-Extension", "InteractiveToolkit-Extension\InteractiveToolkit-Extension.vcxproj", "{2AE64227-76C4-4F37-9F91-62BD4D39FB86}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -1647,22 +1645,6 @@ Global
 		{B3523CAE-CDF5-4BE8-8416-33AAD2E3CA50}.RelWithDebInfo|x64.Build.0 = Release|x64
 		{B3523CAE-CDF5-4BE8-8416-33AAD2E3CA50}.RelWithDebInfo|x86.ActiveCfg = Release|Win32
 		{B3523CAE-CDF5-4BE8-8416-33AAD2E3CA50}.RelWithDebInfo|x86.Build.0 = Release|Win32
-		{2AE64227-76C4-4F37-9F91-62BD4D39FB86}.Debug|x64.ActiveCfg = Debug|x64
-		{2AE64227-76C4-4F37-9F91-62BD4D39FB86}.Debug|x64.Build.0 = Debug|x64
-		{2AE64227-76C4-4F37-9F91-62BD4D39FB86}.Debug|x86.ActiveCfg = Debug|Win32
-		{2AE64227-76C4-4F37-9F91-62BD4D39FB86}.Debug|x86.Build.0 = Debug|Win32
-		{2AE64227-76C4-4F37-9F91-62BD4D39FB86}.MinSizeRel|x64.ActiveCfg = Release|x64
-		{2AE64227-76C4-4F37-9F91-62BD4D39FB86}.MinSizeRel|x64.Build.0 = Release|x64
-		{2AE64227-76C4-4F37-9F91-62BD4D39FB86}.MinSizeRel|x86.ActiveCfg = Release|Win32
-		{2AE64227-76C4-4F37-9F91-62BD4D39FB86}.MinSizeRel|x86.Build.0 = Release|Win32
-		{2AE64227-76C4-4F37-9F91-62BD4D39FB86}.Release|x64.ActiveCfg = Release|x64
-		{2AE64227-76C4-4F37-9F91-62BD4D39FB86}.Release|x64.Build.0 = Release|x64
-		{2AE64227-76C4-4F37-9F91-62BD4D39FB86}.Release|x86.ActiveCfg = Release|Win32
-		{2AE64227-76C4-4F37-9F91-62BD4D39FB86}.Release|x86.Build.0 = Release|Win32
-		{2AE64227-76C4-4F37-9F91-62BD4D39FB86}.RelWithDebInfo|x64.ActiveCfg = Release|x64
-		{2AE64227-76C4-4F37-9F91-62BD4D39FB86}.RelWithDebInfo|x64.Build.0 = Release|x64
-		{2AE64227-76C4-4F37-9F91-62BD4D39FB86}.RelWithDebInfo|x86.ActiveCfg = Release|Win32
-		{2AE64227-76C4-4F37-9F91-62BD4D39FB86}.RelWithDebInfo|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
