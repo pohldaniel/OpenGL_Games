@@ -21,7 +21,7 @@ Separable::Separable(StateMachine& machine) : State(machine, States::SEPARABLE) 
 	m_camera.setRotationSpeed(0.1f);
 	m_camera.setMovingSpeed(5.0f);
 	
-	Vector3f center = Vector3f(0.0f, 5.0f, 2.5034e-06f);
+	Vector3f center = Vector3f(0.0f, 5.0f, 0.0f);
 
 	Globals::textureManager.loadTexture("albedo", "res/models/statue/statue_d.bmp", true);
 	Globals::textureManager.loadTexture("normal", "res/models/statue/statue_n.bmp", true);
@@ -41,11 +41,8 @@ Separable::Separable(StateMachine& machine) : State(machine, States::SEPARABLE) 
 	m_trackball.reshape(Application::Width, Application::Height);
 	applyTransformation(m_trackball);
 
-	lights[0].color = Vector3f(1.0f, 1.0f, 1.0f);
 	lights[0].pos = Vector3f(0.0f, 5.0f, 8.0f);
-	lights[0].viewDirection = Vector3f::Normalize(m_transform.getTransformationMatrix() * center - lights[0].pos);
 	lights[0].m_shadowProjection.perspective(45.0f, 1.0, 1.0f, 100.0f);
-	lights[0].m_shadowView.lookAt(lights[0].pos, m_transform.getTransformationMatrix() * center, Vector3f(0.0f, 1.0f, 0.0f));
 	lights[0].m_depthRT.create(DEPTH_TEXTURE_SIZE, DEPTH_TEXTURE_SIZE);
 	lights[0].m_depthRT.attachTexture2D(AttachmentTex::DEPTH32F);
 
@@ -55,11 +52,8 @@ Separable::Separable(StateMachine& machine) : State(machine, States::SEPARABLE) 
 	lights[0].farPlane = 100.0f;
 	lights[0].bias = -0.01f;
 
-	lights[1].color = Vector3f(1.0f, 1.0f, 1.0f);
 	lights[1].pos = Vector3f(0.0f, 5.0f, -8.0f);
-	lights[1].viewDirection = Vector3f::Normalize(m_transform.getTransformationMatrix() * center - lights[1].pos);
 	lights[1].m_shadowProjection.perspective(45.0f, 1.0, 1.0f, 100.0f);
-	lights[1].m_shadowView.lookAt(lights[1].pos, m_transform.getTransformationMatrix() * center, Vector3f(0.0f, 1.0f, 0.0f));
 	lights[1].m_depthRT.create(DEPTH_TEXTURE_SIZE, DEPTH_TEXTURE_SIZE);
 	lights[1].m_depthRT.attachTexture2D(AttachmentTex::DEPTH32F);
 
@@ -69,11 +63,8 @@ Separable::Separable(StateMachine& machine) : State(machine, States::SEPARABLE) 
 	lights[1].farPlane = 100.0f;
 	lights[1].bias = -0.01f;
 
-	lights[2].color = Vector3f(1.0f, 1.0f, 1.0f);
 	lights[2].pos = Vector3f(8.0f, 5.0f, 0.0f);
-	lights[2].viewDirection = Vector3f::Normalize(m_transform.getTransformationMatrix() * center - lights[2].pos);
 	lights[2].m_shadowProjection.perspective(45.0f, 1.0, 1.0f, 100.0f);
-	lights[2].m_shadowView.lookAt(lights[1].pos, m_transform.getTransformationMatrix() * center, Vector3f(0.0f, 1.0f, 0.0f));
 	lights[2].m_depthRT.create(DEPTH_TEXTURE_SIZE, DEPTH_TEXTURE_SIZE);
 	lights[2].m_depthRT.attachTexture2D(AttachmentTex::DEPTH32F);
 
@@ -83,11 +74,8 @@ Separable::Separable(StateMachine& machine) : State(machine, States::SEPARABLE) 
 	lights[2].farPlane = 100.0f;
 	lights[2].bias = -0.01f;
 
-	lights[3].color = Vector3f(1.0f, 1.0f, 1.0f);
 	lights[3].pos = Vector3f(-8.0f, 5.0f, 0.0f);
-	lights[3].viewDirection = Vector3f::Normalize(m_transform.getTransformationMatrix() * center - lights[3].pos);
 	lights[3].m_shadowProjection.perspective(45.0f, 1.0, 1.0f, 100.0f);
-	lights[3].m_shadowView.lookAt(lights[1].pos, m_transform.getTransformationMatrix() * center, Vector3f(0.0f, 1.0f, 0.0f));
 	lights[3].m_depthRT.create(DEPTH_TEXTURE_SIZE, DEPTH_TEXTURE_SIZE);
 	lights[3].m_depthRT.attachTexture2D(AttachmentTex::DEPTH32F);
 
@@ -96,6 +84,8 @@ Separable::Separable(StateMachine& machine) : State(machine, States::SEPARABLE) 
 	lights[3].attenuation = 1.0f / 128.0f;
 	lights[3].farPlane = 100.0f;
 	lights[3].bias = -0.01f;
+
+	presetDragon();
 
 	unsigned int sampler1, sampler2, sampler3, sampler4;
 	glGenSamplers(1, &sampler1);
@@ -337,7 +327,6 @@ void Separable::update() {
 
 void Separable::render() {
 	
-
 	glEnable(GL_FRAMEBUFFER_SRGB);
 	shdowPass();
 	renderGBuffer();
@@ -399,22 +388,23 @@ void Separable::render() {
 	}
 	glDisable(GL_FRAMEBUFFER_SRGB);
 
-	/*glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	/*glEnable(GL_FRAMEBUFFER_SRGB);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-	shader = Globals::shaderManager.getAssetPointer("texture");
+	auto shader = Globals::shaderManager.getAssetPointer("texture");
 	shader->use();
-	shader->loadMatrix("u_projection", Matrix4f::IDENTITY);
-	shader->loadMatrix("u_view", Matrix4f::IDENTITY);
+	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
+	shader->loadMatrix("u_view", m_camera.getViewMatrix());
 	shader->loadMatrix("u_model", Matrix4f::IDENTITY);
 	shader->loadInt("u_texture", 0);
 	shader->loadInt("u_depth", 1);
 	//Globals::textureManager.get("albedo_dragon").bind();
 
-	lights[m_currentLight].m_depthRT.bindDepthTexture(1u);
+	Globals::textureManager.get("specular_dragon").bind(0);
 
-	Globals::shapeManager.get("quad").drawRaw();
-	shader->unuse();*/
-
+	m_dragon.drawRaw();
+	shader->unuse();
+	glDisable(GL_FRAMEBUFFER_SRGB);*/
 	if (m_drawUi)
 		renderUi();
 }
@@ -432,8 +422,16 @@ void Separable::shdowPass() {
 		shader->use();
 		shader->loadMatrix("u_viewProjection", lights[i].m_shadowProjection * lights[i].m_shadowView);
 		shader->loadMatrix("u_model", m_transform.getTransformationMatrix());
-		//m_statue.drawRaw();
-		m_dragon.drawRaw();
+
+		switch (model) {
+		case Model::STATUE:
+			m_statue.drawRaw();
+			break;
+		case Model::DRAGON:
+			m_dragon.drawRaw();
+			break;
+		}
+
 		lights[i].m_depthRT.unbind();
 	}
 }
@@ -477,6 +475,9 @@ void Separable::renderGBuffer() {
 	shader->loadFloat("specularFresnel", m_specularFresnel);
 	shader->loadFloat("weight", m_weight);
 	shader->loadFloat("u_strength", m_strength);
+	shader->loadFloat("u_strength", m_strength);
+	shader->loadBool("tangentSpace", m_tangentSpaceNormal);
+	shader->loadBool("specularAOMap", m_specularAOMap);
 
 	for (int i = 0; i < 4; i++) {
 		shader->loadMatrix(std::string("u_projectionShadowBias[" + std::to_string(i) + "]").c_str(), Matrix4f::BIAS * lights[i].m_shadowProjection);
@@ -500,16 +501,20 @@ void Separable::renderGBuffer() {
 	shader->loadInt("u_specular", 6);
 	shader->loadInt("u_beckmann", 7);
 
-	//Globals::textureManager.get("albedo").bind(4);
-	//Globals::textureManager.get("normal").bind(5);
-	//Globals::textureManager.get("beckmann").bind(7);
-	//m_statue.drawRaw();
-
+	
 	Globals::textureManager.get("albedo_dragon").bind(4);
 	Globals::textureManager.get("normal_dragon").bind(5);
-	Globals::textureManager.get("specular_dragon").bind(6);
 	Globals::textureManager.get("beckmann").bind(7);
-	m_dragon.drawRaw();
+
+	switch (model) {
+	case Model::STATUE:
+		m_statue.drawRaw();
+		break;
+	case Model::DRAGON:
+		Globals::textureManager.get("specular_dragon").bind(6);
+		m_dragon.drawRaw();
+		break;
+	}
 
 	shader->unuse();
 
@@ -697,8 +702,74 @@ void Separable::renderUi() {
 	}
 
 	ImGui::ColorEdit3("Albedo Color", m_albedoColor);		
+
+	int currentModel = model;
+	if (ImGui::Combo("Model", &currentModel, "Statue\0Dragon\0\0")) {
+		model = static_cast<Model>(currentModel);
+
+		switch (model) {
+		case Model::STATUE:
+			presetStatue();
+			break;
+		case Model::DRAGON:
+			presetStatue();
+			break;
+		}
+	}
+
 	ImGui::End();
 
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+}
+
+void Separable::presetDragon() {
+	m_tangentSpaceNormal = false;
+	m_specularAOMap = true;
+	Vector3f center = Vector3f(0.0f, 5.0f, 0.0f);
+
+	lights[0].color = Vector3f(1.0f, 1.0f, 1.0f);
+	lights[0].viewDirection = Vector3f::Normalize(m_transform.getTransformationMatrix() * center - lights[0].pos);
+	lights[0].m_shadowView.lookAt(lights[0].pos, m_transform.getTransformationMatrix() * center, Vector3f(0.0f, 1.0f, 0.0f));
+
+
+	lights[1].color = Vector3f(1.0f, 1.0f, 1.0f);
+	lights[1].viewDirection = Vector3f::Normalize(m_transform.getTransformationMatrix() * center - lights[1].pos);
+	lights[1].m_shadowView.lookAt(lights[1].pos, m_transform.getTransformationMatrix() * center, Vector3f(0.0f, 1.0f, 0.0f));
+
+
+	lights[2].color = Vector3f(1.0f, 1.0f, 1.0f);
+	lights[2].viewDirection = Vector3f::Normalize(m_transform.getTransformationMatrix() * center - lights[2].pos);
+	lights[2].m_shadowView.lookAt(lights[1].pos, m_transform.getTransformationMatrix() * center, Vector3f(0.0f, 1.0f, 0.0f));
+
+	lights[3].color = Vector3f(1.0f, 1.0f, 1.0f);
+	lights[3].viewDirection = Vector3f::Normalize(m_transform.getTransformationMatrix() * center - lights[3].pos);
+	lights[3].m_shadowView.lookAt(lights[1].pos, m_transform.getTransformationMatrix() * center, Vector3f(0.0f, 1.0f, 0.0f));
+
+}
+
+void Separable::presetStatue() {
+	m_tangentSpaceNormal = true;
+	m_specularAOMap = false;
+	Vector3f center = m_statue.getCenter();
+
+	lights[0].color = Vector3f(0.3f, 0.3f, 0.3f);
+	lights[0].viewDirection = Vector3f::Normalize(m_transform.getTransformationMatrix() * center - lights[0].pos);
+	lights[0].m_shadowView.lookAt(lights[0].pos, m_transform.getTransformationMatrix() * center, Vector3f(0.0f, 1.0f, 0.0f));
+
+
+	lights[1].color = Vector3f(0.0f, 1.0f, 0.5f);
+	lights[1].viewDirection = Vector3f::Normalize(m_transform.getTransformationMatrix() * center - lights[1].pos);
+	lights[1].m_shadowView.lookAt(lights[1].pos, m_transform.getTransformationMatrix() * center, Vector3f(0.0f, 1.0f, 0.0f));
+
+
+	lights[2].color = Vector3f(0.3f, 0.3f, 0.3f);
+	lights[2].viewDirection = Vector3f::Normalize(m_transform.getTransformationMatrix() * center - lights[2].pos);
+	lights[2].m_shadowView.lookAt(lights[1].pos, m_transform.getTransformationMatrix() * center, Vector3f(0.0f, 1.0f, 0.0f));
+
+	lights[3].color = Vector3f(0.3f, 0.3f, 0.3f);
+	lights[3].viewDirection = Vector3f::Normalize(m_transform.getTransformationMatrix() * center - lights[3].pos);
+	lights[3].m_shadowView.lookAt(lights[1].pos, m_transform.getTransformationMatrix() * center, Vector3f(0.0f, 1.0f, 0.0f));
+
+	m_lightColor[0] = lights[1].color[0]; m_lightColor[1] = lights[1].color[1]; m_lightColor[2] = lights[1].color[2];
 }

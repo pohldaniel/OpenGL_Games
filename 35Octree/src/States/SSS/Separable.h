@@ -31,6 +31,11 @@ class Separable : public State, public MouseEventListener, public KeyboardEventL
 
 public:
 
+	enum Model {
+		STATUE,
+		DRAGON
+	};
+
 	Separable(StateMachine& machine);
 	~Separable();
 
@@ -52,10 +57,14 @@ private:
 	void shdowPass();
 	void sssPass();
 	void addSpecular();
+	void presetDragon();
+	void presetStatue();
 	void applyTransformation(TrackBall& arc);
 
 	bool m_initUi = true;
 	bool m_drawUi = true;
+	bool m_tangentSpaceNormal = true;
+	bool m_specularAOMap = true;
 
 	Camera m_camera;
 	ObjModel m_statue, m_dragon;
@@ -90,4 +99,5 @@ private:
 
 	Light lights[4];
 	int m_currentLight = 0;
+	Model model = Model::DRAGON;
 };

@@ -35,9 +35,8 @@ uniform float lightAttenuation = 1.0 / 128.0;
 uniform float lightFalloffWidth = 0.05;
 uniform float lightBias = -0.01;
 
-uniform bool sssEnabled = true;
-uniform bool translucencyEnabled = true;
-uniform bool separateSpeculars = false;
+uniform bool tangentSpace = false;
+uniform bool specularAOMap = false;
 
 uniform float sssWidth = 200.0;
 uniform float translucency = 0.0;
@@ -46,6 +45,7 @@ uniform float ambient = 0.12;
 uniform mat4 u_projectionShadow[4];
 uniform mat4 u_viewShadow[4];
 uniform mat4 u_projectionShadowBias[4];
+uniform mat4 u_normalMatrix;
 
 in vec3 v_normal;
 in vec3 v_tangent;
@@ -79,6 +79,13 @@ const vec3 variances[5] = vec3[5](
 vec3 BumpMap(sampler2D normalTex, vec2 texcoord) {
     vec3 bump;
     bump.xyz = texture2D( u_normal, v_texCoord ).rgb * 2.0 - 1.0;
+    return normalize(bump);
+}
+
+vec3 BumpMap2(sampler2D normalTex, vec2 texcoord) {
+    vec3 bump;
+    bump.xy = texture2D( u_normal, v_texCoord ).gr * 2.0 - 1.0;
+    bump.z = sqrt(1.0 - bump.x * bump.x - bump.y * bump.y);
     return normalize(bump);
 }
 
@@ -164,25 +171,39 @@ vec3 SSSSTransmittance( float translucency, float sssWidth, vec3 worldNormal, ve
 }
 
 void main(){
-
-	vec3 t = normalize(v_tangent);
-	vec3 b = normalize(v_bitangent);
-	vec3 n = normalize(v_normal);
+	vec3 normal;
 	
-	//not transposed to push view- and light- vector to normal space
-	mat3 TBN = mat3(t.x, t.y, t.z,
-   				 b.x, b.y, b.z,
-   				 n.x, n.y, n.z);
+	if(tangentSpace){
+		vec3 t = normalize(v_tangent);
+		vec3 b = normalize(v_bitangent);
+		vec3 n = normalize(v_normal);
+		
+		mat3 TBN = mat3(t.x, t.y, t.z,
+						b.x, b.y, b.z,
+						n.x, n.y, n.z);
 
-	vec3 normal = TBN * BumpMap(u_normal, v_texCoord); 
- 
+		normal = TBN *  mix(vec3(0.0, 0.0, 1.0), BumpMap(u_normal, v_texCoord), bumpiness); 
+	
+	}else{
+		vec3 objSpaceNormal = normalize(texture2D( u_normal, v_texCoord ).rgb - 0.5);
+		objSpaceNormal.rgb = objSpaceNormal.rbg; objSpaceNormal.bg *= -1; // normal conversion
+		vec3 worldSpaceNormal = mat3(u_normalMatrix) * objSpaceNormal;
+		normal = mix(v_normal, worldSpaceNormal, bumpiness);
+	}
+
      
 	vec3 view = normalize(v_view);
    
 	vec4 albedo = texture2D(u_albedo, v_texCoord);
+	albedo.a = 1.0;
 	albedo.rgb = albedo.rgb * vertColor.rgb * (1.0 /weight);
-	vec3 specularAO = vec3(0.6, 0.2, 0.9);
-
+	vec3 specularAO;
+	
+	if(specularAOMap)
+		specularAO = texture2D( u_specular, v_texCoord ).rgb;
+	else
+		specularAO = vec3(0.6, 0.2, 0.9);
+		
 	float occlusion = specularAO.b;
     float intensity = specularAO.r * specularIntensity;
     float roughness = (specularAO.g / 0.3) * specularRoughness;

@@ -9,4 +9,4 @@ illum 1
 map_Kd DiffuseMap.dds
 map_bump NormalMap.dds
 map_Kn NormalMap.dds
-#map_Ks SpecularAOMap.dds
+map_Ks SpecularAOMap.dds
