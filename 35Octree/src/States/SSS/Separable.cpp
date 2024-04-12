@@ -152,6 +152,7 @@ Separable::Separable(StateMachine& machine) : State(machine, States::SEPARABLE) 
 	Globals::textureManager.get("albedo_dragon").setType(GL_UNSIGNED_BYTE);
 	Globals::textureManager.get("albedo_dragon").setTarget(GL_TEXTURE_2D);
 	Globals::textureManager.get("albedo_dragon").setChannels(albedo.get_components());
+	Globals::textureManager.get("albedo_dragon").setAnisotropy(16.0f);
 
 	glGenTextures(1, &Globals::textureManager.get("albedo_dragon").getTextureAccess());
 	glEnable(GL_TEXTURE_2D);
@@ -174,6 +175,7 @@ Separable::Separable(StateMachine& machine) : State(machine, States::SEPARABLE) 
 	Globals::textureManager.get("normal_dragon").setType(GL_UNSIGNED_BYTE);
 	Globals::textureManager.get("normal_dragon").setTarget(GL_TEXTURE_2D);
 	Globals::textureManager.get("normal_dragon").setChannels(normal.get_components());
+	Globals::textureManager.get("normal_dragon").setAnisotropy(16.0f);
 
 	glGenTextures(1, &Globals::textureManager.get("normal_dragon").getTextureAccess());
 	glEnable(GL_TEXTURE_2D);
@@ -196,6 +198,7 @@ Separable::Separable(StateMachine& machine) : State(machine, States::SEPARABLE) 
 	Globals::textureManager.get("specular_dragon").setType(GL_UNSIGNED_BYTE);
 	Globals::textureManager.get("specular_dragon").setTarget(GL_TEXTURE_2D);
 	Globals::textureManager.get("specular_dragon").setChannels(specular.get_components());
+	Globals::textureManager.get("specular_dragon").setAnisotropy(16.0f);
 
 	glGenTextures(1, &Globals::textureManager.get("specular_dragon").getTextureAccess());
 	glEnable(GL_TEXTURE_2D);
