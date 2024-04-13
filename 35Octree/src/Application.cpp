@@ -31,6 +31,7 @@
 #include <States/SSS/Separable.h>
 
 #include <States/Stencil/Stencil1.h>
+#include <States/Shell/Shell1.h>
 
 #include "Application.h"
 #include "Globals.h"
@@ -435,9 +436,10 @@ void Application::initStates() {
 	//Machine->addStateAtTop(new SSSApproximation(*Machine));
 	//Machine->addStateAtTop(new SSSGems(*Machine));
 	//Machine->addStateAtTop(new SSSOGLP(*Machine));	
-	Machine->addStateAtTop(new Separable(*Machine));
+	//Machine->addStateAtTop(new Separable(*Machine));
 	//Machine->addStateAtTop(new Stencil1(*Machine));
 	//Machine->addStateAtTop(new Shadow(*Machine));
+	Machine->addStateAtTop(new Shell1(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {

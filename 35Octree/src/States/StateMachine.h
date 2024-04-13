@@ -15,7 +15,9 @@ enum States {
 	SOFTPARTICLE,
 	BLOBSHOOT,
 	SEPARABLE,
-	SHADOW
+	STENCIL1,
+	SHADOW,
+	SHELL1
 };
 
 class State;

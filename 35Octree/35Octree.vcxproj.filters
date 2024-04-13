@@ -85,6 +85,9 @@
     <Filter Include="Source Files\States\Stencil">
       <UniqueIdentifier>{9e27e0be-66b7-4937-81ba-8887fd084a04}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\States\Shell">
+      <UniqueIdentifier>{39139c93-1565-4e0c-9601-18c770ff2bfe}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\input\ApplicationEventListener.cpp">
@@ -488,6 +491,9 @@
     </ClCompile>
     <ClCompile Include="vbm.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\States\Shell\Shell1.cpp">
+      <Filter>Source Files\States\Shell</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1123,6 +1129,9 @@
     </ClInclude>
     <ClInclude Include="vbm.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\States\Shell\Shell1.h">
+      <Filter>Source Files\States\Shell</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -4,11 +4,11 @@
 #include <imgui_internal.h>
 #include <engine/Batchrenderer.h>
 
-#include "Stencil1.h"
+#include "Shell1.h"
 #include "Application.h"
 #include "Globals.h"
 
-Stencil1::Stencil1(StateMachine& machine) : State(machine, States::STENCIL1) {
+Shell1::Shell1(StateMachine& machine) : State(machine, States::SHELL1) {
 
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
@@ -23,20 +23,27 @@ Stencil1::Stencil1(StateMachine& machine) : State(machine, States::STENCIL1) {
 
 	glClearColor(0.494f, 0.686f, 0.796f, 1.0f);
 	glClearDepth(1.0f);
-	glClearStencil(0);
+	m_background.resize(Application::Width, Application::Height);
+	m_background.setLayer(std::vector<BackgroundLayer>{
+		{ &Globals::textureManager.get("forest_1"), 1, 1.0f },
+		{ &Globals::textureManager.get("forest_2"), 1, 2.0f },
+		{ &Globals::textureManager.get("forest_3"), 1, 3.0f },
+		{ &Globals::textureManager.get("forest_4"), 1, 4.0f },
+		{ &Globals::textureManager.get("forest_5"), 1, 5.0f }});
+	m_background.setSpeed(0.005f);
 
 }
 
-Stencil1::~Stencil1() {
+Shell1::~Shell1() {
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
 }
 
-void Stencil1::fixedUpdate() {
+void Shell1::fixedUpdate() {
 
 }
 
-void Stencil1::update() {
+void Shell1::update() {
 	Keyboard &keyboard = Keyboard::instance();
 	Vector3f direction = Vector3f();
 
@@ -56,11 +63,15 @@ void Stencil1::update() {
 
 	if (keyboard.keyDown(Keyboard::KEY_A)) {
 		direction += Vector3f(-1.0f, 0.0f, 0.0f);
+		m_background.addOffset(-0.001f);
+		m_background.setSpeed(-0.005f);
 		move |= true;
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_D)) {
 		direction += Vector3f(1.0f, 0.0f, 0.0f);
+		m_background.addOffset(0.001f);
+		m_background.setSpeed(0.005f);
 		move |= true;
 	}
 
@@ -91,98 +102,40 @@ void Stencil1::update() {
 		}
 	}
 
-	m_time += m_dt;
+	m_background.update(m_dt);
 }
 
-void Stencil1::render() {
+void Shell1::render() {
 
-	Matrix4f rot;
-	rot.rotate(Vector3f(0.0f, 1.0f, 0.0f), 20.0f * m_time);
-
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-	auto shader = Globals::shaderManager.getAssetPointer("stencil_1");
-	shader->use();
-	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
-	shader->loadMatrix("u_view", m_camera.getViewMatrix());
-	shader->loadMatrix("u_model", rot);
-
-	shader->loadInt("u_baseTexture", 0);
-	shader->loadInt("u_blendTexture", 1);
-
-	Globals::textureManager.get("grass").bind();
-	Globals::textureManager.get("marble").bind(1);
-
-	Globals::shapeManager.get("cube").drawRaw();
-
-	shader->unuse();
-	// Draw floor
-	glEnable(GL_STENCIL_TEST);
-	glStencilFunc(GL_ALWAYS, 1, 0xFF);
-	glStencilMask(0xFF);
-	glDepthMask(GL_FALSE);
-
-	shader = Globals::shaderManager.getAssetPointer("color");
-	shader->use();
-	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
-	shader->loadMatrix("u_view", m_camera.getViewMatrix());
-	shader->loadMatrix("u_model", Matrix4f::Translate(0.0f, -1.0f, 0.0f) * Matrix4f::Scale(10.0f, 0.0f, 10.0f));
-	shader->loadVector("u_color", Vector4f(0.0f, 0.0f, 0.0f, 1.0));
-	Globals::shapeManager.get("quad_xz").drawRaw();
-	shader->unuse();
-
-	// Draw cube reflection
-	glStencilFunc(GL_EQUAL, 1, 0xFF);
-	glStencilMask(0x00);
-	glDepthMask(GL_TRUE);
-	glFrontFace(GL_CW);
-	shader = Globals::shaderManager.getAssetPointer("stencil_1");
-	shader->use();
-	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
-	shader->loadMatrix("u_view", m_camera.getViewMatrix());
-	shader->loadMatrix("u_model", Matrix4f::Translate(0.0f, -2.0f, 0.0f) * rot * Matrix4f::Scale(1.0f, -1.0f, 1.0f));
-	shader->loadVector("u_color", Vector4f(0.3f, 0.3f, 0.3f, 1.0));
-
-	shader->loadInt("u_baseTexture", 0);
-	shader->loadInt("u_blendTexture", 1);
-
-	Globals::textureManager.get("grass").bind();
-	Globals::textureManager.get("marble").bind(1);
-
-	Globals::shapeManager.get("cube").drawRaw();
-	shader->loadVector("u_color", Vector4f(1.0f, 1.0f, 1.0f, 1.0));
-	shader->unuse();
-	glFrontFace(GL_CCW);
-	
-
-	
-	glDisable(GL_STENCIL_TEST);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	m_background.draw();
 
 	if (m_drawUi)
 		renderUi();
 }
 
-void Stencil1::OnMouseMotion(Event::MouseMoveEvent& event) {
+void Shell1::OnMouseMotion(Event::MouseMoveEvent& event) {
 
 }
 
-void Stencil1::OnMouseButtonDown(Event::MouseButtonEvent& event) {
+void Shell1::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 	if (event.button == 2u) {
 		Mouse::instance().attach(Application::GetWindow());
 	}
 }
 
-void Stencil1::OnMouseButtonUp(Event::MouseButtonEvent& event) {
+void Shell1::OnMouseButtonUp(Event::MouseButtonEvent& event) {
 	if (event.button == 2u) {
 		Mouse::instance().detach();
 	}
 }
 
-
-void Stencil1::OnMouseWheel(Event::MouseWheelEvent& event) {
+void Shell1::OnMouseWheel(Event::MouseWheelEvent& event) {
 
 }
 
-void Stencil1::OnKeyDown(Event::KeyboardEvent& event) {
+
+void Shell1::OnKeyDown(Event::KeyboardEvent& event) {
 	if (event.keyCode == VK_LMENU) {
 		m_drawUi = !m_drawUi;
 	}
@@ -193,16 +146,16 @@ void Stencil1::OnKeyDown(Event::KeyboardEvent& event) {
 	}
 }
 
-void Stencil1::OnKeyUp(Event::KeyboardEvent& event) {
+void Shell1::OnKeyUp(Event::KeyboardEvent& event) {
 
 }
 
-void Stencil1::resize(int deltaW, int deltaH) {
+void Shell1::resize(int deltaW, int deltaH) {
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
 }
 
-void Stencil1::renderUi() {
+void Shell1::renderUi() {
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
