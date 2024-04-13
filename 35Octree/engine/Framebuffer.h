@@ -92,9 +92,9 @@ public:
 	unsigned int getWidth();
 	unsigned int getHeight();
 	void bindColorTexture(unsigned short attachment = 0u, unsigned int unit = 0u, bool forceBind = false) const;
-	void bindDepthTexture(unsigned int unit) const;
-	void bindStencilTexture(unsigned int unit) const;
-	void bindDepthStencilTexture(unsigned int unit) const;
+	void bindDepthTexture(unsigned int unit = 0u) const;
+	void bindStencilTexture(unsigned int unit = 0u) const;
+	void bindDepthStencilTexture(unsigned int unit = 0u) const;
 
 	void unbindTexture(unsigned int unit = 0u) const;
 

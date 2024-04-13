@@ -85,6 +85,7 @@ private:
 	bool m_debug = false;
 	bool m_folowSurface = true;
 	bool m_wasFollow = true;
+	bool m_shadow = true;
 
 	float m_sssWidth = 50.0f;
 	float m_translucency = 0.65f;
@@ -95,6 +96,7 @@ private:
 
 	float m_weight = 2.0f;
 	float m_strength = 10.0f;
+	float m_translucencyStrength = 5.0f;
 
 	float m_lightColor[3] = { 1.0f, 1.0f, 1.0f };
 	float m_albedoColor[3] = { 1.0f, 1.0f, 1.0f };
@@ -104,4 +106,5 @@ private:
 
 	Light lights[4];
 	Model model;
+	unsigned int sampler1, sampler2, sampler3, sampler4;
 };

@@ -228,6 +228,7 @@
     <ClCompile Include="src\States\OctreeInterface.cpp" />
     <ClCompile Include="src\States\RayMarch.cpp" />
     <ClCompile Include="src\States\Settings.cpp" />
+    <ClCompile Include="src\States\Shadow.cpp" />
     <ClCompile Include="src\States\SmoothParticle.cpp" />
     <ClCompile Include="src\States\SoftParticle.cpp" />
     <ClCompile Include="src\States\SSS\Separable.cpp" />
@@ -296,6 +297,7 @@
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\States\Menu.cpp" />
     <ClCompile Include="src\Utils\SolidIO.cpp" />
+    <ClCompile Include="vbm.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine\animation\AssimpAnimatedModel.h" />
@@ -482,6 +484,7 @@
     <ClInclude Include="src\States\OctreeInterface.h" />
     <ClInclude Include="src\States\RayMarch.h" />
     <ClInclude Include="src\States\Settings.h" />
+    <ClInclude Include="src\States\Shadow.h" />
     <ClInclude Include="src\States\SmoothParticle.h" />
     <ClInclude Include="src\States\SoftParticle.h" />
     <ClInclude Include="src\States\SSS\Separable.h" />
@@ -507,6 +510,7 @@
     <ClInclude Include="Miniball\Miniball.h" />
     <ClInclude Include="src\States\Menu.h" />
     <ClInclude Include="src\Utils\SolidIO.h" />
+    <ClInclude Include="vbm.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -1,4 +1,4 @@
-#version 410 core
+#version 430 core
 
 #define SEPARATE_SPECULARS 1
 
@@ -37,10 +37,12 @@ uniform float lightBias = -0.01;
 
 uniform bool tangentSpace = false;
 uniform bool specularAOMap = false;
+uniform bool u_shadow = true;
 
 uniform float sssWidth = 200.0;
 uniform float translucency = 0.0;
 uniform float ambient = 0.12;
+uniform float translucencyStrength = 5.0;
 
 uniform mat4 u_projectionShadow[4];
 uniform mat4 u_viewShadow[4];
@@ -89,31 +91,34 @@ vec3 BumpMap2(sampler2D normalTex, vec2 texcoord) {
     return normalize(bump);
 }
 
-float Fresnel(vec3 half, vec3 view, float f0) {
-    float base = 1.0 - dot(view, half);
+float Fresnel(vec3 _half, vec3 view, float f0) {
+    float base = 1.0 - dot(view, _half);
     float exponential = pow(base, 5.0);
     return exponential + f0 * (1.0 - exponential);
 }
 
 float SpecularKSK(sampler2D beckmannTex, vec3 normal, vec3 light, vec3 view, float roughness) {
-    vec3 half = view + light;
-    vec3 halfn = normalize(half);
+    vec3 _half = view + light;
+    vec3 halfn = normalize(_half);
 
     float ndotl = max(dot(normal, light), 0.0);
     float ndoth = max(dot(normal, halfn), 0.0);
 
     float ph = pow(2.0 * texture2D(beckmannTex, vec2(ndoth, roughness)).r, 10.0);
     float f = mix(0.25, Fresnel(halfn, view, 0.028), specularFresnel);
-    float ksk = max(ph * f / dot(half, half), 0.0);
+    float ksk = max(ph * f / dot(_half, _half), 0.0);
 
     return ndotl * ksk;    
 }
 
 float Shadow(vec3 worldPosition, int i) {
     vec4 shadowPosition = u_projectionShadowBias[i] * u_viewShadow[i] * vec4(worldPosition, 1.0);
-    shadowPosition.xy /= shadowPosition.w;
-    shadowPosition.z += lightBias;	
-	return texture(u_shadowMap[i], vec3(shadowPosition.xy, shadowPosition.z / lightFarPlane));
+	return textureProj(u_shadowMap[i], shadowPosition);
+    
+	
+    //shadowPosition.z += lightBias;	
+	//shadowPosition.xyz /= shadowPosition.w;
+	//return texture(u_shadowMap[i], shadowPosition.xyz);
 }
 
 float ShadowPCF(vec3 worldPosition, int i, int samples, float width) {
@@ -129,7 +134,7 @@ float ShadowPCF(vec3 worldPosition, int i, int samples, float width) {
 	for (float x = -offset; x <= offset; x += 1.0) {
         for (float y = -offset; y <= offset; y += 1.0) {
             vec2 pos = shadowPosition.xy + width * vec2(x, y) / float(size.x);
-            shadow += texture(u_shadowMap[i], vec3(shadowPosition.xy, shadowPosition.z / lightFarPlane));
+            shadow += texture(u_shadowMap[i], vec3(pos, shadowPosition.z / shadowPosition.w));
         }
     }
     shadow /= samples * samples;
@@ -141,11 +146,11 @@ float getDepthPassSpaceZ(float z_ndc, float near, float far){
 	return (2.0 * near * far) / (far + near + z_ndc * (near - far));
 }
 
-vec3 SSSSTransmittance( float translucency, float sssWidth, vec3 worldNormal, vec3 light, sampler2D shadowMap, vec4 shadowPos){
+vec3 SSSSTransmittance( float translucency, float sssWidth, vec3 worldNormal, vec3 light, sampler2D depthMap, vec4 shadowPos){
 
-	float scale = 5.0 * (1.0 /u_strength) * sssWidth * (1.0 - translucency);
+	float scale = translucencyStrength * (1.0 /u_strength) * sssWidth * (1.0 - translucency);
 
-	float zIn =  texture2DProj(shadowMap, shadowPos).r;
+	float zIn =  texture2DProj(depthMap, shadowPos).r;
 	float zOut = shadowPos.z/shadowPos.w;
 
 	zIn = getDepthPassSpaceZ(zIn, 1.0, 100.0);
@@ -237,7 +242,8 @@ void main(){
 			float specular = intensity * SpecularKSK(u_beckmann, normal, light, view, roughness);
             //float shadow = Shadow(v_worldPosition, i);
 			float shadow = ShadowPCF(v_worldPosition, i, 3, 1.0);
-			shadow = 1.0;
+			if(!u_shadow)
+				shadow = 1.0;
 			#ifdef SEPARATE_SPECULARS
             outColor.rgb += shadow * f2 * diffuse;
             outSpecularColor.rgb += shadow * f1 * specular;

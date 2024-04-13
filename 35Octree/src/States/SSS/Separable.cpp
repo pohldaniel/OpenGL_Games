@@ -95,23 +95,39 @@ Separable::Separable(StateMachine& machine) : State(machine, States::SEPARABLE) 
 		break;
 	}
 
-	unsigned int sampler1, sampler2, sampler3, sampler4;
+
 	glGenSamplers(1, &sampler1);
+	glSamplerParameteri(sampler1, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glSamplerParameteri(sampler1, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glSamplerParameteri(sampler1, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glSamplerParameteri(sampler1, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glSamplerParameteri(sampler1, GL_TEXTURE_COMPARE_FUNC, GL_LESS);
 	glSamplerParameteri(sampler1, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
 	glBindSampler(8, sampler1);
 
 	glGenSamplers(1, &sampler2);
+	glSamplerParameteri(sampler2, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glSamplerParameteri(sampler2, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glSamplerParameteri(sampler2, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glSamplerParameteri(sampler2, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glSamplerParameteri(sampler2, GL_TEXTURE_COMPARE_FUNC, GL_LESS);
 	glSamplerParameteri(sampler2, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
 	glBindSampler(9, sampler2);
 
 	glGenSamplers(1, &sampler3);
+	glSamplerParameteri(sampler3, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glSamplerParameteri(sampler3, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glSamplerParameteri(sampler3, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glSamplerParameteri(sampler3, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glSamplerParameteri(sampler3, GL_TEXTURE_COMPARE_FUNC, GL_LESS);
 	glSamplerParameteri(sampler3, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
 	glBindSampler(10, sampler3);
 
 	glGenSamplers(1, &sampler4);
+	glSamplerParameteri(sampler4, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glSamplerParameteri(sampler4, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glSamplerParameteri(sampler4, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glSamplerParameteri(sampler4, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glSamplerParameteri(sampler4, GL_TEXTURE_COMPARE_FUNC, GL_LESS);
 	glSamplerParameteri(sampler4, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
 	glBindSampler(11, sampler4);
@@ -141,7 +157,8 @@ Separable::Separable(StateMachine& machine) : State(machine, States::SEPARABLE) 
 	glClearStencil(0);
 
 	glDisable(GL_BLEND);
-	glDisable(GL_CULL_FACE);
+	//glDisable(GL_CULL_FACE);
+	//glEnable(GL_DITHER);
 
 	nv_dds::CDDSImage albedo;
 	albedo.load("res/models/Dragon/DiffuseMap.dds");	
@@ -220,6 +237,18 @@ Separable::Separable(StateMachine& machine) : State(machine, States::SEPARABLE) 
 Separable::~Separable() {
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
+
+	glDeleteSamplers(1, &sampler1);
+	sampler1 = 0;
+
+	glDeleteSamplers(1, &sampler2);
+	sampler2 = 0;
+
+	glDeleteSamplers(1, &sampler3);
+	sampler3 = 0;
+
+	glDeleteSamplers(1, &sampler4);
+	sampler4 = 0;
 }
 
 void Separable::fixedUpdate() {
@@ -442,10 +471,12 @@ void Separable::renderGBuffer() {
 	shader->loadFloat("specularFresnel", m_specularFresnel);
 	shader->loadFloat("weight", m_weight);
 	shader->loadFloat("bumpiness", m_bumpiness);
+	shader->loadFloat("translucencyStrength", m_translucencyStrength);
 	shader->loadFloat("u_strength", m_strength);
 	shader->loadBool("tangentSpace", m_tangentSpaceNormal);
 	shader->loadBool("specularAOMap", m_specularAOMap);
-
+	shader->loadBool("u_shadow", m_shadow);
+	
 	for (int i = 0; i < 4; i++) {
 		shader->loadMatrix(std::string("u_projectionShadowBias[" + std::to_string(i) + "]").c_str(), Matrix4f::BIAS * lights[i].m_shadowProjection);
 		shader->loadMatrix(std::string("u_projectionShadow[" + std::to_string(i) + "]").c_str(), lights[i].m_shadowProjection);
@@ -668,11 +699,13 @@ void Separable::renderUi() {
 	ImGui::SliderFloat("Bumpiness", &m_bumpiness, 0.0f, 1.0f);
 	ImGui::Checkbox("Add Specular", &m_addSpecular);
 	ImGui::Checkbox("Follow Surface", &m_folowSurface);
+	ImGui::Checkbox("Enable Sahdow", &m_shadow);
 
 	ImGui::NewLine();
-	ImGui::SliderFloat("Strength", &m_strength, 3.0f, 50.0f);
+	ImGui::SliderFloat("Strength", &m_strength, 2.0f, 50.0f);
 	ImGui::SliderFloat("Weight", &m_weight, 1.0f, 100.0f);
-
+	ImGui::SliderFloat("Translucency Strength", &m_translucencyStrength, 1.0f, 1000.0f);
+	
 	if (ImGui::ColorEdit3("Light Color", m_lightColor)) {
 
 		switch (model) {
@@ -714,13 +747,14 @@ void Separable::renderUi() {
 void Separable::presetDragon() {
 	m_tangentSpaceNormal = false;
 	m_specularAOMap = true;
-	m_sssWidth = 25.0f;
+	m_sssWidth = 10.0f;
 	m_translucency = 0.1f;
 	m_specularIntensity = 1.0f;
 	m_specularRoughness = 0.100f;
 	m_specularFresnel = 0.409f;
 	m_weight = 4.0f;
 	m_strength = 20.0f;
+	m_translucencyStrength = 5.0;
 
 	m_center = Vector3f(0.0f, 5.0f, 0.0f);
 
@@ -762,6 +796,7 @@ void Separable::presetStatue() {
 	m_specularFresnel = 0.81f;
 	m_weight = 2.0f;
 	m_strength = 10.0f;
+	m_translucencyStrength = 5.0;
 
 	m_center = m_statue.getCenter();
 

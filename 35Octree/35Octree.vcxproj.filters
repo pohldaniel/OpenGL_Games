@@ -483,6 +483,12 @@
     <ClCompile Include="nv_dds.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\States\Shadow.cpp">
+      <Filter>Source Files\States</Filter>
+    </ClCompile>
+    <ClCompile Include="vbm.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="convhull\convhull_3d.h">
@@ -1110,6 +1116,12 @@
       <Filter>Source Files\States\Stencil</Filter>
     </ClInclude>
     <ClInclude Include="nv_dds.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\States\Shadow.h">
+      <Filter>Source Files\States</Filter>
+    </ClInclude>
+    <ClInclude Include="vbm.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
