@@ -2,6 +2,7 @@
 #include <SOIL2/SOIL2.h>
 #include <iostream>
 
+
 #include "Texture.h"
 #include "Vector.h"
 
@@ -311,6 +312,152 @@ void Texture::setDeepCopy(bool deepCopy) {
 
 void Texture::markForDelete() {
 	m_markForDelete = true;
+}
+
+float getheight(const unsigned char* data, const int width, const int height, unsigned int x, unsigned int z, unsigned short channels) {
+	if (x >= width)  x %= width;
+	while (x < 0)    x += width;
+	if (z >= height) z %= height;
+	while (z < 0)    z += height;
+
+	return static_cast<float>(data[z*width * channels + x * channels]) / 255.0f;
+}
+
+void Texture::generateDisplacements() {
+	int depth, magFilter, minFilter, wrapS, wrapT;
+	int miplevel = 0;
+
+	glBindTexture(GL_TEXTURE_2D, m_texture);
+	glGetTexLevelParameteriv(GL_TEXTURE_2D, miplevel, GL_TEXTURE_DEPTH, &depth);
+	glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, &magFilter);
+	glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, &minFilter);
+	glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, &wrapS);
+	glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, &wrapT);
+	
+	unsigned char* bytes = (unsigned char*)malloc(m_width * m_channels * m_height);
+
+	glGetTexImage(GL_TEXTURE_2D, 0, m_format, m_type, bytes);
+
+	std::vector<unsigned char> bytesNew;
+	bytesNew.resize(m_width * m_height * 4);
+
+	for (int i = 0, k = 0; i < m_height * m_width * 4; i += 4, k = k + m_channels) {
+		bytesNew[i] = bytes[k];
+		bytesNew[i + 1] = bytes[k + 1];
+		bytesNew[i + 2] = bytes[k + 2];
+		bytesNew[i + 3] = (bytes[k] + bytes[k + 1] + bytes[k + 2]) / 3;
+	}
+
+	for (int j = 0; j < m_height; ++j) {
+		for (int i = 0; i < m_width; ++i) {
+
+			float s = 0.05f;
+
+			float sc = getheight(bytes, m_width, m_height, i, j, m_channels);
+			float spx = getheight(bytes, m_width, m_height, i + 1, j, m_channels);
+			float spy = getheight(bytes, m_width, m_height, i, j + 1, m_channels);
+			float snx = getheight(bytes, m_width, m_height, i - 1, j, m_channels);
+			float sny = getheight(bytes, m_width, m_height, i, j - 1, m_channels);
+
+			std::array<float, 3> vpx = { +s, 0, (spx - sc)};
+			std::array<float, 3> vpy = { 0, +s, (spy - sc)};
+			std::array<float, 3> vnx = { -s, 0, (snx - sc)};
+			std::array<float, 3> vny = { 0, -s, (sny - sc)};
+
+			std::array<float, 3> vpxvpy = Texture::Cross(vpx, vpy);
+			std::array<float, 3> vpyvnx = Texture::Cross(vpy, vnx);
+
+			std::array<float, 3> vnxvny = Texture::Cross(vnx, vny);
+			std::array<float, 3> vnyvpx = Texture::Cross(vny, vpx);
+			std::array<float, 3> result = Texture::Normalize({vpxvpy[0] + vpyvnx[0] + vnxvny[0] + vnyvpx[0], vpxvpy[1] + vpyvnx[1] + vnxvny[1] + vnyvpx[1], vpxvpy[2] + vpyvnx[2] + vnxvny[2] + vnyvpx[2]});
+			std::array<float, 4> n = std::array<float, 4>{result[0], result[1], result[2], sc};
+			
+			// convert to rgb
+			bytesNew[j * m_width * 4 + i * 4 + 0] = n[0] < 0.0f ? 0 : n[0] * 255.0;
+			bytesNew[j * m_width * 4 + i * 4 + 1] = n[1] < 0.0f ? 0 : n[1] * 255.0;
+			bytesNew[j * m_width * 4 + i * 4 + 2] = n[2] < 0.0f ? 0 : n[2] * 255.0;
+		}
+	}
+
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, m_width, m_height, 0, GL_RGBA, m_type, bytesNew.data());
+
+	if (minFilter == 9984 || minFilter == 9985 || minFilter == 9986 || minFilter == 9987)
+		glGenerateMipmap(GL_TEXTURE_2D);
+
+	glBindTexture(GL_TEXTURE_2D, 0);
+	free(bytes);
+
+	m_internalFormat = GL_RGBA8;
+	m_format = GL_RGBA;
+}
+
+void Texture::generateNormals() {
+	int depth, magFilter, minFilter, wrapS, wrapT;
+	int miplevel = 0;
+
+	glBindTexture(GL_TEXTURE_2D, m_texture);
+	glGetTexLevelParameteriv(GL_TEXTURE_2D, miplevel, GL_TEXTURE_DEPTH, &depth);
+	glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, &magFilter);
+	glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, &minFilter);
+	glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, &wrapS);
+	glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, &wrapT);
+
+	unsigned char* bytes = (unsigned char*)malloc(m_width * m_channels * m_height);
+
+	glGetTexImage(GL_TEXTURE_2D, 0, m_format, m_type, bytes);
+
+	std::vector<unsigned char> bytesNew;
+	bytesNew.resize(m_width * m_height * 4);
+
+	for (int i = 0, k = 0; i < m_height * m_width * 4; i += 4, k = k + m_channels) {
+		bytesNew[i] = bytes[k];
+		bytesNew[i + 1] = bytes[k + 1];
+		bytesNew[i + 2] = bytes[k + 2];
+		bytesNew[i + 3] = (bytes[k] + bytes[k + 1] + bytes[k + 2]) / 3;
+	}
+
+	for (int j = 0; j < m_height; ++j) {
+		for (int i = 0; i < m_width; ++i) {
+
+			const float strength = 8.0f;
+
+			// surrounding pixels
+			float tl = getheight(bytes, m_width, m_height, i - 1, j - 1, m_channels);
+			float  l = getheight(bytes, m_width, m_height, i - 1, j, m_channels);
+			float bl = getheight(bytes, m_width, m_height, i - 1, j + 1, m_channels);
+			float  t = getheight(bytes, m_width, m_height, i, j - 1, m_channels);
+			float  b = getheight(bytes, m_width, m_height, i, j + 1, m_channels);
+			float tr = getheight(bytes, m_width, m_height, i + 1, j - 1, m_channels);
+			float  r = getheight(bytes, m_width, m_height, i + 1, j, m_channels);
+			float br = getheight(bytes, m_width, m_height, i + 1, j + 1, m_channels);
+
+			// sobel filter
+			const float dX = (tr + 2.0 * r + br) - (tl + 2.0 * l + bl);
+			const float dY = (bl + 2.0 * b + br) - (tl + 2.0 * t + tr);
+			const float dZ = 1.0 / strength;
+
+			std::array<float, 3> n = { dX, dY, dZ };
+			n = Texture::Normalize(n);
+
+			// convert to rgb
+			bytesNew[j * m_width * 4 + i * 4 + 0] = (n[0] + 1.0) * (255.0 / 2.0);
+			bytesNew[j * m_width * 4 + i * 4 + 1] = (n[1] + 1.0) * (255.0 / 2.0);
+			bytesNew[j * m_width * 4 + i * 4 + 2] = (n[2] + 1.0) * (255.0 / 2.0);
+		}
+	}
+
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, m_width, m_height, 0, GL_RGBA, m_type, bytesNew.data());
+
+	if (minFilter == 9984 || minFilter == 9985 || minFilter == 9986 || minFilter == 9987)
+		glGenerateMipmap(GL_TEXTURE_2D);
+
+	glBindTexture(GL_TEXTURE_2D, 0);
+	free(bytes);
+
+	m_internalFormat = GL_RGBA8;
+	m_format = GL_RGBA;
 }
 
 void Texture::loadFromFile(std::string fileName, const bool flipVertical, unsigned int internalFormat, unsigned int format, int paddingLeft, int paddingRight, int paddingTop, int paddingBottom, unsigned int SOIL_FLAG) {
@@ -1391,7 +1538,7 @@ unsigned char* Texture::LoadHDRIFromFile(std::string fileName, int& width, int& 
 }
 
 
-void Texture::Safe(std::string fileOut, unsigned int& texture) {
+void Texture::Safe(std::string fileOut, const unsigned int& texture) {
 	int width, height, depth;
 	int miplevel = 0;
 
@@ -1777,4 +1924,14 @@ void Texture::PremultiplyAlpha(std::string fileIn, std::string fileOut, const bo
 
 	SOIL_save_image(fileOut.c_str(), SOIL_SAVE_TYPE_PNG, width, height, numCompontents, outputData.data());
 	
+}
+
+std::array<float, 3> Texture::Cross(const std::array<float, 3>& p, const std::array<float, 3>& q) {
+	return std::array<float, 3>{(p[1] * q[2]) - (p[2] * q[1]),(p[2] * q[0]) - (p[0] * q[2]),(p[0] * q[1]) - (p[1] * q[0])};
+}
+
+std::array<float, 3> Texture::Normalize(const std::array<float, 3>& p) {
+	float length = sqrtf((p[0] * p[0]) + (p[1] * p[1]) + (p[2] * p[2]));
+	float invMag = length != 0.0f ? 1.0f / length : 1.0f;
+	return std::array<float, 3>{p[0] * invMag, p[1] * invMag, p[2] * invMag};
 }

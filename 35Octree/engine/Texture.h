@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include <map>
+#include <array>
 #include "PerlinNoise.h"
 
 class Texture{
@@ -89,6 +90,8 @@ public:
 	void cleanup();
 	void setDeepCopy(bool deepCopy);
 	void markForDelete();
+	void generateDisplacements();
+	void generateNormals();
 
 	static void Bind(unsigned int textureRef, unsigned int unit = 0u, unsigned int target = 3553u, bool forceBind = false);
 	static void Unbind(unsigned int unit = 0u, unsigned int target = 3553u);
@@ -107,7 +110,7 @@ public:
 	static unsigned char* LoadFromFile(std::string fileName, int& width, int& height, const bool flipVertical = true, bool transparent = false, int paddingLeft = 0, int paddingRight = 0, int paddingTop = 0, int paddingBottom = 0);
 	static unsigned char* LoadHDRIFromFile(std::string fileName, int& width, int& height, const bool flipVertical = true, unsigned int internalFormat = 0, unsigned int format = 0, int paddingLeft = 0, int paddingRight = 0, int paddingTop = 0, int paddingBottom = 0);
 
-	static void Safe(std::string fileOut, unsigned int& texture);
+	static void Safe(std::string fileOut, const unsigned int& texture);
 	static void Safe(std::string fileOut, unsigned char* bytes, unsigned int width, unsigned int height, unsigned int channels);
 	static void PremultiplyAlpha(std::string fileIn, std::string fileOut, const bool flipVertical = false);
 
@@ -128,6 +131,9 @@ public:
 	void flipHorizontal(unsigned char* data, unsigned int width, unsigned int height, int numCompontents);
 
 private:
+
+	static std::array<float, 3> Cross(const std::array<float, 3>& p, const std::array<float, 3>& q);
+	static std::array<float, 3> Normalize(const std::array<float, 3>& p);
 
 	unsigned int m_texture = 0u;
 	unsigned int m_width = 0u;

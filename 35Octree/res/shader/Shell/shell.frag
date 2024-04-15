@@ -18,13 +18,14 @@ in vec3 geomNormal;
 in vec3 geomTangent;
 in vec3 geomTexCoord;
 
-out vec3 fragColor;
+out vec4 fragColor;
 
 vec3 vcdiv(vec3 a, vec3 b){
 	return vec3(a.x/b.x, a.y/b.y, a.z/b.z);
 }
 
 void main(){
+
 	const vec3 one = vec3(1.0, 1.0, 1.0);
 
 	vec3 bzfv = vcdiv(geomBarycentric,geomWFront);
@@ -48,8 +49,9 @@ void main(){
 	vec2 dtc = tc1.xy - tc0.xy;
 	float mdtc = max(abs(dtc.x), abs(dtc.y));
 
-    int nsam = max(min(int(mdtc*mts), mts), 1);
+    int nsam = max(min(int(mdtc*mts), mts), 1);;
     float step = 1.0 / nsam;
+	
     for(int s=0; s<=nsam; ++s){
 		vec3 tc = mix(tc1, tc0, s*step);
 		vec4 bm = texture(u_bump, tc.xy);
@@ -62,7 +64,9 @@ void main(){
 			vec3 ldir = normalize(u_lightPos - p);
 			vec3 nml = normalize(t*bm.x+b*bm.y+n*bm.z);
 			float l = max(dot(ldir, nml), 0.0)*max(dot(ldir, n)+0.3,0.0)+0.2;
-			fragColor = texture(u_texture, tc.xy).rgb*l;
+			vec3 color = texture(u_texture, tc.xy).rgb;
+			fragColor.rgb = color * l;
+			fragColor.a = 1.0;
 			return;
         }
     }

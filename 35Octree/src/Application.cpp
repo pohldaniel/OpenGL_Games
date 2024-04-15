@@ -819,13 +819,14 @@ void Application::loadAssets() {
 	Globals::textureManager.get("smoke").setFilter(GL_LINEAR_MIPMAP_LINEAR);
 	Globals::textureManager.get("smoke").setWrapMode(GL_REPEAT);
 
-	Globals::textureManager.loadTexture("bricks", "res/textures/bricks.png", false);
+	Globals::textureManager.loadTexture("bricks", "res/textures/bricks.png", true);
 	Globals::textureManager.get("bricks").setFilter(GL_LINEAR_MIPMAP_LINEAR);
 	Globals::textureManager.get("bricks").setWrapMode(GL_REPEAT);
 
-	Globals::textureManager.loadTexture("bricks_disp", "res/textures/bricks_disp.png", false);
+	Globals::textureManager.loadTexture("bricks_disp", "res/textures/bricks_disp.png", true);
 	Globals::textureManager.get("bricks_disp").setFilter(GL_LINEAR_MIPMAP_LINEAR);
 	Globals::textureManager.get("bricks_disp").setWrapMode(GL_REPEAT);
+	Globals::textureManager.get("bricks_disp").generateDisplacements();
 
 	std::string faces[] = { "res/textures/posx.jpg", "res/textures/negx.jpg", "res/textures/posy.jpg", "res/textures/negy.jpg", "res/textures/posz.jpg", "res/textures/negz.jpg", };
 	Globals::textureManager.loadCubeMap("dessert", faces, false);

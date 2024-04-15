@@ -4,9 +4,11 @@
 layout(triangles, invocations = 28) in;
 layout(triangle_strip, max_vertices = 6) out;
 
-uniform mat4 u_projection, u_view;
-mat4 Matrix = u_projection * u_view;
+uniform mat4 u_projection;
+uniform mat4 u_view;
 uniform vec3 u_campos;
+
+mat4 Matrix = u_projection * u_view;
 
 const float WindingDirection = -1;
 const float ShellHeight = 0.1;
@@ -231,4 +233,25 @@ void main(){
         }
 		EndPrimitive();
     }
+	
+	/*gl_Position = Matrix * gl_in[0].gl_Position;
+	geomNormal = vertNormal[0];
+	geomTangent = vertTangent[0];
+	geomTexCoord = vec3(0.0, 0.0, 0.0);
+	EmitVertex();
+	
+	gl_Position = Matrix * gl_in[1].gl_Position;
+	geomNormal = vertNormal[1];
+	geomTangent = vertTangent[1];
+	geomTexCoord = vec3(0.0, 0.0, 0.0);
+	EmitVertex();
+	
+	gl_Position = Matrix * gl_in[2].gl_Position;
+	geomNormal = vertNormal[2];
+	geomTangent = vertTangent[2];
+	geomTexCoord = vec3(0.0, 0.0, 0.0);
+	EmitVertex();
+	
+	EndPrimitive();*/
+	
 }

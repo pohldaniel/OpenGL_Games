@@ -17,12 +17,17 @@ Shell2::Shell2(StateMachine& machine) : State(machine, States::SHELL1) {
 	m_camera = Camera();
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
-	m_camera.lookAt(Vector3f(0.0f, 2.0f, 10.0f), Vector3f(0.0f, 2.0f, 10.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
+	m_camera.lookAt(Vector3f(10.0f, 0.0f, 0.0f), Vector3f(10.0f, 0.0f, 0.0f) + Vector3f(-1.0f, 0.0f, 0.0f), Vector3f(0.0f, 1.0f, 0.0f));
 	m_camera.setRotationSpeed(0.1f);
 	m_camera.setMovingSpeed(10.0f);
 
-	glClearColor(0.494f, 0.686f, 0.796f, 1.0f);
+	glClearColor(0.1f, 0.1f, 0.1f, 0.0f);
 	glClearDepth(1.0f);
+
+	glEnable(GL_CLIP_DISTANCE0);
+	glEnable(GL_CLIP_DISTANCE1);
+	glEnable(GL_CLIP_DISTANCE2);
+	glDisable(GL_CULL_FACE);
 }
 
 Shell2::~Shell2() {
@@ -111,7 +116,6 @@ void Shell2::render() {
 
 	Globals::shapeManager.get("torus_shell").drawRaw();
 	shader->unuse();
-
 	
 	if (m_drawUi)
 		renderUi();
