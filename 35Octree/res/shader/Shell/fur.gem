@@ -1,0 +1,44 @@
+#version 410 core
+
+layout (triangles) in;
+layout (triangle_strip, max_vertices = 140) out;
+
+uniform mat4 u_model;
+uniform mat4 u_projection;
+
+uniform int fur_layers = 30;
+uniform float fur_depth = 5.0;
+
+in VS_GS_VERTEX{
+	vec3 normal;
+	vec2 texCoord;
+} vertex_in[];
+
+out GS_FS_VERTEX{
+	vec3 normal;
+	vec2 texCoord;
+	flat float fur_strength;
+} vertex_out;
+
+void main(void){
+
+	int i, layer;
+	float disp_delta = 1.0 / float(fur_layers);
+	float d = 0.0;
+	vec4 position;
+
+	for (layer = 0; layer < fur_layers; layer++){
+	
+		for (i = 0; i < gl_in.length(); i++) {
+			vec3 n = vertex_in[i].normal;
+			vertex_out.normal = n;
+			vertex_out.texCoord = vertex_in[i].texCoord;
+			vertex_out.fur_strength = 1.0 - d;
+			position = gl_in[i].gl_Position + vec4(n * d * fur_depth, 0.0);
+			gl_Position = u_projection * (u_model * position);
+			EmitVertex();
+		}
+		d += disp_delta;
+		EndPrimitive();
+	}
+}

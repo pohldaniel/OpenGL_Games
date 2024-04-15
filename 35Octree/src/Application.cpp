@@ -32,6 +32,7 @@
 
 #include <States/Stencil/Stencil1.h>
 #include <States/Shell/Shell1.h>
+#include <States/Shell/Shell2.h>
 
 #include "Application.h"
 #include "Globals.h"
@@ -439,7 +440,8 @@ void Application::initStates() {
 	//Machine->addStateAtTop(new Separable(*Machine));
 	//Machine->addStateAtTop(new Stencil1(*Machine));
 	//Machine->addStateAtTop(new Shadow(*Machine));
-	Machine->addStateAtTop(new Shell1(*Machine));
+	//Machine->addStateAtTop(new Shell1(*Machine));
+	Machine->addStateAtTop(new Shell2(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -767,6 +769,10 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("shadow_base", "res/shader/Shadow/base.vert", "res/shader/Shadow/base.frag");
 	Globals::shaderManager.loadShader("shadow", "res/shader/Shadow/shadow.vert", "res/shader/Shadow/shadow.frag");
 
+	Globals::shaderManager.loadShader("fur_base", "res/shader/Shell/base.vert", "res/shader/Shell/base.frag");
+	Globals::shaderManager.loadShader("fur", "res/shader/Shell/fur.vert", "res/shader/Shell/fur.frag", "res/shader/Shell/fur.gem");
+	Globals::shaderManager.loadShader("shell", "res/shader/Shell/shell.vert", "res/shader/Shell/shell.frag", "res/shader/Shell/shell.gem");
+
 	Globals::fontManager.loadCharacterSet("upheaval_200", "res/fonts/upheavtt.ttf", 200, 0, 30, 128, 0, true, 0u);
 	Globals::fontManager.loadCharacterSet("upheaval_50", "res/fonts/upheavtt.ttf", 50, 0, 3, 0, 0, true, 0u);
 
@@ -813,6 +819,14 @@ void Application::loadAssets() {
 	Globals::textureManager.get("smoke").setFilter(GL_LINEAR_MIPMAP_LINEAR);
 	Globals::textureManager.get("smoke").setWrapMode(GL_REPEAT);
 
+	Globals::textureManager.loadTexture("bricks", "res/textures/bricks.png", false);
+	Globals::textureManager.get("bricks").setFilter(GL_LINEAR_MIPMAP_LINEAR);
+	Globals::textureManager.get("bricks").setWrapMode(GL_REPEAT);
+
+	Globals::textureManager.loadTexture("bricks_disp", "res/textures/bricks_disp.png", false);
+	Globals::textureManager.get("bricks_disp").setFilter(GL_LINEAR_MIPMAP_LINEAR);
+	Globals::textureManager.get("bricks_disp").setWrapMode(GL_REPEAT);
+
 	std::string faces[] = { "res/textures/posx.jpg", "res/textures/negx.jpg", "res/textures/posy.jpg", "res/textures/negy.jpg", "res/textures/posz.jpg", "res/textures/negz.jpg", };
 	Globals::textureManager.loadCubeMap("dessert", faces, false);
 
@@ -823,6 +837,9 @@ void Application::loadAssets() {
 	Globals::shapeManager.buildQuadXZ("quad_xz", Vector3f(-1.0f, 0.0f, -1.0f), Vector2f(2.0f, 2.0f), 1, 1, true, false, false);
 	Globals::shapeManager.buildTorus("torus", 1.0f, 0.4f, Vector3f(0.0f, 0.0f, 0.0f), 49, 49, true, true, true);
 	Globals::shapeManager.buildTorusKnot("torus_knot", 2.0f, 0.75f, 2, 3, Vector3f(0.0f, 0.0f, 0.0f), 100, 16, true, true, false);
+	Globals::shapeManager.buildTorus("torus_shell", 1.0f, 0.5f, Vector3f(0.0f, 0.0f, 0.0f), 72, 48, true, true, true);
+
+
 	Globals::shapeManager.buildQuadXZ("floor", Vector3f(-50.0f, 0.0f, -50.0f), Vector2f(100.0f, 100.0f), 10, 10, true, true, false);
 	Globals::shapeManager.buildQuadXZ("floor_shadow", Vector3f(-500.0f, -50.0f, -500.0f), Vector2f(1000.0f, 1000.0f), 1, 1, false, true, false);
 }

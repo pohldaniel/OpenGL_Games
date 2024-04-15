@@ -17,7 +17,8 @@ enum States {
 	SEPARABLE,
 	STENCIL1,
 	SHADOW,
-	SHELL1
+	SHELL1,
+	SHELL2
 };
 
 class State;

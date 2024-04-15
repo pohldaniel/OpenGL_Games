@@ -4,11 +4,11 @@
 #include <imgui_internal.h>
 #include <engine/Batchrenderer.h>
 
-#include "Shell1.h"
+#include "Shell2.h"
 #include "Application.h"
 #include "Globals.h"
 
-Shell1::Shell1(StateMachine& machine) : State(machine, States::SHELL1) {
+Shell2::Shell2(StateMachine& machine) : State(machine, States::SHELL1) {
 
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
@@ -23,43 +23,18 @@ Shell1::Shell1(StateMachine& machine) : State(machine, States::SHELL1) {
 
 	glClearColor(0.494f, 0.686f, 0.796f, 1.0f);
 	glClearDepth(1.0f);
-	
-	m_ninja.LoadFromVBM("res/models//ninja.vbm", 0, 1, 2);
-
-	glGenTextures(1, &fur_texture);
-	unsigned char * tex = (unsigned char *)malloc(1024 * 1024 * 4);
-	memset(tex, 0, 1024 * 1024 * 4);
-
-	int n, m;
-
-	for (n = 0; n < 256; n++){
-		for (m = 0; m < 1270; m++){
-			int x = rand() & 0x3FF;
-			int y = rand() & 0x3FF;
-			tex[(y * 1024 + x) * 4 + 0] = (rand() & 0x3F) + 0xC0;
-			tex[(y * 1024 + x) * 4 + 1] = (rand() & 0x3F) + 0xC0;
-			tex[(y * 1024 + x) * 4 + 2] = (rand() & 0x3F) + 0xC0;
-			tex[(y * 1024 + x) * 4 + 3] = n;
-		}
-	}
-
-	glBindTexture(GL_TEXTURE_2D, fur_texture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1024, 1024, 0, GL_RGBA, GL_UNSIGNED_BYTE, tex);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	free(tex);
 }
 
-Shell1::~Shell1() {
+Shell2::~Shell2() {
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
 }
 
-void Shell1::fixedUpdate() {
+void Shell2::fixedUpdate() {
 
 }
 
-void Shell1::update() {
+void Shell2::update() {
 	Keyboard &keyboard = Keyboard::instance();
 	Vector3f direction = Vector3f();
 
@@ -115,55 +90,55 @@ void Shell1::update() {
 	}
 }
 
-void Shell1::render() {
+void Shell2::render() {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glDisable(GL_BLEND);
-	auto shader = Globals::shaderManager.getAssetPointer("fur_base");
-	shader->use();
-	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix() *  m_camera.getViewMatrix());
-	shader->loadMatrix("u_model", Matrix4f::Scale(0.05f, 0.05f, 0.05f));	
 
-	m_ninja.Render();
+	auto shader = Globals::shaderManager.getAssetPointer("shell");
+	shader->use();
+	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
+	shader->loadMatrix("u_view", m_camera.getViewMatrix());
+	shader->loadMatrix("u_model", Matrix4f::IDENTITY);
+	shader->loadMatrix("u_normal", Matrix4f::IDENTITY);
+	shader->loadVector("u_campos", m_camera.getPosition());
+	shader->loadVector("u_lightPos", m_camera.getPosition());
+
+	shader->loadInt("u_texture", 0);
+	shader->loadInt("u_bump", 1);
+
+	Globals::textureManager.get("bricks").bind(0u);
+	Globals::textureManager.get("bricks_disp").bind(1u);
+
+	Globals::shapeManager.get("torus_shell").drawRaw();
 	shader->unuse();
 
-	glEnable(GL_BLEND);
-	glDepthMask(GL_FALSE);
-
-	shader = Globals::shaderManager.getAssetPointer("fur");
-	shader->use();
-	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix() *  m_camera.getViewMatrix());
-	shader->loadMatrix("u_model", Matrix4f::Scale(0.05f, 0.05f, 0.05f));
-	m_ninja.Render();
-	shader->unuse();
-
-	glDepthMask(GL_TRUE);
+	
 	if (m_drawUi)
 		renderUi();
 }
 
-void Shell1::OnMouseMotion(Event::MouseMoveEvent& event) {
+void Shell2::OnMouseMotion(Event::MouseMoveEvent& event) {
 
 }
 
-void Shell1::OnMouseButtonDown(Event::MouseButtonEvent& event) {
+void Shell2::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 	if (event.button == 2u) {
 		Mouse::instance().attach(Application::GetWindow());
 	}
 }
 
-void Shell1::OnMouseButtonUp(Event::MouseButtonEvent& event) {
+void Shell2::OnMouseButtonUp(Event::MouseButtonEvent& event) {
 	if (event.button == 2u) {
 		Mouse::instance().detach();
 	}
 }
 
-void Shell1::OnMouseWheel(Event::MouseWheelEvent& event) {
+void Shell2::OnMouseWheel(Event::MouseWheelEvent& event) {
 
 }
 
 
-void Shell1::OnKeyDown(Event::KeyboardEvent& event) {
+void Shell2::OnKeyDown(Event::KeyboardEvent& event) {
 	if (event.keyCode == VK_LMENU) {
 		m_drawUi = !m_drawUi;
 	}
@@ -174,16 +149,16 @@ void Shell1::OnKeyDown(Event::KeyboardEvent& event) {
 	}
 }
 
-void Shell1::OnKeyUp(Event::KeyboardEvent& event) {
+void Shell2::OnKeyUp(Event::KeyboardEvent& event) {
 
 }
 
-void Shell1::resize(int deltaW, int deltaH) {
+void Shell2::resize(int deltaW, int deltaH) {
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
 }
 
-void Shell1::renderUi() {
+void Shell2::renderUi() {
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();

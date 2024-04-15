@@ -230,6 +230,7 @@
     <ClCompile Include="src\States\Settings.cpp" />
     <ClCompile Include="src\States\Shadow.cpp" />
     <ClCompile Include="src\States\Shell\Shell1.cpp" />
+    <ClCompile Include="src\States\Shell\Shell2.cpp" />
     <ClCompile Include="src\States\SmoothParticle.cpp" />
     <ClCompile Include="src\States\SoftParticle.cpp" />
     <ClCompile Include="src\States\SSS\Separable.cpp" />
@@ -487,6 +488,7 @@
     <ClInclude Include="src\States\Settings.h" />
     <ClInclude Include="src\States\Shadow.h" />
     <ClInclude Include="src\States\Shell\Shell1.h" />
+    <ClInclude Include="src\States\Shell\Shell2.h" />
     <ClInclude Include="src\States\SmoothParticle.h" />
     <ClInclude Include="src\States\SoftParticle.h" />
     <ClInclude Include="src\States\SSS\Separable.h" />

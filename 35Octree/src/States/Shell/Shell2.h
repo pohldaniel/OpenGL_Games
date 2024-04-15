@@ -6,14 +6,12 @@
 
 #include <States/StateMachine.h>
 
-#include "vbm.h"
-
-class Shell1 : public State, public MouseEventListener, public KeyboardEventListener {
+class Shell2 : public State, public MouseEventListener, public KeyboardEventListener {
 
 public:
 
-	Shell1(StateMachine& machine);
-	~Shell1();
+	Shell2(StateMachine& machine);
+	~Shell2();
 
 	void fixedUpdate() override;
 	void update() override;
@@ -34,6 +32,4 @@ private:
 	bool m_drawUi = true;
 
 	Camera m_camera;
-	VBObject m_ninja;
-	unsigned int fur_texture;
 };
