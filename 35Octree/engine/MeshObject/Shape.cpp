@@ -743,6 +743,10 @@ void Shape::createBuffer() {
 
 }
 
+void Shape::setInstanceCount(unsigned int instanceCount) {
+	m_instanceCount = instanceCount;
+}
+
 void Shape::drawRaw() const {
 	glBindVertexArray(m_vao);
 	glDrawElements(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0);
@@ -1052,6 +1056,12 @@ void Shape::updateFloatAttribute(const std::vector<float>& values) {
 void Shape::drawRawInstanced() const {
 	glBindVertexArray(m_vao);
 	glDrawElementsInstanced(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0, m_instanceCount);
+	glBindVertexArray(0);
+}
+
+void  Shape::drawRawInstanced(unsigned int instanceCount) const {
+	glBindVertexArray(m_vao);
+	glDrawElementsInstanced(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0, instanceCount);
 	glBindVertexArray(0);
 }
 

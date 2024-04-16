@@ -44,6 +44,7 @@ public:
 
 	void drawRaw() const;
 	void drawRawInstanced() const;
+	void drawRawInstanced(unsigned int instanceCount) const;
 	void drawAABB() const;
 
 	void addInstance(const Matrix4f& value, unsigned int divisor = 1u);
@@ -53,6 +54,7 @@ public:
 	void addInstances(const std::vector<Matrix4f>& values, unsigned int divisor = 1u);
 	void setInstances(const std::vector<Matrix4f>& values, unsigned int divisor = 1u);
 	void setInstances(unsigned int length, unsigned int divisor = 1u, unsigned int usage = 35048u /*GL_DYNAMIC_DRAW*/);
+	void setInstanceCount(unsigned int instanceCount);
 	void updateInstances(const std::vector<Matrix4f>& values);
 	void updateInstance(const Matrix4f& mtx, unsigned int index);
 

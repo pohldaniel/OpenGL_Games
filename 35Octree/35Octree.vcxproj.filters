@@ -498,6 +498,9 @@
     <ClCompile Include="src\States\Shell\Shell2.cpp">
       <Filter>Source Files\States\Shell</Filter>
     </ClCompile>
+    <ClCompile Include="src\States\Shell\Shell3.cpp">
+      <Filter>Source Files\States\Shell</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="convhull\convhull_3d.h">
@@ -1137,6 +1140,9 @@
       <Filter>Source Files\States\Shell</Filter>
     </ClInclude>
     <ClInclude Include="src\States\Shell\Shell2.h">
+      <Filter>Source Files\States\Shell</Filter>
+    </ClInclude>
+    <ClInclude Include="src\States\Shell\Shell3.h">
       <Filter>Source Files\States\Shell</Filter>
     </ClInclude>
   </ItemGroup>

@@ -18,7 +18,8 @@ enum States {
 	STENCIL1,
 	SHADOW,
 	SHELL1,
-	SHELL2
+	SHELL2,
+	SHELL3
 };
 
 class State;
