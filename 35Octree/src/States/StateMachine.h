@@ -19,7 +19,8 @@ enum States {
 	SHADOW,
 	SHELL1,
 	SHELL2,
-	SHELL3
+	SHELL3,
+	GRASS1
 };
 
 class State;

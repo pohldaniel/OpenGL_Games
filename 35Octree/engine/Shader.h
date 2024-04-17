@@ -19,16 +19,19 @@ public:
 	Shader();
 	Shader(const char* vertex, const char* fragment, bool fromFile = true);
 	Shader(const char* vertex, const char* fragment, const char* geometry, bool fromFile = true);
+	Shader(const char* vertex, const char* fragment, const char* tessControl, const char* tessEvaluation, bool fromFile = true);
 	Shader(const char* compute, bool fromFile = true);
 	Shader(Shader* shader);
 	~Shader();
 
-	void loadFromFile(std::string vertex, std::string fragment);
-	void loadFromResource(std::string vertex, std::string fragment);
-	void loadFromFile(std::string vertex, std::string fragment, std::string geometry);
-	void loadFromResource(std::string vertex, std::string fragment, std::string geometry);
-	void loadFromFile(std::string compute);
-	void loadFromResource(std::string compute);
+	void loadFromFile(const std::string& vertex, const std::string& fragment);
+	void loadFromResource(const std::string& vertex, const std::string& fragment);
+	void loadFromFile(const std::string& vertex, const std::string& fragment, const std::string& geometry);
+	void loadFromResource(const std::string& vertex, const std::string& fragment, const std::string& geometry);
+	void loadFromFile(const std::string& vertex, const std::string& fragment, const std::string& tessControl, const std::string& tessEvaluation);
+	void loadFromResource(const std::string& vertex, const std::string& fragment, const std::string& tessControl, const std::string& tessEvaluation);
+	void loadFromFile(const std::string& compute);
+	void loadFromResource(const std::string& compute);
 	
 	Shader& get();
 
@@ -79,16 +82,19 @@ public:
 
 protected:
 
-	void createProgramFromFile(std::string vertex, std::string fragment);
-	void createProgram(std::string vertex, std::string fragment);
-	void createProgramFromFile(std::string vertex, std::string fragment, std::string geometry);
-	void createProgram(std::string vertex, std::string fragment, std::string geometry);
-	void createProgramFromFile(std::string compute);
-	void createProgram(std::string compute);
+	void createProgramFromFile(const std::string& vertex, const std::string& fragment);
+	void createProgram(const std::string& vertex, const std::string& fragment);
+	void createProgramFromFile(const std::string& vertex, const std::string& fragment, const std::string& geometry);
+	void createProgram(const std::string& vertex, const std::string& fragment, const std::string& geometry);
+	void createProgramFromFile(const std::string& vertex, const std::string& fragment, const std::string& tessControl, const std::string& tessEvaluation);
+	void createProgram(const std::string& vertex, const std::string& fragment, const std::string& tessControl, const std::string& tessEvaluation);
+	void createProgramFromFile(const std::string& compute);
+	void createProgram(const std::string& compute);
 
 	void linkShaders(GLuint compShader);
 	void linkShaders(GLuint vertShader, GLuint fragShader);
 	void linkShaders(GLuint vertShader, GLuint fragShader, GLuint geoShader);
+	void linkShaders(GLuint vertShader, GLuint fragShader, GLuint tesscShader, GLuint tesseShader);
 	
 	void cleanup();
 

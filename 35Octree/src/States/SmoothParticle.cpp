@@ -199,7 +199,7 @@ void SmoothParticle::render() {
 
 	Globals::shapeManager.get("floor").drawRaw();
 	shader->unuse();
-	m_skybox.draw(m_camera);
+	m_skybox.draw(m_camera, "dessert");
 
 	if (m_softParticle) {
 		m_depthBuffer.blitBackBufferToDepthTexture();

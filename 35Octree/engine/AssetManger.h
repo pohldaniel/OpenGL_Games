@@ -56,6 +56,10 @@ public:
 		m_assetPointer[name] = new T(vertex.c_str(), fragment.c_str(), geometry.c_str(), true);
 	}
 
+	void loadShader(const std::string& name, const std::string& vertex, const std::string& fragment, const std::string& tessControl, const std::string& tessEvaluation) {
+		m_assetPointer[name] = new T(vertex.c_str(), fragment.c_str(), tessControl.c_str(), tessEvaluation.c_str(), true);
+	}
+
 	void loadShader(const std::string& name, const std::string& compute) {
 		m_assetPointer[name] = new T(compute.c_str(), true);
 	}
@@ -66,6 +70,10 @@ public:
 
 	void loadShaderFromString(const std::string& name, const std::string& vertex, const std::string& fragment, const std::string& geometry) {
 		m_assetPointer[name] = new T(vertex.c_str(), fragment.c_str(), geometry.c_str(), false);
+	}
+
+	void loadShaderFromString(const std::string& name, const std::string& vertex, const std::string& fragment, const std::string& tessControl, const std::string& tessEvaluation) {
+		m_assetPointer[name] = new T(vertex.c_str(), fragment.c_str(), tessControl.c_str(), tessEvaluation.c_str(), false);
 	}
 
 	void loadShaderFromString(const std::string& name, const std::string& compute) {

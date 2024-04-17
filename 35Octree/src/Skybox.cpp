@@ -7,7 +7,7 @@ Skybox::Skybox() {
 	transform.identity();
 }
 
-void Skybox::draw(const Camera& camera) {
+void Skybox::draw(const Camera& camera, std::string map) {
 	glFrontFace(GL_CW);
 	auto shader = Globals::shaderManager.getAssetPointer("skybox");
 	Matrix4f view = camera.getViewMatrix();
@@ -17,7 +17,7 @@ void Skybox::draw(const Camera& camera) {
 	shader->loadMatrix("u_view", view * transform);
 	shader->loadInt("u_texture", 0);
 
-	Globals::textureManager.get("dessert").bind();
+	Globals::textureManager.get(map).bind();
 	Globals::shapeManager.get("cube").drawRaw();
 
 

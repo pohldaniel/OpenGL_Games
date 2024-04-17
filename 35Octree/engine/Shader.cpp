@@ -18,6 +18,13 @@ Shader::Shader(const char* vertex, const char* fragment, const char* geometry, b
 		createProgram(vertex, fragment, geometry);
 }
 
+Shader::Shader(const char* vertex, const char* fragment, const char* tessControl, const char* tessEvaluation, bool fromFile) : m_use(false) {
+	if (fromFile)
+		createProgramFromFile(vertex, fragment, tessControl, tessEvaluation);
+	else
+		createProgram(vertex, fragment, tessControl, tessEvaluation);
+}
+
 Shader::Shader(const char* compute, bool fromFile) : m_use(false) {
 	if (fromFile)
 		createProgramFromFile(compute);
@@ -33,27 +40,35 @@ Shader::~Shader() {
 	cleanup();
 }
 
-void Shader::loadFromFile(std::string vertex, std::string fragment) {
+void Shader::loadFromFile(const std::string& vertex, const std::string& fragment) {
 	createProgramFromFile(vertex, fragment);
 }
 
-void Shader::loadFromResource(std::string vertex, std::string fragment) {
+void Shader::loadFromResource(const std::string& vertex, const std::string& fragment) {
 	createProgram(vertex, fragment);
 }
 
-void Shader::loadFromFile(std::string vertex, std::string fragment, std::string geometry) {
+void Shader::loadFromFile(const std::string& vertex, const std::string& fragment, const std::string& geometry) {
 	createProgramFromFile(vertex, fragment, geometry);
 }
 
-void Shader::loadFromResource(std::string vertex, std::string fragment, std::string geometry) {
+void Shader::loadFromResource(const std::string& vertex, const std::string& fragment, const std::string& geometry) {
 	createProgram(vertex, fragment, geometry);
 }
 
-void  Shader::loadFromFile(std::string compute) {
+void Shader::loadFromFile(const std::string& vertex, const std::string& fragment, const std::string& tessControl, const std::string& tessEvaluation) {
+	createProgramFromFile(vertex, fragment, tessControl, tessEvaluation);
+}
+
+void Shader::loadFromResource(const std::string& vertex, const std::string& fragment, const std::string& tessControl, const std::string& tessEvaluation) {
+	createProgram(vertex, fragment, tessControl, tessEvaluation);
+}
+
+void  Shader::loadFromFile(const std::string& compute) {
 	createProgram(compute);
 }
 
-void  Shader::loadFromResource(std::string compute) {
+void  Shader::loadFromResource(const std::string& compute) {
 	createProgram(compute);
 }
 
@@ -181,21 +196,21 @@ void Shader::loadBool(const char* location, bool value) const {
 	glUniform1i(getUnifromLocation(location), value);
 }
 
-void Shader::createProgramFromFile(std::string vertex, std::string fragment) {
+void Shader::createProgramFromFile(const std::string& vertex, const std::string& fragment) {
 	GLuint vshader = LoadShaderProgram(GL_VERTEX_SHADER, vertex.c_str());
 	GLuint fshader = LoadShaderProgram(GL_FRAGMENT_SHADER, fragment.c_str());
 	m_program = glCreateProgram();
 	linkShaders(vshader, fshader);
 }
 
-void Shader::createProgram(std::string vertex, std::string fragment) {
+void Shader::createProgram(const std::string& vertex, const std::string& fragment) {
 	GLuint vshader = LoadShaderProgram(GL_VERTEX_SHADER, vertex);
 	GLuint fshader = LoadShaderProgram(GL_FRAGMENT_SHADER, fragment);
 	m_program = glCreateProgram();
 	linkShaders(vshader, fshader);
 }
 
-void Shader::createProgramFromFile(std::string vertex, std::string fragment, std::string geometry) {
+void Shader::createProgramFromFile(const std::string& vertex, const std::string& fragment, const std::string& geometry) {
 	GLuint vshader = LoadShaderProgram(GL_VERTEX_SHADER, vertex.c_str());
 	GLuint fshader = LoadShaderProgram(GL_FRAGMENT_SHADER, fragment.c_str());
 	GLuint gshader = LoadShaderProgram(GL_GEOMETRY_SHADER, geometry.c_str());
@@ -203,7 +218,7 @@ void Shader::createProgramFromFile(std::string vertex, std::string fragment, std
 	linkShaders(vshader, fshader, gshader);
 }
 
-void Shader::createProgram(std::string vertex, std::string fragment, std::string geometry) {
+void Shader::createProgram(const std::string& vertex, const std::string& fragment, const std::string& geometry) {
 	GLuint vshader = LoadShaderProgram(GL_VERTEX_SHADER, vertex);
 	GLuint fshader = LoadShaderProgram(GL_FRAGMENT_SHADER, fragment);
 	GLuint gshader = LoadShaderProgram(GL_GEOMETRY_SHADER, geometry);
@@ -211,13 +226,31 @@ void Shader::createProgram(std::string vertex, std::string fragment, std::string
 	linkShaders(vshader, fshader, gshader);
 }
 
-void Shader::createProgramFromFile(std::string compute) {
+void Shader::createProgramFromFile(const std::string& vertex, const std::string& fragment, const std::string& tessControl, const std::string& tessEvaluation) {
+	GLuint vshader = LoadShaderProgram(GL_VERTEX_SHADER, vertex.c_str());
+	GLuint fshader = LoadShaderProgram(GL_FRAGMENT_SHADER, fragment.c_str());
+	GLuint tcshader = LoadShaderProgram(GL_TESS_CONTROL_SHADER, tessControl.c_str());
+	GLuint teshader = LoadShaderProgram(GL_TESS_EVALUATION_SHADER, tessEvaluation.c_str());
+	m_program = glCreateProgram();
+	linkShaders(vshader, fshader, tcshader, teshader);
+}
+
+void Shader::createProgram(const std::string& vertex, const std::string& fragment, const std::string& tessControl, const std::string& tessEvaluation) {
+	GLuint vshader = LoadShaderProgram(GL_VERTEX_SHADER, vertex);
+	GLuint fshader = LoadShaderProgram(GL_FRAGMENT_SHADER, fragment);
+	GLuint tcshader = LoadShaderProgram(GL_TESS_CONTROL_SHADER, tessControl);
+	GLuint teshader = LoadShaderProgram(GL_TESS_EVALUATION_SHADER, tessEvaluation);
+	m_program = glCreateProgram();
+	linkShaders(vshader, fshader, tcshader, teshader);
+}
+
+void Shader::createProgramFromFile(const std::string& compute) {
 	GLuint cshader = LoadShaderProgram(GL_COMPUTE_SHADER, compute.c_str());
 	m_program = glCreateProgram();
 	linkShaders(cshader);
 }
 
-void Shader::createProgram(std::string compute) {
+void Shader::createProgram(const std::string& compute) {
 	GLuint cshader = LoadShaderProgram(GL_COMPUTE_SHADER, compute);
 	m_program = glCreateProgram();
 	linkShaders(cshader);
@@ -381,6 +414,60 @@ void Shader::linkShaders(GLuint vertShader, GLuint fragShader, GLuint geoShader)
 
 	}
 
+}
+
+void Shader::linkShaders(GLuint vertShader, GLuint fragShader, GLuint tesscShader, GLuint tesseShader) {
+	if (m_program) {
+
+		GLint linked = 0;
+
+		if (vertShader)
+			glAttachShader(m_program, vertShader);
+
+		if (fragShader)
+			glAttachShader(m_program, fragShader);
+
+		if (tesscShader)
+			glAttachShader(m_program, tesscShader);
+
+		if (tesseShader)
+			glAttachShader(m_program, tesseShader);
+
+		glLinkProgram(m_program);
+
+		glGetProgramiv(m_program, GL_LINK_STATUS, &linked);
+
+		if (!linked) {
+
+			GLsizei logSizeInfo = 0;
+			glGetShaderiv(m_program, GL_INFO_LOG_LENGTH, &logSizeInfo);
+
+			std::string logInfo;
+			logInfo.resize(logSizeInfo);
+			glGetShaderInfoLog(m_program, logSizeInfo, &logSizeInfo, &logInfo[0]);
+			std::cout << "Compile status: \n" << logInfo << std::endl;
+
+			GLsizei logSizeProgram = 0;
+			std::string logProgram;
+			logProgram.resize(256);
+
+			glGetProgramInfoLog(m_program, 256, &logSizeProgram, &logProgram[0]);
+			std::cout << "Error Message: \n" << logProgram << std::endl;
+		}
+
+		if (vertShader)
+			glDeleteShader(vertShader);
+
+		if (fragShader)
+			glDeleteShader(fragShader);
+
+		if (tesscShader)
+			glDeleteShader(tesscShader);
+
+		if (tesseShader)
+			glDeleteShader(tesseShader);
+
+	}
 }
 
 void Shader::linkShaders(GLuint compShader) {

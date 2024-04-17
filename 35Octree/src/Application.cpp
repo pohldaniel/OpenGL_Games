@@ -31,9 +31,12 @@
 #include <States/SSS/Separable.h>
 
 #include <States/Stencil/Stencil1.h>
+
 #include <States/Shell/Shell1.h>
 #include <States/Shell/Shell2.h>
 #include <States/Shell/Shell3.h>
+
+#include <States/Grass/Grass1.h>
 
 #include "Application.h"
 #include "Globals.h"
@@ -443,7 +446,8 @@ void Application::initStates() {
 	//Machine->addStateAtTop(new Shadow(*Machine));
 	//Machine->addStateAtTop(new Shell1(*Machine));
 	//Machine->addStateAtTop(new Shell2(*Machine));
-	Machine->addStateAtTop(new Shell3(*Machine));
+	//Machine->addStateAtTop(new Shell3(*Machine));
+	Machine->addStateAtTop(new Grass1(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -777,6 +781,8 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("grass_basic", "res/shader/Shell/grass_basic.vert", "res/shader/Shell/grass_basic.frag");
 	Globals::shaderManager.loadShader("grass", "res/shader/Shell/grass.vert", "res/shader/Shell/grass.frag");
 
+	Globals::shaderManager.loadShader("grass_tess", "res/shader/Grass/grass.vert.glsl", "res/shader/Grass/grass.frag.glsl", "res/shader/Grass/grass.tesc.glsl", "res/shader/Grass/grass.tese.glsl");
+
 	Globals::fontManager.loadCharacterSet("upheaval_200", "res/fonts/upheavtt.ttf", 200, 0, 30, 128, 0, true, 0u);
 	Globals::fontManager.loadCharacterSet("upheaval_50", "res/fonts/upheavtt.ttf", 50, 0, 3, 0, 0, true, 0u);
 
@@ -832,8 +838,11 @@ void Application::loadAssets() {
 	Globals::textureManager.get("bricks_disp").setWrapMode(GL_REPEAT);
 	Globals::textureManager.get("bricks_disp").generateDisplacements();
 
-	std::string faces[] = { "res/textures/posx.jpg", "res/textures/negx.jpg", "res/textures/posy.jpg", "res/textures/negy.jpg", "res/textures/posz.jpg", "res/textures/negz.jpg", };
+	std::string faces[] = { "res/textures/posx.jpg", "res/textures/negx.jpg", "res/textures/posy.jpg", "res/textures/negy.jpg", "res/textures/posz.jpg", "res/textures/negz.jpg" };
 	Globals::textureManager.loadCubeMap("dessert", faces, false);
+
+	std::string faces2[] = { "res/textures/ely_hills/hills_rt.tga", "res/textures/ely_hills/hills_lf.tga", "res/textures/ely_hills/hills_up.tga", "res/textures/ely_hills/hills_dn.tga", "res/textures/ely_hills/hills_bk.tga", "res/textures/ely_hills/hills_ft.tga" };
+	Globals::textureManager.loadCubeMap("hills", faces2, false);
 
 	Globals::shapeManager.buildSphere("sphere", 0.5f, Vector3f(0.0f, 0.0f, 0.0f), 16, 16, true, true, false);
 	Globals::shapeManager.buildCube("cube", Vector3f(-1.0f, -1.0f, -1.0f), Vector3f(2.0f, 2.0f, 2.0f), 1, 1, true, true, false);

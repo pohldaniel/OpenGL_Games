@@ -8,7 +8,7 @@ class Skybox : public Object {
 public:
 	Skybox();
 
-	void draw(const Camera& camera);
+	void draw(const Camera& camera, std::string map);
 
 	short getTextureIndex() const;
 	void setTextureIndex(short index) const;
