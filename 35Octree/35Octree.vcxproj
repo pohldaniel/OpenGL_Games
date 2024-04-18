@@ -227,6 +227,7 @@
     <ClCompile Include="src\States\Default.cpp" />
     <ClCompile Include="src\States\Fire.cpp" />
     <ClCompile Include="src\States\Grass\Grass1.cpp" />
+    <ClCompile Include="src\States\Grass\Grass2.cpp" />
     <ClCompile Include="src\States\OctreeInterface.cpp" />
     <ClCompile Include="src\States\RayMarch.cpp" />
     <ClCompile Include="src\States\Settings.cpp" />
@@ -488,6 +489,7 @@
     <ClInclude Include="src\States\Default.h" />
     <ClInclude Include="src\States\Fire.h" />
     <ClInclude Include="src\States\Grass\Grass1.h" />
+    <ClInclude Include="src\States\Grass\Grass2.h" />
     <ClInclude Include="src\States\OctreeInterface.h" />
     <ClInclude Include="src\States\RayMarch.h" />
     <ClInclude Include="src\States\Settings.h" />

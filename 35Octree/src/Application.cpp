@@ -37,6 +37,7 @@
 #include <States/Shell/Shell3.h>
 
 #include <States/Grass/Grass1.h>
+#include <States/Grass/Grass2.h>
 
 #include "Application.h"
 #include "Globals.h"
@@ -447,7 +448,8 @@ void Application::initStates() {
 	//Machine->addStateAtTop(new Shell1(*Machine));
 	//Machine->addStateAtTop(new Shell2(*Machine));
 	//Machine->addStateAtTop(new Shell3(*Machine));
-	Machine->addStateAtTop(new Grass1(*Machine));
+	//Machine->addStateAtTop(new Grass1(*Machine));
+	Machine->addStateAtTop(new Grass2(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -783,6 +785,7 @@ void Application::loadAssets() {
 
 	Globals::shaderManager.loadShader("grass_tess", "res/shader/Grass/grass.vert.glsl", "res/shader/Grass/grass.frag.glsl", "res/shader/Grass/grass.tesc.glsl", "res/shader/Grass/grass.tese.glsl");
 	Globals::shaderManager.loadShader("grass_comp", "res/shader/Grass/grass.comp.glsl");
+	Globals::shaderManager.loadShader("grass_gem", "res/shader/Grass/grass.vs.glsl", "res/shader/Grass/grass.fs.glsl", "res/shader/Grass/grass.gs.glsl");
 
 	Globals::fontManager.loadCharacterSet("upheaval_200", "res/fonts/upheavtt.ttf", 200, 0, 30, 128, 0, true, 0u);
 	Globals::fontManager.loadCharacterSet("upheaval_50", "res/fonts/upheavtt.ttf", 50, 0, 3, 0, 0, true, 0u);
@@ -822,6 +825,14 @@ void Application::loadAssets() {
 	Globals::textureManager.loadTexture("grass_green", "res/textures/grass_green.jpg", true);
 	Globals::textureManager.get("grass_green").setFilter(GL_LINEAR_MIPMAP_LINEAR);
 	Globals::textureManager.get("grass_green").setWrapMode(GL_REPEAT);
+
+	Globals::textureManager.loadTexture("grass_bill", "res/textures/grass_texture.png", true);
+	Globals::textureManager.get("grass_bill").setFilter(GL_LINEAR_MIPMAP_LINEAR);
+	Globals::textureManager.get("grass_bill").setWrapMode(GL_REPEAT);
+
+	Globals::textureManager.loadTexture("flow_map", "res/textures/flowmap.png", true);
+	Globals::textureManager.get("flow_map").setFilter(GL_LINEAR_MIPMAP_LINEAR);
+	Globals::textureManager.get("flow_map").setWrapMode(GL_REPEAT);
 
 	if (!Utils::fileExist("res/textures/fire_pre.png")) {
 		Texture::PremultiplyAlpha("res/textures/fire.png", "res/textures/fire_pre.png");
