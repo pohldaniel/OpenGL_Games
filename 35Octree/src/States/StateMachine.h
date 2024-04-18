@@ -20,8 +20,8 @@ enum States {
 	SHELL1,
 	SHELL2,
 	SHELL3,
-	GRASS1,
-	GRASS2
+	GRASSCOMP,
+	GRASSGEOM
 };
 
 class State;

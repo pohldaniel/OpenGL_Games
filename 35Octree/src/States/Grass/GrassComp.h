@@ -6,12 +6,15 @@
 
 #include <States/StateMachine.h>
 
-class Grass2 : public State, public MouseEventListener, public KeyboardEventListener {
+#include "Skybox.h"
+#include "Grasses.h"
+
+class GrassComp : public State, public MouseEventListener, public KeyboardEventListener {
 
 public:
 
-	Grass2(StateMachine& machine);
-	~Grass2();
+	GrassComp(StateMachine& machine);
+	~GrassComp();
 
 	void fixedUpdate() override;
 	void update() override;
@@ -32,7 +35,6 @@ private:
 	bool m_drawUi = true;
 
 	Camera m_camera;
-	std::vector<Vector3f> m_positions;
-
-	unsigned int VBO, VAO;
+	Skybox m_skybox;
+	Grasses m_grasses;
 };

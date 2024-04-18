@@ -239,16 +239,16 @@ Separable::~Separable() {
 	EventDispatcher::RemoveMouseListener(this);
 
 	glDeleteSamplers(1, &sampler1);
-	sampler1 = 0;
+	sampler1 = 0u;
 
 	glDeleteSamplers(1, &sampler2);
-	sampler2 = 0;
+	sampler2 = 0u;
 
 	glDeleteSamplers(1, &sampler3);
-	sampler3 = 0;
+	sampler3 = 0u;
 
 	glDeleteSamplers(1, &sampler4);
-	sampler4 = 0;
+	sampler4 = 0u;
 }
 
 void Separable::fixedUpdate() {

@@ -23,21 +23,21 @@
 #include <States/SmoothParticle.h>
 #include <States/SoftParticle.h>
 #include <States/BlobShoot.h>
-#include <States/Shadow.h>
 
 #include <States/SSS/SSSGems.h>
 #include <States/SSS/SSSApproximation.h>
 #include <States/SSS/SSSOGLP.h>
 #include <States/SSS/Separable.h>
 
+#include <States/Shadow/Shadow.h>
 #include <States/Stencil/Stencil1.h>
 
 #include <States/Shell/Shell1.h>
 #include <States/Shell/Shell2.h>
 #include <States/Shell/Shell3.h>
 
-#include <States/Grass/Grass1.h>
-#include <States/Grass/Grass2.h>
+#include <States/Grass/GrassComp.h>
+#include <States/Grass/GrassGeom.h>
 
 #include "Application.h"
 #include "Globals.h"
@@ -71,7 +71,7 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	Height = HEIGHT;
 
 	createWindow();
-	initOpenGL(16);
+	initOpenGL();
 	showWindow();
 	initImGUI();
 	//initOpenAL();
@@ -431,6 +431,8 @@ void Application::fixedUpdate() {
 
 void Application::initStates() {	
 	Machine = new StateMachine(m_dt, m_fdt);
+	Machine->addStateAtTop(new Menu(*Machine));
+
 	//Machine->addStateAtTop(new OctreeInterface(*Machine));
 	//Machine->addStateAtTop(new Default(*Machine));
 	//Machine->addStateAtTop(new RayMarch(*Machine));
@@ -448,8 +450,8 @@ void Application::initStates() {
 	//Machine->addStateAtTop(new Shell1(*Machine));
 	//Machine->addStateAtTop(new Shell2(*Machine));
 	//Machine->addStateAtTop(new Shell3(*Machine));
-	//Machine->addStateAtTop(new Grass1(*Machine));
-	Machine->addStateAtTop(new Grass2(*Machine));
+	//Machine->addStateAtTop(new GrassComp(*Machine));
+	//Machine->addStateAtTop(new GrassGeom(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {

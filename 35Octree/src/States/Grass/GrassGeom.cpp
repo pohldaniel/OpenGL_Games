@@ -3,12 +3,13 @@
 #include <imgui_impl_opengl3.h>
 #include <imgui_internal.h>
 #include <engine/Batchrenderer.h>
+#include <States/Menu.h>
 
-#include "Grass1.h"
+#include "GrassGeom.h"
 #include "Application.h"
 #include "Globals.h"
 
-Grass1::Grass1(StateMachine& machine) : State(machine, States::GRASS1) {
+GrassGeom::GrassGeom(StateMachine& machine) : State(machine, States::GRASSGEOM) {
 
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
@@ -21,24 +22,43 @@ Grass1::Grass1(StateMachine& machine) : State(machine, States::GRASS1) {
 	m_camera.setRotationSpeed(0.1f);
 	m_camera.setMovingSpeed(10.0f);
 
-	glClearColor(0.494f, 0.686f, 0.796f, 1.0f);
+	glClearColor(0.215f, 0.215f, 0.215f, 1.0f);
 	glClearDepth(1.0f);
-	
-	m_grasses.init();
 
+	srand(time(NULL));
+	for (float x = -50.0f; x < 50.0f; x += 0.1f){
+		for (float z = -50.0f; z < 50.0f; z += 0.1f){
+			int randNumberX = rand() % 10 + 1;
+			int randNumberZ = rand() % 10 + 1;
+			m_positions.push_back(Vector3f(x + (float)randNumberX / 50.0f, 0, z + (float)randNumberZ / 50.0f));
+		}
+	}
+
+	glGenVertexArrays(1, &VAO);
+	glGenBuffers(1, &VBO);
+	glBindVertexArray(VAO);
+
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, m_positions.size() * sizeof(Vector3f), m_positions.data(), GL_STATIC_DRAW);
+
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	glPointSize(5.0f);
 	glDisable(GL_CULL_FACE);
 }
 
-Grass1::~Grass1() {
+GrassGeom::~GrassGeom() {
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
 }
 
-void Grass1::fixedUpdate() {
+void GrassGeom::fixedUpdate() {
 
 }
 
-void Grass1::update() {
+void GrassGeom::update() {
 	Keyboard &keyboard = Keyboard::instance();
 	Vector3f direction = Vector3f();
 
@@ -92,49 +112,53 @@ void Grass1::update() {
 			m_camera.move(direction * m_dt);
 		}
 	}
-
-	m_grasses.update(m_camera, m_dt);
 }
 
-void Grass1::render() {
+void GrassGeom::render() {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	m_grasses.render(m_camera);
-	auto shader = Globals::shaderManager.getAssetPointer("texture");
+
+	auto shader = Globals::shaderManager.getAssetPointer("grass_gem");
 	shader->use();
 	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
 	shader->loadMatrix("u_view", m_camera.getViewMatrix());
-	shader->loadInt("u_texture", 0);
-	Globals::textureManager.get("grass_green").bind();
-	Globals::shapeManager.get("floor_grass").drawRaw();
-	shader->unuse();
-	m_skybox.draw(m_camera, "hills");
+	shader->loadMatrix("u_model", Matrix4f::IDENTITY);
+	shader->loadVector("u_cameraPosition", m_camera.getPosition());
+	shader->loadFloat("u_time", Globals::clock.getElapsedTimeSec());
+	shader->loadInt("u_wind", 0);
+	shader->loadInt("u_textgrass", 1);
+
+	Globals::textureManager.get("flow_map").bind();
+	Globals::textureManager.get("grass_bill").bind(1u);
+	
+	glBindVertexArray(VAO);
+	glDrawArrays(GL_POINTS, 0, m_positions.size());
 
 	if (m_drawUi)
 		renderUi();
 }
 
-void Grass1::OnMouseMotion(Event::MouseMoveEvent& event) {
+void GrassGeom::OnMouseMotion(Event::MouseMoveEvent& event) {
 
 }
 
-void Grass1::OnMouseButtonDown(Event::MouseButtonEvent& event) {
+void GrassGeom::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 	if (event.button == 2u) {
 		Mouse::instance().attach(Application::GetWindow());
 	}
 }
 
-void Grass1::OnMouseButtonUp(Event::MouseButtonEvent& event) {
+void GrassGeom::OnMouseButtonUp(Event::MouseButtonEvent& event) {
 	if (event.button == 2u) {
 		Mouse::instance().detach();
 	}
 }
 
-void Grass1::OnMouseWheel(Event::MouseWheelEvent& event) {
+void GrassGeom::OnMouseWheel(Event::MouseWheelEvent& event) {
 
 }
 
-void Grass1::OnKeyDown(Event::KeyboardEvent& event) {
+void GrassGeom::OnKeyDown(Event::KeyboardEvent& event) {
 	if (event.keyCode == VK_LMENU) {
 		m_drawUi = !m_drawUi;
 	}
@@ -142,19 +166,21 @@ void Grass1::OnKeyDown(Event::KeyboardEvent& event) {
 	if (event.keyCode == VK_ESCAPE) {
 		Mouse::instance().detach();
 		m_isRunning = false;
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new Menu(m_machine));
 	}
 }
 
-void Grass1::OnKeyUp(Event::KeyboardEvent& event) {
+void GrassGeom::OnKeyUp(Event::KeyboardEvent& event) {
 
 }
 
-void Grass1::resize(int deltaW, int deltaH) {
+void GrassGeom::resize(int deltaW, int deltaH) {
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
 }
 
-void Grass1::renderUi() {
+void GrassGeom::renderUi() {
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
@@ -191,13 +217,6 @@ void Grass1::renderUi() {
 	// render widgets
 	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 	ImGui::Checkbox("Draw Wirframe", &StateMachine::GetEnableWireframe());
-
-	if (ImGui::CollapsingHeader("Wind")) {
-		ImGui::SliderFloat("Magnitude", &m_grasses.wind_magnitude, 0.5f, 3, "%.4f");
-		ImGui::SliderFloat("Wave Length", &m_grasses.wind_wave_length, 0.5f, 2, "%.4f");
-		ImGui::SliderFloat("Wave Period", &m_grasses.wind_wave_period, 0.5f, 2, "%.4f");
-	}
-
 	ImGui::End();
 
 	ImGui::Render();

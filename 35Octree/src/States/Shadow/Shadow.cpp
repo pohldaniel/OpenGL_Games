@@ -2,15 +2,14 @@
 #include <imgui_impl_win32.h>
 #include <imgui_impl_opengl3.h>
 #include <imgui_internal.h>
-
-
 #include <engine/Batchrenderer.h>
+#include <States/Menu.h>
 
-#include "Grass2.h"
+#include "Shadow.h"
 #include "Application.h"
 #include "Globals.h"
 
-Grass2::Grass2(StateMachine& machine) : State(machine, States::GRASS2) {
+Shadow::Shadow(StateMachine& machine) : State(machine, States::SHADOW) {
 
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
@@ -19,47 +18,33 @@ Grass2::Grass2(StateMachine& machine) : State(machine, States::GRASS2) {
 	m_camera = Camera();
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
-	m_camera.lookAt(Vector3f(0.0f, 2.0f, 10.0f), Vector3f(0.0f, 2.0f, 10.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
+	m_camera.lookAt(Vector3f(0.0f, 20.0f, 500.0f), Vector3f(0.0f, 20.0f, 500.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
 	m_camera.setRotationSpeed(0.1f);
-	m_camera.setMovingSpeed(10.0f);
+	m_camera.setMovingSpeed(100.0f);
 
-	glClearColor(0.215f, 0.215f, 0.215f, 1.0f);
+	glClearColor(0.494f, 0.686f, 0.796f, 1.0f);
 	glClearDepth(1.0f);
+	glPolygonOffset(2.0f, 4.0f);
 
-	srand(time(NULL));
-	for (float x = -50.0f; x < 50.0f; x += 0.1f){
-		for (float z = -50.0f; z < 50.0f; z += 0.1f){
-			int randNumberX = rand() % 10 + 1;
-			int randNumberZ = rand() % 10 + 1;
-			m_positions.push_back(Vector3f(x + (float)randNumberX / 50.0f, 0, z + (float)randNumberZ / 50.0f));
-		}
-	}
+	m_depthRT.create(DEPTH_TEXTURE_SIZE, DEPTH_TEXTURE_SIZE);
+	m_depthRT.attachTexture2D(AttachmentTex::DEPTH32F);
+	Texture::SetCompareFunc(m_depthRT.getDepthTexture(), GL_LESS);
 
-	glGenVertexArrays(1, &VAO);
-	glGenBuffers(1, &VBO);
-	glBindVertexArray(VAO);
-
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, m_positions.size() * sizeof(Vector3f), m_positions.data(), GL_STATIC_DRAW);
-
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-	glPointSize(5.0f);
-	glDisable(GL_CULL_FACE);
+	lightProjection = Matrix4f::Perspective(-1.0f, 1.0f, -1.0f, 1.0f, 1.0f, 800.0f);
+	m_armadillo.LoadFromVBM("res/models/armadillo_low.vbm", 0, 1, 2);
+	Globals::clock.restart();
 }
 
-Grass2::~Grass2() {
+Shadow::~Shadow() {
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
 }
 
-void Grass2::fixedUpdate() {
+void Shadow::fixedUpdate() {
 
 }
 
-void Grass2::update() {
+void Shadow::update() {
 	Keyboard &keyboard = Keyboard::instance();
 	Vector3f direction = Vector3f();
 
@@ -115,51 +100,82 @@ void Grass2::update() {
 	}
 }
 
-void Grass2::render() {
-
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	auto shader = Globals::shaderManager.getAssetPointer("grass_gem");
-	shader->use();
-	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
-	shader->loadMatrix("u_view", m_camera.getViewMatrix());
-	shader->loadMatrix("u_model", Matrix4f::IDENTITY);
-	shader->loadVector("u_cameraPosition", m_camera.getPosition());
-	shader->loadFloat("u_time", Globals::clock.getElapsedTimeSec());
-	shader->loadInt("u_wind", 0);
-	shader->loadInt("u_textgrass", 1);
-
-	Globals::textureManager.get("flow_map").bind();
-	Globals::textureManager.get("grass_bill").bind(1u);
+void Shadow::render() {
 	
-	glBindVertexArray(VAO);
-	glDrawArrays(GL_POINTS, 0, m_positions.size());
+	float time = Globals::clock.getElapsedTimeSec();
+	float t = float(GetTickCount() & 0xFFFF) / float(0xFFFF);
+	lightPosition = { sinf(t * 6.0f * 3.141592f) * 300.0f, 200.0f, cosf(t * 4.0f * 3.141592f) * 100.0f + 250.0f };
+	lightView = Matrix4f::LookAt(lightPosition, Vector3f(0.0f), Vector3f(0.0f, 1.0f, 0.0f));
+	model.rotate(Vector3f(0.0f, 1.0f, 0.0f), t * 720.0f);
+
+	m_depthRT.bind();
+	glClear(GL_DEPTH_BUFFER_BIT);
+	glEnable(GL_POLYGON_OFFSET_FILL);
+
+	auto shader = Globals::shaderManager.getAssetPointer("shadow");
+	shader->use();
+	shader->loadMatrix("mvp", lightProjection * lightView * model);
+	m_armadillo.Render();
+	Globals::shapeManager.get("floor_shadow").drawRaw();
+	shader->unuse();
+	glDisable(GL_POLYGON_OFFSET_FILL);	
+	m_depthRT.unbind();
+	
+	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+
+
+
+	shader = Globals::shaderManager.getAssetPointer("shadow_base");
+	shader->use();
+	shader->loadMatrix("model", model);
+	shader->loadMatrix("view", m_camera.getViewMatrix());
+	shader->loadMatrix("proj", m_camera.getPerspectiveMatrix());
+	shader->loadMatrix("shadow_matrix", Matrix4f::BIAS * lightProjection * lightView);
+	shader->loadVector("lightPos", lightPosition);
+	shader->loadVector("mat_ambient", Vector3f(0.1f, 0.0f, 0.2f));
+	shader->loadVector("mat_diffuse", Vector3f(0.3f, 0.2f, 0.8f));
+	shader->loadVector("mat_specular", Vector3f(1.0f, 1.0f, 1.0f));
+	shader->loadFloat("mat_specular_power", 25.0f);
+	shader->loadInt("u_shadowMap", 0);
+
+	m_depthRT.bindDepthTexture(0);
+	m_armadillo.Render();
+
+	shader->loadVector("mat_ambient", Vector3f(0.1f, 0.1f, 0.1f));
+	shader->loadVector("mat_diffuse", Vector3f(0.1f, 0.5f, 0.1f));
+	shader->loadVector("mat_specular", Vector3f(0.1f, 0.1f, 0.1f));
+	shader->loadFloat("mat_specular_power", 3.0f);
+
+	Globals::shapeManager.get("floor_shadow").drawRaw();
+
+	shader->unuse();
+
 
 	if (m_drawUi)
 		renderUi();
 }
 
-void Grass2::OnMouseMotion(Event::MouseMoveEvent& event) {
+void Shadow::OnMouseMotion(Event::MouseMoveEvent& event) {
 
 }
 
-void Grass2::OnMouseButtonDown(Event::MouseButtonEvent& event) {
+void Shadow::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 	if (event.button == 2u) {
 		Mouse::instance().attach(Application::GetWindow());
 	}
 }
 
-void Grass2::OnMouseButtonUp(Event::MouseButtonEvent& event) {
+void Shadow::OnMouseButtonUp(Event::MouseButtonEvent& event) {
 	if (event.button == 2u) {
 		Mouse::instance().detach();
 	}
 }
 
-void Grass2::OnMouseWheel(Event::MouseWheelEvent& event) {
+void Shadow::OnMouseWheel(Event::MouseWheelEvent& event) {
 
 }
 
-void Grass2::OnKeyDown(Event::KeyboardEvent& event) {
+void Shadow::OnKeyDown(Event::KeyboardEvent& event) {
 	if (event.keyCode == VK_LMENU) {
 		m_drawUi = !m_drawUi;
 	}
@@ -167,19 +183,21 @@ void Grass2::OnKeyDown(Event::KeyboardEvent& event) {
 	if (event.keyCode == VK_ESCAPE) {
 		Mouse::instance().detach();
 		m_isRunning = false;
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new Menu(m_machine));
 	}
 }
 
-void Grass2::OnKeyUp(Event::KeyboardEvent& event) {
+void Shadow::OnKeyUp(Event::KeyboardEvent& event) {
 
 }
 
-void Grass2::resize(int deltaW, int deltaH) {
+void Shadow::resize(int deltaW, int deltaH) {
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
 }
 
-void Grass2::renderUi() {
+void Shadow::renderUi() {
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();

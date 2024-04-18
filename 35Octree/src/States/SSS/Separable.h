@@ -11,7 +11,7 @@
 #include <States/StateMachine.h>
 #include "nv_dds.h"
 
-#define DEPTH_TEXTURE_SIZE 2048
+
 
 struct Light {
 	float fov;
@@ -28,6 +28,8 @@ struct Light {
 };
 
 class Separable : public State, public MouseEventListener, public KeyboardEventListener {
+
+	static const int DEPTH_TEXTURE_SIZE = 2048;
 
 public:
 

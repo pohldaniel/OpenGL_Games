@@ -44,6 +44,8 @@ SSSGems::SSSGems(StateMachine& machine) : State(machine, States::RAYMARCH) {
 	//m_trackball.setDollyPosition(-2.5f);
 
 	applyTransformation(m_trackball);
+
+	glDisable(GL_BLEND);
 }
 
 SSSGems::~SSSGems() {

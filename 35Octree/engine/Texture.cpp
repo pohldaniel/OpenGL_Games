@@ -373,9 +373,9 @@ void Texture::generateDisplacements() {
 			std::array<float, 4> n = std::array<float, 4>{result[0], result[1], result[2], sc};
 			
 			// convert to rgb
-			bytesNew[j * m_width * 4 + i * 4 + 0] = n[0] < 0.0f ? 0 : n[0] * 255.0;
-			bytesNew[j * m_width * 4 + i * 4 + 1] = n[1] < 0.0f ? 0 : n[1] * 255.0;
-			bytesNew[j * m_width * 4 + i * 4 + 2] = n[2] < 0.0f ? 0 : n[2] * 255.0;
+			bytesNew[j * m_width * 4 + i * 4 + 0] = static_cast<unsigned char>(n[0] < 0.0f ? 0 : n[0] * 255.0f);
+			bytesNew[j * m_width * 4 + i * 4 + 1] = static_cast<unsigned char>(n[1] < 0.0f ? 0 : n[1] * 255.0f);
+			bytesNew[j * m_width * 4 + i * 4 + 2] = static_cast<unsigned char>(n[2] < 0.0f ? 0 : n[2] * 255.0f);
 		}
 	}
 
@@ -441,9 +441,9 @@ void Texture::generateNormals() {
 			n = Texture::Normalize(n);
 
 			// convert to rgb
-			bytesNew[j * m_width * 4 + i * 4 + 0] = (n[0] + 1.0) * (255.0 / 2.0);
-			bytesNew[j * m_width * 4 + i * 4 + 1] = (n[1] + 1.0) * (255.0 / 2.0);
-			bytesNew[j * m_width * 4 + i * 4 + 2] = (n[2] + 1.0) * (255.0 / 2.0);
+			bytesNew[j * m_width * 4 + i * 4 + 0] = static_cast<unsigned char>((n[0] + 1.0f) * (255.0f / 2.0f));
+			bytesNew[j * m_width * 4 + i * 4 + 1] = static_cast<unsigned char>((n[1] + 1.0f) * (255.0f / 2.0f));
+			bytesNew[j * m_width * 4 + i * 4 + 2] = static_cast<unsigned char>((n[2] + 1.0f) * (255.0f / 2.0f));
 		}
 	}
 
