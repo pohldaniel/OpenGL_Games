@@ -794,6 +794,11 @@ void Framebuffer::cleanup() {
 
 	m_colorRB.shrink_to_fit();
 	m_resizeRB.shrink_to_fit();
+
+	std::map<unsigned int, unsigned int>::iterator it;
+	for (it = Texture::ActiveTextures.begin(); it != Texture::ActiveTextures.end(); it++) {
+		it->second = 0u;
+	}
 }
 
 void Framebuffer::bindVP(unsigned int width, unsigned int height) {

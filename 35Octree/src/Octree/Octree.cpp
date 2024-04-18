@@ -208,8 +208,9 @@ void Octree::QueueUpdate(ShapeNode* drawable)
 {
     assert(drawable);
 
-    if (drawable->m_octant)
-        drawable->m_octant->MarkCullingBoxDirty();
+	if (drawable->m_octant) {
+		drawable->m_octant->MarkCullingBoxDirty();
+	}
 
     if (!threadedUpdate)
     {

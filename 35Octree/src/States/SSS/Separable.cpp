@@ -3,6 +3,7 @@
 #include <imgui_impl_opengl3.h>
 #include <imgui_internal.h>
 #include <engine/Batchrenderer.h>
+#include <States/Menu.h>
 
 #include "Separable.h"
 #include "Application.h"
@@ -37,6 +38,7 @@ Separable::Separable(StateMachine& machine) : State(machine, States::SEPARABLE) 
 	m_statue.loadModel("res/models/statue/statue.obj", false, false, false, false, true);
 	m_statue.getMesh(0)->setMaterialIndex(-1);
 	m_statue.getMesh(1)->setMaterialIndex(-1);
+	m_statue.markForDelete();
 
 	m_trackball.reshape(Application::Width, Application::Height);
 	applyTransformation(m_trackball);
@@ -172,7 +174,6 @@ Separable::Separable(StateMachine& machine) : State(machine, States::SEPARABLE) 
 	Globals::textureManager.get("albedo_dragon").setAnisotropy(16.0f);
 
 	glGenTextures(1, &Globals::textureManager.get("albedo_dragon").getTextureAccess());
-	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, Globals::textureManager.get("albedo_dragon").getTexture());
 	
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, albedo.get_width(), albedo.get_height(), 0, albedo.get_format(), GL_UNSIGNED_BYTE, albedo);
@@ -195,7 +196,6 @@ Separable::Separable(StateMachine& machine) : State(machine, States::SEPARABLE) 
 	Globals::textureManager.get("normal_dragon").setAnisotropy(16.0f);
 
 	glGenTextures(1, &Globals::textureManager.get("normal_dragon").getTextureAccess());
-	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, Globals::textureManager.get("normal_dragon").getTexture());
 
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, normal.get_width(), normal.get_height(), 0, normal.get_format(), GL_UNSIGNED_BYTE, normal);
@@ -218,7 +218,6 @@ Separable::Separable(StateMachine& machine) : State(machine, States::SEPARABLE) 
 	Globals::textureManager.get("specular_dragon").setAnisotropy(16.0f);
 
 	glGenTextures(1, &Globals::textureManager.get("specular_dragon").getTextureAccess());
-	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, Globals::textureManager.get("specular_dragon").getTexture());
 
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, specular.get_width(), specular.get_height(), 0, specular.get_format(), GL_UNSIGNED_BYTE, specular);
@@ -232,6 +231,13 @@ Separable::Separable(StateMachine& machine) : State(machine, States::SEPARABLE) 
 
 	m_dragon.loadModel("res/models/Dragon/dragon.obj", Vector3f(0.0f, 1.0f, 0.0f), 0.0f, Vector3f(0.0f, 0.0f, 0.0f), 5.0f, false, false, false, false, true);
 	m_dragon.getMesh(0)->setMaterialIndex(-1);
+	m_dragon.markForDelete();
+
+	auto shader = Globals::shaderManager.getAssetPointer("texture");
+	shader->use();
+	shader->loadMatrix("u_projection", Matrix4f::IDENTITY);
+	shader->loadMatrix("u_view", Matrix4f::IDENTITY);
+	shader->unuse();
 }
 
 Separable::~Separable() {
@@ -249,6 +255,17 @@ Separable::~Separable() {
 
 	glDeleteSamplers(1, &sampler4);
 	sampler4 = 0u;
+
+	Globals::textureManager.erase("albedo");
+	Globals::textureManager.erase("normal");
+	Globals::textureManager.erase("beckmann");
+
+	Globals::textureManager.erase("albedo_dragon");
+	Globals::textureManager.erase("normal_dragon");
+	Globals::textureManager.erase("specular_dragon");
+	glEnable(GL_BLEND);
+
+	Material::CleanupMaterials();
 }
 
 void Separable::fixedUpdate() {
@@ -624,6 +641,8 @@ void Separable::OnKeyDown(Event::KeyboardEvent& event) {
 	if (event.keyCode == VK_ESCAPE) {
 		Mouse::instance().detach();
 		m_isRunning = false;
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new Menu(m_machine));
 	}
 }
 

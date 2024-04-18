@@ -3,7 +3,6 @@
 #include <engine/input/MouseEventListener.h>
 #include <engine/input/KeyboardEventListener.h>
 #include <engine/Camera.h>
-#include <engine/Background.h>
 
 #include <States/StateMachine.h>
 
@@ -34,5 +33,4 @@ private:
 	bool m_toogle = true;
 
 	Camera m_camera;
-	Background m_background;
 };

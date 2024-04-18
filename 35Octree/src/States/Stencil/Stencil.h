@@ -6,12 +6,12 @@
 
 #include <States/StateMachine.h>
 
-class Stencil1 : public State, public MouseEventListener, public KeyboardEventListener {
+class Stencil : public State, public MouseEventListener, public KeyboardEventListener {
 
 public:
 
-	Stencil1(StateMachine& machine);
-	~Stencil1();
+	Stencil(StateMachine& machine);
+	~Stencil();
 
 	void fixedUpdate() override;
 	void update() override;
@@ -33,6 +33,6 @@ private:
 	float m_time = 0.0f;
 	Camera m_camera;
 
-	GLuint vao;
-	GLuint vbo;
+	unsigned int vao;
+	unsigned int vbo;
 };

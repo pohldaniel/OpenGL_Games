@@ -1,6 +1,5 @@
 #version 430 core
 
-uniform sampler2D u_depthMap;
 uniform sampler2DShadow u_shadowMap;
 
 uniform vec3  lightPos;
@@ -31,6 +30,7 @@ void main(void)
 
 	//proj the shadow texture
     float f = textureProj(u_shadowMap, fs_in.shadow_coord);
+	//f = 0.0;
 
     fragColor = vec4(mat_ambient + f * (mat_diffuse * diffuse + mat_specular * specular), 1.0);
 }

@@ -50,6 +50,7 @@ GrassGeom::GrassGeom(StateMachine& machine) : State(machine, States::GRASSGEOM) 
 }
 
 GrassGeom::~GrassGeom() {
+	glEnable(GL_CULL_FACE);
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
 }

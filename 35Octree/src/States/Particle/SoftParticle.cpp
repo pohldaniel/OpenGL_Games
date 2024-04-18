@@ -3,6 +3,7 @@
 #include <imgui_impl_opengl3.h>
 #include <imgui_internal.h>
 #include <engine/Batchrenderer.h>
+#include <States/Menu.h>
 
 #include "SoftParticle.h"
 #include "Application.h"
@@ -30,14 +31,17 @@ SoftParticle::SoftParticle(StateMachine& machine) : State(machine, States::SOFTP
 	m_jesus.loadModel("res/models/Jesus.obj");
 	m_jesus.initShader();
 	m_jesus.getMesh(0)->setMaterialIndex(0);
+	m_jesus.markForDelete();
 
 	m_rock1.loadModel("res/models/Rock1.obj");
 	m_rock1.initShader();
 	m_rock1.getMesh(0)->setMaterialIndex(1);
+	m_rock1.markForDelete();
 
 	m_rock2.loadModel("res/models/Rock2.obj");
 	m_rock2.initShader();
 	m_rock2.getMesh(0)->setMaterialIndex(2);
+	m_rock2.markForDelete();
 
 	m_particleRenderer = new ParticleRenderer();
 
@@ -64,6 +68,12 @@ SoftParticle::SoftParticle(StateMachine& machine) : State(machine, States::SOFTP
 SoftParticle::~SoftParticle() {
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
+
+	delete m_particleRenderer;
+	m_particleRenderer = nullptr;
+
+	ObjModel::CleanupShader();
+	Material::CleanupMaterials();
 }
 
 void SoftParticle::fixedUpdate() {
@@ -218,6 +228,8 @@ void SoftParticle::OnKeyDown(Event::KeyboardEvent& event) {
 	if (event.keyCode == VK_ESCAPE) {
 		Mouse::instance().detach();
 		m_isRunning = false;
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new Menu(m_machine));
 	}
 }
 

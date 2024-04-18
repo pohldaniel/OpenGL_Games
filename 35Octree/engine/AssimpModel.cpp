@@ -173,17 +173,25 @@ AssimpModel::~AssimpModel() {
 }
 
 void AssimpModel::cleanup() {
-	if (m_vao)
+	if (m_vao) {
 		glDeleteVertexArrays(1, &m_vao);
+		m_vao = 0;
+	}
 
-	if (m_vbo)
+	if (m_vbo) {
 		glDeleteBuffers(1, &m_vbo);
+		m_vbo = 0;
+	}
 
-	if (m_ibo)
+	if (m_ibo) {
 		glDeleteBuffers(1, &m_ibo);
+		m_ibo = 0;
+	}
 
-	if (m_vboInstances)
+	if (m_vboInstances) {
 		glDeleteBuffers(1, &m_vboInstances);
+		m_vboInstances = 0;
+	}
 
 	m_vertexBuffer.clear();
 	m_vertexBuffer.shrink_to_fit();
@@ -1063,17 +1071,25 @@ AssimpMesh::~AssimpMesh() {
 }
 
 void AssimpMesh::cleanup() {
-	if (m_vao)
+	if (m_vao) {
 		glDeleteVertexArrays(1, &m_vao);
+		m_vao = 0;
+	}
 
-	if (m_vbo)
+	if (m_vbo) {
 		glDeleteBuffers(1, &m_vbo);
+		m_vbo = 0;
+	}
 
-	if (m_ibo)
+	if (m_ibo) {
 		glDeleteBuffers(1, &m_ibo);
+		m_ibo = 0;
+	}
 
-	if (m_vboInstances)
+	if (m_vboInstances) {
 		glDeleteBuffers(1, &m_vboInstances);
+		m_vboInstances = 0;
+	}
 
 	m_vertexBuffer.clear();
 	m_vertexBuffer.shrink_to_fit();

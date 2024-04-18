@@ -3,6 +3,7 @@
 #include <imgui_impl_opengl3.h>
 #include <imgui_internal.h>
 #include <engine/Batchrenderer.h>
+#include <States/Menu.h>
 
 #include "RayMarch.h"
 #include "Application.h"
@@ -36,11 +37,13 @@ RayMarch::RayMarch(StateMachine& machine) : State(machine, States::RAYMARCH) {
 	m_sceneBuffer.attachTexture2D(AttachmentTex::RGBA);
 	m_sceneBuffer.attachTexture2D(AttachmentTex::RED32F);
 	m_sceneBuffer.attachTexture2D(AttachmentTex::DEPTH24);
+	
 }
 
 RayMarch::~RayMarch() {
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
+	glEnable(GL_BLEND);
 }
 
 void RayMarch::fixedUpdate() {
@@ -109,8 +112,8 @@ void RayMarch::render() {
 
 	m_sceneBuffer.bind();	
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	
 	m_background.draw();
+	glDisable(GL_BLEND);
 	//glClearTexImage(m_sceneBuffer.getColorTexture(1), 0, GL_RED, GL_FLOAT, maxDistance);
 	glClearBufferfv(GL_COLOR, 1, maxDistance);
 	auto shader = Globals::shaderManager.getAssetPointer("scene");
@@ -128,6 +131,7 @@ void RayMarch::render() {
 	
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glDisable(GL_DEPTH_TEST);
+
 	shader = Globals::shaderManager.getAssetPointer("ray_march");
 	shader->use();	
 	shader->loadVector("u_campos", m_camera.getPosition());
@@ -179,6 +183,8 @@ void RayMarch::OnKeyDown(Event::KeyboardEvent& event) {
 	if (event.keyCode == VK_ESCAPE) {
 		Mouse::instance().detach();
 		m_isRunning = false;
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new Menu(m_machine));
 	}
 }
 

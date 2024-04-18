@@ -263,6 +263,18 @@ public:
 		return (m_assetPointer.count(name) != 0) || (m_assets.count(name) != 0);
 	}
 
+	void erase(const std::string& name) {
+		if ((m_assets.count(name) != 0)) {
+			m_assets.erase(name);
+			return;
+		}
+
+		if ((m_assetPointer.count(name) != 0)) {
+			m_assetPointer.erase(name);
+			return;
+		}
+	}
+
 private:
 	std::unordered_map<std::string, T> m_assets;
 	std::unordered_map<std::string, T*> m_assetPointer;

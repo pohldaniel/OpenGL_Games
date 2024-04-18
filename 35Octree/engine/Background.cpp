@@ -150,7 +150,7 @@ void Background::draw() {
 		layer.draw(s_shader.get(), m_width);
 	}
 	s_shader->unuse();
-	glDisable(GL_BLEND);
+	//glDisable(GL_BLEND);
 }
 
 void Background::addOffset(float offset) {

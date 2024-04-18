@@ -3,6 +3,7 @@
 #include <imgui_impl_opengl3.h>
 #include <imgui_internal.h>
 #include <engine/Batchrenderer.h>
+#include <States/Menu.h>
 
 #include "Shell3.h"
 #include "Application.h"
@@ -23,15 +24,6 @@ Shell3::Shell3(StateMachine& machine) : State(machine, States::SHELL3) {
 
 	glClearColor(0.494f, 0.686f, 0.796f, 1.0f);
 	glClearDepth(1.0f);
-	m_background.resize(Application::Width, Application::Height);
-	m_background.setLayer(std::vector<BackgroundLayer>{
-		{ &Globals::textureManager.get("forest_1"), 1, 1.0f },
-		{ &Globals::textureManager.get("forest_2"), 1, 2.0f },
-		{ &Globals::textureManager.get("forest_3"), 1, 3.0f },
-		{ &Globals::textureManager.get("forest_4"), 1, 4.0f },
-		{ &Globals::textureManager.get("forest_5"), 1, 5.0f }});
-	m_background.setSpeed(0.005f);
-
 }
 
 Shell3::~Shell3() {
@@ -63,15 +55,11 @@ void Shell3::update() {
 
 	if (keyboard.keyDown(Keyboard::KEY_A)) {
 		direction += Vector3f(-1.0f, 0.0f, 0.0f);
-		m_background.addOffset(-0.001f);
-		m_background.setSpeed(-0.005f);
 		move |= true;
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_D)) {
 		direction += Vector3f(1.0f, 0.0f, 0.0f);
-		m_background.addOffset(0.001f);
-		m_background.setSpeed(0.005f);
 		move |= true;
 	}
 
@@ -101,8 +89,6 @@ void Shell3::update() {
 			m_camera.move(direction * m_dt);
 		}
 	}
-
-	m_background.update(m_dt);
 }
 
 void Shell3::render() {
@@ -163,6 +149,8 @@ void Shell3::OnKeyDown(Event::KeyboardEvent& event) {
 	if (event.keyCode == VK_ESCAPE) {
 		Mouse::instance().detach();
 		m_isRunning = false;
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new Menu(m_machine));
 	}
 }
 

@@ -3,6 +3,7 @@
 #include <imgui_impl_opengl3.h>
 #include <imgui_internal.h>
 #include <engine/Batchrenderer.h>
+#include <States/Menu.h>
 
 #include "SSSApproximation.h"
 #include "Application.h"
@@ -23,16 +24,9 @@ SSSApproximation::SSSApproximation(StateMachine& machine) : State(machine, State
 
 	glClearColor(0.33333333f, 0.33333333f, 0.33333333f, 1.0f);
 	glClearDepth(1.0f);
-	m_background.resize(Application::Width, Application::Height);
-	m_background.setLayer(std::vector<BackgroundLayer>{
-		{ &Globals::textureManager.get("forest_1"), 1, 1.0f },
-		{ &Globals::textureManager.get("forest_2"), 1, 2.0f },
-		{ &Globals::textureManager.get("forest_3"), 1, 3.0f },
-		{ &Globals::textureManager.get("forest_4"), 1, 4.0f },
-		{ &Globals::textureManager.get("forest_5"), 1, 5.0f }});
-	m_background.setSpeed(0.005f);
-
+	
 	m_model.loadModel("res/models/statue.x",Vector3f(0.0f, 1.0f, 0.0f), -90.0f, Vector3f(0.0f, 15.0f, 0.0f), 0.1f);
+	m_model.markForDelete();
 
 	m_lightPos = Vector3f(15.0f, 20.0f, 15.0f);
 	m_lightView = Matrix4f::LookAt(m_lightPos, Vector3f(0.0f, 15.0f, 0.0f), Vector3f(0.0f, 1.0f, 0.0f));
@@ -113,8 +107,6 @@ void SSSApproximation::update() {
 			m_camera.move(direction * m_dt);
 		}
 	}
-
-	m_background.update(m_dt);
 }
 
 void SSSApproximation::render() {
@@ -223,6 +215,8 @@ void SSSApproximation::OnKeyDown(Event::KeyboardEvent& event) {
 	if (event.keyCode == VK_ESCAPE) {
 		Mouse::instance().detach();
 		m_isRunning = false;
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new Menu(m_machine));
 	}
 }
 

@@ -3,6 +3,7 @@
 #include <imgui_impl_opengl3.h>
 #include <imgui_internal.h>
 #include <engine/Batchrenderer.h>
+#include <States/Menu.h>
 
 #include "Shell2.h"
 #include "Application.h"
@@ -33,6 +34,11 @@ Shell2::Shell2(StateMachine& machine) : State(machine, States::SHELL1) {
 Shell2::~Shell2() {
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
+
+	glDisable(GL_CLIP_DISTANCE0);
+	glDisable(GL_CLIP_DISTANCE1);
+	glDisable(GL_CLIP_DISTANCE2);
+	glEnable(GL_CULL_FACE);
 }
 
 void Shell2::fixedUpdate() {
@@ -150,6 +156,8 @@ void Shell2::OnKeyDown(Event::KeyboardEvent& event) {
 	if (event.keyCode == VK_ESCAPE) {
 		Mouse::instance().detach();
 		m_isRunning = false;
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new Menu(m_machine));
 	}
 }
 

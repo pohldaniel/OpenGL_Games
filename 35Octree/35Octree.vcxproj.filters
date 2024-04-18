@@ -94,6 +94,9 @@
     <Filter Include="Source Files\States\Shadow">
       <UniqueIdentifier>{93ea62a5-4ea6-4233-8bc0-353b2807544b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\States\Particle">
+      <UniqueIdentifier>{414bd1c9-6293-450f-9c40-a8ee318da21b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\input\ApplicationEventListener.cpp">
@@ -438,9 +441,6 @@
     <ClCompile Include="src\States\RayMarch.cpp">
       <Filter>Source Files\States</Filter>
     </ClCompile>
-    <ClCompile Include="src\States\Fire.cpp">
-      <Filter>Source Files\States</Filter>
-    </ClCompile>
     <ClCompile Include="src\Entities\Entity.cpp">
       <Filter>Source Files\Entities</Filter>
     </ClCompile>
@@ -453,17 +453,8 @@
     <ClCompile Include="src\Skybox.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\States\BlendedParticle.cpp">
-      <Filter>Source Files\States</Filter>
-    </ClCompile>
     <ClCompile Include="engine\MeshObject\MeshTorusKnot.cpp">
       <Filter>engine\MeshObject</Filter>
-    </ClCompile>
-    <ClCompile Include="src\States\SmoothParticle.cpp">
-      <Filter>Source Files\States</Filter>
-    </ClCompile>
-    <ClCompile Include="src\States\SoftParticle.cpp">
-      <Filter>Source Files\States</Filter>
     </ClCompile>
     <ClCompile Include="src\ParticleRenderer.cpp">
       <Filter>Source Files</Filter>
@@ -485,9 +476,6 @@
     </ClCompile>
     <ClCompile Include="src\States\SSS\SSSOGLP.cpp">
       <Filter>Source Files\States\SSS</Filter>
-    </ClCompile>
-    <ClCompile Include="src\States\Stencil\Stencil1.cpp">
-      <Filter>Source Files\States\Stencil</Filter>
     </ClCompile>
     <ClCompile Include="nv_dds.cpp">
       <Filter>Source Files</Filter>
@@ -515,6 +503,21 @@
     </ClCompile>
     <ClCompile Include="src\States\Shadow\Shadow.cpp">
       <Filter>Source Files\States\Shadow</Filter>
+    </ClCompile>
+    <ClCompile Include="src\States\Particle\BlendedParticle.cpp">
+      <Filter>Source Files\States\Particle</Filter>
+    </ClCompile>
+    <ClCompile Include="src\States\Particle\Fire.cpp">
+      <Filter>Source Files\States\Particle</Filter>
+    </ClCompile>
+    <ClCompile Include="src\States\Particle\SmoothParticle.cpp">
+      <Filter>Source Files\States\Particle</Filter>
+    </ClCompile>
+    <ClCompile Include="src\States\Particle\SoftParticle.cpp">
+      <Filter>Source Files\States\Particle</Filter>
+    </ClCompile>
+    <ClCompile Include="src\States\Stencil\Stencil.cpp">
+      <Filter>Source Files\States\Stencil</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -896,9 +899,6 @@
     <ClInclude Include="src\States\RayMarch.h">
       <Filter>Source Files\States</Filter>
     </ClInclude>
-    <ClInclude Include="src\States\Fire.h">
-      <Filter>Source Files\States</Filter>
-    </ClInclude>
     <ClInclude Include="src\Entities\Entity.h">
       <Filter>Source Files\Entities</Filter>
     </ClInclude>
@@ -911,17 +911,8 @@
     <ClInclude Include="src\Skybox.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\States\BlendedParticle.h">
-      <Filter>Source Files\States</Filter>
-    </ClInclude>
     <ClInclude Include="engine\MeshObject\MeshTorusKnot.h">
       <Filter>engine\MeshObject</Filter>
-    </ClInclude>
-    <ClInclude Include="src\States\SmoothParticle.h">
-      <Filter>Source Files\States</Filter>
-    </ClInclude>
-    <ClInclude Include="src\States\SoftParticle.h">
-      <Filter>Source Files\States</Filter>
     </ClInclude>
     <ClInclude Include="src\Interpolators.h">
       <Filter>Source Files</Filter>
@@ -1139,9 +1130,6 @@
     <ClInclude Include="src\States\SSS\SSSOGLP.h">
       <Filter>Source Files\States\SSS</Filter>
     </ClInclude>
-    <ClInclude Include="src\States\Stencil\Stencil1.h">
-      <Filter>Source Files\States\Stencil</Filter>
-    </ClInclude>
     <ClInclude Include="nv_dds.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -1168,6 +1156,21 @@
     </ClInclude>
     <ClInclude Include="src\States\Shadow\Shadow.h">
       <Filter>Source Files\States\Shadow</Filter>
+    </ClInclude>
+    <ClInclude Include="src\States\Particle\BlendedParticle.h">
+      <Filter>Source Files\States\Particle</Filter>
+    </ClInclude>
+    <ClInclude Include="src\States\Particle\Fire.h">
+      <Filter>Source Files\States\Particle</Filter>
+    </ClInclude>
+    <ClInclude Include="src\States\Particle\SmoothParticle.h">
+      <Filter>Source Files\States\Particle</Filter>
+    </ClInclude>
+    <ClInclude Include="src\States\Particle\SoftParticle.h">
+      <Filter>Source Files\States\Particle</Filter>
+    </ClInclude>
+    <ClInclude Include="src\States\Stencil\Stencil.h">
+      <Filter>Source Files\States\Stencil</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

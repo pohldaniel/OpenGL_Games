@@ -47,11 +47,13 @@ struct Material {
 	static void SetMaterials(const std::vector<Material>& materials);
 	static std::vector<Material> Materials;
 	static void Cleanup(unsigned short index);
+	static void CleanupMaterials();
 	static Material& AddMaterial(const MaterialBuffer& material =  { {0.0f, 0.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 0.0f}, 1.0f} );
 
 	static Texture& AddTexture(std::string path);
 	static std::vector<Texture>& GetTextures();
 	static void SetTextures(const std::vector<Texture>& textures);
+	static void CleanupTextures();
 	static std::vector<Texture> Textures;
 };
 

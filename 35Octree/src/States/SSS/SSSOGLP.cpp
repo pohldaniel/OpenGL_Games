@@ -3,6 +3,7 @@
 #include <imgui_impl_opengl3.h>
 #include <imgui_internal.h>
 #include <engine/Batchrenderer.h>
+#include <States/Menu.h>
 
 #include "SSSOGLP.h"
 #include "Application.h"
@@ -28,8 +29,11 @@ SSSOGLP::SSSOGLP(StateMachine& machine) : State(machine, States::RAYMARCH) {
 	glClearDepth(1.0f);
 
 	m_buddha.loadModel("res/models/buddha.obj", Vector3f(1.0f, 0.0f, 0.0f), 90.0f, Vector3f(0.0f, 0.0f, 0.0f), 1.0f);
+	m_buddha.markForDelete();
 	m_bunny.loadModel("res/models/bunny.obj", Vector3f(0.0f, 1.0f, 0.0f), 0.0f, Vector3f(0.0f, 0.0f, 0.0f), 1.5f);
+	m_bunny.markForDelete();
 	m_dragon.loadModel("res/models/dragon.obj", Vector3f(0.0f, 1.0f, 0.0f), 0.0f, Vector3f(0.0f, 0.0f, 0.0f), 0.05f);
+	m_dragon.markForDelete();
 
 	m_depth.create(DEPTH_RES, DEPTH_RES);
 	m_depth.attachTexture2D(AttachmentTex::DEPTH32F);
@@ -47,6 +51,7 @@ SSSOGLP::SSSOGLP(StateMachine& machine) : State(machine, States::RAYMARCH) {
 		shader->loadVector(std::string("DepthOffs[" + std::to_string(i) + "]").c_str(), Vector2f(x, y));
 	}
 	shader->unuse();
+	Globals::clock.restart();
 }
 
 SSSOGLP::~SSSOGLP() {
@@ -225,6 +230,8 @@ void SSSOGLP::OnKeyDown(Event::KeyboardEvent& event) {
 	if (event.keyCode == VK_ESCAPE) {
 		Mouse::instance().detach();
 		m_isRunning = false;
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new Menu(m_machine));
 	}
 }
 

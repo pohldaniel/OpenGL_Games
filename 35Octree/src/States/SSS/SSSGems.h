@@ -10,24 +10,23 @@
 #include <engine/TrackBall.h>
 #include <States/StateMachine.h>
 
-#define SHADOW_RES 4096
-
-enum Model {
-	BUNNY,
-	DRAGON,
-	BUDDHA
-};
-
-struct DirectionnalLightInfo{
-	Vector3f dir;
-	Matrix4f biasProjView;
-	Matrix4f proj;
-	Matrix4f view;
-	Matrix4f projView;
-	float size;
-};
-
 class SSSGems : public State, public MouseEventListener, public KeyboardEventListener {
+	static const int SHADOW_RES = 4096;
+
+	enum Model {
+		BUNNY,
+		DRAGON,
+		BUDDHA
+	};
+
+	struct DirectionnalLightInfo {
+		Vector3f dir;
+		Matrix4f biasProjView;
+		Matrix4f proj;
+		Matrix4f view;
+		Matrix4f projView;
+		float size;
+	};
 
 public:
 

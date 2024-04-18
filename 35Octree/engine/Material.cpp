@@ -132,6 +132,14 @@ void Material::SetTextures(const std::vector<Texture>& textures) {
 	Textures = textures;
 }
 
+void  Material::CleanupTextures() {
+	for (auto&& texture : Textures) {
+		texture.markForDelete();
+	}
+	Textures.clear();
+	Textures.shrink_to_fit();
+}
+
 void Material::SetMaterials(const std::vector<Material>& materials) {
 	Materials = materials;
 }
@@ -143,6 +151,17 @@ std::vector<Material>& Material::GetMaterials() {
 void Material::Cleanup(unsigned short index) {
 	Materials[index].textures.clear();
 	Materials.erase(Materials.begin() + index);
+}
+
+void Material::CleanupMaterials() {
+
+	for (auto&& material : Materials) {
+		std::unordered_map<unsigned short, Texture>::iterator it;
+		for (it = material.textures.begin(); it != material.textures.end(); it++) {
+			it->second.markForDelete();
+		}
+	}
+	Materials.clear();
 }
 
 Material& Material::AddMaterial(const MaterialBuffer& _material) {

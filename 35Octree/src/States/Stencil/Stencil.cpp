@@ -5,11 +5,11 @@
 #include <engine/Batchrenderer.h>
 #include <States/Menu.h>
 
-#include "Stencil1.h"
+#include "Stencil.h"
 #include "Application.h"
 #include "Globals.h"
 
-Stencil1::Stencil1(StateMachine& machine) : State(machine, States::STENCIL1) {
+Stencil::Stencil(StateMachine& machine) : State(machine, States::STENCIL) {
 
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
@@ -28,16 +28,16 @@ Stencil1::Stencil1(StateMachine& machine) : State(machine, States::STENCIL1) {
 
 }
 
-Stencil1::~Stencil1() {
+Stencil::~Stencil() {
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
 }
 
-void Stencil1::fixedUpdate() {
+void Stencil::fixedUpdate() {
 
 }
 
-void Stencil1::update() {
+void Stencil::update() {
 	Keyboard &keyboard = Keyboard::instance();
 	Vector3f direction = Vector3f();
 
@@ -95,7 +95,7 @@ void Stencil1::update() {
 	m_time += m_dt;
 }
 
-void Stencil1::render() {
+void Stencil::render() {
 
 	Matrix4f rot;
 	rot.rotate(Vector3f(0.0f, 1.0f, 0.0f), 20.0f * m_time);
@@ -111,7 +111,7 @@ void Stencil1::render() {
 	shader->loadInt("u_blendTexture", 1);
 
 	Globals::textureManager.get("grass").bind();
-	Globals::textureManager.get("marble").bind(1);
+	Globals::textureManager.get("marble").bind(1u);
 
 	Globals::shapeManager.get("cube").drawRaw();
 
@@ -153,37 +153,35 @@ void Stencil1::render() {
 	shader->loadVector("u_color", Vector4f(1.0f, 1.0f, 1.0f, 1.0));
 	shader->unuse();
 	glFrontFace(GL_CCW);
-	
-
-	
+		
 	glDisable(GL_STENCIL_TEST);
 
 	if (m_drawUi)
 		renderUi();
 }
 
-void Stencil1::OnMouseMotion(Event::MouseMoveEvent& event) {
+void Stencil::OnMouseMotion(Event::MouseMoveEvent& event) {
 
 }
 
-void Stencil1::OnMouseButtonDown(Event::MouseButtonEvent& event) {
+void Stencil::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 	if (event.button == 2u) {
 		Mouse::instance().attach(Application::GetWindow());
 	}
 }
 
-void Stencil1::OnMouseButtonUp(Event::MouseButtonEvent& event) {
+void Stencil::OnMouseButtonUp(Event::MouseButtonEvent& event) {
 	if (event.button == 2u) {
 		Mouse::instance().detach();
 	}
 }
 
 
-void Stencil1::OnMouseWheel(Event::MouseWheelEvent& event) {
+void Stencil::OnMouseWheel(Event::MouseWheelEvent& event) {
 
 }
 
-void Stencil1::OnKeyDown(Event::KeyboardEvent& event) {
+void Stencil::OnKeyDown(Event::KeyboardEvent& event) {
 	if (event.keyCode == VK_LMENU) {
 		m_drawUi = !m_drawUi;
 	}
@@ -196,16 +194,16 @@ void Stencil1::OnKeyDown(Event::KeyboardEvent& event) {
 	}
 }
 
-void Stencil1::OnKeyUp(Event::KeyboardEvent& event) {
+void Stencil::OnKeyUp(Event::KeyboardEvent& event) {
 
 }
 
-void Stencil1::resize(int deltaW, int deltaH) {
+void Stencil::resize(int deltaW, int deltaH) {
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
 }
 
-void Stencil1::renderUi() {
+void Stencil::renderUi() {
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();

@@ -5,6 +5,7 @@
 #include <engine/Batchrenderer.h>
 #include <engine/BuiltInShader.h>
 #include <Physics/ShapeDrawer.h>
+#include <States/Menu.h>
 
 #include "BlobShoot.h"
 #include "Application.h"
@@ -65,6 +66,12 @@ BlobShoot::BlobShoot(StateMachine& machine) : State(machine, States::BLOBSHOOT) 
 BlobShoot::~BlobShoot() {
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
+
+	delete m_kinematicController;
+	//delete m_pairCachingGhostObject;
+	//delete m_ghostPairCallback;
+
+	Globals::physics->removeAllCollisionObjects();
 }
 
 void BlobShoot::fixedUpdate() {
@@ -277,6 +284,8 @@ void BlobShoot::OnKeyDown(Event::KeyboardEvent& event) {
 	if (event.keyCode == VK_ESCAPE) {
 		Mouse::instance().detach();
 		m_isRunning = false;
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new Menu(m_machine));
 	}
 }
 

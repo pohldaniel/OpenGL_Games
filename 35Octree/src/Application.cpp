@@ -18,11 +18,12 @@
 #include <States/Default.h>
 #include <States/Menu.h>
 #include <States/RayMarch.h>
-#include <States/Fire.h>
-#include <States/BlendedParticle.h>
-#include <States/SmoothParticle.h>
-#include <States/SoftParticle.h>
+#include <States/Particle/Fire.h>
 #include <States/BlobShoot.h>
+
+#include <States/Particle/BlendedParticle.h>
+#include <States/Particle/SmoothParticle.h>
+#include <States/Particle/SoftParticle.h>
 
 #include <States/SSS/SSSGems.h>
 #include <States/SSS/SSSApproximation.h>
@@ -30,7 +31,7 @@
 #include <States/SSS/Separable.h>
 
 #include <States/Shadow/Shadow.h>
-#include <States/Stencil/Stencil1.h>
+#include <States/Stencil/Stencil.h>
 
 #include <States/Shell/Shell1.h>
 #include <States/Shell/Shell2.h>
@@ -445,7 +446,7 @@ void Application::initStates() {
 	//Machine->addStateAtTop(new SSSGems(*Machine));
 	//Machine->addStateAtTop(new SSSOGLP(*Machine));	
 	//Machine->addStateAtTop(new Separable(*Machine));
-	//Machine->addStateAtTop(new Stencil1(*Machine));
+	//Machine->addStateAtTop(new Stencil(*Machine));
 	//Machine->addStateAtTop(new Shadow(*Machine));
 	//Machine->addStateAtTop(new Shell1(*Machine));
 	//Machine->addStateAtTop(new Shell2(*Machine));
@@ -790,7 +791,7 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("grass_gem", "res/shader/Grass/grass.vs.glsl", "res/shader/Grass/grass.fs.glsl", "res/shader/Grass/grass.gs.glsl");
 
 	Globals::fontManager.loadCharacterSet("upheaval_200", "res/fonts/upheavtt.ttf", 200, 0, 30, 128, 0, true, 0u);
-	Globals::fontManager.loadCharacterSet("upheaval_50", "res/fonts/upheavtt.ttf", 50, 0, 3, 0, 0, true, 0u);
+	Globals::fontManager.loadCharacterSet("upheaval_50", "res/fonts/upheavtt.ttf", 30, 0, 3, 0, 0, true, 0u);
 
 	Globals::textureManager.loadTexture("forest_1", "res/backgrounds/Forest/plx-1.png");
 	Globals::textureManager.loadTexture("forest_2", "res/backgrounds/Forest/plx-2.png");

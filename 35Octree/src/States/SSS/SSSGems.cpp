@@ -3,6 +3,7 @@
 #include <imgui_impl_opengl3.h>
 #include <imgui_internal.h>
 #include <engine/Batchrenderer.h>
+#include <States/Menu.h>
 
 #include "SSSGems.h"
 #include "Application.h"
@@ -25,11 +26,13 @@ SSSGems::SSSGems(StateMachine& machine) : State(machine, States::RAYMARCH) {
 	glClearDepth(1.0f);
 	
 	m_buddha.loadModel("res/models/buddha.obj", Vector3f(1.0f, 0.0f, 0.0f), 90.0f, Vector3f(0.0f, 0.0f, 0.0f), 1.0f);
+	m_buddha.markForDelete();
 	m_bunny.loadModel("res/models/bunny.obj");
+	m_bunny.markForDelete();
 	m_dragon.loadModel("res/models/dragon_low.obj");
+	m_dragon.markForDelete();
 
 	m_distance.create(SHADOW_RES, SHADOW_RES);
-	//m_distance.create(Application::Width, Application::Height);
 	m_distance.attachTexture2D(AttachmentTex::RGBA32F);
 	m_distance.attachTexture2D(AttachmentTex::DEPTH16);
 
@@ -41,8 +44,6 @@ SSSGems::SSSGems(StateMachine& machine) : State(machine, States::RAYMARCH) {
 	m_lightInfo.biasProjView = Matrix4f::BIAS * m_lightInfo.projView;
 
 	m_trackball.reshape(Application::Width, Application::Height);
-	//m_trackball.setDollyPosition(-2.5f);
-
 	applyTransformation(m_trackball);
 
 	glDisable(GL_BLEND);
@@ -51,6 +52,7 @@ SSSGems::SSSGems(StateMachine& machine) : State(machine, States::RAYMARCH) {
 SSSGems::~SSSGems() {
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
+	glEnable(GL_BLEND);
 }
 
 void SSSGems::fixedUpdate() {
@@ -215,6 +217,8 @@ void SSSGems::OnKeyDown(Event::KeyboardEvent& event) {
 	if (event.keyCode == VK_ESCAPE) {
 		Mouse::instance().detach();
 		m_isRunning = false;
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new Menu(m_machine));
 	}
 }
 

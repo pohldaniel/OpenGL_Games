@@ -2,7 +2,7 @@
 #include "../DebugRenderer.h"
 #include "Octree/Octree.h"
 
-ShapeNode::ShapeNode(const Shape& shape) : SceneNodeLC(), shape(shape), m_drawDebug(true), localBoundingBox(shape.getAABB()), m_octreeUpdate(true) , m_reinsertQueued(true){
+ShapeNode::ShapeNode(const Shape& shape) : SceneNodeLC(), shape(shape), m_drawDebug(true), localBoundingBox(shape.getAABB()), m_octreeUpdate(true) , m_reinsertQueued(true), m_octant(nullptr){
 	OnBoundingBoxChanged();
 }
 

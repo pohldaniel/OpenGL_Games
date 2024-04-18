@@ -31,6 +31,7 @@ GrassComp::GrassComp(StateMachine& machine) : State(machine, States::GRASSCOMP) 
 }
 
 GrassComp::~GrassComp() {
+	glEnable(GL_CULL_FACE);
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
 }
@@ -105,6 +106,7 @@ void GrassComp::render() {
 	shader->use();
 	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
 	shader->loadMatrix("u_view", m_camera.getViewMatrix());
+	shader->loadMatrix("u_model", Matrix4f::IDENTITY);
 	shader->loadInt("u_texture", 0);
 	Globals::textureManager.get("grass_green").bind();
 	Globals::shapeManager.get("floor_grass").drawRaw();

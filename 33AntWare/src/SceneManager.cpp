@@ -465,9 +465,6 @@ void Scene::unloadScene() {
 	entities.clear();
 	entities.shrink_to_fit();
 
-	std::vector<Entity*> entitiesAfterClear;
-	std::vector<Entity*> entities;
-	
 }
 
 Camera& Scene::getCamera(){

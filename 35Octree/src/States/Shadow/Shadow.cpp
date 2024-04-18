@@ -102,8 +102,8 @@ void Shadow::update() {
 
 void Shadow::render() {
 	
-	float time = Globals::clock.getElapsedTimeSec();
-	float t = float(GetTickCount() & 0xFFFF) / float(0xFFFF);
+	//float t = float(GetTickCount() & 0xFFFF) / float(0xFFFF);
+	float t = float(Globals::clock.getElapsedTimeMilli() & 0xFFFF) / float(0xFFFF);
 	lightPosition = { sinf(t * 6.0f * 3.141592f) * 300.0f, 200.0f, cosf(t * 4.0f * 3.141592f) * 100.0f + 250.0f };
 	lightView = Matrix4f::LookAt(lightPosition, Vector3f(0.0f), Vector3f(0.0f, 1.0f, 0.0f));
 	model.rotate(Vector3f(0.0f, 1.0f, 0.0f), t * 720.0f);
@@ -123,8 +123,6 @@ void Shadow::render() {
 	
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
-
-
 	shader = Globals::shaderManager.getAssetPointer("shadow_base");
 	shader->use();
 	shader->loadMatrix("model", model);
@@ -138,7 +136,7 @@ void Shadow::render() {
 	shader->loadFloat("mat_specular_power", 25.0f);
 	shader->loadInt("u_shadowMap", 0);
 
-	m_depthRT.bindDepthTexture(0);
+	m_depthRT.bindDepthTexture();
 	m_armadillo.Render();
 
 	shader->loadVector("mat_ambient", Vector3f(0.1f, 0.1f, 0.1f));

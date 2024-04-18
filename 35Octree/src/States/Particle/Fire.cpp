@@ -4,9 +4,9 @@
 #include <imgui_internal.h>
 #include <engine/Batchrenderer.h>
 #include <engine/Material.h>
+#include <States/Menu.h>
 
 #include "Fire.h"
-
 #include "Application.h"
 #include "Globals.h"
 
@@ -43,8 +43,10 @@ Fire::Fire(StateMachine& machine) : State(machine, States::FIRE) {
 
 	m_logPine.loadModel("res/models/Log_pine.obj", false, false, true);
 	m_logPine.getMesh(0)->setMaterialIndex(0);
+	m_logPine.markForDelete();
 	m_grass.loadModel("res/models/Grass.obj", false, false, true);
 	m_grass.getMesh(0)->setMaterialIndex(1);
+	m_grass.markForDelete();
 
 	m_root = new SceneNodeLC();
 	Entity* child = m_root->addChild<Entity, AssimpModel>(m_logPine);
@@ -83,6 +85,16 @@ Fire::Fire(StateMachine& machine) : State(machine, States::FIRE) {
 Fire::~Fire() {
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
+
+	delete m_root;
+	m_root = nullptr;
+
+	entities.clear();
+	entities.shrink_to_fit();
+
+	Material::CleanupTextures();
+	Material::CleanupMaterials();
+	AssimpModel::CleanupShader();
 }
 
 void Fire::fixedUpdate() {
@@ -220,6 +232,8 @@ void Fire::OnKeyDown(Event::KeyboardEvent& event) {
 	if (event.keyCode == VK_ESCAPE) {
 		Mouse::instance().detach();
 		m_isRunning = false;
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new Menu(m_machine));
 	}
 }
 

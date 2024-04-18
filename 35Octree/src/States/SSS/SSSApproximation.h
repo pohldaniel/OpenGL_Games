@@ -4,7 +4,6 @@
 #include <engine/input/KeyboardEventListener.h>
 #include <engine/Framebuffer.h>
 #include <engine/Camera.h>
-#include <engine/Background.h>
 #include <engine/AssimpModel.h>
 #include <engine/ObjModel.h>
 #include <States/StateMachine.h>
@@ -38,7 +37,6 @@ private:
 	float m_minThikness = 0.5f;
 
 	Camera m_camera;
-	Background m_background;
 	AssimpModel m_model;
 
 	Vector3f m_lightPos;

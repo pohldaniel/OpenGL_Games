@@ -4,6 +4,7 @@
 #include <imgui_internal.h>
 #include <engine/Batchrenderer.h>
 #include <engine/Material.h>
+#include <States/Menu.h>
 
 #include "BlendedParticle.h"
 
@@ -109,6 +110,20 @@ BlendedParticle::~BlendedParticle() {
 	glDisable(GL_POINT_SPRITE);
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
+
+	if (m_vao) {
+		glDeleteVertexArrays(1, &m_vao);
+		m_vao = 0;
+	}
+
+	if (m_vbo) {
+		glDeleteBuffers(1, &m_vbo);
+		m_vbo = 0;
+	}
+
+	delete[] particleBatch;
+	particleBatch = nullptr;
+	particleBatchPtr = nullptr;
 }
 
 void BlendedParticle::fixedUpdate() {
@@ -241,6 +256,8 @@ void BlendedParticle::OnKeyDown(Event::KeyboardEvent& event) {
 	if (event.keyCode == VK_ESCAPE) {
 		Mouse::instance().detach();
 		m_isRunning = false;
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new Menu(m_machine));
 	}
 }
 

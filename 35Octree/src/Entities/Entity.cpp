@@ -11,8 +11,8 @@ Entity::~Entity() {
 
 void Entity::draw() {
 	
-	if(m_materialIndex >= 0)
-		Material::GetMaterials()[m_materialIndex].bind();
+	//if(m_materialIndex >= 0)
+		//Material::GetMaterials()[m_materialIndex].bind();
 
 	model.drawRaw();
 }

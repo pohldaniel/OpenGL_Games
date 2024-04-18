@@ -65,6 +65,7 @@ private:
 	btPairCachingGhostObject* m_pairCachingGhostObject;
 	btKinematicCharacterController* m_kinematicController;
 	btGhostPairCallback* m_ghostPairCallback;
+
 	Vector3f m_colShapeOffset = Vector3f(0.0f, 0.84f, 0.0f);
 	float m_offsetDistance = 10.0f;
 	float m_accTime = 0.0f;
