@@ -2,6 +2,8 @@
 #include <imgui_impl_win32.h>
 #include <imgui_impl_opengl3.h>
 #include <imgui_internal.h>
+
+
 #include <engine/Batchrenderer.h>
 
 #include "Grass2.h"
@@ -21,17 +23,31 @@ Grass2::Grass2(StateMachine& machine) : State(machine, States::GRASS2) {
 	m_camera.setRotationSpeed(0.1f);
 	m_camera.setMovingSpeed(10.0f);
 
-	glClearColor(0.494f, 0.686f, 0.796f, 1.0f);
+	glClearColor(0.215f, 0.215f, 0.215f, 1.0f);
 	glClearDepth(1.0f);
-	m_background.resize(Application::Width, Application::Height);
-	m_background.setLayer(std::vector<BackgroundLayer>{
-		{ &Globals::textureManager.get("forest_1"), 1, 1.0f },
-		{ &Globals::textureManager.get("forest_2"), 1, 2.0f },
-		{ &Globals::textureManager.get("forest_3"), 1, 3.0f },
-		{ &Globals::textureManager.get("forest_4"), 1, 4.0f },
-		{ &Globals::textureManager.get("forest_5"), 1, 5.0f }});
-	m_background.setSpeed(0.005f);
 
+	srand(time(NULL));
+	for (float x = -50.0f; x < 50.0f; x += 0.1f){
+		for (float z = -50.0f; z < 50.0f; z += 0.1f){
+			int randNumberX = rand() % 10 + 1;
+			int randNumberZ = rand() % 10 + 1;
+			m_positions.push_back(Vector3f(x + (float)randNumberX / 50.0f, 0, z + (float)randNumberZ / 50.0f));
+		}
+	}
+
+	glGenVertexArrays(1, &VAO);
+	glGenBuffers(1, &VBO);
+	glBindVertexArray(VAO);
+
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, m_positions.size() * sizeof(Vector3f), m_positions.data(), GL_STATIC_DRAW);
+
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	glPointSize(5.0f);
+	glDisable(GL_CULL_FACE);
 }
 
 Grass2::~Grass2() {
@@ -63,15 +79,11 @@ void Grass2::update() {
 
 	if (keyboard.keyDown(Keyboard::KEY_A)) {
 		direction += Vector3f(-1.0f, 0.0f, 0.0f);
-		m_background.addOffset(-0.001f);
-		m_background.setSpeed(-0.005f);
 		move |= true;
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_D)) {
 		direction += Vector3f(1.0f, 0.0f, 0.0f);
-		m_background.addOffset(0.001f);
-		m_background.setSpeed(0.005f);
 		move |= true;
 	}
 
@@ -101,14 +113,27 @@ void Grass2::update() {
 			m_camera.move(direction * m_dt);
 		}
 	}
-
-	m_background.update(m_dt);
 }
 
 void Grass2::render() {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	m_background.draw();
+
+	auto shader = Globals::shaderManager.getAssetPointer("grass_gem");
+	shader->use();
+	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
+	shader->loadMatrix("u_view", m_camera.getViewMatrix());
+	shader->loadMatrix("u_model", Matrix4f::IDENTITY);
+	shader->loadVector("u_cameraPosition", m_camera.getPosition());
+	shader->loadFloat("u_time", Globals::clock.getElapsedTimeSec());
+	shader->loadInt("u_wind", 0);
+	shader->loadInt("u_textgrass", 1);
+
+	Globals::textureManager.get("flow_map").bind();
+	Globals::textureManager.get("grass_bill").bind(1u);
+	
+	glBindVertexArray(VAO);
+	glDrawArrays(GL_POINTS, 0, m_positions.size());
 
 	if (m_drawUi)
 		renderUi();
@@ -119,11 +144,15 @@ void Grass2::OnMouseMotion(Event::MouseMoveEvent& event) {
 }
 
 void Grass2::OnMouseButtonDown(Event::MouseButtonEvent& event) {
-
+	if (event.button == 2u) {
+		Mouse::instance().attach(Application::GetWindow());
+	}
 }
 
 void Grass2::OnMouseButtonUp(Event::MouseButtonEvent& event) {
-
+	if (event.button == 2u) {
+		Mouse::instance().detach();
+	}
 }
 
 void Grass2::OnMouseWheel(Event::MouseWheelEvent& event) {

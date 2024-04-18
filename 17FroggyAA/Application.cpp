@@ -290,6 +290,7 @@ void Application::initOpenGL(int msaaSamples) {
 	//Default Values
 	glCullFace(GL_BACK);
 	glFrontFace(GL_CCW);
+	glEnable(GL_MULTISAMPLE);
 }
 
 void Application::initImGUI() {

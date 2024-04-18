@@ -3,7 +3,6 @@
 #include <engine/input/MouseEventListener.h>
 #include <engine/input/KeyboardEventListener.h>
 #include <engine/Camera.h>
-#include <engine/Background.h>
 
 #include <States/StateMachine.h>
 
@@ -33,5 +32,7 @@ private:
 	bool m_drawUi = true;
 
 	Camera m_camera;
-	Background m_background;
+	std::vector<Vector3f> m_positions;
+
+	unsigned int VBO, VAO;
 };
