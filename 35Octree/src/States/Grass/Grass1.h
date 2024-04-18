@@ -3,11 +3,11 @@
 #include <engine/input/MouseEventListener.h>
 #include <engine/input/KeyboardEventListener.h>
 #include <engine/Camera.h>
-#include <engine/Background.h>
 
 #include <States/StateMachine.h>
 
 #include "Skybox.h"
+#include "Grasses.h"
 
 class Grass1 : public State, public MouseEventListener, public KeyboardEventListener {
 
@@ -35,6 +35,6 @@ private:
 	bool m_drawUi = true;
 
 	Camera m_camera;
-	Background m_background;
 	Skybox m_skybox;
+	Grasses m_grasses;
 };

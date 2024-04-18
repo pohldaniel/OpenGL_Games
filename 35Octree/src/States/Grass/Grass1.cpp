@@ -23,15 +23,10 @@ Grass1::Grass1(StateMachine& machine) : State(machine, States::GRASS1) {
 
 	glClearColor(0.494f, 0.686f, 0.796f, 1.0f);
 	glClearDepth(1.0f);
-	m_background.resize(Application::Width, Application::Height);
-	m_background.setLayer(std::vector<BackgroundLayer>{
-		{ &Globals::textureManager.get("forest_1"), 1, 1.0f },
-		{ &Globals::textureManager.get("forest_2"), 1, 2.0f },
-		{ &Globals::textureManager.get("forest_3"), 1, 3.0f },
-		{ &Globals::textureManager.get("forest_4"), 1, 4.0f },
-		{ &Globals::textureManager.get("forest_5"), 1, 5.0f }});
-	m_background.setSpeed(0.005f);
+	
+	m_grasses.init();
 
+	glDisable(GL_CULL_FACE);
 }
 
 Grass1::~Grass1() {
@@ -63,15 +58,11 @@ void Grass1::update() {
 
 	if (keyboard.keyDown(Keyboard::KEY_A)) {
 		direction += Vector3f(-1.0f, 0.0f, 0.0f);
-		m_background.addOffset(-0.001f);
-		m_background.setSpeed(-0.005f);
 		move |= true;
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_D)) {
 		direction += Vector3f(1.0f, 0.0f, 0.0f);
-		m_background.addOffset(0.001f);
-		m_background.setSpeed(0.005f);
 		move |= true;
 	}
 
@@ -102,12 +93,21 @@ void Grass1::update() {
 		}
 	}
 
-	m_background.update(m_dt);
+	m_grasses.update(m_camera, m_dt);
 }
 
 void Grass1::render() {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	m_grasses.render(m_camera);
+	auto shader = Globals::shaderManager.getAssetPointer("texture");
+	shader->use();
+	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
+	shader->loadMatrix("u_view", m_camera.getViewMatrix());
+	shader->loadInt("u_texture", 0);
+	Globals::textureManager.get("grass_green").bind();
+	Globals::shapeManager.get("floor_grass").drawRaw();
+	shader->unuse();
 	m_skybox.draw(m_camera, "hills");
 
 	if (m_drawUi)
@@ -191,6 +191,13 @@ void Grass1::renderUi() {
 	// render widgets
 	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 	ImGui::Checkbox("Draw Wirframe", &StateMachine::GetEnableWireframe());
+
+	if (ImGui::CollapsingHeader("Wind")) {
+		ImGui::SliderFloat("Magnitude", &m_grasses.wind_magnitude, 0.5f, 3, "%.4f");
+		ImGui::SliderFloat("Wave Length", &m_grasses.wind_wave_length, 0.5f, 2, "%.4f");
+		ImGui::SliderFloat("Wave Period", &m_grasses.wind_wave_period, 0.5f, 2, "%.4f");
+	}
+
 	ImGui::End();
 
 	ImGui::Render();

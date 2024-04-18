@@ -1,9 +1,12 @@
 #version 450
 
-layout(binding = 0) uniform CameraBufferObject {
+/*layout(binding = 0) uniform CameraBufferObject {
     mat4 view;
     mat4 proj;
-} camera;
+} camera;*/
+
+uniform mat4 u_projection = mat4(1.0);
+uniform mat4 u_view = mat4(1.0);
 
 in VS_OUT
 {
@@ -31,8 +34,8 @@ void main() {
   tesc_out.up = tesc_in[gl_InvocationID].up;
   tesc_out.dir = tesc_in[gl_InvocationID].dir;
   
-  float z1 = (camera.proj * camera.view * vec4(tesc_out.v1.xyz, 1)).z;
-  float z2 = (camera.proj * camera.view * vec4(tesc_out.v2.xyz, 1)).z;
+  float z1 = (u_projection * u_view * vec4(tesc_out.v1.xyz, 1)).z;
+  float z2 = (u_projection * u_view * vec4(tesc_out.v2.xyz, 1)).z;
 
 
   if (z1 < 0.8 && z2 < 0.8) {

@@ -211,6 +211,7 @@
     <ClCompile Include="src\Animation\AnimationState.cpp" />
     <ClCompile Include="src\Entities\Entity.cpp" />
     <ClCompile Include="src\Entities\Flame.cpp" />
+    <ClCompile Include="src\Grasses.cpp" />
     <ClCompile Include="src\LoadingManager.cpp" />
     <ClCompile Include="src\Octree\Octree.cpp" />
     <ClCompile Include="src\Octree\OctreeNode.cpp" />
@@ -468,6 +469,7 @@
     <ClInclude Include="src\Entities\Entity.h" />
     <ClInclude Include="src\Entities\Flame.h" />
     <ClInclude Include="src\Globals.h" />
+    <ClInclude Include="src\Grasses.h" />
     <ClInclude Include="src\Interpolators.h" />
     <ClInclude Include="src\LoadingManager.h" />
     <ClInclude Include="src\Octree\AutoPtr.h" />

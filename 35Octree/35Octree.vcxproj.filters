@@ -507,6 +507,9 @@
     <ClCompile Include="src\States\Grass\Grass1.cpp">
       <Filter>Source Files\States\Grass</Filter>
     </ClCompile>
+    <ClCompile Include="src\Grasses.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="convhull\convhull_3d.h">
@@ -1153,6 +1156,9 @@
     </ClInclude>
     <ClInclude Include="src\States\Grass\Grass1.h">
       <Filter>Source Files\States\Grass</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Grasses.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

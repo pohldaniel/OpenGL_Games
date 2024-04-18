@@ -782,6 +782,7 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("grass", "res/shader/Shell/grass.vert", "res/shader/Shell/grass.frag");
 
 	Globals::shaderManager.loadShader("grass_tess", "res/shader/Grass/grass.vert.glsl", "res/shader/Grass/grass.frag.glsl", "res/shader/Grass/grass.tesc.glsl", "res/shader/Grass/grass.tese.glsl");
+	Globals::shaderManager.loadShader("grass_comp", "res/shader/Grass/grass.comp.glsl");
 
 	Globals::fontManager.loadCharacterSet("upheaval_200", "res/fonts/upheavtt.ttf", 200, 0, 30, 128, 0, true, 0u);
 	Globals::fontManager.loadCharacterSet("upheaval_50", "res/fonts/upheavtt.ttf", 50, 0, 3, 0, 0, true, 0u);
@@ -815,8 +816,12 @@ void Application::loadAssets() {
 	Globals::textureManager.get("grass_normal").setWrapMode(GL_REPEAT);
 
 	Globals::textureManager.loadTexture("statue", "res/models/statue.dds", true);
-	Globals::textureManager.get("grass_normal").setFilter(GL_LINEAR_MIPMAP_LINEAR);
-	Globals::textureManager.get("grass_normal").setWrapMode(GL_REPEAT);
+	Globals::textureManager.get("statue").setFilter(GL_LINEAR_MIPMAP_LINEAR);
+	Globals::textureManager.get("statue").setWrapMode(GL_REPEAT);
+
+	Globals::textureManager.loadTexture("grass_green", "res/textures/grass_green.jpg", true);
+	Globals::textureManager.get("grass_green").setFilter(GL_LINEAR_MIPMAP_LINEAR);
+	Globals::textureManager.get("grass_green").setWrapMode(GL_REPEAT);
 
 	if (!Utils::fileExist("res/textures/fire_pre.png")) {
 		Texture::PremultiplyAlpha("res/textures/fire.png", "res/textures/fire_pre.png");
@@ -855,4 +860,5 @@ void Application::loadAssets() {
 	Globals::shapeManager.buildQuadXZ("grass_blade", Vector3f(-1.0f, 0.0f, -1.0f), Vector2f(2.0f, 2.0f), 1, 1, true, true, true);
 	Globals::shapeManager.buildQuadXZ("floor", Vector3f(-50.0f, 0.0f, -50.0f), Vector2f(100.0f, 100.0f), 10, 10, true, true, false);
 	Globals::shapeManager.buildQuadXZ("floor_shadow", Vector3f(-500.0f, -50.0f, -500.0f), Vector2f(1000.0f, 1000.0f), 1, 1, false, true, false);
+	Globals::shapeManager.buildQuadXZ("floor_grass", Vector3f(-20.0f, 0.0f, -20.0f), Vector2f(39.0f, 39.0f), 1, 1, true, false, false);
 }
