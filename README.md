@@ -65,7 +65,7 @@ The project 32CrimsonRush is from https://github.com/WilKam01/LuaCGame
 
 The project 33AntWare is from https://github.com/YamanQD/AntWare
 
-The project 35Octree contains source code and assets from https://github.com/A-Ribeiro/OpenGLStarter and https://github.com/simondevyoutube/ThreeJS_Tutorial_ParticleSystems.
+The project 35Octree contains source code and assets from https://github.com/A-Ribeiro/OpenGLStarter, https://github.com/simondevyoutube/ThreeJS_Tutorial_ParticleSystems and https://github.com/LesleyLai/GLGrassRenderer/tree/main.
 One rendering I have achieved with this iteration
 
 ![SSS_2](https://github.com/pohldaniel/OpenGL_Games/assets/30089026/70c913f0-1470-4cbc-b42f-55debead256d)
