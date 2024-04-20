@@ -64,14 +64,28 @@ BlobShoot::BlobShoot(StateMachine& machine) : State(machine, States::BLOBSHOOT) 
 }
 
 BlobShoot::~BlobShoot() {
+
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
 
+
+	delete m_ghostPairCallback;
+	m_ghostPairCallback = nullptr;
+	Physics::GetDynamicsWorld()->getBroadphase()->getOverlappingPairCache()->setInternalGhostPairCallback(nullptr);
+
+
+	m_kinematicController->reset(Physics::GetDynamicsWorld());
+	Physics::DynamicsWorld->removeAction(m_kinematicController);
 	delete m_kinematicController;
-	//delete m_pairCachingGhostObject;
-	//delete m_ghostPairCallback;
 
 	Globals::physics->removeAllCollisionObjects();
+
+	ShapeDrawer::Get().shutdown();
+
+	if (BuiltInShader::sphereUbo) {
+		glDeleteBuffers(1, &BuiltInShader::sphereUbo);
+		BuiltInShader::sphereUbo = 0;
+	}
 }
 
 void BlobShoot::fixedUpdate() {
@@ -362,9 +376,7 @@ void BlobShoot::addCharacter(const Vector3f& pos, const Vector2f& size) {
 	m_ghostPairCallback = new btGhostPairCallback();
 	Physics::GetDynamicsWorld()->getBroadphase()->getOverlappingPairCache()->setInternalGhostPairCallback(m_ghostPairCallback);
 
-
 	btConvexShape* capsule = new btCapsuleShape(size[0], size[1]);
-
 	m_pairCachingGhostObject = new btPairCachingGhostObject();
 	m_pairCachingGhostObject->setCollisionShape(capsule);
 	m_pairCachingGhostObject->setCollisionFlags(btCollisionObject::CF_CHARACTER_OBJECT);
@@ -374,8 +386,6 @@ void BlobShoot::addCharacter(const Vector3f& pos, const Vector2f& size) {
 
 
 	m_pairCachingGhostObject->setWorldTransform(Physics::BtTransform(Physics::VectorFrom(pos)));
-
-
 	Physics::GetDynamicsWorld()->addCollisionObject(m_pairCachingGhostObject, Physics::collisiontypes::CHARACTER, Physics::collisiontypes::FLOOR);
 	Physics::GetDynamicsWorld()->addAction(m_kinematicController);
 }

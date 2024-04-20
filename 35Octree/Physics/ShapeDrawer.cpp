@@ -2,16 +2,17 @@
 #include "HeightField.h"
 
 RandomColor ShapeDrawer::RandomColor;
-ShapeDrawer ShapeDrawer::s_instance;
+ShapeDrawer ShapeDrawer::Instance;
 std::unique_ptr<Shader> ShapeDrawer::s_shader = nullptr;
+bool ShapeDrawer::Init = false;
 
 ShapeDrawer& ShapeDrawer::Get() {
-	return s_instance;
+	return Instance;
 }
 
 void ShapeDrawer::init(size_t maxTriangles) {
 
-	if (!s_shader) {
+	if (!Init) {
 		m_maxTriangles = maxTriangles;
 
 		glGenBuffers(1, &m_ibo);
@@ -21,8 +22,10 @@ void ShapeDrawer::init(size_t maxTriangles) {
 		glBufferData(GL_ARRAY_BUFFER, maxTriangles * 3 * sizeof(btVector3), nullptr, GL_DYNAMIC_DRAW);
 
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, maxTriangles * 3 * sizeof(unsigned int), nullptr, GL_DYNAMIC_DRAW);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, maxTriangles * 3 * sizeof(unsigned int), nullptr, GL_DYNAMIC_DRAW);		
+	}
 
+	if (!s_shader) {
 		s_shader = std::unique_ptr<Shader>(new Shader(SHAPEDRAWER_VERTEX, SHAPEDRAWER_FRGAMENT, false));
 	}
 }
@@ -37,24 +40,29 @@ void ShapeDrawer::setCamera(const Camera& camera) {
 
 void ShapeDrawer::shutdown() {
 
-	/*for (int i = 0; i<m_shapecaches.size(); i++){
-	m_shapecaches[i]->~ShapeCache();
-	btAlignedFree(m_shapecaches[i]);
+	for (int i = 0; i<m_shapecache.size(); i++){
+		delete m_shapecache[i];
 	}
-	m_shapecaches.clear();
+	m_shapecache.clear();
 
-	for (int i = 0; i<m_shapecachesConvex.size(); i++) {
-	m_shapecachesConvex[i]->~ShapeCacheConvex();
-	delete m_shapecachesConvex[i];
+	for (int i = 0; i<m_shapecacheConvex.size(); i++) {
+		delete m_shapecacheConvex[i];
 	}
 
-	m_shapecachesConvex.clear();*/
+	m_shapecacheConvex.clear();
 
-	if (m_vbo)
+	if (m_vbo) {
 		glDeleteBuffers(1, &m_vbo);
+		m_vbo = 0;
+	}
 
-	if (m_ibo)
+	if (m_ibo) {
 		glDeleteBuffers(1, &m_ibo);
+		m_ibo = 0;
+	}
+
+	//s_shader.reset();
+	Init = false;
 }
 
 void ShapeDrawer::drawDynmicsWorld(btDynamicsWorld* dynamicsWorld) {
@@ -191,12 +199,12 @@ ShapeDrawer::ShapeCacheConvex* ShapeDrawer::cacheConvex(btCollisionShape* shape)
 	ShapeCacheConvex* sc = (ShapeCacheConvex*)shape->getUserPointer();
 
 	if (!sc) {
-		sc = new(btAlignedAlloc(sizeof(ShapeCacheConvex), 16)) ShapeCacheConvex(dynamic_cast<btConvexShape*>(shape));
+		sc = new ShapeCacheConvex(dynamic_cast<btConvexShape*>(shape));
 		sc->m_shapehull.buildHull(shape->getMargin());
 
 		int intColor = RandomColor.generate();
 		sc->m_color = Vector4f(((intColor >> 16) & 0xFF) / 255.0f, ((intColor >> 8) & 0xFF) / 255.0f, ((intColor) & 0xFF) / 255.0f, 1.0f);
-		m_shapecachesConvex.push_back(sc);
+		m_shapecacheConvex.push_back(sc);
 		shape->setUserPointer(sc);
 	}
 	return(sc);
@@ -210,7 +218,7 @@ ShapeDrawer::ShapeCache* ShapeDrawer::cache(btCollisionShape* shape) {
 
 		int intColor = RandomColor.generate();
 		sc->m_color = Vector4f(((intColor >> 16) & 0xFF) / 255.0f, ((intColor >> 8) & 0xFF) / 255.0f, ((intColor) & 0xFF) / 255.0f, 1.0f);
-		m_shapecaches.push_back(sc);
+		m_shapecache.push_back(sc);
 		shape->setUserPointer(sc);
 	}
 

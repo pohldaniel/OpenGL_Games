@@ -82,14 +82,23 @@ void Physics::removeCollisionObject(btCollisionObject* obj) {
 void Physics::removeAllCollisionObjects() {
 
 	for (int i = DynamicsWorld->getNumCollisionObjects() - 1; i >= 0; i--) {
-		btCollisionObject* obj = DynamicsWorld->getCollisionObjectArray()[i];		 
+		btCollisionObject* obj = DynamicsWorld->getCollisionObjectArray()[i];		
 		btRigidBody* body = btRigidBody::upcast(obj);
 
-		if (body && body->getMotionState())
+		if (body && body->getMotionState()) {
 			delete body->getMotionState();
+		}
 
-		if (body && body->getCollisionShape())
+		if (body && body->getCollisionShape()) {
 			delete body->getCollisionShape();
+		}
+
+		btGhostObject* ghostObject = btPairCachingGhostObject::upcast(obj);
+
+		if (ghostObject && ghostObject->getCollisionShape()) {
+			delete ghostObject->getCollisionShape();
+			//continue;
+		}
 
 		DynamicsWorld->removeCollisionObject(obj);
 		delete obj;

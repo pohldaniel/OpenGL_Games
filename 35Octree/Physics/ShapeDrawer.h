@@ -71,9 +71,10 @@ private:
 
 	
 	const Camera* m_camera;
-	btAlignedObjectArray<ShapeCacheConvex*> m_shapecachesConvex;
-	btAlignedObjectArray<ShapeCache*> m_shapecaches;
+	btAlignedObjectArray<ShapeCacheConvex*> m_shapecacheConvex;
+	btAlignedObjectArray<ShapeCache*> m_shapecache;
 
-	static ShapeDrawer s_instance;
+	static ShapeDrawer Instance;
 	static std::unique_ptr<Shader> s_shader;
+	static bool Init;
 };
