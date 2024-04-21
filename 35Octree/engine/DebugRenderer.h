@@ -46,7 +46,7 @@ public:
 
 
 	void SetView(Camera* camera);
-	void SetViewProjection(const Matrix4f& projection, const Matrix4f& view);
+	void SetProjectionView(const Matrix4f& projection, const Matrix4f& view);
 	void AddLine(const Vector3f& start, const Vector3f& end, const Vector4f& color);
 	void AddLine(const Vector3f& start, const Vector3f& end, unsigned int color);
 	void AddBoundingBox(const BoundingBox& box, const Vector4f& color);

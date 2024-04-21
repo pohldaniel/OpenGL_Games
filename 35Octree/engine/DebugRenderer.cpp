@@ -92,6 +92,11 @@ void DebugRenderer::SetView(Camera* camera){
 	projection = camera->getPerspectiveMatrix();
 }
 
+void DebugRenderer::SetProjectionView(const Matrix4f& _projection, const Matrix4f& _view) {
+	projection = _projection;
+	view = _view;
+}
+
 void DebugRenderer::AddLine(const Vector3f& start, const Vector3f& end, unsigned int color){
 	if (!s_enabled)
 		return;

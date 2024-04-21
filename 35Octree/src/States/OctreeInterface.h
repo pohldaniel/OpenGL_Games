@@ -5,6 +5,7 @@
 #include <engine/MeshObject/Shape.h>
 #include <engine/Camera.h>
 #include <engine/TrackBall.h>
+#include <engine/Frustum.h>
 #include <States/StateMachine.h>
 
 #include "Octree/Octree.h"
@@ -80,6 +81,15 @@ private:
 	void CollectOctants(Octant* octant, ThreadOctantResult& result, unsigned char planeMask = 0x3f);
 
 	SceneNodeLC* m_root;
-	std::vector<ShapeNode*> entities;
+	std::vector<ShapeNode*> m_entities;
+	Frustum m_rustum;
+
+	float m_fovx = 44.0f;
+	float m_far = 70.0f;
+	float m_near = 5.0f;
+	float m_distance = 0.0f;
+	bool m_overview = false;
+
+	Matrix4f perspective, m_view;
 };
 

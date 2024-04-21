@@ -17,12 +17,15 @@ OctreeInterface::OctreeInterface(StateMachine& machine) : State(machine, States:
 	EventDispatcher::AddMouseListener(this);
 
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
-	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
+	float aspect = static_cast<float>(Application::Width) / static_cast<float>(Application::Height);
+	m_view.lookAt(Vector3f(0.0f, 50.0f, 0.0f), Vector3f(0.0f, 50.0f - 1.0f, 0.0f), Vector3f(0.0f, 0.0f, -1.0f));
+	m_camera.orthographic(-50.0f * aspect, 50.0f * aspect, -50.0f, 50.0f, -1000.0f, 1000.0f);
+	
 	m_camera.lookAt(Vector3f(0.0f, 0.0f, 25.0f), Vector3f(0.0f, 0.0f, 25.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
 	m_camera.setRotationSpeed(0.1f);
-	m_camera.setMovingSpeed(5.0f);
+	m_camera.setMovingSpeed(15.0f);
 
-	glClearColor(0.494f, 0.686f, 0.796f, 1.0f);
+	glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 	glClearDepth(1.0f);
 
 	WorkQueue::Init(0);
@@ -40,18 +43,21 @@ OctreeInterface::OctreeInterface(StateMachine& machine) : State(machine, States:
 
 	m_root = new SceneNodeLC();
 	ShapeNode* child;
-	for (int x = -5; x < 5; x++) {
-		for (int y = -5; y < 5; y++) {
-			for (int z = -5; z < 5; z++) {
+	for (int x = -10; x < 10; x++) {
+		for (int y = -10; y < 10; y++) {
+			for (int z = -10; z < 10; z++) {
 				child = m_root->addChild<ShapeNode, Shape>(Globals::shapeManager.get("cube"));
 				child->setPosition(2.2f * x, 2.2f * y, 2.2f * z);
 				//Important: guarantee thread safeness
 				child->updateSOP();
 				m_octree->QueueUpdate(child);
-				entities.push_back(child);
+				m_entities.push_back(child);
 			}
 		}
 	}
+
+	m_rustum.init();
+	m_rustum.getDebug() = true;
 }
 
 OctreeInterface::~OctreeInterface() {
@@ -119,6 +125,7 @@ void OctreeInterface::update() {
 			m_camera.move(direction * m_dt);
 		}
 	}
+	perspective.perspective(m_fovx, (float)Application::Width / (float)Application::Height, m_near, m_far);
 	updateOctree();
 }
 
@@ -129,8 +136,8 @@ void OctreeInterface::render() {
 
 	auto shader = Globals::shaderManager.getAssetPointer("texture");
 	shader->use();
-	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
-	shader->loadMatrix("u_view", m_camera.getViewMatrix());
+	shader->loadMatrix("u_projection", !m_overview ? m_camera.getPerspectiveMatrix() : m_camera.getOrthographicMatrix());
+	shader->loadMatrix("u_view", !m_overview ? m_camera.getViewMatrix() : m_view);
 	
 	Globals::textureManager.get("marble").bind(0);
 	
@@ -146,34 +153,18 @@ void OctreeInterface::render() {
 				
 				shader->loadMatrix("u_model", drawable->getWorldTransformation());
 				drawable->getShape().drawRaw();
+				//drawable->OnRenderAABB(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
 			}
 		}
 	}
 
-	/*int x = -50;
-	Vector3f _pos;
-	for (auto dIt = entities.begin(); dIt != entities.end(); ++dIt) {
-		//std::cout << "rrrrrrrrrrrrr" << std::endl;
-		ShapeNode* drawable = *dIt;
-		Matrix4f trans = drawable->getWorldTransformation();
-		Vector3f pos = drawable->getPosition();
-
-		//if (pos[0] == _pos[0] && pos[1] == _pos[1]) {
-		//	std::cout << "rrrrrrrrrrrrr" << std::endl;
-		//}else {
-		//	std::cout << "nnnnnnnnnnnn" << std::endl;
-		//}
-
-		//shader->loadMatrix("u_model", trans);
-		shader->loadMatrix("u_model", Matrix4f::Translate(trans[3][0], trans[3][1], 0.0f));
-		drawable->getShape().drawRaw();
-		x++;
-		_pos = pos;
-	}*/
-
 	shader->unuse();
 
-	DebugRenderer::Get().SetView(&m_camera);
+	m_rustum.updateVbo(perspective, m_camera.getViewMatrix());
+
+	!m_overview ? m_rustum.drawFrustm(m_camera.getPerspectiveMatrix(), m_camera.getViewMatrix(), m_distance) : m_rustum.drawFrustm(m_camera.getOrthographicMatrix(), m_view, m_distance);
+	!m_overview ? DebugRenderer::Get().SetProjectionView(m_camera.getPerspectiveMatrix(), m_camera.getViewMatrix()) : DebugRenderer::Get().SetProjectionView(m_camera.getOrthographicMatrix(), m_view);
+	
 	DebugRenderer::Get().drawBuffer();
 
 	if (m_drawUi)
@@ -252,6 +243,11 @@ void OctreeInterface::renderUi() {
 	// render widgets
 	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 	ImGui::Checkbox("Draw Wirframe", &StateMachine::GetEnableWireframe());
+	ImGui::SliderFloat("Fovx", &m_fovx, 0.01f, 180.0f);
+	ImGui::SliderFloat("Far", &m_far, 25.0f, 1100.0f);
+	ImGui::SliderFloat("Near", &m_near, 1.0f, 200.0f);
+	ImGui::SliderFloat("Distance", &m_distance, -100.0f, 100.0f);
+	ImGui::Checkbox("Overview", &m_overview);
 	ImGui::End();
 
 	ImGui::Render();
