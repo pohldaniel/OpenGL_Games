@@ -40,6 +40,17 @@ const Matrix4f& SceneNodeLC::getWorldTransformation() const {
 	return m_modelMatrix;
 }
 
+void SceneNodeLC::updateSOP() const {
+	if (m_isDirty) {
+		if (m_parent) {
+			m_modelMatrix = static_cast<BaseNode*>(m_parent)->getWorldTransformation() * getTransformationSOP();
+		}else {
+			m_modelMatrix = getTransformationSOP();
+		}
+		m_isDirty = false;
+	}
+}
+
 const Vector3f& SceneNodeLC::getWorldPosition() const {
 	WorldPosition = getWorldTransformation().getTranslation();
 	return WorldPosition;

@@ -1,4 +1,4 @@
-// For conditions of distribution and use, see copyright notice in License.txt
+#include <iostream>
 
 #include "ThreadUtils.h"
 #include "WorkQueue.h"
@@ -29,8 +29,8 @@ WorkQueue::WorkQueue(unsigned numThreads) : shouldExit(false){
         threads.push_back(std::thread(&WorkQueue::WorkerLoop, this, i + 1));
 }
 
-WorkQueue::~WorkQueue()
-{
+WorkQueue::~WorkQueue(){
+
     if (!threads.size())
         return;
 
@@ -42,10 +42,9 @@ WorkQueue::~WorkQueue()
         it->join();
 }
 
-void WorkQueue::QueueTask(Task* task)
-{
-    if (threads.size())
-    {
+void WorkQueue::QueueTask(Task* task){
+
+    if(threads.size()){
         {
             std::lock_guard<std::mutex> lock(queueMutex);
             tasks.push(task);
@@ -55,22 +54,18 @@ void WorkQueue::QueueTask(Task* task)
         numPendingTasks.fetch_add(1);
 
         signal.notify_one();
-    }
-    else
-    {
+
+    }else{
         // If no threads, execute directly
         CompleteTask(task, 0);
     }
 }
 
-void WorkQueue::QueueTasks(size_t count, Task** tasks_)
-{
-    if (threads.size())
-    {
+void WorkQueue::QueueTasks(size_t count, Task** tasks_){
+    if (threads.size()){
         {
             std::lock_guard<std::mutex> lock(queueMutex);
-            for (size_t i = 0; i < count; ++i)
-            {
+            for (size_t i = 0; i < count; ++i){
                 tasks.push(tasks_[i]);
             }
         }
@@ -80,17 +75,13 @@ void WorkQueue::QueueTasks(size_t count, Task** tasks_)
 
         if (count >= threads.size())
             signal.notify_all();
-        else
-        {
+        else{
             for (size_t i = 0; i < count; ++i)
                 signal.notify_one();
         }
-    }
-    else
-    {
+    }else{
         // If no threads, execute directly
-        for (size_t i = 0; i < count; ++i)
-        {
+        for (size_t i = 0; i < count; ++i){
             CompleteTask(tasks_[i], 0);
         }
     }

@@ -18,7 +18,7 @@ OctreeInterface::OctreeInterface(StateMachine& machine) : State(machine, States:
 
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
-	m_camera.lookAt(Vector3f(0.0f, 0.0f, 15.0f), Vector3f(0.0f, 0.0f, 15.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
+	m_camera.lookAt(Vector3f(0.0f, 0.0f, 25.0f), Vector3f(0.0f, 0.0f, 25.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
 	m_camera.setRotationSpeed(0.1f);
 	m_camera.setMovingSpeed(5.0f);
 
@@ -38,13 +38,20 @@ OctreeInterface::OctreeInterface(StateMachine& machine) : State(machine, States:
 
 	DebugRenderer::Get().setEnable(true);
 
-	m_cube = new ShapeNode(Globals::shapeManager.get("cube"));
-	m_cube->setPosition(0.0f, 1.1f, 0.0f);
-	m_octree->QueueUpdate(m_cube);
-	
-	m_cube = new ShapeNode(Globals::shapeManager.get("cube"));
-	m_cube->setPosition(0.0f, -1.1f, 0.0f);
-	m_octree->QueueUpdate(m_cube);
+	m_root = new SceneNodeLC();
+	ShapeNode* child;
+	for (int x = -5; x < 5; x++) {
+		for (int y = -5; y < 5; y++) {
+			for (int z = -5; z < 5; z++) {
+				child = m_root->addChild<ShapeNode, Shape>(Globals::shapeManager.get("cube"));
+				child->setPosition(2.2f * x, 2.2f * y, 2.2f * z);
+				//Important: guarantee thread safeness
+				child->updateSOP();
+				m_octree->QueueUpdate(child);
+				entities.push_back(child);
+			}
+		}
+	}
 }
 
 OctreeInterface::~OctreeInterface() {
@@ -112,7 +119,6 @@ void OctreeInterface::update() {
 			m_camera.move(direction * m_dt);
 		}
 	}
-
 	updateOctree();
 }
 
@@ -128,27 +134,42 @@ void OctreeInterface::render() {
 	
 	Globals::textureManager.get("marble").bind(0);
 	
-	
-	//std::cout << "Size1: " << rootLevelOctants.size() << std::endl;
 	for (size_t i = 0; i < rootLevelOctants.size(); ++i) {
 		const ThreadOctantResult& result = octantResults[i];
-
-		//std::cout << "Size2: " << result.octants.size() << std::endl;
-
 		for (auto oIt = result.octants.begin(); oIt != result.octants.end(); ++oIt) {
 			Octant* octant = oIt->first;
 			octant->OnRenderAABB();
 
 			const std::vector<ShapeNode*>& drawables = octant->Drawables();
-
 			for (auto dIt = drawables.begin(); dIt != drawables.end(); ++dIt) {
 				ShapeNode* drawable = *dIt;
-
+				
 				shader->loadMatrix("u_model", drawable->getWorldTransformation());
 				drawable->getShape().drawRaw();
 			}
 		}
 	}
+
+	/*int x = -50;
+	Vector3f _pos;
+	for (auto dIt = entities.begin(); dIt != entities.end(); ++dIt) {
+		//std::cout << "rrrrrrrrrrrrr" << std::endl;
+		ShapeNode* drawable = *dIt;
+		Matrix4f trans = drawable->getWorldTransformation();
+		Vector3f pos = drawable->getPosition();
+
+		//if (pos[0] == _pos[0] && pos[1] == _pos[1]) {
+		//	std::cout << "rrrrrrrrrrrrr" << std::endl;
+		//}else {
+		//	std::cout << "nnnnnnnnnnnn" << std::endl;
+		//}
+
+		//shader->loadMatrix("u_model", trans);
+		shader->loadMatrix("u_model", Matrix4f::Translate(trans[3][0], trans[3][1], 0.0f));
+		drawable->getShape().drawRaw();
+		x++;
+		_pos = pos;
+	}*/
 
 	shader->unuse();
 
@@ -329,4 +350,5 @@ void OctreeInterface::CollectOctantsWork(Task* task_, unsigned threadIndex) {
 	CollectOctants(octant, result);
 
 	numPendingBatchTasks.fetch_add(-1);
+	//std::cout << "wwwwwwwwwwwwww" << std::endl;
 }

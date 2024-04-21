@@ -68,6 +68,7 @@ void DebugRenderer::shutdown() {
 	}
 
 	//std::default_delete<Shader> DebugShader;
+	DebugShader.reset();
 }
 
 void DebugRenderer::disable() {

@@ -117,6 +117,8 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 }
 Application::~Application() {
 	Fontrenderer::Get().shutdown();
+	DebugRenderer::Get().shutdown();
+	Batchrenderer::Get().shutdown();
 
 	delete Machine;
 	Globals::shaderManager.clear();
@@ -432,9 +434,9 @@ void Application::fixedUpdate() {
 
 void Application::initStates() {	
 	Machine = new StateMachine(m_dt, m_fdt);
-	Machine->addStateAtTop(new Menu(*Machine));
+	//Machine->addStateAtTop(new Menu(*Machine));
 
-	//Machine->addStateAtTop(new OctreeInterface(*Machine));
+	Machine->addStateAtTop(new OctreeInterface(*Machine));
 	//Machine->addStateAtTop(new Default(*Machine));
 	//Machine->addStateAtTop(new RayMarch(*Machine));
 	//Machine->addStateAtTop(new Fire(*Machine));

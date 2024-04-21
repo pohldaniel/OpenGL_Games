@@ -16,6 +16,7 @@ public:
 	const Vector3f& getWorldPosition() const override;
 	const Vector3f& getWorldScale() const override;
 	const Quaternion& getWorldOrientation() const override;
+	void updateSOP() const;
 
 private:
 

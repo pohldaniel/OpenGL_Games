@@ -79,6 +79,7 @@ private:
 	void CollectOctantsWork(Task* task, unsigned threadIndex);
 	void CollectOctants(Octant* octant, ThreadOctantResult& result, unsigned char planeMask = 0x3f);
 
-	ShapeNode *m_cube;
+	SceneNodeLC* m_root;
+	std::vector<ShapeNode*> entities;
 };
 
