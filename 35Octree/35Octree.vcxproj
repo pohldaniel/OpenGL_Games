@@ -226,6 +226,7 @@
     <ClCompile Include="src\States\Default.cpp" />
     <ClCompile Include="src\States\Grass\GrassComp.cpp" />
     <ClCompile Include="src\States\Grass\GrassGeom.cpp" />
+    <ClCompile Include="src\States\OcclusionQuery.cpp" />
     <ClCompile Include="src\States\OctreeInterface.cpp" />
     <ClCompile Include="src\States\Particle\BlendedParticle.cpp" />
     <ClCompile Include="src\States\Particle\Fire.cpp" />
@@ -488,6 +489,7 @@
     <ClInclude Include="src\States\Default.h" />
     <ClInclude Include="src\States\Grass\GrassComp.h" />
     <ClInclude Include="src\States\Grass\GrassGeom.h" />
+    <ClInclude Include="src\States\OcclusionQuery.h" />
     <ClInclude Include="src\States\OctreeInterface.h" />
     <ClInclude Include="src\States\Particle\BlendedParticle.h" />
     <ClInclude Include="src\States\Particle\Fire.h" />

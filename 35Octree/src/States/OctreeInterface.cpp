@@ -160,7 +160,6 @@ void OctreeInterface::render() {
 	}
 
 	shader->unuse();
-
 	m_frustum.updateVbo(perspective, m_camera.getViewMatrix());
 
 	!m_overview ? m_frustum.drawFrustum(m_camera.getPerspectiveMatrix(), m_camera.getViewMatrix(), m_distance) : m_frustum.drawFrustum(m_camera.getOrthographicMatrix(), m_view, m_distance);
@@ -246,10 +245,15 @@ void OctreeInterface::renderUi() {
 	ImGui::Checkbox("Draw Wirframe", &StateMachine::GetEnableWireframe());
 	ImGui::SliderFloat("Fovx", &m_fovx, 0.01f, 180.0f);
 	ImGui::SliderFloat("Far", &m_far, 25.0f, 1100.0f);
-	ImGui::SliderFloat("Near", &m_near, 1.0f, 200.0f);
+	ImGui::SliderFloat("Near", &m_near, 0.1f, 200.0f);
 	ImGui::SliderFloat("Distance", &m_distance, -100.0f, 100.0f);
 	ImGui::Checkbox("Overview", &m_overview);
 	ImGui::Checkbox("Use Culling", &m_useCulling);
+	if (ImGui::Button("Reset")) {
+		m_far = m_camera.getFar();
+		m_near = m_camera.getNear();
+		m_fovx = m_camera.getFovXDeg();
+	}
 	ImGui::End();
 
 	ImGui::Render();

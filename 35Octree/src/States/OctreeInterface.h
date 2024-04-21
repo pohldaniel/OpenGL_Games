@@ -87,10 +87,11 @@ private:
 	float m_fovx = 44.0f;
 	float m_far = 70.0f;
 	float m_near = 5.0f;
-	float m_distance = 0.0f;
-	bool m_overview = false;
+	float m_distance = 0.01f;
+	bool m_overview = true;
 	bool m_useCulling = true;
 
-	Matrix4f perspective, m_view;
+	Matrix4f perspective;
+	Matrix4f m_view;
 };
 
