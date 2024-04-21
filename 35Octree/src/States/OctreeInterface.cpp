@@ -56,8 +56,8 @@ OctreeInterface::OctreeInterface(StateMachine& machine) : State(machine, States:
 		}
 	}
 
-	m_rustum.init();
-	m_rustum.getDebug() = true;
+	m_frustum.init();
+	m_frustum.getDebug() = true;
 }
 
 OctreeInterface::~OctreeInterface() {
@@ -126,6 +126,7 @@ void OctreeInterface::update() {
 		}
 	}
 	perspective.perspective(m_fovx, (float)Application::Width / (float)Application::Height, m_near, m_far);
+	m_frustum.updatePlane(perspective, m_camera.getViewMatrix());
 	updateOctree();
 }
 
@@ -160,9 +161,9 @@ void OctreeInterface::render() {
 
 	shader->unuse();
 
-	m_rustum.updateVbo(perspective, m_camera.getViewMatrix());
+	m_frustum.updateVbo(perspective, m_camera.getViewMatrix());
 
-	!m_overview ? m_rustum.drawFrustm(m_camera.getPerspectiveMatrix(), m_camera.getViewMatrix(), m_distance) : m_rustum.drawFrustm(m_camera.getOrthographicMatrix(), m_view, m_distance);
+	!m_overview ? m_frustum.drawFrustum(m_camera.getPerspectiveMatrix(), m_camera.getViewMatrix(), m_distance) : m_frustum.drawFrustum(m_camera.getOrthographicMatrix(), m_view, m_distance);
 	!m_overview ? DebugRenderer::Get().SetProjectionView(m_camera.getPerspectiveMatrix(), m_camera.getViewMatrix()) : DebugRenderer::Get().SetProjectionView(m_camera.getOrthographicMatrix(), m_view);
 	
 	DebugRenderer::Get().drawBuffer();
@@ -248,6 +249,7 @@ void OctreeInterface::renderUi() {
 	ImGui::SliderFloat("Near", &m_near, 1.0f, 200.0f);
 	ImGui::SliderFloat("Distance", &m_distance, -100.0f, 100.0f);
 	ImGui::Checkbox("Overview", &m_overview);
+	ImGui::Checkbox("Use Culling", &m_useCulling);
 	ImGui::End();
 
 	ImGui::Render();
@@ -307,12 +309,8 @@ void OctreeInterface::CollectOctants(Octant* octant, ThreadOctantResult& result,
 	const BoundingBox& octantBox = octant->CullingBox();
 
 	if (planeMask) {
-		// If not already inside all frustum planes, do frustum test and terminate if completely outside
-		//planeMask = m_useCulling ? frustum.IsInsideMasked(octantBox, planeMask) : 0x00;
-		planeMask = 0x00;
-
+		planeMask = m_useCulling ? m_frustum.isInsideMasked(octantBox, planeMask) : 0x00;
 		if (planeMask == 0xff) {
-			// If octant becomes frustum culled, reset its visibility for when it comes back to view, including its children
 			if (octant->Visibility() != VIS_OUTSIDE_FRUSTUM)
 				octant->SetVisibility(VIS_OUTSIDE_FRUSTUM, true);
 			return;
@@ -346,5 +344,4 @@ void OctreeInterface::CollectOctantsWork(Task* task_, unsigned threadIndex) {
 	CollectOctants(octant, result);
 
 	numPendingBatchTasks.fetch_add(-1);
-	//std::cout << "wwwwwwwwwwwwww" << std::endl;
 }

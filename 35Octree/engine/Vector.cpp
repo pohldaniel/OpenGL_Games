@@ -3018,12 +3018,15 @@ unsigned int Vector4f::toUInt() const{
 }
 
 float Vector4f::Dot(const Vector4f &p, const Vector4f &q) {
-
 	return (p[0] * q[0]) + (p[1] * q[1]) + (p[2] * q[2]) + (p[3] * q[3]);
 }
 
 float Vector4f::Dot(const Vector4f &p, const Vector3f &q) {
 	return (p[0] * q[0]) + (p[1] * q[1]) + (p[2] * q[2]);
+}
+
+float Vector4f::DotAbs(const Vector4f &p, const Vector3f &q) {
+	return (fabs(p[0]) * q[0]) + (fabs(p[1]) * q[1]) + (fabs(p[2]) * q[2]);
 }
 
 //friend operator

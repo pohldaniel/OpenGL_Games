@@ -5,6 +5,7 @@
 #include <vector>
 #include "Shader.h"
 #include "Camera.h"
+#include "BoundingBox.h"
 
 #define FRUSTUM_VERTEX	"#version 410 core											\n \
 																					\n \
@@ -33,13 +34,16 @@
 
 class Frustum {
 
+	static const size_t NUM_FRUSTUM_PLANES = 6;
+
 public:
 
 	Frustum();
 	~Frustum();
 
-	void drawFrustm(const Matrix4f& projection, const Matrix4f& view, float distance);
-	void updatePlane(const Matrix4f& perspective, const Matrix4f& view, const Matrix4f& model = Matrix4f::IDENTITY);
+	void drawFrustum(const Matrix4f& projection, const Matrix4f& view, float distance);
+	void updatePlane(const Matrix4f& perspective, const Matrix4f& view, const Matrix4f& model);
+	void updatePlane(const Matrix4f& perspective, const Matrix4f& view);
 	void updateVbo(const Matrix4f& perspective, const Matrix4f& view);
 
 	void init();
@@ -47,6 +51,7 @@ public:
 	bool aabbVisible(const Vector3f* AABBVertices);
 	float aabbDistance(const Vector3f* AABBVertices);
 	bool& getDebug();
+	unsigned char isInsideMasked(const BoundingBox& box, unsigned char planeMask = 0x3f) const;
 
 	static bool IntersectAABBPlane(const Vector3f& position, const Vector3f& size, const Vector4f& plane);
 	

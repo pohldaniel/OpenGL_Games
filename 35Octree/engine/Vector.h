@@ -200,6 +200,7 @@ public:
 
 	static float Dot(const Vector4f &p, const Vector4f &q);
 	static float Dot(const Vector4f &p, const Vector3f &q);
+	static float DotAbs(const Vector4f &p, const Vector3f &q);
 private:
 
 	float vec[4];

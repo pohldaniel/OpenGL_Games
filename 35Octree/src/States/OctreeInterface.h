@@ -82,13 +82,14 @@ private:
 
 	SceneNodeLC* m_root;
 	std::vector<ShapeNode*> m_entities;
-	Frustum m_rustum;
+	Frustum m_frustum;
 
 	float m_fovx = 44.0f;
 	float m_far = 70.0f;
 	float m_near = 5.0f;
 	float m_distance = 0.0f;
 	bool m_overview = false;
+	bool m_useCulling = true;
 
 	Matrix4f perspective, m_view;
 };
