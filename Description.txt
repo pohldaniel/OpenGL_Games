@@ -70,3 +70,4 @@ https://www.ozone3d.net/
 
 https://github.com/AEspinosaDev/WebGL-RealTimeFur-SEDDI
 https://gamedev.stackexchange.com/questions/165575/calculating-normal-map-from-height-map-using-sobel-operator
+https://www.youtube.com/watch?v=99vXxyJtXeQ

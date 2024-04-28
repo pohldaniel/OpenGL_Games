@@ -2,11 +2,50 @@
 #include <imgui_impl_win32.h>
 #include <imgui_impl_opengl3.h>
 #include <imgui_internal.h>
+
 #include <engine/Batchrenderer.h>
+#include <States/Menu.h>
 
 #include "OcclusionQuery.h"
 #include "Application.h"
 #include "Globals.h"
+
+glm::vec3 vCubeVertices[36] =
+{
+	// Front face
+	glm::vec3(-0.5f, 0.5f, 0.5f), glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(0.5f, -0.5f, 0.5f), glm::vec3(0.5f, -0.5f, 0.5f), glm::vec3(-0.5f, -0.5f, 0.5f), glm::vec3(-0.5f, 0.5f, 0.5f),
+	// Back face
+	glm::vec3(0.5f, 0.5f, -0.5f), glm::vec3(-0.5f, 0.5f, -0.5f), glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec3(0.5f, -0.5f, -0.5f), glm::vec3(0.5f, 0.5f, -0.5f),
+	// Left face
+	glm::vec3(-0.5f, 0.5f, -0.5f), glm::vec3(-0.5f, 0.5f, 0.5f), glm::vec3(-0.5f, -0.5f, 0.5f), glm::vec3(-0.5f, -0.5f, 0.5f), glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec3(-0.5f, 0.5f, -0.5f),
+	// Right face
+	glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(0.5f, 0.5f, -0.5f), glm::vec3(0.5f, -0.5f, -0.5f), glm::vec3(0.5f, -0.5f, -0.5f), glm::vec3(0.5f, -0.5f, 0.5f), glm::vec3(0.5f, 0.5f, 0.5f),
+	// Top face
+	glm::vec3(-0.5f, 0.5f, -0.5f), glm::vec3(0.5f, 0.5f, -0.5f), glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(-0.5f, 0.5f, 0.5f), glm::vec3(-0.5f, 0.5f, -0.5f),
+	// Bottom face
+	glm::vec3(-0.5f, -0.5f, 0.5f), glm::vec3(0.5f, -0.5f, 0.5f), glm::vec3(0.5f, -0.5f, -0.5f), glm::vec3(0.5f, -0.5f, -0.5f), glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec3(-0.5f, -0.5f, 0.5f),
+};
+glm::vec2 vCubeTexCoords[6] = { glm::vec2(0.0f, 1.0f), glm::vec2(1.0f, 1.0f), glm::vec2(1.0f, 0.0f), glm::vec2(1.0f, 0.0f), glm::vec2(0.0f, 0.0f), glm::vec2(0.0f, 1.0f) };
+
+glm::vec3 vCubeNormals[6] =
+{
+	glm::vec3(0.0f, 0.0f, 1.0f),
+	glm::vec3(0.0f, 0.0f, -1.0f),
+	glm::vec3(-1.0f, 0.0f, 0.0f),
+	glm::vec3(1.0f, 0.0f, 0.0f),
+	glm::vec3(0.0f, 1.0f, 0.0f),
+	glm::vec3(0.0f, -1.0f, 0.0f)
+};
+
+glm::vec3 vGround[6] =
+{
+	glm::vec3(-300, 0, -300), glm::vec3(300, 0, 300), glm::vec3(300, 0, -300), glm::vec3(300, 0, 300), glm::vec3(-300, 0, -300), glm::vec3(-300, 0, 300)
+};
+
+glm::vec2 vGroundTexCoords[6] =
+{
+	glm::vec2(0.0f, 10.0f), glm::vec2(10.0f, 10.0f), glm::vec2(10.0f, 0.0f), glm::vec2(10.0f, 0.0f), glm::vec2(0.0f, 0.0f), glm::vec2(0.0f, 10.0f)
+};
 
 OcclusionQuery::OcclusionQuery(StateMachine& machine) : State(machine, States::DEFAULT) {
 
@@ -23,15 +62,8 @@ OcclusionQuery::OcclusionQuery(StateMachine& machine) : State(machine, States::D
 
 	glClearColor(0.494f, 0.686f, 0.796f, 1.0f);
 	glClearDepth(1.0f);
-	m_background.resize(Application::Width, Application::Height);
-	m_background.setLayer(std::vector<BackgroundLayer>{
-		{ &Globals::textureManager.get("forest_1"), 1, 1.0f },
-		{ &Globals::textureManager.get("forest_2"), 1, 2.0f },
-		{ &Globals::textureManager.get("forest_3"), 1, 3.0f },
-		{ &Globals::textureManager.get("forest_4"), 1, 4.0f },
-		{ &Globals::textureManager.get("forest_5"), 1, 5.0f }});
-	m_background.setSpeed(0.005f);
 
+	prepareStaticSceneObjects();
 }
 
 OcclusionQuery::~OcclusionQuery() {
@@ -63,15 +95,11 @@ void OcclusionQuery::update() {
 
 	if (keyboard.keyDown(Keyboard::KEY_A)) {
 		direction += Vector3f(-1.0f, 0.0f, 0.0f);
-		m_background.addOffset(-0.001f);
-		m_background.setSpeed(-0.005f);
 		move |= true;
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_D)) {
 		direction += Vector3f(1.0f, 0.0f, 0.0f);
-		m_background.addOffset(0.001f);
-		m_background.setSpeed(0.005f);
 		move |= true;
 	}
 
@@ -102,13 +130,54 @@ void OcclusionQuery::update() {
 		}
 	}
 
-	m_background.update(m_dt);
+	for (int x = 0; x < 3; x++) {
+		for (int y = 0; y < 3; y++) {
+			for (int z = 0; z < 3; z++) {
+				Vector3f vOcclusionCubePos = Vector3f(-fCubeHalfSize + fCubeHalfSize * x*2.0f / 3.0f + fCubeHalfSize / 3.0f, -fCubeHalfSize + fCubeHalfSize * y*2.0f / 3.0f + fCubeHalfSize / 3.0f, -fCubeHalfSize + fCubeHalfSize * z*2.0f / 3.0f + fCubeHalfSize / 3.0f);
+				m_modelMatrices[x][y][z] = Matrix4f::Translate(Vector3f(0.0f, fCubeHalfSize, 0.0f) + vOcclusionCubePos);
+			}
+		}
+	}
+
 }
 
 void OcclusionQuery::render() {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	m_background.draw();
+	m_skybox.draw(m_camera, "calm");
+
+	glBindVertexArray(m_vao);
+
+	// Render ground
+	auto shader = Globals::shaderManager.getAssetPointer("texture");
+	shader->use();
+	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
+	shader->loadMatrix("u_view", m_camera.getViewMatrix());
+	shader->loadMatrix("u_model", Matrix4f::IDENTITY);
+	
+	Globals::textureManager.get("dirt").bind();
+	glDrawArrays(GL_TRIANGLES, 36, 6);
+
+	glDisable(GL_CULL_FACE);
+	shader->loadMatrix("u_model", Matrix4f::Translate(0.0f, 30.0f, 0.0f));
+	Globals::textureManager.get("metal").bind();
+	glDrawArrays(GL_TRIANGLES, 0, 36);
+	glEnable(GL_CULL_FACE);
+
+	Globals::textureManager.get("wood").bind();
+	for(int x = 0; x < 3; x++){
+		for (int y = 0; y < 3; y++) {
+			for (int z = 0; z < 3; z++) {
+				//if (bRenderSphere[x][y][z] == false)
+					//continue;
+				//spMain.SetModelAndNormalMatrix("matrices.modelMatrix", "matrices.normalMatrix", mModelMatrices[x][y][z]);
+
+				shader->loadMatrix("u_model", m_modelMatrices[x][y][z]);
+
+				Globals::shapeManager.get("sphere_occ").drawRaw();
+			}
+		}
+	}
 
 	if (m_drawUi)
 		renderUi();
@@ -119,11 +188,15 @@ void OcclusionQuery::OnMouseMotion(Event::MouseMoveEvent& event) {
 }
 
 void OcclusionQuery::OnMouseButtonDown(Event::MouseButtonEvent& event) {
-
+	if (event.button == 2u) {
+		Mouse::instance().attach(Application::GetWindow());
+	}
 }
 
 void OcclusionQuery::OnMouseButtonUp(Event::MouseButtonEvent& event) {
-
+	if (event.button == 2u) {
+		Mouse::instance().detach();
+	}
 }
 
 void OcclusionQuery::OnMouseWheel(Event::MouseWheelEvent& event) {
@@ -138,6 +211,8 @@ void OcclusionQuery::OnKeyDown(Event::KeyboardEvent& event) {
 	if (event.keyCode == VK_ESCAPE) {
 		Mouse::instance().detach();
 		m_isRunning = false;
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new Menu(m_machine));
 	}
 }
 
@@ -191,4 +266,105 @@ void OcclusionQuery::renderUi() {
 
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+}
+
+void OcclusionQuery::prepareStaticSceneObjects(){
+	std::vector<Vertex> data;
+	
+	
+	float fCubeHalfSize = 30.0f;
+	
+	glm::vec2 vTexCoords[] ={
+		glm::vec2(0.0f, fCubeHalfSize*0.1f),
+		glm::vec2(fCubeHalfSize*0.1f, fCubeHalfSize*0.1f),
+		glm::vec2(fCubeHalfSize*0.1f, 0.0f),
+		glm::vec2(0.0f, 0.0f)
+	};
+
+	int indices[] = { 0, 3, 1, 1, 3, 2 };
+
+	for(int i = 0; i < 2; i++){
+		float fSign = i ? -1.0f : 1.0f;
+		glm::vec3 vNormal(0.0f, 1.0f, 0.0f);
+		glm::vec3 vQuad[] ={
+			glm::vec3(-fCubeHalfSize, -fCubeHalfSize + fCubeHalfSize * (i + 1)*2.0f / 3.0f, -fCubeHalfSize),
+			glm::vec3(fCubeHalfSize, -fCubeHalfSize + fCubeHalfSize * (i + 1)*2.0f / 3.0f, -fCubeHalfSize),
+			glm::vec3(fCubeHalfSize, -fCubeHalfSize + fCubeHalfSize * (i + 1)*2.0f / 3.0f, fCubeHalfSize),			
+			glm::vec3(-fCubeHalfSize, -fCubeHalfSize + fCubeHalfSize * (i + 1)*2.0f / 3.0f, fCubeHalfSize),
+		};
+
+		for (int j = 0; j < 6; j++){
+			int k = indices[j];
+			data.push_back({ vQuad[k], vTexCoords[k], vNormal });
+		}
+	}
+
+	for (int i = 0; i < 2; i++) {
+		float fSign = i ? -1.0f : 1.0f;
+		glm::vec3 vNormal(1.0f, 0.0f, 0.0f);
+		glm::vec3 vQuad[] =
+		{
+			glm::vec3(-fCubeHalfSize + fCubeHalfSize * (i + 1)*2.0f / 3.0f, fCubeHalfSize, -fCubeHalfSize),	
+			glm::vec3(-fCubeHalfSize + fCubeHalfSize * (i + 1)*2.0f / 3.0f, fCubeHalfSize, fCubeHalfSize),
+			glm::vec3(-fCubeHalfSize + fCubeHalfSize * (i + 1)*2.0f / 3.0f, -fCubeHalfSize, fCubeHalfSize),			
+			glm::vec3(-fCubeHalfSize + fCubeHalfSize * (i + 1)*2.0f / 3.0f, -fCubeHalfSize, -fCubeHalfSize),
+		};
+
+		for (int j = 0; j < 6; j++) {
+			int k = indices[j];
+			data.push_back({ vQuad[k], vTexCoords[k], vNormal });
+		}
+	}
+
+
+	for (int i = 0; i < 2; i++) {
+		float fSign = i ? -1.0f : 1.0f;
+		glm::vec3 vNormal(0.0f, 0.0f, 1.0f);
+		glm::vec3 vQuad[] =
+		{
+			glm::vec3(-fCubeHalfSize, fCubeHalfSize, -fCubeHalfSize + fCubeHalfSize * (i + 1)*2.0f / 3.0f),	
+			glm::vec3(fCubeHalfSize, fCubeHalfSize, -fCubeHalfSize + fCubeHalfSize * (i + 1)*2.0f / 3.0f),
+			glm::vec3(fCubeHalfSize, -fCubeHalfSize, -fCubeHalfSize + fCubeHalfSize * (i + 1)*2.0f / 3.0f),			
+			glm::vec3(-fCubeHalfSize, -fCubeHalfSize, -fCubeHalfSize + fCubeHalfSize * (i + 1)*2.0f / 3.0f),
+		};
+
+		for (int j = 0; j < 6; j++) {
+			int k = indices[j];
+			data.push_back({ vQuad[k], vTexCoords[k], vNormal });
+		}
+	}
+
+	glm::vec3 vNormal(0.0f, 1.0f, 0.0f);
+	for(int i = 0; i < 6; i++){
+		data.push_back({ vGround[i], vGroundTexCoords[i], vNormal });
+	}
+
+	glGenVertexArrays(1, &m_vao);
+	//glGenVertexArrays(1, &m_vaoOcc);
+	glGenBuffers(1, &m_vbo);
+	//glGenBuffers(1, &m_vboOcc);
+
+	glBindVertexArray(m_vao);
+	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+	glBufferData(GL_ARRAY_BUFFER, data.size() * sizeof(data[0]), &data[0], GL_STATIC_DRAW);
+
+	// Vertex positions
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
+	// Texture coordinates
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)sizeof(glm::vec3));
+	// Normal vectors
+	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(sizeof(glm::vec3) + sizeof(glm::vec2)));
+
+	/*glBindVertexArray(m_vaoOcc);
+	glBindBuffer(GL_ARRAY_BUFFER, m_vboOcc);
+	glBufferData(GL_ARRAY_BUFFER, 36 * sizeof(glm::vec3), &vCubeVertices[0], GL_STATIC_DRAW);
+
+	// Vertex positions
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), 0);*/
+
+	glBindVertexArray(0);
 }

@@ -841,6 +841,18 @@ void Application::loadAssets() {
 	Globals::textureManager.get("flow_map").setFilter(GL_LINEAR_MIPMAP_LINEAR);
 	Globals::textureManager.get("flow_map").setWrapMode(GL_REPEAT);
 
+	Globals::textureManager.loadTexture("dirt", "res/textures/dirt_seamless.jpg", true);
+	Globals::textureManager.get("dirt").setFilter(GL_LINEAR_MIPMAP_LINEAR);
+	Globals::textureManager.get("dirt").setWrapMode(GL_REPEAT);
+
+	Globals::textureManager.loadTexture("metal", "res/textures/metal_plate.jpg", true);
+	Globals::textureManager.get("metal").setFilter(GL_LINEAR_MIPMAP_LINEAR);
+	Globals::textureManager.get("metal").setWrapMode(GL_REPEAT);
+
+	Globals::textureManager.loadTexture("wood", "res/textures/planked_wood.jpg", true);
+	Globals::textureManager.get("wood").setFilter(GL_LINEAR_MIPMAP_LINEAR);
+	Globals::textureManager.get("wood").setWrapMode(GL_REPEAT);
+
 	if (!Utils::fileExist("res/textures/fire_pre.png")) {
 		Texture::PremultiplyAlpha("res/textures/fire.png", "res/textures/fire_pre.png");
 	}
@@ -867,7 +879,12 @@ void Application::loadAssets() {
 	std::string faces2[] = { "res/textures/ely_hills/hills_rt.tga", "res/textures/ely_hills/hills_lf.tga", "res/textures/ely_hills/hills_up.tga", "res/textures/ely_hills/hills_dn.tga", "res/textures/ely_hills/hills_bk.tga", "res/textures/ely_hills/hills_ft.tga" };
 	Globals::textureManager.loadCubeMap("hills", faces2, false);
 
+	std::string faces3[] = { "res/textures/calm/calm_right.jpg", "res/textures/calm/calm_left.jpg", "res/textures/calm/calm_top.jpg", "res/textures/calm/calm_top.jpg", "res/textures/calm/calm_back.jpg", "res/textures/calm/calm_front.jpg" };
+	Globals::textureManager.loadCubeMap("calm", faces3, false);
+
 	Globals::shapeManager.buildSphere("sphere", 0.5f, Vector3f(0.0f, 0.0f, 0.0f), 16, 16, true, true, false);
+	Globals::shapeManager.buildSphere("sphere_occ", 5.0f, Vector3f(0.0f, 0.0f, 0.0f), 200, 200, true, true, false);
+	Globals::shapeManager.get("sphere_occ").createBoundingBox();
 	Globals::shapeManager.buildCube("cube", Vector3f(-1.0f, -1.0f, -1.0f), Vector3f(2.0f, 2.0f, 2.0f), 1, 1, true, true, false);
 	Globals::shapeManager.get("cube").createBoundingBox();
 	Globals::shapeManager.buildQuadXY("quad", Vector3f(-1.0f, -1.0f, 0.0f), Vector2f(2.0f, 2.0f), 1, 1, true, false, false);
