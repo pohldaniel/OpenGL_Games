@@ -1,16 +1,11 @@
-#version 330
+#version 410 core
 
-uniform struct Matrices
-{
-	mat4 projMatrix;
-	mat4 modelMatrix;
-	mat4 viewMatrix;
-} matrices;
+layout (location = 0) in vec3 i_position;
 
-layout (location = 0) in vec3 inPosition;
+uniform mat4 u_projection = mat4(1.0);
+uniform mat4 u_view = mat4(1.0);
+uniform mat4 u_model = mat4(1.0);
 
-void main()
-{
-	vec4 vEyeSpacePosVertex = matrices.viewMatrix*matrices.modelMatrix*vec4(inPosition, 1.0);
-	gl_Position = matrices.projMatrix*vEyeSpacePosVertex;
+void main(){
+	gl_Position = u_projection * u_view * u_model * vec4(i_position, 1.0);
 }

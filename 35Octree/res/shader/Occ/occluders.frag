@@ -1,10 +1,9 @@
-#version 330
+#version 410 core
 
-out vec4 outputColor;
+out vec4 color;
 
-uniform vec4 vColor;
+uniform vec4 u_color;
 
-void main()
-{
-	outputColor = vColor;
+void main(){
+	color = u_color;
 }

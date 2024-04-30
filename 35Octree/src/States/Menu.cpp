@@ -23,6 +23,7 @@
 #include <States/Blobshoot.h>
 #include <States/RayMarch.h>
 #include <States/OctreeInterface.h>
+#include <States/OcclusionQuery.h>
 
 #include <States/Settings.h>
 #include <States/Controls.h>
@@ -61,7 +62,8 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 		{ "blended_particle", Button() },
 		{ "fire",             Button() },
 		{ "blobshoot",        Button() },
-		{ "octree",           Button() }
+		{ "octree",           Button() },
+		{ "occlusion",        Button() }
 	});
 
 	m_buttons.at("grass_comp").setCharset(Globals::fontManager.get("upheaval_50"));
@@ -190,8 +192,17 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 		m_machine.addStateAtBottom(new RayMarch(m_machine));
 	});
 
+	m_buttons.at("occlusion").setCharset(Globals::fontManager.get("upheaval_50"));
+	m_buttons.at("occlusion").setPosition(750.0f, 150.0f);
+	m_buttons.at("occlusion").setOutlineThickness(5.0f);
+	m_buttons.at("occlusion").setText("Occlusion Query");
+	m_buttons.at("occlusion").setFunction([&]() {
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new OcclusionQuery(m_machine));
+	});
+
 	m_buttons.at("smooth_particle").setCharset(Globals::fontManager.get("upheaval_50"));
-	m_buttons.at("smooth_particle").setPosition(1030.0f, 550.0f);
+	m_buttons.at("smooth_particle").setPosition(1130.0f, 550.0f);
 	m_buttons.at("smooth_particle").setOutlineThickness(5.0f);
 	m_buttons.at("smooth_particle").setText("Smooth Particle");
 	m_buttons.at("smooth_particle").setFunction([&]() {
@@ -200,7 +211,7 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	});
 
 	m_buttons.at("soft_particle").setCharset(Globals::fontManager.get("upheaval_50"));
-	m_buttons.at("soft_particle").setPosition(1030.0f, 450.0f);
+	m_buttons.at("soft_particle").setPosition(1130.0f, 450.0f);
 	m_buttons.at("soft_particle").setOutlineThickness(5.0f);
 	m_buttons.at("soft_particle").setText("Soft Particle");
 	m_buttons.at("soft_particle").setFunction([&]() {
@@ -209,7 +220,7 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	});
 
 	m_buttons.at("blended_particle").setCharset(Globals::fontManager.get("upheaval_50"));
-	m_buttons.at("blended_particle").setPosition(1030.0f, 350.0f);
+	m_buttons.at("blended_particle").setPosition(1130.0f, 350.0f);
 	m_buttons.at("blended_particle").setOutlineThickness(5.0f);
 	m_buttons.at("blended_particle").setText("Blended Particle");
 	m_buttons.at("blended_particle").setFunction([&]() {
@@ -218,7 +229,7 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	});
 
 	m_buttons.at("fire").setCharset(Globals::fontManager.get("upheaval_50"));
-	m_buttons.at("fire").setPosition(1030.0f, 250.0f);
+	m_buttons.at("fire").setPosition(1130.0f, 250.0f);
 	m_buttons.at("fire").setOutlineThickness(5.0f);
 	m_buttons.at("fire").setText("Fire");
 	m_buttons.at("fire").setFunction([&]() {

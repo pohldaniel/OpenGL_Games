@@ -4,6 +4,7 @@
 #include <imgui_internal.h>
 
 #include <engine/Batchrenderer.h>
+#include <engine/Fontrenderer.h>
 #include <States/Menu.h>
 
 #include "OcclusionQuery.h"
@@ -56,20 +57,36 @@ OcclusionQuery::OcclusionQuery(StateMachine& machine) : State(machine, States::D
 	m_camera = Camera();
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
-	m_camera.lookAt(Vector3f(0.0f, 2.0f, 10.0f), Vector3f(0.0f, 2.0f, 10.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
+	m_camera.lookAt(Vector3f(0.0f, 20.0f, 150.0f), Vector3f(0.0f, 20.0f, 150.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
 	m_camera.setRotationSpeed(0.1f);
-	m_camera.setMovingSpeed(10.0f);
+	m_camera.setMovingSpeed(30.0f);
 
 	glClearColor(0.494f, 0.686f, 0.796f, 1.0f);
 	glClearDepth(1.0f);
 
 	prepareStaticSceneObjects();
+	glGenQueries(1, &m_occlusionQuery);
+
+	
 }
 
 OcclusionQuery::~OcclusionQuery() {
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
+
+	glDeleteVertexArrays(1, &m_vao);
+	m_vao = 0;
+	glDeleteBuffers(1, &m_vbo);
+	m_vbo = 0;
+
+	glDeleteVertexArrays(1, &m_vaoOcc);
+	m_vaoOcc = 0;
+	glDeleteBuffers(1, &m_vboOcc);
+	m_vboOcc = 0;
+
+	glDeleteQueries(1, &m_occlusionQuery);
 }
+
 
 void OcclusionQuery::fixedUpdate() {
 
@@ -133,12 +150,18 @@ void OcclusionQuery::update() {
 	for (int x = 0; x < 3; x++) {
 		for (int y = 0; y < 3; y++) {
 			for (int z = 0; z < 3; z++) {
+				float fLocalRotAngle = m_globalAngle + x * 60.0f + y * 20.0f + z * 6.0f;					
 				Vector3f vOcclusionCubePos = Vector3f(-fCubeHalfSize + fCubeHalfSize * x*2.0f / 3.0f + fCubeHalfSize / 3.0f, -fCubeHalfSize + fCubeHalfSize * y*2.0f / 3.0f + fCubeHalfSize / 3.0f, -fCubeHalfSize + fCubeHalfSize * z*2.0f / 3.0f + fCubeHalfSize / 3.0f);
 				m_modelMatrices[x][y][z] = Matrix4f::Translate(Vector3f(0.0f, fCubeHalfSize, 0.0f) + vOcclusionCubePos);
+				m_modelMatrices[x][y][z] *= Matrix4f::Rotate(Vector3f(1.0f, 0.0f, 0.0f), fLocalRotAngle);
+				m_modelMatrices[x][y][z] *= Matrix4f::Rotate(Vector3f(0.0f, 1.0f, 0.0f), fLocalRotAngle);
+				m_modelMatrices[x][y][z] *= Matrix4f::Rotate(Vector3f(0.0f, 0.0f, 1.0f), fLocalRotAngle);
+				m_renderSphere[x][y][z] = false;
 			}
 		}
 	}
-
+	iSpheresPassed = 0;
+	m_globalAngle += (45.0f * m_dt);
 }
 
 void OcclusionQuery::render() {
@@ -164,21 +187,76 @@ void OcclusionQuery::render() {
 	glDrawArrays(GL_TRIANGLES, 0, 36);
 	glEnable(GL_CULL_FACE);
 
-	Globals::textureManager.get("wood").bind();
-	for(int x = 0; x < 3; x++){
+	shader = Globals::shaderManager.getAssetPointer("occlusion");
+	shader->use();
+	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
+	shader->loadMatrix("u_view", m_camera.getViewMatrix());
+	shader->loadVector("u_color", Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
+
+	glBindVertexArray(m_vaoOcc);
+	// Occlusion query begins here
+	// First of all, disable writing to the color buffer and depth buffer. We just wanna check if they would be rendered, not actually render them
+	glColorMask(false, false, false, false);
+	glDepthMask(GL_FALSE);
+	for (int x = 0; x < 3; x++) {
 		for (int y = 0; y < 3; y++) {
 			for (int z = 0; z < 3; z++) {
-				//if (bRenderSphere[x][y][z] == false)
-					//continue;
-				//spMain.SetModelAndNormalMatrix("matrices.modelMatrix", "matrices.normalMatrix", mModelMatrices[x][y][z]);
-
-				shader->loadMatrix("u_model", m_modelMatrices[x][y][z]);
-
-				Globals::shapeManager.get("sphere_occ").drawRaw();
+				
+				if (m_enableOcclusionQuery){
+					shader->loadMatrix("u_model", m_modelMatrices[x][y][z] * Matrix4f::Scale(fCubeHalfSize / 3.0f, fCubeHalfSize / 3.0f, fCubeHalfSize / 3.0f));
+					glBeginQuery(GL_SAMPLES_PASSED, m_occlusionQuery);
+					glDrawArrays(GL_TRIANGLES, 0, 36);
+					glEndQuery(GL_SAMPLES_PASSED);
+					int iSamplesPassed = 0;
+					glGetQueryObjectiv(m_occlusionQuery, GL_QUERY_RESULT, &iSamplesPassed);
+			
+					if (iSamplesPassed > 0){
+						m_renderSphere[x][y][z] = true;
+						iSpheresPassed++;
+					}
+				}else{
+					m_renderSphere[x][y][z] = true;
+					iSpheresPassed++;
+				}
 			}
 		}
 	}
+	glColorMask(true, true, true, true);
+	glDepthMask(GL_TRUE);
 
+	if (m_showOccluders){
+		for (int x = 0; x < 3; x++) {
+			for (int y = 0; y < 3; y++) {
+				for (int z = 0; z < 3; z++) {
+					shader->loadMatrix("u_model", m_modelMatrices[x][y][z] * Matrix4f::Scale(fCubeHalfSize / 3.0f, fCubeHalfSize / 3.0f, fCubeHalfSize / 3.0f));
+					glDrawArrays(GL_TRIANGLES, 0, 36);
+				}
+			}
+		}
+		glBindVertexArray(0);
+		shader->unuse();
+	}else{
+		glBindVertexArray(m_vao);
+		shader = Globals::shaderManager.getAssetPointer("texture");
+		shader->use();
+		Globals::textureManager.get("wood").bind();
+		for (int x = 0; x < 3; x++) {
+			for (int y = 0; y < 3; y++) {
+				for (int z = 0; z < 3; z++) {
+					if (m_renderSphere[x][y][z] == false)
+						continue;
+					shader->loadMatrix("u_model", m_modelMatrices[x][y][z]);
+					Globals::shapeManager.get("sphere_occ").drawRaw();
+				}
+			}
+		}
+		glBindVertexArray(0);
+		shader->unuse();
+	}
+
+	Globals::fontManager.get("arial_20").bind(0);
+	Fontrenderer::Get().addText(Globals::fontManager.get("arial_20"), Application::Width - 270 , Application::Height - 50, "Spheres Rendered: " + std::to_string(iSpheresPassed) + " / 27", Vector4f(0.9f, 0.9f, 0.9f, 1.0f));
+	Fontrenderer::Get().drawBuffer();
 	if (m_drawUi)
 		renderUi();
 }
@@ -262,6 +340,8 @@ void OcclusionQuery::renderUi() {
 	// render widgets
 	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 	ImGui::Checkbox("Draw Wirframe", &StateMachine::GetEnableWireframe());
+	ImGui::Checkbox("Show Occluders", &m_showOccluders);
+	ImGui::Checkbox("Enable Occlusion Query", &m_enableOcclusionQuery);
 	ImGui::End();
 
 	ImGui::Render();
@@ -340,9 +420,9 @@ void OcclusionQuery::prepareStaticSceneObjects(){
 	}
 
 	glGenVertexArrays(1, &m_vao);
-	//glGenVertexArrays(1, &m_vaoOcc);
+	glGenVertexArrays(1, &m_vaoOcc);
 	glGenBuffers(1, &m_vbo);
-	//glGenBuffers(1, &m_vboOcc);
+	glGenBuffers(1, &m_vboOcc);
 
 	glBindVertexArray(m_vao);
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
@@ -358,13 +438,13 @@ void OcclusionQuery::prepareStaticSceneObjects(){
 	glEnableVertexAttribArray(2);
 	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(sizeof(glm::vec3) + sizeof(glm::vec2)));
 
-	/*glBindVertexArray(m_vaoOcc);
+	glBindVertexArray(m_vaoOcc);
 	glBindBuffer(GL_ARRAY_BUFFER, m_vboOcc);
 	glBufferData(GL_ARRAY_BUFFER, 36 * sizeof(glm::vec3), &vCubeVertices[0], GL_STATIC_DRAW);
 
 	// Vertex positions
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), 0);*/
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), 0);
 
 	glBindVertexArray(0);
 }

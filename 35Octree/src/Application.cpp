@@ -435,7 +435,7 @@ void Application::fixedUpdate() {
 
 void Application::initStates() {	
 	Machine = new StateMachine(m_dt, m_fdt);
-	//Machine->addStateAtTop(new Menu(*Machine));
+	Machine->addStateAtTop(new Menu(*Machine));
 
 	//Machine->addStateAtTop(new OctreeInterface(*Machine));
 	//Machine->addStateAtTop(new Default(*Machine));
@@ -456,7 +456,7 @@ void Application::initStates() {
 	//Machine->addStateAtTop(new Shell3(*Machine));
 	//Machine->addStateAtTop(new GrassComp(*Machine));
 	//Machine->addStateAtTop(new GrassGeom(*Machine));
-	Machine->addStateAtTop(new OcclusionQuery(*Machine));
+	//Machine->addStateAtTop(new OcclusionQuery(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -762,6 +762,7 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("geometry", "res/shader/normalGS.vert", "res/shader/normalGS.frag", "res/shader/normalGS.gem");
 	Globals::shaderManager.loadShader("depth", "res/shader/depth.vert", "res/shader/depth.frag");
 	//Globals::shaderManager.loadShader("combiner", "res/shader/combiner.vert", "res/shader/combiner.frag");
+	Globals::shaderManager.loadShader("occlusion", "res/shader/Occ/occluders.vert", "res/shader/Occ/occluders.frag");
 
 	Shader::SetIncludeFromFile("SeparableSSS.h", "res/shader/PBR/SeparableSSS.h");
 	Globals::shaderManager.loadShader("pbr", "res/shader/PBR/pbr.vert.glsl", "res/shader/PBR/pbr.frag.glsl");
@@ -796,6 +797,10 @@ void Application::loadAssets() {
 
 	Globals::fontManager.loadCharacterSet("upheaval_200", "res/fonts/upheavtt.ttf", 200, 0, 30, 128, 0, true, 0u);
 	Globals::fontManager.loadCharacterSet("upheaval_50", "res/fonts/upheavtt.ttf", 30, 0, 3, 0, 0, true, 0u);
+	char buf[512]; 
+	GetWindowsDirectory(buf, 512);
+	std::string sPath = buf;
+	Globals::fontManager.loadCharacterSet("arial_20", sPath + "/Fonts/arial.ttf", 20, 0, 3, 0, 0, true, 0u);
 
 	Globals::textureManager.loadTexture("forest_1", "res/backgrounds/Forest/plx-1.png");
 	Globals::textureManager.loadTexture("forest_2", "res/backgrounds/Forest/plx-2.png");

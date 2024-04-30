@@ -42,13 +42,18 @@ private:
 
 	bool m_initUi = true;
 	bool m_drawUi = true;
+	bool m_enableOcclusionQuery = true;
+	bool m_showOccluders = false;
 
 	Camera m_camera;
 	Skybox m_skybox;
 	Matrix4f m_modelMatrices[3][3][3];
+	bool m_renderSphere[3][3][3];
 
 	unsigned int m_vao, m_vaoOcc;
 	unsigned int m_vbo, m_vboOcc;
-	unsigned int v_ibo;
+	unsigned int m_occlusionQuery;
 	float fCubeHalfSize = 30.0f;
+	float m_globalAngle = 0.0f;
+	int iSpheresPassed = 0;
 };
