@@ -37,6 +37,7 @@ class OctreeInterface : public State, public MouseEventListener, public Keyboard
 		size_t batchTaskIdx;
 		std::vector<std::pair<Octant*, unsigned char>> octants;
 		std::vector<AutoPtr<CollectBatchesTask>> collectBatchesTasks;
+		std::vector<Octant*> occlusionQueries;
 	};
 
 
@@ -80,6 +81,11 @@ private:
 	void CollectOctantsWork(Task* task, unsigned threadIndex);
 	void CollectOctants(Octant* octant, ThreadOctantResult& result, unsigned char planeMask = 0x3f);
 
+	void AddOcclusionQuery(Octant* octant, ThreadOctantResult& result, unsigned char planeMask);
+	void RenderOcclusionQueries();
+	unsigned BeginOcclusionQuery(void* object);
+	void EndOcclusionQuery();
+
 	SceneNodeLC* m_root;
 	std::vector<ShapeNode*> m_entities;
 	Frustum m_frustum;
@@ -90,8 +96,12 @@ private:
 	float m_distance = 0.01f;
 	bool m_overview = true;
 	bool m_useCulling = true;
+	bool m_useOcclusion = false;
 
 	Matrix4f perspective;
 	Matrix4f m_view;
+	Vector3f previousCameraPosition;
+	std::vector<std::pair<unsigned, void*>> pendingQueries;
+	std::vector<unsigned> freeQueries;
 };
 

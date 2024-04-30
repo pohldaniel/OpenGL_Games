@@ -87,6 +87,16 @@ void BoundingBox::merge(const Vector3f& _min, const Vector3f& _max) {
 		max[2] = _max[2];
 }
 
+float BoundingBox::distance(const Vector3f & point) const{
+	Vector3f closest(
+		std::max(std::min(point[0], max[0]), min[0]),
+		std::max(std::min(point[1], max[1]), min[1]),
+		std::max(std::min(point[2], max[2]), min[2])
+	);
+
+	return sqrtf((point[0] - closest[0]) * (point[0] - closest[0]) + (point[1] - closest[1]) * (point[1] - closest[1]) + (point[2] - closest[2]) * (point[2] - closest[2]));
+}
+
 void BoundingBox::merge(const Vector3f* vertices, size_t count) {
 	while (count--)
 		merge(*vertices++);

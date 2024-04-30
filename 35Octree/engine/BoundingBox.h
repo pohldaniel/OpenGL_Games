@@ -38,6 +38,7 @@ struct BoundingBox {
 	Vector3f getHalfSize() const;
 	void merge(const BoundingBox& box);
 	void merge(const Vector3f& min, const Vector3f& max);
+	float distance(const Vector3f & point) const;
 
 	void createBuffer();
 	void drawRaw() const;
