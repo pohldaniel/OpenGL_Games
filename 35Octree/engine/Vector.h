@@ -150,6 +150,7 @@ public:
 	static Vector3f& Clamp(Vector3f &v, float min, float max);
 	static Vector3f Fract(const Vector3f &p);
 	static float Length(const Vector3f &p, const Vector3f &q);
+	static float DotAbs(const Vector3f &p, const Vector3f &q);
 
 private:
 	float vec[3];
@@ -379,6 +380,7 @@ public:
 	static Matrix4f InvOrthographic(const Matrix4f& ortho);
 
 	static Matrix4f InvViewMatrix(const Matrix4f& viewMatrix);
+	static Matrix4f ViewToWorldMatrix(const Matrix4f& viewMatrix);
 
 	static Matrix4f &Transpose(Matrix4f& m);
 	static Matrix4f Transpose(const Matrix4f& m);

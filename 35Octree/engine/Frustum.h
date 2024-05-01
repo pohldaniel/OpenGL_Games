@@ -32,9 +32,20 @@
 							color = v_color;	\n \
 							}"    
 
+static const size_t NUM_FRUSTUM_PLANES = 6;
+static const size_t NUM_FRUSTUM_VERTICES = 8;
+static const size_t NUM_SAT_AXES = 3 + 5 + 3 * 6;
+
+class Frustum;
+struct SATData{
+	void calculate(const Frustum& frustum);
+	Vector3f axes[NUM_SAT_AXES];
+	std::pair<float, float> frustumProj[NUM_SAT_AXES];
+};
+
 class Frustum {
 
-	static const size_t NUM_FRUSTUM_PLANES = 6;
+	friend class SATData;
 
 public:
 
@@ -44,6 +55,7 @@ public:
 	void drawFrustum(const Matrix4f& projection, const Matrix4f& view, float distance);
 	void updatePlane(const Matrix4f& perspective, const Matrix4f& view, const Matrix4f& model);
 	void updatePlane(const Matrix4f& perspective, const Matrix4f& view);
+	void updateVertices(const Matrix4f& perspective, const Matrix4f& view);
 	void updateVbo(const Matrix4f& perspective, const Matrix4f& view);
 
 	void init();
@@ -52,13 +64,19 @@ public:
 	float aabbDistance(const Vector3f* AABBVertices);
 	bool& getDebug();
 	unsigned char isInsideMasked(const BoundingBox& box, unsigned char planeMask = 0x3f) const;
+	BoundingBox::Intersection isInsideSAT(const BoundingBox& box, const SATData& data) const;
 
 	static bool IntersectAABBPlane(const Vector3f& position, const Vector3f& size, const Vector4f& plane);
 	
+	SATData m_frustumSATData;
+
 private:
 
-	Vector4f m_planes[6];
-	unsigned short m_origins[6];
+	std::pair<float, float> projected(const Vector3f& axis) const;
+
+	Vector4f m_planes[NUM_FRUSTUM_PLANES];
+	unsigned short m_origins[NUM_FRUSTUM_PLANES];
+	Vector3f m_vertices[NUM_FRUSTUM_VERTICES];
 
 	unsigned int m_vao = 0;
 	unsigned int m_vboPos = 0;

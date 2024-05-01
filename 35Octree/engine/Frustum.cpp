@@ -2,6 +2,36 @@
 
 std::unique_ptr<Shader> Frustum::s_shaderFrustum = nullptr;
 
+void SATData::calculate(const Frustum& frustum) {
+	size_t idx = 0;
+	axes[idx++] = Vector3f::RIGHT;
+	axes[idx++] = Vector3f::UP;
+	axes[idx++] = Vector3f::FORWARD;
+
+	// Add frustum normals. Disregard the near plane as it only points the other way from the far plane
+	for (size_t i = 1; i < 6; ++i)
+		axes[idx++] = frustum.m_planes[i];
+
+	// Finally add cross product axes
+	Vector3f frustumEdges[6] = {
+		frustum.m_vertices[0] - frustum.m_vertices[2],
+		frustum.m_vertices[0] - frustum.m_vertices[1],
+		frustum.m_vertices[4] - frustum.m_vertices[0],
+		frustum.m_vertices[5] - frustum.m_vertices[1],
+		frustum.m_vertices[6] - frustum.m_vertices[2],
+		frustum.m_vertices[7] - frustum.m_vertices[3]
+	};
+	
+	for (size_t i = 0; i < 3; ++i){
+		for (size_t j = 0; j < 6; ++j)
+			axes[idx++] = Vector3f::Cross(axes[i], frustumEdges[j]);
+	}
+
+	// Now precalculate the projections of the frustum on each axis
+	for (size_t i = 0; i < NUM_SAT_AXES; ++i)
+		frustumProj[i] = frustum.projected(axes[i]);
+}
+
 Frustum::Frustum() {
 	
 }
@@ -92,6 +122,14 @@ void Frustum::updatePlane(const Matrix4f& perspective, const Matrix4f& view, con
 void Frustum::updatePlane(const Matrix4f& perspective, const Matrix4f& view) {
 	Matrix4f mvp = perspective * view;
 	float inset = 0.95f;
+
+	//Near
+	m_planes[0][0] = mvp[0][3] + mvp[0][2];
+	m_planes[0][1] = mvp[1][3] + mvp[1][2];
+	m_planes[0][2] = mvp[2][3] + mvp[2][2];
+	m_planes[0][3] = (mvp[3][3] + mvp[3][2]) * inset;
+	//m_planes[0].normalize3();
+
 	//Left
 	m_planes[1][0] = mvp[0][3] + mvp[0][0];
 	m_planes[1][1] = mvp[1][3] + mvp[1][0];
@@ -106,49 +144,80 @@ void Frustum::updatePlane(const Matrix4f& perspective, const Matrix4f& view) {
 	m_planes[2][3] = (mvp[3][3] - mvp[3][0]) * inset;
 	//m_planes[2].normalize3();
 
-	//Bottom
-	m_planes[4][0] = mvp[0][3] + mvp[0][1];
-	m_planes[4][1] = mvp[1][3] + mvp[1][1];
-	m_planes[4][2] = mvp[2][3] + mvp[2][1];
-	m_planes[4][3] = (mvp[3][3] + mvp[3][1]) * inset;
-	//m_planes[4].normalize3();
-
 	//Top
 	m_planes[3][0] = mvp[0][3] - mvp[0][1];
 	m_planes[3][1] = mvp[1][3] - mvp[1][1];
 	m_planes[3][2] = mvp[2][3] - mvp[2][1];
 	m_planes[3][3] = (mvp[3][3] - mvp[3][1]) * inset;
 	//m_planes[3].normalize3();
+
+	//Bottom
+	m_planes[4][0] = mvp[0][3] + mvp[0][1];
+	m_planes[4][1] = mvp[1][3] + mvp[1][1];
+	m_planes[4][2] = mvp[2][3] + mvp[2][1];
+	m_planes[4][3] = (mvp[3][3] + mvp[3][1]) * inset;
+	//m_planes[4].normalize3();
 	
 	//Far
 	m_planes[5][0] = mvp[0][3] - mvp[0][2];
 	m_planes[5][1] = mvp[1][3] - mvp[1][2];
 	m_planes[5][2] = mvp[2][3] - mvp[2][2];
 	m_planes[5][3] = (mvp[3][3] - mvp[3][2]) * inset;
-	//m_planes[5].normalize3();
+	//m_planes[5].normalize3();	
+}
 
-	//Near
-	m_planes[0][0] = mvp[0][3] + mvp[0][2];
-	m_planes[0][1] = mvp[1][3] + mvp[1][2];
-	m_planes[0][2] = mvp[2][3] + mvp[2][2];
-	m_planes[0][3] = (mvp[3][3] + mvp[3][2]) * inset;
-	//m_planes[0].normalize3();
+void Frustum::updateVertices(const Matrix4f& perspective, const Matrix4f& view) {
+	float aspect = perspective[1][1] / perspective[0][0];
+	float halfViesize = 1.0f / perspective[1][1];
+
+	float near = perspective[3][2] / (perspective[2][2] - 1);
+	float heightNear = halfViesize * near;
+	float widthNear = heightNear * aspect;
+
+	float far = perspective[3][2] / (perspective[2][2] + 1);
+	float heightFar = halfViesize * far;
+	float widthFar = heightFar * aspect;
+
+	Matrix4f world = Matrix4f::ViewToWorldMatrix(view);
+	m_vertices[0] = world ^ Vector4f(widthNear, heightNear, near, 1.0f);
+	m_vertices[1] = world ^ Vector4f(widthNear, -heightNear, near, 1.0f);
+	m_vertices[2] = world ^ Vector4f(-widthNear, -heightNear, near, 1.0f);
+	m_vertices[3] = world ^ Vector4f(-widthNear, heightNear, near, 1.0f);
+
+	m_vertices[4] = world ^ Vector4f(widthFar, heightFar, far, 1.0f);
+	m_vertices[5] = world ^ Vector4f(widthFar, -heightFar, far, 1.0f);
+	m_vertices[6] = world ^ Vector4f(-widthFar, -heightFar, far, 1.0f);
+	m_vertices[7] = world ^ Vector4f(-widthFar, heightFar, far, 1.0f);
 }
 
 void Frustum::updateVbo(const Matrix4f& perspective, const Matrix4f& view) {
 	if (m_debug) {
+		float aspect = perspective[1][1] / perspective[0][0];
+		float halfViesize = 1.0f / perspective[1][1];
+
 		float near = perspective[3][2] / (perspective[2][2] - 1);
-		float heightNear = (2.0f / perspective[1][1]) * near;
-		float widthNear = (heightNear *  perspective[1][1]) / perspective[0][0];
+		float heightNear = halfViesize * near;
+		float widthNear = heightNear *  aspect;
 
 		float far = perspective[3][2] / (perspective[2][2] + 1);
-		float heightFar = (2.0f / perspective[1][1]) * far;
-		float widthFar = (heightFar  * perspective[1][1]) / perspective[0][0];
+		float heightFar = halfViesize * far;
+		float widthFar = heightFar * aspect;
+		
+		Matrix4f world = Matrix4f::ViewToWorldMatrix(view);
+		m_vertices[0] = world ^ Vector4f(widthNear, heightNear, near, 1.0f);
+		m_vertices[1] = world ^ Vector4f(widthNear, -heightNear, near, 1.0f);
+		m_vertices[2] = world ^ Vector4f(-widthNear, -heightNear, near, 1.0f);
+		m_vertices[3] = world ^ Vector4f(-widthNear, heightNear, near, 1.0f);
 
-		const Vector3f& right = Vector3f(view[0][0], view[1][0], view[2][0]);
-		const Vector3f& up = Vector3f(view[0][1], view[1][1], view[2][1]);
-		const Vector3f& viewDirection = Vector3f(-view[0][2], -view[1][2], -view[2][2]);
-		const Vector3f& pos = Vector3f(-(view[3][0] * view[0][0] + view[3][1] * view[0][1] + view[3][2] * view[0][2]),
+		m_vertices[4] = world ^ Vector4f(widthFar, heightFar, far, 1.0f);
+		m_vertices[5] = world ^ Vector4f(widthFar, -heightFar, far, 1.0f);
+		m_vertices[6] = world ^ Vector4f(-widthFar, -heightFar, far, 1.0f);
+		m_vertices[7] = world ^ Vector4f(-widthFar, heightFar, far, 1.0f);
+
+		/*const Vector3f right = Vector3f(view[0][0], view[1][0], view[2][0]);
+		const Vector3f up = Vector3f(view[0][1], view[1][1], view[2][1]);
+		const Vector3f viewDirection = Vector3f(-view[0][2], -view[1][2], -view[2][2]);
+		const Vector3f pos = Vector3f(-(view[3][0] * view[0][0] + view[3][1] * view[0][1] + view[3][2] * view[0][2]),
 			-(view[3][0] * view[1][0] + view[3][1] * view[1][1] + view[3][2] * view[1][2]),
 			-(view[3][0] * view[2][0] + view[3][1] * view[2][1] + view[3][2] * view[2][2]));
 
@@ -156,32 +225,20 @@ void Frustum::updateVbo(const Matrix4f& perspective, const Matrix4f& view) {
 		Vector3f centerNear = pos + viewDirection * near;
 		Vector3f centerFar = pos + viewDirection * far;
 
-		Vector3f nearBottomLeft = centerNear - up * (heightNear * 0.5f) - right * (widthNear * 0.5f);
-		Vector3f nearTopLeft = centerNear + up * (heightNear * 0.5f) - right * (widthNear * 0.5f);
-		Vector3f nearTopRight = centerNear + up * (heightNear * 0.5f) + right * (widthNear * 0.5f);
-		Vector3f nearBottomRight = centerNear - up * (heightNear * 0.5f) + right * (widthNear * 0.5f);
-
-		Vector3f farBottomLeft = centerFar - up * (heightFar * 0.5f) - right * (widthFar * 0.5f);
-		Vector3f farTopLeft = centerFar + up * (heightFar * 0.5f) - right * (widthFar * 0.5f);
-		Vector3f farTopRight = centerFar + up * (heightFar * 0.5f) + right * (widthFar * 0.5f);
-		Vector3f farBottomRight = centerFar - up * (heightFar * 0.5f) + right * (widthFar * 0.5f);
-
-		std::vector<Vector3f> vertex;
-
-		vertex.push_back(farBottomLeft);
-		vertex.push_back(farBottomRight);
-		vertex.push_back(farTopRight);
-		vertex.push_back(farTopLeft);
-
-		vertex.push_back(nearBottomLeft);
-		vertex.push_back(nearBottomRight);
-		vertex.push_back(nearTopRight);
-		vertex.push_back(nearTopLeft);
-
+		m_vertices[0] = centerNear + right * widthNear + up * heightNear; //nearRightTop
+		m_vertices[1] = centerNear + right * widthNear - up * heightNear; //nearRightBottom
+		m_vertices[2] = centerNear - right * widthNear - up * heightNear; //nearLeftBottom
+		m_vertices[3] = centerNear - right * widthNear + up * heightNear; //nearLeftTop
+		
+		m_vertices[4] = centerFar + right * widthFar + up * heightFar; //farRightTop
+		m_vertices[5] = centerFar + right * widthFar - up * heightFar; //farRightBottom
+		m_vertices[6] = centerFar - right * widthFar - up * heightFar; //farLeftBottom
+		m_vertices[7] = centerFar - right * widthFar + up * heightFar; //farLeftTop*/
+		
 		if (!m_vao) {
 			const unsigned short indicesFrustum[] = {
-				4, 5, 6, 7,
 				0, 1, 2, 3,
+				4, 5, 6, 7,
 				1, 2, 6, 5,
 				0, 3, 7, 4,
 				0, 1, 5, 4,
@@ -225,7 +282,7 @@ void Frustum::updateVbo(const Matrix4f& perspective, const Matrix4f& view) {
 		}
 
 		glBindBuffer(GL_ARRAY_BUFFER, m_vboPos);
-		glBufferSubData(GL_ARRAY_BUFFER, 0, 8 * sizeof(Vector3f), &vertex[0]);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, 8 * sizeof(Vector3f), m_vertices);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
 }
@@ -305,4 +362,26 @@ unsigned char Frustum::isInsideMasked(const BoundingBox& box, unsigned char plan
 	}
 
 	return planeMask;
+}
+
+std::pair<float, float> Frustum::projected(const Vector3f& axis) const{
+	std::pair<float, float> ret;
+	ret.first = ret.second = Vector3f::Dot(axis, m_vertices[0]);
+
+	for (size_t i = 1; i < NUM_FRUSTUM_VERTICES; ++i){
+		float proj = Vector3f::Dot(axis, m_vertices[i]);
+		ret.first  = std::min(proj, ret.first);
+		ret.second = std::max(proj, ret.second);
+	}
+	return ret;
+}
+
+BoundingBox::Intersection Frustum::isInsideSAT(const BoundingBox& box, const SATData& data) const{
+	for (size_t i = 0; i < NUM_SAT_AXES; ++i){
+		std::pair<float, float> boxProj = box.projected(data.axes[i]);
+		if (data.frustumProj[i].second < boxProj.first || boxProj.second < data.frustumProj[i].first)
+			return BoundingBox::OUTSIDE;
+	}
+
+	return BoundingBox::INSIDE;
 }

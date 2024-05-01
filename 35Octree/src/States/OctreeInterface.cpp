@@ -131,6 +131,8 @@ void OctreeInterface::update() {
 	}
 	perspective.perspective(m_fovx, (float)Application::Width / (float)Application::Height, m_near, m_far);
 	m_frustum.updatePlane(perspective, m_camera.getViewMatrix());
+	m_frustum.updateVertices(perspective, m_camera.getViewMatrix());
+	m_frustum.m_frustumSATData.calculate(m_frustum);
 	updateOctree();
 }
 
@@ -337,33 +339,33 @@ void OctreeInterface::CollectOctants(Octant* octant, ThreadOctantResult& result,
 
 		switch (octant->Visibility()){
 			// If octant is occluded, issue query if not pending, and do not process further this frame
-		case VIS_OCCLUDED:
-			AddOcclusionQuery(octant, result, planeMask);
-			return;
+			case VIS_OCCLUDED:
+				AddOcclusionQuery(octant, result, planeMask);
+				return;
 
 			// If octant was occluded previously, but its parent came into view, issue tests along the hierarchy but do not render on this frame
-		case VIS_OCCLUDED_UNKNOWN:
-			AddOcclusionQuery(octant, result, planeMask);
-			if (octant != m_octree->Root() && octant->HasChildren()){
-				for (size_t i = 0; i < NUM_OCTANTS; ++i){
-					if (octant->Child(i))
-						CollectOctants(octant->Child(i), result, planeMask);
+			case VIS_OCCLUDED_UNKNOWN:
+				AddOcclusionQuery(octant, result, planeMask);
+				if (octant != m_octree->Root() && octant->HasChildren()){
+					for (size_t i = 0; i < NUM_OCTANTS; ++i){
+						if (octant->Child(i))
+							CollectOctants(octant->Child(i), result, planeMask);
+					}
 				}
-			}
-			return;
+				return;
 
 			// If octant has unknown visibility, issue query if not pending, but collect child octants and drawables
-		case VIS_VISIBLE_UNKNOWN:
-			AddOcclusionQuery(octant, result, planeMask);
-			break;
+			case VIS_VISIBLE_UNKNOWN:
+				AddOcclusionQuery(octant, result, planeMask);
+				break;
 
 			// If the octant's parent is already visible too, only test the octant if it is a "leaf octant" with drawables
 			// Note: visible octants will also add a time-based staggering to reduce queries
-		case VIS_VISIBLE:
-			Octant* parent = octant->Parent();
-			if (octant->Drawables().size() > 0 || (parent && parent->Visibility() != VIS_VISIBLE))
-				AddOcclusionQuery(octant, result, planeMask);
-			break;
+			case VIS_VISIBLE:
+				Octant* parent = octant->Parent();
+				if (octant->Drawables().size() > 0 || (parent && parent->Visibility() != VIS_VISIBLE))
+					AddOcclusionQuery(octant, result, planeMask);
+				break;
 		}
 	}else {
 		octant->SetVisibility(VIS_VISIBLE_UNKNOWN, false);
@@ -389,7 +391,7 @@ void OctreeInterface::AddOcclusionQuery(Octant* octant, ThreadOctantResult& resu
 	// No-op if previous query still ongoing. Also If the octant intersects the frustum, verify with SAT test that it actually covers some screen area
 	// Otherwise the occlusion test will produce a false negative
 	
-	//if (octant->CheckNewOcclusionQuery(lastFrameTime) && (!planeMask || frustum.IsInsideSAT(octant->CullingBox(), frustumSATData)))
+	//if (octant->CheckNewOcclusionQuery(lastFrameTime) && (!planeMask || m_frustum.isInsideSAT(octant->CullingBox(), m_frustum.m_frustumSATData)))
 		//result.occlusionQueries.push_back(octant);
 }
 

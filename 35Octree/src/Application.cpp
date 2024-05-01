@@ -435,9 +435,9 @@ void Application::fixedUpdate() {
 
 void Application::initStates() {	
 	Machine = new StateMachine(m_dt, m_fdt);
-	Machine->addStateAtTop(new Menu(*Machine));
+	//Machine->addStateAtTop(new Menu(*Machine));
 
-	//Machine->addStateAtTop(new OctreeInterface(*Machine));
+	Machine->addStateAtTop(new OctreeInterface(*Machine));
 	//Machine->addStateAtTop(new Default(*Machine));
 	//Machine->addStateAtTop(new RayMarch(*Machine));
 	//Machine->addStateAtTop(new Fire(*Machine));

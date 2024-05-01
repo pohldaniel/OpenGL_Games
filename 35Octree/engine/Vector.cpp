@@ -2097,6 +2097,18 @@ Matrix4f Matrix4f::InvViewMatrix(const Matrix4f &viewMatrix) {
 		-(viewMatrix[3][0] * viewMatrix[2][0]) - (viewMatrix[3][1] * viewMatrix[2][1]) - (viewMatrix[3][2] * viewMatrix[2][2]), 1.0);
 }
 
+
+Matrix4f Matrix4f::ViewToWorldMatrix(const Matrix4f& viewMatrix) {
+	return Matrix4f(viewMatrix[0][0], viewMatrix[1][0], viewMatrix[2][0], 0.0f,
+                    viewMatrix[0][1], viewMatrix[1][1], viewMatrix[2][1], 0.0f,
+                    -viewMatrix[0][2], -viewMatrix[1][2], -viewMatrix[2][2], 0.0f,
+                    -(viewMatrix[3][0] * viewMatrix[0][0]) - (viewMatrix[3][1] * viewMatrix[0][1]) - (viewMatrix[3][2] * viewMatrix[0][2]),
+                    -(viewMatrix[3][0] * viewMatrix[1][0]) - (viewMatrix[3][1] * viewMatrix[1][1]) - (viewMatrix[3][2] * viewMatrix[1][2]),
+                    -(viewMatrix[3][0] * viewMatrix[2][0]) - (viewMatrix[3][1] * viewMatrix[2][1]) - (viewMatrix[3][2] * viewMatrix[2][2]), 1.0);
+
+	//return InvViewMatrix(Matrix4f::SIGN * viewMatrix);
+}
+
 float *Matrix4f::operator[](int row) {
 	return mtx[row];
 }
@@ -2808,6 +2820,10 @@ Vector3f Vector3f::Fract(const Vector3f &p) {
 float Vector3f::Length(const Vector3f &p, const Vector3f &q) {
 	float x = q[0] - p[0], y = q[1] - p[1], z = q[2] - p[2];
 	return sqrtf((x * x) + (y * y) + (z * z));
+}
+
+float Vector3f::DotAbs(const Vector3f &p, const Vector3f &q) {
+	return (fabs(p[0]) * q[0]) + (fabs(p[1]) * q[1]) + (fabs(p[2]) * q[2]);
 }
 
 Vector3f& Vector3f::normalize() {

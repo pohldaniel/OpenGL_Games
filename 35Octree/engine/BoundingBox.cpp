@@ -192,6 +192,14 @@ BoundingBox::Intersection BoundingBox::isInside(const BoundingBox& box) const {
 		return INSIDE;
 }
 
+std::pair<float, float> BoundingBox::projected(const Vector3f& axis) const{
+	Vector3f center = getCenter();
+	Vector3f edge = max - center;	
+	float centerProj = Vector3f::Dot(axis, center);
+	float edgeProj = std::fabs(Vector3f::DotAbs(axis, edge));
+	return std::make_pair(centerProj - edgeProj, centerProj + edgeProj);
+}
+
 BoundingBox::~BoundingBox() {
 	cleanup();
 }
