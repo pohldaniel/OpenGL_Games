@@ -111,5 +111,8 @@ private:
 	Vector3f previousCameraPosition;
 	std::vector<std::pair<unsigned, void*>> pendingQueries;
 	std::vector<unsigned> freeQueries;
+
+	//unsigned int occlusionQueryType = GL_SAMPLES_PASSED;
+	unsigned int occlusionQueryType = GL_ANY_SAMPLES_PASSED;
 };
 

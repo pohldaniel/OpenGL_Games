@@ -11,8 +11,7 @@
 #include "Globals.h"
 
 static const float OCCLUSION_MARGIN = 0.1f;
-//unsigned int occlusionQueryType = GL_SAMPLES_PASSED;
-unsigned int occlusionQueryType = GL_ANY_SAMPLES_PASSED;
+
 
 OctreeInterface::OctreeInterface(StateMachine& machine) : State(machine, States::OCTREEINTERFACE) {
 

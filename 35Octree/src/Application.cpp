@@ -21,6 +21,7 @@
 #include <States/Particle/Fire.h>
 #include <States/BlobShoot.h>
 #include <States/OcclusionQuery.h>
+#include <States/Turso.h>
 
 #include <States/Particle/BlendedParticle.h>
 #include <States/Particle/SmoothParticle.h>
@@ -437,7 +438,7 @@ void Application::initStates() {
 	Machine = new StateMachine(m_dt, m_fdt);
 	//Machine->addStateAtTop(new Menu(*Machine));
 
-	Machine->addStateAtTop(new OctreeInterface(*Machine));
+	//Machine->addStateAtTop(new OctreeInterface(*Machine));
 	//Machine->addStateAtTop(new Default(*Machine));
 	//Machine->addStateAtTop(new RayMarch(*Machine));
 	//Machine->addStateAtTop(new Fire(*Machine));
@@ -457,6 +458,7 @@ void Application::initStates() {
 	//Machine->addStateAtTop(new GrassComp(*Machine));
 	//Machine->addStateAtTop(new GrassGeom(*Machine));
 	//Machine->addStateAtTop(new OcclusionQuery(*Machine));
+	Machine->addStateAtTop(new Turso(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {

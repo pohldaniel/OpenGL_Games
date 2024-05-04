@@ -1,0 +1,18 @@
+{
+  "passes": {
+    "opaque": {
+      "shader": "Shaders/Diffuse.glsl"
+    }
+  },
+  "textures": {
+    "0": "ProtoWhite256.png"
+  },
+  "uniforms": [
+    {
+      "matDiffColor": "1 1 1 1"
+    },
+    {
+      "matSpecColor": "1 1 1 16"
+    }
+  ]
+}
