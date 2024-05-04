@@ -148,7 +148,6 @@ void Shape::buildDiamondXY(const Vector2f& size, float border, int uResolution, 
 	createBuffer();
 }
 
-
 void Shape::buildCube(const Vector3f& position, const Vector3f&  size, int uResolution, int vResolution, bool generateTexels, bool generateNormals, bool generateTangents) {
 	MeshCube::BuildMesh4Q(position, size, uResolution, vResolution, generateTexels, generateNormals, generateTangents, m_positions, m_texels, m_normals, m_indexBuffer, m_tangents, m_bitangents);
 	createBuffer();

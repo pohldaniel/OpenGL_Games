@@ -45,7 +45,7 @@ struct SATData{
 
 class Frustum {
 
-	friend class SATData;
+	friend struct SATData;
 
 public:
 

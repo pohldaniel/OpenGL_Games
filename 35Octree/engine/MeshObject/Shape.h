@@ -81,13 +81,13 @@ public:
 private:
 
 	unsigned int m_vao;
-	unsigned int m_vbo[7] = { 0 };
+	unsigned int m_vbo[7] = { 0u };
 	unsigned int m_drawCount;
-	unsigned int m_vboInstances = 0;
-	unsigned int m_vboAdd1 = 0;
-	unsigned int m_vboAdd2 = 0;
-	unsigned int m_vboAdd3 = 0;
-	unsigned int m_instanceCount = 0;
+	unsigned int m_vboInstances = 0u;
+	unsigned int m_vboAdd1 = 0u;
+	unsigned int m_vboAdd2 = 0u;
+	unsigned int m_vboAdd3 = 0u;
+	unsigned int m_instanceCount = 0u;
 
 	std::vector<unsigned int> m_indexBuffer;
 	std::vector<Vector3f> m_positions;

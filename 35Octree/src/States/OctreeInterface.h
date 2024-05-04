@@ -40,6 +40,12 @@ class OctreeInterface : public State, public MouseEventListener, public Keyboard
 		std::vector<Octant*> occlusionQueries;
 	};
 
+	struct OcclusionQueryResult{
+		unsigned id;
+		void* object;
+		bool visible;
+	};
+
 
 public:
 
@@ -83,8 +89,10 @@ private:
 
 	void AddOcclusionQuery(Octant* octant, ThreadOctantResult& result, unsigned char planeMask);
 	void RenderOcclusionQueries();
-	unsigned BeginOcclusionQuery(void* object);
+	unsigned int BeginOcclusionQuery(void* object);
 	void EndOcclusionQuery();
+	void CheckOcclusionQueries();
+	void CheckOcclusionQueryResults(std::vector<OcclusionQueryResult>& result);
 
 	SceneNodeLC* m_root;
 	std::vector<ShapeNode*> m_entities;

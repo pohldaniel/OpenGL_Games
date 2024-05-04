@@ -259,6 +259,7 @@ void OctreeInterface::renderUi() {
 	ImGui::SliderFloat("Distance", &m_distance, -100.0f, 100.0f);
 	ImGui::Checkbox("Overview", &m_overview);
 	ImGui::Checkbox("Use Culling", &m_useCulling);
+	ImGui::Checkbox("Use Occlusion", &m_useOcclusion);
 	if (ImGui::Button("Reset")) {
 		m_far = m_camera.getFar();
 		m_near = m_camera.getNear();
@@ -279,6 +280,8 @@ void OctreeInterface::updateOctree() {
 
 	// Process moved / animated objects' octree reinsertions
 	m_octree->Update(0);
+
+	CheckOcclusionQueries();
 	m_octree->FinishUpdate();
 
 	// Enable threaded update during geometry / light gathering in case nodes' OnPrepareRender() causes further reinsertion queuing
@@ -389,28 +392,33 @@ void OctreeInterface::CollectOctants(Octant* octant, ThreadOctantResult& result,
 
 void OctreeInterface::AddOcclusionQuery(Octant* octant, ThreadOctantResult& result, unsigned char planeMask){
 	// No-op if previous query still ongoing. Also If the octant intersects the frustum, verify with SAT test that it actually covers some screen area
-	// Otherwise the occlusion test will produce a false negative
-	
-	//if (octant->CheckNewOcclusionQuery(lastFrameTime) && (!planeMask || m_frustum.isInsideSAT(octant->CullingBox(), m_frustum.m_frustumSATData)))
-		//result.occlusionQueries.push_back(octant);
+	// Otherwise the occlusion test will produce a false negative	
+	if (octant->CheckNewOcclusionQuery(m_dt) && (!planeMask || m_frustum.isInsideSAT(octant->CullingBox(), m_frustum.m_frustumSATData))) {
+		result.occlusionQueries.push_back(octant);
+	}
 }
 
 void OctreeInterface::CollectOctantsWork(Task* task_, unsigned threadIndex) {
-
 	CollectOctantsTask* task = static_cast<CollectOctantsTask*>(task_);
 	Octant* octant = task->startOctant;
 	ThreadOctantResult& result = octantResults[task->resultIdx];
 
 	CollectOctants(octant, result);
-
 	numPendingBatchTasks.fetch_add(-1);
 }
 
+void OctreeInterface::CheckOcclusionQueries(){
+	static std::vector<OcclusionQueryResult> results;
+	results.clear();
+	CheckOcclusionQueryResults(results);
+
+	for (auto it = results.begin(); it != results.end(); ++it){
+		Octant* octant = static_cast<Octant*>(it->object);
+		octant->OnOcclusionQueryResult(it->visible);
+	}	
+}
+
 void OctreeInterface::RenderOcclusionQueries(){
-
-
-	//if (!boundingBoxShaderProgram)
-		//return;
 
 	Matrix4f boxMatrix(Matrix4f::IDENTITY);
 	float nearClip = m_camera.getNear();
@@ -420,17 +428,13 @@ void OctreeInterface::RenderOcclusionQueries(){
 	Vector3f cameraMove = cameraPosition - previousCameraPosition;
 	Vector3f enlargement = (OCCLUSION_MARGIN + 4.0f * cameraMove.length()) * Vector3f::ONE;
 
-	//boundingBoxVertexBuffer->Bind(MASK_POSITION);
-	//boundingBoxIndexBuffer->Bind();
-	//boundingBoxShaderProgram->Bind();
-	//graphics->SetRenderState(BLEND_REPLACE, CULL_BACK, CMP_LESS_EQUAL, false, false);
-
 	glDisable(GL_BLEND);
-	//glEnable(GL_CULL_FACE);
-	//glCullFace(GL_BACK);
-	//glDepthFunc(GL_LEQUAL);
 	glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
 	glDepthMask(GL_FALSE);
+
+	auto shader = Globals::shaderManager.getAssetPointer("boundingBox");
+	shader->use();
+	shader->loadMatrix("u_vp", m_camera.getPerspectiveMatrix() * m_camera.getViewMatrix());
 
 	for (size_t i = 0; i < NUM_OCTANT_TASKS; ++i){
 		for (auto it = octantResults[i].occlusionQueries.begin(); it != octantResults[i].occlusionQueries.end(); ++it){
@@ -441,7 +445,7 @@ void OctreeInterface::RenderOcclusionQueries(){
 
 			// If bounding box could be clipped by near plane, assume visible without performing query
 			if (box.distance(cameraPosition) < 2.0f * nearClip){
-				//octant->OnOcclusionQueryResult(true);
+				octant->OnOcclusionQueryResult(true);
 				continue;
 			}
 
@@ -454,22 +458,25 @@ void OctreeInterface::RenderOcclusionQueries(){
 			boxMatrix[3][0] = center[0];
 			boxMatrix[3][1] = center[1];
 			boxMatrix[3][2] = center[2];
-
-			//graphics->SetUniform(boundingBoxShaderProgram, U_WORLDMATRIX, boxMatrix);
-
+			
+			shader->loadMatrix("u_model", boxMatrix);
 			unsigned queryId = BeginOcclusionQuery(octant);
-			//graphics->DrawIndexed(PT_TRIANGLE_LIST, 0, NUM_BOX_INDICES);
+			Globals::shapeManager.get("boundingBox").drawRaw();
 			EndOcclusionQuery();
 
 			// Store query to octant to make sure we don't re-test it until result arrives
-			//octant->OnOcclusionQuery(queryId);
+			octant->OnOcclusionQuery(queryId);
 		}
 	}
+	shader->unuse();
 
+	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+	glDepthMask(GL_TRUE);
+	glEnable(GL_BLEND);
 	previousCameraPosition = cameraPosition;
 }
 
-unsigned OctreeInterface::BeginOcclusionQuery(void* object){
+unsigned int OctreeInterface::BeginOcclusionQuery(void* object){
 	GLuint queryId;
 
 	if (freeQueries.size()){
@@ -486,4 +493,30 @@ unsigned OctreeInterface::BeginOcclusionQuery(void* object){
 
 void OctreeInterface::EndOcclusionQuery(){
 	glEndQuery(occlusionQueryType);
+}
+
+void OctreeInterface::CheckOcclusionQueryResults(std::vector<OcclusionQueryResult>& result){
+	GLuint available = 0;
+
+	// To save API calls, go through queries in reverse order and assume that if a later query has its result available, then all earlier queries will have too
+	for (size_t i = pendingQueries.size() - 1; i < pendingQueries.size(); --i){
+		GLuint queryId = pendingQueries[i].first;
+
+		if (!available)
+			glGetQueryObjectuiv(queryId, GL_QUERY_RESULT_AVAILABLE, &available);
+
+		if (available){
+			GLuint passed = 0;
+			glGetQueryObjectuiv(queryId, GL_QUERY_RESULT, &passed);
+
+			OcclusionQueryResult newResult;
+			newResult.id = queryId;
+			newResult.object = pendingQueries[i].second;
+			newResult.visible = passed > 0;
+			result.push_back(newResult);
+
+			freeQueries.push_back(queryId);
+			pendingQueries.erase(pendingQueries.begin() + i);
+		}
+	}
 }

@@ -11,6 +11,7 @@ static const size_t NUM_OCTANTS = 8;
 static const unsigned char OF_DRAWABLES_SORT_DIRTY = 0x1;
 static const unsigned char OF_CULLING_BOX_DIRTY = 0x2;
 static const float OCCLUSION_QUERY_INTERVAL = 0.133333f; // About 8 frame stagger at 60fps
+static unsigned randomSeed = 1;
 
 class Ray;
 class WorkQueue;
@@ -42,11 +43,10 @@ public:
     /// Add debug geometry to be rendered.
 	//void OnRenderOBB(const Vector4f& color = { 1.0f, 0.0f, 0.0f, 1.0f });
 	void OnRenderAABB(const Vector4f& color = { 0.0f, 1.0f, 0.0f, 1.0f });
-
     /// React to occlusion query being rendered for the octant. Store the query ID to know not to re-test until have the result.
-	//void OnOcclusionQuery(unsigned queryId);
+	void OnOcclusionQuery(unsigned queryId);
     /// React to occlusion query result. Push changed visibility to parents or children as necessary. If outside frustum, no operation.
-	//void OnOcclusionQueryResult(bool visible);
+	void OnOcclusionQueryResult(bool visible);
 
     /// Return the culling box. Update as necessary.
     const BoundingBox& CullingBox() const;
@@ -125,8 +125,7 @@ public:
     }
 
     /// Return true if a new occlusion query should be executed. Use a time interval for already visible octants. Return false if previous query still pending.
-    /*bool CheckNewOcclusionQuery(float frameTime)
-    {
+    bool CheckNewOcclusionQuery(float frameTime){
         if (visibility != VIS_VISIBLE)
             return occlusionQueryId == 0;
 
@@ -135,14 +134,19 @@ public:
         if (occlusionQueryId != 0)
             return false;
 
-        if (occlusionQueryTimer >= OCCLUSION_QUERY_INTERVAL)
-        {
+        if (occlusionQueryTimer >= OCCLUSION_QUERY_INTERVAL){
             occlusionQueryTimer = fmodf(occlusionQueryTimer, OCCLUSION_QUERY_INTERVAL);
             return true;
         }
         else
             return false;
-    }*/
+    }
+
+	inline float Random() { return Rand() / 32768.0f; }
+	inline int Rand(){
+		randomSeed = randomSeed * 214013 + 2531011;
+		return (randomSeed >> 16) & 32767;
+	}
 
 private:
     /// Combined drawable and child octant bounding box. Used for culling tests.
@@ -162,9 +166,9 @@ private:
     /// Last occlusion query visibility.
     OctantVisibility visibility;
     /// Occlusion query id, or 0 if no query pending.
-	//unsigned occlusionQueryId;
+	unsigned occlusionQueryId;
     /// Occlusion query interval timer.
-	//float occlusionQueryTimer;
+	float occlusionQueryTimer;
     /// Number of child octants.
     unsigned char numChildren;
     /// Subdivision level, decreasing for child octants.

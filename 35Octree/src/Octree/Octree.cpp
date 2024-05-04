@@ -41,6 +41,7 @@ struct ReinsertDrawablesTask : public MemberFunctionTask<Octree>
 Octant::Octant() :
     parent(nullptr),
     visibility(VIS_VISIBLE_UNKNOWN),
+	occlusionQueryTimer(Random() * OCCLUSION_QUERY_INTERVAL),
     numChildren(0)
 {
     for (size_t i = 0; i < NUM_OCTANTS; ++i)
@@ -70,6 +71,44 @@ void Octant::OnRenderAABB(const Vector4f& color) {
 		//return;
 
 	DebugRenderer::Get().AddBoundingBox(CullingBox(), color);
+}
+
+void Octant::OnOcclusionQuery(unsigned queryId){
+	// Mark pending
+	occlusionQueryId = queryId;
+}
+
+void Octant::OnOcclusionQueryResult(bool visible){
+	// Mark not pending
+	occlusionQueryId = 0;
+
+	// Do not change visibility if currently outside the frustum
+	if (visibility == VIS_OUTSIDE_FRUSTUM)
+		return;
+
+	OctantVisibility lastVisibility = (OctantVisibility)visibility;
+	OctantVisibility newVisibility = visible ? VIS_VISIBLE : VIS_OCCLUDED;
+
+	visibility = newVisibility;
+
+	if (lastVisibility <= VIS_OCCLUDED_UNKNOWN && newVisibility == VIS_VISIBLE){
+		// If came into view after being occluded, mark children as still occluded but that should be tested in hierarchy
+		if (numChildren)
+			PushVisibilityToChildren(this, VIS_OCCLUDED_UNKNOWN);
+	}else if (newVisibility == VIS_OCCLUDED && lastVisibility != VIS_OCCLUDED && parent && parent->visibility == VIS_VISIBLE){
+		// If became occluded, mark parent unknown so it will be tested next
+		parent->visibility = VIS_VISIBLE_UNKNOWN;
+	}
+
+	// Whenever is visible, push visibility to parents if they are not visible yet
+	if (newVisibility == VIS_VISIBLE){
+		Octant* octant = parent;
+
+		while (octant && octant->visibility != newVisibility){
+			octant->visibility = newVisibility;
+			octant = octant->parent;
+		}
+	}
 }
 
 const BoundingBox& Octant::CullingBox() const

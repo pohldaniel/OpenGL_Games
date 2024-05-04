@@ -763,6 +763,7 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("depth", "res/shader/depth.vert", "res/shader/depth.frag");
 	//Globals::shaderManager.loadShader("combiner", "res/shader/combiner.vert", "res/shader/combiner.frag");
 	Globals::shaderManager.loadShader("occlusion", "res/shader/Occ/occluders.vert", "res/shader/Occ/occluders.frag");
+	Globals::shaderManager.loadShader("boundingBox", "res/shader/boundingBox.vert", "res/shader/boundingBox.frag");
 
 	Shader::SetIncludeFromFile("SeparableSSS.h", "res/shader/PBR/SeparableSSS.h");
 	Globals::shaderManager.loadShader("pbr", "res/shader/PBR/pbr.vert.glsl", "res/shader/PBR/pbr.frag.glsl");
@@ -901,4 +902,6 @@ void Application::loadAssets() {
 	Globals::shapeManager.buildQuadXZ("floor", Vector3f(-50.0f, 0.0f, -50.0f), Vector2f(100.0f, 100.0f), 10, 10, true, true, false);
 	Globals::shapeManager.buildQuadXZ("floor_shadow", Vector3f(-500.0f, -50.0f, -500.0f), Vector2f(1000.0f, 1000.0f), 1, 1, false, true, false);
 	Globals::shapeManager.buildQuadXZ("floor_grass", Vector3f(-20.0f, 0.0f, -20.0f), Vector2f(39.0f, 39.0f), 1, 1, true, false, false);
+
+	Globals::shapeManager.buildCube("boundingBox", Vector3f(-1.0f, -1.0f, -1.0f), Vector3f(2.0f, 2.0f, 2.0f), 1, 1, false, false, false);
 }
