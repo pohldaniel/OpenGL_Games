@@ -82,9 +82,9 @@ bool IndexBuffer::SetData(size_t firstIndex, size_t numIndices_, const void* dat
     return true;
 }
 
-void IndexBuffer::Bind(bool force)
+void IndexBuffer::Bind()
 {
-    if (!buffer || boundIndexBuffer == this && !force)
+    if (!buffer || boundIndexBuffer == this)
         return;
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer);

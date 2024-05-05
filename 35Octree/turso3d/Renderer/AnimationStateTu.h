@@ -108,7 +108,7 @@ private:
     /// %Animation resource.
     SharedPtr<AnimationTu> animation;
     /// Start bone.
-    BoneTu* startBone;
+	BoneTu* startBone;
     /// Per-track data.
     std::vector<AnimationStateTrackTu> stateTracks;
     /// Looped flag.

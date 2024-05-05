@@ -325,10 +325,10 @@ void SpatialNode::OnTransformChanged()
         auto it = curr->children.begin();
         if (it != curr->children.end())
         {
-			NodeTu* next = *it;
+            NodeTu* next = *it;
             for (++it; it != curr->children.end(); ++it)
             {
-				NodeTu* child = *it;
+                NodeTu* child = *it;
                 if (child->TestFlag(NF_SPATIAL))
                     static_cast<SpatialNode*>(child)->OnTransformChanged();
             }

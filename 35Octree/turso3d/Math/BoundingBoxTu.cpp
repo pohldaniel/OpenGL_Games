@@ -16,7 +16,7 @@ void BoundingBoxTu::Define(const Vector3* vertices, size_t count)
 
 void BoundingBoxTu::Define(const FrustumTu& frustum)
 {
-    Define(frustum.vertices, NUM_FRUSTUM_VERTICES);
+    Define(frustum.vertices, NUM_FRUSTUM_VERTICESTU);
 }
 
 void BoundingBoxTu::Define(const Polyhedron& poly)
@@ -42,7 +42,7 @@ void BoundingBoxTu::Merge(const Vector3* vertices, size_t count)
 
 void BoundingBoxTu::Merge(const FrustumTu& frustum)
 {
-    Merge(frustum.vertices, NUM_FRUSTUM_VERTICES);
+    Merge(frustum.vertices, NUM_FRUSTUM_VERTICESTU);
 }
 
 void BoundingBoxTu::Merge(const Polyhedron& poly)
@@ -133,7 +133,7 @@ BoundingBoxTu BoundingBoxTu::Transformed(const Matrix3x4& transform) const
     return BoundingBoxTu(newCenter - newEdge, newCenter + newEdge);
 }
 
-Rect BoundingBoxTu::Projected(const Matrix4& projection) const
+RectTu BoundingBoxTu::Projected(const Matrix4& projection) const
 {
     Vector3 projMin = min;
     Vector3 projMax = max;
@@ -152,7 +152,7 @@ Rect BoundingBoxTu::Projected(const Matrix4& projection) const
     vertices[6] = Vector3(projMin.x, projMax.y, projMax.z);
     vertices[7] = projMax;
     
-    Rect rect;
+	RectTu rect;
     for (size_t i = 0; i < 8; ++i)
     {
         Vector3 projected = projection * vertices[i];

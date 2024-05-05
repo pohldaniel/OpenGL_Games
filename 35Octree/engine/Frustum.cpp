@@ -128,42 +128,42 @@ void Frustum::updatePlane(const Matrix4f& perspective, const Matrix4f& view) {
 	m_planes[0][1] = mvp[1][3] + mvp[1][2];
 	m_planes[0][2] = mvp[2][3] + mvp[2][2];
 	m_planes[0][3] = (mvp[3][3] + mvp[3][2]) * inset;
-	//m_planes[0].normalize3();
+	m_planes[0].normalize3();
 
 	//Left
 	m_planes[1][0] = mvp[0][3] + mvp[0][0];
 	m_planes[1][1] = mvp[1][3] + mvp[1][0];
 	m_planes[1][2] = mvp[2][3] + mvp[2][0];
 	m_planes[1][3] = (mvp[3][3] + mvp[3][0]) * inset;
-	//m_planes[1].normalize3();
+	m_planes[1].normalize3();
 
 	//Right
 	m_planes[2][0] = mvp[0][3] - mvp[0][0];
 	m_planes[2][1] = mvp[1][3] - mvp[1][0];
 	m_planes[2][2] = mvp[2][3] - mvp[2][0];
 	m_planes[2][3] = (mvp[3][3] - mvp[3][0]) * inset;
-	//m_planes[2].normalize3();
+	m_planes[2].normalize3();
 
 	//Top
 	m_planes[3][0] = mvp[0][3] - mvp[0][1];
 	m_planes[3][1] = mvp[1][3] - mvp[1][1];
 	m_planes[3][2] = mvp[2][3] - mvp[2][1];
 	m_planes[3][3] = (mvp[3][3] - mvp[3][1]) * inset;
-	//m_planes[3].normalize3();
+	m_planes[3].normalize3();
 
 	//Bottom
 	m_planes[4][0] = mvp[0][3] + mvp[0][1];
 	m_planes[4][1] = mvp[1][3] + mvp[1][1];
 	m_planes[4][2] = mvp[2][3] + mvp[2][1];
 	m_planes[4][3] = (mvp[3][3] + mvp[3][1]) * inset;
-	//m_planes[4].normalize3();
+	m_planes[4].normalize3();
 	
 	//Far
 	m_planes[5][0] = mvp[0][3] - mvp[0][2];
 	m_planes[5][1] = mvp[1][3] - mvp[1][2];
 	m_planes[5][2] = mvp[2][3] - mvp[2][2];
 	m_planes[5][3] = (mvp[3][3] - mvp[3][2]) * inset;
-	//m_planes[5].normalize3();	
+	m_planes[5].normalize3();	
 }
 
 void Frustum::updateVertices(const Matrix4f& perspective, const Matrix4f& view) {

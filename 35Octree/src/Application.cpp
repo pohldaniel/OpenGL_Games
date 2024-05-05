@@ -458,6 +458,7 @@ void Application::initStates() {
 	//Machine->addStateAtTop(new GrassComp(*Machine));
 	//Machine->addStateAtTop(new GrassGeom(*Machine));
 	//Machine->addStateAtTop(new OcclusionQuery(*Machine));
+	//Machine->addStateAtTop(new Turso(*Machine));
 	Machine->addStateAtTop(new Turso(*Machine));
 }
 
@@ -897,6 +898,8 @@ void Application::loadAssets() {
 	Globals::shapeManager.get("cube").createBoundingBox();
 	Globals::shapeManager.buildQuadXY("quad", Vector3f(-1.0f, -1.0f, 0.0f), Vector2f(2.0f, 2.0f), 1, 1, true, false, false);
 	Globals::shapeManager.buildQuadXZ("quad_xz", Vector3f(-1.0f, 0.0f, -1.0f), Vector2f(2.0f, 2.0f), 1, 1, true, false, false);
+	Globals::shapeManager.buildQuadXY("quad_xy", Vector3f(-50.0f, -50.0f, 0.0f), Vector2f(100.0f, 100.0f), 1, 1, true, false, false);
+	Globals::shapeManager.get("quad_xy").createBoundingBox();
 	Globals::shapeManager.buildTorus("torus", 1.0f, 0.4f, Vector3f(0.0f, 0.0f, 0.0f), 49, 49, true, true, true);
 	Globals::shapeManager.buildTorusKnot("torus_knot", 2.0f, 0.75f, 2, 3, Vector3f(0.0f, 0.0f, 0.0f), 100, 16, true, true, false);
 	Globals::shapeManager.buildTorus("torus_shell", 1.0f, 0.5f, Vector3f(0.0f, 0.0f, 0.0f), 72, 48, true, true, true);

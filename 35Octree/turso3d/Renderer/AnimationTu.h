@@ -5,9 +5,9 @@
 #include "../Math/Quaternion.h"
 #include "../Resource/Resource.h"
 
-static const unsigned char CHANNEL_POSITION = 1;
-static const unsigned char CHANNEL_ROTATION = 2;
-static const unsigned char CHANNEL_SCALE = 4;
+static const unsigned char CHANNEL_POSITIONTU = 1;
+static const unsigned char CHANNEL_ROTATIONTU = 2;
+static const unsigned char CHANNEL_SCALETU = 4;
 
 /// Skeletal animation keyframe.
 struct AnimationKeyFrameTu
@@ -48,7 +48,7 @@ struct AnimationTrackTu
 /// Skeletal animation resource.
 class AnimationTu : public Resource
 {
-    OBJECT(AnimationTu);
+    OBJECT(Animation);
 
 public:
     /// Construct.

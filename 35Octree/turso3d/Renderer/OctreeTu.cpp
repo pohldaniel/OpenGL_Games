@@ -30,8 +30,8 @@ static inline bool CompareDrawableDistances(const std::pair<Drawable*, float>& l
 
 static inline bool CompareDrawables(Drawable* lhs, Drawable* rhs)
 {
-    unsigned short lhsFlags = lhs->Flags() & (DF_LIGHT | DF_GEOMETRY);
-    unsigned short rhsFlags = rhs->Flags() & (DF_LIGHT | DF_GEOMETRY);
+    unsigned short lhsFlags = lhs->Flags() & (DF_LIGHTTU | DF_GEOMETRYTU);
+    unsigned short rhsFlags = rhs->Flags() & (DF_LIGHTTU | DF_GEOMETRYTU);
     if (lhsFlags != rhsFlags)
         return lhsFlags < rhsFlags;
     else
@@ -55,12 +55,12 @@ struct ReinsertDrawablesTaskTu : public MemberFunctionTaskTu<OctreeTu>
 
 OctantTu::OctantTu() :
     parent(nullptr),
-    visibility(VIS_VISIBLE_UNKNOWN),
+    visibility(VIS_VISIBLE_UNKNOWNTU),
     occlusionQueryId(0),
-    occlusionQueryTimer(Random() * OCCLUSION_QUERY_INTERVAL),
+    occlusionQueryTimer(Random() * OCCLUSION_QUERY_INTERVALTU),
     numChildren(0)
 {
-    for (size_t i = 0; i < NUM_OCTANTS; ++i)
+    for (size_t i = 0; i < NUM_OCTANTSTU; ++i)
         children[i] = nullptr;
 }
 
@@ -76,7 +76,7 @@ OctantTu::~OctantTu()
 
 void OctantTu::Initialize(OctantTu* parent_, const BoundingBoxTu& boundingBox, unsigned char level_, unsigned char childIndex_)
 {
-	BoundingBoxTu worldBoundingBox = boundingBox;
+    BoundingBoxTu worldBoundingBox = boundingBox;
     center = worldBoundingBox.Center();
     halfSize = worldBoundingBox.HalfSize();
     fittingBox = BoundingBoxTu(worldBoundingBox.min - halfSize, worldBoundingBox.max + halfSize);
@@ -84,7 +84,7 @@ void OctantTu::Initialize(OctantTu* parent_, const BoundingBoxTu& boundingBox, u
     parent = parent_;
     level = level_;
     childIndex = childIndex_;
-    flags = OF_CULLING_BOX_DIRTY;
+    flags = OF_CULLING_BOX_DIRTYTU;
 }
 
 void OctantTu::OnRenderDebug(DebugRendererTu* debug)
@@ -107,28 +107,28 @@ void OctantTu::OnOcclusionQueryResult(bool visible)
     occlusionQueryId = 0;
 
     // Do not change visibility if currently outside the frustum
-    if (visibility == VIS_OUTSIDE_FRUSTUM)
+    if (visibility == VIS_OUTSIDE_FRUSTUMTU)
         return;
 
-    OctantVisibility lastVisibility = (OctantVisibility)visibility;
-    OctantVisibility newVisibility = visible ? VIS_VISIBLE : VIS_OCCLUDED;
+    OctantVisibilityTu lastVisibility = (OctantVisibilityTu)visibility;
+    OctantVisibilityTu newVisibility = visible ? VIS_VISIBLETU : VIS_OCCLUDEDTU;
 
     visibility = newVisibility;
 
-    if (lastVisibility <= VIS_OCCLUDED_UNKNOWN && newVisibility == VIS_VISIBLE)
+    if (lastVisibility <= VIS_OCCLUDED_UNKNOWNTU && newVisibility == VIS_VISIBLETU)
     {
         // If came into view after being occluded, mark children as still occluded but that should be tested in hierarchy
         if (numChildren)
-            PushVisibilityToChildren(this, VIS_OCCLUDED_UNKNOWN);
+            PushVisibilityToChildren(this, VIS_OCCLUDED_UNKNOWNTU);
     }
-    else if (newVisibility == VIS_OCCLUDED && lastVisibility != VIS_OCCLUDED && parent && parent->visibility == VIS_VISIBLE)
+    else if (newVisibility == VIS_OCCLUDEDTU && lastVisibility != VIS_OCCLUDEDTU && parent && parent->visibility == VIS_VISIBLETU)
     {
         // If became occluded, mark parent unknown so it will be tested next
-        parent->visibility = VIS_VISIBLE_UNKNOWN;
+        parent->visibility = VIS_VISIBLE_UNKNOWNTU;
     }
 
     // Whenever is visible, push visibility to parents if they are not visible yet
-    if (newVisibility == VIS_VISIBLE)
+    if (newVisibility == VIS_VISIBLETU)
     {
         OctantTu* octant = parent;
 
@@ -142,21 +142,21 @@ void OctantTu::OnOcclusionQueryResult(bool visible)
 
 const BoundingBoxTu& OctantTu::CullingBox() const
 {
-    if (TestFlag(OF_CULLING_BOX_DIRTY))
+    if (TestFlag(OF_CULLING_BOX_DIRTYTU))
     {
         if (!numChildren && drawables.empty())
             cullingBox.Define(center);
         else
         {
             // Use a temporary bounding box for calculations in case many threads call this simultaneously
-			BoundingBoxTu tempBox;
+            BoundingBoxTu tempBox;
 
             for (auto it = drawables.begin(); it != drawables.end(); ++it)
                 tempBox.Merge((*it)->WorldBoundingBox());
 
             if (numChildren)
             {
-                for (size_t i = 0; i < NUM_OCTANTS; ++i)
+                for (size_t i = 0; i < NUM_OCTANTSTU; ++i)
                 {
                     if (children[i])
                         tempBox.Merge(children[i]->CullingBox());
@@ -166,7 +166,7 @@ const BoundingBoxTu& OctantTu::CullingBox() const
             cullingBox = tempBox;
         }
 
-        SetFlag(OF_CULLING_BOX_DIRTY, false);
+        SetFlag(OF_CULLING_BOX_DIRTYTU, false);
     }
 
     return cullingBox;
@@ -196,7 +196,7 @@ OctreeTu::~OctreeTu()
         if (drawable)
         {
             drawable->octant = nullptr;
-            drawable->SetFlag(DF_OCTREE_REINSERT_QUEUED, false);
+            drawable->SetFlag(DF_OCTREE_REINSERT_QUEUEDTU, false);
         }
     }
 
@@ -269,7 +269,7 @@ void OctreeTu::FinishUpdate()
     {
         OctantTu* octant = *it;
         std::sort(octant->drawables.begin(), octant->drawables.end(), CompareDrawables);
-        octant->SetFlag(OF_DRAWABLES_SORT_DIRTY, false);
+        octant->SetFlag(OF_DRAWABLES_SORT_DIRTYTU, false);
     }
 
     sortDirtyOctants.clear();
@@ -362,7 +362,7 @@ void OctreeTu::QueueUpdate(Drawable* drawable)
     if (!threadedUpdate)
     {
         updateQueue.push_back(drawable);
-        drawable->SetFlag(DF_OCTREE_REINSERT_QUEUED, true);
+        drawable->SetFlag(DF_OCTREE_REINSERT_QUEUEDTU, true);
     }
     else
     {
@@ -374,7 +374,7 @@ void OctreeTu::QueueUpdate(Drawable* drawable)
         if (!oldOctant || oldOctant->fittingBox.IsInside(box) != INSIDE)
         {
             reinsertQueues[WorkQueueTu::ThreadIndex()].push_back(drawable);
-            drawable->SetFlag(DF_OCTREE_REINSERT_QUEUED, true);
+            drawable->SetFlag(DF_OCTREE_REINSERT_QUEUEDTU, true);
         }
     }
 }
@@ -385,7 +385,7 @@ void OctreeTu::RemoveDrawable(Drawable* drawable)
         return;
 
     RemoveDrawable(drawable, drawable->GetOctant());
-    if (drawable->TestFlag(DF_OCTREE_REINSERT_QUEUED))
+    if (drawable->TestFlag(DF_OCTREE_REINSERT_QUEUEDTU))
     {
         RemoveDrawableFromQueue(drawable, updateQueue);
 
@@ -393,7 +393,7 @@ void OctreeTu::RemoveDrawable(Drawable* drawable)
         for (size_t i = 0; i < workQueue->NumThreads(); ++i)
             RemoveDrawableFromQueue(drawable, reinsertQueues[i]);
 
-        drawable->SetFlag(DF_OCTREE_REINSERT_QUEUED, false);
+        drawable->SetFlag(DF_OCTREE_REINSERT_QUEUEDTU, false);
     }
 
     drawable->octant = nullptr;
@@ -453,7 +453,7 @@ void OctreeTu::ReinsertDrawables(std::vector<Drawable*>& drawables)
                 newOctant = CreateChildOctant(newOctant, newOctant->ChildIndex(box.Center()));
         }
 
-        drawable->SetFlag(DF_OCTREE_REINSERT_QUEUED, false);
+        drawable->SetFlag(DF_OCTREE_REINSERT_QUEUEDTU, false);
     }
 
     drawables.clear();
@@ -517,7 +517,7 @@ void OctreeTu::DeleteChildOctants(OctantTu* octant, bool deletingOctree)
     {
         Drawable* drawable = *it;
         drawable->octant = nullptr;
-        drawable->SetFlag(DF_OCTREE_REINSERT_QUEUED, false);
+        drawable->SetFlag(DF_OCTREE_REINSERT_QUEUEDTU, false);
         if (deletingOctree)
             drawable->Owner()->octree = nullptr;
     }
@@ -525,7 +525,7 @@ void OctreeTu::DeleteChildOctants(OctantTu* octant, bool deletingOctree)
 
     if (octant->numChildren)
     {
-        for (size_t i = 0; i < NUM_OCTANTS; ++i)
+        for (size_t i = 0; i < NUM_OCTANTSTU; ++i)
         {
             if (octant->children[i])
             {
@@ -544,7 +544,7 @@ void OctreeTu::CollectDrawables(std::vector<Drawable*>& result, OctantTu* octant
 
     if (octant->numChildren)
     {
-        for (size_t i = 0; i < NUM_OCTANTS; ++i)
+        for (size_t i = 0; i < NUM_OCTANTSTU; ++i)
         {
             if (octant->children[i])
                 CollectDrawables(result, octant->children[i]);
@@ -565,7 +565,7 @@ void OctreeTu::CollectDrawables(std::vector<Drawable*>& result, OctantTu* octant
 
     if (octant->numChildren)
     {
-        for (size_t i = 0; i < NUM_OCTANTS; ++i)
+        for (size_t i = 0; i < NUM_OCTANTSTU; ++i)
         {
             if (octant->children[i])
                 CollectDrawables(result, octant->children[i], drawableFlags, layerMask);
@@ -590,7 +590,7 @@ void OctreeTu::CollectDrawables(std::vector<RaycastResult>& result, OctantTu* oc
 
     if (octant->numChildren)
     {
-        for (size_t i = 0; i < NUM_OCTANTS; ++i)
+        for (size_t i = 0; i < NUM_OCTANTSTU; ++i)
         {
             if (octant->children[i])
                 CollectDrawables(result, octant->children[i], ray, drawableFlags, maxDistance, layerMask);
@@ -619,7 +619,7 @@ void OctreeTu::CollectDrawables(std::vector<std::pair<Drawable*, float> >& resul
 
     if (octant->numChildren)
     {
-        for (size_t i = 0; i < NUM_OCTANTS; ++i)
+        for (size_t i = 0; i < NUM_OCTANTSTU; ++i)
         {
             if (octant->children[i])
                 CollectDrawables(result, octant->children[i], ray, drawableFlags, maxDistance, layerMask);
@@ -643,7 +643,7 @@ void OctreeTu::CheckReinsertWork(TaskTu* task_, unsigned threadIndex_)
         if (!drawable)
             continue;
 
-        if (drawable->TestFlag(DF_OCTREE_UPDATE_CALL))
+        if (drawable->TestFlag(DF_OCTREE_UPDATE_CALLTU))
             drawable->OnOctreeUpdate(frameNumber);
 
         drawable->lastUpdateFrameNumber = frameNumber;
@@ -654,7 +654,7 @@ void OctreeTu::CheckReinsertWork(TaskTu* task_, unsigned threadIndex_)
         if (!oldOctant || oldOctant->fittingBox.IsInside(box) != INSIDE)
             reinsertQueue.push_back(drawable);
         else
-            drawable->SetFlag(DF_OCTREE_REINSERT_QUEUED, false);
+            drawable->SetFlag(DF_OCTREE_REINSERT_QUEUEDTU, false);
     }
 
     numPendingReinsertionTasks.fetch_add(-1);

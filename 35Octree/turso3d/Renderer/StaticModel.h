@@ -53,8 +53,6 @@ public:
     /// Return LOD bias.
     float LodBias() const { return static_cast<StaticModelDrawable*>(drawable)->lodBias; }
 
-	void SetOctree(OctreeTu* octree);
-
 protected:
     /// Set model attribute. Used in serialization.
     void SetModelAttr(const ResourceRef& value);

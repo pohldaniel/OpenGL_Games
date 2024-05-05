@@ -70,11 +70,11 @@ bool AnimationTu::BeginLoad(Stream& source)
         {
             AnimationKeyFrameTu& newKeyFrame = newTrack->keyFrames[j];
             newKeyFrame.time = source.Read<float>();
-            if (newTrack->channelMask & CHANNEL_POSITION)
+            if (newTrack->channelMask & CHANNEL_POSITIONTU)
                 newKeyFrame.position = source.Read<Vector3>();
-            if (newTrack->channelMask & CHANNEL_ROTATION)
+            if (newTrack->channelMask & CHANNEL_ROTATIONTU)
                 newKeyFrame.rotation = source.Read<QuaternionTu>();
-            if (newTrack->channelMask & CHANNEL_SCALE)
+            if (newTrack->channelMask & CHANNEL_SCALETU)
                 newKeyFrame.scale = source.Read<Vector3>();
         }
     }

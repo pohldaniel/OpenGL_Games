@@ -91,7 +91,7 @@ float Geometry::HitDistance(const Ray& ray, Vector3* outNormal) const
 
 GeometryDrawable::GeometryDrawable()
 {
-    SetFlag(DF_GEOMETRY, true);
+    SetFlag(DF_GEOMETRYTU, true);
 }
 
 bool GeometryDrawable::OnPrepareRender(unsigned short frameNumber, CameraTu* camera)

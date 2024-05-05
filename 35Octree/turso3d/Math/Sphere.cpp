@@ -29,7 +29,7 @@ void Sphere::Define(const BoundingBoxTu& box)
 
 void Sphere::Define(const FrustumTu& frustum)
 {
-    Define(frustum.vertices, NUM_FRUSTUM_VERTICES);
+    Define(frustum.vertices, NUM_FRUSTUM_VERTICESTU);
 }
 
 void Sphere::Define(const Polyhedron& poly)
@@ -62,7 +62,7 @@ void Sphere::Merge(const BoundingBoxTu& box)
 void Sphere::Merge(const FrustumTu& frustum)
 {
     const Vector3* vertices = frustum.vertices;
-    Merge(vertices, NUM_FRUSTUM_VERTICES);
+    Merge(vertices, NUM_FRUSTUM_VERTICESTU);
 }
 
 void Sphere::Merge(const Polyhedron& poly)

@@ -39,7 +39,7 @@ void Scene::Save(Stream& dest)
     LOGINFO("Saving scene to " + dest.Name());
     
     dest.WriteFileID("SCNE");
-	NodeTu::Save(dest);
+    NodeTu::Save(dest);
 }
 
 bool Scene::Load(Stream& source)
@@ -67,7 +67,7 @@ bool Scene::Load(Stream& source)
 
     ObjectResolver resolver;
     resolver.StoreObject(ownId, this);
-	NodeTu::Load(source, resolver);
+    NodeTu::Load(source, resolver);
     resolver.Resolve();
 
     return true;
@@ -90,7 +90,7 @@ bool Scene::LoadJSON(const JSONValue& source)
 
     ObjectResolver resolver;
     resolver.StoreObject(ownId, this);
-	NodeTu::LoadJSON(source, resolver);
+    NodeTu::LoadJSON(source, resolver);
     resolver.Resolve();
 
     return true;
@@ -115,7 +115,7 @@ bool Scene::SaveJSON(Stream& dest)
     LOGINFO("Saving scene to " + dest.Name());
     
     JSONFile json;
-	NodeTu::SaveJSON(json.Root());
+    NodeTu::SaveJSON(json.Root());
     return json.Save(dest);
 }
 
@@ -127,7 +127,7 @@ NodeTu* Scene::Instantiate(Stream& source)
     StringHash childType(source.Read<StringHash>());
     unsigned childId = source.Read<unsigned>();
 
-	NodeTu* child = CreateChild(childType);
+    NodeTu* child = CreateChild(childType);
     if (child)
     {
         resolver.StoreObject(childId, child);
@@ -146,7 +146,7 @@ NodeTu* Scene::InstantiateJSON(const JSONValue& source)
     StringHash childType(source["type"].GetString());
     unsigned childId = (unsigned)source["id"].GetNumber();
 
-	NodeTu* child = CreateChild(childType);
+    NodeTu* child = CreateChild(childType);
     if (child)
     {
         resolver.StoreObject(childId, child);
@@ -236,7 +236,7 @@ void RegisterSceneLibrary()
     if (registered)
         return;
 
-	NodeTu::RegisterObject();
+    NodeTu::RegisterObject();
     Scene::RegisterObject();
     SpatialNode::RegisterObject();
 

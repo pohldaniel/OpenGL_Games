@@ -28,7 +28,7 @@ Drawable::Drawable() :
     distance(0.0f),
     maxDistance(0.0f)
 {
-    SetFlag(DF_BOUNDING_BOX_DIRTY, true);
+    SetFlag(DF_BOUNDING_BOX_DIRTYTU, true);
 }
 
 Drawable::~Drawable()
@@ -101,7 +101,7 @@ void OctreeNodeTu::SetStatic(bool enable)
 {
     if (enable != IsStatic())
     {
-        drawable->SetFlag(DF_STATIC, enable);
+        drawable->SetFlag(DF_STATICTU, enable);
         // Reinsert into octree so that cached shadow map invalidation is handled
         OnBoundingBoxChanged();
     }
@@ -109,9 +109,9 @@ void OctreeNodeTu::SetStatic(bool enable)
 
 void OctreeNodeTu::SetCastShadows(bool enable)
 {
-    if (drawable->TestFlag(DF_CAST_SHADOWS) != enable)
+    if (drawable->TestFlag(DF_CAST_SHADOWSTU) != enable)
     {
-        drawable->SetFlag(DF_CAST_SHADOWS, enable);
+        drawable->SetFlag(DF_CAST_SHADOWSTU, enable);
         // Reinsert into octree so that cached shadow map invalidation is handled
         OnBoundingBoxChanged();
     }
@@ -119,7 +119,7 @@ void OctreeNodeTu::SetCastShadows(bool enable)
 
 void OctreeNodeTu::SetUpdateInvisible(bool enable)
 {
-    drawable->SetFlag(DF_UPDATE_INVISIBLE, enable);
+    drawable->SetFlag(DF_UPDATE_INVISIBLETU, enable);
 }
 
 void OctreeNodeTu::SetMaxDistance(float distance_)
@@ -146,15 +146,15 @@ void OctreeNodeTu::OnTransformChanged()
 {
     SpatialNode::OnTransformChanged();
 
-    drawable->SetFlag(DF_WORLD_TRANSFORM_DIRTY | DF_BOUNDING_BOX_DIRTY, true);
-    if (drawable->GetOctant() && !drawable->TestFlag(DF_OCTREE_REINSERT_QUEUED))
+    drawable->SetFlag(DF_WORLD_TRANSFORM_DIRTYTU | DF_BOUNDING_BOX_DIRTYTU, true);
+    if (drawable->GetOctant() && !drawable->TestFlag(DF_OCTREE_REINSERT_QUEUEDTU))
         octree->QueueUpdate(drawable);
 }
 
 void OctreeNodeTu::OnBoundingBoxChanged()
 {
-    drawable->SetFlag(DF_BOUNDING_BOX_DIRTY, true);
-    if (drawable->GetOctant() && !drawable->TestFlag(DF_OCTREE_REINSERT_QUEUED))
+    drawable->SetFlag(DF_BOUNDING_BOX_DIRTYTU, true);
+    if (drawable->GetOctant() && !drawable->TestFlag(DF_OCTREE_REINSERT_QUEUEDTU))
         octree->QueueUpdate(drawable);
 }
 

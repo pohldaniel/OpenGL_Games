@@ -6,7 +6,6 @@
 #include "Matrix3x4.h"
 #include "Plane.h"
 #include "Sphere.h"
-#include "engine/Vector.h"
 
 /// Frustum planes.
 enum FrustumPlane
@@ -19,20 +18,20 @@ enum FrustumPlane
     PLANE_FAR,
 };
 
-static const size_t NUM_FRUSTUM_PLANES = 6;
-static const size_t NUM_FRUSTUM_VERTICES = 8;
-static const size_t NUM_SAT_AXES = 3 + 5 + 3 * 6;
+static const size_t NUM_FRUSTUM_PLANESTU = 6;
+static const size_t NUM_FRUSTUM_VERTICESTU = 8;
+static const size_t NUM_SAT_AXESTU = 3 + 5 + 3 * 6;
 
 /// Helper data for speeding up SAT tests of bounding boxes against a frustum. This needs to be calculated once for a given frustum.
-struct SATData
+struct SATDataTu
 {
     /// Calculate from a frustum.
     void Calculate(const FrustumTu& frustum);
 
     /// Bounding box normal axes, frustum normal axes and edge cross product axes.
-    Vector3 axes[NUM_SAT_AXES];
+    Vector3 axes[NUM_SAT_AXESTU];
     /// 1D coordinates of the frustum projected to each axis.
-    std::pair<float, float> frustumProj[NUM_SAT_AXES];
+    std::pair<float, float> frustumProj[NUM_SAT_AXESTU];
 };
 
 /// Convex constructed of 6 planes.
@@ -40,9 +39,9 @@ class FrustumTu
 {
 public:
     /// Frustum planes.
-    Plane planes[NUM_FRUSTUM_PLANES];
+    Plane planes[NUM_FRUSTUM_PLANESTU];
     /// Frustum vertices.
-    Vector3 vertices[NUM_FRUSTUM_VERTICES];
+    Vector3 vertices[NUM_FRUSTUM_VERTICESTU];
     
     /// Construct a degenerate frustum with all points at origin.
 	FrustumTu();
@@ -52,14 +51,11 @@ public:
     /// Assign from another frustum.
 	FrustumTu& operator = (const FrustumTu& rhs);
     
-	/// Define with projection and view matrix.
-	void FrustumTu::Define(const Matrix4& projection, const Matrix4& view);
-	void FrustumTu::Define(const Matrix4f& projection, const Matrix4f& view);
     /// Define with projection parameters and a transform matrix.
-	void Define(float fov, float aspectRatio, float zoom, float nearZ, float farZ, const Matrix4& transform = Matrix4::IDENTITY);
-	/// Define with near and far dimension vectors and a transform matrix.
-	void Define(const Vector3& near, const Vector3& far, const Matrix4& transform = Matrix4::IDENTITY);
-	/// Define with a bounding box and a transform matrix.
+    void Define(float fov, float aspectRatio, float zoom, float nearZ, float farZ, const Matrix3x4& transform = Matrix3x4::IDENTITY);
+    /// Define with near and far dimension vectors and a transform matrix.
+    void Define(const Vector3& near, const Vector3& far, const Matrix3x4& transform = Matrix3x4::IDENTITY);
+    /// Define with a bounding box and a transform matrix.
     void Define(const BoundingBoxTu& box, const Matrix3x4& transform = Matrix3x4::IDENTITY);
     /// Define with orthographic projection parameters and a transform matrix.
     void DefineOrtho(float orthoSize, float aspectRatio, float zoom, float nearZ, float farZ, const Matrix3x4& transform = Matrix3x4::IDENTITY);
@@ -71,7 +67,7 @@ public:
     /// Test if a point is inside or outside.
     Intersection IsInside(const Vector3& point) const
     {
-        for (size_t i = 0; i < NUM_FRUSTUM_PLANES; ++i)
+        for (size_t i = 0; i < NUM_FRUSTUM_PLANESTU; ++i)
         {
             if (planes[i].Distance(point) < 0.0f)
                 return OUTSIDE;
@@ -85,7 +81,7 @@ public:
     {
         bool allInside = true;
 
-        for (size_t i = 0; i < NUM_FRUSTUM_PLANES; ++i)
+        for (size_t i = 0; i < NUM_FRUSTUM_PLANESTU; ++i)
         {
             float dist = planes[i].Distance(sphere.center);
             if (dist < -sphere.radius)
@@ -100,7 +96,7 @@ public:
     /// Test if a sphere if (partially) inside or outside.
     Intersection IsInsideFast(const Sphere& sphere) const
     {
-        for (size_t i = 0; i < NUM_FRUSTUM_PLANES; ++i)
+        for (size_t i = 0; i < NUM_FRUSTUM_PLANESTU; ++i)
         {
             if (planes[i].Distance(sphere.center) < -sphere.radius)
                 return OUTSIDE;
@@ -116,7 +112,7 @@ public:
         Vector3 edge = center - box.min;
         bool allInside = true;
         
-        for (size_t i = 0; i < NUM_FRUSTUM_PLANES; ++i)
+        for (size_t i = 0; i < NUM_FRUSTUM_PLANESTU; ++i)
         {
             const Plane& plane = planes[i];
             float dist = plane.normal.DotProduct(center) + plane.d;
@@ -137,7 +133,7 @@ public:
         Vector3 center = box.Center();
         Vector3 edge = center - box.min;
 
-        for (size_t i = 0; i < NUM_FRUSTUM_PLANES; ++i)
+        for (size_t i = 0; i < NUM_FRUSTUM_PLANESTU; ++i)
         {
             unsigned char bit = 1 << i;
 
@@ -163,7 +159,7 @@ public:
         Vector3 center = box.Center();
         Vector3 edge = center - box.min;
 
-        for (size_t i = 0; i < NUM_FRUSTUM_PLANES; ++i)
+        for (size_t i = 0; i < NUM_FRUSTUM_PLANESTU; ++i)
         {
             unsigned char bit = 1 << i;
 
@@ -187,7 +183,7 @@ public:
         Vector3 center = box.Center();
         Vector3 edge = center - box.min;
         
-        for (size_t i = 0; i < NUM_FRUSTUM_PLANES; ++i)
+        for (size_t i = 0; i < NUM_FRUSTUM_PLANESTU; ++i)
         {
             const Plane& plane = planes[i];
             float dist = plane.normal.DotProduct(center) + plane.d;
@@ -201,9 +197,9 @@ public:
     }
 
     /// Test if a bounding box is (partially) inside or outside using SAT. Is slower but correct. The SAT helper data needs to be calculated beforehand to speed up.
-    Intersection IsInsideSAT(const BoundingBoxTu& box, const SATData& data) const
+    Intersection IsInsideSAT(const BoundingBoxTu& box, const SATDataTu& data) const
     {
-        for (size_t i = 0; i < NUM_SAT_AXES; ++i)
+        for (size_t i = 0; i < NUM_SAT_AXESTU; ++i)
         {
             std::pair<float, float> boxProj = box.Projected(data.axes[i]);
             if (data.frustumProj[i].second < boxProj.first || boxProj.second < data.frustumProj[i].first)
@@ -218,7 +214,7 @@ public:
     {
         float distance = 0.0f;
 
-        for (size_t i = 0; i < NUM_FRUSTUM_PLANES; ++i)
+        for (size_t i = 0; i < NUM_FRUSTUM_PLANESTU; ++i)
             distance = Max(-planes[i].Distance(point), distance);
         
         return distance;
@@ -229,7 +225,7 @@ public:
     /// Return transformed by a 3x4 matrix.
 	FrustumTu Transformed(const Matrix3x4& transform) const;
     /// Return projected by a 4x4 projection matrix.
-    Rect Projected(const Matrix4& transform) const;
+	RectTu Projected(const Matrix4& transform) const;
     /// Return projected by an axis to 1D coordinates.
     std::pair<float, float> Projected(const Vector3& axis) const;
     

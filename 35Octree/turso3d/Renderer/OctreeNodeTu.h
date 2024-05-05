@@ -13,21 +13,21 @@ class OctreeTu;
 class Ray;
 struct RaycastResult;
 
-static const unsigned short DF_STATIC_GEOMETRY = 0x0;
-static const unsigned short DF_SKINNED_GEOMETRY = 0x1;
-static const unsigned short DF_INSTANCED_GEOMETRY = 0x2;
-static const unsigned short DF_CUSTOM_GEOMETRY = 0x3;
-static const unsigned short DF_GEOMETRY_TYPE_BITS = 0x3;
-static const unsigned short DF_LIGHT = 0x4;
-static const unsigned short DF_GEOMETRY = 0x8;
-static const unsigned short DF_STATIC = 0x10;
-static const unsigned short DF_CAST_SHADOWS = 0x20;
-static const unsigned short DF_UPDATE_INVISIBLE = 0x40;
-static const unsigned short DF_HAS_LOD_LEVELS = 0x80;
-static const unsigned short DF_OCTREE_UPDATE_CALL = 0x100;
-static const unsigned short DF_WORLD_TRANSFORM_DIRTY = 0x200;
-static const unsigned short DF_BOUNDING_BOX_DIRTY = 0x400;
-static const unsigned short DF_OCTREE_REINSERT_QUEUED = 0x800;
+static const unsigned short DF_STATIC_GEOMETRYTU = 0x0;
+static const unsigned short DF_SKINNED_GEOMETRYTU = 0x1;
+static const unsigned short DF_INSTANCED_GEOMETRYTU = 0x2;
+static const unsigned short DF_CUSTOM_GEOMETRYTU = 0x3;
+static const unsigned short DF_GEOMETRY_TYPE_BITSTU = 0x3;
+static const unsigned short DF_LIGHTTU = 0x4;
+static const unsigned short DF_GEOMETRYTU = 0x8;
+static const unsigned short DF_STATICTU = 0x10;
+static const unsigned short DF_CAST_SHADOWSTU = 0x20;
+static const unsigned short DF_UPDATE_INVISIBLETU = 0x40;
+static const unsigned short DF_HAS_LOD_LEVELSTU = 0x80;
+static const unsigned short DF_OCTREE_UPDATE_CALLTU = 0x100;
+static const unsigned short DF_WORLD_TRANSFORM_DIRTYTU = 0x200;
+static const unsigned short DF_BOUNDING_BOX_DIRTYTU = 0x400;
+static const unsigned short DF_OCTREE_REINSERT_QUEUEDTU = 0x800;
 
 /// Common base class for renderable scene objects and occluders.
 class OctreeNodeBaseTu : public SpatialNode
@@ -89,7 +89,7 @@ public:
     /// Return max distance for rendering, or 0 for unlimited.
     float MaxDistance() const { return maxDistance; }
     /// Return whether is static.
-    bool IsStatic() const { return TestFlag(DF_STATIC); }
+    bool IsStatic() const { return TestFlag(DF_STATICTU); }
     /// Return last frame number when was visible. The frames are counted by Renderer internally and have no significance outside it.
     unsigned short LastFrameNumber() const { return lastFrameNumber; }
     /// Return last frame number when was reinserted to octree (moved or animated.) The frames are counted by Renderer internally and have no significance outside it.
@@ -108,10 +108,10 @@ public:
     /// Return world space bounding box. Update if necessary.
     const BoundingBoxTu& WorldBoundingBox() const
     {
-        if (TestFlag(DF_BOUNDING_BOX_DIRTY))
+        if (TestFlag(DF_BOUNDING_BOX_DIRTYTU))
         {
             OnWorldBoundingBoxUpdate();
-            SetFlag(DF_BOUNDING_BOX_DIRTY, false);
+            SetFlag(DF_BOUNDING_BOX_DIRTYTU, false);
         }
         return worldBoundingBox;
     }
@@ -119,9 +119,9 @@ public:
     /// Return world transform matrix. Update if necessary
     const Matrix3x4& WorldTransform() const
     {
-        if (TestFlag(DF_WORLD_TRANSFORM_DIRTY))
+        if (TestFlag(DF_WORLD_TRANSFORM_DIRTYTU))
         {
-            SetFlag(DF_WORLD_TRANSFORM_DIRTY, false);
+            SetFlag(DF_WORLD_TRANSFORM_DIRTYTU, false);
             // Update the shared world transform as necessary, then return
             return owner->WorldTransform();
         }
@@ -187,11 +187,11 @@ public:
     /// Return drawable's world space bounding box. Update if necessary. 
     const BoundingBoxTu& WorldBoundingBox() const { return drawable->WorldBoundingBox(); }
     /// Return whether is static.
-    bool IsStatic() const { return drawable->TestFlag(DF_STATIC); }
+    bool IsStatic() const { return drawable->TestFlag(DF_STATICTU); }
     /// Return whether casts shadows.
-    bool CastShadows() const { return drawable->TestFlag(DF_CAST_SHADOWS); }
+    bool CastShadows() const { return drawable->TestFlag(DF_CAST_SHADOWSTU); }
     /// Return whether updates animation when invisible. Not relevant for non-animating geometry.
-    bool UpdateInvisible() const { return drawable->TestFlag(DF_UPDATE_INVISIBLE); }
+    bool UpdateInvisible() const { return drawable->TestFlag(DF_UPDATE_INVISIBLETU); }
     /// Return current octree this node resides in.
     OctreeTu* GetOctree() const { return octree; }
     /// Return the drawable for internal use.

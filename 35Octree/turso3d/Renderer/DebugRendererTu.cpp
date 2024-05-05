@@ -38,11 +38,6 @@ void DebugRendererTu::SetView(CameraTu* camera)
     frustum = camera->WorldFrustum();
 }
 
-void DebugRendererTu::SetViewProjection(const Matrix4f& projection, const Matrix4f& view) {
-	_projection = projection;
-	_view = view;
-}
-
 void DebugRendererTu::AddLine(const Vector3& start, const Vector3& end, const Color& color, bool depthTest)
 {
     AddLine(start, end, color.ToUInt(), depthTest);
@@ -319,14 +314,7 @@ void DebugRendererTu::Render()
 
     Graphics* graphics = Subsystem<Graphics>();
     shaderProgram->Bind();
-	//graphics->SetUniform(shaderProgram, "projection", projection);
-	//graphics->SetUniform(shaderProgram, "view", view);
-	//graphics->SetUniform(shaderProgram, "viewProjMatrix", view * projection);
-
-	graphics->SetUniform(shaderProgram, "projection", _projection);
-	graphics->SetUniform(shaderProgram, "view", _view);
-	graphics->SetUniform(shaderProgram, "viewProjMatrix", _projection * _view);
-
+    graphics->SetUniform(shaderProgram, "viewProjMatrix", projection * view);
     graphics->SetVertexBuffer(vertexBuffer, shaderProgram);
     graphics->SetIndexBuffer(indexBuffer);
 

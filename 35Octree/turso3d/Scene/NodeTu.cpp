@@ -171,7 +171,7 @@ void NodeTu::SetEnabledRecursive(bool enable)
     SetEnabled(enable);
     for (auto it = children.begin(); it != children.end(); ++it)
     {
-		NodeTu* child = *it;
+        NodeTu* child = *it;
         child->SetEnabledRecursive(enable);
     }
 }
@@ -207,7 +207,7 @@ NodeTu* NodeTu::CreateChild(StringHash childType)
         return nullptr;
     }
 #else
-	NodeTu* child = static_cast<NodeTu*>(newObject);
+    NodeTu* child = static_cast<NodeTu*>(newObject);
 #endif
 
     AddChild(child);
@@ -221,7 +221,7 @@ NodeTu* NodeTu::CreateChild(StringHash childType, const std::string& childName)
 
 NodeTu* NodeTu::CreateChild(StringHash childType, const char* childName)
 {
-	NodeTu* child = CreateChild(childType);
+    NodeTu* child = CreateChild(childType);
     if (child)
         child->SetName(childName);
     return child;
@@ -253,7 +253,7 @@ void NodeTu::AddChild(NodeTu* child)
     }
 #endif
 
-	NodeTu* oldParent = child->parent;
+    NodeTu* oldParent = child->parent;
     if (oldParent)
     {
         for (auto it = oldParent->children.begin(); it != oldParent->children.end(); ++it)
@@ -293,7 +293,7 @@ void NodeTu::RemoveChild(size_t index)
     if (index >= children.size())
         return;
 
-	NodeTu* child = children[index];
+    NodeTu* child = children[index];
     // Detach from both the parent and the scene (removes id assignment)
     child->parent = nullptr;
     child->SetFlag(NF_SPATIAL_PARENT, false);
@@ -306,7 +306,7 @@ void NodeTu::RemoveAllChildren()
 {
     for (auto it = children.begin(); it != children.end(); ++it)
     {
-		NodeTu* child = *it;
+        NodeTu* child = *it;
         child->parent = nullptr;
         child->SetFlag(NF_SPATIAL_PARENT, false);
         if (impl->scene)
@@ -329,7 +329,7 @@ size_t NodeTu::NumPersistentChildren() const
 
     for (auto it = children.begin(); it != children.end(); ++it)
     {
-		NodeTu* child = *it;
+        NodeTu* child = *it;
         if (!child->IsTemporary())
             ++ret;
     }
@@ -341,7 +341,7 @@ void NodeTu::FindAllChildren(std::vector<NodeTu*>& result) const
 {
     for (auto it = children.begin(); it != children.end(); ++it)
     {
-		NodeTu* child = *it;
+        NodeTu* child = *it;
         result.push_back(child);
         child->FindAllChildren(result);
     }
@@ -356,12 +356,12 @@ NodeTu* NodeTu::FindChild(const char* childName, bool recursive) const
 {
     for (auto it = children.begin(); it != children.end(); ++it)
     {
-		NodeTu* child = *it;
+        NodeTu* child = *it;
         if (child->impl->name == childName)
             return child;
         else if (recursive && child->children.size())
         {
-			NodeTu* childResult = child->FindChild(childName, recursive);
+            NodeTu* childResult = child->FindChild(childName, recursive);
             if (childResult)
                 return childResult;
         }
@@ -374,12 +374,12 @@ NodeTu* NodeTu::FindChild(StringHash childNameHash, bool recursive) const
 {
     for (auto it = children.begin(); it != children.end(); ++it)
     {
-		NodeTu* child = *it;
+        NodeTu* child = *it;
         if (child->impl->nameHash == childNameHash)
             return child;
         else if (recursive && child->children.size())
         {
-			NodeTu* childResult = child->FindChild(childNameHash, recursive);
+            NodeTu* childResult = child->FindChild(childNameHash, recursive);
             if (childResult)
                 return childResult;
         }
@@ -392,12 +392,12 @@ NodeTu* NodeTu::FindChildOfType(StringHash childType, bool recursive) const
 {
     for (auto it = children.begin(); it != children.end(); ++it)
     {
-		NodeTu* child = *it;
+        NodeTu* child = *it;
         if (child->Type() == childType || DerivedFrom(child->Type(), childType))
             return child;
         else if (recursive && child->children.size())
         {
-			NodeTu* childResult = child->FindChild(childType, recursive);
+            NodeTu* childResult = child->FindChild(childType, recursive);
             if (childResult)
                 return childResult;
         }
@@ -415,12 +415,12 @@ NodeTu* NodeTu::FindChildOfType(StringHash childType, const char* childName, boo
 {
     for (auto it = children.begin(); it != children.end(); ++it)
     {
-		NodeTu* child = *it;
+        NodeTu* child = *it;
         if ((child->Type() == childType || DerivedFrom(child->Type(), childType)) && child->impl->name == childName)
             return child;
         else if (recursive && child->children.size())
         {
-			NodeTu* childResult = child->FindChildOfType(childType, childName, recursive);
+            NodeTu* childResult = child->FindChildOfType(childType, childName, recursive);
             if (childResult)
                 return childResult;
         }
@@ -433,12 +433,12 @@ NodeTu* NodeTu::FindChildOfType(StringHash childType, StringHash childNameHash, 
 {
     for (auto it = children.begin(); it != children.end(); ++it)
     {
-		NodeTu* child = *it;
+        NodeTu* child = *it;
         if ((child->Type() == childType || DerivedFrom(child->Type(), childType)) && child->impl->nameHash == childNameHash)
             return child;
         else if (recursive && child->children.size())
         {
-			NodeTu* childResult = child->FindChildOfType(childType, childNameHash, recursive);
+            NodeTu* childResult = child->FindChildOfType(childType, childNameHash, recursive);
             if (childResult)
                 return childResult;
         }
@@ -450,12 +450,12 @@ NodeTu* NodeTu::FindChildByLayer(unsigned layerMask, bool recursive) const
 {
     for (auto it = children.begin(); it != children.end(); ++it)
     {
-		NodeTu* child = *it;
+        NodeTu* child = *it;
         if (child->LayerMask() && layerMask)
             return child;
         else if (recursive && child->children.size())
         {
-			NodeTu* childResult = child->FindChildByLayer(layerMask, recursive);
+            NodeTu* childResult = child->FindChildByLayer(layerMask, recursive);
             if (childResult)
                 return childResult;
         }
@@ -468,7 +468,7 @@ void NodeTu::FindChildren(std::vector<NodeTu*>& result, StringHash childType, bo
 {
     for (auto it = children.begin(); it != children.end(); ++it)
     {
-		NodeTu* child = *it;
+        NodeTu* child = *it;
         if (child->Type() == childType || DerivedFrom(child->Type(), childType))
             result.push_back(child);
         if (recursive && child->children.size())
@@ -480,7 +480,7 @@ void NodeTu::FindChildrenByLayer(std::vector<NodeTu*>& result, unsigned layerMas
 {
     for (auto it = children.begin(); it != children.end(); ++it)
     {
-		NodeTu* child = *it;
+        NodeTu* child = *it;
         if (child->LayerMask() & layerMask)
             result.push_back(child);
         if (recursive && child->children.size())

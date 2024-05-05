@@ -1,7 +1,6 @@
 // For conditions of distribution and use, see copyright notice in License.txt
 
 #include "FrustumTu.h"
-#include <iostream>
 
 inline Vector3 ClipEdgeZ(const Vector3& v0, const Vector3& v1, float clipZ)
 {
@@ -12,7 +11,7 @@ inline Vector3 ClipEdgeZ(const Vector3& v0, const Vector3& v1, float clipZ)
     );
 }
 
-void ProjectAndMergeEdge(Vector3 v0, Vector3 v1, Rect& rect, const Matrix4& projection)
+void ProjectAndMergeEdge(Vector3 v0, Vector3 v1, RectTu& rect, const Matrix4& projection)
 {
     // Check if both vertices behind near plane
     if (v0.z < M_EPSILON && v1.z < M_EPSILON)
@@ -33,7 +32,7 @@ void ProjectAndMergeEdge(Vector3 v0, Vector3 v1, Rect& rect, const Matrix4& proj
 
 // SAT test code inspired by https://github.com/juj/MathGeoLib/
 
-void SATData::Calculate(const FrustumTu& frustum)
+void SATDataTu::Calculate(const FrustumTu& frustum)
 {
     // Add box normals (constant)
     size_t idx = 0;
@@ -42,7 +41,7 @@ void SATData::Calculate(const FrustumTu& frustum)
     axes[idx++] = Vector3::FORWARD;
 
     // Add frustum normals. Disregard the near plane as it only points the other way from the far plane
-    for (size_t i = 1; i < NUM_FRUSTUM_PLANES; ++i)
+    for (size_t i = 1; i < NUM_FRUSTUM_PLANESTU; ++i)
         axes[idx++] = frustum.planes[i].normal;
 
     // Finally add cross product axes
@@ -62,13 +61,13 @@ void SATData::Calculate(const FrustumTu& frustum)
     }
 
     // Now precalculate the projections of the frustum on each axis
-    for (size_t i = 0; i < NUM_SAT_AXES; ++i)
+    for (size_t i = 0; i < NUM_SAT_AXESTU; ++i)
         frustumProj[i] = frustum.Projected(axes[i]);
 }
 
 FrustumTu::FrustumTu()
 {
-    for (size_t i = 0; i < NUM_FRUSTUM_VERTICES; ++i)
+    for (size_t i = 0; i < NUM_FRUSTUM_VERTICESTU; ++i)
         vertices[i] = Vector3::ZERO;
 
     UpdatePlanes();
@@ -81,80 +80,43 @@ FrustumTu::FrustumTu(const FrustumTu& frustum)
 
 FrustumTu& FrustumTu::operator = (const FrustumTu& rhs)
 {
-    for (size_t i = 0; i < NUM_FRUSTUM_PLANES; ++i)
+    for (size_t i = 0; i < NUM_FRUSTUM_PLANESTU; ++i)
         planes[i] = rhs.planes[i];
-    for (size_t i = 0; i < NUM_FRUSTUM_VERTICES; ++i)
+    for (size_t i = 0; i < NUM_FRUSTUM_VERTICESTU; ++i)
         vertices[i] = rhs.vertices[i];
     
     return *this;
 }
 
-void FrustumTu::Define(const Matrix4& projection, const Matrix4& view) {
-	Matrix4 vp = view * projection;
-
-	planes[PLANE_NEAR].Define(Vector4(vp.m03 + vp.m02, vp.m13 + vp.m12, vp.m23 + vp.m22, vp.m33 + vp.m32));
-	planes[PLANE_FAR].Define(Vector4(vp.m03 - vp.m02, vp.m13 - vp.m12, vp.m23 - vp.m22, vp.m33 - vp.m32));
-
-	planes[PLANE_LEFT].Define(Vector4(vp.m03 + vp.m00, vp.m13 + vp.m10, vp.m23 + vp.m20, vp.m33 + vp.m30));
-	planes[PLANE_RIGHT].Define(Vector4(vp.m03 - vp.m00, vp.m13 - vp.m10, vp.m23 - vp.m20, vp.m33 - vp.m30));
-
-	planes[PLANE_DOWN].Define(Vector4(vp.m03 + vp.m01, vp.m13 + vp.m11, vp.m23 + vp.m21, vp.m33 + vp.m31));
-	planes[PLANE_UP].Define(Vector4(vp.m03 - vp.m01, vp.m13 - vp.m11, vp.m23 - vp.m21, vp.m33 - vp.m31));
-
-	/*Matrix4 vp = projection * view;
-
-	planes[PLANE_NEAR].Define(Vector4(vp.m20, vp.m21, vp.m22, vp.m23));
-	planes[PLANE_FAR].Define(Vector4(vp.m30 - vp.m20, vp.m31 - vp.m21, vp.m32 - vp.m22, vp.m33 - vp.m23));
-
-	planes[PLANE_LEFT].Define(Vector4(vp.m30 + vp.m00, vp.m31 + vp.m01, vp.m32 + vp.m02, vp.m33 + vp.m03));
-	planes[PLANE_RIGHT].Define(Vector4(vp.m30 - vp.m00, vp.m31 - vp.m01, vp.m32 - vp.m02, vp.m33 - vp.m03));
-
-	planes[PLANE_DOWN].Define(Vector4(vp.m30 + vp.m10, vp.m31 + vp.m11, vp.m32 + vp.m12, vp.m33 + vp.m13));
-	planes[PLANE_UP].Define(Vector4(vp.m30 - vp.m10, vp.m31 - vp.m11, vp.m32 - vp.m12, vp.m33 - vp.m13));*/
-}
-
-void FrustumTu::Define(const Matrix4f& projection, const Matrix4f& view) {
-	Matrix4f vp = projection * view;
-
-	planes[PLANE_NEAR].Define(Vector4(vp[0][3] + vp[0][2], vp[1][3] + vp[1][2], vp[2][3] + vp[2][2], vp[3][3] + vp[3][2]));
-	planes[PLANE_FAR].Define(Vector4(vp[0][3] - vp[0][2], vp[1][3] - vp[1][2], vp[2][3] - vp[2][2], vp[3][3] - vp[3][2]));
-
-	planes[PLANE_LEFT].Define(Vector4(vp[0][3] + vp[0][0], vp[1][3] + vp[1][0], vp[2][3] + vp[2][0], vp[3][3] + vp[3][0]));
-	planes[PLANE_RIGHT].Define(Vector4(vp[0][3] - vp[0][0], vp[1][3] - vp[1][0], vp[2][3] - vp[2][0], vp[3][3] - vp[3][0]));
-
-	planes[PLANE_DOWN].Define(Vector4(vp[0][3] + vp[0][1], vp[1][3] + vp[1][1], vp[2][3] + vp[2][1], vp[3][3] + vp[3][1]));
-	planes[PLANE_UP].Define(Vector4(vp[0][3] - vp[0][1], vp[1][3] - vp[1][1], vp[2][3] - vp[2][1], vp[3][3] - vp[3][1]));
-}
-
-void FrustumTu::Define(float fov, float aspectRatio, float zoom, float nearZ, float farZ, const Matrix4& transform)
+void FrustumTu::Define(float fov, float aspectRatio, float zoom, float nearZ, float farZ, const Matrix3x4& transform)
 {
-	nearZ = Max(nearZ, 0.0f);
-	farZ = Max(farZ, nearZ);
-	float halfViewSize = tanf(fov * M_DEGTORAD_2) / zoom;
-	Vector3 near, far;
-
-	near.z = nearZ;
-	near.y = near.z * halfViewSize;
-	near.x = near.y * aspectRatio;
-	far.z = farZ;
-	far.y = far.z * halfViewSize;
-	far.x = far.y * aspectRatio;
-
-	Define(near, far, transform);
+    nearZ = Max(nearZ, 0.0f);
+    farZ = Max(farZ, nearZ);
+    float halfViewSize = tanf(fov * M_DEGTORAD_2) / zoom;
+    Vector3 near, far;
+    
+    near.z = nearZ;
+    near.y = near.z * halfViewSize;
+    near.x = near.y * aspectRatio;
+    far.z = farZ;
+    far.y = far.z * halfViewSize;
+    far.x = far.y * aspectRatio;
+    
+    Define(near, far, transform);
 }
 
-void FrustumTu::Define(const Vector3& near, const Vector3& far, const Matrix4& transform)
+void FrustumTu::Define(const Vector3& near, const Vector3& far, const Matrix3x4& transform)
 {
-	vertices[0] = transform * near;
-	vertices[1] = transform * Vector3(near.x, -near.y, near.z);
-	vertices[2] = transform * Vector3(-near.x, -near.y, near.z);
-	vertices[3] = transform * Vector3(-near.x, near.y, near.z);
-	vertices[4] = transform * far;
-	vertices[5] = transform * Vector3(far.x, -far.y, far.z);
-	vertices[6] = transform * Vector3(-far.x, -far.y, far.z);
-	vertices[7] = transform * Vector3(-far.x, far.y, far.z);
-
-	UpdatePlanes();
+    vertices[0] = transform * near;
+    vertices[1] = transform * Vector3(near.x, -near.y, near.z);
+    vertices[2] = transform * Vector3(-near.x, -near.y, near.z);
+    vertices[3] = transform * Vector3(-near.x, near.y, near.z);
+    vertices[4] = transform * far;
+    vertices[5] = transform * Vector3(far.x, -far.y, far.z);
+    vertices[6] = transform * Vector3(-far.x, -far.y, far.z);
+    vertices[7] = transform * Vector3(-far.x, far.y, far.z);
+    
+    UpdatePlanes();
 }
 
 void FrustumTu::Define(const BoundingBoxTu& box, const Matrix3x4& transform)
@@ -188,7 +150,7 @@ void FrustumTu::DefineOrtho(float orthoSize, float aspectRatio, float zoom, floa
 
 void FrustumTu::Transform(const Matrix3& transform)
 {
-    for (size_t i = 0; i < NUM_FRUSTUM_VERTICES; ++i)
+    for (size_t i = 0; i < NUM_FRUSTUM_VERTICESTU; ++i)
         vertices[i] = transform * vertices[i];
     
     UpdatePlanes();
@@ -196,7 +158,7 @@ void FrustumTu::Transform(const Matrix3& transform)
 
 void FrustumTu::Transform(const Matrix3x4& transform)
 {
-    for (size_t i = 0; i < NUM_FRUSTUM_VERTICES; ++i)
+    for (size_t i = 0; i < NUM_FRUSTUM_VERTICESTU; ++i)
         vertices[i] = transform * vertices[i];
     
     UpdatePlanes();
@@ -205,7 +167,7 @@ void FrustumTu::Transform(const Matrix3x4& transform)
 FrustumTu FrustumTu::Transformed(const Matrix3& transform) const
 {
 	FrustumTu transformed;
-    for (size_t i = 0; i < NUM_FRUSTUM_VERTICES; ++i)
+    for (size_t i = 0; i < NUM_FRUSTUM_VERTICESTU; ++i)
         transformed.vertices[i] = transform * vertices[i];
     
     transformed.UpdatePlanes();
@@ -215,16 +177,16 @@ FrustumTu FrustumTu::Transformed(const Matrix3& transform) const
 FrustumTu FrustumTu::Transformed(const Matrix3x4& transform) const
 {
 	FrustumTu transformed;
-    for (size_t i = 0; i < NUM_FRUSTUM_VERTICES; ++i)
+    for (size_t i = 0; i < NUM_FRUSTUM_VERTICESTU; ++i)
         transformed.vertices[i] = transform * vertices[i];
     
     transformed.UpdatePlanes();
     return transformed;
 }
 
-Rect FrustumTu::Projected(const Matrix4& projection) const
+RectTu FrustumTu::Projected(const Matrix4& projection) const
 {
-    Rect rect;
+	RectTu rect;
     
     ProjectAndMergeEdge(vertices[0], vertices[4], rect, projection);
     ProjectAndMergeEdge(vertices[1], vertices[5], rect, projection);
@@ -243,7 +205,7 @@ std::pair<float, float> FrustumTu::Projected(const Vector3& axis) const
     std::pair<float, float> ret;
     ret.first = ret.second = axis.DotProduct(vertices[0]);
 
-    for (size_t i = 1; i < NUM_FRUSTUM_VERTICES; ++i)
+    for (size_t i = 1; i < NUM_FRUSTUM_VERTICESTU; ++i)
     {
         float proj = axis.DotProduct(vertices[i]);
         ret.first = Min(proj, ret.first);
@@ -265,7 +227,7 @@ void FrustumTu::UpdatePlanes()
     // Check if we ended up with inverted planes (reflected transform) and flip in that case
     if (planes[PLANE_NEAR].Distance(vertices[5]) < 0.0f)
     {
-        for (size_t i = 0; i < NUM_FRUSTUM_PLANES; ++i)
+        for (size_t i = 0; i < NUM_FRUSTUM_PLANESTU; ++i)
         {
             planes[i].normal = -planes[i].normal;
             planes[i].d = -planes[i].d;

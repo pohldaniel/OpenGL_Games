@@ -136,7 +136,7 @@ Graphics::Graphics(const char* windowTitle, const IntVector2& windowSize) :
 
 Graphics::~Graphics()
 {
-   
+    
 }
 
 bool Graphics::Initialize()
@@ -223,12 +223,16 @@ void Graphics::Resize(const IntVector2& size)
 
 void Graphics::SetFullscreen(bool enable)
 {
-    
+   
 }
 
 void Graphics::SetVSync(bool enable)
 {
-    
+    if (IsInitialized())
+    {
+       
+        vsync = enable;
+    }
 }
 
 void Graphics::Present()
@@ -337,16 +341,6 @@ void Graphics::SetUniform(ShaderProgram* program, PresetUniform uniform, const M
     }
 }
 
-void Graphics::SetUniform(ShaderProgram* program, PresetUniform uniform, const Matrix4f& value)
-{
-	if (program)
-	{
-		int location = program->Uniform(uniform);
-		if (location >= 0)
-			glUniformMatrix4fv(location, 1, GL_FALSE, &value[0][0]);
-	}
-}
-
 void Graphics::SetUniform(ShaderProgram* program, const char* name, float value)
 {
     if (program)
@@ -407,16 +401,6 @@ void Graphics::SetUniform(ShaderProgram* program, const char* name, const Matrix
     }
 }
 
-void Graphics::SetUniform(ShaderProgram* program, const char* name, const Matrix4f& value)
-{
-	if (program)
-	{
-		int location = program->Uniform(name);
-		if (location >= 0)
-			glUniformMatrix4fv(location, 1, GL_FALSE, &value[0][0]);
-	}
-}
-
 void Graphics::SetUniformBuffer(size_t index, UniformBuffer* buffer)
 {
     if (buffer)
@@ -461,7 +445,7 @@ void Graphics::SetRenderState(BlendMode blendMode, CullMode cullMode, CompareMod
         lastBlendMode = blendMode;
     }
 
-    /*if (cullMode != lastCullMode)
+    if (cullMode != lastCullMode)
     {
         if (cullMode == CULL_NONE)
             glDisable(GL_CULL_FACE);
@@ -473,7 +457,7 @@ void Graphics::SetRenderState(BlendMode blendMode, CullMode cullMode, CompareMod
         }
 
         lastCullMode = cullMode;
-    }*/
+    }
 
     if (depthTest != lastDepthTest)
     {
@@ -723,20 +707,20 @@ void Graphics::CheckOcclusionQueryResults(std::vector<OcclusionQueryResult>& res
 IntVector2 Graphics::Size() const
 {
     IntVector2 size;
-    
+   
     return size;
 }
 
 IntVector2 Graphics::RenderSize() const
 {
     IntVector2 size;
-
+    
     return size;
 }
 
 bool Graphics::IsFullscreen() const
 {
-    return false;
+	return false;
 }
 
 void Graphics::DefineQuadVertexBuffer()

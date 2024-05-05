@@ -24,78 +24,78 @@ public:
     Vector3 max;
     
     /// Construct as undefined (negative size.)
-	BoundingBoxTu() :
+    BoundingBoxTu() :
         min(Vector3(M_INFINITY, M_INFINITY, M_INFINITY)),
         max(Vector3(-M_INFINITY, -M_INFINITY, -M_INFINITY))
     {
     }
     
     /// Copy-construct.
-	BoundingBoxTu(const BoundingBoxTu& box) :
+    BoundingBoxTu(const BoundingBoxTu& box) :
         min(box.min),
         max(box.max)
     {
     }
     
     /// Construct from a rect, with the Z dimension left zero.
-	BoundingBoxTu(const Rect& rect) :
+    BoundingBoxTu(const RectTu& rect) :
         min(Vector3(rect.min)),
         max(Vector3(rect.max))
     {
     }
     
     /// Construct from minimum and maximum vectors.
-	BoundingBoxTu(const Vector3& min_, const Vector3& max_) :
+    BoundingBoxTu(const Vector3& min_, const Vector3& max_) :
         min(min_),
         max(max_)
     {
     }
     
     /// Construct from minimum and maximum floats (all dimensions same.)
-	BoundingBoxTu(float min_, float max_) :
+    BoundingBoxTu(float min_, float max_) :
         min(Vector3(min_, min_, min_)),
         max(Vector3(max_, max_, max_))
     {
     }
     
     /// Construct from an array of vertices.
-	BoundingBoxTu(const Vector3* vertices, size_t count)
+    BoundingBoxTu(const Vector3* vertices, size_t count)
     {
         Define(vertices, count);
     }
     
     /// Construct from a frustum.
-	BoundingBoxTu(const FrustumTu& frustum)
+    BoundingBoxTu(const FrustumTu& frustum)
     {
         Define(frustum);
     }
     
     /// Construct from a polyhedron.
-	BoundingBoxTu(const Polyhedron& poly)
+    BoundingBoxTu(const Polyhedron& poly)
     {
         Define(poly);
     }
     
     /// Construct from a sphere.
-	BoundingBoxTu(const Sphere& sphere)
+    BoundingBoxTu(const Sphere& sphere)
     {
         Define(sphere);
     }
     
     /// Construct by parsing a string.
-	BoundingBoxTu(const std::string& str)
+    BoundingBoxTu(const std::string& str)
     {
         FromString(str.c_str());
     }
     
     /// Construct by parsing a C string.
-	BoundingBoxTu(const char* str)
+    BoundingBoxTu(const char* str)
     {
         FromString(str);
     }
     
     /// Assign from another bounding box.
-	BoundingBoxTu& operator = (const BoundingBoxTu& rhs)
+    BoundingBoxTu& operator = (const BoundingBoxTu& rhs)
     {
         min = rhs.min;
         max = rhs.max;
@@ -103,7 +103,7 @@ public:
     }
     
     /// Assign from a Rect, with the Z dimension left zero.
-	BoundingBoxTu& operator = (const Rect& rhs)
+    BoundingBoxTu& operator = (const RectTu& rhs)
     {
         min = Vector3(rhs.min);
         max = Vector3(rhs.max);
@@ -123,7 +123,7 @@ public:
     }
     
     /// Define from a Rect.
-    void Define(const Rect& rect)
+    void Define(const RectTu& rect)
     {
         min = Vector3(rect.min);
         max = Vector3(rect.max);
@@ -293,11 +293,11 @@ public:
     }
     
     /// Return transformed by a 3x3 matrix.
-	BoundingBoxTu Transformed(const Matrix3 & transform) const;
+    BoundingBoxTu Transformed(const Matrix3 & transform) const;
     /// Return transformed by a 3x4 matrix.
-	BoundingBoxTu Transformed(const Matrix3x4 & transform) const;
+    BoundingBoxTu Transformed(const Matrix3x4 & transform) const;
     /// Return projected by a 4x4 projection matrix.
-    Rect Projected(const Matrix4 & projection) const;
+	RectTu Projected(const Matrix4 & projection) const;
 
     /// Return projected by an axis to 1D coordinates.
     std::pair<float, float> Projected(const Vector3& axis) const

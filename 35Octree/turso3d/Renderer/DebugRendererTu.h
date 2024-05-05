@@ -6,7 +6,6 @@
 #include "../Math/Color.h"
 #include "../Math/FrustumTu.h"
 #include "../Object/ObjectTu.h"
-#include "engine/Vector.h"
 
 class BoundingBoxTu;
 class CameraTu;
@@ -21,7 +20,7 @@ class VertexBuffer;
 struct DebugVertexTu
 {
     /// Construct with values.
-	DebugVertexTu(const Vector3& position_, unsigned color_) :
+    DebugVertexTu(const Vector3& position_, unsigned color_) :
         position(position_),
         color(color_)
     {
@@ -36,7 +35,7 @@ struct DebugVertexTu
 /// Debug line geometry rendering subsystem.
 class DebugRendererTu : public ObjectTu
 {
-    OBJECT(DebugRendererTu);
+    OBJECT(DebugRenderer);
 
 public:
     /// Construct. Register subsystem. Graphics subsystem must have been initialized.
@@ -46,7 +45,6 @@ public:
 
     /// Set the camera viewpoint. Call before rendering, or before adding geometry if you want to use culling.
     void SetView(CameraTu* camera);
-	void SetViewProjection(const Matrix4f& projection, const Matrix4f& view);
     /// Add a line.
     void AddLine(const Vector3& start, const Vector3& end, const Color& color, bool depthTest = true);
     /// Add a line with color already converted to unsigned.
@@ -77,11 +75,9 @@ private:
     /// Indices rendered without depth test.
     std::vector<unsigned> noDepthIndices;
     /// View transform.
-    Matrix4 view;
-	Matrix4f _view;
+    Matrix3x4 view;
     /// Projection transform.
     Matrix4 projection;
-	Matrix4f _projection;
     /// View frustum.
     FrustumTu frustum;
     /// Vertex buffer for the debug geometry.

@@ -6,11 +6,11 @@
 #include <utility>
 #include <cstdlib>
 
-const Rect Rect::FULL(-1.0f, -1.0f, 1.0f, 1.0f);
-const Rect Rect::POSITIVE(0.0f, 0.0f, 1.0f, 1.0f);
-const Rect Rect::ZERO(0.0f, 0.0f, 0.0f, 0.0f);
+const RectTu RectTu::FULL(-1.0f, -1.0f, 1.0f, 1.0f);
+const RectTu RectTu::POSITIVE(0.0f, 0.0f, 1.0f, 1.0f);
+const RectTu RectTu::ZERO(0.0f, 0.0f, 0.0f, 0.0f);
 
-void Rect::Clip(const Rect& rect)
+void RectTu::Clip(const RectTu& rect)
 {
     if (rect.min.x > min.x)
         min.x = rect.min.x;
@@ -27,7 +27,7 @@ void Rect::Clip(const Rect& rect)
         std::swap(min.y, max.y);
 }
 
-bool Rect::FromString(const char* string)
+bool RectTu::FromString(const char* string)
 {
     size_t elements = CountElements(string);
     if (elements < 4)
@@ -42,7 +42,7 @@ bool Rect::FromString(const char* string)
     return true;
 }
 
-std::string Rect::ToString() const
+std::string RectTu::ToString() const
 {
     return min.ToString() + " " + max.ToString();
 }

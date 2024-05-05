@@ -33,7 +33,7 @@ struct FunctionTaskTu : public TaskTu
     typedef void (*WorkFunctionPtr)(TaskTu*, unsigned);
 
     /// Construct.
-	FunctionTaskTu(WorkFunctionPtr function_) :
+    FunctionTaskTu(WorkFunctionPtr function_) :
         function(function_)
     {
     }
@@ -54,7 +54,7 @@ template<class T> struct MemberFunctionTaskTu : public TaskTu
     typedef void (T::* MemberWorkFunctionPtr)(TaskTu*, unsigned);
 
     /// Construct.
-	MemberFunctionTaskTu(T* object_, MemberWorkFunctionPtr function_) :
+    MemberFunctionTaskTu(T* object_, MemberWorkFunctionPtr function_) :
         object(object_),
         function(function_)
     {
@@ -75,11 +75,11 @@ template<class T> struct MemberFunctionTaskTu : public TaskTu
 /// Worker thread subsystem for dividing tasks between CPU cores.
 class WorkQueueTu : public ObjectTu
 {
-    OBJECT(WorkQueueTu);
+    OBJECT(WorkQueue);
 
 public:
     /// Create with specified amount of threads including the main thread. 1 to use just the main thread. 0 to guess a suitable amount of threads from CPU core count.
-	WorkQueueTu(unsigned numThreads);
+    WorkQueueTu(unsigned numThreads);
     /// Destruct. Stop worker threads.
     ~WorkQueueTu();
 

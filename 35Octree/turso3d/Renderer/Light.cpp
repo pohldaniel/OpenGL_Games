@@ -64,7 +64,7 @@ LightDrawable::LightDrawable() :
     slopeScaleBias(DEFAULT_SLOPESCALE_BIAS),
     shadowMap(nullptr)
 {
-    SetFlag(DF_LIGHT, true);
+    SetFlag(DF_LIGHTTU, true);
 }
 
 void LightDrawable::OnWorldBoundingBoxUpdate() const
@@ -182,7 +182,7 @@ Color LightDrawable::EffectiveColor() const
 
 float LightDrawable::ShadowStrength() const
 {
-    if (!TestFlag(DF_CAST_SHADOWS))
+    if (!TestFlag(DF_CAST_SHADOWSTU))
         return 1.0f;
 
     if (lightType != LIGHT_DIRECTIONAL && shadowMaxDistance > 0.0f)
@@ -202,7 +202,7 @@ Vector2 LightDrawable::ShadowCascadeSplits() const
 
 size_t LightDrawable::NumShadowViews() const
 {
-    if (!TestFlag(DF_CAST_SHADOWS))
+    if (!TestFlag(DF_CAST_SHADOWSTU))
         return 0;
     else if (lightType == LIGHT_DIRECTIONAL)
         return 2;
@@ -283,7 +283,7 @@ bool LightDrawable::SetupShadowView(size_t viewIndex, CameraTu* mainCamera, cons
 
         // Calculate main camera shadowed frustum in light's view space. Then convert to polyhedron and clip with visible geometry, and transform to shadow camera's space
         FrustumTu splitFrustum = mainCamera->WorldSplitFrustum(view.splitMinZ, view.splitMaxZ);
-		BoundingBoxTu shadowBox;
+        BoundingBoxTu shadowBox;
 
         if (geometryBounds)
         {

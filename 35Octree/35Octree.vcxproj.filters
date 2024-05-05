@@ -97,41 +97,41 @@
     <Filter Include="Source Files\States\Particle">
       <UniqueIdentifier>{414bd1c9-6293-450f-9c40-a8ee318da21b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="turso3d">
-      <UniqueIdentifier>{03eeb25f-7e9e-41e2-a1ab-6f18687f2189}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="turso3d\Graphics">
-      <UniqueIdentifier>{8aff2d08-3402-4b0b-bcd2-88c9ce796882}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="turso3d\Input">
-      <UniqueIdentifier>{ae279fab-6e7d-4379-8515-65ba089ba9b2}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="turso3d\IO">
-      <UniqueIdentifier>{6719af9f-40f9-4dbe-a2f8-3abb8a59243c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="turso3d\Math">
-      <UniqueIdentifier>{376d6397-7c55-430c-b12c-b9b0fb1cd927}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="turso3d\Object">
-      <UniqueIdentifier>{a0db089c-6c41-40e1-89c6-5374e2667e1b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="turso3d\Renderer">
-      <UniqueIdentifier>{41d9b11c-d37f-4b73-a3b4-60b43281eb9a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="turso3d\Resource">
-      <UniqueIdentifier>{d0edaa62-1302-4263-bf6b-b0bb905be719}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="turso3d\Scene">
-      <UniqueIdentifier>{045d855a-7e51-4c18-ba52-5a0f05390724}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="turso3d\Thread">
-      <UniqueIdentifier>{98cd7ebb-3f3d-4ffa-9fc3-213666473392}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="turso3d\Time">
-      <UniqueIdentifier>{9c59ceaa-519c-4829-8f43-518756e43cd4}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Tracy">
       <UniqueIdentifier>{5898abd4-d634-4ee4-a74c-c47885939261}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="turso3d">
+      <UniqueIdentifier>{7a9e236a-e5c0-4d26-91ce-e9b0273a9d86}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="turso3d\Graphics">
+      <UniqueIdentifier>{ff77f73b-0e3f-4faa-9039-f2b1bca6189c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="turso3d\Input">
+      <UniqueIdentifier>{3c325d8f-6e0e-4453-98ab-0b9b0cddf97e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="turso3d\IO">
+      <UniqueIdentifier>{f7d38889-5d93-4187-b614-08a4f1153392}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="turso3d\Math">
+      <UniqueIdentifier>{2a1cf971-0422-4903-8cd8-880e520b0451}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="turso3d\Object">
+      <UniqueIdentifier>{8eaad6e3-a3f8-49c3-9202-c2fccd044296}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="turso3d\Renderer">
+      <UniqueIdentifier>{0b22e953-fb6f-484c-99e7-f81441d48621}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="turso3d\Resource">
+      <UniqueIdentifier>{0e7f9363-4f09-4b23-bc2d-91bf64f9f78b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="turso3d\Scene">
+      <UniqueIdentifier>{f390fbc3-49ad-41d5-b473-ff775a7cfecf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="turso3d\Thread">
+      <UniqueIdentifier>{9d543769-1eba-407a-96d6-f0c9c36630d2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="turso3d\Time">
+      <UniqueIdentifier>{4fed2a82-e1d4-41aa-8097-521f3d18e797}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -558,6 +558,9 @@
     <ClCompile Include="src\States\OcclusionQuery.cpp">
       <Filter>Source Files\States</Filter>
     </ClCompile>
+    <ClCompile Include="Tracy\TracyClient.cpp">
+      <Filter>Tracy</Filter>
+    </ClCompile>
     <ClCompile Include="turso3d\Graphics\FrameBufferTu.cpp">
       <Filter>turso3d\Graphics</Filter>
     </ClCompile>
@@ -681,31 +684,43 @@
     <ClCompile Include="turso3d\Math\Vector4.cpp">
       <Filter>turso3d\Math</Filter>
     </ClCompile>
-    <ClCompile Include="turso3d\Object\Allocator.cpp">
-      <Filter>turso3d\Object</Filter>
+    <ClCompile Include="turso3d\Time\Profiler.cpp">
+      <Filter>turso3d\Time</Filter>
     </ClCompile>
-    <ClCompile Include="turso3d\Object\Attribute.cpp">
-      <Filter>turso3d\Object</Filter>
+    <ClCompile Include="turso3d\Time\TimerTu.cpp">
+      <Filter>turso3d\Time</Filter>
     </ClCompile>
-    <ClCompile Include="turso3d\Object\EventTu.cpp">
-      <Filter>turso3d\Object</Filter>
+    <ClCompile Include="turso3d\Time\TimeUtils.cpp">
+      <Filter>turso3d\Time</Filter>
     </ClCompile>
-    <ClCompile Include="turso3d\Object\ObjectResolver.cpp">
-      <Filter>turso3d\Object</Filter>
+    <ClCompile Include="turso3d\Thread\WorkQueueTu.cpp">
+      <Filter>turso3d\Thread</Filter>
     </ClCompile>
-    <ClCompile Include="turso3d\Object\ObjectTu.cpp">
-      <Filter>turso3d\Object</Filter>
+    <ClCompile Include="turso3d\Scene\NodeTu.cpp">
+      <Filter>turso3d\Scene</Filter>
     </ClCompile>
-    <ClCompile Include="turso3d\Object\Ptr.cpp">
-      <Filter>turso3d\Object</Filter>
+    <ClCompile Include="turso3d\Scene\Scene.cpp">
+      <Filter>turso3d\Scene</Filter>
     </ClCompile>
-    <ClCompile Include="turso3d\Object\Serializable.cpp">
-      <Filter>turso3d\Object</Filter>
+    <ClCompile Include="turso3d\Scene\SpatialNode.cpp">
+      <Filter>turso3d\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="turso3d\Resource\Decompress.cpp">
+      <Filter>turso3d\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="turso3d\Resource\Image.cpp">
+      <Filter>turso3d\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="turso3d\Resource\JSONFile.cpp">
+      <Filter>turso3d\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="turso3d\Resource\Resource.cpp">
+      <Filter>turso3d\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="turso3d\Resource\ResourceCache.cpp">
+      <Filter>turso3d\Resource</Filter>
     </ClCompile>
     <ClCompile Include="turso3d\Renderer\AnimatedModelTu.cpp">
-      <Filter>turso3d\Renderer</Filter>
-    </ClCompile>
-    <ClCompile Include="turso3d\Renderer\AnimationControllerTu.cpp">
       <Filter>turso3d\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="turso3d\Renderer\AnimationStateTu.cpp">
@@ -750,50 +765,26 @@
     <ClCompile Include="turso3d\Renderer\StaticModel.cpp">
       <Filter>turso3d\Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="turso3d\Resource\Decompress.cpp">
-      <Filter>turso3d\Resource</Filter>
+    <ClCompile Include="turso3d\Object\Allocator.cpp">
+      <Filter>turso3d\Object</Filter>
     </ClCompile>
-    <ClCompile Include="turso3d\Resource\Image.cpp">
-      <Filter>turso3d\Resource</Filter>
+    <ClCompile Include="turso3d\Object\Attribute.cpp">
+      <Filter>turso3d\Object</Filter>
     </ClCompile>
-    <ClCompile Include="turso3d\Resource\JSONFile.cpp">
-      <Filter>turso3d\Resource</Filter>
+    <ClCompile Include="turso3d\Object\EventTu.cpp">
+      <Filter>turso3d\Object</Filter>
     </ClCompile>
-    <ClCompile Include="turso3d\Resource\Resource.cpp">
-      <Filter>turso3d\Resource</Filter>
+    <ClCompile Include="turso3d\Object\ObjectResolver.cpp">
+      <Filter>turso3d\Object</Filter>
     </ClCompile>
-    <ClCompile Include="turso3d\Resource\ResourceCache.cpp">
-      <Filter>turso3d\Resource</Filter>
+    <ClCompile Include="turso3d\Object\ObjectTu.cpp">
+      <Filter>turso3d\Object</Filter>
     </ClCompile>
-    <ClCompile Include="turso3d\Scene\NodeTu.cpp">
-      <Filter>turso3d\Scene</Filter>
+    <ClCompile Include="turso3d\Object\Ptr.cpp">
+      <Filter>turso3d\Object</Filter>
     </ClCompile>
-    <ClCompile Include="turso3d\Scene\Scene.cpp">
-      <Filter>turso3d\Scene</Filter>
-    </ClCompile>
-    <ClCompile Include="turso3d\Scene\SpatialNode.cpp">
-      <Filter>turso3d\Scene</Filter>
-    </ClCompile>
-    <ClCompile Include="turso3d\Scene\SplinePath.cpp">
-      <Filter>turso3d\Scene</Filter>
-    </ClCompile>
-    <ClCompile Include="turso3d\Thread\WorkQueueTu.cpp">
-      <Filter>turso3d\Thread</Filter>
-    </ClCompile>
-    <ClCompile Include="turso3d\Time\Profiler.cpp">
-      <Filter>turso3d\Time</Filter>
-    </ClCompile>
-    <ClCompile Include="turso3d\Time\TimerTu.cpp">
-      <Filter>turso3d\Time</Filter>
-    </ClCompile>
-    <ClCompile Include="turso3d\Time\TimeUtils.cpp">
-      <Filter>turso3d\Time</Filter>
-    </ClCompile>
-    <ClCompile Include="turso3d\Spline.cpp">
-      <Filter>turso3d</Filter>
-    </ClCompile>
-    <ClCompile Include="Tracy\TracyClient.cpp">
-      <Filter>Tracy</Filter>
+    <ClCompile Include="turso3d\Object\Serializable.cpp">
+      <Filter>turso3d\Object</Filter>
     </ClCompile>
     <ClCompile Include="src\States\Turso.cpp">
       <Filter>Source Files\States</Filter>
@@ -1583,31 +1574,43 @@
     <ClInclude Include="turso3d\Math\Vector4.h">
       <Filter>turso3d\Math</Filter>
     </ClInclude>
-    <ClInclude Include="turso3d\Object\Allocator.h">
-      <Filter>turso3d\Object</Filter>
+    <ClInclude Include="turso3d\Time\Profiler.h">
+      <Filter>turso3d\Time</Filter>
     </ClInclude>
-    <ClInclude Include="turso3d\Object\Attribute.h">
-      <Filter>turso3d\Object</Filter>
+    <ClInclude Include="turso3d\Time\TimerTu.h">
+      <Filter>turso3d\Time</Filter>
     </ClInclude>
-    <ClInclude Include="turso3d\Object\EventTu.h">
-      <Filter>turso3d\Object</Filter>
+    <ClInclude Include="turso3d\Time\TimeUtils.h">
+      <Filter>turso3d\Time</Filter>
     </ClInclude>
-    <ClInclude Include="turso3d\Object\ObjectResolver.h">
-      <Filter>turso3d\Object</Filter>
+    <ClInclude Include="turso3d\Thread\WorkQueueTu.h">
+      <Filter>turso3d\Thread</Filter>
     </ClInclude>
-    <ClInclude Include="turso3d\Object\ObjectTu.h">
-      <Filter>turso3d\Object</Filter>
+    <ClInclude Include="turso3d\Scene\NodeTu.h">
+      <Filter>turso3d\Scene</Filter>
     </ClInclude>
-    <ClInclude Include="turso3d\Object\Ptr.h">
-      <Filter>turso3d\Object</Filter>
+    <ClInclude Include="turso3d\Scene\Scene.h">
+      <Filter>turso3d\Scene</Filter>
     </ClInclude>
-    <ClInclude Include="turso3d\Object\Serializable.h">
-      <Filter>turso3d\Object</Filter>
+    <ClInclude Include="turso3d\Scene\SpatialNode.h">
+      <Filter>turso3d\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="turso3d\Resource\Decompress.h">
+      <Filter>turso3d\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="turso3d\Resource\Image.h">
+      <Filter>turso3d\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="turso3d\Resource\JSONFile.h">
+      <Filter>turso3d\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="turso3d\Resource\Resource.h">
+      <Filter>turso3d\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="turso3d\Resource\ResourceCache.h">
+      <Filter>turso3d\Resource</Filter>
     </ClInclude>
     <ClInclude Include="turso3d\Renderer\AnimatedModelTu.h">
-      <Filter>turso3d\Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="turso3d\Renderer\AnimationControllerTu.h">
       <Filter>turso3d\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="turso3d\Renderer\AnimationStateTu.h">
@@ -1652,47 +1655,26 @@
     <ClInclude Include="turso3d\Renderer\StaticModel.h">
       <Filter>turso3d\Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="turso3d\Resource\Decompress.h">
-      <Filter>turso3d\Resource</Filter>
+    <ClInclude Include="turso3d\Object\Allocator.h">
+      <Filter>turso3d\Object</Filter>
     </ClInclude>
-    <ClInclude Include="turso3d\Resource\Image.h">
-      <Filter>turso3d\Resource</Filter>
+    <ClInclude Include="turso3d\Object\Attribute.h">
+      <Filter>turso3d\Object</Filter>
     </ClInclude>
-    <ClInclude Include="turso3d\Resource\JSONFile.h">
-      <Filter>turso3d\Resource</Filter>
+    <ClInclude Include="turso3d\Object\EventTu.h">
+      <Filter>turso3d\Object</Filter>
     </ClInclude>
-    <ClInclude Include="turso3d\Resource\Resource.h">
-      <Filter>turso3d\Resource</Filter>
+    <ClInclude Include="turso3d\Object\ObjectResolver.h">
+      <Filter>turso3d\Object</Filter>
     </ClInclude>
-    <ClInclude Include="turso3d\Resource\ResourceCache.h">
-      <Filter>turso3d\Resource</Filter>
+    <ClInclude Include="turso3d\Object\ObjectTu.h">
+      <Filter>turso3d\Object</Filter>
     </ClInclude>
-    <ClInclude Include="turso3d\Scene\NodeTu.h">
-      <Filter>turso3d\Scene</Filter>
+    <ClInclude Include="turso3d\Object\Ptr.h">
+      <Filter>turso3d\Object</Filter>
     </ClInclude>
-    <ClInclude Include="turso3d\Scene\Scene.h">
-      <Filter>turso3d\Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="turso3d\Scene\SpatialNode.h">
-      <Filter>turso3d\Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="turso3d\Scene\SplinePath.h">
-      <Filter>turso3d\Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="turso3d\Thread\WorkQueueTu.h">
-      <Filter>turso3d\Thread</Filter>
-    </ClInclude>
-    <ClInclude Include="turso3d\Time\Profiler.h">
-      <Filter>turso3d\Time</Filter>
-    </ClInclude>
-    <ClInclude Include="turso3d\Time\TimerTu.h">
-      <Filter>turso3d\Time</Filter>
-    </ClInclude>
-    <ClInclude Include="turso3d\Time\TimeUtils.h">
-      <Filter>turso3d\Time</Filter>
-    </ClInclude>
-    <ClInclude Include="turso3d\Spline.h">
-      <Filter>turso3d</Filter>
+    <ClInclude Include="turso3d\Object\Serializable.h">
+      <Filter>turso3d\Object</Filter>
     </ClInclude>
     <ClInclude Include="src\States\Turso.h">
       <Filter>Source Files\States</Filter>

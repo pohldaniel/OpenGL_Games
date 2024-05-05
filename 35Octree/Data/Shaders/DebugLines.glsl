@@ -1,7 +1,5 @@
 #ifdef COMPILEVS
 
-uniform mat4 projection;
-uniform mat4 view;
 uniform mat4 viewProjMatrix;
 
 in vec3 position;
@@ -19,8 +17,7 @@ out vec4 fragColor;
 void vert()
 {
     vColor = color;
-    //gl_Position = vec4(position, 1.0) * view * projection;
-	gl_Position = viewProjMatrix * vec4(position, 1.0);
+    gl_Position = vec4(position, 1.0) * viewProjMatrix;
 }
 
 void frag()

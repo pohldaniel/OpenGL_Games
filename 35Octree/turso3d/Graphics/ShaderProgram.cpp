@@ -98,17 +98,17 @@ int ShaderProgram::Uniform(StringHash name) const
     return it != uniforms.end() ? it->second : -1;
 }
 
-bool ShaderProgram::Bind(bool force)
+bool ShaderProgram::Bind()
 {
-	if (!program)
-		return false;
+    if (!program)
+        return false;
 
-	if (boundProgram == this && !force)
-		return true;
+    if (boundProgram == this)
+        return true;
 
-	glUseProgram(program);
-	boundProgram = this;
-	return true;
+    glUseProgram(program);
+    boundProgram = this;
+    return true;
 }
 
 void ShaderProgram::Create(const std::string& sourceCode, const std::vector<std::string>& vsDefines, const std::vector<std::string>& fsDefines)

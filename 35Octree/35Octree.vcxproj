@@ -355,7 +355,6 @@
     <ClCompile Include="turso3d\Object\Ptr.cpp" />
     <ClCompile Include="turso3d\Object\Serializable.cpp" />
     <ClCompile Include="turso3d\Renderer\AnimatedModelTu.cpp" />
-    <ClCompile Include="turso3d\Renderer\AnimationControllerTu.cpp" />
     <ClCompile Include="turso3d\Renderer\AnimationStateTu.cpp" />
     <ClCompile Include="turso3d\Renderer\AnimationTu.cpp" />
     <ClCompile Include="turso3d\Renderer\Batch.cpp" />
@@ -378,8 +377,6 @@
     <ClCompile Include="turso3d\Scene\NodeTu.cpp" />
     <ClCompile Include="turso3d\Scene\Scene.cpp" />
     <ClCompile Include="turso3d\Scene\SpatialNode.cpp" />
-    <ClCompile Include="turso3d\Scene\SplinePath.cpp" />
-    <ClCompile Include="turso3d\Spline.cpp" />
     <ClCompile Include="turso3d\Thread\WorkQueueTu.cpp" />
     <ClCompile Include="turso3d\Time\Profiler.cpp" />
     <ClCompile Include="turso3d\Time\TimerTu.cpp" />
@@ -656,7 +653,6 @@
     <ClInclude Include="turso3d\Object\Ptr.h" />
     <ClInclude Include="turso3d\Object\Serializable.h" />
     <ClInclude Include="turso3d\Renderer\AnimatedModelTu.h" />
-    <ClInclude Include="turso3d\Renderer\AnimationControllerTu.h" />
     <ClInclude Include="turso3d\Renderer\AnimationStateTu.h" />
     <ClInclude Include="turso3d\Renderer\AnimationTu.h" />
     <ClInclude Include="turso3d\Renderer\Batch.h" />
@@ -679,8 +675,6 @@
     <ClInclude Include="turso3d\Scene\NodeTu.h" />
     <ClInclude Include="turso3d\Scene\Scene.h" />
     <ClInclude Include="turso3d\Scene\SpatialNode.h" />
-    <ClInclude Include="turso3d\Scene\SplinePath.h" />
-    <ClInclude Include="turso3d\Spline.h" />
     <ClInclude Include="turso3d\Thread\WorkQueueTu.h" />
     <ClInclude Include="turso3d\Time\Profiler.h" />
     <ClInclude Include="turso3d\Time\TimerTu.h" />

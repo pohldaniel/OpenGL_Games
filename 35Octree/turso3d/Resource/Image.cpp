@@ -8,8 +8,9 @@
 #include <cstdlib>
 #include <cstring>
 #include <tracy/Tracy.hpp>
-#include <SOIL2/SOIL2.h>
+#include <SOIL2/stb_image.h>
 #include <SOIL2/stb_image_write.h>
+
 #ifndef MAKEFOURCC
 #define MAKEFOURCC(ch0, ch1, ch2, ch3) ((unsigned)(ch0) | ((unsigned)(ch1) << 8) | ((unsigned)(ch2) << 16) | ((unsigned)(ch3) << 24))
 #endif
@@ -484,7 +485,7 @@ bool Image::BeginLoad(Stream& source)
         unsigned char* pixelData = DecodePixelData(source, imageWidth, imageHeight, imageDepth, imageComponents);
         if (!pixelData)
         {
-            //LOGERROR("Could not load image " + source.Name() + ": " + std::string(stbi_failure_reason()));
+            LOGERROR("Could not load image " + source.Name() + ": " + std::string(stbi_failure_reason()));
             return false;
         }
         
@@ -517,7 +518,30 @@ bool Image::BeginLoad(Stream& source)
 
 bool Image::Save(Stream& dest)
 {
-	return false;
+    ZoneScoped;
+
+    if (IsCompressed())
+    {
+        LOGERROR("Can not save compressed image " + Name());
+        return false;
+    }
+
+    if (!data)
+    {
+        LOGERROR("Can not save zero-sized image " + Name());
+        return false;
+    }
+
+    int pixelByteSize = (int)PixelByteSize();
+    if (pixelByteSize < 1 || pixelByteSize > 4)
+    {
+        LOGERROR("Unsupported pixel format for PNG save on image " + Name());
+        return false;
+    }
+
+   
+   
+    return true;
 }
 
 void Image::SetSize(const IntVector2& newSize, ImageFormat newFormat)
@@ -562,7 +586,7 @@ unsigned char* Image::DecodePixelData(Stream& source, int& width, int& height, i
     AutoArrayPtr<unsigned char> buffer(new unsigned char[dataSize]);
     source.Read(buffer, dataSize);
     depth = 1;
-    return SOIL_load_image_from_memory(buffer, (int)dataSize, &width, &height, (int *)&pixelByteSize, 0);
+    return stbi_load_from_memory(buffer, (int)dataSize, &width, &height, (int *)&pixelByteSize, 0);
 }
 
 void Image::FreePixelData(unsigned char* pixelData)
@@ -570,7 +594,7 @@ void Image::FreePixelData(unsigned char* pixelData)
     if (!pixelData)
         return;
 
-	SOIL_free_image_data(pixelData);
+    stbi_image_free(pixelData);
 }
 
 bool Image::GenerateMipImage(Image& dest) const

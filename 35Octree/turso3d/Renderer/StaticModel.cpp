@@ -40,7 +40,7 @@ bool StaticModelDrawable::OnPrepareRender(unsigned short frameNumber, CameraTu* 
         lastUpdateFrameNumber = 0;
 
     // Find out the new LOD level if model has LODs
-    if (Flags() & DF_HAS_LOD_LEVELS)
+    if (Flags() & DF_HAS_LOD_LEVELSTU)
     {
         float lodDistance = camera->LodDistance(distance, WorldScale().DotProduct(DOT_SCALE), lodBias);
         size_t numGeometries = batches.NumGeometries();
@@ -108,7 +108,6 @@ void StaticModelDrawable::OnRaycast(std::vector<RaycastResult>& dest, const Ray&
     }
 }
 
-
 StaticModel::StaticModel()
 {
     drawable = drawableAllocator.Allocate();
@@ -143,7 +142,7 @@ void StaticModel::SetModel(Model* model)
     StaticModelDrawable* modelDrawable = static_cast<StaticModelDrawable*>(drawable);
 
     modelDrawable->model = model;
-    modelDrawable->SetFlag(DF_HAS_LOD_LEVELS, false);
+    modelDrawable->SetFlag(DF_HAS_LOD_LEVELSTU, false);
 
     if (model)
     {
@@ -153,7 +152,7 @@ void StaticModel::SetModel(Model* model)
         {
             SetGeometry(i, model->GetGeometry(i, 0));
             if (model->NumLodLevels(i) > 1)
-                modelDrawable->SetFlag(DF_HAS_LOD_LEVELS, true);
+                modelDrawable->SetFlag(DF_HAS_LOD_LEVELSTU, true);
         }
     }
     else
@@ -184,8 +183,4 @@ void StaticModel::SetModelAttr(const ResourceRef& value)
 ResourceRef StaticModel::ModelAttr() const
 {
     return ResourceRef(Model::TypeStatic(), ResourceName(GetModel()));
-}
-
-void StaticModel::SetOctree(OctreeTu* _octree) {
-	octree = _octree;
 }

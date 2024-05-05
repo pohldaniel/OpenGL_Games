@@ -6,7 +6,6 @@
 #include "../Math/Quaternion.h"
 
 class NodeTu;
-class OctreeTu;
 class Scene;
 class ObjectResolver;
 
@@ -39,7 +38,7 @@ class NodeTu : public Serializable
     
 public:
     /// Construct.
-	NodeTu();
+    NodeTu();
     /// Destruct. Destroy any child nodes.
     ~NodeTu();
     
@@ -151,7 +150,7 @@ public:
     /// Return first child node that matches type and name hash, template version.
     template <class T> T* FindChild(StringHash childNameHash, bool recursive = false) const { return static_cast<T*>(FindChildOfType(T::TypeStatic(), childNameHash, recursive)); }
     /// Find child nodes of specified type, template version.
-    template <class T> void FindChildren(std::vector<T*>& result, bool recursive = false) const { return FindChildren(reinterpret_cast<std::vector<NodeTu*>&>(result), T::TypeStatic(), recursive); }
+    template <class T> void FindChildren(std::vector<T*>& result, bool recursive = false) const { return FindChildren(reinterpret_cast<std::vector<Node*>&>(result), T::TypeStatic(), recursive); }
     
     /// Set bit flag. Called internally.
     void SetFlag(unsigned char bit, bool set) const { if (set) flags |= bit; else flags &= ~bit; }

@@ -58,6 +58,11 @@ OctreeInterface::OctreeInterface(StateMachine& machine) : State(machine, States:
 			}
 		}
 	}
+	child = m_root->addChild<ShapeNode, Shape>(Globals::shapeManager.get("quad_xy"));
+	child->setPosition(0.0f, 0.0f, 23.0f);
+	child->updateSOP();
+	m_octree->QueueUpdate(child);
+	m_entities.push_back(child);
 
 	m_frustum.init();
 	m_frustum.getDebug() = true;

@@ -74,7 +74,7 @@ struct ModelBone
     /// Collision radius.
     float radius;
     /// Collision bounding box.
-	BoundingBoxTu boundingBox;
+    BoundingBoxTu boundingBox;
     /// Parent bone index. If points to self, is the root bone.
     size_t parentIndex;
     /// Whether contributes to bounding boxes.
@@ -165,7 +165,7 @@ private:
     void ApplyBoneMappings(const GeometryDesc& geomDesc, const std::vector<unsigned>& boneMappings, std::set<std::pair<unsigned, unsigned> >& processedVertices);
 
     /// Local space bounding box.
-	BoundingBoxTu boundingBox;
+    BoundingBoxTu boundingBox;
     /// %Model's bone descriptions.
     std::vector<ModelBone> bones;
     /// Geometry LOD levels.

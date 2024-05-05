@@ -219,7 +219,7 @@ void Polyhedron::Clip(const FrustumTu& frustum)
     std::vector<Vector3> clippedVertices;
     std::vector<Vector3> outFace;
     
-    for (size_t i = 0; i < NUM_FRUSTUM_PLANES; ++i)
+    for (size_t i = 0; i < NUM_FRUSTUM_PLANESTU; ++i)
     {
         Clip(frustum.planes[i], clippedVertices, outFace);
         if (IsEmpty())

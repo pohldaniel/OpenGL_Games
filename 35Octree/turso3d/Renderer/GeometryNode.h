@@ -122,7 +122,7 @@ public:
     virtual void OnRender(ShaderProgram* program, size_t geomIndex);
 
     /// Return geometry type.
-    GeometryType GetGeometryType() const { return (GeometryType)(Flags() & DF_GEOMETRY_TYPE_BITS); }
+    GeometryType GetGeometryType() const { return (GeometryType)(Flags() & DF_GEOMETRY_TYPE_BITSTU); }
     /// Return the draw call source data for direct access.
     const SourceBatches& Batches() const { return batches; }
 
@@ -150,7 +150,7 @@ public:
     void SetMaterial(size_t index, MaterialTu* material);
 
     /// Return geometry type.
-    GeometryType GetGeometryType() const { return (GeometryType)(drawable->Flags() & DF_GEOMETRY_TYPE_BITS); }
+    GeometryType GetGeometryType() const { return (GeometryType)(drawable->Flags() & DF_GEOMETRY_TYPE_BITSTU); }
     /// Return number of geometries / batches.
     size_t NumGeometries() const { return static_cast<GeometryDrawable*>(drawable)->batches.NumGeometries(); }
     /// Return geometry by index.

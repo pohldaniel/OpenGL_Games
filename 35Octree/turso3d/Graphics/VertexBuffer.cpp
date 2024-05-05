@@ -7,7 +7,6 @@
 #include <GL/glew.h>
 #include <cstring>
 #include <tracy/Tracy.hpp>
-#include <iostream>
 
 static unsigned boundAttributes = 0;
 static VertexBuffer* boundVertexBuffer = nullptr;
@@ -122,16 +121,15 @@ bool VertexBuffer::SetData(size_t firstVertex, size_t numVertices_, const void* 
     return true;
 }
 
-void VertexBuffer::Bind(unsigned attributeMask, bool force)
+void VertexBuffer::Bind(unsigned attributeMask)
 {
-
     if (!buffer)
         return;
 
     // Special case attributeMask 0 used when binding for setting buffer content only or for instancing
     if (!attributeMask)
     {
-        if (boundVertexBuffer != this || force)
+        if (boundVertexBuffer != this)
         {
             glBindBuffer(GL_ARRAY_BUFFER, buffer);
             boundVertexBuffer = this;
@@ -143,15 +141,15 @@ void VertexBuffer::Bind(unsigned attributeMask, bool force)
     attributeMask &= attributes;
 
     // If attributes already bound from this buffer, no-op
-    if (attributeMask == boundAttributes && boundVertexAttribSource == this && !force)
+    if (attributeMask == boundAttributes && boundVertexAttribSource == this)
         return;
 
-    if (boundVertexBuffer != this || force)
+    if (boundVertexBuffer != this)
     {
         glBindBuffer(GL_ARRAY_BUFFER, buffer);
         boundVertexBuffer = this;
     }
-	
+
     unsigned usedAttributes = 0;
 
     for (size_t i = 0; i < elements.size(); ++i)
@@ -160,12 +158,11 @@ void VertexBuffer::Bind(unsigned attributeMask, bool force)
 
         unsigned attributeIdx = baseAttributeIndex[element.semantic] + element.index;
         unsigned attributeBit = 1 << attributeIdx;
-        if (!(attributeMask & attributeBit) && !force)
+        if (!(attributeMask & attributeBit))
             continue;
 
-        if (!(boundAttributes & attributeBit) || force)
+        if (!(boundAttributes & attributeBit))
             glEnableVertexAttribArray(attributeIdx);
-
 
         glVertexAttribPointer(attributeIdx, elementGLSizes[element.type], elementGLTypes[element.type], element.semantic == SEM_COLOR ? GL_TRUE : GL_FALSE, 
             (GLsizei)vertexSize, reinterpret_cast<void*>(element.offset));

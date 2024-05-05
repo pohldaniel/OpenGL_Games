@@ -1,5 +1,5 @@
 // For conditions of distribution and use, see copyright notice in License.txt
-#include <iostream>
+
 #include "../IO/Log.h"
 #include "AnimatedModelTu.h"
 #include "AnimationTu.h"
@@ -325,31 +325,31 @@ void AnimationStateTu::ApplyToModel()
                 timeInterval += animation->Length();
             float t = timeInterval > 0.0f ? (time - keyFrame.time) / timeInterval : 1.0f;
 
-            if (track->channelMask & CHANNEL_POSITION)
+            if (track->channelMask & CHANNEL_POSITIONTU)
                 newPosition = keyFrame.position.Lerp(nextKeyFrame.position, t);
-            if (track->channelMask & CHANNEL_ROTATION)
+            if (track->channelMask & CHANNEL_ROTATIONTU)
                 newRotation = keyFrame.rotation.Slerp(nextKeyFrame.rotation, t);
-            if (track->channelMask & CHANNEL_SCALE)
+            if (track->channelMask & CHANNEL_SCALETU)
                 newScale = keyFrame.scale.Lerp(nextKeyFrame.scale, t);
         }
         else
         {
-            if (track->channelMask & CHANNEL_POSITION)
+            if (track->channelMask & CHANNEL_POSITIONTU)
                 newPosition = keyFrame.position;
-            if (track->channelMask & CHANNEL_ROTATION)
+            if (track->channelMask & CHANNEL_ROTATIONTU)
                 newRotation = keyFrame.rotation;
-            if (track->channelMask & CHANNEL_SCALE)
+            if (track->channelMask & CHANNEL_SCALETU)
                 newScale = keyFrame.scale;
         }
 
         // If not full weight, blend
         if (weight < 1.0f)
         {
-            if (track->channelMask & CHANNEL_POSITION)
+            if (track->channelMask & CHANNEL_POSITIONTU)
                 newPosition = bone->Position().Lerp(newPosition, weight);
-            if (track->channelMask & CHANNEL_ROTATION)
+            if (track->channelMask & CHANNEL_ROTATIONTU)
                 newRotation = bone->Rotation().Slerp(newRotation, weight);
-            if (track->channelMask & CHANNEL_SCALE)
+            if (track->channelMask & CHANNEL_SCALETU)
                 newScale = bone->Scale().Lerp(newScale, weight);
         }
 
@@ -395,20 +395,20 @@ void AnimationStateTu::ApplyToNodes()
                 timeInterval += animation->Length();
             float t = timeInterval > 0.0f ? (time - keyFrame.time) / timeInterval : 1.0f;
 
-            if (track->channelMask & CHANNEL_POSITION)
+            if (track->channelMask & CHANNEL_POSITIONTU)
                 newPosition = keyFrame.position.Lerp(nextKeyFrame.position, t);
-            if (track->channelMask & CHANNEL_ROTATION)
+            if (track->channelMask & CHANNEL_ROTATIONTU)
                 newRotation = keyFrame.rotation.Slerp(nextKeyFrame.rotation, t);
-            if (track->channelMask & CHANNEL_SCALE)
+            if (track->channelMask & CHANNEL_SCALETU)
                 newScale = keyFrame.scale.Lerp(nextKeyFrame.scale, t);
         }
         else
         {
-            if (track->channelMask & CHANNEL_POSITION)
+            if (track->channelMask & CHANNEL_POSITIONTU)
                 newPosition = keyFrame.position;
-            if (track->channelMask & CHANNEL_ROTATION)
+            if (track->channelMask & CHANNEL_ROTATIONTU)
                 newRotation = keyFrame.rotation;
-            if (track->channelMask & CHANNEL_SCALE)
+            if (track->channelMask & CHANNEL_SCALETU)
                 newScale = keyFrame.scale;
         }
 

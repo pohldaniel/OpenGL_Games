@@ -5,7 +5,7 @@
 #include "Vector4.h"
 
 /// Two-dimensional bounding rectangle.
-class Rect
+class RectTu
 {
 public:
     /// Minimum vector.
@@ -14,61 +14,61 @@ public:
     Vector2 max;
     
     /// Construct as undefined (negative size.)
-    Rect() :
+	RectTu() :
         min(Vector2(M_INFINITY, M_INFINITY)),
         max(Vector2(-M_INFINITY, -M_INFINITY))
     {
     }
     
     /// Copy-construct.
-    Rect(const Rect& rect) :
+	RectTu(const RectTu& rect) :
         min(rect.min),
         max(rect.max)
     {
     }
     
     /// Construct from minimum and maximum vectors.
-    Rect(const Vector2& min_, const Vector2& max_) :
+	RectTu(const Vector2& min_, const Vector2& max_) :
         min(min_),
         max(max_)
     {
     }
     
     /// Construct from coordinates.
-    Rect(float left, float top, float right, float bottom) :
+	RectTu(float left, float top, float right, float bottom) :
         min(left, top),
         max(right, bottom)
     {
     }
     
     /// Construct from a Vector4.
-    Rect(const Vector4& vector) :
+	RectTu(const Vector4& vector) :
         min(vector.x, vector.y),
         max(vector.z, vector.w)
     {
     }
 
     /// Construct from a float array.
-    Rect(const float* data) :
+	RectTu(const float* data) :
         min(data[0], data[1]),
         max(data[2], data[3])
     {
     }
     
     /// Construct by parsing a string.
-    Rect(const std::string& str)
+	RectTu(const std::string& str)
     {
         FromString(str.c_str());
     }
     
     /// Construct by parsing a C string.
-    Rect(const char* str)
+	RectTu(const char* str)
     {
         FromString(str);
     }
     
     /// Assign from another rect.
-    Rect& operator = (const Rect& rhs)
+	RectTu& operator = (const RectTu& rhs)
     {
         min = rhs.min;
         max = rhs.max;
@@ -76,12 +76,12 @@ public:
     }
     
     /// Test for equality with another rect without epsilon.
-    bool operator == (const Rect& rhs) const { return min == rhs.min && max == rhs.max; }
+    bool operator == (const RectTu& rhs) const { return min == rhs.min && max == rhs.max; }
     /// Test for inequality with another rect without epsilon.
-    bool operator != (const Rect& rhs) const { return !(*this == rhs); }
+    bool operator != (const RectTu& rhs) const { return !(*this == rhs); }
     
     /// Define from another rect.
-    void Define(const Rect& rect)
+    void Define(const RectTu& rect)
     {
         min = rect.min;
         max = rect.max;
@@ -121,7 +121,7 @@ public:
     }
     
     /// Merge a rect.
-    void Merge(const Rect& rect)
+    void Merge(const RectTu& rect)
     {
        if (min.x > max.x)
         {
@@ -148,7 +148,7 @@ public:
     }
     
     /// Clip with another rect.
-    void Clip(const Rect& rect);
+    void Clip(const RectTu& rect);
    /// Parse from a string. Return true on success.
     bool FromString(const std::string& str) { return FromString(str.c_str()); }
     /// Parse from a C string. Return true on success.
@@ -163,7 +163,7 @@ public:
     /// Return half-size.
     Vector2 HalfSize() const { return (max - min) * 0.5f; }
     /// Test for equality with another rect with epsilon.
-    bool Equals(const Rect& rhs) const { return min.Equals(rhs.min) && max.Equals(rhs.max); }
+    bool Equals(const RectTu& rhs) const { return min.Equals(rhs.min) && max.Equals(rhs.max); }
     
     /// Test whether a point is inside.
     Intersection IsInside(const Vector2& point) const
@@ -182,9 +182,9 @@ public:
     std::string ToString() const;
     
     /// Rect in the range (-1, -1) - (1, 1)
-    static const Rect FULL;
+    static const RectTu FULL;
     /// Rect in the range (0, 0) - (1, 1)
-    static const Rect POSITIVE;
+    static const RectTu POSITIVE;
     /// Zero-sized rect.
-    static const Rect ZERO;
+    static const RectTu ZERO;
 };

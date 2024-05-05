@@ -1,6 +1,7 @@
 // For conditions of distribution and use, see copyright notice in License.txt
 
 #include "InputTu.h"
+
 #include <tracy/Tracy.hpp>
 
 InputTu::InputTu(SDL_Window* window_) :
@@ -15,6 +16,7 @@ InputTu::InputTu(SDL_Window* window_) :
 
 InputTu::~InputTu()
 {
+
 }
 
 void InputTu::Update()

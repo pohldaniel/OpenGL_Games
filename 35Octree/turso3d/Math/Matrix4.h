@@ -127,7 +127,7 @@ public:
             (m20 * rhs.x + m21 * rhs.y + m22 * rhs.z + m23) * invW
         );
     }
-
+    
     /// Multiply a Vector4.
     Vector4 operator * (const Vector4& rhs) const
     {
@@ -386,8 +386,6 @@ public:
     static const Matrix4 ZERO;
     /// Identity matrix.
     static const Matrix4 IDENTITY;
-
-	void print() const;
 };
 
 /// Multiply a 4x4 matrix with a scalar

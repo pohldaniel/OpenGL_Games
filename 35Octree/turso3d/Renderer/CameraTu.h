@@ -99,7 +99,7 @@ class CameraTu : public SpatialNode
     /// Return split frustum in view space.
     FrustumTu ViewSpaceSplitFrustum(float nearClip, float farClip) const;
     /// Return view matrix.
-	const Matrix4& ViewMatrix() const { if (viewMatrixDirty) { viewMatrix = EffectiveWorldTransform().Inverse(); viewMatrixDirty = false; } return viewMatrix; }
+    const Matrix3x4& ViewMatrix() const { if (viewMatrixDirty) { viewMatrix = EffectiveWorldTransform().Inverse(); viewMatrixDirty = false; } return viewMatrix; }
     /// Return either API-specific or API-independent (D3D convention) projection matrix.
     Matrix4 ProjectionMatrix(bool apiSpecific = true) const;
     /// Return frustum near and far sizes.
@@ -119,7 +119,7 @@ class CameraTu : public SpatialNode
     /// Return a world rotation for facing a camera on certain axes based on the existing world rotation.
 	QuaternionTu FaceCameraRotation(const Vector3& position, const QuaternionTu& rotation, FaceCameraMode mode);
     /// Return effective world transform for matrix and frustum calculations including reflection but excluding node scaling.
-	Matrix4 EffectiveWorldTransform() const;
+    Matrix3x4 EffectiveWorldTransform() const;
     /// Return if projection parameters are valid for rendering and raycasting.
     bool IsProjectionValid() const;
 
@@ -138,7 +138,7 @@ private:
     Vector4 ClipPlaneAttr() const;
 
     /// Cached view matrix.
-    mutable Matrix4 viewMatrix;
+    mutable Matrix3x4 viewMatrix;
     /// View matrix dirty flag.
     mutable bool viewMatrixDirty;
     /// Orthographic mode flag.
@@ -171,5 +171,4 @@ private:
     bool useReflection;
     /// Use custom clip plane flag.
     bool useClipping;
-
 };

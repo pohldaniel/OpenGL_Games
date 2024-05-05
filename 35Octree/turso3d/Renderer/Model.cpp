@@ -3,12 +3,12 @@
 #include "../IO/Log.h"
 #include "../Graphics/IndexBuffer.h"
 #include "../Graphics/VertexBuffer.h"
+#include "../Scene/NodeTu.h"
 #include "GeometryNode.h"
 #include "MaterialTu.h"
 #include "Model.h"
 
 #include <tracy/Tracy.hpp>
-#include <iostream>
 
 // Vertex and index allocation for the combined model buffers
 static const size_t COMBINEDBUFFER_VERTICES = 384 * 1024;
@@ -122,329 +122,185 @@ void Model::RegisterObject()
     RegisterFactory<Model>();
 }
 
-unsigned ELEMENT_TYPESIZES[] =
-{
-	sizeof(int),
-	sizeof(float),
-	2 * sizeof(float),
-	3 * sizeof(float),
-	4 * sizeof(float),
-	sizeof(unsigned)
-};
-
 bool Model::BeginLoad(Stream& source)
 {
-	ZoneScoped;
-	std::string fileID = source.ReadFileID();
-	/// \todo Develop own format for Turso3D
-	if (fileID.compare("UMDL") == 0)
-	{
-		vbDescs.clear();
-		ibDescs.clear();
-		geomDescs.clear();
+    ZoneScoped;
 
-		size_t numVertexBuffers = source.Read<unsigned>();
-		vbDescs.resize(numVertexBuffers);
-		for (size_t i = 0; i < numVertexBuffers; ++i)
-		{
-			VertexBufferDesc& vbDesc = vbDescs[i];
+    /// \todo Develop own format for Turso3D
+    if (source.ReadFileID() != "UMDL")
+    {
+        LOGERROR(source.Name() + " is not a valid model file");
+        return false;
+    }
 
-			vbDesc.numVertices = source.Read<unsigned>();
-			unsigned elementMask = source.Read<unsigned>();
-			source.Read<unsigned>(); // morphRangeStart
-			source.Read<unsigned>(); // morphRangeCount
+    vbDescs.clear();
+    ibDescs.clear();
+    geomDescs.clear();
 
-			size_t vertexSize = 0;
-			if (elementMask & 1)
-			{
-				vbDesc.vertexElements.push_back(VertexElement(ELEM_VECTOR3, SEM_POSITION));
-				vertexSize += sizeof(Vector3);
-			}
-			if (elementMask & 2)
-			{
-				vbDesc.vertexElements.push_back(VertexElement(ELEM_VECTOR3, SEM_NORMAL));
-				vertexSize += sizeof(Vector3);
-			}
-			if (elementMask & 4)
-			{
-				vbDesc.vertexElements.push_back(VertexElement(ELEM_UBYTE4, SEM_COLOR));
-				vertexSize += 4;
-			}
-			if (elementMask & 8)
-			{
-				vbDesc.vertexElements.push_back(VertexElement(ELEM_VECTOR2, SEM_TEXCOORD));
-				vertexSize += sizeof(Vector2);
-			}
-			if (elementMask & 16)
-			{
-				vbDesc.vertexElements.push_back(VertexElement(ELEM_VECTOR2, SEM_TEXCOORD, 1));
-				vertexSize += sizeof(Vector2);
-			}
-			if (elementMask & 32)
-			{
-				vbDesc.vertexElements.push_back(VertexElement(ELEM_VECTOR3, SEM_TEXCOORD));
-				vertexSize += sizeof(Vector3);
-			}
-			if (elementMask & 64)
-			{
-				vbDesc.vertexElements.push_back(VertexElement(ELEM_VECTOR3, SEM_TEXCOORD, 1));
-				vertexSize += sizeof(Vector3);
-			}
-			if (elementMask & 128)
-			{
-				vbDesc.vertexElements.push_back(VertexElement(ELEM_VECTOR4, SEM_TANGENT));
-				vertexSize += sizeof(Vector4);
-			}
-			if (elementMask & 256)
-			{
-				vbDesc.vertexElements.push_back(VertexElement(ELEM_VECTOR4, SEM_BLENDWEIGHTS));
-				vertexSize += sizeof(Vector4);
-			}
-			if (elementMask & 512)
-			{
-				vbDesc.vertexElements.push_back(VertexElement(ELEM_UBYTE4, SEM_BLENDINDICES));
-				vertexSize += 4;
-			}
+    size_t numVertexBuffers = source.Read<unsigned>();
+    vbDescs.resize(numVertexBuffers);
+    for (size_t i = 0; i < numVertexBuffers; ++i)
+    {
+        VertexBufferDesc& vbDesc = vbDescs[i];
 
-			vbDesc.vertexSize = vertexSize;
-			vbDesc.vertexData = new unsigned char[vbDesc.numVertices * vertexSize];
-			source.Read(&vbDesc.vertexData[0], vbDesc.numVertices * vertexSize);
+        vbDesc.numVertices = source.Read<unsigned>();
+        unsigned elementMask = source.Read<unsigned>();
+        source.Read<unsigned>(); // morphRangeStart
+        source.Read<unsigned>(); // morphRangeCount
 
-			if (elementMask & 1)
-			{
-				vbDesc.cpuPositionData = new Vector3[vbDesc.numVertices];
-				for (size_t j = 0; j < vbDesc.numVertices; ++j) {
-					vbDesc.cpuPositionData[j] = *reinterpret_cast<Vector3*>(vbDesc.vertexData + j * vertexSize);					
-				}
-			}
-		}
+        size_t vertexSize = 0;
+        if (elementMask & 1)
+        {
+            vbDesc.vertexElements.push_back(VertexElement(ELEM_VECTOR3, SEM_POSITION));
+            vertexSize += sizeof(Vector3);
+        }
+        if (elementMask & 2)
+        {
+            vbDesc.vertexElements.push_back(VertexElement(ELEM_VECTOR3, SEM_NORMAL));
+            vertexSize += sizeof(Vector3);
+        }
+        if (elementMask & 4)
+        {
+            vbDesc.vertexElements.push_back(VertexElement(ELEM_UBYTE4, SEM_COLOR));
+            vertexSize += 4;
+        }
+        if (elementMask & 8)
+        {
+            vbDesc.vertexElements.push_back(VertexElement(ELEM_VECTOR2, SEM_TEXCOORD));
+            vertexSize += sizeof(Vector2);
+        }
+        if (elementMask & 16)
+        {
+            vbDesc.vertexElements.push_back(VertexElement(ELEM_VECTOR2, SEM_TEXCOORD, 1));
+            vertexSize += sizeof(Vector2);
+        }
+        if (elementMask & 32)
+        {
+            vbDesc.vertexElements.push_back(VertexElement(ELEM_VECTOR3, SEM_TEXCOORD));
+            vertexSize += sizeof(Vector3);
+        }
+        if (elementMask & 64)
+        {
+            vbDesc.vertexElements.push_back(VertexElement(ELEM_VECTOR3, SEM_TEXCOORD, 1));
+            vertexSize += sizeof(Vector3);
+        }
+        if (elementMask & 128)
+        {
+            vbDesc.vertexElements.push_back(VertexElement(ELEM_VECTOR4, SEM_TANGENT));
+            vertexSize += sizeof(Vector4);
+        }
+        if (elementMask & 256)
+        {
+            vbDesc.vertexElements.push_back(VertexElement(ELEM_VECTOR4, SEM_BLENDWEIGHTS));
+            vertexSize += sizeof(Vector4);
+        }
+        if (elementMask & 512)
+        {
+            vbDesc.vertexElements.push_back(VertexElement(ELEM_UBYTE4, SEM_BLENDINDICES));
+            vertexSize += 4;
+        }
 
-		size_t numIndexBuffers = source.Read<unsigned>();
-		ibDescs.resize(numIndexBuffers);
-		for (size_t i = 0; i < numIndexBuffers; ++i)
-		{
-			IndexBufferDesc& ibDesc = ibDescs[i];
+        vbDesc.vertexSize = vertexSize;
+        vbDesc.vertexData = new unsigned char[vbDesc.numVertices * vertexSize];
+        source.Read(&vbDesc.vertexData[0], vbDesc.numVertices * vertexSize);
 
-			ibDesc.numIndices = source.Read<unsigned>();
-			ibDesc.indexSize = source.Read<unsigned>();
-			ibDesc.indexData = new unsigned char[ibDesc.numIndices * ibDesc.indexSize];
-			source.Read(&ibDesc.indexData[0], ibDesc.numIndices * ibDesc.indexSize);
-		}
+        if (elementMask & 1)
+        {
+            vbDesc.cpuPositionData = new Vector3[vbDesc.numVertices];
+            for (size_t j = 0; j < vbDesc.numVertices; ++j)
+                vbDesc.cpuPositionData[j] = *reinterpret_cast<Vector3*>(vbDesc.vertexData + j * vertexSize);
+        }
+    }
 
-		size_t numGeometries = source.Read<unsigned>();
+    size_t numIndexBuffers = source.Read<unsigned>();
+    ibDescs.resize(numIndexBuffers);
+    for (size_t i = 0; i < numIndexBuffers; ++i)
+    {
+        IndexBufferDesc& ibDesc = ibDescs[i];
+    
+        ibDesc.numIndices = source.Read<unsigned>();
+        ibDesc.indexSize = source.Read<unsigned>();
+        ibDesc.indexData = new unsigned char[ibDesc.numIndices * ibDesc.indexSize];
+        source.Read(&ibDesc.indexData[0], ibDesc.numIndices * ibDesc.indexSize);
+    }
 
-		geomDescs.resize(numGeometries);
+    size_t numGeometries = source.Read<unsigned>();
 
-		std::vector<std::vector<unsigned> > boneMappings;
-		std::set<std::pair<unsigned, unsigned> > processedVertices;
-		boneMappings.resize(numGeometries);
+    geomDescs.resize(numGeometries);
 
-		for (size_t i = 0; i < numGeometries; ++i)
-		{
-			// Read bone mappings
-			size_t boneMappingCount = source.Read<unsigned>();
-			boneMappings[i].resize(boneMappingCount);
-			if (boneMappingCount)
-				source.Read(&boneMappings[i][0], boneMappingCount * sizeof(unsigned));
+    std::vector<std::vector<unsigned> > boneMappings;
+    std::set<std::pair<unsigned, unsigned> > processedVertices;
+    boneMappings.resize(numGeometries);
 
-			size_t numLodLevels = source.Read<unsigned>();
-			geomDescs[i].resize(numLodLevels);
+    for (size_t i = 0; i < numGeometries; ++i)
+    {
+        // Read bone mappings
+        size_t boneMappingCount = source.Read<unsigned>();
+        boneMappings[i].resize(boneMappingCount);
+        if (boneMappingCount)
+            source.Read(&boneMappings[i][0], boneMappingCount * sizeof(unsigned));
 
-			for (size_t j = 0; j < numLodLevels; ++j)
-			{
-				GeometryDesc& geomDesc = geomDescs[i][j];
+        size_t numLodLevels = source.Read<unsigned>();
+        geomDescs[i].resize(numLodLevels);
 
-				geomDesc.lodDistance = source.Read<float>();
-				source.Read<unsigned>(); // Primitive type
-				geomDesc.vbRef = source.Read<unsigned>();
-				geomDesc.ibRef = source.Read<unsigned>();
-				geomDesc.drawStart = source.Read<unsigned>();
-				geomDesc.drawCount = source.Read<unsigned>();
+        for (size_t j = 0; j < numLodLevels; ++j)
+        {
+            GeometryDesc& geomDesc = geomDescs[i][j];
 
-				// Apply bone mappings to geometry
-				if (boneMappingCount)
-					ApplyBoneMappings(geomDesc, boneMappings[i], processedVertices);
-			}
-		}
+            geomDesc.lodDistance = source.Read<float>();
+            source.Read<unsigned>(); // Primitive type
+            geomDesc.vbRef = source.Read<unsigned>();
+            geomDesc.ibRef = source.Read<unsigned>();
+            geomDesc.drawStart = source.Read<unsigned>();
+            geomDesc.drawCount = source.Read<unsigned>();
 
-		// Read (skip) morphs
-		size_t numMorphs = source.Read<unsigned>();
-		if (numMorphs)
-		{
-			LOGERROR("Models with vertex morphs are not supported for now");
-			return false;
-		}
+            // Apply bone mappings to geometry
+            if (boneMappingCount)
+                ApplyBoneMappings(geomDesc, boneMappings[i], processedVertices);
+        }
+    }
 
-		// Read skeleton
-		size_t numBones = source.Read<unsigned>();
-		bones.resize(numBones);
-		for (size_t i = 0; i < numBones; ++i)
-		{
-			ModelBone& bone = bones[i];
-			bone.name = source.Read<std::string>();
-			bone.nameHash = StringHash(bone.name);
-			bone.parentIndex = source.Read<unsigned>();
-			bone.initialPosition = source.Read<Vector3>();
-			bone.initialRotation = source.Read<QuaternionTu>();
-			bone.initialScale = source.Read<Vector3>();
-			bone.offsetMatrix = source.Read<Matrix3x4>();
+    // Read (skip) morphs
+    size_t numMorphs = source.Read<unsigned>();
+    if (numMorphs)
+    {
+        LOGERROR("Models with vertex morphs are not supported for now");
+        return false;
+    }
 
-			unsigned char boneCollisionType = source.Read<unsigned char>();
-			if (boneCollisionType & 1)
-			{
-				bone.radius = source.Read<float>();
-				if (bone.radius < BONE_SIZE_THRESHOLD * 0.5f)
-					bone.active = false;
-			}
-			if (boneCollisionType & 2)
-			{
-				bone.boundingBox = source.Read<BoundingBoxTu>();
-				if (bone.boundingBox.Size().Length() < BONE_SIZE_THRESHOLD)
-					bone.active = false;
-			}
-		}
+    // Read skeleton
+    size_t numBones = source.Read<unsigned>();
+    bones.resize(numBones);
+    for (size_t i = 0; i < numBones; ++i)
+    {
+        ModelBone& bone = bones[i];
+        bone.name = source.Read<std::string>();
+        bone.nameHash = StringHash(bone.name);
+        bone.parentIndex = source.Read<unsigned>();
+        bone.initialPosition = source.Read<Vector3>();
+        bone.initialRotation = source.Read<QuaternionTu>();
+        bone.initialScale = source.Read<Vector3>();
+        bone.offsetMatrix = source.Read<Matrix3x4>();
 
-		// Read bounding box
-		boundingBox = source.Read<BoundingBoxTu>();
+        unsigned char boneCollisionType = source.Read<unsigned char>();
+        if (boneCollisionType & 1)
+        {
+            bone.radius = source.Read<float>();
+            if (bone.radius < BONE_SIZE_THRESHOLD * 0.5f)
+                bone.active = false;
+        }
+        if (boneCollisionType & 2)
+        {
+            bone.boundingBox = source.Read<BoundingBoxTu>();
+            if (bone.boundingBox.Size().Length() < BONE_SIZE_THRESHOLD)
+                bone.active = false;
+        }
+    }
 
-		return true;
-	}else if (fileID.compare("UMD2") == 0){
-		//LOGINFO("Name: " + source.Name() + "File ID: " + fileID);
+    // Read bounding box
+    boundingBox = source.Read<BoundingBoxTu>();
 
-		vbDescs.clear();
-
-		size_t numVertexBuffers = source.Read<unsigned>();
-		vbDescs.resize(numVertexBuffers);
-
-		for (size_t i = 0; i < numVertexBuffers; ++i){
-			VertexBufferDesc& vbDesc = vbDescs[i];
-			vbDesc.numVertices = source.Read<unsigned>();
-
-			unsigned numElements = source.Read<unsigned>();
-			for (unsigned j = 0; j < numElements; ++j) {
-				unsigned elementDesc = source.Read<unsigned>();
-				ElementType type = (ElementType)(elementDesc & 0xff);
-				ElementSemantic semantic = (ElementSemantic)((elementDesc >> 8) & 0xff);
-				unsigned char index = (unsigned char)((elementDesc >> 16) & 0xff);
-
-				if (semantic > 5)
-					semantic = (ElementSemantic)((unsigned int)semantic - 1);
-
-				vbDesc.vertexElements.push_back(VertexElement(type, semantic, index));
-			}
-
-			source.Read<unsigned>(); // morphRangeStart
-			source.Read<unsigned>(); // morphRangeCount
-
-			
-			unsigned vertexSize = 0;
-
-			for (unsigned i = 0; i < vbDesc.vertexElements.size(); ++i){
-				vertexSize += ELEMENT_TYPESIZES[vbDesc.vertexElements[i].type];
-			}
-
-			vbDesc.vertexSize = vertexSize;
-			vbDesc.vertexData = new unsigned char[vbDesc.numVertices * vertexSize];
-			source.Read(&vbDesc.vertexData[0], vbDesc.numVertices * vertexSize);
-		}
-
-
-		size_t numIndexBuffers = source.Read<unsigned>();
-		ibDescs.resize(numIndexBuffers);
-		for (size_t i = 0; i < numIndexBuffers; ++i)
-		{
-			IndexBufferDesc& ibDesc = ibDescs[i];
-
-			ibDesc.numIndices = source.Read<unsigned>();
-			ibDesc.indexSize = source.Read<unsigned>();
-			
-			ibDesc.indexData = new unsigned char[ibDesc.numIndices * ibDesc.indexSize];
-			source.Read(&ibDesc.indexData[0], ibDesc.numIndices * ibDesc.indexSize);
-		}
-
-		size_t numGeometries = source.Read<unsigned>();
-		geomDescs.resize(numGeometries);
-
-		std::vector<std::vector<unsigned> > boneMappings;
-		std::set<std::pair<unsigned, unsigned> > processedVertices;
-		boneMappings.resize(numGeometries);
-
-		for (size_t i = 0; i < numGeometries; ++i)
-		{
-			// Read bone mappings
-			size_t boneMappingCount = source.Read<unsigned>();
-
-			boneMappings[i].resize(boneMappingCount);
-			if (boneMappingCount)
-				source.Read(&boneMappings[i][0], boneMappingCount * sizeof(unsigned));
-			
-			size_t numLodLevels = source.Read<unsigned>();
-			geomDescs[i].resize(numLodLevels);
-
-
-			for (size_t j = 0; j < numLodLevels; ++j)
-			{		
-
-				GeometryDesc& geomDesc = geomDescs[i][j];
-
-				geomDesc.lodDistance = source.Read<float>();
-				source.Read<unsigned>(); // Primitive type
-				geomDesc.vbRef = source.Read<unsigned>();
-				geomDesc.ibRef = source.Read<unsigned>();
-				geomDesc.drawStart = source.Read<unsigned>();
-				geomDesc.drawCount = source.Read<unsigned>();
-				// Apply bone mappings to geometry
-				if (boneMappingCount)
-					ApplyBoneMappings(geomDesc, boneMappings[i], processedVertices);
-			}
-		}
-
-		// Read (skip) morphs
-		size_t numMorphs = source.Read<unsigned>();
-		if (numMorphs)
-		{
-			LOGERROR("Models with vertex morphs are not supported for now");
-			return false;
-		}
-
-		// Read skeleton
-		size_t numBones = source.Read<unsigned>();
-		bones.resize(numBones);
-		for (size_t i = 0; i < numBones; ++i)
-		{
-			ModelBone& bone = bones[i];
-			bone.name = source.Read<std::string>();
-			bone.nameHash = StringHash(bone.name);
-			bone.parentIndex = source.Read<unsigned>();
-			bone.initialPosition = source.Read<Vector3>();
-			bone.initialRotation = source.Read<QuaternionTu>();
-			bone.initialScale = source.Read<Vector3>();
-			bone.offsetMatrix = source.Read<Matrix3x4>();
-
-			unsigned char boneCollisionType = source.Read<unsigned char>();
-			if (boneCollisionType & 1)
-			{
-				bone.radius = source.Read<float>();
-				if (bone.radius < BONE_SIZE_THRESHOLD * 0.5f)
-					bone.active = false;
-			}
-			if (boneCollisionType & 2)
-			{
-				bone.boundingBox = source.Read<BoundingBoxTu>();
-				if (bone.boundingBox.Size().Length() < BONE_SIZE_THRESHOLD)
-					bone.active = false;
-			}
-		}
-
-		// Read bounding box
-		boundingBox = source.Read<BoundingBoxTu>();
-
-		return true;
-	}else {
-		LOGERROR(source.Name() + " is not a valid model file");
-		return false;
-
-	}
+    return true;
 }
 
 void Model::ApplyBoneMappings(const GeometryDesc& geomDesc, const std::vector<unsigned>& boneMappings, std::set<std::pair<unsigned, unsigned> >& processedVertices)

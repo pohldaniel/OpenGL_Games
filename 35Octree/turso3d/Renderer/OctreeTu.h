@@ -8,23 +8,23 @@
 
 #include <atomic>
 
-static const size_t NUM_OCTANTS = 8;
-static const unsigned char OF_DRAWABLES_SORT_DIRTY = 0x1;
-static const unsigned char OF_CULLING_BOX_DIRTY = 0x2;
-static const float OCCLUSION_QUERY_INTERVAL = 0.133333f; // About 8 frame stagger at 60fps
+static const size_t NUM_OCTANTSTU = 8;
+static const unsigned char OF_DRAWABLES_SORT_DIRTYTU = 0x1;
+static const unsigned char OF_CULLING_BOX_DIRTYTU = 0x2;
+static const float OCCLUSION_QUERY_INTERVALTU = 0.133333f; // About 8 frame stagger at 60fps
 
 class Ray;
 class WorkQueueTu;
 struct ReinsertDrawablesTaskTu;
 
 /// %Octant occlusion query visibility states.
-enum OctantVisibility
+enum OctantVisibilityTu
 {
-    VIS_OUTSIDE_FRUSTUM = 0,
-    VIS_OCCLUDED,
-    VIS_OCCLUDED_UNKNOWN,
-    VIS_VISIBLE_UNKNOWN,
-    VIS_VISIBLE
+    VIS_OUTSIDE_FRUSTUMTU = 0,
+    VIS_OCCLUDEDTU,
+    VIS_OCCLUDED_UNKNOWNTU,
+    VIS_VISIBLE_UNKNOWNTU,
+    VIS_VISIBLETU
 };
 
 /// Structure for raycast query results.
@@ -75,7 +75,7 @@ public:
     /// Return child octant index based on position.
     unsigned char ChildIndex(const Vector3& position) const { unsigned char ret = position.x < center.x ? 0 : 1; ret += position.y < center.y ? 0 : 2; ret += position.z < center.z ? 0 : 4; return ret; }
     /// Return last occlusion visibility status.
-    OctantVisibility Visibility() const { return (OctantVisibility)visibility; }
+    OctantVisibilityTu Visibility() const { return (OctantVisibilityTu)visibility; }
     /// Return whether is pending an occlusion query result.
     bool OcclusionQueryPending() const { return occlusionQueryId != 0; }
     /// Set bit flag. Called internally.
@@ -108,17 +108,17 @@ public:
     {
         const OctantTu* octant = this;
 
-        while (octant && !octant->TestFlag(OF_CULLING_BOX_DIRTY))
+        while (octant && !octant->TestFlag(OF_CULLING_BOX_DIRTYTU))
         {
-            octant->SetFlag(OF_CULLING_BOX_DIRTY, true);
+            octant->SetFlag(OF_CULLING_BOX_DIRTYTU, true);
             octant = octant->parent;
         }
     }
 
     /// Push visibility status to child octants.
-    void PushVisibilityToChildren(OctantTu* octant, OctantVisibility newVisibility)
+    void PushVisibilityToChildren(OctantTu* octant, OctantVisibilityTu newVisibility)
     {
-        for (size_t i = 0; i < NUM_OCTANTS; ++i)
+        for (size_t i = 0; i < NUM_OCTANTSTU; ++i)
         {
             if (octant->children[i])
             {
@@ -130,7 +130,7 @@ public:
     }
 
     /// Set visibility status manually.
-    void SetVisibility(OctantVisibility newVisibility, bool pushToChildren = false)
+    void SetVisibility(OctantVisibilityTu newVisibility, bool pushToChildren = false)
     {
         visibility = newVisibility;
 
@@ -141,7 +141,7 @@ public:
     /// Return true if a new occlusion query should be executed. Use a time interval for already visible octants. Return false if previous query still pending.
     bool CheckNewOcclusionQuery(float frameTime)
     {
-        if (visibility != VIS_VISIBLE)
+        if (visibility != VIS_VISIBLETU)
             return occlusionQueryId == 0;
 
         occlusionQueryTimer += frameTime;
@@ -149,9 +149,9 @@ public:
         if (occlusionQueryId != 0)
             return false;
 
-        if (occlusionQueryTimer >= OCCLUSION_QUERY_INTERVAL)
+        if (occlusionQueryTimer >= OCCLUSION_QUERY_INTERVALTU)
         {
-            occlusionQueryTimer = fmodf(occlusionQueryTimer, OCCLUSION_QUERY_INTERVAL);
+            occlusionQueryTimer = fmodf(occlusionQueryTimer, OCCLUSION_QUERY_INTERVALTU);
             return true;
         }
         else
@@ -164,17 +164,17 @@ private:
     /// Drawables contained in the octant.
     std::vector<Drawable*> drawables;
     /// Expanded (loose) bounding box used for fitting drawables within the octant.
-	BoundingBoxTu fittingBox;
+    BoundingBoxTu fittingBox;
     /// Bounding box center.
     Vector3 center;
     /// Bounding box half size.
     Vector3 halfSize;
     /// Child octants.
-    OctantTu* children[NUM_OCTANTS];
+    OctantTu* children[NUM_OCTANTSTU];
     /// Parent octant.
     OctantTu* parent;
     /// Last occlusion query visibility.
-    OctantVisibility visibility;
+    OctantVisibilityTu visibility;
     /// Occlusion query id, or 0 if no query pending.
     unsigned occlusionQueryId;
     /// Occlusion query interval timer.
@@ -252,9 +252,9 @@ private:
         octant->MarkCullingBoxDirty();
         drawable->octant = octant;
 
-        if (!octant->TestFlag(OF_DRAWABLES_SORT_DIRTY))
+        if (!octant->TestFlag(OF_DRAWABLES_SORT_DIRTYTU))
         {
-            octant->SetFlag(OF_DRAWABLES_SORT_DIRTY, true);
+            octant->SetFlag(OF_DRAWABLES_SORT_DIRTYTU, true);
             sortDirtyOctants.push_back(octant);
         }
     }
@@ -326,7 +326,7 @@ private:
             
             if (octant->numChildren)
             {
-                for (size_t i = 0; i < NUM_OCTANTS; ++i)
+                for (size_t i = 0; i < NUM_OCTANTSTU; ++i)
                 {
                     if (octant->children[i])
                         CollectDrawables(result, octant->children[i], volume, drawableFlags, layerMask);
@@ -357,7 +357,7 @@ private:
 
         if (octant->numChildren)
         {
-            for (size_t i = 0; i < NUM_OCTANTS; ++i)
+            for (size_t i = 0; i < NUM_OCTANTSTU; ++i)
             {
                 if (octant->children[i])
                     CollectDrawablesMasked(result, octant->children[i], frustum, drawableFlags, layerMask, planeMask);
@@ -374,7 +374,7 @@ private:
     /// Octants which need to have their drawables sorted.
     std::vector<OctantTu*> sortDirtyOctants;
     /// Extents of the octree root level box.
-	BoundingBoxTu worldBoundingBox;
+    BoundingBoxTu worldBoundingBox;
     /// Root octant.
     OctantTu root;
     /// Allocator for child octants.

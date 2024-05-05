@@ -30,16 +30,16 @@ public:
     /// Save scene as JSON text data to a binary stream. Return true on success.
     bool SaveJSON(Stream& dest);
     /// Instantiate node(s) from binary stream and return the root node.
-	NodeTu* Instantiate(Stream& source);
+    NodeTu* Instantiate(Stream& source);
     /// Instantiate node(s) from JSON data and return the root node.
-	NodeTu* InstantiateJSON(const JSONValue& source);
+    NodeTu* InstantiateJSON(const JSONValue& source);
     /// Load JSON data as text from a binary stream, then instantiate node(s) from it and return the root node.
-	NodeTu* InstantiateJSON(Stream& source);
+    NodeTu* InstantiateJSON(Stream& source);
     /// Destroy child nodes recursively, leaving the scene empty.
     void Clear();
 
     /// Find node by id.
-	NodeTu* FindNode(unsigned id) const;
+    NodeTu* FindNode(unsigned id) const;
 
     /// Add node to the scene. This assigns a scene-unique id to it. Called internally.
     void AddNode(NodeTu* node);

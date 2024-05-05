@@ -104,7 +104,7 @@ private:
 	float m_distance = 0.01f;
 	bool m_overview = true;
 	bool m_useCulling = true;
-	bool m_useOcclusion = false;
+	bool m_useOcclusion = true;
 
 	Matrix4f perspective;
 	Matrix4f m_view;

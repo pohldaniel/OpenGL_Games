@@ -78,7 +78,7 @@ AnimatedModelDrawable::AnimatedModelDrawable() :
     octree(nullptr),
     rootBone(nullptr)
 {
-    SetFlag(DF_SKINNED_GEOMETRY | DF_OCTREE_UPDATE_CALL, true);
+    SetFlag(DF_SKINNED_GEOMETRYTU | DF_OCTREE_UPDATE_CALLTU, true);
 }
 
 void AnimatedModelDrawable::OnWorldBoundingBoxUpdate() const
@@ -91,7 +91,7 @@ void AnimatedModelDrawable::OnWorldBoundingBoxUpdate() const
             const std::vector<ModelBone>& modelBones = model->Bones();
 
             // Use a temporary bounding box for calculations in case many threads call this simultaneously
-			BoundingBoxTu tempBox;
+            BoundingBoxTu tempBox;
 
             for (size_t i = 0; i < numBones; ++i)
             {
@@ -112,7 +112,7 @@ void AnimatedModelDrawable::OnWorldBoundingBoxUpdate() const
 
 void AnimatedModelDrawable::OnOctreeUpdate(unsigned short frameNumber)
 {
-    if (TestFlag(DF_UPDATE_INVISIBLE) || WasInView(frameNumber))
+    if (TestFlag(DF_UPDATE_INVISIBLETU) || WasInView(frameNumber))
     {
         if (animatedModelFlags & AMF_ANIMATION_DIRTY)
             UpdateAnimation();
@@ -306,9 +306,9 @@ void AnimatedModelDrawable::UpdateAnimation()
 
     // If updating only when visible, queue octree reinsertion for next frame. This also ensures shadowmap rendering happens correctly
     // Else just dirty the skinning
-    if (!TestFlag(DF_UPDATE_INVISIBLE))
+    if (!TestFlag(DF_UPDATE_INVISIBLETU))
     {
-        if (octree && octant && !TestFlag(DF_OCTREE_REINSERT_QUEUED))
+        if (octree && octant && !TestFlag(DF_OCTREE_REINSERT_QUEUEDTU))
             octree->QueueUpdate(this);
     }
 
@@ -554,12 +554,12 @@ void AnimatedModelTu::OnTransformChanged()
     else
     {
         modelDrawable->SetBoneTransformsDirty();
-        modelDrawable->SetFlag(DF_WORLD_TRANSFORM_DIRTY, true);
+        modelDrawable->SetFlag(DF_WORLD_TRANSFORM_DIRTYTU, true);
         SetFlag(NF_WORLD_TRANSFORM_DIRTY, true);
     }
 
-    modelDrawable->SetFlag(DF_BOUNDING_BOX_DIRTY, true);
-    if (octree && modelDrawable->octant && !modelDrawable->TestFlag(DF_OCTREE_REINSERT_QUEUED))
+    modelDrawable->SetFlag(DF_BOUNDING_BOX_DIRTYTU, true);
+    if (octree && modelDrawable->octant && !modelDrawable->TestFlag(DF_OCTREE_REINSERT_QUEUEDTU))
         octree->QueueUpdate(modelDrawable);
 }
 

@@ -22,7 +22,7 @@ public:
     /// Redefine buffer data either completely or partially. Return true on success.
     bool SetData(size_t firstVertex, size_t numVertices, const void* data, bool discard = false);
     /// Bind to use with the specified vertex attributes. No-op if already bound. Used also when defining or setting data.
-	void Bind(unsigned attributeMask, bool force = false);
+    void Bind(unsigned attributeMask);
 
 	void Unbind();
 

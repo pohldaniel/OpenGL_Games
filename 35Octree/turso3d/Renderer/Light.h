@@ -195,7 +195,7 @@ class LightTu : public OctreeNodeTu
     
 public:
     /// Construct.
-    LightTu();
+	LightTu();
     /// Destruct.
     virtual ~LightTu();
 

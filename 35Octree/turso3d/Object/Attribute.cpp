@@ -56,7 +56,7 @@ const size_t Attribute::byteSizes[] =
     sizeof(Vector4),
     sizeof(QuaternionTu),
     sizeof(Color),
-    sizeof(Rect),
+    sizeof(RectTu),
     sizeof(BoundingBoxTu),
     sizeof(Matrix3),
     sizeof(Matrix3x4),
@@ -196,7 +196,7 @@ void Attribute::FromJSON(AttributeType type, void* dest, const JSONValue& source
         break;
 
     case ATTR_RECT:
-        reinterpret_cast<Rect*>(dest)->FromString(source.GetString());
+        reinterpret_cast<RectTu*>(dest)->FromString(source.GetString());
         break;
 
     case ATTR_BOUNDINGBOX:
@@ -301,7 +301,7 @@ void Attribute::ToJSON(AttributeType type, JSONValue& dest, const void* source)
         break;
 
     case ATTR_RECT:
-        dest = reinterpret_cast<const Rect*>(source)->ToString();
+        dest = reinterpret_cast<const RectTu*>(source)->ToString();
         break;
 
     case ATTR_BOUNDINGBOX:

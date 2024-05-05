@@ -5,7 +5,6 @@
 
 #include <cstdio>
 #include <cstdlib>
-#include <iostream>
 
 const Matrix4 Matrix4::ZERO(
     0.0f, 0.0f, 0.0f, 0.0f,
@@ -61,12 +60,4 @@ std::string Matrix4::ToString() const
         m10, m11, m12, m13,
         m20, m21, m22, m23,
         m30, m31, m32, m33);
-}
-
-void Matrix4::print() const {
-	std::cout << m00 << "  " << m01 << "  " << m02 << "  " << m03 << std::endl;
-	std::cout << m10 << "  " << m11 << "  " << m12 << "  " << m13 << std::endl;
-	std::cout << m20 << "  " << m21 << "  " << m22 << "  " << m23 << std::endl;
-	std::cout << m30 << "  " << m31 << "  " << m32 << "  " << m33 << std::endl;
-	std::cout << "-------------------" << std::endl;
 }
