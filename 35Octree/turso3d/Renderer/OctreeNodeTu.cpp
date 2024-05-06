@@ -56,21 +56,6 @@ bool Drawable::OnPrepareRender(unsigned short frameNumber, CameraTu* camera)
     return true;
 }
 
-void Drawable::OnRaycast(std::vector<RaycastResult>& dest, const Ray& ray, float maxDistance_)
-{
-    float hitDistance = ray.HitDistance(WorldBoundingBox());
-    if (hitDistance < maxDistance_)
-    {
-        RaycastResult res;
-        res.position = ray.origin + hitDistance * ray.direction;
-        res.normal = -ray.direction;
-        res.distance = hitDistance;
-        res.drawable = this;
-        res.subObject = 0;
-        dest.push_back(res);
-    }
-}
-
 void Drawable::OnRenderDebug(DebugRendererTu* debug)
 {
     debug->AddBoundingBox(WorldBoundingBox(), Color::GREEN, false);
@@ -127,20 +112,7 @@ void OctreeNodeTu::SetMaxDistance(float distance_)
     drawable->maxDistance = Max(distance_, 0.0f);
 }
 
-void OctreeNodeTu::OnSceneSet(Scene* newScene, Scene*)
-{
-    /// Remove from current octree if any
-    RemoveFromOctree();
 
-    if (newScene)
-    {
-        // Octree must be attached to the scene root as a child
-        octree = newScene->FindChild<OctreeTu>();
-        // Transform may not be final yet. Schedule insertion for next octree update
-		//if (octree && IsEnabled())
-            //octree->QueueUpdate(drawable);
-    }
-}
 
 void OctreeNodeTu::OnTransformChanged()
 {

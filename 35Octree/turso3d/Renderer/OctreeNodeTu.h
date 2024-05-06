@@ -11,7 +11,6 @@ class Drawable;
 class OctantTu;
 class OctreeTu;
 class Ray;
-struct RaycastResult;
 
 static const unsigned short DF_STATIC_GEOMETRYTU = 0x0;
 static const unsigned short DF_SKINNED_GEOMETRYTU = 0x1;
@@ -67,7 +66,6 @@ public:
     /// Prepare object for rendering. Reset framenumber and calculate distance from camera. Called by Renderer in worker threads. Return false if should not render.
     virtual bool OnPrepareRender(unsigned short frameNumber, CameraTu* camera);
     /// Perform ray test on self and add possible hit to the result vector.
-    virtual void OnRaycast(std::vector<RaycastResult>& dest, const Ray& ray, float maxDistance);
     /// Add debug geometry to be rendered. Default implementation draws the bounding box.
     virtual void OnRenderDebug(DebugRendererTu* debug);
 
@@ -211,7 +209,7 @@ public:
 
 protected:
     /// Search for an octree from the scene root and add self to it.
-    void OnSceneSet(Scene* newScene, Scene* oldScene) override;
+    //void OnSceneSet(Scene* newScene, Scene* oldScene) override;
     /// Handle the transform matrix changing. Queue octree reinsertion for the drawable.
     void OnTransformChanged() override;
     /// Handle the bounding box changing. Only queue octree reinsertion, does not dirty the node hierarchy.

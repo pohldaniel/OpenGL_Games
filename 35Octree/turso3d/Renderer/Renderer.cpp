@@ -30,6 +30,7 @@
 #include <cstring>
 #include <tracy/Tracy.hpp>
 #include <iostream>
+#include <engine/Shader.h>
 
 static const size_t DRAWABLES_PER_BATCH_TASK = 128;
 static const size_t NUM_BOX_INDICES = 36;
@@ -253,17 +254,17 @@ void Renderer::SetShadowDepthBiasMul(float depthBiasMul_, float slopeScaleBiasMu
     shadowMapsDirty = true;
 }
 
-void Renderer::PrepareView(Scene* scene_, CameraTu* camera_, bool drawShadows_, bool useOcclusion_)
+void Renderer::PrepareView(OctreeTu* scene_, CameraTu* camera_, bool drawShadows_, bool useOcclusion_, float dt)
 {
     ZoneScoped;
 
     if (!scene_ || !camera_)
         return;
-
-    scene = scene_;
+	m_dt = dt;
+    //scene = scene_;
     camera = camera_;
-    octree = scene->FindChild<OctreeTu>();
-    lightEnvironment = scene->FindChild<LightEnvironment>();
+    octree = scene_;
+    //lightEnvironment = scene->FindChild<LightEnvironment>();
     if (!octree)
         return;
 
@@ -308,7 +309,7 @@ void Renderer::PrepareView(Scene* scene_, CameraTu* camera_, bool drawShadows_, 
     }
 
     // Process moved / animated objects' octree reinsertions
-    octree->Update(frameNumber);
+    octree->Update();
 
     // Precalculate SAT test parameters for accurate frustum test (verify what octants to occlusion query)
     if (useOcclusion)
@@ -323,7 +324,7 @@ void Renderer::PrepareView(Scene* scene_, CameraTu* camera_, bool drawShadows_, 
 
     // Find the starting points for octree traversal. Include the root if it contains drawables that didn't fit elsewhere
     OctantTu* rootOctant = octree->Root();
-    if (rootOctant->_Drawables().size())
+    if (rootOctant->Drawables().size())
         rootLevelOctants.push_back(rootOctant);
 
     for (size_t i = 0; i < NUM_OCTANTSTU; ++i)
@@ -516,8 +517,8 @@ void Renderer::RenderDebug()
         for (auto oIt = result.octants.begin(); oIt != result.octants.end(); ++oIt)
         {
             OctantTu* octant = oIt->first;
-            octant->OnRenderDebug(debug);
-            const std::vector<ShapeNode*>& drawables = octant->_Drawables();
+            //octant->OnRenderDebug(debug);
+            const std::vector<ShapeNode*>& drawables = octant->Drawables();
 
             for (auto dIt = drawables.begin(); dIt != drawables.end(); ++dIt)
             {
@@ -536,7 +537,7 @@ TextureTu* Renderer::ShadowMapTexture(size_t index) const
 
 void Renderer::CollectOctantsAndLights(OctantTu* octant, ThreadOctantResult& result, unsigned char planeMask)
 {
-    const BoundingBoxTu& octantBox = octant->CullingBox();
+    const BoundingBox& octantBox = octant->CullingBox();
 
     if (planeMask)
     {
@@ -588,7 +589,7 @@ void Renderer::CollectOctantsAndLights(OctantTu* octant, ThreadOctantResult& res
             // Note: visible octants will also add a time-based staggering to reduce queries
         case VIS_VISIBLETU:
             OctantTu* parent = octant->Parent();
-            if (octant->_Drawables().size() > 0 || (parent && parent->Visibility() != VIS_VISIBLETU))
+            if (octant->Drawables().size() > 0 || (parent && parent->Visibility() != VIS_VISIBLETU))
                 AddOcclusionQuery(octant, result, planeMask);
             break;
         }
@@ -599,7 +600,7 @@ void Renderer::CollectOctantsAndLights(OctantTu* octant, ThreadOctantResult& res
         octant->SetVisibility(VIS_VISIBLE_UNKNOWNTU, false);
     }
 
-    const std::vector<ShapeNode*>& drawables = octant->_Drawables();
+    const std::vector<ShapeNode*>& drawables = octant->Drawables();
 
     for (auto it = drawables.begin(); it != drawables.end(); ++it)
     {
@@ -652,8 +653,10 @@ void Renderer::AddOcclusionQuery(OctantTu* octant, ThreadOctantResult& result, u
 {
     // No-op if previous query still ongoing. Also If the octant intersects the frustum, verify with SAT test that it actually covers some screen area
     // Otherwise the occlusion test will produce a false negative
-	if (octant->CheckNewOcclusionQuery(lastFrameTime) && (!planeMask || frustum.IsInsideSAT(octant->CullingBox(), frustumSATData))) {
-		//std::cout << "--------------" << std::endl;
+
+	//std::cout << m_dt << "  " << lastFrameTime << std::endl;
+
+	if (octant->CheckNewOcclusionQuery(m_dt) && (!planeMask || frustum.IsInsideSAT(octant->CullingBox(), frustumSATData))) {
 		result.occlusionQueries.push_back(octant);
 	}
 }
@@ -969,8 +972,8 @@ void Renderer::RenderOcclusionQueries()
         {
             OctantTu* octant = *it;
 
-            const BoundingBoxTu& octantBox = octant->CullingBox();
-            BoundingBoxTu box(octantBox.min - enlargement, octantBox.max + enlargement);
+            const BoundingBox& octantBox = octant->CullingBox();
+            BoundingBoxTu box(Vector3(octantBox.min[0], octantBox.min[1], octantBox.min[2]) - enlargement, Vector3(octantBox.max[0], octantBox.max[1], octantBox.max[2]) + enlargement);
 
             // If bounding box could be clipped by near plane, assume visible without performing query
             if (box.Distance(cameraPosition) < 2.0f * nearClip)
@@ -1829,7 +1832,6 @@ void RegisterRendererLibrary()
 
     // Scene node base attributes are needed
 	RegisterSceneLibrary();
-    OctreeTu::RegisterObject();
 	BoneTu::RegisterObject();
     CameraTu::RegisterObject();
     OctreeNodeTu::RegisterObject();

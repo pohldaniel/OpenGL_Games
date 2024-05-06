@@ -118,38 +118,6 @@ bool LightDrawable::OnPrepareRender(unsigned short frameNumber, CameraTu* camera
     return true;
 }
 
-void LightDrawable::OnRaycast(std::vector<RaycastResult>& dest, const Ray& ray, float maxDistance_)
-{
-    if (lightType == LIGHT_SPOT)
-    {
-        float hitDistance = ray.HitDistance(WorldFrustum());
-        if (hitDistance <= maxDistance_)
-        {
-            RaycastResult res;
-            res.position = ray.origin + hitDistance * ray.direction;
-            res.normal = -ray.direction;
-            res.distance = hitDistance;
-            res.drawable = this;
-            res.subObject = 0;
-            dest.push_back(res);
-        }
-    }
-    else if (lightType == LIGHT_POINT)
-    {
-        float hitDistance = ray.HitDistance(WorldSphere());
-        if (hitDistance <= maxDistance_)
-        {
-            RaycastResult res;
-            res.position = ray.origin + hitDistance * ray.direction;
-            res.normal = -ray.direction;
-            res.distance = hitDistance;
-            res.drawable = this;
-            res.subObject = 0;
-            dest.push_back(res);
-        }
-    }
-}
-
 void LightDrawable::OnRenderDebug(DebugRendererTu* debug)
 {
     if (lightType == LIGHT_SPOT)

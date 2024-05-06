@@ -151,48 +151,6 @@ void AnimatedModelDrawable::OnRender(ShaderProgram*, size_t)
     skinMatrixBuffer->Bind(UB_OBJECTDATA);
 }
 
-void AnimatedModelDrawable::OnRaycast(std::vector<RaycastResult>& dest, const Ray& ray, float maxDistance_)
-{
-    if (ray.HitDistance(WorldBoundingBox()) < maxDistance_ && model)
-    {
-        RaycastResult res;
-        res.distance = M_INFINITY;
-
-        // Perform raycast against each bone in its local space
-        const std::vector<ModelBone>& modelBones = model->Bones();
-
-        for (size_t i = 0; i < numBones; ++i)
-        {
-            if (!modelBones[i].active)
-                continue;
-
-            const Matrix3x4& transform = bones[i]->WorldTransform();
-            Ray localRay = ray.Transformed(transform.Inverse());
-            float localDistance = localRay.HitDistance(modelBones[i].boundingBox);
-
-            if (localDistance < M_INFINITY)
-            {
-                // If has a hit, transform it back to world space
-                Vector3 hitPosition = transform * (localRay.origin + localDistance * localRay.direction);
-                float hitDistance = (hitPosition - ray.origin).Length();
-
-                if (hitDistance < maxDistance_ && hitDistance < res.distance)
-                {
-                    res.position = hitPosition;
-                    /// \todo Hit normal not calculated correctly
-                    res.normal = -ray.direction;
-                    res.distance = hitDistance;
-                    res.drawable = this;
-                    res.subObject = i;
-                }
-            }
-        }
-
-        if (res.distance < maxDistance_)
-            dest.push_back(res);
-    }
-}
-
 void AnimatedModelDrawable::OnRenderDebug(DebugRendererTu* debug)
 {
     debug->AddBoundingBox(WorldBoundingBox(), Color::GREEN, false);

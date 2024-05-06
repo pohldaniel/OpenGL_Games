@@ -68,46 +68,6 @@ bool StaticModelDrawable::OnPrepareRender(unsigned short frameNumber, CameraTu* 
     return true;
 }
 
-void StaticModelDrawable::OnRaycast(std::vector<RaycastResult>& dest, const Ray& ray, float maxDistance_)
-{
-    if (ray.HitDistance(WorldBoundingBox()) < maxDistance_)
-    {
-        RaycastResult res;
-        res.distance = M_INFINITY;
-
-        // Perform model raycast in its local space
-        const Matrix3x4& transform = WorldTransform();
-        Ray localRay = ray.Transformed(transform.Inverse());
-
-        size_t numGeometries = batches.NumGeometries();
-
-        for (size_t i = 0; i < numGeometries; ++i)
-        {
-            Geometry* geom = batches.GetGeometry(i);
-            float localDistance = geom->HitDistance(localRay, &res.normal);
-
-            if (localDistance < M_INFINITY)
-            {
-                // If has a hit, transform it back to world space
-                Vector3 hitPosition = transform * (localRay.origin + localDistance * localRay.direction);
-                float hitDistance = (hitPosition - ray.origin).Length();
-
-                if (hitDistance < maxDistance_ && hitDistance < res.distance)
-                {
-                    res.position = hitPosition;
-                    res.normal = (transform * Vector4(res.normal, 0.0f)).Normalized();
-                    res.distance = hitDistance;
-                    res.drawable = this;
-                    res.subObject = i;
-                }
-            }
-        }
-
-        if (res.distance < maxDistance_)
-            dest.push_back(res);
-    }
-}
-
 StaticModel::StaticModel()
 {
     drawable = drawableAllocator.Allocate();

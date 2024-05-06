@@ -153,6 +153,27 @@ public:
         return planeMask;
     }
 
+	unsigned char IsInsideMasked(const BoundingBox& box, unsigned char planeMask) const {
+		Vector3f center = box.getCenter();
+		Vector3f edge = center - box.min;
+
+		for (size_t i = 0; i < NUM_FRUSTUM_PLANESTU; ++i) {
+			unsigned char bit = 1 << i;
+			if (planeMask & bit) {
+				const Plane& plane = planes[i];
+				float dist = Vector4f::Dot(Vector3f(plane.normal.x, plane.normal.y,plane.normal.z), center) + plane.d;
+				float absDist = Vector4f::DotAbs(Vector3f(plane.normal.x, plane.normal.y, plane.normal.z), edge);
+
+				if (dist < -absDist)
+					return 0xff;
+				else if (dist >= absDist)
+					planeMask &= ~bit;
+			}
+		}
+
+		return planeMask;
+	}
+
     /// Test if a bounding box is inside, using a mask to skip unnecessary planes.
     Intersection IsInsideMaskedFast(const BoundingBoxTu& box, unsigned char planeMask = 0x3f) const
     {
@@ -208,6 +229,18 @@ public:
 
         return INSIDE;
     }
+
+	Intersection IsInsideSAT(const BoundingBox& box, const SATDataTu& data) const
+	{
+		for (size_t i = 0; i < NUM_SAT_AXESTU; ++i)
+		{
+			std::pair<float, float> boxProj = box.projected(data.axes[i]);
+			if (data.frustumProj[i].second < boxProj.first || boxProj.second < data.frustumProj[i].first)
+				return OUTSIDE;
+		}
+
+		return INSIDE;
+	}
     
     /// Return distance of a point to the frustum, or 0 if inside.
     float Distance(const Vector3& point) const

@@ -88,7 +88,7 @@ public:
     /// Update GPU resources and set uniforms for rendering. Called by Renderer when geometry type is not static.
     void OnRender(ShaderProgram* program, size_t geomIndex) override;
     /// Perform ray test on self and add possible hit to the result vector.
-    void OnRaycast(std::vector<RaycastResult>& dest, const Ray& ray, float maxDistance) override;
+
     /// Add debug geometry to be rendered.
     void OnRenderDebug(DebugRendererTu* debug) override;
 

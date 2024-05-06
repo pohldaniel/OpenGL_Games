@@ -2,6 +2,7 @@
 
 #include <vector>
 #include "Vector.h"
+#include <turso3d/Math/Vector3.h>
 
 struct BoundingBox {
 
@@ -40,7 +41,8 @@ struct BoundingBox {
 	void merge(const Vector3f& min, const Vector3f& max);
 	float distance(const Vector3f & point) const;
 	std::pair<float, float> projected(const Vector3f& axis) const;
-
+	std::pair<float, float> projected(const Vector3& axis) const;
+	
 	void createBuffer();
 	void drawRaw() const;
 	void cleanup();

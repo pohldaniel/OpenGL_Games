@@ -199,18 +199,11 @@ public:
     void SetThreadedUpdate(bool enable) { threadedUpdate = enable; }
     /// Queue octree reinsertion for a drawable.
     void QueueUpdate(ShapeNode* drawable);
-
-
     /// Remove a drawable from the octree.
     void RemoveDrawable(ShapeNode* drawable);
     /// Add debug geometry to be rendered. Visualizes the whole octree.
    //void OnRenderOBB(const Vector4f& color = { 1.0f, 0.0f, 0.0f, 1.0f });
 	void OnRenderAABB(const Vector4f& color = { 0.0f, 1.0f, 0.0f, 1.0f });
-
-    /// Query for drawables with a raycast and return all results.
-    //void Raycast(std::vector<RaycastResult>& result, const Ray& ray, unsigned short nodeFlags, float maxDistance = M_INFINITY, unsigned layerMask = LAYERMASK_ALL) const;
-    /// Query for drawables with a raycast and return the closest result.
-    //RaycastResult RaycastSingle(const Ray& ray, unsigned short drawableFlags, float maxDistance = M_INFINITY, unsigned layerMask = LAYERMASK_ALL) const;
     /// Query for drawables using a volume such as frustum or sphere.
     template <class T> void FindDrawables(std::vector<ShapeNode*>& result, const T& volume, unsigned short drawableFlags, unsigned layerMask = LAYERMASK_ALL) const { CollectDrawables(result, const_cast<Octant*>(&root), volume, drawableFlags, layerMask); }
     /// Query for drawables using a frustum and masked testing.
@@ -285,13 +278,8 @@ public:
     void CollectDrawables(std::vector<ShapeNode*>& result, Octant* octant) const;
     /// Return all drawables matching flags from an octant recursively.
     void CollectDrawables(std::vector<ShapeNode*>& result, Octant* octant, unsigned short drawableFlags, unsigned layerMask) const;
-    /// Return all drawables matching flags along a ray.
-    //void CollectDrawables(std::vector<RaycastResult>& result, Octant* octant, const Ray& ray, unsigned short drawableFlags, float maxDistance, unsigned layerMask) const;
-    /// Return all visible drawables matching flags that could be potential raycast hits.
-	//void CollectDrawables(std::vector<std::pair<ShapeNode*, float> >& result, Octant* octant, const Ray& ray, unsigned short drawableFlags, float maxDistance, unsigned layerMask) const;
     /// Work function to check reinsertion of nodes.
     void CheckReinsertWork(Task* task, unsigned threadIndex);
-
 
     /// Collect nodes matching flags using a volume such as frustum or sphere.
     template <class T> void CollectDrawables(std::vector<ShapeNode*>& result, Octant* octant, const T& volume, unsigned short drawableFlags, unsigned layerMask) const

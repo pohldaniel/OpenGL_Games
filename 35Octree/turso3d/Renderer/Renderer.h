@@ -196,7 +196,7 @@ public:
     /// Set global depth bias multipiers for shadow maps.
     void SetShadowDepthBiasMul(float depthBiasMul, float slopeScaleBiasMul);
     /// Prepare view for rendering. This will utilize worker threads.
-    void PrepareView(Scene* scene, CameraTu* camera, bool drawShadows, bool useOcclusion);
+    void PrepareView(OctreeTu* scene, CameraTu* camera, bool drawShadows, bool useOcclusion, float dt);
     /// Render shadowmaps before rendering the view. Last shadow framebuffer will be left bound.
     void RenderShadowMaps();
     /// Clear with fog color and far depth (optional), then render opaque objects into the currently set framebuffer and viewport.
@@ -372,6 +372,8 @@ public:
     AutoPtr<FrameBufferTu> staticObjectShadowFbo;
     /// Vertex elements for the instancing buffer.
     std::vector<VertexElement> instanceVertexElements;
+
+	float m_dt;
 };
 
 /// Register Renderer related object factories and attributes.

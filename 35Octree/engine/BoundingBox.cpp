@@ -200,6 +200,19 @@ std::pair<float, float> BoundingBox::projected(const Vector3f& axis) const{
 	return std::make_pair(centerProj - edgeProj, centerProj + edgeProj);
 }
 
+std::pair<float, float> BoundingBox::projected(const Vector3& axis) const{
+	Vector3f _center = getCenter();
+	Vector3f _edge = max - _center;
+
+	Vector3 center = Vector3(_center[0], _center[1], _center[2]);
+	Vector3 edge = Vector3(_edge[0], _edge[1], _edge[2]);
+
+	float centerProj = axis.DotProduct(center);
+	float edgeProj = Abs(axis.Abs().DotProduct(edge));
+
+	return std::make_pair(centerProj - edgeProj, centerProj + edgeProj);
+}
+
 BoundingBox::~BoundingBox() {
 	cleanup();
 }

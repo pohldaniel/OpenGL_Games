@@ -75,8 +75,10 @@ Turso::Turso(StateMachine& machine) : State(machine, States::TURSO) {
 	scene = ObjectTu::Create<Scene>();
 	camera = ObjectTu::Create<CameraTu>();
 
-	CreateScene(scene, camera, 0);
+	//CreateScene(scene, camera, 0);
 	//CreateScene(scene, camera, 2);
+
+	m_octree = new OctreeTu();
 
 	camera->SetPosition(Vector3(0.0f, 20.0f, -75.0f));
 	camera->SetAspectRatio((float)Application::Width / (float)Application::Height);
@@ -240,7 +242,7 @@ void Turso::render() {
 	// Collect geometries and lights in frustum. Also set debug renderer to use the correct camera view
 	{
 		PROFILE(PrepareView);
-		renderer->PrepareView(scene, camera, shadowMode > 0, useOcclusion);
+		renderer->PrepareView(m_octree, camera, shadowMode > 0, useOcclusion, m_dt);
 		debugRenderer->SetView(camera);
 	}
 
@@ -254,7 +256,6 @@ void Turso::render() {
 									 viewProjMatrix.m30, viewProjMatrix.m31, viewProjMatrix.m32, viewProjMatrix.m33 };
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		renderer->RenderOpaque();
 
 		auto shader = Globals::shaderManager.getAssetPointer("texture");
 		shader->use();
@@ -266,7 +267,7 @@ void Turso::render() {
 			for (auto oIt = result.octants.begin(); oIt != result.octants.end(); ++oIt) {
 				OctantTu* octant = oIt->first;
 				
-				const std::vector<ShapeNode*>& drawables = octant->_Drawables();
+				const std::vector<ShapeNode*>& drawables = octant->Drawables();
 				for (auto dIt = drawables.begin(); dIt != drawables.end(); ++dIt) {
 					ShapeNode* drawable = *dIt;
 					shader->loadMatrix("u_model", Matrix4f::Transpose(drawable->getWorldTransformation()));
@@ -396,10 +397,10 @@ void Turso::CreateScene(Scene* scene, CameraTu* camera, int preset)
 
 	ResourceCache* cache = ObjectTu::Subsystem<ResourceCache>();
 
-	scene->Clear();
+	/*scene->Clear();
 	scene->CreateChild<OctreeTu>();
 	m_octree = scene->FindChild<OctreeTu>();
-	/*LightEnvironment* lightEnvironment = scene->CreateChild<LightEnvironment>();
+	LightEnvironment* lightEnvironment = scene->CreateChild<LightEnvironment>();
 
 	SetRandomSeed(1);
 
