@@ -1,9 +1,8 @@
 #include "ShapeNode.h"
 #include "../DebugRenderer.h"
 #include <Octree/Octree.h>
-#include <turso3d/Renderer/OctreeTu.h>
 
-ShapeNode::ShapeNode(const Shape& shape) : SceneNodeLC(), shape(shape), m_drawDebug(true), localBoundingBox(shape.getAABB()), m_octreeUpdate(true) , m_reinsertQueued(true), m_octant(nullptr), m_octantTu(nullptr) {
+ShapeNode::ShapeNode(const Shape& shape) : SceneNodeLC(), shape(shape), m_drawDebug(true), localBoundingBox(shape.getAABB()), m_octreeUpdate(true) , m_reinsertQueued(true), m_octant(nullptr) {
 	OnBoundingBoxChanged();
 }
 
@@ -67,10 +66,6 @@ const Shape& ShapeNode::getShape() const {
 	return shape;
 }
 
-Octant* ShapeNode::getOctant() const { 
-	return m_octant; 
-}
-
-OctantTu* ShapeNode::getOctantTu() const {
-	return m_octantTu;
+Octant* ShapeNode::getOctant() const {
+	return m_octant;
 }

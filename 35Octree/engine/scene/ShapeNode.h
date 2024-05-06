@@ -7,7 +7,6 @@
 
 
 class Octant;
-class OctantTu;
 class ShapeNode : public SceneNodeLC {
 
 public:
@@ -31,10 +30,8 @@ public:
 	const Shape& getShape() const;
 	void setDrawDebug(bool drawDebug);
 	Octant* getOctant() const;
-	OctantTu* getOctantTu() const;
 
 	Octant* m_octant;
-	OctantTu* m_octantTu;
 	mutable bool m_octreeUpdate;
 	mutable bool m_reinsertQueued;
 

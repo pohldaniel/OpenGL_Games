@@ -88,7 +88,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;src;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;..\libassimp\include;..\openal\include;..\sndfile\include;..\rapidjson\include;..\glm;Tracy;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;src;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;..\libassimp\include;..\openal\include;..\sndfile\include;..\rapidjson\include;..\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4005;</DisableSpecificWarnings>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
@@ -106,7 +106,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;src;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;..\libassimp\include;..\openal\include;..\sndfile\include;..\rapidjson\include;..\glm;Tracy;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;src;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;..\libassimp\include;..\openal\include;..\sndfile\include;..\rapidjson\include;..\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4005;</DisableSpecificWarnings>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
@@ -126,7 +126,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;src;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;..\libassimp\include;..\openal\include;..\sndfile\include;..\rapidjson\include;..\glm;Tracy;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;src;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;..\libassimp\include;..\openal\include;..\sndfile\include;..\rapidjson\include;..\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <DisableSpecificWarnings>4005;</DisableSpecificWarnings>
       <LanguageStandard>stdcpp17</LanguageStandard>
@@ -149,7 +149,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;src;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;..\libassimp\include;..\openal\include;..\sndfile\include;..\rapidjson\include;..\glm;Tracy;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;src;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;..\libassimp\include;..\openal\include;..\sndfile\include;..\rapidjson\include;..\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <DisableSpecificWarnings>4005;</DisableSpecificWarnings>
       <LanguageStandard>stdcpp17</LanguageStandard>
@@ -244,7 +244,6 @@
     <ClCompile Include="src\States\SSS\SSSOGLP.cpp" />
     <ClCompile Include="src\States\StateMachine.cpp" />
     <ClCompile Include="src\States\Stencil\Stencil.cpp" />
-    <ClCompile Include="src\States\Turso.cpp" />
     <ClCompile Include="src\Utils\Rasterizer.cpp" />
     <ClCompile Include="engine\ArrayBuffer.cpp" />
     <ClCompile Include="engine\Batchrenderer.cpp" />
@@ -305,82 +304,6 @@
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\States\Menu.cpp" />
     <ClCompile Include="src\Utils\SolidIO.cpp" />
-    <ClCompile Include="Tracy\TracyClient.cpp" />
-    <ClCompile Include="turso3d\Graphics\FrameBufferTu.cpp" />
-    <ClCompile Include="turso3d\Graphics\Graphics.cpp" />
-    <ClCompile Include="turso3d\Graphics\GraphicsDefs.cpp" />
-    <ClCompile Include="turso3d\Graphics\IndexBuffer.cpp" />
-    <ClCompile Include="turso3d\Graphics\RenderBuffer.cpp" />
-    <ClCompile Include="turso3d\Graphics\ShaderProgram.cpp" />
-    <ClCompile Include="turso3d\Graphics\ShaderTu.cpp" />
-    <ClCompile Include="turso3d\Graphics\TextureTu.cpp" />
-    <ClCompile Include="turso3d\Graphics\UniformBuffer.cpp" />
-    <ClCompile Include="turso3d\Graphics\VertexBuffer.cpp" />
-    <ClCompile Include="turso3d\Input\InputTu.cpp" />
-    <ClCompile Include="turso3d\IO\Arguments.cpp" />
-    <ClCompile Include="turso3d\IO\File.cpp" />
-    <ClCompile Include="turso3d\IO\FileSystem.cpp" />
-    <ClCompile Include="turso3d\IO\JSONValue.cpp" />
-    <ClCompile Include="turso3d\IO\Log.cpp" />
-    <ClCompile Include="turso3d\IO\MemoryBuffer.cpp" />
-    <ClCompile Include="turso3d\IO\ResourceRef.cpp" />
-    <ClCompile Include="turso3d\IO\Stream.cpp" />
-    <ClCompile Include="turso3d\IO\VectorBuffer.cpp" />
-    <ClCompile Include="turso3d\Math\AreaAllocator.cpp" />
-    <ClCompile Include="turso3d\Math\BoundingBoxTu.cpp" />
-    <ClCompile Include="turso3d\Math\Color.cpp" />
-    <ClCompile Include="turso3d\Math\FrustumTu.cpp" />
-    <ClCompile Include="turso3d\Math\IntBox.cpp" />
-    <ClCompile Include="turso3d\Math\IntRect.cpp" />
-    <ClCompile Include="turso3d\Math\IntVector2.cpp" />
-    <ClCompile Include="turso3d\Math\IntVector3.cpp" />
-    <ClCompile Include="turso3d\Math\Matrix3.cpp" />
-    <ClCompile Include="turso3d\Math\Matrix3x4.cpp" />
-    <ClCompile Include="turso3d\Math\Matrix4.cpp" />
-    <ClCompile Include="turso3d\Math\Plane.cpp" />
-    <ClCompile Include="turso3d\Math\Polyhedron.cpp" />
-    <ClCompile Include="turso3d\Math\Quaternion.cpp" />
-    <ClCompile Include="turso3d\Math\RandomTu.cpp" />
-    <ClCompile Include="turso3d\Math\Ray.cpp" />
-    <ClCompile Include="turso3d\Math\Rect.cpp" />
-    <ClCompile Include="turso3d\Math\Sphere.cpp" />
-    <ClCompile Include="turso3d\Math\Vector2.cpp" />
-    <ClCompile Include="turso3d\Math\Vector3.cpp" />
-    <ClCompile Include="turso3d\Math\Vector4.cpp" />
-    <ClCompile Include="turso3d\Object\Allocator.cpp" />
-    <ClCompile Include="turso3d\Object\Attribute.cpp" />
-    <ClCompile Include="turso3d\Object\EventTu.cpp" />
-    <ClCompile Include="turso3d\Object\ObjectResolver.cpp" />
-    <ClCompile Include="turso3d\Object\ObjectTu.cpp" />
-    <ClCompile Include="turso3d\Object\Ptr.cpp" />
-    <ClCompile Include="turso3d\Object\Serializable.cpp" />
-    <ClCompile Include="turso3d\Renderer\AnimatedModelTu.cpp" />
-    <ClCompile Include="turso3d\Renderer\AnimationStateTu.cpp" />
-    <ClCompile Include="turso3d\Renderer\AnimationTu.cpp" />
-    <ClCompile Include="turso3d\Renderer\Batch.cpp" />
-    <ClCompile Include="turso3d\Renderer\CameraTu.cpp" />
-    <ClCompile Include="turso3d\Renderer\DebugRendererTu.cpp" />
-    <ClCompile Include="turso3d\Renderer\GeometryNode.cpp" />
-    <ClCompile Include="turso3d\Renderer\Light.cpp" />
-    <ClCompile Include="turso3d\Renderer\LightEnvironment.cpp" />
-    <ClCompile Include="turso3d\Renderer\MaterialTu.cpp" />
-    <ClCompile Include="turso3d\Renderer\Model.cpp" />
-    <ClCompile Include="turso3d\Renderer\OctreeNodeTu.cpp" />
-    <ClCompile Include="turso3d\Renderer\OctreeTu.cpp" />
-    <ClCompile Include="turso3d\Renderer\Renderer.cpp" />
-    <ClCompile Include="turso3d\Renderer\StaticModel.cpp" />
-    <ClCompile Include="turso3d\Resource\Decompress.cpp" />
-    <ClCompile Include="turso3d\Resource\Image.cpp" />
-    <ClCompile Include="turso3d\Resource\JSONFile.cpp" />
-    <ClCompile Include="turso3d\Resource\Resource.cpp" />
-    <ClCompile Include="turso3d\Resource\ResourceCache.cpp" />
-    <ClCompile Include="turso3d\Scene\NodeTu.cpp" />
-    <ClCompile Include="turso3d\Scene\Scene.cpp" />
-    <ClCompile Include="turso3d\Scene\SpatialNode.cpp" />
-    <ClCompile Include="turso3d\Thread\WorkQueueTu.cpp" />
-    <ClCompile Include="turso3d\Time\Profiler.cpp" />
-    <ClCompile Include="turso3d\Time\TimerTu.cpp" />
-    <ClCompile Include="turso3d\Time\TimeUtils.cpp" />
     <ClCompile Include="vbm.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -584,7 +507,6 @@
     <ClInclude Include="src\States\SSS\SSSOGLP.h" />
     <ClInclude Include="src\States\StateMachine.h" />
     <ClInclude Include="src\States\Stencil\Stencil.h" />
-    <ClInclude Include="src\States\Turso.h" />
     <ClInclude Include="src\Utils\Rasterizer.h" />
     <ClInclude Include="Physics\BspConverter.h" />
     <ClInclude Include="Physics\BspLoader.h" />
@@ -602,83 +524,6 @@
     <ClInclude Include="Miniball\Miniball.h" />
     <ClInclude Include="src\States\Menu.h" />
     <ClInclude Include="src\Utils\SolidIO.h" />
-    <ClInclude Include="turso3d\Graphics\FrameBufferTu.h" />
-    <ClInclude Include="turso3d\Graphics\Graphics.h" />
-    <ClInclude Include="turso3d\Graphics\GraphicsDefs.h" />
-    <ClInclude Include="turso3d\Graphics\IndexBuffer.h" />
-    <ClInclude Include="turso3d\Graphics\RenderBuffer.h" />
-    <ClInclude Include="turso3d\Graphics\ShaderProgram.h" />
-    <ClInclude Include="turso3d\Graphics\ShaderTu.h" />
-    <ClInclude Include="turso3d\Graphics\TextureTu.h" />
-    <ClInclude Include="turso3d\Graphics\UniformBuffer.h" />
-    <ClInclude Include="turso3d\Graphics\VertexBuffer.h" />
-    <ClInclude Include="turso3d\Input\InputTu.h" />
-    <ClInclude Include="turso3d\IO\Arguments.h" />
-    <ClInclude Include="turso3d\IO\File.h" />
-    <ClInclude Include="turso3d\IO\FileSystem.h" />
-    <ClInclude Include="turso3d\IO\JSONValue.h" />
-    <ClInclude Include="turso3d\IO\Log.h" />
-    <ClInclude Include="turso3d\IO\MemoryBuffer.h" />
-    <ClInclude Include="turso3d\IO\ObjectRef.h" />
-    <ClInclude Include="turso3d\IO\ResourceRef.h" />
-    <ClInclude Include="turso3d\IO\Stream.h" />
-    <ClInclude Include="turso3d\IO\VectorBuffer.h" />
-    <ClInclude Include="turso3d\Math\AreaAllocator.h" />
-    <ClInclude Include="turso3d\Math\BoundingBoxTu.h" />
-    <ClInclude Include="turso3d\Math\Color.h" />
-    <ClInclude Include="turso3d\Math\FrustumTu.h" />
-    <ClInclude Include="turso3d\Math\IntBox.h" />
-    <ClInclude Include="turso3d\Math\IntRect.h" />
-    <ClInclude Include="turso3d\Math\IntVector2.h" />
-    <ClInclude Include="turso3d\Math\IntVector3.h" />
-    <ClInclude Include="turso3d\Math\Math.h" />
-    <ClInclude Include="turso3d\Math\Matrix3.h" />
-    <ClInclude Include="turso3d\Math\Matrix3x4.h" />
-    <ClInclude Include="turso3d\Math\Matrix4.h" />
-    <ClInclude Include="turso3d\Math\Plane.h" />
-    <ClInclude Include="turso3d\Math\Polyhedron.h" />
-    <ClInclude Include="turso3d\Math\Quaternion.h" />
-    <ClInclude Include="turso3d\Math\RandomTu.h" />
-    <ClInclude Include="turso3d\Math\Ray.h" />
-    <ClInclude Include="turso3d\Math\Rect.h" />
-    <ClInclude Include="turso3d\Math\Sphere.h" />
-    <ClInclude Include="turso3d\Math\Vector2.h" />
-    <ClInclude Include="turso3d\Math\Vector3.h" />
-    <ClInclude Include="turso3d\Math\Vector4.h" />
-    <ClInclude Include="turso3d\Object\Allocator.h" />
-    <ClInclude Include="turso3d\Object\Attribute.h" />
-    <ClInclude Include="turso3d\Object\EventTu.h" />
-    <ClInclude Include="turso3d\Object\ObjectResolver.h" />
-    <ClInclude Include="turso3d\Object\ObjectTu.h" />
-    <ClInclude Include="turso3d\Object\Ptr.h" />
-    <ClInclude Include="turso3d\Object\Serializable.h" />
-    <ClInclude Include="turso3d\Renderer\AnimatedModelTu.h" />
-    <ClInclude Include="turso3d\Renderer\AnimationStateTu.h" />
-    <ClInclude Include="turso3d\Renderer\AnimationTu.h" />
-    <ClInclude Include="turso3d\Renderer\Batch.h" />
-    <ClInclude Include="turso3d\Renderer\CameraTu.h" />
-    <ClInclude Include="turso3d\Renderer\DebugRendererTu.h" />
-    <ClInclude Include="turso3d\Renderer\GeometryNode.h" />
-    <ClInclude Include="turso3d\Renderer\Light.h" />
-    <ClInclude Include="turso3d\Renderer\LightEnvironment.h" />
-    <ClInclude Include="turso3d\Renderer\MaterialTu.h" />
-    <ClInclude Include="turso3d\Renderer\Model.h" />
-    <ClInclude Include="turso3d\Renderer\OctreeNodeTu.h" />
-    <ClInclude Include="turso3d\Renderer\OctreeTu.h" />
-    <ClInclude Include="turso3d\Renderer\Renderer.h" />
-    <ClInclude Include="turso3d\Renderer\StaticModel.h" />
-    <ClInclude Include="turso3d\Resource\Decompress.h" />
-    <ClInclude Include="turso3d\Resource\Image.h" />
-    <ClInclude Include="turso3d\Resource\JSONFile.h" />
-    <ClInclude Include="turso3d\Resource\Resource.h" />
-    <ClInclude Include="turso3d\Resource\ResourceCache.h" />
-    <ClInclude Include="turso3d\Scene\NodeTu.h" />
-    <ClInclude Include="turso3d\Scene\Scene.h" />
-    <ClInclude Include="turso3d\Scene\SpatialNode.h" />
-    <ClInclude Include="turso3d\Thread\WorkQueueTu.h" />
-    <ClInclude Include="turso3d\Time\Profiler.h" />
-    <ClInclude Include="turso3d\Time\TimerTu.h" />
-    <ClInclude Include="turso3d\Time\TimeUtils.h" />
     <ClInclude Include="vbm.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

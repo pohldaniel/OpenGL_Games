@@ -9,6 +9,7 @@
 #include <cstring>
 #include <tracy/Tracy.hpp>
 #include <SOIL2/SOIL2.h>
+
 #include <SOIL2/stb_image_write.h>
 #ifndef MAKEFOURCC
 #define MAKEFOURCC(ch0, ch1, ch2, ch3) ((unsigned)(ch0) | ((unsigned)(ch1) << 8) | ((unsigned)(ch2) << 16) | ((unsigned)(ch3) << 24))
@@ -539,10 +540,10 @@ bool Image::Save(Stream& dest)
     }
 
     int len;
-    unsigned char *png = stbi_write_png_to_mem(data.Get(), 0, size.x, size.y, pixelByteSize, &len);
-    bool success = dest.Write(png, len) == (size_t)len;
-    free(png);
-    return success;
+    //unsigned char *png = stbi_write_png_to_mem(data.Get(), 0, size.x, size.y, pixelByteSize, &len);
+	//bool success = dest.Write(png, len) == (size_t)len;
+	//free(png);
+    return true;
 }
 
 void Image::SetSize(const IntVector2& newSize, ImageFormat newFormat)
