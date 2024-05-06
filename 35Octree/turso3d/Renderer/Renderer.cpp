@@ -31,6 +31,7 @@
 #include <tracy/Tracy.hpp>
 #include <iostream>
 #include <engine/Shader.h>
+#include "Globals.h"
 
 static const size_t DRAWABLES_PER_BATCH_TASK = 128;
 static const size_t NUM_BOX_INDICES = 36;
@@ -154,10 +155,10 @@ void ShadowMap::Clear()
         it->clear();
 }
 
-Renderer::Renderer() :
+Renderer::Renderer(const Frustum& frustum, const Camera& camera) : m_frustum(frustum), 
+	m_camera(camera),
     graphics(Subsystem<Graphics>()),
     workQueue(Subsystem<WorkQueueTu>()),
-    frameNumber(0),
     clusterFrustumsDirty(true),
     depthBiasMul(1.0f),
     slopeScaleBiasMul(1.0f)
@@ -254,32 +255,23 @@ void Renderer::SetShadowDepthBiasMul(float depthBiasMul_, float slopeScaleBiasMu
     shadowMapsDirty = true;
 }
 
-void Renderer::PrepareView(OctreeTu* scene_, CameraTu* camera_, bool drawShadows_, bool useOcclusion_, float dt)
+void Renderer::PrepareView(OctreeTu* scene_, bool drawShadows_, bool useOcclusion_, float dt)
 {
     ZoneScoped;
 
-    if (!scene_ || !camera_)
+    if (!scene_)
         return;
 	m_dt = dt;
-    //scene = scene_;
-    camera = camera_;
+    
     octree = scene_;
     //lightEnvironment = scene->FindChild<LightEnvironment>();
     if (!octree)
         return;
 
-    // Framenumber is never 0
-    ++frameNumber;
-    if (!frameNumber)
-        ++frameNumber;
-
-
-	//std::cout << "Frame Number: " << frameNumber << std::endl;
-
+   
     drawShadows = shadowMaps ? drawShadows_ : false;
     useOcclusion = useOcclusion_;
-    frustum = camera->WorldFrustum();
-    viewMask = camera->ViewMask();
+
 
     // Clear results from last frame
     dirLight = nullptr;
@@ -310,10 +302,6 @@ void Renderer::PrepareView(OctreeTu* scene_, CameraTu* camera_, bool drawShadows
 
     // Process moved / animated objects' octree reinsertions
     octree->Update();
-
-    // Precalculate SAT test parameters for accurate frustum test (verify what octants to occlusion query)
-    if (useOcclusion)
-        frustumSATData.Calculate(frustum);
 
     // Check arrived occlusion query results while octree update goes on, then finish octree update
     CheckOcclusionQueries();
@@ -454,49 +442,12 @@ void Renderer::RenderShadowMaps()
 
 void Renderer::RenderOpaque(bool clear)
 {
-    ZoneScoped;
-
-    // Update main batches' instance transforms & light data
-    /*UpdateInstanceTransforms(instanceTransforms);
-    UpdateLightData();
-
-    if (shadowMaps)
-    {
-        shadowMaps[0].texture->Bind(TU_DIRLIGHTSHADOW);
-        shadowMaps[1].texture->Bind(TU_SHADOWATLAS);
-        faceSelectionTexture1->Bind(TU_FACESELECTION1);
-        faceSelectionTexture2->Bind(TU_FACESELECTION2);
-    }
-
-    clusterTexture->Bind(TU_LIGHTCLUSTERDATA);
-    lightDataBuffer->Bind(UB_LIGHTDATA);*/
-
-	//if (clear)
-	//graphics->Clear(true, true, IntRect::ZERO, lightEnvironment ? lightEnvironment->FogColor() : DEFAULT_FOG_COLOR);
-
-	RenderBatches(camera, opaqueBatches);
-
-    // Render occlusion now after opaques
-	//if (useOcclusion)
-	   //RenderOcclusionQueries();
+    
 }
 
 void Renderer::RenderAlpha()
 {
-    ZoneScoped;
-
-    if (shadowMaps)
-    {
-        shadowMaps[0].texture->Bind(TU_DIRLIGHTSHADOW);
-        shadowMaps[1].texture->Bind(TU_SHADOWATLAS);
-        faceSelectionTexture1->Bind(TU_FACESELECTION1);
-        faceSelectionTexture2->Bind(TU_FACESELECTION2);
-    }
-
-    clusterTexture->Bind(TU_LIGHTCLUSTERDATA);
-    lightDataBuffer->Bind(UB_LIGHTDATA);
-
-    RenderBatches(camera, alphaBatches);
+   
 }
 
 void Renderer::RenderDebug()
@@ -542,7 +493,7 @@ void Renderer::CollectOctantsAndLights(OctantTu* octant, ThreadOctantResult& res
     if (planeMask)
     {
         // If not already inside all frustum planes, do frustum test and terminate if completely outside
-        planeMask = frustum.IsInsideMasked(octantBox, planeMask);
+        planeMask = m_frustum.isInsideMasked(octantBox, planeMask);
         if (planeMask == 0xff)
         {
             // If octant becomes frustum culled, reset its visibility for when it comes back to view, including its children
@@ -653,10 +604,7 @@ void Renderer::AddOcclusionQuery(OctantTu* octant, ThreadOctantResult& result, u
 {
     // No-op if previous query still ongoing. Also If the octant intersects the frustum, verify with SAT test that it actually covers some screen area
     // Otherwise the occlusion test will produce a false negative
-
-	//std::cout << m_dt << "  " << lastFrameTime << std::endl;
-
-	if (octant->CheckNewOcclusionQuery(m_dt) && (!planeMask || frustum.IsInsideSAT(octant->CullingBox(), frustumSATData))) {
+	if (octant->CheckNewOcclusionQuery(m_dt) && (!planeMask || m_frustum.isInsideSAT(octant->CullingBox(), m_frustum.m_frustumSATData))) {
 		result.occlusionQueries.push_back(octant);
 	}
 }
@@ -702,35 +650,7 @@ bool Renderer::AllocateShadowMap(LightDrawable* light)
 
 void Renderer::SortMainBatches()
 {
-    ZoneScoped;
-
-    // Shadowcaster processing needs accurate scene min / max Z results, combine them from per-thread data
-    for (size_t i = 0; i < workQueue->NumThreads(); ++i)
-    {
-        ThreadBatchResult& res = batchResults[i];
-        minZ = Min(minZ, res.minZ);
-        maxZ = Max(maxZ, res.maxZ);
-        if (res.geometryBounds.IsDefined())
-            geometryBounds.Merge(res.geometryBounds);
-    }
-
-    minZ = Max(minZ, camera->NearClip());
-
-    // Signal that shadowcaster processing is OK to happen
-    workQueue->QueueTask(batchesReadyTask);
-
-    // Join per-thread collected batches and sort
-    for (size_t i = 0; i < workQueue->NumThreads(); ++i)
-    {
-        ThreadBatchResult& res = batchResults[i];
-        if (res.opaqueBatches.size())
-            opaqueBatches.batches.insert(opaqueBatches.batches.end(), res.opaqueBatches.begin(), res.opaqueBatches.end());
-        if (res.alphaBatches.size())
-            alphaBatches.batches.insert(alphaBatches.batches.end(), res.alphaBatches.begin(), res.alphaBatches.end());
-    }
-
-    opaqueBatches.Sort(instanceTransforms, SORT_STATE_AND_DISTANCE, hasInstancing);
-    alphaBatches.Sort(instanceTransforms, SORT_DISTANCE, hasInstancing);
+    
 }
 
 void Renderer::SortShadowBatches(ShadowMap& shadowMap)
@@ -781,148 +701,7 @@ void Renderer::UpdateLightData()
 
 void Renderer::RenderBatches(CameraTu* camera_, const BatchQueue& queue)
 {
-    ZoneScoped;
-
-    lastMaterial = nullptr;
-    lastPass = nullptr;
-
-    if (camera_ != lastCamera)
-    {
-        float nearClip = camera->NearClip();
-        float farClip = camera->FarClip();
-
-        perViewData.projectionMatrix = camera_->ProjectionMatrix();
-        perViewData.viewMatrix = camera_->ViewMatrix();
-        perViewData.viewProjMatrix = perViewData.projectionMatrix * perViewData.viewMatrix;
-        perViewData.depthParameters = Vector4(nearClip, farClip, camera_->IsOrthographic() ? 0.5f : 0.0f, camera_->IsOrthographic() ? 0.5f : 1.0f / farClip);
-        perViewData.cameraPosition = Vector4(camera_->WorldPosition(), 1.0f);
-
-        size_t dataSize = sizeof(PerViewUniforms);
-
-        // Set global lighting settings if is the main view
-        if (camera_ == camera)
-        {
-            perViewData.ambientColor = lightEnvironment ? lightEnvironment->AmbientColor() : DEFAULT_AMBIENT_COLOR;
-            perViewData.fogColor = lightEnvironment ? lightEnvironment->FogColor() : DEFAULT_FOG_COLOR;
-
-            float fogStart = lightEnvironment ? lightEnvironment->FogStart() : DEFAULT_FOG_START;
-            float fogEnd = lightEnvironment ? lightEnvironment->FogEnd() : DEFAULT_FOG_END;
-            float fogRange = Max(fogEnd - fogStart, M_EPSILON);
-            perViewData.fogParameters = Vector4(fogEnd / farClip, farClip / fogRange, 0.0f, 0.0f);
-        }
-
-        // Set directional light data if exists and is the main view
-        if (!dirLight || camera_ != camera)
-        {
-            perViewData.dirLightDirection = Vector4::ZERO;
-            perViewData.dirLightColor = Color::BLACK;
-            perViewData.dirLightShadowParameters = Vector4::ONE;
-            dataSize -= 2 * sizeof(Matrix4); // Leave out shadow matrices
-        }
-        else
-        {
-            perViewData.dirLightDirection = Vector4(-dirLight->WorldDirection(), 0.0f);
-            perViewData.dirLightColor = dirLight->GetColor();
-
-            if (dirLight->ShadowMap())
-            {
-                Vector2 cascadeSplits = dirLight->ShadowCascadeSplits();
-                float firstSplit = cascadeSplits.x / farClip;
-                float secondSplit = cascadeSplits.y / farClip;
-
-                perViewData.dirLightShadowSplits = Vector4(firstSplit, secondSplit, dirLight->ShadowFadeStart() * secondSplit, 1.0f / (secondSplit - dirLight->ShadowFadeStart() * secondSplit));
-                perViewData.dirLightShadowParameters = dirLight->ShadowParameters();
-                if (dirLight->ShadowViews().size() >= 2)
-                {
-                    perViewData.dirLightShadowMatrices[0] = dirLight->ShadowViews()[0].shadowMatrix;
-                    perViewData.dirLightShadowMatrices[1]  = dirLight->ShadowViews()[1].shadowMatrix;
-                }
-            }
-            else
-            {
-                perViewData.dirLightShadowParameters = Vector4::ONE;
-                dataSize -= 2 * sizeof(Matrix4); // Leave out shadow matrices
-            }
-        }
-
-        perViewDataBuffer->SetData(0, dataSize, &perViewData);
-
-        lastCamera = camera_;
-    }
-
-    perViewDataBuffer->Bind(UB_PERVIEWDATA);
-
-    /*for (auto it = queue.batches.begin(); it != queue.batches.end(); ++it)
-    {
-        const Batch& batch = *it;
-        unsigned char geometryBits = batch.programBits & SP_GEOMETRYBITS;
-
-        ShaderProgram* program = batch.pass->GetShaderProgram(batch.programBits);
-        if (!program->Bind())
-            continue;
-
-        MaterialTu* material = batch.pass->Parent();
-        if (batch.pass != lastPass)
-        {
-            if (material != lastMaterial)
-            {
-                for (size_t i = 0; i < MAX_MATERIAL_TEXTURE_UNITS; ++i)
-                {
-                    TextureTu* texture = material->GetTexture(i);
-                    if (texture)
-                        texture->Bind(i);
-                }
-
-                UniformBuffer* materialUniforms = material->GetUniformBuffer();
-                if (materialUniforms)
-                    materialUniforms->Bind(UB_MATERIALDATA);
-
-                lastMaterial = material;
-            }
-
-            CullMode cullMode = material->GetCullMode();
-            if (camera_->UseReverseCulling())
-            {
-                if (cullMode == CULL_BACK)
-                    cullMode = CULL_FRONT;
-                else if (cullMode == CULL_FRONT)
-                    cullMode = CULL_BACK;
-            }
-
-            graphics->SetRenderState(batch.pass->GetBlendMode(), cullMode, batch.pass->GetDepthTest(), batch.pass->GetColorWrite(), batch.pass->GetDepthWrite());
-
-            lastPass = batch.pass;
-        }
-
-        Geometry* geometry = batch.geometry;
-        VertexBuffer* vb = geometry->vertexBuffer;
-        IndexBuffer* ib = geometry->indexBuffer;
-        vb->Bind(program->Attributes());
-        if (ib)
-            ib->Bind();
-
-        if (geometryBits == GEOM_INSTANCED)
-        {
-            if (ib)
-                graphics->DrawIndexedInstanced(PT_TRIANGLE_LIST, geometry->drawStart, geometry->drawCount, instanceVertexBuffer, batch.instanceStart, batch.instanceCount);
-            else
-                graphics->DrawInstanced(PT_TRIANGLE_LIST, geometry->drawStart, geometry->drawCount, instanceVertexBuffer, batch.instanceStart, batch.instanceCount);
-
-            it += batch.instanceCount - 1;
-        }
-        else
-        {
-            if (!geometryBits)
-                graphics->SetUniform(program, U_WORLDMATRIX, *batch.worldTransform);
-            else
-                batch.drawable->OnRender(program, batch.geomIndex);
-
-            if (ib)
-                graphics->DrawIndexed(PT_TRIANGLE_LIST, geometry->drawStart, geometry->drawCount);
-            else
-                graphics->Draw(PT_TRIANGLE_LIST, geometry->drawStart, geometry->drawCount);
-        }
-    }*/
+   
 }
 
 void Renderer::CheckOcclusionQueries()
@@ -949,63 +728,60 @@ void Renderer::RenderOcclusionQueries()
     if (!boundingBoxShaderProgram)
         return;
 
-    Matrix3x4 boxMatrix(Matrix3x4::IDENTITY);
-    float nearClip = camera->NearClip();
+	Matrix4f boxMatrix(Matrix4f::IDENTITY);
+	float nearClip = m_camera.getNear();
 
-    // Use camera's motion since last frame to enlarge the bounding boxes. Use multiplied movement speed to account for latency in query results
-    Vector3 cameraPosition = camera->WorldPosition();
-    Vector3 cameraMove = cameraPosition - previousCameraPosition;
-    Vector3 enlargement = (OCCLUSION_MARGIN + 4.0f * cameraMove.Length()) * Vector3::ONE;
-
-    boundingBoxVertexBuffer->Bind(MASK_POSITION);
-    boundingBoxIndexBuffer->Bind();
-    boundingBoxShaderProgram->Bind();
-    //graphics->SetRenderState(BLEND_REPLACE, CULL_BACK, CMP_LESS_EQUAL, false, false);
+	// Use camera's motion since last frame to enlarge the bounding boxes. Use multiplied movement speed to account for latency in query results
+	Vector3f cameraPosition = m_camera.getPosition();
+	Vector3f cameraMove = cameraPosition - previousCameraPosition;
+	Vector3f enlargement = (OCCLUSION_MARGIN + 4.0f * cameraMove.length()) * Vector3f::ONE;
 
 	glDisable(GL_BLEND);
 	glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
 	glDepthMask(GL_FALSE);
 
-    for (size_t i = 0; i < NUM_OCTANT_TASKS; ++i)
-    {
-        for (auto it = octantResults[i].occlusionQueries.begin(); it != octantResults[i].occlusionQueries.end(); ++it)
-        {
-            OctantTu* octant = *it;
+	auto shader = Globals::shaderManager.getAssetPointer("boundingBox");
+	shader->use();
+	shader->loadMatrix("u_vp", m_camera.getPerspectiveMatrix() * m_camera.getViewMatrix());
 
-            const BoundingBox& octantBox = octant->CullingBox();
-            BoundingBoxTu box(Vector3(octantBox.min[0], octantBox.min[1], octantBox.min[2]) - enlargement, Vector3(octantBox.max[0], octantBox.max[1], octantBox.max[2]) + enlargement);
+	for (size_t i = 0; i < NUM_OCTANT_TASKS; ++i) {
+		for (auto it = octantResults[i].occlusionQueries.begin(); it != octantResults[i].occlusionQueries.end(); ++it) {
+			OctantTu* octant = *it;
 
-            // If bounding box could be clipped by near plane, assume visible without performing query
-            if (box.Distance(cameraPosition) < 2.0f * nearClip)
-            {
-                octant->OnOcclusionQueryResult(true);
-                continue;
-            }
+			const BoundingBox& octantBox = octant->CullingBox();
+			BoundingBox box(octantBox.min - enlargement, octantBox.max + enlargement);
 
-            Vector3 size = box.HalfSize();
-            Vector3 center = box.Center();
+			// If bounding box could be clipped by near plane, assume visible without performing query
+			if (box.distance(cameraPosition) < 2.0f * nearClip) {
+				octant->OnOcclusionQueryResult(true);
+				continue;
+			}
 
-            boxMatrix.m00 = size.x;
-            boxMatrix.m11 = size.y;
-            boxMatrix.m22 = size.z;
-            boxMatrix.m03 = center.x;
-            boxMatrix.m13 = center.y;
-            boxMatrix.m23 = center.z;
+			Vector3f size = box.getHalfSize();
+			Vector3f center = box.getCenter();
 
-            graphics->SetUniform(boundingBoxShaderProgram, U_WORLDMATRIX, boxMatrix);
+			boxMatrix[0][0] = size[0];
+			boxMatrix[1][1] = size[1];
+			boxMatrix[2][2] = size[2];
+			boxMatrix[3][0] = center[0];
+			boxMatrix[3][1] = center[1];
+			boxMatrix[3][2] = center[2];
 
-            unsigned queryId = graphics->BeginOcclusionQuery(octant);
-            graphics->DrawIndexed(PT_TRIANGLE_LIST, 0, NUM_BOX_INDICES);
-            graphics->EndOcclusionQuery();
+			shader->loadMatrix("u_model", boxMatrix);
+			unsigned queryId = graphics->BeginOcclusionQuery(octant);
+			Globals::shapeManager.get("boundingBox").drawRaw();
+			graphics->EndOcclusionQuery();
 
-            // Store query to octant to make sure we don't re-test it until result arrives
-            octant->OnOcclusionQuery(queryId);
-        }
-    }
+			// Store query to octant to make sure we don't re-test it until result arrives
+			octant->OnOcclusionQuery(queryId);
+		}
+	}
+	shader->unuse();
+
 	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 	glDepthMask(GL_TRUE);
 	glEnable(GL_BLEND);
-    previousCameraPosition = cameraPosition;
+	previousCameraPosition = cameraPosition;
 }
 
 void Renderer::DefineFaceSelectionTextures()
@@ -1094,55 +870,7 @@ void Renderer::DefineBoundingBoxGeometry()
 
 void Renderer::DefineClusterFrustums()
 {
-    Matrix4 cameraProj = camera->ProjectionMatrix(false);
-    if (lastClusterFrustumProj != cameraProj)
-        clusterFrustumsDirty = true;
-
-    if (clusterFrustumsDirty)
-    {
-        ZoneScoped;
-
-        Matrix4 cameraProjInverse = cameraProj.Inverse();
-        float cameraNearClip = camera->NearClip();
-        float cameraFarClip = camera->FarClip();
-        size_t idx = 0;
-
-        float xStep = 2.0f / NUM_CLUSTER_X;
-        float yStep = 2.0f / NUM_CLUSTER_Y;
-        float zStep = 1.0f / NUM_CLUSTER_Z;
-
-        for (size_t z = 0; z < NUM_CLUSTER_Z; ++z)
-        {
-            Vector4 nearVec = cameraProj * Vector4(0.0f, 0.0f, z > 0 ? powf(z * zStep, 2.0f) * cameraFarClip : cameraNearClip, 1.0f);
-            Vector4 farVec = cameraProj * Vector4(0.0f, 0.0f, powf((z + 1) * zStep, 2.0f) * cameraFarClip, 1.0f);
-            float near = nearVec.z / nearVec.w;
-            float far = farVec.z / farVec.w;
-
-            for (size_t y = 0; y < NUM_CLUSTER_Y; ++y)
-            {
-                for (size_t x = 0; x < NUM_CLUSTER_X; ++x)
-                {
-                    FrustumTu& clusterFrustum = clusterCullData[idx].frustum;
-                    BoundingBoxTu& clusterBox = clusterCullData[idx].boundingBox;
-
-                    clusterFrustum.vertices[0] = cameraProjInverse * Vector3(-1.0f + xStep * (x + 1), 1.0f - yStep * y, near);
-                    clusterFrustum.vertices[1] = cameraProjInverse * Vector3(-1.0f + xStep * (x + 1), 1.0f - yStep * (y + 1), near);
-                    clusterFrustum.vertices[2] = cameraProjInverse * Vector3(-1.0f + xStep * x, 1.0f - yStep * (y + 1), near);
-                    clusterFrustum.vertices[3] = cameraProjInverse * Vector3(-1.0f + xStep * x, 1.0f - yStep * y, near);
-                    clusterFrustum.vertices[4] = cameraProjInverse * Vector3(-1.0f + xStep * (x + 1), 1.0f - yStep * y, far);
-                    clusterFrustum.vertices[5] = cameraProjInverse * Vector3(-1.0f + xStep * (x + 1), 1.0f - yStep * (y + 1), far);
-                    clusterFrustum.vertices[6] = cameraProjInverse * Vector3(-1.0f + xStep * x, 1.0f - yStep * (y + 1), far);
-                    clusterFrustum.vertices[7] = cameraProjInverse * Vector3(-1.0f + xStep * x, 1.0f - yStep * y, far);
-                    clusterFrustum.UpdatePlanes();
-                    clusterBox.Define(clusterFrustum);
-                    ++idx;
-                }
-            }
-        }
-
-        lastClusterFrustumProj = cameraProj;
-        clusterFrustumsDirty = false;
-    }
+   
 }
 
 void Renderer::CollectOctantsWork(TaskTu* task_, unsigned)
@@ -1747,81 +1475,7 @@ void Renderer::BatchesReadyWork(TaskTu*, unsigned)
 
 void Renderer::CullLightsToFrustumWork(TaskTu* task, unsigned)
 {
-    ZoneScoped;
-
-    // Cull lights against each cluster frustum on the given Z-level
-    size_t z = static_cast<CullLightsTaskTu*>(task)->z;
-    const Matrix3x4& cameraView = camera->ViewMatrix();
-
-    // Clear old light data first
-    size_t idx = z * NUM_CLUSTER_X * NUM_CLUSTER_Y;
-    ClusterCullData* cullData = &clusterCullData[idx];
-    for (size_t i = 0; i < NUM_CLUSTER_X * NUM_CLUSTER_Y; ++i)
-    {
-        cullData->numLights = 0;
-        ++cullData;
-    }
-
-    // Go through lights and add to each affected cluster. Do culling checks both ways to reduce false positives
-    for (size_t i = 0; i < lights.size(); ++i)
-    {
-        LightDrawable* light = lights[i];
-        LightType lightType = light->GetLightType();
-
-        if (lightType == LIGHT_POINT)
-        {
-            Sphere bounds(cameraView * light->WorldPosition(), light->Range());
-            float minViewZ = bounds.center.z - light->Range();
-            float maxViewZ = bounds.center.z + light->Range();
-
-            idx = z * NUM_CLUSTER_X * NUM_CLUSTER_Y;
-            cullData = &clusterCullData[idx];
-            if (minViewZ > cullData->frustum.vertices[4].z || maxViewZ < cullData->frustum.vertices[0].z)
-                continue;
-
-            for (size_t y = 0; y < NUM_CLUSTER_Y; ++y)
-            {
-                for (size_t x = 0; x < NUM_CLUSTER_X; ++x)
-                {
-                    if (cullData->numLights < MAX_LIGHTS_CLUSTER)
-                    {
-                        if (bounds.IsInsideFast(cullData->boundingBox) && cullData->frustum.IsInsideFast(bounds))
-                            clusterData[(idx << 4) + cullData->numLights++] = (unsigned char)(i + 1);
-                    }
-
-                    ++idx;
-                    ++cullData;
-                }
-            }
-        }
-        else if (lightType == LIGHT_SPOT)
-        {
-            FrustumTu bounds(light->WorldFrustum().Transformed(cameraView));
-            BoundingBoxTu boundsBox(bounds);
-            float minViewZ = boundsBox.min.z;
-            float maxViewZ = boundsBox.max.z;
-
-            idx = z * NUM_CLUSTER_X * NUM_CLUSTER_Y;
-            cullData = &clusterCullData[idx];
-            if (minViewZ > cullData->frustum.vertices[4].z || maxViewZ < cullData->frustum.vertices[0].z)
-                continue;
-
-            for (size_t y = 0; y < NUM_CLUSTER_Y; ++y)
-            {
-                for (size_t x = 0; x < NUM_CLUSTER_X; ++x)
-                {
-                    if (cullData->numLights < MAX_LIGHTS_CLUSTER)
-                    {
-                        if (bounds.IsInsideFast(cullData->boundingBox) && cullData->frustum.IsInsideFast(boundsBox))
-                            clusterData[(idx << 4) + cullData->numLights++] = (unsigned char)(i + 1);
-                    }
-
-                    ++idx;
-                    ++cullData;
-                }
-            }
-        }
-    }
+    
 }
 
 void RegisterRendererLibrary()

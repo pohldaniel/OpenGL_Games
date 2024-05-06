@@ -21,7 +21,8 @@ out vec4 vertColor;
 void main(void){
    //gl_Position = u_projection * u_view * u_model * vec4(i_position, 1.0);
    
-   gl_Position = vec4(i_position, 1.0) * u_model * u_vp;
+   //gl_Position = vec4(i_position, 1.0) * u_model * u_vp;
+   gl_Position = u_vp * u_model * vec4(i_position, 1.0);
    
    v_texCoord = i_texCoord;
    v_normal = i_normal;

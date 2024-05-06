@@ -9,7 +9,8 @@
 #include "../Resource/Image.h"
 #include "../Thread/WorkQueueTu.h"
 #include "Batch.h"
-
+#include <engine/Frustum.h>
+#include <engine/Camera.h>
 #include <atomic>
 
 class CameraTu;
@@ -187,7 +188,7 @@ class Renderer : public ObjectTu
 
 public:
     /// Construct. Register subsystem and objects. Graphics and WorkQueue subsystems must have been initialized.
-    Renderer();
+    Renderer(const Frustum& frustum, const Camera& camera);
     /// Destruct.
     ~Renderer();
 
@@ -196,7 +197,7 @@ public:
     /// Set global depth bias multipiers for shadow maps.
     void SetShadowDepthBiasMul(float depthBiasMul, float slopeScaleBiasMul);
     /// Prepare view for rendering. This will utilize worker threads.
-    void PrepareView(OctreeTu* scene, CameraTu* camera, bool drawShadows, bool useOcclusion, float dt);
+    void PrepareView(OctreeTu* scene, bool drawShadows, bool useOcclusion, float dt);
     /// Render shadowmaps before rendering the view. Last shadow framebuffer will be left bound.
     void RenderShadowMaps();
     /// Clear with fog color and far depth (optional), then render opaque objects into the currently set framebuffer and viewport.
@@ -259,17 +260,13 @@ public:
     /// Current scene light environment.
     LightEnvironment* lightEnvironment;
     /// Camera used to render the current scene.
-    CameraTu* camera;
+	//CameraTu* camera;
     /// Camera frustum.
-    FrustumTu frustum;
+	//CFrustumTu frustum;
     /// Cached graphics subsystem.
     Graphics* graphics;
     /// Cached work queue subsystem.
     WorkQueueTu* workQueue;
-    /// Camera view mask.
-    unsigned viewMask;
-    /// Framenumber.
-    unsigned short frameNumber;
     /// Shadow use flag.
     bool drawShadows;
     /// Occlusion use flag.
@@ -281,7 +278,7 @@ public:
     /// Instancing supported flag.
     bool hasInstancing;
     /// Previous frame camera position for occlusion culling bounding box elongation.
-    Vector3 previousCameraPosition;
+    Vector3f previousCameraPosition;
     /// Last frame time for occlusion query staggering.
     float lastFrameTime;
     /// Root-level octants, used as a starting point for octant and batch collection. The root octant is included if it also contains drawables.
@@ -333,7 +330,7 @@ public:
     /// Per-view uniform buffer data CPU copy.
     PerViewUniforms perViewData;
     /// Frustum SAT test data for verifying whether to add an occlusion query.
-    SATDataTu frustumSATData;
+	//SATDataTu frustumSATData;
     /// Tasks for octant collection.
     AutoPtr<CollectOctantsTaskTu> collectOctantsTasks[NUM_OCTANT_TASKS];
     /// %Task for light processing.
@@ -374,6 +371,8 @@ public:
     std::vector<VertexElement> instanceVertexElements;
 
 	float m_dt;
+	const Frustum& m_frustum;
+	const Camera& m_camera;
 };
 
 /// Register Renderer related object factories and attributes.

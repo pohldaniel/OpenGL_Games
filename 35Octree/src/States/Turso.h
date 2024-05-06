@@ -1,10 +1,11 @@
 #pragma once
 
-#include "engine/input/MouseEventListener.h"
-#include "engine/input/KeyboardEventListener.h"
-#include "engine/Camera.h"
-#include "engine/TrackBall.h"
-#include "StateMachine.h"
+#include <engine/input/MouseEventListener.h>
+#include <engine/input/KeyboardEventListener.h>
+#include <engine/Camera.h>
+#include <engine/TrackBall.h>
+#include <engine/Frustum.h>
+#include <States/StateMachine.h>
 
 #include <turso3d/Graphics/FrameBufferTu.h>
 #include <turso3d/Graphics/Graphics.h>
@@ -57,19 +58,14 @@ public:
 	void OnMouseButtonUp(Event::MouseButtonEvent& event) override;
 	void OnKeyDown(Event::KeyboardEvent& event) override;
 
-	void CreateScene(Scene* scene, CameraTu* camera, int preset);
-	void HandleUpdate(EventTu& eventType);
 private:
 
 	void renderUi();
 
-	//Camera m_camera;
-	TrackBall m_trackball;
-	Transform m_transform;
+	Camera m_camera;
 
 	bool m_initUi = true;
 	bool m_drawUi = true;
-
 
 	AutoPtr<WorkQueueTu> workQueue;
 	AutoPtr<Profiler> profiler;
@@ -91,10 +87,6 @@ private:
 	AutoPtr<TextureTu> occlusionDebugTexture;
 
 	AutoPtr<TextureTu> noiseTexture;
-
-	SharedPtr<Scene> scene;
-	SharedPtr<CameraTu> camera;
-
 	float yaw = 0.0f, pitch = 0.0f;
 	HiresTimer frameTimer;
 	TimerTu profilerTimer;
@@ -107,13 +99,15 @@ private:
 	bool drawShadowDebug = false;
 	bool drawOcclusionDebug = false;
 
-	std::string profilerOutput;
+	float m_fovx = 44.0f;
+	float m_far = 70.0f;
+	float m_near = 5.0f;
+	float m_distance = 0.01f;
+	bool m_overview = false;
 
-	std::vector<StaticModel*> rotatingObjects;
-	std::vector<AnimatedModelTu*> animatingObjects;
-
-	EventTu eventTu;
 	SceneNodeLC* m_root;
 	std::vector<ShapeNode*> m_entities;
 	OctreeTu* m_octree;
+	Frustum m_frustum;
+	Matrix4f perspective, m_view;
 };
