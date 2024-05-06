@@ -116,90 +116,21 @@ void ThreadOctantResult::Clear()
     drawableAcc = 0;
     taskOctantIdx = 0;
     batchTaskIdx = 0;
-    lights.clear();
     octants.clear();
     occlusionQueries.clear();
 }
 
-void ThreadBatchResult::Clear()
-{
-    minZ = M_MAX_FLOAT;
-    maxZ = 0.0f;
-    geometryBounds.Undefine();
-    opaqueBatches.clear();
-    alphaBatches.clear();
-}
 
-ShadowMap::ShadowMap()
-{
-    // Construct texture but do not define its size yet
-    texture = ObjectTu::Create<TextureTu>();
-    fbo = new FrameBufferTu();
-}
-
-ShadowMap::~ShadowMap()
-{
-}
-
-void ShadowMap::Clear()
-{
-    freeQueueIdx = 0;
-    freeCasterListIdx = 0;
-    allocator.Reset(texture->Width(), texture->Height(), 0, 0, false);
-    shadowViews.clear();
-    instanceTransforms.clear();
-
-    for (auto it = shadowBatches.begin(); it != shadowBatches.end(); ++it)
-        it->Clear();
-    for (auto it = shadowCasters.begin(); it != shadowCasters.end(); ++it)
-        it->clear();
-}
-
-Renderer::Renderer(const Frustum& frustum, const Camera& camera) : m_frustum(frustum), 
-	m_camera(camera),
-    graphics(Subsystem<Graphics>()),
-    workQueue(Subsystem<WorkQueueTu>()),
-    clusterFrustumsDirty(true),
-    depthBiasMul(1.0f),
-    slopeScaleBiasMul(1.0f)
-{
+Renderer::Renderer(const Frustum& frustum, const Camera& camera, OctreeTu* octree) : m_octree(octree), m_frustum(frustum), m_camera(camera),graphics(Subsystem<Graphics>()),workQueue(Subsystem<WorkQueueTu>()){
     RegisterSubsystem(this);
     RegisterRendererLibrary();
 
-    clusterTexture = new TextureTu();
-    clusterTexture->Define(TEX_3D, IntVector3(NUM_CLUSTER_X, NUM_CLUSTER_Y, NUM_CLUSTER_Z), FMT_RGBA32U, 1);
-    clusterTexture->DefineSampler(FILTER_POINT, ADDRESS_CLAMP, ADDRESS_CLAMP, ADDRESS_CLAMP);
-
-	clusterCullData = new ClusterCullData[NUM_CLUSTER_X * NUM_CLUSTER_Y * NUM_CLUSTER_Z];
-    clusterData = new unsigned char[MAX_LIGHTS_CLUSTER * NUM_CLUSTER_X * NUM_CLUSTER_Y * NUM_CLUSTER_Z];
-	lightData = new LightData[MAX_LIGHTS + 1];
-
-	perViewDataBuffer = new UniformBuffer();
-    perViewDataBuffer->Define(USAGE_DYNAMIC, sizeof(PerViewUniforms));
-
-    lightDataBuffer = new UniformBuffer();
-    lightDataBuffer->Define(USAGE_DYNAMIC, MAX_LIGHTS * sizeof(LightData));
-
     octantResults = new ThreadOctantResult[NUM_OCTANT_TASKS];
-    batchResults = new ThreadBatchResult[workQueue->NumThreads()];
 
-    for (size_t i = 0; i < NUM_OCTANTSTU + 1; ++i)
-    {
+    for (size_t i = 0; i < NUM_OCTANTSTU + 1; ++i){
         collectOctantsTasks[i] = new CollectOctantsTaskTu(this, &Renderer::CollectOctantsWork);
         collectOctantsTasks[i]->resultIdx = i;
-    }
-
-    for (size_t z = 0; z < NUM_CLUSTER_Z; ++z)
-    {
-        cullLightsTasks[z] = new CullLightsTaskTu(this, &Renderer::CullLightsToFrustumWork);
-        cullLightsTasks[z]->z = z;
-    }
-
-    //processLightsTask = new MemberFunctionTaskTu<Renderer>(this, &Renderer::ProcessLightsWork);
-    batchesReadyTask = new MemberFunctionTaskTu<Renderer>(this, &Renderer::BatchesReadyWork);
-	//processShadowCastersTask = new MemberFunctionTaskTu<Renderer>(this, &Renderer::ProcessShadowCastersWork);
-
-    DefineBoundingBoxGeometry();
+    }  
 }
 
 Renderer::~Renderer()
@@ -207,123 +138,44 @@ Renderer::~Renderer()
     RemoveSubsystem(this);
 }
 
-void Renderer::SetupShadowMaps(int dirLightSize, int lightAtlasSize, ImageFormat format)
-{
-    if (!shadowMaps)
-        shadowMaps = new ShadowMap[NUM_SHADOW_MAPS];
-
-    for (size_t i = 0; i < NUM_SHADOW_MAPS; ++i)
-    {
-        ShadowMap& shadowMap = shadowMaps[i];
-
-        shadowMap.texture->Define(TEX_2D, i == 0 ? IntVector2(dirLightSize * 2, dirLightSize) : IntVector2(lightAtlasSize, lightAtlasSize), format);
-		shadowMap.texture->DefineSampler(COMPARE_BILINEAR, ADDRESS_CLAMP, ADDRESS_CLAMP, ADDRESS_CLAMP, 1);
-		shadowMap.fbo->Define(nullptr, shadowMap.texture);
-    }
-
-    if (!staticObjectShadowBuffer)
-        staticObjectShadowBuffer = new RenderBuffer();
-    if (!staticObjectShadowFbo)
-        staticObjectShadowFbo = new FrameBufferTu();
-
-    staticObjectShadowBuffer->Define(IntVector2(lightAtlasSize, lightAtlasSize), format);
-    staticObjectShadowFbo->Define(nullptr, staticObjectShadowBuffer);
-
-    DefineFaceSelectionTextures();
-
-    shadowMapsDirty = true;
-}
-
-void Renderer::SetShadowDepthBiasMul(float depthBiasMul_, float slopeScaleBiasMul_)
-{
-    depthBiasMul = depthBiasMul_;
-    slopeScaleBiasMul = slopeScaleBiasMul_;
+void Renderer::PrepareView(bool useOcclusion_, float dt){
     
-    // Need to rerender all shadow maps with changed bias
-    shadowMapsDirty = true;
-}
-
-void Renderer::PrepareView(OctreeTu* scene_, bool drawShadows_, bool useOcclusion_, float dt)
-{
-    ZoneScoped;
-
-    if (!scene_)
-        return;
-	m_dt = dt;
-    
-    octree = scene_;
-    //lightEnvironment = scene->FindChild<LightEnvironment>();
-    if (!octree)
-        return;
-
-   
-    drawShadows = shadowMaps ? drawShadows_ : false;
+	m_dt = dt;  
     useOcclusion = useOcclusion_;
 
-
     // Clear results from last frame
-    dirLight = nullptr;
-    lastCamera = nullptr;
     rootLevelOctants.clear();
-    opaqueBatches.Clear();
-    alphaBatches.Clear();
-    lights.clear();
-    instanceTransforms.clear();
     
-    minZ = M_MAX_FLOAT;
-    maxZ = 0.0f;
-    geometryBounds.Undefine();
-
-
-
     for (size_t i = 0; i < NUM_OCTANT_TASKS; ++i)
         octantResults[i].Clear();
-    for (size_t i = 0; i < workQueue->NumThreads(); ++i)
-        batchResults[i].Clear();
     
-    if (drawShadows)
-    {
-        for (size_t i = 0; i < NUM_SHADOW_MAPS; ++i)
-            shadowMaps[i].Clear();
-    }
-
     // Process moved / animated objects' octree reinsertions
-    octree->Update();
+    m_octree->Update();
 
     // Check arrived occlusion query results while octree update goes on, then finish octree update
     CheckOcclusionQueries();
-    octree->FinishUpdate();
+	m_octree->FinishUpdate();
 
     // Enable threaded update during geometry / light gathering in case nodes' OnPrepareRender() causes further reinsertion queuing
-    octree->SetThreadedUpdate(workQueue->NumThreads() > 1);
+	m_octree->SetThreadedUpdate(workQueue->NumThreads() > 1);
 
     // Find the starting points for octree traversal. Include the root if it contains drawables that didn't fit elsewhere
-    OctantTu* rootOctant = octree->Root();
+    OctantTu* rootOctant = m_octree->Root();
     if (rootOctant->Drawables().size())
         rootLevelOctants.push_back(rootOctant);
 
-    for (size_t i = 0; i < NUM_OCTANTSTU; ++i)
-    {
+    for (size_t i = 0; i < NUM_OCTANTSTU; ++i){
         if (rootOctant->Child(i))
             rootLevelOctants.push_back(rootOctant->Child(i));
     }
 
     // Keep track of both batch + octant task progress before main batches can be sorted (batch tasks will add to the counter when queued)
     numPendingBatchTasks.store((int)rootLevelOctants.size());
-    numPendingShadowViews[0].store(0);
-    numPendingShadowViews[1].store(0);
-
-    // Ensure shadowcaster processing doesn't happen before lights have been found and processed, and geometry bounds are known
-    // Note: this task is also needed without shadows, as it initiates light grid culling
-	//workQueue->AddDependency(processShadowCastersTask, processLightsTask);
-	//workQueue->AddDependency(processShadowCastersTask, batchesReadyTask);
 
     // Find octants in view and their plane masks for node frustum culling. At the same time, find lights and process them
     // When octant collection tasks complete, they queue tasks for collecting batches from those octants.
-    for (size_t i = 0; i < rootLevelOctants.size(); ++i)
-    {
+    for (size_t i = 0; i < rootLevelOctants.size(); ++i){
         collectOctantsTasks[i]->startOctant = rootLevelOctants[i];
-		//workQueue->AddDependency(processLightsTask, collectOctantsTasks[i]);
     }
 
     workQueue->QueueTasks(rootLevelOctants.size(), reinterpret_cast<TaskTu**>(&collectOctantsTasks[0]));
@@ -332,59 +184,11 @@ void Renderer::PrepareView(OctreeTu* scene_, bool drawShadows_, bool useOcclusio
     while (numPendingBatchTasks.load() > 0)
         workQueue->TryComplete();
 
-    SortMainBatches();
-
     // Finish remaining view preparation tasks (shadowcaster batches, light culling to frustum grid)
     workQueue->Complete();
 
     // No more threaded reinsertion will take place
-    octree->SetThreadedUpdate(false);
-}
-
-void Renderer::RenderOpaque(bool clear)
-{
-    
-}
-
-void Renderer::RenderAlpha()
-{
-   
-}
-
-void Renderer::RenderDebug()
-{
-    ZoneScoped;
-
-	DebugRendererTu* debug = Subsystem<DebugRendererTu>();
-    if (!debug)
-        return;
-
-    for (auto it = lights.begin(); it != lights.end(); ++it)
-        (*it)->OnRenderDebug(debug);
-
-    for (size_t i = 0; i < rootLevelOctants.size(); ++i)
-    {
-        const ThreadOctantResult& result = octantResults[i];
-
-        for (auto oIt = result.octants.begin(); oIt != result.octants.end(); ++oIt)
-        {
-            OctantTu* octant = oIt->first;
-            //octant->OnRenderDebug(debug);
-            const std::vector<ShapeNode*>& drawables = octant->Drawables();
-
-            for (auto dIt = drawables.begin(); dIt != drawables.end(); ++dIt)
-            {
-				ShapeNode* drawable = *dIt;
-                //if (drawable->TestFlag(DF_GEOMETRYTU) && drawable->LastFrameNumber() == frameNumber)
-				drawable->OnRenderAABB(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
-            }
-        }
-    }
-}
-
-TextureTu* Renderer::ShadowMapTexture(size_t index) const
-{
-    return (shadowMaps && index < NUM_SHADOW_MAPS) ? shadowMaps[index].texture : nullptr;
+	m_octree->SetThreadedUpdate(false);
 }
 
 void Renderer::CollectOctantsAndLights(OctantTu* octant, ThreadOctantResult& result, unsigned char planeMask)
@@ -407,7 +211,6 @@ void Renderer::CollectOctantsAndLights(OctantTu* octant, ThreadOctantResult& res
     // Process occlusion now before going further
     if (useOcclusion)
     {
-		//std::cout << "#######################" << std::endl;
         // If was previously outside frustum, reset to visible-unknown
         if (octant->Visibility() == VIS_OUTSIDE_FRUSTUMTU)
             octant->SetVisibility(VIS_VISIBLE_UNKNOWNTU, false);
@@ -422,7 +225,7 @@ void Renderer::CollectOctantsAndLights(OctantTu* octant, ThreadOctantResult& res
             // If octant was occluded previously, but its parent came into view, issue tests along the hierarchy but do not render on this frame
         case VIS_OCCLUDED_UNKNOWNTU:
             AddOcclusionQuery(octant, result, planeMask);
-            if (octant != octree->Root() && octant->HasChildren())
+            if (octant != m_octree->Root() && octant->HasChildren())
             {
                 for (size_t i = 0; i < NUM_OCTANTSTU; ++i)
                 {
@@ -445,56 +248,23 @@ void Renderer::CollectOctantsAndLights(OctantTu* octant, ThreadOctantResult& res
                 AddOcclusionQuery(octant, result, planeMask);
             break;
         }
-    }
-    else
-    {
+    }else{
         // When occlusion not in use, reset all traversed octants to visible-unknown
         octant->SetVisibility(VIS_VISIBLE_UNKNOWNTU, false);
     }
 
     const std::vector<ShapeNode*>& drawables = octant->Drawables();
 
-    for (auto it = drawables.begin(); it != drawables.end(); ++it)
-    {
+    for (auto it = drawables.begin(); it != drawables.end(); ++it){
 		ShapeNode* drawable = *it;
-
-        /*if (drawable->TestFlag(DF_LIGHTTU))
-        {
-            const BoundingBoxTu& lightBox = drawable->WorldBoundingBox();
-            if ((drawable->LayerMask() & viewMask) && (!planeMask || frustum.IsInsideMaskedFast(lightBox, planeMask)) && drawable->OnPrepareRender(frameNumber, camera))
-                result.lights.push_back(static_cast<LightDrawable*>(drawable));
-        }
-        // Lights are sorted first in octants, so break when first geometry encountered. Store the octant for batch collecting
-        else
-        {*/
-            result.octants.push_back(std::make_pair(octant, planeMask));
-            result.drawableAcc += drawables.end() - it;
-            break;
-        //}
+        result.octants.push_back(std::make_pair(octant, planeMask));
+        result.drawableAcc += drawables.end() - it;
+        break;
     }
 
-    // Setup and queue batches collection task if over the drawable limit now
-    /*if (result.drawableAcc >= DRAWABLES_PER_BATCH_TASK)
-    {
-        if (result.collectBatchesTasks.size() <= result.batchTaskIdx)
-            result.collectBatchesTasks.push_back(new CollectBatchesTaskTu(this, &Renderer::CollectBatchesWork));
-
-        CollectBatchesTaskTu* batchTask = result.collectBatchesTasks[result.batchTaskIdx];
-        batchTask->octants.clear();
-        batchTask->octants.insert(batchTask->octants.end(), result.octants.begin() + result.taskOctantIdx, result.octants.end());
-        numPendingBatchTasks.fetch_add(1);
-        workQueue->QueueTask(batchTask);
-
-        result.drawableAcc = 0;
-        result.taskOctantIdx = result.octants.size();
-        ++result.batchTaskIdx;
-    }*/
-
     // Root octant is handled separately. Otherwise recurse into child octants
-    if (octant != octree->Root() && octant->HasChildren())
-    {
-        for (size_t i = 0; i < NUM_OCTANTSTU; ++i)
-        {
+    if (octant != m_octree->Root() && octant->HasChildren()){
+        for (size_t i = 0; i < NUM_OCTANTSTU; ++i){
             if (octant->Child(i))
                 CollectOctantsAndLights(octant->Child(i), result, planeMask);
         }
@@ -510,116 +280,15 @@ void Renderer::AddOcclusionQuery(OctantTu* octant, ThreadOctantResult& result, u
 	}
 }
 
-bool Renderer::AllocateShadowMap(LightDrawable* light)
-{
-    size_t index = light->GetLightType() == LIGHT_DIRECTIONAL ? 0 : 1;
-    ShadowMap& shadowMap = shadowMaps[index];
-
-    IntVector2 request = light->TotalShadowMapSize();
-
-    // If light already has its preferred shadow rect from the previous frame, try to reallocate it for shadow map caching
-    IntRect oldRect = light->ShadowRect();
-    if (request.x == oldRect.Width() && request.y == oldRect.Height())
-    {
-        if (shadowMap.allocator.AllocateSpecific(oldRect))
-        {
-            light->SetShadowMap(shadowMaps[index].texture, light->ShadowRect());
-            return true;
-        }
-    }
-
-    IntRect shadowRect;
-    size_t retries = 3;
-
-    while (retries--)
-    {
-        int x, y;
-        if (shadowMap.allocator.Allocate(request.x, request.y, x, y))
-        {
-            light->SetShadowMap(shadowMaps[index].texture, IntRect(x, y, x + request.x, y + request.y));
-            return true;
-        }
-
-        request.x /= 2;
-        request.y /= 2;
-    }
-
-    // No room in atlas
-    light->SetShadowMap(nullptr);
-    return false;
-}
-
-void Renderer::SortMainBatches()
-{
-    
-}
-
-void Renderer::SortShadowBatches(ShadowMap& shadowMap)
-{
-    ZoneScoped;
-
-    for (size_t i = 0; i < shadowMap.shadowViews.size(); ++i)
-    {
-        ShadowView& view = *shadowMap.shadowViews[i];
-        LightDrawable* light = view.light;
-
-        // Check if view was discarded during shadowcaster collecting
-        if (!light)
-            continue;
-
-        BatchQueue* destStatic = (view.renderMode == RENDER_STATIC_LIGHT_STORE_STATIC) ? &shadowMap.shadowBatches[view.staticQueueIdx] : nullptr;
-        BatchQueue* destDynamic = &shadowMap.shadowBatches[view.dynamicQueueIdx];
-
-        if (destStatic && destStatic->HasBatches())
-            destStatic->Sort(shadowMap.instanceTransforms, SORT_STATE, hasInstancing);
-
-        if (destDynamic->HasBatches())
-            destDynamic->Sort(shadowMap.instanceTransforms, SORT_STATE, hasInstancing);
-    }
-}
-
-void Renderer::UpdateInstanceTransforms(const std::vector<Matrix3x4>& transforms)
-{
-    ZoneScoped;
-
-    if (hasInstancing && transforms.size())
-    {
-        if (instanceVertexBuffer->NumVertices() < transforms.size())
-            instanceVertexBuffer->Define(USAGE_DYNAMIC, transforms.size(), instanceVertexElements, &transforms[0]);
-        else
-            instanceVertexBuffer->SetData(0, transforms.size(), &transforms[0]);
-    }
-}
-
-void Renderer::UpdateLightData()
-{
-    ZoneScoped;
-
-    ImageLevel clusterLevel(IntVector3(NUM_CLUSTER_X, NUM_CLUSTER_Y, NUM_CLUSTER_Z), FMT_RG32U, clusterData);
-    clusterTexture->SetData(0, IntBox(0, 0, 0, NUM_CLUSTER_X, NUM_CLUSTER_Y, NUM_CLUSTER_Z), clusterLevel);
-    lightDataBuffer->SetData(0, lights.size() * sizeof(LightData), lightData);
-}
-
-void Renderer::RenderBatches(CameraTu* camera_, const BatchQueue& queue)
-{
-   
-}
-
-void Renderer::CheckOcclusionQueries()
-{
+void Renderer::CheckOcclusionQueries(){
     static std::vector<OcclusionQueryResult> results;
     results.clear();
     graphics->CheckOcclusionQueryResults(results);
 
-    {
-        ZoneScopedN("PropagateVisibility");
-
-        for (auto it = results.begin(); it != results.end(); ++it)
-        {
-            OctantTu* octant = static_cast<OctantTu*>(it->object);
-            octant->OnOcclusionQueryResult(it->visible);
-        }
-    }
+    for (auto it = results.begin(); it != results.end(); ++it){
+        OctantTu* octant = static_cast<OctantTu*>(it->object);
+        octant->OnOcclusionQueryResult(it->visible);
+    }   
 }
 
 void Renderer::RenderOcclusionQueries()
@@ -678,93 +347,6 @@ void Renderer::RenderOcclusionQueries()
 	glDepthMask(GL_TRUE);
 	glEnable(GL_BLEND);
 	previousCameraPosition = cameraPosition;
-}
-
-void Renderer::DefineFaceSelectionTextures()
-{
-    // Face selection textures do not depend on shadow map size. No-op if already defined
-    if (faceSelectionTexture1 && faceSelectionTexture2)
-        return;
-
-    faceSelectionTexture1 = new TextureTu();
-    faceSelectionTexture2 = new TextureTu();
-
-    const float faceSelectionData1[] = 
-    {
-        1.0f, 0.0f, 0.0f, 0.0f,
-        1.0f, 0.0f, 0.0f, 0.0f,
-        0.0f, 1.0f, 0.0f, 0.0f,
-        0.0f, 1.0f, 0.0f, 0.0f,
-        0.0f, 0.0f, 1.0f, 0.0f,
-        0.0f, 0.0f, 1.0f, 0.0f
-    };
-
-    const float faceSelectionData2[] = 
-    {
-        -0.5f, 0.5f, 0.5f, 1.5f,
-        0.5f, 0.5f, 0.5f, 0.5f,
-        -0.5f, 0.5f, 1.5f, 1.5f,
-        -0.5f, -0.5f, 1.5f, 0.5f,
-        0.5f, 0.5f, 2.5f, 1.5f,
-        -0.5f, 0.5f, 2.5f, 0.5f
-    };
-
-    std::vector<ImageLevel> faces1;
-    std::vector<ImageLevel> faces2;
-
-    for (size_t i = 0; i < MAX_CUBE_FACES; ++i)
-    {
-        faces1.push_back(ImageLevel(IntVector2(1, 1), FMT_RGBA32F, &faceSelectionData1[4 * i]));
-        faces2.push_back(ImageLevel(IntVector2(1, 1), FMT_RGBA32F, &faceSelectionData2[4 * i]));
-    }
-
-    faceSelectionTexture1->Define(TEX_CUBE, IntVector3(1, 1, MAX_CUBE_FACES), FMT_RGBA32F, 1, 1, &faces1[0]);
-    faceSelectionTexture1->DefineSampler(FILTER_POINT, ADDRESS_CLAMP, ADDRESS_CLAMP, ADDRESS_CLAMP);
-
-    faceSelectionTexture2->Define(TEX_CUBE, IntVector3(1, 1, MAX_CUBE_FACES), FMT_RGBA32F, 1, 1, &faces2[0]);
-    faceSelectionTexture2->DefineSampler(FILTER_POINT, ADDRESS_CLAMP, ADDRESS_CLAMP, ADDRESS_CLAMP);
-}
-
-void Renderer::DefineBoundingBoxGeometry()
-{
-    float boxVertexData[] = {
-        -1.0f, 1.0f, -1.0f,
-        -1.0f, -1.0f, -1.0f,
-        1.0f, 1.0f, -1.0f,
-        1.0f, -1.0f, -1.0f,
-        1.0f, 1.0f, 1.0f,
-        1.0f, -1.0f, 1.0f,
-        -1.0f, 1.0f, 1.0f,
-        -1.0f, -1.0f, 1.0f
-    };
-
-    std::vector<VertexElement> vertexDeclaration;
-    vertexDeclaration.push_back(VertexElement(ELEM_VECTOR3, SEM_POSITION));
-    boundingBoxVertexBuffer = new VertexBuffer();
-    boundingBoxVertexBuffer->Define(USAGE_DEFAULT, 8, vertexDeclaration, boxVertexData);
-
-    unsigned short boxIndexData[] = {
-        0, 2, 1,
-        2, 3, 1,
-        2, 4, 3,
-        4, 5, 3,
-        4, 6, 5,
-        6, 7, 5,
-        6, 0, 7,
-        0, 1, 7,
-        4, 2, 0,
-        6, 4, 0,
-        1, 3, 5,
-        1, 5, 7
-    };
-
-    boundingBoxIndexBuffer = new IndexBuffer();
-    boundingBoxIndexBuffer->Define(USAGE_DEFAULT, NUM_BOX_INDICES, sizeof(unsigned short), boxIndexData);
-}
-
-void Renderer::DefineClusterFrustums()
-{
-   
 }
 
 void Renderer::CollectOctantsWork(TaskTu* task_, unsigned)
@@ -1087,10 +669,6 @@ void Renderer::CollectOctantsWork(TaskTu* task_, unsigned)
     }
 }*/
 
-void Renderer::BatchesReadyWork(TaskTu*, unsigned)
-{
-}
-
 /*void Renderer::ProcessShadowCastersWork(TaskTu*, unsigned)
 {
     ZoneScoped;
@@ -1367,13 +945,7 @@ void Renderer::BatchesReadyWork(TaskTu*, unsigned)
         SortShadowBatches(shadowMap);
 }*/
 
-void Renderer::CullLightsToFrustumWork(TaskTu* task, unsigned)
-{
-    
-}
-
-void RegisterRendererLibrary()
-{
+void RegisterRendererLibrary(){
 	static bool registered = false;
     if (registered)
         return;

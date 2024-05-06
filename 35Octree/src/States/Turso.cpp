@@ -27,13 +27,14 @@ Turso::Turso(StateMachine& machine) : State(machine, States::TURSO) {
 	m_camera.setMovingSpeed(15.0f);
 
 	glClearColor(0.3f, 0.3f, 0.3f, 0.0f);
+	
 
 	workQueue = new WorkQueueTu(0);	
 	graphics = new Graphics();
-
-	renderer = new Renderer(m_frustum, m_camera);
-	
 	m_octree = new OctreeTu();
+	renderer = new Renderer(m_frustum, m_camera, m_octree);
+	
+	
 	m_root = new SceneNodeLC();
 	ShapeNode* child;
 	for (int x = -10; x < 10; x++) {
@@ -127,7 +128,7 @@ void Turso::update() {
 
 void Turso::render() {
 		
-	renderer->PrepareView(m_octree, true, useOcclusion, m_dt);
+	renderer->PrepareView(useOcclusion, m_dt);
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
