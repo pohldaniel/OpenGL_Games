@@ -14,8 +14,6 @@ static FrameBufferTu* boundReadBuffer = nullptr;
 
 FrameBufferTu::FrameBufferTu()
 {
-    assert(ObjectTu::Subsystem<Graphics>()->IsInitialized());
-
     glGenFramebuffers(1, &buffer);
 }
 

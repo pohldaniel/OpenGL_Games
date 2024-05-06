@@ -14,7 +14,7 @@ RenderBuffer::RenderBuffer() :
     format(FMT_NONE),
     multisample(0)
 {
-    assert(ObjectTu::Subsystem<Graphics>()->IsInitialized());
+
 }
 
 RenderBuffer::~RenderBuffer()

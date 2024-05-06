@@ -38,9 +38,7 @@
 #include <turso3d/Time/Profiler.h>
 #include <Octree/ThreadUtils.h>
 
-class Turso : public State, public MouseEventListener, public KeyboardEventListener, public ObjectTu {
-
-	OBJECT(Turso);
+class Turso : public State, public MouseEventListener, public KeyboardEventListener {
 
 public:
 
@@ -68,30 +66,8 @@ private:
 	bool m_drawUi = true;
 
 	AutoPtr<WorkQueueTu> workQueue;
-	AutoPtr<Profiler> profiler;
-	AutoPtr<Log> log;
-	AutoPtr<ResourceCache> cache;
 	AutoPtr<Graphics> graphics;
-
 	AutoPtr<Renderer> renderer;
-	AutoPtr<DebugRendererTu> debugRenderer;
-
-
-	AutoPtr<FrameBufferTu> viewFbo;
-	AutoPtr<FrameBufferTu> viewMRTFbo;
-	AutoPtr<FrameBufferTu> ssaoFbo;
-	AutoPtr<TextureTu> colorBuffer;
-	AutoPtr<TextureTu> normalBuffer;
-	AutoPtr<TextureTu> depthStencilBuffer;
-	AutoPtr<TextureTu> ssaoTexture;
-	AutoPtr<TextureTu> occlusionDebugTexture;
-
-	AutoPtr<TextureTu> noiseTexture;
-	float yaw = 0.0f, pitch = 0.0f;
-	HiresTimer frameTimer;
-	TimerTu profilerTimer;
-	float angle = 0.0f;
-	int shadowMode = 1;
 
 	bool useOcclusion = true;
 	bool animate = true;

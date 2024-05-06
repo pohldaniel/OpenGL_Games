@@ -50,7 +50,7 @@ VertexBuffer::VertexBuffer() :
     attributes(0),
     usage(USAGE_DEFAULT)
 {
-    assert(ObjectTu::Subsystem<Graphics>()->IsInitialized());
+
 }
 
 VertexBuffer::~VertexBuffer()

@@ -19,8 +19,6 @@ DebugRendererTu::DebugRendererTu()
     vertexElements.push_back(VertexElement(ELEM_UBYTE4, SEM_COLOR));
 
     indexBuffer = new IndexBuffer();
-
-    shaderProgram = Subsystem<Graphics>()->CreateProgram("Shaders/DebugLines.glsl");
 }
 
 DebugRendererTu::~DebugRendererTu()

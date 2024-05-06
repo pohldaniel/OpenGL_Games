@@ -68,7 +68,6 @@ int NumberPostfix(const std::string& string)
 ShaderProgram::ShaderProgram(const std::string& sourceCode, const std::string& shaderName_, const std::string& vsDefines, const std::string& fsDefines) :
     program(0)
 {
-    assert(ObjectTu::Subsystem<Graphics>()->IsInitialized());
 
     shaderName = vsDefines.length() ? (shaderName_ + " " + vsDefines + " " + fsDefines) : (shaderName_ + " " + fsDefines);
 

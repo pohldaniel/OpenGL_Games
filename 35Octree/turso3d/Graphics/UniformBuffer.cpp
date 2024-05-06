@@ -15,7 +15,7 @@ UniformBuffer::UniformBuffer() :
     size(0),
     usage(USAGE_DEFAULT)
 {
-    assert(ObjectTu::Subsystem<Graphics>()->IsInitialized());
+
 }
 
 UniformBuffer::~UniformBuffer()

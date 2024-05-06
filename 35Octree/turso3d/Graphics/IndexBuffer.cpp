@@ -17,7 +17,7 @@ IndexBuffer::IndexBuffer() :
     indexSize(0),
     usage(USAGE_DEFAULT)
 {
-    assert(ObjectTu::Subsystem<Graphics>()->IsInitialized());
+
 }
 
 IndexBuffer::~IndexBuffer()

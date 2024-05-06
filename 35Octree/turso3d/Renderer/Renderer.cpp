@@ -163,20 +163,8 @@ Renderer::Renderer(const Frustum& frustum, const Camera& camera) : m_frustum(fru
     depthBiasMul(1.0f),
     slopeScaleBiasMul(1.0f)
 {
-    assert(graphics && graphics->IsInitialized());
-    assert(workQueue);
-
     RegisterSubsystem(this);
     RegisterRendererLibrary();
-
-    hasInstancing = graphics->HasInstancing();
-    if (hasInstancing)
-    {
-        instanceVertexBuffer = new VertexBuffer();
-        instanceVertexElements.push_back(VertexElement(ELEM_VECTOR4, SEM_TEXCOORD, 3));
-        instanceVertexElements.push_back(VertexElement(ELEM_VECTOR4, SEM_TEXCOORD, 4));
-        instanceVertexElements.push_back(VertexElement(ELEM_VECTOR4, SEM_TEXCOORD, 5));
-    }
 
     clusterTexture = new TextureTu();
     clusterTexture->Define(TEX_3D, IntVector3(NUM_CLUSTER_X, NUM_CLUSTER_Y, NUM_CLUSTER_Z), FMT_RGBA32U, 1);
@@ -286,8 +274,7 @@ void Renderer::PrepareView(OctreeTu* scene_, bool drawShadows_, bool useOcclusio
     maxZ = 0.0f;
     geometryBounds.Undefine();
 
-    // Stagger for occlusion queries based on last frametime
-    lastFrameTime = graphics->LastFrameTime();
+
 
     for (size_t i = 0; i < NUM_OCTANT_TASKS; ++i)
         octantResults[i].Clear();
@@ -352,92 +339,6 @@ void Renderer::PrepareView(OctreeTu* scene_, bool drawShadows_, bool useOcclusio
 
     // No more threaded reinsertion will take place
     octree->SetThreadedUpdate(false);
-}
-
-void Renderer::RenderShadowMaps()
-{
-    if (!shadowMaps)
-        return;
-
-    ZoneScoped;
-
-    // Unbind shadow textures before rendering to
-    TextureTu::Unbind(TU_DIRLIGHTSHADOW);
-    TextureTu::Unbind(TU_SHADOWATLAS);
-
-    for (size_t i = 0; i < NUM_SHADOW_MAPS; ++i)
-    {
-        ShadowMap& shadowMap = shadowMaps[i];
-        if (shadowMap.shadowViews.empty())
-            continue;
-
-        UpdateInstanceTransforms(shadowMap.instanceTransforms);
-
-        shadowMap.fbo->Bind();
-
-        // First render static objects for those shadowmaps that need to store static objects. Do all of them to avoid FBO changes
-        for (size_t j = 0; j < shadowMap.shadowViews.size(); ++j)
-        {
-            ShadowView* view = shadowMap.shadowViews[j];
-            LightDrawable* light = view->light;
-
-            if (view->renderMode == RENDER_STATIC_LIGHT_STORE_STATIC)
-            {
-                graphics->Clear(false, true, view->viewport);
-
-                BatchQueue& batchQueue = shadowMap.shadowBatches[view->staticQueueIdx];
-                if (batchQueue.HasBatches())
-                {
-                    graphics->SetViewport(view->viewport);
-                    graphics->SetDepthBias(light->DepthBias() * depthBiasMul, light->SlopeScaleBias() * slopeScaleBiasMul);
-                    RenderBatches(view->shadowCamera, batchQueue);
-                }
-            }
-        }
-
-        // Now do the shadowmap -> static shadowmap storage blits as necessary
-        for (size_t j = 0; j < shadowMap.shadowViews.size(); ++j)
-        {
-            ShadowView* view = shadowMap.shadowViews[j];
-
-            if (view->renderMode == RENDER_STATIC_LIGHT_STORE_STATIC)
-                graphics->Blit(staticObjectShadowFbo, view->viewport, shadowMap.fbo, view->viewport, false, true, FILTER_POINT);
-        }
-
-        // Rebind shadowmap
-        shadowMap.fbo->Bind();
-
-        // First do all the clears or static shadowmap -> shadowmap blits
-        for (size_t j = 0; j < shadowMap.shadowViews.size(); ++j)
-        {
-            ShadowView* view = shadowMap.shadowViews[j];
-
-            if (view->renderMode == RENDER_DYNAMIC_LIGHT)
-                graphics->Clear(false, true, view->viewport);
-            else if (view->renderMode == RENDER_STATIC_LIGHT_RESTORE_STATIC)
-                graphics->Blit(shadowMap.fbo, view->viewport, staticObjectShadowFbo, view->viewport, false, true, FILTER_POINT);
-        }
-
-        // Finally render the dynamic objects
-        for (size_t j = 0; j < shadowMap.shadowViews.size(); ++j)
-        {
-            ShadowView* view = shadowMap.shadowViews[j];
-            LightDrawable* light = view->light;
-
-            if (view->renderMode != RENDER_STATIC_LIGHT_CACHED)
-            {
-                BatchQueue& batchQueue = shadowMap.shadowBatches[view->dynamicQueueIdx];
-                if (batchQueue.HasBatches())
-                {
-                    graphics->SetViewport(view->viewport);
-                    graphics->SetDepthBias(light->DepthBias() * depthBiasMul, light->SlopeScaleBias() * slopeScaleBiasMul);
-                    RenderBatches(view->shadowCamera, batchQueue);
-                }
-            }
-        }
-    }
-
-    graphics->SetDepthBias(0.0f, 0.0f);
 }
 
 void Renderer::RenderOpaque(bool clear)
@@ -723,11 +624,6 @@ void Renderer::CheckOcclusionQueries()
 
 void Renderer::RenderOcclusionQueries()
 {
-    ZoneScoped;
-
-    if (!boundingBoxShaderProgram)
-        return;
-
 	Matrix4f boxMatrix(Matrix4f::IDENTITY);
 	float nearClip = m_camera.getNear();
 
@@ -864,8 +760,6 @@ void Renderer::DefineBoundingBoxGeometry()
 
     boundingBoxIndexBuffer = new IndexBuffer();
     boundingBoxIndexBuffer->Define(USAGE_DEFAULT, NUM_BOX_INDICES, sizeof(unsigned short), boxIndexData);
-
-    boundingBoxShaderProgram = graphics->CreateProgram("Shaders/BoundingBox.glsl");
 }
 
 void Renderer::DefineClusterFrustums()

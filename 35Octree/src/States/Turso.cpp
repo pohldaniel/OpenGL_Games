@@ -28,75 +28,12 @@ Turso::Turso(StateMachine& machine) : State(machine, States::TURSO) {
 
 	glClearColor(0.3f, 0.3f, 0.3f, 0.0f);
 
-	bool useThreads = true;
+	workQueue = new WorkQueueTu(0);	
+	graphics = new Graphics();
 
-	// Create subsystems that don't depend on the application window / OpenGL context
-	workQueue = new WorkQueueTu(useThreads ? 0 : 1);
-	profiler = new Profiler();
-	log = new Log();
-	cache = new ResourceCache();
-	cache->AddResourceDir("Data");
-
-	// Create the Graphics subsystem to open the application window and initialize OpenGL
-	graphics = new Graphics("Turso3D renderer test", IntVector2(Application::Width, Application::Height));
-	graphics->Initialize();
-
-	// Create subsystems that depend on the application window / OpenGL
-	//input = new InputTu(graphics->Window());
 	renderer = new Renderer(m_frustum, m_camera);
-	debugRenderer = new DebugRendererTu();
-
-	renderer->SetupShadowMaps(1024, 2048, FMT_D16);
-
-	// Rendertarget textures
-	viewFbo = new FrameBufferTu();
-	viewMRTFbo = new FrameBufferTu();
-	ssaoFbo = new FrameBufferTu();
-	colorBuffer = new TextureTu();
-	normalBuffer = new TextureTu();
-	depthStencilBuffer = new TextureTu();
-	ssaoTexture = new TextureTu();
-	occlusionDebugTexture = new TextureTu();
-
-	// Random noise texture for SSAO
-	unsigned char noiseData[4 * 4 * 4];
-	for (int i = 0; i < 4 * 4; ++i){
-		Vector3 noiseVec(Random() * 2.0f - 1.0f, Random() * 2.0f - 1.0f, Random() * 2.0f - 1.0f);
-		noiseVec.Normalize();
-
-		noiseData[i * 4 + 0] = (unsigned char)(noiseVec.x * 127.0f + 128.0f);
-		noiseData[i * 4 + 1] = (unsigned char)(noiseVec.y * 127.0f + 128.0f);
-		noiseData[i * 4 + 2] = (unsigned char)(noiseVec.z * 127.0f + 128.0f);
-		noiseData[i * 4 + 3] = 0;
-	}
-
-	ImageLevel noiseDataLevel(IntVector2(4, 4), FMT_RGBA8, &noiseData[0]);
-	noiseTexture = new TextureTu();
-	noiseTexture->Define(TEX_2D, IntVector2(4, 4), FMT_RGBA8, 1, 1, &noiseDataLevel);
-	noiseTexture->DefineSampler(FILTER_POINT);
-
+	
 	m_octree = new OctreeTu();
-
-	colorBuffer->Define(TEX_2D, IntVector2(Application::Width, Application::Height), FMT_RGBA8);
-	colorBuffer->DefineSampler(FILTER_BILINEAR, ADDRESS_CLAMP, ADDRESS_CLAMP, ADDRESS_CLAMP);
-	depthStencilBuffer->Define(TEX_2D, IntVector2(Application::Width, Application::Height), FMT_D32);
-	depthStencilBuffer->DefineSampler(FILTER_BILINEAR, ADDRESS_CLAMP, ADDRESS_CLAMP, ADDRESS_CLAMP);
-	normalBuffer->Define(TEX_2D, IntVector2(Application::Width, Application::Height), FMT_RGBA8);
-	normalBuffer->DefineSampler(FILTER_BILINEAR, ADDRESS_CLAMP, ADDRESS_CLAMP, ADDRESS_CLAMP);
-	viewFbo->Define(colorBuffer, depthStencilBuffer);
-
-	std::vector<TextureTu*> mrt;
-	mrt.push_back(colorBuffer.Get());
-	mrt.push_back(normalBuffer.Get());
-	viewMRTFbo->Define(mrt, depthStencilBuffer);
-
-	ssaoTexture->Define(TEX_2D, IntVector2(colorBuffer->Width() / 2, colorBuffer->Height() / 2), FMT_R32F, 1, 1);
-	ssaoTexture->DefineSampler(FILTER_BILINEAR, ADDRESS_CLAMP, ADDRESS_CLAMP, ADDRESS_CLAMP);
-	ssaoFbo->Define(ssaoTexture, nullptr);
-
-	graphics->SetViewport(IntRect(0, 0, Application::Width, Application::Height));
-
-
 	m_root = new SceneNodeLC();
 	ShapeNode* child;
 	for (int x = -10; x < 10; x++) {
@@ -116,8 +53,6 @@ Turso::Turso(StateMachine& machine) : State(machine, States::TURSO) {
 	child->updateSOP();
 	m_octree->QueueUpdate(child);
 	m_entities.push_back(child);
-
-	//glFrontFace(GL_CW);
 }
 
 Turso::~Turso() {
@@ -192,8 +127,7 @@ void Turso::update() {
 
 void Turso::render() {
 		
-	
-	renderer->PrepareView(m_octree, shadowMode > 0, useOcclusion, m_dt);
+	renderer->PrepareView(m_octree, true, useOcclusion, m_dt);
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -221,7 +155,6 @@ void Turso::render() {
 		renderer->RenderOcclusionQueries();
 	}
 	
-
 	if (m_drawUi)
 		renderUi();
 }
