@@ -16,6 +16,7 @@ static unsigned randomSeed = 1;
 class Ray;
 class WorkQueue;
 struct ReinsertDrawablesTask;
+struct ReinsertDrawablesTask2;
 
 /// %Octant occlusion query visibility states.
 enum OctantVisibility
@@ -219,7 +220,7 @@ public:
     /// Return the root octant.
     Octant* Root() const { return const_cast<Octant*>(&root); }
 
-private:
+//private:
     /// Set bounding box. Used in serialization.
     void SetBoundingBoxAttr(const BoundingBox& value);
     /// Return bounding box. Used in serialization.
@@ -290,6 +291,7 @@ private:
 	//void CollectDrawables(std::vector<std::pair<ShapeNode*, float> >& result, Octant* octant, const Ray& ray, unsigned short drawableFlags, float maxDistance, unsigned layerMask) const;
     /// Work function to check reinsertion of nodes.
     void CheckReinsertWork(Task* task, unsigned threadIndex);
+
 
     /// Collect nodes matching flags using a volume such as frustum or sphere.
     template <class T> void CollectDrawables(std::vector<ShapeNode*>& result, Octant* octant, const T& volume, unsigned short drawableFlags, unsigned layerMask) const
@@ -377,4 +379,19 @@ private:
     mutable std::vector<std::pair<ShapeNode*, float> > initialRayResult;
     /// Remaining drawable reinsertion tasks.
     std::atomic<int> numPendingReinsertionTasks;
+};
+
+/// %Task for octree drawables reinsertion.
+struct ReinsertDrawablesTask : public MemberFunctionTask<Octree>
+{
+	/// Construct.
+	ReinsertDrawablesTask(Octree* object_, MemberWorkFunctionPtr function_) :
+		MemberFunctionTask<Octree>(object_, function_)
+	{
+	}
+
+	/// Start pointer.
+	ShapeNode** start;
+	/// End pointer.
+	ShapeNode** end;
 };

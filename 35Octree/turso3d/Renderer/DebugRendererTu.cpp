@@ -292,7 +292,7 @@ void DebugRendererTu::Render()
 {
     ZoneScoped;
 
-    // Early-out if no geometry to render or shader failed to load
+    /*// Early-out if no geometry to render or shader failed to load
     if (!vertices.size() || !shaderProgram)
         return;
 
@@ -310,12 +310,12 @@ void DebugRendererTu::Render()
     if (indices.size())
         indexBuffer->SetData(0, indices.size(), &indices[0]);
     if (noDepthIndices.size())
-        indexBuffer->SetData(indices.size(), noDepthIndices.size(), &noDepthIndices[0]);
+        indexBuffer->SetData(indices.size(), noDepthIndices.size(), &noDepthIndices[0]);*/
 
-    Graphics* graphics = Subsystem<Graphics>();
-    shaderProgram->Bind();
-    graphics->SetUniform(shaderProgram, "viewProjMatrix", projection * view);
-    graphics->SetVertexBuffer(vertexBuffer, shaderProgram);
+		//Graphics* graphics = Subsystem<Graphics>();
+	//shaderProgram->Bind();
+	//graphics->SetUniform(shaderProgram, "viewProjMatrix", projection * view);
+    /*graphics->SetVertexBuffer(vertexBuffer, shaderProgram);
     graphics->SetIndexBuffer(indexBuffer);
 
     if (indices.size())
@@ -328,7 +328,7 @@ void DebugRendererTu::Render()
     {
         graphics->SetRenderState(BLEND_REPLACE, CULL_NONE, CMP_ALWAYS, true, false);
         graphics->DrawIndexed(PT_LINE_LIST, indices.size(), noDepthIndices.size());
-    }
+    }*/
 
     vertices.clear();
     indices.clear();

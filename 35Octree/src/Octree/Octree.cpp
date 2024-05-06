@@ -4,6 +4,7 @@
 #include <algorithm>
 
 #include <engine/DebugRenderer.h>
+
 #include "Octree.h"
 
 static const float DEFAULT_OCTREE_SIZE = 1000.0f;
@@ -22,21 +23,6 @@ static inline bool CompareDrawables(ShapeNode* lhs, ShapeNode* rhs)
 {   
 	return true;
 }
-
-/// %Task for octree drawables reinsertion.
-struct ReinsertDrawablesTask : public MemberFunctionTask<Octree>
-{
-    /// Construct.
-    ReinsertDrawablesTask(Octree* object_, MemberWorkFunctionPtr function_) :
-        MemberFunctionTask<Octree>(object_, function_)
-    {
-    }
-
-    /// Start pointer.
-    ShapeNode** start;
-    /// End pointer.
-	ShapeNode** end;
-};
 
 Octant::Octant() :
     parent(nullptr),

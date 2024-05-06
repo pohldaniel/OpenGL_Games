@@ -135,12 +135,12 @@ void MeshQuad::BuildMeshXY(const Vector3f& _position, const Vector2f& size, int 
 			//	\	*		|  *
 			//	 *	|		*	\
 			//      4		3 -* 4
-			indexBuffer.push_back(z * (uResolution + 1) + x);				
 			indexBuffer.push_back(z * (uResolution + 1) + x + 1);
+			indexBuffer.push_back(z * (uResolution + 1) + x);							
 			indexBuffer.push_back((z + 1) * (uResolution + 1) + x + 1);
 
-			indexBuffer.push_back(z * (uResolution + 1) + x);
 			indexBuffer.push_back((z + 1) * (uResolution + 1) + x + 1);
+			indexBuffer.push_back(z * (uResolution + 1) + x);			
 			indexBuffer.push_back((z + 1) * (uResolution + 1) + x);			
 			
 		}

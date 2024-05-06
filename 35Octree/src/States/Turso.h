@@ -63,7 +63,7 @@ private:
 
 	void renderUi();
 
-	Camera m_camera;
+	//Camera m_camera;
 	TrackBall m_trackball;
 	Transform m_transform;
 
@@ -98,13 +98,12 @@ private:
 	float yaw = 0.0f, pitch = 0.0f;
 	HiresTimer frameTimer;
 	TimerTu profilerTimer;
-	//float dt = 0.0f;
 	float angle = 0.0f;
 	int shadowMode = 1;
-	bool drawSSAO = false;
+
 	bool useOcclusion = true;
 	bool animate = true;
-	bool drawDebug = false;
+	bool drawDebug = true;
 	bool drawShadowDebug = false;
 	bool drawOcclusionDebug = false;
 
@@ -114,4 +113,7 @@ private:
 	std::vector<AnimatedModelTu*> animatingObjects;
 
 	EventTu eventTu;
+	SceneNodeLC* m_root;
+	std::vector<ShapeNode*> m_entities;
+	OctreeTu* m_octree;
 };

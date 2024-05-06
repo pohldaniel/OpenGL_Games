@@ -6,6 +6,7 @@
 #include "../Math/Ray.h"
 #include "DebugRendererTu.h"
 #include "OctreeTu.h"
+#include <Octree/Octree.h>
 
 #include <cassert>
 #include <algorithm>
@@ -38,6 +39,14 @@ static inline bool CompareDrawables(Drawable* lhs, Drawable* rhs)
         return lhs < rhs;
 }
 
+static inline bool CompareDrawableDistances2(const std::pair<ShapeNode*, float>& lhs, const std::pair<ShapeNode*, float>& rhs){
+	return lhs.second < rhs.second;
+}
+
+static inline bool CompareDrawables2(ShapeNode* lhs, ShapeNode* rhs){
+	return true;
+}
+
 /// %Task for octree drawables reinsertion.
 struct ReinsertDrawablesTaskTu : public MemberFunctionTaskTu<OctreeTu>
 {
@@ -51,6 +60,22 @@ struct ReinsertDrawablesTaskTu : public MemberFunctionTaskTu<OctreeTu>
     Drawable** start;
     /// End pointer.
     Drawable** end;
+};
+
+
+/// %Task for octree drawables reinsertion.
+struct ReinsertDrawablesTaskTu2 : public MemberFunctionTaskTu<OctreeTu>
+{
+	/// Construct.
+	ReinsertDrawablesTaskTu2(OctreeTu* object_, MemberWorkFunctionPtr function_) :
+		MemberFunctionTaskTu<OctreeTu>(object_, function_)
+	{
+	}
+
+	/// Start pointer.
+	ShapeNode** start;
+	/// End pointer.
+	ShapeNode** end;
 };
 
 OctantTu::OctantTu() :
@@ -90,6 +115,7 @@ void OctantTu::Initialize(OctantTu* parent_, const BoundingBoxTu& boundingBox, u
 void OctantTu::OnRenderDebug(DebugRendererTu* debug)
 {
     debug->AddBoundingBox(CullingBox(), Color::GRAY, true);
+	//CullingBox();
 }
 
 void OctantTu::OnOcclusionQuery(unsigned queryId)
@@ -144,15 +170,15 @@ const BoundingBoxTu& OctantTu::CullingBox() const
 {
     if (TestFlag(OF_CULLING_BOX_DIRTYTU))
     {
-        if (!numChildren && drawables.empty())
+        if (!numChildren && _drawables.empty())
             cullingBox.Define(center);
         else
         {
             // Use a temporary bounding box for calculations in case many threads call this simultaneously
             BoundingBoxTu tempBox;
 
-            for (auto it = drawables.begin(); it != drawables.end(); ++it)
-                tempBox.Merge((*it)->WorldBoundingBox());
+            for (auto it = _drawables.begin(); it != _drawables.end(); ++it)
+                tempBox.Merge((*it)->getWorldBoundingBox());
 
             if (numChildren)
             {
@@ -182,25 +208,25 @@ OctreeTu::OctreeTu() :
     root.Initialize(nullptr, BoundingBoxTu(-DEFAULT_OCTREE_SIZE, DEFAULT_OCTREE_SIZE), DEFAULT_OCTREE_LEVELS, 0);
 
     // Have at least 1 task for reinsert processing
-    reinsertTasks.push_back(new ReinsertDrawablesTaskTu(this, &OctreeTu::CheckReinsertWork));
-    reinsertQueues = new std::vector<Drawable*>[workQueue->NumThreads()];
+	//reinsertTasks.push_back(new ReinsertDrawablesTaskTu(this, &OctreeTu::CheckReinsertWork));
+	_reinsertTasks.push_back(new ReinsertDrawablesTaskTu2(this, &OctreeTu::CheckReinsertWork2));
+	//reinsertQueues = new std::vector<Drawable*>[workQueue->NumThreads()];
+	_reinsertQueues = new std::vector<ShapeNode*>[workQueue->NumThreads()];
 }
 
 OctreeTu::~OctreeTu()
 {
     // Clear octree association from nodes that were never inserted
     // Note: the threaded queues cannot have nodes that were never inserted, only nodes that should be moved
-    for (auto it = updateQueue.begin(); it != updateQueue.end(); ++it)
-    {
-        Drawable* drawable = *it;
-        if (drawable)
-        {
-            drawable->octant = nullptr;
-            drawable->SetFlag(DF_OCTREE_REINSERT_QUEUEDTU, false);
-        }
-    }
+	for (auto it = _updateQueue.begin(); it != _updateQueue.end(); ++it){
+		ShapeNode* drawable = *it;
+		if (drawable){
+			drawable->m_octant = nullptr;
+			drawable->m_reinsertQueued = false;
+		}
+	}
 
-    DeleteChildOctants(&root, true);
+    //DeleteChildOctants(&root, true);
 }
 
 void OctreeTu::RegisterObject()
@@ -220,31 +246,30 @@ void OctreeTu::Update(unsigned short frameNumber_)
     frameNumber = frameNumber_;
 
     // Avoid overhead of threaded update if only a small number of objects to update / reinsert
-    if (updateQueue.size())
-    {
-        SetThreadedUpdate(true);
+    if (_updateQueue.size()) {
+		SetThreadedUpdate(true);
 
-        // Split into smaller tasks to encourage work stealing in case some thread is slower
-        size_t nodesPerTask = Max(MIN_THREADED_UPDATE, updateQueue.size() / workQueue->NumThreads() / 4);
-        size_t taskIdx = 0;
+		// Split into smaller tasks to encourage work stealing in case some thread is slower
+		size_t nodesPerTask = std::max(MIN_THREADED_UPDATE, _updateQueue.size() / workQueue->NumThreads() / 4);
+		size_t taskIdx = 0;
 
-        for (size_t start = 0; start < updateQueue.size(); start += nodesPerTask)
-        {
-            size_t end = start + nodesPerTask;
-            if (end > updateQueue.size())
-                end = updateQueue.size();
+		for (size_t start = 0; start < _updateQueue.size(); start += nodesPerTask)
+		{
+			size_t end = start + nodesPerTask;
+			if (end > _updateQueue.size())
+				end = _updateQueue.size();
 
-            if (reinsertTasks.size() <= taskIdx)
-                reinsertTasks.push_back(new ReinsertDrawablesTaskTu(this, &OctreeTu::CheckReinsertWork));
-            reinsertTasks[taskIdx]->start = &updateQueue[0] + start;
-            reinsertTasks[taskIdx]->end = &updateQueue[0] + end;
-            ++taskIdx;
-        }
+			if (_reinsertTasks.size() <= taskIdx)
+				_reinsertTasks.push_back(new ReinsertDrawablesTaskTu2(this, &OctreeTu::CheckReinsertWork2));
+			_reinsertTasks[taskIdx]->start = &_updateQueue[0] + start;
+			_reinsertTasks[taskIdx]->end = &_updateQueue[0] + end;
+			++taskIdx;
+		}
 
-        numPendingReinsertionTasks.store((int)taskIdx);
-        workQueue->QueueTasks(taskIdx, reinterpret_cast<TaskTu**>(&reinsertTasks[0]));
-    }
-    else
+		numPendingReinsertionTasks.store((int)taskIdx);
+		workQueue->QueueTasks(taskIdx, reinterpret_cast<TaskTu**>(&_reinsertTasks[0]));
+	}
+	else
         numPendingReinsertionTasks.store(0);
 }
 
@@ -259,16 +284,21 @@ void OctreeTu::FinishUpdate()
     SetThreadedUpdate(false);
 
     // Now reinsert drawables that actually need reinsertion into a different octant
-    for (size_t i = 0; i < workQueue->NumThreads(); ++i)
-        ReinsertDrawables(reinsertQueues[i]);
+	// for (size_t i = 0; i < workQueue->NumThreads(); ++i)
+	//     ReinsertDrawables(reinsertQueues[i]);
 
-    updateQueue.clear();
+	for (size_t i = 0; i < workQueue->NumThreads(); ++i)
+		ReinsertDrawables(_reinsertQueues[i]);
+
+	//updateQueue.clear();
+	_updateQueue.clear();
 
     // Sort octants' drawables by address and put lights first
     for (auto it = sortDirtyOctants.begin(); it != sortDirtyOctants.end(); ++it)
     {
         OctantTu* octant = *it;
-        std::sort(octant->drawables.begin(), octant->drawables.end(), CompareDrawables);
+		//std::sort(octant->drawables.begin(), octant->drawables.end(), CompareDrawables);
+		std::sort(octant->_drawables.begin(), octant->_drawables.end(), CompareDrawables2);
         octant->SetFlag(OF_DRAWABLES_SORT_DIRTYTU, false);
     }
 
@@ -280,11 +310,13 @@ void OctreeTu::Resize(const BoundingBoxTu& boundingBox, int numLevels)
     ZoneScoped;
 
     // Collect nodes to the root and delete all child octants
-    updateQueue.clear();
+	//updateQueue.clear();
+	_updateQueue.clear();
     std::vector<Drawable*> occluders;
     
-    CollectDrawables(updateQueue, &root);
-    DeleteChildOctants(&root, false);
+	//CollectDrawables(updateQueue, &root);
+	CollectDrawables(_updateQueue, &root);
+    //DeleteChildOctants(&root, false);
 
     allocator.Reset();
     root.Initialize(nullptr, boundingBox, (unsigned char)Clamp(numLevels, 1, MAX_OCTREE_LEVELS), 0);
@@ -295,7 +327,7 @@ void OctreeTu::OnRenderDebug(DebugRendererTu* debug)
     root.OnRenderDebug(debug);
 }
 
-void OctreeTu::Raycast(std::vector<RaycastResult>& result, const Ray& ray, unsigned short nodeFlags, float maxDistance, unsigned layerMask) const
+/*void OctreeTu::Raycast(std::vector<RaycastResult>& result, const Ray& ray, unsigned short nodeFlags, float maxDistance, unsigned layerMask) const
 {
     ZoneScoped;
 
@@ -343,9 +375,9 @@ RaycastResult OctreeTu::RaycastSingle(const Ray& ray, unsigned short nodeFlags, 
         emptyRes.subObject = 0;
         return emptyRes;
     }
-}
+}*/
 
-void OctreeTu::FindDrawablesMasked(std::vector<Drawable*>& result, const FrustumTu& frustum, unsigned short drawableFlags, unsigned layerMask) const
+/*void OctreeTu::FindDrawablesMasked(std::vector<Drawable*>& result, const FrustumTu& frustum, unsigned short drawableFlags, unsigned layerMask) const
 {
     ZoneScoped;
 
@@ -377,9 +409,38 @@ void OctreeTu::QueueUpdate(Drawable* drawable)
             drawable->SetFlag(DF_OCTREE_REINSERT_QUEUEDTU, true);
         }
     }
+}*/
+
+void OctreeTu::QueueUpdate(ShapeNode* drawable)
+{
+	assert(drawable);
+
+	if (drawable->m_octantTu) {
+		drawable->m_octantTu->MarkCullingBoxDirty();
+	}
+
+	if (!threadedUpdate)
+	{
+		_updateQueue.push_back(drawable);
+		//drawable->SetFlag(DF_OCTREE_REINSERT_QUEUED, true);
+		drawable->m_reinsertQueued = true;
+	}
+	else
+	{
+		//drawable->lastUpdateFrameNumber = frameNumber;
+
+		// Do nothing if still fits the current octant
+		const BoundingBox& box = drawable->getWorldBoundingBox();
+		OctantTu* oldOctant = drawable->getOctantTu();
+		if (!oldOctant || oldOctant->fittingBox.IsInside(box) != BoundingBox::INSIDE)
+		{
+			_reinsertQueues[WorkQueueTu::ThreadIndex()].push_back(drawable);
+			drawable->m_reinsertQueued = true;
+		}
+	}
 }
 
-void OctreeTu::RemoveDrawable(Drawable* drawable)
+/*void OctreeTu::RemoveDrawable(Drawable* drawable)
 {
     if (!drawable)
         return;
@@ -397,7 +458,7 @@ void OctreeTu::RemoveDrawable(Drawable* drawable)
     }
 
     drawable->octant = nullptr;
-}
+}*/
 
 void OctreeTu::SetBoundingBoxAttr(const BoundingBoxTu& value)
 {
@@ -420,7 +481,7 @@ int OctreeTu::NumLevelsAttr() const
     return root.level;
 }
 
-void OctreeTu::ReinsertDrawables(std::vector<Drawable*>& drawables)
+/*void OctreeTu::ReinsertDrawables(std::vector<Drawable*>& drawables)
 {
     for (auto it = drawables.begin(); it != drawables.end(); ++it)
     {
@@ -457,6 +518,47 @@ void OctreeTu::ReinsertDrawables(std::vector<Drawable*>& drawables)
     }
 
     drawables.clear();
+}*/
+
+void OctreeTu::ReinsertDrawables(std::vector<ShapeNode*>& drawables)
+{
+	for (auto it = drawables.begin(); it != drawables.end(); ++it)
+	{
+		ShapeNode* drawable = *it;
+
+		const BoundingBox& box = drawable->getWorldBoundingBox();
+		OctantTu* oldOctant = drawable->getOctantTu();
+		OctantTu* newOctant = &root;
+		Vector3f boxSize = box.getSize();
+
+		for (;;)
+		{
+			// If drawable does not fit fully inside root octant, must remain in it
+			bool insertHere = (newOctant == &root) ?
+				(newOctant->fittingBox.IsInside(box) != INSIDE || newOctant->FitBoundingBox(box, boxSize)) :
+				newOctant->FitBoundingBox(box, boxSize);
+
+			if (insertHere)
+			{
+				if (newOctant != oldOctant)
+				{
+					// Add first, then remove, because drawable count going to zero deletes the octree branch in question
+					AddDrawable(drawable, newOctant);
+					if (oldOctant)
+						RemoveDrawable(drawable, oldOctant);
+				}
+				break;
+			}
+			else {
+				Vector3f center = box.getCenter();
+				newOctant = CreateChildOctant(newOctant, newOctant->ChildIndex(Vector3(center[0], center[1], center[2])));
+			}
+		}
+
+		drawable->m_reinsertQueued = false;
+	}
+
+	drawables.clear();
 }
 
 void OctreeTu::RemoveDrawableFromQueue(Drawable* drawable, std::vector<Drawable*>& drawables)
@@ -511,7 +613,7 @@ void OctreeTu::DeleteChildOctant(OctantTu* octant, unsigned char index)
     --octant->numChildren;
 }
 
-void OctreeTu::DeleteChildOctants(OctantTu* octant, bool deletingOctree)
+/*void OctreeTu::DeleteChildOctants(OctantTu* octant, bool deletingOctree)
 {
     for (auto it = octant->drawables.begin(); it != octant->drawables.end(); ++it)
     {
@@ -536,9 +638,9 @@ void OctreeTu::DeleteChildOctants(OctantTu* octant, bool deletingOctree)
         }
         octant->numChildren = 0;
     }
-}
+}*/
 
-void OctreeTu::CollectDrawables(std::vector<Drawable*>& result, OctantTu* octant) const
+/*void OctreeTu::CollectDrawables(std::vector<Drawable*>& result, OctantTu* octant) const
 {
     result.insert(result.end(), octant->drawables.begin(), octant->drawables.end());
 
@@ -550,9 +652,23 @@ void OctreeTu::CollectDrawables(std::vector<Drawable*>& result, OctantTu* octant
                 CollectDrawables(result, octant->children[i]);
         }
     }
+}*/
+
+void OctreeTu::CollectDrawables(std::vector<ShapeNode*>& result, OctantTu* octant) const
+{
+	result.insert(result.end(), octant->_drawables.begin(), octant->_drawables.end());
+
+	if (octant->numChildren)
+	{
+		for (size_t i = 0; i < NUM_OCTANTSTU; ++i)
+		{
+			if (octant->children[i])
+				CollectDrawables(result, octant->children[i]);
+		}
+	}
 }
 
-void OctreeTu::CollectDrawables(std::vector<Drawable*>& result, OctantTu* octant, unsigned short drawableFlags, unsigned layerMask) const
+/*void OctreeTu::CollectDrawables(std::vector<Drawable*>& result, OctantTu* octant, unsigned short drawableFlags, unsigned layerMask) const
 {
     std::vector<Drawable*>& drawables = octant->drawables;
 
@@ -658,4 +774,35 @@ void OctreeTu::CheckReinsertWork(TaskTu* task_, unsigned threadIndex_)
     }
 
     numPendingReinsertionTasks.fetch_add(-1);
+}*/
+
+void OctreeTu::CheckReinsertWork2(TaskTu* task_, unsigned threadIndex_)
+{
+	ReinsertDrawablesTaskTu2* task = static_cast<ReinsertDrawablesTaskTu2*>(task_);
+	ShapeNode** start = task->start;
+	ShapeNode** end = task->end;
+	std::vector<ShapeNode*>& reinsertQueue = _reinsertQueues[threadIndex_];
+
+	for (; start != end; ++start)
+	{
+		// If drawable was removed before reinsertion could happen, a null pointer will be in its place
+		ShapeNode* drawable = *start;
+		if (!drawable)
+			continue;
+
+		if (drawable->m_octreeUpdate)
+			drawable->OnOctreeUpdate();
+
+		//drawable->lastUpdateFrameNumber = frameNumber;
+
+		// Do nothing if still fits the current octant
+		const BoundingBox& box = drawable->getWorldBoundingBox();
+		OctantTu* oldOctant = drawable->getOctantTu();
+		if (!oldOctant || oldOctant->fittingBox.IsInside(box) != BoundingBox::INSIDE)
+			reinsertQueue.push_back(drawable);
+		else
+			drawable->m_reinsertQueued = false;
+	}
+
+	numPendingReinsertionTasks.fetch_add(-1);
 }

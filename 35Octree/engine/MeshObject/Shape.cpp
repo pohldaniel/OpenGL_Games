@@ -529,7 +529,7 @@ void Shape::createBoundingBox() {
 	}
 
 	m_aabb.min = Vector3f(xmin, ymin, zmin);
-	m_aabb.max = Vector3f(xmax, xmax, xmax);
+	m_aabb.max = Vector3f(xmax, ymax, zmax);
 }
 
 int Shape::addVertex(int hash, const float *pVertex, int stride, std::map<int, std::vector<int>>& vertexCache, std::vector <float>& vertexBuffer) {

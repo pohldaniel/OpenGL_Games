@@ -103,8 +103,8 @@ bool ShaderProgram::Bind()
     if (!program)
         return false;
 
-    if (boundProgram == this)
-        return true;
+    //if (boundProgram == this)
+        //return true;
 
     glUseProgram(program);
     boundProgram = this;

@@ -205,9 +205,9 @@ Renderer::Renderer() :
         cullLightsTasks[z]->z = z;
     }
 
-    processLightsTask = new MemberFunctionTaskTu<Renderer>(this, &Renderer::ProcessLightsWork);
+    //processLightsTask = new MemberFunctionTaskTu<Renderer>(this, &Renderer::ProcessLightsWork);
     batchesReadyTask = new MemberFunctionTaskTu<Renderer>(this, &Renderer::BatchesReadyWork);
-    processShadowCastersTask = new MemberFunctionTaskTu<Renderer>(this, &Renderer::ProcessShadowCastersWork);
+	//processShadowCastersTask = new MemberFunctionTaskTu<Renderer>(this, &Renderer::ProcessShadowCastersWork);
 
     DefineBoundingBoxGeometry();
 }
@@ -323,7 +323,7 @@ void Renderer::PrepareView(Scene* scene_, CameraTu* camera_, bool drawShadows_, 
 
     // Find the starting points for octree traversal. Include the root if it contains drawables that didn't fit elsewhere
     OctantTu* rootOctant = octree->Root();
-    if (rootOctant->Drawables().size())
+    if (rootOctant->_Drawables().size())
         rootLevelOctants.push_back(rootOctant);
 
     for (size_t i = 0; i < NUM_OCTANTSTU; ++i)
@@ -339,15 +339,15 @@ void Renderer::PrepareView(Scene* scene_, CameraTu* camera_, bool drawShadows_, 
 
     // Ensure shadowcaster processing doesn't happen before lights have been found and processed, and geometry bounds are known
     // Note: this task is also needed without shadows, as it initiates light grid culling
-    workQueue->AddDependency(processShadowCastersTask, processLightsTask);
-    workQueue->AddDependency(processShadowCastersTask, batchesReadyTask);
+	//workQueue->AddDependency(processShadowCastersTask, processLightsTask);
+	//workQueue->AddDependency(processShadowCastersTask, batchesReadyTask);
 
     // Find octants in view and their plane masks for node frustum culling. At the same time, find lights and process them
     // When octant collection tasks complete, they queue tasks for collecting batches from those octants.
     for (size_t i = 0; i < rootLevelOctants.size(); ++i)
     {
         collectOctantsTasks[i]->startOctant = rootLevelOctants[i];
-        workQueue->AddDependency(processLightsTask, collectOctantsTasks[i]);
+		//workQueue->AddDependency(processLightsTask, collectOctantsTasks[i]);
     }
 
     workQueue->QueueTasks(rootLevelOctants.size(), reinterpret_cast<TaskTu**>(&collectOctantsTasks[0]));
@@ -456,7 +456,7 @@ void Renderer::RenderOpaque(bool clear)
     ZoneScoped;
 
     // Update main batches' instance transforms & light data
-    UpdateInstanceTransforms(instanceTransforms);
+    /*UpdateInstanceTransforms(instanceTransforms);
     UpdateLightData();
 
     if (shadowMaps)
@@ -468,16 +468,16 @@ void Renderer::RenderOpaque(bool clear)
     }
 
     clusterTexture->Bind(TU_LIGHTCLUSTERDATA);
-    lightDataBuffer->Bind(UB_LIGHTDATA);
+    lightDataBuffer->Bind(UB_LIGHTDATA);*/
 
 	//if (clear)
-	graphics->Clear(true, true, IntRect::ZERO, lightEnvironment ? lightEnvironment->FogColor() : DEFAULT_FOG_COLOR);
+	//graphics->Clear(true, true, IntRect::ZERO, lightEnvironment ? lightEnvironment->FogColor() : DEFAULT_FOG_COLOR);
 
-    RenderBatches(camera, opaqueBatches);
+	RenderBatches(camera, opaqueBatches);
 
     // Render occlusion now after opaques
-	if (useOcclusion)
-	   RenderOcclusionQueries();
+	//if (useOcclusion)
+	   //RenderOcclusionQueries();
 }
 
 void Renderer::RenderAlpha()
@@ -517,13 +517,13 @@ void Renderer::RenderDebug()
         {
             OctantTu* octant = oIt->first;
             octant->OnRenderDebug(debug);
-            const std::vector<Drawable*>& drawables = octant->Drawables();
+            const std::vector<ShapeNode*>& drawables = octant->_Drawables();
 
             for (auto dIt = drawables.begin(); dIt != drawables.end(); ++dIt)
             {
-                Drawable* drawable = *dIt;
-                if (drawable->TestFlag(DF_GEOMETRYTU) && drawable->LastFrameNumber() == frameNumber)
-                    drawable->OnRenderDebug(debug);
+				ShapeNode* drawable = *dIt;
+                //if (drawable->TestFlag(DF_GEOMETRYTU) && drawable->LastFrameNumber() == frameNumber)
+				drawable->OnRenderAABB(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
             }
         }
     }
@@ -554,6 +554,7 @@ void Renderer::CollectOctantsAndLights(OctantTu* octant, ThreadOctantResult& res
     // Process occlusion now before going further
     if (useOcclusion)
     {
+		//std::cout << "#######################" << std::endl;
         // If was previously outside frustum, reset to visible-unknown
         if (octant->Visibility() == VIS_OUTSIDE_FRUSTUMTU)
             octant->SetVisibility(VIS_VISIBLE_UNKNOWNTU, false);
@@ -587,7 +588,7 @@ void Renderer::CollectOctantsAndLights(OctantTu* octant, ThreadOctantResult& res
             // Note: visible octants will also add a time-based staggering to reduce queries
         case VIS_VISIBLETU:
             OctantTu* parent = octant->Parent();
-            if (octant->Drawables().size() > 0 || (parent && parent->Visibility() != VIS_VISIBLETU))
+            if (octant->_Drawables().size() > 0 || (parent && parent->Visibility() != VIS_VISIBLETU))
                 AddOcclusionQuery(octant, result, planeMask);
             break;
         }
@@ -598,13 +599,13 @@ void Renderer::CollectOctantsAndLights(OctantTu* octant, ThreadOctantResult& res
         octant->SetVisibility(VIS_VISIBLE_UNKNOWNTU, false);
     }
 
-    const std::vector<Drawable*>& drawables = octant->Drawables();
+    const std::vector<ShapeNode*>& drawables = octant->_Drawables();
 
     for (auto it = drawables.begin(); it != drawables.end(); ++it)
     {
-        Drawable* drawable = *it;
+		ShapeNode* drawable = *it;
 
-        if (drawable->TestFlag(DF_LIGHTTU))
+        /*if (drawable->TestFlag(DF_LIGHTTU))
         {
             const BoundingBoxTu& lightBox = drawable->WorldBoundingBox();
             if ((drawable->LayerMask() & viewMask) && (!planeMask || frustum.IsInsideMaskedFast(lightBox, planeMask)) && drawable->OnPrepareRender(frameNumber, camera))
@@ -612,15 +613,15 @@ void Renderer::CollectOctantsAndLights(OctantTu* octant, ThreadOctantResult& res
         }
         // Lights are sorted first in octants, so break when first geometry encountered. Store the octant for batch collecting
         else
-        {
+        {*/
             result.octants.push_back(std::make_pair(octant, planeMask));
             result.drawableAcc += drawables.end() - it;
             break;
-        }
+        //}
     }
 
     // Setup and queue batches collection task if over the drawable limit now
-    if (result.drawableAcc >= DRAWABLES_PER_BATCH_TASK)
+    /*if (result.drawableAcc >= DRAWABLES_PER_BATCH_TASK)
     {
         if (result.collectBatchesTasks.size() <= result.batchTaskIdx)
             result.collectBatchesTasks.push_back(new CollectBatchesTaskTu(this, &Renderer::CollectBatchesWork));
@@ -634,7 +635,7 @@ void Renderer::CollectOctantsAndLights(OctantTu* octant, ThreadOctantResult& res
         result.drawableAcc = 0;
         result.taskOctantIdx = result.octants.size();
         ++result.batchTaskIdx;
-    }
+    }*/
 
     // Root octant is handled separately. Otherwise recurse into child octants
     if (octant != octree->Root() && octant->HasChildren())
@@ -651,8 +652,10 @@ void Renderer::AddOcclusionQuery(OctantTu* octant, ThreadOctantResult& result, u
 {
     // No-op if previous query still ongoing. Also If the octant intersects the frustum, verify with SAT test that it actually covers some screen area
     // Otherwise the occlusion test will produce a false negative
-    if (octant->CheckNewOcclusionQuery(lastFrameTime) && (!planeMask || frustum.IsInsideSAT(octant->CullingBox(), frustumSATData)))
-        result.occlusionQueries.push_back(octant);
+	if (octant->CheckNewOcclusionQuery(lastFrameTime) && (!planeMask || frustum.IsInsideSAT(octant->CullingBox(), frustumSATData))) {
+		//std::cout << "--------------" << std::endl;
+		result.occlusionQueries.push_back(octant);
+	}
 }
 
 bool Renderer::AllocateShadowMap(LightDrawable* light)
@@ -846,7 +849,7 @@ void Renderer::RenderBatches(CameraTu* camera_, const BatchQueue& queue)
 
     perViewDataBuffer->Bind(UB_PERVIEWDATA);
 
-    for (auto it = queue.batches.begin(); it != queue.batches.end(); ++it)
+    /*for (auto it = queue.batches.begin(); it != queue.batches.end(); ++it)
     {
         const Batch& batch = *it;
         unsigned char geometryBits = batch.programBits & SP_GEOMETRYBITS;
@@ -916,7 +919,7 @@ void Renderer::RenderBatches(CameraTu* camera_, const BatchQueue& queue)
             else
                 graphics->Draw(PT_TRIANGLE_LIST, geometry->drawStart, geometry->drawCount);
         }
-    }
+    }*/
 }
 
 void Renderer::CheckOcclusionQueries()
@@ -954,7 +957,11 @@ void Renderer::RenderOcclusionQueries()
     boundingBoxVertexBuffer->Bind(MASK_POSITION);
     boundingBoxIndexBuffer->Bind();
     boundingBoxShaderProgram->Bind();
-    graphics->SetRenderState(BLEND_REPLACE, CULL_BACK, CMP_LESS_EQUAL, false, false);
+    //graphics->SetRenderState(BLEND_REPLACE, CULL_BACK, CMP_LESS_EQUAL, false, false);
+
+	glDisable(GL_BLEND);
+	glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+	glDepthMask(GL_FALSE);
 
     for (size_t i = 0; i < NUM_OCTANT_TASKS; ++i)
     {
@@ -992,7 +999,9 @@ void Renderer::RenderOcclusionQueries()
             octant->OnOcclusionQuery(queryId);
         }
     }
-
+	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+	glDepthMask(GL_TRUE);
+	glEnable(GL_BLEND);
     previousCameraPosition = cameraPosition;
 }
 
@@ -1146,7 +1155,7 @@ void Renderer::CollectOctantsWork(TaskTu* task_, unsigned)
     CollectOctantsAndLights(octant, result);
 
     // Queue final batch task for leftover nodes if needed
-    if (result.drawableAcc)
+    /*if (result.drawableAcc)
     {
         if (result.collectBatchesTasks.size() <= result.batchTaskIdx)
             result.collectBatchesTasks.push_back(new CollectBatchesTaskTu(this, &Renderer::CollectBatchesWork));
@@ -1156,12 +1165,12 @@ void Renderer::CollectOctantsWork(TaskTu* task_, unsigned)
         batchTask->octants.insert(batchTask->octants.end(), result.octants.begin() + result.taskOctantIdx, result.octants.end());
         numPendingBatchTasks.fetch_add(1);
         workQueue->QueueTask(batchTask);
-    }
+    }*/
 
     numPendingBatchTasks.fetch_add(-1);
 }
 
-void Renderer::ProcessLightsWork(TaskTu*, unsigned)
+/*void Renderer::ProcessLightsWork(TaskTu*, unsigned)
 {
     ZoneScoped;
 
@@ -1307,9 +1316,9 @@ void Renderer::ProcessLightsWork(TaskTu*, unsigned)
     // Now queue all shadowcaster collection tasks
     if (lightTaskIdx > 0)
         workQueue->QueueTasks(lightTaskIdx, reinterpret_cast<TaskTu**>(&collectShadowCastersTasks[0]));
-}
+}*/
 
-void Renderer::CollectBatchesWork(TaskTu* task_, unsigned threadIndex)
+/*void Renderer::CollectBatchesWork(TaskTu* task_, unsigned threadIndex)
 {
     ZoneScoped;
 
@@ -1409,9 +1418,9 @@ void Renderer::CollectBatchesWork(TaskTu* task_, unsigned threadIndex)
     }
 
     numPendingBatchTasks.fetch_add(-1);
-}
+}*/
 
-void Renderer::CollectShadowCastersWork(TaskTu* task, unsigned)
+/*void Renderer::CollectShadowCastersWork(TaskTu* task, unsigned)
 {
     ZoneScoped;
 
@@ -1451,13 +1460,13 @@ void Renderer::CollectShadowCastersWork(TaskTu* task, unsigned)
         std::vector<Drawable*>& shadowCasters = shadowMap.shadowCasters[view.casterListIdx];
         octree->FindDrawablesMasked(shadowCasters, view.shadowFrustum, DF_GEOMETRYTU | DF_CAST_SHADOWSTU);
     }
-}
+}*/
 
 void Renderer::BatchesReadyWork(TaskTu*, unsigned)
 {
 }
 
-void Renderer::ProcessShadowCastersWork(TaskTu*, unsigned)
+/*void Renderer::ProcessShadowCastersWork(TaskTu*, unsigned)
 {
     ZoneScoped;
 
@@ -1516,9 +1525,9 @@ void Renderer::ProcessShadowCastersWork(TaskTu*, unsigned)
             lightData[i].shadowMatrix = light->ShadowViews()[0].shadowMatrix;
         }
     }
-}
+}*/
 
-void Renderer::CollectShadowBatchesWork(TaskTu* task_, unsigned)
+/*void Renderer::CollectShadowBatchesWork(TaskTu* task_, unsigned)
 {
     ZoneScoped;
 
@@ -1731,7 +1740,7 @@ void Renderer::CollectShadowBatchesWork(TaskTu* task_, unsigned)
     // Sort shadow batches if was the last
     if (numPendingShadowViews[task->shadowMapIdx].fetch_add(-1) == 1)
         SortShadowBatches(shadowMap);
-}
+}*/
 
 void Renderer::CullLightsToFrustumWork(TaskTu* task, unsigned)
 {

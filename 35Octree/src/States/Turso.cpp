@@ -17,12 +17,12 @@ Turso::Turso(StateMachine& machine) : State(machine, States::TURSO) {
 	EventDispatcher::AddKeyboardListener(this);
 	EventDispatcher::AddMouseListener(this);
 
-	m_camera = Camera();
-	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
-	m_camera.lookAt(Vector3f(0.0f, 2.0f, 10.0f), Vector3f(0.0f, 2.0f, 10.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
-	m_camera.setRotationSpeed(0.1f);
+	//m_camera = Camera();
+	//m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
+	//m_camera.lookAt(Vector3f(0.0f, 2.0f, 10.0f), Vector3f(0.0f, 2.0f, 10.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
+	//m_camera.setRotationSpeed(0.1f);
 
-	glClearColor(0.7f, 0.7f, 0.7f, 0.0f);
+	glClearColor(0.3f, 0.3f, 0.3f, 0.0f);
 
 	bool useThreads = true;
 
@@ -103,7 +103,27 @@ Turso::Turso(StateMachine& machine) : State(machine, States::TURSO) {
 
 	SubscribeToEvent(eventTu, new EventHandlerImpl<Turso, EventTu>(this, &Turso::HandleUpdate));
 
+	m_root = new SceneNodeLC();
+	ShapeNode* child;
+	for (int x = -10; x < 10; x++) {
+		for (int y = -10; y < 10; y++) {
+			for (int z = -10; z < 10; z++) {
+				child = m_root->addChild<ShapeNode, Shape>(Globals::shapeManager.get("cube"));
+				child->setPosition(2.2f * x, 2.2f * y, 2.2f * z);
+				//Important: guarantee thread safeness
+				child->updateSOP();
+				m_octree->QueueUpdate(child);
+				m_entities.push_back(child);
+			}
+		}
+	}
+	child = m_root->addChild<ShapeNode, Shape>(Globals::shapeManager.get("quad_xy"));
+	child->setPosition(0.0f, 0.0f, -30.0f);
+	child->updateSOP();
+	m_octree->QueueUpdate(child);
+	m_entities.push_back(child);
 
+	glFrontFace(GL_CW);
 }
 
 Turso::~Turso() {
@@ -126,8 +146,6 @@ void Turso::update() {
 	if (keyboard.keyPressed(Keyboard::KEY_F3))
 		CreateScene(scene, camera, 2);
 
-	if (keyboard.keyPressed(Keyboard::KEY_2))
-		drawSSAO = !drawSSAO;
 	if (keyboard.keyPressed(Keyboard::KEY_3))
 		useOcclusion = !useOcclusion;
 	if (keyboard.keyPressed(Keyboard::KEY_4))
@@ -226,104 +244,48 @@ void Turso::render() {
 		debugRenderer->SetView(camera);
 	}
 
-	// Raycast into the scene using the camera forward vector. If has a hit, draw a small debug sphere at the hit location
-	{
-		PROFILE(Raycast);
-
-		Ray cameraRay(camera->WorldPosition(), camera->WorldDirection());
-		RaycastResult res = scene->FindChild<OctreeTu>()->RaycastSingle(cameraRay, DF_GEOMETRYTU);
-		if (res.drawable)
-			debugRenderer->AddSphere(Sphere(res.position, 0.05f), Color::WHITE, true);
-	}
-
-	// Now render the scene, starting with shadowmaps and opaque geometries
 	{
 		PROFILE(RenderView);
+		DebugRendererTu* debug = Subsystem<DebugRendererTu>();
+		Matrix4 viewProjMatrix = camera->ProjectionMatrix() * camera->ViewMatrix();
+		Matrix4f _viewProjMatrix = { viewProjMatrix.m00, viewProjMatrix.m01, viewProjMatrix.m02, viewProjMatrix.m03,
+									 viewProjMatrix.m10, viewProjMatrix.m11, viewProjMatrix.m12, viewProjMatrix.m13,
+									 viewProjMatrix.m20, viewProjMatrix.m21, viewProjMatrix.m22, viewProjMatrix.m23,
+									 viewProjMatrix.m30, viewProjMatrix.m31, viewProjMatrix.m32, viewProjMatrix.m33 };
 
-		renderer->RenderShadowMaps();
-
-		// The default opaque shaders can write both color (first RT) and view-space normals (second RT).
-		// If going to render SSAO, bind both rendertargets, else just the color RT
-		if (drawSSAO)
-			graphics->SetFrameBuffer(viewMRTFbo);
-		else
-			graphics->SetFrameBuffer(viewFbo);
-
-		graphics->SetViewport(IntRect(0, 0, Application::Width, Application::Height));
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		renderer->RenderOpaque();
 
-		// Optional SSAO effect. First sample the normals and depth buffer, then apply a blurred SSAO result that darkens the opaque geometry
-		if (drawSSAO)
-		{
-			float farClip = camera->FarClip();
-			float nearClip = camera->NearClip();
-			Vector3 nearVec, farVec;
-			camera->FrustumSize(nearVec, farVec);
+		auto shader = Globals::shaderManager.getAssetPointer("texture");
+		shader->use();
+		shader->loadMatrix("u_vp", _viewProjMatrix);
+		Globals::textureManager.get("marble").bind(0);
 
-			ShaderProgram* program = graphics->SetProgram("Shaders/SSAO.glsl");
-			graphics->SetFrameBuffer(ssaoFbo);
-			graphics->SetViewport(IntRect(0, 0, ssaoTexture->Width(), ssaoTexture->Height()));
-			graphics->SetUniform(program, "noiseInvSize", Vector2(ssaoTexture->Width() / 4.0f, ssaoTexture->Height() / 4.0f));
-			graphics->SetUniform(program, "screenInvSize", Vector2(1.0f / colorBuffer->Width(), 1.0f / colorBuffer->Height()));
-			graphics->SetUniform(program, "frustumSize", Vector4(farVec, (float)Application::Height / (float)Application::Width));
-			graphics->SetUniform(program, "aoParameters", Vector4(0.15f, 1.0f, 0.025f, 0.15f));
-			graphics->SetUniform(program, "depthReconstruct", Vector2(farClip / (farClip - nearClip), -nearClip / (farClip - nearClip)));
-			graphics->SetTexture(0, depthStencilBuffer);
-			graphics->SetTexture(1, normalBuffer);
-			graphics->SetTexture(2, noiseTexture);
-			graphics->SetRenderState(BLEND_REPLACE, CULL_NONE, CMP_ALWAYS, true, false);
-			graphics->DrawQuad();
-			graphics->SetTexture(1, nullptr);
-			graphics->SetTexture(2, nullptr);
-
-			program = graphics->SetProgram("Shaders/SSAOBlur.glsl");
-			graphics->SetFrameBuffer(viewFbo);
-			graphics->SetViewport(IntRect(0, 0, Application::Width, Application::Height));
-			graphics->SetUniform(program, "blurInvSize", Vector2(1.0f / ssaoTexture->Width(), 1.0f / ssaoTexture->Height()));
-			graphics->SetTexture(0, ssaoTexture);
-			graphics->SetRenderState(BLEND_SUBTRACT, CULL_NONE, CMP_ALWAYS, true, false);
-			graphics->DrawQuad();
-			graphics->SetTexture(0, nullptr);
+		for (size_t i = 0; i < renderer->rootLevelOctants.size(); ++i) {
+			const ThreadOctantResult& result = renderer->octantResults[i];
+			for (auto oIt = result.octants.begin(); oIt != result.octants.end(); ++oIt) {
+				OctantTu* octant = oIt->first;
+				
+				const std::vector<ShapeNode*>& drawables = octant->_Drawables();
+				for (auto dIt = drawables.begin(); dIt != drawables.end(); ++dIt) {
+					ShapeNode* drawable = *dIt;
+					shader->loadMatrix("u_model", Matrix4f::Transpose(drawable->getWorldTransformation()));
+					drawable->getShape().drawRaw();
+				}
+			}
 		}
 
-		// Render alpha geometry. Now only the color rendertarget is needed
-		graphics->SetFrameBuffer(viewFbo);
-		graphics->SetViewport(IntRect(0, 0, Application::Width, Application::Height));
-		renderer->RenderAlpha();
+		shader->unuse();
 
-		// Optional render of debug geometry
-		if (drawDebug)
-			renderer->RenderDebug();
-
-		debugRenderer->Render();
-
-		// Optional debug render of shadowmap. Draw both dir light cascades and the shadow atlas
-		if (drawShadowDebug)
-		{
-			Matrix4 quadMatrix = Matrix4::IDENTITY;
-			quadMatrix.m00 = 0.33f * 2.0f * (9.0f / 16.0f);
-			quadMatrix.m11 = 0.33f;
-			quadMatrix.m03 = -1.0f + quadMatrix.m00;
-			quadMatrix.m13 = -1.0f + quadMatrix.m11;
-
-			ShaderProgram* program = graphics->SetProgram("Shaders/DebugShadow.glsl");
-			graphics->SetUniform(program, "worldViewProjMatrix", quadMatrix);
-			graphics->SetTexture(0, renderer->ShadowMapTexture(0));
-			graphics->SetRenderState(BLEND_REPLACE, CULL_NONE, CMP_ALWAYS, true, false);
-			graphics->DrawQuad();
-
-			quadMatrix.m03 += 1.5f * quadMatrix.m00;
-			quadMatrix.m00 = 0.33f * (9.0f / 16.0f);
-
-			graphics->SetUniform(program, "worldViewProjMatrix", quadMatrix);
-			graphics->SetTexture(0, renderer->ShadowMapTexture(1));
-			graphics->DrawQuad();
-
-			graphics->SetTexture(0, nullptr);
+		Graphics* graphics = Subsystem<Graphics>();
+		renderer->boundingBoxShaderProgram->Bind();
+		graphics->SetUniform(renderer->boundingBoxShaderProgram, "viewProjMatrix2", viewProjMatrix);
+		
+		Graphics::BindDefaultVao(true);
+		if (useOcclusion) {
+			renderer->RenderOcclusionQueries();
 		}
-
-		// Blit rendered contents to backbuffer now before presenting
-		graphics->Blit(nullptr, IntRect(0, 0, Application::Width, Application::Height), viewFbo, IntRect(0, 0, Application::Width, Application::Height), true, false, FILTER_POINT);
+		Graphics::UnbindDefaultVao();
 	}
 
 	{
@@ -364,8 +326,8 @@ void Turso::OnKeyDown(Event::KeyboardEvent& event) {
 }
 
 void Turso::resize(int deltaW, int deltaH) {
-	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
-	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
+	//m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
+	//m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
 	camera->SetAspectRatio((float)Application::Width / (float)Application::Height);
 	
 	if (colorBuffer->Width() != Application::Width || colorBuffer->Height() != Application::Height) {
@@ -381,13 +343,6 @@ void Turso::resize(int deltaW, int deltaH) {
 		mrt.push_back(colorBuffer.Get());
 		mrt.push_back(normalBuffer.Get());
 		viewMRTFbo->Define(mrt, depthStencilBuffer);
-	}
-
-	// Similarly recreate SSAO texture if needed
-	if (drawSSAO && (ssaoTexture->Width() != colorBuffer->Width() / 2 || ssaoTexture->Height() != colorBuffer->Height() / 2)) {
-		ssaoTexture->Define(TEX_2D, IntVector2(colorBuffer->Width() / 2, colorBuffer->Height() / 2), FMT_R32F, 1, 1);
-		ssaoTexture->DefineSampler(FILTER_BILINEAR, ADDRESS_CLAMP, ADDRESS_CLAMP, ADDRESS_CLAMP);
-		ssaoFbo->Define(ssaoTexture, nullptr);
 	}
 }
 
@@ -443,7 +398,8 @@ void Turso::CreateScene(Scene* scene, CameraTu* camera, int preset)
 
 	scene->Clear();
 	scene->CreateChild<OctreeTu>();
-	LightEnvironment* lightEnvironment = scene->CreateChild<LightEnvironment>();
+	m_octree = scene->FindChild<OctreeTu>();
+	/*LightEnvironment* lightEnvironment = scene->CreateChild<LightEnvironment>();
 
 	SetRandomSeed(1);
 
@@ -616,7 +572,7 @@ void Turso::CreateScene(Scene* scene, CameraTu* camera, int preset)
 		light->SetRotation(QuaternionTu(45.0f, 45.0f, 0.0f));
 		light->SetShadowMapSize(2048);
 		light->SetShadowMaxDistance(100.0f);
-	}
+	}*/
 }
 
 void Turso::HandleUpdate(EventTu& eventType) {

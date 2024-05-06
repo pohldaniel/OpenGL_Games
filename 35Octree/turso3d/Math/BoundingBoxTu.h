@@ -6,6 +6,7 @@
 #include "Vector3.h"
 
 #include <string>
+#include <engine/BoundingBox.h>
 
 class Polyhedron;
 class FrustumTu;
@@ -196,6 +197,30 @@ public:
         if (box.max.z > max.z)
             max.z = box.max.z;
     }
+
+	/// Merge another bounding box.
+	void Merge(const BoundingBox& box)
+	{
+		if (min.x > max.x)
+		{
+			min = Vector3(box.min[0], box.min[1], box.min[2]);
+			max = Vector3(box.max[0], box.max[1], box.max[2]);
+			return;
+		}
+
+		if (box.min[0] < min.x)
+			min.x = box.min[0];
+		if (box.min[1] < min.y)
+			min.y = box.min[1];
+		if (box.min[2] < min.z)
+			min.z = box.min[2];
+		if (box.max[0] > max.x)
+			max.x = box.max[0];
+		if (box.max[1] > max.y)
+			max.y = box.max[1];
+		if (box.max[2] > max.z)
+			max.z = box.max[2];
+	}
     
     /// Set as undefined (negative size) to allow the next merge to set initial size.
     void Undefine()
@@ -264,6 +289,19 @@ public:
         else
             return INSIDE;
     }
+
+	/// Test if another bounding box is inside, outside or intersects.
+	Intersection IsInside(const BoundingBox& box) const
+	{
+		if (box.max[0] < min.x || box.min[0] > max.x || box.max[1] < min.y || box.min[1] > max.y ||
+			box.max[2] < min.z || box.min[2] > max.z)
+			return OUTSIDE;
+		else if (box.min[0] < min.x || box.max[0] > max.x || box.min[1] < min.y || box.max[1] > max.y ||
+			box.min[2] < min.z || box.max[2] > max.z)
+			return INTERSECTS;
+		else
+			return INSIDE;
+	}
     
     /// Test if another bounding box is (partially) inside or outside.
     Intersection IsInsideFast(const BoundingBoxTu& box) const

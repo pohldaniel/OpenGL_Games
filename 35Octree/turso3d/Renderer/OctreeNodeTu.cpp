@@ -137,8 +137,8 @@ void OctreeNodeTu::OnSceneSet(Scene* newScene, Scene*)
         // Octree must be attached to the scene root as a child
         octree = newScene->FindChild<OctreeTu>();
         // Transform may not be final yet. Schedule insertion for next octree update
-        if (octree && IsEnabled())
-            octree->QueueUpdate(drawable);
+		//if (octree && IsEnabled())
+            //octree->QueueUpdate(drawable);
     }
 }
 
@@ -147,22 +147,22 @@ void OctreeNodeTu::OnTransformChanged()
     SpatialNode::OnTransformChanged();
 
     drawable->SetFlag(DF_WORLD_TRANSFORM_DIRTYTU | DF_BOUNDING_BOX_DIRTYTU, true);
-    if (drawable->GetOctant() && !drawable->TestFlag(DF_OCTREE_REINSERT_QUEUEDTU))
-        octree->QueueUpdate(drawable);
+	//if (drawable->GetOctant() && !drawable->TestFlag(DF_OCTREE_REINSERT_QUEUEDTU))
+		//octree->QueueUpdate(drawable);
 }
 
 void OctreeNodeTu::OnBoundingBoxChanged()
 {
     drawable->SetFlag(DF_BOUNDING_BOX_DIRTYTU, true);
-    if (drawable->GetOctant() && !drawable->TestFlag(DF_OCTREE_REINSERT_QUEUEDTU))
-        octree->QueueUpdate(drawable);
+	//if (drawable->GetOctant() && !drawable->TestFlag(DF_OCTREE_REINSERT_QUEUEDTU))
+		//octree->QueueUpdate(drawable);
 }
 
 void OctreeNodeTu::RemoveFromOctree()
 {
     if (octree)
     {
-        octree->RemoveDrawable(drawable);
+		//octree->RemoveDrawable(drawable);
         octree = nullptr;
     }
 }
@@ -171,9 +171,9 @@ void OctreeNodeTu::OnEnabledChanged(bool newEnabled)
 {
     if (octree)
     {
-        if (newEnabled)
-            octree->QueueUpdate(drawable);
-        else
-            octree->RemoveDrawable(drawable);
+		//if (newEnabled)
+			//octree->QueueUpdate(drawable);
+		//else
+			//octree->RemoveDrawable(drawable);
     }
 }

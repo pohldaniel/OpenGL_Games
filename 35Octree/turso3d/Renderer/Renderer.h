@@ -209,7 +209,6 @@ public:
     /// Return a shadow map texture by index for debugging.
     TextureTu* ShadowMapTexture(size_t index) const;
 
-private:
     /// Collect octants and lights from the octree recursively. Queue batch collection tasks while ongoing.
     void CollectOctantsAndLights(OctantTu* octant, ThreadOctantResult& result, unsigned char planeMask = 0x3f);
     /// Add an occlusion query for the octant if applicable.
@@ -239,17 +238,17 @@ private:
     /// Work function to collect octants.
     void CollectOctantsWork(TaskTu* task, unsigned threadIndex);
     /// Process lights collected by octant tasks, and queue shadowcaster query tasks for them as necessary.
-    void ProcessLightsWork(TaskTu* task, unsigned threadIndex);
+	//void ProcessLightsWork(TaskTu* task, unsigned threadIndex);
     /// Work function to collect main view batches from geometries.
-    void CollectBatchesWork(TaskTu* task, unsigned threadIndex);
+	//void CollectBatchesWork(TaskTu* task, unsigned threadIndex);
     /// Work function to collect shadowcasters per shadowcasting light.
-    void CollectShadowCastersWork(TaskTu* task, unsigned threadIndex);
+	//void CollectShadowCastersWork(TaskTu* task, unsigned threadIndex);
     /// Work function for dummy task that signals batches are ready for sorting.
     void BatchesReadyWork(TaskTu* task, unsigned threadIndex);
     /// Work function to queue shadowcaster batch collection tasks. Requires batch collection and shadowcaster query tasks to be complete.
-    void ProcessShadowCastersWork(TaskTu* task, unsigned threadIndex);
+	//void ProcessShadowCastersWork(TaskTu* task, unsigned threadIndex);
     /// Work function to collect shadowcaster batches per shadow view.
-    void CollectShadowBatchesWork(TaskTu* task, unsigned threadIndex);
+	//void CollectShadowBatchesWork(TaskTu* task, unsigned threadIndex);
     /// Work function to cull lights against a Z-slice of the frustum grid.
     void CullLightsToFrustumWork(TaskTu* task, unsigned threadIndex);
 
@@ -338,13 +337,13 @@ private:
     /// Tasks for octant collection.
     AutoPtr<CollectOctantsTaskTu> collectOctantsTasks[NUM_OCTANT_TASKS];
     /// %Task for light processing.
-    AutoPtr<TaskTu> processLightsTask;
+    //AutoPtr<TaskTu> processLightsTask;
     /// Tasks for shadow light processing.
     std::vector<AutoPtr<CollectShadowCastersTaskTu> > collectShadowCastersTasks;
     /// Dummy task to ensure batches have been collected.
     AutoPtr<TaskTu> batchesReadyTask;
     /// %Task for queuing shadow views for further processing.
-    AutoPtr<TaskTu> processShadowCastersTask;
+    //AutoPtr<TaskTu> processShadowCastersTask;
     /// Tasks for shadow batch processing.
     std::vector<AutoPtr<CollectShadowBatchesTaskTu> > collectShadowBatchesTasks;
     /// Tasks for light grid culling.

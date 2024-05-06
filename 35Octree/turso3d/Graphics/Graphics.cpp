@@ -203,17 +203,17 @@ bool Graphics::Initialize()
 }
 
 void Graphics::BindDefaultVao(bool force) {
-	if (!VaoBindings.current || force) {
-		VaoBindings.current = DefaultVao;
+	//if (!VaoBindings.current || force) {
+		//VaoBindings.current = DefaultVao;
 		glBindVertexArray(DefaultVao);
-	}
+	//}
 }
 
 void Graphics::UnbindDefaultVao() {
-	if (VaoBindings.current) {
+	//if (VaoBindings.current) {
 		glBindVertexArray(0);
-		VaoBindings.current = 0u;
-	}
+		//VaoBindings.current = 0u;
+	//}
 }
 
 void Graphics::Resize(const IntVector2& size)

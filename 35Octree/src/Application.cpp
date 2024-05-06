@@ -458,7 +458,6 @@ void Application::initStates() {
 	//Machine->addStateAtTop(new GrassComp(*Machine));
 	//Machine->addStateAtTop(new GrassGeom(*Machine));
 	//Machine->addStateAtTop(new OcclusionQuery(*Machine));
-	//Machine->addStateAtTop(new Turso(*Machine));
 	Machine->addStateAtTop(new Turso(*Machine));
 }
 

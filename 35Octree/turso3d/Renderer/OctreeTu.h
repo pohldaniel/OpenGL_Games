@@ -7,6 +7,7 @@
 #include "OctreeNodeTu.h"
 
 #include <atomic>
+#include <engine/scene/ShapeNode.h>
 
 static const size_t NUM_OCTANTSTU = 8;
 static const unsigned char OF_DRAWABLES_SORT_DIRTYTU = 0x1;
@@ -16,6 +17,7 @@ static const float OCCLUSION_QUERY_INTERVALTU = 0.133333f; // About 8 frame stag
 class Ray;
 class WorkQueueTu;
 struct ReinsertDrawablesTaskTu;
+struct ReinsertDrawablesTaskTu2;
 
 /// %Octant occlusion query visibility states.
 enum OctantVisibilityTu
@@ -65,7 +67,9 @@ public:
     /// Return the culling box. Update as necessary.
     const BoundingBoxTu& CullingBox() const;
     /// Return drawables in this octant.
-    const std::vector<Drawable*>& Drawables() const { return drawables; }
+    //const std::vector<Drawable*>& Drawables() const { return drawables; }
+	const std::vector<ShapeNode*>& _Drawables() const { return _drawables; }
+
     /// Return whether has child octants.
     bool HasChildren() const { return numChildren > 0; }
     /// Return child octant by index.
@@ -102,6 +106,26 @@ public:
         // Bounding box too small, should create a child octant
         return false;
     }
+
+	bool FitBoundingBox(const BoundingBox& box, const Vector3f& boxSize) const
+	{
+		// If max split level, size always OK, otherwise check that box is at least half size of octant
+		if (level <= 1 || boxSize[0] >= halfSize.x || boxSize[1] >= halfSize.y || boxSize[2] >= halfSize.z)
+			return true;
+		// Also check if the box can not fit inside a child octant's culling box, in that case size OK (must insert here)
+		else
+		{
+			Vector3f _halfSize = Vector3f(halfSize.x, halfSize.y, halfSize.z);
+			Vector3f quarterSize = 0.5f * _halfSize;
+			if (box.min[0] <= fittingBox.min.x + quarterSize[0] || box.max[0] >= fittingBox.max.x - quarterSize[0] ||
+				box.min[1] <= fittingBox.min.y + quarterSize[1] || box.max[1] >= fittingBox.max.y - quarterSize[1] ||
+				box.max[2] <= fittingBox.min.z + quarterSize[2] || box.max[2] >= fittingBox.max.z - quarterSize[2])
+				return true;
+		}
+
+		// Bounding box too small, should create a child octant
+		return false;
+	}
 
     /// Mark culling boxes dirty in the parent hierarchy.
     void MarkCullingBoxDirty() const
@@ -162,7 +186,9 @@ private:
     /// Combined drawable and child octant bounding box. Used for culling tests.
     mutable BoundingBoxTu cullingBox;
     /// Drawables contained in the octant.
-    std::vector<Drawable*> drawables;
+	//std::vector<Drawable*> drawables;
+	std::vector<ShapeNode*> _drawables;
+
     /// Expanded (loose) bounding box used for fitting drawables within the octant.
     BoundingBoxTu fittingBox;
     /// Bounding box center.
@@ -212,20 +238,21 @@ public:
     /// Enable or disable threaded update mode. In threaded mode reinsertions go to per-thread queues, which are processed in FinishUpdate().
     void SetThreadedUpdate(bool enable) { threadedUpdate = enable; }
     /// Queue octree reinsertion for a drawable.
-    void QueueUpdate(Drawable* drawable);
+	//void QueueUpdate(Drawable* drawable);
+	void QueueUpdate(ShapeNode* drawable);
     /// Remove a drawable from the octree.
-    void RemoveDrawable(Drawable* drawable);
+	//void RemoveDrawable(Drawable* drawable);
     /// Add debug geometry to be rendered. Visualizes the whole octree.
     void OnRenderDebug(DebugRendererTu* debug);
 
     /// Query for drawables with a raycast and return all results.
-    void Raycast(std::vector<RaycastResult>& result, const Ray& ray, unsigned short nodeFlags, float maxDistance = M_INFINITY, unsigned layerMask = LAYERMASK_ALL) const;
+	//void Raycast(std::vector<RaycastResult>& result, const Ray& ray, unsigned short nodeFlags, float maxDistance = M_INFINITY, unsigned layerMask = LAYERMASK_ALL) const;
     /// Query for drawables with a raycast and return the closest result.
-    RaycastResult RaycastSingle(const Ray& ray, unsigned short drawableFlags, float maxDistance = M_INFINITY, unsigned layerMask = LAYERMASK_ALL) const;
+	//RaycastResult RaycastSingle(const Ray& ray, unsigned short drawableFlags, float maxDistance = M_INFINITY, unsigned layerMask = LAYERMASK_ALL) const;
     /// Query for drawables using a volume such as frustum or sphere.
     template <class T> void FindDrawables(std::vector<Drawable*>& result, const T& volume, unsigned short drawableFlags, unsigned layerMask = LAYERMASK_ALL) const { CollectDrawables(result, const_cast<OctantTu*>(&root), volume, drawableFlags, layerMask); }
     /// Query for drawables using a frustum and masked testing.
-    void FindDrawablesMasked(std::vector<Drawable*>& result, const FrustumTu& frustum, unsigned short drawableFlags, unsigned layerMask = LAYERMASK_ALL) const;
+	//void FindDrawablesMasked(std::vector<Drawable*>& result, const FrustumTu& frustum, unsigned short drawableFlags, unsigned layerMask = LAYERMASK_ALL) const;
     /// Return whether threaded update is enabled.
     bool ThreadedUpdate() const { return threadedUpdate; }
     /// Return the root octant.
@@ -242,11 +269,12 @@ private:
     int NumLevelsAttr() const;
     /// Process a list of drawables to be reinserted. Clear the list afterward.
     void ReinsertDrawables(std::vector<Drawable*>& drawables);
+	void ReinsertDrawables(std::vector<ShapeNode*>& drawables);
     /// Remove a drawable from a reinsert queue.
     void RemoveDrawableFromQueue(Drawable* drawable, std::vector<Drawable*>& drawables);
     
     /// Add drawable to a specific octant.
-    void AddDrawable(Drawable* drawable, OctantTu* octant)
+    /*void AddDrawable(Drawable* drawable, OctantTu* octant)
     {
         octant->drawables.push_back(drawable);
         octant->MarkCullingBoxDirty();
@@ -257,10 +285,23 @@ private:
             octant->SetFlag(OF_DRAWABLES_SORT_DIRTYTU, true);
             sortDirtyOctants.push_back(octant);
         }
-    }
+    }*/
+
+	void AddDrawable(ShapeNode* drawable, OctantTu* octant)
+	{
+		octant->_drawables.push_back(drawable);
+		octant->MarkCullingBoxDirty();
+		drawable->m_octantTu = octant;
+
+		if (!octant->TestFlag(OF_DRAWABLES_SORT_DIRTYTU))
+		{
+			octant->SetFlag(OF_DRAWABLES_SORT_DIRTYTU, true);
+			sortDirtyOctants.push_back(octant);
+		}
+	}
 
     /// Remove drawable from an octant.
-    void RemoveDrawable(Drawable* drawable, OctantTu* octant)
+    /*void RemoveDrawable(Drawable* drawable, OctantTu* octant)
     {
         if (!octant)
             return;
@@ -284,24 +325,53 @@ private:
                 return;
             }
         }
-    }
+    }*/
+
+	/// Remove drawable from an octant.
+	void RemoveDrawable(ShapeNode* drawable, OctantTu* octant)
+	{
+		if (!octant)
+			return;
+
+		octant->MarkCullingBoxDirty();
+
+		// Do not set the drawable's octant pointer to zero, as the drawable may already be added into another octant. Just remove from octant
+		for (auto it = octant->_drawables.begin(); it != octant->_drawables.end(); ++it)
+		{
+			if ((*it) == drawable)
+			{
+				octant->_drawables.erase(it);
+
+				// Erase empty octants as necessary, but never the root
+				while (!octant->_drawables.size() && !octant->numChildren && octant->parent)
+				{
+					OctantTu* parentOctant = octant->parent;
+					DeleteChildOctant(parentOctant, octant->childIndex);
+					octant = parentOctant;
+				}
+				return;
+			}
+		}
+	}
 
     /// Create a new child octant.
     OctantTu* CreateChildOctant(OctantTu* octant, unsigned char index);
     /// Delete one child octant.
     void DeleteChildOctant(OctantTu* octant, unsigned char index);
     /// Delete a child octant hierarchy. If not deleting the octree for good, moves any nodes back to the root octant.
-    void DeleteChildOctants(OctantTu* octant, bool deletingOctree);
+	//void DeleteChildOctants(OctantTu* octant, bool deletingOctree);
     /// Return all drawables from an octant recursively.
     void CollectDrawables(std::vector<Drawable*>& result, OctantTu* octant) const;
+	void CollectDrawables(std::vector<ShapeNode*>& result, OctantTu* octant) const;
     /// Return all drawables matching flags from an octant recursively.
-    void CollectDrawables(std::vector<Drawable*>& result, OctantTu* octant, unsigned short drawableFlags, unsigned layerMask) const;
+	//void CollectDrawables(std::vector<Drawable*>& result, OctantTu* octant, unsigned short drawableFlags, unsigned layerMask) const;
     /// Return all drawables matching flags along a ray.
-    void CollectDrawables(std::vector<RaycastResult>& result, OctantTu* octant, const Ray& ray, unsigned short drawableFlags, float maxDistance, unsigned layerMask) const;
+	//void CollectDrawables(std::vector<RaycastResult>& result, OctantTu* octant, const Ray& ray, unsigned short drawableFlags, float maxDistance, unsigned layerMask) const;
     /// Return all visible drawables matching flags that could be potential raycast hits.
-    void CollectDrawables(std::vector<std::pair<Drawable*, float> >& result, OctantTu* octant, const Ray& ray, unsigned short drawableFlags, float maxDistance, unsigned layerMask) const;
+	//void CollectDrawables(std::vector<std::pair<Drawable*, float> >& result, OctantTu* octant, const Ray& ray, unsigned short drawableFlags, float maxDistance, unsigned layerMask) const;
     /// Work function to check reinsertion of nodes.
-    void CheckReinsertWork(TaskTu* task, unsigned threadIndex);
+	//void CheckReinsertWork(TaskTu* task, unsigned threadIndex);
+	void CheckReinsertWork2(TaskTu* task, unsigned threadIndex);
 
     /// Collect nodes matching flags using a volume such as frustum or sphere.
     template <class T> void CollectDrawables(std::vector<Drawable*>& result, OctantTu* octant, const T& volume, unsigned short drawableFlags, unsigned layerMask) const
@@ -336,7 +406,7 @@ private:
     }
 
     /// Collect nodes using a frustum and masked testing.
-    void CollectDrawablesMasked(std::vector<Drawable*>& result, OctantTu* octant, const FrustumTu& frustum, unsigned short drawableFlags, unsigned layerMask, unsigned char planeMask = 0x3f) const
+    /*void CollectDrawablesMasked(std::vector<Drawable*>& result, OctantTu* octant, const FrustumTu& frustum, unsigned short drawableFlags, unsigned layerMask, unsigned char planeMask = 0x3f) const
     {
         if (planeMask)
         {
@@ -363,14 +433,15 @@ private:
                     CollectDrawablesMasked(result, octant->children[i], frustum, drawableFlags, layerMask, planeMask);
             }
         }
-    }
+    }*/
 
     /// Threaded update flag. During threaded update moved drawables should go directly to thread-specific reinsert queues.
     volatile bool threadedUpdate;
     /// Current framenumber.
     unsigned short frameNumber;
     /// Queue of nodes to be reinserted.
-    std::vector<Drawable*> updateQueue;
+    //std::vector<Drawable*> updateQueue;
+	std::vector<ShapeNode*> _updateQueue;
     /// Octants which need to have their drawables sorted.
     std::vector<OctantTu*> sortDirtyOctants;
     /// Extents of the octree root level box.
@@ -382,9 +453,11 @@ private:
     /// Cached %WorkQueue subsystem.
     WorkQueueTu* workQueue;
     /// Tasks for threaded reinsert execution.
-    std::vector<AutoPtr<ReinsertDrawablesTaskTu> > reinsertTasks;
+	//std::vector<AutoPtr<ReinsertDrawablesTaskTu>> reinsertTasks;
+	std::vector<AutoPtr<ReinsertDrawablesTaskTu2>> _reinsertTasks;
     /// Intermediate reinsert queues for threaded execution.
-    AutoArrayPtr<std::vector<Drawable*> > reinsertQueues;
+	//AutoArrayPtr<std::vector<Drawable*> > reinsertQueues;
+	AutoArrayPtr<std::vector<ShapeNode*> > _reinsertQueues;
     /// RaycastSingle initial coarse result.
     mutable std::vector<std::pair<Drawable*, float> > initialRayResult;
     /// RaycastSingle final result.

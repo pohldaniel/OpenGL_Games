@@ -308,8 +308,8 @@ void AnimatedModelDrawable::UpdateAnimation()
     // Else just dirty the skinning
     if (!TestFlag(DF_UPDATE_INVISIBLETU))
     {
-        if (octree && octant && !TestFlag(DF_OCTREE_REINSERT_QUEUEDTU))
-            octree->QueueUpdate(this);
+		//if (octree && octant && !TestFlag(DF_OCTREE_REINSERT_QUEUEDTU))
+			//octree->QueueUpdate(this);
     }
 
     animatedModelFlags |= AMF_SKINNING_DIRTY;
@@ -559,8 +559,8 @@ void AnimatedModelTu::OnTransformChanged()
     }
 
     modelDrawable->SetFlag(DF_BOUNDING_BOX_DIRTYTU, true);
-    if (octree && modelDrawable->octant && !modelDrawable->TestFlag(DF_OCTREE_REINSERT_QUEUEDTU))
-        octree->QueueUpdate(modelDrawable);
+	//if (octree && modelDrawable->octant && !modelDrawable->TestFlag(DF_OCTREE_REINSERT_QUEUEDTU))
+		//octree->QueueUpdate(modelDrawable);
 }
 
 void AnimatedModelTu::SetModelAttr(const ResourceRef& value)

@@ -67,7 +67,6 @@ public:
     /// Check whether a bounding box is inside the view frustum.
     bool IsInside(const BoundingBoxTu& box) const { return frustum.IsInsideFast(box) == INSIDE; }
 
-private:
     /// Debug geometry vertices.
     std::vector<DebugVertexTu> vertices;
     /// Indices rendered with depth test.
