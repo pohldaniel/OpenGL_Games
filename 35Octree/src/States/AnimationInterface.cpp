@@ -3,6 +3,7 @@
 #include <imgui_impl_opengl3.h>
 #include <imgui_internal.h>
 #include <engine/BuiltInShader.h>
+#include <engine/DebugRenderer.h>
 #include <States/Menu.h>
 
 #include "AnimationInterface.h"
@@ -49,6 +50,8 @@ AnimationInterface::AnimationInterface(StateMachine& machine) : State(machine, S
 	child->updateSOP();
 	m_octree->QueueUpdate(child);
 	m_entities.push_back(child);
+
+	DebugRenderer::Get().setEnable(true);
 }
 
 AnimationInterface::~AnimationInterface() {
@@ -116,8 +119,8 @@ void AnimationInterface::update() {
 	}
 
 	for (auto&& entitie : m_entities) {
-		entitie->getAnimatedModel().update(m_dt);
-		entitie->getAnimatedModel().updateSkinning();
+		entitie->update(m_dt);
+		entitie->updateSkinning();
 	}
 }
 
@@ -140,9 +143,10 @@ void AnimationInterface::render() {
 
 	for (auto&& entitie : m_entities) {
 		entitie->getAnimatedModel().drawRaw();
+		entitie->OnRenderAABB(Vector4f(0.0f, 1.0f, 0.0f, 1.0f));
 	}
-
-
+	DebugRenderer::Get().SetProjectionView(m_camera.getPerspectiveMatrix(), m_camera.getViewMatrix());
+	DebugRenderer::Get().drawBuffer();
 
 	shader->unuse();
 

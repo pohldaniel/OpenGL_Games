@@ -11,6 +11,9 @@ public:
 	AnimationNode(const AnimatedModel& animatedModel);
 	~AnimationNode() = default;
 
+	void update(float dt);
+	void updateSkinning();
+
 	void OnBoundingBoxChanged() override;
 	void OnWorldBoundingBoxUpdate() const override;
 	void OnOctreeUpdate() override;

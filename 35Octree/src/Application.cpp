@@ -916,4 +916,6 @@ void Application::loadAssets() {
 	Globals::animationManagerNew.loadAnimationAni("beta_run", "res/models/BetaLowpoly/Beta_Run.ani");
 	Globals::animationManagerNew.loadAnimationAni("beta_jump_start", "res/models/BetaLowpoly/Beta_JumpStart.ani");
 	Globals::animationManagerNew.loadAnimationAni("beta_jump_loop", "res/models/BetaLowpoly/Beta_JumpLoop.ani");
+
+	Globals::animationManagerNew.loadAnimationAni("jack_walk", "res/models/Jack/Jack_Walk.ani");
 }

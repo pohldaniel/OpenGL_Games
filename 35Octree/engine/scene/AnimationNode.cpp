@@ -55,3 +55,17 @@ void AnimationNode::OnOctreeUpdate() {
 		m_skinningDirty = false;
 	}*/
 }
+
+void AnimationNode::update(float dt) {
+	animatedModel.update(dt);
+	m_animationDirty = true;
+
+	OnBoundingBoxChanged();
+	OnWorldBoundingBoxUpdate();
+	
+}
+
+void AnimationNode::updateSkinning() {
+	animatedModel.updateSkinning();
+	m_skinningDirty = true;
+}
