@@ -3,7 +3,9 @@
 #include <engine/input/MouseEventListener.h>
 #include <engine/input/KeyboardEventListener.h>
 #include <engine/Camera.h>
-#include <engine/Background.h>
+#include <engine/scene/AnimationNode.h>
+#include <engine/octree/Octree.h>
+#include <Animation/AnimatedModel.h>
 
 #include <States/StateMachine.h>
 
@@ -33,5 +35,8 @@ private:
 	bool m_drawUi = true;
 
 	Camera m_camera;
-	Background m_background;
+	AnimatedModel m_beta;
+	SceneNodeLC* m_root;
+	Octree* m_octree;
+	std::vector<AnimationNode*> m_entities;
 };

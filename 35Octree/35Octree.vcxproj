@@ -181,6 +181,7 @@
     <ClCompile Include="engine\octree\ThreadUtils.cpp" />
     <ClCompile Include="engine\octree\WorkQueue.cpp" />
     <ClCompile Include="engine\RandomColor.cpp" />
+    <ClCompile Include="engine\scene\AnimationNode.cpp" />
     <ClCompile Include="engine\scene\BaseNode.cpp" />
     <ClCompile Include="engine\scene\BoneNode.cpp" />
     <ClCompile Include="engine\scene\MeshNode.cpp" />
@@ -367,6 +368,7 @@
     <ClInclude Include="engine\Random.h" />
     <ClInclude Include="engine\RandomColor.h" />
     <ClInclude Include="engine\Rect.h" />
+    <ClInclude Include="engine\scene\AnimationNode.h" />
     <ClInclude Include="engine\scene\BaseNode.h" />
     <ClInclude Include="engine\scene\BoneNode.h" />
     <ClInclude Include="engine\scene\INode.h" />

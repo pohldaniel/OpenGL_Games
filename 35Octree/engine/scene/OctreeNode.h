@@ -15,10 +15,10 @@ public:
 
 	void OnTransformChanged() override;
 
-	void OnBoundingBoxChanged();
-	void OnWorldBoundingBoxUpdate() const;
-	
-	void OnOctreeUpdate() const;
+	virtual void OnBoundingBoxChanged();
+	virtual void OnWorldBoundingBoxUpdate() const;	
+	virtual void OnOctreeUpdate();
+
 	void OnRenderOBB(const Vector4f& color = { 1.0f, 0.0f, 0.0f, 1.0f });
 	void OnRenderAABB(const Vector4f& color = { 0.0f, 1.0f, 0.0f, 1.0f });
 	void removeFromOctree();

@@ -525,6 +525,9 @@
     <ClCompile Include="src\States\AnimationInterface.cpp">
       <Filter>Source Files\States</Filter>
     </ClCompile>
+    <ClCompile Include="engine\scene\AnimationNode.cpp">
+      <Filter>engine\scene</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="convhull\convhull_3d.h">
@@ -1183,6 +1186,9 @@
     </ClInclude>
     <ClInclude Include="src\States\AnimationInterface.h">
       <Filter>Source Files\States</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\scene\AnimationNode.h">
+      <Filter>engine\scene</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

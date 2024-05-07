@@ -1,5 +1,5 @@
 #pragma once
-#include <memory>
+
 #include "OctreeNode.h"
 #include "../BoundingBox.h"
 #include "../AssimpModel.h"

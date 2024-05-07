@@ -2,6 +2,7 @@
 #include <imgui_impl_win32.h>
 #include <imgui_impl_opengl3.h>
 #include <imgui_internal.h>
+#include <engine/BuiltInShader.h>
 #include <States/Menu.h>
 
 #include "AnimationInterface.h"
@@ -23,15 +24,31 @@ AnimationInterface::AnimationInterface(StateMachine& machine) : State(machine, S
 
 	glClearColor(0.494f, 0.686f, 0.796f, 1.0f);
 	glClearDepth(1.0f);
-	m_background.resize(Application::Width, Application::Height);
-	m_background.setLayer(std::vector<BackgroundLayer>{
-		{ &Globals::textureManager.get("forest_1"), 1, 1.0f },
-		{ &Globals::textureManager.get("forest_2"), 1, 2.0f },
-		{ &Globals::textureManager.get("forest_3"), 1, 3.0f },
-		{ &Globals::textureManager.get("forest_4"), 1, 4.0f },
-		{ &Globals::textureManager.get("forest_5"), 1, 5.0f }});
-	m_background.setSpeed(0.005f);
 
+	m_beta.loadModelMdl("res/models/BetaLowpoly/Beta.mdl");
+	m_beta.m_meshes[0]->m_meshBones[0].initialPosition.translate(-1.0f, 0.0f, 0.0f);
+	m_beta.m_meshes[0]->m_meshBones[0].initialRotation.rotate(0.0f, 180.0f, 0.0f);
+	m_beta.m_meshes[0]->createBones();
+
+	m_beta.addAnimationState(Globals::animationManagerNew.getAssetPointer("beta_run"));
+	m_beta.getAnimationState(0)->SetLooped(true);
+
+	glGenBuffers(1, &BuiltInShader::matrixUbo);
+	glBindBuffer(GL_UNIFORM_BUFFER, BuiltInShader::matrixUbo);
+	glBufferData(GL_UNIFORM_BUFFER, sizeof(Matrix4f) * 96, NULL, GL_DYNAMIC_DRAW);
+	glBindBufferRange(GL_UNIFORM_BUFFER, 3, BuiltInShader::matrixUbo, 0, sizeof(Matrix4f) * 96);
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+	WorkQueue::Init(0);
+	m_octree = new Octree();
+
+	m_root = new SceneNodeLC();
+	AnimationNode* child;
+	child = m_root->addChild<AnimationNode, AnimatedModel>(m_beta);
+	child->setPosition(0.0f, 0.0f, 0.0f);
+	child->updateSOP();
+	m_octree->QueueUpdate(child);
+	m_entities.push_back(child);
 }
 
 AnimationInterface::~AnimationInterface() {
@@ -63,15 +80,11 @@ void AnimationInterface::update() {
 
 	if (keyboard.keyDown(Keyboard::KEY_A)) {
 		direction += Vector3f(-1.0f, 0.0f, 0.0f);
-		m_background.addOffset(-0.001f);
-		m_background.setSpeed(-0.005f);
 		move |= true;
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_D)) {
 		direction += Vector3f(1.0f, 0.0f, 0.0f);
-		m_background.addOffset(0.001f);
-		m_background.setSpeed(0.005f);
 		move |= true;
 	}
 
@@ -102,13 +115,37 @@ void AnimationInterface::update() {
 		}
 	}
 
-	m_background.update(m_dt);
+	for (auto&& entitie : m_entities) {
+		entitie->getAnimatedModel().update(m_dt);
+		entitie->getAnimatedModel().updateSkinning();
+	}
 }
 
 void AnimationInterface::render() {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	m_background.draw();
+
+	glBindBuffer(GL_UNIFORM_BUFFER, BuiltInShader::matrixUbo);
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(Matrix4f) * m_beta.m_meshes[0]->m_numBones, m_beta.m_meshes[0]->m_skinMatrices);
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+	auto shader = Globals::shaderManager.getAssetPointer("animation_new");
+	shader->use();
+	shader->loadVector("u_light", Vector3f(1.0f, 1.0f, 1.0f));
+	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
+	shader->loadMatrix("u_view", m_camera.getViewMatrix());
+	shader->loadVector("u_color", Vector4f(0.0f, 0.0f, 1.0f, 1.0f));
+
+	Globals::textureManager.get("null").bind();
+
+	for (auto&& entitie : m_entities) {
+		entitie->getAnimatedModel().drawRaw();
+	}
+
+
+
+	shader->unuse();
+
 
 	if (m_drawUi)
 		renderUi();

@@ -1001,9 +1001,6 @@ void Utils::MdlIO::mdlToBuffer(const char* path, std::array<float,3> _scale, std
 		for (size_t j = 0; j < numLodLevels; ++j) {
 
 			GeometryDesc& geomDesc = geomDescs[i][j];
-
-		
-
 			file.read(metaData, sizeof(float));
 			geomDesc.lodDistance = Utils::bytesToFloatLE(metaData[0], metaData[1], metaData[2], metaData[3]);
 

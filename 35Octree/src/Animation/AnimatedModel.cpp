@@ -19,6 +19,10 @@ const Quaternion& AnimatedModel::getWorldOrientation() const {
 	return m_meshes[0]->m_rootBone->getWorldOrientation();
 }
 
+const BoundingBox& AnimatedModel::getAABB() const {
+	return m_aabb;
+}
+
 void AnimatedModel::translate(const Vector3f& trans) {
 	return m_meshes[0]->m_rootBone->translate(trans);
 }
@@ -237,27 +241,25 @@ void AnimatedModel::loadModelMdl(const std::string& path) {
 	m_meshes.push_back(new AnimatedMesh(this));
 	AnimatedMesh* mesh = m_meshes.back();
 
-	BoundingBox box;
 	std::vector<std::vector<Utils::GeometryDesc>> geomDescs;
-
-	mdlConverter.mdlToBuffer(path.c_str(), 1.0f, mesh->m_vertexBuffer, mesh->m_indexBuffer, mesh->m_weights, mesh->m_boneIds, geomDescs, mesh->m_meshBones, box);
+	mdlConverter.mdlToBuffer(path.c_str(), 1.0f, mesh->m_vertexBuffer, mesh->m_indexBuffer, mesh->m_weights, mesh->m_boneIds, geomDescs, mesh->m_meshBones, m_aabb);
 	mesh->m_drawCount = static_cast<unsigned int>(mesh->m_indexBuffer.size());
 	CreateBuffer(mesh->m_vertexBuffer, mesh->m_indexBuffer, mesh->m_vao, mesh->m_vbo, mesh->m_ibo, 8, mesh->m_weights, mesh->m_boneIds);
 }
 
-void AnimatedModel::AnimatedModel::drawRaw() {
+void AnimatedModel::AnimatedModel::drawRaw() const {
 	for (auto&& mesh : m_meshes) {
 		mesh->drawRaw();
 	}
 }
 
-void AnimatedModel::update(float dt) {
+void AnimatedModel::update(float dt) const {
 	for (auto&& mesh : m_meshes) {
 		mesh->update(dt);
 	}
 }
 
-void AnimatedModel::updateSkinning() {
+void AnimatedModel::updateSkinning() const {
 	for (auto&& mesh : m_meshes) {
 		mesh->updateSkinning();
 	}
@@ -523,7 +525,7 @@ void AnimatedModel::OnAnimationOrderChanged() {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void AnimatedMesh::drawRaw() {
+void AnimatedMesh::drawRaw() const {
 	glBindVertexArray(m_vao);
 	glDrawElements(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
@@ -559,10 +561,9 @@ void AnimatedMesh::update(float dt) {
 			}
 		}
 	}
-
 }
 
-void AnimatedMesh::updateSkinning() {
+void AnimatedMesh::updateSkinning() const {
 	for (size_t i = 0; i < m_numBones; ++i) {
 		m_skinMatrices[i] = m_bones[i]->getWorldTransformation() * m_meshBones[i].offsetMatrix;
 	}

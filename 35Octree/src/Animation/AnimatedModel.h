@@ -36,9 +36,9 @@ public:
 	AnimatedModel();
 	virtual ~AnimatedModel();
 
-	void drawRaw();
-	void update(float dt);
-	void updateSkinning();
+	void drawRaw() const;
+	void update(float dt) const;
+	void updateSkinning() const;
 
 	void loadModelAssimp(const std::string& path, const short addVirtualRoots = 0, const bool reverseBoneList = false);
 	void loadModelMdl(const std::string& path);
@@ -63,18 +63,21 @@ public:
 	const Vector3f& getWorldPosition() const;
 	const Vector3f& getWorldScale() const;
 	const Quaternion& getWorldOrientation() const;
+	const BoundingBox& getAABB() const;
 	void translate(const Vector3f& trans);
 	void translateRelative(const Vector3f& trans);
 	void rotate(const float pitch, const float yaw, const float roll);
 
 	std::vector<AnimatedMesh*> m_meshes;
 	bool m_hasAnimationController;
+
 //private:
 
 	aiNode* searchNode(aiNode *node, std::vector<std::string> &boneList);
 	void fetchAiHierarchy(aiNode *node, std::vector<MeshBone>& meshBones, int parentIndex = 0);
 	static void CreateBuffer(std::vector<float>& vertexBuffer, std::vector<unsigned int> indexBuffer, unsigned int& vao, unsigned int(&vbo)[3], unsigned int& ibo, unsigned int stride, std::vector<std::array<float, 4>>& weights, std::vector<std::array<unsigned int, 4>>& boneIds);
 	bool m_animationOrderDirty;
+	BoundingBox m_aabb;
 };
 
 class AnimatedMesh {
@@ -86,9 +89,9 @@ public:
 	AnimatedMesh(AnimatedModel* model);
 	virtual ~AnimatedMesh();
 
-	void drawRaw();
+	void drawRaw() const;
 	void update(float dt);
-	void updateSkinning();
+	void updateSkinning() const;
 
 	AnimatedModel* m_model;
 	std::vector<std::shared_ptr<AnimationState>> m_animationStates;

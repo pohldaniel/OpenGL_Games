@@ -437,7 +437,7 @@ void Application::fixedUpdate() {
 
 void Application::initStates() {	
 	Machine = new StateMachine(m_dt, m_fdt);
-	Machine->addStateAtTop(new Menu(*Machine));
+	//Machine->addStateAtTop(new Menu(*Machine));
 
 	//Machine->addStateAtTop(new OctreeInterface(*Machine));
 	//Machine->addStateAtTop(new Default(*Machine));
@@ -459,7 +459,7 @@ void Application::initStates() {
 	//Machine->addStateAtTop(new GrassComp(*Machine));
 	//Machine->addStateAtTop(new GrassGeom(*Machine));
 	//Machine->addStateAtTop(new OcclusionQuery(*Machine));
-	//Machine->addStateAtTop(new AnimationInterface(*Machine));
+	Machine->addStateAtTop(new AnimationInterface(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -767,6 +767,7 @@ void Application::loadAssets() {
 	//Globals::shaderManager.loadShader("combiner", "res/shader/combiner.vert", "res/shader/combiner.frag");
 	Globals::shaderManager.loadShader("occlusion", "res/shader/Occ/occluders.vert", "res/shader/Occ/occluders.frag");
 	Globals::shaderManager.loadShader("boundingBox", "res/shader/boundingBox.vert", "res/shader/boundingBox.frag");
+	Globals::shaderManager.loadShader("animation_new", "res/shader/animation_new.vert", "res/shader/animation_new.frag");
 
 	Shader::SetIncludeFromFile("SeparableSSS.h", "res/shader/PBR/SeparableSSS.h");
 	Globals::shaderManager.loadShader("pbr", "res/shader/PBR/pbr.vert.glsl", "res/shader/PBR/pbr.frag.glsl");
@@ -882,6 +883,8 @@ void Application::loadAssets() {
 	Globals::textureManager.get("bricks_disp").setWrapMode(GL_REPEAT);
 	Globals::textureManager.get("bricks_disp").generateDisplacements();
 
+	Globals::textureManager.createNullTexture("null");
+
 	std::string faces[] = { "res/textures/posx.jpg", "res/textures/negx.jpg", "res/textures/posy.jpg", "res/textures/negy.jpg", "res/textures/posz.jpg", "res/textures/negz.jpg" };
 	Globals::textureManager.loadCubeMap("dessert", faces, false);
 
@@ -907,6 +910,10 @@ void Application::loadAssets() {
 	Globals::shapeManager.buildQuadXZ("floor", Vector3f(-50.0f, 0.0f, -50.0f), Vector2f(100.0f, 100.0f), 10, 10, true, true, false);
 	Globals::shapeManager.buildQuadXZ("floor_shadow", Vector3f(-500.0f, -50.0f, -500.0f), Vector2f(1000.0f, 1000.0f), 1, 1, false, true, false);
 	Globals::shapeManager.buildQuadXZ("floor_grass", Vector3f(-20.0f, 0.0f, -20.0f), Vector2f(39.0f, 39.0f), 1, 1, true, false, false);
-
 	Globals::shapeManager.buildCube("boundingBox", Vector3f(-1.0f, -1.0f, -1.0f), Vector3f(2.0f, 2.0f, 2.0f), 1, 1, false, false, false);
+
+	Globals::animationManagerNew.loadAnimationAni("beta_idle", "res/models/BetaLowpoly/Beta_Idle.ani");
+	Globals::animationManagerNew.loadAnimationAni("beta_run", "res/models/BetaLowpoly/Beta_Run.ani");
+	Globals::animationManagerNew.loadAnimationAni("beta_jump_start", "res/models/BetaLowpoly/Beta_JumpStart.ani");
+	Globals::animationManagerNew.loadAnimationAni("beta_jump_loop", "res/models/BetaLowpoly/Beta_JumpLoop.ani");
 }
