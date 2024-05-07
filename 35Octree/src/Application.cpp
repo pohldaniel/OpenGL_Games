@@ -22,6 +22,7 @@
 #include <States/BlobShoot.h>
 #include <States/OcclusionQuery.h>
 #include <States/OctreeInterface.h>
+#include <States/AnimationInterface.h>
 
 #include <States/Particle/BlendedParticle.h>
 #include <States/Particle/SmoothParticle.h>
@@ -458,6 +459,7 @@ void Application::initStates() {
 	//Machine->addStateAtTop(new GrassComp(*Machine));
 	//Machine->addStateAtTop(new GrassGeom(*Machine));
 	//Machine->addStateAtTop(new OcclusionQuery(*Machine));
+	//Machine->addStateAtTop(new AnimationInterface(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {

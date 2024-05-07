@@ -2,19 +2,20 @@
 
 #include <cassert>
 #include <algorithm>
-#include <Octree/Octree.h>
 #include <engine/DebugRenderer.h>
+#include <engine/scene/OctreeNode.h>
+#include "Octree.h"
 
 static const float DEFAULT_OCTREE_SIZE = 1000.0f;
 static const int DEFAULT_OCTREE_LEVELS = 8;
 static const int MAX_OCTREE_LEVELS = 255;
 static const size_t MIN_THREADED_UPDATE = 16;
 
-static inline bool CompareDrawableDistances(const std::pair<ShapeNode*, float>& lhs, const std::pair<ShapeNode*, float>& rhs){
+static inline bool CompareDrawableDistances(const std::pair<OctreeNode*, float>& lhs, const std::pair<OctreeNode*, float>& rhs){
 	return lhs.second < rhs.second;
 }
 
-static inline bool CompareDrawables(ShapeNode* lhs, ShapeNode* rhs){
+static inline bool CompareDrawables(OctreeNode* lhs, OctreeNode* rhs){
 	return true;
 }
 
@@ -143,16 +144,14 @@ Octree::Octree() : threadedUpdate(false),workQueue(WorkQueue::Get()){
 
     // Have at least 1 task for reinsert processing
 	reinsertTasks.push_back(new ReinsertDrawablesTask(this, &Octree::CheckReinsertWork));
-	//reinsertTasks.push_back(new ReinsertDrawablesTask(this, &OctreeTu::CheckReinsertWork));
-	//reinsertQueues = new std::vector<Drawable*>[workQueue->NumThreads()];
-	reinsertQueues = new std::vector<ShapeNode*>[workQueue->NumThreads()];
+	reinsertQueues = new std::vector<OctreeNode*>[workQueue->NumThreads()];
 }
 
 Octree::~Octree(){
     // Clear octree association from nodes that were never inserted
     // Note: the threaded queues cannot have nodes that were never inserted, only nodes that should be moved
 	for (auto it = updateQueue.begin(); it != updateQueue.end(); ++it){
-		ShapeNode* drawable = *it;
+		OctreeNode* drawable = *it;
 		if (drawable){
 			drawable->m_octant = nullptr;
 			drawable->m_reinsertQueued = false;
@@ -228,7 +227,7 @@ void Octree::OnRenderAABB(const Vector4f& color) {
 	root.OnRenderAABB(color);
 }
 
-void Octree::QueueUpdate(ShapeNode* drawable){
+void Octree::QueueUpdate(OctreeNode* drawable){
 	assert(drawable);
 
 	if (drawable->m_octant) {
@@ -251,7 +250,7 @@ void Octree::QueueUpdate(ShapeNode* drawable){
 	}
 }
 
-void Octree::RemoveDrawable(ShapeNode* drawable){
+void Octree::RemoveDrawable(OctreeNode* drawable){
 	if (!drawable)
 		return;
 
@@ -269,9 +268,9 @@ void Octree::RemoveDrawable(ShapeNode* drawable){
 	drawable->m_octant = nullptr;
 }
 
-void Octree::ReinsertDrawables(std::vector<ShapeNode*>& drawables){
+void Octree::ReinsertDrawables(std::vector<OctreeNode*>& drawables){
 	for (auto it = drawables.begin(); it != drawables.end(); ++it){
-		ShapeNode* drawable = *it;
+		OctreeNode* drawable = *it;
 
 		const BoundingBox& box = drawable->getWorldBoundingBox();
 		Octant* oldOctant = drawable->getOctant();
@@ -308,7 +307,7 @@ void Octree::ReinsertDrawables(std::vector<ShapeNode*>& drawables){
 	drawables.clear();
 }
 
-void Octree::RemoveDrawableFromQueue(ShapeNode* drawable, std::vector<ShapeNode*>& drawables){
+void Octree::RemoveDrawableFromQueue(OctreeNode* drawable, std::vector<OctreeNode*>& drawables){
     for (auto it = drawables.begin(); it != drawables.end(); ++it){
         if ((*it) == drawable){
             *it = nullptr;
@@ -357,7 +356,7 @@ void Octree::DeleteChildOctant(Octant* octant, unsigned char index){
 
 void Octree::DeleteChildOctants(Octant* octant, bool deletingOctree){
 	for (auto it = octant->drawables.begin(); it != octant->drawables.end(); ++it){
-		ShapeNode* drawable = *it;
+		OctreeNode* drawable = *it;
 		drawable->m_octant = nullptr;
 		drawable->m_reinsertQueued = false;
 		//if (deletingOctree)
@@ -377,7 +376,7 @@ void Octree::DeleteChildOctants(Octant* octant, bool deletingOctree){
 	}
 }
 
-void Octree::CollectDrawables(std::vector<ShapeNode*>& result, Octant* octant) const{
+void Octree::CollectDrawables(std::vector<OctreeNode*>& result, Octant* octant) const{
 	result.insert(result.end(), octant->drawables.begin(), octant->drawables.end());
 
 	if (octant->numChildren)
@@ -390,11 +389,11 @@ void Octree::CollectDrawables(std::vector<ShapeNode*>& result, Octant* octant) c
 	}
 }
 
-void Octree::CollectDrawables(std::vector<ShapeNode*>& result, Octant* octant, unsigned short drawableFlags, unsigned layerMask) const{
-	std::vector<ShapeNode*>& drawables = octant->drawables;
+void Octree::CollectDrawables(std::vector<OctreeNode*>& result, Octant* octant, unsigned short drawableFlags, unsigned layerMask) const{
+	std::vector<OctreeNode*>& drawables = octant->drawables;
 
 	for (auto it = drawables.begin(); it != drawables.end(); ++it){
-		ShapeNode* drawable = *it;
+		OctreeNode* drawable = *it;
 		//if ((drawable->Flags() & drawableFlags) == drawableFlags && (drawable->LayerMask() & layerMask))
 		result.push_back(drawable);
 	}
@@ -411,13 +410,13 @@ void Octree::CollectDrawables(std::vector<ShapeNode*>& result, Octant* octant, u
 
 void Octree::CheckReinsertWork(Task* task_, unsigned threadIndex_){
 	ReinsertDrawablesTask* task = static_cast<ReinsertDrawablesTask*>(task_);
-	ShapeNode** start = task->start;
-	ShapeNode** end = task->end;
-	std::vector<ShapeNode*>& reinsertQueue = reinsertQueues[threadIndex_];
+	OctreeNode** start = task->start;
+	OctreeNode** end = task->end;
+	std::vector<OctreeNode*>& reinsertQueue = reinsertQueues[threadIndex_];
 
 	for (; start != end; ++start){
 		// If drawable was removed before reinsertion could happen, a null pointer will be in its place
-		ShapeNode* drawable = *start;
+		OctreeNode* drawable = *start;
 		if (!drawable)
 			continue;
 

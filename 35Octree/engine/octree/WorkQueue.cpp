@@ -1,5 +1,3 @@
-#include <iostream>
-
 #include "ThreadUtils.h"
 #include "WorkQueue.h"
 

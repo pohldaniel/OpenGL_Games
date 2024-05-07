@@ -67,9 +67,6 @@
     <Filter Include="engine\ui">
       <UniqueIdentifier>{72a9ec7e-009c-4ea8-ad6d-b9eb9566490f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Octree">
-      <UniqueIdentifier>{98e34bb8-ebab-493a-8e52-9a546cc65112}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Entities">
       <UniqueIdentifier>{f4ed3c3e-b8c5-439c-b7d0-a16b74e0a3c0}</UniqueIdentifier>
     </Filter>
@@ -96,6 +93,9 @@
     </Filter>
     <Filter Include="Source Files\States\Particle">
       <UniqueIdentifier>{414bd1c9-6293-450f-9c40-a8ee318da21b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="engine\octree">
+      <UniqueIdentifier>{13ef4786-41bd-47d2-b91d-addce13f8f7d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -423,15 +423,6 @@
     <ClCompile Include="engine\Object.cpp">
       <Filter>engine</Filter>
     </ClCompile>
-    <ClCompile Include="src\Octree\WorkQueue.cpp">
-      <Filter>Source Files\Octree</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Octree\ThreadUtils.cpp">
-      <Filter>Source Files\Octree</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Octree\OctreeNode.cpp">
-      <Filter>Source Files\Octree</Filter>
-    </ClCompile>
     <ClCompile Include="src\States\RayMarch.cpp">
       <Filter>Source Files\States</Filter>
     </ClCompile>
@@ -516,10 +507,22 @@
     <ClCompile Include="src\States\OcclusionQuery.cpp">
       <Filter>Source Files\States</Filter>
     </ClCompile>
-    <ClCompile Include="src\Octree\Octree.cpp">
-      <Filter>Source Files\Octree</Filter>
-    </ClCompile>
     <ClCompile Include="src\States\OctreeInterface.cpp">
+      <Filter>Source Files\States</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\scene\OctreeNode.cpp">
+      <Filter>engine\scene</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\octree\Octree.cpp">
+      <Filter>engine\octree</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\octree\ThreadUtils.cpp">
+      <Filter>engine\octree</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\octree\WorkQueue.cpp">
+      <Filter>engine\octree</Filter>
+    </ClCompile>
+    <ClCompile Include="src\States\AnimationInterface.cpp">
       <Filter>Source Files\States</Filter>
     </ClCompile>
   </ItemGroup>
@@ -881,18 +884,6 @@
     <ClInclude Include="engine\scene\INode.h">
       <Filter>engine\scene</Filter>
     </ClInclude>
-    <ClInclude Include="src\Octree\WorkQueue.h">
-      <Filter>Source Files\Octree</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Octree\ThreadUtils.h">
-      <Filter>Source Files\Octree</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Octree\AutoPtr.h">
-      <Filter>Source Files\Octree</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Octree\OctreeNode.h">
-      <Filter>Source Files\Octree</Filter>
-    </ClInclude>
     <ClInclude Include="src\States\RayMarch.h">
       <Filter>Source Files\States</Filter>
     </ClInclude>
@@ -1172,10 +1163,25 @@
     <ClInclude Include="src\States\OcclusionQuery.h">
       <Filter>Source Files\States</Filter>
     </ClInclude>
-    <ClInclude Include="src\Octree\Octree.h">
-      <Filter>Source Files\Octree</Filter>
-    </ClInclude>
     <ClInclude Include="src\States\OctreeInterface.h">
+      <Filter>Source Files\States</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\scene\OctreeNode.h">
+      <Filter>engine\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\octree\AutoPtr.h">
+      <Filter>engine\octree</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\octree\Octree.h">
+      <Filter>engine\octree</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\octree\ThreadUtils.h">
+      <Filter>engine\octree</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\octree\WorkQueue.h">
+      <Filter>engine\octree</Filter>
+    </ClInclude>
+    <ClInclude Include="src\States\AnimationInterface.h">
       <Filter>Source Files\States</Filter>
     </ClInclude>
   </ItemGroup>

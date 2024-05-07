@@ -2,10 +2,9 @@
 
 #pragma once
 #include <atomic>
-#include <engine/scene/ShapeNode.h>
-#include <Octree/AutoPtr.h>
-#include <Octree/WorkQueue.h>
-#include <Octree/OctreeNode.h>
+
+#include "AutoPtr.h"
+#include "WorkQueue.h"
 
 static const size_t NUM_OCTANTS = 8;
 static const unsigned char OF_DRAWABLES_SORT_DIRTY = 0x1;
@@ -14,6 +13,7 @@ static const float OCCLUSION_QUERY_INTERVAL = 0.133333f; // About 8 frame stagge
 static unsigned randomSeed = 1;
 
 struct ReinsertDrawablesTask;
+class OctreeNode;
 /// %Octant occlusion query visibility states.
 enum OctantVisibility
 {
@@ -46,7 +46,7 @@ public:
     /// Return the culling box. Update as necessary.
     const BoundingBox& CullingBox() const;
     /// Return drawables in this octant.
-	const std::vector<ShapeNode*>& Drawables() const { return drawables; }
+	const std::vector<OctreeNode*>& Drawables() const { return drawables; }
     /// Return whether has child octants.
     bool HasChildren() const { return numChildren > 0; }
     /// Return child octant by index.
@@ -149,7 +149,7 @@ private:
     /// Combined drawable and child octant bounding box. Used for culling tests.
     mutable BoundingBox cullingBox;
     /// Drawables contained in the octant.
-	std::vector<ShapeNode*> drawables;
+	std::vector<OctreeNode*> drawables;
     /// Expanded (loose) bounding box used for fitting drawables within the octant.
     BoundingBox fittingBox;
     /// Bounding box center.
@@ -195,15 +195,15 @@ public:
     void SetThreadedUpdate(bool enable) { threadedUpdate = enable; }
     /// Queue octree reinsertion for a drawable.
 	//void QueueUpdate(Drawable* drawable);
-	void QueueUpdate(ShapeNode* drawable);
+	void QueueUpdate(OctreeNode* drawable);
     /// Remove a drawable from the octree.
-	void RemoveDrawable(ShapeNode* drawable);
+	void RemoveDrawable(OctreeNode* drawable);
     /// Add debug geometry to be rendered. Visualizes the whole octree.
 	//void OnRenderOBB(const Vector4f& color = { 1.0f, 0.0f, 0.0f, 1.0f });
 	void OnRenderAABB(const Vector4f& color = { 0.0f, 1.0f, 0.0f, 1.0f });
 
     /// Query for drawables using a volume such as frustum or sphere.
-    template <class T> void FindDrawables(std::vector<ShapeNode*>& result, const T& volume, unsigned short drawableFlags, unsigned layerMask = LAYERMASK_ALL) const { CollectDrawables(result, const_cast<Octant*>(&root), volume, drawableFlags, layerMask); }
+    template <class T> void FindDrawables(std::vector<OctreeNode*>& result, const T& volume, unsigned short drawableFlags, unsigned layerMask = LAYERMASK_ALL) const { CollectDrawables(result, const_cast<Octant*>(&root), volume, drawableFlags, layerMask); }
     /// Return whether threaded update is enabled.
     bool ThreadedUpdate() const { return threadedUpdate; }
     /// Return the root octant.
@@ -211,12 +211,12 @@ public:
 
 private:
     /// Process a list of drawables to be reinserted. Clear the list afterward.
-	void ReinsertDrawables(std::vector<ShapeNode*>& drawables);
+	void ReinsertDrawables(std::vector<OctreeNode*>& drawables);
     /// Remove a drawable from a reinsert queue.
-    void RemoveDrawableFromQueue(ShapeNode* drawable, std::vector<ShapeNode*>& drawables);
+    void RemoveDrawableFromQueue(OctreeNode* drawable, std::vector<OctreeNode*>& drawables);
     
     /// Add drawable to a specific octant.
-	void AddDrawable(ShapeNode* drawable, Octant* octant)
+	void AddDrawable(OctreeNode* drawable, Octant* octant)
 	{
 		octant->drawables.push_back(drawable);
 		octant->MarkCullingBoxDirty();
@@ -230,7 +230,7 @@ private:
 	}
 
 	/// Remove drawable from an octant.
-	void RemoveDrawable(ShapeNode* drawable, Octant* octant)
+	void RemoveDrawable(OctreeNode* drawable, Octant* octant)
 	{
 		if (!octant)
 			return;
@@ -263,14 +263,14 @@ private:
 	/// Delete a child octant hierarchy. If not deleting the octree for good, moves any nodes back to the root octant.
 	void DeleteChildOctants(Octant* octant, bool deletingOctree);
 	/// Return all drawables from an octant recursively.
-	void CollectDrawables(std::vector<ShapeNode*>& result, Octant* octant) const;
+	void CollectDrawables(std::vector<OctreeNode*>& result, Octant* octant) const;
 	/// Return all drawables matching flags from an octant recursively.
-	void CollectDrawables(std::vector<ShapeNode*>& result, Octant* octant, unsigned short drawableFlags, unsigned layerMask) const;
+	void CollectDrawables(std::vector<OctreeNode*>& result, Octant* octant, unsigned short drawableFlags, unsigned layerMask) const;
 	/// Work function to check reinsertion of nodes.
 	void CheckReinsertWork(Task* task, unsigned threadIndex);
 
 	/// Collect nodes matching flags using a volume such as frustum or sphere.
-	template <class T> void CollectDrawables(std::vector<ShapeNode*>& result, Octant* octant, const T& volume, unsigned short drawableFlags, unsigned layerMask) const
+	template <class T> void CollectDrawables(std::vector<OctreeNode*>& result, Octant* octant, const T& volume, unsigned short drawableFlags, unsigned layerMask) const
 	{
 		Intersection res = volume.IsInside(octant->CullingBox());
 		if (res == OUTSIDE)
@@ -281,11 +281,11 @@ private:
 			CollectDrawables(result, octant, drawableFlags, layerMask);
 		else
 		{
-			std::vector<ShapeNode*>& drawables = octant->drawables;
+			std::vector<OctreeNodeNew*>& drawables = octant->drawables;
 
 			for (auto it = drawables.begin(); it != drawables.end(); ++it)
 			{
-				ShapeNode* drawable = *it;
+				OctreeNodeNew* drawable = *it;
 				if ((drawable->Flags() & drawableFlags) == drawableFlags && (drawable->LayerMask() & layerMask) && volume.IsInsideFast(drawable->WorldBoundingBox()) != OUTSIDE)
 					result.push_back(drawable);
 			}
@@ -304,7 +304,7 @@ private:
     /// Threaded update flag. During threaded update moved drawables should go directly to thread-specific reinsert queues.
     volatile bool threadedUpdate;
     /// Queue of nodes to be reinserted.
-	std::vector<ShapeNode*> updateQueue;
+	std::vector<OctreeNode*> updateQueue;
     /// Octants which need to have their drawables sorted.
     std::vector<Octant*> sortDirtyOctants;
     /// Extents of the octree root level box.
@@ -316,7 +316,7 @@ private:
     /// Tasks for threaded reinsert execution.
 	std::vector<AutoPtr<ReinsertDrawablesTask>> reinsertTasks;
     /// Intermediate reinsert queues for threaded execution.
-	AutoArrayPtr<std::vector<ShapeNode*>> reinsertQueues;
+	AutoArrayPtr<std::vector<OctreeNode*>> reinsertQueues;
     /// Remaining drawable reinsertion tasks.
     std::atomic<int> numPendingReinsertionTasks;
 };
@@ -329,7 +329,7 @@ struct ReinsertDrawablesTask : public MemberFunctionTask<Octree> {
 	}
 
 	/// Start pointer.
-	ShapeNode** start;
+	OctreeNode** start;
 	/// End pointer.
-	ShapeNode** end;
+	OctreeNode** end;
 };

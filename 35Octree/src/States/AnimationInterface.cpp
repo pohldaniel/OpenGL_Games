@@ -2,12 +2,13 @@
 #include <imgui_impl_win32.h>
 #include <imgui_impl_opengl3.h>
 #include <imgui_internal.h>
+#include <States/Menu.h>
 
-#include "Default.h"
+#include "AnimationInterface.h"
 #include "Application.h"
 #include "Globals.h"
 
-Default::Default(StateMachine& machine) : State(machine, States::DEFAULT) {
+AnimationInterface::AnimationInterface(StateMachine& machine) : State(machine, States::ANIMATIONINTERFACE) {
 
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
@@ -30,18 +31,19 @@ Default::Default(StateMachine& machine) : State(machine, States::DEFAULT) {
 		{ &Globals::textureManager.get("forest_4"), 1, 4.0f },
 		{ &Globals::textureManager.get("forest_5"), 1, 5.0f }});
 	m_background.setSpeed(0.005f);
+
 }
 
-Default::~Default() {
+AnimationInterface::~AnimationInterface() {
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
 }
 
-void Default::fixedUpdate() {
+void AnimationInterface::fixedUpdate() {
 
 }
 
-void Default::update() {
+void AnimationInterface::update() {
 	Keyboard &keyboard = Keyboard::instance();
 	Vector3f direction = Vector3f();
 
@@ -103,7 +105,7 @@ void Default::update() {
 	m_background.update(m_dt);
 }
 
-void Default::render() {
+void AnimationInterface::render() {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	m_background.draw();
@@ -112,23 +114,27 @@ void Default::render() {
 		renderUi();
 }
 
-void Default::OnMouseMotion(Event::MouseMoveEvent& event) {
+void AnimationInterface::OnMouseMotion(Event::MouseMoveEvent& event) {
 
 }
 
-void Default::OnMouseButtonDown(Event::MouseButtonEvent& event) {
+void AnimationInterface::OnMouseWheel(Event::MouseWheelEvent& event) {
 
 }
 
-void Default::OnMouseButtonUp(Event::MouseButtonEvent& event) {
-
+void AnimationInterface::OnMouseButtonDown(Event::MouseButtonEvent& event) {
+	if (event.button == 2u) {
+		Mouse::instance().attach(Application::GetWindow());
+	}
 }
 
-void Default::OnMouseWheel(Event::MouseWheelEvent& event) {
-
+void AnimationInterface::OnMouseButtonUp(Event::MouseButtonEvent& event) {
+	if (event.button == 2u) {
+		Mouse::instance().detach();
+	}
 }
 
-void Default::OnKeyDown(Event::KeyboardEvent& event) {
+void AnimationInterface::OnKeyDown(Event::KeyboardEvent& event) {
 	if (event.keyCode == VK_LMENU) {
 		m_drawUi = !m_drawUi;
 	}
@@ -136,19 +142,21 @@ void Default::OnKeyDown(Event::KeyboardEvent& event) {
 	if (event.keyCode == VK_ESCAPE) {
 		Mouse::instance().detach();
 		m_isRunning = false;
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new Menu(m_machine));
 	}
 }
 
-void Default::OnKeyUp(Event::KeyboardEvent& event) {
+void AnimationInterface::OnKeyUp(Event::KeyboardEvent& event) {
 
 }
 
-void Default::resize(int deltaW, int deltaH) {
+void AnimationInterface::resize(int deltaW, int deltaH) {
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
 }
 
-void Default::renderUi() {
+void AnimationInterface::renderUi() {
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();

@@ -1,0 +1,74 @@
+#include "OctreeNode.h"
+#include "../DebugRenderer.h"
+#include "../octree/Octree.h"
+
+OctreeNode::OctreeNode(const BoundingBox& localBoundingBox) : localBoundingBox(localBoundingBox), m_drawDebug(true), m_octreeUpdate(true), m_reinsertQueued(true), m_octant(nullptr) {
+	OnBoundingBoxChanged();
+}
+
+OctreeNode::~OctreeNode() {
+
+}
+
+const BoundingBox& OctreeNode::getWorldBoundingBox() const {
+	if (m_worldBoundingBoxDirty) {
+		OnWorldBoundingBoxUpdate();
+		m_worldBoundingBoxDirty = false;
+	}
+	return m_worldBoundingBox;
+}
+
+const BoundingBox& OctreeNode::getLocalBoundingBox() const {
+	return localBoundingBox;
+}
+
+void OctreeNode::OnWorldBoundingBoxUpdate() const {
+	m_worldBoundingBox = getLocalBoundingBox().transformed(getWorldTransformation());
+}
+
+void OctreeNode::OnRenderOBB(const Vector4f& color) {
+	if (!m_drawDebug)
+		return;
+	DebugRenderer::Get().AddBoundingBox(getLocalBoundingBox(), getWorldTransformation(), color);
+}
+
+void OctreeNode::OnRenderAABB(const Vector4f& color) {
+	if (!m_drawDebug)
+		return;
+	DebugRenderer::Get().AddBoundingBox(getWorldBoundingBox(), color);
+}
+
+void OctreeNode::OnTransformChanged() {
+	SceneNodeLC::OnTransformChanged();
+	OnBoundingBoxChanged();
+}
+
+void OctreeNode::OnBoundingBoxChanged() {
+	m_worldBoundingBoxDirty = true;
+
+	if (m_octant && !m_reinsertQueued)
+		m_octree->QueueUpdate(this);
+}
+
+void OctreeNode::OnOctreeUpdate() const {
+	m_octreeUpdate = false;
+}
+
+Octant* OctreeNode::getOctant() const {
+	return m_octant;
+}
+
+void OctreeNode::setDrawDebug(bool drawDebug) {
+	m_drawDebug = drawDebug;
+}
+
+Octree* OctreeNode::getOctree() const {
+	return m_octree;
+}
+
+void OctreeNode::removeFromOctree() {
+	if (m_octree) {
+		m_octree->RemoveDrawable(this);
+		m_octree = nullptr;
+	}
+}

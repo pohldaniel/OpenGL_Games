@@ -151,9 +151,9 @@ void OctreeInterface::render() {
 			Octant* octant = oIt->first;
 			octant->OnRenderAABB();
 
-			const std::vector<ShapeNode*>& drawables = octant->Drawables();
+			const std::vector<OctreeNode*>& drawables = octant->Drawables();
 			for (auto dIt = drawables.begin(); dIt != drawables.end(); ++dIt) {
-				ShapeNode* drawable = *dIt;
+				ShapeNode* drawable = static_cast<ShapeNode*>(*dIt);
 
 				shader->loadMatrix("u_model", drawable->getWorldTransformation());
 				drawable->getShape().drawRaw();
@@ -313,7 +313,7 @@ void OctreeInterface::updateOctree() {
 	m_octree->SetThreadedUpdate(false);
 }
 
-void OctreeInterface::CollectOctantsAndLights(Octant* octant, ThreadOctantResult& result, unsigned char planeMask)
+void OctreeInterface::CollectOctants(Octant* octant, ThreadOctantResult& result, unsigned char planeMask)
 {
 	const BoundingBox& octantBox = octant->CullingBox();
 
@@ -347,7 +347,7 @@ void OctreeInterface::CollectOctantsAndLights(Octant* octant, ThreadOctantResult
 			if (octant != m_octree->Root() && octant->HasChildren()){
 				for (size_t i = 0; i < NUM_OCTANTS; ++i){
 					if (octant->Child(i))
-						CollectOctantsAndLights(octant->Child(i), result, planeMask);
+						CollectOctants(octant->Child(i), result, planeMask);
 				}
 			}
 			return;
@@ -370,10 +370,10 @@ void OctreeInterface::CollectOctantsAndLights(Octant* octant, ThreadOctantResult
 		octant->SetVisibility(VIS_VISIBLE_UNKNOWN, false);
 	}
 
-	const std::vector<ShapeNode*>& drawables = octant->Drawables();
+	const std::vector<OctreeNode*>& drawables = octant->Drawables();
 
 	for (auto it = drawables.begin(); it != drawables.end(); ++it) {
-		ShapeNode* drawable = *it;
+		OctreeNode* drawable = *it;
 		result.octants.push_back(std::make_pair(octant, planeMask));
 		result.drawableAcc += drawables.end() - it;
 		break;
@@ -383,7 +383,7 @@ void OctreeInterface::CollectOctantsAndLights(Octant* octant, ThreadOctantResult
 	if (octant != m_octree->Root() && octant->HasChildren()) {
 		for (size_t i = 0; i < NUM_OCTANTS; ++i) {
 			if (octant->Child(i))
-				CollectOctantsAndLights(octant->Child(i), result, planeMask);
+				CollectOctants(octant->Child(i), result, planeMask);
 		}
 	}
 }
@@ -471,7 +471,7 @@ void OctreeInterface::CollectOctantsWork(Task* task_, unsigned){
 	Octant* octant = task->startOctant;
 	ThreadOctantResult& result = octantResults[task->resultIdx];
 
-	CollectOctantsAndLights(octant, result);
+	CollectOctants(octant, result);
 	numPendingBatchTasks.fetch_add(-1);
 }
 

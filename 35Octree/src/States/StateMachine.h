@@ -21,7 +21,8 @@ enum States {
 	SHELL2,
 	SHELL3,
 	GRASSCOMP,
-	GRASSGEOM
+	GRASSGEOM,
+	ANIMATIONINTERFACE
 };
 
 class State;

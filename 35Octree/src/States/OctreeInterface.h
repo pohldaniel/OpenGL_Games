@@ -6,10 +6,10 @@
 #include <engine/TrackBall.h>
 #include <engine/Frustum.h>
 #include <engine/scene/ShapeNode.h>
-#include <States/StateMachine.h>
+#include <engine/octree/ThreadUtils.h>
+#include <engine/octree/Octree.h>
 
-#include <Octree/ThreadUtils.h>
-#include <Octree/Octree.h>
+#include <States/StateMachine.h>
 
 static const float OCCLUSION_MARGIN = 0.1f;
 
@@ -82,7 +82,7 @@ private:
 	Matrix4f perspective, m_view;
 
 	void updateOctree();
-	void CollectOctantsAndLights(Octant* octant, ThreadOctantResult& result, unsigned char planeMask = 0x3f);
+	void CollectOctants(Octant* octant, ThreadOctantResult& result, unsigned char planeMask = 0x3f);
 	void AddOcclusionQuery(Octant* octant, ThreadOctantResult& result, unsigned char planeMask);
 	void CheckOcclusionQueries();
 	void RenderOcclusionQueries();

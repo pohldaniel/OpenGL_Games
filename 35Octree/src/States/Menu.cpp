@@ -24,6 +24,7 @@
 #include <States/RayMarch.h>
 #include <States/OctreeInterface.h>
 #include <States/OcclusionQuery.h>
+#include <States/AnimationInterface.h>
 
 #include <States/Settings.h>
 #include <States/Controls.h>
@@ -63,7 +64,8 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 		{ "fire",             Button() },
 		{ "blobshoot",        Button() },
 		{ "octree",           Button() },
-		{ "occlusion",        Button() }
+		{ "occlusion",        Button() },
+		{ "animation",        Button() }
 	});
 
 	m_buttons.at("grass_comp").setCharset(Globals::fontManager.get("upheaval_50"));
@@ -235,6 +237,15 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	m_buttons.at("fire").setFunction([&]() {
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new Fire(m_machine));
+	});
+
+	m_buttons.at("animation").setCharset(Globals::fontManager.get("upheaval_50"));
+	m_buttons.at("animation").setPosition(1130.0f, 150.0f);
+	m_buttons.at("animation").setOutlineThickness(5.0f);
+	m_buttons.at("animation").setText("Animation");
+	m_buttons.at("animation").setFunction([&]() {
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new AnimationInterface(m_machine));
 	});
 
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
