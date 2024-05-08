@@ -2,7 +2,7 @@
 #include "../DebugRenderer.h"
 #include "../octree/Octree.h"
 
-OctreeNode::OctreeNode(const BoundingBox& localBoundingBox) : localBoundingBox(localBoundingBox), m_drawDebug(true), m_reinsertQueued(true), m_octant(nullptr), m_octreeUpdate(true) {
+OctreeNode::OctreeNode(const BoundingBox& localBoundingBox) : localBoundingBox(localBoundingBox), m_drawDebug(true), m_reinsertQueued(true), m_octant(nullptr), m_octree(nullptr), m_octreeUpdate(true), m_lastFrameNumber(0){
 	OnBoundingBoxChanged();
 }
 
@@ -71,4 +71,22 @@ void OctreeNode::removeFromOctree() {
 		m_octree->RemoveDrawable(this);
 		m_octree = nullptr;
 	}
+}
+
+void OctreeNode::OnOctreeSet(Octree* octree) {
+	removeFromOctree();
+	m_octree = octree;
+	if (m_octree)
+		m_octree->QueueUpdate(this);
+}
+
+void OctreeNode::OnPrepareRender(float dt, unsigned short frameNumber) {
+	m_lastFrameNumber = frameNumber;
+}
+
+bool OctreeNode::wasInView(unsigned short frameNumber) const {
+	unsigned short previousFrameNumber = frameNumber - 1;
+	if (!previousFrameNumber)
+		--previousFrameNumber;
+	return m_lastFrameNumber == previousFrameNumber;
 }

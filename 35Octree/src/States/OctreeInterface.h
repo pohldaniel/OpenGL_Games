@@ -11,35 +11,7 @@
 
 #include <States/StateMachine.h>
 
-static const float OCCLUSION_MARGIN = 0.1f;
-
 class OctreeInterface : public State, public MouseEventListener, public KeyboardEventListener {
-
-	static const size_t NUM_OCTANT_TASKS = 9;
-
-	struct CollectOctantsTask : public MemberFunctionTask<OctreeInterface> {
-		/// Construct.
-		CollectOctantsTask(OctreeInterface* object_, MemberWorkFunctionPtr function_) :MemberFunctionTask<OctreeInterface>(object_, function_) {
-		}
-
-		Octant* startOctant;
-		size_t resultIdx;
-	};
-
-	struct ThreadOctantResult {
-		void Clear();
-		size_t drawableAcc;
-		size_t taskOctantIdx;
-		size_t batchTaskIdx;
-		std::vector<std::pair<Octant*, unsigned char>> octants;
-		std::vector<Octant*> occlusionQueries;
-	};
-
-	struct OcclusionQueryResult{
-		unsigned id;
-		void* object;
-		bool visible;
-	};
 
 public:
 
@@ -65,8 +37,6 @@ private:
 	bool m_initUi = true;
 	bool m_drawUi = true;
 
-	AutoPtr<WorkQueue> workQueue;
-
 	float m_fovx = 44.0f;
 	float m_far = 70.0f;
 	float m_near = 5.0f;
@@ -80,25 +50,4 @@ private:
 	Octree* m_octree;
 	Frustum m_frustum;
 	Matrix4f perspective, m_view;
-
-	void updateOctree();
-	void CollectOctants(Octant* octant, ThreadOctantResult& result, unsigned char planeMask = 0x3f);
-	void AddOcclusionQuery(Octant* octant, ThreadOctantResult& result, unsigned char planeMask);
-	void CheckOcclusionQueries();
-	void RenderOcclusionQueries();
-	void CollectOctantsWork(Task* task, unsigned threadIndex);
-
-	Vector3f previousCameraPosition;
-	std::vector<Octant*> rootLevelOctants;
-	std::atomic<int> numPendingBatchTasks;
-	AutoArrayPtr<ThreadOctantResult> octantResults;
-	AutoPtr<CollectOctantsTask> collectOctantsTasks[NUM_OCTANT_TASKS];
-
-	unsigned BeginOcclusionQuery(void* object);
-	void EndOcclusionQuery();
-	void FreeOcclusionQuery(unsigned id);
-	void CheckOcclusionQueryResults(std::vector<OcclusionQueryResult>& result);
-	size_t PendingOcclusionQueries() const { return pendingQueries.size(); }
-	std::vector<std::pair<unsigned, void*> > pendingQueries;
-	std::vector<unsigned> freeQueries;
 };

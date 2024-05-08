@@ -10,6 +10,8 @@
 #include "Globals.h"
 
 
+//const float OctreeInterface::OCCLUSION_MARGIN = 0.1f;
+
 OctreeInterface::OctreeInterface(StateMachine& machine) : State(machine, States::OCTREEINTERFACE) {
 
 	Application::SetCursorIcon(IDC_ARROW);
@@ -28,15 +30,8 @@ OctreeInterface::OctreeInterface(StateMachine& machine) : State(machine, States:
 	glClearColor(0.3f, 0.3f, 0.3f, 0.0f);
 	
 	WorkQueue::Init(0);
-	workQueue = WorkQueue::Get();
-	m_octree = new Octree();
-	
-	octantResults = new ThreadOctantResult[NUM_OCTANT_TASKS];
+	m_octree = new Octree(m_camera, m_frustum);
 
-	for (size_t i = 0; i < NUM_OCTANTS + 1; ++i) {
-		collectOctantsTasks[i] = new CollectOctantsTask(this, &OctreeInterface::CollectOctantsWork);
-		collectOctantsTasks[i]->resultIdx = i;
-	}
 	DebugRenderer::Get().setEnable(true);
 	m_root = new SceneNodeLC();
 	ShapeNode* child;
@@ -47,7 +42,7 @@ OctreeInterface::OctreeInterface(StateMachine& machine) : State(machine, States:
 				child->setPosition(2.2f * x, 2.2f * y, 2.2f * z);
 				//Important: guarantee thread safeness
 				child->updateSOP();
-				m_octree->QueueUpdate(child);
+				child->OnOctreeSet(m_octree);
 				m_entities.push_back(child);
 			}
 		}
@@ -55,7 +50,7 @@ OctreeInterface::OctreeInterface(StateMachine& machine) : State(machine, States:
 	child = m_root->addChild<ShapeNode, Shape>(Globals::shapeManager.get("quad_xy"));
 	child->setPosition(0.0f, 0.0f, 30.0f);
 	child->updateSOP();
-	m_octree->QueueUpdate(child);
+	child->OnOctreeSet(m_octree);
 	m_entities.push_back(child);
 
 	m_frustum.init();
@@ -132,7 +127,7 @@ void OctreeInterface::update() {
 	m_frustum.updateVertices(perspective, m_camera.getViewMatrix());
 	m_frustum.m_frustumSATData.calculate(m_frustum);
 
-	updateOctree();
+	m_octree->updateOctree(m_dt);
 }
 
 void OctreeInterface::render() {
@@ -145,8 +140,8 @@ void OctreeInterface::render() {
 
 	Globals::textureManager.get("marble").bind(0);
 
-	for (size_t i = 0; i < rootLevelOctants.size(); ++i) {
-		const ThreadOctantResult& result = octantResults[i];
+	for (size_t i = 0; i < m_octree->rootLevelOctants.size(); ++i) {
+		const Octree::ThreadOctantResult& result = m_octree->octantResults[i];
 		for (auto oIt = result.octants.begin(); oIt != result.octants.end(); ++oIt) {
 			Octant* octant = oIt->first;
 			octant->OnRenderAABB();
@@ -165,7 +160,7 @@ void OctreeInterface::render() {
 	shader->unuse();
 
 	if (m_useOcclusion)
-		RenderOcclusionQueries();
+		m_octree->RenderOcclusionQueries();
 
 	m_frustum.updateVbo(perspective, m_camera.getViewMatrix());
 
@@ -255,299 +250,16 @@ void OctreeInterface::renderUi() {
 	ImGui::SliderFloat("Near", &m_near, 0.1f, 200.0f);
 	ImGui::SliderFloat("Distance", &m_distance, -100.0f, 100.0f);
 	ImGui::Checkbox("Overview", &m_overview);
-	ImGui::Checkbox("Use Culling", &m_useCulling);
-	ImGui::Checkbox("Use Occlusion", &m_useOcclusion);
+	if(ImGui::Checkbox("Use Culling", &m_useCulling)) {
+		m_octree->m_useCulling = m_useCulling;
+	}
+
+	if (ImGui::Checkbox("Use Occlusion", &m_useOcclusion)) {
+		m_octree->m_useOcclusion = m_useOcclusion;
+	}
 
 	ImGui::End();
 
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-}
-
-void OctreeInterface::updateOctree() {
-	// Clear results from last frame
-	rootLevelOctants.clear();
-
-	for (size_t i = 0; i < NUM_OCTANT_TASKS; ++i)
-		octantResults[i].Clear();
-
-	// Process moved / animated objects' octree reinsertions
-	m_octree->Update();
-
-	// Check arrived occlusion query results while octree update goes on, then finish octree update
-	CheckOcclusionQueries();
-	m_octree->FinishUpdate();
-
-	// Enable threaded update during geometry / light gathering in case nodes' OnPrepareRender() causes further reinsertion queuing
-	m_octree->SetThreadedUpdate(workQueue->NumThreads() > 1);
-
-	// Find the starting points for octree traversal. Include the root if it contains drawables that didn't fit elsewhere
-	Octant* rootOctant = m_octree->Root();
-	if (rootOctant->Drawables().size())
-		rootLevelOctants.push_back(rootOctant);
-
-	for (size_t i = 0; i < NUM_OCTANTS; ++i) {
-		if (rootOctant->Child(i))
-			rootLevelOctants.push_back(rootOctant->Child(i));
-	}
-
-	// Keep track of both batch + octant task progress before main batches can be sorted (batch tasks will add to the counter when queued)
-	numPendingBatchTasks.store((int)rootLevelOctants.size());
-
-	// Find octants in view and their plane masks for node frustum culling. At the same time, find lights and process them
-	// When octant collection tasks complete, they queue tasks for collecting batches from those octants.
-	for (size_t i = 0; i < rootLevelOctants.size(); ++i) {
-		collectOctantsTasks[i]->startOctant = rootLevelOctants[i];
-	}
-
-	workQueue->QueueTasks(rootLevelOctants.size(), reinterpret_cast<Task**>(&collectOctantsTasks[0]));
-
-	// Execute tasks until can sort the main batches. Perform that in the main thread to potentially run faster
-	while (numPendingBatchTasks.load() > 0)
-		workQueue->TryComplete();
-
-	// Finish remaining view preparation tasks (shadowcaster batches, light culling to frustum grid)
-	workQueue->Complete();
-
-	// No more threaded reinsertion will take place
-	m_octree->SetThreadedUpdate(false);
-}
-
-void OctreeInterface::CollectOctants(Octant* octant, ThreadOctantResult& result, unsigned char planeMask)
-{
-	const BoundingBox& octantBox = octant->CullingBox();
-
-	if (planeMask){
-		// If not already inside all frustum planes, do frustum test and terminate if completely outside
-		//planeMask = m_frustum.isInsideMasked(octantBox, planeMask);
-		planeMask = m_useCulling ? m_frustum.isInsideMasked(octantBox, planeMask) : 0x00;
-		if (planeMask == 0xff){
-			// If octant becomes frustum culled, reset its visibility for when it comes back to view, including its children
-			if (m_useOcclusion && octant->Visibility() != VIS_OUTSIDE_FRUSTUM)
-				octant->SetVisibility(VIS_OUTSIDE_FRUSTUM, true);
-			return;
-		}
-	}
-
-	// Process occlusion now before going further
-	if (m_useOcclusion){
-		// If was previously outside frustum, reset to visible-unknown
-		if (octant->Visibility() == VIS_OUTSIDE_FRUSTUM)
-			octant->SetVisibility(VIS_VISIBLE_UNKNOWN, false);
-
-		switch (octant->Visibility()){
-			// If octant is occluded, issue query if not pending, and do not process further this frame
-		case VIS_OCCLUDED:
-			AddOcclusionQuery(octant, result, planeMask);
-			return;
-
-			// If octant was occluded previously, but its parent came into view, issue tests along the hierarchy but do not render on this frame
-		case VIS_OCCLUDED_UNKNOWN:
-			AddOcclusionQuery(octant, result, planeMask);
-			if (octant != m_octree->Root() && octant->HasChildren()){
-				for (size_t i = 0; i < NUM_OCTANTS; ++i){
-					if (octant->Child(i))
-						CollectOctants(octant->Child(i), result, planeMask);
-				}
-			}
-			return;
-
-			// If octant has unknown visibility, issue query if not pending, but collect child octants and drawables
-		case VIS_VISIBLE_UNKNOWN:
-			AddOcclusionQuery(octant, result, planeMask);
-			break;
-
-			// If the octant's parent is already visible too, only test the octant if it is a "leaf octant" with drawables
-			// Note: visible octants will also add a time-based staggering to reduce queries
-		case VIS_VISIBLE:
-			Octant* parent = octant->Parent();
-			if (octant->Drawables().size() > 0 || (parent && parent->Visibility() != VIS_VISIBLE))
-				AddOcclusionQuery(octant, result, planeMask);
-			break;
-		}
-	}else {
-		// When occlusion not in use, reset all traversed octants to visible-unknown
-		octant->SetVisibility(VIS_VISIBLE_UNKNOWN, false);
-	}
-
-	const std::vector<OctreeNode*>& drawables = octant->Drawables();
-
-	for (auto it = drawables.begin(); it != drawables.end(); ++it) {
-		OctreeNode* drawable = *it;
-		result.octants.push_back(std::make_pair(octant, planeMask));
-		result.drawableAcc += drawables.end() - it;
-		break;
-	}
-
-	// Root octant is handled separately. Otherwise recurse into child octants
-	if (octant != m_octree->Root() && octant->HasChildren()) {
-		for (size_t i = 0; i < NUM_OCTANTS; ++i) {
-			if (octant->Child(i))
-				CollectOctants(octant->Child(i), result, planeMask);
-		}
-	}
-}
-
-void OctreeInterface::AddOcclusionQuery(Octant* octant, ThreadOctantResult& result, unsigned char planeMask){
-	// No-op if previous query still ongoing. Also If the octant intersects the frustum, verify with SAT test that it actually covers some screen area
-	// Otherwise the occlusion test will produce a false negative
-	if (octant->CheckNewOcclusionQuery(m_dt) && (!planeMask || m_frustum.isInsideSAT(octant->CullingBox(), m_frustum.m_frustumSATData))) {
-		result.occlusionQueries.push_back(octant);
-	}
-}
-
-void OctreeInterface::CheckOcclusionQueries() {
-	static std::vector<OcclusionQueryResult> results;
-	results.clear();
-	CheckOcclusionQueryResults(results);
-
-	for (auto it = results.begin(); it != results.end(); ++it) {
-		Octant* octant = static_cast<Octant*>(it->object);
-		octant->OnOcclusionQueryResult(it->visible);
-	}
-}
-
-void OctreeInterface::RenderOcclusionQueries(){
-	Matrix4f boxMatrix(Matrix4f::IDENTITY);
-	float nearClip = m_camera.getNear();
-
-	// Use camera's motion since last frame to enlarge the bounding boxes. Use multiplied movement speed to account for latency in query results
-	Vector3f cameraPosition = m_camera.getPosition();
-	Vector3f cameraMove = cameraPosition - previousCameraPosition;
-	Vector3f enlargement = (OCCLUSION_MARGIN + 4.0f * cameraMove.length()) * Vector3f::ONE;
-
-	glDisable(GL_BLEND);
-	glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-	glDepthMask(GL_FALSE);
-
-	auto shader = Globals::shaderManager.getAssetPointer("boundingBox");
-	shader->use();
-	shader->loadMatrix("u_vp", m_camera.getPerspectiveMatrix() * m_camera.getViewMatrix());
-
-	for (size_t i = 0; i < NUM_OCTANT_TASKS; ++i) {
-		for (auto it = octantResults[i].occlusionQueries.begin(); it != octantResults[i].occlusionQueries.end(); ++it) {
-			Octant* octant = *it;
-
-			const BoundingBox& octantBox = octant->CullingBox();
-			BoundingBox box(octantBox.min - enlargement, octantBox.max + enlargement);
-
-			// If bounding box could be clipped by near plane, assume visible without performing query
-			if (box.distance(cameraPosition) < 2.0f * nearClip) {
-				octant->OnOcclusionQueryResult(true);
-				continue;
-			}
-
-			Vector3f size = box.getHalfSize();
-			Vector3f center = box.getCenter();
-
-			boxMatrix[0][0] = size[0];
-			boxMatrix[1][1] = size[1];
-			boxMatrix[2][2] = size[2];
-			boxMatrix[3][0] = center[0];
-			boxMatrix[3][1] = center[1];
-			boxMatrix[3][2] = center[2];
-
-			shader->loadMatrix("u_model", boxMatrix);
-			unsigned queryId = BeginOcclusionQuery(octant);
-			Globals::shapeManager.get("boundingBox").drawRaw();
-			EndOcclusionQuery();
-
-			// Store query to octant to make sure we don't re-test it until result arrives
-			octant->OnOcclusionQuery(queryId);
-		}
-	}
-	shader->unuse();
-
-	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-	glDepthMask(GL_TRUE);
-	glEnable(GL_BLEND);
-	previousCameraPosition = cameraPosition;
-}
-
-void OctreeInterface::CollectOctantsWork(Task* task_, unsigned){
-	CollectOctantsTask* task = static_cast<CollectOctantsTask*>(task_);
-
-	// Go through octants in this task's octree branch
-	Octant* octant = task->startOctant;
-	ThreadOctantResult& result = octantResults[task->resultIdx];
-
-	CollectOctants(octant, result);
-	numPendingBatchTasks.fetch_add(-1);
-}
-
-unsigned OctreeInterface::BeginOcclusionQuery(void* object)
-{
-	GLuint queryId;
-
-	if (freeQueries.size())
-	{
-		queryId = freeQueries.back();
-		freeQueries.pop_back();
-	}
-	else
-		glGenQueries(1, &queryId);
-
-	glBeginQuery(GL_ANY_SAMPLES_PASSED, queryId);
-	pendingQueries.push_back(std::make_pair(queryId, object));
-
-	return queryId;
-}
-
-void OctreeInterface::EndOcclusionQuery()
-{
-	glEndQuery(GL_ANY_SAMPLES_PASSED);
-}
-
-
-void OctreeInterface::FreeOcclusionQuery(unsigned queryId)
-{
-	if (!queryId)
-		return;
-
-	for (auto it = pendingQueries.begin(); it != pendingQueries.end(); ++it)
-	{
-		if (it->first == queryId)
-		{
-			pendingQueries.erase(it);
-			break;
-		}
-	}
-
-	glDeleteQueries(1, &queryId);
-}
-
-void OctreeInterface::CheckOcclusionQueryResults(std::vector<OcclusionQueryResult>& result) {
-	GLuint available = 0;
-
-	// To save API calls, go through queries in reverse order and assume that if a later query has its result available, then all earlier queries will have too
-	for (size_t i = pendingQueries.size() - 1; i < pendingQueries.size(); --i)
-	{
-		GLuint queryId = pendingQueries[i].first;
-
-		if (!available)
-			glGetQueryObjectuiv(queryId, GL_QUERY_RESULT_AVAILABLE, &available);
-
-		if (available)
-		{
-			GLuint passed = 0;
-			glGetQueryObjectuiv(queryId, GL_QUERY_RESULT, &passed);
-
-			OcclusionQueryResult newResult;
-			newResult.id = queryId;
-			newResult.object = pendingQueries[i].second;
-			newResult.visible = passed > 0;
-			result.push_back(newResult);
-
-			freeQueries.push_back(queryId);
-			pendingQueries.erase(pendingQueries.begin() + i);
-		}
-	}
-}
-
-void OctreeInterface::ThreadOctantResult::Clear(){
-	drawableAcc = 0;
-	taskOctantIdx = 0;
-	batchTaskIdx = 0;
-	octants.clear();
-	occlusionQueries.clear();
 }

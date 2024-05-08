@@ -121,7 +121,7 @@ void Frustum::updatePlane(const Matrix4f& perspective, const Matrix4f& view, con
 
 void Frustum::updatePlane(const Matrix4f& perspective, const Matrix4f& view) {
 	Matrix4f mvp = perspective * view;
-	float inset = 0.95f;
+	float inset = 1.0f;
 
 	//Near
 	m_planes[0][0] = mvp[0][3] + mvp[0][2];

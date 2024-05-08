@@ -1,6 +1,7 @@
 #pragma once
 
 #include "OctreeNode.h"
+#include "BoneNode.h"
 #include "../BoundingBox.h"
 #include <Animation/AnimatedModel.h>
 
@@ -11,23 +12,55 @@ public:
 	AnimationNode(const AnimatedModel& animatedModel);
 	~AnimationNode() = default;
 
-	void update(float dt);
-	void updateSkinning();
+	void update(float dt, unsigned short frameNumber);
+	void updateAnimation(float dt);
+	void updateSkinning(unsigned short frameNumber);
 
 	void OnBoundingBoxChanged() override;
 	void OnWorldBoundingBoxUpdate() const override;
 	void OnOctreeUpdate() override;
+	void OnPrepareRender(float dt, unsigned short frameNumber) override;
+	void OnOctreeSet(Octree* octree) override;
+	void OnAnimationOrderChanged();
 
+	AnimationState* addAnimationState(Animation* animation);
+	AnimationState* addAnimationStateFront(Animation* animation);
+	AnimationState* getAnimationState(size_t index) const;
+	AnimationState* findAnimationState(Animation* animation) const;
+	AnimationState* findAnimationState(const std::string& animationName) const;
+	AnimationState* findAnimationState(const char* animationName) const;
+	AnimationState* findAnimationState(StringHash animationNameHash) const;
+	void removeAnimationState(Animation* animation);
+	void removeAnimationState(const std::string& animationName);
+	void removeAnimationState(const char* animationName);
+	void removeAnimationState(StringHash animationNameHash);
+	void removeAnimationState(AnimationState* state);
+	void removeAnimationState(size_t index);
+	void removeAllAnimationStates();
+	
 	using OctreeNode::addChild;
 	void addChild(AnimationNode* node, bool drawDebug);
 	const AnimatedModel& getAnimatedModel() const;
+	unsigned short getNumBones();
+	const Matrix4f* getSkinMatrices();
 
-protected:
-
-	const AnimatedModel& animatedModel;
+private:
+	void createBones();
+	
 	mutable BoundingBox m_boneBoundingBox;
 	mutable bool m_boneBoundingBoxDirty;
 
 	mutable bool m_animationDirty;
 	mutable bool m_skinningDirty;
+	bool m_animationOrderDirty;
+	bool m_hasAnimationController;
+	unsigned short m_numBones;
+
+	BoneNode* m_rootBone;
+	BoneNode** m_bones;
+	Matrix4f* m_skinMatrices;
+	std::vector<std::shared_ptr<AnimationState>> m_animationStates;
+
+	const AnimatedModel& animatedModel;
+	const std::vector<MeshBone>& meshBones;
 };

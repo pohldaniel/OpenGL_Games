@@ -2,9 +2,29 @@
 
 #pragma once
 #include <atomic>
-
+#include <engine/Frustum.h>
 #include "AutoPtr.h"
 #include "WorkQueue.h"
+
+#define OCCLUSION_VERTEX "#version 410 core										 \n \
+																				 \n \
+						  layout(location = 0) in vec3 i_position;				 \n \
+                                                                                 \n \
+						  uniform mat4 u_vp = mat4(1.0);                         \n \
+                          uniform mat4 u_model = mat4(1.0);                      \n \
+																		         \n \
+						  void main() {                                          \n \
+						    gl_Position = u_vp * u_model *vec4(i_position, 1.0); \n \
+						  }"
+
+
+#define OCCLUSION_FRGAMENT	"#version 410 core                   \n \
+                                                                 \n \
+							 out vec4 color;                     \n \
+                                                                 \n \
+							 void main() {                       \n \
+							   color = vec4(1.0, 1.0, 1.0, 0.5); \n \
+							 }"    
 
 static const size_t NUM_OCTANTS = 8;
 static const unsigned char OF_DRAWABLES_SORT_DIRTY = 0x1;
@@ -139,8 +159,8 @@ public:
             return false;
     }
 
-	inline float Random() { return Rand() / 32768.0f; }
-	inline int Rand() {
+	inline static float Random() { return Rand() / 32768.0f; }
+	inline static int Rand() {
 		randomSeed = randomSeed * 214013 + 2531011;
 		return (randomSeed >> 16) & 32767;
 	}
@@ -179,9 +199,36 @@ private:
 /// Acceleration structure for rendering. Should be created as a child of the scene root.
 class Octree{
 
+	static const size_t NUM_OCTANT_TASKS = 9;
+
+	struct CollectOctantsTask : public MemberFunctionTask<Octree> {
+		/// Construct.
+		CollectOctantsTask(Octree* object_, MemberWorkFunctionPtr function_) :MemberFunctionTask<Octree>(object_, function_) {
+		}
+
+		Octant* startOctant;
+		size_t resultIdx;
+	};
+
+	struct OcclusionQueryResult {
+		unsigned id;
+		void* object;
+		bool visible;
+	};
+
 public:
+
+	struct ThreadOctantResult {
+		void Clear();
+		size_t drawableAcc;
+		size_t taskOctantIdx;
+		size_t batchTaskIdx;
+		std::vector<std::pair<Octant*, unsigned char>> octants;
+		std::vector<Octant*> occlusionQueries;
+	};
+
     /// Construct. The WorkQueue subsystem must have been initialized, as it will be used during update.
-    Octree();
+    Octree(const Camera& camera, const Frustum& frustum);
     /// Destruct. Delete all child octants and detach the drawables.
     ~Octree();
    
@@ -208,6 +255,30 @@ public:
     bool ThreadedUpdate() const { return threadedUpdate; }
     /// Return the root octant.
     Octant* Root() const { return const_cast<Octant*>(&root); }
+
+	void CollectOctants(Octant* octant, ThreadOctantResult& result, unsigned char planeMask = 0x3f);
+	void AddOcclusionQuery(Octant* octant, ThreadOctantResult& result, unsigned char planeMask);
+	void CheckOcclusionQueries();
+	void RenderOcclusionQueries();
+	void CollectOctantsWork(Task* task, unsigned threadIndex);
+
+	Vector3f previousCameraPosition;
+	std::vector<Octant*> rootLevelOctants;
+	std::atomic<int> numPendingBatchTasks;
+	AutoArrayPtr<ThreadOctantResult> octantResults;
+	AutoPtr<CollectOctantsTask> collectOctantsTasks[NUM_OCTANT_TASKS];
+
+	void updateOctree(float dt);
+	unsigned BeginOcclusionQuery(void* object);
+	void EndOcclusionQuery();
+	void FreeOcclusionQuery(unsigned id);
+	void CheckOcclusionQueryResults(std::vector<OcclusionQueryResult>& result);
+	size_t PendingOcclusionQueries() const { return pendingQueries.size(); }
+	std::vector<std::pair<unsigned, void*> > pendingQueries;
+	std::vector<unsigned> freeQueries;
+
+	bool m_useCulling = true;
+	bool m_useOcclusion = true;
 
 private:
     /// Process a list of drawables to be reinserted. Clear the list afterward.
@@ -319,6 +390,18 @@ private:
 	AutoArrayPtr<std::vector<OctreeNode*>> reinsertQueues;
     /// Remaining drawable reinsertion tasks.
     std::atomic<int> numPendingReinsertionTasks;
+
+	const Frustum& frustum;
+	const Camera& camera;
+	float m_dt;
+
+	unsigned int m_vao = 0;
+	unsigned int m_vbo = 0;
+
+	static const float OCCLUSION_MARGIN;
+	static std::unique_ptr<Shader> ShaderOcclusion;
+
+	void createCube();
 };
 
 

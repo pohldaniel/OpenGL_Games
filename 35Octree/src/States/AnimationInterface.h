@@ -2,6 +2,7 @@
 
 #include <engine/input/MouseEventListener.h>
 #include <engine/input/KeyboardEventListener.h>
+#include <engine/Vector.h>
 #include <engine/Camera.h>
 #include <engine/scene/AnimationNode.h>
 #include <engine/octree/Octree.h>
@@ -27,6 +28,8 @@ public:
 	void OnKeyDown(Event::KeyboardEvent& event) override;
 	void OnKeyUp(Event::KeyboardEvent& event) override;
 
+
+
 private:
 
 	void renderUi();
@@ -35,8 +38,20 @@ private:
 	bool m_drawUi = true;
 
 	Camera m_camera;
+	Frustum m_frustum;
 	AnimatedModel m_beta;
 	SceneNodeLC* m_root;
 	Octree* m_octree;
 	std::vector<AnimationNode*> m_entities;
+
+	float m_fovx = 45.0f;
+	float m_far = 50.0f;
+	float m_near = 0.1f;
+	float m_distance = 0.01f;
+	bool m_overview = true;
+	bool m_useCulling = true;
+	bool m_useOcclusion = true;
+	bool m_debugTree = false;
+	Matrix4f perspective, m_view;
+	unsigned short frameNumber;
 };

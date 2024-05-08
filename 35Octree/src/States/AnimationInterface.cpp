@@ -16,12 +16,14 @@ AnimationInterface::AnimationInterface(StateMachine& machine) : State(machine, S
 	EventDispatcher::AddKeyboardListener(this);
 	EventDispatcher::AddMouseListener(this);
 
-	m_camera = Camera();
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
-	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
+	float aspect = static_cast<float>(Application::Width) / static_cast<float>(Application::Height);
+	m_view.lookAt(Vector3f(0.0f, 50.0f, 0.0f), Vector3f(0.0f, 50.0f - 1.0f, 0.0f), Vector3f(0.0f, 0.0f, -1.0f));
+	m_camera.orthographic(-50.0f * aspect, 50.0f * aspect, -50.0f, 50.0f, -1000.0f, 1000.0f);
+
 	m_camera.lookAt(Vector3f(0.0f, 2.0f, 10.0f), Vector3f(0.0f, 2.0f, 10.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
 	m_camera.setRotationSpeed(0.1f);
-	m_camera.setMovingSpeed(10.0f);
+	m_camera.setMovingSpeed(15.0f);
 
 	glClearColor(0.494f, 0.686f, 0.796f, 1.0f);
 	glClearDepth(1.0f);
@@ -40,18 +42,27 @@ AnimationInterface::AnimationInterface(StateMachine& machine) : State(machine, S
 	glBindBufferRange(GL_UNIFORM_BUFFER, 3, BuiltInShader::matrixUbo, 0, sizeof(Matrix4f) * 96);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
+	frameNumber = 0;
 	WorkQueue::Init(0);
-	m_octree = new Octree();
+	m_octree = new Octree(m_camera, m_frustum);
 
 	m_root = new SceneNodeLC();
 	AnimationNode* child;
-	child = m_root->addChild<AnimationNode, AnimatedModel>(m_beta);
-	child->setPosition(0.0f, 0.0f, 0.0f);
-	child->updateSOP();
-	m_octree->QueueUpdate(child);
-	m_entities.push_back(child);
+	for (int x = -5; x < 5; x++) {
+		for (int z = -5; z < 5; z++) {
+			child = m_root->addChild<AnimationNode, AnimatedModel>(m_beta);
+			child->setPosition(2.0f * x, 0.0f, 2.0f * z);
+			child->updateSOP();
+			child->addAnimationState(Globals::animationManagerNew.getAssetPointer("beta_run"));
+			child->getAnimationState(0)->SetLooped(true);
+			child->OnOctreeSet(m_octree);
+			m_entities.push_back(child);
+		}
+	}
 
 	DebugRenderer::Get().setEnable(true);
+	m_frustum.init();
+	m_frustum.getDebug() = true;
 }
 
 AnimationInterface::~AnimationInterface() {
@@ -64,6 +75,11 @@ void AnimationInterface::fixedUpdate() {
 }
 
 void AnimationInterface::update() {
+	++frameNumber;
+	if (!frameNumber)
+		++frameNumber;
+
+
 	Keyboard &keyboard = Keyboard::instance();
 	Vector3f direction = Vector3f();
 
@@ -119,37 +135,68 @@ void AnimationInterface::update() {
 	}
 
 	for (auto&& entitie : m_entities) {
-		entitie->update(m_dt);
-		entitie->updateSkinning();
+		//entitie->OnPrepareRender(frameNumber);
+		entitie->update(m_dt, frameNumber);
+		entitie->updateSkinning(frameNumber);
 	}
+
+	perspective.perspective(m_fovx, (float)Application::Width / (float)Application::Height, m_near, m_far);
+	m_frustum.updatePlane(perspective, m_camera.getViewMatrix());
+	m_frustum.updateVertices(perspective, m_camera.getViewMatrix());
+	m_frustum.m_frustumSATData.calculate(m_frustum);
+
+	m_octree->updateOctree(m_dt);
 }
 
 void AnimationInterface::render() {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	glBindBuffer(GL_UNIFORM_BUFFER, BuiltInShader::matrixUbo);
-	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(Matrix4f) * m_beta.m_meshes[0]->m_numBones, m_beta.m_meshes[0]->m_skinMatrices);
-	glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
 	auto shader = Globals::shaderManager.getAssetPointer("animation_new");
 	shader->use();
+	shader->loadMatrix("u_projection", !m_overview ? m_camera.getPerspectiveMatrix() : m_camera.getOrthographicMatrix());
+	shader->loadMatrix("u_view", !m_overview ? m_camera.getViewMatrix() : m_view);
 	shader->loadVector("u_light", Vector3f(1.0f, 1.0f, 1.0f));
-	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
-	shader->loadMatrix("u_view", m_camera.getViewMatrix());
 	shader->loadVector("u_color", Vector4f(0.0f, 0.0f, 1.0f, 1.0f));
 
 	Globals::textureManager.get("null").bind();
 
-	for (auto&& entitie : m_entities) {
-		entitie->getAnimatedModel().drawRaw();
-		entitie->OnRenderAABB(Vector4f(0.0f, 1.0f, 0.0f, 1.0f));
-	}
-	DebugRenderer::Get().SetProjectionView(m_camera.getPerspectiveMatrix(), m_camera.getViewMatrix());
-	DebugRenderer::Get().drawBuffer();
+	for (size_t i = 0; i < m_octree->rootLevelOctants.size(); ++i) {
+		const Octree::ThreadOctantResult& result = m_octree->octantResults[i];
+		for (auto oIt = result.octants.begin(); oIt != result.octants.end(); ++oIt) {
+			Octant* octant = oIt->first;
+			if(m_debugTree)
+				octant->OnRenderAABB(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
 
+			const std::vector<OctreeNode*>& drawables = octant->Drawables();
+			for (auto dIt = drawables.begin(); dIt != drawables.end(); ++dIt) {
+				AnimationNode* drawable = static_cast<AnimationNode*>(*dIt);
+				glBindBuffer(GL_UNIFORM_BUFFER, BuiltInShader::matrixUbo);
+				glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(Matrix4f) * drawable->getNumBones(), drawable->getSkinMatrices());
+				glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+				drawable->getAnimatedModel().drawRaw();
+				drawable->OnPrepareRender(m_dt, frameNumber);
+				if (m_debugTree)
+					drawable->OnRenderAABB(Vector4f(0.0f, 1.0f, 0.0f, 1.0f));
+			}
+		}
+	}
+	
 	shader->unuse();
 
+	if (m_useOcclusion)
+		m_octree->RenderOcclusionQueries();
+
+	if (m_overview) {
+		m_frustum.updateVbo(perspective, m_camera.getViewMatrix());
+		m_frustum.drawFrustum(m_camera.getOrthographicMatrix(), m_view, m_distance);
+	}
+
+	!m_overview ? DebugRenderer::Get().SetProjectionView(m_camera.getPerspectiveMatrix(), m_camera.getViewMatrix()) : DebugRenderer::Get().SetProjectionView(m_camera.getOrthographicMatrix(), m_view);
+	
+	if (m_debugTree)
+		DebugRenderer::Get().drawBuffer();
 
 	if (m_drawUi)
 		renderUi();
@@ -234,6 +281,19 @@ void AnimationInterface::renderUi() {
 	// render widgets
 	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 	ImGui::Checkbox("Draw Wirframe", &StateMachine::GetEnableWireframe());
+	ImGui::SliderFloat("Fovx", &m_fovx, 0.01f, 180.0f);
+	ImGui::SliderFloat("Far", &m_far, 25.0f, 1100.0f);
+	ImGui::SliderFloat("Near", &m_near, 0.1f, 200.0f);
+	ImGui::SliderFloat("Distance", &m_distance, -100.0f, 100.0f);
+	ImGui::Checkbox("Overview", &m_overview);
+	if (ImGui::Checkbox("Use Culling", &m_useCulling)) {
+		m_octree->m_useCulling = m_useCulling;
+	}
+
+	if (ImGui::Checkbox("Use Occlusion", &m_useOcclusion)) {
+		m_octree->m_useOcclusion = m_useOcclusion;
+	}
+	ImGui::Checkbox("Debug Tree", &m_debugTree);
 	ImGui::End();
 
 	ImGui::Render();
