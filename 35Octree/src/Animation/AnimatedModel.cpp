@@ -253,13 +253,13 @@ void AnimatedModel::AnimatedModel::drawRaw() const {
 	}
 }
 
-void AnimatedModel::update(float dt) const {
+void AnimatedModel::update(float dt){
 	for (auto&& mesh : m_meshes) {
 		mesh->update(dt);
 	}
 }
 
-void AnimatedModel::updateSkinning() const {
+void AnimatedModel::updateSkinning(){
 	for (auto&& mesh : m_meshes) {
 		mesh->updateSkinning();
 	}
@@ -563,7 +563,7 @@ void AnimatedMesh::update(float dt) {
 	}
 }
 
-void AnimatedMesh::updateSkinning() const {
+void AnimatedMesh::updateSkinning(){
 	for (size_t i = 0; i < m_numBones; ++i) {
 		m_skinMatrices[i] = m_bones[i]->getWorldTransformation() * m_meshBones[i].offsetMatrix;
 	}

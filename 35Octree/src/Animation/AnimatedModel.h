@@ -37,8 +37,8 @@ public:
 	virtual ~AnimatedModel();
 
 	void drawRaw() const;
-	void update(float dt) const;
-	void updateSkinning() const;
+	void update(float dt);
+	void updateSkinning();
 
 	void loadModelAssimp(const std::string& path, const short addVirtualRoots = 0, const bool reverseBoneList = false);
 	void loadModelMdl(const std::string& path);
@@ -91,7 +91,7 @@ public:
 
 	void drawRaw() const;
 	void update(float dt);
-	void updateSkinning() const;
+	void updateSkinning();
 
 	AnimatedModel* m_model;
 	std::vector<std::shared_ptr<AnimationState>> m_animationStates;

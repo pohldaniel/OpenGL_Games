@@ -2,11 +2,19 @@
 #include "../DebugRenderer.h"
 #include "../octree/Octree.h"
 
-OctreeNode::OctreeNode(const BoundingBox& localBoundingBox) : localBoundingBox(localBoundingBox), m_drawDebug(true), m_reinsertQueued(true), m_octant(nullptr), m_octree(nullptr), m_octreeUpdate(true), m_lastFrameNumber(0){
+OctreeNode::OctreeNode(const BoundingBox& localBoundingBox) : localBoundingBox(localBoundingBox), m_drawDebug(true), m_reinsertQueued(true), m_octant(nullptr), m_octree(nullptr), m_octreeUpdate(true), m_lastFrameNumber(0), frameNumber(nullptr) {
 	OnBoundingBoxChanged();
 }
 
 OctreeNode::~OctreeNode() {
+
+}
+
+void OctreeNode::drawRaw() const {
+
+}
+
+void OctreeNode::update(float dt) {
 
 }
 
@@ -52,6 +60,7 @@ void OctreeNode::OnBoundingBoxChanged() {
 
 void OctreeNode::OnOctreeUpdate() {
 	m_octreeUpdate = false;
+
 }
 
 Octant* OctreeNode::getOctant() const {
@@ -76,15 +85,19 @@ void OctreeNode::removeFromOctree() {
 void OctreeNode::OnOctreeSet(Octree* octree) {
 	removeFromOctree();
 	m_octree = octree;
-	if (m_octree)
+	if (m_octree) {
+		frameNumber = &m_octree->m_frameNumber;
 		m_octree->QueueUpdate(this);
+	}
 }
 
-void OctreeNode::OnPrepareRender(float dt, unsigned short frameNumber) {
+void OctreeNode::OnPrepareRender(unsigned short frameNumber) {
 	m_lastFrameNumber = frameNumber;
 }
 
 bool OctreeNode::wasInView(unsigned short frameNumber) const {
+	if (frameNumber == 1 && m_lastFrameNumber == 0) return true;
+
 	unsigned short previousFrameNumber = frameNumber - 1;
 	if (!previousFrameNumber)
 		--previousFrameNumber;

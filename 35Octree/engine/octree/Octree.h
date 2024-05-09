@@ -2,6 +2,7 @@
 
 #pragma once
 #include <atomic>
+#include <functional>
 #include <engine/Frustum.h>
 #include "AutoPtr.h"
 #include "WorkQueue.h"
@@ -269,6 +270,7 @@ public:
 	AutoPtr<CollectOctantsTask> collectOctantsTasks[NUM_OCTANT_TASKS];
 
 	void updateOctree(float dt);
+	void updateFrameNumber();
 	unsigned BeginOcclusionQuery(void* object);
 	void EndOcclusionQuery();
 	void FreeOcclusionQuery(unsigned id);
@@ -279,6 +281,7 @@ public:
 
 	bool m_useCulling = true;
 	bool m_useOcclusion = true;
+	unsigned short m_frameNumber;
 
 private:
     /// Process a list of drawables to be reinserted. Clear the list afterward.

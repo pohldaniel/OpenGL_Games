@@ -1,5 +1,6 @@
 #include "AnimationNode.h"
 #include "../DebugRenderer.h"
+#include "../BuiltInShader.h"
 
 static inline bool compareAnimationStates2(const std::shared_ptr<AnimationState>& lhs, const std::shared_ptr<AnimationState>& rhs) {
 	return lhs->BlendLayer() < rhs->BlendLayer();
@@ -56,46 +57,34 @@ void AnimationNode::OnOctreeSet(Octree* octree) {
 
 void AnimationNode::OnOctreeUpdate() {
 	OctreeNode::OnOctreeUpdate();
-	/*if (m_animationDirty) {
-		animatedModel.update(dt);
-		m_animationDirty = false;
-	}
-
-	if (m_skinningDirty) {
-		animatedModel.updateSkinning();
-		m_skinningDirty = false;
-	}*/
 }
 
-void AnimationNode::OnPrepareRender(float dt, unsigned short frameNumber){
-	OctreeNode::OnPrepareRender(dt, frameNumber);
+void AnimationNode::OnPrepareRender(unsigned short frameNumber){
+	OctreeNode::OnPrepareRender(frameNumber);
+}
 
-	/*updateAnimation(dt);
-	m_animationDirty = true;
+void AnimationNode::drawRaw() const {
+	glBindBuffer(GL_UNIFORM_BUFFER, BuiltInShader::matrixUbo);
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(Matrix4f) * m_numBones, m_skinMatrices);
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
+	animatedModel.drawRaw();
+}
+
+void AnimationNode::update(float dt) {
+	if (wasInView(*frameNumber)){
+		updateAnimation(dt);
+		OnBoundingBoxChanged();
+		OnWorldBoundingBoxUpdate();
+		updateSkinning();
+	}
+}
+
+void AnimationNode::updateSkinning() {
 	for (size_t i = 0; i < m_numBones; ++i) {
 		m_skinMatrices[i] = m_bones[i]->getWorldTransformation() * meshBones[i].offsetMatrix;
 	}
-	m_skinningDirty = true;*/
-}
-
-void AnimationNode::update(float dt, unsigned short frameNumber) {
-	if (wasInView(frameNumber)){
-		updateAnimation(dt);
-		m_animationDirty = true;
-
-		OnBoundingBoxChanged();
-		OnWorldBoundingBoxUpdate();
-	}
-}
-
-void AnimationNode::updateSkinning(unsigned short frameNumber) {
-	if (wasInView(frameNumber)) {
-		for (size_t i = 0; i < m_numBones; ++i) {
-			m_skinMatrices[i] = m_bones[i]->getWorldTransformation() * meshBones[i].offsetMatrix;
-		}
-		m_skinningDirty = true;
-	}
+	m_skinningDirty = true;
 }
 
 void AnimationNode::updateAnimation(float dt) {
@@ -128,6 +117,7 @@ void AnimationNode::updateAnimation(float dt) {
 			}
 		}
 	}
+	m_animationDirty = true;
 }
 
 AnimationState* AnimationNode::addAnimationState(Animation* animation) {

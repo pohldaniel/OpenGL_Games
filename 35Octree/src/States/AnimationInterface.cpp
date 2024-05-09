@@ -42,7 +42,6 @@ AnimationInterface::AnimationInterface(StateMachine& machine) : State(machine, S
 	glBindBufferRange(GL_UNIFORM_BUFFER, 3, BuiltInShader::matrixUbo, 0, sizeof(Matrix4f) * 96);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-	frameNumber = 0;
 	WorkQueue::Init(0);
 	m_octree = new Octree(m_camera, m_frustum);
 
@@ -51,7 +50,7 @@ AnimationInterface::AnimationInterface(StateMachine& machine) : State(machine, S
 	for (int x = -5; x < 5; x++) {
 		for (int z = -5; z < 5; z++) {
 			child = m_root->addChild<AnimationNode, AnimatedModel>(m_beta);
-			child->setPosition(2.0f * x, 0.0f, 2.0f * z);
+			child->setPosition(2.0f * x, 0.0f , 2.0f * z);
 			child->updateSOP();
 			child->addAnimationState(Globals::animationManagerNew.getAssetPointer("beta_run"));
 			child->getAnimationState(0)->SetLooped(true);
@@ -75,11 +74,7 @@ void AnimationInterface::fixedUpdate() {
 }
 
 void AnimationInterface::update() {
-	++frameNumber;
-	if (!frameNumber)
-		++frameNumber;
-
-
+	
 	Keyboard &keyboard = Keyboard::instance();
 	Vector3f direction = Vector3f();
 
@@ -134,12 +129,10 @@ void AnimationInterface::update() {
 		}
 	}
 
+	m_octree->updateFrameNumber();
 	for (auto&& entitie : m_entities) {
-		//entitie->OnPrepareRender(frameNumber);
-		entitie->update(m_dt, frameNumber);
-		entitie->updateSkinning(frameNumber);
+		entitie->update(m_dt);
 	}
-
 	perspective.perspective(m_fovx, (float)Application::Width / (float)Application::Height, m_near, m_far);
 	m_frustum.updatePlane(perspective, m_camera.getViewMatrix());
 	m_frustum.updateVertices(perspective, m_camera.getViewMatrix());
@@ -170,13 +163,8 @@ void AnimationInterface::render() {
 
 			const std::vector<OctreeNode*>& drawables = octant->Drawables();
 			for (auto dIt = drawables.begin(); dIt != drawables.end(); ++dIt) {
-				AnimationNode* drawable = static_cast<AnimationNode*>(*dIt);
-				glBindBuffer(GL_UNIFORM_BUFFER, BuiltInShader::matrixUbo);
-				glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(Matrix4f) * drawable->getNumBones(), drawable->getSkinMatrices());
-				glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
-				drawable->getAnimatedModel().drawRaw();
-				drawable->OnPrepareRender(m_dt, frameNumber);
+				OctreeNode* drawable = *dIt;
+				drawable->drawRaw();				
 				if (m_debugTree)
 					drawable->OnRenderAABB(Vector4f(0.0f, 1.0f, 0.0f, 1.0f));
 			}

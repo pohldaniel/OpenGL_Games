@@ -25,6 +25,7 @@
 #include <States/OctreeInterface.h>
 #include <States/OcclusionQuery.h>
 #include <States/AnimationInterface.h>
+#include <States/KCC.h>
 
 #include <States/Settings.h>
 #include <States/Controls.h>
@@ -65,7 +66,8 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 		{ "blobshoot",        Button() },
 		{ "octree",           Button() },
 		{ "occlusion",        Button() },
-		{ "animation",        Button() }
+		{ "animation",        Button() },
+		{ "kcc",              Button() }
 	});
 
 	m_buttons.at("grass_comp").setCharset(Globals::fontManager.get("upheaval_50"));
@@ -111,6 +113,15 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	m_buttons.at("blobshoot").setFunction([&]() {
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new BlobShoot(m_machine));
+	});
+
+	m_buttons.at("kcc").setCharset(Globals::fontManager.get("upheaval_50"));
+	m_buttons.at("kcc").setPosition(50.0f, 50.0f);
+	m_buttons.at("kcc").setOutlineThickness(5.0f);
+	m_buttons.at("kcc").setText("KCC");
+	m_buttons.at("kcc").setFunction([&]() {
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new KCCInterface(m_machine));
 	});
 
 	m_buttons.at("separable").setCharset(Globals::fontManager.get("upheaval_50"));

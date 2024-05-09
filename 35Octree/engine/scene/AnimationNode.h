@@ -12,14 +12,13 @@ public:
 	AnimationNode(const AnimatedModel& animatedModel);
 	~AnimationNode() = default;
 
-	void update(float dt, unsigned short frameNumber);
-	void updateAnimation(float dt);
-	void updateSkinning(unsigned short frameNumber);
-
+	void drawRaw() const;
+	void update(float dt) override;
+	
 	void OnBoundingBoxChanged() override;
 	void OnWorldBoundingBoxUpdate() const override;
 	void OnOctreeUpdate() override;
-	void OnPrepareRender(float dt, unsigned short frameNumber) override;
+	void OnPrepareRender(unsigned short frameNumber) override;
 	void OnOctreeSet(Octree* octree) override;
 	void OnAnimationOrderChanged();
 
@@ -45,6 +44,9 @@ public:
 	const Matrix4f* getSkinMatrices();
 
 private:
+
+	void updateAnimation(float dt);
+	void updateSkinning();
 	void createBones();
 	
 	mutable BoundingBox m_boneBoundingBox;

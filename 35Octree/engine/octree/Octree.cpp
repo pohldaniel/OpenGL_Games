@@ -141,7 +141,7 @@ const BoundingBox& Octant::CullingBox() const
     return cullingBox;
 }
 
-Octree::Octree(const Camera& camera, const Frustum& frustum) : threadedUpdate(false), workQueue(WorkQueue::Get()), frustum(frustum), camera(camera), m_dt(0.0f){
+Octree::Octree(const Camera& camera, const Frustum& frustum) : threadedUpdate(false), workQueue(WorkQueue::Get()), frustum(frustum), camera(camera), m_dt(0.0f), m_frameNumber(0){
     assert(workQueue);
 
     root.Initialize(nullptr, BoundingBox(-DEFAULT_OCTREE_SIZE, DEFAULT_OCTREE_SIZE), DEFAULT_OCTREE_LEVELS, 0);
@@ -176,6 +176,12 @@ Octree::~Octree(){
 	}
 
     DeleteChildOctants(&root, true);
+}
+
+void Octree::updateFrameNumber() {
+	++m_frameNumber;
+	if (!m_frameNumber)
+		++m_frameNumber;
 }
 
 void Octree::Update(){
@@ -317,7 +323,6 @@ void Octree::ReinsertDrawables(std::vector<OctreeNode*>& drawables){
 				newOctant = CreateChildOctant(newOctant, newOctant->ChildIndex(center));
 			}
 		}
-
 		drawable->m_reinsertQueued = false;
 	}
 
@@ -440,7 +445,7 @@ void Octree::CheckReinsertWork(Task* task_, unsigned threadIndex_){
 		if (drawable->m_octreeUpdate)
 			drawable->OnOctreeUpdate();
 
-		//drawable->lastUpdateFrameNumber = frameNumber;
+		//drawable->OnFrameNumberSet(m_frameNumber);
 
 		// Do nothing if still fits the current octant
 		const BoundingBox& box = drawable->getWorldBoundingBox();
@@ -563,11 +568,13 @@ void Octree::CollectOctants(Octant* octant, ThreadOctantResult& result, unsigned
 	}
 
 	const std::vector<OctreeNode*>& drawables = octant->Drawables();
+	std::for_each(drawables.begin(), drawables.end(), std::bind(std::mem_fn<void(unsigned short)>(&OctreeNode::OnPrepareRender), std::placeholders::_1, m_frameNumber));
 
 	for (auto it = drawables.begin(); it != drawables.end(); ++it) {
 		OctreeNode* drawable = *it;
 		result.octants.push_back(std::make_pair(octant, planeMask));
 		result.drawableAcc += drawables.end() - it;
+		//drawable->OnPrepareRender(m_frameNumber);
 		break;
 	}
 

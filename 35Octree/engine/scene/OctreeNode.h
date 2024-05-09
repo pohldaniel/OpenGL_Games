@@ -15,10 +15,13 @@ public:
 
 	void OnTransformChanged() override;
 
+	virtual void drawRaw() const;
+	virtual void update(float dt);
+
 	virtual void OnBoundingBoxChanged();
-	virtual void OnWorldBoundingBoxUpdate() const;	
+	virtual void OnWorldBoundingBoxUpdate() const;
 	virtual void OnOctreeUpdate();
-	virtual void OnPrepareRender(float dt, unsigned short frameNumber);
+	virtual void OnPrepareRender(unsigned short frameNumber);
 	virtual void OnOctreeSet(Octree* octree);
 
 	void OnRenderOBB(const Vector4f& color = { 1.0f, 0.0f, 0.0f, 1.0f });
@@ -41,12 +44,14 @@ protected:
 	bool m_drawDebug;
 	mutable bool m_octreeUpdate;
 	mutable bool m_reinsertQueued;
-
+	unsigned short* frameNumber;
+	unsigned short m_lastFrameNumber;
 	Octant* m_octant;
 	Octree* m_octree;
 
 private:
 
 	const BoundingBox& localBoundingBox;
-	unsigned short m_lastFrameNumber;
+	
+	
 };
