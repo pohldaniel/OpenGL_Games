@@ -13,6 +13,8 @@
 #include <States/StateMachine.h>
 
 #include "MovingPlatform.h"
+#include "SplinePlatform.h"
+#include "SplinePath.h"
 
 class KCCInterface : public State, public MouseEventListener, public KeyboardEventListener {
 
@@ -42,8 +44,8 @@ private:
 	bool m_drawUi = true;
 	bool m_debugTree = false;
 	bool m_overview = true;
-	bool m_useCulling = false;
-	bool m_useOcclusion = true;
+	bool m_useCulling = true;
+	bool m_useOcclusion = false;
 	bool m_debugPhysic = true;
 
 	Camera m_camera;
@@ -77,4 +79,6 @@ private:
 	Matrix4f perspective, m_view;
 
 	MovingPlatform* m_movingPlatform;
+	SplinePlatform* m_splinePlatform;
+	SplinePath* m_splinePath;
 };

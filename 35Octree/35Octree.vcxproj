@@ -225,6 +225,7 @@
     <ClCompile Include="src\Skybox.cpp" />
     <ClCompile Include="src\Spline.cpp" />
     <ClCompile Include="src\SplinePath.cpp" />
+    <ClCompile Include="src\SplinePlatform.cpp" />
     <ClCompile Include="src\States\AnimationInterface.cpp" />
     <ClCompile Include="src\States\BlobShoot.cpp" />
     <ClCompile Include="src\States\Controlls.cpp" />
@@ -494,6 +495,7 @@
     <ClInclude Include="src\Skybox.h" />
     <ClInclude Include="src\Spline.h" />
     <ClInclude Include="src\SplinePath.h" />
+    <ClInclude Include="src\SplinePlatform.h" />
     <ClInclude Include="src\States\AnimationInterface.h" />
     <ClInclude Include="src\States\BlobShoot.h" />
     <ClInclude Include="src\States\Controls.h" />

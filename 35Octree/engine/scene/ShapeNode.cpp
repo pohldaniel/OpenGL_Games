@@ -14,7 +14,7 @@ void ShapeNode::drawRaw() const {
 }
 
 void ShapeNode::addChild(ShapeNode* node, bool drawDebug) {
-	SceneNodeLC::addChild(node);
+	OctreeNode::addChild(node);
 	node->setDrawDebug(drawDebug);
 }
 

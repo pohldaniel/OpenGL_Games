@@ -12,7 +12,8 @@ AnimationNode::AnimationNode(const AnimatedModel& animatedModel) : OctreeNode(an
 }
 
 void AnimationNode::addChild(AnimationNode* node, bool drawDebug) {
-	SceneNodeLC::addChild(node);
+	OctreeNode::addChild(node);
+	node->setDrawDebug(drawDebug);
 }
 
 const AnimatedModel& AnimationNode::getAnimatedModel() const {

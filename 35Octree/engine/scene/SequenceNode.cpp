@@ -12,3 +12,8 @@ int SequenceNode::getMeshIndex() const {
 const MeshSequence& SequenceNode::getSequence() const {
 	return meshSequence;
 }
+
+void SequenceNode::addChild(SequenceNode* node, bool drawDebug) {
+	OctreeNode::addChild(node);
+	node->setDrawDebug(drawDebug);
+}

@@ -6,7 +6,8 @@ MeshNode::MeshNode(const AssimpModel& model) : OctreeNode(model.getAABB()), mode
 }
 
 void MeshNode::addChild(MeshNode* node, bool drawDebug) {
-	SceneNodeLC::addChild(node);
+	OctreeNode::addChild(node);
+	node->setDrawDebug(drawDebug);
 }
 
 const AssimpModel& MeshNode::getModel() const {

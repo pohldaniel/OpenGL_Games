@@ -19,8 +19,8 @@ KCCInterface::KCCInterface(StateMachine& machine) : State(machine, States::KCC) 
 
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	float aspect = static_cast<float>(Application::Width) / static_cast<float>(Application::Height);
-	m_view.lookAt(Vector3f(0.0f, 50.0f, 0.0f), Vector3f(0.0f, 50.0f - 1.0f, 0.0f), Vector3f(0.0f, 0.0f, -1.0f));
-	m_camera.orthographic(-60.0f * aspect, 60.0f * aspect, -60.0f, 60.0f, -1000.0f, 1000.0f);
+	m_view.lookAt(Vector3f(0.0f, 80.0f, 0.0f), Vector3f(0.0f, 80.0f - 1.0f, 0.0f), Vector3f(0.0f, 0.0f, -1.0f));
+	m_camera.orthographic(-80.0f * aspect, 80.0f * aspect, -80.0f, 80.0f, -1000.0f, 1000.0f);
 	m_camera.lookAt(Vector3f(0.0f, 2.0f, 10.0f), Vector3f(0.0f, 2.0f, 10.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
 	m_camera.setRotationSpeed(0.1f);
 	m_camera.setMovingSpeed(15.0f);
@@ -38,70 +38,136 @@ KCCInterface::KCCInterface(StateMachine& machine) : State(machine, States::KCC) 
 
 	DebugRenderer::Get().setEnable(true);
 	m_root = new SceneNodeLC();
-	ShapeNode* child;
+	ShapeNode* shapeNode;
 
-	child = m_root->addChild<ShapeNode, Shape>(m_baseShape);
-	child->setPosition(0.0f, 0.0f, 0.0f);
-	child->updateSOP();
-	child->OnOctreeSet(m_octree);
-	m_entities.push_back(child);
+	shapeNode = m_root->addChild<ShapeNode, Shape>(m_baseShape);
+	shapeNode->setPosition(0.0f, 0.0f, 0.0f);
+	shapeNode->updateSOP();
+	shapeNode->OnOctreeSet(m_octree);
+	m_entities.push_back(shapeNode);
 
-	child = m_root->addChild<ShapeNode, Shape>(m_upperFloorShape);
-	child->setPosition(30.16f, 6.98797f, 10.0099f);
-	child->updateSOP();
-	child->OnOctreeSet(m_octree);
-	m_entities.push_back(child);
+	shapeNode = m_root->addChild<ShapeNode, Shape>(m_upperFloorShape);
+	shapeNode->setPosition(30.16f, 6.98797f, 10.0099f);
+	shapeNode->updateSOP();
+	shapeNode->OnOctreeSet(m_octree);
+	m_entities.push_back(shapeNode);
 
-	child = m_root->addChild<ShapeNode, Shape>(m_rampShape);
-	child->setPosition(13.5771f, 6.23965f, 10.9272f);
-	child->updateSOP();
-	child->OnOctreeSet(m_octree);
-	m_entities.push_back(child);
+	shapeNode = m_root->addChild<ShapeNode, Shape>(m_rampShape);
+	shapeNode->setPosition(13.5771f, 6.23965f, 10.9272f);
+	shapeNode->updateSOP();
+	shapeNode->OnOctreeSet(m_octree);
+	m_entities.push_back(shapeNode);
 
-	child = m_root->addChild<ShapeNode, Shape>(m_ramp2Shape);
-	child->setPosition(-22.8933f, 2.63165f, -23.6786f);
-	child->updateSOP();
-	child->OnOctreeSet(m_octree);
-	m_entities.push_back(child);
+	shapeNode = m_root->addChild<ShapeNode, Shape>(m_ramp2Shape);
+	shapeNode->setPosition(-22.8933f, 2.63165f, -23.6786f);
+	shapeNode->updateSOP();
+	shapeNode->OnOctreeSet(m_octree);
+	m_entities.push_back(shapeNode);
 
-	child = m_root->addChild<ShapeNode, Shape>(m_ramp3Shape);
-	child->setPosition(-15.2665f, 1.9782f, -43.135f);
-	child->updateSOP();
-	child->OnOctreeSet(m_octree);
-	m_entities.push_back(child);
+	shapeNode = m_root->addChild<ShapeNode, Shape>(m_ramp3Shape);
+	shapeNode->setPosition(-15.2665f, 1.9782f, -43.135f);
+	shapeNode->updateSOP();
+	shapeNode->OnOctreeSet(m_octree);
+	m_entities.push_back(shapeNode);
 
-	child = m_root->addChild<ShapeNode, Shape>(m_liftShape);
-	child->setPosition(35.5938f, 0.350185f, 10.4836f);
-	child->updateSOP();
-	child->OnOctreeSet(m_octree);
-	m_entities.push_back(child);
+	shapeNode = m_root->addChild<ShapeNode, Shape>(m_liftShape);
+	shapeNode->setPosition(35.5938f, 0.350185f, 10.4836f);
+	shapeNode->updateSOP();
+	shapeNode->OnOctreeSet(m_octree);
+	m_entities.push_back(shapeNode);
 
-	child = m_root->addChild<ShapeNode, Shape>(m_liftExteriorShape);
-	child->setPosition(35.6211f, 7.66765f, 10.4388f);
-	child->updateSOP();
-	child->OnOctreeSet(m_octree);
-	m_entities.push_back(child);
+	shapeNode = m_root->addChild<ShapeNode, Shape>(m_liftExteriorShape);
+	shapeNode->setPosition(35.6211f, 7.66765f, 10.4388f);
+	shapeNode->updateSOP();
+	shapeNode->OnOctreeSet(m_octree);
+	m_entities.push_back(shapeNode);
 
-	child = m_root->addChild<ShapeNode, Shape>(m_liftButtonShape);
-	child->setPosition(Vector3f(35.5938f, 0.350185f, 10.4836f) + Vector3f(0.0f, 0.0619186f, 0.0f));
-	child->updateSOP();
-	child->OnOctreeSet(m_octree);
-	m_entities.push_back(child);
+	shapeNode = m_root->addChild<ShapeNode, Shape>(m_liftButtonShape);
+	shapeNode->setPosition(Vector3f(35.5938f, 0.350185f, 10.4836f) + Vector3f(0.0f, 0.0619186f, 0.0f));
+	shapeNode->updateSOP();
+	shapeNode->OnOctreeSet(m_octree);
+	m_entities.push_back(shapeNode);
 
-	child = m_root->addChild<ShapeNode, Shape>(m_diskShape);
-	child->setPosition(26.1357f, 7.00645f, -34.7563f);
-	child->updateSOP();
-	child->OnOctreeSet(m_octree);
-	m_entities.push_back(child);
+	shapeNode = m_root->addChild<ShapeNode, Shape>(m_diskShape);
+	shapeNode->setPosition(26.1357f, 7.00645f, -34.7563f);
+	shapeNode->updateSOP();
+	shapeNode->OnOctreeSet(m_octree);
+	m_entities.push_back(shapeNode);
 
 	m_movingPlatform = new MovingPlatform();
-	m_movingPlatform->initialize(child, m_kinematicPlatform1, child->getWorldPosition() + Vector3f(0.0f, 0.0f, 20.0f));
+	m_movingPlatform->initialize(shapeNode, m_kinematicPlatform1, shapeNode->getWorldPosition() + Vector3f(0.0f, 0.0f, 20.0f));
+	//m_kinematicPlatform1->setUserPointer(m_disk);
 
-	child = m_root->addChild<ShapeNode, Shape>(m_cylinderShape);
-	child->setPosition(-0.294956f, 3.46579f, 28.3161f);
-	child->updateSOP();
-	child->OnOctreeSet(m_octree);
-	m_entities.push_back(child);
+	shapeNode = m_root->addChild<ShapeNode, Shape>(m_cylinderShape);
+	shapeNode->setPosition(-0.294956f, 3.46579f, 28.3161f);
+	shapeNode->updateSOP();
+	shapeNode->OnOctreeSet(m_octree);
+	m_entities.push_back(shapeNode);
+
+	SceneNodeLC* sceneNode;
+	m_splinePath = new SplinePath();
+	Vector3f offset = Vector3f(4.14317f, 0.5f, 35.1134f);
+
+	sceneNode = m_root->addChild<SceneNodeLC>();
+	sceneNode->setPosition(Vector3f(-1.85441f, 7.34028f, 7.73154f) + offset);
+	m_splinePath->AddControlPoint(sceneNode, 0);
+
+	sceneNode = m_root->addChild<SceneNodeLC>();
+	sceneNode->setPosition(Vector3f(12.3533f, 7.34028f, -1.41246f) + offset);
+	m_splinePath->AddControlPoint(sceneNode, 1);
+
+	sceneNode = m_root->addChild<SceneNodeLC>();
+	sceneNode->setPosition(Vector3f(6.71511f, 7.34028f, -7.44203f) + offset);
+	m_splinePath->AddControlPoint(sceneNode, 2);
+
+	sceneNode = m_root->addChild<SceneNodeLC>();
+	sceneNode->setPosition(Vector3f(-7.30396f, 7.34028f, -7.44203f) + offset);
+	m_splinePath->AddControlPoint(sceneNode, 3);
+
+	sceneNode = m_root->addChild<SceneNodeLC>();
+	sceneNode->setPosition(Vector3f(-22.6731f, 7.34028f, -11.7417f) + offset);
+	m_splinePath->AddControlPoint(sceneNode, 4);
+
+	sceneNode = m_root->addChild<SceneNodeLC>();
+	sceneNode->setPosition(Vector3f(-31.6409f, 7.34028f, -21.8727f) + offset);
+	m_splinePath->AddControlPoint(sceneNode, 5);
+
+	sceneNode = m_root->addChild<SceneNodeLC>();
+	sceneNode->setPosition(Vector3f(-35.8832f, 4.98511f, -47.866f) + offset);
+	m_splinePath->AddControlPoint(sceneNode, 6);
+
+	sceneNode = m_root->addChild<SceneNodeLC>();
+	sceneNode->setPosition(Vector3f(-45.9073f, 5.92764f, -52.7658f) + offset);
+	m_splinePath->AddControlPoint(sceneNode, 7);
+
+	sceneNode = m_root->addChild<SceneNodeLC>();
+	sceneNode->setPosition(Vector3f(-50.1447f, 6.74262f, -41.1805f) + offset);
+	m_splinePath->AddControlPoint(sceneNode, 8);
+
+	sceneNode = m_root->addChild<SceneNodeLC>();
+	sceneNode->setPosition(Vector3f(-50.1447f, 7.34028f, -21.4852f) + offset);
+	m_splinePath->AddControlPoint(sceneNode, 9);
+
+	sceneNode = m_root->addChild<SceneNodeLC>();
+	sceneNode->setPosition(Vector3f(-48.1308f, 7.34028f, 1.13441f) + offset);
+	m_splinePath->AddControlPoint(sceneNode, 10);
+
+	sceneNode = m_root->addChild<SceneNodeLC>();
+	sceneNode->setPosition(Vector3f(-23.4324f, 7.34028f, 11.1794f) + offset);
+	m_splinePath->AddControlPoint(sceneNode, 11);
+
+	sceneNode = m_root->addChild<SceneNodeLC>();
+	sceneNode->setPosition(Vector3f(-1.85441f, 7.34028f, 7.73154f) + offset);
+	m_splinePath->AddControlPoint(sceneNode, 12);
+
+	m_splinePath->SetControlledNode(m_entities.back());
+	m_splinePath->SetInterpolationMode(CATMULL_ROM_FULL_CURVE);
+	m_splinePath->SetSpeed(6.0f);
+
+	m_splinePlatform = new SplinePlatform();
+	m_splinePlatform->initialize(m_splinePath, m_kinematicPlatform2);
+	//m_kinematicPlatform2->setUserPointer(m_cylinder);
+
 
 	m_frustum.init();
 	m_frustum.getDebug() = true;
@@ -117,6 +183,7 @@ KCCInterface::~KCCInterface() {
 
 void KCCInterface::fixedUpdate() {
 	m_movingPlatform->fixedUpdate(m_fdt);
+	m_splinePlatform->fixedUpdate(m_fdt);
 }
 
 void KCCInterface::update() {
