@@ -287,15 +287,17 @@ void Frustum::updateVbo(const Matrix4f& perspective, const Matrix4f& view) {
 	}
 }
 
-void Frustum::drawFrustum(const Matrix4f& projection, const Matrix4f& view, float distance) {
+void Frustum::drawFrustum(const Matrix4f& projection, const Matrix4f& view, float distance, const Vector4f& colorNear, const Vector4f& colorFar) {
 	if (!(m_debug && m_vao)) return;
 	glDisable(GL_CULL_FACE);
 	glDisable(GL_DEPTH_TEST);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 	glUseProgram(s_shaderFrustum->m_program);
-	s_shaderFrustum->loadMatrix("u_transform", projection * view * Matrix4f::Translate(0.0f, 0.0f, distance));
-	s_shaderFrustum->loadVector("u_color", Vector4f(0.0f, 1.0f, 1.0f, 1.0f));
+	s_shaderFrustum->loadMatrix("u_transform", projection * view * Matrix4f::Translate(0.0f, 0.0f, distance));	
+	s_shaderFrustum->loadVector("u_colorFar", colorFar);
+	s_shaderFrustum->loadVector("u_colorNear", colorNear);
+	
 
 	glBindVertexArray(m_vao);
 	glDrawElements(GL_QUADS, 24, GL_UNSIGNED_SHORT, 0);

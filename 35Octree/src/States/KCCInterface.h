@@ -12,6 +12,8 @@
 #include <Utils/SolidIO.h>
 #include <States/StateMachine.h>
 
+#include "MovingPlatform.h"
+
 class KCCInterface : public State, public MouseEventListener, public KeyboardEventListener {
 
 public:
@@ -33,13 +35,14 @@ public:
 private:
 
 	void renderUi();
+	void createShapes();
 	void createPhysics();
 
 	bool m_initUi = true;
 	bool m_drawUi = true;
 	bool m_debugTree = false;
-	bool m_overview = false;
-	bool m_useCulling = true;
+	bool m_overview = true;
+	bool m_useCulling = false;
 	bool m_useOcclusion = true;
 	bool m_debugPhysic = true;
 
@@ -68,8 +71,10 @@ private:
 	std::vector<ShapeNode*> m_entities;
 
 	float m_fovx = 45.0f;
-	float m_far = 1000.0f;
+	float m_far = 110.0f;
 	float m_near = 0.1f;
 	float m_distance = 0.01f;
 	Matrix4f perspective, m_view;
+
+	MovingPlatform* m_movingPlatform;
 };

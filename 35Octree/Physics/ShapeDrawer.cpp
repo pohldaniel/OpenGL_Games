@@ -38,6 +38,12 @@ void ShapeDrawer::setCamera(const Camera& camera) {
 	m_camera = &camera;
 }
 
+void ShapeDrawer::setProjectionView(const Matrix4f& projection, const Matrix4f& view) {
+	m_perspective = projection;
+	m_view = view;
+	m_useCamera = false;
+}
+
 void ShapeDrawer::shutdown() {
 
 	for (int i = 0; i<m_shapecache.size(); i++){
@@ -66,6 +72,12 @@ void ShapeDrawer::shutdown() {
 }
 
 void ShapeDrawer::drawDynmicsWorld(btDynamicsWorld* dynamicsWorld) {
+	
+	if (m_useCamera) {
+		m_perspective = m_camera->getPerspectiveMatrix();
+		m_view = m_camera->getViewMatrix();
+	}
+	
 	btScalar m[16];
 	const int numObjects = dynamicsWorld->getNumCollisionObjects();
 	
@@ -122,8 +134,8 @@ void ShapeDrawer::drawShape(btScalar* m, btCollisionShape* shape) {
 	
 		glUseProgram(s_shader->m_program);
 
-		s_shader->loadMatrix("u_projection", m_camera->getPerspectiveMatrix());
-		s_shader->loadMatrix("u_view", m_camera->getViewMatrix());
+		s_shader->loadMatrix("u_projection", m_perspective);
+		s_shader->loadMatrix("u_view", m_view);
 		s_shader->loadMatrix("u_model", m);
 		s_shader->loadVector("u_color", sc->m_color);
 
@@ -152,8 +164,8 @@ void ShapeDrawer::drawShape(btScalar* m, btCollisionShape* shape) {
 
 			glUseProgram(s_shader->m_program);
 
-			s_shader->loadMatrix("u_projection", m_camera->getPerspectiveMatrix());
-			s_shader->loadMatrix("u_view", m_camera->getViewMatrix());
+			s_shader->loadMatrix("u_projection", m_perspective);
+			s_shader->loadMatrix("u_view", m_view);
 			s_shader->loadMatrix("u_model", m);
 			s_shader->loadVector("u_color", sc->m_color);
 
@@ -180,8 +192,8 @@ void ShapeDrawer::drawShape(btScalar* m, btCollisionShape* shape) {
 
 		glUseProgram(s_shader->m_program);
 
-		s_shader->loadMatrix("u_projection", m_camera->getPerspectiveMatrix());
-		s_shader->loadMatrix("u_view", m_camera->getViewMatrix());
+		s_shader->loadMatrix("u_projection", m_perspective);
+		s_shader->loadMatrix("u_view", m_view);
 		s_shader->loadMatrix("u_model", Matrix4f(m) * Matrix4f::Scale(sc->m_localScaling[0], sc->m_localScaling[1], sc->m_localScaling[2]));
 		s_shader->loadVector("u_color", sc->m_color);
 

@@ -20,7 +20,7 @@ KCCInterface::KCCInterface(StateMachine& machine) : State(machine, States::KCC) 
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	float aspect = static_cast<float>(Application::Width) / static_cast<float>(Application::Height);
 	m_view.lookAt(Vector3f(0.0f, 50.0f, 0.0f), Vector3f(0.0f, 50.0f - 1.0f, 0.0f), Vector3f(0.0f, 0.0f, -1.0f));
-	m_camera.orthographic(-50.0f * aspect, 50.0f * aspect, -50.0f, 50.0f, -1000.0f, 1000.0f);
+	m_camera.orthographic(-60.0f * aspect, 60.0f * aspect, -60.0f, 60.0f, -1000.0f, 1000.0f);
 	m_camera.lookAt(Vector3f(0.0f, 2.0f, 10.0f), Vector3f(0.0f, 2.0f, 10.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
 	m_camera.setRotationSpeed(0.1f);
 	m_camera.setMovingSpeed(15.0f);
@@ -30,6 +30,7 @@ KCCInterface::KCCInterface(StateMachine& machine) : State(machine, States::KCC) 
 	
 	ShapeDrawer::Get().init(32768);
 	ShapeDrawer::Get().setCamera(m_camera);
+	createShapes();
 	createPhysics();
 
 	WorkQueue::Init(0);
@@ -93,6 +94,9 @@ KCCInterface::KCCInterface(StateMachine& machine) : State(machine, States::KCC) 
 	child->OnOctreeSet(m_octree);
 	m_entities.push_back(child);
 
+	m_movingPlatform = new MovingPlatform();
+	m_movingPlatform->initialize(child, m_kinematicPlatform1, child->getWorldPosition() + Vector3f(0.0f, 0.0f, 20.0f));
+
 	child = m_root->addChild<ShapeNode, Shape>(m_cylinderShape);
 	child->setPosition(-0.294956f, 3.46579f, 28.3161f);
 	child->updateSOP();
@@ -112,7 +116,7 @@ KCCInterface::~KCCInterface() {
 }
 
 void KCCInterface::fixedUpdate() {
-
+	m_movingPlatform->fixedUpdate(m_fdt);
 }
 
 void KCCInterface::update() {
@@ -209,7 +213,19 @@ void KCCInterface::render() {
 	if (m_useOcclusion)
 		m_octree->RenderOcclusionQueries();
 
+	if (m_overview) {
+		m_frustum.updateVbo(perspective, m_camera.getViewMatrix());
+		m_frustum.drawFrustum(m_camera.getOrthographicMatrix(), m_view, m_distance, Vector4f(0.0f, 0.0f, 1.0f, 1.0f), Vector4f(0.0f, 0.0f, 1.0f, 1.0f));
+	}
+
+	!m_overview ? DebugRenderer::Get().SetProjectionView(m_camera.getPerspectiveMatrix(), m_camera.getViewMatrix()) : DebugRenderer::Get().SetProjectionView(m_camera.getOrthographicMatrix(), m_view);
+
+	if (m_debugTree)
+		DebugRenderer::Get().drawBuffer();
+
 	if (m_debugPhysic) {
+		!m_overview ? ShapeDrawer::Get().setProjectionView(m_camera.getPerspectiveMatrix(), m_camera.getViewMatrix()) : ShapeDrawer::Get().setProjectionView(m_camera.getOrthographicMatrix(), m_view);
+
 		glDisable(GL_CULL_FACE);
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		ShapeDrawer::Get().drawDynmicsWorld(Physics::GetDynamicsWorld());
@@ -301,6 +317,7 @@ void KCCInterface::renderUi() {
 	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 	ImGui::Checkbox("Draw Wirframe", &StateMachine::GetEnableWireframe());
 	ImGui::Checkbox("Debug Physic", &m_debugPhysic);
+	ImGui::Checkbox("Overview", &m_overview);
 	if (ImGui::Checkbox("Use Culling", &m_useCulling)) {
 		m_octree->m_useCulling = m_useCulling;
 	}
@@ -308,13 +325,18 @@ void KCCInterface::renderUi() {
 	if (ImGui::Checkbox("Use Occlusion", &m_useOcclusion)) {
 		m_octree->m_useOcclusion = m_useOcclusion;
 	}
+	ImGui::Checkbox("Debug Tree", &m_debugTree);
+	ImGui::SliderFloat("Fovx", &m_fovx, 0.01f, 180.0f);
+	ImGui::SliderFloat("Far", &m_far, 25.0f, 1100.0f);
+	ImGui::SliderFloat("Near", &m_near, 0.1f, 200.0f);
+	ImGui::SliderFloat("Distance", &m_distance, -100.0f, 100.0f);
 	ImGui::End();
 
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
-void KCCInterface::createPhysics() {
+void KCCInterface::createShapes() {
 	std::vector<float> vertexBuffer;
 	std::vector<unsigned int> indexBuffer;
 
@@ -367,8 +389,9 @@ void KCCInterface::createPhysics() {
 	m_liftButtonShape.fromBuffer(vertexBuffer, indexBuffer, 8);
 	m_liftButtonShape.createBoundingBox();
 	vertexBuffer.clear(); vertexBuffer.shrink_to_fit(); indexBuffer.clear(); indexBuffer.shrink_to_fit();
+}
 
-
+void KCCInterface::createPhysics() {
 	Physics::AddStaticRigidBody(Physics::BtTransform(btVector3(0.0f, -0.05f, 0.0f)), new btConvexHullShape((btScalar*)(&m_baseShape.getPositions()[0]), m_baseShape.getPositions().size(), 3 * sizeof(btScalar)), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY | Physics::collisiontypes::CAMERA);
 	Physics::AddStaticRigidBody(Physics::BtTransform(btVector3(30.16f, 6.98797f, 10.0099f)), Physics::CreateCollisionShape(&m_upperFloorShape, btVector3(1.0f, 1.0f, 1.0f)), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY | Physics::collisiontypes::CAMERA);
 	

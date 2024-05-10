@@ -7,18 +7,19 @@
 #include "Camera.h"
 #include "BoundingBox.h"
 
-#define FRUSTUM_VERTEX	"#version 410 core											\n \
-																					\n \
-						layout(location = 0) in vec3 i_position;					\n \
-						layout(location = 1) in uint i_count;						\n \
-						uniform vec4 u_color;										\n \
-																					\n \
-						out vec4 v_color;											\n \
-						uniform mat4 u_transform = mat4(1.0);						\n \
-																					\n \
-						void main() {												\n \
-						gl_Position = u_transform * vec4(i_position, 1.0);			\n \
-						v_color = i_count < 4 ? vec4(1.0, 1.0, 1.0, 1.0f) : u_color;\n \
+#define FRUSTUM_VERTEX	"#version 410 core									 \n \
+																			 \n \
+						layout(location = 0) in vec3 i_position;			 \n \
+						layout(location = 1) in uint i_count;				 \n \
+						uniform vec4 u_colorNear;							 \n \
+                        uniform vec4 u_colorFar;							 \n \
+																			 \n \
+						out vec4 v_color;									 \n \
+						uniform mat4 u_transform = mat4(1.0);				 \n \
+																			 \n \
+						void main() {										 \n \
+						gl_Position = u_transform * vec4(i_position, 1.0);   \n \
+						  v_color = i_count < 4 ? u_colorNear : u_colorFar;  \n \
 						}"
 
 
@@ -52,7 +53,7 @@ public:
 	Frustum();
 	~Frustum();
 
-	void drawFrustum(const Matrix4f& projection, const Matrix4f& view, float distance);
+	void drawFrustum(const Matrix4f& projection, const Matrix4f& view, float distance, const Vector4f& colorNear = Vector4f(1.0f, 1.0f, 1.0f, 1.0f), const Vector4f& colorFar = Vector4f(0.0f, 1.0f, 1.0f, 1.0f));
 	void updatePlane(const Matrix4f& perspective, const Matrix4f& view, const Matrix4f& model);
 	void updatePlane(const Matrix4f& perspective, const Matrix4f& view);
 	void updateVertices(const Matrix4f& perspective, const Matrix4f& view);

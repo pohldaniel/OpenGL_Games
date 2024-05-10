@@ -53,7 +53,8 @@ public:
 	
 	void drawShape(btScalar* m,  btCollisionShape* shape);
 	void setCamera(const Camera& camera);
-	
+	void setProjectionView(const Matrix4f& projection, const Matrix4f& view);
+
 	static ShapeDrawer& Get();
 
 	static RandomColor RandomColor;
@@ -68,11 +69,12 @@ private:
 	
 	unsigned int m_vbo = 0;
 	unsigned int m_ibo = 0;
-
+	bool m_useCamera = true;
 	
 	const Camera* m_camera;
 	btAlignedObjectArray<ShapeCacheConvex*> m_shapecacheConvex;
 	btAlignedObjectArray<ShapeCache*> m_shapecache;
+	Matrix4f m_perspective, m_view;
 
 	static ShapeDrawer Instance;
 	static std::unique_ptr<Shader> s_shader;

@@ -354,9 +354,6 @@ void DebugRenderer::drawBuffer() {
 	glDrawElements(GL_LINES, indexCount, GL_UNSIGNED_INT, nullptr);
 
 	glUseProgram(0);
-
-	//glBindBuffer(GL_ARRAY_BUFFER, 0);
-	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 
 	vertexCount = 0;
