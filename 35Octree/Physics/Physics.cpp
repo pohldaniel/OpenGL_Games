@@ -2,6 +2,7 @@
 #include "engine/ObjModel.h"
 #include "engine/MeshObject/Shape.h"
 
+static const float M_INFINITY = (float)HUGE_VAL;
 
 void Physics::PreTickCallback(btDynamicsWorld* world, btScalar timeStep) {
 	static_cast<Physics*>(world->getWorldUserInfo())->preStep(timeStep);
@@ -361,6 +362,48 @@ float Physics::RayTest(const btVector3& from, const btVector3& to, int collision
 	return cb.m_closestHitFraction;
 }
 
+void Physics::RaycastSingleSegmented(PhysicsRaycastResult& result, const Vector3f& _origin, const Vector3f& _direction, float maxDistance, float segmentDistance, int collisionFilterGroup, int collisionMask) {
+
+
+	btVector3 start = VectorFrom(_origin);
+	btVector3 end;
+	btVector3 direction = VectorFrom(_direction);
+	float distance;
+
+	for (float remainingDistance = maxDistance; remainingDistance > 0; remainingDistance -= segmentDistance) {
+		distance = std::min(remainingDistance, segmentDistance);
+
+		end = start + distance * direction;
+
+		btCollisionWorld::ClosestRayResultCallback rayCallback(start, end);
+		rayCallback.m_collisionFilterGroup = collisionFilterGroup;
+		rayCallback.m_collisionFilterMask = collisionMask;
+
+		DynamicsWorld->rayTest(rayCallback.m_rayFromWorld, rayCallback.m_rayToWorld, rayCallback);
+
+		if (rayCallback.hasHit())
+		{
+			result.position_ = VectorFrom(rayCallback.m_hitPointWorld);
+			result.normal_ = VectorFrom(rayCallback.m_hitNormalWorld);
+			result.distance_ = (result.position_ - _origin).length();
+			result.hitFraction_ = rayCallback.m_closestHitFraction;
+			result.body_ = static_cast<btRigidBody*>(rayCallback.m_collisionObject->getUserPointer());
+			// No need to cast the rest of the segments
+			return;
+		}
+
+		// Use the end position as the new start position
+		start = end;
+	}
+
+	// Didn't hit anything
+	result.position_ = Vector3f::ZERO;
+	result.normal_ = Vector3f::ZERO;
+	result.distance_ = M_INFINITY;
+	result.hitFraction_ = 0.0f;
+	result.body_ = 0;
+}
+
 btTransform Physics::BtTransform() {
 	btTransform transform;
 	transform.setIdentity();
@@ -434,6 +477,10 @@ Quaternion Physics::QuaternionFrom(const btQuaternion& quaternion) {
 
 btVector3 Physics::VectorFrom(const Vector3f& vector) {
 	return btVector3(vector[0], vector[1], vector[2]);
+}
+
+btQuaternion Physics::QuaternionFrom(const Quaternion& quaternion) {
+	return btQuaternion(-quaternion[0], -quaternion[1], -quaternion[2], quaternion[3]);
 }
 
 btDiscreteDynamicsWorld * Physics::GetDynamicsWorld() {

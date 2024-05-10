@@ -215,6 +215,7 @@
     <ClCompile Include="src\Animation\AnimationController.cpp" />
     <ClCompile Include="src\Animation\AnimationState.cpp" />
     <ClCompile Include="src\Character.cpp" />
+    <ClCompile Include="src\CharacterController.cpp" />
     <ClCompile Include="src\Entities\Entity.cpp" />
     <ClCompile Include="src\Entities\Flame.cpp" />
     <ClCompile Include="src\Grasses.cpp" />
@@ -484,6 +485,7 @@
     <ClInclude Include="src\Animation\AnimationState.h" />
     <ClInclude Include="src\Application.h" />
     <ClInclude Include="src\Character.h" />
+    <ClInclude Include="src\CharacterController.h" />
     <ClInclude Include="src\Entities\Entity.h" />
     <ClInclude Include="src\Entities\Flame.h" />
     <ClInclude Include="src\Globals.h" />

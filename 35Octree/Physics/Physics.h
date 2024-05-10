@@ -35,6 +35,22 @@ private:
 	int m_collisionFilterMask = -1;
 };
 
+struct PhysicsRaycastResult {
+	/// Construct with defaults.
+	PhysicsRaycastResult() : body_(0) {
+	}
+
+	bool operator !=(const PhysicsRaycastResult& rhs) const {
+		return position_ != rhs.position_ || normal_ != rhs.normal_ || distance_ != rhs.distance_ || body_ != rhs.body_;
+	}
+
+	Vector3f position_;
+	Vector3f normal_;
+	float distance_;
+	float hitFraction_;
+	btRigidBody* body_;
+};
+
 
 class Physics{
 
@@ -94,6 +110,7 @@ public:
 
 	static float SweepSphere(const btVector3& from, const btVector3& to, float radius, int collisionFilterGroup = 1, int collisionFilterMask = -1);
 	static float RayTest(const btVector3& from, const btVector3& to, int collisionFilterGroup = 1, int collisionFilterMask = -1);
+	static void RaycastSingleSegmented(PhysicsRaycastResult& result, const Vector3f& origin, const Vector3f& direction, float maxDistance, float segmentDistance, int collisionFilterGroup = 1, int collisionFilterMask = -1);
 
 	static btTransform BtTransform();
 	static btTransform BtTransform(const btVector3& origin);
@@ -103,6 +120,7 @@ public:
 	static btTransform BtTransform(const Vector3f& axis, float degrees);
 	static btTransform BtTransform(const Vector3f& origin, const Vector3f& axis, float degrees);
 	static btVector3 VectorFrom(const Vector3f& vector);
+	static btQuaternion QuaternionFrom(const Quaternion& quaternion);
 
 	static Matrix4f MatrixFrom(const btTransform& trans, const btVector3& scale = btVector3(1.0f, 1.0f, 1.0f));
 	static Matrix4f MatrixTransposeFrom(const btTransform& trans, const btVector3& scale = btVector3(1.0f, 1.0f, 1.0f));
