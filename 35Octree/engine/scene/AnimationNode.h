@@ -12,8 +12,8 @@ public:
 	AnimationNode(const AnimatedModel& animatedModel);
 	~AnimationNode() = default;
 
-	void drawRaw() const;
-	void update(float dt) override;
+	void drawRaw() const override;
+	void update(float dt);
 	
 	void OnBoundingBoxChanged() override;
 	void OnWorldBoundingBoxUpdate() const override;

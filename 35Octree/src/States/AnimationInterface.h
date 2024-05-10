@@ -40,7 +40,7 @@ private:
 	AnimatedModel m_beta;
 	SceneNodeLC* m_root;
 	Octree* m_octree;
-	std::vector<OctreeNode*> m_entities;
+	std::vector<AnimationNode*> m_entities;
 
 	float m_fovx = 45.0f;
 	float m_far = 50.0f;

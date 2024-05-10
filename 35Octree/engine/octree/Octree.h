@@ -3,6 +3,7 @@
 #pragma once
 #include <atomic>
 #include <functional>
+#include <engine/scene/OctreeNode.h>
 #include <engine/Frustum.h>
 #include "AutoPtr.h"
 #include "WorkQueue.h"
@@ -34,7 +35,6 @@ static const float OCCLUSION_QUERY_INTERVAL = 0.133333f; // About 8 frame stagge
 static unsigned randomSeed = 1;
 
 struct ReinsertDrawablesTask;
-class OctreeNode;
 /// %Octant occlusion query visibility states.
 enum OctantVisibility
 {

@@ -16,8 +16,6 @@ public:
 	void OnTransformChanged() override;
 
 	virtual void drawRaw() const;
-	virtual void update(float dt);
-
 	virtual void OnBoundingBoxChanged();
 	virtual void OnWorldBoundingBoxUpdate() const;
 	virtual void OnOctreeUpdate();

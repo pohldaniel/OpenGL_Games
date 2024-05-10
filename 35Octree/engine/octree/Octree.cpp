@@ -3,7 +3,6 @@
 #include <cassert>
 #include <algorithm>
 #include <engine/DebugRenderer.h>
-#include <engine/scene/OctreeNode.h>
 #include "Octree.h"
 
 #include "Globals.h"

@@ -528,7 +528,7 @@
     <ClCompile Include="engine\scene\AnimationNode.cpp">
       <Filter>engine\scene</Filter>
     </ClCompile>
-    <ClCompile Include="src\States\KCC.cpp">
+    <ClCompile Include="src\States\KCCInterface.cpp">
       <Filter>Source Files\States</Filter>
     </ClCompile>
   </ItemGroup>
@@ -1193,7 +1193,7 @@
     <ClInclude Include="engine\scene\AnimationNode.h">
       <Filter>engine\scene</Filter>
     </ClInclude>
-    <ClInclude Include="src\States\KCC.h">
+    <ClInclude Include="src\States\KCCInterface.h">
       <Filter>Source Files\States</Filter>
     </ClInclude>
   </ItemGroup>

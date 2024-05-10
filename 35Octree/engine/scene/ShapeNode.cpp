@@ -9,6 +9,10 @@ ShapeNode::~ShapeNode() {
 
 }
 
+void ShapeNode::drawRaw() const {
+	shape.drawRaw();
+}
+
 void ShapeNode::addChild(ShapeNode* node, bool drawDebug) {
 	SceneNodeLC::addChild(node);
 	node->setDrawDebug(drawDebug);

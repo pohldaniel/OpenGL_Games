@@ -306,6 +306,19 @@ btCollisionObject* Physics::AddKinematicObject(const btTransform& transform, btC
 	return colObj;
 }
 
+btCollisionObject* Physics::AddKinematicTrigger(const btTransform& transform, btCollisionShape* shape, int collisionFilterGroup, int collisionFilterMask, void* userPointer) {
+	btCollisionObject* colObj = new btCollisionObject();
+	colObj->setWorldTransform(transform);
+	colObj->setCollisionShape(shape);
+	colObj->setCollisionFlags(btCollisionObject::CF_KINEMATIC_OBJECT | btCollisionObject::CF_NO_CONTACT_RESPONSE);
+	if (userPointer)
+		colObj->setUserPointer(userPointer);
+	colObj->forceActivationState(DISABLE_DEACTIVATION);
+
+	DynamicsWorld->addCollisionObject(colObj, collisionFilterGroup, collisionFilterMask);
+	return colObj;
+}
+
 btCollisionObject* Physics::AddStaticObject(const btTransform& transform, btCollisionShape* shape, int collisionFilterGroup, int collisionFilterMask, void* userPointer) {
 	btCollisionObject* colObj = new btCollisionObject();
 	colObj->setWorldTransform(transform);

@@ -23,7 +23,7 @@
 #include <States/OcclusionQuery.h>
 #include <States/OctreeInterface.h>
 #include <States/AnimationInterface.h>
-#include <States/KCC.h>
+#include <States/KCCInterface.h>
 
 #include <States/Particle/BlendedParticle.h>
 #include <States/Particle/SmoothParticle.h>
@@ -886,6 +886,10 @@ void Application::loadAssets() {
 	Globals::textureManager.get("bricks_disp").generateDisplacements();
 
 	Globals::textureManager.createNullTexture("null");
+
+	Globals::textureManager.loadTexture("proto", "res/textures/ProtoWhite256.jpg", true);
+	Globals::textureManager.get("proto").setFilter(GL_LINEAR_MIPMAP_LINEAR);
+	Globals::textureManager.get("proto").setWrapMode(GL_REPEAT);
 
 	std::string faces[] = { "res/textures/posx.jpg", "res/textures/negx.jpg", "res/textures/posy.jpg", "res/textures/negy.jpg", "res/textures/posz.jpg", "res/textures/negz.jpg" };
 	Globals::textureManager.loadCubeMap("dessert", faces, false);

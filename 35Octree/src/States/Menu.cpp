@@ -25,7 +25,7 @@
 #include <States/OctreeInterface.h>
 #include <States/OcclusionQuery.h>
 #include <States/AnimationInterface.h>
-#include <States/KCC.h>
+#include <States/KCCInterface.h>
 
 #include <States/Settings.h>
 #include <States/Controls.h>

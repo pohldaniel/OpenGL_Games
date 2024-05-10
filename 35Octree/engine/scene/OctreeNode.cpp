@@ -14,10 +14,6 @@ void OctreeNode::drawRaw() const {
 
 }
 
-void OctreeNode::update(float dt) {
-
-}
-
 const BoundingBox& OctreeNode::getWorldBoundingBox() const {
 	if (m_worldBoundingBoxDirty) {
 		OnWorldBoundingBoxUpdate();

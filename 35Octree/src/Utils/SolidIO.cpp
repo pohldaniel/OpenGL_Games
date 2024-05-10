@@ -899,6 +899,132 @@ void Utils::MdlIO::mdlToObj(const char* path, const char* outFileObj, const char
 	fileOut.close();
 }
 
+void Utils::MdlIO::mdlToBuffer(const char* filename, float scale, std::vector<float>& vertexBufferOut, std::vector<unsigned int>& indexBufferOut) {
+	mdlToBuffer(filename, { scale, scale, scale }, vertexBufferOut, indexBufferOut);
+}
+
+void Utils::MdlIO::mdlToBuffer(const char* filename, std::array<float, 3> scale, std::vector<float>& vertexBufferOut, std::vector<unsigned int>& indexBufferOut) {
+	std::ifstream file(filename, std::ios::binary);
+
+	std::string ret;
+	ret.resize(4);
+	file.read(&ret[0], 4 * sizeof(char));
+
+	char metaData[4];
+	file.read(metaData, sizeof(unsigned int));
+
+	file.read(metaData, sizeof(unsigned int));
+	unsigned int vertexCount = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
+
+	file.read(metaData, sizeof(unsigned int));
+	unsigned int numElements = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
+
+	unsigned int vertexSize = 0;
+
+	if (ret == "UMD2") {
+		for (unsigned j = 0; j < numElements; ++j) {
+			file.read(metaData, sizeof(unsigned int));
+			unsigned int elementDesc = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
+			VertexElementSemantic semantic = (VertexElementSemantic)((elementDesc >> 8) & 0xff);
+			vertexSize += Utils::ELEMENT_TYPESIZES[elementDesc & 0xff];
+		}
+	}else {
+		if (numElements & 1){
+			vertexSize += sizeof(float) * 3;
+		}
+		if (numElements & 2)
+		{
+			vertexSize += sizeof(float) * 3;
+		}
+		if (numElements & 4)
+		{
+			vertexSize += 4;
+		}
+		if (numElements & 8)
+		{		
+			vertexSize += sizeof(float) * 2;
+		}
+		if (numElements & 16)
+		{
+			vertexSize += sizeof(float) * 2;
+		}
+		if (numElements & 32)
+		{
+			vertexSize += sizeof(float) * 3;
+		}
+		if (numElements & 64)
+		{
+			vertexSize += sizeof(float) * 3;		
+		}
+		if (numElements & 128)
+		{
+			vertexSize += sizeof(float) * 4;
+		}
+		if (numElements & 256)
+		{
+			vertexSize += sizeof(float) * 4;
+		}
+		if (numElements & 512)
+		{
+			vertexSize += 4;
+		}
+	}
+
+	//morph
+	file.read(metaData, sizeof(unsigned int));
+	file.read(metaData, sizeof(unsigned int));
+
+	char* buffer = new char[vertexCount * vertexSize];
+	file.read(buffer, vertexCount * vertexSize);
+
+	for (unsigned int i = 0; i < vertexCount * vertexSize; i = i + vertexSize) {
+
+		UFloat value[3];
+		value[0].c[0] = buffer[i + 0]; value[0].c[1] = buffer[i + 1]; value[0].c[2] = buffer[i + 2]; value[0].c[3] = buffer[i + 3];
+		value[1].c[0] = buffer[i + 4]; value[1].c[1] = buffer[i + 5]; value[1].c[2] = buffer[i + 6]; value[1].c[3] = buffer[i + 7];
+		value[2].c[0] = buffer[i + 8]; value[2].c[1] = buffer[i + 9]; value[2].c[2] = buffer[i + 10]; value[2].c[3] = buffer[i + 11];
+		vertexBufferOut.push_back(value[0].flt * scale[0]); vertexBufferOut.push_back(value[1].flt * scale[1]); vertexBufferOut.push_back(value[2].flt * scale[2]);
+
+		if (numElements & 4 && ret == "UMDL") {
+			value[0].c[0] = buffer[i + 28]; value[0].c[1] = buffer[i + 29]; value[0].c[2] = buffer[i + 30]; value[0].c[3] = buffer[i + 31];
+			value[1].c[0] = buffer[i + 32]; value[1].c[1] = buffer[i + 33]; value[1].c[2] = buffer[i + 34]; value[1].c[3] = buffer[i + 35];
+		}else {
+			value[0].c[0] = buffer[i + 24]; value[0].c[1] = buffer[i + 25]; value[0].c[2] = buffer[i + 26]; value[0].c[3] = buffer[i + 27];
+			value[1].c[0] = buffer[i + 28]; value[1].c[1] = buffer[i + 29]; value[1].c[2] = buffer[i + 30]; value[1].c[3] = buffer[i + 31];
+		}
+		vertexBufferOut.push_back(value[0].flt); vertexBufferOut.push_back(value[1].flt);
+
+		value[0].c[0] = buffer[i + 12]; value[0].c[1] = buffer[i + 13]; value[0].c[2] = buffer[i + 14]; value[0].c[3] = buffer[i + 15];
+		value[1].c[0] = buffer[i + 16]; value[1].c[1] = buffer[i + 17]; value[1].c[2] = buffer[i + 18]; value[1].c[3] = buffer[i + 19];
+		value[2].c[0] = buffer[i + 20]; value[2].c[1] = buffer[i + 21]; value[2].c[2] = buffer[i + 22]; value[2].c[3] = buffer[i + 23];
+		vertexBufferOut.push_back(value[0].flt); vertexBufferOut.push_back(value[1].flt); vertexBufferOut.push_back(value[2].flt);
+
+	}
+	delete buffer;
+
+	file.read(metaData, sizeof(unsigned int));
+
+	file.read(metaData, sizeof(unsigned int));
+	unsigned int indexCount = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
+
+	file.read(metaData, sizeof(unsigned int));
+	unsigned int indexSize = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
+
+	buffer = new char[indexCount * indexSize];
+	file.read(buffer, indexCount * indexSize);
+
+	for (unsigned int i = 0; i < indexCount * indexSize; i = i + indexSize * 3) {
+		UShort value[3];
+
+		value[0].c[0] = buffer[i + 0]; value[0].c[1] = buffer[i + 1];
+		value[1].c[0] = buffer[i + 2]; value[1].c[1] = buffer[i + 3];
+		value[2].c[0] = buffer[i + 4]; value[2].c[1] = buffer[i + 5];
+		indexBufferOut.push_back(value[0].shrt); indexBufferOut.push_back(value[1].shrt); indexBufferOut.push_back(value[2].shrt);
+	}
+	delete buffer;
+	file.close();
+}
+
 void Utils::MdlIO::mdlToBuffer(const char* path, float scale, std::vector<float>& vertexBufferOut, std::vector<unsigned int>& indexBufferOut, std::vector<std::array<float, 4>>& weightsOut, std::vector<std::array<unsigned int, 4>>& boneIdsOut, std::vector<std::vector<GeometryDesc>>& geomDescs, std::vector<MeshBone>& bones, BoundingBox& boundingBox) {
 	mdlToBuffer(path, { scale, scale, scale }, vertexBufferOut, indexBufferOut, weightsOut, boneIdsOut, geomDescs, bones, boundingBox);
 }

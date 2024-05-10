@@ -11,6 +11,9 @@ public:
 
 	ShapeNode(const Shape& shape);
 	~ShapeNode();
+
+	void drawRaw() const override;
+
 	using OctreeNode::addChild;
 	void addChild(ShapeNode* node, bool drawDebug);
 	const Shape& getShape() const;
