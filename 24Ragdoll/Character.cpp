@@ -1,7 +1,7 @@
 #include <iostream>
 
 #include "Character.h"
-#include "KinematicCharacterContoller.h"
+#include "KinematicCharacterController.h"
 #include "turso3d/Renderer/AnimatedModel.h"
 #include "MovingPlatform.h"
 

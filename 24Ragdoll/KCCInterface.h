@@ -6,7 +6,7 @@
 #include "engine/Camera.h"
 #include "engine/TrackBall.h"
 #include "StateMachine.h"
-#include "KinematicCharacterContoller.h"
+#include "KinematicCharacterController.h"
 #include "Character.h"
 #include "MovingPlatform.h"
 #include "SplinePlatform.h"

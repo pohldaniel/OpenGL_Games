@@ -214,7 +214,7 @@
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="HeightField.cpp" />
     <ClCompile Include="heightfield128x128.cpp" />
-    <ClCompile Include="KinematicCharacterContoller.cpp" />
+    <ClCompile Include="KinematicCharacterController.cpp" />
     <ClCompile Include="KinematicObject.cpp" />
     <ClCompile Include="KinematicTrigger.cpp" />
     <ClCompile Include="Lift.cpp" />
@@ -407,7 +407,7 @@
     <ClInclude Include="engine\Vector.h" />
     <ClInclude Include="engine\VolumeBuffer.h" />
     <ClInclude Include="HeightField.h" />
-    <ClInclude Include="KinematicCharacterContoller.h" />
+    <ClInclude Include="KinematicCharacterController.h" />
     <ClInclude Include="KinematicObject.h" />
     <ClInclude Include="KinematicTrigger.h" />
     <ClInclude Include="Lift.h" />

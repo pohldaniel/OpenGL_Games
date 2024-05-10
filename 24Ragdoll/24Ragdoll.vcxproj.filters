@@ -615,9 +615,6 @@
     <ClCompile Include="turso3d\Renderer\AnimationController.cpp">
       <Filter>turso3d\Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="KinematicCharacterContoller.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="DebugDrawer.cpp">
       <Filter>Physics</Filter>
     </ClCompile>
@@ -659,6 +656,9 @@
     </ClCompile>
     <ClCompile Include="CheckBox.cpp">
       <Filter>Source Files\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="KinematicCharacterController.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1190,9 +1190,6 @@
     <ClInclude Include="turso3d\Renderer\AnimationController.h">
       <Filter>turso3d\Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="KinematicCharacterContoller.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="DebugDrawer.h">
       <Filter>Physics</Filter>
     </ClInclude>
@@ -1237,6 +1234,9 @@
     </ClInclude>
     <ClInclude Include="turso3d\Renderer\Model.h">
       <Filter>turso3d\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="KinematicCharacterController.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
