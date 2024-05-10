@@ -543,6 +543,12 @@
     <ClCompile Include="src\SplinePlatform.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Character.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Lift.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="convhull\convhull_3d.h">
@@ -1218,6 +1224,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\SplinePlatform.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Character.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Lift.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

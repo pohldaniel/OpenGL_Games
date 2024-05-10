@@ -214,9 +214,11 @@
     <ClCompile Include="src\Animation\Animation.cpp" />
     <ClCompile Include="src\Animation\AnimationController.cpp" />
     <ClCompile Include="src\Animation\AnimationState.cpp" />
+    <ClCompile Include="src\Character.cpp" />
     <ClCompile Include="src\Entities\Entity.cpp" />
     <ClCompile Include="src\Entities\Flame.cpp" />
     <ClCompile Include="src\Grasses.cpp" />
+    <ClCompile Include="src\Lift.cpp" />
     <ClCompile Include="src\LoadingManager.cpp" />
     <ClCompile Include="src\MovingPlatform.cpp" />
     <ClCompile Include="src\Particle.cpp" />
@@ -481,11 +483,13 @@
     <ClInclude Include="src\Animation\AnimationController.h" />
     <ClInclude Include="src\Animation\AnimationState.h" />
     <ClInclude Include="src\Application.h" />
+    <ClInclude Include="src\Character.h" />
     <ClInclude Include="src\Entities\Entity.h" />
     <ClInclude Include="src\Entities\Flame.h" />
     <ClInclude Include="src\Globals.h" />
     <ClInclude Include="src\Grasses.h" />
     <ClInclude Include="src\Interpolators.h" />
+    <ClInclude Include="src\Lift.h" />
     <ClInclude Include="src\LoadingManager.h" />
     <ClInclude Include="src\MovingPlatform.h" />
     <ClInclude Include="src\Particle.h" />

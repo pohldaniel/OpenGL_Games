@@ -8,12 +8,12 @@ MovingPlatform::~MovingPlatform() {
 
 }
 
-void MovingPlatform::initialize(ShapeNode* platformNode, btCollisionObject* collisionShape, const Vector3f &finishPosition) {
+void MovingPlatform::initialize(ShapeNode* shapeNode, btCollisionObject* collisionObject, const Vector3f &finishPosition) {
 	// get other lift components
-	m_shapeNode = platformNode;
-	m_platformShape = collisionShape;
+	m_shapeNode = shapeNode;
+	m_collisionObject = collisionObject;
 	// positions
-	m_initialPosition = platformNode->getWorldPosition();
+	m_initialPosition = shapeNode->getWorldPosition();
 	m_finishPosition = finishPosition;
 	m_directionToFinish = Vector3f::Normalize(m_finishPosition - m_initialPosition);
 
@@ -55,7 +55,7 @@ void MovingPlatform::fixedUpdate(float fdt) {
 			m_platformState = PLATFORM_STATE_MOVETO_START;
 		}		
 		m_shapeNode->setPosition(newPos);
-		m_platformShape->setWorldTransform(Physics::BtTransform(Physics::VectorFrom(newPos)));
+		m_collisionObject->setWorldTransform(Physics::BtTransform(Physics::VectorFrom(newPos)));
 
 	}else if (m_platformState == PLATFORM_STATE_MOVETO_START){
 		Vector3f curDistance = m_initialPosition - platformPos;
@@ -78,6 +78,6 @@ void MovingPlatform::fixedUpdate(float fdt) {
 		}
 
 		m_shapeNode->setPosition(newPos);
-		m_platformShape->setWorldTransform(Physics::BtTransform(Physics::VectorFrom(newPos)));
+		m_collisionObject->setWorldTransform(Physics::BtTransform(Physics::VectorFrom(newPos)));
 	}
 }

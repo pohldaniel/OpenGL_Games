@@ -3,7 +3,6 @@
 #include <Physics/Physics.h>
 #include <engine/scene/ShapeNode.h>
 
-
 class MovingPlatform {
 
 public:
@@ -12,14 +11,14 @@ public:
 	~MovingPlatform();
 	void fixedUpdate(float fdt);
 
-	void initialize(ShapeNode* model, btCollisionObject* collisionShape, const Vector3f &finishPosition);
+	void initialize(ShapeNode* shapeNode, btCollisionObject* collisionObject, const Vector3f &finishPosition);
 	void setPlatformSpeed(float maxLiftSpeed);
 	ShapeNode* getShapeNode();
 
 protected:
 
 	ShapeNode* m_shapeNode;
-	btCollisionObject* m_platformShape;
+	btCollisionObject* m_collisionObject;
 
 	Vector3f m_initialPosition;
 	Vector3f m_finishPosition;

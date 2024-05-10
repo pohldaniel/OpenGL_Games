@@ -10,14 +10,14 @@ public:
 	~SplinePlatform();
 	void fixedUpdate(float fdt);
 
-	void initialize(SplinePath* splinePath, btCollisionObject* collisionShape);
+	void initialize(SplinePath* splinePath, btCollisionObject* collisionObject);
 
-	btCollisionObject* getCollisionShape();
+	btCollisionObject* getCollisionObject();
 
 protected:
 
 	SplinePath* m_splinePath;
-	btCollisionObject* m_collisionShape;
+	btCollisionObject* m_collisionObject;
 	SceneNodeLC* m_controlNode;
 
 	Vector3f m_prevPos;

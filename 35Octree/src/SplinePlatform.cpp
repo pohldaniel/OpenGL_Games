@@ -8,14 +8,14 @@ SplinePlatform::~SplinePlatform() {
 
 }
 
-void SplinePlatform::initialize(SplinePath* splinePath, btCollisionObject* collisionShape){
+void SplinePlatform::initialize(SplinePath* splinePath, btCollisionObject* collisionObject){
 	m_splinePath = splinePath;
-	m_collisionShape = collisionShape;
+	m_collisionObject = collisionObject;
 	m_controlNode = splinePath->GetControlledNode();
 }
 
-btCollisionObject* SplinePlatform::getCollisionShape() {
-	return m_collisionShape;
+btCollisionObject* SplinePlatform::getCollisionObject() {
+	return m_collisionObject;
 }
 
 void SplinePlatform::fixedUpdate(float fdt) {
@@ -36,9 +36,7 @@ void SplinePlatform::fixedUpdate(float fdt) {
 			m_controlNode->setOrientation(nrot * drot);
 
 			Vector3f curPos = m_controlNode->getPosition();
-			m_collisionShape->setWorldTransform(Physics::BtTransform(Physics::VectorFrom(curPos)));
-
-			//rigidBody_->getMotionState()->setWorldTransform(Physics::BtTransform(btVector3(curPos.x, curPos.y, curPos.z)));
+			m_collisionObject->setWorldTransform(Physics::BtTransform(Physics::VectorFrom(curPos)));
 		}
 	}
 }
