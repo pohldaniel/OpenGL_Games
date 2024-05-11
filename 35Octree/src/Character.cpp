@@ -117,27 +117,22 @@ void Character::FixedUpdate(float timeStep) {
 }
 
 void Character::FixedPostUpdate(float timeStep) {
-
 	if (movingData_[0] == movingData_[1]) {
-
 		Matrix4f delta = movingData_[0].transform_ * movingData_[1].transform_.inverse();
-
 		// add delta
 		Vector3f kPos;
 		Quaternion kRot;
 		kinematicController_->GetTransform(kPos, kRot);
 
-
-
-		Matrix4f matKC(kPos, kRot, Vector3f::ONE);
-
-		// update
+		Matrix4f matKC(kPos, kRot, Vector3f::ONE);	
 		matKC = delta * matKC;
 		kinematicController_->SetTransform(matKC.getTranslation(), Quaternion(matKC.getRotation()));
 
-		model_->rotate(Quaternion(Vector3f::UP, Quaternion(delta.getRotation()).getYaw()));
-		camera.rotate(Quaternion(delta.getRotation()).getYaw() * 10.0f, 0.0f, kPos);
+		float deltaYaw = Quaternion(delta.getRotation()).getYaw();
+		model_->rotate(Quaternion(Vector3f::UP, deltaYaw));
+		camera.rotate(- deltaYaw * 1.0f / camera.getRotationSpeed(), 0.0f, kPos);
 
+		Vector3f _pos = kinematicController_->GetPosition();		
 	}
 
 	// update node position
@@ -151,6 +146,8 @@ void Character::FixedPostUpdate(float timeStep) {
 void Character::NodeOnMovingPlatform(SceneNodeLC* node) {
 	movingData_[0].node_ = node;
 	movingData_[0].transform_ = node->getWorldTransformation();
+
+	//std::cout << "Position: " << movingData_[0].transform_[3][0] << "  " << movingData_[0].transform_[3][1] << "  " << movingData_[0].transform_[3][2] << std::endl;
 }
 
 void Character::ProcessCollision() {
@@ -166,7 +163,6 @@ void Character::HandleCollisionButton(btCollisionObject* collisionObject) {
 	m_characterTriggerResultButton.currentCollision = std::make_pair(nullptr, nullptr);
 	Physics::GetDynamicsWorld()->contactPairTest(kinematicController_->pairCachingGhostObject_.get(), collisionObject, m_characterTriggerResultButton);
 }
-
 
 void Character::BeginCollision() {
 	if (m_characterTriggerResultButton.currentCollision.first && m_characterTriggerResultButton.prevCollision.second == nullptr) {

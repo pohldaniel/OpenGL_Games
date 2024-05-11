@@ -47,11 +47,11 @@ private:
 
 	bool m_initUi = true;
 	bool m_drawUi = true;
+	bool m_useCulling = true;
+	bool m_useOcclusion = true;
 	bool m_debugTree = false;
 	bool m_overview = false;
-	bool m_useCulling = true;
-	bool m_useOcclusion = false;
-	bool m_debugPhysic = true;
+	bool m_debugPhysic = false;
 
 	Camera m_camera;
 	Frustum m_frustum;
@@ -63,12 +63,14 @@ private:
 	Shape m_ramp2Shape;
 	Shape m_ramp3Shape;
 	Shape m_liftShape;
+	Shape m_liftShapeExtend;
 	Shape m_liftExteriorShape;
 	Shape m_liftButtonShape;
 	Shape m_diskShape;
 	Shape m_cylinderShape;
 
 	btCollisionObject* m_kinematicLift;
+	btCollisionObject* m_kinematicLiftTrigger;
 	btCollisionObject* m_liftButtonTrigger;
 	btCollisionObject* m_kinematicPlatform1;
 	btCollisionObject* m_kinematicPlatform2;

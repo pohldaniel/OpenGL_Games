@@ -130,17 +130,12 @@ void Character::FixedUpdate(float timeStep) {
 void Character::FixedPostUpdate(float timeStep) {
 
 	if (movingData_[0] == movingData_[1]){
-
 		Matrix3x4 delta = movingData_[0].transform_ * movingData_[1].transform_.Inverse();
-
-
+		
 		// add delta
 		Vector3 kPos;
 		QuaternionTu kRot;
 		kinematicController_->GetTransform(kPos, kRot);
-
-
-
 		Matrix3x4 matKC(kPos, kRot, Vector3::ONE);
 
 		// update
@@ -149,7 +144,6 @@ void Character::FixedPostUpdate(float timeStep) {
 
 		model_->Rotate(QuaternionTu(delta.Rotation().YawAngle(), Vector3::UP));
 		camera.rotate(-delta.Rotation().YawAngle() * 10.0f, 0.0f, Vector3f(kPos.x, kPos.y, kPos.z));
-
 	}
 
 	// update node position

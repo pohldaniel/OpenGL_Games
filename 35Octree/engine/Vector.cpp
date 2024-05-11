@@ -988,21 +988,21 @@ Matrix4f::Matrix4f(const Vector3f& pos, const Quaternion& quat, const Vector3f& 
 	mtx[0][0] = (1.0f - (yy + zz)) * scale[0];
 	mtx[0][1] = (xy + wz) * scale[0];
 	mtx[0][2] = (xz - wy) * scale[0];
-	mtx[0][3] = pos[0];
+	mtx[0][3] = 0.0f;
 
 	mtx[1][0] = (xy - wz) * scale[1];
 	mtx[1][1] = (1.0f - (xx + zz)) * scale[1];
 	mtx[1][2] = (yz + wx) * scale[1];
-	mtx[1][3] = pos[1];
+	mtx[1][3] = 0.0f;
 
 	mtx[2][0] = (xz + wy) * scale[2];
 	mtx[2][1] = (yz - wx) * scale[2];
 	mtx[2][2] = (1.0f - (xx + yy)) * scale[2];
-	mtx[2][3] = pos[2];
+	mtx[2][3] = 0.0f;
 
-	mtx[3][0] = 0.0f;
-	mtx[3][1] = 0.0f;
-	mtx[3][2] = 0.0f;
+	mtx[3][0] = pos[0];
+	mtx[3][1] = pos[1];
+	mtx[3][2] = pos[2];
 	mtx[3][3] = 1.0f;
 }
 
@@ -1526,9 +1526,9 @@ Matrix4f Matrix4f::Rotate(const Quaternion &orientation) {
 	float wz = orientation[3] * z2;
 
 	return Matrix4f(1.0f - (yy + zz), xy + wz, xz - wy, 0.0f,
-		xy - wz, 1.0f - (xx + zz), yz + wx, 0.0f,
-		xz + wy, yz - wx, 1.0f - (xx + yy), 0.0f,
-		0.0f, 0.0f, 0.0f, 1.0f);
+                    xy - wz, 1.0f - (xx + zz), yz + wx, 0.0f,
+                    xz + wy, yz - wx, 1.0f - (xx + yy), 0.0f,
+                    0.0f, 0.0f, 0.0f, 1.0f);
 }
 
 Matrix4f Matrix4f::Rotate(float pitch, float yaw, float roll) {
@@ -2350,9 +2350,10 @@ Matrix4f Matrix4f::inverse() const {
 	Matrix4f tmp;
 	float d = determinant();
 
-	if (fabsf(d) < 0.0001f) {
+	/*if (fabsf(d) < 0.0001f) {
+		std::cout << "Determinate: " << d << std::endl;
 		tmp.identity();
-	}else {
+	}else {*/
 		d = 1.0f / d;
 
 		tmp.mtx[0][0] = d * (mtx[1][1] * (mtx[2][2] * mtx[3][3] - mtx[3][2] * mtx[2][3]) + mtx[2][1] * (mtx[3][2] * mtx[1][3] - mtx[1][2] * mtx[3][3]) + mtx[3][1] * (mtx[1][2] * mtx[2][3] - mtx[2][2] * mtx[1][3]));
@@ -2374,7 +2375,7 @@ Matrix4f Matrix4f::inverse() const {
 		tmp.mtx[1][3] = d * (mtx[0][2] * (mtx[2][0] * mtx[1][3] - mtx[1][0] * mtx[2][3]) + mtx[1][2] * (mtx[0][0] * mtx[2][3] - mtx[2][0] * mtx[0][3]) + mtx[2][2] * (mtx[1][0] * mtx[0][3] - mtx[0][0] * mtx[1][3]));
 		tmp.mtx[2][3] = d * (mtx[0][3] * (mtx[2][0] * mtx[1][1] - mtx[1][0] * mtx[2][1]) + mtx[1][3] * (mtx[0][0] * mtx[2][1] - mtx[2][0] * mtx[0][1]) + mtx[2][3] * (mtx[1][0] * mtx[0][1] - mtx[0][0] * mtx[1][1]));
 		tmp.mtx[3][3] = d * (mtx[0][0] * (mtx[1][1] * mtx[2][2] - mtx[2][1] * mtx[1][2]) + mtx[1][0] * (mtx[2][1] * mtx[0][2] - mtx[0][1] * mtx[2][2]) + mtx[2][0] * (mtx[0][1] * mtx[1][2] - mtx[1][1] * mtx[0][2]));
-	}
+	//}
 
 	return tmp;
 }

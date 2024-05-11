@@ -13,7 +13,7 @@ public:
 
 	void fixedUpdate(float fdt);
 
-	void initialize(ShapeNode* shapeNodeLift, btCollisionObject* collisionObjectLift, const Vector3f &finishPosition, ShapeNode* shapeNodeButton, btCollisionObject* collisionObjectButton);
+	void initialize(ShapeNode* shapeNodeLift, btCollisionObject* collisionObjectLift, const Vector3f &finishPosition, ShapeNode* shapeNodeButton, btCollisionObject* collisionObjectButton, btCollisionObject* collisionObjectLiftTrigger);
 	void setLiftSpeed(float maxLiftSpeed);
 	ShapeNode* getShapeNode();
 	btCollisionObject* getCollisionObject();
@@ -29,6 +29,7 @@ protected:
 	ShapeNode* m_shapeNodeButton;
 	btCollisionObject* m_collisionObjectLift;
 	btCollisionObject* m_collisionObjectButton;
+	btCollisionObject* m_collisionObjectLiftTrigger;
 
 	Vector3f m_initialPosition;
 	Vector3f m_finishPosition;

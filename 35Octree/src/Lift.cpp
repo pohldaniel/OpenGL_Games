@@ -15,12 +15,13 @@ Lift::Lift()
 Lift::~Lift(){
 }
 
-void Lift::initialize(ShapeNode* shapeNodeLift, btCollisionObject* collisionObjectLift, const Vector3f &finishPosition, ShapeNode* shapeNodeButton, btCollisionObject* collisionObjectButton){
+void Lift::initialize(ShapeNode* shapeNodeLift, btCollisionObject* collisionObjectLift, const Vector3f &finishPosition, ShapeNode* shapeNodeButton, btCollisionObject* collisionObjectButton, btCollisionObject* collisionObjectLiftTrigger){
 	// get other lift components
 	m_shapeNodeLift = shapeNodeLift;
 	m_shapeNodeButton = shapeNodeButton;
 	m_collisionObjectLift = collisionObjectLift;
 	m_collisionObjectButton = collisionObjectButton;
+	m_collisionObjectLiftTrigger = collisionObjectLiftTrigger;
 	// positions
 	m_initialPosition = m_shapeNodeLift->getWorldPosition();
 	m_finishPosition = finishPosition;
@@ -68,6 +69,7 @@ void Lift::fixedUpdate(float fdt){
 		Vector3f buttonPos = (newPos - oldPos) + m_shapeNodeButton->getPosition();
 		m_shapeNodeButton->setPosition(buttonPos);
 		m_collisionObjectButton->setWorldTransform(Physics::BtTransform(Physics::VectorFrom(buttonPos)));
+		m_collisionObjectLiftTrigger->setWorldTransform(Physics::BtTransform(Physics::VectorFrom(buttonPos)));
 	}else if (m_liftState == LIFT_STATE_MOVETO_START){
 		Vector3f curDistance = m_initialPosition - liftPos;
 		float dist = curDistance.length();
@@ -92,6 +94,7 @@ void Lift::fixedUpdate(float fdt){
 		Vector3f buttonPos = (newPos - oldPos) + m_shapeNodeButton->getPosition();
 		m_shapeNodeButton->setPosition(buttonPos);
 		m_collisionObjectButton->setWorldTransform(Physics::BtTransform(Physics::VectorFrom(buttonPos)));
+		m_collisionObjectLiftTrigger->setWorldTransform(Physics::BtTransform(Physics::VectorFrom(buttonPos)));
 	}
 
 	// reenable button

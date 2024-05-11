@@ -58,6 +58,7 @@ public:
 	const float getFarOrthographic() const;
 	const float getPitchDegrees() const;
 	const float getYawDegrees() const;
+	const float getRotationSpeed() const;
 
 	const Matrix4f& getViewMatrix() const;
 	const Matrix4f& getInvViewMatrix() const;

@@ -718,12 +718,16 @@ const float Camera::getPitchDegrees() const {
 }
 
 const float Camera::getYawDegrees() const {
-	return m_accumPitchDegrees;
+	return m_accumYawDegrees;
 	//return atan2f(m_zAxis[2], m_zAxis[0]) * _180_ON_PI - 90.0f;
 }
 
 const float Camera::getOffsetDistance() const {
-	return m_accumYawDegrees;
+	return m_offsetDistance;
+}
+
+const float Camera::getRotationSpeed() const {
+	return m_rotationSpeed;
 }
 
 void Camera::calcLightTransformation(Vector3f &direction) {

@@ -97,10 +97,11 @@ KCCInterface::KCCInterface(StateMachine& machine) : State(machine, States::KCC) 
 	m_entities.push_back(shapeNode);
 
 	m_lift = new Lift();
-	m_lift->initialize(m_entities[5], m_kinematicLift, m_entities[5]->getWorldPosition() + Vector3f(0, 6.8f, 0), shapeNode, m_liftButtonTrigger);
+	m_lift->initialize(m_entities[5], m_kinematicLift, m_entities[5]->getWorldPosition() + Vector3f(0, 6.8f, 0), shapeNode, m_liftButtonTrigger, m_kinematicLiftTrigger);
 	m_kinematicLift->setUserPointer(m_entities[5]);
+	m_kinematicLiftTrigger->setUserPointer(m_entities[5]);
 	m_liftButtonTrigger->setUserPointer(m_lift);
-
+	
 	shapeNode = m_root->addChild<ShapeNode, Shape>(m_diskShape);
 	shapeNode->setPosition(26.1357f, 7.00645f, -34.7563f);
 	shapeNode->updateSOP();
@@ -182,8 +183,6 @@ KCCInterface::KCCInterface(StateMachine& machine) : State(machine, States::KCC) 
 	m_kinematicPlatform2->setUserPointer(m_entities[9]);
 
 	m_beta.loadModelMdl("res/models/BetaLowpoly/Beta.mdl");
-	//m_beta.m_meshes[0]->m_meshBones[0].initialPosition.translate(0.0f, 0.0f, 0.0f);
-	//m_beta.m_meshes[0]->m_meshBones[0].initialRotation.rotate(0.0f, 180.0f, 0.0f);
 	m_beta.m_meshes[0]->createBones();
 
 	m_betaNode = m_root->addChild<AnimationNode, AnimatedModel>(m_beta);
@@ -215,7 +214,7 @@ void KCCInterface::fixedUpdate() {
 
 	m_character->HandleCollision(m_kinematicPlatform1);
 	m_character->HandleCollision(m_kinematicPlatform2);
-	m_character->HandleCollision(m_kinematicLift);
+	m_character->HandleCollision(m_kinematicLiftTrigger);
 
 	m_character->HandleCollisionButton(m_liftButtonTrigger);
 	m_character->BeginCollision();
@@ -344,7 +343,7 @@ void KCCInterface::render() {
 	shader->loadMatrix("u_projection", !m_overview ? m_camera.getPerspectiveMatrix() : m_camera.getOrthographicMatrix());
 	shader->loadMatrix("u_view", !m_overview ? m_camera.getViewMatrix() : m_view);
 	shader->loadVector("u_light", Vector3f(1.0f, 1.0f, 1.0f));
-	shader->loadVector("u_color", Vector4f(0.0f, 0.0f, 1.0f, 1.0f));
+	shader->loadVector("u_color", Vector4f(0.371822f, 0.75123f, 0.9091f, 1.0f));
 	Globals::textureManager.get("null").bind();
 	m_betaNode->drawRaw();
 	shader->unuse();
@@ -516,6 +515,11 @@ void KCCInterface::createShapes() {
 	m_liftShape.createBoundingBox();
 	vertexBuffer.clear(); vertexBuffer.shrink_to_fit(); indexBuffer.clear(); indexBuffer.shrink_to_fit();
 
+	mdlConverter.mdlToBuffer("res/models/Lift.mdl", { 0.01f, 0.03f, 0.01f }, vertexBuffer, indexBuffer);
+	m_liftShapeExtend.fromBuffer(vertexBuffer, indexBuffer, 8);
+	m_liftShapeExtend.createBoundingBox();
+	vertexBuffer.clear(); vertexBuffer.shrink_to_fit(); indexBuffer.clear(); indexBuffer.shrink_to_fit();
+
 	mdlConverter.mdlToBuffer("res/models/liftExterior.mdl", 0.01f, vertexBuffer, indexBuffer);
 	m_liftExteriorShape.fromBuffer(vertexBuffer, indexBuffer, 8);
 	m_liftExteriorShape.createBoundingBox();
@@ -538,17 +542,19 @@ void KCCInterface::createShapes() {
 }
 
 void KCCInterface::createPhysics() {
-	Physics::AddStaticRigidBody(Physics::BtTransform(btVector3(0.0f, -0.05f, 0.0f)), new btConvexHullShape((btScalar*)(&m_baseShape.getPositions()[0]), m_baseShape.getPositions().size(), 3 * sizeof(btScalar)), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY | Physics::collisiontypes::CAMERA);
-	Physics::AddStaticRigidBody(Physics::BtTransform(btVector3(30.16f, 6.98797f, 10.0099f)), Physics::CreateCollisionShape(&m_upperFloorShape, btVector3(1.0f, 1.0f, 1.0f)), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY | Physics::collisiontypes::CAMERA);
+	Physics::AddStaticObject(Physics::BtTransform(btVector3(0.0f, -0.05f, 0.0f)), new btConvexHullShape((btScalar*)(&m_baseShape.getPositions()[0]), m_baseShape.getPositions().size(), 3 * sizeof(btScalar)), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY | Physics::collisiontypes::CAMERA);
+	Physics::AddStaticObject(Physics::BtTransform(btVector3(30.16f, 6.98797f, 10.0099f)), Physics::CreateCollisionShape(&m_upperFloorShape, btVector3(1.0f, 1.0f, 1.0f)), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY | Physics::collisiontypes::CAMERA);
 	
-	Physics::AddStaticRigidBody(Physics::BtTransform(btVector3(13.5771f, 6.23965f, 10.9272f)), Physics::CreateCollisionShape(&m_rampShape, btVector3(1.0f, 1.0f, 1.0f)), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY | Physics::collisiontypes::CAMERA);
-	Physics::AddStaticRigidBody(Physics::BtTransform(btVector3(-22.8933f, 2.63165f, -23.6786f)), new btConvexHullShape((btScalar*)(&m_ramp2Shape.getPositions()[0]), m_ramp2Shape.getPositions().size(), 3 * sizeof(btScalar)), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY | Physics::collisiontypes::CAMERA);
-	Physics::AddStaticRigidBody(Physics::BtTransform(btVector3(-15.2665f, 1.9782f, -43.135f)), new btConvexHullShape((btScalar*)(&m_ramp3Shape.getPositions()[0]), m_ramp3Shape.getPositions().size(), 3 * sizeof(btScalar)), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY | Physics::collisiontypes::CAMERA);
+	Physics::AddStaticObject(Physics::BtTransform(btVector3(13.5771f, 6.23965f, 10.9272f)), Physics::CreateCollisionShape(&m_rampShape, btVector3(1.0f, 1.0f, 1.0f)), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY | Physics::collisiontypes::CAMERA);
+	Physics::AddStaticObject(Physics::BtTransform(btVector3(-22.8933f, 2.63165f, -23.6786f)), new btConvexHullShape((btScalar*)(&m_ramp2Shape.getPositions()[0]), m_ramp2Shape.getPositions().size(), 3 * sizeof(btScalar)), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY | Physics::collisiontypes::CAMERA);
+	Physics::AddStaticObject(Physics::BtTransform(btVector3(-15.2665f, 1.9782f, -43.135f)), new btConvexHullShape((btScalar*)(&m_ramp3Shape.getPositions()[0]), m_ramp3Shape.getPositions().size(), 3 * sizeof(btScalar)), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY | Physics::collisiontypes::CAMERA);
 
 	Physics::AddStaticObject(Physics::BtTransform(btVector3(35.6211f, 7.66765f, 10.4388f)), Physics::CreateCollisionShape(&m_liftExteriorShape, btVector3(1.0f, 1.0f, 1.0f)), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY | Physics::collisiontypes::CAMERA);
 
 	m_kinematicLift = Physics::AddKinematicObject(Physics::BtTransform(btVector3(35.5938f, 0.350185f, 10.4836f)), Physics::CreateCollisionShape(&m_liftShape, btVector3(1.0f, 1.0f, 1.0f)), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY | Physics::collisiontypes::CAMERA);
-	m_liftButtonTrigger = Physics::AddKinematicTrigger(Physics::BtTransform(btVector3(35.5938f, 0.412104f, 10.4836f)), new btCylinderShape(btVector3(50.0f, 50.0f, 40.0f) * 0.01f), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY | Physics::collisiontypes::CAMERA);
+	m_kinematicLiftTrigger = Physics::AddKinematicTrigger(Physics::BtTransform(btVector3(35.5938f, 0.350185f, 10.4836f)), Physics::CreateCollisionShape(&m_liftShape, btVector3(1.0f, 3.0f, 1.0f)), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER);
+	m_liftButtonTrigger = Physics::AddKinematicTrigger(Physics::BtTransform(btVector3(35.5938f, 0.412104f, 10.4836f)), new btCylinderShape(btVector3(50.0f, 50.0f, 40.0f) * 0.01f), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER);
+	
 	m_kinematicPlatform1 = Physics::AddKinematicObject(Physics::BtTransform(btVector3(26.1357f, 7.00645f, -34.7563f)), Physics::CreateCollisionShape(&m_diskShape, btVector3(1.0f, 1.0f, 1.0f)), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY | Physics::collisiontypes::CAMERA);
 	m_kinematicPlatform2 = Physics::AddKinematicObject(Physics::BtTransform(btVector3(-0.294956f, 3.46579f, 28.3161f)), Physics::CreateCollisionShape(&m_cylinderShape, btVector3(1.0f, 1.0f, 1.0f)), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY | Physics::collisiontypes::CAMERA);
 }
