@@ -38,7 +38,8 @@ public:
 	void removeAnimationState(AnimationState* state);
 	void removeAnimationState(size_t index);
 	void removeAllAnimationStates();
-	
+	void setUpdateSilent(bool updateSilent);
+
 	using OctreeNode::addChild;
 	void addChild(AnimationNode* node, bool drawDebug);
 	const AnimatedModel& getAnimatedModel() const;
@@ -58,6 +59,7 @@ private:
 	mutable bool m_skinningDirty;
 	bool m_animationOrderDirty;
 	bool m_hasAnimationController;
+	bool m_updateSilent;
 	unsigned short m_numBones;
 
 	BoneNode* m_rootBone;

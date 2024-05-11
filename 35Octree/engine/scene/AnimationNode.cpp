@@ -6,7 +6,7 @@ static inline bool compareAnimationStates2(const std::shared_ptr<AnimationState>
 	return lhs->BlendLayer() < rhs->BlendLayer();
 }
 
-AnimationNode::AnimationNode(const AnimatedModel& animatedModel) : OctreeNode(animatedModel.getAABB()), animatedModel(animatedModel), meshBones(animatedModel.m_meshes[0]->m_meshBones), m_animationOrderDirty(true), m_hasAnimationController(false), m_numBones(0){
+AnimationNode::AnimationNode(const AnimatedModel& animatedModel) : OctreeNode(animatedModel.getAABB()), animatedModel(animatedModel), meshBones(animatedModel.m_meshes[0]->m_meshBones), m_animationOrderDirty(true), m_hasAnimationController(false), m_numBones(0), m_updateSilent(false){
 	OnBoundingBoxChanged();
 	createBones();
 }
@@ -73,12 +73,12 @@ void AnimationNode::drawRaw() const {
 }
 
 void AnimationNode::update(float dt) {
-	//if (wasInView(*frameNumber)){
+	if (frameNumber && wasInView(*frameNumber) || m_updateSilent){
 		updateAnimation(dt);
 		OnBoundingBoxChanged();
 		OnWorldBoundingBoxUpdate();
 		updateSkinning();
-	//}
+	}
 }
 
 void AnimationNode::updateSkinning() {
@@ -281,4 +281,8 @@ void AnimationNode::createBones() {
 
 	for (size_t i = 0; i < m_numBones; ++i)
 		m_bones[i]->CountChildBones();
+}
+
+void AnimationNode::setUpdateSilent(bool updateSilent) {
+	m_updateSilent = updateSilent;
 }

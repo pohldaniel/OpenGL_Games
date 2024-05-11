@@ -5,6 +5,7 @@
 #include <engine/DebugRenderer.h>
 #include <engine/BuiltInShader.h>
 #include <engine/octree/WorkQueue.h>
+#include <Utils/SolidIO.h>
 #include <Physics/ShapeDrawer.h>
 #include <States/Menu.h>
 
@@ -186,6 +187,7 @@ KCCInterface::KCCInterface(StateMachine& machine) : State(machine, States::KCC) 
 	m_beta.m_meshes[0]->createBones();
 
 	m_betaNode = m_root->addChild<AnimationNode, AnimatedModel>(m_beta);
+	m_betaNode->setUpdateSilent(true);
 
 	m_animController = new AnimationController(m_betaNode);
 	m_characterController = new CharacterController();
@@ -482,6 +484,7 @@ void KCCInterface::renderUi() {
 }
 
 void KCCInterface::createShapes() {
+	Utils::MdlIO mdlConverter;
 	std::vector<float> vertexBuffer;
 	std::vector<unsigned int> indexBuffer;
 

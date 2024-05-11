@@ -11,7 +11,6 @@
 
 #include <Animation/AnimationController.h>
 #include <Physics/Physics.h>
-#include <Utils/SolidIO.h>
 #include <States/StateMachine.h>
 
 #include "MovingPlatform.h"
@@ -55,7 +54,6 @@ private:
 
 	Camera m_camera;
 	Frustum m_frustum;
-	Utils::MdlIO mdlConverter;
 
 	Shape m_baseShape;
 	Shape m_upperFloorShape;
