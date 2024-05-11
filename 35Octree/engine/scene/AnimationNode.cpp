@@ -73,12 +73,12 @@ void AnimationNode::drawRaw() const {
 }
 
 void AnimationNode::update(float dt) {
-	if (wasInView(*frameNumber)){
+	//if (wasInView(*frameNumber)){
 		updateAnimation(dt);
 		OnBoundingBoxChanged();
 		OnWorldBoundingBoxUpdate();
 		updateSkinning();
-	}
+	//}
 }
 
 void AnimationNode::updateSkinning() {
@@ -107,7 +107,7 @@ void AnimationNode::updateAnimation(float dt) {
 		AnimationState* state = (*it).get();
 
 		if (m_hasAnimationController) {
-			if (state->Enabled()) {
+			if (state->Enabled()) {				
 				state->Apply();
 			}
 		}else {

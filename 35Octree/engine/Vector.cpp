@@ -971,6 +971,41 @@ Matrix4f::Matrix4f(float array[16]) {
 	mtx[3][0] = array[12], mtx[3][1] = array[13], mtx[3][2] = array[14], mtx[3][3] = array[15];
 }
 
+Matrix4f::Matrix4f(const Vector3f& pos, const Quaternion& quat, const Vector3f& scale) {
+	float x2 = quat[0] + quat[0];
+	float y2 = quat[1] + quat[1];
+	float z2 = quat[2] + quat[2];
+	float xx = quat[0] * x2;
+	float xy = quat[0] * y2;
+	float xz = quat[0] * z2;
+	float yy = quat[1] * y2;
+	float yz = quat[1] * z2;
+	float zz = quat[2] * z2;
+	float wx = quat[3] * x2;
+	float wy = quat[3] * y2;
+	float wz = quat[3] * z2;
+
+	mtx[0][0] = (1.0f - (yy + zz)) * scale[0];
+	mtx[0][1] = (xy + wz) * scale[0];
+	mtx[0][2] = (xz - wy) * scale[0];
+	mtx[0][3] = pos[0];
+
+	mtx[1][0] = (xy - wz) * scale[1];
+	mtx[1][1] = (1.0f - (xx + zz)) * scale[1];
+	mtx[1][2] = (yz + wx) * scale[1];
+	mtx[1][3] = pos[1];
+
+	mtx[2][0] = (xz + wy) * scale[2];
+	mtx[2][1] = (yz - wx) * scale[2];
+	mtx[2][2] = (1.0f - (xx + yy)) * scale[2];
+	mtx[2][3] = pos[2];
+
+	mtx[3][0] = 0.0f;
+	mtx[3][1] = 0.0f;
+	mtx[3][2] = 0.0f;
+	mtx[3][3] = 1.0f;
+}
+
 void Matrix4f::set(float m11, float m12, float m13, float m14,
 	float m21, float m22, float m23, float m24,
 	float m31, float m32, float m33, float m34,

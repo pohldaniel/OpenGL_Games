@@ -7,6 +7,8 @@
 
 class AnimationNode : public OctreeNode {
 
+	friend class AnimationController;
+
 public:
 
 	AnimationNode(const AnimatedModel& animatedModel);

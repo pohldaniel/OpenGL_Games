@@ -3,6 +3,7 @@
 #include <imgui_impl_opengl3.h>
 #include <imgui_internal.h>
 #include <engine/DebugRenderer.h>
+#include <engine/BuiltInShader.h>
 #include <engine/octree/WorkQueue.h>
 #include <Physics/ShapeDrawer.h>
 #include <States/Menu.h>
@@ -21,13 +22,20 @@ KCCInterface::KCCInterface(StateMachine& machine) : State(machine, States::KCC) 
 	float aspect = static_cast<float>(Application::Width) / static_cast<float>(Application::Height);
 	m_view.lookAt(Vector3f(0.0f, 80.0f, 0.0f), Vector3f(0.0f, 80.0f - 1.0f, 0.0f), Vector3f(0.0f, 0.0f, -1.0f));
 	m_camera.orthographic(-80.0f * aspect, 80.0f * aspect, -80.0f, 80.0f, -1000.0f, 1000.0f);
-	m_camera.lookAt(Vector3f(0.0f, 2.0f, 10.0f), Vector3f(0.0f, 2.0f, 10.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
-	m_camera.setRotationSpeed(0.1f);
+	m_camera.lookAt(Vector3f(0.0f, 5.0f, -60.0f) + Vector3f(0.0f, 0.0f, m_offsetDistance), Vector3f(0.0f, 5.0f, -60.0f), Vector3f(0.0f, 1.0f, 0.0f));
+	m_camera.setRotationSpeed(m_rotationSpeed);
 	m_camera.setMovingSpeed(15.0f);
+	m_camera.setOffsetDistance(m_offsetDistance);
 
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClearDepth(1.0f);
 	
+	glGenBuffers(1, &BuiltInShader::matrixUbo);
+	glBindBuffer(GL_UNIFORM_BUFFER, BuiltInShader::matrixUbo);
+	glBufferData(GL_UNIFORM_BUFFER, sizeof(Matrix4f) * 96, NULL, GL_DYNAMIC_DRAW);
+	glBindBufferRange(GL_UNIFORM_BUFFER, 3, BuiltInShader::matrixUbo, 0, sizeof(Matrix4f) * 96);
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
 	ShapeDrawer::Get().init(32768);
 	ShapeDrawer::Get().setCamera(m_camera);
 	createShapes();
@@ -88,6 +96,11 @@ KCCInterface::KCCInterface(StateMachine& machine) : State(machine, States::KCC) 
 	shapeNode->OnOctreeSet(m_octree);
 	m_entities.push_back(shapeNode);
 
+	m_lift = new Lift();
+	m_lift->initialize(m_entities[5], m_kinematicLift, m_entities[5]->getWorldPosition() + Vector3f(0, 6.8f, 0), shapeNode, m_liftButtonTrigger);
+	m_kinematicLift->setUserPointer(m_entities[5]);
+	m_liftButtonTrigger->setUserPointer(m_lift);
+
 	shapeNode = m_root->addChild<ShapeNode, Shape>(m_diskShape);
 	shapeNode->setPosition(26.1357f, 7.00645f, -34.7563f);
 	shapeNode->updateSOP();
@@ -96,7 +109,7 @@ KCCInterface::KCCInterface(StateMachine& machine) : State(machine, States::KCC) 
 
 	m_movingPlatform = new MovingPlatform();
 	m_movingPlatform->initialize(shapeNode, m_kinematicPlatform1, shapeNode->getWorldPosition() + Vector3f(0.0f, 0.0f, 20.0f));
-	//m_kinematicPlatform1->setUserPointer(m_disk);
+	m_kinematicPlatform1->setUserPointer(m_entities[8]);
 
 	shapeNode = m_root->addChild<ShapeNode, Shape>(m_cylinderShape);
 	shapeNode->setPosition(-0.294956f, 3.46579f, 28.3161f);
@@ -166,8 +179,18 @@ KCCInterface::KCCInterface(StateMachine& machine) : State(machine, States::KCC) 
 
 	m_splinePlatform = new SplinePlatform();
 	m_splinePlatform->initialize(m_splinePath, m_kinematicPlatform2);
-	//m_kinematicPlatform2->setUserPointer(m_cylinder);
+	m_kinematicPlatform2->setUserPointer(m_entities[9]);
 
+	m_beta.loadModelMdl("res/models/BetaLowpoly/Beta.mdl");
+	//m_beta.m_meshes[0]->m_meshBones[0].initialPosition.translate(0.0f, 0.0f, 0.0f);
+	//m_beta.m_meshes[0]->m_meshBones[0].initialRotation.rotate(0.0f, 180.0f, 0.0f);
+	m_beta.m_meshes[0]->createBones();
+
+	m_betaNode = m_root->addChild<AnimationNode, AnimatedModel>(m_beta);
+
+	m_animController = new AnimationController(m_betaNode);
+	m_characterController = new CharacterController();
+	m_character = new Character(m_betaNode, m_animController, m_characterController, m_camera, m_entities[7], m_lift);
 
 	m_frustum.init();
 	m_frustum.getDebug() = true;
@@ -182,8 +205,25 @@ KCCInterface::~KCCInterface() {
 }
 
 void KCCInterface::fixedUpdate() {
+	m_character->ProcessCollision();
+
+	m_character->FixedUpdate(m_fdt);
 	m_movingPlatform->fixedUpdate(m_fdt);
 	m_splinePlatform->fixedUpdate(m_fdt);
+	m_lift->fixedUpdate(m_fdt);
+
+
+	m_character->HandleCollision(m_kinematicPlatform1);
+	m_character->HandleCollision(m_kinematicPlatform2);
+	m_character->HandleCollision(m_kinematicLift);
+
+	m_character->HandleCollisionButton(m_liftButtonTrigger);
+	m_character->BeginCollision();
+	m_character->EndCollision();
+
+	m_character->FixedPostUpdate(m_fdt);
+
+	Globals::physics->stepSimulation(m_fdt);
 }
 
 void KCCInterface::update() {
@@ -224,6 +264,9 @@ void KCCInterface::update() {
 		move |= true;
 	}
 
+	Vector3f pos = m_betaNode->getPosition();
+	m_camera.Camera::setTarget(pos);
+
 	Mouse &mouse = Mouse::instance();
 
 	if (mouse.buttonDown(Mouse::MouseButton::BUTTON_RIGHT)) {
@@ -233,15 +276,30 @@ void KCCInterface::update() {
 
 	if (move || dx != 0.0f || dy != 0.0f) {
 		if (dx || dy) {
-			m_camera.rotate(dx, dy);
-		}
-
-		if (move) {
-			m_camera.move(direction * m_dt);
+			m_betaNode->rotate(Quaternion( Vector3f::UP, -dx * m_rotationSpeed));
+			m_camera.rotate(dx, dy, pos);
 		}
 	}
 
+	btTransform& t = m_characterController->GetTransform();
+	btVector3 cameraPosition = Physics::VectorFrom(m_camera.getPosition());
+
+	float fraction = Physics::SweepSphere(t.getOrigin(), cameraPosition, 0.2f, Physics::collisiontypes::CAMERA, Physics::collisiontypes::FLOOR);
+	if (m_prevFraction < fraction) {
+		m_prevFraction += 0.85f * m_dt;
+		if (m_prevFraction > fraction) m_prevFraction = fraction;
+	}
+	else {
+		m_prevFraction = fraction;
+	}
+
+	cameraPosition.setInterpolate3(t.getOrigin(), cameraPosition, m_prevFraction);
+	m_camera.setPosition(Physics::VectorFrom(cameraPosition));
+
 	m_octree->updateFrameNumber();
+	m_animController->Update(m_dt);
+	m_betaNode->update(m_dt);
+
 	perspective.perspective(m_fovx, (float)Application::Width / (float)Application::Height, m_near, m_far);
 	m_frustum.updatePlane(perspective, m_camera.getViewMatrix());
 	m_frustum.updateVertices(perspective, m_camera.getViewMatrix());
@@ -276,9 +334,20 @@ void KCCInterface::render() {
 			}
 		}
 	}
+	shader->unuse();
 
 	if (m_useOcclusion)
 		m_octree->RenderOcclusionQueries();
+
+	shader = Globals::shaderManager.getAssetPointer("animation_new");
+	shader->use();
+	shader->loadMatrix("u_projection", !m_overview ? m_camera.getPerspectiveMatrix() : m_camera.getOrthographicMatrix());
+	shader->loadMatrix("u_view", !m_overview ? m_camera.getViewMatrix() : m_view);
+	shader->loadVector("u_light", Vector3f(1.0f, 1.0f, 1.0f));
+	shader->loadVector("u_color", Vector4f(0.0f, 0.0f, 1.0f, 1.0f));
+	Globals::textureManager.get("null").bind();
+	m_betaNode->drawRaw();
+	shader->unuse();
 
 	if (m_overview) {
 		m_frustum.updateVbo(perspective, m_camera.getViewMatrix());
@@ -309,7 +378,17 @@ void KCCInterface::OnMouseMotion(Event::MouseMoveEvent& event) {
 }
 
 void KCCInterface::OnMouseWheel(Event::MouseWheelEvent& event) {
+	if (event.direction == 1u) {
+		m_offsetDistance += 2.0f;
+		m_offsetDistance = std::max(0.0f, std::min(m_offsetDistance, 150.0f));
+		m_camera.setOffsetDistance(m_offsetDistance);
+	}
 
+	if (event.direction == 0u) {
+		m_offsetDistance -= 2.0f;
+		m_offsetDistance = std::max(0.0f, std::min(m_offsetDistance, 150.0f));
+		m_camera.setOffsetDistance(m_offsetDistance);
+	}
 }
 
 void KCCInterface::OnMouseButtonDown(Event::MouseButtonEvent& event) {

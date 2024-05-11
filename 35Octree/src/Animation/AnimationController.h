@@ -2,7 +2,7 @@
 
 #include <memory>
 #include <engine/utils/StringHash.h>
-#include "AnimatedModel.h"
+#include <engine/scene/AnimationNode.h>
 
 static const float COMMAND_STAY_TIME = 0.25f;
 static const float FADE_FALLBACK_TIME = 0.5f;
@@ -72,7 +72,7 @@ class AnimationController{
 
 public:
 	/// Construct. Register subsystem
-	AnimationController(AnimatedModel* model = nullptr);
+	AnimationController(AnimationNode* animationNode = nullptr);
 	/// Destruct.
 	~AnimationController();
 
@@ -115,6 +115,6 @@ public:
 	std::vector<AnimationControl> animations;
 	std::vector<std::shared_ptr<AnimationState>> nodeAnimationStates;
 
-	AnimatedModel* model;
+	AnimationNode* m_animationNode;
 
 };

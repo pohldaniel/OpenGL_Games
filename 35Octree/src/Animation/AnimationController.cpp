@@ -1,8 +1,8 @@
 #include "AnimationController.h"
 #include "Globals.h"
 
-AnimationController::AnimationController(AnimatedModel* model) : model(model) {
-	model->m_hasAnimationController = true;
+AnimationController::AnimationController(AnimationNode* animationNode) : m_animationNode(animationNode) {
+	m_animationNode->m_hasAnimationController = true;
 }
 
 AnimationController::~AnimationController(){
@@ -335,8 +335,8 @@ bool AnimationController::IsAtEnd(const std::string& name) const
 
 AnimationState* AnimationController::GetAnimationState(StringHash nameHash) const{
 	// Model mode
-	if (model)
-		return model->findAnimationState(nameHash);
+	if (m_animationNode)
+		return m_animationNode->findAnimationState(nameHash);
 
 	// Node hierarchy mode
 	for (std::vector<std::shared_ptr<AnimationState> >::const_iterator i = nodeAnimationStates.begin(); i != nodeAnimationStates.end(); ++i){
@@ -363,8 +363,8 @@ AnimationState* AnimationController::AddAnimationStateFront(Animation* animation
 		animations.push_back(newControl);
 	
 	// Model mode
-	if (model) {
-		AnimationState* state = model->addAnimationStateFront(animation);
+	if (m_animationNode) {
+		AnimationState* state = m_animationNode->addAnimationStateFront(animation);
 		if (invertWeight) {
 			state->SetWeight(0.0f);		
 		}
@@ -372,7 +372,7 @@ AnimationState* AnimationController::AddAnimationStateFront(Animation* animation
 	}
 
 	// Node hierarchy mode
-	std::shared_ptr<AnimationState> newState(new AnimationState(animation, model->m_meshes[0]->m_rootBone));
+	std::shared_ptr<AnimationState> newState(new AnimationState(animation, m_animationNode->m_rootBone));
 	nodeAnimationStates.insert(nodeAnimationStates.begin(),newState);
 	return newState.get();
 
@@ -390,13 +390,13 @@ AnimationState* AnimationController::AddAnimationState2(Animation* animation) {
 		animations.push_back(newControl);
 
 	// Model mode
-	if (model) {
-		AnimationState* state = model->addAnimationState(animation);
+	if (m_animationNode) {
+		AnimationState* state = m_animationNode->addAnimationState(animation);
 		return state;
 	}
 
 	// Node hierarchy mode
-	std::shared_ptr<AnimationState> newState(new AnimationState(animation, model->m_meshes[0]->m_rootBone));
+	std::shared_ptr<AnimationState> newState(new AnimationState(animation, m_animationNode->m_rootBone));
 	nodeAnimationStates.insert(nodeAnimationStates.begin(), newState);
 	return newState.get();
 }
@@ -407,11 +407,11 @@ AnimationState* AnimationController::AddAnimationState(Animation* animation){
 		return 0;
 
 	// Model mode
-	if (model)
-		return model->addAnimationState(animation);
+	if (m_animationNode)
+		return m_animationNode->addAnimationState(animation);
 
 	// Node hierarchy mode
-	std::shared_ptr<AnimationState> newState(new AnimationState(animation, model->m_meshes[0]->m_rootBone));
+	std::shared_ptr<AnimationState> newState(new AnimationState(animation, m_animationNode->m_rootBone));
 	nodeAnimationStates.push_back(newState);
 	return newState.get();
 }
@@ -421,8 +421,8 @@ void AnimationController::RemoveAnimationState(AnimationState* state){
 		return;
 
 	// Model mode
-	if (model){
-		model->removeAnimationState(state);
+	if (m_animationNode){
+		m_animationNode->removeAnimationState(state);
 		return;
 	}
 
