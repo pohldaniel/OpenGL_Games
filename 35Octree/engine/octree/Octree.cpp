@@ -20,7 +20,7 @@ static inline bool CompareDrawableDistances(const std::pair<OctreeNode*, float>&
 }
 
 static inline bool CompareDrawables(OctreeNode* lhs, OctreeNode* rhs){
-	return true;
+	return lhs < rhs;
 }
 
 Octant::Octant() :
@@ -111,33 +111,34 @@ void Octant::OnOcclusionQueryResult(bool visible)
 
 const BoundingBox& Octant::CullingBox() const
 {
-    if (TestFlag(OF_CULLING_BOX_DIRTY))
-    {
-        if (!numChildren && drawables.empty())
-            cullingBox.define(center);
-        else
-        {
-            // Use a temporary bounding box for calculations in case many threads call this simultaneously
-            BoundingBox tempBox;
-
-            for (auto it = drawables.begin(); it != drawables.end(); ++it)
-                tempBox.merge((*it)->getWorldBoundingBox());
-
-            if (numChildren)
-            {
-                for (size_t i = 0; i < NUM_OCTANTS; ++i)
-                {
-                    if (children[i])
-                        tempBox.merge(children[i]->CullingBox());
-                }
-            }
-
-            cullingBox = tempBox;
-        }
-        SetFlag(OF_CULLING_BOX_DIRTY, false);
-    }
+	updateCullingBox();
 
     return cullingBox;
+}
+
+void Octant::updateCullingBox() const {
+	if (TestFlag(OF_CULLING_BOX_DIRTY)){
+		if (!numChildren && drawables.empty())
+			cullingBox.define(center);
+		else{
+			// Use a temporary bounding box for calculations in case many threads call this simultaneously
+			BoundingBox tempBox;
+
+			for (auto it = drawables.begin(); it != drawables.end(); ++it)
+				tempBox.merge((*it)->getWorldBoundingBox());
+
+			if (numChildren){
+				for (size_t i = 0; i < NUM_OCTANTS; ++i)
+				{
+					if (children[i])
+						tempBox.merge(children[i]->CullingBox());
+				}
+			}
+
+			cullingBox = tempBox;
+		}
+		SetFlag(OF_CULLING_BOX_DIRTY, false);
+	}
 }
 
 Octree::Octree(const Camera& camera, const Frustum& frustum) : threadedUpdate(false), workQueue(WorkQueue::Get()), frustum(frustum), camera(camera), m_dt(0.0f), m_frameNumber(0){
@@ -250,6 +251,8 @@ void Octree::OnRenderAABB(const Vector4f& color) {
 }
 
 void Octree::QueueUpdate(OctreeNode* drawable){
+	
+	
 	assert(drawable);
 
 	if (drawable->m_octant) {
@@ -299,25 +302,23 @@ void Octree::ReinsertDrawables(std::vector<OctreeNode*>& drawables){
 		Octant* newOctant = &root;
 		Vector3f boxSize = box.getSize();
 
-		for (;;)
-		{
+		for (;;){
 			// If drawable does not fit fully inside root octant, must remain in it
 			bool insertHere = (newOctant == &root) ?
 				(newOctant->fittingBox.isInside(box) != BoundingBox::INSIDE || newOctant->FitBoundingBox(box, boxSize)) :
 				newOctant->FitBoundingBox(box, boxSize);
 
-			if (insertHere)
-			{
-				if (newOctant != oldOctant)
-				{
+			if (insertHere){
+				if (newOctant != oldOctant){
+					
 					// Add first, then remove, because drawable count going to zero deletes the octree branch in question
 					AddDrawable(drawable, newOctant);
+					callRebuild(newOctant);
 					if (oldOctant)
 						RemoveDrawable(drawable, oldOctant);
 				}
 				break;
-			}
-			else {
+			}else {
 				Vector3f center = box.getCenter();
 				newOctant = CreateChildOctant(newOctant, newOctant->ChildIndex(center));
 			}
@@ -326,6 +327,15 @@ void Octree::ReinsertDrawables(std::vector<OctreeNode*>& drawables){
 	}
 
 	drawables.clear();
+}
+
+void Octree::callRebuild(Octant* octant) {
+	octant->MarkCullingBoxDirty();
+	for (size_t i = 0; i < NUM_OCTANTS; ++i) {
+		if (octant->Child(i)) {
+			callRebuild(octant->Child(i));
+		}
+	}
 }
 
 void Octree::RemoveDrawableFromQueue(OctreeNode* drawable, std::vector<OctreeNode*>& drawables){
@@ -444,6 +454,8 @@ void Octree::CheckReinsertWork(Task* task_, unsigned threadIndex_){
 		if (drawable->m_octreeUpdate)
 			drawable->OnOctreeUpdate();
 
+		
+
 		//drawable->OnFrameNumberSet(m_frameNumber);
 
 		// Do nothing if still fits the current octant
@@ -453,6 +465,8 @@ void Octree::CheckReinsertWork(Task* task_, unsigned threadIndex_){
 			reinsertQueue.push_back(drawable);
 		else
 			drawable->m_reinsertQueued = false;
+
+		//drawable->m_distance = Vector3f::Length(box.getCenter(), camera.getPosition());
 	}
 
 	numPendingReinsertionTasks.fetch_add(-1);
@@ -478,8 +492,9 @@ void Octree::updateOctree(float dt) {
 
 	// Find the starting points for octree traversal. Include the root if it contains drawables that didn't fit elsewhere
 	Octant& rootOctant = root;
-	if (rootOctant.Drawables().size())
+	if (rootOctant.Drawables().size()) {
 		rootLevelOctants.push_back(&rootOctant);
+	}
 
 	for (size_t i = 0; i < NUM_OCTANTS; ++i) {
 		if (rootOctant.Child(i))
@@ -516,6 +531,7 @@ void Octree::CollectOctants(Octant* octant, ThreadOctantResult& result, unsigned
 		// If not already inside all frustum planes, do frustum test and terminate if completely outside
 		//planeMask = m_frustum.isInsideMasked(octantBox, planeMask);
 		planeMask = m_useCulling ? frustum.isInsideMasked(octantBox, planeMask) : 0x00;
+
 		if (planeMask == 0xff) {
 			// If octant becomes frustum culled, reset its visibility for when it comes back to view, including its children
 			if (m_useOcclusion && octant->Visibility() != VIS_OUTSIDE_FRUSTUM)

@@ -32,7 +32,7 @@ public:
 	void SetWalkDirection(const Vector3f& walkDir);
 	bool OnGround() const;
 	void Jump(const Vector3f& jump = Vector3f::ZERO);
-
+	void setPosition(const Vector3f& position);
 
 	int colFilter_;
 	int colMask_;

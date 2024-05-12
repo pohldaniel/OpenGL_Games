@@ -30,7 +30,7 @@ KCCInterface::KCCInterface(StateMachine& machine) : State(machine, States::KCC) 
 
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClearDepth(1.0f);
-	
+
 	glGenBuffers(1, &BuiltInShader::matrixUbo);
 	glBindBuffer(GL_UNIFORM_BUFFER, BuiltInShader::matrixUbo);
 	glBufferData(GL_UNIFORM_BUFFER, sizeof(Matrix4f) * 96, NULL, GL_DYNAMIC_DRAW);
@@ -102,7 +102,7 @@ KCCInterface::KCCInterface(StateMachine& machine) : State(machine, States::KCC) 
 	m_kinematicLift->setUserPointer(m_entities[5]);
 	m_kinematicLiftTrigger->setUserPointer(m_entities[5]);
 	m_liftButtonTrigger->setUserPointer(m_lift);
-	
+
 	shapeNode = m_root->addChild<ShapeNode, Shape>(m_diskShape);
 	shapeNode->setPosition(26.1357f, 7.00645f, -34.7563f);
 	shapeNode->updateSOP();
@@ -207,12 +207,11 @@ KCCInterface::~KCCInterface() {
 
 void KCCInterface::fixedUpdate() {
 	m_character->ProcessCollision();
-
+	
 	m_character->FixedUpdate(m_fdt);
 	m_movingPlatform->fixedUpdate(m_fdt);
 	m_splinePlatform->fixedUpdate(m_fdt);
 	m_lift->fixedUpdate(m_fdt);
-
 
 	m_character->HandleCollision(m_kinematicPlatform1);
 	m_character->HandleCollision(m_kinematicPlatform2);
@@ -277,7 +276,7 @@ void KCCInterface::update() {
 
 	if (move || dx != 0.0f || dy != 0.0f) {
 		if (dx || dy) {
-			m_betaNode->rotate(Quaternion( Vector3f::UP, -dx * m_rotationSpeed));
+			m_betaNode->rotate(Quaternion(Vector3f::UP, -dx * m_rotationSpeed));
 			m_camera.rotate(dx, dy, pos);
 		}
 	}
@@ -289,8 +288,7 @@ void KCCInterface::update() {
 	if (m_prevFraction < fraction) {
 		m_prevFraction += 0.85f * m_dt;
 		if (m_prevFraction > fraction) m_prevFraction = fraction;
-	}
-	else {
+	}else {
 		m_prevFraction = fraction;
 	}
 
@@ -305,12 +303,10 @@ void KCCInterface::update() {
 	m_frustum.updatePlane(perspective, m_camera.getViewMatrix());
 	m_frustum.updateVertices(perspective, m_camera.getViewMatrix());
 	m_frustum.m_frustumSATData.calculate(m_frustum);
-
-	m_octree->updateOctree(m_dt);
+	m_octree->updateOctree(m_dt);	
 }
 
 void KCCInterface::render() {
-
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	auto shader = Globals::shaderManager.getAssetPointer("texture");
 	shader->use();
@@ -352,7 +348,7 @@ void KCCInterface::render() {
 
 	if (m_overview) {
 		m_frustum.updateVbo(perspective, m_camera.getViewMatrix());
-		m_frustum.drawFrustum(m_camera.getOrthographicMatrix(), m_view, m_distance, Vector4f(0.0f, 0.0f, 1.0f, 1.0f), Vector4f(0.0f, 0.0f, 1.0f, 1.0f));
+		m_frustum.drawFrustum(m_camera.getOrthographicMatrix(), m_view, m_distance, Vector4f(1.0f, 1.0f, 0.0f, 1.0f), Vector4f(0.0f, 0.0f, 1.0f, 1.0f));
 	}
 
 	!m_overview ? DebugRenderer::Get().SetProjectionView(m_camera.getPerspectiveMatrix(), m_camera.getViewMatrix()) : DebugRenderer::Get().SetProjectionView(m_camera.getOrthographicMatrix(), m_view);
@@ -475,7 +471,7 @@ void KCCInterface::renderUi() {
 	ImGui::Checkbox("Debug Tree", &m_debugTree);
 	ImGui::SliderFloat("Fovx", &m_fovx, 0.01f, 180.0f);
 	ImGui::SliderFloat("Far", &m_far, 25.0f, 1100.0f);
-	ImGui::SliderFloat("Near", &m_near, 0.1f, 200.0f);
+	ImGui::SliderFloat("Near", &m_near, -50.0f, 200.0f);
 	ImGui::SliderFloat("Distance", &m_distance, -100.0f, 100.0f);
 	ImGui::End();
 

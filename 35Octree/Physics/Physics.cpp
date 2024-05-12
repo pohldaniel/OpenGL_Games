@@ -472,7 +472,7 @@ Vector3f Physics::VectorFrom(const btVector3& vector) {
 }
 
 Quaternion Physics::QuaternionFrom(const btQuaternion& quaternion) {
-	return Quaternion(-quaternion.x(), -quaternion.y(), -quaternion.z(), quaternion.w());
+	return Quaternion(quaternion.x(), quaternion.y(), quaternion.z(), quaternion.w());
 }
 
 btVector3 Physics::VectorFrom(const Vector3f& vector) {
@@ -480,7 +480,7 @@ btVector3 Physics::VectorFrom(const Vector3f& vector) {
 }
 
 btQuaternion Physics::QuaternionFrom(const Quaternion& quaternion) {
-	return btQuaternion(-quaternion[0], -quaternion[1], -quaternion[2], quaternion[3]);
+	return btQuaternion(quaternion[0], quaternion[1], quaternion[2], quaternion[3]);
 }
 
 btDiscreteDynamicsWorld * Physics::GetDynamicsWorld() {

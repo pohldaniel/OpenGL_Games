@@ -165,7 +165,7 @@ public:
 		randomSeed = randomSeed * 214013 + 2531011;
 		return (randomSeed >> 16) & 32767;
 	}
-
+	void updateCullingBox() const;
 private:
     /// Combined drawable and child octant bounding box. Used for culling tests.
     mutable BoundingBox cullingBox;
@@ -294,6 +294,7 @@ private:
 	{
 		octant->drawables.push_back(drawable);
 		octant->MarkCullingBoxDirty();
+		octant->updateCullingBox();
 		drawable->m_octant = octant;
 
 		if (!octant->TestFlag(OF_DRAWABLES_SORT_DIRTY))
@@ -405,6 +406,7 @@ private:
 	static std::unique_ptr<Shader> ShaderOcclusion;
 
 	void createCube();
+	void callRebuild(Octant* octant);
 };
 
 

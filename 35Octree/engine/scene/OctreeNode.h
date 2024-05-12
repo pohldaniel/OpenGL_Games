@@ -50,6 +50,6 @@ protected:
 private:
 
 	const BoundingBox& localBoundingBox;
-	
+
 	
 };

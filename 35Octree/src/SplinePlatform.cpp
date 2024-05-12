@@ -23,7 +23,6 @@ void SplinePlatform::fixedUpdate(float fdt) {
 	if (m_splinePath) {
 		m_splinePath->Move(fdt);
 
-		// looped path, reset to continue
 		if (m_splinePath->IsFinished()) {
 			m_splinePath->Reset();
 		}
@@ -31,12 +30,11 @@ void SplinePlatform::fixedUpdate(float fdt) {
 		// rotate
 		if (m_controlNode) {
 			Quaternion drot(Vector3f(0.0f, 1.0f, 0.0f), m_rotation);
-			Quaternion nrot = m_controlNode->getWorldOrientation();
-			//m_controlNode->setWorldRotation(nrot * drot);
-			m_controlNode->setOrientation(nrot * drot);
+			Quaternion nrot = m_controlNode->getWorldOrientation() * drot;
+			m_controlNode->setOrientation(nrot);
 
-			Vector3f curPos = m_controlNode->getPosition();
-			m_collisionObject->setWorldTransform(Physics::BtTransform(Physics::VectorFrom(curPos)));
+			Vector3f curPos = m_controlNode->getWorldPosition();
+			m_collisionObject->setWorldTransform(Physics::BtTransform(Physics::VectorFrom(curPos), Physics::QuaternionFrom(nrot)));
 		}
 	}
 }

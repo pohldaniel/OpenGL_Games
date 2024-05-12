@@ -203,3 +203,8 @@ void CharacterController::DebugDrawContacts() {
 void CharacterController::setUserPointer(void* userPointer) {
 	pairCachingGhostObject_.get()->setUserPointer(userPointer);
 }
+
+void CharacterController::setPosition(const Vector3f& position) {
+	position_ = position;
+	SetTransform(position_, rotation_);
+}
