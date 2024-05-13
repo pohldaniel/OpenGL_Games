@@ -8,12 +8,12 @@ class btKinematicCharacterController;
 class btDiscreteDynamicsWorld;
 //=============================================================================
 //=============================================================================
-class CharacterController {
+class KinematicCharacterController {
 
 
 public:
-	CharacterController();
-	virtual ~CharacterController();
+	KinematicCharacterController();
+	virtual ~KinematicCharacterController();
 
 	void AddKinematicToWorld();
 	void ReleaseKinematic();

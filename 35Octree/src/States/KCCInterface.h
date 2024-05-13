@@ -17,7 +17,7 @@
 #include "SplinePlatform.h"
 #include "SplinePath.h"
 #include "Lift.h"
-#include "CharacterController.h"
+#include "KinematicCharacterController.h"
 #include "Character.h"
 
 class KCCInterface : public State, public MouseEventListener, public KeyboardEventListener {
@@ -80,7 +80,6 @@ private:
 	float m_fovx = 45.0f;
 	float m_far = 110.0f;
 	float m_near = 0.1f;
-	float m_distance = 0.01f;
 	float m_prevFraction = 1.0f;
 	float m_rotationSpeed = 0.1f;
 	float m_offsetDistance = 10.0f;
@@ -94,7 +93,7 @@ private:
 
 	AnimatedModel m_beta;
 	AnimationController* m_animController;
-	CharacterController* m_characterController;
+	KinematicCharacterController* m_characterController;
 	Character* m_character;
 
 	AnimationNode* m_betaNode;

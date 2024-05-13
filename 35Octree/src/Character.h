@@ -8,7 +8,7 @@
 #include <Animation/AnimationController.h>
 #include "Lift.h"
 
-class CharacterController;
+class KinematicCharacterController;
 class AnimationNode;
 //=============================================================================
 //=============================================================================
@@ -62,7 +62,7 @@ class Character {
 
 public:
 	/// Construct.
-	Character(AnimationNode* model, AnimationController* animationController, CharacterController* kcc, Camera& camera, SceneNodeLC* button, Lift* lift);
+	Character(AnimationNode* model, AnimationController* animationController, KinematicCharacterController* kcc, Camera& camera, SceneNodeLC* button, Lift* lift);
 
 
 	/// Handle physics world update. Called by LogicComponent base class.
@@ -91,7 +91,7 @@ public:
 
 	btCollisionShape* collisionShape_;
 	AnimationController* animController_;
-	CharacterController* kinematicController_;
+	KinematicCharacterController* kinematicController_;
 
 	// moving platform data
 	MovingData movingData_[2];

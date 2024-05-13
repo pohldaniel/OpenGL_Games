@@ -215,7 +215,7 @@
     <ClCompile Include="src\Animation\AnimationController.cpp" />
     <ClCompile Include="src\Animation\AnimationState.cpp" />
     <ClCompile Include="src\Character.cpp" />
-    <ClCompile Include="src\CharacterController.cpp" />
+    <ClCompile Include="src\KinematicCharacterController.cpp" />
     <ClCompile Include="src\Entities\Entity.cpp" />
     <ClCompile Include="src\Entities\Flame.cpp" />
     <ClCompile Include="src\Grasses.cpp" />
@@ -225,6 +225,7 @@
     <ClCompile Include="src\Particle.cpp" />
     <ClCompile Include="src\ParticleRenderer.cpp" />
     <ClCompile Include="src\ParticleSystem.cpp" />
+    <ClCompile Include="src\SkinnedCharacter.cpp" />
     <ClCompile Include="src\Skybox.cpp" />
     <ClCompile Include="src\Spline.cpp" />
     <ClCompile Include="src\SplinePath.cpp" />
@@ -248,6 +249,7 @@
     <ClCompile Include="src\States\Shell\Shell1.cpp" />
     <ClCompile Include="src\States\Shell\Shell2.cpp" />
     <ClCompile Include="src\States\Shell\Shell3.cpp" />
+    <ClCompile Include="src\States\SkinnedArmor.cpp" />
     <ClCompile Include="src\States\SSS\Separable.cpp" />
     <ClCompile Include="src\States\SSS\SSSApproximation.cpp" />
     <ClCompile Include="src\States\SSS\SSSGems.cpp" />
@@ -485,7 +487,7 @@
     <ClInclude Include="src\Animation\AnimationState.h" />
     <ClInclude Include="src\Application.h" />
     <ClInclude Include="src\Character.h" />
-    <ClInclude Include="src\CharacterController.h" />
+    <ClInclude Include="src\KinematicCharacterController.h" />
     <ClInclude Include="src\Entities\Entity.h" />
     <ClInclude Include="src\Entities\Flame.h" />
     <ClInclude Include="src\Globals.h" />
@@ -498,6 +500,7 @@
     <ClInclude Include="src\ParticleRenderer.h" />
     <ClInclude Include="src\ParticleSystem.h" />
     <ClInclude Include="src\Random.h" />
+    <ClInclude Include="src\SkinnedCharacter.h" />
     <ClInclude Include="src\Skybox.h" />
     <ClInclude Include="src\Spline.h" />
     <ClInclude Include="src\SplinePath.h" />
@@ -521,6 +524,7 @@
     <ClInclude Include="src\States\Shell\Shell1.h" />
     <ClInclude Include="src\States\Shell\Shell2.h" />
     <ClInclude Include="src\States\Shell\Shell3.h" />
+    <ClInclude Include="src\States\SkinnedArmor.h" />
     <ClInclude Include="src\States\SSS\Separable.h" />
     <ClInclude Include="src\States\SSS\SSSApproximation.h" />
     <ClInclude Include="src\States\SSS\SSSGems.h" />

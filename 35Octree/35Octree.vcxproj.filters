@@ -549,7 +549,13 @@
     <ClCompile Include="src\Lift.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\CharacterController.cpp">
+    <ClCompile Include="src\KinematicCharacterController.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\States\SkinnedArmor.cpp">
+      <Filter>Source Files\States</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SkinnedCharacter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -1235,7 +1241,13 @@
     <ClInclude Include="src\Lift.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\CharacterController.h">
+    <ClInclude Include="src\KinematicCharacterController.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\States\SkinnedArmor.h">
+      <Filter>Source Files\States</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SkinnedCharacter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

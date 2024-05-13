@@ -40,8 +40,6 @@ OctreeInterface::OctreeInterface(StateMachine& machine) : State(machine, States:
 			for (int z = -10; z < 10; z++) {
 				child = m_root->addChild<ShapeNode, Shape>(Globals::shapeManager.get("cube"));
 				child->setPosition(2.2f * x, 2.2f * y, 2.2f * z);
-				//Important: guarantee thread safeness
-				child->updateSOP();
 				child->OnOctreeSet(m_octree);
 				m_entities.push_back(child);
 			}
@@ -49,7 +47,6 @@ OctreeInterface::OctreeInterface(StateMachine& machine) : State(machine, States:
 	}
 	child = m_root->addChild<ShapeNode, Shape>(Globals::shapeManager.get("quad_xy"));
 	child->setPosition(0.0f, 0.0f, 30.0f);
-	child->updateSOP();
 	child->OnOctreeSet(m_octree);
 	m_entities.push_back(child);
 
@@ -250,12 +247,12 @@ void OctreeInterface::renderUi() {
 	ImGui::SliderFloat("Near", &m_near, 0.1f, 200.0f);
 	ImGui::SliderFloat("Distance", &m_distance, -100.0f, 100.0f);
 	ImGui::Checkbox("Overview", &m_overview);
-	if(ImGui::Checkbox("Use Culling", &m_useCulling)) {
-		m_octree->m_useCulling = m_useCulling;
+	if (ImGui::Checkbox("Use Culling", &m_useCulling)) {
+		m_octree->setUseCulling(m_useCulling);
 	}
 
 	if (ImGui::Checkbox("Use Occlusion", &m_useOcclusion)) {
-		m_octree->m_useOcclusion = m_useOcclusion;
+		m_octree->setUseOcclusionCulling(m_useOcclusion);
 	}
 
 	ImGui::End();

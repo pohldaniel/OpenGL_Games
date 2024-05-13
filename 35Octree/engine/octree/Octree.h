@@ -199,7 +199,7 @@ private:
 
 /// Acceleration structure for rendering. Should be created as a child of the scene root.
 class Octree{
-
+	friend OctreeNode;
 	static const size_t NUM_OCTANT_TASKS = 9;
 
 	struct CollectOctantsTask : public MemberFunctionTask<Octree> {
@@ -279,9 +279,8 @@ public:
 	std::vector<std::pair<unsigned, void*> > pendingQueries;
 	std::vector<unsigned> freeQueries;
 
-	bool m_useCulling = true;
-	bool m_useOcclusion = true;
-	unsigned short m_frameNumber;
+	void setUseCulling(bool useCulling);
+	void setUseOcclusionCulling(bool useOcclusionCulling);
 
 private:
     /// Process a list of drawables to be reinserted. Clear the list afterward.
@@ -398,6 +397,10 @@ private:
 	const Frustum& frustum;
 	const Camera& camera;
 	float m_dt;
+	unsigned short m_frameNumber;
+
+	bool m_useCulling;
+	bool m_useOcclusionCulling;
 
 	unsigned int m_vao = 0;
 	unsigned int m_vbo = 0;

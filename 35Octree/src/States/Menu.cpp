@@ -26,6 +26,7 @@
 #include <States/OcclusionQuery.h>
 #include <States/AnimationInterface.h>
 #include <States/KCCInterface.h>
+#include <States/SkinnedArmor.h>
 
 #include <States/Settings.h>
 #include <States/Controls.h>
@@ -67,7 +68,8 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 		{ "octree",           Button() },
 		{ "occlusion",        Button() },
 		{ "animation",        Button() },
-		{ "kcc",              Button() }
+		{ "kcc",              Button() },
+		{ "skinned",          Button() }
 	});
 
 	m_buttons.at("grass_comp").setCharset(Globals::fontManager.get("upheaval_50"));
@@ -167,6 +169,15 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	m_buttons.at("octree").setFunction([&]() {
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new OctreeInterface(m_machine));
+	});
+
+	m_buttons.at("skinned").setCharset(Globals::fontManager.get("upheaval_50"));
+	m_buttons.at("skinned").setPosition(350.0f, 50.0f);
+	m_buttons.at("skinned").setOutlineThickness(5.0f);
+	m_buttons.at("skinned").setText("Skinned Armor");
+	m_buttons.at("skinned").setFunction([&]() {
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new SkinnedArmor(m_machine));
 	});
 
 	m_buttons.at("shell_base").setCharset(Globals::fontManager.get("upheaval_50"));

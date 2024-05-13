@@ -141,7 +141,7 @@ void Octant::updateCullingBox() const {
 	}
 }
 
-Octree::Octree(const Camera& camera, const Frustum& frustum) : threadedUpdate(false), workQueue(WorkQueue::Get()), frustum(frustum), camera(camera), m_dt(0.0f), m_frameNumber(0){
+Octree::Octree(const Camera& camera, const Frustum& frustum) : threadedUpdate(false), workQueue(WorkQueue::Get()), frustum(frustum), camera(camera), m_dt(0.0f), m_frameNumber(0), m_useCulling(true), m_useOcclusionCulling(true){
     assert(workQueue);
 
     root.Initialize(nullptr, BoundingBox(-DEFAULT_OCTREE_SIZE, DEFAULT_OCTREE_SIZE), DEFAULT_OCTREE_LEVELS, 0);
@@ -534,14 +534,14 @@ void Octree::CollectOctants(Octant* octant, ThreadOctantResult& result, unsigned
 
 		if (planeMask == 0xff) {
 			// If octant becomes frustum culled, reset its visibility for when it comes back to view, including its children
-			if (m_useOcclusion && octant->Visibility() != VIS_OUTSIDE_FRUSTUM)
+			if (m_useOcclusionCulling && octant->Visibility() != VIS_OUTSIDE_FRUSTUM)
 				octant->SetVisibility(VIS_OUTSIDE_FRUSTUM, true);
 			return;
 		}
 	}
 
 	// Process occlusion now before going further
-	if (m_useOcclusion) {
+	if (m_useOcclusionCulling) {
 		// If was previously outside frustum, reset to visible-unknown
 		if (octant->Visibility() == VIS_OUTSIDE_FRUSTUM)
 			octant->SetVisibility(VIS_VISIBLE_UNKNOWN, false);
@@ -583,7 +583,7 @@ void Octree::CollectOctants(Octant* octant, ThreadOctantResult& result, unsigned
 	}
 
 	const std::vector<OctreeNode*>& drawables = octant->Drawables();
-	std::for_each(drawables.begin(), drawables.end(), std::bind(std::mem_fn<void(unsigned short)>(&OctreeNode::OnPrepareRender), std::placeholders::_1, m_frameNumber));
+	std::for_each(drawables.begin(), drawables.end(), std::bind(std::mem_fn<void(unsigned short)>(&OctreeNode::setLastFrameNumber), std::placeholders::_1, m_frameNumber));
 
 	for (auto it = drawables.begin(); it != drawables.end(); ++it) {
 		OctreeNode* drawable = *it;
@@ -814,4 +814,12 @@ void Octree::createCube() {
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 	glBindVertexArray(0);
 	glDeleteBuffers(1, &ibo);
+}
+
+void Octree::setUseCulling(bool useCulling) {
+	m_useCulling = useCulling;
+}
+
+void Octree::setUseOcclusionCulling(bool useOcclusionCulling) {
+	m_useOcclusionCulling = useOcclusionCulling;
 }

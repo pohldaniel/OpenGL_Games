@@ -13,7 +13,7 @@
 #include "Application.h"
 #include "Globals.h"
 
-KCCInterface::KCCInterface(StateMachine& machine) : State(machine, States::KCC) {
+KCCInterface::KCCInterface(StateMachine& machine) : State(machine, States::KCCINTERFACE) {
 
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
@@ -44,56 +44,49 @@ KCCInterface::KCCInterface(StateMachine& machine) : State(machine, States::KCC) 
 
 	WorkQueue::Init(0);
 	m_octree = new Octree(m_camera, m_frustum);
-
+	m_octree->setUseCulling(m_useCulling);
+	m_octree->setUseOcclusionCulling(m_useOcclusion);
 	DebugRenderer::Get().setEnable(true);
 	m_root = new SceneNodeLC();
 	ShapeNode* shapeNode;
 
 	shapeNode = m_root->addChild<ShapeNode, Shape>(m_baseShape);
 	shapeNode->setPosition(0.0f, 0.0f, 0.0f);
-	shapeNode->updateSOP();
 	shapeNode->OnOctreeSet(m_octree);
 	m_entities.push_back(shapeNode);
 
 	shapeNode = m_root->addChild<ShapeNode, Shape>(m_upperFloorShape);
 	shapeNode->setPosition(30.16f, 6.98797f, 10.0099f);
-	shapeNode->updateSOP();
 	shapeNode->OnOctreeSet(m_octree);
 	m_entities.push_back(shapeNode);
 
 	shapeNode = m_root->addChild<ShapeNode, Shape>(m_rampShape);
 	shapeNode->setPosition(13.5771f, 6.23965f, 10.9272f);
-	shapeNode->updateSOP();
 	shapeNode->OnOctreeSet(m_octree);
 	m_entities.push_back(shapeNode);
 
 	shapeNode = m_root->addChild<ShapeNode, Shape>(m_ramp2Shape);
 	shapeNode->setPosition(-22.8933f, 2.63165f, -23.6786f);
-	shapeNode->updateSOP();
 	shapeNode->OnOctreeSet(m_octree);
 	m_entities.push_back(shapeNode);
 
 	shapeNode = m_root->addChild<ShapeNode, Shape>(m_ramp3Shape);
 	shapeNode->setPosition(-15.2665f, 1.9782f, -43.135f);
-	shapeNode->updateSOP();
 	shapeNode->OnOctreeSet(m_octree);
 	m_entities.push_back(shapeNode);
 
 	shapeNode = m_root->addChild<ShapeNode, Shape>(m_liftShape);
 	shapeNode->setPosition(35.5938f, 0.350185f, 10.4836f);
-	shapeNode->updateSOP();
 	shapeNode->OnOctreeSet(m_octree);
 	m_entities.push_back(shapeNode);
 
 	shapeNode = m_root->addChild<ShapeNode, Shape>(m_liftExteriorShape);
 	shapeNode->setPosition(35.6211f, 7.66765f, 10.4388f);
-	shapeNode->updateSOP();
 	shapeNode->OnOctreeSet(m_octree);
 	m_entities.push_back(shapeNode);
 
 	shapeNode = m_root->addChild<ShapeNode, Shape>(m_liftButtonShape);
 	shapeNode->setPosition(Vector3f(35.5938f, 0.350185f, 10.4836f) + Vector3f(0.0f, 0.0619186f, 0.0f));
-	shapeNode->updateSOP();
 	shapeNode->OnOctreeSet(m_octree);
 	m_entities.push_back(shapeNode);
 
@@ -105,7 +98,6 @@ KCCInterface::KCCInterface(StateMachine& machine) : State(machine, States::KCC) 
 
 	shapeNode = m_root->addChild<ShapeNode, Shape>(m_diskShape);
 	shapeNode->setPosition(26.1357f, 7.00645f, -34.7563f);
-	shapeNode->updateSOP();
 	shapeNode->OnOctreeSet(m_octree);
 	m_entities.push_back(shapeNode);
 
@@ -115,7 +107,6 @@ KCCInterface::KCCInterface(StateMachine& machine) : State(machine, States::KCC) 
 
 	shapeNode = m_root->addChild<ShapeNode, Shape>(m_cylinderShape);
 	shapeNode->setPosition(-0.294956f, 3.46579f, 28.3161f);
-	shapeNode->updateSOP();
 	shapeNode->OnOctreeSet(m_octree);
 	m_entities.push_back(shapeNode);
 
@@ -190,7 +181,7 @@ KCCInterface::KCCInterface(StateMachine& machine) : State(machine, States::KCC) 
 	m_betaNode->setUpdateSilent(true);
 
 	m_animController = new AnimationController(m_betaNode);
-	m_characterController = new CharacterController();
+	m_characterController = new KinematicCharacterController();
 	m_character = new Character(m_betaNode, m_animController, m_characterController, m_camera, m_entities[7], m_lift);
 
 	m_frustum.init();
@@ -348,7 +339,7 @@ void KCCInterface::render() {
 
 	if (m_overview) {
 		m_frustum.updateVbo(perspective, m_camera.getViewMatrix());
-		m_frustum.drawFrustum(m_camera.getOrthographicMatrix(), m_view, m_distance, Vector4f(1.0f, 1.0f, 0.0f, 1.0f), Vector4f(0.0f, 0.0f, 1.0f, 1.0f));
+		m_frustum.drawFrustum(m_camera.getOrthographicMatrix(), m_view, 0.0f, Vector4f(1.0f, 1.0f, 0.0f, 1.0f), Vector4f(0.0f, 0.0f, 1.0f, 1.0f));
 	}
 
 	!m_overview ? DebugRenderer::Get().SetProjectionView(m_camera.getPerspectiveMatrix(), m_camera.getViewMatrix()) : DebugRenderer::Get().SetProjectionView(m_camera.getOrthographicMatrix(), m_view);
@@ -462,17 +453,16 @@ void KCCInterface::renderUi() {
 	ImGui::Checkbox("Debug Physic", &m_debugPhysic);
 	ImGui::Checkbox("Overview", &m_overview);
 	if (ImGui::Checkbox("Use Culling", &m_useCulling)) {
-		m_octree->m_useCulling = m_useCulling;
+		m_octree->setUseCulling(m_useCulling);
 	}
 
 	if (ImGui::Checkbox("Use Occlusion", &m_useOcclusion)) {
-		m_octree->m_useOcclusion = m_useOcclusion;
+		m_octree->setUseOcclusionCulling(m_useOcclusion);
 	}
 	ImGui::Checkbox("Debug Tree", &m_debugTree);
 	ImGui::SliderFloat("Fovx", &m_fovx, 0.01f, 180.0f);
 	ImGui::SliderFloat("Far", &m_far, 25.0f, 1100.0f);
 	ImGui::SliderFloat("Near", &m_near, -50.0f, 200.0f);
-	ImGui::SliderFloat("Distance", &m_distance, -100.0f, 100.0f);
 	ImGui::End();
 
 	ImGui::Render();

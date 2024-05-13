@@ -20,7 +20,6 @@ public:
 	void OnBoundingBoxChanged() override;
 	void OnWorldBoundingBoxUpdate() const override;
 	void OnOctreeUpdate() override;
-	void OnPrepareRender(unsigned short frameNumber) override;
 	void OnOctreeSet(Octree* octree) override;
 	void OnAnimationOrderChanged();
 

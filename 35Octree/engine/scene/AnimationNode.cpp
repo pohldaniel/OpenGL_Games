@@ -60,10 +60,6 @@ void AnimationNode::OnOctreeUpdate() {
 	OctreeNode::OnOctreeUpdate();
 }
 
-void AnimationNode::OnPrepareRender(unsigned short frameNumber){
-	OctreeNode::OnPrepareRender(frameNumber);
-}
-
 void AnimationNode::drawRaw() const {
 	glBindBuffer(GL_UNIFORM_BUFFER, BuiltInShader::matrixUbo);
 	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(Matrix4f) * m_numBones, m_skinMatrices);

@@ -83,12 +83,14 @@ void OctreeNode::OnOctreeSet(Octree* octree) {
 	m_octree = octree;
 	if (m_octree) {
 		frameNumber = &m_octree->m_frameNumber;
+		//Important: guarantee thread safeness
+		updateWorldTransformation();
 		m_octree->QueueUpdate(this);
 	}
 }
 
-void OctreeNode::OnPrepareRender(unsigned short frameNumber) {
-	m_lastFrameNumber = frameNumber;
+void OctreeNode::setLastFrameNumber(unsigned short lastFrameNumber) {
+	m_lastFrameNumber = lastFrameNumber;
 }
 
 bool OctreeNode::wasInView(unsigned short frameNumber) const {

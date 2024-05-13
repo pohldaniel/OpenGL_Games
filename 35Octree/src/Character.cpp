@@ -2,11 +2,11 @@
 #include <engine/scene/AnimationNode.h>
 
 #include "Character.h"
-#include "CharacterController.h"
+#include "KinematicCharacterController.h"
 #include "MovingPlatform.h"
 
 
-Character::Character(AnimationNode* model, AnimationController* animationController, CharacterController* kcc, Camera& camera, SceneNodeLC* button, Lift* lift)
+Character::Character(AnimationNode* model, AnimationController* animationController, KinematicCharacterController* kcc, Camera& camera, SceneNodeLC* button, Lift* lift)
 	: model_(model),
 	animController_(animationController),
 	kinematicController_(kcc),

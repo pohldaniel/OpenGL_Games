@@ -24,6 +24,7 @@
 #include <States/OctreeInterface.h>
 #include <States/AnimationInterface.h>
 #include <States/KCCInterface.h>
+#include <States/SkinnedArmor.h>
 
 #include <States/Particle/BlendedParticle.h>
 #include <States/Particle/SmoothParticle.h>
@@ -461,7 +462,8 @@ void Application::initStates() {
 	//Machine->addStateAtTop(new GrassGeom(*Machine));
 	//Machine->addStateAtTop(new OcclusionQuery(*Machine));
 	//Machine->addStateAtTop(new AnimationInterface(*Machine));
-	Machine->addStateAtTop(new KCCInterface(*Machine));
+	//Machine->addStateAtTop(new KCCInterface(*Machine));
+	Machine->addStateAtTop(new SkinnedArmor(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -924,4 +926,15 @@ void Application::loadAssets() {
 	Globals::animationManagerNew.loadAnimationAni("beta_jump_loop", "res/models/BetaLowpoly/Beta_JumpLoop.ani");
 
 	Globals::animationManagerNew.loadAnimationAni("jack_walk", "res/models/Jack/Jack_Walk.ani");
+
+	Globals::animationManagerNew.loadAnimationAni("girl_idle", "res/models/Girlbot/Girlbot_Idle.ani");
+	Globals::animationManagerNew.loadAnimationAni("girl_run", "res/models/Girlbot/Girlbot_Run.ani");
+	Globals::animationManagerNew.loadAnimationAni("girl_jump_start", "res/models/Girlbot/Girlbot_JumpStart.ani");
+	Globals::animationManagerNew.loadAnimationAni("girl_jump_loop", "res/models/Girlbot/Girlbot_JumpLoop.ani");
+	Globals::animationManagerNew.loadAnimationAni("girl_equiped_idle", "res/models/Girlbot/Girlbot_EquipIdleLY.ani");
+	Globals::animationManagerNew.loadAnimationAni("girl_slash_1", "res/models/Girlbot/Girlbot_SlashCombo1.ani");
+	Globals::animationManagerNew.loadAnimationAni("girl_slash_2", "res/models/Girlbot/Girlbot_SlashCombo2.ani");
+	Globals::animationManagerNew.loadAnimationAni("girl_slash_3", "res/models/Girlbot/Girlbot_SlashCombo3.ani");
+	Globals::animationManagerNew.loadAnimationAni("girl_sheath", "res/models/Girlbot/Girlbot_SheathLY.ani");
+	Globals::animationManagerNew.loadAnimationAni("girl_unsheath", "res/models/Girlbot/Girlbot_UnSheathLY.ani");
 }

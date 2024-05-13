@@ -19,7 +19,6 @@ public:
 	virtual void OnBoundingBoxChanged();
 	virtual void OnWorldBoundingBoxUpdate() const;
 	virtual void OnOctreeUpdate();
-	virtual void OnPrepareRender(unsigned short frameNumber);
 	virtual void OnOctreeSet(Octree* octree);
 
 	void OnRenderOBB(const Vector4f& color = { 1.0f, 0.0f, 0.0f, 1.0f });
@@ -33,6 +32,7 @@ public:
 	Octant* getOctant() const;
 	Octree* getOctree() const;
 	void setDrawDebug(bool drawDebug);
+	void setLastFrameNumber(unsigned short lastFrameNumber);
 	bool wasInView(unsigned short frameNumber) const;
 
 protected:

@@ -1,4 +1,4 @@
-#include "CharacterController.h"
+#include "KinematicCharacterController.h"
 
 //=============================================================================
 //=============================================================================
@@ -23,7 +23,7 @@ btKinematicCharacterController* newKinematicCharCtrl(btPairCachingGhostObject *g
 
 //=============================================================================
 //=============================================================================
-CharacterController::CharacterController()
+KinematicCharacterController::KinematicCharacterController()
 	: colFilter_(Physics::collisiontypes::CHARACTER)
 	, colMask_(Physics::collisiontypes::FLOOR)
 	, gravity_(KINEMATIC_GRAVITY)
@@ -51,7 +51,7 @@ CharacterController::CharacterController()
 	AddKinematicToWorld();
 }
 
-CharacterController::~CharacterController() {
+KinematicCharacterController::~KinematicCharacterController() {
 	ReleaseKinematic();
 
 	// Delete GhostPair callback
@@ -61,7 +61,7 @@ CharacterController::~CharacterController() {
 	}
 }
 
-void CharacterController::AddKinematicToWorld()
+void KinematicCharacterController::AddKinematicToWorld()
 {
 	if (physicsWorld_)
 	{
@@ -82,7 +82,7 @@ void CharacterController::AddKinematicToWorld()
 	}
 }
 
-void CharacterController::ApplySettings(bool reapply)
+void KinematicCharacterController::ApplySettings(bool reapply)
 {
 	kinematicController_->setGravity(Physics::VectorFrom(gravity_));
 	kinematicController_->setLinearDamping(linearDamping_);
@@ -103,7 +103,7 @@ void CharacterController::ApplySettings(bool reapply)
 	SetTransform(position_, rotation_);
 }
 
-void CharacterController::ReleaseKinematic()
+void KinematicCharacterController::ReleaseKinematic()
 {
 	if (kinematicController_)
 	{
@@ -114,7 +114,7 @@ void CharacterController::ReleaseKinematic()
 	pairCachingGhostObject_.reset();
 }
 
-void CharacterController::RemoveKinematicFromWorld()
+void KinematicCharacterController::RemoveKinematicFromWorld()
 {
 	if (kinematicController_ && physicsWorld_)
 	{
@@ -123,7 +123,7 @@ void CharacterController::RemoveKinematicFromWorld()
 	}
 }
 
-void CharacterController::SetTransform(const Vector3f& position, const Quaternion& rotation)
+void KinematicCharacterController::SetTransform(const Vector3f& position, const Quaternion& rotation)
 {
 	btTransform worldTrans;
 	worldTrans.setIdentity();
@@ -132,46 +132,46 @@ void CharacterController::SetTransform(const Vector3f& position, const Quaternio
 	pairCachingGhostObject_->setWorldTransform(worldTrans);
 }
 
-const Vector3f& CharacterController::GetPosition() {
+const Vector3f& KinematicCharacterController::GetPosition() {
 	btTransform t = pairCachingGhostObject_->getWorldTransform();
 	position_ = Physics::VectorFrom(t.getOrigin()) - colShapeOffset_;
 	return position_;
 }
 
-const Quaternion& CharacterController::GetRotation() {
+const Quaternion& KinematicCharacterController::GetRotation() {
 	btTransform t = pairCachingGhostObject_->getWorldTransform();
 	rotation_ = Physics::QuaternionFrom(t.getRotation());
 	return rotation_;
 }
 
-btTransform& CharacterController::GetTransform() {
+btTransform& KinematicCharacterController::GetTransform() {
 	return pairCachingGhostObject_->getWorldTransform();
 }
 
-void CharacterController::GetTransform(Vector3f& position, Quaternion& rotation) {
+void KinematicCharacterController::GetTransform(Vector3f& position, Quaternion& rotation) {
 	btTransform worldTrans = pairCachingGhostObject_->getWorldTransform();
 	rotation = Physics::QuaternionFrom(worldTrans.getRotation());
 	position = Physics::VectorFrom(worldTrans.getOrigin());
 }
 
-void CharacterController::moveAlongY(float step) {
+void KinematicCharacterController::moveAlongY(float step) {
 	btVector3 pos = pairCachingGhostObject_->getWorldTransform().getOrigin();
 	pairCachingGhostObject_->getWorldTransform().setOrigin(pos + btVector3(0, step, 0));
 }
 
-bool CharacterController::OnGround() const {
+bool KinematicCharacterController::OnGround() const {
 	return kinematicController_->onGround();
 }
 
-void CharacterController::SetWalkDirection(const Vector3f& walkDir) {
+void KinematicCharacterController::SetWalkDirection(const Vector3f& walkDir) {
 	kinematicController_->setWalkDirection(Physics::VectorFrom(walkDir));
 }
 
-void CharacterController::Jump(const Vector3f&jump) {
+void KinematicCharacterController::Jump(const Vector3f&jump) {
 	kinematicController_->jump(Physics::VectorFrom(jump));
 }
 
-void CharacterController::DebugDrawContacts() {
+void KinematicCharacterController::DebugDrawContacts() {
 
 	btManifoldArray	manifoldArray;
 	btBroadphasePairArray& pairArray = pairCachingGhostObject_->getOverlappingPairCache()->getOverlappingPairArray();
@@ -200,11 +200,11 @@ void CharacterController::DebugDrawContacts() {
 	}
 }
 
-void CharacterController::setUserPointer(void* userPointer) {
+void KinematicCharacterController::setUserPointer(void* userPointer) {
 	pairCachingGhostObject_.get()->setUserPointer(userPointer);
 }
 
-void CharacterController::setPosition(const Vector3f& position) {
+void KinematicCharacterController::setPosition(const Vector3f& position) {
 	position_ = position;
 	SetTransform(position_, rotation_);
 }

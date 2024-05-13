@@ -51,7 +51,6 @@ AnimationInterface::AnimationInterface(StateMachine& machine) : State(machine, S
 		for (int z = -5; z < 5; z++) {
 			child = m_root->addChild<AnimationNode, AnimatedModel>(m_beta);
 			child->setPosition(2.0f * x, 0.0f , 2.0f * z);
-			child->updateSOP();
 			child->addAnimationState(Globals::animationManagerNew.getAssetPointer("beta_run"));
 			child->getAnimationState(0)->SetLooped(true);
 			child->OnOctreeSet(m_octree);
@@ -275,11 +274,11 @@ void AnimationInterface::renderUi() {
 	ImGui::SliderFloat("Distance", &m_distance, -100.0f, 100.0f);
 	ImGui::Checkbox("Overview", &m_overview);
 	if (ImGui::Checkbox("Use Culling", &m_useCulling)) {
-		m_octree->m_useCulling = m_useCulling;
+		m_octree->setUseCulling(m_useCulling);
 	}
 
 	if (ImGui::Checkbox("Use Occlusion", &m_useOcclusion)) {
-		m_octree->m_useOcclusion = m_useOcclusion;
+		m_octree->setUseOcclusionCulling(m_useOcclusion);
 	}
 	ImGui::Checkbox("Debug Tree", &m_debugTree);
 	ImGui::End();
