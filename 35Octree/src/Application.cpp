@@ -891,7 +891,11 @@ void Application::loadAssets() {
 
 	Globals::textureManager.loadTexture("proto", "res/textures/ProtoWhite256.jpg", true);
 	Globals::textureManager.get("proto").setFilter(GL_LINEAR_MIPMAP_LINEAR);
-	Globals::textureManager.get("proto").setWrapMode(GL_REPEAT);
+	Globals::textureManager.get("proto").setWrapMode(GL_CLAMP);
+
+	Globals::textureManager.loadTexture("sword", "res/models/Girlbot/Textures/maria_diffuse.png", false);
+	Globals::textureManager.get("sword").setFilter(GL_LINEAR_MIPMAP_LINEAR);
+	Globals::textureManager.get("sword").setWrapMode(GL_CLAMP);
 
 	std::string faces[] = { "res/textures/posx.jpg", "res/textures/negx.jpg", "res/textures/posy.jpg", "res/textures/negy.jpg", "res/textures/posz.jpg", "res/textures/negz.jpg" };
 	Globals::textureManager.loadCubeMap("dessert", faces, false);

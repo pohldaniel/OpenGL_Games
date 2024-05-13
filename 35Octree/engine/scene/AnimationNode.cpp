@@ -282,3 +282,7 @@ void AnimationNode::createBones() {
 void AnimationNode::setUpdateSilent(bool updateSilent) {
 	m_updateSilent = updateSilent;
 }
+
+BoneNode* AnimationNode::getRootBone() {
+	return m_rootBone;
+}

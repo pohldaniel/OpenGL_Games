@@ -44,6 +44,7 @@ public:
 	const AnimatedModel& getAnimatedModel() const;
 	unsigned short getNumBones();
 	const Matrix4f* getSkinMatrices();
+	BoneNode* getRootBone();
 
 private:
 

@@ -62,7 +62,7 @@ class Character {
 
 public:
 	/// Construct.
-	Character(AnimationNode* model, AnimationController* animationController, KinematicCharacterController* kcc, Camera& camera, SceneNodeLC* button, Lift* lift);
+	Character(AnimationNode* model, AnimationController* animationController, KinematicCharacterController* kcc, SceneNodeLC* button, Lift* lift);
 
 
 	/// Handle physics world update. Called by LogicComponent base class.
@@ -89,7 +89,6 @@ public:
 	bool isJumping_;
 	bool jumpStarted_;
 
-	btCollisionShape* collisionShape_;
 	AnimationController* animController_;
 	KinematicCharacterController* kinematicController_;
 
@@ -99,6 +98,5 @@ public:
 	CharacterTriggerCallback m_characterTriggerResult;
 	CharacterTriggerCallbackButton m_characterTriggerResultButton;
 	SceneNodeLC* button_;
-	Camera& camera;
 	Lift* lift_;
 };

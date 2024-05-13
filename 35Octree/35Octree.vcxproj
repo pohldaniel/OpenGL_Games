@@ -225,7 +225,7 @@
     <ClCompile Include="src\Particle.cpp" />
     <ClCompile Include="src\ParticleRenderer.cpp" />
     <ClCompile Include="src\ParticleSystem.cpp" />
-    <ClCompile Include="src\SkinnedCharacter.cpp" />
+    <ClCompile Include="src\CharacterSkinned.cpp" />
     <ClCompile Include="src\Skybox.cpp" />
     <ClCompile Include="src\Spline.cpp" />
     <ClCompile Include="src\SplinePath.cpp" />
@@ -500,7 +500,7 @@
     <ClInclude Include="src\ParticleRenderer.h" />
     <ClInclude Include="src\ParticleSystem.h" />
     <ClInclude Include="src\Random.h" />
-    <ClInclude Include="src\SkinnedCharacter.h" />
+    <ClInclude Include="src\CharacterSkinned.h" />
     <ClInclude Include="src\Skybox.h" />
     <ClInclude Include="src\Spline.h" />
     <ClInclude Include="src\SplinePath.h" />

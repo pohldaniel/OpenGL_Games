@@ -30,7 +30,7 @@ struct WeightData {
 
 class AnimatedMesh;
 class AnimatedModel {
-
+	friend class AnimatedMesh;
 public:
 
 	AnimatedModel();
@@ -71,7 +71,7 @@ public:
 	std::vector<AnimatedMesh*> m_meshes;
 	bool m_hasAnimationController;
 
-//private:
+private:
 
 	aiNode* searchNode(aiNode *node, std::vector<std::string> &boneList);
 	void fetchAiHierarchy(aiNode *node, std::vector<MeshBone>& meshBones, int parentIndex = 0);

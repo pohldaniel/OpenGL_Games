@@ -182,7 +182,7 @@ KCCInterface::KCCInterface(StateMachine& machine) : State(machine, States::KCCIN
 
 	m_animController = new AnimationController(m_betaNode);
 	m_characterController = new KinematicCharacterController();
-	m_character = new Character(m_betaNode, m_animController, m_characterController, m_camera, m_entities[7], m_lift);
+	m_character = new Character(m_betaNode, m_animController, m_characterController, m_entities[7], m_lift);
 
 	m_frustum.init();
 	m_frustum.getDebug() = true;

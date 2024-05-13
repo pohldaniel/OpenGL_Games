@@ -6,7 +6,7 @@
 #include "MovingPlatform.h"
 
 
-Character::Character(AnimationNode* model, AnimationController* animationController, KinematicCharacterController* kcc, Camera& camera, SceneNodeLC* button, Lift* lift)
+Character::Character(AnimationNode* model, AnimationController* animationController, KinematicCharacterController* kcc, SceneNodeLC* button, Lift* lift)
 	: model_(model),
 	animController_(animationController),
 	kinematicController_(kcc),
@@ -14,7 +14,6 @@ Character::Character(AnimationNode* model, AnimationController* animationControl
 	okToJump_(true),
 	inAirTimer_(0.0f),
 	jumpStarted_(false),
-	camera(camera),
 	button_(button)
 {
 
@@ -130,8 +129,6 @@ void Character::FixedPostUpdate(float timeStep) {
 
 		float deltaYaw = Quaternion(delta.getRotation()).getYaw();
 		model_->rotate(Quaternion(Vector3f::UP, deltaYaw));
-		camera.rotate(- deltaYaw * 1.0f / camera.getRotationSpeed(), 0.0f, kPos);
-
 		Vector3f _pos = kinematicController_->GetPosition();		
 	}
 
