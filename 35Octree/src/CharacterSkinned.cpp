@@ -8,8 +8,8 @@
 #include "Lift.h"
 #include "Globals.h"
 
-CharacterSkinned::CharacterSkinned(KinematicCharacterController* kcc, SceneNodeLC* button, Lift* lift) : m_onGround(true), m_okToJump(true), m_jumpStarted(false), m_inAirTimer(0.0f), m_jumpTimer(0.0f), weaponActionState_(Weapon_Invalid),
-comboAnimsIdx_(0), equipWeapon(false), lMouseB(false), m_kinematicController(kcc), m_lift(lift) {
+CharacterSkinned::CharacterSkinned(KinematicCharacterController* kcc, SceneNodeLC* button, Lift* lift, Camera& camera) : m_onGround(true), m_okToJump(true), m_jumpStarted(false), m_inAirTimer(0.0f), m_jumpTimer(0.0f), weaponActionState_(Weapon_Invalid),
+comboAnimsIdx_(0), equipWeapon(false), lMouseB(false), m_kinematicController(kcc), m_lift(lift), camera(camera) {
 	m_model.loadModelMdl("res/models/Girlbot/Girlbot.mdl");
 	m_model.m_meshes[0]->createBones();
 
@@ -53,6 +53,7 @@ comboAnimsIdx_(0), equipWeapon(false), lMouseB(false), m_kinematicController(kcc
 	m_swordShape.markForDelete();
 
 	m_characterTriggerResult.m_button = button;
+	m_kinematicController->setUserPointer(this);
 }
 
 CharacterSkinned::~CharacterSkinned() {
@@ -62,17 +63,18 @@ CharacterSkinned::~CharacterSkinned() {
 void CharacterSkinned::fixedUpdate(float fdt) {
 	Keyboard &keyboard = Keyboard::instance();
 
-	m_jumpTimer = std::max(0.0f, m_jumpTimer - fdt);
-
+	// Update the in air timer. Reset if grounded
 	if (!m_onGround)
 		m_inAirTimer += fdt;
 	else
 		m_inAirTimer = 0.0f;
-
+	// When character has been in air less than 1/10 second, it's still interpreted as being on ground
 	bool softGrounded = m_inAirTimer < INAIR_THRESHOLD_TIME;
 
-	const Quaternion& rot = m_animationNode->getWorldOrientation();
+	// Update movement & animation
+	const Quaternion& rot = m_animationNode->getOrientation();
 	Vector3f moveDir = Vector3f::ZERO;
+	m_onGround = m_kinematicController->OnGround();
 
 	if (keyboard.keyDown(Keyboard::KEY_W))
 		moveDir += Vector3f::BACK;
@@ -96,22 +98,28 @@ void CharacterSkinned::fixedUpdate(float fdt) {
 
 	// Normalize move vector so that diagonal strafing is not faster
 	if (moveDir.lengthSq() > 0.0f)
-		moveDir.normalize();
+		Vector3f::Normalize(moveDir);
 
-	m_animationNode->translateRelative(moveDir * MOVE_SPEED * fdt);
+	// rotate movedir
+	m_curMoveDir = Quaternion::Rotate(rot, moveDir);
 
-	if (softGrounded) {
-		if (keyboard.keyDown(Keyboard::KEY_SPACE)) {
-			if (m_okToJump) {
-				m_jumpStarted = true;
+	m_kinematicController->SetWalkDirection(m_curMoveDir * (softGrounded ? MOVE_FORCE : INAIR_MOVE_FORCE));
+
+	if (softGrounded){
+		m_isJumping = false;
+		// Jump. Must release jump control between jumps
+		if (keyboard.keyDown(Keyboard::KEY_SPACE)){
+			m_isJumping = true;
+			if (m_okToJump){
 				m_okToJump = false;
-				m_jumpTimer = JUMP_TIMER;
+				m_jumpStarted = true;
+				m_kinematicController->Jump();
+
 				m_animationController->StopLayer(0);
 				m_animationController->PlayExclusive("girl_jump_start", 0, false, 0.2f);
 				m_animationController->SetTime("girl_jump_start", 0);
 			}
-		}
-		else {
+		}else{
 			m_okToJump = true;
 		}
 	}
@@ -123,21 +131,31 @@ void CharacterSkinned::fixedUpdate(float fdt) {
 				m_animationController->SetTime("girl_jump_loop", 0);
 				m_jumpStarted = false;
 			}
-		}
-		else {
+		}else {
 			const float maxDistance = 50.0f;
 			const float segmentDistance = 10.01f;
+			PhysicsRaycastResult result;
+
+			Physics::RaycastSingleSegmented(result, m_animationNode->getPosition(), Vector3f::DOWN, maxDistance, segmentDistance, Physics::collisiontypes::RAY, Physics::collisiontypes::FLOOR);
+
+			//float slopeDot = result.normal_.DotProduct(Vector3(0.0f, 1.0f, 0.0f));
+
+			if (result.distance_ > 0.7f) {
+				m_animationController->PlayExclusive("girl_jump_loop", 0, true, 0.2f);
+			}
+			//else if (result.body_ == NULL)
+			//{
+			//    // fall to death animation
+			//}
 		}
-	}
-	else {
+	}else {
+		// Play walk animation if moving on ground, otherwise fade it out
 		if ((softGrounded) && !moveDir.compare(Vector3f::ZERO, EPSILON)) {
 			m_animationController->PlayExclusive("girl_run", 0, true, 0.2f);
-		}
-		else {
+		}else {
 			m_animationController->PlayExclusive("girl_idle", 0, true, 0.2f);
 		}
 	}
-	m_onGround = m_jumpTimer == 0.0f;
 }
 
 void CharacterSkinned::update(const float dt) {
@@ -309,7 +327,7 @@ void CharacterSkinned::fixedPostUpdate(float fdt) {
 
 		float deltaYaw = Quaternion(delta.getRotation()).getYaw();
 		m_animationNode->rotate(Quaternion(Vector3f::UP, deltaYaw));
-		Vector3f _pos = m_kinematicController->GetPosition();
+		camera.rotate(-deltaYaw * 1.0f / camera.getRotationSpeed(), 0.0f, kPos);
 	}
 
 	// update node position

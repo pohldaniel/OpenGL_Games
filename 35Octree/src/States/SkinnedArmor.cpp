@@ -51,7 +51,7 @@ SkinnedArmor::SkinnedArmor(StateMachine& machine) : State(machine, States::SKINN
 	createScene();
 
 	m_characterController = new KinematicCharacterController();
-	m_characterSkinned = new CharacterSkinned(m_characterController, m_entities[7], m_lift);
+	m_characterSkinned = new CharacterSkinned(m_characterController, m_entities[7], m_lift, m_camera);
 	m_characterSkinned->setPosition(Vector3f(28.0f, 7.84f, -4.0f));
 }
 
@@ -61,22 +61,22 @@ SkinnedArmor::~SkinnedArmor() {
 }
 
 void SkinnedArmor::fixedUpdate() {
-	//m_character.ProcessCollision();
+	m_characterSkinned->processCollision();
 
 	m_characterSkinned->fixedUpdate(m_fdt);
 	m_movingPlatform->fixedUpdate(m_fdt);
 	m_splinePlatform->fixedUpdate(m_fdt);
 	m_lift->fixedUpdate(m_fdt);
 
-	//m_character.HandleCollision(m_kinematicPlatform1);
-	//m_character.HandleCollision(m_kinematicPlatform2);
-	//m_character.HandleCollision(m_kinematicLiftTrigger);
+	m_characterSkinned->handleCollision(m_kinematicPlatform1);
+	m_characterSkinned->handleCollision(m_kinematicPlatform2);
+	m_characterSkinned->handleCollision(m_kinematicLiftTrigger);
 
-	//m_character.HandleCollisionButton(m_liftButtonTrigger);
-	//m_character.BeginCollision();
-	//m_character.EndCollision();
+	m_characterSkinned->handleCollisionButton(m_liftButtonTrigger);
+	m_characterSkinned->beginCollision();
+	m_characterSkinned->endCollision();
 
-	//m_character.FixedPostUpdate(m_fdt);
+	m_characterSkinned->fixedPostUpdate(m_fdt);
 
 	Globals::physics->stepSimulation(m_fdt);
 }
@@ -135,8 +135,9 @@ void SkinnedArmor::update() {
 		m_characterSkinned->rotate(0.0f, -dx * m_rotationSpeed, 0.0f);
 	}
 
-	/*btVector3 cameraPosition = Physics::VectorFrom(m_camera.getPosition());
+	btVector3 cameraPosition = Physics::VectorFrom(m_camera.getPosition());
 	btTransform& t = m_characterController->GetTransform();
+
 	float fraction = Physics::SweepSphere(t.getOrigin(), cameraPosition, 0.2f, Physics::collisiontypes::CAMERA, Physics::collisiontypes::FLOOR);
 	if (m_prevFraction < fraction) {
 		m_prevFraction += 0.85f * m_dt;
@@ -147,7 +148,7 @@ void SkinnedArmor::update() {
 	}
 
 	cameraPosition.setInterpolate3(t.getOrigin(), cameraPosition, m_prevFraction);
-	m_camera.setPosition(Physics::VectorFrom(cameraPosition));*/
+	m_camera.setPosition(Physics::VectorFrom(cameraPosition));
 
 	m_octree->updateFrameNumber();
 	m_characterSkinned->update(m_dt);

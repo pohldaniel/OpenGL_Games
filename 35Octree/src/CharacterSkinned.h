@@ -97,7 +97,7 @@ class CharacterSkinned {
 
 public:
 
-	CharacterSkinned(KinematicCharacterController* kcc, SceneNodeLC* button, Lift* lift);
+	CharacterSkinned(KinematicCharacterController* kcc, SceneNodeLC* button, Lift* lift, Camera& camera);
 	~CharacterSkinned();
 
 	void draw(const Camera& camera);
@@ -124,6 +124,7 @@ public:
 	bool m_jumpStarted;
 	float m_inAirTimer;
 	float m_jumpTimer;
+	bool m_isJumping;
 	Vector3f m_curMoveDir;
 
 	std::string weaponActionAnim_;
@@ -150,4 +151,5 @@ public:
 
 	Lift* m_lift;
 	KinematicCharacterController* m_kinematicController;
+	Camera& camera;
 };
