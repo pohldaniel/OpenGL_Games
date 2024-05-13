@@ -208,3 +208,11 @@ void KinematicCharacterController::setPosition(const Vector3f& position) {
 	position_ = position;
 	SetTransform(position_, rotation_);
 }
+
+void KinematicCharacterController::SetLinearVelocity(const Vector3f& velocity) {
+	kinematicController_->setLinearVelocity(Physics::VectorFrom(velocity));
+}
+
+const Vector3f KinematicCharacterController::GetLinearVelocity() {
+	return Physics::VectorFrom(kinematicController_->getLinearVelocity());
+}

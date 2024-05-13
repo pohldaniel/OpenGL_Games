@@ -251,7 +251,7 @@ btRigidBody* Physics::CreateRigidBody(btScalar mass, const btTransform& transfor
 	return body;
 }
 
-btRigidBody* Physics::AddRigidBody(float mass, const btTransform& transform, btCollisionShape* shape, int collisionFilterGroup, int collisionFilterMask, int collisionFlag, void* userPointer) {
+btRigidBody* Physics::AddRigidBody(float mass, const btTransform& transform, btCollisionShape* shape, int collisionFilterGroup, int collisionFilterMask, unsigned int collisionFlag, void* userPointer) {
 	btVector3 localInertia(0.0f, 0.0f, 0.0f);
 	if (mass != 0.0f)
 		shape->calculateLocalInertia(mass, localInertia);
@@ -325,6 +325,18 @@ btCollisionObject* Physics::AddStaticObject(const btTransform& transform, btColl
 	colObj->setWorldTransform(transform);
 	colObj->setCollisionShape(shape);
 	colObj->setCollisionFlags(btCollisionObject::CF_STATIC_OBJECT);
+	if (userPointer)
+		colObj->setUserPointer(userPointer);
+
+	DynamicsWorld->addCollisionObject(colObj, collisionFilterGroup, collisionFilterMask);
+	return colObj;
+}
+
+btCollisionObject* Physics::AddStaticTrigger(const btTransform& transform, btCollisionShape* shape, int collisionFilterGroup, int collisionFilterMask, void* userPointer) {
+	btCollisionObject* colObj = new btCollisionObject();
+	colObj->setWorldTransform(transform);
+	colObj->setCollisionShape(shape);
+	colObj->setCollisionFlags(btCollisionObject::CF_STATIC_OBJECT | btCollisionObject::CF_NO_CONTACT_RESPONSE);
 	if (userPointer)
 		colObj->setUserPointer(userPointer);
 

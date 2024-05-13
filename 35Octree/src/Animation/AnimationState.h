@@ -69,7 +69,7 @@ public:
 	void Apply();
 
 	const float getRestTime() const;
-
+	float GetTime() const { return m_stateTime; }
 private:
 	
 	void ApplyToModel();

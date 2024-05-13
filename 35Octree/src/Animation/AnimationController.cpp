@@ -455,3 +455,20 @@ void AnimationController::FindAnimation(const std::string& name, unsigned& index
 		}
 	}
 }
+
+bool AnimationController::SetSpeed(const std::string& name, float speed)
+{
+	unsigned index;
+	AnimationState* state;
+	FindAnimation(name, index, state);
+	if (index == UINT_MAX)
+		return false;
+
+	animations[index].speed_ = speed;
+	return true;
+}
+
+float AnimationController::GetTime(const std::string& name) const{
+	AnimationState* state = GetAnimationState(StringHash(name));
+	return state ? state->GetTime() : 0.0f;
+}

@@ -164,7 +164,7 @@ void BaseNode::rotate(const Quaternion& orientation) {
 	OnTransformChanged();
 }
 
-const Vector3f& BaseNode::getWorldOrigin() const {
+const Vector3f& BaseNode::getWorldOrigin(bool update) const {
 	return Vector3f::ZERO;
 }
 

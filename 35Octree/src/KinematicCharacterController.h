@@ -23,6 +23,7 @@ public:
 
 	const Vector3f& GetPosition();
 	const Quaternion& GetRotation();
+	const Vector3f GetLinearVelocity();
 	void SetTransform(const Vector3f& position, const Quaternion& rotation);
 	btTransform& GetTransform();
 	void GetTransform(Vector3f& position, Quaternion& rotation);
@@ -30,6 +31,7 @@ public:
 	void setUserPointer(void* userPointer);
 
 	void SetWalkDirection(const Vector3f& walkDir);
+	void SetLinearVelocity(const Vector3f& velocity);
 	bool OnGround() const;
 	void Jump(const Vector3f& jump = Vector3f::ZERO);
 	void setPosition(const Vector3f& position);

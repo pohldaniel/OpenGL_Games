@@ -80,10 +80,12 @@ private:
 	Shape m_liftButtonShape;
 	Shape m_diskShape;
 	Shape m_cylinderShape;
+	Shape m_dummy;
 
 	btCollisionObject* m_kinematicLift;
-	btCollisionObject* m_kinematicLiftTrigger;
+	btCollisionObject* m_liftTrigger;
 	btCollisionObject* m_liftButtonTrigger;
 	btCollisionObject* m_kinematicPlatform1;
 	btCollisionObject* m_kinematicPlatform2;
+	btCollisionObject* m_dummyTrigger;
 };

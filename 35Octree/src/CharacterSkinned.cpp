@@ -8,8 +8,8 @@
 #include "Lift.h"
 #include "Globals.h"
 
-CharacterSkinned::CharacterSkinned(KinematicCharacterController* kcc, SceneNodeLC* button, Lift* lift, Camera& camera) : m_onGround(true), m_okToJump(true), m_jumpStarted(false), m_inAirTimer(0.0f), m_jumpTimer(0.0f), weaponActionState_(Weapon_Invalid),
-comboAnimsIdx_(0), equipWeapon(false), lMouseB(false), m_kinematicController(kcc), m_lift(lift), camera(camera) {
+CharacterSkinned::CharacterSkinned(KinematicCharacterController* kcc, SceneNodeLC* button, Lift* lift, Camera& camera) : m_onGround(true), m_okToJump(true), m_jumpStarted(false), m_inAirTimer(0.0f), weaponActionState_(Weapon_Invalid),
+comboAnimsIdx_(0), equipWeapon(false), lMouseB(false), m_kinematicController(kcc), m_lift(lift), camera(camera), m_characterTriggerResultWeapon(m_damageTimer), weaponDmgState_(WeaponDmg_OFF) {
 	m_model.loadModelMdl("res/models/Girlbot/Girlbot.mdl");
 	m_model.m_meshes[0]->createBones();
 
@@ -52,7 +52,6 @@ comboAnimsIdx_(0), equipWeapon(false), lMouseB(false), m_kinematicController(kcc
 	m_armorShape.markForDelete();
 	m_swordShape.markForDelete();
 
-	m_characterTriggerResult.m_button = button;
 	m_kinematicController->setUserPointer(this);
 }
 
@@ -75,6 +74,9 @@ void CharacterSkinned::fixedUpdate(float fdt) {
 	const Quaternion& rot = m_animationNode->getOrientation();
 	Vector3f moveDir = Vector3f::ZERO;
 	m_onGround = m_kinematicController->OnGround();
+	// Velocity on the XZ plane
+	//const Vector3f velocity = m_kinematicController->GetLinearVelocity();
+	//Vector3f planeVelocity(velocity[0], 0.0f, velocity[2]);
 
 	if (keyboard.keyDown(Keyboard::KEY_W))
 		moveDir += Vector3f::BACK;
@@ -85,14 +87,26 @@ void CharacterSkinned::fixedUpdate(float fdt) {
 	if (keyboard.keyDown(Keyboard::KEY_D))
 		moveDir += Vector3f::RIGHT;
 
+	weaponDmgState_ = WeaponDmg_OFF;
 	unsigned int prevState = weaponActionState_;
-
 	processWeaponAction(equipWeapon, lMouseB);
 	equipWeapon = false;
 	lMouseB = false;
-
+	
 	if (weaponActionState_ == Weapon_AttackAnim) {
-		m_onGround = m_jumpTimer == 0.0f;
+		float time = m_animationController->GetTime(weaponActionAnim_);
+		if (comboAnimsIdx_ == 0 && 0.2f < time && time < 0.8f)
+			weaponDmgState_ = WeaponDmg_ON;
+		else if (comboAnimsIdx_ == 1 && 0.2f < time && time < 0.9f)
+			weaponDmgState_ = WeaponDmg_ON;
+		else if (comboAnimsIdx_ == 2 && 0.4f < time && time < 0.9f)
+			weaponDmgState_ = WeaponDmg_ON;
+
+		if (prevState == Weapon_Equipped){
+			m_kinematicController->SetLinearVelocity(Vector3f::ZERO);
+		}
+
+		m_onGround = false;
 		return;
 	}
 
@@ -137,16 +151,11 @@ void CharacterSkinned::fixedUpdate(float fdt) {
 			PhysicsRaycastResult result;
 
 			Physics::RaycastSingleSegmented(result, m_animationNode->getPosition(), Vector3f::DOWN, maxDistance, segmentDistance, Physics::collisiontypes::RAY, Physics::collisiontypes::FLOOR);
-
-			//float slopeDot = result.normal_.DotProduct(Vector3(0.0f, 1.0f, 0.0f));
-
 			if (result.distance_ > 0.7f) {
 				m_animationController->PlayExclusive("girl_jump_loop", 0, true, 0.2f);
+			}else if (result.body_ == NULL){
+			    // fall to death animation
 			}
-			//else if (result.body_ == NULL)
-			//{
-			//    // fall to death animation
-			//}
 		}
 	}else {
 		// Play walk animation if moving on ground, otherwise fade it out
@@ -155,7 +164,12 @@ void CharacterSkinned::fixedUpdate(float fdt) {
 		}else {
 			m_animationController->PlayExclusive("girl_idle", 0, true, 0.2f);
 		}
+
+		// Set walk animation speed proportional to velocity
+		 //float spd = Math::Clamp(planeVelocity.length() * 0.3f, 0.5f, 2.0f);
+		 //m_animationController->SetSpeed("girl_run", spd);
 	}
+
 }
 
 void CharacterSkinned::update(const float dt) {
@@ -183,6 +197,7 @@ void CharacterSkinned::processWeaponAction(bool equip, bool lMouseB) {
 			m_rightHandLocatorNode->addChild(m_sword, true);
 			m_sword->OnTransformChanged();
 			weaponActionState_ = Weapon_Equipping;
+
 		}
 		break;
 
@@ -222,7 +237,6 @@ void CharacterSkinned::processWeaponAction(bool equip, bool lMouseB) {
 				if (m_animationController->PlayExclusive(weaponActionAnim_, NormalLayer, false, 0.1f)) {
 					m_animationController->SetTime(weaponActionAnim_, 0.0f);
 					m_animationController->StopLayer(WeaponLayer);
-
 					weaponActionState_ = Weapon_AttackAnim;
 				}
 			}
@@ -241,6 +255,7 @@ void CharacterSkinned::processWeaponAction(bool equip, bool lMouseB) {
 			m_swordLocatorNode->addChild(m_sword, true);
 			m_sword->OnTransformChanged();
 			weaponActionState_ = Weapon_Unequipped;
+			
 		}
 		break;
 	case Weapon_AttackAnim:
@@ -311,6 +326,10 @@ const Vector3f& CharacterSkinned::getWorldPosition() const {
 
 void CharacterSkinned::setPosition(const Vector3f& position) {
 	m_animationNode->setPosition(position);
+	Vector3f offset = Quaternion::Rotate(m_swordLocatorNode->getWorldOrientation(), Vector3f(0.0f, 0.0f, -0.65f));
+	m_swordBody = Physics::AddRigidBody(0.0f, Physics::BtTransform(Physics::VectorFrom(m_swordLocatorNode->getWorldPosition() + offset), Physics::QuaternionFrom(m_swordLocatorNode->getWorldOrientation(false))), new btBoxShape(btVector3(0.25f, 0.15f, 1.2f) * 0.5f), Physics::collisiontypes::SWORD, Physics::collisiontypes::DUMMY, btCollisionObject::CF_KINEMATIC_OBJECT | btCollisionObject::CF_NO_CONTACT_RESPONSE);
+	m_swordBody->forceActivationState(DISABLE_DEACTIVATION);
+	m_swordBody->setUserPointer(this);
 }
 
 void CharacterSkinned::fixedPostUpdate(float fdt) {
@@ -332,7 +351,14 @@ void CharacterSkinned::fixedPostUpdate(float fdt) {
 
 	// update node position
 	m_animationNode->setPosition(m_kinematicController->GetPosition());
-
+	if (m_swordLocatorNode->getChildren().size()) {
+		Vector3f offset = Quaternion::Rotate(m_swordLocatorNode->getWorldOrientation(), Vector3f(0.0f, 0.0f, -0.65f));
+		m_swordBody->getMotionState()->setWorldTransform(Physics::BtTransform(Physics::VectorFrom(m_swordLocatorNode->getWorldPosition() + offset), Physics::QuaternionFrom(m_swordLocatorNode->getWorldOrientation(false))));
+	}else {
+		Vector3f offset = Quaternion::Rotate(m_rightHandLocatorNode->getWorldOrientation(), Vector3f(0.0f, 0.0f, -0.65f));
+		m_swordBody->getMotionState()->setWorldTransform(Physics::BtTransform(Physics::VectorFrom(m_rightHandLocatorNode->getWorldPosition() + offset), Physics::QuaternionFrom(m_rightHandLocatorNode->getWorldOrientation(false))));
+	}
+	
 	// shift and clear
 	m_movingData[1] = m_movingData[0];
 	m_movingData[0].node_ = 0;
@@ -355,6 +381,16 @@ void CharacterSkinned::handleCollision(btCollisionObject* collisionObject) {
 void CharacterSkinned::handleCollisionButton(btCollisionObject* collisionObject) {
 	m_characterTriggerResultButton.currentCollision = std::make_pair(nullptr, nullptr);
 	Physics::GetDynamicsWorld()->contactPairTest(m_kinematicController->pairCachingGhostObject_.get(), collisionObject, m_characterTriggerResultButton);
+}
+
+void CharacterSkinned::handleCollisionWeapon(btCollisionObject* collisionObject) {
+
+	// exit if not in the proper state
+	if (weaponDmgState_ == WeaponDmg_OFF){
+		return;
+	}
+
+	Physics::GetDynamicsWorld()->contactPairTest(m_swordBody, collisionObject, m_characterTriggerResultWeapon);
 }
 
 void CharacterSkinned::beginCollision() {
@@ -382,4 +418,16 @@ btScalar CharacterSkinned::CharacterTriggerCallbackButton::addSingleResult(btMan
 	currentCollision.first = colObj0Wrap->getCollisionObject();
 	currentCollision.second = colObj1Wrap->getCollisionObject();
 	return 0;
+}
+
+btScalar CharacterSkinned::CharacterTriggerCallbackWeapon::addSingleResult(btManifoldPoint& cp, const btCollisionObjectWrapper* colObj0Wrap, int partId0, int index0, const btCollisionObjectWrapper* colObj1Wrap, int partId1, int index1) {
+	//CharacterSkinned* characterSkinned = reinterpret_cast<CharacterSkinned*>(colObj0Wrap->getCollisionObject()->getUserPointer());
+	
+	if(damageTimer.getElapsedTimeMilli() > 400u)
+		damageTimer.reset();
+	return 0;
+}
+
+const Vector4f& CharacterSkinned::getDummyColor() const {
+	return m_damageTimer.getElapsedTimeMilli() < 400u ? Vector4f(1.0f, 0.0f, 0.0f, 1.0f) : Vector4f(0.70064f, 0.23256f, 0.0f, 1.0f);
 }

@@ -5,6 +5,7 @@
 #include <engine/scene/ShapeNode.h>
 #include <engine/scene/BoneNode.h>
 #include <engine/scene/AnimationNode.h>
+#include <engine/Clock.h>
 #include <Animation/AnimationController.h>
 #include <Physics/Physics.h>
 
@@ -83,7 +84,6 @@ class CharacterSkinned {
 	struct CharacterTriggerCallback : public btCollisionWorld::ContactResultCallback {
 		CharacterTriggerCallback() {}
 		btScalar CharacterTriggerCallback::addSingleResult(btManifoldPoint& cp, const btCollisionObjectWrapper* colObj0Wrap, int partId0, int index0, const btCollisionObjectWrapper* colObj1Wrap, int partId1, int index1) override;
-		SceneNodeLC* m_button;
 	};
 
 	struct CharacterTriggerCallbackButton : public btCollisionWorld::ContactResultCallback {
@@ -92,6 +92,12 @@ class CharacterSkinned {
 
 		std::pair<const btCollisionObject*, const btCollisionObject*> currentCollision;
 		std::pair<const btCollisionObject*, const btCollisionObject*> prevCollision;
+	};
+
+	struct CharacterTriggerCallbackWeapon : public btCollisionWorld::ContactResultCallback {
+		CharacterTriggerCallbackWeapon(Clock& timer) : damageTimer(timer) {}
+		btScalar CharacterTriggerCallbackWeapon::addSingleResult(btManifoldPoint& cp, const btCollisionObjectWrapper* colObj0Wrap, int partId0, int index0, const btCollisionObjectWrapper* colObj1Wrap, int partId1, int index1) override;
+		Clock& damageTimer;
 	};
 
 
@@ -106,6 +112,7 @@ public:
 	void fixedPostUpdate(float fdt);
 	void handleCollision(btCollisionObject* collisionObject);
 	void handleCollisionButton(btCollisionObject* collisionObject);
+	void handleCollisionWeapon(btCollisionObject* collisionObject);
 	void processCollision();
 	void beginCollision();
 	void endCollision();
@@ -113,6 +120,7 @@ public:
 	void processWeaponAction(bool equip, bool lMouseB);
 	void rotate(const float pitch, const float yaw, const float roll);
 	const Vector3f& getWorldPosition() const;
+	const Vector4f& getDummyColor() const;
 	void setPosition(const Vector3f& position);
 	void nodeOnMovingPlatform(SceneNodeLC *node);
 
@@ -123,7 +131,6 @@ public:
 	bool m_okToJump;
 	bool m_jumpStarted;
 	float m_inAirTimer;
-	float m_jumpTimer;
 	bool m_isJumping;
 	Vector3f m_curMoveDir;
 
@@ -132,6 +139,7 @@ public:
 	QueInput queInput_;
 	unsigned comboAnimsIdx_;
 	std::vector<std::string> weaponComboAnim_;
+	unsigned weaponDmgState_;
 
 	enum WeaponState { Weapon_Invalid, Weapon_Unequipped, Weapon_Equipping, Weapon_Equipped, Weapon_UnEquipping, Weapon_AttackAnim };
 	enum AnimLayerType { NormalLayer, WeaponLayer };
@@ -148,8 +156,11 @@ public:
 	MovingData m_movingData[2];
 	CharacterTriggerCallback m_characterTriggerResult;
 	CharacterTriggerCallbackButton m_characterTriggerResultButton;
+	CharacterTriggerCallbackWeapon m_characterTriggerResultWeapon;
 
 	Lift* m_lift;
 	KinematicCharacterController* m_kinematicController;
 	Camera& camera;
+	btRigidBody* m_swordBody;
+	Clock m_damageTimer;
 };

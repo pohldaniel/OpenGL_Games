@@ -67,7 +67,9 @@ public:
 		CAR = 128,
 		MOUSEPICKER = 256,
 		SPHERE = 512,
-		COL_FORCE_8BIT = 0xFF
+		DUMMY = 1024,
+		SWORD = 2048,
+		COL_FORCE_8BIT = 0xFFFF
 	};
 
 
@@ -98,8 +100,8 @@ public:
 	static std::vector<btCollisionShape*> CreateCollisionShapes(ObjModel* model, const btVector3& scale = btVector3(1.0f, 1.0f, 1.0f));
 	static std::vector<btCollisionShape*> CreateCollisionShapes(ObjModel* model, float scale = 1.0f);	
 
-	static btRigidBody* CreateRigidBody(btScalar mass, const btTransform & transform, btCollisionShape * shape, int collisionFlag = btCollisionObject::CF_DYNAMIC_OBJECT, void* userPointer = nullptr);
-	static btRigidBody* AddRigidBody(float mass, const btTransform & transform, btCollisionShape * shape, int collisionFilterGroup = 1, int collisionFilterMask = -1, int collisionFlag = btCollisionObject::CF_DYNAMIC_OBJECT, void* userPointer = nullptr);
+	static btRigidBody* CreateRigidBody(btScalar mass, const btTransform & transform, btCollisionShape* shape, int collisionFlag = btCollisionObject::CF_DYNAMIC_OBJECT, void* userPointer = nullptr);
+	static btRigidBody* AddRigidBody(float mass, const btTransform & transform, btCollisionShape* shape, int collisionFilterGroup = 1, int collisionFilterMask = -1, unsigned int collisionFlag = btCollisionObject::CF_DYNAMIC_OBJECT, void* userPointer = nullptr);
 	
 	static btRigidBody* AddKinematicRigidBody(const btTransform& transform, btCollisionShape* shape, int collisionFilterGroup = 1, int collisionFilterMask = -1, void* userPointer = nullptr);
 	static btRigidBody* AddStaticRigidBody(const btTransform& transform, btCollisionShape* shape, int collisionFilterGroup = 1, int collisionFilterMask = -1, void* userPointer = nullptr);
@@ -107,6 +109,7 @@ public:
 	static btCollisionObject* AddKinematicObject(const btTransform& transform, btCollisionShape* shape, int collisionFilterGroup = 1, int collisionFilterMask = -1, void* userPointer = nullptr);
 	static btCollisionObject* AddKinematicTrigger(const btTransform& transform, btCollisionShape* shape, int collisionFilterGroup = 1, int collisionFilterMask = -1, void* userPointer = nullptr);
 	static btCollisionObject* AddStaticObject(const btTransform& transform, btCollisionShape* shape, int collisionFilterGroup = 1, int collisionFilterMask = -1, void* userPointer = nullptr);
+	static btCollisionObject* AddStaticTrigger(const btTransform& transform, btCollisionShape* shape, int collisionFilterGroup = 1, int collisionFilterMask = -1, void* userPointer = nullptr);
 
 	static float SweepSphere(const btVector3& from, const btVector3& to, float radius, int collisionFilterGroup = 1, int collisionFilterMask = -1);
 	static float RayTest(const btVector3& from, const btVector3& to, int collisionFilterGroup = 1, int collisionFilterMask = -1);

@@ -70,9 +70,10 @@ void SkinnedArmor::fixedUpdate() {
 
 	m_characterSkinned->handleCollision(m_kinematicPlatform1);
 	m_characterSkinned->handleCollision(m_kinematicPlatform2);
-	m_characterSkinned->handleCollision(m_kinematicLiftTrigger);
+	m_characterSkinned->handleCollision(m_liftTrigger);
 
 	m_characterSkinned->handleCollisionButton(m_liftButtonTrigger);
+	m_characterSkinned->handleCollisionWeapon(m_dummyTrigger);
 	m_characterSkinned->beginCollision();
 	m_characterSkinned->endCollision();
 
@@ -142,8 +143,7 @@ void SkinnedArmor::update() {
 	if (m_prevFraction < fraction) {
 		m_prevFraction += 0.85f * m_dt;
 		if (m_prevFraction > fraction) m_prevFraction = fraction;
-	}
-	else {
+	}else {
 		m_prevFraction = fraction;
 	}
 
@@ -191,6 +191,15 @@ void SkinnedArmor::render() {
 
 	if (m_useOcclusion)
 		m_octree->RenderOcclusionQueries();
+
+	shader = Globals::shaderManager.getAssetPointer("color");
+	shader->use();
+	shader->loadMatrix("u_projection", !m_overview ? m_camera.getPerspectiveMatrix() : m_camera.getOrthographicMatrix());
+	shader->loadMatrix("u_view", !m_overview ? m_camera.getViewMatrix() : m_view);
+	shader->loadMatrix("u_model", m_entities.back()->getWorldTransformation());
+	shader->loadVector("u_color", m_characterSkinned->getDummyColor());
+	m_entities.back()->drawRaw();
+	shader->unuse();
 
 	m_characterSkinned->draw(m_camera);
 
@@ -389,6 +398,11 @@ void SkinnedArmor::createShapes() {
 	m_liftButtonShape.fromBuffer(vertexBuffer, indexBuffer, 8);
 	m_liftButtonShape.createBoundingBox();
 	vertexBuffer.clear(); vertexBuffer.shrink_to_fit(); indexBuffer.clear(); indexBuffer.shrink_to_fit();
+
+	mdlConverter.mdlToBuffer("res/models/dummy.mdl", 1.2f, vertexBuffer, indexBuffer);
+	m_dummy.fromBuffer(vertexBuffer, indexBuffer, 8);
+	m_dummy.createBoundingBox();
+	vertexBuffer.clear(); vertexBuffer.shrink_to_fit(); indexBuffer.clear(); indexBuffer.shrink_to_fit();
 }
 
 void SkinnedArmor::createPhysics() {
@@ -402,8 +416,9 @@ void SkinnedArmor::createPhysics() {
 	Physics::AddStaticObject(Physics::BtTransform(btVector3(35.6211f, 7.66765f, 10.4388f)), Physics::CreateCollisionShape(&m_liftExteriorShape, btVector3(1.0f, 1.0f, 1.0f)), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY | Physics::collisiontypes::CAMERA);
 
 	m_kinematicLift = Physics::AddKinematicObject(Physics::BtTransform(btVector3(35.5938f, 0.350185f, 10.4836f)), Physics::CreateCollisionShape(&m_liftShape, btVector3(1.0f, 1.0f, 1.0f)), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY | Physics::collisiontypes::CAMERA);
-	m_kinematicLiftTrigger = Physics::AddKinematicTrigger(Physics::BtTransform(btVector3(35.5938f, 0.350185f, 10.4836f)), Physics::CreateCollisionShape(&m_liftShape, btVector3(1.0f, 3.0f, 1.0f)), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER);
+	m_liftTrigger = Physics::AddKinematicTrigger(Physics::BtTransform(btVector3(35.5938f, 0.350185f, 10.4836f)), Physics::CreateCollisionShape(&m_liftShape, btVector3(1.0f, 3.0f, 1.0f)), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER);
 	m_liftButtonTrigger = Physics::AddKinematicTrigger(Physics::BtTransform(btVector3(35.5938f, 0.412104f, 10.4836f)), new btCylinderShape(btVector3(50.0f, 50.0f, 40.0f) * 0.01f), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER);
+	m_dummyTrigger = Physics::AddStaticObject(Physics::BtTransform(btVector3(0.0f, 1.5f, 0.0f)), new btCapsuleShape(0.3f , 1.2f), Physics::collisiontypes::FLOOR | Physics::collisiontypes::DUMMY, Physics::collisiontypes::SWORD | Physics::collisiontypes::CHARACTER);
 
 	m_kinematicPlatform1 = Physics::AddKinematicObject(Physics::BtTransform(btVector3(26.1357f, 7.00645f, -34.7563f)), Physics::CreateCollisionShape(&m_diskShape, btVector3(1.0f, 1.0f, 1.0f)), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY | Physics::collisiontypes::CAMERA);
 	m_kinematicPlatform2 = Physics::AddKinematicObject(Physics::BtTransform(btVector3(-0.294956f, 3.46579f, 28.3161f)), Physics::CreateCollisionShape(&m_cylinderShape, btVector3(1.0f, 1.0f, 1.0f)), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY | Physics::collisiontypes::CAMERA);
@@ -454,9 +469,9 @@ void SkinnedArmor::createScene() {
 	m_entities.push_back(shapeNode);
 
 	m_lift = new Lift();
-	m_lift->initialize(m_entities[5], m_kinematicLift, m_entities[5]->getWorldPosition() + Vector3f(0, 6.8f, 0), shapeNode, m_liftButtonTrigger, m_kinematicLiftTrigger);
+	m_lift->initialize(m_entities[5], m_kinematicLift, m_entities[5]->getWorldPosition() + Vector3f(0, 6.8f, 0), shapeNode, m_liftButtonTrigger, m_liftTrigger);
 	m_kinematicLift->setUserPointer(m_entities[5]);
-	m_kinematicLiftTrigger->setUserPointer(m_entities[5]);
+	m_liftTrigger->setUserPointer(m_entities[5]);
 	m_liftButtonTrigger->setUserPointer(m_lift);
 
 	shapeNode = m_root->addChild<ShapeNode, Shape>(m_diskShape);
@@ -471,6 +486,11 @@ void SkinnedArmor::createScene() {
 	shapeNode = m_root->addChild<ShapeNode, Shape>(m_cylinderShape);
 	shapeNode->setPosition(-0.294956f, 3.46579f, 28.3161f);
 	shapeNode->OnOctreeSet(m_octree);
+	m_entities.push_back(shapeNode);
+
+	shapeNode = m_root->addChild<ShapeNode, Shape>(m_dummy);
+	shapeNode->setPosition(0.0f, 0.5f, 0.0f);
+	//shapeNode->OnOctreeSet(m_octree);
 	m_entities.push_back(shapeNode);
 
 	SceneNodeLC* sceneNode;
@@ -529,7 +549,7 @@ void SkinnedArmor::createScene() {
 	sceneNode->setPosition(Vector3f(-1.85441f, 7.34028f, 7.73154f) + offset);
 	m_splinePath->AddControlPoint(sceneNode, 12);
 
-	m_splinePath->SetControlledNode(m_entities.back());
+	m_splinePath->SetControlledNode(m_entities[9]);
 	m_splinePath->SetInterpolationMode(CATMULL_ROM_FULL_CURVE);
 	m_splinePath->SetSpeed(6.0f);
 

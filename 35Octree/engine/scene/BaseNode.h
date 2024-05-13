@@ -23,9 +23,9 @@ public:
 
 	virtual void OnTransformChanged();
 	virtual const Matrix4f& getWorldTransformation() const = 0;
-	virtual const Vector3f& getWorldPosition() const = 0;
-	virtual const Vector3f& getWorldScale() const = 0;
-	virtual const Quaternion& getWorldOrientation() const = 0;
+	virtual const Vector3f& getWorldPosition(bool update = true) const = 0;
+	virtual const Vector3f& getWorldScale(bool update = true) const = 0;
+	virtual const Quaternion& getWorldOrientation(bool update = true) const = 0;
 
 	void setScale(const float sx, const float sy, const float sz) override;
 	void setScale(const Vector3f& scale) override;
@@ -62,5 +62,5 @@ public:
 
 protected:
 
-	virtual const Vector3f& getWorldOrigin() const;	bool m_isFixed;	mutable bool m_isDirty;
+	virtual const Vector3f& getWorldOrigin(bool update = true) const;	bool m_isFixed;	mutable bool m_isDirty;
 };

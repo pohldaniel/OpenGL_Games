@@ -100,6 +100,9 @@ public:
 	/// Return whether an animation is at its end. Will return false if the animation is not active at all.
 	bool IsAtEnd(const std::string& name) const;
 
+	bool SetSpeed(const std::string& name, float speed);
+	float GetTime(const std::string& name) const;
+
 	AnimationState* GetAnimationState(StringHash nameHash) const;
 
 	AnimationState* AddAnimationState(Animation* animation);

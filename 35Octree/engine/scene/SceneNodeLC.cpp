@@ -51,17 +51,20 @@ void SceneNodeLC::updateWorldTransformation() const {
 	}
 }
 
-const Vector3f& SceneNodeLC::getWorldPosition() const {
-	WorldPosition = getWorldTransformation().getTranslation();
+const Vector3f& SceneNodeLC::getWorldPosition(bool update) const {
+	if(update)
+		WorldPosition = getWorldTransformation().getTranslation();
 	return WorldPosition;
 }
 
-const Vector3f& SceneNodeLC::getWorldScale() const {
-	WorldScale = getWorldTransformation().getScale();
+const Vector3f& SceneNodeLC::getWorldScale(bool update) const {
+	if (update)
+		WorldScale = getWorldTransformation().getScale();
 	return WorldScale;
 }
 
-const Quaternion& SceneNodeLC::getWorldOrientation() const {
-	WorldOrientation = Quaternion(getWorldTransformation().getRotation());
+const Quaternion& SceneNodeLC::getWorldOrientation(bool update) const {
+	if (update)
+		WorldOrientation = Quaternion(getWorldTransformation().getRotation());
 	return WorldOrientation;
 }

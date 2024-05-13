@@ -27,23 +27,27 @@ SceneNode::~SceneNode() {
 
 }
 
-const Vector3f& SceneNode::getWorldPosition() const {
-	updateSOP();
+const Vector3f& SceneNode::getWorldPosition(bool update) const {
+	if(update)
+		updateSOP();
 	return m_worldPosition;
 }
 
-const Vector3f& SceneNode::getWorldScale() const {
-	updateSOP();
+const Vector3f& SceneNode::getWorldScale(bool update) const {
+	if (update)
+		updateSOP();
 	return m_worldScale;
 }
 
-const Vector3f& SceneNode::getWorldOrigin() const {
-	updateSOP();
+const Vector3f& SceneNode::getWorldOrigin(bool update) const {
+	if (update)
+		updateSOP();
 	return m_worldOrigin;
 }
 
-const Quaternion& SceneNode::getWorldOrientation() const {
-	updateSOP();
+const Quaternion& SceneNode::getWorldOrientation(bool update) const {
+	if (update)
+		updateSOP();
 	return m_worldOrientation;
 }
 
