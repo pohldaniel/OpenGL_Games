@@ -29,184 +29,76 @@
 							 }"    
 
 static const size_t NUM_OCTANTS = 8;
-static const unsigned char OF_DRAWABLES_SORT_DIRTY = 0x1;
-static const unsigned char OF_CULLING_BOX_DIRTY = 0x2;
-static const float OCCLUSION_QUERY_INTERVAL = 0.133333f; // About 8 frame stagger at 60fps
-static unsigned randomSeed = 1;
+static const size_t NUM_OCTANT_TASKS = 9;
+static const unsigned LAYERMASK_ALL = 0xffffffff;
+static const float OCCLUSION_QUERY_INTERVAL = 0.133333f;
 
 struct ReinsertDrawablesTask;
-/// %Octant occlusion query visibility states.
-enum OctantVisibility
-{
+enum OctantVisibility{
     VIS_OUTSIDE_FRUSTUM = 0,
     VIS_OCCLUDED,
     VIS_OCCLUDED_UNKNOWN,
     VIS_VISIBLE_UNKNOWN,
     VIS_VISIBLE
 };
-/// %Octree cell, contains up to 8 child octants.
-class Octant
-{
+
+class Octant{
     friend class Octree;
 
 public:
-    /// Construct with defaults.
+
     Octant();
-    /// Destruct. If has a pending occlusion query, free it.
     ~Octant();
 
-    /// Initialize parent and bounds.
+
     void Initialize(Octant* parent, const BoundingBox& boundingBox, unsigned char level, unsigned char childIndex);
-    /// Add debug geometry to be rendered.
 	void OnRenderAABB(const Vector4f& color = { 0.0f, 1.0f, 0.0f, 1.0f });
-    /// React to occlusion query being rendered for the octant. Store the query ID to know not to re-test until have the result.
     void OnOcclusionQuery(unsigned queryId);
-    /// React to occlusion query result. Push changed visibility to parents or children as necessary. If outside frustum, no operation.
     void OnOcclusionQueryResult(bool visible);
+	bool OcclusionQueryPending() const;
 
-    /// Return the culling box. Update as necessary.
-    const BoundingBox& CullingBox() const;
-    /// Return drawables in this octant.
-	const std::vector<OctreeNode*>& Drawables() const { return drawables; }
-    /// Return whether has child octants.
-    bool HasChildren() const { return numChildren > 0; }
-    /// Return child octant by index.
-    Octant* Child(size_t index) const { return children[index]; }
-    /// Return parent octant.
-    Octant* Parent() const { return parent; }
-    /// Return child octant index based on position.
-    unsigned char ChildIndex(const Vector3f& position) const { unsigned char ret = position[0] < center[0] ? 0 : 1; ret += position[1] < center[1] ? 0 : 2; ret += position[2] < center[2] ? 0 : 4; return ret; }
-    /// Return last occlusion visibility status.
-    OctantVisibility Visibility() const { return (OctantVisibility)visibility; }
-    /// Return whether is pending an occlusion query result.
-    bool OcclusionQueryPending() const { return occlusionQueryId != 0; }
-    /// Set bit flag. Called internally.
-    void SetFlag(unsigned char bit, bool set) const { if (set) flags |= bit; else flags &= ~bit; }
-    /// Test bit flag. Called internally.
-    bool TestFlag(unsigned char bit) const { return (flags & bit) != 0; }
+    const BoundingBox& getCullingBox() const;
+	const std::vector<OctreeNode*>& getOctreeNodes() const;
+	bool hasChildren() const;
+	Octant* getChild(size_t index) const;
+	Octant* getParent() const;
+	unsigned char getChildIndex(const Vector3f& position) const;
+	OctantVisibility getVisibility() const;
 
-    /// Test if a drawable should be inserted in this octant or if a smaller child octant should be created.
-    bool FitBoundingBox(const BoundingBox& box, const Vector3f& boxSize) const
-    {
-        // If max split level, size always OK, otherwise check that box is at least half size of octant
-        if (level <= 1 || boxSize[0] >= halfSize[0] || boxSize[1] >= halfSize[1] || boxSize[2] >= halfSize[2])
-            return true;
-        // Also check if the box can not fit inside a child octant's culling box, in that case size OK (must insert here)
-        else
-        {
-            Vector3f quarterSize = 0.5f * halfSize;
-            if (box.min[0] <= fittingBox.min[0] + quarterSize[0] || box.max[0] >= fittingBox.max[0] - quarterSize[0] ||
-                box.min[1] <= fittingBox.min[1] + quarterSize[1] || box.max[1] >= fittingBox.max[1] - quarterSize[1] ||
-                box.max[2] <= fittingBox.min[2] + quarterSize[2] || box.max[2] >= fittingBox.max[2] - quarterSize[2])
-                return true;
-        }
-
-        // Bounding box too small, should create a child octant
-        return false;
-    }
-
-    /// Mark culling boxes dirty in the parent hierarchy.
-    void MarkCullingBoxDirty() const
-    {
-        const Octant* octant = this;
-
-        while (octant && !octant->TestFlag(OF_CULLING_BOX_DIRTY))
-        {
-            octant->SetFlag(OF_CULLING_BOX_DIRTY, true);
-            octant = octant->parent;
-        }
-    }
-
-    /// Push visibility status to child octants.
-    void PushVisibilityToChildren(Octant* octant, OctantVisibility newVisibility)
-    {
-        for (size_t i = 0; i < NUM_OCTANTS; ++i)
-        {
-            if (octant->children[i])
-            {
-                octant->children[i]->visibility = newVisibility;
-                if (octant->children[i]->numChildren)
-                    PushVisibilityToChildren(octant->children[i], newVisibility);
-            }
-        }
-    }
-
-    /// Set visibility status manually.
-    void SetVisibility(OctantVisibility newVisibility, bool pushToChildren = false)
-    {
-        visibility = newVisibility;
-
-        if (pushToChildren)
-            PushVisibilityToChildren(this, newVisibility);
-    }
-
-    /// Return true if a new occlusion query should be executed. Use a time interval for already visible octants. Return false if previous query still pending.
-    bool CheckNewOcclusionQuery(float frameTime)
-    {
-        if (visibility != VIS_VISIBLE)
-            return occlusionQueryId == 0;
-
-        occlusionQueryTimer += frameTime;
-
-        if (occlusionQueryId != 0)
-            return false;
-
-        if (occlusionQueryTimer >= OCCLUSION_QUERY_INTERVAL)
-        {
-            occlusionQueryTimer = fmodf(occlusionQueryTimer, OCCLUSION_QUERY_INTERVAL);
-            return true;
-        }
-        else
-            return false;
-    }
-
-	inline static float Random() { return Rand() / 32768.0f; }
-	inline static int Rand() {
-		randomSeed = randomSeed * 214013 + 2531011;
-		return (randomSeed >> 16) & 32767;
-	}
-	void updateCullingBox() const;
 private:
-    /// Combined drawable and child octant bounding box. Used for culling tests.
-    mutable BoundingBox cullingBox;
-    /// Drawables contained in the octant.
-	std::vector<OctreeNode*> drawables;
-    /// Expanded (loose) bounding box used for fitting drawables within the octant.
-    BoundingBox fittingBox;
-    /// Bounding box center.
-    Vector3f center;
-    /// Bounding box half size.
-    Vector3f halfSize;
-    /// Child octants.
-    Octant* children[NUM_OCTANTS];
-    /// Parent octant.
-    Octant* parent;
-    /// Last occlusion query visibility.
-    OctantVisibility visibility;
-    /// Occlusion query id, or 0 if no query pending.
-    unsigned occlusionQueryId;
-    /// Occlusion query interval timer.
-    float occlusionQueryTimer;
-    /// Number of child octants.
-    unsigned char numChildren;
-    /// Subdivision level, decreasing for child octants.
-    unsigned char level;
-    /// The child index of this octant.
-    unsigned char childIndex;
-    /// Dirty flags.
-    mutable unsigned char flags;
+
+	bool fitBoundingBox(const BoundingBox& box, const Vector3f& boxSize) const;
+	void markCullingBoxDirty() const;
+	void pushVisibilityToChildren(Octant* octant, OctantVisibility newVisibility);
+	void setVisibility(OctantVisibility newVisibility, bool pushToChildren = false);
+	bool checkNewOcclusionQuery(float dt);
+	void updateCullingBox() const;
+
+    mutable BoundingBox m_cullingBox;
+	std::vector<OctreeNode*> m_octreeNodes;
+    BoundingBox m_fittingBox;
+    Vector3f m_center;
+    Vector3f m_halfSize;
+    Octant* m_children[NUM_OCTANTS];
+    Octant* m_parent;
+    OctantVisibility m_visibility;
+    unsigned m_occlusionQueryId;
+    float m_occlusionQueryTimer;
+    unsigned char m_numChildren;
+    unsigned char m_level;
+    unsigned char m_childIndex;
+	mutable bool m_cullingBoxDirty;
+	mutable bool m_sortDrawables;
+	bool m_drawDebug;
 };
 
 /// Acceleration structure for rendering. Should be created as a child of the scene root.
 class Octree{
+
 	friend OctreeNode;
-	static const size_t NUM_OCTANT_TASKS = 9;
 
 	struct CollectOctantsTask : public MemberFunctionTask<Octree> {
-		/// Construct.
-		CollectOctantsTask(Octree* object_, MemberWorkFunctionPtr function_) :MemberFunctionTask<Octree>(object_, function_) {
-		}
-
+		CollectOctantsTask(Octree* object_, MemberWorkFunctionPtr function_) :MemberFunctionTask<Octree>(object_, function_) {}
 		Octant* startOctant;
 		size_t resultIdx;
 	};
@@ -251,8 +143,8 @@ public:
 	void OnRenderAABB(const Vector4f& color = { 0.0f, 1.0f, 0.0f, 1.0f });
 
     /// Query for drawables using a volume such as frustum or sphere.
-    template <class T> void FindDrawables(std::vector<OctreeNode*>& result, const T& volume, unsigned short drawableFlags, unsigned layerMask = LAYERMASK_ALL) const { CollectDrawables(result, const_cast<Octant*>(&root), volume, drawableFlags, layerMask); }
-    /// Return whether threaded update is enabled.
+	template <class T> void FindDrawables(std::vector<OctreeNode*>& result, const T& volume, unsigned short drawableFlags, unsigned layerMask = LAYERMASK_ALL) const;
+	// Return whether threaded update is enabled.
     bool ThreadedUpdate() const { return threadedUpdate; }
     /// Return the root octant.
     Octant* Root() const { return const_cast<Octant*>(&root); }
@@ -273,14 +165,18 @@ public:
 	void updateFrameNumber();
 	unsigned BeginOcclusionQuery(void* object);
 	void EndOcclusionQuery();
-	void FreeOcclusionQuery(unsigned id);
+
 	void CheckOcclusionQueryResults(std::vector<OcclusionQueryResult>& result);
-	size_t PendingOcclusionQueries() const { return pendingQueries.size(); }
-	std::vector<std::pair<unsigned, void*> > pendingQueries;
+	size_t PendingOcclusionQueries() const { return PendingQueries.size(); }
+	
 	std::vector<unsigned> freeQueries;
 
 	void setUseCulling(bool useCulling);
 	void setUseOcclusionCulling(bool useOcclusionCulling);
+
+
+	static std::vector<std::pair<unsigned, void*>> PendingQueries;
+	static void FreeOcclusionQuery(unsigned id);
 
 private:
     /// Process a list of drawables to be reinserted. Clear the list afterward.
@@ -289,16 +185,14 @@ private:
     void RemoveDrawableFromQueue(OctreeNode* drawable, std::vector<OctreeNode*>& drawables);
     
     /// Add drawable to a specific octant.
-	void AddDrawable(OctreeNode* drawable, Octant* octant)
-	{
-		octant->drawables.push_back(drawable);
-		octant->MarkCullingBoxDirty();
+	void AddDrawable(OctreeNode* drawable, Octant* octant){
+		octant->m_octreeNodes.push_back(drawable);
+		octant->markCullingBoxDirty();
 		octant->updateCullingBox();
 		drawable->m_octant = octant;
 
-		if (!octant->TestFlag(OF_DRAWABLES_SORT_DIRTY))
-		{
-			octant->SetFlag(OF_DRAWABLES_SORT_DIRTY, true);
+		if (!octant->m_sortDrawables){
+			octant->m_sortDrawables = true;
 			sortDirtyOctants.push_back(octant);
 		}
 	}
@@ -309,20 +203,20 @@ private:
 		if (!octant)
 			return;
 
-		octant->MarkCullingBoxDirty();
+		octant->markCullingBoxDirty();
 
 		// Do not set the drawable's octant pointer to zero, as the drawable may already be added into another octant. Just remove from octant
-		for (auto it = octant->drawables.begin(); it != octant->drawables.end(); ++it)
+		for (auto it = octant->m_octreeNodes.begin(); it != octant->m_octreeNodes.end(); ++it)
 		{
 			if ((*it) == drawable)
 			{
-				octant->drawables.erase(it);
+				octant->m_octreeNodes.erase(it);
 
 				// Erase empty octants as necessary, but never the root
-				while (!octant->drawables.size() && !octant->numChildren && octant->parent)
+				while (!octant->m_octreeNodes.size() && !octant->m_numChildren && octant->m_parent)
 				{
-					Octant* parentOctant = octant->parent;
-					DeleteChildOctant(parentOctant, octant->childIndex);
+					Octant* parentOctant = octant->m_parent;
+					DeleteChildOctant(parentOctant, octant->m_childIndex);
 					octant = parentOctant;
 				}
 				return;
@@ -338,8 +232,6 @@ private:
 	void DeleteChildOctants(Octant* octant, bool deletingOctree);
 	/// Return all drawables from an octant recursively.
 	void CollectDrawables(std::vector<OctreeNode*>& result, Octant* octant) const;
-	/// Return all drawables matching flags from an octant recursively.
-	void CollectDrawables(std::vector<OctreeNode*>& result, Octant* octant, unsigned short drawableFlags, unsigned layerMask) const;
 	/// Work function to check reinsertion of nodes.
 	void CheckReinsertWork(Task* task, unsigned threadIndex);
 
@@ -412,15 +304,14 @@ private:
 	void callRebuild(Octant* octant);
 };
 
-
-/// %Task for octree drawables reinsertion.
 struct ReinsertDrawablesTask : public MemberFunctionTask<Octree> {
-	/// Construct.
 	ReinsertDrawablesTask(Octree* object_, MemberWorkFunctionPtr function_) : MemberFunctionTask<Octree>(object_, function_) {
 	}
 
-	/// Start pointer.
 	OctreeNode** start;
-	/// End pointer.
 	OctreeNode** end;
 };
+
+template <class T> void Octree::FindDrawables(std::vector<OctreeNode*>& result, const T& volume, unsigned short drawableFlags, unsigned layerMask) const { 
+	CollectDrawables(result, const_cast<Octant*>(&root), volume, drawableFlags, layerMask); 
+}

@@ -160,7 +160,7 @@ void AnimationInterface::render() {
 			if(m_debugTree)
 				octant->OnRenderAABB(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
 
-			const std::vector<OctreeNode*>& drawables = octant->Drawables();
+			const std::vector<OctreeNode*>& drawables = octant->getOctreeNodes();
 			for (auto dIt = drawables.begin(); dIt != drawables.end(); ++dIt) {
 				OctreeNode* drawable = *dIt;
 				drawable->drawRaw();				

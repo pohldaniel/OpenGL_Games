@@ -461,9 +461,9 @@ void Application::initStates() {
 	//Machine->addStateAtTop(new GrassComp(*Machine));
 	//Machine->addStateAtTop(new GrassGeom(*Machine));
 	//Machine->addStateAtTop(new OcclusionQuery(*Machine));
-	//Machine->addStateAtTop(new AnimationInterface(*Machine));
+	Machine->addStateAtTop(new AnimationInterface(*Machine));
 	//Machine->addStateAtTop(new KCCInterface(*Machine));
-	Machine->addStateAtTop(new SkinnedArmor(*Machine));
+	//Machine->addStateAtTop(new SkinnedArmor(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -891,7 +891,7 @@ void Application::loadAssets() {
 
 	Globals::textureManager.loadTexture("proto", "res/textures/ProtoWhite256.jpg", true);
 	Globals::textureManager.get("proto").setFilter(GL_LINEAR_MIPMAP_LINEAR);
-	Globals::textureManager.get("proto").setWrapMode(GL_CLAMP);
+	Globals::textureManager.get("proto").setWrapMode(GL_REPEAT);
 
 	Globals::textureManager.loadTexture("sword", "res/models/Girlbot/Textures/maria_diffuse.png", false);
 	Globals::textureManager.get("sword").setFilter(GL_LINEAR_MIPMAP_LINEAR);

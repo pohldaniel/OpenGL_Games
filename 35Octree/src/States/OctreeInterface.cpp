@@ -143,7 +143,7 @@ void OctreeInterface::render() {
 			Octant* octant = oIt->first;
 			octant->OnRenderAABB();
 
-			const std::vector<OctreeNode*>& drawables = octant->Drawables();
+			const std::vector<OctreeNode*>& drawables = octant->getOctreeNodes();
 			for (auto dIt = drawables.begin(); dIt != drawables.end(); ++dIt) {
 				ShapeNode* drawable = static_cast<ShapeNode*>(*dIt);
 

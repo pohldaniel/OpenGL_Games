@@ -107,6 +107,7 @@ public:
 	~CharacterSkinned();
 
 	void draw(const Camera& camera);
+	void drawOverview(const Matrix4f perspective, const Matrix4f view);
 	void update(const float dt);
 	void fixedUpdate(float fdt);
 	void fixedPostUpdate(float fdt);
@@ -120,7 +121,7 @@ public:
 	void processWeaponAction(bool equip, bool lMouseB);
 	void rotate(const float pitch, const float yaw, const float roll);
 	const Vector3f& getWorldPosition() const;
-	const Vector4f& getDummyColor() const;
+	const Vector4f getDummyColor() const;
 	void setPosition(const Vector3f& position);
 	void nodeOnMovingPlatform(SceneNodeLC *node);
 

@@ -316,6 +316,38 @@ void CharacterSkinned::draw(const Camera& camera) {
 	shader->unuse();
 }
 
+void CharacterSkinned::drawOverview(const Matrix4f perspective, const Matrix4f view) {
+	Globals::textureManager.get("null").bind();
+	auto shader = Globals::shaderManager.getAssetPointer("animation_new");
+	shader->use();
+	shader->loadVector("u_light", Vector3f(1.0f, 1.0f, 1.0f));
+	shader->loadMatrix("u_projection", perspective);
+	shader->loadMatrix("u_view", view);
+	shader->loadVector("u_color", Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
+	m_animationNode->drawRaw();
+
+	shader->unuse();
+
+	shader = Globals::shaderManager.getAssetPointer("texture");
+	shader->use();
+	shader->loadMatrix("u_projection", perspective);
+	shader->loadMatrix("u_view", view);
+	shader->loadMatrix("u_model", m_sword->getWorldTransformation());
+	Globals::textureManager.get("sword").bind(0);
+	m_sword->getShape().drawRaw();
+	shader->unuse();
+
+	shader = Globals::shaderManager.getAssetPointer("animation_new");
+	shader->use();
+	shader->loadVector("u_light", Vector3f(1.0f, 1.0f, 1.0f));
+	shader->loadMatrix("u_projection", perspective);
+	shader->loadMatrix("u_view", view);
+	shader->loadVector("u_color", Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+	Globals::textureManager.get("sword").bind(0);
+	m_armorShape.drawRaw();
+	shader->unuse();
+}
+
 void CharacterSkinned::rotate(const float pitch, const float yaw, const float roll) {
 	m_animationNode->rotate(pitch, yaw, roll);
 }
@@ -428,6 +460,6 @@ btScalar CharacterSkinned::CharacterTriggerCallbackWeapon::addSingleResult(btMan
 	return 0;
 }
 
-const Vector4f& CharacterSkinned::getDummyColor() const {
+const Vector4f CharacterSkinned::getDummyColor() const {
 	return m_damageTimer.getElapsedTimeMilli() < 400u ? Vector4f(1.0f, 0.0f, 0.0f, 1.0f) : Vector4f(0.70064f, 0.23256f, 0.0f, 1.0f);
 }

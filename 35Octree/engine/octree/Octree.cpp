@@ -5,15 +5,15 @@
 #include <engine/DebugRenderer.h>
 #include "Octree.h"
 
-#include "Globals.h"
-
 const float Octree::OCCLUSION_MARGIN = 0.1f;
 std::unique_ptr<Shader> Octree::ShaderOcclusion= nullptr;
+std::vector<std::pair<unsigned, void*>> Octree::PendingQueries;
 
 static const float DEFAULT_OCTREE_SIZE = 1000.0f;
 static const int DEFAULT_OCTREE_LEVELS = 8;
 static const int MAX_OCTREE_LEVELS = 255;
 static const size_t MIN_THREADED_UPDATE = 16;
+static unsigned randomSeed = 1;
 
 static inline bool CompareDrawableDistances(const std::pair<OctreeNode*, float>& lhs, const std::pair<OctreeNode*, float>& rhs){
 	return lhs.second < rhs.second;
@@ -23,123 +23,210 @@ static inline bool CompareDrawables(OctreeNode* lhs, OctreeNode* rhs){
 	return lhs < rhs;
 }
 
+static int Rand() {
+	randomSeed = randomSeed * 214013 + 2531011;
+	return (randomSeed >> 16) & 32767;
+}
+
+static float Random() { return Rand() / 32768.0f; }
+
 Octant::Octant() :
-    parent(nullptr),
-    visibility(VIS_VISIBLE_UNKNOWN),
-    occlusionQueryId(0),
-    occlusionQueryTimer(Random() * OCCLUSION_QUERY_INTERVAL),
-    numChildren(0)
-{
+	m_parent(nullptr),
+	m_visibility(VIS_VISIBLE_UNKNOWN),
+	m_occlusionQueryId(0),
+	m_occlusionQueryTimer(Random() * OCCLUSION_QUERY_INTERVAL),
+	m_numChildren(0){
     for (size_t i = 0; i < NUM_OCTANTS; ++i)
-        children[i] = nullptr;
+		m_children[i] = nullptr;
 }
 
 Octant::~Octant(){
-    if (occlusionQueryId){
-        //Graphics* graphics = ObjectTu::Subsystem<Graphics>();
-		//if (graphics)
-			//graphics->FreeOcclusionQuery(occlusionQueryId);
+    if (m_occlusionQueryId){
+		Octree::FreeOcclusionQuery(m_occlusionQueryId);
     }
 }
 
 void Octant::Initialize(Octant* parent_, const BoundingBox& boundingBox, unsigned char level_, unsigned char childIndex_){
     BoundingBox worldBoundingBox = boundingBox;
-    center = worldBoundingBox.getCenter();
-    halfSize = worldBoundingBox.getHalfSize();
-    fittingBox = BoundingBox(worldBoundingBox.min - halfSize, worldBoundingBox.max + halfSize);
+	m_center = worldBoundingBox.getCenter();
+	m_halfSize = worldBoundingBox.getHalfSize();
+	m_fittingBox = BoundingBox(worldBoundingBox.min - m_halfSize, worldBoundingBox.max + m_halfSize);
 
-    parent = parent_;
-    level = level_;
-    childIndex = childIndex_;
-    flags = OF_CULLING_BOX_DIRTY;
+	m_parent = parent_;
+	m_level = level_;
+	m_childIndex = childIndex_;
+
+	m_cullingBoxDirty = true;
+	m_sortDrawables = true;
+	m_drawDebug = true;
 }
 
 void Octant::OnRenderAABB(const Vector4f& color) {
-	//if (!m_drawDebug)
-		//return;
+	if (!m_drawDebug)
+		return;
 
-	DebugRenderer::Get().AddBoundingBox(CullingBox(), color);
+	DebugRenderer::Get().AddBoundingBox(getCullingBox(), color);
 }
 
-void Octant::OnOcclusionQuery(unsigned queryId)
-{
+void Octant::OnOcclusionQuery(unsigned queryId){
     // Should not have an existing query in flight
-    assert(!occlusionQueryId);
+    assert(!m_occlusionQueryId);
 
     // Mark pending
-    occlusionQueryId = queryId;
+	m_occlusionQueryId = queryId;
 }
 
-void Octant::OnOcclusionQueryResult(bool visible)
-{
+void Octant::OnOcclusionQueryResult(bool visible){
     // Mark not pending
-    occlusionQueryId = 0;
+	m_occlusionQueryId = 0;
 
     // Do not change visibility if currently outside the frustum
-    if (visibility == VIS_OUTSIDE_FRUSTUM)
+    if (m_visibility == VIS_OUTSIDE_FRUSTUM)
         return;
 
-    OctantVisibility lastVisibility = (OctantVisibility)visibility;
+    OctantVisibility lastVisibility = static_cast<OctantVisibility>(m_visibility);
     OctantVisibility newVisibility = visible ? VIS_VISIBLE : VIS_OCCLUDED;
 
-    visibility = newVisibility;
+	m_visibility = newVisibility;
 
-    if (lastVisibility <= VIS_OCCLUDED_UNKNOWN && newVisibility == VIS_VISIBLE)
-    {
+    if (lastVisibility <= VIS_OCCLUDED_UNKNOWN && newVisibility == VIS_VISIBLE){
         // If came into view after being occluded, mark children as still occluded but that should be tested in hierarchy
-        if (numChildren)
-            PushVisibilityToChildren(this, VIS_OCCLUDED_UNKNOWN);
-    }
-    else if (newVisibility == VIS_OCCLUDED && lastVisibility != VIS_OCCLUDED && parent && parent->visibility == VIS_VISIBLE)
-    {
+        if (m_numChildren)
+            pushVisibilityToChildren(this, VIS_OCCLUDED_UNKNOWN);
+    }else if (newVisibility == VIS_OCCLUDED && lastVisibility != VIS_OCCLUDED && m_parent && m_parent->m_visibility == VIS_VISIBLE){
         // If became occluded, mark parent unknown so it will be tested next
-        parent->visibility = VIS_VISIBLE_UNKNOWN;
+		m_parent->m_visibility = VIS_VISIBLE_UNKNOWN;
     }
 
     // Whenever is visible, push visibility to parents if they are not visible yet
-    if (newVisibility == VIS_VISIBLE)
-    {
-        Octant* octant = parent;
+    if (newVisibility == VIS_VISIBLE){
+        Octant* octant = m_parent;
 
-        while (octant && octant->visibility != newVisibility)
-        {
-            octant->visibility = newVisibility;
-            octant = octant->parent;
+        while (octant && octant->m_visibility != newVisibility){
+            octant->m_visibility = newVisibility;
+            octant = octant->m_parent;
         }
     }
 }
 
-const BoundingBox& Octant::CullingBox() const
-{
+const BoundingBox& Octant::getCullingBox() const{
 	updateCullingBox();
-
-    return cullingBox;
+    return m_cullingBox;
 }
 
-void Octant::updateCullingBox() const {
-	if (TestFlag(OF_CULLING_BOX_DIRTY)){
-		if (!numChildren && drawables.empty())
-			cullingBox.define(center);
+void Octant::updateCullingBox() const{
+	if (m_cullingBoxDirty){
+		if (!m_numChildren && m_octreeNodes.empty())
+			m_cullingBox.define(m_center);
 		else{
 			// Use a temporary bounding box for calculations in case many threads call this simultaneously
 			BoundingBox tempBox;
 
-			for (auto it = drawables.begin(); it != drawables.end(); ++it)
+			for (auto it = m_octreeNodes.begin(); it != m_octreeNodes.end(); ++it)
 				tempBox.merge((*it)->getWorldBoundingBox());
 
-			if (numChildren){
-				for (size_t i = 0; i < NUM_OCTANTS; ++i)
-				{
-					if (children[i])
-						tempBox.merge(children[i]->CullingBox());
+			if (m_numChildren){
+				for (size_t i = 0; i < NUM_OCTANTS; ++i){
+					if (m_children[i])
+						tempBox.merge(m_children[i]->getCullingBox());
 				}
 			}
 
-			cullingBox = tempBox;
+			m_cullingBox = tempBox;
 		}
-		SetFlag(OF_CULLING_BOX_DIRTY, false);
+		m_cullingBoxDirty = false;
 	}
 }
+
+const std::vector<OctreeNode*>& Octant::getOctreeNodes() const {
+	return m_octreeNodes;
+}
+
+bool Octant::hasChildren() const {
+	return m_numChildren > 0;
+}
+
+Octant* Octant::getChild(size_t index) const {
+	return m_children[index];
+}
+
+Octant* Octant::getParent() const {
+	return m_parent;
+}
+
+unsigned char Octant::getChildIndex(const Vector3f& position) const {
+	unsigned char ret = position[0] < m_center[0] ? 0 : 1;
+	ret += position[1] < m_center[1] ? 0 : 2;
+	ret += position[2] < m_center[2] ? 0 : 4;
+	return ret; 
+}
+
+OctantVisibility Octant::getVisibility() const {
+	return static_cast<OctantVisibility>(m_visibility);
+}
+
+bool Octant::OcclusionQueryPending() const {
+	return m_occlusionQueryId != 0;
+}
+
+bool Octant::fitBoundingBox(const BoundingBox& box, const Vector3f& boxSize) const{
+	// If max split level, size always OK, otherwise check that box is at least half size of octant
+	if (m_level <= 1 || boxSize[0] >= m_halfSize[0] || boxSize[1] >= m_halfSize[1] || boxSize[2] >= m_halfSize[2]) {
+		return true;
+		// Also check if the box can not fit inside a child octant's culling box, in that case size OK (must insert here)
+	}else {
+		Vector3f quarterSize = 0.5f * m_halfSize;
+		if (box.min[0] <= m_fittingBox.min[0] + quarterSize[0] || box.max[0] >= m_fittingBox.max[0] - quarterSize[0] ||
+			box.min[1] <= m_fittingBox.min[1] + quarterSize[1] || box.max[1] >= m_fittingBox.max[1] - quarterSize[1] ||
+			box.max[2] <= m_fittingBox.min[2] + quarterSize[2] || box.max[2] >= m_fittingBox.max[2] - quarterSize[2])
+			return true;
+	}
+	// Bounding box too small, should create a child octant
+	return false;
+}
+
+void Octant::markCullingBoxDirty() const {
+	const Octant* octant = this;
+
+	while (octant && !octant->m_cullingBoxDirty) {
+		octant->m_cullingBoxDirty = true;
+		octant = octant->m_parent;
+	}
+}
+
+void Octant::pushVisibilityToChildren(Octant* octant, OctantVisibility newVisibility){
+	for (size_t i = 0; i < NUM_OCTANTS; ++i){
+		if (octant->m_children[i]){
+			octant->m_children[i]->m_visibility = newVisibility;
+			if (octant->m_children[i]->m_numChildren)
+				pushVisibilityToChildren(octant->m_children[i], newVisibility);
+		}
+	}
+}
+
+void  Octant::setVisibility(OctantVisibility newVisibility, bool pushToChildren){
+	m_visibility = newVisibility;
+
+	if (pushToChildren)
+		pushVisibilityToChildren(this, newVisibility);
+}
+
+bool  Octant::checkNewOcclusionQuery(float dt){
+	if (m_visibility != VIS_VISIBLE)
+		return m_occlusionQueryId == 0;
+
+	m_occlusionQueryTimer += dt;
+
+	if (m_occlusionQueryId != 0)
+		return false;
+
+	if (m_occlusionQueryTimer >= OCCLUSION_QUERY_INTERVAL){
+		m_occlusionQueryTimer = fmodf(m_occlusionQueryTimer, OCCLUSION_QUERY_INTERVAL);
+		return true;
+	}else
+		return false;
+}
+
 
 Octree::Octree(const Camera& camera, const Frustum& frustum) : threadedUpdate(false), workQueue(WorkQueue::Get()), frustum(frustum), camera(camera), m_dt(0.0f), m_frameNumber(0), m_useCulling(true), m_useOcclusionCulling(true){
     assert(workQueue);
@@ -229,8 +316,8 @@ void Octree::FinishUpdate(){
     // Sort octants' drawables by address and put lights first
     for (auto it = sortDirtyOctants.begin(); it != sortDirtyOctants.end(); ++it){
         Octant* octant = *it;
-		std::sort(octant->drawables.begin(), octant->drawables.end(), CompareDrawables);
-        octant->SetFlag(OF_DRAWABLES_SORT_DIRTY, false);
+		std::sort(octant->m_octreeNodes.begin(), octant->m_octreeNodes.end(), CompareDrawables);
+		octant->m_sortDrawables = false;
     }
 
     sortDirtyOctants.clear();
@@ -256,7 +343,7 @@ void Octree::QueueUpdate(OctreeNode* drawable){
 	assert(drawable);
 
 	if (drawable->m_octant) {
-		drawable->m_octant->MarkCullingBoxDirty();
+		drawable->m_octant->markCullingBoxDirty();
 	}
 
 	if (!threadedUpdate){
@@ -268,7 +355,7 @@ void Octree::QueueUpdate(OctreeNode* drawable){
 		// Do nothing if still fits the current octant
 		const BoundingBox& box = drawable->getWorldBoundingBox();
 		Octant* oldOctant = drawable->getOctant();
-		if (!oldOctant || oldOctant->fittingBox.isInside(box) != BoundingBox::INSIDE){
+		if (!oldOctant || oldOctant->m_fittingBox.isInside(box) != BoundingBox::INSIDE){
 			reinsertQueues[WorkQueue::ThreadIndex()].push_back(drawable);
 			drawable->m_reinsertQueued = true;
 		}
@@ -305,8 +392,8 @@ void Octree::ReinsertDrawables(std::vector<OctreeNode*>& drawables){
 		for (;;){
 			// If drawable does not fit fully inside root octant, must remain in it
 			bool insertHere = (newOctant == &root) ?
-				(newOctant->fittingBox.isInside(box) != BoundingBox::INSIDE || newOctant->FitBoundingBox(box, boxSize)) :
-				newOctant->FitBoundingBox(box, boxSize);
+				(newOctant->m_fittingBox.isInside(box) != BoundingBox::INSIDE || newOctant->fitBoundingBox(box, boxSize)) :
+				newOctant->fitBoundingBox(box, boxSize);
 
 			if (insertHere){
 				if (newOctant != oldOctant){
@@ -320,7 +407,7 @@ void Octree::ReinsertDrawables(std::vector<OctreeNode*>& drawables){
 				break;
 			}else {
 				Vector3f center = box.getCenter();
-				newOctant = CreateChildOctant(newOctant, newOctant->ChildIndex(center));
+				newOctant = CreateChildOctant(newOctant, newOctant->getChildIndex(center));
 			}
 		}
 		drawable->m_reinsertQueued = false;
@@ -330,10 +417,10 @@ void Octree::ReinsertDrawables(std::vector<OctreeNode*>& drawables){
 }
 
 void Octree::callRebuild(Octant* octant) {
-	octant->MarkCullingBoxDirty();
+	octant->markCullingBoxDirty();
 	for (size_t i = 0; i < NUM_OCTANTS; ++i) {
-		if (octant->Child(i)) {
-			callRebuild(octant->Child(i));
+		if (octant->getChild(i)) {
+			callRebuild(octant->getChild(i));
 		}
 	}
 }
@@ -348,13 +435,13 @@ void Octree::RemoveDrawableFromQueue(OctreeNode* drawable, std::vector<OctreeNod
 }
 
 Octant* Octree::CreateChildOctant(Octant* octant, unsigned char index){
-    if (octant->children[index])
-        return octant->children[index];
+    if (octant->m_children[index])
+        return octant->m_children[index];
 
     // Remove the culling extra from the bounding box before splitting
-    Vector3f newMin = octant->fittingBox.min + octant->halfSize;
-    Vector3f newMax = octant->fittingBox.max - octant->halfSize;
-    const Vector3f& oldCenter = octant->center;
+    Vector3f newMin = octant->m_fittingBox.min + octant->m_halfSize;
+    Vector3f newMax = octant->m_fittingBox.max - octant->m_halfSize;
+    const Vector3f& oldCenter = octant->m_center;
 
     if (index & 1)
         newMin[0] = oldCenter[0];
@@ -372,69 +459,48 @@ Octant* Octree::CreateChildOctant(Octant* octant, unsigned char index){
         newMax[2] = oldCenter[2];
 
 	Octant* child = new Octant();
-	child->Initialize(octant, BoundingBox(newMin, newMax), octant->level - 1, index);
-	octant->children[index] = child;
-	++octant->numChildren;
+	child->Initialize(octant, BoundingBox(newMin, newMax), octant->m_level - 1, index);
+	octant->m_children[index] = child;
+	++octant->m_numChildren;
 
 	return child;
 }
 
 void Octree::DeleteChildOctant(Octant* octant, unsigned char index){
-	delete octant->children[index];
-	octant->children[index] = nullptr;
-	--octant->numChildren;
+	delete octant->m_children[index];
+	octant->m_children[index] = nullptr;
+	--octant->m_numChildren;
 }
 
 void Octree::DeleteChildOctants(Octant* octant, bool deletingOctree){
-	for (auto it = octant->drawables.begin(); it != octant->drawables.end(); ++it){
+	for (auto it = octant->m_octreeNodes.begin(); it != octant->m_octreeNodes.end(); ++it){
 		OctreeNode* drawable = *it;
 		drawable->m_octant = nullptr;
 		drawable->m_reinsertQueued = false;
-		//if (deletingOctree)
-			//drawable->Owner()->octree = nullptr;
+		if (deletingOctree)
+			drawable->m_octree = nullptr;
 	}
-	octant->drawables.clear();
+	octant->m_octreeNodes.clear();
 
-	if (octant->numChildren){
+	if (octant->m_numChildren){
 		for (size_t i = 0; i < NUM_OCTANTS; ++i){
-			if (octant->children[i]){
-				DeleteChildOctants(octant->children[i], deletingOctree);
-				delete octant->children[i];
-				octant->children[i] = nullptr;
+			if (octant->m_children[i]){
+				DeleteChildOctants(octant->m_children[i], deletingOctree);
+				delete octant->m_children[i];
+				octant->m_children[i] = nullptr;
 			}
 		}
-		octant->numChildren = 0;
+		octant->m_numChildren = 0;
 	}
 }
 
 void Octree::CollectDrawables(std::vector<OctreeNode*>& result, Octant* octant) const{
-	result.insert(result.end(), octant->drawables.begin(), octant->drawables.end());
+	result.insert(result.end(), octant->m_octreeNodes.begin(), octant->m_octreeNodes.end());
 
-	if (octant->numChildren)
-	{
-		for (size_t i = 0; i < NUM_OCTANTS; ++i)
-		{
-			if (octant->children[i])
-				CollectDrawables(result, octant->children[i]);
-		}
-	}
-}
-
-void Octree::CollectDrawables(std::vector<OctreeNode*>& result, Octant* octant, unsigned short drawableFlags, unsigned layerMask) const{
-	std::vector<OctreeNode*>& drawables = octant->drawables;
-
-	for (auto it = drawables.begin(); it != drawables.end(); ++it){
-		OctreeNode* drawable = *it;
-		//if ((drawable->Flags() & drawableFlags) == drawableFlags && (drawable->LayerMask() & layerMask))
-		result.push_back(drawable);
-	}
-
-	if (octant->numChildren)
-	{
-		for (size_t i = 0; i < NUM_OCTANTS; ++i)
-		{
-			if (octant->children[i])
-				CollectDrawables(result, octant->children[i], drawableFlags, layerMask);
+	if (octant->m_numChildren){
+		for (size_t i = 0; i < NUM_OCTANTS; ++i){
+			if (octant->m_children[i])
+				CollectDrawables(result, octant->m_children[i]);
 		}
 	}
 }
@@ -454,25 +520,20 @@ void Octree::CheckReinsertWork(Task* task_, unsigned threadIndex_){
 		if (drawable->m_octreeUpdate)
 			drawable->OnOctreeUpdate();
 
-		
-
-		//drawable->OnFrameNumberSet(m_frameNumber);
+		//drawable->setLastFrameNumber(m_frameNumber);
 
 		// Do nothing if still fits the current octant
 		const BoundingBox& box = drawable->getWorldBoundingBox();
 		Octant* oldOctant = drawable->getOctant();
-		if (!oldOctant || oldOctant->fittingBox.isInside(box) != BoundingBox::INSIDE)
+		if (!oldOctant || oldOctant->m_fittingBox.isInside(box) != BoundingBox::INSIDE)
 			reinsertQueue.push_back(drawable);
 		else
 			drawable->m_reinsertQueued = false;
-
-		//drawable->m_distance = Vector3f::Length(box.getCenter(), camera.getPosition());
 	}
-
 	numPendingReinsertionTasks.fetch_add(-1);
 }
 
-void Octree::updateOctree(float dt) {
+void Octree::updateOctree(float dt){
 	m_dt = dt;
 	// Clear results from last frame
 	rootLevelOctants.clear();
@@ -492,13 +553,13 @@ void Octree::updateOctree(float dt) {
 
 	// Find the starting points for octree traversal. Include the root if it contains drawables that didn't fit elsewhere
 	Octant& rootOctant = root;
-	if (rootOctant.Drawables().size()) {
+	if (rootOctant.getOctreeNodes().size()) {
 		rootLevelOctants.push_back(&rootOctant);
 	}
 
 	for (size_t i = 0; i < NUM_OCTANTS; ++i) {
-		if (rootOctant.Child(i))
-			rootLevelOctants.push_back(rootOctant.Child(i));
+		if (rootOctant.getChild(i))
+			rootLevelOctants.push_back(rootOctant.getChild(i));
 	}
 
 	// Keep track of both batch + octant task progress before main batches can be sorted (batch tasks will add to the counter when queued)
@@ -523,9 +584,8 @@ void Octree::updateOctree(float dt) {
 	SetThreadedUpdate(false);
 }
 
-void Octree::CollectOctants(Octant* octant, ThreadOctantResult& result, unsigned char planeMask)
-{
-	const BoundingBox& octantBox = octant->CullingBox();
+void Octree::CollectOctants(Octant* octant, ThreadOctantResult& result, unsigned char planeMask){
+	const BoundingBox& octantBox = octant->getCullingBox();
 
 	if (planeMask) {
 		// If not already inside all frustum planes, do frustum test and terminate if completely outside
@@ -534,8 +594,8 @@ void Octree::CollectOctants(Octant* octant, ThreadOctantResult& result, unsigned
 
 		if (planeMask == 0xff) {
 			// If octant becomes frustum culled, reset its visibility for when it comes back to view, including its children
-			if (m_useOcclusionCulling && octant->Visibility() != VIS_OUTSIDE_FRUSTUM)
-				octant->SetVisibility(VIS_OUTSIDE_FRUSTUM, true);
+			if (m_useOcclusionCulling && octant->getVisibility() != VIS_OUTSIDE_FRUSTUM)
+				octant->setVisibility(VIS_OUTSIDE_FRUSTUM, true);
 			return;
 		}
 	}
@@ -543,10 +603,10 @@ void Octree::CollectOctants(Octant* octant, ThreadOctantResult& result, unsigned
 	// Process occlusion now before going further
 	if (m_useOcclusionCulling) {
 		// If was previously outside frustum, reset to visible-unknown
-		if (octant->Visibility() == VIS_OUTSIDE_FRUSTUM)
-			octant->SetVisibility(VIS_VISIBLE_UNKNOWN, false);
+		if (octant->getVisibility() == VIS_OUTSIDE_FRUSTUM)
+			octant->setVisibility(VIS_VISIBLE_UNKNOWN, false);
 
-		switch (octant->Visibility()) {
+		switch (octant->getVisibility()) {
 			// If octant is occluded, issue query if not pending, and do not process further this frame
 		case VIS_OCCLUDED:
 			AddOcclusionQuery(octant, result, planeMask);
@@ -555,10 +615,10 @@ void Octree::CollectOctants(Octant* octant, ThreadOctantResult& result, unsigned
 			// If octant was occluded previously, but its parent came into view, issue tests along the hierarchy but do not render on this frame
 		case VIS_OCCLUDED_UNKNOWN:
 			AddOcclusionQuery(octant, result, planeMask);
-			if (octant != &root && octant->HasChildren()) {
+			if (octant != &root && octant->hasChildren()) {
 				for (size_t i = 0; i < NUM_OCTANTS; ++i) {
-					if (octant->Child(i))
-						CollectOctants(octant->Child(i), result, planeMask);
+					if (octant->getChild(i))
+						CollectOctants(octant->getChild(i), result, planeMask);
 				}
 			}
 			return;
@@ -571,33 +631,31 @@ void Octree::CollectOctants(Octant* octant, ThreadOctantResult& result, unsigned
 			// If the octant's parent is already visible too, only test the octant if it is a "leaf octant" with drawables
 			// Note: visible octants will also add a time-based staggering to reduce queries
 		case VIS_VISIBLE:
-			Octant* parent = octant->Parent();
-			if (octant->Drawables().size() > 0 || (parent && parent->Visibility() != VIS_VISIBLE))
+			Octant* parent = octant->getParent();
+			if (octant->getOctreeNodes().size() > 0 || (parent && parent->getVisibility() != VIS_VISIBLE))
 				AddOcclusionQuery(octant, result, planeMask);
 			break;
 		}
-	}
-	else {
+	}else {
 		// When occlusion not in use, reset all traversed octants to visible-unknown
-		octant->SetVisibility(VIS_VISIBLE_UNKNOWN, false);
+		octant->setVisibility(VIS_VISIBLE_UNKNOWN, false);
 	}
 
-	const std::vector<OctreeNode*>& drawables = octant->Drawables();
+	const std::vector<OctreeNode*>& drawables = octant->getOctreeNodes();
 	std::for_each(drawables.begin(), drawables.end(), std::bind(std::mem_fn<void(unsigned short)>(&OctreeNode::setLastFrameNumber), std::placeholders::_1, m_frameNumber));
 
 	for (auto it = drawables.begin(); it != drawables.end(); ++it) {
 		OctreeNode* drawable = *it;
 		result.octants.push_back(std::make_pair(octant, planeMask));
 		result.drawableAcc += drawables.end() - it;
-		//drawable->OnPrepareRender(m_frameNumber);
 		break;
 	}
 
 	// Root octant is handled separately. Otherwise recurse into child octants
-	if (octant != &root && octant->HasChildren()) {
+	if (octant != &root && octant->hasChildren()) {
 		for (size_t i = 0; i < NUM_OCTANTS; ++i) {
-			if (octant->Child(i))
-				CollectOctants(octant->Child(i), result, planeMask);
+			if (octant->getChild(i))
+				CollectOctants(octant->getChild(i), result, planeMask);
 		}
 	}
 }
@@ -605,7 +663,7 @@ void Octree::CollectOctants(Octant* octant, ThreadOctantResult& result, unsigned
 void Octree::AddOcclusionQuery(Octant* octant, ThreadOctantResult& result, unsigned char planeMask) {
 	// No-op if previous query still ongoing. Also If the octant intersects the frustum, verify with SAT test that it actually covers some screen area
 	// Otherwise the occlusion test will produce a false negative
-	if (octant->CheckNewOcclusionQuery(m_dt) && (!planeMask || frustum.isInsideSAT(octant->CullingBox(), frustum.m_frustumSATData))) {
+	if (octant->checkNewOcclusionQuery(m_dt) && (!planeMask || frustum.isInsideSAT(octant->getCullingBox(), frustum.m_frustumSATData))) {
 		result.occlusionQueries.push_back(octant);
 	}
 }
@@ -641,7 +699,7 @@ void Octree::RenderOcclusionQueries() {
 		for (auto it = octantResults[i].occlusionQueries.begin(); it != octantResults[i].occlusionQueries.end(); ++it) {
 			Octant* octant = *it;
 
-			const BoundingBox& octantBox = octant->CullingBox();
+			const BoundingBox& octantBox = octant->getCullingBox();
 			BoundingBox box(octantBox.min - enlargement, octantBox.max + enlargement);
 
 			// If bounding box could be clipped by near plane, assume visible without performing query
@@ -691,40 +749,33 @@ void Octree::CollectOctantsWork(Task* task_, unsigned) {
 	numPendingBatchTasks.fetch_add(-1);
 }
 
-unsigned Octree::BeginOcclusionQuery(void* object)
-{
+unsigned Octree::BeginOcclusionQuery(void* object){
 	GLuint queryId;
 
-	if (freeQueries.size())
-	{
+	if (freeQueries.size()){
 		queryId = freeQueries.back();
 		freeQueries.pop_back();
-	}
-	else
+	}else
 		glGenQueries(1, &queryId);
 
 	glBeginQuery(GL_ANY_SAMPLES_PASSED, queryId);
-	pendingQueries.push_back(std::make_pair(queryId, object));
+	PendingQueries.push_back(std::make_pair(queryId, object));
 
 	return queryId;
 }
 
-void Octree::EndOcclusionQuery()
-{
+void Octree::EndOcclusionQuery(){
 	glEndQuery(GL_ANY_SAMPLES_PASSED);
 }
 
 
-void Octree::FreeOcclusionQuery(unsigned queryId)
-{
+void Octree::FreeOcclusionQuery(unsigned queryId){
 	if (!queryId)
 		return;
 
-	for (auto it = pendingQueries.begin(); it != pendingQueries.end(); ++it)
-	{
-		if (it->first == queryId)
-		{
-			pendingQueries.erase(it);
+	for (auto it = PendingQueries.begin(); it != PendingQueries.end(); ++it){
+		if (it->first == queryId){
+			PendingQueries.erase(it);
 			break;
 		}
 	}
@@ -736,26 +787,24 @@ void Octree::CheckOcclusionQueryResults(std::vector<OcclusionQueryResult>& resul
 	GLuint available = 0;
 
 	// To save API calls, go through queries in reverse order and assume that if a later query has its result available, then all earlier queries will have too
-	for (size_t i = pendingQueries.size() - 1; i < pendingQueries.size(); --i)
-	{
-		GLuint queryId = pendingQueries[i].first;
+	for (size_t i = PendingQueries.size() - 1; i < PendingQueries.size(); --i){
+		GLuint queryId = PendingQueries[i].first;
 
 		if (!available)
 			glGetQueryObjectuiv(queryId, GL_QUERY_RESULT_AVAILABLE, &available);
 
-		if (available)
-		{
+		if (available){
 			GLuint passed = 0;
 			glGetQueryObjectuiv(queryId, GL_QUERY_RESULT, &passed);
 
 			OcclusionQueryResult newResult;
 			newResult.id = queryId;
-			newResult.object = pendingQueries[i].second;
+			newResult.object = PendingQueries[i].second;
 			newResult.visible = passed > 0;
 			result.push_back(newResult);
 
 			freeQueries.push_back(queryId);
-			pendingQueries.erase(pendingQueries.begin() + i);
+			PendingQueries.erase(PendingQueries.begin() + i);
 		}
 	}
 }

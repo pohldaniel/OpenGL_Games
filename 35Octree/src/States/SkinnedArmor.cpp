@@ -53,6 +53,9 @@ SkinnedArmor::SkinnedArmor(StateMachine& machine) : State(machine, States::SKINN
 	m_characterController = new KinematicCharacterController();
 	m_characterSkinned = new CharacterSkinned(m_characterController, m_entities[7], m_lift, m_camera);
 	m_characterSkinned->setPosition(Vector3f(28.0f, 7.84f, -4.0f));
+
+	m_frustum.init();
+	m_frustum.getDebug() = true;
 }
 
 SkinnedArmor::~SkinnedArmor() {
@@ -177,7 +180,7 @@ void SkinnedArmor::render() {
 			if (m_debugTree)
 				octant->OnRenderAABB(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
 
-			const std::vector<OctreeNode*>& drawables = octant->Drawables();
+			const std::vector<OctreeNode*>& drawables = octant->getOctreeNodes();
 			for (auto dIt = drawables.begin(); dIt != drawables.end(); ++dIt) {
 				OctreeNode* drawable = *dIt;
 				shader->loadMatrix("u_model", drawable->getWorldTransformation());
@@ -201,7 +204,7 @@ void SkinnedArmor::render() {
 	m_entities.back()->drawRaw();
 	shader->unuse();
 
-	m_characterSkinned->draw(m_camera);
+	!m_overview ? m_characterSkinned->draw(m_camera) : m_characterSkinned->drawOverview(m_camera.getOrthographicMatrix(), m_view);
 
 	if (m_overview) {
 		m_frustum.updateVbo(perspective, m_camera.getViewMatrix());
