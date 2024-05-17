@@ -51,7 +51,7 @@ void OctreeNode::OnBoundingBoxChanged() {
 	m_worldBoundingBoxDirty = true;
 
 	if (m_octant && !m_reinsertQueued)
-		m_octree->QueueUpdate(this);
+		m_octree->queueUpdate(this);
 }
 
 void OctreeNode::OnOctreeUpdate() {
@@ -73,7 +73,7 @@ Octree* OctreeNode::getOctree() const {
 
 void OctreeNode::removeFromOctree() {
 	if (m_octree) {
-		m_octree->RemoveDrawable(this);
+		m_octree->removeDrawable(this);
 		m_octree = nullptr;
 	}
 }
@@ -85,7 +85,7 @@ void OctreeNode::OnOctreeSet(Octree* octree) {
 		frameNumber = &m_octree->m_frameNumber;
 		//Important: guarantee thread safeness
 		updateWorldTransformation();
-		m_octree->QueueUpdate(this);
+		m_octree->queueUpdate(this);
 	}
 }
 

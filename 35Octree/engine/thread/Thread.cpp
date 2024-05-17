@@ -1,5 +1,15 @@
 #include "Thread.h"
 
+std::thread::id mainThreadId = std::this_thread::get_id();
+
+bool ThreadUtil::IsMainThread() {
+	return std::this_thread::get_id() == mainThreadId;
+}
+
+unsigned ThreadUtil::CPUCount() {
+	return std::thread::hardware_concurrency();
+}
+
 Looper::Dispatcher::Dispatcher(Looper &aLooper) : mAssignedLooper(aLooper){
 }
 

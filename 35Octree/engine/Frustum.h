@@ -66,9 +66,9 @@ public:
 	bool& getDebug();
 	unsigned char isInsideMasked(const BoundingBox& box, unsigned char planeMask = 0x3f) const;
 	BoundingBox::Intersection isInsideSAT(const BoundingBox& box, const SATData& data) const;
+	BoundingBox::Intersection isInsideFast(const BoundingBox& box) const;
 
-	static bool IntersectAABBPlane(const Vector3f& position, const Vector3f& size, const Vector4f& plane);
-	
+	static bool IntersectAABBPlane(const Vector3f& position, const Vector3f& size, const Vector4f& plane);	
 	SATData m_frustumSATData;
 
 private:

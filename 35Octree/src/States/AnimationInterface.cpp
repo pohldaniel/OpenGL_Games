@@ -43,7 +43,7 @@ AnimationInterface::AnimationInterface(StateMachine& machine) : State(machine, S
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 	WorkQueue::Init(0);
-	m_octree = new Octree(m_camera, m_frustum);
+	m_octree = new Octree(m_camera, m_frustum, m_dt);
 
 	m_root = new SceneNodeLC();
 	AnimationNode* child;
@@ -137,7 +137,7 @@ void AnimationInterface::update() {
 	m_frustum.updateVertices(perspective, m_camera.getViewMatrix());
 	m_frustum.m_frustumSATData.calculate(m_frustum);
 
-	m_octree->updateOctree(m_dt);
+	m_octree->updateOctree();
 }
 
 void AnimationInterface::render() {
@@ -153,8 +153,8 @@ void AnimationInterface::render() {
 
 	Globals::textureManager.get("null").bind();
 
-	for (size_t i = 0; i < m_octree->rootLevelOctants.size(); ++i) {
-		const Octree::ThreadOctantResult& result = m_octree->octantResults[i];
+	for (size_t i = 0; i < m_octree->getRootLevelOctants().size(); ++i) {
+		const Octree::ThreadOctantResult& result = m_octree->getOctantResults()[i];
 		for (auto oIt = result.octants.begin(); oIt != result.octants.end(); ++oIt) {
 			Octant* octant = oIt->first;
 			if(m_debugTree)
@@ -173,7 +173,7 @@ void AnimationInterface::render() {
 	shader->unuse();
 
 	if (m_useOcclusion)
-		m_octree->RenderOcclusionQueries();
+		m_octree->renderOcclusionQueries();
 
 	if (m_overview) {
 		m_frustum.updateVbo(perspective, m_camera.getViewMatrix());

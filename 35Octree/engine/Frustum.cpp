@@ -357,8 +357,6 @@ unsigned char Frustum::isInsideMasked(const BoundingBox& box, unsigned char plan
 			float dist = Vector4f::Dot(m_planes[i], center) + plane[3];
 			float absDist = Vector4f::DotAbs(m_planes[i], edge);
 
-			//std::cout << "Dist: " << dist << "  " << absDist << std::endl;
-
 			if (dist < -absDist)
 				return 0xff;
 			else if (dist >= absDist)
@@ -367,6 +365,22 @@ unsigned char Frustum::isInsideMasked(const BoundingBox& box, unsigned char plan
 	}
 
 	return planeMask;
+}
+
+BoundingBox::Intersection Frustum::isInsideFast(const BoundingBox& box) const {
+	Vector3f center = box.getCenter();
+	Vector3f edge = center - box.min;
+
+	for (size_t i = 0; i < NUM_FRUSTUM_PLANES; ++i) {
+		const Vector4f& plane = m_planes[i];
+		float dist = Vector4f::Dot(m_planes[i], center) + plane[3];
+		float absDist = Vector4f::DotAbs(m_planes[i], edge);
+
+		if (dist < -absDist)
+			return BoundingBox::OUTSIDE;
+	}
+
+	return BoundingBox::INSIDE;
 }
 
 std::pair<float, float> Frustum::projected(const Vector3f& axis) const{

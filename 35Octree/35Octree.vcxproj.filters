@@ -516,9 +516,6 @@
     <ClCompile Include="engine\octree\Octree.cpp">
       <Filter>engine\octree</Filter>
     </ClCompile>
-    <ClCompile Include="engine\octree\ThreadUtils.cpp">
-      <Filter>engine\octree</Filter>
-    </ClCompile>
     <ClCompile Include="engine\octree\WorkQueue.cpp">
       <Filter>engine\octree</Filter>
     </ClCompile>
@@ -1202,13 +1199,7 @@
     <ClInclude Include="engine\scene\OctreeNode.h">
       <Filter>engine\scene</Filter>
     </ClInclude>
-    <ClInclude Include="engine\octree\AutoPtr.h">
-      <Filter>engine\octree</Filter>
-    </ClInclude>
     <ClInclude Include="engine\octree\Octree.h">
-      <Filter>engine\octree</Filter>
-    </ClInclude>
-    <ClInclude Include="engine\octree\ThreadUtils.h">
       <Filter>engine\octree</Filter>
     </ClInclude>
     <ClInclude Include="engine\octree\WorkQueue.h">

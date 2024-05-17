@@ -6,7 +6,6 @@
 #include <engine/TrackBall.h>
 #include <engine/Frustum.h>
 #include <engine/scene/ShapeNode.h>
-#include <engine/octree/ThreadUtils.h>
 #include <engine/octree/Octree.h>
 
 #include <States/StateMachine.h>

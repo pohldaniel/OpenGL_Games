@@ -1,4 +1,4 @@
-#include "ThreadUtils.h"
+#include "../thread/Thread.h"
 #include "WorkQueue.h"
 
 WorkQueue* WorkQueue::Instance = nullptr;
@@ -17,7 +17,7 @@ WorkQueue::WorkQueue(unsigned numThreads) : shouldExit(false){
     numPendingTasks.store(0);
 
     if (numThreads == 0){
-        numThreads = CPUCount();
+        numThreads = ThreadUtil::CPUCount();
         // Avoid completely excessive core count
         if (numThreads > 16)
             numThreads = 16;

@@ -1,6 +1,3 @@
-// For conditions of distribution and use, see copyright notice in License.txt
-
-#include <cassert>
 #include <algorithm>
 #include <engine/DebugRenderer.h>
 #include "Octree.h"
@@ -69,10 +66,6 @@ void Octant::OnRenderAABB(const Vector4f& color) {
 }
 
 void Octant::OnOcclusionQuery(unsigned queryId){
-    // Should not have an existing query in flight
-    assert(!m_occlusionQueryId);
-
-    // Mark pending
 	m_occlusionQueryId = queryId;
 }
 
@@ -228,20 +221,27 @@ bool  Octant::checkNewOcclusionQuery(float dt){
 }
 
 
-Octree::Octree(const Camera& camera, const Frustum& frustum) : threadedUpdate(false), workQueue(WorkQueue::Get()), frustum(frustum), camera(camera), m_dt(0.0f), m_frameNumber(0), m_useCulling(true), m_useOcclusionCulling(true){
-    assert(workQueue);
+Octree::Octree(const Camera& camera, const Frustum& frustum, const float& dt) :
+	m_threadedUpdate(false),
+	workQueue(WorkQueue::Get()), 
+	frustum(frustum), 
+	camera(camera), 
+	m_dt(dt),
+	m_frameNumber(0), 
+	m_useCulling(true), 
+	m_useOcclusionCulling(true){
 
-    root.Initialize(nullptr, BoundingBox(-DEFAULT_OCTREE_SIZE, DEFAULT_OCTREE_SIZE), DEFAULT_OCTREE_LEVELS, 0);
+	m_root.Initialize(nullptr, BoundingBox(-DEFAULT_OCTREE_SIZE, DEFAULT_OCTREE_SIZE), DEFAULT_OCTREE_LEVELS, 0);
 
     // Have at least 1 task for reinsert processing
-	reinsertTasks.push_back(new ReinsertDrawablesTask(this, &Octree::CheckReinsertWork));
-	reinsertQueues = new std::vector<OctreeNode*>[workQueue->NumThreads()];
+	m_reinsertTasks.push_back(new ReinsertDrawablesTask(this, &Octree::checkReinsertWork));
+	m_reinsertQueues = new std::vector<OctreeNode*>[workQueue->NumThreads()];
 
-	octantResults = new ThreadOctantResult[NUM_OCTANT_TASKS];
+	m_octantResults = new ThreadOctantResult[NUM_OCTANT_TASKS];
 
 	for (size_t i = 0; i < NUM_OCTANTS + 1; ++i) {
-		collectOctantsTasks[i] = new CollectOctantsTask(this, &Octree::CollectOctantsWork);
-		collectOctantsTasks[i]->resultIdx = i;
+		m_collectOctantsTasks[i] = new CollectOctantsTask(this, &Octree::collectOctantsWork);
+		m_collectOctantsTasks[i]->resultIdx = i;
 	}
 
 	if (!ShaderOcclusion) {
@@ -254,7 +254,7 @@ Octree::Octree(const Camera& camera, const Frustum& frustum) : threadedUpdate(fa
 Octree::~Octree(){
     // Clear octree association from nodes that were never inserted
     // Note: the threaded queues cannot have nodes that were never inserted, only nodes that should be moved
-	for (auto it = updateQueue.begin(); it != updateQueue.end(); ++it){
+	for (auto it = m_updateQueue.begin(); it != m_updateQueue.end(); ++it){
 		OctreeNode* drawable = *it;
 		if (drawable){
 			drawable->m_octant = nullptr;
@@ -262,7 +262,20 @@ Octree::~Octree(){
 		}
 	}
 
-    DeleteChildOctants(&root, true);
+    deleteChildOctants(&m_root, true);
+
+	delete[] m_octantResults;
+	delete[] m_reinsertQueues;
+
+	for (size_t i = 0; i < NUM_OCTANTS + 1; ++i) {
+		delete m_collectOctantsTasks[i];
+		m_collectOctantsTasks[i] = nullptr;
+	}
+
+	for (size_t i = 0; i < m_reinsertTasks.size(); ++i) {
+		delete m_reinsertTasks[i];
+		m_reinsertTasks[i] = nullptr;
+	}
 }
 
 void Octree::updateFrameNumber() {
@@ -271,83 +284,101 @@ void Octree::updateFrameNumber() {
 		++m_frameNumber;
 }
 
-void Octree::Update(){
+void Octree::update(){
 
     // Avoid overhead of threaded update if only a small number of objects to update / reinsert
-    if (updateQueue.size()) {
-		SetThreadedUpdate(true);
+    if (m_updateQueue.size()) {
+		setThreadedUpdate(true);
 
 		// Split into smaller tasks to encourage work stealing in case some thread is slower
-		size_t nodesPerTask = std::max(MIN_THREADED_UPDATE, updateQueue.size() / workQueue->NumThreads() / 4);
+		size_t nodesPerTask = std::max(MIN_THREADED_UPDATE, m_updateQueue.size() / workQueue->NumThreads() / 4);
 		size_t taskIdx = 0;
 
-		for (size_t start = 0; start < updateQueue.size(); start += nodesPerTask){
+		for (size_t start = 0; start < m_updateQueue.size(); start += nodesPerTask){
 			size_t end = start + nodesPerTask;
-			if (end > updateQueue.size())
-				end = updateQueue.size();
+			if (end > m_updateQueue.size())
+				end = m_updateQueue.size();
 
-			if (reinsertTasks.size() <= taskIdx)
-				reinsertTasks.push_back(new ReinsertDrawablesTask(this, &Octree::CheckReinsertWork));
-			reinsertTasks[taskIdx]->start = &updateQueue[0] + start;
-			reinsertTasks[taskIdx]->end = &updateQueue[0] + end;
+			if (m_reinsertTasks.size() <= taskIdx)
+				m_reinsertTasks.push_back(new ReinsertDrawablesTask(this, &Octree::checkReinsertWork));
+			m_reinsertTasks[taskIdx]->start = &m_updateQueue[0] + start;
+			m_reinsertTasks[taskIdx]->end = &m_updateQueue[0] + end;
 			++taskIdx;
 		}
 
-		numPendingReinsertionTasks.store((int)taskIdx);
-		workQueue->QueueTasks(taskIdx, reinterpret_cast<Task**>(&reinsertTasks[0]));
-	}
-	else
-        numPendingReinsertionTasks.store(0);
+		m_numPendingReinsertionTasks.store((int)taskIdx);
+		workQueue->QueueTasks(taskIdx, reinterpret_cast<Task**>(&m_reinsertTasks[0]));
+	}else
+		m_numPendingReinsertionTasks.store(0);
 }
 
-void Octree::FinishUpdate(){
+void Octree::finishUpdate(){
     // Complete tasks until reinsertions done. There may other tasks going on at the same time
-    while (numPendingReinsertionTasks.load() > 0)
+    while (m_numPendingReinsertionTasks.load() > 0)
         workQueue->TryComplete();
 
-    SetThreadedUpdate(false);
+    setThreadedUpdate(false);
 
     // Now reinsert drawables that actually need reinsertion into a different octant
 	for (size_t i = 0; i < workQueue->NumThreads(); ++i)
-		ReinsertDrawables(reinsertQueues[i]);
+		reinsertDrawables(m_reinsertQueues[i]);
 
-	updateQueue.clear();
+	m_updateQueue.clear();
 
     // Sort octants' drawables by address and put lights first
-    for (auto it = sortDirtyOctants.begin(); it != sortDirtyOctants.end(); ++it){
+    for (auto it = m_sortDirtyOctants.begin(); it != m_sortDirtyOctants.end(); ++it){
         Octant* octant = *it;
 		std::sort(octant->m_octreeNodes.begin(), octant->m_octreeNodes.end(), CompareDrawables);
 		octant->m_sortDrawables = false;
     }
 
-    sortDirtyOctants.clear();
+	m_sortDirtyOctants.clear();
 }
 
-void Octree::Resize(const BoundingBox& boundingBox, int numLevels){
+void Octree::resize(const BoundingBox& boundingBox, int numLevels){
     // Collect nodes to the root and delete all child octants
-	updateQueue.clear();
-	CollectDrawables(updateQueue, &root);
-    DeleteChildOctants(&root, false);
-
-    //allocator.Reset();
-    root.Initialize(nullptr, boundingBox, (unsigned char)Math::Clamp(numLevels, 1, MAX_OCTREE_LEVELS), 0);
+	m_updateQueue.clear();
+	collectDrawables(m_updateQueue, &m_root);
+    deleteChildOctants(&m_root, false);
+	m_root.Initialize(nullptr, boundingBox, (unsigned char)Math::Clamp(numLevels, 1, MAX_OCTREE_LEVELS), 0);
 }
 
 void Octree::OnRenderAABB(const Vector4f& color) {
-	root.OnRenderAABB(color);
+	m_root.OnRenderAABB(color);
 }
 
-void Octree::QueueUpdate(OctreeNode* drawable){
-	
-	
-	assert(drawable);
+void Octree::setThreadedUpdate(bool threadedUpdate) {
+	m_threadedUpdate = threadedUpdate;
+}
 
+bool Octree::getThreadedUpdate() const { 
+	return m_threadedUpdate;
+}
+
+Octant* Octree::getRoot() const { 
+	return const_cast<Octant*>(&m_root);
+}
+
+size_t Octree::pendingOcclusionQueries() const {
+	return PendingQueries.size(); 
+}
+
+const std::vector<Octant*>& Octree::getRootLevelOctants() const{
+	return m_rootLevelOctants;
+}
+
+const Octree::ThreadOctantResult* Octree::getOctantResults() const {
+	return  m_octantResults;
+}
+
+void Octree::queueUpdate(OctreeNode* drawable){
+	
 	if (drawable->m_octant) {
 		drawable->m_octant->markCullingBoxDirty();
 	}
 
-	if (!threadedUpdate){
-		updateQueue.push_back(drawable);
+	if (!m_threadedUpdate){
+		m_updateQueue.push_back(drawable);
 		drawable->m_reinsertQueued = true;
 	}else{
 		//drawable->lastUpdateFrameNumber = frameNumber;
@@ -356,23 +387,23 @@ void Octree::QueueUpdate(OctreeNode* drawable){
 		const BoundingBox& box = drawable->getWorldBoundingBox();
 		Octant* oldOctant = drawable->getOctant();
 		if (!oldOctant || oldOctant->m_fittingBox.isInside(box) != BoundingBox::INSIDE){
-			reinsertQueues[WorkQueue::ThreadIndex()].push_back(drawable);
+			m_reinsertQueues[WorkQueue::ThreadIndex()].push_back(drawable);
 			drawable->m_reinsertQueued = true;
 		}
 	}
 }
 
-void Octree::RemoveDrawable(OctreeNode* drawable){
+void Octree::removeDrawable(OctreeNode* drawable){
 	if (!drawable)
 		return;
 
-	RemoveDrawable(drawable, drawable->getOctant());
+	removeDrawable(drawable, drawable->getOctant());
 	if (drawable->m_reinsertQueued){
-		RemoveDrawableFromQueue(drawable, updateQueue);
+		removeDrawableFromQueue(drawable, m_updateQueue);
 
 		// Remove also from threaded queues if was left over before next update
 		for (size_t i = 0; i < workQueue->NumThreads(); ++i)
-			RemoveDrawableFromQueue(drawable, reinsertQueues[i]);
+			removeDrawableFromQueue(drawable, m_reinsertQueues[i]);
 
 		drawable->m_reinsertQueued = false;
 	}
@@ -380,18 +411,18 @@ void Octree::RemoveDrawable(OctreeNode* drawable){
 	drawable->m_octant = nullptr;
 }
 
-void Octree::ReinsertDrawables(std::vector<OctreeNode*>& drawables){
+void Octree::reinsertDrawables(std::vector<OctreeNode*>& drawables){
 	for (auto it = drawables.begin(); it != drawables.end(); ++it){
 		OctreeNode* drawable = *it;
 
 		const BoundingBox& box = drawable->getWorldBoundingBox();
 		Octant* oldOctant = drawable->getOctant();
-		Octant* newOctant = &root;
+		Octant* newOctant = &m_root;
 		Vector3f boxSize = box.getSize();
 
 		for (;;){
 			// If drawable does not fit fully inside root octant, must remain in it
-			bool insertHere = (newOctant == &root) ?
+			bool insertHere = (newOctant == &m_root) ?
 				(newOctant->m_fittingBox.isInside(box) != BoundingBox::INSIDE || newOctant->fitBoundingBox(box, boxSize)) :
 				newOctant->fitBoundingBox(box, boxSize);
 
@@ -399,15 +430,15 @@ void Octree::ReinsertDrawables(std::vector<OctreeNode*>& drawables){
 				if (newOctant != oldOctant){
 					
 					// Add first, then remove, because drawable count going to zero deletes the octree branch in question
-					AddDrawable(drawable, newOctant);
+					addDrawable(drawable, newOctant);
 					callRebuild(newOctant);
 					if (oldOctant)
-						RemoveDrawable(drawable, oldOctant);
+						removeDrawable(drawable, oldOctant);
 				}
 				break;
 			}else {
 				Vector3f center = box.getCenter();
-				newOctant = CreateChildOctant(newOctant, newOctant->getChildIndex(center));
+				newOctant = createChildOctant(newOctant, newOctant->getChildIndex(center));
 			}
 		}
 		drawable->m_reinsertQueued = false;
@@ -425,7 +456,7 @@ void Octree::callRebuild(Octant* octant) {
 	}
 }
 
-void Octree::RemoveDrawableFromQueue(OctreeNode* drawable, std::vector<OctreeNode*>& drawables){
+void Octree::removeDrawableFromQueue(OctreeNode* drawable, std::vector<OctreeNode*>& drawables){
     for (auto it = drawables.begin(); it != drawables.end(); ++it){
         if ((*it) == drawable){
             *it = nullptr;
@@ -434,7 +465,47 @@ void Octree::RemoveDrawableFromQueue(OctreeNode* drawable, std::vector<OctreeNod
     }
 }
 
-Octant* Octree::CreateChildOctant(Octant* octant, unsigned char index){
+void Octree::addDrawable(OctreeNode* drawable, Octant* octant) {
+	octant->m_octreeNodes.push_back(drawable);
+	octant->markCullingBoxDirty();
+	octant->updateCullingBox();
+	drawable->m_octant = octant;
+
+	if (!octant->m_sortDrawables) {
+		octant->m_sortDrawables = true;
+		m_sortDirtyOctants.push_back(octant);
+	}
+}
+
+/// Remove drawable from an octant.
+void Octree::removeDrawable(OctreeNode* drawable, Octant* octant)
+{
+	if (!octant)
+		return;
+
+	octant->markCullingBoxDirty();
+
+	// Do not set the drawable's octant pointer to zero, as the drawable may already be added into another octant. Just remove from octant
+	for (auto it = octant->m_octreeNodes.begin(); it != octant->m_octreeNodes.end(); ++it)
+	{
+		if ((*it) == drawable)
+		{
+			octant->m_octreeNodes.erase(it);
+
+			// Erase empty octants as necessary, but never the root
+			while (!octant->m_octreeNodes.size() && !octant->m_numChildren && octant->m_parent)
+			{
+				Octant* parentOctant = octant->m_parent;
+				deleteChildOctant(parentOctant, octant->m_childIndex);
+				octant = parentOctant;
+			}
+			return;
+		}
+	}
+}
+
+
+Octant* Octree::createChildOctant(Octant* octant, unsigned char index){
     if (octant->m_children[index])
         return octant->m_children[index];
 
@@ -466,13 +537,13 @@ Octant* Octree::CreateChildOctant(Octant* octant, unsigned char index){
 	return child;
 }
 
-void Octree::DeleteChildOctant(Octant* octant, unsigned char index){
+void Octree::deleteChildOctant(Octant* octant, unsigned char index){
 	delete octant->m_children[index];
 	octant->m_children[index] = nullptr;
 	--octant->m_numChildren;
 }
 
-void Octree::DeleteChildOctants(Octant* octant, bool deletingOctree){
+void Octree::deleteChildOctants(Octant* octant, bool deletingOctree){
 	for (auto it = octant->m_octreeNodes.begin(); it != octant->m_octreeNodes.end(); ++it){
 		OctreeNode* drawable = *it;
 		drawable->m_octant = nullptr;
@@ -485,7 +556,7 @@ void Octree::DeleteChildOctants(Octant* octant, bool deletingOctree){
 	if (octant->m_numChildren){
 		for (size_t i = 0; i < NUM_OCTANTS; ++i){
 			if (octant->m_children[i]){
-				DeleteChildOctants(octant->m_children[i], deletingOctree);
+				deleteChildOctants(octant->m_children[i], deletingOctree);
 				delete octant->m_children[i];
 				octant->m_children[i] = nullptr;
 			}
@@ -494,22 +565,22 @@ void Octree::DeleteChildOctants(Octant* octant, bool deletingOctree){
 	}
 }
 
-void Octree::CollectDrawables(std::vector<OctreeNode*>& result, Octant* octant) const{
+void Octree::collectDrawables(std::vector<OctreeNode*>& result, Octant* octant) const{
 	result.insert(result.end(), octant->m_octreeNodes.begin(), octant->m_octreeNodes.end());
 
 	if (octant->m_numChildren){
 		for (size_t i = 0; i < NUM_OCTANTS; ++i){
 			if (octant->m_children[i])
-				CollectDrawables(result, octant->m_children[i]);
+				collectDrawables(result, octant->m_children[i]);
 		}
 	}
 }
 
-void Octree::CheckReinsertWork(Task* task_, unsigned threadIndex_){
+void Octree::checkReinsertWork(Task* task_, unsigned threadIndex_){
 	ReinsertDrawablesTask* task = static_cast<ReinsertDrawablesTask*>(task_);
 	OctreeNode** start = task->start;
 	OctreeNode** end = task->end;
-	std::vector<OctreeNode*>& reinsertQueue = reinsertQueues[threadIndex_];
+	std::vector<OctreeNode*>& reinsertQueue = m_reinsertQueues[threadIndex_];
 
 	for (; start != end; ++start){
 		// If drawable was removed before reinsertion could happen, a null pointer will be in its place
@@ -530,61 +601,60 @@ void Octree::CheckReinsertWork(Task* task_, unsigned threadIndex_){
 		else
 			drawable->m_reinsertQueued = false;
 	}
-	numPendingReinsertionTasks.fetch_add(-1);
+	m_numPendingReinsertionTasks.fetch_add(-1);
 }
 
-void Octree::updateOctree(float dt){
-	m_dt = dt;
+void Octree::updateOctree(){
 	// Clear results from last frame
-	rootLevelOctants.clear();
+	m_rootLevelOctants.clear();
 
 	for (size_t i = 0; i < NUM_OCTANT_TASKS; ++i)
-		octantResults[i].Clear();
+		m_octantResults[i].Clear();
 
 	// Process moved / animated objects' octree reinsertions
-	Update();
+	update();
 
 	// Check arrived occlusion query results while octree update goes on, then finish octree update
-	CheckOcclusionQueries();
-	FinishUpdate();
+	checkOcclusionQueries();
+	finishUpdate();
 
 	// Enable threaded update during geometry / light gathering in case nodes' OnPrepareRender() causes further reinsertion queuing
-	SetThreadedUpdate(workQueue->NumThreads() > 1);
+	setThreadedUpdate(workQueue->NumThreads() > 1);
 
 	// Find the starting points for octree traversal. Include the root if it contains drawables that didn't fit elsewhere
-	Octant& rootOctant = root;
+	Octant& rootOctant = m_root;
 	if (rootOctant.getOctreeNodes().size()) {
-		rootLevelOctants.push_back(&rootOctant);
+		m_rootLevelOctants.push_back(&rootOctant);
 	}
 
 	for (size_t i = 0; i < NUM_OCTANTS; ++i) {
 		if (rootOctant.getChild(i))
-			rootLevelOctants.push_back(rootOctant.getChild(i));
+			m_rootLevelOctants.push_back(rootOctant.getChild(i));
 	}
 
 	// Keep track of both batch + octant task progress before main batches can be sorted (batch tasks will add to the counter when queued)
-	numPendingBatchTasks.store((int)rootLevelOctants.size());
+	m_numPendingBatchTasks.store((int)m_rootLevelOctants.size());
 
 	// Find octants in view and their plane masks for node frustum culling. At the same time, find lights and process them
 	// When octant collection tasks complete, they queue tasks for collecting batches from those octants.
-	for (size_t i = 0; i < rootLevelOctants.size(); ++i) {
-		collectOctantsTasks[i]->startOctant = rootLevelOctants[i];
+	for (size_t i = 0; i < m_rootLevelOctants.size(); ++i) {
+		m_collectOctantsTasks[i]->startOctant = m_rootLevelOctants[i];
 	}
 
-	workQueue->QueueTasks(rootLevelOctants.size(), reinterpret_cast<Task**>(&collectOctantsTasks[0]));
+	workQueue->QueueTasks(m_rootLevelOctants.size(), reinterpret_cast<Task**>(&m_collectOctantsTasks[0]));
 
 	// Execute tasks until can sort the main batches. Perform that in the main thread to potentially run faster
-	while (numPendingBatchTasks.load() > 0)
+	while (m_numPendingBatchTasks.load() > 0)
 		workQueue->TryComplete();
 
 	// Finish remaining view preparation tasks (shadowcaster batches, light culling to frustum grid)
 	workQueue->Complete();
 
 	// No more threaded reinsertion will take place
-	SetThreadedUpdate(false);
+	setThreadedUpdate(false);
 }
 
-void Octree::CollectOctants(Octant* octant, ThreadOctantResult& result, unsigned char planeMask){
+void Octree::collectOctants(Octant* octant, ThreadOctantResult& result, unsigned char planeMask){
 	const BoundingBox& octantBox = octant->getCullingBox();
 
 	if (planeMask) {
@@ -609,23 +679,23 @@ void Octree::CollectOctants(Octant* octant, ThreadOctantResult& result, unsigned
 		switch (octant->getVisibility()) {
 			// If octant is occluded, issue query if not pending, and do not process further this frame
 		case VIS_OCCLUDED:
-			AddOcclusionQuery(octant, result, planeMask);
+			addOcclusionQuery(octant, result, planeMask);
 			return;
 
 			// If octant was occluded previously, but its parent came into view, issue tests along the hierarchy but do not render on this frame
 		case VIS_OCCLUDED_UNKNOWN:
-			AddOcclusionQuery(octant, result, planeMask);
-			if (octant != &root && octant->hasChildren()) {
+			addOcclusionQuery(octant, result, planeMask);
+			if (octant != &m_root && octant->hasChildren()) {
 				for (size_t i = 0; i < NUM_OCTANTS; ++i) {
 					if (octant->getChild(i))
-						CollectOctants(octant->getChild(i), result, planeMask);
+						collectOctants(octant->getChild(i), result, planeMask);
 				}
 			}
 			return;
 
 			// If octant has unknown visibility, issue query if not pending, but collect child octants and drawables
 		case VIS_VISIBLE_UNKNOWN:
-			AddOcclusionQuery(octant, result, planeMask);
+			addOcclusionQuery(octant, result, planeMask);
 			break;
 
 			// If the octant's parent is already visible too, only test the octant if it is a "leaf octant" with drawables
@@ -633,7 +703,7 @@ void Octree::CollectOctants(Octant* octant, ThreadOctantResult& result, unsigned
 		case VIS_VISIBLE:
 			Octant* parent = octant->getParent();
 			if (octant->getOctreeNodes().size() > 0 || (parent && parent->getVisibility() != VIS_VISIBLE))
-				AddOcclusionQuery(octant, result, planeMask);
+				addOcclusionQuery(octant, result, planeMask);
 			break;
 		}
 	}else {
@@ -652,15 +722,15 @@ void Octree::CollectOctants(Octant* octant, ThreadOctantResult& result, unsigned
 	}
 
 	// Root octant is handled separately. Otherwise recurse into child octants
-	if (octant != &root && octant->hasChildren()) {
+	if (octant != &m_root && octant->hasChildren()) {
 		for (size_t i = 0; i < NUM_OCTANTS; ++i) {
 			if (octant->getChild(i))
-				CollectOctants(octant->getChild(i), result, planeMask);
+				collectOctants(octant->getChild(i), result, planeMask);
 		}
 	}
 }
 
-void Octree::AddOcclusionQuery(Octant* octant, ThreadOctantResult& result, unsigned char planeMask) {
+void Octree::addOcclusionQuery(Octant* octant, ThreadOctantResult& result, unsigned char planeMask) {
 	// No-op if previous query still ongoing. Also If the octant intersects the frustum, verify with SAT test that it actually covers some screen area
 	// Otherwise the occlusion test will produce a false negative
 	if (octant->checkNewOcclusionQuery(m_dt) && (!planeMask || frustum.isInsideSAT(octant->getCullingBox(), frustum.m_frustumSATData))) {
@@ -668,10 +738,10 @@ void Octree::AddOcclusionQuery(Octant* octant, ThreadOctantResult& result, unsig
 	}
 }
 
-void Octree::CheckOcclusionQueries() {
+void Octree::checkOcclusionQueries() {
 	static std::vector<OcclusionQueryResult> results;
 	results.clear();
-	CheckOcclusionQueryResults(results);
+	checkOcclusionQueryResults(results);
 
 	for (auto it = results.begin(); it != results.end(); ++it) {
 		Octant* octant = static_cast<Octant*>(it->object);
@@ -679,13 +749,13 @@ void Octree::CheckOcclusionQueries() {
 	}
 }
 
-void Octree::RenderOcclusionQueries() {
+void Octree::renderOcclusionQueries() {
 	Matrix4f boxMatrix(Matrix4f::IDENTITY);
 	float nearClip = camera.getNear();
 
 	// Use camera's motion since last frame to enlarge the bounding boxes. Use multiplied movement speed to account for latency in query results
 	Vector3f cameraPosition = camera.getPosition();
-	Vector3f cameraMove = cameraPosition - previousCameraPosition;
+	Vector3f cameraMove = cameraPosition - m_previousCameraPosition;
 	Vector3f enlargement = (OCCLUSION_MARGIN + 4.0f * cameraMove.length()) * Vector3f::ONE;
 
 	glDisable(GL_BLEND);
@@ -696,7 +766,7 @@ void Octree::RenderOcclusionQueries() {
 	ShaderOcclusion->loadMatrix("u_vp", camera.getPerspectiveMatrix() * camera.getViewMatrix());
 	glBindVertexArray(m_vao);
 	for (size_t i = 0; i < NUM_OCTANT_TASKS; ++i) {
-		for (auto it = octantResults[i].occlusionQueries.begin(); it != octantResults[i].occlusionQueries.end(); ++it) {
+		for (auto it = m_octantResults[i].occlusionQueries.begin(); it != m_octantResults[i].occlusionQueries.end(); ++it) {
 			Octant* octant = *it;
 
 			const BoundingBox& octantBox = octant->getCullingBox();
@@ -719,11 +789,11 @@ void Octree::RenderOcclusionQueries() {
 			boxMatrix[3][2] = center[2];
 
 			ShaderOcclusion->loadMatrix("u_model", boxMatrix);
-			unsigned queryId = BeginOcclusionQuery(octant);
+			unsigned queryId = beginOcclusionQuery(octant);
 			
 			glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_SHORT, 0);
 			
-			EndOcclusionQuery();
+			endOcclusionQuery();
 
 			// Store query to octant to make sure we don't re-test it until result arrives
 			octant->OnOcclusionQuery(queryId);
@@ -735,26 +805,26 @@ void Octree::RenderOcclusionQueries() {
 	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 	glDepthMask(GL_TRUE);
 	glEnable(GL_BLEND);
-	previousCameraPosition = cameraPosition;
+	m_previousCameraPosition = cameraPosition;
 }
 
-void Octree::CollectOctantsWork(Task* task_, unsigned) {
+void Octree::collectOctantsWork(Task* task_, unsigned) {
 	CollectOctantsTask* task = static_cast<CollectOctantsTask*>(task_);
 
 	// Go through octants in this task's octree branch
 	Octant* octant = task->startOctant;
-	ThreadOctantResult& result = octantResults[task->resultIdx];
+	ThreadOctantResult& result = m_octantResults[task->resultIdx];
 
-	CollectOctants(octant, result);
-	numPendingBatchTasks.fetch_add(-1);
+	collectOctants(octant, result);
+	m_numPendingBatchTasks.fetch_add(-1);
 }
 
-unsigned Octree::BeginOcclusionQuery(void* object){
+unsigned Octree::beginOcclusionQuery(void* object){
 	GLuint queryId;
 
-	if (freeQueries.size()){
-		queryId = freeQueries.back();
-		freeQueries.pop_back();
+	if (m_freeQueries.size()){
+		queryId = m_freeQueries.back();
+		m_freeQueries.pop_back();
 	}else
 		glGenQueries(1, &queryId);
 
@@ -764,7 +834,7 @@ unsigned Octree::BeginOcclusionQuery(void* object){
 	return queryId;
 }
 
-void Octree::EndOcclusionQuery(){
+void Octree::endOcclusionQuery(){
 	glEndQuery(GL_ANY_SAMPLES_PASSED);
 }
 
@@ -783,7 +853,7 @@ void Octree::FreeOcclusionQuery(unsigned queryId){
 	glDeleteQueries(1, &queryId);
 }
 
-void Octree::CheckOcclusionQueryResults(std::vector<OcclusionQueryResult>& result) {
+void Octree::checkOcclusionQueryResults(std::vector<OcclusionQueryResult>& result) {
 	GLuint available = 0;
 
 	// To save API calls, go through queries in reverse order and assume that if a later query has its result available, then all earlier queries will have too
@@ -803,7 +873,7 @@ void Octree::CheckOcclusionQueryResults(std::vector<OcclusionQueryResult>& resul
 			newResult.visible = passed > 0;
 			result.push_back(newResult);
 
-			freeQueries.push_back(queryId);
+			m_freeQueries.push_back(queryId);
 			PendingQueries.erase(PendingQueries.begin() + i);
 		}
 	}

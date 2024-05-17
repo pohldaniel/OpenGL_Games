@@ -5,7 +5,6 @@
 #include <functional>
 #include <engine/scene/OctreeNode.h>
 #include <engine/Frustum.h>
-#include "AutoPtr.h"
 #include "WorkQueue.h"
 
 #define OCCLUSION_VERTEX "#version 410 core										 \n \
@@ -50,7 +49,6 @@ public:
     Octant();
     ~Octant();
 
-
     void Initialize(Octant* parent, const BoundingBox& boundingBox, unsigned char level, unsigned char childIndex);
 	void OnRenderAABB(const Vector4f& color = { 0.0f, 1.0f, 0.0f, 1.0f });
     void OnOcclusionQuery(unsigned queryId);
@@ -92,13 +90,13 @@ private:
 	bool m_drawDebug;
 };
 
-/// Acceleration structure for rendering. Should be created as a child of the scene root.
+/// Acceleration structure for rendering.
 class Octree{
 
 	friend OctreeNode;
 
 	struct CollectOctantsTask : public MemberFunctionTask<Octree> {
-		CollectOctantsTask(Octree* object_, MemberWorkFunctionPtr function_) :MemberFunctionTask<Octree>(object_, function_) {}
+		CollectOctantsTask(Octree* object, MemberWorkFunctionPtr function) :MemberFunctionTask<Octree>(object, function) {}
 		Octant* startOctant;
 		size_t resultIdx;
 	};
@@ -119,199 +117,127 @@ public:
 		std::vector<std::pair<Octant*, unsigned char>> octants;
 		std::vector<Octant*> occlusionQueries;
 	};
+	
 
-    /// Construct. The WorkQueue subsystem must have been initialized, as it will be used during update.
-    Octree(const Camera& camera, const Frustum& frustum);
-    /// Destruct. Delete all child octants and detach the drawables.
+    Octree(const Camera& camera, const Frustum& frustum, const float& dt);
     ~Octree();
    
-    /// Process the queue of nodes to be reinserted. This will utilize worker threads.
-    void Update();
-    /// Finish the octree update.
-    void FinishUpdate();
-    /// Resize the octree.
-    void Resize(const BoundingBox& boundingBox, int numLevels);
-    /// Enable or disable threaded update mode. In threaded mode reinsertions go to per-thread queues, which are processed in FinishUpdate().
-    void SetThreadedUpdate(bool enable) { threadedUpdate = enable; }
-    /// Queue octree reinsertion for a drawable.
-	//void QueueUpdate(Drawable* drawable);
-	void QueueUpdate(OctreeNode* drawable);
-    /// Remove a drawable from the octree.
-	void RemoveDrawable(OctreeNode* drawable);
-    /// Add debug geometry to be rendered. Visualizes the whole octree.
-	//void OnRenderOBB(const Vector4f& color = { 1.0f, 0.0f, 0.0f, 1.0f });
 	void OnRenderAABB(const Vector4f& color = { 0.0f, 1.0f, 0.0f, 1.0f });
 
-    /// Query for drawables using a volume such as frustum or sphere.
-	template <class T> void FindDrawables(std::vector<OctreeNode*>& result, const T& volume, unsigned short drawableFlags, unsigned layerMask = LAYERMASK_ALL) const;
-	// Return whether threaded update is enabled.
-    bool ThreadedUpdate() const { return threadedUpdate; }
-    /// Return the root octant.
-    Octant* Root() const { return const_cast<Octant*>(&root); }
+    void update();
+    void finishUpdate();
+    void resize(const BoundingBox& boundingBox, int numLevels);
+	void setThreadedUpdate(bool threadedUpdate);
+	void queueUpdate(OctreeNode* drawable);
+	void removeDrawable(OctreeNode* drawable);	
+	template <class T> void findDrawables(std::vector<OctreeNode*>& result, const T& volume, unsigned short drawableFlags, unsigned layerMask = LAYERMASK_ALL) const;
+	bool getThreadedUpdate() const;
+	Octant* getRoot() const;
 
-	void CollectOctants(Octant* octant, ThreadOctantResult& result, unsigned char planeMask = 0x3f);
-	void AddOcclusionQuery(Octant* octant, ThreadOctantResult& result, unsigned char planeMask);
-	void CheckOcclusionQueries();
-	void RenderOcclusionQueries();
-	void CollectOctantsWork(Task* task, unsigned threadIndex);
-
-	Vector3f previousCameraPosition;
-	std::vector<Octant*> rootLevelOctants;
-	std::atomic<int> numPendingBatchTasks;
-	AutoArrayPtr<ThreadOctantResult> octantResults;
-	AutoPtr<CollectOctantsTask> collectOctantsTasks[NUM_OCTANT_TASKS];
-
-	void updateOctree(float dt);
+	void collectOctants(Octant* octant, ThreadOctantResult& result, unsigned char planeMask = 0x3f);
+	void addOcclusionQuery(Octant* octant, ThreadOctantResult& result, unsigned char planeMask);
+	void checkOcclusionQueries();
+	void renderOcclusionQueries();
+	void collectOctantsWork(Task* task, unsigned threadIndex);
+	void updateOctree();
 	void updateFrameNumber();
-	unsigned BeginOcclusionQuery(void* object);
-	void EndOcclusionQuery();
 
-	void CheckOcclusionQueryResults(std::vector<OcclusionQueryResult>& result);
-	size_t PendingOcclusionQueries() const { return PendingQueries.size(); }
+	unsigned int beginOcclusionQuery(void* object);
+	void endOcclusionQuery();
+	void checkOcclusionQueryResults(std::vector<OcclusionQueryResult>& result);
+	size_t pendingOcclusionQueries() const;
 	
-	std::vector<unsigned> freeQueries;
-
 	void setUseCulling(bool useCulling);
 	void setUseOcclusionCulling(bool useOcclusionCulling);
+	const std::vector<Octant*>& getRootLevelOctants() const;
+	const ThreadOctantResult* getOctantResults() const;
 
-
-	static std::vector<std::pair<unsigned, void*>> PendingQueries;
 	static void FreeOcclusionQuery(unsigned id);
-
+	static std::vector<std::pair<unsigned, void*>> PendingQueries;
+	
 private:
-    /// Process a list of drawables to be reinserted. Clear the list afterward.
-	void ReinsertDrawables(std::vector<OctreeNode*>& drawables);
-    /// Remove a drawable from a reinsert queue.
-    void RemoveDrawableFromQueue(OctreeNode* drawable, std::vector<OctreeNode*>& drawables);
-    
-    /// Add drawable to a specific octant.
-	void AddDrawable(OctreeNode* drawable, Octant* octant){
-		octant->m_octreeNodes.push_back(drawable);
-		octant->markCullingBoxDirty();
-		octant->updateCullingBox();
-		drawable->m_octant = octant;
 
-		if (!octant->m_sortDrawables){
-			octant->m_sortDrawables = true;
-			sortDirtyOctants.push_back(octant);
-		}
-	}
+	void reinsertDrawables(std::vector<OctreeNode*>& drawables);
+    void removeDrawableFromQueue(OctreeNode* drawable, std::vector<OctreeNode*>& drawables);
+	void addDrawable(OctreeNode* drawable, Octant* octant);
+	void removeDrawable(OctreeNode* drawable, Octant* octant);
+	Octant* createChildOctant(Octant* octant, unsigned char index);
+	void deleteChildOctant(Octant* octant, unsigned char index);
+	void deleteChildOctants(Octant* octant, bool deletingOctree);
+	void collectDrawables(std::vector<OctreeNode*>& result, Octant* octant) const;
+	void checkReinsertWork(Task* task, unsigned threadIndex);
+	template <class T> void collectDrawables(std::vector<OctreeNode*>& result, Octant* octant, const T& volume, unsigned short drawableFlags, unsigned layerMask) const;
 
-	/// Remove drawable from an octant.
-	void RemoveDrawable(OctreeNode* drawable, Octant* octant)
-	{
-		if (!octant)
-			return;
+	void createCube();
+	void callRebuild(Octant* octant);
 
-		octant->markCullingBoxDirty();
+    volatile bool m_threadedUpdate;
+	std::vector<OctreeNode*> m_updateQueue;
+    std::vector<Octant*> m_sortDirtyOctants;
+    BoundingBox m_worldBoundingBox;
+    Octant m_root;
+	std::vector<Octant*> m_rootLevelOctants;
+	ThreadOctantResult* m_octantResults;
+	std::vector<ReinsertDrawablesTask*> m_reinsertTasks;
+	std::vector<OctreeNode*>* m_reinsertQueues;
+    std::atomic<int> m_numPendingReinsertionTasks;
+	std::vector<unsigned> m_freeQueries;
+	Vector3f m_previousCameraPosition;
+	
+	std::atomic<int> m_numPendingBatchTasks;
+	
+	CollectOctantsTask* m_collectOctantsTasks[NUM_OCTANT_TASKS];
 
-		// Do not set the drawable's octant pointer to zero, as the drawable may already be added into another octant. Just remove from octant
-		for (auto it = octant->m_octreeNodes.begin(); it != octant->m_octreeNodes.end(); ++it)
-		{
-			if ((*it) == drawable)
-			{
-				octant->m_octreeNodes.erase(it);
-
-				// Erase empty octants as necessary, but never the root
-				while (!octant->m_octreeNodes.size() && !octant->m_numChildren && octant->m_parent)
-				{
-					Octant* parentOctant = octant->m_parent;
-					DeleteChildOctant(parentOctant, octant->m_childIndex);
-					octant = parentOctant;
-				}
-				return;
-			}
-		}
-	}
-
-	/// Create a new child octant.
-	Octant* CreateChildOctant(Octant* octant, unsigned char index);
-	/// Delete one child octant.
-	void DeleteChildOctant(Octant* octant, unsigned char index);
-	/// Delete a child octant hierarchy. If not deleting the octree for good, moves any nodes back to the root octant.
-	void DeleteChildOctants(Octant* octant, bool deletingOctree);
-	/// Return all drawables from an octant recursively.
-	void CollectDrawables(std::vector<OctreeNode*>& result, Octant* octant) const;
-	/// Work function to check reinsertion of nodes.
-	void CheckReinsertWork(Task* task, unsigned threadIndex);
-
-	/// Collect nodes matching flags using a volume such as frustum or sphere.
-	template <class T> void CollectDrawables(std::vector<OctreeNode*>& result, Octant* octant, const T& volume, unsigned short drawableFlags, unsigned layerMask) const
-	{
-		Intersection res = volume.IsInside(octant->CullingBox());
-		if (res == OUTSIDE)
-			return;
-
-		// If this octant is completely inside the volume, can include all contained octants and their nodes without further tests
-		if (res == INSIDE)
-			CollectDrawables(result, octant, drawableFlags, layerMask);
-		else
-		{
-			std::vector<OctreeNodeNew*>& drawables = octant->drawables;
-
-			for (auto it = drawables.begin(); it != drawables.end(); ++it)
-			{
-				OctreeNodeNew* drawable = *it;
-				if ((drawable->Flags() & drawableFlags) == drawableFlags && (drawable->LayerMask() & layerMask) && volume.IsInsideFast(drawable->WorldBoundingBox()) != OUTSIDE)
-					result.push_back(drawable);
-			}
-
-			if (octant->numChildren)
-			{
-				for (size_t i = 0; i < NUM_OCTANTS; ++i)
-				{
-					if (octant->children[i])
-						CollectDrawables(result, octant->children[i], volume, drawableFlags, layerMask);
-				}
-			}
-		}
-	}
-
-    /// Threaded update flag. During threaded update moved drawables should go directly to thread-specific reinsert queues.
-    volatile bool threadedUpdate;
-    /// Queue of nodes to be reinserted.
-	std::vector<OctreeNode*> updateQueue;
-    /// Octants which need to have their drawables sorted.
-    std::vector<Octant*> sortDirtyOctants;
-    /// Extents of the octree root level box.
-    BoundingBox worldBoundingBox;
-    /// Root octant.
-    Octant root;
-    /// Cached %WorkQueue subsystem.
-    WorkQueue* workQueue;
-    /// Tasks for threaded reinsert execution.
-	std::vector<AutoPtr<ReinsertDrawablesTask>> reinsertTasks;
-    /// Intermediate reinsert queues for threaded execution.
-	AutoArrayPtr<std::vector<OctreeNode*>> reinsertQueues;
-    /// Remaining drawable reinsertion tasks.
-    std::atomic<int> numPendingReinsertionTasks;
+	unsigned short m_frameNumber;
+	bool m_useCulling;
+	bool m_useOcclusionCulling;
+	unsigned int m_vao = 0;
+	unsigned int m_vbo = 0;
 
 	const Frustum& frustum;
 	const Camera& camera;
-	float m_dt;
-	unsigned short m_frameNumber;
-
-	bool m_useCulling;
-	bool m_useOcclusionCulling;
-
-	unsigned int m_vao = 0;
-	unsigned int m_vbo = 0;
+	const float& m_dt;
+	WorkQueue* workQueue;
 
 	static const float OCCLUSION_MARGIN;
 	static std::unique_ptr<Shader> ShaderOcclusion;
 
-	void createCube();
-	void callRebuild(Octant* octant);
+	
 };
 
 struct ReinsertDrawablesTask : public MemberFunctionTask<Octree> {
-	ReinsertDrawablesTask(Octree* object_, MemberWorkFunctionPtr function_) : MemberFunctionTask<Octree>(object_, function_) {
+	ReinsertDrawablesTask(Octree* object, MemberWorkFunctionPtr function) : MemberFunctionTask<Octree>(object, function) {
 	}
 
 	OctreeNode** start;
 	OctreeNode** end;
 };
 
-template <class T> void Octree::FindDrawables(std::vector<OctreeNode*>& result, const T& volume, unsigned short drawableFlags, unsigned layerMask) const { 
+template <class T> void Octree::findDrawables(std::vector<OctreeNode*>& result, const T& volume, unsigned short drawableFlags, unsigned layerMask) const { 
 	CollectDrawables(result, const_cast<Octant*>(&root), volume, drawableFlags, layerMask); 
+}
+
+template <class T> void Octree::collectDrawables(std::vector<OctreeNode*>& result, Octant* octant, const T& volume, unsigned short drawableFlags, unsigned layerMask) const{
+	Intersection res = volume.IsInside(octant->CullingBox());
+	if (res == OUTSIDE)
+		return;
+
+	if (res == INSIDE)
+		CollectDrawables(result, octant, drawableFlags, layerMask);
+	else{
+		std::vector<OctreeNode*>& drawables = octant->m_octreeNodes;
+
+		for (auto it = drawables.begin(); it != drawables.end(); ++it){
+			OctreeNode* drawable = *it;
+			if ((drawable->Flags() & drawableFlags) == drawableFlags && (drawable->LayerMask() & layerMask) && volume.isInsideFast(drawable->getWorldBoundingBox()) != OUTSIDE)
+				result.push_back(drawable);
+		}
+
+		if (octant->numChildren){
+			for (size_t i = 0; i < NUM_OCTANTS; ++i){
+				if (octant->children[i])
+					CollectDrawables(result, octant->children[i], volume, drawableFlags, layerMask);
+			}
+		}
+	}
 }

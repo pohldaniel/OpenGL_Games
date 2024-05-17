@@ -30,7 +30,7 @@ OctreeInterface::OctreeInterface(StateMachine& machine) : State(machine, States:
 	glClearColor(0.3f, 0.3f, 0.3f, 0.0f);
 	
 	WorkQueue::Init(0);
-	m_octree = new Octree(m_camera, m_frustum);
+	m_octree = new Octree(m_camera, m_frustum, m_dt);
 
 	DebugRenderer::Get().setEnable(true);
 	m_root = new SceneNodeLC();
@@ -124,7 +124,7 @@ void OctreeInterface::update() {
 	m_frustum.updateVertices(perspective, m_camera.getViewMatrix());
 	m_frustum.m_frustumSATData.calculate(m_frustum);
 
-	m_octree->updateOctree(m_dt);
+	m_octree->updateOctree();
 }
 
 void OctreeInterface::render() {
@@ -137,8 +137,8 @@ void OctreeInterface::render() {
 
 	Globals::textureManager.get("marble").bind(0);
 
-	for (size_t i = 0; i < m_octree->rootLevelOctants.size(); ++i) {
-		const Octree::ThreadOctantResult& result = m_octree->octantResults[i];
+	for (size_t i = 0; i < m_octree->getRootLevelOctants().size(); ++i) {
+		const Octree::ThreadOctantResult& result = m_octree->getOctantResults()[i];
 		for (auto oIt = result.octants.begin(); oIt != result.octants.end(); ++oIt) {
 			Octant* octant = oIt->first;
 			octant->OnRenderAABB();
@@ -157,7 +157,7 @@ void OctreeInterface::render() {
 	shader->unuse();
 
 	if (m_useOcclusion)
-		m_octree->RenderOcclusionQueries();
+		m_octree->renderOcclusionQueries();
 
 	m_frustum.updateVbo(perspective, m_camera.getViewMatrix());
 

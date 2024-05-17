@@ -43,7 +43,7 @@ KCCInterface::KCCInterface(StateMachine& machine) : State(machine, States::KCCIN
 	createPhysics();
 
 	WorkQueue::Init(0);
-	m_octree = new Octree(m_camera, m_frustum);
+	m_octree = new Octree(m_camera, m_frustum, m_dt);
 	m_octree->setUseCulling(m_useCulling);
 	m_octree->setUseOcclusionCulling(m_useOcclusion);
 	DebugRenderer::Get().setEnable(true);
@@ -294,7 +294,7 @@ void KCCInterface::update() {
 	m_frustum.updatePlane(perspective, m_camera.getViewMatrix());
 	m_frustum.updateVertices(perspective, m_camera.getViewMatrix());
 	m_frustum.m_frustumSATData.calculate(m_frustum);
-	m_octree->updateOctree(m_dt);	
+	m_octree->updateOctree();	
 }
 
 void KCCInterface::render() {
@@ -305,8 +305,8 @@ void KCCInterface::render() {
 	shader->loadMatrix("u_view", !m_overview ? m_camera.getViewMatrix() : m_view);
 	Globals::textureManager.get("proto").bind();
 
-	for (size_t i = 0; i < m_octree->rootLevelOctants.size(); ++i) {
-		const Octree::ThreadOctantResult& result = m_octree->octantResults[i];
+	for (size_t i = 0; i < m_octree->getRootLevelOctants().size(); ++i) {
+		const Octree::ThreadOctantResult& result = m_octree->getOctantResults()[i];
 		for (auto oIt = result.octants.begin(); oIt != result.octants.end(); ++oIt) {
 			Octant* octant = oIt->first;
 			if (m_debugTree)
@@ -325,7 +325,7 @@ void KCCInterface::render() {
 	shader->unuse();
 
 	if (m_useOcclusion)
-		m_octree->RenderOcclusionQueries();
+		m_octree->renderOcclusionQueries();
 
 	shader = Globals::shaderManager.getAssetPointer("animation_new");
 	shader->use();

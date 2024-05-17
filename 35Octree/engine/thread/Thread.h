@@ -9,6 +9,11 @@
 #include <queue>
 #include <iostream>
 
+namespace ThreadUtil {
+	bool IsMainThread();
+	unsigned CPUCount();
+}
+
 class Looper{
 
 public:

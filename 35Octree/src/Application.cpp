@@ -461,9 +461,9 @@ void Application::initStates() {
 	//Machine->addStateAtTop(new GrassComp(*Machine));
 	//Machine->addStateAtTop(new GrassGeom(*Machine));
 	//Machine->addStateAtTop(new OcclusionQuery(*Machine));
-	Machine->addStateAtTop(new AnimationInterface(*Machine));
+	//Machine->addStateAtTop(new AnimationInterface(*Machine));
 	//Machine->addStateAtTop(new KCCInterface(*Machine));
-	//Machine->addStateAtTop(new SkinnedArmor(*Machine));
+	Machine->addStateAtTop(new SkinnedArmor(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {

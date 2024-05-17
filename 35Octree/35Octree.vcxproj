@@ -178,7 +178,6 @@
     <ClCompile Include="engine\MousePickerFBO.cpp" />
     <ClCompile Include="engine\Object.cpp" />
     <ClCompile Include="engine\octree\Octree.cpp" />
-    <ClCompile Include="engine\octree\ThreadUtils.cpp" />
     <ClCompile Include="engine\octree\WorkQueue.cpp" />
     <ClCompile Include="engine\RandomColor.cpp" />
     <ClCompile Include="engine\scene\AnimationNode.cpp" />
@@ -368,9 +367,7 @@
     <ClInclude Include="engine\MeshObject\MeshTorus.h" />
     <ClInclude Include="engine\MeshObject\Shape.h" />
     <ClInclude Include="engine\ObjModel.h" />
-    <ClInclude Include="engine\octree\AutoPtr.h" />
     <ClInclude Include="engine\octree\Octree.h" />
-    <ClInclude Include="engine\octree\ThreadUtils.h" />
     <ClInclude Include="engine\octree\WorkQueue.h" />
     <ClInclude Include="engine\PerlinNoise.h" />
     <ClInclude Include="engine\Pixelbuffer.h" />
