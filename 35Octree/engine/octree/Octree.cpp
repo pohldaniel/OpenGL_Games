@@ -1,5 +1,5 @@
 #include <algorithm>
-#include <engine/DebugRenderer.h>
+#include "../DebugRenderer.h"
 #include "Octree.h"
 
 const float Octree::OCCLUSION_MARGIN = 0.1f;
@@ -235,7 +235,7 @@ Octree::Octree(const Camera& camera, const Frustum& frustum, const float& dt) :
 
     // Have at least 1 task for reinsert processing
 	m_reinsertTasks.push_back(new ReinsertDrawablesTask(this, &Octree::checkReinsertWork));
-	m_reinsertQueues = new std::vector<OctreeNode*>[workQueue->NumThreads()];
+	m_reinsertQueues = new std::vector<OctreeNode*>[workQueue->getNumThreads()];
 
 	m_octantResults = new ThreadOctantResult[NUM_OCTANT_TASKS];
 
@@ -291,7 +291,7 @@ void Octree::update(){
 		setThreadedUpdate(true);
 
 		// Split into smaller tasks to encourage work stealing in case some thread is slower
-		size_t nodesPerTask = std::max(MIN_THREADED_UPDATE, m_updateQueue.size() / workQueue->NumThreads() / 4);
+		size_t nodesPerTask = std::max(MIN_THREADED_UPDATE, m_updateQueue.size() / workQueue->getNumThreads() / 4);
 		size_t taskIdx = 0;
 
 		for (size_t start = 0; start < m_updateQueue.size(); start += nodesPerTask){
@@ -307,7 +307,7 @@ void Octree::update(){
 		}
 
 		m_numPendingReinsertionTasks.store((int)taskIdx);
-		workQueue->QueueTasks(taskIdx, reinterpret_cast<Task**>(&m_reinsertTasks[0]));
+		workQueue->queueTasks(taskIdx, reinterpret_cast<Task**>(&m_reinsertTasks[0]));
 	}else
 		m_numPendingReinsertionTasks.store(0);
 }
@@ -315,12 +315,12 @@ void Octree::update(){
 void Octree::finishUpdate(){
     // Complete tasks until reinsertions done. There may other tasks going on at the same time
     while (m_numPendingReinsertionTasks.load() > 0)
-        workQueue->TryComplete();
+        workQueue->tryComplete();
 
     setThreadedUpdate(false);
 
     // Now reinsert drawables that actually need reinsertion into a different octant
-	for (size_t i = 0; i < workQueue->NumThreads(); ++i)
+	for (size_t i = 0; i < workQueue->getNumThreads(); ++i)
 		reinsertDrawables(m_reinsertQueues[i]);
 
 	m_updateQueue.clear();
@@ -387,7 +387,7 @@ void Octree::queueUpdate(OctreeNode* drawable){
 		const BoundingBox& box = drawable->getWorldBoundingBox();
 		Octant* oldOctant = drawable->getOctant();
 		if (!oldOctant || oldOctant->m_fittingBox.isInside(box) != BoundingBox::INSIDE){
-			m_reinsertQueues[WorkQueue::ThreadIndex()].push_back(drawable);
+			m_reinsertQueues[WorkQueue::GetThreadIndex()].push_back(drawable);
 			drawable->m_reinsertQueued = true;
 		}
 	}
@@ -402,7 +402,7 @@ void Octree::removeDrawable(OctreeNode* drawable){
 		removeDrawableFromQueue(drawable, m_updateQueue);
 
 		// Remove also from threaded queues if was left over before next update
-		for (size_t i = 0; i < workQueue->NumThreads(); ++i)
+		for (size_t i = 0; i < workQueue->getNumThreads(); ++i)
 			removeDrawableFromQueue(drawable, m_reinsertQueues[i]);
 
 		drawable->m_reinsertQueued = false;
@@ -619,7 +619,7 @@ void Octree::updateOctree(){
 	finishUpdate();
 
 	// Enable threaded update during geometry / light gathering in case nodes' OnPrepareRender() causes further reinsertion queuing
-	setThreadedUpdate(workQueue->NumThreads() > 1);
+	setThreadedUpdate(workQueue->getNumThreads() > 1);
 
 	// Find the starting points for octree traversal. Include the root if it contains drawables that didn't fit elsewhere
 	Octant& rootOctant = m_root;
@@ -641,14 +641,14 @@ void Octree::updateOctree(){
 		m_collectOctantsTasks[i]->startOctant = m_rootLevelOctants[i];
 	}
 
-	workQueue->QueueTasks(m_rootLevelOctants.size(), reinterpret_cast<Task**>(&m_collectOctantsTasks[0]));
+	workQueue->queueTasks(m_rootLevelOctants.size(), reinterpret_cast<Task**>(&m_collectOctantsTasks[0]));
 
 	// Execute tasks until can sort the main batches. Perform that in the main thread to potentially run faster
 	while (m_numPendingBatchTasks.load() > 0)
-		workQueue->TryComplete();
+		workQueue->tryComplete();
 
 	// Finish remaining view preparation tasks (shadowcaster batches, light culling to frustum grid)
-	workQueue->Complete();
+	workQueue->complete();
 
 	// No more threaded reinsertion will take place
 	setThreadedUpdate(false);

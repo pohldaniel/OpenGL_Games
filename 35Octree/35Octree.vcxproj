@@ -178,7 +178,6 @@
     <ClCompile Include="engine\MousePickerFBO.cpp" />
     <ClCompile Include="engine\Object.cpp" />
     <ClCompile Include="engine\octree\Octree.cpp" />
-    <ClCompile Include="engine\octree\WorkQueue.cpp" />
     <ClCompile Include="engine\RandomColor.cpp" />
     <ClCompile Include="engine\scene\AnimationNode.cpp" />
     <ClCompile Include="engine\scene\BaseNode.cpp" />
@@ -198,6 +197,7 @@
     <ClCompile Include="engine\thread\EventClass.cpp" />
     <ClCompile Include="engine\thread\MutexClass.cpp" />
     <ClCompile Include="engine\thread\Thread.cpp" />
+    <ClCompile Include="engine\thread\WorkQueue.cpp" />
     <ClCompile Include="engine\TileSet.cpp" />
     <ClCompile Include="engine\ui\Button.cpp" />
     <ClCompile Include="engine\ui\CheckBox.cpp" />
@@ -368,7 +368,6 @@
     <ClInclude Include="engine\MeshObject\Shape.h" />
     <ClInclude Include="engine\ObjModel.h" />
     <ClInclude Include="engine\octree\Octree.h" />
-    <ClInclude Include="engine\octree\WorkQueue.h" />
     <ClInclude Include="engine\PerlinNoise.h" />
     <ClInclude Include="engine\Pixelbuffer.h" />
     <ClInclude Include="engine\Quad.h" />
@@ -400,6 +399,7 @@
     <ClInclude Include="engine\thread\EventClass.h" />
     <ClInclude Include="engine\thread\MutexClass.h" />
     <ClInclude Include="engine\thread\Thread.h" />
+    <ClInclude Include="engine\thread\WorkQueue.h" />
     <ClInclude Include="engine\TileSet.h" />
     <ClInclude Include="engine\TrackBall.h" />
     <ClInclude Include="engine\Transform.h" />

@@ -3,9 +3,9 @@
 #pragma once
 #include <atomic>
 #include <functional>
-#include <engine/scene/OctreeNode.h>
-#include <engine/Frustum.h>
-#include "WorkQueue.h"
+#include "../scene/OctreeNode.h"
+#include "../Frustum.h"
+#include "../thread/WorkQueue.h"
 
 #define OCCLUSION_VERTEX "#version 410 core										 \n \
 																				 \n \
@@ -201,8 +201,6 @@ private:
 
 	static const float OCCLUSION_MARGIN;
 	static std::unique_ptr<Shader> ShaderOcclusion;
-
-	
 };
 
 struct ReinsertDrawablesTask : public MemberFunctionTask<Octree> {
