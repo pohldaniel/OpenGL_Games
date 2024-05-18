@@ -373,11 +373,11 @@ void AnimatedMesh::createBones() {
 	for (size_t i = 0; i < m_meshBones.size(); ++i) {
 		MeshBone& meshBone = m_meshBones[i];
 		m_bones[i] = new BoneNode();
-		m_bones[i]->SetName(meshBone.name);
+		m_bones[i]->setName(meshBone.name);
 		m_bones[i]->setPosition(meshBone.initialPosition);
 		m_bones[i]->setOrientation({ meshBone.initialRotation[0], meshBone.initialRotation[1], meshBone.initialRotation[2], meshBone.initialRotation[3] });
 		m_bones[i]->setScale(meshBone.initialScale);
-		m_bones[i]->offsetMatrix = meshBone.offsetMatrix;
+		m_bones[i]->m_offsetMatrix = meshBone.offsetMatrix;
 	}
 
 	for (size_t i = 0; i < m_meshBones.size(); ++i) {
@@ -386,7 +386,7 @@ void AnimatedMesh::createBones() {
 		if (desc.parentIndex == i) {
 			m_bones[i]->setParent(nullptr);
 			m_rootBone = m_bones[i];
-			m_bones[i]->setRootBone(true);
+			m_bones[i]->setIsRootBone(true);
 		}else {
 			m_bones[i]->setParent(m_bones[desc.parentIndex]);
 			//m_bones[i]->setOrigin(m_bones[i]->getPosition());
@@ -394,7 +394,7 @@ void AnimatedMesh::createBones() {
 	}
 
 	for (size_t i = 0; i < m_meshBones.size(); ++i)
-		m_bones[i]->CountChildBones();
+		m_bones[i]->countChildBones();
 }
 
 AnimationState* AnimatedModel::addAnimationState(Animation* animation) {
@@ -541,8 +541,8 @@ void AnimatedMesh::update(float dt) {
 	for (size_t i = 0; i < m_numBones; ++i) {
 		BoneNode* bone = m_bones[i];
 		const MeshBone& meshBone = m_meshBones[i];
-		if (bone->AnimationEnabled()) {
-			bone->SetTransformSilent(meshBone.initialPosition, meshBone.initialRotation, meshBone.initialScale);
+		if (bone->animationEnabled()) {
+			bone->setTransformSilent(meshBone.initialPosition, meshBone.initialRotation, meshBone.initialScale);
 		}
 	}
 

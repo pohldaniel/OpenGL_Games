@@ -59,10 +59,10 @@ void AnimationState::SetStartBone(BoneNode* startBone_){
 		// Include those tracks that are either the start bone itself, or its children
 		const StringHash& nameHash = it->second.nameHash;
 		
-		if (nameHash == startBone->nameHash) {
+		if (nameHash == startBone->m_nameHash) {
 			stateTrack.node = startBone;
 		}else {
-			stateTrack.node = startBone->FindChildOfType(nameHash, true);
+			stateTrack.node = startBone->findChild<BoneNode>(nameHash, true);
 		}
 
 		stateTrack.m_initialPosition = Math::Lerp(it->second.keyFrames[0].position, it->second.keyFrames[1].position, EPSILON * 3.0f);
@@ -241,9 +241,10 @@ size_t AnimationState::FindTrackIndex(Node* node) const{
 }
 
 size_t AnimationState::FindTrackIndex(const std::string& name) const{
+	StringHash nameHash = StringHash(name);
 	for (size_t i = 0; i < stateTracks.size(); ++i){
 		BoneNode* node = stateTracks[i].node;
-		if (node && node->name == name)
+		if (node && node->m_nameHash == nameHash)
 			return i;
 	}
 
@@ -255,7 +256,7 @@ size_t AnimationState::FindTrackIndex(StringHash nameHash) const
 	for (unsigned i = 0; i < stateTracks.size(); ++i)
 	{
 		BoneNode* node = stateTracks[i].node;
-		if (node && node->nameHash == nameHash)
+		if (node && node->m_nameHash == nameHash)
 			return i;
 	}
 
@@ -282,7 +283,7 @@ void AnimationState::ApplyToModel(){
 		float finalWeight = m_blendWeight * stateTrack.weight;
 		BoneNode* bone = stateTrack.node;
 
-		if (Math::Equals(finalWeight, 0.0f) || !bone->AnimationEnabled())
+		if (Math::Equals(finalWeight, 0.0f) || !bone->animationEnabled())
 			continue;
 				
 		if (m_animationBlendMode != ABM_LERP)
@@ -362,7 +363,7 @@ void AnimationState::ApplyToModel(){
 			}		
 		}
 
-		bone->SetTransformSilent(newPosition, newRotation, newScale);
+		bone->setTransformSilent(newPosition, newRotation, newScale);
 		bone->OnTransformChanged();		
 	}
 }

@@ -50,8 +50,10 @@ SkinnedArmor::SkinnedArmor(StateMachine& machine) : State(machine, States::SKINN
 	createPhysics();
 	createScene();
 
-	m_characterController = new KinematicCharacterController();
-	m_characterSkinned = new CharacterSkinned(m_characterController, m_entities[7], m_lift, m_camera);
+	m_animatedModel.loadModelMdl("res/models/Girlbot/Girlbot.mdl");
+	m_animatedModel.m_meshes[0]->createBones();
+
+	m_characterSkinned = new CharacterSkinned(m_animatedModel, m_lift, m_camera);
 	m_characterSkinned->setPosition(Vector3f(28.0f, 7.84f, -4.0f));
 
 	m_frustum.init();
@@ -61,7 +63,19 @@ SkinnedArmor::SkinnedArmor(StateMachine& machine) : State(machine, States::SKINN
 SkinnedArmor::~SkinnedArmor() {
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
+
 	delete m_octree;
+	delete m_root;
+	delete m_characterSkinned;
+	
+	delete m_movingPlatform;
+	delete m_splinePlatform;
+	delete m_splinePath;
+	delete m_lift;
+
+
+	Globals::physics->removeAllCollisionObjects();
+	ShapeDrawer::Get().shutdown();
 }
 
 void SkinnedArmor::fixedUpdate() {
@@ -141,9 +155,9 @@ void SkinnedArmor::update() {
 	}
 
 	btVector3 cameraPosition = Physics::VectorFrom(m_camera.getPosition());
-	btTransform& t = m_characterController->GetTransform();
+	btVector3 postion = m_characterSkinned->getBtPosition();
 
-	float fraction = Physics::SweepSphere(t.getOrigin(), cameraPosition, 0.2f, Physics::collisiontypes::CAMERA, Physics::collisiontypes::FLOOR);
+	float fraction = Physics::SweepSphere(postion, cameraPosition, 0.2f, Physics::collisiontypes::CAMERA, Physics::collisiontypes::FLOOR);
 	if (m_prevFraction < fraction) {
 		m_prevFraction += 0.85f * m_dt;
 		if (m_prevFraction > fraction) m_prevFraction = fraction;
@@ -151,7 +165,7 @@ void SkinnedArmor::update() {
 		m_prevFraction = fraction;
 	}
 
-	cameraPosition.setInterpolate3(t.getOrigin(), cameraPosition, m_prevFraction);
+	cameraPosition.setInterpolate3(postion, cameraPosition, m_prevFraction);
 	m_camera.setPosition(Physics::VectorFrom(cameraPosition));
 
 	m_octree->updateFrameNumber();
@@ -200,9 +214,9 @@ void SkinnedArmor::render() {
 	shader->use();
 	shader->loadMatrix("u_projection", !m_overview ? m_camera.getPerspectiveMatrix() : m_camera.getOrthographicMatrix());
 	shader->loadMatrix("u_view", !m_overview ? m_camera.getViewMatrix() : m_view);
-	shader->loadMatrix("u_model", m_entities.back()->getWorldTransformation());
+	shader->loadMatrix("u_model", m_dummyNode->getWorldTransformation());
 	shader->loadVector("u_color", m_characterSkinned->getDummyColor());
-	m_entities.back()->drawRaw();
+	m_dummyNode->drawRaw();
 	shader->unuse();
 
 	!m_overview ? m_characterSkinned->draw(m_camera) : m_characterSkinned->drawOverview(m_camera.getOrthographicMatrix(), m_view);
@@ -214,8 +228,9 @@ void SkinnedArmor::render() {
 
 	!m_overview ? DebugRenderer::Get().SetProjectionView(m_camera.getPerspectiveMatrix(), m_camera.getViewMatrix()) : DebugRenderer::Get().SetProjectionView(m_camera.getOrthographicMatrix(), m_view);
 
-	if (m_debugTree)
-		DebugRenderer::Get().drawBuffer();
+	if (m_debugTree) {
+		DebugRenderer::Get().drawBuffer();		
+	}
 
 	if (m_debugPhysic) {
 		!m_overview ? ShapeDrawer::Get().setProjectionView(m_camera.getPerspectiveMatrix(), m_camera.getViewMatrix()) : ShapeDrawer::Get().setProjectionView(m_camera.getOrthographicMatrix(), m_view);
@@ -225,6 +240,7 @@ void SkinnedArmor::render() {
 		ShapeDrawer::Get().drawDynmicsWorld(Physics::GetDynamicsWorld());
 		glPolygonMode(GL_FRONT_AND_BACK, StateMachine::GetEnableWireframe() ? GL_LINE : GL_FILL);
 		glEnable(GL_CULL_FACE);
+		//m_characterController->debugDrawContacts();
 	}
 
 	if (m_drawUi)
@@ -351,61 +367,73 @@ void SkinnedArmor::createShapes() {
 	mdlConverter.mdlToBuffer("res/models/base.mdl", 0.01f, vertexBuffer, indexBuffer);
 	m_baseShape.fromBuffer(vertexBuffer, indexBuffer, 8);
 	m_baseShape.createBoundingBox();
+	m_baseShape.markForDelete();
 	vertexBuffer.clear(); vertexBuffer.shrink_to_fit(); indexBuffer.clear(); indexBuffer.shrink_to_fit();
 
 	mdlConverter.mdlToBuffer("res/models/upperFloor.mdl", 0.01f, vertexBuffer, indexBuffer);
 	m_upperFloorShape.fromBuffer(vertexBuffer, indexBuffer, 8);
 	m_upperFloorShape.createBoundingBox();
+	m_upperFloorShape.markForDelete();
 	vertexBuffer.clear(); vertexBuffer.shrink_to_fit(); indexBuffer.clear(); indexBuffer.shrink_to_fit();
 
 	mdlConverter.mdlToBuffer("res/models/ramp.mdl", 0.01f, vertexBuffer, indexBuffer);
 	m_rampShape.fromBuffer(vertexBuffer, indexBuffer, 8);
 	m_rampShape.createBoundingBox();
+	m_rampShape.markForDelete();
 	vertexBuffer.clear(); vertexBuffer.shrink_to_fit(); indexBuffer.clear(); indexBuffer.shrink_to_fit();
 
 	mdlConverter.mdlToBuffer("res/models/ramp2.mdl", 0.01f, vertexBuffer, indexBuffer);
 	m_ramp2Shape.fromBuffer(vertexBuffer, indexBuffer, 8);
 	m_ramp2Shape.createBoundingBox();
+	m_ramp2Shape.markForDelete();
 	vertexBuffer.clear(); vertexBuffer.shrink_to_fit(); indexBuffer.clear(); indexBuffer.shrink_to_fit();
 
 	mdlConverter.mdlToBuffer("res/models/ramp3.mdl", 0.01f, vertexBuffer, indexBuffer);
 	m_ramp3Shape.fromBuffer(vertexBuffer, indexBuffer, 8);
 	m_ramp3Shape.createBoundingBox();
+	m_ramp3Shape.markForDelete();
 	vertexBuffer.clear(); vertexBuffer.shrink_to_fit(); indexBuffer.clear(); indexBuffer.shrink_to_fit();
 
 	mdlConverter.mdlToBuffer("res/models/Lift.mdl", 0.01f, vertexBuffer, indexBuffer);
 	m_liftShape.fromBuffer(vertexBuffer, indexBuffer, 8);
 	m_liftShape.createBoundingBox();
+	m_liftShape.markForDelete();
 	vertexBuffer.clear(); vertexBuffer.shrink_to_fit(); indexBuffer.clear(); indexBuffer.shrink_to_fit();
 
 	mdlConverter.mdlToBuffer("res/models/Lift.mdl", { 0.01f, 0.03f, 0.01f }, vertexBuffer, indexBuffer);
 	m_liftShapeExtend.fromBuffer(vertexBuffer, indexBuffer, 8);
 	m_liftShapeExtend.createBoundingBox();
+	m_liftShapeExtend.markForDelete();
 	vertexBuffer.clear(); vertexBuffer.shrink_to_fit(); indexBuffer.clear(); indexBuffer.shrink_to_fit();
 
 	mdlConverter.mdlToBuffer("res/models/liftExterior.mdl", 0.01f, vertexBuffer, indexBuffer);
 	m_liftExteriorShape.fromBuffer(vertexBuffer, indexBuffer, 8);
 	m_liftExteriorShape.createBoundingBox();
+	m_liftExteriorShape.markForDelete();
 	vertexBuffer.clear(); vertexBuffer.shrink_to_fit(); indexBuffer.clear(); indexBuffer.shrink_to_fit();
 
 	mdlConverter.mdlToBuffer("res/models/disk.mdl", 0.01f, vertexBuffer, indexBuffer);
 	m_diskShape.fromBuffer(vertexBuffer, indexBuffer, 8);
 	m_diskShape.createBoundingBox();
+	m_diskShape.markForDelete();
 	vertexBuffer.clear(); vertexBuffer.shrink_to_fit(); indexBuffer.clear(); indexBuffer.shrink_to_fit();
 
 	mdlConverter.mdlToBuffer("res/models/Cylinder.mdl", { 6.0f, 0.7f, 6.0f }, vertexBuffer, indexBuffer);
 	m_cylinderShape.fromBuffer(vertexBuffer, indexBuffer, 8);
 	m_cylinderShape.createBoundingBox();
+	m_cylinderShape.markForDelete();
 	vertexBuffer.clear(); vertexBuffer.shrink_to_fit(); indexBuffer.clear(); indexBuffer.shrink_to_fit();
 
 	mdlConverter.mdlToBuffer("res/models/LiftButton.mdl", 0.01f, vertexBuffer, indexBuffer);
 	m_liftButtonShape.fromBuffer(vertexBuffer, indexBuffer, 8);
 	m_liftButtonShape.createBoundingBox();
+	m_liftButtonShape.markForDelete();
 	vertexBuffer.clear(); vertexBuffer.shrink_to_fit(); indexBuffer.clear(); indexBuffer.shrink_to_fit();
 
 	mdlConverter.mdlToBuffer("res/models/dummy.mdl", 1.2f, vertexBuffer, indexBuffer);
 	m_dummy.fromBuffer(vertexBuffer, indexBuffer, 8);
 	m_dummy.createBoundingBox();
+	m_dummy.markForDelete();
 	vertexBuffer.clear(); vertexBuffer.shrink_to_fit(); indexBuffer.clear(); indexBuffer.shrink_to_fit();
 }
 
@@ -435,67 +463,61 @@ void SkinnedArmor::createScene() {
 	shapeNode = m_root->addChild<ShapeNode, Shape>(m_baseShape);
 	shapeNode->setPosition(0.0f, 0.0f, 0.0f);
 	shapeNode->OnOctreeSet(m_octree);
-	m_entities.push_back(shapeNode);
 
 	shapeNode = m_root->addChild<ShapeNode, Shape>(m_upperFloorShape);
 	shapeNode->setPosition(30.16f, 6.98797f, 10.0099f);
 	shapeNode->OnOctreeSet(m_octree);
-	m_entities.push_back(shapeNode);
 
 	shapeNode = m_root->addChild<ShapeNode, Shape>(m_rampShape);
 	shapeNode->setPosition(13.5771f, 6.23965f, 10.9272f);
 	shapeNode->OnOctreeSet(m_octree);
-	m_entities.push_back(shapeNode);
 
 	shapeNode = m_root->addChild<ShapeNode, Shape>(m_ramp2Shape);
 	shapeNode->setPosition(-22.8933f, 2.63165f, -23.6786f);
 	shapeNode->OnOctreeSet(m_octree);
-	m_entities.push_back(shapeNode);
 
 	shapeNode = m_root->addChild<ShapeNode, Shape>(m_ramp3Shape);
 	shapeNode->setPosition(-15.2665f, 1.9782f, -43.135f);
 	shapeNode->OnOctreeSet(m_octree);
-	m_entities.push_back(shapeNode);
 
 	shapeNode = m_root->addChild<ShapeNode, Shape>(m_liftShape);
 	shapeNode->setPosition(35.5938f, 0.350185f, 10.4836f);
+	shapeNode->setName("lift");
 	shapeNode->OnOctreeSet(m_octree);
-	m_entities.push_back(shapeNode);
 
 	shapeNode = m_root->addChild<ShapeNode, Shape>(m_liftExteriorShape);
 	shapeNode->setPosition(35.6211f, 7.66765f, 10.4388f);
 	shapeNode->OnOctreeSet(m_octree);
-	m_entities.push_back(shapeNode);
 
 	shapeNode = m_root->addChild<ShapeNode, Shape>(m_liftButtonShape);
 	shapeNode->setPosition(Vector3f(35.5938f, 0.350185f, 10.4836f) + Vector3f(0.0f, 0.0619186f, 0.0f));
+	shapeNode->setName("button");
 	shapeNode->OnOctreeSet(m_octree);
-	m_entities.push_back(shapeNode);
 
+	shapeNode = m_root->findChild<ShapeNode>("lift");
 	m_lift = new Lift();
-	m_lift->initialize(m_entities[5], m_kinematicLift, m_entities[5]->getWorldPosition() + Vector3f(0, 6.8f, 0), shapeNode, m_liftButtonTrigger, m_liftTrigger);
-	m_kinematicLift->setUserPointer(m_entities[5]);
-	m_liftTrigger->setUserPointer(m_entities[5]);
+	m_lift->initialize(shapeNode, m_kinematicLift, shapeNode->getWorldPosition() + Vector3f(0, 6.8f, 0), m_root->findChild<ShapeNode>("button"), m_liftButtonTrigger, m_liftTrigger);
+	m_kinematicLift->setUserPointer(shapeNode);
+	m_liftTrigger->setUserPointer(shapeNode);
 	m_liftButtonTrigger->setUserPointer(m_lift);
 
 	shapeNode = m_root->addChild<ShapeNode, Shape>(m_diskShape);
 	shapeNode->setPosition(26.1357f, 7.00645f, -34.7563f);
+	shapeNode->setName("disk");
 	shapeNode->OnOctreeSet(m_octree);
-	m_entities.push_back(shapeNode);
 
 	m_movingPlatform = new MovingPlatform();
 	m_movingPlatform->initialize(shapeNode, m_kinematicPlatform1, shapeNode->getWorldPosition() + Vector3f(0.0f, 0.0f, 20.0f));
-	m_kinematicPlatform1->setUserPointer(m_entities[8]);
+	m_kinematicPlatform1->setUserPointer(m_root->findChild<ShapeNode>("disk"));
 
 	shapeNode = m_root->addChild<ShapeNode, Shape>(m_cylinderShape);
 	shapeNode->setPosition(-0.294956f, 3.46579f, 28.3161f);
+	shapeNode->setName("cylinder");
 	shapeNode->OnOctreeSet(m_octree);
-	m_entities.push_back(shapeNode);
 
 	shapeNode = m_root->addChild<ShapeNode, Shape>(m_dummy);
 	shapeNode->setPosition(0.0f, 0.5f, 0.0f);
-	//shapeNode->OnOctreeSet(m_octree);
-	m_entities.push_back(shapeNode);
+	m_dummyNode = shapeNode;
 
 	SceneNodeLC* sceneNode;
 	m_splinePath = new SplinePath();
@@ -553,11 +575,11 @@ void SkinnedArmor::createScene() {
 	sceneNode->setPosition(Vector3f(-1.85441f, 7.34028f, 7.73154f) + offset);
 	m_splinePath->AddControlPoint(sceneNode, 12);
 
-	m_splinePath->SetControlledNode(m_entities[9]);
+	m_splinePath->SetControlledNode(m_root->findChild<ShapeNode>("cylinder"));
 	m_splinePath->SetInterpolationMode(CATMULL_ROM_FULL_CURVE);
 	m_splinePath->SetSpeed(6.0f);
 
 	m_splinePlatform = new SplinePlatform();
 	m_splinePlatform->initialize(m_splinePath, m_kinematicPlatform2);
-	m_kinematicPlatform2->setUserPointer(m_entities[9]);
+	m_kinematicPlatform2->setUserPointer(m_root->findChild<ShapeNode>("cylinder"));
 }

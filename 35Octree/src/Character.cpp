@@ -4,41 +4,88 @@
 #include "Character.h"
 #include "KinematicCharacterController.h"
 #include "MovingPlatform.h"
+#include "Lift.h"
+#include "Globals.h"
 
+Character::Character(const AnimatedModel& ainamtedModel, Lift* lift, Camera& camera)
+	: m_onGround(false),
+	m_okToJump(true),
+	m_inAirTimer(0.0f),
+	m_jumpStarted(false),
+	camera(camera) {
 
-Character::Character(AnimationNode* model, AnimationController* animationController, KinematicCharacterController* kcc, Camera& camera, SceneNodeLC* button, Lift* lift)
-	: model_(model),
-	animController_(animationController),
-	kinematicController_(kcc),
-	onGround_(false),
-	okToJump_(true),
-	inAirTimer_(0.0f),
-	jumpStarted_(false),
-	button_(button),
-	camera(camera)
-{
+	m_animationNode = new AnimationNode(ainamtedModel);
+	m_animationNode->setUpdateSilent(true);
+	m_animationController = new AnimationController(m_animationNode);
 
-	kinematicController_->setUserPointer(this);
-	m_characterTriggerResult.button_ = button;
-	lift_ = lift;
+	m_kinematicController = new KinematicCharacterController(nullptr, Physics::collisiontypes::CHARACTER, Physics::collisiontypes::FLOOR);
+	m_kinematicController->setUserPointer(this);
+	m_lift = lift;
 }
 
+Character::~Character() {
+	delete m_kinematicController;
+	delete m_animationController;
+	delete m_animationNode;
+}
 
-void Character::FixedUpdate(float timeStep) {
+void Character::draw(const Camera& camera) {
+	Globals::textureManager.get("null").bind();
+	auto shader = Globals::shaderManager.getAssetPointer("animation_new");
+	shader->use();
+	shader->loadVector("u_light", Vector3f(1.0f, 1.0f, 1.0f));
+	shader->loadMatrix("u_projection", camera.getPerspectiveMatrix());
+	shader->loadMatrix("u_view", camera.getViewMatrix());
+	shader->loadVector("u_color", Vector4f(0.371822f, 0.75123f, 0.9091f, 1.0f));
+	m_animationNode->drawRaw();
+	shader->unuse();
+}
+
+void Character::drawOverview(const Matrix4f perspective, const Matrix4f view) {
+	Globals::textureManager.get("null").bind();
+	auto shader = Globals::shaderManager.getAssetPointer("animation_new");
+	shader->use();
+	shader->loadVector("u_light", Vector3f(1.0f, 1.0f, 1.0f));
+	shader->loadMatrix("u_projection", perspective);
+	shader->loadMatrix("u_view", view);
+	shader->loadVector("u_color", Vector4f(0.371822f, 0.75123f, 0.9091f, 1.0f));
+	m_animationNode->drawRaw();
+
+	shader->unuse();
+}
+
+void Character::rotate(const float pitch, const float yaw, const float roll) {
+	m_animationNode->rotate(pitch, yaw, roll);
+}
+
+const Vector3f& Character::getWorldPosition() const {
+	return m_animationNode->getWorldPosition();
+}
+
+const btVector3 Character::getBtPosition() const {
+	return m_kinematicController->getBtPosition();
+}
+
+void Character::update(const float dt) {
+	m_animationController->Update(dt);
+	m_animationNode->update(dt);
+}
+
+void Character::fixedUpdate(float fdt) {
 	Keyboard &keyboard = Keyboard::instance();
 
 	// Update the in air timer. Reset if grounded
-	if (!onGround_)
-		inAirTimer_ += timeStep;
+	if (!m_onGround)
+		m_inAirTimer += fdt;
 	else
-		inAirTimer_ = 0.0f;
+		m_inAirTimer = 0.0f;
 	// When character has been in air less than 1/10 second, it's still interpreted as being on ground
-	bool softGrounded = inAirTimer_ < INAIR_THRESHOLD_TIME;
+	bool softGrounded = m_inAirTimer < INAIR_THRESHOLD_TIME;
 
 	// Update movement & animation
-	const Quaternion& rot = model_->getOrientation();
+	const Quaternion& rot = m_animationNode->getOrientation();
 	Vector3f moveDir = Vector3f::ZERO;
-	onGround_ = kinematicController_->OnGround();
+	m_onGround = m_kinematicController->onGround();
 
 	if (keyboard.keyDown(Keyboard::KEY_W))
 		moveDir += Vector3f::BACK;
@@ -54,52 +101,47 @@ void Character::FixedUpdate(float timeStep) {
 		Vector3f::Normalize(moveDir);
 
 	// rotate movedir
-	curMoveDir_ = Quaternion::Rotate(rot, moveDir);
+	m_curMoveDir = Quaternion::Rotate(rot, moveDir);
 
-	kinematicController_->SetWalkDirection(curMoveDir_ * (softGrounded ? MOVE_FORCE : INAIR_MOVE_FORCE));
+	m_kinematicController->setWalkDirection(m_curMoveDir * (softGrounded ? MOVE_FORCE : INAIR_MOVE_FORCE));
 
-	if (softGrounded)
-	{
-		isJumping_ = false;
+	if (softGrounded){
+		m_isJumping = false;
 		// Jump. Must release jump control between jumps
-		if (keyboard.keyDown(Keyboard::KEY_SPACE))
-		{
-			isJumping_ = true;
-			if (okToJump_)
-			{
-				okToJump_ = false;
-				jumpStarted_ = true;
-				kinematicController_->Jump();
+		if (keyboard.keyDown(Keyboard::KEY_SPACE)){
+			m_isJumping = true;
+			if (m_okToJump){
+				m_okToJump = false;
+				m_jumpStarted = true;
+				m_kinematicController->jump();
 
-				animController_->StopLayer(0);
-				animController_->PlayExclusive("beta_jump_start", 0, false, 0.2f);
-				animController_->SetTime("beta_jump_start", 0);
+				m_animationController->StopLayer(0);
+				m_animationController->PlayExclusive("beta_jump_start", 0, false, 0.2f);
+				m_animationController->SetTime("beta_jump_start", 0);
 			}
-		}
-		else
-		{
-			okToJump_ = true;
+		}else{
+			m_okToJump = true;
 		}
 	}
 
-	if (!onGround_ || jumpStarted_){
-		if (jumpStarted_){
-			if (animController_->IsAtEnd("beta_jump_start")){
-				animController_->PlayExclusive("beta_jump_loop", 0, true, 0.3f);
-				animController_->SetTime("beta_jump_loop", 0);
-				jumpStarted_ = false;
+	if (!m_onGround || m_jumpStarted){
+		if (m_jumpStarted){
+			if (m_animationController->IsAtEnd("beta_jump_start")){
+				m_animationController->PlayExclusive("beta_jump_loop", 0, true, 0.3f);
+				m_animationController->SetTime("beta_jump_loop", 0);
+				m_jumpStarted = false;
 			}
 		}else{
 			const float maxDistance = 50.0f;
 			const float segmentDistance = 10.01f;
 			PhysicsRaycastResult result;
 
-			Physics::RaycastSingleSegmented(result, model_->getPosition(), Vector3f::DOWN, maxDistance, segmentDistance, Physics::collisiontypes::RAY, Physics::collisiontypes::FLOOR);
+			Physics::RaycastSingleSegmented(result, m_animationNode->getPosition(), Vector3f::DOWN, maxDistance, segmentDistance, Physics::collisiontypes::RAY, Physics::collisiontypes::FLOOR);
 
 			//float slopeDot = result.normal_.DotProduct(Vector3(0.0f, 1.0f, 0.0f));
 
 			if (result.distance_ > 0.7f) {
-				animController_->PlayExclusive("beta_jump_loop", 0, true, 0.2f);
+				m_animationController->PlayExclusive("beta_jump_loop", 0, true, 0.2f);
 			}
 			//else if (result.body_ == NULL)
 			//{
@@ -109,81 +151,79 @@ void Character::FixedUpdate(float timeStep) {
 	}else{
 		// Play walk animation if moving on ground, otherwise fade it out
 		if ((softGrounded) && !moveDir.compare(Vector3f::ZERO, EPSILON)){
-			animController_->PlayExclusive("beta_run", 0, true, 0.2f);
+			m_animationController->PlayExclusive("beta_run", 0, true, 0.2f);
 		}else{
-			animController_->PlayExclusive("beta_idle", 0, true, 0.2f);
+			m_animationController->PlayExclusive("beta_idle", 0, true, 0.2f);
 		}
 	}
 }
 
-void Character::FixedPostUpdate(float timeStep) {
-	if (movingData_[0] == movingData_[1]) {
-		Matrix4f delta = movingData_[0].transform_ * movingData_[1].transform_.inverse();
+void Character::fixedPostUpdate(float fdt) {
+	if (m_movingData[0] == m_movingData[1]) {
+		Matrix4f delta = m_movingData[0].m_transform * m_movingData[1].m_transform.inverse();
 		// add delta
 		Vector3f kPos;
 		Quaternion kRot;
-		kinematicController_->GetTransform(kPos, kRot);
+		m_kinematicController->getTransform(kPos, kRot);
 
 		Matrix4f matKC(kPos, kRot, Vector3f::ONE);	
 		matKC = delta * matKC;
-		kinematicController_->SetTransform(matKC.getTranslation(), Quaternion(matKC.getRotation()));
+		m_kinematicController->setTransform(matKC.getTranslation(), Quaternion(matKC.getRotation()));
 
 		float deltaYaw = Quaternion(delta.getRotation()).getYaw();
-		model_->rotate(Quaternion(Vector3f::UP, deltaYaw));
+		m_animationNode->rotate(Quaternion(Vector3f::UP, deltaYaw));
 		camera.rotate(-deltaYaw * 1.0f / camera.getRotationSpeed(), 0.0f, kPos);	
 	}
 
 	// update node position
-	model_->setPosition(kinematicController_->GetPosition());
+	m_animationNode->setPosition(m_kinematicController->getPosition());
 
 	// shift and clear
-	movingData_[1] = movingData_[0];
-	movingData_[0].node_ = 0;
+	m_movingData[1] = m_movingData[0];
+	m_movingData[0].m_node = nullptr;
 }
 
-void Character::NodeOnMovingPlatform(SceneNodeLC* node) {
-	movingData_[0].node_ = node;
-	movingData_[0].transform_ = node->getWorldTransformation();
-
-	//std::cout << "Position: " << movingData_[0].transform_[3][0] << "  " << movingData_[0].transform_[3][1] << "  " << movingData_[0].transform_[3][2] << std::endl;
+void Character::nodeOnMovingPlatform(SceneNodeLC* node) {
+	m_movingData[0].m_node = node;
+	m_movingData[0].m_transform = node->getWorldTransformation();
 }
 
-void Character::ProcessCollision() {
+void Character::processCollision() {
 	m_characterTriggerResultButton.prevCollision.first = m_characterTriggerResultButton.currentCollision.first;
 	m_characterTriggerResultButton.prevCollision.second = m_characterTriggerResultButton.currentCollision.second;
 }
 
-void Character::HandleCollision(btCollisionObject* collisionObject) {
-	Physics::GetDynamicsWorld()->contactPairTest(kinematicController_->pairCachingGhostObject_.get(), collisionObject, m_characterTriggerResult);
+void Character::handleCollision(btCollisionObject* collisionObject) {
+	Physics::GetDynamicsWorld()->contactPairTest(m_kinematicController->getPairCachingGhostObject(), collisionObject, m_characterTriggerResult);
 }
 
-void Character::HandleCollisionButton(btCollisionObject* collisionObject) {
+void Character::handleCollisionButton(btCollisionObject* collisionObject) {
 	m_characterTriggerResultButton.currentCollision = std::make_pair(nullptr, nullptr);
-	Physics::GetDynamicsWorld()->contactPairTest(kinematicController_->pairCachingGhostObject_.get(), collisionObject, m_characterTriggerResultButton);
+	Physics::GetDynamicsWorld()->contactPairTest(m_kinematicController->getPairCachingGhostObject(), collisionObject, m_characterTriggerResultButton);
 }
 
-void Character::BeginCollision() {
+void Character::beginCollision() {
 	if (m_characterTriggerResultButton.currentCollision.first && m_characterTriggerResultButton.prevCollision.second == nullptr) {
 		Lift* lift = reinterpret_cast<Lift*>(m_characterTriggerResultButton.currentCollision.second->getUserPointer());
 		lift->handleButtonStartCollision();
 	}
 }
 
-void Character::EndCollision() {
+void Character::endCollision() {
 	if (m_characterTriggerResultButton.currentCollision.first == nullptr && m_characterTriggerResultButton.prevCollision.second) {
 		Lift* lift = reinterpret_cast<Lift*>(m_characterTriggerResultButton.prevCollision.second->getUserPointer());
 		lift->handleButtonEndCollision();
 	}
 }
 
-btScalar CharacterTriggerCallback::addSingleResult(btManifoldPoint& cp, const btCollisionObjectWrapper* colObj0Wrap, int partId0, int index0, const btCollisionObjectWrapper* colObj1Wrap, int partId1, int index1) {
+btScalar Character::CharacterTriggerCallback::addSingleResult(btManifoldPoint& cp, const btCollisionObjectWrapper* colObj0Wrap, int partId0, int index0, const btCollisionObjectWrapper* colObj1Wrap, int partId1, int index1) {
 	Character* character = reinterpret_cast<Character*>(colObj0Wrap->getCollisionObject()->getUserPointer());
 	SceneNodeLC* model = reinterpret_cast<SceneNodeLC*>(colObj1Wrap->getCollisionObject()->getUserPointer());
-	character->NodeOnMovingPlatform(model);
+	character->nodeOnMovingPlatform(model);
 	return 0;
 }
 
-btScalar CharacterTriggerCallbackButton::addSingleResult(btManifoldPoint& cp, const btCollisionObjectWrapper* colObj0Wrap, int partId0, int index0, const btCollisionObjectWrapper* colObj1Wrap, int partId1, int index1) {
+btScalar Character::CharacterTriggerCallbackButton::addSingleResult(btManifoldPoint& cp, const btCollisionObjectWrapper* colObj0Wrap, int partId0, int index0, const btCollisionObjectWrapper* colObj1Wrap, int partId1, int index1) {
 	currentCollision.first = colObj0Wrap->getCollisionObject();
 	currentCollision.second = colObj1Wrap->getCollisionObject();
 	return 0;

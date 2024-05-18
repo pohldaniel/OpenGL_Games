@@ -20,7 +20,7 @@ public:
 	void markForRemove();
 	void setParent(Node* node);
 	
-	std::list<std::unique_ptr<Node, std::function<void(Node* animation)>>>& getChildren() const;
+	std::list<std::unique_ptr<Node, std::function<void(Node* node)>>>& getChildren() const;
 	void removeAllChildren();
 	void removeChild(Node* child);
 	void removeSelf();

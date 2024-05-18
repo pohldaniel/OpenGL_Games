@@ -8,24 +8,33 @@
 #include "Lift.h"
 #include "Globals.h"
 
-CharacterSkinned::CharacterSkinned(KinematicCharacterController* kcc, SceneNodeLC* button, Lift* lift, Camera& camera) : m_onGround(true), m_okToJump(true), m_jumpStarted(false), m_inAirTimer(0.0f), weaponActionState_(Weapon_Invalid),
-comboAnimsIdx_(0), equipWeapon(false), lMouseB(false), m_kinematicController(kcc), m_lift(lift), camera(camera), m_characterTriggerResultWeapon(m_damageTimer), weaponDmgState_(WeaponDmg_OFF) {
-	m_model.loadModelMdl("res/models/Girlbot/Girlbot.mdl");
-	m_model.m_meshes[0]->createBones();
+CharacterSkinned::CharacterSkinned(const AnimatedModel& ainamtedModel, Lift* lift, Camera& camera) :
+	m_onGround(true), 
+	m_okToJump(true), 
+	m_jumpStarted(false),
+	m_inAirTimer(0.0f), 
+	m_weaponActionState(Weapon_Invalid),
+	m_comboAnimsIdx(0), 
+	m_equipWeapon(false), 
+	m_lMouseB(false), 
+	m_lift(lift), 
+	camera(camera), 
+	m_characterTriggerResultWeapon(m_damageTimer), 
+	m_weaponDmgState(WeaponDmg_OFF) {
 
-	m_animationNode = new AnimationNode(m_model);
+	m_animationNode = new AnimationNode(ainamtedModel);
 	m_animationNode->setUpdateSilent(true);
 	m_animationController = new AnimationController(m_animationNode);
 
 	// combo anims
-	weaponComboAnim_.push_back("girl_slash_1");
-	weaponComboAnim_.push_back("girl_slash_2");
-	weaponComboAnim_.push_back("girl_slash_3");
+	m_weaponComboAnim.push_back("girl_slash_1");
+	m_weaponComboAnim.push_back("girl_slash_2");
+	m_weaponComboAnim.push_back("girl_slash_3");
 
-	weaponActionState_ = Weapon_Unequipped;
+	m_weaponActionState = Weapon_Unequipped;
 	m_armorLocatorNode = m_animationNode->getRootBone();
-	m_rightHandLocatorNode = m_animationNode->getRootBone()->FindChildOfType(StringHash("RighthandLocator"), true);
-	BoneNode* m_backLocatorNode = m_animationNode->getRootBone()->FindChildOfType(StringHash("BackLocator"), true);
+	m_rightHandLocatorNode = m_animationNode->getRootBone()->findChild<BoneNode>("RighthandLocator", true);
+	BoneNode* m_backLocatorNode = m_animationNode->getRootBone()->findChild<BoneNode>("BackLocator", true);
 	m_swordLocatorNode = m_backLocatorNode->addChild<BoneNode>();
 	m_swordLocatorNode->setPosition(-2.52264f, 1.71661e-05f, 22.4404f);
 
@@ -52,11 +61,19 @@ comboAnimsIdx_(0), equipWeapon(false), lMouseB(false), m_kinematicController(kcc
 	m_armorShape.markForDelete();
 	m_swordShape.markForDelete();
 
+	m_kinematicController = new KinematicCharacterController(nullptr, Physics::collisiontypes::CHARACTER, Physics::collisiontypes::FLOOR);
 	m_kinematicController->setUserPointer(this);
 }
 
 CharacterSkinned::~CharacterSkinned() {
-	delete m_sword;
+	
+	delete m_kinematicController;
+	delete m_animationController;
+
+	//IMPORTANT: Will be deleted with the m_animationNode over m_swordLocatorNode or m_backLocatorNode
+	//m_sword->eraseSelf();
+	//delete m_sword; 
+	delete m_animationNode;
 }
 
 void CharacterSkinned::fixedUpdate(float fdt) {
@@ -73,7 +90,7 @@ void CharacterSkinned::fixedUpdate(float fdt) {
 	// Update movement & animation
 	const Quaternion& rot = m_animationNode->getOrientation();
 	Vector3f moveDir = Vector3f::ZERO;
-	m_onGround = m_kinematicController->OnGround();
+	m_onGround = m_kinematicController->onGround();
 	// Velocity on the XZ plane
 	//const Vector3f velocity = m_kinematicController->GetLinearVelocity();
 	//Vector3f planeVelocity(velocity[0], 0.0f, velocity[2]);
@@ -87,23 +104,23 @@ void CharacterSkinned::fixedUpdate(float fdt) {
 	if (keyboard.keyDown(Keyboard::KEY_D))
 		moveDir += Vector3f::RIGHT;
 
-	weaponDmgState_ = WeaponDmg_OFF;
-	unsigned int prevState = weaponActionState_;
-	processWeaponAction(equipWeapon, lMouseB);
-	equipWeapon = false;
-	lMouseB = false;
+	m_weaponDmgState = WeaponDmg_OFF;
+	unsigned int prevState = m_weaponActionState;
+	processWeaponAction(m_equipWeapon, m_lMouseB);
+	m_equipWeapon = false;
+	m_lMouseB = false;
 	
-	if (weaponActionState_ == Weapon_AttackAnim) {
-		float time = m_animationController->GetTime(weaponActionAnim_);
-		if (comboAnimsIdx_ == 0 && 0.2f < time && time < 0.8f)
-			weaponDmgState_ = WeaponDmg_ON;
-		else if (comboAnimsIdx_ == 1 && 0.2f < time && time < 0.9f)
-			weaponDmgState_ = WeaponDmg_ON;
-		else if (comboAnimsIdx_ == 2 && 0.4f < time && time < 0.9f)
-			weaponDmgState_ = WeaponDmg_ON;
+	if (m_weaponActionState == Weapon_AttackAnim) {
+		float time = m_animationController->GetTime(m_weaponActionAnim);
+		if (m_comboAnimsIdx == 0 && 0.2f < time && time < 0.8f)
+			m_weaponDmgState = WeaponDmg_ON;
+		else if (m_comboAnimsIdx == 1 && 0.2f < time && time < 0.9f)
+			m_weaponDmgState = WeaponDmg_ON;
+		else if (m_comboAnimsIdx == 2 && 0.4f < time && time < 0.9f)
+			m_weaponDmgState = WeaponDmg_ON;
 
 		if (prevState == Weapon_Equipped){
-			m_kinematicController->SetLinearVelocity(Vector3f::ZERO);
+			m_kinematicController->setLinearVelocity(Vector3f::ZERO);
 		}
 
 		m_onGround = false;
@@ -117,7 +134,7 @@ void CharacterSkinned::fixedUpdate(float fdt) {
 	// rotate movedir
 	m_curMoveDir = Quaternion::Rotate(rot, moveDir);
 
-	m_kinematicController->SetWalkDirection(m_curMoveDir * (softGrounded ? MOVE_FORCE : INAIR_MOVE_FORCE));
+	m_kinematicController->setWalkDirection(m_curMoveDir * (softGrounded ? MOVE_FORCE : INAIR_MOVE_FORCE));
 
 	if (softGrounded){
 		m_isJumping = false;
@@ -127,7 +144,7 @@ void CharacterSkinned::fixedUpdate(float fdt) {
 			if (m_okToJump){
 				m_okToJump = false;
 				m_jumpStarted = true;
-				m_kinematicController->Jump();
+				m_kinematicController->jump();
 
 				m_animationController->StopLayer(0);
 				m_animationController->PlayExclusive("girl_jump_start", 0, false, 0.2f);
@@ -176,107 +193,104 @@ void CharacterSkinned::update(const float dt) {
 	Keyboard &keyboard = Keyboard::instance();
 	Mouse &mouse = Mouse::instance();
 
-	equipWeapon = keyboard.keyPressed(Keyboard::KEY_Q) | equipWeapon;
-	lMouseB = mouse.buttonPressed(Mouse::BUTTON_LEFT) | lMouseB;
+	m_equipWeapon = keyboard.keyPressed(Keyboard::KEY_Q) | m_equipWeapon;
+	m_lMouseB = mouse.buttonPressed(Mouse::BUTTON_LEFT) | m_lMouseB;
 	m_animationController->Update(dt);
 	m_animationNode->update(dt);
 }
 
 void CharacterSkinned::processWeaponAction(bool equip, bool lMouseB) {
-	queInput_.Update();
+	m_queInput.update();
 
 	// eval state
-	switch (weaponActionState_) {
+	switch (m_weaponActionState) {
 
 	case Weapon_Unequipped:
 		if (equip) {
-			weaponActionAnim_ = "girl_unsheath";
-			m_animationController->Play(weaponActionAnim_, WeaponLayer, false, 0.0f);
-			m_animationController->SetTime(weaponActionAnim_, 0.0f);
+			m_weaponActionAnim = "girl_unsheath";
+			m_animationController->Play(m_weaponActionAnim, WeaponLayer, false, 0.0f);
+			m_animationController->SetTime(m_weaponActionAnim, 0.0f);
 			m_sword->eraseSelf();
 			m_rightHandLocatorNode->addChild(m_sword, true);
 			m_sword->OnTransformChanged();
-			weaponActionState_ = Weapon_Equipping;
+			m_weaponActionState = Weapon_Equipping;
 
 		}
 		break;
 
 	case Weapon_Equipping:
-		if (lMouseB && queInput_.Empty()) {
-
-			queInput_.SetInput(Mouse::BUTTON_LEFT);
+		if (lMouseB && m_queInput.empty()) {
+			m_queInput.setInput(Mouse::BUTTON_LEFT);
 		}
 
-		m_animationController->Play(weaponActionAnim_, WeaponLayer, false, 0.1f);
+		m_animationController->Play(m_weaponActionAnim, WeaponLayer, false, 0.1f);
 
-		if (m_animationController->IsAtEnd(weaponActionAnim_)) {
-
-			if (queInput_.Empty()) {
+		if (m_animationController->IsAtEnd(m_weaponActionAnim)) {
+			if (m_queInput.empty()) {
 				m_animationController->PlayExclusive("girl_equiped_idle", WeaponLayer, true, 0.1f);
 			}
-			weaponActionState_ = Weapon_Equipped;
+			m_weaponActionState = Weapon_Equipped;
 		}
 		break;
 	case Weapon_Equipped:
 		if (equip) {
 
-			weaponActionAnim_ = "girl_sheath";
-			m_animationController->Play(weaponActionAnim_, WeaponLayer, false, 0.1f);
-			m_animationController->SetTime(weaponActionAnim_, 0.0f);
-			weaponActionState_ = Weapon_UnEquipping;
+			m_weaponActionAnim = "girl_sheath";
+			m_animationController->Play(m_weaponActionAnim, WeaponLayer, false, 0.1f);
+			m_animationController->SetTime(m_weaponActionAnim, 0.0f);
+			m_weaponActionState = Weapon_UnEquipping;
 			break;
 		}
 
-		if (lMouseB || !queInput_.Empty()) {
+		if (lMouseB || !m_queInput.empty()) {
 			if (m_onGround) {
 				// reset input queue
-				queInput_.Reset();
+				m_queInput.reset();
 
-				weaponActionAnim_ = weaponComboAnim_[comboAnimsIdx_];
+				m_weaponActionAnim = m_weaponComboAnim[m_comboAnimsIdx];
 
-				if (m_animationController->PlayExclusive(weaponActionAnim_, NormalLayer, false, 0.1f)) {
-					m_animationController->SetTime(weaponActionAnim_, 0.0f);
+				if (m_animationController->PlayExclusive(m_weaponActionAnim, NormalLayer, false, 0.1f)) {
+					m_animationController->SetTime(m_weaponActionAnim, 0.0f);
 					m_animationController->StopLayer(WeaponLayer);
-					weaponActionState_ = Weapon_AttackAnim;
+					m_weaponActionState = Weapon_AttackAnim;
 				}
 			}
 			else {
-				if (lMouseB && queInput_.Empty()) {
-					queInput_.SetInput(Mouse::BUTTON_LEFT);
+				if (lMouseB && m_queInput.empty()) {
+					m_queInput.setInput(Mouse::BUTTON_LEFT);
 				}
 			}
 		}
 		break;
 	case Weapon_UnEquipping:
-		m_animationController->Play(weaponActionAnim_, WeaponLayer, false, 0.1f);
-		if (m_animationController->IsAtEnd(weaponActionAnim_)) {
+		m_animationController->Play(m_weaponActionAnim, WeaponLayer, false, 0.1f);
+		if (m_animationController->IsAtEnd(m_weaponActionAnim)) {
 			m_animationController->StopLayer(WeaponLayer, 0.2f);
 			m_sword->eraseSelf();
 			m_swordLocatorNode->addChild(m_sword, true);
 			m_sword->OnTransformChanged();
-			weaponActionState_ = Weapon_Unequipped;
+			m_weaponActionState = Weapon_Unequipped;
 			
 		}
 		break;
 	case Weapon_AttackAnim:
-		if (lMouseB && queInput_.Empty()) {
-			queInput_.SetInput(Mouse::BUTTON_LEFT);
+		if (lMouseB && m_queInput.empty()) {
+			m_queInput.setInput(Mouse::BUTTON_LEFT);
 		}
 
-		m_animationController->PlayExclusive(weaponActionAnim_, NormalLayer, false, 0.1f);
-		AnimationState* state = m_animationController->GetAnimationState(StringHash(weaponActionAnim_));
+		m_animationController->PlayExclusive(m_weaponActionAnim, NormalLayer, false, 0.1f);
+		AnimationState* state = m_animationController->GetAnimationState(StringHash(m_weaponActionAnim));
 
-		if (m_animationController->IsAtEnd(weaponActionAnim_)) {
+		if (m_animationController->IsAtEnd(m_weaponActionAnim)) {
 
-			if (queInput_.Empty()) {
-				comboAnimsIdx_ = 0;
+			if (m_queInput.empty()) {
+				m_comboAnimsIdx = 0;
 				m_animationController->PlayExclusive("girl_equiped_idle", WeaponLayer, true, 0.1f);
-			}
-			else {
-				comboAnimsIdx_ = ++comboAnimsIdx_ % weaponComboAnim_.size();
+			}else {
+				m_comboAnimsIdx = ++m_comboAnimsIdx % m_weaponComboAnim.size();
 			}
 
-			weaponActionState_ = Weapon_Equipped;
+			m_weaponActionState = Weapon_Equipped;
 		}
 
 		break;
@@ -356,6 +370,10 @@ const Vector3f& CharacterSkinned::getWorldPosition() const {
 	return m_animationNode->getWorldPosition();
 }
 
+const btVector3 CharacterSkinned::getBtPosition() const {
+	return m_kinematicController->getBtPosition();
+}
+
 void CharacterSkinned::setPosition(const Vector3f& position) {
 	m_animationNode->setPosition(position);
 	Vector3f offset = Quaternion::Rotate(m_swordLocatorNode->getWorldOrientation(), Vector3f(0.0f, 0.0f, -0.65f));
@@ -366,15 +384,15 @@ void CharacterSkinned::setPosition(const Vector3f& position) {
 
 void CharacterSkinned::fixedPostUpdate(float fdt) {
 	if (m_movingData[0] == m_movingData[1]) {
-		Matrix4f delta = m_movingData[0].transform_ * m_movingData[1].transform_.inverse();
+		Matrix4f delta = m_movingData[0].m_transform * m_movingData[1].m_transform.inverse();
 		// add delta
 		Vector3f kPos;
 		Quaternion kRot;
-		m_kinematicController->GetTransform(kPos, kRot);
+		m_kinematicController->getTransform(kPos, kRot);
 
 		Matrix4f matKC(kPos, kRot, Vector3f::ONE);
 		matKC = delta * matKC;
-		m_kinematicController->SetTransform(matKC.getTranslation(), Quaternion(matKC.getRotation()));
+		m_kinematicController->setTransform(matKC.getTranslation(), Quaternion(matKC.getRotation()));
 
 		float deltaYaw = Quaternion(delta.getRotation()).getYaw();
 		m_animationNode->rotate(Quaternion(Vector3f::UP, deltaYaw));
@@ -382,7 +400,7 @@ void CharacterSkinned::fixedPostUpdate(float fdt) {
 	}
 
 	// update node position
-	m_animationNode->setPosition(m_kinematicController->GetPosition());
+	m_animationNode->setPosition(m_kinematicController->getPosition());
 	if (m_swordLocatorNode->getChildren().size()) {
 		Vector3f offset = Quaternion::Rotate(m_swordLocatorNode->getWorldOrientation(), Vector3f(0.0f, 0.0f, -0.65f));
 		m_swordBody->getMotionState()->setWorldTransform(Physics::BtTransform(Physics::VectorFrom(m_swordLocatorNode->getWorldPosition() + offset), Physics::QuaternionFrom(m_swordLocatorNode->getWorldOrientation(false))));
@@ -393,12 +411,12 @@ void CharacterSkinned::fixedPostUpdate(float fdt) {
 	
 	// shift and clear
 	m_movingData[1] = m_movingData[0];
-	m_movingData[0].node_ = 0;
+	m_movingData[0].m_node = nullptr;
 }
 
 void CharacterSkinned::nodeOnMovingPlatform(SceneNodeLC *node) {
-	m_movingData[0].node_ = node;
-	m_movingData[0].transform_ = node->getWorldTransformation();
+	m_movingData[0].m_node = node;
+	m_movingData[0].m_transform = node->getWorldTransformation();
 }
 
 void CharacterSkinned::processCollision() {
@@ -407,18 +425,18 @@ void CharacterSkinned::processCollision() {
 }
 
 void CharacterSkinned::handleCollision(btCollisionObject* collisionObject) {
-	Physics::GetDynamicsWorld()->contactPairTest(m_kinematicController->pairCachingGhostObject_.get(), collisionObject, m_characterTriggerResult);
+	Physics::GetDynamicsWorld()->contactPairTest(m_kinematicController->getPairCachingGhostObject(), collisionObject, m_characterTriggerResult);
 }
 
 void CharacterSkinned::handleCollisionButton(btCollisionObject* collisionObject) {
 	m_characterTriggerResultButton.currentCollision = std::make_pair(nullptr, nullptr);
-	Physics::GetDynamicsWorld()->contactPairTest(m_kinematicController->pairCachingGhostObject_.get(), collisionObject, m_characterTriggerResultButton);
+	Physics::GetDynamicsWorld()->contactPairTest(m_kinematicController->getPairCachingGhostObject(), collisionObject, m_characterTriggerResultButton);
 }
 
 void CharacterSkinned::handleCollisionWeapon(btCollisionObject* collisionObject) {
 
 	// exit if not in the proper state
-	if (weaponDmgState_ == WeaponDmg_OFF){
+	if (m_weaponDmgState == WeaponDmg_OFF){
 		return;
 	}
 

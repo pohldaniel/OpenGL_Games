@@ -2,13 +2,11 @@
 #include <GL/glew.h>
 #include "DebugDrawer.h"
 
-DebugDrawer::DebugDrawer() :m_debugMode(0)
-{
+DebugDrawer::DebugDrawer() :m_debugMode(0){
 
 }
 
-DebugDrawer::~DebugDrawer()
-{
+DebugDrawer::~DebugDrawer(){
 }
 
 void DebugDrawer::drawLine(const btVector3& from, const btVector3& to, const btVector3& fromColor, const btVector3& toColor)
@@ -85,8 +83,7 @@ void DebugDrawer::reportErrorWarning(const char* warningString) {
 }
 
 void DebugDrawer::drawContactPoint(const btVector3& pointOnB, const btVector3& normalOnB, btScalar distance, int lifeTime, const btVector3& color) {
-
-	btVector3 to = pointOnB + normalOnB * 1;//distance;
+	btVector3 to = pointOnB + normalOnB * 10.0f;//distance;
 	const btVector3&from = pointOnB;
 	glColor4f(color.getX(), color.getY(), color.getZ(), 1.f);
 	//glColor4f(0,0,0,1.f);

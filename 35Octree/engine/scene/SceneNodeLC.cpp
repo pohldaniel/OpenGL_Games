@@ -1,6 +1,7 @@
 #include <iostream>
 #include "SceneNodeLC.h"
 
+
 Vector3f SceneNodeLC::WorldPosition;
 Vector3f SceneNodeLC::WorldScale;
 Quaternion SceneNodeLC::WorldOrientation;
@@ -67,4 +68,8 @@ const Quaternion& SceneNodeLC::getWorldOrientation(bool update) const {
 	if (update)
 		WorldOrientation = Quaternion(getWorldTransformation().getRotation());
 	return WorldOrientation;
+}
+
+void SceneNodeLC::setName(const std::string& name) {
+	m_nameHash = StringHash(name);
 }

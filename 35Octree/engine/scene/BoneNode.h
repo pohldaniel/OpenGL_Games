@@ -7,36 +7,22 @@
 class BoneNode : public SceneNodeLC {
 
 	friend class AnimationState;
+	friend class AnimationNode;
+	friend class AnimatedMesh;
 
 public:
 
 	BoneNode();
 	~BoneNode();
 
-	void SetAnimationEnabled(bool enable);
-	void CountChildBones();
-	void setRootBone(bool rootBone);
+	void setAnimationEnabled(bool enable);
+	void countChildBones();
+	void setIsRootBone(bool rootBone);
 	const bool isRootBone() const;
 
-
-	void SetTransformSilent(const Vector3f& position_, const Quaternion& rotation_, const Vector3f& scale_) {
-		m_position = position_;
-		m_orientation = rotation_;
-		m_scale = scale_;
-	}
-
-	void SetName(const std::string& newName) {
-		name = newName;
-		nameHash = StringHash(newName);
-	}
-
-	BoneNode* FindChildOfType(StringHash childNameHash, bool recursive) const;
-	bool AnimationEnabled() const { return animationEnabled; }
-	size_t NumChildBones() const { return numChildBones; }
-	StringHash nameHash;
-	std::string name;
-
-	Matrix4f offsetMatrix;
+	void setTransformSilent(const Vector3f& position_, const Quaternion& rotation_, const Vector3f& scale_);
+	bool animationEnabled() const;
+	size_t getNumChildBones() const;
 
 protected:
 
@@ -44,8 +30,8 @@ protected:
 
 private:
 
-	bool animationEnabled;
-	size_t numChildBones;
-	bool m_rootBone;
-
+	bool m_animationEnabled;
+	size_t m_numChildBones;
+	bool m_isRootBone;
+	Matrix4f m_offsetMatrix;
 };

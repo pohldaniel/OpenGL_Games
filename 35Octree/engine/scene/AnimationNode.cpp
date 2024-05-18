@@ -11,6 +11,15 @@ AnimationNode::AnimationNode(const AnimatedModel& animatedModel) : OctreeNode(an
 	createBones();
 }
 
+AnimationNode::~AnimationNode() {
+	//IMPORTANT: Will be deleted by "delete this" using the parent relationship;
+	//for (size_t i = 0; i < m_numBones; ++i) {
+	//	delete m_bones[i];
+	//}
+	delete[] m_bones;
+	delete[] m_skinMatrices;
+}
+
 void AnimationNode::addChild(AnimationNode* node, bool drawDebug) {
 	OctreeNode::addChild(node);
 	node->setDrawDebug(drawDebug);
@@ -94,8 +103,8 @@ void AnimationNode::updateAnimation(float dt) {
 	for (size_t i = 0; i < m_numBones; ++i) {
 		BoneNode* bone = m_bones[i];
 		const MeshBone& meshBone = meshBones[i];
-		if (bone->AnimationEnabled()) {
-			bone->SetTransformSilent(meshBone.initialPosition, meshBone.initialRotation, meshBone.initialScale);
+		if (bone->animationEnabled()) {
+			bone->setTransformSilent(meshBone.initialPosition, meshBone.initialRotation, meshBone.initialScale);
 		}
 	}
 
@@ -249,16 +258,15 @@ void AnimationNode::createBones() {
 	m_numBones = static_cast<unsigned short>(meshBones.size());
 	m_skinMatrices = new Matrix4f[m_numBones];
 	m_bones = new BoneNode*[m_numBones];
-	//m_skinMatrices = new Matrix4f[m_numBones];
 
 	for (size_t i = 0; i < m_numBones; ++i) {
 		const MeshBone& meshBone = meshBones[i];
 		m_bones[i] = new BoneNode();
-		m_bones[i]->SetName(meshBone.name);
+		m_bones[i]->setName(meshBone.name);
 		m_bones[i]->setPosition(meshBone.initialPosition);
 		m_bones[i]->setOrientation({ meshBone.initialRotation[0], meshBone.initialRotation[1], meshBone.initialRotation[2], meshBone.initialRotation[3] });
 		m_bones[i]->setScale(meshBone.initialScale);
-		m_bones[i]->offsetMatrix = meshBone.offsetMatrix;
+		m_bones[i]->m_offsetMatrix = meshBone.offsetMatrix;
 	}
 
 	for (size_t i = 0; i < m_numBones; ++i) {
@@ -267,16 +275,15 @@ void AnimationNode::createBones() {
 		if (meshBone.parentIndex == i) {
 			m_bones[i]->setParent(this);
 			m_rootBone = m_bones[i];
-			m_bones[i]->setRootBone(true);
-		}
-		else {
+			m_bones[i]->setIsRootBone(true);
+		}else {
 			m_bones[i]->setParent(m_bones[meshBone.parentIndex]);
 			//m_bones[i]->setOrigin(m_bones[i]->getPosition());
 		}
 	}
 
 	for (size_t i = 0; i < m_numBones; ++i)
-		m_bones[i]->CountChildBones();
+		m_bones[i]->countChildBones();
 }
 
 void AnimationNode::setUpdateSilent(bool updateSilent) {

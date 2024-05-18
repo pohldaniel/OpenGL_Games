@@ -1,7 +1,6 @@
+#include <iostream>
 #include "KinematicCharacterController.h"
 
-//=============================================================================
-//=============================================================================
 const float STEP_HEIGHT = 0.65f;
 const float JUMP_HEIGHT = 4.0f;
 const float FALL_SPEED = 55.0f;
@@ -10,173 +9,154 @@ const float MAX_SLOPE = 45.0f;
 const float DEFAULT_DAMPING = 0.2f;
 const Vector3f KINEMATIC_GRAVITY(0.0f, -14.0f, 0.0f);
 
-//=============================================================================
-//=============================================================================
-btPairCachingGhostObject* newPairCachingGhostObj(){
-	return new btPairCachingGhostObject();
-}
+KinematicCharacterController::KinematicCharacterController(btConvexShape* shape, int collisionFilterGroup, int collisionFilterMask)
+	: m_colFilter(collisionFilterGroup)
+	, m_colMask(collisionFilterMask)
+	, m_gravity(KINEMATIC_GRAVITY)
+	, m_stepHeight(STEP_HEIGHT)
+	, m_maxJumpHeight(JUMP_HEIGHT)
+	, m_fallSpeed(FALL_SPEED)
+	, m_jumpSpeed(JUMP_SPEED)
+	, m_maxSlope(MAX_SLOPE)
+	, m_linearDamping(DEFAULT_DAMPING)
+	, m_angularDamping(DEFAULT_DAMPING)
+	, m_colShapeOffset(Vector3f::ZERO)
+	, m_reapplyAttributes(false),
+	m_collisionShape(shape ? shape : new btCapsuleShape(0.7f * 0.5f, std::max(1.8f - 0.7f, 0.0f))){
 
-btKinematicCharacterController* newKinematicCharCtrl(btPairCachingGhostObject *ghostCGO, btConvexShape *shape, float stepHeight, const btVector3 &upVec){
-	return new btKinematicCharacterController(ghostCGO, shape, stepHeight, upVec);
-}
+	m_pairCachingGhostObject = std::make_unique<btPairCachingGhostObject>();
+	m_pairCachingGhostObject->setCollisionFlags(btCollisionObject::CF_CHARACTER_OBJECT);
 
-
-//=============================================================================
-//=============================================================================
-KinematicCharacterController::KinematicCharacterController()
-	: colFilter_(Physics::collisiontypes::CHARACTER)
-	, colMask_(Physics::collisiontypes::FLOOR)
-	, gravity_(KINEMATIC_GRAVITY)
-	, stepHeight_(STEP_HEIGHT)
-	, maxJumpHeight_(JUMP_HEIGHT)
-	, fallSpeed_(FALL_SPEED)
-	, jumpSpeed_(JUMP_SPEED)
-	, maxSlope_(MAX_SLOPE)
-	, linearDamping_(DEFAULT_DAMPING)
-	, angularDamping_(DEFAULT_DAMPING)
-	, colShapeOffset_(Vector3f::ZERO)
-	, reapplyAttributes_(false)
-{
-	pairCachingGhostObject_.reset(newPairCachingGhostObj());
-	pairCachingGhostObject_->setCollisionFlags(btCollisionObject::CF_CHARACTER_OBJECT);
-
-	position_ = Vector3f(28.0f, 8.84f, -4.0f);
-	rotation_ = Quaternion(0.0f, 0.0f, 0.0f, 1.0f);
+	m_position = Vector3f(28.0f, 8.84f, -4.0f);
+	m_rotation = Quaternion(0.0f, 0.0f, 0.0f, 1.0f);
 
 	physicsWorld_ = Physics::GetDynamicsWorld();
 
 	m_ghostPairCallback = new btGhostPairCallback();
 	Physics::GetDynamicsWorld()->getBroadphase()->getOverlappingPairCache()->setInternalGhostPairCallback(m_ghostPairCallback);
 
-	AddKinematicToWorld();
+	addKinematicToWorld();
 }
 
 KinematicCharacterController::~KinematicCharacterController() {
-	ReleaseKinematic();
+	releaseKinematic();
 
 	// Delete GhostPair callback
 	if (m_ghostPairCallback) {
 		delete m_ghostPairCallback;
-		m_ghostPairCallback = 0;
+		m_ghostPairCallback = nullptr;
 	}
 }
 
-void KinematicCharacterController::AddKinematicToWorld()
-{
-	if (physicsWorld_)
-	{
-		if (!kinematicController_)
-		{
-			btCapsuleShape* colShape = new btCapsuleShape(0.7f * 0.5f, std::max(1.8f - 0.7f, 0.0f));
-
-			pairCachingGhostObject_->setCollisionShape(colShape);
-			colShapeOffset_ = Vector3f(0.0f, 0.84f, 0.0f);
-			kinematicController_.reset(newKinematicCharCtrl(pairCachingGhostObject_.get(), colShape, stepHeight_, btVector3(0.0f, 1.0f, 0.0f)));
+void KinematicCharacterController::addKinematicToWorld(){
+	if (physicsWorld_){
+		if (!m_kinematicCharacterController){
+			m_pairCachingGhostObject->setCollisionShape(m_collisionShape);			
+			m_kinematicCharacterController.reset(new btKinematicCharacterController(m_pairCachingGhostObject.get(), m_collisionShape, m_stepHeight, btVector3(0.0f, 1.0f, 0.0f)));
+			m_colShapeOffset = Vector3f(0.0f, 0.84f, 0.0f);
 			// apply default settings
-			ApplySettings();
+			applySettings();
 
 			btDiscreteDynamicsWorld *phyicsWorld = Physics::GetDynamicsWorld();
-			phyicsWorld->addCollisionObject(pairCachingGhostObject_.get(), colFilter_, colMask_);
-			phyicsWorld->addAction(kinematicController_.get());
+			phyicsWorld->addCollisionObject(m_pairCachingGhostObject.get(), m_colFilter, m_colMask);
+			phyicsWorld->addAction(m_kinematicCharacterController.get());
 		}
 	}
 }
 
-void KinematicCharacterController::ApplySettings(bool reapply)
-{
-	kinematicController_->setGravity(Physics::VectorFrom(gravity_));
-	kinematicController_->setLinearDamping(linearDamping_);
-	kinematicController_->setAngularDamping(angularDamping_);
-	kinematicController_->setStepHeight(stepHeight_);
-	kinematicController_->setMaxJumpHeight(maxJumpHeight_);
-	kinematicController_->setMaxSlope(PI_ON_180 * maxSlope_);
-	kinematicController_->setJumpSpeed(jumpSpeed_);
-	kinematicController_->setFallSpeed(fallSpeed_);
+void KinematicCharacterController::applySettings(bool reapply){
+	m_kinematicCharacterController->setGravity(Physics::VectorFrom(m_gravity));
+	m_kinematicCharacterController->setLinearDamping(m_linearDamping);
+	m_kinematicCharacterController->setAngularDamping(m_angularDamping);
+	m_kinematicCharacterController->setStepHeight(m_stepHeight);
+	m_kinematicCharacterController->setMaxJumpHeight(m_maxJumpHeight);
+	m_kinematicCharacterController->setMaxSlope(PI_ON_180 * m_maxSlope);
+	m_kinematicCharacterController->setJumpSpeed(m_jumpSpeed);
+	m_kinematicCharacterController->setFallSpeed(m_fallSpeed);
 
-	if (reapply && pairCachingGhostObject_)
-	{
+	if (reapply && m_pairCachingGhostObject){
 		btDiscreteDynamicsWorld *phyicsWorld = Physics::GetDynamicsWorld();
-		phyicsWorld->removeCollisionObject(pairCachingGhostObject_.get());
-		phyicsWorld->addCollisionObject(pairCachingGhostObject_.get(), colFilter_, colMask_);
+		phyicsWorld->removeCollisionObject(m_pairCachingGhostObject.get());
+		phyicsWorld->addCollisionObject(m_pairCachingGhostObject.get(), m_colFilter, m_colMask);
 	}
 
-	SetTransform(position_, rotation_);
+	setTransform(m_position, m_rotation);
 }
 
-void KinematicCharacterController::ReleaseKinematic()
-{
-	if (kinematicController_)
-	{
-		RemoveKinematicFromWorld();
+void KinematicCharacterController::releaseKinematic(){
+	if (m_kinematicCharacterController){
+		removeKinematicFromWorld();
 	}
 
-	kinematicController_.reset();
-	pairCachingGhostObject_.reset();
+	m_kinematicCharacterController.reset();
+	m_pairCachingGhostObject.reset();
 }
 
-void KinematicCharacterController::RemoveKinematicFromWorld()
-{
-	if (kinematicController_ && physicsWorld_)
-	{
-		physicsWorld_->removeCollisionObject(pairCachingGhostObject_.get());
-		physicsWorld_->removeAction(kinematicController_.get());
+void KinematicCharacterController::removeKinematicFromWorld(){
+	if (m_kinematicCharacterController && physicsWorld_){
+		physicsWorld_->removeCollisionObject(m_pairCachingGhostObject.get());
+		physicsWorld_->removeAction(m_kinematicCharacterController.get());
 	}
 }
 
-void KinematicCharacterController::SetTransform(const Vector3f& position, const Quaternion& rotation)
-{
+void KinematicCharacterController::setTransform(const Vector3f& position, const Quaternion& rotation){
 	btTransform worldTrans;
 	worldTrans.setIdentity();
 	worldTrans.setRotation(Physics::QuaternionFrom(rotation));
 	worldTrans.setOrigin(Physics::VectorFrom(position));
-	pairCachingGhostObject_->setWorldTransform(worldTrans);
+	m_pairCachingGhostObject->setWorldTransform(worldTrans);
 }
 
-const Vector3f& KinematicCharacterController::GetPosition() {
-	btTransform t = pairCachingGhostObject_->getWorldTransform();
-	position_ = Physics::VectorFrom(t.getOrigin()) - colShapeOffset_;
-	return position_;
+const Vector3f& KinematicCharacterController::getPosition() const {
+	btTransform t = m_pairCachingGhostObject->getWorldTransform();
+	m_position = Physics::VectorFrom(t.getOrigin()) - m_colShapeOffset;
+	return m_position;
 }
 
-const Quaternion& KinematicCharacterController::GetRotation() {
-	btTransform t = pairCachingGhostObject_->getWorldTransform();
-	rotation_ = Physics::QuaternionFrom(t.getRotation());
-	return rotation_;
+const btVector3 KinematicCharacterController::getBtPosition() const {
+	btTransform t = m_pairCachingGhostObject->getWorldTransform();
+	return t.getOrigin();
 }
 
-btTransform& KinematicCharacterController::GetTransform() {
-	return pairCachingGhostObject_->getWorldTransform();
+const Quaternion& KinematicCharacterController::getRotation() const {
+	btTransform t = m_pairCachingGhostObject->getWorldTransform();
+	m_rotation = Physics::QuaternionFrom(t.getRotation());
+	return m_rotation;
 }
 
-void KinematicCharacterController::GetTransform(Vector3f& position, Quaternion& rotation) {
-	btTransform worldTrans = pairCachingGhostObject_->getWorldTransform();
+const btQuaternion KinematicCharacterController::getBtRotation() const {
+	btTransform t = m_pairCachingGhostObject->getWorldTransform();
+	return t.getRotation();
+}
+
+const btTransform& KinematicCharacterController::getTransform() const {
+	return m_pairCachingGhostObject->getWorldTransform();
+}
+
+void KinematicCharacterController::getTransform(Vector3f& position, Quaternion& rotation) {
+	btTransform worldTrans = m_pairCachingGhostObject->getWorldTransform();
 	rotation = Physics::QuaternionFrom(worldTrans.getRotation());
 	position = Physics::VectorFrom(worldTrans.getOrigin());
 }
 
-void KinematicCharacterController::moveAlongY(float step) {
-	btVector3 pos = pairCachingGhostObject_->getWorldTransform().getOrigin();
-	pairCachingGhostObject_->getWorldTransform().setOrigin(pos + btVector3(0, step, 0));
+bool KinematicCharacterController::onGround() const {
+	return m_kinematicCharacterController->onGround();
 }
 
-bool KinematicCharacterController::OnGround() const {
-	return kinematicController_->onGround();
+void KinematicCharacterController::setWalkDirection(const Vector3f& walkDir) {
+	m_kinematicCharacterController->setWalkDirection(Physics::VectorFrom(walkDir));
 }
 
-void KinematicCharacterController::SetWalkDirection(const Vector3f& walkDir) {
-	kinematicController_->setWalkDirection(Physics::VectorFrom(walkDir));
+void KinematicCharacterController::jump(const Vector3f&jump) {
+	m_kinematicCharacterController->jump(Physics::VectorFrom(jump));
 }
 
-void KinematicCharacterController::Jump(const Vector3f&jump) {
-	kinematicController_->jump(Physics::VectorFrom(jump));
-}
-
-void KinematicCharacterController::DebugDrawContacts() {
+void KinematicCharacterController::debugDrawContacts() {
 
 	btManifoldArray	manifoldArray;
-	btBroadphasePairArray& pairArray = pairCachingGhostObject_->getOverlappingPairCache()->getOverlappingPairArray();
+	btBroadphasePairArray& pairArray = m_pairCachingGhostObject->getOverlappingPairCache()->getOverlappingPairArray();
 	int numPairs = pairArray.size();
-
+	std::cout << "Num Pairs: " << numPairs << std::endl;
 	for (int i = 0; i < numPairs; i++) {
 		manifoldArray.clear();
 
@@ -201,18 +181,22 @@ void KinematicCharacterController::DebugDrawContacts() {
 }
 
 void KinematicCharacterController::setUserPointer(void* userPointer) {
-	pairCachingGhostObject_.get()->setUserPointer(userPointer);
+	m_pairCachingGhostObject.get()->setUserPointer(userPointer);
 }
 
 void KinematicCharacterController::setPosition(const Vector3f& position) {
-	position_ = position;
-	SetTransform(position_, rotation_);
+	m_position = position;
+	setTransform(m_position, m_rotation);
 }
 
-void KinematicCharacterController::SetLinearVelocity(const Vector3f& velocity) {
-	kinematicController_->setLinearVelocity(Physics::VectorFrom(velocity));
+void KinematicCharacterController::setLinearVelocity(const Vector3f& velocity) {
+	m_kinematicCharacterController->setLinearVelocity(Physics::VectorFrom(velocity));
 }
 
-const Vector3f KinematicCharacterController::GetLinearVelocity() {
-	return Physics::VectorFrom(kinematicController_->getLinearVelocity());
+const Vector3f KinematicCharacterController::getLinearVelocity() const{
+	return Physics::VectorFrom(m_kinematicCharacterController->getLinearVelocity());
+}
+
+btPairCachingGhostObject* KinematicCharacterController::getPairCachingGhostObject() const{
+	return m_pairCachingGhostObject.get();
 }

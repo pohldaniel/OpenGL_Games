@@ -1,7 +1,7 @@
 #include <iostream>
 #include "BoneNode.h"
 
-BoneNode::BoneNode() : animationEnabled(true), numChildBones(0), m_rootBone(false) {
+BoneNode::BoneNode() : m_animationEnabled(true), m_numChildBones(0), m_isRootBone(false) {
 
 }
 
@@ -9,16 +9,16 @@ BoneNode::~BoneNode() {
 
 }
 
-void BoneNode::SetAnimationEnabled(bool enable) {
-	animationEnabled = enable;
+void BoneNode::setAnimationEnabled(bool enable) {
+	m_animationEnabled = enable;
 }
 
-void BoneNode::CountChildBones() {
-	numChildBones = 0;
+void BoneNode::countChildBones() {
+	m_numChildBones = 0;
 
 	for (auto it = m_children.begin(); it != m_children.end(); ++it) {
 		if (dynamic_cast<BoneNode*>((*it).get()))
-			++numChildBones;
+			++m_numChildBones;
 	}
 }
 
@@ -26,29 +26,24 @@ void BoneNode::OnTransformChanged() {
 	SceneNodeLC::OnTransformChanged();
 }
 
-BoneNode* BoneNode::FindChildOfType(StringHash childNameHash, bool recursive) const {
-	for (auto it = m_children.begin(); it != m_children.end(); ++it) {
-		BoneNode* child = dynamic_cast<BoneNode*>((*it).get());
-		if (!child) {
-			continue;
-		}
-
-		if (child->nameHash == childNameHash)
-			return child;
-		else if (recursive && child->m_children.size()) {
-			BoneNode* childResult = child->FindChildOfType(childNameHash, recursive);
-			if (childResult)
-				return childResult;
-		}
-	}
-
-	return nullptr;
-}
-
-void BoneNode::setRootBone(bool rootBone) {
-	m_rootBone = rootBone;
+void BoneNode::setIsRootBone(bool rootBone) {
+	m_isRootBone = rootBone;
 }
 
 const bool BoneNode::isRootBone() const {
-	return m_rootBone;
+	return m_isRootBone;
+}
+
+bool BoneNode::animationEnabled() const { 
+	return m_animationEnabled;
+}
+
+size_t BoneNode::getNumChildBones() const { 
+	return m_numChildBones;
+}
+
+void BoneNode::setTransformSilent(const Vector3f& position, const Quaternion& rotation, const Vector3f& scale) {
+	m_position = position;
+	m_orientation = rotation;
+	m_scale = scale;
 }

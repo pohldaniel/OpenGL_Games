@@ -12,7 +12,7 @@ class AnimationNode : public OctreeNode {
 public:
 
 	AnimationNode(const AnimatedModel& animatedModel);
-	~AnimationNode() = default;
+	~AnimationNode();
 
 	void drawRaw() const override;
 	void update(float dt);

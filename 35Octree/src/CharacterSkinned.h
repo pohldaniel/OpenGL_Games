@@ -17,12 +17,6 @@ class CharacterSkinned {
 	const float MOVE_SPEED = 8.0f;
 	const float JUMP_TIMER = 1.0f;
 
-	const int CTRL_FORWARD = 1;
-	const int CTRL_BACK = 2;
-	const int CTRL_LEFT = 4;
-	const int CTRL_RIGHT = 8;
-	const int CTRL_JUMP = 16;
-
 	const float MOVE_FORCE = 0.2f;
 	const float INAIR_MOVE_FORCE = 0.06f;
 	const float BRAKE_FORCE = 0.2f;
@@ -32,53 +26,53 @@ class CharacterSkinned {
 
 	class QueInput {
 	public:
-		QueInput() : input_(UINT_MAX), holdTime_(1200) {}
+		QueInput() : m_input(UINT_MAX), m_holdTime(1200) {}
 
-		void SetInput(unsigned input) {
-			input_ = input;
-			queTimer_.reset();
+		void setInput(unsigned input) {
+			m_input = input;
+			m_queTimer.reset();
 		}
 
-		unsigned GetInput() const {
-			return input_;
+		unsigned getInput() const {
+			return m_input;
 		}
 
-		void Update() {
-			if (queTimer_.getElapsedTimeMilli() >= holdTime_) {
-				input_ = UINT_MAX;
+		void update() {
+			if (m_queTimer.getElapsedTimeMilli() >= m_holdTime) {
+				m_input = UINT_MAX;
 			}
 		}
 
-		bool Empty() const {
-			return (input_ == UINT_MAX);
+		bool empty() const {
+			return (m_input == UINT_MAX);
 		}
 
-		void Reset() {
-			input_ = UINT_MAX;
+		void reset() {
+			m_input = UINT_MAX;
 		}
 
 	protected:
-		unsigned input_;
+		unsigned m_input;
 
-		unsigned holdTime_;
-		Clock queTimer_;
+		unsigned m_holdTime;
+		Clock m_queTimer;
 	};
 
 	struct MovingData {
-		MovingData() : node_(nullptr) {}
+		MovingData() : m_node(nullptr) {}
 
 		MovingData& operator =(const MovingData& rhs) {
-			node_ = rhs.node_;
-			transform_ = rhs.transform_;
+			m_node = rhs.m_node;
+			m_transform = rhs.m_transform;
 			return *this;
 		}
 
 		bool operator == (const MovingData& rhs) {
-			return (node_ && node_ == rhs.node_);
+			return (m_node && m_node == rhs.m_node);
 		}
 
-		SceneNodeLC *node_;
-		Matrix4f transform_;
+		SceneNodeLC *m_node;
+		Matrix4f m_transform;
 	};
 
 	struct CharacterTriggerCallback : public btCollisionWorld::ContactResultCallback {
@@ -103,7 +97,7 @@ class CharacterSkinned {
 
 public:
 
-	CharacterSkinned(KinematicCharacterController* kcc, SceneNodeLC* button, Lift* lift, Camera& camera);
+	CharacterSkinned(const AnimatedModel& ainamtedModel, Lift* lift, Camera& camera);
 	~CharacterSkinned();
 
 	void draw(const Camera& camera);
@@ -114,18 +108,26 @@ public:
 	void handleCollision(btCollisionObject* collisionObject);
 	void handleCollisionButton(btCollisionObject* collisionObject);
 	void handleCollisionWeapon(btCollisionObject* collisionObject);
-	void processCollision();
 	void beginCollision();
 	void endCollision();
+	void processCollision();
 
-	void processWeaponAction(bool equip, bool lMouseB);
 	void rotate(const float pitch, const float yaw, const float roll);
-	const Vector3f& getWorldPosition() const;
-	const Vector4f getDummyColor() const;
+
 	void setPosition(const Vector3f& position);
+	const Vector3f& getWorldPosition() const;
+	const btVector3 getBtPosition() const;
+	const Vector4f getDummyColor() const;
+
+private:
+
+	enum WeaponState { Weapon_Invalid, Weapon_Unequipped, Weapon_Equipping, Weapon_Equipped, Weapon_UnEquipping, Weapon_AttackAnim };
+	enum AnimLayerType { NormalLayer, WeaponLayer };
+	enum WeaponDmgState { WeaponDmg_OFF, WeaponDmg_ON };
+
+	void processWeaponAction(bool equip, bool lMouseB);	
 	void nodeOnMovingPlatform(SceneNodeLC *node);
 
-	AnimatedModel m_model;
 	Shape m_swordShape, m_armorShape;
 
 	bool m_onGround;
@@ -135,19 +137,15 @@ public:
 	bool m_isJumping;
 	Vector3f m_curMoveDir;
 
-	std::string weaponActionAnim_;
-	unsigned int weaponActionState_;
-	QueInput queInput_;
-	unsigned comboAnimsIdx_;
-	std::vector<std::string> weaponComboAnim_;
-	unsigned weaponDmgState_;
+	std::string m_weaponActionAnim;
+	unsigned int m_weaponActionState;
+	QueInput m_queInput;
+	unsigned m_comboAnimsIdx;
+	std::vector<std::string> m_weaponComboAnim;
+	unsigned m_weaponDmgState;
 
-	enum WeaponState { Weapon_Invalid, Weapon_Unequipped, Weapon_Equipping, Weapon_Equipped, Weapon_UnEquipping, Weapon_AttackAnim };
-	enum AnimLayerType { NormalLayer, WeaponLayer };
-	enum WeaponDmgState { WeaponDmg_OFF, WeaponDmg_ON };
-
-	bool equipWeapon;
-	bool lMouseB;
+	bool m_equipWeapon;
+	bool m_lMouseB;
 
 	BoneNode *m_rightHandLocatorNode, *m_swordLocatorNode, *m_armorLocatorNode;
 	ShapeNode* m_sword;

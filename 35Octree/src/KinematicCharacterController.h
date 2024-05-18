@@ -2,58 +2,59 @@
 #include <memory>
 #include <Physics/Physics.h>
 
-
-class btPairCachingGhostObject;
-class btKinematicCharacterController;
-class btDiscreteDynamicsWorld;
-//=============================================================================
-//=============================================================================
 class KinematicCharacterController {
 
-
 public:
-	KinematicCharacterController();
+
+	KinematicCharacterController(btConvexShape* shape = nullptr, int collisionFilterGroup = 1, int collisionFilterMask = -1);
 	virtual ~KinematicCharacterController();
-
-	void AddKinematicToWorld();
-	void ReleaseKinematic();
-	void RemoveKinematicFromWorld();
-	void ApplySettings(bool reapply = false);
-	void DebugDrawContacts();
-
-	const Vector3f& GetPosition();
-	const Quaternion& GetRotation();
-	const Vector3f GetLinearVelocity();
-	void SetTransform(const Vector3f& position, const Quaternion& rotation);
-	btTransform& GetTransform();
-	void GetTransform(Vector3f& position, Quaternion& rotation);
-	void moveAlongY(float step);
+	
+	void debugDrawContacts();
+	bool onGround() const;
+	void jump(const Vector3f& jump = Vector3f::ZERO);
+	void setLinearVelocity(const Vector3f& velocity);
+	void setWalkDirection(const Vector3f& walkDir);
 	void setUserPointer(void* userPointer);
-
-	void SetWalkDirection(const Vector3f& walkDir);
-	void SetLinearVelocity(const Vector3f& velocity);
-	bool OnGround() const;
-	void Jump(const Vector3f& jump = Vector3f::ZERO);
 	void setPosition(const Vector3f& position);
 
-	int colFilter_;
-	int colMask_;
-	float stepHeight_;
-	float maxJumpHeight_;
-	float jumpSpeed_;
-	float fallSpeed_;
-	float maxSlope_;
-	float linearDamping_;
-	float angularDamping_;
-	Vector3f gravity_;
+	const Vector3f& getPosition() const;
+	const btVector3 getBtPosition() const;
+	const Quaternion& getRotation() const;
+	const btQuaternion getBtRotation() const;
+	const Vector3f getLinearVelocity() const;
+	void setTransform(const Vector3f& position, const Quaternion& rotation);
+	const btTransform& getTransform() const;
+	void getTransform(Vector3f& position, Quaternion& rotation);
+	btPairCachingGhostObject* getPairCachingGhostObject() const;
+
+private:
+
+	void addKinematicToWorld();
+	void releaseKinematic();
+	void removeKinematicFromWorld();
+	void applySettings(bool reapply = false);
+
+
+	int m_colFilter;
+	int m_colMask;
+	float m_stepHeight;
+	float m_maxJumpHeight;
+	float m_jumpSpeed;
+	float m_fallSpeed;
+	float m_maxSlope;
+	float m_linearDamping;
+	float m_angularDamping;
+	Vector3f m_gravity;
 
 	btDiscreteDynamicsWorld* physicsWorld_;
-	std::unique_ptr<btPairCachingGhostObject> pairCachingGhostObject_;
-	std::unique_ptr<btKinematicCharacterController> kinematicController_;
-	btGhostPairCallback* m_ghostPairCallback;
 
-	Vector3f position_;
-	Quaternion rotation_;
-	Vector3f colShapeOffset_;
-	bool reapplyAttributes_;
+	std::unique_ptr<btPairCachingGhostObject> m_pairCachingGhostObject;
+	std::unique_ptr<btKinematicCharacterController> m_kinematicCharacterController;
+
+	btGhostPairCallback* m_ghostPairCallback;
+	btConvexShape* m_collisionShape;
+	mutable Vector3f m_position;
+	mutable Quaternion m_rotation;
+	Vector3f m_colShapeOffset;
+	bool m_reapplyAttributes;
 };

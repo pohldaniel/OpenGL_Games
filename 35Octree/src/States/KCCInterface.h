@@ -43,6 +43,7 @@ private:
 	void renderUi();
 	void createShapes();
 	void createPhysics();
+	void createScene();
 
 	bool m_initUi = true;
 	bool m_drawUi = true;
@@ -75,7 +76,6 @@ private:
 
 	SceneNodeLC* m_root;
 	Octree* m_octree;
-	std::vector<ShapeNode*> m_entities;
 
 	float m_fovx = 45.0f;
 	float m_far = 110.0f;
@@ -92,9 +92,5 @@ private:
 	Lift* m_lift;
 
 	AnimatedModel m_beta;
-	AnimationController* m_animController;
-	KinematicCharacterController* m_characterController;
 	Character* m_character;
-
-	AnimationNode* m_betaNode;
 };

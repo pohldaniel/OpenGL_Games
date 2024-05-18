@@ -58,16 +58,15 @@ private:
 	Frustum m_frustum;
 	Matrix4f perspective, m_view;
 
-	KinematicCharacterController* m_characterController;
 	CharacterSkinned* m_characterSkinned;
-
-	SceneNodeLC* m_root;
 	Octree* m_octree;
+	SceneNodeLC* m_root;	
 	MovingPlatform* m_movingPlatform;
 	SplinePlatform* m_splinePlatform;
 	SplinePath* m_splinePath;
 	Lift* m_lift;
-	std::vector<ShapeNode*> m_entities;
+	//Scene managed
+	ShapeNode* m_dummyNode;
 
 	Shape m_baseShape;
 	Shape m_upperFloorShape;
@@ -88,4 +87,5 @@ private:
 	btCollisionObject* m_kinematicPlatform1;
 	btCollisionObject* m_kinematicPlatform2;
 	btCollisionObject* m_dummyTrigger;
+	AnimatedModel m_animatedModel;
 };

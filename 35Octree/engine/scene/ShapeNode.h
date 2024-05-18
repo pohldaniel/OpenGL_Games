@@ -4,6 +4,7 @@
 #include "../MeshObject/Shape.h"
 #include "../BoundingBox.h"
 
+
 class Octant;
 class ShapeNode : public OctreeNode {
 
@@ -13,7 +14,6 @@ public:
 	~ShapeNode();
 
 	void drawRaw() const override;
-
 	using OctreeNode::addChild;
 	void addChild(ShapeNode* node, bool drawDebug);
 	const Shape& getShape() const;
