@@ -38,7 +38,7 @@ bool BoneNode::animationEnabled() const {
 	return m_animationEnabled;
 }
 
-size_t BoneNode::getNumChildBones() const { 
+unsigned int BoneNode::getNumChildBones() const {
 	return m_numChildBones;
 }
 

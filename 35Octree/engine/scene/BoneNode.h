@@ -20,9 +20,9 @@ public:
 	void setIsRootBone(bool rootBone);
 	const bool isRootBone() const;
 
-	void setTransformSilent(const Vector3f& position_, const Quaternion& rotation_, const Vector3f& scale_);
+	void setTransformSilent(const Vector3f& position, const Quaternion& rotation, const Vector3f& scale);
 	bool animationEnabled() const;
-	size_t getNumChildBones() const;
+	unsigned int getNumChildBones() const;
 
 protected:
 
@@ -31,7 +31,7 @@ protected:
 private:
 
 	bool m_animationEnabled;
-	size_t m_numChildBones;
+	unsigned int m_numChildBones;
 	bool m_isRootBone;
 	Matrix4f m_offsetMatrix;
 };

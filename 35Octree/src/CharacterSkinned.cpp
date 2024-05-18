@@ -70,9 +70,8 @@ CharacterSkinned::~CharacterSkinned() {
 	delete m_kinematicController;
 	delete m_animationController;
 
-	//IMPORTANT: Will be deleted with the m_animationNode over m_swordLocatorNode or m_backLocatorNode
-	//m_sword->eraseSelf();
-	//delete m_sword; 
+	m_sword->eraseSelf();
+	delete m_sword; 
 	delete m_animationNode;
 }
 
