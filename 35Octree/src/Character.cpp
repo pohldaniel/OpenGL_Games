@@ -67,7 +67,7 @@ const btVector3 Character::getBtPosition() const {
 }
 
 void Character::update(const float dt) {
-	m_animationController->Update(dt);
+	m_animationController->update(dt);
 	m_animationNode->update(dt);
 }
 
@@ -115,9 +115,9 @@ void Character::fixedUpdate(float fdt) {
 				m_jumpStarted = true;
 				m_kinematicController->jump();
 
-				m_animationController->StopLayer(0);
-				m_animationController->PlayExclusive("beta_jump_start", 0, false, 0.2f);
-				m_animationController->SetTime("beta_jump_start", 0);
+				m_animationController->stopLayer(0);
+				m_animationController->playExclusive("beta_jump_start", 0, false, 0.2f);
+				m_animationController->setTime("beta_jump_start", 0);
 			}
 		}else{
 			m_okToJump = true;
@@ -126,9 +126,9 @@ void Character::fixedUpdate(float fdt) {
 
 	if (!m_onGround || m_jumpStarted){
 		if (m_jumpStarted){
-			if (m_animationController->IsAtEnd("beta_jump_start")){
-				m_animationController->PlayExclusive("beta_jump_loop", 0, true, 0.3f);
-				m_animationController->SetTime("beta_jump_loop", 0);
+			if (m_animationController->isAtEnd("beta_jump_start")){
+				m_animationController->playExclusive("beta_jump_loop", 0, true, 0.3f);
+				m_animationController->setTime("beta_jump_loop", 0);
 				m_jumpStarted = false;
 			}
 		}else{
@@ -141,7 +141,7 @@ void Character::fixedUpdate(float fdt) {
 			//float slopeDot = result.normal_.DotProduct(Vector3(0.0f, 1.0f, 0.0f));
 
 			if (result.distance_ > 0.7f) {
-				m_animationController->PlayExclusive("beta_jump_loop", 0, true, 0.2f);
+				m_animationController->playExclusive("beta_jump_loop", 0, true, 0.2f);
 			}
 			//else if (result.body_ == NULL)
 			//{
@@ -151,9 +151,9 @@ void Character::fixedUpdate(float fdt) {
 	}else{
 		// Play walk animation if moving on ground, otherwise fade it out
 		if ((softGrounded) && !moveDir.compare(Vector3f::ZERO, EPSILON)){
-			m_animationController->PlayExclusive("beta_run", 0, true, 0.2f);
+			m_animationController->playExclusive("beta_run", 0, true, 0.2f);
 		}else{
-			m_animationController->PlayExclusive("beta_idle", 0, true, 0.2f);
+			m_animationController->playExclusive("beta_idle", 0, true, 0.2f);
 		}
 	}
 }

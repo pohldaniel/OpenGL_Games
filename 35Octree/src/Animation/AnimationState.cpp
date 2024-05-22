@@ -1,7 +1,7 @@
 #include <iostream>
 #include "AnimationState.h"
 
-AnimationStateTrack::AnimationStateTrack() : track(nullptr), weight(1.0f),keyFrame(0){
+AnimationStateTrack::AnimationStateTrack() : m_track(nullptr), m_weight(1.0f), m_keyFrame(0){
 
 }
 
@@ -14,142 +14,120 @@ AnimationStateTrack::~AnimationStateTrack(){
 //};
 
 
-AnimationState::AnimationState(Animation* animation_, BoneNode* startBone) :
-	//animation(animation_, [&](Animation* animation) {/*delete animation;*/}),
-	animation(animation_),
+AnimationState::AnimationState(Animation* animation, BoneNode* startBone) :
+	//m_animation(animation, [&](Animation* animation) {/*delete animation;*/}),
+	m_animation(animation),
 	m_looped(false),
 	m_blendWeight(1.0f),
 	m_stateTime(0.0f),
 	m_blendLayer(0),
-	startBone(startBone),
+	m_startBone(startBone),
 	m_animationBlendMode(AnimationBlendMode::ABM_LERP),
-	m_backward(false)
-{
+	m_backward(false){
 
-	SetStartBone(nullptr);
+	setStartBone(nullptr);
 }
 
 AnimationState::~AnimationState(){
 
 }
 
-void AnimationState::SetStartBone(BoneNode* startBone_){
-	//if (!drawable)
-		//return;
-
+void AnimationState::setStartBone(BoneNode* startBone_){
+	
 	if (!startBone_)
-		startBone_ = startBone;
+		startBone_ = m_startBone;
 
 	// Do not reassign if the start bone did not actually change, and we already have valid bone nodes
-	if (!stateTracks.empty())
+	if (!m_stateTracks.empty())
 		return;
 
-	startBone = startBone_;
+	m_startBone = startBone_;
 
-	const std::map<StringHash, AnimationTrack>& tracks = animation->Tracks();
-	stateTracks.clear();
+	const std::map<StringHash, AnimationTrack>& tracks = m_animation->getTracks();
+	m_stateTracks.clear();
 
 	for (auto it = tracks.begin(); it != tracks.end(); ++it){
-		if (it->second.keyFrames.empty())
+		if (it->second.m_keyFrames.empty())
 			continue;
 
 		AnimationStateTrack stateTrack;
-		stateTrack.track = &it->second;
+		stateTrack.m_track = &it->second;
 
 		// Include those tracks that are either the start bone itself, or its children
-		const StringHash& nameHash = it->second.nameHash;
+		const StringHash& nameHash = it->second.m_nameHash;
 		
-		if (nameHash == startBone->m_nameHash) {
-			stateTrack.node = startBone;
+		if (nameHash == m_startBone->m_nameHash) {
+			stateTrack.m_node = m_startBone;
 		}else {
-			stateTrack.node = startBone->findChild<BoneNode>(nameHash, true);
+			stateTrack.m_node = m_startBone->findChild<BoneNode>(nameHash, true);
 		}
 
-		stateTrack.m_initialPosition = Math::Lerp(it->second.keyFrames[0].position, it->second.keyFrames[1].position, EPSILON * 3.0f);
-		stateTrack.m_initialScale = Math::Lerp(it->second.keyFrames[0].scale, it->second.keyFrames[1].scale, EPSILON * 3.0f);
-		stateTrack.m_initialOrientation = Quaternion::SLerp2(it->second.keyFrames[0].rotation, it->second.keyFrames[1].rotation, EPSILON * 3.0f);		
+		stateTrack.m_initialPosition = Math::Lerp(it->second.m_keyFrames[0].m_position, it->second.m_keyFrames[1].m_position, EPSILON * 3.0f);
+		stateTrack.m_initialScale = Math::Lerp(it->second.m_keyFrames[0].m_scale, it->second.m_keyFrames[1].m_scale, EPSILON * 3.0f);
+		stateTrack.m_initialOrientation = Quaternion::SLerp2(it->second.m_keyFrames[0].m_rotation, it->second.m_keyFrames[1].m_rotation, EPSILON * 3.0f);
 		stateTrack.m_initialOrientation.inverse();
 
-		if (stateTrack.node)
-			stateTracks.push_back(stateTrack);
-	}
-
-	//drawable->OnAnimationOrderChanged();
-
-}
-
-void AnimationState::SetLooped(bool looped_)
-{
-	m_looped = looped_;
-}
-
-void AnimationState::SetWeight(float weight_){
-
-	//if (!drawable)
-		//return;
-
-	weight_ = Math::Clamp(weight_, 0.0f, 1.0f);
-	if (weight_ != m_blendWeight){
-		m_blendWeight = weight_;
-		//drawable->OnAnimationChanged();
+		if (stateTrack.m_node)
+			m_stateTracks.push_back(stateTrack);
 	}
 }
 
-void AnimationState::SetTime(float time_){
-	time_ = Math::Clamp(time_, 0.0f, animation->Length());
+void AnimationState::setLooped(bool looped){
+	m_looped = looped;
+}
+
+void AnimationState::setWeight(float weight){
+	weight = Math::Clamp(weight, 0.0f, 1.0f);
+	if (weight != m_blendWeight){
+		m_blendWeight = weight;
+	}
+}
+
+void AnimationState::setTime(float time_){
+	time_ = Math::Clamp(time_, 0.0f, m_animation->getLength());
 	if (time_ != m_stateTime){
 		m_stateTime = time_;
-		//if (drawable && weight > 0.0f)
-			//drawable->OnAnimationChanged();
 	}
 }
 
-void AnimationState::SetBoneWeight(size_t index, float weight_, bool recursive){
-	if (index >= stateTracks.size())
+void AnimationState::setBoneWeight(size_t index, float weight_, bool recursive){
+	if (index >= m_stateTracks.size())
 		return;
 
 	weight_ = Math::Clamp(weight_, 0.0f, 1.0f);
 
-	if (weight_ != stateTracks[index].weight){
-		stateTracks[index].weight = weight_;
-		//if (drawable)
-			//drawable->OnAnimationChanged();
+	if (weight_ != m_stateTracks[index].m_weight){
+		m_stateTracks[index].m_weight = weight_;
 	}
 
-	if (recursive && stateTracks[index].node){
-		const std::list<std::unique_ptr<Node, std::function<void(Node* node)>>>& children = stateTracks[index].node->getChildren();
+	if (recursive && m_stateTracks[index].m_node){
+		const std::list<std::unique_ptr<Node, std::function<void(Node* node)>>>& children = m_stateTracks[index].m_node->getChildren();
 		for (auto it = children.begin(); it != children.end(); ++it){
 			Node* node = (*it).get();
-
-			//if (node->Type() == Bone::TypeStatic())
-			//{
-				size_t childTrackIndex = FindTrackIndex(node);
-				if (childTrackIndex < stateTracks.size())
-					SetBoneWeight(childTrackIndex, m_blendWeight, true);
-				//}
+	
+			size_t childTrackIndex = findTrackIndex(node);
+			if (childTrackIndex < m_stateTracks.size())
+				setBoneWeight(childTrackIndex, m_blendWeight, true);
+				
 		}
 	}
 }
 
-void AnimationState::SetBoneWeight(const std::string& name, float weight_, bool recursive)
-{
-	SetBoneWeight(FindTrackIndex(name), weight_, recursive);
+void AnimationState::setBoneWeight(const std::string& name, float weight_, bool recursive){
+	setBoneWeight(findTrackIndex(name), weight_, recursive);
 }
 
-void AnimationState::SetBoneWeight(StringHash nameHash, float weight_, bool recursive)
-{
-	SetBoneWeight(FindTrackIndex(nameHash), weight_, recursive);
+void AnimationState::setBoneWeight(StringHash nameHash, float weight_, bool recursive){
+	setBoneWeight(findTrackIndex(nameHash), weight_, recursive);
 }
 
-void AnimationState::AddWeight(float delta)
-{
+void AnimationState::addWeight(float delta){
 	if (delta != 0.0f)
-		SetWeight(Weight() + delta);
+		setWeight(getWeight() + delta);
 }
 
-void AnimationState::AddTime(float dt)
-{
-	float length = animation->Length();
+void AnimationState::addTime(float dt){
+	float length = m_animation->getLength();
 	if (dt == 0.0f || length == 0.0f)
 		return;
 
@@ -162,7 +140,7 @@ void AnimationState::AddTime(float dt)
 			newTime += length;
 	}
 
-	SetTime(newTime);
+	setTime(newTime);
 
 	float ticksPerSecond = 1.0f;
 
@@ -187,7 +165,7 @@ void AnimationState::AddTime(float dt)
 		if (m_layeredTime > length) {
 			m_layeredTime = fmod(m_layeredTime, length);
 		}
-		SetWeight(blendWeight);
+		setWeight(blendWeight);
 	}
 	
 	if (m_animationBlendMode != ABM_ADDITIVE)
@@ -211,39 +189,37 @@ void AnimationState::AddTime(float dt)
 	m_layeredTime = startTime + (length * m_layeredTime);	
 }
 
-void AnimationState::SetBlendLayer(unsigned char layer){
+void AnimationState::setBlendLayer(unsigned char layer){
 	if (layer != m_blendLayer){
 		m_blendLayer = layer;
-		//if (drawable)
-			//drawable->OnAnimationOrderChanged();
 	}
 }
 
-float AnimationState::BoneWeight(size_t index) const{
-	return index < stateTracks.size() ? stateTracks[index].weight : 0.0f;
+float AnimationState::getBoneWeight(size_t index) const {
+	return index < m_stateTracks.size() ? m_stateTracks[index].m_weight : 0.0f;
 }
 
-float AnimationState::BoneWeight(const std::string& name) const{
-	return BoneWeight(FindTrackIndex(name));
+float AnimationState::getBoneWeight(const std::string& name) const{
+	return getBoneWeight(findTrackIndex(name));
 }
 
-float AnimationState::BoneWeight(StringHash nameHash) const{
-	return BoneWeight(FindTrackIndex(nameHash));
+float AnimationState::getBoneWeight(StringHash nameHash) const{
+	return getBoneWeight(findTrackIndex(nameHash));
 }
 
-size_t AnimationState::FindTrackIndex(Node* node) const{
-	for (unsigned i = 0; i < stateTracks.size(); ++i){
-		if (stateTracks[i].node == node)
+size_t AnimationState::findTrackIndex(Node* node) const{
+	for (unsigned i = 0; i < m_stateTracks.size(); ++i){
+		if (m_stateTracks[i].m_node == node)
 			return i;
 	}
 
 	return UINT_MAX;
 }
 
-size_t AnimationState::FindTrackIndex(const std::string& name) const{
+size_t AnimationState::findTrackIndex(const std::string& name) const{
 	StringHash nameHash = StringHash(name);
-	for (size_t i = 0; i < stateTracks.size(); ++i){
-		BoneNode* node = stateTracks[i].node;
+	for (size_t i = 0; i < m_stateTracks.size(); ++i){
+		BoneNode* node = m_stateTracks[i].m_node;
 		if (node && node->m_nameHash == nameHash)
 			return i;
 	}
@@ -251,11 +227,9 @@ size_t AnimationState::FindTrackIndex(const std::string& name) const{
 	return UINT_MAX;
 }
 
-size_t AnimationState::FindTrackIndex(StringHash nameHash) const
-{
-	for (unsigned i = 0; i < stateTracks.size(); ++i)
-	{
-		BoneNode* node = stateTracks[i].node;
+size_t AnimationState::findTrackIndex(StringHash nameHash) const{
+	for (unsigned i = 0; i < m_stateTracks.size(); ++i){
+		BoneNode* node = m_stateTracks[i].m_node;
 		if (node && node->m_nameHash == nameHash)
 			return i;
 	}
@@ -263,46 +237,46 @@ size_t AnimationState::FindTrackIndex(StringHash nameHash) const
 	return UINT_MAX;
 }
 
-float AnimationState::Length() const{
-	return animation->Length();
+float AnimationState::getLength() const{
+	return m_animation->getLength();
 }
 
-void AnimationState::Apply(){
+void AnimationState::apply(){
 
 	if (m_animationBlendMode == ABM_NONE)
-		ApplyToNodes();		
+		applyToNodes();		
 	else
-		ApplyToModel();
+		applyToModel();
 }
 
-void AnimationState::ApplyToModel(){
+void AnimationState::applyToModel(){
 	 
-	for (auto it = stateTracks.begin(); it != stateTracks.end(); ++it){
+	for (auto it = m_stateTracks.begin(); it != m_stateTracks.end(); ++it){
 		AnimationStateTrack& stateTrack = *it;
-		const AnimationTrack* track = stateTrack.track;
-		float finalWeight = m_blendWeight * stateTrack.weight;
-		BoneNode* bone = stateTrack.node;
+		const AnimationTrack* track = stateTrack.m_track;
+		float finalWeight = m_blendWeight * stateTrack.m_weight;
+		BoneNode* bone = stateTrack.m_node;
 
 		if (Math::Equals(finalWeight, 0.0f) || !bone->animationEnabled())
 			continue;
 				
 		if (m_animationBlendMode != ABM_LERP)
-			track->FindKeyFrameIndex(m_layeredTime, stateTrack.keyFrame);
+			track->findKeyFrameIndex(m_layeredTime, stateTrack.m_keyFrame);
 		else
-			track->FindKeyFrameIndex(m_stateTime, stateTrack.keyFrame);
+			track->findKeyFrameIndex(m_stateTime, stateTrack.m_keyFrame);
 
-		const AnimationKeyFrame& keyFrame = track->keyFrames[stateTrack.keyFrame];
+		const AnimationKeyFrame& keyFrame = track->m_keyFrames[stateTrack.m_keyFrame];
 
-		size_t nextFrame = stateTrack.keyFrame + 1;
+		size_t nextFrame = stateTrack.m_keyFrame + 1;
 		bool interpolate = true;
 
-		if (nextFrame >= track->keyFrames.size()) {
+		if (nextFrame >= track->m_keyFrames.size()) {
 			if (m_backward)
-				nextFrame = track->keyFrames.size();
+				nextFrame = track->m_keyFrames.size();
 			else if (m_looped) {
 				nextFrame = 0;
 			}else {
-				nextFrame = stateTrack.keyFrame;
+				nextFrame = stateTrack.m_keyFrame;
 				interpolate = false;
 			}				
 		}
@@ -311,54 +285,54 @@ void AnimationState::ApplyToModel(){
 		Quaternion newRotation = bone->getOrientation();
 		Vector3f newScale = bone->getScale();
 
-		const AnimationKeyFrame& nextKeyFrame = track->keyFrames[nextFrame];
-		float timeInterval = nextKeyFrame.time - keyFrame.time;
+		const AnimationKeyFrame& nextKeyFrame = track->m_keyFrames[nextFrame];
+		float timeInterval = nextKeyFrame.m_time - keyFrame.m_time;
 
 		if (timeInterval < 0.0f)
-			timeInterval += animation->Length();
+			timeInterval += m_animation->getLength();
 
 		float t;
 		if (m_animationBlendMode == ABM_ADDITIVE) {
-			t = timeInterval + EPSILON > 0.0f ? (m_layeredTime - keyFrame.time) / (timeInterval + EPSILON) : 1.0f;
+			t = timeInterval + EPSILON > 0.0f ? (m_layeredTime - keyFrame.m_time) / (timeInterval + EPSILON) : 1.0f;
 		}else if (m_animationBlendMode == ABM_FADE) {
-			t = timeInterval > 0.0f ? (m_layeredTime - keyFrame.time) / timeInterval : 1.0f;
+			t = timeInterval > 0.0f ? (m_layeredTime - keyFrame.m_time) / timeInterval : 1.0f;
 		}else {
-			t = timeInterval > 0.0f ? (m_stateTime - keyFrame.time) / timeInterval : 1.0f;
+			t = timeInterval > 0.0f ? (m_stateTime - keyFrame.m_time) / timeInterval : 1.0f;
 		}
 
-		if (track->channelMask & CHANNEL_POSITION)
-			newPosition = Math::Lerp(keyFrame.position, nextKeyFrame.position, t);
-		if (track->channelMask & CHANNEL_ROTATION)
-			newRotation = Quaternion::SLerp2(keyFrame.rotation, nextKeyFrame.rotation, t);
-		if (track->channelMask & CHANNEL_SCALE)
-			newScale = Math::Lerp(keyFrame.scale, nextKeyFrame.scale, t);
+		if (track->m_channelMask & CHANNEL_POSITION)
+			newPosition = Math::Lerp(keyFrame.m_position, nextKeyFrame.m_position, t);
+		if (track->m_channelMask & CHANNEL_ROTATION)
+			newRotation = Quaternion::SLerp2(keyFrame.m_rotation, nextKeyFrame.m_rotation, t);
+		if (track->m_channelMask & CHANNEL_SCALE)
+			newScale = Math::Lerp(keyFrame.m_scale, nextKeyFrame.m_scale, t);
 		
 
 		if (m_animationBlendMode == ABM_ADDITIVE) {
-			if (track->channelMask & CHANNEL_POSITION){
+			if (track->m_channelMask & CHANNEL_POSITION){
 				Vector3f delta = newPosition - stateTrack.m_initialPosition;
 				newPosition = bone->getPosition() + delta * finalWeight;
 			}
 
-			if (track->channelMask & CHANNEL_ROTATION){
+			if (track->m_channelMask & CHANNEL_ROTATION){
 				newRotation = (newRotation * stateTrack.m_initialOrientation * bone->getOrientation());
 				//newRotation.normalize();
 				if (!Math::Equals(finalWeight, 1.0f))
 					newRotation = Quaternion::SLerp2(bone->getOrientation(), newRotation, finalWeight);				
 			}
 
-			if (track->channelMask & CHANNEL_SCALE){
+			if (track->m_channelMask & CHANNEL_SCALE){
 				Vector3f delta = newScale - stateTrack.m_initialScale;
 				newScale = bone->getScale() + delta * finalWeight;
 			}
 
 		}else {
 			if (finalWeight < 1.0f){
-				if(track->channelMask & CHANNEL_POSITION)
+				if(track->m_channelMask & CHANNEL_POSITION)
 					newPosition = Math::Lerp(bone->getPosition(), newPosition, finalWeight);
-				if(track->channelMask & CHANNEL_ROTATION)
+				if(track->m_channelMask & CHANNEL_ROTATION)
 					newRotation = Quaternion::SLerp2(bone->getOrientation(), newRotation, finalWeight);
-				if (track->channelMask & CHANNEL_SCALE)
+				if (track->m_channelMask & CHANNEL_SCALE)
 					newScale = Math::Lerp(bone->getScale(), newScale, finalWeight);
 			}		
 		}
@@ -368,26 +342,26 @@ void AnimationState::ApplyToModel(){
 	}
 }
 
-void AnimationState::ApplyToNodes(){
+void AnimationState::applyToNodes(){
 	
-	for (auto it = stateTracks.begin(); it != stateTracks.end(); ++it){
+	for (auto it = m_stateTracks.begin(); it != m_stateTracks.end(); ++it){
 
 		AnimationStateTrack& stateTrack = *it;
-		const AnimationTrack* track = stateTrack.track;
-		BoneNode* node = stateTrack.node;
+		const AnimationTrack* track = stateTrack.m_track;
+		BoneNode* node = stateTrack.m_node;
 
-		track->FindKeyFrameIndex(m_stateTime, stateTrack.keyFrame);
-		const AnimationKeyFrame& keyFrame = track->keyFrames[stateTrack.keyFrame];
+		track->findKeyFrameIndex(m_stateTime, stateTrack.m_keyFrame);
+		const AnimationKeyFrame& keyFrame = track->m_keyFrames[stateTrack.m_keyFrame];
 
-		size_t nextFrame = stateTrack.keyFrame + 1;
+		size_t nextFrame = stateTrack.m_keyFrame + 1;
 		bool interpolate = true;
-		if (nextFrame >= track->keyFrames.size()){
+		if (nextFrame >= track->m_keyFrames.size()){
 			if (m_backward)
-				nextFrame = track->keyFrames.size();
+				nextFrame = track->m_keyFrames.size();
 			else if (m_looped) {
 				nextFrame = 0;
 			}else {
-				nextFrame = stateTrack.keyFrame;
+				nextFrame = stateTrack.m_keyFrame;
 				interpolate = false;
 			}
 		}
@@ -398,31 +372,31 @@ void AnimationState::ApplyToNodes(){
 
 		if (interpolate) {
 
-			const AnimationKeyFrame& nextKeyFrame = track->keyFrames[nextFrame];
-			float timeInterval = nextKeyFrame.time - keyFrame.time;
+			const AnimationKeyFrame& nextKeyFrame = track->m_keyFrames[nextFrame];
+			float timeInterval = nextKeyFrame.m_time - keyFrame.m_time;
 			if (timeInterval < 0.0f)
-				timeInterval += animation->Length();
+				timeInterval += m_animation->getLength();
 
 
-			float t = timeInterval > 0.0f ? (m_stateTime - keyFrame.time) / timeInterval : 1.0f;
+			float t = timeInterval > 0.0f ? (m_stateTime - keyFrame.m_time) / timeInterval : 1.0f;
 
-			if(track->channelMask & CHANNEL_POSITION)
-				newPosition = Math::Lerp(keyFrame.position, nextKeyFrame.position, t);
+			if(track->m_channelMask & CHANNEL_POSITION)
+				newPosition = Math::Lerp(keyFrame.m_position, nextKeyFrame.m_position, t);
 
-			if(track->channelMask & CHANNEL_ROTATION) {
-				newRotation = Quaternion::SLerp2(keyFrame.rotation, nextKeyFrame.rotation, t);
+			if(track->m_channelMask & CHANNEL_ROTATION) {
+				newRotation = Quaternion::SLerp2(keyFrame.m_rotation, nextKeyFrame.m_rotation, t);
 			}
 
-			if(track->channelMask & CHANNEL_SCALE)
-				newScale = Math::Lerp(keyFrame.scale, nextKeyFrame.scale, t);
+			if(track->m_channelMask & CHANNEL_SCALE)
+				newScale = Math::Lerp(keyFrame.m_scale, nextKeyFrame.m_scale, t);
 		}else{
 
-			if(track->channelMask & CHANNEL_POSITION)
-				newPosition = keyFrame.position;
-			if(track->channelMask & CHANNEL_ROTATION)
-				newRotation = keyFrame.rotation;
-			if(track->channelMask & CHANNEL_SCALE)
-				newScale = keyFrame.scale;
+			if(track->m_channelMask & CHANNEL_POSITION)
+				newPosition = keyFrame.m_position;
+			if(track->m_channelMask & CHANNEL_ROTATION)
+				newRotation = keyFrame.m_rotation;
+			if(track->m_channelMask & CHANNEL_SCALE)
+				newScale = keyFrame.m_scale;
 		}
 		
 		node->setPosition(newPosition);
@@ -431,15 +405,15 @@ void AnimationState::ApplyToNodes(){
 	}
 }
 
-void AnimationState::SetBlendMode(AnimationBlendMode mode){
+void AnimationState::setBlendMode(AnimationBlendMode mode){
 	m_animationBlendMode = mode;
 }
 
-void AnimationState::SetBackward(bool backward) {
+void AnimationState::setBackward(bool backward) {
 	m_backward = backward;
 }
 
-void AnimationState::SetFadeLayerLength(float length) {
+void AnimationState::setFadeLayerLength(float length) {
 	m_fadeLayerLength = length;
 }
 
@@ -448,5 +422,33 @@ const AnimationBlendMode AnimationState::getAnimationBlendMode() const {
 }
 
 const float AnimationState::getRestTime() const {
-	return std::max(Length() - m_stateTime, m_stateTime);
+	return std::max(getLength() - m_stateTime, m_stateTime);
+}
+
+Animation* AnimationState::getAnimation() const { 
+	return m_animation; 
+}
+
+BoneNode* AnimationState::getStartBone() const { 
+	return m_startBone; 
+}
+
+bool AnimationState::isEnabled() const { 
+	return m_blendWeight > 0.0f; 
+}
+
+bool AnimationState::isLooped() const { 
+	return m_looped; 
+}
+
+float AnimationState::getWeight() const { 
+	return m_blendWeight; 
+}
+
+float AnimationState::getTime() const { 
+	return m_stateTime; 
+}
+
+unsigned char AnimationState::getBlendLayer() const { 
+	return m_blendLayer; 
 }

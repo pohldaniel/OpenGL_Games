@@ -13,13 +13,10 @@ public:
 	OctreeNode(const BoundingBox& localBoundingBox);
 	~OctreeNode();
 
-	void OnTransformChanged() override;
+	virtual void OnTransformChanged() override;
+	virtual void OnOctreeSet(Octree* octree);
 
 	virtual void drawRaw() const;
-	virtual void OnBoundingBoxChanged();
-	virtual void OnWorldBoundingBoxUpdate() const;
-	virtual void OnOctreeUpdate();
-	virtual void OnOctreeSet(Octree* octree);
 
 	void OnRenderOBB(const Vector4f& color = { 1.0f, 0.0f, 0.0f, 1.0f });
 	void OnRenderAABB(const Vector4f& color = { 0.0f, 1.0f, 0.0f, 1.0f });
@@ -36,6 +33,10 @@ public:
 	bool wasInView(unsigned short frameNumber) const;
 
 protected:
+
+	virtual void OnBoundingBoxChanged();
+	virtual void OnWorldBoundingBoxUpdate() const;
+	virtual void OnOctreeUpdate();
 
 	mutable BoundingBox m_worldBoundingBox;
 	mutable bool m_worldBoundingBoxDirty;

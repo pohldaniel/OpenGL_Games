@@ -76,6 +76,8 @@ private:
 	aiNode* searchNode(aiNode *node, std::vector<std::string> &boneList);
 	void fetchAiHierarchy(aiNode *node, std::vector<MeshBone>& meshBones, int parentIndex = 0);
 	static void CreateBuffer(std::vector<float>& vertexBuffer, std::vector<unsigned int> indexBuffer, unsigned int& vao, unsigned int(&vbo)[3], unsigned int& ibo, unsigned int stride, std::vector<std::array<float, 4>>& weights, std::vector<std::array<unsigned int, 4>>& boneIds);
+	static bool CompareAnimationStates(const std::shared_ptr<AnimationState>& lhs, const std::shared_ptr<AnimationState>& rhs);
+
 	bool m_animationOrderDirty;
 	BoundingBox m_aabb;
 };
@@ -92,6 +94,11 @@ public:
 	void drawRaw() const;
 	void update(float dt);
 	void updateSkinning();
+	void createBones();
+
+	std::vector<MeshBone>& getMeshBones();
+
+private:
 
 	AnimatedModel* m_model;
 	std::vector<std::shared_ptr<AnimationState>> m_animationStates;
@@ -101,8 +108,6 @@ public:
 
 	unsigned short m_numBones = 0;
 	Matrix4f* m_skinMatrices;
-
-	void createBones();
 
 	unsigned int m_vao;
 	unsigned int m_vbo[3];

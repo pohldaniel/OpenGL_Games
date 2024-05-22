@@ -50,8 +50,6 @@ KCCInterface::KCCInterface(StateMachine& machine) : State(machine, States::KCCIN
 	createScene();
 	
 	m_beta.loadModelMdl("res/models/BetaLowpoly/Beta.mdl");
-	m_beta.m_meshes[0]->createBones();
-
 	m_character = new Character(m_beta, m_lift, m_camera);
 
 	m_frustum.init();

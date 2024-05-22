@@ -1,12 +1,22 @@
 #include "AnimationNode.h"
 #include "../DebugRenderer.h"
 #include "../BuiltInShader.h"
+#include "../octree/Octree.h"
 
-static inline bool compareAnimationStates2(const std::shared_ptr<AnimationState>& lhs, const std::shared_ptr<AnimationState>& rhs) {
-	return lhs->BlendLayer() < rhs->BlendLayer();
+bool AnimationNode::CompareAnimationStates(const std::shared_ptr<AnimationState>& lhs, const std::shared_ptr<AnimationState>& rhs) {
+	return lhs->getBlendLayer() < rhs->getBlendLayer();
 }
 
-AnimationNode::AnimationNode(const AnimatedModel& animatedModel) : OctreeNode(animatedModel.getAABB()), animatedModel(animatedModel), meshBones(animatedModel.m_meshes[0]->m_meshBones), m_animationOrderDirty(true), m_hasAnimationController(false), m_numBones(0), m_updateSilent(false){
+AnimationNode::AnimationNode(const AnimatedModel& animatedModel) :
+	OctreeNode(animatedModel.getAABB()), 
+	animatedModel(animatedModel), 
+	meshBones(animatedModel.m_meshes[0]->getMeshBones()),
+	m_animationOrderDirty(true), 
+	m_hasAnimationController(false), 
+	m_animationDirty(true),
+	m_skinningDirty(true),
+	m_numBones(0), 
+	m_updateSilent(false){
 	OnBoundingBoxChanged();
 	createBones();
 }
@@ -31,6 +41,12 @@ const AnimatedModel& AnimationNode::getAnimatedModel() const {
 
 void AnimationNode::OnBoundingBoxChanged() {
 	OctreeNode::OnBoundingBoxChanged();
+	m_boneBoundingBoxDirty = true;
+}
+
+void AnimationNode::OnTransformChanged() {
+	OctreeNode::OnTransformChanged();
+	m_skinningDirty = true;
 	m_boneBoundingBoxDirty = true;
 }
 
@@ -65,10 +81,6 @@ void AnimationNode::OnOctreeSet(Octree* octree) {
 	m_skinningDirty = true;
 }
 
-void AnimationNode::OnOctreeUpdate() {
-	OctreeNode::OnOctreeUpdate();
-}
-
 void AnimationNode::drawRaw() const {
 	glBindBuffer(GL_UNIFORM_BUFFER, BuiltInShader::matrixUbo);
 	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(Matrix4f) * m_numBones, m_skinMatrices);
@@ -79,10 +91,15 @@ void AnimationNode::drawRaw() const {
 
 void AnimationNode::update(float dt) {
 	if (frameNumber && wasInView(*frameNumber) || m_updateSilent){
-		updateAnimation(dt);
-		OnBoundingBoxChanged();
-		OnWorldBoundingBoxUpdate();
-		updateSkinning();
+		OnAnimationChanged();
+		if (m_animationDirty) {
+			updateAnimation(dt);
+			OnBoundingBoxChanged();
+			OnWorldBoundingBoxUpdate();
+			m_skinningDirty = true;
+		}
+		if(m_skinningDirty)
+			updateSkinning();
 	}
 }
 
@@ -90,13 +107,13 @@ void AnimationNode::updateSkinning() {
 	for (size_t i = 0; i < m_numBones; ++i) {
 		m_skinMatrices[i] = m_bones[i]->getWorldTransformation() * meshBones[i].offsetMatrix;
 	}
-	m_skinningDirty = true;
+	m_skinningDirty = false;
 }
 
 void AnimationNode::updateAnimation(float dt) {
 
 	if (m_animationOrderDirty) {
-		std::sort(m_animationStates.begin(), m_animationStates.end(), compareAnimationStates2);
+		std::sort(m_animationStates.begin(), m_animationStates.end(), AnimationNode::CompareAnimationStates);
 		m_animationOrderDirty = false;
 	}
 
@@ -112,18 +129,18 @@ void AnimationNode::updateAnimation(float dt) {
 		AnimationState* state = (*it).get();
 
 		if (m_hasAnimationController) {
-			if (state->Enabled()) {				
-				state->Apply();
+			if (state->isEnabled()) {				
+				state->apply();
 			}
 		}else {
 
-			if (state->Enabled() || state->getAnimationBlendMode() == ABM_FADE) {
-				state->AddTime(dt);
-				state->Apply();
+			if (state->isEnabled() || state->getAnimationBlendMode() == ABM_FADE) {
+				state->addTime(dt);
+				state->apply();
 			}
 		}
 	}
-	m_animationDirty = true;
+	m_animationDirty = false;
 }
 
 AnimationState* AnimationNode::addAnimationState(Animation* animation) {
@@ -152,8 +169,6 @@ AnimationState* AnimationNode::addAnimationStateFront(Animation* animation) {
 		return existing;
 
 	m_animationStates.insert(m_animationStates.begin(), std::make_shared<AnimationState>(animation, m_rootBone));
-	//modelDrawable->OnAnimationOrderChanged();
-
 	return m_animationStates.front().get();
 }
 
@@ -164,7 +179,7 @@ AnimationState* AnimationNode::getAnimationState(size_t index) const {
 AnimationState* AnimationNode::findAnimationState(Animation* animation) const {
 
 	for (auto it = m_animationStates.begin(); it != m_animationStates.end(); ++it) {
-		if ((*it)->GetAnimation() == animation)
+		if ((*it)->getAnimation() == animation)
 			return (*it).get();
 	}
 
@@ -182,9 +197,8 @@ AnimationState* AnimationNode::findAnimationState(const char* animationName) con
 AnimationState* AnimationNode::findAnimationState(StringHash animationNameHash) const {
 	AnimationState* state = nullptr;
 	for (auto it = m_animationStates.begin(); it != m_animationStates.end(); ++it) {
-		Animation* animation = (*it)->GetAnimation();
-		if (animation->animationNameHash == animationNameHash) {
-			//state = (*it).get();
+		Animation* animation = (*it)->getAnimation();
+		if (animation->m_animationNameHash == animationNameHash) {
 			return (*it).get();
 		}
 
@@ -194,7 +208,7 @@ AnimationState* AnimationNode::findAnimationState(StringHash animationNameHash) 
 
 void AnimationNode::removeAnimationState(Animation* animation) {
 	if (animation)
-		removeAnimationState(animation->animationNameHash);
+		removeAnimationState(animation->m_animationNameHash);
 }
 
 void AnimationNode::removeAnimationState(const std::string& animationName) {
@@ -208,11 +222,11 @@ void AnimationNode::removeAnimationState(const char* animationName) {
 void AnimationNode::removeAnimationState(StringHash animationNameHash) {
 	for (auto it = m_animationStates.begin(); it != m_animationStates.end(); ++it) {
 		AnimationState* state = (*it).get();
-		Animation* animation = state->GetAnimation();
+		Animation* animation = state->getAnimation();
 
-		if (animation->animationNameHash == animationNameHash) {
+		if (animation->m_animationNameHash == animationNameHash) {
 			m_animationStates.erase(it);
-			//modelDrawable->OnAnimationChanged();
+			OnAnimationChanged();
 			return;
 		}
 	}
@@ -222,7 +236,7 @@ void AnimationNode::removeAnimationState(AnimationState* state) {
 	for (auto it = m_animationStates.begin(); it != m_animationStates.end(); ++it) {
 		if ((*it).get() == state) {
 			m_animationStates.erase(it);
-			//modelDrawable->OnAnimationChanged();
+			OnAnimationChanged();
 			return;
 		}
 	}
@@ -231,19 +245,28 @@ void AnimationNode::removeAnimationState(AnimationState* state) {
 void AnimationNode::removeAnimationState(size_t index) {
 	if (index < m_animationStates.size()) {
 		m_animationStates.erase(m_animationStates.begin() + index);
-		//modelDrawable->OnAnimationChanged();
+		OnAnimationChanged();
 	}
 }
 
 void AnimationNode::removeAllAnimationStates() {
 	if (m_animationStates.size()) {
 		m_animationStates.clear();
-		//modelDrawable->OnAnimationChanged();
+		OnAnimationChanged();
 	}
 }
 
 void AnimationNode::OnAnimationOrderChanged() {
 	m_animationOrderDirty = true;
+	m_animationDirty = true;
+	if (m_octree && m_octant && !m_reinsertQueued)
+		m_octree->queueUpdate(this);
+}
+
+void AnimationNode::OnAnimationChanged(){
+	m_animationDirty = true;
+	if (m_octree && m_octant && !m_reinsertQueued)
+		m_octree->queueUpdate(this);
 }
 
 unsigned short AnimationNode::getNumBones() {

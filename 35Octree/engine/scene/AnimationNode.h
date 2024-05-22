@@ -14,14 +14,10 @@ public:
 	AnimationNode(const AnimatedModel& animatedModel);
 	~AnimationNode();
 
+	void OnOctreeSet(Octree* octree) override;
+
 	void drawRaw() const override;
 	void update(float dt);
-	
-	void OnBoundingBoxChanged() override;
-	void OnWorldBoundingBoxUpdate() const override;
-	void OnOctreeUpdate() override;
-	void OnOctreeSet(Octree* octree) override;
-	void OnAnimationOrderChanged();
 
 	AnimationState* addAnimationState(Animation* animation);
 	AnimationState* addAnimationStateFront(Animation* animation);
@@ -48,10 +44,17 @@ public:
 
 private:
 
+	void OnTransformChanged() override;
+	void OnBoundingBoxChanged() override;
+	void OnWorldBoundingBoxUpdate() const override;
+	void OnAnimationOrderChanged();
+	void OnAnimationChanged();
+
 	void updateAnimation(float dt);
 	void updateSkinning();
 	void createBones();
-	
+	static bool CompareAnimationStates(const std::shared_ptr<AnimationState>& lhs, const std::shared_ptr<AnimationState>& rhs);
+
 	mutable BoundingBox m_boneBoundingBox;
 	mutable bool m_boneBoundingBoxDirty;
 

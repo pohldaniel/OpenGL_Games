@@ -51,8 +51,6 @@ SkinnedArmor::SkinnedArmor(StateMachine& machine) : State(machine, States::SKINN
 	createScene();
 
 	m_animatedModel.loadModelMdl("res/models/Girlbot/Girlbot.mdl");
-	m_animatedModel.m_meshes[0]->createBones();
-
 	m_characterSkinned = new CharacterSkinned(m_animatedModel, m_lift, m_camera);
 	m_characterSkinned->setPosition(Vector3f(28.0f, 7.84f, -4.0f));
 

@@ -29,13 +29,9 @@ AnimationInterface::AnimationInterface(StateMachine& machine) : State(machine, S
 	glClearDepth(1.0f);
 
 	m_beta.loadModelMdl("res/models/BetaLowpoly/Beta.mdl");
-	m_beta.m_meshes[0]->m_meshBones[0].initialPosition.translate(-1.0f, 0.0f, 0.0f);
-	m_beta.m_meshes[0]->m_meshBones[0].initialRotation.rotate(0.0f, 180.0f, 0.0f);
-	m_beta.m_meshes[0]->createBones();
-
-	m_beta.addAnimationState(Globals::animationManagerNew.getAssetPointer("beta_run"));
-	m_beta.getAnimationState(0)->SetLooped(true);
-
+	m_beta.m_meshes[0]->getMeshBones()[0].initialPosition.translate(-1.0f, 0.0f, 0.0f);
+	m_beta.m_meshes[0]->getMeshBones()[0].initialRotation.rotate(0.0f, 180.0f, 0.0f);
+	
 	glGenBuffers(1, &BuiltInShader::matrixUbo);
 	glBindBuffer(GL_UNIFORM_BUFFER, BuiltInShader::matrixUbo);
 	glBufferData(GL_UNIFORM_BUFFER, sizeof(Matrix4f) * 96, NULL, GL_DYNAMIC_DRAW);
@@ -52,7 +48,7 @@ AnimationInterface::AnimationInterface(StateMachine& machine) : State(machine, S
 			child = m_root->addChild<AnimationNode, AnimatedModel>(m_beta);
 			child->setPosition(2.0f * x, 0.0f , 2.0f * z);
 			child->addAnimationState(Globals::animationManagerNew.getAssetPointer("beta_run"));
-			child->getAnimationState(0)->SetLooped(true);
+			child->getAnimationState(0)->setLooped(true);
 			child->OnOctreeSet(m_octree);
 			m_entities.push_back(child);
 		}

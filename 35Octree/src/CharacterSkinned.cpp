@@ -110,7 +110,7 @@ void CharacterSkinned::fixedUpdate(float fdt) {
 	m_lMouseB = false;
 	
 	if (m_weaponActionState == Weapon_AttackAnim) {
-		float time = m_animationController->GetTime(m_weaponActionAnim);
+		float time = m_animationController->getTime(m_weaponActionAnim);
 		if (m_comboAnimsIdx == 0 && 0.2f < time && time < 0.8f)
 			m_weaponDmgState = WeaponDmg_ON;
 		else if (m_comboAnimsIdx == 1 && 0.2f < time && time < 0.9f)
@@ -145,9 +145,9 @@ void CharacterSkinned::fixedUpdate(float fdt) {
 				m_jumpStarted = true;
 				m_kinematicController->jump();
 
-				m_animationController->StopLayer(0);
-				m_animationController->PlayExclusive("girl_jump_start", 0, false, 0.2f);
-				m_animationController->SetTime("girl_jump_start", 0);
+				m_animationController->stopLayer(0);
+				m_animationController->playExclusive("girl_jump_start", 0, false, 0.2f);
+				m_animationController->setTime("girl_jump_start", 0);
 			}
 		}else{
 			m_okToJump = true;
@@ -156,9 +156,9 @@ void CharacterSkinned::fixedUpdate(float fdt) {
 
 	if (!m_onGround || m_jumpStarted) {
 		if (m_jumpStarted) {
-			if (m_animationController->IsAtEnd("girl_jump_start")) {
-				m_animationController->PlayExclusive("girl_jump_loop", 0, true, 0.3f);
-				m_animationController->SetTime("girl_jump_loop", 0);
+			if (m_animationController->isAtEnd("girl_jump_start")) {
+				m_animationController->playExclusive("girl_jump_loop", 0, true, 0.3f);
+				m_animationController->setTime("girl_jump_loop", 0);
 				m_jumpStarted = false;
 			}
 		}else {
@@ -168,7 +168,7 @@ void CharacterSkinned::fixedUpdate(float fdt) {
 
 			Physics::RaycastSingleSegmented(result, m_animationNode->getPosition(), Vector3f::DOWN, maxDistance, segmentDistance, Physics::collisiontypes::RAY, Physics::collisiontypes::FLOOR);
 			if (result.distance_ > 0.7f) {
-				m_animationController->PlayExclusive("girl_jump_loop", 0, true, 0.2f);
+				m_animationController->playExclusive("girl_jump_loop", 0, true, 0.2f);
 			}else if (result.body_ == NULL){
 			    // fall to death animation
 			}
@@ -176,9 +176,9 @@ void CharacterSkinned::fixedUpdate(float fdt) {
 	}else {
 		// Play walk animation if moving on ground, otherwise fade it out
 		if ((softGrounded) && !moveDir.compare(Vector3f::ZERO, EPSILON)) {
-			m_animationController->PlayExclusive("girl_run", 0, true, 0.2f);
+			m_animationController->playExclusive("girl_run", 0, true, 0.2f);
 		}else {
-			m_animationController->PlayExclusive("girl_idle", 0, true, 0.2f);
+			m_animationController->playExclusive("girl_idle", 0, true, 0.2f);
 		}
 
 		// Set walk animation speed proportional to velocity
@@ -194,7 +194,7 @@ void CharacterSkinned::update(const float dt) {
 
 	m_equipWeapon = keyboard.keyPressed(Keyboard::KEY_Q) | m_equipWeapon;
 	m_lMouseB = mouse.buttonPressed(Mouse::BUTTON_LEFT) | m_lMouseB;
-	m_animationController->Update(dt);
+	m_animationController->update(dt);
 	m_animationNode->update(dt);
 }
 
@@ -207,8 +207,8 @@ void CharacterSkinned::processWeaponAction(bool equip, bool lMouseB) {
 	case Weapon_Unequipped:
 		if (equip) {
 			m_weaponActionAnim = "girl_unsheath";
-			m_animationController->Play(m_weaponActionAnim, WeaponLayer, false, 0.0f);
-			m_animationController->SetTime(m_weaponActionAnim, 0.0f);
+			m_animationController->play(m_weaponActionAnim, WeaponLayer, false, 0.0f);
+			m_animationController->setTime(m_weaponActionAnim, 0.0f);
 			m_sword->eraseSelf();
 			m_rightHandLocatorNode->addChild(m_sword, true);
 			m_sword->OnTransformChanged();
@@ -222,11 +222,11 @@ void CharacterSkinned::processWeaponAction(bool equip, bool lMouseB) {
 			m_queInput.setInput(Mouse::BUTTON_LEFT);
 		}
 
-		m_animationController->Play(m_weaponActionAnim, WeaponLayer, false, 0.1f);
+		m_animationController->play(m_weaponActionAnim, WeaponLayer, false, 0.1f);
 
-		if (m_animationController->IsAtEnd(m_weaponActionAnim)) {
+		if (m_animationController->isAtEnd(m_weaponActionAnim)) {
 			if (m_queInput.empty()) {
-				m_animationController->PlayExclusive("girl_equiped_idle", WeaponLayer, true, 0.1f);
+				m_animationController->playExclusive("girl_equiped_idle", WeaponLayer, true, 0.1f);
 			}
 			m_weaponActionState = Weapon_Equipped;
 		}
@@ -235,8 +235,8 @@ void CharacterSkinned::processWeaponAction(bool equip, bool lMouseB) {
 		if (equip) {
 
 			m_weaponActionAnim = "girl_sheath";
-			m_animationController->Play(m_weaponActionAnim, WeaponLayer, false, 0.1f);
-			m_animationController->SetTime(m_weaponActionAnim, 0.0f);
+			m_animationController->play(m_weaponActionAnim, WeaponLayer, false, 0.1f);
+			m_animationController->setTime(m_weaponActionAnim, 0.0f);
 			m_weaponActionState = Weapon_UnEquipping;
 			break;
 		}
@@ -248,9 +248,9 @@ void CharacterSkinned::processWeaponAction(bool equip, bool lMouseB) {
 
 				m_weaponActionAnim = m_weaponComboAnim[m_comboAnimsIdx];
 
-				if (m_animationController->PlayExclusive(m_weaponActionAnim, NormalLayer, false, 0.1f)) {
-					m_animationController->SetTime(m_weaponActionAnim, 0.0f);
-					m_animationController->StopLayer(WeaponLayer);
+				if (m_animationController->playExclusive(m_weaponActionAnim, NormalLayer, false, 0.1f)) {
+					m_animationController->setTime(m_weaponActionAnim, 0.0f);
+					m_animationController->stopLayer(WeaponLayer);
 					m_weaponActionState = Weapon_AttackAnim;
 				}
 			}
@@ -262,9 +262,9 @@ void CharacterSkinned::processWeaponAction(bool equip, bool lMouseB) {
 		}
 		break;
 	case Weapon_UnEquipping:
-		m_animationController->Play(m_weaponActionAnim, WeaponLayer, false, 0.1f);
-		if (m_animationController->IsAtEnd(m_weaponActionAnim)) {
-			m_animationController->StopLayer(WeaponLayer, 0.2f);
+		m_animationController->play(m_weaponActionAnim, WeaponLayer, false, 0.1f);
+		if (m_animationController->isAtEnd(m_weaponActionAnim)) {
+			m_animationController->stopLayer(WeaponLayer, 0.2f);
 			m_sword->eraseSelf();
 			m_swordLocatorNode->addChild(m_sword, true);
 			m_sword->OnTransformChanged();
@@ -277,14 +277,14 @@ void CharacterSkinned::processWeaponAction(bool equip, bool lMouseB) {
 			m_queInput.setInput(Mouse::BUTTON_LEFT);
 		}
 
-		m_animationController->PlayExclusive(m_weaponActionAnim, NormalLayer, false, 0.1f);
-		AnimationState* state = m_animationController->GetAnimationState(StringHash(m_weaponActionAnim));
+		m_animationController->playExclusive(m_weaponActionAnim, NormalLayer, false, 0.1f);
+		AnimationState* state = m_animationController->getAnimationState(StringHash(m_weaponActionAnim));
 
-		if (m_animationController->IsAtEnd(m_weaponActionAnim)) {
+		if (m_animationController->isAtEnd(m_weaponActionAnim)) {
 
 			if (m_queInput.empty()) {
 				m_comboAnimsIdx = 0;
-				m_animationController->PlayExclusive("girl_equiped_idle", WeaponLayer, true, 0.1f);
+				m_animationController->playExclusive("girl_equiped_idle", WeaponLayer, true, 0.1f);
 			}else {
 				m_comboAnimsIdx = ++m_comboAnimsIdx % m_weaponComboAnim.size();
 			}
