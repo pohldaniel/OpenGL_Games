@@ -8,10 +8,17 @@
 #include <engine/Framebuffer.h>
 #include <States/StateMachine.h>
 
-#include "ParticleRenderer.h"
 #include "ParticleSystem.h"
 
 class SoftParticle : public State, public MouseEventListener, public KeyboardEventListener {
+
+	struct NormalAttributes {
+		Vector3f pos;
+		Vector2f uv;
+		Vector3f color;
+		float size;
+		float alpha;
+	};
 
 public:
 
@@ -29,10 +36,10 @@ public:
 	void OnKeyDown(Event::KeyboardEvent& event) override;
 	void OnKeyUp(Event::KeyboardEvent& event) override;
 
-
+private:
 
 	void renderUi();
-
+	void draw();
 	bool m_initUi = true;
 	bool m_drawUi = true;
 	bool m_soft = true;
@@ -41,5 +48,5 @@ public:
 	ObjModel m_jesus, m_rock1, m_rock2;
 	Framebuffer m_depthBuffer;
 	ParticleSystem m_particleSystem;
-	ParticleRenderer* m_particleRenderer;
+	std::vector<NormalAttributes> normalVertex;
 };

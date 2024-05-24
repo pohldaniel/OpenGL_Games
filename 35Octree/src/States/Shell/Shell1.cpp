@@ -4,6 +4,7 @@
 #include <imgui_internal.h>
 #include <engine/Batchrenderer.h>
 #include <States/Menu.h>
+#include <Utils/BinaryIO.h>
 
 #include "Shell1.h"
 #include "Application.h"
@@ -25,7 +26,11 @@ Shell1::Shell1(StateMachine& machine) : State(machine, States::SHELL1) {
 	glClearColor(0.494f, 0.686f, 0.796f, 1.0f);
 	glClearDepth(1.0f);
 	
-	m_ninja.LoadFromVBM("res/models//ninja.vbm", 0, 1, 2);
+	Utils::VbmIO vbmConverter;
+	std::vector<float> vertexBuffer;
+	std::vector<unsigned int> indexBuffer;
+	vbmConverter.vbmToBuffer("res/models/ninja.vbm", vertexBuffer, indexBuffer);
+	m_ninja.fromBuffer(vertexBuffer, indexBuffer, 8);
 
 	glGenTextures(1, &fur_texture);
 	unsigned char * tex = (unsigned char *)malloc(1024 * 1024 * 4);
@@ -128,7 +133,7 @@ void Shell1::render() {
 	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix() *  m_camera.getViewMatrix());
 	shader->loadMatrix("u_model", Matrix4f::Scale(0.05f, 0.05f, 0.05f));	
 
-	m_ninja.Render();
+	m_ninja.drawRaw();
 	shader->unuse();
 
 	glEnable(GL_BLEND);
@@ -138,7 +143,7 @@ void Shell1::render() {
 	shader->use();
 	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix() *  m_camera.getViewMatrix());
 	shader->loadMatrix("u_model", Matrix4f::Scale(0.05f, 0.05f, 0.05f));
-	m_ninja.Render();
+	m_ninja.drawRaw();
 	shader->unuse();
 
 	glDepthMask(GL_TRUE);

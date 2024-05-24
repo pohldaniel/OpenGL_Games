@@ -4,6 +4,7 @@
 #include <imgui_internal.h>
 #include <engine/Batchrenderer.h>
 #include <States/Menu.h>
+#include <Utils/BinaryIO.h>
 
 #include "Shadow.h"
 #include "Application.h"
@@ -31,8 +32,14 @@ Shadow::Shadow(StateMachine& machine) : State(machine, States::SHADOW) {
 	Texture::SetCompareFunc(m_depthRT.getDepthTexture(), GL_LESS);
 
 	lightProjection = Matrix4f::Perspective(-1.0f, 1.0f, -1.0f, 1.0f, 1.0f, 800.0f);
-	m_armadillo.LoadFromVBM("res/models/armadillo_low.vbm", 0, 1, 2);
 	Globals::clock.restart();
+
+	Utils::VbmIO vbmConverter;
+	//vbmConverter.vbmToObj("res/models/armadillo.vbm", "res/models/armadillo.obj", "res/models/armadillo.mtl", "res/textures/marble.png");
+	std::vector<float> vertexBuffer;
+	std::vector<unsigned int> indexBuffer;
+	vbmConverter.vbmToBuffer("res/models/armadillo.vbm", vertexBuffer, indexBuffer);
+	m_armadillo.fromBuffer(vertexBuffer, indexBuffer, 8);
 }
 
 Shadow::~Shadow() {
@@ -102,7 +109,6 @@ void Shadow::update() {
 
 void Shadow::render() {
 	
-	//float t = float(GetTickCount() & 0xFFFF) / float(0xFFFF);
 	float t = float(Globals::clock.getElapsedTimeMilli() & 0xFFFF) / float(0xFFFF);
 	lightPosition = { sinf(t * 6.0f * 3.141592f) * 300.0f, 200.0f, cosf(t * 4.0f * 3.141592f) * 100.0f + 250.0f };
 	lightView = Matrix4f::LookAt(lightPosition, Vector3f(0.0f), Vector3f(0.0f, 1.0f, 0.0f));
@@ -115,7 +121,7 @@ void Shadow::render() {
 	auto shader = Globals::shaderManager.getAssetPointer("shadow");
 	shader->use();
 	shader->loadMatrix("mvp", lightProjection * lightView * model);
-	m_armadillo.Render();
+	m_armadillo.drawRaw();
 	Globals::shapeManager.get("floor_shadow").drawRaw();
 	shader->unuse();
 	glDisable(GL_POLYGON_OFFSET_FILL);	
@@ -137,7 +143,7 @@ void Shadow::render() {
 	shader->loadInt("u_shadowMap", 0);
 
 	m_depthRT.bindDepthTexture();
-	m_armadillo.Render();
+	m_armadillo.drawRaw();
 
 	shader->loadVector("mat_ambient", Vector3f(0.1f, 0.1f, 0.1f));
 	shader->loadVector("mat_diffuse", Vector3f(0.1f, 0.5f, 0.1f));

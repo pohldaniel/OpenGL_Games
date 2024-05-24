@@ -1,4 +1,4 @@
-#include "SolidIO.h"
+#include "BinaryIO.h"
 
 short Utils::bytesToShortLE(unsigned char b0, unsigned char b1) {
 	short f;
@@ -353,7 +353,7 @@ void Utils::SolidIO::solidToObj(const char* filename, const char* outFileObj, co
 	fileOut << std::setprecision(6) << std::fixed;
 	fileOut.open(outFileObj);
 	fileOut << "# OBJ file\n";
-	fileOut << "mtllib " << mltPath.filename() << std::endl;
+	fileOut << "mtllib " << mltPath.filename().string() << std::endl;
 
 	for (int i = 0; i < vertices.size(); i++) {
 		fileOut << "v " << vertices[i][0] << " " << vertices[i][1] << " " << vertices[i][2] << std::endl;
@@ -862,7 +862,7 @@ void Utils::MdlIO::mdlToObj(const char* path, const char* outFileObj, const char
 	fileOut << std::setprecision(6) << std::fixed;
 	fileOut.open(outFileObj);
 	fileOut << "# OBJ file\n";
-	fileOut << "mtllib " << mltPath.filename() << std::endl;
+	fileOut << "mtllib " << mltPath.filename().string() << std::endl;
 
 	for (int i = 0; i < positions.size(); i++) {
 		fileOut << "v " << positions[i][0] << " " << positions[i][1] << " " << positions[i][2] << std::endl;
@@ -1112,8 +1112,13 @@ void Utils::MdlIO::mdlToBuffer(const char* path, std::array<float,3> _scale, std
 		value[2].c[0] = buffer[i + 8]; value[2].c[1] = buffer[i + 9]; value[2].c[2] = buffer[i + 10]; value[2].c[3] = buffer[i + 11];
 		vertexBufferOut.push_back(value[0].flt * _scale[0]); vertexBufferOut.push_back(value[1].flt * _scale[1]); vertexBufferOut.push_back(value[2].flt * _scale[2]);
 
-		value[0].c[0] = buffer[i + 24]; value[0].c[1] = buffer[i + 25]; value[0].c[2] = buffer[i + 26]; value[0].c[3] = buffer[i + 27];
-		value[1].c[0] = buffer[i + 28]; value[1].c[1] = buffer[i + 29]; value[1].c[2] = buffer[i + 30]; value[1].c[3] = buffer[i + 31];
+		if (numElements & 4 && ret == "UMDL") {
+			value[0].c[0] = buffer[i + 28]; value[0].c[1] = buffer[i + 29]; value[0].c[2] = buffer[i + 30]; value[0].c[3] = buffer[i + 31];
+			value[1].c[0] = buffer[i + 32]; value[1].c[1] = buffer[i + 33]; value[1].c[2] = buffer[i + 34]; value[1].c[3] = buffer[i + 35];
+		}else {
+			value[0].c[0] = buffer[i + 24]; value[0].c[1] = buffer[i + 25]; value[0].c[2] = buffer[i + 26]; value[0].c[3] = buffer[i + 27];
+			value[1].c[0] = buffer[i + 28]; value[1].c[1] = buffer[i + 29]; value[1].c[2] = buffer[i + 30]; value[1].c[3] = buffer[i + 31];
+		}
 		vertexBufferOut.push_back(value[0].flt); vertexBufferOut.push_back(value[1].flt);
 
 		value[0].c[0] = buffer[i + 12]; value[0].c[1] = buffer[i + 13]; value[0].c[2] = buffer[i + 14]; value[0].c[3] = buffer[i + 15];
@@ -1313,4 +1318,156 @@ void Utils::MdlIO::mdlToBuffer(const char* path, std::array<float,3> _scale, std
 	delete bufferBox;
 
 	file.close();
+}
+
+void Utils::VbmIO::vbmToObj(const char* path, const char* outFileObj, const char* outFileMtl, const char* texturePath) {
+	std::vector<std::array<float, 3>> positions;
+	std::vector<std::array<float, 3>> normals;
+	std::vector <std::array<float, 2>> uvCoords;
+
+	std::ifstream file(path, std::ios::binary);
+
+	VBM_HEADER header;
+	file.read(reinterpret_cast<char*>(&header), sizeof(VBM_HEADER));
+	std::vector<VBM_ATTRIB_HEADER> attribHeaders;
+	std::vector<VBM_FRAME_HEADER> frameHeaders;
+	
+	for (int i = 0; i < header.num_attribs; i++) {
+		VBM_ATTRIB_HEADER attribHeader;
+		file.read(reinterpret_cast<char*>(&attribHeader), sizeof(VBM_ATTRIB_HEADER));
+		attribHeaders.push_back(attribHeader);
+	}
+
+	for (int i = 0; i < header.num_frames; i++) {
+		VBM_FRAME_HEADER frameHeader;
+		file.read(reinterpret_cast<char*>(&frameHeader), sizeof(VBM_FRAME_HEADER));
+		frameHeaders.push_back(frameHeader);
+	}
+	unsigned int vertexSize = 0;
+	for (int i = 0; i < header.num_attribs; i++) {
+		vertexSize += attribHeaders[i].components;
+	}
+	vertexSize *= sizeof(float);
+
+	char* buffer = new char[header.num_vertices * vertexSize];
+	file.read(buffer, header.num_vertices * vertexSize);
+
+	for (unsigned int i = 0; i < header.num_vertices; i++) {
+
+		Utils::UFloat value[4];
+		value[0].c[0] = buffer[i * 16 + 0]; value[0].c[1] = buffer[i * 16 + 1]; value[0].c[2] = buffer[i * 16 + 2]; value[0].c[3] = buffer[i * 16 + 3];
+		value[1].c[0] = buffer[i * 16 + 4]; value[1].c[1] = buffer[i * 16 + 5]; value[1].c[2] = buffer[i * 16 + 6]; value[1].c[3] = buffer[i * 16 + 7];
+		value[2].c[0] = buffer[i * 16 + 8]; value[2].c[1] = buffer[i * 16 + 9]; value[2].c[2] = buffer[i * 16 + 10]; value[2].c[3] = buffer[i * 16 + 11];
+		value[3].c[0] = buffer[i * 16 + 12]; value[3].c[1] = buffer[i * 16 + 13]; value[3].c[2] = buffer[i * 16 + 14]; value[3].c[3] = buffer[i * 16 + 15];
+		positions.push_back({ value[0].flt, value[1].flt, value[2].flt }); 
+
+		value[0].c[0] = buffer[header.num_vertices * 16 + i * 12 + 0]; value[0].c[1] = buffer[header.num_vertices * 16 + i * 12 + 1]; value[0].c[2] = buffer[header.num_vertices * 16 + i * 12 + 2]; value[0].c[3] = buffer[header.num_vertices * 16 + i * 12 + 3];
+		value[1].c[0] = buffer[header.num_vertices * 16 + i * 12 + 4]; value[1].c[1] = buffer[header.num_vertices * 16 + i * 12 + 5]; value[1].c[2] = buffer[header.num_vertices * 16 + i * 12 + 6]; value[1].c[3] = buffer[header.num_vertices * 16 + i * 12 + 7];
+		value[2].c[0] = buffer[header.num_vertices * 16 + i * 12 + 8]; value[2].c[1] = buffer[header.num_vertices * 16 + i * 12 + 9]; value[2].c[2] = buffer[header.num_vertices * 16 + i * 12 + 10]; value[2].c[3] = buffer[header.num_vertices * 16 + i * 12 + 11];
+		normals.push_back({ value[0].flt, value[1].flt, value[2].flt });
+
+		value[0].c[0] = buffer[header.num_vertices * 28 + i * 8 + 0]; value[0].c[1] = buffer[header.num_vertices * 28 + i * 8 + 1]; value[0].c[2] = buffer[header.num_vertices * 28 + i * 8 + 2]; value[0].c[3] = buffer[header.num_vertices * 28 + i * 8 + 3];
+		value[1].c[0] = buffer[header.num_vertices * 28 + i * 8 + 4]; value[1].c[1] = buffer[header.num_vertices * 28 + i * 8 + 5]; value[1].c[2] = buffer[header.num_vertices * 28 + i * 8 + 6]; value[1].c[3] = buffer[header.num_vertices * 28 + i * 8 + 7];
+		uvCoords.push_back({ value[0].flt, value[1].flt });
+	}
+	delete buffer;
+	
+	file.close();
+
+	std::filesystem::path mltPath(outFileMtl);
+	std::ofstream fileOut;
+	fileOut << std::setprecision(6) << std::fixed;
+	fileOut.open(outFileObj);
+	fileOut << "# OBJ file\n";
+	fileOut << "mtllib " << mltPath.filename().string() << std::endl;
+
+	for (unsigned int i = 0; i < positions.size(); i++) {
+		fileOut << "v " << positions[i][0] << " " << positions[i][1] << " " << positions[i][2] << std::endl;
+	}
+
+	for (unsigned int i = 0; i < normals.size(); i++) {
+		fileOut << "vn " << normals[i][0] << " " << normals[i][1] << " " << normals[i][2] << std::endl;
+	}
+
+	for (unsigned int i = 0; i < uvCoords.size(); i++) {
+		fileOut << "vt " << uvCoords[i][0] << " " << uvCoords[i][1] << std::endl;
+	}
+	fileOut << "usemtl Material\n";
+	for (unsigned int i = 0; i < header.num_vertices / 3; i++) {
+		fileOut << "f " << i * 3 + 1 << "/" << i * 3 + 1 << "/" << i * 3 + 1 << " " << i * 3 + 2 << "/" << i * 3 + 2 << "/" << i * 3 + 2 << " " << i * 3 + 3 << "/" << i * 3 + 3 << "/" << i * 3 + 3 << std::endl;
+	}
+
+	fileOut.close();
+
+	fileOut.open(outFileMtl);
+	fileOut << std::setprecision(6) << std::fixed;
+	fileOut << "newmtl Material\n";
+	fileOut << "Ns 10.000000\n";
+
+	fileOut << "Ka 0.000000 0.000000 0.000000\n";
+	fileOut << "Kd 1.000000 1.000000 1.000000\n";
+	fileOut << "Ks 0.000000 0.000000 0.000000\n";
+	fileOut << "Ni 1.000000\n";
+	fileOut << "d 1.000000\n";
+	fileOut << "illum 1\n";
+	std::string absPath = std::filesystem::current_path().generic_string();
+	std::replace(absPath.begin(), absPath.end(), '\\', '/');
+	fileOut << "map_Kd " << absPath << texturePath;
+	fileOut.close();
+}
+
+void Utils::VbmIO::vbmToBuffer(const char* path, std::vector<float>& vertexBufferOut, std::vector<unsigned int>& indexBufferOut) {
+	std::ifstream file(path, std::ios::binary);
+
+	VBM_HEADER header;
+	file.read(reinterpret_cast<char*>(&header), sizeof(VBM_HEADER));
+	std::vector<VBM_ATTRIB_HEADER> attribHeaders;
+	std::vector<VBM_FRAME_HEADER> frameHeaders;
+
+	for (int i = 0; i < header.num_attribs; i++) {
+		VBM_ATTRIB_HEADER attribHeader;
+		file.read(reinterpret_cast<char*>(&attribHeader), sizeof(VBM_ATTRIB_HEADER));
+		attribHeaders.push_back(attribHeader);
+	}
+
+	for (int i = 0; i < header.num_frames; i++) {
+		VBM_FRAME_HEADER frameHeader;
+		file.read(reinterpret_cast<char*>(&frameHeader), sizeof(VBM_FRAME_HEADER));
+		frameHeaders.push_back(frameHeader);
+	}
+	unsigned int vertexSize = 0;
+	for (int i = 0; i < header.num_attribs; i++) {
+		vertexSize += attribHeaders[i].components;
+	}
+	vertexSize *= sizeof(float);
+
+	char* buffer = new char[header.num_vertices * vertexSize];
+	file.read(buffer, header.num_vertices * vertexSize);
+
+	for (unsigned int i = 0; i < header.num_vertices; i++) {
+
+		Utils::UFloat value[4];
+		value[0].c[0] = buffer[i * 16 + 0]; value[0].c[1] = buffer[i * 16 + 1]; value[0].c[2] = buffer[i * 16 + 2]; value[0].c[3] = buffer[i * 16 + 3];
+		value[1].c[0] = buffer[i * 16 + 4]; value[1].c[1] = buffer[i * 16 + 5]; value[1].c[2] = buffer[i * 16 + 6]; value[1].c[3] = buffer[i * 16 + 7];
+		value[2].c[0] = buffer[i * 16 + 8]; value[2].c[1] = buffer[i * 16 + 9]; value[2].c[2] = buffer[i * 16 + 10]; value[2].c[3] = buffer[i * 16 + 11];
+		value[3].c[0] = buffer[i * 16 + 12]; value[3].c[1] = buffer[i * 16 + 13]; value[3].c[2] = buffer[i * 16 + 14]; value[3].c[3] = buffer[i * 16 + 15];
+		vertexBufferOut.push_back(value[0].flt); vertexBufferOut.push_back(value[1].flt); vertexBufferOut.push_back(value[2].flt);
+
+		value[0].c[0] = buffer[header.num_vertices * 28 + i * 8 + 0]; value[0].c[1] = buffer[header.num_vertices * 28 + i * 8 + 1]; value[0].c[2] = buffer[header.num_vertices * 28 + i * 8 + 2]; value[0].c[3] = buffer[header.num_vertices * 28 + i * 8 + 3];
+		value[1].c[0] = buffer[header.num_vertices * 28 + i * 8 + 4]; value[1].c[1] = buffer[header.num_vertices * 28 + i * 8 + 5]; value[1].c[2] = buffer[header.num_vertices * 28 + i * 8 + 6]; value[1].c[3] = buffer[header.num_vertices * 28 + i * 8 + 7];
+		vertexBufferOut.push_back(value[0].flt); vertexBufferOut.push_back(value[1].flt);
+
+
+		value[0].c[0] = buffer[header.num_vertices * 16 + i * 12 + 0]; value[0].c[1] = buffer[header.num_vertices * 16 + i * 12 + 1]; value[0].c[2] = buffer[header.num_vertices * 16 + i * 12 + 2]; value[0].c[3] = buffer[header.num_vertices * 16 + i * 12 + 3];
+		value[1].c[0] = buffer[header.num_vertices * 16 + i * 12 + 4]; value[1].c[1] = buffer[header.num_vertices * 16 + i * 12 + 5]; value[1].c[2] = buffer[header.num_vertices * 16 + i * 12 + 6]; value[1].c[3] = buffer[header.num_vertices * 16 + i * 12 + 7];
+		value[2].c[0] = buffer[header.num_vertices * 16 + i * 12 + 8]; value[2].c[1] = buffer[header.num_vertices * 16 + i * 12 + 9]; value[2].c[2] = buffer[header.num_vertices * 16 + i * 12 + 10]; value[2].c[3] = buffer[header.num_vertices * 16 + i * 12 + 11];
+		vertexBufferOut.push_back(value[0].flt); vertexBufferOut.push_back(value[1].flt); vertexBufferOut.push_back(value[2].flt);		
+	}
+	delete buffer;
+
+	file.close();
+
+	for (unsigned int i = 0; i < header.num_vertices / 3; i++) {
+		indexBufferOut.push_back(i * 3); indexBufferOut.push_back(i * 3 + 1); indexBufferOut.push_back(i * 3 + 2);
+	}
 }

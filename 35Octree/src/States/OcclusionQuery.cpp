@@ -11,41 +11,41 @@
 #include "Application.h"
 #include "Globals.h"
 
-glm::vec3 vCubeVertices[36] =
+Vector3f vCubeVertices[36] =
 {
 	// Front face
-	glm::vec3(-0.5f, 0.5f, 0.5f), glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(0.5f, -0.5f, 0.5f), glm::vec3(0.5f, -0.5f, 0.5f), glm::vec3(-0.5f, -0.5f, 0.5f), glm::vec3(-0.5f, 0.5f, 0.5f),
+	Vector3f(-0.5f, 0.5f, 0.5f), Vector3f(0.5f, 0.5f, 0.5f), Vector3f(0.5f, -0.5f, 0.5f), Vector3f(0.5f, -0.5f, 0.5f), Vector3f(-0.5f, -0.5f, 0.5f), Vector3f(-0.5f, 0.5f, 0.5f),
 	// Back face
-	glm::vec3(0.5f, 0.5f, -0.5f), glm::vec3(-0.5f, 0.5f, -0.5f), glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec3(0.5f, -0.5f, -0.5f), glm::vec3(0.5f, 0.5f, -0.5f),
+	Vector3f(0.5f, 0.5f, -0.5f), Vector3f(-0.5f, 0.5f, -0.5f), Vector3f(-0.5f, -0.5f, -0.5f), Vector3f(-0.5f, -0.5f, -0.5f), Vector3f(0.5f, -0.5f, -0.5f), Vector3f(0.5f, 0.5f, -0.5f),
 	// Left face
-	glm::vec3(-0.5f, 0.5f, -0.5f), glm::vec3(-0.5f, 0.5f, 0.5f), glm::vec3(-0.5f, -0.5f, 0.5f), glm::vec3(-0.5f, -0.5f, 0.5f), glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec3(-0.5f, 0.5f, -0.5f),
+	Vector3f(-0.5f, 0.5f, -0.5f), Vector3f(-0.5f, 0.5f, 0.5f), Vector3f(-0.5f, -0.5f, 0.5f), Vector3f(-0.5f, -0.5f, 0.5f), Vector3f(-0.5f, -0.5f, -0.5f), Vector3f(-0.5f, 0.5f, -0.5f),
 	// Right face
-	glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(0.5f, 0.5f, -0.5f), glm::vec3(0.5f, -0.5f, -0.5f), glm::vec3(0.5f, -0.5f, -0.5f), glm::vec3(0.5f, -0.5f, 0.5f), glm::vec3(0.5f, 0.5f, 0.5f),
+	Vector3f(0.5f, 0.5f, 0.5f), Vector3f(0.5f, 0.5f, -0.5f), Vector3f(0.5f, -0.5f, -0.5f), Vector3f(0.5f, -0.5f, -0.5f), Vector3f(0.5f, -0.5f, 0.5f), Vector3f(0.5f, 0.5f, 0.5f),
 	// Top face
-	glm::vec3(-0.5f, 0.5f, -0.5f), glm::vec3(0.5f, 0.5f, -0.5f), glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(-0.5f, 0.5f, 0.5f), glm::vec3(-0.5f, 0.5f, -0.5f),
+	Vector3f(-0.5f, 0.5f, -0.5f), Vector3f(0.5f, 0.5f, -0.5f), Vector3f(0.5f, 0.5f, 0.5f), Vector3f(0.5f, 0.5f, 0.5f), Vector3f(-0.5f, 0.5f, 0.5f), Vector3f(-0.5f, 0.5f, -0.5f),
 	// Bottom face
-	glm::vec3(-0.5f, -0.5f, 0.5f), glm::vec3(0.5f, -0.5f, 0.5f), glm::vec3(0.5f, -0.5f, -0.5f), glm::vec3(0.5f, -0.5f, -0.5f), glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec3(-0.5f, -0.5f, 0.5f),
+	Vector3f(-0.5f, -0.5f, 0.5f), Vector3f(0.5f, -0.5f, 0.5f), Vector3f(0.5f, -0.5f, -0.5f), Vector3f(0.5f, -0.5f, -0.5f), Vector3f(-0.5f, -0.5f, -0.5f), Vector3f(-0.5f, -0.5f, 0.5f),
 };
-glm::vec2 vCubeTexCoords[6] = { glm::vec2(0.0f, 1.0f), glm::vec2(1.0f, 1.0f), glm::vec2(1.0f, 0.0f), glm::vec2(1.0f, 0.0f), glm::vec2(0.0f, 0.0f), glm::vec2(0.0f, 1.0f) };
+Vector2f vCubeTexCoords[6] = { Vector2f(0.0f, 1.0f), Vector2f(1.0f, 1.0f), Vector2f(1.0f, 0.0f), Vector2f(1.0f, 0.0f), Vector2f(0.0f, 0.0f), Vector2f(0.0f, 1.0f) };
 
-glm::vec3 vCubeNormals[6] =
+Vector3f vCubeNormals[6] =
 {
-	glm::vec3(0.0f, 0.0f, 1.0f),
-	glm::vec3(0.0f, 0.0f, -1.0f),
-	glm::vec3(-1.0f, 0.0f, 0.0f),
-	glm::vec3(1.0f, 0.0f, 0.0f),
-	glm::vec3(0.0f, 1.0f, 0.0f),
-	glm::vec3(0.0f, -1.0f, 0.0f)
-};
-
-glm::vec3 vGround[6] =
-{
-	glm::vec3(-300, 0, -300), glm::vec3(300, 0, 300), glm::vec3(300, 0, -300), glm::vec3(300, 0, 300), glm::vec3(-300, 0, -300), glm::vec3(-300, 0, 300)
+	Vector3f(0.0f, 0.0f, 1.0f),
+	Vector3f(0.0f, 0.0f, -1.0f),
+	Vector3f(-1.0f, 0.0f, 0.0f),
+	Vector3f(1.0f, 0.0f, 0.0f),
+	Vector3f(0.0f, 1.0f, 0.0f),
+	Vector3f(0.0f, -1.0f, 0.0f)
 };
 
-glm::vec2 vGroundTexCoords[6] =
+Vector3f vGround[6] =
 {
-	glm::vec2(0.0f, 10.0f), glm::vec2(10.0f, 10.0f), glm::vec2(10.0f, 0.0f), glm::vec2(10.0f, 0.0f), glm::vec2(0.0f, 0.0f), glm::vec2(0.0f, 10.0f)
+	Vector3f(-300.0f, 0.0f, -300.0f), Vector3f(300.0f, 0.0f, 300.0f), Vector3f(300.0f, 0.0f, -300.0f), Vector3f(300.0f, 0.0f, 300.0f), Vector3f(-300.0f, 0.0f, -300.0f), Vector3f(-300.0f, 0.0f, 300.0f)
+};
+
+Vector2f vGroundTexCoords[6] =
+{
+	Vector2f(0.0f, 10.0f), Vector2f(10.0f, 10.0f), Vector2f(10.0f, 0.0f), Vector2f(10.0f, 0.0f), Vector2f(0.0f, 0.0f), Vector2f(0.0f, 10.0f)
 };
 
 OcclusionQuery::OcclusionQuery(StateMachine& machine) : State(machine, States::DEFAULT) {
@@ -354,23 +354,23 @@ void OcclusionQuery::prepareStaticSceneObjects(){
 	
 	float fCubeHalfSize = 30.0f;
 	
-	glm::vec2 vTexCoords[] ={
-		glm::vec2(0.0f, fCubeHalfSize*0.1f),
-		glm::vec2(fCubeHalfSize*0.1f, fCubeHalfSize*0.1f),
-		glm::vec2(fCubeHalfSize*0.1f, 0.0f),
-		glm::vec2(0.0f, 0.0f)
+	Vector2f vTexCoords[] ={
+		Vector2f(0.0f, fCubeHalfSize * 0.1f),
+		Vector2f(fCubeHalfSize*0.1f, fCubeHalfSize*0.1f),
+		Vector2f(fCubeHalfSize*0.1f, 0.0f),
+		Vector2f(0.0f, 0.0f)
 	};
 
 	int indices[] = { 0, 3, 1, 1, 3, 2 };
 
 	for(int i = 0; i < 2; i++){
 		float fSign = i ? -1.0f : 1.0f;
-		glm::vec3 vNormal(0.0f, 1.0f, 0.0f);
-		glm::vec3 vQuad[] ={
-			glm::vec3(-fCubeHalfSize, -fCubeHalfSize + fCubeHalfSize * (i + 1)*2.0f / 3.0f, -fCubeHalfSize),
-			glm::vec3(fCubeHalfSize, -fCubeHalfSize + fCubeHalfSize * (i + 1)*2.0f / 3.0f, -fCubeHalfSize),
-			glm::vec3(fCubeHalfSize, -fCubeHalfSize + fCubeHalfSize * (i + 1)*2.0f / 3.0f, fCubeHalfSize),			
-			glm::vec3(-fCubeHalfSize, -fCubeHalfSize + fCubeHalfSize * (i + 1)*2.0f / 3.0f, fCubeHalfSize),
+		Vector3f vNormal(0.0f, 1.0f, 0.0f);
+		Vector3f vQuad[] ={
+			Vector3f(-fCubeHalfSize, -fCubeHalfSize + fCubeHalfSize * (i + 1)*2.0f / 3.0f, -fCubeHalfSize),
+			Vector3f(fCubeHalfSize, -fCubeHalfSize + fCubeHalfSize * (i + 1)*2.0f / 3.0f, -fCubeHalfSize),
+			Vector3f(fCubeHalfSize, -fCubeHalfSize + fCubeHalfSize * (i + 1)*2.0f / 3.0f, fCubeHalfSize),
+			Vector3f(-fCubeHalfSize, -fCubeHalfSize + fCubeHalfSize * (i + 1)*2.0f / 3.0f, fCubeHalfSize),
 		};
 
 		for (int j = 0; j < 6; j++){
@@ -381,13 +381,13 @@ void OcclusionQuery::prepareStaticSceneObjects(){
 
 	for (int i = 0; i < 2; i++) {
 		float fSign = i ? -1.0f : 1.0f;
-		glm::vec3 vNormal(1.0f, 0.0f, 0.0f);
-		glm::vec3 vQuad[] =
+		Vector3f vNormal(1.0f, 0.0f, 0.0f);
+		Vector3f vQuad[] =
 		{
-			glm::vec3(-fCubeHalfSize + fCubeHalfSize * (i + 1)*2.0f / 3.0f, fCubeHalfSize, -fCubeHalfSize),	
-			glm::vec3(-fCubeHalfSize + fCubeHalfSize * (i + 1)*2.0f / 3.0f, fCubeHalfSize, fCubeHalfSize),
-			glm::vec3(-fCubeHalfSize + fCubeHalfSize * (i + 1)*2.0f / 3.0f, -fCubeHalfSize, fCubeHalfSize),			
-			glm::vec3(-fCubeHalfSize + fCubeHalfSize * (i + 1)*2.0f / 3.0f, -fCubeHalfSize, -fCubeHalfSize),
+			Vector3f(-fCubeHalfSize + fCubeHalfSize * (i + 1)*2.0f / 3.0f, fCubeHalfSize, -fCubeHalfSize),
+			Vector3f(-fCubeHalfSize + fCubeHalfSize * (i + 1)*2.0f / 3.0f, fCubeHalfSize, fCubeHalfSize),
+			Vector3f(-fCubeHalfSize + fCubeHalfSize * (i + 1)*2.0f / 3.0f, -fCubeHalfSize, fCubeHalfSize),
+			Vector3f(-fCubeHalfSize + fCubeHalfSize * (i + 1)*2.0f / 3.0f, -fCubeHalfSize, -fCubeHalfSize),
 		};
 
 		for (int j = 0; j < 6; j++) {
@@ -399,13 +399,13 @@ void OcclusionQuery::prepareStaticSceneObjects(){
 
 	for (int i = 0; i < 2; i++) {
 		float fSign = i ? -1.0f : 1.0f;
-		glm::vec3 vNormal(0.0f, 0.0f, 1.0f);
-		glm::vec3 vQuad[] =
+		Vector3f vNormal(0.0f, 0.0f, 1.0f);
+		Vector3f vQuad[] =
 		{
-			glm::vec3(-fCubeHalfSize, fCubeHalfSize, -fCubeHalfSize + fCubeHalfSize * (i + 1)*2.0f / 3.0f),	
-			glm::vec3(fCubeHalfSize, fCubeHalfSize, -fCubeHalfSize + fCubeHalfSize * (i + 1)*2.0f / 3.0f),
-			glm::vec3(fCubeHalfSize, -fCubeHalfSize, -fCubeHalfSize + fCubeHalfSize * (i + 1)*2.0f / 3.0f),			
-			glm::vec3(-fCubeHalfSize, -fCubeHalfSize, -fCubeHalfSize + fCubeHalfSize * (i + 1)*2.0f / 3.0f),
+			Vector3f(-fCubeHalfSize, fCubeHalfSize, -fCubeHalfSize + fCubeHalfSize * (i + 1)*2.0f / 3.0f),
+			Vector3f(fCubeHalfSize, fCubeHalfSize, -fCubeHalfSize + fCubeHalfSize * (i + 1)*2.0f / 3.0f),
+			Vector3f(fCubeHalfSize, -fCubeHalfSize, -fCubeHalfSize + fCubeHalfSize * (i + 1)*2.0f / 3.0f),
+			Vector3f(-fCubeHalfSize, -fCubeHalfSize, -fCubeHalfSize + fCubeHalfSize * (i + 1)*2.0f / 3.0f),
 		};
 
 		for (int j = 0; j < 6; j++) {
@@ -414,7 +414,7 @@ void OcclusionQuery::prepareStaticSceneObjects(){
 		}
 	}
 
-	glm::vec3 vNormal(0.0f, 1.0f, 0.0f);
+	Vector3f vNormal(0.0f, 1.0f, 0.0f);
 	for(int i = 0; i < 6; i++){
 		data.push_back({ vGround[i], vGroundTexCoords[i], vNormal });
 	}
@@ -433,18 +433,18 @@ void OcclusionQuery::prepareStaticSceneObjects(){
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
 	// Texture coordinates
 	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)sizeof(glm::vec3));
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)sizeof(Vector3f));
 	// Normal vectors
 	glEnableVertexAttribArray(2);
-	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(sizeof(glm::vec3) + sizeof(glm::vec2)));
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(sizeof(Vector3f) + sizeof(Vector2f)));
 
 	glBindVertexArray(m_vaoOcc);
 	glBindBuffer(GL_ARRAY_BUFFER, m_vboOcc);
-	glBufferData(GL_ARRAY_BUFFER, 36 * sizeof(glm::vec3), &vCubeVertices[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, 36 * sizeof(Vector3f), &vCubeVertices[0], GL_STATIC_DRAW);
 
 	// Vertex positions
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), 0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vector3f), 0);
 
 	glBindVertexArray(0);
 }

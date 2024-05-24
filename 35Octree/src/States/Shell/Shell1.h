@@ -2,11 +2,10 @@
 
 #include <engine/input/MouseEventListener.h>
 #include <engine/input/KeyboardEventListener.h>
+#include <engine/MeshObject/Shape.h>
 #include <engine/Camera.h>
 
 #include <States/StateMachine.h>
-
-#include "vbm.h"
 
 class Shell1 : public State, public MouseEventListener, public KeyboardEventListener {
 
@@ -34,6 +33,6 @@ private:
 	bool m_drawUi = true;
 
 	Camera m_camera;
-	VBObject m_ninja;
+	Shape m_ninja;
 	unsigned int fur_texture;
 };

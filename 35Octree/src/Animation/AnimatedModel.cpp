@@ -1,7 +1,7 @@
 #include <GL/glew.h>
 #include "AnimatedModel.h"
 
-#include "Utils/SolidIO.h"
+#include "Utils/BinaryIO.h"
 
 bool AnimatedModel::CompareAnimationStates(const std::shared_ptr<AnimationState>& lhs, const std::shared_ptr<AnimationState>& rhs){
 	return lhs->getBlendLayer() < rhs->getBlendLayer();
@@ -340,72 +340,6 @@ void AnimatedModel::CreateBuffer(std::vector<float>& vertexBuffer, std::vector<u
 	glBindVertexArray(0);
 }
 
-AnimatedMesh::AnimatedMesh(AnimatedModel* model) : m_skinMatrices(nullptr) {
-	m_model = model;
-}
-
-AnimatedMesh::~AnimatedMesh() {
-	if (m_vao)
-		glDeleteVertexArrays(1, &m_vao);
-
-	if (m_vbo[0])
-		glDeleteBuffers(1, &m_vbo[0]);
-
-	if (m_vbo[1])
-		glDeleteBuffers(1, &m_vbo[1]);
-
-	if (m_vbo[2])
-		glDeleteBuffers(1, &m_vbo[2]);
-
-	if (m_vboInstances)
-		glDeleteBuffers(1, &m_vboInstances);
-
-	if (m_ibo)
-		glDeleteBuffers(1, &m_ibo);
-
-	if (m_skinMatrices) {
-		for (size_t i = 0; i < m_numBones; ++i) {
-			delete m_bones[i];
-		}
-		delete[] m_bones;
-		delete[] m_skinMatrices;
-	}
-	m_skinMatrices = nullptr;
-}
-
-void AnimatedMesh::createBones() {
-	m_numBones = static_cast<unsigned short>(m_meshBones.size());
-
-	m_bones = new BoneNode*[m_numBones];
-	m_skinMatrices = new Matrix4f[m_numBones];
-
-	for (size_t i = 0; i < m_meshBones.size(); ++i) {
-		MeshBone& meshBone = m_meshBones[i];
-		m_bones[i] = new BoneNode();
-		m_bones[i]->setName(meshBone.name);
-		m_bones[i]->setPosition(meshBone.initialPosition);
-		m_bones[i]->setOrientation({ meshBone.initialRotation[0], meshBone.initialRotation[1], meshBone.initialRotation[2], meshBone.initialRotation[3] });
-		m_bones[i]->setScale(meshBone.initialScale);
-		m_bones[i]->m_offsetMatrix = meshBone.offsetMatrix;
-	}
-
-	for (size_t i = 0; i < m_meshBones.size(); ++i) {
-		const MeshBone& desc = m_meshBones[i];
-
-		if (desc.parentIndex == i) {
-			m_bones[i]->setParent(nullptr);
-			m_rootBone = m_bones[i];
-			m_bones[i]->setIsRootBone(true);
-		}else {
-			m_bones[i]->setParent(m_bones[desc.parentIndex]);
-			//m_bones[i]->setOrigin(m_bones[i]->getPosition());
-		}
-	}
-
-	for (size_t i = 0; i < m_meshBones.size(); ++i)
-		m_bones[i]->countChildBones();
-}
-
 AnimationState* AnimatedModel::addAnimationState(Animation* animation) {
 
 	if (!animation || !m_meshes[0]->m_numBones)
@@ -522,6 +456,73 @@ void AnimatedModel::OnAnimationOrderChanged() {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+AnimatedMesh::AnimatedMesh(AnimatedModel* model) : m_skinMatrices(nullptr) {
+	m_model = model;
+}
+
+AnimatedMesh::~AnimatedMesh() {
+	if (m_vao)
+		glDeleteVertexArrays(1, &m_vao);
+
+	if (m_vbo[0])
+		glDeleteBuffers(1, &m_vbo[0]);
+
+	if (m_vbo[1])
+		glDeleteBuffers(1, &m_vbo[1]);
+
+	if (m_vbo[2])
+		glDeleteBuffers(1, &m_vbo[2]);
+
+	if (m_vboInstances)
+		glDeleteBuffers(1, &m_vboInstances);
+
+	if (m_ibo)
+		glDeleteBuffers(1, &m_ibo);
+
+	if (m_skinMatrices) {
+		for (size_t i = 0; i < m_numBones; ++i) {
+			delete m_bones[i];
+		}
+		delete[] m_bones;
+		delete[] m_skinMatrices;
+	}
+	m_skinMatrices = nullptr;
+}
+
+void AnimatedMesh::createBones() {
+	m_numBones = static_cast<unsigned short>(m_meshBones.size());
+
+	m_bones = new BoneNode*[m_numBones];
+	m_skinMatrices = new Matrix4f[m_numBones];
+
+	for (size_t i = 0; i < m_meshBones.size(); ++i) {
+		MeshBone& meshBone = m_meshBones[i];
+		m_bones[i] = new BoneNode();
+		m_bones[i]->setName(meshBone.name);
+		m_bones[i]->setPosition(meshBone.initialPosition);
+		m_bones[i]->setOrientation({ meshBone.initialRotation[0], meshBone.initialRotation[1], meshBone.initialRotation[2], meshBone.initialRotation[3] });
+		m_bones[i]->setScale(meshBone.initialScale);
+		m_bones[i]->m_offsetMatrix = meshBone.offsetMatrix;
+	}
+
+	for (size_t i = 0; i < m_meshBones.size(); ++i) {
+		const MeshBone& desc = m_meshBones[i];
+
+		if (desc.parentIndex == i) {
+			m_bones[i]->setParent(nullptr);
+			m_rootBone = m_bones[i];
+			m_bones[i]->setIsRootBone(true);
+		}
+		else {
+			m_bones[i]->setParent(m_bones[desc.parentIndex]);
+			//m_bones[i]->setOrigin(m_bones[i]->getPosition());
+		}
+	}
+
+	for (size_t i = 0; i < m_meshBones.size(); ++i)
+		m_bones[i]->countChildBones();
+}
+
 void AnimatedMesh::drawRaw() const {
 	glBindVertexArray(m_vao);
 	glDrawElements(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0);

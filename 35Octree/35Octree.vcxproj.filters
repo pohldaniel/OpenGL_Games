@@ -264,9 +264,6 @@
     <ClCompile Include="src\States\Menu.cpp">
       <Filter>Source Files\States</Filter>
     </ClCompile>
-    <ClCompile Include="src\Utils\SolidIO.cpp">
-      <Filter>Source Files\Utils</Filter>
-    </ClCompile>
     <ClCompile Include="engine\Pixelbuffer.cpp">
       <Filter>engine</Filter>
     </ClCompile>
@@ -441,9 +438,6 @@
     <ClCompile Include="engine\MeshObject\MeshTorusKnot.cpp">
       <Filter>engine\MeshObject</Filter>
     </ClCompile>
-    <ClCompile Include="src\ParticleRenderer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\ParticleSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -463,9 +457,6 @@
       <Filter>Source Files\States\SSS</Filter>
     </ClCompile>
     <ClCompile Include="nv_dds.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="vbm.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\States\Shell\Shell1.cpp">
@@ -554,6 +545,9 @@
     </ClCompile>
     <ClCompile Include="engine\thread\WorkQueue.cpp">
       <Filter>engine\thread</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Utils\BinaryIO.cpp">
+      <Filter>Source Files\Utils</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -733,9 +727,6 @@
     </ClInclude>
     <ClInclude Include="src\States\Menu.h">
       <Filter>Source Files\States</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Utils\SolidIO.h">
-      <Filter>Source Files\Utils</Filter>
     </ClInclude>
     <ClInclude Include="engine\Pixelbuffer.h">
       <Filter>engine</Filter>
@@ -931,18 +922,6 @@
     </ClInclude>
     <ClInclude Include="engine\MeshObject\MeshTorusKnot.h">
       <Filter>engine\MeshObject</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Interpolators.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\ParticleRenderer.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\ParticleSystem.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Random.h">
-      <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="MathCore\impl\mat2_all_no_optimization.h">
       <Filter>MathCore\impl</Filter>
@@ -1151,9 +1130,6 @@
     <ClInclude Include="nv_dds.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="vbm.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\States\Shell\Shell1.h">
       <Filter>Source Files\States\Shell</Filter>
     </ClInclude>
@@ -1240,6 +1216,15 @@
     </ClInclude>
     <ClInclude Include="engine\thread\WorkQueue.h">
       <Filter>engine\thread</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Interpolators.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ParticleSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Utils\BinaryIO.h">
+      <Filter>Source Files\Utils</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

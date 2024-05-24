@@ -40,7 +40,7 @@ void ParticleSystem::Particle::update(float dt){
 	}
 }
 
-ParticleSystem::ParticleSystem(): random32(Utils::RandomDefinition<uint32_t>::randomSeed()), mathRandom(&random32) {
+ParticleSystem::ParticleSystem() {
 	loop = false;
 
 	elapsed_sec = 0.0f;
@@ -125,15 +125,14 @@ void ParticleSystem::setRateOverTime(float v){
 	rateOverTime_inv = 1.0f / rateOverTime;
 }
 
+float ParticleSystem::getRand() {
+	return (((float)rand()) / RAND_MAX) * 2.0f  -1.0f;
+}
+
 ParticleSystem::Particle* ParticleSystem::emmitParticle(){
 	Vector3f pos, dir = Vector3f(0.0f, 0.0f, -1.0f);
 
-	MathCore::vec3f _pos = mathRandom.next<MathCore::vec3f>() - MathCore::vec3f(0.5f);
-
-	pos = { _pos.x * 25.5f, _pos.y * 10.05f, _pos.z };
-
-	//std::cout << "Pos: " << _pos.x << "  " << _pos.y << "  " << _pos.z << std::endl;
-
+	pos = { getRand() * 25.5f * 0.5f, getRand() * 10.05f * 0.5f, getRand() };
 	pos = boxEmmiter.getPosition() + pos;
 
 	dir = emissionDir;

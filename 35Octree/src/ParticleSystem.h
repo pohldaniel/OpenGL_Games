@@ -4,7 +4,6 @@
 #include <engine/Object.h>
 #include <engine/BoundingBox.h>
 
-#include "Random.h"
 #include "Interpolators.h"
 
 class ParticleSystem {
@@ -51,6 +50,7 @@ public:
 	void computeAABB();
 	void prewarmStart();
 	void sortPositions(const Vector3f& cameraPos, const Vector3f& cameraDirection);
+	float getRand();
 
 	float lifetime_sec;
 	float lifetime_sec_inv;
@@ -58,9 +58,6 @@ public:
 	float rateOverTime;
 	float rateOverTime_inv;
 	float rateElapsed_sec;
-
-	Utils::Random32 random32;
-	Utils::MathRandomExt<Utils::Random32> mathRandom;
 
 	std::vector<Particle> particles;
 

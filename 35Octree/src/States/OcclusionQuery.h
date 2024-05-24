@@ -1,8 +1,4 @@
 #pragma once
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
-
 #include <engine/input/MouseEventListener.h>
 #include <engine/input/KeyboardEventListener.h>
 #include <engine/Camera.h>
@@ -14,9 +10,9 @@
 class OcclusionQuery : public State, public MouseEventListener, public KeyboardEventListener {
 
 	struct Vertex {
-		glm::vec3 position;
-		glm::vec2 uv;
-		glm::vec3 normal;
+		Vector3f position;
+		Vector2f uv;
+		Vector3f normal;
 	};
 
 public:

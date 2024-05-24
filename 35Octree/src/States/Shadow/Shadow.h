@@ -2,12 +2,10 @@
 
 #include <engine/input/MouseEventListener.h>
 #include <engine/input/KeyboardEventListener.h>
+#include <engine/MeshObject/Shape.h>
 #include <engine/Camera.h>
 #include <engine/Framebuffer.h>
-
 #include <States/StateMachine.h>
-
-#include "vbm.h"
 
 class Shadow : public State, public MouseEventListener, public KeyboardEventListener {
 
@@ -42,6 +40,6 @@ private:
 	Matrix4f model;
 	Vector3f lightPosition;
 
-	VBObject m_armadillo;
 	Framebuffer m_depthRT;
+	Shape m_armadillo;
 };

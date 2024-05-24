@@ -1,9 +1,6 @@
 #include <random>
 #include <vector>
 
-#include <glm/ext/scalar_constants.hpp>
-#include <glm/glm.hpp>
-
 #include "grasses.h"
 #include "Globals.h"
 
@@ -16,12 +13,12 @@ struct NumBlades {
 };
 
 struct Blade {
-	glm::vec4 v0; // xyz: Position, w: orientation (in radius)
-	glm::vec4 v1; // xyz: Bezier point w: height
-	glm::vec4 v2; // xyz: Physical model guide w: width
-	glm::vec4 up; // xyz: Up vector w: stiffness coefficient
+	Vector4f v0; // xyz: Position, w: orientation (in radius)
+	Vector4f v1; // xyz: Bezier point w: height
+	Vector4f v2; // xyz: Physical model guide w: width
+	Vector4f up; // xyz: Up vector w: stiffness coefficient
 
-	Blade(const glm::vec4& v0, const glm::vec4& v1, const glm::vec4& v2, const glm::vec4& up) : v0(v0), v1(v1), v2(v2), up(up) {
+	Blade(const Vector4f& v0, const Vector4f& v1, const Vector4f& v2, const Vector4f& up) : v0(v0), v1(v1), v2(v2), up(up) {
 
 	}
 };
@@ -32,7 +29,7 @@ namespace {
 	{
 		std::random_device rd;
 		std::mt19937 gen(rd());
-		std::uniform_real_distribution<float> orientation_dis(0, glm::pi<float>());
+		std::uniform_real_distribution<float> orientation_dis(0, PI);
 		std::uniform_real_distribution<float> height_dis(0.6f, 1.2f);
 		std::uniform_real_distribution<float> dis(-1, 1);
 
@@ -44,10 +41,10 @@ namespace {
 				const auto blade_height = height_dis(gen);
 
 				blades.emplace_back(
-					glm::vec4(x, 0, y, orientation_dis(gen)),
-					glm::vec4(x, blade_height, y, blade_height),
-					glm::vec4(x, blade_height, y, 0.1f),
-					glm::vec4(0, blade_height, 0, 0.7f + dis(gen) * 0.3f));
+					Vector4f(x, 0, y, orientation_dis(gen)),
+					Vector4f(x, blade_height, y, blade_height),
+					Vector4f(x, blade_height, y, 0.1f),
+					Vector4f(0, blade_height, 0, 0.7f + dis(gen) * 0.3f));
 			}
 		}
 		return blades;

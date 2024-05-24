@@ -16,6 +16,7 @@ in VS_FS_INTERFACE
     vec3 world_coord;
     vec3 eye_coord;
     vec3 normal;
+	vec2 texcoord;
 }fs_in;
 
 void main(void)

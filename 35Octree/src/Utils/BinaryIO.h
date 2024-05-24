@@ -325,4 +325,33 @@ namespace Utils {
 		void mdlToBuffer(const char* path, std::array<float,3> scale, std::vector<float>& vertexBufferOut, std::vector<unsigned int>& indexBufferOut, std::vector<std::array<float,4>>& weightsOut, std::vector<std::array<unsigned int, 4>>& boneIdsOut, std::vector<std::vector<GeometryDesc>>& geomDescs, std::vector<MeshBone>& bones, BoundingBox& boundingBox);
 	};
 
+	struct VbmIO{
+
+		struct VBM_HEADER{
+			unsigned int magic;
+			unsigned int size;
+			char name[64];
+			unsigned int num_attribs;
+			unsigned int num_frames;
+			unsigned int num_vertices;
+			unsigned int num_indices;
+			unsigned int index_type;
+		};
+
+		struct VBM_ATTRIB_HEADER{
+			char name[64];
+			unsigned int type;
+			unsigned int components;
+			unsigned int flags;
+		};
+
+		struct VBM_FRAME_HEADER{
+			unsigned int first;
+			unsigned int count;
+			unsigned int flags;
+		};
+
+		void vbmToObj(const char* path, const char* outFileObj, const char* outFileMtl, const char* texturePath);
+		void vbmToBuffer(const char* path, std::vector<float>& vertexBufferOut, std::vector<unsigned int>& indexBufferOut);
+	};
 }
