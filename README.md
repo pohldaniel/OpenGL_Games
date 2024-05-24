@@ -65,7 +65,7 @@ The project 32CrimsonRush is from https://github.com/WilKam01/LuaCGame
 
 The project 33AntWare is from https://github.com/YamanQD/AntWare
 
-The project 35Octree contains source code and assets from https://github.com/A-Ribeiro/OpenGLStarter, https://github.com/simondevyoutube/ThreeJS_Tutorial_ParticleSystems, https://github.com/Vulpinii/grass-tutorial_finalcode and https://github.com/LesleyLai/GLGrassRenderer/tree/main.
+The project 35Octree contains source code and assets from https://github.com/A-Ribeiro/OpenGLStarter, https://github.com/simondevyoutube/ThreeJS_Tutorial_ParticleSystems, https://github.com/Vulpinii/grass-tutorial_finalcode and https://github.com/LesleyLai/GLGrassRenderer/tree/main, https://github.com/matus-chochlik/oglplus, https://github.com/byhj/OpenGL-Redbook, https://github.com/cadaver/turso3d, https://github.com/Lumak/Urho3D-KinematicCharacterController, https://github.com/Lumak/Urho3D-Skinned-Armor, https://github.com/urho3d/urho3d, https://github.com/visionary-3d/three-raymarch, https://github.com/iryoku/separable-sss, https://github.com/Rodousse/SSSGems and https://github.com/FairZ/Flame-Sim-OpenGL.
 One rendering I have achieved with this iteration
 
 ![SSS_2](https://github.com/pohldaniel/OpenGL_Games/assets/30089026/70c913f0-1470-4cbc-b42f-55debead256d)
