@@ -546,6 +546,9 @@
     <ClCompile Include="src\States\SixDegreeOfFreedom.cpp">
       <Filter>Source Files\States</Filter>
     </ClCompile>
+    <ClCompile Include="src\Entities\ShapeEntity.cpp">
+      <Filter>Source Files\Entities</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="convhull\convhull_3d.h">
@@ -1036,6 +1039,9 @@
     </ClInclude>
     <ClInclude Include="src\States\SixDegreeOfFreedom.h">
       <Filter>Source Files\States</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Entities\ShapeEntity.h">
+      <Filter>Source Files\Entities</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

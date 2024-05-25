@@ -334,6 +334,18 @@ void DebugRenderer::AddSkeleton(BoneNode**& bones, unsigned short numBones, cons
 
 }
 
+void DebugRenderer::AddNode(SceneNodeLC* node, float scale){
+	if (!node)
+		return;
+
+	Vector3f start = node->getWorldPosition();
+	Quaternion rotation = node->getWorldOrientation();
+	
+	AddLine(start, start + Quaternion::Rotate(rotation, scale * Vector3f::RIGHT), Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
+	AddLine(start, start + Quaternion::Rotate(rotation, scale * Vector3f::UP), Vector4f(0.0f, 1.0f, 0.0f, 1.0f));
+	AddLine(start, start + Quaternion::Rotate(rotation, scale * Vector3f::FORWARD), Vector4f(0.0f, 0.0f, 1.0f, 1.0f));
+}
+
 void DebugRenderer::drawBuffer() {
 	if (!s_enabled)
 		return;
@@ -349,7 +361,6 @@ void DebugRenderer::drawBuffer() {
 	glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, size, indices);
 		
 	glUseProgram(DebugShader->m_program);
-
 	DebugShader->loadMatrix("u_vp", projection * view );
 	glDrawElements(GL_LINES, indexCount, GL_UNSIGNED_INT, nullptr);
 

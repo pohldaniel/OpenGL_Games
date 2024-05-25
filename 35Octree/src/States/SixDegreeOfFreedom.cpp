@@ -3,6 +3,7 @@
 #include <imgui_impl_opengl3.h>
 #include <imgui_internal.h>
 #include <engine/DebugRenderer.h>
+#include <engine/BuiltInShader.h>
 #include <States/Menu.h>
 #include <Utils/BinaryIO.h>
 
@@ -26,20 +27,47 @@ SixDegreeOfFreedom::SixDegreeOfFreedom(StateMachine& machine) : State(machine, S
 
 	glClearColor(0.494f, 0.686f, 0.796f, 1.0f);
 	glClearDepth(1.0f);
-	m_background.resize(Application::Width, Application::Height);
-	m_background.setLayer(std::vector<BackgroundLayer>{
-		{ &Globals::textureManager.get("forest_1"), 1, 1.0f },
-		{ &Globals::textureManager.get("forest_2"), 1, 2.0f },
-		{ &Globals::textureManager.get("forest_3"), 1, 3.0f },
-		{ &Globals::textureManager.get("forest_4"), 1, 4.0f },
-		{ &Globals::textureManager.get("forest_5"), 1, 5.0f }});
-	m_background.setSpeed(0.005f);
+
+	glGenBuffers(1, &BuiltInShader::materialUbo);
+	glBindBuffer(GL_UNIFORM_BUFFER, BuiltInShader::materialUbo);
+	glBufferData(GL_UNIFORM_BUFFER, 56, NULL, GL_DYNAMIC_DRAW);
+	glBindBufferRange(GL_UNIFORM_BUFFER, 1, BuiltInShader::materialUbo, 0, 56);
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+	glGenBuffers(1, &BuiltInShader::viewUbo);
+	glBindBuffer(GL_UNIFORM_BUFFER, BuiltInShader::viewUbo);
+	glBufferData(GL_UNIFORM_BUFFER, 64, NULL, GL_DYNAMIC_DRAW);
+	glBindBufferRange(GL_UNIFORM_BUFFER, 0, BuiltInShader::viewUbo, 0, 64);
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+	auto shader = Globals::shaderManager.getAssetPointer("texture_view");
+	shader->use();
+	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
+	shader->unuse();
+
+	shader = Globals::shaderManager.getAssetPointer("material");
+	shader->use();
+	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
+	shader->unuse();
+	
+	Material::AddTexture("res/textures/ProtoWhite256.jpg");
+	Material::GetTextures().back().setFilter(GL_LINEAR_MIPMAP_LINEAR);
+	Material::GetTextures().back().setWrapMode(GL_REPEAT);
+	Material::AddTexture("res/textures/ProtoYellow256.jpg");
+	Material::GetTextures().back().setFilter(GL_LINEAR_MIPMAP_LINEAR);
+	Material::GetTextures().back().setWrapMode(GL_REPEAT);
+
+	Material::AddMaterial();
+	Material::GetMaterials().back().setDiffuse({0.7384f, 0.40064f, 0.44984f, 1.0f});
+	Material::GetMaterials().back().setSpecular({ 0.5f, 0.5f, 0.5f, 1.0f });
+	Material::GetMaterials().back().setShininess(20.0f);
+	Material::GetMaterials().back().updateMaterialUbo(BuiltInShader::materialUbo);
 
 	DebugRenderer::Get().setEnable(true);
 	WorkQueue::Init(0);
 	m_octree = new Octree(m_camera, m_frustum, m_dt);
-	m_octree->setUseCulling(true);
-	m_octree->setUseOcclusionCulling(true);
+	m_octree->setUseCulling(m_useCulling);
+	m_octree->setUseOcclusionCulling(m_useOcclusion);
 
 	createShapes();
 	createScene();
@@ -48,9 +76,18 @@ SixDegreeOfFreedom::SixDegreeOfFreedom(StateMachine& machine) : State(machine, S
 SixDegreeOfFreedom::~SixDegreeOfFreedom() {
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
+	Material::CleanupTextures();
+	delete m_splinePath;
+	delete m_octree;
+	delete m_root;
 }
 
 void SixDegreeOfFreedom::fixedUpdate() {
+	m_splinePath->Move(m_fdt);
+
+	if (m_splinePath->IsFinished()) {
+		m_splinePath->Reset();
+	}
 
 }
 
@@ -74,15 +111,11 @@ void SixDegreeOfFreedom::update() {
 
 	if (keyboard.keyDown(Keyboard::KEY_A)) {
 		direction += Vector3f(-1.0f, 0.0f, 0.0f);
-		m_background.addOffset(-0.001f);
-		m_background.setSpeed(-0.005f);
 		move |= true;
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_D)) {
 		direction += Vector3f(1.0f, 0.0f, 0.0f);
-		m_background.addOffset(0.001f);
-		m_background.setSpeed(0.005f);
 		move |= true;
 	}
 
@@ -112,8 +145,6 @@ void SixDegreeOfFreedom::update() {
 			m_camera.move(direction * m_dt);
 		}
 	}
-
-	m_background.update(m_dt);
 	m_octree->updateFrameNumber();
 
 	m_frustum.updatePlane(m_camera.getPerspectiveMatrix(), m_camera.getViewMatrix());
@@ -123,15 +154,9 @@ void SixDegreeOfFreedom::update() {
 }
 
 void SixDegreeOfFreedom::render() {
+	BuiltInShader::UpdateViewUbo(m_camera);
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	auto shader = Globals::shaderManager.getAssetPointer("texture");
-	shader->use();
-	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
-	shader->loadMatrix("u_view", m_camera.getViewMatrix());
-	Globals::textureManager.get("proto").bind();
-
 	for (size_t i = 0; i < m_octree->getRootLevelOctants().size(); ++i) {
 		const Octree::ThreadOctantResult& result = m_octree->getOctantResults()[i];
 		for (auto oIt = result.octants.begin(); oIt != result.octants.end(); ++oIt) {
@@ -142,14 +167,17 @@ void SixDegreeOfFreedom::render() {
 			const std::vector<OctreeNode*>& drawables = octant->getOctreeNodes();
 			for (auto dIt = drawables.begin(); dIt != drawables.end(); ++dIt) {
 				OctreeNode* drawable = *dIt;
-				shader->loadMatrix("u_model", drawable->getWorldTransformation());
 				drawable->drawRaw();
 				if (m_debugTree)
 					drawable->OnRenderAABB(Vector4f(0.0f, 1.0f, 0.0f, 1.0f));
 			}
 		}
 	}
-	shader->unuse();
+	if (m_debugTree) {
+		m_splinePath->OnRenderDebug(Vector4f(0.0f, 1.0f, 0.0f, 1.0f));
+		DebugRenderer::Get().SetProjectionView(m_camera.getPerspectiveMatrix(), m_camera.getViewMatrix());
+		DebugRenderer::Get().drawBuffer();
+	}
 
 	if (m_drawUi)
 		renderUi();
@@ -209,6 +237,16 @@ void SixDegreeOfFreedom::OnKeyUp(Event::KeyboardEvent& event) {
 void SixDegreeOfFreedom::resize(int deltaW, int deltaH) {
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
+
+	auto shader = Globals::shaderManager.getAssetPointer("texture_view");
+	shader->use();
+	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
+	shader->unuse();
+
+	shader = Globals::shaderManager.getAssetPointer("material");
+	shader->use();
+	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
+	shader->unuse();
 }
 
 void SixDegreeOfFreedom::renderUi() {
@@ -248,6 +286,13 @@ void SixDegreeOfFreedom::renderUi() {
 	// render widgets
 	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 	ImGui::Checkbox("Draw Wirframe", &StateMachine::GetEnableWireframe());
+	if (ImGui::Checkbox("Use Culling", &m_useCulling)) {
+		m_octree->setUseCulling(m_useCulling);
+	}
+
+	if (ImGui::Checkbox("Use Occlusion", &m_useOcclusion)) {
+		m_octree->setUseOcclusionCulling(m_useOcclusion);
+	}
 	ImGui::Checkbox("Debug Tree", &m_debugTree);
 	ImGui::End();
 
@@ -287,60 +332,135 @@ void SixDegreeOfFreedom::createShapes() {
 
 void SixDegreeOfFreedom::createScene() {
 	m_root = new SceneNodeLC();
-	ShapeNode* shapeNode;
+	ShapeEntity* shapeEntity;
 
-	shapeNode = m_root->addChild<ShapeNode, Shape>(m_boxShape);
-	shapeNode->setPosition(0.0f, 0.0f, 0.0f);
-	shapeNode->setScale(500.0f, 1.0f, 500.0f);
-	shapeNode->OnOctreeSet(m_octree);
+	shapeEntity = m_root->addChild<ShapeEntity, Shape>(m_boxShape, m_camera);
+	shapeEntity->setPosition(0.0f, 0.0f, 0.0f);
+	shapeEntity->setScale(500.0f, 1.0f, 500.0f);
+	shapeEntity->setTextureIndex(0);
+	shapeEntity->setShader(Globals::shaderManager.getAssetPointer("texture_view"));
+	shapeEntity->OnOctreeSet(m_octree);
+	
+	shapeEntity = m_root->addChild<ShapeEntity, Shape>(m_boxShape, m_camera);
+	shapeEntity->setPosition(0.0f, 4.99f, 250.0f);
+	shapeEntity->setScale(500.0f, 50.0f, 1.0f);
+	shapeEntity->setTextureIndex(0);
+	shapeEntity->setShader(Globals::shaderManager.getAssetPointer("texture_view"));
+	shapeEntity->OnOctreeSet(m_octree);
+	
+	shapeEntity = m_root->addChild<ShapeEntity, Shape>(m_boxShape, m_camera);
+	shapeEntity->setPosition(0.0f, 4.99f, -250.0f);
+	shapeEntity->setScale(500.0f, 50.0f, 1.0f);
+	shapeEntity->OnOctreeSet(m_octree);
+	shapeEntity->setShader(Globals::shaderManager.getAssetPointer("texture_view"));
+	shapeEntity->setTextureIndex(0);
 
-	shapeNode = m_root->addChild<ShapeNode, Shape>(m_boxShape);
-	shapeNode->setPosition(0.0f, 4.99f, 250.0f);
-	shapeNode->setScale(500.0f, 50.0f, 1.0f);
-	shapeNode->OnOctreeSet(m_octree);
+	shapeEntity = m_root->addChild<ShapeEntity, Shape>(m_boxShape, m_camera);
+	shapeEntity->setPosition(250.0f, 4.99f, 0.0f);
+	shapeEntity->setScale(1.0f, 50.0f, 500.0f);
+	shapeEntity->setTextureIndex(0);
+	shapeEntity->setShader(Globals::shaderManager.getAssetPointer("texture_view"));
+	shapeEntity->OnOctreeSet(m_octree);
+	
+	shapeEntity = m_root->addChild<ShapeEntity, Shape>(m_boxShape, m_camera);
+	shapeEntity->setPosition(-250.0f, 4.99f, 0.0f);
+	shapeEntity->setScale(1.0f, 50.0f, 500.0f);
+	shapeEntity->setTextureIndex(0);
+	shapeEntity->setShader(Globals::shaderManager.getAssetPointer("texture_view"));
+	shapeEntity->OnOctreeSet(m_octree);
+	
+	shapeEntity = m_root->addChild<ShapeEntity, Shape>(m_cylinderShape, m_camera);
+	shapeEntity->setPosition(-52.0564f, -20.7696f, -80.7397f);
+	shapeEntity->setScale(50.0f, 30.0f, 50.0f);
+	shapeEntity->setOrientation(90.0f, 0.0f, 0.0f);
+	shapeEntity->setTextureIndex(1);
+	shapeEntity->setShader(Globals::shaderManager.getAssetPointer("texture_view"));
+	shapeEntity->OnOctreeSet(m_octree);
+	
+	shapeEntity = m_root->addChild<ShapeEntity, Shape>(m_boxShape, m_camera);
+	shapeEntity->setPosition(-20.1763f, -7.45501f, 3.0711f);
+	shapeEntity->setScale(20.0f, 30.0f, 20.0f);
+	shapeEntity->setOrientation(0.0f, 0.0f, 0.642788f, 0.766044f);
+	shapeEntity->setTextureIndex(1);
+	shapeEntity->setShader(Globals::shaderManager.getAssetPointer("texture_view"));
+	shapeEntity->OnOctreeSet(m_octree);
 
-	shapeNode = m_root->addChild<ShapeNode, Shape>(m_boxShape);
-	shapeNode->setPosition(0.0f, 4.99f, -250.0f);
-	shapeNode->setScale(500.0f, 50.0f, 1.0f);
-	shapeNode->OnOctreeSet(m_octree);
+	shapeEntity = m_root->addChild<ShapeEntity, Shape>(m_cylinderShape, m_camera);
+	shapeEntity->setPosition(131.649f, 8.14253f, 22.008f);
+	shapeEntity->setScale(20.0f, 30.0f, 20.0f);
+	shapeEntity->setTextureIndex(1);
+	shapeEntity->setShader(Globals::shaderManager.getAssetPointer("texture_view"));
+	shapeEntity->OnOctreeSet(m_octree);
 
-	shapeNode = m_root->addChild<ShapeNode, Shape>(m_boxShape);
-	shapeNode->setPosition(250.0f, 4.99f, 0.0f);
-	shapeNode->setScale(1.0f, 50.0f, 500.0f);
-	shapeNode->OnOctreeSet(m_octree);
+	shapeEntity = m_root->addChild<ShapeEntity, Shape>(m_cylinderShape, m_camera);
+	shapeEntity->setPosition(-166.368f, 8.14253f, 22.008f);
+	shapeEntity->setScale(20.0f, 30.0f, 20.0f);
+	shapeEntity->setTextureIndex(1);
+	shapeEntity->setShader(Globals::shaderManager.getAssetPointer("texture_view"));
+	shapeEntity->OnOctreeSet(m_octree);
 
-	shapeNode = m_root->addChild<ShapeNode, Shape>(m_boxShape);
-	shapeNode->setPosition(-250.0f, 4.99f, 0.0f);
-	shapeNode->setScale(1.0f, 50.0f, 500.0f);
-	shapeNode->OnOctreeSet(m_octree);
+	shapeEntity = m_root->addChild<ShapeEntity, Shape>(m_shipShape, m_camera);
+	shapeEntity->setPosition(-15.8898f, 1.49614f, -22.0555f);
+	shapeEntity->setName("ship");
+	shapeEntity->setMaterialIndex(0);
+	shapeEntity->setShader(Globals::shaderManager.getAssetPointer("material"));
+	shapeEntity->OnOctreeSet(m_octree);
 
-	shapeNode = m_root->addChild<ShapeNode, Shape>(m_cylinderShape);
-	shapeNode->setPosition(-52.0564f, -20.7696f, -80.7397f);
-	shapeNode->setScale(50.0f, 30.0f, 50.0f);
-	shapeNode->setOrientation(90.0f, 0.0f, 0.0f);
-	shapeNode->OnOctreeSet(m_octree);
+	shapeEntity = m_root->addChild<ShapeEntity, Shape>(m_hoverbikeShape, m_camera);
+	shapeEntity->setPosition(80.0f, 2.0f, 40.0f);
+	shapeEntity->setMaterialIndex(0);
+	shapeEntity->setShader(Globals::shaderManager.getAssetPointer("material"));
+	shapeEntity->OnOctreeSet(m_octree);
 
-	shapeNode = m_root->addChild<ShapeNode, Shape>(m_boxShape);
-	shapeNode->setPosition(-20.1763f, -7.45501f, 3.0711f);
-	shapeNode->setScale(20.0f, 30.0f, 20.0f);
-	shapeNode->setOrientation(0.0f, 0.0f, 0.642788f, 0.766044f);
-	shapeNode->OnOctreeSet(m_octree);
+	SceneNodeLC* sceneNode;
+	m_splinePath = new SplinePath();
+	Vector3f offset = Vector3f(98.7807f, 8.42104f, 26.7421f);
 
-	shapeNode = m_root->addChild<ShapeNode, Shape>(m_cylinderShape);
-	shapeNode->setPosition(131.649f, 8.14253f, 22.008f);
-	shapeNode->setScale(20.0f, 30.0f, 20.0f);
-	shapeNode->OnOctreeSet(m_octree);
+	//sceneNode = m_root->addChild<SceneNodeLC>();
+	//sceneNode->setPosition(Vector3f(-199.976f, 0.0f, 46.0545f) + offset);
+	//m_splinePath->AddControlPoint(sceneNode, 0);
 
-	shapeNode = m_root->addChild<ShapeNode, Shape>(m_cylinderShape);
-	shapeNode->setPosition(-166.368f, 8.14253f, 22.008f);
-	shapeNode->setScale(20.0f, 30.0f, 20.0f);
-	shapeNode->OnOctreeSet(m_octree);
+	sceneNode = m_root->addChild<SceneNodeLC>();
+	sceneNode->setPosition(Vector3f(-15.8898f, 0.0f, -22.0555f) + offset);
+	m_splinePath->AddControlPoint(sceneNode, 1);
 
-	shapeNode = m_root->addChild<ShapeNode, Shape>(m_shipShape);
-	shapeNode->setPosition(-15.8898f, 1.49614f, -22.0555f);
-	shapeNode->OnOctreeSet(m_octree);
+	sceneNode = m_root->addChild<SceneNodeLC>();
+	sceneNode->setPosition(Vector3f(-5.88043f, 0.0f, 86.5049f) + offset);
+	m_splinePath->AddControlPoint(sceneNode, 2);
 
-	shapeNode = m_root->addChild<ShapeNode, Shape>(m_hoverbikeShape);
-	shapeNode->setPosition(80.0f, 2.0f, 40.0f);
-	shapeNode->OnOctreeSet(m_octree);
+	sceneNode = m_root->addChild<SceneNodeLC>();
+	sceneNode->setPosition(Vector3f(-21.2097f, 0.0f, 120.285f) + offset);
+	m_splinePath->AddControlPoint(sceneNode, 3);
+
+	sceneNode = m_root->addChild<SceneNodeLC>();
+	sceneNode->setPosition(Vector3f(-90.2015f, 0.0f, 142.828f) + offset);
+	m_splinePath->AddControlPoint(sceneNode, 4);
+
+	sceneNode = m_root->addChild<SceneNodeLC>();
+	sceneNode->setPosition(Vector3f(-157.816f, 0.0f, 99.5992f) + offset);
+	m_splinePath->AddControlPoint(sceneNode, 5);
+
+	sceneNode = m_root->addChild<SceneNodeLC>();
+	sceneNode->setPosition(Vector3f(-199.976f, 0.0f, 46.0545f) + offset);
+	m_splinePath->AddControlPoint(sceneNode, 6);
+
+	sceneNode = m_root->addChild<SceneNodeLC>();
+	sceneNode->setPosition(Vector3f(-199.976f, 0.0f, - 71.1696f) + offset);
+	m_splinePath->AddControlPoint(sceneNode, 7);
+
+	sceneNode = m_root->addChild<SceneNodeLC>();
+	sceneNode->setPosition(Vector3f(-156.093f, 2.0274f, -106.743f) + offset);
+	m_splinePath->AddControlPoint(sceneNode, 8);
+
+	sceneNode = m_root->addChild<SceneNodeLC>();
+	sceneNode->setPosition(Vector3f(-49.0508f, 0.0f, -106.743f) + offset);
+	m_splinePath->AddControlPoint(sceneNode, 9);
+
+	sceneNode = m_root->addChild<SceneNodeLC>();
+	sceneNode->setPosition(Vector3f(-15.8898f, 0.0f, -22.0555f) + offset);
+	m_splinePath->AddControlPoint(sceneNode, 10);
+
+	m_splinePath->SetControlledNode(m_root->findChild<ShapeEntity>("ship"));
+	m_splinePath->SetInterpolationMode(CATMULL_ROM_FULL_CURVE);
+	m_splinePath->SetSpeed(30.0f);
 }

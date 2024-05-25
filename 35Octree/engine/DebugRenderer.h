@@ -53,6 +53,7 @@ public:
 	void AddBoundingBox(const BoundingBox& box, const Matrix4f& transform, const Vector4f& color);
 	void AddCylinder(const Vector3f& position, float radius, float height, const Vector4f& color);
 	void AddSkeleton(BoneNode**& bones, unsigned short numBones, const Vector4f& color);
+	void AddNode(SceneNodeLC* node, float scale = 1.0f);
 
 	void init(size_t size = 400);
 	void shutdown();

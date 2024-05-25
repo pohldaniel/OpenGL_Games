@@ -10,7 +10,7 @@ public:
 	SplinePath();
 	virtual ~SplinePath() { };
 
-
+	void OnRenderDebug(const Vector4f& color = { 1.0f, 0.0f, 0.0f, 1.0f });
 	virtual void ApplyAttributes();
 	void AddControlPoint(SceneNodeLC* point, unsigned index = UINT_MAX);
 	void RemoveControlPoint(SceneNodeLC* point);

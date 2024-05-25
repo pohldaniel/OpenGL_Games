@@ -3,12 +3,13 @@
 #include <engine/input/MouseEventListener.h>
 #include <engine/input/KeyboardEventListener.h>
 #include <engine/octree/Octree.h>
-#include <engine/scene/ShapeNode.h>
 #include <engine/Camera.h>
 #include <engine/Frustum.h>
 #include <engine/Background.h>
 
 #include <States/StateMachine.h>
+#include <Entities/ShapeEntity.h>
+#include "SplinePath.h"
 
 class SixDegreeOfFreedom : public State, public MouseEventListener, public KeyboardEventListener {
 
@@ -36,16 +37,16 @@ private:
 
 	bool m_initUi = true;
 	bool m_drawUi = true;
-	bool m_debugTree = false;
+	bool m_debugTree = true;
+	bool m_useCulling = true;
+	bool m_useOcclusion = true;
 	float m_offsetDistance = 10.0f;
 	float m_rotationSpeed = 0.1f;
 
 	Camera m_camera;
 	Frustum m_frustum;
-	Background m_background;
-
 	Shape m_boxShape, m_cylinderShape, m_shipShape, m_hoverbikeShape;
-
 	Octree* m_octree;
+	SplinePath* m_splinePath;
 	SceneNodeLC* m_root;
 };

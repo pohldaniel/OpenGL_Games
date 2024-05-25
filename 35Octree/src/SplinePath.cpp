@@ -1,4 +1,8 @@
+#include <engine/scene/OctreeNode.h>
+#include <engine/octree/Octree.h>
+#include <engine/DebugRenderer.h>
 #include "SplinePath.h"
+
 
 template<class T>
 void safe_insert(std::vector<T>& vec, const size_t pos, const T arg){
@@ -203,4 +207,23 @@ void SplinePath::CalculateLength(){
 		length_ += fabs((a - b).length());
 		a = b;
 	}
+}
+
+void SplinePath::OnRenderDebug(const Vector4f& color) {
+
+	if (spline_.GetKnots().size() > 1){
+		Vector3f a = spline_.GetPoint(0.0f);
+		for (float f = 0.01f; f <= 1.0f; f = f + 0.01f){
+			Vector3f b = spline_.GetPoint(f);
+			DebugRenderer::Get().AddLine(a, b, color);
+			a = b;
+		}
+	}
+
+	for (std::vector<SceneNodeLC*>::const_iterator i = controlPoints_.begin(); i != controlPoints_.end(); ++i)
+		DebugRenderer::Get().AddNode(*i);
+
+	if (controlledNode_)
+		DebugRenderer::Get().AddNode(controlledNode_);
+
 }

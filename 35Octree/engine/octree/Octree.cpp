@@ -178,10 +178,10 @@ bool Octant::fitBoundingBox(const BoundingBox& box, const Vector3f& boxSize) con
 	return false;
 }
 
-void Octant::markCullingBoxDirty() const {
+void Octant::markCullingBoxDirty(bool force) const {
 	const Octant* octant = this;
 
-	while (octant && !octant->m_cullingBoxDirty) {
+	while (octant && (!octant->m_cullingBoxDirty || force)) {
 		octant->m_cullingBoxDirty = true;
 		octant = octant->m_parent;
 	}
@@ -430,10 +430,10 @@ void Octree::reinsertDrawables(std::vector<OctreeNode*>& drawables){
 				if (newOctant != oldOctant){
 					
 					// Add first, then remove, because drawable count going to zero deletes the octree branch in question
-					addDrawable(drawable, newOctant);
-					callRebuild(newOctant);
-					if (oldOctant)
+					addDrawable(drawable, newOctant);					
+					if (oldOctant) {
 						removeDrawable(drawable, oldOctant);
+					}
 				}
 				break;
 			}else {
@@ -448,12 +448,13 @@ void Octree::reinsertDrawables(std::vector<OctreeNode*>& drawables){
 }
 
 void Octree::callRebuild(Octant* octant) {
-	octant->markCullingBoxDirty();
+	
 	for (size_t i = 0; i < NUM_OCTANTS; ++i) {
 		if (octant->getChild(i)) {
 			callRebuild(octant->getChild(i));
 		}
 	}
+	octant->markCullingBoxDirty();
 }
 
 void Octree::removeDrawableFromQueue(OctreeNode* drawable, std::vector<OctreeNode*>& drawables){
@@ -467,8 +468,8 @@ void Octree::removeDrawableFromQueue(OctreeNode* drawable, std::vector<OctreeNod
 
 void Octree::addDrawable(OctreeNode* drawable, Octant* octant) {
 	octant->m_octreeNodes.push_back(drawable);
-	octant->markCullingBoxDirty();
-	octant->updateCullingBox();
+	octant->markCullingBoxDirty(true);
+	//octant->updateCullingBox();
 	drawable->m_octant = octant;
 
 	if (!octant->m_sortDrawables) {

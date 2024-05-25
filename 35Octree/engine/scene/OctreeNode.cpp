@@ -2,7 +2,7 @@
 #include "../DebugRenderer.h"
 #include "../octree/Octree.h"
 
-OctreeNode::OctreeNode(const BoundingBox& localBoundingBox) : localBoundingBox(localBoundingBox), m_drawDebug(true), m_reinsertQueued(true), m_octant(nullptr), m_octree(nullptr), m_octreeUpdate(true), m_lastFrameNumber(0), frameNumber(nullptr) {
+OctreeNode::OctreeNode(const BoundingBox& localBoundingBox) : localBoundingBox(localBoundingBox), m_drawDebug(true), m_reinsertQueued(false), m_octant(nullptr), m_octree(nullptr), m_octreeUpdate(true), m_lastFrameNumber(0), frameNumber(nullptr) {
 	OnBoundingBoxChanged();
 }
 
@@ -50,8 +50,9 @@ void OctreeNode::OnTransformChanged() {
 void OctreeNode::OnBoundingBoxChanged() {
 	m_worldBoundingBoxDirty = true;
 
-	if (m_octant && !m_reinsertQueued)
+	if (m_octant && !m_reinsertQueued) {
 		m_octree->queueUpdate(this);
+	}
 }
 
 void OctreeNode::OnOctreeUpdate() {

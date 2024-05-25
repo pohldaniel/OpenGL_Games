@@ -66,7 +66,7 @@ public:
 private:
 
 	bool fitBoundingBox(const BoundingBox& box, const Vector3f& boxSize) const;
-	void markCullingBoxDirty() const;
+	void markCullingBoxDirty(bool force = false) const;
 	void pushVisibilityToChildren(Octant* octant, OctantVisibility newVisibility);
 	void setVisibility(OctantVisibility newVisibility, bool pushToChildren = false);
 	bool checkNewOcclusionQuery(float dt);

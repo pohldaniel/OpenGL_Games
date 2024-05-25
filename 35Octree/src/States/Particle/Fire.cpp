@@ -94,7 +94,7 @@ Fire::~Fire() {
 
 	Material::CleanupTextures();
 	Material::CleanupMaterials();
-	AssimpModel::CleanupShader();
+	//AssimpModel::CleanupShader();
 }
 
 void Fire::fixedUpdate() {

@@ -774,6 +774,8 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("occlusion", "res/shader/Occ/occluders.vert", "res/shader/Occ/occluders.frag");
 	Globals::shaderManager.loadShader("boundingBox", "res/shader/boundingBox.vert", "res/shader/boundingBox.frag");
 	Globals::shaderManager.loadShader("animation_new", "res/shader/animation_new.vert", "res/shader/animation_new.frag");
+	Globals::shaderManager.loadShader("material", "res/shader/material.vert", "res/shader/material.frag");
+	Globals::shaderManager.loadShader("texture_view", "res/shader/textureView.vert", "res/shader/textureView.frag");
 
 	Shader::SetIncludeFromFile("SeparableSSS.h", "res/shader/PBR/SeparableSSS.h");
 	Globals::shaderManager.loadShader("pbr", "res/shader/PBR/pbr.vert.glsl", "res/shader/PBR/pbr.frag.glsl");
