@@ -26,6 +26,7 @@ public:
 	virtual void setOrientation(const float degreesX, const float degreesY, const float degreesZ);	
 	virtual void setOrientation(const Vector3f& eulerAngle);
 	virtual void setOrientation(const Quaternion& orientation);
+	virtual void setOrientation(const float x, const float y, const float z, const float w);
 
 	virtual void translate(const Vector3f& trans);
 	virtual void translate(const float dx, const float dy, const float dz);
@@ -41,11 +42,11 @@ public:
 	virtual void rotate(const Vector3f& eulerAngle);
 	virtual void rotate(const Vector3f& axis, float degrees);
 	virtual void rotate(const Quaternion& orientation);
+	virtual void rotate(const float x, const float y, const float z, const float w);
 
 	const Vector3f& getPosition() const;
 	const Vector3f& getScale() const;
 	const Quaternion& getOrientation() const;
-	//const Vector3f& getRotation() const;
 
 	const Matrix4f& getTransformationSOP() const;
 	const Matrix4f& getTransformationSO() const;
@@ -62,7 +63,6 @@ protected:
 	Vector3f m_position;
 	Vector3f m_scale;
 	Vector3f m_origin;
-	//Vector3f m_rotation;
 	Quaternion m_orientation;
 
 	static Matrix4f Transformation;

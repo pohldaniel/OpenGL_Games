@@ -440,6 +440,7 @@ public:
 	void inverse();
 	void rotate(float pitch, float yaw, float roll);
 	void rotate(const Vector3f &axis, float degrees);
+	void rotate(float x, float y, float z, float w);
 	Vector3f getRotationAxis();
 
 	void fromAxisAngle(const Vector3f &axis, float degrees);

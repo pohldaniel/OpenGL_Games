@@ -70,21 +70,22 @@ void Object::setOrigin(const Vector3f& origin) {
 
 void Object::setOrientation(const Vector3f &axis, float degrees) {
 	m_orientation.set(axis, degrees);
-	//m_rotation[0] = axis[0] * degrees; m_rotation[0] = axis[1] * degrees; m_rotation[0] = axis[2] * degrees;
 }
 
 void Object::setOrientation(const float pitch, const float yaw, const float roll) {
 	m_orientation.fromPitchYawRoll(pitch, yaw, roll);
-	//m_rotation[0] = pitch; m_rotation[0] = yaw; m_rotation[0] = roll;
 }
 
 void Object::setOrientation(const Vector3f &eulerAngle) {
 	m_orientation.fromPitchYawRoll(eulerAngle[0], eulerAngle[1], eulerAngle[2]);
-	//m_rotation = eulerAngle;
 }
 
 void Object::setOrientation(const Quaternion &orientation) {
 	m_orientation = orientation;
+}
+
+void Object::setOrientation(const float x, const float y, const float z, const float w) {
+	m_orientation.set(x, y, z, w);
 }
 
 void Object::translate(const Vector3f &trans) {
@@ -117,21 +118,22 @@ void Object::scale(const float s) {
 
 void Object::rotate(const float pitch, const float yaw, const float roll) {
 	m_orientation.rotate(pitch, yaw, roll);
-	//m_rotation[0] += pitch; m_rotation[0] += yaw; m_rotation[0] += roll;
 }
 
 void Object::rotate(const Vector3f& eulerAngle) {
 	m_orientation.rotate(eulerAngle[0], eulerAngle[1], eulerAngle[2]);
-	//m_rotation += eulerAngle;
 }
 
 void Object::rotate(const Vector3f &axis, float degrees) {
 	m_orientation.rotate(axis, degrees);
-	//m_rotation[0] += axis[0] * degrees; m_rotation[0] += axis[1] * degrees; m_rotation[0] += axis[2] * degrees;
 }
 
 void Object::rotate(const Quaternion& orientation) {
 	m_orientation *= orientation;
+}
+
+void Object::rotate(const float x, const float y, const float z, const float w) {
+	m_orientation.rotate(x, y, z, w);
 }
 
 const Vector3f &Object::getPosition() const {

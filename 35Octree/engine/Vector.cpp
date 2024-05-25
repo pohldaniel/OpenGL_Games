@@ -3401,6 +3401,17 @@ void Quaternion::rotate(const Vector3f &axis, float degrees) {
 	quat[3] = (q3 * rot3) - (q0 * rot0) - (q1 * rot1) - (q2 * rot2);
 }
 
+void Quaternion::rotate(float x, float y, float z, float w) {
+	float q0 = quat[0];
+	float q1 = quat[1];
+	float q2 = quat[2];
+	float q3 = quat[3];
+	quat[0] = (q3 * x) + (q0 * w) + (q1 * z) - (q2 * y);
+	quat[1] = (q3 * y) - (q0 * z) + (q1 * w) + (q2 * x);
+	quat[2] = (q3 * z) + (q0 * y) - (q1 * x) + (q2 * w);
+	quat[3] = (q3 * w) - (q0 * x) - (q1 * y) - (q2 * z);
+}
+
 void Quaternion::toPitchYawRoll(float& pitch, float& yaw, float& roll) const {
 	//Matrix4f m = toMatrix4f();
 	//m.toHeadPitchRoll(yaw, pitch, roll);

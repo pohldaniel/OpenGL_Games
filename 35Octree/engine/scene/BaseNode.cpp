@@ -109,6 +109,11 @@ void BaseNode::setOrientation(const Quaternion& orientation) {
 	OnTransformChanged();
 }
 
+void BaseNode::setOrientation(const float x, const float y, const float z, const float w) {
+	Object::setOrientation(x, y, z, w);
+	OnTransformChanged();
+}
+
 void BaseNode::translate(const Vector3f& trans) {
 	Object::translate(trans);
 	OnTransformChanged();
@@ -161,6 +166,11 @@ void BaseNode::rotate(const Vector3f& axis, float degrees) {
 
 void BaseNode::rotate(const Quaternion& orientation) {
 	Object::rotate(orientation);
+	OnTransformChanged();
+}
+
+void BaseNode::rotate(const float x, const float y, const float z, const float w) {
+	Object::rotate(x, y, z, w);
 	OnTransformChanged();
 }
 

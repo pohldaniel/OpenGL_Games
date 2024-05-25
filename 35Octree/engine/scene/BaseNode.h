@@ -40,6 +40,7 @@ public:
 	void setOrientation(const float degreesX, const float degreesY, const float degreesZ) override;
 	void setOrientation(const Vector3f& euler) override;
 	void setOrientation(const Quaternion& orientation) override;
+	void setOrientation(const float x, const float y, const float z, const float w) override;
 
 	void translate(const Vector3f& trans) override;
 	void translate(const float dx, const float dy, const float dz) override;
@@ -55,6 +56,7 @@ public:
 	void rotate(const Vector3f& eulerAngle) override;
 	void rotate(const Vector3f& axis, float degrees) override;
 	void rotate(const Quaternion& orientation) override;
+	void rotate(const float x, const float y, const float z, const float w) override;
 
 	const bool isFixed() const;
 	void setIsFixed(bool isFixed);

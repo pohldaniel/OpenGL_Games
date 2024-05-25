@@ -27,6 +27,7 @@
 #include <States/AnimationInterface.h>
 #include <States/KCCInterface.h>
 #include <States/SkinnedArmor.h>
+#include <States/SixDegreeOfFreedom.h>
 
 #include <States/Settings.h>
 #include <States/Controls.h>
@@ -69,7 +70,8 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 		{ "occlusion",        Button() },
 		{ "animation",        Button() },
 		{ "kcc",              Button() },
-		{ "skinned",          Button() }
+		{ "skinned",          Button() },
+		{ "6dof",             Button() }
 	});
 
 	m_buttons.at("grass_comp").setCharset(Globals::fontManager.get("upheaval_50"));
@@ -225,6 +227,15 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 		m_machine.addStateAtBottom(new OcclusionQuery(m_machine));
 	});
 
+	m_buttons.at("6dof").setCharset(Globals::fontManager.get("upheaval_50"));
+	m_buttons.at("6dof").setPosition(750.0f, 50.0f);
+	m_buttons.at("6dof").setOutlineThickness(5.0f);
+	m_buttons.at("6dof").setText("6 DoF");
+	m_buttons.at("6dof").setFunction([&]() {
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new SixDegreeOfFreedom(m_machine));
+	});
+
 	m_buttons.at("smooth_particle").setCharset(Globals::fontManager.get("upheaval_50"));
 	m_buttons.at("smooth_particle").setPosition(1130.0f, 550.0f);
 	m_buttons.at("smooth_particle").setOutlineThickness(5.0f);
@@ -270,7 +281,7 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 		m_machine.addStateAtBottom(new AnimationInterface(m_machine));
 	});
 
-	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 }
 
 Menu::~Menu() {

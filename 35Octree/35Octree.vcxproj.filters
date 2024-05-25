@@ -543,6 +543,9 @@
     <ClCompile Include="src\Utils\BinaryIO.cpp">
       <Filter>Source Files\Utils</Filter>
     </ClCompile>
+    <ClCompile Include="src\States\SixDegreeOfFreedom.cpp">
+      <Filter>Source Files\States</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="convhull\convhull_3d.h">
@@ -1030,6 +1033,9 @@
     </ClInclude>
     <ClInclude Include="src\Utils\BinaryIO.h">
       <Filter>Source Files\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\States\SixDegreeOfFreedom.h">
+      <Filter>Source Files\States</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
