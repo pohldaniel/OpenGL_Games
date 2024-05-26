@@ -20,9 +20,11 @@ public:
 				node->getChildren().splice(m_parent->getChildren().end(), m_parent->getChildren(), it);
 			}
 		}else if (node) {
-			node->addChild(this->template);
+			//node->addChild(this->template);
+			node->addChild(reinterpret_cast<T*>(this));
 		}else if (m_parent) {
-			m_parent->eraseChild(this->template);
+			//m_parent->eraseChild(this->template);
+			m_parent->eraseChild(reinterpret_cast<T*>(this));
 		}
 	}
 
@@ -41,7 +43,7 @@ public:
 	}
 
 	void removeChild(T* child) {
-		if (!child || child->m_parent != this->template)
+		if (!child || child->m_parent != reinterpret_cast<T*>(this))
 			return;
 
 		child->m_parent = nullptr;
@@ -51,11 +53,11 @@ public:
 
 	void removeSelf() {
 		if (m_parent)
-			m_parent->removeChild(this->template);
+			m_parent->removeChild(reinterpret_cast<T*>(this));
 	}
 
 	void eraseChild(T* child) {
-		if (!child || child->m_parent != this->template)
+		if (!child || child->m_parent != reinterpret_cast<T*>(this))
 			return;
 
 		child->m_parent = nullptr;
@@ -73,7 +75,7 @@ public:
 			m_children.emplace_back(std::unique_ptr<T, std::function<void(T* node)>>(node, [&](T* node) {}));
 		else
 			m_children.emplace_back(std::unique_ptr<T, std::function<void(T* node)>>(node, [&](T* node) {delete node; }));
-		m_children.back()->m_parent = this->template;
+		m_children.back()->m_parent = reinterpret_cast<T*>(this);
 		return m_children.back().get();
 	}
 
@@ -82,7 +84,7 @@ public:
 			m_children.emplace_back(std::unique_ptr<U, std::function<void(T* node)>>(new T(), [&](T* node) {}));
 		else
 			m_children.emplace_back(std::unique_ptr<U, std::function<void(T* node)>>(new T(), [&](T* node) {delete node; }));
-		m_children.back()->m_parent = this->template;
+		m_children.back()->m_parent = reinterpret_cast<T*>(this);
 		return static_cast<T*>(m_children.back().get());
 	}
 

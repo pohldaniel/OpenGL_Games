@@ -2647,6 +2647,10 @@ bool operator ==(Vector2f lhs, Vector2f rhs) {
 	return fabs(lhs[0] - rhs[0]) <= epsilon && fabs(lhs[1] - rhs[1]) <= epsilon;
 }
 
+bool operator !=(Vector2f lhs, Vector2f rhs) {
+	return lhs[0] != rhs[0] || lhs[1] != rhs[1];
+}
+
 float Vector2f::Dot(const Vector2f &p, const Vector2f &q) {
 	return (p.vec[0] * q.vec[0]) + (p.vec[1] * q.vec[1]);
 }
@@ -3148,6 +3152,10 @@ Quaternion::Quaternion(const Vector3f &axis, float degrees) {
 	fromAxisAngle(axis, degrees);
 }
 
+Quaternion::Quaternion(const Vector3f &start, const Vector3f &end) {
+	fromRotationTo(start, end);
+}
+
 Quaternion::Quaternion(const Matrix4f &m) {
 	fromMatrix(m);
 }
@@ -3353,6 +3361,29 @@ void Quaternion::fromPitchYawRoll(float pitch, float yaw, float roll) {
 	quat[1] = cosP * sinY * cosR + sinP * cosY * sinR;
 	quat[2] = cosP * cosY * sinR - sinP * sinY * cosR;
 	quat[3] = cosP * cosY * cosR + sinP * sinY * sinR;
+}
+
+void Quaternion::fromRotationTo(const Vector3f& start, const Vector3f& end){
+	Vector3f normStart = Vector3f::Normalize(start);
+	Vector3f normEnd = Vector3f::Normalize(end);
+	float d = Vector3f::Dot(normStart, normEnd);
+
+	if (d > -1.0f + EPSILON){
+		Vector3f c = Vector3f::Cross(normStart, normEnd);
+		float s = sqrtf((1.0f + d) * 2.0f);
+		float invS = 1.0f / s;
+
+		quat[0] = c[0] * invS;
+		quat[1] = c[1] * invS;
+		quat[2] = c[2] * invS;
+		quat[3] = 0.5f * s;
+	}else{
+		Vector3f axis = Vector3f::Cross(Vector3f::RIGHT, normStart);
+		if (axis.length() < EPSILON)
+			axis = Vector3f::Cross(Vector3f::UP,normStart);
+
+		fromAxisAngle(axis, 180.0f);
+	}
 }
 
 void Quaternion::rotate(float pitch, float yaw, float roll) {

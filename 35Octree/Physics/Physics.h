@@ -145,5 +145,5 @@ public:
 	btDefaultCollisionConfiguration* m_collisionConfiguration;
 	float m_physicsStep;
 
-	static btDiscreteDynamicsWorld *DynamicsWorld;
+	static btDiscreteDynamicsWorld* DynamicsWorld;
 };

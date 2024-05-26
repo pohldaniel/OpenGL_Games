@@ -209,6 +209,8 @@
     <ClCompile Include="engine\utils\Utils.cpp" />
     <ClCompile Include="engine\ZoomableQuad.cpp" />
     <ClCompile Include="nv_dds.cpp" />
+    <ClCompile Include="Physics\Constraint.cpp" />
+    <ClCompile Include="Physics\Constraint6DoF.cpp" />
     <ClCompile Include="src\Animation\AnimatedModel.cpp" />
     <ClCompile Include="src\Animation\Animation.cpp" />
     <ClCompile Include="src\Animation\AnimationController.cpp" />
@@ -415,6 +417,8 @@
     <ClInclude Include="engine\VolumeBuffer.h" />
     <ClInclude Include="engine\ZoomableQuad.h" />
     <ClInclude Include="nv_dds.h" />
+    <ClInclude Include="Physics\Constraint.h" />
+    <ClInclude Include="Physics\Constraint6DoF.h" />
     <ClInclude Include="src\Animation\AnimatedModel.h" />
     <ClInclude Include="src\Animation\Animation.h" />
     <ClInclude Include="src\Animation\AnimationController.h" />

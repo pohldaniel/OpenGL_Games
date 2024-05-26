@@ -28,7 +28,7 @@ class Vector2f {
 
 	friend Vector2f operator-(const Vector2f &v);
 	friend bool operator ==(Vector2f lhs, Vector2f rhs);
-
+	friend bool operator !=(Vector2f lhs, Vector2f rhs);
 public:
 
 	Vector2f();
@@ -406,6 +406,7 @@ public:
 	Quaternion(float array[4]);
 	Quaternion(float pitch, float yaw, float roll);
 	Quaternion(const Vector3f &axis, float degrees);
+	Quaternion(const Vector3f &start, const Vector3f &end);
 	Quaternion(Quaternion const& rhs);
 	Quaternion(Quaternion&& rhs);
 	explicit Quaternion(const Matrix4f &m);
@@ -446,6 +447,7 @@ public:
 	void fromAxisAngle(const Vector3f &axis, float degrees);
 	void fromMatrix(const Matrix4f &m);
 	void fromPitchYawRoll(float pitch, float yaw, float roll);
+	void fromRotationTo(const Vector3f& start, const Vector3f& end);
 
 	void toPitchYawRoll(float& pitch, float& yaw, float& roll) const;
 	void toAxisAngle(Vector3f &axis, float &degrees) const;
