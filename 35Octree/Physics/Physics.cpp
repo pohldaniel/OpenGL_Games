@@ -56,6 +56,12 @@ void Physics::deinitialize(){
 		delete obj;
 	}
 
+	for (int i = DynamicsWorld->getNumConstraints() - 1; i >= 0; i--){
+		btTypedConstraint* constraint = DynamicsWorld->getConstraint(i);
+		DynamicsWorld->removeConstraint(constraint);
+		delete constraint;
+	}
+
 	delete DynamicsWorld;
 	delete m_constraintSolver;
 	delete m_broadphase;

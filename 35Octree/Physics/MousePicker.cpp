@@ -36,7 +36,6 @@ void MousePicker::updatePosition(unsigned int posX, unsigned int posY, const Cam
 	Physics::GetDynamicsWorld()->rayTest(m_callback.m_origin, m_callback.m_target, m_callback);
 
 	if (m_callback.hasHit()) {
-		
 		if (!m_hasPicked) {
 			Vector3f normal = Vector3f(m_callback.m_hitNormalWorld[0], m_callback.m_hitNormalWorld[1], m_callback.m_hitNormalWorld[2]);
 			Vector3f tangent = fabsf(Vector3f::Dot(normal, Vector3f(0.0f, 0.0f, 1.0f))) > 0.9f ? Vector3f::Cross(normal, Vector3f(0.0f, 1.0f, 0.0f)) : Vector3f::Cross(normal, Vector3f(0.0f, 0.0f, 1.0f));
@@ -63,6 +62,8 @@ void MousePicker::updatePosition(unsigned int posX, unsigned int posY, const Cam
 		m_model[3][2] = m_callback.m_hitPointWorld[2];
 		m_model[3][3] = 1.0f;
 		m_isActivated = true;
+	}else {
+		m_isActivated = false;
 	}
 }
 
@@ -84,9 +85,7 @@ bool MousePicker::click(unsigned int posX, unsigned int posY, const Camera& came
 
 	if (m_callback.hasHit()) {
 		m_pickingDistance = (m_callback.m_hitPointWorld - m_callback.m_origin).length();	
-		m_isActivated = true;
 		return true;
-
 	} else {
 		return false;
 	}
@@ -170,4 +169,8 @@ void MousePicker::setPosition(const Vector3f& pos) {
 	m_model[3][1] = pos[1];
 	m_model[3][2] = pos[2];
 	m_model[3][3] = 1.0f;
+}
+
+void MousePicker::setIsActivated(bool isactivated) {
+	m_isActivated = isactivated;
 }

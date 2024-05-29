@@ -98,7 +98,6 @@ void ShapeDrawer::drawDynmicsWorld(btDynamicsWorld* dynamicsWorld) {
 }
 
 void ShapeDrawer::drawShape(btScalar* m, btCollisionShape* shape) {
-	
 	if (shape->getShapeType() == COMPOUND_SHAPE_PROXYTYPE) {
 		const btCompoundShape* compoundShape = static_cast<const btCompoundShape*>(shape);
 		for (int i = compoundShape->getNumChildShapes() - 1; i >= 0; i--) {
@@ -203,6 +202,45 @@ void ShapeDrawer::drawShape(btScalar* m, btCollisionShape* shape) {
 
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	}else if (shape->getShapeType() == STATIC_PLANE_PROXYTYPE){
+		
+		const btStaticPlaneShape* staticPlaneShape = static_cast<const btStaticPlaneShape*>(shape);
+		btScalar planeConst = staticPlaneShape->getPlaneConstant();
+		const btVector3& planeNormal = staticPlaneShape->getPlaneNormal();
+		btVector3 planeOrigin = planeNormal * planeConst;
+		btVector3 vec0, vec1;
+		btPlaneSpace1(planeNormal, vec0, vec1);
+		btScalar vecLen = 1000.f;
+
+		std::vector<btVector3> points = { planeOrigin - vec1 * vecLen, planeOrigin - vec0 * vecLen, planeOrigin + vec1 * vecLen, planeOrigin + vec0 * vecLen};
+		//std::vector<unsigned int> indices = { 0, 1, 1, 2, 2, 3, 3, 0 };
+		std::vector<unsigned int> indices = { 0, 1, 2 , 2, 3, 0};
+
+		glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, points.size() * sizeof(btVector3), &points[0]);
+
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(btVector3), 0);
+
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
+		glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, indices.size() * sizeof(unsigned int), &indices[0]);
+
+		glUseProgram(s_shader->m_program);
+
+		s_shader->loadMatrix("u_projection", m_perspective);
+		s_shader->loadMatrix("u_view", m_view);
+		s_shader->loadMatrix("u_model", Matrix4f(m));
+		s_shader->loadVector("u_color", Vector4f(0.5f, 0.5f, 0.5f, 1.0f));
+
+		//glDrawElements(GL_LINES, indices.size(), GL_UNSIGNED_INT, 0);
+		glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+
+		glUseProgram(0);
+
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+
 	}
 
 }

@@ -67,7 +67,7 @@ public:
 	bool click(unsigned int posX, unsigned int posY, const Camera& camera);
 	void setHasPicked(bool value);
 	void setPosition(const Vector3f& pos);
-
+	void setIsActivated(bool isactivated);
 	const MousePickCallback& getCallback();
 	float getPickingDistance();
 

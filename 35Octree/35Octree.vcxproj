@@ -233,6 +233,7 @@
     <ClCompile Include="src\SplinePlatform.cpp" />
     <ClCompile Include="src\States\AnimationInterface.cpp" />
     <ClCompile Include="src\States\BlobShoot.cpp" />
+    <ClCompile Include="src\States\ConstraintInterface.cpp" />
     <ClCompile Include="src\States\Controlls.cpp" />
     <ClCompile Include="src\States\Default.cpp" />
     <ClCompile Include="src\States\Grass\GrassComp.cpp" />
@@ -444,6 +445,7 @@
     <ClInclude Include="src\SplinePlatform.h" />
     <ClInclude Include="src\States\AnimationInterface.h" />
     <ClInclude Include="src\States\BlobShoot.h" />
+    <ClInclude Include="src\States\ConstraintInterface.h" />
     <ClInclude Include="src\States\Controls.h" />
     <ClInclude Include="src\States\Default.h" />
     <ClInclude Include="src\States\Grass\GrassComp.h" />

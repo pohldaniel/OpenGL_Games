@@ -555,6 +555,9 @@
     <ClCompile Include="Physics\Constraint6DoF.cpp">
       <Filter>Physics</Filter>
     </ClCompile>
+    <ClCompile Include="src\States\ConstraintInterface.cpp">
+      <Filter>Source Files\States</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="convhull\convhull_3d.h">
@@ -1054,6 +1057,9 @@
     </ClInclude>
     <ClInclude Include="Physics\Constraint6DoF.h">
       <Filter>Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\States\ConstraintInterface.h">
+      <Filter>Source Files\States</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

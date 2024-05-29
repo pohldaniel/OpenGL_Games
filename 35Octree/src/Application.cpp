@@ -26,6 +26,7 @@
 #include <States/KCCInterface.h>
 #include <States/SkinnedArmor.h>
 #include <States/SixDegreeOfFreedom.h>
+#include <States/ConstraintInterface.h>
 
 #include <States/Particle/BlendedParticle.h>
 #include <States/Particle/SmoothParticle.h>
@@ -465,7 +466,9 @@ void Application::initStates() {
 	//Machine->addStateAtTop(new AnimationInterface(*Machine));
 	//Machine->addStateAtTop(new KCCInterface(*Machine));
 	//Machine->addStateAtTop(new SkinnedArmor(*Machine));
-	Machine->addStateAtTop(new SixDegreeOfFreedom(*Machine));
+	//Machine->addStateAtTop(new SixDegreeOfFreedom(*Machine));
+	Machine->addStateAtTop(new ConstraintInterface(*Machine));
+	
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {

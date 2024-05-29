@@ -24,6 +24,7 @@ Constraint::Constraint() :
 	framesDirty_(false),
 	retryCreation_(false)
 {
+	physicsWorld_ = Physics::GetDynamicsWorld();
 }
 
 Constraint::~Constraint(){
