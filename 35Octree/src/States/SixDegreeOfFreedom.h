@@ -56,5 +56,5 @@ private:
 	SplinePath* m_splinePath;
 	SceneNodeLC* m_root;
 
-	btCollisionObject* m_kinematicBox;
+	btCollisionObject* m_kinematicBox, *m_kinematicShip, *m_kinematicBike;
 };

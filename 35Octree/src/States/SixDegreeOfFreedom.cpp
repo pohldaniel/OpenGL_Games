@@ -490,7 +490,6 @@ void SixDegreeOfFreedom::createScene() {
 }
 
 void SixDegreeOfFreedom::createPhysics() {
-	m_kinematicBox = Physics::AddKinematicObject(Physics::BtTransform(btVector3(85.3823f, 8.0f, 18.6991f)), new btBoxShape(btVector3(1.0f, 1.0f, 1.0f)));
 	Physics::AddStaticObject(Physics::BtTransform(btVector3(0.0f, 0.0f, 0.0f)), Physics::CreateCollisionShape(&m_boxShape, btVector3(500.0f, 1.0f, 500.0f)), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER);
 
 	Physics::AddStaticObject(Physics::BtTransform(btVector3(0.0f, 4.99f, 250.0f)), Physics::CreateCollisionShape(&m_boxShape, btVector3(500.0f, 50.0f, 1.0f)), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER);
@@ -498,14 +497,14 @@ void SixDegreeOfFreedom::createPhysics() {
 	Physics::AddStaticObject(Physics::BtTransform(btVector3(250.0f, 4.99f, 0.0f)), Physics::CreateCollisionShape(&m_boxShape, btVector3(1.0f, 50.0f, 500.0f)), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER);
 	Physics::AddStaticObject(Physics::BtTransform(btVector3(-250.0f, 4.99f, 0.0f)), Physics::CreateCollisionShape(&m_boxShape, btVector3(1.0f, 50.0f, 500.0f)), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER);
 
-
 	Physics::AddStaticObject(Physics::BtTransform(btVector3(131.649f, 8.14253f, 22.008f)), Physics::CreateCollisionShape(&m_cylinderShape, btVector3(20.0f, 30.0f, 20.0f)), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER);
 	Physics::AddStaticObject(Physics::BtTransform(btVector3(-166.368f, 8.14253f, 22.008f)), Physics::CreateCollisionShape(&m_cylinderShape, btVector3(20.0f, 30.0f, 20.0f)), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER);
 	Physics::AddStaticObject(Physics::BtTransform(btVector3(-52.0564f, -20.7696f, -80.7397f), btQuaternion(0.0f, 90.0f * PI_ON_180, 0.0f)), Physics::CreateCollisionShape(&m_cylinderShape, btVector3(50.0f, 30.0f, 50.0f)), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER);
-
-
 	Physics::AddStaticObject(Physics::BtTransform(btVector3(-20.1763f, -7.45501f, 3.0711f), btQuaternion(0.0f, 0.0f, 0.642788f, 0.766044f)), Physics::CreateCollisionShape(&m_boxShape, btVector3(20.0f, 30.0f, 20.0f)), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER);
-
+	
+	m_kinematicBox = Physics::AddKinematicObject(Physics::BtTransform(btVector3(85.3823f, 8.0f, 18.6991f)), new btBoxShape(btVector3(1.0f, 1.0f, 1.0f)));
+	m_kinematicShip = Physics::AddKinematicObject(Physics::BtTransform(btVector3(-15.8898f, 1.49614f, -22.0555f)), Physics::CreateCollisionShape(&m_shipShape), Physics::collisiontypes::CHARACTER, Physics::collisiontypes::FLOOR);
+	m_kinematicBike = Physics::AddKinematicObject(Physics::BtTransform(btVector3(80.0f, 2.0f, 40.0f)), Physics::CreateCollisionShape(&m_hoverbikeShape), Physics::collisiontypes::CHARACTER, Physics::collisiontypes::FLOOR);
 }
 
 void SixDegreeOfFreedom::updateSplinePath(float timeStep){
