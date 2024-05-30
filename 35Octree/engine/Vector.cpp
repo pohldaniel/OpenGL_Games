@@ -3156,6 +3156,14 @@ Quaternion::Quaternion(const Vector3f &start, const Vector3f &end) {
 	fromRotationTo(start, end);
 }
 
+Quaternion::Quaternion(const Vector3f &directionXZ) {
+	float angle = atan2f(directionXZ[0], directionXZ[2]);
+	quat[0] = 0.0f;
+	quat[1] = sinf(angle * 0.5f);
+	quat[2] = 0.0f;
+	quat[3] = cosf(angle * 0.5f);
+}
+
 Quaternion::Quaternion(const Matrix4f &m) {
 	fromMatrix(m);
 }

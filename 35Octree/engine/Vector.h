@@ -407,6 +407,7 @@ public:
 	Quaternion(float pitch, float yaw, float roll);
 	Quaternion(const Vector3f &axis, float degrees);
 	Quaternion(const Vector3f &start, const Vector3f &end);
+	Quaternion(const Vector3f &directionXZ);
 	Quaternion(Quaternion const& rhs);
 	Quaternion(Quaternion&& rhs);
 	explicit Quaternion(const Matrix4f &m);

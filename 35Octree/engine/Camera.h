@@ -94,6 +94,7 @@ public:
 	void setPositionY(float y);
 	void setPositionZ(float z);
 	void setRotation(float pitch, float yaw, float roll = 0.0f);
+	void setDirection(const Vector3f &direction, const Vector3f &up = Vector3f(0.0f, 1.0f, 0.0f));
 
 	virtual void setTarget(const Vector3f& target);
 	void setMovingSpeed(float movingSpeed);

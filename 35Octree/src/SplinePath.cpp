@@ -23,7 +23,8 @@ SplinePath::SplinePath() :
 	traveled_(0.f),
 	length_(0.f),
 	dirty_(false),
-	controlledIdAttr_(0)
+	controlledIdAttr_(0),
+	controlledNode_(nullptr)
 {
 	//UpdateNodeIds();
 }

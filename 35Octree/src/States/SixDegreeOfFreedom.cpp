@@ -6,6 +6,7 @@
 #include <engine/BuiltInShader.h>
 #include <States/Menu.h>
 #include <Utils/BinaryIO.h>
+#include <Physics/ShapeDrawer.h>
 
 #include "SixDegreeOfFreedom.h"
 #include "Application.h"
@@ -64,12 +65,15 @@ SixDegreeOfFreedom::SixDegreeOfFreedom(StateMachine& machine) : State(machine, S
 	Material::GetMaterials().back().updateMaterialUbo(BuiltInShader::materialUbo);
 
 	DebugRenderer::Get().setEnable(true);
+	ShapeDrawer::Get().init(32768);
+	ShapeDrawer::Get().setCamera(m_camera);
 	WorkQueue::Init(0);
 	m_octree = new Octree(m_camera, m_frustum, m_dt);
 	m_octree->setUseCulling(m_useCulling);
 	m_octree->setUseOcclusionCulling(m_useOcclusion);
 
 	createShapes();
+	createPhysics();
 	createScene();
 }
 
@@ -83,12 +87,8 @@ SixDegreeOfFreedom::~SixDegreeOfFreedom() {
 }
 
 void SixDegreeOfFreedom::fixedUpdate() {
-	m_splinePath->Move(m_fdt);
-
-	if (m_splinePath->IsFinished()) {
-		m_splinePath->Reset();
-	}
-
+	updateSplinePath(m_fdt);
+	m_kinematicBox->setWorldTransform(Physics::BtTransform(Physics::VectorFrom(m_splinePath->GetControlledNode()->getWorldPosition()), Physics::QuaternionFrom(m_splinePath->GetControlledNode()->getWorldOrientation())));
 }
 
 void SixDegreeOfFreedom::update() {
@@ -129,6 +129,12 @@ void SixDegreeOfFreedom::update() {
 		move |= true;
 	}
 
+	Vector3f pos = m_splinePath->GetControlledNode()->getWorldPosition();
+	pos[1] += 1.5f;
+	m_camera.Camera::setTarget(pos);
+
+	//m_camera.lookAt();
+
 	Mouse &mouse = Mouse::instance();
 
 	if (mouse.buttonDown(Mouse::MouseButton::BUTTON_RIGHT)) {
@@ -145,6 +151,9 @@ void SixDegreeOfFreedom::update() {
 			m_camera.move(direction * m_dt);
 		}
 	}
+
+
+
 	m_octree->updateFrameNumber();
 
 	m_frustum.updatePlane(m_camera.getPerspectiveMatrix(), m_camera.getViewMatrix());
@@ -168,15 +177,24 @@ void SixDegreeOfFreedom::render() {
 			for (auto dIt = drawables.begin(); dIt != drawables.end(); ++dIt) {
 				OctreeNode* drawable = *dIt;
 				drawable->drawRaw();
-				if (m_debugTree)
-					drawable->OnRenderAABB(Vector4f(0.0f, 1.0f, 0.0f, 1.0f));
+				if (m_drawDebug)
+					drawable->OnRenderOBB(Vector4f(0.0f, 1.0f, 0.0f, 1.0f));
 			}
 		}
 	}
-	if (m_debugTree) {
+	if (m_debugTree || m_drawDebug) {
 		m_splinePath->OnRenderDebug(Vector4f(0.0f, 1.0f, 0.0f, 1.0f));
 		DebugRenderer::Get().SetProjectionView(m_camera.getPerspectiveMatrix(), m_camera.getViewMatrix());
 		DebugRenderer::Get().drawBuffer();
+	}
+
+	if (m_debugPhysic) {
+		ShapeDrawer::Get().setProjectionView(m_camera.getPerspectiveMatrix(), m_camera.getViewMatrix());
+		glDisable(GL_CULL_FACE);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		ShapeDrawer::Get().drawDynmicsWorld(Physics::GetDynamicsWorld());
+		glPolygonMode(GL_FRONT_AND_BACK, StateMachine::GetEnableWireframe() ? GL_LINE : GL_FILL);
+		glEnable(GL_CULL_FACE);
 	}
 
 	if (m_drawUi)
@@ -286,6 +304,8 @@ void SixDegreeOfFreedom::renderUi() {
 	// render widgets
 	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 	ImGui::Checkbox("Draw Wirframe", &StateMachine::GetEnableWireframe());
+	ImGui::Checkbox("Debug Physic", &m_debugPhysic);
+	ImGui::Checkbox("Draw Debug", &m_drawDebug);
 	if (ImGui::Checkbox("Use Culling", &m_useCulling)) {
 		m_octree->setUseCulling(m_useCulling);
 	}
@@ -412,6 +432,14 @@ void SixDegreeOfFreedom::createScene() {
 	shapeEntity->setShader(Globals::shaderManager.getAssetPointer("material"));
 	shapeEntity->OnOctreeSet(m_octree);
 
+	//ShapeNode* shapeNode;
+	shapeEntity = m_root->addChild<ShapeEntity, Shape>(Globals::shapeManager.get("cube"), m_camera);
+	shapeEntity->setPosition(85.3823f, 8.0f, 18.6991f);
+	shapeEntity->setName("box");
+	shapeEntity->setMaterialIndex(0);
+	shapeEntity->setShader(Globals::shaderManager.getAssetPointer("material"));
+	shapeEntity->OnOctreeSet(m_octree);
+
 	SceneNodeLC* sceneNode;
 	m_splinePath = new SplinePath();
 	Vector3f offset = Vector3f(98.7807f, 8.42104f, 26.7421f);
@@ -460,7 +488,39 @@ void SixDegreeOfFreedom::createScene() {
 	sceneNode->setPosition(Vector3f(-15.8898f, 0.0f, -22.0555f) + offset);
 	m_splinePath->AddControlPoint(sceneNode, 10);
 
-	m_splinePath->SetControlledNode(m_root->findChild<ShapeEntity>("ship"));
+	m_splinePath->SetControlledNode(m_root->findChild<ShapeEntity>("box"));
 	m_splinePath->SetInterpolationMode(CATMULL_ROM_FULL_CURVE);
 	m_splinePath->SetSpeed(30.0f);
+}
+
+void SixDegreeOfFreedom::createPhysics() {
+	m_kinematicBox = Physics::AddKinematicObject(Physics::BtTransform(btVector3(85.3823f, 8.0f, 18.6991f)), new btBoxShape(btVector3(1.0f, 1.0f, 1.0f)));
+
+}
+
+void SixDegreeOfFreedom::updateSplinePath(float timeStep){
+	if (m_splinePath){
+		m_splinePath->Move(timeStep);
+
+		// Looped path, reset to continue
+		if (m_splinePath->IsFinished()){
+			m_splinePath->Reset();
+		}
+
+		// Orient the control node in the path direction
+		if (m_splinePath->GetControlledNode()){
+			Vector3f curPos = m_splinePath->GetPosition();
+			float traveled = m_splinePath->GetTraveled() + 0.02f;
+			if (traveled > 1.0f){
+				traveled -= 1.0f;
+			}
+			Vector3f aheadPos = m_splinePath->GetPoint(traveled);
+			Vector3f dir = aheadPos - curPos;
+			dir[1] = 0.0f;
+			Vector3f::Normalize(dir);
+			m_splinePath->GetControlledNode()->setOrientation(Quaternion(dir));
+			//m_splinePath->GetControlledNode()->setOrientation(Quaternion(Vector3f::FORWARD, dir));
+			m_camera.setDirection(dir);
+		}
+	}
 }

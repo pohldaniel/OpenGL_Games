@@ -466,8 +466,8 @@ void Application::initStates() {
 	//Machine->addStateAtTop(new AnimationInterface(*Machine));
 	//Machine->addStateAtTop(new KCCInterface(*Machine));
 	//Machine->addStateAtTop(new SkinnedArmor(*Machine));
-	//Machine->addStateAtTop(new SixDegreeOfFreedom(*Machine));
-	Machine->addStateAtTop(new ConstraintInterface(*Machine));
+	Machine->addStateAtTop(new SixDegreeOfFreedom(*Machine));
+	//Machine->addStateAtTop(new ConstraintInterface(*Machine));
 	
 }
 

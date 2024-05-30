@@ -2,22 +2,20 @@
 
 #include <engine/input/MouseEventListener.h>
 #include <engine/input/KeyboardEventListener.h>
-#include <engine/octree/Octree.h>
 #include <engine/Camera.h>
-#include <engine/Frustum.h>
-#include <engine/Background.h>
 
 #include <States/StateMachine.h>
 #include <Physics/Physics.h>
-#include <Entities/ShapeEntity.h>
-#include "SplinePath.h"
+#include <Physics/MousePicker.h>
 
-class SixDegreeOfFreedom : public State, public MouseEventListener, public KeyboardEventListener {
+
+
+class ConstraintInterface : public State, public MouseEventListener, public KeyboardEventListener {
 
 public:
 
-	SixDegreeOfFreedom(StateMachine& machine);
-	~SixDegreeOfFreedom();
+	ConstraintInterface(StateMachine& machine);
+	~ConstraintInterface();
 
 	void fixedUpdate() override;
 	void update() override;
@@ -33,27 +31,25 @@ public:
 private:
 
 	void renderUi();
-	void createShapes();
-	void createPhysics();
-	void createScene();
-	void updateSplinePath(float timeStep);
+	void removePickingConstraint();
+	void pickObject(const btVector3& pickPos, const class btCollisionObject* hitObj);
 
 	bool m_initUi = true;
 	bool m_drawUi = true;
-	bool m_debugTree = false;
-	bool m_useCulling = true;
-	bool m_useOcclusion = true;
 	bool m_debugPhysic = true;
-	bool m_drawDebug = true;
-	float m_offsetDistance = 10.0f;
+	bool m_testConeTwistMotor = false;
+	float m_offsetDistance = 0.0f;
 	float m_rotationSpeed = 0.1f;
+	float m_time = 0.0f;
 
 	Camera m_camera;
-	Frustum m_frustum;
-	Shape m_boxShape, m_cylinderShape, m_shipShape, m_hoverbikeShape;
-	Octree* m_octree;
-	SplinePath* m_splinePath;
-	SceneNodeLC* m_root;
+	MousePicker m_mousePicker;
+	btRigidBody* localCreateRigidBodyPick(float mass, const btTransform& startTransform, btCollisionShape* shape);
+	btRigidBody* localCreateRigidBody(float mass, const btTransform& startTransform, btCollisionShape* shape);
+	btScalar m_defaultContactProcessingThreshold;
+	btConeTwistConstraint* m_ctc;
 
-	btCollisionObject* m_kinematicBox;
+	btTypedConstraint* m_pickConstraint = nullptr;
+	btRigidBody* pickedBody = 0;
+	btScalar mousePickClamping = 30.f;
 };

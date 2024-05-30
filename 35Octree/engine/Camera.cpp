@@ -1103,6 +1103,45 @@ void Camera::setRotation(float pitch, float yaw, float roll) {
 	m_invViewMatrix[3][3] = 1.0f;
 }
 
+void Camera::setDirection(const Vector3f &direction, const Vector3f &up) {
+	m_viewDir = direction;
+	m_zAxis = -direction;
+	m_yAxis = up;
+
+	m_xAxis = Vector3f::Cross(m_yAxis, m_zAxis);
+	Vector3f::Normalize(m_xAxis);
+
+	m_viewMatrix[0][0] = m_xAxis[0];
+	m_viewMatrix[0][1] = m_yAxis[0];
+	m_viewMatrix[0][2] = m_zAxis[0];
+	m_viewMatrix[0][3] = 0.0f;
+
+	m_viewMatrix[1][0] = m_xAxis[1];
+	m_viewMatrix[1][1] = m_yAxis[1];
+	m_viewMatrix[1][2] = m_zAxis[1];
+	m_viewMatrix[1][3] = 0.0f;
+
+	m_viewMatrix[2][0] = m_xAxis[2];
+	m_viewMatrix[2][1] = m_yAxis[2];
+	m_viewMatrix[2][2] = m_zAxis[2];
+	m_viewMatrix[2][3] = 0.0f;
+
+	m_invViewMatrix[0][0] = m_xAxis[0];
+	m_invViewMatrix[0][1] = m_xAxis[1];
+	m_invViewMatrix[0][2] = m_xAxis[2];
+	m_invViewMatrix[0][3] = 0.0f;
+
+	m_invViewMatrix[1][0] = m_yAxis[0];
+	m_invViewMatrix[1][1] = m_yAxis[1];
+	m_invViewMatrix[1][2] = m_yAxis[2];
+	m_invViewMatrix[1][3] = 0.0f;
+
+	m_invViewMatrix[2][0] = m_zAxis[0];
+	m_invViewMatrix[2][1] = m_zAxis[1];
+	m_invViewMatrix[2][2] = m_zAxis[2];
+	m_invViewMatrix[2][3] = 0.0f;
+}
+
 void Camera::setRotationSpeed(float rotationSpeed){
 	m_rotationSpeed = rotationSpeed;
 }
