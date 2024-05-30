@@ -133,8 +133,6 @@ void SixDegreeOfFreedom::update() {
 	pos[1] += 1.5f;
 	m_camera.Camera::setTarget(pos);
 
-	//m_camera.lookAt();
-
 	Mouse &mouse = Mouse::instance();
 
 	if (mouse.buttonDown(Mouse::MouseButton::BUTTON_RIGHT)) {
@@ -151,8 +149,6 @@ void SixDegreeOfFreedom::update() {
 			m_camera.move(direction * m_dt);
 		}
 	}
-
-
 
 	m_octree->updateFrameNumber();
 
@@ -495,6 +491,20 @@ void SixDegreeOfFreedom::createScene() {
 
 void SixDegreeOfFreedom::createPhysics() {
 	m_kinematicBox = Physics::AddKinematicObject(Physics::BtTransform(btVector3(85.3823f, 8.0f, 18.6991f)), new btBoxShape(btVector3(1.0f, 1.0f, 1.0f)));
+	Physics::AddStaticObject(Physics::BtTransform(btVector3(0.0f, 0.0f, 0.0f)), Physics::CreateCollisionShape(&m_boxShape, btVector3(500.0f, 1.0f, 500.0f)), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER);
+
+	Physics::AddStaticObject(Physics::BtTransform(btVector3(0.0f, 4.99f, 250.0f)), Physics::CreateCollisionShape(&m_boxShape, btVector3(500.0f, 50.0f, 1.0f)), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER);
+	Physics::AddStaticObject(Physics::BtTransform(btVector3(0.0f, 4.99f, -250.0f)), Physics::CreateCollisionShape(&m_boxShape, btVector3(500.0f, 50.0f, 1.0f)), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER);
+	Physics::AddStaticObject(Physics::BtTransform(btVector3(250.0f, 4.99f, 0.0f)), Physics::CreateCollisionShape(&m_boxShape, btVector3(1.0f, 50.0f, 500.0f)), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER);
+	Physics::AddStaticObject(Physics::BtTransform(btVector3(-250.0f, 4.99f, 0.0f)), Physics::CreateCollisionShape(&m_boxShape, btVector3(1.0f, 50.0f, 500.0f)), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER);
+
+
+	Physics::AddStaticObject(Physics::BtTransform(btVector3(131.649f, 8.14253f, 22.008f)), Physics::CreateCollisionShape(&m_cylinderShape, btVector3(20.0f, 30.0f, 20.0f)), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER);
+	Physics::AddStaticObject(Physics::BtTransform(btVector3(-166.368f, 8.14253f, 22.008f)), Physics::CreateCollisionShape(&m_cylinderShape, btVector3(20.0f, 30.0f, 20.0f)), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER);
+	Physics::AddStaticObject(Physics::BtTransform(btVector3(-52.0564f, -20.7696f, -80.7397f), btQuaternion(0.0f, 90.0f * PI_ON_180, 0.0f)), Physics::CreateCollisionShape(&m_cylinderShape, btVector3(50.0f, 30.0f, 50.0f)), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER);
+
+
+	Physics::AddStaticObject(Physics::BtTransform(btVector3(-20.1763f, -7.45501f, 3.0711f), btQuaternion(0.0f, 0.0f, 0.642788f, 0.766044f)), Physics::CreateCollisionShape(&m_boxShape, btVector3(20.0f, 30.0f, 20.0f)), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER);
 
 }
 
@@ -519,7 +529,7 @@ void SixDegreeOfFreedom::updateSplinePath(float timeStep){
 			dir[1] = 0.0f;
 			Vector3f::Normalize(dir);
 			m_splinePath->GetControlledNode()->setOrientation(Quaternion(dir));
-			//m_splinePath->GetControlledNode()->setOrientation(Quaternion(Vector3f::FORWARD, dir));
+			m_splinePath->GetControlledNode()->setOrientation(Quaternion(Vector3f::FORWARD, dir));
 			m_camera.setDirection(dir);
 		}
 	}

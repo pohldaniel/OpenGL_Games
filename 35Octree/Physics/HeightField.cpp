@@ -36,7 +36,7 @@ void HeightField::processAllTriangles() {
 	m_heightFieldShape->setLocalScaling(m_localScaling);
 
 	int intColor = ShapeDrawer::RandomColor.generate();
-	m_drawHelper = { &m_positions , &m_indices , m_localScaling, Vector4f(((intColor >> 16) & 0xFF) / 255.0f, ((intColor >> 8) & 0xFF) / 255.0f, ((intColor) & 0xFF) / 255.0f, 1.0f)};
+	m_drawHelper = { &m_positions , &m_indices ,  Vector4f(((intColor >> 16) & 0xFF) / 255.0f, ((intColor >> 8) & 0xFF) / 255.0f, ((intColor) & 0xFF) / 255.0f, 1.0f)};
 
 	m_heightFieldShape->setUserPointer((void*)&m_drawHelper);
 }

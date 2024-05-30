@@ -118,7 +118,9 @@ void ShapeDrawer::drawShape(btScalar* m, btCollisionShape* shape) {
 
 		ShapeCacheConvex* sc = cacheConvex(const_cast<btCollisionShape*>(shape));
 		btShapeHull* hull = &sc->m_shapehull;
-
+		btVector3 scale = shape->getLocalScaling();
+		Matrix4f mat = Matrix4f(m);
+		Matrix4f scaleMat = Matrix4f::Scale(scale.x(), scale.y(), scale.z());
 		const unsigned int* idx = hull->getIndexPointer();
 		const btVector3* vtx = hull->getVertexPointer();
 
@@ -135,7 +137,7 @@ void ShapeDrawer::drawShape(btScalar* m, btCollisionShape* shape) {
 
 		s_shader->loadMatrix("u_projection", m_perspective);
 		s_shader->loadMatrix("u_view", m_view);
-		s_shader->loadMatrix("u_model", m);
+		s_shader->loadMatrix("u_model", Matrix4f(m) * scaleMat);
 		s_shader->loadVector("u_color", sc->m_color);
 
 		glDrawElements(GL_TRIANGLES, hull->numIndices(), GL_UNSIGNED_INT, 0);
@@ -149,6 +151,8 @@ void ShapeDrawer::drawShape(btScalar* m, btCollisionShape* shape) {
 
 		ShapeCache*	sc = cache(const_cast<btCollisionShape*>(shape));
 		const IndexedMeshArray& meshArray = dynamic_cast<btTriangleIndexVertexArray*>(dynamic_cast<btTriangleMeshShape*>(shape)->getMeshInterface())->getIndexedMeshArray();
+		btVector3 scale = shape->getLocalScaling();
+		Matrix4f scaleMat = Matrix4f::Scale(scale.x(), scale.y(), scale.z());
 
 		for (int i = 0; i < meshArray.size(); i++) {
 			glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
@@ -165,7 +169,7 @@ void ShapeDrawer::drawShape(btScalar* m, btCollisionShape* shape) {
 
 			s_shader->loadMatrix("u_projection", m_perspective);
 			s_shader->loadMatrix("u_view", m_view);
-			s_shader->loadMatrix("u_model", m);
+			s_shader->loadMatrix("u_model", Matrix4f(m) * scaleMat);
 			s_shader->loadVector("u_color", sc->m_color);
 
 			glDrawElements(GL_TRIANGLES, meshArray.at(i).m_numTriangles * 3, GL_UNSIGNED_INT, 0);
@@ -176,10 +180,11 @@ void ShapeDrawer::drawShape(btScalar* m, btCollisionShape* shape) {
 			glBindBuffer(GL_ARRAY_BUFFER, 0);			
 		}
 
-	}else if (shape->getShapeType() == TERRAIN_SHAPE_PROXYTYPE) {
-
+	}else if (shape->getShapeType() == TERRAIN_SHAPE_PROXYTYPE) {		
 		DrawHelper* sc = (DrawHelper*)shape->getUserPointer();
-		
+		btVector3 scale = shape->getLocalScaling();
+		Matrix4f scaleMat = Matrix4f::Scale(scale.x(), scale.y(), scale.z());
+
 		glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
 		glBufferSubData(GL_ARRAY_BUFFER, 0, sc->m_positions->size() * sizeof(btVector3), &(*sc->m_positions)[0]);
 
@@ -193,7 +198,7 @@ void ShapeDrawer::drawShape(btScalar* m, btCollisionShape* shape) {
 
 		s_shader->loadMatrix("u_projection", m_perspective);
 		s_shader->loadMatrix("u_view", m_view);
-		s_shader->loadMatrix("u_model", Matrix4f(m) * Matrix4f::Scale(sc->m_localScaling[0], sc->m_localScaling[1], sc->m_localScaling[2]));
+		s_shader->loadMatrix("u_model", Matrix4f(m) * scaleMat);
 		s_shader->loadVector("u_color", sc->m_color);
 
 		glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(sc->m_indices->size()), GL_UNSIGNED_INT, 0);

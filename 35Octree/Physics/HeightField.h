@@ -65,7 +65,6 @@ public:
 struct DrawHelper {
 	std::vector<btVector3>* m_positions;
 	std::vector<unsigned int>* m_indices;
-	btVector3 m_localScaling;
 	Vector4f m_color;
 };
 

@@ -44,7 +44,8 @@ private:
 	bool m_useCulling = true;
 	bool m_useOcclusion = true;
 	bool m_debugPhysic = true;
-	bool m_drawDebug = true;
+	bool m_drawDebug = false;
+
 	float m_offsetDistance = 10.0f;
 	float m_rotationSpeed = 0.1f;
 
