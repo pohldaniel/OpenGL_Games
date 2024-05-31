@@ -10,7 +10,7 @@
 #include <BulletCollision/CollisionDispatch/btGhostObject.h>
 #include <BulletDynamics/Character/btKinematicCharacterController.h>
 #include "engine/Vector.h"
-
+#include "DebugDrawer.h"
 
 #define MAX_SIMULATION_SUBSTEPS   0
 
@@ -84,7 +84,6 @@ public:
 	void preStep(btScalar timeStep);
 	void stepSimulation(btScalar timeStep);
 	void postStep(btScalar timeStep);
-	void debugDrawWorld();
 	btBroadphaseInterface* getBroadphase();
 	void HandleCollisions();
 
@@ -93,6 +92,7 @@ public:
 
 	
 	static btCollisionShape* CreateCollisionShape(Shape* shape, const btVector3 & scale = btVector3(1.0f, 1.0f, 1.0f));
+	static btCollisionShape* CreateConvexHullShape(Shape* shape, const btVector3 & scale = btVector3(1.0f, 1.0f, 1.0f));
 	static std::vector<btCollisionShape*> CreateCollisionShapes(Shape* shape, float scale = 1.0f);
 
 	static btCollisionShape* CreateCollisionShape(ObjMesh* mesh, const btVector3& scale = btVector3(1.0f, 1.0f, 1.0f));
@@ -118,6 +118,7 @@ public:
 	static btTransform BtTransform();
 	static btTransform BtTransform(const btVector3& origin);
 	static btTransform BtTransform(const btVector3& origin, const btQuaternion& orientation);
+	static btTransform BtTransform(const btQuaternion& orientation, const btVector3& origin);
 
 	static btTransform BtTransform(const Vector3f& origin);
 	static btTransform BtTransform(const Vector3f& axis, float degrees);
@@ -138,6 +139,8 @@ public:
 
 	static void PreTickCallback(btDynamicsWorld* world, btScalar timeStep);
 	static void PostTickCallback(btDynamicsWorld* world, btScalar timeStep);
+	static void DebugDrawWorld();
+	static void SetDebugMode(unsigned int mode);
 
 	btCollisionDispatcher* m_dispatcher;
 	btBroadphaseInterface* m_broadphase;
@@ -146,4 +149,5 @@ public:
 	float m_physicsStep;
 
 	static btDiscreteDynamicsWorld* DynamicsWorld;
+	static DebugDrawer DebugDrawer;
 };

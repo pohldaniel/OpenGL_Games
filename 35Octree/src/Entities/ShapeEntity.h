@@ -23,12 +23,14 @@ public:
 
 	short getTextureIndex() const;
 	void setTextureIndex(short index) const;
+	void setDisabled(bool disabled);
 	void setShader(Shader* shader);
 
 private:
 
 	mutable short m_materialIndex;
 	mutable short m_textureIndex;
+	bool m_disabled;
 	const Camera& camera;
 	Shader* shader;
 };

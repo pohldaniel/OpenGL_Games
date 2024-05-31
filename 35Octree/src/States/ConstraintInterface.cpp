@@ -38,7 +38,7 @@ ConstraintInterface::ConstraintInterface(StateMachine& machine) : State(machine,
 	DebugRenderer::Get().setEnable(true);
 	ShapeDrawer::Get().init(32768);
 	ShapeDrawer::Get().setCamera(m_camera);
-
+	Physics::SetDebugMode(btIDebugDraw::DBG_DrawConstraints + btIDebugDraw::DBG_DrawConstraintLimits);
 	glClearColor(0.494f, 0.686f, 0.796f, 1.0f);
 	glClearDepth(1.0f);
 	
@@ -218,6 +218,7 @@ ConstraintInterface::ConstraintInterface(StateMachine& machine) : State(machine,
 ConstraintInterface::~ConstraintInterface() {
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
+	Physics::SetDebugMode(0u);
 }
 
 void ConstraintInterface::fixedUpdate() {
@@ -311,7 +312,15 @@ void ConstraintInterface::render() {
 		//glPolygonMode(GL_FRONT_AND_BACK, StateMachine::GetEnableWireframe() ? GL_LINE : GL_FILL);
 		glEnable(GL_CULL_FACE);
 		m_mousePicker.drawPicker(m_camera);
+
+		glMatrixMode(GL_PROJECTION);
+		glLoadMatrixf(&m_camera.getPerspectiveMatrix()[0][0]);
+		glMatrixMode(GL_MODELVIEW);
+		glLoadMatrixf(&m_camera.getViewMatrix()[0][0]);
+		Physics::DebugDrawWorld();
 	}
+
+	
 
 	if (m_drawUi)
 		renderUi();
@@ -454,7 +463,7 @@ void ConstraintInterface::renderUi() {
 	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 	ImGui::Checkbox("Draw Wirframe", &StateMachine::GetEnableWireframe());
 	ImGui::Checkbox("Debug Physic", &m_debugPhysic);
-	ImGui::Checkbox("Cone Twist", &m_testConeTwistMotor);
+	//ImGui::Checkbox("Cone Twist", &m_testConeTwistMotor);
 	ImGui::End();
 
 	ImGui::Render();

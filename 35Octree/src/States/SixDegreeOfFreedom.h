@@ -9,8 +9,18 @@
 
 #include <States/StateMachine.h>
 #include <Physics/Physics.h>
+#include <Physics/MousePicker.h>
 #include <Entities/ShapeEntity.h>
 #include "SplinePath.h"
+
+enum D6LimitIndexType{
+	D6_LINEAR_X = 0,
+	D6_LINEAR_Y,
+	D6_LINEAR_Z,
+	D6_ANGULAR_X,
+	D6_ANGULAR_Y,
+	D6_ANGULAR_Z,
+};
 
 class SixDegreeOfFreedom : public State, public MouseEventListener, public KeyboardEventListener {
 
@@ -37,16 +47,18 @@ private:
 	void createPhysics();
 	void createScene();
 	void updateSplinePath(float timeStep);
+	void removePickingConstraint();
+	void pickObject(const btVector3& pickPos, const class btCollisionObject* hitObj);
 
 	bool m_initUi = true;
-	bool m_drawUi = true;
+	bool m_drawUi = false;
 	bool m_debugTree = false;
 	bool m_useCulling = true;
 	bool m_useOcclusion = true;
 	bool m_debugPhysic = true;
 	bool m_drawDebug = false;
 
-	float m_offsetDistance = 10.0f;
+	float m_offsetDistance = 20.0f;
 	float m_rotationSpeed = 0.1f;
 
 	Camera m_camera;
@@ -55,6 +67,13 @@ private:
 	Octree* m_octree;
 	SplinePath* m_splinePath;
 	SceneNodeLC* m_root;
+	MousePicker m_mousePicker;
+	ShapeEntity* m_shipEntity;
 
-	btCollisionObject* m_kinematicBox, *m_kinematicShip, *m_kinematicBike;
+	btRigidBody* m_kinematicBox, *m_shipBody, *m_kinematicBike;
+
+	btTypedConstraint* m_pickConstraint = nullptr;
+	btRigidBody* pickedBody = 0;
+	btScalar mousePickClamping = 30.f;
+	Vector3f m_direction;
 };

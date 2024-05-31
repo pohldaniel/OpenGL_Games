@@ -13,6 +13,7 @@ void Physics::PostTickCallback(btDynamicsWorld* world, btScalar timeStep) {
 }
 
 btDiscreteDynamicsWorld* Physics::DynamicsWorld;
+DebugDrawer Physics::DebugDrawer;
 
 Physics::Physics(float physicsStep){
 	m_physicsStep = physicsStep;
@@ -38,6 +39,7 @@ void Physics::initialize(){
 	DynamicsWorld->setSynchronizeAllMotionStates(true);
 	//DynamicsWorld->setInternalTickCallback(Physics::PreTickCallback, static_cast<void*>(this), true);
 	//DynamicsWorld->setInternalTickCallback(Physics::PostTickCallback, static_cast<void*>(this), false);
+	DynamicsWorld->setDebugDrawer(&DebugDrawer);
 }
 
 void Physics::deinitialize(){
@@ -110,6 +112,12 @@ void Physics::removeAllCollisionObjects() {
 		DynamicsWorld->removeCollisionObject(obj);
 		delete obj;
 	}
+
+	for (int i = DynamicsWorld->getNumConstraints() - 1; i >= 0; i--){
+		btTypedConstraint* constraint = DynamicsWorld->getConstraint(i);
+		DynamicsWorld->removeConstraint(constraint);
+		delete constraint;
+	}
 }
 
 void Physics::preStep(btScalar timeStep) {
@@ -145,7 +153,7 @@ btRigidBody* Physics::addStaticModel(std::vector<btCollisionShape *>& collisionS
 	return body;
 }
 
-void Physics::debugDrawWorld() {
+void Physics::DebugDrawWorld() {
 	DynamicsWorld->debugDrawWorld();
 }
 
@@ -196,6 +204,12 @@ btCollisionShape* Physics::CreateCollisionShape(Shape* _shape, const btVector3& 
 	shape->setLocalScaling(scale);
 
 	return shape;
+}
+
+btCollisionShape* Physics::CreateConvexHullShape(Shape* _shape, const btVector3 & scale) {
+	btConvexHullShape* convexHull = new btConvexHullShape((btScalar*)(&_shape->getPositions()[0]), _shape->getPositions().size(), sizeof(Vector3f));
+	convexHull->setLocalScaling(scale);
+	return convexHull;
 }
 
 std::vector<btCollisionShape*> Physics::CreateCollisionShapes(Shape* _shape, float scale) {
@@ -443,6 +457,10 @@ btTransform Physics::BtTransform(const btVector3& origin, const btQuaternion& or
 	return transform;
 }
 
+btTransform Physics::BtTransform(const btQuaternion& orientation, const btVector3& origin) {
+	return btTransform(orientation, origin);
+}
+
 btTransform Physics::BtTransform(const Vector3f& origin) {
 	btTransform transform;
 	transform.setIdentity();
@@ -549,4 +567,8 @@ void Physics::HandleCollisions() {
 		}
 	
 	}
+}
+
+void Physics::SetDebugMode(unsigned int mode) {
+	DebugDrawer.setDebugMode(mode);
 }

@@ -3,7 +3,6 @@
 #include <iostream>
 #include <stdlib.h>
 #include <engine/Clock.h>
-#include <Physics/DebugDrawer.h>
 
 #include "Application.h"
 #include "Globals.h"
@@ -26,8 +25,6 @@ extern const unsigned int Globals::lightBinding = 0;
 extern float Globals::soundVolume = 0.2f;
 extern float Globals::musicVolume = 0.05f;
 
-DebugDrawer debugDrawer;
-
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd) {
 
 #if DEBUG
@@ -49,7 +46,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 #endif
 
 	Globals::physics = new Physics(PHYSICS_STEP);
-	Physics::GetDynamicsWorld()->setDebugDrawer(&debugDrawer);
 
 	float deltaTime = 0.0f;
 	float fixedDeltaTime = 0.0f;
@@ -67,7 +63,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		physicsElapsedTime += deltaTime;
 		while (physicsElapsedTime > PHYSICS_STEP) {
 			fixedDeltaTime = fixedDeltaClock.resetSec();
-			if (fixedDeltaTime > PHYSICS_STEP * 5.0f)
+			if (fixedDeltaTime > PHYSICS_STEP * 2.5f)
 				fixedDeltaTime = PHYSICS_STEP;
 
 			application.fixedUpdate();
