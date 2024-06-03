@@ -217,6 +217,7 @@
     <ClCompile Include="src\Animation\AnimationState.cpp" />
     <ClCompile Include="src\Character.cpp" />
     <ClCompile Include="src\Entities\ShapeEntity.cpp" />
+    <ClCompile Include="src\HoverBike.cpp" />
     <ClCompile Include="src\KinematicCharacterController.cpp" />
     <ClCompile Include="src\Entities\Entity.cpp" />
     <ClCompile Include="src\Entities\Flame.cpp" />
@@ -427,6 +428,7 @@
     <ClInclude Include="src\Application.h" />
     <ClInclude Include="src\Character.h" />
     <ClInclude Include="src\Entities\ShapeEntity.h" />
+    <ClInclude Include="src\HoverBike.h" />
     <ClInclude Include="src\KinematicCharacterController.h" />
     <ClInclude Include="src\Entities\Entity.h" />
     <ClInclude Include="src\Entities\Flame.h" />

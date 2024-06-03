@@ -571,15 +571,15 @@ const std::vector<Matrix4f>& Shape::getInstances() const {
 	return m_instances;
 }
 
-std::vector<Vector3f>& Shape::getPositions() {
+const std::vector<Vector3f>& Shape::getPositions() const{
 	return m_positions;
 }
 
-std::vector<unsigned int>& Shape::getIndexBuffer() {
+const std::vector<unsigned int>& Shape::getIndexBuffer() const {
 	return m_indexBuffer;
 }
 
-unsigned int Shape::getNumberOfTriangles() {
+unsigned int Shape::getNumberOfTriangles() const {
 	return m_drawCount / 3;
 }
 

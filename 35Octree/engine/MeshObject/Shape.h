@@ -68,9 +68,9 @@ public:
 	void setFloatAttribute(unsigned int length, unsigned int divisor = 1u, unsigned int usage = 35048u);
 	void updateFloatAttribute(const std::vector<float>& values);
 
-	unsigned int getNumberOfTriangles();
-	std::vector<Vector3f>& getPositions();
-	std::vector<unsigned int>& getIndexBuffer();
+	unsigned int getNumberOfTriangles() const;
+	const std::vector<Vector3f>& getPositions() const;
+	const std::vector<unsigned int>& getIndexBuffer() const;
 	const std::vector<Matrix4f>& getInstances() const;
 	BoundingBox& getAABB() const;
 

@@ -194,7 +194,7 @@ std::vector<btCollisionShape *> Physics::CreateCollisionShapes(ObjModel* model, 
 	return CreateCollisionShapes(model, btVector3(scale, scale, scale));
 }
 
-btCollisionShape* Physics::CreateCollisionShape(Shape* _shape, const btVector3& scale) {
+btCollisionShape* Physics::CreateCollisionShape(const Shape* _shape, const btVector3& scale) {
 	
 	int indexStride = 3 * sizeof(int);
 
@@ -206,7 +206,7 @@ btCollisionShape* Physics::CreateCollisionShape(Shape* _shape, const btVector3& 
 	return shape;
 }
 
-btCollisionShape* Physics::CreateConvexHullShape(Shape* _shape, const btVector3 & scale) {
+btCollisionShape* Physics::CreateConvexHullShape(const Shape* _shape, const btVector3 & scale) {
 	btConvexHullShape* convexHull = new btConvexHullShape((btScalar*)(&_shape->getPositions()[0]), _shape->getPositions().size(), sizeof(Vector3f));
 	convexHull->setLocalScaling(scale);
 	return convexHull;

@@ -12,15 +12,7 @@
 #include <Physics/MousePicker.h>
 #include <Entities/ShapeEntity.h>
 #include "SplinePath.h"
-
-enum D6LimitIndexType{
-	D6_LINEAR_X = 0,
-	D6_LINEAR_Y,
-	D6_LINEAR_Z,
-	D6_ANGULAR_X,
-	D6_ANGULAR_Y,
-	D6_ANGULAR_Z,
-};
+#include "HoverBike.h"
 
 class SixDegreeOfFreedom : public State, public MouseEventListener, public KeyboardEventListener {
 
@@ -69,6 +61,7 @@ private:
 	SceneNodeLC* m_root;
 	MousePicker m_mousePicker;
 	ShapeEntity* m_shipEntity;
+	HoverBike* m_hoverBike;
 
 	btRigidBody* m_kinematicBox, *m_shipBody, *m_kinematicBike;
 

@@ -17,12 +17,12 @@ SixDegreeOfFreedom::SixDegreeOfFreedom(StateMachine& machine) : State(machine, S
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
 	EventDispatcher::AddMouseListener(this);
-	Mouse::instance().attach(Application::GetWindow(), false);
+	//Mouse::instance().attach(Application::GetWindow(), false);
 
 	m_camera = Camera();
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
-	m_camera.lookAt(Vector3f(0.0f, 5.0f, -60.0f) + Vector3f(0.0f, 0.0f, m_offsetDistance), Vector3f(0.0f, 5.0f, -60.0f), Vector3f(0.0f, 1.0f, 0.0f));
+	m_camera.lookAt(Vector3f(80.0f, 2.0f, 40.0f) - Vector3f(0.0f, 0.0f, m_offsetDistance), Vector3f(80.0f, 2.0f, 40.0f), Vector3f(0.0f, 1.0f, 0.0f));
 	m_camera.setRotationSpeed(m_rotationSpeed);
 	m_camera.setMovingSpeed(15.0f);
 	m_camera.setOffsetDistance(m_offsetDistance);
@@ -77,6 +77,7 @@ SixDegreeOfFreedom::SixDegreeOfFreedom(StateMachine& machine) : State(machine, S
 	createShapes();
 	createScene();
 	createPhysics();
+
 }
 
 SixDegreeOfFreedom::~SixDegreeOfFreedom() {
@@ -89,16 +90,19 @@ SixDegreeOfFreedom::~SixDegreeOfFreedom() {
 
 	Globals::physics->removeAllCollisionObjects();
 	ShapeDrawer::Get().shutdown();
+	glEnable(GL_BLEND);
 }
 
 void SixDegreeOfFreedom::fixedUpdate() {	
 	updateSplinePath(m_fdt);
 	m_kinematicBox->getMotionState()->setWorldTransform(Physics::BtTransform(Physics::VectorFrom(m_splinePath->GetControlledNode()->getWorldPosition()), Physics::QuaternionFrom(m_splinePath->GetControlledNode()->getWorldOrientation())));
+	
+	m_hoverBike->FixedUpdate(m_fdt);
 	Globals::physics->stepSimulation(m_fdt);
 
-	//m_shipBody->translate(Physics::VectorFrom(m_direction) * 0.1f);
 	m_shipEntity->setPosition(Physics::VectorFrom(m_shipBody->getWorldTransform().getOrigin()));
 	m_shipEntity->setOrientation(Physics::QuaternionFrom(m_shipBody->getWorldTransform().getRotation()));	
+	m_camera.setDirection(m_hoverBike->getDirection());
 }
 
 void SixDegreeOfFreedom::update() {
@@ -143,12 +147,12 @@ void SixDegreeOfFreedom::update() {
 		m_debugPhysic = !m_debugPhysic;
 	}
 
-	Vector3f pos = m_splinePath->GetControlledNode()->getWorldPosition();
+	//Vector3f pos = m_splinePath->GetControlledNode()->getWorldPosition();
+	Vector3f pos = m_hoverBike->getWorldPosition();
 	pos[1] += 1.5f;
 	m_camera.Camera::setTarget(pos);
 
 	Mouse &mouse = Mouse::instance();
-
 	if (mouse.buttonDown(Mouse::MouseButton::BUTTON_RIGHT)) {
 		dx = mouse.xDelta();
 		dy = mouse.yDelta();
@@ -165,7 +169,6 @@ void SixDegreeOfFreedom::update() {
 	}
 
 	m_mousePicker.updatePosition(mouse.xPos(), mouse.yPos(), m_camera);
-
 	m_octree->updateFrameNumber();
 	m_frustum.updatePlane(m_camera.getPerspectiveMatrix(), m_camera.getViewMatrix());
 	m_frustum.updateVertices(m_camera.getPerspectiveMatrix(), m_camera.getViewMatrix());
@@ -275,7 +278,8 @@ void SixDegreeOfFreedom::OnMouseWheel(Event::MouseWheelEvent& event) {
 void SixDegreeOfFreedom::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 	//m_mousePicker.updatePosition(event.x, event.y, m_camera);
 	if (event.button == 2u) {
-		Mouse::instance().attach(Application::GetWindow(), true, true);
+		//Mouse::instance().attach(Application::GetWindow(), true, true);
+		Mouse::instance().attach(Application::GetWindow());
 	}else if (event.button == 1u) {
 
 		if (m_mousePicker.click(event.x, event.y, m_camera)) {
@@ -292,7 +296,7 @@ void SixDegreeOfFreedom::OnMouseButtonUp(Event::MouseButtonEvent& event) {
 		removePickingConstraint();
 	}
 	Mouse::instance().detach();
-	Mouse::instance().attach(Application::GetWindow(), false, false);
+	//Mouse::instance().attach(Application::GetWindow(), false, false);
 }
 
 void SixDegreeOfFreedom::OnKeyDown(Event::KeyboardEvent& event) {
@@ -486,11 +490,11 @@ void SixDegreeOfFreedom::createScene() {
 	m_shipEntity->setShader(Globals::shaderManager.getAssetPointer("material"));
 	m_shipEntity->OnOctreeSet(m_octree);
 
-	shapeEntity = m_root->addChild<ShapeEntity, Shape>(m_hoverbikeShape, m_camera);
-	shapeEntity->setPosition(80.0f, 2.0f, 40.0f);
-	shapeEntity->setMaterialIndex(0);
-	shapeEntity->setShader(Globals::shaderManager.getAssetPointer("material"));
-	shapeEntity->OnOctreeSet(m_octree);
+	m_hoverBike = m_root->addChild<HoverBike, Shape>(m_hoverbikeShape, m_camera);
+	m_hoverBike->setPosition(80.0f, 2.0f, 40.0f);
+	m_hoverBike->setMaterialIndex(0);
+	m_hoverBike->setShader(Globals::shaderManager.getAssetPointer("material"));
+	m_hoverBike->OnOctreeSet(m_octree);
 
 	//ShapeNode* shapeNode;
 	shapeEntity = m_root->addChild<ShapeEntity, Shape>(Globals::shapeManager.get("cube"), m_camera);
@@ -555,17 +559,16 @@ void SixDegreeOfFreedom::createScene() {
 }
 
 void SixDegreeOfFreedom::createPhysics() {
-	Physics::AddStaticObject(Physics::BtTransform(btVector3(0.0f, 0.0f, 0.0f)), Physics::CreateCollisionShape(&m_boxShape, btVector3(500.0f, 1.0f, 500.0f)), Physics::collisiontypes::FLOOR, Physics::collisiontypes::PICKABLE_OBJECT);
+	Physics::AddRigidBody(0.0f, Physics::BtTransform(btVector3(0.0f, 0.0f, 0.0f)), new btBoxShape(btVector3(500.0f, 1.0f, 500.0f)), Physics::collisiontypes::FLOOR, Physics::collisiontypes::PICKABLE_OBJECT, btCollisionObject::CF_STATIC_OBJECT);
+	Physics::AddRigidBody(0.0f, Physics::BtTransform(btVector3(0.0f, 4.99f, 250.0f)), Physics::CreateCollisionShape(&m_boxShape, btVector3(500.0f, 50.0f, 1.0f)), Physics::collisiontypes::FLOOR, Physics::collisiontypes::PICKABLE_OBJECT, btCollisionObject::CF_STATIC_OBJECT);
+	Physics::AddRigidBody(0.0f, Physics::BtTransform(btVector3(0.0f, 4.99f, -250.0f)), Physics::CreateCollisionShape(&m_boxShape, btVector3(500.0f, 50.0f, 1.0f)), Physics::collisiontypes::FLOOR, Physics::collisiontypes::PICKABLE_OBJECT, btCollisionObject::CF_STATIC_OBJECT);
+	Physics::AddRigidBody(0.0f, Physics::BtTransform(btVector3(250.0f, 4.99f, 0.0f)), Physics::CreateCollisionShape(&m_boxShape, btVector3(1.0f, 50.0f, 500.0f)), Physics::collisiontypes::FLOOR, Physics::collisiontypes::PICKABLE_OBJECT, btCollisionObject::CF_STATIC_OBJECT);
+	Physics::AddRigidBody(0.0f, Physics::BtTransform(btVector3(-250.0f, 4.99f, 0.0f)), Physics::CreateCollisionShape(&m_boxShape, btVector3(1.0f, 50.0f, 500.0f)), Physics::collisiontypes::FLOOR, Physics::collisiontypes::PICKABLE_OBJECT, btCollisionObject::CF_STATIC_OBJECT);
 
-	Physics::AddStaticObject(Physics::BtTransform(btVector3(0.0f, 4.99f, 250.0f)), Physics::CreateCollisionShape(&m_boxShape, btVector3(500.0f, 50.0f, 1.0f)), Physics::collisiontypes::FLOOR, Physics::collisiontypes::PICKABLE_OBJECT);
-	Physics::AddStaticObject(Physics::BtTransform(btVector3(0.0f, 4.99f, -250.0f)), Physics::CreateCollisionShape(&m_boxShape, btVector3(500.0f, 50.0f, 1.0f)), Physics::collisiontypes::FLOOR, Physics::collisiontypes::PICKABLE_OBJECT);
-	Physics::AddStaticObject(Physics::BtTransform(btVector3(250.0f, 4.99f, 0.0f)), Physics::CreateCollisionShape(&m_boxShape, btVector3(1.0f, 50.0f, 500.0f)), Physics::collisiontypes::FLOOR, Physics::collisiontypes::PICKABLE_OBJECT);
-	Physics::AddStaticObject(Physics::BtTransform(btVector3(-250.0f, 4.99f, 0.0f)), Physics::CreateCollisionShape(&m_boxShape, btVector3(1.0f, 50.0f, 500.0f)), Physics::collisiontypes::FLOOR, Physics::collisiontypes::PICKABLE_OBJECT);
-
-	Physics::AddStaticObject(Physics::BtTransform(btVector3(131.649f, 8.14253f, 22.008f)), Physics::CreateCollisionShape(&m_cylinderShape, btVector3(20.0f, 30.0f, 20.0f)), Physics::collisiontypes::FLOOR, Physics::collisiontypes::PICKABLE_OBJECT);
-	Physics::AddStaticObject(Physics::BtTransform(btVector3(-166.368f, 8.14253f, 22.008f)), Physics::CreateCollisionShape(&m_cylinderShape, btVector3(20.0f, 30.0f, 20.0f)), Physics::collisiontypes::FLOOR, Physics::collisiontypes::PICKABLE_OBJECT);
-	Physics::AddStaticObject(Physics::BtTransform(btVector3(-52.0564f, -20.7696f, -80.7397f), btQuaternion(0.0f, 90.0f * PI_ON_180, 0.0f)), Physics::CreateCollisionShape(&m_cylinderShape, btVector3(50.0f, 30.0f, 50.0f)), Physics::collisiontypes::FLOOR, Physics::collisiontypes::PICKABLE_OBJECT);
-	Physics::AddStaticObject(Physics::BtTransform(btVector3(-20.1763f, -7.45501f, 3.0711f), btQuaternion(0.0f, 0.0f, 0.642788f, 0.766044f)), Physics::CreateCollisionShape(&m_boxShape, btVector3(20.0f, 30.0f, 20.0f)), Physics::collisiontypes::FLOOR, Physics::collisiontypes::PICKABLE_OBJECT);
+	Physics::AddRigidBody(0.0f, Physics::BtTransform(btVector3(131.649f, 8.14253f, 22.008f)), Physics::CreateCollisionShape(&m_cylinderShape, btVector3(20.0f, 30.0f, 20.0f)), Physics::collisiontypes::FLOOR, Physics::collisiontypes::PICKABLE_OBJECT, btCollisionObject::CF_STATIC_OBJECT);
+	Physics::AddRigidBody(0.0f, Physics::BtTransform(btVector3(-166.368f, 8.14253f, 22.008f)), Physics::CreateCollisionShape(&m_cylinderShape, btVector3(20.0f, 30.0f, 20.0f)), Physics::collisiontypes::FLOOR, Physics::collisiontypes::PICKABLE_OBJECT, btCollisionObject::CF_STATIC_OBJECT);
+	Physics::AddRigidBody(0.0f, Physics::BtTransform(btVector3(-52.0564f, -20.7696f, -80.7397f), btQuaternion(0.0f, 90.0f * PI_ON_180, 0.0f)), Physics::CreateCollisionShape(&m_cylinderShape, btVector3(50.0f, 30.0f, 50.0f)), Physics::collisiontypes::FLOOR, Physics::collisiontypes::PICKABLE_OBJECT, btCollisionObject::CF_STATIC_OBJECT);
+	Physics::AddRigidBody(0.0f, Physics::BtTransform(btVector3(-20.1763f, -7.45501f, 3.0711f), btQuaternion(0.0f, 0.0f, 0.642788f, 0.766044f)), Physics::CreateCollisionShape(&m_boxShape, btVector3(20.0f, 30.0f, 20.0f)), Physics::collisiontypes::FLOOR, Physics::collisiontypes::PICKABLE_OBJECT, btCollisionObject::CF_STATIC_OBJECT);
 	
 	m_kinematicBox = Physics::AddKinematicRigidBody(Physics::BtTransform(btVector3(85.3823f, 8.0f, 18.6991f)), new btBoxShape(btVector3(1.0f, 1.0f, 1.0f)));
 	m_shipBody = Physics::AddRigidBody(1.0f, Physics::BtTransform(btVector3(85.3823f, 8.0f, 18.6991f)), Physics::CreateConvexHullShape(&m_shipShape), Physics::PICKABLE_OBJECT, Physics::collisiontypes::FLOOR | Physics::MOUSEPICKER);
@@ -576,7 +579,7 @@ void SixDegreeOfFreedom::createPhysics() {
 	m_shipEntity->setOrientation(Physics::QuaternionFrom(m_shipBody->getWorldTransform().getRotation()));
 
 
-	m_kinematicBike = Physics::AddKinematicRigidBody(Physics::BtTransform(btVector3(80.0f, 2.0f, 40.0f)), Physics::CreateCollisionShape(&m_hoverbikeShape), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::FLOOR | Physics::MOUSEPICKER);
+	//m_kinematicBike = Physics::AddKinematicRigidBody(Physics::BtTransform(btVector3(80.0f, 2.0f, 40.0f)), Physics::CreateCollisionShape(&m_hoverbikeShape), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::FLOOR | Physics::MOUSEPICKER);
 	
 	btGeneric6DofSpring2Constraint* pGen6DOFSpring = new btGeneric6DofSpring2Constraint(*m_kinematicBox, *m_shipBody, Physics::BtTransform(), Physics::BtTransform());
 	pGen6DOFSpring->setLinearLowerLimit(btVector3(-8.0f, -4.0f, -0.2f));
@@ -648,7 +651,7 @@ void SixDegreeOfFreedom::updateSplinePath(float timeStep){
 			Vector3f::Normalize(m_direction);
 			m_splinePath->GetControlledNode()->setOrientation(Quaternion(m_direction));
 			m_splinePath->GetControlledNode()->setOrientation(Quaternion(Vector3f::FORWARD, m_direction));
-			m_camera.setDirection(m_direction);
+			//m_camera.setDirection(m_direction);
 
 		}
 	}

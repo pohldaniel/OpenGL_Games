@@ -129,6 +129,31 @@ btRigidBody* Physics::addStaticModel(std::vector<btCollisionShape *>& collisionS
 	return body;
 }
 
+btCollisionObject* Physics::AddKinematicObject(const btTransform& transform, btCollisionShape* shape, int collisionFilterGroup, int collisionFilterMask, void* userPointer) {
+	btCollisionObject* colObj = new btCollisionObject();
+	colObj->setWorldTransform(transform);
+	colObj->setCollisionShape(shape);
+	colObj->setCollisionFlags(btCollisionObject::CF_KINEMATIC_OBJECT);
+	if (userPointer)
+		colObj->setUserPointer(userPointer);
+	colObj->forceActivationState(DISABLE_DEACTIVATION);
+
+	DynamicsWorld->addCollisionObject(colObj, collisionFilterGroup, collisionFilterMask);
+	return colObj;
+}
+
+btCollisionObject* Physics::AddStaticObject(const btTransform& transform, btCollisionShape* shape, int collisionFilterGroup, int collisionFilterMask, void* userPointer) {
+	btCollisionObject* colObj = new btCollisionObject();
+	colObj->setWorldTransform(transform);
+	colObj->setCollisionShape(shape);
+	colObj->setCollisionFlags(btCollisionObject::CF_STATIC_OBJECT);
+	if (userPointer)
+		colObj->setUserPointer(userPointer);
+
+	DynamicsWorld->addCollisionObject(colObj, collisionFilterGroup, collisionFilterMask);
+	return colObj;
+}
+
 void Physics::debugDrawWorld() {
 	DynamicsWorld->debugDrawWorld();
 }

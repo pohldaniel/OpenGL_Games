@@ -32,6 +32,7 @@ VehicleInterface::VehicleInterface(StateMachine& machine) : State(machine, Curre
 
 	m_heightField.create(heightfield, 128, 128, Physics::BtTransform(btVector3(0.0f, 49.4f, 0.0f)), btVector3(1.0f, 1.0f, 1.0f), Physics::collisiontypes::FLOOR | Physics::PICKABLE_OBJECT, Physics::collisiontypes::CAR | Physics::MOUSEPICKER);
 	m_heightField.processAllTriangles();
+	//Physics::AddRigidBody(0.0f, Physics::BtTransform(btVector3(0.0f, -10.0f, 0.0f)), new btBoxShape(btVector3(500.0f, 1.0f, 500.0f)), Physics::collisiontypes::FLOOR | Physics::PICKABLE_OBJECT, Physics::collisiontypes::CAR | Physics::MOUSEPICKER);
 
 	m_physicsCar = new PhysicsCar();
 	m_physicsCar->create(Physics::BtTransform(Vector3f(0.0f, 1.0f, 0.0f)), Physics::collisiontypes::CAR | Physics::PICKABLE_OBJECT, Physics::collisiontypes::FLOOR | Physics::MOUSEPICKER);
