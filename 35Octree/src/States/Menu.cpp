@@ -28,6 +28,7 @@
 #include <States/KCCInterface.h>
 #include <States/SkinnedArmor.h>
 #include <States/SixDegreeOfFreedom.h>
+#include <States/ConstraintInterface.h>
 
 #include <States/Settings.h>
 #include <States/Controls.h>
@@ -71,7 +72,8 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 		{ "animation",        Button() },
 		{ "kcc",              Button() },
 		{ "skinned",          Button() },
-		{ "6dof",             Button() }
+		{ "6dof",             Button() },
+		{ "constraints",      Button() }
 	});
 
 	m_buttons.at("grass_comp").setCharset(Globals::fontManager.get("upheaval_50"));
@@ -281,6 +283,15 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 		m_machine.addStateAtBottom(new AnimationInterface(m_machine));
 	});
 
+	m_buttons.at("constraints").setCharset(Globals::fontManager.get("upheaval_50"));
+	m_buttons.at("constraints").setPosition(1130.0f, 50.0f);
+	m_buttons.at("constraints").setOutlineThickness(5.0f);
+	m_buttons.at("constraints").setText("Constraints");
+	m_buttons.at("constraints").setFunction([&]() {
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new ConstraintInterface(m_machine));
+	});
+
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 }
 
@@ -291,7 +302,9 @@ Menu::~Menu() {
 
 void Menu::fixedUpdate() {}
 
-void Menu::update() {}
+void Menu::update() {
+	m_headline.processInput(0, 0);
+}
 
 void Menu::render() {
 

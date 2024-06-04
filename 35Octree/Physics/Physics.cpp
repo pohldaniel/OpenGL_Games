@@ -89,24 +89,28 @@ void Physics::removeCollisionObject(btCollisionObject* obj) {
 }
 
 void Physics::removeAllCollisionObjects() {
-
+	std::vector<btCollisionShape*> shapes;
 	for (int i = DynamicsWorld->getNumCollisionObjects() - 1; i >= 0; i--) {
 		btCollisionObject* obj = DynamicsWorld->getCollisionObjectArray()[i];		
 		btRigidBody* body = btRigidBody::upcast(obj);
-
+		
 		if (body && body->getMotionState()) {
 			delete body->getMotionState();
+			body->setMotionState(nullptr);
 		}
 
-		if (body && body->getCollisionShape()) {
+		if (body && body->getCollisionShape() && std::find(shapes.begin(), shapes.end(), body->getCollisionShape()) == shapes.end()) {		
+			shapes.push_back(body->getCollisionShape());		
 			delete body->getCollisionShape();
+			body->setCollisionShape(nullptr);
 		}
 
 		btGhostObject* ghostObject = btPairCachingGhostObject::upcast(obj);
 
-		if (ghostObject && ghostObject->getCollisionShape()) {
+		if (ghostObject && ghostObject->getCollisionShape() && std::find(shapes.begin(), shapes.end(), ghostObject->getCollisionShape()) == shapes.end()) {
+			shapes.push_back(ghostObject->getCollisionShape());
 			delete ghostObject->getCollisionShape();
-			//continue;
+			ghostObject->setCollisionShape(nullptr);
 		}
 
 		DynamicsWorld->removeCollisionObject(obj);

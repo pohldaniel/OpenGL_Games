@@ -46,6 +46,7 @@ KinematicCharacterController::~KinematicCharacterController() {
 		delete m_ghostPairCallback;
 		m_ghostPairCallback = nullptr;
 	}
+	Physics::GetDynamicsWorld()->getBroadphase()->getOverlappingPairCache()->setInternalGhostPairCallback(nullptr);
 }
 
 void KinematicCharacterController::addKinematicToWorld(){
@@ -156,7 +157,6 @@ void KinematicCharacterController::debugDrawContacts() {
 	btManifoldArray	manifoldArray;
 	btBroadphasePairArray& pairArray = m_pairCachingGhostObject->getOverlappingPairCache()->getOverlappingPairArray();
 	int numPairs = pairArray.size();
-	std::cout << "Num Pairs: " << numPairs << std::endl;
 	for (int i = 0; i < numPairs; i++) {
 		manifoldArray.clear();
 

@@ -43,7 +43,7 @@ private:
 	void pickObject(const btVector3& pickPos, const class btCollisionObject* hitObj);
 
 	bool m_initUi = true;
-	bool m_drawUi = false;
+	bool m_drawUi = true;
 	bool m_debugTree = false;
 	bool m_useCulling = true;
 	bool m_useOcclusion = true;

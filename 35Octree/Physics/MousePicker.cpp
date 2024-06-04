@@ -6,8 +6,20 @@ std::unique_ptr<Shader> MousePicker::s_shader = nullptr;
 MousePicker::MousePicker() : m_callback(btVector3(0.0f, 0.0f, 0.0f), btVector3(0.0f, 0.0f, 0.0f)), m_hasPicked(false), m_isActivated(false){
 
 	if (!s_shader) {
-		s_shader = std::unique_ptr<Shader>(new Shader(MOUSEPICKER_VERTEX, MOUSEPICKER_FRGAMENT, false));
-		createBuffer();
+		s_shader = std::unique_ptr<Shader>(new Shader(MOUSEPICKER_VERTEX, MOUSEPICKER_FRGAMENT, false));		
+	}
+	createBuffer();
+}
+
+MousePicker::~MousePicker() {
+	if (m_vao) {
+		glDeleteVertexArrays(1, &m_vao);
+		m_vao = 0;
+	}
+
+	if (m_vbo) {
+		glDeleteBuffers(1, &m_vbo);
+		m_vbo = 0;
 	}
 }
 
@@ -136,6 +148,7 @@ void MousePicker::createBuffer() {
 void MousePicker::drawPicker(const Camera& camera) {
 
 	if (!(m_debug && m_vao) || !m_isActivated) return;
+
 	glDisable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
 	

@@ -219,6 +219,9 @@ ConstraintInterface::~ConstraintInterface() {
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
 	Physics::SetDebugMode(0u);
+	Globals::physics->removeAllCollisionObjects();
+	//ShapeDrawer::Get().shutdown();
+	glEnable(GL_BLEND);
 }
 
 void ConstraintInterface::fixedUpdate() {

@@ -69,6 +69,7 @@ void ShapeDrawer::shutdown() {
 
 	//s_shader.reset();
 	Init = false;
+	m_useCamera = true;
 }
 
 void ShapeDrawer::drawDynmicsWorld(btDynamicsWorld* dynamicsWorld) {

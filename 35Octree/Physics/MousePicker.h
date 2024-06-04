@@ -60,7 +60,9 @@ public:
 class MousePicker {
 
 public:
+
 	MousePicker();
+	~MousePicker();
 
 	void drawPicker(const Camera& camera);	
 	void updatePosition(unsigned int posX, unsigned int posY, const Camera& camera);

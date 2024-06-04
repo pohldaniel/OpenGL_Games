@@ -11,7 +11,6 @@ ShapeNode::~ShapeNode() {
 
 void ShapeNode::drawRaw() const {
 	Vector3f position = getWorldPosition();
-	std::cout << "Position: " << position[0] << "  " << position[1] << "  " << position[2] << std::endl;
 	shape.drawRaw();
 }
 

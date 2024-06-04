@@ -441,7 +441,7 @@ void Application::fixedUpdate() {
 
 void Application::initStates() {	
 	Machine = new StateMachine(m_dt, m_fdt);
-	//Machine->addStateAtTop(new Menu(*Machine));
+	Machine->addStateAtTop(new Menu(*Machine));
 
 	//Machine->addStateAtTop(new OctreeInterface(*Machine));
 	//Machine->addStateAtTop(new Default(*Machine));
@@ -466,7 +466,7 @@ void Application::initStates() {
 	//Machine->addStateAtTop(new AnimationInterface(*Machine));
 	//Machine->addStateAtTop(new KCCInterface(*Machine));
 	//Machine->addStateAtTop(new SkinnedArmor(*Machine));
-	Machine->addStateAtTop(new SixDegreeOfFreedom(*Machine));
+	//Machine->addStateAtTop(new SixDegreeOfFreedom(*Machine));
 	//Machine->addStateAtTop(new ConstraintInterface(*Machine));
 	
 }

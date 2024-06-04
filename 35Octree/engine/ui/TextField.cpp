@@ -1,3 +1,4 @@
+#include "../input/Keyboard.h"
 #include "../Fontrenderer.h"
 #include "TextField.h"
 
@@ -160,6 +161,11 @@ void TextField::processInput(const int mouseX, const int mouseY, const Event::Mo
 	}else {
 		m_outlineColor = m_outlineColorDefault;
 
+	}
+
+	Keyboard &keyboard = Keyboard::instance();
+	if (keyboard.keyPressed(Keyboard::KEY_T)) {
+		std::cout << "Pos: " << m_position[0] << "  " << m_position[1] << std::endl;
 	}
 }
 

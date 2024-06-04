@@ -17,7 +17,7 @@ SixDegreeOfFreedom::SixDegreeOfFreedom(StateMachine& machine) : State(machine, S
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
 	EventDispatcher::AddMouseListener(this);
-	//Mouse::instance().attach(Application::GetWindow(), false);
+	Mouse::instance().attach(Application::GetWindow(), false);
 
 	m_camera = Camera();
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
@@ -77,38 +77,40 @@ SixDegreeOfFreedom::SixDegreeOfFreedom(StateMachine& machine) : State(machine, S
 	createShapes();
 	createScene();
 	createPhysics();
-
 }
 
 SixDegreeOfFreedom::~SixDegreeOfFreedom() {
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
 	Material::CleanupTextures();
+	Material::CleanupMaterials();
 	delete m_splinePath;
 	delete m_octree;
 	delete m_root;
 
+	Physics::SetDebugMode(0u);
 	Globals::physics->removeAllCollisionObjects();
 	ShapeDrawer::Get().shutdown();
 	glEnable(GL_BLEND);
+
+	Texture::Unbind(0u);
 }
 
 void SixDegreeOfFreedom::fixedUpdate() {	
 	updateSplinePath(m_fdt);
-	m_kinematicBox->getMotionState()->setWorldTransform(Physics::BtTransform(Physics::VectorFrom(m_splinePath->GetControlledNode()->getWorldPosition()), Physics::QuaternionFrom(m_splinePath->GetControlledNode()->getWorldOrientation())));
-	
+	m_kinematicBox->getMotionState()->setWorldTransform(Physics::BtTransform(Physics::VectorFrom(m_splinePath->GetControlledNode()->getWorldPosition()), Physics::QuaternionFrom(m_splinePath->GetControlledNode()->getWorldOrientation())));	
 	m_hoverBike->FixedUpdate(m_fdt);
-	//m_hoverBike->postUpdate();
+
 	Globals::physics->stepSimulation(m_fdt);
 
 	m_shipEntity->setPosition(Physics::VectorFrom(m_shipBody->getWorldTransform().getOrigin()));
 	m_shipEntity->setOrientation(Physics::QuaternionFrom(m_shipBody->getWorldTransform().getRotation()));	
 	
 	
-	m_camera.setDirection(m_hoverBike->getDirection());
+	//m_camera.setDirection(m_hoverBike->getDirection());
 
-	//Vector3f pos = m_splinePath->GetControlledNode()->getWorldPosition();
-	Vector3f pos = m_hoverBike->getWorldPosition();
+	Vector3f pos = m_splinePath->GetControlledNode()->getWorldPosition();
+	//Vector3f pos = m_hoverBike->getWorldPosition();
 	pos[1] += 1.5f;
 	m_camera.Camera::setTarget(pos);
 
@@ -283,8 +285,8 @@ void SixDegreeOfFreedom::OnMouseWheel(Event::MouseWheelEvent& event) {
 void SixDegreeOfFreedom::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 	//m_mousePicker.updatePosition(event.x, event.y, m_camera);
 	if (event.button == 2u) {
-		//Mouse::instance().attach(Application::GetWindow(), true, true);
-		Mouse::instance().attach(Application::GetWindow());
+		Mouse::instance().attach(Application::GetWindow(), true, true);
+		//Mouse::instance().attach(Application::GetWindow());
 	}else if (event.button == 1u) {
 
 		if (m_mousePicker.click(event.x, event.y, m_camera)) {
@@ -300,8 +302,8 @@ void SixDegreeOfFreedom::OnMouseButtonUp(Event::MouseButtonEvent& event) {
 		m_mousePicker.setHasPicked(false);
 		removePickingConstraint();
 	}
-	Mouse::instance().detach();
-	//Mouse::instance().attach(Application::GetWindow(), false, false);
+	//Mouse::instance().detach();
+	Mouse::instance().attach(Application::GetWindow(), false, false);
 }
 
 void SixDegreeOfFreedom::OnKeyDown(Event::KeyboardEvent& event) {
@@ -583,9 +585,6 @@ void SixDegreeOfFreedom::createPhysics() {
 	m_shipEntity->setPosition(Physics::VectorFrom(m_shipBody->getWorldTransform().getOrigin()));
 	m_shipEntity->setOrientation(Physics::QuaternionFrom(m_shipBody->getWorldTransform().getRotation()));
 
-
-	//m_kinematicBike = Physics::AddKinematicRigidBody(Physics::BtTransform(btVector3(80.0f, 2.0f, 40.0f)), Physics::CreateCollisionShape(&m_hoverbikeShape), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::FLOOR | Physics::MOUSEPICKER);
-	
 	btGeneric6DofSpring2Constraint* pGen6DOFSpring = new btGeneric6DofSpring2Constraint(*m_kinematicBox, *m_shipBody, Physics::BtTransform(), Physics::BtTransform());
 	pGen6DOFSpring->setLinearLowerLimit(btVector3(-8.0f, -4.0f, -0.2f));
 	pGen6DOFSpring->setLinearUpperLimit(btVector3(8.0f, 4.0f, 0.2f));
@@ -656,8 +655,7 @@ void SixDegreeOfFreedom::updateSplinePath(float timeStep){
 			Vector3f::Normalize(m_direction);
 			m_splinePath->GetControlledNode()->setOrientation(Quaternion(m_direction));
 			m_splinePath->GetControlledNode()->setOrientation(Quaternion(Vector3f::FORWARD, m_direction));
-			//m_camera.setDirection(m_direction);
-
+			m_camera.setDirection(m_direction);
 		}
 	}
 }
