@@ -98,7 +98,7 @@ void SixDegreeOfFreedom::fixedUpdate() {
 	m_kinematicBox->getMotionState()->setWorldTransform(Physics::BtTransform(Physics::VectorFrom(m_splinePath->GetControlledNode()->getWorldPosition()), Physics::QuaternionFrom(m_splinePath->GetControlledNode()->getWorldOrientation())));
 	
 	m_hoverBike->FixedUpdate(m_fdt);
-	m_hoverBike->postUpdate();
+	//m_hoverBike->postUpdate();
 	Globals::physics->stepSimulation(m_fdt);
 
 	m_shipEntity->setPosition(Physics::VectorFrom(m_shipBody->getWorldTransform().getOrigin()));
@@ -496,7 +496,7 @@ void SixDegreeOfFreedom::createScene() {
 	m_shipEntity->OnOctreeSet(m_octree);
 
 	m_hoverBike = m_root->addChild<HoverBike, Shape>(m_hoverbikeShape, m_camera);
-	m_hoverBike->setPosition(80.0f, 2.0f, 40.0f);
+	m_hoverBike->SceneNodeLC::setPosition(80.0f, 2.0f, 40.0f);
 	m_hoverBike->setMaterialIndex(0);
 	m_hoverBike->setShader(Globals::shaderManager.getAssetPointer("material"));
 	m_hoverBike->OnOctreeSet(m_octree);

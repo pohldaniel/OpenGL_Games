@@ -3164,6 +3164,32 @@ Quaternion::Quaternion(const Vector3f &directionXZ) {
 	quat[3] = cosf(angle * 0.5f);
 }
 
+Quaternion::Quaternion(const Vector3f &xAxis, const Vector3f &yAxis, const Vector3f &zAxis) {
+	Matrix4f mtx;
+	
+	mtx[0][0] = xAxis[0];
+	mtx[0][1] = xAxis[1];
+	mtx[0][2] = xAxis[2];
+	mtx[0][3] = 0.0f;
+
+	mtx[1][0] = yAxis[0];
+	mtx[1][1] = yAxis[1];
+	mtx[1][2] = yAxis[2];
+	mtx[1][3] = 0.0f;
+
+	mtx[2][0] = zAxis[0];
+	mtx[2][1] = zAxis[1];
+	mtx[2][2] = zAxis[2];
+	mtx[2][3] = 0.0f;
+
+	mtx[3][0] = 0.0f;
+	mtx[3][1] = 0.0f;
+	mtx[3][2] = 0.0f;
+	mtx[3][3] = 1.0f;
+
+	fromMatrix(mtx);
+}
+
 Quaternion::Quaternion(const Matrix4f &m) {
 	fromMatrix(m);
 }
@@ -3508,6 +3534,31 @@ void Quaternion::toAxisAngle(Vector3f &axis, float &degrees) const {
 		axis[2] = quat[2] * invSinHalfTheta;
 		degrees = acosf(quat[2]) * _180_ON_PI * 2.0f;
 	}
+
+	/*const float &q1 = quat[0];
+	const float &q2 = quat[1];
+	const float &q3 = quat[2];
+	const float sin_squared = q1 * q1 + q2 * q2 + q3 * q3;
+
+	// For quaternions representing non-zero rotation, the conversion
+	// is numerically stable.
+	if (sin_squared > 0.0f) {
+		const float sin_theta = sqrt(sin_squared);
+		const float k = 2.0f * atan2(sin_theta, quat[3]) / sin_theta;
+		axis[0] = q1 * k;
+		axis[1] = q2 * k;
+		axis[2] = q3 * k;
+	}
+	else {
+		// For zero rotation, sqrt() will produce NaN in the derivative since
+		// the argument is zero.  By approximating with a Taylor series,
+		// and truncating at one term, the value and first derivatives will be
+		// computed correctly when Jets are used.
+		const float k = 2.0f;
+		axis[0] = q1 * k;
+		axis[1] = q2 * k;
+		axis[2] = q3 * k;
+	}*/
 }
 
 Vector3f Quaternion::getRotationAxis() {

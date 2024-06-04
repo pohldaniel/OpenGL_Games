@@ -21,14 +21,16 @@ public:
 	virtual ~HoverBike();
 	virtual void DelayedStart();
 	virtual void FixedUpdate(float timeStep);
-
-	const Vector3f& getDirection();
-	void setPosition(const float x, const float y, const float z) override;
-	void setPosition(const Vector3f& position) override;
-	void setOrientation(const Quaternion& orientation) override;
-	void setDirection(const Vector3f& direction);
 	bool Create();
-	void postUpdate();
+
+
+	void setPosition(btRigidBody* body, const Vector3f& position);
+	void setDirection(const Vector3f& direction);
+	void setDirection(btRigidBody* body, const Vector3f& direction);
+
+	Vector3f getPosition();
+	Vector3f getDirection();
+	Quaternion getOrientation();
 
 protected:
 	void CreateRaycastVehicle();
@@ -61,7 +63,7 @@ protected:
 	btVehicleRaycaster                  *vehicleRaycaster_;
 	btRaycastVehicle                    *raycastVehicle_;
 	//btGeneric6DofSpring2Constraint* pGen6DOFSpring;
-	btGeneric6DofConstraint* pGen6DOFSpring;
+	btGeneric6DofConstraint*            pGen6DOFSpring;
 	btRigidBody*                        m_bikeBody;
 	btRigidBody*                        m_cubeBody;
 	float currentSteering_;

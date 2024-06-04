@@ -408,6 +408,7 @@ public:
 	Quaternion(const Vector3f &axis, float degrees);
 	Quaternion(const Vector3f &start, const Vector3f &end);
 	Quaternion(const Vector3f &directionXZ);
+	Quaternion(const Vector3f &xAxis, const Vector3f &yAxis, const Vector3f &zAxis);
 	Quaternion(Quaternion const& rhs);
 	Quaternion(Quaternion&& rhs);
 	explicit Quaternion(const Matrix4f &m);
@@ -513,6 +514,11 @@ namespace Math {
 	template <typename T>
 	inline T Lerp(const T &a, const T &b, float t) {
 		return a * (1 - t) + t * b;
+	}
+
+	template <class T>
+	inline T InverseLerp(const T &a, const T &b, float t) {
+		return (t - a) / (b - a); 
 	}
 
 	template <typename T>
