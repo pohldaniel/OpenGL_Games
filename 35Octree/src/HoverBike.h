@@ -22,12 +22,13 @@ public:
 	virtual void DelayedStart();
 	virtual void FixedUpdate(float timeStep);
 
-	Vector3f getPosition();
-	Vector3f getDirection();
-	Quaternion getOrientation();
-
+	const Vector3f& getDirection();
+	void setPosition(const float x, const float y, const float z) override;
+	void setPosition(const Vector3f& position) override;
+	void setOrientation(const Quaternion& orientation) override;
+	void setDirection(const Vector3f& direction);
 	bool Create();
-	Vector3f m_direction;
+	void postUpdate();
 
 protected:
 	void CreateRaycastVehicle();
@@ -55,13 +56,14 @@ protected:
 	std::string constraintName_;
 	float softPitchLimit_;
 
-	//btGeneric6DofSpring2Constraint*     nodeConstraint6DoF_;
+
 	btRaycastVehicle::btVehicleTuning   vehicleTuning_;
 	btVehicleRaycaster                  *vehicleRaycaster_;
 	btRaycastVehicle                    *raycastVehicle_;
+	//btGeneric6DofSpring2Constraint* pGen6DOFSpring;
 	btGeneric6DofConstraint* pGen6DOFSpring;
 	btRigidBody*                        m_bikeBody;
 	btRigidBody*                        m_cubeBody;
 	float currentSteering_;
-	
+	Vector3f m_direction;
 };

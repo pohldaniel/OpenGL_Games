@@ -103,7 +103,7 @@ public:
 	static btRigidBody* CreateRigidBody(btScalar mass, const btTransform & transform, btCollisionShape* shape, int collisionFlag = btCollisionObject::CF_DYNAMIC_OBJECT, void* userPointer = nullptr);
 	static btRigidBody* AddRigidBody(float mass, const btTransform & transform, btCollisionShape* shape, int collisionFilterGroup = 1, int collisionFilterMask = -1, unsigned int collisionFlag = btCollisionObject::CF_DYNAMIC_OBJECT, void* userPointer = nullptr);
 	
-	static btRigidBody* AddKinematicRigidBody(const btTransform& transform, btCollisionShape* shape, int collisionFilterGroup = 1, int collisionFilterMask = -1, void* userPointer = nullptr);
+	static btRigidBody* AddKinematicRigidBody(const btTransform& transform, btCollisionShape* shape, int collisionFilterGroup = 1, int collisionFilterMask = -1, void* userPointer = nullptr, bool useMotionState = true);
 	static btRigidBody* AddStaticRigidBody(const btTransform& transform, btCollisionShape* shape, int collisionFilterGroup = 1, int collisionFilterMask = -1, void* userPointer = nullptr);
 
 	static btCollisionObject* AddKinematicObject(const btTransform& transform, btCollisionShape* shape, int collisionFilterGroup = 1, int collisionFilterMask = -1, void* userPointer = nullptr);

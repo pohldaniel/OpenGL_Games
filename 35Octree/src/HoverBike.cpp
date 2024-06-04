@@ -7,38 +7,43 @@ const int rightIndex = 0;
 const int upIndex = 1;
 const int forwardIndex = 2;
 
-HoverBike::HoverBike(const Shape& shape, const Camera& camera): ShapeEntity(shape, camera),
-	  raycastVehicle_(NULL)
-	, vehicleRaycaster_(NULL)
-	, engineForce_(10.0f)
-	, maxSpeed_(150.0f)
-	, minBrakeForce_(2.0f)
-	, maxBrakeForce_(300.0f)
-	, wheelRadius_(0.9f)
-	, wheelFriction_(0.9f)
+HoverBike::HoverBike(const Shape& shape, const Camera& camera) : ShapeEntity(shape, camera),
+raycastVehicle_(NULL)
+, vehicleRaycaster_(NULL)
+, engineForce_(10.0f)
+, maxSpeed_(150.0f)
+, minBrakeForce_(2.0f)
+, maxBrakeForce_(300.0f)
+, wheelRadius_(0.9f)
+, wheelFriction_(0.9f)
 
-	, steeringIncrement_(0.02f)
-	, steeringClamp_(0.4f)
-	, maxRollAngle_(30.0f)
-	, maxSpeedToMaxRollAngle_(120.0f)
+, steeringIncrement_(0.02f)
+, steeringClamp_(0.4f)
+, maxRollAngle_(30.0f)
+, maxSpeedToMaxRollAngle_(120.0f)
 
-	, suspensionRestLength_(0.7f)
-	, suspensionStiffness_(25.0f)
-	, suspensionRelaxation_(7.0f)
-	, suspensionCompression_(10.0f)
-	, rollInfluence_(0.3f)
+, suspensionRestLength_(0.7f)
+, suspensionStiffness_(25.0f)
+, suspensionRelaxation_(7.0f)
+, suspensionCompression_(10.0f)
+, rollInfluence_(0.3f)
 
-	, currentSteering_(0.0f)
-	, softPitchLimit_(40.0f)
-{
+, currentSteering_(0.0f)
+, softPitchLimit_(40.0f),
+m_bikeBody(nullptr),
+m_cubeBody(nullptr){
 	m_bikeBody = Physics::AddRigidBody(5.0f, Physics::BtTransform(btVector3(80.0f, 2.0f, 40.0f)), Physics::CreateConvexHullShape(&shape), Physics::PICKABLE_OBJECT, Physics::collisiontypes::FLOOR | Physics::MOUSEPICKER);
+	//m_cubeBody = Physics::AddKinematicRigidBody(Physics::BtTransform(btVector3(80.0f, 2.0f, 40.0f)), new btBoxShape(btVector3(0.1f, 0.1f, 0.1f)), Physics::PICKABLE_OBJECT, Physics::collisiontypes::FLOOR | Physics::MOUSEPICKER, nullptr, false);
 	Create();
 
+
+
 	pGen6DOFSpring = new btGeneric6DofConstraint(*m_bikeBody,  Physics::BtTransform(btVector3(0.0f, 0.0f, 0.0f)), false);
+	//pGen6DOFSpring = new btGeneric6DofSpring2Constraint(*m_cubeBody, *m_bikeBody, Physics::BtTransform(btVector3(0.0f, 0.0f, 0.0f)), Physics::BtTransform(btVector3(0.0f, 0.0f, 0.0f)));
 	pGen6DOFSpring->setLinearLowerLimit(btVector3(1.0f, 1.0f, 1.0f));
 	pGen6DOFSpring->setLinearUpperLimit(btVector3(0.0f, 0.0f, 0.0f));
 	pGen6DOFSpring->setAngularLowerLimit(btVector3(1.0f, 0.0f, 0.0f));
-	pGen6DOFSpring->setAngularUpperLimit(btVector3(0.0f, 0.0f, 0.0f));
+	pGen6DOFSpring->setAngularUpperLimit(btVector3(-1.0f, 0.0f, 0.0f));
 
 	//pGen6DOFSpring->enableSpring(D6_LINEAR_X, true);
 	//pGen6DOFSpring->setStiffness(D6_LINEAR_X, 0.75f);
@@ -75,18 +80,18 @@ HoverBike::HoverBike(const Shape& shape, const Camera& camera): ShapeEntity(shap
 	pGen6DOFSpring->setParam(BT_CONSTRAINT_STOP_CFM, 0.001f, 3);
 	pGen6DOFSpring->setParam(BT_CONSTRAINT_STOP_CFM, 1.0f, 4);
 	pGen6DOFSpring->setParam(BT_CONSTRAINT_STOP_CFM, 0.4f, 5);
-	
+
 	pGen6DOFSpring->setDbgDrawSize(btScalar(5.f));
 	Physics::GetDynamicsWorld()->addConstraint(pGen6DOFSpring, true);
 }
 
-HoverBike::~HoverBike(){
-	if (vehicleRaycaster_){
+HoverBike::~HoverBike() {
+	if (vehicleRaycaster_) {
 		delete vehicleRaycaster_;
 		vehicleRaycaster_ = NULL;
 	}
 
-	if (raycastVehicle_){		
+	if (raycastVehicle_) {
 		btDynamicsWorld *dynamicWorld = Physics::GetDynamicsWorld();
 		dynamicWorld->removeVehicle(raycastVehicle_);
 		delete raycastVehicle_;
@@ -94,23 +99,25 @@ HoverBike::~HoverBike(){
 	}
 }
 
-void HoverBike::DelayedStart(){
+void HoverBike::DelayedStart() {
 	// create raycast vehicle
-	if (raycastVehicle_ == NULL){
+	if (raycastVehicle_ == NULL) {
 		Create();
 	}
 }
 
-bool HoverBike::Create(){
+bool HoverBike::Create() {
 	CreateRaycastVehicle();
 	return true;
 }
 
-void HoverBike::CreateRaycastVehicle(){
-	if (raycastVehicle_){
+void HoverBike::CreateRaycastVehicle() {
+	if (raycastVehicle_) {
 		return;
 	}
 
+	// create raycast vehicle
+	//physicsWorld_ = rigidBody_->GetPhysicsWorld();
 	btDynamicsWorld *pbtDynWorld = Physics::GetDynamicsWorld();
 	vehicleRaycaster_ = new btFilteredVehicleRaycaster(pbtDynWorld, Physics::PICKABLE_OBJECT, Physics::collisiontypes::FLOOR | Physics::MOUSEPICKER);
 	raycastVehicle_ = new btRaycastVehicle(vehicleTuning_, m_bikeBody, vehicleRaycaster_);
@@ -119,11 +126,11 @@ void HoverBike::CreateRaycastVehicle(){
 	raycastVehicle_->setCoordinateSystem(rightIndex, upIndex, forwardIndex);
 
 	// add wheels
-	raycastVehicle_->addWheel(Physics::VectorFrom(Vector3f(0.0f, 0.05f, 1.15842f)), Physics::VectorFrom(wheelDirectionCS0), Physics::VectorFrom(wheelAxleCS),suspensionRestLength_, wheelRadius_, vehicleTuning_, true);
+	raycastVehicle_->addWheel(Physics::VectorFrom(Vector3f(0.0f, 0.05f, 1.15842f)), Physics::VectorFrom(wheelDirectionCS0), Physics::VectorFrom(wheelAxleCS), suspensionRestLength_, wheelRadius_, vehicleTuning_, true);
 	raycastVehicle_->addWheel(Physics::VectorFrom(Vector3f(0.0f, 0.05f, -1.62427f)), Physics::VectorFrom(wheelDirectionCS0), Physics::VectorFrom(wheelAxleCS), suspensionRestLength_, wheelRadius_, vehicleTuning_, false);
 
 	// config suspension
-	for (int i = 0; i < raycastVehicle_->getNumWheels(); ++i){
+	for (int i = 0; i < raycastVehicle_->getNumWheels(); ++i) {
 		btWheelInfo& wheel = raycastVehicle_->getWheelInfo(i);
 		wheel.m_suspensionStiffness = suspensionStiffness_;
 		wheel.m_wheelsDampingRelaxation = suspensionRelaxation_;
@@ -133,9 +140,9 @@ void HoverBike::CreateRaycastVehicle(){
 	}
 }
 
-void HoverBike::FixedUpdate(float timeStep){
+void HoverBike::FixedUpdate(float timeStep) {
 	Keyboard &keyboard = Keyboard::instance();
-	
+
 	float newSteering = 0.0f;
 	float accelerator = 0.0f;
 	bool braking = false;
@@ -155,24 +162,25 @@ void HoverBike::FixedUpdate(float timeStep){
 		accelerator = 0.0f;
 	}
 
-	if (newSteering != 0.0f || accelerator != 0.0f){
+	if (newSteering != 0.0f || accelerator != 0.0f) {
 		m_bikeBody->activate(true);
 	}
 
-	if (newSteering != 0.0f){
+	if (newSteering != 0.0f) {
 		currentSteering_ += steeringIncrement_ * newSteering;
-	}else{
+	}
+	else {
 		currentSteering_ *= 0.7f;
 	}
 	currentSteering_ = Math::Clamp(currentSteering_, -steeringClamp_, steeringClamp_);
 	raycastVehicle_->setSteeringValue(currentSteering_, 0);
-
+	//Quaternion rot = Physics::QuaternionFrom(m_bikeBody->getWorldTransform().getRotation());
 	float engineForce = (std::fabs(accelerator) > 0.0f && !braking) ? engineForce_ * accelerator : 0.0f;
 
-	for (int i = 0; i < raycastVehicle_->getNumWheels(); ++i){
+	for (int i = 0; i < raycastVehicle_->getNumWheels(); ++i) {
 		raycastVehicle_->applyEngineForce(engineForce, i);
 
-		if (i > 0){
+		if (i > 0) {
 			raycastVehicle_->setBrake(braking ? maxBrakeForce_ : minBrakeForce_, i);
 		}
 	}
@@ -180,17 +188,13 @@ void HoverBike::FixedUpdate(float timeStep){
 	UpdateConstraint(engineForce);
 }
 
-void HoverBike::UpdateConstraint(float engineForce){
-	
-	btVector3 pos = m_bikeBody->getWorldTransform().getOrigin();
+void HoverBike::UpdateConstraint(float engineForce) {
+	//setPosition(Physics::VectorFrom(m_bikeBody->getWorldTransform().getOrigin()));
+
+	m_position = Physics::VectorFrom(m_bikeBody->getWorldTransform().getOrigin());
 
 	m_direction = Quaternion::Rotate(Physics::QuaternionFrom(m_bikeBody->getWorldTransform().getRotation()), Vector3f::FORWARD);
 	m_direction[1] = 0.0f;
-	
-	setPosition(Physics::VectorFrom(pos));
-	setOrientation(Physics::QuaternionFrom(m_bikeBody->getWorldTransform().getRotation()));
-	pGen6DOFSpring->setFrames(Physics::BtTransform(Physics::QuaternionFrom(Quaternion(m_direction)), pos), Physics::BtTransform());
-
 	if (std::fabs(currentSteering_) > EPSILON) {
 		Quaternion rot = m_bikeBody->getWorldTransform().getRotation();
 		Vector3f dofdir = Quaternion::Rotate(rot, Vector3f::RIGHT * currentSteering_);
@@ -201,8 +205,41 @@ void HoverBike::UpdateConstraint(float engineForce){
 		m_direction += dofdir;
 	}
 	Vector3f::Normalize(m_direction);
+	//setDirection(m_direction);
+	//pGen6DOFSpring->setFrames(Physics::BtTransform(Physics::QuaternionFrom(dir), pos - btVector3(80.0f, 2.0f, 40.0f)), Physics::BtTransform());
 
-	/*if (nodeConstraint6DoF_){		
+	//std::cout << "Pos: " << pos.x() << "  " << pos.y() << "  " << pos.z() << std::endl;
+	//setPosition2(Physics::VectorFrom(pos));
+
+	//btTransform& worldTrans = m_cubeBody->getWorldTransform();
+	//worldTrans.setOrigin(pos);
+
+	
+	//m_cubeBody->getMotionState()->setWorldTransform(Physics::BtTransform(pos));
+
+	//m_cubeBody->setWorldTransform(Physics::BtTransform(pos));
+
+	//btVector3 _pos = m_cubeBody->getWorldTransform().getOrigin();
+	//std::cout << "Pos: " << _pos.x() << "  " << _pos.y() << "  " << _pos.z() << std::endl;
+
+	/*if (nodeConstraint6DoF_){
+		nodeConstraint6DoF_->setWorldPosition(node_->getWorldPosition());
+
+		// update rotation
+		Vector3f dir = node_->getWorldDirection();
+		dir[1] = 0.0f;
+		if (std::fabs(currentSteering_) > EPSILON){
+			Quaternion rot = nodeConstraint6DoF_->getWorldOrientation();
+			Vector3f dofdir = Quaternion::Rotate(rot,Vector3f::RIGHT * currentSteering_);
+			dofdir[1] = 0.0f;
+			if (engineForce < -EPSILON){
+				dofdir *= -1.0f;
+			}
+			dir += dofdir;
+		}
+		Vector3f::Normalize(dir);
+		nodeConstraint6DoF_->setWorldDirection(dir);
+
 		// update roll
 		float velLen = rigidBody_->getLinearVelocity().length();
 		velLen = Math::Clamp(velLen, 0.0f, maxSpeedToMaxRollAngle_);
@@ -247,14 +284,55 @@ void HoverBike::UpdateConstraint(float engineForce){
 	}*/
 }
 
-Vector3f HoverBike::getPosition() {
-	return Physics::VectorFrom(m_bikeBody->getWorldTransform().getOrigin());
-}
-
-Vector3f HoverBike::getDirection() {
+const Vector3f& HoverBike::getDirection() {
+	//return m_direction;
 	return Quaternion::Rotate(Physics::QuaternionFrom(m_bikeBody->getWorldTransform().getRotation()), Vector3f::FORWARD);
 }
 
-Quaternion HoverBike::getOrientation() {
-	return Physics::QuaternionFrom(m_bikeBody->getWorldTransform().getRotation());
+void HoverBike::setPosition(const Vector3f& position){
+	SceneNodeLC::setPosition(position);
+	if (m_cubeBody){
+		btTransform& worldTrans = m_cubeBody->getWorldTransform();
+		worldTrans.setOrigin(Physics::VectorFrom(position));		
+
+		//btTransform interpTrans = m_cubeBody->getInterpolationWorldTransform();
+		//interpTrans.setOrigin(worldTrans.getOrigin());
+		//m_cubeBody->setInterpolationWorldTransform(interpTrans);		
+	}
+}
+
+void HoverBike::setPosition(const float x, const float y, const float z) {
+	SceneNodeLC::setPosition(x, y, z);
+	if (m_cubeBody) {
+		btTransform& worldTrans = m_cubeBody->getWorldTransform();
+		worldTrans.setOrigin(btVector3(x, y, z));
+
+		//btTransform interpTrans = m_cubeBody->getInterpolationWorldTransform();
+		//interpTrans.setOrigin(worldTrans.getOrigin());
+		//m_cubeBody->setInterpolationWorldTransform(interpTrans);
+	}
+}
+
+void HoverBike::setDirection(const Vector3f& direction) {
+	Quaternion quat = Quaternion(Vector3f::FORWARD, direction);
+	setOrientation(quat);
+}
+
+void HoverBike::setOrientation(const Quaternion& orientation){
+	SceneNodeLC::setOrientation(orientation);
+	if (m_cubeBody){
+		btTransform& worldTrans = m_cubeBody->getWorldTransform();
+		worldTrans.setRotation(Physics::QuaternionFrom(orientation));
+
+		//btTransform interpTrans = m_cubeBody->getInterpolationWorldTransform();
+		//interpTrans.setRotation(worldTrans.getRotation());
+		//m_cubeBody->setInterpolationWorldTransform(interpTrans);
+	}
+}
+
+void HoverBike::postUpdate() {
+	//setPosition(m_position);
+	//setDirection(m_direction);
+
+	pGen6DOFSpring->setFrames(Physics::BtTransform(Physics::QuaternionFrom(Quaternion(m_direction)), Physics::VectorFrom(m_position)), Physics::BtTransform());
 }

@@ -287,18 +287,32 @@ btRigidBody* Physics::AddRigidBody(float mass, const btTransform& transform, btC
 	return body;
 }
 
-btRigidBody* Physics::AddKinematicRigidBody(const btTransform& transform, btCollisionShape* shape, int collisionFilterGroup, int collisionFilterMask, void* userPointer) {
-	btVector3 localInertia(0.0f, 0.0f, 0.0f);
-	btDefaultMotionState* motionState = new btDefaultMotionState(transform);
-	btRigidBody::btRigidBodyConstructionInfo cInfo(0.0f, motionState, shape, localInertia);
-	btRigidBody* body = new btRigidBody(cInfo);
-	if(userPointer)
-		body->setUserPointer(userPointer);
-	body->forceActivationState(DISABLE_DEACTIVATION);
-	body->setCollisionFlags(btCollisionObject::CF_KINEMATIC_OBJECT);
+btRigidBody* Physics::AddKinematicRigidBody(const btTransform& transform, btCollisionShape* shape, int collisionFilterGroup, int collisionFilterMask, void* userPointer, bool useMotionState) {
+	if (useMotionState) {
+		btVector3 localInertia(0.0f, 0.0f, 0.0f);
+		btDefaultMotionState* motionState = new btDefaultMotionState(transform);
+		btRigidBody::btRigidBodyConstructionInfo cInfo(0.0f, motionState, shape, localInertia);
+		btRigidBody* body = new btRigidBody(cInfo);
+		if (userPointer)
+			body->setUserPointer(userPointer);
+		body->forceActivationState(DISABLE_DEACTIVATION);
+		body->setCollisionFlags(btCollisionObject::CF_KINEMATIC_OBJECT);
 
-	DynamicsWorld->addRigidBody(body, collisionFilterGroup, collisionFilterMask);
-	return body;
+		DynamicsWorld->addRigidBody(body, collisionFilterGroup, collisionFilterMask);
+		return body;
+	}else {
+		btVector3 localInertia(0.0f, 0.0f, 0.0f);
+		btRigidBody* body = new btRigidBody(0.0f, nullptr, shape, localInertia);
+		body->setWorldTransform(transform);
+
+		if (userPointer)
+			body->setUserPointer(userPointer);
+		body->forceActivationState(DISABLE_DEACTIVATION);
+		body->setCollisionFlags(btCollisionObject::CF_KINEMATIC_OBJECT);
+
+		DynamicsWorld->addRigidBody(body, collisionFilterGroup, collisionFilterMask);
+		return body;
+	}
 }
 
 btRigidBody* Physics::AddStaticRigidBody(const btTransform& transform, btCollisionShape* shape, int collisionFilterGroup, int collisionFilterMask, void* userPointer) {	

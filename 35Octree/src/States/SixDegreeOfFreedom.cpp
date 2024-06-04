@@ -98,11 +98,21 @@ void SixDegreeOfFreedom::fixedUpdate() {
 	m_kinematicBox->getMotionState()->setWorldTransform(Physics::BtTransform(Physics::VectorFrom(m_splinePath->GetControlledNode()->getWorldPosition()), Physics::QuaternionFrom(m_splinePath->GetControlledNode()->getWorldOrientation())));
 	
 	m_hoverBike->FixedUpdate(m_fdt);
+	m_hoverBike->postUpdate();
 	Globals::physics->stepSimulation(m_fdt);
 
 	m_shipEntity->setPosition(Physics::VectorFrom(m_shipBody->getWorldTransform().getOrigin()));
 	m_shipEntity->setOrientation(Physics::QuaternionFrom(m_shipBody->getWorldTransform().getRotation()));	
+	
+	
 	m_camera.setDirection(m_hoverBike->getDirection());
+
+	//Vector3f pos = m_splinePath->GetControlledNode()->getWorldPosition();
+	Vector3f pos = m_hoverBike->getWorldPosition();
+	pos[1] += 1.5f;
+	m_camera.Camera::setTarget(pos);
+
+
 }
 
 void SixDegreeOfFreedom::update() {
@@ -146,11 +156,6 @@ void SixDegreeOfFreedom::update() {
 	if (keyboard.keyPressed(Keyboard::KEY_T)) {
 		m_debugPhysic = !m_debugPhysic;
 	}
-
-	//Vector3f pos = m_splinePath->GetControlledNode()->getWorldPosition();
-	Vector3f pos = m_hoverBike->getWorldPosition();
-	pos[1] += 1.5f;
-	m_camera.Camera::setTarget(pos);
 
 	Mouse &mouse = Mouse::instance();
 	if (mouse.buttonDown(Mouse::MouseButton::BUTTON_RIGHT)) {
