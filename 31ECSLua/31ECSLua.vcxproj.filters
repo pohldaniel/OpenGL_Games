@@ -321,9 +321,6 @@
     <ClCompile Include="engine\Thread.cpp">
       <Filter>engine</Filter>
     </ClCompile>
-    <ClCompile Include="src\States\Controlls.cpp">
-      <Filter>Source Files\States</Filter>
-    </ClCompile>
     <ClCompile Include="src\States\Default.cpp">
       <Filter>Source Files\States</Filter>
     </ClCompile>
@@ -344,6 +341,9 @@
     </ClCompile>
     <ClCompile Include="src\ViewPort.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\States\Controls.cpp">
+      <Filter>Source Files\States</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

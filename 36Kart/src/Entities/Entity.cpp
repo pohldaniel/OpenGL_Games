@@ -1,0 +1,36 @@
+#include "Entity.h"
+
+Entity::Entity(const AssimpModel& model) : MeshNode(model), m_materialIndex(-1), m_textureIndex(-1) {
+
+}
+
+Entity::~Entity() {
+
+}
+
+void Entity::draw() {
+
+	if (m_materialIndex >= 0)
+		Material::GetMaterials()[m_materialIndex].bind();
+
+	if (m_textureIndex >= 0)
+		Material::GetTextures()[m_textureIndex].bind();
+
+	model.drawRaw();
+}
+
+void Entity::update(const float dt) {
+
+}
+
+const Material& Entity::getMaterial() const {
+	return Material::GetMaterials()[m_materialIndex];
+}
+
+short Entity::getMaterialIndex() const {
+	return m_materialIndex;
+}
+
+void Entity::setMaterialIndex(short index) const {
+	m_materialIndex = index;
+}

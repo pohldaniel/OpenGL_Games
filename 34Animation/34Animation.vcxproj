@@ -214,7 +214,7 @@
     <ClCompile Include="src\Model.cpp" />
     <ClCompile Include="src\States\Basic.cpp" />
     <ClCompile Include="src\States\CharacterState.cpp" />
-    <ClCompile Include="src\States\Controlls.cpp" />
+    <ClCompile Include="src\States\Controls.cpp" />
     <ClCompile Include="src\States\Default.cpp" />
     <ClCompile Include="src\States\Interleaved.cpp" />
     <ClCompile Include="src\States\Settings.cpp" />

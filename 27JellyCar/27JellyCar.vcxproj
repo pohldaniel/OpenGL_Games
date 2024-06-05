@@ -194,7 +194,7 @@
     <ClCompile Include="src\MousePickerFBO.cpp" />
     <ClCompile Include="src\MusicManager.cpp" />
     <ClCompile Include="src\SceneManager.cpp" />
-    <ClCompile Include="src\States\Controlls.cpp" />
+    <ClCompile Include="src\States\Controls.cpp" />
     <ClCompile Include="src\States\JellyEditor.cpp" />
     <ClCompile Include="src\States\JellyGame.cpp" />
     <ClCompile Include="src\States\JellyIntro.cpp" />

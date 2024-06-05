@@ -161,7 +161,7 @@
     <ClCompile Include="CloudInterface.cpp" />
     <ClCompile Include="CloudsModel.cpp" />
     <ClCompile Include="ColumnSet.cpp" />
-    <ClCompile Include="Controlls.cpp" />
+    <ClCompile Include="Controls.cpp" />
     <ClCompile Include="engine\ArrayBuffer.cpp" />
     <ClCompile Include="engine\AssimpModel.cpp" />
     <ClCompile Include="engine\Batchrenderer.cpp" />

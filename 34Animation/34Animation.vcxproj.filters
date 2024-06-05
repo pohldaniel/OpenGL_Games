@@ -267,9 +267,6 @@
     <ClCompile Include="engine\sound\SoundDevice.cpp">
       <Filter>engine\sound</Filter>
     </ClCompile>
-    <ClCompile Include="src\States\Controlls.cpp">
-      <Filter>Source Files\States</Filter>
-    </ClCompile>
     <ClCompile Include="src\States\Default.cpp">
       <Filter>Source Files\States</Filter>
     </ClCompile>
@@ -422,6 +419,9 @@
     </ClCompile>
     <ClCompile Include="engine\scene\ShapeNode.cpp">
       <Filter>engine\scene</Filter>
+    </ClCompile>
+    <ClCompile Include="src\States\Controls.cpp">
+      <Filter>Source Files\States</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -167,7 +167,7 @@
     <ClCompile Include="engine\ZoomableQuad.cpp" />
     <ClCompile Include="src\LoadingManager.cpp" />
     <ClCompile Include="src\MousePickerFBO.cpp" />
-    <ClCompile Include="src\States\Controlls.cpp" />
+    <ClCompile Include="src\States\Controls.cpp" />
     <ClCompile Include="src\States\Settings.cpp" />
     <ClCompile Include="src\States\StateMachine.cpp" />
     <ClCompile Include="src\Thread\CThread.cpp" />

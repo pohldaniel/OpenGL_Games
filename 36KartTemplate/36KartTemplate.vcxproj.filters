@@ -1,0 +1,288 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="core">
+      <UniqueIdentifier>{6b3676bc-7731-4938-aea0-7569b2beb215}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="game">
+      <UniqueIdentifier>{7ced72e0-38ad-4b01-b77c-a665e525a971}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="core\gl">
+      <UniqueIdentifier>{d395d7f7-d37c-420b-a2ea-6d8321c733a5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="core\loaders">
+      <UniqueIdentifier>{5d2c9137-e70a-49b2-895d-a6cf4e5fb447}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="engine">
+      <UniqueIdentifier>{f90dd2f9-857a-4a1d-9bb4-e5e71bfe0894}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="engine\objects">
+      <UniqueIdentifier>{29dbae4e-38c1-4b4b-aa24-7a917a10432b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="engine\physics">
+      <UniqueIdentifier>{21303c3e-eab9-4ffe-a2e6-849a465753af}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="engine\rendering">
+      <UniqueIdentifier>{acd3b26a-850e-4681-94ac-2e467e1060d3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="engine\state">
+      <UniqueIdentifier>{c22a9041-a1ce-43bc-96ec-1fe2f994e130}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="engine\physics\managers">
+      <UniqueIdentifier>{5fd37e78-a0f1-4408-b804-2759cc15edb0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="game\debug">
+      <UniqueIdentifier>{b884432c-00a5-4420-9508-bc7856aa0d45}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="game\state">
+      <UniqueIdentifier>{34f6f8ed-7004-4f64-8609-f248e8e6c757}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="glad">
+      <UniqueIdentifier>{7f3531ef-e96a-4c2e-8e20-d218c1b4ed0f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="imgui">
+      <UniqueIdentifier>{4682c156-d77e-497e-8a12-8331f1de960d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="imgui\backends">
+      <UniqueIdentifier>{7212e1a6-1b39-41c9-bf4b-c9487bc937aa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="stb">
+      <UniqueIdentifier>{aa2d11d1-e68b-4e70-a7bb-5b495996df53}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="core\ID.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="core\loaders\ChunkedMapLoader.cpp">
+      <Filter>core\loaders</Filter>
+    </ClCompile>
+    <ClCompile Include="core\loaders\ObjModel.cpp">
+      <Filter>core\loaders</Filter>
+    </ClCompile>
+    <ClCompile Include="core\gl\BulletDebugDrawer.cpp">
+      <Filter>core\gl</Filter>
+    </ClCompile>
+    <ClCompile Include="core\gl\Camera.cpp">
+      <Filter>core\gl</Filter>
+    </ClCompile>
+    <ClCompile Include="core\gl\EBO.cpp">
+      <Filter>core\gl</Filter>
+    </ClCompile>
+    <ClCompile Include="core\gl\Geometry.cpp">
+      <Filter>core\gl</Filter>
+    </ClCompile>
+    <ClCompile Include="core\gl\shaderClass.cpp">
+      <Filter>core\gl</Filter>
+    </ClCompile>
+    <ClCompile Include="core\gl\Texture.cpp">
+      <Filter>core\gl</Filter>
+    </ClCompile>
+    <ClCompile Include="core\gl\VAO.cpp">
+      <Filter>core\gl</Filter>
+    </ClCompile>
+    <ClCompile Include="core\gl\VBO.cpp">
+      <Filter>core\gl</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\SimulationWorld.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\rendering\GameRenderer.cpp">
+      <Filter>engine\rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\rendering\GLRenderer.cpp">
+      <Filter>engine\rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\rendering\ObjectRenderer.cpp">
+      <Filter>engine\rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\rendering\RenderRsrcManager.cpp">
+      <Filter>engine\rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\physics\PhysicsWorldSingleton.cpp">
+      <Filter>engine\physics</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\physics\StaticTriangleMeshPhysics.cpp">
+      <Filter>engine\physics</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\physics\VehiclePhysics.cpp">
+      <Filter>engine\physics</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\physics\managers\PhysicsChunkManager.cpp">
+      <Filter>engine\physics\managers</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\objects\SimulationObject.cpp">
+      <Filter>engine\objects</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\objects\VehicleObject.cpp">
+      <Filter>engine\objects</Filter>
+    </ClCompile>
+    <ClCompile Include="game\debug\GameDebugHelper.cpp">
+      <Filter>game\debug</Filter>
+    </ClCompile>
+    <ClCompile Include="game\state\GameInput.cpp">
+      <Filter>game\state</Filter>
+    </ClCompile>
+    <ClCompile Include="game\GameWindow.cpp">
+      <Filter>game</Filter>
+    </ClCompile>
+    <ClCompile Include="game\JXGame.cpp">
+      <Filter>game</Filter>
+    </ClCompile>
+    <ClCompile Include="glad\src\glad.c">
+      <Filter>glad</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui\imgui.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui\imgui_demo.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui\imgui_draw.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui\imgui_tables.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui\imgui_widgets.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui\backends\imgui_impl_opengl3.cpp">
+      <Filter>imgui\backends</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui\backends\imgui_impl_sdl2.cpp">
+      <Filter>imgui\backends</Filter>
+    </ClCompile>
+    <ClCompile Include="stb\stb.cpp">
+      <Filter>stb</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="core\ID.hpp">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\loaders\ChunkedMapLoader.hpp">
+      <Filter>core\loaders</Filter>
+    </ClInclude>
+    <ClInclude Include="core\loaders\ObjModel.hpp">
+      <Filter>core\loaders</Filter>
+    </ClInclude>
+    <ClInclude Include="core\gl\Camera.h">
+      <Filter>core\gl</Filter>
+    </ClInclude>
+    <ClInclude Include="core\gl\EBO.h">
+      <Filter>core\gl</Filter>
+    </ClInclude>
+    <ClInclude Include="core\gl\Geometry.hpp">
+      <Filter>core\gl</Filter>
+    </ClInclude>
+    <ClInclude Include="core\gl\shaderClass.h">
+      <Filter>core\gl</Filter>
+    </ClInclude>
+    <ClInclude Include="core\gl\Texture.h">
+      <Filter>core\gl</Filter>
+    </ClInclude>
+    <ClInclude Include="core\gl\VAO.h">
+      <Filter>core\gl</Filter>
+    </ClInclude>
+    <ClInclude Include="core\gl\VBO.h">
+      <Filter>core\gl</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\SimulationWorld.hpp">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\state\GameInputState.hpp">
+      <Filter>engine\state</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\rendering\GameRenderer.hpp">
+      <Filter>engine\rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\rendering\GLRenderer.hpp">
+      <Filter>engine\rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\rendering\ObjectRenderer.hpp">
+      <Filter>engine\rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\rendering\RenderRsrcManager.hpp">
+      <Filter>engine\rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\physics\PhysicsWorldSingleton.h">
+      <Filter>engine\physics</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\physics\StaticTriangleMeshPhysics.hpp">
+      <Filter>engine\physics</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\physics\VehiclePhysics.hpp">
+      <Filter>engine\physics</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\physics\managers\PhysicsChunkManager.hpp">
+      <Filter>engine\physics\managers</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\objects\SimulationObject.hpp">
+      <Filter>engine\objects</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\objects\VehicleObject.hpp">
+      <Filter>engine\objects</Filter>
+    </ClInclude>
+    <ClInclude Include="game\debug\GameDebugHelper.hpp">
+      <Filter>game\debug</Filter>
+    </ClInclude>
+    <ClInclude Include="game\state\GameInput.hpp">
+      <Filter>game\state</Filter>
+    </ClInclude>
+    <ClInclude Include="game\GameWindow.hpp">
+      <Filter>game</Filter>
+    </ClInclude>
+    <ClInclude Include="game\JXGame.hpp">
+      <Filter>game</Filter>
+    </ClInclude>
+    <ClInclude Include="glad\include\glad\glad.h">
+      <Filter>glad</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui\imconfig.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui\imgui.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui\imgui_internal.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui\imstb_rectpack.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui\imstb_textedit.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui\imstb_truetype.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui\backends\imgui_impl_opengl3.h">
+      <Filter>imgui\backends</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui\backends\imgui_impl_opengl3_loader.h">
+      <Filter>imgui\backends</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui\backends\imgui_impl_sdl2.h">
+      <Filter>imgui\backends</Filter>
+    </ClInclude>
+    <ClInclude Include="stb\stb_image.h">
+      <Filter>stb</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

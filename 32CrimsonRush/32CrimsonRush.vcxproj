@@ -176,7 +176,7 @@
     <ClCompile Include="src\MousePickerFBO.cpp" />
     <ClCompile Include="src\Resources.cpp" />
     <ClCompile Include="src\Scene.cpp" />
-    <ClCompile Include="src\States\Controlls.cpp" />
+    <ClCompile Include="src\States\Controls.cpp" />
     <ClCompile Include="src\States\Default.cpp" />
     <ClCompile Include="src\States\Game.cpp" />
     <ClCompile Include="src\States\Settings.cpp" />

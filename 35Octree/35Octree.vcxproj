@@ -235,7 +235,7 @@
     <ClCompile Include="src\States\AnimationInterface.cpp" />
     <ClCompile Include="src\States\BlobShoot.cpp" />
     <ClCompile Include="src\States\ConstraintInterface.cpp" />
-    <ClCompile Include="src\States\Controlls.cpp" />
+    <ClCompile Include="src\States\Controls.cpp" />
     <ClCompile Include="src\States\Default.cpp" />
     <ClCompile Include="src\States\Grass\GrassComp.cpp" />
     <ClCompile Include="src\States\Grass\GrassGeom.cpp" />

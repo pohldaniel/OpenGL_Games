@@ -200,7 +200,7 @@
     <ClCompile Include="src\Objects\MeshNew.cpp" />
     <ClCompile Include="src\Rigidbody.cpp" />
     <ClCompile Include="src\SceneManager.cpp" />
-    <ClCompile Include="src\States\Controlls.cpp" />
+    <ClCompile Include="src\States\Controls.cpp" />
     <ClCompile Include="src\States\Default.cpp" />
     <ClCompile Include="src\States\Game.cpp" />
     <ClCompile Include="src\States\Loading.cpp" />
