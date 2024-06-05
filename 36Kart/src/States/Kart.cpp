@@ -2,14 +2,13 @@
 #include <imgui_impl_win32.h>
 #include <imgui_impl_opengl3.h>
 #include <imgui_internal.h>
-#include <engine/Batchrenderer.h>
 #include <States/Menu.h>
 
-#include "RayMarch.h"
+#include "Kart.h"
 #include "Application.h"
 #include "Globals.h"
 
-RayMarch::RayMarch(StateMachine& machine) : State(machine, States::RAYMARCH) {
+Kart::Kart(StateMachine& machine) : State(machine, States::KART) {
 
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
@@ -18,9 +17,10 @@ RayMarch::RayMarch(StateMachine& machine) : State(machine, States::RAYMARCH) {
 	m_camera = Camera();
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
-	m_camera.lookAt(Vector3f(0.0f, 0.0f, 30.0f), Vector3f(0.0f, 0.0f, 30.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
-	m_camera.setRotationSpeed(0.1f);
-	m_camera.setMovingSpeed(10.0f);
+	m_camera.lookAt(Vector3f(0.0f, 2.0f, 10.0f), Vector3f(0.0f, 2.0f, 10.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
+	m_camera.setRotationSpeed(m_rotationSpeed);
+	m_camera.setOffsetDistance(m_offsetDistance);
+	m_camera.setMovingSpeed(15.0f);
 
 	glClearColor(0.494f, 0.686f, 0.796f, 1.0f);
 	glClearDepth(1.0f);
@@ -32,25 +32,18 @@ RayMarch::RayMarch(StateMachine& machine) : State(machine, States::RAYMARCH) {
 		{ &Globals::textureManager.get("forest_4"), 1, 4.0f },
 		{ &Globals::textureManager.get("forest_5"), 1, 5.0f }});
 	m_background.setSpeed(0.005f);
-
-	m_sceneBuffer.create(Application::Width, Application::Height);
-	m_sceneBuffer.attachTexture2D(AttachmentTex::RGBA);
-	m_sceneBuffer.attachTexture2D(AttachmentTex::RED32F);
-	m_sceneBuffer.attachTexture2D(AttachmentTex::DEPTH24);
-	
 }
 
-RayMarch::~RayMarch() {
+Kart::~Kart() {
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
-	glEnable(GL_BLEND);
 }
 
-void RayMarch::fixedUpdate() {
+void Kart::fixedUpdate() {
 
 }
 
-void RayMarch::update() {
+void Kart::update() {
 	Keyboard &keyboard = Keyboard::instance();
 	Vector3f direction = Vector3f();
 
@@ -70,11 +63,15 @@ void RayMarch::update() {
 
 	if (keyboard.keyDown(Keyboard::KEY_A)) {
 		direction += Vector3f(-1.0f, 0.0f, 0.0f);
+		m_background.addOffset(-0.001f);
+		m_background.setSpeed(-0.005f);
 		move |= true;
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_D)) {
 		direction += Vector3f(1.0f, 0.0f, 0.0f);
+		m_background.addOffset(0.001f);
+		m_background.setSpeed(0.005f);
 		move |= true;
 	}
 
@@ -108,74 +105,50 @@ void RayMarch::update() {
 	m_background.update(m_dt);
 }
 
-void RayMarch::render() {
+void Kart::render() {
 
-	m_sceneBuffer.bind();	
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	m_background.draw();
-	glDisable(GL_BLEND);
-	//glClearTexImage(m_sceneBuffer.getColorTexture(1), 0, GL_RED, GL_FLOAT, maxDistance);
-	glClearBufferfv(GL_COLOR, 1, maxDistance);
-	auto shader = Globals::shaderManager.getAssetPointer("scene");
-	shader->use();
-	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
-	shader->loadMatrix("u_view", m_camera.getViewMatrix());
-	shader->loadMatrix("u_model", Matrix4f::Translate(2.0f, 0.0f, 0.0f));
-	shader->loadFloat("u_near", m_camera.getNear());
-	shader->loadFloat("u_far", m_camera.getFar());
 
-	Globals::textureManager.get("marble").bind(0, true);
-	Globals::shapeManager.get("cube").drawRaw();
-	shader->unuse();
-	m_sceneBuffer.unbind();
-	
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glDisable(GL_DEPTH_TEST);
-
-	shader = Globals::shaderManager.getAssetPointer("ray_march");
-	shader->use();	
-	shader->loadVector("u_campos", m_camera.getPosition());
-	shader->loadVector("u_viewdir", m_camera.getViewDirection());
-	shader->loadVector("u_camright", m_camera.getCamX());
-	shader->loadVector("u_camup", m_camera.getCamY());
-	shader->loadFloat("u_scaleFactor", m_camera.getScaleFactor());
-	shader->loadFloat("u_aspectRatio", m_camera.getAspect());
-
-	shader->loadInt("u_screen_texture", 0);
-	shader->loadInt("u_depth_texture", 1);
-
-	m_sceneBuffer.bindColorTexture(0u, 0u);
-	m_sceneBuffer.bindColorTexture(1u, 1u);
-
-	Globals::shapeManager.get("quad").drawRaw();
-	shader->unuse();
-
-	glEnable(GL_DEPTH_TEST);
 	if (m_drawUi)
 		renderUi();
 }
 
-void RayMarch::OnMouseMotion(Event::MouseMoveEvent& event) {
+void Kart::OnMouseMotion(Event::MouseMoveEvent& event) {
 
 }
 
-void RayMarch::OnMouseButtonDown(Event::MouseButtonEvent& event) {
-	if (event.button == 2u) {
-		Mouse::instance().attach(Application::GetWindow());
+void Kart::OnMouseWheel(Event::MouseWheelEvent& event) {
+	if (event.direction == 1u) {
+		m_offsetDistance += 2.0f;
+		m_offsetDistance = std::max(0.0f, std::min(m_offsetDistance, 150.0f));
+		m_camera.setOffsetDistance(m_offsetDistance);
+	}
+
+	if (event.direction == 0u) {
+		m_offsetDistance -= 2.0f;
+		m_offsetDistance = std::max(0.0f, std::min(m_offsetDistance, 150.0f));
+		m_camera.setOffsetDistance(m_offsetDistance);
 	}
 }
 
-void RayMarch::OnMouseButtonUp(Event::MouseButtonEvent& event) {
+void Kart::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 	if (event.button == 2u) {
+		Mouse::instance().attach(Application::GetWindow());
+	}
+
+	if (event.button == 1u) {
+		Mouse::instance().attach(Application::GetWindow(), false, false, false);
+	}
+}
+
+void Kart::OnMouseButtonUp(Event::MouseButtonEvent& event) {
+	if (event.button == 2u || event.button == 1u) {
 		Mouse::instance().detach();
 	}
 }
 
-void RayMarch::OnMouseWheel(Event::MouseWheelEvent& event) {
-
-}
-
-void RayMarch::OnKeyDown(Event::KeyboardEvent& event) {
+void Kart::OnKeyDown(Event::KeyboardEvent& event) {
 	if (event.keyCode == VK_LMENU) {
 		m_drawUi = !m_drawUi;
 	}
@@ -187,17 +160,16 @@ void RayMarch::OnKeyDown(Event::KeyboardEvent& event) {
 	}
 }
 
-void RayMarch::OnKeyUp(Event::KeyboardEvent& event) {
+void Kart::OnKeyUp(Event::KeyboardEvent& event) {
 
 }
 
-void RayMarch::resize(int deltaW, int deltaH) {
+void Kart::resize(int deltaW, int deltaH) {
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
-	m_sceneBuffer.resize(Application::Width, Application::Height);
 }
 
-void RayMarch::renderUi() {
+void Kart::renderUi() {
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();

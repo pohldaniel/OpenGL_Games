@@ -287,7 +287,6 @@ void SkinnedArmor::OnKeyDown(Event::KeyboardEvent& event) {
 	if (event.keyCode == VK_ESCAPE) {
 		Mouse::instance().detach();
 		m_isRunning = false;
-		m_isRunning = false;
 		m_machine.addStateAtBottom(new Menu(m_machine));
 	}
 }

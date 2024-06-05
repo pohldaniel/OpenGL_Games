@@ -219,6 +219,7 @@
     <ClCompile Include="src\Skybox.cpp" />
     <ClCompile Include="src\States\Controls.cpp" />
     <ClCompile Include="src\States\Default.cpp" />
+    <ClCompile Include="src\States\Kart.cpp" />
     <ClCompile Include="src\States\Settings.cpp" />
     <ClCompile Include="src\States\StateMachine.cpp" />
     <ClCompile Include="src\Utils\Rasterizer.cpp" />
@@ -392,6 +393,7 @@
     <ClInclude Include="src\Skybox.h" />
     <ClInclude Include="src\States\Controls.h" />
     <ClInclude Include="src\States\Default.h" />
+    <ClInclude Include="src\States\Kart.h" />
     <ClInclude Include="src\States\Settings.h" />
     <ClInclude Include="src\States\StateMachine.h" />
     <ClInclude Include="src\Utils\Rasterizer.h" />
