@@ -33,6 +33,8 @@ VehiclePhysics::VehiclePhysics()
 	btRigidBody::btRigidBodyConstructionInfo vehicleRigidBodyCI(vehicleMass, vehicleMotionState, vehicleChassisShape, vehicleInertia);
 
 	vehicleRigidBody = new btRigidBody(vehicleRigidBodyCI);
+	//vehicleRigidBody->setAngularFactor(btVector3(0.0f, 1.0f, 0.0f));
+
 	Physics::GetDynamicsWorld()->addRigidBody(vehicleRigidBody);
 
 	// vehicleRigidBody->getWorldTransform

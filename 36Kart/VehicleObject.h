@@ -18,9 +18,9 @@ public:
 	VehicleObject() = default;
 	void draw() override;
 
-	const btTransform getWorldTransform() const;
+	const btTransform& getWorldTransform() const;
 	const btVector3& getLinearVelocity() const;
-
+	void roate(float x, float y, float z);
 	std::string wheelObjPath;
 
 	VehiclePhysics vehicle;

@@ -96,6 +96,10 @@ void Kart::update() {
 		move |= true;
 	}
 
+	if (keyboard.keyPressed(Keyboard::KEY_T)) {
+		vehicleObject.roate(0.0f, 0.0f, 180.0f);
+	}
+
 	Mouse &mouse = Mouse::instance();
 
 	if (mouse.buttonDown(Mouse::MouseButton::BUTTON_RIGHT)) {
@@ -254,6 +258,9 @@ void Kart::renderUi() {
 	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 	ImGui::Checkbox("Draw Wirframe", &StateMachine::GetEnableWireframe());
 	ImGui::Checkbox("Draw Chunk", &bulletDebugDraw);
+	if (ImGui::Button("Reset Car")) {
+		vehicleObject.roate(0.0f, 0.0f, 180.0f);
+	}
 	ImGui::End();
 
 	ImGui::Render();
