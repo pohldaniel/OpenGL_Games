@@ -72,15 +72,18 @@ public:
 	void linkShaders();
 	bool inUse();
 	unsigned int getUnifromLocation(const std::string& name) const;
-
-	GLuint m_program;
-
+	const GLuint& getProgram() const;
+	
 	static GLuint LoadShaderProgram(GLenum type, const char *pszFilename);
 	static GLuint LoadShaderProgram(GLenum type, std::string buffer);
 	static void SetIncludeFromFile(const char *includeName, const char* filename);
 	static void Unuse();
 
 protected:
+
+	GLuint m_program;
+
+private:
 
 	void createProgramFromFile(const std::string& vertex, const std::string& fragment);
 	void createProgram(const std::string& vertex, const std::string& fragment);
@@ -100,9 +103,7 @@ protected:
 
 	static void ReadTextFile(const char *pszFilename, std::string &buffer);
 	static GLuint CompileShader(GLenum type, const char *pszSource);
-
-private:
-
+	
 	bool m_use;
 	mutable std::unordered_map<std::string, unsigned int> m_uniformLocationCache;
 };

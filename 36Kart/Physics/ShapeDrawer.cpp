@@ -134,7 +134,7 @@ void ShapeDrawer::drawShape(btScalar* m, btCollisionShape* shape) {
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
 		glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, hull->numIndices() * sizeof(unsigned int), idx);
 	
-		glUseProgram(s_shader->m_program);
+		s_shader->use();
 
 		s_shader->loadMatrix("u_projection", m_perspective);
 		s_shader->loadMatrix("u_view", m_view);
@@ -143,7 +143,7 @@ void ShapeDrawer::drawShape(btScalar* m, btCollisionShape* shape) {
 
 		glDrawElements(GL_TRIANGLES, hull->numIndices(), GL_UNSIGNED_INT, 0);
 
-		glUseProgram(0);
+		s_shader->unuse();
 
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -166,7 +166,7 @@ void ShapeDrawer::drawShape(btScalar* m, btCollisionShape* shape) {
 			glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, meshArray.at(i).m_numTriangles * 3 * sizeof(unsigned int), reinterpret_cast<const unsigned int*>(meshArray.at(i).m_triangleIndexBase));
 			
 
-			glUseProgram(s_shader->m_program);
+			s_shader->use();
 
 			s_shader->loadMatrix("u_projection", m_perspective);
 			s_shader->loadMatrix("u_view", m_view);
@@ -175,7 +175,7 @@ void ShapeDrawer::drawShape(btScalar* m, btCollisionShape* shape) {
 
 			glDrawElements(GL_TRIANGLES, meshArray.at(i).m_numTriangles * 3, GL_UNSIGNED_INT, 0);
 
-			glUseProgram(0);
+			s_shader->unuse();
 
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 			glBindBuffer(GL_ARRAY_BUFFER, 0);			
@@ -195,7 +195,7 @@ void ShapeDrawer::drawShape(btScalar* m, btCollisionShape* shape) {
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
 		glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, sc->m_indices->size() * sizeof(unsigned int), &(*sc->m_indices)[0]);
 
-		glUseProgram(s_shader->m_program);
+		s_shader->use();
 
 		s_shader->loadMatrix("u_projection", m_perspective);
 		s_shader->loadMatrix("u_view", m_view);
@@ -204,7 +204,7 @@ void ShapeDrawer::drawShape(btScalar* m, btCollisionShape* shape) {
 
 		glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(sc->m_indices->size()), GL_UNSIGNED_INT, 0);
 
-		glUseProgram(0);
+		s_shader->unuse();
 
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -232,7 +232,7 @@ void ShapeDrawer::drawShape(btScalar* m, btCollisionShape* shape) {
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
 		glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, indices.size() * sizeof(unsigned int), &indices[0]);
 
-		glUseProgram(s_shader->m_program);
+		s_shader->use();
 
 		s_shader->loadMatrix("u_projection", m_perspective);
 		s_shader->loadMatrix("u_view", m_view);
@@ -242,7 +242,7 @@ void ShapeDrawer::drawShape(btScalar* m, btCollisionShape* shape) {
 		//glDrawElements(GL_LINES, indices.size(), GL_UNSIGNED_INT, 0);
 		glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 
-		glUseProgram(0);
+		s_shader->unuse();
 
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);

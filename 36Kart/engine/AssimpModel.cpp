@@ -737,10 +737,10 @@ void AssimpModel::initShader(bool instanced) {
 			if (!ShaderManager.checkAsset(instanced ? "diffuse_texture_instance" : "diffuse_texture")) {
 				ShaderManager.loadShaderFromString(instanced ? "diffuse_texture_instance" : "diffuse_texture", instanced ? DIFFUSE_TEXTURE_INSTANCE_VS : DIFFUSE_TEXTURE_VS, instanced ? DIFFUSE_TEXTURE_INSTANCE_FS : DIFFUSE_TEXTURE_FS);
 
-				glUniformBlockBinding(ShaderManager.getAssetPointer(instanced ? "diffuse_texture_instance" : "diffuse_texture")->m_program, glGetUniformBlockIndex(ShaderManager.getAssetPointer(instanced ? "diffuse_texture_instance" : "diffuse_texture")->m_program, "u_material"), BuiltInShader::materialBinding);
+				glUniformBlockBinding(ShaderManager.getAssetPointer(instanced ? "diffuse_texture_instance" : "diffuse_texture")->getProgram(), glGetUniformBlockIndex(ShaderManager.getAssetPointer(instanced ? "diffuse_texture_instance" : "diffuse_texture")->getProgram(), "u_material"), BuiltInShader::materialBinding);
 
 				if (instanced) {
-					glUniformBlockBinding(ShaderManager.getAssetPointer("diffuse_texture_instance")->m_program, glGetUniformBlockIndex(ShaderManager.getAssetPointer("diffuse_texture_instance")->m_program, "u_view"), BuiltInShader::viewBinding);
+					glUniformBlockBinding(ShaderManager.getAssetPointer("diffuse_texture_instance")->getProgram(), glGetUniformBlockIndex(ShaderManager.getAssetPointer("diffuse_texture_instance")->getProgram(), "u_view"), BuiltInShader::viewBinding);
 				}
 			}
 			m_shader.push_back(ShaderManager.getAssetPointer(instanced ? "diffuse_texture_instance" : "diffuse_texture"));
@@ -748,10 +748,10 @@ void AssimpModel::initShader(bool instanced) {
 			if (!ShaderManager.checkAsset(instanced ? "diffuse_instance" : "diffuse")) {
 				ShaderManager.loadShaderFromString(instanced ? "diffuse_instance" : "diffuse", instanced ? DIFFUSE_INSTANCE_VS : DIFFUSE_VS, instanced ? DIFFUSE_INSTANCE_FS : DIFFUSE_FS);
 
-				glUniformBlockBinding(ShaderManager.getAssetPointer(instanced ? "diffuse_instance" : "diffuse")->m_program, glGetUniformBlockIndex(ShaderManager.getAssetPointer(instanced ? "diffuse_instance" : "diffuse")->m_program, "u_material"), BuiltInShader::materialBinding);
+				glUniformBlockBinding(ShaderManager.getAssetPointer(instanced ? "diffuse_instance" : "diffuse")->getProgram(), glGetUniformBlockIndex(ShaderManager.getAssetPointer(instanced ? "diffuse_instance" : "diffuse")->getProgram(), "u_material"), BuiltInShader::materialBinding);
 
 				if (instanced) {
-					glUniformBlockBinding(ShaderManager.getAssetPointer("diffuse_instance")->m_program, glGetUniformBlockIndex(ShaderManager.getAssetPointer("diffuse_instance")->m_program, "u_view"), BuiltInShader::viewBinding);
+					glUniformBlockBinding(ShaderManager.getAssetPointer("diffuse_instance")->getProgram(), glGetUniformBlockIndex(ShaderManager.getAssetPointer("diffuse_instance")->getProgram(), "u_view"), BuiltInShader::viewBinding);
 				}
 			}
 			m_shader.push_back(ShaderManager.getAssetPointer(instanced ? "diffuse_instance" : "diffuse"));
@@ -787,10 +787,10 @@ void AssimpModel::initShader(AssetManager<Shader>& shaderManager, bool instanced
 			if (!ShaderManager.checkAsset(instanced ? "diffuse_texture_instance" : "diffuse_texture")) {
 				ShaderManager.loadShaderFromString(instanced ? "diffuse_texture_instance" : "diffuse_texture", instanced ? DIFFUSE_TEXTURE_INSTANCE_VS : DIFFUSE_TEXTURE_VS, instanced ? DIFFUSE_TEXTURE_INSTANCE_FS : DIFFUSE_TEXTURE_FS);
 
-				glUniformBlockBinding(ShaderManager.getAssetPointer(instanced ? "diffuse_texture_instance" : "diffuse_texture")->m_program, glGetUniformBlockIndex(ShaderManager.getAssetPointer(instanced ? "diffuse_texture_instance" : "diffuse_texture")->m_program, "u_material"), BuiltInShader::materialBinding);
+				glUniformBlockBinding(ShaderManager.getAssetPointer(instanced ? "diffuse_texture_instance" : "diffuse_texture")->getProgram(), glGetUniformBlockIndex(ShaderManager.getAssetPointer(instanced ? "diffuse_texture_instance" : "diffuse_texture")->getProgram(), "u_material"), BuiltInShader::materialBinding);
 
 				if (instanced) {
-					glUniformBlockBinding(ShaderManager.getAssetPointer("diffuse_texture_instance")->m_program, glGetUniformBlockIndex(ShaderManager.getAssetPointer("diffuse_texture_instance")->m_program, "u_view"), BuiltInShader::viewBinding);
+					glUniformBlockBinding(ShaderManager.getAssetPointer("diffuse_texture_instance")->getProgram(), glGetUniformBlockIndex(ShaderManager.getAssetPointer("diffuse_texture_instance")->getProgram(), "u_view"), BuiltInShader::viewBinding);
 				}
 			}
 			m_shader.push_back(ShaderManager.getAssetPointer(instanced ? "diffuse_texture_instance" : "diffuse_texture"));
@@ -799,10 +799,10 @@ void AssimpModel::initShader(AssetManager<Shader>& shaderManager, bool instanced
 			if (!ShaderManager.checkAsset(instanced ? "diffuse_instance" : "diffuse")) {
 				ShaderManager.loadShaderFromString(instanced ? "diffuse_instance" : "diffuse", instanced ? DIFFUSE_INSTANCE_VS : DIFFUSE_VS, instanced ? DIFFUSE_INSTANCE_FS : DIFFUSE_FS);
 
-				glUniformBlockBinding(ShaderManager.getAssetPointer(instanced ? "diffuse_instance" : "diffuse")->m_program, glGetUniformBlockIndex(ShaderManager.getAssetPointer(instanced ? "diffuse_instance" : "diffuse")->m_program, "u_material"), BuiltInShader::materialBinding);
+				glUniformBlockBinding(ShaderManager.getAssetPointer(instanced ? "diffuse_instance" : "diffuse")->getProgram(), glGetUniformBlockIndex(ShaderManager.getAssetPointer(instanced ? "diffuse_instance" : "diffuse")->getProgram(), "u_material"), BuiltInShader::materialBinding);
 
 				if (instanced) {
-					glUniformBlockBinding(ShaderManager.getAssetPointer("diffuse_instance")->m_program, glGetUniformBlockIndex(ShaderManager.getAssetPointer("diffuse_instance")->m_program, "u_view"), BuiltInShader::viewBinding);
+					glUniformBlockBinding(ShaderManager.getAssetPointer("diffuse_instance")->getProgram(), glGetUniformBlockIndex(ShaderManager.getAssetPointer("diffuse_instance")->getProgram(), "u_view"), BuiltInShader::viewBinding);
 				}
 			}
 			m_shader.push_back(ShaderManager.getAssetPointer(instanced ? "diffuse_instance" : "diffuse"));

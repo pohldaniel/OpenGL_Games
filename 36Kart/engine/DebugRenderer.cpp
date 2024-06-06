@@ -360,11 +360,11 @@ void DebugRenderer::drawBuffer() {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
 	glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, size, indices);
 		
-	glUseProgram(DebugShader->m_program);
+	DebugShader->use();
 	DebugShader->loadMatrix("u_vp", projection * view );
 	glDrawElements(GL_LINES, indexCount, GL_UNSIGNED_INT, nullptr);
 
-	glUseProgram(0);
+	DebugShader->unuse();
 	glBindVertexArray(0);
 
 	vertexCount = 0;

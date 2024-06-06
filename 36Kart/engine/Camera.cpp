@@ -1270,7 +1270,7 @@ void Camera::follow(const Matrix4f& targetMat, const Vector3f& targetVelocity, c
 	
 	const Vector3f lookAtPos(0.0f, 1.0f, 0.0f);
 	const Vector3f lookFromPos(0.0f, 1.0f, 1.0f);  // 0, 3, -2
-	float viewDistance = 10.0f;
+	float viewDistance = m_offsetDistance;
 	const float settleTime = 2.0f;
 
 	Vector3f targetPos;
@@ -1332,7 +1332,8 @@ void Camera::follow(const Matrix4f& targetMat, const Vector3f& targetVelocity, c
 	if (std::fabsf(lookDirection[1]) <= 0.99f) {
 		Matrix4f rot = Matrix4f::LookAt(Vector3f(0.0f, 0.0f, 0.0f), lookDirection, Vector3f(0.0f, 1.0f, 0.0f));
 		currentLookFromPos += rot * lookFromPos;
-		currentLookAtPos = lookDirection;		
+		currentLookAtPos = lookDirection;	
+		currentLookFromPos[1] += 2.0f;
 		lookAt(currentLookFromPos, currentLookAtPos + currentLookFromPos, Vector3f(0.0f, 1.0f, 0.0f));			
 	}
 }

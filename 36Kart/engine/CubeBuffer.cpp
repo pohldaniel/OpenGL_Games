@@ -55,7 +55,7 @@ void CubeBuffer::draw() {
 	}else {
 
 		m_fbo.bind();
-		glUseProgram(m_shader->m_program);
+		m_shader->use();
 		glBindVertexArray(m_vao);
 
 		for (GLuint face = 0; face < 6; ++face) {
@@ -66,7 +66,7 @@ void CubeBuffer::draw() {
 			m_innerDraw();
 		}
 		glBindVertexArray(0);
-		glUseProgram(0);
+		m_shader->unuse();
 		m_fbo.unbind();
 	}
 }

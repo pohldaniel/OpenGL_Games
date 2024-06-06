@@ -444,6 +444,12 @@
     <ClCompile Include="VehiclePhysics.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ChunkedMapLoader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PhysicsChunkManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="convhull\convhull_3d.h">
@@ -846,6 +852,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="VehiclePhysics.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ChunkedMapLoader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PhysicsChunkManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

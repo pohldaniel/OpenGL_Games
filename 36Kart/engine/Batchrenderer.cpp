@@ -391,13 +391,13 @@ void Batchrenderer::drawBuffer() {
 	GLsizeiptr size = (uint8_t*)bufferPtr - (uint8_t*)buffer;
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
 	glBufferSubData(GL_ARRAY_BUFFER, 0, size, buffer);
-	glUseProgram(m_shader->m_program);
+	m_shader->use();
 	glBindVertexArray(m_vao);
 	glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, nullptr);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
-	glUseProgram(0);
+	m_shader->unuse();
 
 	indexCount = 0;
 	bufferPtr = buffer;
@@ -432,13 +432,13 @@ void Batchrenderer::drawSingleQuadAA(Vector4f posSize, Vector4f texPosSize, Vect
 		glUnmapBuffer(GL_ARRAY_BUFFER);
 	}
 
-	glUseProgram(m_shader->m_program);
+	m_shader->use();
 	glBindVertexArray(m_vaoSingle);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, nullptr);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
-	glUseProgram(0);
+	m_shader->unuse();
 }
 
 void Batchrenderer::processQuad() {
@@ -483,13 +483,13 @@ void Batchrenderer::processSingleQuad() {
 		glUnmapBuffer(GL_ARRAY_BUFFER);
 	}
 
-	glUseProgram(m_shader->m_program);
+	m_shader->use();
 	glBindVertexArray(m_vaoSingle);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, nullptr);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
-	glUseProgram(0);
+	m_shader->unuse();
 }
 
 void Batchrenderer::bindTexture(unsigned int texture, bool isTextureArray, unsigned int unit) {

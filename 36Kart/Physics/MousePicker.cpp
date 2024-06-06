@@ -152,13 +152,13 @@ void MousePicker::drawPicker(const Camera& camera) {
 	glDisable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
 	
-	glUseProgram(s_shader->m_program);
+	s_shader->use();
 	s_shader->loadMatrix("u_transform", camera.getPerspectiveMatrix() * camera.getViewMatrix() * m_model);
 	glBindVertexArray(m_vao);
 	glDrawElements(GL_QUADS, 4, GL_UNSIGNED_SHORT, 0);
 	glBindVertexArray(0);
 
-	glUseProgram(0);
+	s_shader->unuse();
 
 	glDisable(GL_BLEND);
 	glEnable(GL_DEPTH_TEST);

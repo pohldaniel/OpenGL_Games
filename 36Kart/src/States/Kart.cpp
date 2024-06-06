@@ -25,22 +25,13 @@ Kart::Kart(StateMachine& machine) : State(machine, States::KART) {
 
 	glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
 	glClearDepth(1.0f);
-	m_background.resize(Application::Width, Application::Height);
-	m_background.setLayer(std::vector<BackgroundLayer>{
-		{ &Globals::textureManager.get("forest_1"), 1, 1.0f },
-		{ &Globals::textureManager.get("forest_2"), 1, 2.0f },
-		{ &Globals::textureManager.get("forest_3"), 1, 3.0f },
-		{ &Globals::textureManager.get("forest_4"), 1, 4.0f },
-		{ &Globals::textureManager.get("forest_5"), 1, 5.0f }});
-	m_background.setSpeed(0.005f);
-
-	m_bulletDebugDrawer = new BulletDebugDrawer(0u);
+	
+	m_bulletDebugDrawer = new BulletDebugDrawer(Globals::shaderManager.getAssetPointer("main")->getProgram());
 	Physics::GetDynamicsWorld()->setDebugDrawer(m_bulletDebugDrawer);
 
 	simObject.m_model = new ObjModelNew("ressources/DE_Map1/Landscape01.obj");
 	simObject.objModelMatrix = glm::scale(glm::mat4(1.0f), glm::vec3(40.0f, 40.0f, 40.0f));
 	createBuffer(simObject.m_model);
-
 
 	vehicleObject.m_model = new ObjModelNew("ressources/volga/volga.obj");
 	vehicleObject.m_wheel = new ObjModelNew("ressources/first_car_wheel.obj");
@@ -51,6 +42,8 @@ Kart::Kart(StateMachine& machine) : State(machine, States::KART) {
 	for (int i = 0; i < 10; i++) {
 		Globals::physics->stepSimulation(PHYSICS_STEP);
 	}
+
+	physicsChunkManager = new PhysicsChunkManager(simObject.m_model->GetVertices(), "ressources/chunk_map.txt");
 }
 
 Kart::~Kart() {
@@ -59,12 +52,15 @@ Kart::~Kart() {
 }
 
 void Kart::fixedUpdate() {
-	//Globals::physics->stepSimulation(m_fdt);
+	Globals::physics->stepSimulation(m_fdt);
 }
 
 void Kart::update() {
 	Keyboard &keyboard = Keyboard::instance();
 	Vector3f direction = Vector3f();
+
+	processInput();
+	updateVehicleControls(currentAcceleration, currentTurn);
 
 	float dx = 0.0f;
 	float dy = 0.0f;
@@ -82,15 +78,11 @@ void Kart::update() {
 
 	if (keyboard.keyDown(Keyboard::KEY_A)) {
 		direction += Vector3f(-1.0f, 0.0f, 0.0f);
-		m_background.addOffset(-0.001f);
-		m_background.setSpeed(-0.005f);
 		move |= true;
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_D)) {
 		direction += Vector3f(1.0f, 0.0f, 0.0f);
-		m_background.addOffset(0.001f);
-		m_background.setSpeed(0.005f);
 		move |= true;
 	}
 
@@ -121,9 +113,17 @@ void Kart::update() {
 		}
 	}
 
-	Vector3f pos = vehicleObject.vehiclePosition;
-	pos[1] += 1.5f;
-	m_camera.Camera::setTarget(pos);
+	float pX = vehicleObject.vehicle.getX();
+	float pY = vehicleObject.vehicle.getY();
+	float pZ = vehicleObject.vehicle.getZ();
+
+	physicsChunkManager->update(pX, pZ);
+
+	//Vector3f pos = Vector3f(pX, pY, pZ);
+	//pos[1] += 1.5f;
+	//m_camera.Camera::setTarget(pos);
+
+	m_camera.follow(Physics::MatrixFrom(vehicleObject.getWorldTransform()), Physics::VectorFrom(vehicleObject.getLinearVelocity()), m_dt);
 }
 
 void Kart::render() {
@@ -131,12 +131,16 @@ void Kart::render() {
 	lightCtr += 0.01f;
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+
+	
+
 	auto shader = Globals::shaderManager.getAssetPointer("main");
 	shader->use();
 	shader->loadFloat("useTexture", false);
 	shader->loadVector("lightDir", Vector3f(cos(lightCtr), sin(lightCtr), 0.0f));
 	shader->loadVector("lightColor", Vector3f(1.0f, 1.0f, 1.0f));
-	//shader->loadMatrix("modelMatrix", Matrix4f::IDENTITY);
+	shader->loadMatrix("modelMatrix", Matrix4f::IDENTITY);
 	shader->loadMatrix("camMatrix", m_camera.getPerspectiveMatrix() * m_camera.getViewMatrix());
 	shader->loadInt("tex0", 0);
 
@@ -149,11 +153,10 @@ void Kart::render() {
 	
 	Globals::textureManager.get("map_albedo").bind(0u);
 	shader->loadMatrix("modelMatrix", (const float*)glm::value_ptr(simObject.objModelMatrix));
+	
 	simObject.draw();
 	vehicleObject.draw();
-	//renderObjects();
 
-	
 	if (m_drawUi)
 		renderUi();
 }
@@ -250,6 +253,7 @@ void Kart::renderUi() {
 	// render widgets
 	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 	ImGui::Checkbox("Draw Wirframe", &StateMachine::GetEnableWireframe());
+	ImGui::Checkbox("Draw Chunk", &bulletDebugDraw);
 	ImGui::End();
 
 	ImGui::Render();
@@ -290,4 +294,54 @@ void Kart::drawObject(ObjModelNew* model) {
 	glBindVertexArray(model->vao);
 	glDrawElements(GL_TRIANGLES, model->GetIndices().size(), GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
+}
+
+void Kart::updateVehicleControls(Control accelerationControl, Control turnControl) {
+	// Handle acceleration or braking based on the accelerationControl parameter
+	switch (accelerationControl) {
+	case VehicleAccelerate:
+		vehicleObject.vehicle.ApplyEngineForce(2000);
+		break;
+	case VehicleBrake:
+		vehicleObject.vehicle.ApplyEngineForce(-2500);
+		break;
+	default: // Covers GameInputState::Null and any other unspecified cases
+		vehicleObject.vehicle.ApplyEngineForce(0);
+		break;
+	}
+
+	// Handle turning based on the turnControl parameter
+	switch (turnControl) {
+	case VehicleTurnLeft:
+		vehicleObject.vehicle.ApplySteer(0.13);
+		break;
+	case VehicleTurnRight:
+		vehicleObject.vehicle.ApplySteer(-0.13);
+		break;
+	default: // Covers GameInputState::Null and any other unspecified cases
+		vehicleObject.vehicle.ApplySteer(0);
+		break;
+	}
+}
+
+void Kart::processInput() {
+	Keyboard &keyboard = Keyboard::instance();
+
+	// Reset control states
+	currentAcceleration = Control::Null;
+	currentTurn = Control::Null;
+
+	// Check for acceleration/brake
+	if (keyboard.keyDown(Keyboard::KEY_W)) {
+		currentAcceleration = Control::VehicleAccelerate;
+	}else if (keyboard.keyDown(Keyboard::KEY_S)) {
+		currentAcceleration = Control::VehicleBrake;
+	}
+
+	// Check for turning
+	if (keyboard.keyDown(Keyboard::KEY_A)) {
+		currentTurn = Control::VehicleTurnLeft;
+	}else if (keyboard.keyDown(Keyboard::KEY_D)) {
+		currentTurn = Control::VehicleTurnRight;
+	}
 }

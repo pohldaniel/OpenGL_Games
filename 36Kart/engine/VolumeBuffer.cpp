@@ -63,7 +63,7 @@ int VolumeBuffer::getDepth() {
 void VolumeBuffer::draw() {
 
 	m_fbo.bind();
-	glUseProgram(m_shader->m_program);
+	m_shader->use();
 
 	glBindVertexArray(m_slicedCube.getVao());
 	for (int z = 0; z < m_slicedCube.getDepth(); z++) {
@@ -72,7 +72,7 @@ void VolumeBuffer::draw() {
 	}
 	glBindVertexArray(0);
 
-	glUseProgram(0);
+	m_shader->unuse();
 	m_fbo.unbind();
 }
 

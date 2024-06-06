@@ -15,9 +15,11 @@ class VehicleObject : public SimulationObject{
 
 public:
 
+	VehicleObject() = default;
 	void draw() override;
 
-	VehicleObject() = default;
+	const btTransform getWorldTransform() const;
+	const btVector3& getLinearVelocity() const;
 
 	std::string wheelObjPath;
 

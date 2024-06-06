@@ -3,13 +3,25 @@
 #include <engine/input/MouseEventListener.h>
 #include <engine/input/KeyboardEventListener.h>
 #include <engine/Camera.h>
-#include <engine/Background.h>
 
 #include <States/StateMachine.h>
+
 #include "BulletDebugDrawer.h"
 #include "ObjModelNew.h"
 #include "SimulationObject.h"
 #include "VehicleObject.h"
+#include "PhysicsChunkManager.h"
+
+enum Control {
+	VehicleAccelerate = 0,
+	VehicleBrake,
+	VehicleDown,
+	VehicleUp,
+	VehicleTurnLeft,
+	VehicleTurnRight,
+	Null, //No Input
+	_MaxControls
+};
 
 class Kart : public State, public MouseEventListener, public KeyboardEventListener {
 
@@ -33,6 +45,8 @@ public:
 private:
 
 	void renderUi();
+	void updateVehicleControls(Control accelerationControl, Control turnControl);
+	void processInput();
 
 	bool m_initUi = true;
 	bool m_drawUi = true;
@@ -40,7 +54,6 @@ private:
 	float m_rotationSpeed = 0.1f;
 
 	Camera m_camera;
-	Background m_background;
 	float lightCtr = 0.0f;
 	bool bulletDebugDraw = false;
 	BulletDebugDrawer* m_bulletDebugDrawer;
@@ -49,4 +62,9 @@ private:
 
 	SimulationObject simObject;
 	VehicleObject vehicleObject;
+
+	PhysicsChunkManager* physicsChunkManager;
+
+	Control currentAcceleration = Control::Null;
+	Control currentTurn = Control::Null;
 };

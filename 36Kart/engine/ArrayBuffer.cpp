@@ -80,19 +80,19 @@ void ArrayBuffer::draw() {
 		m_draw();
 	}else if (m_innerDraw) {
 		m_fbo.bind();
-		glUseProgram(m_shader->m_program);
+		m_shader->use();
 		glBindVertexArray(m_vao);
 		m_innerDraw();
 		glBindVertexArray(0);
-		glUseProgram(0);
+		m_shader->unuse();
 		m_fbo.unbind();
 	}else {
 		m_fbo.bind();
-		glUseProgram(m_shader->m_program);
+		m_shader->use();
 		glBindVertexArray(m_vao);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0);
 		glBindVertexArray(0);
-		glUseProgram(0);
+		m_shader->unuse();
 		m_fbo.unbind();
 	}
 }

@@ -293,7 +293,7 @@ void Frustum::drawFrustum(const Matrix4f& projection, const Matrix4f& view, floa
 	glDisable(GL_DEPTH_TEST);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-	glUseProgram(s_shaderFrustum->m_program);
+	s_shaderFrustum->use();
 	s_shaderFrustum->loadMatrix("u_transform", projection * view * Matrix4f::Translate(0.0f, 0.0f, distance));	
 	s_shaderFrustum->loadVector("u_colorFar", colorFar);
 	s_shaderFrustum->loadVector("u_colorNear", colorNear);
@@ -303,7 +303,7 @@ void Frustum::drawFrustum(const Matrix4f& projection, const Matrix4f& view, floa
 	glDrawElements(GL_QUADS, 24, GL_UNSIGNED_SHORT, 0);
 	glBindVertexArray(0);
 
-	glUseProgram(0);
+	s_shaderFrustum->unuse();
 
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	glEnable(GL_DEPTH_TEST);

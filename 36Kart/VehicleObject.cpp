@@ -57,3 +57,15 @@ void VehicleObject::draw() {
 	}
 	glBindVertexArray(0);
 }
+
+const btTransform VehicleObject::getWorldTransform() const {
+	btTransform vehicleTrans;
+	vehicle.vehicle->getRigidBody()->getMotionState()->getWorldTransform(vehicleTrans);
+	//btBoxShape* compoundShape = static_cast<btBoxShape*>(vehicle.vehicle->getRigidBody()->getCollisionShape());
+
+	return vehicleTrans;
+}
+
+const btVector3& VehicleObject::getLinearVelocity() const {
+	return vehicle.vehicle->getRigidBody()->getLinearVelocity();
+}
