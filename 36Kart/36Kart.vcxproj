@@ -88,7 +88,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;src;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;..\libassimp\include;..\openal\include;..\sndfile\include;..\rapidjson\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;src;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;..\libassimp\include;..\openal\include;..\sndfile\include;..\rapidjson\include;..\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4005;</DisableSpecificWarnings>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
@@ -106,7 +106,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;src;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;..\libassimp\include;..\openal\include;..\sndfile\include;..\rapidjson\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;src;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;..\libassimp\include;..\openal\include;..\sndfile\include;..\rapidjson\include;..\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4005;</DisableSpecificWarnings>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
@@ -126,7 +126,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;src;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;..\libassimp\include;..\openal\include;..\sndfile\include;..\rapidjson\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;src;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;..\libassimp\include;..\openal\include;..\sndfile\include;..\rapidjson\include;..\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <DisableSpecificWarnings>4005;</DisableSpecificWarnings>
       <LanguageStandard>stdcpp17</LanguageStandard>
@@ -149,7 +149,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;src;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;..\libassimp\include;..\openal\include;..\sndfile\include;..\rapidjson\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;src;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;..\libassimp\include;..\openal\include;..\sndfile\include;..\rapidjson\include;..\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <DisableSpecificWarnings>4005;</DisableSpecificWarnings>
       <LanguageStandard>stdcpp17</LanguageStandard>
@@ -164,6 +164,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="BulletDebugDrawer.cpp" />
     <ClCompile Include="engine\animation\AssimpAnimatedModel.cpp" />
     <ClCompile Include="engine\animation\AssimpAnimation.cpp" />
     <ClCompile Include="engine\animation\AssimpAnimator.cpp" />
@@ -208,8 +209,10 @@
     <ClCompile Include="engine\utils\StringUtils.cpp" />
     <ClCompile Include="engine\utils\Utils.cpp" />
     <ClCompile Include="engine\ZoomableQuad.cpp" />
+    <ClCompile Include="ObjModelNew.cpp" />
     <ClCompile Include="Physics\Constraint.cpp" />
     <ClCompile Include="Physics\Constraint6DoF.cpp" />
+    <ClCompile Include="SimulationObject.cpp" />
     <ClCompile Include="src\Animation\AnimatedModel.cpp" />
     <ClCompile Include="src\Animation\Animation.cpp" />
     <ClCompile Include="src\Animation\AnimationController.cpp" />
@@ -282,8 +285,11 @@
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\States\Menu.cpp" />
     <ClCompile Include="src\Utils\BinaryIO.cpp" />
+    <ClCompile Include="VehicleObject.cpp" />
+    <ClCompile Include="VehiclePhysics.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BulletDebugDrawer.h" />
     <ClInclude Include="engine\animation\AssimpAnimatedModel.h" />
     <ClInclude Include="engine\animation\AssimpAnimation.h" />
     <ClInclude Include="engine\animation\AssimpAnimator.h" />
@@ -380,8 +386,10 @@
     <ClInclude Include="engine\Vector.h" />
     <ClInclude Include="engine\VolumeBuffer.h" />
     <ClInclude Include="engine\ZoomableQuad.h" />
+    <ClInclude Include="ObjModelNew.h" />
     <ClInclude Include="Physics\Constraint.h" />
     <ClInclude Include="Physics\Constraint6DoF.h" />
+    <ClInclude Include="SimulationObject.h" />
     <ClInclude Include="src\Animation\AnimatedModel.h" />
     <ClInclude Include="src\Animation\Animation.h" />
     <ClInclude Include="src\Animation\AnimationController.h" />
@@ -413,6 +421,8 @@
     <ClInclude Include="Miniball\Miniball.h" />
     <ClInclude Include="src\States\Menu.h" />
     <ClInclude Include="src\Utils\BinaryIO.h" />
+    <ClInclude Include="VehicleObject.h" />
+    <ClInclude Include="VehiclePhysics.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

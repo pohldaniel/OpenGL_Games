@@ -6,6 +6,10 @@
 #include <engine/Background.h>
 
 #include <States/StateMachine.h>
+#include "BulletDebugDrawer.h"
+#include "ObjModelNew.h"
+#include "SimulationObject.h"
+#include "VehicleObject.h"
 
 class Kart : public State, public MouseEventListener, public KeyboardEventListener {
 
@@ -24,16 +28,25 @@ public:
 	void OnMouseButtonUp(Event::MouseButtonEvent& event) override;
 	void OnKeyDown(Event::KeyboardEvent& event) override;
 	void OnKeyUp(Event::KeyboardEvent& event) override;
-
+	void createBuffer(ObjModelNew* model);
+	void drawObject(ObjModelNew* model);
 private:
 
 	void renderUi();
 
 	bool m_initUi = true;
 	bool m_drawUi = true;
-	float m_offsetDistance = 10.0f;
+	float m_offsetDistance = 20.0f;
 	float m_rotationSpeed = 0.1f;
 
 	Camera m_camera;
 	Background m_background;
+	float lightCtr = 0.0f;
+	bool bulletDebugDraw = false;
+	BulletDebugDrawer* m_bulletDebugDrawer;
+
+	ObjModelNew* m_model;
+
+	SimulationObject simObject;
+	VehicleObject vehicleObject;
 };

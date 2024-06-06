@@ -705,6 +705,7 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("texture", "res/shader/texture.vert", "res/shader/texture.frag");	
 	Globals::shaderManager.loadShader("font", "res/shader/batch.vert", "res/shader/font.frag");
 	Globals::shaderManager.loadShader("batch", "res/shader/batch.vert", "res/shader/batch.frag");
+	Globals::shaderManager.loadShader("main", "res/shader/main.vert", "res/shader/main.frag");
 
 	Globals::fontManager.loadCharacterSet("upheaval_200", "res/fonts/upheavtt.ttf", 200, 0, 30, 128, 0, true, 0u);
 	Globals::fontManager.loadCharacterSet("upheaval_50", "res/fonts/upheavtt.ttf", 30, 0, 3, 0, 0, true, 0u);
@@ -714,4 +715,12 @@ void Application::loadAssets() {
 	Globals::textureManager.loadTexture("forest_3", "res/backgrounds/Forest/plx-3.png");
 	Globals::textureManager.loadTexture("forest_4", "res/backgrounds/Forest/plx-4.png");
 	Globals::textureManager.loadTexture("forest_5", "res/backgrounds/Forest/plx-5.png");
+
+	Globals::textureManager.loadTexture("map_albedo", "ressources/DE_Map1/Map01_Albedo.png", false);
+	Globals::textureManager.get("map_albedo").setFilter(GL_LINEAR_MIPMAP_LINEAR);
+	Globals::textureManager.get("map_albedo").setWrapMode(GL_REPEAT);
+
+	Globals::textureManager.loadTexture("car_albedo", "ressources/volga/volga.png", false);
+	Globals::textureManager.get("car_albedo").setFilter(GL_LINEAR_MIPMAP_LINEAR);
+	//Globals::textureManager.get("map_albedo").setWrapMode(GL_REPEAT);
 }

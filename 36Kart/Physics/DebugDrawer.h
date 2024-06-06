@@ -3,8 +3,7 @@
 #include <LinearMath/btIDebugDraw.h>
 
 class DebugDrawer : public btIDebugDraw {
-	int m_debugMode;
-
+	
 public:
 
 	DebugDrawer();
@@ -28,4 +27,7 @@ public:
 
 	virtual int getDebugMode() const { return m_debugMode; }
 
+private:
+
+	int m_debugMode;
 };

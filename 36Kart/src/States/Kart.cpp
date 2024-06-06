@@ -1,3 +1,4 @@
+#include <glm/gtc/type_ptr.hpp>
 #include <imgui.h>
 #include <imgui_impl_win32.h>
 #include <imgui_impl_opengl3.h>
@@ -17,12 +18,12 @@ Kart::Kart(StateMachine& machine) : State(machine, States::KART) {
 	m_camera = Camera();
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
-	m_camera.lookAt(Vector3f(0.0f, 2.0f, 10.0f), Vector3f(0.0f, 2.0f, 10.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
+	m_camera.lookAt(Vector3f(0.0f, 2.0f, -10.0f), Vector3f(0.0f, 2.0f, -10.0f) + Vector3f(0.0f, 0.0f, 1.0f), Vector3f(0.0f, 1.0f, 0.0f));
 	m_camera.setRotationSpeed(m_rotationSpeed);
 	m_camera.setOffsetDistance(m_offsetDistance);
 	m_camera.setMovingSpeed(15.0f);
 
-	glClearColor(0.494f, 0.686f, 0.796f, 1.0f);
+	glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
 	glClearDepth(1.0f);
 	m_background.resize(Application::Width, Application::Height);
 	m_background.setLayer(std::vector<BackgroundLayer>{
@@ -32,6 +33,24 @@ Kart::Kart(StateMachine& machine) : State(machine, States::KART) {
 		{ &Globals::textureManager.get("forest_4"), 1, 4.0f },
 		{ &Globals::textureManager.get("forest_5"), 1, 5.0f }});
 	m_background.setSpeed(0.005f);
+
+	m_bulletDebugDrawer = new BulletDebugDrawer(0u);
+	Physics::GetDynamicsWorld()->setDebugDrawer(m_bulletDebugDrawer);
+
+	simObject.m_model = new ObjModelNew("ressources/DE_Map1/Landscape01.obj");
+	simObject.objModelMatrix = glm::scale(glm::mat4(1.0f), glm::vec3(40.0f, 40.0f, 40.0f));
+	createBuffer(simObject.m_model);
+
+
+	vehicleObject.m_model = new ObjModelNew("ressources/volga/volga.obj");
+	vehicleObject.m_wheel = new ObjModelNew("ressources/first_car_wheel.obj");
+	vehicleObject.shader = Globals::shaderManager.getAssetPointer("main");
+	createBuffer(vehicleObject.m_model);
+	createBuffer(vehicleObject.m_wheel);
+
+	for (int i = 0; i < 10; i++) {
+		Globals::physics->stepSimulation(PHYSICS_STEP);
+	}
 }
 
 Kart::~Kart() {
@@ -40,7 +59,7 @@ Kart::~Kart() {
 }
 
 void Kart::fixedUpdate() {
-
+	//Globals::physics->stepSimulation(m_fdt);
 }
 
 void Kart::update() {
@@ -102,14 +121,39 @@ void Kart::update() {
 		}
 	}
 
-	m_background.update(m_dt);
+	Vector3f pos = vehicleObject.vehiclePosition;
+	pos[1] += 1.5f;
+	m_camera.Camera::setTarget(pos);
 }
 
 void Kart::render() {
 
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	m_background.draw();
+	lightCtr += 0.01f;
 
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	auto shader = Globals::shaderManager.getAssetPointer("main");
+	shader->use();
+	shader->loadFloat("useTexture", false);
+	shader->loadVector("lightDir", Vector3f(cos(lightCtr), sin(lightCtr), 0.0f));
+	shader->loadVector("lightColor", Vector3f(1.0f, 1.0f, 1.0f));
+	//shader->loadMatrix("modelMatrix", Matrix4f::IDENTITY);
+	shader->loadMatrix("camMatrix", m_camera.getPerspectiveMatrix() * m_camera.getViewMatrix());
+	shader->loadInt("tex0", 0);
+
+	if (bulletDebugDraw){
+		Physics::GetDynamicsWorld()->debugDrawWorld();
+		m_bulletDebugDrawer->flushLines();
+	}
+
+	shader->loadFloat("useTexture", true);
+	
+	Globals::textureManager.get("map_albedo").bind(0u);
+	shader->loadMatrix("modelMatrix", (const float*)glm::value_ptr(simObject.objModelMatrix));
+	simObject.draw();
+	vehicleObject.draw();
+	//renderObjects();
+
+	
 	if (m_drawUi)
 		renderUi();
 }
@@ -210,4 +254,40 @@ void Kart::renderUi() {
 
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+}
+
+void Kart::createBuffer(ObjModelNew* model) {
+	glGenBuffers(1, &model->vbo);
+	glGenBuffers(1, &model->ebo);
+
+	glGenVertexArrays(1, &model->vao);
+	glBindVertexArray(model->vao);
+
+	glBindBuffer(GL_ARRAY_BUFFER, model->vbo);
+	glBufferData(GL_ARRAY_BUFFER, model->GetVertices().size() * sizeof(float), &model->GetVertices()[0], GL_STATIC_DRAW);
+
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)0);
+
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void *)(3 * sizeof(float)));
+
+	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void *)(6 * sizeof(float)));
+
+	glEnableVertexAttribArray(3);
+	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void *)(8 * sizeof(float)));
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, model->ebo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, model->GetIndices().size() * sizeof(unsigned int), &model->GetIndices()[0], GL_STATIC_DRAW);
+
+	glBindVertexArray(0);
+}
+
+void Kart::drawObject(ObjModelNew* model) {
+	glBindVertexArray(model->vao);
+	glDrawElements(GL_TRIANGLES, model->GetIndices().size(), GL_UNSIGNED_INT, 0);
+	glBindVertexArray(0);
 }
