@@ -2,15 +2,17 @@
 
 #include <engine/input/MouseEventListener.h>
 #include <engine/input/KeyboardEventListener.h>
+#include <engine/scene/SceneNodeLC.h>
 #include <engine/Camera.h>
+#include <engine/MeshSequence.h>
 
 #include <States/StateMachine.h>
 
 #include "BulletDebugDrawer.h"
-#include "ObjModelNew.h"
-#include "SimulationObject.h"
-#include "VehicleObject.h"
 #include "PhysicsChunkManager.h"
+#include "ShapeEntity.h"
+#include "Vehicle.h"
+#include "Chunk.h"
 
 enum Control {
 	VehicleAccelerate = 0,
@@ -40,8 +42,7 @@ public:
 	void OnMouseButtonUp(Event::MouseButtonEvent& event) override;
 	void OnKeyDown(Event::KeyboardEvent& event) override;
 	void OnKeyUp(Event::KeyboardEvent& event) override;
-	void createBuffer(ObjModelNew* model);
-	void drawObject(ObjModelNew* model);
+
 private:
 
 	void renderUi();
@@ -50,21 +51,20 @@ private:
 
 	bool m_initUi = true;
 	bool m_drawUi = true;
+	bool m_drawBulletDebug = false;
+
 	float m_offsetDistance = 20.0f;
 	float m_rotationSpeed = 0.1f;
 
 	Camera m_camera;
 	float lightCtr = 0.0f;
-	bool bulletDebugDraw = false;
+	
 	BulletDebugDrawer* m_bulletDebugDrawer;
-
-	ObjModelNew* m_model;
-
-	SimulationObject simObject;
-	VehicleObject vehicleObject;
-
 	PhysicsChunkManager* physicsChunkManager;
-
 	Control currentAcceleration = Control::Null;
 	Control currentTurn = Control::Null;
+	SceneNodeLC* m_root;
+	std::vector<ShapeEntity*> m_entities;
+	Vehicle* m_vehicle;
+	MeshSequence m_meshSequence;
 };

@@ -1,10 +1,64 @@
-#include "VehicleObject.h"
+#include "Vehicle.h"
 #include "Globals.h"
 
-void VehicleObject::UpdateModelMatrix() {
+Vehicle::Vehicle(const MeshSequence& meshSequence) : SequenceNode(meshSequence, BoundingBox(Vector3f(0.0f, 0.0f, 0.0f), Vector3f(1.0f, 1.0f, 1.0f))), m_materialIndex(-1), m_textureIndex(-1) {
+
+}
+
+Vehicle::~Vehicle() {
+
+}
+
+void Vehicle::draw() {
+
+	if (m_materialIndex >= 0)
+		Material::GetMaterials()[m_materialIndex].bind();
+
+	if (m_textureIndex >= 0)
+		Material::GetTextures()[m_textureIndex].bind();
+
+	updateModelMatrix();
+	
+	auto shader = Globals::shaderManager.getAssetPointer("main");
+	shader->loadMatrix("modelMatrix", (const float*)glm::value_ptr(objModelMatrix));
+
+	Globals::textureManager.get("car_albedo").bind(0u);
+
+	meshSequence.draw(0);
+	for (glm::mat4 wheelMatrix : wheelMatrices) {
+		shader->loadMatrix("modelMatrix", (const float*)glm::value_ptr(wheelMatrix));
+		meshSequence.draw(1);
+	}
+}
+
+void Vehicle::update(const float dt) {
+
+}
+
+const Material& Vehicle::getMaterial() const {
+	return Material::GetMaterials()[m_materialIndex];
+}
+
+short Vehicle::getMaterialIndex() const {
+	return m_materialIndex;
+}
+
+void Vehicle::setMaterialIndex(short index) const {
+	m_materialIndex = index;
+}
+
+short Vehicle::getTextureIndex() const {
+	return m_textureIndex;
+}
+
+void Vehicle::setTextureIndex(short index) const {
+	m_textureIndex = index;
+}
+
+void Vehicle::updateModelMatrix() {
 
 	btTransform vTrans = vehicle.GetTransform();
-	vehiclePosition = vehicle.GetTransform().getOrigin();
+	btVector3 vehiclePosition = vehicle.GetTransform().getOrigin();
 	btQuaternion vehicleRotation = vTrans.getRotation();
 
 	glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(vehiclePosition.x(), vehiclePosition.y() - 1.2f, vehiclePosition.z()));
@@ -16,8 +70,6 @@ void VehicleObject::UpdateModelMatrix() {
 
 	objModelMatrix = translation * rotation * rotate90DEG_Adjustment * glm::scale(glm::vec3(0.7f));
 
-
-	// Update wheel matrices
 	wheelMatrices.clear();
 
 	for (int i = 0; i < vehicle.vehicle->getNumWheels(); i++) {
@@ -38,35 +90,15 @@ void VehicleObject::UpdateModelMatrix() {
 	}
 }
 
-void VehicleObject::draw() {
-
-	UpdateModelMatrix();
-
-	Globals::textureManager.get("car_albedo").bind(0u);
-
-	shader->loadMatrix("modelMatrix", (const float*)glm::value_ptr(objModelMatrix));
-	glBindVertexArray(m_model->vao);
-	glDrawElements(GL_TRIANGLES, m_model->GetIndices().size(), GL_UNSIGNED_INT, 0);
-	
-	for (glm::mat4 wheelMatrix : wheelMatrices) {
-	
-		shader->loadMatrix("modelMatrix", (const float*)glm::value_ptr(wheelMatrix));
-		glBindVertexArray(m_wheel->vao);
-		glDrawElements(GL_TRIANGLES, m_wheel->GetIndices().size(), GL_UNSIGNED_INT, 0);
-		
-	}
-	glBindVertexArray(0);
-}
-
-const btTransform& VehicleObject::getWorldTransform() const {
+const btTransform& Vehicle::getWorldTransform() const {
 	return vehicle.vehicle->getRigidBody()->getWorldTransform();
 }
 
-const btVector3& VehicleObject::getLinearVelocity() const {
+const btVector3& Vehicle::getLinearVelocity() const {
 	return vehicle.vehicle->getRigidBody()->getLinearVelocity();
 }
 
-void VehicleObject::roate(float x, float y, float z) {
+void Vehicle::roate(float x, float y, float z) {
 	btTransform& worldTrans = vehicle.vehicle->getRigidBody()->getWorldTransform();
 	worldTrans.setRotation(worldTrans.getRotation() * Physics::QuaternionFrom(Quaternion(x, y, z)));
 	worldTrans.setOrigin(worldTrans.getOrigin() + btVector3(0.0f, 2.0f, 0.0f));

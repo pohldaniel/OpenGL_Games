@@ -167,6 +167,9 @@ void MeshSequence::loadSequence(const char* _path, Vector3f& axis, float degree,
 	int assign = 0;
 
 	for (auto const& dir_entry : std::filesystem::directory_iterator(std::filesystem::path(_path))) {
+		if (dir_entry.path().extension() != ".obj")
+			continue;
+
 		int offsetPos = vertexCoords.size() / 3;
 		int offsetTex = textureCoords.size() / 2;
 		int offsetNorm = normalCoords.size() / 3;
@@ -728,7 +731,8 @@ const void MeshSequence::draw(unsigned short meshIndex, short textureIndex, shor
 	if(materialIndex >= 0)
 		Material::GetMaterials()[materialIndex].updateMaterialUbo(BuiltInShader::materialUbo);
 
-	textureIndex >= 0 ? Material::GetTextures()[textureIndex].bind() : Texture::Unbind();
+	if(textureIndex >= 0)
+		Material::GetTextures()[textureIndex].bind();
 
 	glBindVertexArray(m_vao);
 	glDrawElementsBaseVertex(GL_TRIANGLES, m_meshes[meshIndex].drawCount, GL_UNSIGNED_INT, (void*)(sizeof(unsigned int) * m_meshes[meshIndex].baseIndex), m_meshes[meshIndex].baseVertex);

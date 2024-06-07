@@ -225,9 +225,6 @@ void Shape::fromBuffer(const std::vector<float>& vertexBuffer, const std::vector
 
 void Shape::fromObj(const char* filename) {
 
-	bool quads = false;
-	bool check = false;
-
 	std::vector<std::array<int, 9>> face;
 	std::vector<float> positionCoords;
 	std::vector<float> normalCoords;
@@ -289,54 +286,104 @@ void Shape::fromObj(const char* filename) {
 			break;
 
 		}case 'f': {
-
-			
+		
 			fgets(buffer, sizeof(buffer), pFile);
+			int p = 0, n = 0, t = 0, acc = 0, read = 0, index = 0;
+			int p1 = 0, p2 = 0, p3 = 0, n1 = 0, n2 = 0, n3 = 0, t1 = 0, t2 = 0, t3 = 0;
 
-			if (!check) {
-				quads = Utils::whitespaces(buffer) == 4;
-				check = true;
-			}
-			
-			if (quads) {
-				int a, b, c, n1, n2, n3, t1, t2, t3;
+			if (!textureCoords.empty() && !normalCoords.empty()) {
+				while (sscanf(buffer + acc, "%d/%d/%d%n", &p, &t, &n, &read) > 0) {
+					acc += read;
+					if (index == 0) {
+						p1 = p;
+						t1 = t;
+						n1 = n;
+					}else if (index == 1) {
+						p2 = p;
+						t2 = t;
+						n2 = n;
+					}else if (index == 2) {
+						p3 = p;
+						t3 = t;
+						n3 = n;
+						face.push_back({ p1, p2, p3, t1, t2, t3, n1, n2, n3 });
 
-				if (!textureCoords.empty() && !normalCoords.empty()) {
-					sscanf(buffer, "%d/%d/%d %d/%d/%d %d/%d/%d", &a, &t1, &n1, &b, &t2, &n2, &c, &t3, &n3);
-					face.push_back({ a, b, c, t1, t2, t3, n1, n2, n3 });
+					}else if (index > 2) {
+						p2 = p3;
+						t2 = t3;
+						n2 = n3;
 
-				}else if (!normalCoords.empty()) {
-					sscanf(buffer, "%d//%d %d//%d %d//%d", &a, &n1, &b, &n2, &c, &n3);
-					face.push_back({ a, b, c, 0, 0, 0, n1, n2, n3 });
-				}else if (!textureCoords.empty()) {
-					sscanf(buffer, "%d/%d %d/%d %d/%d", &a, &t1, &b, &t2, &c, &t3);
-					face.push_back({ a, b, c, t1, t2, t3, 0, 0, 0 });
-				}else {
-					sscanf(buffer, "%d %d %d", &a, &b, &c);
-					face.push_back({ a, b, c, 0, 0, 0, 0, 0, 0 });
+						p3 = p;
+						t3 = t;
+						n3 = n;
+						face.push_back({ p1, p2, p3, t1, t2, t3, n1, n2, n3 });
+					}
+					index++;
 				}
+			}else if (!normalCoords.empty()) {
+				while (sscanf(buffer + acc, "%d//%d%n", &p, &n, &read) > 0) {
+					acc += read;
+					if (index == 0) {
+						p1 = p;
+						n1 = n;
+					}else if (index == 1) {
+						p2 = p;
+						n2 = n;
+					}else if (index == 2) {
+						p3 = p;
+						n3 = n;
+						face.push_back({ p1, p2, p3, 0, 0, 0, n1, n2, n3 });
+					}else if (index > 2) {
+						p2 = p3;
+						n2 = n3;
 
-			} else {
-				int a, b, c, d, n1, n2, n3, n4, t1, t2, t3, t4;
+						p3 = p;
+						n3 = n;
+						face.push_back({ p1, p2, p3, 0, 0, 0, n1, n2, n3 });
+					}
 
-				if (!textureCoords.empty() && !normalCoords.empty()) {
-					sscanf(buffer, "%d/%d/%d %d/%d/%d %d/%d/%d %d/%d/%d", &a, &t1, &n1, &b, &t2, &n2, &c, &t3, &n3, &d, &t4, &n4);
-					face.push_back({ a, b, c, t1, t2, t3, n1, n2, n3 });
-					face.push_back({ a, c, d, t1, t3, t4, n1, n3, n4 });
+					index++;
+				}
+			}else if (!textureCoords.empty()) {			
+					while (sscanf(buffer + acc, "%d/%d%n", &p, &t, &read) > 0) {
+						acc += read;
+						if (index == 0) {
+							p1 = p;
+							t1 = t;
+						}else if (index == 1) {
+							p2 = p;
+							t2 = t;
+						}else if (index == 2) {
+							p3 = p;
+							t3 = t;
+							face.push_back({ p1, p2, p3, t1, t2, t3, 0, 0, 0 });
+						}else if (index > 2) {
+							p2 = p3;
+							t2 = t3;
 
-				} else if (!normalCoords.empty()) {
-					sscanf(buffer, "%d//%d %d//%d %d//%d %d//%d", &a, &n1, &b, &n2, &c, &n3, &d, &n4);
-					face.push_back({ a, b, c, 0, 0, 0, n1, n2, n3 });
-					face.push_back({ a, c, d, 0, 0, 0, n1, n3, n4 });
-
-				} else if (!textureCoords.empty()) {
-					sscanf(buffer, "%d/%d %d/%d %d/%d %d/%d", &a, &t1, &b, &t2, &c, &t3, &d, &t4);
-					face.push_back({ a, b, c, t1, t2, t3, 0, 0, 0 });
-					face.push_back({ a, c, d, t1, t3, t4, 0, 0, 0 });
-				} else {
-					sscanf(buffer, "%d %d %dd %d", &a, &b, &c, &d);
-					face.push_back({ a, b, c, 0, 0, 0, 0, 0, 0 });
-					face.push_back({ a, c, d, 0, 0, 0, 0, 0, 0 });
+							p3 = p;
+							t3 = t;
+							face.push_back({ p1, p2, p3, t1, t2, t3, 0, 0, 0 });
+						}
+						index++;
+					}
+				
+			}else {
+				while (sscanf(buffer + acc, "%d%n", &p, &read) > 0) {
+					acc += read;
+					if (index == 0) {
+						p1 = p;
+					}else if (index == 1) {
+						p2 = p;
+					}else if (index == 2) {
+						p3 = p;
+						face.push_back({ p1, p2, p3, 0, 0, 0, 0, 0, 0});
+					}else if (index > 2) {
+						p2 = p3;
+						p3 = p;
+						face.push_back({ p1, p2, p3, 0, 0, 0, 0, 0, 0});
+					}
+					index++;
 				}
 			}
 			break;
@@ -510,7 +557,6 @@ void Shape::fromObj(const char* filename) {
 	bitangentCoords.shrink_to_fit();
 	vertexBufferOut.clear();
 	vertexBufferOut.shrink_to_fit();
-
 	createBuffer();
 }
 

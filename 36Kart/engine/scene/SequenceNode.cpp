@@ -5,8 +5,16 @@ SequenceNode::SequenceNode(const MeshSequence& meshSequence, int meshIndex) : Oc
 	OnBoundingBoxChanged();
 }
 
+SequenceNode::SequenceNode(const MeshSequence& meshSequence, const BoundingBox& localBoundingBox) : OctreeNode(localBoundingBox), meshSequence(meshSequence), m_meshIndex(0) {
+	OnBoundingBoxChanged();
+}
+
 int SequenceNode::getMeshIndex() const {
 	return m_meshIndex;
+}
+
+void SequenceNode::setMeshIndex(short index) {
+	m_meshIndex = index;
 }
 
 const MeshSequence& SequenceNode::getSequence() const {

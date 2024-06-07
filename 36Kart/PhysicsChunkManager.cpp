@@ -1,26 +1,17 @@
 #include "PhysicsChunkManager.h"
 
-PhysicsChunkManager::PhysicsChunkManager(const std::vector<float>& verts, const std::string& filename) {
-	SCALE_FACTOR = 40.0f;
-	std::vector<LoadedChunk> chunks = ChunkedMapLoader::loadChunks(filename);
-
-	glm::mat4 chunkModelMatrix = glm::scale(glm::mat4(1.0f), glm::vec3(10.0f, 10.0f, 10.0f)); // Placeholder Model Matrix
-
-	for (auto& ldChunk : chunks) {
-
+PhysicsChunkManager::PhysicsChunkManager(std::vector<ChunkNew> chunks, float localScale) {
+	for (auto&& chunk : chunks) {
 		btTriangleMesh* mesh = new btTriangleMesh();
-
-		for (size_t i = 0; i < ldChunk.faces.size(); i += 3){
-			int VERT_LEN = 11;
-			unsigned int idx0 = ldChunk.faces[i]; unsigned int idx1 = ldChunk.faces[i + 1]; unsigned int idx2 = ldChunk.faces[i + 2];
-			btVector3 vertex0(verts[idx0 * VERT_LEN], verts[idx0 * VERT_LEN + 1], verts[idx0 * VERT_LEN + 2]);
-			btVector3 vertex1(verts[idx1 * VERT_LEN], verts[idx1 * VERT_LEN + 1], verts[idx1 * VERT_LEN + 2]);
-			btVector3 vertex2(verts[idx2 * VERT_LEN], verts[idx2 * VERT_LEN + 1], verts[idx2 * VERT_LEN + 2]);
+		for (size_t i = 0; i < chunk.m_verts.size() / 9; i++) {
+			btVector3 vertex0(chunk.m_verts[i * 9], chunk.m_verts[i * 9 + 1], chunk.m_verts[i * 9 + 2]);
+			btVector3 vertex1(chunk.m_verts[i * 9 + 3], chunk.m_verts[i * 9 + 4], chunk.m_verts[i * 9 + 5]);
+			btVector3 vertex2(chunk.m_verts[i * 9 + 6], chunk.m_verts[i * 9 + 7], chunk.m_verts[i * 9 + 8]);
 			mesh->addTriangle(vertex0, vertex1, vertex2);
 		}
 
 		btBvhTriangleMeshShape *shape = new btBvhTriangleMeshShape(mesh, true);
-		shape->setLocalScaling(btVector3(40.0f, 40.0f, 40.0f));
+		shape->setLocalScaling(btVector3(localScale, localScale, localScale));
 
 		btTransform staticMeshTransform;
 		staticMeshTransform.setIdentity();
@@ -28,9 +19,8 @@ PhysicsChunkManager::PhysicsChunkManager(const std::vector<float>& verts, const 
 		btRigidBody::btRigidBodyConstructionInfo info(0.0, motion, shape);
 		info.m_friction = 2.0f;
 		std::unique_ptr<PhysicsChunk> newChunk = std::make_unique<PhysicsChunk>(false, new btRigidBody(info));
-		newChunk->X_origin = ldChunk.X_origin;
-		newChunk->Z_origin = ldChunk.Z_origin;
-
+		newChunk->X_origin = chunk.m_centerX * localScale;
+		newChunk->Z_origin = chunk.m_centerZ * localScale;
 		chunkVector.push_back(std::move(newChunk));
 	}
 }
@@ -47,8 +37,8 @@ void PhysicsChunkManager::update(btScalar playerX, btScalar playerZ) {
 		PhysicsChunk& chunk = *chunkUniquePtr;
 
 		// Calculate distance from player to chunk origin
-		btScalar distanceX = playerX - (chunk.X_origin)*SCALE_FACTOR;
-		btScalar distanceZ = playerZ - (chunk.Z_origin)*SCALE_FACTOR;
+		btScalar distanceX = playerX - chunk.X_origin;
+		btScalar distanceZ = playerZ - chunk.Z_origin;
 		btScalar distance = sqrt(distanceX * distanceX + distanceZ * distanceZ);
 
 		if (distance <= activationRadius && !chunk.active) {

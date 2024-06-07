@@ -9,7 +9,7 @@
 #include <BulletCollision/CollisionShapes/btHeightfieldTerrainShape.h>
 #include <BulletCollision/CollisionDispatch/btGhostObject.h>
 #include <BulletDynamics/Character/btKinematicCharacterController.h>
-#include "engine/Vector.h"
+#include <engine/Vector.h>
 #include "DebugDrawer.h"
 
 #define MAX_SIMULATION_SUBSTEPS   0

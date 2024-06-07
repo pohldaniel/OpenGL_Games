@@ -34,3 +34,11 @@ short Entity::getMaterialIndex() const {
 void Entity::setMaterialIndex(short index) const {
 	m_materialIndex = index;
 }
+
+short Entity::getTextureIndex() const {
+	return m_textureIndex;
+}
+
+void Entity::setTextureIndex(short index) const {
+	m_textureIndex = index;
+}

@@ -165,7 +165,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="BulletDebugDrawer.cpp" />
-    <ClCompile Include="ChunkedMapLoader.cpp" />
+    <ClCompile Include="Chunk.cpp" />
     <ClCompile Include="engine\animation\AssimpAnimatedModel.cpp" />
     <ClCompile Include="engine\animation\AssimpAnimation.cpp" />
     <ClCompile Include="engine\animation\AssimpAnimator.cpp" />
@@ -210,11 +210,10 @@
     <ClCompile Include="engine\utils\StringUtils.cpp" />
     <ClCompile Include="engine\utils\Utils.cpp" />
     <ClCompile Include="engine\ZoomableQuad.cpp" />
-    <ClCompile Include="ObjModelNew.cpp" />
     <ClCompile Include="PhysicsChunkManager.cpp" />
     <ClCompile Include="Physics\Constraint.cpp" />
     <ClCompile Include="Physics\Constraint6DoF.cpp" />
-    <ClCompile Include="SimulationObject.cpp" />
+    <ClCompile Include="ShapeEntity.cpp" />
     <ClCompile Include="src\Animation\AnimatedModel.cpp" />
     <ClCompile Include="src\Animation\Animation.cpp" />
     <ClCompile Include="src\Animation\AnimationController.cpp" />
@@ -287,12 +286,12 @@
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\States\Menu.cpp" />
     <ClCompile Include="src\Utils\BinaryIO.cpp" />
-    <ClCompile Include="VehicleObject.cpp" />
+    <ClCompile Include="Vehicle.cpp" />
     <ClCompile Include="VehiclePhysics.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BulletDebugDrawer.h" />
-    <ClInclude Include="ChunkedMapLoader.h" />
+    <ClInclude Include="Chunk.h" />
     <ClInclude Include="engine\animation\AssimpAnimatedModel.h" />
     <ClInclude Include="engine\animation\AssimpAnimation.h" />
     <ClInclude Include="engine\animation\AssimpAnimator.h" />
@@ -389,11 +388,10 @@
     <ClInclude Include="engine\Vector.h" />
     <ClInclude Include="engine\VolumeBuffer.h" />
     <ClInclude Include="engine\ZoomableQuad.h" />
-    <ClInclude Include="ObjModelNew.h" />
     <ClInclude Include="PhysicsChunkManager.h" />
     <ClInclude Include="Physics\Constraint.h" />
     <ClInclude Include="Physics\Constraint6DoF.h" />
-    <ClInclude Include="SimulationObject.h" />
+    <ClInclude Include="ShapeEntity.h" />
     <ClInclude Include="src\Animation\AnimatedModel.h" />
     <ClInclude Include="src\Animation\Animation.h" />
     <ClInclude Include="src\Animation\AnimationController.h" />
@@ -425,7 +423,7 @@
     <ClInclude Include="Miniball\Miniball.h" />
     <ClInclude Include="src\States\Menu.h" />
     <ClInclude Include="src\Utils\BinaryIO.h" />
-    <ClInclude Include="VehicleObject.h" />
+    <ClInclude Include="Vehicle.h" />
     <ClInclude Include="VehiclePhysics.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
