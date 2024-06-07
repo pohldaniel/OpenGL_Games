@@ -3,6 +3,7 @@
 #include <States/Settings.h>
 #include <States/Controls.h>
 #include <States/Default.h>
+#include <States/Kart.h>
 
 #include "Menu.h"
 #include "Application.h"
@@ -22,7 +23,8 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	m_buttons = std::initializer_list<std::pair<const std::string, Button>>({
 		{ "controls",       Button() },
 		{ "settings",       Button() },
-		{ "default",       Button() }
+		{ "default",        Button() },
+		{ "kart",           Button() }
 	});
 
 	m_buttons.at("controls").setCharset(Globals::fontManager.get("upheaval_50"));
@@ -50,6 +52,15 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	m_buttons.at("default").setFunction([&]() {
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new Default(m_machine));
+	});
+
+	m_buttons.at("kart").setCharset(Globals::fontManager.get("upheaval_50"));
+	m_buttons.at("kart").setPosition(50.0f, 250.0f);
+	m_buttons.at("kart").setOutlineThickness(5.0f);
+	m_buttons.at("kart").setText("Kart");
+	m_buttons.at("kart").setFunction([&]() {
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new Kart(m_machine));
 	});
 
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);

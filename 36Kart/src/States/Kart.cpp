@@ -21,7 +21,7 @@ Kart::Kart(StateMachine& machine) : State(machine, States::KART) {
 	m_camera.lookAt(Vector3f(0.0f, 2.0f, -10.0f), Vector3f(0.0f, 2.0f, -10.0f) + Vector3f(0.0f, 0.0f, 1.0f), Vector3f(0.0f, 1.0f, 0.0f));
 	m_camera.setRotationSpeed(m_rotationSpeed);
 	m_camera.setOffsetDistance(m_offsetDistance);
-	m_camera.setMovingSpeed(50.0f);
+	m_camera.setMovingSpeed(15.0f);
 
 	glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
 	glClearDepth(1.0f);
@@ -123,12 +123,15 @@ void Kart::update() {
 	float pZ = m_vehicle->vehicle.getZ();
 
 	physicsChunkManager->update(pX, pZ);
+	if (cameraMode == CameraMode::FOLLOW_ROTATE) {
+		Vector3f pos = Vector3f(pX, pY, pZ);
+		pos[1] += 1.5f;
+		m_camera.Camera::setTarget(pos);
+	}
 
-	//Vector3f pos = Vector3f(pX, pY, pZ);
-	//pos[1] += 1.5f;
-	//m_camera.Camera::setTarget(pos);
-
-	m_camera.follow(Physics::MatrixFrom(m_vehicle->getWorldTransform()), Physics::VectorFrom(m_vehicle->getLinearVelocity()), m_dt);
+	if (cameraMode == CameraMode::FOLLOW) {
+		m_camera.follow(Physics::MatrixFrom(m_vehicle->getWorldTransform()), Physics::VectorFrom(m_vehicle->getLinearVelocity()), m_dt);
+	}
 }
 
 void Kart::render() {
@@ -256,6 +259,12 @@ void Kart::renderUi() {
 	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 	ImGui::Checkbox("Draw Wirframe", &StateMachine::GetEnableWireframe());
 	ImGui::Checkbox("Draw Chunk", &m_drawBulletDebug);
+	int currentCameraMode = cameraMode;
+	if (ImGui::Combo("Camera Mode", &currentCameraMode, "Follow\0Follow Rotate\0Free\0\0")) {
+		cameraMode = static_cast<CameraMode>(currentCameraMode);
+	}
+
+
 	if (ImGui::Button("Reset Car")) {
 		m_vehicle->roate(0.0f, 0.0f, 180.0f);
 	}
@@ -301,16 +310,16 @@ void Kart::processInput() {
 	currentTurn = Control::Null;
 
 	// Check for acceleration/brake
-	if (keyboard.keyDown(Keyboard::KEY_W)) {
+	if (keyboard.keyDown(Keyboard::KEY_UP)) {
 		currentAcceleration = Control::VehicleAccelerate;
-	}else if (keyboard.keyDown(Keyboard::KEY_S)) {
+	}else if (keyboard.keyDown(Keyboard::KEY_DOWN)) {
 		currentAcceleration = Control::VehicleBrake;
 	}
 
 	// Check for turning
-	if (keyboard.keyDown(Keyboard::KEY_A)) {
+	if (keyboard.keyDown(Keyboard::KEY_LEFT)) {
 		currentTurn = Control::VehicleTurnLeft;
-	}else if (keyboard.keyDown(Keyboard::KEY_D)) {
+	}else if (keyboard.keyDown(Keyboard::KEY_RIGHT)) {
 		currentTurn = Control::VehicleTurnRight;
 	}
 }

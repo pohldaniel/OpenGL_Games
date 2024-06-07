@@ -337,8 +337,8 @@ void Application::initOpenGL(int msaaSamples) {
 
 	ToggleVerticalSync();
 
-	glDisable(GL_CULL_FACE);
-	//glEnable(GL_CULL_FACE);
+	//glDisable(GL_CULL_FACE);
+	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
 	glFrontFace(GL_CCW);
 
@@ -346,8 +346,8 @@ void Application::initOpenGL(int msaaSamples) {
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);
 
-	glDisable(GL_BLEND);
-	//glEnable(GL_BLEND);
+	//glDisable(GL_BLEND);
+	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 }
@@ -723,10 +723,9 @@ void Application::loadAssets() {
 
 	Globals::textureManager.loadTexture("car_albedo", "ressources/volga/volga.png", true);
 	Globals::textureManager.get("car_albedo").setFilter(GL_LINEAR_MIPMAP_LINEAR);
-	//Globals::textureManager.get("map_albedo").setWrapMode(GL_REPEAT);
 
 	Globals::shapeManager.fromObj("chassis", "ressources/volga/volga.obj");
-	Globals::shapeManager.fromObj("wheel", "ressources/first_car_wheel.obj");
+	Globals::shapeManager.fromObj("wheel", "ressources/volga/wheel.obj");
 	Globals::shapeManager.fromObj("map", "ressources/DE_Map1/Landscape01.obj");
 	Globals::shapeManager.get("map").createBoundingBox();
 }

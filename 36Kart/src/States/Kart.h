@@ -25,6 +25,12 @@ enum Control {
 	_MaxControls
 };
 
+enum CameraMode {
+	FOLLOW,
+	FOLLOW_ROTATE,
+	FREE
+};
+
 class Kart : public State, public MouseEventListener, public KeyboardEventListener {
 
 public:
@@ -53,7 +59,7 @@ private:
 	bool m_drawUi = true;
 	bool m_drawBulletDebug = false;
 
-	float m_offsetDistance = 20.0f;
+	float m_offsetDistance = 15.0f;
 	float m_rotationSpeed = 0.1f;
 
 	Camera m_camera;
@@ -67,4 +73,6 @@ private:
 	std::vector<ShapeEntity*> m_entities;
 	Vehicle* m_vehicle;
 	MeshSequence m_meshSequence;
+
+	CameraMode cameraMode = CameraMode::FOLLOW;
 };
