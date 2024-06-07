@@ -70,3 +70,5 @@ The project 35Octree contains source code and assets from https://github.com/A-R
 One rendering I have achieved with this iteration
 
 ![SSS_2](https://github.com/pohldaniel/OpenGL_Games/assets/30089026/70c913f0-1470-4cbc-b42f-55debead256d)
+
+The project 36Kart is from https://github.com/jasonmzx/cppkart
