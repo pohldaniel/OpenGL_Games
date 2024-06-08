@@ -27,16 +27,16 @@ Kart::Kart(StateMachine& machine) : State(machine, States::KART) {
 	
 	m_bulletDebugDrawer = new BulletDebugDrawer(Globals::shaderManager.getAssetPointer("main")->getProgram());
 	Physics::GetDynamicsWorld()->setDebugDrawer(m_bulletDebugDrawer);
-	Chunk::LoadChunks(Globals::shapeManager.get("map"));
+	Chunk::LoadChunks(Globals::shapeManager.get("map_de"));
 	m_physicsChunkManager.init(Chunk::Chunks);
 
 	m_root = new SceneNodeLC();
 	ShapeEntity* shapeEntity;
-	shapeEntity = m_root->addChild<ShapeEntity, Shape>(Globals::shapeManager.get("map"));
+	shapeEntity = m_root->addChild<ShapeEntity, Shape>(Globals::shapeManager.get("map_de"));
 	shapeEntity->setScale(40.0f, 40.0f, 40.0f);
 
 	m_entities.push_back(shapeEntity);
-	m_meshSequence.loadSequence("ressources/volga/");
+	m_meshSequence.loadSequence("res/models/volga/");
 	m_meshSequence.loadSequenceGpu();
 	m_vehicle = new Vehicle(m_meshSequence);
 
@@ -164,6 +164,8 @@ void Kart::render() {
 		entity->draw();
 	}
 	m_vehicle->draw();
+
+	m_skybox.draw(m_camera, "sky");
 
 	if (m_drawUi)
 		renderUi();

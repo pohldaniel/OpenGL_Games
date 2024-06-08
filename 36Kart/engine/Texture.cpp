@@ -816,13 +816,13 @@ void Texture::loadCrossCubeFromFileGpu() {
 	glTexParameteri(m_target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-	glTexParameteri(m_target, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
+	//glTexParameteri(m_target, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
 
 	// load face data
 	for (int i = 0; i < 6; i++) {
 		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, m_internalFormat, m_width, m_height, 0, m_format, m_type, facData[i]);
 	}
-
+	glGenerateMipmap(m_target);
 	glBindTexture(m_target, 0);
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
 

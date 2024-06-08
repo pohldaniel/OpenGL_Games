@@ -12,6 +12,7 @@
 #include <Entities/Vehicle.h>
 
 #include "PhysicsChunkManager.h"
+#include "Skybox.h"
 
 enum Control {
 	VehicleAccelerate = 0,
@@ -74,4 +75,5 @@ private:
 	MeshSequence m_meshSequence;
 
 	CameraMode cameraMode = CameraMode::FOLLOW;
+	Skybox m_skybox;
 };
