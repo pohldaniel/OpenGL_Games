@@ -5,14 +5,13 @@
 #include <engine/scene/SceneNodeLC.h>
 #include <engine/Camera.h>
 #include <engine/MeshSequence.h>
-
+#include <Physics/BulletDebugDrawer.h>
 #include <States/StateMachine.h>
 
-#include "BulletDebugDrawer.h"
+#include <Entities/ShapeEntity.h>
+#include <Entities/Vehicle.h>
+
 #include "PhysicsChunkManager.h"
-#include "ShapeEntity.h"
-#include "Vehicle.h"
-#include "Chunk.h"
 
 enum Control {
 	VehicleAccelerate = 0,
@@ -66,7 +65,7 @@ private:
 	float lightCtr = 0.0f;
 	
 	BulletDebugDrawer* m_bulletDebugDrawer;
-	PhysicsChunkManager* physicsChunkManager;
+	PhysicsChunkManager m_physicsChunkManager;
 	Control currentAcceleration = Control::Null;
 	Control currentTurn = Control::Null;
 	SceneNodeLC* m_root;

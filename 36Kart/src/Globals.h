@@ -1,5 +1,5 @@
 #pragma once
-
+#include <memory>
 #include <engine/Clock.h>
 #include <engine/MeshObject/Shape.h>
 #include <engine/sound/SoundBuffer.h>
@@ -37,7 +37,7 @@ namespace Globals {
 	extern AssetManager<MusicBuffer> musicManager;
 	extern AssetManager<AssimpAnimation> animationManager;
 	extern AssetManager<Animation> animationManagerNew;
-	extern Physics *physics;
+	extern std::unique_ptr<Physics> physics;
 	extern Clock clock;
 
 	extern unsigned int lightUbo;

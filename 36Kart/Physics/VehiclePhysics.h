@@ -2,6 +2,24 @@
 #include <Physics/Physics.h>
 
 class VehiclePhysics {
+
+public:
+	VehiclePhysics();
+	~VehiclePhysics();
+	btRaycastVehicle* vehicle;
+
+	// Probably you'll need methods like:
+	void ApplyEngineForce(float force);
+	void ApplySteer(float value);
+	void Brake(float force);
+	std::string debugStateSTR();
+	void Update();  // For updating any vehicle logic, physics simulation steps, etc.
+	btTransform GetTransform() const;  // Useful for rendering
+
+	float getX() const;
+	float getY() const;
+	float getZ() const;
+
 private:
 	btRigidBody* vehicleRigidBody;
 	btVehicleRaycaster* vehicleRayCaster;
@@ -22,19 +40,4 @@ private:
 	float currentSteer;
 
 
-public:
-	VehiclePhysics();
-	btRaycastVehicle* vehicle;
-
-	// Probably you'll need methods like:
-	void ApplyEngineForce(float force);
-	void ApplySteer(float value);
-	void Brake(float force);
-	std::string debugStateSTR();
-	void Update();  // For updating any vehicle logic, physics simulation steps, etc.
-	btTransform GetTransform() const;  // Useful for rendering
-
-	float getX() const;
-	float getY() const;
-	float getZ() const;
 };

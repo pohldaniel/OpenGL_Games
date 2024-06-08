@@ -8,7 +8,7 @@
 #include <engine/Material.h>
 #include <engine/scene/SequenceNode.h>
 
-#include "VehiclePhysics.h"
+#include <Physics/VehiclePhysics.h>
 
 class Vehicle : public SequenceNode {
 

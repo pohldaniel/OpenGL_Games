@@ -393,9 +393,6 @@
     <ClCompile Include="engine\Object.cpp">
       <Filter>engine</Filter>
     </ClCompile>
-    <ClCompile Include="src\Entities\Entity.cpp">
-      <Filter>Source Files\Entities</Filter>
-    </ClCompile>
     <ClCompile Include="src\Skybox.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -429,22 +426,25 @@
     <ClCompile Include="src\States\Kart.cpp">
       <Filter>Source Files\States</Filter>
     </ClCompile>
-    <ClCompile Include="BulletDebugDrawer.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="Physics\BulletDebugDrawer.cpp">
+      <Filter>Physics</Filter>
     </ClCompile>
-    <ClCompile Include="VehiclePhysics.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="Physics\VehiclePhysics.cpp">
+      <Filter>Physics</Filter>
     </ClCompile>
-    <ClCompile Include="PhysicsChunkManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ShapeEntity.cpp">
+    <ClCompile Include="src\Entities\MeshEntity.cpp">
       <Filter>Source Files\Entities</Filter>
     </ClCompile>
-    <ClCompile Include="Vehicle.cpp">
+    <ClCompile Include="src\Entities\ShapeEntity.cpp">
       <Filter>Source Files\Entities</Filter>
     </ClCompile>
-    <ClCompile Include="Chunk.cpp">
+    <ClCompile Include="src\Entities\Vehicle.cpp">
+      <Filter>Source Files\Entities</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Chunk.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\PhysicsChunkManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -803,9 +803,6 @@
     <ClInclude Include="engine\scene\INode.h">
       <Filter>engine\scene</Filter>
     </ClInclude>
-    <ClInclude Include="src\Entities\Entity.h">
-      <Filter>Source Files\Entities</Filter>
-    </ClInclude>
     <ClInclude Include="src\Skybox.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -836,22 +833,25 @@
     <ClInclude Include="src\States\Kart.h">
       <Filter>Source Files\States</Filter>
     </ClInclude>
-    <ClInclude Include="BulletDebugDrawer.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="Physics\BulletDebugDrawer.h">
+      <Filter>Physics</Filter>
     </ClInclude>
-    <ClInclude Include="VehiclePhysics.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="Physics\VehiclePhysics.h">
+      <Filter>Physics</Filter>
     </ClInclude>
-    <ClInclude Include="PhysicsChunkManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ShapeEntity.h">
+    <ClInclude Include="src\Entities\MeshEntity.h">
       <Filter>Source Files\Entities</Filter>
     </ClInclude>
-    <ClInclude Include="Vehicle.h">
+    <ClInclude Include="src\Entities\ShapeEntity.h">
       <Filter>Source Files\Entities</Filter>
     </ClInclude>
-    <ClInclude Include="Chunk.h">
+    <ClInclude Include="src\Entities\Vehicle.h">
+      <Filter>Source Files\Entities</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Chunk.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\PhysicsChunkManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

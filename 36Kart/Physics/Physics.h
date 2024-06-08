@@ -78,8 +78,6 @@ public:
 
 	void initialize();
 	void deinitialize();
-	void removeAllCollisionObjects();
-	void removeCollisionObject(btCollisionObject* obj);
 
 	void preStep(btScalar timeStep);
 	void stepSimulation(btScalar timeStep);
@@ -141,6 +139,8 @@ public:
 	static void PostTickCallback(btDynamicsWorld* world, btScalar timeStep);
 	static void DebugDrawWorld();
 	static void SetDebugMode(unsigned int mode);
+	static void DeleteAllCollisionObjects();
+	static void DeleteCollisionObject(btCollisionObject* obj);
 
 	btCollisionDispatcher* m_dispatcher;
 	btBroadphaseInterface* m_broadphase;

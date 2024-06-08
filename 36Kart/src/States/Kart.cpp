@@ -28,9 +28,8 @@ Kart::Kart(StateMachine& machine) : State(machine, States::KART) {
 	
 	m_bulletDebugDrawer = new BulletDebugDrawer(Globals::shaderManager.getAssetPointer("main")->getProgram());
 	Physics::GetDynamicsWorld()->setDebugDrawer(m_bulletDebugDrawer);
-	ChunkNew::LoadChunks(Globals::shapeManager.get("map"));
-
-	physicsChunkManager = new PhysicsChunkManager(ChunkNew::Chunks);
+	Chunk::LoadChunks(Globals::shapeManager.get("map"));
+	m_physicsChunkManager.init(Chunk::Chunks);
 
 	m_root = new SceneNodeLC();
 	ShapeEntity* shapeEntity;
@@ -45,11 +44,16 @@ Kart::Kart(StateMachine& machine) : State(machine, States::KART) {
 	for (int i = 0; i < 10; i++) {
 		Globals::physics->stepSimulation(PHYSICS_STEP);
 	}
+
+	m_meshSequence.markForDelete();
 }
 
 Kart::~Kart() {
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
+	Chunk::ClearChunks();
+	delete m_vehicle;
+	delete m_bulletDebugDrawer;
 }
 
 void Kart::fixedUpdate() {
@@ -122,7 +126,7 @@ void Kart::update() {
 	float pY = m_vehicle->vehicle.getY();
 	float pZ = m_vehicle->vehicle.getZ();
 
-	physicsChunkManager->update(pX, pZ);
+	m_physicsChunkManager.update(pX, pZ);
 	if (cameraMode == CameraMode::FOLLOW_ROTATE) {
 		Vector3f pos = Vector3f(pX, pY, pZ);
 		pos[1] += 1.5f;

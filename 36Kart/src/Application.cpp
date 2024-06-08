@@ -134,7 +134,7 @@ void Application::createWindow() {
 	Window = CreateWindowEx(
 		NULL,
 		"WINDOWCLASS",
-		"Octree",
+		"Kart",
 		WS_OVERLAPPEDWINDOW,
 		CW_USEDEFAULT, CW_USEDEFAULT,
 		Width,
@@ -724,8 +724,6 @@ void Application::loadAssets() {
 	Globals::textureManager.loadTexture("car_albedo", "ressources/volga/volga.png", true);
 	Globals::textureManager.get("car_albedo").setFilter(GL_LINEAR_MIPMAP_LINEAR);
 
-	Globals::shapeManager.fromObj("chassis", "ressources/volga/volga.obj");
-	Globals::shapeManager.fromObj("wheel", "ressources/volga/wheel.obj");
 	Globals::shapeManager.fromObj("map", "ressources/DE_Map1/Landscape01.obj");
 	Globals::shapeManager.get("map").createBoundingBox();
 }

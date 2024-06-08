@@ -6,12 +6,12 @@
 #include <engine/scene/MeshNode.h>
 #include <engine/AssimpModel.h>
 
-class Entity : public MeshNode {
+class MeshEntity : public MeshNode {
 
 public:
 
-	Entity(const AssimpModel& model);
-	virtual ~Entity();
+	MeshEntity(const AssimpModel& model);
+	virtual ~MeshEntity();
 
 	virtual void draw();
 	virtual void update(const float dt);

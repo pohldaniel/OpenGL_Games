@@ -1,8 +1,8 @@
 #include "Chunk.h"
 
-std::vector<ChunkNew> ChunkNew::Chunks;
+std::vector<Chunk> Chunk::Chunks;
 
-ChunkNew::ChunkNew(float x, float z, float radius, float scale, const std::vector<Vector3f>& verts, const std::vector<unsigned int>& indices) {
+Chunk::Chunk(float x, float z, float radius, float scale, const std::vector<Vector3f>& verts, const std::vector<unsigned int>& indices) {
 	for (size_t i = 0; i < indices.size() / 3; i++) {
 		int id0 = indices[i * 3];
 		const Vector3f& a = verts[id0];
@@ -36,16 +36,21 @@ ChunkNew::ChunkNew(float x, float z, float radius, float scale, const std::vecto
 	m_centerZ = z * scale;
 }
 
-void ChunkNew::LoadChunks(const Shape& shape) {
+void Chunk::LoadChunks(const Shape& shape) {
 	const BoundingBox& aabb = shape.getAABB();
 	const Vector3f& size = aabb.getSize();
 
 	float x = size[0] * 0.1f;
 	float z = size[2] * 0.1f;
 
-	for (size_t i = 0; i < 10; i++) {
-		for (size_t j = 0; j < 10; j++) {
-			Chunks.push_back(ChunkNew(aabb.min[0] + ((float)i) * x, aabb.min[2] + ((float)j) * z, 1.49f, 40.0f, shape.getPositions(), shape.getIndexBuffer()));
+	for (size_t i = 1; i < 10; i++) {
+		for (size_t j = 1; j < 10; j++) {
+			Chunks.push_back(Chunk(aabb.min[0] + ((float)i) * x, aabb.min[2] + ((float)j) * z, 1.49f, 40.0f, shape.getPositions(), shape.getIndexBuffer()));
 		}
 	}
+}
+
+void Chunk::ClearChunks() {
+	Chunks.clear();
+	Chunks.shrink_to_fit();
 }

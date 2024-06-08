@@ -9,8 +9,7 @@ DebugDrawer::DebugDrawer() :m_debugMode(0){
 DebugDrawer::~DebugDrawer(){
 }
 
-void DebugDrawer::drawLine(const btVector3& from, const btVector3& to, const btVector3& fromColor, const btVector3& toColor)
-{
+void DebugDrawer::drawLine(const btVector3& from, const btVector3& to, const btVector3& fromColor, const btVector3& toColor){
 	glBegin(GL_LINES);
 	glColor3f(fromColor.getX(), fromColor.getY(), fromColor.getZ());
 	glVertex3d(from.getX(), from.getY(), from.getZ());

@@ -16,7 +16,7 @@ extern AssetManager<SoundBuffer> Globals::soundManager = AssetManager<SoundBuffe
 extern AssetManager<MusicBuffer> Globals::musicManager = AssetManager<MusicBuffer>();
 extern AssetManager<AssimpAnimation> Globals::animationManager = AssetManager<AssimpAnimation>();extern AssetManager<Animation> Globals::animationManagerNew = AssetManager<Animation>();
 
-extern Physics* Globals::physics = NULL;
+extern std::unique_ptr<Physics> Globals::physics = nullptr;
 extern Clock Globals::clock = Clock();
 
 extern unsigned int Globals::lightUbo = 0;
@@ -45,7 +45,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	float frameTime = 0;
 #endif
 
-	Globals::physics = new Physics(PHYSICS_STEP);
+	Globals::physics = std::make_unique<Physics>(PHYSICS_STEP);
 
 	float deltaTime = 0.0f;
 	float fixedDeltaTime = 0.0f;
@@ -103,6 +103,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		ReleaseDC(hwnd, hdc);
 	}
 
-	delete Globals::physics;
+	//delete Globals::physics;
 	return 0;
 }

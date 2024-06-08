@@ -43,27 +43,7 @@ void Physics::initialize(){
 }
 
 void Physics::deinitialize(){
-	// remove the rigidbodies from the dynamics world and delete them
-	for (int i = DynamicsWorld->getNumCollisionObjects() - 1; i >= 0; i--){
-		btCollisionObject* obj = DynamicsWorld->getCollisionObjectArray()[i];
-		btRigidBody* body = btRigidBody::upcast(obj);
-
-		if (body && body->getMotionState())
-			delete body->getMotionState();
-
-		if (body && body->getCollisionShape())
-			delete body->getCollisionShape();
-
-		DynamicsWorld->removeCollisionObject(obj);
-		delete obj;
-	}
-
-	for (int i = DynamicsWorld->getNumConstraints() - 1; i >= 0; i--){
-		btTypedConstraint* constraint = DynamicsWorld->getConstraint(i);
-		DynamicsWorld->removeConstraint(constraint);
-		delete constraint;
-	}
-
+	DeleteAllCollisionObjects();
 	delete DynamicsWorld;
 	delete m_constraintSolver;
 	delete m_broadphase;
@@ -75,20 +55,31 @@ btBroadphaseInterface* Physics::getBroadphase() {
 	return m_broadphase;
 }
 
-void Physics::removeCollisionObject(btCollisionObject* obj) {
+void Physics::DeleteCollisionObject(btCollisionObject* obj) {
 	btRigidBody* body = btRigidBody::upcast(obj);
 	
-	if (body && body->getMotionState())
+	if (body && body->getMotionState()) {
 		delete body->getMotionState();
+		body->setMotionState(nullptr);
+	}
 
-	if (body && body->getCollisionShape())
+	if (body && body->getCollisionShape()) {
 		delete body->getCollisionShape();
+		body->setCollisionShape(nullptr);
+	}
+
+	btGhostObject* ghostObject = btPairCachingGhostObject::upcast(obj);
+
+	if (ghostObject && ghostObject->getCollisionShape()) {
+		delete ghostObject->getCollisionShape();
+		ghostObject->setCollisionShape(nullptr);
+	}
 
 	DynamicsWorld->removeCollisionObject(obj);
 	delete obj;
 }
 
-void Physics::removeAllCollisionObjects() {
+void Physics::DeleteAllCollisionObjects() {
 	std::vector<btCollisionShape*> shapes;
 	for (int i = DynamicsWorld->getNumCollisionObjects() - 1; i >= 0; i--) {
 		btCollisionObject* obj = DynamicsWorld->getCollisionObjectArray()[i];		

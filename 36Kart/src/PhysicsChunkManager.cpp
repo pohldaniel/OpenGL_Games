@@ -1,6 +1,7 @@
 #include "PhysicsChunkManager.h"
+#include "Globals.h"
 
-PhysicsChunkManager::PhysicsChunkManager(std::vector<ChunkNew> chunks, float localScale) {
+void PhysicsChunkManager::init(std::vector<Chunk> chunks, float localScale) {
 	for (auto&& chunk : chunks) {
 		btTriangleMesh* mesh = new btTriangleMesh();
 		for (size_t i = 0; i < chunk.m_verts.size() / 9; i++) {
@@ -18,24 +19,17 @@ PhysicsChunkManager::PhysicsChunkManager(std::vector<ChunkNew> chunks, float loc
 		btDefaultMotionState* motion = new btDefaultMotionState(staticMeshTransform);
 		btRigidBody::btRigidBodyConstructionInfo info(0.0, motion, shape);
 		info.m_friction = 2.0f;
-		std::unique_ptr<PhysicsChunk> newChunk = std::make_unique<PhysicsChunk>(false, new btRigidBody(info));
-		newChunk->X_origin = chunk.m_centerX * localScale;
-		newChunk->Z_origin = chunk.m_centerZ * localScale;
-		chunkVector.push_back(std::move(newChunk));
+		m_chunks.push_back({ std::make_unique<btRigidBody>(info), false, chunk.m_centerX * localScale, chunk.m_centerZ * localScale });
 	}
 }
 
 void PhysicsChunkManager::update(btScalar playerX, btScalar playerZ) {
-
 	btDiscreteDynamicsWorld* physicsWorld = Physics::GetDynamicsWorld();
 
 	// Define a radius within which chunks should be active
 	constexpr btScalar activationRadius = 55.0;
 
-	for (auto& chunkUniquePtr : chunkVector) {
-
-		PhysicsChunk& chunk = *chunkUniquePtr;
-
+	for (auto&& chunk : m_chunks) {
 		// Calculate distance from player to chunk origin
 		btScalar distanceX = playerX - chunk.X_origin;
 		btScalar distanceZ = playerZ - chunk.Z_origin;
@@ -44,17 +38,34 @@ void PhysicsChunkManager::update(btScalar playerX, btScalar playerZ) {
 		if (distance <= activationRadius && !chunk.active) {
 			// Activate chunk and add its rigid body to the physics world
 			chunk.active = true;
-			physicsWorld->addRigidBody(chunk.rigidMeshChunk);
+			physicsWorld->addRigidBody(chunk.rigidMeshChunk.get());
 
 		}else if (distance > activationRadius && chunk.active) {
 
 			// Deactivate chunk and remove its rigid body from the physics world
 			chunk.active = false;
-			physicsWorld->removeRigidBody(chunk.rigidMeshChunk);
+			physicsWorld->removeRigidBody(chunk.rigidMeshChunk.get());
 		}
 	}
 }
 
 PhysicsChunkManager::~PhysicsChunkManager() {
-	chunkVector.clear();
+
+	btDiscreteDynamicsWorld* physicsWorld = Physics::GetDynamicsWorld();
+	for (auto&& chunk : m_chunks) {
+		if (chunk.rigidMeshChunk.get()->getMotionState()) {
+			delete chunk.rigidMeshChunk.get()->getMotionState();
+			chunk.rigidMeshChunk.get()->setMotionState(nullptr);
+		}
+
+		if (chunk.rigidMeshChunk.get()->getCollisionShape()) {
+			delete chunk.rigidMeshChunk.get()->getCollisionShape();
+			chunk.rigidMeshChunk.get()->setCollisionShape(nullptr);
+		}
+
+		if (chunk.active) {
+			physicsWorld->removeRigidBody(chunk.rigidMeshChunk.get());
+		}
+	}
+	m_chunks.clear();
 }

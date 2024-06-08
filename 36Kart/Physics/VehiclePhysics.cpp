@@ -1,7 +1,8 @@
+#include <iostream>
 #include "VehiclePhysics.h"
+#include "Globals.h"
 
-VehiclePhysics::VehiclePhysics()
-{
+VehiclePhysics::VehiclePhysics() : vehicle(nullptr){
 	//PhysicsWorldSingleton *physicsWorld = PhysicsWorldSingleton::getInstance();
 
 	VEHICLE_SCALE = 0.9;
@@ -105,15 +106,28 @@ VehiclePhysics::VehiclePhysics()
 	Physics::GetDynamicsWorld()->addVehicle(vehicle);
 
 	// Vehicle setup:
-	engineForce = 0.0;
-	vehicleSteering = 0.0;
-	steeringIncrement = 0.04;
-	steeringClamp = 0.35;
-	brakeForce = 0.0;
+	engineForce = 0.0f;
+	vehicleSteering = 0.0f;
+	steeringIncrement = 0.04f;
+	steeringClamp = 0.35f;
+	brakeForce = 0.0f;
 }
 
-void VehiclePhysics::ApplyEngineForce(float force)
-{
+VehiclePhysics::~VehiclePhysics() {
+	if (vehicleRayCaster) {
+		delete vehicleRayCaster;
+		vehicleRayCaster = NULL;
+	}
+
+	if (vehicle) {
+		Physics::GetDynamicsWorld()->removeVehicle(vehicle);
+		Physics::DeleteCollisionObject(vehicleRigidBody);
+		delete vehicle;
+		vehicle = nullptr;
+	}
+}
+
+void VehiclePhysics::ApplyEngineForce(float force){
 	engineForce = force;
 
 	// Rear Wheel Drive
