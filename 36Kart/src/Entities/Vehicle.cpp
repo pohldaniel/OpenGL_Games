@@ -20,13 +20,13 @@ void Vehicle::draw() {
 	updateModelMatrix();
 	
 	auto shader = Globals::shaderManager.getAssetPointer("main");
-	shader->loadMatrix("modelMatrix", (const float*)glm::value_ptr(objModelMatrix));
+	shader->loadMatrix("modelMatrix", objModelMatrix);
 
 	Globals::textureManager.get("car_albedo").bind(0u);
 
 	meshSequence.draw(0);
-	for (glm::mat4 wheelMatrix : wheelMatrices) {
-		shader->loadMatrix("modelMatrix", (const float*)glm::value_ptr(wheelMatrix));
+	for (const Matrix4f& wheelMatrix : wheelMatrices) {
+		shader->loadMatrix("modelMatrix", wheelMatrix);
 		meshSequence.draw(1);
 	}
 }
@@ -56,37 +56,19 @@ void Vehicle::setTextureIndex(short index) const {
 }
 
 void Vehicle::updateModelMatrix() {
-
-	btTransform vTrans = vehicle.GetTransform();
-	btVector3 vehiclePosition = vehicle.GetTransform().getOrigin();
-	btQuaternion vehicleRotation = vTrans.getRotation();
-
-	glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(vehiclePosition.x(), vehiclePosition.y() - 1.2f, vehiclePosition.z()));
-
-	glm::quat glmVehicleRotation = glm::quat(vehicleRotation.w(), vehicleRotation.x(), vehicleRotation.y(), vehicleRotation.z());
-
-	glm::mat4 rotation = glm::mat4_cast(glmVehicleRotation);
-	glm::mat4 rotate90DEG_Adjustment = glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-
-	objModelMatrix = translation * rotation * rotate90DEG_Adjustment * glm::scale(glm::vec3(0.7f));
+	const btTransform& vTrans = vehicle.GetTransform();
+	Matrix4f translation = Matrix4f::Translate(Physics::VectorFrom(vTrans.getOrigin() - btVector3(0.0f, 1.2f, 0.0f)));
+	Matrix4f rotation = Matrix4f::Rotate(Physics::QuaternionFrom(vTrans.getRotation()));
+	Matrix4f rotateAdjustment = Matrix4f::Rotate(Vector3f(0.0f, 1.0f, 0.0f), -90.0f);
+	objModelMatrix = translation * rotation * rotateAdjustment * Matrix4f::Scale(0.7f);
 
 	wheelMatrices.clear();
 
 	for (int i = 0; i < vehicle.vehicle->getNumWheels(); i++) {
 		btWheelInfo &wheelinfo = vehicle.vehicle->getWheelInfo(i);
-
-		glm::mat4 wheelM{ 1.0f };
-		wheelinfo.m_worldTransform.getOpenGLMatrix(glm::value_ptr(wheelM));
-
-		glm::vec3 wheelCenterOffset(0.0f, -0.5f, 0.0f); // Adjust Y offset based on your model specifics
-		glm::mat4 centeringTranslation = glm::translate(glm::mat4(1.0f), wheelCenterOffset);
-
-		// Optionally apply rotation adjustments if necessary
-		glm::mat4 rotateAdjustment = glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-
-		wheelMatrices.push_back(
-			wheelM * centeringTranslation * rotateAdjustment * glm::scale(glm::vec3(0.5f)) // Apply scaling last to maintain proportions
-		);
+		Matrix4f wheelM = Physics::MatrixFrom(wheelinfo.m_worldTransform);
+		Matrix4f centeringTranslation = Matrix4f::Translate(0.0f, -0.5f, 0.0f);
+		wheelMatrices.push_back(wheelM * centeringTranslation * rotateAdjustment * Matrix4f::Scale(0.5f));
 	}
 }
 

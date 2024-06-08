@@ -36,14 +36,14 @@ VehiclePhysics::VehiclePhysics() : vehicle(nullptr){
 	vehicleRigidBody = new btRigidBody(vehicleRigidBodyCI);
 	//vehicleRigidBody->setAngularFactor(btVector3(0.0f, 1.0f, 0.0f));
 
-	Physics::GetDynamicsWorld()->addRigidBody(vehicleRigidBody);
+	Physics::GetDynamicsWorld()->addRigidBody(vehicleRigidBody, Physics::CAR, Physics::FLOOR);
 
 	// vehicleRigidBody->getWorldTransform
 	// ^ use for rotation camera thingy
 
 
 	// Raycaster and the actual vehicle
-	vehicleRayCaster = new btDefaultVehicleRaycaster(Physics::GetDynamicsWorld());
+	vehicleRayCaster = new btFilteredVehicleRaycaster(Physics::GetDynamicsWorld(), Physics::CAR, Physics::FLOOR);
 	vehicle = new btRaycastVehicle(tuning, vehicleRigidBody, vehicleRayCaster);
 
 	btVector3 wheelDirection = btVector3(0, -1, 0);

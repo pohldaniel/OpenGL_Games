@@ -2,24 +2,16 @@
 #include "Globals.h"
 
 void PhysicsChunkManager::init(std::vector<Chunk> chunks, float localScale) {
-	for (auto&& chunk : chunks) {
-		btTriangleMesh* mesh = new btTriangleMesh();
-		for (size_t i = 0; i < chunk.m_verts.size() / 9; i++) {
-			btVector3 vertex0(chunk.m_verts[i * 9], chunk.m_verts[i * 9 + 1], chunk.m_verts[i * 9 + 2]);
-			btVector3 vertex1(chunk.m_verts[i * 9 + 3], chunk.m_verts[i * 9 + 4], chunk.m_verts[i * 9 + 5]);
-			btVector3 vertex2(chunk.m_verts[i * 9 + 6], chunk.m_verts[i * 9 + 7], chunk.m_verts[i * 9 + 8]);
-			mesh->addTriangle(vertex0, vertex1, vertex2);
-		}
+	for (auto&& chunk : chunks) {		
+		btCollisionShape *shape = Physics::CreateCollisionShape(chunk.m_verts);
 
-		btBvhTriangleMeshShape *shape = new btBvhTriangleMeshShape(mesh, true);
-		shape->setLocalScaling(btVector3(localScale, localScale, localScale));
-
-		btTransform staticMeshTransform;
-		staticMeshTransform.setIdentity();
-		btDefaultMotionState* motion = new btDefaultMotionState(staticMeshTransform);
+		btTransform transform;
+		transform.setIdentity();
+		btDefaultMotionState* motion = new btDefaultMotionState(transform);
 		btRigidBody::btRigidBodyConstructionInfo info(0.0, motion, shape);
 		info.m_friction = 2.0f;
 		m_chunks.push_back({ std::make_unique<btRigidBody>(info), false, chunk.m_centerX * localScale, chunk.m_centerZ * localScale });
+		m_chunks.back().rigidMeshChunk->setCollisionFlags(btCollisionObject::CF_STATIC_OBJECT);
 	}
 }
 
@@ -38,7 +30,7 @@ void PhysicsChunkManager::update(btScalar playerX, btScalar playerZ) {
 		if (distance <= activationRadius && !chunk.active) {
 			// Activate chunk and add its rigid body to the physics world
 			chunk.active = true;
-			physicsWorld->addRigidBody(chunk.rigidMeshChunk.get());
+			physicsWorld->addRigidBody(chunk.rigidMeshChunk.get(), Physics::FLOOR, Physics::CAR);
 
 		}else if (distance > activationRadius && chunk.active) {
 

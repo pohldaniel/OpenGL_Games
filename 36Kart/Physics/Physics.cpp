@@ -201,6 +201,21 @@ btCollisionShape* Physics::CreateCollisionShape(const Shape* _shape, const btVec
 	return shape;
 }
 
+btCollisionShape* Physics::CreateCollisionShape(const std::vector<float>& floatArray, const btVector3& scale) {
+	btTriangleMesh* mesh = new btTriangleMesh();
+	for (size_t i = 0; i < floatArray.size() / 9; i++) {
+		btVector3 vertex0(floatArray[i * 9    ], floatArray[i * 9 + 1], floatArray[i * 9 + 2]);
+		btVector3 vertex1(floatArray[i * 9 + 3], floatArray[i * 9 + 4], floatArray[i * 9 + 5]);
+		btVector3 vertex2(floatArray[i * 9 + 6], floatArray[i * 9 + 7], floatArray[i * 9 + 8]);
+		mesh->addTriangle(vertex0, vertex1, vertex2);
+	}
+
+	btBvhTriangleMeshShape *shape = new btBvhTriangleMeshShape(mesh, true);
+	shape->setLocalScaling(scale);
+
+	return shape;
+}
+
 btCollisionShape* Physics::CreateConvexHullShape(const Shape* _shape, const btVector3 & scale) {
 	btConvexHullShape* convexHull = new btConvexHullShape((btScalar*)(&_shape->getPositions()[0]), _shape->getPositions().size(), sizeof(Vector3f));
 	convexHull->setLocalScaling(scale);
@@ -284,9 +299,8 @@ btRigidBody* Physics::AddRigidBody(float mass, const btTransform& transform, btC
 
 btRigidBody* Physics::AddKinematicRigidBody(const btTransform& transform, btCollisionShape* shape, int collisionFilterGroup, int collisionFilterMask, void* userPointer, bool useMotionState) {
 	if (useMotionState) {
-		btVector3 localInertia(0.0f, 0.0f, 0.0f);
 		btDefaultMotionState* motionState = new btDefaultMotionState(transform);
-		btRigidBody::btRigidBodyConstructionInfo cInfo(0.0f, motionState, shape, localInertia);
+		btRigidBody::btRigidBodyConstructionInfo cInfo(0.0f, motionState, shape);
 		btRigidBody* body = new btRigidBody(cInfo);
 		if (userPointer)
 			body->setUserPointer(userPointer);
@@ -296,8 +310,7 @@ btRigidBody* Physics::AddKinematicRigidBody(const btTransform& transform, btColl
 		DynamicsWorld->addRigidBody(body, collisionFilterGroup, collisionFilterMask);
 		return body;
 	}else {
-		btVector3 localInertia(0.0f, 0.0f, 0.0f);
-		btRigidBody* body = new btRigidBody(0.0f, nullptr, shape, localInertia);
+		btRigidBody* body = new btRigidBody(0.0f, nullptr, shape);
 		body->setWorldTransform(transform);
 
 		if (userPointer)
@@ -311,9 +324,9 @@ btRigidBody* Physics::AddKinematicRigidBody(const btTransform& transform, btColl
 }
 
 btRigidBody* Physics::AddStaticRigidBody(const btTransform& transform, btCollisionShape* shape, int collisionFilterGroup, int collisionFilterMask, void* userPointer) {	
-	btVector3 localInertia(0.0f, 0.0f, 0.0f);
+
 	btDefaultMotionState* motionState = new btDefaultMotionState(transform);
-	btRigidBody::btRigidBodyConstructionInfo cInfo(0.0f, motionState, shape, localInertia);
+	btRigidBody::btRigidBodyConstructionInfo cInfo(0.0f, motionState, shape);
 	btRigidBody* body = new btRigidBody(cInfo);
 	if (userPointer)
 		body->setUserPointer(userPointer);

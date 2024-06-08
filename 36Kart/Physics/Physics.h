@@ -89,8 +89,9 @@ public:
 	//btRigidBody* addStaticModel(btCollisionShape* collisionShapes, const btTransform& trans, bool debugDraw = true, const btVector3& scale = btVector3(1.0f, 1.0f, 1.0f), int collisionFilterGroup = 1, int collisionFilterMask = -1);
 
 	
-	static btCollisionShape* CreateCollisionShape(const Shape* shape, const btVector3 & scale = btVector3(1.0f, 1.0f, 1.0f));
-	static btCollisionShape* CreateConvexHullShape(const Shape* shape, const btVector3 & scale = btVector3(1.0f, 1.0f, 1.0f));
+	static btCollisionShape* CreateCollisionShape(const Shape* shape, const btVector3& scale = btVector3(1.0f, 1.0f, 1.0f));
+	static btCollisionShape* CreateCollisionShape(const std::vector<float>& floatArray, const btVector3& scale = btVector3(1.0f, 1.0f, 1.0f));
+	static btCollisionShape* CreateConvexHullShape(const Shape* shape, const btVector3& scale = btVector3(1.0f, 1.0f, 1.0f));
 	static std::vector<btCollisionShape*> CreateCollisionShapes(Shape* shape, float scale = 1.0f);
 
 	static btCollisionShape* CreateCollisionShape(ObjMesh* mesh, const btVector3& scale = btVector3(1.0f, 1.0f, 1.0f));

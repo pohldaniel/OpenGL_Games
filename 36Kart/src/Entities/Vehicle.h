@@ -1,8 +1,4 @@
 #pragma once
-#include <glm/glm.hpp>
-#include <glm/gtx/vector_angle.hpp>
-#include <glm/gtc/type_ptr.hpp>
-
 #include <engine/Texture.h>
 #include <engine/Camera.h>
 #include <engine/Material.h>
@@ -40,7 +36,6 @@ protected:
 private:
 
 	void updateModelMatrix();
-
-	std::vector<glm::mat4> wheelMatrices;
-	glm::mat4 objModelMatrix;
+	std::vector<Matrix4f> wheelMatrices;
+	Matrix4f objModelMatrix;
 };
