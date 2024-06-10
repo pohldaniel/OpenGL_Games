@@ -3,8 +3,8 @@
 std::unique_ptr<Shader> Widget::WidgetShader = nullptr;
 std::unique_ptr<Shader> Widget::BatchShader = nullptr;
 Matrix4f Widget::Orthographic;
-unsigned int Widget::Vao = 0;
-unsigned int Widget::Vbo = 0;
+unsigned int Widget::Vao = 0u;
+unsigned int Widget::Vbo = 0u;
 
 Widget::Widget() {
 	m_size.set(1.0f, 1.0f);
@@ -115,12 +115,12 @@ void Widget::Init(unsigned int width, unsigned int height) {
 void Widget::CleanUp() {
 	if (Vao) {
 		glDeleteVertexArrays(1, &Vao);
-		Vao = 0;
+		Vao = 0u;
 	}
 
 	if (Vbo) {
 		glDeleteBuffers(1, &Vbo);
-		Vbo = 0;
+		Vbo = 0u;
 	}
 }
 

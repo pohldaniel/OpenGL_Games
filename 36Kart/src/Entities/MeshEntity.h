@@ -5,26 +5,14 @@
 #include <engine/Material.h>
 #include <engine/scene/MeshNode.h>
 #include <engine/AssimpModel.h>
+#include <Entities/Entity.h>
 
-class MeshEntity : public MeshNode {
+class MeshEntity : public MeshNode, public Entity {
 
 public:
 
 	MeshEntity(const AssimpModel& model);
 	virtual ~MeshEntity();
 
-	virtual void draw();
-	virtual void update(const float dt);
-
-	virtual const Material& getMaterial() const;
-
-	short getMaterialIndex() const;
-	void setMaterialIndex(short index) const;
-	short getTextureIndex() const;
-	void setTextureIndex(short index) const;
-
-protected:
-
-	mutable short m_materialIndex;
-	mutable short m_textureIndex;
+	virtual void draw() override;
 };

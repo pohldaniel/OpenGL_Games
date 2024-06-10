@@ -393,9 +393,6 @@
     <ClCompile Include="engine\Object.cpp">
       <Filter>engine</Filter>
     </ClCompile>
-    <ClCompile Include="src\Skybox.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="engine\MeshObject\MeshTorusKnot.cpp">
       <Filter>engine\MeshObject</Filter>
     </ClCompile>
@@ -446,6 +443,12 @@
     </ClCompile>
     <ClCompile Include="src\PhysicsChunkManager.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Entities\Entity.cpp">
+      <Filter>Source Files\Entities</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Entities\Skybox.cpp">
+      <Filter>Source Files\Entities</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -803,9 +806,6 @@
     <ClInclude Include="engine\scene\INode.h">
       <Filter>engine\scene</Filter>
     </ClInclude>
-    <ClInclude Include="src\Skybox.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="engine\MeshObject\MeshTorusKnot.h">
       <Filter>engine\MeshObject</Filter>
     </ClInclude>
@@ -853,6 +853,12 @@
     </ClInclude>
     <ClInclude Include="src\PhysicsChunkManager.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Entities\Entity.h">
+      <Filter>Source Files\Entities</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Entities\Skybox.h">
+      <Filter>Source Files\Entities</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

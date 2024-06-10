@@ -1,7 +1,7 @@
 #include "Vehicle.h"
 #include "Globals.h"
 
-Vehicle::Vehicle(const MeshSequence& meshSequence) : SequenceNode(meshSequence, BoundingBox(Vector3f(0.0f, 0.0f, 0.0f), Vector3f(1.0f, 1.0f, 1.0f))), m_materialIndex(-1), m_textureIndex(-1) {
+Vehicle::Vehicle(const MeshSequence& meshSequence) : SequenceNode(meshSequence, BoundingBox(Vector3f(0.0f, 0.0f, 0.0f), Vector3f(1.0f, 1.0f, 1.0f))), Entity() {
 
 }
 
@@ -19,40 +19,17 @@ void Vehicle::draw() {
 
 	updateModelMatrix();
 	
-	auto shader = Globals::shaderManager.getAssetPointer("main");
+	shader->use();
 	shader->loadMatrix("modelMatrix", objModelMatrix);
 
-	Globals::textureManager.get("car_albedo").bind(0u);
+	//Globals::textureManager.get("car_albedo").bind(0u);
 
 	meshSequence.draw(0);
+
 	for (const Matrix4f& wheelMatrix : wheelMatrices) {
 		shader->loadMatrix("modelMatrix", wheelMatrix);
 		meshSequence.draw(1);
 	}
-}
-
-void Vehicle::update(const float dt) {
-
-}
-
-const Material& Vehicle::getMaterial() const {
-	return Material::GetMaterials()[m_materialIndex];
-}
-
-short Vehicle::getMaterialIndex() const {
-	return m_materialIndex;
-}
-
-void Vehicle::setMaterialIndex(short index) const {
-	m_materialIndex = index;
-}
-
-short Vehicle::getTextureIndex() const {
-	return m_textureIndex;
-}
-
-void Vehicle::setTextureIndex(short index) const {
-	m_textureIndex = index;
 }
 
 void Vehicle::updateModelMatrix() {

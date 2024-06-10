@@ -5,6 +5,14 @@
 #include <array>
 #include "Texture.h"
 
+namespace TextureType {
+	typedef enum TextureType {
+		TEXTURE2D,
+		CROSS,
+		CUBE,
+	} TextureType;
+}
+
 struct MaterialBuffer {
 	float ambient[4] = { 0.0f };
 	float diffuse[4] = { 0.0f };
@@ -50,7 +58,7 @@ struct Material {
 	static void CleanupMaterials();
 	static Material& AddMaterial(const MaterialBuffer& material =  { {0.0f, 0.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 0.0f}, 1.0f} );
 
-	static Texture& AddTexture(std::string path);
+	static Texture& AddTexture(std::string path, TextureType::TextureType textureType = TextureType::TEXTURE2D);
 	static std::vector<Texture>& GetTextures();
 	static void SetTextures(const std::vector<Texture>& textures);
 	static void CleanupTextures();

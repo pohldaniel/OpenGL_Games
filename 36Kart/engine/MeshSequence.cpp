@@ -147,11 +147,22 @@ const Matrix4f &MeshSequence::getInvTransformationMatrix() {
 	return m_transform.getInvTransformationMatrix();
 }
 
-void MeshSequence::loadSequence(const char* _path, bool withoutNormals, bool generateSmoothNormals, bool generateFlatNormals, bool generateSmoothTangents, bool rescale) {
-	return loadSequence(_path, Vector3f(0.0, 1.0, 0.0), 0.0, Vector3f(0.0, 0.0, 0.0), 1.0, withoutNormals, generateSmoothNormals, generateFlatNormals, generateSmoothTangents, rescale);
+void MeshSequence::loadSequence(const char* path, bool withoutNormals, bool generateSmoothNormals, bool generateFlatNormals, bool generateSmoothTangents, bool rescale) {
+	loadSequenceCpu(path, Vector3f(0.0, 1.0, 0.0), 0.0, Vector3f(0.0, 0.0, 0.0), 1.0, withoutNormals, generateSmoothNormals, generateFlatNormals, generateSmoothTangents, rescale);
+	loadSequenceGpu();
 }
 
-void MeshSequence::loadSequence(const char* _path, Vector3f& axis, float degree, Vector3f& translate, float scale, bool withoutNormals, bool generateSmoothNormals, bool generateFlatNormals, bool generateSmoothTangents, bool rescale) {
+void  MeshSequence::loadSequence(const char* path, const Vector3f& axis, float degree, const Vector3f& translate, float scale, bool withoutNormals, bool generateSmoothNormals, bool generateFlatNormals, bool generateSmoothTangents, bool rescale) {
+	loadSequenceCpu(path, axis, degree, translate, scale, withoutNormals, generateSmoothNormals, generateFlatNormals, generateSmoothTangents, rescale);
+	loadSequenceGpu();
+}
+
+
+void MeshSequence::loadSequenceCpu(const char* path, bool withoutNormals, bool generateSmoothNormals, bool generateFlatNormals, bool generateSmoothTangents, bool rescale) {
+	loadSequenceCpu(path, Vector3f(0.0, 1.0, 0.0), 0.0, Vector3f(0.0, 0.0, 0.0), 1.0, withoutNormals, generateSmoothNormals, generateFlatNormals, generateSmoothTangents, rescale);
+}
+
+void MeshSequence::loadSequenceCpu(const char* _path, const Vector3f& axis, float degree, const Vector3f& translate, float scale, bool withoutNormals, bool generateSmoothNormals, bool generateFlatNormals, bool generateSmoothTangents, bool rescale) {
 
 	std::vector<std::array<int, 10>> face;
 
@@ -503,7 +514,7 @@ void MeshSequence::addMeshFromFile(const char* path, bool withoutNormals, bool g
 	return addMeshFromFile(path, Vector3f(0.0, 1.0, 0.0), 0.0, Vector3f(0.0, 0.0, 0.0), 1.0, withoutNormals, generateSmoothNormals, generateFlatNormals, generateSmoothTangents, rescale, flipYZ, flipWinding);
 }
 
-void MeshSequence::addMeshFromFile(const char* path, Vector3f& axis, float degree, Vector3f& translate, float scale, bool withoutNormals, bool generateSmoothNormals, bool generateFlatNormals, bool generateSmoothTangents, bool rescale, bool flipYZ, bool flipWinding) {
+void MeshSequence::addMeshFromFile(const char* path, const Vector3f& axis, float degree, const Vector3f& translate, float scale, bool withoutNormals, bool generateSmoothNormals, bool generateFlatNormals, bool generateSmoothTangents, bool rescale, bool flipYZ, bool flipWinding) {
 	
 	Assimp::Importer Importer;
 

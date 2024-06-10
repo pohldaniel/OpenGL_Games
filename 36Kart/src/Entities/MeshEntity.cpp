@@ -1,6 +1,6 @@
 #include "MeshEntity.h"
 
-MeshEntity::MeshEntity(const AssimpModel& model) : MeshNode(model), m_materialIndex(-1), m_textureIndex(-1) {
+MeshEntity::MeshEntity(const AssimpModel& model) : MeshNode(model), Entity() {
 
 }
 
@@ -17,28 +17,4 @@ void MeshEntity::draw() {
 		Material::GetTextures()[m_textureIndex].bind();
 
 	model.drawRaw();
-}
-
-void MeshEntity::update(const float dt) {
-
-}
-
-const Material& MeshEntity::getMaterial() const {
-	return Material::GetMaterials()[m_materialIndex];
-}
-
-short MeshEntity::getMaterialIndex() const {
-	return m_materialIndex;
-}
-
-void MeshEntity::setMaterialIndex(short index) const {
-	m_materialIndex = index;
-}
-
-short MeshEntity::getTextureIndex() const {
-	return m_textureIndex;
-}
-
-void MeshEntity::setTextureIndex(short index) const {
-	m_textureIndex = index;
 }

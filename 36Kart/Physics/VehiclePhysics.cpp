@@ -114,6 +114,7 @@ VehiclePhysics::VehiclePhysics() : vehicle(nullptr){
 }
 
 VehiclePhysics::~VehiclePhysics() {
+
 	if (vehicleRayCaster) {
 		delete vehicleRayCaster;
 		vehicleRayCaster = NULL;

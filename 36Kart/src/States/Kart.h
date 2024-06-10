@@ -3,16 +3,17 @@
 #include <engine/input/MouseEventListener.h>
 #include <engine/input/KeyboardEventListener.h>
 #include <engine/scene/SceneNodeLC.h>
-#include <engine/Camera.h>
+#include <engine/MeshObject/Shape.h>
 #include <engine/MeshSequence.h>
+#include <engine/Camera.h>
 #include <Physics/BulletDebugDrawer.h>
 #include <States/StateMachine.h>
 
 #include <Entities/ShapeEntity.h>
 #include <Entities/Vehicle.h>
+#include <Entities/Skybox.h>
 
 #include "PhysicsChunkManager.h"
-#include "Skybox.h"
 
 enum Control {
 	VehicleAccelerate = 0,
@@ -21,7 +22,7 @@ enum Control {
 	VehicleUp,
 	VehicleTurnLeft,
 	VehicleTurnRight,
-	Null, //No Input
+	Null,
 	_MaxControls
 };
 
@@ -70,9 +71,10 @@ private:
 	Control currentAcceleration = Control::Null;
 	Control currentTurn = Control::Null;
 	SceneNodeLC* m_root;
-	std::vector<ShapeEntity*> m_entities;
+	std::vector<Entity*> m_entities;
 	Vehicle* m_vehicle;
 	MeshSequence m_meshSequence;
+	Shape m_shape;
 
 	CameraMode cameraMode = CameraMode::FOLLOW;
 	Skybox m_skybox;

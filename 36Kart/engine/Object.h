@@ -17,10 +17,10 @@ public:
 	virtual void setScale(const float s);
 
 	virtual void setPosition(const float x, const float y, const float z);
-	virtual void setPosition(const Vector3f& origin);
+	virtual void setPosition(const Vector3f& position);
 
 	virtual void setOrigin(const float x, const float y, const float z);
-	virtual void setOrigin(const Vector3f& position);
+	virtual void setOrigin(const Vector3f& origin);
 
 	virtual void setOrientation(const Vector3f& axis, float degrees);
 	virtual void setOrientation(const float degreesX, const float degreesY, const float degreesZ);	

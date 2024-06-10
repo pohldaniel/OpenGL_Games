@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <memory>
 #include "../Camera.h"
+
 class Node {
 
 public:
@@ -16,7 +17,6 @@ public:
 	Node& operator=(Node&& rhs);
 	virtual ~Node();
 
-	
 	void markForRemove();
 	void setParent(Node* node);
 	

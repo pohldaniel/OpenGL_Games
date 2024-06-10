@@ -58,11 +58,8 @@ public:
 	void rotate(const Quaternion& orientation) override;
 	void rotate(const float x, const float y, const float z, const float w) override;
 
-	const bool isFixed() const;
-	void setIsFixed(bool isFixed);
-
 protected:
 
 	virtual void OnTransformChanged();
-	virtual const Vector3f& getWorldOrigin(bool update = true) const;	bool m_isFixed;	mutable bool m_isDirty;
+	virtual const Vector3f& getWorldOrigin(bool update = true) const;	mutable bool m_isDirty;
 };

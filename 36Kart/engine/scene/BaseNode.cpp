@@ -3,14 +3,13 @@
 #include "SceneNode.h"
 #include "SceneNodeLC.h"
 
-BaseNode::BaseNode() : Object(), Node(), m_isDirty(true), m_isFixed(false){
+BaseNode::BaseNode() : Object(), Node(), m_isDirty(true){
 
 }
 
 BaseNode::BaseNode(const BaseNode& rhs) : Node(rhs)  , Object(rhs){
 	m_isDirty = rhs.m_isDirty;
 	m_markForRemove = rhs.m_markForRemove;
-	m_isFixed = rhs.m_isFixed;
 }
 
 BaseNode& BaseNode::operator=(const BaseNode& rhs) {
@@ -18,14 +17,12 @@ BaseNode& BaseNode::operator=(const BaseNode& rhs) {
 	Object::operator=(rhs);
 	m_isDirty = rhs.m_isDirty;
 	m_markForRemove = rhs.m_markForRemove;
-	m_isFixed = rhs.m_isFixed;
 	return *this;
 }
 
 BaseNode::BaseNode(BaseNode&& rhs) : Node(rhs), Object(rhs) {
 	m_isDirty = rhs.m_isDirty;
 	m_markForRemove = rhs.m_markForRemove;
-	m_isFixed = rhs.m_isFixed;
 }
 
 BaseNode& BaseNode::operator=(BaseNode&& rhs) {
@@ -33,7 +30,6 @@ BaseNode& BaseNode::operator=(BaseNode&& rhs) {
 	Object::operator=(rhs);
 	m_isDirty = rhs.m_isDirty;
 	m_markForRemove = rhs.m_markForRemove;
-	m_isFixed = rhs.m_isFixed;
 	return *this;
 }
 
@@ -176,12 +172,4 @@ void BaseNode::rotate(const float x, const float y, const float z, const float w
 
 const Vector3f& BaseNode::getWorldOrigin(bool update) const {
 	return Vector3f::ZERO;
-}
-
-void BaseNode::setIsFixed(bool isFixed) {
-	m_isFixed = isFixed;
-}
-
-const bool BaseNode::isFixed() const{
-	return m_isFixed;
 }

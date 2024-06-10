@@ -24,34 +24,54 @@ Kart::Kart(StateMachine& machine) : State(machine, States::KART) {
 
 	glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
 	glClearDepth(1.0f);
-	
+		
+	Material::AddTexture("res/models/DE_Map1/Map01_Albedo.png");
+	Material::GetTextures().back().setFilter(GL_LINEAR_MIPMAP_LINEAR);
+	Material::AddTexture("res/models/volga/volga.png");
+	Material::GetTextures().back().setFilter(GL_LINEAR_MIPMAP_LINEAR);
+	Material::AddTexture("res/textures/skybox.png", TextureType::CROSS);
+	Material::GetTextures().back().setFilter(GL_LINEAR_MIPMAP_LINEAR);
+
 	m_bulletDebugDrawer = new BulletDebugDrawer(Globals::shaderManager.getAssetPointer("main")->getProgram());
+
+	m_shape.fromObj("res/models/DE_Map1/Landscape01.obj");
+	m_shape.createBoundingBox();
+	m_meshSequence.loadSequence("res/models/volga/");
+
 	Physics::GetDynamicsWorld()->setDebugDrawer(m_bulletDebugDrawer);
-	Chunk::LoadChunks(Globals::shapeManager.get("map_de"));
+	Chunk::LoadChunks(m_shape);
 	m_physicsChunkManager.init(Chunk::Chunks);
 
 	m_root = new SceneNodeLC();
 	ShapeEntity* shapeEntity;
-	shapeEntity = m_root->addChild<ShapeEntity, Shape>(Globals::shapeManager.get("map_de"));
+	shapeEntity = m_root->addChild<ShapeEntity, Shape>(m_shape);
 	shapeEntity->setScale(40.0f, 40.0f, 40.0f);
-
+	shapeEntity->setTextureIndex(0u);
+	shapeEntity->setShader(Globals::shaderManager.getAssetPointer("main"));
 	m_entities.push_back(shapeEntity);
-	m_meshSequence.loadSequence("res/models/volga/");
-	m_meshSequence.loadSequenceGpu();
-	m_vehicle = new Vehicle(m_meshSequence);
+	m_shape.markForDelete();
+
+	m_vehicle = m_root->addChild<Vehicle, MeshSequence>(m_meshSequence);
+	m_vehicle->setShader(Globals::shaderManager.getAssetPointer("main"));
+	m_vehicle->setTextureIndex(1u);
+	m_entities.push_back(m_vehicle);
+	m_meshSequence.markForDelete();
+
+	m_skybox.setShader(Globals::shaderManager.getAssetPointer("skybox"));
+	m_skybox.setCamera(m_camera);
+	m_skybox.setTextureIndex(2u);
 
 	for (int i = 0; i < 10; i++) {
 		Globals::physics->stepSimulation(PHYSICS_STEP);
 	}
-
-	m_meshSequence.markForDelete();
 }
 
 Kart::~Kart() {
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
+	Material::CleanupTextures();
 	Chunk::ClearChunks();
-	delete m_vehicle;
+	delete m_root;
 	delete m_bulletDebugDrawer;
 }
 
@@ -158,14 +178,12 @@ void Kart::render() {
 	}
 
 	shader->loadFloat("useTexture", true);
-	Globals::textureManager.get("map_albedo").bind(0u);
+
 	for (auto&& entity : m_entities) {
-		shader->loadMatrix("modelMatrix", entity->getWorldTransformation());
 		entity->draw();
 	}
-	m_vehicle->draw();
 
-	m_skybox.draw(m_camera, "sky");
+	m_skybox.draw();
 
 	if (m_drawUi)
 		renderUi();
