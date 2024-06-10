@@ -136,11 +136,11 @@ void Object::rotate(const float x, const float y, const float z, const float w) 
 	m_orientation.rotate(x, y, z, w);
 }
 
-const Vector3f &Object::getPosition() const {
+const Vector3f& Object::getPosition() const {
 	return m_position;
 }
 
-const Vector3f &Object::getScale() const {
+const Vector3f& Object::getScale() const {
 	return m_scale;
 }
 

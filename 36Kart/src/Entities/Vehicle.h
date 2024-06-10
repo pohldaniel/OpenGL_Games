@@ -13,16 +13,19 @@ public:
 	Vehicle(const MeshSequence& meshSequence);
 	virtual ~Vehicle();
 
-	virtual void draw();
+	virtual void draw() override;
 
-	const btTransform& getWorldTransform() const;
-	const btVector3& getLinearVelocity() const;
+	const Vector3f getPosition();
+	const Matrix4f getWorldTransform();
+	const Vector3f getLinearVelocity();
 	void roate(float x, float y, float z);
-	VehiclePhysics vehicle;
+	void applyEngineForce(float force);
+	void applySteer(float steer);
 
 private:
 
 	void updateModelMatrix();
-	std::vector<Matrix4f> wheelMatrices;
-	Matrix4f objModelMatrix;
+	std::vector<Matrix4f> m_wheelMatrices;
+	Matrix4f m_objModelMatrix;
+	VehiclePhysics m_vehicle;
 };

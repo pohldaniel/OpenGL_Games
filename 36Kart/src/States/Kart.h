@@ -62,20 +62,19 @@ private:
 
 	float m_offsetDistance = 15.0f;
 	float m_rotationSpeed = 0.1f;
+	float m_lightAngle = 0.0f;
 
 	Camera m_camera;
-	float lightCtr = 0.0f;
-	
-	BulletDebugDrawer* m_bulletDebugDrawer;
-	PhysicsChunkManager m_physicsChunkManager;
 	Control currentAcceleration = Control::Null;
 	Control currentTurn = Control::Null;
+	CameraMode cameraMode = CameraMode::FOLLOW;
+
+	BulletDebugDrawer* m_bulletDebugDrawer;
+	PhysicsChunkManager m_physicsChunkManager;	
 	SceneNodeLC* m_root;
 	std::vector<Entity*> m_entities;
 	Vehicle* m_vehicle;
 	MeshSequence m_meshSequence;
-	Shape m_shape;
-
-	CameraMode cameraMode = CameraMode::FOLLOW;
+	Shape m_shape;	
 	Skybox m_skybox;
 };

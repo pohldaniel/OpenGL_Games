@@ -35,11 +35,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	SetConsoleTitle("Debug console");
 
 	MoveWindow(GetConsoleWindow(), 1300, 0, 570, 300, true);
-	std::cout << "right mouse      : capture game" << std::endl;
-	std::cout << "alt              : toggle ui" << std::endl;
-	std::cout << "ESC              : quit" << std::endl;
-	std::cout << "v                : toggle vsync" << std::endl;
-	std::cout << "alt + enter      : fullscreen" << std::endl;
+	std::cout << "right mouse       : capture game" << std::endl;
+	std::cout << "left alt          : toggle ui" << std::endl;
+	std::cout << "ESC               : quit" << std::endl;
+	std::cout << "v                 : toggle vsync" << std::endl;
+	std::cout << "z                 : toggle wireframe" << std::endl;
+	std::cout << "t                 : reset car" << std::endl;
+	std::cout << "right alt + enter : fullscreen" << std::endl;
 
 	int frames = 0;
 	float frameTime = 0;

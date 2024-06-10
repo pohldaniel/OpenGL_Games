@@ -6,38 +6,32 @@ class VehiclePhysics {
 public:
 	VehiclePhysics();
 	~VehiclePhysics();
-	btRaycastVehicle* vehicle;
 
-	// Probably you'll need methods like:
-	void ApplyEngineForce(float force);
-	void ApplySteer(float value);
-	void Brake(float force);
+	void update();
+
+	void applyEngineForce(float force);
+	void applySteer(float value);
+	void brake(float force);
+
 	std::string debugStateSTR();
-	void Update();  // For updating any vehicle logic, physics simulation steps, etc.
-	btTransform GetTransform() const;  // Useful for rendering
-
-	float getX() const;
-	float getY() const;
-	float getZ() const;
-
+	btTransform getTransform() const;
+	const int getNumWheels() const;
+	const btWheelInfo& getWheelInfo(const int index) const;
+	btRigidBody* getRigidBody();
+	btRaycastVehicle* m_vehicle;
 private:
-	btRigidBody* vehicleRigidBody;
-	btVehicleRaycaster* vehicleRayCaster;
 
-	btDefaultMotionState *vehicleMotionState;
-
-	btRaycastVehicle::btVehicleTuning tuning;
-
+	btRigidBody* m_vehicleRigidBody;
+	btVehicleRaycaster* m_vehicleRayCaster;
+	btDefaultMotionState* m_vehicleMotionState;
+	btRaycastVehicle::btVehicleTuning m_tuning;
 	btScalar VEHICLE_SCALE;
+	
 
-	float engineForce;
-	float vehicleSteering;
-	float steeringIncrement;
-	float steeringClamp;
-	float brakeForce;
-
-	//Will make this slowly incr/decr for steer inputs
-	float currentSteer;
-
-
+	float m_engineForce;
+	float m_vehicleSteering;
+	float m_steeringIncrement;
+	float m_steeringClamp;
+	float m_brakeForce;
+	float m_currentSteer;
 };

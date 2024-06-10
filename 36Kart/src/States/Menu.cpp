@@ -21,13 +21,13 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	m_headline.setOffset(5.0f, -7.0f);
 
 	m_buttons = std::initializer_list<std::pair<const std::string, Button>>({
-		{ "controls",       Button() },
-		{ "settings",       Button() },
-		{ "default",        Button() },
+	//	{ "controls",       Button() },
+	//	{ "settings",       Button() },
+	//	{ "default",        Button() },
 		{ "kart",           Button() }
 	});
 
-	m_buttons.at("controls").setCharset(Globals::fontManager.get("upheaval_50"));
+	/*m_buttons.at("controls").setCharset(Globals::fontManager.get("upheaval_50"));
 	m_buttons.at("controls").setPosition(50.0f, 550.0f);
 	m_buttons.at("controls").setOutlineThickness(5.0f);
 	m_buttons.at("controls").setText("Controls");
@@ -52,7 +52,7 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	m_buttons.at("default").setFunction([&]() {
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new Default(m_machine));
-	});
+	});*/
 
 	m_buttons.at("kart").setCharset(Globals::fontManager.get("upheaval_50"));
 	m_buttons.at("kart").setPosition(50.0f, 250.0f);

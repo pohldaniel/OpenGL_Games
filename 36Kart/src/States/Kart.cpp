@@ -14,7 +14,6 @@ Kart::Kart(StateMachine& machine) : State(machine, States::KART) {
 	EventDispatcher::AddKeyboardListener(this);
 	EventDispatcher::AddMouseListener(this);
 
-	m_camera = Camera();
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
 	m_camera.lookAt(Vector3f(0.0f, 2.0f, -10.0f), Vector3f(0.0f, 2.0f, -10.0f) + Vector3f(0.0f, 0.0f, 1.0f), Vector3f(0.0f, 1.0f, 0.0f));
@@ -33,12 +32,12 @@ Kart::Kart(StateMachine& machine) : State(machine, States::KART) {
 	Material::GetTextures().back().setFilter(GL_LINEAR_MIPMAP_LINEAR);
 
 	m_bulletDebugDrawer = new BulletDebugDrawer(Globals::shaderManager.getAssetPointer("main")->getProgram());
+	Physics::GetDynamicsWorld()->setDebugDrawer(m_bulletDebugDrawer);
 
 	m_shape.fromObj("res/models/DE_Map1/Landscape01.obj");
 	m_shape.createBoundingBox();
 	m_meshSequence.loadSequence("res/models/volga/");
 
-	Physics::GetDynamicsWorld()->setDebugDrawer(m_bulletDebugDrawer);
 	Chunk::LoadChunks(m_shape);
 	m_physicsChunkManager.init(Chunk::Chunks);
 
@@ -141,32 +140,29 @@ void Kart::update() {
 		}
 	}
 
-	float pX = m_vehicle->vehicle.getX();
-	float pY = m_vehicle->vehicle.getY();
-	float pZ = m_vehicle->vehicle.getZ();
+	Vector3f position = m_vehicle->getPosition();
+	m_physicsChunkManager.update(position[0], position[2]);
 
-	m_physicsChunkManager.update(pX, pZ);
 	if (cameraMode == CameraMode::FOLLOW_ROTATE) {
-		Vector3f pos = Vector3f(pX, pY, pZ);
-		pos[1] += 1.5f;
-		m_camera.Camera::setTarget(pos);
+		position[1] += 1.5f;
+		m_camera.Camera::setTarget(position);
 	}
 
 	if (cameraMode == CameraMode::FOLLOW) {
-		m_camera.follow(Physics::MatrixFrom(m_vehicle->getWorldTransform()), Physics::VectorFrom(m_vehicle->getLinearVelocity()), m_dt);
+		m_camera.follow(m_vehicle->getWorldTransform(), m_vehicle->getLinearVelocity(), m_dt);
 	}
 }
 
 void Kart::render() {
 
-	lightCtr += 0.01f;
+	m_lightAngle += 0.01f;
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	auto shader = Globals::shaderManager.getAssetPointer("main");
 	shader->use();
 	shader->loadFloat("useTexture", false);
-	shader->loadVector("lightDir", Vector3f(cos(lightCtr), sin(lightCtr), 0.0f));
+	shader->loadVector("lightDir", Vector3f(cos(m_lightAngle), sin(m_lightAngle), 0.0f));
 	shader->loadVector("lightColor", Vector3f(1.0f, 1.0f, 1.0f));
 	shader->loadMatrix("modelMatrix", Matrix4f::IDENTITY);
 	shader->loadMatrix("camMatrix", m_camera.getPerspectiveMatrix() * m_camera.getViewMatrix());
@@ -298,29 +294,27 @@ void Kart::renderUi() {
 }
 
 void Kart::updateVehicleControls(Control accelerationControl, Control turnControl) {
-	// Handle acceleration or braking based on the accelerationControl parameter
 	switch (accelerationControl) {
 	case VehicleAccelerate:
-		m_vehicle->vehicle.ApplyEngineForce(2000);
+		m_vehicle->applyEngineForce(2000);
 		break;
 	case VehicleBrake:
-		m_vehicle->vehicle.ApplyEngineForce(-2500);
+		m_vehicle->applyEngineForce(-2500);
 		break;
-	default: // Covers GameInputState::Null and any other unspecified cases
-		m_vehicle->vehicle.ApplyEngineForce(0);
+	default:
+		m_vehicle->applyEngineForce(0);
 		break;
 	}
 
-	// Handle turning based on the turnControl parameter
 	switch (turnControl) {
 	case VehicleTurnLeft:
-		m_vehicle->vehicle.ApplySteer(0.13);
+		m_vehicle->applySteer(0.13);
 		break;
 	case VehicleTurnRight:
-		m_vehicle->vehicle.ApplySteer(-0.13);
+		m_vehicle->applySteer(-0.13);
 		break;
-	default: // Covers GameInputState::Null and any other unspecified cases
-		m_vehicle->vehicle.ApplySteer(0);
+	default:
+		m_vehicle->applySteer(0);
 		break;
 	}
 }
