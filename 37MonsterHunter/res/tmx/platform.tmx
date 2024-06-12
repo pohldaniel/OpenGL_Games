@@ -24,7 +24,7 @@
  </layer>
  <layer id="3" name="Near" width="200" height="40">
   <data encoding="base64" compression="zlib">
-   eJzt2+FqwjAUBtDihO2fbnPv/6rbYGUxNOuqbW9izoEgIsqF+jVpczsMAAAAAACkPqILgIq9RxdA1U7RBQSTDyiTjz4dowtoxJr5eP0a52T0PjfX7PDzuuUxajmDY+3mD7byFF3AHcba5YN7nSfGt0PxG/WLzke6FnsLqgFKovNBXVwrXhvnvsswPT9ODed5lvC/YU/5+t45HwCgX+la0HUJsIaWexBga3M9CM+7VAH1SNedf/Ug9JCNUm8G9Mxzm1CmrwfKWsrHXN/RlP/s7S/9TfqR58N9PPiV5+PWZ4n0YPGI1soHPKJL9r7lZ+0AAAAgZQ+Bnr3MfO4eKb3LM5Lujy29Rzq3t3ZLX8VeTkPd9QHU4hO/Kwa1
+   eJzt29FqwjAUBuDiBu5ON91T7P3fbxs0LJbGTG2bxHwfhF6IckD/JianwwAAAAAAQOyzdAFQsVPpAqjaoXQBhckHpMlHn15LF9CIJfPx/jOO0eh9bq7Zbryu+R21nMFQu/mDtbyULuABoXb54FHHmfFrl3xH/UrnI16LfRSqAVJK54O6+K94Kcx952F+fpwb7vPcwu+GLU3X9+75AAD9iteC/pcAS2i5BwHWlutB2G9SBdQjXnde60HoIRup3gzomec2IU1fD6S1lI9c39Gc/5zt3/qZ9GOaD/t48Geaj3ufJdKDxTNaKh/wjM7j9WscLT9rBwAAADFnCPTsLfO6PVJ6N81IfD4W9kjDnmlO7mztnr6KrRyGuusDqMU382AHYQ==
   </data>
  </layer>
  <objectgroup id="4" name="Objects" visible="0" offsetx="1" offsety="-2">

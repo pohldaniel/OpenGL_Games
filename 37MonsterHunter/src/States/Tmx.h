@@ -41,7 +41,7 @@ private:
 	void loadMap(const std::string& path);
 
 	bool m_initUi = true;
-	bool m_drawUi = true;
+	bool m_drawUi = false;
 
 	Camera m_camera;
 
@@ -50,5 +50,5 @@ private:
 	std::vector<std::pair<int, unsigned int>**> m_layer;
 	std::vector<Cell> m_cells;
 	unsigned int m_atlas;
-	float m_mapHeight, m_tileHeight;
+	float m_mapHeight, m_tileHeight, m_tileWidth;
 };

@@ -26,7 +26,7 @@ Tmx::Tmx(StateMachine& machine) : State(machine, States::TMX) {
 
 	glClearColor(0.6f, 0.8f, 0.92f, 1.0f);
 	glClearDepth(1.0f);
-	
+
 	TileSetManager::Get().getTileSet("demo").loadTileSetCpu("res/tmx/images/tilemap/tileset.png", true, 64.0f, 64.0f, true, false);
 	TileSetManager::Get().getTileSet("demo").loadTileSetCpu("res/tmx/images/tilemap/tileset02.png", false, 32.0f, 32.0f, true, false);
 	TileSetManager::Get().getTileSet("demo").loadTileSetGpu();
@@ -34,7 +34,6 @@ Tmx::Tmx(StateMachine& machine) : State(machine, States::TMX) {
 	//Spritesheet::Safe("tileset", m_atlas);
 
 	loadMap("res/tmx/platform.tmx");
-
 	auto shader = Globals::shaderManager.getAssetPointer("batch");
 	shader->use();
 	shader->loadMatrix("u_transform", Matrix4f::Orthographic(0.0f, 960.0f, 0.0f, 512.0f, -1.0f, 1.0f));
@@ -220,6 +219,7 @@ void Tmx::loadMap(const std::string& path) {
 	const tmx::Vector2u& mapSize  = map.getTileCount();
 	m_mapHeight = static_cast<float>(mapSize.y * map.getTileSize().y);
 	m_tileHeight = static_cast<float>(map.getTileSize().y);
+	m_tileWidth = static_cast<float>(map.getTileSize().x);
 
 	const std::vector<std::unique_ptr<tmx::Layer>>& layers = map.getLayers();
 	int layerId = 0;
@@ -245,11 +245,7 @@ void Tmx::loadMap(const std::string& path) {
 				if (m_layer[layerId][y][x].first != -1) {
 
 					const TextureRect& rect = TileSetManager::Get().getTileSet("demo").getTextureRects()[m_layer[layerId][y][x].first];
-
-					//std::cout << "Size: " << rect.width << "  " << rect.height << std::endl;
-
-					
-					m_cells.push_back({ rect, static_cast<float>(x) * rect.width, static_cast<float>(y) * rect.height });
+					m_cells.push_back({ rect, static_cast<float>(x) * m_tileWidth, static_cast<float>(y) * m_tileHeight });
 				}
 			}
 		}
