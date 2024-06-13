@@ -1515,6 +1515,35 @@ unsigned char* Texture::LoadFromFile(std::string fileName, int& width, int& heig
 	return imageData;
 }
 
+unsigned char* Texture::LoadFromFile(std::string fileName, unsigned int posX, unsigned int posY, unsigned int _width, unsigned int _height, const bool _flipVertical, bool transparent, int paddingLeft, int paddingRight, int paddingTop, int paddingBottom) {
+	int width, height, numCompontents;
+	unsigned char* imageData = SOIL_load_image(fileName.c_str(), &width, &height, &numCompontents, SOIL_LOAD_AUTO);
+	
+	if (_flipVertical)
+		FlipVertical(imageData, numCompontents * width, height);
+
+	posY = _flipVertical ? (height - (posY + _height)) : posY;
+
+	unsigned char* subImage = (unsigned char*)malloc(_width * numCompontents * _height);
+	unsigned int subImageSize = _width * numCompontents * _height;
+	unsigned int count = 0, row = 0;
+	unsigned int offset = width * numCompontents * posY + numCompontents * posX;
+	unsigned int x = offset;
+
+	while (count < subImageSize) {
+		if (count % (_width * numCompontents) == 0 && count > 0) {
+			row = row + width * numCompontents;
+			x = row + offset;
+		}
+		subImage[count] = imageData[x];
+		x++;
+		count++;
+	}
+	free(imageData);
+	return subImage;
+}
+
+
 unsigned char* Texture::LoadHDRIFromFile(std::string fileName, int& width, int& height, const bool flipVertical, unsigned int internalFormat, unsigned int format, int paddingLeft, int paddingRight, int paddingTop, int paddingBottom) {
 	int numCompontents;
 	unsigned char* imageData = reinterpret_cast<unsigned char *>(SOIL_load_image_f(fileName.c_str(), &width, &height, &numCompontents, 0));

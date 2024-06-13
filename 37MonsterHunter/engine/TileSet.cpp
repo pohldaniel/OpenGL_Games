@@ -337,7 +337,7 @@ void TileSet::loadTileSetCpu(std::string texturePath, bool init, float tileWidth
 	TextureAtlasCreator::Get().addTexture(bytes, imageWidth, imageHeight, textureRects, false, 0u, 0u, m_textureRects);
 }
 
-void TileSet::loadTileSetCpu(std::string texturePath, bool init, bool flipVertical, bool flipTextureRects) {
+void TileSet::loadTileCpu(std::string texturePath, bool init, bool flipVertical, bool flipTextureRects) {
 	if (m_init) return;
 
 	if (init)
@@ -372,6 +372,45 @@ void TileSet::loadTileSetCpu(std::string texturePath, bool init, bool flipVertic
 								   0u });
 	}
 	TextureAtlasCreator::Get().addTexture(bytes, imageWidth, imageHeight, textureRects, false, 0u, 0u, m_textureRects);
+	free(bytes);
+}
+
+void TileSet::loadTileCpu(std::string texturePath, bool init, unsigned int posX, unsigned int posY, unsigned int width, unsigned int height, bool flipVertical, bool flipTextureRects) {
+	if (m_init) return;
+
+	if (init)
+		TextureAtlasCreator::Get().init(2048u, 2048u);
+	
+	unsigned char* bytes = Texture::LoadFromFile(texturePath, posX, posY, width, height, flipVertical);
+	cutOff = 1u;
+
+	std::vector<TextureRect> textureRects;
+
+	float tileWidth = static_cast<float>(width);
+	float tileHeight = static_cast<float>(height);
+
+	float srcRectX = 0.0f;
+	float srcRectY = 0.0f;
+
+	if (!flipTextureRects) {
+		textureRects.push_back({ (srcRectX + 0.0005f) / static_cast<float>(width),
+								   (static_cast<float>(height) - (srcRectY + tileHeight - 0.0005f)) / static_cast<float>(height),
+								   (tileWidth - 0.0005f) / static_cast<float>(width),
+								   (tileHeight - 0.0005f) / static_cast<float>(height),
+								   tileWidth,
+								   tileHeight,
+								   0u });
+	}else {
+		textureRects.push_back({ (srcRectX + 0.0005f) / static_cast<float>(width),
+								   (static_cast<float>(height) - srcRectY - 0.0005f) / static_cast<float>(height),
+								   (tileWidth - 0.0005f) / static_cast<float>(width),
+								   -tileHeight / static_cast<float>(height),
+								   tileWidth,
+								   tileHeight,
+								   0u });
+	}
+	TextureAtlasCreator::Get().addTexture(bytes, width, height, textureRects, false, 0u, 0u, m_textureRects);
+	free(bytes);
 }
 
 void TileSet::addCharset(CharacterSet& characterSet, bool init) {

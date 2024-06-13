@@ -17,6 +17,18 @@ struct Cell {
 	float posY;
 };
 
+struct AnimatedCell {
+	//const TextureRect* rect;
+	//const std::vector<TextureRect>& rects;
+	float posX;
+	float posY;
+	int startFrame;
+	int currentFrame;	
+	int frameCount;
+	float elapsedTime;
+	float updateTime;
+};
+
 class Tmx : public State, public MouseEventListener, public KeyboardEventListener {
 
 public:
@@ -39,6 +51,7 @@ private:
 
 	void renderUi();
 	void loadMap(const std::string& path);
+	void loadMap2(const std::string& path);
 
 	bool m_initUi = true;
 	bool m_drawUi = false;
@@ -47,8 +60,13 @@ private:
 
 	
 	std::vector<unsigned> m_tileTextures;
-	std::vector<std::pair<int, unsigned int>**> m_layer;
+	std::vector<std::pair<int, unsigned int>**> m_layers;
 	std::vector<Cell> m_cells;
-	unsigned int m_atlas;
+	std::vector<AnimatedCell> m_animatedCells;
+
+	unsigned int m_atlas, m_atlasHunter;
 	float m_mapHeight, m_tileHeight, m_tileWidth;
+
+	float m_viewWidth;
+	float m_viewHeight;
 };

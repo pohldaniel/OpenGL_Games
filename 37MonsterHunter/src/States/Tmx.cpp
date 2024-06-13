@@ -14,12 +14,15 @@
 
 Tmx::Tmx(StateMachine& machine) : State(machine, States::TMX) {
 
+	m_viewWidth = 1600.0f;
+	m_viewHeight= 900.0f;
+
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
 	EventDispatcher::AddMouseListener(this);
 
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
-	m_camera.orthographic(0.0f, 960.0f, 0.0f, 512.0f, -1.0f, 1.0f);
+	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
 	m_camera.lookAt(Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 0.0f, 0.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
 	m_camera.setRotationSpeed(0.1f);
 	m_camera.setMovingSpeed(2500.0f);
@@ -32,11 +35,74 @@ Tmx::Tmx(StateMachine& machine) : State(machine, States::TMX) {
 	TileSetManager::Get().getTileSet("demo").loadTileSetGpu();
 	m_atlas = TileSetManager::Get().getTileSet("demo").getAtlas();
 	//Spritesheet::Safe("tileset", m_atlas);
+	TileSetManager::Get().getTileSet("hunter").loadTileSetCpu("res/tmx/graphics/tilesets/world.png", true, 64.0f, 64.0f, true, false);
+	
+	TileSetManager::Get().getTileSet("hunter").loadTileCpu("res/tmx/graphics/objects/house_small_alt.png", false, true, false);
+	TileSetManager::Get().getTileSet("hunter").loadTileCpu("res/tmx/graphics/objects/ice_tree.png", false, true, false);
+	TileSetManager::Get().getTileSet("hunter").loadTileCpu("res/tmx/graphics/objects/palm.png", false, true, false);
+	TileSetManager::Get().getTileSet("hunter").loadTileCpu("res/tmx/graphics/objects/palm_alt.png", false, true, false);
+	TileSetManager::Get().getTileSet("hunter").loadTileCpu("res/tmx/graphics/objects/palm_small.png", false, true, false);
+	TileSetManager::Get().getTileSet("hunter").loadTileCpu("res/tmx/graphics/objects/ruin_pillar.png", false, true, false);
+	TileSetManager::Get().getTileSet("hunter").loadTileCpu("res/tmx/graphics/objects/ruin_pillar_broke.png", false, true, false);
+	TileSetManager::Get().getTileSet("hunter").loadTileCpu("res/tmx/graphics/objects/ruin_pillar_broke_alt.png", false, true, false);
+	TileSetManager::Get().getTileSet("hunter").loadTileCpu("res/tmx/graphics/objects/teal_tree.png", false, true, false);
+	TileSetManager::Get().getTileSet("hunter").loadTileCpu("res/tmx/graphics/objects/teal_tree_bushy.png", false, true, false);
+	TileSetManager::Get().getTileSet("hunter").loadTileCpu("res/tmx/graphics/objects/teal_tree_small.png", false, true, false);
+	TileSetManager::Get().getTileSet("hunter").loadTileCpu("res/tmx/graphics/objects/arean_fire.png", false, true, false);
+	TileSetManager::Get().getTileSet("hunter").loadTileCpu("res/tmx/graphics/objects/arena_plant.png", false, true, false);
+	TileSetManager::Get().getTileSet("hunter").loadTileCpu("res/tmx/graphics/objects/arena_water.png", false, true, false);
+	TileSetManager::Get().getTileSet("hunter").loadTileCpu("res/tmx/graphics/objects/green_tree.png", false, true, false);
+	TileSetManager::Get().getTileSet("hunter").loadTileCpu("res/tmx/graphics/objects/green_tree_bushy.png", false, true, false);
+	TileSetManager::Get().getTileSet("hunter").loadTileCpu("res/tmx/graphics/objects/green_tree_small.png", false, true, false);
+	TileSetManager::Get().getTileSet("hunter").loadTileCpu("res/tmx/graphics/objects/hospital.png", false, true, false);
+	TileSetManager::Get().getTileSet("hunter").loadTileCpu("res/tmx/graphics/objects/house_large.png", false, true, false);
+	TileSetManager::Get().getTileSet("hunter").loadTileCpu("res/tmx/graphics/objects/house_large_alt.png", false, true, false);
+	TileSetManager::Get().getTileSet("hunter").loadTileCpu("res/tmx/graphics/objects/house_small.png", false, true, false);
+	TileSetManager::Get().getTileSet("hunter").loadTileCpu("res/tmx/graphics/objects/gate_pillar.png", false, true, false);
+	TileSetManager::Get().getTileSet("hunter").loadTileCpu("res/tmx/graphics/objects/gate_top.png", false, true, false);
+	TileSetManager::Get().getTileSet("hunter").loadTileCpu("res/tmx/graphics/objects/grassrock1.png", false, true, false);
+	TileSetManager::Get().getTileSet("hunter").loadTileCpu("res/tmx/graphics/objects/grassrock2.png", false, true, false);
+	TileSetManager::Get().getTileSet("hunter").loadTileCpu("res/tmx/graphics/objects/icerock1.png", false, true, false);
+	TileSetManager::Get().getTileSet("hunter").loadTileCpu("res/tmx/graphics/objects/icerock2.png", false, true, false);
+	TileSetManager::Get().getTileSet("hunter").loadTileCpu("res/tmx/graphics/objects/sandrock1.png", false, true, false);
+	TileSetManager::Get().getTileSet("hunter").loadTileCpu("res/tmx/graphics/objects/sandrock2.png", false, true, false);
 
-	loadMap("res/tmx/platform.tmx");
+	TileSetManager::Get().getTileSet("hunter").loadTileCpu("res/tmx/graphics/objects/grass.png", false, true, false);
+	TileSetManager::Get().getTileSet("hunter").loadTileCpu("res/tmx/graphics/objects/grass_ice.png", false, true, false);
+	TileSetManager::Get().getTileSet("hunter").loadTileCpu("res/tmx/graphics/objects/sand.png", false, true, false);
+	
+	TileSetManager::Get().getTileSet("hunter").loadTileCpu("res/tmx/graphics/tilesets/water/0.png", false, true, false);
+	TileSetManager::Get().getTileSet("hunter").loadTileCpu("res/tmx/graphics/tilesets/water/1.png", false, true, false);
+	TileSetManager::Get().getTileSet("hunter").loadTileCpu("res/tmx/graphics/tilesets/water/2.png", false, true, false);
+	TileSetManager::Get().getTileSet("hunter").loadTileCpu("res/tmx/graphics/tilesets/water/3.png", false, true, false);
+
+	for (unsigned int x = 0; x < 24; x++) {
+		TileSetManager::Get().getTileSet("hunter").loadTileCpu("res/tmx/graphics/tilesets/coast.png", false, x * 64u, 64u * 0u, 64u, 64u, true, false);
+		TileSetManager::Get().getTileSet("hunter").loadTileCpu("res/tmx/graphics/tilesets/coast.png", false, x * 64u, 64u * 3u, 64u, 64u, true, false);
+		TileSetManager::Get().getTileSet("hunter").loadTileCpu("res/tmx/graphics/tilesets/coast.png", false, x * 64u, 64u * 6u, 64u, 64u, true, false);
+		TileSetManager::Get().getTileSet("hunter").loadTileCpu("res/tmx/graphics/tilesets/coast.png", false, x * 64u, 64u * 9u, 64u, 64u, true, false);
+
+		TileSetManager::Get().getTileSet("hunter").loadTileCpu("res/tmx/graphics/tilesets/coast.png", false, x * 64u, 64u * 1u, 64u, 64u, true, false);
+		TileSetManager::Get().getTileSet("hunter").loadTileCpu("res/tmx/graphics/tilesets/coast.png", false, x * 64u, 64u * 4u, 64u, 64u, true, false);
+		TileSetManager::Get().getTileSet("hunter").loadTileCpu("res/tmx/graphics/tilesets/coast.png", false, x * 64u, 64u * 7u, 64u, 64u, true, false);
+		TileSetManager::Get().getTileSet("hunter").loadTileCpu("res/tmx/graphics/tilesets/coast.png", false, x * 64u, 64u * 10u, 64u, 64u, true, false);
+
+		TileSetManager::Get().getTileSet("hunter").loadTileCpu("res/tmx/graphics/tilesets/coast.png", false, x * 64u, 64u * 2u, 64u, 64u, true, false);
+		TileSetManager::Get().getTileSet("hunter").loadTileCpu("res/tmx/graphics/tilesets/coast.png", false, x * 64u, 64u * 5u, 64u, 64u, true, false);
+		TileSetManager::Get().getTileSet("hunter").loadTileCpu("res/tmx/graphics/tilesets/coast.png", false, x * 64u, 64u * 8u, 64u, 64u, true, false);
+		TileSetManager::Get().getTileSet("hunter").loadTileCpu("res/tmx/graphics/tilesets/coast.png", false, x * 64u, 64u * 11u, 64u, 64u, true, false);
+	}
+	
+	TileSetManager::Get().getTileSet("hunter").loadTileSetGpu();
+	m_atlasHunter = TileSetManager::Get().getTileSet("hunter").getAtlas();
+	Spritesheet::Safe("hunter", m_atlasHunter);
+
+	//loadMap("res/tmx/platform.tmx");
+	loadMap2("res/tmx/data/maps/world.tmx");
+
 	auto shader = Globals::shaderManager.getAssetPointer("batch");
 	shader->use();
-	shader->loadMatrix("u_transform", Matrix4f::Orthographic(0.0f, 960.0f, 0.0f, 512.0f, -1.0f, 1.0f));
+	shader->loadMatrix("u_transform", Matrix4f::Orthographic(0.0f, m_viewWidth, 0.0f, m_viewHeight, -1.0f, 1.0f));
 	shader->unuse();
 }
 
@@ -103,15 +169,37 @@ void Tmx::update() {
 			m_camera.move(direction * m_dt);
 		}
 	}
+
+	for (auto&& animatedCell : m_animatedCells) {		
+
+		animatedCell.elapsedTime += 6.0f * m_dt;
+		animatedCell.currentFrame = static_cast <int>(std::floor(animatedCell.elapsedTime));
+		if (animatedCell.currentFrame > animatedCell.frameCount - 1) {
+			animatedCell.currentFrame = 0;
+			animatedCell.elapsedTime -= static_cast <float>(animatedCell.frameCount);
+		}
+
+		//animatedCell.elapsedTime += m_dt;
+		//while (animatedCell.elapsedTime >= 1.0f) {
+		//	animatedCell.elapsedTime -= 1.0f;
+		//	if (++animatedCell.currentFrame > animatedCell.frameCount - 1)
+		//		animatedCell.currentFrame = 0;
+		//}
+	}
 }
 
 void Tmx::render() {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	Spritesheet::Bind(m_atlas);
-	for (auto cell :  m_cells) {
-		Batchrenderer::Get().addQuadAA(Vector4f(cell.posX - m_camera.getPositionX(), (m_mapHeight - m_tileHeight) - cell.posY - m_camera.getPositionY(), cell.rect.width, cell.rect.height), Vector4f(cell.rect.textureOffsetX, cell.rect.textureOffsetY, cell.rect.textureWidth, cell.rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), cell.rect.frame);
+	Spritesheet::Bind(m_atlasHunter);
+	
+	for (auto& animatedCell : m_animatedCells) {
+		const TextureRect& rect = TileSetManager::Get().getTileSet("hunter").getTextureRects()[animatedCell.currentFrame + animatedCell.startFrame];
+		Batchrenderer::Get().addQuadAA(Vector4f(animatedCell.posX - m_camera.getPositionX(), (m_mapHeight - m_tileHeight) - animatedCell.posY - m_camera.getPositionY(), rect.width, rect.height), Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureWidth, rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), rect.frame);
+	}
+	for (auto& cell : m_cells) {
+		Batchrenderer::Get().addQuadAA(Vector4f(cell.posX - m_camera.getPositionX(), (m_mapHeight)-cell.posY - m_camera.getPositionY(), cell.rect.width, cell.rect.height), Vector4f(cell.rect.textureOffsetX, cell.rect.textureOffsetY, cell.rect.textureWidth, cell.rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), cell.rect.frame);
 	}
 	Batchrenderer::Get().drawBuffer();
 
@@ -161,11 +249,11 @@ void Tmx::OnKeyUp(Event::KeyboardEvent& event) {
 
 void Tmx::resize(int deltaW, int deltaH) {
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
-	m_camera.orthographic(0.0f, 960.0f, 0.0f, 512.0f, -1.0f, 1.0f);
+	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
 
 	auto shader = Globals::shaderManager.getAssetPointer("batch");
 	shader->use();
-	shader->loadMatrix("u_transform", Matrix4f::Orthographic(0.0f, 960.0f, 0.0f, 512.0f, -1.0f, 1.0f));
+	shader->loadMatrix("u_transform", Matrix4f::Orthographic(0.0f, m_viewWidth, 0.0f, m_viewHeight, -1.0f, 1.0f));
 	shader->unuse();
 }
 
@@ -229,26 +317,242 @@ void Tmx::loadMap(const std::string& path) {
 		if (!layer)
 			continue;
 
-		m_layer.resize(layers.size() + 1);
+		m_layers.resize(layers.size() + 1);
 
 		const auto& tileIDs = layer->getTiles();
 
 		
-		m_layer[layerId] = new std::pair<int, unsigned int>*[mapSize.y];
+		m_layers[layerId] = new std::pair<int, unsigned int>*[mapSize.y];
 		for (int y = 0; y < mapSize.y; ++y)
-			m_layer[layerId][y] = new std::pair<int, unsigned int>[mapSize.x];
+			m_layers[layerId][y] = new std::pair<int, unsigned int>[mapSize.x];
 
 		for (auto y = 0u; y < mapSize.y; ++y) {
 			for (auto x = 0u; x < mapSize.x; ++x) {
 				auto idx = y * mapSize.x + x;
-				m_layer[layerId][y][x].first = tileIDs[idx].ID - 1;
-				if (m_layer[layerId][y][x].first != -1) {
+				m_layers[layerId][y][x].first = tileIDs[idx].ID - 1;
+				if (m_layers[layerId][y][x].first != -1) {
 
-					const TextureRect& rect = TileSetManager::Get().getTileSet("demo").getTextureRects()[m_layer[layerId][y][x].first];
+					const TextureRect& rect = TileSetManager::Get().getTileSet("demo").getTextureRects()[m_layers[layerId][y][x].first];
 					m_cells.push_back({ rect, static_cast<float>(x) * m_tileWidth, static_cast<float>(y) * m_tileHeight });
 				}
 			}
 		}
 		layerId++;
+	}
+}
+
+void Tmx::loadMap2(const std::string& path) {
+	tmx::Map map;
+	map.load(path);
+
+	const tmx::Vector2u& mapSize = map.getTileCount();
+	m_mapHeight = static_cast<float>(mapSize.y * map.getTileSize().y);
+	m_tileHeight = static_cast<float>(map.getTileSize().y);
+	m_tileWidth = static_cast<float>(map.getTileSize().x);
+
+	const std::vector<std::unique_ptr<tmx::Layer>>& layers = map.getLayers();
+	//int layerId = 0;
+	for (auto& layer : layers) {
+		
+		
+
+		if (layer->getName() == "Terrain") {
+			const tmx::TileLayer* tileLayer = dynamic_cast<const tmx::TileLayer*>(layer.get());
+
+			if (!tileLayer)
+				continue;
+			m_layers.resize(m_layers.size() + 1);
+			m_layers.back() = new std::pair<int, unsigned int>*[mapSize.y];
+			for (int y = 0; y < mapSize.y; ++y)
+				m_layers.back()[y] = new std::pair<int, unsigned int>[mapSize.x];
+
+
+			const auto& tileIDs = tileLayer->getTiles();
+			for (auto y = 0u; y < mapSize.y; ++y) {
+				for (auto x = 0u; x < mapSize.x; ++x) {
+					auto idx = y * mapSize.x + x;
+					m_layers.back()[y][x].first = tileIDs[idx].ID - 1;
+					if (m_layers.back()[y][x].first != -1) {
+						const TextureRect& rect = TileSetManager::Get().getTileSet("hunter").getTextureRects()[m_layers.back()[y][x].first];
+						m_cells.push_back({ rect, static_cast<float>(x) * m_tileWidth, static_cast<float>(y) * m_tileHeight + m_tileHeight });
+					}
+				}
+			}
+		}
+
+		if (layer->getName() == "Objects") {
+			const tmx::ObjectGroup* objectLayer = dynamic_cast<const tmx::ObjectGroup*>(layer.get());
+			for (auto& object : objectLayer->getObjects()) {	
+				const TextureRect& rect = TileSetManager::Get().getTileSet("hunter").getTextureRects()[object.getTileID() - 1];
+				m_cells.push_back({ rect, object.getPosition().x, object.getPosition().y});								
+			}
+		}
+
+		if (layer->getName() == "Monsters") {
+			const tmx::ObjectGroup* objectLayer = dynamic_cast<const tmx::ObjectGroup*>(layer.get());
+			for (auto& object : objectLayer->getObjects()) {
+				const TextureRect& rect = TileSetManager::Get().getTileSet("hunter").getTextureRects()[object.getTileID() - 1];
+				m_cells.push_back({ rect, object.getPosition().x, object.getPosition().y });
+			}
+		}
+
+		if (layer->getName() == "Water") {
+			const tmx::ObjectGroup* objectLayer = dynamic_cast<const tmx::ObjectGroup*>(layer.get());
+			for (auto& object : objectLayer->getObjects()) {
+				for (float x = object.getPosition().x; x < object.getPosition().x + object.getAABB().width; x = x + 64.0f) {
+					for (float y = object.getPosition().y; y < object.getPosition().y + object.getAABB().height; y = y + 64.0f) {
+						m_animatedCells.push_back({ x, y, 242, 0, 4, 0.0f, 0.5f });
+					}
+				}
+			}
+		}
+
+		if (layer->getName() == "Coast") {
+			const tmx::ObjectGroup* objectLayer = dynamic_cast<const tmx::ObjectGroup*>(layer.get());
+			for (auto& object : objectLayer->getObjects()) {
+
+				for (auto& property : object.getProperties()) {
+
+					if (property.getName() == "terrain" && property.getStringValue() == "grass") {
+						if (object.getProperties()[0].getStringValue() == "topleft") {
+							m_animatedCells.push_back({ object.getPosition().x, object.getPosition().y, 246, 0, 4, 0.0f, 0.5f });
+						}
+
+						if (object.getProperties()[0].getStringValue() == "left") {
+							m_animatedCells.push_back({ object.getPosition().x, object.getPosition().y, 250, 0, 4, 0.0f, 0.5f });
+						}
+
+						if (object.getProperties()[0].getStringValue() == "bottomleft") {
+							m_animatedCells.push_back({ object.getPosition().x, object.getPosition().y, 254, 0, 4, 0.0f, 0.5f });
+						}
+
+						if (object.getProperties()[0].getStringValue() == "top") {
+							m_animatedCells.push_back({ object.getPosition().x, object.getPosition().y, 258, 0, 4, 0.0f, 0.5f });
+						}
+
+						if (object.getProperties()[0].getStringValue() == "bottom") {
+							m_animatedCells.push_back({ object.getPosition().x, object.getPosition().y, 266, 0, 4, 0.0f, 0.5f });
+						}
+
+						if (object.getProperties()[0].getStringValue() == "topright") {
+							m_animatedCells.push_back({ object.getPosition().x, object.getPosition().y, 270, 0, 4, 0.0f, 0.5f });
+						}
+
+						if (object.getProperties()[0].getStringValue() == "right") {
+							m_animatedCells.push_back({ object.getPosition().x, object.getPosition().y, 274, 0, 4, 0.0f, 0.5f });
+						}
+
+						if (object.getProperties()[0].getStringValue() == "bottomright") {
+							m_animatedCells.push_back({ object.getPosition().x, object.getPosition().y, 278, 0, 4, 0.0f, 0.5f });
+						}
+					}
+
+					if (property.getName() == "terrain" && property.getStringValue() == "grass_i") {
+
+						if (object.getProperties()[0].getStringValue() == "topleft") {
+							m_animatedCells.push_back({ object.getPosition().x, object.getPosition().y, 282, 0, 4, 0.0f, 0.5f });
+						}
+
+						if (object.getProperties()[0].getStringValue() == "left") {
+							m_animatedCells.push_back({ object.getPosition().x, object.getPosition().y, 286, 0, 4, 0.0f, 0.5f });
+						}
+
+						if (object.getProperties()[0].getStringValue() == "bottomleft") {
+							m_animatedCells.push_back({ object.getPosition().x, object.getPosition().y, 290, 0, 4, 0.0f, 0.5f });
+						}
+
+						if (object.getProperties()[0].getStringValue() == "top") {
+							m_animatedCells.push_back({ object.getPosition().x, object.getPosition().y, 294, 0, 4, 0.0f, 0.5f });
+						}
+
+						if (object.getProperties()[0].getStringValue() == "bottom") {
+							m_animatedCells.push_back({ object.getPosition().x, object.getPosition().y, 301, 0, 4, 0.0f, 0.5f });
+						}
+
+						if (object.getProperties()[0].getStringValue() == "topright") {
+							m_animatedCells.push_back({ object.getPosition().x, object.getPosition().y, 306, 0, 4, 0.0f, 0.5f });
+						}
+
+						if (object.getProperties()[0].getStringValue() == "right") {
+							m_animatedCells.push_back({ object.getPosition().x, object.getPosition().y, 310, 0, 4, 0.0f, 0.5f });
+						}
+
+						if (object.getProperties()[0].getStringValue() == "bottomright") {
+							m_animatedCells.push_back({ object.getPosition().x, object.getPosition().y, 314, 0, 4, 0.0f, 0.5f });
+						}
+					}
+
+					if (property.getName() == "terrain" && property.getStringValue() == "sand_i") {
+
+						if (object.getProperties()[0].getStringValue() == "topleft") {
+							m_animatedCells.push_back({ object.getPosition().x, object.getPosition().y, 318, 0, 4, 0.0f, 0.5f });
+						}
+
+						if (object.getProperties()[0].getStringValue() == "left") {
+							m_animatedCells.push_back({ object.getPosition().x, object.getPosition().y, 322, 0, 4, 0.0f, 0.5f });
+						}
+
+						if (object.getProperties()[0].getStringValue() == "bottomleft") {
+							m_animatedCells.push_back({ object.getPosition().x, object.getPosition().y, 326, 0, 4, 0.0f, 0.5f });
+						}
+
+						if (object.getProperties()[0].getStringValue() == "top") {
+							m_animatedCells.push_back({ object.getPosition().x, object.getPosition().y, 330, 0, 4, 0.0f, 0.5f });
+						}
+
+						if (object.getProperties()[0].getStringValue() == "bottom") {
+							m_animatedCells.push_back({ object.getPosition().x, object.getPosition().y, 338, 0, 4, 0.0f, 0.5f });
+						}
+
+						if (object.getProperties()[0].getStringValue() == "topright") {
+							m_animatedCells.push_back({ object.getPosition().x, object.getPosition().y, 342, 0, 4, 0.0f, 0.5f });
+						}
+
+						if (object.getProperties()[0].getStringValue() == "right") {
+							m_animatedCells.push_back({ object.getPosition().x, object.getPosition().y, 346, 0, 4, 0.0f, 0.5f });
+						}
+
+						if (object.getProperties()[0].getStringValue() == "bottomright") {
+							m_animatedCells.push_back({ object.getPosition().x, object.getPosition().y, 350, 0, 4, 0.0f, 0.5f });
+						}
+					}
+
+					if (property.getName() == "terrain" && property.getStringValue() == "sand") {
+
+						if (object.getProperties()[0].getStringValue() == "topleft") {
+							m_animatedCells.push_back({ object.getPosition().x, object.getPosition().y, 354, 0, 4, 0.0f, 0.5f });
+						}
+
+						if (object.getProperties()[0].getStringValue() == "left") {
+							m_animatedCells.push_back({ object.getPosition().x, object.getPosition().y, 358, 0, 4, 0.0f, 0.5f });
+						}
+
+						if (object.getProperties()[0].getStringValue() == "bottomleft") {
+							m_animatedCells.push_back({ object.getPosition().x, object.getPosition().y, 362, 0, 4, 0.0f, 0.5f });
+						}
+
+						if (object.getProperties()[0].getStringValue() == "top") {
+							m_animatedCells.push_back({ object.getPosition().x, object.getPosition().y, 366, 0, 4, 0.0f, 0.5f });
+						}
+
+						if (object.getProperties()[0].getStringValue() == "bottom") {
+							m_animatedCells.push_back({ object.getPosition().x, object.getPosition().y, 374, 0, 4, 0.0f, 0.5f });
+						}
+
+						if (object.getProperties()[0].getStringValue() == "topright") {
+							m_animatedCells.push_back({ object.getPosition().x, object.getPosition().y, 378, 0, 4, 0.0f, 0.5f });
+						}
+
+						if (object.getProperties()[0].getStringValue() == "right") {
+							m_animatedCells.push_back({ object.getPosition().x, object.getPosition().y, 382, 0, 4, 0.0f, 0.5f });
+						}
+
+						if (object.getProperties()[0].getStringValue() == "bottomright") {
+							m_animatedCells.push_back({ object.getPosition().x, object.getPosition().y, 386, 0, 4, 0.0f, 0.5f });
+						}
+					}
+				}				
+			}
+		}
 	}
 }
