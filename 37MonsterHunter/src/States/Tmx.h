@@ -11,19 +11,23 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/matrix.hpp>
 
+enum Sorting {
+	NONE,
+	TOP
+};
+
 struct Cell {
-	const TextureRect& rect;
 	float posX;
 	float posY;
+	int currentFrame;
+	Sorting sortKey;
 };
 
 struct AnimatedCell {
-	//const TextureRect* rect;
-	//const std::vector<TextureRect>& rects;
 	float posX;
 	float posY;
+	int currentFrame;
 	int startFrame;
-	int currentFrame;	
 	int frameCount;
 	float elapsedTime;
 	float updateTime;
@@ -51,7 +55,6 @@ private:
 
 	void renderUi();
 	void loadMap(const std::string& path);
-	void loadMap2(const std::string& path);
 
 	bool m_initUi = true;
 	bool m_drawUi = false;
