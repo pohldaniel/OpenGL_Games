@@ -3,7 +3,7 @@
  <tileset firstgid="1" source="../tilesets/world.tsx"/>
  <tileset firstgid="211" source="../tilesets/objects.tsx"/>
  <tileset firstgid="240" source="../tilesets/Grass.tsx"/>
- <layer id="1" name="Terrain" width="86" height="86" visible="0" locked="1">
+ <layer id="1" name="Terrain" width="86" height="86" locked="1">
   <data encoding="csv">
 195,195,195,195,195,195,195,195,195,195,195,195,195,195,195,195,195,195,195,195,195,195,195,195,195,195,195,196,132,132,136,132,132,132,136,132,123,42,43,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,
 195,195,195,195,195,195,195,195,195,195,195,195,195,195,195,195,195,195,195,195,195,195,195,195,195,195,195,196,132,132,147,126,132,132,136,132,132,123,54,33,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,
@@ -93,7 +93,7 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
- <layer id="13" name="Terrain Top" width="86" height="86" locked="1">
+ <layer id="13" name="Terrain Top" width="86" height="86" visible="0" locked="1">
   <data encoding="csv">
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -183,7 +183,7 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
- <objectgroup id="3" name="Entities" locked="1">
+ <objectgroup id="3" name="Entities">
   <object id="12" name="Player" x="4223.94" y="3661.26">
    <properties>
     <property name="direction" value="down"/>
@@ -1715,7 +1715,7 @@
    </properties>
   </object>
  </objectgroup>
- <objectgroup id="6" name="Monsters" visible="0" locked="1">
+ <objectgroup id="6" name="Monsters">
   <object id="34" gid="240" x="4096" y="4096" width="64" height="64">
    <properties>
     <property name="biome" value="forest"/>
@@ -2950,14 +2950,14 @@
   </object>
   <object id="965" gid="240" x="3968" y="2240" width="64" height="64">
    <properties>
-    <property name="biome" value="sand"/>
+    <property name="biome" value="forest"/>
     <property name="level" type="int" value="10"/>
     <property name="monsters" value="Atrox,Pouch"/>
    </properties>
   </object>
   <object id="966" gid="240" x="4032" y="2240" width="64" height="64">
    <properties>
-    <property name="biome" value="sand"/>
+    <property name="biome" value="forest"/>
     <property name="level" type="int" value="10"/>
     <property name="monsters" value="Atrox,Pouch"/>
    </properties>
@@ -2971,217 +2971,217 @@
   </object>
   <object id="968" gid="240" x="4096" y="2240" width="64" height="64">
    <properties>
-    <property name="biome" value="sand"/>
+    <property name="biome" value="forest"/>
     <property name="level" type="int" value="10"/>
     <property name="monsters" value="Atrox,Pouch"/>
    </properties>
   </object>
   <object id="969" gid="240" x="4160" y="2240" width="64" height="64">
    <properties>
-    <property name="biome" value="sand"/>
+    <property name="biome" value="forest"/>
     <property name="level" type="int" value="10"/>
     <property name="monsters" value="Atrox,Pouch"/>
    </properties>
   </object>
   <object id="970" gid="240" x="4224" y="2240" width="64" height="64">
    <properties>
-    <property name="biome" value="sand"/>
+    <property name="biome" value="forest"/>
     <property name="level" type="int" value="10"/>
     <property name="monsters" value="Atrox,Pouch"/>
    </properties>
   </object>
   <object id="971" gid="240" x="4096" y="2304" width="64" height="64">
    <properties>
-    <property name="biome" value="sand"/>
+    <property name="biome" value="forest"/>
     <property name="level" type="int" value="10"/>
     <property name="monsters" value="Atrox,Pouch"/>
    </properties>
   </object>
   <object id="972" gid="240" x="4160" y="2304" width="64" height="64">
    <properties>
-    <property name="biome" value="sand"/>
+    <property name="biome" value="forest"/>
     <property name="level" type="int" value="10"/>
     <property name="monsters" value="Atrox,Pouch"/>
    </properties>
   </object>
   <object id="973" gid="240" x="4224" y="2304" width="64" height="64">
    <properties>
-    <property name="biome" value="sand"/>
+    <property name="biome" value="forest"/>
     <property name="level" type="int" value="10"/>
     <property name="monsters" value="Atrox,Pouch"/>
    </properties>
   </object>
   <object id="974" gid="240" x="4096" y="2368" width="64" height="64">
    <properties>
-    <property name="biome" value="sand"/>
+    <property name="biome" value="forest"/>
     <property name="level" type="int" value="10"/>
     <property name="monsters" value="Atrox,Pouch"/>
    </properties>
   </object>
   <object id="975" gid="240" x="4160" y="2368" width="64" height="64">
    <properties>
-    <property name="biome" value="sand"/>
+    <property name="biome" value="forest"/>
     <property name="level" type="int" value="10"/>
     <property name="monsters" value="Atrox,Pouch"/>
    </properties>
   </object>
   <object id="976" gid="240" x="4224" y="2368" width="64" height="64">
    <properties>
-    <property name="biome" value="sand"/>
+    <property name="biome" value="forest"/>
     <property name="level" type="int" value="10"/>
     <property name="monsters" value="Atrox,Pouch"/>
    </properties>
   </object>
   <object id="977" gid="240" x="4096" y="2432" width="64" height="64">
    <properties>
-    <property name="biome" value="sand"/>
+    <property name="biome" value="forest"/>
     <property name="level" type="int" value="10"/>
     <property name="monsters" value="Atrox,Pouch"/>
    </properties>
   </object>
   <object id="978" gid="240" x="4160" y="2432" width="64" height="64">
    <properties>
-    <property name="biome" value="sand"/>
+    <property name="biome" value="forest"/>
     <property name="level" type="int" value="10"/>
     <property name="monsters" value="Atrox,Pouch"/>
    </properties>
   </object>
   <object id="979" gid="240" x="4224" y="2432" width="64" height="64">
    <properties>
-    <property name="biome" value="sand"/>
+    <property name="biome" value="forest"/>
     <property name="level" type="int" value="10"/>
     <property name="monsters" value="Atrox,Pouch"/>
    </properties>
   </object>
   <object id="983" gid="240" x="4288" y="2304" width="64" height="64">
    <properties>
-    <property name="biome" value="sand"/>
+    <property name="biome" value="forest"/>
     <property name="level" type="int" value="10"/>
     <property name="monsters" value="Atrox,Pouch"/>
    </properties>
   </object>
   <object id="984" gid="240" x="4352" y="2304" width="64" height="64">
    <properties>
-    <property name="biome" value="sand"/>
+    <property name="biome" value="forest"/>
     <property name="level" type="int" value="10"/>
     <property name="monsters" value="Atrox,Pouch"/>
    </properties>
   </object>
   <object id="985" gid="240" x="4416" y="2304" width="64" height="64">
    <properties>
-    <property name="biome" value="sand"/>
+    <property name="biome" value="forest"/>
     <property name="level" type="int" value="10"/>
     <property name="monsters" value="Atrox,Pouch"/>
    </properties>
   </object>
   <object id="986" gid="240" x="4288" y="2368" width="64" height="64">
    <properties>
-    <property name="biome" value="sand"/>
+    <property name="biome" value="forest"/>
     <property name="level" type="int" value="10"/>
     <property name="monsters" value="Atrox,Pouch"/>
    </properties>
   </object>
   <object id="987" gid="240" x="4352" y="2368" width="64" height="64">
    <properties>
-    <property name="biome" value="sand"/>
+    <property name="biome" value="forest"/>
     <property name="level" type="int" value="10"/>
     <property name="monsters" value="Atrox,Pouch"/>
    </properties>
   </object>
   <object id="988" gid="240" x="4416" y="2368" width="64" height="64">
    <properties>
-    <property name="biome" value="sand"/>
+    <property name="biome" value="forest"/>
     <property name="level" type="int" value="10"/>
     <property name="monsters" value="Atrox,Pouch"/>
    </properties>
   </object>
   <object id="989" gid="240" x="4288" y="2432" width="64" height="64">
    <properties>
-    <property name="biome" value="sand"/>
+    <property name="biome" value="forest"/>
     <property name="level" type="int" value="10"/>
     <property name="monsters" value="Atrox,Pouch"/>
    </properties>
   </object>
   <object id="990" gid="240" x="4352" y="2432" width="64" height="64">
    <properties>
-    <property name="biome" value="sand"/>
+    <property name="biome" value="forest"/>
     <property name="level" type="int" value="10"/>
     <property name="monsters" value="Atrox,Pouch"/>
    </properties>
   </object>
   <object id="991" gid="240" x="4416" y="2432" width="64" height="64">
    <properties>
-    <property name="biome" value="sand"/>
+    <property name="biome" value="forest"/>
     <property name="level" type="int" value="10"/>
     <property name="monsters" value="Atrox,Pouch"/>
    </properties>
   </object>
   <object id="992" gid="240" x="4480" y="2304" width="64" height="64">
    <properties>
-    <property name="biome" value="sand"/>
+    <property name="biome" value="forest"/>
     <property name="level" type="int" value="10"/>
     <property name="monsters" value="Atrox,Pouch"/>
    </properties>
   </object>
   <object id="993" gid="240" x="3968" y="2304" width="64" height="64">
    <properties>
-    <property name="biome" value="sand"/>
+    <property name="biome" value="forest"/>
     <property name="level" type="int" value="10"/>
     <property name="monsters" value="Atrox,Pouch"/>
    </properties>
   </object>
   <object id="994" gid="240" x="4032" y="2304" width="64" height="64">
    <properties>
-    <property name="biome" value="sand"/>
+    <property name="biome" value="forest"/>
     <property name="level" type="int" value="10"/>
     <property name="monsters" value="Atrox,Pouch"/>
    </properties>
   </object>
   <object id="995" gid="240" x="4480" y="2368" width="64" height="64">
    <properties>
-    <property name="biome" value="sand"/>
+    <property name="biome" value="forest"/>
     <property name="level" type="int" value="10"/>
     <property name="monsters" value="Atrox,Pouch"/>
    </properties>
   </object>
   <object id="996" gid="240" x="3968" y="2368" width="64" height="64">
    <properties>
-    <property name="biome" value="sand"/>
+    <property name="biome" value="forest"/>
     <property name="level" type="int" value="10"/>
     <property name="monsters" value="Atrox,Pouch"/>
    </properties>
   </object>
   <object id="997" gid="240" x="4032" y="2368" width="64" height="64">
    <properties>
-    <property name="biome" value="sand"/>
+    <property name="biome" value="forest"/>
     <property name="level" type="int" value="10"/>
     <property name="monsters" value="Atrox,Pouch"/>
    </properties>
   </object>
   <object id="998" gid="240" x="4480" y="2432" width="64" height="64">
    <properties>
-    <property name="biome" value="sand"/>
+    <property name="biome" value="forest"/>
     <property name="level" type="int" value="10"/>
     <property name="monsters" value="Atrox,Pouch"/>
    </properties>
   </object>
   <object id="999" gid="240" x="3968" y="2432" width="64" height="64">
    <properties>
-    <property name="biome" value="sand"/>
+    <property name="biome" value="forest"/>
     <property name="level" type="int" value="10"/>
     <property name="monsters" value="Atrox,Pouch"/>
    </properties>
   </object>
   <object id="1000" gid="240" x="4032" y="2432" width="64" height="64">
    <properties>
-    <property name="biome" value="sand"/>
+    <property name="biome" value="forest"/>
     <property name="level" type="int" value="10"/>
     <property name="monsters" value="Atrox,Pouch"/>
    </properties>
   </object>
   <object id="1001" gid="240" x="4288" y="2240" width="64" height="64">
    <properties>
-    <property name="biome" value="sand"/>
+    <property name="biome" value="forest"/>
     <property name="level" type="int" value="10"/>
     <property name="monsters" value="Atrox,Pouch"/>
    </properties>
@@ -3230,7 +3230,7 @@
   </object>
   <object id="1040" gid="240" x="3904" y="2304" width="64" height="64">
    <properties>
-    <property name="biome" value="sand"/>
+    <property name="biome" value="forest"/>
     <property name="level" type="int" value="10"/>
     <property name="monsters" value="Atrox,Pouch"/>
    </properties>
@@ -4147,7 +4147,7 @@
   <object id="1078" gid="227" x="4623" y="2089" width="64" height="128"/>
   <object id="1079" gid="226" x="4678" y="2170" width="128" height="192"/>
  </objectgroup>
- <objectgroup id="12" name="Collisions" locked="1">
+ <objectgroup id="12" name="Collisions" visible="0">
   <object id="211" x="4832.33" y="1976.5" width="33.3333" height="647.5"/>
   <object id="700" x="4857" y="1952" width="67.5" height="22.5"/>
   <object id="701" x="4899" y="1203" width="25" height="744"/>
@@ -4335,7 +4335,7 @@
   <object id="1133" x="1935.25" y="2341.25" width="416" height="58.5"/>
   <object id="1134" x="1616" y="2085.75" width="352" height="58.5"/>
  </objectgroup>
- <objectgroup id="5" name="Transition" locked="1">
+ <objectgroup id="5" name="Transition" visible="0" locked="1">
   <object id="17" x="4421.09" y="3770.75" width="54.6667" height="3.83333">
    <properties>
     <property name="pos" value="world"/>

@@ -20,7 +20,10 @@ struct Cell {
 	float posX;
 	float posY;
 	int currentFrame;
-	Sorting sortKey;
+	//Sorting sortKey;
+	float centerX;
+	float centerY;
+	float height;
 };
 
 struct AnimatedCell {
@@ -33,7 +36,13 @@ struct AnimatedCell {
 	float updateTime;
 };
 
+struct PointVertex {
+	Vector3f position;
+};
+
 class Tmx : public State, public MouseEventListener, public KeyboardEventListener {
+
+	static const int MAX_PARTICLES = 1000;
 
 public:
 
@@ -55,21 +64,30 @@ private:
 
 	void renderUi();
 	void loadMap(const std::string& path);
+	void updatePoints();
 
 	bool m_initUi = true;
 	bool m_drawUi = false;
-
+	bool m_drawCenter = false;
 	Camera m_camera;
 
-	
 	std::vector<unsigned> m_tileTextures;
 	std::vector<std::pair<int, unsigned int>**> m_layers;
-	std::vector<Cell> m_cells;
 	std::vector<AnimatedCell> m_animatedCells;
+	std::vector<Cell> m_cellsBackground;
+	std::vector<Cell> m_cellsMain;
+	std::vector<Cell> m_cellsTop;
+	std::vector<int> m_indexArray;
 
-	unsigned int m_atlas, m_atlasHunter;
+	unsigned int m_atlasWorld;
+	unsigned int m_vao, m_vbo;
 	float m_mapHeight, m_tileHeight, m_tileWidth;
-
+	float m_movingSpeed;
 	float m_viewWidth;
 	float m_viewHeight;
+	PointVertex* pointBatch;
+	PointVertex* pointBatchPtr;
+	uint32_t m_pointCount = 0;
+
+	size_t m_playerIndex;
 };
