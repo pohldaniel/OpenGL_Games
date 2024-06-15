@@ -32,6 +32,7 @@ Batchrenderer& Batchrenderer::Get() {
 Batchrenderer::~Batchrenderer() {
 	delete[] buffer;
 	buffer = nullptr;	
+	bufferPtr = nullptr;
 
 	if (m_vao) {
 		glDeleteVertexArrays(1, &m_vao);

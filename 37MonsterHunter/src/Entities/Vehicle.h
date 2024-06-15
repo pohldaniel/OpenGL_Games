@@ -1,7 +1,5 @@
 #pragma once
-#include <engine/Texture.h>
-#include <engine/Camera.h>
-#include <engine/Material.h>
+
 #include <engine/scene/SequenceNode.h>
 #include <Entities/Entity.h>
 #include <Physics/VehiclePhysics.h>

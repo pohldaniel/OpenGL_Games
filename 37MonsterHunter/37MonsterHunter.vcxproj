@@ -216,10 +216,13 @@
     <ClCompile Include="src\Animation\Animation.cpp" />
     <ClCompile Include="src\Animation\AnimationController.cpp" />
     <ClCompile Include="src\Animation\AnimationState.cpp" />
+    <ClCompile Include="src\Entities\Character.cpp" />
     <ClCompile Include="src\Entities\Entity.cpp" />
     <ClCompile Include="src\Entities\MeshEntity.cpp" />
+    <ClCompile Include="src\Entities\Player.cpp" />
     <ClCompile Include="src\Entities\ShapeEntity.cpp" />
     <ClCompile Include="src\Entities\Skybox.cpp" />
+    <ClCompile Include="src\Entities\SpriteEntity.cpp" />
     <ClCompile Include="src\Entities\Vehicle.cpp" />
     <ClCompile Include="src\LoadingManager.cpp" />
     <ClCompile Include="src\States\Controls.cpp" />
@@ -287,6 +290,7 @@
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\States\Menu.cpp" />
     <ClCompile Include="src\Utils\BinaryIO.cpp" />
+    <ClCompile Include="src\Zone.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine\animation\AssimpAnimatedModel.h" />
@@ -394,10 +398,13 @@
     <ClInclude Include="src\Animation\AnimationController.h" />
     <ClInclude Include="src\Animation\AnimationState.h" />
     <ClInclude Include="src\Application.h" />
+    <ClInclude Include="src\Entities\Character.h" />
     <ClInclude Include="src\Entities\Entity.h" />
     <ClInclude Include="src\Entities\MeshEntity.h" />
+    <ClInclude Include="src\Entities\Player.h" />
     <ClInclude Include="src\Entities\ShapeEntity.h" />
     <ClInclude Include="src\Entities\Skybox.h" />
+    <ClInclude Include="src\Entities\SpriteEntity.h" />
     <ClInclude Include="src\Entities\Vehicle.h" />
     <ClInclude Include="src\Globals.h" />
     <ClInclude Include="src\LoadingManager.h" />
@@ -423,6 +430,7 @@
     <ClInclude Include="Miniball\Miniball.h" />
     <ClInclude Include="src\States\Menu.h" />
     <ClInclude Include="src\Utils\BinaryIO.h" />
+    <ClInclude Include="src\Zone.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
