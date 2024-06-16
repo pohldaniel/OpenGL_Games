@@ -183,8 +183,8 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
- <objectgroup id="3" name="Entities" visible="0" locked="1">
-  <object id="12" name="Player" x="4223.94" y="3661.26">
+ <objectgroup id="3" name="Entities">
+  <object id="12" name="Player" x="4446.97" y="3912.65">
    <properties>
     <property name="direction" value="down"/>
     <property name="pos" value="house"/>
@@ -1715,7 +1715,7 @@
    </properties>
   </object>
  </objectgroup>
- <objectgroup id="6" name="Monsters">
+ <objectgroup id="6" name="Monsters" visible="0">
   <object id="34" gid="240" x="4096" y="4096" width="64" height="64">
    <properties>
     <property name="biome" value="forest"/>
@@ -3873,7 +3873,7 @@
    </properties>
   </object>
  </objectgroup>
- <objectgroup id="2" name="Objects" visible="0" locked="1">
+ <objectgroup id="2" name="Objects">
   <object id="1" gid="211" x="4352" y="3776" width="320" height="320"/>
   <object id="2" gid="225" x="3455.33" y="3783.33" width="128" height="192"/>
   <object id="3" gid="225" x="3264" y="3712" width="128" height="192"/>
@@ -4147,7 +4147,7 @@
   <object id="1078" gid="227" x="4623" y="2089" width="64" height="128"/>
   <object id="1079" gid="226" x="4678" y="2170" width="128" height="192"/>
  </objectgroup>
- <objectgroup id="12" name="Collisions" visible="0" locked="1">
+ <objectgroup id="12" name="Collisions" locked="1">
   <object id="211" x="4832.33" y="1976.5" width="33.3333" height="647.5"/>
   <object id="700" x="4857" y="1952" width="67.5" height="22.5"/>
   <object id="701" x="4899" y="1203" width="25" height="744"/>
@@ -4373,7 +4373,7 @@
    </properties>
   </object>
  </objectgroup>
- <objectgroup id="10" name="Water" locked="1">
+ <objectgroup id="10" name="Water" visible="0" locked="1">
   <object id="136" x="0" y="5056" width="5504" height="320"/>
   <object id="161" x="3648" y="2496" width="192" height="192"/>
   <object id="162" x="3840" y="2560" width="512" height="128"/>

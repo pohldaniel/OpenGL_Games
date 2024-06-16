@@ -17,6 +17,7 @@ Zone::Zone(const Camera& camera) :
 	m_useCulling(true), 
 	m_drawScreenBorder(false),
 	m_drawCenter(false),
+	m_debugCollision(false),
 	m_borderDirty(true),
 	elapsedTime(0.0f), 
 	currentFrame(0), 
@@ -24,8 +25,6 @@ Zone::Zone(const Camera& camera) :
 	
 	loadZone("res/tmx/data/maps/world.tmx");
 	initDebug();
-
-	
 }
 
 Zone::~Zone() {
@@ -67,23 +66,31 @@ void Zone::update(float dt) {
 		animatedCell.currentFrame = currentFrame;
 	}
 
-	std::sort(m_visibleCellsMain.begin(), m_visibleCellsMain.end(), [&](const Cell& cell1, const Cell& cell2) {return cell1.centerY < cell2.centerY; });
+	std::sort(m_visibleCellsMain.begin(), m_visibleCellsMain.end(), [&](const CellShadow& cell1, const CellShadow& cell2) {return cell1.centerY < cell2.centerY; });
 }
 
 void Zone::draw() {
+	const std::vector<TextureRect>& rects = TileSetManager::Get().getTileSet("world").getTextureRects();
+	
 	for (auto& animatedCell : m_visibleCellsAni) {
-		const TextureRect& rect = TileSetManager::Get().getTileSet("world").getTextureRects()[animatedCell.currentFrame + animatedCell.startFrame];
+		const TextureRect& rect = rects[animatedCell.currentFrame + animatedCell.startFrame];
 		Batchrenderer::Get().addQuadAA(Vector4f(animatedCell.posX - camera.getPositionX(), m_mapHeight - 64.0f - animatedCell.posY - camera.getPositionY(), rect.width, rect.height), Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureWidth, rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), rect.frame);
 	}
 
 	for (auto& cell : m_visibleCellsBG) {
-		const TextureRect& rect = TileSetManager::Get().getTileSet("world").getTextureRects()[cell.currentFrame];
+		const TextureRect& rect = rects[cell.currentFrame];
 		Batchrenderer::Get().addQuadAA(Vector4f(cell.posX - camera.getPositionX(), m_mapHeight - 64.0f - cell.posY - camera.getPositionY(), rect.width, rect.height), Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureWidth, rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), rect.frame);
 	}
 
-	for (auto& cell : m_visibleCellsMain) {
-		const TextureRect& rect = TileSetManager::Get().getTileSet("world").getTextureRects()[cell.currentFrame];
+	for (const CellShadow& cell : m_visibleCellsMain) {
+		if (cell.hasShadow) {
+			const TextureRect& rect = rects[534];
+			Batchrenderer::Get().addQuadAA(Vector4f(cell.posX + 40.0f - camera.getPositionX(), m_mapHeight - cell.posY - camera.getPositionY(), rect.width, rect.height), Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureWidth, rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), rect.frame);
+		}
+
+		const TextureRect& rect = rects[cell.currentFrame];
 		Batchrenderer::Get().addQuadAA(Vector4f(cell.posX - camera.getPositionX(), m_mapHeight - cell.posY - camera.getPositionY(), rect.width, rect.height), Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureWidth, rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), rect.frame);
+		
 	}
 
 	Batchrenderer::Get().drawBuffer();
@@ -106,6 +113,18 @@ void Zone::draw() {
 
 		pointBatchPtr = pointBatch;
 		m_pointCount = 0;
+	}
+
+	if (m_debugCollision) {
+		const TextureRect& textureRect = rects[535];
+		for (const Rect& rect : m_collisionRects) {
+			Batchrenderer::Get().addQuadAA(Vector4f(rect.posX - camera.getPositionX(), m_mapHeight - rect.posY - camera.getPositionY(), rect.width, rect.height), Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), Vector4f(0.0f, 0.0f, 1.0f, 1.0f), textureRect.frame);
+		}
+
+		const CellShadow& player = getPlayer();
+		Batchrenderer::Get().addQuadAA(Vector4f(player.posX - camera.getPositionX(), m_mapHeight - player.posY  - camera.getPositionY(), 128.0f, player.height), Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), Vector4f(1.0f, 0.0f, 0.0f, 1.0f), textureRect.frame);
+
+		Batchrenderer::Get().drawBuffer();
 	}
 }
 
@@ -146,15 +165,14 @@ void Zone::loadZone(const std::string& path) {
 			}
 		}
 
-		unsigned int cutOff = m_cellsMain.size() - 1;
 		if (layer->getName() == "Objects") {
 			const tmx::ObjectGroup* objectLayer = dynamic_cast<const tmx::ObjectGroup*>(layer.get());
 			for (auto& object : objectLayer->getObjects()) {
 				if (object.getName() == "top") {
-					m_cellsMain.push_back({ object.getPosition().x, object.getPosition().y, static_cast<int>(object.getTileID() - 1u), object.getPosition().x + 0.5f * object.getAABB().width, object.getPosition().y - 0.5f * object.getAABB().height + m_mapHeight, object.getAABB().height });
-				}
-				else {
-					m_cellsMain.push_back({ object.getPosition().x, object.getPosition().y, static_cast<int>(object.getTileID() - 1u), object.getPosition().x + 0.5f * object.getAABB().width, object.getPosition().y - 0.5f * object.getAABB().height, object.getAABB().height });
+					m_cellsMain.push_back(CellShadow(object.getPosition().x, object.getPosition().y, static_cast<int>(object.getTileID() - 1u), object.getPosition().x + 0.5f * object.getAABB().width, object.getPosition().y - 0.5f * object.getAABB().height + m_mapHeight, object.getAABB().height, false));
+				}else {
+					m_cellsMain.push_back(CellShadow(object.getPosition().x, object.getPosition().y, static_cast<int>(object.getTileID() - 1u), object.getPosition().x + 0.5f * object.getAABB().width, object.getPosition().y - 0.5f * object.getAABB().height, object.getAABB().height, false));
+					m_collisionRects.push_back({ object.getPosition().x , object.getPosition().y,  object.getAABB().width, object.getAABB().height });
 				}
 			}
 		}
@@ -163,10 +181,9 @@ void Zone::loadZone(const std::string& path) {
 			const tmx::ObjectGroup* objectLayer = dynamic_cast<const tmx::ObjectGroup*>(layer.get());
 			for (auto& object : objectLayer->getObjects()) {
 				if (object.getProperties()[0].getStringValue() == "sand") {
-					m_cellsMain.push_back({ object.getPosition().x, object.getPosition().y, static_cast<int>(object.getTileID() - 1u) , object.getPosition().x + 0.5f * object.getAABB().width, (object.getPosition().y - 0.5f * object.getAABB().height) - m_mapHeight, object.getAABB().height });
-				}
-				else {
-					m_cellsMain.push_back({ object.getPosition().x, object.getPosition().y, static_cast<int>(object.getTileID() - 1u) , object.getPosition().x + 0.5f * object.getAABB().width, (object.getPosition().y - 0.5f * object.getAABB().height) - 40.0f, object.getAABB().height });
+					m_cellsMain.push_back(CellShadow(object.getPosition().x, object.getPosition().y, static_cast<int>(object.getTileID() - 1u) , object.getPosition().x + 0.5f * object.getAABB().width, (object.getPosition().y - 0.5f * object.getAABB().height) - m_mapHeight, object.getAABB().height, false));
+				}else {
+					m_cellsMain.push_back(CellShadow(object.getPosition().x, object.getPosition().y, static_cast<int>(object.getTileID() - 1u) , object.getPosition().x + 0.5f * object.getAABB().width, (object.getPosition().y - 0.5f * object.getAABB().height) - 40.0f, object.getAABB().height, false));
 				}
 			}
 		}
@@ -175,19 +192,24 @@ void Zone::loadZone(const std::string& path) {
 			const tmx::ObjectGroup* objectLayer = dynamic_cast<const tmx::ObjectGroup*>(layer.get());
 			for (auto& object : objectLayer->getObjects()) {
 				if (object.getName() == "Player" && object.getProperties()[1].getStringValue() == "house") {
-					m_cellsMain.push_back({ object.getPosition().x, object.getPosition().y, 534, object.getPosition().x + 64.0f ,  object.getPosition().y - 64.0f, 128.0f });
+					m_cellsMain.push_back(CellShadow(object.getPosition().x - 64.0f, object.getPosition().y, 536, object.getPosition().x ,  object.getPosition().y - 64.0f, 128.0f, true));
 					m_playerIndex = m_cellsMain.size() - 1;
 				}
 
 				if (object.getName() == "Character") {
-					if (object.getProperties()[3].getStringValue() == "straw")
-						m_cellsMain.push_back({ object.getPosition().x, object.getPosition().y, 630, object.getPosition().x + 64.0f ,  object.getPosition().y - 64.0f, 128.0f });
-					else if (object.getProperties()[3].getStringValue() == "blond")
-						m_cellsMain.push_back({ object.getPosition().x, object.getPosition().y, 550, object.getPosition().x + 64.0f ,  object.getPosition().y - 64.0f, 128.0f });
-					else if (object.getProperties()[3].getStringValue() == "hat_girl")
-						m_cellsMain.push_back({ object.getPosition().x, object.getPosition().y, 598, object.getPosition().x + 64.0f ,  object.getPosition().y - 64.0f, 128.0f });
-					else if (object.getProperties()[3].getStringValue() == "young_guy")
-						m_cellsMain.push_back({ object.getPosition().x, object.getPosition().y, 678, object.getPosition().x + 64.0f ,  object.getPosition().y - 64.0f, 128.0f });
+					if (object.getProperties()[3].getStringValue() == "straw") {
+						m_cellsMain.push_back(CellShadow(object.getPosition().x - 64.0f, object.getPosition().y, 632, object.getPosition().x, object.getPosition().y - 64.0f, 128.0f, true));
+						m_collisionRects.push_back({ (object.getPosition().x - 64.0f) + 32.0f, (object.getPosition().y) - 30.0f, (128.0f) - 64.0f, (128.0f) - 60.0f });
+					}else if (object.getProperties()[3].getStringValue() == "blond") {
+						m_cellsMain.push_back(CellShadow(object.getPosition().x - 64.0f, object.getPosition().y, 552, object.getPosition().x,  object.getPosition().y - 64.0f, 128.0f, true));
+						m_collisionRects.push_back({ (object.getPosition().x - 64.0f) + 32.0f, (object.getPosition().y) - 30.0f, (128.0f) - 64.0f, (128.0f) - 60.0f });
+					}else if (object.getProperties()[3].getStringValue() == "hat_girl") {
+						m_cellsMain.push_back(CellShadow(object.getPosition().x - 64.0f, object.getPosition().y, 600, object.getPosition().x,  object.getPosition().y - 64.0f, 128.0f, true));
+						m_collisionRects.push_back({ (object.getPosition().x - 64.0f) + 32.0f, (object.getPosition().y) - 30.0f, (128.0f) - 64.0f, (128.0f) - 60.0f });
+					}else if (object.getProperties()[3].getStringValue() == "young_guy") {
+						m_cellsMain.push_back(CellShadow(object.getPosition().x - 64.0f, object.getPosition().y, 680, object.getPosition().x ,  object.getPosition().y - 64.0f, 128.0f, true));
+						m_collisionRects.push_back({ (object.getPosition().x - 64.0f) + 32.0f, (object.getPosition().y) - 30.0f, (128.0f) - 64.0f, (128.0f) - 60.0f });
+					}
 				}
 			}
 		}
@@ -350,10 +372,17 @@ void Zone::loadZone(const std::string& path) {
 				}
 			}
 		}
+
+		if (layer->getName() == "Collisions") {
+			const tmx::ObjectGroup* objectLayer = dynamic_cast<const tmx::ObjectGroup*>(layer.get());
+			for (auto& object : objectLayer->getObjects()) {
+				m_collisionRects.push_back({ object.getPosition().x , object.getPosition().y + object.getAABB().height,  object.getAABB().width, object.getAABB().height });
+			}
+		}
 	}
 }
 
-Cell& Zone::getPlayer() {
+CellShadow& Zone::getPlayer() {
 	return m_cellsMain[m_playerIndex];
 }
 
@@ -446,7 +475,7 @@ void Zone::culling() {
 
 	m_visibleCellsMain.clear();
 	const std::vector<TextureRect>& rects = TileSetManager::Get().getTileSet("world").getTextureRects();
-	for (const Cell& cell : m_cellsMain) {
+	for (const CellShadow& cell : m_cellsMain) {
 		const TextureRect& rect = rects[cell.currentFrame];
 		if (isRectOnScreen(cell.posX, cell.posY - rect.height, rect.width, rect.height) || !m_useCulling) {
 			m_visibleCellsMain.push_back(cell);
@@ -494,6 +523,10 @@ void Zone::setDrawCenter(bool drawCenter) {
 	m_drawCenter = drawCenter;
 }
 
+void Zone::setDebugCollision(bool debugCollision) {
+	m_debugCollision = debugCollision;
+}
+
 float Zone::getMapHeight() {
 	return m_mapHeight;
 }
@@ -503,4 +536,8 @@ void Zone::resize() {
 	m_right = camera.getRightOrthographic();
 	m_bottom = camera.getBottomOrthographic();
 	m_top = camera.getTopOrthographic();
+}
+
+const std::vector<Rect>& Zone::getCollisionRects() {
+	return m_collisionRects;
 }

@@ -94,6 +94,8 @@ Tmx::Tmx(StateMachine& machine) : State(machine, States::TMX), m_zone(m_camera){
 	TileSetManager::Get().getTileSet("world").loadTileCpu("res/tmx/graphics/tilesets/water/3.png", false, true, false);
 
 	TileSetManager::Get().getTileSet("world").loadTileSetCpu("res/tmx/graphics/tilesets/coast_ordered.png", false, 64.0f, 64.0f, true, false);
+	TileSetManager::Get().getTileSet("world").loadTileCpu("res/tmx/graphics/other/shadow.png", false, true, false);
+	TileSetManager::Get().getTileSet("world").loadTileCpu("res/tmx/graphics/other/empty.png", false, true, false);
 
 	TileSetManager::Get().getTileSet("world").loadTileSetCpu("res/tmx/graphics/characters/player.png", false, 128.0f, 128.0f, true, false);
 	TileSetManager::Get().getTileSet("world").loadTileSetCpu("res/tmx/graphics/characters/blond.png", false, 128.0f, 128.0f, true, false);
@@ -111,14 +113,16 @@ Tmx::Tmx(StateMachine& machine) : State(machine, States::TMX), m_zone(m_camera){
 	
 	m_mapHeight = m_zone.getMapHeight();
 
-	m_camera.lookAt(Vector3f(4223.94f - m_viewWidth * 0.5f, m_mapHeight - 3661.26f - 0.5f * m_viewHeight, 0.0f), Vector3f(4223.94f - m_viewWidth * 0.5f, m_mapHeight - 3661.26f - 0.5f * m_viewHeight, 0.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
-	//m_camera.lookAt(Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 0.0f, 0.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
+	CellShadow& cell = m_zone.getPlayer();
+	m_camera.lookAt(Vector3f(cell.posX + 64.0f - m_viewWidth * 0.5f, m_mapHeight - (cell.posY - 64.0f) - 0.5f * m_viewHeight, 0.0f), Vector3f(cell.posX + 64.0f - m_viewWidth * 0.5f, m_mapHeight - (cell.posY - 64.0f) - 0.5f * m_viewHeight, 0.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
 
 
 	auto shader = Globals::shaderManager.getAssetPointer("batch");
 	shader->use();
 	shader->loadMatrix("u_transform", m_camera.getOrthographicMatrix());
 	shader->unuse();
+
+	m_zone.setDebugCollision(m_debugCollision);
 }
 
 Tmx::~Tmx() {
@@ -128,6 +132,10 @@ Tmx::~Tmx() {
 
 void Tmx::fixedUpdate() {
 
+}
+
+bool hasCollision(float r1_l, float r1_t, float r1_r, float r1_b, float r2_l, float r2_t, float r2_r,  float r2_b) {
+	return (r2_b > r1_t) && (r2_t < r1_b) && (r1_l < r2_r) && (r2_l < r1_r);
 }
 
 void Tmx::update() {
@@ -181,14 +189,42 @@ void Tmx::update() {
 		}
 
 		if (move) {
-			m_camera.move(direction * m_dt);
-			Cell& cell = m_zone.getPlayer();
+			CellShadow& cell = m_zone.getPlayer();
 
-			cell.posX += direction[0] * m_dt * m_movingSpeed;
+			cell.posX += direction[0] * m_dt * m_movingSpeed;	
+			Rect playerRect = { cell.posX , cell.posY  , 128.0f, 128.0f };
+			const std::vector<Rect>& collisionRects = m_zone.getCollisionRects();
+			for (const Rect& rect : collisionRects) {
+				if (hasCollision(rect.posX, rect.posY - rect.height, rect.posX + rect.width, rect.posY , playerRect.posX, playerRect.posY - playerRect.height, playerRect.posX + playerRect.width, playerRect.posY)) {
+					
+					if (direction[0] > 0) {
+						cell.posX = rect.posX - playerRect.width;
+					}
+
+					if (direction[0] < 0) {
+						cell.posX = rect.posX + rect.width;;
+					}
+				}
+			}
+
 			cell.posY -= direction[1] * m_dt * m_movingSpeed;
+			playerRect = { cell.posX , cell.posY  , 128.0f, 128.0f };		
+			for (const Rect& rect : collisionRects) {
+				if (hasCollision(rect.posX, rect.posY - rect.height, rect.posX + rect.width, rect.posY, playerRect.posX, playerRect.posY - playerRect.height, playerRect.posX + playerRect.width, playerRect.posY)) {					
+					if (direction[1] < 0) {
+						cell.posY = rect.posY - rect.height;
+					}
+
+					if (direction[1] > 0) {
+						cell.posY = rect.posY + playerRect.height;
+					}
+
+				}
+			}
 
 			cell.centerX = cell.posX + 64.0f;
 			cell.centerY = cell.posY - 64.0f;
+			m_camera.setPosition(cell.centerX - m_viewWidth * 0.5f, m_mapHeight - cell.centerY - 0.5f * m_viewHeight, 0.0f);
 		}
 	}
 
@@ -308,6 +344,9 @@ void Tmx::renderUi() {
 
 	if (ImGui::SliderFloat("Screen Border", &m_screeBorder, -5.0f, 450.0f)) {
 		m_zone.setScreeBorder(m_screeBorder);
+	}
+	if (ImGui::Checkbox("Debug Collision", &m_debugCollision)) {
+		m_zone.setDebugCollision(m_debugCollision);
 	}
 	ImGui::End();
 

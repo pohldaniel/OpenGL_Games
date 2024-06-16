@@ -13,6 +13,26 @@ struct Cell {
 	float height;
 };
 
+//Objects
+//Entitis
+//Collision Layer
+
+struct CellShadow : public Cell {
+
+	CellShadow(float posX, float posY, int currentFrame, float centerX, float centerY, float height, bool hasShadow):
+		posX(posX), posY(posY), currentFrame(currentFrame), centerX(centerX), centerY(centerY), height(height), hasShadow(hasShadow){
+
+	}
+
+	float posX;
+	float posY;
+	int currentFrame;
+	float centerX;
+	float centerY;
+	float height;
+	bool hasShadow;
+};
+
 struct AnimatedCell {
 	float posX;
 	float posY;
@@ -38,13 +58,15 @@ public:
 	void loadZone(const std::string& path);
 	void initDebug();
 	void updateBorder();
-	Cell& getPlayer();
+	CellShadow& getPlayer();
+	const std::vector<Rect>& getCollisionRects();
 	float getMapHeight();
 
 	void setUseCulling(bool useCulling);
 	void setScreeBorder(float screeBorder);
 	void setDrawScreenBorder(bool drawScreenBorder);
 	void setDrawCenter(bool drawCenter);
+	void setDebugCollision(bool debugCollision);
 
 private:
 
@@ -58,16 +80,18 @@ private:
 	std::vector<std::pair<int, unsigned int>**> m_layers;
 	std::vector<AnimatedCell> m_animatedCells;
 	std::vector<Cell> m_cellsBackground;
-	std::vector<Cell> m_cellsMain;
+	std::vector<CellShadow> m_cellsMain;
 
 	std::vector<AnimatedCell> m_visibleCellsAni;
 	std::vector<Cell> m_visibleCellsBG;
-	std::vector<Cell> m_visibleCellsMain;
+	std::vector<CellShadow> m_visibleCellsMain;
+
+	std::vector<Rect> m_collisionRects;
 
 	float m_mapHeight, m_tileHeight, m_tileWidth;
 	float m_left, m_right, m_bottom, m_top;
 	float m_screeBorder;
-	bool m_useCulling, m_drawScreenBorder, m_drawCenter;
+	bool m_useCulling, m_drawScreenBorder, m_drawCenter, m_debugCollision;
 	bool m_borderDirty;
 	std::array<Vector2f, 4> m_cullingVertices;
 	size_t m_playerIndex, m_cols, m_rows;
