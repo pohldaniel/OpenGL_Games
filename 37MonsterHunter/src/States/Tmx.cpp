@@ -135,6 +135,7 @@ void Tmx::fixedUpdate() {
 }
 
 bool hasCollision(float r1_l, float r1_t, float r1_r, float r1_b, float r2_l, float r2_t, float r2_r,  float r2_b) {
+	//std::cout << r1_b << "  " << r1_t << "  " << r2_b << "  " << r2_t << std::endl;
 	return (r2_b > r1_t) && (r2_t < r1_b) && (r1_l < r2_r) && (r2_l < r1_r);
 }
 
@@ -191,32 +192,33 @@ void Tmx::update() {
 		if (move) {
 			CellShadow& cell = m_zone.getPlayer();
 
-			cell.posX += direction[0] * m_dt * m_movingSpeed;	
-			Rect playerRect = { cell.posX , cell.posY  , 128.0f, 128.0f };
+			cell.posX += direction[0] * m_dt * m_movingSpeed;
+			//cell.posY -= direction[1] * m_dt * m_movingSpeed;
+			Rect playerRect = { cell.posX + 32.0f, cell.posY - (128.0f -30.0f) , 128.0f - 64.0f, 128.0f - 60.0f};
 			const std::vector<Rect>& collisionRects = m_zone.getCollisionRects();
 			for (const Rect& rect : collisionRects) {
-				if (hasCollision(rect.posX, rect.posY - rect.height, rect.posX + rect.width, rect.posY , playerRect.posX, playerRect.posY - playerRect.height, playerRect.posX + playerRect.width, playerRect.posY)) {
-					
+				if (hasCollision(rect.posX, rect.posY, rect.posX + rect.width, rect.posY + rect.height, playerRect.posX, playerRect.posY, playerRect.posX + playerRect.width, playerRect.posY + playerRect.height)) {
+
 					if (direction[0] > 0) {
-						cell.posX = rect.posX - playerRect.width;
+						cell.posX = rect.posX - (playerRect.width + 32.0f);
 					}
 
 					if (direction[0] < 0) {
-						cell.posX = rect.posX + rect.width;;
+						cell.posX = rect.posX + rect.width - 32.0f;
 					}
 				}
 			}
 
 			cell.posY -= direction[1] * m_dt * m_movingSpeed;
-			playerRect = { cell.posX , cell.posY  , 128.0f, 128.0f };		
+			playerRect = { cell.posX + 32.0f, cell.posY - (128.0f -30.0f) , 128.0f - 64.0f, 128.0f - 60.0f};
 			for (const Rect& rect : collisionRects) {
-				if (hasCollision(rect.posX, rect.posY - rect.height, rect.posX + rect.width, rect.posY, playerRect.posX, playerRect.posY - playerRect.height, playerRect.posX + playerRect.width, playerRect.posY)) {					
+				if (hasCollision(rect.posX, rect.posY, rect.posX + rect.width, rect.posY + rect.height, playerRect.posX, playerRect.posY , playerRect.posX + playerRect.width, playerRect.posY + playerRect.height)) {
 					if (direction[1] < 0) {
-						cell.posY = rect.posY - rect.height;
+						cell.posY = rect.posY + 30.0f;
 					}
 
 					if (direction[1] > 0) {
-						cell.posY = rect.posY + playerRect.height;
+						cell.posY = rect.posY + rect.height + 98.0f;
 					}
 
 				}

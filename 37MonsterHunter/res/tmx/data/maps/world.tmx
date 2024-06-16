@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.8" tiledversion="1.8.4" orientation="orthogonal" renderorder="right-down" width="86" height="86" tilewidth="64" tileheight="64" infinite="0" nextlayerid="14" nextobjectid="1155">
+<map version="1.8" tiledversion="1.8.4" orientation="orthogonal" renderorder="right-down" width="86" height="86" tilewidth="64" tileheight="64" infinite="0" nextlayerid="14" nextobjectid="1157">
  <tileset firstgid="1" source="../tilesets/world.tsx"/>
  <tileset firstgid="211" source="../tilesets/objects.tsx"/>
  <tileset firstgid="240" source="../tilesets/Grass.tsx"/>
@@ -4147,7 +4147,7 @@
   <object id="1078" gid="227" x="4623" y="2089" width="64" height="128"/>
   <object id="1079" gid="226" x="4678" y="2170" width="128" height="192"/>
  </objectgroup>
- <objectgroup id="12" name="Collisions" locked="1">
+ <objectgroup id="12" name="Collisions">
   <object id="211" x="4832.33" y="1976.5" width="33.3333" height="647.5"/>
   <object id="700" x="4857" y="1952" width="67.5" height="22.5"/>
   <object id="701" x="4899" y="1203" width="25" height="744"/>
@@ -4334,6 +4334,8 @@
   <object id="1132" x="4097.25" y="3299.25" width="365.5" height="58.5"/>
   <object id="1133" x="1935.25" y="2341.25" width="416" height="58.5"/>
   <object id="1134" x="1616" y="2085.75" width="352" height="58.5"/>
+  <object id="1155" x="2792.33" y="2927.42" width="82" height="30.334"/>
+  <object id="1156" x="2950.18" y="2933.48" width="111.758" height="30"/>
  </objectgroup>
  <objectgroup id="5" name="Transition" visible="0" locked="1">
   <object id="17" x="4421.09" y="3770.75" width="54.6667" height="3.83333">

@@ -118,11 +118,13 @@ void Zone::draw() {
 	if (m_debugCollision) {
 		const TextureRect& textureRect = rects[535];
 		for (const Rect& rect : m_collisionRects) {
-			Batchrenderer::Get().addQuadAA(Vector4f(rect.posX - camera.getPositionX(), m_mapHeight - rect.posY - camera.getPositionY(), rect.width, rect.height), Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), Vector4f(0.0f, 0.0f, 1.0f, 1.0f), textureRect.frame);
+			Batchrenderer::Get().addQuadAA(Vector4f(rect.posX - camera.getPositionX(), m_mapHeight - (rect.posY + rect.height) - camera.getPositionY(), rect.width, rect.height), Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), Vector4f(0.0f, 0.0f, 1.0f, 1.0f), textureRect.frame);
 		}
 
+		//m_collisionRects.push_back({ (object.getPosition().x - 64.0f) + 32.0f, (object.getPosition().y) - 30.0f, (128.0f) - 64.0f, (128.0f) - 60.0f });
+
 		const CellShadow& player = getPlayer();
-		Batchrenderer::Get().addQuadAA(Vector4f(player.posX - camera.getPositionX(), m_mapHeight - player.posY  - camera.getPositionY(), 128.0f, player.height), Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), Vector4f(1.0f, 0.0f, 0.0f, 1.0f), textureRect.frame);
+		Batchrenderer::Get().addQuadAA(Vector4f(player.posX + 32.0f - camera.getPositionX(), m_mapHeight - (player.posY - 30.0f) - camera.getPositionY(), 128.0f - 64.0f, player.height - 60.0f), Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), Vector4f(1.0f, 0.0f, 0.0f, 1.0f), textureRect.frame);
 
 		Batchrenderer::Get().drawBuffer();
 	}
@@ -172,7 +174,7 @@ void Zone::loadZone(const std::string& path) {
 					m_cellsMain.push_back(CellShadow(object.getPosition().x, object.getPosition().y, static_cast<int>(object.getTileID() - 1u), object.getPosition().x + 0.5f * object.getAABB().width, object.getPosition().y - 0.5f * object.getAABB().height + m_mapHeight, object.getAABB().height, false));
 				}else {
 					m_cellsMain.push_back(CellShadow(object.getPosition().x, object.getPosition().y, static_cast<int>(object.getTileID() - 1u), object.getPosition().x + 0.5f * object.getAABB().width, object.getPosition().y - 0.5f * object.getAABB().height, object.getAABB().height, false));
-					m_collisionRects.push_back({ object.getPosition().x , object.getPosition().y,  object.getAABB().width, object.getAABB().height });
+					m_collisionRects.push_back({ object.getPosition().x , object.getPosition().y - object.getAABB().height + 0.3f *object.getAABB().height,  object.getAABB().width, object.getAABB().height * 0.4f });
 				}
 			}
 		}
@@ -199,16 +201,16 @@ void Zone::loadZone(const std::string& path) {
 				if (object.getName() == "Character") {
 					if (object.getProperties()[3].getStringValue() == "straw") {
 						m_cellsMain.push_back(CellShadow(object.getPosition().x - 64.0f, object.getPosition().y, 632, object.getPosition().x, object.getPosition().y - 64.0f, 128.0f, true));
-						m_collisionRects.push_back({ (object.getPosition().x - 64.0f) + 32.0f, (object.getPosition().y) - 30.0f, (128.0f) - 64.0f, (128.0f) - 60.0f });
+						m_collisionRects.push_back({ (object.getPosition().x - 64.0f) + 32.0f, (object.getPosition().y) - (128.0f - 30.0f), (128.0f) - 64.0f, (128.0f) - 60.0f });
 					}else if (object.getProperties()[3].getStringValue() == "blond") {
 						m_cellsMain.push_back(CellShadow(object.getPosition().x - 64.0f, object.getPosition().y, 552, object.getPosition().x,  object.getPosition().y - 64.0f, 128.0f, true));
-						m_collisionRects.push_back({ (object.getPosition().x - 64.0f) + 32.0f, (object.getPosition().y) - 30.0f, (128.0f) - 64.0f, (128.0f) - 60.0f });
+						m_collisionRects.push_back({ (object.getPosition().x - 64.0f) + 32.0f, (object.getPosition().y) - (128.0f - 30.0f), (128.0f) - 64.0f, (128.0f) - 60.0f });
 					}else if (object.getProperties()[3].getStringValue() == "hat_girl") {
 						m_cellsMain.push_back(CellShadow(object.getPosition().x - 64.0f, object.getPosition().y, 600, object.getPosition().x,  object.getPosition().y - 64.0f, 128.0f, true));
-						m_collisionRects.push_back({ (object.getPosition().x - 64.0f) + 32.0f, (object.getPosition().y) - 30.0f, (128.0f) - 64.0f, (128.0f) - 60.0f });
+						m_collisionRects.push_back({ (object.getPosition().x - 64.0f) + 32.0f, (object.getPosition().y) - (128.0f - 30.0f), (128.0f) - 64.0f, (128.0f) - 60.0f });
 					}else if (object.getProperties()[3].getStringValue() == "young_guy") {
 						m_cellsMain.push_back(CellShadow(object.getPosition().x - 64.0f, object.getPosition().y, 680, object.getPosition().x ,  object.getPosition().y - 64.0f, 128.0f, true));
-						m_collisionRects.push_back({ (object.getPosition().x - 64.0f) + 32.0f, (object.getPosition().y) - 30.0f, (128.0f) - 64.0f, (128.0f) - 60.0f });
+						m_collisionRects.push_back({ (object.getPosition().x - 64.0f) + 32.0f, (object.getPosition().y) - (128.0f - 30.0f), (128.0f) - 64.0f, (128.0f) - 60.0f });
 					}
 				}
 			}
@@ -376,7 +378,7 @@ void Zone::loadZone(const std::string& path) {
 		if (layer->getName() == "Collisions") {
 			const tmx::ObjectGroup* objectLayer = dynamic_cast<const tmx::ObjectGroup*>(layer.get());
 			for (auto& object : objectLayer->getObjects()) {
-				m_collisionRects.push_back({ object.getPosition().x , object.getPosition().y + object.getAABB().height,  object.getAABB().width, object.getAABB().height });
+				m_collisionRects.push_back({ object.getPosition().x , object.getPosition().y,  object.getAABB().width, object.getAABB().height });
 			}
 		}
 	}

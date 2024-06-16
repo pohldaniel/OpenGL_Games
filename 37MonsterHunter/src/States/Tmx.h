@@ -37,7 +37,7 @@ private:
 	bool m_drawCenter = false;
 	bool m_useCulling = true;
 	bool m_drawScreenBorder = false;
-	bool m_debugCollision = true;
+	bool m_debugCollision = false;
 	Camera m_camera;
 
 	unsigned int m_atlasWorld;
