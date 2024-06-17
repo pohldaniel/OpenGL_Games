@@ -1,8 +1,13 @@
 #pragma once
 
 #include <vector>
+#include <array>
 #include <engine/Vector.h>
 #include <engine/Camera.h>
+#include <engine/Rect.h>
+
+class SpriteEntity;
+class Player;
 
 struct Cell {
 	float posX;
@@ -11,25 +16,20 @@ struct Cell {
 	float centerX;
 	float centerY;
 	float height;
+	bool visibile;
 };
-
-//Objects
-//Entitis
-//Collision Layer
 
 struct CellShadow : public Cell {
 
-	CellShadow(float posX, float posY, int currentFrame, float centerX, float centerY, float height, bool hasShadow):
-		posX(posX), posY(posY), currentFrame(currentFrame), centerX(centerX), centerY(centerY), height(height), hasShadow(hasShadow){
-
+	CellShadow(float _posX, float _posY, int _currentFrame, float _centerX, float _centerY, float _height, bool _visibile, bool hasShadow) : hasShadow(hasShadow) {
+		posX = _posX;
+		posY = _posY;
+		currentFrame = _currentFrame;
+		centerX = _centerX;
+		centerY = _centerY;
+		height = _height;
+		visibile = _visibile;
 	}
-
-	float posX;
-	float posY;
-	int currentFrame;
-	float centerX;
-	float centerY;
-	float height;
 	bool hasShadow;
 };
 
@@ -55,11 +55,13 @@ public:
 	void update(float dt);
 	void draw();
 	void resize();
-	void loadZone(const std::string& path);
+	void loadZone(const std::string& path, size_t capcity);
 	void initDebug();
 	void updateBorder();
-	CellShadow& getPlayer();
+	Player* getPlayer();
+
 	const std::vector<Rect>& getCollisionRects();
+	const std::vector<std::unique_ptr<SpriteEntity>>& getSpriteEntities();
 	float getMapHeight();
 
 	void setUseCulling(bool useCulling);
@@ -88,6 +90,8 @@ private:
 
 	std::vector<Rect> m_collisionRects;
 
+	std::vector<std::unique_ptr<SpriteEntity>> m_spriteEntities;
+	
 	float m_mapHeight, m_tileHeight, m_tileWidth;
 	float m_left, m_right, m_bottom, m_top;
 	float m_screeBorder;

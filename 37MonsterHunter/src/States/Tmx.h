@@ -5,9 +5,10 @@
 #include <engine/Camera.h>
 #include <engine/Background.h>
 #include <engine/Texture.h>
-#include <engine/Rect.h>
 #include <States/StateMachine.h>
 
+#include <Entities/SpriteEntity.h>
+#include <Entities/Player.h>
 #include "Zone.h"
 
 class Tmx : public State, public MouseEventListener, public KeyboardEventListener {

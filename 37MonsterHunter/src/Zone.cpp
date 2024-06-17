@@ -3,6 +3,10 @@
 #include <tmxlite/TileLayer.hpp>
 #include <engine/TileSet.h>
 #include <engine/Batchrenderer.h>
+
+#include <Entities/Player.h>
+#include <Entities/Character.h>
+#include <States/StateMachine.h>
 #include "Zone.h"
 #include "Globals.h"
 
@@ -23,7 +27,8 @@ Zone::Zone(const Camera& camera) :
 	currentFrame(0), 
 	frameCount(4){
 	
-	loadZone("res/tmx/data/maps/world.tmx");
+	
+	loadZone("res/tmx/data/maps/world.tmx", 588);
 	initDebug();
 }
 
@@ -116,21 +121,24 @@ void Zone::draw() {
 	}
 
 	if (m_debugCollision) {
+		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		const TextureRect& textureRect = rects[535];
 		for (const Rect& rect : m_collisionRects) {
 			Batchrenderer::Get().addQuadAA(Vector4f(rect.posX - camera.getPositionX(), m_mapHeight - (rect.posY + rect.height) - camera.getPositionY(), rect.width, rect.height), Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), Vector4f(0.0f, 0.0f, 1.0f, 1.0f), textureRect.frame);
 		}
 
-		//m_collisionRects.push_back({ (object.getPosition().x - 64.0f) + 32.0f, (object.getPosition().y) - 30.0f, (128.0f) - 64.0f, (128.0f) - 60.0f });
-
-		const CellShadow& player = getPlayer();
+		const CellShadow& player = m_cellsMain[m_playerIndex];
 		Batchrenderer::Get().addQuadAA(Vector4f(player.posX + 32.0f - camera.getPositionX(), m_mapHeight - (player.posY - 30.0f) - camera.getPositionY(), 128.0f - 64.0f, player.height - 60.0f), Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), Vector4f(1.0f, 0.0f, 0.0f, 1.0f), textureRect.frame);
 
 		Batchrenderer::Get().drawBuffer();
+		//glPolygonMode(GL_FRONT_AND_BACK, StateMachine::GetEnableWireframe() ? GL_LINE : GL_FILL);
 	}
 }
 
-void Zone::loadZone(const std::string& path) {
+void Zone::loadZone(const std::string& path, size_t capcity) {
+	//https://stackoverflow.com/questions/24697063/how-to-make-pointer-reference-on-element-in-vector
+	m_cellsMain.reserve(capcity);
+	
 	tmx::Map map;
 	map.load(path);
 
@@ -160,7 +168,7 @@ void Zone::loadZone(const std::string& path) {
 					auto idx = y * mapSize.x + x;
 					m_layers.back()[y][x].first = tileIDs[idx].ID - 1;
 					if (m_layers.back()[y][x].first != -1) {
-						m_cellsBackground.push_back({ static_cast<float>(x) * m_tileWidth, static_cast<float>(y) * m_tileHeight, m_layers.back()[y][x].first, static_cast<float>(x) * m_tileWidth + 0.5f * m_tileWidth, static_cast<float>(y) * m_tileHeight + 0.5f * m_tileHeight, m_tileHeight });
+						m_cellsBackground.push_back({ static_cast<float>(x) * m_tileWidth, static_cast<float>(y) * m_tileHeight, m_layers.back()[y][x].first, static_cast<float>(x) * m_tileWidth + 0.5f * m_tileWidth, static_cast<float>(y) * m_tileHeight + 0.5f * m_tileHeight, m_tileHeight, false });
 						m_layers.back()[y][x].second = static_cast<unsigned int>(m_cellsBackground.size() - 1);
 					}
 				}
@@ -171,9 +179,9 @@ void Zone::loadZone(const std::string& path) {
 			const tmx::ObjectGroup* objectLayer = dynamic_cast<const tmx::ObjectGroup*>(layer.get());
 			for (auto& object : objectLayer->getObjects()) {
 				if (object.getName() == "top") {
-					m_cellsMain.push_back(CellShadow(object.getPosition().x, object.getPosition().y, static_cast<int>(object.getTileID() - 1u), object.getPosition().x + 0.5f * object.getAABB().width, object.getPosition().y - 0.5f * object.getAABB().height + m_mapHeight, object.getAABB().height, false));
+					m_cellsMain.push_back(CellShadow(object.getPosition().x, object.getPosition().y, static_cast<int>(object.getTileID() - 1u), object.getPosition().x + 0.5f * object.getAABB().width, object.getPosition().y - 0.5f * object.getAABB().height + m_mapHeight, object.getAABB().height, false, false));
 				}else {
-					m_cellsMain.push_back(CellShadow(object.getPosition().x, object.getPosition().y, static_cast<int>(object.getTileID() - 1u), object.getPosition().x + 0.5f * object.getAABB().width, object.getPosition().y - 0.5f * object.getAABB().height, object.getAABB().height, false));
+					m_cellsMain.push_back(CellShadow(object.getPosition().x, object.getPosition().y, static_cast<int>(object.getTileID() - 1u), object.getPosition().x + 0.5f * object.getAABB().width, object.getPosition().y - 0.5f * object.getAABB().height, object.getAABB().height, false, false));
 					m_collisionRects.push_back({ object.getPosition().x , object.getPosition().y - object.getAABB().height + 0.3f *object.getAABB().height,  object.getAABB().width, object.getAABB().height * 0.4f });
 				}
 			}
@@ -183,9 +191,9 @@ void Zone::loadZone(const std::string& path) {
 			const tmx::ObjectGroup* objectLayer = dynamic_cast<const tmx::ObjectGroup*>(layer.get());
 			for (auto& object : objectLayer->getObjects()) {
 				if (object.getProperties()[0].getStringValue() == "sand") {
-					m_cellsMain.push_back(CellShadow(object.getPosition().x, object.getPosition().y, static_cast<int>(object.getTileID() - 1u) , object.getPosition().x + 0.5f * object.getAABB().width, (object.getPosition().y - 0.5f * object.getAABB().height) - m_mapHeight, object.getAABB().height, false));
+					m_cellsMain.push_back(CellShadow(object.getPosition().x, object.getPosition().y, static_cast<int>(object.getTileID() - 1u) , object.getPosition().x + 0.5f * object.getAABB().width, (object.getPosition().y - 0.5f * object.getAABB().height) - m_mapHeight, object.getAABB().height, false, false));
 				}else {
-					m_cellsMain.push_back(CellShadow(object.getPosition().x, object.getPosition().y, static_cast<int>(object.getTileID() - 1u) , object.getPosition().x + 0.5f * object.getAABB().width, (object.getPosition().y - 0.5f * object.getAABB().height) - 40.0f, object.getAABB().height, false));
+					m_cellsMain.push_back(CellShadow(object.getPosition().x, object.getPosition().y, static_cast<int>(object.getTileID() - 1u) , object.getPosition().x + 0.5f * object.getAABB().width, (object.getPosition().y - 0.5f * object.getAABB().height) - 40.0f, object.getAABB().height, false, false));
 				}
 			}
 		}
@@ -194,26 +202,33 @@ void Zone::loadZone(const std::string& path) {
 			const tmx::ObjectGroup* objectLayer = dynamic_cast<const tmx::ObjectGroup*>(layer.get());
 			for (auto& object : objectLayer->getObjects()) {
 				if (object.getName() == "Player" && object.getProperties()[1].getStringValue() == "house") {
-					m_cellsMain.push_back(CellShadow(object.getPosition().x - 64.0f, object.getPosition().y, 536, object.getPosition().x ,  object.getPosition().y - 64.0f, 128.0f, true));
+					m_cellsMain.push_back(CellShadow(object.getPosition().x - 64.0f, object.getPosition().y, 536, object.getPosition().x ,  object.getPosition().y - 64.0f, 128.0f, false, true));					
 					m_playerIndex = m_cellsMain.size() - 1;
 				}
 
 				if (object.getName() == "Character") {
 					if (object.getProperties()[3].getStringValue() == "straw") {
-						m_cellsMain.push_back(CellShadow(object.getPosition().x - 64.0f, object.getPosition().y, 632, object.getPosition().x, object.getPosition().y - 64.0f, 128.0f, true));
+						m_cellsMain.push_back(CellShadow(object.getPosition().x - 64.0f, object.getPosition().y, 632, object.getPosition().x, object.getPosition().y - 64.0f, 128.0f, false, true));
 						m_collisionRects.push_back({ (object.getPosition().x - 64.0f) + 32.0f, (object.getPosition().y) - (128.0f - 30.0f), (128.0f) - 64.0f, (128.0f) - 60.0f });
+						m_spriteEntities.push_back(std::make_unique<Character>(m_cellsMain.back()));
 					}else if (object.getProperties()[3].getStringValue() == "blond") {
-						m_cellsMain.push_back(CellShadow(object.getPosition().x - 64.0f, object.getPosition().y, 552, object.getPosition().x,  object.getPosition().y - 64.0f, 128.0f, true));
+						m_cellsMain.push_back(CellShadow(object.getPosition().x - 64.0f, object.getPosition().y, 552, object.getPosition().x,  object.getPosition().y - 64.0f, 128.0f, false, true));
 						m_collisionRects.push_back({ (object.getPosition().x - 64.0f) + 32.0f, (object.getPosition().y) - (128.0f - 30.0f), (128.0f) - 64.0f, (128.0f) - 60.0f });
+						m_spriteEntities.push_back(std::make_unique<Character>(m_cellsMain.back()));
 					}else if (object.getProperties()[3].getStringValue() == "hat_girl") {
-						m_cellsMain.push_back(CellShadow(object.getPosition().x - 64.0f, object.getPosition().y, 600, object.getPosition().x,  object.getPosition().y - 64.0f, 128.0f, true));
+						m_cellsMain.push_back(CellShadow(object.getPosition().x - 64.0f, object.getPosition().y, 600, object.getPosition().x,  object.getPosition().y - 64.0f, 128.0f, false, true));
 						m_collisionRects.push_back({ (object.getPosition().x - 64.0f) + 32.0f, (object.getPosition().y) - (128.0f - 30.0f), (128.0f) - 64.0f, (128.0f) - 60.0f });
+						m_spriteEntities.push_back(std::make_unique<Character>(m_cellsMain.back()));
 					}else if (object.getProperties()[3].getStringValue() == "young_guy") {
-						m_cellsMain.push_back(CellShadow(object.getPosition().x - 64.0f, object.getPosition().y, 680, object.getPosition().x ,  object.getPosition().y - 64.0f, 128.0f, true));
+						m_cellsMain.push_back(CellShadow(object.getPosition().x - 64.0f, object.getPosition().y, 680, object.getPosition().x ,  object.getPosition().y - 64.0f, 128.0f, false, true));
 						m_collisionRects.push_back({ (object.getPosition().x - 64.0f) + 32.0f, (object.getPosition().y) - (128.0f - 30.0f), (128.0f) - 64.0f, (128.0f) - 60.0f });
+						m_spriteEntities.push_back(std::make_unique<Character>(m_cellsMain.back()));
 					}
 				}
 			}
+
+			//IMPORTANT: the Collisions has to be loaded before the Entities
+			m_spriteEntities.push_back(std::make_unique<Player>(m_cellsMain[m_playerIndex], const_cast<Camera&>(camera), getCollisionRects()));
 		}
 
 		if (layer->getName() == "Water") {
@@ -384,8 +399,8 @@ void Zone::loadZone(const std::string& path) {
 	}
 }
 
-CellShadow& Zone::getPlayer() {
-	return m_cellsMain[m_playerIndex];
+Player* Zone::getPlayer() {
+	return static_cast<Player*>(m_spriteEntities.back().get());
 }
 
 void Zone::initDebug() {
@@ -477,9 +492,11 @@ void Zone::culling() {
 
 	m_visibleCellsMain.clear();
 	const std::vector<TextureRect>& rects = TileSetManager::Get().getTileSet("world").getTextureRects();
-	for (const CellShadow& cell : m_cellsMain) {
+	for (CellShadow& cell : m_cellsMain) {
+		cell.visibile = false;
 		const TextureRect& rect = rects[cell.currentFrame];
 		if (isRectOnScreen(cell.posX, cell.posY - rect.height, rect.width, rect.height) || !m_useCulling) {
+			cell.visibile = true;
 			m_visibleCellsMain.push_back(cell);
 		}
 	}
@@ -542,4 +559,8 @@ void Zone::resize() {
 
 const std::vector<Rect>& Zone::getCollisionRects() {
 	return m_collisionRects;
+}
+
+const std::vector<std::unique_ptr<SpriteEntity>>& Zone::getSpriteEntities() {
+	return m_spriteEntities;
 }

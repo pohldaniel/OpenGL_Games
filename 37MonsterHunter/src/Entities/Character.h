@@ -6,7 +6,7 @@ class Character : public SpriteEntity {
 
 public:
 
-	Character();
+	Character(Cell& cell);
 	virtual ~Character();
 
 	void update(float dt) override;
