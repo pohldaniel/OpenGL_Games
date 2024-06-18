@@ -27,12 +27,13 @@ public:
 protected:
 
 	void updateAnimation(float dt);
-	int getFrameOffset();
+	int getFrameOffset(ViewDirection viewDirection);
 
 	Cell& cell;
 	int m_startFrame;
 	float m_elapsedTime;
 	int m_frameCount;
 	ViewDirection m_viewDirection;
+	ViewDirection m_lastViewDirection;
 	Vector2f m_direction;
 };

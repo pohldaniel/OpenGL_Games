@@ -1,8 +1,10 @@
+#include <iostream>
 #include "SpriteEntity.h"
 
 SpriteEntity::SpriteEntity(Cell& cell, float elpasedTime, int framecount) : cell(cell), m_startFrame(cell.currentFrame), m_elapsedTime(elpasedTime), m_frameCount(framecount) {
 	m_direction.set(0.0f, 0.0f);
 	m_viewDirection = ViewDirection::NONE;
+	m_lastViewDirection = m_viewDirection;
 }
 
 SpriteEntity::~SpriteEntity() {
@@ -18,6 +20,11 @@ void SpriteEntity::setDirection(const Vector2f& direction) {
 }
 
 const ViewDirection& SpriteEntity::getViewDirection(){
+
+	if (m_viewDirection != ViewDirection::NONE) {
+		m_lastViewDirection = m_viewDirection;
+	}
+
 	if (m_direction[0] != 0.0f || m_direction[1] != 0.0f) {
 		if (m_direction[0] != 0.0f)
 			m_viewDirection = m_direction[0] > 0.0f ? ViewDirection::RIGHT : ViewDirection::LEFT;
@@ -30,8 +37,8 @@ const ViewDirection& SpriteEntity::getViewDirection(){
 	return m_viewDirection;
 }
 
-int SpriteEntity::getFrameOffset() {
-	switch (m_viewDirection){
+int SpriteEntity::getFrameOffset(ViewDirection viewDirection) {
+	switch (viewDirection){
 	case LEFT:
 		return 4;
 	case RIGHT:
@@ -50,12 +57,12 @@ int SpriteEntity::getFrameOffset() {
 void SpriteEntity::updateAnimation(float dt) {
 	const ViewDirection& direction = getViewDirection();
 	if (direction == ViewDirection::NONE) {
-		cell.currentFrame = m_startFrame;
+		cell.currentFrame = m_startFrame + getFrameOffset(m_lastViewDirection);
 		m_elapsedTime = 1.0f;
 		return;
 	}
 
-	int offset = m_startFrame + getFrameOffset();
+	int offset = m_startFrame + getFrameOffset(m_viewDirection);
 
 	m_elapsedTime += 6.0f * dt;
 	cell.currentFrame = offset + static_cast <int>(std::floor(m_elapsedTime));

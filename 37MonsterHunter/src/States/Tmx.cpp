@@ -1,4 +1,3 @@
-#include <numeric>
 #include <imgui.h>
 #include <imgui_impl_win32.h>
 #include <imgui_impl_opengl3.h>
@@ -13,117 +12,32 @@
 #include "Application.h"
 #include "Globals.h"
 
-Tmx::Tmx(StateMachine& machine) : State(machine, States::TMX), m_zone(m_camera){
-
-	m_viewWidth = 1280.0f;
-	m_viewHeight= 720.0f;
-	m_movingSpeed = 250.0f;
-	m_screeBorder = 0.0f;
+Tmx::Tmx(StateMachine& machine) : State(machine, States::TMX) {
 
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
 	EventDispatcher::AddMouseListener(this);
 
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
-	m_camera.orthographic(0.0f, m_viewWidth, 0.0f, m_viewHeight, -1.0f, 1.0f);
+	m_camera.orthographic(0.0f, 960.0f, 0.0f, 512.0f, -1.0f, 1.0f);
+	m_camera.lookAt(Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 0.0f, 0.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
 	m_camera.setRotationSpeed(0.1f);
-	m_camera.setMovingSpeed(m_movingSpeed);
+	m_camera.setMovingSpeed(2500.0f);
 
 	glClearColor(0.6f, 0.8f, 0.92f, 1.0f);
 	glClearDepth(1.0f);
 
-	/*TextureAtlasCreator::Get().init(1536u, 768u);
-	for (unsigned int x = 0; x < 24; x++) {
-		TileSetManager::Get().getTileSet("coast").loadTileCpu("res/tmx/graphics/tilesets/coast.png", false, x * 64u, 64u * 0u, 64u, 64u, false, false);
-		TileSetManager::Get().getTileSet("coast").loadTileCpu("res/tmx/graphics/tilesets/coast.png", false, x * 64u, 64u * 3u, 64u, 64u, false, false);
-		TileSetManager::Get().getTileSet("coast").loadTileCpu("res/tmx/graphics/tilesets/coast.png", false, x * 64u, 64u * 6u, 64u, 64u, false, false);
-		TileSetManager::Get().getTileSet("coast").loadTileCpu("res/tmx/graphics/tilesets/coast.png", false, x * 64u, 64u * 9u, 64u, 64u, false, false);
+	TileSetManager::Get().getTileSet("demo").loadTileSetCpu("res/tmx/images/tilemap/tileset.png", true, 64.0f, 64.0f, true, false);
+	TileSetManager::Get().getTileSet("demo").loadTileSetCpu("res/tmx/images/tilemap/tileset02.png", false, 32.0f, 32.0f, true, false);
+	TileSetManager::Get().getTileSet("demo").loadTileSetGpu();
+	m_atlas = TileSetManager::Get().getTileSet("demo").getAtlas();
+	//Spritesheet::Safe("tileset", m_atlas);
 
-		TileSetManager::Get().getTileSet("coast").loadTileCpu("res/tmx/graphics/tilesets/coast.png", false, x * 64u, 64u * 1u, 64u, 64u, false, false);
-		TileSetManager::Get().getTileSet("coast").loadTileCpu("res/tmx/graphics/tilesets/coast.png", false, x * 64u, 64u * 4u, 64u, 64u, false, false);
-		TileSetManager::Get().getTileSet("coast").loadTileCpu("res/tmx/graphics/tilesets/coast.png", false, x * 64u, 64u * 7u, 64u, 64u, false, false);
-		TileSetManager::Get().getTileSet("coast").loadTileCpu("res/tmx/graphics/tilesets/coast.png", false, x * 64u, 64u * 10u, 64u, 64u, false, false);
-
-		TileSetManager::Get().getTileSet("coast").loadTileCpu("res/tmx/graphics/tilesets/coast.png", false, x * 64u, 64u * 2u, 64u, 64u, false, false);
-		TileSetManager::Get().getTileSet("coast").loadTileCpu("res/tmx/graphics/tilesets/coast.png", false, x * 64u, 64u * 5u, 64u, 64u, false, false);
-		TileSetManager::Get().getTileSet("coast").loadTileCpu("res/tmx/graphics/tilesets/coast.png", false, x * 64u, 64u * 8u, 64u, 64u, false, false);
-		TileSetManager::Get().getTileSet("coast").loadTileCpu("res/tmx/graphics/tilesets/coast.png", false, x * 64u, 64u * 11u, 64u, 64u, false, false);
-	}
-	TileSetManager::Get().getTileSet("coast").loadTileSetGpu();
-	Spritesheet::Safe("res/tmx/graphics/tilesets/coast_ordered", TileSetManager::Get().getTileSet("coast").getAtlas());*/
-
-	TileSetManager::Get().getTileSet("world").loadTileSetCpu("res/tmx/graphics/tilesets/world.png", true, 64.0f, 64.0f, true, false);
-	
-	TileSetManager::Get().getTileSet("world").loadTileCpu("res/tmx/graphics/objects/house_small_alt.png", false, true, false);
-	TileSetManager::Get().getTileSet("world").loadTileCpu("res/tmx/graphics/objects/ice_tree.png", false, true, false);
-	TileSetManager::Get().getTileSet("world").loadTileCpu("res/tmx/graphics/objects/palm.png", false, true, false);
-	TileSetManager::Get().getTileSet("world").loadTileCpu("res/tmx/graphics/objects/palm_alt.png", false, true, false);
-	TileSetManager::Get().getTileSet("world").loadTileCpu("res/tmx/graphics/objects/palm_small.png", false, true, false);
-	TileSetManager::Get().getTileSet("world").loadTileCpu("res/tmx/graphics/objects/ruin_pillar.png", false, true, false);
-	TileSetManager::Get().getTileSet("world").loadTileCpu("res/tmx/graphics/objects/ruin_pillar_broke.png", false, true, false);
-	TileSetManager::Get().getTileSet("world").loadTileCpu("res/tmx/graphics/objects/ruin_pillar_broke_alt.png", false, true, false);
-	TileSetManager::Get().getTileSet("world").loadTileCpu("res/tmx/graphics/objects/teal_tree.png", false, true, false);
-	TileSetManager::Get().getTileSet("world").loadTileCpu("res/tmx/graphics/objects/teal_tree_bushy.png", false, true, false);
-	TileSetManager::Get().getTileSet("world").loadTileCpu("res/tmx/graphics/objects/teal_tree_small.png", false, true, false);
-	TileSetManager::Get().getTileSet("world").loadTileCpu("res/tmx/graphics/objects/arean_fire.png", false, true, false);
-	TileSetManager::Get().getTileSet("world").loadTileCpu("res/tmx/graphics/objects/arena_plant.png", false, true, false);
-	TileSetManager::Get().getTileSet("world").loadTileCpu("res/tmx/graphics/objects/arena_water.png", false, true, false);
-	TileSetManager::Get().getTileSet("world").loadTileCpu("res/tmx/graphics/objects/green_tree.png", false, true, false);
-	TileSetManager::Get().getTileSet("world").loadTileCpu("res/tmx/graphics/objects/green_tree_bushy.png", false, true, false);
-	TileSetManager::Get().getTileSet("world").loadTileCpu("res/tmx/graphics/objects/green_tree_small.png", false, true, false);
-	TileSetManager::Get().getTileSet("world").loadTileCpu("res/tmx/graphics/objects/hospital.png", false, true, false);
-	TileSetManager::Get().getTileSet("world").loadTileCpu("res/tmx/graphics/objects/house_large.png", false, true, false);
-	TileSetManager::Get().getTileSet("world").loadTileCpu("res/tmx/graphics/objects/house_large_alt.png", false, true, false);
-	TileSetManager::Get().getTileSet("world").loadTileCpu("res/tmx/graphics/objects/house_small.png", false, true, false);
-	TileSetManager::Get().getTileSet("world").loadTileCpu("res/tmx/graphics/objects/gate_pillar.png", false, true, false);
-	TileSetManager::Get().getTileSet("world").loadTileCpu("res/tmx/graphics/objects/gate_top.png", false, true, false);
-	TileSetManager::Get().getTileSet("world").loadTileCpu("res/tmx/graphics/objects/grassrock1.png", false, true, false);
-	TileSetManager::Get().getTileSet("world").loadTileCpu("res/tmx/graphics/objects/grassrock2.png", false, true, false);
-	TileSetManager::Get().getTileSet("world").loadTileCpu("res/tmx/graphics/objects/icerock1.png", false, true, false);
-	TileSetManager::Get().getTileSet("world").loadTileCpu("res/tmx/graphics/objects/icerock2.png", false, true, false);
-	TileSetManager::Get().getTileSet("world").loadTileCpu("res/tmx/graphics/objects/sandrock1.png", false, true, false);
-	TileSetManager::Get().getTileSet("world").loadTileCpu("res/tmx/graphics/objects/sandrock2.png", false, true, false);
-
-	TileSetManager::Get().getTileSet("world").loadTileCpu("res/tmx/graphics/objects/grass.png", false, true, false);
-	TileSetManager::Get().getTileSet("world").loadTileCpu("res/tmx/graphics/objects/grass_ice.png", false, true, false);
-	TileSetManager::Get().getTileSet("world").loadTileCpu("res/tmx/graphics/objects/sand.png", false, true, false);
-	
-	TileSetManager::Get().getTileSet("world").loadTileCpu("res/tmx/graphics/tilesets/water/0.png", false, true, false);
-	TileSetManager::Get().getTileSet("world").loadTileCpu("res/tmx/graphics/tilesets/water/1.png", false, true, false);
-	TileSetManager::Get().getTileSet("world").loadTileCpu("res/tmx/graphics/tilesets/water/2.png", false, true, false);
-	TileSetManager::Get().getTileSet("world").loadTileCpu("res/tmx/graphics/tilesets/water/3.png", false, true, false);
-
-	TileSetManager::Get().getTileSet("world").loadTileSetCpu("res/tmx/graphics/tilesets/coast_ordered.png", false, 64.0f, 64.0f, true, false);
-	TileSetManager::Get().getTileSet("world").loadTileCpu("res/tmx/graphics/other/shadow.png", false, true, false);
-	TileSetManager::Get().getTileSet("world").loadTileCpu("res/tmx/graphics/other/empty.png", false, true, false);
-
-	TileSetManager::Get().getTileSet("world").loadTileSetCpu("res/tmx/graphics/characters/player.png", false, 128.0f, 128.0f, true, false);
-	TileSetManager::Get().getTileSet("world").loadTileSetCpu("res/tmx/graphics/characters/blond.png", false, 128.0f, 128.0f, true, false);
-	TileSetManager::Get().getTileSet("world").loadTileSetCpu("res/tmx/graphics/characters/fire_boss.png", false, 128.0f, 128.0f, true, false);
-	TileSetManager::Get().getTileSet("world").loadTileSetCpu("res/tmx/graphics/characters/grass_boss.png", false, 128.0f, 128.0f, true, false);
-	TileSetManager::Get().getTileSet("world").loadTileSetCpu("res/tmx/graphics/characters/hat_girl.png", false, 128.0f, 128.0f, true, false);
-	TileSetManager::Get().getTileSet("world").loadTileSetCpu("res/tmx/graphics/characters/purple_girl.png", false, 128.0f, 128.0f, true, false);
-	TileSetManager::Get().getTileSet("world").loadTileSetCpu("res/tmx/graphics/characters/straw.png", false, 128.0f, 128.0f, true, false);
-	TileSetManager::Get().getTileSet("world").loadTileSetCpu("res/tmx/graphics/characters/water_boss.png", false, 128.0f, 128.0f, true, false);
-	TileSetManager::Get().getTileSet("world").loadTileSetCpu("res/tmx/graphics/characters/young_girl.png", false, 128.0f, 128.0f, true, false);
-	TileSetManager::Get().getTileSet("world").loadTileSetCpu("res/tmx/graphics/characters/young_guy.png", false, 128.0f, 128.0f, true, false);
-	TileSetManager::Get().getTileSet("world").loadTileSetGpu();
-	m_atlasWorld = TileSetManager::Get().getTileSet("world").getAtlas();
-	//Spritesheet::Safe("world", m_atlasWorld);
-	
-	m_mapHeight = m_zone.getMapHeight();
-
+	loadMap("res/tmx/platform.tmx");
 	auto shader = Globals::shaderManager.getAssetPointer("batch");
 	shader->use();
-	shader->loadMatrix("u_transform", m_camera.getOrthographicMatrix());
+	shader->loadMatrix("u_transform", Matrix4f::Orthographic(0.0f, 960.0f, 0.0f, 512.0f, -1.0f, 1.0f));
 	shader->unuse();
-
-	m_zone.setDebugCollision(m_debugCollision);
-
-	m_zone.getPlayer()->setMovingSpeed(m_movingSpeed);
-	m_zone.getPlayer()->setViewWidth(m_viewWidth);
-	m_zone.getPlayer()->setViewHeight(m_viewHeight);
-	m_zone.getPlayer()->setMapHeight(m_mapHeight);
 }
 
 Tmx::~Tmx() {
@@ -136,19 +50,70 @@ void Tmx::fixedUpdate() {
 }
 
 void Tmx::update() {
-	//std::cout << m_zone.getSpriteEntities().size() << std::endl;
-	for (auto&& spriteEntity : m_zone.getSpriteEntities()) {
-		spriteEntity->update(m_dt);
+	Keyboard &keyboard = Keyboard::instance();
+	Vector3f direction = Vector3f();
+
+	float dx = 0.0f;
+	float dy = 0.0f;
+	bool move = false;
+
+	if (keyboard.keyDown(Keyboard::KEY_W)) {
+		direction += Vector3f(0.0f, 0.0f, 1.0f);
+		move |= true;
 	}
-	m_zone.update(m_dt);
+
+	if (keyboard.keyDown(Keyboard::KEY_S)) {
+		direction += Vector3f(0.0f, 0.0f, -1.0f);
+		move |= true;
+	}
+
+	if (keyboard.keyDown(Keyboard::KEY_A)) {
+		direction += Vector3f(-1.0f, 0.0f, 0.0f);
+		move |= true;
+	}
+
+	if (keyboard.keyDown(Keyboard::KEY_D)) {
+		direction += Vector3f(1.0f, 0.0f, 0.0f);
+		move |= true;
+	}
+
+	if (keyboard.keyDown(Keyboard::KEY_W)) {
+		direction += Vector3f(0.0f, 1.0f, 0.0f);
+		move |= true;
+	}
+
+	if (keyboard.keyDown(Keyboard::KEY_S)) {
+		direction += Vector3f(0.0f, -1.0f, 0.0f);
+		move |= true;
+	}
+
+	Mouse &mouse = Mouse::instance();
+
+	if (mouse.buttonDown(Mouse::MouseButton::BUTTON_RIGHT)) {
+		dx = mouse.xDelta();
+		dy = mouse.yDelta();
+	}
+
+	if (move || dx != 0.0f || dy != 0.0f) {
+		if (dx || dy) {
+			m_camera.rotate(dx, dy);
+		}
+
+		if (move) {
+			m_camera.move(direction * m_dt);
+		}
+	}
 }
 
 void Tmx::render() {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	Spritesheet::Bind(m_atlasWorld);
-	m_zone.draw();
+	Spritesheet::Bind(m_atlas);
+	for (auto cell : m_cells) {
+		Batchrenderer::Get().addQuadAA(Vector4f(cell.posX - m_camera.getPositionX(), (m_mapHeight - m_tileHeight) - cell.posY - m_camera.getPositionY(), cell.rect.width, cell.rect.height), Vector4f(cell.rect.textureOffsetX, cell.rect.textureOffsetY, cell.rect.textureWidth, cell.rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), cell.rect.frame);
+	}
+	Batchrenderer::Get().drawBuffer();
 
 	if (m_drawUi)
 		renderUi();
@@ -159,7 +124,7 @@ void Tmx::OnMouseMotion(Event::MouseMoveEvent& event) {
 }
 
 void Tmx::OnMouseWheel(Event::MouseWheelEvent& event) {
-	
+
 }
 
 void Tmx::OnMouseButtonDown(Event::MouseButtonEvent& event) {
@@ -196,12 +161,11 @@ void Tmx::OnKeyUp(Event::KeyboardEvent& event) {
 
 void Tmx::resize(int deltaW, int deltaH) {
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
-	m_camera.orthographic(0.0f, m_viewWidth, 0.0f, m_viewHeight, -1.0f, 1.0f);
-	m_zone.resize();
+	m_camera.orthographic(0.0f, 960.0f, 0.0f, 512.0f, -1.0f, 1.0f);
 
 	auto shader = Globals::shaderManager.getAssetPointer("batch");
 	shader->use();
-	shader->loadMatrix("u_transform", m_camera.getOrthographicMatrix());
+	shader->loadMatrix("u_transform", Matrix4f::Orthographic(0.0f, 960.0f, 0.0f, 512.0f, -1.0f, 1.0f));
 	shader->unuse();
 }
 
@@ -241,27 +205,50 @@ void Tmx::renderUi() {
 
 	// render widgets
 	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
-	ImGui::Checkbox("Draw Wirframe", &StateMachine::GetEnableWireframe());	
-	if(ImGui::Checkbox("Draw Center", &m_drawCenter)) {
-		m_zone.setDrawCenter(m_drawCenter);
-	}
-		
-	if(ImGui::Checkbox("Use Culling", &m_useCulling)) {
-		m_zone.setUseCulling(m_useCulling);
-	}
-
-	if (ImGui::Checkbox("Draw Screen Border", &m_drawScreenBorder)) {
-		m_zone.setDrawScreenBorder(m_drawScreenBorder);
-	}
-
-	if (ImGui::SliderFloat("Screen Border", &m_screeBorder, -5.0f, 450.0f)) {
-		m_zone.setScreeBorder(m_screeBorder);
-	}
-	if (ImGui::Checkbox("Debug Collision", &m_debugCollision)) {
-		m_zone.setDebugCollision(m_debugCollision);
-	}
+	ImGui::Checkbox("Draw Wirframe", &StateMachine::GetEnableWireframe());
 	ImGui::End();
 
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+}
+
+void Tmx::loadMap(const std::string& path) {
+	tmx::Map map;
+	map.load(path);
+
+	const tmx::Vector2u& mapSize = map.getTileCount();
+	m_mapHeight = static_cast<float>(mapSize.y * map.getTileSize().y);
+	m_tileHeight = static_cast<float>(map.getTileSize().y);
+	m_tileWidth = static_cast<float>(map.getTileSize().x);
+
+	const std::vector<std::unique_ptr<tmx::Layer>>& layers = map.getLayers();
+	int layerId = 0;
+	for (auto& layer : layers) {
+
+		const auto layer = dynamic_cast<const tmx::TileLayer*>(layers[layerId].get());
+		if (!layer)
+			continue;
+
+		m_layer.resize(layers.size() + 1);
+
+		const auto& tileIDs = layer->getTiles();
+
+
+		m_layer[layerId] = new std::pair<int, unsigned int>*[mapSize.y];
+		for (int y = 0; y < mapSize.y; ++y)
+			m_layer[layerId][y] = new std::pair<int, unsigned int>[mapSize.x];
+
+		for (auto y = 0u; y < mapSize.y; ++y) {
+			for (auto x = 0u; x < mapSize.x; ++x) {
+				auto idx = y * mapSize.x + x;
+				m_layer[layerId][y][x].first = tileIDs[idx].ID - 1;
+				if (m_layer[layerId][y][x].first != -1) {
+
+					const TextureRect& rect = TileSetManager::Get().getTileSet("demo").getTextureRects()[m_layer[layerId][y][x].first];
+					m_cells.push_back({ rect, static_cast<float>(x) * m_tileWidth, static_cast<float>(y) * m_tileHeight });
+				}
+			}
+		}
+		layerId++;
+	}
 }

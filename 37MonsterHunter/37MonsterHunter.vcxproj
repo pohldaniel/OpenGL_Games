@@ -216,6 +216,7 @@
     <ClCompile Include="src\Animation\Animation.cpp" />
     <ClCompile Include="src\Animation\AnimationController.cpp" />
     <ClCompile Include="src\Animation\AnimationState.cpp" />
+    <ClCompile Include="src\Dialog.cpp" />
     <ClCompile Include="src\Entities\Character.cpp" />
     <ClCompile Include="src\Entities\Entity.cpp" />
     <ClCompile Include="src\Entities\MeshEntity.cpp" />
@@ -227,6 +228,7 @@
     <ClCompile Include="src\LoadingManager.cpp" />
     <ClCompile Include="src\States\Controls.cpp" />
     <ClCompile Include="src\States\Default.cpp" />
+    <ClCompile Include="src\States\MonsterHunter.cpp" />
     <ClCompile Include="src\States\Settings.cpp" />
     <ClCompile Include="src\States\StateMachine.cpp" />
     <ClCompile Include="src\States\Tmx.cpp" />
@@ -398,6 +400,7 @@
     <ClInclude Include="src\Animation\AnimationController.h" />
     <ClInclude Include="src\Animation\AnimationState.h" />
     <ClInclude Include="src\Application.h" />
+    <ClInclude Include="src\Dialog.h" />
     <ClInclude Include="src\Entities\Character.h" />
     <ClInclude Include="src\Entities\Entity.h" />
     <ClInclude Include="src\Entities\MeshEntity.h" />
@@ -410,6 +413,7 @@
     <ClInclude Include="src\LoadingManager.h" />
     <ClInclude Include="src\States\Controls.h" />
     <ClInclude Include="src\States\Default.h" />
+    <ClInclude Include="src\States\MonsterHunter.h" />
     <ClInclude Include="src\States\Settings.h" />
     <ClInclude Include="src\States\StateMachine.h" />
     <ClInclude Include="src\States\Tmx.h" />

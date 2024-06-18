@@ -5,21 +5,19 @@
 #include <engine/Camera.h>
 #include <engine/Background.h>
 #include <engine/Texture.h>
-#include <engine/Rect.h>
 #include <States/StateMachine.h>
 
-class Tmx : public State, public MouseEventListener, public KeyboardEventListener {
+#include <Entities/SpriteEntity.h>
+#include <Entities/Player.h>
+#include "Zone.h"
+#include "Dialog.h"
 
-	struct Cell {
-		const TextureRect& rect;
-		float posX;
-		float posY;
-	};
+class MonsterHunter : public State, public MouseEventListener, public KeyboardEventListener {
 
 public:
 
-	Tmx(StateMachine& machine);
-	~Tmx();
+	MonsterHunter(StateMachine& machine);
+	~MonsterHunter();
 
 	void fixedUpdate() override;
 	void update() override;
@@ -35,17 +33,21 @@ public:
 private:
 
 	void renderUi();
-	void loadMap(const std::string& path);
-
+	
 	bool m_initUi = true;
-	bool m_drawUi = false;
-
+	bool m_drawUi = true;
+	bool m_drawCenter = false;
+	bool m_useCulling = true;
+	bool m_drawScreenBorder = false;
+	bool m_debugCollision = false;
 	Camera m_camera;
 
+	unsigned int m_atlasWorld;
+	float m_movingSpeed;
+	float m_viewWidth;
+	float m_viewHeight;
+	float m_mapHeight;
+	float m_screeBorder;
 
-	std::vector<unsigned> m_tileTextures;
-	std::vector<std::pair<int, unsigned int>**> m_layer;
-	std::vector<Cell> m_cells;
-	unsigned int m_atlas;
-	float m_mapHeight, m_tileHeight, m_tileWidth;
+	Zone m_zone;
 };

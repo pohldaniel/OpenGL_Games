@@ -441,9 +441,6 @@
     <ClCompile Include="src\Entities\Skybox.cpp">
       <Filter>Source Files\Entities</Filter>
     </ClCompile>
-    <ClCompile Include="src\States\Tmx.cpp">
-      <Filter>Source Files\States</Filter>
-    </ClCompile>
     <ClCompile Include="src\Entities\SpriteEntity.cpp">
       <Filter>Source Files\Entities</Filter>
     </ClCompile>
@@ -454,6 +451,15 @@
       <Filter>Source Files\Entities</Filter>
     </ClCompile>
     <ClCompile Include="src\Zone.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\States\MonsterHunter.cpp">
+      <Filter>Source Files\States</Filter>
+    </ClCompile>
+    <ClCompile Include="src\States\Tmx.cpp">
+      <Filter>Source Files\States</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Dialog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -857,9 +863,6 @@
     <ClInclude Include="src\Entities\Skybox.h">
       <Filter>Source Files\Entities</Filter>
     </ClInclude>
-    <ClInclude Include="src\States\Tmx.h">
-      <Filter>Source Files\States</Filter>
-    </ClInclude>
     <ClInclude Include="src\Entities\SpriteEntity.h">
       <Filter>Source Files\Entities</Filter>
     </ClInclude>
@@ -870,6 +873,15 @@
       <Filter>Source Files\Entities</Filter>
     </ClInclude>
     <ClInclude Include="src\Zone.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\States\MonsterHunter.h">
+      <Filter>Source Files\States</Filter>
+    </ClInclude>
+    <ClInclude Include="src\States\Tmx.h">
+      <Filter>Source Files\States</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Dialog.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

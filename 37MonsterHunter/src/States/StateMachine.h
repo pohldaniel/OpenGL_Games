@@ -7,7 +7,8 @@ enum States {
 	SETTINGS,
 	CONTROLLS,
 	DEFAULT,
-	TMX
+	TMX,
+	MONSTER_HUNTER
 };
 
 class State;
