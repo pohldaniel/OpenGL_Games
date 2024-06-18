@@ -17,14 +17,18 @@ const Cell& SpriteEntity::getCell() {
 
 void SpriteEntity::setDirection(const Vector2f& direction) {
 	m_direction = direction;
+	cell.currentFrame = m_startFrame + getFrameOffset(getViewDirection());
+	updateLastViewDirection();
 }
 
-const ViewDirection& SpriteEntity::getViewDirection(){
-
+void SpriteEntity::updateLastViewDirection() {
 	if (m_viewDirection != ViewDirection::NONE) {
 		m_lastViewDirection = m_viewDirection;
 	}
+}
 
+const ViewDirection& SpriteEntity::getViewDirection(){
+	updateLastViewDirection();
 	if (m_direction[0] != 0.0f || m_direction[1] != 0.0f) {
 		if (m_direction[0] != 0.0f)
 			m_viewDirection = m_direction[0] > 0.0f ? ViewDirection::RIGHT : ViewDirection::LEFT;
@@ -39,18 +43,18 @@ const ViewDirection& SpriteEntity::getViewDirection(){
 
 int SpriteEntity::getFrameOffset(ViewDirection viewDirection) {
 	switch (viewDirection){
-	case LEFT:
-		return 4;
-	case RIGHT:
-		return 8;
-	case DOWN:
-		return 0;
-	case UP:
-		return 12;
-	case NONE:
-		return 0;
-	default:
-		return 0;
+		case LEFT:
+			return 4;
+		case RIGHT:
+			return 8;
+		case DOWN:
+			return 0;
+		case UP:
+			return 12;
+		case NONE:
+			return 0;
+		default:
+			return 0;
 	}
 }
 

@@ -27,6 +27,7 @@ public:
 protected:
 
 	void updateAnimation(float dt);
+	void updateLastViewDirection();
 	int getFrameOffset(ViewDirection viewDirection);
 
 	Cell& cell;
