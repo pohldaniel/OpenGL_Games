@@ -1,5 +1,4 @@
 #pragma once
-
 #include <Entities/SpriteEntity.h>
 
 class Character : public SpriteEntity {

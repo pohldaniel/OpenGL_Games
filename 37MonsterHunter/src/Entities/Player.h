@@ -21,7 +21,7 @@ public:
 private:
 
 	bool hasCollision(float r1_l, float r1_t, float r1_r, float r1_b, float r2_l, float r2_t, float r2_r, float r2_b);
-	void updateAnimation(float dt);
+	
 
 	float m_movingSpeed, m_mapHeight, m_viewWidth, m_viewHeight;
 	const std::vector<Rect>& collisionRects;

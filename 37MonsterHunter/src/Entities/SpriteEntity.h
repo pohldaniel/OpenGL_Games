@@ -1,6 +1,13 @@
 #pragma once
+#include <Zone.h>
 
-#include "../Zone.h"
+enum ViewDirection {
+	LEFT,
+	RIGHT,
+	DOWN,
+	UP,
+	NONE
+};
 
 class SpriteEntity {
 
@@ -12,11 +19,20 @@ public:
 	virtual void update(float dt) = 0;
 
 	const Cell& getCell();
+	void setDirection(const Vector2f& direction);
+	const ViewDirection& getViewDirection();
+
+	static Vector2f GetDirection(std::string direction);
 
 protected:
+
+	void updateAnimation(float dt);
+	int getFrameOffset();
 
 	Cell& cell;
 	int m_startFrame;
 	float m_elapsedTime;
 	int m_frameCount;
+	ViewDirection m_viewDirection;
+	Vector2f m_direction;
 };

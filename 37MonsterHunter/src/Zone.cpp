@@ -211,18 +211,22 @@ void Zone::loadZone(const std::string& path, size_t capcity) {
 						m_cellsMain.push_back(CellShadow(object.getPosition().x - 64.0f, object.getPosition().y, 632, object.getPosition().x, object.getPosition().y - 64.0f, 128.0f, false, true));
 						m_collisionRects.push_back({ (object.getPosition().x - 64.0f) + 32.0f, (object.getPosition().y) - (128.0f - 30.0f), (128.0f) - 64.0f, (128.0f) - 60.0f });
 						m_spriteEntities.push_back(std::make_unique<Character>(m_cellsMain.back()));
+						m_spriteEntities.back()->setDirection(SpriteEntity::GetDirection(object.getProperties()[2].getStringValue()));
 					}else if (object.getProperties()[3].getStringValue() == "blond") {
 						m_cellsMain.push_back(CellShadow(object.getPosition().x - 64.0f, object.getPosition().y, 552, object.getPosition().x,  object.getPosition().y - 64.0f, 128.0f, false, true));
 						m_collisionRects.push_back({ (object.getPosition().x - 64.0f) + 32.0f, (object.getPosition().y) - (128.0f - 30.0f), (128.0f) - 64.0f, (128.0f) - 60.0f });
 						m_spriteEntities.push_back(std::make_unique<Character>(m_cellsMain.back()));
+						m_spriteEntities.back()->setDirection(SpriteEntity::GetDirection(object.getProperties()[2].getStringValue()));
 					}else if (object.getProperties()[3].getStringValue() == "hat_girl") {
 						m_cellsMain.push_back(CellShadow(object.getPosition().x - 64.0f, object.getPosition().y, 600, object.getPosition().x,  object.getPosition().y - 64.0f, 128.0f, false, true));
 						m_collisionRects.push_back({ (object.getPosition().x - 64.0f) + 32.0f, (object.getPosition().y) - (128.0f - 30.0f), (128.0f) - 64.0f, (128.0f) - 60.0f });
 						m_spriteEntities.push_back(std::make_unique<Character>(m_cellsMain.back()));
+						m_spriteEntities.back()->setDirection(SpriteEntity::GetDirection(object.getProperties()[2].getStringValue()));
 					}else if (object.getProperties()[3].getStringValue() == "young_guy") {
 						m_cellsMain.push_back(CellShadow(object.getPosition().x - 64.0f, object.getPosition().y, 680, object.getPosition().x ,  object.getPosition().y - 64.0f, 128.0f, false, true));
 						m_collisionRects.push_back({ (object.getPosition().x - 64.0f) + 32.0f, (object.getPosition().y) - (128.0f - 30.0f), (128.0f) - 64.0f, (128.0f) - 60.0f });
 						m_spriteEntities.push_back(std::make_unique<Character>(m_cellsMain.back()));
+						m_spriteEntities.back()->setDirection(SpriteEntity::GetDirection(object.getProperties()[2].getStringValue()));
 					}
 				}
 			}
