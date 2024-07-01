@@ -138,16 +138,43 @@ MonsterHunter::MonsterHunter(StateMachine& machine) : State(machine, States::MON
 	doc.ParseStream(streamWrapper);
 	
 	for (rapidjson::Value::ConstMemberIterator trainer = doc.MemberBegin(); trainer != doc.MemberEnd(); ++trainer) {
-		if (std::string(trainer->name.GetString()) != "Nurse") {			
-			m_trainers[trainer->name.GetString()].binom = "sand";
-			m_trainers[trainer->name.GetString()].defeated = false;
-			m_trainers[trainer->name.GetString()].lookAround = true;
-			m_trainers[trainer->name.GetString()].viewDirections.push_back(ViewDirection::DOWN);
-			m_trainers[trainer->name.GetString()].viewDirections.push_back(ViewDirection::LEFT);
-			m_trainers[trainer->name.GetString()].monsters.push_back({"tmp", 5});
-			m_trainers[trainer->name.GetString()].dialog.undefeated.push_back("Hello");
-			m_trainers[trainer->name.GetString()].dialog.defeated.push_back("Hello");
-			std::cout << "Name: " << trainer->name.GetString() << std::endl;
+		if (std::string(trainer->name.GetString()) != "Nurse") {	
+
+			m_trainers[trainer->name.GetString()].binom = trainer->value["biome"].GetString();
+			m_trainers[trainer->name.GetString()].defeated = trainer->value["defeated"].GetBool();
+			m_trainers[trainer->name.GetString()].lookAround = trainer->value["look_around"].GetBool();
+
+			rapidjson::GenericArray<true, rapidjson::Value>  monsters = trainer->value["monsters"].GetArray();
+			for (rapidjson::Value::ConstValueIterator monster = monsters.Begin(); monster != monsters.End(); ++monster) {
+				for (rapidjson::Value::ConstMemberIterator iter = monster->MemberBegin(); iter != monster->MemberEnd(); ++iter) {
+					m_trainers[trainer->name.GetString()].monsters.push_back({ iter->name.GetString(), iter->value.GetInt() });
+				}
+			}
+
+			rapidjson::GenericArray<true, rapidjson::Value>  directions = trainer->value["directions"].GetArray();
+			for (rapidjson::Value::ConstValueIterator direction = directions.Begin(); direction != directions.End(); ++direction) {
+				std::string _direction = direction->GetString();
+				if(_direction == "up")
+					m_trainers[trainer->name.GetString()].viewDirections.push_back(ViewDirection::UP);
+				else if(_direction == "down")
+					m_trainers[trainer->name.GetString()].viewDirections.push_back(ViewDirection::DOWN);
+				else if (_direction == "left")
+					m_trainers[trainer->name.GetString()].viewDirections.push_back(ViewDirection::LEFT);
+				else if (_direction == "right")
+					m_trainers[trainer->name.GetString()].viewDirections.push_back(ViewDirection::RIGHT);
+			}
+
+			rapidjson::GenericArray<true, rapidjson::Value>  undefeated = trainer->value["dialog"]["default"].GetArray();
+
+			for (rapidjson::Value::ConstValueIterator entry = undefeated.Begin(); entry != undefeated.End(); ++entry) {
+				m_trainers[trainer->name.GetString()].dialog.undefeated.push_back(entry->GetString());
+			}
+
+			rapidjson::GenericArray<true, rapidjson::Value>  defeated = trainer->value["dialog"]["defeated"].GetArray();
+
+			for (rapidjson::Value::ConstValueIterator entry = defeated.Begin(); entry != defeated.End(); ++entry) {
+				m_trainers[trainer->name.GetString()].dialog.defeated.push_back(entry->GetString());
+			}
 		}		
 	}
 	file.close();
