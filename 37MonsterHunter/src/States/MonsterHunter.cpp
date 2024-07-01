@@ -9,6 +9,9 @@
 #include <tmxlite/Map.hpp>
 #include <tmxlite/TileLayer.hpp>
 
+#include <rapidjson/document.h>
+#include <rapidjson/istreamwrapper.h>
+
 #include "MonsterHunter.h"
 #include "Application.h"
 #include "Globals.h"
@@ -124,6 +127,30 @@ MonsterHunter::MonsterHunter(StateMachine& machine) : State(machine, States::MON
 	m_zone.getPlayer()->setViewWidth(m_viewWidth);
 	m_zone.getPlayer()->setViewHeight(m_viewHeight);
 	m_zone.getPlayer()->setMapHeight(m_mapHeight);
+
+	std::ifstream file("res/trainer.json", std::ios::in);
+	if (!file.is_open()) {
+		std::cerr << "Could not open file: " << "res/trainer.json" << std::endl;
+	}
+
+	rapidjson::IStreamWrapper streamWrapper(file);
+	rapidjson::Document doc;
+	doc.ParseStream(streamWrapper);
+	
+	for (rapidjson::Value::ConstMemberIterator trainer = doc.MemberBegin(); trainer != doc.MemberEnd(); ++trainer) {
+		if (std::string(trainer->name.GetString()) != "Nurse") {			
+			m_trainers[trainer->name.GetString()].binom = "sand";
+			m_trainers[trainer->name.GetString()].defeated = false;
+			m_trainers[trainer->name.GetString()].lookAround = true;
+			m_trainers[trainer->name.GetString()].viewDirections.push_back(ViewDirection::DOWN);
+			m_trainers[trainer->name.GetString()].viewDirections.push_back(ViewDirection::LEFT);
+			m_trainers[trainer->name.GetString()].monsters.push_back({"tmp", 5});
+			m_trainers[trainer->name.GetString()].dialog.undefeated.push_back("Hello");
+			m_trainers[trainer->name.GetString()].dialog.defeated.push_back("Hello");
+			std::cout << "Name: " << trainer->name.GetString() << std::endl;
+		}		
+	}
+	file.close();
 }
 
 MonsterHunter::~MonsterHunter() {
@@ -136,7 +163,6 @@ void MonsterHunter::fixedUpdate() {
 }
 
 void MonsterHunter::update() {
-	//std::cout << m_zone.getSpriteEntities().size() << std::endl;
 	for (auto&& spriteEntity : m_zone.getSpriteEntities()) {
 		spriteEntity->update(m_dt);
 	}

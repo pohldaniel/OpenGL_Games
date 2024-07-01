@@ -12,6 +12,26 @@
 #include "Zone.h"
 #include "Dialog.h"
 
+
+struct DialogNew {
+	std::vector<std::string> undefeated;
+	std::vector<std::string> defeated;
+};
+
+struct Monster {
+	std::string name;
+	int level;
+};
+
+struct Trainer {
+	std::vector<Monster> monsters;
+	DialogNew dialog;
+	std::vector<ViewDirection> viewDirections;
+	bool lookAround;
+	bool defeated;
+	std::string binom;
+};
+
 class MonsterHunter : public State, public MouseEventListener, public KeyboardEventListener {
 
 public:
@@ -50,4 +70,5 @@ private:
 	float m_screeBorder;
 
 	Zone m_zone;
+	std::unordered_map<std::string, Trainer> m_trainers;
 };
