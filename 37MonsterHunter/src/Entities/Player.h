@@ -20,7 +20,7 @@ public:
 	void unblock();
 	const ViewDirection& getViewDirection() override;
 	const ViewDirection& getLastViewDirection();
-	bool hasLineOfSight(const Cell& cell, const Rect& collisionRect, float radius) const;
+	const std::vector<Rect>& getCollisionRects() const;
 	bool isBlocked();
 
 private:

@@ -23,6 +23,8 @@ public:
 
 private:
 
+	bool hasLineOfSight(const Cell& cell, const std::vector<Rect>& collisionRects, const Rect& collisionRect, float radius) const;
+
 	std::string m_characterId;
 	float m_radius;
 	bool m_move;
