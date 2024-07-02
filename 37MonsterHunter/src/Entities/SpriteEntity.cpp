@@ -11,7 +11,7 @@ SpriteEntity::~SpriteEntity() {
 
 }
 
-const Cell& SpriteEntity::getCell() {
+const Cell& SpriteEntity::getCell() const {
 	return cell;
 }
 

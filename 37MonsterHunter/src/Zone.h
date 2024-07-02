@@ -8,6 +8,7 @@
 
 class SpriteEntity;
 class Player;
+class Character;
 
 struct Cell {
 	float posX;
@@ -55,13 +56,14 @@ public:
 	void update(float dt);
 	void draw();
 	void resize();
-	void loadZone(const std::string& path, size_t capcity);
+	void loadZone(const std::string& path, size_t capacity);
 	void initDebug();
 	void updateBorder();
-	Player* getPlayer();
+	const Player& getPlayer();
 
 	const std::vector<Rect>& getCollisionRects();
 	const std::vector<std::unique_ptr<SpriteEntity>>& getSpriteEntities();
+	const std::vector<std::reference_wrapper<Character>>& getCharacters();
 	float getMapHeight();
 
 	void setUseCulling(bool useCulling);
@@ -91,7 +93,8 @@ private:
 	std::vector<Rect> m_collisionRects;
 
 	std::vector<std::unique_ptr<SpriteEntity>> m_spriteEntities;
-	
+	std::vector<std::reference_wrapper<Character>> m_characters;
+
 	float m_mapHeight, m_tileHeight, m_tileWidth;
 	float m_left, m_right, m_bottom, m_top;
 	float m_screeBorder;

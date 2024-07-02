@@ -9,6 +9,7 @@
 
 #include <Entities/SpriteEntity.h>
 #include <Entities/Player.h>
+#include <Entities/Character.h>
 #include "Zone.h"
 #include "Dialog.h"
 

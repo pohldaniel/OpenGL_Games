@@ -13,17 +13,17 @@ public:
 	virtual ~Player();
 
 	void update(float dt) override;
-	void setMovingSpeed(float movingSpeed);	
-	void setViewWidth(float viewWidth);
-	void setViewHeight(float viewHeight);
-	void setMapHeight(float mapHeight);
+	void setMovingSpeed(float movingSpeed) const;	
+	void setViewWidth(float viewWidth) const;
+	void setViewHeight(float viewHeight) const;
+	void setMapHeight(float mapHeight) const;
 
 private:
 
 	bool hasCollision(float r1_l, float r1_t, float r1_r, float r1_b, float r2_l, float r2_t, float r2_r, float r2_b);
 	
 
-	float m_movingSpeed, m_mapHeight, m_viewWidth, m_viewHeight;
+	mutable float m_movingSpeed, m_mapHeight, m_viewWidth, m_viewHeight;
 	const std::vector<Rect>& collisionRects;
 	Camera& camera;
 };

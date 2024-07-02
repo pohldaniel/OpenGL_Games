@@ -123,10 +123,10 @@ MonsterHunter::MonsterHunter(StateMachine& machine) : State(machine, States::MON
 
 	m_zone.setDebugCollision(m_debugCollision);
 
-	m_zone.getPlayer()->setMovingSpeed(m_movingSpeed);
-	m_zone.getPlayer()->setViewWidth(m_viewWidth);
-	m_zone.getPlayer()->setViewHeight(m_viewHeight);
-	m_zone.getPlayer()->setMapHeight(m_mapHeight);
+	m_zone.getPlayer().setMovingSpeed(m_movingSpeed);
+	m_zone.getPlayer().setViewWidth(m_viewWidth);
+	m_zone.getPlayer().setViewHeight(m_viewHeight);
+	m_zone.getPlayer().setMapHeight(m_mapHeight);
 
 	std::ifstream file("res/trainer.json", std::ios::in);
 	if (!file.is_open()) {
@@ -165,13 +165,11 @@ MonsterHunter::MonsterHunter(StateMachine& machine) : State(machine, States::MON
 			}
 
 			rapidjson::GenericArray<true, rapidjson::Value>  undefeated = trainer->value["dialog"]["default"].GetArray();
-
 			for (rapidjson::Value::ConstValueIterator entry = undefeated.Begin(); entry != undefeated.End(); ++entry) {
 				m_trainers[trainer->name.GetString()].dialog.undefeated.push_back(entry->GetString());
 			}
 
 			rapidjson::GenericArray<true, rapidjson::Value>  defeated = trainer->value["dialog"]["defeated"].GetArray();
-
 			for (rapidjson::Value::ConstValueIterator entry = defeated.Begin(); entry != defeated.End(); ++entry) {
 				m_trainers[trainer->name.GetString()].dialog.defeated.push_back(entry->GetString());
 			}
@@ -190,6 +188,14 @@ void MonsterHunter::fixedUpdate() {
 }
 
 void MonsterHunter::update() {
+
+	Keyboard &keyboard = Keyboard::instance();
+	if (keyboard.keyPressed(Keyboard::KEY_SPACE)) {
+		for (auto&& character : m_zone.getCharacters()) {
+			character.get().checkConnection(m_zone.getPlayer());
+		}
+	}
+
 	for (auto&& spriteEntity : m_zone.getSpriteEntities()) {
 		spriteEntity->update(m_dt);
 	}

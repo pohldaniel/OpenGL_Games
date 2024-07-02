@@ -83,18 +83,18 @@ void Player::update(float dt) {
 
 
 
-void Player::setMovingSpeed(float movingSpeed) {
+void Player::setMovingSpeed(float movingSpeed) const {
 	m_movingSpeed = movingSpeed;
 }
 
-void Player::setViewWidth(float viewWidth) {
+void Player::setViewWidth(float viewWidth) const {
 	m_viewWidth = viewWidth;
 }
 
-void Player::setViewHeight(float viewHeight) {
+void Player::setViewHeight(float viewHeight) const {
 	m_viewHeight = viewHeight;
 }
 
-void Player::setMapHeight(float mapHeight) {
+void Player::setMapHeight(float mapHeight) const {
 	m_mapHeight = mapHeight;
 }
