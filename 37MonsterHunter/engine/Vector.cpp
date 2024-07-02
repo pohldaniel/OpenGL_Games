@@ -2655,6 +2655,11 @@ float Vector2f::Dot(const Vector2f &p, const Vector2f &q) {
 	return (p.vec[0] * q.vec[0]) + (p.vec[1] * q.vec[1]);
 }
 
+float Vector2f::Length(const Vector2f& p, const Vector2f& q) {
+	float x = q[0] - p[0], y = q[1] - p[1];
+	return sqrtf((x * x) + (y * y));
+}
+
 //////////////////////////////////////////////////////////////////////
 
 const Vector3f Vector3f::ZERO(0.0f, 0.0f, 0.0f);

@@ -3,7 +3,7 @@
  <tileset firstgid="1" source="../tilesets/world.tsx"/>
  <tileset firstgid="211" source="../tilesets/objects.tsx"/>
  <tileset firstgid="240" source="../tilesets/Grass.tsx"/>
- <layer id="1" name="Terrain" width="86" height="86" visible="0" locked="1">
+ <layer id="1" name="Terrain" width="86" height="86" locked="1">
   <data encoding="csv">
 195,195,195,195,195,195,195,195,195,195,195,195,195,195,195,195,195,195,195,195,195,195,195,195,195,195,195,196,132,132,136,132,132,132,136,132,123,42,43,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,
 195,195,195,195,195,195,195,195,195,195,195,195,195,195,195,195,195,195,195,195,195,195,195,195,195,195,195,196,132,132,147,126,132,132,136,132,132,123,54,33,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,
@@ -435,7 +435,7 @@
     <property name="character_id" value="o1"/>
     <property name="direction" value="down"/>
     <property name="graphic" value="straw"/>
-    <property name="radius" value="400"/>
+    <property name="radius" value="4000"/>
    </properties>
    <point/>
   </object>

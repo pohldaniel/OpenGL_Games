@@ -103,3 +103,24 @@ const Vector2f& SpriteEntity::getDirection() const {
 void SpriteEntity::setMovingSpeed(float movingSpeed) {
 	m_movingSpeed = movingSpeed;
 }
+
+void SpriteEntity::changeFacingDirection(const SpriteEntity& target) {
+	Vector2f relation = Vector2f(cell.centerX - target.getCell().centerX, cell.centerY - target.getCell().centerY);
+	if (fabs(relation[1]) < 30)
+		relation[0] > 0 ? setViewDirection(ViewDirection::LEFT) : setViewDirection(ViewDirection::RIGHT);
+	else
+		relation[1] > 0 ? setViewDirection(ViewDirection::UP) : setViewDirection(ViewDirection::DOWN);
+}
+
+bool SpriteEntity::CheckConnection(const Cell& origin, const Cell& target, ViewDirection viewDirection, float radius, float tolerance) {
+	Vector2f relation = Vector2f(target.centerX - origin.centerX, target.centerY - origin.centerY);
+	if (relation.length() < radius) {
+		if ((viewDirection == ViewDirection::LEFT && relation[0] < 0.0f && fabs(relation[1]) < tolerance) ||
+			(viewDirection == ViewDirection::RIGHT && relation[0] > 0.0f && fabs(relation[1]) < tolerance) ||
+			(viewDirection == ViewDirection::UP && relation[1] < 0.0f && fabs(relation[0]) < tolerance) ||
+			(viewDirection == ViewDirection::DOWN && relation[1] > 0.0f && fabs(relation[0]) < tolerance)) {
+			return true;
+		}
+	}
+	return false;
+}

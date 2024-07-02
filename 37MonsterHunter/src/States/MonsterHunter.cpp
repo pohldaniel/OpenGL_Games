@@ -192,16 +192,19 @@ void MonsterHunter::update() {
 	Keyboard &keyboard = Keyboard::instance();
 	if (keyboard.keyPressed(Keyboard::KEY_SPACE)) {
 		for (auto&& character : m_zone.getCharacters()) {
-			if (character.get().checkConnection(m_zone.getPlayer().getCell(), character.get().getCell(), m_zone.getPlayer().getLastViewDirection())) {
+			if (SpriteEntity::CheckConnection(m_zone.getPlayer().getCell(), character.get().getCell(), m_zone.getPlayer().getLastViewDirection())) {
 				m_zone.getPlayer().block();
 				character.get().changeFacingDirection(m_zone.getPlayer());
-				
+				character.get().setRayCast(false);
 			}
 		}
 	}
 
 	for (auto&& character : m_zone.getCharacters()) {
-		if (character.get().raycast(m_zone.getPlayer().getCell())) {
+		if (character.get().raycast(m_zone.getPlayer())) {					
+			if(!m_zone.getPlayer().isBlocked())
+				m_zone.getPlayer().changeFacingDirection(character);
+			m_zone.getPlayer().block();
 			character.get().startMove();
 		}
 	}

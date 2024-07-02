@@ -24,8 +24,11 @@ public:
 	const Cell& getCell() const;
 	void setViewDirection(ViewDirection direction);
 	const Vector2f& getDirection() const;
+	void changeFacingDirection(const SpriteEntity& target);
+
 	static ViewDirection GetDirection(std::string direction);
 	static Vector2f GetDirection(ViewDirection direction);
+	static bool CheckConnection(const Cell& origin, const Cell& target, ViewDirection viewDirection, float radius = 100.0f, float tolerance = 30.0f);
 
 protected:
 
