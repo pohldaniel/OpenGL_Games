@@ -1,9 +1,10 @@
+#include <iostream>
 #include <engine/input/Keyboard.h>
 
 #include "Player.h"
 
-Player::Player(Cell& cell, Camera& camera, const std::vector<Rect>& collisionRects) : SpriteEntity(cell), camera(camera), collisionRects(collisionRects) {
-	
+Player::Player(Cell& cell, Camera& camera, const std::vector<Rect>& collisionRects) : SpriteEntity(cell), camera(camera), collisionRects(collisionRects), m_blocked(false){
+	m_direction.set(0.0f, 0.0f);
 }
 
 Player::~Player() {
@@ -15,6 +16,8 @@ bool Player::hasCollision(float r1_l, float r1_t, float r1_r, float r1_b, float 
 }
 
 void Player::update(float dt) {
+	if (m_blocked)
+		return;
 
 	Keyboard &keyboard = Keyboard::instance();
 	m_direction.set(0.0f, 0.0f);
@@ -81,20 +84,43 @@ void Player::update(float dt) {
 	updateAnimation(dt);
 }
 
+const ViewDirection& Player::getViewDirection() {
+	updateLastViewDirection();
+	if (m_direction[0] != 0.0f || m_direction[1] != 0.0f) {
+		if (m_direction[0] != 0.0f)
+			m_viewDirection = m_direction[0] > 0.0f ? ViewDirection::RIGHT : ViewDirection::LEFT;
+		if (m_direction[1] != 0.0f)
+			m_viewDirection = m_direction[1] > 0.0f ? ViewDirection::UP : ViewDirection::DOWN;
+	}else {
+		m_viewDirection = ViewDirection::NONE;
+	}
 
-
-void Player::setMovingSpeed(float movingSpeed) const {
-	m_movingSpeed = movingSpeed;
+	return m_viewDirection;
 }
 
-void Player::setViewWidth(float viewWidth) const {
+void Player::setViewWidth(float viewWidth) {
 	m_viewWidth = viewWidth;
 }
 
-void Player::setViewHeight(float viewHeight) const {
+void Player::setViewHeight(float viewHeight) {
 	m_viewHeight = viewHeight;
 }
 
-void Player::setMapHeight(float mapHeight) const {
+void Player::setMapHeight(float mapHeight) {
 	m_mapHeight = mapHeight;
+}
+
+void Player::block() {
+	m_blocked = true;
+	m_direction.set(0.0f, 0.0f);
+	m_viewDirection = ViewDirection::NONE;
+	resetAnimation();
+}
+
+void Player::unblock() {
+	m_blocked = false;
+}
+
+const ViewDirection& Player::getLastViewDirection() {
+	return m_lastViewDirection;
 }

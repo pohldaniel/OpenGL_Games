@@ -200,10 +200,12 @@ void Zone::loadZone(const std::string& path, size_t capacity) {
 
 		if (layer->getName() == "Entities") {
 			const tmx::ObjectGroup* objectLayer = dynamic_cast<const tmx::ObjectGroup*>(layer.get());
-			for (auto& object : objectLayer->getObjects()) {
+			std::string playerDirection;
+			for (auto& object : objectLayer->getObjects()) {			
 				if (object.getName() == "Player" && object.getProperties()[1].getStringValue() == "house") {
 					m_cellsMain.push_back(CellShadow(object.getPosition().x - 64.0f, object.getPosition().y, 536, object.getPosition().x ,  object.getPosition().y - 64.0f, 128.0f, false, true));					
 					m_playerIndex = m_cellsMain.size() - 1;
+					playerDirection = object.getProperties()[0].getStringValue();
 				}
 
 				if (object.getName() == "Character") {
@@ -211,7 +213,8 @@ void Zone::loadZone(const std::string& path, size_t capacity) {
 						m_cellsMain.push_back(CellShadow(object.getPosition().x - 64.0f, object.getPosition().y, 632, object.getPosition().x, object.getPosition().y - 64.0f, 128.0f, false, true));
 						m_collisionRects.push_back({ (object.getPosition().x - 64.0f) + 32.0f, (object.getPosition().y) - (128.0f - 30.0f), 128.0f - 64.0f, 128.0f - 60.0f });
 						m_spriteEntities.push_back(std::make_unique<Character>(m_cellsMain.back()));
-						m_spriteEntities.back()->setDirection(SpriteEntity::GetDirection(object.getProperties()[2].getStringValue()));
+						m_spriteEntities.back()->setViewDirection(SpriteEntity::GetDirection(object.getProperties()[2].getStringValue()));
+						m_spriteEntities.back()->setMovingSpeed(250.0f);
 
 						m_characters.push_back(reinterpret_cast<Character&>(*m_spriteEntities.back().get()));
 						m_characters.back().get().setCharacterId(object.getProperties()[1].getStringValue());
@@ -220,7 +223,8 @@ void Zone::loadZone(const std::string& path, size_t capacity) {
 						m_cellsMain.push_back(CellShadow(object.getPosition().x - 64.0f, object.getPosition().y, 552, object.getPosition().x,  object.getPosition().y - 64.0f, 128.0f, false, true));
 						m_collisionRects.push_back({ (object.getPosition().x - 64.0f) + 32.0f, (object.getPosition().y) - (128.0f - 30.0f), 128.0f - 64.0f, 128.0f - 60.0f });
 						m_spriteEntities.push_back(std::make_unique<Character>(m_cellsMain.back()));
-						m_spriteEntities.back()->setDirection(SpriteEntity::GetDirection(object.getProperties()[2].getStringValue()));
+						m_spriteEntities.back()->setViewDirection(SpriteEntity::GetDirection(object.getProperties()[2].getStringValue()));
+						m_spriteEntities.back()->setMovingSpeed(250.0f);
 
 						m_characters.push_back(reinterpret_cast<Character&>(*m_spriteEntities.back().get()));
 						m_characters.back().get().setCharacterId(object.getProperties()[1].getStringValue());
@@ -229,7 +233,8 @@ void Zone::loadZone(const std::string& path, size_t capacity) {
 						m_cellsMain.push_back(CellShadow(object.getPosition().x - 64.0f, object.getPosition().y, 600, object.getPosition().x,  object.getPosition().y - 64.0f, 128.0f, false, true));
 						m_collisionRects.push_back({ (object.getPosition().x - 64.0f) + 32.0f, (object.getPosition().y) - (128.0f - 30.0f), 128.0f - 64.0f, 128.0f - 60.0f });
 						m_spriteEntities.push_back(std::make_unique<Character>(m_cellsMain.back()));
-						m_spriteEntities.back()->setDirection(SpriteEntity::GetDirection(object.getProperties()[2].getStringValue()));
+						m_spriteEntities.back()->setViewDirection(SpriteEntity::GetDirection(object.getProperties()[2].getStringValue()));
+						m_spriteEntities.back()->setMovingSpeed(250.0f);
 
 						m_characters.push_back(reinterpret_cast<Character&>(*m_spriteEntities.back().get()));
 						m_characters.back().get().setCharacterId(object.getProperties()[1].getStringValue());
@@ -238,7 +243,8 @@ void Zone::loadZone(const std::string& path, size_t capacity) {
 						m_cellsMain.push_back(CellShadow(object.getPosition().x - 64.0f, object.getPosition().y, 680, object.getPosition().x ,  object.getPosition().y - 64.0f, 128.0f, false, true));
 						m_collisionRects.push_back({ (object.getPosition().x - 64.0f) + 32.0f, (object.getPosition().y) - (128.0f - 30.0f), 128.0f - 64.0f, 128.0f - 60.0f });
 						m_spriteEntities.push_back(std::make_unique<Character>(m_cellsMain.back()));
-						m_spriteEntities.back()->setDirection(SpriteEntity::GetDirection(object.getProperties()[2].getStringValue()));
+						m_spriteEntities.back()->setViewDirection(SpriteEntity::GetDirection(object.getProperties()[2].getStringValue()));
+						m_spriteEntities.back()->setMovingSpeed(250.0f);
 
 						m_characters.push_back(reinterpret_cast<Character&>(*m_spriteEntities.back().get()));
 						m_characters.back().get().setCharacterId(object.getProperties()[1].getStringValue());
@@ -249,6 +255,7 @@ void Zone::loadZone(const std::string& path, size_t capacity) {
 
 			//IMPORTANT: the Collisions has to be loaded before the Entities
 			m_spriteEntities.push_back(std::make_unique<Player>(m_cellsMain[m_playerIndex], const_cast<Camera&>(camera), getCollisionRects()));
+			m_spriteEntities.back()->setViewDirection(SpriteEntity::GetDirection(playerDirection));
 		}
 
 		if (layer->getName() == "Water") {
@@ -419,7 +426,7 @@ void Zone::loadZone(const std::string& path, size_t capacity) {
 	}
 }
 
-const Player& Zone::getPlayer() {
+Player& Zone::getPlayer() {
 	return static_cast<Player&>(*m_spriteEntities.back().get());
 }
 

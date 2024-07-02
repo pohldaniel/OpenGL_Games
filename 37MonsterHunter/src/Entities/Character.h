@@ -14,10 +14,14 @@ public:
 	void setCharacterId(const std::string& characterId);
 	void setRadius(float radius);
 	const std::string& getCharacterId();
-	void checkConnection(const SpriteEntity& target, float tolerance = 30.0f);
+	bool checkConnection(const Cell& origin, const Cell& target, ViewDirection viewDirection, float radius = 100.0f, float tolerance = 30.0f);
+	void changeFacingDirection(const SpriteEntity& target);
+	void startMove();
+	bool raycast(const Cell& target);
 
 private:
 
 	std::string m_characterId;
 	float m_radius;
+	bool m_move;
 };

@@ -59,7 +59,7 @@ public:
 	void loadZone(const std::string& path, size_t capacity);
 	void initDebug();
 	void updateBorder();
-	const Player& getPlayer();
+	Player& getPlayer();
 
 	const std::vector<Rect>& getCollisionRects();
 	const std::vector<std::unique_ptr<SpriteEntity>>& getSpriteEntities();

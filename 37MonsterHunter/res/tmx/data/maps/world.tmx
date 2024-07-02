@@ -3,7 +3,7 @@
  <tileset firstgid="1" source="../tilesets/world.tsx"/>
  <tileset firstgid="211" source="../tilesets/objects.tsx"/>
  <tileset firstgid="240" source="../tilesets/Grass.tsx"/>
- <layer id="1" name="Terrain" width="86" height="86">
+ <layer id="1" name="Terrain" width="86" height="86" visible="0" locked="1">
   <data encoding="csv">
 195,195,195,195,195,195,195,195,195,195,195,195,195,195,195,195,195,195,195,195,195,195,195,195,195,195,195,196,132,132,136,132,132,132,136,132,123,42,43,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,
 195,195,195,195,195,195,195,195,195,195,195,195,195,195,195,195,195,195,195,195,195,195,195,195,195,195,195,196,132,132,147,126,132,132,136,132,132,123,54,33,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,
@@ -183,7 +183,7 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
- <objectgroup id="12" name="Collisions">
+ <objectgroup id="12" name="Collisions" visible="0" locked="1">
   <object id="211" x="4832.33" y="1976.5" width="33.3333" height="647.5"/>
   <object id="700" x="4857" y="1952" width="67.5" height="22.5"/>
   <object id="701" x="4899" y="1203" width="25" height="744"/>
@@ -500,7 +500,7 @@
    </properties>
    <point/>
   </object>
-  <object id="1146" name="Character" x="4096" y="2048">
+  <object id="1146" name="Character" x="4096" y="2049">
    <properties>
     <property name="change_direction" type="bool" value="true"/>
     <property name="character_id" value="o5"/>
@@ -1943,7 +1943,7 @@
    </properties>
   </object>
  </objectgroup>
- <objectgroup id="6" name="Monsters" visible="0">
+ <objectgroup id="6" name="Monsters" visible="0" locked="1">
   <object id="34" gid="240" x="4096" y="4096" width="64" height="64">
    <properties>
     <property name="biome" value="forest"/>
@@ -4101,7 +4101,7 @@
    </properties>
   </object>
  </objectgroup>
- <objectgroup id="2" name="Objects">
+ <objectgroup id="2" name="Objects" visible="0" locked="1">
   <object id="1" gid="211" x="4352" y="3776" width="320" height="320"/>
   <object id="2" gid="225" x="3455.33" y="3783.33" width="128" height="192"/>
   <object id="3" gid="225" x="3264" y="3712" width="128" height="192"/>
