@@ -55,8 +55,8 @@ MonsterHunter::MonsterHunter(StateMachine& machine) : State(machine, States::MON
 	}
 	TileSetManager::Get().getTileSet("coast").loadTileSetGpu();
 	Spritesheet::Safe("res/tmx/graphics/tilesets/coast_ordered", TileSetManager::Get().getTileSet("coast").getAtlas());*/
-
-	TileSetManager::Get().getTileSet("world").loadTileSetCpu("res/tmx/graphics/tilesets/world.png", true, 64.0f, 64.0f, true, false);
+	TextureAtlasCreator::Get().init(4096u, 4096u);
+	TileSetManager::Get().getTileSet("world").loadTileSetCpu("res/tmx/graphics/tilesets/world.png", false, 64.0f, 64.0f, true, false);
 	
 	TileSetManager::Get().getTileSet("world").loadTileCpu("res/tmx/graphics/objects/house_small_alt.png", false, true, false);
 	TileSetManager::Get().getTileSet("world").loadTileCpu("res/tmx/graphics/objects/ice_tree.png", false, true, false);
@@ -110,7 +110,8 @@ MonsterHunter::MonsterHunter(StateMachine& machine) : State(machine, States::MON
 	TileSetManager::Get().getTileSet("world").loadTileSetCpu("res/tmx/graphics/characters/straw.png", false, 128.0f, 128.0f, true, false);
 	TileSetManager::Get().getTileSet("world").loadTileSetCpu("res/tmx/graphics/characters/water_boss.png", false, 128.0f, 128.0f, true, false);
 	TileSetManager::Get().getTileSet("world").loadTileSetCpu("res/tmx/graphics/characters/young_girl.png", false, 128.0f, 128.0f, true, false);
-	TileSetManager::Get().getTileSet("world").loadTileSetCpu("res/tmx/graphics/characters/young_guy.png", false, 128.0f, 128.0f, true, false);
+	TileSetManager::Get().getTileSet("world").loadTileSetCpu("res/tmx/graphics/characters/young_guy.png", false, 128.0f, 128.0f, true, false);	
+	//TileSetManager::Get().getTileSet("world").addCharset(Globals::fontManager.get("dialog"), false, 1);
 	TileSetManager::Get().getTileSet("world").loadTileSetGpu();
 	m_atlasWorld = TileSetManager::Get().getTileSet("world").getAtlas();
 	//Spritesheet::Safe("world", m_atlasWorld);
@@ -123,6 +124,11 @@ MonsterHunter::MonsterHunter(StateMachine& machine) : State(machine, States::MON
 	shader->unuse();
 
 	shader = Globals::shaderManager.getAssetPointer("font");
+	shader->use();
+	shader->loadMatrix("u_transform", m_camera.getOrthographicMatrix());
+	shader->unuse();
+
+	shader = Globals::shaderManager.getAssetPointer("dialog");
 	shader->use();
 	shader->loadMatrix("u_transform", m_camera.getOrthographicMatrix());
 	shader->unuse();
@@ -298,6 +304,11 @@ void MonsterHunter::resize(int deltaW, int deltaH) {
 	shader->unuse();
 
 	shader = Globals::shaderManager.getAssetPointer("font");
+	shader->use();
+	shader->loadMatrix("u_transform", m_camera.getOrthographicMatrix());
+	shader->unuse();
+
+	shader = Globals::shaderManager.getAssetPointer("dialog");
 	shader->use();
 	shader->loadMatrix("u_transform", m_camera.getOrthographicMatrix());
 	shader->unuse();

@@ -421,7 +421,7 @@ void Batchrenderer::drawBufferRaw() {
 void Batchrenderer::drawSingleQuadAA(Vector4f posSize, Vector4f texPosSize, Vector4f color, unsigned int frame) {
 
 	glBindBuffer(GL_ARRAY_BUFFER, m_vboSingle);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * 4, NULL, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * 4, NULL, GL_DYNAMIC_DRAW);
 	Vertex* ptr = (Vertex*)glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
 	if (ptr) {
 		ptr[0] = { posSize[0], posSize[1], texPosSize[0], texPosSize[1], color[0], color[1], color[2], color[3], frame };
@@ -472,7 +472,7 @@ void Batchrenderer::processQuad() {
 
 void Batchrenderer::processSingleQuad() {
 	glBindBuffer(GL_ARRAY_BUFFER, m_vboSingle);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * 4, NULL, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * 4, NULL, GL_DYNAMIC_DRAW);
 	Vertex* ptr = (Vertex*)glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
 	if (ptr) {
 		ptr[0] = { quadPos[0], quadPos[1], texPos[0], texPos[1], color[0], color[1], color[2], color[3], frame };

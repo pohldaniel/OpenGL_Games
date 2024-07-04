@@ -56,7 +56,7 @@ public:
 	void loadTileSetCpu(std::string texturePath, bool init, float tileHWidth, float tileHeight, bool flipVertical = true, bool flipTextureRects = false);
 	void loadTileCpu(std::string texturePath, bool init, bool flipVertical = true, bool flipTextureRects = false);
 	void loadTileCpu(std::string texturePath, bool init, unsigned int posX, unsigned int posY, unsigned int width, unsigned int height, bool flipVertical = true, bool flipTextureRects = false);
-	void addCharset(CharacterSet& characterSet, bool init);
+	void addCharset(CharacterSet& characterSet, bool init, int threshold = -1);
 	
 	const std::vector<TextureRect> getLastTextureRects() const;
 

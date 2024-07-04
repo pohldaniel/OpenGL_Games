@@ -19,7 +19,8 @@ public:
 	void resetRenderer();
 
 	std::string floatToString(float val, int precision);
-	void init(size_t size = 60);
+	void init(size_t size = 60, bool drawSingle = false);
+	Batchrenderer* getBatchRenderer();
 
 	static Fontrenderer& Get();
 	static std::string FloatToString(float val, int precision);

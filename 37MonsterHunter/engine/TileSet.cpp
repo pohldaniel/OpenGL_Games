@@ -413,7 +413,7 @@ void TileSet::loadTileCpu(std::string texturePath, bool init, unsigned int posX,
 	free(bytes);
 }
 
-void TileSet::addCharset(CharacterSet& characterSet, bool init) {
+void TileSet::addCharset(CharacterSet& characterSet, bool init, int threshold) {
 	if (m_init) return;
 
 	if (init)
@@ -434,7 +434,7 @@ void TileSet::addCharset(CharacterSet& characterSet, bool init) {
 		bytesNew[i] = (int)bytes[k];
 		bytesNew[i + 1] = (int)bytes[k];
 		bytesNew[i + 2] = (int)bytes[k];
-		bytesNew[i + 3] = bytes[k] >= 220 ? 255 : 0;
+		bytesNew[i + 3] = threshold = -1 ? bytes[k] : bytes[k] >= threshold ? 255 : 0;
 	}
 
 	TextureAtlasCreator::Get().addCharset(bytesNew, characterSet.maxWidth, characterSet.maxHeight, characterSet, false, 0u, 0u, m_textureRects);

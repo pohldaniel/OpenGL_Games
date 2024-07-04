@@ -73,8 +73,9 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	SavedExStyle = GetWindowLong(Window, GWL_EXSTYLE);
 	SavedStyle = GetWindowLong(Window, GWL_STYLE);
 
-	Fontrenderer::Get().init();
+	Fontrenderer::Get().init(60, true);
 	Fontrenderer::Get().setShader(Globals::shaderManager.getAssetPointer("font"));
+	//Fontrenderer::Get().setRenderer(&Batchrenderer::Get());
 
 	Batchrenderer::Get().init(1000, false, false);
 	Batchrenderer::Get().setShader(Globals::shaderManager.getAssetPointer("batch"));
@@ -88,6 +89,11 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	shader->unuse();
 
 	shader = Globals::shaderManager.getAssetPointer("batch");
+	shader->use();
+	shader->loadMatrix("u_transform", Matrix4f::Orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f));
+	shader->unuse();
+
+	shader = Globals::shaderManager.getAssetPointer("dialog");
 	shader->use();
 	shader->loadMatrix("u_transform", Matrix4f::Orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f));
 	shader->unuse();
@@ -639,6 +645,11 @@ void Application::Resize(int deltaW, int deltaH) {
 		shader->loadMatrix("u_transform", Matrix4f::Orthographic(0.0f, static_cast<float>(Width), 0.0f, static_cast<float>(Height), -1.0f, 1.0f));
 		shader->unuse();
 
+		shader = Globals::shaderManager.getAssetPointer("dialog");
+		shader->use();
+		shader->loadMatrix("u_transform", Matrix4f::Orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f));
+		shader->unuse();
+
 		Machine->getStates().top()->resize(deltaW, deltaH);
 	}
 }
@@ -709,11 +720,14 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("batch", "res/shader/batch.vert", "res/shader/batch.frag");
 	Globals::shaderManager.loadShader("main", "res/shader/main.vert", "res/shader/main.frag");
 	Globals::shaderManager.loadShader("color", "res/shader/color.vert", "res/shader/color.frag");
+	Globals::shaderManager.loadShader("dialog", "res/shader/batch.vert", "res/shader/dialog.frag");
 
 	Globals::fontManager.loadCharacterSet("upheaval_200", "res/fonts/upheavtt.ttf", 200, 0, 30, 128, 0, true, 0u);
 	Globals::fontManager.loadCharacterSet("upheaval_50", "res/fonts/upheavtt.ttf", 30, 0, 3, 0, 0, true, 0u);
-	Globals::fontManager.loadCharacterSet("dialog", "res/fonts/PixeloidSans.ttf", 200, 50, 100, 128, 0, true, 0u);
-
+	Globals::fontManager.loadCharacterSet("dialog", "res/fonts/PixeloidSans.ttf", 400, 100, 200, 256, 0, true, 0u);
+	Globals::fontManager.get("dialog").setLinearMipMap();
+	//Globals::fontManager.get("dialog").addSpacing("Ii", -150);
+	//Globals::fontManager.get("dialog").addSpacing(" ", -200);
 	//Globals::fontManager.get("dialog").safeFont("dialog");
 
 	Globals::textureManager.loadTexture("forest_1", "res/backgrounds/Forest/plx-1.png");

@@ -90,8 +90,8 @@ void CharacterSet::loadFromFile(const std::string& path, unsigned int characterS
 		glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RED, maxWidth, maxHeight, 1, 0, GL_RED, GL_UNSIGNED_BYTE, NULL);
 		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
 		// Paste all glyph bitmaps into the texture, remembering the offset 
 		unsigned int ox = 0;
@@ -152,13 +152,13 @@ void CharacterSet::loadFromFile(const std::string& path, unsigned int characterS
 			glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, ox, oy, 0, g->bitmap.width, height, 1, GL_RED, GL_UNSIGNED_BYTE, bytes);
 
 			free(bytes);
-
+			float off = 0.0f;
 			Char character = {
 				{ g->bitmap_left, g->bitmap_top },
 				{ g->bitmap.width, height },
 				//{ static_cast<float>(ox - shiftX) / (float)maxWidth, static_cast<float>(oy) / (float)maxHeight },
-				{ static_cast<float>(ox) / (float)maxWidth, static_cast<float>(oy) / (float)maxHeight },
-				{ static_cast<float>(g->bitmap.width) / static_cast<float>(maxWidth), static_cast<float>(height) / static_cast<float>(maxHeight) },
+				{ (static_cast<float>(ox) + off) / (float)maxWidth, (static_cast<float>(oy) + off) / (float)maxHeight },
+				{ (static_cast<float>(g->bitmap.width) - off) / static_cast<float>(maxWidth), (static_cast<float>(height) - off) / static_cast<float>(maxHeight)  },
 				{ (g->advance.x >> 6) + spacing }
 			};
 
@@ -238,4 +238,33 @@ int CharacterSet::getWidth(std::string text) const {
 void CharacterSet::bind(unsigned int unit) const {
 	glActiveTexture(GL_TEXTURE0 + unit);
 	glBindTexture(GL_TEXTURE_2D_ARRAY, spriteSheet);
+}
+
+void CharacterSet::setRepeat() {
+	glBindTexture(GL_TEXTURE_2D_ARRAY, spriteSheet);
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
+}
+
+void CharacterSet::setNearest() {
+	glBindTexture(GL_TEXTURE_2D_ARRAY, spriteSheet);
+	glTexParameterf(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameterf(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
+}
+
+void CharacterSet::setLinear() {
+	glBindTexture(GL_TEXTURE_2D_ARRAY, spriteSheet);
+	glTexParameterf(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameterf(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
+}
+
+void CharacterSet::setLinearMipMap() {
+	glBindTexture(GL_TEXTURE_2D_ARRAY, spriteSheet);
+	glTexParameterf(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameterf(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
+	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
 }

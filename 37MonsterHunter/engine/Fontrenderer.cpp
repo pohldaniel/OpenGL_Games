@@ -24,8 +24,8 @@ void Fontrenderer::shutdown() {
 	m_batchrenderer->shutdown();
 }
 
-void Fontrenderer::init(size_t size)  {
-	m_batchrenderer->init(size);
+void Fontrenderer::init(size_t size, bool drawSingle)  {
+	m_batchrenderer->init(size, drawSingle);
 }
 
 void Fontrenderer::setShader(Shader* shader) {
@@ -92,4 +92,8 @@ std::string Fontrenderer::FloatToString(float val, int precision) {
 	static char buffer[bufSize];
 	std::snprintf(buffer, bufSize, "%.*f", precision, val);
 	return std::string(buffer);
+}
+
+Batchrenderer* Fontrenderer::getBatchRenderer() {
+	return m_batchrenderer;
 }

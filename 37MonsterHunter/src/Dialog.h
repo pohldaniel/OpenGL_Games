@@ -26,5 +26,11 @@ private:
 	int m_currentIndex;
 	bool m_finished;
 	const Camera& camera;
+
+	float(&quadPos)[8];
+	float(&texPos)[8];
+	float(&color)[4];
+	unsigned int& frame;
+
 	static std::vector<Dialog> DialogData;
 };
