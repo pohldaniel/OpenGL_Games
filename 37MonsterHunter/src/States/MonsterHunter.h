@@ -56,7 +56,7 @@ private:
 	void renderUi();
 	
 	bool m_initUi = true;
-	bool m_drawUi = true;
+	bool m_drawUi = false;
 	bool m_drawCenter = false;
 	bool m_useCulling = true;
 	bool m_drawScreenBorder = false;
@@ -72,4 +72,5 @@ private:
 
 	Zone m_zone;
 	std::unordered_map<std::string, Trainer> m_trainers;
+	Dialog m_dialog;
 };

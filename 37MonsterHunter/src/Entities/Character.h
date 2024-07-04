@@ -8,7 +8,7 @@ class Character : public SpriteEntity {
 
 public:
 
-	Character(Cell& cell, const Rect& collisionRect);
+	Character(Cell& cell);
 	virtual ~Character();
 
 	void update(float dt) override;
@@ -20,14 +20,15 @@ public:
 	void startMove();
 	bool raycast(const Player& player);
 	void setRayCast(bool rayCast);
+	void setCollisionRectIndex(int collisionRectIndex);
 
 private:
 
-	bool hasLineOfSight(const Cell& cell, const std::vector<Rect>& collisionRects, const Rect& collisionRect, float radius) const;
+	bool hasLineOfSight(const Cell& cell, const std::vector<Rect>& collisionRects, float radius) const;
 
 	std::string m_characterId;
 	float m_radius;
 	bool m_move;
 	bool m_rayCast;
-	const Rect& collisionRect;
+	int m_collisionRectIndex;
 };

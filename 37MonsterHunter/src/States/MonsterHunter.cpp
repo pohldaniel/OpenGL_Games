@@ -4,6 +4,7 @@
 #include <imgui_impl_opengl3.h>
 #include <imgui_internal.h>
 #include <engine/Batchrenderer.h>
+#include <engine/Fontrenderer.h>
 #include <engine/TileSet.h>
 #include <States/Menu.h>
 #include <tmxlite/Map.hpp>
@@ -16,7 +17,7 @@
 #include "Application.h"
 #include "Globals.h"
 
-MonsterHunter::MonsterHunter(StateMachine& machine) : State(machine, States::MONSTER_HUNTER), m_zone(m_camera){
+MonsterHunter::MonsterHunter(StateMachine& machine) : State(machine, States::MONSTER_HUNTER), m_zone(m_camera), m_dialog(m_camera){
 
 	m_viewWidth = 1280.0f;
 	m_viewHeight= 720.0f;
@@ -121,12 +122,18 @@ MonsterHunter::MonsterHunter(StateMachine& machine) : State(machine, States::MON
 	shader->loadMatrix("u_transform", m_camera.getOrthographicMatrix());
 	shader->unuse();
 
+	shader = Globals::shaderManager.getAssetPointer("font");
+	shader->use();
+	shader->loadMatrix("u_transform", m_camera.getOrthographicMatrix());
+	shader->unuse();
+
 	m_zone.setDebugCollision(m_debugCollision);
 
 	m_zone.getPlayer().setMovingSpeed(m_movingSpeed);
 	m_zone.getPlayer().setViewWidth(m_viewWidth);
 	m_zone.getPlayer().setViewHeight(m_viewHeight);
 	m_zone.getPlayer().setMapHeight(m_mapHeight);
+	m_zone.getPlayer().adjustCamera();
 
 	std::ifstream file("res/trainer.json", std::ios::in);
 	if (!file.is_open()) {
@@ -175,7 +182,7 @@ MonsterHunter::MonsterHunter(StateMachine& machine) : State(machine, States::MON
 			}
 		}		
 	}
-	file.close();
+	file.close();	
 }
 
 MonsterHunter::~MonsterHunter() {
@@ -188,7 +195,7 @@ void MonsterHunter::fixedUpdate() {
 }
 
 void MonsterHunter::update() {
-
+	
 	Keyboard &keyboard = Keyboard::instance();
 	if (keyboard.keyPressed(Keyboard::KEY_SPACE)) {
 		for (auto&& character : m_zone.getCharacters()) {
@@ -196,8 +203,21 @@ void MonsterHunter::update() {
 				m_zone.getPlayer().block();
 				character.get().changeFacingDirection(m_zone.getPlayer());
 				character.get().setRayCast(false);
+				Trainer& trainer = m_trainers[character.get().getCharacterId()];
+				if (m_dialog.isFinished()) {
+					for (auto& dialog : trainer.dialog.undefeated) {
+						m_dialog.addDialog(character.get().getCell().posX, m_mapHeight - (character.get().getCell().posY - 128.0f), dialog);
+					}
+					m_dialog.setFinished(false);
+				}
+
 			}
 		}
+	}
+
+	m_dialog.processInput();
+	if (m_dialog.isFinished()) {
+		m_zone.getPlayer().unblock();
 	}
 
 	for (auto&& character : m_zone.getCharacters()) {
@@ -222,6 +242,7 @@ void MonsterHunter::render() {
 	Spritesheet::Bind(m_atlasWorld);
 	m_zone.draw();
 
+	m_dialog.draw();
 	if (m_drawUi)
 		renderUi();
 }
@@ -272,6 +293,11 @@ void MonsterHunter::resize(int deltaW, int deltaH) {
 	m_zone.resize();
 
 	auto shader = Globals::shaderManager.getAssetPointer("batch");
+	shader->use();
+	shader->loadMatrix("u_transform", m_camera.getOrthographicMatrix());
+	shader->unuse();
+
+	shader = Globals::shaderManager.getAssetPointer("font");
 	shader->use();
 	shader->loadMatrix("u_transform", m_camera.getOrthographicMatrix());
 	shader->unuse();

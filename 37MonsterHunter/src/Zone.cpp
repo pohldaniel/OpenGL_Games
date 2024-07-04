@@ -138,7 +138,6 @@ void Zone::draw() {
 void Zone::loadZone(const std::string& path, size_t capacity) {
 	//https://stackoverflow.com/questions/24697063/how-to-make-pointer-reference-on-element-in-vector
 	m_cellsMain.reserve(capacity);
-	m_collisionRects.reserve(500);
 	tmx::Map map;
 	map.load(path);
 
@@ -212,43 +211,47 @@ void Zone::loadZone(const std::string& path, size_t capacity) {
 					if (object.getProperties()[3].getStringValue() == "straw") {
 						m_cellsMain.push_back(CellShadow(object.getPosition().x - 64.0f, object.getPosition().y, 632, object.getPosition().x, object.getPosition().y - 64.0f, 128.0f, false, true));
 						m_collisionRects.push_back({ (object.getPosition().x - 64.0f) + 32.0f, (object.getPosition().y) - (128.0f - 30.0f), 128.0f - 64.0f, 128.0f - 60.0f });
-						m_spriteEntities.push_back(std::make_unique<Character>(m_cellsMain.back(), m_collisionRects.back()));
+						m_spriteEntities.push_back(std::make_unique<Character>(m_cellsMain.back()));
 						m_spriteEntities.back()->setViewDirection(SpriteEntity::GetDirection(object.getProperties()[2].getStringValue()));
 						m_spriteEntities.back()->setMovingSpeed(250.0f);
 
 						m_characters.push_back(reinterpret_cast<Character&>(*m_spriteEntities.back().get()));
 						m_characters.back().get().setCharacterId(object.getProperties()[1].getStringValue());
 						m_characters.back().get().setRadius(std::stof(object.getProperties()[4].getStringValue()));
+						m_characters.back().get().setCollisionRectIndex(m_collisionRects.size() - 1);
 					}else if (object.getProperties()[3].getStringValue() == "blond") {
 						m_cellsMain.push_back(CellShadow(object.getPosition().x - 64.0f, object.getPosition().y, 552, object.getPosition().x,  object.getPosition().y - 64.0f, 128.0f, false, true));
 						m_collisionRects.push_back({ (object.getPosition().x - 64.0f) + 32.0f, (object.getPosition().y) - (128.0f - 30.0f), 128.0f - 64.0f, 128.0f - 60.0f });
-						m_spriteEntities.push_back(std::make_unique<Character>(m_cellsMain.back(), m_collisionRects.back()));
+						m_spriteEntities.push_back(std::make_unique<Character>(m_cellsMain.back()));
 						m_spriteEntities.back()->setViewDirection(SpriteEntity::GetDirection(object.getProperties()[2].getStringValue()));
 						m_spriteEntities.back()->setMovingSpeed(250.0f);
 
 						m_characters.push_back(reinterpret_cast<Character&>(*m_spriteEntities.back().get()));
 						m_characters.back().get().setCharacterId(object.getProperties()[1].getStringValue());
 						m_characters.back().get().setRadius(std::stof(object.getProperties()[4].getStringValue()));
+						m_characters.back().get().setCollisionRectIndex(m_collisionRects.size() - 1);
 					}else if (object.getProperties()[3].getStringValue() == "hat_girl") {
 						m_cellsMain.push_back(CellShadow(object.getPosition().x - 64.0f, object.getPosition().y, 600, object.getPosition().x,  object.getPosition().y - 64.0f, 128.0f, false, true));
 						m_collisionRects.push_back({ (object.getPosition().x - 64.0f) + 32.0f, (object.getPosition().y) - (128.0f - 30.0f), 128.0f - 64.0f, 128.0f - 60.0f });
-						m_spriteEntities.push_back(std::make_unique<Character>(m_cellsMain.back(), m_collisionRects.back()));
+						m_spriteEntities.push_back(std::make_unique<Character>(m_cellsMain.back()));
 						m_spriteEntities.back()->setViewDirection(SpriteEntity::GetDirection(object.getProperties()[2].getStringValue()));
 						m_spriteEntities.back()->setMovingSpeed(250.0f);
 
 						m_characters.push_back(reinterpret_cast<Character&>(*m_spriteEntities.back().get()));
 						m_characters.back().get().setCharacterId(object.getProperties()[1].getStringValue());
 						m_characters.back().get().setRadius(std::stof(object.getProperties()[4].getStringValue()));
+						m_characters.back().get().setCollisionRectIndex(m_collisionRects.size() - 1);
 					}else if (object.getProperties()[3].getStringValue() == "young_guy") {
 						m_cellsMain.push_back(CellShadow(object.getPosition().x - 64.0f, object.getPosition().y, 680, object.getPosition().x ,  object.getPosition().y - 64.0f, 128.0f, false, true));
 						m_collisionRects.push_back({ (object.getPosition().x - 64.0f) + 32.0f, (object.getPosition().y) - (128.0f - 30.0f), 128.0f - 64.0f, 128.0f - 60.0f });
-						m_spriteEntities.push_back(std::make_unique<Character>(m_cellsMain.back(), m_collisionRects.back()));
+						m_spriteEntities.push_back(std::make_unique<Character>(m_cellsMain.back()));
 						m_spriteEntities.back()->setViewDirection(SpriteEntity::GetDirection(object.getProperties()[2].getStringValue()));
 						m_spriteEntities.back()->setMovingSpeed(250.0f);
 
 						m_characters.push_back(reinterpret_cast<Character&>(*m_spriteEntities.back().get()));
 						m_characters.back().get().setCharacterId(object.getProperties()[1].getStringValue());
 						m_characters.back().get().setRadius(std::stof(object.getProperties()[4].getStringValue()));
+						m_characters.back().get().setCollisionRectIndex(m_collisionRects.size() - 1);
 					}
 				}
 			}

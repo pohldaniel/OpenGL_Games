@@ -18,6 +18,7 @@ public:
 	void setMapHeight(float mapHeight);
 	void block();
 	void unblock();
+	void adjustCamera();
 	const ViewDirection& getViewDirection() override;
 	const ViewDirection& getLastViewDirection();
 	const std::vector<Rect>& getCollisionRects() const;

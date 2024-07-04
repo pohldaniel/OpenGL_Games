@@ -84,6 +84,10 @@ void Player::update(float dt) {
 	updateAnimation(dt);
 }
 
+void Player::adjustCamera() {
+	camera.setPosition(cell.centerX - m_viewWidth * 0.5f, m_mapHeight - cell.centerY - 0.5f * m_viewHeight, 0.0f);
+}
+
 const ViewDirection& Player::getViewDirection() {
 	updateLastViewDirection();
 	if (m_direction[0] != 0.0f || m_direction[1] != 0.0f) {

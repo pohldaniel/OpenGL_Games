@@ -3,7 +3,7 @@
 #include <Entities/Player.h>
 #include "Character.h"
 
-Character::Character(Cell& cell, const Rect& collisionRect) : SpriteEntity(cell), collisionRect(collisionRect), m_characterId(""), m_radius(0.0f), m_move(false), m_rayCast(true){
+Character::Character(Cell& cell) : SpriteEntity(cell), m_characterId(""), m_radius(0.0f), m_move(false), m_rayCast(true), m_collisionRectIndex(-1){
 
 }
 
@@ -65,12 +65,12 @@ bool lineRect(float x1, float y1, float x2, float y2, float rx, float ry, float 
 	return (left || right || top || bottom);
 }
 
-bool Character::hasLineOfSight(const Cell& cell, const std::vector<Rect>& collisionRects, const Rect& collisionRect, float radius) const {
+bool Character::hasLineOfSight(const Cell& cell, const std::vector<Rect>& collisionRects, float radius) const {
 	if (Vector2f::Length(Vector2f(cell.centerX, cell.centerY), Vector2f(Character::cell.centerX, Character::cell.centerY)) < radius) {
-		for (const Rect& rect : collisionRects) {
-			if (&collisionRect == &rect)
+		for (size_t i = 0; i < collisionRects.size(); ++i) {
+			if (i == m_collisionRectIndex)
 				continue;
-
+			const Rect& rect = collisionRects[i];
 			if (lineRect(cell.centerX, cell.centerY, Character::cell.centerX, Character::cell.centerY, rect.posX, rect.posY, rect.width, rect.height)) {
 				return false;
 			}
@@ -80,9 +80,13 @@ bool Character::hasLineOfSight(const Cell& cell, const std::vector<Rect>& collis
 }
 
 bool Character::raycast(const Player& player) {
-	return m_rayCast && CheckConnection(getCell(), player.getCell(), m_viewDirection, m_radius, 30.0f) && hasLineOfSight(player.getCell(), player.getCollisionRects(), collisionRect, m_radius);
+	return m_rayCast && CheckConnection(getCell(), player.getCell(), m_viewDirection, m_radius, 30.0f) && hasLineOfSight(player.getCell(), player.getCollisionRects(), m_radius);
 }
 
 void Character::setRayCast(bool rayCast) {
 	m_rayCast = rayCast;
+}
+
+void Character::setCollisionRectIndex(int collisionRectIndex) {
+	m_collisionRectIndex = collisionRectIndex;
 }

@@ -712,6 +712,9 @@ void Application::loadAssets() {
 
 	Globals::fontManager.loadCharacterSet("upheaval_200", "res/fonts/upheavtt.ttf", 200, 0, 30, 128, 0, true, 0u);
 	Globals::fontManager.loadCharacterSet("upheaval_50", "res/fonts/upheavtt.ttf", 30, 0, 3, 0, 0, true, 0u);
+	Globals::fontManager.loadCharacterSet("dialog", "res/fonts/PixeloidSans.ttf", 200, 50, 100, 128, 0, true, 0u);
+
+	//Globals::fontManager.get("dialog").safeFont("dialog");
 
 	Globals::textureManager.loadTexture("forest_1", "res/backgrounds/Forest/plx-1.png");
 	Globals::textureManager.loadTexture("forest_2", "res/backgrounds/Forest/plx-2.png");
