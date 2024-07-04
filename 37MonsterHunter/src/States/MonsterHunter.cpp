@@ -17,7 +17,7 @@
 #include "Application.h"
 #include "Globals.h"
 
-MonsterHunter::MonsterHunter(StateMachine& machine) : State(machine, States::MONSTER_HUNTER), m_zone(m_camera), m_dialog(m_camera){
+MonsterHunter::MonsterHunter(StateMachine& machine) : State(machine, States::MONSTER_HUNTER), m_zone(m_camera), m_dialogTree(m_camera) {
 
 	m_viewWidth = 1280.0f;
 	m_viewHeight= 720.0f;
@@ -204,19 +204,19 @@ void MonsterHunter::update() {
 				character.get().changeFacingDirection(m_zone.getPlayer());
 				character.get().setRayCast(false);
 				Trainer& trainer = m_trainers[character.get().getCharacterId()];
-				if (m_dialog.isFinished()) {
+				if (m_dialogTree.isFinished()) {
 					for (auto& dialog : trainer.dialog.undefeated) {
-						m_dialog.addDialog(character.get().getCell().posX, m_mapHeight - (character.get().getCell().posY - 128.0f), dialog);
+						m_dialogTree.addDialog(character.get().getCell().posX, m_mapHeight - (character.get().getCell().posY - 128.0f), dialog);
 					}
-					m_dialog.setFinished(false);
+					m_dialogTree.setFinished(false);
 				}
 
 			}
 		}
 	}
 
-	m_dialog.processInput();
-	if (m_dialog.isFinished()) {
+	m_dialogTree.processInput();
+	if (m_dialogTree.isFinished()) {
 		m_zone.getPlayer().unblock();
 	}
 
@@ -242,7 +242,7 @@ void MonsterHunter::render() {
 	Spritesheet::Bind(m_atlasWorld);
 	m_zone.draw();
 
-	m_dialog.draw();
+	m_dialogTree.draw();
 	if (m_drawUi)
 		renderUi();
 }

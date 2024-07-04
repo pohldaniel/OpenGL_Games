@@ -72,5 +72,5 @@ private:
 
 	Zone m_zone;
 	std::unordered_map<std::string, Trainer> m_trainers;
-	Dialog m_dialog;
+	DialogTree m_dialogTree;
 };

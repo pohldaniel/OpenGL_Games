@@ -4,35 +4,35 @@
 #include "Dialog.h"
 #include "Globals.h"
 
-std::vector<DialogDataNew> Dialog::DialogData;
+std::vector<Dialog> DialogTree::DialogData;
 
-Dialog::Dialog(const Camera& camera) : camera(camera), m_currentIndex(-1), m_finished(true){
-
-}
-
-Dialog::~Dialog() {
+DialogTree::DialogTree(const Camera& camera) : camera(camera), m_currentIndex(-1), m_finished(true){
 
 }
 
-void Dialog::draw() {
+DialogTree::~DialogTree() {
+
+}
+
+void DialogTree::draw() {
 	Globals::fontManager.get("dialog").bind();
 
 	if (m_currentIndex >= 0) {
-		const DialogDataNew& dialogData = DialogData[m_currentIndex];
+		const Dialog& dialogData = DialogData[m_currentIndex];
 		Fontrenderer::Get().addText(Globals::fontManager.get("dialog"), dialogData.posX - camera.getPositionX(), dialogData.posY - camera.getPositionY(), dialogData.text, Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 0.1f);
 		Fontrenderer::Get().drawBuffer();
 	}
 }
 
-void Dialog::addDialog(float posX, float posY, const std::string& text) {
+void DialogTree::addDialog(float posX, float posY, const std::string& text) {
 	DialogData.push_back({posX, posY, text});
 }
 
-void Dialog::setFinished(bool finished) {
+void DialogTree::setFinished(bool finished) {
 		m_finished = false;
 }
 
-void Dialog::processInput() {
+void DialogTree::processInput() {
 	if (m_finished)
 		return;
 
@@ -48,6 +48,6 @@ void Dialog::processInput() {
 	}
 }
 
-bool Dialog::isFinished() {
+bool DialogTree::isFinished() {
 	return m_finished;
 }

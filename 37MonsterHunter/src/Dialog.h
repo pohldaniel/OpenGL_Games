@@ -2,18 +2,18 @@
 
 #include <engine/Camera.h>
 
-struct DialogDataNew {
+struct Dialog {
 	float posX;
 	float posY;
 	std::string text;
 };
 
-class Dialog {
+class DialogTree {
 
 public:
 
-	Dialog(const Camera& camera);
-	~Dialog();
+	DialogTree(const Camera& camera);
+	~DialogTree();
 
 	void draw();
 	void addDialog(float posX, float posY, const std::string& text);
@@ -26,5 +26,5 @@ private:
 	int m_currentIndex;
 	bool m_finished;
 	const Camera& camera;
-	static std::vector<DialogDataNew> DialogData;
+	static std::vector<Dialog> DialogData;
 };
