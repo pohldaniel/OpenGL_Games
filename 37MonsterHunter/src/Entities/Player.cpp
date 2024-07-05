@@ -11,10 +11,6 @@ Player::~Player() {
 
 }
 
-bool Player::hasCollision(float r1_l, float r1_t, float r1_r, float r1_b, float r2_l, float r2_t, float r2_r, float r2_b) {
-	return (r2_b > r1_t) && (r2_t < r1_b) && (r1_l < r2_r) && (r2_l < r1_r);
-}
-
 void Player::update(float dt) {
 	if (m_blocked)
 		return;
@@ -48,7 +44,7 @@ void Player::update(float dt) {
 		cell.posX += m_direction[0] * dt * m_movingSpeed;
 		Rect playerRect = { cell.posX + 32.0f, cell.posY - (128.0f - 30.0f) , 128.0f - 64.0f, 128.0f - 60.0f };
 		for (const Rect& rect : collisionRects) {
-			if (hasCollision(rect.posX, rect.posY, rect.posX + rect.width, rect.posY + rect.height, playerRect.posX, playerRect.posY, playerRect.posX + playerRect.width, playerRect.posY + playerRect.height)) {
+			if (SpriteEntity::HasCollision(rect.posX, rect.posY, rect.posX + rect.width, rect.posY + rect.height, playerRect.posX, playerRect.posY, playerRect.posX + playerRect.width, playerRect.posY + playerRect.height)) {
 
 				if (m_direction[0] > 0) {
 					cell.posX = rect.posX - (playerRect.width + 32.0f);
@@ -63,7 +59,7 @@ void Player::update(float dt) {
 		cell.posY -= m_direction[1] * dt * m_movingSpeed;
 		playerRect = { cell.posX + 32.0f, cell.posY - (128.0f - 30.0f) , 128.0f - 64.0f, 128.0f - 60.0f };
 		for (const Rect& rect : collisionRects) {
-			if (hasCollision(rect.posX, rect.posY, rect.posX + rect.width, rect.posY + rect.height, playerRect.posX, playerRect.posY, playerRect.posX + playerRect.width, playerRect.posY + playerRect.height)) {
+			if (SpriteEntity::HasCollision(rect.posX, rect.posY, rect.posX + rect.width, rect.posY + rect.height, playerRect.posX, playerRect.posY, playerRect.posX + playerRect.width, playerRect.posY + playerRect.height)) {
 				if (m_direction[1] < 0) {
 					cell.posY = rect.posY + 30.0f;
 				}

@@ -3,7 +3,7 @@
 #include <Entities/Player.h>
 #include "Character.h"
 
-Character::Character(Cell& cell) : SpriteEntity(cell), m_characterId(""), m_radius(0.0f), m_move(false), m_rayCast(true), m_collisionRectIndex(-1){
+Character::Character(Cell& cell, Rect& rect) : SpriteEntity(cell), collisionRect(rect), m_characterId(""), m_radius(0.0f), m_move(false), m_rayCast(true), m_defeated(false), m_collisionRectIndex(-1), OnMoveEnd(nullptr){
 
 }
 
@@ -20,7 +20,22 @@ void Character::update(float dt) {
 	cell.centerX = cell.posX + 64.0f;
 	cell.centerY = cell.posY - 64.0f;
 
+	collisionRect.posX += m_direction[0] * dt * m_movingSpeed;
+	collisionRect.posY -= m_direction[1] * dt * m_movingSpeed;
+
 	updateAnimation(dt);
+
+
+	Rect playerRect = { m_playerPos[0] + 27.0f, m_playerPos[1] - (128.0f - 25.0f) , 128.0f - 54.0f, 128.0f - 50.0f };
+	if (SpriteEntity::HasCollision(collisionRect.posX, collisionRect.posY, collisionRect.posX + collisionRect.width, collisionRect.posY + collisionRect.height, playerRect.posX, playerRect.posY, playerRect.posX + playerRect.width, playerRect.posY + playerRect.height)) {	
+		m_move = false;
+		resetAnimation();
+
+		if (OnMoveEnd) {
+			OnMoveEnd();
+			OnMoveEnd = nullptr;
+		}
+	}	
 }
 
 void Character::setCharacterId(const std::string& characterId) {
@@ -35,7 +50,8 @@ const std::string& Character::getCharacterId() {
 	return m_characterId;
 }
 
-void Character::startMove() {
+void Character::startMove(const Vector2f& playerPos) {
+	m_playerPos = playerPos;
 	m_move = true;
 }
 
@@ -89,4 +105,16 @@ void Character::setRayCast(bool rayCast) {
 
 void Character::setCollisionRectIndex(int collisionRectIndex) {
 	m_collisionRectIndex = collisionRectIndex;
+}
+
+void Character::setOnMoveEnd(std::function<void()> fun) {
+	OnMoveEnd = fun;
+}
+
+void Character::setDefeated(bool defeated) {
+	m_defeated = defeated;
+}
+
+bool Character::isDefeated() {
+	return m_defeated;
 }

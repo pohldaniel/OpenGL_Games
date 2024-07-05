@@ -726,8 +726,6 @@ void Application::loadAssets() {
 	Globals::fontManager.loadCharacterSet("upheaval_50", "res/fonts/upheavtt.ttf", 30, 0, 3, 0, 0, true, 0u);
 	Globals::fontManager.loadCharacterSet("dialog", "res/fonts/PixeloidSans.ttf", 400, 100, 200, 256, 0, true, 0u);
 	Globals::fontManager.get("dialog").setLinearMipMap();
-	//Globals::fontManager.get("dialog").addSpacing("Ii", -150);
-	//Globals::fontManager.get("dialog").addSpacing(" ", -200);
 	//Globals::fontManager.get("dialog").safeFont("dialog");
 
 	Globals::textureManager.loadTexture("forest_1", "res/backgrounds/Forest/plx-1.png");

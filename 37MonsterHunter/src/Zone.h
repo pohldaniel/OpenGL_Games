@@ -50,6 +50,7 @@ class Zone {
 	static const int MAX_POINTS = 1000;
 
 public:
+
 	Zone(const Camera& camera);
 	~Zone();
 

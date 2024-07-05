@@ -211,29 +211,49 @@ void MonsterHunter::update() {
 				character.get().setRayCast(false);
 				Trainer& trainer = m_trainers[character.get().getCharacterId()];
 				if (m_dialogTree.isFinished()) {
-					for (auto& dialog : trainer.dialog.undefeated) {
-						m_dialogTree.addDialog(character.get().getCell().posX, m_mapHeight - (character.get().getCell().posY - 128.0f), dialog);
+					for (auto& dialog : !character.get().isDefeated() ? trainer.dialog.undefeated : trainer.dialog.defeated) {
+						m_dialogTree.addDialog(character.get().getCell().posX, m_mapHeight - (character.get().getCell().posY - 128.0f), 0.0f, 0.0f, dialog);
 					}
 					m_dialogTree.setFinished(false);
+					m_dialogTree.setOnDialogFinished([&m_zone = m_zone, &character = character]() {
+						m_zone.getPlayer().unblock();
+						character.get().setDefeated(true);
+					});
 				}
 
 			}
 		}
 	}
 
-	m_dialogTree.processInput();
-	if (m_dialogTree.isFinished()) {
-		m_zone.getPlayer().unblock();
-	}
-
 	for (auto&& character : m_zone.getCharacters()) {
-		if (character.get().raycast(m_zone.getPlayer())) {					
+		if (character.get().raycast(m_zone.getPlayer())) {
+			character.get().setRayCast(false);
 			if(!m_zone.getPlayer().isBlocked())
 				m_zone.getPlayer().changeFacingDirection(character);
 			m_zone.getPlayer().block();
-			character.get().startMove();
+			m_dialogTree.addDialog(m_zone.getPlayer().getCell().posX + 48.0f, m_mapHeight - (m_zone.getPlayer().getCell().posY - 128.0f), 7.0f, 0.0f, "!", 0);			
+			m_dialogTree.setBlockInput(true);
+			m_dialogTree.setFinished(false);
+
+			m_dialogTree.setOnDialogFinished([&m_zone = m_zone, &character = character]() {
+				m_zone.getPlayer().unblock();
+				character.get().setDefeated(true);
+			});
+
+			character.get().startMove({ m_zone.getPlayer().getCell().posX, m_zone.getPlayer().getCell().posY });
+			character.get().setOnMoveEnd([&m_dialogTree = m_dialogTree, &m_trainers = m_trainers, &character = character, &m_mapHeight = m_mapHeight]() {
+				Trainer& trainer = m_trainers[character.get().getCharacterId()];
+				for (auto& dialog : trainer.dialog.undefeated) {
+					m_dialogTree.addDialog(character.get().getCell().posX, m_mapHeight - (character.get().getCell().posY - 128.0f), 0.0f, 0.0f, dialog, 0);
+				}
+				m_dialogTree.incrementIndex();
+				m_dialogTree.setBlockInput(false);
+				
+			});
 		}
 	}
+
+	m_dialogTree.processInput();
 
 	for (auto&& spriteEntity : m_zone.getSpriteEntities()) {
 		spriteEntity->update(m_dt);

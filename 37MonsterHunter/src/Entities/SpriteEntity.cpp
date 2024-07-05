@@ -124,3 +124,7 @@ bool SpriteEntity::CheckConnection(const Cell& origin, const Cell& target, ViewD
 	}
 	return false;
 }
+
+bool SpriteEntity::HasCollision(float r1_l, float r1_t, float r1_r, float r1_b, float r2_l, float r2_t, float r2_r, float r2_b) {
+	return (r2_b > r1_t) && (r2_t < r1_b) && (r1_l < r2_r) && (r2_l < r1_r);
+}

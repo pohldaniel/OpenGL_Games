@@ -10,11 +10,12 @@ DialogTree::DialogTree(const Camera& camera) :
 	camera(camera), 
 	m_currentIndex(-1), 
 	m_finished(true), 
+	m_blockInput(false),
+	OnDialogFinished(nullptr),
 	quadPos(Fontrenderer::Get().getBatchRenderer()->getQuadPos()),
 	texPos(Fontrenderer::Get().getBatchRenderer()->getTexPos()),
 	color(Fontrenderer::Get().getBatchRenderer()->getColor()),
 	frame(Fontrenderer::Get().getBatchRenderer()->getFrame()) {
-	
 }
 
 DialogTree::~DialogTree() {
@@ -23,7 +24,6 @@ DialogTree::~DialogTree() {
 
 void DialogTree::draw() {
 	
-
 	if (m_currentIndex >= 0) {
 		Globals::fontManager.get("dialog").bind();
 		const Dialog& dialogData = DialogData[m_currentIndex];
@@ -31,7 +31,7 @@ void DialogTree::draw() {
 		float posX = dialogData.posX - camera.getPositionX();
 		float posY = dialogData.posY - camera.getPositionY();
 		float padding = 7.5f;
-		Vector2f dimension = Vector2f(Globals::fontManager.get("dialog").getWidth(dialogData.text) * 0.06f + 2.0f * padding, Globals::fontManager.get("dialog").lineHeight * 0.06f + 2.0f * padding);
+		Vector2f dimension = Vector2f(std::max(30.0f, Globals::fontManager.get("dialog").getWidth(dialogData.text) * 0.06f + 2.0f * padding), Globals::fontManager.get("dialog").lineHeight * 0.06f + 2.0f * padding);
 
 		quadPos[0] = posX;
 		quadPos[1] = posY;
@@ -61,13 +61,14 @@ void DialogTree::draw() {
 		Fontrenderer::Get().setShader(Globals::shaderManager.getAssetPointer("dialog"));
 		Fontrenderer::Get().getBatchRenderer()->processSingleQuad();
 		Fontrenderer::Get().setShader(Globals::shaderManager.getAssetPointer("font"));
-		Fontrenderer::Get().addText(Globals::fontManager.get("dialog"), dialogData.posX - camera.getPositionX() + padding, dialogData.posY - camera.getPositionY() + padding, dialogData.text, Vector4f(0.0f, 0.0f, 0.0f, 1.0f), 0.06f);
+		Fontrenderer::Get().addText(Globals::fontManager.get("dialog"), dialogData.posX + dialogData.paddingX - camera.getPositionX() + padding, dialogData.posY + dialogData.paddingY - camera.getPositionY() + padding, dialogData.text, Vector4f(0.0f, 0.0f, 0.0f, 1.0f), 0.06f);
 		Fontrenderer::Get().drawBuffer();
 	}
 }
 
-void DialogTree::addDialog(float posX, float posY, const std::string& text) {
-	DialogData.push_back({posX, posY, text});
+void DialogTree::addDialog(float posX, float posY, float paddingX, float paddingY, const std::string& text, int currentIndex) {
+	DialogData.push_back({posX, posY, paddingX, paddingY, text});
+	m_currentIndex = currentIndex;
 }
 
 void DialogTree::setFinished(bool finished) {
@@ -75,7 +76,7 @@ void DialogTree::setFinished(bool finished) {
 }
 
 void DialogTree::processInput() {
-	if (m_finished)
+	if (m_finished || m_blockInput)
 		return;
 
 	Keyboard &keyboard = Keyboard::instance();
@@ -86,10 +87,27 @@ void DialogTree::processInput() {
 				m_currentIndex = -1;
 				DialogData.clear();
 				DialogData.shrink_to_fit();
+
+				if (OnDialogFinished) {
+					OnDialogFinished();
+					OnDialogFinished = nullptr;
+				}
 			}
 	}
 }
 
 bool DialogTree::isFinished() {
 	return m_finished;
+}
+
+void DialogTree::setBlockInput(bool blockInput) {
+	m_blockInput = blockInput;
+}
+
+void DialogTree::incrementIndex() {
+	m_currentIndex++;
+}
+
+void DialogTree::setOnDialogFinished(std::function<void()> fun) {
+	OnDialogFinished = fun;
 }

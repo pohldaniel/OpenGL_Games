@@ -45,4 +45,6 @@ protected:
 	ViewDirection m_viewDirection;
 	ViewDirection m_lastViewDirection;
 	Vector2f m_direction;
+
+	static bool HasCollision(float r1_l, float r1_t, float r1_r, float r1_b, float r2_l, float r2_t, float r2_r, float r2_b);
 };
