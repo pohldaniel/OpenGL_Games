@@ -100,6 +100,7 @@ MonsterHunter::MonsterHunter(StateMachine& machine) : State(machine, States::MON
 	TileSetManager::Get().getTileSet("world").loadTileSetCpu("res/tmx/graphics/tilesets/coast_ordered.png", false, 64.0f, 64.0f, true, false);
 	TileSetManager::Get().getTileSet("world").loadTileCpu("res/tmx/graphics/other/shadow.png", false, true, false);
 	TileSetManager::Get().getTileSet("world").loadTileCpu("res/tmx/graphics/other/empty.png", false, true, false);
+	TileSetManager::Get().getTileSet("world").loadTileCpu("res/tmx/graphics/ui/notice.png", false, true, false);
 
 	TileSetManager::Get().getTileSet("world").loadTileSetCpu("res/tmx/graphics/characters/player.png", false, 128.0f, 128.0f, true, false);
 	TileSetManager::Get().getTileSet("world").loadTileSetCpu("res/tmx/graphics/characters/blond.png", false, 128.0f, 128.0f, true, false);
@@ -111,6 +112,7 @@ MonsterHunter::MonsterHunter(StateMachine& machine) : State(machine, States::MON
 	TileSetManager::Get().getTileSet("world").loadTileSetCpu("res/tmx/graphics/characters/water_boss.png", false, 128.0f, 128.0f, true, false);
 	TileSetManager::Get().getTileSet("world").loadTileSetCpu("res/tmx/graphics/characters/young_girl.png", false, 128.0f, 128.0f, true, false);
 	TileSetManager::Get().getTileSet("world").loadTileSetCpu("res/tmx/graphics/characters/young_guy.png", false, 128.0f, 128.0f, true, false);	
+
 	//TileSetManager::Get().getTileSet("world").addCharset(Globals::fontManager.get("dialog"), false, 1);
 	TileSetManager::Get().getTileSet("world").loadTileSetGpu();
 	m_atlasWorld = TileSetManager::Get().getTileSet("world").getAtlas();
@@ -189,6 +191,13 @@ MonsterHunter::MonsterHunter(StateMachine& machine) : State(machine, States::MON
 		}		
 	}
 	file.close();	
+
+	for (Character& character : m_zone.getCharacters()) {
+		Trainer& trainer = m_trainers[character.getCharacterId()];
+		if (trainer.viewDirections.size() > 1) {
+			character.setViewDirections(trainer.viewDirections);
+		}
+	}
 }
 
 MonsterHunter::~MonsterHunter() {
@@ -204,20 +213,21 @@ void MonsterHunter::update() {
 	
 	Keyboard &keyboard = Keyboard::instance();
 	if (keyboard.keyPressed(Keyboard::KEY_SPACE)) {
-		for (auto&& character : m_zone.getCharacters()) {
-			if (SpriteEntity::CheckConnection(m_zone.getPlayer().getCell(), character.get().getCell(), m_zone.getPlayer().getLastViewDirection())) {
+		for (Character& character : m_zone.getCharacters()) {
+			if (SpriteEntity::CheckConnection(m_zone.getPlayer().getCell(), character.getCell(), m_zone.getPlayer().getLastViewDirection())) {
 				m_zone.getPlayer().block();
-				character.get().changeFacingDirection(m_zone.getPlayer());
-				character.get().setRayCast(false);
-				Trainer& trainer = m_trainers[character.get().getCharacterId()];
+				character.changeFacingDirection(m_zone.getPlayer());
+				character.setRayCast(false);
+				character.stopLookAroundTimer();
+				Trainer& trainer = m_trainers[character.getCharacterId()];
 				if (m_dialogTree.isFinished()) {
-					for (auto& dialog : !character.get().isDefeated() ? trainer.dialog.undefeated : trainer.dialog.defeated) {
-						m_dialogTree.addDialog(character.get().getCell().posX, m_mapHeight - (character.get().getCell().posY - 128.0f), 0.0f, 0.0f, dialog);
+					for (auto& dialog : !character.isDefeated() ? trainer.dialog.undefeated : trainer.dialog.defeated) {
+						m_dialogTree.addDialog(character.getCell().posX, m_mapHeight - (character.getCell().posY - 128.0f), 0.0f, 0.0f, dialog);
 					}
 					m_dialogTree.setFinished(false);
 					m_dialogTree.setOnDialogFinished([&m_zone = m_zone, &character = character]() {
 						m_zone.getPlayer().unblock();
-						character.get().setDefeated(true);
+						character.setDefeated(true);
 					});
 				}
 
@@ -225,30 +235,30 @@ void MonsterHunter::update() {
 		}
 	}
 
-	for (auto&& character : m_zone.getCharacters()) {
-		if (character.get().raycast(m_zone.getPlayer())) {
-			character.get().setRayCast(false);
+	for (Character& character : m_zone.getCharacters()) {
+		if (character.raycast(m_zone.getPlayer())) {
+			character.setRayCast(false);
 			if(!m_zone.getPlayer().isBlocked())
 				m_zone.getPlayer().changeFacingDirection(character);
 			m_zone.getPlayer().block();
-			m_dialogTree.addDialog(m_zone.getPlayer().getCell().posX + 48.0f, m_mapHeight - (m_zone.getPlayer().getCell().posY - 128.0f), 7.0f, 0.0f, "!", 0);			
+			m_zone.getPlayer().setIsNoticed(true);
+			
 			m_dialogTree.setBlockInput(true);
 			m_dialogTree.setFinished(false);
 
 			m_dialogTree.setOnDialogFinished([&m_zone = m_zone, &character = character]() {
 				m_zone.getPlayer().unblock();
-				character.get().setDefeated(true);
+				character.setDefeated(true);
 			});
 
-			character.get().startMove({ m_zone.getPlayer().getCell().posX, m_zone.getPlayer().getCell().posY });
-			character.get().setOnMoveEnd([&m_dialogTree = m_dialogTree, &m_trainers = m_trainers, &character = character, &m_mapHeight = m_mapHeight]() {
-				Trainer& trainer = m_trainers[character.get().getCharacterId()];
+			character.startMove({ m_zone.getPlayer().getCell().posX, m_zone.getPlayer().getCell().posY });
+			character.setOnMoveEnd([&m_dialogTree = m_dialogTree, &m_trainers = m_trainers, &character = character, &m_zone = m_zone, m_mapHeight = m_mapHeight]() {
+				Trainer& trainer = m_trainers[character.getCharacterId()];
 				for (auto& dialog : trainer.dialog.undefeated) {
-					m_dialogTree.addDialog(character.get().getCell().posX, m_mapHeight - (character.get().getCell().posY - 128.0f), 0.0f, 0.0f, dialog, 0);
+					m_dialogTree.addDialog(character.getCell().posX, m_mapHeight - (character.getCell().posY - 128.0f), 0.0f, 0.0f, dialog, 0);
 				}
-				m_dialogTree.incrementIndex();
 				m_dialogTree.setBlockInput(false);
-				
+				m_zone.getPlayer().setIsNoticed(false);
 			});
 		}
 	}

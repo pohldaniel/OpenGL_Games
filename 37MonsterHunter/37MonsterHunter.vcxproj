@@ -232,6 +232,7 @@
     <ClCompile Include="src\States\Settings.cpp" />
     <ClCompile Include="src\States\StateMachine.cpp" />
     <ClCompile Include="src\States\Tmx.cpp" />
+    <ClCompile Include="src\Timer.cpp" />
     <ClCompile Include="src\Utils\Rasterizer.cpp" />
     <ClCompile Include="engine\ArrayBuffer.cpp" />
     <ClCompile Include="engine\Batchrenderer.cpp" />
@@ -417,6 +418,7 @@
     <ClInclude Include="src\States\Settings.h" />
     <ClInclude Include="src\States\StateMachine.h" />
     <ClInclude Include="src\States\Tmx.h" />
+    <ClInclude Include="src\Timer.h" />
     <ClInclude Include="src\Utils\Rasterizer.h" />
     <ClInclude Include="Physics\BspConverter.h" />
     <ClInclude Include="Physics\BspLoader.h" />

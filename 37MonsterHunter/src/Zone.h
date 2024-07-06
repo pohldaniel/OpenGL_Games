@@ -18,11 +18,12 @@ struct Cell {
 	float centerY;
 	float height;
 	bool visibile;
+	bool isNoticed;
 };
 
 struct CellShadow : public Cell {
 
-	CellShadow(float _posX, float _posY, int _currentFrame, float _centerX, float _centerY, float _height, bool _visibile, bool hasShadow) : hasShadow(hasShadow) {
+	CellShadow(float _posX, float _posY, int _currentFrame, float _centerX, float _centerY, float _height, bool _visibile, bool _isNoticed, bool hasShadow) : hasShadow(hasShadow) {
 		posX = _posX;
 		posY = _posY;
 		currentFrame = _currentFrame;
@@ -30,6 +31,7 @@ struct CellShadow : public Cell {
 		centerY = _centerY;
 		height = _height;
 		visibile = _visibile;
+		isNoticed = _isNoticed;
 	}
 	bool hasShadow;
 };
@@ -83,12 +85,12 @@ private:
 	bool isRectOnScreen(float posX, float posY, float width, float height);
 
 	std::vector<std::pair<int, unsigned int>**> m_layers;
-	std::vector<AnimatedCell> m_animatedCells;
+	std::vector<AnimatedCell> m_cellsAnimated;
 	std::vector<Cell> m_cellsBackground;
 	std::vector<CellShadow> m_cellsMain;
 
-	std::vector<AnimatedCell> m_visibleCellsAni;
-	std::vector<Cell> m_visibleCellsBG;
+	std::vector<AnimatedCell> m_visibleCellsAnimated;
+	std::vector<Cell> m_visibleCellsBackground;
 	std::vector<CellShadow> m_visibleCellsMain;
 
 	std::vector<Rect> m_collisionRects;

@@ -3,8 +3,11 @@
 #include <Entities/Player.h>
 #include "Character.h"
 
-Character::Character(Cell& cell, Rect& rect) : SpriteEntity(cell), collisionRect(rect), m_characterId(""), m_radius(0.0f), m_move(false), m_rayCast(true), m_defeated(false), m_collisionRectIndex(-1), OnMoveEnd(nullptr){
+std::random_device Character::random_device;
+std::mt19937 Character::engine(random_device());
 
+Character::Character(Cell& cell, Rect& rect) : SpriteEntity(cell), collisionRect(rect), m_characterId(""), m_radius(0.0f), m_move(false), m_rayCast(true), m_defeated(false), m_collisionRectIndex(-1), OnMoveEnd(nullptr){
+	
 }
 
 Character::~Character() {
@@ -12,6 +15,9 @@ Character::~Character() {
 }
 
 void Character::update(float dt) {
+	m_noticeTimer.update(dt);
+	m_lookAroundTimer.update(dt);
+
 	if (!m_move)
 		return;
 
@@ -52,7 +58,11 @@ const std::string& Character::getCharacterId() {
 
 void Character::startMove(const Vector2f& playerPos) {
 	m_playerPos = playerPos;
-	m_move = true;
+	m_noticeTimer.setOnTimerEnd([&m_move = m_move, &m_lookAroundTimer = m_lookAroundTimer]() {
+		m_move = true;
+		m_lookAroundTimer.stop();
+	});
+	m_noticeTimer.start(500, false);
 }
 
 //https://www.jeffreythompson.org/collision-detection/line-rect.php
@@ -117,4 +127,25 @@ void Character::setDefeated(bool defeated) {
 
 bool Character::isDefeated() {
 	return m_defeated;
+}
+
+void Character::randomViewDirection() {
+	std::uniform_int_distribution<size_t> dist(0, m_viewDirections.size() - 1);
+
+	size_t index = dist(engine);
+	if (m_viewDirections[index] == m_viewDirection) {
+		index = (index == m_viewDirections.size() - 1) ? 0 : index = index + 1;
+	}
+	setViewDirection(m_viewDirections[index]);
+}
+
+void Character::setViewDirections(const std::vector<ViewDirection>& viewDirections) {
+	m_viewDirections = viewDirections;
+	m_lookAroundTimer.setOnTimerEnd(std::bind(&Character::randomViewDirection, this));
+	m_lookAroundTimer.start(1500);
+	//m_rayCast = false;
+}
+
+void Character::stopLookAroundTimer() {
+	m_lookAroundTimer.stop();
 }

@@ -67,7 +67,7 @@ void Zone::update(float dt) {
 		elapsedTime -= static_cast <float>(frameCount);
 	}
 
-	for (AnimatedCell& animatedCell : m_visibleCellsAni) {
+	for (AnimatedCell& animatedCell : m_visibleCellsAnimated) {
 		animatedCell.currentFrame = currentFrame;
 	}
 
@@ -77,12 +77,12 @@ void Zone::update(float dt) {
 void Zone::draw() {
 	const std::vector<TextureRect>& rects = TileSetManager::Get().getTileSet("world").getTextureRects();
 	
-	for (auto& animatedCell : m_visibleCellsAni) {
+	for (const AnimatedCell& animatedCell : m_visibleCellsAnimated) {
 		const TextureRect& rect = rects[animatedCell.currentFrame + animatedCell.startFrame];
 		Batchrenderer::Get().addQuadAA(Vector4f(animatedCell.posX - camera.getPositionX(), m_mapHeight - 64.0f - animatedCell.posY - camera.getPositionY(), rect.width, rect.height), Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureWidth, rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), rect.frame);
 	}
 
-	for (auto& cell : m_visibleCellsBG) {
+	for (const Cell& cell : m_visibleCellsBackground) {
 		const TextureRect& rect = rects[cell.currentFrame];
 		Batchrenderer::Get().addQuadAA(Vector4f(cell.posX - camera.getPositionX(), m_mapHeight - 64.0f - cell.posY - camera.getPositionY(), rect.width, rect.height), Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureWidth, rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), rect.frame);
 	}
@@ -95,7 +95,10 @@ void Zone::draw() {
 
 		const TextureRect& rect = rects[cell.currentFrame];
 		Batchrenderer::Get().addQuadAA(Vector4f(cell.posX - camera.getPositionX(), m_mapHeight - cell.posY - camera.getPositionY(), rect.width, rect.height), Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureWidth, rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), rect.frame);
-		
+		if (cell.isNoticed) {
+			const TextureRect& rect = rects[536];
+			Batchrenderer::Get().addQuadAA(Vector4f(cell.posX + 10.0f - camera.getPositionX(), m_mapHeight + 128.0f - cell.posY - camera.getPositionY(), rect.width, rect.height), Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureWidth, rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), rect.frame);
+		}
 	}
 
 	Batchrenderer::Get().drawBuffer();
@@ -179,9 +182,9 @@ void Zone::loadZone(const std::string& path, size_t capacity) {
 			const tmx::ObjectGroup* objectLayer = dynamic_cast<const tmx::ObjectGroup*>(layer.get());
 			for (auto& object : objectLayer->getObjects()) {
 				if (object.getName() == "top") {
-					m_cellsMain.push_back(CellShadow(object.getPosition().x, object.getPosition().y, static_cast<int>(object.getTileID() - 1u), object.getPosition().x + 0.5f * object.getAABB().width, object.getPosition().y - 0.5f * object.getAABB().height + m_mapHeight, object.getAABB().height, false, false));
+					m_cellsMain.push_back(CellShadow(object.getPosition().x, object.getPosition().y, static_cast<int>(object.getTileID() - 1u), object.getPosition().x + 0.5f * object.getAABB().width, object.getPosition().y - 0.5f * object.getAABB().height + m_mapHeight, object.getAABB().height, false, false, false));
 				}else {
-					m_cellsMain.push_back(CellShadow(object.getPosition().x, object.getPosition().y, static_cast<int>(object.getTileID() - 1u), object.getPosition().x + 0.5f * object.getAABB().width, object.getPosition().y - 0.5f * object.getAABB().height, object.getAABB().height, false, false));
+					m_cellsMain.push_back(CellShadow(object.getPosition().x, object.getPosition().y, static_cast<int>(object.getTileID() - 1u), object.getPosition().x + 0.5f * object.getAABB().width, object.getPosition().y - 0.5f * object.getAABB().height, object.getAABB().height, false, false, false));
 					m_collisionRects.push_back({ object.getPosition().x , object.getPosition().y - object.getAABB().height + 0.3f *object.getAABB().height,  object.getAABB().width, object.getAABB().height * 0.4f });
 				}
 			}
@@ -191,9 +194,9 @@ void Zone::loadZone(const std::string& path, size_t capacity) {
 			const tmx::ObjectGroup* objectLayer = dynamic_cast<const tmx::ObjectGroup*>(layer.get());
 			for (auto& object : objectLayer->getObjects()) {
 				if (object.getProperties()[0].getStringValue() == "sand") {
-					m_cellsMain.push_back(CellShadow(object.getPosition().x, object.getPosition().y, static_cast<int>(object.getTileID() - 1u) , object.getPosition().x + 0.5f * object.getAABB().width, (object.getPosition().y - 0.5f * object.getAABB().height) - m_mapHeight, object.getAABB().height, false, false));
+					m_cellsMain.push_back(CellShadow(object.getPosition().x, object.getPosition().y, static_cast<int>(object.getTileID() - 1u) , object.getPosition().x + 0.5f * object.getAABB().width, (object.getPosition().y - 0.5f * object.getAABB().height) - m_mapHeight, object.getAABB().height, false, false, false));
 				}else {
-					m_cellsMain.push_back(CellShadow(object.getPosition().x, object.getPosition().y, static_cast<int>(object.getTileID() - 1u) , object.getPosition().x + 0.5f * object.getAABB().width, (object.getPosition().y - 0.5f * object.getAABB().height) - 40.0f, object.getAABB().height, false, false));
+					m_cellsMain.push_back(CellShadow(object.getPosition().x, object.getPosition().y, static_cast<int>(object.getTileID() - 1u) , object.getPosition().x + 0.5f * object.getAABB().width, (object.getPosition().y - 0.5f * object.getAABB().height) - 40.0f, object.getAABB().height, false, false, false));
 				}
 			}
 		}
@@ -203,14 +206,14 @@ void Zone::loadZone(const std::string& path, size_t capacity) {
 			std::string playerDirection;
 			for (auto& object : objectLayer->getObjects()) {			
 				if (object.getName() == "Player" && object.getProperties()[1].getStringValue() == "house") {
-					m_cellsMain.push_back(CellShadow(object.getPosition().x - 64.0f, object.getPosition().y, 536, object.getPosition().x ,  object.getPosition().y - 64.0f, 128.0f, false, true));					
+					m_cellsMain.push_back(CellShadow(object.getPosition().x - 64.0f, object.getPosition().y, 537, object.getPosition().x ,  object.getPosition().y - 64.0f, 128.0f, false, false, true));
 					m_playerIndex = m_cellsMain.size() - 1;
 					playerDirection = object.getProperties()[0].getStringValue();
 				}
 
 				if (object.getName() == "Character") {
 					if (object.getProperties()[3].getStringValue() == "straw") {
-						m_cellsMain.push_back(CellShadow(object.getPosition().x - 64.0f, object.getPosition().y, 632, object.getPosition().x, object.getPosition().y - 64.0f, 128.0f, false, true));
+						m_cellsMain.push_back(CellShadow(object.getPosition().x - 64.0f, object.getPosition().y, 633, object.getPosition().x, object.getPosition().y - 64.0f, 128.0f, false, false, true));
 						m_collisionRects.push_back({ (object.getPosition().x - 64.0f) + 32.0f, (object.getPosition().y) - (128.0f - 30.0f), 128.0f - 64.0f, 128.0f - 60.0f });
 						m_spriteEntities.push_back(std::make_unique<Character>(m_cellsMain.back(), m_collisionRects.back()));
 						m_spriteEntities.back()->setViewDirection(SpriteEntity::GetDirection(object.getProperties()[2].getStringValue()));
@@ -221,7 +224,7 @@ void Zone::loadZone(const std::string& path, size_t capacity) {
 						m_characters.back().get().setRadius(std::stof(object.getProperties()[4].getStringValue()));
 						m_characters.back().get().setCollisionRectIndex(m_collisionRects.size() - 1);
 					}else if (object.getProperties()[3].getStringValue() == "blond") {
-						m_cellsMain.push_back(CellShadow(object.getPosition().x - 64.0f, object.getPosition().y, 552, object.getPosition().x,  object.getPosition().y - 64.0f, 128.0f, false, true));
+						m_cellsMain.push_back(CellShadow(object.getPosition().x - 64.0f, object.getPosition().y, 553, object.getPosition().x,  object.getPosition().y - 64.0f, 128.0f, false, false, true));
 						m_collisionRects.push_back({ (object.getPosition().x - 64.0f) + 32.0f, (object.getPosition().y) - (128.0f - 30.0f), 128.0f - 64.0f, 128.0f - 60.0f });
 						m_spriteEntities.push_back(std::make_unique<Character>(m_cellsMain.back(), m_collisionRects.back()));
 						m_spriteEntities.back()->setViewDirection(SpriteEntity::GetDirection(object.getProperties()[2].getStringValue()));
@@ -232,7 +235,7 @@ void Zone::loadZone(const std::string& path, size_t capacity) {
 						m_characters.back().get().setRadius(std::stof(object.getProperties()[4].getStringValue()));
 						m_characters.back().get().setCollisionRectIndex(m_collisionRects.size() - 1);
 					}else if (object.getProperties()[3].getStringValue() == "hat_girl") {
-						m_cellsMain.push_back(CellShadow(object.getPosition().x - 64.0f, object.getPosition().y, 600, object.getPosition().x,  object.getPosition().y - 64.0f, 128.0f, false, true));
+						m_cellsMain.push_back(CellShadow(object.getPosition().x - 64.0f, object.getPosition().y, 601, object.getPosition().x,  object.getPosition().y - 64.0f, 128.0f, false, false, true));
 						m_collisionRects.push_back({ (object.getPosition().x - 64.0f) + 32.0f, (object.getPosition().y) - (128.0f - 30.0f), 128.0f - 64.0f, 128.0f - 60.0f });
 						m_spriteEntities.push_back(std::make_unique<Character>(m_cellsMain.back(), m_collisionRects.back()));
 						m_spriteEntities.back()->setViewDirection(SpriteEntity::GetDirection(object.getProperties()[2].getStringValue()));
@@ -243,7 +246,7 @@ void Zone::loadZone(const std::string& path, size_t capacity) {
 						m_characters.back().get().setRadius(std::stof(object.getProperties()[4].getStringValue()));
 						m_characters.back().get().setCollisionRectIndex(m_collisionRects.size() - 1);
 					}else if (object.getProperties()[3].getStringValue() == "young_guy") {
-						m_cellsMain.push_back(CellShadow(object.getPosition().x - 64.0f, object.getPosition().y, 680, object.getPosition().x ,  object.getPosition().y - 64.0f, 128.0f, false, true));
+						m_cellsMain.push_back(CellShadow(object.getPosition().x - 64.0f, object.getPosition().y, 681, object.getPosition().x ,  object.getPosition().y - 64.0f, 128.0f, false, false, true));
 						m_collisionRects.push_back({ (object.getPosition().x - 64.0f) + 32.0f, (object.getPosition().y) - (128.0f - 30.0f), 128.0f - 64.0f, 128.0f - 60.0f });
 						m_spriteEntities.push_back(std::make_unique<Character>(m_cellsMain.back(), m_collisionRects.back()));
 						m_spriteEntities.back()->setViewDirection(SpriteEntity::GetDirection(object.getProperties()[2].getStringValue()));
@@ -267,7 +270,7 @@ void Zone::loadZone(const std::string& path, size_t capacity) {
 			for (auto& object : objectLayer->getObjects()) {
 				for (float x = object.getPosition().x; x < object.getPosition().x + object.getAABB().width; x = x + 64.0f) {
 					for (float y = object.getPosition().y; y < object.getPosition().y + object.getAABB().height; y = y + 64.0f) {
-						m_animatedCells.push_back({ x, y, 0, 242 });
+						m_cellsAnimated.push_back({ x, y, 0, 242 });
 					}
 				}
 			}
@@ -281,140 +284,140 @@ void Zone::loadZone(const std::string& path, size_t capacity) {
 
 					if (property.getName() == "terrain" && property.getStringValue() == "grass") {
 						if (object.getProperties()[0].getStringValue() == "topleft") {
-							m_animatedCells.push_back({ object.getPosition().x, object.getPosition().y, 0, 246 });
+							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, 246 });
 						}
 
 						if (object.getProperties()[0].getStringValue() == "left") {
-							m_animatedCells.push_back({ object.getPosition().x, object.getPosition().y, 0, 250 });
+							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, 250 });
 						}
 
 						if (object.getProperties()[0].getStringValue() == "bottomleft") {
-							m_animatedCells.push_back({ object.getPosition().x, object.getPosition().y, 0, 254 });
+							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, 254 });
 						}
 
 						if (object.getProperties()[0].getStringValue() == "top") {
-							m_animatedCells.push_back({ object.getPosition().x, object.getPosition().y, 0, 258 });
+							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, 258 });
 						}
 
 						if (object.getProperties()[0].getStringValue() == "bottom") {
-							m_animatedCells.push_back({ object.getPosition().x, object.getPosition().y, 0, 266 });
+							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, 266 });
 						}
 
 						if (object.getProperties()[0].getStringValue() == "topright") {
-							m_animatedCells.push_back({ object.getPosition().x, object.getPosition().y, 0, 270 });
+							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, 270 });
 						}
 
 						if (object.getProperties()[0].getStringValue() == "right") {
-							m_animatedCells.push_back({ object.getPosition().x, object.getPosition().y, 0, 274 });
+							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, 274 });
 						}
 
 						if (object.getProperties()[0].getStringValue() == "bottomright") {
-							m_animatedCells.push_back({ object.getPosition().x, object.getPosition().y, 0, 278 });
+							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, 278 });
 						}
 					}
 
 					if (property.getName() == "terrain" && property.getStringValue() == "grass_i") {
 
 						if (object.getProperties()[0].getStringValue() == "topleft") {
-							m_animatedCells.push_back({ object.getPosition().x, object.getPosition().y, 0, 282 });
+							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, 282 });
 						}
 
 						if (object.getProperties()[0].getStringValue() == "left") {
-							m_animatedCells.push_back({ object.getPosition().x, object.getPosition().y, 0, 286 });
+							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, 286 });
 						}
 
 						if (object.getProperties()[0].getStringValue() == "bottomleft") {
-							m_animatedCells.push_back({ object.getPosition().x, object.getPosition().y, 0, 290 });
+							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, 290 });
 						}
 
 						if (object.getProperties()[0].getStringValue() == "top") {
-							m_animatedCells.push_back({ object.getPosition().x, object.getPosition().y, 0, 294 });
+							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, 294 });
 						}
 
 						if (object.getProperties()[0].getStringValue() == "bottom") {
-							m_animatedCells.push_back({ object.getPosition().x, object.getPosition().y, 0, 301 });
+							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, 301 });
 						}
 
 						if (object.getProperties()[0].getStringValue() == "topright") {
-							m_animatedCells.push_back({ object.getPosition().x, object.getPosition().y, 0, 306 });
+							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, 306 });
 						}
 
 						if (object.getProperties()[0].getStringValue() == "right") {
-							m_animatedCells.push_back({ object.getPosition().x, object.getPosition().y, 0, 310 });
+							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, 310 });
 						}
 
 						if (object.getProperties()[0].getStringValue() == "bottomright") {
-							m_animatedCells.push_back({ object.getPosition().x, object.getPosition().y, 0, 314 });
+							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, 314 });
 						}
 					}
 
 					if (property.getName() == "terrain" && property.getStringValue() == "sand_i") {
 
 						if (object.getProperties()[0].getStringValue() == "topleft") {
-							m_animatedCells.push_back({ object.getPosition().x, object.getPosition().y, 0, 318 });
+							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, 318 });
 						}
 
 						if (object.getProperties()[0].getStringValue() == "left") {
-							m_animatedCells.push_back({ object.getPosition().x, object.getPosition().y, 0, 322 });
+							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, 322 });
 						}
 
 						if (object.getProperties()[0].getStringValue() == "bottomleft") {
-							m_animatedCells.push_back({ object.getPosition().x, object.getPosition().y, 0, 326 });
+							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, 326 });
 						}
 
 						if (object.getProperties()[0].getStringValue() == "top") {
-							m_animatedCells.push_back({ object.getPosition().x, object.getPosition().y, 0, 330 });
+							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, 330 });
 						}
 
 						if (object.getProperties()[0].getStringValue() == "bottom") {
-							m_animatedCells.push_back({ object.getPosition().x, object.getPosition().y, 0, 338 });
+							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, 338 });
 						}
 
 						if (object.getProperties()[0].getStringValue() == "topright") {
-							m_animatedCells.push_back({ object.getPosition().x, object.getPosition().y, 0, 342 });
+							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, 342 });
 						}
 
 						if (object.getProperties()[0].getStringValue() == "right") {
-							m_animatedCells.push_back({ object.getPosition().x, object.getPosition().y, 0, 346 });
+							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, 346 });
 						}
 
 						if (object.getProperties()[0].getStringValue() == "bottomright") {
-							m_animatedCells.push_back({ object.getPosition().x, object.getPosition().y, 0, 350 });
+							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, 350 });
 						}
 					}
 
 					if (property.getName() == "terrain" && property.getStringValue() == "sand") {
 
 						if (object.getProperties()[0].getStringValue() == "topleft") {
-							m_animatedCells.push_back({ object.getPosition().x, object.getPosition().y, 0, 354 });
+							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, 354 });
 						}
 
 						if (object.getProperties()[0].getStringValue() == "left") {
-							m_animatedCells.push_back({ object.getPosition().x, object.getPosition().y, 0, 358 });
+							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, 358 });
 						}
 
 						if (object.getProperties()[0].getStringValue() == "bottomleft") {
-							m_animatedCells.push_back({ object.getPosition().x, object.getPosition().y, 0, 362 });
+							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, 362 });
 						}
 
 						if (object.getProperties()[0].getStringValue() == "top") {
-							m_animatedCells.push_back({ object.getPosition().x, object.getPosition().y, 0, 366 });
+							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, 366 });
 						}
 
 						if (object.getProperties()[0].getStringValue() == "bottom") {
-							m_animatedCells.push_back({ object.getPosition().x, object.getPosition().y, 0, 374 });
+							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, 374 });
 						}
 
 						if (object.getProperties()[0].getStringValue() == "topright") {
-							m_animatedCells.push_back({ object.getPosition().x, object.getPosition().y, 0, 378 });
+							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, 378 });
 						}
 
 						if (object.getProperties()[0].getStringValue() == "right") {
-							m_animatedCells.push_back({ object.getPosition().x, object.getPosition().y, 0, 382 });
+							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, 382 });
 						}
 
 						if (object.getProperties()[0].getStringValue() == "bottomright") {
-							m_animatedCells.push_back({ object.getPosition().x, object.getPosition().y, 0, 386 });
+							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, 386 });
 						}
 					}
 				}
@@ -501,23 +504,23 @@ void Zone::culling() {
 	int rowMin = m_useCulling ? m_rows - posYToRow(m_cullingVertices[2][1], m_tileHeight, 0, m_rows, 1) : 0;
 	int rowMax = m_useCulling ? m_rows - posYToRow(m_cullingVertices[0][1], m_tileHeight, 0, m_rows, -1) : m_rows;
 
-	m_visibleCellsBG.clear();
+	m_visibleCellsBackground.clear();
 
 	for (int j = 0; j < m_layers.size(); j++) {
 		for (int y = rowMin; y < rowMax; y++) {
 			for (int x = colMin; x < colMax; x++) {
 				if (m_layers[j][y][x].first != -1) {
-					m_visibleCellsBG.push_back(m_cellsBackground[m_layers[j][y][x].second]);
+					m_visibleCellsBackground.push_back(m_cellsBackground[m_layers[j][y][x].second]);
 				}
 
 			}
 		}
 	}
 
-	m_visibleCellsAni.clear();
-	for (AnimatedCell& animatedCell : m_animatedCells) {
+	m_visibleCellsAnimated.clear();
+	for (AnimatedCell& animatedCell : m_cellsAnimated) {
 		if (isRectOnScreen(animatedCell.posX, animatedCell.posY, 64.0f, 64.0f) || !m_useCulling) {
-			m_visibleCellsAni.push_back(animatedCell);
+			m_visibleCellsAnimated.push_back(animatedCell);
 		}
 	}
 

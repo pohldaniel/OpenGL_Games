@@ -132,3 +132,7 @@ bool Player::isBlocked() {
 const std::vector<Rect>& Player::getCollisionRects() const {
 	return collisionRects;
 }
+
+void Player::setIsNoticed(bool isNoticed) {
+	cell.isNoticed = isNoticed;
+}

@@ -16,6 +16,7 @@ public:
 	void setViewWidth(float viewWidth);
 	void setViewHeight(float viewHeight);
 	void setMapHeight(float mapHeight);
+	void setIsNoticed(bool isNoticed);
 	void block();
 	void unblock();
 	void adjustCamera();
