@@ -10,12 +10,11 @@
 #include <tmxlite/Map.hpp>
 #include <tmxlite/TileLayer.hpp>
 
-#include <rapidjson/document.h>
-#include <rapidjson/istreamwrapper.h>
-
 #include "MonsterHunter.h"
 #include "Application.h"
 #include "Globals.h"
+
+std::unordered_map<std::string, std::unordered_map<std::string, unsigned int>> MonsterHunter::CharachterOffsets;
 
 MonsterHunter::MonsterHunter(StateMachine& machine) : State(machine, States::MONSTER_HUNTER), m_zone(m_camera), m_dialogTree(m_camera) {
 
@@ -34,6 +33,7 @@ MonsterHunter::MonsterHunter(StateMachine& machine) : State(machine, States::MON
 	m_camera.setMovingSpeed(m_movingSpeed);
 
 	glClearColor(0.6f, 0.8f, 0.92f, 1.0f);
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClearDepth(1.0f);
 
 	/*TextureAtlasCreator::Get().init(1536u, 768u);
@@ -55,7 +55,7 @@ MonsterHunter::MonsterHunter(StateMachine& machine) : State(machine, States::MON
 	}
 	TileSetManager::Get().getTileSet("coast").loadTileSetGpu();
 	Spritesheet::Safe("res/tmx/graphics/tilesets/coast_ordered", TileSetManager::Get().getTileSet("coast").getAtlas());*/
-	TextureAtlasCreator::Get().init(4096u, 4096u);
+	TextureAtlasCreator::Get().init(2048u, 2048u);
 	TileSetManager::Get().getTileSet("world").loadTileSetCpu("res/tmx/graphics/tilesets/world.png", false, 64.0f, 64.0f, true, false);
 	
 	TileSetManager::Get().getTileSet("world").loadTileCpu("res/tmx/graphics/objects/house_small_alt.png", false, true, false);
@@ -92,33 +92,113 @@ MonsterHunter::MonsterHunter(StateMachine& machine) : State(machine, States::MON
 	TileSetManager::Get().getTileSet("world").loadTileCpu("res/tmx/graphics/objects/grass_ice.png", false, true, false);
 	TileSetManager::Get().getTileSet("world").loadTileCpu("res/tmx/graphics/objects/sand.png", false, true, false);
 	
+
 	TileSetManager::Get().getTileSet("world").loadTileCpu("res/tmx/graphics/tilesets/water/0.png", false, true, false);
 	TileSetManager::Get().getTileSet("world").loadTileCpu("res/tmx/graphics/tilesets/water/1.png", false, true, false);
 	TileSetManager::Get().getTileSet("world").loadTileCpu("res/tmx/graphics/tilesets/water/2.png", false, true, false);
 	TileSetManager::Get().getTileSet("world").loadTileCpu("res/tmx/graphics/tilesets/water/3.png", false, true, false);
-
 	TileSetManager::Get().getTileSet("world").loadTileSetCpu("res/tmx/graphics/tilesets/coast_ordered.png", false, 64.0f, 64.0f, true, false);
-	TileSetManager::Get().getTileSet("world").loadTileCpu("res/tmx/graphics/other/shadow.png", false, true, false);
-	TileSetManager::Get().getTileSet("world").loadTileCpu("res/tmx/graphics/other/empty.png", false, true, false);
-	TileSetManager::Get().getTileSet("world").loadTileCpu("res/tmx/graphics/ui/notice.png", false, true, false);
-
-	TileSetManager::Get().getTileSet("world").loadTileSetCpu("res/tmx/graphics/characters/player.png", false, 128.0f, 128.0f, true, false);
-	TileSetManager::Get().getTileSet("world").loadTileSetCpu("res/tmx/graphics/characters/blond.png", false, 128.0f, 128.0f, true, false);
-	TileSetManager::Get().getTileSet("world").loadTileSetCpu("res/tmx/graphics/characters/fire_boss.png", false, 128.0f, 128.0f, true, false);
-	TileSetManager::Get().getTileSet("world").loadTileSetCpu("res/tmx/graphics/characters/grass_boss.png", false, 128.0f, 128.0f, true, false);
-	TileSetManager::Get().getTileSet("world").loadTileSetCpu("res/tmx/graphics/characters/hat_girl.png", false, 128.0f, 128.0f, true, false);
-	TileSetManager::Get().getTileSet("world").loadTileSetCpu("res/tmx/graphics/characters/purple_girl.png", false, 128.0f, 128.0f, true, false);
-	TileSetManager::Get().getTileSet("world").loadTileSetCpu("res/tmx/graphics/characters/straw.png", false, 128.0f, 128.0f, true, false);
-	TileSetManager::Get().getTileSet("world").loadTileSetCpu("res/tmx/graphics/characters/water_boss.png", false, 128.0f, 128.0f, true, false);
-	TileSetManager::Get().getTileSet("world").loadTileSetCpu("res/tmx/graphics/characters/young_girl.png", false, 128.0f, 128.0f, true, false);
-	TileSetManager::Get().getTileSet("world").loadTileSetCpu("res/tmx/graphics/characters/young_guy.png", false, 128.0f, 128.0f, true, false);	
-
-	//TileSetManager::Get().getTileSet("world").addCharset(Globals::fontManager.get("dialog"), false, 1);
-	TileSetManager::Get().getTileSet("world").loadTileSetGpu();
-	m_atlasWorld = TileSetManager::Get().getTileSet("world").getAtlas();
-	//Spritesheet::Safe("world", m_atlasWorld);
 	
-	m_mapHeight = m_zone.getMapHeight();
+	CharachterOffsets["world"]["blond"] = TileSetManager::Get().getTileSet("world").getTextureRects().size();
+	TileSetManager::Get().getTileSet("world").loadTileSetCpu("res/tmx/graphics/characters/blond.png", false, 128.0f, 128.0f, true, false);
+	CharachterOffsets["world"]["hat_girl"] = TileSetManager::Get().getTileSet("world").getTextureRects().size();
+	TileSetManager::Get().getTileSet("world").loadTileSetCpu("res/tmx/graphics/characters/hat_girl.png", false, 128.0f, 128.0f, true, false);
+	CharachterOffsets["world"]["straw"] = TileSetManager::Get().getTileSet("world").getTextureRects().size();
+	TileSetManager::Get().getTileSet("world").loadTileSetCpu("res/tmx/graphics/characters/straw.png", false, 128.0f, 128.0f, true, false);
+	CharachterOffsets["world"]["young_guy"] = TileSetManager::Get().getTileSet("world").getTextureRects().size();
+	TileSetManager::Get().getTileSet("world").loadTileSetCpu("res/tmx/graphics/characters/young_guy.png", false, 128.0f, 128.0f, true, false);	
+	
+	TileSetManager::Get().getTileSet("world").loadTileSetCpu("res/tmx/graphics/characters/player.png", false, 128.0f, 128.0f, true, false);
+	TileSetManager::Get().getTileSet("world").loadTileCpu("res/tmx/graphics/other/shadow.png", false, true, false);	
+	TileSetManager::Get().getTileSet("world").loadTileCpu("res/tmx/graphics/ui/notice.png", false, true, false);
+	TileSetManager::Get().getTileSet("world").loadTileCpu("res/tmx/graphics/other/empty.png", false, true, false);
+
+	TileSetManager::Get().getTileSet("world").loadTileSetGpu();
+	//Spritesheet::Safe("world", TileSetManager::Get().getTileSet("world").getAtlas());
+	
+	TextureAtlasCreator::Get().init(2048u, 2048u);
+	TileSetManager::Get().getTileSet("indoor").loadTileSetCpu("res/tmx/graphics/tilesets/indoor.png", false, 64.0f, 64.0f, true, false);
+	TileSetManager::Get().getTileSet("indoor").loadTileSetCpu("res/tmx/graphics/characters/player.png", false, 128.0f, 128.0f, true, false);
+	TileSetManager::Get().getTileSet("indoor").loadTileCpu("res/tmx/graphics/other/shadow.png", false, true, false);
+	TileSetManager::Get().getTileSet("indoor").loadTileCpu("res/tmx/graphics/ui/notice.png", false, true, false);
+	TileSetManager::Get().getTileSet("indoor").loadTileCpu("res/tmx/graphics/other/empty.png", false, true, false);
+	TileSetManager::Get().getTileSet("indoor").loadTileSetGpu();
+
+	TextureAtlasCreator::Get().init(2048u, 2048u);
+	TileSetManager::Get().getTileSet("water").loadTileSetCpu("res/tmx/graphics/tilesets/world.png", false, 64.0f, 64.0f, true, false);
+
+	TileSetManager::Get().getTileSet("water").loadTileSetCpu("res/tmx/graphics/tilesets/indoor.png", false, 64.0f, 64.0f, true, false);
+	
+	CharachterOffsets["water"]["hat_girl"] = TileSetManager::Get().getTileSet("water").getTextureRects().size();
+	TileSetManager::Get().getTileSet("water").loadTileSetCpu("res/tmx/graphics/characters/hat_girl.png", false, 128.0f, 128.0f, true, false);
+	CharachterOffsets["water"]["blond"] = TileSetManager::Get().getTileSet("water").getTextureRects().size();
+	TileSetManager::Get().getTileSet("water").loadTileSetCpu("res/tmx/graphics/characters/blond.png", false, 128.0f, 128.0f, true, false);
+	CharachterOffsets["water"]["young_girl"] = TileSetManager::Get().getTileSet("water").getTextureRects().size();
+	TileSetManager::Get().getTileSet("water").loadTileSetCpu("res/tmx/graphics/characters/young_girl.png", false, 128.0f, 128.0f, true, false);
+	CharachterOffsets["water"]["young_guy"] = TileSetManager::Get().getTileSet("water").getTextureRects().size();
+	TileSetManager::Get().getTileSet("water").loadTileSetCpu("res/tmx/graphics/characters/young_guy.png", false, 128.0f, 128.0f, true, false);
+	CharachterOffsets["water"]["purple_girl"] = TileSetManager::Get().getTileSet("water").getTextureRects().size();
+	TileSetManager::Get().getTileSet("water").loadTileSetCpu("res/tmx/graphics/characters/purple_girl.png", false, 128.0f, 128.0f, true, false);
+	CharachterOffsets["water"]["water_boss"] = TileSetManager::Get().getTileSet("water").getTextureRects().size();
+	TileSetManager::Get().getTileSet("water").loadTileSetCpu("res/tmx/graphics/characters/water_boss.png", false, 128.0f, 128.0f, true, false);
+
+	TileSetManager::Get().getTileSet("water").loadTileSetCpu("res/tmx/graphics/characters/player.png", false, 128.0f, 128.0f, true, false);
+	TileSetManager::Get().getTileSet("water").loadTileCpu("res/tmx/graphics/other/shadow.png", false, true, false);
+	TileSetManager::Get().getTileSet("water").loadTileCpu("res/tmx/graphics/ui/notice.png", false, true, false);
+	TileSetManager::Get().getTileSet("water").loadTileCpu("res/tmx/graphics/other/empty.png", false, true, false);
+
+	TileSetManager::Get().getTileSet("water").loadTileSetGpu();
+
+
+	TextureAtlasCreator::Get().init(2048u, 2048u);
+	TileSetManager::Get().getTileSet("plant").loadTileSetCpu("res/tmx/graphics/tilesets/world.png", false, 64.0f, 64.0f, true, false);
+
+	TileSetManager::Get().getTileSet("plant").loadTileCpu("res/tmx/graphics/objects/house_small_alt.png", false, true, false);
+	TileSetManager::Get().getTileSet("plant").loadTileCpu("res/tmx/graphics/objects/ice_tree.png", false, true, false);
+	TileSetManager::Get().getTileSet("plant").loadTileCpu("res/tmx/graphics/objects/palm.png", false, true, false);
+	TileSetManager::Get().getTileSet("plant").loadTileCpu("res/tmx/graphics/objects/palm_alt.png", false, true, false);
+	TileSetManager::Get().getTileSet("plant").loadTileCpu("res/tmx/graphics/objects/palm_small.png", false, true, false);
+	TileSetManager::Get().getTileSet("plant").loadTileCpu("res/tmx/graphics/objects/ruin_pillar.png", false, true, false);
+	TileSetManager::Get().getTileSet("plant").loadTileCpu("res/tmx/graphics/objects/ruin_pillar_broke.png", false, true, false);
+	TileSetManager::Get().getTileSet("plant").loadTileCpu("res/tmx/graphics/objects/ruin_pillar_broke_alt.png", false, true, false);
+	TileSetManager::Get().getTileSet("plant").loadTileCpu("res/tmx/graphics/objects/teal_tree.png", false, true, false);
+	TileSetManager::Get().getTileSet("plant").loadTileCpu("res/tmx/graphics/objects/teal_tree_bushy.png", false, true, false);
+	TileSetManager::Get().getTileSet("plant").loadTileCpu("res/tmx/graphics/objects/teal_tree_small.png", false, true, false);
+	TileSetManager::Get().getTileSet("plant").loadTileCpu("res/tmx/graphics/objects/arean_fire.png", false, true, false);
+	TileSetManager::Get().getTileSet("plant").loadTileCpu("res/tmx/graphics/objects/arena_plant.png", false, true, false);
+	TileSetManager::Get().getTileSet("plant").loadTileCpu("res/tmx/graphics/objects/arena_water.png", false, true, false);
+	TileSetManager::Get().getTileSet("plant").loadTileCpu("res/tmx/graphics/objects/green_tree.png", false, true, false);
+	TileSetManager::Get().getTileSet("plant").loadTileCpu("res/tmx/graphics/objects/green_tree_bushy.png", false, true, false);
+	TileSetManager::Get().getTileSet("plant").loadTileCpu("res/tmx/graphics/objects/green_tree_small.png", false, true, false);
+	TileSetManager::Get().getTileSet("plant").loadTileCpu("res/tmx/graphics/objects/hospital.png", false, true, false);
+	TileSetManager::Get().getTileSet("plant").loadTileCpu("res/tmx/graphics/objects/house_large.png", false, true, false);
+	TileSetManager::Get().getTileSet("plant").loadTileCpu("res/tmx/graphics/objects/house_large_alt.png", false, true, false);
+	TileSetManager::Get().getTileSet("plant").loadTileCpu("res/tmx/graphics/objects/house_small.png", false, true, false);
+	TileSetManager::Get().getTileSet("plant").loadTileCpu("res/tmx/graphics/objects/gate_pillar.png", false, true, false);
+	TileSetManager::Get().getTileSet("plant").loadTileCpu("res/tmx/graphics/objects/gate_top.png", false, true, false);
+	TileSetManager::Get().getTileSet("plant").loadTileCpu("res/tmx/graphics/objects/grassrock1.png", false, true, false);
+	TileSetManager::Get().getTileSet("plant").loadTileCpu("res/tmx/graphics/objects/grassrock2.png", false, true, false);
+	TileSetManager::Get().getTileSet("plant").loadTileCpu("res/tmx/graphics/objects/icerock1.png", false, true, false);
+	TileSetManager::Get().getTileSet("plant").loadTileCpu("res/tmx/graphics/objects/icerock2.png", false, true, false);
+	TileSetManager::Get().getTileSet("plant").loadTileCpu("res/tmx/graphics/objects/sandrock1.png", false, true, false);
+	TileSetManager::Get().getTileSet("plant").loadTileCpu("res/tmx/graphics/objects/sandrock2.png", false, true, false);
+	TileSetManager::Get().getTileSet("plant").loadTileSetCpu("res/tmx/graphics/tilesets/indoor.png", false, 64.0f, 64.0f, true, false);
+
+	CharachterOffsets["plant"]["young_girl"] = TileSetManager::Get().getTileSet("plant").getTextureRects().size();
+	TileSetManager::Get().getTileSet("plant").loadTileSetCpu("res/tmx/graphics/characters/young_girl.png", false, 128.0f, 128.0f, true, false);
+	CharachterOffsets["plant"]["purple_girl"] = TileSetManager::Get().getTileSet("plant").getTextureRects().size();
+	TileSetManager::Get().getTileSet("plant").loadTileSetCpu("res/tmx/graphics/characters/purple_girl.png", false, 128.0f, 128.0f, true, false);
+	CharachterOffsets["plant"]["grass_boss"] = TileSetManager::Get().getTileSet("plant").getTextureRects().size();
+	TileSetManager::Get().getTileSet("plant").loadTileSetCpu("res/tmx/graphics/characters/grass_boss.png", false, 128.0f, 128.0f, true, false);
+
+	TileSetManager::Get().getTileSet("plant").loadTileSetCpu("res/tmx/graphics/characters/player.png", false, 128.0f, 128.0f, true, false);
+	TileSetManager::Get().getTileSet("plant").loadTileCpu("res/tmx/graphics/other/shadow.png", false, true, false);
+	TileSetManager::Get().getTileSet("plant").loadTileCpu("res/tmx/graphics/ui/notice.png", false, true, false);
+	TileSetManager::Get().getTileSet("plant").loadTileCpu("res/tmx/graphics/other/empty.png", false, true, false);
+
+	TileSetManager::Get().getTileSet("plant").loadTileSetGpu();
+
+	//Spritesheet::Safe("world_indoor", TileSetManager::Get().getTileSet("world_indoor").getAtlas());
 
 	auto shader = Globals::shaderManager.getAssetPointer("batch");
 	shader->use();
@@ -135,69 +215,17 @@ MonsterHunter::MonsterHunter(StateMachine& machine) : State(machine, States::MON
 	shader->loadMatrix("u_transform", m_camera.getOrthographicMatrix());
 	shader->unuse();
 
-	m_zone.setDebugCollision(m_debugCollision);
+	m_zone.loadZone("res/tmx/data/maps/world.tmx", "world", "house");
+	//m_zone.loadZone("res/tmx/data/maps/water.tmx", "water", "entrance");
+	//m_zone.loadZone("res/tmx/data/maps/plant.tmx", "plant", "entrance");
 
+	m_zone.setDebugCollision(m_debugCollision);
+	m_mapHeight = m_zone.getMapHeight();
 	m_zone.getPlayer().setMovingSpeed(m_movingSpeed);
 	m_zone.getPlayer().setViewWidth(m_viewWidth);
 	m_zone.getPlayer().setViewHeight(m_viewHeight);
-	m_zone.getPlayer().setMapHeight(m_mapHeight);
+	m_zone.getPlayer().setMapHeight(m_zone.getMapHeight());
 	m_zone.getPlayer().adjustCamera();
-
-	std::ifstream file("res/trainer.json", std::ios::in);
-	if (!file.is_open()) {
-		std::cerr << "Could not open file: " << "res/trainer.json" << std::endl;
-	}
-
-	rapidjson::IStreamWrapper streamWrapper(file);
-	rapidjson::Document doc;
-	doc.ParseStream(streamWrapper);
-	
-	for (rapidjson::Value::ConstMemberIterator trainer = doc.MemberBegin(); trainer != doc.MemberEnd(); ++trainer) {
-		if (std::string(trainer->name.GetString()) != "Nurse") {	
-
-			m_trainers[trainer->name.GetString()].binom = trainer->value["biome"].GetString();
-			m_trainers[trainer->name.GetString()].defeated = trainer->value["defeated"].GetBool();
-			m_trainers[trainer->name.GetString()].lookAround = trainer->value["look_around"].GetBool();
-
-			rapidjson::GenericArray<true, rapidjson::Value>  monsters = trainer->value["monsters"].GetArray();
-			for (rapidjson::Value::ConstValueIterator monster = monsters.Begin(); monster != monsters.End(); ++monster) {
-				for (rapidjson::Value::ConstMemberIterator iter = monster->MemberBegin(); iter != monster->MemberEnd(); ++iter) {
-					m_trainers[trainer->name.GetString()].monsters.push_back({ iter->name.GetString(), iter->value.GetInt() });
-				}
-			}
-
-			rapidjson::GenericArray<true, rapidjson::Value>  directions = trainer->value["directions"].GetArray();
-			for (rapidjson::Value::ConstValueIterator direction = directions.Begin(); direction != directions.End(); ++direction) {
-				std::string _direction = direction->GetString();
-				if(_direction == "up")
-					m_trainers[trainer->name.GetString()].viewDirections.push_back(ViewDirection::UP);
-				else if(_direction == "down")
-					m_trainers[trainer->name.GetString()].viewDirections.push_back(ViewDirection::DOWN);
-				else if (_direction == "left")
-					m_trainers[trainer->name.GetString()].viewDirections.push_back(ViewDirection::LEFT);
-				else if (_direction == "right")
-					m_trainers[trainer->name.GetString()].viewDirections.push_back(ViewDirection::RIGHT);
-			}
-
-			rapidjson::GenericArray<true, rapidjson::Value>  undefeated = trainer->value["dialog"]["default"].GetArray();
-			for (rapidjson::Value::ConstValueIterator entry = undefeated.Begin(); entry != undefeated.End(); ++entry) {
-				m_trainers[trainer->name.GetString()].dialog.undefeated.push_back(entry->GetString());
-			}
-
-			rapidjson::GenericArray<true, rapidjson::Value>  defeated = trainer->value["dialog"]["defeated"].GetArray();
-			for (rapidjson::Value::ConstValueIterator entry = defeated.Begin(); entry != defeated.End(); ++entry) {
-				m_trainers[trainer->name.GetString()].dialog.defeated.push_back(entry->GetString());
-			}
-		}		
-	}
-	file.close();	
-
-	for (Character& character : m_zone.getCharacters()) {
-		Trainer& trainer = m_trainers[character.getCharacterId()];
-		if (trainer.viewDirections.size() > 1) {
-			character.setViewDirections(trainer.viewDirections);
-		}
-	}
 }
 
 MonsterHunter::~MonsterHunter() {
@@ -212,6 +240,51 @@ void MonsterHunter::fixedUpdate() {
 void MonsterHunter::update() {
 	
 	Keyboard &keyboard = Keyboard::instance();
+
+	if (keyboard.keyPressed(Keyboard::KEY_1)) {
+		m_zone.loadZone("res/tmx/data/maps/world.tmx", "world", "house");
+		m_zone.setDebugCollision(m_debugCollision);
+		m_mapHeight = m_zone.getMapHeight();
+		m_zone.getPlayer().setMovingSpeed(m_movingSpeed);
+		m_zone.getPlayer().setViewWidth(m_viewWidth);
+		m_zone.getPlayer().setViewHeight(m_viewHeight);
+		m_zone.getPlayer().setMapHeight(m_zone.getMapHeight());
+		m_zone.getPlayer().adjustCamera();
+	}
+
+	if (keyboard.keyPressed(Keyboard::KEY_2)) {
+		m_zone.loadZone("res/tmx/data/maps/house.tmx", "indoor", "world");
+		m_zone.setDebugCollision(m_debugCollision);
+		m_mapHeight = m_zone.getMapHeight();
+		m_zone.getPlayer().setMovingSpeed(m_movingSpeed);
+		m_zone.getPlayer().setViewWidth(m_viewWidth);
+		m_zone.getPlayer().setViewHeight(m_viewHeight);
+		m_zone.getPlayer().setMapHeight(m_zone.getMapHeight());
+		m_zone.getPlayer().adjustCamera();
+	}
+
+	if (keyboard.keyPressed(Keyboard::KEY_3)) {
+		m_zone.loadZone("res/tmx/data/maps/water.tmx", "water", "entrance");
+		m_zone.setDebugCollision(m_debugCollision);
+		m_mapHeight = m_zone.getMapHeight();
+		m_zone.getPlayer().setMovingSpeed(m_movingSpeed);
+		m_zone.getPlayer().setViewWidth(m_viewWidth);
+		m_zone.getPlayer().setViewHeight(m_viewHeight);
+		m_zone.getPlayer().setMapHeight(m_zone.getMapHeight());
+		m_zone.getPlayer().adjustCamera();
+	}
+
+	if (keyboard.keyPressed(Keyboard::KEY_4)) {
+		m_zone.loadZone("res/tmx/data/maps/plant.tmx", "plant", "entrance");
+		m_zone.setDebugCollision(m_debugCollision);
+		m_mapHeight = m_zone.getMapHeight();
+		m_zone.getPlayer().setMovingSpeed(m_movingSpeed);
+		m_zone.getPlayer().setViewWidth(m_viewWidth);
+		m_zone.getPlayer().setViewHeight(m_viewHeight);
+		m_zone.getPlayer().setMapHeight(m_zone.getMapHeight());
+		m_zone.getPlayer().adjustCamera();
+	}
+
 	if (keyboard.keyPressed(Keyboard::KEY_SPACE)) {
 		for (Character& character : m_zone.getCharacters()) {
 			if (SpriteEntity::CheckConnection(m_zone.getPlayer().getCell(), character.getCell(), m_zone.getPlayer().getLastViewDirection())) {
@@ -219,7 +292,7 @@ void MonsterHunter::update() {
 				character.changeFacingDirection(m_zone.getPlayer());
 				character.setRayCast(false);
 				character.stopLookAroundTimer();
-				Trainer& trainer = m_trainers[character.getCharacterId()];
+				Trainer& trainer = DialogTree::Trainers[character.getCharacterId()];
 				if (m_dialogTree.isFinished()) {
 					for (auto& dialog : !character.isDefeated() ? trainer.dialog.undefeated : trainer.dialog.defeated) {
 						m_dialogTree.addDialog(character.getCell().posX, m_mapHeight - (character.getCell().posY - 128.0f), 0.0f, 0.0f, dialog);
@@ -252,7 +325,7 @@ void MonsterHunter::update() {
 			});
 
 			character.startMove({ m_zone.getPlayer().getCell().posX, m_zone.getPlayer().getCell().posY });
-			character.setOnMoveEnd([&m_dialogTree = m_dialogTree, &m_trainers = m_trainers, &character = character, &m_zone = m_zone, m_mapHeight = m_mapHeight]() {
+			character.setOnMoveEnd([&m_dialogTree = m_dialogTree, &m_trainers = DialogTree::Trainers, &character = character, &m_zone = m_zone, m_mapHeight = m_mapHeight]() {
 				Trainer& trainer = m_trainers[character.getCharacterId()];
 				for (auto& dialog : trainer.dialog.undefeated) {
 					m_dialogTree.addDialog(character.getCell().posX, m_mapHeight - (character.getCell().posY - 128.0f), 0.0f, 0.0f, dialog, 0);
@@ -264,7 +337,7 @@ void MonsterHunter::update() {
 	}
 
 	m_dialogTree.processInput();
-
+	
 	for (auto&& spriteEntity : m_zone.getSpriteEntities()) {
 		spriteEntity->update(m_dt);
 	}
@@ -275,7 +348,7 @@ void MonsterHunter::render() {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	Spritesheet::Bind(m_atlasWorld);
+	
 	m_zone.draw();
 
 	m_dialogTree.draw();

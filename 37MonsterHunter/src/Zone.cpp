@@ -7,7 +7,9 @@
 #include <Entities/Player.h>
 #include <Entities/Character.h>
 #include <States/StateMachine.h>
+#include <States/MonsterHunter.h>
 #include "Zone.h"
+#include "Dialog.h"
 #include "Globals.h"
 
 Zone::Zone(const Camera& camera) : 
@@ -15,6 +17,7 @@ Zone::Zone(const Camera& camera) :
 	m_pointCount(0u), 
 	pointBatch(nullptr), 
 	pointBatchPtr(nullptr), 
+	m_spritesheet(0u),
 	m_vao(0u), 
 	m_vbo(0u), 
 	m_screeBorder(0.0f), 
@@ -25,10 +28,9 @@ Zone::Zone(const Camera& camera) :
 	m_borderDirty(true),
 	elapsedTime(0.0f), 
 	currentFrame(0), 
-	frameCount(4){
-	
-	
-	loadZone("res/tmx/data/maps/world.tmx", 588);
+	frameCount(4),
+	m_waterOffset(242),
+	m_coastOffset(246){
 	initDebug();
 }
 
@@ -52,7 +54,7 @@ Zone::~Zone() {
 			delete[] layer[i];
 		}
 		delete[] layer;
-		layer = NULL;
+		layer = nullptr;
 	}
 }
 
@@ -75,7 +77,8 @@ void Zone::update(float dt) {
 }
 
 void Zone::draw() {
-	const std::vector<TextureRect>& rects = TileSetManager::Get().getTileSet("world").getTextureRects();
+	Spritesheet::Bind(m_spritesheet);
+	const std::vector<TextureRect>& rects = TileSetManager::Get().getTileSet(m_currentTileset).getTextureRects();
 	
 	for (const AnimatedCell& animatedCell : m_visibleCellsAnimated) {
 		const TextureRect& rect = rects[animatedCell.currentFrame + animatedCell.startFrame];
@@ -89,14 +92,14 @@ void Zone::draw() {
 
 	for (const CellShadow& cell : m_visibleCellsMain) {
 		if (cell.hasShadow) {
-			const TextureRect& rect = rects[534];
+			const TextureRect& rect = rects[m_playerOffset + 16];
 			Batchrenderer::Get().addQuadAA(Vector4f(cell.posX + 40.0f - camera.getPositionX(), m_mapHeight - cell.posY - camera.getPositionY(), rect.width, rect.height), Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureWidth, rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), rect.frame);
 		}
 
 		const TextureRect& rect = rects[cell.currentFrame];
-		Batchrenderer::Get().addQuadAA(Vector4f(cell.posX - camera.getPositionX(), m_mapHeight - cell.posY - camera.getPositionY(), rect.width, rect.height), Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureWidth, rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), rect.frame);
+		Batchrenderer::Get().addQuadAA(Vector4f(cell.posX - camera.getPositionX(), m_mapHeight - cell.posY - camera.getPositionY(), cell.width, cell.height), Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureWidth, rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), rect.frame);
 		if (cell.isNoticed) {
-			const TextureRect& rect = rects[536];
+			const TextureRect& rect = rects[m_playerOffset + 17];
 			Batchrenderer::Get().addQuadAA(Vector4f(cell.posX + 10.0f - camera.getPositionX(), m_mapHeight + 128.0f - cell.posY - camera.getPositionY(), rect.width, rect.height), Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureWidth, rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), rect.frame);
 		}
 	}
@@ -125,7 +128,7 @@ void Zone::draw() {
 
 	if (m_debugCollision) {
 		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		const TextureRect& textureRect = rects[535];
+		const TextureRect& textureRect = rects[m_playerOffset + 18];
 		for (const Rect& rect : m_collisionRects) {
 			Batchrenderer::Get().addQuadAA(Vector4f(rect.posX - camera.getPositionX(), m_mapHeight - (rect.posY + rect.height) - camera.getPositionY(), rect.width, rect.height), Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), Vector4f(0.0f, 0.0f, 1.0f, 1.0f), textureRect.frame);
 		}
@@ -138,10 +141,53 @@ void Zone::draw() {
 	}
 }
 
-void Zone::loadZone(const std::string& path, size_t capacity) {
+void Zone::loadZone(const std::string& path, const std::string& currentTileset, const std::string& position) {
+
+	for (auto& layer : m_layers) {
+		for (int i = 0; i < m_cols; i++) {
+			delete[] layer[i];
+		}
+		delete[] layer;
+		layer = nullptr;
+	}
+
+	m_layers.clear();
+	m_layers.shrink_to_fit();
+
+	m_cellsAnimated.clear();
+	m_cellsAnimated.shrink_to_fit();
+
+	m_cellsBackground.clear();
+	m_cellsBackground.shrink_to_fit();
+
+	m_cellsMain.clear();
+	m_cellsMain.shrink_to_fit();
+
+	m_visibleCellsAnimated.clear();
+	m_visibleCellsAnimated.shrink_to_fit();
+
+	m_visibleCellsBackground.clear();
+	m_visibleCellsBackground.shrink_to_fit();
+
+	m_visibleCellsMain.clear();
+	m_visibleCellsMain.shrink_to_fit();
+
+	m_collisionRects.clear();
+	m_collisionRects.shrink_to_fit();
+
+	m_spriteEntities.clear();
+	m_spriteEntities.shrink_to_fit();
+
+	m_characters.clear();
+	m_characters.shrink_to_fit();
+
 	//https://stackoverflow.com/questions/24697063/how-to-make-pointer-reference-on-element-in-vector
-	m_cellsMain.reserve(capacity);
-	m_collisionRects.reserve(464);
+	m_cellsMain.reserve(600);
+	m_collisionRects.reserve(700);
+	m_currentTileset = currentTileset;
+	m_spritesheet = TileSetManager::Get().getTileSet(m_currentTileset).getAtlas();
+	m_playerOffset = TileSetManager::Get().getTileSet(m_currentTileset).getTextureRects().size() - 19;
+
 	tmx::Map map;
 	map.load(path);
 
@@ -149,8 +195,8 @@ void Zone::loadZone(const std::string& path, size_t capacity) {
 	m_mapHeight = static_cast<float>(mapSize.y * map.getTileSize().y);
 	m_tileHeight = static_cast<float>(map.getTileSize().y);
 	m_tileWidth = static_cast<float>(map.getTileSize().x);
-	m_cols = mapSize.y;
-	m_rows = mapSize.x;
+	m_cols = mapSize.x;
+	m_rows = mapSize.y;
 
 	const std::vector<std::unique_ptr<tmx::Layer>>& layers = map.getLayers();
 	for (auto& layer : layers) {
@@ -169,9 +215,9 @@ void Zone::loadZone(const std::string& path, size_t capacity) {
 			for (auto y = 0u; y < mapSize.y; ++y) {
 				for (auto x = 0u; x < mapSize.x; ++x) {
 					auto idx = y * mapSize.x + x;
-					m_layers.back()[y][x].first = tileIDs[idx].ID - 1;
+					m_layers.back()[y][x].first = (tileIDs[idx].ID - 1);
 					if (m_layers.back()[y][x].first != -1) {
-						m_cellsBackground.push_back({ static_cast<float>(x) * m_tileWidth, static_cast<float>(y) * m_tileHeight, m_layers.back()[y][x].first, static_cast<float>(x) * m_tileWidth + 0.5f * m_tileWidth, static_cast<float>(y) * m_tileHeight + 0.5f * m_tileHeight, m_tileHeight, false });
+						m_cellsBackground.push_back({ static_cast<float>(x) * m_tileWidth, static_cast<float>(y) * m_tileHeight, m_tileWidth, m_tileHeight, m_layers.back()[y][x].first, static_cast<float>(x) * m_tileWidth + 0.5f * m_tileWidth, static_cast<float>(y) * m_tileHeight + 0.5f * m_tileHeight, false });
 						m_layers.back()[y][x].second = static_cast<unsigned int>(m_cellsBackground.size() - 1);
 					}
 				}
@@ -182,9 +228,9 @@ void Zone::loadZone(const std::string& path, size_t capacity) {
 			const tmx::ObjectGroup* objectLayer = dynamic_cast<const tmx::ObjectGroup*>(layer.get());
 			for (auto& object : objectLayer->getObjects()) {
 				if (object.getName() == "top") {
-					m_cellsMain.push_back(CellShadow(object.getPosition().x, object.getPosition().y, static_cast<int>(object.getTileID() - 1u), object.getPosition().x + 0.5f * object.getAABB().width, object.getPosition().y - 0.5f * object.getAABB().height + m_mapHeight, object.getAABB().height, false, false, false));
+					m_cellsMain.push_back(CellShadow(object.getPosition().x, object.getPosition().y, object.getAABB().width, object.getAABB().height, static_cast<int>(object.getTileID() - 1u), object.getPosition().x + 0.5f * object.getAABB().width, object.getPosition().y - 0.5f * object.getAABB().height + m_mapHeight, false, false, false));
 				}else {
-					m_cellsMain.push_back(CellShadow(object.getPosition().x, object.getPosition().y, static_cast<int>(object.getTileID() - 1u), object.getPosition().x + 0.5f * object.getAABB().width, object.getPosition().y - 0.5f * object.getAABB().height, object.getAABB().height, false, false, false));
+					m_cellsMain.push_back(CellShadow(object.getPosition().x, object.getPosition().y, object.getAABB().width, object.getAABB().height, static_cast<int>(object.getTileID() - 1u), object.getPosition().x + 0.5f * object.getAABB().width, object.getPosition().y - 0.5f * object.getAABB().height, false, false, false));
 					m_collisionRects.push_back({ object.getPosition().x , object.getPosition().y - object.getAABB().height + 0.3f *object.getAABB().height,  object.getAABB().width, object.getAABB().height * 0.4f });
 				}
 			}
@@ -194,9 +240,9 @@ void Zone::loadZone(const std::string& path, size_t capacity) {
 			const tmx::ObjectGroup* objectLayer = dynamic_cast<const tmx::ObjectGroup*>(layer.get());
 			for (auto& object : objectLayer->getObjects()) {
 				if (object.getProperties()[0].getStringValue() == "sand") {
-					m_cellsMain.push_back(CellShadow(object.getPosition().x, object.getPosition().y, static_cast<int>(object.getTileID() - 1u) , object.getPosition().x + 0.5f * object.getAABB().width, (object.getPosition().y - 0.5f * object.getAABB().height) - m_mapHeight, object.getAABB().height, false, false, false));
+					m_cellsMain.push_back(CellShadow(object.getPosition().x, object.getPosition().y, 64.0f, 64.0f, static_cast<int>(object.getTileID() - 1u) , object.getPosition().x + 0.5f * object.getAABB().width, (object.getPosition().y - 0.5f * object.getAABB().height) - m_mapHeight, false, false, false));
 				}else {
-					m_cellsMain.push_back(CellShadow(object.getPosition().x, object.getPosition().y, static_cast<int>(object.getTileID() - 1u) , object.getPosition().x + 0.5f * object.getAABB().width, (object.getPosition().y - 0.5f * object.getAABB().height) - 40.0f, object.getAABB().height, false, false, false));
+					m_cellsMain.push_back(CellShadow(object.getPosition().x, object.getPosition().y, 64.0f, 64.0f, static_cast<int>(object.getTileID() - 1u) , object.getPosition().x + 0.5f * object.getAABB().width, (object.getPosition().y - 0.5f * object.getAABB().height) - 40.0f, false, false, false));
 				}
 			}
 		}
@@ -205,15 +251,15 @@ void Zone::loadZone(const std::string& path, size_t capacity) {
 			const tmx::ObjectGroup* objectLayer = dynamic_cast<const tmx::ObjectGroup*>(layer.get());
 			std::string playerDirection;
 			for (auto& object : objectLayer->getObjects()) {			
-				if (object.getName() == "Player" && object.getProperties()[1].getStringValue() == "house") {
-					m_cellsMain.push_back(CellShadow(object.getPosition().x - 64.0f, object.getPosition().y, 537, object.getPosition().x ,  object.getPosition().y - 64.0f, 128.0f, false, false, true));
+				if (object.getName() == "Player" && object.getProperties()[1].getStringValue() == position) {
+					m_cellsMain.push_back(CellShadow(object.getPosition().x - 64.0f, object.getPosition().y, 128.0f, 128.0f, m_playerOffset, object.getPosition().x ,  object.getPosition().y - 64.0f, false, false, true));
 					m_playerIndex = m_cellsMain.size() - 1;
 					playerDirection = object.getProperties()[0].getStringValue();
 				}
 
 				if (object.getName() == "Character") {
 					if (object.getProperties()[3].getStringValue() == "straw") {
-						m_cellsMain.push_back(CellShadow(object.getPosition().x - 64.0f, object.getPosition().y, 633, object.getPosition().x, object.getPosition().y - 64.0f, 128.0f, false, false, true));
+						m_cellsMain.push_back(CellShadow(object.getPosition().x - 64.0f, object.getPosition().y, 128.0f, 128.0f, MonsterHunter::CharachterOffsets[m_currentTileset]["straw"], object.getPosition().x, object.getPosition().y - 64.0f, false, false, true));
 						m_collisionRects.push_back({ (object.getPosition().x - 64.0f) + 32.0f, (object.getPosition().y) - (128.0f - 30.0f), 128.0f - 64.0f, 128.0f - 60.0f });
 						m_spriteEntities.push_back(std::make_unique<Character>(m_cellsMain.back(), m_collisionRects.back()));
 						m_spriteEntities.back()->setViewDirection(SpriteEntity::GetDirection(object.getProperties()[2].getStringValue()));
@@ -224,7 +270,7 @@ void Zone::loadZone(const std::string& path, size_t capacity) {
 						m_characters.back().get().setRadius(std::stof(object.getProperties()[4].getStringValue()));
 						m_characters.back().get().setCollisionRectIndex(m_collisionRects.size() - 1);
 					}else if (object.getProperties()[3].getStringValue() == "blond") {
-						m_cellsMain.push_back(CellShadow(object.getPosition().x - 64.0f, object.getPosition().y, 553, object.getPosition().x,  object.getPosition().y - 64.0f, 128.0f, false, false, true));
+						m_cellsMain.push_back(CellShadow(object.getPosition().x - 64.0f, object.getPosition().y, 128.0f, 128.0f, MonsterHunter::CharachterOffsets[m_currentTileset]["blond"], object.getPosition().x,  object.getPosition().y - 64.0f, false, false, true));
 						m_collisionRects.push_back({ (object.getPosition().x - 64.0f) + 32.0f, (object.getPosition().y) - (128.0f - 30.0f), 128.0f - 64.0f, 128.0f - 60.0f });
 						m_spriteEntities.push_back(std::make_unique<Character>(m_cellsMain.back(), m_collisionRects.back()));
 						m_spriteEntities.back()->setViewDirection(SpriteEntity::GetDirection(object.getProperties()[2].getStringValue()));
@@ -235,7 +281,7 @@ void Zone::loadZone(const std::string& path, size_t capacity) {
 						m_characters.back().get().setRadius(std::stof(object.getProperties()[4].getStringValue()));
 						m_characters.back().get().setCollisionRectIndex(m_collisionRects.size() - 1);
 					}else if (object.getProperties()[3].getStringValue() == "hat_girl") {
-						m_cellsMain.push_back(CellShadow(object.getPosition().x - 64.0f, object.getPosition().y, 601, object.getPosition().x,  object.getPosition().y - 64.0f, 128.0f, false, false, true));
+						m_cellsMain.push_back(CellShadow(object.getPosition().x - 64.0f, object.getPosition().y, 128.0f, 128.0f, MonsterHunter::CharachterOffsets[m_currentTileset]["hat_girl"], object.getPosition().x,  object.getPosition().y - 64.0f, false, false, true));
 						m_collisionRects.push_back({ (object.getPosition().x - 64.0f) + 32.0f, (object.getPosition().y) - (128.0f - 30.0f), 128.0f - 64.0f, 128.0f - 60.0f });
 						m_spriteEntities.push_back(std::make_unique<Character>(m_cellsMain.back(), m_collisionRects.back()));
 						m_spriteEntities.back()->setViewDirection(SpriteEntity::GetDirection(object.getProperties()[2].getStringValue()));
@@ -246,7 +292,51 @@ void Zone::loadZone(const std::string& path, size_t capacity) {
 						m_characters.back().get().setRadius(std::stof(object.getProperties()[4].getStringValue()));
 						m_characters.back().get().setCollisionRectIndex(m_collisionRects.size() - 1);
 					}else if (object.getProperties()[3].getStringValue() == "young_guy") {
-						m_cellsMain.push_back(CellShadow(object.getPosition().x - 64.0f, object.getPosition().y, 681, object.getPosition().x ,  object.getPosition().y - 64.0f, 128.0f, false, false, true));
+						m_cellsMain.push_back(CellShadow(object.getPosition().x - 64.0f, object.getPosition().y, 128.0f, 128.0f, MonsterHunter::CharachterOffsets[m_currentTileset]["young_guy"], object.getPosition().x ,  object.getPosition().y - 64.0f, false, false, true));
+						m_collisionRects.push_back({ (object.getPosition().x - 64.0f) + 32.0f, (object.getPosition().y) - (128.0f - 30.0f), 128.0f - 64.0f, 128.0f - 60.0f });
+						m_spriteEntities.push_back(std::make_unique<Character>(m_cellsMain.back(), m_collisionRects.back()));
+						m_spriteEntities.back()->setViewDirection(SpriteEntity::GetDirection(object.getProperties()[2].getStringValue()));
+						m_spriteEntities.back()->setMovingSpeed(250.0f);
+
+						m_characters.push_back(reinterpret_cast<Character&>(*m_spriteEntities.back().get()));
+						m_characters.back().get().setCharacterId(object.getProperties()[1].getStringValue());
+						m_characters.back().get().setRadius(std::stof(object.getProperties()[4].getStringValue()));
+						m_characters.back().get().setCollisionRectIndex(m_collisionRects.size() - 1);
+					}else if (object.getProperties()[3].getStringValue() == "young_girl") {
+						m_cellsMain.push_back(CellShadow(object.getPosition().x - 64.0f, object.getPosition().y, 128.0f, 128.0f, MonsterHunter::CharachterOffsets[m_currentTileset]["young_girl"], object.getPosition().x, object.getPosition().y - 64.0f, false, false, true));
+						m_collisionRects.push_back({ (object.getPosition().x - 64.0f) + 32.0f, (object.getPosition().y) - (128.0f - 30.0f), 128.0f - 64.0f, 128.0f - 60.0f });
+						m_spriteEntities.push_back(std::make_unique<Character>(m_cellsMain.back(), m_collisionRects.back()));
+						m_spriteEntities.back()->setViewDirection(SpriteEntity::GetDirection(object.getProperties()[2].getStringValue()));
+						m_spriteEntities.back()->setMovingSpeed(250.0f);
+
+						m_characters.push_back(reinterpret_cast<Character&>(*m_spriteEntities.back().get()));
+						m_characters.back().get().setCharacterId(object.getProperties()[1].getStringValue());
+						m_characters.back().get().setRadius(std::stof(object.getProperties()[4].getStringValue()));
+						m_characters.back().get().setCollisionRectIndex(m_collisionRects.size() - 1);
+					}else if (object.getProperties()[3].getStringValue() == "purple_girl") {
+						m_cellsMain.push_back(CellShadow(object.getPosition().x - 64.0f, object.getPosition().y, 128.0f, 128.0f, MonsterHunter::CharachterOffsets[m_currentTileset]["purple_girl"], object.getPosition().x, object.getPosition().y - 64.0f, false, false, true));
+						m_collisionRects.push_back({ (object.getPosition().x - 64.0f) + 32.0f, (object.getPosition().y) - (128.0f - 30.0f), 128.0f - 64.0f, 128.0f - 60.0f });
+						m_spriteEntities.push_back(std::make_unique<Character>(m_cellsMain.back(), m_collisionRects.back()));
+						m_spriteEntities.back()->setViewDirection(SpriteEntity::GetDirection(object.getProperties()[2].getStringValue()));
+						m_spriteEntities.back()->setMovingSpeed(250.0f);
+
+						m_characters.push_back(reinterpret_cast<Character&>(*m_spriteEntities.back().get()));
+						m_characters.back().get().setCharacterId(object.getProperties()[1].getStringValue());
+						m_characters.back().get().setRadius(std::stof(object.getProperties()[4].getStringValue()));
+						m_characters.back().get().setCollisionRectIndex(m_collisionRects.size() - 1);
+					}else if (object.getProperties()[3].getStringValue() == "water_boss") {
+						m_cellsMain.push_back(CellShadow(object.getPosition().x - 64.0f, object.getPosition().y, 128.0f, 128.0f, MonsterHunter::CharachterOffsets[m_currentTileset]["water_boss"], object.getPosition().x, object.getPosition().y - 64.0f, false, false, true));
+						m_collisionRects.push_back({ (object.getPosition().x - 64.0f) + 32.0f, (object.getPosition().y) - (128.0f - 30.0f), 128.0f - 64.0f, 128.0f - 60.0f });
+						m_spriteEntities.push_back(std::make_unique<Character>(m_cellsMain.back(), m_collisionRects.back()));
+						m_spriteEntities.back()->setViewDirection(SpriteEntity::GetDirection(object.getProperties()[2].getStringValue()));
+						m_spriteEntities.back()->setMovingSpeed(250.0f);
+
+						m_characters.push_back(reinterpret_cast<Character&>(*m_spriteEntities.back().get()));
+						m_characters.back().get().setCharacterId(object.getProperties()[1].getStringValue());
+						m_characters.back().get().setRadius(std::stof(object.getProperties()[4].getStringValue()));
+						m_characters.back().get().setCollisionRectIndex(m_collisionRects.size() - 1);
+					}else if (object.getProperties()[3].getStringValue() == "grass_boss") {
+						m_cellsMain.push_back(CellShadow(object.getPosition().x - 64.0f, object.getPosition().y, 128.0f, 128.0f, MonsterHunter::CharachterOffsets[m_currentTileset]["grass_boss"], object.getPosition().x, object.getPosition().y - 64.0f, false, false, true));
 						m_collisionRects.push_back({ (object.getPosition().x - 64.0f) + 32.0f, (object.getPosition().y) - (128.0f - 30.0f), 128.0f - 64.0f, 128.0f - 60.0f });
 						m_spriteEntities.push_back(std::make_unique<Character>(m_cellsMain.back(), m_collisionRects.back()));
 						m_spriteEntities.back()->setViewDirection(SpriteEntity::GetDirection(object.getProperties()[2].getStringValue()));
@@ -270,12 +360,12 @@ void Zone::loadZone(const std::string& path, size_t capacity) {
 			for (auto& object : objectLayer->getObjects()) {
 				for (float x = object.getPosition().x; x < object.getPosition().x + object.getAABB().width; x = x + 64.0f) {
 					for (float y = object.getPosition().y; y < object.getPosition().y + object.getAABB().height; y = y + 64.0f) {
-						m_cellsAnimated.push_back({ x, y, 0, 242 });
+						m_cellsAnimated.push_back({ x, y, 0, m_waterOffset });
 					}
 				}
 			}
 		}
-
+		
 		if (layer->getName() == "Coast") {
 			const tmx::ObjectGroup* objectLayer = dynamic_cast<const tmx::ObjectGroup*>(layer.get());
 			for (auto& object : objectLayer->getObjects()) {
@@ -284,140 +374,140 @@ void Zone::loadZone(const std::string& path, size_t capacity) {
 
 					if (property.getName() == "terrain" && property.getStringValue() == "grass") {
 						if (object.getProperties()[0].getStringValue() == "topleft") {
-							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, 246 });
+							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, m_coastOffset });
 						}
 
 						if (object.getProperties()[0].getStringValue() == "left") {
-							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, 250 });
+							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, m_coastOffset + 4 });
 						}
 
 						if (object.getProperties()[0].getStringValue() == "bottomleft") {
-							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, 254 });
+							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, m_coastOffset + 8 });
 						}
 
 						if (object.getProperties()[0].getStringValue() == "top") {
-							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, 258 });
+							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, m_coastOffset + 12 });
 						}
 
 						if (object.getProperties()[0].getStringValue() == "bottom") {
-							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, 266 });
+							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, m_coastOffset + 20 });
 						}
 
 						if (object.getProperties()[0].getStringValue() == "topright") {
-							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, 270 });
+							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, m_coastOffset + 24 });
 						}
 
 						if (object.getProperties()[0].getStringValue() == "right") {
-							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, 274 });
+							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, m_coastOffset + 28 });
 						}
 
 						if (object.getProperties()[0].getStringValue() == "bottomright") {
-							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, 278 });
+							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, m_coastOffset + 32 });
 						}
 					}
 
 					if (property.getName() == "terrain" && property.getStringValue() == "grass_i") {
 
 						if (object.getProperties()[0].getStringValue() == "topleft") {
-							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, 282 });
+							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, m_coastOffset + 36 });
 						}
 
 						if (object.getProperties()[0].getStringValue() == "left") {
-							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, 286 });
+							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, m_coastOffset + 40 });
 						}
 
 						if (object.getProperties()[0].getStringValue() == "bottomleft") {
-							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, 290 });
+							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, m_coastOffset + 44 });
 						}
 
 						if (object.getProperties()[0].getStringValue() == "top") {
-							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, 294 });
+							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, m_coastOffset + 48 });
 						}
 
 						if (object.getProperties()[0].getStringValue() == "bottom") {
-							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, 301 });
+							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, m_coastOffset + 56 });
 						}
 
 						if (object.getProperties()[0].getStringValue() == "topright") {
-							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, 306 });
+							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, m_coastOffset + 60 });
 						}
 
 						if (object.getProperties()[0].getStringValue() == "right") {
-							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, 310 });
+							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, m_coastOffset + 64 });
 						}
 
 						if (object.getProperties()[0].getStringValue() == "bottomright") {
-							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, 314 });
+							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, m_coastOffset + 68 });
 						}
 					}
 
 					if (property.getName() == "terrain" && property.getStringValue() == "sand_i") {
 
 						if (object.getProperties()[0].getStringValue() == "topleft") {
-							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, 318 });
+							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, m_coastOffset + 72 });
 						}
 
 						if (object.getProperties()[0].getStringValue() == "left") {
-							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, 322 });
+							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, m_coastOffset + 76 });
 						}
 
 						if (object.getProperties()[0].getStringValue() == "bottomleft") {
-							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, 326 });
+							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, m_coastOffset + 80 });
 						}
 
 						if (object.getProperties()[0].getStringValue() == "top") {
-							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, 330 });
+							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, m_coastOffset + 84 });
 						}
 
 						if (object.getProperties()[0].getStringValue() == "bottom") {
-							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, 338 });
+							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, m_coastOffset + 92 });
 						}
 
 						if (object.getProperties()[0].getStringValue() == "topright") {
-							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, 342 });
+							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, m_coastOffset + 96 });
 						}
 
 						if (object.getProperties()[0].getStringValue() == "right") {
-							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, 346 });
+							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, m_coastOffset + 100 });
 						}
 
 						if (object.getProperties()[0].getStringValue() == "bottomright") {
-							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, 350 });
+							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, m_coastOffset + 104 });
 						}
 					}
 
 					if (property.getName() == "terrain" && property.getStringValue() == "sand") {
 
 						if (object.getProperties()[0].getStringValue() == "topleft") {
-							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, 354 });
+							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, m_coastOffset + 108 });
 						}
 
 						if (object.getProperties()[0].getStringValue() == "left") {
-							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, 358 });
+							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, m_coastOffset + 112 });
 						}
 
 						if (object.getProperties()[0].getStringValue() == "bottomleft") {
-							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, 362 });
+							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, m_coastOffset + 116 });
 						}
 
 						if (object.getProperties()[0].getStringValue() == "top") {
-							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, 366 });
+							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, m_coastOffset + 120 });
 						}
 
 						if (object.getProperties()[0].getStringValue() == "bottom") {
-							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, 374 });
+							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, m_coastOffset + 128 });
 						}
 
 						if (object.getProperties()[0].getStringValue() == "topright") {
-							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, 378 });
+							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, m_coastOffset + 132 });
 						}
 
 						if (object.getProperties()[0].getStringValue() == "right") {
-							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, 382 });
+							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, m_coastOffset + 136 });
 						}
 
 						if (object.getProperties()[0].getStringValue() == "bottomright") {
-							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, 386 });
+							m_cellsAnimated.push_back({ object.getPosition().x, object.getPosition().y, 0, m_coastOffset + 140 });
 						}
 					}
 				}
@@ -429,6 +519,13 @@ void Zone::loadZone(const std::string& path, size_t capacity) {
 			for (auto& object : objectLayer->getObjects()) {
 				m_collisionRects.push_back({ object.getPosition().x , object.getPosition().y,  object.getAABB().width, object.getAABB().height });
 			}
+		}
+	}
+
+	for (Character& character : m_characters) {
+		Trainer& trainer = DialogTree::Trainers[character.getCharacterId()];
+		if (trainer.viewDirections.size() > 1) {
+			character.setViewDirections(trainer.viewDirections);
 		}
 	}
 }
@@ -505,11 +602,10 @@ void Zone::culling() {
 	int rowMax = m_useCulling ? m_rows - posYToRow(m_cullingVertices[0][1], m_tileHeight, 0, m_rows, -1) : m_rows;
 
 	m_visibleCellsBackground.clear();
-
 	for (int j = 0; j < m_layers.size(); j++) {
 		for (int y = rowMin; y < rowMax; y++) {
 			for (int x = colMin; x < colMax; x++) {
-				if (m_layers[j][y][x].first != -1) {
+				if (m_layers[j][y][x].first != -1) {					
 					m_visibleCellsBackground.push_back(m_cellsBackground[m_layers[j][y][x].second]);
 				}
 
@@ -525,11 +621,11 @@ void Zone::culling() {
 	}
 
 	m_visibleCellsMain.clear();
-	const std::vector<TextureRect>& rects = TileSetManager::Get().getTileSet("world").getTextureRects();
+	const std::vector<TextureRect>& rects = TileSetManager::Get().getTileSet(m_currentTileset).getTextureRects();
 	for (CellShadow& cell : m_cellsMain) {
 		cell.visibile = false;
 		const TextureRect& rect = rects[cell.currentFrame];
-		if (isRectOnScreen(cell.posX, cell.posY - rect.height, rect.width, rect.height) || !m_useCulling) {
+		if (isRectOnScreen(cell.posX, cell.posY - cell.height, cell.width, cell.height) || !m_useCulling) {
 			cell.visibile = true;
 			m_visibleCellsMain.push_back(cell);
 		}
@@ -601,4 +697,8 @@ const std::vector<std::unique_ptr<SpriteEntity>>& Zone::getSpriteEntities() {
 
 const std::vector<std::reference_wrapper<Character>>& Zone::getCharacters() {
 	return m_characters;
+}
+
+void Zone::setSpritesheet(const unsigned int& spritesheet) {
+	m_spritesheet = spritesheet;
 }

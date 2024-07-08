@@ -61,11 +61,11 @@ void Player::update(float dt) {
 		for (const Rect& rect : collisionRects) {
 			if (SpriteEntity::HasCollision(rect.posX, rect.posY, rect.posX + rect.width, rect.posY + rect.height, playerRect.posX, playerRect.posY, playerRect.posX + playerRect.width, playerRect.posY + playerRect.height)) {
 				if (m_direction[1] < 0) {
-					cell.posY = rect.posY + 30.0f;
+					cell.posY = rect.posY + 29.5f;
 				}
 
 				if (m_direction[1] > 0) {
-					cell.posY = rect.posY + rect.height + 98.0f;
+					cell.posY = rect.posY + rect.height + 98.5f;
 				}
 
 			}

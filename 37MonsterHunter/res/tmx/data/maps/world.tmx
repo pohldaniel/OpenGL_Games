@@ -93,7 +93,7 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
- <layer id="13" name="Terrain Top" width="86" height="86" visible="0" locked="1">
+ <layer id="13" name="Terrain Top" width="86" height="86" locked="1">
   <data encoding="csv">
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -183,7 +183,7 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
- <objectgroup id="12" name="Collisions" visible="0" locked="1">
+ <objectgroup id="12" name="Collisions" locked="1">
   <object id="211" x="4832.33" y="1976.5" width="33.3333" height="647.5"/>
   <object id="700" x="4857" y="1952" width="67.5" height="22.5"/>
   <object id="701" x="4899" y="1203" width="25" height="744"/>
@@ -373,7 +373,7 @@
   <object id="1155" x="2792.33" y="2933.48" width="82" height="30.334"/>
   <object id="1156" x="2950.18" y="2933.48" width="111.758" height="30"/>
  </objectgroup>
- <objectgroup id="5" name="Transition" visible="0" locked="1">
+ <objectgroup id="5" name="Transition">
   <object id="17" x="4421.09" y="3770.75" width="54.6667" height="3.83333">
    <properties>
     <property name="pos" value="world"/>
@@ -411,7 +411,7 @@
    </properties>
   </object>
  </objectgroup>
- <objectgroup id="3" name="Entities">
+ <objectgroup id="3" name="Entities" locked="1">
   <object id="12" name="Player" x="4446.97" y="3912.65">
    <properties>
     <property name="direction" value="down"/>
@@ -525,7 +525,7 @@
    <point/>
   </object>
  </objectgroup>
- <objectgroup id="9" name="Coast" visible="0" locked="1">
+ <objectgroup id="9" name="Coast" locked="1">
   <object id="130" name="coast" x="4224" y="4992" width="64" height="64">
    <properties>
     <property name="side" value="top"/>
@@ -4101,7 +4101,7 @@
    </properties>
   </object>
  </objectgroup>
- <objectgroup id="2" name="Objects" visible="0" locked="1">
+ <objectgroup id="2" name="Objects">
   <object id="1" gid="211" x="4352" y="3776" width="320" height="320"/>
   <object id="2" gid="225" x="3455.33" y="3783.33" width="128" height="192"/>
   <object id="3" gid="225" x="3264" y="3712" width="128" height="192"/>
@@ -4375,7 +4375,7 @@
   <object id="1078" gid="227" x="4623" y="2089" width="64" height="128"/>
   <object id="1079" gid="226" x="4678" y="2170" width="128" height="192"/>
  </objectgroup>
- <objectgroup id="10" name="Water" visible="0" locked="1">
+ <objectgroup id="10" name="Water" locked="1">
   <object id="136" x="0" y="5056" width="5504" height="320"/>
   <object id="161" x="3648" y="2496" width="192" height="192"/>
   <object id="162" x="3840" y="2560" width="512" height="128"/>

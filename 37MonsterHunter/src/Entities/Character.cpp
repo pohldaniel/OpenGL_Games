@@ -97,7 +97,7 @@ bool Character::hasLineOfSight(const Cell& cell, const std::vector<Rect>& collis
 			if (i == m_collisionRectIndex)
 				continue;
 			const Rect& rect = collisionRects[i];
-			if (lineRect(cell.centerX, cell.centerY, Character::cell.centerX, Character::cell.centerY, rect.posX, rect.posY, rect.width, rect.height)) {
+			if (lineRect(cell.centerX, cell.centerY, Character::cell.centerX, Character::cell.centerY + 64.0f, rect.posX, rect.posY, rect.width, rect.height)) {
 				return false;
 			}
 		}

@@ -1,3 +1,5 @@
+#include <rapidjson/document.h>
+#include <rapidjson/istreamwrapper.h>
 #include <engine/input/Keyboard.h>
 #include <engine/Fontrenderer.h>
 #include <Entities/Player.h>
@@ -5,6 +7,7 @@
 #include "Globals.h"
 
 std::vector<Dialog> DialogTree::DialogData;
+std::unordered_map<std::string, Trainer> DialogTree::Trainers;
 
 DialogTree::DialogTree(const Camera& camera) : 
 	camera(camera), 
@@ -16,6 +19,55 @@ DialogTree::DialogTree(const Camera& camera) :
 	texPos(Fontrenderer::Get().getBatchRenderer()->getTexPos()),
 	color(Fontrenderer::Get().getBatchRenderer()->getColor()),
 	frame(Fontrenderer::Get().getBatchRenderer()->getFrame()) {
+
+	std::ifstream file("res/trainer.json", std::ios::in);
+	if (!file.is_open()) {
+		std::cerr << "Could not open file: " << "res/trainer.json" << std::endl;
+	}
+
+	rapidjson::IStreamWrapper streamWrapper(file);
+	rapidjson::Document doc;
+	doc.ParseStream(streamWrapper);
+
+	for (rapidjson::Value::ConstMemberIterator trainer = doc.MemberBegin(); trainer != doc.MemberEnd(); ++trainer) {
+		if (std::string(trainer->name.GetString()) != "Nurse") {
+
+			Trainers[trainer->name.GetString()].binom = trainer->value["biome"].GetString();
+			Trainers[trainer->name.GetString()].defeated = trainer->value["defeated"].GetBool();
+			Trainers[trainer->name.GetString()].lookAround = trainer->value["look_around"].GetBool();
+
+			rapidjson::GenericArray<true, rapidjson::Value>  monsters = trainer->value["monsters"].GetArray();
+			for (rapidjson::Value::ConstValueIterator monster = monsters.Begin(); monster != monsters.End(); ++monster) {
+				for (rapidjson::Value::ConstMemberIterator iter = monster->MemberBegin(); iter != monster->MemberEnd(); ++iter) {
+					Trainers[trainer->name.GetString()].monsters.push_back({ iter->name.GetString(), iter->value.GetInt() });
+				}
+			}
+
+			rapidjson::GenericArray<true, rapidjson::Value>  directions = trainer->value["directions"].GetArray();
+			for (rapidjson::Value::ConstValueIterator direction = directions.Begin(); direction != directions.End(); ++direction) {
+				std::string _direction = direction->GetString();
+				if (_direction == "up")
+					Trainers[trainer->name.GetString()].viewDirections.push_back(ViewDirection::UP);
+				else if (_direction == "down")
+					Trainers[trainer->name.GetString()].viewDirections.push_back(ViewDirection::DOWN);
+				else if (_direction == "left")
+					Trainers[trainer->name.GetString()].viewDirections.push_back(ViewDirection::LEFT);
+				else if (_direction == "right")
+					Trainers[trainer->name.GetString()].viewDirections.push_back(ViewDirection::RIGHT);
+			}
+
+			rapidjson::GenericArray<true, rapidjson::Value>  undefeated = trainer->value["dialog"]["default"].GetArray();
+			for (rapidjson::Value::ConstValueIterator entry = undefeated.Begin(); entry != undefeated.End(); ++entry) {
+				Trainers[trainer->name.GetString()].dialog.undefeated.push_back(entry->GetString());
+			}
+
+			rapidjson::GenericArray<true, rapidjson::Value>  defeated = trainer->value["dialog"]["defeated"].GetArray();
+			for (rapidjson::Value::ConstValueIterator entry = defeated.Begin(); entry != defeated.End(); ++entry) {
+				Trainers[trainer->name.GetString()].dialog.defeated.push_back(entry->GetString());
+			}
+		}
+	}
+	file.close();
 }
 
 DialogTree::~DialogTree() {

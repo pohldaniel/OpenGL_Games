@@ -2,6 +2,25 @@
 #include <functional>
 #include <engine/Camera.h>
 
+struct DialogOptions {
+	std::vector<std::string> undefeated;
+	std::vector<std::string> defeated;
+};
+
+struct Monster {
+	std::string name;
+	int level;
+};
+
+struct Trainer {
+	std::vector<Monster> monsters;
+	DialogOptions dialog;
+	std::vector<ViewDirection> viewDirections;
+	bool lookAround;
+	bool defeated;
+	std::string binom;
+};
+
 struct Dialog {
 	float posX;
 	float posY;
@@ -26,6 +45,8 @@ public:
 	void setOnDialogFinished(std::function<void()> fun);
 	void incrementIndex();
 
+	static std::unordered_map<std::string, Trainer> Trainers;
+
 private:
 
 	int m_currentIndex;
@@ -38,4 +59,5 @@ private:
 	unsigned int& frame;
 	std::function<void()> OnDialogFinished;
 	static std::vector<Dialog> DialogData;
+	
 };

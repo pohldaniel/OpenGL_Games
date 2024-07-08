@@ -13,26 +13,6 @@
 #include "Zone.h"
 #include "Dialog.h"
 
-
-struct DialogNew {
-	std::vector<std::string> undefeated;
-	std::vector<std::string> defeated;
-};
-
-struct Monster {
-	std::string name;
-	int level;
-};
-
-struct Trainer {
-	std::vector<Monster> monsters;
-	DialogNew dialog;
-	std::vector<ViewDirection> viewDirections;
-	bool lookAround;
-	bool defeated;
-	std::string binom;
-};
-
 class MonsterHunter : public State, public MouseEventListener, public KeyboardEventListener {
 
 public:
@@ -50,6 +30,7 @@ public:
 	void OnMouseButtonUp(Event::MouseButtonEvent& event) override;
 	void OnKeyDown(Event::KeyboardEvent& event) override;
 	void OnKeyUp(Event::KeyboardEvent& event) override;
+	static std::unordered_map<std::string, std::unordered_map<std::string, unsigned int>> CharachterOffsets;
 
 private:
 
@@ -63,7 +44,6 @@ private:
 	bool m_debugCollision = false;
 	Camera m_camera;
 
-	unsigned int m_atlasWorld;
 	float m_movingSpeed;
 	float m_viewWidth;
 	float m_viewHeight;
@@ -71,6 +51,6 @@ private:
 	float m_screeBorder;
 
 	Zone m_zone;
-	std::unordered_map<std::string, Trainer> m_trainers;
+
 	DialogTree m_dialogTree;
 };

@@ -5,6 +5,7 @@
 #include <engine/Vector.h>
 #include <engine/Camera.h>
 #include <engine/Rect.h>
+#include <engine/TileSet.h>
 
 class SpriteEntity;
 class Player;
@@ -13,23 +14,25 @@ class Character;
 struct Cell {
 	float posX;
 	float posY;
+	float width;
+	float height;
 	int currentFrame;
 	float centerX;
 	float centerY;
-	float height;
 	bool visibile;
 	bool isNoticed;
 };
 
 struct CellShadow : public Cell {
 
-	CellShadow(float _posX, float _posY, int _currentFrame, float _centerX, float _centerY, float _height, bool _visibile, bool _isNoticed, bool hasShadow) : hasShadow(hasShadow) {
+	CellShadow(float _posX, float _posY, float _width, float _height, int _currentFrame, float _centerX, float _centerY, bool _visibile, bool _isNoticed, bool hasShadow) : hasShadow(hasShadow) {
 		posX = _posX;
 		posY = _posY;
+		width = _width;
+		height = _height;
 		currentFrame = _currentFrame;
 		centerX = _centerX;
-		centerY = _centerY;
-		height = _height;
+		centerY = _centerY;		
 		visibile = _visibile;
 		isNoticed = _isNoticed;
 	}
@@ -59,7 +62,7 @@ public:
 	void update(float dt);
 	void draw();
 	void resize();
-	void loadZone(const std::string& path, size_t capacity);
+	void loadZone(const std::string& path, const std::string& currentTileset, const std::string& position);
 	void initDebug();
 	void updateBorder();
 	Player& getPlayer();
@@ -74,6 +77,7 @@ public:
 	void setDrawScreenBorder(bool drawScreenBorder);
 	void setDrawCenter(bool drawCenter);
 	void setDebugCollision(bool debugCollision);
+	void setSpritesheet(const unsigned int& spritesheet);
 
 private:
 
@@ -106,6 +110,7 @@ private:
 	std::array<Vector2f, 4> m_cullingVertices;
 	size_t m_playerIndex, m_cols, m_rows;
 
+	unsigned int m_spritesheet;
 	unsigned int m_vao, m_vbo;
 	Vector3f *pointBatch, *pointBatchPtr;
 	uint32_t m_pointCount;
@@ -115,4 +120,7 @@ private:
 	float elapsedTime;
 	int currentFrame;
 	int frameCount;
+
+	std::string m_currentTileset;
+	int m_playerOffset, m_waterOffset, m_coastOffset;
 };
