@@ -77,9 +77,9 @@ void Zone::update(float dt) {
 }
 
 void Zone::draw() {
+
 	Spritesheet::Bind(m_spritesheet);
 	const std::vector<TextureRect>& rects = TileSetManager::Get().getTileSet(m_currentTileset).getTextureRects();
-	
 	for (const AnimatedCell& animatedCell : m_visibleCellsAnimated) {
 		const TextureRect& rect = rects[animatedCell.currentFrame + animatedCell.startFrame];
 		Batchrenderer::Get().addQuadAA(Vector4f(animatedCell.posX - camera.getPositionX(), m_mapHeight - 64.0f - animatedCell.posY - camera.getPositionY(), rect.width, rect.height), Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureWidth, rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), rect.frame);
@@ -133,6 +133,10 @@ void Zone::draw() {
 			Batchrenderer::Get().addQuadAA(Vector4f(rect.posX - camera.getPositionX(), m_mapHeight - (rect.posY + rect.height) - camera.getPositionY(), rect.width, rect.height), Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), Vector4f(0.0f, 0.0f, 1.0f, 1.0f), textureRect.frame);
 		}
 
+		for (const Transition& transition : m_transitions) {
+			Batchrenderer::Get().addQuadAA(Vector4f(transition.collisionRect.posX - camera.getPositionX(), m_mapHeight - (transition.collisionRect.posY + transition.collisionRect.height) - camera.getPositionY(), transition.collisionRect.width, transition.collisionRect.height), Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), Vector4f(0.0f, 0.0f, 1.0f, 1.0f), textureRect.frame);
+		}
+
 		const CellShadow& player = m_cellsMain[m_playerIndex];
 		Batchrenderer::Get().addQuadAA(Vector4f(player.posX + 32.0f - camera.getPositionX(), m_mapHeight - (player.posY - 30.0f) - camera.getPositionY(), 128.0f - 64.0f, player.height - 60.0f), Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), Vector4f(1.0f, 0.0f, 0.0f, 1.0f), textureRect.frame);
 
@@ -141,7 +145,7 @@ void Zone::draw() {
 	}
 }
 
-void Zone::loadZone(const std::string& path, const std::string& currentTileset, const std::string& position) {
+void Zone::loadZone(const std::string path, const std::string currentTileset, const std::string position) {
 
 	for (auto& layer : m_layers) {
 		for (int i = 0; i < m_cols; i++) {
@@ -181,10 +185,14 @@ void Zone::loadZone(const std::string& path, const std::string& currentTileset, 
 	m_characters.clear();
 	m_characters.shrink_to_fit();
 
+	m_transitions.clear();
+	m_transitions.shrink_to_fit();
+
 	//https://stackoverflow.com/questions/24697063/how-to-make-pointer-reference-on-element-in-vector
 	m_cellsMain.reserve(600);
 	m_collisionRects.reserve(700);
 	m_currentTileset = currentTileset;
+
 	m_spritesheet = TileSetManager::Get().getTileSet(m_currentTileset).getAtlas();
 	m_playerOffset = TileSetManager::Get().getTileSet(m_currentTileset).getTextureRects().size() - 19;
 
@@ -542,6 +550,13 @@ void Zone::loadZone(const std::string& path, const std::string& currentTileset, 
 				m_collisionRects.push_back({ object.getPosition().x , object.getPosition().y,  object.getAABB().width, object.getAABB().height });
 			}
 		}
+
+		if (layer->getName() == "Transition") {
+			const tmx::ObjectGroup* objectLayer = dynamic_cast<const tmx::ObjectGroup*>(layer.get());
+			for (auto& object : objectLayer->getObjects()) {
+				m_transitions.push_back({ object.getProperties()[1].getStringValue(), object.getProperties()[0].getStringValue(),{ object.getPosition().x , object.getPosition().y,  object.getAABB().width, object.getAABB().height }});
+			}
+		}
 	}
 
 	for (Character& character : m_characters) {
@@ -723,4 +738,8 @@ const std::vector<std::reference_wrapper<Character>>& Zone::getCharacters() {
 
 void Zone::setSpritesheet(const unsigned int& spritesheet) {
 	m_spritesheet = spritesheet;
+}
+
+const std::vector<Transition>& Zone::getTransitions() {
+	return m_transitions;
 }

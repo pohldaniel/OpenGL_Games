@@ -373,14 +373,14 @@
   <object id="1155" x="2792.33" y="2933.48" width="82" height="30.334"/>
   <object id="1156" x="2950.18" y="2933.48" width="111.758" height="30"/>
  </objectgroup>
- <objectgroup id="5" name="Transition">
-  <object id="17" x="4421.09" y="3770.75" width="54.6667" height="3.83333">
+ <objectgroup id="5" name="Transition" locked="1">
+  <object id="17" x="4421.09" y="3745.75" width="54.6667" height="3.83333">
    <properties>
     <property name="pos" value="world"/>
     <property name="target" value="house"/>
    </properties>
   </object>
-  <object id="18" x="4226.67" y="3389.33" width="120" height="3.81818">
+  <object id="18" x="4227.67" y="3358.33" width="120" height="3.81818">
    <properties>
     <property name="pos" value="world"/>
     <property name="target" value="hospital"/>
@@ -407,7 +407,7 @@
   <object id="1150" x="1731.67" y="2170.92" width="120" height="3.81818">
    <properties>
     <property name="pos" value="world"/>
-    <property name="target" value="hospital2"/>
+    <property name="target" value="hospital"/>
    </properties>
   </object>
  </objectgroup>
@@ -1943,7 +1943,7 @@
    </properties>
   </object>
  </objectgroup>
- <objectgroup id="6" name="Monsters" visible="0" locked="1">
+ <objectgroup id="6" name="Monsters" locked="1">
   <object id="34" gid="240" x="4096" y="4096" width="64" height="64">
    <properties>
     <property name="biome" value="forest"/>
@@ -4101,7 +4101,7 @@
    </properties>
   </object>
  </objectgroup>
- <objectgroup id="2" name="Objects">
+ <objectgroup id="2" name="Objects" locked="1">
   <object id="1" gid="211" x="4352" y="3776" width="320" height="320"/>
   <object id="2" gid="225" x="3455.33" y="3783.33" width="128" height="192"/>
   <object id="3" gid="225" x="3264" y="3712" width="128" height="192"/>

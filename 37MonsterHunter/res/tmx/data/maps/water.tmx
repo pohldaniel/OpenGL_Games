@@ -2,7 +2,7 @@
 <map version="1.8" tiledversion="1.8.4" orientation="orthogonal" renderorder="right-down" width="24" height="34" tilewidth="64" tileheight="64" infinite="0" nextlayerid="14" nextobjectid="878">
  <tileset firstgid="1" source="../tilesets/world.tsx"/>
  <tileset firstgid="211" source="../tilesets/indoor.tsx"/>
- <layer id="1" name="Terrain" width="24" height="34">
+ <layer id="1" name="Terrain" width="24" height="34" locked="1">
   <data encoding="csv">
 254,254,254,254,254,254,254,254,254,254,254,254,254,254,254,254,254,254,254,254,254,254,254,254,
 254,254,254,254,254,254,254,254,254,254,254,254,254,254,254,254,254,254,254,254,254,254,254,254,
@@ -78,7 +78,7 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
- <objectgroup id="12" name="Collisions">
+ <objectgroup id="12" name="Collisions" locked="1">
   <object id="861" x="848" y="1800" width="54.6667" height="124.667"/>
   <object id="862" x="623.333" y="1796.67" width="74.6667" height="125.333"/>
   <object id="863" x="420.667" y="1729.33" width="220.667" height="108.667"/>
@@ -103,7 +103,7 @@
    </properties>
   </object>
  </objectgroup>
- <objectgroup id="3" name="Entities">
+ <objectgroup id="3" name="Entities" locked="1">
   <object id="854" name="Player" x="771" y="1849">
    <properties>
     <property name="direction" value="up"/>

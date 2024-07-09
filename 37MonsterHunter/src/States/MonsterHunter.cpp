@@ -117,12 +117,12 @@ MonsterHunter::MonsterHunter(StateMachine& machine) : State(machine, States::MON
 	//Spritesheet::Safe("world", TileSetManager::Get().getTileSet("world").getAtlas());
 	
 	TextureAtlasCreator::Get().init(2048u, 2048u);
-	TileSetManager::Get().getTileSet("indoor").loadTileSetCpu("res/tmx/graphics/tilesets/indoor.png", false, 64.0f, 64.0f, true, false);
-	TileSetManager::Get().getTileSet("indoor").loadTileSetCpu("res/tmx/graphics/characters/player.png", false, 128.0f, 128.0f, true, false);
-	TileSetManager::Get().getTileSet("indoor").loadTileCpu("res/tmx/graphics/other/shadow.png", false, true, false);
-	TileSetManager::Get().getTileSet("indoor").loadTileCpu("res/tmx/graphics/ui/notice.png", false, true, false);
-	TileSetManager::Get().getTileSet("indoor").loadTileCpu("res/tmx/graphics/other/empty.png", false, true, false);
-	TileSetManager::Get().getTileSet("indoor").loadTileSetGpu();
+	TileSetManager::Get().getTileSet("house").loadTileSetCpu("res/tmx/graphics/tilesets/indoor.png", false, 64.0f, 64.0f, true, false);
+	TileSetManager::Get().getTileSet("house").loadTileSetCpu("res/tmx/graphics/characters/player.png", false, 128.0f, 128.0f, true, false);
+	TileSetManager::Get().getTileSet("house").loadTileCpu("res/tmx/graphics/other/shadow.png", false, true, false);
+	TileSetManager::Get().getTileSet("house").loadTileCpu("res/tmx/graphics/ui/notice.png", false, true, false);
+	TileSetManager::Get().getTileSet("house").loadTileCpu("res/tmx/graphics/other/empty.png", false, true, false);
+	TileSetManager::Get().getTileSet("house").loadTileSetGpu();
 
 	TextureAtlasCreator::Get().init(2048u, 2048u);
 	TileSetManager::Get().getTileSet("water").loadTileSetCpu("res/tmx/graphics/tilesets/world.png", false, 64.0f, 64.0f, true, false);
@@ -271,11 +271,11 @@ MonsterHunter::MonsterHunter(StateMachine& machine) : State(machine, States::MON
 	shader->loadMatrix("u_transform", m_camera.getOrthographicMatrix());
 	shader->unuse();
 
-	//m_zone.loadZone("res/tmx/data/maps/world.tmx", "world", "house");
+	m_zone.loadZone("res/tmx/data/maps/world.tmx", "world", "house");
 	//m_zone.loadZone("res/tmx/data/maps/water.tmx", "water", "entrance");
 	//m_zone.loadZone("res/tmx/data/maps/plant.tmx", "plant", "entrance");
 	//m_zone.loadZone("res/tmx/data/maps/hospital.tmx", "hospital", "world");
-	m_zone.loadZone("res/tmx/data/maps/fire.tmx", "fire", "entrance");
+	//m_zone.loadZone("res/tmx/data/maps/fire.tmx", "fire", "entrance");
 	m_zone.setDebugCollision(m_debugCollision);
 	m_mapHeight = m_zone.getMapHeight();
 	m_zone.getPlayer().setMovingSpeed(m_movingSpeed);
@@ -300,7 +300,6 @@ void MonsterHunter::update() {
 
 	if (keyboard.keyPressed(Keyboard::KEY_1)) {
 		m_zone.loadZone("res/tmx/data/maps/world.tmx", "world", "house");
-		m_zone.setDebugCollision(m_debugCollision);
 		m_mapHeight = m_zone.getMapHeight();
 		m_zone.getPlayer().setMovingSpeed(m_movingSpeed);
 		m_zone.getPlayer().setViewWidth(m_viewWidth);
@@ -310,8 +309,7 @@ void MonsterHunter::update() {
 	}
 
 	if (keyboard.keyPressed(Keyboard::KEY_2)) {
-		m_zone.loadZone("res/tmx/data/maps/house.tmx", "indoor", "world");
-		m_zone.setDebugCollision(m_debugCollision);
+		m_zone.loadZone("res/tmx/data/maps/house.tmx", "house", "world");
 		m_mapHeight = m_zone.getMapHeight();
 		m_zone.getPlayer().setMovingSpeed(m_movingSpeed);
 		m_zone.getPlayer().setViewWidth(m_viewWidth);
@@ -322,7 +320,6 @@ void MonsterHunter::update() {
 
 	if (keyboard.keyPressed(Keyboard::KEY_3)) {
 		m_zone.loadZone("res/tmx/data/maps/water.tmx", "water", "entrance");
-		m_zone.setDebugCollision(m_debugCollision);
 		m_mapHeight = m_zone.getMapHeight();
 		m_zone.getPlayer().setMovingSpeed(m_movingSpeed);
 		m_zone.getPlayer().setViewWidth(m_viewWidth);
@@ -333,7 +330,6 @@ void MonsterHunter::update() {
 
 	if (keyboard.keyPressed(Keyboard::KEY_4)) {
 		m_zone.loadZone("res/tmx/data/maps/plant.tmx", "plant", "entrance");
-		m_zone.setDebugCollision(m_debugCollision);
 		m_mapHeight = m_zone.getMapHeight();
 		m_zone.getPlayer().setMovingSpeed(m_movingSpeed);
 		m_zone.getPlayer().setViewWidth(m_viewWidth);
@@ -344,7 +340,6 @@ void MonsterHunter::update() {
 
 	if (keyboard.keyPressed(Keyboard::KEY_5)) {
 		m_zone.loadZone("res/tmx/data/maps/hospital.tmx", "hospital", "world");
-		m_zone.setDebugCollision(m_debugCollision);
 		m_mapHeight = m_zone.getMapHeight();
 		m_zone.getPlayer().setMovingSpeed(m_movingSpeed);
 		m_zone.getPlayer().setViewWidth(m_viewWidth);
@@ -355,13 +350,29 @@ void MonsterHunter::update() {
 
 	if (keyboard.keyPressed(Keyboard::KEY_6)) {
 		m_zone.loadZone("res/tmx/data/maps/fire.tmx", "fire", "entrance");
-		m_zone.setDebugCollision(m_debugCollision);
 		m_mapHeight = m_zone.getMapHeight();
 		m_zone.getPlayer().setMovingSpeed(m_movingSpeed);
 		m_zone.getPlayer().setViewWidth(m_viewWidth);
 		m_zone.getPlayer().setViewHeight(m_viewHeight);
 		m_zone.getPlayer().setMapHeight(m_zone.getMapHeight());
 		m_zone.getPlayer().adjustCamera();
+	}
+
+	Rect playerRect = { m_zone.getPlayer().getCell().posX + 32.0f, m_zone.getPlayer().getCell().posY - (128.0f - 30.0f) , 128.0f - 64.0f, 128.0f - 60.0f };
+	for (const Transition& transition : m_zone.getTransitions()) {
+
+		if (SpriteEntity::HasCollision(transition.collisionRect.posX, transition.collisionRect.posY, transition.collisionRect.posX + transition.collisionRect.width, transition.collisionRect.posY + transition.collisionRect.height, playerRect.posX, playerRect.posY, playerRect.posX + playerRect.width, playerRect.posY + playerRect.height)) {
+			m_zone.loadZone("res/tmx/data/maps/" + transition.target + ".tmx", transition.target, transition.newPos);
+			m_mapHeight = m_zone.getMapHeight();
+			m_zone.getPlayer().setMovingSpeed(m_movingSpeed);
+			m_zone.getPlayer().setViewWidth(m_viewWidth);
+			m_zone.getPlayer().setViewHeight(m_viewHeight);
+			m_zone.getPlayer().setMapHeight(m_zone.getMapHeight());
+			m_zone.getPlayer().adjustCamera();
+			break;
+		}
+
+		
 	}
 
 	if (keyboard.keyPressed(Keyboard::KEY_SPACE)) {

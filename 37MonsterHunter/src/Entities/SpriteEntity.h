@@ -11,8 +11,6 @@ enum ViewDirection {
 
 class SpriteEntity {
 
-	friend class Character;
-
 public:
 
 	SpriteEntity(Cell& cell, float elpasedTime = 0.0f, int framecount = 4);
@@ -29,6 +27,7 @@ public:
 	static ViewDirection GetDirection(std::string direction);
 	static Vector2f GetDirection(ViewDirection direction);
 	static bool CheckConnection(const Cell& origin, const Cell& target, ViewDirection viewDirection, float radius = 100.0f, float tolerance = 30.0f);
+	static bool HasCollision(float r1_l, float r1_t, float r1_r, float r1_b, float r2_l, float r2_t, float r2_r, float r2_b);
 
 protected:
 
@@ -45,6 +44,4 @@ protected:
 	ViewDirection m_viewDirection;
 	ViewDirection m_lastViewDirection;
 	Vector2f m_direction;
-
-	static bool HasCollision(float r1_l, float r1_t, float r1_r, float r1_b, float r2_l, float r2_t, float r2_r, float r2_b);
 };

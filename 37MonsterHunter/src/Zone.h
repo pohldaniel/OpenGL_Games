@@ -11,6 +11,12 @@ class SpriteEntity;
 class Player;
 class Character;
 
+struct Transition {
+	std::string target;
+	std::string newPos;
+	Rect collisionRect;
+};
+
 struct Cell {
 	float posX;
 	float posY;
@@ -62,7 +68,7 @@ public:
 	void update(float dt);
 	void draw();
 	void resize();
-	void loadZone(const std::string& path, const std::string& currentTileset, const std::string& position);
+	void loadZone(const std::string path, const std::string currentTileset, const std::string position);
 	void initDebug();
 	void updateBorder();
 	Player& getPlayer();
@@ -70,6 +76,8 @@ public:
 	const std::vector<Rect>& getCollisionRects();
 	const std::vector<std::unique_ptr<SpriteEntity>>& getSpriteEntities();
 	const std::vector<std::reference_wrapper<Character>>& getCharacters();
+	const std::vector<Transition>& getTransitions();
+
 	float getMapHeight();
 
 	void setUseCulling(bool useCulling);
@@ -92,6 +100,7 @@ private:
 	std::vector<AnimatedCell> m_cellsAnimated;
 	std::vector<Cell> m_cellsBackground;
 	std::vector<CellShadow> m_cellsMain;
+	std::vector<Transition> m_transitions;
 
 	std::vector<AnimatedCell> m_visibleCellsAnimated;
 	std::vector<Cell> m_visibleCellsBackground;

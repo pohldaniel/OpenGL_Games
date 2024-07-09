@@ -3,7 +3,7 @@
  <tileset firstgid="1" source="../tilesets/world.tsx"/>
  <tileset firstgid="211" source="../tilesets/objects.tsx"/>
  <tileset firstgid="240" source="../tilesets/indoor.tsx"/>
- <layer id="1" name="Terrain" width="24" height="34">
+ <layer id="1" name="Terrain" width="24" height="34" locked="1">
   <data encoding="csv">
 15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,
 15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,
@@ -41,7 +41,7 @@
 283,283,283,283,283,283,283,283,283,283,283,283,283,283,283,283,283,283,283,283,283,283,283,283
 </data>
  </layer>
- <layer id="13" name="Terrain Top" width="24" height="34">
+ <layer id="13" name="Terrain Top" width="24" height="34" locked="1">
   <data encoding="csv">
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -79,7 +79,7 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
- <objectgroup id="12" name="Collisions">
+ <objectgroup id="12" name="Collisions" locked="1">
   <object id="985" x="551.596" y="1622.07" width="73.6241" height="351.759"/>
   <object id="986" x="784.155" y="1709.71" width="134.393" height="255.931"/>
   <object id="987" x="851.936" y="1651.28" width="102.84" height="74.7927"/>
@@ -128,7 +128,7 @@
   <object id="1031" x="639.244" y="1478.32" width="126.213" height="59.6004"/>
   <object id="1032" x="587.824" y="1550.78" width="114.526" height="51.42"/>
  </objectgroup>
- <objectgroup id="5" name="Transition">
+ <objectgroup id="5" name="Transition" locked="1">
   <object id="1033" x="647.875" y="1952.42" width="114.917" height="3.83333">
    <properties>
     <property name="pos" value="plant"/>
@@ -136,7 +136,7 @@
    </properties>
   </object>
  </objectgroup>
- <objectgroup id="3" name="Entities">
+ <objectgroup id="3" name="Entities" locked="1">
   <object id="854" name="Player" x="700" y="1843.67">
    <properties>
     <property name="direction" value="up"/>
@@ -195,7 +195,7 @@
    <point/>
   </object>
  </objectgroup>
- <objectgroup id="2" name="Objects" visible="0">
+ <objectgroup id="2" name="Objects" locked="1">
   <object id="879" gid="236" x="563" y="1036" width="60" height="60"/>
   <object id="884" gid="219" x="870.333" y="1227.33" width="64" height="128"/>
   <object id="907" gid="251" x="1175" y="1547" width="56" height="60"/>

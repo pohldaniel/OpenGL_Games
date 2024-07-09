@@ -33,7 +33,7 @@
 0,0,0,0,0,0,0,0,0
 </data>
  </layer>
- <objectgroup id="9" name="Collisions">
+ <objectgroup id="9" name="Collisions" locked="1">
   <object id="13" x="51.5577" y="142.299" width="395.136" height="265.136"/>
   <object id="14" x="-4.94921" y="702.006" width="154.26" height="64.3437"/>
   <object id="15" x="238.815" y="705.134" width="337.984" height="60.4064"/>
@@ -41,7 +41,7 @@
   <object id="17" x="-0.313526" y="19.95" width="44.0345" height="672.691"/>
   <object id="18" x="44.6367" y="18.5986" width="481.705" height="70.6748"/>
  </objectgroup>
- <objectgroup id="5" name="Transition" visible="0" locked="1">
+ <objectgroup id="5" name="Transition" locked="1">
   <object id="8" x="161.333" y="699.999" width="60" height="6.66667">
    <properties>
     <property name="pos" value="hospital"/>
