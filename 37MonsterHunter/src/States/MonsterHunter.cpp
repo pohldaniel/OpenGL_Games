@@ -271,18 +271,14 @@ MonsterHunter::MonsterHunter(StateMachine& machine) : State(machine, States::MON
 	shader->loadMatrix("u_transform", m_camera.getOrthographicMatrix());
 	shader->unuse();
 
-	m_zone.loadZone("res/tmx/data/maps/world.tmx", "world", "house");
-	//m_zone.loadZone("res/tmx/data/maps/water.tmx", "water", "entrance");
-	//m_zone.loadZone("res/tmx/data/maps/plant.tmx", "plant", "entrance");
-	//m_zone.loadZone("res/tmx/data/maps/hospital.tmx", "hospital", "world");
-	//m_zone.loadZone("res/tmx/data/maps/fire.tmx", "fire", "entrance");
+	m_zone.loadZone("res/tmx/data/maps/world.tmx", "world", "house");	
 	m_zone.setDebugCollision(m_debugCollision);
-	m_mapHeight = m_zone.getMapHeight();
 	m_zone.getPlayer().setMovingSpeed(m_movingSpeed);
 	m_zone.getPlayer().setViewWidth(m_viewWidth);
 	m_zone.getPlayer().setViewHeight(m_viewHeight);
 	m_zone.getPlayer().setMapHeight(m_zone.getMapHeight());
 	m_zone.getPlayer().adjustCamera();
+	m_mapHeight = m_zone.getMapHeight();
 }
 
 MonsterHunter::~MonsterHunter() {
@@ -298,81 +294,32 @@ void MonsterHunter::update() {
 	
 	Keyboard &keyboard = Keyboard::instance();
 
-	if (keyboard.keyPressed(Keyboard::KEY_1)) {
-		m_zone.loadZone("res/tmx/data/maps/world.tmx", "world", "house");
-		m_mapHeight = m_zone.getMapHeight();
-		m_zone.getPlayer().setMovingSpeed(m_movingSpeed);
-		m_zone.getPlayer().setViewWidth(m_viewWidth);
-		m_zone.getPlayer().setViewHeight(m_viewHeight);
-		m_zone.getPlayer().setMapHeight(m_zone.getMapHeight());
-		m_zone.getPlayer().adjustCamera();
-	}
-
-	if (keyboard.keyPressed(Keyboard::KEY_2)) {
-		m_zone.loadZone("res/tmx/data/maps/house.tmx", "house", "world");
-		m_mapHeight = m_zone.getMapHeight();
-		m_zone.getPlayer().setMovingSpeed(m_movingSpeed);
-		m_zone.getPlayer().setViewWidth(m_viewWidth);
-		m_zone.getPlayer().setViewHeight(m_viewHeight);
-		m_zone.getPlayer().setMapHeight(m_zone.getMapHeight());
-		m_zone.getPlayer().adjustCamera();
-	}
-
-	if (keyboard.keyPressed(Keyboard::KEY_3)) {
-		m_zone.loadZone("res/tmx/data/maps/water.tmx", "water", "entrance");
-		m_mapHeight = m_zone.getMapHeight();
-		m_zone.getPlayer().setMovingSpeed(m_movingSpeed);
-		m_zone.getPlayer().setViewWidth(m_viewWidth);
-		m_zone.getPlayer().setViewHeight(m_viewHeight);
-		m_zone.getPlayer().setMapHeight(m_zone.getMapHeight());
-		m_zone.getPlayer().adjustCamera();
-	}
-
-	if (keyboard.keyPressed(Keyboard::KEY_4)) {
-		m_zone.loadZone("res/tmx/data/maps/plant.tmx", "plant", "entrance");
-		m_mapHeight = m_zone.getMapHeight();
-		m_zone.getPlayer().setMovingSpeed(m_movingSpeed);
-		m_zone.getPlayer().setViewWidth(m_viewWidth);
-		m_zone.getPlayer().setViewHeight(m_viewHeight);
-		m_zone.getPlayer().setMapHeight(m_zone.getMapHeight());
-		m_zone.getPlayer().adjustCamera();
-	}
-
-	if (keyboard.keyPressed(Keyboard::KEY_5)) {
-		m_zone.loadZone("res/tmx/data/maps/hospital.tmx", "hospital", "world");
-		m_mapHeight = m_zone.getMapHeight();
-		m_zone.getPlayer().setMovingSpeed(m_movingSpeed);
-		m_zone.getPlayer().setViewWidth(m_viewWidth);
-		m_zone.getPlayer().setViewHeight(m_viewHeight);
-		m_zone.getPlayer().setMapHeight(m_zone.getMapHeight());
-		m_zone.getPlayer().adjustCamera();
-	}
-
-	if (keyboard.keyPressed(Keyboard::KEY_6)) {
-		m_zone.loadZone("res/tmx/data/maps/fire.tmx", "fire", "entrance");
-		m_mapHeight = m_zone.getMapHeight();
-		m_zone.getPlayer().setMovingSpeed(m_movingSpeed);
-		m_zone.getPlayer().setViewWidth(m_viewWidth);
-		m_zone.getPlayer().setViewHeight(m_viewHeight);
-		m_zone.getPlayer().setMapHeight(m_zone.getMapHeight());
-		m_zone.getPlayer().adjustCamera();
-	}
-
-	if (keyboard.keyPressed(Keyboard::KEY_T)) {
-		m_zone.toggleFade();
-	}
-
 	Rect playerRect = { m_zone.getPlayer().getCell().posX + 32.0f, m_zone.getPlayer().getCell().posY - (128.0f - 30.0f) , 128.0f - 64.0f, 128.0f - 60.0f };
 	for (const Transition& transition : m_zone.getTransitions()) {
 
 		if (SpriteEntity::HasCollision(transition.collisionRect.posX, transition.collisionRect.posY, transition.collisionRect.posX + transition.collisionRect.width, transition.collisionRect.posY + transition.collisionRect.height, playerRect.posX, playerRect.posY, playerRect.posX + playerRect.width, playerRect.posY + playerRect.height)) {
-			m_zone.loadZone("res/tmx/data/maps/" + transition.target + ".tmx", transition.target, transition.newPos);
-			m_mapHeight = m_zone.getMapHeight();
-			m_zone.getPlayer().setMovingSpeed(m_movingSpeed);
-			m_zone.getPlayer().setViewWidth(m_viewWidth);
-			m_zone.getPlayer().setViewHeight(m_viewHeight);
-			m_zone.getPlayer().setMapHeight(m_zone.getMapHeight());
-			m_zone.getPlayer().adjustCamera();
+			
+			m_zone.getPlayer().block();
+			m_zone.getFade().setOnFadeOut([&m_zone = m_zone, &transition = transition, &m_mapHeight = m_mapHeight, m_movingSpeed = m_movingSpeed, m_viewWidth = m_viewWidth, m_viewHeight = m_viewHeight]() {
+				
+				m_zone.loadZone("res/tmx/data/maps/" + transition.target + ".tmx", transition.target, transition.newPos);
+				m_mapHeight = m_zone.getMapHeight();
+				m_zone.getPlayer().block();				
+				m_zone.getPlayer().setMovingSpeed(m_movingSpeed);
+				m_zone.getPlayer().setViewWidth(m_viewWidth);
+				m_zone.getPlayer().setViewHeight(m_viewHeight);
+				m_zone.getPlayer().setMapHeight(m_zone.getMapHeight());
+				m_zone.getPlayer().adjustCamera();
+
+				m_zone.getFade().fadeIn();
+			});
+
+			m_zone.getFade().setOnFadeIn([&m_zone = m_zone]() {
+				m_zone.getPlayer().unblock();
+			});
+
+			m_zone.getFade().fadeOut();
+
 			break;
 		}	
 	}
@@ -439,11 +386,10 @@ void MonsterHunter::update() {
 void MonsterHunter::render() {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 	
 	m_zone.draw();
-
 	m_dialogTree.draw();
+
 	if (m_drawUi)
 		renderUi();
 }

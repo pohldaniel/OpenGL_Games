@@ -80,7 +80,6 @@ void Zone::update(float dt) {
 }
 
 void Zone::draw() {
-
 	Spritesheet::Bind(m_spritesheet);
 	const std::vector<TextureRect>& rects = TileSetManager::Get().getTileSet(m_currentTileset).getTextureRects();
 	for (const AnimatedCell& animatedCell : m_visibleCellsAnimated) {
@@ -747,6 +746,6 @@ const std::vector<Transition>& Zone::getTransitions() {
 	return m_transitions;
 }
 
-void Zone::toggleFade() {
-	m_fade.toggleFade();
+Fade& Zone::getFade(){
+	return m_fade;
 }

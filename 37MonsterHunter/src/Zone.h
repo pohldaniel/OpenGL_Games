@@ -88,7 +88,7 @@ public:
 	void setDrawCenter(bool drawCenter);
 	void setDebugCollision(bool debugCollision);
 	void setSpritesheet(const unsigned int& spritesheet);
-	void toggleFade();
+	Fade& getFade();
 
 private:
 
