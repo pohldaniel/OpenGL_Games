@@ -7,6 +7,8 @@
 #include <engine/Rect.h>
 #include <engine/TileSet.h>
 
+#include "Fade.h"
+
 class SpriteEntity;
 class Player;
 class Character;
@@ -86,6 +88,7 @@ public:
 	void setDrawCenter(bool drawCenter);
 	void setDebugCollision(bool debugCollision);
 	void setSpritesheet(const unsigned int& spritesheet);
+	void toggleFade();
 
 private:
 
@@ -132,4 +135,7 @@ private:
 
 	std::string m_currentTileset;
 	int m_playerOffset, m_waterOffset, m_coastOffset;
+
+	float m_alpha;
+	Fade m_fade;
 };

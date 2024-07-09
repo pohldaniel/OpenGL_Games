@@ -12,26 +12,29 @@
 #include "Dialog.h"
 #include "Globals.h"
 
-Zone::Zone(const Camera& camera) : 
-	camera(camera), 
-	m_pointCount(0u), 
-	pointBatch(nullptr), 
-	pointBatchPtr(nullptr), 
+Zone::Zone(const Camera& camera) :
+	camera(camera),
+	m_pointCount(0u),
+	pointBatch(nullptr),
+	pointBatchPtr(nullptr),
 	m_spritesheet(0u),
-	m_vao(0u), 
-	m_vbo(0u), 
-	m_screeBorder(0.0f), 
-	m_useCulling(true), 
+	m_vao(0u),
+	m_vbo(0u),
+	m_screeBorder(0.0f),
+	m_useCulling(true),
 	m_drawScreenBorder(false),
 	m_drawCenter(false),
 	m_debugCollision(false),
 	m_borderDirty(true),
-	elapsedTime(0.0f), 
-	currentFrame(0), 
+	elapsedTime(0.0f),
+	currentFrame(0),
 	frameCount(4),
 	m_waterOffset(242),
-	m_coastOffset(246){
+	m_coastOffset(246),
+	m_alpha(1.0f),
+	m_fade(m_alpha){
 	initDebug();
+	m_fade.setTransitionSpeed(2.353f);
 }
 
 Zone::~Zone() {
@@ -72,7 +75,7 @@ void Zone::update(float dt) {
 	for (AnimatedCell& animatedCell : m_visibleCellsAnimated) {
 		animatedCell.currentFrame = currentFrame;
 	}
-
+	m_fade.update(dt);
 	std::sort(m_visibleCellsMain.begin(), m_visibleCellsMain.end(), [&](const CellShadow& cell1, const CellShadow& cell2) {return cell1.centerY < cell2.centerY; });
 }
 
@@ -82,25 +85,25 @@ void Zone::draw() {
 	const std::vector<TextureRect>& rects = TileSetManager::Get().getTileSet(m_currentTileset).getTextureRects();
 	for (const AnimatedCell& animatedCell : m_visibleCellsAnimated) {
 		const TextureRect& rect = rects[animatedCell.currentFrame + animatedCell.startFrame];
-		Batchrenderer::Get().addQuadAA(Vector4f(animatedCell.posX - camera.getPositionX(), m_mapHeight - 64.0f - animatedCell.posY - camera.getPositionY(), rect.width, rect.height), Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureWidth, rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), rect.frame);
+		Batchrenderer::Get().addQuadAA(Vector4f(animatedCell.posX - camera.getPositionX(), m_mapHeight - 64.0f - animatedCell.posY - camera.getPositionY(), rect.width, rect.height), Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureWidth, rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, m_alpha), rect.frame);
 	}
 
 	for (const Cell& cell : m_visibleCellsBackground) {
 		const TextureRect& rect = rects[cell.currentFrame];
-		Batchrenderer::Get().addQuadAA(Vector4f(cell.posX - camera.getPositionX(), m_mapHeight - 64.0f - cell.posY - camera.getPositionY(), rect.width, rect.height), Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureWidth, rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), rect.frame);
+		Batchrenderer::Get().addQuadAA(Vector4f(cell.posX - camera.getPositionX(), m_mapHeight - 64.0f - cell.posY - camera.getPositionY(), rect.width, rect.height), Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureWidth, rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, m_alpha), rect.frame);
 	}
 
 	for (const CellShadow& cell : m_visibleCellsMain) {
 		if (cell.hasShadow) {
 			const TextureRect& rect = rects[m_playerOffset + 16];
-			Batchrenderer::Get().addQuadAA(Vector4f(cell.posX + 40.0f - camera.getPositionX(), m_mapHeight - cell.posY - camera.getPositionY(), rect.width, rect.height), Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureWidth, rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), rect.frame);
+			Batchrenderer::Get().addQuadAA(Vector4f(cell.posX + 40.0f - camera.getPositionX(), m_mapHeight - cell.posY - camera.getPositionY(), rect.width, rect.height), Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureWidth, rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, m_alpha), rect.frame);
 		}
 
 		const TextureRect& rect = rects[cell.currentFrame];
-		Batchrenderer::Get().addQuadAA(Vector4f(cell.posX - camera.getPositionX(), m_mapHeight - cell.posY - camera.getPositionY(), cell.width, cell.height), Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureWidth, rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), rect.frame);
+		Batchrenderer::Get().addQuadAA(Vector4f(cell.posX - camera.getPositionX(), m_mapHeight - cell.posY - camera.getPositionY(), cell.width, cell.height), Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureWidth, rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, m_alpha), rect.frame);
 		if (cell.isNoticed) {
 			const TextureRect& rect = rects[m_playerOffset + 17];
-			Batchrenderer::Get().addQuadAA(Vector4f(cell.posX + 10.0f - camera.getPositionX(), m_mapHeight + 128.0f - cell.posY - camera.getPositionY(), rect.width, rect.height), Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureWidth, rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), rect.frame);
+			Batchrenderer::Get().addQuadAA(Vector4f(cell.posX + 10.0f - camera.getPositionX(), m_mapHeight + 128.0f - cell.posY - camera.getPositionY(), rect.width, rect.height), Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureWidth, rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, m_alpha), rect.frame);
 		}
 	}
 
@@ -742,4 +745,8 @@ void Zone::setSpritesheet(const unsigned int& spritesheet) {
 
 const std::vector<Transition>& Zone::getTransitions() {
 	return m_transitions;
+}
+
+void Zone::toggleFade() {
+	m_fade.toggleFade();
 }

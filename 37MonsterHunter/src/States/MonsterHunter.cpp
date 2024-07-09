@@ -358,6 +358,10 @@ void MonsterHunter::update() {
 		m_zone.getPlayer().adjustCamera();
 	}
 
+	if (keyboard.keyPressed(Keyboard::KEY_T)) {
+		m_zone.toggleFade();
+	}
+
 	Rect playerRect = { m_zone.getPlayer().getCell().posX + 32.0f, m_zone.getPlayer().getCell().posY - (128.0f - 30.0f) , 128.0f - 64.0f, 128.0f - 60.0f };
 	for (const Transition& transition : m_zone.getTransitions()) {
 
@@ -370,9 +374,7 @@ void MonsterHunter::update() {
 			m_zone.getPlayer().setMapHeight(m_zone.getMapHeight());
 			m_zone.getPlayer().adjustCamera();
 			break;
-		}
-
-		
+		}	
 	}
 
 	if (keyboard.keyPressed(Keyboard::KEY_SPACE)) {
