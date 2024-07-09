@@ -198,7 +198,63 @@ MonsterHunter::MonsterHunter(StateMachine& machine) : State(machine, States::MON
 
 	TileSetManager::Get().getTileSet("plant").loadTileSetGpu();
 
-	//Spritesheet::Safe("world_indoor", TileSetManager::Get().getTileSet("world_indoor").getAtlas());
+	TextureAtlasCreator::Get().init(2048u, 2048u);
+	TileSetManager::Get().getTileSet("hospital").loadTileSetCpu("res/tmx/graphics/tilesets/indoor.png", false, 64.0f, 64.0f, true, false);
+	CharachterOffsets["hospital"]["purple_girl"] = TileSetManager::Get().getTileSet("hospital").getTextureRects().size();
+	TileSetManager::Get().getTileSet("hospital").loadTileSetCpu("res/tmx/graphics/characters/purple_girl.png", false, 128.0f, 128.0f, true, false);
+	TileSetManager::Get().getTileSet("hospital").loadTileSetCpu("res/tmx/graphics/characters/player.png", false, 128.0f, 128.0f, true, false);
+	TileSetManager::Get().getTileSet("hospital").loadTileCpu("res/tmx/graphics/other/shadow.png", false, true, false);
+	TileSetManager::Get().getTileSet("hospital").loadTileCpu("res/tmx/graphics/ui/notice.png", false, true, false);
+	TileSetManager::Get().getTileSet("hospital").loadTileCpu("res/tmx/graphics/other/empty.png", false, true, false);
+	TileSetManager::Get().getTileSet("hospital").loadTileSetGpu();
+
+	TextureAtlasCreator::Get().init(2048u, 2048u);
+	TileSetManager::Get().getTileSet("fire").loadTileSetCpu("res/tmx/graphics/tilesets/world.png", false, 64.0f, 64.0f, true, false);
+	TileSetManager::Get().getTileSet("fire").loadTileCpu("res/tmx/graphics/objects/house_small_alt.png", false, true, false);
+	TileSetManager::Get().getTileSet("fire").loadTileCpu("res/tmx/graphics/objects/ice_tree.png", false, true, false);
+	TileSetManager::Get().getTileSet("fire").loadTileCpu("res/tmx/graphics/objects/palm.png", false, true, false);
+	TileSetManager::Get().getTileSet("fire").loadTileCpu("res/tmx/graphics/objects/palm_alt.png", false, true, false);
+	TileSetManager::Get().getTileSet("fire").loadTileCpu("res/tmx/graphics/objects/palm_small.png", false, true, false);
+	TileSetManager::Get().getTileSet("fire").loadTileCpu("res/tmx/graphics/objects/ruin_pillar.png", false, true, false);
+	TileSetManager::Get().getTileSet("fire").loadTileCpu("res/tmx/graphics/objects/ruin_pillar_broke.png", false, true, false);
+	TileSetManager::Get().getTileSet("fire").loadTileCpu("res/tmx/graphics/objects/ruin_pillar_broke_alt.png", false, true, false);
+	TileSetManager::Get().getTileSet("fire").loadTileCpu("res/tmx/graphics/objects/teal_tree.png", false, true, false);
+	TileSetManager::Get().getTileSet("fire").loadTileCpu("res/tmx/graphics/objects/teal_tree_bushy.png", false, true, false);
+	TileSetManager::Get().getTileSet("fire").loadTileCpu("res/tmx/graphics/objects/teal_tree_small.png", false, true, false);
+	TileSetManager::Get().getTileSet("fire").loadTileCpu("res/tmx/graphics/objects/arean_fire.png", false, true, false);
+	TileSetManager::Get().getTileSet("fire").loadTileCpu("res/tmx/graphics/objects/arena_plant.png", false, true, false);
+	TileSetManager::Get().getTileSet("fire").loadTileCpu("res/tmx/graphics/objects/arena_water.png", false, true, false);
+	TileSetManager::Get().getTileSet("fire").loadTileCpu("res/tmx/graphics/objects/green_tree.png", false, true, false);
+	TileSetManager::Get().getTileSet("fire").loadTileCpu("res/tmx/graphics/objects/green_tree_bushy.png", false, true, false);
+	TileSetManager::Get().getTileSet("fire").loadTileCpu("res/tmx/graphics/objects/green_tree_small.png", false, true, false);
+	TileSetManager::Get().getTileSet("fire").loadTileCpu("res/tmx/graphics/objects/hospital.png", false, true, false);
+	TileSetManager::Get().getTileSet("fire").loadTileCpu("res/tmx/graphics/objects/house_large.png", false, true, false);
+	TileSetManager::Get().getTileSet("fire").loadTileCpu("res/tmx/graphics/objects/house_large_alt.png", false, true, false);
+	TileSetManager::Get().getTileSet("fire").loadTileCpu("res/tmx/graphics/objects/house_small.png", false, true, false);
+	TileSetManager::Get().getTileSet("fire").loadTileCpu("res/tmx/graphics/objects/gate_pillar.png", false, true, false);
+	TileSetManager::Get().getTileSet("fire").loadTileCpu("res/tmx/graphics/objects/gate_top.png", false, true, false);
+	TileSetManager::Get().getTileSet("fire").loadTileCpu("res/tmx/graphics/objects/grassrock1.png", false, true, false);
+	TileSetManager::Get().getTileSet("fire").loadTileCpu("res/tmx/graphics/objects/grassrock2.png", false, true, false);
+	TileSetManager::Get().getTileSet("fire").loadTileCpu("res/tmx/graphics/objects/icerock1.png", false, true, false);
+	TileSetManager::Get().getTileSet("fire").loadTileCpu("res/tmx/graphics/objects/icerock2.png", false, true, false);
+	TileSetManager::Get().getTileSet("fire").loadTileCpu("res/tmx/graphics/objects/sandrock1.png", false, true, false);
+	TileSetManager::Get().getTileSet("fire").loadTileCpu("res/tmx/graphics/objects/sandrock2.png", false, true, false);
+	TileSetManager::Get().getTileSet("fire").loadTileSetCpu("res/tmx/graphics/tilesets/indoor.png", false, 64.0f, 64.0f, true, false);
+
+	CharachterOffsets["fire"]["young_guy"] = TileSetManager::Get().getTileSet("fire").getTextureRects().size();
+	TileSetManager::Get().getTileSet("fire").loadTileSetCpu("res/tmx/graphics/characters/young_guy.png", false, 128.0f, 128.0f, true, false);
+	CharachterOffsets["fire"]["young_girl"] = TileSetManager::Get().getTileSet("fire").getTextureRects().size();
+	TileSetManager::Get().getTileSet("fire").loadTileSetCpu("res/tmx/graphics/characters/young_girl.png", false, 128.0f, 128.0f, true, false);
+	CharachterOffsets["fire"]["purple_girl"] = TileSetManager::Get().getTileSet("fire").getTextureRects().size();
+	TileSetManager::Get().getTileSet("fire").loadTileSetCpu("res/tmx/graphics/characters/purple_girl.png", false, 128.0f, 128.0f, true, false);
+	CharachterOffsets["fire"]["fire_boss"] = TileSetManager::Get().getTileSet("fire").getTextureRects().size();
+	TileSetManager::Get().getTileSet("fire").loadTileSetCpu("res/tmx/graphics/characters/fire_boss.png", false, 128.0f, 128.0f, true, false);
+
+	TileSetManager::Get().getTileSet("fire").loadTileSetCpu("res/tmx/graphics/characters/player.png", false, 128.0f, 128.0f, true, false);
+	TileSetManager::Get().getTileSet("fire").loadTileCpu("res/tmx/graphics/other/shadow.png", false, true, false);
+	TileSetManager::Get().getTileSet("fire").loadTileCpu("res/tmx/graphics/ui/notice.png", false, true, false);
+	TileSetManager::Get().getTileSet("fire").loadTileCpu("res/tmx/graphics/other/empty.png", false, true, false);
+	TileSetManager::Get().getTileSet("fire").loadTileSetGpu();
 
 	auto shader = Globals::shaderManager.getAssetPointer("batch");
 	shader->use();
@@ -215,10 +271,11 @@ MonsterHunter::MonsterHunter(StateMachine& machine) : State(machine, States::MON
 	shader->loadMatrix("u_transform", m_camera.getOrthographicMatrix());
 	shader->unuse();
 
-	m_zone.loadZone("res/tmx/data/maps/world.tmx", "world", "house");
+	//m_zone.loadZone("res/tmx/data/maps/world.tmx", "world", "house");
 	//m_zone.loadZone("res/tmx/data/maps/water.tmx", "water", "entrance");
 	//m_zone.loadZone("res/tmx/data/maps/plant.tmx", "plant", "entrance");
-
+	//m_zone.loadZone("res/tmx/data/maps/hospital.tmx", "hospital", "world");
+	m_zone.loadZone("res/tmx/data/maps/fire.tmx", "fire", "entrance");
 	m_zone.setDebugCollision(m_debugCollision);
 	m_mapHeight = m_zone.getMapHeight();
 	m_zone.getPlayer().setMovingSpeed(m_movingSpeed);
@@ -276,6 +333,28 @@ void MonsterHunter::update() {
 
 	if (keyboard.keyPressed(Keyboard::KEY_4)) {
 		m_zone.loadZone("res/tmx/data/maps/plant.tmx", "plant", "entrance");
+		m_zone.setDebugCollision(m_debugCollision);
+		m_mapHeight = m_zone.getMapHeight();
+		m_zone.getPlayer().setMovingSpeed(m_movingSpeed);
+		m_zone.getPlayer().setViewWidth(m_viewWidth);
+		m_zone.getPlayer().setViewHeight(m_viewHeight);
+		m_zone.getPlayer().setMapHeight(m_zone.getMapHeight());
+		m_zone.getPlayer().adjustCamera();
+	}
+
+	if (keyboard.keyPressed(Keyboard::KEY_5)) {
+		m_zone.loadZone("res/tmx/data/maps/hospital.tmx", "hospital", "world");
+		m_zone.setDebugCollision(m_debugCollision);
+		m_mapHeight = m_zone.getMapHeight();
+		m_zone.getPlayer().setMovingSpeed(m_movingSpeed);
+		m_zone.getPlayer().setViewWidth(m_viewWidth);
+		m_zone.getPlayer().setViewHeight(m_viewHeight);
+		m_zone.getPlayer().setMapHeight(m_zone.getMapHeight());
+		m_zone.getPlayer().adjustCamera();
+	}
+
+	if (keyboard.keyPressed(Keyboard::KEY_6)) {
+		m_zone.loadZone("res/tmx/data/maps/fire.tmx", "fire", "entrance");
 		m_zone.setDebugCollision(m_debugCollision);
 		m_mapHeight = m_zone.getMapHeight();
 		m_zone.getPlayer().setMovingSpeed(m_movingSpeed);
