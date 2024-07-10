@@ -51,6 +51,12 @@ class TileSet {
 public:
 
 	TileSet();
+	TileSet(TileSet const& rhs);
+	TileSet(TileSet&& rhs);
+	TileSet& operator=(const TileSet& rhs);
+	TileSet& operator=(TileSet&& rhs);
+	~TileSet();
+
 	void loadTileSetCpu(const std::vector<std::string>& texturePaths, bool init, bool flipVertical = true, bool flipTextureRect = false, bool resetLine = false);
 	void loadTileSetCpu(std::string mapPath, std::string texturePath, bool init, unsigned int columns, unsigned int rows, float tileSize, bool flipVertical = true, bool flipTextureRects = false);
 	void loadTileSetCpu(std::string texturePath, bool init, float tileHWidth, float tileHeight, bool flipVertical = true, bool flipTextureRects = false);
@@ -63,13 +69,16 @@ public:
 	void loadTileSetGpu();
 	const std::vector<TextureRect>& getTextureRects() const;
 	const unsigned int& getAtlas() const;
+	void cleanup();
+	void markForDelete();
 
 private:
 
-	unsigned int m_atlas = 0;
+	unsigned int m_atlas;
 	std::vector<TextureRect> m_textureRects;
 	bool m_init;
-	unsigned int cutOff = 0;
+	unsigned int m_cutOff;
+	bool m_markForDelete;
 };
 
 class TileSetManager {

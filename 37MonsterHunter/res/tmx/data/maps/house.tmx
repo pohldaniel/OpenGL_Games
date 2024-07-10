@@ -48,7 +48,7 @@
    </properties>
   </object>
  </objectgroup>
- <objectgroup id="2" name="Entities" locked="1">
+ <objectgroup id="2" name="Entities">
   <object id="1" name="Player" x="193.333" y="620">
    <properties>
     <property name="direction" value="up"/>

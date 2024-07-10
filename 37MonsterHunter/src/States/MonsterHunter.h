@@ -13,6 +13,11 @@
 #include "Zone.h"
 #include "Dialog.h"
 
+struct TileSetData {
+	std::vector<std::pair<std::string, float>> pathSizes;
+	std::vector<std::pair<std::string, unsigned int>> offsets;
+};
+
 class MonsterHunter : public State, public MouseEventListener, public KeyboardEventListener {
 
 public:
@@ -31,6 +36,8 @@ public:
 	void OnKeyDown(Event::KeyboardEvent& event) override;
 	void OnKeyUp(Event::KeyboardEvent& event) override;
 	static std::unordered_map<std::string, std::unordered_map<std::string, unsigned int>> CharachterOffsets;
+
+	static std::unordered_map<std::string, TileSetData> TileSets;
 
 private:
 

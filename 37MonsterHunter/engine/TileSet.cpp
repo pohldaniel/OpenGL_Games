@@ -211,8 +211,65 @@ TextureAtlasCreator& TextureAtlasCreator::Get() {
 }
 
 ////////////////////////////TileSet//////////////////////////////////////////
-TileSet::TileSet() : m_init(false) {
+TileSet::TileSet() : m_init(false), m_markForDelete(false), m_atlas(0u), m_cutOff(0u){
 
+}
+
+TileSet::TileSet(TileSet const& rhs) {
+	m_atlas = rhs.m_atlas;
+	m_textureRects = rhs.m_textureRects;
+	m_init = rhs.m_init;
+	m_cutOff = rhs.m_cutOff;
+	m_markForDelete = false;
+}
+
+TileSet::TileSet(TileSet&& rhs) {
+	m_atlas = rhs.m_atlas;
+	m_textureRects = rhs.m_textureRects;
+	m_init = rhs.m_init;
+	m_cutOff = rhs.m_cutOff;
+	m_markForDelete = false;
+}
+
+TileSet& TileSet::operator=(const TileSet& rhs) {
+	m_atlas = rhs.m_atlas;
+	m_textureRects = rhs.m_textureRects;
+	m_init = rhs.m_init;
+	m_cutOff = rhs.m_cutOff;
+	m_markForDelete = false;
+	return *this;
+}
+
+TileSet& TileSet::operator=(TileSet&& rhs) {
+	m_atlas = rhs.m_atlas;
+	m_textureRects = rhs.m_textureRects;
+	m_init = rhs.m_init;
+	m_cutOff = rhs.m_cutOff;
+	m_markForDelete = false;
+	return *this;
+}
+
+TileSet::~TileSet() {
+	if (m_markForDelete) {
+		cleanup();
+	}
+}
+
+void TileSet::cleanup() {
+	if (m_atlas) {
+		glDeleteTextures(1, &m_atlas);
+		m_atlas = 0u;
+	}
+
+	m_init = false;
+	m_cutOff = 0u;
+
+	m_textureRects.clear();
+	m_textureRects.shrink_to_fit();
+}
+
+void TileSet::markForDelete() {
+	m_markForDelete = true;
 }
 
 void TileSet::loadTileSetCpu(const std::vector<std::string>& texturePaths, bool init, bool flipVertical, bool flipTextureRect, bool resetLine) {
@@ -221,7 +278,7 @@ void TileSet::loadTileSetCpu(const std::vector<std::string>& texturePaths, bool 
 	if (init)
 		TextureAtlasCreator::Get().init(2048u, 2048u);
 
-	cutOff = texturePaths.size();
+	m_cutOff = texturePaths.size();
 
 	for(auto&& path: texturePaths){
 		int imageWidth, imageHeight;
@@ -241,7 +298,7 @@ void TileSet::loadTileSetCpu(std::string mapPath, std::string texturePath, bool 
 	if (init)
 		TextureAtlasCreator::Get().init(2048u, 2048u);
 
-	cutOff = columns * rows;
+	m_cutOff = columns * rows;
 
 	std::ifstream file(mapPath);
 
@@ -305,7 +362,7 @@ void TileSet::loadTileSetCpu(std::string texturePath, bool init, float tileWidth
 	unsigned char* bytes = Texture::LoadFromFile(texturePath, imageWidth, imageHeight, flipVertical);
 	int tileCountX = imageWidth / static_cast<int>(tileWidth);
 	int tileCountY = imageHeight / static_cast<int>(tileHeight);
-	cutOff = tileCountX * tileCountY;
+	m_cutOff = tileCountX * tileCountY;
 
 	std::vector<TextureRect> textureRects;
 
@@ -345,7 +402,7 @@ void TileSet::loadTileCpu(std::string texturePath, bool init, bool flipVertical,
 
 	int imageWidth, imageHeight;
 	unsigned char* bytes = Texture::LoadFromFile(texturePath, imageWidth, imageHeight, flipVertical);
-	cutOff = 1u;
+	m_cutOff = 1u;
 	std::vector<TextureRect> textureRects;
 
 	float tileWidth = static_cast<float>(imageWidth);
@@ -382,7 +439,7 @@ void TileSet::loadTileCpu(std::string texturePath, bool init, unsigned int posX,
 		TextureAtlasCreator::Get().init(2048u, 2048u);
 	
 	unsigned char* bytes = Texture::LoadFromFile(texturePath, posX, posY, width, height, flipVertical);
-	cutOff = 1u;
+	m_cutOff = 1u;
 
 	std::vector<TextureRect> textureRects;
 
@@ -457,7 +514,7 @@ const std::vector<TextureRect>& TileSet::getTextureRects() const {
 }
 
 const std::vector<TextureRect> TileSet::getLastTextureRects() const {
-	return std::vector<TextureRect>(m_textureRects.end() - cutOff, m_textureRects.end());
+	return std::vector<TextureRect>(m_textureRects.end() - m_cutOff, m_textureRects.end());
 }
 
 ///////////////////////TileSetManager//////////////////////////

@@ -10,8 +10,8 @@
 #include <States/MonsterHunter.h>
 #include "Zone.h"
 #include "Dialog.h"
-#include "Globals.h"
 #include "Application.h"
+#include "Globals.h"
 
 Zone::Zone(const Camera& camera) :
 	camera(camera),
@@ -90,7 +90,7 @@ void Zone::draw() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	Spritesheet::Bind(m_spritesheet);
-	const std::vector<TextureRect>& rects = TileSetManager::Get().getTileSet(m_currentTileset).getTextureRects();
+	const std::vector<TextureRect>& rects = m_tileSet.getTextureRects();
 	for (const AnimatedCell& animatedCell : m_visibleCellsAnimated) {
 		const TextureRect& rect = rects[animatedCell.currentFrame + animatedCell.startFrame];
 		Batchrenderer::Get().addQuadAA(Vector4f(animatedCell.posX - camera.getPositionX(), m_mapHeight - 64.0f - animatedCell.posY - camera.getPositionY(), rect.width, rect.height), Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureWidth, rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), rect.frame);
@@ -206,14 +206,15 @@ void Zone::loadZone(const std::string path, const std::string currentTileset, co
 	m_transitions.clear();
 	m_transitions.shrink_to_fit();
 
+
+	
+
 	//https://stackoverflow.com/questions/24697063/how-to-make-pointer-reference-on-element-in-vector
 	m_cellsMain.reserve(600);
 	m_collisionRects.reserve(700);
 	m_currentTileset = currentTileset;
 
-	m_spritesheet = TileSetManager::Get().getTileSet(m_currentTileset).getAtlas();
-	m_playerOffset = TileSetManager::Get().getTileSet(m_currentTileset).getTextureRects().size() - 19;
-
+	loadTileSet(MonsterHunter::TileSets[m_currentTileset].pathSizes, MonsterHunter::TileSets[m_currentTileset].offsets);
 	tmx::Map map;
 	map.load(path);
 
@@ -285,7 +286,7 @@ void Zone::loadZone(const std::string path, const std::string currentTileset, co
 
 				if (object.getName() == "Character") {
 					if (object.getProperties()[3].getStringValue() == "straw") {
-						m_cellsMain.push_back(CellShadow(object.getPosition().x - 64.0f, object.getPosition().y, 128.0f, 128.0f, MonsterHunter::CharachterOffsets[m_currentTileset]["straw"], object.getPosition().x, object.getPosition().y - 64.0f, false, false, true));
+						m_cellsMain.push_back(CellShadow(object.getPosition().x - 64.0f, object.getPosition().y, 128.0f, 128.0f, m_charachterOffsets["straw"], object.getPosition().x, object.getPosition().y - 64.0f, false, false, true));
 						m_collisionRects.push_back({ (object.getPosition().x - 64.0f) + 32.0f, (object.getPosition().y) - (128.0f - 30.0f), 128.0f - 64.0f, 128.0f - 60.0f });
 						m_spriteEntities.push_back(std::make_unique<Character>(m_cellsMain.back(), m_collisionRects.back()));
 						m_spriteEntities.back()->setViewDirection(SpriteEntity::GetDirection(object.getProperties()[2].getStringValue()));
@@ -296,7 +297,10 @@ void Zone::loadZone(const std::string path, const std::string currentTileset, co
 						m_characters.back().get().setRadius(std::stof(object.getProperties()[4].getStringValue()));
 						m_characters.back().get().setCollisionRectIndex(m_collisionRects.size() - 1);
 					}else if (object.getProperties()[3].getStringValue() == "blond") {
-						m_cellsMain.push_back(CellShadow(object.getPosition().x - 64.0f, object.getPosition().y, 128.0f, 128.0f, MonsterHunter::CharachterOffsets[m_currentTileset]["blond"], object.getPosition().x,  object.getPosition().y - 64.0f, false, false, true));
+
+
+
+						m_cellsMain.push_back(CellShadow(object.getPosition().x - 64.0f, object.getPosition().y, 128.0f, 128.0f, m_charachterOffsets["blond"], object.getPosition().x,  object.getPosition().y - 64.0f, false, false, true));
 						m_collisionRects.push_back({ (object.getPosition().x - 64.0f) + 32.0f, (object.getPosition().y) - (128.0f - 30.0f), 128.0f - 64.0f, 128.0f - 60.0f });
 						m_spriteEntities.push_back(std::make_unique<Character>(m_cellsMain.back(), m_collisionRects.back()));
 						m_spriteEntities.back()->setViewDirection(SpriteEntity::GetDirection(object.getProperties()[2].getStringValue()));
@@ -307,7 +311,7 @@ void Zone::loadZone(const std::string path, const std::string currentTileset, co
 						m_characters.back().get().setRadius(std::stof(object.getProperties()[4].getStringValue()));
 						m_characters.back().get().setCollisionRectIndex(m_collisionRects.size() - 1);
 					}else if (object.getProperties()[3].getStringValue() == "hat_girl") {
-						m_cellsMain.push_back(CellShadow(object.getPosition().x - 64.0f, object.getPosition().y, 128.0f, 128.0f, MonsterHunter::CharachterOffsets[m_currentTileset]["hat_girl"], object.getPosition().x,  object.getPosition().y - 64.0f, false, false, true));
+						m_cellsMain.push_back(CellShadow(object.getPosition().x - 64.0f, object.getPosition().y, 128.0f, 128.0f, m_charachterOffsets["hat_girl"], object.getPosition().x,  object.getPosition().y - 64.0f, false, false, true));
 						m_collisionRects.push_back({ (object.getPosition().x - 64.0f) + 32.0f, (object.getPosition().y) - (128.0f - 30.0f), 128.0f - 64.0f, 128.0f - 60.0f });
 						m_spriteEntities.push_back(std::make_unique<Character>(m_cellsMain.back(), m_collisionRects.back()));
 						m_spriteEntities.back()->setViewDirection(SpriteEntity::GetDirection(object.getProperties()[2].getStringValue()));
@@ -318,7 +322,7 @@ void Zone::loadZone(const std::string path, const std::string currentTileset, co
 						m_characters.back().get().setRadius(std::stof(object.getProperties()[4].getStringValue()));
 						m_characters.back().get().setCollisionRectIndex(m_collisionRects.size() - 1);
 					}else if (object.getProperties()[3].getStringValue() == "young_guy") {
-						m_cellsMain.push_back(CellShadow(object.getPosition().x - 64.0f, object.getPosition().y, 128.0f, 128.0f, MonsterHunter::CharachterOffsets[m_currentTileset]["young_guy"], object.getPosition().x ,  object.getPosition().y - 64.0f, false, false, true));
+						m_cellsMain.push_back(CellShadow(object.getPosition().x - 64.0f, object.getPosition().y, 128.0f, 128.0f, m_charachterOffsets["young_guy"], object.getPosition().x ,  object.getPosition().y - 64.0f, false, false, true));
 						m_collisionRects.push_back({ (object.getPosition().x - 64.0f) + 32.0f, (object.getPosition().y) - (128.0f - 30.0f), 128.0f - 64.0f, 128.0f - 60.0f });
 						m_spriteEntities.push_back(std::make_unique<Character>(m_cellsMain.back(), m_collisionRects.back()));
 						m_spriteEntities.back()->setViewDirection(SpriteEntity::GetDirection(object.getProperties()[2].getStringValue()));
@@ -329,7 +333,7 @@ void Zone::loadZone(const std::string path, const std::string currentTileset, co
 						m_characters.back().get().setRadius(std::stof(object.getProperties()[4].getStringValue()));
 						m_characters.back().get().setCollisionRectIndex(m_collisionRects.size() - 1);
 					}else if (object.getProperties()[3].getStringValue() == "young_girl") {
-						m_cellsMain.push_back(CellShadow(object.getPosition().x - 64.0f, object.getPosition().y, 128.0f, 128.0f, MonsterHunter::CharachterOffsets[m_currentTileset]["young_girl"], object.getPosition().x, object.getPosition().y - 64.0f, false, false, true));
+						m_cellsMain.push_back(CellShadow(object.getPosition().x - 64.0f, object.getPosition().y, 128.0f, 128.0f, m_charachterOffsets["young_girl"], object.getPosition().x, object.getPosition().y - 64.0f, false, false, true));
 						m_collisionRects.push_back({ (object.getPosition().x - 64.0f) + 32.0f, (object.getPosition().y) - (128.0f - 30.0f), 128.0f - 64.0f, 128.0f - 60.0f });
 						m_spriteEntities.push_back(std::make_unique<Character>(m_cellsMain.back(), m_collisionRects.back()));
 						m_spriteEntities.back()->setViewDirection(SpriteEntity::GetDirection(object.getProperties()[2].getStringValue()));
@@ -340,7 +344,7 @@ void Zone::loadZone(const std::string path, const std::string currentTileset, co
 						m_characters.back().get().setRadius(std::stof(object.getProperties()[4].getStringValue()));
 						m_characters.back().get().setCollisionRectIndex(m_collisionRects.size() - 1);
 					}else if (object.getProperties()[3].getStringValue() == "purple_girl") {
-						m_cellsMain.push_back(CellShadow(object.getPosition().x - 64.0f, object.getPosition().y, 128.0f, 128.0f, MonsterHunter::CharachterOffsets[m_currentTileset]["purple_girl"], object.getPosition().x, object.getPosition().y - 64.0f, false, false, true));
+						m_cellsMain.push_back(CellShadow(object.getPosition().x - 64.0f, object.getPosition().y, 128.0f, 128.0f, m_charachterOffsets["purple_girl"], object.getPosition().x, object.getPosition().y - 64.0f, false, false, true));
 						m_collisionRects.push_back({ (object.getPosition().x - 64.0f) + 32.0f, (object.getPosition().y) - (128.0f - 30.0f), 128.0f - 64.0f, 128.0f - 60.0f });
 						m_spriteEntities.push_back(std::make_unique<Character>(m_cellsMain.back(), m_collisionRects.back()));
 						m_spriteEntities.back()->setViewDirection(SpriteEntity::GetDirection(object.getProperties()[2].getStringValue()));
@@ -351,7 +355,7 @@ void Zone::loadZone(const std::string path, const std::string currentTileset, co
 						m_characters.back().get().setRadius(std::stof(object.getProperties()[4].getStringValue()));
 						m_characters.back().get().setCollisionRectIndex(m_collisionRects.size() - 1);
 					}else if (object.getProperties()[3].getStringValue() == "water_boss") {
-						m_cellsMain.push_back(CellShadow(object.getPosition().x - 64.0f, object.getPosition().y, 128.0f, 128.0f, MonsterHunter::CharachterOffsets[m_currentTileset]["water_boss"], object.getPosition().x, object.getPosition().y - 64.0f, false, false, true));
+						m_cellsMain.push_back(CellShadow(object.getPosition().x - 64.0f, object.getPosition().y, 128.0f, 128.0f, m_charachterOffsets["water_boss"], object.getPosition().x, object.getPosition().y - 64.0f, false, false, true));
 						m_collisionRects.push_back({ (object.getPosition().x - 64.0f) + 32.0f, (object.getPosition().y) - (128.0f - 30.0f), 128.0f - 64.0f, 128.0f - 60.0f });
 						m_spriteEntities.push_back(std::make_unique<Character>(m_cellsMain.back(), m_collisionRects.back()));
 						m_spriteEntities.back()->setViewDirection(SpriteEntity::GetDirection(object.getProperties()[2].getStringValue()));
@@ -362,7 +366,7 @@ void Zone::loadZone(const std::string path, const std::string currentTileset, co
 						m_characters.back().get().setRadius(std::stof(object.getProperties()[4].getStringValue()));
 						m_characters.back().get().setCollisionRectIndex(m_collisionRects.size() - 1);
 					}else if (object.getProperties()[3].getStringValue() == "grass_boss") {
-						m_cellsMain.push_back(CellShadow(object.getPosition().x - 64.0f, object.getPosition().y, 128.0f, 128.0f, MonsterHunter::CharachterOffsets[m_currentTileset]["grass_boss"], object.getPosition().x, object.getPosition().y - 64.0f, false, false, true));
+						m_cellsMain.push_back(CellShadow(object.getPosition().x - 64.0f, object.getPosition().y, 128.0f, 128.0f, m_charachterOffsets["grass_boss"], object.getPosition().x, object.getPosition().y - 64.0f, false, false, true));
 						m_collisionRects.push_back({ (object.getPosition().x - 64.0f) + 32.0f, (object.getPosition().y) - (128.0f - 30.0f), 128.0f - 64.0f, 128.0f - 60.0f });
 						m_spriteEntities.push_back(std::make_unique<Character>(m_cellsMain.back(), m_collisionRects.back()));
 						m_spriteEntities.back()->setViewDirection(SpriteEntity::GetDirection(object.getProperties()[2].getStringValue()));
@@ -373,7 +377,7 @@ void Zone::loadZone(const std::string path, const std::string currentTileset, co
 						m_characters.back().get().setRadius(std::stof(object.getProperties()[4].getStringValue()));
 						m_characters.back().get().setCollisionRectIndex(m_collisionRects.size() - 1);
 					}else if (object.getProperties()[3].getStringValue() == "fire_boss") {
-						m_cellsMain.push_back(CellShadow(object.getPosition().x - 64.0f, object.getPosition().y, 128.0f, 128.0f, MonsterHunter::CharachterOffsets[m_currentTileset]["fire_boss"], object.getPosition().x, object.getPosition().y - 64.0f, false, false, true));
+						m_cellsMain.push_back(CellShadow(object.getPosition().x - 64.0f, object.getPosition().y, 128.0f, 128.0f, m_charachterOffsets["fire_boss"], object.getPosition().x, object.getPosition().y - 64.0f, false, false, true));
 						m_collisionRects.push_back({ (object.getPosition().x - 64.0f) + 32.0f, (object.getPosition().y) - (128.0f - 30.0f), 128.0f - 64.0f, 128.0f - 60.0f });
 						m_spriteEntities.push_back(std::make_unique<Character>(m_cellsMain.back(), m_collisionRects.back()));
 						m_spriteEntities.back()->setViewDirection(SpriteEntity::GetDirection(object.getProperties()[2].getStringValue()));
@@ -384,7 +388,7 @@ void Zone::loadZone(const std::string path, const std::string currentTileset, co
 						m_characters.back().get().setRadius(std::stof(object.getProperties()[4].getStringValue()));
 						m_characters.back().get().setCollisionRectIndex(m_collisionRects.size() - 1);
 					}else if (object.getProperties()[3].getStringValue() == "Nurse") {
-						m_cellsMain.push_back(CellShadow(object.getPosition().x - 64.0f, object.getPosition().y, 128.0f, 128.0f, MonsterHunter::CharachterOffsets[m_currentTileset]["Nurse"], object.getPosition().x, object.getPosition().y - 64.0f, false, false, true));
+						m_cellsMain.push_back(CellShadow(object.getPosition().x - 64.0f, object.getPosition().y, 128.0f, 128.0f, m_charachterOffsets["Nurse"], object.getPosition().x, object.getPosition().y - 64.0f, false, false, true));
 						m_collisionRects.push_back({ (object.getPosition().x - 64.0f) + 32.0f, (object.getPosition().y) - (128.0f - 30.0f), 128.0f - 64.0f, 128.0f - 60.0f });
 						m_spriteEntities.push_back(std::make_unique<Character>(m_cellsMain.back(), m_collisionRects.back()));
 						m_spriteEntities.back()->setViewDirection(SpriteEntity::GetDirection(object.getProperties()[2].getStringValue()));
@@ -676,7 +680,7 @@ void Zone::culling() {
 	}
 
 	m_visibleCellsMain.clear();
-	const std::vector<TextureRect>& rects = TileSetManager::Get().getTileSet(m_currentTileset).getTextureRects();
+	const std::vector<TextureRect>& rects = m_tileSet.getTextureRects();
 	for (CellShadow& cell : m_cellsMain) {
 		cell.visibile = false;
 		const TextureRect& rect = rects[cell.currentFrame];
@@ -765,4 +769,24 @@ const std::vector<Transition>& Zone::getTransitions() {
 
 Fade& Zone::getFade(){
 	return m_fade;
+}
+
+void Zone::loadTileSet(const std::vector<std::pair<std::string, float>>& pathSizes, const std::vector<std::pair<std::string, unsigned int>>& offsets) {
+	m_tileSet.cleanup();
+	TextureAtlasCreator::Get().init(2048u, 2048u);
+	for (auto& pathSize : pathSizes) {
+		if (pathSize.second > 0.0f) {
+			m_tileSet.loadTileSetCpu(pathSize.first, false, pathSize.second, pathSize.second, true, false);
+		}else {
+			m_tileSet.loadTileCpu(pathSize.first, false, true, false);
+		}
+	}
+
+	for (auto& offset : offsets) {
+		m_charachterOffsets[offset.first] = offset.second;
+	}
+
+	m_tileSet.loadTileSetGpu();
+	m_spritesheet = m_tileSet.getAtlas();
+	m_playerOffset = m_tileSet.getTextureRects().size() - 19;
 }
