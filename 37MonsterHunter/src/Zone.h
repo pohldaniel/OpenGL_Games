@@ -6,6 +6,7 @@
 #include <engine/Camera.h>
 #include <engine/Rect.h>
 #include <engine/TileSet.h>
+#include <engine/Framebuffer.h>
 
 #include "Fade.h"
 
@@ -73,14 +74,15 @@ public:
 	void loadZone(const std::string path, const std::string currentTileset, const std::string position);
 	void initDebug();
 	void updateBorder();
-	Player& getPlayer();
+	
 
 	const std::vector<Rect>& getCollisionRects();
 	const std::vector<std::unique_ptr<SpriteEntity>>& getSpriteEntities();
 	const std::vector<std::reference_wrapper<Character>>& getCharacters();
 	const std::vector<Transition>& getTransitions();
-
 	float getMapHeight();
+	Fade& getFade();
+	Player& getPlayer();
 
 	void setUseCulling(bool useCulling);
 	void setScreeBorder(float screeBorder);
@@ -88,7 +90,6 @@ public:
 	void setDrawCenter(bool drawCenter);
 	void setDebugCollision(bool debugCollision);
 	void setSpritesheet(const unsigned int& spritesheet);
-	Fade& getFade();
 
 private:
 
@@ -138,4 +139,5 @@ private:
 
 	float m_alpha;
 	Fade m_fade;
+	Framebuffer m_mainRenderTarget;
 };

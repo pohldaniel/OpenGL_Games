@@ -718,9 +718,8 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("texture", "res/shader/texture.vert", "res/shader/texture.frag");	
 	Globals::shaderManager.loadShader("font", "res/shader/batch.vert", "res/shader/font.frag");
 	Globals::shaderManager.loadShader("batch", "res/shader/batch.vert", "res/shader/batch.frag");
-	Globals::shaderManager.loadShader("main", "res/shader/main.vert", "res/shader/main.frag");
-	Globals::shaderManager.loadShader("color", "res/shader/color.vert", "res/shader/color.frag");
 	Globals::shaderManager.loadShader("dialog", "res/shader/batch.vert", "res/shader/dialog.frag");
+	Globals::shaderManager.loadShader("quad", "res/shader/quad.vert", "res/shader/quad.frag");
 
 	Globals::fontManager.loadCharacterSet("upheaval_200", "res/fonts/upheavtt.ttf", 200, 0, 30, 128, 0, true, 0u);
 	Globals::fontManager.loadCharacterSet("upheaval_50", "res/fonts/upheavtt.ttf", 30, 0, 3, 0, 0, true, 0u);
@@ -733,4 +732,6 @@ void Application::loadAssets() {
 	Globals::textureManager.loadTexture("forest_3", "res/backgrounds/Forest/plx-3.png");
 	Globals::textureManager.loadTexture("forest_4", "res/backgrounds/Forest/plx-4.png");
 	Globals::textureManager.loadTexture("forest_5", "res/backgrounds/Forest/plx-5.png");
+
+	Globals::shapeManager.buildQuadXY("quad", Vector3f(-1.0f, -1.0f, 0.0f), Vector2f(2.0f, 2.0f), 1, 1, true, false, false);
 }

@@ -11,6 +11,7 @@
 #include "Zone.h"
 #include "Dialog.h"
 #include "Globals.h"
+#include "Application.h"
 
 Zone::Zone(const Camera& camera) :
 	camera(camera),
@@ -35,6 +36,9 @@ Zone::Zone(const Camera& camera) :
 	m_fade(m_alpha){
 	initDebug();
 	m_fade.setTransitionSpeed(2.353f);
+	m_mainRenderTarget.create(Application::Width, Application::Height);
+	m_mainRenderTarget.attachTexture2D(AttachmentTex::RGBA);
+	m_mainRenderTarget.attachTexture2D(AttachmentTex::DEPTH24);
 }
 
 Zone::~Zone() {
@@ -80,29 +84,34 @@ void Zone::update(float dt) {
 }
 
 void Zone::draw() {
+
+	m_mainRenderTarget.bind();
+
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 	Spritesheet::Bind(m_spritesheet);
 	const std::vector<TextureRect>& rects = TileSetManager::Get().getTileSet(m_currentTileset).getTextureRects();
 	for (const AnimatedCell& animatedCell : m_visibleCellsAnimated) {
 		const TextureRect& rect = rects[animatedCell.currentFrame + animatedCell.startFrame];
-		Batchrenderer::Get().addQuadAA(Vector4f(animatedCell.posX - camera.getPositionX(), m_mapHeight - 64.0f - animatedCell.posY - camera.getPositionY(), rect.width, rect.height), Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureWidth, rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, m_alpha), rect.frame);
+		Batchrenderer::Get().addQuadAA(Vector4f(animatedCell.posX - camera.getPositionX(), m_mapHeight - 64.0f - animatedCell.posY - camera.getPositionY(), rect.width, rect.height), Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureWidth, rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), rect.frame);
 	}
 
 	for (const Cell& cell : m_visibleCellsBackground) {
 		const TextureRect& rect = rects[cell.currentFrame];
-		Batchrenderer::Get().addQuadAA(Vector4f(cell.posX - camera.getPositionX(), m_mapHeight - 64.0f - cell.posY - camera.getPositionY(), rect.width, rect.height), Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureWidth, rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, m_alpha), rect.frame);
+		Batchrenderer::Get().addQuadAA(Vector4f(cell.posX - camera.getPositionX(), m_mapHeight - 64.0f - cell.posY - camera.getPositionY(), rect.width, rect.height), Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureWidth, rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), rect.frame);
 	}
 
 	for (const CellShadow& cell : m_visibleCellsMain) {
 		if (cell.hasShadow) {
 			const TextureRect& rect = rects[m_playerOffset + 16];
-			Batchrenderer::Get().addQuadAA(Vector4f(cell.posX + 40.0f - camera.getPositionX(), m_mapHeight - cell.posY - camera.getPositionY(), rect.width, rect.height), Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureWidth, rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, m_alpha), rect.frame);
+			Batchrenderer::Get().addQuadAA(Vector4f(cell.posX + 40.0f - camera.getPositionX(), m_mapHeight - cell.posY - camera.getPositionY(), rect.width, rect.height), Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureWidth, rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), rect.frame);
 		}
 
 		const TextureRect& rect = rects[cell.currentFrame];
-		Batchrenderer::Get().addQuadAA(Vector4f(cell.posX - camera.getPositionX(), m_mapHeight - cell.posY - camera.getPositionY(), cell.width, cell.height), Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureWidth, rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, m_alpha), rect.frame);
+		Batchrenderer::Get().addQuadAA(Vector4f(cell.posX - camera.getPositionX(), m_mapHeight - cell.posY - camera.getPositionY(), cell.width, cell.height), Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureWidth, rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), rect.frame);
 		if (cell.isNoticed) {
 			const TextureRect& rect = rects[m_playerOffset + 17];
-			Batchrenderer::Get().addQuadAA(Vector4f(cell.posX + 10.0f - camera.getPositionX(), m_mapHeight + 128.0f - cell.posY - camera.getPositionY(), rect.width, rect.height), Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureWidth, rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, m_alpha), rect.frame);
+			Batchrenderer::Get().addQuadAA(Vector4f(cell.posX + 10.0f - camera.getPositionX(), m_mapHeight + 128.0f - cell.posY - camera.getPositionY(), rect.width, rect.height), Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureWidth, rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), rect.frame);
 		}
 	}
 
@@ -129,22 +138,29 @@ void Zone::draw() {
 	}
 
 	if (m_debugCollision) {
-		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		const TextureRect& textureRect = rects[m_playerOffset + 18];
 		for (const Rect& rect : m_collisionRects) {
 			Batchrenderer::Get().addQuadAA(Vector4f(rect.posX - camera.getPositionX(), m_mapHeight - (rect.posY + rect.height) - camera.getPositionY(), rect.width, rect.height), Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), Vector4f(0.0f, 0.0f, 1.0f, 1.0f), textureRect.frame);
 		}
 
 		for (const Transition& transition : m_transitions) {
-			Batchrenderer::Get().addQuadAA(Vector4f(transition.collisionRect.posX - camera.getPositionX(), m_mapHeight - (transition.collisionRect.posY + transition.collisionRect.height) - camera.getPositionY(), transition.collisionRect.width, transition.collisionRect.height), Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), Vector4f(0.0f, 0.0f, 1.0f, 1.0f), textureRect.frame);
+			Batchrenderer::Get().addQuadAA(Vector4f(transition.collisionRect.posX - camera.getPositionX(), m_mapHeight - (transition.collisionRect.posY + transition.collisionRect.height) - camera.getPositionY(), transition.collisionRect.width, transition.collisionRect.height), Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), Vector4f(0.0f, 1.0f, 0.0f, 1.0f), textureRect.frame);
 		}
 
 		const CellShadow& player = m_cellsMain[m_playerIndex];
 		Batchrenderer::Get().addQuadAA(Vector4f(player.posX + 32.0f - camera.getPositionX(), m_mapHeight - (player.posY - 30.0f) - camera.getPositionY(), 128.0f - 64.0f, player.height - 60.0f), Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), Vector4f(1.0f, 0.0f, 0.0f, 1.0f), textureRect.frame);
 
 		Batchrenderer::Get().drawBuffer();
-		//glPolygonMode(GL_FRONT_AND_BACK, StateMachine::GetEnableWireframe() ? GL_LINE : GL_FILL);
 	}
+
+	m_mainRenderTarget.unbind();
+
+	m_mainRenderTarget.bindColorTexture(0u, 0u);
+	auto shader = Globals::shaderManager.getAssetPointer("quad");
+	shader->use();
+	shader->loadVector("u_color", Vector4f(1.0f, 1.0f, 1.0f, m_alpha));
+	Globals::shapeManager.get("quad").drawRaw();
+	shader->unuse();
 }
 
 void Zone::loadZone(const std::string path, const std::string currentTileset, const std::string position) {
@@ -724,6 +740,7 @@ void Zone::resize() {
 	m_right = camera.getRightOrthographic();
 	m_bottom = camera.getBottomOrthographic();
 	m_top = camera.getTopOrthographic();
+	m_mainRenderTarget.resize(Application::Width, Application::Height);
 }
 
 const std::vector<Rect>& Zone::getCollisionRects() {
