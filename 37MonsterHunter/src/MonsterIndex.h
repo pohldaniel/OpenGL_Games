@@ -16,7 +16,8 @@ public:
 private:
 
 	int m_visibleItems;	
-	std::vector<std::string> m_names;
+	std::vector<std::pair<std::string, unsigned int>> m_names;
 	Sprite m_surface;
 	float m_viewWidth, m_viewHeight;
+	unsigned int m_spritesheet;
 };
