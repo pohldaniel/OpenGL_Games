@@ -1,21 +1,27 @@
 #include "Sprite.h"
-
+#include "Globals.h"
 std::unique_ptr<Shader> Sprite::SpriteShader = nullptr;
 Matrix4f Sprite::Orthographic;
-unsigned int Sprite::Vao = 0;
-unsigned int Sprite::Vbo = 0;
+unsigned int Sprite::Vao = 0u;
+unsigned int Sprite::Vbo = 0u;
 
-void Sprite::draw(const TextureRect& rect) {
-
-	if (!SpriteShader->inUse())
-		SpriteShader->use();
-
+void Sprite::draw(const TextureRect& rect, const Vector4f& color) {	
+	SpriteShader->use();
 	SpriteShader->loadMatrix("u_transform", Orthographic * getTransformationSOP());
+	SpriteShader->loadVector("u_color", color);
 	SpriteShader->loadVector("u_texRect", Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureOffsetX + rect.textureWidth, rect.textureOffsetY + rect.textureHeight));
 	SpriteShader->loadInt("u_layer", rect.frame);
 	DrawQuad();
 }
 
+void Sprite::draw(const Vector4f& color) {
+	SpriteShader->use();
+	SpriteShader->loadMatrix("u_transform", Orthographic * getTransformationSOP());
+	SpriteShader->loadVector("u_color", color);
+	SpriteShader->loadVector("u_texRect", Vector4f(0.0f, 0.0f, 1.0f, 1.0f));
+	SpriteShader->loadInt("u_layer", 0u);
+	DrawQuad();
+}
 
 void Sprite::Resize(unsigned int width, unsigned int height) {
 	Orthographic.orthographic(0.0f, static_cast<float>(width), 0.0f, static_cast<float>(height), -1.0f, 1.0f);

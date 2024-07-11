@@ -468,6 +468,9 @@
     <ClCompile Include="src\Fade.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\MonsterIndex.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="convhull\convhull_3d.h">
@@ -894,6 +897,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Fade.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MonsterIndex.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

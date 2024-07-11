@@ -1,4 +1,6 @@
-#pragma once
+#ifndef __spriteH__
+#define __spriteH__
+
 #include <memory>
 #include "Object.h"
 #include "Rect.h"
@@ -40,15 +42,16 @@
 														                                             \n \
                             uniform sampler2DArray u_texture;                                        \n \
                                                                                                      \n \
-                             void main() {                                                           \n \
+                            void main() {                                                            \n \
                                  outColor = vertColor * texture(u_texture, vec3(texCoord, layer));   \n \
-                             }"
+                            }"
 
 class Sprite : public Object{
 
 public:
 
-	void draw(const TextureRect& rect);
+	void draw(const TextureRect& rect, const Vector4f& color = Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+	void draw(const Vector4f& color = Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
 
 	static void Init(unsigned int width, unsigned int height);
 	static void Resize(unsigned int width, unsigned int height);
@@ -66,3 +69,4 @@ private:
 	static unsigned int Vao;
 	static unsigned int Vbo;
 };
+#endif

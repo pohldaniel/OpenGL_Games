@@ -227,6 +227,7 @@
     <ClCompile Include="src\Entities\Vehicle.cpp" />
     <ClCompile Include="src\Fade.cpp" />
     <ClCompile Include="src\LoadingManager.cpp" />
+    <ClCompile Include="src\MonsterIndex.cpp" />
     <ClCompile Include="src\States\Controls.cpp" />
     <ClCompile Include="src\States\Default.cpp" />
     <ClCompile Include="src\States\MonsterHunter.cpp" />
@@ -414,6 +415,7 @@
     <ClInclude Include="src\Fade.h" />
     <ClInclude Include="src\Globals.h" />
     <ClInclude Include="src\LoadingManager.h" />
+    <ClInclude Include="src\MonsterIndex.h" />
     <ClInclude Include="src\States\Controls.h" />
     <ClInclude Include="src\States\Default.h" />
     <ClInclude Include="src\States\MonsterHunter.h" />

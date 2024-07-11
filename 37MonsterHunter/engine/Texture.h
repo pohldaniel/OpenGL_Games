@@ -155,5 +155,4 @@ private:
 
 	static std::map<unsigned int, unsigned int> ActiveTextures;
 };
-
 #endif

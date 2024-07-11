@@ -732,6 +732,11 @@ void Application::loadAssets() {
 	Globals::textureManager.loadTexture("forest_3", "res/backgrounds/Forest/plx-3.png");
 	Globals::textureManager.loadTexture("forest_4", "res/backgrounds/Forest/plx-4.png");
 	Globals::textureManager.loadTexture("forest_5", "res/backgrounds/Forest/plx-5.png");
+	Globals::textureManager.createNullTexture("null");
+	Globals::spritesheetManager.createNullSpritesheet("null", 2u, 2u, 1u);
 
 	Globals::shapeManager.buildQuadXY("quad", Vector3f(-1.0f, -1.0f, 0.0f), Vector2f(2.0f, 2.0f), 1, 1, true, false, false);
+	Globals::shapeManager.buildQuadXY("quad_aligned", Vector3f(0.0f, 0.0f, 0.0f), Vector2f(2.0f, 2.0f), 1, 1, true, false, false);
+	Globals::shapeManager.buildQuadXY("quad_half_aligned", Vector3f(0.0f, 0.0f, 0.0f), Vector2f(1.0f, 1.0f), 1, 1, true, false, false);
+	
 }

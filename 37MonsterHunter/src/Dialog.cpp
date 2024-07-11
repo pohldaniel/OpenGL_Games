@@ -87,7 +87,7 @@ void DialogTree::draw() {
 		float posX = dialogData.posX - camera.getPositionX();
 		float posY = dialogData.posY - camera.getPositionY();
 		float padding = 7.5f;
-		Vector2f dimension = Vector2f(std::max(30.0f, Globals::fontManager.get("dialog").getWidth(dialogData.text) * 0.06f + 2.0f * padding), Globals::fontManager.get("dialog").lineHeight * 0.06f + 2.0f * padding);
+		Vector2f dimension = Vector2f(std::max(30.0f, Globals::fontManager.get("dialog").getWidth(dialogData.text) * 0.075f + 2.0f * padding), Globals::fontManager.get("dialog").lineHeight * 0.075f + 2.0f * padding);
 
 		quadPos[0] = posX;
 		quadPos[1] = posY;
@@ -117,7 +117,7 @@ void DialogTree::draw() {
 		Fontrenderer::Get().setShader(Globals::shaderManager.getAssetPointer("dialog"));
 		Fontrenderer::Get().getBatchRenderer()->processSingleQuad();
 		Fontrenderer::Get().setShader(Globals::shaderManager.getAssetPointer("font"));
-		Fontrenderer::Get().addText(Globals::fontManager.get("dialog"), dialogData.posX + dialogData.paddingX - camera.getPositionX() + padding, dialogData.posY + dialogData.paddingY - camera.getPositionY() + padding, dialogData.text, Vector4f(0.0f, 0.0f, 0.0f, 1.0f), 0.06f);
+		Fontrenderer::Get().addText(Globals::fontManager.get("dialog"), dialogData.posX + dialogData.paddingX - camera.getPositionX() + padding, dialogData.posY + dialogData.paddingY - camera.getPositionY() + padding, dialogData.text, Vector4f(0.0f, 0.0f, 0.0f, 1.0f), 0.075f);
 		Fontrenderer::Get().drawBuffer();
 	}
 }

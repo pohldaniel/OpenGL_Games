@@ -1,6 +1,8 @@
 #include <GL/glew.h>
 #include <tmxlite/Map.hpp>
 #include <tmxlite/TileLayer.hpp>
+#include <rapidjson/document.h>
+#include <rapidjson/istreamwrapper.h>
 #include <engine/TileSet.h>
 #include <engine/Batchrenderer.h>
 
@@ -12,6 +14,8 @@
 #include "Dialog.h"
 #include "Application.h"
 #include "Globals.h"
+
+std::unordered_map<std::string, TileSetData> Zone::TileSets;
 
 Zone::Zone(const Camera& camera) :
 	camera(camera),
@@ -158,6 +162,8 @@ void Zone::draw() {
 	m_mainRenderTarget.bindColorTexture(0u, 0u);
 	auto shader = Globals::shaderManager.getAssetPointer("quad");
 	shader->use();
+	shader->loadMatrix("u_transform", Matrix4f::IDENTITY);	
+	shader->loadVector("u_texRect", Vector4f(0.0f, 0.0f, 1.0f, 1.0f));
 	shader->loadVector("u_color", Vector4f(1.0f, 1.0f, 1.0f, m_alpha));
 	Globals::shapeManager.get("quad").drawRaw();
 	shader->unuse();
@@ -214,7 +220,7 @@ void Zone::loadZone(const std::string path, const std::string currentTileset, co
 	m_collisionRects.reserve(700);
 	m_currentTileset = currentTileset;
 
-	loadTileSet(MonsterHunter::TileSets[m_currentTileset].pathSizes, MonsterHunter::TileSets[m_currentTileset].offsets);
+	loadTileSet(Zone::TileSets[m_currentTileset].pathSizes, Zone::TileSets[m_currentTileset].offsets);
 	tmx::Map map;
 	map.load(path);
 
@@ -789,4 +795,56 @@ void Zone::loadTileSet(const std::vector<std::pair<std::string, float>>& pathSiz
 	m_tileSet.loadTileSetGpu();
 	m_spritesheet = m_tileSet.getAtlas();
 	m_playerOffset = m_tileSet.getTextureRects().size() - 19;
+}
+
+void Zone::loadTileSetData(const std::string& path) {
+	std::ifstream file("res/tilesets.json", std::ios::in);
+	if (!file.is_open()) {
+		std::cerr << "Could not open file: " << "res/tilesets.json" << std::endl;
+	}
+
+	rapidjson::IStreamWrapper streamWrapper(file);
+	rapidjson::Document doc;
+	doc.ParseStream(streamWrapper);
+
+	for (rapidjson::Value::ConstMemberIterator tileset = doc.MemberBegin(); tileset != doc.MemberEnd(); ++tileset) {
+		for (rapidjson::Value::ConstValueIterator tuples = tileset->value["paths"].GetArray().Begin(); tuples != tileset->value["paths"].GetArray().End(); ++tuples) {
+			for (rapidjson::Value::ConstMemberIterator tuple = tuples->MemberBegin(); tuple != tuples->MemberEnd(); ++tuple) {
+				TileSets[tileset->name.GetString()].pathSizes.push_back({ tuple->name.GetString(),tuple->value.GetFloat() });
+			}
+		}
+
+		if (tileset->value.HasMember("offsets")) {
+			for (rapidjson::Value::ConstValueIterator tuples = tileset->value["offsets"].GetArray().Begin(); tuples != tileset->value["offsets"].GetArray().End(); ++tuples) {
+
+				for (rapidjson::Value::ConstMemberIterator tuple = tuples->MemberBegin(); tuple != tuples->MemberEnd(); ++tuple) {
+					TileSets[tileset->name.GetString()].offsets.push_back({ tuple->name.GetString(), tuple->value.GetUint() });
+				}
+			}
+		}
+	}
+
+	/*TextureAtlasCreator::Get().init(1536u, 768u);
+	for (unsigned int x = 0; x < 24; x++) {
+		TileSetManager::Get().getTileSet("coast").loadTileCpu("res/tmx/graphics/tilesets/coast.png", false, x * 64u, 64u * 0u, 64u, 64u, false, false);
+		TileSetManager::Get().getTileSet("coast").loadTileCpu("res/tmx/graphics/tilesets/coast.png", false, x * 64u, 64u * 3u, 64u, 64u, false, false);
+		TileSetManager::Get().getTileSet("coast").loadTileCpu("res/tmx/graphics/tilesets/coast.png", false, x * 64u, 64u * 6u, 64u, 64u, false, false);
+		TileSetManager::Get().getTileSet("coast").loadTileCpu("res/tmx/graphics/tilesets/coast.png", false, x * 64u, 64u * 9u, 64u, 64u, false, false);
+
+		TileSetManager::Get().getTileSet("coast").loadTileCpu("res/tmx/graphics/tilesets/coast.png", false, x * 64u, 64u * 1u, 64u, 64u, false, false);
+		TileSetManager::Get().getTileSet("coast").loadTileCpu("res/tmx/graphics/tilesets/coast.png", false, x * 64u, 64u * 4u, 64u, 64u, false, false);
+		TileSetManager::Get().getTileSet("coast").loadTileCpu("res/tmx/graphics/tilesets/coast.png", false, x * 64u, 64u * 7u, 64u, 64u, false, false);
+		TileSetManager::Get().getTileSet("coast").loadTileCpu("res/tmx/graphics/tilesets/coast.png", false, x * 64u, 64u * 10u, 64u, 64u, false, false);
+
+		TileSetManager::Get().getTileSet("coast").loadTileCpu("res/tmx/graphics/tilesets/coast.png", false, x * 64u, 64u * 2u, 64u, 64u, false, false);
+		TileSetManager::Get().getTileSet("coast").loadTileCpu("res/tmx/graphics/tilesets/coast.png", false, x * 64u, 64u * 5u, 64u, 64u, false, false);
+		TileSetManager::Get().getTileSet("coast").loadTileCpu("res/tmx/graphics/tilesets/coast.png", false, x * 64u, 64u * 8u, 64u, 64u, false, false);
+		TileSetManager::Get().getTileSet("coast").loadTileCpu("res/tmx/graphics/tilesets/coast.png", false, x * 64u, 64u * 11u, 64u, 64u, false, false);
+	}
+	TileSetManager::Get().getTileSet("coast").loadTileSetGpu();
+	Spritesheet::Safe("res/tmx/graphics/tilesets/coast_ordered", TileSetManager::Get().getTileSet("coast").getAtlas());*/
+}
+
+void Zone::setAlpha(float alpha) {
+	m_alpha = alpha;
 }

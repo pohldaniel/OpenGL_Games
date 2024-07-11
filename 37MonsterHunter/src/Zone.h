@@ -14,6 +14,11 @@ class SpriteEntity;
 class Player;
 class Character;
 
+struct TileSetData {
+	std::vector<std::pair<std::string, float>> pathSizes;
+	std::vector<std::pair<std::string, unsigned int>> offsets;
+};
+
 struct Transition {
 	std::string target;
 	std::string newPos;
@@ -90,6 +95,8 @@ public:
 	void setDrawCenter(bool drawCenter);
 	void setDebugCollision(bool debugCollision);
 	void setSpritesheet(const unsigned int& spritesheet);
+	void setAlpha(float alpha);
+	void loadTileSetData(const std::string& path);
 
 private:
 
@@ -100,7 +107,7 @@ private:
 	int posXToCol(float y, float cellHeight, int min, int max, int shift);
 	bool isRectOnScreen(float posX, float posY, float width, float height);
 	void loadTileSet(const std::vector<std::pair<std::string, float>>& pathSizes, const std::vector<std::pair<std::string, unsigned int>>& offsets);
-
+	
 	std::vector<std::pair<int, unsigned int>**> m_layers;
 	std::vector<AnimatedCell> m_cellsAnimated;
 	std::vector<Cell> m_cellsBackground;
@@ -143,4 +150,6 @@ private:
 	Framebuffer m_mainRenderTarget;
 	TileSet m_tileSet;
 	std::unordered_map<std::string, unsigned int> m_charachterOffsets;
+
+	static std::unordered_map<std::string, TileSetData> TileSets;
 };

@@ -5,6 +5,7 @@
 #include <engine/Camera.h>
 #include <engine/Background.h>
 #include <engine/Texture.h>
+#include <engine/Sprite.h>
 #include <States/StateMachine.h>
 
 #include <Entities/SpriteEntity.h>
@@ -12,11 +13,7 @@
 #include <Entities/Character.h>
 #include "Zone.h"
 #include "Dialog.h"
-
-struct TileSetData {
-	std::vector<std::pair<std::string, float>> pathSizes;
-	std::vector<std::pair<std::string, unsigned int>> offsets;
-};
+#include "MonsterIndex.h"
 
 class MonsterHunter : public State, public MouseEventListener, public KeyboardEventListener {
 
@@ -35,9 +32,6 @@ public:
 	void OnMouseButtonUp(Event::MouseButtonEvent& event) override;
 	void OnKeyDown(Event::KeyboardEvent& event) override;
 	void OnKeyUp(Event::KeyboardEvent& event) override;
-	static std::unordered_map<std::string, std::unordered_map<std::string, unsigned int>> CharachterOffsets;
-
-	static std::unordered_map<std::string, TileSetData> TileSets;
 
 private:
 
@@ -58,6 +52,7 @@ private:
 	float m_screeBorder;
 
 	Zone m_zone;
-
 	DialogTree m_dialogTree;
+	MonsterIndex m_monsterIndex;
+	bool m_indexOpen;
 };

@@ -1,7 +1,6 @@
 #include <numeric>
 #include <imgui.h>
-#include <rapidjson/document.h>
-#include <rapidjson/istreamwrapper.h>
+
 #include <imgui_impl_win32.h>
 #include <imgui_impl_opengl3.h>
 #include <imgui_internal.h>
@@ -16,10 +15,7 @@
 #include "Application.h"
 #include "Globals.h"
 
-std::unordered_map<std::string, std::unordered_map<std::string, unsigned int>> MonsterHunter::CharachterOffsets;
-std::unordered_map<std::string, TileSetData> MonsterHunter::TileSets;
-
-MonsterHunter::MonsterHunter(StateMachine& machine) : State(machine, States::MONSTER_HUNTER), m_zone(m_camera), m_dialogTree(m_camera) {
+MonsterHunter::MonsterHunter(StateMachine& machine) : State(machine, States::MONSTER_HUNTER), m_zone(m_camera), m_dialogTree(m_camera), m_indexOpen(false){
 
 	m_viewWidth = 1280.0f;
 	m_viewHeight= 720.0f;
@@ -39,53 +35,6 @@ MonsterHunter::MonsterHunter(StateMachine& machine) : State(machine, States::MON
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClearDepth(1.0f);
 
-	/*TextureAtlasCreator::Get().init(1536u, 768u);
-	for (unsigned int x = 0; x < 24; x++) {
-		TileSetManager::Get().getTileSet("coast").loadTileCpu("res/tmx/graphics/tilesets/coast.png", false, x * 64u, 64u * 0u, 64u, 64u, false, false);
-		TileSetManager::Get().getTileSet("coast").loadTileCpu("res/tmx/graphics/tilesets/coast.png", false, x * 64u, 64u * 3u, 64u, 64u, false, false);
-		TileSetManager::Get().getTileSet("coast").loadTileCpu("res/tmx/graphics/tilesets/coast.png", false, x * 64u, 64u * 6u, 64u, 64u, false, false);
-		TileSetManager::Get().getTileSet("coast").loadTileCpu("res/tmx/graphics/tilesets/coast.png", false, x * 64u, 64u * 9u, 64u, 64u, false, false);
-
-		TileSetManager::Get().getTileSet("coast").loadTileCpu("res/tmx/graphics/tilesets/coast.png", false, x * 64u, 64u * 1u, 64u, 64u, false, false);
-		TileSetManager::Get().getTileSet("coast").loadTileCpu("res/tmx/graphics/tilesets/coast.png", false, x * 64u, 64u * 4u, 64u, 64u, false, false);
-		TileSetManager::Get().getTileSet("coast").loadTileCpu("res/tmx/graphics/tilesets/coast.png", false, x * 64u, 64u * 7u, 64u, 64u, false, false);
-		TileSetManager::Get().getTileSet("coast").loadTileCpu("res/tmx/graphics/tilesets/coast.png", false, x * 64u, 64u * 10u, 64u, 64u, false, false);
-
-		TileSetManager::Get().getTileSet("coast").loadTileCpu("res/tmx/graphics/tilesets/coast.png", false, x * 64u, 64u * 2u, 64u, 64u, false, false);
-		TileSetManager::Get().getTileSet("coast").loadTileCpu("res/tmx/graphics/tilesets/coast.png", false, x * 64u, 64u * 5u, 64u, 64u, false, false);
-		TileSetManager::Get().getTileSet("coast").loadTileCpu("res/tmx/graphics/tilesets/coast.png", false, x * 64u, 64u * 8u, 64u, 64u, false, false);
-		TileSetManager::Get().getTileSet("coast").loadTileCpu("res/tmx/graphics/tilesets/coast.png", false, x * 64u, 64u * 11u, 64u, 64u, false, false);
-	}
-	TileSetManager::Get().getTileSet("coast").loadTileSetGpu();
-	Spritesheet::Safe("res/tmx/graphics/tilesets/coast_ordered", TileSetManager::Get().getTileSet("coast").getAtlas());*/
-	
-	std::ifstream file("res/tilesets.json", std::ios::in);
-	if (!file.is_open()) {
-		std::cerr << "Could not open file: " << "res/trainer.json" << std::endl;
-	}
-
-	rapidjson::IStreamWrapper streamWrapper(file);
-	rapidjson::Document doc;
-	doc.ParseStream(streamWrapper);
-
-	for (rapidjson::Value::ConstMemberIterator tileset = doc.MemberBegin(); tileset != doc.MemberEnd(); ++tileset) {
-		for (rapidjson::Value::ConstValueIterator tuples = tileset->value["paths"].GetArray().Begin(); tuples != tileset->value["paths"].GetArray().End(); ++tuples) {
-			for (rapidjson::Value::ConstMemberIterator tuple = tuples->MemberBegin(); tuple != tuples->MemberEnd(); ++tuple) {				
-				TileSets[tileset->name.GetString()].pathSizes.push_back({ tuple->name.GetString(),tuple->value.GetFloat() });
-			}
-		}
-
-		if (tileset->value.HasMember("offsets")) {
-			for (rapidjson::Value::ConstValueIterator tuples = tileset->value["offsets"].GetArray().Begin(); tuples != tileset->value["offsets"].GetArray().End(); ++tuples) {
-
-				for (rapidjson::Value::ConstMemberIterator tuple = tuples->MemberBegin(); tuple != tuples->MemberEnd(); ++tuple) {
-					TileSets[tileset->name.GetString()].offsets.push_back({ tuple->name.GetString(), tuple->value.GetUint() });
-					CharachterOffsets[tileset->name.GetString()][tuple->name.GetString()] = tuple->value.GetUint();
-				}
-			}
-		}
-	}
-
 	auto shader = Globals::shaderManager.getAssetPointer("batch");
 	shader->use();
 	shader->loadMatrix("u_transform", m_camera.getOrthographicMatrix());
@@ -101,6 +50,7 @@ MonsterHunter::MonsterHunter(StateMachine& machine) : State(machine, States::MON
 	shader->loadMatrix("u_transform", m_camera.getOrthographicMatrix());
 	shader->unuse();
 
+	m_zone.loadTileSetData("res/tilesets.json");
 	m_zone.loadZone("res/tmx/data/maps/world.tmx", "world", "house");	
 	m_zone.setDebugCollision(m_debugCollision);
 	m_zone.getPlayer().setMovingSpeed(m_movingSpeed);
@@ -109,6 +59,11 @@ MonsterHunter::MonsterHunter(StateMachine& machine) : State(machine, States::MON
 	m_zone.getPlayer().setMapHeight(m_zone.getMapHeight());
 	m_zone.getPlayer().adjustCamera();
 	m_mapHeight = m_zone.getMapHeight();
+
+	m_monsterIndex.setViewWidth(m_viewWidth);
+	m_monsterIndex.setViewHeight(m_viewHeight);
+
+	Sprite::Init(static_cast<unsigned int>(m_viewWidth), static_cast<unsigned int>(m_viewHeight));
 }
 
 MonsterHunter::~MonsterHunter() {
@@ -177,6 +132,17 @@ void MonsterHunter::update() {
 		}
 	}
 
+	if (keyboard.keyPressed(Keyboard::KEY_ENTER)) {
+		m_indexOpen = !m_indexOpen;
+		if (m_indexOpen) {
+			m_zone.setAlpha(1.0f - 0.784f);
+			m_zone.getPlayer().block();			
+		}else {
+			m_zone.setAlpha(1.0f);
+			m_zone.getPlayer().unblock();
+		}
+	}
+
 	for (Character& character : m_zone.getCharacters()) {
 		if (character.raycast(m_zone.getPlayer())) {
 			character.setRayCast(false);
@@ -217,9 +183,13 @@ void MonsterHunter::update() {
 void MonsterHunter::render() {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	
+
 	m_zone.draw();
 	m_dialogTree.draw();
+
+	if (m_indexOpen) {
+		m_monsterIndex.draw();
+	}
 
 	if (m_drawUi)
 		renderUi();
