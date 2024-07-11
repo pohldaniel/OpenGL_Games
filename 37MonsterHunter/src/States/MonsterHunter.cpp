@@ -143,6 +143,10 @@ void MonsterHunter::update() {
 		}
 	}
 
+	if (m_indexOpen) {
+		m_monsterIndex.processInput();
+	}
+
 	for (Character& character : m_zone.getCharacters()) {
 		if (character.raycast(m_zone.getPlayer())) {
 			character.setRayCast(false);
