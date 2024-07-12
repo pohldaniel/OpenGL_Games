@@ -19,7 +19,7 @@ m_frameCount(4){
 	m_names.push_back({ "Ivieron", 32u, 9u, false, "plant", 72u });
 	m_names.push_back({ "Atrox", 15u, 0u, false, "fire", 0u });
 	m_names.push_back({ "Cindrill", 23u, 2u, false, "fire", 16u });
-	m_names.push_back({ "Atrox", 11u, 0u, false, "fire", 0u });
+	m_names.push_back({ "Atrox", 30u, 0u, false, "fire", 0u });
 	m_names.push_back({ "Sparchu", 13u, 15u, false, "fire", 120u });
 	m_names.push_back({ "Gulfin", 17u, 8u, false, "water", 64u });
 	m_names.push_back({ "Jacana", 16u, 10u, false, "fire", 80u });
@@ -73,6 +73,8 @@ m_frameCount(4){
 	TileSetManager::Get().getTileSet("monster").loadTileSetGpu();
 	//Spritesheet::Safe("monster", TileSetManager::Get().getTileSet("monster").getAtlas());
 	m_atlasMonster = TileSetManager::Get().getTileSet("monster").getAtlas();
+
+	m_surfaceBar.setShader(Globals::shaderManager.getAssetPointer("list"));
 }
 
 MonsterIndex::~MonsterIndex() {
@@ -176,8 +178,11 @@ void MonsterIndex::draw() {
 	Fontrenderer::Get().drawBuffer();
 
 	Globals::fontManager.get("dialog").bind();
-	Fontrenderer::Get().addText(Globals::fontManager.get("dialog"), 0.4f * m_viewWidth + 10.0f, bottom + 0.5f * m_viewHeight + 10.0f, "Level " + std::to_string(std::get<1>(currentMonster)), std::get<3>(currentMonster) ? Vector4f(1.0f, 0.84313f, 0.0f, 1.0f) : Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 0.045f);
+	Fontrenderer::Get().addText(Globals::fontManager.get("dialog"), 0.4f * m_viewWidth + 10.0f, bottom + 0.5f * m_viewHeight + 10.0f, "Lvl: " + std::to_string(std::get<1>(currentMonster)), std::get<3>(currentMonster) ? Vector4f(1.0f, 0.84313f, 0.0f, 1.0f) : Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 0.045f);
+	Fontrenderer::Get().addText(Globals::fontManager.get("dialog"), 0.8f * m_viewWidth - 0.045f * Globals::fontManager.get("dialog").getWidth(std::get<4>(currentMonster)) - 10.0f, bottom + 0.5f * m_viewHeight + 10.0f, std::get<4>(currentMonster), std::get<3>(currentMonster) ? Vector4f(1.0f, 0.84313f, 0.0f, 1.0f) : Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 0.045f);
 	Fontrenderer::Get().drawBuffer();
+
+	drawBar({ 0.4f * m_viewWidth + 10.0f , bottom + 0.5f * m_viewHeight + 6.0f, 100.0f, 4.0f }, 700.0f, std::get<1>(currentMonster) * 150.0f, Vector4f(0.16862f, 0.16078f, 0.17255f, 1.0f), Vector4f(0.95686f, 0.99608f, 0.98039f, 1.0f), 0.0f);
 }
 
 void MonsterIndex::update(float dt) {
@@ -246,4 +251,24 @@ void MonsterIndex::processInput() {
 void MonsterIndex::resetAnimation() {
 	m_currentFrame = 0;
 	m_elapsedTime = 1.0f;
+}
+
+void MonsterIndex::drawBar(const Rect& rect, float value, float maxValue, const Vector4f& bgColor, const Vector4f& color, float radius) {
+	float ratio = rect.width / maxValue;
+	float progress = std::max(0.0f, std::min(rect.width, value * ratio));
+
+	auto shader = m_surfaceBar.getShader();
+	shader->use();	
+	shader->loadFloat("u_radius", radius);
+	shader->loadUnsignedInt("u_edge", radius == 0.0f ? Edge::EDGE_NONE : Edge::EDGE_LEFT);
+
+	shader->loadVector("u_dimensions", Vector2f(rect.width, rect.height));
+	m_surfaceBar.setPosition(rect.posX, rect.posY, 0.0f);
+	m_surfaceBar.setScale(rect.width, rect.height, 1.0f);
+	m_surfaceBar.draw(bgColor);
+		 
+	shader->loadVector("u_dimensions", Vector2f(progress, rect.height));
+	m_surfaceBar.setPosition(rect.posX, rect.posY, 0.0f);
+	m_surfaceBar.setScale(progress, rect.height, 1.0f);
+	m_surfaceBar.draw(color);
 }

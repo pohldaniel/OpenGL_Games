@@ -9,6 +9,7 @@ enum Edge {
 	TOP_RIGHT,
 	BOTTOM_RIGHT,
 	EDGE_RIGHT,
+	EDGE_LEFT,
 	EDGE_NONE
 };
 
@@ -25,6 +26,8 @@ public:
 	void setViewWidth(float viewWidth);
 	void setViewHeight(float viewHeight);
 
+	void drawBar(const Rect& rect, float value, float maxValue, const Vector4f& bgColor, const Vector4f& color, float radius = 1.0f);
+
 private:
 
 	void resetAnimation();
@@ -32,6 +35,7 @@ private:
 	int m_visibleItems;	
 	std::vector<std::tuple<std::string, unsigned int, unsigned int, bool, std::string, unsigned int>> m_names;
 	Sprite m_surface;
+	Sprite m_surfaceBar;
 	float m_viewWidth, m_viewHeight;
 	unsigned int m_atlasIcons, m_atlasMonster;
 	int m_currentOffset, m_currentSelected, m_beforeSelected;

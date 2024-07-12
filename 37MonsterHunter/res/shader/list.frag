@@ -12,8 +12,8 @@ uniform uint u_edge = 0;
 uniform vec2 u_dimensions;
 
 float calcDistance(vec2 uv) {
-	vec2 pos = (abs(uv - 0.5) + 0.5) * u_dimensions;
-	vec2 delta = max(pos - u_dimensions + u_radius, 0.0);
+	vec2 pos = (abs(uv - 0.5) + 0.5);
+	vec2 delta = max(pos * u_dimensions - u_dimensions + pos *u_radius, 0.0);
 	return length(delta);
 }
 
@@ -37,7 +37,10 @@ void main() {
 	//right
 	}else if(u_edge == 5 && dist > u_radius && v_texCoord.x > 0.5) {
       discard;
-	}	
+	//left
+	}else if(u_edge == 6 && dist > u_radius && v_texCoord.x < 0.5) {
+      discard;
+	}		
 	
 	outColor = v_color;
 }
