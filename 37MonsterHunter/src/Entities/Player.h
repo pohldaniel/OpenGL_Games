@@ -27,11 +27,8 @@ public:
 
 private:
 	
-	
-	
 	float m_mapHeight, m_viewWidth, m_viewHeight;
 	const std::vector<Rect>& collisionRects;
 	Camera& camera;
-	bool m_blocked;
-	
+	bool m_blocked;	
 };

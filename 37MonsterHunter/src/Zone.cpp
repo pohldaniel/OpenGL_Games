@@ -31,9 +31,9 @@ Zone::Zone(const Camera& camera) :
 	m_drawCenter(false),
 	m_debugCollision(false),
 	m_borderDirty(true),
-	elapsedTime(0.0f),
-	currentFrame(0),
-	frameCount(4),
+	m_elapsedTime(0.0f),
+	m_currentFrame(0),
+	m_frameCount(4),
 	m_waterOffset(242),
 	m_coastOffset(246),
 	m_alpha(1.0f),
@@ -73,15 +73,15 @@ Zone::~Zone() {
 void Zone::update(float dt) {
 	culling();
 
-	elapsedTime += 6.0f * dt;
-	currentFrame = static_cast <int>(std::floor(elapsedTime));
-	if (currentFrame > frameCount - 1) {
-		currentFrame = 0;
-		elapsedTime -= static_cast <float>(frameCount);
+	m_elapsedTime += 6.0f * dt;
+	m_currentFrame = static_cast <int>(std::floor(m_elapsedTime));
+	if (m_currentFrame > m_frameCount - 1) {
+		m_currentFrame = 0;
+		m_elapsedTime -= static_cast <float>(m_frameCount);
 	}
 
 	for (AnimatedCell& animatedCell : m_visibleCellsAnimated) {
-		animatedCell.currentFrame = currentFrame;
+		animatedCell.currentFrame = m_currentFrame;
 	}
 	m_fade.update(dt);
 	std::sort(m_visibleCellsMain.begin(), m_visibleCellsMain.end(), [&](const CellShadow& cell1, const CellShadow& cell2) {return cell1.centerY < cell2.centerY; });

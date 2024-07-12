@@ -182,6 +182,7 @@ void MonsterHunter::update() {
 		spriteEntity->update(m_dt);
 	}
 	m_zone.update(m_dt);
+	m_monsterIndex.update(m_dt);
 }
 
 void MonsterHunter::render() {

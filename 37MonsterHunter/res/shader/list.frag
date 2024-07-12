@@ -34,6 +34,9 @@ void main() {
 	//bottom right
     }else if(u_edge == 4 && dist > u_radius && v_texCoord.x > 0.5 && v_texCoord.y < 0.5) {
       discard;
+	//right
+	}else if(u_edge == 5 && dist > u_radius && v_texCoord.x > 0.5) {
+      discard;
 	}	
 	
 	outColor = v_color;

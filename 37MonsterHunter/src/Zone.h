@@ -138,9 +138,9 @@ private:
 
 	const Camera& camera;
 
-	float elapsedTime;
-	int currentFrame;
-	int frameCount;
+	float m_elapsedTime;
+	int m_currentFrame;
+	int m_frameCount;
 
 	std::string m_currentTileset;
 	int m_playerOffset, m_waterOffset, m_coastOffset;

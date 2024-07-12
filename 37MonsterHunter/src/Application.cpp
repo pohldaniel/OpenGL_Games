@@ -727,6 +727,9 @@ void Application::loadAssets() {
 	Globals::fontManager.loadCharacterSet("dialog", "res/fonts/PixeloidSans.ttf", 400, 100, 200, 256, 0, true, 0u);
 	Globals::fontManager.get("dialog").setLinearMipMap();
 	//Globals::fontManager.get("dialog").safeFont("dialog");
+	Globals::fontManager.loadCharacterSet("bold", "res/fonts/dogicapixelbold.otf", 400, 100, 200, 256, 0, true, 0u);
+	Globals::fontManager.get("bold").setLinearMipMap();
+	//Globals::fontManager.get("bold").safeFont("bold");
 
 	Globals::textureManager.loadTexture("forest_1", "res/backgrounds/Forest/plx-1.png");
 	Globals::textureManager.loadTexture("forest_2", "res/backgrounds/Forest/plx-2.png");
