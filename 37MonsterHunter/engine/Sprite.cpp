@@ -5,21 +5,29 @@ Matrix4f Sprite::Orthographic;
 unsigned int Sprite::Vao = 0u;
 unsigned int Sprite::Vbo = 0u;
 
+Sprite::Sprite() : m_shader(nullptr) {
+
+}
+
 void Sprite::draw(const TextureRect& rect, const Vector4f& color) {	
-	SpriteShader->use();
-	SpriteShader->loadMatrix("u_transform", Orthographic * getTransformationSOP());
-	SpriteShader->loadVector("u_color", color);
-	SpriteShader->loadVector("u_texRect", Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureOffsetX + rect.textureWidth, rect.textureOffsetY + rect.textureHeight));
-	SpriteShader->loadInt("u_layer", rect.frame);
+	auto shader = m_shader ? m_shader : SpriteShader.get();
+	
+	shader->use();
+	shader->loadMatrix("u_transform", Orthographic * getTransformationSOP());
+	shader->loadVector("u_color", color);
+	shader->loadVector("u_texRect", Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureOffsetX + rect.textureWidth, rect.textureOffsetY + rect.textureHeight));
+	shader->loadInt("u_layer", rect.frame);
 	DrawQuad();
 }
 
 void Sprite::draw(const Vector4f& color) {
-	SpriteShader->use();
-	SpriteShader->loadMatrix("u_transform", Orthographic * getTransformationSOP());
-	SpriteShader->loadVector("u_color", color);
-	SpriteShader->loadVector("u_texRect", Vector4f(0.0f, 0.0f, 1.0f, 1.0f));
-	SpriteShader->loadInt("u_layer", 0u);
+	auto shader = m_shader ? m_shader : SpriteShader.get();
+
+	shader->use();
+	shader->loadMatrix("u_transform", Orthographic * getTransformationSOP());
+	shader->loadVector("u_color", color);
+	shader->loadVector("u_texRect", Vector4f(0.0f, 0.0f, 1.0f, 1.0f));
+	shader->loadInt("u_layer", 0u);
 	DrawQuad();
 }
 
@@ -102,4 +110,16 @@ Shader* Sprite::GetShader() {
 
 void Sprite::UnuseShader() {
 	SpriteShader->unuse();
+}
+
+void Sprite::setShader(Shader* shader) {
+	m_shader = shader;
+}
+
+Shader* Sprite::getShader() {
+	return m_shader;
+}
+
+void Sprite::resetShader() {
+	m_shader = nullptr;
 }

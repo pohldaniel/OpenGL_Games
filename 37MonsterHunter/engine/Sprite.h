@@ -50,8 +50,14 @@ class Sprite : public Object{
 
 public:
 
+	Sprite();
+
 	void draw(const TextureRect& rect, const Vector4f& color = Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
 	void draw(const Vector4f& color = Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+
+	void setShader(Shader* shader);
+	void resetShader();
+	Shader* getShader();
 
 	static void Init(unsigned int width, unsigned int height);
 	static void Resize(unsigned int width, unsigned int height);
@@ -63,6 +69,7 @@ public:
 private:
 
 	void static DrawQuad();
+	Shader* m_shader;
 
 	static Matrix4f Orthographic;
 	static std::unique_ptr<Shader> SpriteShader;
