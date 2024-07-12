@@ -8,8 +8,8 @@ in vec4 v_color;
 out vec4 outColor;
 
 uniform float u_radius = 5;
-uniform vec2 u_dimensions;
 uniform uint u_edge = 0;
+uniform vec2 u_dimensions;
 
 float calcDistance(vec2 uv) {
 	vec2 pos = (abs(uv - 0.5) + 0.5) * u_dimensions;
@@ -35,5 +35,6 @@ void main() {
     }else if(u_edge == 4 && dist > u_radius && v_texCoord.x > 0.5 && v_texCoord.y < 0.5) {
       discard;
 	}	
+	
 	outColor = v_color;
 }

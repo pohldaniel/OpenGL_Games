@@ -63,36 +63,51 @@ void MonsterIndex::draw() {
 	shader->loadVector("u_dimensions", Vector2f(m_viewWidth * 0.2f, itemHeigt));
 	shader->loadFloat("u_radius", 15.0f);
 
-	for (int i = 0; i < std::min(static_cast<int>(m_names.size()), 6); i++) {
+	m_surface.setShader(shader);
+	for (int i = 0; i < std::min(static_cast<int>(m_names.size()), m_visibleItems); i++) {
 
 		if (i == 0) {
 			shader->loadUnsignedInt("u_edge", Edge::TOP_LEFT);
-		}else if (i == 5) {
-			shader->use();
+		}else if (i == m_visibleItems - 1) {
 			shader->loadUnsignedInt("u_edge", Edge::BOTTOM_LEFT);
 		}else {
-			shader->use();
 			shader->loadUnsignedInt("u_edge", Edge::EDGE_NONE);
 		}
 
-		m_surface.setShader(shader);
 		Vector4f color = i == m_currentSelected ? Vector4f(0.78431f, 0.78431f, 0.78431f, 1.0f) : Vector4f(0.22745f, 0.21568f, 0.23137f, 1.0f);
 		m_surface.setPosition(m_viewWidth * 0.2f, top - i * itemHeigt, 0.0f);
 		m_surface.setScale(m_viewWidth * 0.2f, itemHeigt, 1.0f);
-		m_surface.draw(color);
+		m_surface.draw(color);	
+	}
+
+	m_surface.resetShader();
+	for (int i = 0; i < std::min(static_cast<int>(m_names.size()), m_visibleItems); i++) {
 		
-		m_surface.resetShader();
+		if (i != m_visibleItems - 1) {
+			m_surface.setPosition(m_viewWidth * 0.2f, top - i * itemHeigt, 0.0f);
+			m_surface.setScale(m_viewWidth * 0.2f, 2.0f, 1.0f);
+			m_surface.draw(rects[16], Vector4f(0.29411f, 0.28235f, 0.30196f, 1.0f));
+		}
+
 		const std::tuple<std::string, unsigned int, bool>& currentMonster = m_names[i + m_currentOffset];
 		const TextureRect& rect = rects[std::get<1>(currentMonster)];
 		m_surface.setPosition(m_viewWidth * 0.2f + 45.0f - rect.width * 0.5f, top - i * itemHeigt + (0.5f * itemHeigt - rect.height * 0.5f), 0.0f);
 		m_surface.setScale(rect.width, rect.height, 1.0f);
-		m_surface.draw(rect, std::get<2>(currentMonster) ? Vector4f(1.0f, 0.0f, 0.0f, 1.0f) : Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+		m_surface.draw(rect, std::get<2>(currentMonster) ? Vector4f(1.0f, 0.0f, 0.0f, 1.0f) : Vector4f(1.0f, 1.0f, 1.0f, 1.0f));	
+	}
 
+	m_surface.setPosition(m_viewWidth * 0.4f - 4.0f, top - itemHeigt * static_cast<float>(m_visibleItems - 1), 0.0f);
+	m_surface.setScale(4.0f, itemHeigt * static_cast<float>(m_visibleItems), 1.0f);
+	m_surface.draw(rects[16], Vector4f(0.0f, 0.0f, 0.0f, 0.39216f));
 
+	Globals::fontManager.get("dialog").bind();
+	for (int i = 0; i < std::min(static_cast<int>(m_names.size()), m_visibleItems); i++) {
+		const std::tuple<std::string, unsigned int, bool>& currentMonster = m_names[i + m_currentOffset];
 		Fontrenderer::Get().addText(Globals::fontManager.get("dialog"), m_viewWidth * 0.2f + 90.0f, top - i * itemHeigt + (0.5f * itemHeigt - lineHeight * 0.5f), std::get<0>(currentMonster), std::get<2>(currentMonster) ? Vector4f(1.0f, 0.84313f, 0.0f, 1.0f) : Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 0.045f);
 	}
-	Globals::fontManager.get("dialog").bind();
 	Fontrenderer::Get().drawBuffer();
+
+	
 }
 
 void MonsterIndex::setViewWidth(float viewWidth) {
@@ -117,10 +132,10 @@ void MonsterIndex::processInput() {
 
 	if (keyboard.keyPressed(Keyboard::KEY_DOWN)) {
 		
-		if (static_cast<int>(m_names.size()) - m_currentOffset > 6 && m_currentSelected == 5)
+		if (static_cast<int>(m_names.size()) - m_currentOffset > m_visibleItems && m_currentSelected == m_visibleItems - 1)
 			m_currentOffset++;
 
-		if (m_currentSelected < std::min(static_cast<int>(m_names.size() - 1), 5))
+		if (m_currentSelected < std::min(static_cast<int>(m_names.size() - 1), m_visibleItems - 1))
 			m_currentSelected++;
 
 	}
