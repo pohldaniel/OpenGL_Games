@@ -13,6 +13,25 @@ enum Edge {
 	EDGE_NONE
 };
 
+struct Monster {
+	std::string name;
+	unsigned int level;
+	bool selected;
+};
+
+struct MonsterData {
+	std::string element;
+	unsigned int maxHealth;
+	unsigned int maxEnergy;
+	float attack;
+	float defense;
+	float recovery;
+	float speed;
+	unsigned int graphic;
+	std::unordered_map <std::string, unsigned int> abilities;
+	std::tuple<std::string, unsigned int> evolve;
+};
+
 class MonsterIndex {
 
 public:
@@ -33,7 +52,7 @@ private:
 	void resetAnimation();
 
 	int m_visibleItems;	
-	std::vector<std::tuple<std::string, unsigned int, unsigned int, bool, std::string, unsigned int>> m_names;
+	std::vector<Monster> m_monster;
 	Sprite m_surface;
 	Sprite m_surfaceBar;
 	float m_viewWidth, m_viewHeight;
@@ -41,6 +60,7 @@ private:
 	int m_currentOffset, m_currentSelected, m_beforeSelected;
 
 	std::unordered_map<std::string, Vector4f> m_colorMap;
+	std::unordered_map<std::string, MonsterData> m_monsterData;
 
 	float m_elapsedTime;
 	int m_currentFrame;

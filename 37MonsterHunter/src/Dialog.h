@@ -2,14 +2,11 @@
 #include <functional>
 #include <engine/Camera.h>
 
+#include "MonsterIndex.h"
+
 struct DialogOptions {
 	std::vector<std::string> undefeated;
 	std::vector<std::string> defeated;
-};
-
-struct Monster {
-	std::string name;
-	int level;
 };
 
 struct Trainer {

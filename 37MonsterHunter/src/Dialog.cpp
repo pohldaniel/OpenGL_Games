@@ -40,7 +40,7 @@ DialogTree::DialogTree(const Camera& camera) :
 			rapidjson::GenericArray<true, rapidjson::Value>  monsters = trainer->value["monsters"].GetArray();
 			for (rapidjson::Value::ConstValueIterator monster = monsters.Begin(); monster != monsters.End(); ++monster) {
 				for (rapidjson::Value::ConstMemberIterator iter = monster->MemberBegin(); iter != monster->MemberEnd(); ++iter) {
-					Trainers[trainer->name.GetString()].monsters.push_back({ iter->name.GetString(), iter->value.GetInt() });
+					Trainers[trainer->name.GetString()].monsters.push_back({ iter->name.GetString(), iter->value.GetUint(), false });
 				}
 			}
 		}

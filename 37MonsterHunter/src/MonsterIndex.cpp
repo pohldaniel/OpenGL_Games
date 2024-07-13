@@ -1,3 +1,5 @@
+#include <rapidjson/document.h>
+#include <rapidjson/istreamwrapper.h>
 #include <engine/input/Keyboard.h>
 #include <engine/Fontrenderer.h>
 #include <engine/TileSet.h>
@@ -16,16 +18,46 @@ m_elapsedTime(0.0f),
 m_currentFrame(0),
 m_frameCount(4){
 
-	m_names.push_back({ "Ivieron", 32u, 9u, false, "plant", 72u });
-	m_names.push_back({ "Atrox", 15u, 0u, false, "fire", 0u });
-	m_names.push_back({ "Cindrill", 23u, 2u, false, "fire", 16u });
-	m_names.push_back({ "Atrox", 30u, 0u, false, "fire", 0u });
-	m_names.push_back({ "Sparchu", 13u, 15u, false, "fire", 120u });
-	m_names.push_back({ "Gulfin", 17u, 8u, false, "water", 64u });
-	m_names.push_back({ "Jacana", 16u, 10u, false, "fire", 80u });
-	m_names.push_back({ "Plumette", 9u, 13u, false, "plant", 104u });
-	m_names.push_back({ "Cleaf", 7u, 3u, false, "plant", 24u });
-	m_names.push_back({ "Charmadillo", 3u, 1u, false, "fire", 8u });
+	std::ifstream file("res/monster.json", std::ios::in);
+	if (!file.is_open()) {
+		std::cerr << "Could not open file: " << "res/monster.json" << std::endl;
+	}
+
+	rapidjson::IStreamWrapper streamWrapper(file);
+	rapidjson::Document doc;
+	doc.ParseStream(streamWrapper);
+
+	for (rapidjson::Value::ConstMemberIterator monster = doc.MemberBegin(); monster != doc.MemberEnd(); ++monster) {
+		m_monsterData[monster->name.GetString()].element = monster->value["element"].GetString();
+		m_monsterData[monster->name.GetString()].maxHealth = monster->value["max_health"].GetUint();
+		m_monsterData[monster->name.GetString()].maxEnergy = monster->value["max_energy"].GetUint();
+		m_monsterData[monster->name.GetString()].attack = monster->value["attack"].GetFloat();
+		m_monsterData[monster->name.GetString()].defense = monster->value["defense"].GetFloat();
+		m_monsterData[monster->name.GetString()].recovery = monster->value["recovery"].GetFloat();
+		m_monsterData[monster->name.GetString()].speed = monster->value["speed"].GetFloat();
+		m_monsterData[monster->name.GetString()].graphic = monster->value["graphic"].GetUint();
+
+		for (rapidjson::Value::ConstMemberIterator ability = monster->value["abilities"].MemberBegin(); ability != monster->value["abilities"].MemberEnd(); ++ability) {
+			m_monsterData[monster->name.GetString()].abilities[ability->name.GetString()] = ability->value.GetUint();
+		}
+
+		if (monster->value.HasMember("evolve")) {
+			for (rapidjson::Value::ConstMemberIterator evolve = monster->value["evolve"].MemberBegin(); evolve != monster->value["evolve"].MemberEnd(); ++evolve) {
+				m_monsterData[monster->name.GetString()].evolve = { evolve->name.GetString() , evolve->value.GetUint() };
+			}
+		}
+	}
+
+	m_monster.push_back({ "Ivieron", 32u, false });
+	m_monster.push_back({ "Atrox", 15u, false });
+	m_monster.push_back({ "Cindrill", 23u, false });
+	m_monster.push_back({ "Atrox", 30u, false });
+	m_monster.push_back({ "Sparchu", 13u, false });
+	m_monster.push_back({ "Gulfin", 17u, false });
+	m_monster.push_back({ "Jacana", 16u, false });
+	m_monster.push_back({ "Plumette", 9u, false });
+	m_monster.push_back({ "Cleaf", 3u, false });
+	m_monster.push_back({ "Charmadillo", 3u, false });
 
 	m_colorMap["plant"] = { 0.39215f, 0.66274f, 0.56470f, 1.0f};
 	m_colorMap["fire"] = { 0.97254f, 0.62745f, 0.37647f, 1.0f };
@@ -103,7 +135,7 @@ void MonsterIndex::draw() {
 	shader->loadFloat("u_radius", 12.0f);
 
 	m_surface.setShader(shader);
-	for (int i = 0; i < std::min(static_cast<int>(m_names.size()), m_visibleItems); i++) {
+	for (int i = 0; i < std::min(static_cast<int>(m_monster.size()), m_visibleItems); i++) {
 
 		if (i == 0) {
 			shader->loadUnsignedInt("u_edge", Edge::TOP_LEFT);
@@ -120,7 +152,7 @@ void MonsterIndex::draw() {
 	}
 
 	m_surface.resetShader();
-	for (int i = 0; i < std::min(static_cast<int>(m_names.size()), m_visibleItems); i++) {
+	for (int i = 0; i < std::min(static_cast<int>(m_monster.size()), m_visibleItems); i++) {
 		
 		if (i != m_visibleItems - 1) {
 			m_surface.setPosition(m_viewWidth * 0.2f, top - (i + 1) * itemHeigt, 0.0f);
@@ -128,11 +160,11 @@ void MonsterIndex::draw() {
 			m_surface.draw(rects[16], Vector4f(0.29411f, 0.28235f, 0.30196f, 1.0f));
 		}
 
-		const std::tuple<std::string, unsigned int, unsigned int, bool, std::string, unsigned int>& currentMonster = m_names[i + m_currentOffset];
-		const TextureRect& rect = rects[std::get<2>(currentMonster)];
+		const Monster& currentMonster = m_monster[i + m_currentOffset];
+		const TextureRect& rect = rects[m_monsterData[currentMonster.name].graphic];
 		m_surface.setPosition(m_viewWidth * 0.2f + 45.0f - rect.width * 0.5f, top - i * itemHeigt - 0.5f * (itemHeigt + rect.height), 0.0f);
 		m_surface.setScale(rect.width, rect.height, 1.0f);
-		m_surface.draw(rect, std::get<3>(currentMonster) ? Vector4f(1.0f, 0.0f, 0.0f, 1.0f) : Vector4f(1.0f, 1.0f, 1.0f, 1.0f));	
+		m_surface.draw(rect, currentMonster.selected ? Vector4f(1.0f, 0.0f, 0.0f, 1.0f) : Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
 	}
 
 	m_surface.setPosition(m_viewWidth * 0.4f - 4.0f, bottom, 0.0f);
@@ -140,9 +172,9 @@ void MonsterIndex::draw() {
 	m_surface.draw(rects[16], Vector4f(0.0f, 0.0f, 0.0f, 0.39216f));
 
 	Globals::fontManager.get("dialog").bind();
-	for (int i = 0; i < std::min(static_cast<int>(m_names.size()), m_visibleItems); i++) {
-		const std::tuple<std::string, unsigned int, unsigned int, bool, std::string, unsigned int>& currentMonster = m_names[i + m_currentOffset];
-		Fontrenderer::Get().addText(Globals::fontManager.get("dialog"), m_viewWidth * 0.2f + 90.0f, top - i * itemHeigt - 0.5f * (itemHeigt + lineHeight), std::get<0>(currentMonster), std::get<3>(currentMonster) ? Vector4f(1.0f, 0.84313f, 0.0f, 1.0f) : Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 0.045f);
+	for (int i = 0; i < std::min(static_cast<int>(m_monster.size()), m_visibleItems); i++) {
+		const Monster& currentMonster = m_monster[i + m_currentOffset];
+		Fontrenderer::Get().addText(Globals::fontManager.get("dialog"), m_viewWidth * 0.2f + 90.0f, top - i * itemHeigt - 0.5f * (itemHeigt + lineHeight), currentMonster.name, currentMonster.selected ? Vector4f(1.0f, 0.84313f, 0.0f, 1.0f) : Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 0.045f);
 	}
 	Fontrenderer::Get().drawBuffer();
 
@@ -158,31 +190,31 @@ void MonsterIndex::draw() {
 	m_surface.draw(Vector4f(0.16862f, 0.16078f, 0.17254f, 1.0f));
 
 
-	const std::tuple<std::string, unsigned int, unsigned int, bool, std::string, unsigned int>& currentMonster = m_names[m_currentOffset + m_currentSelected];
+	const Monster& currentMonster = m_monster[m_currentOffset + m_currentSelected];
 	shader->loadVector("u_dimensions", Vector2f(m_viewWidth * 0.4f, m_viewHeight * 0.3f));
 	shader->loadFloat("u_radius", 12.0f);
 	shader->loadUnsignedInt("u_edge", Edge::TOP_RIGHT);
 	m_surface.setPosition(m_viewWidth * 0.4f, bottom + 0.5f * m_viewHeight, 0.0f);
 	m_surface.setScale(m_viewWidth * 0.4f, m_viewHeight * 0.3f, 1.0f);
-	m_surface.draw(m_colorMap[std::get<4>(currentMonster)]);
+	m_surface.draw(m_colorMap[m_monsterData[currentMonster.name].element]);
 
 	Spritesheet::Bind(m_atlasMonster);
-	const TextureRect& rect = TileSetManager::Get().getTileSet("monster").getTextureRects()[std::get<5>(currentMonster) + m_currentFrame];
+	const TextureRect& rect = TileSetManager::Get().getTileSet("monster").getTextureRects()[m_monsterData[currentMonster.name].graphic * 8 + m_currentFrame];
 	m_surface.resetShader();
 	m_surface.setPosition(0.4f * m_viewWidth  + 0.2f * m_viewWidth - 0.5f * rect.width, bottom + 0.5f * m_viewHeight + 0.15f * m_viewHeight - 0.5f * rect.height, 0.0f);
 	m_surface.setScale(rect.width, rect.height, 1.0f);
 	m_surface.draw(rect);
 
 	Globals::fontManager.get("bold").bind();
-	Fontrenderer::Get().addText(Globals::fontManager.get("bold"), 0.4f * m_viewWidth + 10.0f, top - 10.0f - lineHeightBold, std::get<0>(currentMonster), std::get<3>(currentMonster) ? Vector4f(1.0f, 0.84313f, 0.0f, 1.0f) : Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 0.05f);
+	Fontrenderer::Get().addText(Globals::fontManager.get("bold"), 0.4f * m_viewWidth + 10.0f, top - 10.0f - lineHeightBold, currentMonster.name, Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 0.05f);
 	Fontrenderer::Get().drawBuffer();
 
 	Globals::fontManager.get("dialog").bind();
-	Fontrenderer::Get().addText(Globals::fontManager.get("dialog"), 0.4f * m_viewWidth + 10.0f, bottom + 0.5f * m_viewHeight + 10.0f, "Lvl: " + std::to_string(std::get<1>(currentMonster)), std::get<3>(currentMonster) ? Vector4f(1.0f, 0.84313f, 0.0f, 1.0f) : Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 0.045f);
-	Fontrenderer::Get().addText(Globals::fontManager.get("dialog"), 0.8f * m_viewWidth - 0.045f * Globals::fontManager.get("dialog").getWidth(std::get<4>(currentMonster)) - 10.0f, bottom + 0.5f * m_viewHeight + 10.0f, std::get<4>(currentMonster), std::get<3>(currentMonster) ? Vector4f(1.0f, 0.84313f, 0.0f, 1.0f) : Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 0.045f);
+	Fontrenderer::Get().addText(Globals::fontManager.get("dialog"), 0.4f * m_viewWidth + 10.0f, bottom + 0.5f * m_viewHeight + 10.0f, "Lvl: " + std::to_string(currentMonster.level), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 0.045f);
+	Fontrenderer::Get().addText(Globals::fontManager.get("dialog"), 0.8f * m_viewWidth - 0.045f * Globals::fontManager.get("dialog").getWidth(m_monsterData[currentMonster.name].element) - 10.0f, bottom + 0.5f * m_viewHeight + 10.0f, m_monsterData[currentMonster.name].element, Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 0.045f);
 	Fontrenderer::Get().drawBuffer();
 
-	drawBar({ 0.4f * m_viewWidth + 10.0f , bottom + 0.5f * m_viewHeight + 6.0f, 100.0f, 4.0f }, 700.0f, std::get<1>(currentMonster) * 150.0f, Vector4f(0.16862f, 0.16078f, 0.17255f, 1.0f), Vector4f(0.95686f, 0.99608f, 0.98039f, 1.0f), 0.0f);
+	drawBar({ 0.4f * m_viewWidth + 10.0f , bottom + 0.5f * m_viewHeight + 6.0f, 100.0f, 4.0f }, 700.0f, currentMonster.level * 150.0f, Vector4f(0.16862f, 0.16078f, 0.17255f, 1.0f), Vector4f(0.95686f, 0.99608f, 0.98039f, 1.0f), 0.0f);
 }
 
 void MonsterIndex::update(float dt) {
@@ -220,24 +252,24 @@ void MonsterIndex::processInput() {
 	}
 
 	if (keyboard.keyPressed(Keyboard::KEY_DOWN)) {
-		if (static_cast<int>(m_names.size()) - m_currentOffset > m_visibleItems && m_currentSelected == m_visibleItems - 1) {
+		if (static_cast<int>(m_monster.size()) - m_currentOffset > m_visibleItems && m_currentSelected == m_visibleItems - 1) {
 			resetAnimation();
 			m_currentOffset++;
 		}
 
-		if (m_currentSelected < std::min(static_cast<int>(m_names.size() - 1), m_visibleItems - 1)) {
+		if (m_currentSelected < std::min(static_cast<int>(m_monster.size() - 1), m_visibleItems - 1)) {
 			resetAnimation();
 			m_currentSelected++;
 		}
 	}
 
 	if (keyboard.keyPressed(Keyboard::KEY_SPACE)) {
-		std::get<3>(m_names[m_currentOffset + m_currentSelected]) = !std::get<3>(m_names[m_currentOffset + m_currentSelected]);
+		m_monster[m_currentOffset + m_currentSelected].selected = !m_monster[m_currentOffset + m_currentSelected].selected;
 		if (m_beforeSelected != m_currentOffset + m_currentSelected) {
 			if (m_beforeSelected != -1) {
-				std::get<3>(m_names[m_currentOffset + m_currentSelected]) = false;
-				std::get<3>(m_names[m_beforeSelected]) = false;
-				std::iter_swap(m_names.begin() + m_beforeSelected, m_names.begin() + m_currentOffset + m_currentSelected);
+				m_monster[m_currentOffset + m_currentSelected].selected = false;
+				m_monster[m_beforeSelected].selected = false;
+				std::iter_swap(m_monster.begin() + m_beforeSelected, m_monster.begin() + m_currentOffset + m_currentSelected);
 				m_beforeSelected = -1;
 			}else {
 				m_beforeSelected = m_currentOffset + m_currentSelected;

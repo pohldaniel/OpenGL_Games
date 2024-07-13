@@ -1,0 +1,288 @@
+{
+	"Atrox": {
+		"element": "fire", 
+		"max_health": 18, 
+		"max_energy": 20, 
+		"attack": 3.0, 
+		"defense": 10, 
+		"recovery": 1.3, 
+		"speed": 1.9,
+		"graphic": 0,
+		"abilities": {
+			"scratch": 0, 
+			"spark": 5, 
+			"fire": 30
+		}	
+	},
+	
+	"Charmadillo": {
+		"element": "fire", 
+		"max_health": 29, 
+		"max_energy": 12, 
+		"attack": 4.0, 
+		"defense": 17, 
+		"recovery": 1.35, 
+		"speed": 1.1,
+		"graphic": 1,
+		"abilities": {
+			"scratch": 0,
+			"fire": 5,
+			"battlecry": 15,
+			"explosion": 26,
+			"annihilate": 45
+		}
+	},
+
+	"Cindrill": {
+		"element": "fire", 
+		"max_health": 18, 
+		"max_energy": 10, 
+		"attack": 3.5, 
+		"defense": 10, 
+		"recovery": 1.2, 
+		"speed": 1.1,
+		"graphic": 2,
+		"abilities": {
+			"scratch": 0, 
+			"fire": 5, 
+			"battlecry": 15, 
+			"explosion": 26
+		},
+		"evolve": {
+			"Charmadillo": 33
+		}
+	},
+	
+	"Cleaf": {
+		"element": "plant", 
+		"max_health": 18, 
+		"max_energy": 20, 
+		"attack": 3, 
+		"defense": 10, 
+		"recovery": 1.7, 
+		"speed": 1.6,
+		"graphic": 3,
+		"abilities": {
+			"scratch": 0,
+			"heal": 5
+		}
+	},
+	
+	"Draem": {
+		"element": "plant", 
+		"max_health": 23, 
+		"max_energy": 25, 
+		"attack": 4, 
+		"defense": 12, 
+		"recovery": 1.2, 
+		"speed": 1.4,
+		"graphic": 4,
+		"abilities": {
+			"scratch": 0,
+			"heal": 5,
+			"explosion": 20,
+			"splash": 25
+		}
+	},
+	
+	"Finiette": {
+		"element": "water", 
+		"max_health": 27, 
+		"max_energy": 23, 
+		"attack": 4, 
+		"defense": 17, 
+		"recovery": 2, 
+		"speed": 2.5,
+		"graphic": 5,
+		"abilities": {
+			"scratch": 0,
+			"spark": 5,
+			"splash": 15,
+			"ice": 20,
+			"heal": 25
+		}
+	},
+	
+	"Finsta": {
+		"element": "water", 
+		"max_health": 13, 
+		"max_energy": 17, 
+		"attack": 2, 
+		"defense": 8, 
+		"recovery": 1.5, 
+		"speed": 1.8,
+		"graphic": 6,
+		"abilities": {
+			"scratch": 0,
+			"spark": 5,
+			"splash": 15,
+			"ice": 20,
+			"heal": 25
+		},
+		"evolve": {
+			"Gulfin": 34
+		}
+	},
+	
+	"Friolera": {
+		"element": "water", 
+		"max_health": 13, 
+		"max_energy": 20, 
+		"attack": 4, 
+		"defense": 6, 
+		"recovery": 1.3, 
+		"speed": 2,
+		"graphic": 7,
+		"abilities": {
+			"scratch": 0,
+			"spark": 5,
+			"splash": 15,
+			"ice": 20,
+			"heal": 25
+		}
+	},
+
+	"Gulfin": {
+		"element": "water", 
+		"max_health": 18, 
+		"max_energy": 20, 
+		"attack": 3, 
+		"defense": 10, 
+		"recovery": 1.8, 
+		"speed": 2,
+		"graphic": 8,
+		"abilities": {
+			"scratch": 0,
+			"spark": 5,
+			"splash": 15,
+			"ice": 20,
+			"heal":25
+		},
+		"evolve": {
+			"Finiette": 45
+		}
+	},
+	
+	"Ivieron": {
+		"element": "plant", 
+		"max_health": 18, 
+		"max_energy": 20, 
+		"attack": 5, 
+		"defense": 10, 
+		"recovery": 1.2, 
+		"speed": 1.2,
+		"graphic": 9,
+			"abilities": {
+			"scratch": 0,
+			"spark": 5
+		},
+		"evolve": {
+			"Pluma": 32
+		}
+	},
+	
+	"Jacana": {
+		"element": "fire", 
+		"max_health": 12, 
+		"max_energy": 19, 
+		"attack": 3, 
+		"defense": 10, 
+		"recovery": 2.1, 
+		"speed": 2.6,
+		"graphic": 10,
+		"abilities": {
+			"scratch": 0,
+			"spark": 5,
+			"burn": 15,
+			"explosion": 20,
+			"heal": 25
+		}
+	},
+	
+	"Larvea": {
+		"element": "plant", 
+		"max_health": 15, 
+		"max_energy": 17, 
+		"attack": 1, 
+		"defense": 8, 
+		"recovery": 1, 
+		"speed": 1,
+		"graphic": 11,
+		"abilities": {
+			"scratch": 0,
+			"spark": 5
+		},
+		"evolve": {
+			"Cleaf": 4
+		}
+	},
+
+	"Pluma": {
+		"element": "plant", 
+		"max_health": 23,
+		"max_energy": 26, 
+		"attack": 6, 
+		"defense": 12, 
+		"recovery": 1.8, 
+		"speed": 1.8,
+		"graphic": 12,
+		"abilities": {
+			"scratch": 0,
+			"spark": 5
+		}
+	},
+
+	"Plumette": {
+		"element": "plant",
+		"max_health": 15, 
+		"max_energy": 17, 
+		"attack": 4.0, 
+		"defense": 8, 
+		"recovery": 1.0, 
+		"speed": 1.0,
+		"graphic": 13,
+		"abilities": {
+			"scratch" : 0, 
+			"spark": 5
+		},
+		"evolve":{
+			"Ivieron": 15
+		}
+	},
+	
+	"Pouch": {
+		"element": "plant", 
+		"max_health": 23, 
+		"max_energy": 25, 
+		"attack": 4, 
+		"defense": 12, 
+		"recovery": 1, 
+		"speed": 1.5,
+		"graphic": 14,
+		"abilities": {
+			"scratch": 0,
+			"spark": 5,
+			"heal": 25
+		}
+	},
+	
+	"Sparchu": {
+		"element": "fire", 
+		"max_health": 15,
+		"max_energy": 7,
+		"attack": 3, 
+		"defense": 8,
+		"recovery": 1.1, 
+		"speed": 1,
+		"graphic": 15,
+		"abilities": {
+			"scratch": 0,
+			"fire": 5,
+			"battlecry": 15,
+			"explosion": 26
+		},
+		"evolve": {
+			"Cindrill": 15
+		}
+	}
+}
