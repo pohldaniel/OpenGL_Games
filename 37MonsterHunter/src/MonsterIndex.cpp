@@ -54,6 +54,24 @@ m_frameCount(4){
 			}
 		}
 	}
+	file.close();
+
+	file.open("res/attack.json", std::ios::in);
+	if (!file.is_open()) {
+		std::cerr << "Could not open file: " << "res/attack.json" << std::endl;
+	}
+
+	rapidjson::IStreamWrapper streamWrapper2(file);
+	doc.ParseStream(streamWrapper2);
+
+	for (rapidjson::Value::ConstMemberIterator attack = doc.MemberBegin(); attack != doc.MemberEnd(); ++attack) {
+		m_attackData[attack->name.GetString()].target = attack->value["target"].GetString();
+		m_attackData[attack->name.GetString()].amount = attack->value["amount"].GetFloat();
+		m_attackData[attack->name.GetString()].cost = attack->value["cost"].GetFloat();
+		m_attackData[attack->name.GetString()].element = attack->value["element"].GetString();
+		m_attackData[attack->name.GetString()].animation = attack->value["animation"].GetString();
+	}
+	file.close();
 
 	m_monster.push_back({ "Ivieron", 32u, false });
 	m_monster.push_back({ "Atrox", 15u, false });
@@ -64,11 +82,12 @@ m_frameCount(4){
 	m_monster.push_back({ "Jacana", 16u, false });
 	m_monster.push_back({ "Plumette", 9u, false });
 	m_monster.push_back({ "Cleaf", 3u, false });
-	m_monster.push_back({ "Charmadillo", 3u, false });
+	m_monster.push_back({ "Charmadillo", 30u, false });
 
 	m_colorMap["plant"] = { 0.39215f, 0.66274f, 0.56470f, 1.0f};
 	m_colorMap["fire"] = { 0.97254f, 0.62745f, 0.37647f, 1.0f };
 	m_colorMap["water"] = { 0.31372f, 0.69019f, 0.84705f, 1.0f };
+	m_colorMap["normal"] = { 1.0f,1.0f, 1.0f, 1.0f };
 
 	TextureAtlasCreator::Get().init(1024u, 64u);
 	TileSetManager::Get().getTileSet("monster_icon").loadTileCpu("res/tmx/graphics/icons/Atrox.png", false, true, false);
@@ -141,10 +160,18 @@ void MonsterIndex::draw() {
 
 	const std::vector<TextureRect>& rects = TileSetManager::Get().getTileSet("monster_icon").getTextureRects();
 
+	auto shader = Globals::shaderManager.getAssetPointer("list");
+	shader->use();
+	shader->loadVector("u_dimensions", Vector2f(m_viewWidth * 0.6f, m_viewHeight * 0.8f));
+	shader->loadFloat("u_radius", 12.0f);
+	shader->loadUnsignedInt("u_edge", Edge::ALL);
+	
+	m_surface.setShader(shader);
+
 	Globals::spritesheetManager.getAssetPointer("null")->bind();
 	m_surface.setPosition(m_viewWidth * 0.2f, m_viewHeight * 0.1f, 0.0f);
 	m_surface.setScale(m_viewWidth * 0.6f, m_viewHeight * 0.8f, 1.0f);
-	//m_surface.draw(Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
+	m_surface.draw(Vector4f(0.22745f, 0.21568f, 0.23137f, 1.0f));
 
 	Spritesheet::Bind(m_atlasIcons);
 	float itemHeigt = (0.8f * m_viewHeight) / static_cast<float>(m_visibleItems);
@@ -153,12 +180,7 @@ void MonsterIndex::draw() {
 	float lineHeight = static_cast<float>(Globals::fontManager.get("dialog").lineHeight) * 0.045f;
 	float lineHeightBold = static_cast<float>(Globals::fontManager.get("bold").lineHeight) * 0.05f;
 
-	auto shader = Globals::shaderManager.getAssetPointer("list");
-	shader->use();
 	shader->loadVector("u_dimensions", Vector2f(m_viewWidth * 0.2f, itemHeigt));
-	shader->loadFloat("u_radius", 12.0f);
-
-	m_surface.setShader(shader);
 	for (int i = 0; i < std::min(static_cast<int>(m_monster.size()), m_visibleItems); i++) {
 
 		if (i == 0) {
@@ -230,20 +252,20 @@ void MonsterIndex::draw() {
 	m_surface.draw(rect);
 
 	Globals::fontManager.get("bold").bind();
-	Fontrenderer::Get().addText(Globals::fontManager.get("bold"), 0.4f * m_viewWidth + 10.0f, top - 10.0f - lineHeightBold, currentMonster.name, Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 0.05f);
+	Fontrenderer::Get().addText(Globals::fontManager.get("bold"), 0.4f * m_viewWidth + 10.0f, top - 10.0f - lineHeightBold, currentMonster.name, Vector4f(0.95686f, 0.99608f, 0.98039f, 1.0f), 0.05f);
 	Fontrenderer::Get().drawBuffer();
 
 	Globals::fontManager.get("dialog").bind();
-	Fontrenderer::Get().addText(Globals::fontManager.get("dialog"), 0.4f * m_viewWidth + 10.0f, bottom + 0.5f * m_viewHeight + 10.0f, "Lvl: " + std::to_string(currentMonster.level), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 0.045f);
-	Fontrenderer::Get().addText(Globals::fontManager.get("dialog"), 0.8f * m_viewWidth - 0.045f * Globals::fontManager.get("dialog").getWidth(m_monsterData[currentMonster.name].element) - 10.0f, bottom + 0.5f * m_viewHeight + 10.0f, m_monsterData[currentMonster.name].element, Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 0.045f);
+	Fontrenderer::Get().addText(Globals::fontManager.get("dialog"), 0.4f * m_viewWidth + 10.0f, bottom + 0.5f * m_viewHeight + 10.0f, "Lvl: " + std::to_string(currentMonster.level), Vector4f(0.95686f, 0.99608f, 0.98039f, 1.0f), 0.045f);
+	Fontrenderer::Get().addText(Globals::fontManager.get("dialog"), 0.8f * m_viewWidth - 0.045f * Globals::fontManager.get("dialog").getWidth(m_monsterData[currentMonster.name].element) - 10.0f, bottom + 0.5f * m_viewHeight + 10.0f, m_monsterData[currentMonster.name].element, Vector4f(0.95686f, 0.99608f, 0.98039f, 1.0f), 0.045f);
 	Fontrenderer::Get().drawBuffer();
 
 	drawBar({ 0.4f * m_viewWidth + 10.0f , bottom + 0.5f * m_viewHeight + 6.0f, 100.0f, 4.0f }, 700.0f, currentMonster.level * 150.0f, Vector4f(0.16862f, 0.16078f, 0.17255f, 1.0f), Vector4f(0.95686f, 0.99608f, 0.98039f, 1.0f), 0.0f);
 	drawBar({ 0.4f * m_viewWidth + m_viewWidth * 0.4f * 0.25f - m_viewWidth * 0.4f * 0.45f * 0.5f , bottom + 0.5f * m_viewHeight - m_viewWidth * 0.03f - 7.5f, m_viewWidth * 0.4f * 0.45f, 30.0f }, 150.0f, static_cast<float>(currentMonster.level * m_monsterData[currentMonster.name].maxHealth), Vector4f(0.0f, 0.0f, 0.0f, 1.0f), Vector4f(0.94117f, 0.19215f, 0.19215f, 1.0f), 2.0f);
 	drawBar({ 0.4f * m_viewWidth + m_viewWidth * 0.4f * 0.75f - m_viewWidth * 0.4f * 0.45f * 0.5f , bottom + 0.5f * m_viewHeight - m_viewWidth * 0.03f - 7.5f, m_viewWidth * 0.4f * 0.45f, 30.0f }, 150.0f, static_cast<float>(currentMonster.level * m_monsterData[currentMonster.name].maxEnergy), Vector4f(0.0f, 0.0f, 0.0f, 1.0f), Vector4f(0.4f, 0.84313f, 0.93333f, 1.0f), 2.0f);
 	Globals::fontManager.get("dialog").bind();
-	Fontrenderer::Get().addText(Globals::fontManager.get("dialog"), 0.4f * m_viewWidth + m_viewWidth * 0.4f * 0.25f - m_viewWidth * 0.4f * 0.45f * 0.5f + 10.0f, bottom + 0.5f * m_viewHeight - m_viewWidth * 0.03f - lineHeight * 0.5f + 7.5f, "HP: 150/" + std::to_string(currentMonster.level * m_monsterData[currentMonster.name].maxHealth), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 0.045f);
-	Fontrenderer::Get().addText(Globals::fontManager.get("dialog"), 0.4f * m_viewWidth + m_viewWidth * 0.4f * 0.75f - m_viewWidth * 0.4f * 0.45f * 0.5f + 10.0f, bottom + 0.5f * m_viewHeight - m_viewWidth * 0.03f - lineHeight * 0.5f + 7.5f, "EP: 150/" + std::to_string(currentMonster.level * m_monsterData[currentMonster.name].maxEnergy), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 0.045f);
+	Fontrenderer::Get().addText(Globals::fontManager.get("dialog"), 0.4f * m_viewWidth + m_viewWidth * 0.4f * 0.25f - m_viewWidth * 0.4f * 0.45f * 0.5f + 10.0f, bottom + 0.5f * m_viewHeight - m_viewWidth * 0.03f - lineHeight * 0.5f + 7.5f, "HP: 150/" + std::to_string(currentMonster.level * m_monsterData[currentMonster.name].maxHealth), Vector4f(0.95686f, 0.99608f, 0.98039f, 1.0f), 0.045f);
+	Fontrenderer::Get().addText(Globals::fontManager.get("dialog"), 0.4f * m_viewWidth + m_viewWidth * 0.4f * 0.75f - m_viewWidth * 0.4f * 0.45f * 0.5f + 10.0f, bottom + 0.5f * m_viewHeight - m_viewWidth * 0.03f - lineHeight * 0.5f + 7.5f, "EP: 150/" + std::to_string(currentMonster.level * m_monsterData[currentMonster.name].maxEnergy), Vector4f(0.95686f, 0.99608f, 0.98039f, 1.0f), 0.045f);
 	Fontrenderer::Get().drawBuffer();
 
 	float left = 0.4f * m_viewWidth + m_viewWidth * 0.4f * 0.25f - m_viewWidth * 0.4f * 0.45f * 0.5f;
@@ -256,8 +278,6 @@ void MonsterIndex::draw() {
 	m_surface.setPosition(left, bottom + 30.0f, 0.0f);
 	m_surface.setScale(width, height - 60.0f, 1.0f);
 	//m_surface.draw(rects[16], Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
-
-
 	for (size_t i = 0; i < m_stats.size(); i++) {
 		const TextureRect& rect = TileSetManager::Get().getTileSet("monster_icon").getTextureRects()[18 + i];
 		m_surface.setPosition(left + 5.0f, bottom + 30.0f + height - 60.0f - (i + 1) * statHeight + rect.height * 0.5f, 0.0f);
@@ -266,10 +286,10 @@ void MonsterIndex::draw() {
 	}
 
 	Globals::fontManager.get("dialog").bind();
-	Fontrenderer::Get().addText(Globals::fontManager.get("dialog"), left, bottom + 30.0f + height - 60.0f - lineHeight * 0.5f, "Stats", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 0.045f);
+	Fontrenderer::Get().addText(Globals::fontManager.get("dialog"), left, bottom + 30.0f + height - 60.0f - lineHeight * 0.5f, "Stats", Vector4f(0.95686f, 0.99608f, 0.98039f, 1.0f), 0.045f);
 	
 	for (size_t i = 0; i < m_stats.size(); i++) {
-		Fontrenderer::Get().addText(Globals::fontManager.get("dialog"), left + 30.0f, bottom + 30.0f + height - 60.0f - (i + 1) * statHeight + lineHeight * 0.5f - 8.0f, m_stats[i], Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 0.045f);
+		Fontrenderer::Get().addText(Globals::fontManager.get("dialog"), left + 30.0f, bottom + 30.0f + height - 60.0f - (i + 1) * statHeight + lineHeight * 0.5f - 8.0f, m_stats[i], Vector4f(0.95686f, 0.99608f, 0.98039f, 1.0f), 0.045f);
 	}
 	Fontrenderer::Get().drawBuffer();
 
@@ -285,15 +305,13 @@ void MonsterIndex::draw() {
 		else if (i == 4)
 			drawBar({ left + 30.0f, bottom + 30.0f + height - 60.0f - (i + 1) * statHeight - 4.0f, width - 30.0f, 4.0f }, static_cast<float>(currentMonster.level * m_monsterData[currentMonster.name].speed), static_cast<float>(currentMonster.level * m_maxStats[m_stats[i]]), Vector4f(0.0f, 0.0f, 0.0f, 1.0f), Vector4f(0.95686f, 0.99608f, 0.98039f, 1.0f), 0.0f);
 		else if (i == 5)
-			drawBar({ left + 30.0f, bottom + 30.0f + height - 60.0f - (i + 1) * statHeight - 4.0f, width - 30.0f, 4.0f }, static_cast<float>(currentMonster.level * m_monsterData[currentMonster.name].recovery), static_cast<float>(currentMonster.level * m_maxStats[m_stats[i]]), Vector4f(0.0f, 0.0f, 0.0f, 1.0f), Vector4f(0.95686f, 0.99608f, 0.98039f, 1.0f), 0.0f);
-
-	
+			drawBar({ left + 30.0f, bottom + 30.0f + height - 60.0f - (i + 1) * statHeight - 4.0f, width - 30.0f, 4.0f }, static_cast<float>(currentMonster.level * m_monsterData[currentMonster.name].recovery), static_cast<float>(currentMonster.level * m_maxStats[m_stats[i]]), Vector4f(0.0f, 0.0f, 0.0f, 1.0f), Vector4f(0.95686f, 0.99608f, 0.98039f, 1.0f), 0.0f);	
 	}
 
 	left = 0.4f * m_viewWidth + m_viewWidth * 0.4f * 0.75f - m_viewWidth * 0.4f * 0.45f * 0.5f;
 
 	Globals::fontManager.get("dialog").bind();
-	Fontrenderer::Get().addText(Globals::fontManager.get("dialog"), left, bottom + 30.0f + height - 60.0f - lineHeight * 0.5f, "Ability", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 0.045f);
+	Fontrenderer::Get().addText(Globals::fontManager.get("dialog"), left, bottom + 30.0f + height - 60.0f - lineHeight * 0.5f, "Ability", Vector4f(0.95686f, 0.99608f, 0.98039f, 1.0f), 0.045f);
 
 	Spritesheet::Bind(m_atlasIcons);
 	int index = 0;
@@ -318,7 +336,7 @@ void MonsterIndex::draw() {
 		const TextureRect& rect = TileSetManager::Get().getTileSet("monster_icon").getTextureRects()[16];
 		m_surface.setPosition(x - 5.0f, y - 5.0f, 0.0f);
 		m_surface.setScale(Globals::fontManager.get("dialog").getWidth(ability.first) * 0.045f + 10.0f, lineHeight + 10.0f, 1.0f);
-		m_surface.draw(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+		m_surface.draw(m_colorMap[m_attackData[ability.first].element]);
 
 		Fontrenderer::Get().addText(Globals::fontManager.get("dialog"), x, y, ability.first, Vector4f(0.0f, 0.0f, 0.0f, 1.0f), 0.045f);
 		lastAbility = ability.first;

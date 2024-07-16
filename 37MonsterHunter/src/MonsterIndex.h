@@ -1,5 +1,5 @@
 #pragma once
-
+#include<ordered_map.h>
 #include <engine/Sprite.h>
 
 enum Edge {
@@ -28,8 +28,16 @@ struct MonsterData {
 	float recovery;
 	float speed;
 	unsigned int graphic;
-	std::unordered_map <std::string, unsigned int> abilities;
+	tsl::ordered_map<std::string, unsigned int> abilities;
 	std::tuple<std::string, unsigned int> evolve;
+};
+
+struct AttackData {
+	std::string target;
+	float amount;
+	float cost;
+	std::string element;
+	std::string animation;
 };
 
 class MonsterIndex {
@@ -62,6 +70,7 @@ private:
 
 	std::unordered_map<std::string, Vector4f> m_colorMap;
 	std::unordered_map<std::string, MonsterData> m_monsterData;
+	std::unordered_map<std::string, AttackData> m_attackData;
 
 	float m_elapsedTime;
 	int m_currentFrame;
