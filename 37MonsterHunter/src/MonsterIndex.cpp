@@ -52,7 +52,7 @@ m_frameCount(4){
 	m_monster.push_back({ "Atrox", 15u, false });
 	m_monster.push_back({ "Cindrill", 23u, false });
 	m_monster.push_back({ "Atrox", 30u, false });
-	m_monster.push_back({ "Sparchu", 13u, false });
+	m_monster.push_back({ "Sparchu", 24u, false });
 	m_monster.push_back({ "Gulfin", 17u, false });
 	m_monster.push_back({ "Jacana", 16u, false });
 	m_monster.push_back({ "Plumette", 9u, false });
@@ -81,6 +81,7 @@ m_frameCount(4){
 	TileSetManager::Get().getTileSet("monster_icon").loadTileCpu("res/tmx/graphics/icons/Pouch.png", false, true, false);
 	TileSetManager::Get().getTileSet("monster_icon").loadTileCpu("res/tmx/graphics/icons/Sparchu.png", false, true, false);
 	TileSetManager::Get().getTileSet("monster_icon").loadTileCpu("res/tmx/graphics/other/empty.png", false, true, false);
+	TileSetManager::Get().getTileSet("monster_icon").loadTileCpu("res/tmx/graphics/other/bar.png", false, true, false);
 	TileSetManager::Get().getTileSet("monster_icon").loadTileSetGpu();
 	//Spritesheet::Safe("monster_icon", TileSetManager::Get().getTileSet("monster_icon").getAtlas());
 	m_atlasIcons = TileSetManager::Get().getTileSet("monster_icon").getAtlas();
@@ -106,7 +107,14 @@ m_frameCount(4){
 	//Spritesheet::Safe("monster", TileSetManager::Get().getTileSet("monster").getAtlas());
 	m_atlasMonster = TileSetManager::Get().getTileSet("monster").getAtlas();
 
-	m_surfaceBar.setShader(Globals::shaderManager.getAssetPointer("list"));
+	//m_surfaceBar.setShader(Globals::shaderManager.getAssetPointer("list"));
+
+	m_stats.push_back("health");
+	m_stats.push_back("energy");
+	m_stats.push_back("attack");
+	m_stats.push_back("defense");
+	m_stats.push_back("speed");
+	m_stats.push_back("recovery");
 }
 
 MonsterIndex::~MonsterIndex() {
@@ -215,6 +223,34 @@ void MonsterIndex::draw() {
 	Fontrenderer::Get().drawBuffer();
 
 	drawBar({ 0.4f * m_viewWidth + 10.0f , bottom + 0.5f * m_viewHeight + 6.0f, 100.0f, 4.0f }, 700.0f, currentMonster.level * 150.0f, Vector4f(0.16862f, 0.16078f, 0.17255f, 1.0f), Vector4f(0.95686f, 0.99608f, 0.98039f, 1.0f), 0.0f);
+	drawBar({ 0.4f * m_viewWidth + m_viewWidth * 0.4f * 0.25f - m_viewWidth * 0.4f * 0.45f * 0.5f , bottom + 0.5f * m_viewHeight - m_viewWidth * 0.03f - 7.5f, m_viewWidth * 0.4f * 0.45f, 30.0f }, 150.0f, static_cast<float>(currentMonster.level * m_monsterData[currentMonster.name].maxHealth), Vector4f(0.0f, 0.0f, 0.0f, 1.0f), Vector4f(0.94117f, 0.19215f, 0.19215f, 1.0f), 2.0f);
+	drawBar({ 0.4f * m_viewWidth + m_viewWidth * 0.4f * 0.75f - m_viewWidth * 0.4f * 0.45f * 0.5f , bottom + 0.5f * m_viewHeight - m_viewWidth * 0.03f - 7.5f, m_viewWidth * 0.4f * 0.45f, 30.0f }, 150.0f, static_cast<float>(currentMonster.level * m_monsterData[currentMonster.name].maxEnergy), Vector4f(0.0f, 0.0f, 0.0f, 1.0f), Vector4f(0.4f, 0.84313f, 0.93333f, 1.0f), 2.0f);
+	Globals::fontManager.get("dialog").bind();
+	Fontrenderer::Get().addText(Globals::fontManager.get("dialog"), 0.4f * m_viewWidth + m_viewWidth * 0.4f * 0.25f - m_viewWidth * 0.4f * 0.45f * 0.5f + 10.0f, bottom + 0.5f * m_viewHeight - m_viewWidth * 0.03f - lineHeight * 0.5f + 7.5f, "HP: 150/" + std::to_string(currentMonster.level * m_monsterData[currentMonster.name].maxHealth), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 0.045f);
+	Fontrenderer::Get().addText(Globals::fontManager.get("dialog"), 0.4f * m_viewWidth + m_viewWidth * 0.4f * 0.75f - m_viewWidth * 0.4f * 0.45f * 0.5f + 10.0f, bottom + 0.5f * m_viewHeight - m_viewWidth * 0.03f - lineHeight * 0.5f + 7.5f, "EP: 150/" + std::to_string(currentMonster.level * m_monsterData[currentMonster.name].maxEnergy), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 0.045f);
+	Fontrenderer::Get().drawBuffer();
+
+	float left = 0.4f * m_viewWidth + m_viewWidth * 0.4f * 0.25f - m_viewWidth * 0.4f * 0.45f * 0.5f;
+	float width = m_viewWidth * 0.4f * 0.45f;
+	float height =  0.5f * m_viewHeight - m_viewWidth * 0.03f - 7.5f;
+	float statHeight = (height - 60.0f) / static_cast <float>(m_stats.size());
+
+
+	Spritesheet::Bind(m_atlasIcons);
+	m_surface.setPosition(left, bottom + 30.0f, 0.0f);
+	m_surface.setScale(width, height - 60.0f, 1.0f);
+	//m_surface.draw(rects[16], Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
+	Globals::fontManager.get("dialog").bind();
+	Fontrenderer::Get().addText(Globals::fontManager.get("dialog"), left, bottom + 30.0f + height - 60.0f, "Stats", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 0.045f);
+	
+	for (size_t i = 0; i < m_stats.size(); i++) {
+		Fontrenderer::Get().addText(Globals::fontManager.get("dialog"), left, bottom + 30.0f + height - 60.0f - (i + 1) * statHeight, m_stats[i], Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 0.045f);
+
+	}
+	
+	Fontrenderer::Get().drawBuffer();
+
+
 }
 
 void MonsterIndex::update(float dt) {
@@ -286,21 +322,39 @@ void MonsterIndex::resetAnimation() {
 }
 
 void MonsterIndex::drawBar(const Rect& rect, float value, float maxValue, const Vector4f& bgColor, const Vector4f& color, float radius) {
+	
+	
 	float ratio = rect.width / maxValue;
 	float progress = std::max(0.0f, std::min(rect.width, value * ratio));
 
-	auto shader = m_surfaceBar.getShader();
-	shader->use();	
-	shader->loadFloat("u_radius", radius);
-	shader->loadUnsignedInt("u_edge", radius == 0.0f ? Edge::EDGE_NONE : Edge::EDGE_LEFT);
+	if (radius != 0.0f) {
+		m_surfaceBar.setShader(Globals::shaderManager.getAssetPointer("list"));
+		auto shader = m_surfaceBar.getShader();
+		shader->use();
+		shader->loadFloat("u_radius", radius);
+		shader->loadUnsignedInt("u_edge", Edge::ALL);
 
-	shader->loadVector("u_dimensions", Vector2f(rect.width, rect.height));
-	m_surfaceBar.setPosition(rect.posX, rect.posY, 0.0f);
-	m_surfaceBar.setScale(rect.width, rect.height, 1.0f);
-	m_surfaceBar.draw(bgColor);
-		 
-	shader->loadVector("u_dimensions", Vector2f(progress, rect.height));
-	m_surfaceBar.setPosition(rect.posX, rect.posY, 0.0f);
-	m_surfaceBar.setScale(progress, rect.height, 1.0f);
-	m_surfaceBar.draw(color);
+		shader->loadVector("u_dimensions", Vector2f(rect.width, rect.height));
+		m_surfaceBar.setPosition(rect.posX, rect.posY, 0.0f);
+		m_surfaceBar.setScale(rect.width, rect.height, 1.0f);
+		m_surfaceBar.draw(bgColor);
+
+		shader->loadVector("u_dimensions", Vector2f(progress, rect.height));
+		m_surfaceBar.setPosition(rect.posX, rect.posY, 0.0f);
+		m_surfaceBar.setScale(progress, rect.height, 1.0f);
+		m_surfaceBar.draw(color);
+
+	}else {
+		Spritesheet::Bind(m_atlasIcons);
+		m_surfaceBar.resetShader();
+		
+		m_surfaceBar.setPosition(rect.posX, rect.posY, 0.0f);
+		m_surfaceBar.setScale(rect.width, rect.height, 1.0f);
+		m_surfaceBar.draw(TileSetManager::Get().getTileSet("monster_icon").getTextureRects()[17], bgColor);
+
+		m_surfaceBar.setPosition(rect.posX, rect.posY, 0.0f);
+		m_surfaceBar.setScale(progress, rect.height, 1.0f);
+		m_surfaceBar.draw(TileSetManager::Get().getTileSet("monster_icon").getTextureRects()[17], color);
+	}
+	
 }

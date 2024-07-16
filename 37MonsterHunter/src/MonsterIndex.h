@@ -53,6 +53,7 @@ private:
 
 	int m_visibleItems;	
 	std::vector<Monster> m_monster;
+	std::vector<std::string> m_stats;
 	Sprite m_surface;
 	Sprite m_surfaceBar;
 	float m_viewWidth, m_viewHeight;
