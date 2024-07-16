@@ -66,4 +66,6 @@ private:
 	float m_elapsedTime;
 	int m_currentFrame;
 	int m_frameCount;
+
+	std::unordered_map<std::string, float> m_maxStats;
 };
