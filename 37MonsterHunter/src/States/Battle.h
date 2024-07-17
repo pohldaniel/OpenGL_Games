@@ -28,6 +28,7 @@ public:
 	void OnKeyUp(Event::KeyboardEvent& event) override;
 
 	void setMapHeight(float mapHeight);
+	void setViewHeight(float viewHeight);
 
 private:
 

@@ -149,6 +149,8 @@ void MonsterHunter::update() {
 
 	if (keyboard.keyPressed(Keyboard::KEY_T)) {
 		m_machine.addStateAtTop(new Battle(m_machine));
+		static_cast<Battle*>(m_machine.getStates().top())->setMapHeight(m_mapHeight);
+		static_cast<Battle*>(m_machine.getStates().top())->setViewHeight(m_viewHeight);
 	}
 
 	for (Character& character : m_zone.getCharacters()) {

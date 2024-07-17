@@ -46,8 +46,17 @@ Battle::Battle(StateMachine& machine) : State(machine, States::BATTLE), m_mapHei
 
 	m_cells.reserve(6);
 
-	m_cells.push_back({0.0f, 0.0f, 192.0f, 192.0f, 0.0f, });
-	m_monster.push_back(Monster(m_cells[0]));
+	m_cells.push_back({ 360.0f - 96.0f, m_viewHeight - 260.0f - 96.0f, 192.0f, 192.0f, 0 , 360.0f, m_viewHeight - 260.0f, true });
+	m_cells.push_back({ 190.0f - 96.0f, m_viewHeight - 400.0f - 96.0f, 192.0f, 192.0f, 8 , 190.0f, m_viewHeight - 400.0f, true });
+	m_cells.push_back({ 410.0f - 96.0f, m_viewHeight - 520.0f - 96.0f, 192.0f, 192.0f, 16, 410.0f, m_viewHeight - 520.0f, true });
+
+	m_cells.push_back({ 900.0f - 96.0f,  m_viewHeight - 260.0f - 96.0f, 192.0f, 192.0f, 24, 900.0f , m_viewHeight - 260.0f, true });
+	m_cells.push_back({ 1110.0f - 96.0f, m_viewHeight - 390.0f - 96.0f, 192.0f, 192.0f, 32, 1110.0f, m_viewHeight - 390.0f, true });
+	m_cells.push_back({ 900.0f - 96.0f,  m_viewHeight - 550.0f - 96.0f, 192.0f, 192.0f, 40, 900.0f , m_viewHeight - 550.0f, true });
+
+	for (auto& cell : m_cells) {
+		m_monster.push_back(Monster(cell));
+	}
 }
 
 Battle::~Battle() {
@@ -117,6 +126,10 @@ void Battle::update() {
 			m_camera.move(direction * m_dt);
 		}
 	}
+
+	for (auto& monster : m_monster) {
+		monster.update(m_dt);
+	}
 }
 
 void Battle::render() {
@@ -130,14 +143,20 @@ void Battle::render() {
 	shader->loadVector("u_color", Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
 	Globals::shapeManager.get("quad").drawRaw();
 
-
+	int index = 0;
 	Spritesheet::Bind(TileSetManager::Get().getTileSet("monster").getAtlas());
 	const std::vector<TextureRect>& rects = TileSetManager::Get().getTileSet("monster").getTextureRects();
 	for (const Cell& cell : m_cells) {
 		const TextureRect& rect = rects[cell.currentFrame];
-		Batchrenderer::Get().addQuadAA(Vector4f(cell.posX, m_mapHeight - 96.0f - cell.posY, rect.width, rect.height), Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureWidth, rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), rect.frame);
+		if(index < 3)
+			Batchrenderer::Get().addQuadAA(Vector4f(cell.posX, cell.posY, rect.width, rect.height), Vector4f(rect.textureOffsetX + rect.textureWidth, rect.textureOffsetY, -rect.textureWidth, rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), rect.frame);
+		else
+			Batchrenderer::Get().addQuadAA(Vector4f(cell.posX, cell.posY, rect.width, rect.height), Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureWidth, rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), rect.frame);
+		index++;
 	}
+
 	Batchrenderer::Get().drawBuffer();
+
 	if (m_drawUi)
 		renderUi();
 }
@@ -238,4 +257,8 @@ void Battle::renderUi() {
 
 void Battle::setMapHeight(float mapHeight) {
 	m_mapHeight = mapHeight;
+}
+
+void Battle::setViewHeight(float viewHeight) {
+	m_viewHeight = viewHeight;
 }
