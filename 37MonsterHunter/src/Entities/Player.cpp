@@ -134,5 +134,5 @@ const std::vector<Rect>& Player::getCollisionRects() const {
 }
 
 void Player::setIsNoticed(bool isNoticed) {
-	cell.isNoticed = isNoticed;
+	static_cast<CellShadow&>(cell).isNoticed = isNoticed;
 }

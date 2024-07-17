@@ -142,6 +142,11 @@ void Game::update() {
 		m_player.resetOrientation();
 		m_keySet.restorePrevState();
 	}
+
+	if (keyboard.keyPressed(Keyboard::KEY_T)) {
+		Mouse::instance().detach();
+		Keyboard::instance().disable();
+	}
 }
 
 void Game::render() {

@@ -736,6 +736,10 @@ void Application::loadAssets() {
 	Globals::textureManager.loadTexture("forest_3", "res/backgrounds/Forest/plx-3.png");
 	Globals::textureManager.loadTexture("forest_4", "res/backgrounds/Forest/plx-4.png");
 	Globals::textureManager.loadTexture("forest_5", "res/backgrounds/Forest/plx-5.png");
+
+	Globals::textureManager.loadTexture("forest", "res/tmx/graphics/backgrounds/forest.png");
+	Globals::textureManager.loadTexture("sand", "res/tmx/graphics/backgrounds/sand.png");
+	Globals::textureManager.loadTexture("ice", "res/tmx/graphics/backgrounds/ice.png");
 	Globals::textureManager.createNullTexture("null");
 	Globals::spritesheetManager.createNullSpritesheet("null", 2u, 2u, 1u);
 

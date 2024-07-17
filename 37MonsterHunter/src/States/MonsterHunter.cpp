@@ -1,15 +1,15 @@
 #include <numeric>
 #include <imgui.h>
-
 #include <imgui_impl_win32.h>
 #include <imgui_impl_opengl3.h>
 #include <imgui_internal.h>
+#include <tmxlite/Map.hpp>
+#include <tmxlite/TileLayer.hpp>
 #include <engine/Batchrenderer.h>
 #include <engine/Fontrenderer.h>
 #include <engine/TileSet.h>
 #include <States/Menu.h>
-#include <tmxlite/Map.hpp>
-#include <tmxlite/TileLayer.hpp>
+#include <States/Battle.h>
 
 #include "MonsterHunter.h"
 #include "Application.h"
@@ -145,6 +145,10 @@ void MonsterHunter::update() {
 
 	if (m_indexOpen) {
 		m_monsterIndex.processInput();
+	}
+
+	if (keyboard.keyPressed(Keyboard::KEY_T)) {
+		m_machine.addStateAtTop(new Battle(m_machine));
 	}
 
 	for (Character& character : m_zone.getCharacters()) {

@@ -125,6 +125,10 @@ void Game::update() {
 
 	deleteEntities();
 	Light::UpdateLightUbo(BuiltInShader::lightUbo);	
+
+	if (Keyboard::instance().keyPressed(Keyboard::KEY_T)) {
+		Mouse::instance().detach();
+	}
 }
 
 void Game::render() {

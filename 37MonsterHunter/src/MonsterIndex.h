@@ -13,7 +13,7 @@ enum Edge {
 	EDGE_NONE
 };
 
-struct Monster {
+struct MonsterEntry {
 	std::string name;
 	unsigned int level;
 	bool selected;
@@ -60,7 +60,7 @@ private:
 	void resetAnimation();
 
 	int m_visibleItems;	
-	std::vector<Monster> m_monster;
+	std::vector<MonsterEntry> m_monster;
 	std::vector<std::string> m_stats;
 	Sprite m_surface;
 	Sprite m_surfaceBar;

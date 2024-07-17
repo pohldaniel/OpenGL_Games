@@ -35,7 +35,8 @@ Zone::Zone(const Camera& camera) :
 	m_currentFrame(0),
 	m_frameCount(4),
 	m_waterOffset(242),
-	m_coastOffset(246),
+	m_coastOffset(246),	
+	m_mapHeight(0.0f),
 	m_alpha(1.0f),
 	m_fade(m_alpha){
 	initDebug();

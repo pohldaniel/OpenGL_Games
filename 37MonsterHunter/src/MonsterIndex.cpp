@@ -206,7 +206,7 @@ void MonsterIndex::draw() {
 			m_surface.draw(rects[16], Vector4f(0.29411f, 0.28235f, 0.30196f, 1.0f));
 		}
 
-		const Monster& currentMonster = m_monster[i + m_currentOffset];
+		const MonsterEntry& currentMonster = m_monster[i + m_currentOffset];
 		const TextureRect& rect = rects[m_monsterData[currentMonster.name].graphic];
 		m_surface.setPosition(m_viewWidth * 0.2f + 45.0f - rect.width * 0.5f, top - i * itemHeigt - 0.5f * (itemHeigt + rect.height), 0.0f);
 		m_surface.setScale(rect.width, rect.height, 1.0f);
@@ -219,7 +219,7 @@ void MonsterIndex::draw() {
 
 	Globals::fontManager.get("dialog").bind();
 	for (int i = 0; i < std::min(static_cast<int>(m_monster.size()), m_visibleItems); i++) {
-		const Monster& currentMonster = m_monster[i + m_currentOffset];
+		const MonsterEntry& currentMonster = m_monster[i + m_currentOffset];
 		Fontrenderer::Get().addText(Globals::fontManager.get("dialog"), m_viewWidth * 0.2f + 90.0f, top - i * itemHeigt - 0.5f * (itemHeigt + lineHeight), currentMonster.name, currentMonster.selected ? Vector4f(1.0f, 0.84313f, 0.0f, 1.0f) : Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 0.045f);
 	}
 	Fontrenderer::Get().drawBuffer();
@@ -236,7 +236,7 @@ void MonsterIndex::draw() {
 	m_surface.draw(Vector4f(0.16862f, 0.16078f, 0.17254f, 1.0f));
 
 
-	const Monster& currentMonster = m_monster[m_currentOffset + m_currentSelected];
+	const MonsterEntry& currentMonster = m_monster[m_currentOffset + m_currentSelected];
 	shader->loadVector("u_dimensions", Vector2f(m_viewWidth * 0.4f, m_viewHeight * 0.3f));
 	shader->loadFloat("u_radius", 12.0f);
 	shader->loadUnsignedInt("u_edge", Edge::TOP_RIGHT);

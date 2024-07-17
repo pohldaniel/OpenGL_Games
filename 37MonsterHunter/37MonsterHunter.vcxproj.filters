@@ -471,6 +471,12 @@
     <ClCompile Include="src\MonsterIndex.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\States\Battle.cpp">
+      <Filter>Source Files\States</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Entities\Monster.cpp">
+      <Filter>Source Files\Entities</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="convhull\convhull_3d.h">
@@ -901,6 +907,12 @@
     </ClInclude>
     <ClInclude Include="src\MonsterIndex.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\States\Battle.h">
+      <Filter>Source Files\States</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Entities\Monster.h">
+      <Filter>Source Files\Entities</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

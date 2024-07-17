@@ -220,6 +220,7 @@
     <ClCompile Include="src\Entities\Character.cpp" />
     <ClCompile Include="src\Entities\Entity.cpp" />
     <ClCompile Include="src\Entities\MeshEntity.cpp" />
+    <ClCompile Include="src\Entities\Monster.cpp" />
     <ClCompile Include="src\Entities\Player.cpp" />
     <ClCompile Include="src\Entities\ShapeEntity.cpp" />
     <ClCompile Include="src\Entities\Skybox.cpp" />
@@ -228,6 +229,7 @@
     <ClCompile Include="src\Fade.cpp" />
     <ClCompile Include="src\LoadingManager.cpp" />
     <ClCompile Include="src\MonsterIndex.cpp" />
+    <ClCompile Include="src\States\Battle.cpp" />
     <ClCompile Include="src\States\Controls.cpp" />
     <ClCompile Include="src\States\Default.cpp" />
     <ClCompile Include="src\States\MonsterHunter.cpp" />
@@ -407,6 +409,7 @@
     <ClInclude Include="src\Entities\Character.h" />
     <ClInclude Include="src\Entities\Entity.h" />
     <ClInclude Include="src\Entities\MeshEntity.h" />
+    <ClInclude Include="src\Entities\Monster.h" />
     <ClInclude Include="src\Entities\Player.h" />
     <ClInclude Include="src\Entities\ShapeEntity.h" />
     <ClInclude Include="src\Entities\Skybox.h" />
@@ -416,6 +419,7 @@
     <ClInclude Include="src\Globals.h" />
     <ClInclude Include="src\LoadingManager.h" />
     <ClInclude Include="src\MonsterIndex.h" />
+    <ClInclude Include="src\States\Battle.h" />
     <ClInclude Include="src\States\Controls.h" />
     <ClInclude Include="src\States\Default.h" />
     <ClInclude Include="src\States\MonsterHunter.h" />

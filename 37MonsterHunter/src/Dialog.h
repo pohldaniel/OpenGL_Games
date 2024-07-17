@@ -10,7 +10,7 @@ struct DialogOptions {
 };
 
 struct Trainer {
-	std::vector<Monster> monsters;
+	std::vector<MonsterEntry> monsters;
 	DialogOptions dialog;
 	std::vector<ViewDirection> viewDirections;
 	bool lookAround;
