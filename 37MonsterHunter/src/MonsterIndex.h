@@ -54,13 +54,16 @@ public:
 	void setViewHeight(float viewHeight);
 
 	void drawBar(const Rect& rect, float value, float maxValue, const Vector4f& bgColor, const Vector4f& color, float radius = 1.0f);
+	void drawBar(const Rect& rect, const TextureRect& textureRect, float value, float maxValue, const Vector4f& bgColor, const Vector4f& color);
+
+	static std::unordered_map<std::string, MonsterData> MonsterData;
+	static std::vector<MonsterEntry> Monster;
 
 private:
 
 	void resetAnimation();
-
 	int m_visibleItems;	
-	std::vector<MonsterEntry> m_monster;
+
 	std::vector<std::string> m_stats;
 	Sprite m_surface;
 	Sprite m_surfaceBar;
@@ -69,7 +72,7 @@ private:
 	int m_currentOffset, m_currentSelected, m_beforeSelected;
 
 	std::unordered_map<std::string, Vector4f> m_colorMap;
-	std::unordered_map<std::string, MonsterData> m_monsterData;
+	
 	std::unordered_map<std::string, AttackData> m_attackData;
 
 	float m_elapsedTime;

@@ -34,11 +34,12 @@ struct Cell {
 	float centerX;
 	float centerY;
 	bool visibile;
+	bool flipped;
 };
 
 struct CellShadow : public Cell {
 
-	CellShadow(float _posX, float _posY, float _width, float _height, int _currentFrame, float _centerX, float _centerY, bool _visibile, bool _isNoticed, bool hasShadow) : hasShadow(hasShadow), isNoticed(_isNoticed) {
+	CellShadow(float _posX, float _posY, float _width, float _height, int _currentFrame, float _centerX, float _centerY, bool _visibile, bool _flipped, bool isNoticed, bool hasShadow) : hasShadow(hasShadow), isNoticed(isNoticed) {
 		posX = _posX;
 		posY = _posY;
 		width = _width;
@@ -47,6 +48,7 @@ struct CellShadow : public Cell {
 		centerX = _centerX;
 		centerY = _centerY;		
 		visibile = _visibile;
+		flipped = _flipped;
 	}	
 	bool hasShadow;
 	bool isNoticed;

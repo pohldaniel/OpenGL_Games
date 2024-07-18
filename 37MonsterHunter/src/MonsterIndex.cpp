@@ -7,6 +7,9 @@
 #include "MonsterIndex.h"
 #include "Globals.h"
 
+std::unordered_map<std::string, MonsterData> MonsterIndex::MonsterData;
+std::vector<MonsterEntry> MonsterIndex::Monster;
+
 MonsterIndex::MonsterIndex() : 
 m_visibleItems(6), 
 m_viewWidth(0.0f), 
@@ -28,29 +31,29 @@ m_frameCount(4){
 	doc.ParseStream(streamWrapper);
 
 	for (rapidjson::Value::ConstMemberIterator monster = doc.MemberBegin(); monster != doc.MemberEnd(); ++monster) {
-		m_monsterData[monster->name.GetString()].element = monster->value["element"].GetString();
-		m_monsterData[monster->name.GetString()].maxHealth = monster->value["max_health"].GetUint();
-		m_monsterData[monster->name.GetString()].maxEnergy = monster->value["max_energy"].GetUint();
-		m_monsterData[monster->name.GetString()].attack = monster->value["attack"].GetFloat();
-		m_monsterData[monster->name.GetString()].defense = monster->value["defense"].GetFloat();
-		m_monsterData[monster->name.GetString()].recovery = monster->value["recovery"].GetFloat();
-		m_monsterData[monster->name.GetString()].speed = monster->value["speed"].GetFloat();
-		m_monsterData[monster->name.GetString()].graphic = monster->value["graphic"].GetUint();
+		MonsterData[monster->name.GetString()].element = monster->value["element"].GetString();
+		MonsterData[monster->name.GetString()].maxHealth = monster->value["max_health"].GetUint();
+		MonsterData[monster->name.GetString()].maxEnergy = monster->value["max_energy"].GetUint();
+		MonsterData[monster->name.GetString()].attack = monster->value["attack"].GetFloat();
+		MonsterData[monster->name.GetString()].defense = monster->value["defense"].GetFloat();
+		MonsterData[monster->name.GetString()].recovery = monster->value["recovery"].GetFloat();
+		MonsterData[monster->name.GetString()].speed = monster->value["speed"].GetFloat();
+		MonsterData[monster->name.GetString()].graphic = monster->value["graphic"].GetUint();
 
-		m_maxStats["health"] = std::max(m_maxStats["health"], static_cast<float>(m_monsterData[monster->name.GetString()].maxHealth));
-		m_maxStats["energy"] = std::max(m_maxStats["energy"], static_cast<float>(m_monsterData[monster->name.GetString()].maxEnergy));
-		m_maxStats["attack"] = std::max(m_maxStats["attack"], m_monsterData[monster->name.GetString()].attack);
-		m_maxStats["defense"] = std::max(m_maxStats["defense"], m_monsterData[monster->name.GetString()].defense);
-		m_maxStats["speed"] = std::max(m_maxStats["speed"], m_monsterData[monster->name.GetString()].speed);
-		m_maxStats["recovery"] = std::max(m_maxStats["recovery"], m_monsterData[monster->name.GetString()].recovery);
+		m_maxStats["health"] = std::max(m_maxStats["health"], static_cast<float>(MonsterData[monster->name.GetString()].maxHealth));
+		m_maxStats["energy"] = std::max(m_maxStats["energy"], static_cast<float>(MonsterData[monster->name.GetString()].maxEnergy));
+		m_maxStats["attack"] = std::max(m_maxStats["attack"], MonsterData[monster->name.GetString()].attack);
+		m_maxStats["defense"] = std::max(m_maxStats["defense"], MonsterData[monster->name.GetString()].defense);
+		m_maxStats["speed"] = std::max(m_maxStats["speed"], MonsterData[monster->name.GetString()].speed);
+		m_maxStats["recovery"] = std::max(m_maxStats["recovery"], MonsterData[monster->name.GetString()].recovery);
 
 		for (rapidjson::Value::ConstMemberIterator ability = monster->value["abilities"].MemberBegin(); ability != monster->value["abilities"].MemberEnd(); ++ability) {
-			m_monsterData[monster->name.GetString()].abilities[ability->name.GetString()] = ability->value.GetUint();
+			MonsterData[monster->name.GetString()].abilities[ability->name.GetString()] = ability->value.GetUint();
 		}
 
 		if (monster->value.HasMember("evolve")) {
 			for (rapidjson::Value::ConstMemberIterator evolve = monster->value["evolve"].MemberBegin(); evolve != monster->value["evolve"].MemberEnd(); ++evolve) {
-				m_monsterData[monster->name.GetString()].evolve = { evolve->name.GetString() , evolve->value.GetUint() };
+				MonsterData[monster->name.GetString()].evolve = { evolve->name.GetString() , evolve->value.GetUint() };
 			}
 		}
 	}
@@ -73,16 +76,16 @@ m_frameCount(4){
 	}
 	file.close();
 
-	m_monster.push_back({ "Ivieron", 32u, false });
-	m_monster.push_back({ "Atrox", 15u, false });
-	m_monster.push_back({ "Cindrill", 23u, false });
-	m_monster.push_back({ "Atrox", 30u, false });
-	m_monster.push_back({ "Sparchu", 24u, false });
-	m_monster.push_back({ "Gulfin", 17u, false });
-	m_monster.push_back({ "Jacana", 16u, false });
-	m_monster.push_back({ "Plumette", 9u, false });
-	m_monster.push_back({ "Cleaf", 3u, false });
-	m_monster.push_back({ "Charmadillo", 30u, false });
+	Monster.push_back({ "Ivieron", 32u, false });
+	Monster.push_back({ "Atrox", 15u, false });
+	Monster.push_back({ "Cindrill", 23u, false });
+	Monster.push_back({ "Atrox", 30u, false });
+	Monster.push_back({ "Sparchu", 24u, false });
+	Monster.push_back({ "Gulfin", 17u, false });
+	Monster.push_back({ "Jacana", 16u, false });
+	Monster.push_back({ "Plumette", 9u, false });
+	Monster.push_back({ "Cleaf", 3u, false });
+	Monster.push_back({ "Charmadillo", 30u, false });
 
 	m_colorMap["plant"] = { 0.39215f, 0.66274f, 0.56470f, 1.0f};
 	m_colorMap["fire"] = { 0.97254f, 0.62745f, 0.37647f, 1.0f };
@@ -107,7 +110,12 @@ m_frameCount(4){
 	TileSetManager::Get().getTileSet("monster_icon").loadTileCpu("res/tmx/graphics/icons/Pouch.png", false, true, false);
 	TileSetManager::Get().getTileSet("monster_icon").loadTileCpu("res/tmx/graphics/icons/Sparchu.png", false, true, false);
 	TileSetManager::Get().getTileSet("monster_icon").loadTileCpu("res/tmx/graphics/other/empty.png", false, true, false);
-	TileSetManager::Get().getTileSet("monster_icon").loadTileCpu("res/tmx/graphics/other/bar.png", false, true, false);
+	TileSetManager::Get().getTileSet("monster_icon").loadTileCpu("res/tmx/graphics/other/bar_200.png", false, true, false);
+	TileSetManager::Get().getTileSet("monster_icon").loadTileCpu("res/tmx/graphics/other/bar_100.png", false, true, false);
+	TileSetManager::Get().getTileSet("monster_icon").loadTileCpu("res/tmx/graphics/other/bar_60.png", false, true, false);
+	TileSetManager::Get().getTileSet("monster_icon").loadTileCpu("res/tmx/graphics/other/bar_10.png", false, true, false);
+	TileSetManager::Get().getTileSet("monster_icon").loadTileCpu("res/tmx/graphics/other/bar_5.png", false, true, false);
+	TileSetManager::Get().getTileSet("monster_icon").loadTileCpu("res/tmx/graphics/other/bar_2.png", false, true, false);
 
 	TileSetManager::Get().getTileSet("monster_icon").loadTileCpu("res/tmx/graphics/ui/health.png", false, true, false);
 	TileSetManager::Get().getTileSet("monster_icon").loadTileCpu("res/tmx/graphics/ui/energy.png", false, true, false);
@@ -138,6 +146,8 @@ m_frameCount(4){
 	TileSetManager::Get().getTileSet("monster").loadTileSetCpu("res/tmx/graphics/monsters/Plumette.png", false, 192.0f, 192.0f, true, false);
 	TileSetManager::Get().getTileSet("monster").loadTileSetCpu("res/tmx/graphics/monsters/Pouch.png", false, 192.0f, 192.0f, true, false);
 	TileSetManager::Get().getTileSet("monster").loadTileSetCpu("res/tmx/graphics/monsters/Sparchu.png", false, 192.0f, 192.0f, true, false);
+	TileSetManager::Get().getTileSet("monster").loadTileCpu("res/tmx/graphics/other/bar_60.png", false, true, false);
+	TileSetManager::Get().getTileSet("monster").loadTileCpu("res/tmx/graphics/other/empty.png", false, true, false);
 	TileSetManager::Get().getTileSet("monster").loadTileSetGpu();
 	//Spritesheet::Safe("monster", TileSetManager::Get().getTileSet("monster").getAtlas());
 	m_atlasMonster = TileSetManager::Get().getTileSet("monster").getAtlas();
@@ -181,7 +191,7 @@ void MonsterIndex::draw() {
 	float lineHeightBold = static_cast<float>(Globals::fontManager.get("bold").lineHeight) * 0.05f;
 
 	shader->loadVector("u_dimensions", Vector2f(m_viewWidth * 0.2f, itemHeigt));
-	for (int i = 0; i < std::min(static_cast<int>(m_monster.size()), m_visibleItems); i++) {
+	for (int i = 0; i < std::min(static_cast<int>(Monster.size()), m_visibleItems); i++) {
 
 		if (i == 0) {
 			shader->loadUnsignedInt("u_edge", Edge::TOP_LEFT);
@@ -198,7 +208,7 @@ void MonsterIndex::draw() {
 	}
 
 	m_surface.resetShader();
-	for (int i = 0; i < std::min(static_cast<int>(m_monster.size()), m_visibleItems); i++) {
+	for (int i = 0; i < std::min(static_cast<int>(Monster.size()), m_visibleItems); i++) {
 		
 		if (i != m_visibleItems - 1) {
 			m_surface.setPosition(m_viewWidth * 0.2f, top - (i + 1) * itemHeigt, 0.0f);
@@ -206,8 +216,8 @@ void MonsterIndex::draw() {
 			m_surface.draw(rects[16], Vector4f(0.29411f, 0.28235f, 0.30196f, 1.0f));
 		}
 
-		const MonsterEntry& currentMonster = m_monster[i + m_currentOffset];
-		const TextureRect& rect = rects[m_monsterData[currentMonster.name].graphic];
+		const MonsterEntry& currentMonster = Monster[i + m_currentOffset];
+		const TextureRect& rect = rects[MonsterData[currentMonster.name].graphic];
 		m_surface.setPosition(m_viewWidth * 0.2f + 45.0f - rect.width * 0.5f, top - i * itemHeigt - 0.5f * (itemHeigt + rect.height), 0.0f);
 		m_surface.setScale(rect.width, rect.height, 1.0f);
 		m_surface.draw(rect, currentMonster.selected ? Vector4f(1.0f, 0.0f, 0.0f, 1.0f) : Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
@@ -218,8 +228,8 @@ void MonsterIndex::draw() {
 	m_surface.draw(rects[16], Vector4f(0.0f, 0.0f, 0.0f, 0.39216f));
 
 	Globals::fontManager.get("dialog").bind();
-	for (int i = 0; i < std::min(static_cast<int>(m_monster.size()), m_visibleItems); i++) {
-		const MonsterEntry& currentMonster = m_monster[i + m_currentOffset];
+	for (int i = 0; i < std::min(static_cast<int>(Monster.size()), m_visibleItems); i++) {
+		const MonsterEntry& currentMonster = Monster[i + m_currentOffset];
 		Fontrenderer::Get().addText(Globals::fontManager.get("dialog"), m_viewWidth * 0.2f + 90.0f, top - i * itemHeigt - 0.5f * (itemHeigt + lineHeight), currentMonster.name, currentMonster.selected ? Vector4f(1.0f, 0.84313f, 0.0f, 1.0f) : Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 0.045f);
 	}
 	Fontrenderer::Get().drawBuffer();
@@ -236,16 +246,16 @@ void MonsterIndex::draw() {
 	m_surface.draw(Vector4f(0.16862f, 0.16078f, 0.17254f, 1.0f));
 
 
-	const MonsterEntry& currentMonster = m_monster[m_currentOffset + m_currentSelected];
+	const MonsterEntry& currentMonster = Monster[m_currentOffset + m_currentSelected];
 	shader->loadVector("u_dimensions", Vector2f(m_viewWidth * 0.4f, m_viewHeight * 0.3f));
 	shader->loadFloat("u_radius", 12.0f);
 	shader->loadUnsignedInt("u_edge", Edge::TOP_RIGHT);
 	m_surface.setPosition(m_viewWidth * 0.4f, bottom + 0.5f * m_viewHeight, 0.0f);
 	m_surface.setScale(m_viewWidth * 0.4f, m_viewHeight * 0.3f, 1.0f);
-	m_surface.draw(m_colorMap[m_monsterData[currentMonster.name].element]);
+	m_surface.draw(m_colorMap[MonsterData[currentMonster.name].element]);
 
 	Spritesheet::Bind(m_atlasMonster);
-	const TextureRect& rect = TileSetManager::Get().getTileSet("monster").getTextureRects()[m_monsterData[currentMonster.name].graphic * 8 + m_currentFrame];
+	const TextureRect& rect = TileSetManager::Get().getTileSet("monster").getTextureRects()[MonsterData[currentMonster.name].graphic * 8 + m_currentFrame];
 	m_surface.resetShader();
 	m_surface.setPosition(0.4f * m_viewWidth  + 0.2f * m_viewWidth - 0.5f * rect.width, bottom + 0.5f * m_viewHeight + 0.15f * m_viewHeight - 0.5f * rect.height, 0.0f);
 	m_surface.setScale(rect.width, rect.height, 1.0f);
@@ -257,15 +267,17 @@ void MonsterIndex::draw() {
 
 	Globals::fontManager.get("dialog").bind();
 	Fontrenderer::Get().addText(Globals::fontManager.get("dialog"), 0.4f * m_viewWidth + 10.0f, bottom + 0.5f * m_viewHeight + 10.0f, "Lvl: " + std::to_string(currentMonster.level), Vector4f(0.95686f, 0.99608f, 0.98039f, 1.0f), 0.045f);
-	Fontrenderer::Get().addText(Globals::fontManager.get("dialog"), 0.8f * m_viewWidth - 0.045f * Globals::fontManager.get("dialog").getWidth(m_monsterData[currentMonster.name].element) - 10.0f, bottom + 0.5f * m_viewHeight + 10.0f, m_monsterData[currentMonster.name].element, Vector4f(0.95686f, 0.99608f, 0.98039f, 1.0f), 0.045f);
+	Fontrenderer::Get().addText(Globals::fontManager.get("dialog"), 0.8f * m_viewWidth - 0.045f * Globals::fontManager.get("dialog").getWidth(MonsterData[currentMonster.name].element) - 10.0f, bottom + 0.5f * m_viewHeight + 10.0f, MonsterData[currentMonster.name].element, Vector4f(0.95686f, 0.99608f, 0.98039f, 1.0f), 0.045f);
 	Fontrenderer::Get().drawBuffer();
 
-	drawBar({ 0.4f * m_viewWidth + 10.0f , bottom + 0.5f * m_viewHeight + 6.0f, 100.0f, 4.0f }, 700.0f, currentMonster.level * 150.0f, Vector4f(0.16862f, 0.16078f, 0.17255f, 1.0f), Vector4f(0.95686f, 0.99608f, 0.98039f, 1.0f), 0.0f);
-	drawBar({ 0.4f * m_viewWidth + m_viewWidth * 0.4f * 0.25f - m_viewWidth * 0.4f * 0.45f * 0.5f , bottom + 0.5f * m_viewHeight - m_viewWidth * 0.03f - 7.5f, m_viewWidth * 0.4f * 0.45f, 30.0f }, 150.0f, static_cast<float>(currentMonster.level * m_monsterData[currentMonster.name].maxHealth), Vector4f(0.0f, 0.0f, 0.0f, 1.0f), Vector4f(0.94117f, 0.19215f, 0.19215f, 1.0f), 2.0f);
-	drawBar({ 0.4f * m_viewWidth + m_viewWidth * 0.4f * 0.75f - m_viewWidth * 0.4f * 0.45f * 0.5f , bottom + 0.5f * m_viewHeight - m_viewWidth * 0.03f - 7.5f, m_viewWidth * 0.4f * 0.45f, 30.0f }, 150.0f, static_cast<float>(currentMonster.level * m_monsterData[currentMonster.name].maxEnergy), Vector4f(0.0f, 0.0f, 0.0f, 1.0f), Vector4f(0.4f, 0.84313f, 0.93333f, 1.0f), 2.0f);
+	const TextureRect& bar100 = TileSetManager::Get().getTileSet("monster_icon").getTextureRects()[17];
+	drawBar({ 0.4f * m_viewWidth + 10.0f , bottom + 0.5f * m_viewHeight + 6.0f, 100.0f, 5.0f }, bar100, 700.0f, currentMonster.level * 150.0f, Vector4f(0.16862f, 0.16078f, 0.17255f, 1.0f), Vector4f(0.95686f, 0.99608f, 0.98039f, 1.0f));
+	
+	drawBar({ 0.4f * m_viewWidth + m_viewWidth * 0.4f * 0.25f - m_viewWidth * 0.4f * 0.45f * 0.5f , bottom + 0.5f * m_viewHeight - m_viewWidth * 0.03f - 7.5f, m_viewWidth * 0.4f * 0.45f, 30.0f }, 150.0f, static_cast<float>(currentMonster.level * MonsterData[currentMonster.name].maxHealth), Vector4f(0.0f, 0.0f, 0.0f, 1.0f), Vector4f(0.94117f, 0.19215f, 0.19215f, 1.0f), 2.0f);
+	drawBar({ 0.4f * m_viewWidth + m_viewWidth * 0.4f * 0.75f - m_viewWidth * 0.4f * 0.45f * 0.5f , bottom + 0.5f * m_viewHeight - m_viewWidth * 0.03f - 7.5f, m_viewWidth * 0.4f * 0.45f, 30.0f }, 150.0f, static_cast<float>(currentMonster.level * MonsterData[currentMonster.name].maxEnergy), Vector4f(0.0f, 0.0f, 0.0f, 1.0f), Vector4f(0.4f, 0.84313f, 0.93333f, 1.0f), 2.0f);
 	Globals::fontManager.get("dialog").bind();
-	Fontrenderer::Get().addText(Globals::fontManager.get("dialog"), 0.4f * m_viewWidth + m_viewWidth * 0.4f * 0.25f - m_viewWidth * 0.4f * 0.45f * 0.5f + 10.0f, bottom + 0.5f * m_viewHeight - m_viewWidth * 0.03f - lineHeight * 0.5f + 7.5f, "HP: 150/" + std::to_string(currentMonster.level * m_monsterData[currentMonster.name].maxHealth), Vector4f(0.95686f, 0.99608f, 0.98039f, 1.0f), 0.045f);
-	Fontrenderer::Get().addText(Globals::fontManager.get("dialog"), 0.4f * m_viewWidth + m_viewWidth * 0.4f * 0.75f - m_viewWidth * 0.4f * 0.45f * 0.5f + 10.0f, bottom + 0.5f * m_viewHeight - m_viewWidth * 0.03f - lineHeight * 0.5f + 7.5f, "EP: 150/" + std::to_string(currentMonster.level * m_monsterData[currentMonster.name].maxEnergy), Vector4f(0.95686f, 0.99608f, 0.98039f, 1.0f), 0.045f);
+	Fontrenderer::Get().addText(Globals::fontManager.get("dialog"), 0.4f * m_viewWidth + m_viewWidth * 0.4f * 0.25f - m_viewWidth * 0.4f * 0.45f * 0.5f + 10.0f, bottom + 0.5f * m_viewHeight - m_viewWidth * 0.03f - lineHeight * 0.5f + 7.5f, "HP: 150/" + std::to_string(currentMonster.level * MonsterData[currentMonster.name].maxHealth), Vector4f(0.95686f, 0.99608f, 0.98039f, 1.0f), 0.045f);
+	Fontrenderer::Get().addText(Globals::fontManager.get("dialog"), 0.4f * m_viewWidth + m_viewWidth * 0.4f * 0.75f - m_viewWidth * 0.4f * 0.45f * 0.5f + 10.0f, bottom + 0.5f * m_viewHeight - m_viewWidth * 0.03f - lineHeight * 0.5f + 7.5f, "EP: 150/" + std::to_string(currentMonster.level * MonsterData[currentMonster.name].maxEnergy), Vector4f(0.95686f, 0.99608f, 0.98039f, 1.0f), 0.045f);
 	Fontrenderer::Get().drawBuffer();
 
 	float left = 0.4f * m_viewWidth + m_viewWidth * 0.4f * 0.25f - m_viewWidth * 0.4f * 0.45f * 0.5f;
@@ -279,7 +291,7 @@ void MonsterIndex::draw() {
 	m_surface.setScale(width, height - 60.0f, 1.0f);
 	//m_surface.draw(rects[16], Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
 	for (size_t i = 0; i < m_stats.size(); i++) {
-		const TextureRect& rect = TileSetManager::Get().getTileSet("monster_icon").getTextureRects()[18 + i];
+		const TextureRect& rect = TileSetManager::Get().getTileSet("monster_icon").getTextureRects()[23 + i];
 		m_surface.setPosition(left + 5.0f, bottom + 30.0f + height - 60.0f - (i + 1) * statHeight + rect.height * 0.5f, 0.0f);
 		m_surface.setScale(rect.width, rect.height, 1.0f);
 		m_surface.draw(rect);
@@ -293,19 +305,20 @@ void MonsterIndex::draw() {
 	}
 	Fontrenderer::Get().drawBuffer();
 
+	const TextureRect& bar200 = TileSetManager::Get().getTileSet("monster_icon").getTextureRects()[17];
 	for (size_t i = 0; i < m_stats.size(); i++) {
 		if(i == 0)
-			drawBar({ left + 30.0f, bottom + 30.0f + height - 60.0f - (i + 1) * statHeight - 4.0f, width - 30.0f, 4.0f }, static_cast<float>(currentMonster.level * m_monsterData[currentMonster.name].maxHealth), static_cast<float>(currentMonster.level * m_maxStats[m_stats[i]]), Vector4f(0.0f, 0.0f, 0.0f, 1.0f), Vector4f(0.95686f, 0.99608f, 0.98039f, 1.0f), 0.0f);
+			drawBar({ left + 30.0f, bottom + 30.0f + height - 60.0f - (i + 1) * statHeight - 4.0f, width - 30.0f, 5.0f }, bar200, static_cast<float>(currentMonster.level * MonsterData[currentMonster.name].maxHealth), static_cast<float>(currentMonster.level * m_maxStats[m_stats[i]]), Vector4f(0.0f, 0.0f, 0.0f, 1.0f), Vector4f(0.95686f, 0.99608f, 0.98039f, 1.0f));
 		else if(i == 1)
-			drawBar({ left + 30.0f, bottom + 30.0f + height - 60.0f - (i + 1) * statHeight - 4.0f, width - 30.0f, 4.0f }, static_cast<float>(currentMonster.level * m_monsterData[currentMonster.name].maxEnergy), static_cast<float>(currentMonster.level * m_maxStats[m_stats[i]]), Vector4f(0.0f, 0.0f, 0.0f, 1.0f), Vector4f(0.95686f, 0.99608f, 0.98039f, 1.0f), 0.0f);
+			drawBar({ left + 30.0f, bottom + 30.0f + height - 60.0f - (i + 1) * statHeight - 4.0f, width - 30.0f, 5.0f }, bar200, static_cast<float>(currentMonster.level * MonsterData[currentMonster.name].maxEnergy), static_cast<float>(currentMonster.level * m_maxStats[m_stats[i]]), Vector4f(0.0f, 0.0f, 0.0f, 1.0f), Vector4f(0.95686f, 0.99608f, 0.98039f, 1.0f));
 		else if (i == 2)
-			drawBar({ left + 30.0f, bottom + 30.0f + height - 60.0f - (i + 1) * statHeight - 4.0f, width - 30.0f, 4.0f }, static_cast<float>(currentMonster.level * m_monsterData[currentMonster.name].attack), static_cast<float>(currentMonster.level * m_maxStats[m_stats[i]]), Vector4f(0.0f, 0.0f, 0.0f, 1.0f), Vector4f(0.95686f, 0.99608f, 0.98039f, 1.0f), 0.0f);
+			drawBar({ left + 30.0f, bottom + 30.0f + height - 60.0f - (i + 1) * statHeight - 4.0f, width - 30.0f, 5.0f }, bar200, static_cast<float>(currentMonster.level * MonsterData[currentMonster.name].attack), static_cast<float>(currentMonster.level * m_maxStats[m_stats[i]]), Vector4f(0.0f, 0.0f, 0.0f, 1.0f), Vector4f(0.95686f, 0.99608f, 0.98039f, 1.0f));
 		else if (i == 3)
-			drawBar({ left + 30.0f, bottom + 30.0f + height - 60.0f - (i + 1) * statHeight - 4.0f, width - 30.0f, 4.0f }, static_cast<float>(currentMonster.level * m_monsterData[currentMonster.name].defense), static_cast<float>(currentMonster.level * m_maxStats[m_stats[i]]), Vector4f(0.0f, 0.0f, 0.0f, 1.0f), Vector4f(0.95686f, 0.99608f, 0.98039f, 1.0f), 0.0f);
+			drawBar({ left + 30.0f, bottom + 30.0f + height - 60.0f - (i + 1) * statHeight - 4.0f, width - 30.0f, 5.0f }, bar200, static_cast<float>(currentMonster.level * MonsterData[currentMonster.name].defense), static_cast<float>(currentMonster.level * m_maxStats[m_stats[i]]), Vector4f(0.0f, 0.0f, 0.0f, 1.0f), Vector4f(0.95686f, 0.99608f, 0.98039f, 1.0f));
 		else if (i == 4)
-			drawBar({ left + 30.0f, bottom + 30.0f + height - 60.0f - (i + 1) * statHeight - 4.0f, width - 30.0f, 4.0f }, static_cast<float>(currentMonster.level * m_monsterData[currentMonster.name].speed), static_cast<float>(currentMonster.level * m_maxStats[m_stats[i]]), Vector4f(0.0f, 0.0f, 0.0f, 1.0f), Vector4f(0.95686f, 0.99608f, 0.98039f, 1.0f), 0.0f);
+			drawBar({ left + 30.0f, bottom + 30.0f + height - 60.0f - (i + 1) * statHeight - 4.0f, width - 30.0f, 5.0f }, bar200, static_cast<float>(currentMonster.level * MonsterData[currentMonster.name].speed), static_cast<float>(currentMonster.level * m_maxStats[m_stats[i]]), Vector4f(0.0f, 0.0f, 0.0f, 1.0f), Vector4f(0.95686f, 0.99608f, 0.98039f, 1.0f));
 		else if (i == 5)
-			drawBar({ left + 30.0f, bottom + 30.0f + height - 60.0f - (i + 1) * statHeight - 4.0f, width - 30.0f, 4.0f }, static_cast<float>(currentMonster.level * m_monsterData[currentMonster.name].recovery), static_cast<float>(currentMonster.level * m_maxStats[m_stats[i]]), Vector4f(0.0f, 0.0f, 0.0f, 1.0f), Vector4f(0.95686f, 0.99608f, 0.98039f, 1.0f), 0.0f);	
+			drawBar({ left + 30.0f, bottom + 30.0f + height - 60.0f - (i + 1) * statHeight - 4.0f, width - 30.0f, 5.0f }, bar200, static_cast<float>(currentMonster.level * MonsterData[currentMonster.name].recovery), static_cast<float>(currentMonster.level * m_maxStats[m_stats[i]]), Vector4f(0.0f, 0.0f, 0.0f, 1.0f), Vector4f(0.95686f, 0.99608f, 0.98039f, 1.0f));
 	}
 
 	left = 0.4f * m_viewWidth + m_viewWidth * 0.4f * 0.75f - m_viewWidth * 0.4f * 0.45f * 0.5f;
@@ -325,7 +338,7 @@ void MonsterIndex::draw() {
 	shader->loadFloat("u_radius", 4.0f);
 	shader->loadUnsignedInt("u_edge", Edge::ALL);
 
-	for (auto& ability : m_monsterData[currentMonster.name].abilities) {
+	for (auto& ability : MonsterData[currentMonster.name].abilities) {
 		if (currentMonster.level < ability.second)
 			continue;
 		x = left + index % 2 * (Globals::fontManager.get("dialog").getWidth(lastAbility) * 0.045f + 20.0f);
@@ -381,24 +394,24 @@ void MonsterIndex::processInput() {
 	}
 
 	if (keyboard.keyPressed(Keyboard::KEY_DOWN)) {
-		if (static_cast<int>(m_monster.size()) - m_currentOffset > m_visibleItems && m_currentSelected == m_visibleItems - 1) {
+		if (static_cast<int>(Monster.size()) - m_currentOffset > m_visibleItems && m_currentSelected == m_visibleItems - 1) {
 			resetAnimation();
 			m_currentOffset++;
 		}
 
-		if (m_currentSelected < std::min(static_cast<int>(m_monster.size() - 1), m_visibleItems - 1)) {
+		if (m_currentSelected < std::min(static_cast<int>(Monster.size() - 1), m_visibleItems - 1)) {
 			resetAnimation();
 			m_currentSelected++;
 		}
 	}
 
 	if (keyboard.keyPressed(Keyboard::KEY_SPACE)) {
-		m_monster[m_currentOffset + m_currentSelected].selected = !m_monster[m_currentOffset + m_currentSelected].selected;
+		Monster[m_currentOffset + m_currentSelected].selected = !Monster[m_currentOffset + m_currentSelected].selected;
 		if (m_beforeSelected != m_currentOffset + m_currentSelected) {
 			if (m_beforeSelected != -1) {
-				m_monster[m_currentOffset + m_currentSelected].selected = false;
-				m_monster[m_beforeSelected].selected = false;
-				std::iter_swap(m_monster.begin() + m_beforeSelected, m_monster.begin() + m_currentOffset + m_currentSelected);
+				Monster[m_currentOffset + m_currentSelected].selected = false;
+				Monster[m_beforeSelected].selected = false;
+				std::iter_swap(Monster.begin() + m_beforeSelected, Monster.begin() + m_currentOffset + m_currentSelected);
 				m_beforeSelected = -1;
 			}else {
 				m_beforeSelected = m_currentOffset + m_currentSelected;
@@ -450,4 +463,20 @@ void MonsterIndex::drawBar(const Rect& rect, float value, float maxValue, const 
 		m_surfaceBar.draw(TileSetManager::Get().getTileSet("monster_icon").getTextureRects()[17], color);
 	}
 	
+}
+
+void MonsterIndex::drawBar(const Rect& rect, const TextureRect& textureRect, float value, float maxValue, const Vector4f& bgColor, const Vector4f& color) {
+	float ratio = rect.width / maxValue;
+	float progress = std::max(0.0f, std::min(rect.width, value * ratio));
+
+	Spritesheet::Bind(m_atlasIcons);
+	m_surfaceBar.resetShader();
+
+	m_surfaceBar.setPosition(rect.posX, rect.posY, 0.0f);
+	m_surfaceBar.setScale(rect.width, rect.height, 1.0f);
+	m_surfaceBar.draw(textureRect, bgColor);
+
+	m_surfaceBar.setPosition(rect.posX, rect.posY, 0.0f);
+	m_surfaceBar.setScale(progress, rect.height, 1.0f);
+	m_surfaceBar.draw(textureRect, color);
 }

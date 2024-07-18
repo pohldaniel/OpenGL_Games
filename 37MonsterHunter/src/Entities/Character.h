@@ -49,6 +49,6 @@ private:
 	Vector2f m_playerPos;
 	std::function<void()> OnMoveEnd;
 
-	static std::random_device random_device;
-	static std::mt19937 engine;
+	static std::random_device RandomDevice;
+	static std::mt19937 MersenTwist;
 };

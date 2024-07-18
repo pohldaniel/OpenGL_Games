@@ -44,7 +44,9 @@ private:
 
 	std::vector<Cell> m_cells;
 
-	std::vector<MonsterEntry> m_playerMonster;
+	//std::vector<MonsterEntry> m_playerMonster;
 	std::vector<MonsterEntry> m_opponentMonster;
 	std::vector<Monster> m_monster;
+	std::vector<std::array<float, 2>> positions;
+	std::vector<std::array<float, 2>> centers;
 };

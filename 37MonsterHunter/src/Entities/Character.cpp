@@ -3,8 +3,8 @@
 #include <Entities/Player.h>
 #include "Character.h"
 
-std::random_device Character::random_device;
-std::mt19937 Character::engine(random_device());
+std::random_device Character::RandomDevice;
+std::mt19937 Character::MersenTwist(RandomDevice());
 
 Character::Character(Cell& cell, Rect& rect) : SpriteEntity(cell), collisionRect(rect), m_characterId(""), m_radius(0.0f), m_move(false), m_rayCast(true), m_defeated(false), m_collisionRectIndex(-1), OnMoveEnd(nullptr){
 	
@@ -132,7 +132,7 @@ bool Character::isDefeated() {
 void Character::randomViewDirection() {
 	std::uniform_int_distribution<size_t> dist(0, m_viewDirections.size() - 1);
 
-	size_t index = dist(engine);
+	size_t index = dist(MersenTwist);
 	if (m_viewDirections[index] == m_viewDirection) {
 		index = (index == m_viewDirections.size() - 1) ? 0 : index = index + 1;
 	}

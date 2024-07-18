@@ -73,7 +73,7 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	SavedExStyle = GetWindowLong(Window, GWL_EXSTYLE);
 	SavedStyle = GetWindowLong(Window, GWL_STYLE);
 
-	Fontrenderer::Get().init(60, true);
+	Fontrenderer::Get().init(200, true);
 	Fontrenderer::Get().setShader(Globals::shaderManager.getAssetPointer("font"));
 	//Fontrenderer::Get().setRenderer(&Batchrenderer::Get());
 
