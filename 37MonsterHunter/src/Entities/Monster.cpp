@@ -27,6 +27,40 @@ Monster::~Monster() {
 
 }
 
+void Monster::drawBack() {
+
+	float padding = 10.0f;
+	float width = Globals::fontManager.get("dialog").getWidth(m_name) * 0.045f + 2.0f * padding;
+	float height = Globals::fontManager.get("dialog").lineHeight * 0.045f + 2.0f * padding;
+
+	float lvlWidth = 60.0f;
+	float lvlHeight = 26.0f;
+	float fontWidth = Globals::fontManager.get("dialog").getWidth("Lvl: " + std::to_string(m_level)) * 0.035f - 5.0f;
+	float fontHeight = Globals::fontManager.get("dialog").lineHeight * 0.035f - 5.0f;
+	float lineHeightSmall = Globals::fontManager.get("dialog").lineHeight * 0.035f;
+
+	const TextureRect& rect = TileSetManager::Get().getTileSet("monster").getTextureRects()[cell.currentFrame];
+	const TextureRect& emptyRect = TileSetManager::Get().getTileSet("monster").getTextureRects().back();
+
+	if(cell.flipped) {
+		Batchrenderer::Get().addQuadAA(Vector4f(cell.posX - width * 0.5f + 16.0f, cell.posY + 96.0f - height * 0.5f + 40.0f, width, height), Vector4f(emptyRect.textureOffsetX, emptyRect.textureOffsetY, emptyRect.textureWidth, emptyRect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), emptyRect.frame);
+		Batchrenderer::Get().addQuadAA(Vector4f(cell.posX - width * 0.5f + 16.0f, cell.posY + 96.0f - height * 0.5f + 40.0f - lvlHeight, lvlWidth, lvlHeight), Vector4f(emptyRect.textureOffsetX, emptyRect.textureOffsetY, emptyRect.textureWidth, emptyRect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), emptyRect.frame);
+		drawBar({ cell.posX - width * 0.5f + 16.0f, cell.posY + 96.0f - height * 0.5f + 40.0f - lvlHeight, lvlWidth, 2.0f }, emptyRect, m_experience, m_maxExperience, Vector4f(1.0f, 1.0f, 1.0f, 1.0f), Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
+
+		Fontrenderer::Get().addText(Globals::fontManager.get("dialog"), cell.posX - width * 0.5f + 16.0f + padding, cell.posY + 96.0f - height * 0.5f + 40.0f + padding, m_name, Vector4f(0.0f, 0.0f, 0.0f, 1.0f), 0.045f);
+		Fontrenderer::Get().addText(Globals::fontManager.get("dialog"), cell.posX - width * 0.5f + 16.0f + 30 - 0.5f * fontWidth, cell.posY + 96.0f - height * 0.5f + 40.0f - lvlHeight + 13.0f - 0.5f * fontHeight, "Lvl " + std::to_string(m_level), Vector4f(0.0f, 0.0f, 0.0f, 1.0f), 0.035f);
+	}else {
+		Batchrenderer::Get().addQuadAA(Vector4f(cell.posX + rect.width - width * 0.5f - 30.0f, cell.posY + 96.0f - height * 0.5f + 40.0f, width, height), Vector4f(emptyRect.textureOffsetX, emptyRect.textureOffsetY, emptyRect.textureWidth, emptyRect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), emptyRect.frame);
+		Batchrenderer::Get().addQuadAA(Vector4f(cell.posX + rect.width + width - width * 0.5f - 30.0f - lvlWidth, cell.posY + 96.0f - height * 0.5f + 40.0f - lvlHeight, lvlWidth, lvlHeight), Vector4f(emptyRect.textureOffsetX, emptyRect.textureOffsetY, emptyRect.textureWidth, emptyRect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), emptyRect.frame);
+		drawBar({ cell.posX + rect.width + width - width * 0.5f - 30.0f - lvlWidth, cell.posY + 96.0f - height * 0.5f + 40.0f - lvlHeight, lvlWidth, 2.0f }, emptyRect, m_experience, m_maxExperience, Vector4f(1.0f, 1.0f, 1.0f, 1.0f), Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
+
+		Fontrenderer::Get().addText(Globals::fontManager.get("dialog"), cell.posX + rect.width - width * 0.5f - 30.0f + padding, cell.posY + 96.0f - height * 0.5f + 40.0f + padding, m_name, Vector4f(0.0f, 0.0f, 0.0f, 1.0f), 0.045f);
+		Fontrenderer::Get().addText(Globals::fontManager.get("dialog"), cell.posX + rect.width + width - width * 0.5f - 30.0f - lvlWidth + 30 - 0.5f * fontWidth, cell.posY + 96.0f - height * 0.5f + 40.0f - lvlHeight + 13.0f - 0.5f * fontHeight, "Lvl " + std::to_string(m_level), Vector4f(0.0f, 0.0f, 0.0f, 1.0f), 0.035f);
+
+
+	}
+}
+
 void Monster::draw() {
 	
 	float padding = 10.0f;
@@ -46,18 +80,20 @@ void Monster::draw() {
 	const TextureRect& emptyRect = TileSetManager::Get().getTileSet("monster").getTextureRects().back();
 	const TextureRect& barRect = TileSetManager::Get().getTileSet("monster_icon").getTextureRects()[19];
 	if (cell.flipped) {
-		Batchrenderer::Get().addQuadAA(Vector4f(cell.posX, cell.posY, rect.width, rect.height), Vector4f(rect.textureOffsetX + rect.textureWidth, rect.textureOffsetY, -rect.textureWidth, rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), rect.frame);
-		Batchrenderer::Get().addQuadAA(Vector4f(cell.posX - width * 0.5f + 16.0f, cell.posY + 96.0f - height * 0.5f + 40.0f, width, height), Vector4f(emptyRect.textureOffsetX, emptyRect.textureOffsetY, emptyRect.textureWidth, emptyRect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), emptyRect.frame);
-		Batchrenderer::Get().addQuadAA(Vector4f(cell.posX - width * 0.5f + 16.0f, cell.posY + 96.0f - height * 0.5f + 40.0f - lvlHeight, lvlWidth, lvlHeight), Vector4f(emptyRect.textureOffsetX, emptyRect.textureOffsetY, emptyRect.textureWidth, emptyRect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), emptyRect.frame);
-	
+		//Batchrenderer::Get().addQuadAA(Vector4f(cell.posX - width * 0.5f + 16.0f, cell.posY + 96.0f - height * 0.5f + 40.0f, width, height), Vector4f(emptyRect.textureOffsetX, emptyRect.textureOffsetY, emptyRect.textureWidth, emptyRect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), emptyRect.frame);
+		//Batchrenderer::Get().addQuadAA(Vector4f(cell.posX - width * 0.5f + 16.0f, cell.posY + 96.0f - height * 0.5f + 40.0f - lvlHeight, lvlWidth, lvlHeight), Vector4f(emptyRect.textureOffsetX, emptyRect.textureOffsetY, emptyRect.textureWidth, emptyRect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), emptyRect.frame);
+		//drawBar({ cell.posX - width * 0.5f + 16.0f, cell.posY + 96.0f - height * 0.5f + 40.0f - lvlHeight, lvlWidth, 2.0f }, emptyRect, m_experience, m_maxExperience, Vector4f(1.0f, 1.0f, 1.0f, 1.0f), Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
+		
+		//Fontrenderer::Get().addText(Globals::fontManager.get("dialog"), cell.posX - width * 0.5f + 16.0f + padding, cell.posY + 96.0f - height * 0.5f + 40.0f + padding, m_name, Vector4f(0.0f, 0.0f, 0.0f, 1.0f), 0.045f);
+		//Fontrenderer::Get().addText(Globals::fontManager.get("dialog"), cell.posX - width * 0.5f + 16.0f + 30 - 0.5f * fontWidth, cell.posY + 96.0f - height * 0.5f + 40.0f - lvlHeight + 13.0f - 0.5f * fontHeight, "Lvl " + std::to_string(m_level), Vector4f(0.0f, 0.0f, 0.0f, 1.0f), 0.035f);
 
+		
+		Batchrenderer::Get().addQuadAA(Vector4f(cell.posX, cell.posY, rect.width, rect.height), Vector4f(rect.textureOffsetX + rect.textureWidth, rect.textureOffsetY, -rect.textureWidth, rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), rect.frame);
+
+		
+		
 		Batchrenderer::Get().addQuadAA(Vector4f(cell.posX + 0.5f * rect.width - 75.0f, cell.posY - 20.0f, 150.0f, 48.0f), Vector4f(emptyRect.textureOffsetX, emptyRect.textureOffsetY, emptyRect.textureWidth, emptyRect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), emptyRect.frame);
 
-
-		drawBar({ cell.posX - width * 0.5f + 16.0f, cell.posY + 96.0f - height * 0.5f + 40.0f - lvlHeight, lvlWidth, 2.0f }, emptyRect, m_experience, m_maxExperience, Vector4f(1.0f, 1.0f, 1.0f, 1.0f), Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
-
-		Fontrenderer::Get().addText(Globals::fontManager.get("dialog"), cell.posX - width * 0.5f + 16.0f + padding, cell.posY + 96.0f - height * 0.5f + 40.0f + padding, m_name, Vector4f(0.0f, 0.0f, 0.0f, 1.0f), 0.045f);
-		Fontrenderer::Get().addText(Globals::fontManager.get("dialog"), cell.posX - width * 0.5f + 16.0f + 30 - 0.5f * fontWidth, cell.posY + 96.0f - height * 0.5f + 40.0f - lvlHeight + 13.0f - 0.5f * fontHeight , "Lvl " + std::to_string(m_level), Vector4f(0.0f, 0.0f, 0.0f, 1.0f), 0.035f);
 
 		Fontrenderer::Get().addText(Globals::fontManager.get("dialog"), cell.posX + 0.5f * rect.width - 75.0f + 10.0f, cell.posY - 20.0f + 48.0f - lineHeightSmall, Fontrenderer::Get().floatToString(m_health, 0) + "/" + Fontrenderer::Get().floatToString(m_maxHealth, 0), Vector4f(0.0f, 0.0f, 0.0f, 1.0f), 0.035f);
 		addBar({ cell.posX + 0.5f * rect.width - 75.0f + 10.0f, cell.posY - 20.0f + 48.0f - lineHeightSmall - 4.0f, lvlWidth, 5.0f }, barRect, m_health, m_maxHealth, Vector4f(0.0f, 0.0f, 0.0f, 1.0f), Vector4f(0.94117f, 0.19215f, 0.19215f, 1.0f));
@@ -70,19 +106,19 @@ void Monster::draw() {
 
 
 	}else {
-		Batchrenderer::Get().addQuadAA(Vector4f(cell.posX, cell.posY, rect.width, rect.height), Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureWidth, rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), rect.frame);
-		Batchrenderer::Get().addQuadAA(Vector4f(cell.posX + rect.width - width * 0.5f - 30.0f, cell.posY + 96.0f - height * 0.5f + 40.0f, width, height), Vector4f(emptyRect.textureOffsetX, emptyRect.textureOffsetY, emptyRect.textureWidth, emptyRect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), emptyRect.frame);
-		Batchrenderer::Get().addQuadAA(Vector4f(cell.posX + rect.width + width - width * 0.5f - 30.0f - lvlWidth, cell.posY + 96.0f - height * 0.5f + 40.0f - lvlHeight, lvlWidth, lvlHeight), Vector4f(emptyRect.textureOffsetX, emptyRect.textureOffsetY, emptyRect.textureWidth, emptyRect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), emptyRect.frame);
+		//Batchrenderer::Get().addQuadAA(Vector4f(cell.posX + rect.width - width * 0.5f - 30.0f, cell.posY + 96.0f - height * 0.5f + 40.0f, width, height), Vector4f(emptyRect.textureOffsetX, emptyRect.textureOffsetY, emptyRect.textureWidth, emptyRect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), emptyRect.frame);
+		//Batchrenderer::Get().addQuadAA(Vector4f(cell.posX + rect.width + width - width * 0.5f - 30.0f - lvlWidth, cell.posY + 96.0f - height * 0.5f + 40.0f - lvlHeight, lvlWidth, lvlHeight), Vector4f(emptyRect.textureOffsetX, emptyRect.textureOffsetY, emptyRect.textureWidth, emptyRect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), emptyRect.frame);
+		//drawBar({ cell.posX + rect.width + width - width * 0.5f - 30.0f - lvlWidth, cell.posY + 96.0f - height * 0.5f + 40.0f - lvlHeight, lvlWidth, 2.0f }, emptyRect, m_experience, m_maxExperience, Vector4f(1.0f, 1.0f, 1.0f, 1.0f), Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
 		
+		//Fontrenderer::Get().addText(Globals::fontManager.get("dialog"), cell.posX + rect.width - width * 0.5f - 30.0f + padding, cell.posY + 96.0f - height * 0.5f + 40.0f + padding, m_name, Vector4f(0.0f, 0.0f, 0.0f, 1.0f), 0.045f);
+		//Fontrenderer::Get().addText(Globals::fontManager.get("dialog"), cell.posX + rect.width + width - width * 0.5f - 30.0f - lvlWidth + 30 - 0.5f * fontWidth, cell.posY + 96.0f - height * 0.5f + 40.0f - lvlHeight + 13.0f - 0.5f * fontHeight, "Lvl " + std::to_string(m_level), Vector4f(0.0f, 0.0f, 0.0f, 1.0f), 0.035f);
+
+		
+		Batchrenderer::Get().addQuadAA(Vector4f(cell.posX, cell.posY, rect.width, rect.height), Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureWidth, rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), rect.frame);
+
+		
+
 		Batchrenderer::Get().addQuadAA(Vector4f(cell.posX + 0.5f * rect.width - 75.0f, cell.posY - 20.0f, 150.0f, 48.0f), Vector4f(emptyRect.textureOffsetX, emptyRect.textureOffsetY, emptyRect.textureWidth, emptyRect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), emptyRect.frame);
-
-
-		drawBar({ cell.posX + rect.width + width - width * 0.5f - 30.0f - lvlWidth, cell.posY + 96.0f - height * 0.5f + 40.0f - lvlHeight, lvlWidth, 2.0f }, emptyRect, m_experience, m_maxExperience, Vector4f(1.0f, 1.0f, 1.0f, 1.0f), Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
-
-
-
-		Fontrenderer::Get().addText(Globals::fontManager.get("dialog"), cell.posX + rect.width - width * 0.5f - 30.0f + padding, cell.posY + 96.0f - height * 0.5f + 40.0f + padding, m_name, Vector4f(0.0f, 0.0f, 0.0f, 1.0f), 0.045f);
-		Fontrenderer::Get().addText(Globals::fontManager.get("dialog"), cell.posX + rect.width + width - width * 0.5f - 30.0f - lvlWidth + 30 - 0.5f * fontWidth, cell.posY + 96.0f - height * 0.5f + 40.0f - lvlHeight + 13.0f - 0.5f * fontHeight, "Lvl " + std::to_string(m_level), Vector4f(0.0f, 0.0f, 0.0f, 1.0f), 0.035f);
 
 		Fontrenderer::Get().addText(Globals::fontManager.get("dialog"), cell.posX + 0.5f * rect.width - 75.0f + 10.0f, cell.posY - 20.0f + 48.0f - lineHeightSmall, Fontrenderer::Get().floatToString(m_health, 0) + "/" + Fontrenderer::Get().floatToString(m_maxHealth, 0), Vector4f(0.0f, 0.0f, 0.0f, 1.0f), 0.035f);
 		addBar({ cell.posX + 0.5f * rect.width - 75.0f + 10.0f, cell.posY - 20.0f + 48.0f - lineHeightSmall - 4.0f, lvlWidth, 5.0f }, barRect, m_health, m_maxHealth, Vector4f(0.0f, 0.0f, 0.0f, 1.0f), Vector4f(0.94117f, 0.19215f, 0.19215f, 1.0f));

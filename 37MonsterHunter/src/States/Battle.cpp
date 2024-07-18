@@ -148,6 +148,16 @@ void Battle::render() {
 	Globals::shapeManager.get("quad").drawRaw();
 
 	for (Monster& monster : m_monster) {
+		monster.drawBack();
+	}
+
+	Spritesheet::Bind(TileSetManager::Get().getTileSet("monster").getAtlas());
+	Batchrenderer::Get().drawBuffer();
+
+	Globals::fontManager.get("dialog").bind();
+	Fontrenderer::Get().drawBuffer();
+
+	for (Monster& monster : m_monster) {
 		monster.draw();
 	}
 

@@ -18,6 +18,8 @@ public:
 
 	Monster(Cell& cell, std::string name, unsigned int level, float experience, float health, float energy);
 	virtual ~Monster();
+
+	void drawBack();
 	void draw();
 	void drawBars();
 	void update(float dt) override;
