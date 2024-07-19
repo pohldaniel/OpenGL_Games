@@ -23,6 +23,11 @@ public:
 	void draw();
 	void drawBars();
 	void update(float dt) override;
+	float getInitiative();
+	void setInitiative(float initiative);
+	void pause();
+	void unPause();
+	void setHighlight(bool highlight);
 
 private:
 
@@ -38,6 +43,7 @@ private:
 	float m_energy, m_maxEnergy;
 	float m_initiative;
 	float m_speed;
+	bool m_pause, m_highlight;
 	static std::random_device RandomDevice;
 	static std::uniform_real_distribution<float> Distribution;
 };

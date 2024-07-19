@@ -53,12 +53,12 @@ Battle::Battle(StateMachine& machine) : State(machine, States::BATTLE), m_mapHei
 
 	m_cells.reserve(6);
 	for (int i = 0; i < std::min(static_cast<int>(MonsterIndex::Monster.size()), 3); i++) {
-		m_cells.push_back({ positions[i][0], positions[i][1], 192.0f, 192.0f, static_cast<int>(MonsterIndex::MonsterData[MonsterIndex::Monster[i].name].graphic * 8u), centers[i][0], centers[i][1], true, true });
+		m_cells.push_back({ positions[i][0], positions[i][1], 192.0f, 192.0f, static_cast<int>(MonsterIndex::MonsterData[MonsterIndex::Monster[i].name].graphic * 16u), centers[i][0], centers[i][1], true, true });
 		m_monster.push_back(Monster(m_cells.back(), MonsterIndex::Monster[i].name, MonsterIndex::Monster[i].level, 300.0f, 200.0f, 100.0f));
 	}
 
 	for (int i = 0; i < std::min(static_cast<int>(m_opponentMonster.size()), 3); i++) {
-		m_cells.push_back({ positions[i + 3][0], positions[i + 3][1], 192.0f, 192.0f, static_cast<int>(MonsterIndex::MonsterData[m_opponentMonster[i].name].graphic * 8u), centers[i + 3][0], centers[i + 3][1], true, false });
+		m_cells.push_back({ positions[i + 3][0], positions[i + 3][1], 192.0f, 192.0f, static_cast<int>(MonsterIndex::MonsterData[m_opponentMonster[i].name].graphic * 16u), centers[i + 3][0], centers[i + 3][1], true, false });
 		m_monster.push_back(Monster(m_cells.back(), m_opponentMonster[i].name, m_opponentMonster[i].level, 300.0f, 200.0f, 100.0f));
 	}
 }
@@ -114,6 +114,11 @@ void Battle::update() {
 		m_isRunning = false;
 	}
 
+	if (keyboard.keyPressed(Keyboard::KEY_P)) {
+		std::for_each(m_monster.begin(), m_monster.end(), std::mem_fn(&Monster::unPause));
+		std::for_each(m_monster.begin(), m_monster.end(), std::bind(std::mem_fn<void(bool)>(&Monster::setHighlight), std::placeholders::_1, false));
+	}
+
 	Mouse &mouse = Mouse::instance();
 
 	if (mouse.buttonDown(Mouse::MouseButton::BUTTON_RIGHT)) {
@@ -133,6 +138,14 @@ void Battle::update() {
 
 	for (auto& monster : m_monster) {
 		monster.update(m_dt);
+	}
+
+	for (auto& monster : m_monster) {
+		if (monster.getInitiative() >= 100.0f) {
+			std::for_each(m_monster.begin(), m_monster.end(), std::mem_fn(&Monster::pause));
+			monster.setInitiative(0.0f);
+			monster.setHighlight(true);
+		}
 	}
 }
 

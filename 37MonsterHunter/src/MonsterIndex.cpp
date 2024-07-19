@@ -76,9 +76,9 @@ m_frameCount(4){
 	}
 	file.close();
 
-	Monster.push_back({ "Ivieron", 32u, false });
-	Monster.push_back({ "Atrox", 15u, false });
-	Monster.push_back({ "Cindrill", 23u, false });
+	Monster.push_back({ "Charmadillo", 32u, false });
+	Monster.push_back({ "Pluma", 15u, false });
+	Monster.push_back({ "Finiette", 23u, false });
 	Monster.push_back({ "Atrox", 30u, false });
 	Monster.push_back({ "Sparchu", 24u, false });
 	Monster.push_back({ "Gulfin", 17u, false });
@@ -129,24 +129,56 @@ m_frameCount(4){
 	//Spritesheet::Safe("monster_icon", TileSetManager::Get().getTileSet("monster_icon").getAtlas());
 	m_atlasIcons = TileSetManager::Get().getTileSet("monster_icon").getAtlas();
 
-	TextureAtlasCreator::Get().init(1024u, 1536u);
+	TextureAtlasCreator::Get().init(800u, 1600u);
 	TileSetManager::Get().getTileSet("monster").loadTileSetCpu("res/tmx/graphics/monsters/Atrox.png", false, 192.0f, 192.0f, true, false);
-	TileSetManager::Get().getTileSet("monster").loadTileSetCpu("res/tmx/graphics/monsters/Charmadillo.png", false, 192.0f, 192.0f, true, false);
+	TileSetManager::Get().getTileSet("monster").loadTileSetCpu("res/tmx/graphics/monsters/Atrox_highlight.png", false, 192.0f, 192.0f, true, false);
+
+	TileSetManager::Get().getTileSet("monster").loadTileSetCpu("res/tmx/graphics/monsters/Charmadillo_sheet.png", false, 200.0f, 200.0f, true, false);
+	TileSetManager::Get().getTileSet("monster").loadTileSetCpu("res/tmx/graphics/monsters/Charmadillo_highlight.png", false, 200.0f, 200.0f, true, false);
+
 	TileSetManager::Get().getTileSet("monster").loadTileSetCpu("res/tmx/graphics/monsters/Cindrill.png", false, 192.0f, 192.0f, true, false);
+	TileSetManager::Get().getTileSet("monster").loadTileSetCpu("res/tmx/graphics/monsters/Cindrill_highlight.png", false, 192.0f, 192.0f, true, false);
+
 	TileSetManager::Get().getTileSet("monster").loadTileSetCpu("res/tmx/graphics/monsters/Cleaf.png", false, 192.0f, 192.0f, true, false);
+	TileSetManager::Get().getTileSet("monster").loadTileSetCpu("res/tmx/graphics/monsters/Cleaf_highlight.png", false, 192.0f, 192.0f, true, false);
+
 	TileSetManager::Get().getTileSet("monster").loadTileSetCpu("res/tmx/graphics/monsters/Draem.png", false, 192.0f, 192.0f, true, false);
-	TileSetManager::Get().getTileSet("monster").loadTileSetCpu("res/tmx/graphics/monsters/Finiette.png", false, 192.0f, 192.0f, true, false);
+	TileSetManager::Get().getTileSet("monster").loadTileSetCpu("res/tmx/graphics/monsters/Draem_highlight.png", false, 192.0f, 192.0f, true, false);
+
+	TileSetManager::Get().getTileSet("monster").loadTileSetCpu("res/tmx/graphics/monsters/Finiette_sheet.png", false, 200.0f, 200.0f, true, false);
+	TileSetManager::Get().getTileSet("monster").loadTileSetCpu("res/tmx/graphics/monsters/Finiette_highlight.png", false, 200.0f, 200.0f, true, false);
+
 	TileSetManager::Get().getTileSet("monster").loadTileSetCpu("res/tmx/graphics/monsters/Finsta.png", false, 192.0f, 192.0f, true, false);
+	TileSetManager::Get().getTileSet("monster").loadTileSetCpu("res/tmx/graphics/monsters/Finsta_highlight.png", false, 192.0f, 192.0f, true, false);
+
 	TileSetManager::Get().getTileSet("monster").loadTileSetCpu("res/tmx/graphics/monsters/Friolera.png", false, 192.0f, 192.0f, true, false);
+	TileSetManager::Get().getTileSet("monster").loadTileSetCpu("res/tmx/graphics/monsters/Friolera_highlight.png", false, 192.0f, 192.0f, true, false);
+
 	TileSetManager::Get().getTileSet("monster").loadTileSetCpu("res/tmx/graphics/monsters/Gulfin.png", false, 192.0f, 192.0f, true, false);
+	TileSetManager::Get().getTileSet("monster").loadTileSetCpu("res/tmx/graphics/monsters/Gulfin_highlight.png", false, 192.0f, 192.0f, true, false);
+
 	TileSetManager::Get().getTileSet("monster").loadTileSetCpu("res/tmx/graphics/monsters/Ivieron.png", false, 192.0f, 192.0f, true, false);
+	TileSetManager::Get().getTileSet("monster").loadTileSetCpu("res/tmx/graphics/monsters/Ivieron_highlight.png", false, 192.0f, 192.0f, true, false);
+
 	TileSetManager::Get().getTileSet("monster").loadTileSetCpu("res/tmx/graphics/monsters/Jacana.png", false, 192.0f, 192.0f, true, false);
+	TileSetManager::Get().getTileSet("monster").loadTileSetCpu("res/tmx/graphics/monsters/Jacana_highlight.png", false, 192.0f, 192.0f, true, false);
+
 	TileSetManager::Get().getTileSet("monster").loadTileSetCpu("res/tmx/graphics/monsters/Larvea.png", false, 192.0f, 192.0f, true, false);
-	TileSetManager::Get().getTileSet("monster").loadTileSetCpu("res/tmx/graphics/monsters/Pluma.png", false, 192.0f, 192.0f, true, false);
+	TileSetManager::Get().getTileSet("monster").loadTileSetCpu("res/tmx/graphics/monsters/Larvea_highlight.png", false, 192.0f, 192.0f, true, false);
+
+	TileSetManager::Get().getTileSet("monster").loadTileSetCpu("res/tmx/graphics/monsters/Pluma_sheet.png", false, 200.0f, 200.0f, true, false);
+	TileSetManager::Get().getTileSet("monster").loadTileSetCpu("res/tmx/graphics/monsters/Pluma_highlight.png", false, 200.0f, 200.0f, true, false);
+
 	TileSetManager::Get().getTileSet("monster").loadTileSetCpu("res/tmx/graphics/monsters/Plumette.png", false, 192.0f, 192.0f, true, false);
+	TileSetManager::Get().getTileSet("monster").loadTileSetCpu("res/tmx/graphics/monsters/Plumette_highlight.png", false, 192.0f, 192.0f, true, false);
+
 	TileSetManager::Get().getTileSet("monster").loadTileSetCpu("res/tmx/graphics/monsters/Pouch.png", false, 192.0f, 192.0f, true, false);
+	TileSetManager::Get().getTileSet("monster").loadTileSetCpu("res/tmx/graphics/monsters/Pouch_highlight.png", false, 192.0f, 192.0f, true, false);
+
 	TileSetManager::Get().getTileSet("monster").loadTileSetCpu("res/tmx/graphics/monsters/Sparchu.png", false, 192.0f, 192.0f, true, false);
-	TileSetManager::Get().getTileSet("monster").loadTileCpu("res/tmx/graphics/other/bar_60.png", false, true, false);
+	TileSetManager::Get().getTileSet("monster").loadTileSetCpu("res/tmx/graphics/monsters/Sparchu_highlight.png", false, 192.0f, 192.0f, true, false);
+
+	//TileSetManager::Get().getTileSet("monster").loadTileCpu("res/tmx/graphics/other/bar_60.png", false, true, false);
 	TileSetManager::Get().getTileSet("monster").loadTileCpu("res/tmx/graphics/other/empty.png", false, true, false);
 	TileSetManager::Get().getTileSet("monster").loadTileSetGpu();
 	//Spritesheet::Safe("monster", TileSetManager::Get().getTileSet("monster").getAtlas());
@@ -255,7 +287,7 @@ void MonsterIndex::draw() {
 	m_surface.draw(m_colorMap[MonsterData[currentMonster.name].element]);
 
 	Spritesheet::Bind(m_atlasMonster);
-	const TextureRect& rect = TileSetManager::Get().getTileSet("monster").getTextureRects()[MonsterData[currentMonster.name].graphic * 8 + m_currentFrame];
+	const TextureRect& rect = TileSetManager::Get().getTileSet("monster").getTextureRects()[MonsterData[currentMonster.name].graphic * 16 + m_currentFrame];
 	m_surface.resetShader();
 	m_surface.setPosition(0.4f * m_viewWidth  + 0.2f * m_viewWidth - 0.5f * rect.width, bottom + 0.5f * m_viewHeight + 0.15f * m_viewHeight - 0.5f * rect.height, 0.0f);
 	m_surface.setScale(rect.width, rect.height, 1.0f);

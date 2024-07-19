@@ -99,8 +99,16 @@ public:
 
 	static void CutSubimage(std::string fileIn, std::string fileOut, unsigned int offsetX, unsigned int offsetY, unsigned int width = 0u, unsigned int height = 0u, const bool flipVertical = false);
 	static void AddHorizontally(std::string fileIn1, std::string fileIn2, std::string fileOut, const bool flipVertical = false);
+	static void AddVertically(std::string fileIn1, std::string fileIn2, std::string fileOut, const bool flipVertical = false);
+
 	static void FlipVertical(unsigned char* data, unsigned int padWidth, unsigned int height);
 	static void FlipHorizontal(unsigned char* data, unsigned int width, unsigned int height, int numCompontents);
+
+	static void AddHighlight(std::string fileIn, std::string fileOut, int borderWidth);
+	static void AddRemoveBottomPadding(std::string fileIn, std::string fileOut, int padding);
+	static void AddRemoveTopPadding(std::string fileIn, std::string fileOut, int padding);
+	static void AddRemoveRightPadding(std::string fileIn, std::string fileOut, int padding);
+	static void AddRemoveLeftPadding(std::string fileIn, std::string fileOut, int padding);
 
 	static unsigned char* AddRemoveBottomPadding(unsigned char* imageData, int width, int& height, int numCompontents, int padding);
 	static unsigned char* AddRemoveTopPadding(unsigned char* imageData, int width, int& height, int numCompontents, int padding);

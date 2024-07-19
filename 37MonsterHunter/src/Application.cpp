@@ -746,5 +746,84 @@ void Application::loadAssets() {
 	Globals::shapeManager.buildQuadXY("quad", Vector3f(-1.0f, -1.0f, 0.0f), Vector2f(2.0f, 2.0f), 1, 1, true, false, false);
 	Globals::shapeManager.buildQuadXY("quad_aligned", Vector3f(0.0f, 0.0f, 0.0f), Vector2f(2.0f, 2.0f), 1, 1, true, false, false);
 	Globals::shapeManager.buildQuadXY("quad_half_aligned", Vector3f(0.0f, 0.0f, 0.0f), Vector2f(1.0f, 1.0f), 1, 1, true, false, false);
-	
+
+	//Highlight pos processing
+	/*for (unsigned int x = 0; x < 4; x++) {
+		for (unsigned int y = 0; y < 2; y++) {
+			Texture::CutSubimage("res/tmx/graphics/monsters/Charmadillo.png", "Charmadillo.png", x * 192u, y * 192u, 192u, 192u);
+			Texture::AddRemoveBottomPadding("Charmadillo.png", "Charmadillo_padded.png", 4);
+			Texture::AddRemoveTopPadding("Charmadillo_padded.png", "Charmadillo_padded.png", 4);
+			Texture::AddRemoveLeftPadding("Charmadillo_padded.png", "Charmadillo_padded.png", 4);
+			Texture::AddRemoveRightPadding("Charmadillo_padded.png", "Charmadillo_padded_" + std::to_string(x) + "_" + std::to_string(y) + ".png", 4);
+		}
+	}
+	Texture::AddHorizontally("Charmadillo_padded_0_0.png", "Charmadillo_padded_1_0.png", "Charmadillo_sheet_0.png");
+	Texture::AddHorizontally("Charmadillo_sheet_0.png", "Charmadillo_padded_2_0.png", "Charmadillo_sheet_0.png");
+	Texture::AddHorizontally("Charmadillo_sheet_0.png", "Charmadillo_padded_2_0.png", "Charmadillo_sheet_0.png");
+
+	Texture::AddHorizontally("Charmadillo_padded_0_1.png", "Charmadillo_padded_1_1.png", "Charmadillo_sheet_1.png");
+	Texture::AddHorizontally("Charmadillo_sheet_1.png", "Charmadillo_padded_2_1.png", "Charmadillo_sheet_1.png");
+	Texture::AddHorizontally("Charmadillo_sheet_1.png", "Charmadillo_padded_2_1.png", "Charmadillo_sheet_1.png");
+
+	Texture::AddVertically("Charmadillo_sheet_0.png", "Charmadillo_sheet_1.png", "res/tmx/graphics/Charmadillo_sheet.png");
+	//Texture::AddHighlight("res/tmx/graphics/Charmadillo_sheet.png", "res/tmx/graphics/monsters/Charmadillo_highlight.png", 4);
+
+	for (unsigned int x = 0; x < 4; x++) {
+		for (unsigned int y = 0; y < 2; y++) {
+			Texture::CutSubimage("res/tmx/graphics/monsters/Finiette.png", "Finiette.png", x * 192u, y * 192u, 192u, 192u);
+			Texture::AddRemoveBottomPadding("Finiette.png", "Finiette_padded.png", 4);
+			Texture::AddRemoveTopPadding("Finiette_padded.png", "Finiette_padded.png", 4);
+			Texture::AddRemoveLeftPadding("Finiette_padded.png", "Finiette_padded.png", 4);
+			Texture::AddRemoveRightPadding("Finiette_padded.png", "Finiette_padded_" + std::to_string(x) + "_" + std::to_string(y) + ".png", 4);
+		}
+	}
+	Texture::AddHorizontally("Finiette_padded_0_0.png", "Finiette_padded_1_0.png", "Finiette_sheet_0.png");
+	Texture::AddHorizontally("Finiette_sheet_0.png", "Finiette_padded_2_0.png", "Finiette_sheet_0.png");
+	Texture::AddHorizontally("Finiette_sheet_0.png", "Finiette_padded_2_0.png", "Finiette_sheet_0.png");
+
+	Texture::AddHorizontally("Finiette_padded_0_1.png", "Finiette_padded_1_1.png", "Finiette_sheet_1.png");
+	Texture::AddHorizontally("Finiette_sheet_1.png", "Finiette_padded_2_1.png", "Finiette_sheet_1.png");
+	Texture::AddHorizontally("Finiette_sheet_1.png", "Finiette_padded_2_1.png", "Finiette_sheet_1.png");
+
+	Texture::AddVertically("Finiette_sheet_0.png", "Finiette_sheet_1.png", "res/tmx/graphics/Finiette_sheet.png");
+	//Texture::AddHighlight("res/tmx/graphics/Finiette_sheet.png", "res/tmx/graphics/monsters/Finiette_highlight.png", 4);
+
+	for (unsigned int x = 0; x < 4; x++) {
+		for (unsigned int y = 0; y < 2; y++) {
+			Texture::CutSubimage("res/tmx/graphics/monsters/Pluma.png", "Pluma.png", x * 192u, y * 192u, 192u, 192u);
+			Texture::AddRemoveBottomPadding("Pluma.png", "Pluma_padded.png", 4);
+			Texture::AddRemoveTopPadding("Pluma_padded.png", "Pluma_padded.png", 4);
+			Texture::AddRemoveLeftPadding("Pluma_padded.png", "Pluma_padded.png", 4);
+			Texture::AddRemoveRightPadding("Pluma_padded.png", "Pluma_padded_" + std::to_string(x) + "_" + std::to_string(y) + ".png", 4);
+		}
+	}
+
+	Texture::AddHorizontally("Pluma_padded_0_0.png", "Pluma_padded_1_0.png", "Pluma_sheet_0.png");
+	Texture::AddHorizontally("Pluma_sheet_0.png", "Pluma_padded_2_0.png", "Pluma_sheet_0.png");
+	Texture::AddHorizontally("Pluma_sheet_0.png", "Pluma_padded_2_0.png", "Pluma_sheet_0.png");
+
+	Texture::AddHorizontally("Pluma_padded_0_1.png", "Pluma_padded_1_1.png", "Pluma_sheet_1.png");
+	Texture::AddHorizontally("Pluma_sheet_1.png", "Pluma_padded_2_1.png", "Pluma_sheet_1.png");
+	Texture::AddHorizontally("Pluma_sheet_1.png", "Pluma_padded_2_1.png", "Pluma_sheet_1.png");
+
+	Texture::AddVertically("Pluma_sheet_0.png", "Pluma_sheet_1.png", "res/tmx/graphics/Pluma_sheet.png");
+	Texture::AddHighlight("res/tmx/graphics/Pluma_sheet.png", "res/tmx/graphics/monsters/Pluma_highlight.png", 4);
+
+	Texture::AddHighlight("res/tmx/graphics/monsters/Atrox.png", "res/tmx/graphics/monsters/Atrox_highlight.png", 4);
+	Texture::AddHighlight("Charmadillo_sheet.png", "res/tmx/graphics/monsters/Charmadillo_highlight.png", 4);
+	Texture::AddHighlight("res/tmx/graphics/monsters/Cindrill.png", "res/tmx/graphics/monsters/Cindrill_highlight.png", 4);
+	Texture::AddHighlight("res/tmx/graphics/monsters/Cleaf.png", "res/tmx/graphics/monsters/Cleaf_highlight.png", 4);
+	Texture::AddHighlight("res/tmx/graphics/monsters/Draem.png", "res/tmx/graphics/monsters/Draem_highlight.png", 4);
+	Texture::AddHighlight("Finiette_sheet.png", "res/tmx/graphics/monsters/Finiette_highlight.png", 4);
+	Texture::AddHighlight("res/tmx/graphics/monsters/Finsta.png", "res/tmx/graphics/monsters/Finsta_highlight.png", 4);
+	Texture::AddHighlight("res/tmx/graphics/monsters/Friolera.png", "res/tmx/graphics/monsters/Friolera_highlight.png", 4);
+
+	Texture::AddHighlight("res/tmx/graphics/monsters/Gulfin.png", "res/tmx/graphics/monsters/Gulfin_highlight.png", 4);
+	Texture::AddHighlight("res/tmx/graphics/monsters/Ivieron.png", "res/tmx/graphics/monsters/Ivieron_highlight.png", 4);
+	Texture::AddHighlight("res/tmx/graphics/monsters/Jacana.png", "res/tmx/graphics/monsters/Jacana_highlight.png", 4);
+	Texture::AddHighlight("res/tmx/graphics/monsters/Larvea.png", "res/tmx/graphics/monsters/Larvea_highlight.png", 4);
+	Texture::AddHighlight("Pluma_sheet.png", "res/tmx/graphics/monsters/Pluma_highlight.png", 4);
+	Texture::AddHighlight("res/tmx/graphics/monsters/Plumette.png", "res/tmx/graphics/monsters/Plumette_highlight.png", 4);
+	Texture::AddHighlight("res/tmx/graphics/monsters/Pouch.png", "res/tmx/graphics/monsters/Pouch_highlight.png", 4);
+	Texture::AddHighlight("res/tmx/graphics/monsters/Sparchu.png", "res/tmx/graphics/monsters/Sparchu_highlight.png", 4);*/
 }

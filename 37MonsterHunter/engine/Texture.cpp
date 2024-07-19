@@ -1258,8 +1258,6 @@ void Texture::AddHorizontally(std::string fileIn1, std::string fileIn2, std::str
 	if (_flipVertical)
 		Texture::FlipVertical(imageData1, numCompontents1 * width1, height1);
 	
-	unsigned int imageSize1 = width1 * numCompontents1 * height1;
-
 	int width2, height2, numCompontents2;
 	unsigned char* imageData2 = SOIL_load_image(fileIn2.c_str(), &width2, &height2, &numCompontents2, SOIL_LOAD_AUTO);
 
@@ -1299,6 +1297,42 @@ void Texture::AddHorizontally(std::string fileIn1, std::string fileIn2, std::str
 	}
 
 	SOIL_save_image(fileOut.c_str(), SOIL_SAVE_TYPE_PNG, width1 + width2, height1, numCompontents1, image);
+
+	free(image);
+	SOIL_free_image_data(imageData1);
+	SOIL_free_image_data(imageData2);
+}
+
+void Texture::AddVertically(std::string fileIn1, std::string fileIn2, std::string fileOut, const bool _flipVertical) {
+	int width1, height1, numCompontents1;
+	unsigned char* imageData1 = SOIL_load_image(fileIn1.c_str(), &width1, &height1, &numCompontents1, SOIL_LOAD_AUTO);
+
+	if (_flipVertical)
+		Texture::FlipVertical(imageData1, numCompontents1 * width1, height1);
+
+	unsigned int imageSize1 = width1 * numCompontents1 * height1;
+
+	int width2, height2, numCompontents2;
+	unsigned char* imageData2 = SOIL_load_image(fileIn2.c_str(), &width2, &height2, &numCompontents2, SOIL_LOAD_AUTO);
+
+	if (_flipVertical)
+		Texture::FlipVertical(imageData2, numCompontents2 * width2, height2);
+
+	unsigned char* image = (unsigned char*)malloc(width1 * numCompontents1 *  (height1 + height2));
+	memset(image, 0, width1 * numCompontents1 *  (height1 + height2));
+
+	unsigned int imageSize = width1 * numCompontents1 * (height1 + height2);
+	unsigned int count = 0;
+	while (count < imageSize) {
+		if (count < imageSize1) {
+			image[count] = imageData1[count];
+		}else {
+			image[count] = imageData2[count - imageSize1];
+		}
+		count++;
+	}
+
+	SOIL_save_image(fileOut.c_str(), SOIL_SAVE_TYPE_PNG, width1, height1 + height2, numCompontents1, image);
 
 	free(image);
 	SOIL_free_image_data(imageData1);
@@ -1462,9 +1496,9 @@ unsigned char* Texture::LoadFromFile(std::string pictureFile, const bool _flipVe
 		FlipVertical(bytes, numCompontents * width, height);
 
 	if (alphaChannel >= 0) {
-		unsigned char* bytesNew = (unsigned char*)malloc(width *  width * (numCompontents + 1));
+		unsigned char* bytesNew = (unsigned char*)malloc(width * height * (numCompontents + 1));
 
-		for (int i = 0, k = 0; i < width * width * 4; i = i + 4, k = k + 3) {
+		for (int i = 0, k = 0; i < width * height * 4; i = i + 4, k = k + 3) {
 			bytesNew[i] = bytes[k];
 			bytesNew[i + 1] = bytes[k + 1];
 			bytesNew[i + 2] = bytes[k + 2];
@@ -1963,4 +1997,255 @@ std::array<float, 3> Texture::Normalize(const std::array<float, 3>& p) {
 	float length = sqrtf((p[0] * p[0]) + (p[1] * p[1]) + (p[2] * p[2]));
 	float invMag = length != 0.0f ? 1.0f / length : 1.0f;
 	return std::array<float, 3>{p[0] * invMag, p[1] * invMag, p[2] * invMag};
+}
+
+void Texture::AddHighlight(std::string fileIn, std::string fileOut, int borderWidth) {
+	int width, height, numCompontents;
+	unsigned char* imageData = SOIL_load_image(fileIn.c_str(), &width, &height, &numCompontents, SOIL_LOAD_AUTO);
+
+	unsigned char* bytesNew = (unsigned char*)malloc(width * height * numCompontents);
+	memset(bytesNew, 0, width * height * numCompontents);
+
+	unsigned int row = 0;
+	for (int i = 0; i < width * height * 4; i = i + 4) {
+
+		if (imageData[i + 3] != 0) {
+			for (int j = 1; j <= borderWidth; j++) {
+
+				//top
+				bytesNew[i - (width * 4) * j] = 255;
+				bytesNew[i - (width * 4) * j + 1] = 255;
+				bytesNew[i - (width * 4) * j + 2] = 255;
+				bytesNew[i - (width * 4) * j + 3] = 255;
+
+				//bottom
+				bytesNew[i + (width * 4) * j] = 255;
+				bytesNew[i + (width * 4) * j + 1] = 255;
+				bytesNew[i + (width * 4) * j + 2] = 255;
+				bytesNew[i + (width * 4) * j + 3] = 255;
+
+				//right
+				bytesNew[i + j * 4] = 255;
+				bytesNew[i + j * 4 + 1] = 255;
+				bytesNew[i + j * 4 + 2] = 255;
+				bytesNew[i + j * 4 + 3] = 255;
+
+				//left
+				bytesNew[i - j * 4] = 255;
+				bytesNew[i - (j * 4) + 1] = 255;
+				bytesNew[i - (j * 4) + 2] = 255;
+				bytesNew[i - (j * 4) + 3] = 255;
+
+				//top right
+				bytesNew[i - (width * 4) * j + j * 4] = 255;
+				bytesNew[i - (width * 4) * j + j * 4 + 1] = 255;
+				bytesNew[i - (width * 4) * j + j * 4 + 2] = 255;
+				bytesNew[i - (width * 4) * j + j * 4 + 3] = 255;
+
+				//top left
+				bytesNew[i - (width * 4) * j - j * 4] = 255;
+				bytesNew[i - (width * 4) * j - j * 4 + 1] = 255;
+				bytesNew[i - (width * 4) * j - j * 4 + 2] = 255;
+				bytesNew[i - (width * 4) * j - j * 4 + 3] = 255;
+
+				//bottom right
+				bytesNew[i + (width * 4) * j + j * 4] = 255;
+				bytesNew[i + (width * 4) * j + j * 4 + 1] = 255;
+				bytesNew[i + (width * 4) * j + j * 4 + 2] = 255;
+				bytesNew[i + (width * 4) * j + j * 4 + 3] = 255;
+
+				//bottom left
+				bytesNew[i + (width * 4) * j - j * 4] = 255;
+				bytesNew[i + (width * 4) * j - j * 4 + 1] = 255;
+				bytesNew[i + (width * 4) * j - j * 4 + 2] = 255;
+				bytesNew[i + (width * 4) * j - j * 4 + 3] = 255;
+			}
+
+		}else {
+			//bytesNew[i] = imageData[i];
+			//bytesNew[i + 1] = imageData[i + 1];
+			//bytesNew[i + 2] = imageData[i + 2];
+			//bytesNew[i + 3] = imageData[i + 3];
+		}
+	}
+
+	for (int i = 0; i < width * height * 4; i = i + 4) {
+		if (imageData[i + 3] != 0) {
+			bytesNew[i] = imageData[i];
+			bytesNew[i + 1] = imageData[i + 1];
+			bytesNew[i + 2] = imageData[i + 2];
+			bytesNew[i + 3] = imageData[i + 3];
+		}
+	}
+
+	SOIL_save_image(fileOut.c_str(), SOIL_SAVE_TYPE_PNG, width, height, numCompontents, bytesNew);
+
+	free(bytesNew);
+
+	SOIL_free_image_data(imageData);
+}
+
+void Texture::AddRemoveBottomPadding(std::string fileIn, std::string fileOut, int padding) {
+	if (padding == 0) return;
+	int width, height, numCompontents;
+	unsigned char* imageData = SOIL_load_image(fileIn.c_str(), &width, &height, &numCompontents, SOIL_LOAD_AUTO);
+	unsigned char* bytes = (unsigned char*)malloc(numCompontents * (height + padding) * width);
+	memset(bytes, 0, numCompontents * (height + padding) * width);
+
+	if (padding < 0) {
+		int  row = 0, x = 0;
+		for (int i = 0; i < numCompontents * width * (height + padding); i++) {
+
+			if (i % (width  * numCompontents) == 0 && i > 0) {
+				row = (row + width * numCompontents);
+				x = row;
+			}
+			bytes[i] = imageData[x];
+			x++;
+
+		}
+	}
+
+	if (padding > 0) {
+		int  row = 0, x = 0;
+		for (int i = 0; i < numCompontents * width * (height + padding); i++) {
+			if (i % (width  * numCompontents) == 0 && i > 0) {
+				row = (row + width * numCompontents);
+				x = row;
+			}
+			bytes[i] = x > numCompontents * width * height ? 0 : imageData[x];
+
+			x++;
+		}
+	}
+
+	height = height + padding;
+	SOIL_save_image(fileOut.c_str(), SOIL_SAVE_TYPE_PNG, width, height, numCompontents, bytes);
+
+	SOIL_free_image_data(imageData);
+	free(bytes);
+}
+
+void Texture::AddRemoveTopPadding(std::string fileIn, std::string fileOut, int padding) {
+	if (padding == 0) return;
+	int width, height, numCompontents;
+	unsigned char* imageData = SOIL_load_image(fileIn.c_str(), &width, &height, &numCompontents, SOIL_LOAD_AUTO);
+	unsigned char* bytes = (unsigned char*)malloc(numCompontents * (height + padding) * width);
+	memset(bytes, 0, numCompontents * (height + padding) * width);
+
+	if (padding < 0) {
+		int  row = 0, x = -(padding * width * numCompontents);
+		for (int i = 0; i < numCompontents * width * (height + padding); i++) {
+
+			if (i % (width  * numCompontents) == 0 && i > 0) {
+				row = (row + width * numCompontents);
+				x = row - (padding * width * numCompontents);
+			}
+			bytes[i] = imageData[x];
+			x++;
+
+		}
+	}
+
+	if (padding > 0) {
+		int  row = 0, x = -(padding * width * numCompontents);
+		for (int i = 0; i < numCompontents * width * (height + padding); i++) {
+			if (i % (width  * numCompontents) == 0 && i > 0) {
+				row = (row + width * numCompontents);
+				x = row - (padding * width * numCompontents);
+			}
+			bytes[i] = x < 0 ? 0 : imageData[x];
+
+			x++;
+		}
+	}
+
+	height = height + padding;
+	SOIL_save_image(fileOut.c_str(), SOIL_SAVE_TYPE_PNG, width, height, numCompontents, bytes);
+
+	SOIL_free_image_data(imageData);
+	free(bytes);
+}
+
+void Texture::AddRemoveRightPadding(std::string fileIn, std::string fileOut, int padding) {
+	if (padding == 0) return;
+	int width, height, numCompontents;
+	unsigned char* imageData = SOIL_load_image(fileIn.c_str(), &width, &height, &numCompontents, SOIL_LOAD_AUTO);
+	unsigned char* bytes = (unsigned char*)malloc(numCompontents * height * (width + padding));
+	memset(bytes, 0, numCompontents * height * (width + padding));
+
+	if (padding < 0) {
+
+		int row = 0, x = 0;
+		for (int i = 0; i < numCompontents * height * (width + padding); i++) {
+			if (i % ((width + padding) * numCompontents) == 0 && i > 0) {
+				row = row + width * numCompontents;
+				x = row;
+			}
+
+			bytes[i] = imageData[x];
+			x++;
+		}
+	}
+
+	if (padding > 0) {
+		int row = 0, x = 0;
+		for (int i = 0; i < numCompontents * height * (width + padding); i++) {
+			if (i % ((width + padding) * numCompontents) == 0 && i > 0) {
+				row = row + width * numCompontents;
+				x = row;
+			}
+
+			bytes[i] = x - row > width * numCompontents ? bytes[i] = 0 : bytes[i] = imageData[x];
+			x++;
+		}
+
+	}
+
+	width = width + padding;
+	SOIL_save_image(fileOut.c_str(), SOIL_SAVE_TYPE_PNG, width, height, numCompontents, bytes);
+
+	SOIL_free_image_data(imageData);
+	free(bytes);
+}
+
+void Texture::AddRemoveLeftPadding(std::string fileIn, std::string fileOut, int padding) {
+	if (padding == 0) return;
+	int width, height, numCompontents;
+	unsigned char* imageData = SOIL_load_image(fileIn.c_str(), &width, &height, &numCompontents, SOIL_LOAD_AUTO);
+	unsigned char* bytes = (unsigned char*)malloc(numCompontents * height * (width + padding));
+	memset(bytes, 0, numCompontents * height * (width + padding));
+
+	if (padding < 0) {
+
+		int row = 0, x = -padding * numCompontents;
+		for (int i = 0; i < numCompontents * height * (width + padding); i++) {
+			if (i % ((width + padding) * numCompontents) == 0 && i > 0) {
+				row = row + width * numCompontents;
+				x = row - padding * numCompontents;
+			}
+
+			bytes[i] = imageData[x];
+			x++;
+		}
+	}
+
+	if (padding > 0) {
+		int row = 0, x = 0;
+		for (int i = 0; i < numCompontents * height * (width + padding); i++) {
+			if (i % ((width + padding) * numCompontents) == 0 && i > 0) {
+				row = row + width * numCompontents;
+				x = row;
+			}
+
+			bytes[i] = x - row < padding * numCompontents ? bytes[i] = 0 : bytes[i] = imageData[x - padding * numCompontents];
+			x++;
+		}
+	}
+
+	width = width + padding;
+	SOIL_save_image(fileOut.c_str(), SOIL_SAVE_TYPE_PNG, width, height, numCompontents, bytes);
+
+	SOIL_free_image_data(imageData);
+	free(bytes);
 }
