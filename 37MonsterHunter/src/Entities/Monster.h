@@ -1,5 +1,6 @@
 #pragma once
 #include <random>
+#include <Timer.h>
 #include <Entities/SpriteEntity.h>
 
 
@@ -43,7 +44,10 @@ private:
 	float m_energy, m_maxEnergy;
 	float m_initiative;
 	float m_speed;
-	bool m_pause, m_highlight;
+	bool m_pause, m_highlight, m_coverWithMask;
+
+	Timer m_highlightTimer;
+
 	static std::random_device RandomDevice;
 	static std::uniform_real_distribution<float> Distribution;
 };

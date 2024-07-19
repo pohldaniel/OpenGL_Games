@@ -77,7 +77,7 @@ m_frameCount(4){
 	file.close();
 
 	Monster.push_back({ "Charmadillo", 32u, false });
-	Monster.push_back({ "Pluma", 15u, false });
+	Monster.push_back({ "Friolera", 15u, false });
 	Monster.push_back({ "Finiette", 23u, false });
 	Monster.push_back({ "Atrox", 30u, false });
 	Monster.push_back({ "Sparchu", 24u, false });

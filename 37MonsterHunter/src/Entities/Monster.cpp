@@ -20,7 +20,8 @@ m_maxEnergy(static_cast<float>(level * MonsterIndex::MonsterData[name].maxEnergy
 m_initiative(0.0f),
 m_speed(static_cast<float>(level) * MonsterIndex::MonsterData[name].speed),
 m_pause(false),
-m_highlight(false)
+m_highlight(false),
+m_coverWithMask(false)
 {
 	m_direction.set(0.0f, 0.0f);
 }
@@ -75,12 +76,18 @@ void Monster::draw() {
 	float lvlWidth = 60.0f;
 	float lineHeightSmall = Globals::fontManager.get("dialog").lineHeight * 0.035f;
 
-	const TextureRect& rect = TileSetManager::Get().getTileSet("monster").getTextureRects()[cell.currentFrame + m_highlight * 8u];
+	const TextureRect& rect = TileSetManager::Get().getTileSet("monster").getTextureRects()[cell.currentFrame];
+	const TextureRect& hRect = TileSetManager::Get().getTileSet("monster").getTextureRects()[cell.currentFrame +  8u];
 	const TextureRect& emptyRect = TileSetManager::Get().getTileSet("monster").getTextureRects().back();
 	const TextureRect& barRect = TileSetManager::Get().getTileSet("monster_icon").getTextureRects()[19];
 	if (cell.flipped) {
 		//Monster sprite
-		Batchrenderer::Get().addQuadAA(Vector4f(cell.posX, cell.posY, rect.width, rect.height), Vector4f(rect.textureOffsetX + rect.textureWidth, rect.textureOffsetY, -rect.textureWidth, rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), rect.frame);
+		if (m_highlight) {
+			Batchrenderer::Get().addQuadAA(Vector4f(cell.posX, cell.posY, hRect.width, hRect.height), Vector4f(hRect.textureOffsetX + hRect.textureWidth, hRect.textureOffsetY, -hRect.textureWidth, rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), hRect.frame);
+		}
+
+		if(!m_coverWithMask)
+			Batchrenderer::Get().addQuadAA(Vector4f(cell.posX, cell.posY, rect.width, rect.height), Vector4f(rect.textureOffsetX + rect.textureWidth, rect.textureOffsetY, -rect.textureWidth, rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), rect.frame);
 	
 		//attributes
 		Batchrenderer::Get().addQuadAA(Vector4f(cell.posX + 0.5f * rect.width - 75.0f, cell.posY - 20.0f, 150.0f, 48.0f), Vector4f(emptyRect.textureOffsetX, emptyRect.textureOffsetY, emptyRect.textureWidth, emptyRect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), emptyRect.frame);
@@ -94,7 +101,12 @@ void Monster::draw() {
 	}else {
 		
 		//Monster sprite
-		Batchrenderer::Get().addQuadAA(Vector4f(cell.posX, cell.posY, rect.width, rect.height), Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureWidth, rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), rect.frame);
+		if (m_highlight) {
+			Batchrenderer::Get().addQuadAA(Vector4f(cell.posX, cell.posY, hRect.width, hRect.height), Vector4f(hRect.textureOffsetX, hRect.textureOffsetY, hRect.textureWidth, rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), hRect.frame);
+		}
+
+		if (!m_coverWithMask)
+			Batchrenderer::Get().addQuadAA(Vector4f(cell.posX, cell.posY, rect.width, rect.height), Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureWidth, rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), rect.frame);
 
 		//attributes
 		Batchrenderer::Get().addQuadAA(Vector4f(cell.posX + 0.5f * rect.width - 75.0f, cell.posY - 20.0f, 150.0f, 48.0f), Vector4f(emptyRect.textureOffsetX, emptyRect.textureOffsetY, emptyRect.textureWidth, emptyRect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), emptyRect.frame);
@@ -109,6 +121,8 @@ void Monster::draw() {
 }
 
 void Monster::update(float dt) {
+
+	m_highlightTimer.update(dt);
 
 	m_elapsedTime += m_animationSpeed * dt;
 	cell.currentFrame = m_startFrame + static_cast<int>(std::floor(m_elapsedTime));
@@ -181,4 +195,11 @@ void Monster::unPause() {
 
 void Monster::setHighlight(bool highlight) {
 	m_highlight = highlight;
+	if (m_highlight) {
+		m_coverWithMask = true;
+		m_highlightTimer.setOnTimerEnd([&m_coverWithMask = m_coverWithMask]() {
+			m_coverWithMask = false;
+		});
+		m_highlightTimer.start(300, false);
+	}
 }

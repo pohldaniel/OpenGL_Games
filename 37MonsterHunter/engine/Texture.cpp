@@ -2069,14 +2069,14 @@ void Texture::AddHighlight(std::string fileIn, std::string fileOut, int borderWi
 		}
 	}
 
-	for (int i = 0; i < width * height * 4; i = i + 4) {
+	/*for (int i = 0; i < width * height * 4; i = i + 4) {
 		if (imageData[i + 3] != 0) {
 			bytesNew[i] = imageData[i];
 			bytesNew[i + 1] = imageData[i + 1];
 			bytesNew[i + 2] = imageData[i + 2];
 			bytesNew[i + 3] = imageData[i + 3];
 		}
-	}
+	}*/
 
 	SOIL_save_image(fileOut.c_str(), SOIL_SAVE_TYPE_PNG, width, height, numCompontents, bytesNew);
 
