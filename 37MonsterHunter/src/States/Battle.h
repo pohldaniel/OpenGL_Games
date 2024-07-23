@@ -58,6 +58,7 @@ private:
 	int m_currentSelectedMonster;
 	int m_currentSelectedOption, m_currentMax, m_currentOffset;
 	int m_visibleAttacks;
+	tsl::ordered_map<std::string, unsigned int> m_abilitiesFiltered;
 
 	std::vector<MonsterEntry> m_opponentMonster;
 	std::vector<Monster> m_monster;

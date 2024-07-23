@@ -211,3 +211,7 @@ const std::string& Monster::getName() const {
 const unsigned int Monster::getLevel() const {
 	return m_level;
 }
+
+const float Monster::getEnergy() const {
+	return m_energy;
+}

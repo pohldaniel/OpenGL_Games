@@ -375,9 +375,12 @@ void Battle::drawAttacks() {
 
 	float width = 150.0f;
 	float height = 200.0f;
-	
-	float itemHeight = height / static_cast<float>(std::min(m_visibleAttacks, m_currentMax));
+	int delimiter = std::min(m_visibleAttacks, m_currentMax);
+
+	float itemHeight = height / static_cast<float>(std::max(delimiter, 4));
 	float lineHeight = Globals::fontManager.get("dialog").lineHeight * 0.045f;
+
+	height = delimiter <= 1  ? 50.0f : delimiter == 2  ? 100.0f : delimiter == 3 ? 150.0f : 200.0f;
 
 	auto shader = Globals::shaderManager.getAssetPointer("list");
 	shader->use();
@@ -391,8 +394,7 @@ void Battle::drawAttacks() {
 	m_surface.draw();
 	
 	int index = 0;	
-	const tsl::ordered_map<std::string, unsigned int>& abilities = MonsterIndex::MonsterData[m_monster[m_currentSelectedMonster].getName()].abilities;
-	for (auto ability = abilities.begin() + m_currentOffset; ability != abilities.begin() + m_currentOffset + std::min(m_visibleAttacks, m_currentMax - m_currentOffset); ++ability){		
+	for (auto& ability = m_abilitiesFiltered.begin() + m_currentOffset; ability != m_abilitiesFiltered.begin() + m_currentOffset + std::min(m_visibleAttacks, m_currentMax - m_currentOffset); ++ability){
 		
 		if (index == m_currentSelectedOption - m_currentOffset) {
 
@@ -404,14 +406,14 @@ void Battle::drawAttacks() {
 				shader->loadUnsignedInt("u_edge", Edge::EDGE_NONE);
 			
 			shader->loadVector("u_dimensions", Vector2f(width, itemHeight));
-			m_surface.setPosition(cell.posX + cell.width + 20.0f, cell.posY + 0.5f * cell.height + 0.5f * height - (index + 1) * itemHeight, 0.0f);
+			m_surface.setPosition(cell.posX + cell.width + 20.0f, cell.posY + 0.5f * cell.height - 0.5f * height + height - (index + 1) * itemHeight, 0.0f);
 			m_surface.setScale(width, itemHeight, 1.0f);
 			m_surface.draw(Vector4f(0.94117f, 0.94117f, 0.94117f, 1.0f));
 		}
 
 		Fontrenderer::Get().addText(Globals::fontManager.get("dialog"),
 			cell.posX + cell.width + 20.0f + 0.5f * width - 0.5f * Globals::fontManager.get("dialog").getWidth((*ability).first) * 0.045f,
-			cell.posY + 0.5f * cell.height - 100.0f + cell.height - 0.5f * itemHeight - index * itemHeight,
+			cell.posY + 0.5f * cell.height - 0.5f * height + height - (index + 1) * itemHeight + 0.5f * itemHeight - 0.5f * lineHeight,
 			(*ability).first,
 			(index == m_currentSelectedOption - m_currentOffset) ? 
 			MonsterIndex::_AttackData[(*ability).first].element == "normal" ? Vector4f(0.0f, 0.0f, 0.0f, 1.0f) : MonsterIndex::ColorMap[MonsterIndex::_AttackData[(*ability).first].element] 
@@ -436,7 +438,7 @@ void Battle::processInput() {
 		}
 		
 		if (m_currentSelectedOption < 0) {
-			m_currentOffset = m_currentMax - (m_visibleAttacks);
+			m_currentOffset = std::max(m_currentMax - m_visibleAttacks, 0);
 			m_currentSelectedOption = m_currentMax - 1;
 		}
 	}
@@ -453,14 +455,19 @@ void Battle::processInput() {
 			m_currentOffset = 0;
 		}
 	}
-	
+
 	if (keyboard.keyPressed(Keyboard::KEY_SPACE)) {
 		if (m_currentSelectedOption == 0) {
 			m_drawGeneralUi = false;
 			m_drawAtacksUi = true;
 			const Monster& currentMonster = m_monster[m_currentSelectedMonster];
 			const tsl::ordered_map<std::string, unsigned int>& abilities = MonsterIndex::MonsterData[m_monster[m_currentSelectedMonster].getName()].abilities;
-			m_currentMax = std::count_if(abilities.begin(), abilities.end(), [&currentMonster = currentMonster](std::pair<std::string, unsigned int> ability) { return ability.second <= currentMonster.getLevel(); });
+			m_abilitiesFiltered.clear();
+			std::copy_if(abilities.begin(), abilities.end(), std::inserter(m_abilitiesFiltered, m_abilitiesFiltered.end()), [&currentMonster = currentMonster](std::pair<std::string, unsigned int> ability) {
+				return  MonsterIndex::_AttackData[ability.first].cost <= currentMonster.getEnergy();
+			});
+
+			m_currentMax = std::count_if(m_abilitiesFiltered.begin(), m_abilitiesFiltered.end(), [&currentMonster = currentMonster](std::pair<std::string, unsigned int> ability) { return ability.second <= currentMonster.getLevel(); });
 			m_currentSelectedOption = 0;
 		}else if (m_currentSelectedOption == 1) {
 			m_drawGeneralUi = false;

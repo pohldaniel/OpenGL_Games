@@ -31,6 +31,7 @@ public:
 	void setHighlight(bool highlight);
 	const std::string& getName() const;
 	const unsigned int getLevel() const;
+	const float getEnergy() const;
 
 private:
 
