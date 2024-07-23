@@ -29,6 +29,8 @@ public:
 	void pause();
 	void unPause();
 	void setHighlight(bool highlight);
+	const std::string& getName() const;
+	const unsigned int getLevel() const;
 
 private:
 

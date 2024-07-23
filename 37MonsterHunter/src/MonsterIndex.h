@@ -10,6 +10,8 @@ enum Edge {
 	BOTTOM_RIGHT,
 	EDGE_RIGHT,
 	EDGE_LEFT,
+	TOP,
+	BOTTOM,
 	EDGE_NONE
 };
 
@@ -58,6 +60,8 @@ public:
 
 	static std::unordered_map<std::string, MonsterData> MonsterData;
 	static std::vector<MonsterEntry> Monster;
+	static std::unordered_map<std::string, AttackData> _AttackData;
+	static std::unordered_map<std::string, Vector4f> ColorMap;
 
 private:
 
@@ -70,10 +74,6 @@ private:
 	float m_viewWidth, m_viewHeight;
 	unsigned int m_atlasIcons, m_atlasMonster;
 	int m_currentOffset, m_currentSelected, m_beforeSelected;
-
-	std::unordered_map<std::string, Vector4f> m_colorMap;
-	
-	std::unordered_map<std::string, AttackData> m_attackData;
 
 	float m_elapsedTime;
 	int m_currentFrame;

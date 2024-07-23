@@ -40,7 +40,13 @@ void main() {
 	//left
 	}else if(u_edge == 6 && dist > u_radius && v_texCoord.x < 0.5) {
       discard;
-	}		
+	//top
+	}else if(u_edge == 7 && dist > u_radius && v_texCoord.y > 0.5) {
+      discard;
+	//bottom
+	}else if(u_edge == 8 && dist > u_radius && v_texCoord.y < 0.5) {
+      discard;
+	}	
 	
 	outColor = v_color;
 }

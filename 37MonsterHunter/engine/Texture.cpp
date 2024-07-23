@@ -2006,7 +2006,6 @@ void Texture::AddHighlight(std::string fileIn, std::string fileOut, int borderWi
 	unsigned char* bytesNew = (unsigned char*)malloc(width * height * numCompontents);
 	memset(bytesNew, 0, width * height * numCompontents);
 
-	unsigned int row = 0;
 	for (int i = 0; i < width * height * 4; i = i + 4) {
 
 		if (imageData[i + 3] != 0) {
@@ -2248,4 +2247,23 @@ void Texture::AddRemoveLeftPadding(std::string fileIn, std::string fileOut, int 
 
 	SOIL_free_image_data(imageData);
 	free(bytes);
+}
+
+void Texture::GrayScale(std::string fileIn, std::string fileOut) {
+	int width, height, numCompontents;
+	unsigned char* imageData = SOIL_load_image(fileIn.c_str(), &width, &height, &numCompontents, SOIL_LOAD_AUTO);
+
+	unsigned char* bytesNew = (unsigned char*)malloc(width * height * numCompontents);
+	memset(bytesNew, 0, width * height * numCompontents);
+
+	for (int i = 0; i < width * height * 4; i = i + 4) {
+		bytesNew[i] = static_cast<unsigned char>((static_cast<int>(imageData[i]) + static_cast<int>(imageData[i + 1]) + static_cast<int>(imageData[i + 2])) / 3);
+		bytesNew[i + 1] = bytesNew[i];
+		bytesNew[i + 2] = bytesNew[i];
+		bytesNew[i + 3] = imageData[i + 3];
+	}
+
+	SOIL_save_image(fileOut.c_str(), SOIL_SAVE_TYPE_PNG, width, height, numCompontents, bytesNew);
+	free(bytesNew);
+	SOIL_free_image_data(imageData);
 }

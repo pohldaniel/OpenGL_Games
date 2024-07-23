@@ -820,5 +820,10 @@ void Application::loadAssets() {
 	Texture::AddHighlight("res/tmx/graphics/monsters/Pluma_sheet.png", "res/tmx/graphics/monsters/Pluma_highlight.png", 4);
 	Texture::AddHighlight("res/tmx/graphics/monsters/Plumette.png", "res/tmx/graphics/monsters/Plumette_highlight.png", 4);
 	Texture::AddHighlight("res/tmx/graphics/monsters/Pouch.png", "res/tmx/graphics/monsters/Pouch_highlight.png", 4);
-	Texture::AddHighlight("res/tmx/graphics/monsters/Sparchu.png", "res/tmx/graphics/monsters/Sparchu_highlight.png", 4);*/
+	Texture::AddHighlight("res/tmx/graphics/monsters/Sparchu.png", "res/tmx/graphics/monsters/Sparchu_highlight.png", 4);
+
+	Texture::GrayScale("res/tmx/graphics/ui/sword.png", "res/tmx/graphics/ui/sword_gray.png");
+	Texture::GrayScale("res/tmx/graphics/ui/shield.png", "res/tmx/graphics/ui/shield_gray.png");
+	Texture::GrayScale("res/tmx/graphics/ui/arrows.png", "res/tmx/graphics/ui/arrows_gray.png");
+	Texture::GrayScale("res/tmx/graphics/ui/hand.png", "res/tmx/graphics/ui/hand_gray.png");*/
 }

@@ -9,6 +9,8 @@
 
 std::unordered_map<std::string, MonsterData> MonsterIndex::MonsterData;
 std::vector<MonsterEntry> MonsterIndex::Monster;
+std::unordered_map<std::string, AttackData> MonsterIndex::_AttackData;
+std::unordered_map<std::string, Vector4f> MonsterIndex::ColorMap;
 
 MonsterIndex::MonsterIndex() : 
 m_visibleItems(6), 
@@ -68,17 +70,17 @@ m_frameCount(4){
 	doc.ParseStream(streamWrapper2);
 
 	for (rapidjson::Value::ConstMemberIterator attack = doc.MemberBegin(); attack != doc.MemberEnd(); ++attack) {
-		m_attackData[attack->name.GetString()].target = attack->value["target"].GetString();
-		m_attackData[attack->name.GetString()].amount = attack->value["amount"].GetFloat();
-		m_attackData[attack->name.GetString()].cost = attack->value["cost"].GetFloat();
-		m_attackData[attack->name.GetString()].element = attack->value["element"].GetString();
-		m_attackData[attack->name.GetString()].animation = attack->value["animation"].GetString();
+		_AttackData[attack->name.GetString()].target = attack->value["target"].GetString();
+		_AttackData[attack->name.GetString()].amount = attack->value["amount"].GetFloat();
+		_AttackData[attack->name.GetString()].cost = attack->value["cost"].GetFloat();
+		_AttackData[attack->name.GetString()].element = attack->value["element"].GetString();
+		_AttackData[attack->name.GetString()].animation = attack->value["animation"].GetString();
 	}
 	file.close();
 
-	Monster.push_back({ "Charmadillo", 32u, false });
-	Monster.push_back({ "Friolera", 15u, false });
-	Monster.push_back({ "Finiette", 23u, false });
+	Monster.push_back({ "Friolera", 13u, false });
+	Monster.push_back({ "Friolera", 25u, false });
+	Monster.push_back({ "Friolera", 18u, false });
 	Monster.push_back({ "Atrox", 30u, false });
 	Monster.push_back({ "Sparchu", 24u, false });
 	Monster.push_back({ "Gulfin", 17u, false });
@@ -87,10 +89,10 @@ m_frameCount(4){
 	Monster.push_back({ "Cleaf", 3u, false });
 	Monster.push_back({ "Charmadillo", 30u, false });
 
-	m_colorMap["plant"] = { 0.39215f, 0.66274f, 0.56470f, 1.0f};
-	m_colorMap["fire"] = { 0.97254f, 0.62745f, 0.37647f, 1.0f };
-	m_colorMap["water"] = { 0.31372f, 0.69019f, 0.84705f, 1.0f };
-	m_colorMap["normal"] = { 1.0f,1.0f, 1.0f, 1.0f };
+	ColorMap["plant"] = { 0.39215f, 0.66274f, 0.56470f, 1.0f};
+	ColorMap["fire"] = { 0.97254f, 0.62745f, 0.37647f, 1.0f };
+	ColorMap["water"] = { 0.31372f, 0.69019f, 0.84705f, 1.0f };
+	ColorMap["normal"] = { 1.0f,1.0f, 1.0f, 1.0f };
 
 	TextureAtlasCreator::Get().init(1024u, 64u);
 	TileSetManager::Get().getTileSet("monster_icon").loadTileCpu("res/tmx/graphics/icons/Atrox.png", false, true, false);
@@ -284,7 +286,7 @@ void MonsterIndex::draw() {
 	shader->loadUnsignedInt("u_edge", Edge::TOP_RIGHT);
 	m_surface.setPosition(m_viewWidth * 0.4f, bottom + 0.5f * m_viewHeight, 0.0f);
 	m_surface.setScale(m_viewWidth * 0.4f, m_viewHeight * 0.3f, 1.0f);
-	m_surface.draw(m_colorMap[MonsterData[currentMonster.name].element]);
+	m_surface.draw(ColorMap[MonsterData[currentMonster.name].element]);
 
 	Spritesheet::Bind(m_atlasMonster);
 	const TextureRect& rect = TileSetManager::Get().getTileSet("monster").getTextureRects()[MonsterData[currentMonster.name].graphic * 16 + m_currentFrame];
@@ -381,7 +383,7 @@ void MonsterIndex::draw() {
 		const TextureRect& rect = TileSetManager::Get().getTileSet("monster_icon").getTextureRects()[16];
 		m_surface.setPosition(x - 5.0f, y - 5.0f, 0.0f);
 		m_surface.setScale(Globals::fontManager.get("dialog").getWidth(ability.first) * 0.045f + 10.0f, lineHeight + 10.0f, 1.0f);
-		m_surface.draw(m_colorMap[m_attackData[ability.first].element]);
+		m_surface.draw(ColorMap[_AttackData[ability.first].element]);
 
 		Fontrenderer::Get().addText(Globals::fontManager.get("dialog"), x, y, ability.first, Vector4f(0.0f, 0.0f, 0.0f, 1.0f), 0.045f);
 		lastAbility = ability.first;

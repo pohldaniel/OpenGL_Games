@@ -105,6 +105,7 @@ public:
 	static void FlipHorizontal(unsigned char* data, unsigned int width, unsigned int height, int numCompontents);
 
 	static void AddHighlight(std::string fileIn, std::string fileOut, int borderWidth);
+	static void GrayScale(std::string fileIn, std::string fileOut);
 	static void AddRemoveBottomPadding(std::string fileIn, std::string fileOut, int padding);
 	static void AddRemoveTopPadding(std::string fileIn, std::string fileOut, int padding);
 	static void AddRemoveRightPadding(std::string fileIn, std::string fileOut, int padding);

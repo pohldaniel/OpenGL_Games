@@ -203,3 +203,11 @@ void Monster::setHighlight(bool highlight) {
 		m_highlightTimer.start(300, false);
 	}
 }
+
+const std::string& Monster::getName() const {
+	return m_name;
+}
+
+const unsigned int Monster::getLevel() const {
+	return m_level;
+}
