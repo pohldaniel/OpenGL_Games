@@ -8,7 +8,7 @@
 #include "Globals.h"
 
 std::unordered_map<std::string, MonsterData> MonsterIndex::MonsterData;
-std::vector<MonsterEntry> MonsterIndex::Monster;
+std::vector<MonsterEntry> MonsterIndex::Monsters;
 std::unordered_map<std::string, AttackData> MonsterIndex::_AttackData;
 std::unordered_map<std::string, Vector4f> MonsterIndex::ColorMap;
 Sprite MonsterIndex::SurfaceBar;
@@ -79,16 +79,16 @@ m_frameCount(4){
 	}
 	file.close();
 
-	Monster.push_back({ "Friolera", 13u, false , 300.0f, 200.0f});
-	Monster.push_back({ "Friolera", 25u, false , 300.0f, 200.0f });
-	Monster.push_back({ "Friolera", 18u, false , 300.0f, 200.0f });
-	Monster.push_back({ "Atrox", 30u, false , 300.0f, 200.0f });
-	Monster.push_back({ "Sparchu", 24u, false , 300.0f, 200.0f });
-	Monster.push_back({ "Gulfin", 17u, false , 300.0f, 200.0f });
-	Monster.push_back({ "Jacana", 16u, false , 300.0f, 200.0f });
-	Monster.push_back({ "Plumette", 9u, false , 300.0f, 200.0f });
-	Monster.push_back({ "Cleaf", 3u, false , 300.0f, 200.0f });
-	Monster.push_back({ "Charmadillo", 30u, false , 300.0f, 200.0f });
+	Monsters.push_back({ "Friolera", 13u, false , 300.0f, 200.0f});
+	Monsters.push_back({ "Friolera", 25u, false , 300.0f, 200.0f });
+	Monsters.push_back({ "Friolera", 18u, false , 300.0f, 200.0f });
+	Monsters.push_back({ "Atrox", 30u, false , 300.0f, 200.0f });
+	Monsters.push_back({ "Sparchu", 24u, false , 300.0f, 200.0f });
+	Monsters.push_back({ "Gulfin", 17u, false , 300.0f, 200.0f });
+	Monsters.push_back({ "Jacana", 16u, false , 300.0f, 200.0f });
+	Monsters.push_back({ "Plumette", 9u, false , 300.0f, 200.0f });
+	Monsters.push_back({ "Cleaf", 3u, false , 300.0f, 200.0f });
+	Monsters.push_back({ "Charmadillo", 30u, false , 300.0f, 200.0f });
 
 	ColorMap["plant"] = { 0.39215f, 0.66274f, 0.56470f, 1.0f};
 	ColorMap["fire"] = { 0.97254f, 0.62745f, 0.37647f, 1.0f };
@@ -226,7 +226,7 @@ void MonsterIndex::draw() {
 	float lineHeightBold = static_cast<float>(Globals::fontManager.get("bold").lineHeight) * 0.05f;
 
 	shader->loadVector("u_dimensions", Vector2f(m_viewWidth * 0.2f, itemHeigt));
-	for (int i = 0; i < std::min(static_cast<int>(Monster.size()), m_visibleItems); i++) {
+	for (int i = 0; i < std::min(static_cast<int>(Monsters.size()), m_visibleItems); i++) {
 
 		if (i == 0) {
 			shader->loadUnsignedInt("u_edge", Edge::TOP_LEFT);
@@ -243,7 +243,7 @@ void MonsterIndex::draw() {
 	}
 
 	m_surface.resetShader();
-	for (int i = 0; i < std::min(static_cast<int>(Monster.size()), m_visibleItems); i++) {
+	for (int i = 0; i < std::min(static_cast<int>(Monsters.size()), m_visibleItems); i++) {
 		
 		if (i != m_visibleItems - 1) {
 			m_surface.setPosition(m_viewWidth * 0.2f, top - (i + 1) * itemHeigt, 0.0f);
@@ -251,7 +251,7 @@ void MonsterIndex::draw() {
 			m_surface.draw(rects[16], Vector4f(0.29411f, 0.28235f, 0.30196f, 1.0f));
 		}
 
-		const MonsterEntry& currentMonster = Monster[i + m_currentOffset];
+		const MonsterEntry& currentMonster = Monsters[i + m_currentOffset];
 		const TextureRect& rect = rects[MonsterData[currentMonster.name].graphic];
 		m_surface.setPosition(m_viewWidth * 0.2f + 45.0f - rect.width * 0.5f, top - i * itemHeigt - 0.5f * (itemHeigt + rect.height), 0.0f);
 		m_surface.setScale(rect.width, rect.height, 1.0f);
@@ -263,8 +263,8 @@ void MonsterIndex::draw() {
 	m_surface.draw(rects[16], Vector4f(0.0f, 0.0f, 0.0f, 0.39216f));
 
 	Globals::fontManager.get("dialog").bind();
-	for (int i = 0; i < std::min(static_cast<int>(Monster.size()), m_visibleItems); i++) {
-		const MonsterEntry& currentMonster = Monster[i + m_currentOffset];
+	for (int i = 0; i < std::min(static_cast<int>(Monsters.size()), m_visibleItems); i++) {
+		const MonsterEntry& currentMonster = Monsters[i + m_currentOffset];
 		Fontrenderer::Get().addText(Globals::fontManager.get("dialog"), m_viewWidth * 0.2f + 90.0f, top - i * itemHeigt - 0.5f * (itemHeigt + lineHeight), currentMonster.name, currentMonster.selected ? Vector4f(1.0f, 0.84313f, 0.0f, 1.0f) : Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 0.045f);
 	}
 	Fontrenderer::Get().drawBuffer();
@@ -281,7 +281,7 @@ void MonsterIndex::draw() {
 	m_surface.draw(Vector4f(0.16862f, 0.16078f, 0.17254f, 1.0f));
 
 
-	const MonsterEntry& currentMonster = Monster[m_currentOffset + m_currentSelected];
+	const MonsterEntry& currentMonster = Monsters[m_currentOffset + m_currentSelected];
 	shader->loadVector("u_dimensions", Vector2f(m_viewWidth * 0.4f, m_viewHeight * 0.3f));
 	shader->loadFloat("u_radius", 12.0f);
 	shader->loadUnsignedInt("u_edge", Edge::TOP_RIGHT);
@@ -429,24 +429,24 @@ void MonsterIndex::processInput() {
 	}
 
 	if (keyboard.keyPressed(Keyboard::KEY_DOWN)) {
-		if (static_cast<int>(Monster.size()) - m_currentOffset > m_visibleItems && m_currentSelected == m_visibleItems - 1) {
+		if (static_cast<int>(Monsters.size()) - m_currentOffset > m_visibleItems && m_currentSelected == m_visibleItems - 1) {
 			resetAnimation();
 			m_currentOffset++;
 		}
 
-		if (m_currentSelected < std::min(static_cast<int>(Monster.size() - 1), m_visibleItems - 1)) {
+		if (m_currentSelected < std::min(static_cast<int>(Monsters.size() - 1), m_visibleItems - 1)) {
 			resetAnimation();
 			m_currentSelected++;
 		}
 	}
 
 	if (keyboard.keyPressed(Keyboard::KEY_SPACE)) {
-		Monster[m_currentOffset + m_currentSelected].selected = !Monster[m_currentOffset + m_currentSelected].selected;
+		Monsters[m_currentOffset + m_currentSelected].selected = !Monsters[m_currentOffset + m_currentSelected].selected;
 		if (m_beforeSelected != m_currentOffset + m_currentSelected) {
 			if (m_beforeSelected != -1) {
-				Monster[m_currentOffset + m_currentSelected].selected = false;
-				Monster[m_beforeSelected].selected = false;
-				std::iter_swap(Monster.begin() + m_beforeSelected, Monster.begin() + m_currentOffset + m_currentSelected);
+				Monsters[m_currentOffset + m_currentSelected].selected = false;
+				Monsters[m_beforeSelected].selected = false;
+				std::iter_swap(Monsters.begin() + m_beforeSelected, Monsters.begin() + m_currentOffset + m_currentSelected);
 				m_beforeSelected = -1;
 			}else {
 				m_beforeSelected = m_currentOffset + m_currentSelected;

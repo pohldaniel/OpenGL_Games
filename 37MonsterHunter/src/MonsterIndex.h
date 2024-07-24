@@ -62,7 +62,7 @@ public:
 	static void DrawBar(const Rect& rect, float value, float maxValue, const Vector4f& bgColor, const Vector4f& color, float radius = 1.0f);
 
 	static std::unordered_map<std::string, MonsterData> MonsterData;
-	static std::vector<MonsterEntry> Monster;
+	static std::vector<MonsterEntry> Monsters;
 	static std::unordered_map<std::string, AttackData> _AttackData;
 	static std::unordered_map<std::string, Vector4f> ColorMap;
 

@@ -195,12 +195,17 @@ void Monster::unPause() {
 
 void Monster::setHighlight(bool highlight) {
 	m_highlight = highlight;
+	m_coverWithMask = false;
+}
+
+void Monster::setHighlight(bool highlight, unsigned int milli) {
+	m_highlight = highlight;
 	if (m_highlight) {
 		m_coverWithMask = true;
 		m_highlightTimer.setOnTimerEnd([&m_coverWithMask = m_coverWithMask]() {
 			m_coverWithMask = false;
 		});
-		m_highlightTimer.start(300, false);
+		m_highlightTimer.start(milli, false);
 	}
 }
 

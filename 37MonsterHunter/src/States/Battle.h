@@ -9,6 +9,8 @@
 #include <Entities/Monster.h>
 #include "MonsterIndex.h"
 
+
+
 struct BattleChoice {
 	Vector2f pos;
 	unsigned int graphics;
@@ -46,7 +48,7 @@ private:
 
 	bool m_initUi = true;
 	bool m_drawUi = false;
-	bool m_drawGeneralUi, m_drawAtacksUi, m_drawSwitchUi;
+	bool m_drawGeneralUi, m_drawAtacksUi, m_drawSwitchUi, m_drawTargetUI;
 
 	Camera m_camera;
 	float m_viewWidth;
@@ -56,9 +58,13 @@ private:
 	std::vector<Cell> m_cells;
 	unsigned int m_atlasBattleIcon;
 	int m_currentSelectedMonster;
-	int m_currentSelectedOption, m_currentMax, m_currentOffset;
+	int m_currentSelectedOption, m_currentMax, m_currentOffset, m_cutOff;
 	int m_visibleItems;
+	std::pair<std::string, unsigned int> m_currentAbility;
+	std::string m_currentTarget;
+
 	tsl::ordered_map<std::string, unsigned int> m_abilitiesFiltered;
+	std::vector<MonsterEntry> m_filteredMonsters;
 
 	std::vector<MonsterEntry> m_opponentMonster;
 	std::vector<Monster> m_monster;

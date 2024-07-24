@@ -26,6 +26,8 @@ public:
 	void update() override;
 	void render() override;
 	void resize(int deltaW, int deltaH) override;
+	void OnReEnter() override;
+
 	void OnMouseMotion(Event::MouseMoveEvent& event) override;
 	void OnMouseWheel(Event::MouseWheelEvent& event) override;
 	void OnMouseButtonDown(Event::MouseButtonEvent& event) override;

@@ -151,6 +151,8 @@ void MonsterHunter::update() {
 		m_machine.addStateAtTop(new Battle(m_machine));
 		static_cast<Battle*>(m_machine.getStates().top())->setMapHeight(m_mapHeight);
 		static_cast<Battle*>(m_machine.getStates().top())->setViewHeight(m_viewHeight);
+		EventDispatcher::RemoveKeyboardListener(this);
+		EventDispatcher::RemoveMouseListener(this);
 	}
 
 	for (Character& character : m_zone.getCharacters()) {
@@ -204,6 +206,11 @@ void MonsterHunter::render() {
 
 	if (m_drawUi)
 		renderUi();
+}
+
+void MonsterHunter::OnReEnter() {
+	EventDispatcher::AddKeyboardListener(this);
+	EventDispatcher::AddMouseListener(this);
 }
 
 void MonsterHunter::OnMouseMotion(Event::MouseMoveEvent& event) {

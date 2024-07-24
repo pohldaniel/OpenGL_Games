@@ -29,6 +29,7 @@ public:
 	void pause();
 	void unPause();
 	void setHighlight(bool highlight);
+	void setHighlight(bool highlight, unsigned int milli);
 	const std::string& getName() const;
 	const unsigned int getLevel() const;
 	const float getEnergy() const;
@@ -53,4 +54,14 @@ private:
 
 	static std::random_device RandomDevice;
 	static std::uniform_real_distribution<float> Distribution;
+};
+
+struct MonsterFunctor {
+
+	MonsterFunctor(void (Monster::*f)(bool, unsigned int), bool _placeholder1, unsigned int _placeholder2) : setHighlight(f), placeholder1(_placeholder1), placeholder2(_placeholder2) {}
+
+	void (Monster::*setHighlight)(bool, unsigned int);
+	bool placeholder1;
+	unsigned int placeholder2;
+	void operator()(Monster& i) { (i.*setHighlight)(placeholder1, placeholder2); }
 };
