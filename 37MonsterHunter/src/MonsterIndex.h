@@ -19,6 +19,8 @@ struct MonsterEntry {
 	std::string name;
 	unsigned int level;
 	bool selected;
+	float health;
+	float energy;
 };
 
 struct MonsterData {
@@ -55,8 +57,9 @@ public:
 	void setViewWidth(float viewWidth);
 	void setViewHeight(float viewHeight);
 
-	void drawBar(const Rect& rect, float value, float maxValue, const Vector4f& bgColor, const Vector4f& color, float radius = 1.0f);
 	void drawBar(const Rect& rect, const TextureRect& textureRect, float value, float maxValue, const Vector4f& bgColor, const Vector4f& color);
+
+	static void DrawBar(const Rect& rect, float value, float maxValue, const Vector4f& bgColor, const Vector4f& color, float radius = 1.0f);
 
 	static std::unordered_map<std::string, MonsterData> MonsterData;
 	static std::vector<MonsterEntry> Monster;
@@ -70,7 +73,7 @@ private:
 
 	std::vector<std::string> m_stats;
 	Sprite m_surface;
-	Sprite m_surfaceBar;
+	
 	float m_viewWidth, m_viewHeight;
 	unsigned int m_atlasIcons, m_atlasMonster;
 	int m_currentOffset, m_currentSelected, m_beforeSelected;
@@ -80,4 +83,6 @@ private:
 	int m_frameCount;
 
 	std::unordered_map<std::string, float> m_maxStats;
+
+	static Sprite SurfaceBar;
 };

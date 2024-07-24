@@ -11,6 +11,7 @@ std::unordered_map<std::string, MonsterData> MonsterIndex::MonsterData;
 std::vector<MonsterEntry> MonsterIndex::Monster;
 std::unordered_map<std::string, AttackData> MonsterIndex::_AttackData;
 std::unordered_map<std::string, Vector4f> MonsterIndex::ColorMap;
+Sprite MonsterIndex::SurfaceBar;
 
 MonsterIndex::MonsterIndex() : 
 m_visibleItems(6), 
@@ -78,16 +79,16 @@ m_frameCount(4){
 	}
 	file.close();
 
-	Monster.push_back({ "Friolera", 13u, false });
-	Monster.push_back({ "Friolera", 25u, false });
-	Monster.push_back({ "Friolera", 18u, false });
-	Monster.push_back({ "Atrox", 30u, false });
-	Monster.push_back({ "Sparchu", 24u, false });
-	Monster.push_back({ "Gulfin", 17u, false });
-	Monster.push_back({ "Jacana", 16u, false });
-	Monster.push_back({ "Plumette", 9u, false });
-	Monster.push_back({ "Cleaf", 3u, false });
-	Monster.push_back({ "Charmadillo", 30u, false });
+	Monster.push_back({ "Friolera", 13u, false , 300.0f, 200.0f});
+	Monster.push_back({ "Friolera", 25u, false , 300.0f, 200.0f });
+	Monster.push_back({ "Friolera", 18u, false , 300.0f, 200.0f });
+	Monster.push_back({ "Atrox", 30u, false , 300.0f, 200.0f });
+	Monster.push_back({ "Sparchu", 24u, false , 300.0f, 200.0f });
+	Monster.push_back({ "Gulfin", 17u, false , 300.0f, 200.0f });
+	Monster.push_back({ "Jacana", 16u, false , 300.0f, 200.0f });
+	Monster.push_back({ "Plumette", 9u, false , 300.0f, 200.0f });
+	Monster.push_back({ "Cleaf", 3u, false , 300.0f, 200.0f });
+	Monster.push_back({ "Charmadillo", 30u, false , 300.0f, 200.0f });
 
 	ColorMap["plant"] = { 0.39215f, 0.66274f, 0.56470f, 1.0f};
 	ColorMap["fire"] = { 0.97254f, 0.62745f, 0.37647f, 1.0f };
@@ -304,14 +305,14 @@ void MonsterIndex::draw() {
 	Fontrenderer::Get().addText(Globals::fontManager.get("dialog"), 0.8f * m_viewWidth - 0.045f * Globals::fontManager.get("dialog").getWidth(MonsterData[currentMonster.name].element) - 10.0f, bottom + 0.5f * m_viewHeight + 10.0f, MonsterData[currentMonster.name].element, Vector4f(0.95686f, 0.99608f, 0.98039f, 1.0f), 0.045f);
 	Fontrenderer::Get().drawBuffer();
 
-	const TextureRect& bar100 = TileSetManager::Get().getTileSet("monster_icon").getTextureRects()[17];
+	const TextureRect& bar100 = TileSetManager::Get().getTileSet("monster_icon").getTextureRects()[18];
 	drawBar({ 0.4f * m_viewWidth + 10.0f , bottom + 0.5f * m_viewHeight + 6.0f, 100.0f, 5.0f }, bar100, 700.0f, currentMonster.level * 150.0f, Vector4f(0.16862f, 0.16078f, 0.17255f, 1.0f), Vector4f(0.95686f, 0.99608f, 0.98039f, 1.0f));
 	
-	drawBar({ 0.4f * m_viewWidth + m_viewWidth * 0.4f * 0.25f - m_viewWidth * 0.4f * 0.45f * 0.5f , bottom + 0.5f * m_viewHeight - m_viewWidth * 0.03f - 7.5f, m_viewWidth * 0.4f * 0.45f, 30.0f }, 150.0f, static_cast<float>(currentMonster.level * MonsterData[currentMonster.name].maxHealth), Vector4f(0.0f, 0.0f, 0.0f, 1.0f), Vector4f(0.94117f, 0.19215f, 0.19215f, 1.0f), 2.0f);
-	drawBar({ 0.4f * m_viewWidth + m_viewWidth * 0.4f * 0.75f - m_viewWidth * 0.4f * 0.45f * 0.5f , bottom + 0.5f * m_viewHeight - m_viewWidth * 0.03f - 7.5f, m_viewWidth * 0.4f * 0.45f, 30.0f }, 150.0f, static_cast<float>(currentMonster.level * MonsterData[currentMonster.name].maxEnergy), Vector4f(0.0f, 0.0f, 0.0f, 1.0f), Vector4f(0.4f, 0.84313f, 0.93333f, 1.0f), 2.0f);
+	DrawBar({ 0.4f * m_viewWidth + m_viewWidth * 0.4f * 0.25f - m_viewWidth * 0.4f * 0.45f * 0.5f , bottom + 0.5f * m_viewHeight - m_viewWidth * 0.03f - 7.5f, m_viewWidth * 0.4f * 0.45f, 30.0f }, currentMonster.health, static_cast<float>(currentMonster.level * MonsterData[currentMonster.name].maxHealth), Vector4f(0.0f, 0.0f, 0.0f, 1.0f), Vector4f(0.94117f, 0.19215f, 0.19215f, 1.0f), 2.0f);
+	DrawBar({ 0.4f * m_viewWidth + m_viewWidth * 0.4f * 0.75f - m_viewWidth * 0.4f * 0.45f * 0.5f , bottom + 0.5f * m_viewHeight - m_viewWidth * 0.03f - 7.5f, m_viewWidth * 0.4f * 0.45f, 30.0f }, currentMonster.energy, static_cast<float>(currentMonster.level * MonsterData[currentMonster.name].maxEnergy), Vector4f(0.0f, 0.0f, 0.0f, 1.0f), Vector4f(0.4f, 0.84313f, 0.93333f, 1.0f), 2.0f);
 	Globals::fontManager.get("dialog").bind();
-	Fontrenderer::Get().addText(Globals::fontManager.get("dialog"), 0.4f * m_viewWidth + m_viewWidth * 0.4f * 0.25f - m_viewWidth * 0.4f * 0.45f * 0.5f + 10.0f, bottom + 0.5f * m_viewHeight - m_viewWidth * 0.03f - lineHeight * 0.5f + 7.5f, "HP: 150/" + std::to_string(currentMonster.level * MonsterData[currentMonster.name].maxHealth), Vector4f(0.95686f, 0.99608f, 0.98039f, 1.0f), 0.045f);
-	Fontrenderer::Get().addText(Globals::fontManager.get("dialog"), 0.4f * m_viewWidth + m_viewWidth * 0.4f * 0.75f - m_viewWidth * 0.4f * 0.45f * 0.5f + 10.0f, bottom + 0.5f * m_viewHeight - m_viewWidth * 0.03f - lineHeight * 0.5f + 7.5f, "EP: 150/" + std::to_string(currentMonster.level * MonsterData[currentMonster.name].maxEnergy), Vector4f(0.95686f, 0.99608f, 0.98039f, 1.0f), 0.045f);
+	Fontrenderer::Get().addText(Globals::fontManager.get("dialog"), 0.4f * m_viewWidth + m_viewWidth * 0.4f * 0.25f - m_viewWidth * 0.4f * 0.45f * 0.5f + 10.0f, bottom + 0.5f * m_viewHeight - m_viewWidth * 0.03f - lineHeight * 0.5f + 7.5f, "HP: " + Fontrenderer::FloatToString(currentMonster.health, 0) + "/" + std::to_string(currentMonster.level * MonsterData[currentMonster.name].maxHealth), Vector4f(0.95686f, 0.99608f, 0.98039f, 1.0f), 0.045f);
+	Fontrenderer::Get().addText(Globals::fontManager.get("dialog"), 0.4f * m_viewWidth + m_viewWidth * 0.4f * 0.75f - m_viewWidth * 0.4f * 0.45f * 0.5f + 10.0f, bottom + 0.5f * m_viewHeight - m_viewWidth * 0.03f - lineHeight * 0.5f + 7.5f, "EP: " + Fontrenderer::FloatToString(currentMonster.energy, 0) + "/" + std::to_string(currentMonster.level * MonsterData[currentMonster.name].maxEnergy), Vector4f(0.95686f, 0.99608f, 0.98039f, 1.0f), 0.045f);
 	Fontrenderer::Get().drawBuffer();
 
 	float left = 0.4f * m_viewWidth + m_viewWidth * 0.4f * 0.25f - m_viewWidth * 0.4f * 0.45f * 0.5f;
@@ -461,42 +462,39 @@ void MonsterIndex::resetAnimation() {
 	m_elapsedTime = 1.0f;
 }
 
-void MonsterIndex::drawBar(const Rect& rect, float value, float maxValue, const Vector4f& bgColor, const Vector4f& color, float radius) {
-	
-	
+void MonsterIndex::DrawBar(const Rect& rect, float value, float maxValue, const Vector4f& bgColor, const Vector4f& color, float radius) {	
 	float ratio = rect.width / maxValue;
 	float progress = std::max(0.0f, std::min(rect.width, value * ratio));
 
 	if (radius != 0.0f) {
-		m_surfaceBar.setShader(Globals::shaderManager.getAssetPointer("list"));
-		auto shader = m_surfaceBar.getShader();
+		SurfaceBar.setShader(Globals::shaderManager.getAssetPointer("list"));
+		auto shader = SurfaceBar.getShader();
 		shader->use();
 		shader->loadFloat("u_radius", radius);
 		shader->loadUnsignedInt("u_edge", Edge::ALL);
 
 		shader->loadVector("u_dimensions", Vector2f(rect.width, rect.height));
-		m_surfaceBar.setPosition(rect.posX, rect.posY, 0.0f);
-		m_surfaceBar.setScale(rect.width, rect.height, 1.0f);
-		m_surfaceBar.draw(bgColor);
+		SurfaceBar.setPosition(rect.posX, rect.posY, 0.0f);
+		SurfaceBar.setScale(rect.width, rect.height, 1.0f);
+		SurfaceBar.draw(bgColor);
 
 		shader->loadVector("u_dimensions", Vector2f(progress, rect.height));
-		m_surfaceBar.setPosition(rect.posX, rect.posY, 0.0f);
-		m_surfaceBar.setScale(progress, rect.height, 1.0f);
-		m_surfaceBar.draw(color);
+		SurfaceBar.setPosition(rect.posX, rect.posY, 0.0f);
+		SurfaceBar.setScale(progress, rect.height, 1.0f);
+		SurfaceBar.draw(color);
 
 	}else {
-		Spritesheet::Bind(m_atlasIcons);
-		m_surfaceBar.resetShader();
+		Spritesheet::Bind(TileSetManager::Get().getTileSet("monster_icon").getAtlas());
+		SurfaceBar.resetShader();
 		
-		m_surfaceBar.setPosition(rect.posX, rect.posY, 0.0f);
-		m_surfaceBar.setScale(rect.width, rect.height, 1.0f);
-		m_surfaceBar.draw(TileSetManager::Get().getTileSet("monster_icon").getTextureRects()[17], bgColor);
+		SurfaceBar.setPosition(rect.posX, rect.posY, 0.0f);
+		SurfaceBar.setScale(rect.width, rect.height, 1.0f);
+		SurfaceBar.draw(TileSetManager::Get().getTileSet("monster_icon").getTextureRects()[16], bgColor);
 
-		m_surfaceBar.setPosition(rect.posX, rect.posY, 0.0f);
-		m_surfaceBar.setScale(progress, rect.height, 1.0f);
-		m_surfaceBar.draw(TileSetManager::Get().getTileSet("monster_icon").getTextureRects()[17], color);
-	}
-	
+		SurfaceBar.setPosition(rect.posX, rect.posY, 0.0f);
+		SurfaceBar.setScale(progress, rect.height, 1.0f);
+		SurfaceBar.draw(TileSetManager::Get().getTileSet("monster_icon").getTextureRects()[16], color);
+	}	
 }
 
 void MonsterIndex::drawBar(const Rect& rect, const TextureRect& textureRect, float value, float maxValue, const Vector4f& bgColor, const Vector4f& color) {
@@ -504,13 +502,13 @@ void MonsterIndex::drawBar(const Rect& rect, const TextureRect& textureRect, flo
 	float progress = std::max(0.0f, std::min(rect.width, value * ratio));
 
 	Spritesheet::Bind(m_atlasIcons);
-	m_surfaceBar.resetShader();
+	SurfaceBar.resetShader();
 
-	m_surfaceBar.setPosition(rect.posX, rect.posY, 0.0f);
-	m_surfaceBar.setScale(rect.width, rect.height, 1.0f);
-	m_surfaceBar.draw(textureRect, bgColor);
+	SurfaceBar.setPosition(rect.posX, rect.posY, 0.0f);
+	SurfaceBar.setScale(rect.width, rect.height, 1.0f);
+	SurfaceBar.draw(textureRect, bgColor);
 
-	m_surfaceBar.setPosition(rect.posX, rect.posY, 0.0f);
-	m_surfaceBar.setScale(progress, rect.height, 1.0f);
-	m_surfaceBar.draw(textureRect, color);
+	SurfaceBar.setPosition(rect.posX, rect.posY, 0.0f);
+	SurfaceBar.setScale(progress, rect.height, 1.0f);
+	SurfaceBar.draw(textureRect, color);
 }

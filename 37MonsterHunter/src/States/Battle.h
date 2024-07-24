@@ -57,7 +57,7 @@ private:
 	unsigned int m_atlasBattleIcon;
 	int m_currentSelectedMonster;
 	int m_currentSelectedOption, m_currentMax, m_currentOffset;
-	int m_visibleAttacks, m_visibleMonster;
+	int m_visibleItems;
 	tsl::ordered_map<std::string, unsigned int> m_abilitiesFiltered;
 
 	std::vector<MonsterEntry> m_opponentMonster;

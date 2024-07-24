@@ -517,6 +517,11 @@ const std::vector<TextureRect> TileSet::getLastTextureRects() const {
 	return std::vector<TextureRect>(m_textureRects.end() - m_cutOff, m_textureRects.end());
 }
 
+void TileSet::bind(unsigned int unit) const {
+	glActiveTexture(GL_TEXTURE0 + unit);
+	glBindTexture(GL_TEXTURE_2D_ARRAY, m_atlas);
+}
+
 ///////////////////////TileSetManager//////////////////////////
 TileSetManager TileSetManager::s_instance;
 

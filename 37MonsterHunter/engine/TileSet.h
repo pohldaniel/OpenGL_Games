@@ -71,6 +71,7 @@ public:
 	const unsigned int& getAtlas() const;
 	void cleanup();
 	void markForDelete();
+	void bind(unsigned int unit = 0u) const;
 
 private:
 

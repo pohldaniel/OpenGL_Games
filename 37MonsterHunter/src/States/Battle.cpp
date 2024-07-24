@@ -66,12 +66,12 @@ m_visibleItems(4)
 	m_cells.reserve(6);
 	for (int i = 0; i < std::min(static_cast<int>(MonsterIndex::Monster.size()), 3); i++) {
 		m_cells.push_back({ positions[i][0], positions[i][1], 192.0f, 192.0f, static_cast<int>(MonsterIndex::MonsterData[MonsterIndex::Monster[i].name].graphic * 16u), centers[i][0], centers[i][1], true, true });
-		m_monster.push_back(Monster(m_cells.back(), MonsterIndex::Monster[i].name, MonsterIndex::Monster[i].level, 300.0f, 200.0f, 100.0f));
+		m_monster.push_back(Monster(m_cells.back(), MonsterIndex::Monster[i].name, MonsterIndex::Monster[i].level, 300.0f, MonsterIndex::Monster[i].health, MonsterIndex::Monster[i].energy));
 	}
 
 	for (int i = 0; i < std::min(static_cast<int>(m_opponentMonster.size()), 3); i++) {
 		m_cells.push_back({ positions[i + 3][0], positions[i + 3][1], 192.0f, 192.0f, static_cast<int>(MonsterIndex::MonsterData[m_opponentMonster[i].name].graphic * 16u), centers[i + 3][0], centers[i + 3][1], true, false });
-		m_monster.push_back(Monster(m_cells.back(), m_opponentMonster[i].name, m_opponentMonster[i].level, 300.0f, 200.0f, 100.0f));
+		m_monster.push_back(Monster(m_cells.back(), m_opponentMonster[i].name, m_opponentMonster[i].level, 300.0f, MonsterIndex::Monster[i].health, MonsterIndex::Monster[i].energy));
 	}
 
 	TextureAtlasCreator::Get().init(256u, 32u);
@@ -463,19 +463,39 @@ void Battle::drawSwitch() {
 			shader->loadVector("u_dimensions", Vector2f(width, itemHeight));
 			m_surface.setPosition(cell.posX + cell.width + 20.0f, cell.posY + 0.5f * cell.height - 0.5f * height + height - (index - m_currentOffset + 1) * itemHeight, 0.0f);
 			m_surface.setScale(width, itemHeight, 1.0f);
-			m_surface.draw(Vector4f(0.5f, 0.5f, 0.5f, 1.0f));
+			m_surface.draw(Vector4f(0.78431f, 0.78431f, 0.78431f, 1.0f));
 		}
 
 		Fontrenderer::Get().addText(Globals::fontManager.get("dialog"),
-			cell.posX + cell.width + 20.0f + 0.5f * width - 0.5f * Globals::fontManager.get("dialog").getWidth(MonsterIndex::Monster[index].name) * 0.045f,
+			cell.posX + cell.width + 20.0f + 90.0f,
 			cell.posY + 0.5f * cell.height - 0.5f * height + height - (index - m_currentOffset + 1) * itemHeight + 0.5f * itemHeight - 0.5f * lineHeight,
-			MonsterIndex::Monster[index].name,
-			Vector4f(1.0f, 0.0f, 0.0f, 1.0f),
+			MonsterIndex::Monster[index].name + " " + "(" + std::to_string(MonsterIndex::Monster[index].level) + ")",
+			index == m_currentSelectedOption ? Vector4f(0.94117f, 0.19215f, 0.19215f, 1.0f) : Vector4f(0.0f, 0.0f, 0.0f, 1.0f),
 			0.045f);
 	}
 
 	Globals::fontManager.get("dialog").bind();
 	Fontrenderer::Get().drawBuffer();
+
+	TileSetManager::Get().getTileSet("monster_icon").bind();
+	m_surface.resetShader();
+	for (size_t index = m_currentOffset; index < m_currentOffset + std::min(m_visibleItems, m_currentMax - m_currentOffset); index++) {
+		const TextureRect& iconRect = iconRects[MonsterIndex::MonsterData[MonsterIndex::Monster[index].name].graphic];
+		float iconPosX = cell.posX + cell.width + 20.0f + 10.0f;
+		float iconPosY = cell.posY + 0.5f * cell.height - 0.5f * height + height - (index - m_currentOffset + 1) * itemHeight + 0.5f * itemHeight - iconRect.height * 0.5f;
+
+		
+		m_surface.setPosition(iconPosX, iconPosY, 0.0f);
+		m_surface.setScale(iconRect.width, iconRect.height, 1.0f);
+		m_surface.draw(iconRect, Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+
+
+		float barPosX = cell.posX + cell.width + 20.0f + 90.0f;
+		float barPosY = cell.posY + 0.5f * cell.height - 0.5f * height + height - (index - m_currentOffset + 1) * itemHeight + 0.5f * itemHeight - 0.5f * lineHeight;
+
+		MonsterIndex::DrawBar({ barPosX, barPosY - 9.0f,  100.0f, 5.0f }, MonsterIndex::Monster[index].health, static_cast<float>(MonsterIndex::Monster[index].level * MonsterIndex::MonsterData[MonsterIndex::Monster[index].name].maxHealth), Vector4f(0.0f, 0.0f, 0.0f, 1.0f), Vector4f(0.94117f, 0.19215f, 0.19215f, 1.0f), 0.0f);
+		MonsterIndex::DrawBar({ barPosX, barPosY - 16.0f, 100.0f, 5.0f }, MonsterIndex::Monster[index].energy, static_cast<float>(MonsterIndex::Monster[index].level * MonsterIndex::MonsterData[MonsterIndex::Monster[index].name].maxEnergy), Vector4f(0.0f, 0.0f, 0.0f, 1.0f), Vector4f(0.4f, 0.84313f, 0.93333f, 1.0f), 0.0f);
+	}
 }
 
 void Battle::processInput() {
