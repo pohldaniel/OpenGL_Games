@@ -23,7 +23,7 @@ m_currentSelectedMonster(-1),
 m_currentSelectedOption(0),
 m_currentMax(4),
 m_currentOffset(0),
-m_visibleAttacks(4)
+m_visibleItems(4)
 {
 
 	m_viewWidth = 1280.0f;
@@ -375,12 +375,12 @@ void Battle::drawAttacks() {
 
 	float width = 150.0f;
 	float height = 200.0f;
-	int delimiter = std::min(m_visibleAttacks, m_currentMax);
+	int limiter = std::min(m_visibleItems, m_currentMax);
 
-	float itemHeight = height / static_cast<float>(std::max(delimiter, 4));
+	float itemHeight = height / static_cast<float>(std::max(limiter, 4));
 	float lineHeight = Globals::fontManager.get("dialog").lineHeight * 0.045f;
 
-	height = delimiter <= 1  ? 50.0f : delimiter == 2  ? 100.0f : delimiter == 3 ? 150.0f : 200.0f;
+	height = limiter <= 1  ? 50.0f : limiter == 2  ? 100.0f : limiter == 3 ? 150.0f : 200.0f;
 
 	auto shader = Globals::shaderManager.getAssetPointer("list");
 	shader->use();
@@ -394,13 +394,13 @@ void Battle::drawAttacks() {
 	m_surface.draw();
 	
 	int index = 0;	
-	for (auto& ability = m_abilitiesFiltered.begin() + m_currentOffset; ability != m_abilitiesFiltered.begin() + m_currentOffset + std::min(m_visibleAttacks, m_currentMax - m_currentOffset); ++ability){
+	for (auto& ability = m_abilitiesFiltered.begin() + m_currentOffset; ability != m_abilitiesFiltered.begin() + m_currentOffset + std::min(m_visibleItems, m_currentMax - m_currentOffset); ++ability){
 		
 		if (index == m_currentSelectedOption - m_currentOffset) {
 
 			if(index == 0)
 				shader->loadUnsignedInt("u_edge", Edge::TOP);
-			else if (index == m_visibleAttacks - 1) 
+			else if (index == m_visibleItems - 1)
 				shader->loadUnsignedInt("u_edge", Edge::BOTTOM);
 			else 
 				shader->loadUnsignedInt("u_edge", Edge::EDGE_NONE);
@@ -425,7 +425,57 @@ void Battle::drawAttacks() {
 }
 
 void Battle::drawSwitch() {
+	const Monster& currentMonster = m_monster[m_currentSelectedMonster];
+	const Cell& cell = currentMonster.getCell();
+	const std::vector<TextureRect>& iconRects = TileSetManager::Get().getTileSet("monster_icon").getTextureRects();
 
+	float width = 300.0f;
+	float height = 320.0f;
+	int limiter = std::min(m_visibleItems, m_currentMax);
+
+	float itemHeight = height / static_cast<float>(std::max(limiter, 4));
+	float lineHeight = Globals::fontManager.get("dialog").lineHeight * 0.045f;
+
+	height = limiter <= 1 ? 80.0f : limiter == 2 ? 160.0f : limiter == 3 ? 240.0f : 320.0f;
+
+	auto shader = Globals::shaderManager.getAssetPointer("list");
+	shader->use();
+	shader->loadVector("u_dimensions", Vector2f(width, height));
+	shader->loadFloat("u_radius", 5.0f);
+	shader->loadUnsignedInt("u_edge", Edge::ALL);
+
+	m_surface.setShader(shader);
+	m_surface.setPosition(cell.posX + cell.width + 20.0f, cell.posY + 0.5f * cell.height - 0.5f * height, 0.0f);
+	m_surface.setScale(width, height, 1.0f);
+	m_surface.draw();
+
+	for (size_t index = m_currentOffset; index < m_currentOffset + std::min(m_visibleItems, m_currentMax - m_currentOffset); index++) {
+
+		if (index == m_currentSelectedOption) {
+			
+			if (index == m_currentOffset)
+				shader->loadUnsignedInt("u_edge", Edge::TOP);
+			else if (index == m_currentOffset + std::min(m_visibleItems, m_currentMax - m_currentOffset) - 1)
+				shader->loadUnsignedInt("u_edge", Edge::BOTTOM);
+			else
+				shader->loadUnsignedInt("u_edge", Edge::EDGE_NONE);
+
+			shader->loadVector("u_dimensions", Vector2f(width, itemHeight));
+			m_surface.setPosition(cell.posX + cell.width + 20.0f, cell.posY + 0.5f * cell.height - 0.5f * height + height - (index - m_currentOffset + 1) * itemHeight, 0.0f);
+			m_surface.setScale(width, itemHeight, 1.0f);
+			m_surface.draw(Vector4f(0.5f, 0.5f, 0.5f, 1.0f));
+		}
+
+		Fontrenderer::Get().addText(Globals::fontManager.get("dialog"),
+			cell.posX + cell.width + 20.0f + 0.5f * width - 0.5f * Globals::fontManager.get("dialog").getWidth(MonsterIndex::Monster[index].name) * 0.045f,
+			cell.posY + 0.5f * cell.height - 0.5f * height + height - (index - m_currentOffset + 1) * itemHeight + 0.5f * itemHeight - 0.5f * lineHeight,
+			MonsterIndex::Monster[index].name,
+			Vector4f(1.0f, 0.0f, 0.0f, 1.0f),
+			0.045f);
+	}
+
+	Globals::fontManager.get("dialog").bind();
+	Fontrenderer::Get().drawBuffer();
 }
 
 void Battle::processInput() {
@@ -438,7 +488,7 @@ void Battle::processInput() {
 		}
 		
 		if (m_currentSelectedOption < 0) {
-			m_currentOffset = std::max(m_currentMax - m_visibleAttacks, 0);
+			m_currentOffset = std::max(m_currentMax - m_visibleItems, 0);
 			m_currentSelectedOption = m_currentMax - 1;
 		}
 	}
@@ -446,11 +496,11 @@ void Battle::processInput() {
 	if (keyboard.keyPressed(Keyboard::KEY_DOWN)) {
 		m_currentSelectedOption++;
 
-		if (m_currentSelectedOption - (m_visibleAttacks - 1) > 0) {
+		if (m_currentSelectedOption - m_currentOffset - (m_visibleItems - 1) > 0) {
 			m_currentOffset++;
 		}
 	
-		if (m_currentSelectedOption > m_currentMax -1) {
+		if (m_currentSelectedOption > m_currentMax - 1) {
 			m_currentSelectedOption = 0;
 			m_currentOffset = 0;
 		}
@@ -460,6 +510,7 @@ void Battle::processInput() {
 		if (m_currentSelectedOption == 0) {
 			m_drawGeneralUi = false;
 			m_drawAtacksUi = true;
+			m_visibleItems = 4;
 			const Monster& currentMonster = m_monster[m_currentSelectedMonster];
 			const tsl::ordered_map<std::string, unsigned int>& abilities = MonsterIndex::MonsterData[m_monster[m_currentSelectedMonster].getName()].abilities;
 			m_abilitiesFiltered.clear();
@@ -471,12 +522,16 @@ void Battle::processInput() {
 			m_currentSelectedOption = 0;
 		}else if (m_currentSelectedOption == 1) {
 			m_drawGeneralUi = false;
+			m_visibleItems = 4;
 			m_currentSelectedOption = 0;
 			m_currentMax = 4;
 			m_currentSelectedMonster = -1;
 			std::for_each(m_monster.begin(), m_monster.end(), std::mem_fn(&Monster::unPause));
 		}else if (m_currentSelectedOption == 2) {
-			std::cout << "Switch" << std::endl;
+			m_drawGeneralUi = false;
+			m_drawSwitchUi = true;
+			m_currentSelectedOption = 0;
+			m_currentMax = static_cast<int>(MonsterIndex::Monster.size());
 		}else if (m_currentSelectedOption == 3) {
 			std::cout << "Catch" << std::endl;
 		}
