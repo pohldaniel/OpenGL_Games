@@ -335,7 +335,7 @@ void Game::deleteEntities() {
 			// eraseSelf -> calls destructor -> delete (*it) not neccessary
 			(*it)->eraseSelf();
 			//delete (*it);
-			it = m_entities.erase(it);;
+			it = m_entities.erase(it);
 		}
 		else ++it;
 	}

@@ -52,7 +52,7 @@ private:
 	bool m_initUi = true;
 	bool m_drawUi = false;
 	bool m_playAbility;
-	bool m_drawGeneralUi, m_drawAtacksUi, m_drawSwitchUi, m_drawTargetUI;
+	bool m_drawGeneralUi, m_drawAtacksUi, m_drawSwitchUi, m_drawTargetUI, m_removeDefeteadMonster;
 
 	Camera m_camera;
 	float m_viewWidth;
@@ -82,4 +82,6 @@ private:
 	float m_elapsedTime;
 	int m_currentFrame, m_abilityOffset;
 	int m_frameCount;
+
+	unsigned int m_supplyIndexOpponent, m_supplyIndexPlayer;
 };

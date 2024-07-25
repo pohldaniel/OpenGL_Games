@@ -23,7 +23,7 @@ m_pause(false),
 m_highlight(false),
 m_coverWithMask(false),
 m_attackOffset(0u),
-m_canAttack(false),
+m_canAttack(true),
 m_isDefending(false)
 {
 	m_direction.set(0.0f, 0.0f);
@@ -163,7 +163,7 @@ void Monster::drawBack() {
 }
 
 void Monster::draw() {
-	
+	//std::cout << "Can Attack: " << m_canAttack << std::endl;
 	float padding = 10.0f;
 	float width = Globals::fontManager.get("dialog").getWidth(m_name) * 0.045f + 2.0f * padding;
 	float height = Globals::fontManager.get("dialog").lineHeight * 0.045f + 2.0f * padding;
@@ -339,7 +339,11 @@ const bool Monster::getCanAttack() const {
 	return m_canAttack;
 }
 
-void Monster::applyAttack(float amount, const AttackData& attackData) {
+void Monster::setCanAttack(bool canAttack) {
+	m_canAttack = canAttack;
+}
+
+void Monster::applyAttack(float amount, unsigned int targetLevel, const AttackData& attackData) {
 	if (attackData.element == "fire" && MonsterIndex::MonsterData[m_name].element == "plant" ||
 		attackData.element == "water" && MonsterIndex::MonsterData[m_name].element == "fire" ||
 		attackData.element == "plant" && MonsterIndex::MonsterData[m_name].element == "water") {
@@ -351,7 +355,7 @@ void Monster::applyAttack(float amount, const AttackData& attackData) {
 		attackData.element == "plant" && MonsterIndex::MonsterData[m_name].element == "fire") {
 		amount *= 0.5f;
 	}
-	float targetDefense = 1.0f - MonsterIndex::MonsterData[m_name].defense * 0.0005f;
+	float targetDefense = 1.0f - MonsterIndex::MonsterData[m_name].defense * static_cast<float>(targetLevel) * 0.0005f;
 	if (m_isDefending) {
 		targetDefense -= 0.2f;
 	}
@@ -372,6 +376,6 @@ float Monster::GetBaseDamage(const std::string monsterName, const std::string at
 	return MonsterIndex::MonsterData[monsterName].attack * MonsterIndex::_AttackData[attackName].amount * static_cast<float>(level);
 }
 
-void Monster::CanAttack(bool& disableAttack, const std::unordered_map<std::string, AttackData>& attackData, const Monster& monster) {
-	disableAttack = std::count_if(attackData.begin(), attackData.end(), [&monster = monster](const std::pair<std::string, AttackData>& attack) { return attack.second.cost <= monster.getEnergy(); }) == 0;
+void Monster::CanAttack(bool& canAttack, const std::unordered_map<std::string, AttackData>& attackData, const Monster& monster) {
+	canAttack = !std::count_if(attackData.begin(), attackData.end(), [&monster = monster](const std::pair<std::string, AttackData>& attack) { return attack.second.cost <= monster.getEnergy(); }) == 0;
 }

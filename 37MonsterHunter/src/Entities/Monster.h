@@ -43,8 +43,9 @@ public:
 	void reduceEnergy(const AttackData& attack);
 	void playAttackAnimation();
 	void canAttack();
+	void setCanAttack(bool canAttack);
 	const bool getCanAttack() const;
-	void applyAttack(float amount, const AttackData& attackData);
+	void applyAttack(float amount, unsigned int targetLevel, const AttackData& attackData);
 	float getBaseDamage(const std::string attackName);
 	void setIsDefending(bool isDefending);
 
@@ -66,7 +67,7 @@ private:
 	unsigned int m_attackOffset;
 	Timer m_highlightTimer;
 
-	static void CanAttack(bool& disableAttack, const std::unordered_map<std::string, AttackData>& AttackData, const Monster& monster);
+	static void CanAttack(bool& canAttack, const std::unordered_map<std::string, AttackData>& AttackData, const Monster& monster);
 	static float GetBaseDamage(const std::string monsterName, const std::string attackName, unsigned int level);
 
 	static std::random_device RandomDevice;

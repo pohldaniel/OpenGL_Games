@@ -9,7 +9,7 @@
 				},
 	"heal":     {
 					"target": "player",   
-					"amount": -1.2, 
+					"amount": 1.2, 
 					"cost": 15, 
 					"element": "plant",  
 					"animation": "green",
