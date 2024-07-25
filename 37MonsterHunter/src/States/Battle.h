@@ -18,6 +18,8 @@ struct BattleChoice {
 
 class Battle : public State, public MouseEventListener, public KeyboardEventListener {
 
+	static const int MAX_POINTS = 1000;
+
 public:
 
 	Battle(StateMachine& machine);
@@ -41,13 +43,16 @@ public:
 
 private:
 
+	void drawAtackAnimation(float posX, float posY);
 	void renderUi();
 	void drawGeneral();
 	void drawAttacks();
 	void drawSwitch();
+	void onAttackEnd();
 
 	bool m_initUi = true;
 	bool m_drawUi = false;
+	bool m_playAttack;
 	bool m_drawGeneralUi, m_drawAtacksUi, m_drawSwitchUi, m_drawTargetUI;
 
 	Camera m_camera;
@@ -56,7 +61,7 @@ private:
 	float m_mapHeight;
 
 	std::vector<Cell> m_cells;
-	unsigned int m_atlasBattleIcon;
+	unsigned int m_atlasBattleIcon, m_atlasAttacks;
 	int m_currentSelectedMonster;
 	int m_currentSelectedOption, m_currentMax, m_currentOffset, m_cutOff;
 	int m_visibleItems;
@@ -73,4 +78,8 @@ private:
 	std::vector<BattleChoice> m_battleChoices;
 
 	Sprite m_surface;
+
+	float m_elapsedTime;
+	int m_currentFrame, m_currentGraphicOffset;
+	int m_frameCount;
 };

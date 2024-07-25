@@ -4,69 +4,79 @@
 					"amount": 2,    
 					"cost": 15, 
 					"element": "fire",   
-					"animation": "fire"
+					"animation": "fire",
+					"graphic": 4
 				},
 	"heal":     {
 					"target": "player",   
 					"amount": -1.2, 
 					"cost": 15, 
 					"element": "plant",  
-					"animation": "green"
+					"animation": "green",
+					"graphic": 8
 				},
 	"battlecry":{
 					"target": "player",   
 					"amount": -1.4, 
 					"cost": 20, 
 					"element": "normal", 
-					"animation": "green"
+					"animation": "green",
+					"graphic": 8
 				},
 	"spark":    {
 					"target": "opponent", 
 					"amount": 1.1,  
 					"cost": 20, 
 					"element": "fire",   
-					"animation": "fire"
+					"animation": "fire",
+					"graphic": 4
 				},
 	"scratch":  {
 					"target": "opponent", 
 					"amount": 1.2,  
 					"cost": 20, 
 					"element": "normal", 
-					"animation": "scratch"
+					"animation": "scratch",
+					"graphic": 16
 				},
 	"splash":   {
 					"target": "opponent", 
 					"amount": 2,    
 					"cost": 15, 
 					"element": "water",  
-					"animation": "splash"
+					"animation": "splash",
+					"graphic": 20
 				},
 	"fire":     {
 					"target": "opponent", 
 					"amount": 2,    
 					"cost": 15, 
 					"element": "fire",   
-					"animation": "fire"
+					"animation": "fire",
+					"graphic": 4
 				},
 	"explosion":{
 					"target": "opponent", 
 					"amount": 2,    
 					"cost": 90, 
 					"element": "fire",   
-					"animation": "explosion"
+					"animation": "explosion",
+					"graphic": 0
 				},
 	"annihilate":{
 					"target": "opponent", 
 					"amount": 3,    
 					"cost": 30, 
 					"element": "fire",   
-					"animation": "explosion"
+					"animation": "explosion",
+					"graphic": 0
 				},
 	"ice":      {
 					"target": "opponent", 
 					"amount": 2,    
 					"cost": 15, 
 					"element": "water",  
-					"animation": "ice"
+					"animation": "ice",
+					"graphic": 12
 				}
 }

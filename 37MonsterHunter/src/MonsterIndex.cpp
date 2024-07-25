@@ -76,6 +76,7 @@ m_frameCount(4){
 		_AttackData[attack->name.GetString()].cost = attack->value["cost"].GetFloat();
 		_AttackData[attack->name.GetString()].element = attack->value["element"].GetString();
 		_AttackData[attack->name.GetString()].animation = attack->value["animation"].GetString();
+		_AttackData[attack->name.GetString()].graphic = attack->value["graphic"].GetUint();
 	}
 	file.close();
 

@@ -42,6 +42,7 @@ struct AttackData {
 	float cost;
 	std::string element;
 	std::string animation;
+	unsigned int graphic;
 };
 
 class MonsterIndex {
