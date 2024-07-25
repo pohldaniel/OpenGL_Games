@@ -43,16 +43,16 @@ public:
 
 private:
 
-	void drawAtackAnimation(float posX, float posY);
+	void drawAbilityAnimation(float posX, float posY);
 	void renderUi();
 	void drawGeneral();
 	void drawAttacks();
 	void drawSwitch();
-	void onAttackEnd();
+	void onAbilityEnd();
 
 	bool m_initUi = true;
 	bool m_drawUi = false;
-	bool m_playAttack;
+	bool m_playAbility;
 	bool m_drawGeneralUi, m_drawAtacksUi, m_drawSwitchUi, m_drawTargetUI;
 
 	Camera m_camera;
@@ -61,7 +61,7 @@ private:
 	float m_mapHeight;
 
 	std::vector<Cell> m_cells;
-	unsigned int m_atlasBattleIcon, m_atlasAttacks;
+	unsigned int m_atlasBattleIcon, m_atlasAbilities;
 	int m_currentSelectedMonster;
 	int m_currentSelectedOption, m_currentMax, m_currentOffset, m_cutOff;
 	int m_visibleItems;
@@ -80,6 +80,6 @@ private:
 	Sprite m_surface;
 
 	float m_elapsedTime;
-	int m_currentFrame, m_currentGraphicOffset;
+	int m_currentFrame, m_abilityOffset;
 	int m_frameCount;
 };

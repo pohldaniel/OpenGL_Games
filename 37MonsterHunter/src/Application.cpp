@@ -826,5 +826,10 @@ void Application::loadAssets() {
 	Texture::GrayScale("res/tmx/graphics/ui/sword.png", "res/tmx/graphics/ui/sword_gray.png");
 	Texture::GrayScale("res/tmx/graphics/ui/shield.png", "res/tmx/graphics/ui/shield_gray.png");
 	Texture::GrayScale("res/tmx/graphics/ui/arrows.png", "res/tmx/graphics/ui/arrows_gray.png");
-	Texture::GrayScale("res/tmx/graphics/ui/hand.png", "res/tmx/graphics/ui/hand_gray.png");*/
+	Texture::GrayScale("res/tmx/graphics/ui/hand.png", "res/tmx/graphics/ui/hand_gray.png");
+
+	Texture::GrayScale("res/tmx/graphics/ui/sword_highlight.png", "res/tmx/graphics/ui/sword_gray_highlight.png");
+	Texture::GrayScale("res/tmx/graphics/ui/shield_highlight.png", "res/tmx/graphics/ui/shield_gray_highlight.png");
+	Texture::GrayScale("res/tmx/graphics/ui/arrows_highlight.png", "res/tmx/graphics/ui/arrows_gray_highlight.png");
+	Texture::GrayScale("res/tmx/graphics/ui/hand_highlight.png", "res/tmx/graphics/ui/hand_gray_highlight.png");*/
 }

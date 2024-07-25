@@ -3,6 +3,7 @@
 #include <Timer.h>
 #include <Entities/SpriteEntity.h>
 
+#include "MonsterIndex.h"
 
 struct Bar {
 	Rect rect;
@@ -33,6 +34,10 @@ public:
 	const std::string& getName() const;
 	const unsigned int getLevel() const;
 	const float getEnergy() const;
+	void reduceEnergy(const AttackData& attack);
+	void playAttackAnimation();
+	void checkAttack();
+	const bool getDisableAttack(size_t index) const;
 
 private:
 
@@ -48,10 +53,11 @@ private:
 	float m_energy, m_maxEnergy;
 	float m_initiative;
 	float m_speed;
-	bool m_pause, m_highlight, m_coverWithMask;
-
+	bool m_pause, m_highlight, m_coverWithMask, m_disableAttack;
+	unsigned int m_attackOffset;
 	Timer m_highlightTimer;
 
+	static void CheckAttack(bool& disableAttack, const std::unordered_map<std::string, AttackData>& AttackData, const Monster& monster);
 	static std::random_device RandomDevice;
 	static std::uniform_real_distribution<float> Distribution;
 };

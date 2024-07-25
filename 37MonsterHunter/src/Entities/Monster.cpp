@@ -21,9 +21,12 @@ m_initiative(0.0f),
 m_speed(static_cast<float>(level) * MonsterIndex::MonsterData[name].speed),
 m_pause(false),
 m_highlight(false),
-m_coverWithMask(false)
+m_coverWithMask(false),
+m_attackOffset(0u),
+m_disableAttack(false)
 {
 	m_direction.set(0.0f, 0.0f);
+	checkAttack();
 }
 
 Monster::~Monster() {
@@ -76,8 +79,8 @@ void Monster::draw() {
 	float lvlWidth = 60.0f;
 	float lineHeightSmall = Globals::fontManager.get("dialog").lineHeight * 0.035f;
 
-	const TextureRect& rect = TileSetManager::Get().getTileSet("monster").getTextureRects()[cell.currentFrame];
-	const TextureRect& hRect = TileSetManager::Get().getTileSet("monster").getTextureRects()[cell.currentFrame +  8u];
+	const TextureRect& rect = TileSetManager::Get().getTileSet("monster").getTextureRects()[cell.currentFrame + m_attackOffset];
+	const TextureRect& hRect = TileSetManager::Get().getTileSet("monster").getTextureRects()[cell.currentFrame + m_attackOffset +  8u];
 	const TextureRect& emptyRect = TileSetManager::Get().getTileSet("monster").getTextureRects().back();
 	const TextureRect& barRect = TileSetManager::Get().getTileSet("monster_icon").getTextureRects()[19];
 	if (cell.flipped) {
@@ -219,4 +222,24 @@ const unsigned int Monster::getLevel() const {
 
 const float Monster::getEnergy() const {
 	return m_energy;
+}
+
+void Monster::reduceEnergy(const AttackData& attack) {
+	m_energy -= attack.cost;
+}
+
+void Monster::playAttackAnimation() {
+	m_attackOffset = 4u;
+}
+
+void Monster::checkAttack() {
+	CheckAttack(m_disableAttack, MonsterIndex::_AttackData, *this);
+}
+
+const bool Monster::getDisableAttack(size_t index) const {
+	return m_disableAttack && index == 0;
+}
+
+void Monster::CheckAttack(bool& disableAttack, const std::unordered_map<std::string, AttackData>& attackData, const Monster& monster) {
+	disableAttack = std::count_if(attackData.begin(), attackData.end(), [&monster = monster](const std::pair<std::string, AttackData>& attack) { return attack.second.cost <= monster.getEnergy(); }) == 0;
 }
