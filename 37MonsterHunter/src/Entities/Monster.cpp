@@ -23,10 +23,105 @@ m_pause(false),
 m_highlight(false),
 m_coverWithMask(false),
 m_attackOffset(0u),
-m_disableAttack(false)
+m_canAttack(false),
+m_isDefending(false)
 {
 	m_direction.set(0.0f, 0.0f);
-	checkAttack();
+	canAttack();
+}
+
+Monster::Monster(Monster const& rhs) : SpriteEntity(rhs.cell) {
+	m_bars = rhs.m_bars;
+	m_animationSpeed = rhs.m_animationSpeed;
+	m_name = rhs.m_name;
+	m_level = rhs.m_level;
+	m_experience = rhs.m_experience;
+	m_maxExperience = rhs.m_maxExperience;
+	m_health = rhs.m_health;
+	m_maxHealth = rhs.m_maxHealth;
+	m_energy = rhs.m_energy;
+	m_maxEnergy = rhs.m_maxEnergy;
+	m_initiative = rhs.m_initiative;
+	m_speed = rhs.m_speed;
+	m_pause = rhs.m_pause;
+	m_highlight = rhs.m_highlight;
+	m_coverWithMask = rhs.m_coverWithMask;
+	m_canAttack = rhs.m_canAttack;
+	m_isDefending = rhs.m_isDefending;
+	m_attackOffset = rhs.m_attackOffset;
+	m_highlightTimer = rhs.m_highlightTimer;
+}
+
+Monster::Monster(Monster&& rhs) : SpriteEntity(rhs.cell) {
+	m_bars = rhs.m_bars;
+	m_animationSpeed = rhs.m_animationSpeed;
+	m_name = rhs.m_name;
+	m_level = rhs.m_level;
+	m_experience = rhs.m_experience;
+	m_maxExperience = rhs.m_maxExperience;
+	m_health = rhs.m_health;
+	m_maxHealth = rhs.m_maxHealth;
+	m_energy = rhs.m_energy;
+	m_maxEnergy = rhs.m_maxEnergy;
+	m_initiative = rhs.m_initiative;
+	m_speed = rhs.m_speed;
+	m_pause = rhs.m_pause;
+	m_highlight = rhs.m_highlight;
+	m_coverWithMask = rhs.m_coverWithMask;
+	m_canAttack = rhs.m_canAttack;
+	m_isDefending = rhs.m_isDefending;
+	m_attackOffset = rhs.m_attackOffset;
+	m_highlightTimer = rhs.m_highlightTimer;
+}
+
+Monster& Monster::operator=(const Monster& rhs) {
+	SpriteEntity::operator=(rhs);
+
+	m_bars = rhs.m_bars;
+	m_animationSpeed = rhs.m_animationSpeed;
+	m_name = rhs.m_name;
+	m_level = rhs.m_level;
+	m_experience = rhs.m_experience;
+	m_maxExperience = rhs.m_maxExperience;
+	m_health = rhs.m_health;
+	m_maxHealth = rhs.m_maxHealth;
+	m_energy = rhs.m_energy;
+	m_maxEnergy = rhs.m_maxEnergy;
+	m_initiative = rhs.m_initiative;
+	m_speed = rhs.m_speed;
+	m_pause = rhs.m_pause;
+	m_highlight = rhs.m_highlight;
+	m_coverWithMask = rhs.m_coverWithMask;
+	m_canAttack = rhs.m_canAttack;
+	m_isDefending = rhs.m_isDefending;
+	m_attackOffset = rhs.m_attackOffset;
+	m_highlightTimer = rhs.m_highlightTimer;
+	return *this;
+}
+
+Monster& Monster::operator=(Monster&& rhs) {
+	SpriteEntity::operator=(rhs);
+
+	m_bars = rhs.m_bars;
+	m_animationSpeed = rhs.m_animationSpeed;
+	m_name = rhs.m_name;
+	m_level = rhs.m_level;
+	m_experience = rhs.m_experience;
+	m_maxExperience = rhs.m_maxExperience;
+	m_health = rhs.m_health;
+	m_maxHealth = rhs.m_maxHealth;
+	m_energy = rhs.m_energy;
+	m_maxEnergy = rhs.m_maxEnergy;
+	m_initiative = rhs.m_initiative;
+	m_speed = rhs.m_speed;
+	m_pause = rhs.m_pause;
+	m_highlight = rhs.m_highlight;
+	m_coverWithMask = rhs.m_coverWithMask;
+	m_canAttack = rhs.m_canAttack;
+	m_isDefending = rhs.m_isDefending;
+	m_attackOffset = rhs.m_attackOffset;
+	m_highlightTimer = rhs.m_highlightTimer;
+	return *this;
 }
 
 Monster::~Monster() {
@@ -55,7 +150,7 @@ void Monster::drawBack() {
 
 		Fontrenderer::Get().addText(Globals::fontManager.get("dialog"), cell.posX - width * 0.5f + 16.0f + padding, cell.posY + 96.0f - height * 0.5f + 40.0f + padding, m_name, Vector4f(0.0f, 0.0f, 0.0f, 1.0f), 0.045f);
 		Fontrenderer::Get().addText(Globals::fontManager.get("dialog"), cell.posX - width * 0.5f + 16.0f + 30 - 0.5f * fontWidth, cell.posY + 96.0f - height * 0.5f + 40.0f - lvlHeight + 13.0f - 0.5f * fontHeight, "Lvl " + std::to_string(m_level), Vector4f(0.0f, 0.0f, 0.0f, 1.0f), 0.035f);
-	}else {
+	}else {		 
 		Batchrenderer::Get().addQuadAA(Vector4f(cell.posX + rect.width - width * 0.5f - 30.0f, cell.posY + 96.0f - height * 0.5f + 40.0f, width, height), Vector4f(emptyRect.textureOffsetX, emptyRect.textureOffsetY, emptyRect.textureWidth, emptyRect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), emptyRect.frame);
 		Batchrenderer::Get().addQuadAA(Vector4f(cell.posX + rect.width + width - width * 0.5f - 30.0f - lvlWidth, cell.posY + 96.0f - height * 0.5f + 40.0f - lvlHeight, lvlWidth, lvlHeight), Vector4f(emptyRect.textureOffsetX, emptyRect.textureOffsetY, emptyRect.textureWidth, emptyRect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), emptyRect.frame);
 		drawBar({ cell.posX + rect.width + width - width * 0.5f - 30.0f - lvlWidth, cell.posY + 96.0f - height * 0.5f + 40.0f - lvlHeight, lvlWidth, 2.0f }, emptyRect, m_experience, m_maxExperience, Vector4f(1.0f, 1.0f, 1.0f, 1.0f), Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
@@ -132,14 +227,14 @@ void Monster::update(float dt) {
 	if (cell.currentFrame - m_startFrame > m_frameCount - 1) {
 		cell.currentFrame = m_startFrame;
 		m_elapsedTime -= static_cast<float>(m_frameCount);
+		if (m_attackOffset > 0)
+			m_attackOffset = 0u;
 	}
 
 	if (m_pause)
 		return;
 
 	m_initiative += m_speed * dt;
-	//if (m_initiative >= 100.0f)
-	//	m_initiative = 0.0f;
 }
 
 void Monster::addBar(const Rect& rect, const TextureRect& textureRect, float value, float maxValue, const Vector4f& bgColor, const Vector4f& color) {
@@ -172,8 +267,7 @@ void Monster::drawBars() {
 	m_bars.shrink_to_fit();
 }
 
-void Monster::drawBar(const Rect& rect, const TextureRect& textureRect, float value, float maxValue, const Vector4f& bgColor, const Vector4f& color) {
-	
+void Monster::drawBar(const Rect& rect, const TextureRect& textureRect, float value, float maxValue, const Vector4f& bgColor, const Vector4f& color) {	
 	float ratio = rect.width / maxValue;
 	float progress = std::max(0.0f, std::min(rect.width, value * ratio));
 	Batchrenderer::Get().addQuadAA(Vector4f(rect.posX, rect.posY, rect.width, rect.height), Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), bgColor, textureRect.frame);
@@ -224,22 +318,60 @@ const float Monster::getEnergy() const {
 	return m_energy;
 }
 
+const float Monster::getHealth() const {
+	return m_health;
+}
+
 void Monster::reduceEnergy(const AttackData& attack) {
 	m_energy -= attack.cost;
 }
 
 void Monster::playAttackAnimation() {
 	m_attackOffset = 4u;
+	m_elapsedTime = 0.0f;
 }
 
-void Monster::checkAttack() {
-	CheckAttack(m_disableAttack, MonsterIndex::_AttackData, *this);
+void Monster::canAttack() {
+	CanAttack(m_canAttack, MonsterIndex::_AttackData, *this);
 }
 
-const bool Monster::getDisableAttack(size_t index) const {
-	return m_disableAttack && index == 0;
+const bool Monster::getCanAttack() const {
+	return m_canAttack;
 }
 
-void Monster::CheckAttack(bool& disableAttack, const std::unordered_map<std::string, AttackData>& attackData, const Monster& monster) {
+void Monster::applyAttack(float amount, const AttackData& attackData) {
+	if (attackData.element == "fire" && MonsterIndex::MonsterData[m_name].element == "plant" ||
+		attackData.element == "water" && MonsterIndex::MonsterData[m_name].element == "fire" ||
+		attackData.element == "plant" && MonsterIndex::MonsterData[m_name].element == "water") {
+		amount *= 2.0f;
+	}
+
+	if (attackData.element == "fire" && MonsterIndex::MonsterData[m_name].element == "water" ||
+		attackData.element == "water" && MonsterIndex::MonsterData[m_name].element == "plant" ||
+		attackData.element == "plant" && MonsterIndex::MonsterData[m_name].element == "fire") {
+		amount *= 0.5f;
+	}
+	float targetDefense = 1.0f - MonsterIndex::MonsterData[m_name].defense * 0.0005f;
+	if (m_isDefending) {
+		targetDefense -= 0.2f;
+	}
+
+	targetDefense = Math::Clamp(targetDefense, 0.0f, 1.0f);
+	m_health -= amount * targetDefense;
+}
+
+float Monster::getBaseDamage(const std::string attackName) {
+	return GetBaseDamage(m_name, attackName, m_level);
+}
+
+void Monster::setIsDefending(bool isDefending) {
+	m_isDefending = isDefending;
+}
+
+float Monster::GetBaseDamage(const std::string monsterName, const std::string attackName, unsigned int level) {
+	return MonsterIndex::MonsterData[monsterName].attack * MonsterIndex::_AttackData[attackName].amount * static_cast<float>(level);
+}
+
+void Monster::CanAttack(bool& disableAttack, const std::unordered_map<std::string, AttackData>& attackData, const Monster& monster) {
 	disableAttack = std::count_if(attackData.begin(), attackData.end(), [&monster = monster](const std::pair<std::string, AttackData>& attack) { return attack.second.cost <= monster.getEnergy(); }) == 0;
 }

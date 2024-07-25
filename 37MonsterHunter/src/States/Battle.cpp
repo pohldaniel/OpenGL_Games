@@ -30,7 +30,9 @@ m_elapsedTime(0.0f),
 m_currentFrame(0),
 m_frameCount(4),
 m_playAbility(false),
-m_abilityOffset(0)
+m_abilityOffset(0),
+m_abilityPosX(0.0f),
+m_abilityPosY(0.0f)
 {
 
 	m_viewWidth = 1280.0f;
@@ -64,12 +66,12 @@ m_abilityOffset(0)
 	centers.push_back({ 1110.0f, m_viewHeight - 390.0f });
 	centers.push_back({ 900.0f , m_viewHeight - 550.0f });
 
-	m_opponentMonster.push_back({ "Atrox", 13u, false, 300.0f, 200.0f});
-	m_opponentMonster.push_back({ "Finiette", 13u, false, 300.0f, 200.0f });
-	m_opponentMonster.push_back({ "Pouch", 15u, false, 300.0f, 200.0f });
-	m_opponentMonster.push_back({ "Finsta", 14u, false, 300.0f, 200.0f });
-	m_opponentMonster.push_back({ "Cleaf", 14u, false, 300.0f, 200.0f });
-	m_opponentMonster.push_back({ "Friolera", 20u, false, 300.0f, 200.0f });
+	m_opponentMonster.push_back({ "Atrox", 13u, false, 3.0f, 200.0f});
+	m_opponentMonster.push_back({ "Finiette", 13u, false, 3.0f, 200.0f });
+	m_opponentMonster.push_back({ "Pouch", 15u, false, 3.0f, 200.0f });
+	m_opponentMonster.push_back({ "Finsta", 14u, false, 3.0f, 200.0f });
+	m_opponentMonster.push_back({ "Cleaf", 14u, false, 3.0f, 200.0f });
+	m_opponentMonster.push_back({ "Friolera", 20u, false, 3.0f, 200.0f });
 
 	m_cells.reserve(6);
 	for (int i = 0; i < std::min(static_cast<int>(MonsterIndex::Monsters.size()), 3); i++) {
@@ -235,6 +237,8 @@ void Battle::update() {
 			m_monster[m_currentSelectedOption + m_cutOff].setHighlight(true);
 		}
 	}
+
+	removeDefeteadMonster();
 }
 
 void Battle::render() {
@@ -275,9 +279,8 @@ void Battle::render() {
 	Spritesheet::Bind(TileSetManager::Get().getTileSet("monster_icon").getAtlas());
 	Batchrenderer::Get().drawBuffer();
 
-	if (m_playAbility) {
-		const Monster& targetMonster = m_monster[m_currentSelectedOption + m_cutOff];
-		drawAbilityAnimation(targetMonster.getCell().centerX, targetMonster.getCell().centerY);
+	if (m_playAbility) {		
+		drawAbilityAnimation(m_abilityPosX, m_abilityPosY);
 	}
 	
 	if(m_drawGeneralUi)
@@ -291,6 +294,8 @@ void Battle::render() {
 
 	if (m_drawUi)
 		renderUi();
+
+
 }
 
 void Battle::OnMouseMotion(Event::MouseMoveEvent& event) {
@@ -403,7 +408,7 @@ void Battle::drawGeneral() {
 	for (size_t i = 0; i < m_battleChoices.size(); i++) {
 		const BattleChoice& battleChoice = m_battleChoices[i];
 		if (i == m_currentSelectedOption) {
-			const TextureRect& rect = TileSetManager::Get().getTileSet("battle_icon").getTextureRects()[battleChoice.graphics + 4 + currentMonster.getDisableAttack(i) * 8];
+			const TextureRect& rect = TileSetManager::Get().getTileSet("battle_icon").getTextureRects()[battleChoice.graphics + 4 + ((i == 0) && currentMonster.getCanAttack()) * 8];
 			Batchrenderer::Get().addQuadAA(Vector4f(cell.posX + cell.width + battleChoice.pos[0] - 0.5f * rect.width, cell.posY + 0.5f * cell.height + battleChoice.pos[1] - 0.5f * rect.height, rect.width, rect.height), Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureWidth, rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), rect.frame);
 		}else {
 			const TextureRect& rect = TileSetManager::Get().getTileSet("battle_icon").getTextureRects()[battleChoice.graphics + 8];
@@ -580,7 +585,11 @@ void Battle::processInput() {
 			m_drawTargetUI = false;
 			m_monster[m_currentSelectedMonster].reduceEnergy(MonsterIndex::_AttackData[m_currentAbility.first]);
 			m_monster[m_currentSelectedMonster].playAttackAnimation();
-			m_monster[m_currentSelectedMonster].checkAttack();
+			m_monster[m_currentSelectedMonster].canAttack();
+			float amount = m_monster[m_currentSelectedMonster].getBaseDamage(m_currentAbility.first);
+			m_monster[m_currentSelectedOption + m_cutOff].applyAttack(amount, MonsterIndex::_AttackData[m_currentAbility.first]);
+			m_abilityPosX = m_monster[m_currentSelectedOption + m_cutOff].getCell().centerX;
+			m_abilityPosY = m_monster[m_currentSelectedOption + m_cutOff].getCell().centerY;
 		}
 
 		if (m_drawAtacksUi) {
@@ -633,6 +642,8 @@ void Battle::processInput() {
 				m_currentMax = 4;
 				m_currentSelectedMonster = -1;
 				std::for_each(m_monster.begin(), m_monster.end(), std::mem_fn(&Monster::unPause));
+				m_monster[m_currentSelectedMonster].setIsDefending(true);
+
 			}else if (m_currentSelectedOption == 2) {
 				m_drawGeneralUi = false;
 				m_drawSwitchUi = true;			
@@ -660,6 +671,7 @@ void Battle::processInput() {
 			m_currentMax = 4;
 			m_currentSelectedMonster = -1;
 			std::for_each(m_monster.begin(), m_monster.end(), std::mem_fn(&Monster::unPause));
+			m_monster[m_currentSelectedMonster].setIsDefending(true);
 		}
 
 
@@ -723,4 +735,10 @@ void Battle::onAbilityEnd() {
 	std::for_each(m_monster.begin(), m_monster.end(), std::mem_fn(&Monster::unPause));
 	std::for_each(m_monster.begin(), m_monster.end(), std::bind(std::mem_fn<void(bool)>(&Monster::setHighlight), std::placeholders::_1, false));
 	m_currentSelectedMonster = -1;
+	m_currentSelectedOption = 0;
+	m_currentOffset = 0;
+}
+
+void Battle::removeDefeteadMonster() {
+	m_monster.erase(std::remove_if(m_monster.begin(), m_monster.end(),[](const Monster& monster) {return monster.getHealth() <= 0.0f;}), m_monster.end());
 }

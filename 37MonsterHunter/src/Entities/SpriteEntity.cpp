@@ -6,6 +6,50 @@ SpriteEntity::SpriteEntity(Cell& cell, float elpasedTime, int framecount) : cell
 	m_lastViewDirection = m_viewDirection;
 }
 
+SpriteEntity& SpriteEntity::operator=(const SpriteEntity& rhs) {
+	cell = rhs.cell;
+	m_startFrame = rhs.m_startFrame;
+	m_frameCount = rhs.m_frameCount;
+	m_elapsedTime = rhs.m_elapsedTime;
+	m_movingSpeed = rhs.m_movingSpeed;
+	m_viewDirection = rhs.m_viewDirection;
+	m_lastViewDirection = rhs.m_lastViewDirection;
+	m_direction = rhs.m_direction;
+	return *this;
+}
+
+SpriteEntity& SpriteEntity::operator=(SpriteEntity&& rhs) {
+	cell = rhs.cell;
+	m_startFrame = rhs.m_startFrame;
+	m_frameCount = rhs.m_frameCount;
+	m_elapsedTime = rhs.m_elapsedTime;
+	m_movingSpeed = rhs.m_movingSpeed;
+	m_viewDirection = rhs.m_viewDirection;
+	m_lastViewDirection = rhs.m_lastViewDirection;
+	m_direction = rhs.m_direction;
+	return *this;
+}
+
+SpriteEntity::SpriteEntity(SpriteEntity const& rhs) : cell(rhs.cell){
+	m_startFrame = rhs.m_startFrame;
+	m_frameCount = rhs.m_frameCount;
+	m_elapsedTime = rhs.m_elapsedTime;
+	m_movingSpeed = rhs.m_movingSpeed;
+	m_viewDirection = rhs.m_viewDirection;
+	m_lastViewDirection = rhs.m_lastViewDirection;
+	m_direction = rhs.m_direction;
+}
+
+SpriteEntity::SpriteEntity(SpriteEntity&& rhs) : cell(rhs.cell) {
+	m_startFrame = rhs.m_startFrame;
+	m_frameCount = rhs.m_frameCount;
+	m_elapsedTime = rhs.m_elapsedTime;
+	m_movingSpeed = rhs.m_movingSpeed;
+	m_viewDirection = rhs.m_viewDirection;
+	m_lastViewDirection = rhs.m_lastViewDirection;
+	m_direction = rhs.m_direction;
+}
+
 SpriteEntity::~SpriteEntity() {
 
 }

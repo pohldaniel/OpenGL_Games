@@ -9,8 +9,6 @@
 #include <Entities/Monster.h>
 #include "MonsterIndex.h"
 
-
-
 struct BattleChoice {
 	Vector2f pos;
 	unsigned int graphics;
@@ -49,6 +47,7 @@ private:
 	void drawAttacks();
 	void drawSwitch();
 	void onAbilityEnd();
+	void removeDefeteadMonster();
 
 	bool m_initUi = true;
 	bool m_drawUi = false;
@@ -59,6 +58,7 @@ private:
 	float m_viewWidth;
 	float m_viewHeight;
 	float m_mapHeight;
+	float m_abilityPosX, m_abilityPosY;
 
 	std::vector<Cell> m_cells;
 	unsigned int m_atlasBattleIcon, m_atlasAbilities;

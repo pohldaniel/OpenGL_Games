@@ -19,6 +19,11 @@ class Monster : public SpriteEntity {
 public:
 
 	Monster(Cell& cell, std::string name, unsigned int level, float experience, float health, float energy);
+	Monster& operator=(const Monster& rhs);
+	Monster& operator=(Monster&&);
+	Monster(Monster const& rhs);
+	Monster(Monster&& rhs);
+
 	virtual ~Monster();
 
 	void drawBack();
@@ -34,10 +39,14 @@ public:
 	const std::string& getName() const;
 	const unsigned int getLevel() const;
 	const float getEnergy() const;
+	const float getHealth() const;
 	void reduceEnergy(const AttackData& attack);
 	void playAttackAnimation();
-	void checkAttack();
-	const bool getDisableAttack(size_t index) const;
+	void canAttack();
+	const bool getCanAttack() const;
+	void applyAttack(float amount, const AttackData& attackData);
+	float getBaseDamage(const std::string attackName);
+	void setIsDefending(bool isDefending);
 
 private:
 
@@ -53,11 +62,13 @@ private:
 	float m_energy, m_maxEnergy;
 	float m_initiative;
 	float m_speed;
-	bool m_pause, m_highlight, m_coverWithMask, m_disableAttack;
+	bool m_pause, m_highlight, m_coverWithMask, m_canAttack, m_isDefending;
 	unsigned int m_attackOffset;
 	Timer m_highlightTimer;
 
-	static void CheckAttack(bool& disableAttack, const std::unordered_map<std::string, AttackData>& AttackData, const Monster& monster);
+	static void CanAttack(bool& disableAttack, const std::unordered_map<std::string, AttackData>& AttackData, const Monster& monster);
+	static float GetBaseDamage(const std::string monsterName, const std::string attackName, unsigned int level);
+
 	static std::random_device RandomDevice;
 	static std::uniform_real_distribution<float> Distribution;
 };

@@ -14,6 +14,11 @@ class SpriteEntity {
 public:
 
 	SpriteEntity(Cell& cell, float elpasedTime = 0.0f, int framecount = 4);
+	SpriteEntity& operator=(const SpriteEntity& rhs);
+	SpriteEntity& operator=(SpriteEntity&& rhs);
+	SpriteEntity(SpriteEntity const& rhs);
+	SpriteEntity(SpriteEntity&& rhs);
+
 	virtual ~SpriteEntity();
 	virtual void update(float dt) = 0;
 	virtual const ViewDirection& getViewDirection();
