@@ -80,7 +80,7 @@ m_frameCount(4){
 	}
 	file.close();
 
-	Monsters.push_back({ "Friolera", 13u, false , 3.0f, 200.0f});
+	Monsters.push_back({ "Friolera", 25u, false , 3.0f, 200.0f});
 	Monsters.push_back({ "Friolera", 25u, false , 3.0f, 200.0f });
 	Monsters.push_back({ "Friolera", 18u, false , 3.0f, 200.0f });
 	Monsters.push_back({ "Atrox", 30u, false , 300.0f, 30.0f });

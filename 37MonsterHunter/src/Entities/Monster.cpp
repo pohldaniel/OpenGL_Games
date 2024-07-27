@@ -24,7 +24,10 @@ m_highlight(false),
 m_coverWithMask(false),
 m_attackOffset(0u),
 m_canAttack(true),
-m_isDefending(false)
+m_isDefending(false),
+m_delayedKill(false),
+m_highlightTimer(this, CALL_BACK_1),
+m_delayedKillTimer(this, CALL_BACK_2)
 {
 	m_direction.set(0.0f, 0.0f);
 	canAttack();
@@ -48,8 +51,13 @@ Monster::Monster(Monster const& rhs) : SpriteEntity(rhs.cell) {
 	m_coverWithMask = rhs.m_coverWithMask;
 	m_canAttack = rhs.m_canAttack;
 	m_isDefending = rhs.m_isDefending;
+	m_delayedKill = rhs.m_delayedKill;
 	m_attackOffset = rhs.m_attackOffset;
+
 	m_highlightTimer = rhs.m_highlightTimer;
+	m_highlightTimer.setRecipient(this);
+	m_delayedKillTimer = rhs.m_delayedKillTimer;
+	m_delayedKillTimer.setRecipient(this);
 }
 
 Monster::Monster(Monster&& rhs) : SpriteEntity(rhs.cell) {
@@ -70,8 +78,13 @@ Monster::Monster(Monster&& rhs) : SpriteEntity(rhs.cell) {
 	m_coverWithMask = rhs.m_coverWithMask;
 	m_canAttack = rhs.m_canAttack;
 	m_isDefending = rhs.m_isDefending;
+	m_delayedKill = rhs.m_delayedKill;
 	m_attackOffset = rhs.m_attackOffset;
+
 	m_highlightTimer = rhs.m_highlightTimer;
+	m_highlightTimer.setRecipient(this);
+	m_delayedKillTimer = rhs.m_delayedKillTimer;
+	m_delayedKillTimer.setRecipient(this);
 }
 
 Monster& Monster::operator=(const Monster& rhs) {
@@ -94,8 +107,13 @@ Monster& Monster::operator=(const Monster& rhs) {
 	m_coverWithMask = rhs.m_coverWithMask;
 	m_canAttack = rhs.m_canAttack;
 	m_isDefending = rhs.m_isDefending;
+	m_delayedKill = rhs.m_delayedKill;
 	m_attackOffset = rhs.m_attackOffset;
+
 	m_highlightTimer = rhs.m_highlightTimer;
+	m_highlightTimer.setRecipient(this);
+	m_delayedKillTimer = rhs.m_delayedKillTimer;
+	m_delayedKillTimer.setRecipient(this);
 	return *this;
 }
 
@@ -119,8 +137,13 @@ Monster& Monster::operator=(Monster&& rhs) {
 	m_coverWithMask = rhs.m_coverWithMask;
 	m_canAttack = rhs.m_canAttack;
 	m_isDefending = rhs.m_isDefending;
+	m_delayedKill = rhs.m_delayedKill;
 	m_attackOffset = rhs.m_attackOffset;
+
 	m_highlightTimer = rhs.m_highlightTimer;
+	m_highlightTimer.setRecipient(this);
+	m_delayedKillTimer = rhs.m_delayedKillTimer;
+	m_delayedKillTimer.setRecipient(this);
 	return *this;
 }
 
@@ -163,7 +186,7 @@ void Monster::drawBack() {
 }
 
 void Monster::draw() {
-	//std::cout << "Can Attack: " << m_canAttack << std::endl;
+
 	float padding = 10.0f;
 	float width = Globals::fontManager.get("dialog").getWidth(m_name) * 0.045f + 2.0f * padding;
 	float height = Globals::fontManager.get("dialog").lineHeight * 0.045f + 2.0f * padding;
@@ -221,6 +244,7 @@ void Monster::draw() {
 void Monster::update(float dt) {
 
 	m_highlightTimer.update(dt);
+	m_delayedKillTimer.update(dt);
 
 	m_elapsedTime += m_animationSpeed * dt;
 	cell.currentFrame = m_startFrame + static_cast<int>(std::floor(m_elapsedTime));
@@ -299,9 +323,6 @@ void Monster::setHighlight(bool highlight, unsigned int milli) {
 	m_highlight = highlight;
 	if (m_highlight) {
 		m_coverWithMask = true;
-		m_highlightTimer.setOnTimerEnd([&m_coverWithMask = m_coverWithMask]() {
-			m_coverWithMask = false;
-		});
 		m_highlightTimer.start(milli, false);
 	}
 }
@@ -362,6 +383,7 @@ void Monster::applyAttack(float amount, unsigned int targetLevel, const AttackDa
 
 	targetDefense = Math::Clamp(targetDefense, 0.0f, 1.0f);
 	m_health -= amount * targetDefense;
+	m_health = std::max(0.0f, m_health);
 }
 
 float Monster::getBaseDamage(const std::string attackName) {
@@ -379,3 +401,22 @@ float Monster::GetBaseDamage(const std::string monsterName, const std::string at
 void Monster::CanAttack(bool& canAttack, const std::unordered_map<std::string, AttackData>& attackData, const Monster& monster) {
 	canAttack = !std::count_if(attackData.begin(), attackData.end(), [&monster = monster](const std::pair<std::string, AttackData>& attack) { return attack.second.cost <= monster.getEnergy(); }) == 0;
 }
+
+const bool Monster::getDelayedKill() const {
+	return m_delayedKill;
+}
+
+void Monster::startDelayedKill() {	
+	m_delayedKillTimer.start(600u, false, true);	
+}
+
+const bool Monster::getPause() const {
+	return m_pause;
+}
+
+void Monster::OnCallBack(CallBack callback) {
+	if (callback == CALL_BACK_1) {
+		m_coverWithMask = false;
+	}else if (callback == CALL_BACK_2)
+		m_delayedKill = true;
+} 

@@ -68,11 +68,11 @@ m_removeDefeteadMonster(false)
 	centers.push_back({ 900.0f , m_viewHeight - 550.0f });
 
 	m_opponentMonster.push_back({ "Atrox", 13u, false, 3.0f, 200.0f});
-	/*m_opponentMonster.push_back({ "Finiette", 13u, false, 3.0f, 200.0f });
+	m_opponentMonster.push_back({ "Finiette", 13u, false, 3.0f, 200.0f });
 	m_opponentMonster.push_back({ "Pouch", 15u, false, 3.0f, 200.0f });
 	m_opponentMonster.push_back({ "Finsta", 14u, false, 3.0f, 200.0f });
 	m_opponentMonster.push_back({ "Cleaf", 14u, false, 3.0f, 200.0f });
-	m_opponentMonster.push_back({ "Friolera", 20u, false, 3.0f, 200.0f });*/
+	m_opponentMonster.push_back({ "Friolera", 20u, false, 3.0f, 200.0f });
 
 	m_supplyIndexOpponent = std::max(std::min(2, static_cast<int>(m_opponentMonster.size()) - 1), 0);
 	m_supplyIndexPlayer = std::max(std::min(2, static_cast<int>(MonsterIndex::Monsters.size()) - 1), 0);
@@ -750,16 +750,28 @@ void Battle::onAbilityEnd() {
 
 void Battle::removeDefeteadMonster() {
 	for (size_t index = 0; index < m_monster.size(); index++) {
+
 		if (m_monster[index].getHealth() <= 0.0f) {
+			m_monster[index].startDelayedKill();
+		}
+		if (m_monster[index].getDelayedKill()) {
 			
 				if (m_supplyIndexPlayer < static_cast<int>(MonsterIndex::Monsters.size()) - 1 && index < 3) {
 					m_supplyIndexPlayer++;
 					m_cells[index].currentFrame = static_cast<int>(MonsterIndex::MonsterData[MonsterIndex::Monsters[m_supplyIndexPlayer].name].graphic * 16u);
+					bool pause = m_monster[index].getPause();
 					m_monster[index] = Monster(m_cells[index], MonsterIndex::Monsters[m_supplyIndexPlayer].name, MonsterIndex::Monsters[m_supplyIndexPlayer].level, 300.0f, MonsterIndex::Monsters[m_supplyIndexPlayer].health, MonsterIndex::Monsters[m_supplyIndexPlayer].energy);
+					if (pause) {
+						m_monster[index].pause();
+					}
 				}else if(m_supplyIndexOpponent < static_cast<int>(m_opponentMonster.size()) - 1) {
 					m_supplyIndexOpponent++;
 					m_cells[index].currentFrame = static_cast<int>(MonsterIndex::MonsterData[m_opponentMonster[m_supplyIndexOpponent].name].graphic * 16u);
+					bool pause = m_monster[index].getPause();
 					m_monster[index] = Monster(m_cells[index], m_opponentMonster[m_supplyIndexOpponent].name, m_opponentMonster[m_supplyIndexOpponent].level, 300.0f, m_opponentMonster[m_supplyIndexOpponent].health, m_opponentMonster[m_supplyIndexOpponent].energy);
+					if (pause) {
+						m_monster[index].pause();
+					}
 				}else {
 					m_monster.erase(m_monster.begin() + index);
 				}

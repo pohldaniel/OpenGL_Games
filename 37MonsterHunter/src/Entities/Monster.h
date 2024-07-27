@@ -20,7 +20,7 @@ public:
 
 	Monster(Cell& cell, std::string name, unsigned int level, float experience, float health, float energy);
 	Monster& operator=(const Monster& rhs);
-	Monster& operator=(Monster&&);
+	Monster& operator=(Monster&& rhs);
 	Monster(Monster const& rhs);
 	Monster(Monster&& rhs);
 
@@ -48,6 +48,11 @@ public:
 	void applyAttack(float amount, unsigned int targetLevel, const AttackData& attackData);
 	float getBaseDamage(const std::string attackName);
 	void setIsDefending(bool isDefending);
+	const bool getDelayedKill() const;
+	void startDelayedKill();
+	const bool getPause() const;
+
+	void OnCallBack(CallBack callback);
 
 private:
 
@@ -63,9 +68,10 @@ private:
 	float m_energy, m_maxEnergy;
 	float m_initiative;
 	float m_speed;
-	bool m_pause, m_highlight, m_coverWithMask, m_canAttack, m_isDefending;
+	bool m_pause, m_highlight, m_coverWithMask, m_canAttack, m_isDefending, m_delayedKill;
 	unsigned int m_attackOffset;
-	Timer m_highlightTimer;
+	CBTimer<Monster> m_highlightTimer;
+	CBTimer<Monster> m_delayedKillTimer;
 
 	static void CanAttack(bool& canAttack, const std::unordered_map<std::string, AttackData>& AttackData, const Monster& monster);
 	static float GetBaseDamage(const std::string monsterName, const std::string attackName, unsigned int level);
