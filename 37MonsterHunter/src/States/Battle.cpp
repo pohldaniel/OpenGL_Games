@@ -72,11 +72,11 @@ m_exit(false)
 	centers.push_back({ 900.0f , m_viewHeight - 550.0f });
 
 	m_opponentMonster.push_back({ "Atrox", 13u, false, 3.0f, 20.0f});
-	/*m_opponentMonster.push_back({ "Finiette", 13u, false, 3.0f, 20.0f });
+	m_opponentMonster.push_back({ "Finiette", 13u, false, 3.0f, 20.0f });
 	m_opponentMonster.push_back({ "Pouch", 15u, false, 3.0f, 20.0f });
 	m_opponentMonster.push_back({ "Finsta", 14u, false, 3.0f, 20.0f });
 	m_opponentMonster.push_back({ "Cleaf", 14u, false, 3.0f, 20.0f });
-	m_opponentMonster.push_back({ "Friolera", 20u, false, 3.0f, 20.0f });*/
+	m_opponentMonster.push_back({ "Friolera", 20u, false, 3.0f, 20.0f });
 
 	m_supplyIndexOpponent = std::max(std::min(2, static_cast<int>(m_opponentMonster.size()) - 1), 0);
 	m_supplyIndexPlayer = std::max(std::min(2, static_cast<int>(MonsterIndex::Monsters.size()) - 1), 0);
@@ -242,8 +242,9 @@ void Battle::update() {
 			if ((*monster).getCell().flipped) {
 				m_drawGeneralUi = true;							
 			}else {	
-				if(std::count_if(m_monster.begin(), m_monster.end(), [](const Monster& monster) { return monster.getCell().flipped && monster.getHealth() > 0.0f; }) != 0)
+				if (std::count_if(m_monster.begin(), m_monster.end(), [](const Monster& monster) { return monster.getCell().flipped && monster.getHealth() > 0.0f; }) != 0) {
 					m_opponentTimer.start(600u, false);
+				}
 			}	
 
 			m_currentSelectedMonster = std::distance(m_monster.begin(), monster);
@@ -756,7 +757,15 @@ void Battle::onAbilityEnd() {
 void Battle::removeDefeteadMonster() {
 	for (size_t index = 0; index < m_monster.size(); index++) {
 
-		if (m_monster[index].getHealth() <= 0.0f) {
+		if (m_monster[index].getHealth() <= 0.0f) {		
+			if (!m_monster[index].getCell().flipped && !m_monster[index].getKilled()) {
+				float currentExperience = static_cast<float>(m_monster[index].getLevel() * 100u) / static_cast<float>(std::count_if(m_monster.begin(), m_monster.end(), [](const Monster& monster) { return monster.getCell().flipped && monster.getHealth() > 0.0f; }));			
+				std::for_each(m_monster.begin(),
+					m_monster.end(),
+					[&](Monster& monster) { if(monster.getCell().flipped)
+											  monster.updateExperience(currentExperience); 
+				});
+			}
 			m_monster[index].startDelayedKill();
 		}
 		if (m_monster[index].getDelayedKill()) {
@@ -798,6 +807,8 @@ void Battle::opponentAttack() {
 	});
 
 	int upperBound = std::count_if(abilitiesFiltered.begin(), abilitiesFiltered.end(), [&currentMonster = currentMonster](const std::pair<std::string, unsigned int>& ability) { return ability.second <= currentMonster.getLevel(); });
+	
+	//Energy empty
 	if (upperBound == 0) {
 		std::for_each(m_monster.begin(), m_monster.end(), std::mem_fn(&Monster::unPause));
 		return;

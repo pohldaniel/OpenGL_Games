@@ -27,7 +27,8 @@ m_canAttack(true),
 m_isDefending(false),
 m_delayedKill(false),
 m_highlightTimer(this, CALL_BACK_1),
-m_delayedKillTimer(this, CALL_BACK_2)
+m_delayedKillTimer(this, CALL_BACK_2),
+m_killed(false)
 {
 	m_direction.set(0.0f, 0.0f);
 	canAttack();
@@ -52,6 +53,7 @@ Monster::Monster(Monster const& rhs) : SpriteEntity(rhs.cell) {
 	m_canAttack = rhs.m_canAttack;
 	m_isDefending = rhs.m_isDefending;
 	m_delayedKill = rhs.m_delayedKill;
+	m_killed = rhs.m_killed;
 	m_attackOffset = rhs.m_attackOffset;
 
 	m_highlightTimer = rhs.m_highlightTimer;
@@ -79,6 +81,7 @@ Monster::Monster(Monster&& rhs) : SpriteEntity(rhs.cell) {
 	m_canAttack = rhs.m_canAttack;
 	m_isDefending = rhs.m_isDefending;
 	m_delayedKill = rhs.m_delayedKill;
+	m_killed = rhs.m_killed;
 	m_attackOffset = rhs.m_attackOffset;
 
 	m_highlightTimer = rhs.m_highlightTimer;
@@ -108,6 +111,7 @@ Monster& Monster::operator=(const Monster& rhs) {
 	m_canAttack = rhs.m_canAttack;
 	m_isDefending = rhs.m_isDefending;
 	m_delayedKill = rhs.m_delayedKill;
+	m_killed = rhs.m_killed;
 	m_attackOffset = rhs.m_attackOffset;
 
 	m_highlightTimer = rhs.m_highlightTimer;
@@ -138,6 +142,7 @@ Monster& Monster::operator=(Monster&& rhs) {
 	m_canAttack = rhs.m_canAttack;
 	m_isDefending = rhs.m_isDefending;
 	m_delayedKill = rhs.m_delayedKill;
+	m_killed = rhs.m_killed;
 	m_attackOffset = rhs.m_attackOffset;
 
 	m_highlightTimer = rhs.m_highlightTimer;
@@ -254,7 +259,7 @@ void Monster::update(float dt) {
 		if (m_attackOffset > 0)
 			m_attackOffset = 0u;
 	}
-	//std::cout << m_name << "  " << m_pause << std::endl;
+
 	if (m_pause)
 		return;
 
@@ -409,6 +414,7 @@ const bool Monster::getDelayedKill() const {
 
 void Monster::startDelayedKill() {	
 	m_delayedKillTimer.start(600u, false, true);	
+	m_killed = true;
 }
 
 const bool Monster::getPause() const {
@@ -421,3 +427,23 @@ void Monster::OnCallBack(CallBack callback) {
 	}else if (callback == CALL_BACK_2)
 		m_delayedKill = true;
 } 
+
+void Monster::updateExperience(float amount) {
+	if (m_maxExperience - m_experience > amount) {
+		m_experience += amount;
+	}else {
+		m_level++;
+		m_experience = amount - (m_maxExperience - m_experience);
+		m_maxExperience = 150.0f * static_cast<float>(m_level);
+		
+		while(m_experience > m_maxExperience) {
+			m_experience -= m_maxExperience;
+			m_level++;
+			m_maxExperience = 150.0f * static_cast<float>(m_level);
+		}
+	}
+}
+
+const bool Monster::getKilled() const {
+	return m_killed;
+}
