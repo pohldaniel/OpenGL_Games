@@ -40,6 +40,7 @@ public:
 	const unsigned int getLevel() const;
 	const float getEnergy() const;
 	const float getHealth() const;
+	const float getMaxHealth() const;
 	void reduceEnergy(const AttackData& attack);
 	void playAttackAnimation();
 	void canAttack();

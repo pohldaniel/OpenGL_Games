@@ -447,3 +447,7 @@ void Monster::updateExperience(float amount) {
 const bool Monster::getKilled() const {
 	return m_killed;
 }
+
+const float Monster::getMaxHealth() const {
+	return m_maxHealth;
+}
