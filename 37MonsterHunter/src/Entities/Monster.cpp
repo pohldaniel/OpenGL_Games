@@ -254,7 +254,7 @@ void Monster::update(float dt) {
 		if (m_attackOffset > 0)
 			m_attackOffset = 0u;
 	}
-
+	//std::cout << m_name << "  " << m_pause << std::endl;
 	if (m_pause)
 		return;
 
@@ -364,7 +364,8 @@ void Monster::setCanAttack(bool canAttack) {
 	m_canAttack = canAttack;
 }
 
-void Monster::applyAttack(float amount, unsigned int targetLevel, const AttackData& attackData) {
+void Monster::applyAttack(float amount, const AttackData& attackData) {
+	
 	if (attackData.element == "fire" && MonsterIndex::MonsterData[m_name].element == "plant" ||
 		attackData.element == "water" && MonsterIndex::MonsterData[m_name].element == "fire" ||
 		attackData.element == "plant" && MonsterIndex::MonsterData[m_name].element == "water") {
@@ -376,17 +377,17 @@ void Monster::applyAttack(float amount, unsigned int targetLevel, const AttackDa
 		attackData.element == "plant" && MonsterIndex::MonsterData[m_name].element == "fire") {
 		amount *= 0.5f;
 	}
-	float targetDefense = 1.0f - MonsterIndex::MonsterData[m_name].defense * static_cast<float>(targetLevel) * 0.0005f;
+	float targetDefense = 1.0f - MonsterIndex::MonsterData[m_name].defense * static_cast<float>(m_level) * 0.0005f;
 	if (m_isDefending) {
 		targetDefense -= 0.2f;
 	}
 
 	targetDefense = Math::Clamp(targetDefense, 0.0f, 1.0f);
 	m_health -= amount * targetDefense;
-	m_health = std::max(0.0f, m_health);
+	m_health = std::min(std::max(0.0f, m_health), m_maxHealth);
 }
 
-float Monster::getBaseDamage(const std::string attackName) {
+const float Monster::getBaseDamage(const std::string attackName) const {
 	return GetBaseDamage(m_name, attackName, m_level);
 }
 

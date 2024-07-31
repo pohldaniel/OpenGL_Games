@@ -1,5 +1,6 @@
 #pragma once
 
+#include <random>
 #include <engine/input/MouseEventListener.h>
 #include <engine/input/KeyboardEventListener.h>
 #include <engine/Camera.h>
@@ -48,11 +49,14 @@ private:
 	void drawSwitch();
 	void onAbilityEnd();
 	void removeDefeteadMonster();
+	void opponentAttack();
+	void exit();
 
 	bool m_initUi = true;
 	bool m_drawUi = false;
 	bool m_playAbility;
 	bool m_drawGeneralUi, m_drawAtacksUi, m_drawSwitchUi, m_drawTargetUI, m_removeDefeteadMonster;
+	bool m_exit;
 
 	Camera m_camera;
 	float m_viewWidth;
@@ -78,10 +82,14 @@ private:
 	std::vector<BattleChoice> m_battleChoices;
 
 	Sprite m_surface;
+	Timer m_opponentTimer, m_exitTimer;
 
 	float m_elapsedTime;
 	int m_currentFrame, m_abilityOffset;
 	int m_frameCount;
 
 	unsigned int m_supplyIndexOpponent, m_supplyIndexPlayer;
+
+	static std::random_device RandomDevice;
+	static std::mt19937 MersenTwist;
 };

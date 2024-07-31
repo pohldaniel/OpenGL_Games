@@ -83,13 +83,13 @@ m_frameCount(4){
 	Monsters.push_back({ "Friolera", 25u, false , 3.0f, 200.0f});
 	Monsters.push_back({ "Friolera", 25u, false , 3.0f, 200.0f });
 	Monsters.push_back({ "Friolera", 18u, false , 3.0f, 200.0f });
-	Monsters.push_back({ "Atrox", 30u, false , 300.0f, 30.0f });
+	/*Monsters.push_back({ "Atrox", 30u, false , 300.0f, 30.0f });
 	Monsters.push_back({ "Sparchu", 24u, false , 300.0f, 30.0f });
 	Monsters.push_back({ "Gulfin", 17u, false , 300.0f, 30.0f });
 	Monsters.push_back({ "Jacana", 16u, false , 300.0f, 30.0f });
 	Monsters.push_back({ "Plumette", 9u, false , 300.0f, 30.0f });
 	Monsters.push_back({ "Cleaf", 3u, false , 300.0f, 30.0f });
-	Monsters.push_back({ "Charmadillo", 30u, false , 300.0f, 30.0f });
+	Monsters.push_back({ "Charmadillo", 30u, false , 300.0f, 30.0f });*/
 
 	ColorMap["plant"] = { 0.39215f, 0.66274f, 0.56470f, 1.0f};
 	ColorMap["fire"] = { 0.97254f, 0.62745f, 0.37647f, 1.0f };

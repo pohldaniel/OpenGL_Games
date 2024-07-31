@@ -41,7 +41,7 @@ Timer& Timer::operator=(Timer&& rhs) {
 }
 
 void Timer::start(unsigned int milli, bool repeat, bool starOnce) {
-	//std::cout << "Start: " << std::endl;
+
 	if (!m_activated && !m_startOnce) {
 		m_activated = true;
 		m_updateTime = static_cast<float>(milli) / 1000.0f;
@@ -73,7 +73,7 @@ void Timer::update(const float dt) {
 void Timer::stop() {
 	if (m_activated) {
 		m_activated = false;
-		OnTimerEnd = nullptr;
+		//OnTimerEnd = nullptr;
 	}
 }
 

@@ -45,8 +45,8 @@ public:
 	void canAttack();
 	void setCanAttack(bool canAttack);
 	const bool getCanAttack() const;
-	void applyAttack(float amount, unsigned int targetLevel, const AttackData& attackData);
-	float getBaseDamage(const std::string attackName);
+	void applyAttack(float amount, const AttackData& attackData);
+	const float getBaseDamage(const std::string attackName) const;
 	void setIsDefending(bool isDefending);
 	const bool getDelayedKill() const;
 	void startDelayedKill();
