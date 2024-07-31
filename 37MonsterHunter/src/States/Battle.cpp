@@ -37,7 +37,8 @@ m_abilityOffset(0),
 m_abilityPosX(0.0f),
 m_abilityPosY(0.0f),
 m_removeDefeteadMonster(false),
-m_exit(false)
+m_exit(false),
+m_catchMonster(false)
 {
 
 	m_viewWidth = 1280.0f;
@@ -606,17 +607,27 @@ void Battle::processInput() {
 	if (keyboard.keyPressed(Keyboard::KEY_SPACE)) {
 
 		if (m_drawTargetUI) {
-			m_playAbility = true;
-			m_drawTargetUI = false;
-			m_monster[m_currentSelectedMonster].reduceEnergy(MonsterIndex::_AttackData[m_currentAbility.first]);
-			m_monster[m_currentSelectedMonster].playAttackAnimation();
-			m_monster[m_currentSelectedMonster].canAttack();
-			float amount = m_monster[m_currentSelectedMonster].getBaseDamage(m_currentAbility.first);
-			m_monster[m_currentSelectedOption + m_cutOff].applyAttack(amount,  MonsterIndex::_AttackData[m_currentAbility.first]);
-			m_abilityPosX = m_monster[m_currentSelectedOption + m_cutOff].getCell().centerX;
-			m_abilityPosY = m_monster[m_currentSelectedOption + m_cutOff].getCell().centerY;
-			if (std::count_if(m_monster.begin(), m_monster.end(), [](const Monster& monster) { return !monster.getCell().flipped && monster.getHealth() > 0.0f; }) == 0) {
-				std::for_each(m_monster.begin(), m_monster.end(), std::bind(std::mem_fn<void(bool)>(&Monster::setCanAttack), std::placeholders::_1, false));
+
+			if(m_catchMonster){
+				m_catchMonster = false;
+				m_drawTargetUI = false;
+				m_monster[m_currentSelectedOption + m_cutOff].setHighlight(false);
+				std::for_each(m_monster.begin(), m_monster.end(), std::mem_fn(&Monster::unPause));
+				m_currentSelectedMonster = -1;
+				m_currentSelectedOption = 0;
+			}else{
+				m_playAbility = true;
+				m_drawTargetUI = false;
+				m_monster[m_currentSelectedMonster].reduceEnergy(MonsterIndex::_AttackData[m_currentAbility.first]);
+				m_monster[m_currentSelectedMonster].playAttackAnimation();
+				m_monster[m_currentSelectedMonster].canAttack();
+				float amount = m_monster[m_currentSelectedMonster].getBaseDamage(m_currentAbility.first);
+				m_monster[m_currentSelectedOption + m_cutOff].applyAttack(amount, MonsterIndex::_AttackData[m_currentAbility.first]);
+				m_abilityPosX = m_monster[m_currentSelectedOption + m_cutOff].getCell().centerX;
+				m_abilityPosY = m_monster[m_currentSelectedOption + m_cutOff].getCell().centerY;
+				if (std::count_if(m_monster.begin(), m_monster.end(), [](const Monster& monster) { return !monster.getCell().flipped && monster.getHealth() > 0.0f; }) == 0) {
+					std::for_each(m_monster.begin(), m_monster.end(), std::bind(std::mem_fn<void(bool)>(&Monster::setCanAttack), std::placeholders::_1, false));
+				}
 			}
 		}
 
@@ -687,7 +698,18 @@ void Battle::processInput() {
 				m_currentSelectedOption = 0;
 				m_currentOffset = 0;
 			}else if (m_currentSelectedOption == 3) {
-				std::cout << "Catch" << std::endl;
+				m_drawGeneralUi = false;
+				m_drawTargetUI = true;
+
+				int playerMonsterCount = std::count_if(m_monster.begin(), m_monster.end(), [](const Monster& monster) { return monster.getCell().flipped; });
+
+				m_currentMax = m_currentTarget == "player" ? playerMonsterCount : static_cast<int>(m_monster.size()) - playerMonsterCount;
+				m_visibleItems = m_currentMax;
+
+				m_currentSelectedOption = 0;
+				m_currentOffset = 0;
+				m_cutOff = playerMonsterCount;
+				m_catchMonster = true;
 			}
 		}
 	}
@@ -721,6 +743,7 @@ void Battle::processInput() {
 			m_drawAtacksUi = false;
 			m_drawSwitchUi = false;
 			m_drawTargetUI = false;
+			m_catchMonster = false;
 			m_drawGeneralUi = true;
 			m_currentMax = 4;
 			

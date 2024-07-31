@@ -55,7 +55,7 @@ private:
 	bool m_initUi = true;
 	bool m_drawUi = false;
 	bool m_playAbility;
-	bool m_drawGeneralUi, m_drawAtacksUi, m_drawSwitchUi, m_drawTargetUI, m_removeDefeteadMonster;
+	bool m_drawGeneralUi, m_drawAtacksUi, m_drawSwitchUi, m_drawTargetUI, m_removeDefeteadMonster, m_catchMonster;
 	bool m_exit;
 
 	Camera m_camera;
