@@ -184,6 +184,7 @@ m_frameCount(4){
 
 	//TileSetManager::Get().getTileSet("monster").loadTileCpu("res/tmx/graphics/other/bar_60.png", false, true, false);
 	TileSetManager::Get().getTileSet("monster").loadTileCpu("res/tmx/graphics/other/empty.png", false, true, false);
+	TileSetManager::Get().getTileSet("monster").loadTileCpu("res/tmx/graphics/ui/cross.png", false, true, false);
 	TileSetManager::Get().getTileSet("monster").loadTileSetGpu();
 	//Spritesheet::Safe("monster", TileSetManager::Get().getTileSet("monster").getAtlas());
 	m_atlasMonster = TileSetManager::Get().getTileSet("monster").getAtlas();

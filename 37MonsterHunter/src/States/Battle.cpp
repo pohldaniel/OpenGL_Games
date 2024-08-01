@@ -614,12 +614,13 @@ void Battle::processInput() {
 				std::for_each(m_monster.begin(), m_monster.end(), std::mem_fn(&Monster::unPause));
 
 				Monster& currentMonster = m_monster[m_currentSelectedOption + m_cutOff];			
-				/*if (currentMonster.getHealth() >= currentMonster.getMaxHealth() * 0.1f) {
+				if (currentMonster.getHealth() >= currentMonster.getMaxHealth() * 0.1f) {
+					currentMonster.showMissing();
 					m_currentSelectedMonster = -1;
 					m_currentSelectedOption = 0;
 					m_cutOff = 0;
 					return;
-				}*/
+				}
 								
 				MonsterIndex::Monsters.push_back({ currentMonster.getName(), currentMonster.getLevel(), false, currentMonster.getHealth(), currentMonster.getEnergy() });
 				if (m_supplyIndexOpponent < static_cast<int>(m_opponentMonster.size()) - 1) {

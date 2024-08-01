@@ -54,7 +54,7 @@ public:
 	void startDelayedKill();
 	const bool getPause() const;
 	void updateExperience(float amount);
-
+	void showMissing();
 	void OnCallBack(CallBack callback);
 
 private:
@@ -71,10 +71,11 @@ private:
 	float m_energy, m_maxEnergy;
 	float m_initiative;
 	float m_speed;
-	bool m_pause, m_highlight, m_coverWithMask, m_canAttack, m_isDefending, m_delayedKill, m_killed;
+	bool m_pause, m_highlight, m_coverWithMask, m_canAttack, m_isDefending, m_delayedKill, m_killed, m_showMissing;
 	unsigned int m_attackOffset;
 	CBTimer<Monster> m_highlightTimer;
 	CBTimer<Monster> m_delayedKillTimer;
+	CBTimer<Monster> m_showMissingTimer;
 
 	static void CanAttack(bool& canAttack, const std::unordered_map<std::string, AttackData>& AttackData, const Monster& monster);
 	static float GetBaseDamage(const std::string monsterName, const std::string attackName, unsigned int level);

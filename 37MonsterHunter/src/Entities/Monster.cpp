@@ -28,7 +28,9 @@ m_isDefending(false),
 m_delayedKill(false),
 m_highlightTimer(this, CALL_BACK_1),
 m_delayedKillTimer(this, CALL_BACK_2),
-m_killed(false)
+m_showMissingTimer(this, CALL_BACK_3),
+m_killed(false),
+m_showMissing(false)
 {
 	m_direction.set(0.0f, 0.0f);
 	canAttack();
@@ -55,11 +57,14 @@ Monster::Monster(Monster const& rhs) : SpriteEntity(rhs.cell) {
 	m_delayedKill = rhs.m_delayedKill;
 	m_killed = rhs.m_killed;
 	m_attackOffset = rhs.m_attackOffset;
+	m_showMissing = rhs.m_showMissing;
 
 	m_highlightTimer = rhs.m_highlightTimer;
 	m_highlightTimer.setRecipient(this);
 	m_delayedKillTimer = rhs.m_delayedKillTimer;
 	m_delayedKillTimer.setRecipient(this);
+	m_showMissingTimer = rhs.m_showMissingTimer;
+	m_showMissingTimer.setRecipient(this);
 }
 
 Monster::Monster(Monster&& rhs) : SpriteEntity(rhs.cell) {
@@ -83,11 +88,14 @@ Monster::Monster(Monster&& rhs) : SpriteEntity(rhs.cell) {
 	m_delayedKill = rhs.m_delayedKill;
 	m_killed = rhs.m_killed;
 	m_attackOffset = rhs.m_attackOffset;
+	m_showMissing = rhs.m_showMissing;
 
 	m_highlightTimer = rhs.m_highlightTimer;
 	m_highlightTimer.setRecipient(this);
 	m_delayedKillTimer = rhs.m_delayedKillTimer;
 	m_delayedKillTimer.setRecipient(this);
+	m_showMissingTimer = rhs.m_showMissingTimer;
+	m_showMissingTimer.setRecipient(this);
 }
 
 Monster& Monster::operator=(const Monster& rhs) {
@@ -113,11 +121,14 @@ Monster& Monster::operator=(const Monster& rhs) {
 	m_delayedKill = rhs.m_delayedKill;
 	m_killed = rhs.m_killed;
 	m_attackOffset = rhs.m_attackOffset;
+	m_showMissing = rhs.m_showMissing;
 
 	m_highlightTimer = rhs.m_highlightTimer;
 	m_highlightTimer.setRecipient(this);
 	m_delayedKillTimer = rhs.m_delayedKillTimer;
 	m_delayedKillTimer.setRecipient(this);
+	m_showMissingTimer = rhs.m_showMissingTimer;
+	m_showMissingTimer.setRecipient(this);
 	return *this;
 }
 
@@ -144,11 +155,14 @@ Monster& Monster::operator=(Monster&& rhs) {
 	m_delayedKill = rhs.m_delayedKill;
 	m_killed = rhs.m_killed;
 	m_attackOffset = rhs.m_attackOffset;
+	m_showMissing = rhs.m_showMissing;
 
 	m_highlightTimer = rhs.m_highlightTimer;
 	m_highlightTimer.setRecipient(this);
 	m_delayedKillTimer = rhs.m_delayedKillTimer;
 	m_delayedKillTimer.setRecipient(this);
+	m_showMissingTimer = rhs.m_showMissingTimer;
+	m_showMissingTimer.setRecipient(this);
 	return *this;
 }
 
@@ -169,7 +183,7 @@ void Monster::drawBack() {
 	float lineHeightSmall = Globals::fontManager.get("dialog").lineHeight * 0.035f;
 
 	const TextureRect& rect = TileSetManager::Get().getTileSet("monster").getTextureRects()[cell.currentFrame];
-	const TextureRect& emptyRect = TileSetManager::Get().getTileSet("monster").getTextureRects().back();
+	const TextureRect& emptyRect = TileSetManager::Get().getTileSet("monster").getTextureRects()[256];
 
 	if(cell.flipped) {
 		Batchrenderer::Get().addQuadAA(Vector4f(cell.posX - width * 0.5f + 16.0f, cell.posY + 96.0f - height * 0.5f + 40.0f, width, height), Vector4f(emptyRect.textureOffsetX, emptyRect.textureOffsetY, emptyRect.textureWidth, emptyRect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), emptyRect.frame);
@@ -185,8 +199,6 @@ void Monster::drawBack() {
 
 		Fontrenderer::Get().addText(Globals::fontManager.get("dialog"), cell.posX + rect.width - width * 0.5f - 30.0f + padding, cell.posY + 96.0f - height * 0.5f + 40.0f + padding, m_name, Vector4f(0.0f, 0.0f, 0.0f, 1.0f), 0.045f);
 		Fontrenderer::Get().addText(Globals::fontManager.get("dialog"), cell.posX + rect.width + width - width * 0.5f - 30.0f - lvlWidth + 30 - 0.5f * fontWidth, cell.posY + 96.0f - height * 0.5f + 40.0f - lvlHeight + 13.0f - 0.5f * fontHeight, "Lvl " + std::to_string(m_level), Vector4f(0.0f, 0.0f, 0.0f, 1.0f), 0.035f);
-
-
 	}
 }
 
@@ -203,13 +215,15 @@ void Monster::draw() {
 	float lineHeightSmall = Globals::fontManager.get("dialog").lineHeight * 0.035f;
 
 	const TextureRect& rect = TileSetManager::Get().getTileSet("monster").getTextureRects()[cell.currentFrame + m_attackOffset];
-	const TextureRect& hRect = TileSetManager::Get().getTileSet("monster").getTextureRects()[cell.currentFrame + m_attackOffset +  8u];
-	const TextureRect& emptyRect = TileSetManager::Get().getTileSet("monster").getTextureRects().back();
+	const TextureRect& highlightRect = TileSetManager::Get().getTileSet("monster").getTextureRects()[cell.currentFrame + m_attackOffset +  8u];
+	const TextureRect& emptyRect = TileSetManager::Get().getTileSet("monster").getTextureRects()[256];
+	const TextureRect& missingRect = TileSetManager::Get().getTileSet("monster").getTextureRects()[257];
 	const TextureRect& barRect = TileSetManager::Get().getTileSet("monster_icon").getTextureRects()[19];
+
 	if (cell.flipped) {
 		//Monster sprite
 		if (m_highlight) {
-			Batchrenderer::Get().addQuadAA(Vector4f(cell.posX, cell.posY, hRect.width, hRect.height), Vector4f(hRect.textureOffsetX + hRect.textureWidth, hRect.textureOffsetY, -hRect.textureWidth, rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), hRect.frame);
+			Batchrenderer::Get().addQuadAA(Vector4f(cell.posX, cell.posY, highlightRect.width, highlightRect.height), Vector4f(highlightRect.textureOffsetX + highlightRect.textureWidth, highlightRect.textureOffsetY, -highlightRect.textureWidth, highlightRect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), highlightRect.frame);
 		}
 
 		if(!m_coverWithMask)
@@ -228,11 +242,14 @@ void Monster::draw() {
 		
 		//Monster sprite
 		if (m_highlight) {
-			Batchrenderer::Get().addQuadAA(Vector4f(cell.posX, cell.posY, hRect.width, hRect.height), Vector4f(hRect.textureOffsetX, hRect.textureOffsetY, hRect.textureWidth, rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), hRect.frame);
+			Batchrenderer::Get().addQuadAA(Vector4f(cell.posX, cell.posY, highlightRect.width, highlightRect.height), Vector4f(highlightRect.textureOffsetX, highlightRect.textureOffsetY, highlightRect.textureWidth, highlightRect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), highlightRect.frame);
 		}
 
 		if (!m_coverWithMask)
 			Batchrenderer::Get().addQuadAA(Vector4f(cell.posX, cell.posY, rect.width, rect.height), Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureWidth, rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), rect.frame);
+
+		if (m_showMissing)
+			Batchrenderer::Get().addQuadAA(Vector4f(cell.centerX - 0.5f * missingRect.width, cell.centerY - 0.5f * missingRect.height, missingRect.width, missingRect.height), Vector4f(missingRect.textureOffsetX, missingRect.textureOffsetY, missingRect.textureWidth, missingRect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), missingRect.frame);
 
 		//attributes
 		Batchrenderer::Get().addQuadAA(Vector4f(cell.posX + 0.5f * rect.width - 75.0f, cell.posY - 20.0f, 150.0f, 48.0f), Vector4f(emptyRect.textureOffsetX, emptyRect.textureOffsetY, emptyRect.textureWidth, emptyRect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), emptyRect.frame);
@@ -250,6 +267,7 @@ void Monster::update(float dt) {
 
 	m_highlightTimer.update(dt);
 	m_delayedKillTimer.update(dt);
+	m_showMissingTimer.update(dt);
 
 	m_elapsedTime += m_animationSpeed * dt;
 	cell.currentFrame = m_startFrame + static_cast<int>(std::floor(m_elapsedTime));
@@ -422,10 +440,13 @@ const bool Monster::getPause() const {
 }
 
 void Monster::OnCallBack(CallBack callback) {
-	if (callback == CALL_BACK_1) {
+	if (callback == CALL_BACK_1) 
 		m_coverWithMask = false;
-	}else if (callback == CALL_BACK_2)
+	else if (callback == CALL_BACK_2)
 		m_delayedKill = true;
+	else if (callback == CALL_BACK_3)
+		m_showMissing = false;
+	
 } 
 
 void Monster::updateExperience(float amount) {
@@ -450,4 +471,9 @@ const bool Monster::getKilled() const {
 
 const float Monster::getMaxHealth() const {
 	return m_maxHealth;
+}
+
+void Monster::showMissing() {
+	m_showMissing = true;
+	m_showMissingTimer.start(1000u, false);
 }
