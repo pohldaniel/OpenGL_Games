@@ -119,15 +119,25 @@ void MonsterHunter::update() {
 				character.setRayCast(false);
 				character.stopLookAroundTimer();
 				Trainer& trainer = DialogTree::Trainers[character.getCharacterId()];
+
 				if (m_dialogTree.isFinished()) {
 					for (auto& dialog : !character.isDefeated() ? trainer.dialog.undefeated : trainer.dialog.defeated) {
 						m_dialogTree.addDialog(character.getCell().posX, m_mapHeight - (character.getCell().posY - 128.0f), 0.0f, 0.0f, dialog);
 					}
 					m_dialogTree.setFinished(false);
-					m_dialogTree.setOnDialogFinished([&m_zone = m_zone, &character = character]() {
-						m_zone.getPlayer().unblock();
-						character.setDefeated(true);
-					});
+					if (character.getCharacterId() == "Nurse") {
+
+						m_dialogTree.setOnDialogFinished([&m_monsterIndex = m_monsterIndex, &m_zone = m_zone]() {
+							m_zone.getPlayer().unblock();
+							m_monsterIndex.resetStates();
+						});
+
+					}else {
+						m_dialogTree.setOnDialogFinished([&m_zone = m_zone, &character = character]() {
+							m_zone.getPlayer().unblock();
+							character.setDefeated(true);
+						});
+					}
 				}
 
 			}
@@ -142,6 +152,7 @@ void MonsterHunter::update() {
 		}else {
 			m_zone.setAlpha(1.0f);
 			m_zone.getPlayer().unblock();
+			m_monsterIndex.reset();
 		}
 	}
 

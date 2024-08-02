@@ -24,6 +24,7 @@ struct MonsterEntry {
 	bool selected;
 
 	void resetStates();
+	void unselect();
 };
 
 struct MonsterData {
@@ -60,6 +61,9 @@ public:
 	void processInput();
 	void setViewWidth(float viewWidth);
 	void setViewHeight(float viewHeight);
+	void resetStates();
+	void unselect();
+	void reset();
 
 	void drawBar(const Rect& rect, const TextureRect& textureRect, float value, float maxValue, const Vector4f& bgColor, const Vector4f& color);
 
@@ -73,7 +77,7 @@ public:
 private:
 
 	void resetAnimation();
-	void resetStates();
+
 	int m_visibleItems;	
 
 	std::vector<std::string> m_stats;

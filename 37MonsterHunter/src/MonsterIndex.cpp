@@ -19,6 +19,10 @@ void MonsterEntry::resetStates() {
 	energy = static_cast<float>(level * MonsterIndex::MonsterData[name].maxEnergy);
 }
 
+void MonsterEntry::unselect() {
+	selected = false;
+}
+
 MonsterIndex::MonsterIndex() : 
 m_visibleItems(6), 
 m_viewWidth(0.0f), 
@@ -87,8 +91,6 @@ m_frameCount(4){
 	file.close();
 
 	Monsters.push_back({ "Friolera", 25u , 3.0f, 200.0f, 0.0f, false });
-	Monsters.push_back({ "Friolera", 25u , 3.0f, 200.0f, 0.0f, false });
-	Monsters.push_back({ "Friolera", 18u , 3.0f, 200.0f, 0.0f, false });
 	Monsters.push_back({ "Atrox", 30u , 3.0f, 15.0f, 0.0f, false });
 	Monsters.push_back({ "Sparchu", 24u , 3.0f, 30.0f, 0.0f, false });
 	Monsters.push_back({ "Gulfin", 17u, 3.0f, 30.0f, false  });
@@ -525,4 +527,16 @@ void MonsterIndex::drawBar(const Rect& rect, const TextureRect& textureRect, flo
 
 void MonsterIndex::resetStates() {
 	std::for_each(Monsters.begin(), Monsters.end(), std::mem_fn(&MonsterEntry::resetStates));
+}
+
+void MonsterIndex::unselect() {
+	std::for_each(Monsters.begin(), Monsters.end(), std::mem_fn(&MonsterEntry::unselect));
+}
+
+void MonsterIndex::reset() {
+	m_currentSelected = 0;
+	m_beforeSelected = -1;
+	m_currentFrame = 0;
+	m_currentOffset = 0;
+	unselect();
 }
