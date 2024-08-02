@@ -13,6 +13,12 @@ std::unordered_map<std::string, AttackData> MonsterIndex::_AttackData;
 std::unordered_map<std::string, Vector4f> MonsterIndex::ColorMap;
 Sprite MonsterIndex::SurfaceBar;
 
+void MonsterEntry::resetStates() {
+	selected = false;
+	health = static_cast<float>(level * MonsterIndex::MonsterData[name].maxHealth);
+	energy = static_cast<float>(level * MonsterIndex::MonsterData[name].maxEnergy);
+}
+
 MonsterIndex::MonsterIndex() : 
 m_visibleItems(6), 
 m_viewWidth(0.0f), 
@@ -80,16 +86,18 @@ m_frameCount(4){
 	}
 	file.close();
 
-	Monsters.push_back({ "Friolera", 25u , 3.0f, 200.0f, 10.0f, false });
-	//Monsters.push_back({ "Friolera", 25u , 3.0f, 200.0f, 10.0f, false });
-	//Monsters.push_back({ "Friolera", 18u , 3.0f, 200.0f, 10.0f, false });
-	Monsters.push_back({ "Atrox", 30u , 3.0f, 15.0f, 40.0f, false });
-	Monsters.push_back({ "Sparchu", 24u , 3.0f, 30.0f, 10.0f, false });
+	Monsters.push_back({ "Friolera", 25u , 3.0f, 200.0f, 0.0f, false });
+	Monsters.push_back({ "Friolera", 25u , 3.0f, 200.0f, 0.0f, false });
+	Monsters.push_back({ "Friolera", 18u , 3.0f, 200.0f, 0.0f, false });
+	Monsters.push_back({ "Atrox", 30u , 3.0f, 15.0f, 0.0f, false });
+	Monsters.push_back({ "Sparchu", 24u , 3.0f, 30.0f, 0.0f, false });
 	Monsters.push_back({ "Gulfin", 17u, 3.0f, 30.0f, false  });
-	/*Monsters.push_back({ "Jacana", 16u, 300.0f, 30.0f, false });
-	Monsters.push_back({ "Plumette", 9u , 300.0f, 30.0f, false });
-	Monsters.push_back({ "Cleaf", 3u , 300.0f, 30.0f, false });
-	Monsters.push_back({ "Charmadillo", 30u , 300.0f, 30.0f, false });*/
+	Monsters.push_back({ "Jacana", 16u, 300.0f, 0.0f, false });
+	Monsters.push_back({ "Plumette", 9u , 300.0f, 0.0f, false });
+	Monsters.push_back({ "Cleaf", 3u , 300.0f, 0.0f, false });
+	Monsters.push_back({ "Charmadillo", 30u , 300.0f, 0.0f, false });
+
+	resetStates();
 
 	ColorMap["plant"] = { 0.39215f, 0.66274f, 0.56470f, 1.0f};
 	ColorMap["fire"] = { 0.97254f, 0.62745f, 0.37647f, 1.0f };
@@ -513,4 +521,8 @@ void MonsterIndex::drawBar(const Rect& rect, const TextureRect& textureRect, flo
 	SurfaceBar.setPosition(rect.posX, rect.posY, 0.0f);
 	SurfaceBar.setScale(progress, rect.height, 1.0f);
 	SurfaceBar.draw(textureRect, color);
+}
+
+void MonsterIndex::resetStates() {
+	std::for_each(Monsters.begin(), Monsters.end(), std::mem_fn(&MonsterEntry::resetStates));
 }

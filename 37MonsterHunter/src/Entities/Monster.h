@@ -62,6 +62,7 @@ public:
 
 	MonsterEntry& getMonsterEntry();
 	void setMonsterEntry(MonsterEntry& monsterEntry);
+	void calculateStates(MonsterEntry& monsterEntry);
 
 private:
 
@@ -72,7 +73,7 @@ private:
 	std::reference_wrapper<MonsterEntry> monsterEntry;
 
 	float m_animationSpeed;
-	std::string m_name;
+	//std::string m_name;
 	float m_maxHealth, m_maxEnergy, m_maxExperience;
 	float m_initiative;
 	float m_speed;

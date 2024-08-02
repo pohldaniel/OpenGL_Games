@@ -73,12 +73,13 @@ m_canSwitch(true)
 	centers.push_back({ 1110.0f, m_viewHeight - 390.0f });
 	centers.push_back({ 900.0f , m_viewHeight - 550.0f });
 
-	m_opponentMonster.push_back({ "Atrox", 11u, 3.0f, 200.0f, 100.0f, false });
-	m_opponentMonster.push_back({ "Finiette", 13u, 3.0f, 20.0f, 100.0f, false });
-	/*m_opponentMonster.push_back({ "Pouch", 15u, 3.0f, 20.0f, 100.0f, false });
-	m_opponentMonster.push_back({ "Finsta", 14u, 3.0f, 20.0f, 100.0f, false });
-	m_opponentMonster.push_back({ "Cleaf", 14u, 3.0f, 20.0f, 100.0f, false });
-	m_opponentMonster.push_back({ "Friolera", 20u, 3.0f, 20.0f, 100.0f, false });*/
+	m_opponentMonster.push_back({ "Atrox", 11u, 3.0f, 200.0f, 0.0f, false });
+	m_opponentMonster.push_back({ "Finiette", 13u, 3.0f, 20.0f, 0.0f, false });
+	m_opponentMonster.push_back({ "Pouch", 15u, 3.0f, 20.0f, 0.0f, false });
+	m_opponentMonster.push_back({ "Finsta", 14u, 3.0f, 20.0f, 0.0f, false });
+	m_opponentMonster.push_back({ "Cleaf", 14u, 3.0f, 20.0f, 0.0f, false });
+	m_opponentMonster.push_back({ "Friolera", 20u, 3.0f, 20.0f, 0.0f, false });
+	std::for_each(m_opponentMonster.begin(), m_opponentMonster.end(), std::mem_fn(&MonsterEntry::resetStates));
 
 	MonsterIndex::Monsters.reserve(MonsterIndex::Monsters.size() + m_opponentMonster.size());
 
@@ -567,7 +568,7 @@ void Battle::drawSwitch() {
 		
 		m_surface.setPosition(iconPosX, iconPosY, 0.0f);
 		m_surface.setScale(iconRect.width, iconRect.height, 1.0f);
-		m_surface.draw(iconRect, m_filteredMonsters[index].get().selected ? Vector4f(1.0f, 0.0f, 0.0f, 1.0f) : Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+		m_surface.draw(iconRect, Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
 
 
 		float barPosX = cell.posX + cell.width + 20.0f + 90.0f;
@@ -669,7 +670,7 @@ void Battle::processInput() {
 			std::swap(monsterEntry, currentMonsterEntry);
 			
 			m_monster[m_currentSelectedMonster].setGraphic(static_cast<int>(MonsterIndex::MonsterData[currentMonsterEntry.name].graphic * 16u));
-			m_monster[m_currentSelectedMonster].setMonsterEntry(currentMonsterEntry);
+			m_monster[m_currentSelectedMonster].calculateStates(currentMonsterEntry);
 			m_monster[m_currentSelectedMonster].setInitiative(0.0f);
 
 			

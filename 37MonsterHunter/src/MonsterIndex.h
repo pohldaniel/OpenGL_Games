@@ -22,6 +22,8 @@ struct MonsterEntry {
 	float energy;
 	float experience;
 	bool selected;
+
+	void resetStates();
 };
 
 struct MonsterData {
@@ -71,6 +73,7 @@ public:
 private:
 
 	void resetAnimation();
+	void resetStates();
 	int m_visibleItems;	
 
 	std::vector<std::string> m_stats;
