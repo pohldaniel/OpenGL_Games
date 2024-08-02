@@ -86,8 +86,10 @@ void MonsterHunter::update() {
 			
 			m_zone.getPlayer().block();
 			m_zone.getFade().setOnFadeOut([&m_zone = m_zone, &transition = transition, &m_mapHeight = m_mapHeight, m_movingSpeed = m_movingSpeed, m_viewWidth = m_viewWidth, m_viewHeight = m_viewHeight]() {
-				
-				m_zone.loadZone("res/tmx/data/maps/" + transition.target + ".tmx", transition.target, transition.newPos);
+				if(transition.target == "hospital2")
+					m_zone.loadZone("res/tmx/data/maps/" + transition.target + ".tmx", "hospital", transition.newPos);
+				else
+					m_zone.loadZone("res/tmx/data/maps/" + transition.target + ".tmx", transition.target, transition.newPos);
 				m_mapHeight = m_zone.getMapHeight();
 				m_zone.getPlayer().block();				
 				m_zone.getPlayer().setMovingSpeed(m_movingSpeed);

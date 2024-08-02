@@ -407,7 +407,7 @@
   <object id="1150" x="1731.67" y="2170.92" width="120" height="3.81818">
    <properties>
     <property name="pos" value="world"/>
-    <property name="target" value="hospital"/>
+    <property name="target" value="hospital2"/>
    </properties>
   </object>
  </objectgroup>
