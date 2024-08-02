@@ -55,7 +55,7 @@ private:
 	bool m_initUi = true;
 	bool m_drawUi = false;
 	bool m_playAbility;
-	bool m_drawGeneralUi, m_drawAtacksUi, m_drawSwitchUi, m_drawTargetUI, m_removeDefeteadMonster, m_catchMonster;
+	bool m_drawGeneralUi, m_drawAtacksUi, m_drawSwitchUi, m_drawTargetUI, m_removeDefeteadMonster, m_catchMonster, m_canSwitch;
 	bool m_exit;
 
 	Camera m_camera;
@@ -73,7 +73,7 @@ private:
 	std::string m_currentTarget;
 
 	tsl::ordered_map<std::string, unsigned int> m_abilitiesFiltered;
-	std::vector<MonsterEntry> m_filteredMonsters;
+	std::vector<std::reference_wrapper<MonsterEntry>> m_filteredMonsters;
 
 	std::vector<MonsterEntry> m_opponentMonster;
 	std::vector<Monster> m_monster;

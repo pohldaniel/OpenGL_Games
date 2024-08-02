@@ -18,9 +18,10 @@ enum Edge {
 struct MonsterEntry {
 	std::string name;
 	unsigned int level;
-	bool selected;
 	float health;
 	float energy;
+	float experience;
+	bool selected;
 };
 
 struct MonsterData {

@@ -7,24 +7,20 @@
 std::random_device Monster::RandomDevice;
 std::uniform_real_distribution<float> Monster::Distribution(-1.0f, 1.0f);
 
-Monster::Monster(Cell& cell, std::string name, unsigned int level, float experience, float health, float energy) : SpriteEntity(cell),
+Monster::Monster(Cell& cell, MonsterEntry& monsterEntry) : SpriteEntity(cell), monsterEntry(monsterEntry),
 m_animationSpeed(6.0f + Distribution(RandomDevice)),
-m_name(name),
-m_level(level),
-m_experience(experience),
-m_maxExperience(150.0f * static_cast<float>(level)),
-m_health(health),
-m_maxHealth(static_cast<float>(level * MonsterIndex::MonsterData[name].maxHealth)),
-m_energy(energy),
-m_maxEnergy(static_cast<float>(level * MonsterIndex::MonsterData[name].maxEnergy)),
+m_name(monsterEntry.name),
+m_maxExperience(150.0f * static_cast<float>(monsterEntry.level)),
+m_maxHealth(static_cast<float>(monsterEntry.level * MonsterIndex::MonsterData[monsterEntry.name].maxHealth)),
+m_maxEnergy(static_cast<float>(monsterEntry.level * MonsterIndex::MonsterData[monsterEntry.name].maxEnergy)),
 m_initiative(0.0f),
-m_speed(static_cast<float>(level) * MonsterIndex::MonsterData[name].speed),
+m_speed(static_cast<float>(monsterEntry.level) * MonsterIndex::MonsterData[monsterEntry.name].speed),
 m_pause(false),
 m_highlight(false),
 m_coverWithMask(false),
 m_attackOffset(0u),
 m_canAttack(true),
-m_isDefending(false),
+m_defending(false),
 m_delayedKill(false),
 m_highlightTimer(this, CALL_BACK_1),
 m_delayedKillTimer(this, CALL_BACK_2),
@@ -36,16 +32,12 @@ m_showMissing(false)
 	canAttack();
 }
 
-Monster::Monster(Monster const& rhs) : SpriteEntity(rhs.cell) {
+Monster::Monster(Monster const& rhs) : SpriteEntity(rhs.cell), monsterEntry(rhs.monsterEntry) {
 	m_bars = rhs.m_bars;
 	m_animationSpeed = rhs.m_animationSpeed;
 	m_name = rhs.m_name;
-	m_level = rhs.m_level;
-	m_experience = rhs.m_experience;
-	m_maxExperience = rhs.m_maxExperience;
-	m_health = rhs.m_health;
+	m_maxExperience = rhs.m_maxExperience;	
 	m_maxHealth = rhs.m_maxHealth;
-	m_energy = rhs.m_energy;
 	m_maxEnergy = rhs.m_maxEnergy;
 	m_initiative = rhs.m_initiative;
 	m_speed = rhs.m_speed;
@@ -53,7 +45,7 @@ Monster::Monster(Monster const& rhs) : SpriteEntity(rhs.cell) {
 	m_highlight = rhs.m_highlight;
 	m_coverWithMask = rhs.m_coverWithMask;
 	m_canAttack = rhs.m_canAttack;
-	m_isDefending = rhs.m_isDefending;
+	m_defending = rhs.m_defending;
 	m_delayedKill = rhs.m_delayedKill;
 	m_killed = rhs.m_killed;
 	m_attackOffset = rhs.m_attackOffset;
@@ -67,16 +59,12 @@ Monster::Monster(Monster const& rhs) : SpriteEntity(rhs.cell) {
 	m_showMissingTimer.setRecipient(this);
 }
 
-Monster::Monster(Monster&& rhs) : SpriteEntity(rhs.cell) {
+Monster::Monster(Monster&& rhs) : SpriteEntity(rhs.cell), monsterEntry(rhs.monsterEntry) {
 	m_bars = rhs.m_bars;
 	m_animationSpeed = rhs.m_animationSpeed;
 	m_name = rhs.m_name;
-	m_level = rhs.m_level;
-	m_experience = rhs.m_experience;
 	m_maxExperience = rhs.m_maxExperience;
-	m_health = rhs.m_health;
 	m_maxHealth = rhs.m_maxHealth;
-	m_energy = rhs.m_energy;
 	m_maxEnergy = rhs.m_maxEnergy;
 	m_initiative = rhs.m_initiative;
 	m_speed = rhs.m_speed;
@@ -84,7 +72,7 @@ Monster::Monster(Monster&& rhs) : SpriteEntity(rhs.cell) {
 	m_highlight = rhs.m_highlight;
 	m_coverWithMask = rhs.m_coverWithMask;
 	m_canAttack = rhs.m_canAttack;
-	m_isDefending = rhs.m_isDefending;
+	m_defending = rhs.m_defending;
 	m_delayedKill = rhs.m_delayedKill;
 	m_killed = rhs.m_killed;
 	m_attackOffset = rhs.m_attackOffset;
@@ -100,16 +88,14 @@ Monster::Monster(Monster&& rhs) : SpriteEntity(rhs.cell) {
 
 Monster& Monster::operator=(const Monster& rhs) {
 	SpriteEntity::operator=(rhs);
+	cell = rhs.cell;
+	monsterEntry = rhs.monsterEntry;
 
 	m_bars = rhs.m_bars;
 	m_animationSpeed = rhs.m_animationSpeed;
 	m_name = rhs.m_name;
-	m_level = rhs.m_level;
-	m_experience = rhs.m_experience;
 	m_maxExperience = rhs.m_maxExperience;
-	m_health = rhs.m_health;
 	m_maxHealth = rhs.m_maxHealth;
-	m_energy = rhs.m_energy;
 	m_maxEnergy = rhs.m_maxEnergy;
 	m_initiative = rhs.m_initiative;
 	m_speed = rhs.m_speed;
@@ -117,7 +103,7 @@ Monster& Monster::operator=(const Monster& rhs) {
 	m_highlight = rhs.m_highlight;
 	m_coverWithMask = rhs.m_coverWithMask;
 	m_canAttack = rhs.m_canAttack;
-	m_isDefending = rhs.m_isDefending;
+	m_defending = rhs.m_defending;
 	m_delayedKill = rhs.m_delayedKill;
 	m_killed = rhs.m_killed;
 	m_attackOffset = rhs.m_attackOffset;
@@ -134,16 +120,14 @@ Monster& Monster::operator=(const Monster& rhs) {
 
 Monster& Monster::operator=(Monster&& rhs) {
 	SpriteEntity::operator=(rhs);
+	cell = rhs.cell;
+	monsterEntry = rhs.monsterEntry;
 
 	m_bars = rhs.m_bars;
 	m_animationSpeed = rhs.m_animationSpeed;
 	m_name = rhs.m_name;
-	m_level = rhs.m_level;
-	m_experience = rhs.m_experience;
 	m_maxExperience = rhs.m_maxExperience;
-	m_health = rhs.m_health;
 	m_maxHealth = rhs.m_maxHealth;
-	m_energy = rhs.m_energy;
 	m_maxEnergy = rhs.m_maxEnergy;
 	m_initiative = rhs.m_initiative;
 	m_speed = rhs.m_speed;
@@ -151,7 +135,7 @@ Monster& Monster::operator=(Monster&& rhs) {
 	m_highlight = rhs.m_highlight;
 	m_coverWithMask = rhs.m_coverWithMask;
 	m_canAttack = rhs.m_canAttack;
-	m_isDefending = rhs.m_isDefending;
+	m_defending = rhs.m_defending;
 	m_delayedKill = rhs.m_delayedKill;
 	m_killed = rhs.m_killed;
 	m_attackOffset = rhs.m_attackOffset;
@@ -178,7 +162,7 @@ void Monster::drawBack() {
 
 	float lvlWidth = 60.0f;
 	float lvlHeight = 26.0f;
-	float fontWidth = Globals::fontManager.get("dialog").getWidth("Lvl: " + std::to_string(m_level)) * 0.035f - 5.0f;
+	float fontWidth = Globals::fontManager.get("dialog").getWidth("Lvl: " + std::to_string(monsterEntry.get().level)) * 0.035f - 5.0f;
 	float fontHeight = Globals::fontManager.get("dialog").lineHeight * 0.035f - 5.0f;
 	float lineHeightSmall = Globals::fontManager.get("dialog").lineHeight * 0.035f;
 
@@ -188,17 +172,17 @@ void Monster::drawBack() {
 	if(cell.flipped) {
 		Batchrenderer::Get().addQuadAA(Vector4f(cell.posX - width * 0.5f + 16.0f, cell.posY + 96.0f - height * 0.5f + 40.0f, width, height), Vector4f(emptyRect.textureOffsetX, emptyRect.textureOffsetY, emptyRect.textureWidth, emptyRect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), emptyRect.frame);
 		Batchrenderer::Get().addQuadAA(Vector4f(cell.posX - width * 0.5f + 16.0f, cell.posY + 96.0f - height * 0.5f + 40.0f - lvlHeight, lvlWidth, lvlHeight), Vector4f(emptyRect.textureOffsetX, emptyRect.textureOffsetY, emptyRect.textureWidth, emptyRect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), emptyRect.frame);
-		drawBar({ cell.posX - width * 0.5f + 16.0f, cell.posY + 96.0f - height * 0.5f + 40.0f - lvlHeight, lvlWidth, 2.0f }, emptyRect, m_experience, m_maxExperience, Vector4f(1.0f, 1.0f, 1.0f, 1.0f), Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
+		drawBar({ cell.posX - width * 0.5f + 16.0f, cell.posY + 96.0f - height * 0.5f + 40.0f - lvlHeight, lvlWidth, 2.0f }, emptyRect, monsterEntry.get().experience, m_maxExperience, Vector4f(1.0f, 1.0f, 1.0f, 1.0f), Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
 
 		Fontrenderer::Get().addText(Globals::fontManager.get("dialog"), cell.posX - width * 0.5f + 16.0f + padding, cell.posY + 96.0f - height * 0.5f + 40.0f + padding, m_name, Vector4f(0.0f, 0.0f, 0.0f, 1.0f), 0.045f);
-		Fontrenderer::Get().addText(Globals::fontManager.get("dialog"), cell.posX - width * 0.5f + 16.0f + 30 - 0.5f * fontWidth, cell.posY + 96.0f - height * 0.5f + 40.0f - lvlHeight + 13.0f - 0.5f * fontHeight, "Lvl " + std::to_string(m_level), Vector4f(0.0f, 0.0f, 0.0f, 1.0f), 0.035f);
+		Fontrenderer::Get().addText(Globals::fontManager.get("dialog"), cell.posX - width * 0.5f + 16.0f + 30 - 0.5f * fontWidth, cell.posY + 96.0f - height * 0.5f + 40.0f - lvlHeight + 13.0f - 0.5f * fontHeight, "Lvl " + std::to_string(monsterEntry.get().level), Vector4f(0.0f, 0.0f, 0.0f, 1.0f), 0.035f);
 	}else {		 
 		Batchrenderer::Get().addQuadAA(Vector4f(cell.posX + rect.width - width * 0.5f - 30.0f, cell.posY + 96.0f - height * 0.5f + 40.0f, width, height), Vector4f(emptyRect.textureOffsetX, emptyRect.textureOffsetY, emptyRect.textureWidth, emptyRect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), emptyRect.frame);
 		Batchrenderer::Get().addQuadAA(Vector4f(cell.posX + rect.width + width - width * 0.5f - 30.0f - lvlWidth, cell.posY + 96.0f - height * 0.5f + 40.0f - lvlHeight, lvlWidth, lvlHeight), Vector4f(emptyRect.textureOffsetX, emptyRect.textureOffsetY, emptyRect.textureWidth, emptyRect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), emptyRect.frame);
-		drawBar({ cell.posX + rect.width + width - width * 0.5f - 30.0f - lvlWidth, cell.posY + 96.0f - height * 0.5f + 40.0f - lvlHeight, lvlWidth, 2.0f }, emptyRect, m_experience, m_maxExperience, Vector4f(1.0f, 1.0f, 1.0f, 1.0f), Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
+		drawBar({ cell.posX + rect.width + width - width * 0.5f - 30.0f - lvlWidth, cell.posY + 96.0f - height * 0.5f + 40.0f - lvlHeight, lvlWidth, 2.0f }, emptyRect, monsterEntry.get().experience, m_maxExperience, Vector4f(1.0f, 1.0f, 1.0f, 1.0f), Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
 
 		Fontrenderer::Get().addText(Globals::fontManager.get("dialog"), cell.posX + rect.width - width * 0.5f - 30.0f + padding, cell.posY + 96.0f - height * 0.5f + 40.0f + padding, m_name, Vector4f(0.0f, 0.0f, 0.0f, 1.0f), 0.045f);
-		Fontrenderer::Get().addText(Globals::fontManager.get("dialog"), cell.posX + rect.width + width - width * 0.5f - 30.0f - lvlWidth + 30 - 0.5f * fontWidth, cell.posY + 96.0f - height * 0.5f + 40.0f - lvlHeight + 13.0f - 0.5f * fontHeight, "Lvl " + std::to_string(m_level), Vector4f(0.0f, 0.0f, 0.0f, 1.0f), 0.035f);
+		Fontrenderer::Get().addText(Globals::fontManager.get("dialog"), cell.posX + rect.width + width - width * 0.5f - 30.0f - lvlWidth + 30 - 0.5f * fontWidth, cell.posY + 96.0f - height * 0.5f + 40.0f - lvlHeight + 13.0f - 0.5f * fontHeight, "Lvl " + std::to_string(monsterEntry.get().level), Vector4f(0.0f, 0.0f, 0.0f, 1.0f), 0.035f);
 	}
 }
 
@@ -231,11 +215,11 @@ void Monster::draw() {
 	
 		//attributes
 		Batchrenderer::Get().addQuadAA(Vector4f(cell.posX + 0.5f * rect.width - 75.0f, cell.posY - 20.0f, 150.0f, 48.0f), Vector4f(emptyRect.textureOffsetX, emptyRect.textureOffsetY, emptyRect.textureWidth, emptyRect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), emptyRect.frame);
-		Fontrenderer::Get().addText(Globals::fontManager.get("dialog"), cell.posX + 0.5f * rect.width - 75.0f + 10.0f, cell.posY - 20.0f + 48.0f - lineHeightSmall, Fontrenderer::Get().floatToString(m_health, 0) + "/" + Fontrenderer::Get().floatToString(m_maxHealth, 0), Vector4f(0.0f, 0.0f, 0.0f, 1.0f), 0.035f);
-		addBar({ cell.posX + 0.5f * rect.width - 75.0f + 10.0f, cell.posY - 20.0f + 48.0f - lineHeightSmall - 4.0f, lvlWidth, 5.0f }, barRect, m_health, m_maxHealth, Vector4f(0.0f, 0.0f, 0.0f, 1.0f), Vector4f(0.94117f, 0.19215f, 0.19215f, 1.0f));
+		Fontrenderer::Get().addText(Globals::fontManager.get("dialog"), cell.posX + 0.5f * rect.width - 75.0f + 10.0f, cell.posY - 20.0f + 48.0f - lineHeightSmall, Fontrenderer::Get().floatToString(monsterEntry.get().health, 0) + "/" + Fontrenderer::Get().floatToString(m_maxHealth, 0), Vector4f(0.0f, 0.0f, 0.0f, 1.0f), 0.035f);
+		addBar({ cell.posX + 0.5f * rect.width - 75.0f + 10.0f, cell.posY - 20.0f + 48.0f - lineHeightSmall - 4.0f, lvlWidth, 5.0f }, barRect, monsterEntry.get().health, m_maxHealth, Vector4f(0.0f, 0.0f, 0.0f, 1.0f), Vector4f(0.94117f, 0.19215f, 0.19215f, 1.0f));
 		
-		Fontrenderer::Get().addText(Globals::fontManager.get("dialog"), cell.posX + 0.5f * rect.width - 75.0f + 10.0f, cell.posY - 20.0f + 48.0f - 2.0f * lineHeightSmall - 4.0f, Fontrenderer::Get().floatToString(m_energy, 0) + "/" + Fontrenderer::Get().floatToString(m_maxEnergy, 0), Vector4f(0.0f, 0.0f, 0.0f, 1.0f), 0.035f);
-		addBar({ cell.posX + 0.5f * rect.width - 75.0f + 10.0f, cell.posY - 20.0f + 48.0f - 2.0f * lineHeightSmall - 8.0f, lvlWidth, 5.0f }, barRect, m_energy, m_maxEnergy, Vector4f(0.0f, 0.0f, 0.0f, 1.0f), Vector4f(0.4f, 0.84313f, 0.93333f, 1.0f));
+		Fontrenderer::Get().addText(Globals::fontManager.get("dialog"), cell.posX + 0.5f * rect.width - 75.0f + 10.0f, cell.posY - 20.0f + 48.0f - 2.0f * lineHeightSmall - 4.0f, Fontrenderer::Get().floatToString(monsterEntry.get().energy, 0) + "/" + Fontrenderer::Get().floatToString(m_maxEnergy, 0), Vector4f(0.0f, 0.0f, 0.0f, 1.0f), 0.035f);
+		addBar({ cell.posX + 0.5f * rect.width - 75.0f + 10.0f, cell.posY - 20.0f + 48.0f - 2.0f * lineHeightSmall - 8.0f, lvlWidth, 5.0f }, barRect, monsterEntry.get().energy, m_maxEnergy, Vector4f(0.0f, 0.0f, 0.0f, 1.0f), Vector4f(0.4f, 0.84313f, 0.93333f, 1.0f));
 
 		drawBar({ cell.posX + 0.5f * rect.width - 75.0f, cell.posY - 20.0f, 150.0f, 2.0f }, emptyRect, m_initiative, 100.0f, Vector4f(1.0f, 1.0f, 1.0f, 1.0f), Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
 	}else {
@@ -253,11 +237,11 @@ void Monster::draw() {
 
 		//attributes
 		Batchrenderer::Get().addQuadAA(Vector4f(cell.posX + 0.5f * rect.width - 75.0f, cell.posY - 20.0f, 150.0f, 48.0f), Vector4f(emptyRect.textureOffsetX, emptyRect.textureOffsetY, emptyRect.textureWidth, emptyRect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), emptyRect.frame);
-		Fontrenderer::Get().addText(Globals::fontManager.get("dialog"), cell.posX + 0.5f * rect.width - 75.0f + 10.0f, cell.posY - 20.0f + 48.0f - lineHeightSmall, Fontrenderer::Get().floatToString(m_health, 0) + "/" + Fontrenderer::Get().floatToString(m_maxHealth, 0), Vector4f(0.0f, 0.0f, 0.0f, 1.0f), 0.035f);
-		addBar({ cell.posX + 0.5f * rect.width - 75.0f + 10.0f, cell.posY - 20.0f + 48.0f - lineHeightSmall - 4.0f, lvlWidth, 5.0f }, barRect, m_health, m_maxHealth, Vector4f(0.0f, 0.0f, 0.0f, 1.0f), Vector4f(0.94117f, 0.19215f, 0.19215f, 1.0f));
+		Fontrenderer::Get().addText(Globals::fontManager.get("dialog"), cell.posX + 0.5f * rect.width - 75.0f + 10.0f, cell.posY - 20.0f + 48.0f - lineHeightSmall, Fontrenderer::Get().floatToString(monsterEntry.get().health, 0) + "/" + Fontrenderer::Get().floatToString(m_maxHealth, 0), Vector4f(0.0f, 0.0f, 0.0f, 1.0f), 0.035f);
+		addBar({ cell.posX + 0.5f * rect.width - 75.0f + 10.0f, cell.posY - 20.0f + 48.0f - lineHeightSmall - 4.0f, lvlWidth, 5.0f }, barRect, monsterEntry.get().health, m_maxHealth, Vector4f(0.0f, 0.0f, 0.0f, 1.0f), Vector4f(0.94117f, 0.19215f, 0.19215f, 1.0f));
 
-		Fontrenderer::Get().addText(Globals::fontManager.get("dialog"), cell.posX + 0.5f * rect.width - 75.0f + 10.0f, cell.posY - 20.0f + 48.0f - 2.0f * lineHeightSmall - 4.0f, Fontrenderer::Get().floatToString(m_energy, 0) + "/" + Fontrenderer::Get().floatToString(m_maxEnergy, 0), Vector4f(0.0f, 0.0f, 0.0f, 1.0f), 0.035f);
-		addBar({ cell.posX + 0.5f * rect.width - 75.0f + 10.0f, cell.posY - 20.0f + 48.0f - 2.0f * lineHeightSmall - 8.0f, lvlWidth, 5.0f }, barRect, m_energy, m_maxEnergy, Vector4f(0.0f, 0.0f, 0.0f, 1.0f), Vector4f(0.4f, 0.84313f, 0.93333f, 1.0f));
+		Fontrenderer::Get().addText(Globals::fontManager.get("dialog"), cell.posX + 0.5f * rect.width - 75.0f + 10.0f, cell.posY - 20.0f + 48.0f - 2.0f * lineHeightSmall - 4.0f, Fontrenderer::Get().floatToString(monsterEntry.get().energy, 0) + "/" + Fontrenderer::Get().floatToString(m_maxEnergy, 0), Vector4f(0.0f, 0.0f, 0.0f, 1.0f), 0.035f);
+		addBar({ cell.posX + 0.5f * rect.width - 75.0f + 10.0f, cell.posY - 20.0f + 48.0f - 2.0f * lineHeightSmall - 8.0f, lvlWidth, 5.0f }, barRect, monsterEntry.get().energy, m_maxEnergy, Vector4f(0.0f, 0.0f, 0.0f, 1.0f), Vector4f(0.4f, 0.84313f, 0.93333f, 1.0f));
 
 		drawBar({ cell.posX + 0.5f * rect.width - 75.0f, cell.posY - 20.0f, 150.0f, 2.0f }, emptyRect, m_initiative, 100.0f, Vector4f(1.0f, 1.0f, 1.0f, 1.0f), Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
 	}	
@@ -355,19 +339,19 @@ const std::string& Monster::getName() const {
 }
 
 const unsigned int Monster::getLevel() const {
-	return m_level;
+	return monsterEntry.get().level;
 }
 
 const float Monster::getEnergy() const {
-	return m_energy;
+	return monsterEntry.get().energy;
 }
 
 const float Monster::getHealth() const {
-	return m_health;
+	return monsterEntry.get().health;
 }
 
 void Monster::reduceEnergy(const AttackData& attack) {
-	m_energy -= attack.cost;
+	monsterEntry.get().energy -= attack.cost;
 }
 
 void Monster::playAttackAnimation() {
@@ -400,22 +384,18 @@ void Monster::applyAttack(float amount, const AttackData& attackData) {
 		attackData.element == "plant" && MonsterIndex::MonsterData[m_name].element == "fire") {
 		amount *= 0.5f;
 	}
-	float targetDefense = 1.0f - MonsterIndex::MonsterData[m_name].defense * static_cast<float>(m_level) * 0.0005f;
-	if (m_isDefending) {
+	float targetDefense = 1.0f - MonsterIndex::MonsterData[m_name].defense * static_cast<float>(monsterEntry.get().level) * 0.0005f;
+	if (m_defending) {
 		targetDefense -= 0.2f;
 	}
 
 	targetDefense = Math::Clamp(targetDefense, 0.0f, 1.0f);
-	m_health -= amount * targetDefense;
-	m_health = std::min(std::max(0.0f, m_health), m_maxHealth);
+	monsterEntry.get().health -= amount * targetDefense;
+	monsterEntry.get().health = std::min(std::max(0.0f, monsterEntry.get().health), m_maxHealth);
 }
 
 const float Monster::getBaseDamage(const std::string attackName) const {
-	return GetBaseDamage(m_name, attackName, m_level);
-}
-
-void Monster::setIsDefending(bool isDefending) {
-	m_isDefending = isDefending;
+	return GetBaseDamage(m_name, attackName, monsterEntry.get().level);
 }
 
 float Monster::GetBaseDamage(const std::string monsterName, const std::string attackName, unsigned int level) {
@@ -450,17 +430,17 @@ void Monster::OnCallBack(CallBack callback) {
 } 
 
 void Monster::updateExperience(float amount) {
-	if (m_maxExperience - m_experience > amount) {
-		m_experience += amount;
+	if (m_maxExperience - monsterEntry.get().experience > amount) {
+		monsterEntry.get().experience += amount;
 	}else {
-		m_level++;
-		m_experience = amount - (m_maxExperience - m_experience);
-		m_maxExperience = 150.0f * static_cast<float>(m_level);
+		monsterEntry.get().level++;
+		monsterEntry.get().experience = amount - (m_maxExperience - monsterEntry.get().experience);
+		m_maxExperience = 150.0f * static_cast<float>(monsterEntry.get().level);
 		
-		while(m_experience > m_maxExperience) {
-			m_experience -= m_maxExperience;
-			m_level++;
-			m_maxExperience = 150.0f * static_cast<float>(m_level);
+		while(monsterEntry.get().experience > m_maxExperience) {
+			monsterEntry.get().experience -= m_maxExperience;
+			monsterEntry.get().level++;
+			m_maxExperience = 150.0f * static_cast<float>(monsterEntry.get().level);
 		}
 	}
 }
@@ -476,4 +456,32 @@ const float Monster::getMaxHealth() const {
 void Monster::showMissing() {
 	m_showMissing = true;
 	m_showMissingTimer.start(1000u, false);
+}
+
+const float Monster::getExperience() const {
+	return monsterEntry.get().experience;
+}
+
+void Monster::setGraphic(int graphic) {
+	m_startFrame = graphic;
+}
+
+MonsterEntry& Monster::getMonsterEntry() {
+	return monsterEntry;
+}
+
+void Monster::setMonsterEntry(MonsterEntry& _monsterEntry) {
+	m_name = _monsterEntry.name;
+	m_maxExperience = 150.0f * static_cast<float>(_monsterEntry.level);
+	m_maxHealth = static_cast<float>(_monsterEntry.level * MonsterIndex::MonsterData[m_name].maxHealth);
+	m_maxEnergy = static_cast<float>(_monsterEntry.level * MonsterIndex::MonsterData[m_name].maxEnergy);
+	monsterEntry = _monsterEntry;
+}
+
+void Monster::setDelayedKill(bool delayedKill) {
+	m_delayedKill = delayedKill;
+}
+
+void Monster::setDefending(bool defending) {
+	m_defending = defending;
 }

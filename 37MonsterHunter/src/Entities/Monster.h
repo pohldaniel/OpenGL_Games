@@ -18,7 +18,7 @@ class Monster : public SpriteEntity {
 
 public:
 
-	Monster(Cell& cell, std::string name, unsigned int level, float experience, float health, float energy);
+	Monster(Cell& cell, MonsterEntry& monsterEntry);
 	Monster& operator=(const Monster& rhs);
 	Monster& operator=(Monster&& rhs);
 	Monster(Monster const& rhs);
@@ -41,6 +41,7 @@ public:
 	const float getEnergy() const;
 	const float getHealth() const;
 	const float getMaxHealth() const;
+	const float getExperience() const;
 	void reduceEnergy(const AttackData& attack);
 	void playAttackAnimation();
 	void canAttack();
@@ -48,7 +49,7 @@ public:
 	const bool getCanAttack() const;
 	void applyAttack(float amount, const AttackData& attackData);
 	const float getBaseDamage(const std::string attackName) const;
-	void setIsDefending(bool isDefending);
+	void setDefending(bool defending);
 	const bool getDelayedKill() const;
 	const bool getKilled() const;
 	void startDelayedKill();
@@ -56,6 +57,11 @@ public:
 	void updateExperience(float amount);
 	void showMissing();
 	void OnCallBack(CallBack callback);
+	void setGraphic(int graphic);
+	void setDelayedKill(bool delayedKill);
+
+	MonsterEntry& getMonsterEntry();
+	void setMonsterEntry(MonsterEntry& monsterEntry);
 
 private:
 
@@ -63,15 +69,14 @@ private:
 	void addBar(const Rect& rect, const TextureRect& textureRect, float value, float maxValue, const Vector4f& bgColor, const Vector4f& color);
 	std::vector<Bar> m_bars;
 
+	std::reference_wrapper<MonsterEntry> monsterEntry;
+
 	float m_animationSpeed;
 	std::string m_name;
-	unsigned int m_level;
-	float m_experience, m_maxExperience;
-	float m_health, m_maxHealth;
-	float m_energy, m_maxEnergy;
+	float m_maxHealth, m_maxEnergy, m_maxExperience;
 	float m_initiative;
 	float m_speed;
-	bool m_pause, m_highlight, m_coverWithMask, m_canAttack, m_isDefending, m_delayedKill, m_killed, m_showMissing;
+	bool m_pause, m_highlight, m_coverWithMask, m_canAttack, m_defending, m_delayedKill, m_killed, m_showMissing;
 	unsigned int m_attackOffset;
 	CBTimer<Monster> m_highlightTimer;
 	CBTimer<Monster> m_delayedKillTimer;
