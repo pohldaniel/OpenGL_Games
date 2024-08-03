@@ -79,7 +79,7 @@ DialogTree::~DialogTree() {
 }
 
 void DialogTree::draw() {
-	
+
 	if (m_currentIndex >= 0) {
 		Globals::fontManager.get("dialog").bind();
 		const Dialog& dialogData = DialogData[m_currentIndex];

@@ -5,10 +5,13 @@
 #include <engine/input/KeyboardEventListener.h>
 #include <engine/Camera.h>
 #include <engine/Sprite.h>
+#include <engine/Framebuffer.h>
 
 #include <States/StateMachine.h>
 #include <Entities/Monster.h>
+
 #include "MonsterIndex.h"
+#include "Fade.h"
 
 struct BattleChoice {
 	Vector2f pos;
@@ -39,6 +42,7 @@ public:
 
 	void setMapHeight(float mapHeight);
 	void setViewHeight(float viewHeight);
+	Fade& getFade();
 
 private:
 
@@ -89,6 +93,9 @@ private:
 	int m_frameCount;
 
 	unsigned int m_supplyIndexOpponent, m_supplyIndexPlayer;
+	Fade m_fade;
+	float m_alpha;
+	Framebuffer m_mainRenderTarget;
 
 	static std::random_device RandomDevice;
 	static std::mt19937 MersenTwist;

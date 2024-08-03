@@ -39,7 +39,9 @@ m_abilityPosY(0.0f),
 m_removeDefeteadMonster(false),
 m_exit(false),
 m_catchMonster(false),
-m_canSwitch(true)
+m_canSwitch(true),
+m_alpha(0.0f),
+m_fade(m_alpha)
 {
 
 	m_viewWidth = 1280.0f;
@@ -138,6 +140,13 @@ m_canSwitch(true)
 	m_exitTimer.setOnTimerEnd(std::bind(&Battle::exit, this));
 
 	m_canSwitch = std::count_if(MonsterIndex::Monsters.begin() + m_supplyIndexPlayer + 1, MonsterIndex::Monsters.end(), [](const MonsterEntry& monsterEntry) { return monsterEntry.health > 0.0f; }) != 0;
+	
+	m_mainRenderTarget.create(Application::Width, Application::Height);
+	m_mainRenderTarget.attachTexture2D(AttachmentTex::RGBA);
+	m_mainRenderTarget.attachTexture2D(AttachmentTex::DEPTH24);
+	
+	m_fade.setTransitionSpeed(2.353f);
+	m_fade.fadeIn();
 }
 
 Battle::~Battle() {
@@ -189,7 +198,7 @@ void Battle::update() {
 	}
 
 	if (keyboard.keyPressed(Keyboard::KEY_T)) {
-		m_isRunning = false;
+		exit();
 	}
 
 	if (keyboard.keyPressed(Keyboard::KEY_P)) {
@@ -230,6 +239,7 @@ void Battle::update() {
 
 	m_opponentTimer.update(m_dt);
 	m_exitTimer.update(m_dt);
+	m_fade.update(m_dt);
 
 	for (auto& monster : m_monster) {
 		monster.update(m_dt);
@@ -275,7 +285,7 @@ void Battle::update() {
 }
 
 void Battle::render() {
-
+	m_mainRenderTarget.bind();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	Globals::textureManager.get("forest").bind();
 	auto shader = Globals::shaderManager.getAssetPointer("quad");
@@ -328,7 +338,17 @@ void Battle::render() {
 	if (m_drawUi)
 		renderUi();
 
+	m_mainRenderTarget.unbind();
 
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	m_mainRenderTarget.bindColorTexture(0u, 0u);
+	shader = Globals::shaderManager.getAssetPointer("quad");
+	shader->use();
+	shader->loadMatrix("u_transform", Matrix4f::IDENTITY);
+	shader->loadVector("u_texRect", Vector4f(0.0f, 0.0f, 1.0f, 1.0f));
+	shader->loadVector("u_color", Vector4f(1.0f, 1.0f, 1.0f, m_alpha));
+	Globals::shapeManager.get("quad").drawRaw();
+	shader->unuse();
 }
 
 void Battle::OnMouseMotion(Event::MouseMoveEvent& event) {
@@ -929,5 +949,12 @@ void Battle::opponentAttack() {
 }
 
 void Battle::exit() {
-	m_isRunning = false;
+	m_fade.setOnFadeOut([&m_isRunning = m_isRunning]() {
+		m_isRunning = false;
+	});
+	m_fade.fadeOut();
+}
+
+Fade& Battle::getFade() {
+	return m_fade;
 }

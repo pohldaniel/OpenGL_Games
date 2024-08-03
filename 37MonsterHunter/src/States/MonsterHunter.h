@@ -57,4 +57,5 @@ private:
 	DialogTree m_dialogTree;
 	MonsterIndex m_monsterIndex;
 	bool m_indexOpen;
+	Character* m_lastCharacter;
 };

@@ -15,7 +15,7 @@
 #include "Application.h"
 #include "Globals.h"
 
-MonsterHunter::MonsterHunter(StateMachine& machine) : State(machine, States::MONSTER_HUNTER), m_zone(m_camera), m_dialogTree(m_camera), m_indexOpen(false){
+MonsterHunter::MonsterHunter(StateMachine& machine) : State(machine, States::MONSTER_HUNTER), m_zone(m_camera), m_dialogTree(m_camera), m_indexOpen(false), m_lastCharacter(nullptr){
 
 	m_viewWidth = 1280.0f;
 	m_viewHeight= 720.0f;
@@ -139,7 +139,7 @@ void MonsterHunter::update() {
 						});
 					}
 				}
-
+				m_lastCharacter = &character;
 			}
 		}
 	}
@@ -161,11 +161,14 @@ void MonsterHunter::update() {
 	}
 
 	if (keyboard.keyPressed(Keyboard::KEY_T)) {
-		m_machine.addStateAtTop(new Battle(m_machine));
-		static_cast<Battle*>(m_machine.getStates().top())->setMapHeight(m_mapHeight);
-		static_cast<Battle*>(m_machine.getStates().top())->setViewHeight(m_viewHeight);
-		EventDispatcher::RemoveKeyboardListener(this);
-		EventDispatcher::RemoveMouseListener(this);
+		m_zone.getFade().setOnFadeOut([this]() {
+			m_machine.addStateAtTop(new Battle(m_machine));
+			static_cast<Battle*>(m_machine.getStates().top())->setMapHeight(m_mapHeight);
+			static_cast<Battle*>(m_machine.getStates().top())->setViewHeight(m_viewHeight);
+			EventDispatcher::RemoveKeyboardListener(this);
+			EventDispatcher::RemoveMouseListener(this);
+		});
+		m_zone.getFade().fadeOut();
 	}
 
 	for (Character& character : m_zone.getCharacters()) {
@@ -180,9 +183,19 @@ void MonsterHunter::update() {
 			m_dialogTree.setBlockInput(true);
 			m_dialogTree.setFinished(false);
 
-			m_dialogTree.setOnDialogFinished([&m_zone = m_zone, &character = character]() {
-				m_zone.getPlayer().unblock();
-				character.setDefeated(true);
+			m_dialogTree.setOnDialogFinished([this, &character = character]() {				
+				if (!character.isDefeated()) {
+					character.setDefeated(true);
+					m_zone.getFade().setOnFadeOut([this]() {						
+						m_zone.getPlayer().unblock();
+						m_machine.addStateAtTop(new Battle(m_machine));
+						static_cast<Battle*>(m_machine.getStates().top())->setMapHeight(m_mapHeight);
+						static_cast<Battle*>(m_machine.getStates().top())->setViewHeight(m_viewHeight);
+						EventDispatcher::RemoveKeyboardListener(this);
+						EventDispatcher::RemoveMouseListener(this);
+					});
+					m_zone.getFade().fadeOut();
+				}
 			});
 
 			character.startMove({ m_zone.getPlayer().getCell().posX, m_zone.getPlayer().getCell().posY });
@@ -194,6 +207,7 @@ void MonsterHunter::update() {
 				m_dialogTree.setBlockInput(false);
 				m_zone.getPlayer().setIsNoticed(false);
 			});
+			m_lastCharacter = &character;
 		}
 	}
 
@@ -224,6 +238,19 @@ void MonsterHunter::render() {
 void MonsterHunter::OnReEnter() {
 	EventDispatcher::AddKeyboardListener(this);
 	EventDispatcher::AddMouseListener(this);
+	m_zone.setAlpha(0.0f);
+
+	m_zone.getFade().setOnFadeIn([&m_lastCharacter = m_lastCharacter, &m_dialogTree = m_dialogTree, m_mapHeight = m_mapHeight]() {
+		if (m_lastCharacter) {
+			Trainer& trainer = DialogTree::Trainers[m_lastCharacter->getCharacterId()];
+			for (auto& dialog : trainer.dialog.defeated) {
+				m_dialogTree.addDialog(m_lastCharacter->getCell().posX, m_mapHeight - (m_lastCharacter->getCell().posY - 128.0f), 0.0f, 0.0f, dialog, 0);
+			}
+			m_dialogTree.setFinished(false);
+			m_lastCharacter = nullptr;
+		}	
+	});
+	m_zone.getFade().fadeIn();	
 }
 
 void MonsterHunter::OnMouseMotion(Event::MouseMoveEvent& event) {

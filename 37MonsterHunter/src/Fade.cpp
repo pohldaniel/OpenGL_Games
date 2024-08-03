@@ -14,8 +14,7 @@ void Fade::update(const float dt) {
 		m_fadeValue = std::min(m_fadeValue, 1.0f);	
 	}
 
-	if (m_fadeOut) {
-		
+	if (m_fadeOut) {		
 		m_fadeValue = m_fadeValue >= 0.0f ? m_fadeValue - m_transitionSpeed * dt : 0.0f;
 		m_fadeOut = m_fadeValue >= 0.0f;
 		m_transitionEnd = m_fadeOut;
