@@ -41,7 +41,8 @@ m_exit(false),
 m_catchMonster(false),
 m_canSwitch(true),
 m_alpha(0.0f),
-m_fade(m_alpha)
+m_fade(m_alpha),
+m_canCatch(true)
 {
 
 	m_viewWidth = 1280.0f;
@@ -74,30 +75,8 @@ m_fade(m_alpha)
 	centers.push_back({ 900.0f , m_viewHeight - 260.0f });
 	centers.push_back({ 1110.0f, m_viewHeight - 390.0f });
 	centers.push_back({ 900.0f , m_viewHeight - 550.0f });
-
-	m_opponentMonster.push_back({ "Atrox", 3u, 3.0f, 200.0f, 0.0f, false });
-	m_opponentMonster.push_back({ "Finiette", 4u, 3.0f, 20.0f, 0.0f, false });
-	m_opponentMonster.push_back({ "Pouch", 5u, 3.0f, 20.0f, 0.0f, false });
-	//m_opponentMonster.push_back({ "Finsta", 2u, 3.0f, 20.0f, 0.0f, false });
-	//m_opponentMonster.push_back({ "Cleaf", 2u, 3.0f, 20.0f, 0.0f, false });
-	//m_opponentMonster.push_back({ "Friolera", 5u, 3.0f, 20.0f, 0.0f, false });
-	std::for_each(m_opponentMonster.begin(), m_opponentMonster.end(), std::mem_fn(&MonsterEntry::resetStates));
-
-	MonsterIndex::Monsters.reserve(MonsterIndex::Monsters.size() + m_opponentMonster.size());
-
-	m_supplyIndexOpponent = std::max(std::min(2, static_cast<int>(m_opponentMonster.size()) - 1), 0);
-	m_supplyIndexPlayer = std::max(std::min(2, static_cast<int>(MonsterIndex::Monsters.size()) - 1), 0);
-
 	m_cells.reserve(6);
-	for (int i = 0; i < std::min(static_cast<int>(MonsterIndex::Monsters.size()), 3); i++) {
-		m_cells.push_back({ positions[i][0], positions[i][1], 192.0f, 192.0f, static_cast<int>(MonsterIndex::MonsterData[MonsterIndex::Monsters[i].name].graphic * 16u), centers[i][0], centers[i][1], true, true });
-		m_monster.push_back(Monster(m_cells.back(), MonsterIndex::Monsters[i]));
-	}
-
-	for (int i = 0; i < std::min(static_cast<int>(m_opponentMonster.size()), 3); i++) {
-		m_cells.push_back({ positions[i + 3][0], positions[i + 3][1], 192.0f, 192.0f, static_cast<int>(MonsterIndex::MonsterData[m_opponentMonster[i].name].graphic * 16u), centers[i + 3][0], centers[i + 3][1], true, false });
-		m_monster.push_back(Monster(m_cells.back(), m_opponentMonster[i]));
-	}
+	//setOpponentMonsters();
 
 	TextureAtlasCreator::Get().init(256u, 32u);
 	TileSetManager::Get().getTileSet("battle_icon").loadTileCpu("res/tmx/graphics/ui/sword.png", false, true, false);
@@ -139,8 +118,6 @@ m_fade(m_alpha)
 	m_opponentTimer.setOnTimerEnd(std::bind(&Battle::opponentAttack, this));
 	m_exitTimer.setOnTimerEnd(std::bind(&Battle::exit, this));
 
-	m_canSwitch = std::count_if(MonsterIndex::Monsters.begin() + m_supplyIndexPlayer + 1, MonsterIndex::Monsters.end(), [](const MonsterEntry& monsterEntry) { return monsterEntry.health > 0.0f; }) != 0;
-	
 	m_mainRenderTarget.create(Application::Width, Application::Height);
 	m_mainRenderTarget.attachTexture2D(AttachmentTex::RGBA);
 	m_mainRenderTarget.attachTexture2D(AttachmentTex::DEPTH24);
@@ -202,8 +179,8 @@ void Battle::update() {
 	}
 
 	if (keyboard.keyPressed(Keyboard::KEY_P)) {
-		std::for_each(m_monster.begin(), m_monster.end(), std::mem_fn(&Monster::unPause));
-		std::for_each(m_monster.begin(), m_monster.end(), std::bind(std::mem_fn<void(bool)>(&Monster::setHighlight), std::placeholders::_1, false));
+		std::for_each(m_monsters.begin(), m_monsters.end(), std::mem_fn(&Monster::unPause));
+		std::for_each(m_monsters.begin(), m_monsters.end(), std::bind(std::mem_fn<void(bool)>(&Monster::setHighlight), std::placeholders::_1, false));
 		m_drawGeneralUi = false;
 		m_currentSelectedMonster = -1;
 	}
@@ -241,31 +218,31 @@ void Battle::update() {
 	m_exitTimer.update(m_dt);
 	m_fade.update(m_dt);
 
-	for (auto& monster : m_monster) {
+	for (auto& monster : m_monsters) {
 		monster.update(m_dt);
 	}
 
 	if (m_exit)
 		return;
 
-	for (auto& monster = m_monster.begin(); monster != m_monster.end(); ++monster) {
+	for (auto& monster = m_monsters.begin(); monster != m_monsters.end(); ++monster) {
 		if (monster->getInitiative() >= 100.0f && !monster->getPause()) {
 
-			std::for_each(m_monster.begin(), m_monster.end(), std::bind(std::mem_fn<void(bool)>(&Monster::setHighlight), std::placeholders::_1, false));
+			std::for_each(m_monsters.begin(), m_monsters.end(), std::bind(std::mem_fn<void(bool)>(&Monster::setHighlight), std::placeholders::_1, false));
 			monster->setInitiative(0.0f);
 			monster->setHighlight(true, 300);
 			monster->setDefending(false);
-			std::for_each(m_monster.begin(), m_monster.end(), std::mem_fn(&Monster::pause));
+			std::for_each(m_monsters.begin(), m_monsters.end(), std::mem_fn(&Monster::pause));
 
 			if (monster->getCell().flipped) {
 				m_drawGeneralUi = true;							
 			}else {	
-				if (std::count_if(m_monster.begin(), m_monster.end(), [](const Monster& monster) { return monster.getCell().flipped && monster.getHealth() > 0.0f; }) != 0) {
+				if (std::count_if(m_monsters.begin(), m_monsters.end(), [](const Monster& monster) { return monster.getCell().flipped && monster.getHealth() > 0.0f; }) != 0) {
 					m_opponentTimer.start(600u, false);
 				}
 			}	
 
-			m_currentSelectedMonster = std::distance(m_monster.begin(), monster);
+			m_currentSelectedMonster = std::distance(m_monsters.begin(), monster);
 			m_currentMax = 4;
 		}
 	}
@@ -273,9 +250,9 @@ void Battle::update() {
 	if (m_drawGeneralUi || m_drawAtacksUi || m_drawSwitchUi || m_drawTargetUI) {
 		processInput();
 		if (m_drawTargetUI) {
-			std::for_each(m_monster.begin(), m_monster.end(), std::bind(std::mem_fn<void(bool)>(&Monster::setHighlight), std::placeholders::_1, false));
+			std::for_each(m_monsters.begin(), m_monsters.end(), std::bind(std::mem_fn<void(bool)>(&Monster::setHighlight), std::placeholders::_1, false));
 			//std::for_each(m_monster.begin(), m_monster.end(), MonsterFunctor(&Monster::setHighlight, true, 500u));			
-			m_monster[m_currentSelectedOption + m_cutOff].setHighlight(true);
+			m_monsters[m_currentSelectedOption + m_cutOff].setHighlight(true);
 		}
 	}
 
@@ -295,7 +272,7 @@ void Battle::render() {
 	shader->loadVector("u_color", Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
 	Globals::shapeManager.get("quad").drawRaw();
 
-	for (Monster& monster : m_monster) {
+	for (Monster& monster : m_monsters) {
 		monster.drawBack();
 	}
 
@@ -305,7 +282,7 @@ void Battle::render() {
 	Globals::fontManager.get("dialog").bind();
 	Fontrenderer::Get().drawBuffer();
 
-	for (Monster& monster : m_monster) {
+	for (Monster& monster : m_monsters) {
 		monster.draw();
 	}
 
@@ -315,7 +292,7 @@ void Battle::render() {
 	Globals::fontManager.get("dialog").bind();
 	Fontrenderer::Get().drawBuffer();
 
-	for (Monster& monster : m_monster) {
+	for (Monster& monster : m_monsters) {
 		monster.drawBars();
 	}
 
@@ -455,13 +432,13 @@ void Battle::setViewHeight(float viewHeight) {
 
 void Battle::drawGeneral() {
 	Spritesheet::Bind(m_atlasBattleIcon);
-	const Monster& currentMonster = m_monster[m_currentSelectedMonster];
+	const Monster& currentMonster = m_monsters[m_currentSelectedMonster];
 	const Cell& cell = currentMonster.getCell();
 
 	for (size_t i = 0; i < m_battleChoices.size(); i++) {
 		const BattleChoice& battleChoice = m_battleChoices[i];
 		if (i == m_currentSelectedOption) {
-			const TextureRect& rect = TileSetManager::Get().getTileSet("battle_icon").getTextureRects()[battleChoice.graphics + 4 + ((i == 0) && !currentMonster.getCanAttack()) * 8 + ((i == 2) && !m_canSwitch) * 8];
+			const TextureRect& rect = TileSetManager::Get().getTileSet("battle_icon").getTextureRects()[battleChoice.graphics + 4 + ((i == 0) && !currentMonster.getCanAttack()) * 8 + ((i == 2) && !m_canSwitch) * 8 + ((i == 3) && !m_canCatch) * 8];
 			Batchrenderer::Get().addQuadAA(Vector4f(cell.posX + cell.width + battleChoice.pos[0] - 0.5f * rect.width, cell.posY + 0.5f * cell.height + battleChoice.pos[1] - 0.5f * rect.height, rect.width, rect.height), Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureWidth, rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), rect.frame);
 		}else {
 			const TextureRect& rect = TileSetManager::Get().getTileSet("battle_icon").getTextureRects()[battleChoice.graphics + 8];
@@ -475,7 +452,7 @@ void Battle::drawGeneral() {
 }
 
 void Battle::drawAttacks() {
-	const Monster& currentMonster = m_monster[m_currentSelectedMonster];
+	const Monster& currentMonster = m_monsters[m_currentSelectedMonster];
 	const Cell& cell = currentMonster.getCell();
 
 	float width = 150.0f;
@@ -530,7 +507,7 @@ void Battle::drawAttacks() {
 }
 
 void Battle::drawSwitch() {
-	const Monster& currentMonster = m_monster[m_currentSelectedMonster];
+	const Monster& currentMonster = m_monsters[m_currentSelectedMonster];
 	const Cell& cell = currentMonster.getCell();
 	const std::vector<TextureRect>& iconRects = TileSetManager::Get().getTileSet("monster_icon").getTextureRects();
 
@@ -633,10 +610,10 @@ void Battle::processInput() {
 			if(m_catchMonster){
 				m_catchMonster = false;
 				m_drawTargetUI = false;
-				m_monster[m_currentSelectedMonster].setHighlight(false);
-				std::for_each(m_monster.begin(), m_monster.end(), std::mem_fn(&Monster::unPause));
+				m_monsters[m_currentSelectedMonster].setHighlight(false);
+				std::for_each(m_monsters.begin(), m_monsters.end(), std::mem_fn(&Monster::unPause));
 
-				Monster& currentMonster = m_monster[m_currentSelectedOption + m_cutOff];			
+				Monster& currentMonster = m_monsters[m_currentSelectedOption + m_cutOff];			
 				if (currentMonster.getHealth() >= currentMonster.getMaxHealth() * 0.1f) {
 					currentMonster.showMissing();
 					m_currentSelectedMonster = -1;
@@ -646,38 +623,38 @@ void Battle::processInput() {
 				}
 								
 				MonsterIndex::Monsters.push_back({ currentMonster.getName(), currentMonster.getLevel(), currentMonster.getHealth(), currentMonster.getEnergy(), currentMonster.getExperience(), false });
-				if (m_supplyIndexOpponent < static_cast<int>(m_opponentMonster.size()) - 1) {
+				if (m_supplyIndexOpponent < static_cast<int>(m_opponentMonsters.size()) - 1) {
 					m_supplyIndexOpponent++;
-					m_monster[m_currentSelectedOption + m_cutOff].setGraphic(static_cast<int>(MonsterIndex::MonsterData[m_opponentMonster[m_supplyIndexOpponent].name].graphic * 16u));
-					m_monster[m_currentSelectedOption + m_cutOff].setMonsterEntry(m_opponentMonster[m_supplyIndexOpponent]);					
-					m_monster[m_currentSelectedOption + m_cutOff].setInitiative(0.0f);
+					m_monsters[m_currentSelectedOption + m_cutOff].setGraphic(static_cast<int>(MonsterIndex::MonsterData[m_opponentMonsters[m_supplyIndexOpponent].name].graphic * 16u));
+					m_monsters[m_currentSelectedOption + m_cutOff].setMonsterEntry(m_opponentMonsters[m_supplyIndexOpponent]);					
+					m_monsters[m_currentSelectedOption + m_cutOff].setInitiative(0.0f);
 
 				}else {
-					m_monster.erase(m_monster.begin() + m_currentSelectedOption + m_cutOff);
+					m_monsters.erase(m_monsters.begin() + m_currentSelectedOption + m_cutOff);
 				}
 
 				m_currentSelectedMonster = -1;
 				m_currentSelectedOption = 0;
 				m_cutOff = 0;
 
-				if (std::count_if(m_monster.begin(), m_monster.end(), [](const Monster& monster) { return !monster.getCell().flipped && monster.getHealth() > 0.0f; }) == 0) {
+				if (std::count_if(m_monsters.begin(), m_monsters.end(), [](const Monster& monster) { return !monster.getCell().flipped && monster.getHealth() > 0.0f; }) == 0) {
 					m_exitTimer.start(1000u, false, true);
 					m_exit = true;
-					std::for_each(m_monster.begin(), m_monster.end(), std::mem_fn(&Monster::pause));
+					std::for_each(m_monsters.begin(), m_monsters.end(), std::mem_fn(&Monster::pause));
 				}
 				m_canSwitch = m_supplyIndexPlayer < static_cast<int>(MonsterIndex::Monsters.size()) - 1;
 			}else{
 				m_playAbility = true;
 				m_drawTargetUI = false;
-				m_monster[m_currentSelectedMonster].reduceEnergy(MonsterIndex::_AttackData[m_currentAbility.first]);
-				m_monster[m_currentSelectedMonster].playAttackAnimation();
-				m_monster[m_currentSelectedMonster].canAttack();
-				float amount = m_monster[m_currentSelectedMonster].getBaseDamage(m_currentAbility.first);
-				m_monster[m_currentSelectedOption + m_cutOff].applyAttack(amount, MonsterIndex::_AttackData[m_currentAbility.first]);
-				m_abilityPosX = m_monster[m_currentSelectedOption + m_cutOff].getCell().centerX;
-				m_abilityPosY = m_monster[m_currentSelectedOption + m_cutOff].getCell().centerY;
-				if (std::count_if(m_monster.begin(), m_monster.end(), [](const Monster& monster) { return !monster.getCell().flipped && monster.getHealth() > 0.0f; }) == 0) {
-					std::for_each(m_monster.begin(), m_monster.end(), std::bind(std::mem_fn<void(bool)>(&Monster::setCanAttack), std::placeholders::_1, false));
+				m_monsters[m_currentSelectedMonster].reduceEnergy(MonsterIndex::_AttackData[m_currentAbility.first]);
+				m_monsters[m_currentSelectedMonster].playAttackAnimation();
+				m_monsters[m_currentSelectedMonster].canAttack();
+				float amount = m_monsters[m_currentSelectedMonster].getBaseDamage(m_currentAbility.first);
+				m_monsters[m_currentSelectedOption + m_cutOff].applyAttack(amount, MonsterIndex::_AttackData[m_currentAbility.first]);
+				m_abilityPosX = m_monsters[m_currentSelectedOption + m_cutOff].getCell().centerX;
+				m_abilityPosY = m_monsters[m_currentSelectedOption + m_cutOff].getCell().centerY;
+				if (std::count_if(m_monsters.begin(), m_monsters.end(), [](const Monster& monster) { return !monster.getCell().flipped && monster.getHealth() > 0.0f; }) == 0) {
+					std::for_each(m_monsters.begin(), m_monsters.end(), std::bind(std::mem_fn<void(bool)>(&Monster::setCanAttack), std::placeholders::_1, false));
 				}
 			}
 		}
@@ -686,15 +663,15 @@ void Battle::processInput() {
 			
 
 			MonsterEntry& monsterEntry = m_filteredMonsters[m_currentOffset + m_currentSelectedOption];
-			MonsterEntry& currentMonsterEntry = m_monster[m_currentSelectedMonster].getMonsterEntry();
+			MonsterEntry& currentMonsterEntry = m_monsters[m_currentSelectedMonster].getMonsterEntry();
 			std::swap(monsterEntry, currentMonsterEntry);
 			
-			m_monster[m_currentSelectedMonster].setGraphic(static_cast<int>(MonsterIndex::MonsterData[currentMonsterEntry.name].graphic * 16u));
-			m_monster[m_currentSelectedMonster].calculateStates(currentMonsterEntry);
-			m_monster[m_currentSelectedMonster].setInitiative(0.0f);
+			m_monsters[m_currentSelectedMonster].setGraphic(static_cast<int>(MonsterIndex::MonsterData[currentMonsterEntry.name].graphic * 16u));
+			m_monsters[m_currentSelectedMonster].calculateStates(currentMonsterEntry);
+			m_monsters[m_currentSelectedMonster].setInitiative(0.0f);
 
 			
-			std::for_each(m_monster.begin(), m_monster.end(), std::mem_fn(&Monster::unPause));
+			std::for_each(m_monsters.begin(), m_monsters.end(), std::mem_fn(&Monster::unPause));
 			m_drawSwitchUi = false;
 			m_visibleItems = 4;
 			m_currentSelectedOption = 0;
@@ -709,15 +686,15 @@ void Battle::processInput() {
 			m_drawAtacksUi = false;
 			m_drawTargetUI = true;
 
-			int playerMonsterCount = std::count_if(m_monster.begin(), m_monster.end(), [](const Monster& monster) { return monster.getCell().flipped; });
+			int playerMonsterCount = std::count_if(m_monsters.begin(), m_monsters.end(), [](const Monster& monster) { return monster.getCell().flipped; });
 
-			m_currentMax = m_currentTarget == "player" ? playerMonsterCount : static_cast<int>(m_monster.size()) - playerMonsterCount;
+			m_currentMax = m_currentTarget == "player" ? playerMonsterCount : static_cast<int>(m_monsters.size()) - playerMonsterCount;
 			m_visibleItems = m_currentMax;
 			
 			m_currentSelectedOption = 0;
 			m_currentOffset = 0;
 			m_cutOff = m_currentTarget == "player" ? 0 : playerMonsterCount;
-			Monster& currentMonster = m_monster[m_currentSelectedMonster];
+			Monster& currentMonster = m_monsters[m_currentSelectedMonster];
 			if (m_currentTarget == "player")
 				currentMonster.setHighlight(false);
 
@@ -729,15 +706,15 @@ void Battle::processInput() {
 				m_drawGeneralUi = false;
 				m_drawAtacksUi = true;
 				m_visibleItems = 4;
-				const Monster& currentMonster = m_monster[m_currentSelectedMonster];
-				const tsl::ordered_map<std::string, unsigned int>& abilities = MonsterIndex::MonsterData[m_monster[m_currentSelectedMonster].getName()].abilities;
+				const Monster& currentMonster = m_monsters[m_currentSelectedMonster];
+				const tsl::ordered_map<std::string, unsigned int>& abilities = MonsterIndex::MonsterData[m_monsters[m_currentSelectedMonster].getName()].abilities;
 				m_abilitiesFiltered.clear();
 				std::copy_if(abilities.begin(), abilities.end(), std::inserter(m_abilitiesFiltered, m_abilitiesFiltered.end()), [&currentMonster = currentMonster](std::pair<std::string, unsigned int> ability) {
 					return  MonsterIndex::_AttackData[ability.first].cost <= currentMonster.getEnergy();
 				});
 
 				m_currentMax = std::count_if(m_abilitiesFiltered.begin(), m_abilitiesFiltered.end(), [&currentMonster = currentMonster](const std::pair<std::string, unsigned int>& ability) { return ability.second <= currentMonster.getLevel(); });
-				int opponentMonsterCount = std::count_if(m_monster.begin(), m_monster.end(), [](const Monster& monster) { return !monster.getCell().flipped && monster.getHealth() > 0.0f; });
+				int opponentMonsterCount = std::count_if(m_monsters.begin(), m_monsters.end(), [](const Monster& monster) { return !monster.getCell().flipped && monster.getHealth() > 0.0f; });
 				m_currentSelectedOption = 0;
 				m_currentOffset = 0;
 				
@@ -754,14 +731,14 @@ void Battle::processInput() {
 				m_currentOffset = 0;
 				m_currentMax = 4;
 				m_currentSelectedMonster = -1;
-				std::for_each(m_monster.begin(), m_monster.end(), std::mem_fn(&Monster::unPause));
-				m_monster[m_currentSelectedMonster].setDefending(true);
+				std::for_each(m_monsters.begin(), m_monsters.end(), std::mem_fn(&Monster::unPause));
+				m_monsters[m_currentSelectedMonster].setDefending(true);
 
 			}else if (m_currentSelectedOption == 2) {
 				m_drawGeneralUi = false;
 				m_drawSwitchUi = true;			
 				m_visibleItems = 4;
-				const Monster& currentMonster = m_monster[m_currentSelectedMonster];
+				const Monster& currentMonster = m_monsters[m_currentSelectedMonster];
 				m_filteredMonsters.clear();
 				
 				for (size_t index = 0; index < MonsterIndex::Monsters.size(); index++) {
@@ -784,15 +761,25 @@ void Battle::processInput() {
 				m_drawGeneralUi = false;
 				m_drawTargetUI = true;
 
-				int playerMonsterCount = std::count_if(m_monster.begin(), m_monster.end(), [](const Monster& monster) { return monster.getCell().flipped; });
+				int playerMonsterCount = std::count_if(m_monsters.begin(), m_monsters.end(), [](const Monster& monster) { return monster.getCell().flipped; });
 
-				m_currentMax = m_currentTarget == "player" ? playerMonsterCount : static_cast<int>(m_monster.size()) - playerMonsterCount;
+				m_currentMax = m_currentTarget == "player" ? playerMonsterCount : static_cast<int>(m_monsters.size()) - playerMonsterCount;
 				m_visibleItems = m_currentMax;
 
 				m_currentSelectedOption = 0;
 				m_currentOffset = 0;
 				m_cutOff = playerMonsterCount;
 				m_catchMonster = true;
+
+				if (!m_canCatch) {
+					m_catchMonster = false;
+					m_drawGeneralUi = true;
+					m_drawTargetUI = false;
+					m_currentMax = 4;
+					m_visibleItems = 4;
+					m_currentSelectedOption = 3;
+					m_cutOff = 0;
+				}
 			}
 		}
 	}
@@ -805,15 +792,15 @@ void Battle::processInput() {
 			m_currentOffset = 0;
 			m_currentMax = 4;
 			m_currentSelectedMonster = -1;
-			std::for_each(m_monster.begin(), m_monster.end(), std::mem_fn(&Monster::unPause));
-			m_monster[m_currentSelectedMonster].setDefending(true);
+			std::for_each(m_monsters.begin(), m_monsters.end(), std::mem_fn(&Monster::unPause));
+			m_monsters[m_currentSelectedMonster].setDefending(true);
 		}
 
 
 		if (m_drawAtacksUi || m_drawSwitchUi || m_drawTargetUI) {
 			if (m_drawTargetUI) {
-				std::for_each(m_monster.begin(), m_monster.end(), std::bind(std::mem_fn<void(bool)>(&Monster::setHighlight), std::placeholders::_1, false));
-				m_monster[m_currentSelectedMonster].setHighlight(true);
+				std::for_each(m_monsters.begin(), m_monsters.end(), std::bind(std::mem_fn<void(bool)>(&Monster::setHighlight), std::placeholders::_1, false));
+				m_monsters[m_currentSelectedMonster].setHighlight(true);
 				m_currentSelectedOption = 0;
 			}
 
@@ -847,57 +834,57 @@ void Battle::onAbilityEnd() {
 	m_drawAtacksUi = false;
 	m_drawTargetUI = false;
 	m_drawSwitchUi = false;
-	std::for_each(m_monster.begin(), m_monster.end(), std::mem_fn(&Monster::unPause));
-	std::for_each(m_monster.begin(), m_monster.end(), std::bind(std::mem_fn<void(bool)>(&Monster::setHighlight), std::placeholders::_1, false));
+	std::for_each(m_monsters.begin(), m_monsters.end(), std::mem_fn(&Monster::unPause));
+	std::for_each(m_monsters.begin(), m_monsters.end(), std::bind(std::mem_fn<void(bool)>(&Monster::setHighlight), std::placeholders::_1, false));
 	m_currentSelectedMonster = -1;
 	m_currentSelectedOption = 0;
 	m_currentOffset = 0;
 
-	if (std::count_if(m_monster.begin(), m_monster.end(), [](const Monster& monster) { return !monster.getCell().flipped && monster.getHealth() > 0.0f; }) == 0 ||
-		std::count_if(m_monster.begin(), m_monster.end(), [](const Monster& monster) { return monster.getCell().flipped && monster.getHealth() > 0.0f; }) == 0) {
+	if (std::count_if(m_monsters.begin(), m_monsters.end(), [](const Monster& monster) { return !monster.getCell().flipped && monster.getHealth() > 0.0f; }) == 0 ||
+		std::count_if(m_monsters.begin(), m_monsters.end(), [](const Monster& monster) { return monster.getCell().flipped && monster.getHealth() > 0.0f; }) == 0) {
 		m_exitTimer.start(1000u, false, true);
 		m_exit = true;
-		std::for_each(m_monster.begin(), m_monster.end(), std::mem_fn(&Monster::pause));
+		std::for_each(m_monsters.begin(), m_monsters.end(), std::mem_fn(&Monster::pause));
 	}
 }
 
 void Battle::removeDefeteadMonster() {
 
-	for (size_t index = 0; index < m_monster.size(); index++) {
+	for (size_t index = 0; index < m_monsters.size(); index++) {
 
-		if (m_monster[index].getHealth() <= 0.0f) {		
-			if (!m_monster[index].getCell().flipped && !m_monster[index].getKilled()) {
-				float currentExperience = static_cast<float>(m_monster[index].getLevel() * 100u) / static_cast<float>(std::count_if(m_monster.begin(), m_monster.end(), [](const Monster& monster) { return monster.getCell().flipped && monster.getHealth() > 0.0f; }));			
-				std::for_each(m_monster.begin(),
-					m_monster.end(),
+		if (m_monsters[index].getHealth() <= 0.0f) {		
+			if (!m_monsters[index].getCell().flipped && !m_monsters[index].getKilled()) {
+				float currentExperience = static_cast<float>(m_monsters[index].getLevel() * 100u) / static_cast<float>(std::count_if(m_monsters.begin(), m_monsters.end(), [](const Monster& monster) { return monster.getCell().flipped && monster.getHealth() > 0.0f; }));			
+				std::for_each(m_monsters.begin(),
+					m_monsters.end(),
 					[&](Monster& monster) { if(monster.getCell().flipped)
 											   monster.updateExperience(currentExperience); 
 				});
 			}
-			m_monster[index].startDelayedKill();
+			m_monsters[index].startDelayedKill();
 		}
-		if (m_monster[index].getDelayedKill()) {
-			m_monster[index].setDelayedKill(false);
+		if (m_monsters[index].getDelayedKill()) {
+			m_monsters[index].setDelayedKill(false);
 			
-				if (m_supplyIndexPlayer < static_cast<int>(MonsterIndex::Monsters.size()) - 1 && m_monster[index].getCell().flipped) {
+				if (m_supplyIndexPlayer < static_cast<int>(MonsterIndex::Monsters.size()) - 1 && m_monsters[index].getCell().flipped) {
 					m_supplyIndexPlayer++;
 					
-					m_monster[index].setGraphic(static_cast<int>(MonsterIndex::MonsterData[MonsterIndex::Monsters[m_supplyIndexPlayer].name].graphic * 16u));
-					m_monster[index].setMonsterEntry(MonsterIndex::Monsters[m_supplyIndexPlayer]);					
-					m_monster[index].setInitiative(0.0f);
+					m_monsters[index].setGraphic(static_cast<int>(MonsterIndex::MonsterData[MonsterIndex::Monsters[m_supplyIndexPlayer].name].graphic * 16u));
+					m_monsters[index].setMonsterEntry(MonsterIndex::Monsters[m_supplyIndexPlayer]);					
+					m_monsters[index].setInitiative(0.0f);
 
 					m_canSwitch = m_supplyIndexPlayer < static_cast<int>(MonsterIndex::Monsters.size()) - 1;
-				}else if(m_supplyIndexOpponent < static_cast<int>(m_opponentMonster.size()) - 1 && !m_monster[index].getCell().flipped) {
+				}else if(m_supplyIndexOpponent < static_cast<int>(m_opponentMonsters.size()) - 1 && !m_monsters[index].getCell().flipped) {
 					m_supplyIndexOpponent++;
 					
-					m_monster[index].setGraphic(static_cast<int>(MonsterIndex::MonsterData[MonsterIndex::Monsters[m_supplyIndexOpponent].name].graphic * 16u));
-					m_monster[index].setMonsterEntry(m_opponentMonster[m_supplyIndexOpponent]);					
-					m_monster[index].setInitiative(0.0f);
+					m_monsters[index].setGraphic(static_cast<int>(MonsterIndex::MonsterData[MonsterIndex::Monsters[m_supplyIndexOpponent].name].graphic * 16u));
+					m_monsters[index].setMonsterEntry(m_opponentMonsters[m_supplyIndexOpponent]);					
+					m_monsters[index].setInitiative(0.0f);
 
 				}else {
 					if (m_currentSelectedMonster >= index)
 						m_currentSelectedMonster--;
-					m_monster.erase(m_monster.begin() + index);
+					m_monsters.erase(m_monsters.begin() + index);
 				}
 			break;
 		}
@@ -907,7 +894,7 @@ void Battle::removeDefeteadMonster() {
 void Battle::opponentAttack() {
 
 	m_opponentTimer.stop();	
-	Monster& currentMonster = m_monster[m_currentSelectedMonster];
+	Monster& currentMonster = m_monsters[m_currentSelectedMonster];
 	const tsl::ordered_map<std::string, unsigned int>& abilities = MonsterIndex::MonsterData[currentMonster.getName()].abilities;
 	
 	tsl::ordered_map<std::string, unsigned int> abilitiesFiltered;
@@ -919,7 +906,7 @@ void Battle::opponentAttack() {
 	
 	//Energy empty
 	if (upperBound == 0) {
-		std::for_each(m_monster.begin(), m_monster.end(), std::mem_fn(&Monster::unPause));
+		std::for_each(m_monsters.begin(), m_monsters.end(), std::mem_fn(&Monster::unPause));
 		return;
 	}
 	
@@ -930,15 +917,15 @@ void Battle::opponentAttack() {
 	std::advance(ability, index);
 	
 	std::string currentTarget = MonsterIndex::_AttackData[ability->first].target;
-	int playerMonsterCount = std::count_if(m_monster.begin(), m_monster.end(), [](const Monster& monster) { return monster.getCell().flipped; });
-	upperBound = currentTarget == "opponent" ? playerMonsterCount : static_cast<int>(m_monster.size()) - playerMonsterCount;
+	int playerMonsterCount = std::count_if(m_monsters.begin(), m_monsters.end(), [](const Monster& monster) { return monster.getCell().flipped; });
+	upperBound = currentTarget == "opponent" ? playerMonsterCount : static_cast<int>(m_monsters.size()) - playerMonsterCount;
 
 	std::uniform_int_distribution<size_t> dist2(0, upperBound - 1);
 	index = dist2(MersenTwist);
 	if (currentTarget == "player")
 		index += playerMonsterCount;
 
-	Monster& target = m_monster[index];
+	Monster& target = m_monsters[index];
 	float amount = currentMonster.getBaseDamage(ability->first);
 	target.applyAttack(amount, MonsterIndex::_AttackData[ability->first]);
 	m_playAbility = true;
@@ -957,4 +944,53 @@ void Battle::exit() {
 
 Fade& Battle::getFade() {
 	return m_fade;
+}
+
+void Battle::setOpponentMonsters() {
+
+	m_opponentMonsters.push_back({ "Atrox", 3u, 3.0f, 200.0f, 0.0f, false });
+	m_opponentMonsters.push_back({ "Finiette", 4u, 3.0f, 20.0f, 0.0f, false });
+	m_opponentMonsters.push_back({ "Pouch", 5u, 3.0f, 20.0f, 0.0f, false });
+	//m_opponentMonsters.push_back({ "Finsta", 2u, 3.0f, 20.0f, 0.0f, false });
+	//m_opponentMonsters.push_back({ "Cleaf", 2u, 3.0f, 20.0f, 0.0f, false });
+	//m_opponentMonsters.push_back({ "Friolera", 5u, 3.0f, 20.0f, 0.0f, false });
+
+	MonsterIndex::Monsters.reserve(MonsterIndex::Monsters.size() + m_opponentMonsters.size());
+	m_supplyIndexPlayer = std::max(std::min(2, static_cast<int>(MonsterIndex::Monsters.size()) - 1), 0);
+
+	for (int i = 0; i < std::min(static_cast<int>(MonsterIndex::Monsters.size()), 3); i++) {
+		m_cells.push_back({ positions[i][0], positions[i][1], 192.0f, 192.0f, static_cast<int>(MonsterIndex::MonsterData[MonsterIndex::Monsters[i].name].graphic * 16u), centers[i][0], centers[i][1], true, true });
+		m_monsters.push_back(Monster(m_cells.back(), MonsterIndex::Monsters[i]));
+	}
+	std::for_each(m_opponentMonsters.begin(), m_opponentMonsters.end(), std::mem_fn(&MonsterEntry::resetStates));
+
+	m_supplyIndexOpponent = std::max(std::min(2, static_cast<int>(m_opponentMonsters.size()) - 1), 0);
+	for (int i = 0; i < std::min(static_cast<int>(m_opponentMonsters.size()), 3); i++) {
+		m_cells.push_back({ positions[i + 3][0], positions[i + 3][1], 192.0f, 192.0f, static_cast<int>(MonsterIndex::MonsterData[m_opponentMonsters[i].name].graphic * 16u), centers[i + 3][0], centers[i + 3][1], true, false });
+		m_monsters.push_back(Monster(m_cells.back(), m_opponentMonsters[i]));
+	}
+
+	m_canSwitch = std::count_if(MonsterIndex::Monsters.begin() + m_supplyIndexPlayer + 1, MonsterIndex::Monsters.end(), [](const MonsterEntry& monsterEntry) { return monsterEntry.health > 0.0f; }) != 0;
+}
+
+void Battle::setOpponentMonsters(const std::vector<MonsterEntry>& monsters) {
+	m_opponentMonsters.assign(monsters.begin(), monsters.end());
+
+	MonsterIndex::Monsters.reserve(MonsterIndex::Monsters.size() + m_opponentMonsters.size());
+	m_supplyIndexPlayer = std::max(std::min(2, static_cast<int>(MonsterIndex::Monsters.size()) - 1), 0);
+
+	for (int i = 0; i < std::min(static_cast<int>(MonsterIndex::Monsters.size()), 3); i++) {
+		m_cells.push_back({ positions[i][0], positions[i][1], 192.0f, 192.0f, static_cast<int>(MonsterIndex::MonsterData[MonsterIndex::Monsters[i].name].graphic * 16u), centers[i][0], centers[i][1], true, true });
+		m_monsters.push_back(Monster(m_cells.back(), MonsterIndex::Monsters[i]));
+	}
+	std::for_each(m_opponentMonsters.begin(), m_opponentMonsters.end(), std::mem_fn(&MonsterEntry::resetStates));
+
+	m_supplyIndexOpponent = std::max(std::min(2, static_cast<int>(m_opponentMonsters.size()) - 1), 0);
+	for (int i = 0; i < std::min(static_cast<int>(m_opponentMonsters.size()), 3); i++) {
+		m_cells.push_back({ positions[i + 3][0], positions[i + 3][1], 192.0f, 192.0f, static_cast<int>(MonsterIndex::MonsterData[m_opponentMonsters[i].name].graphic * 16u), centers[i + 3][0], centers[i + 3][1], true, false });
+		m_monsters.push_back(Monster(m_cells.back(), m_opponentMonsters[i]));
+	}
+
+	m_canSwitch = std::count_if(MonsterIndex::Monsters.begin() + m_supplyIndexPlayer + 1, MonsterIndex::Monsters.end(), [](const MonsterEntry& monsterEntry) { return monsterEntry.health > 0.0f; }) != 0;
+	m_canCatch = false;
 }

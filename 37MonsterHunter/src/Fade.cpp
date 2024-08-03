@@ -8,14 +8,14 @@ Fade::Fade(float& fadeValue) : m_transitionSpeed(1.0f), m_fadeValue(fadeValue), 
 
 void Fade::update(const float dt) {
 	if (m_fadeIn) {
-		m_fadeValue = m_fadeValue <= 1.0f ? m_fadeValue + m_transitionSpeed * dt : 1.0f;
+		m_fadeValue = m_fadeValue <= 1.0f ? m_fadeValue + m_transitionSpeed * dt : 1.01f;		
 		m_fadeIn = m_fadeValue <= 1.0f;
-		m_transitionEnd = !m_fadeIn;
-		m_fadeValue = std::min(m_fadeValue, 1.0f);	
+		m_transitionEnd = !m_fadeIn;	
+		m_fadeValue = std::min(m_fadeValue, 1.0f);
 	}
 
 	if (m_fadeOut) {		
-		m_fadeValue = m_fadeValue >= 0.0f ? m_fadeValue - m_transitionSpeed * dt : 0.0f;
+		m_fadeValue = m_fadeValue >= 0.0f ? m_fadeValue - m_transitionSpeed * dt : -0.01f;		
 		m_fadeOut = m_fadeValue >= 0.0f;
 		m_transitionEnd = m_fadeOut;
 		m_fadeValue = std::max(m_fadeValue, 0.0f);

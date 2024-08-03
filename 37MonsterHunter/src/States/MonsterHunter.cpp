@@ -85,6 +85,11 @@ void MonsterHunter::update() {
 		if (SpriteEntity::HasCollision(transition.collisionRect.posX, transition.collisionRect.posY, transition.collisionRect.posX + transition.collisionRect.width, transition.collisionRect.posY + transition.collisionRect.height, playerRect.posX, playerRect.posY, playerRect.posX + playerRect.width, playerRect.posY + playerRect.height)) {
 			
 			m_zone.getPlayer().block();
+
+			m_zone.getFade().setOnFadeIn([&m_zone = m_zone]() {
+				m_zone.getPlayer().unblock();
+			});
+
 			m_zone.getFade().setOnFadeOut([&m_zone = m_zone, &transition = transition, &m_mapHeight = m_mapHeight, m_movingSpeed = m_movingSpeed, m_viewWidth = m_viewWidth, m_viewHeight = m_viewHeight]() {
 				if(transition.target == "hospital2")
 					m_zone.loadZone("res/tmx/data/maps/" + transition.target + ".tmx", "hospital", transition.newPos);
@@ -100,11 +105,6 @@ void MonsterHunter::update() {
 
 				m_zone.getFade().fadeIn();
 			});
-
-			m_zone.getFade().setOnFadeIn([&m_zone = m_zone]() {
-				m_zone.getPlayer().unblock();
-			});
-
 			m_zone.getFade().fadeOut();
 
 			break;
@@ -126,16 +126,26 @@ void MonsterHunter::update() {
 					}
 					m_dialogTree.setFinished(false);
 					if (character.getCharacterId() == "Nurse") {
-
 						m_dialogTree.setOnDialogFinished([&m_monsterIndex = m_monsterIndex, &m_zone = m_zone]() {
 							m_zone.getPlayer().unblock();
 							m_monsterIndex.resetStates();
 						});
-
 					}else {
-						m_dialogTree.setOnDialogFinished([&m_zone = m_zone, &character = character]() {
-							m_zone.getPlayer().unblock();
-							character.setDefeated(true);
+						m_dialogTree.setOnDialogFinished([this, &character = character]() {
+							if (!character.isDefeated()) {
+								character.setDefeated(true);
+								m_zone.getFade().setOnFadeOut([this, &character = character]() {
+									m_machine.addStateAtTop(new Battle(m_machine));
+									static_cast<Battle*>(m_machine.getStates().top())->setMapHeight(m_mapHeight);
+									static_cast<Battle*>(m_machine.getStates().top())->setViewHeight(m_viewHeight);
+									static_cast<Battle*>(m_machine.getStates().top())->setOpponentMonsters(DialogTree::Trainers[character.getCharacterId()].monsters);
+									EventDispatcher::RemoveKeyboardListener(this);
+									EventDispatcher::RemoveMouseListener(this);
+								});
+								m_zone.getFade().fadeOut();
+							}else {
+								m_zone.getPlayer().unblock();
+							}
 						});
 					}
 				}
@@ -165,6 +175,7 @@ void MonsterHunter::update() {
 			m_machine.addStateAtTop(new Battle(m_machine));
 			static_cast<Battle*>(m_machine.getStates().top())->setMapHeight(m_mapHeight);
 			static_cast<Battle*>(m_machine.getStates().top())->setViewHeight(m_viewHeight);
+			static_cast<Battle*>(m_machine.getStates().top())->setOpponentMonsters();
 			EventDispatcher::RemoveKeyboardListener(this);
 			EventDispatcher::RemoveMouseListener(this);
 		});
@@ -186,11 +197,11 @@ void MonsterHunter::update() {
 			m_dialogTree.setOnDialogFinished([this, &character = character]() {				
 				if (!character.isDefeated()) {
 					character.setDefeated(true);
-					m_zone.getFade().setOnFadeOut([this]() {						
-						m_zone.getPlayer().unblock();
+					m_zone.getFade().setOnFadeOut([this, &character = character]() {
 						m_machine.addStateAtTop(new Battle(m_machine));
 						static_cast<Battle*>(m_machine.getStates().top())->setMapHeight(m_mapHeight);
 						static_cast<Battle*>(m_machine.getStates().top())->setViewHeight(m_viewHeight);
+						static_cast<Battle*>(m_machine.getStates().top())->setOpponentMonsters(DialogTree::Trainers[character.getCharacterId()].monsters);
 						EventDispatcher::RemoveKeyboardListener(this);
 						EventDispatcher::RemoveMouseListener(this);
 					});
@@ -240,14 +251,21 @@ void MonsterHunter::OnReEnter() {
 	EventDispatcher::AddMouseListener(this);
 	m_zone.setAlpha(0.0f);
 
-	m_zone.getFade().setOnFadeIn([&m_lastCharacter = m_lastCharacter, &m_dialogTree = m_dialogTree, m_mapHeight = m_mapHeight]() {
+	m_zone.getFade().setOnFadeIn([&m_zone = m_zone, &m_monsterIndex = m_monsterIndex, &m_lastCharacter = m_lastCharacter, &m_dialogTree = m_dialogTree, m_mapHeight = m_mapHeight]() {
 		if (m_lastCharacter) {
+			m_zone.getPlayer().block();
 			Trainer& trainer = DialogTree::Trainers[m_lastCharacter->getCharacterId()];
 			for (auto& dialog : trainer.dialog.defeated) {
 				m_dialogTree.addDialog(m_lastCharacter->getCell().posX, m_mapHeight - (m_lastCharacter->getCell().posY - 128.0f), 0.0f, 0.0f, dialog, 0);
 			}
 			m_dialogTree.setFinished(false);
 			m_lastCharacter = nullptr;
+
+			m_dialogTree.setOnDialogFinished([&m_monsterIndex = m_monsterIndex, &m_zone = m_zone]() {
+				m_zone.getPlayer().unblock();
+				m_monsterIndex.resetStates();
+			});
+
 		}	
 	});
 	m_zone.getFade().fadeIn();	

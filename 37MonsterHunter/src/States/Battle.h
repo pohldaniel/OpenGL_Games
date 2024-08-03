@@ -43,6 +43,8 @@ public:
 	void setMapHeight(float mapHeight);
 	void setViewHeight(float viewHeight);
 	Fade& getFade();
+	void setOpponentMonsters();
+	void setOpponentMonsters(const std::vector<MonsterEntry>& monsters);
 
 private:
 
@@ -59,7 +61,7 @@ private:
 	bool m_initUi = true;
 	bool m_drawUi = false;
 	bool m_playAbility;
-	bool m_drawGeneralUi, m_drawAtacksUi, m_drawSwitchUi, m_drawTargetUI, m_removeDefeteadMonster, m_catchMonster, m_canSwitch;
+	bool m_drawGeneralUi, m_drawAtacksUi, m_drawSwitchUi, m_drawTargetUI, m_removeDefeteadMonster, m_catchMonster, m_canSwitch, m_canCatch;
 	bool m_exit;
 
 	Camera m_camera;
@@ -79,8 +81,8 @@ private:
 	tsl::ordered_map<std::string, unsigned int> m_abilitiesFiltered;
 	std::vector<std::reference_wrapper<MonsterEntry>> m_filteredMonsters;
 
-	std::vector<MonsterEntry> m_opponentMonster;
-	std::vector<Monster> m_monster;
+	std::vector<MonsterEntry> m_opponentMonsters;
+	std::vector<Monster> m_monsters;
 	std::vector<std::array<float, 2>> positions;
 	std::vector<std::array<float, 2>> centers;
 	std::vector<BattleChoice> m_battleChoices;

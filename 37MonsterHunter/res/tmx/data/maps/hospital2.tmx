@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.8" tiledversion="1.8.4" orientation="orthogonal" renderorder="right-down" width="9" height="12" tilewidth="64" tileheight="64" infinite="0" nextlayerid="11" nextobjectid="21">
+ <tileset firstgid="1" source="../tilesets/indoor.tsx"/>
+ <layer id="1" name="Terrain" width="9" height="12" locked="1">
+  <data encoding="csv">
+6,7,7,7,7,7,7,7,8,
+36,17,17,29,30,17,17,17,18,
+36,27,27,39,40,27,66,27,28,
+36,37,37,37,37,37,76,37,38,
+36,47,47,47,47,47,76,47,48,
+36,47,47,47,47,47,76,47,38,
+36,85,85,65,47,75,86,47,38,
+36,47,47,47,47,47,47,47,38,
+36,47,47,47,47,47,47,47,38,
+36,47,47,47,47,47,47,47,38,
+36,47,47,47,47,47,47,47,38,
+56,57,19,20,57,57,57,57,58
+</data>
+ </layer>
+ <layer id="10" name="Terrain Top" width="9" height="12" locked="1">
+  <data encoding="csv">
+0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0
+</data>
+ </layer>
+ <objectgroup id="9" name="Collisions" locked="1">
+  <object id="13" x="51.5577" y="142.299" width="395.136" height="265.136"/>
+  <object id="14" x="-4.94921" y="702.006" width="154.26" height="64.3437"/>
+  <object id="15" x="238.815" y="705.134" width="337.984" height="60.4064"/>
+  <object id="16" x="529.598" y="17.4372" width="45.1653" height="681.945"/>
+  <object id="17" x="-0.313526" y="19.95" width="44.0345" height="672.691"/>
+  <object id="18" x="44.6367" y="18.5986" width="481.705" height="70.6748"/>
+ </objectgroup>
+ <objectgroup id="5" name="Transition">
+  <object id="8" x="161.333" y="699.999" width="60" height="6.66667">
+   <properties>
+    <property name="pos" value="hospital2"/>
+    <property name="target" value="world"/>
+   </properties>
+  </object>
+ </objectgroup>
+ <objectgroup id="2" name="Entities" locked="1">
+  <object id="1" name="Player" x="192.666" y="651.333">
+   <properties>
+    <property name="direction" value="up"/>
+    <property name="pos" value="world"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="12" name="Character" x="287.846" y="431.973">
+   <properties>
+    <property name="change_direction" type="bool" value="false"/>
+    <property name="character_id" value="Nurse"/>
+    <property name="direction" value="down"/>
+    <property name="graphic" value="purple_girl"/>
+    <property name="radius" value="0"/>
+   </properties>
+   <point/>
+  </object>
+ </objectgroup>
+</map>
