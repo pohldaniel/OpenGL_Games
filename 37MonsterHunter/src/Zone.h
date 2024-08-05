@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <array>
+#include <random>
 #include <engine/Vector.h>
 #include <engine/Camera.h>
 #include <engine/Rect.h>
@@ -167,4 +168,7 @@ private:
 
 	static int CheckMonsterCollision(const SpriteEntity* player, const std::vector<Biome>& biomes);
 	static std::unordered_map<std::string, TileSetData> TileSets;
+	static std::random_device RandomDevice;
+	static std::mt19937 MersenTwist;
+	static std::uniform_int_distribution<int> Distribution;
 };

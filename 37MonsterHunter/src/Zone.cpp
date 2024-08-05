@@ -16,6 +16,9 @@
 #include "Globals.h"
 
 std::unordered_map<std::string, TileSetData> Zone::TileSets;
+std::random_device Zone::RandomDevice;
+std::mt19937 Zone::MersenTwist(RandomDevice());
+std::uniform_int_distribution<int> Zone::Distribution(800, 2500);
 
 Zone::Zone(const Camera& camera) :
 	camera(camera),
@@ -77,10 +80,12 @@ void Zone::update(float dt) {
 	m_biomeIndex = -1;
 	int index = CheckMonsterCollision(m_spriteEntities.back().get(), m_biomes);
 	if (index >= 0) {
-		m_monsterEncounter.start(2000u, false);
-		m_monsterEncounter.setOnTimerEnd([&m_monsterEncounter = m_monsterEncounter, &m_biomes = m_biomes, &index = index, &m_biomeIndex = m_biomeIndex]() {
-			m_biomeIndex = index;
-		});
+		if (!m_monsterEncounter.isActivated()) {
+			m_monsterEncounter.start(Distribution(MersenTwist), false);
+			m_monsterEncounter.setOnTimerEnd([&m_monsterEncounter = m_monsterEncounter, &m_biomes = m_biomes, &index = index, &m_biomeIndex = m_biomeIndex]() {
+				m_biomeIndex = index;
+			});
+		}
 	}else {	
 		m_monsterEncounter.stop();
 	}
@@ -291,6 +296,11 @@ void Zone::loadZone(const std::string path, const std::string currentTileset, co
 		}
 
 		if (layer->getName() == "Monsters") {
+
+			std::random_device rd;  // a seed source for the random number engine
+			std::mt19937 gen(rd()); // mersenne_twister_engine seeded with rd()
+			std::uniform_int_distribution<> distrib(-3, 3);
+
 			const tmx::ObjectGroup* objectLayer = dynamic_cast<const tmx::ObjectGroup*>(layer.get());
 			for (auto& object : objectLayer->getObjects()) {
 				if (object.getProperties()[0].getStringValue() == "sand") {
@@ -307,7 +317,7 @@ void Zone::loadZone(const std::string path, const std::string currentTileset, co
 				while (ss.good()){
 					std::string substr;
 					getline(ss, substr, ',');
-					m_biomes.back().monsters.push_back({ substr, static_cast<unsigned int>(object.getProperties()[1].getIntValue()) , 0.0f, 0.0f, 0.0f, false});
+					m_biomes.back().monsters.push_back({ substr, static_cast<unsigned int>(object.getProperties()[1].getIntValue()) + distrib(gen) , 0.0f, 0.0f, 0.0f, false});
 				}	
 			}
 		}
