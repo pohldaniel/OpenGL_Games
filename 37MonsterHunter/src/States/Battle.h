@@ -44,7 +44,7 @@ public:
 	void setViewHeight(float viewHeight);
 	Fade& getFade();
 	void setOpponentMonsters();
-	void setOpponentMonsters(const std::vector<MonsterEntry>& monsters);
+	void setOpponentMonsters(const std::vector<MonsterEntry>& monsters, bool canCatch = false);
 	void setBiomeBackground(const std::string& biomeBackground);
 
 private:

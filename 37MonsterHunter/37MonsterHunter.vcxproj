@@ -226,6 +226,7 @@
     <ClCompile Include="src\Entities\Skybox.cpp" />
     <ClCompile Include="src\Entities\SpriteEntity.cpp" />
     <ClCompile Include="src\Entities\Vehicle.cpp" />
+    <ClCompile Include="src\Evolve.cpp" />
     <ClCompile Include="src\Fade.cpp" />
     <ClCompile Include="src\LoadingManager.cpp" />
     <ClCompile Include="src\MonsterIndex.cpp" />
@@ -415,6 +416,7 @@
     <ClInclude Include="src\Entities\Skybox.h" />
     <ClInclude Include="src\Entities\SpriteEntity.h" />
     <ClInclude Include="src\Entities\Vehicle.h" />
+    <ClInclude Include="src\Evolve.h" />
     <ClInclude Include="src\Fade.h" />
     <ClInclude Include="src\Globals.h" />
     <ClInclude Include="src\LoadingManager.h" />

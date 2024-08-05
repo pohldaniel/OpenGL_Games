@@ -406,8 +406,10 @@ const bool Monster::getDelayedKill() const {
 }
 
 void Monster::startDelayedKill() {	
-	m_delayedKillTimer.start(600u, false, true);	
-	m_killed = true;
+	if (!m_killed) {
+		m_delayedKillTimer.start(600u, false, false);
+		m_killed = true;
+	}
 }
 
 const bool Monster::getPause() const {
@@ -420,8 +422,7 @@ void Monster::OnCallBack(CallBack callback) {
 	else if (callback == CALL_BACK_2)
 		m_delayedKill = true;
 	else if (callback == CALL_BACK_3)
-		m_showMissing = false;
-	
+		m_showMissing = false;	
 } 
 
 void Monster::updateExperience(float amount) {
@@ -442,6 +443,10 @@ void Monster::updateExperience(float amount) {
 
 const bool Monster::getKilled() const {
 	return m_killed;
+}
+
+void Monster::setKilled(bool killed) {
+	m_killed = killed;
 }
 
 const float Monster::getMaxHealth() const {

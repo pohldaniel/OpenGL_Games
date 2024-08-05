@@ -298,14 +298,17 @@ void Zone::loadZone(const std::string path, const std::string currentTileset, co
 				}else {
 					m_cellsMain.push_back(CellShadow(object.getPosition().x, object.getPosition().y, 64.0f, 64.0f, static_cast<int>(object.getTileID() - 1u) , object.getPosition().x + 0.5f * object.getAABB().width, (object.getPosition().y - 0.5f * object.getAABB().height) - 40.0f, false, false, false, false));
 				}
-				m_biomes.push_back({ object.getProperties()[0].getStringValue(), { object.getPosition().x, object.getPosition().y - 64.0f, 64.0f, 64.0f } });
+				//m_biomes.push_back({ object.getProperties()[0].getStringValue(), { object.getPosition().x, object.getPosition().y - 64.0f, 64.0f, 64.0f } });
+				m_biomes.push_back(Biome());
+				m_biomes.back().biome = object.getProperties()[0].getStringValue();
+				m_biomes.back().rect = { object.getPosition().x, object.getPosition().y - 64.0f, 64.0f, 64.0f };
 
 				std::stringstream ss(object.getProperties()[2].getStringValue());				
 				while (ss.good()){
 					std::string substr;
 					getline(ss, substr, ',');
 					m_biomes.back().monsters.push_back({ substr, static_cast<unsigned int>(object.getProperties()[1].getIntValue()) , 0.0f, 0.0f, 0.0f, false});
-				}				
+				}	
 			}
 		}
 

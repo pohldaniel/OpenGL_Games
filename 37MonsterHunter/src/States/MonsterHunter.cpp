@@ -78,14 +78,14 @@ void MonsterHunter::fixedUpdate() {
 void MonsterHunter::update() {
 	
 	if (m_zone.getBiomeIndex() > -1) {
-		std::cout << "Biome: " << m_zone.getBiomes()[m_zone.getBiomeIndex()].biome << std::endl;
-		std::cout << "Size: " << m_zone.getBiomes()[m_zone.getBiomeIndex()].monsters.size() << std::endl;
+		int biomeIndex = m_zone.getBiomeIndex();
 		m_zone.getPlayer().block();
-		m_zone.getFade().setOnFadeOut([this]() {
+		m_zone.getFade().setOnFadeOut([this, biomeIndex = biomeIndex]() {
 			m_machine.addStateAtTop(new Battle(m_machine));
 			static_cast<Battle*>(m_machine.getStates().top())->setMapHeight(m_mapHeight);
 			static_cast<Battle*>(m_machine.getStates().top())->setViewHeight(m_viewHeight);
-			static_cast<Battle*>(m_machine.getStates().top())->setOpponentMonsters(m_zone.getBiomes()[m_zone.getBiomeIndex()].monsters);
+			static_cast<Battle*>(m_machine.getStates().top())->setOpponentMonsters(m_zone.getBiomes()[biomeIndex].monsters, true);
+			static_cast<Battle*>(m_machine.getStates().top())->setBiomeBackground(m_zone.getBiomes()[biomeIndex].biome);
 			EventDispatcher::RemoveKeyboardListener(this);
 			EventDispatcher::RemoveMouseListener(this);
 		});
@@ -97,10 +97,8 @@ void MonsterHunter::update() {
 	Rect playerRect = { m_zone.getPlayer().getCell().posX + 32.0f, m_zone.getPlayer().getCell().posY - (128.0f - 30.0f) , 128.0f - 64.0f, 128.0f - 60.0f };
 	for (const Transition& transition : m_zone.getTransitions()) {
 
-		if (SpriteEntity::HasCollision(transition.collisionRect.posX, transition.collisionRect.posY, transition.collisionRect.posX + transition.collisionRect.width, transition.collisionRect.posY + transition.collisionRect.height, playerRect.posX, playerRect.posY, playerRect.posX + playerRect.width, playerRect.posY + playerRect.height)) {
-			
+		if (SpriteEntity::HasCollision(transition.collisionRect.posX, transition.collisionRect.posY, transition.collisionRect.posX + transition.collisionRect.width, transition.collisionRect.posY + transition.collisionRect.height, playerRect.posX, playerRect.posY, playerRect.posX + playerRect.width, playerRect.posY + playerRect.height)) {			
 			m_zone.getPlayer().block();
-
 			m_zone.getFade().setOnFadeIn([&m_zone = m_zone]() {
 				m_zone.getPlayer().unblock();
 			});
@@ -149,11 +147,13 @@ void MonsterHunter::update() {
 						m_dialogTree.setOnDialogFinished([this, &character = character]() {
 							if (!character.isDefeated()) {
 								character.setDefeated(true);
+								m_lastCharacter = &character;
 								m_zone.getFade().setOnFadeOut([this, &character = character]() {
 									m_machine.addStateAtTop(new Battle(m_machine));
 									static_cast<Battle*>(m_machine.getStates().top())->setMapHeight(m_mapHeight);
 									static_cast<Battle*>(m_machine.getStates().top())->setViewHeight(m_viewHeight);
 									static_cast<Battle*>(m_machine.getStates().top())->setOpponentMonsters(DialogTree::Trainers[character.getCharacterId()].monsters);
+									static_cast<Battle*>(m_machine.getStates().top())->setBiomeBackground(DialogTree::Trainers[character.getCharacterId()].biome);
 									EventDispatcher::RemoveKeyboardListener(this);
 									EventDispatcher::RemoveMouseListener(this);
 								});
@@ -164,7 +164,6 @@ void MonsterHunter::update() {
 						});
 					}
 				}
-				m_lastCharacter = &character;
 			}
 		}
 	}
@@ -195,6 +194,10 @@ void MonsterHunter::update() {
 			EventDispatcher::RemoveMouseListener(this);
 		});
 		m_zone.getFade().fadeOut();
+	}
+
+	if (keyboard.keyPressed(Keyboard::KEY_G)) {
+		m_zone.getPlayer().unblock();
 	}
 
 	for (Character& character : m_zone.getCharacters()) {
@@ -276,13 +279,14 @@ void MonsterHunter::OnReEnter() {
 			}
 			m_dialogTree.setFinished(false);
 			m_lastCharacter = nullptr;
-
 			m_dialogTree.setOnDialogFinished([&m_monsterIndex = m_monsterIndex, &m_zone = m_zone]() {
 				m_zone.getPlayer().unblock();
 				m_monsterIndex.resetStates();
 			});
 
-		}	
+		}else {
+			m_zone.getPlayer().unblock();
+		}
 	});
 	m_zone.getFade().fadeIn();	
 }

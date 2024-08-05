@@ -52,6 +52,7 @@ public:
 	void setDefending(bool defending);
 	const bool getDelayedKill() const;
 	const bool getKilled() const;
+	void setKilled(bool killed);
 	void startDelayedKill();
 	const bool getPause() const;
 	void updateExperience(float amount);

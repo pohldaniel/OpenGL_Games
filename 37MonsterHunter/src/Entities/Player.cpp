@@ -94,7 +94,6 @@ const ViewDirection& Player::getViewDirection() const {
 	}else {
 		m_viewDirection = ViewDirection::NONE;
 	}
-	//std::cout << m_viewDirection << std::endl;
 	return m_viewDirection;
 }
 

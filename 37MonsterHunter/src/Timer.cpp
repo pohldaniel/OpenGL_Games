@@ -81,3 +81,7 @@ void Timer::stop() {
 void Timer::setOnTimerEnd(std::function<void()> fun) {
 	OnTimerEnd = fun;
 }
+
+void Timer::setStartOnce(bool startOnce){
+	m_startOnce = startOnce;
+}

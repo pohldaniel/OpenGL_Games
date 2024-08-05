@@ -19,6 +19,7 @@ public:
 	void stop();
 	const bool isActivated() const;
 	void setOnTimerEnd(std::function<void()> fun);
+	void setStartOnce(bool startOnce);
 
 protected:
 
