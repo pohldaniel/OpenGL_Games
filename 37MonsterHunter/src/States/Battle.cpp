@@ -122,8 +122,11 @@ m_canCatch(true)
 	m_mainRenderTarget.attachTexture2D(AttachmentTex::RGBA);
 	m_mainRenderTarget.attachTexture2D(AttachmentTex::DEPTH24);
 	
+	m_biomeBackground = "forest";
+
 	m_fade.setTransitionSpeed(2.353f);
 	m_fade.fadeIn();
+
 }
 
 Battle::~Battle() {
@@ -264,7 +267,7 @@ void Battle::update() {
 void Battle::render() {
 	m_mainRenderTarget.bind();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	Globals::textureManager.get("forest").bind();
+	Globals::textureManager.get(m_biomeBackground).bind();
 	auto shader = Globals::shaderManager.getAssetPointer("quad");
 	shader->use();
 	shader->loadMatrix("u_transform", Matrix4f::IDENTITY);
@@ -974,6 +977,7 @@ void Battle::setOpponentMonsters() {
 }
 
 void Battle::setOpponentMonsters(const std::vector<MonsterEntry>& monsters) {
+	//std::cout << monsters.size() << std::endl;
 	m_opponentMonsters.assign(monsters.begin(), monsters.end());
 
 	MonsterIndex::Monsters.reserve(MonsterIndex::Monsters.size() + m_opponentMonsters.size());
@@ -993,4 +997,8 @@ void Battle::setOpponentMonsters(const std::vector<MonsterEntry>& monsters) {
 
 	m_canSwitch = std::count_if(MonsterIndex::Monsters.begin() + m_supplyIndexPlayer + 1, MonsterIndex::Monsters.end(), [](const MonsterEntry& monsterEntry) { return monsterEntry.health > 0.0f; }) != 0;
 	m_canCatch = false;
+}
+
+void Battle::setBiomeBackground(const std::string& biomeBackground) {
+	m_biomeBackground = biomeBackground;
 }

@@ -31,7 +31,7 @@ DialogTree::DialogTree(const Camera& camera) :
 
 	for (rapidjson::Value::ConstMemberIterator trainer = doc.MemberBegin(); trainer != doc.MemberEnd(); ++trainer) {
 		if (!trainer->value["biome"].IsNull()) {
-			Trainers[trainer->name.GetString()].binom = trainer->value["biome"].GetString();
+			Trainers[trainer->name.GetString()].biome = trainer->value["biome"].GetString();
 		}
 		Trainers[trainer->name.GetString()].defeated = trainer->value["defeated"].GetBool();
 		Trainers[trainer->name.GetString()].lookAround = trainer->value["look_around"].GetBool();

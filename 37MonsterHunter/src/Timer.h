@@ -14,7 +14,7 @@ public:
 
 	virtual ~Timer() = default;
 
-	virtual void update(const float dt);	
+	virtual void update(const float dt);
 	void start(unsigned int milli, bool repeat = true, bool starOnce = false);
 	void stop();
 	const bool isActivated() const;

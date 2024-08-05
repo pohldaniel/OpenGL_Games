@@ -21,7 +21,7 @@ public:
 
 	virtual ~SpriteEntity();
 	virtual void update(float dt) = 0;
-	virtual const ViewDirection& getViewDirection();
+	virtual const ViewDirection& getViewDirection() const;
 
 	void setMovingSpeed(float movingSpeed);
 	const Cell& getCell() const;
@@ -37,7 +37,7 @@ public:
 protected:
 
 	void updateAnimation(float dt);
-	void updateLastViewDirection();
+	void updateLastViewDirection() const;
 	void resetAnimation();
 	int getFrameOffset(ViewDirection viewDirection);
 
@@ -46,7 +46,7 @@ protected:
 	int m_frameCount;
 	float m_elapsedTime;
 	float m_movingSpeed;
-	ViewDirection m_viewDirection;
-	ViewDirection m_lastViewDirection;
+	mutable ViewDirection m_viewDirection;
+	mutable ViewDirection m_lastViewDirection;
 	Vector2f m_direction;
 };

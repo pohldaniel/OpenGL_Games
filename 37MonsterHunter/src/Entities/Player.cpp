@@ -84,7 +84,7 @@ void Player::adjustCamera() {
 	camera.setPosition(cell.centerX - m_viewWidth * 0.5f, m_mapHeight - cell.centerY - 0.5f * m_viewHeight, 0.0f);
 }
 
-const ViewDirection& Player::getViewDirection() {
+const ViewDirection& Player::getViewDirection() const {
 	updateLastViewDirection();
 	if (m_direction[0] != 0.0f || m_direction[1] != 0.0f) {
 		if (m_direction[0] != 0.0f)
@@ -94,7 +94,7 @@ const ViewDirection& Player::getViewDirection() {
 	}else {
 		m_viewDirection = ViewDirection::NONE;
 	}
-
+	//std::cout << m_viewDirection << std::endl;
 	return m_viewDirection;
 }
 

@@ -65,13 +65,13 @@ void SpriteEntity::setViewDirection(ViewDirection direction) {
 	cell.currentFrame = m_startFrame + getFrameOffset(m_viewDirection);
 }
 
-void SpriteEntity::updateLastViewDirection() {
+void SpriteEntity::updateLastViewDirection() const {
 	if (m_viewDirection != ViewDirection::NONE) {
 		m_lastViewDirection = m_viewDirection;
 	}
 }
 
-const ViewDirection& SpriteEntity::getViewDirection() {
+const ViewDirection& SpriteEntity::getViewDirection() const {
 	return m_viewDirection;
 }
 

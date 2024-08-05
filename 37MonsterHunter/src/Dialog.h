@@ -15,7 +15,7 @@ struct Trainer {
 	std::vector<ViewDirection> viewDirections;
 	bool lookAround;
 	bool defeated;
-	std::string binom;
+	std::string biome;
 };
 
 struct Dialog {

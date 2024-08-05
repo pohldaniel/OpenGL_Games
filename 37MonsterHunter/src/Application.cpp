@@ -831,5 +831,25 @@ void Application::loadAssets() {
 	Texture::GrayScale("res/tmx/graphics/ui/sword_highlight.png", "res/tmx/graphics/ui/sword_gray_highlight.png");
 	Texture::GrayScale("res/tmx/graphics/ui/shield_highlight.png", "res/tmx/graphics/ui/shield_gray_highlight.png");
 	Texture::GrayScale("res/tmx/graphics/ui/arrows_highlight.png", "res/tmx/graphics/ui/arrows_gray_highlight.png");
-	Texture::GrayScale("res/tmx/graphics/ui/hand_highlight.png", "res/tmx/graphics/ui/hand_gray_highlight.png");*/
+	Texture::GrayScale("res/tmx/graphics/ui/hand_highlight.png", "res/tmx/graphics/ui/hand_gray_highlight.png");
+
+	TextureAtlasCreator::Get().init(1536u, 768u);
+	for (unsigned int x = 0; x < 24; x++) {
+		TileSetManager::Get().getTileSet("coast").loadTileCpu("res/tmx/graphics/tilesets/coast.png", false, x * 64u, 64u * 0u, 64u, 64u, false, false);
+		TileSetManager::Get().getTileSet("coast").loadTileCpu("res/tmx/graphics/tilesets/coast.png", false, x * 64u, 64u * 3u, 64u, 64u, false, false);
+		TileSetManager::Get().getTileSet("coast").loadTileCpu("res/tmx/graphics/tilesets/coast.png", false, x * 64u, 64u * 6u, 64u, 64u, false, false);
+		TileSetManager::Get().getTileSet("coast").loadTileCpu("res/tmx/graphics/tilesets/coast.png", false, x * 64u, 64u * 9u, 64u, 64u, false, false);
+
+		TileSetManager::Get().getTileSet("coast").loadTileCpu("res/tmx/graphics/tilesets/coast.png", false, x * 64u, 64u * 1u, 64u, 64u, false, false);
+		TileSetManager::Get().getTileSet("coast").loadTileCpu("res/tmx/graphics/tilesets/coast.png", false, x * 64u, 64u * 4u, 64u, 64u, false, false);
+		TileSetManager::Get().getTileSet("coast").loadTileCpu("res/tmx/graphics/tilesets/coast.png", false, x * 64u, 64u * 7u, 64u, 64u, false, false);
+		TileSetManager::Get().getTileSet("coast").loadTileCpu("res/tmx/graphics/tilesets/coast.png", false, x * 64u, 64u * 10u, 64u, 64u, false, false);
+
+		TileSetManager::Get().getTileSet("coast").loadTileCpu("res/tmx/graphics/tilesets/coast.png", false, x * 64u, 64u * 2u, 64u, 64u, false, false);
+		TileSetManager::Get().getTileSet("coast").loadTileCpu("res/tmx/graphics/tilesets/coast.png", false, x * 64u, 64u * 5u, 64u, 64u, false, false);
+		TileSetManager::Get().getTileSet("coast").loadTileCpu("res/tmx/graphics/tilesets/coast.png", false, x * 64u, 64u * 8u, 64u, 64u, false, false);
+		TileSetManager::Get().getTileSet("coast").loadTileCpu("res/tmx/graphics/tilesets/coast.png", false, x * 64u, 64u * 11u, 64u, 64u, false, false);
+	}
+	TileSetManager::Get().getTileSet("coast").loadTileSetGpu();
+	Spritesheet::Safe("res/tmx/graphics/tilesets/coast_ordered", TileSetManager::Get().getTileSet("coast").getAtlas());*/
 }

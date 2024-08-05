@@ -20,7 +20,7 @@ public:
 	void block();
 	void unblock();
 	void adjustCamera();
-	const ViewDirection& getViewDirection() override;
+	const ViewDirection& getViewDirection() const override;
 	const ViewDirection& getLastViewDirection();
 	const std::vector<Rect>& getCollisionRects() const;
 	bool isBlocked();

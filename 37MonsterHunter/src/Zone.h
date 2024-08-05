@@ -8,11 +8,19 @@
 #include <engine/TileSet.h>
 #include <engine/Framebuffer.h>
 
+#include "MonsterIndex.h"
 #include "Fade.h"
+#include "Timer.h"
 
 class SpriteEntity;
 class Player;
 class Character;
+
+struct Biome {
+	std::string biome;
+	Rect rect;
+	std::vector<MonsterEntry> monsters;
+};
 
 struct TileSetData {
 	std::vector<std::pair<std::string, float>> pathSizes;
@@ -86,6 +94,7 @@ public:
 	const std::vector<std::unique_ptr<SpriteEntity>>& getSpriteEntities();
 	const std::vector<std::reference_wrapper<Character>>& getCharacters();
 	const std::vector<Transition>& getTransitions();
+	const std::vector<Biome>& getBiomes();
 	float getMapHeight();
 	Fade& getFade();
 	Player& getPlayer();
@@ -98,6 +107,7 @@ public:
 	void setSpritesheet(const unsigned int& spritesheet);
 	void setAlpha(float alpha);
 	void loadTileSetData(const std::string& path);
+	const int getBiomeIndex() const;
 
 private:
 
@@ -120,9 +130,11 @@ private:
 	std::vector<CellShadow> m_visibleCellsMain;
 
 	std::vector<Rect> m_collisionRects;
+	//std::vector<Rect> m_monsterRects;
 
 	std::vector<std::unique_ptr<SpriteEntity>> m_spriteEntities;
 	std::vector<std::reference_wrapper<Character>> m_characters;
+	std::vector<Biome> m_biomes;
 
 	float m_mapHeight, m_tileHeight, m_tileWidth;
 	float m_left, m_right, m_bottom, m_top;
@@ -136,12 +148,13 @@ private:
 	unsigned int m_vao, m_vbo;
 	Vector3f *pointBatch, *pointBatchPtr;
 	uint32_t m_pointCount;
-
+	Timer m_monsterEncounter;
 	const Camera& camera;
 
 	float m_elapsedTime;
 	int m_currentFrame;
 	int m_frameCount;
+	int m_biomeIndex;
 
 	std::string m_currentTileset;
 	int m_playerOffset, m_waterOffset, m_coastOffset;
@@ -152,5 +165,6 @@ private:
 	TileSet m_tileSet;
 	std::unordered_map<std::string, unsigned int> m_charachterOffsets;
 
+	static int CheckMonsterCollision(const SpriteEntity* player, const std::vector<Biome>& biomes);
 	static std::unordered_map<std::string, TileSetData> TileSets;
 };

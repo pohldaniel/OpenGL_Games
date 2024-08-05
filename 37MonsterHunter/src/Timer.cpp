@@ -55,7 +55,7 @@ const bool Timer::isActivated() const {
 }
 
 void Timer::update(const float dt) {
-
+	
 	if (!m_activated)
 		return;
 
@@ -73,6 +73,7 @@ void Timer::update(const float dt) {
 void Timer::stop() {
 	if (m_activated) {
 		m_activated = false;
+		m_elapsedTime = 0.0f;
 		//OnTimerEnd = nullptr;
 	}
 }

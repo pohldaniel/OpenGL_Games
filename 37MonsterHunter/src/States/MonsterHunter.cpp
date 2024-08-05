@@ -77,6 +77,21 @@ void MonsterHunter::fixedUpdate() {
 
 void MonsterHunter::update() {
 	
+	if (m_zone.getBiomeIndex() > -1) {
+		std::cout << "Biome: " << m_zone.getBiomes()[m_zone.getBiomeIndex()].biome << std::endl;
+		std::cout << "Size: " << m_zone.getBiomes()[m_zone.getBiomeIndex()].monsters.size() << std::endl;
+		m_zone.getPlayer().block();
+		m_zone.getFade().setOnFadeOut([this]() {
+			m_machine.addStateAtTop(new Battle(m_machine));
+			static_cast<Battle*>(m_machine.getStates().top())->setMapHeight(m_mapHeight);
+			static_cast<Battle*>(m_machine.getStates().top())->setViewHeight(m_viewHeight);
+			static_cast<Battle*>(m_machine.getStates().top())->setOpponentMonsters(m_zone.getBiomes()[m_zone.getBiomeIndex()].monsters);
+			EventDispatcher::RemoveKeyboardListener(this);
+			EventDispatcher::RemoveMouseListener(this);
+		});
+		m_zone.getFade().fadeOut();
+	}
+
 	Keyboard &keyboard = Keyboard::instance();
 
 	Rect playerRect = { m_zone.getPlayer().getCell().posX + 32.0f, m_zone.getPlayer().getCell().posY - (128.0f - 30.0f) , 128.0f - 64.0f, 128.0f - 60.0f };
@@ -202,6 +217,7 @@ void MonsterHunter::update() {
 						static_cast<Battle*>(m_machine.getStates().top())->setMapHeight(m_mapHeight);
 						static_cast<Battle*>(m_machine.getStates().top())->setViewHeight(m_viewHeight);
 						static_cast<Battle*>(m_machine.getStates().top())->setOpponentMonsters(DialogTree::Trainers[character.getCharacterId()].monsters);
+						static_cast<Battle*>(m_machine.getStates().top())->setBiomeBackground(DialogTree::Trainers[character.getCharacterId()].biome);
 						EventDispatcher::RemoveKeyboardListener(this);
 						EventDispatcher::RemoveMouseListener(this);
 					});

@@ -38,7 +38,8 @@ Zone::Zone(const Camera& camera) :
 	m_coastOffset(246),	
 	m_mapHeight(0.0f),
 	m_alpha(1.0f),
-	m_fade(m_alpha){
+	m_fade(m_alpha),
+	m_biomeIndex(-1){
 	initDebug();
 	m_fade.setTransitionSpeed(2.353f);
 	m_mainRenderTarget.create(Application::Width, Application::Height);
@@ -73,7 +74,18 @@ Zone::~Zone() {
 
 void Zone::update(float dt) {
 	culling();
+	m_biomeIndex = -1;
+	int index = CheckMonsterCollision(m_spriteEntities.back().get(), m_biomes);
+	if (index >= 0) {
+		m_monsterEncounter.start(2000u, false);
+		m_monsterEncounter.setOnTimerEnd([&m_monsterEncounter = m_monsterEncounter, &m_biomes = m_biomes, &index = index, &m_biomeIndex = m_biomeIndex]() {
+			m_biomeIndex = index;
+		});
+	}else {	
+		m_monsterEncounter.stop();
+	}
 
+	m_monsterEncounter.update(dt);
 	m_elapsedTime += 6.0f * dt;
 	m_currentFrame = static_cast <int>(std::floor(m_elapsedTime));
 	if (m_currentFrame > m_frameCount - 1) {
@@ -148,6 +160,10 @@ void Zone::draw() {
 			Batchrenderer::Get().addQuadAA(Vector4f(rect.posX - camera.getPositionX(), m_mapHeight - (rect.posY + rect.height) - camera.getPositionY(), rect.width, rect.height), Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), Vector4f(0.0f, 0.0f, 1.0f, 1.0f), textureRect.frame);
 		}
 
+		for (const Biome& biome : m_biomes) {
+			Batchrenderer::Get().addQuadAA(Vector4f(biome.rect.posX - camera.getPositionX(), m_mapHeight - (biome.rect.posY + biome.rect.height) - camera.getPositionY(), biome.rect.width, biome.rect.height), Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), Vector4f(1.0f, 1.0f, 0.0f, 1.0f), textureRect.frame);
+		}
+
 		for (const Transition& transition : m_transitions) {
 			Batchrenderer::Get().addQuadAA(Vector4f(transition.collisionRect.posX - camera.getPositionX(), m_mapHeight - (transition.collisionRect.posY + transition.collisionRect.height) - camera.getPositionY(), transition.collisionRect.width, transition.collisionRect.height), Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), Vector4f(0.0f, 1.0f, 0.0f, 1.0f), textureRect.frame);
 		}
@@ -204,6 +220,12 @@ void Zone::loadZone(const std::string path, const std::string currentTileset, co
 	m_collisionRects.clear();
 	m_collisionRects.shrink_to_fit();
 
+	//m_monsterRects.clear();
+	//m_monsterRects.shrink_to_fit();
+
+	m_biomes.clear();
+	m_biomes.shrink_to_fit();
+
 	m_spriteEntities.clear();
 	m_spriteEntities.shrink_to_fit();
 
@@ -213,12 +235,10 @@ void Zone::loadZone(const std::string path, const std::string currentTileset, co
 	m_transitions.clear();
 	m_transitions.shrink_to_fit();
 
-
-	
-
 	//https://stackoverflow.com/questions/24697063/how-to-make-pointer-reference-on-element-in-vector
 	m_cellsMain.reserve(600);
 	m_collisionRects.reserve(700);
+	//m_monsterRects.reserve(308);
 	m_currentTileset = currentTileset;
 
 	loadTileSet(Zone::TileSets[m_currentTileset].pathSizes, Zone::TileSets[m_currentTileset].offsets);
@@ -278,6 +298,14 @@ void Zone::loadZone(const std::string path, const std::string currentTileset, co
 				}else {
 					m_cellsMain.push_back(CellShadow(object.getPosition().x, object.getPosition().y, 64.0f, 64.0f, static_cast<int>(object.getTileID() - 1u) , object.getPosition().x + 0.5f * object.getAABB().width, (object.getPosition().y - 0.5f * object.getAABB().height) - 40.0f, false, false, false, false));
 				}
+				m_biomes.push_back({ object.getProperties()[0].getStringValue(), { object.getPosition().x, object.getPosition().y - 64.0f, 64.0f, 64.0f } });
+
+				std::stringstream ss(object.getProperties()[2].getStringValue());				
+				while (ss.good()){
+					std::string substr;
+					getline(ss, substr, ',');
+					m_biomes.back().monsters.push_back({ substr, static_cast<unsigned int>(object.getProperties()[1].getIntValue()) , 0.0f, 0.0f, 0.0f, false});
+				}				
 			}
 		}
 
@@ -824,28 +852,30 @@ void Zone::loadTileSetData(const std::string& path) {
 			}
 		}
 	}
-
-	/*TextureAtlasCreator::Get().init(1536u, 768u);
-	for (unsigned int x = 0; x < 24; x++) {
-		TileSetManager::Get().getTileSet("coast").loadTileCpu("res/tmx/graphics/tilesets/coast.png", false, x * 64u, 64u * 0u, 64u, 64u, false, false);
-		TileSetManager::Get().getTileSet("coast").loadTileCpu("res/tmx/graphics/tilesets/coast.png", false, x * 64u, 64u * 3u, 64u, 64u, false, false);
-		TileSetManager::Get().getTileSet("coast").loadTileCpu("res/tmx/graphics/tilesets/coast.png", false, x * 64u, 64u * 6u, 64u, 64u, false, false);
-		TileSetManager::Get().getTileSet("coast").loadTileCpu("res/tmx/graphics/tilesets/coast.png", false, x * 64u, 64u * 9u, 64u, 64u, false, false);
-
-		TileSetManager::Get().getTileSet("coast").loadTileCpu("res/tmx/graphics/tilesets/coast.png", false, x * 64u, 64u * 1u, 64u, 64u, false, false);
-		TileSetManager::Get().getTileSet("coast").loadTileCpu("res/tmx/graphics/tilesets/coast.png", false, x * 64u, 64u * 4u, 64u, 64u, false, false);
-		TileSetManager::Get().getTileSet("coast").loadTileCpu("res/tmx/graphics/tilesets/coast.png", false, x * 64u, 64u * 7u, 64u, 64u, false, false);
-		TileSetManager::Get().getTileSet("coast").loadTileCpu("res/tmx/graphics/tilesets/coast.png", false, x * 64u, 64u * 10u, 64u, 64u, false, false);
-
-		TileSetManager::Get().getTileSet("coast").loadTileCpu("res/tmx/graphics/tilesets/coast.png", false, x * 64u, 64u * 2u, 64u, 64u, false, false);
-		TileSetManager::Get().getTileSet("coast").loadTileCpu("res/tmx/graphics/tilesets/coast.png", false, x * 64u, 64u * 5u, 64u, 64u, false, false);
-		TileSetManager::Get().getTileSet("coast").loadTileCpu("res/tmx/graphics/tilesets/coast.png", false, x * 64u, 64u * 8u, 64u, 64u, false, false);
-		TileSetManager::Get().getTileSet("coast").loadTileCpu("res/tmx/graphics/tilesets/coast.png", false, x * 64u, 64u * 11u, 64u, 64u, false, false);
-	}
-	TileSetManager::Get().getTileSet("coast").loadTileSetGpu();
-	Spritesheet::Safe("res/tmx/graphics/tilesets/coast_ordered", TileSetManager::Get().getTileSet("coast").getAtlas());*/
 }
 
 void Zone::setAlpha(float alpha) {
 	m_alpha = alpha;
+}
+
+int Zone::CheckMonsterCollision(const SpriteEntity* entity, const std::vector<Biome>& biomes) {
+	Rect entityRect = { entity->getCell().posX + 32.0f, entity->getCell().posY - (128.0f - 30.0f) , 128.0f - 64.0f, 128.0f - 60.0f };
+	ViewDirection direction = entity->getViewDirection();
+	int index = 0;
+	for (const Biome& biome : biomes) {
+		if (SpriteEntity::HasCollision(biome.rect.posX, biome.rect.posY, biome.rect.posX + biome.rect.width, biome.rect.posY + biome.rect.height, entityRect.posX, entityRect.posY, entityRect.posX + entityRect.width, entityRect.posY + entityRect.height) &&
+			entity->getViewDirection() != ViewDirection::NONE) {
+			return index;
+		}	
+		index++;
+	}
+	return -1;
+}
+
+const int Zone::getBiomeIndex() const {
+	return m_biomeIndex;
+}
+
+const std::vector<Biome>& Zone::getBiomes() {
+	return m_biomes;
 }

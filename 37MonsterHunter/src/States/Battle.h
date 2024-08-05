@@ -45,6 +45,7 @@ public:
 	Fade& getFade();
 	void setOpponentMonsters();
 	void setOpponentMonsters(const std::vector<MonsterEntry>& monsters);
+	void setBiomeBackground(const std::string& biomeBackground);
 
 private:
 
@@ -77,7 +78,7 @@ private:
 	int m_visibleItems;
 	std::pair<std::string, unsigned int> m_currentAbility;
 	std::string m_currentTarget;
-
+	std::string m_biomeBackground;
 	tsl::ordered_map<std::string, unsigned int> m_abilitiesFiltered;
 	std::vector<std::reference_wrapper<MonsterEntry>> m_filteredMonsters;
 
