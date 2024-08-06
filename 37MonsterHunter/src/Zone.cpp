@@ -92,10 +92,10 @@ void Zone::update(float dt) {
 
 	m_monsterEncounter.update(dt);
 	m_elapsedTime += 6.0f * dt;
-	m_currentFrame = static_cast <int>(std::floor(m_elapsedTime));
+	m_currentFrame = static_cast<int>(std::floor(m_elapsedTime));
 	if (m_currentFrame > m_frameCount - 1) {
 		m_currentFrame = 0;
-		m_elapsedTime -= static_cast <float>(m_frameCount);
+		m_elapsedTime -= static_cast<float>(m_frameCount);
 	}
 
 	for (AnimatedCell& animatedCell : m_visibleCellsAnimated) {

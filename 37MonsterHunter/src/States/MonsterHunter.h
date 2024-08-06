@@ -14,6 +14,8 @@
 #include "Zone.h"
 #include "Dialog.h"
 #include "MonsterIndex.h"
+#include "Evolve.h"
+#include "Timer.h"
 
 class MonsterHunter : public State, public MouseEventListener, public KeyboardEventListener {
 
@@ -38,7 +40,8 @@ public:
 private:
 
 	void renderUi();
-	
+	bool checkForEvolution();
+
 	bool m_initUi = true;
 	bool m_drawUi = false;
 	bool m_drawCenter = false;
@@ -56,6 +59,8 @@ private:
 	Zone m_zone;
 	DialogTree m_dialogTree;
 	MonsterIndex m_monsterIndex;
-	bool m_indexOpen;
+	Evolve m_evolve;
+	bool m_indexOpen, m_evolveOpen;
 	Character* m_lastCharacter;
+	Timer m_delayEvolve;
 };

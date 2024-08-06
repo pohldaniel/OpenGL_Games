@@ -15,7 +15,7 @@
 #include "Application.h"
 #include "Globals.h"
 
-MonsterHunter::MonsterHunter(StateMachine& machine) : State(machine, States::MONSTER_HUNTER), m_zone(m_camera), m_dialogTree(m_camera), m_indexOpen(false), m_lastCharacter(nullptr){
+MonsterHunter::MonsterHunter(StateMachine& machine) : State(machine, States::MONSTER_HUNTER), m_zone(m_camera), m_dialogTree(m_camera), m_indexOpen(false), m_evolveOpen(false), m_lastCharacter(nullptr){
 
 	m_viewWidth = 1280.0f;
 	m_viewHeight= 720.0f;
@@ -62,6 +62,9 @@ MonsterHunter::MonsterHunter(StateMachine& machine) : State(machine, States::MON
 
 	m_monsterIndex.setViewWidth(m_viewWidth);
 	m_monsterIndex.setViewHeight(m_viewHeight);
+
+	m_evolve.setViewWidth(m_viewWidth);
+	m_evolve.setViewHeight(m_viewHeight);
 
 	Sprite::Init(static_cast<unsigned int>(m_viewWidth), static_cast<unsigned int>(m_viewHeight));
 }
@@ -180,8 +183,23 @@ void MonsterHunter::update() {
 		}
 	}
 
+	if (keyboard.keyPressed(Keyboard::KEY_M)) {
+		m_evolveOpen = !m_evolveOpen;
+		if (m_evolveOpen) {
+			m_zone.setAlpha(1.0f - 0.784f);
+			m_zone.getPlayer().block();
+		}else {
+			m_zone.setAlpha(1.0f);
+			m_zone.getPlayer().unblock();
+		}
+	}
+
 	if (m_indexOpen) {
 		m_monsterIndex.processInput();
+	}
+
+	if (m_evolveOpen) {
+		m_evolve.processInput();
 	}
 
 	if (keyboard.keyPressed(Keyboard::KEY_T)) {
@@ -242,12 +260,24 @@ void MonsterHunter::update() {
 	}
 
 	m_dialogTree.processInput();
-	
+	if (keyboard.keyPressed(Keyboard::KEY_N)) {
+		if (checkForEvolution()) {
+			m_zone.setAlpha(1.0f - 0.784f);
+
+			m_delayEvolve.start(800u, false);
+			m_delayEvolve.setOnTimerEnd([&m_evolveOpen = m_evolveOpen, &m_evolve = m_evolve] {
+				m_evolveOpen = true;
+				m_evolve.startEvolution();
+			});
+		}
+	}
+	m_delayEvolve.update(m_dt);
 	for (auto&& spriteEntity : m_zone.getSpriteEntities()) {
 		spriteEntity->update(m_dt);
 	}
 	m_zone.update(m_dt);
 	m_monsterIndex.update(m_dt);
+	m_evolve.update(m_dt);
 }
 
 void MonsterHunter::render() {
@@ -259,6 +289,10 @@ void MonsterHunter::render() {
 
 	if (m_indexOpen) {
 		m_monsterIndex.draw();
+	}
+
+	if (m_evolveOpen) {
+		m_evolve.draw();
 	}
 
 	if (m_drawUi)
@@ -411,4 +445,16 @@ void MonsterHunter::renderUi() {
 
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+}
+
+bool MonsterHunter::checkForEvolution() {
+	for (const MonsterEntry& monsterEntry : MonsterIndex::Monsters) {
+		if (std::get<1>(MonsterIndex::MonsterData[monsterEntry.name].evolve) && monsterEntry.level >= std::get<1>(MonsterIndex::MonsterData[monsterEntry.name].evolve)) {
+			
+			m_evolve.setCurrentMonster(monsterEntry.name);
+			m_evolve.setNextMonster(std::get<0>(MonsterIndex::MonsterData[monsterEntry.name].evolve));
+			return true;
+		}		
+	}
+	return false;
 }

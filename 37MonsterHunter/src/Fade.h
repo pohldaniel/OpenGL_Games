@@ -15,6 +15,8 @@ public:
 	void setOnFadeIn(std::function<void()> fun);
 	void setOnFadeOut(std::function<void()> fun);
 	void setTransitionSpeed(const float transitionSpeed);
+	void setTransitionEnd(bool transitionEnd);
+	void setFadeValue(float fadeValue);
 
 private:
 
