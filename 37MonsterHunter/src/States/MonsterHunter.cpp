@@ -68,10 +68,28 @@ MonsterHunter::MonsterHunter(StateMachine& machine) : State(machine, States::MON
 
 	Sprite::Init(static_cast<unsigned int>(m_viewWidth), static_cast<unsigned int>(m_viewHeight));
 
-	m_evolve.setOnEvolveEnd([&m_evolveOpen = m_evolveOpen, &m_zone = m_zone] {
-		m_evolveOpen = false;
-		m_zone.setAlpha(1.0f);
-		m_zone.getPlayer().unblock();
+	m_evolve.setOnEvolveEnd([this] {
+		if (!m_evolveQueue.empty()) {
+			const EvolveEntry& evolveEntry = m_evolveQueue.front();
+			m_evolve.setCurrentMonster(evolveEntry.m_startMonster);
+			m_evolve.setStartMonster(evolveEntry.m_startMonster);
+			m_evolve.setEndMonster(evolveEntry.m_endMonster);
+			m_evolve.setCurentMonsterIndex(evolveEntry.index);
+
+			m_delayEvolve.setOnTimerEnd([&m_evolveOpen = m_evolveOpen, &m_evolve = m_evolve, &m_zone = m_zone] {
+				m_zone.setAlpha(1.0f - 0.784f);
+				m_evolveOpen = true;
+				m_evolve.startEvolution();
+			});
+			m_delayEvolve.start(800u, false);
+			m_zone.getPlayer().block();
+			m_evolveQueue.pop();
+		}else {
+
+			m_evolveOpen = false;
+			m_zone.setAlpha(1.0f);
+			m_zone.getPlayer().unblock();
+		}
 	});
 }
 
@@ -189,35 +207,8 @@ void MonsterHunter::update() {
 		}
 	}
 
-	if (keyboard.keyPressed(Keyboard::KEY_M)) {
-		m_evolveOpen = !m_evolveOpen;
-		if (m_evolveOpen) {
-			m_zone.setAlpha(1.0f - 0.784f);
-			m_zone.getPlayer().block();
-		}else {
-			m_zone.setAlpha(1.0f);
-			m_zone.getPlayer().unblock();
-		}
-	}
-
 	if (m_indexOpen) {
 		m_monsterIndex.processInput();
-	}
-
-	if (keyboard.keyPressed(Keyboard::KEY_T)) {
-		m_zone.getFade().setOnFadeOut([this]() {
-			m_machine.addStateAtTop(new Battle(m_machine));
-			static_cast<Battle*>(m_machine.getStates().top())->setMapHeight(m_mapHeight);
-			static_cast<Battle*>(m_machine.getStates().top())->setViewHeight(m_viewHeight);
-			static_cast<Battle*>(m_machine.getStates().top())->setOpponentMonsters();
-			EventDispatcher::RemoveKeyboardListener(this);
-			EventDispatcher::RemoveMouseListener(this);
-		});
-		m_zone.getFade().fadeOut();
-	}
-
-	if (keyboard.keyPressed(Keyboard::KEY_G)) {
-		m_zone.getPlayer().unblock();
 	}
 
 	for (Character& character : m_zone.getCharacters()) {
@@ -262,17 +253,6 @@ void MonsterHunter::update() {
 	}
 
 	m_dialogTree.processInput();
-	if (keyboard.keyPressed(Keyboard::KEY_N)) {
-		if (checkForEvolution()) {		
-			m_delayEvolve.setOnTimerEnd([&m_evolveOpen = m_evolveOpen, &m_evolve = m_evolve, &m_zone = m_zone] {
-				m_zone.setAlpha(1.0f - 0.784f);
-				m_evolveOpen = true;
-				m_evolve.startEvolution();
-			});		
-			m_delayEvolve.start(800u, false);
-			m_zone.getPlayer().block();
-		}
-	}
 	m_delayEvolve.update(m_dt);
 	for (auto&& spriteEntity : m_zone.getSpriteEntities()) {
 		spriteEntity->update(m_dt);
@@ -315,24 +295,17 @@ void MonsterHunter::OnReEnter() {
 			}
 			m_dialogTree.setFinished(false);
 			m_lastCharacter = nullptr;
-			m_dialogTree.setOnDialogFinished([&m_monsterIndex = m_monsterIndex, &m_zone = m_zone]() {
+			m_dialogTree.setOnDialogFinished([this]() {
 				m_zone.getPlayer().unblock();
 				m_monsterIndex.resetStates();
+				checkForEvolution();
 			});
 
 		}else {
 			m_zone.getPlayer().unblock();
+			checkForEvolution();
 		}
-
-		if (checkForEvolution()) {
-			m_delayEvolve.setOnTimerEnd([&m_evolveOpen = m_evolveOpen, &m_evolve = m_evolve, &m_zone = m_zone] {
-				m_zone.setAlpha(1.0f - 0.784f);
-				m_evolveOpen = true;
-				m_evolve.startEvolution();
-			});
-			m_delayEvolve.start(800u, false);
-			m_zone.getPlayer().block();
-		}
+		
 	});
 	m_zone.getFade().fadeIn();	
 }
@@ -459,18 +432,28 @@ void MonsterHunter::renderUi() {
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
-bool MonsterHunter::checkForEvolution() {
-	int index = -1;
-	for (const MonsterEntry& monsterEntry : MonsterIndex::Monsters) {
-		index++;
-		if (std::get<1>(MonsterIndex::MonsterData[monsterEntry.name].evolve) && monsterEntry.level >= std::get<1>(MonsterIndex::MonsterData[monsterEntry.name].evolve)) {
-			
-			m_evolve.setCurrentMonster(monsterEntry.name);
-			m_evolve.setStartMonster(monsterEntry.name);
-			m_evolve.setEndMonster(std::get<0>(MonsterIndex::MonsterData[monsterEntry.name].evolve));
-			m_evolve.setCurentMonsterIndex(index);
-			return true;
-		}		
+void MonsterHunter::checkForEvolution() {
+
+	for (int i = 0; i < MonsterIndex::Monsters.size(); i++) {
+		if (std::get<1>(MonsterIndex::MonsterData[MonsterIndex::Monsters[i].name].evolve) && MonsterIndex::Monsters[i].level >= std::get<1>(MonsterIndex::MonsterData[MonsterIndex::Monsters[i].name].evolve)) {
+			m_evolveQueue.push({ MonsterIndex::Monsters[i].name,  std::get<0>(MonsterIndex::MonsterData[MonsterIndex::Monsters[i].name].evolve), i });
+		}
 	}
-	return false;
+
+	if (!m_evolveQueue.empty()) {
+		const EvolveEntry& evolveEntry = m_evolveQueue.front();
+		m_evolve.setCurrentMonster(evolveEntry.m_startMonster);
+		m_evolve.setStartMonster(evolveEntry.m_startMonster);
+		m_evolve.setEndMonster(evolveEntry.m_endMonster);
+		m_evolve.setCurentMonsterIndex(evolveEntry.index);
+
+		m_delayEvolve.setOnTimerEnd([&m_evolveOpen = m_evolveOpen, &m_evolve = m_evolve, &m_zone = m_zone] {
+			m_zone.setAlpha(1.0f - 0.784f);
+			m_evolveOpen = true;
+			m_evolve.startEvolution();
+		});
+		m_delayEvolve.start(800u, false);
+		m_zone.getPlayer().block();
+		m_evolveQueue.pop();
+	}
 }

@@ -1,5 +1,5 @@
 #pragma once
-
+#include <queue>
 #include <engine/input/MouseEventListener.h>
 #include <engine/input/KeyboardEventListener.h>
 #include <engine/Camera.h>
@@ -16,6 +16,12 @@
 #include "MonsterIndex.h"
 #include "Evolve.h"
 #include "Timer.h"
+
+struct EvolveEntry{
+	std::string m_startMonster;
+	std::string m_endMonster;
+	int index;
+};
 
 class MonsterHunter : public State, public MouseEventListener, public KeyboardEventListener {
 
@@ -40,7 +46,7 @@ public:
 private:
 
 	void renderUi();
-	bool checkForEvolution();
+	void checkForEvolution();
 
 	bool m_initUi = true;
 	bool m_drawUi = false;
@@ -63,4 +69,6 @@ private:
 	bool m_indexOpen, m_evolveOpen;
 	Character* m_lastCharacter;
 	Timer m_delayEvolve;
+
+	std::queue<EvolveEntry> m_evolveQueue;
 };

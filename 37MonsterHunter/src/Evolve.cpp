@@ -139,15 +139,16 @@ void Evolve::startEvolution() {
 		m_fade.setTransitionEnd(false);
 		m_fade.setFadeValue(0.0f);
 
-		m_exitTimer.setOnTimerEnd([&OnEvolveEnd = OnEvolveEnd, &m_activate = m_activate, &m_displayStar = m_displayStar, &m_curentMonsterIndex = m_curentMonsterIndex, m_endMonster = m_endMonster] {
-			OnEvolveEnd();
+		m_exitTimer.setOnTimerEnd([&OnEvolveEnd = OnEvolveEnd, &m_activate = m_activate, &m_displayStar = m_displayStar, &m_curentMonsterIndex = m_curentMonsterIndex, m_endMonster = m_endMonster] {		
 			m_activate = false;
 			m_displayStar = true;
 			if (m_curentMonsterIndex > 0) {
+				
 				MonsterIndex::Monsters[m_curentMonsterIndex].name = m_endMonster;
 				MonsterIndex::Monsters[m_curentMonsterIndex].resetStates();
 			}
 			m_curentMonsterIndex = -1;
+			OnEvolveEnd();
 		});
 		m_exitTimer.start(1800u, false);
 	});
@@ -182,9 +183,6 @@ void Evolve::displayStars() {
 		return;
 	TileSetManager::Get().getTileSet("star").bind();
 	const TextureRect& rect = TileSetManager::Get().getTileSet("star").getTextureRects()[m_currentFrame];
-	//Batchrenderer::Get().addQuadAA(Vector4f(0.5f * m_viewWidth - rect.width, 0.5f * m_viewHeight - rect.height, 2.0f * rect.width, 2.0f * rect.height), Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureWidth, rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), rect.frame);
-	//Batchrenderer::Get().drawBuffer();
-
 	m_surface.resetShader();
 	m_surface.setPosition(0.5f * m_viewWidth - rect.width, 0.5f * m_viewHeight - rect.height, 0.0f);
 	m_surface.setScale(2.0f * rect.width, 2.0f *  rect.height, 1.0f);
