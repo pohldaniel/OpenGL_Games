@@ -306,7 +306,7 @@ void MonsterHunter::OnReEnter() {
 	EventDispatcher::AddMouseListener(this);
 	m_zone.setAlpha(0.0f);
 
-	m_zone.getFade().setOnFadeIn([&m_zone = m_zone, &m_monsterIndex = m_monsterIndex, &m_lastCharacter = m_lastCharacter, &m_dialogTree = m_dialogTree, m_mapHeight = m_mapHeight]() {
+	m_zone.getFade().setOnFadeIn([this]() {
 		if (m_lastCharacter) {
 			m_zone.getPlayer().block();
 			Trainer& trainer = DialogTree::Trainers[m_lastCharacter->getCharacterId()];
@@ -322,6 +322,16 @@ void MonsterHunter::OnReEnter() {
 
 		}else {
 			m_zone.getPlayer().unblock();
+		}
+
+		if (checkForEvolution()) {
+			m_delayEvolve.setOnTimerEnd([&m_evolveOpen = m_evolveOpen, &m_evolve = m_evolve, &m_zone = m_zone] {
+				m_zone.setAlpha(1.0f - 0.784f);
+				m_evolveOpen = true;
+				m_evolve.startEvolution();
+			});
+			m_delayEvolve.start(800u, false);
+			m_zone.getPlayer().block();
 		}
 	});
 	m_zone.getFade().fadeIn();	
@@ -450,12 +460,15 @@ void MonsterHunter::renderUi() {
 }
 
 bool MonsterHunter::checkForEvolution() {
+	int index = -1;
 	for (const MonsterEntry& monsterEntry : MonsterIndex::Monsters) {
+		index++;
 		if (std::get<1>(MonsterIndex::MonsterData[monsterEntry.name].evolve) && monsterEntry.level >= std::get<1>(MonsterIndex::MonsterData[monsterEntry.name].evolve)) {
 			
 			m_evolve.setCurrentMonster(monsterEntry.name);
 			m_evolve.setStartMonster(monsterEntry.name);
 			m_evolve.setEndMonster(std::get<0>(MonsterIndex::MonsterData[monsterEntry.name].evolve));
+			m_evolve.setCurentMonsterIndex(index);
 			return true;
 		}		
 	}

@@ -1,8 +1,10 @@
 #pragma once
 #include <functional>
 #include <engine/Sprite.h>
+
 #include "Fade.h"
 #include "Timer.h"
+
 class Evolve {
 
 public:
@@ -19,6 +21,7 @@ public:
 	void setEndMonster(const std::string& endMonster);
 	void startEvolution();
 	void setOnEvolveEnd(std::function<void()> fun);
+	void setCurentMonsterIndex(int curentMonsterIndex);
 
 private:
 
@@ -28,9 +31,9 @@ private:
 	Sprite m_surface;
 	std::string m_currentMonster, m_startMonster, m_endMonster;
 
-	float m_elapsedTime;
+	float m_elapsedTime, m_progress;
 	int m_currentFrame;
-	int m_frameCount;
+	int m_frameCount, m_curentMonsterIndex;
 	unsigned int m_atlasMonster;
 	bool m_displayStar, m_activate;
 	Fade m_fade;

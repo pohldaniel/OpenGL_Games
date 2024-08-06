@@ -14,7 +14,9 @@ m_frameCount(28),
 m_fadeValue(0.0f),
 m_fade(m_fadeValue),
 m_displayStar(true),
-m_activate(false)
+m_activate(false),
+m_progress(0.0f),
+m_curentMonsterIndex(-1)
 {
 	m_atlasMonster = TileSetManager::Get().getTileSet("monster").getAtlas();
 	m_fade.setTransitionSpeed(0.31372f);
@@ -117,29 +119,35 @@ void Evolve::update(float dt) {
 	m_exitTimer.update(dt);
 
 	if (m_displayStar && m_activate) {
-		m_elapsedTime += 20.0f * dt;
-		m_currentFrame = static_cast <int>(std::floor(m_elapsedTime));
+		m_progress = (m_elapsedTime / static_cast<float>(m_frameCount));
+		m_progress *= m_progress;
+		m_elapsedTime += 20.0f * dt;		
+		m_currentFrame = static_cast<int>(std::floor(m_elapsedTime));
 		if (m_currentFrame > m_frameCount - 1) {
 			m_currentFrame = 0;
 			m_elapsedTime = 0.0f;
 			m_displayStar = false;
+			m_progress = 0.0f;
 		}
 	}
 }
 
 void Evolve::startEvolution() {
 	m_fade.fadeIn();
-	m_fade.setOnFadeIn([&m_fade = m_fade, &m_currentMonster = m_currentMonster, m_endMonster = m_endMonster, &m_exitTimer = m_exitTimer, &OnEvolveEnd = OnEvolveEnd, &m_currentFrame = m_currentFrame, &m_elapsedTime = m_elapsedTime, &m_activate = m_activate, &m_displayStar = m_displayStar]() {
+	m_fade.setOnFadeIn([&m_fade = m_fade, &m_currentMonster = m_currentMonster, m_endMonster = m_endMonster, &m_exitTimer = m_exitTimer, &OnEvolveEnd = OnEvolveEnd, &m_activate = m_activate, &m_displayStar = m_displayStar, &m_curentMonsterIndex = m_curentMonsterIndex]() {
 		m_currentMonster = m_endMonster;
 		m_fade.setTransitionEnd(false);
 		m_fade.setFadeValue(0.0f);
 
-		m_exitTimer.setOnTimerEnd([&OnEvolveEnd = OnEvolveEnd, &m_currentFrame = m_currentFrame, &m_elapsedTime = m_elapsedTime, &m_activate = m_activate, &m_displayStar = m_displayStar] {
+		m_exitTimer.setOnTimerEnd([&OnEvolveEnd = OnEvolveEnd, &m_activate = m_activate, &m_displayStar = m_displayStar, &m_curentMonsterIndex = m_curentMonsterIndex, m_endMonster = m_endMonster] {
 			OnEvolveEnd();
-			m_currentFrame = 0;
-			m_elapsedTime = 0.0f;
 			m_activate = false;
 			m_displayStar = true;
+			if (m_curentMonsterIndex > 0) {
+				MonsterIndex::Monsters[m_curentMonsterIndex].name = m_endMonster;
+				MonsterIndex::Monsters[m_curentMonsterIndex].resetStates();
+			}
+			m_curentMonsterIndex = -1;
 		});
 		m_exitTimer.start(1800u, false);
 	});
@@ -174,6 +182,15 @@ void Evolve::displayStars() {
 		return;
 	TileSetManager::Get().getTileSet("star").bind();
 	const TextureRect& rect = TileSetManager::Get().getTileSet("star").getTextureRects()[m_currentFrame];
-	Batchrenderer::Get().addQuadAA(Vector4f(0.5f * m_viewWidth - rect.width, 0.5f * m_viewHeight - rect.height, 2.0f * rect.width, 2.0f * rect.height), Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureWidth, rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), rect.frame);
-	Batchrenderer::Get().drawBuffer();
+	//Batchrenderer::Get().addQuadAA(Vector4f(0.5f * m_viewWidth - rect.width, 0.5f * m_viewHeight - rect.height, 2.0f * rect.width, 2.0f * rect.height), Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureWidth, rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), rect.frame);
+	//Batchrenderer::Get().drawBuffer();
+
+	m_surface.resetShader();
+	m_surface.setPosition(0.5f * m_viewWidth - rect.width, 0.5f * m_viewHeight - rect.height, 0.0f);
+	m_surface.setScale(2.0f * rect.width, 2.0f *  rect.height, 1.0f);
+	m_surface.draw(rect, Vector4f(1.0f, 1.0f, 1.0f, 1.0f - m_progress));
+}
+
+void Evolve::setCurentMonsterIndex(int curentMonsterIndex) {
+	m_curentMonsterIndex = curentMonsterIndex;
 }
