@@ -454,7 +454,8 @@ bool MonsterHunter::checkForEvolution() {
 		if (std::get<1>(MonsterIndex::MonsterData[monsterEntry.name].evolve) && monsterEntry.level >= std::get<1>(MonsterIndex::MonsterData[monsterEntry.name].evolve)) {
 			
 			m_evolve.setCurrentMonster(monsterEntry.name);
-			m_evolve.setNextMonster(std::get<0>(MonsterIndex::MonsterData[monsterEntry.name].evolve));
+			m_evolve.setStartMonster(monsterEntry.name);
+			m_evolve.setEndMonster(std::get<0>(MonsterIndex::MonsterData[monsterEntry.name].evolve));
 			return true;
 		}		
 	}
