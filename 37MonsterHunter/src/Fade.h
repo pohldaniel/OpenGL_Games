@@ -17,6 +17,7 @@ public:
 	void setTransitionSpeed(const float transitionSpeed);
 	void setTransitionEnd(bool transitionEnd);
 	void setFadeValue(float fadeValue);
+	const bool isActivated() const;
 
 private:
 

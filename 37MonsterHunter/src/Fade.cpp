@@ -91,3 +91,7 @@ void Fade::setTransitionEnd(bool transitionEnd) {
 void Fade::setFadeValue(float fadeValue) {
 	m_fadeValue = fadeValue;
 }
+
+const bool Fade::isActivated() const {
+	return m_activate || m_activateIn || m_activateOut;
+}

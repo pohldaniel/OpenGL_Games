@@ -5,7 +5,7 @@
 #include "Globals.h"
 #include "MonsterIndex.h"
 
-Evolve::Evolve() : 
+Evolve::Evolve() :
 m_elapsedTime(0.0f),
 m_currentFrame(0),
 m_frameCount(4),
@@ -37,6 +37,7 @@ void Evolve::draw() {
 
 void Evolve::update(float dt) {
 	m_fade.update(dt);
+	m_exitTimer.update(dt);
 	m_elapsedTime += 6.0f * dt;
 	m_currentFrame = static_cast <int>(std::floor(m_elapsedTime));
 	if (m_currentFrame > m_frameCount - 1) {
@@ -45,20 +46,19 @@ void Evolve::update(float dt) {
 	}
 }
 
-void Evolve::processInput() {
-	Keyboard &keyboard = Keyboard::instance();
-	if (keyboard.keyPressed(Keyboard::KEY_K)) {
-		
-	}
-}
-
 void Evolve::startEvolution() {
 	m_fade.fadeIn();
-	m_fade.setOnFadeIn([&m_fade = m_fade, &m_currentMonster = m_currentMonster, m_nextMonster = m_nextMonster]() {
+	m_fade.setOnFadeIn([&m_fade = m_fade, &m_currentMonster = m_currentMonster, m_nextMonster = m_nextMonster, &m_exitTimer = m_exitTimer, &OnEvolveEnd = OnEvolveEnd, &m_currentFrame = m_currentFrame, &m_elapsedTime = m_elapsedTime]() {
 		m_currentMonster = m_nextMonster;
 		m_fade.setTransitionEnd(false);
 		m_fade.setFadeValue(0.0f);
-		//m_fade.fadeOut();
+
+		m_exitTimer.setOnTimerEnd([&OnEvolveEnd = OnEvolveEnd, &m_currentFrame = m_currentFrame, &m_elapsedTime = m_elapsedTime] {
+			OnEvolveEnd();
+			m_currentFrame = 0;
+			m_elapsedTime = 0.0f;
+		});
+		m_exitTimer.start(1800u, false);
 	});
 }
 
@@ -76,4 +76,8 @@ void Evolve::setCurrentMonster(std::string currentMonster) {
 
 void Evolve::setNextMonster(const std::string& nextMonster) {
 	m_nextMonster = nextMonster;
+}
+
+void Evolve::setOnEvolveEnd(std::function<void()> fun) {
+	OnEvolveEnd = fun;
 }

@@ -15,7 +15,7 @@
 #include "Application.h"
 #include "Globals.h"
 
-MonsterHunter::MonsterHunter(StateMachine& machine) : State(machine, States::MONSTER_HUNTER), m_zone(m_camera), m_dialogTree(m_camera), m_indexOpen(false), m_evolveOpen(false), m_lastCharacter(nullptr){
+MonsterHunter::MonsterHunter(StateMachine& machine) : State(machine, States::MONSTER_HUNTER), m_zone(m_camera), m_dialogTree(m_camera), m_indexOpen(false), m_evolveOpen(false), m_lastCharacter(nullptr) {
 
 	m_viewWidth = 1280.0f;
 	m_viewHeight= 720.0f;
@@ -67,6 +67,12 @@ MonsterHunter::MonsterHunter(StateMachine& machine) : State(machine, States::MON
 	m_evolve.setViewHeight(m_viewHeight);
 
 	Sprite::Init(static_cast<unsigned int>(m_viewWidth), static_cast<unsigned int>(m_viewHeight));
+
+	m_evolve.setOnEvolveEnd([&m_evolveOpen = m_evolveOpen, &m_zone = m_zone] {
+		m_evolveOpen = false;
+		m_zone.setAlpha(1.0f);
+		m_zone.getPlayer().unblock();
+	});
 }
 
 MonsterHunter::~MonsterHunter() {
@@ -198,10 +204,6 @@ void MonsterHunter::update() {
 		m_monsterIndex.processInput();
 	}
 
-	if (m_evolveOpen) {
-		m_evolve.processInput();
-	}
-
 	if (keyboard.keyPressed(Keyboard::KEY_T)) {
 		m_zone.getFade().setOnFadeOut([this]() {
 			m_machine.addStateAtTop(new Battle(m_machine));
@@ -261,14 +263,14 @@ void MonsterHunter::update() {
 
 	m_dialogTree.processInput();
 	if (keyboard.keyPressed(Keyboard::KEY_N)) {
-		if (checkForEvolution()) {
-			m_zone.setAlpha(1.0f - 0.784f);
-
-			m_delayEvolve.start(800u, false);
-			m_delayEvolve.setOnTimerEnd([&m_evolveOpen = m_evolveOpen, &m_evolve = m_evolve] {
+		if (checkForEvolution()) {		
+			m_delayEvolve.setOnTimerEnd([&m_evolveOpen = m_evolveOpen, &m_evolve = m_evolve, &m_zone = m_zone] {
+				m_zone.setAlpha(1.0f - 0.784f);
 				m_evolveOpen = true;
 				m_evolve.startEvolution();
-			});
+			});		
+			m_delayEvolve.start(800u, false);
+			m_zone.getPlayer().block();
 		}
 	}
 	m_delayEvolve.update(m_dt);
