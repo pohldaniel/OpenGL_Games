@@ -20,11 +20,11 @@ public:
 	void markForRemove();
 	void setParent(Node* node);
 	
-	std::list<std::unique_ptr<Node, std::function<void(Node* node)>>>& getChildren() const;
-	void removeAllChildren();
+	std::list<std::unique_ptr<Node, std::function<void(Node* node)>>>& getChildren() const;	
 	void removeChild(Node* child);
 	void removeSelf();
 
+	void eraseAllChildren();
 	void eraseChild(Node* child);
 	void eraseSelf();
 

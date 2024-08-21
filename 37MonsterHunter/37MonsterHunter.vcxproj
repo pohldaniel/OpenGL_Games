@@ -298,6 +298,7 @@
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\States\Menu.cpp" />
     <ClCompile Include="src\Utils\BinaryIO.cpp" />
+    <ClCompile Include="src\WidgetMH.cpp" />
     <ClCompile Include="src\Zone.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -446,6 +447,7 @@
     <ClInclude Include="Miniball\Miniball.h" />
     <ClInclude Include="src\States\Menu.h" />
     <ClInclude Include="src\Utils\BinaryIO.h" />
+    <ClInclude Include="src\WidgetMH.h" />
     <ClInclude Include="src\Zone.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

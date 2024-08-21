@@ -2575,6 +2575,22 @@ Vector2f Vector2f::getNegativeReciprocal() {
 	return Vector2f(-vec[1], vec[0]); 
 }
 
+void Vector2f::translate(const Vector2f& rhs) {
+	vec[0] += rhs[0], vec[1] += rhs[1];
+}
+
+void Vector2f::translate(const float dx, const float dy) {
+	vec[0] += dx, vec[1] += dy;
+}
+
+void Vector2f::scale(const Vector2f &rhs) {
+	vec[0] *= rhs[0], vec[1] *= rhs[1];
+}
+
+void Vector2f::scale(const float sx, const float sy) {
+	vec[0] *= sx, vec[1] *= sy;
+}
+
 float &Vector2f::operator[](int index) {
 	return vec[index];
 }
@@ -2626,6 +2642,18 @@ Vector2f Vector2f::operator+(const Vector2f &rhs) const {
 Vector2f Vector2f::operator-(const Vector2f &rhs) const {
 	Vector2f tmp(*this);
 	tmp -= rhs;
+	return tmp;
+}
+
+Vector2f Vector2f::operator*(const Vector2f &rhs) const {
+	Vector2f tmp(*this);
+	tmp[0] *= rhs.vec[0], tmp[1] *= rhs.vec[1];
+	return tmp;
+}
+
+Vector2f Vector2f::operator/(const Vector2f &rhs) const {
+	Vector2f tmp(*this);
+	tmp[0] /= rhs.vec[0], tmp[1] /= rhs.vec[1];
 	return tmp;
 }
 
@@ -2768,43 +2796,36 @@ Vector3f Vector3f::operator+(const Vector3f &rhs) const {
 }
 
 Vector3f Vector3f::operator-(const Vector3f &rhs) const {
-
 	Vector3f tmp(*this);
 	tmp -= rhs;
 	return tmp;
 }
 
 Vector3f Vector3f::operator*(const Vector3f &rhs) const {
-
 	Vector3f tmp(*this);
 	tmp *= rhs;
 	return tmp;
 }
 
 Vector3f Vector3f::operator/(const Vector3f &rhs) const {
-
 	Vector3f tmp(*this);
 	tmp /= rhs;
 	return tmp;
 }
 
 Vector3f Vector3f::operator*(float scalar) const {
-
 	return Vector3f(vec[0] * scalar, vec[1] * scalar, vec[2] * scalar);
 }
 
 Vector3f Vector3f::operator/(float scalar) const {
-
 	return Vector3f(vec[0] / scalar, vec[1] / scalar, vec[2] / scalar);
 }
 
 bool Vector3f::zero() {
-
 	return vec[0] == 0.0 && vec[1] == 0.0 && vec[2] == 0.0;
 }
 
 Vector3f Vector3f::Cross(const Vector3f &p, const Vector3f &q) {
-
 	return Vector3f((p.vec[1] * q.vec[2]) - (p.vec[2] * q.vec[1]),
 		(p.vec[2] * q.vec[0]) - (p.vec[0] * q.vec[2]),
 		(p.vec[0] * q.vec[1]) - (p.vec[1] * q.vec[0]));

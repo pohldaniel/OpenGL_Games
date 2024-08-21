@@ -9,27 +9,23 @@ BaseNode::BaseNode() : Object(), Node(), m_isDirty(true){
 
 BaseNode::BaseNode(const BaseNode& rhs) : Node(rhs)  , Object(rhs){
 	m_isDirty = rhs.m_isDirty;
-	m_markForRemove = rhs.m_markForRemove;
 }
 
 BaseNode& BaseNode::operator=(const BaseNode& rhs) {
 	Node::operator=(rhs);
 	Object::operator=(rhs);
 	m_isDirty = rhs.m_isDirty;
-	m_markForRemove = rhs.m_markForRemove;
 	return *this;
 }
 
 BaseNode::BaseNode(BaseNode&& rhs) : Node(rhs), Object(rhs) {
 	m_isDirty = rhs.m_isDirty;
-	m_markForRemove = rhs.m_markForRemove;
 }
 
 BaseNode& BaseNode::operator=(BaseNode&& rhs) {
 	Node::operator=(rhs);
 	Object::operator=(rhs);
 	m_isDirty = rhs.m_isDirty;
-	m_markForRemove = rhs.m_markForRemove;
 	return *this;
 }
 

@@ -52,6 +52,10 @@ public:
 	float angleBetween(const Vector2f& other);
 	float angle();
 	Vector2f getNegativeReciprocal();
+	void translate(const Vector2f& rhs);
+	void translate(const float dx, const float dy);
+	void scale(const Vector2f& rhs);
+	void scale(const float sx, const float sy);
 
 	float &operator[](int index);
 	const float operator[](int index) const;
@@ -65,6 +69,8 @@ public:
 
 	Vector2f operator+(const Vector2f &rhs) const;
 	Vector2f operator-(const Vector2f &rhs) const;
+	Vector2f operator*(const Vector2f &rhs) const;
+	Vector2f operator/(const Vector2f &rhs) const;
 	Vector2f operator*(float scalar) const;
 	Vector2f operator/(float scalar) const;
 
@@ -110,11 +116,11 @@ public:
 	float lengthSq() const;
 
 	void set(float x_, float y_, float z_);
-	void translate(const Vector3f &rhs);
+	void translate(const Vector3f& rhs);
 	void translate(const float dx, const float dy, const float dz);
-	void scale(const Vector3f &rhs);
+	void scale(const Vector3f& rhs);
 	void scale(const float sx, const float sy, const float sz);
-	bool compare(const Vector3f &rhs, float precision);
+	bool compare(const Vector3f& rhs, float precision);
 
 	float &operator[](int index);
 	const float operator[](int index) const;

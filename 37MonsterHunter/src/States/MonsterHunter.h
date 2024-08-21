@@ -66,7 +66,7 @@ private:
 	DialogTree m_dialogTree;
 	MonsterIndex m_monsterIndex;
 	Evolve m_evolve;
-	bool m_indexOpen, m_evolveOpen;
+	bool m_indexOpen, m_evolveOpen, m_blockIndex;
 	Character* m_lastCharacter;
 	Timer m_delayEvolve;
 

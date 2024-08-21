@@ -23,7 +23,7 @@ Node& Node::operator=(Node&& rhs) {
 }
 
 Node::~Node() {
-	removeAllChildren();
+	eraseAllChildren();
 }
 
 void Node::markForRemove() {
@@ -47,7 +47,7 @@ const Node* Node::getParent() const {
 	return m_parent;
 }
 
-void Node::removeAllChildren() {
+void Node::eraseAllChildren() {
 	for (auto it = m_children.begin(); it != m_children.end(); ++it) {
 		Node* child = (*it).release();
 		child->m_parent = nullptr;

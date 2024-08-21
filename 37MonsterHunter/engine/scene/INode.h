@@ -11,6 +11,28 @@ public:
 	INode() : m_parent(nullptr) {
 
 	}
+
+	INode(const INode& rhs) {
+		m_children = rhs.m_children;
+		m_parent = rhs.m_parent;
+	}
+
+	INode(INode&& rhs) {
+		m_children = rhs.m_children;
+		m_parent = rhs.m_parent;
+	}
+
+	INode& operator=(const INode& rhs) {
+		m_children = rhs.m_children;
+		m_parent = rhs.m_parent;
+		return *this;
+	}
+
+	INode& operator=(INode&& rhs) {
+		m_children = rhs.m_children;
+		m_parent = rhs.m_parent;
+		return *this;
+	}
 	
 	void setParent(T* node) {
 		if (node && m_parent) {
@@ -53,11 +75,11 @@ public:
 
 	void removeSelf() {
 		if (m_parent)
-			m_parent->removeChild(reinterpret_cast<T*>(this));
+			m_parent->removeChild(this);
 	}
 
 	void eraseChild(T* child) {
-		if (!child || child->m_parent != reinterpret_cast<T*>(this))
+		if (!child || child->m_parent != this)
 			return;
 
 		child->m_parent = nullptr;
@@ -67,7 +89,7 @@ public:
 
 	void eraseSelf() {
 		if (m_parent)
-			m_parent->eraseChild(this->template);
+			m_parent->eraseChild(this);
 	}
 
 	T* addChild(T* node, bool disableDelete = false) {
@@ -75,7 +97,7 @@ public:
 			m_children.emplace_back(std::unique_ptr<T, std::function<void(T* node)>>(node, [&](T* node) {}));
 		else
 			m_children.emplace_back(std::unique_ptr<T, std::function<void(T* node)>>(node, [&](T* node) {delete node; }));
-		m_children.back()->m_parent = reinterpret_cast<T*>(this);
+		m_children.back()->m_parent = this;
 		return m_children.back().get();
 	}
 
@@ -84,8 +106,8 @@ public:
 			m_children.emplace_back(std::unique_ptr<U, std::function<void(T* node)>>(new T(), [&](T* node) {}));
 		else
 			m_children.emplace_back(std::unique_ptr<U, std::function<void(T* node)>>(new T(), [&](T* node) {delete node; }));
-		m_children.back()->m_parent = reinterpret_cast<T*>(this);
-		return static_cast<T*>(m_children.back().get());
+		m_children.back()->m_parent = this;
+		return m_children.back().get();
 	}
 
 	const T* getParent() const {

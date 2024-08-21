@@ -15,7 +15,7 @@
 #include "Application.h"
 #include "Globals.h"
 
-MonsterHunter::MonsterHunter(StateMachine& machine) : State(machine, States::MONSTER_HUNTER), m_zone(m_camera), m_dialogTree(m_camera), m_indexOpen(false), m_evolveOpen(false), m_lastCharacter(nullptr) {
+MonsterHunter::MonsterHunter(StateMachine& machine) : State(machine, States::MONSTER_HUNTER), m_zone(m_camera), m_dialogTree(m_camera), m_indexOpen(false), m_evolveOpen(false), m_blockIndex(false), m_lastCharacter(nullptr) {
 
 	m_viewWidth = 1280.0f;
 	m_viewHeight= 720.0f;
@@ -83,9 +83,10 @@ MonsterHunter::MonsterHunter(StateMachine& machine) : State(machine, States::MON
 			});
 			m_delayEvolve.start(800u, false);
 			m_zone.getPlayer().block();
+			m_blockIndex = true;
 			m_evolveQueue.pop();
 		}else {
-
+			m_blockIndex = false;
 			m_evolveOpen = false;
 			m_zone.setAlpha(1.0f);
 			m_zone.getPlayer().unblock();
@@ -196,6 +197,8 @@ void MonsterHunter::update() {
 	}
 
 	if (keyboard.keyPressed(Keyboard::KEY_ENTER)) {
+		if (m_blockIndex)
+			return;
 		m_indexOpen = !m_indexOpen;
 		if (m_indexOpen) {
 			m_zone.setAlpha(1.0f - 0.784f);
@@ -454,6 +457,7 @@ void MonsterHunter::checkForEvolution() {
 		});
 		m_delayEvolve.start(800u, false);
 		m_zone.getPlayer().block();
+		m_blockIndex = true;
 		m_evolveQueue.pop();
 	}
 }

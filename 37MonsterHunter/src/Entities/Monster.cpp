@@ -432,7 +432,6 @@ void Monster::updateExperience(float amount) {
 		monsterEntry.get().level++;
 		monsterEntry.get().experience = amount - (m_maxExperience - monsterEntry.get().experience);
 		m_maxExperience = 150.0f * static_cast<float>(monsterEntry.get().level);
-		
 		while(monsterEntry.get().experience > m_maxExperience) {
 			monsterEntry.get().experience -= m_maxExperience;
 			monsterEntry.get().level++;
