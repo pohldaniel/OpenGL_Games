@@ -33,8 +33,7 @@ m_beforeSelected(-1),
 m_elapsedTime(0.0f),
 m_currentFrame(0),
 m_frameCount(4){
-	m_viewWidth = 1280.0f;
-	m_viewHeight = 720.0f;
+
 	std::ifstream file("res/monster.json", std::ios::in);
 	if (!file.is_open()) {
 		std::cerr << "Could not open file: " << "res/monster.json" << std::endl;
@@ -210,35 +209,7 @@ m_frameCount(4){
 	m_stats.push_back("speed");
 	m_stats.push_back("recovery");
 
-	setPosition(m_viewWidth * 0.2f, m_viewHeight * 0.1f, 0.0f);
-	setScale(m_viewWidth * 0.6f, m_viewHeight * 0.8f, 1.0f);
-	setOrigin(m_viewWidth * 0.3f, m_viewHeight * 0.4f, 0.0f);
-	setShader(Globals::shaderManager.getAssetPointer("list"));
-
-	WidgetMH* widgteMH = addChild<WidgetMH>();
-	widgteMH->setPosition(0.333333f, 0.0f, 0.0f);
-	widgteMH->setScale(0.666666f, 1.0f, 1.0f);
-	widgteMH->updateWorldTransformation();
-	widgteMH->setShader(Globals::shaderManager.getAssetPointer("list"));
 	
-	widgteMH = widgteMH->addChild<WidgetMH>();
-	widgteMH->setPosition(0.0f, 0.625f, 0.0f);
-	widgteMH->setScale(1.0f, 0.375f, 1.0f);
-	widgteMH->updateWorldTransformation();
-	widgteMH->setShader(Globals::shaderManager.getAssetPointer("list"));
-
-	//add Lable
-	widgteMH = widgteMH->addChild<WidgetMH>();
-	widgteMH->setPosition(0.0f, 1.0f, 0.0f);
-	widgteMH->setScale(1.0f, 1.0f, 1.0f);
-	widgteMH->updateWorldTransformation();
-
-	//add Icon
-	widgteMH = widgteMH->getParent()->addChild<WidgetMH>();
-	widgteMH->setPosition(0.5f, 0.5f, 0.0f);
-	widgteMH->updateWorldTransformation();
-	widgteMH->translateRelative(-96.0f, -96.0f, 0.0f);
-	widgteMH->scaleAbsolute(192.0f, 192.0f, 1.0f);
 }
 
 MonsterIndex::~MonsterIndex() {
@@ -497,7 +468,7 @@ void MonsterIndex::update(float dt) {
 		m_currentFrame = 0;
 		m_elapsedTime -= static_cast <float>(m_frameCount);
 	}
-	rotate(0.0f, 0.0f, 10.5f * dt);
+	//rotate(0.0f, 0.0f, 10.5f * dt);
 }
 
 void MonsterIndex::setViewWidth(float viewWidth) {
@@ -624,4 +595,37 @@ void MonsterIndex::reset() {
 	m_currentFrame = 0;
 	m_currentOffset = 0;
 	unselect();
+}
+
+void MonsterIndex::initUI(float viewWidth, float viewHeight) {
+	setPosition(viewWidth * 0.2f, viewHeight * 0.1f, 0.0f);
+	setScale(viewWidth * 0.6f, viewHeight * 0.8f, 1.0f);
+	setOrigin(viewWidth * 0.3f, viewHeight * 0.4f, 0.0f);
+	setOrientation(0.0f, 0.0f, 45.0f);
+	setShader(Globals::shaderManager.getAssetPointer("list"));
+
+	WidgetMH* widgteMH = addChild<WidgetMH>();
+	widgteMH->setPosition(0.333333f, 0.0f, 0.0f);
+	widgteMH->setScale(0.666666f, 1.0f, 1.0f);
+	widgteMH->updateWorldTransformation();
+	widgteMH->setShader(Globals::shaderManager.getAssetPointer("list"));
+
+	widgteMH = widgteMH->addChild<WidgetMH>();
+	widgteMH->setPosition(0.0f, 0.625f, 0.0f);
+	widgteMH->setScale(1.0f, 0.375f, 1.0f);
+	widgteMH->updateWorldTransformation();
+	widgteMH->setShader(Globals::shaderManager.getAssetPointer("list"));
+
+	//add Lable
+	widgteMH = widgteMH->addChild<WidgetMH>();
+	widgteMH->setPosition(0.0f, 1.0f, 0.0f);
+	widgteMH->setScale(1.0f, 1.0f, 1.0f);
+	widgteMH->updateWorldTransformation();
+
+	//add Icon
+	widgteMH = widgteMH->getParent()->addChild<WidgetMH>();
+	widgteMH->setPosition(0.5f, 0.5f, 0.0f);
+	widgteMH->updateWorldTransformation();
+	widgteMH->translateRelative(-96.0f, -96.0f, 0.0f);
+	widgteMH->scaleAbsolute(192.0f, 192.0f, 1.0f);
 }

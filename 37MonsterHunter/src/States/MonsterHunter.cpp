@@ -62,6 +62,7 @@ MonsterHunter::MonsterHunter(StateMachine& machine) : State(machine, States::MON
 
 	m_monsterIndex.setViewWidth(m_viewWidth);
 	m_monsterIndex.setViewHeight(m_viewHeight);
+	m_monsterIndex.initUI(m_viewWidth, m_viewHeight);
 
 	m_evolve.setViewWidth(m_viewWidth);
 	m_evolve.setViewHeight(m_viewHeight);

@@ -65,7 +65,7 @@ public:
 	void resetStates();
 	void unselect();
 	void reset();
-
+	void initUI(float viewWidth, float viewHeight);
 	void drawBar(const Rect& rect, const TextureRect& textureRect, float value, float maxValue, const Vector4f& bgColor, const Vector4f& color);
 
 	static void DrawBar(const Rect& rect, float value, float maxValue, const Vector4f& bgColor, const Vector4f& color, float radius = 1.0f);

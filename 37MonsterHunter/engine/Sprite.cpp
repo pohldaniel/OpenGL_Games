@@ -53,28 +53,6 @@ void Sprite::draw2(const Vector4f& color, const Matrix4f& worldTransformation) {
 	DrawQuad();
 }
 
-void Sprite::draw3(const TextureRect& rect, const Vector4f& color, const Vector3f& position) {
-	auto shader = m_shader ? m_shader : SpriteShader.get();
-
-	shader->use();
-	shader->loadMatrix("u_transform", Orthographic * Matrix4f::Translate(position) * Matrix4f::Scale(192.0f, 192.0f, 1.0f));
-	shader->loadVector("u_color", color);
-	shader->loadVector("u_texRect", Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureOffsetX + rect.textureWidth, rect.textureOffsetY + rect.textureHeight));
-	shader->loadInt("u_layer", rect.frame);
-	DrawQuad();
-}
-
-void Sprite::draw3(const Vector4f& color, const Vector3f& position) {
-	auto shader = m_shader ? m_shader : SpriteShader.get();
-
-	shader->use();
-	shader->loadMatrix("u_transform", Orthographic * Matrix4f::Translate(position));
-	shader->loadVector("u_color", color);
-	shader->loadVector("u_texRect", Vector4f(0.0f, 0.0f, 1.0f, 1.0f));
-	shader->loadInt("u_layer", 0u);
-	DrawQuad();
-}
-
 void Sprite::Resize(unsigned int width, unsigned int height) {
 	Orthographic.orthographic(0.0f, static_cast<float>(width), 0.0f, static_cast<float>(height), -1.0f, 1.0f);
 }
