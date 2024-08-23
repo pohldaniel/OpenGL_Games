@@ -154,14 +154,14 @@ const Quaternion &Object::getOrientation() const {
 
 const Matrix4f &Object::getTransformationSOP() const{
 	Transformation.translate(m_position);
-	Transformation *= Matrix4f::Rotate(m_orientation);
+	Transformation *= Matrix4f::Rotate(m_orientation, m_origin);
 	//Transformation *= Matrix4f::Rotate(m_rotation);
 	Transformation *= Matrix4f::Scale(m_scale);
 	return Transformation;
 }
 
 const Matrix4f &Object::getTransformationSO() const{
-	Transformation.rotate(m_orientation);
+	Transformation.rotate(m_orientation, m_origin);
 	//Transformation *= Matrix4f::Rotate(m_rotation);
 	Transformation *= Matrix4f::Scale(m_scale);
 	return Transformation;
@@ -180,13 +180,13 @@ const Matrix4f &Object::getTransformationP() const{
 
 const Matrix4f &Object::getTransformationOP()  const{
 	Transformation.translate(m_position);
-	Transformation *= Matrix4f::Rotate(m_orientation);
+	Transformation *= Matrix4f::Rotate(m_orientation, m_origin);
 	//Transformation *= Matrix4f::Rotate(m_rotation);
 	return Transformation;
 }
 
 const Matrix4f &Object::getTransformationO()  const{
-	Transformation.rotate(m_orientation);
+	Transformation.rotate(m_orientation, m_origin);
 	//Transformation *= Matrix4f::Rotate(m_rotation);
 	return Transformation;
 }

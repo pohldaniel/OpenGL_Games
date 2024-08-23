@@ -1,6 +1,7 @@
 #pragma once
-#include<ordered_map.h>
+#include <ordered_map.h>
 #include <engine/Sprite.h>
+#include "WidgetMH.h"
 
 enum Edge {
 	ALL,
@@ -49,7 +50,7 @@ struct AttackData {
 	unsigned int graphic;
 };
 
-class MonsterIndex {
+class MonsterIndex : public WidgetMH {
 
 public:
 

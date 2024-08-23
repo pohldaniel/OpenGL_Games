@@ -23,7 +23,7 @@ void MonsterEntry::unselect() {
 	selected = false;
 }
 
-MonsterIndex::MonsterIndex() : 
+MonsterIndex::MonsterIndex() : WidgetMH(),
 m_visibleItems(6), 
 m_viewWidth(0.0f), 
 m_viewHeight(0.0f), 
@@ -33,7 +33,8 @@ m_beforeSelected(-1),
 m_elapsedTime(0.0f),
 m_currentFrame(0),
 m_frameCount(4){
-
+	m_viewWidth = 1280.0f;
+	m_viewHeight = 720.0f;
 	std::ifstream file("res/monster.json", std::ios::in);
 	if (!file.is_open()) {
 		std::cerr << "Could not open file: " << "res/monster.json" << std::endl;
@@ -208,28 +209,107 @@ m_frameCount(4){
 	m_stats.push_back("defense");
 	m_stats.push_back("speed");
 	m_stats.push_back("recovery");
+
+	setPosition(m_viewWidth * 0.2f, m_viewHeight * 0.1f, 0.0f);
+	setScale(m_viewWidth * 0.6f, m_viewHeight * 0.8f, 1.0f);
+	setOrigin(m_viewWidth * 0.3f, m_viewHeight * 0.4f, 0.0f);
+	setShader(Globals::shaderManager.getAssetPointer("list"));
+
+	WidgetMH* widgteMH = addChild<WidgetMH>();
+	widgteMH->setPosition(0.333333f, 0.0f, 0.0f);
+	widgteMH->setScale(0.666666f, 1.0f, 1.0f);
+	widgteMH->updateWorldTransformation();
+	widgteMH->setShader(Globals::shaderManager.getAssetPointer("list"));
+	
+	widgteMH = widgteMH->addChild<WidgetMH>();
+	widgteMH->setPosition(0.0f, 0.625f, 0.0f);
+	widgteMH->setScale(1.0f, 0.375f, 1.0f);
+	widgteMH->updateWorldTransformation();
+	widgteMH->setShader(Globals::shaderManager.getAssetPointer("list"));
+
+	//add Lable
+	widgteMH = widgteMH->addChild<WidgetMH>();
+	widgteMH->setPosition(0.0f, 1.0f, 0.0f);
+	widgteMH->setScale(1.0f, 1.0f, 1.0f);
+	widgteMH->updateWorldTransformation();
+
+	//add Icon
+	widgteMH = widgteMH->getParent()->addChild<WidgetMH>();
+	widgteMH->setPosition(0.5f, 0.5f, 0.0f);
+	widgteMH->updateWorldTransformation();
+	widgteMH->translateRelative(-96.0f, -96.0f, 0.0f);
+	widgteMH->scaleAbsolute(192.0f, 192.0f, 1.0f);
 }
 
 MonsterIndex::~MonsterIndex() {
 
 }
-
+#define COMPARE 0
 void MonsterIndex::draw() {
-
-	const std::vector<TextureRect>& rects = TileSetManager::Get().getTileSet("monster_icon").getTextureRects();
 
 	auto shader = Globals::shaderManager.getAssetPointer("list");
 	shader->use();
 	shader->loadVector("u_dimensions", Vector2f(m_viewWidth * 0.6f, m_viewHeight * 0.8f));
 	shader->loadFloat("u_radius", 12.0f);
 	shader->loadUnsignedInt("u_edge", Edge::ALL);
-	
+	shader->unuse();
+
+#if !COMPARE
+	float lineHeightBold = static_cast<float>(Globals::fontManager.get("bold").lineHeight) * 0.05f;
+	Sprite::draw(Vector4f(0.22745f, 0.21568f, 0.23137f, 1.0f));
+	std::shared_ptr<WidgetMH> currentWidget;
+	{
+		const Vector3f& scale = std::static_pointer_cast<WidgetMH>(getChildren().front())->getWorldScale();
+		shader->use();
+		shader->loadVector("u_dimensions", Vector2f(scale[0], scale[1]));
+		shader->loadFloat("u_radius", 12.0f);
+		shader->loadUnsignedInt("u_edge", Edge::EDGE_RIGHT);
+		shader->unuse();
+
+		currentWidget = std::static_pointer_cast<WidgetMH>(getChildren().front());
+		currentWidget->draw2(Vector4f(0.16862f, 0.16078f, 0.17254f, 1.0f), currentWidget->getWorldTransformation());
+	}
+	{
+		currentWidget = std::static_pointer_cast<WidgetMH>(currentWidget->getChildren().front());
+		const Vector3f& scale = currentWidget->getWorldScale();
+		shader->use();
+		shader->loadVector("u_dimensions", Vector2f(scale[0], scale[1]));
+		shader->loadFloat("u_radius", 12.0f);
+		shader->loadUnsignedInt("u_edge", Edge::TOP_RIGHT);
+		shader->unuse();
+		currentWidget->draw2(Vector4f(1.0f, 0.16078f, 0.17254f, 1.0f), currentWidget->getWorldTransformation());
+	}
+	{
+		int index = 0;
+		for (auto& children : currentWidget->getChildren()) {
+			currentWidget = std::static_pointer_cast<WidgetMH>(children);
+			if (index == 0) {
+				const Vector3f& position = currentWidget->getWorldPosition();
+				Globals::fontManager.get("bold").bind();
+				Fontrenderer::Get().addText(Globals::fontManager.get("bold"), position[0] + 10.0f, position[1] - 10.0f - lineHeightBold, "Cindrill", Vector4f(0.95686f, 0.99608f, 0.98039f, 1.0f), 0.05f);
+				Fontrenderer::Get().drawBuffer();
+			}else if (index == 1) {
+				const Vector3f& position = currentWidget->getWorldPosition();
+				Spritesheet::Bind(m_atlasMonster);
+				const TextureRect& rect = TileSetManager::Get().getTileSet("monster").getTextureRects()[MonsterData["Cindrill"].graphic * 16 + m_currentFrame];
+				currentWidget->draw2(rect, Vector4f(1.0f, 1.0f, 1.0f, 1.0f), currentWidget->getWorldTransformation());
+				
+			}
+			index++;
+		}
+		//currentWidget = std::static_pointer_cast<WidgetMH>(currentWidget->getChildren().front());
+		
+	}
+
+#elif COMPARE
+	const std::vector<TextureRect>& rects = TileSetManager::Get().getTileSet("monster_icon").getTextureRects();
 	m_surface.setShader(shader);
 
 	Globals::spritesheetManager.getAssetPointer("null")->bind();
 	m_surface.setPosition(m_viewWidth * 0.2f, m_viewHeight * 0.1f, 0.0f);
 	m_surface.setScale(m_viewWidth * 0.6f, m_viewHeight * 0.8f, 1.0f);
 	m_surface.draw(Vector4f(0.22745f, 0.21568f, 0.23137f, 1.0f));
+
 
 	Spritesheet::Bind(m_atlasIcons);
 	float itemHeigt = (0.8f * m_viewHeight) / static_cast<float>(m_visibleItems);
@@ -307,6 +387,7 @@ void MonsterIndex::draw() {
 	m_surface.resetShader();
 	m_surface.setPosition(0.4f * m_viewWidth  + 0.2f * m_viewWidth - 0.5f * rect.width, bottom + 0.5f * m_viewHeight + 0.15f * m_viewHeight - 0.5f * rect.height, 0.0f);
 	m_surface.setScale(rect.width, rect.height, 1.0f);
+	std::cout << rect.width << "  " << rect.height << std::endl;
 	m_surface.draw(rect);
 
 	Globals::fontManager.get("bold").bind();
@@ -405,6 +486,8 @@ void MonsterIndex::draw() {
 	}
 	Globals::fontManager.get("dialog").bind();
 	Fontrenderer::Get().drawBuffer();
+
+#endif
 }
 
 void MonsterIndex::update(float dt) {
@@ -414,6 +497,7 @@ void MonsterIndex::update(float dt) {
 		m_currentFrame = 0;
 		m_elapsedTime -= static_cast <float>(m_frameCount);
 	}
+	rotate(0.0f, 0.0f, 10.5f * dt);
 }
 
 void MonsterIndex::setViewWidth(float viewWidth) {

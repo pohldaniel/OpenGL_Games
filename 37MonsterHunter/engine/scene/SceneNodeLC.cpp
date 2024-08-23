@@ -1,7 +1,6 @@
 #include <iostream>
 #include "SceneNodeLC.h"
 
-
 Vector3f SceneNodeLC::WorldPosition;
 Vector3f SceneNodeLC::WorldScale;
 Quaternion SceneNodeLC::WorldOrientation;

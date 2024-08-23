@@ -52,8 +52,14 @@ public:
 
 	Sprite();
 
-	void draw(const TextureRect& rect, const Vector4f& color = Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
-	void draw(const Vector4f& color = Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+	void draw(const TextureRect& rect, const Vector4f& color = Vector4f::ONE);
+	void draw(const Vector4f& color = Vector4f::ONE);
+
+	void draw2(const TextureRect& rect, const Vector4f& color = Vector4f::ONE, const Matrix4f& worldTransformation = Matrix4f::IDENTITY);
+	void draw2(const Vector4f& color = Vector4f::ONE, const Matrix4f& worldTransformation = Matrix4f::IDENTITY);
+
+	void draw3(const TextureRect& rect, const Vector4f& color = Vector4f::ONE, const Vector3f& position = Vector3f::ZERO);
+	void draw3(const Vector4f& color = Vector4f::ONE, const Vector3f& position = Vector3f::ZERO);
 
 	void setShader(Shader* shader);
 	void resetShader();

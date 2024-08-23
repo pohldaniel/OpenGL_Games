@@ -3,6 +3,7 @@
 #include <vector>
 #include <memory>
 #include <engine/Vector.h>
+#include <engine/Sprite.h>
 
 class ObjectMH {
 
@@ -47,96 +48,37 @@ protected:
 	float m_orientation;
 };
 
-template<class T>
 class NodeMH {
 
 public:
 
-	NodeMH() : m_parent(nullptr) {
+	NodeMH();
+	NodeMH(const NodeMH& rhs);
+	NodeMH(NodeMH&& rhs);
+	NodeMH& operator=(const NodeMH& rhs);
+	NodeMH& operator=(NodeMH&& rhs);
+	virtual ~NodeMH();
 
-	}
-
-	NodeMH(const NodeMH& rhs) {
-		m_children = rhs.m_children;		
-		m_parent = rhs.m_parent;
-	}
-
-	NodeMH(NodeMH&& rhs) {
-		m_children = rhs.m_children;		
-		m_parent = rhs.m_parent;
-	}
-
-	NodeMH& operator=(const NodeMH& rhs) {
-		m_children = rhs.m_children;		
-		m_parent = rhs.m_parent;
-		return *this;
-	}
-
-	NodeMH& operator=(NodeMH&& rhs) {
-		m_children = rhs.m_children;		
-		m_parent = rhs.m_parent;
-		return *this;
-	}
-
-	virtual ~NodeMH() {
-
-	}
-
-	std::list<std::shared_ptr<T>>& getChildren() const;
-	void eraseChild(T* child);
-	T* addChild(T* node);
-	const T* getParent() const;
-	void setParent(T* node);
+	std::list<std::shared_ptr<NodeMH>>& getChildren() const;
+	void eraseChild(NodeMH* child);
+	NodeMH* addChild(NodeMH* node);
+	template <class T> T* addChild();
+	NodeMH* getParent() const;
+	void setParent(NodeMH* node);
 
 protected:
 
-	mutable std::list<std::shared_ptr<T>> m_children;
-	T* m_parent;
+	mutable std::list<std::shared_ptr<NodeMH>> m_children;
+	NodeMH* m_parent;
 };
 
-template<typename T>
-std::list<std::shared_ptr<T>>& NodeMH<T>::getChildren() const {
-	return m_children;
-}
-
-template<typename T>
-void NodeMH<T>::eraseChild(T* child) {
-	if (!child || child->m_parent != this)
-		return;
-
-	child->m_parent = nullptr;
-	m_children.erase(std::remove_if(m_children.begin(), m_children.end(), [child](const std::shared_ptr<T>& node) { return node.get() == child; }), m_children.end());
-}
-
-template<typename T>
-T* NodeMH<T>::addChild(T* node) {
-	m_children.emplace_back(std::shared_ptr<NodeMH>(node));
+template <class T> T* NodeMH::addChild() {
+	m_children.emplace_back(std::shared_ptr<NodeMH>(new T()));
 	m_children.back()->m_parent = this;
-	return m_children.back().get();
+	return static_cast<T*>(m_children.back().get());
 }
 
-template<typename T>
-const T* NodeMH<T>::getParent() const {
-	return m_parent;
-}
-
-template<typename T>
-void NodeMH<T>::setParent(T* node) {
-
-	if (node && m_parent) {
-		std::list<std::shared_ptr<T>>::iterator it = std::find_if(m_parent->getChildren().begin(), m_parent->getChildren().end(), [node](std::shared_ptr<T>& _node) { return _node.get() == node; });
-
-		if (it != m_parent->getChildren().end()) {
-			node->getChildren().splice(m_parent->getChildren().end(), m_parent->getChildren(), it);
-		}
-	}else if (node) {
-		node->addChild(this);
-	}else if (m_parent) {
-		m_parent->eraseChild(this);
-	}
-}
-
-class WidgetMH : public NodeMH<WidgetMH>, public ObjectMH {
+class WidgetMH : public NodeMH, public Sprite {
 
 public:
 	
@@ -147,20 +89,60 @@ public:
 	WidgetMH& operator=(WidgetMH&& rhs);
 	virtual ~WidgetMH();
 
-	virtual void draw();
-	virtual void processInput();
+	//virtual void draw();
+	//virtual void processInput();
 
-	const Vector2f& getWorldPosition(bool update = true) const;
-	const Vector2f& getWorldScale(bool update = true) const;
-	const float getWorldOrientation(bool update = true) const;
-	void updateSOP() const;
+	void setScale(const float sx, const float sy, const float sz) override;
+	void setScale(const Vector3f& scale) override;
+	void setScale(const float s) override;
+
+	void setPosition(const float x, const float y, const float z) override;
+	void setPosition(const Vector3f& position) override;
+
+	void setOrigin(const float x, const float y, const float z) override;
+	void setOrigin(const Vector3f& origin);
+
+	void setOrientation(const Vector3f& axis, float degrees) override;
+	void setOrientation(const float degreesX, const float degreesY, const float degreesZ) override;
+	void setOrientation(const Vector3f& euler) override;
+	void setOrientation(const Quaternion& orientation) override;
+	void setOrientation(const float x, const float y, const float z, const float w) override;
+
+	void translate(const Vector3f& trans) override;
+	void translate(const float dx, const float dy, const float dz) override;
+
+	void translateRelative(const Vector3f& trans) override;
+	void translateRelative(const float dx, const float dy, const float dz) override;
+
+	void scale(const Vector3f& scale) override;
+	void scale(const float sx, const float sy, const float sz) override;
+	void scale(const float s) override;
+
+	void scaleAbsolute(const Vector3f& scale);
+	void scaleAbsolute(const float sx, const float sy, const float sz);
+	void scaleAbsolute(const float s);
+
+	void rotate(const float pitch, const float yaw, const float roll) override;
+	void rotate(const Vector3f& eulerAngle) override;
+	void rotate(const Vector3f& axis, float degrees) override;
+	void rotate(const Quaternion& orientation) override;
+	void rotate(const float x, const float y, const float z, const float w) override;
+
+	const Matrix4f& getWorldTransformation() const;
+	const Vector3f& getWorldPosition(bool update = true) const;
+	const Vector3f& getWorldScale(bool update = true) const;
+	const Quaternion& getWorldOrientation(bool update = true) const;
+	void updateWorldTransformation() const;
 
 protected:
 
 	void OnTransformChanged();
 
-	mutable Vector2f m_worldPosition;
-	mutable Vector2f m_worldScale;
-	mutable float m_worldOrientation;
+private:
+
+	mutable Matrix4f m_modelMatrix;
+	static Vector3f WorldPosition;
+	static Vector3f WorldScale;
+	static Quaternion WorldOrientation;
 	mutable bool m_isDirty;
 };
