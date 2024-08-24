@@ -24,6 +24,8 @@
 #define QUAT_SQRT3 0.43301270189221932338f
 #define TWO_SQRT1_3 1.15470053837925152901f
 
+class Vector3f;
+class Vector4f;
 class Vector2f {
 
 	friend Vector2f operator-(const Vector2f &v);
@@ -34,7 +36,9 @@ public:
 	Vector2f();
 	Vector2f(float x_);
 	Vector2f(float x_, float y_);
-	Vector2f(float array[2]);
+	Vector2f(float array[2]);	
+	Vector2f(const Vector3f& vec);
+	Vector2f(const Vector4f& vec);
 	Vector2f(Vector2f const& rhs);
 	Vector2f(Vector2f&& rhs);
 	~Vector2f() = default;
@@ -83,7 +87,6 @@ private:
 
 };
 
-class Vector4f;
 class Vector3f {
 
 	friend Vector3f operator-(const Vector3f &v);

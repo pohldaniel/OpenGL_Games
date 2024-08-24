@@ -68,6 +68,26 @@ void Fontrenderer::addText(const CharacterSet& characterSet, float posX, float p
 	}
 }
 
+void Fontrenderer::addTextTransformed(const CharacterSet& characterSet, const Matrix4f& transformation, std::string text, Vector4f color, float size) {
+	Vector2f verices[4];
+	const Vector3f scale = transformation.getScale();
+	float sx = (1.0f / scale[0]) * size;
+	float sy = (1.0f / scale[1]) * size;
+
+	std::string::const_iterator c;
+	float offset = 0.0f;
+	for (c = text.begin(); c != text.end(); c++) {
+		const Char& ch = characterSet.getCharacter(*c);
+		
+		verices[0] = transformation ^ Vector3f(offset, 0.0f, 0.0f);
+		verices[1] = transformation ^ Vector3f(offset + sx * static_cast<float>(ch.size[0]), 0.0f,                                0.0f);
+		verices[2] = transformation ^ Vector3f(offset + sx * static_cast<float>(ch.size[0]), sy * static_cast<float>(ch.size[1]), 0.0f);
+		verices[3] = transformation ^ Vector3f(offset,                                       sy * static_cast<float>(ch.size[1]), 0.0f);			
+		m_batchrenderer->addQuad(verices, Vector4f(ch.textureOffset[0], ch.textureOffset[1], ch.textureSize[0], ch.textureSize[1]), color, characterSet.frame);
+		offset = offset + ch.advance * sx;
+	}
+}
+
 void Fontrenderer::drawBuffer() {
 	m_batchrenderer->drawBuffer();
 }

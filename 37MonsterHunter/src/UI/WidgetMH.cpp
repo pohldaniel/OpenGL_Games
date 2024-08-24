@@ -195,6 +195,11 @@ void NodeMH::setParent(NodeMH* node) {
 	}
 }
 
+
+void NodeMH::setName(const std::string& name) {
+	m_nameHash = StringHash(name);
+}
+
 /////////////////////////////////////////////////////////////////////////////////////////////////
 Vector3f WidgetMH::WorldPosition;
 Vector3f WidgetMH::WorldScale;
@@ -230,15 +235,11 @@ WidgetMH::~WidgetMH() {
 
 }
 
-/*void WidgetMH::draw() {
-	if (m_children.size() > 0) {
-		for (auto& child : m_children) {
-			std::static_pointer_cast<WidgetMH>(child)->draw();
-		}
-	}
+void WidgetMH::draw() {
+	
 }
 
-void WidgetMH::processInput() {
+/*void WidgetMH::processInput() {
 	if (m_children.size() > 0) {
 		for (auto& child : m_children) {
 			std::static_pointer_cast<WidgetMH>(child)->processInput();
@@ -270,6 +271,69 @@ const Matrix4f& WidgetMH::getWorldTransformation() const {
 	}
 
 	return m_modelMatrix;
+}
+
+const Matrix4f WidgetMH::getWorldTransformationWithTranslation(const Vector3f& trans) const {
+	Matrix4f mtx = getWorldTransformation();
+	if (m_parent) {
+		const Vector3f& invScale = Vector3f::Inverse(static_cast<WidgetMH*>(m_parent)->getWorldScale());
+		float dx = trans[0] * invScale[0];
+		float dy = trans[1] * invScale[1];
+		float dz = trans[2] * invScale[2];
+		mtx[3][0] = mtx[3][0] + dx * mtx[0][0] + dy * mtx[1][0] + dz * mtx[2][0];
+		mtx[3][1] = mtx[3][1] + dx * mtx[0][1] + dy * mtx[1][1] + dz * mtx[2][1];
+		mtx[3][2] = mtx[3][2] + dx * mtx[0][2] + dy * mtx[1][2] + dz * mtx[2][2];
+	}else {
+		mtx[3][0] = mtx[3][0] + trans[0] * mtx[0][0] + trans[1] * mtx[1][0] + trans[2] * mtx[2][0];
+		mtx[3][1] = mtx[3][1] + trans[0] * mtx[0][1] + trans[1] * mtx[1][1] + trans[2] * mtx[2][1];
+		mtx[3][2] = mtx[3][2] + trans[0] * mtx[0][2] + trans[1] * mtx[1][2] + trans[2] * mtx[2][2];
+	}
+	return mtx;	
+}
+
+const Matrix4f WidgetMH::getWorldTransformationWithTranslation(float dx, float dy, float dz) const {
+	Matrix4f mtx = getWorldTransformation();
+	if (m_parent) {
+		const Vector3f& invScale = Vector3f::Inverse(static_cast<WidgetMH*>(m_parent)->getWorldScale());	
+		dx = dx * invScale[0];
+		dy = dy * invScale[1];
+		dz = dz * invScale[2];
+		mtx[3][0] = mtx[3][0] + dx* mtx[0][0] + dy* mtx[1][0] + dz * mtx[2][0];
+		mtx[3][1] = mtx[3][1] + dx* mtx[0][1] + dy* mtx[1][1] + dz * mtx[2][1];
+		mtx[3][2] = mtx[3][2] + dx* mtx[0][2] + dy* mtx[1][2] + dz * mtx[2][2];		
+	}else {
+		mtx[3][0] = mtx[3][0] + dx * mtx[0][0] + dy * mtx[1][0] + dz * mtx[2][0];
+		mtx[3][1] = mtx[3][1] + dx * mtx[0][1] + dy * mtx[1][1] + dz * mtx[2][1];
+		mtx[3][2] = mtx[3][2] + dx * mtx[0][2] + dy * mtx[1][2] + dz * mtx[2][2];
+	}
+	return mtx;
+}
+
+const Matrix4f WidgetMH::getWorldTransformationWithScale(float sx, float sy, float sz, bool relative) const {
+	Matrix4f mtx = getWorldTransformation();
+	if (m_parent && relative) {
+		const Vector3f& invScale = Vector3f::Inverse(static_cast<WidgetMH*>(m_parent)->getWorldScale());
+		sx = sx * invScale[0];
+		sy = sy * invScale[1];
+		sz = sz * invScale[2];
+		
+		mtx[0][0] = mtx[0][0] * sx;  mtx[1][0] = mtx[1][0] * sy; mtx[2][0] = mtx[2][0] * sz;
+		mtx[0][1] = mtx[0][1] * sx;  mtx[1][1] = mtx[1][1] * sy; mtx[2][1] = mtx[2][1] * sz;
+		mtx[0][2] = mtx[0][2] * sx;  mtx[1][2] = mtx[1][2] * sy; mtx[2][2] = mtx[2][2] * sz;
+	}else {
+		mtx[0][0] = mtx[0][0] * sx;  mtx[1][0] = mtx[1][0] * sy; mtx[2][0] = mtx[2][0] * sz;
+		mtx[0][1] = mtx[0][1] * sx;  mtx[1][1] = mtx[1][1] * sy; mtx[2][1] = mtx[2][1] * sz;
+		mtx[0][2] = mtx[0][2] * sx;  mtx[1][2] = mtx[1][2] * sy; mtx[2][2] = mtx[2][2] * sz;
+	}
+	return mtx;
+}
+
+const Matrix4f WidgetMH::getWorldTransformationWithScale(const Vector3f& scale, bool relative) const {
+	return getWorldTransformationWithScale(scale[0], scale[1], scale[2], relative);
+}
+
+const Matrix4f WidgetMH::getWorldTransformationWithScale(const float s, bool relative) const {
+	return getWorldTransformationWithScale(s, s, s, relative);
 }
 
 void WidgetMH::updateWorldTransformation() const {

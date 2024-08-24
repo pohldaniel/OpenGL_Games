@@ -23,7 +23,7 @@ void MonsterEntry::unselect() {
 	selected = false;
 }
 
-MonsterIndex::MonsterIndex() : WidgetMH(),
+MonsterIndex::MonsterIndex() : Surface(),
 m_visibleItems(6), 
 m_viewWidth(0.0f), 
 m_viewHeight(0.0f), 
@@ -32,7 +32,8 @@ m_currentSelected(0),
 m_beforeSelected(-1),
 m_elapsedTime(0.0f),
 m_currentFrame(0),
-m_frameCount(4){
+m_frameCount(4),
+m_rotate(false){
 
 	std::ifstream file("res/monster.json", std::ios::in);
 	if (!file.is_open()) {
@@ -218,58 +219,51 @@ MonsterIndex::~MonsterIndex() {
 #define COMPARE 0
 void MonsterIndex::draw() {
 
-	auto shader = Globals::shaderManager.getAssetPointer("list");
-	shader->use();
-	shader->loadVector("u_dimensions", Vector2f(m_viewWidth * 0.6f, m_viewHeight * 0.8f));
-	shader->loadFloat("u_radius", 12.0f);
-	shader->loadUnsignedInt("u_edge", Edge::ALL);
-	shader->unuse();
-
 #if !COMPARE
-	float lineHeightBold = static_cast<float>(Globals::fontManager.get("bold").lineHeight) * 0.05f;
-	Sprite::draw(Vector4f(0.22745f, 0.21568f, 0.23137f, 1.0f));
+	Surface::draw();
 	std::shared_ptr<WidgetMH> currentWidget;
 	{
-		const Vector3f& scale = std::static_pointer_cast<WidgetMH>(getChildren().front())->getWorldScale();
-		shader->use();
-		shader->loadVector("u_dimensions", Vector2f(scale[0], scale[1]));
-		shader->loadFloat("u_radius", 12.0f);
-		shader->loadUnsignedInt("u_edge", Edge::EDGE_RIGHT);
-		shader->unuse();
-
 		currentWidget = std::static_pointer_cast<WidgetMH>(getChildren().front());
-		currentWidget->draw2(Vector4f(0.16862f, 0.16078f, 0.17254f, 1.0f), currentWidget->getWorldTransformation());
+		currentWidget->draw();
 	}
 	{
 		currentWidget = std::static_pointer_cast<WidgetMH>(currentWidget->getChildren().front());
-		const Vector3f& scale = currentWidget->getWorldScale();
-		shader->use();
-		shader->loadVector("u_dimensions", Vector2f(scale[0], scale[1]));
-		shader->loadFloat("u_radius", 12.0f);
-		shader->loadUnsignedInt("u_edge", Edge::TOP_RIGHT);
-		shader->unuse();
-		currentWidget->draw2(Vector4f(1.0f, 0.16078f, 0.17254f, 1.0f), currentWidget->getWorldTransformation());
+		currentWidget->draw();		
 	}
 	{
 		int index = 0;
 		for (auto& children : currentWidget->getChildren()) {
 			currentWidget = std::static_pointer_cast<WidgetMH>(children);
-			if (index == 0) {
-				const Vector3f& position = currentWidget->getWorldPosition();
-				Globals::fontManager.get("bold").bind();
-				Fontrenderer::Get().addText(Globals::fontManager.get("bold"), position[0] + 10.0f, position[1] - 10.0f - lineHeightBold, "Cindrill", Vector4f(0.95686f, 0.99608f, 0.98039f, 1.0f), 0.05f);
-				Fontrenderer::Get().drawBuffer();
-			}else if (index == 1) {
-				const Vector3f& position = currentWidget->getWorldPosition();
+			if (index == 0) {			
 				Spritesheet::Bind(m_atlasMonster);
 				const TextureRect& rect = TileSetManager::Get().getTileSet("monster").getTextureRects()[MonsterData["Cindrill"].graphic * 16 + m_currentFrame];
 				currentWidget->draw2(rect, Vector4f(1.0f, 1.0f, 1.0f, 1.0f), currentWidget->getWorldTransformation());
-				
+			}else if (index == 1) {		
+				currentWidget->draw();
+			}else if (index == 2) {		
+				currentWidget->draw();		
+			}else if (index == 3) {
+				currentWidget->draw();				
+			}else if (index == 4) {
+				int index2 = 0;
+				const TextureRect& bar100 = TileSetManager::Get().getTileSet("monster_icon").getTextureRects()[18];
+				Spritesheet::Bind(m_atlasIcons);
+				for (auto& children2 : currentWidget->getChildren()) {
+					currentWidget = std::static_pointer_cast<WidgetMH>(children2);
+					const Vector3f positon = currentWidget->getWorldTransformation().getTranslation();
+					if (index2 == 0) {
+						currentWidget->draw2(bar100, Vector4f(0.16862f, 0.16078f, 0.17255f, 1.0f), currentWidget->getWorldTransformationWithScale(100.0f, 5.0f, 1.0f));
+					}else if (index2 == 1) {
+						float ratio = 100.0f / (20.0f * 150.0f);
+						float progress = std::max(0.0f, std::min(100.0f, 20.0f * ratio));
+						currentWidget->draw2(bar100, Vector4f(0.95686f, 0.99608f, 0.98039f, 1.0f), currentWidget->getWorldTransformationWithScale(progress * 100.0f, 5.0f, 1.0f));
+					}
+					index2++;
+				}
 			}
+
 			index++;
-		}
-		//currentWidget = std::static_pointer_cast<WidgetMH>(currentWidget->getChildren().front());
-		
+		}		
 	}
 
 #elif COMPARE
@@ -358,7 +352,6 @@ void MonsterIndex::draw() {
 	m_surface.resetShader();
 	m_surface.setPosition(0.4f * m_viewWidth  + 0.2f * m_viewWidth - 0.5f * rect.width, bottom + 0.5f * m_viewHeight + 0.15f * m_viewHeight - 0.5f * rect.height, 0.0f);
 	m_surface.setScale(rect.width, rect.height, 1.0f);
-	std::cout << rect.width << "  " << rect.height << std::endl;
 	m_surface.draw(rect);
 
 	Globals::fontManager.get("bold").bind();
@@ -468,7 +461,22 @@ void MonsterIndex::update(float dt) {
 		m_currentFrame = 0;
 		m_elapsedTime -= static_cast <float>(m_frameCount);
 	}
-	//rotate(0.0f, 0.0f, 10.5f * dt);
+	const MonsterEntry& currentMonster = Monsters[m_currentOffset + m_currentSelected];
+	findChild<Label>("headline")->setLabel(currentMonster.name);
+	findChild<Label>("level")->setLabel("Lvl: " + std::to_string(currentMonster.level));
+	Label* element = findChild<Label>("element");
+	element->setLabel(MonsterData[currentMonster.name].element);
+	element->setOffsetX(-0.045f * Globals::fontManager.get("dialog").getWidth(MonsterData[currentMonster.name].element));
+
+
+	findChild<Surface>("top-right")->setColor(ColorMap[MonsterData[currentMonster.name].element]);
+
+	Keyboard &keyboard = Keyboard::instance();
+	if (keyboard.keyPressed(Keyboard::KEY_R)) {
+		m_rotate = !m_rotate;
+	}
+	if(m_rotate)
+		rotate(0.0f, 0.0f, 10.0f * dt);
 }
 
 void MonsterIndex::setViewWidth(float viewWidth) {
@@ -601,31 +609,87 @@ void MonsterIndex::initUI(float viewWidth, float viewHeight) {
 	setPosition(viewWidth * 0.2f, viewHeight * 0.1f, 0.0f);
 	setScale(viewWidth * 0.6f, viewHeight * 0.8f, 1.0f);
 	setOrigin(viewWidth * 0.3f, viewHeight * 0.4f, 0.0f);
-	setOrientation(0.0f, 0.0f, 45.0f);
+	//setOrientation(0.0f, 0.0f, 90.0f);
 	setShader(Globals::shaderManager.getAssetPointer("list"));
+	setColor(Vector4f(0.22745f, 0.21568f, 0.23137f, 1.0f));
+	setBorderRadius(12.0f);
 
-	WidgetMH* widgteMH = addChild<WidgetMH>();
-	widgteMH->setPosition(0.333333f, 0.0f, 0.0f);
-	widgteMH->setScale(0.666666f, 1.0f, 1.0f);
-	widgteMH->updateWorldTransformation();
-	widgteMH->setShader(Globals::shaderManager.getAssetPointer("list"));
+	Surface* surface = addChild<Surface>();
+	surface->setPosition(0.333333f, 0.0f, 0.0f);
+	surface->setScale(0.666666f, 1.0f, 1.0f);
+	surface->updateWorldTransformation();
+	surface->setShader(Globals::shaderManager.getAssetPointer("list"));
+	surface->setName("right");
+	surface->setBorderRadius(12.0f);
+	surface->setEdge(Edge::EDGE_RIGHT);
+	surface->setColor(Vector4f(0.16862f, 0.16078f, 0.17254f, 1.0f));
 
-	widgteMH = widgteMH->addChild<WidgetMH>();
-	widgteMH->setPosition(0.0f, 0.625f, 0.0f);
-	widgteMH->setScale(1.0f, 0.375f, 1.0f);
-	widgteMH->updateWorldTransformation();
-	widgteMH->setShader(Globals::shaderManager.getAssetPointer("list"));
-
-	//add Lable
-	widgteMH = widgteMH->addChild<WidgetMH>();
-	widgteMH->setPosition(0.0f, 1.0f, 0.0f);
-	widgteMH->setScale(1.0f, 1.0f, 1.0f);
-	widgteMH->updateWorldTransformation();
-
+	surface = surface->addChild<Surface>();
+	surface->setPosition(0.0f, 0.625f, 0.0f);
+	surface->setScale(1.0f, 0.375f, 1.0f);
+	surface->updateWorldTransformation();
+	surface->setShader(Globals::shaderManager.getAssetPointer("list"));
+	surface->setName("top-right");
+	surface->setBorderRadius(12.0f);
+	surface->setEdge(Edge::TOP_RIGHT);
+	surface->setColor(Vector4f(0.0f, 1.0f, 1.0f, 1.0f));
+	
 	//add Icon
-	widgteMH = widgteMH->getParent()->addChild<WidgetMH>();
-	widgteMH->setPosition(0.5f, 0.5f, 0.0f);
-	widgteMH->updateWorldTransformation();
+	WidgetMH* widgteMH = surface->addChild<WidgetMH>();
+	widgteMH->setPosition(0.5f, 0.5f, 0.0f);	
 	widgteMH->translateRelative(-96.0f, -96.0f, 0.0f);
 	widgteMH->scaleAbsolute(192.0f, 192.0f, 1.0f);
+	widgteMH->updateWorldTransformation();
+
+	Label* label = widgteMH->getParent()->addChild<Label>(Globals::fontManager.get("bold"));
+	float lineHeightBold = static_cast<float>(Globals::fontManager.get("bold").lineHeight) * 0.05f;
+	label->setPosition(0.0f, 1.0f, 0.0f);
+	label->setScale(1.0f, 1.0f, 1.0f);
+	label->translateRelative(10.0f, -10.0f - lineHeightBold, 0.0f);
+	label->updateWorldTransformation();
+	label->setName("headline");
+	label->setColor(Vector4f(0.95686f, 0.99608f, 0.98039f, 1.0f));
+	label->setSize(0.05f);
+	
+	/*label->setDrawFunction([label = label, &m_currentOffset = m_currentOffset, &m_currentSelected = m_currentSelected]() {
+		const MonsterEntry& currentMonster = Monsters[m_currentOffset + m_currentSelected];
+		Globals::fontManager.get("bold").bind();
+		Fontrenderer::Get().addTextTransformed(Globals::fontManager.get("bold"), label->getWorldTransformation(), currentMonster.name, Vector4f(0.95686f, 0.99608f, 0.98039f, 1.0f), 0.05f);
+		Fontrenderer::Get().drawBuffer();
+	});*/
+
+	label = label->getParent()->addChild<Label, CharacterSet>(Globals::fontManager.get("dialog"));
+	label->setPosition(0.0f, 0.0f, 0.0f);
+	label->setScale(1.0f, 1.0f, 1.0f);
+	label->translateRelative(10.0f, 10.0f, 0.0f);
+	label->updateWorldTransformation();
+	label->setName("level");
+	label->setColor(Vector4f(0.95686f, 0.99608f, 0.98039f, 1.0f));
+	label->setSize(0.045f);
+
+	label = label->getParent()->addChild<Label, CharacterSet>(Globals::fontManager.get("dialog"));
+	label->setPosition(1.0f, 0.0f, 0.0f);
+	label->setScale(1.0f, 1.0f, 1.0f);
+	label->translateRelative(-10.0f, 10.0f, 0.0f);
+	label->updateWorldTransformation();
+	label->setName("element");
+	label->setColor(Vector4f(0.95686f, 0.99608f, 0.98039f, 1.0f));
+	label->setSize(0.045f);
+	
+	//add bar
+	widgteMH = widgteMH->getParent()->addChild<WidgetMH>();
+	widgteMH->setPosition(0.0f, 0.0f, 0.0f);
+	widgteMH->updateWorldTransformation();
+
+	widgteMH = widgteMH->addChild<WidgetMH>();
+	widgteMH->setPosition(0.0f, 0.0f, 0.0f);
+	widgteMH->translateRelative(10.0f, 6.0f, 0.0f);
+	//widgteMH->scaleAbsolute(100.0f, 5.0f, 1.0f);
+	widgteMH->updateWorldTransformation();
+
+	widgteMH = widgteMH->getParent()->addChild<WidgetMH>();
+	widgteMH->setPosition(0.0f, 0.0f, 0.0f);
+	widgteMH->translateRelative(10.0f, 6.0f, 0.0f);
+	//widgteMH->scaleAbsolute(100.0f, 5.0f, 1.0f);
+	widgteMH->updateWorldTransformation();
 }

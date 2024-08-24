@@ -723,9 +723,9 @@ Vector3f Matrix4f::getScale() const {
 }
 
 Matrix4f Matrix4f::getRotation() const {
-	float scaleX = 1.0f / sqrtf(mtx[0][0] * mtx[0][0] + mtx[0][1] * mtx[0][1] + mtx[0][2] * mtx[0][2]);
-	float scaleY = 1.0f / sqrtf(mtx[1][0] * mtx[1][0] + mtx[1][1] * mtx[1][1] + mtx[1][2] * mtx[1][2]);
-	float scaleZ = 1.0f / sqrtf(mtx[2][0] * mtx[2][0] + mtx[2][1] * mtx[2][1] + mtx[2][2] * mtx[2][2]);
+	float scaleX = 1.0f / sqrtf(mtx[0][0] * mtx[0][0] + mtx[1][0] * mtx[1][0] + mtx[2][0] * mtx[2][0]);
+	float scaleY = 1.0f / sqrtf(mtx[0][1] * mtx[0][1] + mtx[1][1] * mtx[1][1] + mtx[2][1] * mtx[2][1]);
+	float scaleZ = 1.0f / sqrtf(mtx[0][2] * mtx[0][2] + mtx[1][2] * mtx[1][2] + mtx[2][2] * mtx[2][2]);
 
 	return Matrix4f(mtx[0][0] * scaleX, mtx[1][0] * scaleX, mtx[2][0] * scaleX, 0.0f,
 		            mtx[0][1] * scaleY, mtx[1][1] * scaleY, mtx[2][1] * scaleY, 0.0f,
@@ -2520,6 +2520,16 @@ Vector2f::Vector2f(float array[2]) {
 	vec[1] = array[1];
 }
 
+Vector2f::Vector2f(const Vector3f& _vec) {
+	vec[0] = _vec[0];
+	vec[1] = _vec[1];
+}
+
+Vector2f::Vector2f(const Vector4f& _vec) {
+	vec[0] = _vec[0];
+	vec[1] = _vec[1];
+}
+
 void Vector2f::set(float x_, float y_) {
 	vec[0] = x_, vec[1] = y_;
 }
@@ -3400,8 +3410,9 @@ void Quaternion::fromMatrix(const Matrix4f &m) {
 		q[j] = (m[j][i] + m[i][j]) * s;
 		q[k] = (m[k][i] + m[i][k]) * s;
 	}
-
+	//float invMag = 1.0f / sqrtf(q[3] * q[3] + q[0] * q[0] + q[1] * q[1] + q[2] * q[2]);
 	quat[0] = q[0], quat[1] = q[1], quat[2] = q[2], quat[3] = q[3];
+	
 }
 
 //https://math.stackexchange.com/questions/2975109/how-to-convert-euler-angles-to-quaternions-and-get-the-same-euler-angles-back-fr
@@ -3504,41 +3515,34 @@ void Quaternion::rotate(float x, float y, float z, float w) {
 }
 
 void Quaternion::toPitchYawRoll(float& pitch, float& yaw, float& roll) const {
-	//Matrix4f m = toMatrix4f();
-	//m.toHeadPitchRoll(yaw, pitch, roll);
-	//yaw = yaw < 0.0f ? yaw + 360.0f : yaw;
+	float const y = 2.0f * (quat[1] * quat[2] + quat[3] * quat[0]);
+	float const x = quat[3] * quat[3] - quat[0] * quat[0] - quat[1] * quat[1] + quat[2] * quat[2];
+	if (Math::Equals(y, 0.0f) && Math::Equals(x, 0.0f)) {
+		pitch = 2.0f * std::atan2f(quat[0], quat[3]) * _180_ON_PI;
+	}
 
-	float yy = quat[1] * quat[1];
-	float zz = quat[2] * quat[2];
-	float ww = quat[2] * quat[2];
-
-	float t5 = 1.0f - 2.0f * (quat[0] * quat[0] + yy);
-	float t4 = 2.0f * (quat[0] * quat[2] - quat[3] * quat[1]);
-
-	float t0 = 1.0f - 2.0f * (zz + ww);
-	float t1 = 2.0f * (quat[1] * quat[2] + quat[0] * quat[3]);
-
-	float t3 = 1.0f - 2.0f * (zz + yy);
-	float t2 = 2.0f * (quat[2] * quat[3] + quat[0] * quat[1]);
-
-	roll = fmod(360.0f - atan2f(t2, t3) * _180_ON_PI, 360.0f);
-	pitch = fmod(atan2f(t1, t0) * _180_ON_PI + 180.0f, 360.0f);
-	yaw = atan2f(t4, t5) * _180_ON_PI;
-	yaw = yaw < 0.0f ? yaw + 360.0f : yaw;
+	pitch = std::atan2f(y, x) * _180_ON_PI;
+	yaw = std::asinf(Math::Clamp(-2.0f * (quat[0] * quat[2] - quat[3] * quat[1]), -1.0f, 1.0f)) * _180_ON_PI;
+	roll = 360.0f - fmod(360.0f - std::atan2f(2.0f * (quat[0] * quat[1] + quat[3] * quat[2]), quat[3] * quat[3] + quat[0] * quat[0] - quat[1] * quat[1] - quat[2] * quat[2]) * _180_ON_PI, 360.0f);
 }
 
 float Quaternion::getPitch() const {
-	return fmod(atan2f(2.0f * (quat[1] * quat[2] + quat[0] * quat[3]), -2.0f * (quat[2] * quat[2] + quat[3] * quat[3]) + 1.0f) * _180_ON_PI + 180.0f, 360.0f);
+	float const y = 2.0f * (quat[1] * quat[2] + quat[3] * quat[0]);
+	float const x = quat[3] * quat[3] - quat[0] * quat[0] - quat[1] * quat[1] + quat[2] * quat[2];
+	if (Math::Equals(y, 0.0f) && Math::Equals(x, 0.0f)) {
+		return 2.0f * std::atan2f(quat[0], quat[3]) * _180_ON_PI;
+	}
+	
+	return std::atan2f(y, x) * _180_ON_PI;
 }
 
 float Quaternion::getYaw() const {
-	//float yaw = atan2f(2.0f * (quat[0] * quat[2] - quat[3] * quat[1]), 1.0f - 2.0f * (quat[0] * quat[0] + quat[1] * quat[1])) * _180_ON_PI;
-	//return yaw < 0.0f ? yaw + 360.0f : yaw;
-	return 2 * acosf(quat[3]) * _180_ON_PI;
+	return std::asinf(Math::Clamp(-2.0f * (quat[0] * quat[2] - quat[3] * quat[1]), -1.0f, 1.0f)) * _180_ON_PI;
 }
 
 float Quaternion::getRoll() const {
-	return  fmod(360.0f - atan2f(2.0f * (quat[2] * quat[3] + quat[0] * quat[1]), -2.0f * (quat[1] * quat[1] + quat[2] * quat[2]) + 1.0f) * _180_ON_PI, 360.0f);
+	//return 360.0f - fmod(360.0f - std::atan2f(2.0f * (quat[0] * quat[1] + quat[3] * quat[2]), quat[3] * quat[3] + quat[0] * quat[0] - quat[1] * quat[1] - quat[2] * quat[2]) * _180_ON_PI, 360.0f);
+	return std::atan2f(2.0f * (quat[0] * quat[1] + quat[3] * quat[2]), quat[3] * quat[3] + quat[0] * quat[0] - quat[1] * quat[1] - quat[2] * quat[2]) * _180_ON_PI;
 }
 
 void Quaternion::toAxisAngle(Vector3f &axis, float &degrees) const {

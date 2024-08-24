@@ -318,6 +318,34 @@ void Batchrenderer::addHexagonFlip(Vector4f posSize, Vector4f color, unsigned in
 	indexCount += 12;
 }
 
+void Batchrenderer::addQuad(Vector2f vertices[4], Vector4f texPosSize, Vector4f color, unsigned int frame) {
+	if (indexCount >= m_maxIndex) {
+		m_drawRaw ? drawBufferRaw() : drawBuffer();
+	}
+
+	bufferPtr->posTex = { vertices[0][0], vertices[0][1],  texPosSize[0],  texPosSize[1] };
+	bufferPtr->color = { color[0], color[1], color[2], color[3] };
+	bufferPtr->frame = frame;
+	bufferPtr++;
+
+	bufferPtr->posTex = { vertices[1][0], vertices[1][1],  texPosSize[0] + texPosSize[2],  texPosSize[1] };
+	bufferPtr->color = { color[0], color[1], color[2], color[3] };
+	bufferPtr->frame = frame;
+	bufferPtr++;
+
+	bufferPtr->posTex = { vertices[2][0], vertices[2][1],  texPosSize[0] + texPosSize[2],  texPosSize[1] + texPosSize[3] };
+	bufferPtr->color = { color[0], color[1], color[2], color[3] };
+	bufferPtr->frame = frame;
+	bufferPtr++;
+
+	bufferPtr->posTex = { vertices[3][0], vertices[3][1],  texPosSize[0],  texPosSize[1] + texPosSize[3] };
+	bufferPtr->color = { color[0], color[1], color[2], color[3] };
+	bufferPtr->frame = frame;
+	bufferPtr++;
+
+	indexCount += 6;
+}
+
 void Batchrenderer::addRotatedQuadRH(Vector4f posSize, float angle, float rotX, float rotY, Vector4f texPosSize, Vector4f color, unsigned int frame) {
 	
 	if (indexCount >= m_maxIndex) {

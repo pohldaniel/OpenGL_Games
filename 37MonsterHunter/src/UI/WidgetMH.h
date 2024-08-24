@@ -4,6 +4,7 @@
 #include <memory>
 #include <engine/Vector.h>
 #include <engine/Sprite.h>
+#include <engine/utils/StringHash.h>
 
 class ObjectMH {
 
@@ -63,19 +64,53 @@ public:
 	void eraseChild(NodeMH* child);
 	NodeMH* addChild(NodeMH* node);
 	template <class T> T* addChild();
+	template <class T, class U> T* addChild(const U& ref);
 	NodeMH* getParent() const;
 	void setParent(NodeMH* node);
+
+	void setName(const std::string& name);
+	template <class T> T* findChild(std::string name, bool recursive = true) const;
+	template <class T> T* findChild(StringHash nameHash, bool recursive = true) const;
 
 protected:
 
 	mutable std::list<std::shared_ptr<NodeMH>> m_children;
 	NodeMH* m_parent;
+	StringHash m_nameHash;
 };
 
 template <class T> T* NodeMH::addChild() {
 	m_children.emplace_back(std::shared_ptr<NodeMH>(new T()));
 	m_children.back()->m_parent = this;
 	return static_cast<T*>(m_children.back().get());
+}
+
+template <class T, class U> T* NodeMH::addChild(const U& ref) {	
+	m_children.emplace_back(std::unique_ptr<T>(new T(ref)));
+	m_children.back()->m_parent = this;
+	return static_cast<T*>(m_children.back().get());
+}
+
+template <class T> T* NodeMH::findChild(std::string name, bool recursive) const {
+	return findChild<T>(StringHash(name), recursive);
+}
+
+template <class T> T* NodeMH::findChild(StringHash nameHash, bool recursive) const {
+	for (auto it = m_children.begin(); it != m_children.end(); ++it) {
+		NodeMH* child = (*it).get();
+		if (!child) {
+			continue;
+		}
+
+		if (child->m_nameHash == nameHash)
+			return dynamic_cast<T*>(child);
+		else if (recursive && child->m_children.size()) {
+			NodeMH* result = child->findChild<T>(nameHash, recursive);
+			if (result)
+				return dynamic_cast<T*>(result);
+		}
+	}
+	return nullptr;
 }
 
 class WidgetMH : public NodeMH, public Sprite {
@@ -89,7 +124,7 @@ public:
 	WidgetMH& operator=(WidgetMH&& rhs);
 	virtual ~WidgetMH();
 
-	//virtual void draw();
+	virtual void draw();
 	//virtual void processInput();
 
 	void setScale(const float sx, const float sy, const float sz) override;
@@ -134,6 +169,13 @@ public:
 	const Quaternion& getWorldOrientation(bool update = true) const;
 	void updateWorldTransformation() const;
 
+	const Matrix4f getWorldTransformationWithTranslation(const Vector3f& trans) const;
+	const Matrix4f getWorldTransformationWithTranslation(float dx, float dy, float dz) const;
+
+	const Matrix4f getWorldTransformationWithScale(float sx, float sy, float sz, bool relative = true) const;
+	const Matrix4f getWorldTransformationWithScale(const Vector3f& scale, bool relative = true) const;
+	const Matrix4f getWorldTransformationWithScale(const float s, bool relative = true) const;
+
 protected:
 
 	void OnTransformChanged();
@@ -146,3 +188,4 @@ private:
 	static Quaternion WorldOrientation;
 	mutable bool m_isDirty;
 };
+

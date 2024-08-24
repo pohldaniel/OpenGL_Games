@@ -1,20 +1,9 @@
 #pragma once
 #include <ordered_map.h>
 #include <engine/Sprite.h>
-#include "WidgetMH.h"
-
-enum Edge {
-	ALL,
-	BOTTOM_LEFT,
-	TOP_LEFT,
-	TOP_RIGHT,
-	BOTTOM_RIGHT,
-	EDGE_RIGHT,
-	EDGE_LEFT,
-	TOP,
-	BOTTOM,
-	EDGE_NONE
-};
+#include <UI/WidgetMH.h>
+#include <UI/Label.h>
+#include <UI/Surface.h>
 
 struct MonsterEntry {
 	std::string name;
@@ -50,7 +39,7 @@ struct AttackData {
 	unsigned int graphic;
 };
 
-class MonsterIndex : public WidgetMH {
+class MonsterIndex : public Surface {
 
 public:
 
@@ -95,4 +84,5 @@ private:
 	std::unordered_map<std::string, float> m_maxStats;
 
 	static Sprite SurfaceBar;
+	bool m_rotate;
 };

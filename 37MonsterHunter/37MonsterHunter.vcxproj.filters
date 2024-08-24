@@ -73,6 +73,9 @@
     <Filter Include="engine\octree">
       <UniqueIdentifier>{13ef4786-41bd-47d2-b91d-addce13f8f7d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\UI">
+      <UniqueIdentifier>{ebc1e69b-14c4-4b40-acc7-2b955252bf6f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\input\ApplicationEventListener.cpp">
@@ -480,8 +483,20 @@
     <ClCompile Include="src\Evolve.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\WidgetMH.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="src\UI\WidgetMH.cpp">
+      <Filter>Source Files\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\UI\Label.cpp">
+      <Filter>Source Files\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\UI\Icon.cpp">
+      <Filter>Source Files\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\UI\Surface.cpp">
+      <Filter>Source Files\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\UI\Bar.cpp">
+      <Filter>Source Files\UI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -923,8 +938,20 @@
     <ClInclude Include="src\Evolve.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\WidgetMH.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="src\UI\WidgetMH.h">
+      <Filter>Source Files\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UI\Label.h">
+      <Filter>Source Files\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UI\Icon.h">
+      <Filter>Source Files\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UI\Surface.h">
+      <Filter>Source Files\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UI\Bar.h">
+      <Filter>Source Files\UI</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

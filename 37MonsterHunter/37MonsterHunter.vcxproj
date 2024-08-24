@@ -238,6 +238,11 @@
     <ClCompile Include="src\States\StateMachine.cpp" />
     <ClCompile Include="src\States\Tmx.cpp" />
     <ClCompile Include="src\Timer.cpp" />
+    <ClCompile Include="src\UI\Bar.cpp" />
+    <ClCompile Include="src\UI\Icon.cpp" />
+    <ClCompile Include="src\UI\Label.cpp" />
+    <ClCompile Include="src\UI\Surface.cpp" />
+    <ClCompile Include="src\UI\WidgetMH.cpp" />
     <ClCompile Include="src\Utils\Rasterizer.cpp" />
     <ClCompile Include="engine\ArrayBuffer.cpp" />
     <ClCompile Include="engine\Batchrenderer.cpp" />
@@ -298,7 +303,6 @@
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\States\Menu.cpp" />
     <ClCompile Include="src\Utils\BinaryIO.cpp" />
-    <ClCompile Include="src\WidgetMH.cpp" />
     <ClCompile Include="src\Zone.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -430,6 +434,11 @@
     <ClInclude Include="src\States\StateMachine.h" />
     <ClInclude Include="src\States\Tmx.h" />
     <ClInclude Include="src\Timer.h" />
+    <ClInclude Include="src\UI\Bar.h" />
+    <ClInclude Include="src\UI\Icon.h" />
+    <ClInclude Include="src\UI\Label.h" />
+    <ClInclude Include="src\UI\Surface.h" />
+    <ClInclude Include="src\UI\WidgetMH.h" />
     <ClInclude Include="src\Utils\Rasterizer.h" />
     <ClInclude Include="Physics\BspConverter.h" />
     <ClInclude Include="Physics\BspLoader.h" />
@@ -447,7 +456,6 @@
     <ClInclude Include="Miniball\Miniball.h" />
     <ClInclude Include="src\States\Menu.h" />
     <ClInclude Include="src\Utils\BinaryIO.h" />
-    <ClInclude Include="src\WidgetMH.h" />
     <ClInclude Include="src\Zone.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

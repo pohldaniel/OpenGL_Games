@@ -723,9 +723,9 @@ Vector3f Matrix4f::getScale() const {
 }
 
 Matrix4f Matrix4f::getRotation() const {
-	float scaleX = 1.0f / sqrtf(mtx[0][0] * mtx[0][0] + mtx[0][1] * mtx[0][1] + mtx[0][2] * mtx[0][2]);
-	float scaleY = 1.0f / sqrtf(mtx[1][0] * mtx[1][0] + mtx[1][1] * mtx[1][1] + mtx[1][2] * mtx[1][2]);
-	float scaleZ = 1.0f / sqrtf(mtx[2][0] * mtx[2][0] + mtx[2][1] * mtx[2][1] + mtx[2][2] * mtx[2][2]);
+	float scaleX = 1.0f / sqrtf(mtx[0][0] * mtx[0][0] + mtx[1][0] * mtx[1][0] + mtx[2][0] * mtx[2][0]);
+	float scaleY = 1.0f / sqrtf(mtx[0][1] * mtx[0][1] + mtx[1][1] * mtx[1][1] + mtx[2][1] * mtx[2][1]);
+	float scaleZ = 1.0f / sqrtf(mtx[0][2] * mtx[0][2] + mtx[1][2] * mtx[1][2] + mtx[2][2] * mtx[2][2]);
 
 	return Matrix4f(mtx[0][0] * scaleX, mtx[1][0] * scaleX, mtx[2][0] * scaleX, 0.0f,
 		            mtx[0][1] * scaleY, mtx[1][1] * scaleY, mtx[2][1] * scaleY, 0.0f,
@@ -3508,7 +3508,7 @@ float Quaternion::getPitch() const {
 float Quaternion::getYaw() const {
 	//float yaw = atan2f(2.0f * (quat[0] * quat[2] - quat[3] * quat[1]), 1.0f - 2.0f * (quat[0] * quat[0] + quat[1] * quat[1])) * _180_ON_PI;
 	//return yaw < 0.0f ? yaw + 360.0f : yaw;
-	return 2 * acosf(quat[3]) * _180_ON_PI;
+	return std::asinf(Math::Clamp(-2.0f * (quat[0] * quat[2] - quat[3] * quat[1]), -1.0f, 1.0f)) * _180_ON_PI;
 }
 
 float Quaternion::getRoll() const {
