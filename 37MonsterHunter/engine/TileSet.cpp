@@ -522,6 +522,14 @@ void TileSet::bind(unsigned int unit) const {
 	glBindTexture(GL_TEXTURE_2D_ARRAY, m_atlas);
 }
 
+void TileSet::setLinear() {
+	Spritesheet::SetFilter(m_atlas, GL_LINEAR);
+}
+
+void TileSet::setLinearMipMap() {
+	Spritesheet::SetFilter(m_atlas, GL_LINEAR_MIPMAP_LINEAR);
+}
+
 ///////////////////////TileSetManager//////////////////////////
 TileSetManager TileSetManager::s_instance;
 

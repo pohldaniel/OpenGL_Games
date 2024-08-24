@@ -72,7 +72,8 @@ public:
 	void cleanup();
 	void markForDelete();
 	void bind(unsigned int unit = 0u) const;
-
+	void setLinear();
+	void setLinearMipMap();
 private:
 
 	unsigned int m_atlas;

@@ -68,10 +68,9 @@ void Surface::setShader(Shader* shader) {
 
 void Surface::draw() {
 	if (m_draw) {
-		m_draw();
-	}else {
-		drawDefault();
+		return m_draw();
 	}
+	drawDefault();
 }
 
 void Surface::drawDefault() {

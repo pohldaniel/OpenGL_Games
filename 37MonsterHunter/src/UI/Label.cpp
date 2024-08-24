@@ -57,10 +57,9 @@ Label::~Label() {
 
 void Label::draw() {
 	if (m_draw) {
-		m_draw();
-	}else {
-		drawDefault();
+		return m_draw();
 	}
+	drawDefault();
 }
 
 void Label::setDrawFunction(std::function<void()> fun) {
@@ -86,7 +85,6 @@ void Label::setOffsetX(const float offsetX) {
 void Label::setOffsetY(const float offsetY) {
 	m_offsetY = offsetY;
 }
-
 
 void Label::drawDefault() {
 	characterSet.bind();
