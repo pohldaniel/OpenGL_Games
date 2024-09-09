@@ -19,7 +19,7 @@ void main(){
 	colorOut.b /= clamp(distToCentreSquared*2,0,1);
 	colorOut.g /= clamp(distToCentreSquared*2,0,1);
 
-	float maxDist = 6f;
+	float maxDist = 6.0;
 	vec4 a = colorOut;
 	vec4 b = vec4(0.2,0.2,0.2,1);
 	float k = min((distToCentreSquared/maxDist),1);
