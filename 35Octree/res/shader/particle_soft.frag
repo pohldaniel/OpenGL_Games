@@ -12,6 +12,8 @@ uniform vec4 u_FMinusN_FPlusN_FTimesNTimes2_N;
 
 uniform sampler2D uDepthTextureComponent24;
 
+out vec4 colorOut;
+
 float DepthToWorld_optimized(float z){
 	float z_aux = z * 2.0 - 1.0;
 	return u_FMinusN_FPlusN_FTimesNTimes2_N.z / (u_FMinusN_FPlusN_FTimesNTimes2_N.y - z_aux * u_FMinusN_FPlusN_FTimesNTimes2_N.x);
@@ -39,5 +41,5 @@ void main() {
 	result.a *= distance_01 * cameraDistance_01;
 
                 
-	gl_FragColor = result;
+	colorOut = result;
 }

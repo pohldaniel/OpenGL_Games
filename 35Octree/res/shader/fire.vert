@@ -1,4 +1,5 @@
 #version 430 core
+
 layout(location = 0) in vec4 i_position;
 
 uniform mat4 u_view = mat4(1.0);

@@ -705,5 +705,5 @@ void main(){
 	// * sRGB conversion
 	rayMarchColor.rgb = encodeSRGB(rayMarchColor.rgb);
 
-	gl_FragColor = vec4(mix(diffuseColor.rgb, rayMarchColor.rgb, vec3(rayMarchColor.a)), 1);
+	FragColor = vec4(mix(diffuseColor.rgb, rayMarchColor.rgb, vec3(rayMarchColor.a)), 1);
 }
