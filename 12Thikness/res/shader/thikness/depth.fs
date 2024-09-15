@@ -4,6 +4,8 @@ uniform float DepthScale;
 in vec3 vNormal;
 in vec3 vPosition;
 
+out vec4 colorOut;
+
 void main()
 {
     vec3 N = normalize(vNormal);
@@ -14,5 +16,5 @@ void main()
 
     float depth = DepthScale * gl_FragCoord.z;
 
-    gl_FragColor = vec4(depth, fresnel, 0, 0);
+    colorOut = vec4(depth, fresnel, 0, 0);
 }

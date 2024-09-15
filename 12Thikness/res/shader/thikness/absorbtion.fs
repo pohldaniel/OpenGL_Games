@@ -5,6 +5,8 @@ uniform vec3 DiffuseMaterial;
 
 in vec4 sc;
 
+out vec4 colorOut;
+
 void main() {
 
 	vec4 ndc = sc/sc.w;
@@ -17,5 +19,5 @@ void main() {
     float sigma = 30.0;
     float fresnel = 1.0 - texture2D(Sampler, ndc.xy ).g;
     float intensity = fresnel * exp(-sigma * thickness);
-    gl_FragColor = vec4(intensity * DiffuseMaterial, 1.0);
+    colorOut = vec4(intensity * DiffuseMaterial, 1.0);
 }
