@@ -195,7 +195,6 @@ void NodeMH::setParent(NodeMH* node) {
 	}
 }
 
-
 void NodeMH::setName(const std::string& name) {
 	m_nameHash = StringHash(name);
 }

@@ -268,7 +268,7 @@ void MonsterIndex::draw() {
 			}
 
 			index++;
-		}		
+		}	
 	}
 
 #elif COMPARE
@@ -724,7 +724,16 @@ void MonsterIndex::initUI(float viewWidth, float viewHeight) {
 	label->setSize(0.045f);
 	label->setLabel("Stats");
 
-	
+	label = surface->addChild<Label>(Globals::fontManager.get("dialog"));
+	label->setPosition(0.525f, 0.5f, 0.0f);
+	label->translateRelative(0.0f, -lineHeight * 0.5f, 0.0f);
+	label->updateWorldTransformation();
+	label->setColor(Vector4f(0.95686f, 0.99608f, 0.98039f, 1.0f));
+	label->setSize(0.045f);
+	label->setLabel("Ability");
+
+	BarUI* bar;
+	//const TextureRect& emptyRect = TileSetManager::Get().getTileSet("monster").getTextureRects()[256];
 	for (size_t i = 0; i < m_stats.size(); i++) {
 		const TextureRect& rect = TileSetManager::Get().getTileSet("monster_icon").getTextureRects()[23 + i];
 		Icon* icon = surface->addChild<Icon>(rect);
@@ -741,5 +750,11 @@ void MonsterIndex::initUI(float viewWidth, float viewHeight) {
 		label->setColor(Vector4f(0.95686f, 0.99608f, 0.98039f, 1.0f));
 		label->setSize(0.045f);
 		label->setLabel(m_stats[i]);
+
+		bar = surface->addChild<BarUI>(TileSetManager::Get().getTileSet("monster").getTextureRects()[256]);
+		bar->setPosition(0.025f, 0.5f, 0.0f);	
+		bar->translateRelative(30.0f, -37.5f - i * statHeight - lineHeight * 0.4f, 0.0f);
+		bar->scaleAbsolute(200.0f, 5.0f, 1.0f);
+		bar->updateWorldTransformation();
 	}
 }

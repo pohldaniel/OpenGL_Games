@@ -5,6 +5,7 @@
 #include <UI/Label.h>
 #include <UI/Surface.h>
 #include <UI/Icon.h>
+#include <UI/Bar.h>
 
 struct MonsterEntry {
 	std::string name;
