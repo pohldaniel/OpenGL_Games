@@ -82,7 +82,7 @@ private:
 	float m_elapsedTime;
 	int m_currentFrame;
 	int m_frameCount;
-
+	std::string m_stateLabels[6];
 	std::unordered_map<std::string, float> m_maxStats;
 
 	static Sprite SurfaceBar;

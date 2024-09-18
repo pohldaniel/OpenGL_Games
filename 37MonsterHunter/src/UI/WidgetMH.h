@@ -102,7 +102,7 @@ template <class T> T* NodeMH::findChild(StringHash nameHash, bool recursive) con
 			continue;
 		}
 
-		if (child->m_nameHash == nameHash)
+		if (child->m_nameHash == nameHash && dynamic_cast<T*>(child) != nullptr)
 			return dynamic_cast<T*>(child);
 		else if (recursive && child->m_children.size()) {
 			NodeMH* result = child->findChild<T>(nameHash, recursive);
