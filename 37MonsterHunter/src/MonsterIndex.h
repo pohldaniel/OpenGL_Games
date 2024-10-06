@@ -15,7 +15,7 @@ struct MonsterEntry {
 	float experience;
 	bool selected;
 
-	void resetStates();
+	void resetStats();
 	void unselect();
 };
 
@@ -53,7 +53,10 @@ public:
 	void processInput();
 	void setViewWidth(float viewWidth);
 	void setViewHeight(float viewHeight);
-	void resetStates();
+	void resetStats();
+	void addAbilities();
+	void eraseAbilities();
+	void resetAnimation();
 	void unselect();
 	void reset();
 	void initUI(float viewWidth, float viewHeight);
@@ -68,8 +71,7 @@ public:
 
 private:
 
-	void resetAnimation();
-
+	
 	int m_visibleItems;	
 
 	std::vector<std::string> m_stats;

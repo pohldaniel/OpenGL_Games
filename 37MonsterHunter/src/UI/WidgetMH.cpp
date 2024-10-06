@@ -116,7 +116,7 @@ const float ObjectMH::getOrientation() const {
 	return m_orientation;
 }
 
-NodeMH::NodeMH() : m_parent(nullptr) {
+NodeMH::NodeMH() : m_parent(nullptr), m_index(-1) {
 
 }
 
@@ -126,6 +126,8 @@ NodeMH::NodeMH(const NodeMH& rhs) {
 		children->m_parent = this;
 	}
 	m_parent = rhs.m_parent;
+	m_nameHash = rhs.m_nameHash;
+	m_index = rhs.m_index;
 }
 
 NodeMH::NodeMH(NodeMH&& rhs) {
@@ -134,6 +136,8 @@ NodeMH::NodeMH(NodeMH&& rhs) {
 		children->m_parent = this;
 	}
 	m_parent = rhs.m_parent;
+	m_nameHash = rhs.m_nameHash;
+	m_index = rhs.m_index;
 }
 
 NodeMH& NodeMH::operator=(const NodeMH& rhs) {
@@ -142,6 +146,8 @@ NodeMH& NodeMH::operator=(const NodeMH& rhs) {
 		children->m_parent = this;
 	}
 	m_parent = rhs.m_parent;
+	m_nameHash = rhs.m_nameHash;
+	m_index = rhs.m_index;
 	return *this;
 }
 
@@ -151,6 +157,8 @@ NodeMH& NodeMH::operator=(NodeMH&& rhs) {
 		children->m_parent = this;
 	}
 	m_parent = rhs.m_parent;
+	m_nameHash = rhs.m_nameHash;
+	m_index = rhs.m_index;
 	return *this;
 }
 
@@ -170,6 +178,10 @@ void NodeMH::eraseChild(NodeMH* child) {
 	m_children.erase(std::remove_if(m_children.begin(), m_children.end(), [child](const std::shared_ptr<NodeMH>& node) { return node.get() == child; }), m_children.end());
 }
 
+void NodeMH::eraseChild(const int index) {
+	m_children.erase(std::remove_if(m_children.begin(), m_children.end(), [index](const std::shared_ptr<NodeMH>& node) { return node->getIndex() == index; }), m_children.end());
+}
+
 NodeMH* NodeMH::addChild(NodeMH* node) {
 	m_children.emplace_back(std::shared_ptr<NodeMH>(node));
 	m_children.back()->m_parent = this;
@@ -178,6 +190,10 @@ NodeMH* NodeMH::addChild(NodeMH* node) {
 
 NodeMH* NodeMH::getParent() const {
 	return m_parent;
+}
+
+const int NodeMH::getIndex() const {
+	return m_index;
 }
 
 void NodeMH::setParent(NodeMH* node) {
@@ -197,6 +213,10 @@ void NodeMH::setParent(NodeMH* node) {
 
 void NodeMH::setName(const std::string& name) {
 	m_nameHash = StringHash(name);
+}
+
+void NodeMH::setIndex(const int index) {
+	m_index = index;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -333,6 +353,42 @@ const Matrix4f WidgetMH::getWorldTransformationWithScale(const Vector3f& scale, 
 
 const Matrix4f WidgetMH::getWorldTransformationWithScale(const float s, bool relative) const {
 	return getWorldTransformationWithScale(s, s, s, relative);
+}
+
+const Matrix4f WidgetMH::getWorldTransformationWithScaleAndTranslation(float sx, float sy, float sz, float dx, float dy, float dz, bool relative) const {
+	Matrix4f mtx = getWorldTransformation();
+	if (m_parent && relative) {
+		const Vector3f& invScale = Vector3f::Inverse(static_cast<WidgetMH*>(m_parent)->getWorldScale());
+		sx = sx * invScale[0];
+		sy = sy * invScale[1];
+		sz = sz * invScale[2];
+
+		mtx[0][0] = mtx[0][0] * sx;  mtx[1][0] = mtx[1][0] * sy; mtx[2][0] = mtx[2][0] * sz;
+		mtx[0][1] = mtx[0][1] * sx;  mtx[1][1] = mtx[1][1] * sy; mtx[2][1] = mtx[2][1] * sz;
+		mtx[0][2] = mtx[0][2] * sx;  mtx[1][2] = mtx[1][2] * sy; mtx[2][2] = mtx[2][2] * sz;
+
+		dx = dx * invScale[0];
+		dy = dy * invScale[1];
+		dz = dz * invScale[2];
+
+		mtx[3][0] = mtx[3][0] + dx * mtx[0][0] + dy * mtx[1][0] + dz * mtx[2][0];
+		mtx[3][1] = mtx[3][1] + dx * mtx[0][1] + dy * mtx[1][1] + dz * mtx[2][1];
+		mtx[3][2] = mtx[3][2] + dx * mtx[0][2] + dy * mtx[1][2] + dz * mtx[2][2];
+
+	}else {
+		mtx[0][0] = mtx[0][0] * sx;  mtx[1][0] = mtx[1][0] * sy; mtx[2][0] = mtx[2][0] * sz;
+		mtx[0][1] = mtx[0][1] * sx;  mtx[1][1] = mtx[1][1] * sy; mtx[2][1] = mtx[2][1] * sz;
+		mtx[0][2] = mtx[0][2] * sx;  mtx[1][2] = mtx[1][2] * sy; mtx[2][2] = mtx[2][2] * sz;
+
+		mtx[3][0] = mtx[3][0] + dx * mtx[0][0] + dy * mtx[1][0] + dz * mtx[2][0];
+		mtx[3][1] = mtx[3][1] + dx * mtx[0][1] + dy * mtx[1][1] + dz * mtx[2][1];
+		mtx[3][2] = mtx[3][2] + dx * mtx[0][2] + dy * mtx[1][2] + dz * mtx[2][2];
+	}
+	return mtx;
+}
+
+const Matrix4f WidgetMH::getWorldTransformationWithScaleAndTranslation(const Vector3f& scale, const Vector3f& trans, bool relative) const {
+	return getWorldTransformationWithScaleAndTranslation(scale[0], scale[1], scale[2], trans[0], trans[1], trans[2], relative);
 }
 
 void WidgetMH::updateWorldTransformation() const {

@@ -7,14 +7,14 @@
 #include "Application.h"
 #include "Globals.h"
 
-extern AssetManager<Shader> Globals::shaderManager = AssetManager<Shader>();
-extern AssetManager<Texture> Globals::textureManager = AssetManager<Texture>();
-extern AssetManager<Shape> Globals::shapeManager = AssetManager<Shape>();
-extern AssetManager<CharacterSet> Globals::fontManager = AssetManager<CharacterSet>();
-extern AssetManager<Spritesheet> Globals::spritesheetManager = AssetManager<Spritesheet>();
-extern AssetManager<SoundBuffer> Globals::soundManager = AssetManager<SoundBuffer>();
-extern AssetManager<MusicBuffer> Globals::musicManager = AssetManager<MusicBuffer>();
-extern AssetManager<AssimpAnimation> Globals::animationManager = AssetManager<AssimpAnimation>();extern AssetManager<Animation> Globals::animationManagerNew = AssetManager<Animation>();
+AssetManager<Shader> Globals::shaderManager = AssetManager<Shader>();
+AssetManager<Texture> Globals::textureManager = AssetManager<Texture>();
+AssetManager<Shape> Globals::shapeManager = AssetManager<Shape>();
+AssetManager<CharacterSet> Globals::fontManager = AssetManager<CharacterSet>();
+AssetManager<Spritesheet> Globals::spritesheetManager = AssetManager<Spritesheet>();
+AssetManager<SoundBuffer> Globals::soundManager = AssetManager<SoundBuffer>();
+AssetManager<MusicBuffer> Globals::musicManager = AssetManager<MusicBuffer>();
+AssetManager<AssimpAnimation> Globals::animationManager = AssetManager<AssimpAnimation>();AssetManager<Animation> Globals::animationManagerNew = AssetManager<Animation>();
 
 extern std::unique_ptr<Physics> Globals::physics = nullptr;
 extern Clock Globals::clock = Clock();

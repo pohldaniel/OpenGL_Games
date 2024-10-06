@@ -62,21 +62,25 @@ public:
 
 	std::list<std::shared_ptr<NodeMH>>& getChildren() const;
 	void eraseChild(NodeMH* child);
+	void eraseChild(const int index);
 	NodeMH* addChild(NodeMH* node);
 	template <class T> T* addChild();
 	template <class T, class U> T* addChild(const U& ref);
 	NodeMH* getParent() const;
 	void setParent(NodeMH* node);
-
+	const int getIndex() const;
 	void setName(const std::string& name);
+	void setIndex(const int index);
 	template <class T> T* findChild(std::string name, bool recursive = true) const;
 	template <class T> T* findChild(StringHash nameHash, bool recursive = true) const;
+	template <class T> T* findChild(const int index, bool recursive = true) const;
 
 protected:
 
 	mutable std::list<std::shared_ptr<NodeMH>> m_children;
 	NodeMH* m_parent;
 	StringHash m_nameHash;
+	int m_index;
 };
 
 template <class T> T* NodeMH::addChild() {
@@ -106,6 +110,24 @@ template <class T> T* NodeMH::findChild(StringHash nameHash, bool recursive) con
 			return dynamic_cast<T*>(child);
 		else if (recursive && child->m_children.size()) {
 			NodeMH* result = child->findChild<T>(nameHash, recursive);
+			if (result)
+				return dynamic_cast<T*>(result);
+		}
+	}
+	return nullptr;
+}
+
+template <class T> T* NodeMH::findChild(const int index, bool recursive) const {
+	for (auto it = m_children.begin(); it != m_children.end(); ++it) {
+		NodeMH* child = (*it).get();
+		if (!child) {
+			continue;
+		}
+
+		if (child->m_index == index && dynamic_cast<T*>(child) != nullptr)
+			return dynamic_cast<T*>(child);
+		else if (recursive && child->m_children.size()) {
+			NodeMH* result = child->findChild<T>(index, recursive);
 			if (result)
 				return dynamic_cast<T*>(result);
 		}
@@ -175,6 +197,9 @@ public:
 	const Matrix4f getWorldTransformationWithScale(float sx, float sy, float sz, bool relative = true) const;
 	const Matrix4f getWorldTransformationWithScale(const Vector3f& scale, bool relative = true) const;
 	const Matrix4f getWorldTransformationWithScale(const float s, bool relative = true) const;
+
+	const Matrix4f getWorldTransformationWithScaleAndTranslation(float sx, float sy, float sz, float dx, float dy, float dz, bool relative = true) const;
+	const Matrix4f getWorldTransformationWithScaleAndTranslation(const Vector3f& scale, const Vector3f& trans, bool relative = true) const;
 
 protected:
 

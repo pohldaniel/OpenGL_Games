@@ -145,7 +145,7 @@ void Evolve::startEvolution() {
 			if (m_curentMonsterIndex > 0) {
 				
 				MonsterIndex::Monsters[m_curentMonsterIndex].name = m_endMonster;
-				MonsterIndex::Monsters[m_curentMonsterIndex].resetStates();
+				MonsterIndex::Monsters[m_curentMonsterIndex].resetStats();
 			}
 			m_curentMonsterIndex = -1;
 			OnEvolveEnd();

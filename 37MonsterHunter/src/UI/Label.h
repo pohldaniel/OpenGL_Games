@@ -1,6 +1,7 @@
 #pragma once
 #include <functional>
 #include <engine/CharacterSet.h>
+#include <engine/Shader.h>
 #include <UI/WidgetMH.h>
 
 class Label : public WidgetMH {
@@ -23,15 +24,45 @@ public:
 	void setOffsetX(const float offsetX);
 	void setOffsetY(const float offsetY);
 
-private:
+protected:
 
-	void drawDefault();
-
-	std::function<void()> m_draw;
+	const CharacterSet& characterSet;
+	float m_offsetX, m_offsetY;
 	std::string m_label;
 	Vector4f m_color;
 	float m_size;
-	float m_offsetX, m_offsetY;
 
-	const CharacterSet& characterSet;
+private:
+
+	virtual void drawDefault();
+	std::function<void()> m_draw;
+};
+
+enum Edge : int;
+class TextFieldMH : public Label {
+
+public:
+
+	TextFieldMH(const CharacterSet& characterSet);
+	TextFieldMH(const TextFieldMH& rhs);
+	TextFieldMH& operator=(const TextFieldMH& rhs);
+	TextFieldMH(TextFieldMH&& rhs);
+	TextFieldMH& operator=(TextFieldMH&& rhs);
+	virtual ~TextFieldMH();
+
+	void setShader(Shader* shader);
+	void setBackgroundColor(const Vector4f& color);
+	void setEdge(Edge edge);
+	void setBorderRadius(float borderRadius);
+	void setPaddingX(const float paddingX);
+	void setPaddingY(const float paddingY);
+
+private:
+
+	void drawDefault() override;
+	Vector4f m_backgroundColor;
+	float m_paddingX, m_paddingY;
+	float m_borderRadius;
+	Edge m_edge;
+	Shader* m_shader;
 };

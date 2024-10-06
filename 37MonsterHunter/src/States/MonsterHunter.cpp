@@ -170,7 +170,7 @@ void MonsterHunter::update() {
 					if (character.getCharacterId() == "Nurse") {
 						m_dialogTree.setOnDialogFinished([&m_monsterIndex = m_monsterIndex, &m_zone = m_zone]() {
 							m_zone.getPlayer().unblock();
-							m_monsterIndex.resetStates();
+							m_monsterIndex.resetStats();
 						});
 					}else {
 						m_dialogTree.setOnDialogFinished([this, &character = character]() {
@@ -203,7 +203,8 @@ void MonsterHunter::update() {
 		m_indexOpen = !m_indexOpen;
 		if (m_indexOpen) {
 			m_zone.setAlpha(1.0f - 0.784f);
-			m_zone.getPlayer().block();			
+			m_zone.getPlayer().block();	
+			m_monsterIndex.addAbilities();
 		}else {
 			m_zone.setAlpha(1.0f);
 			m_zone.getPlayer().unblock();
@@ -301,7 +302,7 @@ void MonsterHunter::OnReEnter() {
 			m_lastCharacter = nullptr;
 			m_dialogTree.setOnDialogFinished([this]() {
 				m_zone.getPlayer().unblock();
-				m_monsterIndex.resetStates();
+				m_monsterIndex.resetStats();
 				checkForEvolution();
 			});
 

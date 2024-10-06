@@ -968,7 +968,7 @@ void Battle::setOpponentMonsters() {
 		m_cells.push_back({ positions[i][0], positions[i][1], 192.0f, 192.0f, static_cast<int>(MonsterIndex::MonsterData[MonsterIndex::Monsters[i].name].graphic * 16u), centers[i][0], centers[i][1], true, true });
 		m_monsters.push_back(Monster(m_cells.back(), MonsterIndex::Monsters[i]));
 	}
-	std::for_each(m_opponentMonsters.begin(), m_opponentMonsters.end(), std::mem_fn(&MonsterEntry::resetStates));
+	std::for_each(m_opponentMonsters.begin(), m_opponentMonsters.end(), std::mem_fn(&MonsterEntry::resetStats));
 
 	m_supplyIndexOpponent = std::max(std::min(2, static_cast<int>(m_opponentMonsters.size()) - 1), 0);
 	for (int i = 0; i < std::min(static_cast<int>(m_opponentMonsters.size()), 3); i++) {
@@ -990,7 +990,7 @@ void Battle::setOpponentMonsters(const std::vector<MonsterEntry>& monsters, bool
 		m_cells.push_back({ positions[i][0], positions[i][1], 192.0f, 192.0f, static_cast<int>(MonsterIndex::MonsterData[MonsterIndex::Monsters[i].name].graphic * 16u), centers[i][0], centers[i][1], true, true });
 		m_monsters.push_back(Monster(m_cells.back(), MonsterIndex::Monsters[i]));
 	}
-	std::for_each(m_opponentMonsters.begin(), m_opponentMonsters.end(), std::mem_fn(&MonsterEntry::resetStates));
+	std::for_each(m_opponentMonsters.begin(), m_opponentMonsters.end(), std::mem_fn(&MonsterEntry::resetStats));
 
 	m_supplyIndexOpponent = std::max(std::min(2, static_cast<int>(m_opponentMonsters.size()) - 1), 0);
 	for (int i = 0; i < std::min(static_cast<int>(m_opponentMonsters.size()), 3); i++) {

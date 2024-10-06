@@ -13,7 +13,7 @@ std::unordered_map<std::string, AttackData> MonsterIndex::_AttackData;
 std::unordered_map<std::string, Vector4f> MonsterIndex::ColorMap;
 Sprite MonsterIndex::SurfaceBar;
 
-void MonsterEntry::resetStates() {
+void MonsterEntry::resetStats() {
 	selected = false;
 	health = static_cast<float>(level * MonsterIndex::MonsterData[name].maxHealth);
 	energy = static_cast<float>(level * MonsterIndex::MonsterData[name].maxEnergy);
@@ -108,7 +108,7 @@ m_rotate(false){
 	Monsters.push_back({ "Cleaf", 3u , 300.0f, 0.0f, false });
 	Monsters.push_back({ "Charmadillo", 30u , 300.0f, 0.0f, false });
 
-	resetStates();
+	resetStats();
 
 	ColorMap["plant"] = { 0.39215f, 0.66274f, 0.56470f, 1.0f};
 	ColorMap["fire"] = { 0.97254f, 0.62745f, 0.37647f, 1.0f };
@@ -526,7 +526,7 @@ void MonsterIndex::processInput() {
 
 	Keyboard &keyboard = Keyboard::instance();
 	if (keyboard.keyPressed(Keyboard::KEY_UP)) {
-		
+		eraseAbilities();
 		if (m_currentOffset > 0 && m_currentSelected == 0) {
 			resetAnimation();
 			m_currentOffset--;
@@ -536,9 +536,11 @@ void MonsterIndex::processInput() {
 			resetAnimation();
 			m_currentSelected--;
 		}
+		addAbilities();
 	}
 
 	if (keyboard.keyPressed(Keyboard::KEY_DOWN)) {
+		eraseAbilities();
 		if (static_cast<int>(Monsters.size()) - m_currentOffset > m_visibleItems && m_currentSelected == m_visibleItems - 1) {
 			resetAnimation();
 			m_currentOffset++;
@@ -548,6 +550,7 @@ void MonsterIndex::processInput() {
 			resetAnimation();
 			m_currentSelected++;
 		}
+		addAbilities();
 	}
 
 	if (keyboard.keyPressed(Keyboard::KEY_SPACE)) {
@@ -623,8 +626,8 @@ void MonsterIndex::drawBar(const Rect& rect, const TextureRect& textureRect, flo
 	SurfaceBar.draw(textureRect, color);
 }
 
-void MonsterIndex::resetStates() {
-	std::for_each(Monsters.begin(), Monsters.end(), std::mem_fn(&MonsterEntry::resetStates));
+void MonsterIndex::resetStats() {
+	std::for_each(Monsters.begin(), Monsters.end(), std::mem_fn(&MonsterEntry::resetStats));
 }
 
 void MonsterIndex::unselect() {
@@ -632,6 +635,7 @@ void MonsterIndex::unselect() {
 }
 
 void MonsterIndex::reset() {
+	eraseAbilities();
 	m_currentSelected = 0;
 	m_beforeSelected = -1;
 	m_currentFrame = 0;
@@ -805,5 +809,67 @@ void MonsterIndex::initUI(float viewWidth, float viewHeight) {
 		bar->setColor(Vector4f(0.95686f, 0.99608f, 0.98039f, 1.0f));
 		bar->setWidth(width - 30.0f);
 		bar->setHeight(5.0f);
+	}
+
+	/*TextFieldMH* textField = surface->addChild<TextFieldMH>(Globals::fontManager.get("dialog"));
+	textField->setPosition(0.525f, 0.5f, 0.0f);
+	textField->translateRelative(0.0f, -lineHeight * 0.5f, 0.0f);
+	textField->updateWorldTransformation();
+	textField->setColor(Vector4f(0.95686f, 0.99608f, 0.98039f, 1.0f));
+	textField->setSize(0.045f);
+	textField->setLabel("scratch");
+	textField->setBackgroundColor(Vector4f(0.5f, 0.5f, 0.5f, 1.0f));
+	textField->setEdge(Edge::ALL);
+	textField->setBorderRadius(10.0f);
+	textField->setShader(Globals::shaderManager.getAssetPointer("list"));
+	textField->setIndex(0);*/
+
+	//addAbilities();
+}
+
+void MonsterIndex::addAbilities() {
+	Surface* surface = findChild<Surface>("right");
+	const MonsterEntry& currentMonster = Monsters[m_currentOffset + m_currentSelected];
+	float lineHeight = static_cast<float>(Globals::fontManager.get("dialog").lineHeight) * 0.045f;
+	int index = 0;
+	float x, y, statHeight = 42.35f;
+	std::string lastAbility;
+	TextFieldMH* textField;
+	for (auto& ability : MonsterData[currentMonster.name].abilities) {
+		if (currentMonster.level < ability.second)
+			continue;
+		x = index % 2 * (Globals::fontManager.get("dialog").getWidth(lastAbility) * 0.045f + 20.0f);
+		y = -(int(index / 2) + 1) * statHeight - 4.0f;
+
+		textField = surface->addChild<TextFieldMH>(Globals::fontManager.get("dialog"));
+		textField->setPosition(0.525f, 0.5f, 0.0f);
+		textField->translateRelative(x, y, 0.0f);
+		textField->translateRelative(0.0f, -lineHeight * 0.5f, 0.0f);
+		textField->updateWorldTransformation();
+		textField->setColor(Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
+		textField->setSize(0.045f);
+		textField->setOffsetX(5.0f);
+		textField->setOffsetY(5.0f);
+		textField->setLabel(ability.first);
+		textField->setBackgroundColor(ColorMap[_AttackData[ability.first].element]);
+		textField->setEdge(Edge::ALL);
+		textField->setBorderRadius(4.0f);
+		textField->setPaddingX(10.0f);
+		textField->setPaddingY(10.0f);
+		textField->setShader(Globals::shaderManager.getAssetPointer("list"));
+		textField->setIndex(index);
+
+		lastAbility = ability.first;
+		index++;
+	}
+}
+
+void MonsterIndex::eraseAbilities() {
+	Surface* surface = findChild<Surface>("right");
+	const MonsterEntry& currentMonster = Monsters[m_currentOffset + m_currentSelected];
+	int index = 0;
+	for (auto& ability : MonsterData[currentMonster.name].abilities) {
+		surface->eraseChild(index);
+		index++;
 	}
 }
