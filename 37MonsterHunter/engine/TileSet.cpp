@@ -499,6 +499,27 @@ void TileSet::addCharset(CharacterSet& characterSet, bool init, int threshold) {
 	free(bytesNew);
 }
 
+void TileSet::shrinkTextureRect(size_t index, float scale) {
+	shrinkTextureRectX(index, scale);
+	shrinkTextureRectY(index, scale);
+}
+
+void TileSet::shrinkTextureRectX(size_t index, float scale) {
+	TextureRect& textureRect = m_textureRects[index];
+	float scaleX = scale / textureRect.width;
+	float scaleY = scale / textureRect.height;
+	textureRect.textureOffsetX += scaleX;
+	textureRect.textureWidth -= scaleX * 2.0f;
+}
+
+void TileSet::shrinkTextureRectY(size_t index, float scale) {
+	TextureRect& textureRect = m_textureRects[index];
+	float scaleX = scale / textureRect.width;
+	float scaleY = scale / textureRect.height;
+	textureRect.textureOffsetY = textureRect.textureHeight < 0 ? textureRect.textureOffsetY - scaleY : textureRect.textureOffsetY + scaleY;
+	textureRect.textureHeight = textureRect.textureHeight < 0 ? textureRect.textureHeight + scaleY * 2.0f : textureRect.textureHeight - scaleY * 2.0f;
+}
+
 void TileSet::loadTileSetGpu() {
 	if (m_init) return;
 	TextureAtlasCreator::Get().getAtlas(m_atlas);

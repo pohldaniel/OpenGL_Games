@@ -20,6 +20,7 @@ public:
 	void setColor(const Vector4f& color);
 	void setShader(Shader* shader);
 	void setSpriteSheet(const unsigned int& spriteSheet);
+	void setTextureRect(const TextureRect& textureRect);
 
 private:
 
@@ -28,7 +29,7 @@ private:
 	Vector4f m_color;
 	Shader* m_shader;
 	unsigned int m_spriteSheet;
-	const TextureRect& textureRect;
+	TextureRect textureRect;
 };
 
 class IconAnimated : public WidgetMH {

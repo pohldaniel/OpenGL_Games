@@ -63,9 +63,12 @@ public:
 	std::list<std::shared_ptr<NodeMH>>& getChildren() const;
 	void eraseChild(NodeMH* child);
 	void eraseChild(const int index);
+	void eraseAllChildren(size_t offset = 0);
+	template <class T> T* eraseChildren() const;
 	NodeMH* addChild(NodeMH* node);
 	template <class T> T* addChild();
 	template <class T, class U> T* addChild(const U& ref);
+	template <class T, class U> T* addChild(U& ref);
 	NodeMH* getParent() const;
 	void setParent(NodeMH* node);
 	const int getIndex() const;
@@ -74,6 +77,7 @@ public:
 	template <class T> T* findChild(std::string name, bool recursive = true) const;
 	template <class T> T* findChild(StringHash nameHash, bool recursive = true) const;
 	template <class T> T* findChild(const int index, bool recursive = true) const;
+	size_t countNodes();
 
 protected:
 
@@ -90,6 +94,12 @@ template <class T> T* NodeMH::addChild() {
 }
 
 template <class T, class U> T* NodeMH::addChild(const U& ref) {	
+	m_children.emplace_back(std::unique_ptr<T>(new T(ref)));
+	m_children.back()->m_parent = this;
+	return static_cast<T*>(m_children.back().get());
+}
+
+template <class T, class U> T* NodeMH::addChild(U& ref) {
 	m_children.emplace_back(std::unique_ptr<T>(new T(ref)));
 	m_children.back()->m_parent = this;
 	return static_cast<T*>(m_children.back().get());
@@ -135,6 +145,17 @@ template <class T> T* NodeMH::findChild(const int index, bool recursive) const {
 	return nullptr;
 }
 
+template <class T> T* NodeMH::eraseChildren() const {
+
+	for (auto it = m_children.begin(); it != m_children.end();){
+		NodeMH* child = (*it).get();
+		if (child && dynamic_cast<T*>(child)){
+			it = m_children.erase(it);
+		}
+		else ++it;
+	}
+}
+
 class WidgetMH : public NodeMH, public Sprite {
 
 public:
@@ -147,11 +168,16 @@ public:
 	virtual ~WidgetMH();
 
 	virtual void draw();
+	virtual 
 	//virtual void processInput();
 
 	void setScale(const float sx, const float sy, const float sz) override;
 	void setScale(const Vector3f& scale) override;
 	void setScale(const float s) override;
+
+	void setScaleAbsolute(const float sx, const float sy, const float sz);
+	void setScaleAbsolute(const Vector3f& scale);
+	void setScaleAbsolute(const float s);
 
 	void setPosition(const float x, const float y, const float z) override;
 	void setPosition(const Vector3f& position) override;

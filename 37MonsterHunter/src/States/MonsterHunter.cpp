@@ -205,6 +205,7 @@ void MonsterHunter::update() {
 			m_zone.setAlpha(1.0f - 0.784f);
 			m_zone.getPlayer().block();	
 			m_monsterIndex.addAbilities();
+			m_monsterIndex.addMonsters();
 		}else {
 			m_zone.setAlpha(1.0f);
 			m_zone.getPlayer().unblock();
@@ -263,7 +264,9 @@ void MonsterHunter::update() {
 		spriteEntity->update(m_dt);
 	}
 	m_zone.update(m_dt);
-	m_monsterIndex.update(m_dt);
+	if (m_indexOpen) {
+		m_monsterIndex.update(m_dt);
+	}
 	m_evolve.update(m_dt);
 }
 

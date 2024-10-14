@@ -59,6 +59,10 @@ void Icon::setSpriteSheet(const unsigned int& spriteSheet) {
 	m_spriteSheet = spriteSheet;
 }
 
+void Icon::setTextureRect(const TextureRect& textureRect) {
+	Icon::textureRect = textureRect;
+}
+
 void Icon::draw() {
 	if (m_draw) {
 		return m_draw();
@@ -68,7 +72,7 @@ void Icon::draw() {
 
 void Icon::drawDefault() {
 	Spritesheet::Bind(m_spriteSheet);
-	draw2(textureRect, Vector4f(1.0f, 1.0f, 1.0f, 1.0f), getWorldTransformation());
+	draw2(textureRect, m_color, getWorldTransformation());
 }
 ////////////////////////////////////////////////////////////////
 IconAnimated::IconAnimated(const std::vector<TextureRect>& textureRects) : WidgetMH(), textureRects(textureRects), m_draw(nullptr), m_color(Vector4f::ONE), m_spriteSheet(0), m_currentFrame(0){
@@ -146,5 +150,5 @@ void IconAnimated::draw() {
 void IconAnimated::drawDefault() {
 	Spritesheet::Bind(m_spriteSheet);
 	const TextureRect& rect = textureRects[m_currentFrame];
-	draw2(rect, Vector4f(1.0f, 1.0f, 1.0f, 1.0f), getWorldTransformation());
+	draw2(rect, m_color, getWorldTransformation());
 }

@@ -63,17 +63,21 @@ public:
 	void loadTileCpu(std::string texturePath, bool init, bool flipVertical = true, bool flipTextureRects = false);
 	void loadTileCpu(std::string texturePath, bool init, unsigned int posX, unsigned int posY, unsigned int width, unsigned int height, bool flipVertical = true, bool flipTextureRects = false);
 	void addCharset(CharacterSet& characterSet, bool init, int threshold = -1);
-	
+	void shrinkTextureRect(size_t index, float scale);
+	void shrinkTextureRectX(size_t index, float scale);
+	void shrinkTextureRectY(size_t index, float scale);
 	const std::vector<TextureRect> getLastTextureRects() const;
 
 	void loadTileSetGpu();
 	const std::vector<TextureRect>& getTextureRects() const;
+
 	const unsigned int& getAtlas() const;
 	void cleanup();
 	void markForDelete();
 	void bind(unsigned int unit = 0u) const;
 	void setLinear();
 	void setLinearMipMap();
+
 private:
 
 	unsigned int m_atlas;

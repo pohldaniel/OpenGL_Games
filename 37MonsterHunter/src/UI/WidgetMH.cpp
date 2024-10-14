@@ -163,7 +163,7 @@ NodeMH& NodeMH::operator=(NodeMH&& rhs) {
 }
 
 NodeMH::~NodeMH() {
-
+	eraseAllChildren();
 }
 
 std::list<std::shared_ptr<NodeMH>>& NodeMH::getChildren() const {
@@ -217,6 +217,26 @@ void NodeMH::setName(const std::string& name) {
 
 void NodeMH::setIndex(const int index) {
 	m_index = index;
+}
+
+void NodeMH::eraseAllChildren(size_t offset) {
+	for (auto it = m_children.begin(); it != m_children.end(); ++it) {
+
+		if (!(*it)->getChildren().empty()) 
+			(*it)->eraseAllChildren();
+		(*it)->m_parent = nullptr;	
+	}
+	//m_children.clear();
+	m_children.erase(std::next(m_children.begin(), offset), m_children.end());
+}
+
+size_t NodeMH::countNodes() {
+	size_t num = m_children.size();
+	for (auto it = m_children.begin(); it != m_children.end(); ++it) {
+		num += (*it)->countNodes();
+	}
+
+	return num;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -432,6 +452,36 @@ void WidgetMH::setScale(const Vector3f& scale) {
 
 void WidgetMH::setScale(const float s) {
 	Sprite::setScale(s);
+	OnTransformChanged();
+}
+
+void WidgetMH::setScaleAbsolute(const float sx, const float sy, const float sz) {
+	if (m_parent) {
+		const Vector3f& invScale = Vector3f::Inverse(static_cast<WidgetMH*>(m_parent)->getWorldScale());
+		Sprite::setScale(sx * invScale[0], sy * invScale[1], sz * invScale[2]);
+	}else {
+		Sprite::setScale(sx, sy, sz);
+	}
+	OnTransformChanged();
+}
+
+void WidgetMH::setScaleAbsolute(const Vector3f& scale) {
+	if (m_parent) {
+		const Vector3f& invScale = Vector3f::Inverse(static_cast<WidgetMH*>(m_parent)->getWorldScale());
+		Sprite::setScale(scale * invScale);
+	}else {
+		Sprite::setScale(scale);
+	}
+	OnTransformChanged();
+}
+
+void WidgetMH::setScaleAbsolute(const float s) {
+	if (m_parent) {
+		const Vector3f& invScale = Vector3f::Inverse(static_cast<WidgetMH*>(m_parent)->getWorldScale());
+		Sprite::setScale(s * invScale[0], s * invScale[1], s * invScale[2]);
+	}else {
+		Sprite::setScale(s);
+	}
 	OnTransformChanged();
 }
 
