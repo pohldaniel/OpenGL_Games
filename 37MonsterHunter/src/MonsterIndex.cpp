@@ -332,7 +332,7 @@ void MonsterIndex::update(float dt) {
 
 	const std::vector<TextureRect>& rects = TileSetManager::Get().getTileSet("monster_icon").getTextureRects();
 	Surface *surface = findChild<Surface>("left"), *subSurface;
-	Icon *icon;
+	IconAnimated *iconAnimated;
 	for (int i = 0; i < std::min(static_cast<int>(Monsters.size()), m_visibleItems); i++) {
 		Vector4f color = i == m_currentSelected ? Vector4f(0.78431f, 0.78431f, 0.78431f, 1.0f) : Vector4f(0.22745f, 0.21568f, 0.23137f, 1.0f);
 		subSurface = surface->findChild<Surface>(i);
@@ -340,16 +340,17 @@ void MonsterIndex::update(float dt) {
 
 		const MonsterEntry& currentMonster = Monsters[i + m_currentOffset];
 		const TextureRect& rect = rects[MonsterData[currentMonster.name].graphic];
-		icon = surface->findChild<Icon>(i);
-		icon->setTextureRect(rect);
-		icon->setPosition(0.0f, 0.5f, 0.0f);
-		icon->translateRelative(45.0f - 0.5f * rect.width, -0.5f * rect.height, 0.0f);
-		icon->setScaleAbsolute(rect.width, rect.height, 1.0f);
-		icon->setColor(currentMonster.selected ? Vector4f(1.0f, 0.0f, 0.0f, 1.0f) : Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
-		icon->updateWorldTransformation();
+		iconAnimated = surface->findChild<IconAnimated>(i);
+		iconAnimated->setCurrentFrame(MonsterData[currentMonster.name].graphic);
+		iconAnimated->setPosition(0.0f, 0.5f, 0.0f);
+		iconAnimated->translateRelative(45.0f - 0.5f * rect.width, -0.5f * rect.height, 0.0f);
+		iconAnimated->setScaleAbsolute(rect.width, rect.height, 1.0f);
+		iconAnimated->setColor(currentMonster.selected ? Vector4f(1.0f, 0.0f, 0.0f, 1.0f) : Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+		iconAnimated->updateWorldTransformation();
 
 		label = surface->findChild<Label>(i);
 		label->setColor(currentMonster.selected ? Vector4f(1.0f, 0.84313f, 0.0f, 1.0f) : Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+		label->setLabel(currentMonster.name);
 	}
 
 	Keyboard &keyboard = Keyboard::instance();
@@ -710,7 +711,7 @@ void MonsterIndex::addMonsters() {
 	Surface* surface = findChild<Surface>("left");
 	float lineHeight = static_cast<float>(Globals::fontManager.get("dialog").lineHeight) * 0.045f;
 	const std::vector<TextureRect>& rects = TileSetManager::Get().getTileSet("monster_icon").getTextureRects();
-	Surface *subSurface; Icon* icon; Label* label;
+	Surface *subSurface; IconAnimated* animatedIcon; Label* label; Icon* icon;
 
 	float itemHeigt = 1.0f / static_cast<float>(m_visibleItems);
 	for (int i = 0; i < std::min(static_cast<int>(Monsters.size()), m_visibleItems); i++) {
@@ -734,14 +735,15 @@ void MonsterIndex::addMonsters() {
 
 		const MonsterEntry& currentMonster = Monsters[i + m_currentOffset];
 		const TextureRect& rect = rects[MonsterData[currentMonster.name].graphic];
-		icon = subSurface->addChild<Icon>(rect);
-		icon->setPosition(0.0f, 0.5f, 0.0f);
-		icon->translateRelative(45.0f - 0.5f * rect.width, -0.5f * rect.height, 0.0f);
-		icon->scaleAbsolute(rect.width, rect.height, 1.0f);
-		icon->setColor(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
-		icon->updateWorldTransformation();
-		icon->setSpriteSheet(TileSetManager::Get().getTileSet("monster_icon").getAtlas());
-		icon->setIndex(i);
+		animatedIcon = subSurface->addChild<IconAnimated>(rects);
+		animatedIcon->setPosition(0.0f, 0.5f, 0.0f);
+		animatedIcon->translateRelative(45.0f - 0.5f * rect.width, -0.5f * rect.height, 0.0f);
+		animatedIcon->scaleAbsolute(rect.width, rect.height, 1.0f);
+		animatedIcon->setColor(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+		animatedIcon->updateWorldTransformation();
+		animatedIcon->setSpriteSheet(TileSetManager::Get().getTileSet("monster_icon").getAtlas());
+		animatedIcon->setCurrentFrame(MonsterData[currentMonster.name].graphic);
+		animatedIcon->setIndex(i);
 
 		if (i != m_visibleItems - 1) {
 			icon = subSurface->addChild<Icon>(rects[16]);

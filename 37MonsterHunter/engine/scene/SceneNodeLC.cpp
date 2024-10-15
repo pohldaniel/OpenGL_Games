@@ -68,7 +68,3 @@ const Quaternion& SceneNodeLC::getWorldOrientation(bool update) const {
 		WorldOrientation = Quaternion(getWorldTransformation().getRotation());
 	return WorldOrientation;
 }
-
-void SceneNodeLC::setName(const std::string& name) {
-	m_nameHash = StringHash(name);
-}

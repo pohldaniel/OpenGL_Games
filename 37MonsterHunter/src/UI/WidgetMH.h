@@ -64,7 +64,7 @@ public:
 	void eraseChild(NodeMH* child);
 	void eraseChild(const int index);
 	void eraseAllChildren(size_t offset = 0);
-	template <class T> T* eraseChildren() const;
+	template <class T> void eraseChildren() const;
 	NodeMH* addChild(NodeMH* node);
 	template <class T> T* addChild();
 	template <class T, class U> T* addChild(const U& ref);
@@ -145,7 +145,7 @@ template <class T> T* NodeMH::findChild(const int index, bool recursive) const {
 	return nullptr;
 }
 
-template <class T> T* NodeMH::eraseChildren() const {
+template <class T> void NodeMH::eraseChildren() const {
 
 	for (auto it = m_children.begin(); it != m_children.end();){
 		NodeMH* child = (*it).get();

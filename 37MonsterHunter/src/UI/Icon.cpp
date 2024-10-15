@@ -59,10 +59,6 @@ void Icon::setSpriteSheet(const unsigned int& spriteSheet) {
 	m_spriteSheet = spriteSheet;
 }
 
-void Icon::setTextureRect(const TextureRect& textureRect) {
-	Icon::textureRect = textureRect;
-}
-
 void Icon::draw() {
 	if (m_draw) {
 		return m_draw();

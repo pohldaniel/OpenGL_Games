@@ -47,14 +47,8 @@ const Node* Node::getParent() const {
 	return m_parent;
 }
 
-void Node::eraseAllChildren() {
-	for (auto it = m_children.begin(); it != m_children.end(); ++it) {
-		Node* child = (*it).release();
-		child->m_parent = nullptr;
-		delete child;
-		child = nullptr;
-	}
-	m_children.clear();
+const int Node::getIndex() const {
+	return m_index;
 }
 
 void Node::setParent(Node* node) {
@@ -70,6 +64,29 @@ void Node::setParent(Node* node) {
 	}else if (m_parent) {
 		m_parent->eraseChild(this);
 	}
+}
+
+void Node::setName(const std::string& name) {
+	m_nameHash = StringHash(name);
+}
+
+void Node::setIndex(const int index) {
+	m_index = index;
+}
+
+void Node::eraseChild(const int index) {
+	m_children.erase(std::remove_if(m_children.begin(), m_children.end(), [index](const std::unique_ptr<Node, std::function<void(Node* node)>>& node) { return node->getIndex() == index; }), m_children.end());
+}
+
+void Node::eraseAllChildren(size_t offset) {
+	for (auto it = m_children.begin(); it != m_children.end(); ++it) {
+		Node* child = (*it).release();
+		child->m_parent = nullptr;
+		delete child;
+		child = nullptr;
+	}
+	//m_children.clear();
+	m_children.erase(std::next(m_children.begin(), offset), m_children.end());
 }
 
 void Node::eraseChild(Node* child) {
@@ -99,4 +116,13 @@ void Node::removeChild(Node* child) {
 void Node::removeSelf() {
 	if (m_parent)
 		m_parent->removeChild(this);
+}
+
+size_t Node::countNodes() {
+	size_t num = m_children.size();
+	for (auto it = m_children.begin(); it != m_children.end(); ++it) {
+		num += (*it)->countNodes();
+	}
+
+	return num;
 }
