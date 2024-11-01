@@ -273,6 +273,7 @@ public:
 	void rotate(const Vector3f& axis, float degrees);
 	void rotate(const Quaternion& orientation);
 	void rotate(float pitch, float yaw, float roll);
+	void rotate(float degreesZ);
 
 	void rotate(const Vector3f& axis, float degrees, const Vector3f& centerOfRotation);
 	void rotate(const Quaternion& orientation, const Vector3f& centerOfRotation);
@@ -365,6 +366,7 @@ public:
 	static Matrix4f Rotate(const Quaternion& orientation);
 	static Matrix4f Rotate(float pitch, float yaw, float roll);
 	static Matrix4f Rotate(const Vector3f& eulerAngles);
+	static Matrix4f Rotate(float degreesZ);
 
 	static Matrix4f Rotate(const Vector3f& axis, float degrees, const Vector3f& centerOfRotation);
 	static Matrix4f Rotate(const Quaternion& orientation, const Vector3f& centerOfRotation);

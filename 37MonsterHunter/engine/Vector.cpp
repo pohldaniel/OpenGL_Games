@@ -198,6 +198,17 @@ void Matrix4f::rotate(float pitch, float yaw, float roll) {
 	mtx[3][3] = 1.0f;
 }
 
+void Matrix4f::rotate(float degreesZ) {
+	degreesZ = degreesZ * PI_ON_180;
+	float cos = cosf(degreesZ);
+	float sin = sinf(degreesZ);
+
+	mtx[0][0] = cos; mtx[0][1] = sin; mtx[0][2] = 0.0f; mtx[0][3] = 0.0f;
+	mtx[1][0] = -sin; mtx[1][1] = cos; mtx[1][2] = 0.0f; mtx[1][3] = 0.0f;
+	mtx[2][0] = 0.0f; mtx[2][1] = 0.0f; mtx[2][2] = 1.0f; mtx[2][3] = 0.0f;
+	mtx[3][0] = 0.0f; mtx[3][1] = 0.0f; mtx[3][2] = 0.0f; mtx[3][3] = 1.0f;
+}
+
 void Matrix4f::rotate(const Vector3f &axis, float degrees, const Vector3f &centerOfRotation) {
 
 	float rad = degrees * PI_ON_180;
@@ -1554,6 +1565,16 @@ Matrix4f Matrix4f::Rotate(const Vector3f& eulerAngles) {
 					-sinR * cosP, cosR * cosP, sinP, 0.0f,
 					cosR * sinY + sinR * sinP * cosY, sinR * sinY - cosR * sinP * cosY, cosP * cosY, 0.0f,
 					0.0f, 0.0f, 0.0f, 1.0f);
+}
+
+Matrix4f Matrix4f::Rotate(float degreesZ) {
+	degreesZ = degreesZ * PI_ON_180;
+	float cos = cosf(degreesZ);
+	float sin = sinf(degreesZ);
+	return Matrix4f( cos,  sin, 0.0f, 0.0f,
+		            -sin,  cos, 0.0f, 0.0f,
+		             0.0f, 0.0f, 1.0f, 0.0f,
+		             0.0f, 0.0f, 0.0f, 1.0f);
 }
 
 Matrix4f Matrix4f::Rotate(const Vector3f& eulerAngles, const Vector3f& centerOfRotation) {
