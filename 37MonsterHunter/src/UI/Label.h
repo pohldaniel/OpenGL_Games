@@ -10,9 +10,7 @@ public:
 
 	Label(const CharacterSet& characterSet);
 	Label(const Label& rhs);
-	Label& operator=(const Label& rhs);
 	Label(Label&& rhs);
-	Label& operator=(Label&& rhs);
 	virtual ~Label();
 
 	void draw() override;
@@ -45,9 +43,7 @@ public:
 
 	TextFieldMH(const CharacterSet& characterSet);
 	TextFieldMH(const TextFieldMH& rhs);
-	TextFieldMH& operator=(const TextFieldMH& rhs);
 	TextFieldMH(TextFieldMH&& rhs);
-	TextFieldMH& operator=(TextFieldMH&& rhs);
 	virtual ~TextFieldMH();
 
 	void setShader(Shader* shader);

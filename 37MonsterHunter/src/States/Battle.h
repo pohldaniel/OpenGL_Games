@@ -100,6 +100,9 @@ private:
 	float m_alpha;
 	Framebuffer m_mainRenderTarget;
 
+	static void DrawBar(const Rect& rect, float value, float maxValue, const Vector4f& bgColor, const Vector4f& color, float radius = 1.0f);
+
 	static std::random_device RandomDevice;
 	static std::mt19937 MersenTwist;
+	static Sprite SurfaceBar;
 };

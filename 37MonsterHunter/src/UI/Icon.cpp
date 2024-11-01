@@ -14,28 +14,12 @@ Icon::Icon(const Icon& rhs) :
 	m_spriteSheet(rhs.m_spriteSheet) {
 }
 
-Icon& Icon::operator=(const Icon& rhs) {
-	WidgetMH::operator=(rhs);
-	m_draw = rhs.m_draw;
-	m_color = rhs.m_color;
-	m_spriteSheet = rhs.m_spriteSheet;
-	return *this;
-}
-
 Icon::Icon(Icon&& rhs) :
 	WidgetMH(rhs),
 	m_draw(std::move(rhs.m_draw)),
 	m_color(rhs.m_color),
 	textureRect(std::move(rhs.textureRect)),
 	m_spriteSheet(rhs.m_spriteSheet) {
-}
-
-Icon& Icon::operator=(Icon&& rhs) {
-	WidgetMH::operator=(rhs);
-	m_draw = std::move(rhs.m_draw);
-	m_color = rhs.m_color;
-	m_spriteSheet = rhs.m_spriteSheet;
-	return *this;
 }
 
 Icon::~Icon() {
@@ -84,15 +68,6 @@ IconAnimated::IconAnimated(const IconAnimated& rhs) :
 	m_currentFrame(rhs.m_currentFrame) {
 }
 
-IconAnimated& IconAnimated::operator=(const IconAnimated& rhs) {
-	WidgetMH::operator=(rhs);
-	m_draw = rhs.m_draw;
-	m_color = rhs.m_color;
-	m_spriteSheet = rhs.m_spriteSheet;
-	m_currentFrame = rhs.m_currentFrame;
-	return *this;
-}
-
 IconAnimated::IconAnimated(IconAnimated&& rhs) :
 	WidgetMH(rhs),
 	m_draw(std::move(rhs.m_draw)),
@@ -100,15 +75,6 @@ IconAnimated::IconAnimated(IconAnimated&& rhs) :
     textureRects(std::move(rhs.textureRects)),
 	m_spriteSheet(rhs.m_spriteSheet),
 	m_currentFrame(rhs.m_currentFrame) {
-}
-
-IconAnimated& IconAnimated::operator=(IconAnimated&& rhs) {
-	WidgetMH::operator=(rhs);
-	m_draw = std::move(rhs.m_draw);
-	m_color = rhs.m_color;
-	m_spriteSheet = rhs.m_spriteSheet;
-	m_currentFrame = rhs.m_currentFrame;
-	return *this;
 }
 
 IconAnimated::~IconAnimated() {

@@ -19,18 +19,6 @@ BarUI::BarUI(const BarUI& rhs) :
 	m_draw(rhs.m_draw){
 }
 
-BarUI& BarUI::operator=(const BarUI& rhs) {
-	WidgetMH::operator=(rhs);
-	m_bgColor = rhs.m_bgColor;
-	m_color = rhs.m_color;
-	m_height = rhs.m_height;
-	m_width = rhs.m_width;
-	m_draw = rhs.m_draw;
-	m_value = rhs.m_value;
-	m_maxValue = rhs.m_maxValue;
-	return *this;
-}
-
 BarUI::BarUI(BarUI&& rhs) :
 	WidgetMH(rhs),
 	textureRect(std::move(rhs.textureRect)),
@@ -41,18 +29,6 @@ BarUI::BarUI(BarUI&& rhs) :
 	m_value(std::move(rhs.m_value)),
 	m_maxValue(std::move(rhs.m_maxValue)),
 	m_draw(std::move(rhs.m_draw)){
-}
-
-BarUI& BarUI::operator=(BarUI&& rhs) {
-	WidgetMH::operator=(rhs);
-	m_bgColor = std::move(rhs.m_bgColor);
-	m_color = std::move(rhs.m_color);
-	m_height = std::move(rhs.m_height);
-	m_width = std::move(rhs.m_width);
-	m_value = std::move(rhs.m_value);
-	m_maxValue = std::move(rhs.m_maxValue);
-	m_draw = std::move(rhs.m_draw);
-	return *this;
 }
 
 BarUI::~BarUI() {

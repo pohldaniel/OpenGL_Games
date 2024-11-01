@@ -46,7 +46,7 @@
                                  outColor = vertColor * texture(u_texture, vec3(texCoord, layer));   \n \
                             }"
 
-class Sprite : public Object{
+class Sprite : public Object2D{
 
 public:
 

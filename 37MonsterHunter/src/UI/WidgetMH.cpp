@@ -1,126 +1,10 @@
 #include "WidgetMH.h"
 
-ObjectMH::ObjectMH() {
-	m_scale.set(1.0f, 1.0f);
-	m_position.set(0.0f, 0.0f);
-}
-
-ObjectMH::ObjectMH(ObjectMH const& rhs) {
-	m_position = rhs.m_position;
-	m_scale = rhs.m_scale;
-}
-
-ObjectMH& ObjectMH::operator=(const ObjectMH& rhs) {
-	m_position = rhs.m_position;
-	m_scale = rhs.m_scale;
-	return *this;
-}
-
-ObjectMH::ObjectMH(ObjectMH&& rhs) : ObjectMH(rhs) {
-	m_position = rhs.m_position;
-	m_scale = rhs.m_scale;
-}
-
-ObjectMH& ObjectMH::operator=(ObjectMH&& rhs) {
-	m_position = rhs.m_position;
-	m_scale = rhs.m_scale;
-	return *this;
-}
-
-ObjectMH::~ObjectMH() {
+NodeUI::NodeUI() : m_parent(nullptr), m_index(-1) {
 
 }
 
-void ObjectMH::setScale(const float sx, const float sy) {
-	m_scale.set(sx, sy);
-}
-
-void ObjectMH::setScale(const Vector2f &scale) {
-	m_scale = scale;
-}
-
-void ObjectMH::setScale(const float s) {
-	setScale(s, s);
-}
-
-void ObjectMH::setPosition(const float x, const float y) {
-	m_position.set(x, y);
-}
-
-void ObjectMH::setPosition(const Vector2f &position) {
-	m_position = position;
-}
-
-void ObjectMH::setOrientation(const float degrees) {
-	m_orientation = degrees;
-}
-
-void ObjectMH::translate(const Vector2f &trans) {
-	m_position.translate(trans);
-}
-
-void ObjectMH::translate(const float dx, const float dy) {
-	m_position.translate(dx, dy);
-}
-
-void ObjectMH::rotate(const float degrees) {
-	m_orientation += degrees;
-}
-
-void ObjectMH::translateRelative(const Vector2f& trans) {
-
-	float angle = m_orientation * HALF_PI_ON_180;
-	float cos = cosf(angle);
-	float sin = sinf(angle);
-
-	float dx = trans[0] * cos - trans[1] * sin;
-	float dy = trans[0] * sin + trans[1] * cos;
-
-	m_position += Vector2f(dx, dy);
-}
-
-void ObjectMH::translateRelative(const float _dx, const float _dy) {
-
-	float angle = m_orientation * HALF_PI_ON_180;
-	float cos = cosf(angle);
-	float sin = sinf(angle);
-
-	float dx = _dx * cos - _dy * sin;
-	float dy = _dx * sin + _dy * cos;
-
-	m_position[0] += dx;
-	m_position[1] += dy;
-}
-
-void ObjectMH::scale(const Vector2f &scale) {
-	m_scale.scale(scale);
-}
-
-void ObjectMH::scale(const float sx, const float sy) {
-	m_scale.scale(sx, sy);
-}
-
-void ObjectMH::scale(const float s) {
-	m_scale.scale(s, s);
-}
-
-const Vector2f& ObjectMH::getPosition() const {
-	return m_position;
-}
-
-const Vector2f& ObjectMH::getScale() const {
-	return m_scale;
-}
-
-const float ObjectMH::getOrientation() const {
-	return m_orientation;
-}
-
-NodeMH::NodeMH() : m_parent(nullptr), m_index(-1) {
-
-}
-
-NodeMH::NodeMH(const NodeMH& rhs) {
+NodeUI::NodeUI(const NodeUI& rhs) {
 	m_children = rhs.m_children;
 	for (auto& children : m_children) {
 		children->m_parent = this;
@@ -130,7 +14,7 @@ NodeMH::NodeMH(const NodeMH& rhs) {
 	m_index = rhs.m_index;
 }
 
-NodeMH::NodeMH(NodeMH&& rhs) {
+NodeUI::NodeUI(NodeUI&& rhs) {
 	m_children = rhs.m_children;
 	for (auto& children : m_children) {
 		children->m_parent = this;
@@ -140,66 +24,44 @@ NodeMH::NodeMH(NodeMH&& rhs) {
 	m_index = rhs.m_index;
 }
 
-NodeMH& NodeMH::operator=(const NodeMH& rhs) {
-	m_children = rhs.m_children;
-	for (auto& children : m_children) {
-		children->m_parent = this;
-	}
-	m_parent = rhs.m_parent;
-	m_nameHash = rhs.m_nameHash;
-	m_index = rhs.m_index;
-	return *this;
-}
-
-NodeMH& NodeMH::operator=(NodeMH&& rhs) {
-	m_children = rhs.m_children;
-	for (auto& children : m_children) {
-		children->m_parent = this;
-	}
-	m_parent = rhs.m_parent;
-	m_nameHash = rhs.m_nameHash;
-	m_index = rhs.m_index;
-	return *this;
-}
-
-NodeMH::~NodeMH() {
+NodeUI::~NodeUI() {
 	eraseAllChildren();
 }
 
-std::list<std::shared_ptr<NodeMH>>& NodeMH::getChildren() const {
+std::list<std::shared_ptr<NodeUI>>& NodeUI::getChildren() const {
 	return m_children;
 }
 
-void NodeMH::eraseChild(NodeMH* child) {
+void NodeUI::eraseChild(NodeUI* child) {
 	if (!child || child->m_parent != this)
 		return;
 
 	child->m_parent = nullptr;
-	m_children.erase(std::remove_if(m_children.begin(), m_children.end(), [child](const std::shared_ptr<NodeMH>& node) { return node.get() == child; }), m_children.end());
+	m_children.erase(std::remove_if(m_children.begin(), m_children.end(), [child](const std::shared_ptr<NodeUI>& node) { return node.get() == child; }), m_children.end());
 }
 
-void NodeMH::eraseChild(const int index) {
-	m_children.erase(std::remove_if(m_children.begin(), m_children.end(), [index](const std::shared_ptr<NodeMH>& node) { return node->getIndex() == index; }), m_children.end());
+void NodeUI::eraseChild(const int index) {
+	m_children.erase(std::remove_if(m_children.begin(), m_children.end(), [index](const std::shared_ptr<NodeUI>& node) { return node->getIndex() == index; }), m_children.end());
 }
 
-NodeMH* NodeMH::addChild(NodeMH* node) {
-	m_children.emplace_back(std::shared_ptr<NodeMH>(node));
+NodeUI* NodeUI::addChild(NodeUI* node) {
+	m_children.emplace_back(std::shared_ptr<NodeUI>(node));
 	m_children.back()->m_parent = this;
 	return m_children.back().get();
 }
 
-NodeMH* NodeMH::getParent() const {
+NodeUI* NodeUI::getParent() const {
 	return m_parent;
 }
 
-const int NodeMH::getIndex() const {
+const int NodeUI::getIndex() const {
 	return m_index;
 }
 
-void NodeMH::setParent(NodeMH* node) {
+void NodeUI::setParent(NodeUI* node) {
 
 	if (node && m_parent) {
-		std::list<std::shared_ptr<NodeMH>>::iterator it = std::find_if(m_parent->getChildren().begin(), m_parent->getChildren().end(), [node](std::shared_ptr<NodeMH>& _node) { return _node.get() == node; });
+		std::list<std::shared_ptr<NodeUI>>::iterator it = std::find_if(m_parent->getChildren().begin(), m_parent->getChildren().end(), [node](std::shared_ptr<NodeUI>& _node) { return _node.get() == node; });
 
 		if (it != m_parent->getChildren().end()) {
 			node->getChildren().splice(m_parent->getChildren().end(), m_parent->getChildren(), it);
@@ -211,15 +73,15 @@ void NodeMH::setParent(NodeMH* node) {
 	}
 }
 
-void NodeMH::setName(const std::string& name) {
+void NodeUI::setName(const std::string& name) {
 	m_nameHash = StringHash(name);
 }
 
-void NodeMH::setIndex(const int index) {
+void NodeUI::setIndex(const int index) {
 	m_index = index;
 }
 
-void NodeMH::eraseAllChildren(size_t offset) {
+void NodeUI::eraseAllChildren(size_t offset) {
 	for (auto it = m_children.begin(); it != m_children.end(); ++it) {
 
 		if (!(*it)->getChildren().empty()) 
@@ -230,7 +92,7 @@ void NodeMH::eraseAllChildren(size_t offset) {
 	m_children.erase(std::next(m_children.begin(), offset), m_children.end());
 }
 
-size_t NodeMH::countNodes() {
+size_t NodeUI::countNodes() {
 	size_t num = m_children.size();
 	for (auto it = m_children.begin(); it != m_children.end(); ++it) {
 		num += (*it)->countNodes();
@@ -240,34 +102,20 @@ size_t NodeMH::countNodes() {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
-Vector3f WidgetMH::WorldPosition;
-Vector3f WidgetMH::WorldScale;
-Quaternion WidgetMH::WorldOrientation;
+Vector2f WidgetMH::WorldPosition;
+Vector2f WidgetMH::WorldScale;
+float WidgetMH::WorldOrientation;
 
-WidgetMH::WidgetMH() : NodeMH(), Sprite(), m_isDirty(true) {
+WidgetMH::WidgetMH() : NodeUI(), Sprite(), m_isDirty(true) {
 
 }
 
-WidgetMH::WidgetMH(const WidgetMH& rhs) : NodeMH(rhs), Sprite(rhs) {
+WidgetMH::WidgetMH(const WidgetMH& rhs) : NodeUI(rhs), Sprite(rhs) {
 	m_isDirty = rhs.m_isDirty;
 }
 
-WidgetMH& WidgetMH::operator=(const WidgetMH& rhs) {
-	NodeMH::operator=(rhs);
-	Sprite::operator=(rhs);
+WidgetMH::WidgetMH(WidgetMH&& rhs) : NodeUI(rhs), Sprite(rhs) {
 	m_isDirty = rhs.m_isDirty;
-	return *this;
-}
-
-WidgetMH::WidgetMH(WidgetMH&& rhs) : NodeMH(rhs), Sprite(rhs) {
-	m_isDirty = rhs.m_isDirty;
-}
-
-WidgetMH& WidgetMH::operator=(WidgetMH&& rhs) {
-	NodeMH::operator=(rhs);
-	Sprite::operator=(rhs);
-	m_isDirty = rhs.m_isDirty;
-	return *this;
 }
 
 WidgetMH::~WidgetMH() {
@@ -277,14 +125,6 @@ WidgetMH::~WidgetMH() {
 void WidgetMH::draw() {
 	
 }
-
-/*void WidgetMH::processInput() {
-	if (m_children.size() > 0) {
-		for (auto& child : m_children) {
-			std::static_pointer_cast<WidgetMH>(child)->processInput();
-		}
-	}
-}*/
 
 void WidgetMH::OnTransformChanged() {
 
@@ -312,103 +152,98 @@ const Matrix4f& WidgetMH::getWorldTransformation() const {
 	return m_modelMatrix;
 }
 
-const Matrix4f WidgetMH::getWorldTransformationWithTranslation(const Vector3f& trans) const {
+const Matrix4f WidgetMH::getWorldTransformationWithTranslation(const Vector2f& trans) const {
 	Matrix4f mtx = getWorldTransformation();
 	if (m_parent) {
-		const Vector3f& invScale = Vector3f::Inverse(static_cast<WidgetMH*>(m_parent)->getWorldScale());
+		const Vector2f& invScale = Vector2f::Inverse(static_cast<WidgetMH*>(m_parent)->getWorldScale());
 		float dx = trans[0] * invScale[0];
 		float dy = trans[1] * invScale[1];
-		float dz = trans[2] * invScale[2];
-		mtx[3][0] = mtx[3][0] + dx * mtx[0][0] + dy * mtx[1][0] + dz * mtx[2][0];
-		mtx[3][1] = mtx[3][1] + dx * mtx[0][1] + dy * mtx[1][1] + dz * mtx[2][1];
-		mtx[3][2] = mtx[3][2] + dx * mtx[0][2] + dy * mtx[1][2] + dz * mtx[2][2];
+		mtx[3][0] = mtx[3][0] + dx * mtx[0][0] + dy * mtx[1][0];
+		mtx[3][1] = mtx[3][1] + dx * mtx[0][1] + dy * mtx[1][1];
+		mtx[3][2] = mtx[3][2] + dx * mtx[0][2] + dy * mtx[1][2];
 	}else {
-		mtx[3][0] = mtx[3][0] + trans[0] * mtx[0][0] + trans[1] * mtx[1][0] + trans[2] * mtx[2][0];
-		mtx[3][1] = mtx[3][1] + trans[0] * mtx[0][1] + trans[1] * mtx[1][1] + trans[2] * mtx[2][1];
-		mtx[3][2] = mtx[3][2] + trans[0] * mtx[0][2] + trans[1] * mtx[1][2] + trans[2] * mtx[2][2];
+		mtx[3][0] = mtx[3][0] + trans[0] * mtx[0][0] + trans[1] * mtx[1][0];
+		mtx[3][1] = mtx[3][1] + trans[0] * mtx[0][1] + trans[1] * mtx[1][1];
+		mtx[3][2] = mtx[3][2] + trans[0] * mtx[0][2] + trans[1] * mtx[1][2];
 	}
 	return mtx;	
 }
 
-const Matrix4f WidgetMH::getWorldTransformationWithTranslation(float dx, float dy, float dz) const {
+const Matrix4f WidgetMH::getWorldTransformationWithTranslation(float dx, float dy) const {
 	Matrix4f mtx = getWorldTransformation();
 	if (m_parent) {
-		const Vector3f& invScale = Vector3f::Inverse(static_cast<WidgetMH*>(m_parent)->getWorldScale());	
+		const Vector2f& invScale = Vector2f::Inverse(static_cast<WidgetMH*>(m_parent)->getWorldScale());	
 		dx = dx * invScale[0];
 		dy = dy * invScale[1];
-		dz = dz * invScale[2];
-		mtx[3][0] = mtx[3][0] + dx* mtx[0][0] + dy* mtx[1][0] + dz * mtx[2][0];
-		mtx[3][1] = mtx[3][1] + dx* mtx[0][1] + dy* mtx[1][1] + dz * mtx[2][1];
-		mtx[3][2] = mtx[3][2] + dx* mtx[0][2] + dy* mtx[1][2] + dz * mtx[2][2];		
+		mtx[3][0] = mtx[3][0] + dx* mtx[0][0] + dy* mtx[1][0];
+		mtx[3][1] = mtx[3][1] + dx* mtx[0][1] + dy* mtx[1][1];
+		mtx[3][2] = mtx[3][2] + dx* mtx[0][2] + dy* mtx[1][2];		
 	}else {
-		mtx[3][0] = mtx[3][0] + dx * mtx[0][0] + dy * mtx[1][0] + dz * mtx[2][0];
-		mtx[3][1] = mtx[3][1] + dx * mtx[0][1] + dy * mtx[1][1] + dz * mtx[2][1];
-		mtx[3][2] = mtx[3][2] + dx * mtx[0][2] + dy * mtx[1][2] + dz * mtx[2][2];
+		mtx[3][0] = mtx[3][0] + dx * mtx[0][0] + dy * mtx[1][0];
+		mtx[3][1] = mtx[3][1] + dx * mtx[0][1] + dy * mtx[1][1];
+		mtx[3][2] = mtx[3][2] + dx * mtx[0][2] + dy * mtx[1][2];
 	}
 	return mtx;
 }
 
-const Matrix4f WidgetMH::getWorldTransformationWithScale(float sx, float sy, float sz, bool relative) const {
+const Matrix4f WidgetMH::getWorldTransformationWithScale(float sx, float sy, bool relative) const {
 	Matrix4f mtx = getWorldTransformation();
 	if (m_parent && relative) {
-		const Vector3f& invScale = Vector3f::Inverse(static_cast<WidgetMH*>(m_parent)->getWorldScale());
+		const Vector2f& invScale = Vector2f::Inverse(static_cast<WidgetMH*>(m_parent)->getWorldScale());
 		sx = sx * invScale[0];
 		sy = sy * invScale[1];
-		sz = sz * invScale[2];
 		
-		mtx[0][0] = mtx[0][0] * sx;  mtx[1][0] = mtx[1][0] * sy; mtx[2][0] = mtx[2][0] * sz;
-		mtx[0][1] = mtx[0][1] * sx;  mtx[1][1] = mtx[1][1] * sy; mtx[2][1] = mtx[2][1] * sz;
-		mtx[0][2] = mtx[0][2] * sx;  mtx[1][2] = mtx[1][2] * sy; mtx[2][2] = mtx[2][2] * sz;
+		mtx[0][0] = mtx[0][0] * sx;  mtx[1][0] = mtx[1][0] * sy;
+		mtx[0][1] = mtx[0][1] * sx;  mtx[1][1] = mtx[1][1] * sy;
+		mtx[0][2] = mtx[0][2] * sx;  mtx[1][2] = mtx[1][2] * sy;
 	}else {
-		mtx[0][0] = mtx[0][0] * sx;  mtx[1][0] = mtx[1][0] * sy; mtx[2][0] = mtx[2][0] * sz;
-		mtx[0][1] = mtx[0][1] * sx;  mtx[1][1] = mtx[1][1] * sy; mtx[2][1] = mtx[2][1] * sz;
-		mtx[0][2] = mtx[0][2] * sx;  mtx[1][2] = mtx[1][2] * sy; mtx[2][2] = mtx[2][2] * sz;
+		mtx[0][0] = mtx[0][0] * sx;  mtx[1][0] = mtx[1][0] * sy;
+		mtx[0][1] = mtx[0][1] * sx;  mtx[1][1] = mtx[1][1] * sy;
+		mtx[0][2] = mtx[0][2] * sx;  mtx[1][2] = mtx[1][2] * sy;
 	}
 	return mtx;
 }
 
-const Matrix4f WidgetMH::getWorldTransformationWithScale(const Vector3f& scale, bool relative) const {
-	return getWorldTransformationWithScale(scale[0], scale[1], scale[2], relative);
+const Matrix4f WidgetMH::getWorldTransformationWithScale(const Vector2f& scale, bool relative) const {
+	return getWorldTransformationWithScale(scale[0], scale[1], relative);
 }
 
 const Matrix4f WidgetMH::getWorldTransformationWithScale(const float s, bool relative) const {
-	return getWorldTransformationWithScale(s, s, s, relative);
+	return getWorldTransformationWithScale(s, s, relative);
 }
 
-const Matrix4f WidgetMH::getWorldTransformationWithScaleAndTranslation(float sx, float sy, float sz, float dx, float dy, float dz, bool relative) const {
+const Matrix4f WidgetMH::getWorldTransformationWithScaleAndTranslation(float sx, float sy, float dx, float dy, bool relative) const {
 	Matrix4f mtx = getWorldTransformation();
 	if (m_parent && relative) {
-		const Vector3f& invScale = Vector3f::Inverse(static_cast<WidgetMH*>(m_parent)->getWorldScale());
+		const Vector2f& invScale = Vector2f::Inverse(static_cast<WidgetMH*>(m_parent)->getWorldScale());
 		sx = sx * invScale[0];
 		sy = sy * invScale[1];
-		sz = sz * invScale[2];
 
-		mtx[0][0] = mtx[0][0] * sx;  mtx[1][0] = mtx[1][0] * sy; mtx[2][0] = mtx[2][0] * sz;
-		mtx[0][1] = mtx[0][1] * sx;  mtx[1][1] = mtx[1][1] * sy; mtx[2][1] = mtx[2][1] * sz;
-		mtx[0][2] = mtx[0][2] * sx;  mtx[1][2] = mtx[1][2] * sy; mtx[2][2] = mtx[2][2] * sz;
+		mtx[0][0] = mtx[0][0] * sx;  mtx[1][0] = mtx[1][0] * sy;
+		mtx[0][1] = mtx[0][1] * sx;  mtx[1][1] = mtx[1][1] * sy;
+		mtx[0][2] = mtx[0][2] * sx;  mtx[1][2] = mtx[1][2] * sy;
 
 		dx = dx * invScale[0];
 		dy = dy * invScale[1];
-		dz = dz * invScale[2];
 
-		mtx[3][0] = mtx[3][0] + dx * mtx[0][0] + dy * mtx[1][0] + dz * mtx[2][0];
-		mtx[3][1] = mtx[3][1] + dx * mtx[0][1] + dy * mtx[1][1] + dz * mtx[2][1];
-		mtx[3][2] = mtx[3][2] + dx * mtx[0][2] + dy * mtx[1][2] + dz * mtx[2][2];
+		mtx[3][0] = mtx[3][0] + dx * mtx[0][0] + dy * mtx[1][0];
+		mtx[3][1] = mtx[3][1] + dx * mtx[0][1] + dy * mtx[1][1];
+		mtx[3][2] = mtx[3][2] + dx * mtx[0][2] + dy * mtx[1][2];
 
 	}else {
-		mtx[0][0] = mtx[0][0] * sx;  mtx[1][0] = mtx[1][0] * sy; mtx[2][0] = mtx[2][0] * sz;
-		mtx[0][1] = mtx[0][1] * sx;  mtx[1][1] = mtx[1][1] * sy; mtx[2][1] = mtx[2][1] * sz;
-		mtx[0][2] = mtx[0][2] * sx;  mtx[1][2] = mtx[1][2] * sy; mtx[2][2] = mtx[2][2] * sz;
+		mtx[0][0] = mtx[0][0] * sx;  mtx[1][0] = mtx[1][0] * sy;
+		mtx[0][1] = mtx[0][1] * sx;  mtx[1][1] = mtx[1][1] * sy;
+		mtx[0][2] = mtx[0][2] * sx;  mtx[1][2] = mtx[1][2] * sy;
 
-		mtx[3][0] = mtx[3][0] + dx * mtx[0][0] + dy * mtx[1][0] + dz * mtx[2][0];
-		mtx[3][1] = mtx[3][1] + dx * mtx[0][1] + dy * mtx[1][1] + dz * mtx[2][1];
-		mtx[3][2] = mtx[3][2] + dx * mtx[0][2] + dy * mtx[1][2] + dz * mtx[2][2];
+		mtx[3][0] = mtx[3][0] + dx * mtx[0][0] + dy * mtx[1][0];
+		mtx[3][1] = mtx[3][1] + dx * mtx[0][1] + dy * mtx[1][1];
+		mtx[3][2] = mtx[3][2] + dx * mtx[0][2] + dy * mtx[1][2];
 	}
 	return mtx;
 }
 
-const Matrix4f WidgetMH::getWorldTransformationWithScaleAndTranslation(const Vector3f& scale, const Vector3f& trans, bool relative) const {
-	return getWorldTransformationWithScaleAndTranslation(scale[0], scale[1], scale[2], trans[0], trans[1], trans[2], relative);
+const Matrix4f WidgetMH::getWorldTransformationWithScaleAndTranslation(const Vector2f& scale, const Vector2f& trans, bool relative) const {
+	return getWorldTransformationWithScaleAndTranslation(scale[0], scale[1], trans[0], trans[1], relative);
 }
 
 void WidgetMH::updateWorldTransformation() const {
@@ -422,30 +257,30 @@ void WidgetMH::updateWorldTransformation() const {
 	}
 }
 
-const Vector3f& WidgetMH::getWorldPosition(bool update) const {
+const Vector2f& WidgetMH::getWorldPosition(bool update) const {
 	if (update)
-		WorldPosition = getWorldTransformation().getTranslation();
+		WorldPosition = getWorldTransformation().getTranslation2D();
 	return WorldPosition;
 }
 
-const Vector3f& WidgetMH::getWorldScale(bool update) const {
+const Vector2f& WidgetMH::getWorldScale(bool update) const {
 	if (update)
-		WorldScale = getWorldTransformation().getScale();
+		WorldScale = getWorldTransformation().getScale2D();
 	return WorldScale;
 }
 
-const Quaternion& WidgetMH::getWorldOrientation(bool update) const {
+const float WidgetMH::getWorldOrientation(bool update) const {
 	if (update)
-		WorldOrientation = Quaternion(getWorldTransformation().getRotation());
+		WorldOrientation = getWorldTransformation().getRotation2D().getRoll2D();
 	return WorldOrientation;
 }
 
-void WidgetMH::setScale(const float sx, const float sy, const float sz) {
-	Sprite::setScale(sx, sy, sz);
+void WidgetMH::setScale(const float sx, const float sy) {
+	Sprite::setScale(sx, sy);
 	OnTransformChanged();
 }
 
-void WidgetMH::setScale(const Vector3f& scale) {
+void WidgetMH::setScale(const Vector2f& scale) {
 	Sprite::setScale(scale);
 	OnTransformChanged();
 }
@@ -455,19 +290,19 @@ void WidgetMH::setScale(const float s) {
 	OnTransformChanged();
 }
 
-void WidgetMH::setScaleAbsolute(const float sx, const float sy, const float sz) {
+void WidgetMH::setScaleAbsolute(const float sx, const float sy) {
 	if (m_parent) {
-		const Vector3f& invScale = Vector3f::Inverse(static_cast<WidgetMH*>(m_parent)->getWorldScale());
-		Sprite::setScale(sx * invScale[0], sy * invScale[1], sz * invScale[2]);
+		const Vector2f& invScale = Vector2f::Inverse(static_cast<WidgetMH*>(m_parent)->getWorldScale());
+		Sprite::setScale(sx * invScale[0], sy * invScale[1]);
 	}else {
-		Sprite::setScale(sx, sy, sz);
+		Sprite::setScale(sx, sy);
 	}
 	OnTransformChanged();
 }
 
-void WidgetMH::setScaleAbsolute(const Vector3f& scale) {
+void WidgetMH::setScaleAbsolute(const Vector2f& scale) {
 	if (m_parent) {
-		const Vector3f& invScale = Vector3f::Inverse(static_cast<WidgetMH*>(m_parent)->getWorldScale());
+		const Vector2f& invScale = Vector2f::Inverse(static_cast<WidgetMH*>(m_parent)->getWorldScale());
 		Sprite::setScale(scale * invScale);
 	}else {
 		Sprite::setScale(scale);
@@ -477,95 +312,75 @@ void WidgetMH::setScaleAbsolute(const Vector3f& scale) {
 
 void WidgetMH::setScaleAbsolute(const float s) {
 	if (m_parent) {
-		const Vector3f& invScale = Vector3f::Inverse(static_cast<WidgetMH*>(m_parent)->getWorldScale());
-		Sprite::setScale(s * invScale[0], s * invScale[1], s * invScale[2]);
+		const Vector2f& invScale = Vector2f::Inverse(static_cast<WidgetMH*>(m_parent)->getWorldScale());
+		Sprite::setScale(s * invScale[0], s * invScale[1]);
 	}else {
 		Sprite::setScale(s);
 	}
 	OnTransformChanged();
 }
 
-void WidgetMH::setPosition(const float x, const float y, const float z) {
-	Sprite::setPosition(x, y, z);
+void WidgetMH::setPosition(const float x, const float y) {
+	Sprite::setPosition(x, y);
 	OnTransformChanged();
 }
 
-void WidgetMH::setPosition(const Vector3f& position) {
+void WidgetMH::setPosition(const Vector2f& position) {
 	Sprite::setPosition(position);
 	OnTransformChanged();
 }
 
-void WidgetMH::setOrigin(const float x, const float y, const float z) {
-	Sprite::setOrigin(x, y, z);
+void WidgetMH::setOrigin(const float x, const float y) {
+	Sprite::setOrigin(x, y);
 	OnTransformChanged();
 }
 
-void WidgetMH::setOrigin(const Vector3f& origin) {
+void WidgetMH::setOrigin(const Vector2f& origin) {
 	Sprite::setOrigin(origin);
 	OnTransformChanged();
 }
 
-void WidgetMH::setOrientation(const Vector3f& axis, float degrees) {
-	Sprite::setOrientation(axis, degrees);
+void WidgetMH::setOrientation(float degrees) {
+	Sprite::setOrientation(degrees);
 	OnTransformChanged();
 }
 
-void WidgetMH::setOrientation(const float degreesX, const float degreesY, const float degreesZ) {
-	Sprite::setOrientation(degreesX, degreesY, degreesZ);
-	OnTransformChanged();
-}
-
-void WidgetMH::setOrientation(const Vector3f& euler) {
-	Sprite::setOrientation(euler);
-	OnTransformChanged();
-}
-
-void WidgetMH::setOrientation(const Quaternion& orientation) {
-	Sprite::setOrientation(orientation);
-	OnTransformChanged();
-}
-
-void WidgetMH::setOrientation(const float x, const float y, const float z, const float w) {
-	Sprite::setOrientation(x, y, z, w);
-	OnTransformChanged();
-}
-
-void WidgetMH::translate(const Vector3f& trans) {
+void WidgetMH::translate(const Vector2f& trans) {
 	Sprite::translate(trans);
 	OnTransformChanged();
 }
 
-void WidgetMH::translate(const float dx, const float dy, const float dz) {
-	Sprite::translate(dx, dy, dz);
+void WidgetMH::translate(const float dx, const float dy) {
+	Sprite::translate(dx, dy);
 	OnTransformChanged();
 }
 
-void WidgetMH::translateRelative(const Vector3f& trans) {
+void WidgetMH::translateRelative(const Vector2f& trans) {
 	if (m_parent) {
-		Sprite::translateRelative(trans * Vector3f::Inverse(static_cast<WidgetMH*>(m_parent)->getWorldScale()));
+		Sprite::translateRelative(trans * Vector2f::Inverse(static_cast<WidgetMH*>(m_parent)->getWorldScale()));
 	}else {
 		Sprite::translateRelative(trans);
 	}
 	OnTransformChanged();
 }
 
-void WidgetMH::translateRelative(const float dx, const float dy, const float dz) {
+void WidgetMH::translateRelative(const float dx, const float dy) {
 	if (m_parent) {
-		const Vector3f& invScale = Vector3f::Inverse(static_cast<WidgetMH*>(m_parent)->getWorldScale());
-		Sprite::translateRelative(dx * invScale[0], dy * invScale[1], dz * invScale[2]);
+		const Vector2f& invScale = Vector2f::Inverse(static_cast<WidgetMH*>(m_parent)->getWorldScale());
+		Sprite::translateRelative(dx * invScale[0], dy * invScale[1]);
 	}else {
-		Sprite::translateRelative(dx, dy, dz);
+		Sprite::translateRelative(dx, dy);
 	}
 	OnTransformChanged();
 }
 
-void WidgetMH::scale(const Vector3f& scale) {
+void WidgetMH::scale(const Vector2f& scale) {
 	Sprite::scale(scale);
 	OnTransformChanged();
 }
 
-void WidgetMH::scale(const float sx, const float sy, const float sz) {
-	Sprite::scale(sx, sy, sz);
+void WidgetMH::scale(const float sx, const float sy) {
+	Sprite::scale(sx, sy);
 	OnTransformChanged();
 }
 
@@ -574,9 +389,9 @@ void WidgetMH::scale(const float s) {
 	OnTransformChanged();
 }
 
-void WidgetMH::scaleAbsolute(const Vector3f& scale) {
+void WidgetMH::scaleAbsolute(const Vector2f& scale) {
 	if (m_parent) {
-		const Vector3f& invScale = Vector3f::Inverse(static_cast<WidgetMH*>(m_parent)->getWorldScale());
+		const Vector2f& invScale = Vector2f::Inverse(static_cast<WidgetMH*>(m_parent)->getWorldScale());
 		Sprite::scale(scale * invScale);
 	}else {
 		Sprite::scale(scale);
@@ -584,47 +399,27 @@ void WidgetMH::scaleAbsolute(const Vector3f& scale) {
 	OnTransformChanged();
 }
 
-void WidgetMH::scaleAbsolute(const float sx, const float sy, const float sz) {
+void WidgetMH::scaleAbsolute(const float sx, const float sy) {
 	if (m_parent) {
-		const Vector3f& invScale = Vector3f::Inverse(static_cast<WidgetMH*>(m_parent)->getWorldScale());
-		Sprite::scale(sx * invScale[0], sy * invScale[1], sz * invScale[2]);
+		const Vector2f& invScale = Vector2f::Inverse(static_cast<WidgetMH*>(m_parent)->getWorldScale());
+		Sprite::scale(sx * invScale[0], sy * invScale[1]);
 	}else {
-		Sprite::scale(sx, sy, sz);
+		Sprite::scale(sx, sy);
 	}
 	OnTransformChanged();
 }
 
 void WidgetMH::scaleAbsolute(const float s) {
 	if (m_parent) {
-		const Vector3f& invScale = Vector3f::Inverse(static_cast<WidgetMH*>(m_parent)->getWorldScale());
-		Sprite::scale(s * invScale[0], s * invScale[1], s * invScale[2]);
+		const Vector2f& invScale = Vector2f::Inverse(static_cast<WidgetMH*>(m_parent)->getWorldScale());
+		Sprite::scale(s * invScale[0], s * invScale[1]);
 	}else {
 		Sprite::scale(s);
 	}
 	OnTransformChanged();
 }
 
-void WidgetMH::rotate(const float pitch, const float yaw, const float roll) {
-	Sprite::rotate(pitch, yaw, roll);
-	OnTransformChanged();
-}
-
-void WidgetMH::rotate(const Vector3f& eulerAngle) {
-	Sprite::rotate(eulerAngle);
-	OnTransformChanged();
-}
-
-void WidgetMH::rotate(const Vector3f& axis, float degrees) {
-	Sprite::rotate(axis, degrees);
-	OnTransformChanged();
-}
-
-void WidgetMH::rotate(const Quaternion& orientation) {
-	Sprite::rotate(orientation);
-	OnTransformChanged();
-}
-
-void WidgetMH::rotate(const float x, const float y, const float z, const float w) {
-	Sprite::rotate(x, y, z, w);
+void WidgetMH::rotate(const float degrees) {
+	Sprite::rotate(degrees);
 	OnTransformChanged();
 }

@@ -59,7 +59,7 @@
                                                      \n \
                              out vec4 outColor;      \n \
                                                      \n \
-                             void main() {\n \
+                             void main() {           \n \
 	                             outColor = v_color; \n \
                              }"
 

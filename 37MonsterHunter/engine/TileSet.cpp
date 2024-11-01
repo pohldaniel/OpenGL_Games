@@ -373,18 +373,18 @@ void TileSet::loadTileSetCpu(std::string texturePath, bool init, float tileWidth
 			float srcRectY = (id / tileCountX) * tileHeight;
 
 			if (!flipTextureRects) {
-				textureRects.push_back({ (srcRectX + 0.0005f) / static_cast<float>(imageWidth),
-										   (static_cast<float>(imageHeight) - (srcRectY + tileHeight - 0.0005f)) / static_cast<float>(imageHeight),
-										   (tileWidth - 0.0005f) / static_cast<float>(imageWidth),
-										   tileHeight / static_cast<float>(imageHeight) ,
+				textureRects.push_back({ (srcRectX + 0.5f) / static_cast<float>(imageWidth),
+										   (static_cast<float>(imageHeight) - (srcRectY + tileHeight - 0.5f)) / static_cast<float>(imageHeight),
+										   (tileWidth - 1.0f) / static_cast<float>(imageWidth),
+										   (tileHeight - 1.0f) / static_cast<float>(imageHeight) ,
 										   tileWidth,
 										   tileHeight,
 										   0u });
 			}else {
-				textureRects.push_back({ (srcRectX + 0.0005f) / static_cast<float>(imageWidth),
-										   (static_cast<float>(imageHeight) - srcRectY - 0.0005f) / static_cast<float>(imageHeight),
-										   (tileWidth - 0.0005f) / static_cast<float>(imageWidth),
-										   (0.0005f - tileHeight) / static_cast<float>(imageHeight),
+				textureRects.push_back({ (srcRectX + 0.5f) / static_cast<float>(imageWidth),
+										   (static_cast<float>(imageHeight) - srcRectY - 0.5f) / static_cast<float>(imageHeight),
+										   (tileWidth - 1.0f) / static_cast<float>(imageWidth),
+										   (1.0f - tileHeight) / static_cast<float>(imageHeight),
 										   tileWidth,
 										   tileHeight,
 										   0u });

@@ -21,6 +21,7 @@ TextField::TextField()  {
 TextField::TextField(TextField const& rhs) : Widget(rhs) {
 	
 	m_thickness = rhs.m_thickness;
+	m_transform = rhs.m_transform;
 	m_transformOutline = rhs.m_transformOutline;
 
 	m_fillColor = rhs.m_fillColor;
@@ -39,6 +40,7 @@ TextField& TextField::operator=(const TextField& rhs) {
 	Widget::operator=(rhs);
 
 	m_thickness = rhs.m_thickness;
+	m_transform = rhs.m_transform;
 	m_transformOutline = rhs.m_transformOutline;
 
 	m_fillColor = rhs.m_fillColor;

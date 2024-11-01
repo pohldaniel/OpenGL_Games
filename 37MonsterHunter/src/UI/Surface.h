@@ -22,9 +22,7 @@ public:
 
 	Surface();
 	Surface(const Surface& rhs);
-	Surface& operator=(const Surface& rhs);
 	Surface(Surface&& rhs);
-	Surface& operator=(Surface&& rhs);
 	virtual ~Surface();
 
 	void draw() override;

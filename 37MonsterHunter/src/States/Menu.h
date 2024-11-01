@@ -19,6 +19,7 @@ public:
 	void update() override;
 	void render() override;
 	void resize(int deltaW, int deltaH) override;
+	void OnReEnter() override;
 
 private:
 

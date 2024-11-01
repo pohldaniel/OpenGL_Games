@@ -8,9 +8,7 @@ public:
 
 	BarUI(const TextureRect& textureRect);
 	BarUI(const BarUI& rhs);
-	BarUI& operator=(const BarUI& rhs);
 	BarUI(BarUI&& rhs);
-	BarUI& operator=(BarUI&& rhs);
 	virtual ~BarUI();
 
 	void draw() override;

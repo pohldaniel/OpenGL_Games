@@ -10,8 +10,6 @@ Widget::Widget() {
 	m_size.set(1.0f, 1.0f);
 	m_position.set(0.0f, 0.0f);
 	m_transform.identity();
-
-	
 }
 
 Widget::Widget(Widget const& rhs) {
@@ -65,6 +63,10 @@ void Widget::Resize(unsigned int width, unsigned int height) {
 	BatchShader->use();
 	BatchShader->loadMatrix("u_transform", Orthographic);
 	BatchShader->unuse();
+
+	WidgetShader->use();
+	WidgetShader->loadMatrix("u_transform", Orthographic);
+	WidgetShader->unuse();
 }
 
 void Widget::Init(unsigned int width, unsigned int height) {

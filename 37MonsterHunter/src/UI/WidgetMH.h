@@ -6,71 +6,26 @@
 #include <engine/Sprite.h>
 #include <engine/utils/StringHash.h>
 
-class ObjectMH {
+class NodeUI {
 
 public:
 
-	ObjectMH();
-	ObjectMH(ObjectMH const& rhs);
-	ObjectMH& operator=(const ObjectMH& rhs);
-	ObjectMH(ObjectMH&& rhs);
-	ObjectMH& operator=(ObjectMH&& rhs);
-	virtual ~ObjectMH();
+	NodeUI();
+	NodeUI(const NodeUI& rhs);
+	NodeUI(NodeUI&& rhs);
+	virtual ~NodeUI();
 
-	virtual void setScale(const float sx, const float sy);
-	virtual void setScale(const Vector2f& scale);
-	virtual void setScale(const float s);
-
-	virtual void setPosition(const float x, const float y);
-	virtual void setPosition(const Vector2f& position);
-
-	virtual void setOrientation(const float degrees);
-
-	virtual void translate(const Vector2f& trans);
-	virtual void translate(const float dx, const float dy);
-
-	virtual void translateRelative(const Vector2f& trans);
-	virtual void translateRelative(const float dx, const float dy);
-
-	virtual void scale(const Vector2f& scale);
-	virtual void scale(const float sx, const float sy);
-	virtual void scale(const float s);
-
-	virtual void rotate(const float degrees);
-
-	const Vector2f& getPosition() const;
-	const Vector2f& getScale() const;
-	const float getOrientation() const;
-
-protected:
-
-	Vector2f m_position;
-	Vector2f m_scale;
-	float m_orientation;
-};
-
-class NodeMH {
-
-public:
-
-	NodeMH();
-	NodeMH(const NodeMH& rhs);
-	NodeMH(NodeMH&& rhs);
-	NodeMH& operator=(const NodeMH& rhs);
-	NodeMH& operator=(NodeMH&& rhs);
-	virtual ~NodeMH();
-
-	std::list<std::shared_ptr<NodeMH>>& getChildren() const;
-	void eraseChild(NodeMH* child);
+	std::list<std::shared_ptr<NodeUI>>& getChildren() const;
+	void eraseChild(NodeUI* child);
 	void eraseChild(const int index);
 	void eraseAllChildren(size_t offset = 0);
 	template <class T> void eraseChildren() const;
-	NodeMH* addChild(NodeMH* node);
+	NodeUI* addChild(NodeUI* node);
 	template <class T> T* addChild();
 	template <class T, class U> T* addChild(const U& ref);
 	template <class T, class U> T* addChild(U& ref);
-	NodeMH* getParent() const;
-	void setParent(NodeMH* node);
+	NodeUI* getParent() const;
+	void setParent(NodeUI* node);
 	const int getIndex() const;
 	void setName(const std::string& name);
 	void setIndex(const int index);
@@ -81,37 +36,37 @@ public:
 
 protected:
 
-	mutable std::list<std::shared_ptr<NodeMH>> m_children;
-	NodeMH* m_parent;
+	mutable std::list<std::shared_ptr<NodeUI>> m_children;
+	NodeUI* m_parent;
 	StringHash m_nameHash;
 	int m_index;
 };
 
-template <class T> T* NodeMH::addChild() {
-	m_children.emplace_back(std::shared_ptr<NodeMH>(new T()));
+template <class T> T* NodeUI::addChild() {
+	m_children.emplace_back(std::shared_ptr<NodeUI>(new T()));
 	m_children.back()->m_parent = this;
 	return static_cast<T*>(m_children.back().get());
 }
 
-template <class T, class U> T* NodeMH::addChild(const U& ref) {	
+template <class T, class U> T* NodeUI::addChild(const U& ref) {
 	m_children.emplace_back(std::unique_ptr<T>(new T(ref)));
 	m_children.back()->m_parent = this;
 	return static_cast<T*>(m_children.back().get());
 }
 
-template <class T, class U> T* NodeMH::addChild(U& ref) {
+template <class T, class U> T* NodeUI::addChild(U& ref) {
 	m_children.emplace_back(std::unique_ptr<T>(new T(ref)));
 	m_children.back()->m_parent = this;
 	return static_cast<T*>(m_children.back().get());
 }
 
-template <class T> T* NodeMH::findChild(std::string name, bool recursive) const {
+template <class T> T* NodeUI::findChild(std::string name, bool recursive) const {
 	return findChild<T>(StringHash(name), recursive);
 }
 
-template <class T> T* NodeMH::findChild(StringHash nameHash, bool recursive) const {
+template <class T> T* NodeUI::findChild(StringHash nameHash, bool recursive) const {
 	for (auto it = m_children.begin(); it != m_children.end(); ++it) {
-		NodeMH* child = (*it).get();
+		NodeUI* child = (*it).get();
 		if (!child) {
 			continue;
 		}
@@ -119,7 +74,7 @@ template <class T> T* NodeMH::findChild(StringHash nameHash, bool recursive) con
 		if (child->m_nameHash == nameHash && dynamic_cast<T*>(child) != nullptr)
 			return dynamic_cast<T*>(child);
 		else if (recursive && child->m_children.size()) {
-			NodeMH* result = child->findChild<T>(nameHash, recursive);
+			NodeUI* result = child->findChild<T>(nameHash, recursive);
 			if (result)
 				return dynamic_cast<T*>(result);
 		}
@@ -127,9 +82,9 @@ template <class T> T* NodeMH::findChild(StringHash nameHash, bool recursive) con
 	return nullptr;
 }
 
-template <class T> T* NodeMH::findChild(const int index, bool recursive) const {
+template <class T> T* NodeUI::findChild(const int index, bool recursive) const {
 	for (auto it = m_children.begin(); it != m_children.end(); ++it) {
-		NodeMH* child = (*it).get();
+		NodeUI* child = (*it).get();
 		if (!child) {
 			continue;
 		}
@@ -137,7 +92,7 @@ template <class T> T* NodeMH::findChild(const int index, bool recursive) const {
 		if (child->m_index == index && dynamic_cast<T*>(child) != nullptr)
 			return dynamic_cast<T*>(child);
 		else if (recursive && child->m_children.size()) {
-			NodeMH* result = child->findChild<T>(index, recursive);
+			NodeUI* result = child->findChild<T>(index, recursive);
 			if (result)
 				return dynamic_cast<T*>(result);
 		}
@@ -145,10 +100,10 @@ template <class T> T* NodeMH::findChild(const int index, bool recursive) const {
 	return nullptr;
 }
 
-template <class T> void NodeMH::eraseChildren() const {
+template <class T> void NodeUI::eraseChildren() const {
 
 	for (auto it = m_children.begin(); it != m_children.end();){
-		NodeMH* child = (*it).get();
+		NodeUI* child = (*it).get();
 		if (child && dynamic_cast<T*>(child)){
 			it = m_children.erase(it);
 		}
@@ -156,76 +111,64 @@ template <class T> void NodeMH::eraseChildren() const {
 	}
 }
 
-class WidgetMH : public NodeMH, public Sprite {
+class WidgetMH : public NodeUI, public Sprite {
 
 public:
 	
 	WidgetMH();
 	WidgetMH(const WidgetMH& rhs);
-	WidgetMH& operator=(const WidgetMH& rhs);
 	WidgetMH(WidgetMH&& rhs);
-	WidgetMH& operator=(WidgetMH&& rhs);
 	virtual ~WidgetMH();
 
 	virtual void draw();
-	virtual 
-	//virtual void processInput();
 
-	void setScale(const float sx, const float sy, const float sz) override;
-	void setScale(const Vector3f& scale) override;
+	void setScale(const float sx, const float sy) override;
+	void setScale(const Vector2f& scale) override;
 	void setScale(const float s) override;
 
-	void setScaleAbsolute(const float sx, const float sy, const float sz);
-	void setScaleAbsolute(const Vector3f& scale);
+	void setScaleAbsolute(const float sx, const float sy);
+	void setScaleAbsolute(const Vector2f& scale);
 	void setScaleAbsolute(const float s);
 
-	void setPosition(const float x, const float y, const float z) override;
-	void setPosition(const Vector3f& position) override;
+	void setPosition(const float x, const float y) override;
+	void setPosition(const Vector2f& position) override;
 
-	void setOrigin(const float x, const float y, const float z) override;
-	void setOrigin(const Vector3f& origin);
+	void setOrigin(const float x, const float y) override;
+	void setOrigin(const Vector2f& origin);
 
-	void setOrientation(const Vector3f& axis, float degrees) override;
-	void setOrientation(const float degreesX, const float degreesY, const float degreesZ) override;
-	void setOrientation(const Vector3f& euler) override;
-	void setOrientation(const Quaternion& orientation) override;
-	void setOrientation(const float x, const float y, const float z, const float w) override;
+	void setOrientation(const float degrees) override;
 
-	void translate(const Vector3f& trans) override;
-	void translate(const float dx, const float dy, const float dz) override;
+	void translate(const Vector2f& trans) override;
+	void translate(const float dx, const float dy) override;
 
-	void translateRelative(const Vector3f& trans) override;
-	void translateRelative(const float dx, const float dy, const float dz) override;
+	void translateRelative(const Vector2f& trans) override;
+	void translateRelative(const float dx, const float dy) override;
 
-	void scale(const Vector3f& scale) override;
-	void scale(const float sx, const float sy, const float sz) override;
+	void scale(const Vector2f& scale) override;
+	void scale(const float sx, const float sy) override;
 	void scale(const float s) override;
 
-	void scaleAbsolute(const Vector3f& scale);
-	void scaleAbsolute(const float sx, const float sy, const float sz);
+	void scaleAbsolute(const Vector2f& scale);
+	void scaleAbsolute(const float sx, const float sy);
 	void scaleAbsolute(const float s);
 
-	void rotate(const float pitch, const float yaw, const float roll) override;
-	void rotate(const Vector3f& eulerAngle) override;
-	void rotate(const Vector3f& axis, float degrees) override;
-	void rotate(const Quaternion& orientation) override;
-	void rotate(const float x, const float y, const float z, const float w) override;
+	void rotate(const float degrees) override;
 
 	const Matrix4f& getWorldTransformation() const;
-	const Vector3f& getWorldPosition(bool update = true) const;
-	const Vector3f& getWorldScale(bool update = true) const;
-	const Quaternion& getWorldOrientation(bool update = true) const;
+	const Vector2f& getWorldPosition(bool update = true) const;
+	const Vector2f& getWorldScale(bool update = true) const;
+	const float getWorldOrientation(bool update = true) const;
 	void updateWorldTransformation() const;
 
-	const Matrix4f getWorldTransformationWithTranslation(const Vector3f& trans) const;
-	const Matrix4f getWorldTransformationWithTranslation(float dx, float dy, float dz) const;
+	const Matrix4f getWorldTransformationWithTranslation(const Vector2f& trans) const;
+	const Matrix4f getWorldTransformationWithTranslation(float dx, float dy) const;
 
-	const Matrix4f getWorldTransformationWithScale(float sx, float sy, float sz, bool relative = true) const;
-	const Matrix4f getWorldTransformationWithScale(const Vector3f& scale, bool relative = true) const;
+	const Matrix4f getWorldTransformationWithScale(float sx, float sy, bool relative = true) const;
+	const Matrix4f getWorldTransformationWithScale(const Vector2f& scale, bool relative = true) const;
 	const Matrix4f getWorldTransformationWithScale(const float s, bool relative = true) const;
 
-	const Matrix4f getWorldTransformationWithScaleAndTranslation(float sx, float sy, float sz, float dx, float dy, float dz, bool relative = true) const;
-	const Matrix4f getWorldTransformationWithScaleAndTranslation(const Vector3f& scale, const Vector3f& trans, bool relative = true) const;
+	const Matrix4f getWorldTransformationWithScaleAndTranslation(float sx, float sy, float dx, float dy, bool relative = true) const;
+	const Matrix4f getWorldTransformationWithScaleAndTranslation(const Vector2f& scale, const Vector2f& trans, bool relative = true) const;
 
 protected:
 
@@ -234,9 +177,9 @@ protected:
 private:
 
 	mutable Matrix4f m_modelMatrix;
-	static Vector3f WorldPosition;
-	static Vector3f WorldScale;
-	static Quaternion WorldOrientation;
+	static Vector2f WorldPosition;
+	static Vector2f WorldScale;
+	static float WorldOrientation;
 	mutable bool m_isDirty;
 };
 

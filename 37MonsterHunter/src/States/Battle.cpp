@@ -14,6 +14,7 @@
 
 std::random_device Battle::RandomDevice;
 std::mt19937 Battle::MersenTwist(RandomDevice());
+Sprite Battle::SurfaceBar;
 
 Battle::Battle(StateMachine& machine) : State(machine, States::BATTLE), 
 m_mapHeight(0.0f), 
@@ -474,8 +475,8 @@ void Battle::drawAttacks() {
 	shader->loadUnsignedInt("u_edge", Edge::ALL);
 
 	m_surface.setShader(shader);
-	m_surface.setPosition(cell.posX + cell.width + 20.0f, cell.posY + 0.5f * cell.height - 0.5f * height, 0.0f);
-	m_surface.setScale(width, height, 1.0f);
+	m_surface.setPosition(cell.posX + cell.width + 20.0f, cell.posY + 0.5f * cell.height - 0.5f * height);
+	m_surface.setScale(width, height);
 	m_surface.draw();
 	
 	int index = 0;	
@@ -491,8 +492,8 @@ void Battle::drawAttacks() {
 				shader->loadUnsignedInt("u_edge", Edge::EDGE_NONE);
 			
 			shader->loadVector("u_dimensions", Vector2f(width, itemHeight));
-			m_surface.setPosition(cell.posX + cell.width + 20.0f, cell.posY + 0.5f * cell.height - 0.5f * height + height - (index + 1) * itemHeight, 0.0f);
-			m_surface.setScale(width, itemHeight, 1.0f);
+			m_surface.setPosition(cell.posX + cell.width + 20.0f, cell.posY + 0.5f * cell.height - 0.5f * height + height - (index + 1) * itemHeight);
+			m_surface.setScale(width, itemHeight);
 			m_surface.draw(Vector4f(0.78431f, 0.78431f, 0.78431f, 1.0f));
 		}
 
@@ -530,8 +531,8 @@ void Battle::drawSwitch() {
 	shader->loadUnsignedInt("u_edge", Edge::ALL);
 
 	m_surface.setShader(shader);
-	m_surface.setPosition(cell.posX + cell.width + 20.0f, cell.posY + 0.5f * cell.height - 0.5f * height, 0.0f);
-	m_surface.setScale(width, height, 1.0f);
+	m_surface.setPosition(cell.posX + cell.width + 20.0f, cell.posY + 0.5f * cell.height - 0.5f * height);
+	m_surface.setScale(width, height);
 	m_surface.draw();
 
 	if (m_currentSelectedOption == m_currentOffset)
@@ -542,8 +543,8 @@ void Battle::drawSwitch() {
 		shader->loadUnsignedInt("u_edge", Edge::EDGE_NONE);
 
 	shader->loadVector("u_dimensions", Vector2f(width, itemHeight));
-	m_surface.setPosition(cell.posX + cell.width + 20.0f, cell.posY + 0.5f * cell.height - 0.5f * height + height - (m_currentSelectedOption - m_currentOffset + 1) * itemHeight, 0.0f);
-	m_surface.setScale(width, itemHeight, 1.0f);
+	m_surface.setPosition(cell.posX + cell.width + 20.0f, cell.posY + 0.5f * cell.height - 0.5f * height + height - (m_currentSelectedOption - m_currentOffset + 1) * itemHeight);
+	m_surface.setScale(width, itemHeight);
 	m_surface.draw(Vector4f(0.78431f, 0.78431f, 0.78431f, 1.0f));
 
 	for (size_t index = m_currentOffset; index < m_currentOffset + std::min(m_visibleItems, m_currentMax - m_currentOffset); index++) {
@@ -566,16 +567,16 @@ void Battle::drawSwitch() {
 		float iconPosY = cell.posY + 0.5f * cell.height - 0.5f * height + height - (index - m_currentOffset + 1) * itemHeight + 0.5f * itemHeight - iconRect.height * 0.5f;
 
 		
-		m_surface.setPosition(iconPosX, iconPosY, 0.0f);
-		m_surface.setScale(iconRect.width, iconRect.height, 1.0f);
+		m_surface.setPosition(iconPosX, iconPosY);
+		m_surface.setScale(iconRect.width, iconRect.height);
 		m_surface.draw(iconRect, Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
 
 
 		float barPosX = cell.posX + cell.width + 20.0f + 90.0f;
 		float barPosY = cell.posY + 0.5f * cell.height - 0.5f * height + height - (index - m_currentOffset + 1) * itemHeight + 0.5f * itemHeight - 0.5f * lineHeight;
 
-		MonsterIndex::DrawBar({ barPosX, barPosY - 9.0f,  100.0f, 5.0f }, m_filteredMonsters[index].get().health, static_cast<float>(m_filteredMonsters[index].get().level * MonsterIndex::MonsterData[m_filteredMonsters[index].get().name].maxHealth), Vector4f(0.0f, 0.0f, 0.0f, 1.0f), Vector4f(0.94117f, 0.19215f, 0.19215f, 1.0f), 0.0f);
-		MonsterIndex::DrawBar({ barPosX, barPosY - 16.0f, 100.0f, 5.0f }, m_filteredMonsters[index].get().energy, static_cast<float>(m_filteredMonsters[index].get().level * MonsterIndex::MonsterData[m_filteredMonsters[index].get().name].maxEnergy), Vector4f(0.0f, 0.0f, 0.0f, 1.0f), Vector4f(0.4f, 0.84313f, 0.93333f, 1.0f), 0.0f);
+		Battle::DrawBar({ barPosX, barPosY - 9.0f,  100.0f, 5.0f }, m_filteredMonsters[index].get().health, static_cast<float>(m_filteredMonsters[index].get().level * MonsterIndex::MonsterData[m_filteredMonsters[index].get().name].maxHealth), Vector4f(0.0f, 0.0f, 0.0f, 1.0f), Vector4f(0.94117f, 0.19215f, 0.19215f, 1.0f), 0.0f);
+		Battle::DrawBar({ barPosX, barPosY - 16.0f, 100.0f, 5.0f }, m_filteredMonsters[index].get().energy, static_cast<float>(m_filteredMonsters[index].get().level * MonsterIndex::MonsterData[m_filteredMonsters[index].get().name].maxEnergy), Vector4f(0.0f, 0.0f, 0.0f, 1.0f), Vector4f(0.4f, 0.84313f, 0.93333f, 1.0f), 0.0f);
 	}
 }
 
@@ -1004,4 +1005,39 @@ void Battle::setOpponentMonsters(const std::vector<MonsterEntry>& monsters, bool
 
 void Battle::setBiomeBackground(const std::string& biomeBackground) {
 	m_biomeBackground = biomeBackground;
+}
+
+void Battle::DrawBar(const Rect& rect, float value, float maxValue, const Vector4f& bgColor, const Vector4f& color, float radius) {
+	float ratio = rect.width / maxValue;
+	float progress = std::max(0.0f, std::min(rect.width, value * ratio));
+
+	if (radius != 0.0f) {
+		SurfaceBar.setShader(Globals::shaderManager.getAssetPointer("list"));
+		auto shader = SurfaceBar.getShader();
+		shader->use();
+		shader->loadFloat("u_radius", radius);
+		shader->loadUnsignedInt("u_edge", Edge::ALL);
+
+		shader->loadVector("u_dimensions", Vector2f(rect.width, rect.height));
+		SurfaceBar.setPosition(rect.posX, rect.posY);
+		SurfaceBar.setScale(rect.width, rect.height);
+		SurfaceBar.draw(bgColor);
+
+		shader->loadVector("u_dimensions", Vector2f(progress, rect.height));
+		SurfaceBar.setPosition(rect.posX, rect.posY);
+		SurfaceBar.setScale(progress, rect.height);
+		SurfaceBar.draw(color);
+
+	}else {
+		Spritesheet::Bind(TileSetManager::Get().getTileSet("monster_icon").getAtlas());
+		SurfaceBar.resetShader();
+
+		SurfaceBar.setPosition(rect.posX, rect.posY);
+		SurfaceBar.setScale(rect.width, rect.height);
+		SurfaceBar.draw(TileSetManager::Get().getTileSet("monster_icon").getTextureRects()[16], bgColor);
+
+		SurfaceBar.setPosition(rect.posX, rect.posY);
+		SurfaceBar.setScale(progress, rect.height);
+		SurfaceBar.draw(TileSetManager::Get().getTileSet("monster_icon").getTextureRects()[16], color);
+	}
 }

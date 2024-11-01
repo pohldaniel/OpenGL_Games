@@ -14,15 +14,6 @@ Surface::Surface(const Surface& rhs) :
 
 }
 
-Surface& Surface::operator=(const Surface& rhs) {
-	WidgetMH::operator=(rhs);
-	m_draw = rhs.m_draw;
-	m_color = rhs.m_color;
-	m_edge = rhs.m_edge;
-	m_borderRadius = rhs.m_borderRadius;
-	return *this;
-}
-
 Surface::Surface(Surface&& rhs) :
 	WidgetMH(rhs),
 	m_draw(std::move(rhs.m_draw)),
@@ -30,15 +21,6 @@ Surface::Surface(Surface&& rhs) :
 	m_edge(rhs.m_edge),
 	m_borderRadius(rhs.m_borderRadius) {
 
-}
-
-Surface& Surface::operator=(Surface&& rhs) {
-	WidgetMH::operator=(rhs);
-	m_draw = std::move(rhs.m_draw);
-	m_color = rhs.m_color;
-	m_edge = rhs.m_edge;
-	m_borderRadius = rhs.m_borderRadius;
-	return *this;
 }
 
 Surface::~Surface() {
@@ -74,8 +56,7 @@ void Surface::draw() {
 }
 
 void Surface::drawDefault() {
-
-	const Vector3f& scale = getWorldScale();
+ 	const Vector2f& scale = getWorldScale();
 	m_shader->use();
 	m_shader->loadVector("u_dimensions", Vector2f(scale[0], scale[1]));
 	m_shader->loadFloat("u_radius", m_borderRadius);

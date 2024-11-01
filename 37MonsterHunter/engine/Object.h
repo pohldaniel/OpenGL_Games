@@ -2,6 +2,65 @@
 
 #include "Vector.h"
 
+class Object2D {
+
+public:
+
+	Object2D();
+	Object2D(Object2D const& rhs);
+	Object2D& operator=(const Object2D& rhs);
+	Object2D(Object2D&& rhs);
+	Object2D& operator=(Object2D&& rhs);
+	virtual ~Object2D();
+
+	virtual void setScale(const float sx, const float sy);
+	virtual void setScale(const Vector2f& scale);
+	virtual void setScale(const float s);
+
+	virtual void setPosition(const float x, const float y);
+	virtual void setPosition(const Vector2f& position);
+
+	virtual void setOrigin(const float x, const float y);
+	virtual void setOrigin(const Vector2f& origin);
+
+	virtual void setOrientation(const float degrees);
+
+	virtual void translate(const Vector2f& trans);
+	virtual void translate(const float dx, const float dy);
+
+	virtual void translateRelative(const Vector2f& trans);
+	virtual void translateRelative(const float dx, const float dy);
+
+	virtual void scale(const Vector2f& scale);
+	virtual void scale(const float sx, const float sy);
+	virtual void scale(const float s);
+
+	virtual void rotate(const float degrees);
+
+	const Vector2f& getPosition() const;
+	const Vector2f& getScale() const;
+	const float getOrientation() const;
+
+	const Matrix4f& getTransformationSOP() const;
+	const Matrix4f& getTransformationSO() const;
+	const Matrix4f& getTransformationSP() const;
+	const Matrix4f& getTransformationOP() const;
+	const Matrix4f& getTransformationO() const;
+	const Matrix4f& getTransformationP() const;
+	const Matrix4f& getTransformationS() const;
+
+	static const Matrix4f &GetTransformation();
+
+protected:
+
+	Vector2f m_position;
+	Vector2f m_origin;
+	Vector2f m_scale;
+	float m_orientation;
+
+	static Matrix4f Transformation;
+};
+
 class Object {
 
 public:
@@ -61,8 +120,8 @@ public:
 protected:
 
 	Vector3f m_position;
-	Vector3f m_scale;
 	Vector3f m_origin;
+	Vector3f m_scale;	
 	Quaternion m_orientation;
 
 	static Matrix4f Transformation;

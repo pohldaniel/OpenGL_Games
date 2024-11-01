@@ -18,17 +18,6 @@ Label::Label(const Label& rhs) :
 
 }
 
-Label& Label::operator=(const Label& rhs) {
-	WidgetMH::operator=(rhs);
-	m_draw = rhs.m_draw;
-	m_label = rhs.m_label;
-	m_color = rhs.m_color;
-	m_size = rhs.m_size;
-	m_offsetX = rhs.m_offsetX;
-	m_offsetY = rhs.m_offsetY;
-	return *this;
-}
-
 Label::Label(Label&& rhs) : 
 	WidgetMH(rhs), 
 	characterSet(std::move(rhs.characterSet)), 
@@ -39,17 +28,6 @@ Label::Label(Label&& rhs) :
 	m_offsetX(rhs.m_offsetX),
 	m_offsetY(rhs.m_offsetY) {
 
-}
-
-Label& Label::operator=(Label&& rhs) {
-	WidgetMH::operator=(rhs);
-	m_draw = std::move(rhs.m_draw);
-	m_label = rhs.m_label;
-	m_color = rhs.m_color;
-	m_size = rhs.m_size;
-	m_offsetX = rhs.m_offsetX;
-	m_offsetX = rhs.m_offsetX;
-	return *this;
 }
 
 Label::~Label() {
@@ -90,7 +68,7 @@ void Label::setOffsetY(const float offsetY) {
 void Label::drawDefault() {
 	characterSet.bind();
 	if (m_offsetX || m_offsetY) {
-		Fontrenderer::Get().addTextTransformed(characterSet, getWorldTransformationWithTranslation(m_offsetX, m_offsetY, 0.0f), m_label, m_color, m_size);
+		Fontrenderer::Get().addTextTransformed(characterSet, getWorldTransformationWithTranslation(m_offsetX, m_offsetY), m_label, m_color, m_size);
 	}else {
 		Fontrenderer::Get().addTextTransformed(characterSet, getWorldTransformation(), m_label, m_color, m_size);
 	}
@@ -112,16 +90,6 @@ TextFieldMH::TextFieldMH(const TextFieldMH& rhs) :
 
 }
 
-TextFieldMH& TextFieldMH::operator=(const TextFieldMH& rhs) {
-	Label::operator=(rhs);
-	m_paddingX = rhs.m_paddingX;
-	m_paddingY = rhs.m_paddingY;
-	m_backgroundColor = rhs.m_backgroundColor;
-	m_edge = m_edge;
-	m_borderRadius = m_borderRadius;
-	return *this;
-}
-
 TextFieldMH::TextFieldMH(TextFieldMH&& rhs) :
 	Label(rhs),
 	m_paddingX(rhs.m_paddingX),
@@ -130,16 +98,6 @@ TextFieldMH::TextFieldMH(TextFieldMH&& rhs) :
 	m_edge(rhs.m_edge),
 	m_borderRadius(rhs.m_borderRadius) {
 
-}
-
-TextFieldMH& TextFieldMH::operator=(TextFieldMH&& rhs) {
-	Label::operator=(rhs);
-	m_paddingX = rhs.m_paddingX;
-	m_paddingY = rhs.m_paddingY;
-	m_backgroundColor = rhs.m_backgroundColor;
-	m_edge = m_edge;
-	m_borderRadius = m_borderRadius;
-	return *this;
 }
 
 TextFieldMH::~TextFieldMH() {
@@ -184,7 +142,7 @@ void TextFieldMH::drawDefault() {
 
 	characterSet.bind();
 	if (m_offsetX || m_offsetY) {
-		Fontrenderer::Get().addTextTransformed(characterSet, getWorldTransformationWithTranslation(m_offsetX, m_offsetY, 0.0f), m_label, m_color, m_size);
+		Fontrenderer::Get().addTextTransformed(characterSet, getWorldTransformationWithTranslation(m_offsetX, m_offsetY), m_label, m_color, m_size);
 	}
 	else {
 		Fontrenderer::Get().addTextTransformed(characterSet, getWorldTransformation(), m_label, m_color, m_size);

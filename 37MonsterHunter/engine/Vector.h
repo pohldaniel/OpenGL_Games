@@ -80,6 +80,7 @@ public:
 
 	static float Dot(const Vector2f &p, const Vector2f &q);
 	static float Length(const Vector2f &p, const Vector2f &q);
+	static Vector2f Inverse(const Vector2f &p);
 
 private:
 
@@ -276,6 +277,7 @@ public:
 	void rotate(const Vector3f& axis, float degrees, const Vector3f& centerOfRotation);
 	void rotate(const Quaternion& orientation, const Vector3f& centerOfRotation);
 	void rotate(float pitch, float yaw, float roll, const Vector3f& centerOfRotation);
+	void rotate(float degreesZ, const Vector2f& centerOfRotation);
 
 	void invRotate(const Vector3f& axis, float degrees);
 	void invRotate(const Quaternion& orientation);
@@ -287,12 +289,15 @@ public:
 
 	void translate(float dx, float dy, float dz);
 	void translate(const Vector3f& trans);
+	void translate(const Vector2f& trans);
 
 	void invTranslate(float dx, float dy, float dz);
 	void invTranslate(const Vector3f& trans);
 
 	void scale(float a, float b, float c);
 	void scale(const Vector3f& scale);
+	void scale(const Vector2f& scale);
+	void scale(float s);
 
 	void scale(float a, float b, float c, const Vector3f& centerOfScale);
 	void scale(const Vector3f& scale, const Vector3f& centerOfScale);
@@ -307,6 +312,10 @@ public:
 	Vector3f getScale() const;
 	Matrix4f getRotation() const;
 
+	Vector2f getTranslation2D() const;
+	Vector2f getScale2D() const;
+	Matrix4f getRotation2D() const;
+
 	void perspective(float fovx, float aspect, float znear, float zfar);
 	//void perspective(float left, float right, float bottom, float top, float znear, float zfar);
 	void orthographic(float left, float right, float bottom, float top, float znear, float zfar);
@@ -318,6 +327,7 @@ public:
 	void invLookAt(const Vector3f &eye, const Vector3f& target, const Vector3f& up);
 
 	void toHeadPitchRoll(float& pitch, float& yaw, float& roll) const;
+	float getRoll2D();
 
 	void print() const;
 	void set(float m11, float m12, float m13, float m14,
@@ -339,10 +349,13 @@ public:
 	static Matrix4f Scale(float x, float y, float z, const Vector3f& centerOfScale);
 	static Matrix4f Scale(const Vector3f& scale, const Vector3f& centerOfScale);
 	static Matrix4f Scale(const Vector3f& scale, const Vector3f& a, const Vector3f& b);
+	static Matrix4f Scale(const Vector2f& scale);
+	static Matrix4f Scale(float s);
 
 	static Matrix4f Translate(float dx, float dy, float dz);
-	static Matrix4f Translate(const Vector3f & trans);
+	static Matrix4f Translate(const Vector3f& trans);
 	static Matrix4f &Translate(Matrix4f& mtx, float dx, float dy, float dz);
+	static Matrix4f Translate(const Vector2f& trans);
 
 	static Matrix4f InvTranslate(float dx, float dy, float dz);
 	static Matrix4f InvTranslate(const Vector3f& trans);
@@ -357,6 +370,7 @@ public:
 	static Matrix4f Rotate(const Quaternion& orientation, const Vector3f& centerOfRotation);
 	static Matrix4f Rotate(float pitch, float yaw, float roll, const Vector3f& centerOfRotation);
 	static Matrix4f Rotate(const Vector3f& eulerAngles, const Vector3f&centerOfRotation);
+	static Matrix4f Rotate(float degreesZ, const Vector2f& centerOfRotation);
 
 	static Matrix4f &Rotate(Matrix4f& mtx, const Vector3f& axis, float degrees);
 	static Matrix4f &Rotate(Matrix4f& mtx, const Vector3f& axis, float degrees, const Vector3f&centerOfRotation);

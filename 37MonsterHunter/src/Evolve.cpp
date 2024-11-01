@@ -73,8 +73,8 @@ void Evolve::draw() {
 	Spritesheet::Bind(m_atlasMonster);
 	const TextureRect& rect = TileSetManager::Get().getTileSet("monster").getTextureRects()[MonsterIndex::MonsterData[m_currentMonster].graphic * 16];
 	m_surface.setShader(shader);
-	m_surface.setPosition(0.5f * m_viewWidth - rect.width, 0.5f * m_viewHeight - rect.height, 0.0f);
-	m_surface.setScale(2.0f * rect.width, 2.0f *  rect.height, 1.0f);
+	m_surface.setPosition(0.5f * m_viewWidth - rect.width, 0.5f * m_viewHeight - rect.height);
+	m_surface.setScale(2.0f * rect.width, 2.0f *  rect.height);
 	m_surface.draw(rect);
 	if (m_currentMonster == m_startMonster) {
 		float width = Globals::fontManager.get("bold").getWidth(m_startMonster + " is evolving") * 0.05f + 20.0f;
@@ -87,8 +87,8 @@ void Evolve::draw() {
 		shader->loadFloat("u_radius", 5.0f);
 		shader->unuse();
 		m_surface.setShader(shader);
-		m_surface.setPosition(0.5f * m_viewWidth - 0.5f * width - 10.0f, 0.5f * m_viewHeight - rect.height - lineHeight - 30.0f, 0.0f);
-		m_surface.setScale(width, height, 1.0f);
+		m_surface.setPosition(0.5f * m_viewWidth - 0.5f * width - 10.0f, 0.5f * m_viewHeight - rect.height - lineHeight - 30.0f);
+		m_surface.setScale(width, height);
 		m_surface.draw(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
 
 		Globals::fontManager.get("bold").bind();
@@ -104,8 +104,8 @@ void Evolve::draw() {
 		shader->loadFloat("u_radius", 5.0f);
 		shader->unuse();
 		m_surface.setShader(shader);
-		m_surface.setPosition(0.5f * m_viewWidth - 0.5f * width - 10.0f, 0.5f * m_viewHeight - rect.height - lineHeight - 30.0f, 0.0f);
-		m_surface.setScale(width, height, 1.0f);
+		m_surface.setPosition(0.5f * m_viewWidth - 0.5f * width - 10.0f, 0.5f * m_viewHeight - rect.height - lineHeight - 30.0f);
+		m_surface.setScale(width, height);
 		m_surface.draw(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
 
 		Globals::fontManager.get("bold").bind();
@@ -184,8 +184,8 @@ void Evolve::displayStars() {
 	TileSetManager::Get().getTileSet("star").bind();
 	const TextureRect& rect = TileSetManager::Get().getTileSet("star").getTextureRects()[m_currentFrame];
 	m_surface.resetShader();
-	m_surface.setPosition(0.5f * m_viewWidth - rect.width, 0.5f * m_viewHeight - rect.height, 0.0f);
-	m_surface.setScale(2.0f * rect.width, 2.0f *  rect.height, 1.0f);
+	m_surface.setPosition(0.5f * m_viewWidth - rect.width, 0.5f * m_viewHeight - rect.height);
+	m_surface.setScale(2.0f * rect.width, 2.0f *  rect.height);
 	m_surface.draw(rect, Vector4f(1.0f, 1.0f, 1.0f, 1.0f - m_progress));
 }
 

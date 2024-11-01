@@ -26,8 +26,8 @@ Tmx::Tmx(StateMachine& machine) : State(machine, States::TMX) {
 
 	glClearColor(0.6f, 0.8f, 0.92f, 1.0f);
 	glClearDepth(1.0f);
-
-	TileSetManager::Get().getTileSet("demo").loadTileSetCpu("res/tmx/images/tilemap/tileset.png", true, 64.0f, 64.0f, true, false);
+	TextureAtlasCreator::Get().init(1024u, 512u);
+	TileSetManager::Get().getTileSet("demo").loadTileSetCpu("res/tmx/images/tilemap/tileset.png", false, 64.0f, 64.0f, true, false);
 	TileSetManager::Get().getTileSet("demo").loadTileSetCpu("res/tmx/images/tilemap/tileset02.png", false, 32.0f, 32.0f, true, false);
 	TileSetManager::Get().getTileSet("demo").loadTileSetGpu();
 	m_atlas = TileSetManager::Get().getTileSet("demo").getAtlas();
@@ -111,7 +111,7 @@ void Tmx::render() {
 
 	Spritesheet::Bind(m_atlas);
 	for (auto cell : m_cells) {
-		Batchrenderer::Get().addQuadAA(Vector4f(cell.posX - m_camera.getPositionX(), (m_mapHeight - m_tileHeight) - cell.posY - m_camera.getPositionY(), cell.rect.width, cell.rect.height), Vector4f(cell.rect.textureOffsetX, cell.rect.textureOffsetY, cell.rect.textureWidth, cell.rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), cell.rect.frame);
+		Batchrenderer::Get().addQuadAA(Vector4f(cell.posX - m_camera.getPositionX(), (m_mapHeight - m_tileHeight) - cell.posY  - m_camera.getPositionY(), cell.rect.width, cell.rect.height), Vector4f(cell.rect.textureOffsetX, cell.rect.textureOffsetY, cell.rect.textureWidth, cell.rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), cell.rect.frame);
 	}
 	Batchrenderer::Get().drawBuffer();
 

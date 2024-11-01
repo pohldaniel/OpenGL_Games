@@ -64,8 +64,6 @@ public:
 	void reset();
 	void initUI(float viewWidth, float viewHeight);
 
-	static void DrawBar(const Rect& rect, float value, float maxValue, const Vector4f& bgColor, const Vector4f& color, float radius = 1.0f);
-
 	static std::unordered_map<std::string, MonsterData> MonsterData;
 	static std::vector<MonsterEntry> Monsters;
 	static std::unordered_map<std::string, AttackData> _AttackData;
@@ -89,6 +87,6 @@ private:
 	std::string m_stateLabels[6];
 	std::unordered_map<std::string, float> m_maxStats;
 
-	static Sprite SurfaceBar;
+	
 	bool m_rotate;
 };
