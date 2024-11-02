@@ -59,10 +59,8 @@ Application::~Application() {
 }
 
 void Application::createWindow() {
-
 	
-	WNDCLASSEX windowClass;
-
+	WNDCLASSEX windowClass = {};
 	windowClass.cbSize = sizeof(WNDCLASSEX);
 	windowClass.style = CS_HREDRAW | CS_VREDRAW;
 	windowClass.lpfnWndProc = StaticWndProc;
