@@ -19,11 +19,12 @@ void StateMachine::update() {
 	if (!m_states.empty()) {
 		m_states.top()->update();
 		if (!m_states.top()->isRunning()) {
+			States state = m_states.top()->getCurrentState();
 			delete m_states.top();
 			m_states.pop();
 			ImGui::GetIO().WantCaptureMouse = false;
 			if (!m_states.empty())
-				m_states.top()->OnReEnter();
+				m_states.top()->OnReEnter(state);
 		}
 	}else {
 		m_isRunning = false;

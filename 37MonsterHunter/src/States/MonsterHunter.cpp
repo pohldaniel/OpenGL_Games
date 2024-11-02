@@ -66,6 +66,7 @@ MonsterHunter::MonsterHunter(StateMachine& machine) : State(machine, States::MON
 
 	m_evolve.setViewWidth(m_viewWidth);
 	m_evolve.setViewHeight(m_viewHeight);
+	m_evolve.initUI(m_viewWidth, m_viewHeight);
 
 	Sprite::Init(static_cast<unsigned int>(m_viewWidth), static_cast<unsigned int>(m_viewHeight));
 
@@ -217,6 +218,10 @@ void MonsterHunter::update() {
 		m_monsterIndex.processInput();
 	}
 
+	if (keyboard.keyPressed(Keyboard::KEY_E)) {
+		checkForEvolution();
+	}
+
 	for (Character& character : m_zone.getCharacters()) {
 		if (character.raycast(m_zone.getPlayer())) {
 			character.setRayCast(false);
@@ -289,33 +294,35 @@ void MonsterHunter::render() {
 		renderUi();
 }
 
-void MonsterHunter::OnReEnter() {
-	EventDispatcher::AddKeyboardListener(this);
-	EventDispatcher::AddMouseListener(this);
-	m_zone.setAlpha(0.0f);
+void MonsterHunter::OnReEnter(unsigned int prevState) {
+	if (prevState == States::BATTLE) {
+		EventDispatcher::AddKeyboardListener(this);
+		EventDispatcher::AddMouseListener(this);
+		m_zone.setAlpha(0.0f);
 
-	m_zone.getFade().setOnFadeIn([this]() {
-		if (m_lastCharacter) {
-			m_zone.getPlayer().block();
-			Trainer& trainer = DialogTree::Trainers[m_lastCharacter->getCharacterId()];
-			for (auto& dialog : trainer.dialog.defeated) {
-				m_dialogTree.addDialog(m_lastCharacter->getCell().posX, m_mapHeight - (m_lastCharacter->getCell().posY - 128.0f), 0.0f, 0.0f, dialog, 0);
-			}
-			m_dialogTree.setFinished(false);
-			m_lastCharacter = nullptr;
-			m_dialogTree.setOnDialogFinished([this]() {
+		m_zone.getFade().setOnFadeIn([this]() {
+			if (m_lastCharacter) {
+				m_zone.getPlayer().block();
+				Trainer& trainer = DialogTree::Trainers[m_lastCharacter->getCharacterId()];
+				for (auto& dialog : trainer.dialog.defeated) {
+					m_dialogTree.addDialog(m_lastCharacter->getCell().posX, m_mapHeight - (m_lastCharacter->getCell().posY - 128.0f), 0.0f, 0.0f, dialog, 0);
+				}
+				m_dialogTree.setFinished(false);
+				m_lastCharacter = nullptr;
+				m_dialogTree.setOnDialogFinished([this]() {
+					m_zone.getPlayer().unblock();
+					m_monsterIndex.resetStats();
+					checkForEvolution();
+					});
+
+			}else {
 				m_zone.getPlayer().unblock();
-				m_monsterIndex.resetStats();
 				checkForEvolution();
-			});
+			}
 
-		}else {
-			m_zone.getPlayer().unblock();
-			checkForEvolution();
-		}
-		
-	});
-	m_zone.getFade().fadeIn();	
+			});
+		m_zone.getFade().fadeIn();
+	}
 }
 
 void MonsterHunter::OnMouseMotion(Event::MouseMoveEvent& event) {

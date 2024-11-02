@@ -1,11 +1,12 @@
 #pragma once
 #include <functional>
 #include <engine/Sprite.h>
+#include <UI/Surface.h>
 
 #include "Fade.h"
 #include "Timer.h"
 
-class Evolve {
+class Evolve : public Surface {
 
 public:
 
@@ -22,6 +23,7 @@ public:
 	void startEvolution();
 	void setOnEvolveEnd(std::function<void()> fun);
 	void setCurentMonsterIndex(int curentMonsterIndex);
+	void initUI(float viewWidth, float viewHeight);
 
 private:
 
@@ -30,7 +32,6 @@ private:
 	float m_viewWidth, m_viewHeight, m_fadeValue;
 	Sprite m_surface;
 	std::string m_currentMonster, m_startMonster, m_endMonster;
-
 	float m_elapsedTime, m_progress;
 	int m_currentFrame;
 	int m_frameCount, m_curentMonsterIndex;

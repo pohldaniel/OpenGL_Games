@@ -90,7 +90,7 @@ void Menu::resize(int deltaW, int deltaH) {
 	m_headline.setPosition(Vector2f(static_cast<float>(Application::Width / 2 - 220), static_cast<float>(Application::Height - 200)));
 }
 
-void Menu::OnReEnter() {
+void Menu::OnReEnter(unsigned int prevState) {
 	auto shader = Globals::shaderManager.getAssetPointer("font");
 	shader->use();
 	shader->loadMatrix("u_transform", Matrix4f::Orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f));

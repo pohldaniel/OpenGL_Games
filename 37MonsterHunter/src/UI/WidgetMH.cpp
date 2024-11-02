@@ -160,11 +160,9 @@ const Matrix4f WidgetMH::getWorldTransformationWithTranslation(const Vector2f& t
 		float dy = trans[1] * invScale[1];
 		mtx[3][0] = mtx[3][0] + dx * mtx[0][0] + dy * mtx[1][0];
 		mtx[3][1] = mtx[3][1] + dx * mtx[0][1] + dy * mtx[1][1];
-		mtx[3][2] = mtx[3][2] + dx * mtx[0][2] + dy * mtx[1][2];
 	}else {
 		mtx[3][0] = mtx[3][0] + trans[0] * mtx[0][0] + trans[1] * mtx[1][0];
 		mtx[3][1] = mtx[3][1] + trans[0] * mtx[0][1] + trans[1] * mtx[1][1];
-		mtx[3][2] = mtx[3][2] + trans[0] * mtx[0][2] + trans[1] * mtx[1][2];
 	}
 	return mtx;	
 }
@@ -176,12 +174,10 @@ const Matrix4f WidgetMH::getWorldTransformationWithTranslation(float dx, float d
 		dx = dx * invScale[0];
 		dy = dy * invScale[1];
 		mtx[3][0] = mtx[3][0] + dx* mtx[0][0] + dy* mtx[1][0];
-		mtx[3][1] = mtx[3][1] + dx* mtx[0][1] + dy* mtx[1][1];
-		mtx[3][2] = mtx[3][2] + dx* mtx[0][2] + dy* mtx[1][2];		
+		mtx[3][1] = mtx[3][1] + dx* mtx[0][1] + dy* mtx[1][1];		
 	}else {
 		mtx[3][0] = mtx[3][0] + dx * mtx[0][0] + dy * mtx[1][0];
 		mtx[3][1] = mtx[3][1] + dx * mtx[0][1] + dy * mtx[1][1];
-		mtx[3][2] = mtx[3][2] + dx * mtx[0][2] + dy * mtx[1][2];
 	}
 	return mtx;
 }
@@ -191,15 +187,12 @@ const Matrix4f WidgetMH::getWorldTransformationWithScale(float sx, float sy, boo
 	if (m_parent && relative) {
 		const Vector2f& invScale = Vector2f::Inverse(static_cast<WidgetMH*>(m_parent)->getWorldScale());
 		sx = sx * invScale[0];
-		sy = sy * invScale[1];
-		
+		sy = sy * invScale[1];		
 		mtx[0][0] = mtx[0][0] * sx;  mtx[1][0] = mtx[1][0] * sy;
 		mtx[0][1] = mtx[0][1] * sx;  mtx[1][1] = mtx[1][1] * sy;
-		mtx[0][2] = mtx[0][2] * sx;  mtx[1][2] = mtx[1][2] * sy;
 	}else {
 		mtx[0][0] = mtx[0][0] * sx;  mtx[1][0] = mtx[1][0] * sy;
 		mtx[0][1] = mtx[0][1] * sx;  mtx[1][1] = mtx[1][1] * sy;
-		mtx[0][2] = mtx[0][2] * sx;  mtx[1][2] = mtx[1][2] * sy;
 	}
 	return mtx;
 }
@@ -216,28 +209,25 @@ const Matrix4f WidgetMH::getWorldTransformationWithScaleAndTranslation(float sx,
 	Matrix4f mtx = getWorldTransformation();
 	if (m_parent && relative) {
 		const Vector2f& invScale = Vector2f::Inverse(static_cast<WidgetMH*>(m_parent)->getWorldScale());
-		sx = sx * invScale[0];
-		sy = sy * invScale[1];
-
-		mtx[0][0] = mtx[0][0] * sx;  mtx[1][0] = mtx[1][0] * sy;
-		mtx[0][1] = mtx[0][1] * sx;  mtx[1][1] = mtx[1][1] * sy;
-		mtx[0][2] = mtx[0][2] * sx;  mtx[1][2] = mtx[1][2] * sy;
-
+		
 		dx = dx * invScale[0];
 		dy = dy * invScale[1];
 
 		mtx[3][0] = mtx[3][0] + dx * mtx[0][0] + dy * mtx[1][0];
 		mtx[3][1] = mtx[3][1] + dx * mtx[0][1] + dy * mtx[1][1];
-		mtx[3][2] = mtx[3][2] + dx * mtx[0][2] + dy * mtx[1][2];
 
-	}else {
+		sx = sx * invScale[0];
+		sy = sy * invScale[1];
+
 		mtx[0][0] = mtx[0][0] * sx;  mtx[1][0] = mtx[1][0] * sy;
 		mtx[0][1] = mtx[0][1] * sx;  mtx[1][1] = mtx[1][1] * sy;
-		mtx[0][2] = mtx[0][2] * sx;  mtx[1][2] = mtx[1][2] * sy;
 
+	}else {
 		mtx[3][0] = mtx[3][0] + dx * mtx[0][0] + dy * mtx[1][0];
 		mtx[3][1] = mtx[3][1] + dx * mtx[0][1] + dy * mtx[1][1];
-		mtx[3][2] = mtx[3][2] + dx * mtx[0][2] + dy * mtx[1][2];
+
+		mtx[0][0] = mtx[0][0] * sx;  mtx[1][0] = mtx[1][0] * sy;
+		mtx[0][1] = mtx[0][1] * sx;  mtx[1][1] = mtx[1][1] * sy;	
 	}
 	return mtx;
 }

@@ -70,7 +70,13 @@ void Evolve::draw() {
 		displayStars();
 	}
 
-	Spritesheet::Bind(m_atlasMonster);
+	//IconAnimated::draw();
+	std::shared_ptr<WidgetMH> currentWidget;
+	{
+		currentWidget = std::static_pointer_cast<WidgetMH>(getChildren().front());
+		currentWidget->draw();
+	}
+	/*Spritesheet::Bind(m_atlasMonster);
 	const TextureRect& rect = TileSetManager::Get().getTileSet("monster").getTextureRects()[MonsterIndex::MonsterData[m_currentMonster].graphic * 16];
 	m_surface.setShader(shader);
 	m_surface.setPosition(0.5f * m_viewWidth - rect.width, 0.5f * m_viewHeight - rect.height);
@@ -111,7 +117,7 @@ void Evolve::draw() {
 		Globals::fontManager.get("bold").bind();
 		Fontrenderer::Get().addText(Globals::fontManager.get("bold"), 0.5f * m_viewWidth - 0.5f * width, 0.5f * m_viewHeight - rect.height - lineHeight - 20.0f, m_startMonster + " evolved into " + m_endMonster, Vector4f(0.0f, 0.0f, 0.0f, 1.0f), 0.05f);
 	}
-		Fontrenderer::Get().drawBuffer();
+	Fontrenderer::Get().drawBuffer();*/
 }
 
 void Evolve::update(float dt) {
@@ -133,17 +139,19 @@ void Evolve::update(float dt) {
 }
 
 void Evolve::startEvolution() {
+	
 	m_fade.fadeIn();
-	m_fade.setOnFadeIn([&m_fade = m_fade, &m_currentMonster = m_currentMonster, m_endMonster = m_endMonster, &m_exitTimer = m_exitTimer, &OnEvolveEnd = OnEvolveEnd, &m_activate = m_activate, &m_displayStar = m_displayStar, &m_curentMonsterIndex = m_curentMonsterIndex]() {
+	m_fade.setOnFadeIn([&m_fade = m_fade, &m_currentMonster = m_currentMonster, m_endMonster = m_endMonster, &m_exitTimer = m_exitTimer, &OnEvolveEnd = OnEvolveEnd, &m_activate = m_activate, &m_displayStar = m_displayStar, &m_curentMonsterIndex = m_curentMonsterIndex, iconAnimated = findChild<IconAnimated>("icon")]() {
 		m_currentMonster = m_endMonster;
 		m_fade.setTransitionEnd(false);
 		m_fade.setFadeValue(0.0f);
 
+		iconAnimated->setCurrentFrame(MonsterIndex::MonsterData[m_currentMonster].graphic * 16);
+
 		m_exitTimer.setOnTimerEnd([&OnEvolveEnd = OnEvolveEnd, &m_activate = m_activate, &m_displayStar = m_displayStar, &m_curentMonsterIndex = m_curentMonsterIndex, m_endMonster = m_endMonster] {		
 			m_activate = false;
 			m_displayStar = true;
-			if (m_curentMonsterIndex > 0) {
-				
+			if (m_curentMonsterIndex > 0) {			
 				MonsterIndex::Monsters[m_curentMonsterIndex].name = m_endMonster;
 				MonsterIndex::Monsters[m_curentMonsterIndex].resetStats();
 			}
@@ -191,4 +199,17 @@ void Evolve::displayStars() {
 
 void Evolve::setCurentMonsterIndex(int curentMonsterIndex) {
 	m_curentMonsterIndex = curentMonsterIndex;
+	findChild<IconAnimated>("icon")->setCurrentFrame(MonsterIndex::MonsterData[m_currentMonster].graphic * 16);
+}
+
+void Evolve::initUI(float viewWidth, float viewHeight) {
+	
+	IconAnimated* iconAnimated = addChild<IconAnimated>(TileSetManager::Get().getTileSet("monster").getTextureRects());
+	iconAnimated->setPosition(0.5f * m_viewWidth, 0.5f * m_viewHeight);
+	iconAnimated->setScale(2.0f, 2.0f);
+	iconAnimated->setShader(Globals::shaderManager.getAssetPointer("evolve"));
+	iconAnimated->updateWorldTransformation();
+	iconAnimated->setSpriteSheet(TileSetManager::Get().getTileSet("monster").getAtlas());
+	iconAnimated->setName("icon");
+	iconAnimated->setAlign(true);
 }

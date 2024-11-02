@@ -2,7 +2,7 @@
 #include <engine/Spritesheet.h>
 #include "Icon.h"
 
-Icon::Icon(const TextureRect& textureRect) : WidgetMH(), textureRect(textureRect), m_draw(nullptr), m_color(Vector4f::ONE), m_spriteSheet(0) {
+Icon::Icon(const TextureRect& textureRect) : WidgetMH(), textureRect(textureRect), m_draw(nullptr), m_color(Vector4f::ONE), m_spriteSheet(0), m_align(false) {
 
 }
 
@@ -11,7 +11,8 @@ Icon::Icon(const Icon& rhs) :
 	m_draw(rhs.m_draw),
 	m_color(rhs.m_color),
 	textureRect(rhs.textureRect),
-	m_spriteSheet(rhs.m_spriteSheet) {
+	m_spriteSheet(rhs.m_spriteSheet),
+	m_align(rhs.m_align) {
 }
 
 Icon::Icon(Icon&& rhs) :
@@ -19,7 +20,8 @@ Icon::Icon(Icon&& rhs) :
 	m_draw(std::move(rhs.m_draw)),
 	m_color(rhs.m_color),
 	textureRect(std::move(rhs.textureRect)),
-	m_spriteSheet(rhs.m_spriteSheet) {
+	m_spriteSheet(rhs.m_spriteSheet),
+	m_align(rhs.m_align) {
 }
 
 Icon::~Icon() {
@@ -43,6 +45,10 @@ void Icon::setSpriteSheet(const unsigned int& spriteSheet) {
 	m_spriteSheet = spriteSheet;
 }
 
+void Icon::setAlign(bool align) {
+	m_align = align;
+}
+
 void Icon::draw() {
 	if (m_draw) {
 		return m_draw();
@@ -55,7 +61,7 @@ void Icon::drawDefault() {
 	draw2(textureRect, m_color, getWorldTransformation());
 }
 ////////////////////////////////////////////////////////////////
-IconAnimated::IconAnimated(const std::vector<TextureRect>& textureRects) : WidgetMH(), textureRects(textureRects), m_draw(nullptr), m_color(Vector4f::ONE), m_spriteSheet(0), m_currentFrame(0){
+IconAnimated::IconAnimated(const std::vector<TextureRect>& textureRects) : WidgetMH(), textureRects(textureRects), m_draw(nullptr), m_color(Vector4f::ONE), m_spriteSheet(0), m_currentFrame(0), m_align(false){
 
 }
 
@@ -65,7 +71,8 @@ IconAnimated::IconAnimated(const IconAnimated& rhs) :
 	m_color(rhs.m_color),
 	textureRects(rhs.textureRects), 
 	m_spriteSheet(rhs.m_spriteSheet),
-	m_currentFrame(rhs.m_currentFrame) {
+	m_currentFrame(rhs.m_currentFrame),
+	m_align(rhs.m_align){
 }
 
 IconAnimated::IconAnimated(IconAnimated&& rhs) :
@@ -74,7 +81,8 @@ IconAnimated::IconAnimated(IconAnimated&& rhs) :
 	m_color(rhs.m_color),
     textureRects(std::move(rhs.textureRects)),
 	m_spriteSheet(rhs.m_spriteSheet),
-	m_currentFrame(rhs.m_currentFrame) {
+	m_currentFrame(rhs.m_currentFrame),
+	m_align(rhs.m_align) {
 }
 
 IconAnimated::~IconAnimated() {
@@ -98,6 +106,10 @@ void IconAnimated::setSpriteSheet(const unsigned int& spriteSheet) {
 	m_spriteSheet = spriteSheet;
 }
 
+void IconAnimated::setAlign(bool align) {
+	m_align = align;
+}
+
 void IconAnimated::setCurrentFrame(const size_t currentFrame) {
 	m_currentFrame = currentFrame;
 }
@@ -112,5 +124,9 @@ void IconAnimated::draw() {
 void IconAnimated::drawDefault() {
 	Spritesheet::Bind(m_spriteSheet);
 	const TextureRect& rect = textureRects[m_currentFrame];
-	draw2(rect, m_color, getWorldTransformation());
+
+	if(m_align)
+		draw2(rect, m_color, getWorldTransformationWithScaleAndTranslation(rect.width, rect.height, -0.5f * rect.width, -0.5f * rect.height));
+	else
+		draw2(rect, m_color, getWorldTransformation());
 }

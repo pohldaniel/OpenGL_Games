@@ -18,6 +18,7 @@ public:
 	void setColor(const Vector4f& color);
 	void setShader(Shader* shader);
 	void setSpriteSheet(const unsigned int& spriteSheet);
+	void setAlign(bool align);
 
 private:
 
@@ -27,6 +28,7 @@ private:
 	Shader* m_shader;
 	unsigned int m_spriteSheet;
 	const TextureRect& textureRect;
+	bool m_align;
 };
 
 class IconAnimated : public WidgetMH {
@@ -44,6 +46,7 @@ public:
 	void setShader(Shader* shader);
 	void setSpriteSheet(const unsigned int& spriteSheet);
 	void setCurrentFrame(const size_t currentFrame);
+	void setAlign(bool align);
 
 private:
 
@@ -54,4 +57,5 @@ private:
 	unsigned int m_spriteSheet;
 	size_t m_currentFrame;
 	const std::vector<TextureRect>& textureRects;
+	bool m_align;
 };
