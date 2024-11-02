@@ -61,7 +61,7 @@ void Icon::drawDefault() {
 	draw2(textureRect, m_color, getWorldTransformation());
 }
 ////////////////////////////////////////////////////////////////
-IconAnimated::IconAnimated(const std::vector<TextureRect>& textureRects) : WidgetMH(), textureRects(textureRects), m_draw(nullptr), m_color(Vector4f::ONE), m_spriteSheet(0), m_currentFrame(0), m_align(false){
+IconAnimated::IconAnimated(const std::vector<TextureRect>& textureRects) : WidgetMH(), textureRects(textureRects), m_draw(nullptr), m_color(Vector4f::ONE), m_spriteSheet(0), m_currentFrame(-1), m_align(false){
 
 }
 
@@ -110,7 +110,7 @@ void IconAnimated::setAlign(bool align) {
 	m_align = align;
 }
 
-void IconAnimated::setCurrentFrame(const size_t currentFrame) {
+void IconAnimated::setCurrentFrame(const ptrdiff_t currentFrame) {
 	m_currentFrame = currentFrame;
 }
 
@@ -122,11 +122,14 @@ void IconAnimated::draw() {
 }
 
 void IconAnimated::drawDefault() {
+	if (m_currentFrame < 0)
+		return;
+
 	Spritesheet::Bind(m_spriteSheet);
 	const TextureRect& rect = textureRects[m_currentFrame];
 
 	if(m_align)
 		draw2(rect, m_color, getWorldTransformationWithScaleAndTranslation(rect.width, rect.height, -0.5f * rect.width, -0.5f * rect.height));
-	else
-		draw2(rect, m_color, getWorldTransformation());
+	else 
+		draw2(rect, m_color, getWorldTransformation());	
 }

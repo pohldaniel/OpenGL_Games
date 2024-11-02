@@ -2,7 +2,7 @@
 #include "Label.h"
 #include "Surface.h"
 
-Label::Label(const CharacterSet& characterSet) : WidgetMH(), characterSet(characterSet), m_draw(nullptr), m_color(Vector4f::ONE), m_size(1.0f), m_label("label"), m_offsetX(0.0f), m_offsetY(0.0f) {
+Label::Label(const CharacterSet& characterSet) : WidgetMH(), characterSet(characterSet), m_draw(nullptr), m_textColor(Vector4f::ONE), m_size(1.0f), m_label("label"), m_offsetX(0.0f), m_offsetY(0.0f) {
 
 }
 
@@ -11,7 +11,7 @@ Label::Label(const Label& rhs) :
 	characterSet(rhs.characterSet), 
 	m_draw(rhs.m_draw), 
 	m_label(rhs.m_label), 
-	m_color(rhs.m_color), 
+	m_textColor(rhs.m_textColor),
 	m_size(rhs.m_size),
 	m_offsetX(rhs.m_offsetX),
 	m_offsetY(rhs.m_offsetY) {
@@ -23,7 +23,7 @@ Label::Label(Label&& rhs) :
 	characterSet(std::move(rhs.characterSet)), 
 	m_draw(std::move(rhs.m_draw)), 
 	m_label(rhs.m_label), 
-	m_color(rhs.m_color), 
+	m_textColor(rhs.m_textColor),
 	m_size(rhs.m_size),
 	m_offsetX(rhs.m_offsetX),
 	m_offsetY(rhs.m_offsetY) {
@@ -45,8 +45,8 @@ void Label::setDrawFunction(std::function<void()> fun) {
 	m_draw = fun;
 }
 
-void Label::setColor(const Vector4f& color) {
-	m_color = color;
+void Label::setTextColor(const Vector4f& textColor) {
+	m_textColor = textColor;
 }
 
 void Label::setLabel(const std::string& label) {
@@ -68,9 +68,9 @@ void Label::setOffsetY(const float offsetY) {
 void Label::drawDefault() {
 	characterSet.bind();
 	if (m_offsetX || m_offsetY) {
-		Fontrenderer::Get().addTextTransformed(characterSet, getWorldTransformationWithTranslation(m_offsetX, m_offsetY), m_label, m_color, m_size);
+		Fontrenderer::Get().addTextTransformed(characterSet, getWorldTransformationWithTranslation(m_offsetX, m_offsetY), m_label, m_textColor, m_size);
 	}else {
-		Fontrenderer::Get().addTextTransformed(characterSet, getWorldTransformation(), m_label, m_color, m_size);
+		Fontrenderer::Get().addTextTransformed(characterSet, getWorldTransformation(), m_label, m_textColor, m_size);
 	}
 	Fontrenderer::Get().drawBuffer();
 }
@@ -138,14 +138,13 @@ void TextFieldMH::drawDefault() {
 	m_shader->loadVector("u_dimensions", Vector2f(scaleX, scaleY));
 	m_shader->loadFloat("u_radius", m_borderRadius);
 	m_shader->loadUnsignedInt("u_edge", m_edge);
-	draw2(m_backgroundColor, getWorldTransformationWithScale(scaleX, scaleY, 1.0f));
+	draw2(m_backgroundColor, getWorldTransformationWithScaleAndTranslation(scaleX, scaleY, m_offsetX, m_offsetY));
 
 	characterSet.bind();
 	if (m_offsetX || m_offsetY) {
-		Fontrenderer::Get().addTextTransformed(characterSet, getWorldTransformationWithTranslation(m_offsetX, m_offsetY), m_label, m_color, m_size);
-	}
-	else {
-		Fontrenderer::Get().addTextTransformed(characterSet, getWorldTransformation(), m_label, m_color, m_size);
+		Fontrenderer::Get().addTextTransformed(characterSet, getWorldTransformationWithTranslation(m_offsetX + 0.5f * m_paddingX, m_offsetY + 0.5f * m_paddingY), m_label, m_textColor, m_size);
+	}else {
+		Fontrenderer::Get().addTextTransformed(characterSet, getWorldTransformationWithTranslation(0.5f * m_paddingX, 0.5f * m_paddingY), m_label, m_textColor, m_size);
 	}
 	Fontrenderer::Get().drawBuffer();
 }

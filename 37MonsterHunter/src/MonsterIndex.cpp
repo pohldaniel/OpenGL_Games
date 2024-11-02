@@ -100,7 +100,8 @@ m_rotate(false){
 	Monsters.push_back({ "Friolera", 25u , 3.0f, 200.0f, 0.0f, false });
 	Monsters.push_back({ "Atrox", 30u , 3.0f, 15.0f, 0.0f, false });
 	Monsters.push_back({ "Sparchu", 24u , 3.0f, 30.0f, 0.0f, false });
-	Monsters.push_back({ "Sparchu", 23u , 3.0f, 30.0f, 0.0f, false });
+	Monsters.push_back({ "Sparchu", 34u , 3.0f, 30.0f, 0.0f, false });
+	//Monsters.push_back({ "Pouch", 23u , 3.0f, 30.0f, 0.0f, false });
 	Monsters.push_back({ "Gulfin", 17u, 3.0f, 30.0f, false  });
 	Monsters.push_back({ "Jacana", 16u, 300.0f, 0.0f, false });
 	Monsters.push_back({ "Plumette", 9u , 300.0f, 0.0f, false });
@@ -348,7 +349,7 @@ void MonsterIndex::update(float dt) {
 		iconAnimated->updateWorldTransformation();
 
 		label = surface->findChild<Label>(i);
-		label->setColor(currentMonster.selected ? Vector4f(1.0f, 0.84313f, 0.0f, 1.0f) : Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+		label->setTextColor(currentMonster.selected ? Vector4f(1.0f, 0.84313f, 0.0f, 1.0f) : Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
 		label->setLabel(currentMonster.name);
 	}
 
@@ -490,7 +491,7 @@ void MonsterIndex::initUI(float viewWidth, float viewHeight) {
 	label->translateRelative(10.0f, -10.0f - lineHeightBold);
 	label->updateWorldTransformation();
 	label->setName("headline");
-	label->setColor(Vector4f(0.95686f, 0.99608f, 0.98039f, 1.0f));
+	label->setTextColor(Vector4f(0.95686f, 0.99608f, 0.98039f, 1.0f));
 	label->setSize(0.05f);
 	
 	label = surface->addChild<Label>(Globals::fontManager.get("dialog"));
@@ -499,7 +500,7 @@ void MonsterIndex::initUI(float viewWidth, float viewHeight) {
 	label->translateRelative(10.0f, 10.0f);
 	label->updateWorldTransformation();
 	label->setName("level");
-	label->setColor(Vector4f(0.95686f, 0.99608f, 0.98039f, 1.0f));
+	label->setTextColor(Vector4f(0.95686f, 0.99608f, 0.98039f, 1.0f));
 	label->setSize(0.045f);
 
 	label = surface->addChild<Label>(Globals::fontManager.get("dialog"));
@@ -508,7 +509,7 @@ void MonsterIndex::initUI(float viewWidth, float viewHeight) {
 	label->translateRelative(-10.0f, 10.0f);
 	label->updateWorldTransformation();
 	label->setName("element");
-	label->setColor(Vector4f(0.95686f, 0.99608f, 0.98039f, 1.0f));
+	label->setTextColor(Vector4f(0.95686f, 0.99608f, 0.98039f, 1.0f));
 	label->setSize(0.045f);
 	
 	BarUI* bar = surface->addChild<BarUI>(TileSetManager::Get().getTileSet("monster_icon").getTextureRects()[18]);
@@ -532,7 +533,7 @@ void MonsterIndex::initUI(float viewWidth, float viewHeight) {
 	label->setPosition(0.025f, 0.5f);
 	label->translateRelative(10.0f, 28.5f);
 	label->updateWorldTransformation();
-	label->setColor(Vector4f(0.95686f, 0.99608f, 0.98039f, 1.0f));
+	label->setTextColor(Vector4f(0.95686f, 0.99608f, 0.98039f, 1.0f));
 	label->setSize(0.045f);
 	label->setName("health");
 
@@ -540,7 +541,7 @@ void MonsterIndex::initUI(float viewWidth, float viewHeight) {
 	label->setPosition(0.525f, 0.5f);
 	label->translateRelative(10.0f, 28.5f);
 	label->updateWorldTransformation();
-	label->setColor(Vector4f(0.95686f, 0.99608f, 0.98039f, 1.0f));
+	label->setTextColor(Vector4f(0.95686f, 0.99608f, 0.98039f, 1.0f));
 	label->setSize(0.045f);
 	label->setName("energy");
 
@@ -570,7 +571,7 @@ void MonsterIndex::initUI(float viewWidth, float viewHeight) {
 	label->setPosition(0.025f, 0.5f);
 	label->translateRelative(0.0f, -lineHeight * 0.5f);
 	label->updateWorldTransformation();
-	label->setColor(Vector4f(0.95686f, 0.99608f, 0.98039f, 1.0f));
+	label->setTextColor(Vector4f(0.95686f, 0.99608f, 0.98039f, 1.0f));
 	label->setSize(0.045f);
 	label->setLabel("Stats");
 
@@ -578,7 +579,7 @@ void MonsterIndex::initUI(float viewWidth, float viewHeight) {
 	label->setPosition(0.525f, 0.5f);
 	label->translateRelative(0.0f, -lineHeight * 0.5f);
 	label->updateWorldTransformation();
-	label->setColor(Vector4f(0.95686f, 0.99608f, 0.98039f, 1.0f));
+	label->setTextColor(Vector4f(0.95686f, 0.99608f, 0.98039f, 1.0f));
 	label->setSize(0.045f);
 	label->setLabel("Ability");
 
@@ -596,7 +597,7 @@ void MonsterIndex::initUI(float viewWidth, float viewHeight) {
 		label->setPosition(0.025f, 0.5f);
 		label->translateRelative(30.0f, -30.0f - i * statHeight - lineHeight * 0.4f);
 		label->updateWorldTransformation();
-		label->setColor(Vector4f(0.95686f, 0.99608f, 0.98039f, 1.0f));
+		label->setTextColor(Vector4f(0.95686f, 0.99608f, 0.98039f, 1.0f));
 		label->setSize(0.045f);
 		label->setLabel(m_stats[i]);
 
@@ -651,7 +652,7 @@ void MonsterIndex::addAbilities() {
 		textField->translateRelative(x, y);
 		textField->translateRelative(0.0f, -lineHeight * 0.5f);
 		textField->updateWorldTransformation();
-		textField->setColor(Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
+		textField->setTextColor(Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
 		textField->setSize(0.045f);
 		textField->setOffsetX(5.0f);
 		textField->setOffsetY(5.0f);
@@ -723,7 +724,7 @@ void MonsterIndex::addMonsters() {
 		label->setPosition(0.0f, 0.5f);
 		label->translateRelative(90.0f, -0.5f * lineHeight);
 		label->updateWorldTransformation();
-		label->setColor(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+		label->setTextColor(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
 		label->setSize(0.045f);
 		label->setLabel(currentMonster.name);
 		label->setIndex(i);

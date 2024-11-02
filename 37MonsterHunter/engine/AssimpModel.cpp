@@ -369,7 +369,6 @@ void AssimpModel::loadModelCpu(const char* _filename, Vector3f& axis, float degr
 			vertexBuffer.push_back(posX); vertexBuffer.push_back(posY); vertexBuffer.push_back(posZ);
 
 			if (m_hasTextureCoords || mesh->m_hasTextureCoords) {
-				//std::cout << "Tex Coord: " << aiMesh->mTextureCoords[0][i].x << "  " << aiMesh->mTextureCoords[0][i].y << std::endl << std::endl;
 				vertexBuffer.push_back(aiMesh->mTextureCoords[0][i].x); vertexBuffer.push_back(aiMesh->mTextureCoords[0][i].y);
 			}
 

@@ -45,7 +45,7 @@ public:
 	void setColor(const Vector4f& color);
 	void setShader(Shader* shader);
 	void setSpriteSheet(const unsigned int& spriteSheet);
-	void setCurrentFrame(const size_t currentFrame);
+	void setCurrentFrame(const ptrdiff_t currentFrame);
 	void setAlign(bool align);
 
 private:
@@ -55,7 +55,7 @@ private:
 	Vector4f m_color;
 	Shader* m_shader;
 	unsigned int m_spriteSheet;
-	size_t m_currentFrame;
+	ptrdiff_t m_currentFrame;
 	const std::vector<TextureRect>& textureRects;
 	bool m_align;
 };

@@ -27,8 +27,6 @@ public:
 
 private:
 
-	void displayStars();
-
 	float m_viewWidth, m_viewHeight, m_fadeValue;
 	Sprite m_surface;
 	std::string m_currentMonster, m_startMonster, m_endMonster;
@@ -36,7 +34,7 @@ private:
 	int m_currentFrame;
 	int m_frameCount, m_curentMonsterIndex;
 	unsigned int m_atlasMonster;
-	bool m_displayStar, m_activate;
+	bool m_displayStar;
 	Fade m_fade;
 	Timer m_exitTimer;
 

@@ -226,10 +226,7 @@ void AnimatedModel::fetchAiHierarchy(aiNode *node, std::vector<MeshBone>& meshBo
 
 		(*it).parentIndex = parentIndex;
 		_parentIndex = static_cast<int>(std::distance(meshBones.begin(), it));
-		//std::cout << "Name: " << (*it).name << "  " << parentIndex  << std::endl;
-	}/*else {
-		std::cout << "Name: " << node->mName.C_Str() << std::endl;
-	}*/
+	}
 
 	for (unsigned int i = 0; i < node->mNumChildren; i++) {
 		fetchAiHierarchy(node->mChildren[i], meshBones, _parentIndex);

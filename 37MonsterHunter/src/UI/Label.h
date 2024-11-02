@@ -17,7 +17,7 @@ public:
 
 	void setDrawFunction(std::function<void()> fun);
 	void setLabel(const std::string& label);
-	void setColor(const Vector4f& color);
+	void setTextColor(const Vector4f& textColor);
 	void setSize(const float size);
 	void setOffsetX(const float offsetX);
 	void setOffsetY(const float offsetY);
@@ -27,7 +27,7 @@ protected:
 	const CharacterSet& characterSet;
 	float m_offsetX, m_offsetY;
 	std::string m_label;
-	Vector4f m_color;
+	Vector4f m_textColor;
 	float m_size;
 
 private:
