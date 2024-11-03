@@ -1,5 +1,4 @@
 #pragma once
-#include <functional>
 #include <engine/Shader.h>
 #include <UI/WidgetMH.h>
 
@@ -25,7 +24,6 @@ public:
 	Surface(Surface&& rhs);
 	virtual ~Surface();
 
-	void draw() override;
 	void setDrawFunction(std::function<void()> fun);	
 	void setColor(const Vector4f& color);
 	void setShader(Shader* shader);
@@ -34,8 +32,8 @@ public:
 
 private:
 
-	void drawDefault();
-	std::function<void()> m_draw;
+	void drawDefault() override;
+	
 	Vector4f m_color;
 	Shader* m_shader;
 	Edge m_edge;

@@ -2,13 +2,12 @@
 #include <engine/Spritesheet.h>
 #include "Icon.h"
 
-Icon::Icon(const TextureRect& textureRect) : WidgetMH(), textureRect(textureRect), m_draw(nullptr), m_color(Vector4f::ONE), m_spriteSheet(0), m_align(false) {
+Icon::Icon(const TextureRect& textureRect) : WidgetMH(), textureRect(textureRect), m_color(Vector4f::ONE), m_spriteSheet(0), m_align(false) {
 
 }
 
 Icon::Icon(const Icon& rhs) :
 	WidgetMH(rhs),
-	m_draw(rhs.m_draw),
 	m_color(rhs.m_color),
 	textureRect(rhs.textureRect),
 	m_spriteSheet(rhs.m_spriteSheet),
@@ -17,7 +16,6 @@ Icon::Icon(const Icon& rhs) :
 
 Icon::Icon(Icon&& rhs) :
 	WidgetMH(rhs),
-	m_draw(std::move(rhs.m_draw)),
 	m_color(rhs.m_color),
 	textureRect(std::move(rhs.textureRect)),
 	m_spriteSheet(rhs.m_spriteSheet),
@@ -26,10 +24,6 @@ Icon::Icon(Icon&& rhs) :
 
 Icon::~Icon() {
 
-}
-
-void Icon::setDrawFunction(std::function<void()> fun) {
-	m_draw = fun;
 }
 
 void Icon::setColor(const Vector4f& color) {
@@ -49,25 +43,17 @@ void Icon::setAlign(bool align) {
 	m_align = align;
 }
 
-void Icon::draw() {
-	if (m_draw) {
-		return m_draw();
-	}
-	drawDefault();
-}
-
 void Icon::drawDefault() {
 	Spritesheet::Bind(m_spriteSheet);
 	draw2(textureRect, m_color, getWorldTransformation());
 }
 ////////////////////////////////////////////////////////////////
-IconAnimated::IconAnimated(const std::vector<TextureRect>& textureRects) : WidgetMH(), textureRects(textureRects), m_draw(nullptr), m_color(Vector4f::ONE), m_spriteSheet(0), m_currentFrame(-1), m_align(false){
+IconAnimated::IconAnimated(const std::vector<TextureRect>& textureRects) : WidgetMH(), textureRects(textureRects), m_color(Vector4f::ONE), m_spriteSheet(0), m_currentFrame(-1), m_align(false){
 
 }
 
 IconAnimated::IconAnimated(const IconAnimated& rhs) :
 	WidgetMH(rhs),
-	m_draw(rhs.m_draw),
 	m_color(rhs.m_color),
 	textureRects(rhs.textureRects), 
 	m_spriteSheet(rhs.m_spriteSheet),
@@ -77,7 +63,6 @@ IconAnimated::IconAnimated(const IconAnimated& rhs) :
 
 IconAnimated::IconAnimated(IconAnimated&& rhs) :
 	WidgetMH(rhs),
-	m_draw(std::move(rhs.m_draw)),
 	m_color(rhs.m_color),
     textureRects(std::move(rhs.textureRects)),
 	m_spriteSheet(rhs.m_spriteSheet),
@@ -87,10 +72,6 @@ IconAnimated::IconAnimated(IconAnimated&& rhs) :
 
 IconAnimated::~IconAnimated() {
 
-}
-
-void IconAnimated::setDrawFunction(std::function<void()> fun) {
-	m_draw = fun;
 }
 
 void IconAnimated::setColor(const Vector4f& color) {
@@ -112,13 +93,6 @@ void IconAnimated::setAlign(bool align) {
 
 void IconAnimated::setCurrentFrame(const ptrdiff_t currentFrame) {
 	m_currentFrame = currentFrame;
-}
-
-void IconAnimated::draw() {
-	if (m_draw) {
-		return m_draw();
-	}
-	drawDefault();	
 }
 
 void IconAnimated::drawDefault() {

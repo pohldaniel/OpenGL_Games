@@ -3,7 +3,7 @@
 #include "Globals.h"
 #include "Surface.h"
 
-BarUI::BarUI(const TextureRect& textureRect) : WidgetMH(), textureRect(textureRect), m_color(Vector4f::ONE), m_bgColor(0.0f, 0.0f, 0.0f, 1.0f), m_draw(nullptr), m_height(5.0f), m_radius(5.0f), m_width(200.0f), m_value(0.0f), m_maxValue(200.0f){
+BarUI::BarUI(const TextureRect& textureRect) : WidgetMH(), textureRect(textureRect), m_color(Vector4f::ONE), m_bgColor(0.0f, 0.0f, 0.0f, 1.0f),  m_height(5.0f), m_radius(5.0f), m_width(200.0f), m_value(0.0f), m_maxValue(200.0f){
 	
 }
 
@@ -15,8 +15,7 @@ BarUI::BarUI(const BarUI& rhs) :
 	m_height(rhs.m_height),
 	m_width(rhs.m_width),
 	m_value(rhs.m_value),
-	m_maxValue(rhs.m_maxValue),
-	m_draw(rhs.m_draw){
+	m_maxValue(rhs.m_maxValue){
 }
 
 BarUI::BarUI(BarUI&& rhs) :
@@ -27,23 +26,11 @@ BarUI::BarUI(BarUI&& rhs) :
 	m_height(std::move(rhs.m_height)),
 	m_width(std::move(rhs.m_width)),
 	m_value(std::move(rhs.m_value)),
-	m_maxValue(std::move(rhs.m_maxValue)),
-	m_draw(std::move(rhs.m_draw)){
+	m_maxValue(std::move(rhs.m_maxValue)){
 }
 
 BarUI::~BarUI() {
 
-}
-
-void BarUI::draw() {
-	if (m_draw) {
-		return m_draw();
-	}
-	drawDefault();
-}
-
-void BarUI::setDrawFunction(std::function<void()> fun) {
-	m_draw = fun;
 }
 
 void BarUI::setValue(const float value) {

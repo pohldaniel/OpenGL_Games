@@ -105,15 +105,15 @@ Vector2f WidgetMH::WorldPosition;
 Vector2f WidgetMH::WorldScale;
 float WidgetMH::WorldOrientation;
 
-WidgetMH::WidgetMH() : NodeUI(), Sprite(), m_isDirty(true) {
+WidgetMH::WidgetMH() : NodeUI(), Sprite(), m_isDirty(true), m_draw(nullptr) {
 
 }
 
-WidgetMH::WidgetMH(const WidgetMH& rhs) : NodeUI(rhs), Sprite(rhs) {
+WidgetMH::WidgetMH(const WidgetMH& rhs) : NodeUI(rhs), Sprite(rhs), m_draw(rhs.m_draw) {
 	m_isDirty = rhs.m_isDirty;
 }
 
-WidgetMH::WidgetMH(WidgetMH&& rhs) : NodeUI(rhs), Sprite(rhs) {
+WidgetMH::WidgetMH(WidgetMH&& rhs) : NodeUI(rhs), Sprite(rhs), m_draw(std::move(rhs.m_draw)) {
 	m_isDirty = rhs.m_isDirty;
 }
 
@@ -122,7 +122,10 @@ WidgetMH::~WidgetMH() {
 }
 
 void WidgetMH::draw() {
-	
+	if (m_draw) {
+		return m_draw();
+	}
+	drawDefault();
 }
 
 void WidgetMH::OnTransformChanged() {
@@ -411,4 +414,8 @@ void WidgetMH::scaleAbsolute(const float s) {
 void WidgetMH::rotate(const float degrees) {
 	Sprite::rotate(degrees);
 	OnTransformChanged();
+}
+
+void WidgetMH::setDrawFunction(std::function<void()> fun) {
+	m_draw = fun;
 }

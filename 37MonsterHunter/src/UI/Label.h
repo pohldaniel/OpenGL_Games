@@ -13,9 +13,6 @@ public:
 	Label(Label&& rhs);
 	virtual ~Label();
 
-	void draw() override;
-
-	void setDrawFunction(std::function<void()> fun);
 	void setLabel(const std::string& label);
 	void setTextColor(const Vector4f& textColor);
 	void setSize(const float size);
@@ -32,8 +29,7 @@ protected:
 
 private:
 
-	virtual void drawDefault();
-	std::function<void()> m_draw;
+	virtual void drawDefault() override;
 };
 
 enum Edge : int;
@@ -56,6 +52,7 @@ public:
 private:
 
 	void drawDefault() override;
+
 	Vector4f m_backgroundColor;
 	float m_paddingX, m_paddingY;
 	float m_borderRadius;

@@ -2,14 +2,13 @@
 #include "Label.h"
 #include "Surface.h"
 
-Label::Label(const CharacterSet& characterSet) : WidgetMH(), characterSet(characterSet), m_draw(nullptr), m_textColor(Vector4f::ONE), m_size(1.0f), m_label("label"), m_offsetX(0.0f), m_offsetY(0.0f) {
+Label::Label(const CharacterSet& characterSet) : WidgetMH(), characterSet(characterSet), m_textColor(Vector4f::ONE), m_size(1.0f), m_label("label"), m_offsetX(0.0f), m_offsetY(0.0f) {
 
 }
 
 Label::Label(const Label& rhs) : 
 	WidgetMH(rhs), 
 	characterSet(rhs.characterSet), 
-	m_draw(rhs.m_draw), 
 	m_label(rhs.m_label), 
 	m_textColor(rhs.m_textColor),
 	m_size(rhs.m_size),
@@ -21,7 +20,6 @@ Label::Label(const Label& rhs) :
 Label::Label(Label&& rhs) : 
 	WidgetMH(rhs), 
 	characterSet(std::move(rhs.characterSet)), 
-	m_draw(std::move(rhs.m_draw)), 
 	m_label(rhs.m_label), 
 	m_textColor(rhs.m_textColor),
 	m_size(rhs.m_size),
@@ -32,17 +30,6 @@ Label::Label(Label&& rhs) :
 
 Label::~Label() {
 
-}
-
-void Label::draw() {
-	if (m_draw) {
-		return m_draw();
-	}
-	drawDefault();
-}
-
-void Label::setDrawFunction(std::function<void()> fun) {
-	m_draw = fun;
 }
 
 void Label::setTextColor(const Vector4f& textColor) {

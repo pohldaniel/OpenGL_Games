@@ -13,8 +13,6 @@ public:
 	Icon(Icon&& rhs);
 	virtual ~Icon();
 
-	void draw() override;
-	void setDrawFunction(std::function<void()> fun);
 	void setColor(const Vector4f& color);
 	void setShader(Shader* shader);
 	void setSpriteSheet(const unsigned int& spriteSheet);
@@ -22,12 +20,12 @@ public:
 
 private:
 
-	void drawDefault();
-	std::function<void()> m_draw;
+	void drawDefault() override;
+
+	const TextureRect& textureRect;
 	Vector4f m_color;
 	Shader* m_shader;
-	unsigned int m_spriteSheet;
-	const TextureRect& textureRect;
+	unsigned int m_spriteSheet;	
 	bool m_align;
 };
 
@@ -40,8 +38,6 @@ public:
 	IconAnimated(IconAnimated&& rhs);
 	virtual ~IconAnimated();
 
-	void draw() override;
-	void setDrawFunction(std::function<void()> fun);
 	void setColor(const Vector4f& color);
 	void setShader(Shader* shader);
 	void setSpriteSheet(const unsigned int& spriteSheet);
@@ -50,12 +46,12 @@ public:
 
 private:
 
-	void drawDefault();
-	std::function<void()> m_draw;
+	void drawDefault() override;
+
+	const std::vector<TextureRect>& textureRects;
 	Vector4f m_color;
 	Shader* m_shader;
 	unsigned int m_spriteSheet;
 	ptrdiff_t m_currentFrame;
-	const std::vector<TextureRect>& textureRects;
 	bool m_align;
 };

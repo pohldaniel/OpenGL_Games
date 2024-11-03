@@ -11,9 +11,6 @@ public:
 	BarUI(BarUI&& rhs);
 	virtual ~BarUI();
 
-	void draw() override;
-
-	void setDrawFunction(std::function<void()> fun);
 	void setValue(const float value);
 	void setMaxValue(const float maxValue);
 	void setWidth(const float width);
@@ -24,11 +21,9 @@ public:
 
 private:
 
-	void drawDefault();
+	void drawDefault() override;
 
-	std::function<void()> m_draw;
 	const TextureRect& textureRect;
-
 	float m_value;
 	float m_maxValue;
 	float m_height;

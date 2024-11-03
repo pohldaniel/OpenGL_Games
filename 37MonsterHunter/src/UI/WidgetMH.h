@@ -2,6 +2,7 @@
 #include <list>
 #include <vector>
 #include <memory>
+#include <functional>
 #include <engine/Vector.h>
 #include <engine/Sprite.h>
 #include <engine/utils/StringHash.h>
@@ -169,12 +170,16 @@ public:
 
 	const Matrix4f getWorldTransformationWithScaleAndTranslation(float sx, float sy, float dx, float dy, bool relative = true) const;
 	const Matrix4f getWorldTransformationWithScaleAndTranslation(const Vector2f& scale, const Vector2f& trans, bool relative = true) const;
+	void setDrawFunction(std::function<void()> fun);
 
 protected:
-
+	
 	void OnTransformChanged();
+	std::function<void()> m_draw;
 
 private:
+
+	virtual void drawDefault() = 0;
 
 	mutable Matrix4f m_modelMatrix;
 	static Vector2f WorldPosition;
