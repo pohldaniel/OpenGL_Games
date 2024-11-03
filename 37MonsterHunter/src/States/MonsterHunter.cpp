@@ -198,7 +198,7 @@ void MonsterHunter::update() {
 		}
 	}
 
-	if (keyboard.keyPressed(Keyboard::KEY_ENTER)) {
+	if (keyboard.keyPressed(Keyboard::KEY_ENTER) && MonsterIndex::Monsters.size() > 0) {
 		if (m_blockIndex)
 			return;
 		m_indexOpen = !m_indexOpen;

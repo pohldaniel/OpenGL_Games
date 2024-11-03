@@ -42,11 +42,11 @@
 														                                             \n \
                             uniform sampler2DArray u_texture;                                        \n \
                                                                                                      \n \
-                            void main() {                                                           \n \
+                            void main() {                                                            \n \
                                  outColor = vertColor * texture(u_texture, vec3(texCoord, layer));   \n \
                             }"
 
-class Sprite : public Object2D{
+class Sprite : public Object2D {
 
 public:
 

@@ -88,7 +88,6 @@ void NodeUI::eraseAllChildren(size_t offset) {
 			(*it)->eraseAllChildren();
 		(*it)->m_parent = nullptr;	
 	}
-	//m_children.clear();
 	m_children.erase(std::next(m_children.begin(), offset), m_children.end());
 }
 

@@ -101,7 +101,7 @@ m_rotate(false){
 	Monsters.push_back({ "Atrox", 30u , 3.0f, 15.0f, 0.0f, false });
 	Monsters.push_back({ "Sparchu", 24u , 3.0f, 30.0f, 0.0f, false });
 	Monsters.push_back({ "Sparchu", 34u , 3.0f, 30.0f, 0.0f, false });
-	//Monsters.push_back({ "Pouch", 23u , 3.0f, 30.0f, 0.0f, false });
+	Monsters.push_back({ "Pouch", 23u , 3.0f, 30.0f, 0.0f, false });
 	Monsters.push_back({ "Gulfin", 17u, 3.0f, 30.0f, false  });
 	Monsters.push_back({ "Jacana", 16u, 300.0f, 0.0f, false });
 	Monsters.push_back({ "Plumette", 9u , 300.0f, 0.0f, false });
@@ -375,29 +375,48 @@ void MonsterIndex::processInput() {
 
 	Keyboard &keyboard = Keyboard::instance();
 	if (keyboard.keyPressed(Keyboard::KEY_UP)) {
-		eraseAbilities();
-		if (m_currentOffset > 0 && m_currentSelected == 0) {
-			resetAnimation();
-			m_currentOffset--;
-		}
+		eraseAbilities();	
+		int selectedBefore = m_currentSelected;
+		int offsetBefore = m_currentOffset;
 
-		if (m_currentSelected > 0) {
-			resetAnimation();
+		if (m_currentSelected == 0) {
+			if (m_currentOffset == 0) {
+				m_currentOffset = std::max(static_cast<int>(Monsters.size()) - m_visibleItems, 0);
+				m_currentSelected = static_cast<int>(Monsters.size()) - m_currentOffset - 1;
+			}else {
+				m_currentOffset--;
+			}
+		}else {
 			m_currentSelected--;
 		}
+
+		if (selectedBefore != m_currentSelected || offsetBefore != m_currentOffset) {
+			resetAnimation();
+		}
+
 		addAbilities();
 	}
 
 	if (keyboard.keyPressed(Keyboard::KEY_DOWN)) {
 		eraseAbilities();
-		if (static_cast<int>(Monsters.size()) - m_currentOffset > m_visibleItems && m_currentSelected == m_visibleItems - 1) {
-			resetAnimation();
-			m_currentOffset++;
+		int selectedBefore = m_currentSelected;
+		int offsetBefore = m_currentOffset;
+
+		if (m_currentSelected == std::min(static_cast<int>(Monsters.size() - 1), m_visibleItems - 1)) {
+
+			if (m_currentOffset == std::max(static_cast<int>(Monsters.size()) - m_visibleItems, 0)) {
+				m_currentOffset = 0;
+				m_currentSelected = 0;
+			}else {
+				m_currentOffset++;
+			}
+
+		}else {
+			m_currentSelected++;
 		}
 
-		if (m_currentSelected < std::min(static_cast<int>(Monsters.size() - 1), m_visibleItems - 1)) {
+		if (selectedBefore != m_currentSelected || offsetBefore != m_currentOffset) {
 			resetAnimation();
-			m_currentSelected++;
 		}
 		addAbilities();
 	}
@@ -621,7 +640,7 @@ void MonsterIndex::initUI(float viewWidth, float viewHeight) {
 	surface->setName("left");
 	surface->setBorderRadius(12.0f);
 	surface->setEdge(Edge::EDGE_LEFT);
-	surface->setColor(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
+	surface->setColor(Vector4f(0.22745f, 0.21568f, 0.23137f, 1.0f));
 
 	Surface* horinzontalBar = surface->addChild<Surface>();
 	horinzontalBar->setPosition(1.0f - 0.0125f, 0.0f);
@@ -733,9 +752,5 @@ void MonsterIndex::addMonsters() {
 
 void MonsterIndex::eraseMonsters(){
 	Surface* surface = findChild<Surface>("left");
-	surface->eraseAllChildren(1);
-}
-
-size_t MonsterIndex::count() {
-	return countNodes() + 1;
+	surface->eraseAllChildren();
 }

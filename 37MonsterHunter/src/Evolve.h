@@ -13,7 +13,8 @@ public:
 	Evolve();
 	~Evolve();
 
-	void draw();
+	void draw() override;
+
 	void update(float dt);
 	void setViewWidth(float viewWidth);
 	void setViewHeight(float viewHeight);

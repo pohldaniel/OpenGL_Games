@@ -48,7 +48,8 @@ public:
 	MonsterIndex();
 	~MonsterIndex();
 
-	void draw();
+	void draw() override;
+
 	void update(float dt);
 	void processInput();
 	void setViewWidth(float viewWidth);
@@ -58,7 +59,6 @@ public:
 	void eraseAbilities();
 	void addMonsters();
 	void eraseMonsters();
-	size_t count();
 	void resetAnimation();
 	void unselect();
 	void reset();
