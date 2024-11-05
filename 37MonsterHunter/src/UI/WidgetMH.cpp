@@ -128,6 +128,13 @@ void WidgetMH::draw() {
 	drawDefault();
 }
 
+void WidgetMH::drawTest() {
+	drawDefaultTest();
+}
+
+void WidgetMH::drawDefaultTest() {
+}
+
 void WidgetMH::OnTransformChanged() {
 
 	if (m_isDirty) {

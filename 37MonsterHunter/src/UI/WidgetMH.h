@@ -25,6 +25,8 @@ public:
 	template <class T> T* addChild();
 	template <class T, class U> T* addChild(const U& ref);
 	template <class T, class U> T* addChild(U& ref);
+	template <class T, class U, class V> T* addChild(const U& ref1, const V& ref2);
+	template <class T, class U, class V> T* addChild(U& ref1, V& ref2);
 	NodeUI* getParent() const;
 	void setParent(NodeUI* node);
 	const int getIndex() const;
@@ -57,6 +59,18 @@ template <class T, class U> T* NodeUI::addChild(const U& ref) {
 
 template <class T, class U> T* NodeUI::addChild(U& ref) {
 	m_children.emplace_back(std::unique_ptr<T>(new T(ref)));
+	m_children.back()->m_parent = this;
+	return static_cast<T*>(m_children.back().get());
+}
+
+template <class T, class U, class V> T* NodeUI::addChild(const U& ref1, const V& ref2) {
+	m_children.emplace_back(std::unique_ptr<T>(new T(ref1, ref2)));
+	m_children.back()->m_parent = this;
+	return static_cast<T*>(m_children.back().get());
+}
+
+template <class T, class U, class V> T* NodeUI::addChild(U& ref1, V& ref2) {
+	m_children.emplace_back(std::unique_ptr<T>(new T(ref1, ref2)));
 	m_children.back()->m_parent = this;
 	return static_cast<T*>(m_children.back().get());
 }
@@ -122,6 +136,7 @@ public:
 	virtual ~WidgetMH();
 
 	virtual void draw();
+	virtual void drawTest();
 
 	void setScale(const float sx, const float sy) override;
 	void setScale(const Vector2f& scale) override;
@@ -180,6 +195,7 @@ protected:
 private:
 
 	virtual void drawDefault() = 0;
+	virtual void drawDefaultTest();
 
 	mutable Matrix4f m_modelMatrix;
 	static Vector2f WorldPosition;

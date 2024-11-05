@@ -9,6 +9,7 @@
 
 #include <States/StateMachine.h>
 #include <Entities/Monster.h>
+#include <UI/Icon.h>
 
 #include "MonsterIndex.h"
 #include "Fade.h"
@@ -18,9 +19,7 @@ struct BattleChoice {
 	unsigned int graphics;
 };
 
-class Battle : public State, public MouseEventListener, public KeyboardEventListener {
-
-	static const int MAX_POINTS = 1000;
+class Battle : public State, public MouseEventListener, public KeyboardEventListener, public Icon {
 
 public:
 
@@ -58,6 +57,7 @@ private:
 	void removeDefeteadMonster();
 	void opponentAttack();
 	void exit();
+	void initUI();
 
 	bool m_initUi = true;
 	bool m_drawUi = false;
@@ -72,7 +72,8 @@ private:
 	float m_abilityPosX, m_abilityPosY;
 
 	std::vector<Cell> m_cells;
-	unsigned int m_atlasBattleIcon, m_atlasAbilities;
+	std::vector<Cell> m_cellsTest;
+	unsigned int m_atlasBattleIcon, m_atlasAbilities, m_backgrounds;
 	int m_currentSelectedMonster;
 	int m_currentSelectedOption, m_currentMax, m_currentOffset, m_cutOff;
 	int m_visibleItems;
@@ -105,4 +106,5 @@ private:
 	static std::random_device RandomDevice;
 	static std::mt19937 MersenTwist;
 	static Sprite SurfaceBar;
+	static TextureRect BackgroundRect;
 };

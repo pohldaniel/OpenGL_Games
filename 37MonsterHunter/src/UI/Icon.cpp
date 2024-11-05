@@ -44,8 +44,12 @@ void Icon::setAlign(bool align) {
 }
 
 void Icon::drawDefault() {
+
 	Spritesheet::Bind(m_spriteSheet);
-	draw2(textureRect, m_color, getWorldTransformation());
+	if (m_align)
+		draw2(textureRect, m_color, getWorldTransformationWithScaleAndTranslation(textureRect.width, textureRect.height, -0.5f * textureRect.width, -0.5f * textureRect.height));
+	else
+		draw2(textureRect, m_color, getWorldTransformation());
 }
 ////////////////////////////////////////////////////////////////
 IconAnimated::IconAnimated(const std::vector<TextureRect>& textureRects) : WidgetMH(), textureRects(textureRects), m_color(Vector4f::ONE), m_spriteSheet(0), m_currentFrame(-1), m_align(false){

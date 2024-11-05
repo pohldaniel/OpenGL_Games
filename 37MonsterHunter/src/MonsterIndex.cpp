@@ -100,13 +100,16 @@ m_rotate(false){
 	Monsters.push_back({ "Friolera", 25u , 3.0f, 200.0f, 0.0f, false });
 	Monsters.push_back({ "Atrox", 30u , 3.0f, 15.0f, 0.0f, false });
 	Monsters.push_back({ "Sparchu", 24u , 3.0f, 30.0f, 0.0f, false });
-	Monsters.push_back({ "Sparchu", 34u , 3.0f, 30.0f, 0.0f, false });
+	Monsters.push_back({ "Friolera", 25u , 3.0f, 200.0f, 0.0f, false });
+	Monsters.push_back({ "Atrox", 30u , 3.0f, 15.0f, 0.0f, false });
+	Monsters.push_back({ "Sparchu", 24u , 3.0f, 30.0f, 0.0f, false });
+	/*Monsters.push_back({ "Sparchu", 34u , 3.0f, 30.0f, 0.0f, false });
 	Monsters.push_back({ "Pouch", 23u , 3.0f, 30.0f, 0.0f, false });
 	Monsters.push_back({ "Gulfin", 17u, 3.0f, 30.0f, false  });
 	Monsters.push_back({ "Jacana", 16u, 300.0f, 0.0f, false });
 	Monsters.push_back({ "Plumette", 9u , 300.0f, 0.0f, false });
 	Monsters.push_back({ "Cleaf", 3u , 300.0f, 0.0f, false });
-	Monsters.push_back({ "Charmadillo", 30u , 300.0f, 0.0f, false });
+	Monsters.push_back({ "Charmadillo", 30u , 300.0f, 0.0f, false });*/
 
 	resetStats();
 

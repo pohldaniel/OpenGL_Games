@@ -15,8 +15,9 @@
 std::random_device Battle::RandomDevice;
 std::mt19937 Battle::MersenTwist(RandomDevice());
 Sprite Battle::SurfaceBar;
+TextureRect Battle::BackgroundRect = {0.0f, 0.0f, 1.0f, 1.0f, 1280.0f, 720.0f, 0u};
 
-Battle::Battle(StateMachine& machine) : State(machine, States::BATTLE), 
+Battle::Battle(StateMachine& machine) : State(machine, States::BATTLE), Icon(BackgroundRect),
 m_mapHeight(0.0f), 
 m_viewWidth(1280.0f), 
 m_viewHeight(720.0f), 
@@ -77,6 +78,7 @@ m_canCatch(true)
 	centers.push_back({ 1110.0f, m_viewHeight - 390.0f });
 	centers.push_back({ 900.0f , m_viewHeight - 550.0f });
 	m_cells.reserve(6);
+	m_cellsTest.reserve(6);
 	//setOpponentMonsters();
 
 	TextureAtlasCreator::Get().init(256u, 32u);
@@ -110,6 +112,19 @@ m_canCatch(true)
 	TileSetManager::Get().getTileSet("attacks").loadTileSetGpu();
 	//Spritesheet::Safe("attacks", TileSetManager::Get().getTileSet("attacks").getAtlas());
 	m_atlasAbilities = TileSetManager::Get().getTileSet("attacks").getAtlas();
+
+	TextureAtlasCreator::Get().init(1280u, 720u);
+	TileSetManager::Get().getTileSet("backgrounds").loadTileCpu("res/tmx/graphics/backgrounds/forest.png", false, true, false);
+	TileSetManager::Get().getTileSet("backgrounds").loadTileCpu("res/tmx/graphics/backgrounds/ice.png", false, true, false);
+	TileSetManager::Get().getTileSet("backgrounds").loadTileCpu("res/tmx/graphics/backgrounds/sand.png", false, true, false);
+	TileSetManager::Get().getTileSet("backgrounds").loadTileSetGpu();
+	//Spritesheet::Safe("backgrounds", TileSetManager::Get().getTileSet("backgrounds").getAtlas());
+	m_backgrounds = TileSetManager::Get().getTileSet("backgrounds").getAtlas();
+	
+	m_cellsTest.push_back({ 0.0f, 0.0f, 192.0f, 192.0f, static_cast<int>(MonsterIndex::MonsterData[MonsterIndex::Monsters[3].name].graphic * 16u), 0.0f, 0.0f, true, true });
+	m_cellsTest.push_back({ 0.0f, 0.0f, 192.0f, 192.0f, static_cast<int>(MonsterIndex::MonsterData[MonsterIndex::Monsters[4].name].graphic * 16u), 0.0f, 0.0f, true, true });
+	m_cellsTest.push_back({ 0.0f, 0.0f, 192.0f, 192.0f, static_cast<int>(MonsterIndex::MonsterData[MonsterIndex::Monsters[5].name].graphic * 16u), 0.0f, 0.0f, true, true });
+	initUI();
 
 	m_battleChoices.push_back({ {30.0f, 60.0f}, 0u});
 	m_battleChoices.push_back({ {40.0f, 20.0f}, 1u});
@@ -226,6 +241,10 @@ void Battle::update() {
 		monster.update(m_dt);
 	}
 
+	findChild<Monster>("monster0")->updateTest(m_dt);
+	findChild<Monster>("monster1")->updateTest(m_dt);
+	findChild<Monster>("monster2")->updateTest(m_dt);
+
 	if (m_exit)
 		return;
 
@@ -268,13 +287,29 @@ void Battle::update() {
 void Battle::render() {
 	m_mainRenderTarget.bind();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	Globals::textureManager.get(m_biomeBackground).bind();
+	Icon::draw();
+	/*Globals::textureManager.get(m_biomeBackground).bind();
 	auto shader = Globals::shaderManager.getAssetPointer("quad");
 	shader->use();
 	shader->loadMatrix("u_transform", Matrix4f::IDENTITY);
 	shader->loadVector("u_texRect", Vector4f(0.0f, 0.0f, 1.0f, 1.0f));
 	shader->loadVector("u_color", Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
 	Globals::shapeManager.get("quad").drawRaw();
+
+	std::shared_ptr<WidgetMH> currentWidget;
+	{
+		currentWidget = std::static_pointer_cast<WidgetMH>(getChildren().front());
+		currentWidget->drawTest();
+	}*/
+
+	{
+		std::list<std::shared_ptr<NodeUI>>::iterator  it;
+		std::shared_ptr<WidgetMH> currentWidget;
+		for (it = getChildren().begin(); it != getChildren().end(); ++it) {
+			currentWidget = std::static_pointer_cast<WidgetMH>(*it);
+			currentWidget->drawTest();
+		}
+	}
 
 	for (Monster& monster : m_monsters) {
 		monster.drawBack();
@@ -323,7 +358,7 @@ void Battle::render() {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	m_mainRenderTarget.bindColorTexture(0u, 0u);
-	shader = Globals::shaderManager.getAssetPointer("quad");
+	auto shader = Globals::shaderManager.getAssetPointer("quad");
 	shader->use();
 	shader->loadMatrix("u_transform", Matrix4f::IDENTITY);
 	shader->loadVector("u_texRect", Vector4f(0.0f, 0.0f, 1.0f, 1.0f));
@@ -1001,6 +1036,21 @@ void Battle::setOpponentMonsters(const std::vector<MonsterEntry>& monsters, bool
 
 	m_canSwitch = std::count_if(MonsterIndex::Monsters.begin() + m_supplyIndexPlayer + 1, MonsterIndex::Monsters.end(), [](const MonsterEntry& monsterEntry) { return monsterEntry.health > 0.0f; }) != 0;
 	m_canCatch = canCatch;
+
+	Monster* monster = addChild<Monster>(m_cellsTest[0], MonsterIndex::Monsters[3]);
+	monster->translateRelative(560.0f - 96.0f, m_viewHeight - 260.0f - 96.0f);
+	monster->updateWorldTransformation();
+	monster->setName("monster0");
+
+	monster = addChild<Monster>(m_cellsTest[1], MonsterIndex::Monsters[4]);
+	monster->translateRelative(390.0f - 96.0f, m_viewHeight - 400.0f - 96.0f);
+	monster->updateWorldTransformation();
+	monster->setName("monster1");
+
+	monster = addChild<Monster>(m_cellsTest[2], MonsterIndex::Monsters[5]);
+	monster->translateRelative(610.0f - 96.0f, m_viewHeight - 520.0f - 96.0f);
+	monster->updateWorldTransformation();
+	monster->setName("monster2");
 }
 
 void Battle::setBiomeBackground(const std::string& biomeBackground) {
@@ -1040,4 +1090,9 @@ void Battle::DrawBar(const Rect& rect, float value, float maxValue, const Vector
 		SurfaceBar.setScale(progress, rect.height);
 		SurfaceBar.draw(TileSetManager::Get().getTileSet("monster_icon").getTextureRects()[16], color);
 	}
+}
+
+void Battle::initUI() {
+	setSpriteSheet(TileSetManager::Get().getTileSet("backgrounds").getAtlas());
+	scale(BackgroundRect.width, BackgroundRect.height);	
 }

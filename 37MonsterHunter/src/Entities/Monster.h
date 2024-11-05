@@ -2,6 +2,7 @@
 #include <random>
 #include <Timer.h>
 #include <Entities/SpriteEntity.h>
+#include <UI/Surface.h>
 
 #include "MonsterIndex.h"
 
@@ -14,7 +15,7 @@ struct Bar {
 	Vector4f color;
 };
 
-class Monster : public SpriteEntity {
+class Monster : public SpriteEntity, public Surface {
 
 public:
 
@@ -27,9 +28,9 @@ public:
 	virtual ~Monster();
 
 	void drawBack();
-	void draw();
 	void drawBars();
 	void update(float dt) override;
+	void updateTest(float dt);
 	float getInitiative();
 	void setInitiative(float initiative);
 	void pause();
@@ -67,6 +68,8 @@ public:
 
 private:
 
+	void drawDefault() override;
+	void drawDefaultTest() override;
 	void drawBar(const Rect& rect, const TextureRect& textureRect, float value, float maxValue, const Vector4f& bgColor, const Vector4f& color);
 	void addBar(const Rect& rect, const TextureRect& textureRect, float value, float maxValue, const Vector4f& bgColor, const Vector4f& color);
 	std::vector<Bar> m_bars;

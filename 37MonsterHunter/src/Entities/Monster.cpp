@@ -181,7 +181,7 @@ void Monster::drawBack() {
 	}
 }
 
-void Monster::draw() {
+void Monster::drawDefault() {
 
 	float padding = 10.0f;
 	float width = Globals::fontManager.get("dialog").getWidth(monsterEntry.get().name) * 0.045f + 2.0f * padding;
@@ -242,8 +242,92 @@ void Monster::draw() {
 	}	
 }
 
+void Monster::drawDefaultTest() {
+
+	const Vector2f& pos = getWorldPosition();
+
+
+	float padding = 10.0f;
+	float width = Globals::fontManager.get("dialog").getWidth(monsterEntry.get().name) * 0.045f + 2.0f * padding;
+	float height = Globals::fontManager.get("dialog").lineHeight * 0.045f + 2.0f * padding;
+
+	//float lvlWidth = Globals::fontManager.get("dialog").getWidth("Lvl: " + std::to_string(m_level)) * 0.035f + 2.0f * padding;
+	//float lvlHeight = Globals::fontManager.get("dialog").lineHeight * 0.035f + 2.0f * padding;
+
+	float lvlWidth = 60.0f;
+	float lineHeightSmall = Globals::fontManager.get("dialog").lineHeight * 0.035f;
+
+	const TextureRect& rect = TileSetManager::Get().getTileSet("monster").getTextureRects()[cell.currentFrame + m_attackOffset];
+	const TextureRect& highlightRect = TileSetManager::Get().getTileSet("monster").getTextureRects()[cell.currentFrame + m_attackOffset + 8u];
+	const TextureRect& emptyRect = TileSetManager::Get().getTileSet("monster").getTextureRects()[256];
+	const TextureRect& missingRect = TileSetManager::Get().getTileSet("monster").getTextureRects()[257];
+	const TextureRect& barRect = TileSetManager::Get().getTileSet("monster_icon").getTextureRects()[19];
+
+	if (cell.flipped) {
+		//Monster sprite
+		if (m_highlight) {
+			Batchrenderer::Get().addQuadAA(Vector4f(pos[0], pos[1], highlightRect.width, highlightRect.height), Vector4f(highlightRect.textureOffsetX + highlightRect.textureWidth, highlightRect.textureOffsetY, -highlightRect.textureWidth, highlightRect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), highlightRect.frame);
+		}
+
+		if (!m_coverWithMask)
+			Batchrenderer::Get().addQuadAA(Vector4f(pos[0], pos[1], rect.width, rect.height), Vector4f(rect.textureOffsetX + rect.textureWidth, rect.textureOffsetY, -rect.textureWidth, rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), rect.frame);
+
+		//attributes
+		Batchrenderer::Get().addQuadAA(Vector4f(pos[0] + 0.5f * rect.width - 75.0f, pos[1] - 20.0f, 150.0f, 48.0f), Vector4f(emptyRect.textureOffsetX, emptyRect.textureOffsetY, emptyRect.textureWidth, emptyRect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), emptyRect.frame);
+		Fontrenderer::Get().addText(Globals::fontManager.get("dialog"), pos[0] + 0.5f * rect.width - 75.0f + 10.0f, pos[1] - 20.0f + 48.0f - lineHeightSmall, Fontrenderer::Get().floatToString(monsterEntry.get().health, 0) + "/" + Fontrenderer::Get().floatToString(m_maxHealth, 0), Vector4f(0.0f, 0.0f, 0.0f, 1.0f), 0.035f);
+		addBar({ pos[0] + 0.5f * rect.width - 75.0f + 10.0f, pos[1] - 20.0f + 48.0f - lineHeightSmall - 4.0f, lvlWidth, 5.0f }, barRect, monsterEntry.get().health, m_maxHealth, Vector4f(0.0f, 0.0f, 0.0f, 1.0f), Vector4f(0.94117f, 0.19215f, 0.19215f, 1.0f));
+
+		Fontrenderer::Get().addText(Globals::fontManager.get("dialog"), pos[0] + 0.5f * rect.width - 75.0f + 10.0f, pos[1] - 20.0f + 48.0f - 2.0f * lineHeightSmall - 4.0f, Fontrenderer::Get().floatToString(monsterEntry.get().energy, 0) + "/" + Fontrenderer::Get().floatToString(m_maxEnergy, 0), Vector4f(0.0f, 0.0f, 0.0f, 1.0f), 0.035f);
+		addBar({ pos[0] + 0.5f * rect.width - 75.0f + 10.0f, pos[1] - 20.0f + 48.0f - 2.0f * lineHeightSmall - 8.0f, lvlWidth, 5.0f }, barRect, monsterEntry.get().energy, m_maxEnergy, Vector4f(0.0f, 0.0f, 0.0f, 1.0f), Vector4f(0.4f, 0.84313f, 0.93333f, 1.0f));
+
+		drawBar({ pos[0] + 0.5f * rect.width - 75.0f, pos[1] - 20.0f, 150.0f, 2.0f }, emptyRect, m_initiative, 100.0f, Vector4f(1.0f, 1.0f, 1.0f, 1.0f), Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
+	}else {
+
+		//Monster sprite
+		if (m_highlight) {
+			Batchrenderer::Get().addQuadAA(Vector4f(pos[0], pos[1], highlightRect.width, highlightRect.height), Vector4f(highlightRect.textureOffsetX, highlightRect.textureOffsetY, highlightRect.textureWidth, highlightRect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), highlightRect.frame);
+		}
+
+		if (!m_coverWithMask)
+			Batchrenderer::Get().addQuadAA(Vector4f(pos[0], pos[1], rect.width, rect.height), Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureWidth, rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), rect.frame);
+
+		if (m_showMissing)
+			Batchrenderer::Get().addQuadAA(Vector4f(cell.centerX - 0.5f * missingRect.width, cell.centerY - 0.5f * missingRect.height, missingRect.width, missingRect.height), Vector4f(missingRect.textureOffsetX, missingRect.textureOffsetY, missingRect.textureWidth, missingRect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), missingRect.frame);
+
+		//attributes
+		Batchrenderer::Get().addQuadAA(Vector4f(pos[0] + 0.5f * rect.width - 75.0f, pos[1] - 20.0f, 150.0f, 48.0f), Vector4f(emptyRect.textureOffsetX, emptyRect.textureOffsetY, emptyRect.textureWidth, emptyRect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), emptyRect.frame);
+		Fontrenderer::Get().addText(Globals::fontManager.get("dialog"), pos[0] + 0.5f * rect.width - 75.0f + 10.0f, pos[1] - 20.0f + 48.0f - lineHeightSmall, Fontrenderer::Get().floatToString(monsterEntry.get().health, 0) + "/" + Fontrenderer::Get().floatToString(m_maxHealth, 0), Vector4f(0.0f, 0.0f, 0.0f, 1.0f), 0.035f);
+		addBar({ pos[0] + 0.5f * rect.width - 75.0f + 10.0f, pos[1] - 20.0f + 48.0f - lineHeightSmall - 4.0f, lvlWidth, 5.0f }, barRect, monsterEntry.get().health, m_maxHealth, Vector4f(0.0f, 0.0f, 0.0f, 1.0f), Vector4f(0.94117f, 0.19215f, 0.19215f, 1.0f));
+
+		Fontrenderer::Get().addText(Globals::fontManager.get("dialog"), pos[0] + 0.5f * rect.width - 75.0f + 10.0f, pos[1] - 20.0f + 48.0f - 2.0f * lineHeightSmall - 4.0f, Fontrenderer::Get().floatToString(monsterEntry.get().energy, 0) + "/" + Fontrenderer::Get().floatToString(m_maxEnergy, 0), Vector4f(0.0f, 0.0f, 0.0f, 1.0f), 0.035f);
+		addBar({ pos[0] + 0.5f * rect.width - 75.0f + 10.0f, pos[1] - 20.0f + 48.0f - 2.0f * lineHeightSmall - 8.0f, lvlWidth, 5.0f }, barRect, monsterEntry.get().energy, m_maxEnergy, Vector4f(0.0f, 0.0f, 0.0f, 1.0f), Vector4f(0.4f, 0.84313f, 0.93333f, 1.0f));
+
+		drawBar({ pos[0] + 0.5f * rect.width - 75.0f, pos[1] - 20.0f, 150.0f, 2.0f }, emptyRect, m_initiative, 100.0f, Vector4f(1.0f, 1.0f, 1.0f, 1.0f), Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
+	}
+}
+
 void Monster::update(float dt) {
 
+	m_highlightTimer.update(dt);
+	m_delayedKillTimer.update(dt);
+	m_showMissingTimer.update(dt);
+
+	m_elapsedTime += m_animationSpeed * dt;
+	cell.currentFrame = m_startFrame + static_cast<int>(std::floor(m_elapsedTime));
+	if (cell.currentFrame - m_startFrame > m_frameCount - 1) {
+		cell.currentFrame = m_startFrame;
+		m_elapsedTime -= static_cast<float>(m_frameCount);
+		if (m_attackOffset > 0)
+			m_attackOffset = 0u;
+	}
+
+	if (m_pause)
+		return;
+
+	m_initiative += m_speed * dt;
+}
+
+void Monster::updateTest(float dt) {
 	m_highlightTimer.update(dt);
 	m_delayedKillTimer.update(dt);
 	m_showMissingTimer.update(dt);
