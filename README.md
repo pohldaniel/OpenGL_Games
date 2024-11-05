@@ -73,5 +73,7 @@ One rendering I have achieved with this iteration
 
 The project 36Kart is from https://github.com/jasonmzx/cppkart
 
+The project 37MonsterHunter is from https://github.com/clear-code-projects/Python-Monsters and https://www.youtube.com/watch?v=fo4e3njyGy0
+
 ![screen1](https://github.com/user-attachments/assets/f23bf17f-bba5-4466-8baf-41a91455868d)
 ![antware](https://github.com/user-attachments/assets/21147167-cc31-4ca4-b68e-88bbfe5314bd)
