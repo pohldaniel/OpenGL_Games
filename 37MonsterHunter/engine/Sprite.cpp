@@ -31,24 +31,24 @@ void Sprite::draw(const Vector4f& color) {
 	DrawQuad();
 }
 
-void Sprite::draw2(const TextureRect& rect, const Vector4f& color, const Matrix4f& worldTransformation) {
+void Sprite::draw2(const TextureRect& rect, const Vector4f& color, const Matrix4f& worldTransformation, bool flipped) {
 	auto shader = m_shader ? m_shader : SpriteShader.get();
 
 	shader->use();
 	shader->loadMatrix("u_transform", Orthographic * worldTransformation);
 	shader->loadVector("u_color", color);
-	shader->loadVector("u_texRect", Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureOffsetX + rect.textureWidth, rect.textureOffsetY + rect.textureHeight));
+	shader->loadVector("u_texRect", flipped ? Vector4f(rect.textureOffsetX + rect.textureWidth, rect.textureOffsetY, rect.textureOffsetX, rect.textureOffsetY + rect.textureHeight) : Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureOffsetX + rect.textureWidth, rect.textureOffsetY + rect.textureHeight));
 	shader->loadInt("u_layer", rect.frame);
 	DrawQuad();
 }
 
-void Sprite::draw2(const Vector4f& color, const Matrix4f& worldTransformation) {
+void Sprite::draw2(const Vector4f& color, const Matrix4f& worldTransformation, bool flipped) {
 	auto shader = m_shader ? m_shader : SpriteShader.get();
 
 	shader->use();
 	shader->loadMatrix("u_transform", Orthographic * worldTransformation);
 	shader->loadVector("u_color", color);
-	shader->loadVector("u_texRect", Vector4f(0.0f, 0.0f, 1.0f, 1.0f));
+	shader->loadVector("u_texRect", flipped ? Vector4f(1.0f, 0.0f, 0.0f, 1.0f) : Vector4f(0.0f, 0.0f, 1.0f, 1.0f));
 	shader->loadInt("u_layer", 0u);
 	DrawQuad();
 }

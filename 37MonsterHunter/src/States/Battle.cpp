@@ -331,9 +331,16 @@ void Battle::render() {
 	Globals::fontManager.get("dialog").bind();
 	Fontrenderer::Get().drawBuffer();
 
-	for (Monster& monster : m_monsters) {
-		monster.drawBars();
+	{
+		std::list<std::shared_ptr<NodeUI>>::iterator  it;
+		std::shared_ptr<Monster> currentWidget;
+		for (it = getChildren().begin(); it != getChildren().end(); ++it) {
+			currentWidget = std::static_pointer_cast<Monster>(*it);
+			currentWidget->drawUI();
+		}
 	}
+
+	Monster::DrawBars();
 
 	Spritesheet::Bind(TileSetManager::Get().getTileSet("monster_icon").getAtlas());
 	Batchrenderer::Get().drawBuffer();
@@ -1041,16 +1048,19 @@ void Battle::setOpponentMonsters(const std::vector<MonsterEntry>& monsters, bool
 	monster->translateRelative(560.0f - 96.0f, m_viewHeight - 260.0f - 96.0f);
 	monster->updateWorldTransformation();
 	monster->setName("monster0");
+	monster->initUI();
 
 	monster = addChild<Monster>(m_cellsTest[1], MonsterIndex::Monsters[4]);
 	monster->translateRelative(390.0f - 96.0f, m_viewHeight - 400.0f - 96.0f);
 	monster->updateWorldTransformation();
 	monster->setName("monster1");
+	monster->initUI();
 
 	monster = addChild<Monster>(m_cellsTest[2], MonsterIndex::Monsters[5]);
 	monster->translateRelative(610.0f - 96.0f, m_viewHeight - 520.0f - 96.0f);
 	monster->updateWorldTransformation();
 	monster->setName("monster2");
+	monster->initUI();
 }
 
 void Battle::setBiomeBackground(const std::string& biomeBackground) {

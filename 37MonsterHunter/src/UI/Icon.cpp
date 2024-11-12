@@ -2,7 +2,7 @@
 #include <engine/Spritesheet.h>
 #include "Icon.h"
 
-Icon::Icon(const TextureRect& textureRect) : WidgetMH(), textureRect(textureRect), m_color(Vector4f::ONE), m_spriteSheet(0), m_align(false) {
+Icon::Icon(const TextureRect& textureRect) : WidgetMH(), textureRect(textureRect), m_color(Vector4f::ONE), m_spriteSheet(0), m_align(false), m_flipped(false){
 
 }
 
@@ -43,16 +43,20 @@ void Icon::setAlign(bool align) {
 	m_align = align;
 }
 
+void Icon::setFlipped(bool flipped) {
+	m_flipped = flipped;
+}
+
 void Icon::drawDefault() {
 
 	Spritesheet::Bind(m_spriteSheet);
 	if (m_align)
-		draw2(textureRect, m_color, getWorldTransformationWithScaleAndTranslation(textureRect.width, textureRect.height, -0.5f * textureRect.width, -0.5f * textureRect.height));
+		draw2(textureRect, m_color, getWorldTransformationWithScaleAndTranslation(textureRect.width, textureRect.height, -0.5f * textureRect.width, -0.5f * textureRect.height), m_flipped);
 	else
-		draw2(textureRect, m_color, getWorldTransformation());
+		draw2(textureRect, m_color, getWorldTransformation(), m_flipped);
 }
 ////////////////////////////////////////////////////////////////
-IconAnimated::IconAnimated(const std::vector<TextureRect>& textureRects) : WidgetMH(), textureRects(textureRects), m_color(Vector4f::ONE), m_spriteSheet(0), m_currentFrame(-1), m_align(false){
+IconAnimated::IconAnimated(const std::vector<TextureRect>& textureRects) : WidgetMH(), textureRects(textureRects), m_color(Vector4f::ONE), m_spriteSheet(0), m_currentFrame(-1), m_align(false), m_flipped(false){
 
 }
 
@@ -62,7 +66,8 @@ IconAnimated::IconAnimated(const IconAnimated& rhs) :
 	textureRects(rhs.textureRects), 
 	m_spriteSheet(rhs.m_spriteSheet),
 	m_currentFrame(rhs.m_currentFrame),
-	m_align(rhs.m_align){
+	m_align(rhs.m_align),
+	m_flipped(rhs.m_flipped){
 }
 
 IconAnimated::IconAnimated(IconAnimated&& rhs) :
@@ -71,7 +76,8 @@ IconAnimated::IconAnimated(IconAnimated&& rhs) :
     textureRects(std::move(rhs.textureRects)),
 	m_spriteSheet(rhs.m_spriteSheet),
 	m_currentFrame(rhs.m_currentFrame),
-	m_align(rhs.m_align) {
+	m_align(rhs.m_align),
+	m_flipped(rhs.m_flipped) {
 }
 
 IconAnimated::~IconAnimated() {
@@ -95,6 +101,10 @@ void IconAnimated::setAlign(bool align) {
 	m_align = align;
 }
 
+void IconAnimated::setFlipped(bool flipped) {
+	m_flipped = flipped;
+}
+
 void IconAnimated::setCurrentFrame(const ptrdiff_t currentFrame) {
 	m_currentFrame = currentFrame;
 }
@@ -107,7 +117,7 @@ void IconAnimated::drawDefault() {
 	const TextureRect& rect = textureRects[m_currentFrame];
 
 	if(m_align)
-		draw2(rect, m_color, getWorldTransformationWithScaleAndTranslation(rect.width, rect.height, -0.5f * rect.width, -0.5f * rect.height));
+		draw2(rect, m_color, getWorldTransformationWithScaleAndTranslation(rect.width, rect.height, -0.5f * rect.width, -0.5f * rect.height), m_flipped);
 	else 
-		draw2(rect, m_color, getWorldTransformation());	
+		draw2(rect, m_color, getWorldTransformation(), m_flipped);
 }

@@ -412,18 +412,18 @@ void TileSet::loadTileCpu(std::string texturePath, bool init, bool flipVertical,
 	float srcRectY = 0.0f;
 
 	if (!flipTextureRects) {
-		textureRects.push_back({ (srcRectX + 0.0005f) / static_cast<float>(imageWidth),
-								   (static_cast<float>(imageHeight) - (srcRectY + tileHeight - 0.0005f)) / static_cast<float>(imageHeight),
-								   (tileWidth - 0.0005f) / static_cast<float>(imageWidth),
-								   (tileHeight - 0.0005f) / static_cast<float>(imageHeight),
+		textureRects.push_back({ (srcRectX + 0.5f) / static_cast<float>(imageWidth),
+								   (static_cast<float>(imageHeight) - (srcRectY + tileHeight - 0.5f)) / static_cast<float>(imageHeight),
+								   (tileWidth - 1.0f) / static_cast<float>(imageWidth),
+								   (tileHeight - 1.0f) / static_cast<float>(imageHeight),
 								   tileWidth,
 								   tileHeight,
 								   0u });
 	}else {
-		textureRects.push_back({ (srcRectX + 0.0005f) / static_cast<float>(imageWidth),
-								   (static_cast<float>(imageHeight) - srcRectY - 0.0005f) / static_cast<float>(imageHeight),
-								   (tileWidth - 0.0005f) / static_cast<float>(imageWidth),
-								   -tileHeight / static_cast<float>(imageHeight),
+		textureRects.push_back({ (srcRectX + 0.5f) / static_cast<float>(imageWidth),
+								   (static_cast<float>(imageHeight) - srcRectY - 0.5f) / static_cast<float>(imageHeight),
+								   (tileWidth - 1.0f) / static_cast<float>(imageWidth),
+								   (1.0f - tileHeight) / static_cast<float>(imageHeight),
 								   tileWidth,
 								   tileHeight,
 								   0u });
@@ -450,18 +450,18 @@ void TileSet::loadTileCpu(std::string texturePath, bool init, unsigned int posX,
 	float srcRectY = 0.0f;
 
 	if (!flipTextureRects) {
-		textureRects.push_back({ (srcRectX + 0.0005f) / static_cast<float>(width),
-								   (static_cast<float>(height) - (srcRectY + tileHeight - 0.0005f)) / static_cast<float>(height),
-								   (tileWidth - 0.0005f) / static_cast<float>(width),
-								   (tileHeight - 0.0005f) / static_cast<float>(height),
+		textureRects.push_back({ (srcRectX + 0.5f) / static_cast<float>(width),
+								   (static_cast<float>(height) - (srcRectY + tileHeight - 0.5f)) / static_cast<float>(height),
+								   (tileWidth - 1.0f) / static_cast<float>(width),
+								   (tileHeight - 1.0f) / static_cast<float>(height),
 								   tileWidth,
 								   tileHeight,
 								   0u });
 	}else {
-		textureRects.push_back({ (srcRectX + 0.0005f) / static_cast<float>(width),
-								   (static_cast<float>(height) - srcRectY - 0.0005f) / static_cast<float>(height),
-								   (tileWidth - 0.0005f) / static_cast<float>(width),
-								   -tileHeight / static_cast<float>(height),
+		textureRects.push_back({ (srcRectX + 0.5f) / static_cast<float>(width),
+								   (static_cast<float>(height) - srcRectY - 0.5f) / static_cast<float>(height),
+								   (tileWidth - 1.0f) / static_cast<float>(width),
+								   (1.0f - tileHeight) / static_cast<float>(height),
 								   tileWidth,
 								   tileHeight,
 								   0u });

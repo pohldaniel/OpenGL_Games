@@ -17,6 +17,7 @@ public:
 	void setShader(Shader* shader);
 	void setSpriteSheet(const unsigned int& spriteSheet);
 	void setAlign(bool align);
+	void setFlipped(bool flipped);
 
 private:
 
@@ -27,6 +28,7 @@ private:
 	Shader* m_shader;
 	unsigned int m_spriteSheet;	
 	bool m_align;
+	bool m_flipped;
 };
 
 class IconAnimated : public WidgetMH {
@@ -43,6 +45,7 @@ public:
 	void setSpriteSheet(const unsigned int& spriteSheet);
 	void setCurrentFrame(const ptrdiff_t currentFrame);
 	void setAlign(bool align);
+	void setFlipped(bool flipped);
 
 private:
 
@@ -54,4 +57,5 @@ private:
 	unsigned int m_spriteSheet;
 	ptrdiff_t m_currentFrame;
 	bool m_align;
+	bool m_flipped;
 };

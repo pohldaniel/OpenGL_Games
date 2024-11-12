@@ -28,7 +28,7 @@ public:
 	virtual ~Monster();
 
 	void drawBack();
-	void drawBars();
+	void drawUI();
 	void update(float dt) override;
 	void updateTest(float dt);
 	float getInitiative();
@@ -66,13 +66,17 @@ public:
 	void setMonsterEntry(MonsterEntry& monsterEntry);
 	void calculateStates(MonsterEntry& monsterEntry);
 
+	void initUI();
+
+	static void DrawBars();
+
 private:
 
 	void drawDefault() override;
 	void drawDefaultTest() override;
 	void drawBar(const Rect& rect, const TextureRect& textureRect, float value, float maxValue, const Vector4f& bgColor, const Vector4f& color);
 	void addBar(const Rect& rect, const TextureRect& textureRect, float value, float maxValue, const Vector4f& bgColor, const Vector4f& color);
-	std::vector<Bar> m_bars;
+	static std::vector<Bar> Bars;
 
 	std::reference_wrapper<MonsterEntry> monsterEntry;
 

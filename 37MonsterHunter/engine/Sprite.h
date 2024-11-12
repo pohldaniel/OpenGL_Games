@@ -55,8 +55,8 @@ public:
 	void draw(const TextureRect& rect, const Vector4f& color = Vector4f::ONE);
 	void draw(const Vector4f& color = Vector4f::ONE);
 
-	void draw2(const TextureRect& rect, const Vector4f& color = Vector4f::ONE, const Matrix4f& worldTransformation = Matrix4f::IDENTITY);
-	void draw2(const Vector4f& color = Vector4f::ONE, const Matrix4f& worldTransformation = Matrix4f::IDENTITY);
+	void draw2(const TextureRect& rect, const Vector4f& color = Vector4f::ONE, const Matrix4f& worldTransformation = Matrix4f::IDENTITY, bool flipped = false);
+	void draw2(const Vector4f& color = Vector4f::ONE, const Matrix4f& worldTransformation = Matrix4f::IDENTITY, bool flipped = false);
 
 	void setShader(Shader* shader);
 	void resetShader();
