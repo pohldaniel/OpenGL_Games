@@ -72,7 +72,6 @@ private:
 	float m_abilityPosX, m_abilityPosY;
 
 	std::vector<Cell> m_cells;
-	std::vector<Cell> m_cellsTest;
 	unsigned int m_atlasBattleIcon, m_atlasAbilities, m_backgrounds;
 	int m_currentSelectedMonster;
 	int m_currentSelectedOption, m_currentMax, m_currentOffset, m_cutOff;
@@ -84,7 +83,8 @@ private:
 	std::vector<std::reference_wrapper<MonsterEntry>> m_filteredMonsters;
 
 	std::vector<MonsterEntry> m_opponentMonsters;
-	std::vector<Monster> m_monsters;
+	std::vector<Monster*> m_monsters;
+
 	std::vector<std::array<float, 2>> positions;
 	std::vector<std::array<float, 2>> centers;
 	std::vector<BattleChoice> m_battleChoices;

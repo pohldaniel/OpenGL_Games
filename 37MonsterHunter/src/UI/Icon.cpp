@@ -105,7 +105,7 @@ void IconAnimated::setFlipped(bool flipped) {
 	m_flipped = flipped;
 }
 
-void IconAnimated::setCurrentFrame(const ptrdiff_t currentFrame) {
+void IconAnimated::setCurrentFrame(const int currentFrame) {
 	m_currentFrame = currentFrame;
 }
 
