@@ -27,10 +27,7 @@ public:
 
 	virtual ~Monster();
 
-	void drawBack();
-	void drawUI();
 	void update(float dt) override;
-	void updateTest(float dt);
 	float getInitiative();
 	void setInitiative(float initiative);
 	void pause();
@@ -68,24 +65,18 @@ public:
 
 	void initUI();
 
-	static void DrawBars();
 
 private:
 
 	void drawDefault() override;
-	void drawDefaultTest() override;
-	void drawBar(const Rect& rect, const TextureRect& textureRect, float value, float maxValue, const Vector4f& bgColor, const Vector4f& color);
-	void addBar(const Rect& rect, const TextureRect& textureRect, float value, float maxValue, const Vector4f& bgColor, const Vector4f& color);
-	static std::vector<Bar> Bars;
 
 	std::reference_wrapper<MonsterEntry> monsterEntry;
 
 	float m_animationSpeed;
-	//std::string m_name;
 	float m_maxHealth, m_maxEnergy, m_maxExperience;
 	float m_initiative;
 	float m_speed;
-	bool m_pause, m_highlight, m_coverWithMask, m_canAttack, m_defending, m_delayedKill, m_killed, m_showMissing;
+	bool m_pause, m_highlight, m_coverWithMask, m_canAttack, m_defending, m_delayedKill, m_killed;
 	unsigned int m_attackOffset;
 	CBTimer<Monster> m_highlightTimer;
 	CBTimer<Monster> m_delayedKillTimer;

@@ -311,7 +311,6 @@ void MonsterHunter::OnReEnter(unsigned int prevState) {
 				m_lastCharacter = nullptr;
 				m_dialogTree.setOnDialogFinished([this]() {
 					m_zone.getPlayer().unblock();
-					m_monsterIndex.resetStats();
 					checkForEvolution();
 					});
 

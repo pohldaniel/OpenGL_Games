@@ -32,6 +32,11 @@ std::list<std::shared_ptr<NodeUI>>& NodeUI::getChildren() const {
 	return m_children;
 }
 
+void NodeUI::eraseSelf() {
+	if (m_parent)
+		m_parent->eraseChild(this);
+}
+
 void NodeUI::eraseChild(NodeUI* child) {
 	if (!child || child->m_parent != this)
 		return;
@@ -126,13 +131,6 @@ void WidgetMH::draw() {
 		return m_draw();
 	}
 	drawDefault();
-}
-
-void WidgetMH::drawTest() {
-	drawDefaultTest();
-}
-
-void WidgetMH::drawDefaultTest() {
 }
 
 void WidgetMH::OnTransformChanged() {

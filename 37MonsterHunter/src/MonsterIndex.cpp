@@ -372,7 +372,6 @@ void MonsterIndex::setViewHeight(float viewHeight) {
 
 void MonsterIndex::processInput() {
 	
-
 	Keyboard &keyboard = Keyboard::instance();
 	if (keyboard.keyPressed(Keyboard::KEY_UP)) {
 		eraseAbilities();	

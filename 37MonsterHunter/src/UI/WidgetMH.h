@@ -17,6 +17,7 @@ public:
 	virtual ~NodeUI();
 
 	std::list<std::shared_ptr<NodeUI>>& getChildren() const;
+	void eraseSelf();
 	void eraseChild(NodeUI* child);
 	void eraseChild(const int index);
 	void eraseAllChildren(size_t offset = 0);
@@ -136,7 +137,6 @@ public:
 	virtual ~WidgetMH();
 
 	virtual void draw();
-	virtual void drawTest();
 
 	void setScale(const float sx, const float sy) override;
 	void setScale(const Vector2f& scale) override;
@@ -195,7 +195,6 @@ protected:
 private:
 
 	virtual void drawDefault() = 0;
-	virtual void drawDefaultTest();
 
 	mutable Matrix4f m_modelMatrix;
 	static Vector2f WorldPosition;

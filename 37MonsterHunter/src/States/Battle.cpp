@@ -235,7 +235,7 @@ void Battle::update() {
 	m_fade.update(m_dt);
 
 	for (auto& monster : m_monsters) {
-		monster->updateTest(m_dt);
+		monster->update(m_dt);
 	}
 
 	if (m_exit)
@@ -286,14 +286,9 @@ void Battle::render() {
 		std::shared_ptr<Monster> currentWidget;
 		for (it = getChildren().begin(); it != getChildren().end(); ++it) {
 			currentWidget = std::static_pointer_cast<Monster>(*it);
-			currentWidget->drawUI();
+			currentWidget->draw();
 		}
 	}
-
-	Monster::DrawBars();
-
-	Spritesheet::Bind(TileSetManager::Get().getTileSet("monster_icon").getAtlas());
-	Batchrenderer::Get().drawBuffer();
 
 	if (m_playAbility) {		
 		drawAbilityAnimation(m_abilityPosX, m_abilityPosY);
@@ -621,6 +616,7 @@ void Battle::processInput() {
 					m_monsters[m_currentSelectedOption + m_cutOff]->setInitiative(0.0f);
 
 				}else {
+					m_monsters[m_currentSelectedOption + m_cutOff]->eraseSelf();
 					m_monsters.erase(m_monsters.begin() + m_currentSelectedOption + m_cutOff);
 				}
 
@@ -718,6 +714,7 @@ void Battle::processInput() {
 				}
 
 			}else if (m_currentSelectedOption == 1) {
+				m_monsters[m_currentSelectedMonster]->setDefending(true);
 				m_drawGeneralUi = false;
 				m_visibleItems = 4;
 				m_currentSelectedOption = 0;
@@ -725,7 +722,6 @@ void Battle::processInput() {
 				m_currentMax = 4;
 				m_currentSelectedMonster = -1;
 				std::for_each(m_monsters.begin(), m_monsters.end(), std::mem_fn(&Monster::unPause));
-				m_monsters[m_currentSelectedMonster]->setDefending(true);
 
 			}else if (m_currentSelectedOption == 2) {
 				m_drawGeneralUi = false;
@@ -779,14 +775,14 @@ void Battle::processInput() {
 
 	if (keyboard.keyPressed(Keyboard::KEY_ESCAPE)) {
 		if (m_drawGeneralUi) {
+			m_monsters[m_currentSelectedMonster]->setDefending(true);
 			m_drawGeneralUi = false;
 			m_visibleItems = 4;
 			m_currentSelectedOption = 0;
 			m_currentOffset = 0;
 			m_currentMax = 4;
 			m_currentSelectedMonster = -1;
-			std::for_each(m_monsters.begin(), m_monsters.end(), std::mem_fn(&Monster::unPause));
-			m_monsters[m_currentSelectedMonster]->setDefending(true);
+			std::for_each(m_monsters.begin(), m_monsters.end(), std::mem_fn(&Monster::unPause));		
 		}
 
 		if (m_drawAtacksUi || m_drawSwitchUi || m_drawTargetUI) {
@@ -882,10 +878,9 @@ void Battle::removeDefeteadMonster() {
 			}else {
 				if (m_currentSelectedMonster >= index)
 					m_currentSelectedMonster--;
-
-				std::cout << m_monsters.size() << std::endl;
+				m_monsters[index]->eraseSelf();
 				m_monsters.erase(m_monsters.begin() + index);
-				std::cout << m_monsters.size() << std::endl;
+				
 			}
 			break;
 		}
