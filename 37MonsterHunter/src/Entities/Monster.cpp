@@ -395,6 +395,9 @@ void Monster::setMonsterEntry(MonsterEntry& _monsterEntry) {
 
 	findChild<BarUI>("experience")->setValue(monsterEntry.get().experience);
 	findChild<BarUI>("experience")->setMaxValue(m_maxExperience);
+
+	findChild<Label>("name")->setLabel(monsterEntry.get().name);
+	findChild<Label>("level")->setLabel("Lvl " + std::to_string(monsterEntry.get().level));
 }
 
 void Monster::setDelayedKill(bool delayedKill) {
@@ -435,6 +438,7 @@ void Monster::initUI() {
 	label->setTextColor(Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
 	label->setSize(0.045f);
 	label->setLabel(monsterEntry.get().name);
+	label->setName("name");
 
 	surface = addChild<Surface>();
 	surface->translateRelative(-width * 0.5f + 16.0f, + 96.0f - height * 0.5f + 40.0f - lvlHeight);
@@ -451,6 +455,7 @@ void Monster::initUI() {
 	label->setTextColor(Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
 	label->setSize(0.035f);
 	label->setLabel("Lvl " + std::to_string(monsterEntry.get().level));
+	label->setName("level");
 
 	BarUI* bar = addChild<BarUI>(TileSetManager::Get().getTileSet("monster_icon").getTextureRects()[16]);
 	bar->translateRelative(-width * 0.5f + 16.0f, +96.0f - height * 0.5f + 40.0f - lvlHeight);

@@ -26,6 +26,7 @@ Tmx::Tmx(StateMachine& machine) : State(machine, States::TMX) {
 
 	glClearColor(0.6f, 0.8f, 0.92f, 1.0f);
 	glClearDepth(1.0f);
+
 	TileSetManager::Get().getTileSet("demo").loadTileSetCpu("res/tmx/images/tilemap/tileset.png", true, 64.0f, 64.0f, true, false);
 	TileSetManager::Get().getTileSet("demo").loadTileSetCpu("res/tmx/images/tilemap/tileset02.png", false, 32.0f, 32.0f, true, false);
 	TileSetManager::Get().getTileSet("demo").loadTileSetGpu();

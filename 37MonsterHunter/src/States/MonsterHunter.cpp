@@ -31,7 +31,6 @@ MonsterHunter::MonsterHunter(StateMachine& machine) : State(machine, States::MON
 	m_camera.setRotationSpeed(0.1f);
 	m_camera.setMovingSpeed(m_movingSpeed);
 
-	glClearColor(0.6f, 0.8f, 0.92f, 1.0f);
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClearDepth(1.0f);
 
@@ -88,10 +87,13 @@ MonsterHunter::MonsterHunter(StateMachine& machine) : State(machine, States::MON
 			m_blockIndex = true;
 			m_evolveQueue.pop();
 		}else {
+			
 			m_blockIndex = false;
 			m_evolveOpen = false;
 			m_zone.setAlpha(1.0f);
 			m_zone.getPlayer().unblock();
+			m_dialogTree.setBlockInput(false);
+			m_dialogTree.setFinished(true);
 		}
 	});
 }
@@ -155,6 +157,7 @@ void MonsterHunter::update() {
 	}
 
 	if (keyboard.keyPressed(Keyboard::KEY_SPACE)) {
+
 		for (Character& character : m_zone.getCharacters()) {
 			if (SpriteEntity::CheckConnection(m_zone.getPlayer().getCell(), character.getCell(), m_zone.getPlayer().getLastViewDirection())) {
 				m_zone.getPlayer().block();
@@ -168,16 +171,20 @@ void MonsterHunter::update() {
 						m_dialogTree.addDialog(character.getCell().posX, m_mapHeight - (character.getCell().posY - 128.0f), 0.0f, 0.0f, dialog);
 					}
 					m_dialogTree.setFinished(false);
+
 					if (character.getCharacterId() == "Nurse") {
 						m_dialogTree.setOnDialogFinished([&m_monsterIndex = m_monsterIndex, &m_zone = m_zone]() {
 							m_zone.getPlayer().unblock();
 							m_monsterIndex.resetStats();
 						});
 					}else {
+						
 						m_dialogTree.setOnDialogFinished([this, &character = character]() {
 							if (!character.isDefeated()) {
 								character.setDefeated(true);
-								m_lastCharacter = &character;
+								m_dialogTree.setBlockInput(true);
+								m_dialogTree.setFinished(false);
+								m_lastCharacter = &character;							
 								m_zone.getFade().setOnFadeOut([this, &character = character]() {
 									m_machine.addStateAtTop(new Battle(m_machine));
 									static_cast<Battle*>(m_machine.getStates().top())->setMapHeight(m_mapHeight);
@@ -234,10 +241,12 @@ void MonsterHunter::update() {
 			m_dialogTree.setBlockInput(true);
 			m_dialogTree.setFinished(false);
 
-			m_dialogTree.setOnDialogFinished([this, &character = character]() {				
+			m_dialogTree.setOnDialogFinished([this, &character = character]() {	
 				if (!character.isDefeated()) {
 					character.setDefeated(true);
-					m_zone.getFade().setOnFadeOut([this, &character = character]() {
+					m_dialogTree.setBlockInput(true);
+					m_dialogTree.setFinished(false);
+					m_zone.getFade().setOnFadeOut([this, &character = character]() {						
 						m_machine.addStateAtTop(new Battle(m_machine));
 						static_cast<Battle*>(m_machine.getStates().top())->setMapHeight(m_mapHeight);
 						static_cast<Battle*>(m_machine.getStates().top())->setViewHeight(m_viewHeight);
@@ -260,6 +269,7 @@ void MonsterHunter::update() {
 				m_zone.getPlayer().setIsNoticed(false);
 			});
 			m_lastCharacter = &character;
+			break;
 		}
 	}
 
@@ -300,19 +310,24 @@ void MonsterHunter::OnReEnter(unsigned int prevState) {
 		EventDispatcher::AddMouseListener(this);
 		m_zone.setAlpha(0.0f);
 
-		m_zone.getFade().setOnFadeIn([this]() {
-			if (m_lastCharacter) {
+		bool _evolve = false;
+		m_zone.getFade().setOnFadeIn([this, _evolve = _evolve]() {
+			if (m_lastCharacter ) {
 				m_zone.getPlayer().block();
 				Trainer& trainer = DialogTree::Trainers[m_lastCharacter->getCharacterId()];
 				for (auto& dialog : trainer.dialog.defeated) {
 					m_dialogTree.addDialog(m_lastCharacter->getCell().posX, m_mapHeight - (m_lastCharacter->getCell().posY - 128.0f), 0.0f, 0.0f, dialog, 0);
 				}
-				m_dialogTree.setFinished(false);
+				
+				m_dialogTree.setBlockInput(false);
 				m_lastCharacter = nullptr;
-				m_dialogTree.setOnDialogFinished([this]() {
+				m_dialogTree.setOnDialogFinished([this, _evolve = _evolve]() {									
 					m_zone.getPlayer().unblock();
-					checkForEvolution();
-					});
+					if (checkForEvolution()) {
+						m_dialogTree.setBlockInput(true);
+						m_dialogTree.setFinished(false);
+					}
+				});
 
 			}else {
 				m_zone.getPlayer().unblock();
@@ -446,14 +461,14 @@ void MonsterHunter::renderUi() {
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
-void MonsterHunter::checkForEvolution() {
+bool MonsterHunter::checkForEvolution() {
 
 	for (int i = 0; i < MonsterIndex::Monsters.size(); i++) {
 		if (std::get<1>(MonsterIndex::MonsterData[MonsterIndex::Monsters[i].name].evolve) && MonsterIndex::Monsters[i].level >= std::get<1>(MonsterIndex::MonsterData[MonsterIndex::Monsters[i].name].evolve)) {
 			m_evolveQueue.push({ MonsterIndex::Monsters[i].name,  std::get<0>(MonsterIndex::MonsterData[MonsterIndex::Monsters[i].name].evolve), i });
 		}
 	}
-
+	bool result = !m_evolveQueue.empty();
 	if (!m_evolveQueue.empty()) {
 		const EvolveEntry& evolveEntry = m_evolveQueue.front();
 		m_evolve.setCurrentMonster(evolveEntry.m_startMonster);
@@ -465,10 +480,11 @@ void MonsterHunter::checkForEvolution() {
 			m_zone.setAlpha(1.0f - 0.784f);
 			m_evolveOpen = true;
 			m_evolve.startEvolution();
-		});
+			});
 		m_delayEvolve.start(800u, false);
 		m_zone.getPlayer().block();
 		m_blockIndex = true;
 		m_evolveQueue.pop();
 	}
+	return result;
 }

@@ -128,7 +128,7 @@ void DialogTree::addDialog(float posX, float posY, float paddingX, float padding
 }
 
 void DialogTree::setFinished(bool finished) {
-		m_finished = false;
+		m_finished = finished;
 }
 
 void DialogTree::processInput() {
@@ -139,16 +139,17 @@ void DialogTree::processInput() {
 	if (keyboard.keyPressed(Keyboard::KEY_SPACE)) {		
 			m_currentIndex++;
 			if (m_currentIndex > (DialogData.size() - 1)) {
+				
 				m_finished = true;
 				m_currentIndex = -1;
 				DialogData.clear();
-				DialogData.shrink_to_fit();
+				DialogData.shrink_to_fit();				
 
 				if (OnDialogFinished) {
 					OnDialogFinished();
 					OnDialogFinished = nullptr;
 				}
-			}
+			}	
 	}
 }
 

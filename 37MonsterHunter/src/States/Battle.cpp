@@ -58,7 +58,6 @@ m_canCatch(true)
 	m_camera.orthographic(0.0f, m_viewWidth, 0.0f, m_viewHeight, -1.0f, 1.0f);
 	m_camera.setRotationSpeed(0.1f);
 	
-	glClearColor(0.6f, 0.8f, 0.92f, 1.0f);
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClearDepth(1.0f);
 
@@ -870,7 +869,7 @@ void Battle::removeDefeteadMonster() {
 			}else if(m_supplyIndexOpponent < static_cast<int>(m_opponentMonsters.size()) - 1 && !m_monsters[index]->getCell().flipped) {
 				m_supplyIndexOpponent++;
 					
-				m_monsters[index]->setGraphic(static_cast<int>(MonsterIndex::MonsterData[MonsterIndex::Monsters[m_supplyIndexOpponent].name].graphic * 16u));
+				m_monsters[index]->setGraphic(static_cast<int>(MonsterIndex::MonsterData[m_opponentMonsters[m_supplyIndexOpponent].name].graphic * 16u));
 				m_monsters[index]->setMonsterEntry(m_opponentMonsters[m_supplyIndexOpponent]);
 				m_monsters[index]->setInitiative(0.0f);
 				m_monsters[index]->setKilled(false);
