@@ -84,6 +84,8 @@ private:
 
 	std::vector<MonsterEntry> m_opponentMonsters;
 	std::vector<Monster*> m_monsters;
+	IconAnimated* m_abilityUI;
+	Surface *m_generalUI, *m_atacksUI, *m_switchUI;
 
 	std::vector<std::array<float, 2>> positions;
 	std::vector<std::array<float, 2>> centers;

@@ -56,7 +56,7 @@ void Icon::drawDefault() {
 		draw2(textureRect, m_color, getWorldTransformation(), m_flipped);
 }
 ////////////////////////////////////////////////////////////////
-IconAnimated::IconAnimated(const std::vector<TextureRect>& textureRects) : WidgetMH(), textureRects(textureRects), m_color(Vector4f::ONE), m_spriteSheet(0), m_currentFrame(-1), m_align(false), m_flipped(false){
+IconAnimated::IconAnimated(const std::vector<TextureRect>& textureRects) : WidgetMH(), textureRects(textureRects), m_color(Vector4f::ONE), m_spriteSheet(0), m_currentFrame(-1), m_align(false), m_flipped(false), m_offsetX(0.0f), m_offsetY(0.0f){
 
 }
 
@@ -67,7 +67,9 @@ IconAnimated::IconAnimated(const IconAnimated& rhs) :
 	m_spriteSheet(rhs.m_spriteSheet),
 	m_currentFrame(rhs.m_currentFrame),
 	m_align(rhs.m_align),
-	m_flipped(rhs.m_flipped){
+	m_flipped(rhs.m_flipped),
+	m_offsetX(rhs.m_offsetX),
+	m_offsetY(rhs.m_offsetY) {
 }
 
 IconAnimated::IconAnimated(IconAnimated&& rhs) :
@@ -77,7 +79,9 @@ IconAnimated::IconAnimated(IconAnimated&& rhs) :
 	m_spriteSheet(rhs.m_spriteSheet),
 	m_currentFrame(rhs.m_currentFrame),
 	m_align(rhs.m_align),
-	m_flipped(rhs.m_flipped) {
+	m_flipped(rhs.m_flipped),
+	m_offsetX(rhs.m_offsetX),
+	m_offsetY(rhs.m_offsetY) {
 }
 
 IconAnimated::~IconAnimated() {
@@ -109,6 +113,14 @@ void IconAnimated::setCurrentFrame(const int currentFrame) {
 	m_currentFrame = currentFrame;
 }
 
+void IconAnimated::setOffsetX(const float offsetX) {
+	m_offsetX = offsetX;
+}
+
+void IconAnimated::setOffsetY(const float offsetY) {
+	m_offsetY = offsetY;
+}
+
 void IconAnimated::drawDefault() {
 	if (m_currentFrame < 0)
 		return;
@@ -116,8 +128,15 @@ void IconAnimated::drawDefault() {
 	Spritesheet::Bind(m_spriteSheet);
 	const TextureRect& rect = textureRects[m_currentFrame];
 
-	if(m_align)
-		draw2(rect, m_color, getWorldTransformationWithScaleAndTranslation(rect.width, rect.height, -0.5f * rect.width, -0.5f * rect.height), m_flipped);
-	else 
-		draw2(rect, m_color, getWorldTransformation(), m_flipped);
+	if (m_offsetX || m_offsetY) {
+		if (m_align)
+			draw2(rect, m_color, getWorldTransformationWithScaleAndTranslation(rect.width, rect.height, -0.5f * rect.width + m_offsetX, -0.5f * rect.height + m_offsetY), m_flipped);
+		else
+			draw2(rect, m_color, getWorldTransformationWithTranslation(m_offsetX, m_offsetY), m_flipped);
+	}else {
+		if (m_align)
+			draw2(rect, m_color, getWorldTransformationWithScaleAndTranslation(rect.width, rect.height, -0.5f * rect.width, -0.5f * rect.height), m_flipped);
+		else
+			draw2(rect, m_color, getWorldTransformation(), m_flipped);
+	}
 }

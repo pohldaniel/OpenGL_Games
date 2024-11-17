@@ -144,6 +144,11 @@ Battle::~Battle() {
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
 	MonsterIndex::Monsters.shrink_to_fit();
+
+	delete m_abilityUI;
+	delete m_generalUI;
+	delete m_atacksUI;
+	delete m_switchUI;
 }
 
 void Battle::fixedUpdate() {
@@ -416,25 +421,30 @@ void Battle::setViewHeight(float viewHeight) {
 }
 
 void Battle::drawGeneral() {
-	Spritesheet::Bind(m_atlasBattleIcon);
+	
 	Monster* currentMonster = m_monsters[m_currentSelectedMonster];
 	const Cell& cell = currentMonster->getCell();
 
-	for (size_t i = 0; i < m_battleChoices.size(); i++) {
-		const BattleChoice& battleChoice = m_battleChoices[i];
-		if (i == m_currentSelectedOption) {
-			const TextureRect& rect = TileSetManager::Get().getTileSet("battle_icon").getTextureRects()[battleChoice.graphics + 4 + ((i == 0) && !currentMonster->getCanAttack()) * 8 + ((i == 2) && !m_canSwitch) * 8 + ((i == 3) && !m_canCatch) * 8];
-			Batchrenderer::Get().addQuadAA(Vector4f(cell.posX + cell.width + battleChoice.pos[0] - 0.5f * rect.width, cell.posY + 0.5f * cell.height + battleChoice.pos[1] - 0.5f * rect.height, rect.width, rect.height), Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureWidth, rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), rect.frame);
-		}else {
-			const TextureRect& rect = TileSetManager::Get().getTileSet("battle_icon").getTextureRects()[battleChoice.graphics + 8];
-			Batchrenderer::Get().addQuadAA(Vector4f(cell.posX + cell.width + battleChoice.pos[0] - 0.5f * rect.width, cell.posY + 0.5f * cell.height + battleChoice.pos[1] - 0.5f * rect.height, rect.width, rect.height), Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureWidth, rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), rect.frame);
-
-		}
-	
+	unsigned int i = 0u;
+	std::shared_ptr<IconAnimated> currentWidget;
+	for (auto& children : m_generalUI->getChildren()) {
+		currentWidget = std::static_pointer_cast<IconAnimated>(children);
+		currentWidget->setOffsetX(cell.posX + cell.width);
+		currentWidget->setOffsetY(cell.posY + 0.5f * cell.height);
+		currentWidget->setCurrentFrame(i == m_currentSelectedOption ? 
+									   i + 4 + ((i == 0) && !currentMonster->getCanAttack()) * 8 + ((i == 2) && !m_canSwitch) * 8 + ((i == 3) && !m_canCatch) * 8 :
+			                           i + 8);
+		currentWidget->draw();
+		i++;
 	}
-
-	Batchrenderer::Get().drawBuffer();
 }
+
+void Battle::drawAbilityAnimation(float posX, float posY) {
+	m_abilityUI->setCurrentFrame(m_abilityOffset + m_currentFrame);
+	m_abilityUI->setPosition(posX, posY);
+	m_abilityUI->draw();
+}
+
 
 void Battle::drawAttacks() {
 	Monster* currentMonster = m_monsters[m_currentSelectedMonster];
@@ -809,13 +819,6 @@ void Battle::processInput() {
 	}
 }
 
-void Battle::drawAbilityAnimation(float posX, float posY) {
-	const TextureRect& rect = TileSetManager::Get().getTileSet("attacks").getTextureRects()[m_abilityOffset + m_currentFrame];
-	Batchrenderer::Get().addQuadAA(Vector4f(posX - 0.5f * rect.width, posY - 0.5f * rect.height, rect.width, rect.height), Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureWidth, rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), rect.frame);
-	Spritesheet::Bind(m_atlasAbilities);
-	Batchrenderer::Get().drawBuffer();
-}
-
 void Battle::onAbilityEnd() {
 	m_drawGeneralUi = false;
 	m_drawAtacksUi = false;
@@ -1053,4 +1056,37 @@ void Battle::DrawBar(const Rect& rect, float value, float maxValue, const Vector
 void Battle::initUI() {
 	setSpriteSheet(TileSetManager::Get().getTileSet("backgrounds").getAtlas());
 	scale(BackgroundRect.width, BackgroundRect.height);	
+
+	m_abilityUI = new IconAnimated(TileSetManager::Get().getTileSet("attacks").getTextureRects());
+	m_abilityUI->setSpriteSheet(TileSetManager::Get().getTileSet("attacks").getAtlas());
+	m_abilityUI->setAlign(true);
+
+	//m_battleChoices.push_back({ {30.0f, 60.0f}, 0u });
+	//m_battleChoices.push_back({ {40.0f, 20.0f}, 1u });
+	//m_battleChoices.push_back({ {40.0f, -20.0f}, 2u });
+	//m_battleChoices.push_back({ {30.0f, -60.0f}, 3u });
+
+	m_generalUI = new Surface();
+	IconAnimated* iconAnimated = m_generalUI->addChild<IconAnimated>(TileSetManager::Get().getTileSet("battle_icon").getTextureRects());
+	iconAnimated->setSpriteSheet(TileSetManager::Get().getTileSet("battle_icon").getAtlas());
+	iconAnimated->setAlign(true);
+	iconAnimated->setPosition(30.0f, 60.0f);
+
+	iconAnimated = m_generalUI->addChild<IconAnimated>(TileSetManager::Get().getTileSet("battle_icon").getTextureRects());
+	iconAnimated->setSpriteSheet(TileSetManager::Get().getTileSet("battle_icon").getAtlas());
+	iconAnimated->setAlign(true);
+	iconAnimated->setPosition(40.0f, 20.0f);
+
+	iconAnimated = m_generalUI->addChild<IconAnimated>(TileSetManager::Get().getTileSet("battle_icon").getTextureRects());
+	iconAnimated->setSpriteSheet(TileSetManager::Get().getTileSet("battle_icon").getAtlas());
+	iconAnimated->setAlign(true);
+	iconAnimated->setPosition(40.0f, -20.0f);
+
+	iconAnimated = m_generalUI->addChild<IconAnimated>(TileSetManager::Get().getTileSet("battle_icon").getTextureRects());
+	iconAnimated->setSpriteSheet(TileSetManager::Get().getTileSet("battle_icon").getAtlas());
+	iconAnimated->setAlign(true);
+	iconAnimated->setPosition(30.0f, -60.0f);
+
+	m_atacksUI = new Surface(); 
+	m_switchUI = new Surface();
 }
