@@ -69,8 +69,8 @@ void TerrainClass::Shutdown() {
 
 
 bool TerrainClass::LoadHeightMap(const char* filename) {
-	int width, height, numCompontents;
-	unsigned char* imageData = SOIL_load_image(filename, &width, &height, &numCompontents, SOIL_LOAD_AUTO);
+	int width, height, numComponents;
+	unsigned char* imageData = SOIL_load_image(filename, &width, &height, &numComponents, SOIL_LOAD_AUTO);
 
 	m_terrainWidth = width;
 	m_terrainHeight = height;

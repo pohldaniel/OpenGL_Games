@@ -42,20 +42,20 @@ void Cubemap::FlipVertical(unsigned char* data, unsigned int padWidth, unsigned 
 }
 
 void Cubemap::loadFromFile(std::string* textureFiles, const bool _flipVertical, unsigned int _format) {
-	int width, height, numCompontents;
+	int width, height, numComponents;
 	unsigned char* imageData;
 
 	glGenTextures(1, &m_texture);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, m_texture);
 
 	for (unsigned short i = 0; i < 6; i++) {
-		imageData = SOIL_load_image(textureFiles[i].c_str(), &width, &height, &numCompontents, SOIL_LOAD_AUTO);
-		unsigned internalFormat = _format == -1 && numCompontents == 3 ? GL_RGB8 : _format == -1 ? GL_RGBA8 : _format;
+		imageData = SOIL_load_image(textureFiles[i].c_str(), &width, &height, &numComponents, SOIL_LOAD_AUTO);
+		unsigned internalFormat = _format == -1 && numComponents == 3 ? GL_RGB8 : _format == -1 ? GL_RGBA8 : _format;
 		
 		if (_flipVertical)
-			flipVertical(imageData, numCompontents * width, height);
+			flipVertical(imageData, numComponents * width, height);
 
-		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, internalFormat, width, height, 0, numCompontents == 3 ? GL_RGB : GL_RGBA, GL_UNSIGNED_BYTE, imageData);
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, internalFormat, width, height, 0, numComponents == 3 ? GL_RGB : GL_RGBA, GL_UNSIGNED_BYTE, imageData);
 			
 		SOIL_free_image_data(imageData);
 	}
@@ -70,7 +70,7 @@ void Cubemap::loadFromFile(std::string* textureFiles, const bool _flipVertical, 
 
 	m_width = width;
 	m_height = height;
-	m_channels = numCompontents;
+	m_channels = numComponents;
 
 }
 

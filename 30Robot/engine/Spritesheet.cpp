@@ -112,12 +112,12 @@ void Spritesheet::loadFromFile(std::string fileName, unsigned short tileWidth, u
 //https://stackoverflow.com/questions/34239049/how-to-grow-a-gl-texture-2d-array
 void Spritesheet::addToSpritesheet(std::string fileName, unsigned short tileWidth, unsigned short tileHeight, unsigned short spacing, bool reverse, bool _flipVertical, int row, int minColumn, int maxColumn, unsigned int _format) {
 
-	int width, height, numCompontents;
-	unsigned char* imageData = SOIL_load_image(fileName.c_str(), &width, &height, &numCompontents, SOIL_LOAD_AUTO);
-	unsigned internalFormat = _format == 0 && numCompontents == 3 ? GL_RGB8 : _format == 0 ? GL_RGBA8 : _format;
+	int width, height, numComponents;
+	unsigned char* imageData = SOIL_load_image(fileName.c_str(), &width, &height, &numComponents, SOIL_LOAD_AUTO);
+	unsigned internalFormat = _format == 0 && numComponents == 3 ? GL_RGB8 : _format == 0 ? GL_RGBA8 : _format;
 
 	if (_flipVertical)
-		Texture::FlipVertical(imageData, numCompontents * width, height);
+		Texture::FlipVertical(imageData, numComponents * width, height);
 
 	unsigned short tileCountX = width / (tileWidth + spacing);
 	unsigned short tileCountY = height / (tileHeight + spacing);
@@ -131,7 +131,7 @@ void Spritesheet::addToSpritesheet(std::string fileName, unsigned short tileWidt
 	glGenTextures(1, &texture_new);
 	glBindTexture(GL_TEXTURE_2D_ARRAY, texture_new);
 	//glTexStorage3D(GL_TEXTURE_2D_ARRAY, 1, internalFormat, tileWidth, tileHeight, m_totalFrames + totalFrames);
-	glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, internalFormat, tileWidth, tileHeight, m_totalFrames + totalFrames, 0, numCompontents == 3 ? GL_RGB : GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+	glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, internalFormat, tileWidth, tileHeight, m_totalFrames + totalFrames, 0, numComponents == 3 ? GL_RGB : GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 	for (int layer = 0; layer < m_totalFrames; ++layer) {
 		glFramebufferTextureLayer(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, m_texture, 0, layer);
 		glCopyTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, layer, 0, 0, tileWidth, tileHeight);
@@ -150,15 +150,15 @@ void Spritesheet::addToSpritesheet(std::string fileName, unsigned short tileWidt
 			if (reverse) posY--; else posY++;
 			posX = minColumn > 0 ? minColumn - 1 : 0;
 		}
-		unsigned char* subImage = (unsigned char*)malloc((tileWidth)* numCompontents * (tileHeight));
-		unsigned int subImageSize = (tileWidth)* numCompontents * tileHeight;
+		unsigned char* subImage = (unsigned char*)malloc((tileWidth)* numComponents * (tileHeight));
+		unsigned int subImageSize = (tileWidth)* numComponents * tileHeight;
 		unsigned int count = 0, row = 0;
-		unsigned int offset = width * numCompontents * ((tileHeight + spacing) * posY + spacing) + posX * (tileWidth + spacing) * numCompontents;
+		unsigned int offset = width * numComponents * ((tileHeight + spacing) * posY + spacing) + posX * (tileWidth + spacing) * numComponents;
 		unsigned int x = offset;
 
 		while (count < subImageSize) {
-			if (count % (tileWidth * numCompontents) == 0 && count > 0) {
-				row = row + width * numCompontents;
+			if (count % (tileWidth * numComponents) == 0 && count > 0) {
+				row = row + width * numComponents;
 				x = row + offset;
 
 			}
@@ -166,7 +166,7 @@ void Spritesheet::addToSpritesheet(std::string fileName, unsigned short tileWidt
 			x++;
 			count++;
 		}
-		glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, m_totalFrames + image, tileWidth, tileHeight, 1, numCompontents == 3 ? GL_RGB : GL_RGBA, GL_UNSIGNED_BYTE, subImage);
+		glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, m_totalFrames + image, tileWidth, tileHeight, 1, numComponents == 3 ? GL_RGB : GL_RGBA, GL_UNSIGNED_BYTE, subImage);
 		posX++;
 		image++;
 		free(subImage);
@@ -347,15 +347,15 @@ void Spritesheet::createSpritesheetFromSpritesheet(unsigned int spritesheet, uns
 }
 
 void Spritesheet::createSpritesheet(std::string fileName, unsigned int _format, unsigned int _internalFormat,  bool _flipVertical, int _unpackAlignment) {
-	int width, height, numCompontents;
-	unsigned char* imageData = SOIL_load_image(fileName.c_str(), &width, &height, &numCompontents, SOIL_LOAD_AUTO);
+	int width, height, numComponents;
+	unsigned char* imageData = SOIL_load_image(fileName.c_str(), &width, &height, &numComponents, SOIL_LOAD_AUTO);
 
-	unsigned internalFormat = _internalFormat == 0 && numCompontents == 3 ? GL_RGB8 : _internalFormat == 0 ? GL_RGBA8 : _internalFormat;
-	unsigned format = _format == 0 && numCompontents == 3 ? GL_RGB : _format == 0 && numCompontents == 4 ? GL_RGBA : _format;
+	unsigned internalFormat = _internalFormat == 0 && numComponents == 3 ? GL_RGB8 : _internalFormat == 0 ? GL_RGBA8 : _internalFormat;
+	unsigned format = _format == 0 && numComponents == 3 ? GL_RGB : _format == 0 && numComponents == 4 ? GL_RGBA : _format;
 	m_totalFrames++;
 
 	if (_flipVertical)
-		Texture::FlipVertical(imageData, numCompontents * width, height);
+		Texture::FlipVertical(imageData, numComponents * width, height);
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, _unpackAlignment);
 
@@ -376,11 +376,11 @@ void Spritesheet::createSpritesheet(std::string fileName, unsigned int _format, 
 }
 
 void Spritesheet::addToSpritesheet(std::string fileName, unsigned int _format, unsigned int _internalFormat, bool _flipVertical, int _unpackAlignment) {
-	int width, height, numCompontents;
-	unsigned char* imageData = SOIL_load_image(fileName.c_str(), &width, &height, &numCompontents, SOIL_LOAD_AUTO);
+	int width, height, numComponents;
+	unsigned char* imageData = SOIL_load_image(fileName.c_str(), &width, &height, &numComponents, SOIL_LOAD_AUTO);
 
-	unsigned internalFormat = _internalFormat == 0 && numCompontents == 3 ? GL_RGB8 : _internalFormat == 0 ? GL_RGBA8 : _internalFormat;
-	unsigned format = _format == 0 && numCompontents == 3 ? GL_RGB : _format == 0 && numCompontents == 4 ? GL_RGBA : _format;
+	unsigned internalFormat = _internalFormat == 0 && numComponents == 3 ? GL_RGB8 : _internalFormat == 0 ? GL_RGBA8 : _internalFormat;
+	unsigned format = _format == 0 && numComponents == 3 ? GL_RGB : _format == 0 && numComponents == 4 ? GL_RGBA : _format;
 	m_totalFrames++;
 
 	unsigned int fbo = 0;
@@ -403,7 +403,7 @@ void Spritesheet::addToSpritesheet(std::string fileName, unsigned int _format, u
 	glDeleteFramebuffers(1, &fbo);
 
 	if (_flipVertical)
-		Texture::FlipVertical(imageData, numCompontents * width, height);
+		Texture::FlipVertical(imageData, numComponents * width, height);
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, _unpackAlignment);
 

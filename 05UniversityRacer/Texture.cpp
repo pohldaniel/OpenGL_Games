@@ -14,8 +14,8 @@ void Texture::setTexture(const std::string & fileName){
 	int g_maxAnisotrophy;
 	glGetIntegerv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &g_maxAnisotrophy);
 	//std::cout << fileName.c_str() << std::endl;
-	int width, height, numCompontents;
-	unsigned char* imageData = stbi_load(fileName.c_str(), &width, &height, &numCompontents, 4);
+	int width, height, numComponents;
+	unsigned char* imageData = stbi_load(fileName.c_str(), &width, &height, &numComponents, 4);
 
 	if (imageData == NULL) {
 		std::cout << "Unable to load texture: " << fileName << std::endl;

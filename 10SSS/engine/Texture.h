@@ -43,10 +43,10 @@ public:
 	static void FlipVertical(unsigned char* data, unsigned int padWidth, unsigned int height);
 	
 
-	static unsigned char* AddRemoveBottomPadding(unsigned char* imageData, int width, int& height, int numCompontents, int padding);
-	static unsigned char* AddRemoveTopPadding(unsigned char* imageData, int width, int& height, int numCompontents, int padding);
-	static unsigned char* AddRemoveRightPadding(unsigned char* imageData, int& width, int height, int numCompontents, int padding);
-	static unsigned char* AddRemoveLeftPadding(unsigned char* imageData, int& width, int height, int numCompontents, int padding);
+	static unsigned char* AddRemoveBottomPadding(unsigned char* imageData, int width, int& height, int numComponents, int padding);
+	static unsigned char* AddRemoveTopPadding(unsigned char* imageData, int width, int& height, int numComponents, int padding);
+	static unsigned char* AddRemoveRightPadding(unsigned char* imageData, int& width, int height, int numComponents, int padding);
+	static unsigned char* AddRemoveLeftPadding(unsigned char* imageData, int& width, int height, int numComponents, int padding);
 	static unsigned char* LoadFromFile(std::string pictureFile, const bool flipVertical = false, short alphaChannel = -1);
 	static unsigned char* LoadFromFile(std::string fileName, int& width, int& height, const bool _flipVertical = true, bool transparent = false, int paddingLeft = 0, int paddingRight = 0, int paddingTop = 0, int paddingBottom = 0);
 

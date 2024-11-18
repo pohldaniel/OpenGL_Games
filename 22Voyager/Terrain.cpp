@@ -86,8 +86,8 @@ void Terrain::init() {
 
 void Terrain::loadHeightmapImage(const char* fileName){
 
-	int width, height, numCompontents;
-	unsigned char* imageData = SOIL_load_image(fileName, &width, &height, &numCompontents, SOIL_LOAD_AUTO);
+	int width, height, numComponents;
+	unsigned char* imageData = SOIL_load_image(fileName, &width, &height, &numComponents, SOIL_LOAD_AUTO);
 
 	if (imageData == nullptr) {
 		std::cerr << "ERROR: Unable to load heightmap.\n";
@@ -96,8 +96,8 @@ void Terrain::loadHeightmapImage(const char* fileName){
 
 	std::vector<float> tmp;
 	for (int i = 0; i < height; ++i) {
-		for (int j = 0; j < width * numCompontents; j = j + numCompontents) {
-			tmp.push_back((float)imageData[i *(width * numCompontents) + j] / 255.0f);
+		for (int j = 0; j < width * numComponents; j = j + numComponents) {
+			tmp.push_back((float)imageData[i *(width * numComponents) + j] / 255.0f);
 		}
 
 		m_vHeights.push_back(tmp);

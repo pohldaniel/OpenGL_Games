@@ -92,6 +92,8 @@ public:
 	void markForDelete();
 	void generateDisplacements();
 	void generateNormals();
+	void flipVertical(unsigned char* data, unsigned int padWidth, unsigned int height);
+	void flipHorizontal(unsigned char* data, unsigned int width, unsigned int height, int numComponents);
 
 	static void Bind(unsigned int textureRef, unsigned int unit = 0u, unsigned int target = 3553u, bool forceBind = false);
 	static void Unbind(unsigned int unit = 0u, unsigned int target = 3553u);
@@ -102,7 +104,7 @@ public:
 	static void AddVertically(std::string fileIn1, std::string fileIn2, std::string fileOut, const bool flipVertical = false);
 
 	static void FlipVertical(unsigned char* data, unsigned int padWidth, unsigned int height);
-	static void FlipHorizontal(unsigned char* data, unsigned int width, unsigned int height, int numCompontents);
+	static void FlipHorizontal(unsigned char* data, unsigned int width, unsigned int height, int numComponents);
 
 	static void AddHighlight(std::string fileIn, std::string fileOut, int borderWidth);
 	static void GrayScale(std::string fileIn, std::string fileOut);
@@ -111,10 +113,10 @@ public:
 	static void AddRemoveRightPadding(std::string fileIn, std::string fileOut, int padding);
 	static void AddRemoveLeftPadding(std::string fileIn, std::string fileOut, int padding);
 
-	static unsigned char* AddRemoveBottomPadding(unsigned char* imageData, int width, int& height, int numCompontents, int padding);
-	static unsigned char* AddRemoveTopPadding(unsigned char* imageData, int width, int& height, int numCompontents, int padding);
-	static unsigned char* AddRemoveRightPadding(unsigned char* imageData, int& width, int height, int numCompontents, int padding);
-	static unsigned char* AddRemoveLeftPadding(unsigned char* imageData, int& width, int height, int numCompontents, int padding);
+	static unsigned char* AddRemoveBottomPadding(unsigned char* imageData, int width, int& height, int numComponents, int padding);
+	static unsigned char* AddRemoveTopPadding(unsigned char* imageData, int width, int& height, int numComponents, int padding);
+	static unsigned char* AddRemoveRightPadding(unsigned char* imageData, int& width, int height, int numComponents, int padding);
+	static unsigned char* AddRemoveLeftPadding(unsigned char* imageData, int& width, int height, int numComponents, int padding);
 	static unsigned char* LoadFromFile(std::string fileName, const bool flipVertical = false, short alphaChannel = -1);
 	static unsigned char* LoadFromFile(std::string fileName, int& width, int& height, const bool flipVertical = true, bool transparent = false, int paddingLeft = 0, int paddingRight = 0, int paddingTop = 0, int paddingBottom = 0);
 	static unsigned char* LoadFromFile(std::string fileName, unsigned int posX, unsigned int posY, unsigned int width, unsigned int height, const bool flipVertical = true, bool transparent = false, int paddingLeft = 0, int paddingRight = 0, int paddingTop = 0, int paddingBottom = 0);
@@ -138,8 +140,7 @@ public:
 	static void ArrayTo3D(const unsigned int& textureRef1, unsigned int& textureRef2);
 	static void SetCompareFunc(const unsigned int& textureRef, unsigned int func = 0u, unsigned int target = 3553u);
 
-	void flipVertical(unsigned char* data, unsigned int padWidth, unsigned int height);
-	void flipHorizontal(unsigned char* data, unsigned int width, unsigned int height, int numCompontents);
+	static void CreateBars(std::string fileOut, unsigned int width, unsigned int height, unsigned int numBars, unsigned int heightBar);
 
 private:
 

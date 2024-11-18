@@ -57,12 +57,12 @@ public:
 	static void CutSubimage(std::string fileIn, std::string fileOut, unsigned int offsetX, unsigned int offsetY, unsigned int width = 0u, unsigned int height = 0u, const bool flipVertical = false);
 	static void AddHorizontally(std::string fileIn1, std::string fileIn2, std::string fileOut, const bool flipVertical = false);
 	static void FlipVertical(unsigned char* data, unsigned int padWidth, unsigned int height);
-	static void FlipHorizontal(unsigned char* data, unsigned int width, unsigned int height, int numCompontents);
+	static void FlipHorizontal(unsigned char* data, unsigned int width, unsigned int height, int numComponents);
 
-	static unsigned char* AddRemoveBottomPadding(unsigned char* imageData, int width, int& height, int numCompontents, int padding);
-	static unsigned char* AddRemoveTopPadding(unsigned char* imageData, int width, int& height, int numCompontents, int padding);
-	static unsigned char* AddRemoveRightPadding(unsigned char* imageData, int& width, int height, int numCompontents, int padding);
-	static unsigned char* AddRemoveLeftPadding(unsigned char* imageData, int& width, int height, int numCompontents, int padding);
+	static unsigned char* AddRemoveBottomPadding(unsigned char* imageData, int width, int& height, int numComponents, int padding);
+	static unsigned char* AddRemoveTopPadding(unsigned char* imageData, int width, int& height, int numComponents, int padding);
+	static unsigned char* AddRemoveRightPadding(unsigned char* imageData, int& width, int height, int numComponents, int padding);
+	static unsigned char* AddRemoveLeftPadding(unsigned char* imageData, int& width, int height, int numComponents, int padding);
 	static unsigned char* LoadFromFile(std::string fileName, const bool flipVertical = false, short alphaChannel = -1);
 	static unsigned char* LoadFromFile(std::string fileName, int& width, int& height, const bool flipVertical = true, bool transparent = false, int paddingLeft = 0, int paddingRight = 0, int paddingTop = 0, int paddingBottom = 0);
 	static unsigned char* LoadHDRIFromFile(std::string fileName, int& width, int& height, const bool flipVertical = true, unsigned int internalFormat = 0, unsigned int format = 0, int paddingLeft = 0, int paddingRight = 0, int paddingTop = 0, int paddingBottom = 0);
@@ -85,7 +85,7 @@ public:
 private:
 
 	void flipVertical(unsigned char* data, unsigned int padWidth, unsigned int height);
-	void flipHorizontal(unsigned char* data, unsigned int width, unsigned int height, int numCompontents);
+	void flipHorizontal(unsigned char* data, unsigned int width, unsigned int height, int numComponents);
 
 	unsigned int m_texture = 0;
 	unsigned int m_width = 0;

@@ -82,7 +82,7 @@ public:
 			+ d * (u * v);
 	}
 
-	float getHeight(unsigned int x, unsigned int z, unsigned int width, unsigned short numCompontents, unsigned char* data);
+	float getHeight(unsigned int x, unsigned int z, unsigned int width, unsigned short numComponents, unsigned char* data);
 
 private:
 	void blur(float amount);

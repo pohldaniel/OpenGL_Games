@@ -8,8 +8,8 @@ Spritesheet::Spritesheet(std::string pictureFile, unsigned short tileWidth, unsi
 	unsigned format = _format == -1 ? GL_RGBA8 : _format;
 
 	stbi_set_flip_vertically_on_load(flipVertical);
-	int width, height, numCompontents;
-	unsigned char* imageData = stbi_load(pictureFile.c_str(), &width, &height, &numCompontents, NULL);
+	int width, height, numComponents;
+	unsigned char* imageData = stbi_load(pictureFile.c_str(), &width, &height, &numComponents, NULL);
 
 	m_tileCountX = width / tileWidth;
 	m_tileCountY = height / tileHeight;
@@ -30,15 +30,15 @@ Spritesheet::Spritesheet(std::string pictureFile, unsigned short tileWidth, unsi
 			if (reverse) posY--; else posY++;
 			posX = 0;
 		}
-		unsigned char* subImage = (unsigned char*)malloc(tileWidth * numCompontents * tileHeight);
-		unsigned int subImageSize = tileWidth * numCompontents * tileHeight;
+		unsigned char* subImage = (unsigned char*)malloc(tileWidth * numComponents * tileHeight);
+		unsigned int subImageSize = tileWidth * numComponents * tileHeight;
 		unsigned int count = 0, row = 0;
-		unsigned int x = width * numCompontents * tileHeight * posY + posX * tileWidth * numCompontents;
+		unsigned int x = width * numComponents * tileHeight * posY + posX * tileWidth * numComponents;
 
 		while (count < subImageSize) {
-			if (count % (tileWidth * numCompontents) == 0 && count > 0) {
-				row = row + width * numCompontents;
-				x = row + width * numCompontents * tileHeight * posY + posX * tileWidth * numCompontents;
+			if (count % (tileWidth * numComponents) == 0 && count > 0) {
+				row = row + width * numComponents;
+				x = row + width * numComponents * tileHeight * posY + posX * tileWidth * numComponents;
 			}
 			subImage[count] = imageData[x];
 			x++;

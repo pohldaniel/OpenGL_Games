@@ -749,7 +749,7 @@ void Application::loadAssets() {
 	Globals::shapeManager.buildQuadXY("quad_aligned", Vector3f(0.0f, 0.0f, 0.0f), Vector2f(2.0f, 2.0f), 1, 1, true, false, false);
 	Globals::shapeManager.buildQuadXY("quad_half_aligned", Vector3f(0.0f, 0.0f, 0.0f), Vector2f(1.0f, 1.0f), 1, 1, true, false, false);
 	
-	//Highlight pos processing
+	//Highlight post processing
 	/*for (unsigned int x = 0; x < 4; x++) {
 		for (unsigned int y = 0; y < 2; y++) {
 			Texture::CutSubimage("res/tmx/graphics/monsters/Charmadillo.png", "Charmadillo.png", x * 192u, y * 192u, 192u, 192u);
@@ -852,5 +852,8 @@ void Application::loadAssets() {
 		TileSetManager::Get().getTileSet("coast").loadTileCpu("res/tmx/graphics/tilesets/coast.png", false, x * 64u, 64u * 11u, 64u, 64u, false, false);
 	}
 	TileSetManager::Get().getTileSet("coast").loadTileSetGpu();
-	Spritesheet::Safe("res/tmx/graphics/tilesets/coast_ordered", TileSetManager::Get().getTileSet("coast").getAtlas());*/
+	Spritesheet::Safe("res/tmx/graphics/tilesets/coast_ordered", TileSetManager::Get().getTileSet("coast").getAtlas());
+
+	//Bars post processing
+	Texture::CreateBars("res/tmx/graphics/other/bars.png", 1024u, 256u, 200u, 5u);*/
 }

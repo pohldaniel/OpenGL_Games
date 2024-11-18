@@ -61,9 +61,9 @@ void HeightMap::createFromTexture(Texture& texture, int width, float scale) {
 }
 
 void HeightMap::createFromImage(std::string file, int _width, float scale) {
-	int width, height, numCompontents;
-	unsigned char* imageData = SOIL_load_image(file.c_str(), &width, &height, &numCompontents, SOIL_LOAD_AUTO);
-	Texture::FlipVertical(imageData, numCompontents *  width, height);
+	int width, height, numComponents;
+	unsigned char* imageData = SOIL_load_image(file.c_str(), &width, &height, &numComponents, SOIL_LOAD_AUTO);
+	Texture::FlipVertical(imageData, numComponents *  width, height);
 	m_heightScale = scale;
 	m_resolution = width - 1;
 	m_size = width;
@@ -75,7 +75,7 @@ void HeightMap::createFromImage(std::string file, int _width, float scale) {
 	float minH = 0.0f, maxH = 0.0f;
 	for (int z = 0; z < width; z++) {
 		for (int x = 0; x < width; x++) {
-			m_heights[z * width + x] = getHeight(x, z, width, numCompontents, imageData);
+			m_heights[z * width + x] = getHeight(x, z, width, numComponents, imageData);
 
 			minH = (std::min)(minH, m_heights[z * width + x]);
 			maxH = (std::max)(maxH, m_heights[z * width + x]);
@@ -90,8 +90,8 @@ void HeightMap::createFromImage(std::string file, int _width, float scale) {
 	}
 }
 
-float HeightMap::getHeight(unsigned int x, unsigned int z, unsigned int width, unsigned short numCompontents, unsigned char* data) {
-	float color = (float)(data[z * numCompontents * width + x * numCompontents] - 127);
+float HeightMap::getHeight(unsigned int x, unsigned int z, unsigned int width, unsigned short numComponents, unsigned char* data) {
+	float color = (float)(data[z * numComponents * width + x * numComponents] - 127);
 	color /= 256.0f;
 	return color;
 }

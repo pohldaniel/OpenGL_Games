@@ -5,8 +5,8 @@
 SpritesheetOld::SpritesheetOld(std::string pictureFile, unsigned short tileWidth, unsigned short tileHeight, bool reverse, bool flipVertical) {
 
 	stbi_set_flip_vertically_on_load(flipVertical);
-	int width, height, numCompontents;
-	unsigned char* imageData = stbi_load(pictureFile.c_str(), &width, &height, &numCompontents, NULL);
+	int width, height, numComponents;
+	unsigned char* imageData = stbi_load(pictureFile.c_str(), &width, &height, &numComponents, NULL);
 
 	tileCountX = width / tileWidth;
 	tileCountY = height / tileHeight;

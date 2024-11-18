@@ -5,8 +5,8 @@
 Texture::Texture(std::string pictureFile, bool flipVertical) {
 
 	stbi_set_flip_vertically_on_load(flipVertical);
-	int width, height, numCompontents;
-	unsigned char* imageData = stbi_load(pictureFile.c_str(), &width, &height, &numCompontents, NULL);
+	int width, height, numComponents;
+	unsigned char* imageData = stbi_load(pictureFile.c_str(), &width, &height, &numComponents, NULL);
 
 	glGenTextures(1, &m_texture);
 	glBindTexture(GL_TEXTURE_2D, m_texture);

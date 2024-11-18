@@ -128,15 +128,11 @@ void IconAnimated::drawDefault() {
 	Spritesheet::Bind(m_spriteSheet);
 	const TextureRect& rect = textureRects[m_currentFrame];
 
-	if (m_offsetX || m_offsetY) {
-		if (m_align)
-			draw2(rect, m_color, getWorldTransformationWithScaleAndTranslation(rect.width, rect.height, -0.5f * rect.width + m_offsetX, -0.5f * rect.height + m_offsetY), m_flipped);
-		else
-			draw2(rect, m_color, getWorldTransformationWithTranslation(m_offsetX, m_offsetY), m_flipped);
+	if (m_align) {
+		draw2(rect, m_color, getWorldTransformationWithScaleAndTranslation(rect.width, rect.height, -0.5f * rect.width + m_offsetX, -0.5f * rect.height + m_offsetY), m_flipped);
+	}else if (m_offsetX || m_offsetY) {
+		draw2(rect, m_color, getWorldTransformationWithTranslation(m_offsetX, m_offsetY), m_flipped);
 	}else {
-		if (m_align)
-			draw2(rect, m_color, getWorldTransformationWithScaleAndTranslation(rect.width, rect.height, -0.5f * rect.width, -0.5f * rect.height), m_flipped);
-		else
-			draw2(rect, m_color, getWorldTransformation(), m_flipped);
+		draw2(rect, m_color, getWorldTransformation(), m_flipped);
 	}
 }

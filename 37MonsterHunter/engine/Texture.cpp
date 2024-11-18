@@ -216,33 +216,33 @@ void Texture::flipVertical(unsigned char* data, unsigned int padWidth, unsigned 
 	}
 }
 
-void Texture::flipHorizontal(unsigned char* data, unsigned int width, unsigned int height, int numCompontents) {
+void Texture::flipHorizontal(unsigned char* data, unsigned int width, unsigned int height, int numComponents) {
 	unsigned char *pFront = 0;
 	unsigned char *pBack = 0;
 	unsigned char pixel[4] = { 0 };
 
 	for (unsigned int i = 0; i < height; ++i) {
-		pFront = &data[i * width * numCompontents];
-		pBack = &pFront[(width -1) * numCompontents];
+		pFront = &data[i * width * numComponents];
+		pBack = &pFront[(width -1) * numComponents];
 
 		while (pFront < pBack) {
 			// Save current pixel at position pFront.
-			for (int j = 0; j < numCompontents; j++) {
+			for (int j = 0; j < numComponents; j++) {
 				pixel[j] = pFront[j];
 			}
 
 			// Copy new pixel from position pBack into pFront.
-			for (int j = 0; j < numCompontents; j++) {
+			for (int j = 0; j < numComponents; j++) {
 				pFront[j] = pBack[j];
 			}
 
 			// Copy old pixel at position pFront into pBack.
-			for (int j = 0; j < numCompontents; j++) {
+			for (int j = 0; j < numComponents; j++) {
 				pBack[j] = pixel[j];
 			}
 
-			pFront += numCompontents;
-			pBack -= numCompontents;
+			pFront += numComponents;
+			pBack -= numComponents;
 		}
 	}
 }
@@ -262,33 +262,33 @@ void Texture::FlipVertical(unsigned char* data, unsigned int padWidth, unsigned 
 	}
 }
 
-void Texture::FlipHorizontal(unsigned char* data, unsigned int width, unsigned int height, int numCompontents) {
+void Texture::FlipHorizontal(unsigned char* data, unsigned int width, unsigned int height, int numComponents) {
 	unsigned char *pFront = 0;
 	unsigned char *pBack = 0;
 	unsigned char pixel[4] = { 0 };
 
 	for (unsigned int i = 0; i < height; ++i) {
-		pFront = &data[i * width * numCompontents];
-		pBack = &pFront[(width - 1) * numCompontents];
+		pFront = &data[i * width * numComponents];
+		pBack = &pFront[(width - 1) * numComponents];
 
 		while (pFront < pBack) {
 			// Save current pixel at position pFront.
-			for (int j = 0; j < numCompontents; j++) {
+			for (int j = 0; j < numComponents; j++) {
 				pixel[j] = pFront[j];
 			}
 
 			// Copy new pixel from position pBack into pFront.
-			for (int j = 0; j < numCompontents; j++) {
+			for (int j = 0; j < numComponents; j++) {
 				pFront[j] = pBack[j];
 			}
 
 			// Copy old pixel at position pFront into pBack.
-			for (int j = 0; j < numCompontents; j++) {
+			for (int j = 0; j < numComponents; j++) {
 				pBack[j] = pixel[j];
 			}
 
-			pFront += numCompontents;
-			pBack -= numCompontents;
+			pFront += numComponents;
+			pBack -= numComponents;
 		}
 	}
 }
@@ -467,32 +467,32 @@ void Texture::loadFromFile(std::string fileName, const bool flipVertical, unsign
 
 
 void Texture::loadFromFileCpu(std::string fileName, const bool _flipVertical, unsigned int _internalFormat, unsigned int _format, int paddingLeft, int paddingRight, int paddingTop, int paddingBottom, unsigned int SOIL_FLAG) {
-	int width, height, numCompontents;
-	imageData = SOIL_load_image(fileName.c_str(), &width, &height, &numCompontents, SOIL_FLAG);
+	int width, height, numComponents;
+	imageData = SOIL_load_image(fileName.c_str(), &width, &height, &numComponents, SOIL_FLAG);
 
-	if (numCompontents == 1 && (_format == GL_RGB || _format == GL_RGBA /*|| SOIL_FLAG == 1u*/)) {
+	if (numComponents == 1 && (_format == GL_RGB || _format == GL_RGBA /*|| SOIL_FLAG == 1u*/)) {
 		SOIL_free_image_data(imageData);
 		SOIL_FLAG = _format == GL_RGB ? 3u : 4u;
 		imageData = SOIL_load_image(fileName.c_str(), &width, &height, 0, SOIL_FLAG);
-		numCompontents = _format == GL_RGB ? 3 : 4;
+		numComponents = _format == GL_RGB ? 3 : 4;
 	}
 	
-	m_internalFormat = _internalFormat == 0 && numCompontents == 1 ? GL_R8 : _internalFormat == 0 && numCompontents == 3 ? GL_RGB8 : _internalFormat == 0 ? GL_RGBA8 : _internalFormat;
-	m_format = _format == 0 && numCompontents == 1 ? GL_R : _format == 0 && numCompontents == 3 ? GL_RGB : _format == 0 ? GL_RGBA : _format;
+	m_internalFormat = _internalFormat == 0 && numComponents == 1 ? GL_R8 : _internalFormat == 0 && numComponents == 3 ? GL_RGB8 : _internalFormat == 0 ? GL_RGBA8 : _internalFormat;
+	m_format = _format == 0 && numComponents == 1 ? GL_R : _format == 0 && numComponents == 3 ? GL_RGB : _format == 0 ? GL_RGBA : _format;
 	m_type = GL_UNSIGNED_BYTE;
 	m_target = GL_TEXTURE_2D;
 
 	if (_flipVertical)
-		flipVertical(imageData, numCompontents * width, height);
+		flipVertical(imageData, numComponents * width, height);
 
-	imageData = AddRemoveLeftPadding(imageData, width, height, numCompontents, paddingLeft);
-	imageData = AddRemoveRightPadding(imageData, width, height, numCompontents, paddingRight);
-	imageData = AddRemoveTopPadding(imageData, width, height, numCompontents, paddingTop);
-	imageData = AddRemoveBottomPadding(imageData, width, height, numCompontents, paddingBottom);
+	imageData = AddRemoveLeftPadding(imageData, width, height, numComponents, paddingLeft);
+	imageData = AddRemoveRightPadding(imageData, width, height, numComponents, paddingRight);
+	imageData = AddRemoveTopPadding(imageData, width, height, numComponents, paddingTop);
+	imageData = AddRemoveBottomPadding(imageData, width, height, numComponents, paddingBottom);
 
 	m_width = width;
 	m_height = height;
-	m_channels = numCompontents;	
+	m_channels = numComponents;
 }
 
 void Texture::loadFromFileGpu() {
@@ -553,29 +553,29 @@ void Texture::loadFromFile(std::string fileName, unsigned short tileWidth, unsig
 
 void Texture::loadFromFileCpu(std::string fileName, unsigned short tileWidth, unsigned short tileHeight, unsigned short spacing, unsigned int _posY, unsigned int _posX, const bool _flipVertical, unsigned int _internalFormat, unsigned int _format) {
 
-	int width, height, numCompontents;
-	imageData = SOIL_load_image(fileName.c_str(), &width, &height, &numCompontents, SOIL_LOAD_AUTO);
-	m_internalFormat = _internalFormat == 0 && numCompontents == 1 ? GL_R8 : _internalFormat == 0 && numCompontents == 3 ? GL_RGB8 : _internalFormat == 0 ? GL_RGBA8 : _internalFormat;
-	m_format = _format == 0 && numCompontents == 1 ? GL_R : _format == 0 && numCompontents == 3 ? GL_RGB : _format == 0 ? GL_RGBA : _format;
+	int width, height, numComponents;
+	imageData = SOIL_load_image(fileName.c_str(), &width, &height, &numComponents, SOIL_LOAD_AUTO);
+	m_internalFormat = _internalFormat == 0 && numComponents == 1 ? GL_R8 : _internalFormat == 0 && numComponents == 3 ? GL_RGB8 : _internalFormat == 0 ? GL_RGBA8 : _internalFormat;
+	m_format = _format == 0 && numComponents == 1 ? GL_R : _format == 0 && numComponents == 3 ? GL_RGB : _format == 0 ? GL_RGBA : _format;
 	m_type = GL_UNSIGNED_BYTE;
 	m_target = GL_TEXTURE_2D;
 
 	if (_flipVertical)
-		flipVertical(imageData, numCompontents * width, height);
+		flipVertical(imageData, numComponents * width, height);
 
 	unsigned short tileCountY = height / (tileHeight + spacing);
 	unsigned short posX = _posX;
 	unsigned short posY = _flipVertical ? (tileCountY - 1) - _posY : _posY;
 
-	subImage = (unsigned char*)malloc((tileWidth)* numCompontents * (tileHeight));
-	unsigned int subImageSize = (tileWidth)* numCompontents * tileHeight;
+	subImage = (unsigned char*)malloc((tileWidth)* numComponents * (tileHeight));
+	unsigned int subImageSize = (tileWidth)* numComponents * tileHeight;
 	unsigned int count = 0, row = 0;
-	unsigned int offset = width * numCompontents * ((tileHeight + spacing) * posY + spacing) + posX * (tileWidth + spacing) * numCompontents;
+	unsigned int offset = width * numComponents * ((tileHeight + spacing) * posY + spacing) + posX * (tileWidth + spacing) * numComponents;
 	unsigned int x = offset;
 
 	while (count < subImageSize) {
-		if (count % (tileWidth * numCompontents) == 0 && count > 0) {
-			row = row + width * numCompontents;
+		if (count % (tileWidth * numComponents) == 0 && count > 0) {
+			row = row + width * numComponents;
 			x = row + offset;
 		}
 		subImage[count] = imageData[x];
@@ -585,7 +585,7 @@ void Texture::loadFromFileCpu(std::string fileName, unsigned short tileWidth, un
 
 	m_width = width;
 	m_height = height;
-	m_channels = numCompontents;
+	m_channels = numComponents;
 }
 
 void Texture::loadFromFile(std::string fileName, unsigned int offsetX, unsigned int offsetY, unsigned int width, unsigned int height, const bool flipVertical, unsigned int internalFormat, unsigned int format) {
@@ -595,27 +595,27 @@ void Texture::loadFromFile(std::string fileName, unsigned int offsetX, unsigned 
 
 void Texture::loadFromFileCpu(std::string fileName, unsigned int _offsetX, unsigned int _offsetY, unsigned int _width, unsigned int _height, const bool _flipVertical, unsigned int _internalFormat, unsigned int _format) {
 
-	int width, height, numCompontents;
-	imageData = SOIL_load_image(fileName.c_str(), &width, &height, &numCompontents, SOIL_LOAD_AUTO);
-	m_internalFormat = _internalFormat == 0 && numCompontents == 1 ? GL_R8 : _internalFormat == 0 && numCompontents == 3 ? GL_RGB8 : _internalFormat == 0 ? GL_RGBA8 : _internalFormat;
-	m_format = _format == 0 && numCompontents == 1 ? GL_R : _format == 0 && numCompontents == 3 ? GL_RGB : _format == 0 ? GL_RGBA : _format;
+	int width, height, numComponents;
+	imageData = SOIL_load_image(fileName.c_str(), &width, &height, &numComponents, SOIL_LOAD_AUTO);
+	m_internalFormat = _internalFormat == 0 && numComponents == 1 ? GL_R8 : _internalFormat == 0 && numComponents == 3 ? GL_RGB8 : _internalFormat == 0 ? GL_RGBA8 : _internalFormat;
+	m_format = _format == 0 && numComponents == 1 ? GL_R : _format == 0 && numComponents == 3 ? GL_RGB : _format == 0 ? GL_RGBA : _format;
 	m_type = GL_UNSIGNED_BYTE;
 	m_target = GL_TEXTURE_2D;
 
 	if (_flipVertical)
-		flipVertical(imageData, numCompontents * width, height);
+		flipVertical(imageData, numComponents * width, height);
 
 	unsigned int offsetY = _flipVertical ? (height - (_offsetY + _height)) : _offsetY;
 
-	subImage = (unsigned char*)malloc(_width * numCompontents * _height);
-	unsigned int subImageSize = _width * numCompontents * _height;
+	subImage = (unsigned char*)malloc(_width * numComponents * _height);
+	unsigned int subImageSize = _width * numComponents * _height;
 	unsigned int count = 0, row = 0;
-	unsigned int offset = width * numCompontents * offsetY + numCompontents * _offsetX;
+	unsigned int offset = width * numComponents * offsetY + numComponents * _offsetX;
 	unsigned int x = offset;
 
 	while (count < subImageSize) {
-		if (count % (_width * numCompontents) == 0 && count > 0) {
-			row = row + width * numCompontents;
+		if (count % (_width * numComponents) == 0 && count > 0) {
+			row = row + width * numComponents;
 			x = row + offset;
 		}
 		subImage[count] = imageData[x];
@@ -625,7 +625,7 @@ void Texture::loadFromFileCpu(std::string fileName, unsigned int _offsetX, unsig
 
 	m_width = width;
 	m_height = height;
-	m_channels = numCompontents;
+	m_channels = numComponents;
 }
 
 void Texture::loadFromFileGpu(unsigned short width, unsigned short height) {
@@ -651,20 +651,20 @@ void Texture::loadHDRIFromFile(std::string fileName, const bool flipVertical, un
 }
 
 void Texture::loadHDRIFromFileCpu(std::string fileName, const bool _flipVertical, unsigned int internalFormat, unsigned int format) {
-	int width, height, numCompontents;
-	imageData = reinterpret_cast<unsigned char *>(SOIL_load_image_f(fileName.c_str(), &width, &height, &numCompontents, 0));
+	int width, height, numComponents;
+	imageData = reinterpret_cast<unsigned char *>(SOIL_load_image_f(fileName.c_str(), &width, &height, &numComponents, 0));
 
-	m_internalFormat = internalFormat == 0 && numCompontents == 3 ? GL_RGB32F : internalFormat == 0 ? GL_RGBA32F : internalFormat;
-	m_format = format == 0 && numCompontents == 3 ? GL_RGB : format == 0 ? GL_RGBA : format;
+	m_internalFormat = internalFormat == 0 && numComponents == 3 ? GL_RGB32F : internalFormat == 0 ? GL_RGBA32F : internalFormat;
+	m_format = format == 0 && numComponents == 3 ? GL_RGB : format == 0 ? GL_RGBA : format;
 	m_type = GL_FLOAT;
 	m_target = GL_TEXTURE_2D;
 
 	if (_flipVertical)
-		FlipVertical(imageData, numCompontents * sizeof(float) * width, height);
+		FlipVertical(imageData, numComponents * sizeof(float) * width, height);
 
 	m_width = width;
 	m_height = height;
-	m_channels = numCompontents;
+	m_channels = numComponents;
 }
 
 void Texture::loadHDRIFromFileGpu() {
@@ -684,7 +684,7 @@ void Texture::loadHDRIFromFileGpu() {
 
 
 void Texture::loadCubeFromFile(std::string* textureFiles, const bool _flipVertical, unsigned int _internalFormat, unsigned int _format) {
-	int width, height, numCompontents;
+	int width, height, numComponents;
 	unsigned char* imageData;
 	
 	m_type = GL_UNSIGNED_BYTE;
@@ -694,12 +694,12 @@ void Texture::loadCubeFromFile(std::string* textureFiles, const bool _flipVertic
 	glBindTexture(m_target, m_texture);
 
 	for (unsigned short i = 0; i < 6; i++) {	
-		imageData = SOIL_load_image(textureFiles[i].c_str(), &width, &height, &numCompontents, SOIL_LOAD_AUTO);
-		m_internalFormat = _internalFormat == 0 && numCompontents == 1 ? GL_R8 : _internalFormat == 0 && numCompontents == 3 ? GL_RGB8 : _internalFormat == 0 ? GL_RGBA8 : _internalFormat;
-		m_format = _format == 0 && numCompontents == 1 ? GL_R : _format == 0 && numCompontents == 3 ? GL_RGB : _format == 0 ? GL_RGBA : _format;
-		unsigned int internalFormat = _format == 0 && numCompontents == 3 ? GL_RGB8 : _format == 0 ? GL_RGBA8 : _format;
+		imageData = SOIL_load_image(textureFiles[i].c_str(), &width, &height, &numComponents, SOIL_LOAD_AUTO);
+		m_internalFormat = _internalFormat == 0 && numComponents == 1 ? GL_R8 : _internalFormat == 0 && numComponents == 3 ? GL_RGB8 : _internalFormat == 0 ? GL_RGBA8 : _internalFormat;
+		m_format = _format == 0 && numComponents == 1 ? GL_R : _format == 0 && numComponents == 3 ? GL_RGB : _format == 0 ? GL_RGBA : _format;
+		unsigned int internalFormat = _format == 0 && numComponents == 3 ? GL_RGB8 : _format == 0 ? GL_RGBA8 : _format;
 		if (_flipVertical)
-			flipVertical(imageData, numCompontents * width, height);
+			flipVertical(imageData, numComponents * width, height);
 
 		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, m_internalFormat, width, height, 0, m_format, m_type, imageData);
 
@@ -716,7 +716,7 @@ void Texture::loadCubeFromFile(std::string* textureFiles, const bool _flipVertic
 
 	m_width = width;
 	m_height = height;
-	m_channels = numCompontents;
+	m_channels = numComponents;
 }
 
 void Texture::loadCrossCubeFromFile(std::string fileName, const bool flipVertical, unsigned int internalFormat, unsigned int format) {
@@ -725,16 +725,16 @@ void Texture::loadCrossCubeFromFile(std::string fileName, const bool flipVertica
 }
 
 void Texture::loadCrossCubeFromFileCpu(std::string fileName, const bool _flipVertical, unsigned int _internalFormat, unsigned int _format) {
-	int width, height, numCompontents;
-	imageData = SOIL_load_image(fileName.c_str(), &width, &height, &numCompontents, SOIL_LOAD_AUTO);
+	int width, height, numComponents;
+	imageData = SOIL_load_image(fileName.c_str(), &width, &height, &numComponents, SOIL_LOAD_AUTO);
 
-	m_internalFormat = _internalFormat == 0 && numCompontents == 1 ? GL_R8 : _internalFormat == 0 && numCompontents == 3 ? GL_RGB8 : _internalFormat == 0 ? GL_RGBA8 : _internalFormat;
-	m_format = _format == 0 && numCompontents == 1 ? GL_R : _format == 0 && numCompontents == 3 ? GL_RGB : _format == 0 ? GL_RGBA : _format;
+	m_internalFormat = _internalFormat == 0 && numComponents == 1 ? GL_R8 : _internalFormat == 0 && numComponents == 3 ? GL_RGB8 : _internalFormat == 0 ? GL_RGBA8 : _internalFormat;
+	m_format = _format == 0 && numComponents == 1 ? GL_R : _format == 0 && numComponents == 3 ? GL_RGB : _format == 0 ? GL_RGBA : _format;
 	m_type = GL_UNSIGNED_BYTE;
 	m_target = GL_TEXTURE_CUBE_MAP;
 	m_width = width;
 	m_height = height;
-	m_channels = numCompontents;
+	m_channels = numComponents;
 
 	
 	int fWidth = width / 4;
@@ -836,8 +836,8 @@ void Texture::loadCrossCubeFromFileGpu() {
 }
 
 void Texture::loadCrossHDRIFromFile(std::string fileName, const bool _flipVertical, unsigned int internalFormat, unsigned int format, int paddingLeft, int paddingRight, int paddingTop, int paddingBottom) {
-	int width, height, numCompontents;
-	unsigned char* imageData = reinterpret_cast<unsigned char *>(SOIL_load_image_f(fileName.c_str(), &width, &height, &numCompontents, 0));
+	int width, height, numComponents;
+	unsigned char* imageData = reinterpret_cast<unsigned char *>(SOIL_load_image_f(fileName.c_str(), &width, &height, &numComponents, 0));
 	
 	m_internalFormat = GL_RGB16F;
 	m_format = GL_RGB;
@@ -845,11 +845,11 @@ void Texture::loadCrossHDRIFromFile(std::string fileName, const bool _flipVertic
 	m_target = GL_TEXTURE_CUBE_MAP;
 
 	if (_flipVertical)
-		FlipVertical(imageData, numCompontents * sizeof(float) * width, height);
+		FlipVertical(imageData, numComponents * sizeof(float) * width, height);
 
 	m_width = width;
 	m_height = height;
-	m_channels = numCompontents;
+	m_channels = numComponents;
 
 	//pointers to the levels
 	std::vector<unsigned char*> facData;
@@ -1219,23 +1219,23 @@ const unsigned int& Texture::getTextureHandle() const {
 
 void Texture::CutSubimage(std::string fileIn, std::string fileOut, unsigned int _offsetX, unsigned int _offsetY, unsigned int _width, unsigned int _height, const bool _flipVertical) {
 
-	int width, height, numCompontents;
-	unsigned char* imageData = SOIL_load_image(fileIn.c_str(), &width, &height, &numCompontents, SOIL_LOAD_AUTO);
+	int width, height, numComponents;
+	unsigned char* imageData = SOIL_load_image(fileIn.c_str(), &width, &height, &numComponents, SOIL_LOAD_AUTO);
 
 	if (_flipVertical)
-		Texture::FlipVertical(imageData, numCompontents * width, height);
+		Texture::FlipVertical(imageData, numComponents * width, height);
 
 	unsigned int offsetY = _flipVertical ? (height - (_offsetY + _height)) : _offsetY;
 
-	unsigned char* subImage = (unsigned char*)malloc(_width * numCompontents * _height);
-	unsigned int subImageSize = _width * numCompontents * _height;
+	unsigned char* subImage = (unsigned char*)malloc(_width * numComponents * _height);
+	unsigned int subImageSize = _width * numComponents * _height;
 	unsigned int count = 0, row = 0;
-	unsigned int offset = width * numCompontents * offsetY + numCompontents * _offsetX;
+	unsigned int offset = width * numComponents * offsetY + numComponents * _offsetX;
 	unsigned int x = offset;
 
 	while (count < subImageSize) {
-		if (count % (_width * numCompontents) == 0 && count > 0) {
-			row = row + width * numCompontents;
+		if (count % (_width * numComponents) == 0 && count > 0) {
+			row = row + width * numComponents;
 			x = row + offset;
 		}
 		subImage[count] = imageData[x];
@@ -1243,7 +1243,7 @@ void Texture::CutSubimage(std::string fileIn, std::string fileOut, unsigned int 
 		count++;
 	}
 
-	SOIL_save_image(fileOut.c_str(), SOIL_SAVE_TYPE_PNG, _width, _height, numCompontents, subImage);
+	SOIL_save_image(fileOut.c_str(), SOIL_SAVE_TYPE_PNG, _width, _height, numComponents, subImage);
 
 	free(subImage);
 
@@ -1252,24 +1252,24 @@ void Texture::CutSubimage(std::string fileIn, std::string fileOut, unsigned int 
 
 void Texture::AddHorizontally(std::string fileIn1, std::string fileIn2, std::string fileOut, const bool _flipVertical) {
 	
-	int width1, height1, numCompontents1;
-	unsigned char* imageData1 = SOIL_load_image(fileIn1.c_str(), &width1, &height1, &numCompontents1, SOIL_LOAD_AUTO);
+	int width1, height1, numComponents1;
+	unsigned char* imageData1 = SOIL_load_image(fileIn1.c_str(), &width1, &height1, &numComponents1, SOIL_LOAD_AUTO);
 	
 	if (_flipVertical)
-		Texture::FlipVertical(imageData1, numCompontents1 * width1, height1);
+		Texture::FlipVertical(imageData1, numComponents1 * width1, height1);
 	
-	int width2, height2, numCompontents2;
-	unsigned char* imageData2 = SOIL_load_image(fileIn2.c_str(), &width2, &height2, &numCompontents2, SOIL_LOAD_AUTO);
+	int width2, height2, numComponents2;
+	unsigned char* imageData2 = SOIL_load_image(fileIn2.c_str(), &width2, &height2, &numComponents2, SOIL_LOAD_AUTO);
 
 	if (_flipVertical)
-		Texture::FlipVertical(imageData2, numCompontents2 * width2, height2);
+		Texture::FlipVertical(imageData2, numComponents2 * width2, height2);
 
-	unsigned char* image = (unsigned char*)malloc((width1 + width2) * numCompontents1 * height1);
-	unsigned int imageSize = (width1 + width2 ) * numCompontents1 * (height1);
+	unsigned char* image = (unsigned char*)malloc((width1 + width2) * numComponents1 * height1);
+	unsigned int imageSize = (width1 + width2 ) * numComponents1 * (height1);
 
 	unsigned char imageData;
 	unsigned int count = 0, x = 0, y = 0, row = 0;
-	unsigned int rowWidth = (width1 + width2) * numCompontents1;
+	unsigned int rowWidth = (width1 + width2) * numComponents1;
 	bool toggle = false;
 
 	while (count < imageSize) {
@@ -1278,7 +1278,7 @@ void Texture::AddHorizontally(std::string fileIn1, std::string fileIn2, std::str
 			row = 0;
 		}
 		
-		if (row < width1 * numCompontents1) {
+		if (row < width1 * numComponents1) {
 			toggle = false;
 		}else {
 			toggle = true;
@@ -1296,7 +1296,7 @@ void Texture::AddHorizontally(std::string fileIn1, std::string fileIn2, std::str
 		row++;
 	}
 
-	SOIL_save_image(fileOut.c_str(), SOIL_SAVE_TYPE_PNG, width1 + width2, height1, numCompontents1, image);
+	SOIL_save_image(fileOut.c_str(), SOIL_SAVE_TYPE_PNG, width1 + width2, height1, numComponents1, image);
 
 	free(image);
 	SOIL_free_image_data(imageData1);
@@ -1304,24 +1304,24 @@ void Texture::AddHorizontally(std::string fileIn1, std::string fileIn2, std::str
 }
 
 void Texture::AddVertically(std::string fileIn1, std::string fileIn2, std::string fileOut, const bool _flipVertical) {
-	int width1, height1, numCompontents1;
-	unsigned char* imageData1 = SOIL_load_image(fileIn1.c_str(), &width1, &height1, &numCompontents1, SOIL_LOAD_AUTO);
+	int width1, height1, numComponents1;
+	unsigned char* imageData1 = SOIL_load_image(fileIn1.c_str(), &width1, &height1, &numComponents1, SOIL_LOAD_AUTO);
 
 	if (_flipVertical)
-		Texture::FlipVertical(imageData1, numCompontents1 * width1, height1);
+		Texture::FlipVertical(imageData1, numComponents1 * width1, height1);
 
-	unsigned int imageSize1 = width1 * numCompontents1 * height1;
+	unsigned int imageSize1 = width1 * numComponents1 * height1;
 
-	int width2, height2, numCompontents2;
-	unsigned char* imageData2 = SOIL_load_image(fileIn2.c_str(), &width2, &height2, &numCompontents2, SOIL_LOAD_AUTO);
+	int width2, height2, numComponents2;
+	unsigned char* imageData2 = SOIL_load_image(fileIn2.c_str(), &width2, &height2, &numComponents2, SOIL_LOAD_AUTO);
 
 	if (_flipVertical)
-		Texture::FlipVertical(imageData2, numCompontents2 * width2, height2);
+		Texture::FlipVertical(imageData2, numComponents2 * width2, height2);
 
-	unsigned char* image = (unsigned char*)malloc(width1 * numCompontents1 *  (height1 + height2));
-	memset(image, 0, width1 * numCompontents1 *  (height1 + height2));
+	unsigned char* image = (unsigned char*)malloc(width1 * numComponents1 *  (height1 + height2));
+	memset(image, 0, width1 * numComponents1 *  (height1 + height2));
 
-	unsigned int imageSize = width1 * numCompontents1 * (height1 + height2);
+	unsigned int imageSize = width1 * numComponents1 * (height1 + height2);
 	unsigned int count = 0;
 	while (count < imageSize) {
 		if (count < imageSize1) {
@@ -1332,25 +1332,25 @@ void Texture::AddVertically(std::string fileIn1, std::string fileIn2, std::strin
 		count++;
 	}
 
-	SOIL_save_image(fileOut.c_str(), SOIL_SAVE_TYPE_PNG, width1, height1 + height2, numCompontents1, image);
+	SOIL_save_image(fileOut.c_str(), SOIL_SAVE_TYPE_PNG, width1, height1 + height2, numComponents1, image);
 
 	free(image);
 	SOIL_free_image_data(imageData1);
 	SOIL_free_image_data(imageData2);
 }
 
-unsigned char* Texture::AddRemoveLeftPadding(unsigned char* imageData, int& width, int height, int numCompontents, int padding) {
+unsigned char* Texture::AddRemoveLeftPadding(unsigned char* imageData, int& width, int height, int numComponents, int padding) {
 	if (padding == 0) return imageData;
 
-	unsigned char* bytes = (unsigned char*)malloc(numCompontents * height * (width + padding));
+	unsigned char* bytes = (unsigned char*)malloc(numComponents * height * (width + padding));
 
 	if (padding < 0) {
 
-		int row = 0, x = -padding * numCompontents;
-		for (int i = 0; i < numCompontents * height * (width + padding); i++) {
-			if (i % ((width + padding) * numCompontents) == 0 && i > 0) {
-				row = row + width * numCompontents;
-				x = row - padding * numCompontents;
+		int row = 0, x = -padding * numComponents;
+		for (int i = 0; i < numComponents * height * (width + padding); i++) {
+			if (i % ((width + padding) * numComponents) == 0 && i > 0) {
+				row = row + width * numComponents;
+				x = row - padding * numComponents;
 			}
 
 			bytes[i] = imageData[x];
@@ -1360,13 +1360,13 @@ unsigned char* Texture::AddRemoveLeftPadding(unsigned char* imageData, int& widt
 
 	if (padding > 0) {
 		int row = 0, x = 0;
-		for (int i = 0; i < numCompontents * height * (width + padding); i++) {
-			if (i % ((width + padding) * numCompontents) == 0 && i > 0) {
-				row = row + width * numCompontents;
+		for (int i = 0; i < numComponents * height * (width + padding); i++) {
+			if (i % ((width + padding) * numComponents) == 0 && i > 0) {
+				row = row + width * numComponents;
 				x = row;
 			}
 
-			bytes[i] = x - row < padding * numCompontents ? bytes[i] = 0 : bytes[i] = imageData[x - padding * numCompontents];
+			bytes[i] = x - row < padding * numComponents ? bytes[i] = 0 : bytes[i] = imageData[x - padding * numComponents];
 			x++;
 		}
 	}
@@ -1376,17 +1376,17 @@ unsigned char* Texture::AddRemoveLeftPadding(unsigned char* imageData, int& widt
 	return bytes;
 }
 
-unsigned char* Texture::AddRemoveRightPadding(unsigned char* imageData, int& width, int height, int numCompontents, int padding) {
+unsigned char* Texture::AddRemoveRightPadding(unsigned char* imageData, int& width, int height, int numComponents, int padding) {
 	if (padding == 0) return imageData;
 
-	unsigned char* bytes = (unsigned char*)malloc(numCompontents * height * (width + padding));
+	unsigned char* bytes = (unsigned char*)malloc(numComponents * height * (width + padding));
 
 	if (padding < 0) {
 
 		int row = 0, x = 0;
-		for (int i = 0; i < numCompontents * height * (width + padding); i++) {
-			if (i % ((width + padding) * numCompontents) == 0 && i > 0) {
-				row = row + width * numCompontents;
+		for (int i = 0; i < numComponents * height * (width + padding); i++) {
+			if (i % ((width + padding) * numComponents) == 0 && i > 0) {
+				row = row + width * numComponents;
 				x = row;
 			}
 
@@ -1397,13 +1397,13 @@ unsigned char* Texture::AddRemoveRightPadding(unsigned char* imageData, int& wid
 
 	if (padding > 0) {
 		int row = 0, x = 0;
-		for (int i = 0; i < numCompontents * height * (width + padding); i++) {
-			if (i % ((width + padding) * numCompontents) == 0 && i > 0) {
-				row = row + width * numCompontents;
+		for (int i = 0; i < numComponents * height * (width + padding); i++) {
+			if (i % ((width + padding) * numComponents) == 0 && i > 0) {
+				row = row + width * numComponents;
 				x = row;
 			}
 
-			bytes[i] = x - row > width * numCompontents ? bytes[i] = 0 : bytes[i] = imageData[x];
+			bytes[i] = x - row > width * numComponents ? bytes[i] = 0 : bytes[i] = imageData[x];
 			x++;
 		}
 
@@ -1414,18 +1414,18 @@ unsigned char* Texture::AddRemoveRightPadding(unsigned char* imageData, int& wid
 	return bytes;
 }
 
-unsigned char* Texture::AddRemoveTopPadding(unsigned char* imageData, int width, int& height, int numCompontents, int padding) {
+unsigned char* Texture::AddRemoveTopPadding(unsigned char* imageData, int width, int& height, int numComponents, int padding) {
 	if (padding == 0) return imageData;
 
-	unsigned char* bytes = (unsigned char*)malloc(numCompontents * (height + padding) * width);
+	unsigned char* bytes = (unsigned char*)malloc(numComponents * (height + padding) * width);
 
 	if (padding < 0) {
-		int  row = 0, x = -(padding * width * numCompontents);
-		for (int i = 0; i < numCompontents * width * (height + padding); i++) {
+		int  row = 0, x = -(padding * width * numComponents);
+		for (int i = 0; i < numComponents * width * (height + padding); i++) {
 
-			if (i % (width  * numCompontents) == 0 && i > 0) {
-				row = (row + width * numCompontents);
-				x = row - (padding * width * numCompontents);
+			if (i % (width  * numComponents) == 0 && i > 0) {
+				row = (row + width * numComponents);
+				x = row - (padding * width * numComponents);
 			}
 			bytes[i] = imageData[x];
 			x++;
@@ -1434,11 +1434,11 @@ unsigned char* Texture::AddRemoveTopPadding(unsigned char* imageData, int width,
 	}
 
 	if (padding > 0) {
-		int  row = 0, x = -(padding * width * numCompontents);
-		for (int i = 0; i < numCompontents * width * (height + padding); i++) {
-			if (i % (width  * numCompontents) == 0 && i > 0) {
-				row = (row + width * numCompontents);
-				x = row - (padding * width * numCompontents);
+		int  row = 0, x = -(padding * width * numComponents);
+		for (int i = 0; i < numComponents * width * (height + padding); i++) {
+			if (i % (width  * numComponents) == 0 && i > 0) {
+				row = (row + width * numComponents);
+				x = row - (padding * width * numComponents);
 			}
 			bytes[i] = x < 0 ? 0 : imageData[x];
 
@@ -1451,17 +1451,17 @@ unsigned char* Texture::AddRemoveTopPadding(unsigned char* imageData, int width,
 	return bytes;
 }
 
-unsigned char* Texture::AddRemoveBottomPadding(unsigned char* imageData, int width, int& height, int numCompontents, int padding) {
+unsigned char* Texture::AddRemoveBottomPadding(unsigned char* imageData, int width, int& height, int numComponents, int padding) {
 	if (padding == 0) return imageData;
 
-	unsigned char* bytes = (unsigned char*)malloc(numCompontents * (height + padding) * width);
+	unsigned char* bytes = (unsigned char*)malloc(numComponents * (height + padding) * width);
 
 	if (padding < 0) {
 		int  row = 0, x = 0;
-		for (int i = 0; i < numCompontents * width * (height + padding); i++) {
+		for (int i = 0; i < numComponents * width * (height + padding); i++) {
 
-			if (i % (width  * numCompontents) == 0 && i > 0) {
-				row = (row + width * numCompontents);
+			if (i % (width  * numComponents) == 0 && i > 0) {
+				row = (row + width * numComponents);
 				x = row;
 			}
 			bytes[i] = imageData[x];
@@ -1472,12 +1472,12 @@ unsigned char* Texture::AddRemoveBottomPadding(unsigned char* imageData, int wid
 
 	if (padding > 0) {
 		int  row = 0, x = 0;
-		for (int i = 0; i < numCompontents * width * (height + padding); i++) {
-			if (i % (width  * numCompontents) == 0 && i > 0) {
-				row = (row + width * numCompontents);
+		for (int i = 0; i < numComponents * width * (height + padding); i++) {
+			if (i % (width  * numComponents) == 0 && i > 0) {
+				row = (row + width * numComponents);
 				x = row;
 			}
-			bytes[i] = x > numCompontents * width * height ? 0 : imageData[x];
+			bytes[i] = x > numComponents * width * height ? 0 : imageData[x];
 
 			x++;
 		}
@@ -1489,14 +1489,14 @@ unsigned char* Texture::AddRemoveBottomPadding(unsigned char* imageData, int wid
 }
 
 unsigned char* Texture::LoadFromFile(std::string pictureFile, const bool _flipVertical, short alphaChannel) {
-	int width, height, numCompontents;
-	unsigned char* bytes = SOIL_load_image(pictureFile.c_str(), &width, &height, &numCompontents, SOIL_LOAD_AUTO);
+	int width, height, numComponents;
+	unsigned char* bytes = SOIL_load_image(pictureFile.c_str(), &width, &height, &numComponents, SOIL_LOAD_AUTO);
 
 	if (_flipVertical)
-		FlipVertical(bytes, numCompontents * width, height);
+		FlipVertical(bytes, numComponents * width, height);
 
 	if (alphaChannel >= 0) {
-		unsigned char* bytesNew = (unsigned char*)malloc(width * height * (numCompontents + 1));
+		unsigned char* bytesNew = (unsigned char*)malloc(width * height * (numComponents + 1));
 
 		for (int i = 0, k = 0; i < width * height * 4; i = i + 4, k = k + 3) {
 			bytesNew[i] = bytes[k];
@@ -1512,10 +1512,10 @@ unsigned char* Texture::LoadFromFile(std::string pictureFile, const bool _flipVe
 }
 
 unsigned char* Texture::LoadFromFile(std::string fileName, int& width, int& height, const bool _flipVertical, bool transparent, int paddingLeft, int paddingRight, int paddingTop, int paddingBottom) {
-	int numCompontents;
-	unsigned char* imageData = SOIL_load_image(fileName.c_str(), &width, &height, &numCompontents, SOIL_LOAD_AUTO);
+	int numComponents;
+	unsigned char* imageData = SOIL_load_image(fileName.c_str(), &width, &height, &numComponents, SOIL_LOAD_AUTO);
 	
-	if (numCompontents == 3) {
+	if (numComponents == 3) {
 
 		unsigned char* bytesNew = (unsigned char*)malloc(width * height * 4);
 
@@ -1528,45 +1528,45 @@ unsigned char* Texture::LoadFromFile(std::string fileName, int& width, int& heig
 
 		SOIL_free_image_data(imageData);
 		imageData = bytesNew;
-		numCompontents = 4;
+		numComponents = 4;
 	}
 
 	if (_flipVertical)
-		FlipVertical(imageData, numCompontents * width, height);
+		FlipVertical(imageData, numComponents * width, height);
 
 	if (paddingLeft != 0)
-		imageData = AddRemoveLeftPadding(imageData, width, height, numCompontents, paddingLeft);
+		imageData = AddRemoveLeftPadding(imageData, width, height, numComponents, paddingLeft);
 
 	if (paddingRight != 0)
-		imageData = AddRemoveRightPadding(imageData, width, height, numCompontents, paddingRight);
+		imageData = AddRemoveRightPadding(imageData, width, height, numComponents, paddingRight);
 
 	if (paddingTop != 0)
-		imageData = AddRemoveTopPadding(imageData, width, height, numCompontents, paddingTop);
+		imageData = AddRemoveTopPadding(imageData, width, height, numComponents, paddingTop);
 
 	if (paddingBottom != 0)
-		imageData = AddRemoveBottomPadding(imageData, width, height, numCompontents, paddingBottom);
+		imageData = AddRemoveBottomPadding(imageData, width, height, numComponents, paddingBottom);
 
 	return imageData;
 }
 
 unsigned char* Texture::LoadFromFile(std::string fileName, unsigned int posX, unsigned int posY, unsigned int _width, unsigned int _height, const bool _flipVertical, bool transparent, int paddingLeft, int paddingRight, int paddingTop, int paddingBottom) {
-	int width, height, numCompontents;
-	unsigned char* imageData = SOIL_load_image(fileName.c_str(), &width, &height, &numCompontents, SOIL_LOAD_AUTO);
+	int width, height, numComponents;
+	unsigned char* imageData = SOIL_load_image(fileName.c_str(), &width, &height, &numComponents, SOIL_LOAD_AUTO);
 	
 	if (_flipVertical)
-		FlipVertical(imageData, numCompontents * width, height);
+		FlipVertical(imageData, numComponents * width, height);
 
 	posY = _flipVertical ? (height - (posY + _height)) : posY;
 
-	unsigned char* subImage = (unsigned char*)malloc(_width * numCompontents * _height);
-	unsigned int subImageSize = _width * numCompontents * _height;
+	unsigned char* subImage = (unsigned char*)malloc(_width * numComponents * _height);
+	unsigned int subImageSize = _width * numComponents * _height;
 	unsigned int count = 0, row = 0;
-	unsigned int offset = width * numCompontents * posY + numCompontents * posX;
+	unsigned int offset = width * numComponents * posY + numComponents * posX;
 	unsigned int x = offset;
 
 	while (count < subImageSize) {
-		if (count % (_width * numCompontents) == 0 && count > 0) {
-			row = row + width * numCompontents;
+		if (count % (_width * numComponents) == 0 && count > 0) {
+			row = row + width * numComponents;
 			x = row + offset;
 		}
 		subImage[count] = imageData[x];
@@ -1579,23 +1579,23 @@ unsigned char* Texture::LoadFromFile(std::string fileName, unsigned int posX, un
 
 
 unsigned char* Texture::LoadHDRIFromFile(std::string fileName, int& width, int& height, const bool flipVertical, unsigned int internalFormat, unsigned int format, int paddingLeft, int paddingRight, int paddingTop, int paddingBottom) {
-	int numCompontents;
-	unsigned char* imageData = reinterpret_cast<unsigned char *>(SOIL_load_image_f(fileName.c_str(), &width, &height, &numCompontents, 0));
+	int numComponents;
+	unsigned char* imageData = reinterpret_cast<unsigned char *>(SOIL_load_image_f(fileName.c_str(), &width, &height, &numComponents, 0));
 
 	if (flipVertical)
-		FlipVertical(imageData, numCompontents * sizeof(float) * width, height);
+		FlipVertical(imageData, numComponents * sizeof(float) * width, height);
 
 	if (paddingLeft != 0)
-		imageData = AddRemoveLeftPadding(imageData, width, height, numCompontents, paddingLeft);
+		imageData = AddRemoveLeftPadding(imageData, width, height, numComponents, paddingLeft);
 
 	if (paddingRight != 0)
-		imageData = AddRemoveRightPadding(imageData, width, height, numCompontents, paddingRight);
+		imageData = AddRemoveRightPadding(imageData, width, height, numComponents, paddingRight);
 
 	if (paddingTop != 0)
-		imageData = AddRemoveTopPadding(imageData, width, height, numCompontents, paddingTop);
+		imageData = AddRemoveTopPadding(imageData, width, height, numComponents, paddingTop);
 
 	if (paddingBottom != 0)
-		imageData = AddRemoveBottomPadding(imageData, width, height, numCompontents, paddingBottom);
+		imageData = AddRemoveBottomPadding(imageData, width, height, numComponents, paddingBottom);
 
 	return imageData;
 }
@@ -1933,18 +1933,18 @@ void Texture::ArrayTo3D(const unsigned int& textureRef1, unsigned int& textureRe
 }
 
 void Texture::PremultiplyAlpha(std::string fileIn, std::string fileOut, const bool _flipVertical) {
-	int width, height, numCompontents;
-	unsigned char* imageData = SOIL_load_image(fileIn.c_str(), &width, &height, &numCompontents, SOIL_LOAD_AUTO);
-	if (numCompontents < 4) {
+	int width, height, numComponents;
+	unsigned char* imageData = SOIL_load_image(fileIn.c_str(), &width, &height, &numComponents, SOIL_LOAD_AUTO);
+	if (numComponents < 4) {
 		SOIL_free_image_data(imageData);
 		return;
 	}
 
 	if (_flipVertical)
-		Texture::FlipVertical(imageData, numCompontents * width, height);
+		Texture::FlipVertical(imageData, numComponents * width, height);
 
 	std::vector<float> imageDataNew;
-	imageDataNew.resize(width * height * numCompontents);
+	imageDataNew.resize(width * height * numComponents);
 	for (uint32_t i = 0; i < (width * height); i++){
 		imageDataNew[i * 4 + 0] = 0.0f;
 		imageDataNew[i * 4 + 1] = 0.0f;
@@ -1985,7 +1985,7 @@ void Texture::PremultiplyAlpha(std::string fileIn, std::string fileOut, const bo
 		dstPixel[3] = (uint8_t)(Math::Clamp(1.0f - srcPixel[3], 0.0f, 1.0f) * 255.0f + 0.5f);
 	}
 
-	SOIL_save_image(fileOut.c_str(), SOIL_SAVE_TYPE_PNG, width, height, numCompontents, outputData.data());
+	SOIL_save_image(fileOut.c_str(), SOIL_SAVE_TYPE_PNG, width, height, numComponents, outputData.data());
 	
 }
 
@@ -2000,11 +2000,11 @@ std::array<float, 3> Texture::Normalize(const std::array<float, 3>& p) {
 }
 
 void Texture::AddHighlight(std::string fileIn, std::string fileOut, int borderWidth) {
-	int width, height, numCompontents;
-	unsigned char* imageData = SOIL_load_image(fileIn.c_str(), &width, &height, &numCompontents, SOIL_LOAD_AUTO);
+	int width, height, numComponents;
+	unsigned char* imageData = SOIL_load_image(fileIn.c_str(), &width, &height, &numComponents, SOIL_LOAD_AUTO);
 
-	unsigned char* bytesNew = (unsigned char*)malloc(width * height * numCompontents);
-	memset(bytesNew, 0, width * height * numCompontents);
+	unsigned char* bytesNew = (unsigned char*)malloc(width * height * numComponents);
+	memset(bytesNew, 0, width * height * numComponents);
 
 	for (int i = 0; i < width * height * 4; i = i + 4) {
 
@@ -2077,7 +2077,7 @@ void Texture::AddHighlight(std::string fileIn, std::string fileOut, int borderWi
 		}
 	}*/
 
-	SOIL_save_image(fileOut.c_str(), SOIL_SAVE_TYPE_PNG, width, height, numCompontents, bytesNew);
+	SOIL_save_image(fileOut.c_str(), SOIL_SAVE_TYPE_PNG, width, height, numComponents, bytesNew);
 
 	free(bytesNew);
 
@@ -2086,17 +2086,17 @@ void Texture::AddHighlight(std::string fileIn, std::string fileOut, int borderWi
 
 void Texture::AddRemoveBottomPadding(std::string fileIn, std::string fileOut, int padding) {
 	if (padding == 0) return;
-	int width, height, numCompontents;
-	unsigned char* imageData = SOIL_load_image(fileIn.c_str(), &width, &height, &numCompontents, SOIL_LOAD_AUTO);
-	unsigned char* bytes = (unsigned char*)malloc(numCompontents * (height + padding) * width);
-	memset(bytes, 0, numCompontents * (height + padding) * width);
+	int width, height, numComponents;
+	unsigned char* imageData = SOIL_load_image(fileIn.c_str(), &width, &height, &numComponents, SOIL_LOAD_AUTO);
+	unsigned char* bytes = (unsigned char*)malloc(numComponents * (height + padding) * width);
+	memset(bytes, 0, numComponents * (height + padding) * width);
 
 	if (padding < 0) {
 		int  row = 0, x = 0;
-		for (int i = 0; i < numCompontents * width * (height + padding); i++) {
+		for (int i = 0; i < numComponents * width * (height + padding); i++) {
 
-			if (i % (width  * numCompontents) == 0 && i > 0) {
-				row = (row + width * numCompontents);
+			if (i % (width  * numComponents) == 0 && i > 0) {
+				row = (row + width * numComponents);
 				x = row;
 			}
 			bytes[i] = imageData[x];
@@ -2107,19 +2107,19 @@ void Texture::AddRemoveBottomPadding(std::string fileIn, std::string fileOut, in
 
 	if (padding > 0) {
 		int  row = 0, x = 0;
-		for (int i = 0; i < numCompontents * width * (height + padding); i++) {
-			if (i % (width  * numCompontents) == 0 && i > 0) {
-				row = (row + width * numCompontents);
+		for (int i = 0; i < numComponents * width * (height + padding); i++) {
+			if (i % (width  * numComponents) == 0 && i > 0) {
+				row = (row + width * numComponents);
 				x = row;
 			}
-			bytes[i] = x > numCompontents * width * height ? 0 : imageData[x];
+			bytes[i] = x > numComponents * width * height ? 0 : imageData[x];
 
 			x++;
 		}
 	}
 
 	height = height + padding;
-	SOIL_save_image(fileOut.c_str(), SOIL_SAVE_TYPE_PNG, width, height, numCompontents, bytes);
+	SOIL_save_image(fileOut.c_str(), SOIL_SAVE_TYPE_PNG, width, height, numComponents, bytes);
 
 	SOIL_free_image_data(imageData);
 	free(bytes);
@@ -2127,18 +2127,18 @@ void Texture::AddRemoveBottomPadding(std::string fileIn, std::string fileOut, in
 
 void Texture::AddRemoveTopPadding(std::string fileIn, std::string fileOut, int padding) {
 	if (padding == 0) return;
-	int width, height, numCompontents;
-	unsigned char* imageData = SOIL_load_image(fileIn.c_str(), &width, &height, &numCompontents, SOIL_LOAD_AUTO);
-	unsigned char* bytes = (unsigned char*)malloc(numCompontents * (height + padding) * width);
-	memset(bytes, 0, numCompontents * (height + padding) * width);
+	int width, height, numComponents;
+	unsigned char* imageData = SOIL_load_image(fileIn.c_str(), &width, &height, &numComponents, SOIL_LOAD_AUTO);
+	unsigned char* bytes = (unsigned char*)malloc(numComponents * (height + padding) * width);
+	memset(bytes, 0, numComponents * (height + padding) * width);
 
 	if (padding < 0) {
-		int  row = 0, x = -(padding * width * numCompontents);
-		for (int i = 0; i < numCompontents * width * (height + padding); i++) {
+		int  row = 0, x = -(padding * width * numComponents);
+		for (int i = 0; i < numComponents * width * (height + padding); i++) {
 
-			if (i % (width  * numCompontents) == 0 && i > 0) {
-				row = (row + width * numCompontents);
-				x = row - (padding * width * numCompontents);
+			if (i % (width  * numComponents) == 0 && i > 0) {
+				row = (row + width * numComponents);
+				x = row - (padding * width * numComponents);
 			}
 			bytes[i] = imageData[x];
 			x++;
@@ -2147,11 +2147,11 @@ void Texture::AddRemoveTopPadding(std::string fileIn, std::string fileOut, int p
 	}
 
 	if (padding > 0) {
-		int  row = 0, x = -(padding * width * numCompontents);
-		for (int i = 0; i < numCompontents * width * (height + padding); i++) {
-			if (i % (width  * numCompontents) == 0 && i > 0) {
-				row = (row + width * numCompontents);
-				x = row - (padding * width * numCompontents);
+		int  row = 0, x = -(padding * width * numComponents);
+		for (int i = 0; i < numComponents * width * (height + padding); i++) {
+			if (i % (width  * numComponents) == 0 && i > 0) {
+				row = (row + width * numComponents);
+				x = row - (padding * width * numComponents);
 			}
 			bytes[i] = x < 0 ? 0 : imageData[x];
 
@@ -2160,7 +2160,7 @@ void Texture::AddRemoveTopPadding(std::string fileIn, std::string fileOut, int p
 	}
 
 	height = height + padding;
-	SOIL_save_image(fileOut.c_str(), SOIL_SAVE_TYPE_PNG, width, height, numCompontents, bytes);
+	SOIL_save_image(fileOut.c_str(), SOIL_SAVE_TYPE_PNG, width, height, numComponents, bytes);
 
 	SOIL_free_image_data(imageData);
 	free(bytes);
@@ -2168,17 +2168,17 @@ void Texture::AddRemoveTopPadding(std::string fileIn, std::string fileOut, int p
 
 void Texture::AddRemoveRightPadding(std::string fileIn, std::string fileOut, int padding) {
 	if (padding == 0) return;
-	int width, height, numCompontents;
-	unsigned char* imageData = SOIL_load_image(fileIn.c_str(), &width, &height, &numCompontents, SOIL_LOAD_AUTO);
-	unsigned char* bytes = (unsigned char*)malloc(numCompontents * height * (width + padding));
-	memset(bytes, 0, numCompontents * height * (width + padding));
+	int width, height, numComponents;
+	unsigned char* imageData = SOIL_load_image(fileIn.c_str(), &width, &height, &numComponents, SOIL_LOAD_AUTO);
+	unsigned char* bytes = (unsigned char*)malloc(numComponents * height * (width + padding));
+	memset(bytes, 0, numComponents * height * (width + padding));
 
 	if (padding < 0) {
 
 		int row = 0, x = 0;
-		for (int i = 0; i < numCompontents * height * (width + padding); i++) {
-			if (i % ((width + padding) * numCompontents) == 0 && i > 0) {
-				row = row + width * numCompontents;
+		for (int i = 0; i < numComponents * height * (width + padding); i++) {
+			if (i % ((width + padding) * numComponents) == 0 && i > 0) {
+				row = row + width * numComponents;
 				x = row;
 			}
 
@@ -2189,20 +2189,20 @@ void Texture::AddRemoveRightPadding(std::string fileIn, std::string fileOut, int
 
 	if (padding > 0) {
 		int row = 0, x = 0;
-		for (int i = 0; i < numCompontents * height * (width + padding); i++) {
-			if (i % ((width + padding) * numCompontents) == 0 && i > 0) {
-				row = row + width * numCompontents;
+		for (int i = 0; i < numComponents * height * (width + padding); i++) {
+			if (i % ((width + padding) * numComponents) == 0 && i > 0) {
+				row = row + width * numComponents;
 				x = row;
 			}
 
-			bytes[i] = x - row > width * numCompontents ? bytes[i] = 0 : bytes[i] = imageData[x];
+			bytes[i] = x - row > width * numComponents ? bytes[i] = 0 : bytes[i] = imageData[x];
 			x++;
 		}
 
 	}
 
 	width = width + padding;
-	SOIL_save_image(fileOut.c_str(), SOIL_SAVE_TYPE_PNG, width, height, numCompontents, bytes);
+	SOIL_save_image(fileOut.c_str(), SOIL_SAVE_TYPE_PNG, width, height, numComponents, bytes);
 
 	SOIL_free_image_data(imageData);
 	free(bytes);
@@ -2210,18 +2210,18 @@ void Texture::AddRemoveRightPadding(std::string fileIn, std::string fileOut, int
 
 void Texture::AddRemoveLeftPadding(std::string fileIn, std::string fileOut, int padding) {
 	if (padding == 0) return;
-	int width, height, numCompontents;
-	unsigned char* imageData = SOIL_load_image(fileIn.c_str(), &width, &height, &numCompontents, SOIL_LOAD_AUTO);
-	unsigned char* bytes = (unsigned char*)malloc(numCompontents * height * (width + padding));
-	memset(bytes, 0, numCompontents * height * (width + padding));
+	int width, height, numComponents;
+	unsigned char* imageData = SOIL_load_image(fileIn.c_str(), &width, &height, &numComponents, SOIL_LOAD_AUTO);
+	unsigned char* bytes = (unsigned char*)malloc(numComponents * height * (width + padding));
+	memset(bytes, 0, numComponents * height * (width + padding));
 
 	if (padding < 0) {
 
-		int row = 0, x = -padding * numCompontents;
-		for (int i = 0; i < numCompontents * height * (width + padding); i++) {
-			if (i % ((width + padding) * numCompontents) == 0 && i > 0) {
-				row = row + width * numCompontents;
-				x = row - padding * numCompontents;
+		int row = 0, x = -padding * numComponents;
+		for (int i = 0; i < numComponents * height * (width + padding); i++) {
+			if (i % ((width + padding) * numComponents) == 0 && i > 0) {
+				row = row + width * numComponents;
+				x = row - padding * numComponents;
 			}
 
 			bytes[i] = imageData[x];
@@ -2231,30 +2231,30 @@ void Texture::AddRemoveLeftPadding(std::string fileIn, std::string fileOut, int 
 
 	if (padding > 0) {
 		int row = 0, x = 0;
-		for (int i = 0; i < numCompontents * height * (width + padding); i++) {
-			if (i % ((width + padding) * numCompontents) == 0 && i > 0) {
-				row = row + width * numCompontents;
+		for (int i = 0; i < numComponents * height * (width + padding); i++) {
+			if (i % ((width + padding) * numComponents) == 0 && i > 0) {
+				row = row + width * numComponents;
 				x = row;
 			}
 
-			bytes[i] = x - row < padding * numCompontents ? bytes[i] = 0 : bytes[i] = imageData[x - padding * numCompontents];
+			bytes[i] = x - row < padding * numComponents ? bytes[i] = 0 : bytes[i] = imageData[x - padding * numComponents];
 			x++;
 		}
 	}
 
 	width = width + padding;
-	SOIL_save_image(fileOut.c_str(), SOIL_SAVE_TYPE_PNG, width, height, numCompontents, bytes);
+	SOIL_save_image(fileOut.c_str(), SOIL_SAVE_TYPE_PNG, width, height, numComponents, bytes);
 
 	SOIL_free_image_data(imageData);
 	free(bytes);
 }
 
 void Texture::GrayScale(std::string fileIn, std::string fileOut) {
-	int width, height, numCompontents;
-	unsigned char* imageData = SOIL_load_image(fileIn.c_str(), &width, &height, &numCompontents, SOIL_LOAD_AUTO);
+	int width, height, numComponents;
+	unsigned char* imageData = SOIL_load_image(fileIn.c_str(), &width, &height, &numComponents, SOIL_LOAD_AUTO);
 
-	unsigned char* bytesNew = (unsigned char*)malloc(width * height * numCompontents);
-	memset(bytesNew, 0, width * height * numCompontents);
+	unsigned char* bytesNew = (unsigned char*)malloc(width * height * numComponents);
+	memset(bytesNew, 0, width * height * numComponents);
 
 	for (int i = 0; i < width * height * 4; i = i + 4) {
 		bytesNew[i] = static_cast<unsigned char>((static_cast<int>(imageData[i]) + static_cast<int>(imageData[i + 1]) + static_cast<int>(imageData[i + 2])) / 3);
@@ -2263,7 +2263,40 @@ void Texture::GrayScale(std::string fileIn, std::string fileOut) {
 		bytesNew[i + 3] = imageData[i + 3];
 	}
 
-	SOIL_save_image(fileOut.c_str(), SOIL_SAVE_TYPE_PNG, width, height, numCompontents, bytesNew);
+	SOIL_save_image(fileOut.c_str(), SOIL_SAVE_TYPE_PNG, width, height, numComponents, bytesNew);
 	free(bytesNew);
 	SOIL_free_image_data(imageData);
+}
+
+void Texture::CreateBars(std::string fileOut, unsigned int width, unsigned int height, unsigned int numBars, unsigned int heightBar) {
+	unsigned short numComponents = 4;
+	unsigned char* pixels = (unsigned char*)malloc((width) * numComponents * height);
+	memset(pixels, 0, width * height * numComponents);
+
+	int widthBar = 1, offset = 0, l = 0;
+	for (int k = 0; k < numBars; k++) {
+		for (unsigned int i = l; i < heightBar + l; ++i) {
+			for (unsigned int j = 0; j < widthBar; ++j) {
+				if ((i == l && j == 0) || (i == l && j == widthBar - 1) || (i == heightBar + l  - 1 && j == 0) || (i == heightBar + l - 1 && j == widthBar - 1)) {
+					continue;
+				}else {
+					pixels[i * numComponents * (width) + j * numComponents + 0 + (widthBar + offset) * 4] = 255;
+					pixels[i * numComponents * (width) + j * numComponents + 1 + (widthBar + offset) * 4] = 255;
+					pixels[i * numComponents * (width) + j * numComponents + 2 + (widthBar + offset) * 4] = 255;
+					pixels[i * numComponents * (width) + j * numComponents + 3 + (widthBar + offset) * 4] = 255;
+				}
+			}
+		}
+		widthBar++;
+		offset += (widthBar);
+		if ((offset + widthBar + 1) * numComponents + (widthBar + 1) * numComponents >= width * numComponents) {
+			l += 7;
+			offset = - widthBar + 1;
+			if(l > height)
+				break;
+		}		
+	}
+
+	SOIL_save_image(fileOut.c_str(), SOIL_SAVE_TYPE_PNG, width, height, numComponents, pixels);
+	free(pixels);
 }

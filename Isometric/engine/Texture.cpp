@@ -7,8 +7,8 @@ Texture::Texture(std::string pictureFile, const bool flipVertical, unsigned int 
 	unsigned format = _format == -1 ? GL_RGBA8 : _format;
 	
 	stbi_set_flip_vertically_on_load(flipVertical);
-	int width, height, numCompontents;
-	unsigned char* imageData = stbi_load(pictureFile.c_str(), &width, &height, &numCompontents, NULL);
+	int width, height, numComponents;
+	unsigned char* imageData = stbi_load(pictureFile.c_str(), &width, &height, &numComponents, NULL);
 
 	glGenTextures(1, &m_texture);
 	glBindTexture(GL_TEXTURE_2D, m_texture);
@@ -36,8 +36,8 @@ void Texture::loadFromFile(std::string pictureFile, const bool flipVertical, con
 	unsigned format = _format == -1 ? GL_RGBA8 : _format;
 	
 	stbi_set_flip_vertically_on_load(flipVertical);
-	int width, height, numCompontents;
-	unsigned char* imageData = stbi_load(pictureFile.c_str(), &width, &height, &numCompontents, NULL);
+	int width, height, numComponents;
+	unsigned char* imageData = stbi_load(pictureFile.c_str(), &width, &height, &numComponents, NULL);
 
 	glGenTextures(1, &m_texture);
 	glBindTexture(GL_TEXTURE_2D, m_texture);
@@ -56,22 +56,22 @@ void Texture::loadFromFile(std::string pictureFile, unsigned short tileWidth, un
 	unsigned format = _format == -1 ? GL_RGBA8 : _format;
 
 	stbi_set_flip_vertically_on_load(flipVertical);
-	int width, height, numCompontents;
-	unsigned char* imageData = stbi_load(pictureFile.c_str(), &width, &height, &numCompontents, NULL);
+	int width, height, numComponents;
+	unsigned char* imageData = stbi_load(pictureFile.c_str(), &width, &height, &numComponents, NULL);
 
 	unsigned short tileCountY = height / (tileHeight + spacing);
 	unsigned short posX = column;
 	unsigned short posY = reverse ? (tileCountY - 1) - _row : _row;
 
-	unsigned char* subImage = (unsigned char*)malloc((tileWidth)* numCompontents * (tileHeight));
-	unsigned int subImageSize = (tileWidth)* numCompontents * tileHeight;
+	unsigned char* subImage = (unsigned char*)malloc((tileWidth)* numComponents * (tileHeight));
+	unsigned int subImageSize = (tileWidth)* numComponents * tileHeight;
 	unsigned int count = 0, row = 0;
-	unsigned int offset = width * numCompontents * ((tileHeight + spacing) * posY + spacing) + posX * (tileWidth + spacing) * numCompontents;
+	unsigned int offset = width * numComponents * ((tileHeight + spacing) * posY + spacing) + posX * (tileWidth + spacing) * numComponents;
 	unsigned int x = offset;
 
 	while (count < subImageSize) {
-		if (count % (tileWidth * numCompontents) == 0 && count > 0) {
-			row = row + width * numCompontents;
+		if (count % (tileWidth * numComponents) == 0 && count > 0) {
+			row = row + width * numComponents;
 			x = row + offset;
 		}
 		subImage[count] = imageData[x];
@@ -98,20 +98,20 @@ void Texture::loadFromFile(std::string pictureFile, unsigned int _offsetX, unsig
 	unsigned format = _format == -1 ? GL_RGBA8 : _format;
 
 	stbi_set_flip_vertically_on_load(flipVertical);
-	int width, height, numCompontents;
-	unsigned char* imageData = stbi_load(pictureFile.c_str(), &width, &height, &numCompontents, NULL);
+	int width, height, numComponents;
+	unsigned char* imageData = stbi_load(pictureFile.c_str(), &width, &height, &numComponents, NULL);
 
 	unsigned int offsetY = flipVertical ? (height - (_offsetY + _height)) : _offsetY;
 
-	unsigned char* subImage = (unsigned char*)malloc(_width * numCompontents * _height);
-	unsigned int subImageSize = _width * numCompontents * _height;
+	unsigned char* subImage = (unsigned char*)malloc(_width * numComponents * _height);
+	unsigned int subImageSize = _width * numComponents * _height;
 	unsigned int count = 0, row = 0;
-	unsigned int offset = width * numCompontents * offsetY + numCompontents * _offsetX;
+	unsigned int offset = width * numComponents * offsetY + numComponents * _offsetX;
 	unsigned int x = offset;
 
 	while (count < subImageSize) {
-		if (count % (_width * numCompontents) == 0 && count > 0) {
-			row = row + width * numCompontents;
+		if (count % (_width * numComponents) == 0 && count > 0) {
+			row = row + width * numComponents;
 			x = row + offset;
 		}
 		subImage[count] = imageData[x];
@@ -130,7 +130,7 @@ void Texture::loadFromFile(std::string pictureFile, unsigned int _offsetX, unsig
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 
-	stbi_write_png("sky.png", _width, _height, numCompontents, subImage, _width * numCompontents);
+	stbi_write_png("sky.png", _width, _height, numComponents, subImage, _width * numComponents);
 
 	free(subImage);
 
@@ -139,20 +139,20 @@ void Texture::loadFromFile(std::string pictureFile, unsigned int _offsetX, unsig
 
 void Texture::CutSubimage(std::string fileIn, std::string fileOut, unsigned int _offsetX, unsigned int _offsetY, unsigned int _width, unsigned int _height, const bool flipVertical) {
 	stbi_set_flip_vertically_on_load(flipVertical);
-	int width, height, numCompontents;
-	unsigned char* imageData = stbi_load(fileIn.c_str(), &width, &height, &numCompontents, NULL);
+	int width, height, numComponents;
+	unsigned char* imageData = stbi_load(fileIn.c_str(), &width, &height, &numComponents, NULL);
 
 	unsigned int offsetY = flipVertical ? (height - (_offsetY + _height)) : _offsetY;
 
-	unsigned char* subImage = (unsigned char*)malloc(_width * numCompontents * _height);
-	unsigned int subImageSize = _width * numCompontents * _height;
+	unsigned char* subImage = (unsigned char*)malloc(_width * numComponents * _height);
+	unsigned int subImageSize = _width * numComponents * _height;
 	unsigned int count = 0, row = 0;
-	unsigned int offset = width * numCompontents * offsetY + numCompontents * _offsetX;
+	unsigned int offset = width * numComponents * offsetY + numComponents * _offsetX;
 	unsigned int x = offset;
 
 	while (count < subImageSize) {
-		if (count % (_width * numCompontents) == 0 && count > 0) {
-			row = row + width * numCompontents;
+		if (count % (_width * numComponents) == 0 && count > 0) {
+			row = row + width * numComponents;
 			x = row + offset;
 		}
 		subImage[count] = imageData[x];
@@ -160,7 +160,7 @@ void Texture::CutSubimage(std::string fileIn, std::string fileOut, unsigned int 
 		count++;
 	}
 
-	stbi_write_png(fileOut.c_str(), _width, _height, numCompontents, subImage, _width * numCompontents);
+	stbi_write_png(fileOut.c_str(), _width, _height, numComponents, subImage, _width * numComponents);
 
 	free(subImage);
 
@@ -169,19 +169,19 @@ void Texture::CutSubimage(std::string fileIn, std::string fileOut, unsigned int 
 
 void Texture::AddHorizontally(std::string fileIn1, std::string fileIn2, std::string fileOut, const bool flipVertical) {
 	stbi_set_flip_vertically_on_load(flipVertical);
-	int width1, height1, numCompontents1;
-	unsigned char* imageData1 = stbi_load(fileIn1.c_str(), &width1, &height1, &numCompontents1, NULL);
-	unsigned int imageSize1 = width1 * numCompontents1 * height1;
+	int width1, height1, numComponents1;
+	unsigned char* imageData1 = stbi_load(fileIn1.c_str(), &width1, &height1, &numComponents1, NULL);
+	unsigned int imageSize1 = width1 * numComponents1 * height1;
 
-	int width2, height2, numCompontents2;
-	unsigned char* imageData2 = stbi_load(fileIn2.c_str(), &width2, &height2, &numCompontents2, NULL);
+	int width2, height2, numComponents2;
+	unsigned char* imageData2 = stbi_load(fileIn2.c_str(), &width2, &height2, &numComponents2, NULL);
 
-	unsigned char* image = (unsigned char*)malloc((width1 + width2) * numCompontents1 * height1);
-	unsigned int imageSize = (width1 + width2 ) * numCompontents1 * (height1);
+	unsigned char* image = (unsigned char*)malloc((width1 + width2) * numComponents1 * height1);
+	unsigned int imageSize = (width1 + width2 ) * numComponents1 * (height1);
 
 	unsigned char imageData;
 	unsigned int count = 0, x = 0, y = 0, row = 0;
-	unsigned int rowWidth = (width1 + width2) * numCompontents1;
+	unsigned int rowWidth = (width1 + width2) * numComponents1;
 	bool toggle = false;
 
 	while (count < imageSize) {
@@ -190,7 +190,7 @@ void Texture::AddHorizontally(std::string fileIn1, std::string fileIn2, std::str
 			row = 0;
 		}
 		
-		if (row < width1 * numCompontents1) {
+		if (row < width1 * numComponents1) {
 			toggle = false;
 		}else {
 			toggle = true;
@@ -208,7 +208,7 @@ void Texture::AddHorizontally(std::string fileIn1, std::string fileIn2, std::str
 		row++;
 	}
 
-	stbi_write_png(fileOut.c_str(), width1 + width2, height1, numCompontents1, image, (width1 + width2 ) * numCompontents1);
+	stbi_write_png(fileOut.c_str(), width1 + width2, height1, numComponents1, image, (width1 + width2 ) * numComponents1);
 
 	free(image);
 	stbi_image_free(imageData1);
