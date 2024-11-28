@@ -58,8 +58,10 @@ private:
 	void opponentAttack();
 	void exit();
 	void initUI();
-	void eraseAbilities();
 	void addAbilities();
+	void eraseAbilities();
+	void addMonsters();
+	void eraseMonsters();
 
 	bool m_initUi = true;
 	bool m_drawUi = false;
@@ -104,8 +106,6 @@ private:
 	Fade m_fade;
 	float m_alpha;
 	Framebuffer m_mainRenderTarget;
-
-	static void DrawBar(const Rect& rect, float value, float maxValue, const Vector4f& bgColor, const Vector4f& color, float radius = 1.0f);
 
 	static std::random_device RandomDevice;
 	static std::mt19937 MersenTwist;

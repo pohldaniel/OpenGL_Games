@@ -358,7 +358,7 @@ void Monster::showMissing() {
 	Icon* icon = findChild<IconAnimated>("image")->addChild<Icon>(TileSetManager::Get().getTileSet("monster").getTextureRects()[257]);
 	icon->setSpriteSheet(TileSetManager::Get().getTileSet("monster").getAtlas());
 	icon->setPosition(0.5f, 0.5f);
-	icon->setAlign(true);
+	icon->setAligned(true);
 	icon->setName("missing");
 }
 

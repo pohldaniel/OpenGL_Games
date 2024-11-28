@@ -467,7 +467,7 @@ void Battle::drawAttacks() {
 	m_atacksUI->draw();
 
 	for (auto& children : m_atacksUI->getChildren()) {
-		std::static_pointer_cast<IconAnimated>(children)->draw();
+		std::static_pointer_cast<WidgetMH>(children)->draw();
 	}
 }
 
@@ -475,69 +475,16 @@ void Battle::drawSwitch() {
 	Monster* currentMonster = m_monsters[m_currentSelectedMonster];
 	const Cell& cell = currentMonster->getCell();
 	const std::vector<TextureRect>& iconRects = TileSetManager::Get().getTileSet("monster_icon").getTextureRects();
+	float width = 300.0f; float height = 320.0f;
 
-	float width = 300.0f;
-	float height = 320.0f;
-	int limiter = std::min(m_visibleItems, m_currentMax);
+	eraseMonsters();
+	addMonsters();
+	m_switchUI->setPosition(cell.posX + cell.width + 20.0f, cell.posY + 0.5f * cell.height - 0.5f * height);
+	m_switchUI->setScale(width, height);
+	m_switchUI->draw();
 
-	float itemHeight = height / static_cast<float>(std::max(limiter, 4));
-	float lineHeight = Globals::fontManager.get("dialog").lineHeight * 0.045f;
-
-	height = limiter <= 1 ? 80.0f : limiter == 2 ? 160.0f : limiter == 3 ? 240.0f : 320.0f;
-
-	auto shader = Globals::shaderManager.getAssetPointer("list");
-	shader->use();
-	shader->loadVector("u_dimensions", Vector2f(width, height));
-	shader->loadFloat("u_radius", 5.0f);
-	shader->loadUnsignedInt("u_edge", Edge::ALL);
-
-	m_surface.setShader(shader);
-	m_surface.setPosition(cell.posX + cell.width + 20.0f, cell.posY + 0.5f * cell.height - 0.5f * height);
-	m_surface.setScale(width, height);
-	m_surface.draw();
-
-	if (m_currentSelectedOption == m_currentOffset)
-		shader->loadUnsignedInt("u_edge", Edge::TOP);
-	else if (m_currentSelectedOption == m_currentOffset + std::min(m_visibleItems, m_currentMax - m_currentOffset) - 1)
-		shader->loadUnsignedInt("u_edge", Edge::BOTTOM);
-	else
-		shader->loadUnsignedInt("u_edge", Edge::EDGE_NONE);
-
-	shader->loadVector("u_dimensions", Vector2f(width, itemHeight));
-	m_surface.setPosition(cell.posX + cell.width + 20.0f, cell.posY + 0.5f * cell.height - 0.5f * height + height - (m_currentSelectedOption - m_currentOffset + 1) * itemHeight);
-	m_surface.setScale(width, itemHeight);
-	m_surface.draw(Vector4f(0.78431f, 0.78431f, 0.78431f, 1.0f));
-
-	for (size_t index = m_currentOffset; index < m_currentOffset + std::min(m_visibleItems, m_currentMax - m_currentOffset); index++) {
-		Fontrenderer::Get().addText(Globals::fontManager.get("dialog"),
-			cell.posX + cell.width + 20.0f + 90.0f,
-			cell.posY + 0.5f * cell.height - 0.5f * height + height - (index - m_currentOffset + 1) * itemHeight + 0.5f * itemHeight - 0.5f * lineHeight,
-			m_filteredMonsters[index].get().name + " " + "(" + std::to_string(m_filteredMonsters[index].get().level) + ")",
-			index == m_currentSelectedOption ? Vector4f(0.94117f, 0.19215f, 0.19215f, 1.0f) : Vector4f(0.0f, 0.0f, 0.0f, 1.0f),
-			0.045f);
-	}
-
-	Globals::fontManager.get("dialog").bind();
-	Fontrenderer::Get().drawBuffer();
-
-	TileSetManager::Get().getTileSet("monster_icon").bind();
-	m_surface.resetShader();
-	for (size_t index = m_currentOffset; index < m_currentOffset + std::min(m_visibleItems, m_currentMax - m_currentOffset); index++) {
-		const TextureRect& iconRect = iconRects[MonsterIndex::MonsterData[m_filteredMonsters[index].get().name].graphic];
-		float iconPosX = cell.posX + cell.width + 20.0f + 10.0f;
-		float iconPosY = cell.posY + 0.5f * cell.height - 0.5f * height + height - (index - m_currentOffset + 1) * itemHeight + 0.5f * itemHeight - iconRect.height * 0.5f;
-
-		
-		m_surface.setPosition(iconPosX, iconPosY);
-		m_surface.setScale(iconRect.width, iconRect.height);
-		m_surface.draw(iconRect, Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
-
-
-		float barPosX = cell.posX + cell.width + 20.0f + 90.0f;
-		float barPosY = cell.posY + 0.5f * cell.height - 0.5f * height + height - (index - m_currentOffset + 1) * itemHeight + 0.5f * itemHeight - 0.5f * lineHeight;
-
-		Battle::DrawBar({ barPosX, barPosY - 9.0f,  100.0f, 5.0f }, m_filteredMonsters[index].get().health, static_cast<float>(m_filteredMonsters[index].get().level * MonsterIndex::MonsterData[m_filteredMonsters[index].get().name].maxHealth), Vector4f(0.0f, 0.0f, 0.0f, 1.0f), Vector4f(0.94117f, 0.19215f, 0.19215f, 1.0f), 0.0f);
-		Battle::DrawBar({ barPosX, barPosY - 16.0f, 100.0f, 5.0f }, m_filteredMonsters[index].get().energy, static_cast<float>(m_filteredMonsters[index].get().level * MonsterIndex::MonsterData[m_filteredMonsters[index].get().name].maxEnergy), Vector4f(0.0f, 0.0f, 0.0f, 1.0f), Vector4f(0.4f, 0.84313f, 0.93333f, 1.0f), 0.0f);
+	for (auto& children : m_switchUI->getChildren()) {
+		std::static_pointer_cast<WidgetMH>(children)->draw();
 	}
 }
 
@@ -988,81 +935,46 @@ void Battle::setBiomeBackground(const std::string& biomeBackground) {
 	m_biomeBackground = biomeBackground;
 }
 
-void Battle::DrawBar(const Rect& rect, float value, float maxValue, const Vector4f& bgColor, const Vector4f& color, float radius) {
-	float ratio = rect.width / maxValue;
-	float progress = std::max(0.0f, std::min(rect.width, value * ratio));
-
-	if (radius != 0.0f) {
-		SurfaceBar.setShader(Globals::shaderManager.getAssetPointer("list"));
-		auto shader = SurfaceBar.getShader();
-		shader->use();
-		shader->loadFloat("u_radius", radius);
-		shader->loadUnsignedInt("u_edge", Edge::ALL);
-
-		shader->loadVector("u_dimensions", Vector2f(rect.width, rect.height));
-		SurfaceBar.setPosition(rect.posX, rect.posY);
-		SurfaceBar.setScale(rect.width, rect.height);
-		SurfaceBar.draw(bgColor);
-
-		shader->loadVector("u_dimensions", Vector2f(progress, rect.height));
-		SurfaceBar.setPosition(rect.posX, rect.posY);
-		SurfaceBar.setScale(progress, rect.height);
-		SurfaceBar.draw(color);
-
-	}else {
-		Spritesheet::Bind(TileSetManager::Get().getTileSet("monster_icon").getAtlas());
-		SurfaceBar.resetShader();
-
-		SurfaceBar.setPosition(rect.posX, rect.posY);
-		SurfaceBar.setScale(rect.width, rect.height);
-		SurfaceBar.draw(TileSetManager::Get().getTileSet("monster_icon").getTextureRects()[16], bgColor);
-
-		SurfaceBar.setPosition(rect.posX, rect.posY);
-		SurfaceBar.setScale(progress, rect.height);
-		SurfaceBar.draw(TileSetManager::Get().getTileSet("monster_icon").getTextureRects()[16], color);
-	}
-}
-
 void Battle::initUI() {
 	setSpriteSheet(TileSetManager::Get().getTileSet("backgrounds").getAtlas());
 	scale(BackgroundRect.width, BackgroundRect.height);	
 
 	m_abilityUI = new IconAnimated(TileSetManager::Get().getTileSet("attacks").getTextureRects());
 	m_abilityUI->setSpriteSheet(TileSetManager::Get().getTileSet("attacks").getAtlas());
-	m_abilityUI->setAlign(true);
+	m_abilityUI->setAligned(true);
 
 	m_generalUI = new Surface();
 	IconAnimated* iconAnimated = m_generalUI->addChild<IconAnimated>(TileSetManager::Get().getTileSet("battle_icon").getTextureRects());
 	iconAnimated->setSpriteSheet(TileSetManager::Get().getTileSet("battle_icon").getAtlas());
-	iconAnimated->setAlign(true);
+	iconAnimated->setAligned(true);
 	iconAnimated->setPosition(30.0f, 60.0f);
 
 	iconAnimated = m_generalUI->addChild<IconAnimated>(TileSetManager::Get().getTileSet("battle_icon").getTextureRects());
 	iconAnimated->setSpriteSheet(TileSetManager::Get().getTileSet("battle_icon").getAtlas());
-	iconAnimated->setAlign(true);
+	iconAnimated->setAligned(true);
 	iconAnimated->setPosition(40.0f, 20.0f);
 
 	iconAnimated = m_generalUI->addChild<IconAnimated>(TileSetManager::Get().getTileSet("battle_icon").getTextureRects());
 	iconAnimated->setSpriteSheet(TileSetManager::Get().getTileSet("battle_icon").getAtlas());
-	iconAnimated->setAlign(true);
+	iconAnimated->setAligned(true);
 	iconAnimated->setPosition(40.0f, -20.0f);
 
 	iconAnimated = m_generalUI->addChild<IconAnimated>(TileSetManager::Get().getTileSet("battle_icon").getTextureRects());
 	iconAnimated->setSpriteSheet(TileSetManager::Get().getTileSet("battle_icon").getAtlas());
-	iconAnimated->setAlign(true);
+	iconAnimated->setAligned(true);
 	iconAnimated->setPosition(30.0f, -60.0f);
 
 	m_atacksUI = new Surface(); 
-	
-	//m_atacksUI->updateWorldTransformation();
 	m_atacksUI->setShader(Globals::shaderManager.getAssetPointer("list"));
-	m_atacksUI->setName("right");
 	m_atacksUI->setBorderRadius(5.0f);
 	m_atacksUI->setEdge(Edge::ALL);
 	m_atacksUI->setColor(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
 
-
 	m_switchUI = new Surface();
+	m_switchUI->setShader(Globals::shaderManager.getAssetPointer("list"));
+	m_switchUI->setBorderRadius(5.0f);
+	m_switchUI->setEdge(Edge::ALL);
+	m_switchUI->setColor(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
 }
 
 void Battle::addAbilities() {
@@ -1101,4 +1013,71 @@ void Battle::addAbilities() {
 
 void Battle::eraseAbilities() {
 	m_atacksUI->eraseAllChildren();
+}
+
+void Battle::addMonsters() {
+	const std::vector<TextureRect>& iconRects = TileSetManager::Get().getTileSet("monster_icon").getTextureRects();
+
+	float width = 300.0f;
+	float height = 320.0f;
+	int limiter = std::min(m_visibleItems, m_currentMax);
+	float invLimiter = 1.0f / static_cast<float>(limiter);
+	int position = m_currentSelectedOption - m_currentOffset;
+	float lineHeight = Globals::fontManager.get("dialog").lineHeight * 0.045f;
+
+	Surface* surface;
+	surface = m_switchUI->addChild<Surface>();
+	surface->setPosition(0.0f, 1.0f - (position + 1) * invLimiter);
+	surface->setScale(1.0f, invLimiter);
+	surface->updateWorldTransformation();
+	surface->setShader(Globals::shaderManager.getAssetPointer("list"));
+	surface->setColor(Vector4f(0.78431f, 0.78431f, 0.78431f, 1.0f));
+	surface->setEdge(position == 0 ? Edge::TOP : position == std::min(m_visibleItems, m_currentMax - m_currentOffset) - 1 ? Edge::BOTTOM : Edge::EDGE_NONE);
+	surface->setBorderRadius(5.0f);
+
+	Icon* icon; Label* label; BarUI* bar;
+	for (size_t index = m_currentOffset; index < m_currentOffset + std::min(m_visibleItems, m_currentMax - m_currentOffset); index++) {
+		const TextureRect& iconRect = iconRects[MonsterIndex::MonsterData[m_filteredMonsters[index].get().name].graphic];
+		icon = m_switchUI->addChild<Icon>(iconRect);
+		icon->setPosition(0.0f, 1.0f - (index - m_currentOffset + 1) * invLimiter + 0.5 * invLimiter);
+		icon->translateRelative(10.0f + 0.5f * iconRect.width, 0.0f);
+		icon->setAligned(true);
+		icon->setSpriteSheet(TileSetManager::Get().getTileSet("monster_icon").getAtlas());
+
+		label = m_switchUI->addChild<Label>(Globals::fontManager.get("dialog"));
+		label->setPosition(0.0f, 1.0f - (index - m_currentOffset + 1) * invLimiter + 0.5 * invLimiter);
+		label->translateRelative(90.0f, -lineHeight * 0.5);
+		label->setScale(1.0f, 1.0f);
+		label->setSize(0.045f);
+		label->setLabel(m_filteredMonsters[index].get().name + " " + "(" + std::to_string(m_filteredMonsters[index].get().level) + ")");
+		label->setTextColor(index == m_currentSelectedOption ? Vector4f(0.94117f, 0.19215f, 0.19215f, 1.0f) : Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
+
+		bar = m_switchUI->addChild<BarUI>(TileSetManager::Get().getTileSet("monster_icon").getTextureRects()[16]);
+		bar->setPosition(0.0f, 1.0f - (index - m_currentOffset + 1) * invLimiter + 0.5 * invLimiter);
+		bar->translateRelative(90.0f, -lineHeight * 0.5 - 9.0f);
+		bar->updateWorldTransformation();
+		bar->setRadius(0.0f);
+		bar->setBgColor(Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
+		bar->setColor(Vector4f(0.94117f, 0.19215f, 0.19215f, 1.0f));
+		bar->setWidth(100.0f);
+		bar->setHeight(5.0f);
+		bar->setMaxValue(static_cast<float>(m_filteredMonsters[index].get().level * MonsterIndex::MonsterData[m_filteredMonsters[index].get().name].maxHealth));
+		bar->setValue(m_filteredMonsters[index].get().health);
+
+		bar = m_switchUI->addChild<BarUI>(TileSetManager::Get().getTileSet("monster_icon").getTextureRects()[16]);
+		bar->setPosition(0.0f, 1.0f - (index - m_currentOffset + 1) * invLimiter + 0.5 * invLimiter);
+		bar->translateRelative(90.0f, -lineHeight * 0.5 - 16.0f);
+		bar->updateWorldTransformation();
+		bar->setRadius(0.0f);
+		bar->setBgColor(Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
+		bar->setColor(Vector4f(0.4f, 0.84313f, 0.93333f, 1.0f));
+		bar->setWidth(100.0f);
+		bar->setHeight(5.0f);
+		bar->setMaxValue(static_cast<float>(m_filteredMonsters[index].get().level * MonsterIndex::MonsterData[m_filteredMonsters[index].get().name].maxEnergy));
+		bar->setValue(m_filteredMonsters[index].get().energy);
+	}
+}
+
+void Battle::eraseMonsters() {
+	m_switchUI->eraseAllChildren();
 }

@@ -87,18 +87,6 @@ void Object2D::rotate(const float degrees) {
 	m_orientation += degrees;
 }
 
-void Object2D::translateRelative(const Vector2f& trans) {
-
-	float angle = m_orientation * HALF_PI_ON_180;
-	float cos = cosf(angle);
-	float sin = sinf(angle);
-
-	float dx = trans[0] * cos - trans[1] * sin;
-	float dy = trans[0] * sin + trans[1] * cos;
-
-	m_position += Vector2f(dx, dy);
-}
-
 void Object2D::translateRelative(const float _dx, const float _dy) {
 
 	float angle = m_orientation * HALF_PI_ON_180;
@@ -110,6 +98,10 @@ void Object2D::translateRelative(const float _dx, const float _dy) {
 
 	m_position[0] += dx;
 	m_position[1] += dy;
+}
+
+void Object2D::translateRelative(const Vector2f& trans) {
+	translateRelative(trans[0], trans[1]);
 }
 
 void Object2D::scale(const Vector2f &scale) {

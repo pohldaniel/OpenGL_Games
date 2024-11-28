@@ -162,7 +162,7 @@ void Evolve::initUI(float viewWidth, float viewHeight) {
 	iconAnimated->setShader(Globals::shaderManager.getAssetPointer("evolve"));
 	iconAnimated->setSpriteSheet(TileSetManager::Get().getTileSet("monster").getAtlas());
 	iconAnimated->setName("icon");
-	iconAnimated->setAlign(true);
+	iconAnimated->setAligned(true);
 
 	
 	float lineHeight = Globals::fontManager.get("bold").lineHeight * 0.05f;
@@ -187,5 +187,5 @@ void Evolve::initUI(float viewWidth, float viewHeight) {
 	iconAnimated->setPosition(0.5f * m_viewWidth, 0.5f * m_viewHeight);
 	iconAnimated->setScale(2.0f, 2.0f);
 	iconAnimated->updateWorldTransformation();
-	iconAnimated->setAlign(true);
+	iconAnimated->setAligned(true);
 }

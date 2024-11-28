@@ -16,7 +16,7 @@ public:
 	void setColor(const Vector4f& color);
 	void setShader(Shader* shader);
 	void setSpriteSheet(const unsigned int& spriteSheet);
-	void setAlign(bool align);
+	void setAligned(bool aligned);
 	void setFlipped(bool flipped);
 
 private:
@@ -27,7 +27,7 @@ private:
 	Vector4f m_color;
 	Shader* m_shader;
 	unsigned int m_spriteSheet;	
-	bool m_align;
+	bool m_aligned;
 	bool m_flipped;
 };
 
@@ -44,7 +44,7 @@ public:
 	void setShader(Shader* shader);
 	void setSpriteSheet(const unsigned int& spriteSheet);
 	void setCurrentFrame(const int currentFrame);
-	void setAlign(bool align);
+	void setAligned(bool aligned);
 	void setFlipped(bool flipped);
 	void setOffsetX(const float offsetX);
 	void setOffsetY(const float offsetY);
@@ -58,7 +58,7 @@ private:
 	Shader* m_shader;
 	unsigned int m_spriteSheet;
 	int m_currentFrame;
-	bool m_align;
+	bool m_aligned;
 	bool m_flipped;
 	float m_offsetX, m_offsetY;
 };

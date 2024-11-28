@@ -353,12 +353,7 @@ void WidgetMH::translate(const float dx, const float dy) {
 }
 
 void WidgetMH::translateRelative(const Vector2f& trans) {
-	if (m_parent) {
-		Sprite::translateRelative(trans * Vector2f::Inverse(static_cast<WidgetMH*>(m_parent)->getWorldScale()));
-	}else {
-		Sprite::translateRelative(trans);
-	}
-	OnTransformChanged();
+	translateRelative(trans[0], trans[1]);
 }
 
 void WidgetMH::translateRelative(const float dx, const float dy) {
@@ -387,13 +382,11 @@ void WidgetMH::scale(const float s) {
 }
 
 void WidgetMH::scaleAbsolute(const Vector2f& scale) {
-	if (m_parent) {
-		const Vector2f invScale = Vector2f::Inverse(static_cast<WidgetMH*>(m_parent)->getWorldScale());
-		Sprite::scale(scale * invScale);
-	}else {
-		Sprite::scale(scale);
-	}
-	OnTransformChanged();
+	scaleAbsolute(scale[0], scale[1]);
+}
+
+void WidgetMH::scaleAbsolute(const float s) {
+	scaleAbsolute(s, s);
 }
 
 void WidgetMH::scaleAbsolute(const float sx, const float sy) {
@@ -402,16 +395,6 @@ void WidgetMH::scaleAbsolute(const float sx, const float sy) {
 		Sprite::scale(sx * invScale[0], sy * invScale[1]);
 	}else {
 		Sprite::scale(sx, sy);
-	}
-	OnTransformChanged();
-}
-
-void WidgetMH::scaleAbsolute(const float s) {
-	if (m_parent) {
-		const Vector2f invScale = Vector2f::Inverse(static_cast<WidgetMH*>(m_parent)->getWorldScale());
-		Sprite::scale(s * invScale[0], s * invScale[1]);
-	}else {
-		Sprite::scale(s);
 	}
 	OnTransformChanged();
 }
