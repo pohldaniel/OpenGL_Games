@@ -58,6 +58,8 @@ private:
 	void opponentAttack();
 	void exit();
 	void initUI();
+	void eraseAbilities();
+	void addAbilities();
 
 	bool m_initUi = true;
 	bool m_drawUi = false;

@@ -294,9 +294,9 @@ void Battle::render() {
 		}
 	}
 
-	if (m_playAbility) {		
+	if (m_playAbility) 		
 		drawAbilityAnimation(m_abilityPosX, m_abilityPosY);
-	}
+	
 	
 	if(m_drawGeneralUi)
 		drawGeneral();
@@ -459,46 +459,16 @@ void Battle::drawAttacks() {
 
 	height = limiter <= 1  ? 50.0f : limiter == 2  ? 100.0f : limiter == 3 ? 150.0f : 200.0f;
 
-	auto shader = Globals::shaderManager.getAssetPointer("list");
-	shader->use();
-	shader->loadVector("u_dimensions", Vector2f(width, height));
-	shader->loadFloat("u_radius", 5.0f);
-	shader->loadUnsignedInt("u_edge", Edge::ALL);
+	eraseAbilities();
+	addAbilities();
 
-	m_surface.setShader(shader);
-	m_surface.setPosition(cell.posX + cell.width + 20.0f, cell.posY + 0.5f * cell.height - 0.5f * height);
-	m_surface.setScale(width, height);
-	m_surface.draw();
-	
-	int index = 0;	
-	for (auto& ability = m_abilitiesFiltered.begin() + m_currentOffset; ability != m_abilitiesFiltered.begin() + m_currentOffset + std::min(m_visibleItems, m_currentMax - m_currentOffset); ++ability){
-		
-		if (index == m_currentSelectedOption - m_currentOffset) {
+	m_atacksUI->setPosition(cell.posX + cell.width + 20.0f, cell.posY + 0.5f * cell.height - 0.5f * height);
+	m_atacksUI->setScale(width, height);
+	m_atacksUI->draw();
 
-			if(index == 0)
-				shader->loadUnsignedInt("u_edge", Edge::TOP);
-			else if (index == m_visibleItems - 1)
-				shader->loadUnsignedInt("u_edge", Edge::BOTTOM);
-			else 
-				shader->loadUnsignedInt("u_edge", Edge::EDGE_NONE);
-			
-			shader->loadVector("u_dimensions", Vector2f(width, itemHeight));
-			m_surface.setPosition(cell.posX + cell.width + 20.0f, cell.posY + 0.5f * cell.height - 0.5f * height + height - (index + 1) * itemHeight);
-			m_surface.setScale(width, itemHeight);
-			m_surface.draw(Vector4f(0.78431f, 0.78431f, 0.78431f, 1.0f));
-		}
-
-		Fontrenderer::Get().addText(Globals::fontManager.get("dialog"),
-			cell.posX + cell.width + 20.0f + 0.5f * width - 0.5f * Globals::fontManager.get("dialog").getWidth((*ability).first) * 0.045f,
-			cell.posY + 0.5f * cell.height - 0.5f * height + height - (index + 1) * itemHeight + 0.5f * itemHeight - 0.5f * lineHeight,
-			(*ability).first,
-			(index == m_currentSelectedOption - m_currentOffset) ? 
-			MonsterIndex::_AttackData[(*ability).first].element == "normal" ? Vector4f(0.0f, 0.0f, 0.0f, 1.0f) : MonsterIndex::ColorMap[MonsterIndex::_AttackData[(*ability).first].element] 
-			: Vector4f(0.78431f, 0.78431f, 0.78431f, 1.0f), 0.045f);
-		index++;
+	for (auto& children : m_atacksUI->getChildren()) {
+		std::static_pointer_cast<IconAnimated>(children)->draw();
 	}
-	Globals::fontManager.get("dialog").bind();
-	Fontrenderer::Get().drawBuffer();
 }
 
 void Battle::drawSwitch() {
@@ -1061,11 +1031,6 @@ void Battle::initUI() {
 	m_abilityUI->setSpriteSheet(TileSetManager::Get().getTileSet("attacks").getAtlas());
 	m_abilityUI->setAlign(true);
 
-	//m_battleChoices.push_back({ {30.0f, 60.0f}, 0u });
-	//m_battleChoices.push_back({ {40.0f, 20.0f}, 1u });
-	//m_battleChoices.push_back({ {40.0f, -20.0f}, 2u });
-	//m_battleChoices.push_back({ {30.0f, -60.0f}, 3u });
-
 	m_generalUI = new Surface();
 	IconAnimated* iconAnimated = m_generalUI->addChild<IconAnimated>(TileSetManager::Get().getTileSet("battle_icon").getTextureRects());
 	iconAnimated->setSpriteSheet(TileSetManager::Get().getTileSet("battle_icon").getAtlas());
@@ -1088,5 +1053,52 @@ void Battle::initUI() {
 	iconAnimated->setPosition(30.0f, -60.0f);
 
 	m_atacksUI = new Surface(); 
+	
+	//m_atacksUI->updateWorldTransformation();
+	m_atacksUI->setShader(Globals::shaderManager.getAssetPointer("list"));
+	m_atacksUI->setName("right");
+	m_atacksUI->setBorderRadius(5.0f);
+	m_atacksUI->setEdge(Edge::ALL);
+	m_atacksUI->setColor(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+
+
 	m_switchUI = new Surface();
+}
+
+void Battle::addAbilities() {
+	Monster* currentMonster = m_monsters[m_currentSelectedMonster];
+	const Cell& cell = currentMonster->getCell();
+
+	float width = 150.0f;
+	float height = 200.0f;
+	int limiter = std::min(m_visibleItems, m_currentMax);
+	int position = m_currentSelectedOption - m_currentOffset;
+	float invLimiter = 1.0f / static_cast<float>(limiter);
+	float lineHeight = Globals::fontManager.get("dialog").lineHeight * 0.045f;
+
+	Surface* surface; 
+	surface = m_atacksUI->addChild<Surface>();
+	surface->setPosition(0.0f, 1.0f - (position + 1) * invLimiter);
+	surface->setScale(1.0f, invLimiter);
+	surface->updateWorldTransformation();
+	surface->setShader(Globals::shaderManager.getAssetPointer("list"));
+	surface->setColor(Vector4f(0.78431f, 0.78431f, 0.78431f, 1.0f));
+	surface->setEdge(position == 0 ? Edge::TOP : position == std::min(m_visibleItems, m_currentMax - m_currentOffset) - 1 ? Edge::BOTTOM : Edge::EDGE_NONE);
+
+	Label* label; int index = 0;
+	for (auto& ability = m_abilitiesFiltered.begin() + m_currentOffset; ability != m_abilitiesFiltered.begin() + m_currentOffset + std::min(m_visibleItems, m_currentMax - m_currentOffset); ++ability) {
+		label = m_atacksUI->addChild<Label>(Globals::fontManager.get("dialog"));
+		label->setPosition(0.5f, 1.0f - (index + 1) * invLimiter + 0.5 * invLimiter);
+		label->translateRelative(-0.5f * Globals::fontManager.get("dialog").getWidth((*ability).first) * 0.045f, -lineHeight * 0.5);
+		label->setScale(1.0f, 1.0f);
+		label->updateWorldTransformation();
+		label->setSize(0.045f);
+		label->setLabel((*ability).first);
+		label->setTextColor((index == m_currentSelectedOption - m_currentOffset) ? MonsterIndex::_AttackData[(*ability).first].element == "normal" ? Vector4f(0.0f, 0.0f, 0.0f, 1.0f) : MonsterIndex::ColorMap[MonsterIndex::_AttackData[(*ability).first].element] : Vector4f(0.78431f, 0.78431f, 0.78431f, 1.0f));
+		index++;
+	}
+}
+
+void Battle::eraseAbilities() {
+	m_atacksUI->eraseAllChildren();
 }
