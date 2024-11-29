@@ -457,7 +457,7 @@ void Monster::initUI() {
 	label->setLabel("Lvl " + std::to_string(monsterEntry.get().level));
 	label->setName("level");
 
-	BarUI* bar = addChild<BarUI>(TileSetManager::Get().getTileSet("monster_icon").getTextureRects()[16]);
+	BarUI* bar = addChild<BarUI>(TileSetManager::Get().getTileSet("bars"));
 	bar->translateRelative(-width * 0.5f + 16.0f, +96.0f - height * 0.5f + 40.0f - lvlHeight);
 	bar->updateWorldTransformation();
 	bar->setRadius(0.0f);
@@ -496,7 +496,7 @@ void Monster::initUI() {
 	surface->setBorderRadius(0.0f);
 	surface->setEdge(Edge::EDGE_NONE);
 
-	bar = addChild<BarUI>(TileSetManager::Get().getTileSet("monster_icon").getTextureRects()[16]);
+	bar = addChild<BarUI>(TileSetManager::Get().getTileSet("bars"));
 	bar->translateRelative(0.5f * rect.width - 75.0f, -20.0);
 	bar->updateWorldTransformation();
 	bar->setName("initiative");
@@ -507,8 +507,8 @@ void Monster::initUI() {
 	bar->setHeight(2.0f);
 	bar->setMaxValue(100.0f);
 	
-	bar = addChild<BarUI>(TileSetManager::Get().getTileSet("monster_icon").getTextureRects()[18]);
-	bar->translateRelative(0.5f * rect.width - 75.0f + 10.0f, -20.0f + 48.0f - lineHeightSmall - 4.0f);
+	bar = addChild<BarUI>(TileSetManager::Get().getTileSet("bars"));
+	bar->translateRelative(0.5f * rect.width - 75.0f + 10.0f, -20.0f + 48.0f - 2.0f * lineHeightSmall + 11.0f);
 	bar->updateWorldTransformation();
 	bar->setName("health");
 	bar->setRadius(0.0f);
@@ -519,8 +519,8 @@ void Monster::initUI() {
 	bar->setValue(monsterEntry.get().health);
 	bar->setMaxValue(m_maxHealth);
 
-	bar = addChild<BarUI>(TileSetManager::Get().getTileSet("monster_icon").getTextureRects()[18]);
-	bar->translateRelative(0.5f * rect.width - 75.0f + 10.0f, -20.0f + 48.0f - 2.0f * lineHeightSmall - 8.0f);
+	bar = addChild<BarUI>(TileSetManager::Get().getTileSet("bars"));
+	bar->translateRelative(0.5f * rect.width - 75.0f + 10.0f, -20.0f + 48.0f - 2.0f * lineHeightSmall - 10.0f);
 	bar->updateWorldTransformation();
 	bar->setName("energy");
 	bar->setRadius(0.0f);

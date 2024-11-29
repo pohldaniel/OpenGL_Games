@@ -198,7 +198,6 @@ void TextureAtlasCreator::getAtlas(unsigned int& textureRef) {
 	addFrame();
 	delete[] buffer;
 	buffer = nullptr;
-
 	Spritesheet::CreateSpritesheet(spritesheetPtr, width, height, frame, textureRef);
 
 	delete[] spritesheetPtr;
@@ -557,30 +556,30 @@ void TileSet::createBarRects(unsigned int width, unsigned int height, unsigned i
 	int widthBar = 1, offset = 0, l = 0;
 	
 	for (int k = 0; k < numBars; k++) {
-		m_textureRects.push_back({ (static_cast<float>(offset + k) + 0.5f) / static_cast<float>(width),
-								   (static_cast<float>(l + 6) - 0.5f) / static_cast<float>(height),
-								   (static_cast<float>(widthBar + 2) - 1.0f) / static_cast<float>(width),
-								   (static_cast<float>(7.0f) - 1.0f) / static_cast<float>(height),
+		m_textureRects.push_back({ static_cast<float>(offset + k) / static_cast<float>(width),
+								   static_cast<float>(l) / static_cast<float>(height),
+								   static_cast<float>(widthBar + 2) / static_cast<float>(width),
+								   static_cast<float>(7.0f) / static_cast<float>(height),
 								   static_cast<float>(widthBar + 2),
 								   7.0f,
 								   0u });
+
+
+
 			widthBar++;
 			offset += (widthBar);
 
 			if ((offset + widthBar + 1) * 4 + (widthBar + 1) * 4 >= width * 4) {
 				l += 7;
-				offset = -widthBar + 1;
-
-				
-					 
+				offset = -widthBar + 1;				 
 				if (l > height)
 					break;
 			}
 	}
 	
 	unsigned char* bytes = Texture::LoadFromFile("res/tmx/graphics/other/bars.png", false);
-	Spritesheet::CreateSpritesheet(bytes, width, height, 0u, m_atlas);
-	free(bytes);
+	Spritesheet::CreateSpritesheet(bytes, width, height, 1u, m_atlas);
+	free(bytes);	
 }
 
 ///////////////////////TileSetManager//////////////////////////

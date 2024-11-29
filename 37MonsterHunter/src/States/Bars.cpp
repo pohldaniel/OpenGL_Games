@@ -3,6 +3,8 @@
 #include <imgui_impl_opengl3.h>
 #include <imgui_internal.h>
 #include <States/Menu.h>
+#include <engine/TileSet.h>
+
 
 #include "Bars.h"
 #include "Application.h"
@@ -31,6 +33,9 @@ Bars::Bars(StateMachine& machine) : State(machine, States::DEFAULT) {
 		{ &Globals::textureManager.get("forest_4"), 1, 4.0f },
 		{ &Globals::textureManager.get("forest_5"), 1, 5.0f }});
 	m_background.setSpeed(0.005f);
+	
+	TileSetManager::Get().getTileSet("bars").createBarRects(1024u, 256u, 200u, 5u);
+	//TileSetManager::Get().getTileSet("bars").setLinearMipMap();
 }
 
 Bars::~Bars() {
@@ -84,6 +89,12 @@ void Bars::update() {
 		move |= true;
 	}
 
+	if (keyboard.keyDown(Keyboard::KEY_T)) {
+		index++;
+		if (index == 200)
+			index = 0;
+	}
+
 	Mouse &mouse = Mouse::instance();
 
 	if (mouse.buttonDown(Mouse::MouseButton::BUTTON_RIGHT)) {
@@ -107,8 +118,16 @@ void Bars::update() {
 void Bars::render() {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	m_background.draw();
+	const TextureRect& rect = TileSetManager::Get().getTileSet("bars").getTextureRects()[index];
+	TileSetManager::Get().getTileSet("bars").bind();
 
+	//std::cout << rect.textureOffsetX << "  " << rect.textureOffsetY << "  " << rect.textureWidth << "  " << rect.textureHeight << "  " << rect.width << "  " << rect.height << std::endl;
+
+	//m_sprite.draw(bgRect, Vector4f(1.0f, 0.0f, 0.0f, 1.0));
+	m_sprite.setPosition(static_cast<float>(Application::Width) * 0.5f, static_cast<float>(Application::Height) * 0.5f);
+	m_sprite.setScale(rect.width, rect.height);
+	//m_sprite.draw({0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0u}, Vector4f(1.0f, 1.0f, 1.0f, 1.0));
+	m_sprite.draw(rect, Vector4f(1.0f, 1.0f, 1.0f, 1.0));
 	if (m_drawUi)
 		renderUi();
 }
@@ -182,6 +201,7 @@ void Bars::renderUi() {
 	// render widgets
 	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 	ImGui::Checkbox("Draw Wirframe", &StateMachine::GetEnableWireframe());
+	ImGui::SliderInt("Bar", &index, 0, 199);
 	ImGui::End();
 
 	ImGui::Render();

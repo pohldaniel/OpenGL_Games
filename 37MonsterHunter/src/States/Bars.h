@@ -4,7 +4,7 @@
 #include <engine/input/KeyboardEventListener.h>
 #include <engine/Camera.h>
 #include <engine/Background.h>
-
+#include <engine/Sprite.h>
 #include <States/StateMachine.h>
 
 class Bars : public State, public MouseEventListener, public KeyboardEventListener {
@@ -34,4 +34,6 @@ private:
 
 	Camera m_camera;
 	Background m_background;
+	Sprite m_sprite;
+	int index = 0;
 };

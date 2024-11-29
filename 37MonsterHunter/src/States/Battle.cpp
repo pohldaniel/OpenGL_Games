@@ -1052,7 +1052,7 @@ void Battle::addMonsters() {
 		label->setLabel(m_filteredMonsters[index].get().name + " " + "(" + std::to_string(m_filteredMonsters[index].get().level) + ")");
 		label->setTextColor(index == m_currentSelectedOption ? Vector4f(0.94117f, 0.19215f, 0.19215f, 1.0f) : Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
 
-		bar = m_switchUI->addChild<BarUI>(TileSetManager::Get().getTileSet("monster_icon").getTextureRects()[16]);
+		bar = m_switchUI->addChild<BarUI>(TileSetManager::Get().getTileSet("bars"));
 		bar->setPosition(0.0f, 1.0f - (index - m_currentOffset + 1) * invLimiter + 0.5 * invLimiter);
 		bar->translateRelative(90.0f, -lineHeight * 0.5 - 9.0f);
 		bar->updateWorldTransformation();
@@ -1064,7 +1064,7 @@ void Battle::addMonsters() {
 		bar->setMaxValue(static_cast<float>(m_filteredMonsters[index].get().level * MonsterIndex::MonsterData[m_filteredMonsters[index].get().name].maxHealth));
 		bar->setValue(m_filteredMonsters[index].get().health);
 
-		bar = m_switchUI->addChild<BarUI>(TileSetManager::Get().getTileSet("monster_icon").getTextureRects()[16]);
+		bar = m_switchUI->addChild<BarUI>(TileSetManager::Get().getTileSet("bars"));
 		bar->setPosition(0.0f, 1.0f - (index - m_currentOffset + 1) * invLimiter + 0.5 * invLimiter);
 		bar->translateRelative(90.0f, -lineHeight * 0.5 - 16.0f);
 		bar->updateWorldTransformation();

@@ -530,9 +530,9 @@ void MonsterIndex::initUI(float viewWidth, float viewHeight) {
 	label->setTextColor(Vector4f(0.95686f, 0.99608f, 0.98039f, 1.0f));
 	label->setSize(0.045f);
 	
-	BarUI* bar = surface->addChild<BarUI>(TileSetManager::Get().getTileSet("monster_icon").getTextureRects()[18]);
+	BarUI* bar = surface->addChild<BarUI>(TileSetManager::Get().getTileSet("bars"));
 	bar->setPosition(0.0f, 0.0f);
-	bar->translateRelative(10.0f, 6.0f);
+	bar->translateRelative(10.0f, 4.0f);
 	bar->updateWorldTransformation();
 	bar->setName("level");
 	bar->setRadius(0.0f);
@@ -563,7 +563,7 @@ void MonsterIndex::initUI(float viewWidth, float viewHeight) {
 	label->setSize(0.045f);
 	label->setName("energy");
 
-	bar = surface->addChild<BarUI>(TileSetManager::Get().getTileSet("monster_icon").getTextureRects()[18]);
+	bar = surface->addChild<BarUI>(TileSetManager::Get().getTileSet("bars"));
 	bar->setPosition(0.025f, 0.5f);
 	bar->translateRelative(0.0f, 25.0f);
 	bar->updateWorldTransformation();
@@ -574,7 +574,7 @@ void MonsterIndex::initUI(float viewWidth, float viewHeight) {
 	bar->setWidth(m_viewWidth * 0.4f * 0.45f);
 	bar->setHeight(30.0f);
 
-	bar = surface->addChild<BarUI>(TileSetManager::Get().getTileSet("monster_icon").getTextureRects()[18]);
+	bar = surface->addChild<BarUI>(TileSetManager::Get().getTileSet("bars"));
 	bar->setPosition(0.525f, 0.5f);
 	bar->translateRelative(0.0f, 25.0f);
 	bar->updateWorldTransformation();
@@ -613,15 +613,15 @@ void MonsterIndex::initUI(float viewWidth, float viewHeight) {
 
 		label = surface->addChild<Label>(Globals::fontManager.get("dialog"));
 		label->setPosition(0.025f, 0.5f);
-		label->translateRelative(30.0f, -30.0f - i * statHeight - lineHeight * 0.4f);
+		label->translateRelative(30.0f, -30.0f - i * statHeight - lineHeight * 0.4f + 2.0f);
 		label->updateWorldTransformation();
 		label->setTextColor(Vector4f(0.95686f, 0.99608f, 0.98039f, 1.0f));
 		label->setSize(0.045f);
 		label->setLabel(m_stats[i]);
 
-		bar = surface->addChild<BarUI>(TileSetManager::Get().getTileSet("monster_icon").getTextureRects()[17]);
+		bar = surface->addChild<BarUI>(TileSetManager::Get().getTileSet("bars"));
 		bar->setPosition(0.025f, 0.5f);	
-		bar->translateRelative(30.0f, -37.5f - i * statHeight - lineHeight * 0.4f);		
+		bar->translateRelative(30.0f, -37.5f - i * statHeight - lineHeight * 0.4f + 2.0f);
 		bar->updateWorldTransformation();
 		bar->setName(m_stateLabels[i]);
 		bar->setRadius(0.0f);

@@ -1,12 +1,13 @@
 #pragma once
 #include <functional>
 #include <UI/WidgetMH.h>
+#include <engine/TileSet.h>
 
 class BarUI : public WidgetMH {
 
 public:
 
-	BarUI(const TextureRect& textureRect);
+	BarUI(const TileSet& tileSet);
 	BarUI(const BarUI& rhs);
 	BarUI(BarUI&& rhs);
 	virtual ~BarUI();
@@ -23,7 +24,7 @@ private:
 
 	void drawDefault() override;
 
-	const TextureRect& textureRect;
+	const TileSet& tileSet;
 	float m_value;
 	float m_maxValue;
 	float m_height;

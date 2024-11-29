@@ -98,6 +98,7 @@ MonsterHunter::MonsterHunter(StateMachine& machine) : State(machine, States::MON
 	});
 
 	TileSetManager::Get().getTileSet("bars").createBarRects(1024u, 256u, 200u, 5u);
+	//TileSetManager::Get().getTileSet("bars").setLinear();
 }
 
 MonsterHunter::~MonsterHunter() {
