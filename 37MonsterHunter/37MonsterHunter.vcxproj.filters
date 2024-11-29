@@ -498,6 +498,9 @@
     <ClCompile Include="src\UI\Bar.cpp">
       <Filter>Source Files\UI</Filter>
     </ClCompile>
+    <ClCompile Include="src\States\Bars.cpp">
+      <Filter>Source Files\States</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="convhull\convhull_3d.h">
@@ -952,6 +955,9 @@
     </ClInclude>
     <ClInclude Include="src\UI\Bar.h">
       <Filter>Source Files\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\States\Bars.h">
+      <Filter>Source Files\States</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

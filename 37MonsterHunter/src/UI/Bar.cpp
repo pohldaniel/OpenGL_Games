@@ -66,6 +66,7 @@ void BarUI::drawDefault() {
 	float progress = std::max(0.0f, std::min(m_width, m_value * ratio));
 
 	if (m_radius != 0.0f) {
+	
 		Sprite::setShader(Globals::shaderManager.getAssetPointer("list"));
 		auto shader = Sprite::getShader();
 		shader->use();
@@ -73,15 +74,28 @@ void BarUI::drawDefault() {
 		shader->loadUnsignedInt("u_edge", Edge::ALL);
 
 		shader->loadVector("u_dimensions", Vector2f(m_width, m_height));
-		Sprite::draw2(m_bgColor, getWorldTransformationWithScale(m_width, m_height, 1.0f));
+		Sprite::draw2(m_bgColor, getWorldTransformationWithScale(m_width, m_height));
 
 		shader->loadVector("u_dimensions", Vector2f(progress, m_height));
-		Sprite::draw2(m_color, getWorldTransformationWithScale(progress, m_height, 1.0f));
-
+		Sprite::draw2(m_color, getWorldTransformationWithScale(progress, m_height));
+		
 	}else {
-		TileSetManager::Get().getTileSet("monster_icon").bind();
-		Sprite::resetShader();
-		Sprite::draw2(textureRect, m_bgColor, getWorldTransformationWithScale(m_width, m_height, 1.0f));
-		Sprite::draw2(textureRect, m_color, getWorldTransformationWithScale(progress, m_height, 1.0f));
+
+		if (m_height == 5.0f) {
+
+			const TextureRect& bgRect = TileSetManager::Get().getTileSet("bars").getTextureRects()[static_cast<int>(m_width)];
+			const TextureRect& rect = TileSetManager::Get().getTileSet("bars").getTextureRects()[static_cast<int>(progress)];
+			TileSetManager::Get().getTileSet("bars").bind();
+			//std::cout << static_cast<int>(m_width) << "  " << static_cast<int>(progress) << std::endl;
+
+			Sprite::draw2(bgRect, m_bgColor, getWorldTransformationWithScale(m_width, m_height));
+			Sprite::draw2(rect, m_color, getWorldTransformationWithScale(progress, m_height));
+
+		}else {
+			TileSetManager::Get().getTileSet("monster_icon").bind();
+			Sprite::resetShader();
+			Sprite::draw2(textureRect, m_bgColor, getWorldTransformationWithScale(m_width, m_height));
+			Sprite::draw2(textureRect, m_color, getWorldTransformationWithScale(progress, m_height));
+		}
 	}
 }

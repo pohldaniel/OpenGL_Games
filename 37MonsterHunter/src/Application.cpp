@@ -18,6 +18,7 @@
 #include <States/Default.h>
 #include <States/Tmx.h>
 #include <States/MonsterHunter.h>
+#include <States/Bars.h>
 
 #include "Application.h"
 #include "Globals.h"
@@ -422,7 +423,8 @@ void Application::initStates() {
 	//Machine->addStateAtTop(new Menu(*Machine));
 	//Machine->addStateAtTop(new Default(*Machine));
 	//Machine->addStateAtTop(new Tmx(*Machine));
-	Machine->addStateAtTop(new MonsterHunter(*Machine));
+	//Machine->addStateAtTop(new MonsterHunter(*Machine));
+	Machine->addStateAtTop(new Bars(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {

@@ -230,6 +230,7 @@
     <ClCompile Include="src\Fade.cpp" />
     <ClCompile Include="src\LoadingManager.cpp" />
     <ClCompile Include="src\MonsterIndex.cpp" />
+    <ClCompile Include="src\States\Bars.cpp" />
     <ClCompile Include="src\States\Battle.cpp" />
     <ClCompile Include="src\States\Controls.cpp" />
     <ClCompile Include="src\States\Default.cpp" />
@@ -426,6 +427,7 @@
     <ClInclude Include="src\Globals.h" />
     <ClInclude Include="src\LoadingManager.h" />
     <ClInclude Include="src\MonsterIndex.h" />
+    <ClInclude Include="src\States\Bars.h" />
     <ClInclude Include="src\States\Battle.h" />
     <ClInclude Include="src\States\Controls.h" />
     <ClInclude Include="src\States\Default.h" />

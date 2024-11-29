@@ -78,6 +78,8 @@ public:
 	void setLinear();
 	void setLinearMipMap();
 
+	void createBarRects(unsigned int width, unsigned int height, unsigned int numBars, unsigned int heightBar);
+
 private:
 
 	unsigned int m_atlas;

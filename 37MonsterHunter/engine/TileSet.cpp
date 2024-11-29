@@ -329,18 +329,18 @@ void TileSet::loadTileSetCpu(std::string mapPath, std::string texturePath, bool 
 			float srcRectY = (id / tileCountX) * tileSize;
 
 			if (!flipTextureRects) {
-				textureRects.push_back({ (srcRectX + 0.0005f) / static_cast<float>(imageWidth),
-										   (static_cast<float>(imageHeight) - (srcRectY + tileHeight - 0.0005f)) / static_cast<float>(imageHeight),
-										   (tileWidth - 0.0005f) / static_cast<float>(imageWidth),
-										   tileHeight / static_cast<float>(imageHeight),
+				textureRects.push_back({ (srcRectX + 0.5f) / static_cast<float>(imageWidth),
+										   (static_cast<float>(imageHeight) - (srcRectY + tileHeight - 0.5f)) / static_cast<float>(imageHeight),
+										   (tileWidth - 1.0f) / static_cast<float>(imageWidth),
+										   (tileHeight - 1.0f) / static_cast<float>(imageHeight),
 										   tileWidth,
 										   tileHeight,
 										   0u });
 			}else {
-				textureRects.push_back({ (srcRectX + 0.0005f) / static_cast<float>(imageWidth),
-										   (static_cast<float>(imageHeight) - srcRectY - 0.0005f) / static_cast<float>(imageHeight),
-										   (tileWidth - 0.0005f) / static_cast<float>(imageWidth),
-										   -tileHeight / static_cast<float>(imageHeight),
+				textureRects.push_back({ (srcRectX + 0.5f) / static_cast<float>(imageWidth),
+										   (static_cast<float>(imageHeight) - srcRectY - 0.5f) / static_cast<float>(imageHeight),
+										   (tileWidth - 1.0f) / static_cast<float>(imageWidth),
+										   (1.0f - tileHeight) / static_cast<float>(imageHeight),
 										   tileWidth,
 										   tileHeight,
 										   0u });
@@ -350,6 +350,7 @@ void TileSet::loadTileSetCpu(std::string mapPath, std::string texturePath, bool 
 	delete[] ids;
 
 	TextureAtlasCreator::Get().addTexture(bytes, imageWidth, imageHeight, textureRects, false, 0u, 0u, m_textureRects);
+	free(bytes);
 }
 
 void TileSet::loadTileSetCpu(std::string texturePath, bool init, float tileWidth, float tileHeight, bool flipVertical, bool flipTextureRects) {
@@ -392,6 +393,7 @@ void TileSet::loadTileSetCpu(std::string texturePath, bool init, float tileWidth
 		}
 	}
 	TextureAtlasCreator::Get().addTexture(bytes, imageWidth, imageHeight, textureRects, false, 0u, 0u, m_textureRects);
+	free(bytes);
 }
 
 void TileSet::loadTileCpu(std::string texturePath, bool init, bool flipVertical, bool flipTextureRects) {
@@ -549,6 +551,36 @@ void TileSet::setLinear() {
 
 void TileSet::setLinearMipMap() {
 	Spritesheet::SetFilter(m_atlas, GL_LINEAR_MIPMAP_LINEAR);
+}
+
+void TileSet::createBarRects(unsigned int width, unsigned int height, unsigned int numBars, unsigned int heightBar) {
+	int widthBar = 1, offset = 0, l = 0;
+	
+	for (int k = 0; k < numBars; k++) {
+		m_textureRects.push_back({ (static_cast<float>(offset + k) + 0.5f) / static_cast<float>(width),
+								   (static_cast<float>(l + 6) - 0.5f) / static_cast<float>(height),
+								   (static_cast<float>(widthBar + 2) - 1.0f) / static_cast<float>(width),
+								   (static_cast<float>(7.0f) - 1.0f) / static_cast<float>(height),
+								   static_cast<float>(widthBar + 2),
+								   7.0f,
+								   0u });
+			widthBar++;
+			offset += (widthBar);
+
+			if ((offset + widthBar + 1) * 4 + (widthBar + 1) * 4 >= width * 4) {
+				l += 7;
+				offset = -widthBar + 1;
+
+				
+					 
+				if (l > height)
+					break;
+			}
+	}
+	
+	unsigned char* bytes = Texture::LoadFromFile("res/tmx/graphics/other/bars.png", false);
+	Spritesheet::CreateSpritesheet(bytes, width, height, 0u, m_atlas);
+	free(bytes);
 }
 
 ///////////////////////TileSetManager//////////////////////////

@@ -96,6 +96,8 @@ MonsterHunter::MonsterHunter(StateMachine& machine) : State(machine, States::MON
 			m_dialogTree.setFinished(true);
 		}
 	});
+
+	TileSetManager::Get().getTileSet("bars").createBarRects(1024u, 256u, 200u, 5u);
 }
 
 MonsterHunter::~MonsterHunter() {
