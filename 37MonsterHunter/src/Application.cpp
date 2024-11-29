@@ -52,7 +52,7 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	Height = HEIGHT;
 
 	createWindow();
-	initOpenGL(16);
+	initOpenGL(0);
 	showWindow();
 	initImGUI();
 	//initOpenAL();

@@ -69,8 +69,8 @@ void BarUI::drawDefault() {
 		const TextureRect& bgRect = tileSet.getTextureRects()[static_cast<int>(m_width) - 1];
 		const TextureRect& rect = tileSet.getTextureRects()[std::max(static_cast<int>(progress) - 1, 0)];
 		tileSet.bind();
-		Sprite::draw2(bgRect, m_bgColor, getWorldTransformationWithScale(m_width, m_height + 2.0f));
-		Sprite::draw2(rect, m_color, getWorldTransformationWithScale(progress, m_height + 2.0f));
+		Sprite::draw2(bgRect, m_bgColor, getWorldTransformationWithScale(bgRect.width, bgRect.height));
+		Sprite::draw2(rect, m_color, getWorldTransformationWithScale(progress == 0.0f ? 0.0f : rect.width, rect.height));
 
 	}else {
 
