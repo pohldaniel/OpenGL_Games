@@ -44,7 +44,8 @@ m_catchMonster(false),
 m_canSwitch(true),
 m_alpha(0.0f),
 m_fade(m_alpha),
-m_canCatch(true)
+m_canCatch(true),
+m_rotate(false)
 {
 
 	m_viewWidth = 1280.0f;
@@ -193,6 +194,10 @@ void Battle::update() {
 		move |= true;
 	}
 
+	if (keyboard.keyPressed(Keyboard::KEY_R)) {
+		m_rotate = !m_rotate;
+	}
+
 	if (keyboard.keyPressed(Keyboard::KEY_T)) {
 		exit();
 	}
@@ -278,6 +283,9 @@ void Battle::update() {
 	}
 	removeDefeteadMonster();
 	
+	if (m_rotate) {
+		rotate(10.0f * m_dt);
+	}
 }
 
 void Battle::render() {
@@ -938,6 +946,7 @@ void Battle::setBiomeBackground(const std::string& biomeBackground) {
 void Battle::initUI() {
 	setSpriteSheet(TileSetManager::Get().getTileSet("backgrounds").getAtlas());
 	scale(BackgroundRect.width, BackgroundRect.height);	
+	setOrigin(static_cast<float>(Application::Width) * 0.5f, static_cast<float>(Application::Height) * 0.5f);
 
 	m_abilityUI = new IconAnimated(TileSetManager::Get().getTileSet("attacks").getTextureRects());
 	m_abilityUI->setSpriteSheet(TileSetManager::Get().getTileSet("attacks").getAtlas());

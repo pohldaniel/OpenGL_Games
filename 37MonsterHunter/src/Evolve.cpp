@@ -6,6 +6,7 @@
 #include "Evolve.h"
 #include "Globals.h"
 #include "MonsterIndex.h"
+#include "Application.h"
 
 Evolve::Evolve() :
 m_elapsedTime(0.0f),
@@ -15,7 +16,8 @@ m_fadeValue(0.0f),
 m_fade(m_fadeValue),
 m_displayStar(false),
 m_progress(0.0f),
-m_curentMonsterIndex(-1)
+m_curentMonsterIndex(-1),
+m_rotate(false)
 {
 	m_atlasMonster = TileSetManager::Get().getTileSet("monster").getAtlas();
 	m_fade.setTransitionSpeed(0.31372f);
@@ -91,6 +93,14 @@ void Evolve::update(float dt) {
 		iconAnimated->setCurrentFrame(m_currentFrame);
 		iconAnimated->setColor(Vector4f(1.0f, 1.0f, 1.0f, 1.0f - m_progress));
 	}
+
+	Keyboard &keyboard = Keyboard::instance();
+	if (keyboard.keyPressed(Keyboard::KEY_R)) {
+		m_rotate = !m_rotate;
+	}
+
+	if (m_rotate)
+		rotate(10.0f * dt);
 }
 
 void Evolve::startEvolution() {
@@ -154,7 +164,8 @@ void Evolve::setCurentMonsterIndex(int curentMonsterIndex) {
 }
 
 void Evolve::initUI(float viewWidth, float viewHeight) {
-	
+	setOrigin(static_cast<float>(Application::Width) * 0.5f, static_cast<float>(Application::Height) * 0.5f);
+
 	IconAnimated* iconAnimated = addChild<IconAnimated>(TileSetManager::Get().getTileSet("monster").getTextureRects());
 	iconAnimated->setPosition(0.5f * m_viewWidth, 0.5f * m_viewHeight);
 	iconAnimated->setScale(2.0f, 2.0f);

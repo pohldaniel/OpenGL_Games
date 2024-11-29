@@ -68,6 +68,7 @@ private:
 	bool m_playAbility;
 	bool m_drawGeneralUi, m_drawAtacksUi, m_drawSwitchUi, m_drawTargetUI, m_removeDefeteadMonster, m_catchMonster, m_canSwitch, m_canCatch;
 	bool m_exit;
+	bool m_rotate;
 
 	Camera m_camera;
 	float m_viewWidth;

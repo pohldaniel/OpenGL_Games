@@ -38,6 +38,7 @@ private:
 	bool m_displayStar;
 	Fade m_fade;
 	Timer m_exitTimer;
+	bool m_rotate;
 
 	std::function<void()> OnEvolveEnd;
 };
