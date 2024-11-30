@@ -6,15 +6,6 @@
 
 #include "MonsterIndex.h"
 
-struct Bar {
-	Rect rect;
-	TextureRect textureRect;
-	float value;
-	float maxValue;
-	Vector4f bgColor;
-	Vector4f color;
-};
-
 class Monster : public SpriteEntity, public Surface {
 
 public:

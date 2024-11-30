@@ -10,6 +10,7 @@
 #include <States/StateMachine.h>
 #include <Entities/Monster.h>
 #include <UI/Icon.h>
+#include <UI/Empty.h>
 
 #include "MonsterIndex.h"
 #include "Fade.h"
@@ -90,8 +91,8 @@ private:
 	std::vector<MonsterEntry> m_opponentMonsters;
 	std::vector<Monster*> m_monsters;
 	IconAnimated* m_abilityUI;
-	Surface *m_generalUI, *m_atacksUI, *m_switchUI;
-
+	Empty *m_generalUI;
+	Surface *m_atacksUI, *m_switchUI;
 	std::vector<std::array<float, 2>> positions;
 	std::vector<std::array<float, 2>> centers;
 	std::vector<BattleChoice> m_battleChoices;

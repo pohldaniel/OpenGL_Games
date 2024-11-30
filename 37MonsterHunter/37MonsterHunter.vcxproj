@@ -240,6 +240,7 @@
     <ClCompile Include="src\States\Tmx.cpp" />
     <ClCompile Include="src\Timer.cpp" />
     <ClCompile Include="src\UI\Bar.cpp" />
+    <ClCompile Include="src\UI\Empty.cpp" />
     <ClCompile Include="src\UI\Icon.cpp" />
     <ClCompile Include="src\UI\Label.cpp" />
     <ClCompile Include="src\UI\Surface.cpp" />
@@ -437,6 +438,7 @@
     <ClInclude Include="src\States\Tmx.h" />
     <ClInclude Include="src\Timer.h" />
     <ClInclude Include="src\UI\Bar.h" />
+    <ClInclude Include="src\UI\Empty.h" />
     <ClInclude Include="src\UI\Icon.h" />
     <ClInclude Include="src\UI\Label.h" />
     <ClInclude Include="src\UI\Surface.h" />

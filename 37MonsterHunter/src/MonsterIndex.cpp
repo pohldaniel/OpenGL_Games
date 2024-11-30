@@ -97,7 +97,7 @@ m_rotate(false){
 	}
 	file.close();
 
-	Monsters.push_back({ "Friolera", 2u , 3.0f, 200.0f, 0.0f, false });
+	Monsters.push_back({ "Friolera", 25u , 3.0f, 200.0f, 0.0f, false });
 	Monsters.push_back({ "Atrox", 30u , 3.0f, 15.0f, 0.0f, false });
 	//Monsters.push_back({ "Sparchu", 24u , 3.0f, 30.0f, 0.0f, false });
 	Monsters.push_back({ "Sparchu", 34u , 3.0f, 30.0f, 0.0f, false });
@@ -294,39 +294,39 @@ void MonsterIndex::update(float dt) {
 	findChild<Surface>("top-right")->setColor(ColorMap[MonsterData[currentMonster.name].element]);
 	findChild<IconAnimated>("icon")->setCurrentFrame(MonsterData[currentMonster.name].graphic * 16 + m_currentFrame);
 
-	BarUI* bar = findChild<BarUI>(m_stateLabels[0]);
+	Bar* bar = findChild<Bar>(m_stateLabels[0]);
 	bar->setValue(static_cast<float>(currentMonster.level * MonsterData[currentMonster.name].maxHealth));
 	bar->setMaxValue(static_cast<float>(static_cast<float>(currentMonster.level * m_maxStats[m_stats[0]])));
 
-	bar = findChild<BarUI>(m_stateLabels[1]);
+	bar = findChild<Bar>(m_stateLabels[1]);
 	bar->setValue(static_cast<float>(currentMonster.level * MonsterData[currentMonster.name].maxEnergy));
 	bar->setMaxValue(static_cast<float>(static_cast<float>(currentMonster.level * m_maxStats[m_stats[1]])));
 
-	bar = findChild<BarUI>(m_stateLabels[2]);
+	bar = findChild<Bar>(m_stateLabels[2]);
 	bar->setValue(static_cast<float>(currentMonster.level * MonsterData[currentMonster.name].attack));
 	bar->setMaxValue(static_cast<float>(static_cast<float>(currentMonster.level * m_maxStats[m_stats[2]])));
 
-	bar = findChild<BarUI>(m_stateLabels[3]);
+	bar = findChild<Bar>(m_stateLabels[3]);
 	bar->setValue(static_cast<float>(currentMonster.level * MonsterData[currentMonster.name].defense));
 	bar->setMaxValue(static_cast<float>(static_cast<float>(currentMonster.level * m_maxStats[m_stats[3]])));
 
-	bar = findChild<BarUI>(m_stateLabels[4]);
+	bar = findChild<Bar>(m_stateLabels[4]);
 	bar->setValue(static_cast<float>(currentMonster.level * MonsterData[currentMonster.name].speed));
 	bar->setMaxValue(static_cast<float>(static_cast<float>(currentMonster.level * m_maxStats[m_stats[4]])));
 
-	bar = findChild<BarUI>(m_stateLabels[5]);
+	bar = findChild<Bar>(m_stateLabels[5]);
 	bar->setValue(static_cast<float>(currentMonster.level * MonsterData[currentMonster.name].recovery));
 	bar->setMaxValue(static_cast<float>(static_cast<float>(currentMonster.level * m_maxStats[m_stats[5]])));
 	
-	bar = findChild<BarUI>("level");
+	bar = findChild<Bar>("level");
 	bar->setValue(currentMonster.experience);
 	bar->setMaxValue(currentMonster.level * 150.0f);
 
-	bar = findChild<BarUI>("health");
+	bar = findChild<Bar>("health");
 	bar->setValue(currentMonster.health);
 	bar->setMaxValue(static_cast<float>(currentMonster.level * MonsterData[currentMonster.name].maxHealth));
 
-	bar = findChild<BarUI>("energy");
+	bar = findChild<Bar>("energy");
 	bar->setValue(currentMonster.energy);
 	bar->setMaxValue(static_cast<float>(currentMonster.level * MonsterData[currentMonster.name].maxEnergy));
 
@@ -530,7 +530,7 @@ void MonsterIndex::initUI(float viewWidth, float viewHeight) {
 	label->setTextColor(Vector4f(0.95686f, 0.99608f, 0.98039f, 1.0f));
 	label->setSize(0.045f);
 	
-	BarUI* bar = surface->addChild<BarUI>(TileSetManager::Get().getTileSet("bars"));
+	Bar* bar = surface->addChild<Bar>(TileSetManager::Get().getTileSet("bars"));
 	bar->setPosition(0.0f, 0.0f);
 	bar->translateRelative(10.0f, 4.0f);
 	bar->updateWorldTransformation();
@@ -563,7 +563,7 @@ void MonsterIndex::initUI(float viewWidth, float viewHeight) {
 	label->setSize(0.045f);
 	label->setName("energy");
 
-	bar = surface->addChild<BarUI>(TileSetManager::Get().getTileSet("bars"));
+	bar = surface->addChild<Bar>(TileSetManager::Get().getTileSet("bars"));
 	bar->setPosition(0.025f, 0.5f);
 	bar->translateRelative(0.0f, 25.0f);
 	bar->updateWorldTransformation();
@@ -574,7 +574,7 @@ void MonsterIndex::initUI(float viewWidth, float viewHeight) {
 	bar->setWidth(m_viewWidth * 0.4f * 0.45f);
 	bar->setHeight(30.0f);
 
-	bar = surface->addChild<BarUI>(TileSetManager::Get().getTileSet("bars"));
+	bar = surface->addChild<Bar>(TileSetManager::Get().getTileSet("bars"));
 	bar->setPosition(0.525f, 0.5f);
 	bar->translateRelative(0.0f, 25.0f);
 	bar->updateWorldTransformation();
@@ -619,7 +619,7 @@ void MonsterIndex::initUI(float viewWidth, float viewHeight) {
 		label->setSize(0.045f);
 		label->setLabel(m_stats[i]);
 
-		bar = surface->addChild<BarUI>(TileSetManager::Get().getTileSet("bars"));
+		bar = surface->addChild<Bar>(TileSetManager::Get().getTileSet("bars"));
 		bar->setPosition(0.025f, 0.5f);	
 		bar->translateRelative(30.0f, -37.5f - i * statHeight - lineHeight * 0.4f + 2.0f);
 		bar->updateWorldTransformation();

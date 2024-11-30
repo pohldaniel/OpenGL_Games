@@ -3,11 +3,11 @@
 #include "Globals.h"
 #include "Surface.h"
 
-BarUI::BarUI(const TileSet& tileSet) : WidgetMH(), tileSet(tileSet), m_color(Vector4f::ONE), m_bgColor(0.0f, 0.0f, 0.0f, 1.0f),  m_height(5.0f), m_radius(5.0f), m_width(200.0f), m_value(0.0f), m_maxValue(200.0f){
+Bar::Bar(const TileSet& tileSet) : WidgetMH(), tileSet(tileSet), m_color(Vector4f::ONE), m_bgColor(0.0f, 0.0f, 0.0f, 1.0f),  m_height(5.0f), m_radius(5.0f), m_width(200.0f), m_value(0.0f), m_maxValue(200.0f){
 	
 }
 
-BarUI::BarUI(const BarUI& rhs) :
+Bar::Bar(const Bar& rhs) :
 	WidgetMH(rhs),
 	tileSet(rhs.tileSet),
 	m_bgColor(rhs.m_bgColor),
@@ -18,7 +18,7 @@ BarUI::BarUI(const BarUI& rhs) :
 	m_maxValue(rhs.m_maxValue){
 }
 
-BarUI::BarUI(BarUI&& rhs) :
+Bar::Bar(Bar&& rhs) :
 	WidgetMH(rhs),
 	tileSet(std::move(rhs.tileSet)),
 	m_bgColor(std::move(rhs.m_bgColor)),
@@ -29,39 +29,39 @@ BarUI::BarUI(BarUI&& rhs) :
 	m_maxValue(std::move(rhs.m_maxValue)){
 }
 
-BarUI::~BarUI() {
+Bar::~Bar() {
 
 }
 
-void BarUI::setValue(const float value) {
+void Bar::setValue(const float value) {
 	m_value = value;
 }
 
-void BarUI::setMaxValue(const float maxValue) {
+void Bar::setMaxValue(const float maxValue) {
 	m_maxValue = maxValue;
 }
 
-void BarUI::setWidth(const float width) {
+void Bar::setWidth(const float width) {
 	m_width = width;
 }
 
-void BarUI::setHeight(const float height) {
+void Bar::setHeight(const float height) {
 	m_height = height;
 }
 
-void BarUI::setRadius(const float radius) {
+void Bar::setRadius(const float radius) {
 	m_radius = radius;
 }
 
-void BarUI::setColor(const Vector4f& color) {
+void Bar::setColor(const Vector4f& color) {
 	m_color = color;
 }
 
-void BarUI::setBgColor(const Vector4f& bgColor) {
+void Bar::setBgColor(const Vector4f& bgColor) {
 	m_bgColor = bgColor;
 }
 
-void BarUI::drawDefault() {
+void Bar::drawDefault() {
 	float ratio = m_width / m_maxValue;
 	float progress = std::max(0.0f, std::min(m_width, m_value * ratio));
 

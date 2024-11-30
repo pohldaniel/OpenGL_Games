@@ -186,7 +186,7 @@ void Monster::update(float dt) {
 
 	m_initiative += m_speed * dt;
 
-	findChild<BarUI>("initiative")->setValue(m_initiative);
+	findChild<Bar>("initiative")->setValue(m_initiative);
 }
 
 float Monster::getInitiative() {
@@ -195,7 +195,7 @@ float Monster::getInitiative() {
 
 void Monster::setInitiative(float initiative) {
 	m_initiative = initiative;
-	findChild<BarUI>("initiative")->setValue(m_initiative);		
+	findChild<Bar>("initiative")->setValue(m_initiative);
 }
 
 void Monster::pause() {
@@ -238,7 +238,7 @@ const float Monster::getHealth() const {
 void Monster::reduceEnergy(const AttackData& attack) {
 	monsterEntry.get().energy -= attack.cost;
 
-	findChild<BarUI>("energy")->setValue(monsterEntry.get().energy);
+	findChild<Bar>("energy")->setValue(monsterEntry.get().energy);
 	findChild<Label>("energy")->setLabel(Fontrenderer::Get().floatToString(monsterEntry.get().energy, 0) + "/" + Fontrenderer::Get().floatToString(m_maxEnergy, 0));
 }
 
@@ -281,8 +281,8 @@ void Monster::applyAttack(float amount, const AttackData& attackData) {
 	monsterEntry.get().health -= amount * targetDefense;
 	monsterEntry.get().health = std::min(std::max(0.0f, monsterEntry.get().health), m_maxHealth);
 
-	findChild<BarUI>("health")->setValue(monsterEntry.get().health);
-	findChild<BarUI>("health")->setMaxValue(m_maxHealth);
+	findChild<Bar>("health")->setValue(monsterEntry.get().health);
+	findChild<Bar>("health")->setMaxValue(m_maxHealth);
 	findChild<Label>("health")->setLabel(Fontrenderer::Get().floatToString(monsterEntry.get().health, 0) + "/" + Fontrenderer::Get().floatToString(m_maxHealth, 0));
 }
 
@@ -336,8 +336,8 @@ void Monster::updateExperience(float amount) {
 		}
 	}
 
-	findChild<BarUI>("experience")->setValue(monsterEntry.get().experience);
-	findChild<BarUI>("experience")->setMaxValue(m_maxExperience);
+	findChild<Bar>("experience")->setValue(monsterEntry.get().experience);
+	findChild<Bar>("experience")->setMaxValue(m_maxExperience);
 	findChild<Label>("level")->setLabel("Lvl " + std::to_string(monsterEntry.get().level));
 }
 
@@ -385,17 +385,17 @@ void Monster::setMonsterEntry(MonsterEntry& _monsterEntry) {
 	monsterEntry = _monsterEntry;
 	calculateStates(monsterEntry);
 
-	findChild<BarUI>("health")->setValue(monsterEntry.get().health);
-	findChild<BarUI>("health")->setMaxValue(m_maxHealth);
+	findChild<Bar>("health")->setValue(monsterEntry.get().health);
+	findChild<Bar>("health")->setMaxValue(m_maxHealth);
 
-	findChild<BarUI>("energy")->setValue(monsterEntry.get().energy);
-	findChild<BarUI>("energy")->setMaxValue(m_maxEnergy);
+	findChild<Bar>("energy")->setValue(monsterEntry.get().energy);
+	findChild<Bar>("energy")->setMaxValue(m_maxEnergy);
 
 	findChild<Label>("health")->setLabel(Fontrenderer::Get().floatToString(monsterEntry.get().health, 0) + "/" + Fontrenderer::Get().floatToString(m_maxHealth, 0));
 	findChild<Label>("energy")->setLabel(Fontrenderer::Get().floatToString(monsterEntry.get().energy, 0) + "/" + Fontrenderer::Get().floatToString(m_maxEnergy, 0));
 
-	findChild<BarUI>("experience")->setValue(monsterEntry.get().experience);
-	findChild<BarUI>("experience")->setMaxValue(m_maxExperience);
+	findChild<Bar>("experience")->setValue(monsterEntry.get().experience);
+	findChild<Bar>("experience")->setMaxValue(m_maxExperience);
 
 	findChild<Label>("name")->setLabel(monsterEntry.get().name);
 	findChild<Label>("level")->setLabel("Lvl " + std::to_string(monsterEntry.get().level));
@@ -458,7 +458,7 @@ void Monster::initUI() {
 	label->setLabel("Lvl " + std::to_string(monsterEntry.get().level));
 	label->setName("level");
 
-	BarUI* bar = addChild<BarUI>(TileSetManager::Get().getTileSet("bars"));
+	Bar* bar = addChild<Bar>(TileSetManager::Get().getTileSet("bars"));
 	bar->translateRelative(-width * 0.5f + 16.0f, +96.0f - height * 0.5f + 40.0f - lvlHeight);
 	bar->updateWorldTransformation();
 	bar->setRadius(0.0f);
@@ -497,7 +497,7 @@ void Monster::initUI() {
 	surface->setBorderRadius(0.0f);
 	surface->setEdge(Edge::EDGE_NONE);
 
-	bar = addChild<BarUI>(TileSetManager::Get().getTileSet("bars"));
+	bar = addChild<Bar>(TileSetManager::Get().getTileSet("bars"));
 	bar->translateRelative(0.5f * rect.width - 75.0f, -20.0);
 	bar->updateWorldTransformation();
 	bar->setName("initiative");
@@ -508,7 +508,7 @@ void Monster::initUI() {
 	bar->setHeight(2.0f);
 	bar->setMaxValue(100.0f);
 	
-	bar = addChild<BarUI>(TileSetManager::Get().getTileSet("bars"));
+	bar = addChild<Bar>(TileSetManager::Get().getTileSet("bars"));
 	bar->translateRelative(0.5f * rect.width - 75.0f + 9.0f, -20.0f + 48.0f - 2.0f * lineHeightSmall + 11.0f);
 	bar->updateWorldTransformation();
 	bar->setName("health");
@@ -520,7 +520,7 @@ void Monster::initUI() {
 	bar->setValue(monsterEntry.get().health);
 	bar->setMaxValue(m_maxHealth);
 
-	bar = addChild<BarUI>(TileSetManager::Get().getTileSet("bars"));
+	bar = addChild<Bar>(TileSetManager::Get().getTileSet("bars"));
 	bar->translateRelative(0.5f * rect.width - 75.0f + 9.0f, -20.0f + 48.0f - 2.0f * lineHeightSmall - 10.0f);
 	bar->updateWorldTransformation();
 	bar->setName("energy");

@@ -1,16 +1,15 @@
 #pragma once
-#include <functional>
 #include <UI/WidgetMH.h>
 #include <engine/TileSet.h>
 
-class BarUI : public WidgetMH {
+class Bar : public WidgetMH {
 
 public:
 
-	BarUI(const TileSet& tileSet);
-	BarUI(const BarUI& rhs);
-	BarUI(BarUI&& rhs);
-	virtual ~BarUI();
+	Bar(const TileSet& tileSet);
+	Bar(const Bar& rhs);
+	Bar(Bar&& rhs);
+	virtual ~Bar();
 
 	void setValue(const float value);
 	void setMaxValue(const float maxValue);
