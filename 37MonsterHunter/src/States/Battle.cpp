@@ -47,7 +47,6 @@ m_fade(m_alpha),
 m_canCatch(true),
 m_rotate(false)
 {
-
 	m_viewWidth = 1280.0f;
 	m_viewHeight = 720.0f;
 
@@ -147,42 +146,7 @@ void Battle::fixedUpdate() {
 
 void Battle::update() {
 	Keyboard &keyboard = Keyboard::instance();
-	Vector3f direction = Vector3f();
-
-	float dx = 0.0f;
-	float dy = 0.0f;
-	bool move = false;
-
-	if (keyboard.keyDown(Keyboard::KEY_W)) {
-		direction += Vector3f(0.0f, 0.0f, 1.0f);
-		move |= true;
-	}
-
-	if (keyboard.keyDown(Keyboard::KEY_S)) {
-		direction += Vector3f(0.0f, 0.0f, -1.0f);
-		move |= true;
-	}
-
-	if (keyboard.keyDown(Keyboard::KEY_A)) {
-		direction += Vector3f(-1.0f, 0.0f, 0.0f);
-		move |= true;
-	}
-
-	if (keyboard.keyDown(Keyboard::KEY_D)) {
-		direction += Vector3f(1.0f, 0.0f, 0.0f);
-		move |= true;
-	}
-
-	if (keyboard.keyDown(Keyboard::KEY_Q)) {
-		direction += Vector3f(0.0f, -1.0f, 0.0f);
-		move |= true;
-	}
-
-	if (keyboard.keyDown(Keyboard::KEY_E)) {
-		direction += Vector3f(0.0f, 1.0f, 0.0f);
-		move |= true;
-	}
-
+	
 	if (keyboard.keyPressed(Keyboard::KEY_R)) {
 		m_rotate = !m_rotate;
 	}
@@ -195,26 +159,11 @@ void Battle::update() {
 		std::for_each(m_monsters.begin(), m_monsters.end(), std::mem_fn(&Monster::unPause));
 		std::for_each(m_monsters.begin(), m_monsters.end(), std::bind(std::mem_fn<void(bool)>(&Monster::setHighlight), std::placeholders::_1, false));
 
-		m_drawGeneralUi = false;
+		onDrawGeneralUI(false);
 		m_currentSelectedMonster = -1;
 	}
 
 	Mouse &mouse = Mouse::instance();
-
-	if (mouse.buttonDown(Mouse::MouseButton::BUTTON_RIGHT)) {
-		dx = mouse.xDelta();
-		dy = mouse.yDelta();
-	}
-
-	if (move || dx != 0.0f || dy != 0.0f) {
-		if (dx || dy) {
-			m_camera.rotate(dx, dy);
-		}
-
-		if (move) {
-			m_camera.move(direction * m_dt);
-		}
-	}
 
 	if (m_playAbility) {
 		m_elapsedTime += 6.0f * m_dt;
@@ -223,7 +172,8 @@ void Battle::update() {
 			m_currentFrame = 0;
 			m_abilityOffset = 0;
 			m_elapsedTime = 0.0f;
-			m_playAbility = false;
+
+			onDrawAbilityUI(false);
 			onAbilityEnd();
 		}
 	}
@@ -236,12 +186,9 @@ void Battle::update() {
 		monster->update(m_dt);
 	}
 
-	eraseAbilityUI();
-	if (m_playAbility) {
-		addAbilityUI(m_abilityPosX, m_abilityPosY);
+	if (m_playAbility) 	
 		updateAbilityAnimation();
-	}
-
+	
 	if (m_exit)
 		return;
 
@@ -254,17 +201,16 @@ void Battle::update() {
 			(*monster)->setDefending(false);
 			std::for_each(m_monsters.begin(), m_monsters.end(), std::mem_fn(&Monster::pause));
 
+			m_currentSelectedMonster = std::distance(m_monsters.begin(), monster);
+			m_currentMax = 4;
+
 			if ((*monster)->getCell().flipped) {
-				m_drawGeneralUi = true;
+				onDrawGeneralUI(true);
 			}else {
 				if (std::count_if(m_monsters.begin(), m_monsters.end(), [](Monster* monster) { return monster->getCell().flipped && monster->getHealth() > 0.0f; }) != 0) {
 					m_opponentTimer.start(600u, false);
 				}
 			}
-
-			m_currentSelectedMonster = std::distance(m_monsters.begin(), monster);
-			m_currentMax = 4;
-
 		}
 	}
 
@@ -278,47 +224,17 @@ void Battle::update() {
 	}
 	removeDefeteadMonster();
 	
-	if (m_rotate) {
+	if (m_rotate) 
 		rotate(10.0f * m_dt);
-	}
 
-	
-
-	eraseGeneralUI();
-	if (m_drawGeneralUi) {
-		Monster* currentMonster = m_monsters[m_currentSelectedMonster];
-		const Cell& cell = currentMonster->getCell();
-		addGeneralUI(cell.posX + cell.width, cell.posY + 0.5f * cell.height);
+	if (m_drawGeneralUi) 		
 		updateGeneral();
-	}
-
-	eraseAttacksUI();
-	if (m_drawAtacksUi) {
-		Monster* currentMonster = m_monsters[m_currentSelectedMonster];
-		const Cell& cell = currentMonster->getCell();
-		float width = 150.0f;
-		float height = 200.0f;
-		int limiter = std::min(m_visibleItems, m_currentMax);
-		height = limiter <= 1 ? 50.0f : limiter == 2 ? 100.0f : limiter == 3 ? 150.0f : 200.0f;
-
-		addAttacksUI(cell.posX + cell.width + 20.0f, cell.posY + 0.5f * cell.height - 0.5f * height, width, height);
+	
+	if (m_drawAtacksUi) 		
 		updateAttacks();
-	}
-
-	eraseSwitchUI();
-	if (m_drawSwitchUi) {
-		Monster* currentMonster = m_monsters[m_currentSelectedMonster];
-		const Cell& cell = currentMonster->getCell();
-		float width = 300.0f;
-		float height = 320.0f;
-
-		int limiter = std::min(m_visibleItems, m_currentMax);
-		//height = limiter <= 1 ? 80.0f : limiter == 2 ? 160.0f : limiter == 3 ? 240.0f : 320.0f;
-
-		addSwitchUI(cell.posX + cell.width + 20.0f, cell.posY + 0.5f * cell.height - 0.5f * height, width, height);
+	
+	if (m_drawSwitchUi) 	
 		updateSwitch();
-	}
-
 }
 
 void Battle::render() {
@@ -542,7 +458,7 @@ void Battle::processInput() {
 				m_canSwitch = m_supplyIndexPlayer < static_cast<int>(MonsterIndex::Monsters.size()) - 1;
 
 			}else{
-				m_playAbility = true;
+
 				m_drawTargetUI = false;
 				m_monsters[m_currentSelectedMonster]->reduceEnergy(MonsterIndex::_AttackData[m_currentAbility.first]);
 				m_monsters[m_currentSelectedMonster]->playAttackAnimation();
@@ -556,6 +472,7 @@ void Battle::processInput() {
 				if (std::count_if(m_monsters.begin(), m_monsters.end(), [](Monster* monster) { return !monster->getCell().flipped && monster->getHealth() > 0.0f; }) == 0) {
 					std::for_each(m_monsters.begin(), m_monsters.end(), std::bind(std::mem_fn<void(bool)>(&Monster::setCanAttack), std::placeholders::_1, false));
 				}
+				onDrawAbilityUI(true);
 			}
 		}
 
@@ -569,19 +486,18 @@ void Battle::processInput() {
 			m_monsters[m_currentSelectedMonster]->setInitiative(0.0f);
 
 			std::for_each(m_monsters.begin(), m_monsters.end(), std::mem_fn(&Monster::unPause));
-
-			m_drawSwitchUi = false;
+			
 			m_visibleItems = 4;
 			m_currentSelectedOption = 0;
 			m_currentOffset = 0;
 			m_currentMax = 4;
 			m_currentSelectedMonster = -1;		
+			onDrawSwitchUI(false);
 		}
 
 		if (m_drawAtacksUi) {
 			m_currentAbility = *(m_abilitiesFiltered.begin() + m_currentSelectedOption);
-			m_currentTarget = MonsterIndex::_AttackData[m_currentAbility.first].target;
-			m_drawAtacksUi = false;
+			m_currentTarget = MonsterIndex::_AttackData[m_currentAbility.first].target;	
 			m_drawTargetUI = true;
 
 			int playerMonsterCount = std::count_if(m_monsters.begin(), m_monsters.end(), [](Monster* monster) { return monster->getCell().flipped; });
@@ -597,13 +513,13 @@ void Battle::processInput() {
 				currentMonster->setHighlight(false);
 
 			m_abilityOffset = MonsterIndex::_AttackData[m_currentAbility.first].graphic;
+			onDrawAttacksUI(false);
 		}
 
 		if (m_drawGeneralUi) {
 			if (m_currentSelectedOption == 0) {
-				m_drawGeneralUi = false;
-				m_drawAtacksUi = true;
 				m_visibleItems = 4;
+				
 				Monster* currentMonster = m_monsters[m_currentSelectedMonster];
 				const tsl::ordered_map<std::string, unsigned int>& abilities = MonsterIndex::MonsterData[m_monsters[m_currentSelectedMonster]->getName()].abilities;
 				m_abilitiesFiltered.clear();
@@ -615,17 +531,20 @@ void Battle::processInput() {
 				int opponentMonsterCount = std::count_if(m_monsters.begin(), m_monsters.end(), [](Monster* monster) { return !monster->getCell().flipped && monster->getHealth() > 0.0f; });
 				m_currentSelectedOption = 0;
 				m_currentOffset = 0;
-				
+
+				onDrawGeneralUI(false);
+				onDrawAttacksUI(true);
+
 				if (m_currentMax == 0 || opponentMonsterCount == 0) {
-					m_drawAtacksUi = false;
-					m_drawGeneralUi = true;
 					m_visibleItems = 4;
-					m_currentMax = 4;				
+					m_currentMax = 4;
+					onDrawAttacksUI(false);
+					onDrawGeneralUI(true);
 				}
 
 			}else if (m_currentSelectedOption == 1) {
 				m_monsters[m_currentSelectedMonster]->setDefending(true);
-				m_drawGeneralUi = false;
+								
 				m_visibleItems = 4;
 				m_currentSelectedOption = 0;
 				m_currentOffset = 0;
@@ -633,9 +552,10 @@ void Battle::processInput() {
 				m_currentSelectedMonster = -1;
 				std::for_each(m_monsters.begin(), m_monsters.end(), std::mem_fn(&Monster::unPause));
 
+				onDrawGeneralUI(false);
+
 			}else if (m_currentSelectedOption == 2) {
-				m_drawGeneralUi = false;
-				m_drawSwitchUi = true;			
+				
 				m_visibleItems = 4;
 				const Monster* currentMonster = m_monsters[m_currentSelectedMonster];
 				m_filteredMonsters.clear();
@@ -649,15 +569,19 @@ void Battle::processInput() {
 				m_currentSelectedOption = 0;
 				m_currentOffset = 0;
 
+				onDrawGeneralUI(false);
+				onDrawSwitchUI(m_canSwitch);
+
 				if (!m_canSwitch) {
-					m_drawSwitchUi = false;
-					m_drawGeneralUi = true;
+					
 					m_currentMax = 4;
 					m_currentSelectedOption = 2;
+
+					onDrawGeneralUI(true);
 				}
 
 			}else if (m_currentSelectedOption == 3) {
-				m_drawGeneralUi = false;
+				
 				m_drawTargetUI = true;
 
 				int playerMonsterCount = std::count_if(m_monsters.begin(), m_monsters.end(), [](const Monster* monster) { return monster->getCell().flipped; });
@@ -670,14 +594,17 @@ void Battle::processInput() {
 				m_cutOff = playerMonsterCount;
 				m_catchMonster = true;
 
+				onDrawGeneralUI(false);
+
 				if (!m_canCatch) {
-					m_catchMonster = false;
-					m_drawGeneralUi = true;
+					m_catchMonster = false;				
 					m_drawTargetUI = false;
 					m_currentMax = 4;
 					m_visibleItems = 4;
 					m_currentSelectedOption = 3;
 					m_cutOff = 0;
+
+					onDrawGeneralUI(true);
 				}
 			}
 		}
@@ -686,13 +613,15 @@ void Battle::processInput() {
 	if (keyboard.keyPressed(Keyboard::KEY_ESCAPE)) {
 		if (m_drawGeneralUi) {
 			m_monsters[m_currentSelectedMonster]->setDefending(true);
-			m_drawGeneralUi = false;
+			
 			m_visibleItems = 4;
 			m_currentSelectedOption = 0;
 			m_currentOffset = 0;
 			m_currentMax = 4;
 			m_currentSelectedMonster = -1;
-			std::for_each(m_monsters.begin(), m_monsters.end(), std::mem_fn(&Monster::unPause));		
+			std::for_each(m_monsters.begin(), m_monsters.end(), std::mem_fn(&Monster::unPause));
+
+			onDrawGeneralUI(false);
 		}
 
 		if (m_drawAtacksUi || m_drawSwitchUi || m_drawTargetUI) {
@@ -702,30 +631,29 @@ void Battle::processInput() {
 				m_currentSelectedOption = 0;
 			}
 
-			if (m_drawAtacksUi)
+			if (m_drawAtacksUi) {
 				m_currentSelectedOption = 0;
+				onDrawAttacksUI(false);
+			}
 
-			if(m_drawSwitchUi)
+			if (m_drawSwitchUi) {
 				m_currentSelectedOption = 2;
-
-			m_drawAtacksUi = false;
-			m_drawSwitchUi = false;
-			m_drawTargetUI = false;
-			m_catchMonster = false;
-			m_drawGeneralUi = true;
-			m_currentMax = 4;
+				onDrawSwitchUI(false);
+			}
 			
-			m_currentOffset = 0;			
+			m_drawTargetUI = false;
+			m_catchMonster = false;	
+			m_currentMax = 4;		
+			m_currentOffset = 0;	
+
+			onDrawGeneralUI(true);
+			
 		}
 	}
 }
 
 void Battle::onAbilityEnd() {
-	m_drawGeneralUi = false;
-	m_drawAtacksUi = false;
-	m_drawTargetUI = false;
-	m_drawSwitchUi = false;
-
+	
 	std::for_each(m_monsters.begin(), m_monsters.end(), std::mem_fn(&Monster::unPause));
 	std::for_each(m_monsters.begin(), m_monsters.end(), std::bind(std::mem_fn<void(bool)>(&Monster::setHighlight), std::placeholders::_1, false));
 
@@ -739,6 +667,8 @@ void Battle::onAbilityEnd() {
 		m_exit = true;
 		std::for_each(m_monsters.begin(), m_monsters.end(), std::mem_fn(&Monster::pause));
 	}
+
+	m_drawTargetUI = false;
 }
 
 void Battle::removeDefeteadMonster() {
@@ -827,11 +757,13 @@ void Battle::opponentAttack() {
 	Monster* target = m_monsters[index];
 	float amount = currentMonster->getBaseDamage(ability->first);
 	target->applyAttack(amount, MonsterIndex::_AttackData[ability->first]);
-	m_playAbility = true;
+		
 	m_abilityPosX = target->getCell().centerX;
 	m_abilityPosY = target->getCell().centerY;
 	m_abilityOffset = MonsterIndex::_AttackData[ability->first].graphic;
 	currentMonster->reduceEnergy(MonsterIndex::_AttackData[ability->first]);
+
+	onDrawAbilityUI(true);
 }
 
 void Battle::exit() {
@@ -961,8 +893,7 @@ void Battle::addAbilities() {
 }
 
 void Battle::eraseAbilities() {
-	Surface* attacksUI = findChild<Surface>("attacks");
-	attacksUI->eraseAllChildren();
+	findChild<Surface>("attacks")->eraseAllChildren();
 }
 
 void Battle::addMonsters() {
@@ -1027,8 +958,7 @@ void Battle::addMonsters() {
 }
 
 void Battle::eraseMonsters() {
-	Surface* switchUI = findChild<Surface>("switch");
-	switchUI->eraseAllChildren();
+	findChild<Surface>("switch")->eraseAllChildren();
 }
 
 void Battle::addGeneralUI(float posX, float posY) {
@@ -1064,9 +994,7 @@ void Battle::addGeneralUI(float posX, float posY) {
 }
 
 void Battle::eraseGeneralUI() {
-	Empty* generalUI = findChild<Empty>("general");
-	if (generalUI)
-		generalUI->eraseSelf();
+	findChild<Empty>("general")->eraseSelf();
 }
 
 void Battle::addAttacksUI(float posX, float posY, float scaleX, float scaleY) {
@@ -1083,9 +1011,7 @@ void Battle::addAttacksUI(float posX, float posY, float scaleX, float scaleY) {
 }
 
 void Battle::eraseAttacksUI() {
-	Surface* attacksUI = findChild<Surface>("attacks");
-	if (attacksUI)
-		attacksUI->eraseSelf();
+	findChild<Surface>("attacks")->eraseSelf();
 }
 
 void Battle::addSwitchUI(float posX, float posY, float scaleX, float scaleY) {
@@ -1102,9 +1028,7 @@ void Battle::addSwitchUI(float posX, float posY, float scaleX, float scaleY) {
 }
 
 void Battle::eraseSwitchUI() {
-	Surface* switchUI = findChild<Surface>("switch");
-	if (switchUI)
-		switchUI->eraseSelf();
+	findChild<Surface>("switch")->eraseSelf();
 }
 
 void Battle::addAbilityUI(float posX, float posY) {
@@ -1117,7 +1041,58 @@ void Battle::addAbilityUI(float posX, float posY) {
 }
 
 void Battle::eraseAbilityUI() {
-	IconAnimated* abilityUI = findChild<IconAnimated>("ability");
-	if (abilityUI)
-		abilityUI->eraseSelf();
+	findChild<IconAnimated>("ability")->eraseSelf();
+}
+
+void Battle::onDrawGeneralUI(bool flag) {
+	m_drawGeneralUi = flag;
+
+	if (m_drawGeneralUi) {
+		Monster* currentMonster = m_monsters[m_currentSelectedMonster];
+		const Cell& cell = currentMonster->getCell();
+		addGeneralUI(cell.posX + cell.width, cell.posY + 0.5f * cell.height);
+	}else {
+		eraseGeneralUI();
+	}
+}
+
+void Battle::onDrawAttacksUI(bool flag) {
+	m_drawAtacksUi = flag;
+
+	if (m_drawAtacksUi) {
+		Monster* currentMonster = m_monsters[m_currentSelectedMonster];
+		const Cell& cell = currentMonster->getCell();
+		float width = 150.0f;
+		float height = 200.0f;
+		int limiter = std::min(m_visibleItems, m_currentMax);
+		height = limiter <= 1 ? 50.0f : limiter == 2 ? 100.0f : limiter == 3 ? 150.0f : 200.0f;
+
+		addAttacksUI(cell.posX + cell.width + 20.0f, cell.posY + 0.5f * cell.height - 0.5f * height, width, height);
+	}else {
+		eraseAttacksUI();
+	}
+}
+
+void Battle::onDrawSwitchUI(bool flag) {
+	m_drawSwitchUi = flag;
+
+	if (m_drawSwitchUi) {
+		Monster* currentMonster = m_monsters[m_currentSelectedMonster];
+		const Cell& cell = currentMonster->getCell();
+		float width = 300.0f;
+		float height = 320.0f;
+		addSwitchUI(cell.posX + cell.width + 20.0f, cell.posY + 0.5f * cell.height - 0.5f * height, width, height);
+	}else {
+		eraseSwitchUI();
+	}
+}
+
+void Battle::onDrawAbilityUI(bool flag) {
+	m_playAbility = flag;
+
+	if (m_playAbility) {
+		addAbilityUI(m_abilityPosX, m_abilityPosY);
+	}else {
+		eraseAbilityUI();
+	}
 }

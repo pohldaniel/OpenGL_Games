@@ -553,6 +553,8 @@ void TileSet::setLinearMipMap() {
 }
 
 void TileSet::createBarRects(unsigned int width, unsigned int height, unsigned int numBars, unsigned int heightBar) {
+	if (m_init) return;
+
 	int widthBar = 1, offset = 0, l = 0;
 	
 	m_textureRects.push_back({ static_cast<float>(offset) / static_cast<float>(width),
@@ -585,6 +587,7 @@ void TileSet::createBarRects(unsigned int width, unsigned int height, unsigned i
 	unsigned char* bytes = Texture::LoadFromFile("res/tmx/graphics/other/bars.png", false);
 	Spritesheet::CreateSpritesheet(bytes, width, height, 1u, m_atlas);
 	free(bytes);	
+	m_init = true;
 }
 
 ///////////////////////TileSetManager//////////////////////////

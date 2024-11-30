@@ -72,6 +72,11 @@ private:
 	void addAbilityUI(float posX, float posY);
 	void eraseAbilityUI();
 
+	void onDrawGeneralUI(bool flag);
+	void onDrawAttacksUI(bool flag);
+	void onDrawSwitchUI(bool flag);
+	void onDrawAbilityUI(bool flag);
+
 	bool m_initUi = true;
 	bool m_drawUi = false;
 	bool m_playAbility;
