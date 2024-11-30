@@ -73,7 +73,6 @@ void Bar::drawDefault() {
 		Sprite::draw2(rect, m_color, getWorldTransformationWithScale(rect.width, rect.height));
 
 	}else {
-
 		Sprite::setShader(Globals::shaderManager.getAssetPointer("list"));
 		auto shader = Sprite::getShader();
 		shader->use();

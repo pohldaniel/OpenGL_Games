@@ -99,7 +99,7 @@ m_rotate(false){
 
 	Monsters.push_back({ "Friolera", 25u , 3.0f, 200.0f, 0.0f, false });
 	Monsters.push_back({ "Atrox", 30u , 3.0f, 15.0f, 0.0f, false });
-	//Monsters.push_back({ "Sparchu", 24u , 3.0f, 30.0f, 0.0f, false });
+	Monsters.push_back({ "Sparchu", 24u , 3.0f, 30.0f, 0.0f, false });
 	Monsters.push_back({ "Sparchu", 34u , 3.0f, 30.0f, 0.0f, false });
 	Monsters.push_back({ "Pouch", 23u , 3.0f, 30.0f, 0.0f, false });
 	Monsters.push_back({ "Gulfin", 17u, 3.0f, 30.0f, false  });
@@ -228,9 +228,12 @@ MonsterIndex::~MonsterIndex() {
 }
 
 void MonsterIndex::draw() {
+
+	WidgetMH::draw();
+
 	//Surface::draw();
 
-	std::shared_ptr<WidgetMH> currentWidget;
+	/*std::shared_ptr<WidgetMH> currentWidget;
 	{
 		currentWidget = std::static_pointer_cast<WidgetMH>(getChildren().front());
 		currentWidget->draw();
@@ -267,7 +270,7 @@ void MonsterIndex::draw() {
 				std::static_pointer_cast<WidgetMH>(children)->draw();
 			}		
 		}
-	}
+	}*/
 }
 
 void MonsterIndex::update(float dt) {
@@ -547,22 +550,7 @@ void MonsterIndex::initUI(float viewWidth, float viewHeight) {
 	float left =  m_viewWidth * 0.4f * 0.25f - m_viewWidth * 0.4f * 0.45f * 0.5f;
 	surface = findChild<Surface>("right");
 
-	label = surface->addChild<Label>(Globals::fontManager.get("dialog"));
-	label->setPosition(0.025f, 0.5f);
-	label->translateRelative(10.0f, 28.5f);
-	label->updateWorldTransformation();
-	label->setTextColor(Vector4f(0.95686f, 0.99608f, 0.98039f, 1.0f));
-	label->setSize(0.045f);
-	label->setName("health");
-
-	label = surface->addChild<Label>(Globals::fontManager.get("dialog"));
-	label->setPosition(0.525f, 0.5f);
-	label->translateRelative(10.0f, 28.5f);
-	label->updateWorldTransformation();
-	label->setTextColor(Vector4f(0.95686f, 0.99608f, 0.98039f, 1.0f));
-	label->setSize(0.045f);
-	label->setName("energy");
-
+	
 	bar = surface->addChild<Bar>(TileSetManager::Get().getTileSet("bars"));
 	bar->setPosition(0.025f, 0.5f);
 	bar->translateRelative(0.0f, 25.0f);
@@ -584,6 +572,22 @@ void MonsterIndex::initUI(float viewWidth, float viewHeight) {
 	bar->setColor(Vector4f(0.4f, 0.84313f, 0.93333f, 1.0f));
 	bar->setWidth(m_viewWidth * 0.4f * 0.45f);
 	bar->setHeight(30.0f);
+
+	label = surface->addChild<Label>(Globals::fontManager.get("dialog"));
+	label->setPosition(0.025f, 0.5f);
+	label->translateRelative(10.0f, 28.5f);
+	label->updateWorldTransformation();
+	label->setTextColor(Vector4f(0.95686f, 0.99608f, 0.98039f, 1.0f));
+	label->setSize(0.045f);
+	label->setName("health");
+
+	label = surface->addChild<Label>(Globals::fontManager.get("dialog"));
+	label->setPosition(0.525f, 0.5f);
+	label->translateRelative(10.0f, 28.5f);
+	label->updateWorldTransformation();
+	label->setTextColor(Vector4f(0.95686f, 0.99608f, 0.98039f, 1.0f));
+	label->setSize(0.045f);
+	label->setName("energy");
 
 	label = surface->addChild<Label>(Globals::fontManager.get("dialog"));
 	label->setPosition(0.025f, 0.5f);
@@ -641,14 +645,7 @@ void MonsterIndex::initUI(float viewWidth, float viewHeight) {
 	surface->setEdge(Edge::EDGE_LEFT);
 	surface->setColor(Vector4f(0.22745f, 0.21568f, 0.23137f, 1.0f));
 
-	Surface* horinzontalBar = surface->addChild<Surface>();
-	horinzontalBar->setPosition(1.0f - 0.0125f, 0.0f);
-	horinzontalBar->setScale(0.0125f, 1.0f);
-	horinzontalBar->updateWorldTransformation();
-	horinzontalBar->setShader(Globals::shaderManager.getAssetPointer("list"));
-	horinzontalBar->setBorderRadius(0.0f);
-	horinzontalBar->setEdge(Edge::EDGE_NONE);
-	horinzontalBar->setColor(Vector4f(0.0f, 0.0f, 0.0f, 0.39216f));
+	
 }
 
 void MonsterIndex::addAbilities() {
@@ -747,6 +744,15 @@ void MonsterIndex::addMonsters() {
 		label->setLabel(currentMonster.name);
 		label->setIndex(i);
 	}
+
+	Surface* horinzontalBar = findChild<Surface>("left")->addChild<Surface>();
+	horinzontalBar->setPosition(1.0f - 0.0125f, 0.0f);
+	horinzontalBar->setScale(0.0125f, 1.0f);
+	horinzontalBar->updateWorldTransformation();
+	horinzontalBar->setShader(Globals::shaderManager.getAssetPointer("list"));
+	horinzontalBar->setBorderRadius(0.0f);
+	horinzontalBar->setEdge(Edge::EDGE_NONE);
+	horinzontalBar->setColor(Vector4f(0.0f, 0.0f, 0.0f, 0.39216f));
 }
 
 void MonsterIndex::eraseMonsters(){

@@ -1,12 +1,12 @@
 #pragma once
 #include <functional>
 #include <engine/Sprite.h>
-#include <UI/Surface.h>
+#include <UI/Empty.h>
 
 #include "Fade.h"
 #include "Timer.h"
 
-class Evolve : public Surface {
+class Evolve : public Empty {
 
 public:
 

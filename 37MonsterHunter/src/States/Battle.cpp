@@ -236,6 +236,12 @@ void Battle::update() {
 		monster->update(m_dt);
 	}
 
+	eraseAbilityUI();
+	if (m_playAbility) {
+		addAbilityUI(m_abilityPosX, m_abilityPosY);
+		updateAbilityAnimation();
+	}
+
 	if (m_exit)
 		return;
 
@@ -275,34 +281,15 @@ void Battle::update() {
 	if (m_rotate) {
 		rotate(10.0f * m_dt);
 	}
-}
 
-void Battle::render() {
-	m_mainRenderTarget.bind();
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	Icon::draw();
-	{
-		std::list<std::shared_ptr<NodeUI>>::iterator  it, itInner;
-		std::shared_ptr<WidgetMH> currentWidget;
-		for (it = getChildren().begin(); it != getChildren().end(); ++it) {
-			currentWidget = std::dynamic_pointer_cast<Monster>(*it);
-			if(currentWidget)
-				currentWidget->draw();			
-		}
-	}
-
-	eraseAbilityUI();
-	if (m_playAbility) {
-		addAbilityUI(m_abilityPosX, m_abilityPosY);
-		drawAbilityAnimation();
-	}
 	
+
 	eraseGeneralUI();
 	if (m_drawGeneralUi) {
 		Monster* currentMonster = m_monsters[m_currentSelectedMonster];
 		const Cell& cell = currentMonster->getCell();
 		addGeneralUI(cell.posX + cell.width, cell.posY + 0.5f * cell.height);
-		drawGeneral();
+		updateGeneral();
 	}
 
 	eraseAttacksUI();
@@ -315,11 +302,11 @@ void Battle::render() {
 		height = limiter <= 1 ? 50.0f : limiter == 2 ? 100.0f : limiter == 3 ? 150.0f : 200.0f;
 
 		addAttacksUI(cell.posX + cell.width + 20.0f, cell.posY + 0.5f * cell.height - 0.5f * height, width, height);
-		drawAttacks();
+		updateAttacks();
 	}
 
 	eraseSwitchUI();
-	if (m_drawSwitchUi){
+	if (m_drawSwitchUi) {
 		Monster* currentMonster = m_monsters[m_currentSelectedMonster];
 		const Cell& cell = currentMonster->getCell();
 		float width = 300.0f;
@@ -329,8 +316,16 @@ void Battle::render() {
 		//height = limiter <= 1 ? 80.0f : limiter == 2 ? 160.0f : limiter == 3 ? 240.0f : 320.0f;
 
 		addSwitchUI(cell.posX + cell.width + 20.0f, cell.posY + 0.5f * cell.height - 0.5f * height, width, height);
-		drawSwitch();
+		updateSwitch();
 	}
+
+}
+
+void Battle::render() {
+	m_mainRenderTarget.bind();
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	
+	WidgetMH::draw();
 
 	if (m_drawUi)
 		renderUi();
@@ -445,7 +440,7 @@ void Battle::setViewHeight(float viewHeight) {
 	m_viewHeight = viewHeight;
 }
 
-void Battle::drawGeneral() {
+void Battle::updateGeneral() {
 
 	Monster* currentMonster = m_monsters[m_currentSelectedMonster];
 
@@ -457,41 +452,24 @@ void Battle::drawGeneral() {
 		currentWidget->setCurrentFrame(i == m_currentSelectedOption ?
 			i + 4 + ((i == 0) && !currentMonster->getCanAttack()) * 8 + ((i == 2) && !m_canSwitch) * 8 + ((i == 3) && !m_canCatch) * 8 :
 			i + 8);
-
-		currentWidget->draw();
 		i++;
 	}
 }
 
-void Battle::drawAbilityAnimation() {
+void Battle::updateAbilityAnimation() {
 	IconAnimated* abilityUI = findChild<IconAnimated>("ability");
 	abilityUI->setCurrentFrame(m_abilityOffset + m_currentFrame);
-	abilityUI->draw();
 }
 
 
-void Battle::drawAttacks() {
-	
+void Battle::updateAttacks() {	
 	eraseAbilities();
 	addAbilities();
-
-	Surface* attacksUI = findChild<Surface>("attacks");
-	attacksUI->draw();
-	for (auto& children : attacksUI->getChildren()) {
-		std::static_pointer_cast<WidgetMH>(children)->draw();
-	}
 }
 
-void Battle::drawSwitch() {
-	
+void Battle::updateSwitch() {	
 	eraseMonsters();
 	addMonsters();
-	
-	Surface* switchUI = findChild<Surface>("switch");
-	switchUI->draw();
-	for (auto& children : switchUI->getChildren()) {
-		std::static_pointer_cast<WidgetMH>(children)->draw();
-	}
 }
 
 void Battle::processInput() {

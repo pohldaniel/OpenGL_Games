@@ -49,11 +49,11 @@ public:
 
 private:
 
-	void drawAbilityAnimation();
+	void updateAbilityAnimation();
 	void renderUi();
-	void drawGeneral();
-	void drawAttacks();
-	void drawSwitch();
+	void updateGeneral();
+	void updateAttacks();
+	void updateSwitch();
 	void onAbilityEnd();
 	void removeDefeteadMonster();
 	void opponentAttack();

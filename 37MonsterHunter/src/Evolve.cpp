@@ -3,6 +3,8 @@
 #include <engine/Batchrenderer.h>
 #include <engine/Fontrenderer.h>
 
+#include <UI/Label.h>
+
 #include "Evolve.h"
 #include "Globals.h"
 #include "MonsterIndex.h"
@@ -66,12 +68,7 @@ void Evolve::draw() {
 	shader->loadFloat("u_fade", m_fadeValue);
 	shader->unuse();
 
-	std::list<std::shared_ptr<NodeUI>>::iterator  it;
-	std::shared_ptr<WidgetMH> currentWidget;
-	for (it = getChildren().begin(); it != getChildren().end(); ++it) {
-		currentWidget = std::static_pointer_cast<WidgetMH>(*it);
-		currentWidget->draw();
-	}
+	WidgetMH::draw();
 }
 
 void Evolve::update(float dt) {

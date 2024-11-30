@@ -131,6 +131,12 @@ void WidgetMH::draw() {
 		return m_draw();
 	}
 	drawDefault();
+
+	if (m_children.size() > 0) {
+		for (std::list<std::shared_ptr<NodeUI>>::iterator it = getChildren().begin(); it != getChildren().end(); ++it) {
+			std::static_pointer_cast<WidgetMH>(*it)->draw();
+		}
+	}
 }
 
 void WidgetMH::OnTransformChanged() {
