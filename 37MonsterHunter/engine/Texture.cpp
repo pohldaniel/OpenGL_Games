@@ -2280,10 +2280,10 @@ void Texture::CreateBars(std::string fileOut, unsigned int width, unsigned int h
 				if ((i == l && j == 0) || (i == l && j == widthBar - 1) || (i == heightBar + l  - 1 && j == 0) || (i == heightBar + l - 1 && j == widthBar - 1)) {
 					continue;
 				}else {
-					pixels[(i + 1) * numComponents * width + j * numComponents + 0 + (widthBar + offset) * 4] = 255;
-					pixels[(i + 1) * numComponents * width + j * numComponents + 1 + (widthBar + offset) * 4] = 255;
-					pixels[(i + 1) * numComponents * width + j * numComponents + 2 + (widthBar + offset) * 4] = 255;
-					pixels[(i + 1) * numComponents * width + j * numComponents + 3 + (widthBar + offset) * 4] = 255;
+					pixels[(i + 1) * numComponents * width + j * numComponents + 0 + (widthBar + offset + (l == 0) * 3) * 4] = 255;
+					pixels[(i + 1) * numComponents * width + j * numComponents + 1 + (widthBar + offset + (l == 0) * 3) * 4] = 255;
+					pixels[(i + 1) * numComponents * width + j * numComponents + 2 + (widthBar + offset + (l == 0) * 3) * 4] = 255;
+					pixels[(i + 1) * numComponents * width + j * numComponents + 3 + (widthBar + offset + (l == 0) * 3) * 4] = 255;
 				}
 			}
 		}

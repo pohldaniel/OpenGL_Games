@@ -337,7 +337,8 @@ void Monster::updateExperience(float amount) {
 	}
 
 	findChild<BarUI>("experience")->setValue(monsterEntry.get().experience);
-	findChild<BarUI>("experience")->setValue(m_maxExperience);
+	findChild<BarUI>("experience")->setMaxValue(m_maxExperience);
+	findChild<Label>("level")->setLabel("Lvl " + std::to_string(monsterEntry.get().level));
 }
 
 const bool Monster::getKilled() const {
@@ -508,25 +509,25 @@ void Monster::initUI() {
 	bar->setMaxValue(100.0f);
 	
 	bar = addChild<BarUI>(TileSetManager::Get().getTileSet("bars"));
-	bar->translateRelative(0.5f * rect.width - 75.0f + 10.0f, -20.0f + 48.0f - 2.0f * lineHeightSmall + 11.0f);
+	bar->translateRelative(0.5f * rect.width - 75.0f + 9.0f, -20.0f + 48.0f - 2.0f * lineHeightSmall + 11.0f);
 	bar->updateWorldTransformation();
 	bar->setName("health");
 	bar->setRadius(0.0f);
 	bar->setBgColor(Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
 	bar->setColor(Vector4f(0.94117f, 0.19215f, 0.19215f, 1.0f));
-	bar->setWidth(60.0f);
+	bar->setWidth(130.0f);
 	bar->setHeight(5.0f);
 	bar->setValue(monsterEntry.get().health);
 	bar->setMaxValue(m_maxHealth);
 
 	bar = addChild<BarUI>(TileSetManager::Get().getTileSet("bars"));
-	bar->translateRelative(0.5f * rect.width - 75.0f + 10.0f, -20.0f + 48.0f - 2.0f * lineHeightSmall - 10.0f);
+	bar->translateRelative(0.5f * rect.width - 75.0f + 9.0f, -20.0f + 48.0f - 2.0f * lineHeightSmall - 10.0f);
 	bar->updateWorldTransformation();
 	bar->setName("energy");
 	bar->setRadius(0.0f);
 	bar->setBgColor(Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
 	bar->setColor(Vector4f(0.4f, 0.84313f, 0.93333f, 1.0f));
-	bar->setWidth(60.0f);
+	bar->setWidth(130.0f);
 	bar->setHeight(5.0f);
 	bar->setValue(monsterEntry.get().energy);
 	bar->setMaxValue(m_maxEnergy);

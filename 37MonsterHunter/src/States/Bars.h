@@ -35,5 +35,5 @@ private:
 	Camera m_camera;
 	Background m_background;
 	Sprite m_sprite;
-	int index = 0;
+	int index = 50;
 };

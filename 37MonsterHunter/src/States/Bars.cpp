@@ -201,7 +201,7 @@ void Bars::renderUi() {
 	// render widgets
 	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 	ImGui::Checkbox("Draw Wirframe", &StateMachine::GetEnableWireframe());
-	ImGui::SliderInt("Bar", &index, 0, 199);
+	ImGui::SliderInt("Bar", &index, 0, 200);
 	ImGui::End();
 
 	ImGui::Render();

@@ -555,16 +555,21 @@ void TileSet::setLinearMipMap() {
 void TileSet::createBarRects(unsigned int width, unsigned int height, unsigned int numBars, unsigned int heightBar) {
 	int widthBar = 1, offset = 0, l = 0;
 	
+	m_textureRects.push_back({ static_cast<float>(offset) / static_cast<float>(width),
+							   static_cast<float>(l) / static_cast<float>(height),
+							   static_cast<float>(widthBar + 2) / static_cast<float>(width),
+                               static_cast<float>(7.0f) / static_cast<float>(height),
+                               static_cast<float>(widthBar + 2),
+                               7.0f, 0u });
+
 	for (int k = 0; k < numBars; k++) {
-		m_textureRects.push_back({ static_cast<float>(offset + k) / static_cast<float>(width),
+		m_textureRects.push_back({ static_cast<float>(offset + k + (l == 0) * 3) / static_cast<float>(width),
 								   static_cast<float>(l) / static_cast<float>(height),
 								   static_cast<float>(widthBar + 2) / static_cast<float>(width),
 								   static_cast<float>(7.0f) / static_cast<float>(height),
 								   static_cast<float>(widthBar + 2),
 								   7.0f,
 								   0u });
-
-
 
 			widthBar++;
 			offset += (widthBar);
