@@ -49,7 +49,7 @@ public:
 
 private:
 
-	void drawAbilityAnimation(float posX, float posY);
+	void drawAbilityAnimation();
 	void renderUi();
 	void drawGeneral();
 	void drawAttacks();
@@ -63,6 +63,14 @@ private:
 	void eraseAbilities();
 	void addMonsters();
 	void eraseMonsters();
+	void addGeneralUI(float posX, float posY);
+	void eraseGeneralUI();
+	void addAttacksUI(float posX, float posY, float scaleX, float scaleY);
+	void eraseAttacksUI();
+	void addSwitchUI(float posX, float posY, float scaleX, float scaleY);
+	void eraseSwitchUI();
+	void addAbilityUI(float posX, float posY);
+	void eraseAbilityUI();
 
 	bool m_initUi = true;
 	bool m_drawUi = false;
@@ -90,12 +98,9 @@ private:
 
 	std::vector<MonsterEntry> m_opponentMonsters;
 	std::vector<Monster*> m_monsters;
-	IconAnimated* m_abilityUI;
-	Empty *m_generalUI;
-	Surface *m_atacksUI, *m_switchUI;
+
 	std::vector<std::array<float, 2>> positions;
 	std::vector<std::array<float, 2>> centers;
-	std::vector<BattleChoice> m_battleChoices;
 
 	Sprite m_surface;
 	Timer m_opponentTimer, m_exitTimer;

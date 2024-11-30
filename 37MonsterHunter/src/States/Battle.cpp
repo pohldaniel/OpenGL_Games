@@ -122,11 +122,6 @@ m_rotate(false)
 	
 	initUI();
 
-	m_battleChoices.push_back({ {30.0f, 60.0f}, 0u});
-	m_battleChoices.push_back({ {40.0f, 20.0f}, 1u});
-	m_battleChoices.push_back({ {40.0f, -20.0f}, 2u});
-	m_battleChoices.push_back({ {30.0f, -60.0f}, 3u});
-
 	m_opponentTimer.setOnTimerEnd(std::bind(&Battle::opponentAttack, this));
 	m_exitTimer.setOnTimerEnd(std::bind(&Battle::exit, this));
 
@@ -138,18 +133,12 @@ m_rotate(false)
 
 	m_fade.setTransitionSpeed(2.353f);
 	m_fade.fadeIn();
-
 }
 
 Battle::~Battle() {
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
 	MonsterIndex::Monsters.shrink_to_fit();
-
-	delete m_abilityUI;
-	delete m_generalUI;
-	delete m_atacksUI;
-	delete m_switchUI;
 }
 
 void Battle::fixedUpdate() {
@@ -292,28 +281,56 @@ void Battle::render() {
 	m_mainRenderTarget.bind();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	Icon::draw();
-
 	{
-		std::list<std::shared_ptr<NodeUI>>::iterator  it;
-		std::shared_ptr<Monster> currentWidget;
+		std::list<std::shared_ptr<NodeUI>>::iterator  it, itInner;
+		std::shared_ptr<WidgetMH> currentWidget;
 		for (it = getChildren().begin(); it != getChildren().end(); ++it) {
-			currentWidget = std::static_pointer_cast<Monster>(*it);
-			currentWidget->draw();
+			currentWidget = std::dynamic_pointer_cast<Monster>(*it);
+			if(currentWidget)
+				currentWidget->draw();			
 		}
 	}
 
-	if (m_playAbility) 		
-		drawAbilityAnimation(m_abilityPosX, m_abilityPosY);
+	eraseAbilityUI();
+	if (m_playAbility) {
+		addAbilityUI(m_abilityPosX, m_abilityPosY);
+		drawAbilityAnimation();
+	}
 	
-	
-	if(m_drawGeneralUi)
+	eraseGeneralUI();
+	if (m_drawGeneralUi) {
+		Monster* currentMonster = m_monsters[m_currentSelectedMonster];
+		const Cell& cell = currentMonster->getCell();
+		addGeneralUI(cell.posX + cell.width, cell.posY + 0.5f * cell.height);
 		drawGeneral();
+	}
 
-	if (m_drawAtacksUi)
+	eraseAttacksUI();
+	if (m_drawAtacksUi) {
+		Monster* currentMonster = m_monsters[m_currentSelectedMonster];
+		const Cell& cell = currentMonster->getCell();
+		float width = 150.0f;
+		float height = 200.0f;
+		int limiter = std::min(m_visibleItems, m_currentMax);
+		height = limiter <= 1 ? 50.0f : limiter == 2 ? 100.0f : limiter == 3 ? 150.0f : 200.0f;
+
+		addAttacksUI(cell.posX + cell.width + 20.0f, cell.posY + 0.5f * cell.height - 0.5f * height, width, height);
 		drawAttacks();
+	}
 
-	if (m_drawSwitchUi)
+	eraseSwitchUI();
+	if (m_drawSwitchUi){
+		Monster* currentMonster = m_monsters[m_currentSelectedMonster];
+		const Cell& cell = currentMonster->getCell();
+		float width = 300.0f;
+		float height = 320.0f;
+
+		int limiter = std::min(m_visibleItems, m_currentMax);
+		//height = limiter <= 1 ? 80.0f : limiter == 2 ? 160.0f : limiter == 3 ? 240.0f : 320.0f;
+
+		addSwitchUI(cell.posX + cell.width + 20.0f, cell.posY + 0.5f * cell.height - 0.5f * height, width, height);
 		drawSwitch();
+	}
 
 	if (m_drawUi)
 		renderUi();
@@ -429,69 +446,50 @@ void Battle::setViewHeight(float viewHeight) {
 }
 
 void Battle::drawGeneral() {
-	
-	Monster* currentMonster = m_monsters[m_currentSelectedMonster];
-	const Cell& cell = currentMonster->getCell();
 
+	Monster* currentMonster = m_monsters[m_currentSelectedMonster];
+
+	Empty* generalUI = findChild<Empty>("general");
 	unsigned int i = 0u;
 	std::shared_ptr<IconAnimated> currentWidget;
-	for (auto& children : m_generalUI->getChildren()) {
+	for (auto& children : generalUI->getChildren()) {
 		currentWidget = std::static_pointer_cast<IconAnimated>(children);
-		currentWidget->setOffsetX(cell.posX + cell.width);
-		currentWidget->setOffsetY(cell.posY + 0.5f * cell.height);
-		currentWidget->setCurrentFrame(i == m_currentSelectedOption ? 
-									   i + 4 + ((i == 0) && !currentMonster->getCanAttack()) * 8 + ((i == 2) && !m_canSwitch) * 8 + ((i == 3) && !m_canCatch) * 8 :
-			                           i + 8);
+		currentWidget->setCurrentFrame(i == m_currentSelectedOption ?
+			i + 4 + ((i == 0) && !currentMonster->getCanAttack()) * 8 + ((i == 2) && !m_canSwitch) * 8 + ((i == 3) && !m_canCatch) * 8 :
+			i + 8);
+
 		currentWidget->draw();
 		i++;
 	}
 }
 
-void Battle::drawAbilityAnimation(float posX, float posY) {
-	m_abilityUI->setCurrentFrame(m_abilityOffset + m_currentFrame);
-	m_abilityUI->setPosition(posX, posY);
-	m_abilityUI->draw();
+void Battle::drawAbilityAnimation() {
+	IconAnimated* abilityUI = findChild<IconAnimated>("ability");
+	abilityUI->setCurrentFrame(m_abilityOffset + m_currentFrame);
+	abilityUI->draw();
 }
 
 
 void Battle::drawAttacks() {
-	Monster* currentMonster = m_monsters[m_currentSelectedMonster];
-	const Cell& cell = currentMonster->getCell();
-
-	float width = 150.0f;
-	float height = 200.0f;
-	int limiter = std::min(m_visibleItems, m_currentMax);
-
-	float itemHeight = height / static_cast<float>(std::max(limiter, 4));
-	float lineHeight = Globals::fontManager.get("dialog").lineHeight * 0.045f;
-
-	height = limiter <= 1  ? 50.0f : limiter == 2  ? 100.0f : limiter == 3 ? 150.0f : 200.0f;
-
+	
 	eraseAbilities();
 	addAbilities();
 
-	m_atacksUI->setPosition(cell.posX + cell.width + 20.0f, cell.posY + 0.5f * cell.height - 0.5f * height);
-	m_atacksUI->setScale(width, height);
-	m_atacksUI->draw();
-
-	for (auto& children : m_atacksUI->getChildren()) {
+	Surface* attacksUI = findChild<Surface>("attacks");
+	attacksUI->draw();
+	for (auto& children : attacksUI->getChildren()) {
 		std::static_pointer_cast<WidgetMH>(children)->draw();
 	}
 }
 
 void Battle::drawSwitch() {
-	Monster* currentMonster = m_monsters[m_currentSelectedMonster];
-	const Cell& cell = currentMonster->getCell();
-	const std::vector<TextureRect>& iconRects = TileSetManager::Get().getTileSet("monster_icon").getTextureRects();
-	float width = 300.0f; float height = 320.0f;
-
+	
 	eraseMonsters();
 	addMonsters();
-	m_switchUI->setPosition(cell.posX + cell.width + 20.0f, cell.posY + 0.5f * cell.height - 0.5f * height);
-	m_switchUI->setScale(width, height);
-	m_switchUI->draw();
-
-	for (auto& children : m_switchUI->getChildren()) {
+	
+	Surface* switchUI = findChild<Surface>("switch");
+	switchUI->draw();
+	for (auto& children : switchUI->getChildren()) {
 		std::static_pointer_cast<WidgetMH>(children)->draw();
 	}
 }
@@ -947,43 +945,6 @@ void Battle::initUI() {
 	setSpriteSheet(TileSetManager::Get().getTileSet("backgrounds").getAtlas());
 	scale(BackgroundRect.width, BackgroundRect.height);	
 	setOrigin(static_cast<float>(Application::Width) * 0.5f, static_cast<float>(Application::Height) * 0.5f);
-
-	m_abilityUI = new IconAnimated(TileSetManager::Get().getTileSet("attacks").getTextureRects());
-	m_abilityUI->setSpriteSheet(TileSetManager::Get().getTileSet("attacks").getAtlas());
-	m_abilityUI->setAligned(true);
-
-	m_generalUI = new Empty();
-	IconAnimated* iconAnimated = m_generalUI->addChild<IconAnimated>(TileSetManager::Get().getTileSet("battle_icon").getTextureRects());
-	iconAnimated->setSpriteSheet(TileSetManager::Get().getTileSet("battle_icon").getAtlas());
-	iconAnimated->setAligned(true);
-	iconAnimated->setPosition(30.0f, 60.0f);
-
-	iconAnimated = m_generalUI->addChild<IconAnimated>(TileSetManager::Get().getTileSet("battle_icon").getTextureRects());
-	iconAnimated->setSpriteSheet(TileSetManager::Get().getTileSet("battle_icon").getAtlas());
-	iconAnimated->setAligned(true);
-	iconAnimated->setPosition(40.0f, 20.0f);
-
-	iconAnimated = m_generalUI->addChild<IconAnimated>(TileSetManager::Get().getTileSet("battle_icon").getTextureRects());
-	iconAnimated->setSpriteSheet(TileSetManager::Get().getTileSet("battle_icon").getAtlas());
-	iconAnimated->setAligned(true);
-	iconAnimated->setPosition(40.0f, -20.0f);
-
-	iconAnimated = m_generalUI->addChild<IconAnimated>(TileSetManager::Get().getTileSet("battle_icon").getTextureRects());
-	iconAnimated->setSpriteSheet(TileSetManager::Get().getTileSet("battle_icon").getAtlas());
-	iconAnimated->setAligned(true);
-	iconAnimated->setPosition(30.0f, -60.0f);
-
-	m_atacksUI = new Surface();
-	m_atacksUI->setShader(Globals::shaderManager.getAssetPointer("list"));
-	m_atacksUI->setBorderRadius(5.0f);
-	m_atacksUI->setEdge(Edge::ALL);
-	m_atacksUI->setColor(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
-
-	m_switchUI = new Surface();
-	m_switchUI->setShader(Globals::shaderManager.getAssetPointer("list"));
-	m_switchUI->setBorderRadius(5.0f);
-	m_switchUI->setEdge(Edge::ALL);
-	m_switchUI->setColor(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
 }
 
 void Battle::addAbilities() {
@@ -997,8 +958,9 @@ void Battle::addAbilities() {
 	float invLimiter = 1.0f / static_cast<float>(limiter);
 	float lineHeight = Globals::fontManager.get("dialog").lineHeight * 0.045f;
 
-	Surface* surface; 
-	surface = m_atacksUI->addChild<Surface>();
+	Surface* atacksUI = findChild<Surface>("attacks");
+
+	Surface* surface = atacksUI->addChild<Surface>();
 	surface->setPosition(0.0f, 1.0f - (position + 1) * invLimiter);
 	surface->setScale(1.0f, invLimiter);
 	surface->updateWorldTransformation();
@@ -1008,7 +970,7 @@ void Battle::addAbilities() {
 
 	Label* label; int index = 0;
 	for (auto& ability = m_abilitiesFiltered.begin() + m_currentOffset; ability != m_abilitiesFiltered.begin() + m_currentOffset + std::min(m_visibleItems, m_currentMax - m_currentOffset); ++ability) {
-		label = m_atacksUI->addChild<Label>(Globals::fontManager.get("dialog"));
+		label = atacksUI->addChild<Label>(Globals::fontManager.get("dialog"));
 		label->setPosition(0.5f, 1.0f - (index + 1) * invLimiter + 0.5 * invLimiter);
 		label->translateRelative(-0.5f * Globals::fontManager.get("dialog").getWidth((*ability).first) * 0.045f, -lineHeight * 0.5);
 		label->setScale(1.0f, 1.0f);
@@ -1021,39 +983,38 @@ void Battle::addAbilities() {
 }
 
 void Battle::eraseAbilities() {
-	m_atacksUI->eraseAllChildren();
+	Surface* attacksUI = findChild<Surface>("attacks");
+	attacksUI->eraseAllChildren();
 }
 
 void Battle::addMonsters() {
 	const std::vector<TextureRect>& iconRects = TileSetManager::Get().getTileSet("monster_icon").getTextureRects();
 
-	float width = 300.0f;
-	float height = 320.0f;
-	int limiter = std::min(m_visibleItems, m_currentMax);
-	float invLimiter = 1.0f / static_cast<float>(limiter);
+	float invLimiter = 0.25f;
 	int position = m_currentSelectedOption - m_currentOffset;
 	float lineHeight = Globals::fontManager.get("dialog").lineHeight * 0.045f;
 
-	Surface* surface;
-	surface = m_switchUI->addChild<Surface>();
+	Surface* switchUI = findChild<Surface>("switch");
+
+	Surface* surface = switchUI->addChild<Surface>();
 	surface->setPosition(0.0f, 1.0f - (position + 1) * invLimiter);
 	surface->setScale(1.0f, invLimiter);
 	surface->updateWorldTransformation();
 	surface->setShader(Globals::shaderManager.getAssetPointer("list"));
 	surface->setColor(Vector4f(0.78431f, 0.78431f, 0.78431f, 1.0f));
-	surface->setEdge(position == 0 ? Edge::TOP : position == std::min(m_visibleItems, m_currentMax - m_currentOffset) - 1 ? Edge::BOTTOM : Edge::EDGE_NONE);
+	surface->setEdge(position == 0 ? Edge::TOP : position == 3 ? Edge::BOTTOM : Edge::EDGE_NONE);
 	surface->setBorderRadius(5.0f);
 
 	Icon* icon; Label* label; Bar* bar;
 	for (size_t index = m_currentOffset; index < m_currentOffset + std::min(m_visibleItems, m_currentMax - m_currentOffset); index++) {
 		const TextureRect& iconRect = iconRects[MonsterIndex::MonsterData[m_filteredMonsters[index].get().name].graphic];
-		icon = m_switchUI->addChild<Icon>(iconRect);
+		icon = switchUI->addChild<Icon>(iconRect);
 		icon->setPosition(0.0f, 1.0f - (index - m_currentOffset + 1) * invLimiter + 0.5 * invLimiter);
 		icon->translateRelative(10.0f + 0.5f * iconRect.width, 0.0f);
 		icon->setAligned(true);
 		icon->setSpriteSheet(TileSetManager::Get().getTileSet("monster_icon").getAtlas());
 
-		label = m_switchUI->addChild<Label>(Globals::fontManager.get("dialog"));
+		label = switchUI->addChild<Label>(Globals::fontManager.get("dialog"));
 		label->setPosition(0.0f, 1.0f - (index - m_currentOffset + 1) * invLimiter + 0.5 * invLimiter);
 		label->translateRelative(90.0f, -lineHeight * 0.5);
 		label->setScale(1.0f, 1.0f);
@@ -1061,7 +1022,7 @@ void Battle::addMonsters() {
 		label->setLabel(m_filteredMonsters[index].get().name + " " + "(" + std::to_string(m_filteredMonsters[index].get().level) + ")");
 		label->setTextColor(index == m_currentSelectedOption ? Vector4f(0.94117f, 0.19215f, 0.19215f, 1.0f) : Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
 
-		bar = m_switchUI->addChild<Bar>(TileSetManager::Get().getTileSet("bars"));
+		bar = switchUI->addChild<Bar>(TileSetManager::Get().getTileSet("bars"));
 		bar->setPosition(0.0f, 1.0f - (index - m_currentOffset + 1) * invLimiter + 0.5 * invLimiter);
 		bar->translateRelative(90.0f, -lineHeight * 0.5 - 9.0f);
 		bar->updateWorldTransformation();
@@ -1073,7 +1034,7 @@ void Battle::addMonsters() {
 		bar->setMaxValue(static_cast<float>(m_filteredMonsters[index].get().level * MonsterIndex::MonsterData[m_filteredMonsters[index].get().name].maxHealth));
 		bar->setValue(m_filteredMonsters[index].get().health);
 
-		bar = m_switchUI->addChild<Bar>(TileSetManager::Get().getTileSet("bars"));
+		bar = switchUI->addChild<Bar>(TileSetManager::Get().getTileSet("bars"));
 		bar->setPosition(0.0f, 1.0f - (index - m_currentOffset + 1) * invLimiter + 0.5 * invLimiter);
 		bar->translateRelative(90.0f, -lineHeight * 0.5 - 16.0f);
 		bar->updateWorldTransformation();
@@ -1088,5 +1049,97 @@ void Battle::addMonsters() {
 }
 
 void Battle::eraseMonsters() {
-	m_switchUI->eraseAllChildren();
+	Surface* switchUI = findChild<Surface>("switch");
+	switchUI->eraseAllChildren();
+}
+
+void Battle::addGeneralUI(float posX, float posY) {
+
+	Empty* generalUI = addChild<Empty>();
+	generalUI->setName("general");
+	generalUI->setPosition(0.0f, 0.0f);
+	generalUI->translateRelative(posX, posY);
+	
+	IconAnimated* iconAnimated = generalUI->addChild<IconAnimated>(TileSetManager::Get().getTileSet("battle_icon").getTextureRects());
+	iconAnimated->setSpriteSheet(TileSetManager::Get().getTileSet("battle_icon").getAtlas());
+	iconAnimated->setAligned(true);
+	iconAnimated->setPosition(0.0f, 0.0f);
+	iconAnimated->translateRelative(30.0f, 60.0f);
+
+	iconAnimated = generalUI->addChild<IconAnimated>(TileSetManager::Get().getTileSet("battle_icon").getTextureRects());
+	iconAnimated->setSpriteSheet(TileSetManager::Get().getTileSet("battle_icon").getAtlas());
+	iconAnimated->setAligned(true);
+	iconAnimated->setPosition(0.0f, 0.0f);
+	iconAnimated->translateRelative(40.0f, 20.0f);
+
+	iconAnimated = generalUI->addChild<IconAnimated>(TileSetManager::Get().getTileSet("battle_icon").getTextureRects());
+	iconAnimated->setSpriteSheet(TileSetManager::Get().getTileSet("battle_icon").getAtlas());
+	iconAnimated->setAligned(true);
+	iconAnimated->setPosition(0.0f, 0.0f);
+	iconAnimated->translateRelative(40.0f, -20.0f);
+
+	iconAnimated = generalUI->addChild<IconAnimated>(TileSetManager::Get().getTileSet("battle_icon").getTextureRects());
+	iconAnimated->setSpriteSheet(TileSetManager::Get().getTileSet("battle_icon").getAtlas());
+	iconAnimated->setAligned(true);
+	iconAnimated->setPosition(0.0f, 0.0f);
+	iconAnimated->translateRelative(30.0f, -60.0f);
+}
+
+void Battle::eraseGeneralUI() {
+	Empty* generalUI = findChild<Empty>("general");
+	if (generalUI)
+		generalUI->eraseSelf();
+}
+
+void Battle::addAttacksUI(float posX, float posY, float scaleX, float scaleY) {
+	Surface* attacksUI = addChild<Surface>();
+	attacksUI->setName("attacks");
+	attacksUI->setPosition(0.0f, 0.0f);
+	attacksUI->translateRelative(posX, posY);
+	attacksUI->setShader(Globals::shaderManager.getAssetPointer("list"));
+	attacksUI->setBorderRadius(5.0f);
+	attacksUI->setEdge(Edge::ALL);
+	attacksUI->setColor(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+	attacksUI->setScale(1.0f, 1.0f);
+	attacksUI->scaleAbsolute(scaleX, scaleY);
+}
+
+void Battle::eraseAttacksUI() {
+	Surface* attacksUI = findChild<Surface>("attacks");
+	if (attacksUI)
+		attacksUI->eraseSelf();
+}
+
+void Battle::addSwitchUI(float posX, float posY, float scaleX, float scaleY) {
+	Surface* switchUI = addChild<Surface>();
+	switchUI->setName("switch");
+	switchUI->setPosition(0.0f, 0.0f);
+	switchUI->translateRelative(posX, posY);
+	switchUI->setShader(Globals::shaderManager.getAssetPointer("list"));
+	switchUI->setBorderRadius(5.0f);
+	switchUI->setEdge(Edge::ALL);
+	switchUI->setColor(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+	switchUI->setScale(1.0f, 1.0f);
+	switchUI->scaleAbsolute(scaleX, scaleY);
+}
+
+void Battle::eraseSwitchUI() {
+	Surface* switchUI = findChild<Surface>("switch");
+	if (switchUI)
+		switchUI->eraseSelf();
+}
+
+void Battle::addAbilityUI(float posX, float posY) {
+	IconAnimated* abilityUI = addChild<IconAnimated>(TileSetManager::Get().getTileSet("attacks").getTextureRects());
+	abilityUI->setName("ability");
+	abilityUI->setSpriteSheet(TileSetManager::Get().getTileSet("attacks").getAtlas());
+	abilityUI->setAligned(true);
+	abilityUI->setPosition(0.0f, 0.0f);
+	abilityUI->translateRelative(posX, posY);
+}
+
+void Battle::eraseAbilityUI() {
+	IconAnimated* abilityUI = findChild<IconAnimated>("ability");
+	if (abilityUI)
+		abilityUI->eraseSelf();
 }

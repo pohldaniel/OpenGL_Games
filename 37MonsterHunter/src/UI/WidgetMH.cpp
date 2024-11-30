@@ -25,7 +25,7 @@ NodeUI::NodeUI(NodeUI&& rhs) {
 }
 
 NodeUI::~NodeUI() {
-	eraseAllChildren();
+	eraseAllChildren(); 
 }
 
 std::list<std::shared_ptr<NodeUI>>& NodeUI::getChildren() const {
@@ -34,7 +34,7 @@ std::list<std::shared_ptr<NodeUI>>& NodeUI::getChildren() const {
 
 void NodeUI::eraseSelf() {
 	if (m_parent)
-		m_parent->eraseChild(this);
+		m_parent->eraseChild(this);	
 }
 
 void NodeUI::eraseChild(NodeUI* child) {
