@@ -6,7 +6,7 @@
 
 #include "MonsterIndex.h"
 
-class Monster : public SpriteEntity, public Surface {
+class Monster : public SpriteEntity, public ui::Surface {
 
 public:
 

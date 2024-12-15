@@ -41,7 +41,7 @@ struct AttackData {
 	unsigned int graphic;
 };
 
-class MonsterIndex : public Surface {
+class MonsterIndex : public ui::Surface {
 
 public:
 

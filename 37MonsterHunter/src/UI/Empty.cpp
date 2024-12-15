@@ -1,21 +1,24 @@
 #include "Empty.h"
 
-Empty::Empty() : WidgetMH() {
+namespace ui
+{
+	Empty::Empty() : Widget() {
 
-}
+	}
 
-Empty::Empty(const Empty& rhs) :
-	WidgetMH(rhs) {
-}
+	Empty::Empty(const Empty& rhs) :
+		Widget(rhs) {
+	}
 
-Empty::Empty(Empty&& rhs) :
-	WidgetMH(rhs) {
-}
+	Empty::Empty(Empty&& rhs) :
+		Widget(rhs) {
+	}
 
-Empty::~Empty() {
+	Empty::~Empty() {
 
-}
+	}
 
-void Empty::drawDefault() {
+	void Empty::drawDefault() {
 
+	}
 }

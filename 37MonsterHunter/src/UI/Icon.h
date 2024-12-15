@@ -4,61 +4,64 @@
 #include <engine/Rect.h>
 #include <UI/WidgetMH.h>
 
-class Icon: public WidgetMH {
+namespace ui
+{
+	class Icon : public Widget {
 
-public:
+	public:
 
-	Icon(const TextureRect& textureRect);
-	Icon(const Icon& rhs);
-	Icon(Icon&& rhs);
-	virtual ~Icon();
+		Icon(const TextureRect& textureRect);
+		Icon(const Icon& rhs);
+		Icon(Icon&& rhs);
+		virtual ~Icon();
 
-	void setColor(const Vector4f& color);
-	void setShader(Shader* shader);
-	void setSpriteSheet(const unsigned int& spriteSheet);
-	void setAligned(bool aligned);
-	void setFlipped(bool flipped);
+		void setColor(const Vector4f& color);
+		void setShader(Shader* shader);
+		void setSpriteSheet(const unsigned int& spriteSheet);
+		void setAligned(bool aligned);
+		void setFlipped(bool flipped);
 
-private:
+	private:
 
-	void drawDefault() override;
+		void drawDefault() override;
 
-	const TextureRect& textureRect;
-	Vector4f m_color;
-	Shader* m_shader;
-	unsigned int m_spriteSheet;	
-	bool m_aligned;
-	bool m_flipped;
-};
+		const TextureRect& textureRect;
+		Vector4f m_color;
+		Shader* m_shader;
+		unsigned int m_spriteSheet;
+		bool m_aligned;
+		bool m_flipped;
+	};
 
-class IconAnimated : public WidgetMH {
+	class IconAnimated : public Widget {
 
-public:
+	public:
 
-	IconAnimated(const std::vector<TextureRect>& textureRects);
-	IconAnimated(const IconAnimated& rhs);
-	IconAnimated(IconAnimated&& rhs);
-	virtual ~IconAnimated();
+		IconAnimated(const std::vector<TextureRect>& textureRects);
+		IconAnimated(const IconAnimated& rhs);
+		IconAnimated(IconAnimated&& rhs);
+		virtual ~IconAnimated();
 
-	void setColor(const Vector4f& color);
-	void setShader(Shader* shader);
-	void setSpriteSheet(const unsigned int& spriteSheet);
-	void setCurrentFrame(const int currentFrame);
-	void setAligned(bool aligned);
-	void setFlipped(bool flipped);
-	void setOffsetX(const float offsetX);
-	void setOffsetY(const float offsetY);
+		void setColor(const Vector4f& color);
+		void setShader(Shader* shader);
+		void setSpriteSheet(const unsigned int& spriteSheet);
+		void setCurrentFrame(const int currentFrame);
+		void setAligned(bool aligned);
+		void setFlipped(bool flipped);
+		void setOffsetX(const float offsetX);
+		void setOffsetY(const float offsetY);
 
-private:
+	private:
 
-	void drawDefault() override;
+		void drawDefault() override;
 
-	const std::vector<TextureRect>& textureRects;
-	Vector4f m_color;
-	Shader* m_shader;
-	unsigned int m_spriteSheet;
-	int m_currentFrame;
-	bool m_aligned;
-	bool m_flipped;
-	float m_offsetX, m_offsetY;
-};
+		const std::vector<TextureRect>& textureRects;
+		Vector4f m_color;
+		Shader* m_shader;
+		unsigned int m_spriteSheet;
+		int m_currentFrame;
+		bool m_aligned;
+		bool m_flipped;
+		float m_offsetX, m_offsetY;
+	};
+}

@@ -68,7 +68,7 @@ void Evolve::draw() {
 	shader->loadFloat("u_fade", m_fadeValue);
 	shader->unuse();
 
-	WidgetMH::draw();
+	ui::Widget::draw();
 }
 
 void Evolve::update(float dt) {
@@ -76,7 +76,7 @@ void Evolve::update(float dt) {
 	m_exitTimer.update(dt);
 
 	if (m_displayStar) {
-		IconAnimated* iconAnimated = findChild<IconAnimated>("star");
+		ui::IconAnimated* iconAnimated = findChild<ui::IconAnimated>("star");
 		m_progress = (m_elapsedTime / static_cast<float>(m_frameCount));
 		m_progress *= m_progress;
 		m_elapsedTime += 20.0f * dt;	
@@ -103,7 +103,7 @@ void Evolve::update(float dt) {
 void Evolve::startEvolution() {
 	
 	m_fade.fadeIn();
-	m_fade.setOnFadeIn([&m_fade = m_fade, &m_currentMonster = m_currentMonster, &m_startMonster = m_startMonster, &m_endMonster = m_endMonster, &m_exitTimer = m_exitTimer, &OnEvolveEnd = OnEvolveEnd, &m_displayStar = m_displayStar, &m_curentMonsterIndex = m_curentMonsterIndex, iconAnimated = findChild<IconAnimated>("icon"), textFiled = findChild<TextFieldMH>("textField")]() {
+	m_fade.setOnFadeIn([&m_fade = m_fade, &m_currentMonster = m_currentMonster, &m_startMonster = m_startMonster, &m_endMonster = m_endMonster, &m_exitTimer = m_exitTimer, &OnEvolveEnd = OnEvolveEnd, &m_displayStar = m_displayStar, &m_curentMonsterIndex = m_curentMonsterIndex, iconAnimated = findChild<ui::IconAnimated>("icon"), textFiled = findChild<ui::TextField>("textField")]() {
 		m_currentMonster = m_endMonster;
 		m_fade.setTransitionEnd(false);
 		m_fade.setFadeValue(0.0f);
@@ -151,19 +151,19 @@ void Evolve::setOnEvolveEnd(std::function<void()> fun) {
 
 void Evolve::setCurentMonsterIndex(int curentMonsterIndex) {
 	m_curentMonsterIndex = curentMonsterIndex;
-	findChild<IconAnimated>("icon")->setCurrentFrame(MonsterIndex::MonsterData[m_currentMonster].graphic * 16);
-	findChild<TextFieldMH>("textField")->setLabel(m_startMonster + " is evolving");
+	findChild<ui::IconAnimated>("icon")->setCurrentFrame(MonsterIndex::MonsterData[m_currentMonster].graphic * 16);
+	findChild<ui::TextField>("textField")->setLabel(m_startMonster + " is evolving");
 
 	float width = Globals::fontManager.get("bold").getWidth(m_startMonster + " is evolving") * 0.05f + 20.0f;
 	const TextureRect& rect = TileSetManager::Get().getTileSet("monster").getTextureRects()[MonsterIndex::MonsterData[m_currentMonster].graphic * 16];
-	findChild<TextFieldMH>("textField")->setOffsetX(-0.5f * width);
-	findChild<TextFieldMH>("textField")->setOffsetY(-rect.height);
+	findChild<ui::TextField>("textField")->setOffsetX(-0.5f * width);
+	findChild<ui::TextField>("textField")->setOffsetY(-rect.height);
 }
 
 void Evolve::initUI(float viewWidth, float viewHeight) {
 	setOrigin(static_cast<float>(Application::Width) * 0.5f, static_cast<float>(Application::Height) * 0.5f);
 
-	IconAnimated* iconAnimated = addChild<IconAnimated>(TileSetManager::Get().getTileSet("monster").getTextureRects());
+	ui::IconAnimated* iconAnimated = addChild<ui::IconAnimated>(TileSetManager::Get().getTileSet("monster").getTextureRects());
 	iconAnimated->setPosition(0.5f * m_viewWidth, 0.5f * m_viewHeight);
 	iconAnimated->setScale(2.0f, 2.0f);
 	iconAnimated->updateWorldTransformation();
@@ -176,8 +176,8 @@ void Evolve::initUI(float viewWidth, float viewHeight) {
 	float lineHeight = Globals::fontManager.get("bold").lineHeight * 0.05f;
 	float height = lineHeight + 20.0f;
 	const TextureRect& rect = TileSetManager::Get().getTileSet("monster").getTextureRects()[MonsterIndex::MonsterData[m_currentMonster].graphic * 16];
-	TextFieldMH* textField = addChild<TextFieldMH>(Globals::fontManager.get("bold"));
-	textField->setEdge(Edge::ALL);
+	ui::TextField* textField = addChild<ui::TextField>(Globals::fontManager.get("bold"));
+	textField->setEdge(ui::Edge::ALL);
 	textField->setBorderRadius(5.0f);
 	textField->setShader(Globals::shaderManager.getAssetPointer("list"));
 	textField->setBackgroundColor(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
@@ -189,7 +189,7 @@ void Evolve::initUI(float viewWidth, float viewHeight) {
 	textField->updateWorldTransformation();
 	textField->setName("textField");
 
-	iconAnimated = addChild<IconAnimated>(TileSetManager::Get().getTileSet("star").getTextureRects());
+	iconAnimated = addChild<ui::IconAnimated>(TileSetManager::Get().getTileSet("star").getTextureRects());
 	iconAnimated->setSpriteSheet(TileSetManager::Get().getTileSet("star").getAtlas());
 	iconAnimated->setName("star");
 	iconAnimated->setPosition(0.5f * m_viewWidth, 0.5f * m_viewHeight);

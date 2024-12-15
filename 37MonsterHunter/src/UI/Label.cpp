@@ -2,136 +2,140 @@
 #include "Label.h"
 #include "Surface.h"
 
-Label::Label(const CharacterSet& characterSet) : WidgetMH(), characterSet(characterSet), m_textColor(Vector4f::ONE), m_size(1.0f), m_label("label"), m_offsetX(0.0f), m_offsetY(0.0f) {
-
-}
-
-Label::Label(const Label& rhs) : 
-	WidgetMH(rhs), 
-	characterSet(rhs.characterSet), 
-	m_label(rhs.m_label), 
-	m_textColor(rhs.m_textColor),
-	m_size(rhs.m_size),
-	m_offsetX(rhs.m_offsetX),
-	m_offsetY(rhs.m_offsetY) {
-
-}
-
-Label::Label(Label&& rhs) : 
-	WidgetMH(rhs), 
-	characterSet(std::move(rhs.characterSet)), 
-	m_label(rhs.m_label), 
-	m_textColor(rhs.m_textColor),
-	m_size(rhs.m_size),
-	m_offsetX(rhs.m_offsetX),
-	m_offsetY(rhs.m_offsetY) {
-
-}
-
-Label::~Label() {
-
-}
-
-void Label::setTextColor(const Vector4f& textColor) {
-	m_textColor = textColor;
-}
-
-void Label::setLabel(const std::string& label) {
-	m_label = label;
-}
-
-void Label::setSize(const float size) {
-	m_size = size;
-}
-
-void Label::setOffsetX(const float offsetX) {
-	m_offsetX = offsetX;
-}
-
-void Label::setOffsetY(const float offsetY) {
-	m_offsetY = offsetY;
-}
-
-void Label::drawDefault() {
-	characterSet.bind();
-	if (m_offsetX || m_offsetY) {
-		Fontrenderer::Get().addTextTransformed(characterSet, getWorldTransformationWithTranslation(m_offsetX, m_offsetY), m_label, m_textColor, m_size);
-	}else {
-		Fontrenderer::Get().addTextTransformed(characterSet, getWorldTransformation(), m_label, m_textColor, m_size);
-	}
-	Fontrenderer::Get().drawBuffer();
-}
-///////////////////////////////////////////////////////
-TextFieldMH::TextFieldMH(const CharacterSet& characterSet) : Label(characterSet), m_paddingX(10.0f), m_paddingY(10.0f), m_backgroundColor(Vector4f::ONE), m_edge(Edge::ALL), m_borderRadius(10.0f) {
-
-}
-
-TextFieldMH::TextFieldMH(const TextFieldMH& rhs) :
-	Label(rhs),
-	m_paddingX(rhs.m_paddingX),
-	m_paddingY(rhs.m_paddingY),
-	m_backgroundColor(rhs.m_backgroundColor),
-	m_edge(rhs.m_edge),
-	m_borderRadius(rhs.m_borderRadius)
+namespace ui
 {
+	Label::Label(const CharacterSet& characterSet) : Widget(), characterSet(characterSet), m_textColor(Vector4f::ONE), m_size(1.0f), m_label("label"), m_offsetX(0.0f), m_offsetY(0.0f) {
 
-}
+	}
 
-TextFieldMH::TextFieldMH(TextFieldMH&& rhs) :
-	Label(rhs),
-	m_paddingX(rhs.m_paddingX),
-	m_paddingY(rhs.m_paddingY),
-	m_backgroundColor(rhs.m_backgroundColor),
-	m_edge(rhs.m_edge),
-	m_borderRadius(rhs.m_borderRadius) {
+	Label::Label(const Label& rhs) :
+		Widget(rhs),
+		characterSet(rhs.characterSet),
+		m_label(rhs.m_label),
+		m_textColor(rhs.m_textColor),
+		m_size(rhs.m_size),
+		m_offsetX(rhs.m_offsetX),
+		m_offsetY(rhs.m_offsetY) {
 
-}
+	}
 
-TextFieldMH::~TextFieldMH() {
+	Label::Label(Label&& rhs) :
+		Widget(rhs),
+		characterSet(std::move(rhs.characterSet)),
+		m_label(rhs.m_label),
+		m_textColor(rhs.m_textColor),
+		m_size(rhs.m_size),
+		m_offsetX(rhs.m_offsetX),
+		m_offsetY(rhs.m_offsetY) {
 
-}
+	}
 
-void TextFieldMH::setBackgroundColor(const Vector4f& color) {
-	m_backgroundColor = color;
-}
+	Label::~Label() {
 
-void TextFieldMH::setEdge(Edge edge) {
-	m_edge = edge;
-}
+	}
 
-void TextFieldMH::setBorderRadius(float borderRadius) {
-	m_borderRadius = borderRadius;
-}
+	void Label::setTextColor(const Vector4f& textColor) {
+		m_textColor = textColor;
+	}
 
-void TextFieldMH::setPaddingX(const float paddingX) {
-	m_paddingX = paddingX;
-}
+	void Label::setLabel(const std::string& label) {
+		m_label = label;
+	}
 
-void TextFieldMH::setPaddingY(const float paddingY) {
-	m_paddingY = paddingY;
-}
+	void Label::setSize(const float size) {
+		m_size = size;
+	}
 
-void TextFieldMH::setShader(Shader* shader) {
-	m_shader = shader;
-	Sprite::setShader(m_shader);
-}
+	void Label::setOffsetX(const float offsetX) {
+		m_offsetX = offsetX;
+	}
 
-void TextFieldMH::drawDefault() {
+	void Label::setOffsetY(const float offsetY) {
+		m_offsetY = offsetY;
+	}
 
-	float scaleX = characterSet.getWidth(m_label) * m_size + m_paddingX;
-	float scaleY = static_cast<float>(characterSet.lineHeight) * m_size + m_paddingY;
+	void Label::drawDefault() {
+		characterSet.bind();
+		if (m_offsetX || m_offsetY) {
+			Fontrenderer::Get().addTextTransformed(characterSet, getWorldTransformationWithTranslation(m_offsetX, m_offsetY), m_label, m_textColor, m_size);
+		}
+		else {
+			Fontrenderer::Get().addTextTransformed(characterSet, getWorldTransformation(), m_label, m_textColor, m_size);
+		}
+		Fontrenderer::Get().drawBuffer();
+	}
+	///////////////////////////////////////////////////////
+	TextField::TextField(const CharacterSet& characterSet) : Label(characterSet), m_paddingX(10.0f), m_paddingY(10.0f), m_backgroundColor(Vector4f::ONE), m_edge(Edge::ALL), m_borderRadius(10.0f) {
 
-	m_shader->use();
-	m_shader->loadVector("u_dimensions", Vector2f(scaleX, scaleY));
-	m_shader->loadFloat("u_radius", m_borderRadius);
-	m_shader->loadUnsignedInt("u_edge", m_edge);
-	drawTransformed(m_backgroundColor, getWorldTransformationWithScaleAndTranslation(scaleX, scaleY, m_offsetX, m_offsetY));
+	}
 
-	characterSet.bind();
-	if(m_offsetX || m_offsetY) 
-		Fontrenderer::Get().addTextTransformed(characterSet, getWorldTransformationWithTranslation(m_offsetX + 0.5f * m_paddingX, m_offsetY + 0.5f * m_paddingY), m_label, m_textColor, m_size);
-	else 
-		Fontrenderer::Get().addTextTransformed(characterSet, getWorldTransformationWithTranslation(0.5f * m_paddingX, 0.5f * m_paddingY), m_label, m_textColor, m_size);
-	
-	Fontrenderer::Get().drawBuffer();
+	TextField::TextField(const TextField& rhs) :
+		Label(rhs),
+		m_paddingX(rhs.m_paddingX),
+		m_paddingY(rhs.m_paddingY),
+		m_backgroundColor(rhs.m_backgroundColor),
+		m_edge(rhs.m_edge),
+		m_borderRadius(rhs.m_borderRadius)
+	{
+
+	}
+
+	TextField::TextField(TextField&& rhs) :
+		Label(rhs),
+		m_paddingX(rhs.m_paddingX),
+		m_paddingY(rhs.m_paddingY),
+		m_backgroundColor(rhs.m_backgroundColor),
+		m_edge(rhs.m_edge),
+		m_borderRadius(rhs.m_borderRadius) {
+
+	}
+
+	TextField::~TextField() {
+
+	}
+
+	void TextField::setBackgroundColor(const Vector4f& color) {
+		m_backgroundColor = color;
+	}
+
+	void TextField::setEdge(Edge edge) {
+		m_edge = edge;
+	}
+
+	void TextField::setBorderRadius(float borderRadius) {
+		m_borderRadius = borderRadius;
+	}
+
+	void TextField::setPaddingX(const float paddingX) {
+		m_paddingX = paddingX;
+	}
+
+	void TextField::setPaddingY(const float paddingY) {
+		m_paddingY = paddingY;
+	}
+
+	void TextField::setShader(Shader* shader) {
+		m_shader = shader;
+		Sprite::setShader(m_shader);
+	}
+
+	void TextField::drawDefault() {
+
+		float scaleX = characterSet.getWidth(m_label) * m_size + m_paddingX;
+		float scaleY = static_cast<float>(characterSet.lineHeight) * m_size + m_paddingY;
+
+		m_shader->use();
+		m_shader->loadVector("u_dimensions", Vector2f(scaleX, scaleY));
+		m_shader->loadFloat("u_radius", m_borderRadius);
+		m_shader->loadUnsignedInt("u_edge", m_edge);
+		drawTransformed(m_backgroundColor, getWorldTransformationWithScaleAndTranslation(scaleX, scaleY, m_offsetX, m_offsetY));
+
+		characterSet.bind();
+		if (m_offsetX || m_offsetY)
+			Fontrenderer::Get().addTextTransformed(characterSet, getWorldTransformationWithTranslation(m_offsetX + 0.5f * m_paddingX, m_offsetY + 0.5f * m_paddingY), m_label, m_textColor, m_size);
+		else
+			Fontrenderer::Get().addTextTransformed(characterSet, getWorldTransformationWithTranslation(0.5f * m_paddingX, 0.5f * m_paddingY), m_label, m_textColor, m_size);
+
+		Fontrenderer::Get().drawBuffer();
+	}
 }

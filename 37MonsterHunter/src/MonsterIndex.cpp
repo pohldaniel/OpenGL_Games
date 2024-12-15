@@ -228,49 +228,7 @@ MonsterIndex::~MonsterIndex() {
 }
 
 void MonsterIndex::draw() {
-
-	WidgetMH::draw();
-
-	//Surface::draw();
-
-	/*std::shared_ptr<WidgetMH> currentWidget;
-	{
-		currentWidget = std::static_pointer_cast<WidgetMH>(getChildren().front());
-		currentWidget->draw();
-	}
-	{
-		//right surface
-		std::list<std::shared_ptr<NodeUI>>::reverse_iterator  it;
-		std::shared_ptr<WidgetMH> subWidget;
-		for (it = currentWidget->getChildren().rbegin(); it != currentWidget->getChildren().rend(); ++it) {
-			subWidget = std::static_pointer_cast<WidgetMH>(*it);
-			subWidget->draw();
-		}
-		currentWidget = subWidget;
-	}
-	{	
-		//top-rigth content	
-		for (auto& children : currentWidget->getChildren()) {
-			currentWidget = std::static_pointer_cast<WidgetMH>(children);
-			currentWidget->draw();
-		}	
-	}
-
-	{
-		//left surface
-		currentWidget = std::static_pointer_cast<WidgetMH>(getChildren().back());
-		currentWidget->draw();
-		std::list<std::shared_ptr<NodeUI>>::reverse_iterator  it;
-		std::shared_ptr<WidgetMH> subWidget;
-		for (it = currentWidget->getChildren().rbegin(); it != currentWidget->getChildren().rend(); ++it) {
-			subWidget = std::static_pointer_cast<WidgetMH>(*it);
-			subWidget->draw();
-
-			for (auto& children : subWidget->getChildren()) {
-				std::static_pointer_cast<WidgetMH>(children)->draw();
-			}		
-		}
-	}*/
+	ui::Widget::draw();	
 }
 
 void MonsterIndex::update(float dt) {
@@ -282,68 +240,68 @@ void MonsterIndex::update(float dt) {
 	}
 
 	const MonsterEntry& currentMonster = Monsters[m_currentOffset + m_currentSelected];
-	findChild<Label>("headline")->setLabel(currentMonster.name);
-	findChild<Label>("level")->setLabel("Lvl: " + std::to_string(currentMonster.level));
-	Label* label = findChild<Label>("element");
+	findChild<ui::Label>("headline")->setLabel(currentMonster.name);
+	findChild<ui::Label>("level")->setLabel("Lvl: " + std::to_string(currentMonster.level));
+	ui::Label* label = findChild<ui::Label>("element");
 	label->setLabel(MonsterData[currentMonster.name].element);
 	label->setOffsetX(-0.045f * Globals::fontManager.get("dialog").getWidth(MonsterData[currentMonster.name].element));
 
-	label = findChild<Label>("health");
+	label = findChild<ui::Label>("health");
 	label->setLabel("HP: " + Fontrenderer::FloatToString(currentMonster.health, 0) + "/" + std::to_string(currentMonster.level * MonsterData[currentMonster.name].maxHealth));
 
-	label = findChild<Label>("energy");
+	label = findChild<ui::Label>("energy");
 	label->setLabel("EP: " + Fontrenderer::FloatToString(currentMonster.energy, 0) + "/" + std::to_string(currentMonster.level * MonsterData[currentMonster.name].maxEnergy));
 
-	findChild<Surface>("top-right")->setColor(ColorMap[MonsterData[currentMonster.name].element]);
-	findChild<IconAnimated>("icon")->setCurrentFrame(MonsterData[currentMonster.name].graphic * 16 + m_currentFrame);
+	findChild<ui::Surface>("top-right")->setColor(ColorMap[MonsterData[currentMonster.name].element]);
+	findChild<ui::IconAnimated>("icon")->setCurrentFrame(MonsterData[currentMonster.name].graphic * 16 + m_currentFrame);
 
-	Bar* bar = findChild<Bar>(m_stateLabels[0]);
+	ui::Bar* bar = findChild<ui::Bar>(m_stateLabels[0]);
 	bar->setValue(static_cast<float>(currentMonster.level * MonsterData[currentMonster.name].maxHealth));
 	bar->setMaxValue(static_cast<float>(static_cast<float>(currentMonster.level * m_maxStats[m_stats[0]])));
 
-	bar = findChild<Bar>(m_stateLabels[1]);
+	bar = findChild<ui::Bar>(m_stateLabels[1]);
 	bar->setValue(static_cast<float>(currentMonster.level * MonsterData[currentMonster.name].maxEnergy));
 	bar->setMaxValue(static_cast<float>(static_cast<float>(currentMonster.level * m_maxStats[m_stats[1]])));
 
-	bar = findChild<Bar>(m_stateLabels[2]);
+	bar = findChild<ui::Bar>(m_stateLabels[2]);
 	bar->setValue(static_cast<float>(currentMonster.level * MonsterData[currentMonster.name].attack));
 	bar->setMaxValue(static_cast<float>(static_cast<float>(currentMonster.level * m_maxStats[m_stats[2]])));
 
-	bar = findChild<Bar>(m_stateLabels[3]);
+	bar = findChild<ui::Bar>(m_stateLabels[3]);
 	bar->setValue(static_cast<float>(currentMonster.level * MonsterData[currentMonster.name].defense));
 	bar->setMaxValue(static_cast<float>(static_cast<float>(currentMonster.level * m_maxStats[m_stats[3]])));
 
-	bar = findChild<Bar>(m_stateLabels[4]);
+	bar = findChild<ui::Bar>(m_stateLabels[4]);
 	bar->setValue(static_cast<float>(currentMonster.level * MonsterData[currentMonster.name].speed));
 	bar->setMaxValue(static_cast<float>(static_cast<float>(currentMonster.level * m_maxStats[m_stats[4]])));
 
-	bar = findChild<Bar>(m_stateLabels[5]);
+	bar = findChild<ui::Bar>(m_stateLabels[5]);
 	bar->setValue(static_cast<float>(currentMonster.level * MonsterData[currentMonster.name].recovery));
 	bar->setMaxValue(static_cast<float>(static_cast<float>(currentMonster.level * m_maxStats[m_stats[5]])));
 	
-	bar = findChild<Bar>("level");
+	bar = findChild<ui::Bar>("level");
 	bar->setValue(currentMonster.experience);
 	bar->setMaxValue(currentMonster.level * 150.0f);
 
-	bar = findChild<Bar>("health");
+	bar = findChild<ui::Bar>("health");
 	bar->setValue(currentMonster.health);
 	bar->setMaxValue(static_cast<float>(currentMonster.level * MonsterData[currentMonster.name].maxHealth));
 
-	bar = findChild<Bar>("energy");
+	bar = findChild<ui::Bar>("energy");
 	bar->setValue(currentMonster.energy);
 	bar->setMaxValue(static_cast<float>(currentMonster.level * MonsterData[currentMonster.name].maxEnergy));
 
 	const std::vector<TextureRect>& rects = TileSetManager::Get().getTileSet("monster_icon").getTextureRects();
-	Surface *surface = findChild<Surface>("left"), *subSurface;
-	IconAnimated *iconAnimated;
+	ui::Surface *surface = findChild<Surface>("left"), *subSurface;
+	ui::IconAnimated *iconAnimated;
 	for (int i = 0; i < std::min(static_cast<int>(Monsters.size()), m_visibleItems); i++) {
 		Vector4f color = i == m_currentSelected ? Vector4f(0.78431f, 0.78431f, 0.78431f, 1.0f) : Vector4f(0.22745f, 0.21568f, 0.23137f, 1.0f);
-		subSurface = surface->findChild<Surface>(i);
+		subSurface = surface->findChild<ui::Surface>(i);
 		subSurface->setColor(color);
 
 		const MonsterEntry& currentMonster = Monsters[i + m_currentOffset];
 		const TextureRect& rect = rects[MonsterData[currentMonster.name].graphic];
-		iconAnimated = surface->findChild<IconAnimated>(i);
+		iconAnimated = surface->findChild<ui::IconAnimated>(i);
 		iconAnimated->setCurrentFrame(MonsterData[currentMonster.name].graphic);
 		iconAnimated->setPosition(0.0f, 0.5f);
 		iconAnimated->translateRelative(45.0f - 0.5f * rect.width, -0.5f * rect.height);
@@ -351,7 +309,7 @@ void MonsterIndex::update(float dt) {
 		iconAnimated->setColor(currentMonster.selected ? Vector4f(1.0f, 0.0f, 0.0f, 1.0f) : Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
 		iconAnimated->updateWorldTransformation();
 
-		label = surface->findChild<Label>(i);
+		label = surface->findChild<ui::Label>(i);
 		label->setTextColor(currentMonster.selected ? Vector4f(1.0f, 0.84313f, 0.0f, 1.0f) : Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
 		label->setLabel(currentMonster.name);
 	}
@@ -475,28 +433,28 @@ void MonsterIndex::initUI(float viewWidth, float viewHeight) {
 	setColor(Vector4f(0.22745f, 0.21568f, 0.23137f, 1.0f));
 	setBorderRadius(12.0f);
 
-	Surface* surface = addChild<Surface>();
+	ui::Surface* surface = addChild<ui::Surface>();
 	surface->setPosition(0.333333f, 0.0f);
 	surface->setScale(0.666666f, 1.0f);
 	surface->updateWorldTransformation();
 	surface->setShader(Globals::shaderManager.getAssetPointer("list"));
 	surface->setName("right");
 	surface->setBorderRadius(12.0f);
-	surface->setEdge(Edge::EDGE_RIGHT);
+	surface->setEdge(ui::Edge::EDGE_RIGHT);
 	surface->setColor(Vector4f(0.16862f, 0.16078f, 0.17254f, 1.0f));
 
-	surface = surface->addChild<Surface>();
+	surface = surface->addChild<ui::Surface>();
 	surface->setPosition(0.0f, 0.625f);
 	surface->setScale(1.0f, 0.375f);
 	surface->updateWorldTransformation();
 	surface->setShader(Globals::shaderManager.getAssetPointer("list"));
 	surface->setName("top-right");
 	surface->setBorderRadius(12.0f);
-	surface->setEdge(Edge::TOP_RIGHT);
+	surface->setEdge(ui::Edge::TOP_RIGHT);
 	surface->setColor(Vector4f(0.0f, 1.0f, 1.0f, 1.0f));
 	
 	//add Icon
-	IconAnimated* iconAnimated = surface->addChild<IconAnimated>(TileSetManager::Get().getTileSet("monster").getTextureRects());
+	ui::IconAnimated* iconAnimated = surface->addChild<ui::IconAnimated>(TileSetManager::Get().getTileSet("monster").getTextureRects());
 	iconAnimated->setPosition(0.5f, 0.5f);
 	iconAnimated->translateRelative(-96.0f, -96.0f);
 	iconAnimated->scaleAbsolute(192.0f, 192.0f);
@@ -506,7 +464,7 @@ void MonsterIndex::initUI(float viewWidth, float viewHeight) {
 
 	float lineHeightBold = static_cast<float>(Globals::fontManager.get("bold").lineHeight) * 0.05f;
 	float lineHeight = static_cast<float>(Globals::fontManager.get("dialog").lineHeight) * 0.045f;
-	Label* label = surface->addChild<Label>(Globals::fontManager.get("bold"));
+	ui::Label* label = surface->addChild<ui::Label>(Globals::fontManager.get("bold"));
 	label->setPosition(0.0f, 1.0f);
 	label->setScale(1.0f, 1.0f);
 	label->translateRelative(10.0f, -10.0f - lineHeightBold);
@@ -515,7 +473,7 @@ void MonsterIndex::initUI(float viewWidth, float viewHeight) {
 	label->setTextColor(Vector4f(0.95686f, 0.99608f, 0.98039f, 1.0f));
 	label->setSize(0.05f);
 	
-	label = surface->addChild<Label>(Globals::fontManager.get("dialog"));
+	label = surface->addChild<ui::Label>(Globals::fontManager.get("dialog"));
 	label->setPosition(0.0f, 0.0f);
 	label->setScale(1.0f, 1.0f);
 	label->translateRelative(10.0f, 10.0f);
@@ -524,7 +482,7 @@ void MonsterIndex::initUI(float viewWidth, float viewHeight) {
 	label->setTextColor(Vector4f(0.95686f, 0.99608f, 0.98039f, 1.0f));
 	label->setSize(0.045f);
 
-	label = surface->addChild<Label>(Globals::fontManager.get("dialog"));
+	label = surface->addChild<ui::Label>(Globals::fontManager.get("dialog"));
 	label->setPosition(1.0f, 0.0f);
 	label->setScale(1.0f, 1.0f);
 	label->translateRelative(-10.0f, 10.0f);
@@ -533,7 +491,7 @@ void MonsterIndex::initUI(float viewWidth, float viewHeight) {
 	label->setTextColor(Vector4f(0.95686f, 0.99608f, 0.98039f, 1.0f));
 	label->setSize(0.045f);
 	
-	Bar* bar = surface->addChild<Bar>(TileSetManager::Get().getTileSet("bars"));
+	ui::Bar* bar = surface->addChild<ui::Bar>(TileSetManager::Get().getTileSet("bars"));
 	bar->setPosition(0.0f, 0.0f);
 	bar->translateRelative(10.0f, 4.0f);
 	bar->updateWorldTransformation();
@@ -551,7 +509,7 @@ void MonsterIndex::initUI(float viewWidth, float viewHeight) {
 	surface = findChild<Surface>("right");
 
 	
-	bar = surface->addChild<Bar>(TileSetManager::Get().getTileSet("bars"));
+	bar = surface->addChild<ui::Bar>(TileSetManager::Get().getTileSet("bars"));
 	bar->setPosition(0.025f, 0.5f);
 	bar->translateRelative(0.0f, 25.0f);
 	bar->updateWorldTransformation();
@@ -562,7 +520,7 @@ void MonsterIndex::initUI(float viewWidth, float viewHeight) {
 	bar->setWidth(m_viewWidth * 0.4f * 0.45f);
 	bar->setHeight(30.0f);
 
-	bar = surface->addChild<Bar>(TileSetManager::Get().getTileSet("bars"));
+	bar = surface->addChild<ui::Bar>(TileSetManager::Get().getTileSet("bars"));
 	bar->setPosition(0.525f, 0.5f);
 	bar->translateRelative(0.0f, 25.0f);
 	bar->updateWorldTransformation();
@@ -573,7 +531,7 @@ void MonsterIndex::initUI(float viewWidth, float viewHeight) {
 	bar->setWidth(m_viewWidth * 0.4f * 0.45f);
 	bar->setHeight(30.0f);
 
-	label = surface->addChild<Label>(Globals::fontManager.get("dialog"));
+	label = surface->addChild<ui::Label>(Globals::fontManager.get("dialog"));
 	label->setPosition(0.025f, 0.5f);
 	label->translateRelative(10.0f, 28.5f);
 	label->updateWorldTransformation();
@@ -581,7 +539,7 @@ void MonsterIndex::initUI(float viewWidth, float viewHeight) {
 	label->setSize(0.045f);
 	label->setName("health");
 
-	label = surface->addChild<Label>(Globals::fontManager.get("dialog"));
+	label = surface->addChild<ui::Label>(Globals::fontManager.get("dialog"));
 	label->setPosition(0.525f, 0.5f);
 	label->translateRelative(10.0f, 28.5f);
 	label->updateWorldTransformation();
@@ -589,7 +547,7 @@ void MonsterIndex::initUI(float viewWidth, float viewHeight) {
 	label->setSize(0.045f);
 	label->setName("energy");
 
-	label = surface->addChild<Label>(Globals::fontManager.get("dialog"));
+	label = surface->addChild<ui::Label>(Globals::fontManager.get("dialog"));
 	label->setPosition(0.025f, 0.5f);
 	label->translateRelative(0.0f, -lineHeight * 0.5f);
 	label->updateWorldTransformation();
@@ -597,7 +555,7 @@ void MonsterIndex::initUI(float viewWidth, float viewHeight) {
 	label->setSize(0.045f);
 	label->setLabel("Stats");
 
-	label = surface->addChild<Label>(Globals::fontManager.get("dialog"));
+	label = surface->addChild<ui::Label>(Globals::fontManager.get("dialog"));
 	label->setPosition(0.525f, 0.5f);
 	label->translateRelative(0.0f, -lineHeight * 0.5f);
 	label->updateWorldTransformation();
@@ -608,14 +566,14 @@ void MonsterIndex::initUI(float viewWidth, float viewHeight) {
 	float width = m_viewWidth * 0.4f * 0.45f;
 	for (size_t i = 0; i < m_stats.size(); i++) {
 		const TextureRect& rect = TileSetManager::Get().getTileSet("monster_icon").getTextureRects()[23 + i];
-		Icon* icon = surface->addChild<Icon>(rect);
+		ui::Icon* icon = surface->addChild<ui::Icon>(rect);
 		icon->setPosition(0.025f, 0.5f);
 		icon->translateRelative(5.0f, -30.0f -rect.height * 0.5f - i * statHeight);
 		icon->scaleAbsolute(rect.width, rect.height);
 		icon->updateWorldTransformation();
 		icon->setSpriteSheet(TileSetManager::Get().getTileSet("monster_icon").getAtlas());
 
-		label = surface->addChild<Label>(Globals::fontManager.get("dialog"));
+		label = surface->addChild<ui::Label>(Globals::fontManager.get("dialog"));
 		label->setPosition(0.025f, 0.5f);
 		label->translateRelative(30.0f, -30.0f - i * statHeight - lineHeight * 0.4f + 2.0f);
 		label->updateWorldTransformation();
@@ -623,7 +581,7 @@ void MonsterIndex::initUI(float viewWidth, float viewHeight) {
 		label->setSize(0.045f);
 		label->setLabel(m_stats[i]);
 
-		bar = surface->addChild<Bar>(TileSetManager::Get().getTileSet("bars"));
+		bar = surface->addChild<ui::Bar>(TileSetManager::Get().getTileSet("bars"));
 		bar->setPosition(0.025f, 0.5f);	
 		bar->translateRelative(30.0f, -37.5f - i * statHeight - lineHeight * 0.4f + 2.0f);
 		bar->updateWorldTransformation();
@@ -635,34 +593,34 @@ void MonsterIndex::initUI(float viewWidth, float viewHeight) {
 		bar->setHeight(5.0f);
 	}
 
-	surface = addChild<Surface>();
+	surface = addChild<ui::Surface>();
 	surface->setPosition(0.0f, 0.0f);
 	surface->setScale(0.333333f, 1.0f);
 	surface->updateWorldTransformation();
 	surface->setShader(Globals::shaderManager.getAssetPointer("list"));
 	surface->setName("left");
 	surface->setBorderRadius(12.0f);
-	surface->setEdge(Edge::EDGE_LEFT);
+	surface->setEdge(ui::Edge::EDGE_LEFT);
 	surface->setColor(Vector4f(0.22745f, 0.21568f, 0.23137f, 1.0f));
 
 	
 }
 
 void MonsterIndex::addAbilities() {
-	Surface* surface = findChild<Surface>("right");
+	ui::Surface* surface = findChild<ui::Surface>("right");
 	const MonsterEntry& currentMonster = Monsters[m_currentOffset + m_currentSelected];
 	float lineHeight = static_cast<float>(Globals::fontManager.get("dialog").lineHeight) * 0.045f;
 	int index = 0;
 	float x, y, statHeight = 42.35f;
 	std::string lastAbility;
-	TextFieldMH* textField;
+	ui::TextField* textField;
 	for (auto& ability : MonsterData[currentMonster.name].abilities) {
 		if (currentMonster.level < ability.second)
 			continue;
 		x = index % 2 * (Globals::fontManager.get("dialog").getWidth(lastAbility) * 0.045f + 20.0f);
 		y = -(int(index / 2) + 1) * statHeight - 4.0f;
 
-		textField = surface->addChild<TextFieldMH>(Globals::fontManager.get("dialog"));
+		textField = surface->addChild<ui::TextField>(Globals::fontManager.get("dialog"));
 		textField->setPosition(0.525f, 0.5f);
 		textField->translateRelative(x, y);
 		textField->translateRelative(0.0f, -lineHeight * 0.5f);
@@ -673,7 +631,7 @@ void MonsterIndex::addAbilities() {
 		textField->setOffsetY(5.0f);
 		textField->setLabel(ability.first);
 		textField->setBackgroundColor(ColorMap[_AttackData[ability.first].element]);
-		textField->setEdge(Edge::ALL);
+		textField->setEdge(ui::Edge::ALL);
 		textField->setBorderRadius(4.0f);
 		textField->setPaddingX(10.0f);
 		textField->setPaddingY(10.0f);
@@ -684,26 +642,26 @@ void MonsterIndex::addAbilities() {
 }
 
 void MonsterIndex::eraseAbilities() {
-	Surface* surface = findChild<Surface>("right");
-	surface->eraseChildren<TextFieldMH>();
+	ui::Surface* surface = findChild<ui::Surface>("right");
+	surface->eraseChildren<ui::TextField>();
 }
 
 void MonsterIndex::addMonsters() {
-	Surface* surface = findChild<Surface>("left");
+	ui::Surface* surface = findChild<ui::Surface>("left");
 	float lineHeight = static_cast<float>(Globals::fontManager.get("dialog").lineHeight) * 0.045f;
 	const std::vector<TextureRect>& rects = TileSetManager::Get().getTileSet("monster_icon").getTextureRects();
-	Surface *subSurface; IconAnimated* animatedIcon; Label* label; Icon* icon;
+	ui::Surface *subSurface; ui::IconAnimated* animatedIcon; ui::Label* label; ui::Icon* icon;
 
 	float itemHeigt = 1.0f / static_cast<float>(m_visibleItems);
 	for (int i = 0; i < std::min(static_cast<int>(Monsters.size()), m_visibleItems); i++) {
-		subSurface = surface->addChild<Surface>();
+		subSurface = surface->addChild<ui::Surface>();
 
 		if (i == 0) {
-			subSurface->setEdge(Edge::TOP_LEFT);
+			subSurface->setEdge(ui::Edge::TOP_LEFT);
 		}else if (i == m_visibleItems - 1) {
-			subSurface->setEdge(Edge::BOTTOM_LEFT);
+			subSurface->setEdge(ui::Edge::BOTTOM_LEFT);
 		}else {
-			subSurface->setEdge(Edge::EDGE_NONE);
+			subSurface->setEdge(ui::Edge::EDGE_NONE);
 		}
 
 		subSurface->setPosition(0.0f, 1.0f - static_cast<float>(i + 1) * itemHeigt);
@@ -716,7 +674,7 @@ void MonsterIndex::addMonsters() {
 
 		const MonsterEntry& currentMonster = Monsters[i + m_currentOffset];
 		const TextureRect& rect = rects[MonsterData[currentMonster.name].graphic];
-		animatedIcon = subSurface->addChild<IconAnimated>(rects);
+		animatedIcon = subSurface->addChild<ui::IconAnimated>(rects);
 		animatedIcon->setPosition(0.0f, 0.5f);
 		animatedIcon->translateRelative(45.0f - 0.5f * rect.width, -0.5f * rect.height);
 		animatedIcon->scaleAbsolute(rect.width, rect.height);
@@ -727,7 +685,7 @@ void MonsterIndex::addMonsters() {
 		animatedIcon->setIndex(i);
 
 		if (i != m_visibleItems - 1) {
-			icon = subSurface->addChild<Icon>(rects[16]);
+			icon = subSurface->addChild<ui::Icon>(rects[16]);
 			icon->setPosition(0.0f, 0.0f);
 			icon->setScale(1.0f, 0.02f);
 			icon->updateWorldTransformation();
@@ -735,7 +693,7 @@ void MonsterIndex::addMonsters() {
 			icon->setSpriteSheet(TileSetManager::Get().getTileSet("monster_icon").getAtlas());
 		}
 
-		label = subSurface->addChild<Label>(Globals::fontManager.get("dialog"));
+		label = subSurface->addChild<ui::Label>(Globals::fontManager.get("dialog"));
 		label->setPosition(0.0f, 0.5f);
 		label->translateRelative(90.0f, -0.5f * lineHeight);
 		label->updateWorldTransformation();
@@ -745,17 +703,17 @@ void MonsterIndex::addMonsters() {
 		label->setIndex(i);
 	}
 
-	Surface* horinzontalBar = findChild<Surface>("left")->addChild<Surface>();
+	ui::Surface* horinzontalBar = findChild<ui::Surface>("left")->addChild<ui::Surface>();
 	horinzontalBar->setPosition(1.0f - 0.0125f, 0.0f);
 	horinzontalBar->setScale(0.0125f, 1.0f);
 	horinzontalBar->updateWorldTransformation();
 	horinzontalBar->setShader(Globals::shaderManager.getAssetPointer("list"));
 	horinzontalBar->setBorderRadius(0.0f);
-	horinzontalBar->setEdge(Edge::EDGE_NONE);
+	horinzontalBar->setEdge(ui::Edge::EDGE_NONE);
 	horinzontalBar->setColor(Vector4f(0.0f, 0.0f, 0.0f, 0.39216f));
 }
 
 void MonsterIndex::eraseMonsters(){
-	Surface* surface = findChild<Surface>("left");
+	ui::Surface* surface = findChild<ui::Surface>("left");
 	surface->eraseAllChildren();
 }

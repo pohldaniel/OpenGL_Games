@@ -2,16 +2,19 @@
 
 #include <UI/WidgetMH.h>
 
-class Empty : public WidgetMH {
+namespace ui
+{
+	class Empty : public Widget {
 
-public:
+	public:
 
-	Empty();
-	Empty(const Empty& rhs);
-	Empty(Empty&& rhs);
-	virtual ~Empty();
+		Empty();
+		Empty(const Empty& rhs);
+		Empty(Empty&& rhs);
+		virtual ~Empty();
 
-private:
+	private:
 
-	void drawDefault() override;
-};
+		void drawDefault() override;
+	};
+}

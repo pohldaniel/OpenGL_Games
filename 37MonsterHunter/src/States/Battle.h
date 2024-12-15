@@ -15,12 +15,7 @@
 #include "MonsterIndex.h"
 #include "Fade.h"
 
-struct BattleChoice {
-	Vector2f pos;
-	unsigned int graphics;
-};
-
-class Battle : public State, public MouseEventListener, public KeyboardEventListener, public Icon {
+class Battle : public State, public MouseEventListener, public KeyboardEventListener, public ui::Icon {
 
 public:
 

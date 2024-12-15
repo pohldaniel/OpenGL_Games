@@ -6,7 +6,7 @@
 #include "Fade.h"
 #include "Timer.h"
 
-class Evolve : public Empty {
+class Evolve : public ui::Empty {
 
 public:
 

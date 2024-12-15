@@ -4,58 +4,61 @@
 #include <engine/Shader.h>
 #include <UI/WidgetMH.h>
 
-class Label : public WidgetMH {
+namespace ui
+{
+	class Label : public Widget {
 
-public:
+	public:
 
-	Label(const CharacterSet& characterSet);
-	Label(const Label& rhs);
-	Label(Label&& rhs);
-	virtual ~Label();
+		Label(const CharacterSet& characterSet);
+		Label(const Label& rhs);
+		Label(Label&& rhs);
+		virtual ~Label();
 
-	void setLabel(const std::string& label);
-	void setTextColor(const Vector4f& textColor);
-	void setSize(const float size);
-	void setOffsetX(const float offsetX);
-	void setOffsetY(const float offsetY);
+		void setLabel(const std::string& label);
+		void setTextColor(const Vector4f& textColor);
+		void setSize(const float size);
+		void setOffsetX(const float offsetX);
+		void setOffsetY(const float offsetY);
 
-protected:
+	protected:
 
-	const CharacterSet& characterSet;
-	float m_offsetX, m_offsetY;
-	std::string m_label;
-	Vector4f m_textColor;
-	float m_size;
+		const CharacterSet& characterSet;
+		float m_offsetX, m_offsetY;
+		std::string m_label;
+		Vector4f m_textColor;
+		float m_size;
 
-private:
+	private:
 
-	virtual void drawDefault() override;
-};
+		virtual void drawDefault() override;
+	};
 
-enum Edge : int;
-class TextFieldMH : public Label {
+	enum Edge : int;
+	class TextField : public Label {
 
-public:
+	public:
 
-	TextFieldMH(const CharacterSet& characterSet);
-	TextFieldMH(const TextFieldMH& rhs);
-	TextFieldMH(TextFieldMH&& rhs);
-	virtual ~TextFieldMH();
+		TextField(const CharacterSet& characterSet);
+		TextField(const TextField& rhs);
+		TextField(TextField&& rhs);
+		virtual ~TextField();
 
-	void setShader(Shader* shader);
-	void setBackgroundColor(const Vector4f& color);
-	void setEdge(Edge edge);
-	void setBorderRadius(float borderRadius);
-	void setPaddingX(const float paddingX);
-	void setPaddingY(const float paddingY);
+		void setShader(Shader* shader);
+		void setBackgroundColor(const Vector4f& color);
+		void setEdge(Edge edge);
+		void setBorderRadius(float borderRadius);
+		void setPaddingX(const float paddingX);
+		void setPaddingY(const float paddingY);
 
-private:
+	private:
 
-	void drawDefault() override;
+		void drawDefault() override;
 
-	Vector4f m_backgroundColor;
-	float m_paddingX, m_paddingY;
-	float m_borderRadius;
-	Edge m_edge;
-	Shader* m_shader;
-};
+		Vector4f m_backgroundColor;
+		float m_paddingX, m_paddingY;
+		float m_borderRadius;
+		Edge m_edge;
+		Shader* m_shader;
+	};
+}
