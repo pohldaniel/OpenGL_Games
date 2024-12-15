@@ -51,21 +51,27 @@ class Sprite : public Object2D {
 public:
 
 	Sprite();
+	Sprite(Sprite const& rhs);
+	Sprite& operator=(const Sprite& rhs);
+	Sprite(Sprite&& rhs);
+	Sprite& operator=(Sprite&& rhs);
+	virtual ~Sprite();
 
-	void draw(const TextureRect& rect, const Vector4f& color = Vector4f::ONE);
-	void draw(const Vector4f& color = Vector4f::ONE);
+	void draw(const TextureRect& rect, const Vector4f& color = Vector4f::ONE, bool flipped = false);
+	void draw(const Vector4f& color = Vector4f::ONE, bool flipped = false);
 
-	void draw2(const TextureRect& rect, const Vector4f& color = Vector4f::ONE, const Matrix4f& worldTransformation = Matrix4f::IDENTITY, bool flipped = false);
-	void draw2(const Vector4f& color = Vector4f::ONE, const Matrix4f& worldTransformation = Matrix4f::IDENTITY, bool flipped = false);
+	void drawTransformed(const TextureRect& rect, const Vector4f& color = Vector4f::ONE, const Matrix4f& worldTransformation = Matrix4f::IDENTITY, bool flipped = false);
+	void drawTransformed(const Vector4f& color = Vector4f::ONE, const Matrix4f& worldTransformation = Matrix4f::IDENTITY, bool flipped = false);
 
 	void setShader(Shader* shader);
 	void resetShader();
 	Shader* getShader();
+	void setTextureUnit(unsigned int unit);
 
 	static void Init(unsigned int width, unsigned int height);
 	static void Resize(unsigned int width, unsigned int height);
 	static void CleanUp();
-	static void setTextureUnit(int unit);
+	static void SetTextureUnit(unsigned int unit);
 	static Shader* GetShader();
 	static void UnuseShader();
 

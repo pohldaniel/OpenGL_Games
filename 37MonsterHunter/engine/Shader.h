@@ -35,8 +35,8 @@ public:
 	
 	Shader& get();
 
-	void use();
-	void unuse();
+	void use(bool force = true);
+	void unuse(bool force = true);
 	void use() const;
 	void unuse() const;
 	void loadMatrix(const char* location, const Matrix4f& matrix, bool trans = false) const;

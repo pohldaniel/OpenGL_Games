@@ -69,8 +69,8 @@ void Bar::drawDefault() {
 		const TextureRect& bgRect = tileSet.getTextureRects()[static_cast<int>(m_width)];
 		const TextureRect& rect = tileSet.getTextureRects()[static_cast<int>(progress)];
 		tileSet.bind();
-		Sprite::draw2(bgRect, m_bgColor, getWorldTransformationWithScale(bgRect.width, bgRect.height));
-		Sprite::draw2(rect, m_color, getWorldTransformationWithScale(rect.width, rect.height));
+		Sprite::drawTransformed(bgRect, m_bgColor, getWorldTransformationWithScale(bgRect.width, bgRect.height));
+		Sprite::drawTransformed(rect, m_color, getWorldTransformationWithScale(rect.width, rect.height));
 
 	}else {
 		Sprite::setShader(Globals::shaderManager.getAssetPointer("list"));
@@ -80,9 +80,9 @@ void Bar::drawDefault() {
 		shader->loadUnsignedInt("u_edge", m_radius == 0.0f ? Edge::EDGE_NONE : Edge::ALL);
 
 		shader->loadVector("u_dimensions", Vector2f(m_width, m_height));
-		Sprite::draw2(m_bgColor, getWorldTransformationWithScale(m_width, m_height));
+		Sprite::drawTransformed(m_bgColor, getWorldTransformationWithScale(m_width, m_height));
 
 		shader->loadVector("u_dimensions", Vector2f(progress, m_height));
-		Sprite::draw2(m_color, getWorldTransformationWithScale(progress, m_height));
+		Sprite::drawTransformed(m_color, getWorldTransformationWithScale(progress, m_height));
 	}
 }

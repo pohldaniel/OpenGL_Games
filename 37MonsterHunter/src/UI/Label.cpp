@@ -125,13 +125,13 @@ void TextFieldMH::drawDefault() {
 	m_shader->loadVector("u_dimensions", Vector2f(scaleX, scaleY));
 	m_shader->loadFloat("u_radius", m_borderRadius);
 	m_shader->loadUnsignedInt("u_edge", m_edge);
-	draw2(m_backgroundColor, getWorldTransformationWithScaleAndTranslation(scaleX, scaleY, m_offsetX, m_offsetY));
+	drawTransformed(m_backgroundColor, getWorldTransformationWithScaleAndTranslation(scaleX, scaleY, m_offsetX, m_offsetY));
 
 	characterSet.bind();
-	if (m_offsetX || m_offsetY) {
+	if(m_offsetX || m_offsetY) 
 		Fontrenderer::Get().addTextTransformed(characterSet, getWorldTransformationWithTranslation(m_offsetX + 0.5f * m_paddingX, m_offsetY + 0.5f * m_paddingY), m_label, m_textColor, m_size);
-	}else {
+	else 
 		Fontrenderer::Get().addTextTransformed(characterSet, getWorldTransformationWithTranslation(0.5f * m_paddingX, 0.5f * m_paddingY), m_label, m_textColor, m_size);
-	}
+	
 	Fontrenderer::Get().drawBuffer();
 }

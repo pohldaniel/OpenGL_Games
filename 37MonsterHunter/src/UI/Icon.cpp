@@ -51,9 +51,9 @@ void Icon::drawDefault() {
 
 	Spritesheet::Bind(m_spriteSheet);
 	if (m_aligned)
-		draw2(textureRect, m_color, getWorldTransformationWithScaleAndTranslation(textureRect.width, textureRect.height, -0.5f * textureRect.width, -0.5f * textureRect.height), m_flipped);
+		Sprite::drawTransformed(textureRect, m_color, getWorldTransformationWithScaleAndTranslation(textureRect.width, textureRect.height, -0.5f * textureRect.width, -0.5f * textureRect.height), m_flipped);
 	else
-		draw2(textureRect, m_color, getWorldTransformation(), m_flipped);
+		Sprite::drawTransformed(textureRect, m_color, getWorldTransformation(), m_flipped);
 }
 ////////////////////////////////////////////////////////////////
 IconAnimated::IconAnimated(const std::vector<TextureRect>& textureRects) : WidgetMH(), textureRects(textureRects), m_color(Vector4f::ONE), m_spriteSheet(0), m_currentFrame(-1), m_aligned(false), m_flipped(false), m_offsetX(0.0f), m_offsetY(0.0f){
@@ -128,11 +128,11 @@ void IconAnimated::drawDefault() {
 	Spritesheet::Bind(m_spriteSheet);
 	const TextureRect& rect = textureRects[m_currentFrame];
 
-	if (m_aligned) {
-		draw2(rect, m_color, getWorldTransformationWithScaleAndTranslation(rect.width, rect.height, -0.5f * rect.width + m_offsetX, -0.5f * rect.height + m_offsetY), m_flipped);
-	}else if (m_offsetX || m_offsetY) {
-		draw2(rect, m_color, getWorldTransformationWithTranslation(m_offsetX, m_offsetY), m_flipped);
-	}else {
-		draw2(rect, m_color, getWorldTransformation(), m_flipped);
-	}
+	if (m_aligned) 
+		Sprite::drawTransformed(rect, m_color, getWorldTransformationWithScaleAndTranslation(rect.width, rect.height, -0.5f * rect.width + m_offsetX, -0.5f * rect.height + m_offsetY), m_flipped);
+	else if (m_offsetX || m_offsetY) 
+		Sprite::drawTransformed(rect, m_color, getWorldTransformationWithTranslation(m_offsetX, m_offsetY), m_flipped);
+	else 
+		Sprite::drawTransformed(rect, m_color, getWorldTransformation(), m_flipped);
+	
 }

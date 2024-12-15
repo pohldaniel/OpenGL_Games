@@ -45,5 +45,5 @@ void Surface::drawDefault() {
 	m_shader->loadVector("u_dimensions", Vector2f(scale[0], scale[1]));
 	m_shader->loadFloat("u_radius", m_borderRadius);
 	m_shader->loadUnsignedInt("u_edge", m_edge);
-	draw2(m_color, getWorldTransformation());
+	drawTransformed(m_color, getWorldTransformation());
 }

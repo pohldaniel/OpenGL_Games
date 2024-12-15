@@ -7,6 +7,20 @@
 #include <engine/Sprite.h>
 #include <engine/utils/StringHash.h>
 
+
+enum Edge {
+	ALL,
+	BOTTOM_LEFT,
+	TOP_LEFT,
+	TOP_RIGHT,
+	BOTTOM_RIGHT,
+	EDGE_RIGHT,
+	EDGE_LEFT,
+	TOP,
+	BOTTOM,
+	EDGE_NONE
+};
+
 class NodeUI {
 
 public:

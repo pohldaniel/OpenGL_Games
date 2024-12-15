@@ -86,18 +86,18 @@ unsigned int Shader::getUnifromLocation(const std::string& name) const {
 	return location;
 }
 
-void Shader::use() {
-	//if (!m_use) {
+void Shader::use(bool force) {
+	if (!m_use || force) {
 		glUseProgram(m_program);
 		m_use = true;
-	//}
+	}
 }
 
-void Shader::unuse() {
-	//if (m_use) {
+void Shader::unuse(bool force) {
+	if (m_use || force) {
 		glUseProgram(0);
 		m_use = false;
-	//}
+	}
 }
 
 void Shader::use() const {
