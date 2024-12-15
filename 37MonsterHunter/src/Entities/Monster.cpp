@@ -7,7 +7,7 @@
 std::random_device Monster::RandomDevice;
 std::uniform_real_distribution<float> Monster::Distribution(-1.0f, 1.0f);
 
-Monster::Monster(Cell& cell, MonsterEntry& monsterEntry) : SpriteEntity(cell), monsterEntry(monsterEntry),
+Monster::Monster(Cell& cell, MonsterEntry& monsterEntry, const Vector2f& pos) : SpriteEntity(cell), monsterEntry(monsterEntry),
 m_animationSpeed(6.0f + Distribution(RandomDevice)),
 m_maxExperience(150.0f * static_cast<float>(monsterEntry.level)),
 m_maxHealth(static_cast<float>(monsterEntry.level * MonsterIndex::MonsterData[monsterEntry.name].maxHealth)),
@@ -28,10 +28,12 @@ m_killed(false)
 {
 	m_direction.set(0.0f, 0.0f);
 	canAttack();
+	translateRelative(pos);
+	updateWorldTransformation();
+	initUI();
 }
 
 Monster::Monster(Monster const& rhs) : SpriteEntity(rhs.cell), monsterEntry(rhs.monsterEntry) {
-	//m_bars = rhs.m_bars;
 	m_animationSpeed = rhs.m_animationSpeed;
 	m_maxExperience = rhs.m_maxExperience;	
 	m_maxHealth = rhs.m_maxHealth;
@@ -56,7 +58,6 @@ Monster::Monster(Monster const& rhs) : SpriteEntity(rhs.cell), monsterEntry(rhs.
 }
 
 Monster::Monster(Monster&& rhs) : SpriteEntity(rhs.cell), monsterEntry(rhs.monsterEntry) {
-	//m_bars = rhs.m_bars;
 	m_animationSpeed = rhs.m_animationSpeed;
 	m_maxExperience = rhs.m_maxExperience;
 	m_maxHealth = rhs.m_maxHealth;
@@ -85,7 +86,6 @@ Monster& Monster::operator=(const Monster& rhs) {
 	cell = rhs.cell;
 	monsterEntry = rhs.monsterEntry;
 
-	//m_bars = rhs.m_bars;
 	m_animationSpeed = rhs.m_animationSpeed;
 	m_maxExperience = rhs.m_maxExperience;
 	m_maxHealth = rhs.m_maxHealth;

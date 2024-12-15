@@ -249,7 +249,7 @@
     <ClCompile Include="src\UI\Icon.cpp" />
     <ClCompile Include="src\UI\Label.cpp" />
     <ClCompile Include="src\UI\Surface.cpp" />
-    <ClCompile Include="src\UI\WidgetMH.cpp" />
+    <ClCompile Include="src\UI\Widget.cpp" />
     <ClCompile Include="src\Utils\Rasterizer.cpp" />
     <ClCompile Include="engine\ArrayBuffer.cpp" />
     <ClCompile Include="engine\Batchrenderer.cpp" />

@@ -122,6 +122,10 @@ void DialogTree::draw() {
 	}
 }
 
+void DialogTree::drawDefault() {
+
+}
+
 void DialogTree::addDialog(float posX, float posY, float paddingX, float paddingY, const std::string& text, int currentIndex) {
 	DialogData.push_back({posX, posY, paddingX, paddingY, text});
 	m_currentIndex = currentIndex;
@@ -167,4 +171,8 @@ void DialogTree::incrementIndex() {
 
 void DialogTree::setOnDialogFinished(std::function<void()> fun) {
 	OnDialogFinished = fun;
+}
+
+void DialogTree::initUI() {
+
 }

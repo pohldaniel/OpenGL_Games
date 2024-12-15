@@ -1,6 +1,7 @@
 #pragma once
 #include <functional>
 #include <engine/Camera.h>
+#include <UI/Surface.h>
 
 #include "MonsterIndex.h"
 
@@ -26,12 +27,12 @@ struct Dialog {
 	std::string text;
 };
 
-class DialogTree {
+class DialogTree : public ui::Surface {
 
 public:
 
 	DialogTree(const Camera& camera);
-	~DialogTree();
+	virtual ~DialogTree();
 
 	void draw();
 	void addDialog(float posX, float posY, float paddingX, float paddingY, const std::string& text, int currentIndex = -1);
@@ -45,6 +46,9 @@ public:
 	static std::unordered_map<std::string, Trainer> Trainers;
 
 private:
+
+	void drawDefault() override;
+	void initUI();
 
 	int m_currentIndex;
 	bool m_finished;

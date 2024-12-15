@@ -43,6 +43,8 @@ namespace ui
 		template <class T, class U> T* addChild(U& ref);
 		template <class T, class U, class V> T* addChild(const U& ref1, const V& ref2);
 		template <class T, class U, class V> T* addChild(U& ref1, V& ref2);
+		template <class T, class U, class V, class W> T* addChild(const U& ref1, const V& ref2, const W& ref3);
+		template <class T, class U, class V, class W> T* addChild(U& ref1, V& ref2, const W& ref3);
 		Node* getParent() const;
 		void setParent(Node* node);
 		const int getIndex() const;
@@ -87,6 +89,18 @@ namespace ui
 
 	template <class T, class U, class V> T* Node::addChild(U& ref1, V& ref2) {
 		m_children.emplace_back(std::unique_ptr<T>(new T(ref1, ref2)));
+		m_children.back()->m_parent = this;
+		return static_cast<T*>(m_children.back().get());
+	}
+
+	template <class T, class U, class V, class W> T* Node::addChild(const U& ref1, const V& ref2, const W& ref3) {
+		m_children.emplace_back(std::unique_ptr<T>(new T(ref1, ref2, ref3)));
+		m_children.back()->m_parent = this;
+		return static_cast<T*>(m_children.back().get());
+	}
+
+	template <class T, class U, class V, class W> T* Node::addChild(U& ref1, V& ref2, const W& ref3) {
+		m_children.emplace_back(std::unique_ptr<T>(new T(ref1, ref2, ref3)));
 		m_children.back()->m_parent = this;
 		return static_cast<T*>(m_children.back().get());
 	}

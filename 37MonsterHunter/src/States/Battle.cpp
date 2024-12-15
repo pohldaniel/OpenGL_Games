@@ -738,11 +738,8 @@ void Battle::setOpponentMonsters() {
 	Monster* monster;
 	for (int i = 0; i < std::min(static_cast<int>(MonsterIndex::Monsters.size()), 3); i++) {
 		m_cells.push_back({ positions[i][0], positions[i][1], 192.0f, 192.0f, static_cast<int>(MonsterIndex::MonsterData[MonsterIndex::Monsters[i].name].graphic * 16u), centers[i][0], centers[i][1], true, true });
-
-		monster = addChild<Monster>(m_cells.back(), MonsterIndex::Monsters[i]);
-		monster->translateRelative(positions[i][0], positions[i][1]);
-		monster->updateWorldTransformation();
-		monster->initUI();
+		Vector2f pos(positions[i][0], positions[i][1]);
+		monster = addChild<Monster>(m_cells.back(), MonsterIndex::Monsters[i], Vector2f(positions[i][0], positions[i][1]));
 		m_monsters.push_back(monster);
 	}
 
@@ -750,10 +747,7 @@ void Battle::setOpponentMonsters() {
 	m_supplyIndexOpponent = std::max(std::min(2, static_cast<int>(m_opponentMonsters.size()) - 1), 0);
 	for (int i = 0; i < std::min(static_cast<int>(m_opponentMonsters.size()), 3); i++) {
 		m_cells.push_back({ positions[i + 3][0], positions[i + 3][1], 192.0f, 192.0f, static_cast<int>(MonsterIndex::MonsterData[m_opponentMonsters[i].name].graphic * 16u), centers[i + 3][0], centers[i + 3][1], true, false });
-		monster = addChild<Monster>(m_cells.back(), m_opponentMonsters[i]);
-		monster->translateRelative(positions[i + 3][0], positions[i][1]);
-		monster->updateWorldTransformation();
-		monster->initUI();
+		monster = addChild<Monster>(m_cells.back(), m_opponentMonsters[i], Vector2f(positions[i + 3][0], positions[i][1]));
 		m_monsters.push_back(monster);
 	}
 
@@ -770,11 +764,7 @@ void Battle::setOpponentMonsters(const std::vector<MonsterEntry>& monsters, bool
 	Monster* monster;
 	for (int i = 0; i < std::min(static_cast<int>(MonsterIndex::Monsters.size()), 3); i++) {
 		m_cells.push_back({ positions[i][0], positions[i][1], 192.0f, 192.0f, static_cast<int>(MonsterIndex::MonsterData[MonsterIndex::Monsters[i].name].graphic * 16u), centers[i][0], centers[i][1], true, true });
-
-		monster = addChild<Monster>(m_cells.back(), MonsterIndex::Monsters[i]);
-		monster->translateRelative(positions[i][0], positions[i][1]);
-		monster->updateWorldTransformation();
-		monster->initUI();
+		monster = addChild<Monster>(m_cells.back(), MonsterIndex::Monsters[i], Vector2f(positions[i][0], positions[i][1]));
 		m_monsters.push_back(monster);
 	}
 	
@@ -782,10 +772,7 @@ void Battle::setOpponentMonsters(const std::vector<MonsterEntry>& monsters, bool
 	m_supplyIndexOpponent = std::max(std::min(2, static_cast<int>(m_opponentMonsters.size()) - 1), 0);
 	for (int i = 0; i < std::min(static_cast<int>(m_opponentMonsters.size()), 3); i++) {
 		m_cells.push_back({ positions[i + 3][0], positions[i + 3][1], 192.0f, 192.0f, static_cast<int>(MonsterIndex::MonsterData[m_opponentMonsters[i].name].graphic * 16u), centers[i + 3][0], centers[i + 3][1], true, false });
-		monster = addChild<Monster>(m_cells.back(), m_opponentMonsters[i]);
-		monster->translateRelative(positions[i + 3][0], positions[i][1]);
-		monster->updateWorldTransformation();
-		monster->initUI();
+		monster = addChild<Monster>(m_cells.back(), m_opponentMonsters[i], Vector2f(positions[i + 3][0], positions[i][1]));
 		m_monsters.push_back(monster);
 	}
 

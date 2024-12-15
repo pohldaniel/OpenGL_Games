@@ -10,7 +10,7 @@ class Monster : public SpriteEntity, public ui::Surface {
 
 public:
 
-	Monster(Cell& cell, MonsterEntry& monsterEntry);
+	Monster(Cell& cell, MonsterEntry& monsterEntry, const Vector2f& pos);
 	Monster& operator=(const Monster& rhs);
 	Monster& operator=(Monster&& rhs);
 	Monster(Monster const& rhs);
@@ -53,13 +53,11 @@ public:
 	MonsterEntry& getMonsterEntry();
 	void setMonsterEntry(MonsterEntry& monsterEntry);
 	void calculateStates(MonsterEntry& monsterEntry);
-
-	void initUI();
-
-
+	
 private:
 
 	void drawDefault() override;
+	void initUI();
 
 	std::reference_wrapper<MonsterEntry> monsterEntry;
 
