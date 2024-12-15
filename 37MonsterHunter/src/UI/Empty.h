@@ -1,6 +1,5 @@
 #pragma once
-
-#include <UI/WidgetMH.h>
+#include <UI/Widget.h>
 
 namespace ui
 {

@@ -203,7 +203,12 @@
     <ClCompile Include="engine\ui\CheckBox.cpp" />
     <ClCompile Include="engine\ui\SeekerBar.cpp" />
     <ClCompile Include="engine\ui\TextField.cpp" />
-    <ClCompile Include="engine\ui\Widget.cpp" />
+    <ClCompile Include="engine\ui\Widget.cpp">
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(RelativeDir)</ObjectFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(RelativeDir)</ObjectFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)%(RelativeDir)</ObjectFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)%(RelativeDir)</ObjectFileName>
+    </ClCompile>
     <ClCompile Include="engine\utils\StringHash.cpp" />
     <ClCompile Include="engine\utils\StringUtils.cpp" />
     <ClCompile Include="engine\utils\Utils.cpp" />
@@ -442,7 +447,7 @@
     <ClInclude Include="src\UI\Icon.h" />
     <ClInclude Include="src\UI\Label.h" />
     <ClInclude Include="src\UI\Surface.h" />
-    <ClInclude Include="src\UI\WidgetMH.h" />
+    <ClInclude Include="src\UI\Widget.h" />
     <ClInclude Include="src\Utils\Rasterizer.h" />
     <ClInclude Include="Physics\BspConverter.h" />
     <ClInclude Include="Physics\BspLoader.h" />

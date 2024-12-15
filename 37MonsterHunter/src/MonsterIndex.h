@@ -1,7 +1,7 @@
 #pragma once
 #include <ordered_map.h>
 #include <engine/Sprite.h>
-#include <UI/WidgetMH.h>
+#include <UI/Widget.h>
 #include <UI/Label.h>
 #include <UI/Surface.h>
 #include <UI/Icon.h>
@@ -71,7 +71,6 @@ public:
 
 private:
 
-	
 	int m_visibleItems;	
 
 	std::vector<std::string> m_stats;
@@ -87,6 +86,5 @@ private:
 	std::string m_stateLabels[6];
 	std::unordered_map<std::string, float> m_maxStats;
 
-	
 	bool m_rotate;
 };

@@ -372,9 +372,6 @@
     <ClCompile Include="engine\ui\TextField.cpp">
       <Filter>engine\ui</Filter>
     </ClCompile>
-    <ClCompile Include="engine\ui\Widget.cpp">
-      <Filter>engine\ui</Filter>
-    </ClCompile>
     <ClCompile Include="engine\RandomColor.cpp">
       <Filter>engine</Filter>
     </ClCompile>
@@ -483,9 +480,6 @@
     <ClCompile Include="src\Evolve.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\UI\WidgetMH.cpp">
-      <Filter>Source Files\UI</Filter>
-    </ClCompile>
     <ClCompile Include="src\UI\Label.cpp">
       <Filter>Source Files\UI</Filter>
     </ClCompile>
@@ -503,6 +497,12 @@
     </ClCompile>
     <ClCompile Include="src\UI\Empty.cpp">
       <Filter>Source Files\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\UI\Widget.cpp">
+      <Filter>Source Files\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\ui\Widget.cpp">
+      <Filter>engine\ui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -944,9 +944,6 @@
     <ClInclude Include="src\Evolve.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\UI\WidgetMH.h">
-      <Filter>Source Files\UI</Filter>
-    </ClInclude>
     <ClInclude Include="src\UI\Label.h">
       <Filter>Source Files\UI</Filter>
     </ClInclude>
@@ -963,6 +960,9 @@
       <Filter>Source Files\States</Filter>
     </ClInclude>
     <ClInclude Include="src\UI\Empty.h">
+      <Filter>Source Files\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UI\Widget.h">
       <Filter>Source Files\UI</Filter>
     </ClInclude>
   </ItemGroup>

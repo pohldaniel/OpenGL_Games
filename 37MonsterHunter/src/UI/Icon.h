@@ -2,7 +2,7 @@
 #include <functional>
 #include <engine/Shader.h>
 #include <engine/Rect.h>
-#include <UI/WidgetMH.h>
+#include <UI/Widget.h>
 
 namespace ui
 {

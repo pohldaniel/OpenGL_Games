@@ -1,4 +1,4 @@
-#include "WidgetMH.h"
+#include "Widget.h"
 
 namespace ui
 {

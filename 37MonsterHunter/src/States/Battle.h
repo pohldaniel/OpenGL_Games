@@ -45,7 +45,6 @@ public:
 private:
 
 	void updateAbilityAnimation();
-	void renderUi();
 	void updateGeneral();
 	void updateAttacks();
 	void updateSwitch();
@@ -72,8 +71,6 @@ private:
 	void onDrawSwitchUI(bool flag);
 	void onDrawAbilityUI(bool flag);
 
-	bool m_initUi = true;
-	bool m_drawUi = false;
 	bool m_playAbility;
 	bool m_drawGeneralUi, m_drawAtacksUi, m_drawSwitchUi, m_drawTargetUI, m_removeDefeteadMonster, m_catchMonster, m_canSwitch, m_canCatch;
 	bool m_exit;

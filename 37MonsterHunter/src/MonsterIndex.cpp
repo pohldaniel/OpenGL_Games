@@ -213,8 +213,6 @@ m_rotate(false){
 	//Spritesheet::Safe("monster", TileSetManager::Get().getTileSet("monster").getAtlas());
 	m_atlasMonster = TileSetManager::Get().getTileSet("monster").getAtlas();
 
-	//m_surfaceBar.setShader(Globals::shaderManager.getAssetPointer("list"));
-
 	m_stats.push_back("health");
 	m_stats.push_back("energy");
 	m_stats.push_back("attack");

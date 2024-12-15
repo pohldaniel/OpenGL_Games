@@ -1,9 +1,3 @@
-#include <imgui.h>
-#include <imgui_impl_win32.h>
-#include <imgui_impl_opengl3.h>
-#include <imgui_internal.h>
-#include <engine/Batchrenderer.h>
-#include <engine/Fontrenderer.h>
 #include <States/Menu.h>
 #include <States/MonsterHunter.h>
 
@@ -243,9 +237,6 @@ void Battle::render() {
 	
 	ui::Widget::draw();
 
-	if (m_drawUi)
-		renderUi();
-
 	m_mainRenderTarget.unbind();
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -276,9 +267,7 @@ void Battle::OnMouseWheel(Event::MouseWheelEvent& event) {
 }
 
 void Battle::OnKeyDown(Event::KeyboardEvent& event) {
-	if (event.keyCode == VK_LMENU) {
-		m_drawUi = !m_drawUi;
-	}
+	
 }
 
 void Battle::OnKeyUp(Event::KeyboardEvent& event) {
@@ -303,49 +292,6 @@ void Battle::resize(int deltaW, int deltaH) {
 	shader->use();
 	shader->loadMatrix("u_transform", m_camera.getOrthographicMatrix());
 	shader->unuse();
-}
-
-void Battle::renderUi() {
-	ImGui_ImplOpenGL3_NewFrame();
-	ImGui_ImplWin32_NewFrame();
-	ImGui::NewFrame();
-
-	ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar |
-		ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove |
-		ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus |
-		ImGuiWindowFlags_NoBackground;
-
-	ImGuiViewport* viewport = ImGui::GetMainViewport();
-	ImGui::SetNextWindowPos(viewport->Pos);
-	ImGui::SetNextWindowSize(viewport->Size);
-	ImGui::SetNextWindowViewport(viewport->ID);
-
-	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-	ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-	ImGui::Begin("InvisibleWindow", nullptr, windowFlags);
-	ImGui::PopStyleVar(3);
-
-	ImGuiID dockSpaceId = ImGui::GetID("MainDockSpace");
-	ImGui::DockSpace(dockSpaceId, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_PassthruCentralNode);
-	ImGui::End();
-
-	if (m_initUi) {
-		m_initUi = false;
-		ImGuiID dock_id_left = ImGui::DockBuilderSplitNode(dockSpaceId, ImGuiDir_Left, 0.2f, nullptr, &dockSpaceId);
-		ImGuiID dock_id_right = ImGui::DockBuilderSplitNode(dockSpaceId, ImGuiDir_Right, 0.2f, nullptr, &dockSpaceId);
-		ImGuiID dock_id_down = ImGui::DockBuilderSplitNode(dockSpaceId, ImGuiDir_Down, 0.2f, nullptr, &dockSpaceId);
-		ImGuiID dock_id_up = ImGui::DockBuilderSplitNode(dockSpaceId, ImGuiDir_Up, 0.2f, nullptr, &dockSpaceId);
-		ImGui::DockBuilderDockWindow("Settings", dock_id_left);
-	}
-
-	// render widgets
-	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
-	ImGui::Checkbox("Draw Wirframe", &StateMachine::GetEnableWireframe());
-	ImGui::End();
-
-	ImGui::Render();
-	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
 void Battle::setMapHeight(float mapHeight) {

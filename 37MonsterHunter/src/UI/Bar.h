@@ -1,5 +1,5 @@
 #pragma once
-#include <UI/WidgetMH.h>
+#include <UI/Widget.h>
 #include <engine/TileSet.h>
 
 namespace ui

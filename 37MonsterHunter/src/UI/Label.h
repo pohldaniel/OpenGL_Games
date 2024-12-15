@@ -2,7 +2,7 @@
 #include <functional>
 #include <engine/CharacterSet.h>
 #include <engine/Shader.h>
-#include <UI/WidgetMH.h>
+#include <UI/Widget.h>
 
 namespace ui
 {
