@@ -50,11 +50,11 @@ Monster::Monster(Monster const& rhs) : SpriteEntity(rhs.cell), monsterEntry(rhs.
 	m_attackOffset = rhs.m_attackOffset;
 
 	m_highlightTimer = rhs.m_highlightTimer;
-	m_highlightTimer.setRecipient(this);
+	m_highlightTimer.setReceiver(this);
 	m_delayedKillTimer = rhs.m_delayedKillTimer;
-	m_delayedKillTimer.setRecipient(this);
+	m_delayedKillTimer.setReceiver(this);
 	m_showMissingTimer = rhs.m_showMissingTimer;
-	m_showMissingTimer.setRecipient(this);
+	m_showMissingTimer.setReceiver(this);
 }
 
 Monster::Monster(Monster&& rhs) : SpriteEntity(rhs.cell), monsterEntry(rhs.monsterEntry) {
@@ -74,11 +74,11 @@ Monster::Monster(Monster&& rhs) : SpriteEntity(rhs.cell), monsterEntry(rhs.monst
 	m_attackOffset = rhs.m_attackOffset;
 
 	m_highlightTimer = rhs.m_highlightTimer;
-	m_highlightTimer.setRecipient(this);
+	m_highlightTimer.setReceiver(this);
 	m_delayedKillTimer = rhs.m_delayedKillTimer;
-	m_delayedKillTimer.setRecipient(this);
+	m_delayedKillTimer.setReceiver(this);
 	m_showMissingTimer = rhs.m_showMissingTimer;
-	m_showMissingTimer.setRecipient(this);
+	m_showMissingTimer.setReceiver(this);
 }
 
 Monster& Monster::operator=(const Monster& rhs) {
@@ -102,11 +102,11 @@ Monster& Monster::operator=(const Monster& rhs) {
 	m_attackOffset = rhs.m_attackOffset;
 
 	m_highlightTimer = rhs.m_highlightTimer;
-	m_highlightTimer.setRecipient(this);
+	m_highlightTimer.setReceiver(this);
 	m_delayedKillTimer = rhs.m_delayedKillTimer;
-	m_delayedKillTimer.setRecipient(this);
+	m_delayedKillTimer.setReceiver(this);
 	m_showMissingTimer = rhs.m_showMissingTimer;
-	m_showMissingTimer.setRecipient(this);
+	m_showMissingTimer.setReceiver(this);
 	return *this;
 }
 
@@ -131,11 +131,11 @@ Monster& Monster::operator=(Monster&& rhs) {
 	m_attackOffset = rhs.m_attackOffset;
 
 	m_highlightTimer = rhs.m_highlightTimer;
-	m_highlightTimer.setRecipient(this);
+	m_highlightTimer.setReceiver(this);
 	m_delayedKillTimer = rhs.m_delayedKillTimer;
-	m_delayedKillTimer.setRecipient(this);
+	m_delayedKillTimer.setReceiver(this);
 	m_showMissingTimer = rhs.m_showMissingTimer;
-	m_showMissingTimer.setRecipient(this);
+	m_showMissingTimer.setReceiver(this);
 	return *this;
 }
 
@@ -144,7 +144,7 @@ Monster::~Monster() {
 }
 
 void Monster::drawDefault() {
-	ui::Widget::drawTree();
+	drawTree();
 }
 
 void Monster::update(float dt) {
@@ -367,26 +367,32 @@ void Monster::calculateStates(MonsterEntry& monsterEntry) {
 	m_maxExperience = 150.0f * static_cast<float>(monsterEntry.level);
 	m_maxHealth = static_cast<float>(monsterEntry.level) *  static_cast<float>(MonsterIndex::MonsterData[monsterEntry.name].maxHealth);
 	m_maxEnergy = static_cast<float>(monsterEntry.level) *  static_cast<float>(MonsterIndex::MonsterData[monsterEntry.name].maxEnergy);
+	
+	findChild<ui::Bar>("health")->setValue(monsterEntry.health);
+	findChild<ui::Bar>("health")->setMaxValue(m_maxHealth);
+
+	findChild<ui::Bar>("energy")->setValue(monsterEntry.energy);
+	findChild<ui::Bar>("energy")->setMaxValue(m_maxEnergy);
+
+	findChild<ui::Label>("health")->setLabel(Fontrenderer::Get().floatToString(monsterEntry.health, 0) + "/" + Fontrenderer::Get().floatToString(m_maxHealth, 0));
+	findChild<ui::Label>("energy")->setLabel(Fontrenderer::Get().floatToString(monsterEntry.energy, 0) + "/" + Fontrenderer::Get().floatToString(m_maxEnergy, 0));
+
+	findChild<ui::Bar>("experience")->setValue(monsterEntry.experience);
+	findChild<ui::Bar>("experience")->setMaxValue(m_maxExperience);
+
+	findChild<ui::Label>("name")->setLabel(monsterEntry.name);
+	findChild<ui::Label>("level")->setLabel("Lvl " + std::to_string(monsterEntry.level));
+
+	float padding = 10.0f;
+	float width = Globals::fontManager.get("dialog").getWidth(monsterEntry.name) * 0.045f + 2.0f * padding;
+	float height = Globals::fontManager.get("dialog").lineHeight * 0.045f + 2.0f * padding;
+
+	findChild<ui::Surface>("background")->setScaleAbsolute(width, height);
 }
 
 void Monster::setMonsterEntry(MonsterEntry& _monsterEntry) {
 	monsterEntry = _monsterEntry;
-	calculateStates(monsterEntry);
-
-	findChild<ui::Bar>("health")->setValue(monsterEntry.get().health);
-	findChild<ui::Bar>("health")->setMaxValue(m_maxHealth);
-
-	findChild<ui::Bar>("energy")->setValue(monsterEntry.get().energy);
-	findChild<ui::Bar>("energy")->setMaxValue(m_maxEnergy);
-
-	findChild<ui::Label>("health")->setLabel(Fontrenderer::Get().floatToString(monsterEntry.get().health, 0) + "/" + Fontrenderer::Get().floatToString(m_maxHealth, 0));
-	findChild<ui::Label>("energy")->setLabel(Fontrenderer::Get().floatToString(monsterEntry.get().energy, 0) + "/" + Fontrenderer::Get().floatToString(m_maxEnergy, 0));
-
-	findChild<ui::Bar>("experience")->setValue(monsterEntry.get().experience);
-	findChild<ui::Bar>("experience")->setMaxValue(m_maxExperience);
-
-	findChild<ui::Label>("name")->setLabel(monsterEntry.get().name);
-	findChild<ui::Label>("level")->setLabel("Lvl " + std::to_string(monsterEntry.get().level));
+	calculateStates(monsterEntry);	
 }
 
 void Monster::setDelayedKill(bool delayedKill) {
@@ -420,6 +426,7 @@ void Monster::initUI() {
 	surface->setShader(Globals::shaderManager.getAssetPointer("list"));
 	surface->setBorderRadius(0.0f);
 	surface->setEdge(ui::Edge::EDGE_NONE);
+	surface->setName("background");
 
 	ui::Label* label = surface->addChild<ui::Label>(Globals::fontManager.get("dialog"));
 	label->translateRelative(padding, padding);
@@ -447,7 +454,7 @@ void Monster::initUI() {
 	label->setName("level");
 
 	ui::Bar* bar = addChild<ui::Bar>(TileSetManager::Get().getTileSet("bars"));
-	bar->translateRelative(-width * 0.5f + 16.0f, +96.0f - height * 0.5f + 40.0f - lvlHeight);
+	bar->translateRelative(-width * 0.5f + 16.0f, + 96.0f - height * 0.5f + 40.0f - lvlHeight);
 	bar->updateWorldTransformation();
 	bar->setRadius(0.0f);
 	bar->setBgColor(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));

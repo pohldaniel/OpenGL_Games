@@ -46,7 +46,7 @@ class CBTimer : public Timer {
 public:
 
 	CBTimer();
-	CBTimer(U* recipient, CallBack callBack);
+	CBTimer(U* receiver, CallBack callBack);
 	CBTimer& operator=(const CBTimer& rhs);
 	CBTimer& operator=(CBTimer&& rhs);
 	CBTimer(CBTimer const& rhs);
@@ -55,9 +55,9 @@ public:
 	~CBTimer();
 
 	void update(const float dt) override;
-	void setRecipient(U* recipient);
+	void setReceiver(U* receiver);
 	void setCallBack(CallBack callBack);
-	U* m_recipient;
+	U* m_receiver;
 private:
 
 	
@@ -65,34 +65,31 @@ private:
 };
 
 template <typename U>
-CBTimer<U>::CBTimer() : Timer(), m_recipient(nullptr), m_callBack(CALL_BACK_1){
+CBTimer<U>::CBTimer() : Timer(), m_receiver(nullptr), m_callBack(CALL_BACK_1){
 
 }
 
 template <typename U>
-CBTimer<U>::CBTimer(U* recipient, CallBack callBack) : Timer(), m_recipient(recipient), m_callBack(callBack) {
+CBTimer<U>::CBTimer(U* recipient, CallBack callBack) : Timer(), m_receiver(recipient), m_callBack(callBack) {
 
 }
 
 template <typename U>
 CBTimer<U>::~CBTimer() {
-	m_recipient = nullptr;
+	m_receiver = nullptr;
 }
 
 template <typename U>
 CBTimer<U>::CBTimer(CBTimer const& rhs) : Timer(rhs), m_callBack(rhs.m_callBack) {
-	//m_recipient = rhs.m_recipient;
 }
 
 template <typename U>
 CBTimer<U>::CBTimer(CBTimer&& rhs) : Timer(rhs),  m_callBack(rhs.m_callBack) {
-	//m_recipient = rhs.m_recipient;
 }
 
 template <typename U>
 CBTimer<U>& CBTimer<U>::operator=(const CBTimer& rhs) {
 	Timer::operator=(rhs);
-	//m_recipient = rhs.m_recipient;
 	m_callBack = rhs.m_callBack;
 	return *this;
 }
@@ -100,7 +97,6 @@ CBTimer<U>& CBTimer<U>::operator=(const CBTimer& rhs) {
 template <typename U>
 CBTimer<U>& CBTimer<U>::operator=(CBTimer&& rhs) {
 	Timer::operator=(rhs);
-	//m_recipient = rhs.m_recipient;
 	m_callBack = rhs.m_callBack;
 	return *this;
 }
@@ -114,15 +110,15 @@ void CBTimer<U>::update(const float dt) {
 	m_elapsedTime += dt;
 
 	while (m_elapsedTime > m_updateTime) {
-		m_recipient->OnCallBack(m_callBack);
+		m_receiver->OnCallBack(m_callBack);
 		m_elapsedTime = m_repeate ? m_elapsedTime - m_updateTime : 0.0f;
 		m_activated = m_repeate;
 	}
 }
 
 template <typename U>
-void CBTimer<U>::setRecipient(U* recipient) {
-	m_recipient = recipient;
+void CBTimer<U>::setReceiver(U* receiver) {
+	m_receiver = receiver;
 }
 
 template <typename U>

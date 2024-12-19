@@ -123,7 +123,7 @@ void DialogTree::draw() {
 }
 
 void DialogTree::drawDefault() {
-
+	drawTree();
 }
 
 void DialogTree::addDialog(float posX, float posY, float paddingX, float paddingY, const std::string& text, int currentIndex) {
