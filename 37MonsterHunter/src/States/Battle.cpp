@@ -110,7 +110,7 @@ m_rotate(false)
 	TileSetManager::Get().getTileSet("backgrounds").loadTileCpu("res/tmx/graphics/backgrounds/ice.png", false, true, false);
 	TileSetManager::Get().getTileSet("backgrounds").loadTileCpu("res/tmx/graphics/backgrounds/sand.png", false, true, false);
 	TileSetManager::Get().getTileSet("backgrounds").loadTileSetGpu();
-	//Spritesheet::Safe("backgrounds", TileSetManager::Get().getTileSet("backgrounds").getAtlas());
+	Spritesheet::Safe("backgrounds", TileSetManager::Get().getTileSet("backgrounds").getAtlas());
 	m_backgrounds = TileSetManager::Get().getTileSet("backgrounds").getAtlas();
 	
 	initUI();
@@ -122,8 +122,6 @@ m_rotate(false)
 	m_mainRenderTarget.attachTexture2D(AttachmentTex::RGBA);
 	m_mainRenderTarget.attachTexture2D(AttachmentTex::DEPTH24);
 	
-	m_biomeBackground = "forest";
-
 	m_fade.setTransitionSpeed(2.353f);
 	m_fade.fadeIn();
 }
@@ -797,7 +795,12 @@ void Battle::setOpponentMonsters(const std::vector<MonsterEntry>& monsters, bool
 }
 
 void Battle::setBiomeBackground(const std::string& biomeBackground) {
-	m_biomeBackground = biomeBackground;
+	if(biomeBackground == "forest")
+		BackgroundRect.frame = 0u;
+	else if(biomeBackground == "ice")
+		BackgroundRect.frame = 1u;
+	else if(biomeBackground == "sand")
+		BackgroundRect.frame = 2u;
 }
 
 void Battle::initUI() {
