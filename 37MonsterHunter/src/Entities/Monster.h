@@ -53,11 +53,11 @@ public:
 	MonsterEntry& getMonsterEntry();
 	void setMonsterEntry(MonsterEntry& monsterEntry);
 	void calculateStates(MonsterEntry& monsterEntry);
-	
+	void initUI();
 private:
 
 	void drawDefault() override;
-	void initUI();
+	
 
 	std::reference_wrapper<MonsterEntry> monsterEntry;
 

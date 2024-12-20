@@ -18,8 +18,7 @@ m_fadeValue(0.0f),
 m_fade(m_fadeValue),
 m_displayStar(false),
 m_progress(0.0f),
-m_curentMonsterIndex(-1),
-m_rotate(false)
+m_curentMonsterIndex(-1)
 {
 	m_atlasMonster = TileSetManager::Get().getTileSet("monster").getAtlas();
 	m_fade.setTransitionSpeed(0.31372f);
@@ -90,14 +89,6 @@ void Evolve::update(float dt) {
 		iconAnimated->setCurrentFrame(m_currentFrame);
 		iconAnimated->setColor(Vector4f(1.0f, 1.0f, 1.0f, 1.0f - m_progress));
 	}
-
-	Keyboard &keyboard = Keyboard::instance();
-	if (keyboard.keyPressed(Keyboard::KEY_R)) {
-		m_rotate = !m_rotate;
-	}
-
-	if (m_rotate)
-		rotate(10.0f * dt);
 }
 
 void Evolve::startEvolution() {
@@ -166,7 +157,6 @@ void Evolve::initUI(float viewWidth, float viewHeight) {
 	ui::IconAnimated* iconAnimated = addChild<ui::IconAnimated>(TileSetManager::Get().getTileSet("monster").getTextureRects());
 	iconAnimated->setPosition(0.5f * m_viewWidth, 0.5f * m_viewHeight);
 	iconAnimated->setScale(2.0f, 2.0f);
-	iconAnimated->updateWorldTransformation();
 	iconAnimated->setShader(Globals::shaderManager.getAssetPointer("evolve"));
 	iconAnimated->setSpriteSheet(TileSetManager::Get().getTileSet("monster").getAtlas());
 	iconAnimated->setName("icon");
@@ -186,7 +176,6 @@ void Evolve::initUI(float viewWidth, float viewHeight) {
 	textField->setSize(0.05f);
 	textField->setPaddingX(20.0f);
 	textField->setPaddingY(20.0f);
-	textField->updateWorldTransformation();
 	textField->setName("textField");
 
 	iconAnimated = addChild<ui::IconAnimated>(TileSetManager::Get().getTileSet("star").getTextureRects());
@@ -194,6 +183,5 @@ void Evolve::initUI(float viewWidth, float viewHeight) {
 	iconAnimated->setName("star");
 	iconAnimated->setPosition(0.5f * m_viewWidth, 0.5f * m_viewHeight);
 	iconAnimated->setScale(2.0f, 2.0f);
-	iconAnimated->updateWorldTransformation();
 	iconAnimated->setAligned(true);
 }

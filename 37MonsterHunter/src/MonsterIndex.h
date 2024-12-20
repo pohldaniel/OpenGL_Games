@@ -85,6 +85,4 @@ private:
 	int m_frameCount;
 	std::string m_stateLabels[6];
 	std::unordered_map<std::string, float> m_maxStats;
-
-	bool m_rotate;
 };

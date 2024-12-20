@@ -119,7 +119,7 @@ namespace ui
 	}
 
 	Widget::Widget(Widget&& rhs) : Node(rhs), Sprite(rhs), m_draw(std::move(rhs.m_draw)) {
-		m_isDirty = rhs.m_isDirty;
+		m_isDirty = std::move(rhs.m_isDirty);
 	}
 
 	Widget::~Widget() {

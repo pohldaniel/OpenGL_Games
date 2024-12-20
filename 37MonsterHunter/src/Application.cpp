@@ -94,11 +94,6 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	shader->loadMatrix("u_transform", Matrix4f::Orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f));
 	shader->unuse();
 
-	shader = Globals::shaderManager.getAssetPointer("dialog");
-	shader->use();
-	shader->loadMatrix("u_transform", Matrix4f::Orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f));
-	shader->unuse();
-
 	initStates();
 }
 Application::~Application() {
@@ -647,11 +642,6 @@ void Application::Resize(int deltaW, int deltaH) {
 		shader->loadMatrix("u_transform", Matrix4f::Orthographic(0.0f, static_cast<float>(Width), 0.0f, static_cast<float>(Height), -1.0f, 1.0f));
 		shader->unuse();
 
-		shader = Globals::shaderManager.getAssetPointer("dialog");
-		shader->use();
-		shader->loadMatrix("u_transform", Matrix4f::Orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f));
-		shader->unuse();
-
 		Machine->getStates().top()->resize(deltaW, deltaH);
 	}
 }
@@ -720,7 +710,6 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("texture", "res/shader/texture.vert", "res/shader/texture.frag");	
 	Globals::shaderManager.loadShader("font", "res/shader/batch.vert", "res/shader/font.frag");
 	Globals::shaderManager.loadShader("batch", "res/shader/batch.vert", "res/shader/batch.frag");
-	Globals::shaderManager.loadShader("dialog", "res/shader/batch.vert", "res/shader/dialog.frag");
 	Globals::shaderManager.loadShader("quad", "res/shader/quad.vert", "res/shader/quad.frag");
 	Globals::shaderManager.loadShader("list", "res/shader/list.vert", "res/shader/list.frag");
 	Globals::shaderManager.loadShader("color", "res/shader/color.vert", "res/shader/color.frag");

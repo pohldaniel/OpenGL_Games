@@ -44,11 +44,6 @@ MonsterHunter::MonsterHunter(StateMachine& machine) : State(machine, States::MON
 	shader->loadMatrix("u_transform", m_camera.getOrthographicMatrix());
 	shader->unuse();
 
-	shader = Globals::shaderManager.getAssetPointer("dialog");
-	shader->use();
-	shader->loadMatrix("u_transform", m_camera.getOrthographicMatrix());
-	shader->unuse();
-
 	m_zone.loadTileSetData("res/tilesets.json");
 	m_zone.loadZone("res/tmx/data/maps/world.tmx", "world", "house");	
 	m_zone.setDebugCollision(m_debugCollision);
@@ -277,6 +272,7 @@ void MonsterHunter::update() {
 	}
 
 	m_dialogTree.processInput();
+
 	m_delayEvolve.update(m_dt);
 	for (auto&& spriteEntity : m_zone.getSpriteEntities()) {
 		spriteEntity->update(m_dt);
@@ -393,11 +389,6 @@ void MonsterHunter::resize(int deltaW, int deltaH) {
 	shader->unuse();
 
 	shader = Globals::shaderManager.getAssetPointer("font");
-	shader->use();
-	shader->loadMatrix("u_transform", m_camera.getOrthographicMatrix());
-	shader->unuse();
-
-	shader = Globals::shaderManager.getAssetPointer("dialog");
 	shader->use();
 	shader->loadMatrix("u_transform", m_camera.getOrthographicMatrix());
 	shader->unuse();

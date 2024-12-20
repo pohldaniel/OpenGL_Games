@@ -25,17 +25,17 @@ Object2D& Object2D::operator=(const Object2D& rhs) {
 }
 
 Object2D::Object2D(Object2D&& rhs) : Object2D(rhs) {
-	m_position = rhs.m_position;
-	m_origin = rhs.m_origin;
-	m_scale = rhs.m_scale;
-	m_orientation = rhs.m_orientation;
+	m_position = std::move(rhs.m_position);
+	m_origin = std::move(rhs.m_origin);
+	m_scale = std::move(rhs.m_scale);
+	m_orientation = std::move(rhs.m_orientation);
 }
 
 Object2D& Object2D::operator=(Object2D&& rhs) {
-	m_position = rhs.m_position;
-	m_origin = rhs.m_origin;
-	m_scale = rhs.m_scale;
-	m_orientation = rhs.m_orientation;
+	m_position = std::move(rhs.m_position);
+	m_origin = std::move(rhs.m_origin);
+	m_scale = std::move(rhs.m_scale);
+	m_orientation = std::move(rhs.m_orientation);
 	return *this;
 }
 
@@ -198,17 +198,17 @@ Object& Object::operator=(const Object& rhs) {
 }
 
 Object::Object(Object&& rhs) : Object(rhs) {
-	m_position = rhs.m_position;
-	m_origin = rhs.m_origin;
-	m_scale = rhs.m_scale;
-	m_orientation = rhs.m_orientation;
+	m_position = std::move(rhs.m_position);
+	m_origin = std::move(rhs.m_origin);
+	m_scale = std::move(rhs.m_scale);
+	m_orientation = std::move(rhs.m_orientation);
 }
 
 Object& Object::operator=(Object&& rhs) {
-	m_position = rhs.m_position;
-	m_origin = rhs.m_origin;
-	m_scale = rhs.m_scale;
-	m_orientation = rhs.m_orientation;
+	m_position = std::move(rhs.m_position);
+	m_origin = std::move(rhs.m_origin);
+	m_scale = std::move(rhs.m_scale);
+	m_orientation = std::move(rhs.m_orientation);
 	return *this;
 }
 

@@ -15,9 +15,9 @@ namespace ui
 
 	Surface::Surface(Surface&& rhs) :
 		Widget(rhs),
-		m_color(rhs.m_color),
-		m_edge(rhs.m_edge),
-		m_borderRadius(rhs.m_borderRadius) {
+		m_color(std::move(rhs.m_color)),
+		m_edge(std::move(rhs.m_edge)),
+		m_borderRadius(std::move(rhs.m_borderRadius)) {
 	}
 
 	Surface::~Surface() {

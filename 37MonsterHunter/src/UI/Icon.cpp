@@ -18,10 +18,10 @@ namespace ui
 
 	Icon::Icon(Icon&& rhs) :
 		Widget(rhs),
-		m_color(rhs.m_color),
+		m_color(std::move(rhs.m_color)),
 		textureRect(std::move(rhs.textureRect)),
-		m_spriteSheet(rhs.m_spriteSheet),
-		m_aligned(rhs.m_aligned) {
+		m_spriteSheet(std::move(rhs.m_spriteSheet)),
+		m_aligned(std::move(rhs.m_aligned)) {
 	}
 
 	Icon::~Icon() {
@@ -76,14 +76,14 @@ namespace ui
 
 	IconAnimated::IconAnimated(IconAnimated&& rhs) :
 		Widget(rhs),
-		m_color(rhs.m_color),
+		m_color(std::move(rhs.m_color)),
 		textureRects(std::move(rhs.textureRects)),
-		m_spriteSheet(rhs.m_spriteSheet),
-		m_currentFrame(rhs.m_currentFrame),
-		m_aligned(rhs.m_aligned),
-		m_flipped(rhs.m_flipped),
-		m_offsetX(rhs.m_offsetX),
-		m_offsetY(rhs.m_offsetY) {
+		m_spriteSheet(std::move(rhs.m_spriteSheet)),
+		m_currentFrame(std::move(rhs.m_currentFrame)),
+		m_aligned(std::move(rhs.m_aligned)),
+		m_flipped(std::move(rhs.m_flipped)),
+		m_offsetX(std::move(rhs.m_offsetX)),
+		m_offsetY(std::move(rhs.m_offsetY)) {
 	}
 
 	IconAnimated::~IconAnimated() {

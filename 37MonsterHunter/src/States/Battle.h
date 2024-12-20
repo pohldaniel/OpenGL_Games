@@ -55,8 +55,8 @@ private:
 	void initUI();
 	void addAbilities();
 	void eraseAbilities();
-	void addMonsters();
-	void eraseMonsters();
+	void addListMonsters();
+	void eraseListMonsters();
 	void addGeneralUI(float posX, float posY);
 	void eraseGeneralUI();
 	void addAttacksUI(float posX, float posY, float scaleX, float scaleY);
@@ -74,7 +74,6 @@ private:
 	bool m_playAbility;
 	bool m_drawGeneralUi, m_drawAtacksUi, m_drawSwitchUi, m_drawTargetUI, m_removeDefeteadMonster, m_catchMonster, m_canSwitch, m_canCatch;
 	bool m_exit;
-	bool m_rotate;
 
 	Camera m_camera;
 	float m_viewWidth;

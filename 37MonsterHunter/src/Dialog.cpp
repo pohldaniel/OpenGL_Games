@@ -13,7 +13,7 @@ DialogTree::DialogTree(const Camera& camera) :
 	m_currentIndex(-1), 
 	m_finished(true), 
 	m_blockInput(false),
-	OnDialogFinished(nullptr) {
+	OnDialogFinished(nullptr){
 
 	std::ifstream file("res/trainer.json", std::ios::in);
 	if (!file.is_open()) {
@@ -75,11 +75,9 @@ DialogTree::~DialogTree() {
 }
 
 void DialogTree::draw() {
-
 	if (m_currentIndex >= 0) {
 		ui::Widget::draw();
 	}
-	
 }
 
 void DialogTree::addDialog(float posX, float posY, float paddingX, float paddingY, const std::string& text, int currentIndex) {
@@ -110,10 +108,9 @@ void DialogTree::processInput() {
 					OnDialogFinished();
 					OnDialogFinished = nullptr;
 				}
-			}	
+			}
+			updateUI();
 	}
-
-	updateUI();
 }
 
 bool DialogTree::isFinished() {
@@ -150,6 +147,7 @@ void DialogTree::updateUI() {
 
 		setPosition(posX, posY);
 		setScale(dimension[0], dimension[1]);
+		setOrigin(dimension[0] * 0.5f, dimension[1] * 0.5f);
 
 		ui::Label* label = findChild<ui::Label>("text");
 		label->setLabel(dialogData.text);

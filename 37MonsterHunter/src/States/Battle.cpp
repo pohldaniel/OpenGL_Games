@@ -38,8 +38,7 @@ m_catchMonster(false),
 m_canSwitch(true),
 m_alpha(0.0f),
 m_fade(m_alpha),
-m_canCatch(true),
-m_rotate(false)
+m_canCatch(true)
 {
 	m_viewWidth = 1280.0f;
 	m_viewHeight = 720.0f;
@@ -139,10 +138,6 @@ void Battle::fixedUpdate() {
 void Battle::update() {
 	Keyboard &keyboard = Keyboard::instance();
 	
-	if (keyboard.keyPressed(Keyboard::KEY_R)) {
-		m_rotate = !m_rotate;
-	}
-
 	if (keyboard.keyPressed(Keyboard::KEY_T)) {
 		exit();
 	}
@@ -216,9 +211,6 @@ void Battle::update() {
 	}
 	removeDefeteadMonster();
 	
-	if (m_rotate) 
-		rotate(10.0f * m_dt);
-
 	if (m_drawGeneralUi) 		
 		updateGeneral();
 	
@@ -285,11 +277,6 @@ void Battle::resize(int deltaW, int deltaH) {
 	shader->use();
 	shader->loadMatrix("u_transform", m_camera.getOrthographicMatrix());
 	shader->unuse();
-
-	shader = Globals::shaderManager.getAssetPointer("dialog");
-	shader->use();
-	shader->loadMatrix("u_transform", m_camera.getOrthographicMatrix());
-	shader->unuse();
 }
 
 void Battle::setMapHeight(float mapHeight) {
@@ -321,15 +308,14 @@ void Battle::updateAbilityAnimation() {
 	abilityUI->setCurrentFrame(m_abilityOffset + m_currentFrame);
 }
 
-
 void Battle::updateAttacks() {	
 	eraseAbilities();
 	addAbilities();
 }
 
 void Battle::updateSwitch() {	
-	eraseMonsters();
-	addMonsters();
+	eraseListMonsters();
+	addListMonsters();
 }
 
 void Battle::processInput() {
@@ -781,7 +767,7 @@ void Battle::setOpponentMonsters(const std::vector<MonsterEntry>& monsters, bool
 		monster = addChild<Monster>(m_cells.back(), MonsterIndex::Monsters[i + k], Vector2f(positions[i][0], positions[i][1]));
 		m_monsters.push_back(monster);
 	}
-	
+
 	std::for_each(m_opponentMonsters.begin(), m_opponentMonsters.end(), std::mem_fn(&MonsterEntry::resetStats));
 	m_supplyIndexOpponent = std::max(std::min(2, static_cast<int>(m_opponentMonsters.size()) - 1), 0);
 	for (int i = 0; i < std::min(static_cast<int>(m_opponentMonsters.size()), 3); i++) {
@@ -825,7 +811,6 @@ void Battle::addAbilities() {
 	ui::Surface* surface = atacksUI->addChild<ui::Surface>();
 	surface->setPosition(0.0f, 1.0f - (position + 1) * invLimiter);
 	surface->setScale(1.0f, invLimiter);
-	surface->updateWorldTransformation();
 	surface->setShader(Globals::shaderManager.getAssetPointer("list"));
 	surface->setColor(Vector4f(0.78431f, 0.78431f, 0.78431f, 1.0f));
 	surface->setEdge(position == 0 ? ui::Edge::TOP : position == std::min(m_visibleItems, m_currentMax - m_currentOffset) - 1 ? ui::Edge::BOTTOM : ui::Edge::EDGE_NONE);
@@ -837,7 +822,6 @@ void Battle::addAbilities() {
 		label->setPosition(0.5f, 1.0f - (index + 1) * invLimiter + 0.5 * invLimiter);
 		label->translateRelative(-0.5f * Globals::fontManager.get("dialog").getWidth((*ability).first) * 0.045f, -lineHeight * 0.5);
 		label->setScale(1.0f, 1.0f);
-		label->updateWorldTransformation();
 		label->setSize(0.045f);
 		label->setLabel((*ability).first);
 		label->setTextColor((index == m_currentSelectedOption - m_currentOffset) ? MonsterIndex::_AttackData[(*ability).first].element == "normal" ? Vector4f(0.0f, 0.0f, 0.0f, 1.0f) : MonsterIndex::ColorMap[MonsterIndex::_AttackData[(*ability).first].element] : Vector4f(0.78431f, 0.78431f, 0.78431f, 1.0f));
@@ -849,7 +833,7 @@ void Battle::eraseAbilities() {
 	findChild<ui::Surface>("attacks")->eraseAllChildren();
 }
 
-void Battle::addMonsters() {
+void Battle::addListMonsters() {
 	const std::vector<TextureRect>& iconRects = TileSetManager::Get().getTileSet("monster_icon").getTextureRects();
 
 	float invLimiter = 0.25f;
@@ -861,7 +845,6 @@ void Battle::addMonsters() {
 	ui::Surface* surface = switchUI->addChild<ui::Surface>();
 	surface->setPosition(0.0f, 1.0f - (position + 1) * invLimiter);
 	surface->setScale(1.0f, invLimiter);
-	surface->updateWorldTransformation();
 	surface->setShader(Globals::shaderManager.getAssetPointer("list"));
 	surface->setColor(Vector4f(0.78431f, 0.78431f, 0.78431f, 1.0f));
 	surface->setEdge(position == 0 ? ui::Edge::TOP : position == 3 ? ui::Edge::BOTTOM : ui::Edge::EDGE_NONE);
@@ -887,7 +870,6 @@ void Battle::addMonsters() {
 		bar = switchUI->addChild<ui::Bar>(TileSetManager::Get().getTileSet("bars"));
 		bar->setPosition(0.0f, 1.0f - (index - m_currentOffset + 1) * invLimiter + 0.5 * invLimiter);
 		bar->translateRelative(90.0f, -lineHeight * 0.5 - 9.0f);
-		bar->updateWorldTransformation();
 		bar->setRadius(0.0f);
 		bar->setBgColor(Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
 		bar->setColor(Vector4f(0.94117f, 0.19215f, 0.19215f, 1.0f));
@@ -899,7 +881,6 @@ void Battle::addMonsters() {
 		bar = switchUI->addChild<ui::Bar>(TileSetManager::Get().getTileSet("bars"));
 		bar->setPosition(0.0f, 1.0f - (index - m_currentOffset + 1) * invLimiter + 0.5 * invLimiter);
 		bar->translateRelative(90.0f, -lineHeight * 0.5 - 16.0f);
-		bar->updateWorldTransformation();
 		bar->setRadius(0.0f);
 		bar->setBgColor(Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
 		bar->setColor(Vector4f(0.4f, 0.84313f, 0.93333f, 1.0f));
@@ -910,7 +891,7 @@ void Battle::addMonsters() {
 	}
 }
 
-void Battle::eraseMonsters() {
+void Battle::eraseListMonsters() {
 	findChild<ui::Surface>("switch")->eraseAllChildren();
 }
 

@@ -29,12 +29,13 @@ m_killed(false)
 {
 	m_direction.set(0.0f, 0.0f);
 	canAttack();
-	translateRelative(pos);
-	updateWorldTransformation();
+	setPosition(pos[0] / 1280.0f, pos[1] / 720.0f);
+	setScale(1280.0f, 720.0f);
 	initUI();
+	setScale(1.0f, 1.0f);
 }
 
-Monster::Monster(Monster const& rhs) : SpriteEntity(rhs.cell), monsterEntry(rhs.monsterEntry) {
+Monster::Monster(Monster const& rhs) : Empty(rhs), SpriteEntity(rhs.cell), monsterEntry(rhs.monsterEntry) {
 	m_animationSpeed = rhs.m_animationSpeed;
 	m_maxExperience = rhs.m_maxExperience;	
 	m_maxHealth = rhs.m_maxHealth;
@@ -58,7 +59,7 @@ Monster::Monster(Monster const& rhs) : SpriteEntity(rhs.cell), monsterEntry(rhs.
 	m_showMissingTimer.setReceiver(this);
 }
 
-Monster::Monster(Monster&& rhs) : SpriteEntity(rhs.cell), monsterEntry(rhs.monsterEntry) {
+Monster::Monster(Monster&& rhs) : Empty(rhs), SpriteEntity(rhs.cell), monsterEntry(rhs.monsterEntry) {
 	m_animationSpeed = rhs.m_animationSpeed;
 	m_maxExperience = rhs.m_maxExperience;
 	m_maxHealth = rhs.m_maxHealth;
@@ -422,7 +423,6 @@ void Monster::initUI() {
 	ui::Surface* surface = addChild<ui::Surface>();
 	surface->translateRelative(-width * 0.5f + 16.0f, 96.0f - height * 0.5f + 40.0f);
 	surface->scaleAbsolute(width, height);
-	surface->updateWorldTransformation();
 	surface->setColor(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
 	surface->setShader(Globals::shaderManager.getAssetPointer("list"));
 	surface->setBorderRadius(0.0f);
@@ -431,7 +431,6 @@ void Monster::initUI() {
 
 	ui::Label* label = surface->addChild<ui::Label>(Globals::fontManager.get("dialog"));
 	label->translateRelative(padding, padding);
-	label->updateWorldTransformation();
 	label->setTextColor(Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
 	label->setSize(0.045f);
 	label->setLabel(monsterEntry.get().name);
@@ -440,7 +439,6 @@ void Monster::initUI() {
 	surface = addChild<ui::Surface>();
 	surface->translateRelative(-width * 0.5f + 16.0f, + 96.0f - height * 0.5f + 40.0f - lvlHeight);
 	surface->scaleAbsolute(lvlWidth, lvlHeight);
-	surface->updateWorldTransformation();
 	surface->setColor(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
 	surface->setShader(Globals::shaderManager.getAssetPointer("list"));
 	surface->setBorderRadius(0.0f);
@@ -448,7 +446,6 @@ void Monster::initUI() {
 
 	label = surface->addChild<ui::Label>(Globals::fontManager.get("dialog"));
 	label->translateRelative(30 - 0.5f * fontWidth, 13.0f - 0.5f * fontHeight);
-	label->updateWorldTransformation();
 	label->setTextColor(Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
 	label->setSize(0.035f);
 	label->setLabel("Lvl " + std::to_string(monsterEntry.get().level));
@@ -456,7 +453,6 @@ void Monster::initUI() {
 
 	ui::Bar* bar = addChild<ui::Bar>(TileSetManager::Get().getTileSet("bars"));
 	bar->translateRelative(-width * 0.5f + 16.0f, + 96.0f - height * 0.5f + 40.0f - lvlHeight);
-	bar->updateWorldTransformation();
 	bar->setRadius(0.0f);
 	bar->setBgColor(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
 	bar->setColor(Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
@@ -469,7 +465,6 @@ void Monster::initUI() {
 	ui::IconAnimated* iconAnimated = addChild<ui::IconAnimated>(TileSetManager::Get().getTileSet("monster").getTextureRects());
 	iconAnimated->setPosition(0.0f, 0.0f);
 	iconAnimated->scaleAbsolute(highlightRect.width, highlightRect.height);
-	iconAnimated->updateWorldTransformation();
 	iconAnimated->setName("highlight");
 	iconAnimated->setSpriteSheet(TileSetManager::Get().getTileSet("monster").getAtlas());
 	iconAnimated->setCurrentFrame(-1);
@@ -478,7 +473,6 @@ void Monster::initUI() {
 	iconAnimated = addChild<ui::IconAnimated>(TileSetManager::Get().getTileSet("monster").getTextureRects());
 	iconAnimated->setPosition(0.0f, 0.0f);
 	iconAnimated->scaleAbsolute(rect.width, rect.height);
-	iconAnimated->updateWorldTransformation();
 	iconAnimated->setName("image");
 	iconAnimated->setSpriteSheet(TileSetManager::Get().getTileSet("monster").getAtlas());
 	iconAnimated->setCurrentFrame(cell.currentFrame);
@@ -487,7 +481,6 @@ void Monster::initUI() {
 	surface = addChild<ui::Surface>();
 	surface->translateRelative(0.5f * rect.width - 75.0f, -20.0);
 	surface->scaleAbsolute(150.0f, 48.0f);
-	surface->updateWorldTransformation();
 	surface->setColor(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
 	surface->setShader(Globals::shaderManager.getAssetPointer("list"));
 	surface->setBorderRadius(0.0f);
@@ -495,7 +488,6 @@ void Monster::initUI() {
 
 	bar = addChild<ui::Bar>(TileSetManager::Get().getTileSet("bars"));
 	bar->translateRelative(0.5f * rect.width - 75.0f, -20.0);
-	bar->updateWorldTransformation();
 	bar->setName("initiative");
 	bar->setRadius(0.0f);
 	bar->setBgColor(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
@@ -506,7 +498,6 @@ void Monster::initUI() {
 	
 	bar = addChild<ui::Bar>(TileSetManager::Get().getTileSet("bars"));
 	bar->translateRelative(0.5f * rect.width - 75.0f + 9.0f, -20.0f + 48.0f - 2.0f * lineHeightSmall + 11.0f);
-	bar->updateWorldTransformation();
 	bar->setName("health");
 	bar->setRadius(0.0f);
 	bar->setBgColor(Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
@@ -518,7 +509,6 @@ void Monster::initUI() {
 
 	bar = addChild<ui::Bar>(TileSetManager::Get().getTileSet("bars"));
 	bar->translateRelative(0.5f * rect.width - 75.0f + 9.0f, -20.0f + 48.0f - 2.0f * lineHeightSmall - 10.0f);
-	bar->updateWorldTransformation();
 	bar->setName("energy");
 	bar->setRadius(0.0f);
 	bar->setBgColor(Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
@@ -530,7 +520,6 @@ void Monster::initUI() {
 
 	label  = addChild<ui::Label>(Globals::fontManager.get("dialog"));
 	label->translateRelative(0.5f * rect.width - 75.0f + 10.0f, -20.0f + 48.0f - lineHeightSmall);
-	label->updateWorldTransformation();
 	label->setTextColor(Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
 	label->setSize(0.035f);
 	label->setLabel(Fontrenderer::Get().floatToString(monsterEntry.get().health, 0) + "/" + Fontrenderer::Get().floatToString(m_maxHealth, 0));
@@ -538,7 +527,6 @@ void Monster::initUI() {
 
 	label = addChild<ui::Label>(Globals::fontManager.get("dialog"));
 	label->translateRelative(0.5f * rect.width - 75.0f + 10.0f, -20.0f + 48.0f - 2.0f * lineHeightSmall - 4.0f);
-	label->updateWorldTransformation();
 	label->setTextColor(Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
 	label->setSize(0.035f);
 	label->setLabel(Fontrenderer::Get().floatToString(monsterEntry.get().energy, 0) + "/" + Fontrenderer::Get().floatToString(m_maxEnergy, 0));

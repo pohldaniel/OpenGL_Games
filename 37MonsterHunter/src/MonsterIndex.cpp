@@ -31,8 +31,7 @@ m_currentSelected(0),
 m_beforeSelected(-1),
 m_elapsedTime(0.0f),
 m_currentFrame(0),
-m_frameCount(4),
-m_rotate(false){
+m_frameCount(4){
 
 	std::ifstream file("res/monster.json", std::ios::in);
 	if (!file.is_open()) {
@@ -305,20 +304,11 @@ void MonsterIndex::update(float dt) {
 		iconAnimated->translateRelative(45.0f - 0.5f * rect.width, -0.5f * rect.height);
 		iconAnimated->setScaleAbsolute(rect.width, rect.height);
 		iconAnimated->setColor(currentMonster.selected ? Vector4f(1.0f, 0.0f, 0.0f, 1.0f) : Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
-		iconAnimated->updateWorldTransformation();
 
 		label = surface->findChild<ui::Label>(i);
 		label->setTextColor(currentMonster.selected ? Vector4f(1.0f, 0.84313f, 0.0f, 1.0f) : Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
 		label->setLabel(currentMonster.name);
 	}
-
-	Keyboard &keyboard = Keyboard::instance();
-	if (keyboard.keyPressed(Keyboard::KEY_R)) {
-		m_rotate = !m_rotate;
-	}
-
-	if(m_rotate)
-		rotate(10.0f * dt);
 }
 
 void MonsterIndex::setViewWidth(float viewWidth) {
@@ -426,7 +416,7 @@ void MonsterIndex::initUI(float viewWidth, float viewHeight) {
 	setPosition(viewWidth * 0.2f, viewHeight * 0.1f);
 	setScale(viewWidth * 0.6f, viewHeight * 0.8f);
 	setOrigin(viewWidth * 0.3f, viewHeight * 0.4f);
-	//setOrientation(90.0f);
+
 	setShader(Globals::shaderManager.getAssetPointer("list"));
 	setColor(Vector4f(0.22745f, 0.21568f, 0.23137f, 1.0f));
 	setBorderRadius(12.0f);
@@ -434,7 +424,6 @@ void MonsterIndex::initUI(float viewWidth, float viewHeight) {
 	ui::Surface* surface = addChild<ui::Surface>();
 	surface->setPosition(0.333333f, 0.0f);
 	surface->setScale(0.666666f, 1.0f);
-	surface->updateWorldTransformation();
 	surface->setShader(Globals::shaderManager.getAssetPointer("list"));
 	surface->setName("right");
 	surface->setBorderRadius(12.0f);
@@ -444,7 +433,6 @@ void MonsterIndex::initUI(float viewWidth, float viewHeight) {
 	surface = surface->addChild<ui::Surface>();
 	surface->setPosition(0.0f, 0.625f);
 	surface->setScale(1.0f, 0.375f);
-	surface->updateWorldTransformation();
 	surface->setShader(Globals::shaderManager.getAssetPointer("list"));
 	surface->setName("top-right");
 	surface->setBorderRadius(12.0f);
@@ -456,7 +444,6 @@ void MonsterIndex::initUI(float viewWidth, float viewHeight) {
 	iconAnimated->setPosition(0.5f, 0.5f);
 	iconAnimated->translateRelative(-96.0f, -96.0f);
 	iconAnimated->scaleAbsolute(192.0f, 192.0f);
-	iconAnimated->updateWorldTransformation();
 	iconAnimated->setName("icon");
 	iconAnimated->setSpriteSheet(TileSetManager::Get().getTileSet("monster").getAtlas());
 
@@ -466,7 +453,6 @@ void MonsterIndex::initUI(float viewWidth, float viewHeight) {
 	label->setPosition(0.0f, 1.0f);
 	label->setScale(1.0f, 1.0f);
 	label->translateRelative(10.0f, -10.0f - lineHeightBold);
-	label->updateWorldTransformation();
 	label->setName("headline");
 	label->setTextColor(Vector4f(0.95686f, 0.99608f, 0.98039f, 1.0f));
 	label->setSize(0.05f);
@@ -475,7 +461,6 @@ void MonsterIndex::initUI(float viewWidth, float viewHeight) {
 	label->setPosition(0.0f, 0.0f);
 	label->setScale(1.0f, 1.0f);
 	label->translateRelative(10.0f, 10.0f);
-	label->updateWorldTransformation();
 	label->setName("level");
 	label->setTextColor(Vector4f(0.95686f, 0.99608f, 0.98039f, 1.0f));
 	label->setSize(0.045f);
@@ -484,7 +469,6 @@ void MonsterIndex::initUI(float viewWidth, float viewHeight) {
 	label->setPosition(1.0f, 0.0f);
 	label->setScale(1.0f, 1.0f);
 	label->translateRelative(-10.0f, 10.0f);
-	label->updateWorldTransformation();
 	label->setName("element");
 	label->setTextColor(Vector4f(0.95686f, 0.99608f, 0.98039f, 1.0f));
 	label->setSize(0.045f);
@@ -492,7 +476,6 @@ void MonsterIndex::initUI(float viewWidth, float viewHeight) {
 	ui::Bar* bar = surface->addChild<ui::Bar>(TileSetManager::Get().getTileSet("bars"));
 	bar->setPosition(0.0f, 0.0f);
 	bar->translateRelative(10.0f, 4.0f);
-	bar->updateWorldTransformation();
 	bar->setName("level");
 	bar->setRadius(0.0f);
 	bar->setBgColor(Vector4f(0.16862f, 0.16078f, 0.17255f, 1.0f));
@@ -510,7 +493,6 @@ void MonsterIndex::initUI(float viewWidth, float viewHeight) {
 	bar = surface->addChild<ui::Bar>(TileSetManager::Get().getTileSet("bars"));
 	bar->setPosition(0.025f, 0.5f);
 	bar->translateRelative(0.0f, 25.0f);
-	bar->updateWorldTransformation();
 	bar->setName("health");
 	bar->setRadius(2.0f);
 	bar->setBgColor(Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
@@ -521,7 +503,6 @@ void MonsterIndex::initUI(float viewWidth, float viewHeight) {
 	bar = surface->addChild<ui::Bar>(TileSetManager::Get().getTileSet("bars"));
 	bar->setPosition(0.525f, 0.5f);
 	bar->translateRelative(0.0f, 25.0f);
-	bar->updateWorldTransformation();
 	bar->setName("energy");
 	bar->setRadius(2.0f);
 	bar->setBgColor(Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
@@ -532,7 +513,6 @@ void MonsterIndex::initUI(float viewWidth, float viewHeight) {
 	label = surface->addChild<ui::Label>(Globals::fontManager.get("dialog"));
 	label->setPosition(0.025f, 0.5f);
 	label->translateRelative(10.0f, 28.5f);
-	label->updateWorldTransformation();
 	label->setTextColor(Vector4f(0.95686f, 0.99608f, 0.98039f, 1.0f));
 	label->setSize(0.045f);
 	label->setName("health");
@@ -540,7 +520,6 @@ void MonsterIndex::initUI(float viewWidth, float viewHeight) {
 	label = surface->addChild<ui::Label>(Globals::fontManager.get("dialog"));
 	label->setPosition(0.525f, 0.5f);
 	label->translateRelative(10.0f, 28.5f);
-	label->updateWorldTransformation();
 	label->setTextColor(Vector4f(0.95686f, 0.99608f, 0.98039f, 1.0f));
 	label->setSize(0.045f);
 	label->setName("energy");
@@ -548,7 +527,6 @@ void MonsterIndex::initUI(float viewWidth, float viewHeight) {
 	label = surface->addChild<ui::Label>(Globals::fontManager.get("dialog"));
 	label->setPosition(0.025f, 0.5f);
 	label->translateRelative(0.0f, -lineHeight * 0.5f);
-	label->updateWorldTransformation();
 	label->setTextColor(Vector4f(0.95686f, 0.99608f, 0.98039f, 1.0f));
 	label->setSize(0.045f);
 	label->setLabel("Stats");
@@ -556,7 +534,6 @@ void MonsterIndex::initUI(float viewWidth, float viewHeight) {
 	label = surface->addChild<ui::Label>(Globals::fontManager.get("dialog"));
 	label->setPosition(0.525f, 0.5f);
 	label->translateRelative(0.0f, -lineHeight * 0.5f);
-	label->updateWorldTransformation();
 	label->setTextColor(Vector4f(0.95686f, 0.99608f, 0.98039f, 1.0f));
 	label->setSize(0.045f);
 	label->setLabel("Ability");
@@ -568,13 +545,11 @@ void MonsterIndex::initUI(float viewWidth, float viewHeight) {
 		icon->setPosition(0.025f, 0.5f);
 		icon->translateRelative(5.0f, -30.0f -rect.height * 0.5f - i * statHeight);
 		icon->scaleAbsolute(rect.width, rect.height);
-		icon->updateWorldTransformation();
 		icon->setSpriteSheet(TileSetManager::Get().getTileSet("monster_icon").getAtlas());
 
 		label = surface->addChild<ui::Label>(Globals::fontManager.get("dialog"));
 		label->setPosition(0.025f, 0.5f);
 		label->translateRelative(30.0f, -30.0f - i * statHeight - lineHeight * 0.4f + 2.0f);
-		label->updateWorldTransformation();
 		label->setTextColor(Vector4f(0.95686f, 0.99608f, 0.98039f, 1.0f));
 		label->setSize(0.045f);
 		label->setLabel(m_stats[i]);
@@ -582,7 +557,6 @@ void MonsterIndex::initUI(float viewWidth, float viewHeight) {
 		bar = surface->addChild<ui::Bar>(TileSetManager::Get().getTileSet("bars"));
 		bar->setPosition(0.025f, 0.5f);	
 		bar->translateRelative(30.0f, -37.5f - i * statHeight - lineHeight * 0.4f + 2.0f);
-		bar->updateWorldTransformation();
 		bar->setName(m_stateLabels[i]);
 		bar->setRadius(0.0f);
 		bar->setBgColor(Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
@@ -594,7 +568,6 @@ void MonsterIndex::initUI(float viewWidth, float viewHeight) {
 	surface = addChild<ui::Surface>();
 	surface->setPosition(0.0f, 0.0f);
 	surface->setScale(0.333333f, 1.0f);
-	surface->updateWorldTransformation();
 	surface->setShader(Globals::shaderManager.getAssetPointer("list"));
 	surface->setName("left");
 	surface->setBorderRadius(12.0f);
@@ -622,7 +595,6 @@ void MonsterIndex::addAbilities() {
 		textField->setPosition(0.525f, 0.5f);
 		textField->translateRelative(x, y);
 		textField->translateRelative(0.0f, -lineHeight * 0.5f);
-		textField->updateWorldTransformation();
 		textField->setTextColor(Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
 		textField->setSize(0.045f);
 		textField->setOffsetX(5.0f);
@@ -664,7 +636,6 @@ void MonsterIndex::addMonsters() {
 
 		subSurface->setPosition(0.0f, 1.0f - static_cast<float>(i + 1) * itemHeigt);
 		subSurface->setScale(1.0f, 0.166666f);
-		subSurface->updateWorldTransformation();
 		subSurface->setShader(Globals::shaderManager.getAssetPointer("list"));
 		subSurface->setBorderRadius(12.0f);
 		subSurface->setColor(Vector4f(0.22745f, 0.21568f, 0.23137f, 1.0f));
@@ -677,7 +648,6 @@ void MonsterIndex::addMonsters() {
 		animatedIcon->translateRelative(45.0f - 0.5f * rect.width, -0.5f * rect.height);
 		animatedIcon->scaleAbsolute(rect.width, rect.height);
 		animatedIcon->setColor(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
-		animatedIcon->updateWorldTransformation();
 		animatedIcon->setSpriteSheet(TileSetManager::Get().getTileSet("monster_icon").getAtlas());
 		animatedIcon->setCurrentFrame(MonsterData[currentMonster.name].graphic);
 		animatedIcon->setIndex(i);
@@ -686,7 +656,6 @@ void MonsterIndex::addMonsters() {
 			icon = subSurface->addChild<ui::Icon>(rects[16]);
 			icon->setPosition(0.0f, 0.0f);
 			icon->setScale(1.0f, 0.02f);
-			icon->updateWorldTransformation();
 			icon->setColor(Vector4f(0.29411f, 0.28235f, 0.30196f, 1.0f));
 			icon->setSpriteSheet(TileSetManager::Get().getTileSet("monster_icon").getAtlas());
 		}
@@ -694,7 +663,6 @@ void MonsterIndex::addMonsters() {
 		label = subSurface->addChild<ui::Label>(Globals::fontManager.get("dialog"));
 		label->setPosition(0.0f, 0.5f);
 		label->translateRelative(90.0f, -0.5f * lineHeight);
-		label->updateWorldTransformation();
 		label->setTextColor(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
 		label->setSize(0.045f);
 		label->setLabel(currentMonster.name);
@@ -704,7 +672,6 @@ void MonsterIndex::addMonsters() {
 	ui::Surface* horinzontalBar = findChild<ui::Surface>("left")->addChild<ui::Surface>();
 	horinzontalBar->setPosition(1.0f - 0.0125f, 0.0f);
 	horinzontalBar->setScale(0.0125f, 1.0f);
-	horinzontalBar->updateWorldTransformation();
 	horinzontalBar->setShader(Globals::shaderManager.getAssetPointer("list"));
 	horinzontalBar->setBorderRadius(0.0f);
 	horinzontalBar->setEdge(ui::Edge::EDGE_NONE);

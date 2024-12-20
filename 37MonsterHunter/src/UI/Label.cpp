@@ -22,11 +22,11 @@ namespace ui
 	Label::Label(Label&& rhs) :
 		Widget(rhs),
 		characterSet(std::move(rhs.characterSet)),
-		m_label(rhs.m_label),
-		m_textColor(rhs.m_textColor),
-		m_size(rhs.m_size),
-		m_offsetX(rhs.m_offsetX),
-		m_offsetY(rhs.m_offsetY) {
+		m_label(std::move(rhs.m_label)),
+		m_textColor(std::move(rhs.m_textColor)),
+		m_size(std::move(rhs.m_size)),
+		m_offsetX(std::move(rhs.m_offsetX)),
+		m_offsetY(std::move(rhs.m_offsetY)) {
 
 	}
 
@@ -82,11 +82,11 @@ namespace ui
 
 	TextField::TextField(TextField&& rhs) :
 		Label(rhs),
-		m_paddingX(rhs.m_paddingX),
-		m_paddingY(rhs.m_paddingY),
-		m_backgroundColor(rhs.m_backgroundColor),
-		m_edge(rhs.m_edge),
-		m_borderRadius(rhs.m_borderRadius) {
+		m_paddingX(std::move(rhs.m_paddingX)),
+		m_paddingY(std::move(rhs.m_paddingY)),
+		m_backgroundColor(std::move(rhs.m_backgroundColor)),
+		m_edge(std::move(rhs.m_edge)),
+		m_borderRadius(std::move(rhs.m_borderRadius)) {
 
 	}
 
