@@ -369,7 +369,8 @@ void Monster::calculateStates(MonsterEntry& monsterEntry) {
 	m_maxExperience = 150.0f * static_cast<float>(monsterEntry.level);
 	m_maxHealth = static_cast<float>(monsterEntry.level) *  static_cast<float>(MonsterIndex::MonsterData[monsterEntry.name].maxHealth);
 	m_maxEnergy = static_cast<float>(monsterEntry.level) *  static_cast<float>(MonsterIndex::MonsterData[monsterEntry.name].maxEnergy);
-	
+	m_speed = static_cast<float>(monsterEntry.level) * MonsterIndex::MonsterData[monsterEntry.name].speed;
+
 	findChild<ui::Bar>("health")->setValue(monsterEntry.health);
 	findChild<ui::Bar>("health")->setMaxValue(m_maxHealth);
 

@@ -65,6 +65,9 @@ private:
 	void eraseSwitchUI();
 	void addAbilityUI(float posX, float posY);
 	void eraseAbilityUI();
+	bool canSwitch();
+	int getDefeated();
+	void growSupplyIndex();
 
 	void onDrawGeneralUI(bool flag);
 	void onDrawAttacksUI(bool flag);

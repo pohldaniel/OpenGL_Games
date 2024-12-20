@@ -54,6 +54,7 @@ public:
 	void setMonsterEntry(MonsterEntry& monsterEntry);
 	void calculateStates(MonsterEntry& monsterEntry);
 	void initUI();
+
 private:
 
 	void drawDefault() override;
