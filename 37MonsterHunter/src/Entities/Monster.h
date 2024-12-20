@@ -2,11 +2,11 @@
 #include <random>
 #include <Timer.h>
 #include <Entities/SpriteEntity.h>
-#include <UI/Surface.h>
+#include <UI/Empty.h>
 
 #include "MonsterIndex.h"
 
-class Monster : public SpriteEntity, public ui::Surface {
+class Monster : public SpriteEntity, public ui::Empty {
 
 public:
 

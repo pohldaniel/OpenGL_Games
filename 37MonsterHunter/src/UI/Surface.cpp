@@ -2,7 +2,7 @@
 
 namespace ui
 {
-	Surface::Surface() : Widget(), m_color(Vector4f::ONE), m_edge(Edge::ALL), m_borderRadius(10.0f) {
+	Surface::Surface() : Widget(), m_color(Vector4f::ONE), m_edge(Edge::ALL), m_borderRadius(12.0f) {
 
 	}
 
@@ -33,7 +33,7 @@ namespace ui
 	}
 
 	void Surface::setBorderRadius(float borderRadius) {
-		m_borderRadius = 12.0f;
+		m_borderRadius = borderRadius;
 	}
 
 	void Surface::setShader(Shader* shader) {
@@ -42,7 +42,9 @@ namespace ui
 	}
 
 	void Surface::drawDefault() {
+		
 		const Vector2f& scale = getWorldScale();
+
 		m_shader->use();
 		m_shader->loadVector("u_dimensions", Vector2f(scale[0], scale[1]));
 		m_shader->loadFloat("u_radius", m_borderRadius);

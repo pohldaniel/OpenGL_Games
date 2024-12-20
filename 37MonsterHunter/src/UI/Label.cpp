@@ -4,7 +4,7 @@
 
 namespace ui
 {
-	Label::Label(const CharacterSet& characterSet) : Widget(), characterSet(characterSet), m_textColor(Vector4f::ONE), m_size(1.0f), m_label("label"), m_offsetX(0.0f), m_offsetY(0.0f) {
+	Label::Label(const CharacterSet& characterSet) : Widget(), characterSet(characterSet), m_textColor(Vector4f(0.0f, 0.0f, 0.0f, 1.0f)), m_size(1.0f), m_label("label"), m_offsetX(0.0f), m_offsetY(0.0f) {
 
 	}
 
@@ -56,10 +56,10 @@ namespace ui
 
 	void Label::drawDefault() {
 		characterSet.bind();
+
 		if (m_offsetX || m_offsetY) {
 			Fontrenderer::Get().addTextTransformed(characterSet, getWorldTransformationWithTranslation(m_offsetX, m_offsetY), m_label, m_textColor, m_size);
-		}
-		else {
+		}else {
 			Fontrenderer::Get().addTextTransformed(characterSet, getWorldTransformation(), m_label, m_textColor, m_size);
 		}
 		Fontrenderer::Get().drawBuffer();

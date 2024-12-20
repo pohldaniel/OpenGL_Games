@@ -110,7 +110,7 @@ m_rotate(false)
 	TileSetManager::Get().getTileSet("backgrounds").loadTileCpu("res/tmx/graphics/backgrounds/ice.png", false, true, false);
 	TileSetManager::Get().getTileSet("backgrounds").loadTileCpu("res/tmx/graphics/backgrounds/sand.png", false, true, false);
 	TileSetManager::Get().getTileSet("backgrounds").loadTileSetGpu();
-	Spritesheet::Safe("backgrounds", TileSetManager::Get().getTileSet("backgrounds").getAtlas());
+	//Spritesheet::Safe("backgrounds", TileSetManager::Get().getTileSet("backgrounds").getAtlas());
 	m_backgrounds = TileSetManager::Get().getTileSet("backgrounds").getAtlas();
 	
 	initUI();
@@ -829,6 +829,7 @@ void Battle::addAbilities() {
 	surface->setShader(Globals::shaderManager.getAssetPointer("list"));
 	surface->setColor(Vector4f(0.78431f, 0.78431f, 0.78431f, 1.0f));
 	surface->setEdge(position == 0 ? ui::Edge::TOP : position == std::min(m_visibleItems, m_currentMax - m_currentOffset) - 1 ? ui::Edge::BOTTOM : ui::Edge::EDGE_NONE);
+	surface->setBorderRadius(12.0f);
 
 	ui::Label* label; int index = 0;
 	for (auto& ability = m_abilitiesFiltered.begin() + m_currentOffset; ability != m_abilitiesFiltered.begin() + m_currentOffset + std::min(m_visibleItems, m_currentMax - m_currentOffset); ++ability) {
@@ -864,7 +865,7 @@ void Battle::addMonsters() {
 	surface->setShader(Globals::shaderManager.getAssetPointer("list"));
 	surface->setColor(Vector4f(0.78431f, 0.78431f, 0.78431f, 1.0f));
 	surface->setEdge(position == 0 ? ui::Edge::TOP : position == 3 ? ui::Edge::BOTTOM : ui::Edge::EDGE_NONE);
-	surface->setBorderRadius(5.0f);
+	surface->setBorderRadius(12.0f);
 
 	ui::Icon* icon; ui::Label* label; ui::Bar* bar;
 	for (size_t index = m_currentOffset; index < m_currentOffset + std::min(m_visibleItems, m_currentMax - m_currentOffset); index++) {
@@ -955,7 +956,7 @@ void Battle::addAttacksUI(float posX, float posY, float scaleX, float scaleY) {
 	attacksUI->setPosition(0.0f, 0.0f);
 	attacksUI->translateRelative(posX, posY);
 	attacksUI->setShader(Globals::shaderManager.getAssetPointer("list"));
-	attacksUI->setBorderRadius(5.0f);
+	attacksUI->setBorderRadius(12.0f);
 	attacksUI->setEdge(ui::Edge::ALL);
 	attacksUI->setColor(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
 	attacksUI->setScale(1.0f, 1.0f);
@@ -972,7 +973,7 @@ void Battle::addSwitchUI(float posX, float posY, float scaleX, float scaleY) {
 	switchUI->setPosition(0.0f, 0.0f);
 	switchUI->translateRelative(posX, posY);
 	switchUI->setShader(Globals::shaderManager.getAssetPointer("list"));
-	switchUI->setBorderRadius(5.0f);
+	switchUI->setBorderRadius(12.0f);
 	switchUI->setEdge(ui::Edge::ALL);
 	switchUI->setColor(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
 	switchUI->setScale(1.0f, 1.0f);

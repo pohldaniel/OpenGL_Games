@@ -41,24 +41,18 @@ public:
 	bool isFinished();
 	void setBlockInput(bool blockInput);
 	void setOnDialogFinished(std::function<void()> fun);
-	void incrementIndex();
 
 	static std::unordered_map<std::string, Trainer> Trainers;
 
 private:
 
-	void drawDefault() override;
 	void initUI();
+	void updateUI();
 
 	int m_currentIndex;
 	bool m_finished;
 	const Camera& camera;
 	bool m_blockInput;
-	float(&quadPos)[8];
-	float(&texPos)[8];
-	float(&color)[4];
-	unsigned int& frame;
 	std::function<void()> OnDialogFinished;
 	static std::vector<Dialog> DialogData;
-	
 };

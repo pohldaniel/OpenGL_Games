@@ -1,5 +1,6 @@
 #include <engine/Batchrenderer.h>
 #include <engine/Fontrenderer.h>
+#include <UI/Surface.h>
 #include "Monster.h"
 #include "Globals.h"
 #include "MonsterIndex.h"
@@ -418,7 +419,7 @@ void Monster::initUI() {
 	float fontWidth = Globals::fontManager.get("dialog").getWidth("Lvl: " + std::to_string(monsterEntry.get().level)) * 0.035f - 5.0f;
 	float fontHeight = Globals::fontManager.get("dialog").lineHeight * 0.035f - 5.0f;
 
-	Surface* surface = addChild<Surface>();
+	ui::Surface* surface = addChild<ui::Surface>();
 	surface->translateRelative(-width * 0.5f + 16.0f, 96.0f - height * 0.5f + 40.0f);
 	surface->scaleAbsolute(width, height);
 	surface->updateWorldTransformation();
@@ -436,7 +437,7 @@ void Monster::initUI() {
 	label->setLabel(monsterEntry.get().name);
 	label->setName("name");
 
-	surface = addChild<Surface>();
+	surface = addChild<ui::Surface>();
 	surface->translateRelative(-width * 0.5f + 16.0f, + 96.0f - height * 0.5f + 40.0f - lvlHeight);
 	surface->scaleAbsolute(lvlWidth, lvlHeight);
 	surface->updateWorldTransformation();
@@ -483,7 +484,7 @@ void Monster::initUI() {
 	iconAnimated->setCurrentFrame(cell.currentFrame);
 	iconAnimated->setFlipped(cell.flipped);
 
-	surface = addChild<Surface>();
+	surface = addChild<ui::Surface>();
 	surface->translateRelative(0.5f * rect.width - 75.0f, -20.0);
 	surface->scaleAbsolute(150.0f, 48.0f);
 	surface->updateWorldTransformation();
