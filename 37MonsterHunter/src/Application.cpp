@@ -104,6 +104,7 @@ Application::~Application() {
 	delete Machine;
 	Globals::shaderManager.clear();
 	Widget::CleanUp();
+    Sprite::CleanUp();
 
 	ImGui::DestroyContext();
 

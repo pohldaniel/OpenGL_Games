@@ -44,11 +44,12 @@ namespace ui
 	void Surface::drawDefault() {
 		
 		const Vector2f& scale = getWorldScale();
+		auto shader = m_shader ? m_shader : SurfaceShader.get();
 
-		m_shader->use();
-		m_shader->loadVector("u_dimensions", Vector2f(scale[0], scale[1]));
-		m_shader->loadFloat("u_radius", m_borderRadius);
-		m_shader->loadUnsignedInt("u_edge", m_edge);
+		shader->use();
+		shader->loadVector("u_dimensions", Vector2f(scale[0], scale[1]));
+		shader->loadFloat("u_radius", m_borderRadius);
+		shader->loadUnsignedInt("u_edge", m_edge);
 		drawTransformed(m_color, getWorldTransformation());
 	}
 }

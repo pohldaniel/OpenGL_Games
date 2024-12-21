@@ -34,7 +34,6 @@ namespace ui
 		virtual void drawDefault() override;
 	};
 
-	enum Edge : int;
 	class TextField : public Label {
 
 	public:

@@ -124,10 +124,11 @@ namespace ui
 		float scaleX = characterSet.getWidth(m_label) * m_size + m_paddingX;
 		float scaleY = static_cast<float>(characterSet.lineHeight) * m_size + m_paddingY;
 
-		m_shader->use();
-		m_shader->loadVector("u_dimensions", Vector2f(scaleX, scaleY));
-		m_shader->loadFloat("u_radius", m_borderRadius);
-		m_shader->loadUnsignedInt("u_edge", m_edge);
+		auto shader = m_shader ? m_shader : SurfaceShader.get();
+		shader->use();
+		shader->loadVector("u_dimensions", Vector2f(scaleX, scaleY));
+		shader->loadFloat("u_radius", m_borderRadius);
+		shader->loadUnsignedInt("u_edge", m_edge);
 		drawTransformed(m_backgroundColor, getWorldTransformationWithScaleAndTranslation(scaleX, scaleY, m_offsetX, m_offsetY));
 
 		characterSet.bind();

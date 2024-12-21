@@ -106,6 +106,7 @@ namespace ui
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////
+	std::unique_ptr<Shader> Widget::SurfaceShader = nullptr;
 	Vector2f Widget::WorldPosition;
 	Vector2f Widget::WorldScale;
 	float Widget::WorldOrientation;
@@ -417,5 +418,17 @@ namespace ui
 
 	void Widget::setDrawFunction(std::function<void()> fun) {
 		m_draw = fun;
+	}
+
+	void Widget::Init() {
+		SurfaceShader = std::unique_ptr<Shader>(new Shader(SURFACE_VERTEX, SURFACE_FRGAMENT, false));
+	}
+
+	Shader* Widget::GetShader() {
+		return SurfaceShader.get();
+	}
+
+	void Widget::UnuseShader() {
+		SurfaceShader->unuse();
 	}
 }

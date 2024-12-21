@@ -21,6 +21,7 @@ float calcDistance(vec2 uv) {
 void main() {
     float dist = calcDistance(v_texCoord);
 	
+	//all
 	if(u_edge == 0 && dist > u_radius){
       discard;  
 	//bottom left

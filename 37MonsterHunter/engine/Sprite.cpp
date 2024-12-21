@@ -1,5 +1,6 @@
 #include "Sprite.h"
 #include "Globals.h"
+
 std::unique_ptr<Shader> Sprite::SpriteShader = nullptr;
 Matrix4f Sprite::Orthographic;
 unsigned int Sprite::Vao = 0u;

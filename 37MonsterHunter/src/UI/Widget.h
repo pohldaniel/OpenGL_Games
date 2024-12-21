@@ -7,6 +7,85 @@
 #include <engine/Sprite.h>
 #include <engine/utils/StringHash.h>
 
+#define SURFACE_VERTEX      "#version 410 core                                                          \n \
+                                                                                                        \n \
+                            layout(location = 0) in vec3 i_position;                                    \n \
+                            layout(location = 1) in vec2 i_texCoord;                                    \n \
+                                                                                                        \n \
+                            flat out int layer;                                                         \n \
+                            out vec2 texCoord;                                                          \n \
+                            out vec4 vertColor;                                                         \n \
+                                                                                                        \n \
+                            uniform bool u_flip = false;                                                \n \
+                            uniform mat4 u_transform = mat4(1.0);                                       \n \
+                            uniform vec4 u_texRect = vec4(0.0, 0.0, 1.0, 1.0);                          \n \
+                            uniform vec4 u_color = vec4(1.0);                                           \n \
+                            uniform int u_layer = 0;                                                    \n \
+                                                                                                        \n \
+                            void main() {                                                               \n \
+                                gl_Position = u_transform * vec4(i_position, 1.0);                      \n \
+                                layer = u_layer;                                                        \n \
+                                                                                                        \n \
+                                texCoord.y =  u_flip ? 1.0 - i_texCoord.y : i_texCoord.y;               \n \
+                                texCoord.x = i_texCoord.x * (u_texRect.z - u_texRect.x) + u_texRect.x;  \n \
+                                texCoord.y = i_texCoord.y * (u_texRect.w - u_texRect.y) + u_texRect.y;  \n \
+                                vertColor = u_color;                                                    \n \
+                            }"
+
+
+#define SURFACE_FRGAMENT    "#version 410 core                                                                           \n \
+                                                                                                                         \n \
+                             flat in int v_layer;                                                                        \n \
+                             in vec2 v_texCoord;                                                                         \n \
+                             in vec4 v_color;                                                                            \n \
+                                                                                                                         \n \
+                             out vec4 outColor;                                                                          \n \
+                                                                                                                         \n \
+                             uniform float u_radius = 5;                                                                 \n \
+                             uniform uint u_edge = 0;                                                                    \n \
+                             uniform vec2 u_dimensions;                                                                  \n \
+                                                                                                                         \n \
+                             float calcDistance(vec2 uv) {                                                               \n \
+                                 vec2 pos = (abs(uv - 0.5) + 0.5);                                                       \n \
+                                 vec2 delta = max(pos * u_dimensions - u_dimensions + pos * u_radius, 0.0);              \n \
+                                 return length(delta);                                                                   \n \
+                             }                                                                                           \n \
+                                                                                                                         \n \
+                             void main() {                                                                               \n \
+                                 float dist = calcDistance(v_texCoord);                                                  \n \
+                                                                                                                         \n \
+                                 //all                                                                                   \n \
+                                 if (u_edge == 0 && dist > u_radius) {                                                   \n \
+                                     discard;                                                                            \n \
+                                 //bottom left                                                                           \n \
+                                 }else if (u_edge == 1 && dist > u_radius && v_texCoord.x < 0.5 && v_texCoord.y < 0.5) { \n \
+                                     discard;                                                                            \n \
+	                            //top left                                                                               \n \
+                                } else if (u_edge == 2 && dist > u_radius && v_texCoord.x < 0.5 && v_texCoord.y > 0.5) { \n \
+	                                discard;                                                                             \n \
+	                            //top right                                                                              \n \
+                                }else if (u_edge == 3 && dist > u_radius && v_texCoord.x > 0.5 && v_texCoord.y > 0.5) {  \n \
+                                    discard;                                                                             \n \
+	                            //bottom right                                                                           \n \
+                                }else if (u_edge == 4 && dist > u_radius && v_texCoord.x > 0.5 && v_texCoord.y < 0.5) {  \n \
+                                    discard;                                                                             \n \
+	                            //right                                                                                  \n \
+                                }else if (u_edge == 5 && dist > u_radius && v_texCoord.x > 0.5) {                        \n \
+                                    discard;                                                                             \n \
+                                //left                                                                                   \n \
+                                }else if (u_edge == 6 && dist > u_radius && v_texCoord.x < 0.5) {                        \n \
+                                    discard;                                                                             \n \
+                                //top                                                                                    \n \
+                                }else if (u_edge == 7 && dist > u_radius && v_texCoord.y > 0.5) {                        \n \
+                                    discard;                                                                             \n \
+	                            //bottom                                                                                 \n \
+                                }else if (u_edge == 8 && dist > u_radius && v_texCoord.y < 0.5) {                        \n \
+                                    discard;                                                                             \n \
+                                }                                                                                        \n \
+                                                                                                                         \n \
+                                outColor = v_color;                                                                      \n \
+                             }"
+
 namespace ui
 {
 	enum Edge {
@@ -216,21 +295,28 @@ namespace ui
 		const Matrix4f getWorldTransformationWithScaleAndTranslation(const Vector2f& scale, const Vector2f& trans, bool relative = true) const;
 		void setDrawFunction(std::function<void()> fun);
 
+		static void Init();
+		static Shader* GetShader();
+		static void UnuseShader();
+
 	protected:
 
 		void OnTransformChanged();
 		void drawTree();
 		std::function<void()> m_draw;
 
+		static std::unique_ptr<Shader> SurfaceShader;
+
 	private:
 
 		virtual void drawDefault() = 0;
 
 		mutable Matrix4f m_modelMatrix;
+		mutable bool m_isDirty;
+
 		static Vector2f WorldPosition;
 		static Vector2f WorldScale;
-		static float WorldOrientation;
-		mutable bool m_isDirty;
+		static float WorldOrientation;		
 	};
 
 }

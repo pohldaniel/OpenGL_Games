@@ -849,7 +849,7 @@ void Battle::addListMonsters() {
 	surface->setPosition(0.0f, 1.0f - (position + 1) * invLimiter);
 	surface->setScale(1.0f, invLimiter);
 	surface->setShader(Globals::shaderManager.getAssetPointer("list"));
-	surface->setColor(Vector4f(1.78431f, 0.78431f, 0.78431f, 1.0f));
+	surface->setColor(Vector4f(0.78431f, 0.78431f, 0.78431f, 1.0f));
 	surface->setEdge(position == 0 ? ui::Edge::TOP : position == 3 ? ui::Edge::BOTTOM : ui::Edge::EDGE_NONE);
 	surface->setBorderRadius(12.0f);
 
