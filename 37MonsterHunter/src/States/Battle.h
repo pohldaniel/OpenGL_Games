@@ -67,7 +67,7 @@ private:
 	void eraseAbilityUI();
 	bool canSwitch();
 	int getDefeated();
-	void growSupplyIndex();
+	bool growSupplyIndexPlayer();
 
 	void onDrawGeneralUI(bool flag);
 	void onDrawAttacksUI(bool flag);
