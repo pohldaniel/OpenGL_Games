@@ -7,29 +7,29 @@
 #include <engine/Sprite.h>
 #include <engine/utils/StringHash.h>
 
-#define SURFACE_VERTEX      "#version 410 core                                                          \n \
-                                                                                                        \n \
-                            layout(location = 0) in vec3 i_position;                                    \n \
-                            layout(location = 1) in vec2 i_texCoord;                                    \n \
-                                                                                                        \n \
-                            flat out int layer;                                                         \n \
-                            out vec2 texCoord;                                                          \n \
-                            out vec4 vertColor;                                                         \n \
-                                                                                                        \n \
-                            uniform bool u_flip = false;                                                \n \
-                            uniform mat4 u_transform = mat4(1.0);                                       \n \
-                            uniform vec4 u_texRect = vec4(0.0, 0.0, 1.0, 1.0);                          \n \
-                            uniform vec4 u_color = vec4(1.0);                                           \n \
-                            uniform int u_layer = 0;                                                    \n \
-                                                                                                        \n \
-                            void main() {                                                               \n \
-                                gl_Position = u_transform * vec4(i_position, 1.0);                      \n \
-                                layer = u_layer;                                                        \n \
-                                                                                                        \n \
-                                texCoord.y =  u_flip ? 1.0 - i_texCoord.y : i_texCoord.y;               \n \
-                                texCoord.x = i_texCoord.x * (u_texRect.z - u_texRect.x) + u_texRect.x;  \n \
-                                texCoord.y = i_texCoord.y * (u_texRect.w - u_texRect.y) + u_texRect.y;  \n \
-                                vertColor = u_color;                                                    \n \
+#define SURFACE_VERTEX      "#version 410 core                                                            \n \
+                                                                                                          \n \
+                            layout(location = 0) in vec3 i_position;                                      \n \
+                            layout(location = 1) in vec2 i_texCoord;                                      \n \
+                                                                                                          \n \
+                            flat out int v_layer;                                                         \n \
+                            out vec2 v_texCoord;                                                          \n \
+                            out vec4 v_color;                                                             \n \
+                                                                                                          \n \
+                            uniform bool u_flip = false;                                                  \n \
+                            uniform mat4 u_transform = mat4(1.0);                                         \n \
+                            uniform vec4 u_texRect = vec4(0.0, 0.0, 1.0, 1.0);                            \n \
+                            uniform vec4 u_color = vec4(1.0);                                             \n \
+                            uniform int u_layer = 0;                                                      \n \
+                                                                                                          \n \
+                            void main() {                                                                 \n \
+                                gl_Position = u_transform * vec4(i_position, 1.0);                        \n \
+                                v_layer = u_layer;                                                        \n \
+                                                                                                          \n \
+                                v_texCoord.y =  u_flip ? 1.0 - i_texCoord.y : i_texCoord.y;               \n \
+                                v_texCoord.x = i_texCoord.x * (u_texRect.z - u_texRect.x) + u_texRect.x;  \n \
+                                v_texCoord.y = i_texCoord.y * (u_texRect.w - u_texRect.y) + u_texRect.y;  \n \
+                                v_color = u_color;                                                        \n \
                             }"
 
 

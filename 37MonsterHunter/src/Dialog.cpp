@@ -126,7 +126,6 @@ void DialogTree::setOnDialogFinished(std::function<void()> fun) {
 }
 
 void DialogTree::initUI() {
-	setShader(Globals::shaderManager.getAssetPointer("list"));
 	setBorderRadius(5.0f);
 	setEdge(ui::Edge::ALL);
 	setColor(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));

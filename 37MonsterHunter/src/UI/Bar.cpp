@@ -74,10 +74,9 @@ namespace ui
 			Sprite::drawTransformed(bgRect, m_bgColor, getWorldTransformationWithScale(bgRect.width, bgRect.height));
 			Sprite::drawTransformed(rect, m_color, getWorldTransformationWithScale(rect.width, rect.height));
 
-		}
-		else {
-			Sprite::setShader(Globals::shaderManager.getAssetPointer("list"));
-			auto shader = Sprite::getShader();
+		}else {
+			Sprite::setShader(SurfaceShader.get());
+			auto shader = SurfaceShader.get();
 			shader->use();
 			shader->loadFloat("u_radius", m_radius);
 			shader->loadUnsignedInt("u_edge", m_radius == 0.0f ? Edge::EDGE_NONE : Edge::ALL);

@@ -10,21 +10,23 @@ Sprite::Sprite() : m_shader(nullptr) {
 
 }
 
-Sprite::Sprite(Sprite const& rhs) : Object2D(rhs) {
+Sprite::Sprite(Sprite const& rhs) : Object2D(rhs), m_shader(rhs.m_shader) {
 
 }
 
 Sprite& Sprite::operator=(const Sprite& rhs) {
 	Object2D::operator=(rhs);	
+	m_shader = rhs.m_shader;
 	return *this;
 }
 
-Sprite::Sprite(Sprite&& rhs) : Object2D(rhs) {
+Sprite::Sprite(Sprite&& rhs) : Object2D(rhs), m_shader(std::move(rhs.m_shader)) {
 	
 }
 
 Sprite& Sprite::operator=(Sprite&& rhs) {
 	Object2D::operator=(rhs);
+	m_shader = rhs.m_shader;
 	return *this;
 }
 

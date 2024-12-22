@@ -61,6 +61,7 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	Framebuffer::SetDefaultSize(Width, Height);
 	Widget::Init(Width, Height);
 	Sprite::Init(Width, Height);
+	ui::Widget::Init();
 
 	EventDispatcher.setProcessOSEvents([&]() {
 		while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
@@ -76,7 +77,6 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 
 	Fontrenderer::Get().init(200, true);
 	Fontrenderer::Get().setShader(Globals::shaderManager.getAssetPointer("font"));
-	//Fontrenderer::Get().setRenderer(&Batchrenderer::Get());
 
 	Batchrenderer::Get().init(1000, false, false);
 	Batchrenderer::Get().setShader(Globals::shaderManager.getAssetPointer("batch"));
@@ -707,15 +707,11 @@ void  Application::SetCursorIcon(HCURSOR cursor) {
 }
 
 void Application::loadAssets() {
-
-	Globals::shaderManager.loadShader("texture", "res/shader/texture.vert", "res/shader/texture.frag");	
 	Globals::shaderManager.loadShader("font", "res/shader/batch.vert", "res/shader/font.frag");
 	Globals::shaderManager.loadShader("batch", "res/shader/batch.vert", "res/shader/batch.frag");
-	Globals::shaderManager.loadShader("quad", "res/shader/quad.vert", "res/shader/quad.frag");
-	Globals::shaderManager.loadShader("list", "res/shader/list.vert", "res/shader/list.frag");
-	Globals::shaderManager.loadShader("color", "res/shader/color.vert", "res/shader/color.frag");
 	Globals::shaderManager.loadShader("evolve", "res/shader/evolve.vert", "res/shader/evolve.frag");
-
+	Globals::shaderManager.loadShader("quad", "res/shader/quad.vert", "res/shader/quad.frag");
+	
 	Globals::fontManager.loadCharacterSet("upheaval_200", "res/fonts/upheavtt.ttf", 200, 0, 30, 128, 0, true, 0u);
 	Globals::fontManager.loadCharacterSet("upheaval_50", "res/fonts/upheavtt.ttf", 30, 0, 3, 0, 0, true, 0u);
 	Globals::fontManager.loadCharacterSet("dialog", "res/fonts/PixeloidSans.ttf", 400, 100, 200, 256, 0, true, 0u);

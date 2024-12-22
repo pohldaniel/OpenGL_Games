@@ -65,8 +65,8 @@ namespace ui
 		Fontrenderer::Get().drawBuffer();
 	}
 	///////////////////////////////////////////////////////
-	TextField::TextField(const CharacterSet& characterSet) : Label(characterSet), m_paddingX(10.0f), m_paddingY(10.0f), m_backgroundColor(Vector4f::ONE), m_edge(Edge::ALL), m_borderRadius(10.0f) {
-
+	TextField::TextField(const CharacterSet& characterSet) : Label(characterSet), m_paddingX(10.0f), m_paddingY(10.0f), m_backgroundColor(Vector4f::ONE), m_edge(Edge::ALL), m_borderRadius(10.0f), m_shader(nullptr) {
+		Sprite::setShader(SurfaceShader.get());
 	}
 
 	TextField::TextField(const TextField& rhs) :
@@ -75,7 +75,8 @@ namespace ui
 		m_paddingY(rhs.m_paddingY),
 		m_backgroundColor(rhs.m_backgroundColor),
 		m_edge(rhs.m_edge),
-		m_borderRadius(rhs.m_borderRadius)
+		m_borderRadius(rhs.m_borderRadius),
+		m_shader(rhs.m_shader)
 	{
 
 	}
@@ -86,7 +87,8 @@ namespace ui
 		m_paddingY(std::move(rhs.m_paddingY)),
 		m_backgroundColor(std::move(rhs.m_backgroundColor)),
 		m_edge(std::move(rhs.m_edge)),
-		m_borderRadius(std::move(rhs.m_borderRadius)) {
+		m_borderRadius(std::move(rhs.m_borderRadius)),
+		m_shader(std::move(rhs.m_shader)) {
 
 	}
 

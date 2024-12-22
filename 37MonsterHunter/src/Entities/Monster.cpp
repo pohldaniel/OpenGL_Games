@@ -425,7 +425,6 @@ void Monster::initUI() {
 	surface->translateRelative(-width * 0.5f + 16.0f, 96.0f - height * 0.5f + 40.0f);
 	surface->scaleAbsolute(width, height);
 	surface->setColor(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
-	surface->setShader(Globals::shaderManager.getAssetPointer("list"));
 	surface->setBorderRadius(0.0f);
 	surface->setEdge(ui::Edge::EDGE_NONE);
 	surface->setName("background");
@@ -441,7 +440,6 @@ void Monster::initUI() {
 	surface->translateRelative(-width * 0.5f + 16.0f, + 96.0f - height * 0.5f + 40.0f - lvlHeight);
 	surface->scaleAbsolute(lvlWidth, lvlHeight);
 	surface->setColor(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
-	surface->setShader(Globals::shaderManager.getAssetPointer("list"));
 	surface->setBorderRadius(0.0f);
 	surface->setEdge(ui::Edge::EDGE_NONE);
 
@@ -483,7 +481,6 @@ void Monster::initUI() {
 	surface->translateRelative(0.5f * rect.width - 75.0f, -20.0);
 	surface->scaleAbsolute(150.0f, 48.0f);
 	surface->setColor(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
-	surface->setShader(Globals::shaderManager.getAssetPointer("list"));
 	surface->setBorderRadius(0.0f);
 	surface->setEdge(ui::Edge::EDGE_NONE);
 

@@ -417,14 +417,12 @@ void MonsterIndex::initUI(float viewWidth, float viewHeight) {
 	setScale(viewWidth * 0.6f, viewHeight * 0.8f);
 	setOrigin(viewWidth * 0.3f, viewHeight * 0.4f);
 
-	setShader(Globals::shaderManager.getAssetPointer("list"));
 	setColor(Vector4f(0.22745f, 0.21568f, 0.23137f, 1.0f));
 	setBorderRadius(12.0f);
 
 	ui::Surface* surface = addChild<ui::Surface>();
 	surface->setPosition(0.333333f, 0.0f);
 	surface->setScale(0.666666f, 1.0f);
-	surface->setShader(Globals::shaderManager.getAssetPointer("list"));
 	surface->setName("right");
 	surface->setBorderRadius(12.0f);
 	surface->setEdge(ui::Edge::EDGE_RIGHT);
@@ -433,7 +431,6 @@ void MonsterIndex::initUI(float viewWidth, float viewHeight) {
 	surface = surface->addChild<ui::Surface>();
 	surface->setPosition(0.0f, 0.625f);
 	surface->setScale(1.0f, 0.375f);
-	surface->setShader(Globals::shaderManager.getAssetPointer("list"));
 	surface->setName("top-right");
 	surface->setBorderRadius(12.0f);
 	surface->setEdge(ui::Edge::TOP_RIGHT);
@@ -568,7 +565,6 @@ void MonsterIndex::initUI(float viewWidth, float viewHeight) {
 	surface = addChild<ui::Surface>();
 	surface->setPosition(0.0f, 0.0f);
 	surface->setScale(0.333333f, 1.0f);
-	surface->setShader(Globals::shaderManager.getAssetPointer("list"));
 	surface->setName("left");
 	surface->setBorderRadius(12.0f);
 	surface->setEdge(ui::Edge::EDGE_LEFT);
@@ -605,7 +601,6 @@ void MonsterIndex::addAbilities() {
 		textField->setBorderRadius(4.0f);
 		textField->setPaddingX(10.0f);
 		textField->setPaddingY(10.0f);
-		textField->setShader(Globals::shaderManager.getAssetPointer("list"));
 		lastAbility = ability.first;
 		index++;
 	}
@@ -636,7 +631,6 @@ void MonsterIndex::addMonsters() {
 
 		subSurface->setPosition(0.0f, 1.0f - static_cast<float>(i + 1) * itemHeigt);
 		subSurface->setScale(1.0f, 0.166666f);
-		subSurface->setShader(Globals::shaderManager.getAssetPointer("list"));
 		subSurface->setBorderRadius(12.0f);
 		subSurface->setColor(Vector4f(0.22745f, 0.21568f, 0.23137f, 1.0f));
 		subSurface->setIndex(i);
@@ -672,7 +666,6 @@ void MonsterIndex::addMonsters() {
 	ui::Surface* horinzontalBar = findChild<ui::Surface>("left")->addChild<ui::Surface>();
 	horinzontalBar->setPosition(1.0f - 0.0125f, 0.0f);
 	horinzontalBar->setScale(0.0125f, 1.0f);
-	horinzontalBar->setShader(Globals::shaderManager.getAssetPointer("list"));
 	horinzontalBar->setBorderRadius(0.0f);
 	horinzontalBar->setEdge(ui::Edge::EDGE_NONE);
 	horinzontalBar->setColor(Vector4f(0.0f, 0.0f, 0.0f, 0.39216f));

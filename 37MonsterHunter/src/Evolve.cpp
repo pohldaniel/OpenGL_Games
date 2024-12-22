@@ -169,7 +169,6 @@ void Evolve::initUI(float viewWidth, float viewHeight) {
 	ui::TextField* textField = addChild<ui::TextField>(Globals::fontManager.get("bold"));
 	textField->setEdge(ui::Edge::ALL);
 	textField->setBorderRadius(5.0f);
-	textField->setShader(Globals::shaderManager.getAssetPointer("list"));
 	textField->setBackgroundColor(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
 	textField->setTextColor(Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
 	textField->setPosition(0.5f * m_viewWidth, 0.5f * m_viewHeight - lineHeight - 30.0f);

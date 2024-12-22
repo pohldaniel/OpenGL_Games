@@ -814,7 +814,6 @@ void Battle::addAbilities() {
 	ui::Surface* surface = atacksUI->addChild<ui::Surface>();
 	surface->setPosition(0.0f, 1.0f - (position + 1) * invLimiter);
 	surface->setScale(1.0f, invLimiter);
-	surface->setShader(Globals::shaderManager.getAssetPointer("list"));
 	surface->setColor(Vector4f(0.78431f, 0.78431f, 0.78431f, 1.0f));
 	surface->setEdge(position == 0 ? ui::Edge::TOP : position == std::min(m_visibleItems, m_currentMax - m_currentOffset) - 1 ? ui::Edge::BOTTOM : ui::Edge::EDGE_NONE);
 	surface->setBorderRadius(12.0f);
@@ -848,7 +847,6 @@ void Battle::addListMonsters() {
 	ui::Surface* surface = switchUI->addChild<ui::Surface>();
 	surface->setPosition(0.0f, 1.0f - (position + 1) * invLimiter);
 	surface->setScale(1.0f, invLimiter);
-	surface->setShader(Globals::shaderManager.getAssetPointer("list"));
 	surface->setColor(Vector4f(0.78431f, 0.78431f, 0.78431f, 1.0f));
 	surface->setEdge(position == 0 ? ui::Edge::TOP : position == 3 ? ui::Edge::BOTTOM : ui::Edge::EDGE_NONE);
 	surface->setBorderRadius(12.0f);
@@ -941,7 +939,6 @@ void Battle::addAttacksUI(float posX, float posY, float scaleX, float scaleY) {
 	attacksUI->setName("attacks");
 	attacksUI->setPosition(0.0f, 0.0f);
 	attacksUI->translateRelative(posX, posY);
-	attacksUI->setShader(Globals::shaderManager.getAssetPointer("list"));
 	attacksUI->setBorderRadius(12.0f);
 	attacksUI->setEdge(ui::Edge::ALL);
 	attacksUI->setColor(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
@@ -958,7 +955,6 @@ void Battle::addSwitchUI(float posX, float posY, float scaleX, float scaleY) {
 	switchUI->setName("switch");
 	switchUI->setPosition(0.0f, 0.0f);
 	switchUI->translateRelative(posX, posY);
-	switchUI->setShader(Globals::shaderManager.getAssetPointer("list"));
 	switchUI->setBorderRadius(12.0f);
 	switchUI->setEdge(ui::Edge::ALL);
 	switchUI->setColor(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
