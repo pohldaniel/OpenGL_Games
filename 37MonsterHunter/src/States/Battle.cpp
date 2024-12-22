@@ -40,6 +40,7 @@ m_alpha(0.0f),
 m_fade(m_alpha),
 m_canCatch(true)
 {
+	Globals::musicManager.get("background").play("res/audio/battle.ogg");
 	m_viewWidth = 1280.0f;
 	m_viewHeight = 720.0f;
 
@@ -397,8 +398,9 @@ void Battle::processInput() {
 				m_monsters[m_currentSelectedMonster]->canAttack();
 
 				float amount = m_monsters[m_currentSelectedMonster]->getBaseDamage(m_currentAbility.first);
+				playAttackSound(MonsterIndex::_AttackData[m_currentAbility.first].animation);
 				m_monsters[m_currentSelectedOption + m_cutOff]->applyAttack(amount, MonsterIndex::_AttackData[m_currentAbility.first]);
-
+				
 				m_abilityPosX = m_monsters[m_currentSelectedOption + m_cutOff]->getCell().centerX;
 				m_abilityPosY = m_monsters[m_currentSelectedOption + m_cutOff]->getCell().centerY;
 				if (std::count_if(m_monsters.begin(), m_monsters.end(), [](Monster* monster) { return !monster->getCell().flipped && monster->getHealth() > 0.0f; }) == 0) {
@@ -663,7 +665,7 @@ void Battle::opponentAttack() {
 	std::copy_if(abilities.begin(), abilities.end(), std::inserter(abilitiesFiltered, abilitiesFiltered.end()), [currentMonster = currentMonster](std::pair<std::string, unsigned int> ability) {
 		return  MonsterIndex::_AttackData[ability.first].cost <= currentMonster->getEnergy();
 	});
-
+	
 	int upperBound = std::count_if(abilitiesFiltered.begin(), abilitiesFiltered.end(), [&currentMonster = currentMonster](const std::pair<std::string, unsigned int>& ability) { return ability.second <= currentMonster->getLevel(); });
 	
 	//Energy empty
@@ -689,6 +691,7 @@ void Battle::opponentAttack() {
 
 	Monster* target = m_monsters[index];
 	float amount = currentMonster->getBaseDamage(ability->first);
+	playAttackSound(MonsterIndex::_AttackData[ability->first].animation);
 	target->applyAttack(amount, MonsterIndex::_AttackData[ability->first]);
 		
 	m_abilityPosX = target->getCell().centerX;
@@ -704,6 +707,7 @@ void Battle::exit() {
 		m_isRunning = false;
 	});
 	m_fade.fadeOut();
+	Globals::musicManager.get("background").stop();
 }
 
 Fade& Battle::getFade() {
@@ -1054,4 +1058,11 @@ bool Battle::growSupplyIndexPlayer() {
 		}
 	}
 	return false;
+}
+
+void Battle::playAttackSound(const std::string& attackName) {
+	if (m_currentAbility.first == "scratch")
+		Globals::soundManager.get("game").play("res/audio/" + attackName + ".mp3");
+	else
+		Globals::soundManager.get("game").play("res/audio/" + attackName + ".wav");
 }

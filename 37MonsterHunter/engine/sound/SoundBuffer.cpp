@@ -60,7 +60,6 @@ void SoundBuffer::cleanup() {
 }
 
 void SoundBuffer::play(const std::string& file) {
-
 	SoundBufferCache.Put(file);
 	const CacheEntryBuffer& cacheEntryBuffer = SoundBufferCache.Get(file);
 

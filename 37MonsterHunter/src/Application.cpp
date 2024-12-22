@@ -55,7 +55,7 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	initOpenGL(16);
 	showWindow();
 	initImGUI();
-	//initOpenAL();
+	initOpenAL();
 	loadAssets();
 
 	Framebuffer::SetDefaultSize(Width, Height);
@@ -105,6 +105,9 @@ Application::~Application() {
 	Globals::shaderManager.clear();
 	Widget::CleanUp();
     Sprite::CleanUp();
+	Globals::soundManager.get("game").cleanup();
+	Globals::musicManager.get("background").cleanup();
+	SoundDevice::shutDown();
 
 	ImGui::DestroyContext();
 
@@ -737,6 +740,14 @@ void Application::loadAssets() {
 	Globals::shapeManager.buildQuadXY("quad_aligned", Vector3f(0.0f, 0.0f, 0.0f), Vector2f(2.0f, 2.0f), 1, 1, true, false, false);
 	Globals::shapeManager.buildQuadXY("quad_half_aligned", Vector3f(0.0f, 0.0f, 0.0f), Vector2f(1.0f, 1.0f), 1, 1, true, false, false);
 	
+	SoundBuffer::Init();
+	Globals::soundManager.createSoundBuffer("game", 5u, 20u, 0.1f);
+
+	MusicBuffer::Init();
+	Globals::musicManager.createMusicBuffer("background", 0.1f);
+	Globals::musicManager.get("background").setLooping(true);
+	Globals::musicManager.get("background").run();
+
 	//Highlight post processing
 	/*for (unsigned int x = 0; x < 4; x++) {
 		for (unsigned int y = 0; y < 2; y++) {

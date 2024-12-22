@@ -89,11 +89,13 @@ MonsterHunter::MonsterHunter(StateMachine& machine) : State(machine, States::MON
 			m_zone.getPlayer().unblock();
 			m_dialogTree.setBlockInput(false);
 			m_dialogTree.setFinished(true);
+			Globals::musicManager.get("background").play("res/audio/overworld.ogg");
 		}
 	});
 
 	TileSetManager::Get().getTileSet("bars").createBarRects(1024u, 256u, 200u, 5u);
 	//TileSetManager::Get().getTileSet("bars").setLinear();
+	Globals::musicManager.get("background").play("res/audio/overworld.ogg");
 }
 
 MonsterHunter::~MonsterHunter() {
@@ -235,6 +237,7 @@ void MonsterHunter::update() {
 				m_zone.getPlayer().changeFacingDirection(character);
 			m_zone.getPlayer().block();
 			m_zone.getPlayer().setIsNoticed(true);
+			Globals::soundManager.get("game").play("res/audio/notice.wav");
 			
 			m_dialogTree.setBlockInput(true);
 			m_dialogTree.setFinished(false);
@@ -304,13 +307,13 @@ void MonsterHunter::render() {
 }
 
 void MonsterHunter::OnReEnter(unsigned int prevState) {
+
 	if (prevState == States::BATTLE) {
 		EventDispatcher::AddKeyboardListener(this);
 		EventDispatcher::AddMouseListener(this);
 		m_zone.setAlpha(0.0f);
 
-		bool _evolve = false;
-		m_zone.getFade().setOnFadeIn([this, _evolve = _evolve]() {
+		m_zone.getFade().setOnFadeIn([this]() {
 			if (m_lastCharacter ) {
 				m_zone.getPlayer().block();
 				Trainer& trainer = DialogTree::Trainers[m_lastCharacter->getCharacterId()];
@@ -320,17 +323,21 @@ void MonsterHunter::OnReEnter(unsigned int prevState) {
 				
 				m_dialogTree.setBlockInput(false);
 				m_lastCharacter = nullptr;
-				m_dialogTree.setOnDialogFinished([this, _evolve = _evolve]() {									
+				m_dialogTree.setOnDialogFinished([this]() {									
 					m_zone.getPlayer().unblock();
 					if (checkForEvolution()) {
 						m_dialogTree.setBlockInput(true);
 						m_dialogTree.setFinished(false);
+					}else {
+						Globals::musicManager.get("background").play("res/audio/overworld.ogg");
 					}
 				});
 
 			}else {
 				m_zone.getPlayer().unblock();
-				checkForEvolution();
+				if (!checkForEvolution()) {
+					Globals::musicManager.get("background").play("res/audio/overworld.ogg");
+				}
 			}
 
 			});
@@ -464,6 +471,7 @@ bool MonsterHunter::checkForEvolution() {
 	}
 	bool result = !m_evolveQueue.empty();
 	if (!m_evolveQueue.empty()) {
+
 		const EvolveEntry& evolveEntry = m_evolveQueue.front();
 		m_evolve.setCurrentMonster(evolveEntry.m_startMonster);
 		m_evolve.setStartMonster(evolveEntry.m_startMonster);
@@ -474,7 +482,8 @@ bool MonsterHunter::checkForEvolution() {
 			m_zone.setAlpha(1.0f - 0.784f);
 			m_evolveOpen = true;
 			m_evolve.startEvolution();
-			});
+			Globals::musicManager.get("background").play("res/audio/evolution.mp3");
+		});
 		m_delayEvolve.start(800u, false);
 		m_zone.getPlayer().block();
 		m_blockIndex = true;

@@ -68,6 +68,7 @@ private:
 	bool canSwitch();
 	int getDefeated();
 	bool growSupplyIndexPlayer();
+	void playAttackSound(const std::string& attackName);
 
 	void onDrawGeneralUI(bool flag);
 	void onDrawAttacksUI(bool flag);
