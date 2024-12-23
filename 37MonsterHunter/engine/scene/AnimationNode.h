@@ -3,7 +3,7 @@
 #include "OctreeNode.h"
 #include "BoneNode.h"
 #include "../BoundingBox.h"
-#include <Animation/AnimatedModel.h>
+#include "../animationNew/AnimatedModel.h"
 
 class AnimationNode : public OctreeNode {
 

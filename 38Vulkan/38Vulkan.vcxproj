@@ -164,6 +164,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="engine\animationNew\AnimatedModel.cpp" />
+    <ClCompile Include="engine\animationNew\Animation.cpp" />
+    <ClCompile Include="engine\animationNew\AnimationController.cpp" />
+    <ClCompile Include="engine\animationNew\AnimationState.cpp" />
     <ClCompile Include="engine\animation\AssimpAnimatedModel.cpp" />
     <ClCompile Include="engine\animation\AssimpAnimation.cpp" />
     <ClCompile Include="engine\animation\AssimpAnimator.cpp" />
@@ -212,10 +216,6 @@
     <ClCompile Include="Physics\Constraint.cpp" />
     <ClCompile Include="Physics\Constraint6DoF.cpp" />
     <ClCompile Include="Physics\VehiclePhysics.cpp" />
-    <ClCompile Include="src\Animation\AnimatedModel.cpp" />
-    <ClCompile Include="src\Animation\Animation.cpp" />
-    <ClCompile Include="src\Animation\AnimationController.cpp" />
-    <ClCompile Include="src\Animation\AnimationState.cpp" />
     <ClCompile Include="src\Entities\Entity.cpp" />
     <ClCompile Include="src\Entities\MeshEntity.cpp" />
     <ClCompile Include="src\Entities\ShapeEntity.cpp" />
@@ -298,6 +298,10 @@
     <ClCompile Include="Vulkan\vk_renderer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="engine\animationNew\AnimatedModel.h" />
+    <ClInclude Include="engine\animationNew\Animation.h" />
+    <ClInclude Include="engine\animationNew\AnimationController.h" />
+    <ClInclude Include="engine\animationNew\AnimationState.h" />
     <ClInclude Include="engine\animation\AssimpAnimatedModel.h" />
     <ClInclude Include="engine\animation\AssimpAnimation.h" />
     <ClInclude Include="engine\animation\AssimpAnimator.h" />
@@ -398,10 +402,6 @@
     <ClInclude Include="Physics\Constraint.h" />
     <ClInclude Include="Physics\Constraint6DoF.h" />
     <ClInclude Include="Physics\VehiclePhysics.h" />
-    <ClInclude Include="src\Animation\AnimatedModel.h" />
-    <ClInclude Include="src\Animation\Animation.h" />
-    <ClInclude Include="src\Animation\AnimationController.h" />
-    <ClInclude Include="src\Animation\AnimationState.h" />
     <ClInclude Include="src\Application.h" />
     <ClInclude Include="src\Entities\Entity.h" />
     <ClInclude Include="src\Entities\MeshEntity.h" />

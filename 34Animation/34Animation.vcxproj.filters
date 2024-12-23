@@ -58,14 +58,14 @@
     <Filter Include="engine\thread">
       <UniqueIdentifier>{7a3cb299-0e80-46a4-b690-67a56e836b00}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Animation">
-      <UniqueIdentifier>{9f08d314-c171-4eae-8407-e9470e7cf559}</UniqueIdentifier>
-    </Filter>
     <Filter Include="engine\utils">
       <UniqueIdentifier>{2d9e1f13-19d9-499f-8ddb-24bec9f7e795}</UniqueIdentifier>
     </Filter>
     <Filter Include="engine\ui">
       <UniqueIdentifier>{72a9ec7e-009c-4ea8-ad6d-b9eb9566490f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="engine\animationNew">
+      <UniqueIdentifier>{6b4a68d6-b3bc-4eb6-8ddc-8ac08ba8137a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -303,18 +303,6 @@
     <ClCompile Include="engine\Sprite.cpp">
       <Filter>engine</Filter>
     </ClCompile>
-    <ClCompile Include="src\Animation\AnimatedModel.cpp">
-      <Filter>Source Files\Animation</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Animation\Animation.cpp">
-      <Filter>Source Files\Animation</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Animation\AnimationState.cpp">
-      <Filter>Source Files\Animation</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Animation\AnimationController.cpp">
-      <Filter>Source Files\Animation</Filter>
-    </ClCompile>
     <ClCompile Include="src\States\CharacterState.cpp">
       <Filter>Source Files\States</Filter>
     </ClCompile>
@@ -422,6 +410,18 @@
     </ClCompile>
     <ClCompile Include="src\States\Controls.cpp">
       <Filter>Source Files\States</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\animationNew\AnimatedModel.cpp">
+      <Filter>engine\animationNew</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\animationNew\Animation.cpp">
+      <Filter>engine\animationNew</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\animationNew\AnimationController.cpp">
+      <Filter>engine\animationNew</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\animationNew\AnimationState.cpp">
+      <Filter>engine\animationNew</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -692,18 +692,6 @@
     <ClInclude Include="engine\Sprite.h">
       <Filter>engine</Filter>
     </ClInclude>
-    <ClInclude Include="src\Animation\AnimatedModel.h">
-      <Filter>Source Files\Animation</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Animation\Animation.h">
-      <Filter>Source Files\Animation</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Animation\AnimationState.h">
-      <Filter>Source Files\Animation</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Animation\AnimationController.h">
-      <Filter>Source Files\Animation</Filter>
-    </ClInclude>
     <ClInclude Include="src\States\CharacterState.h">
       <Filter>Source Files\States</Filter>
     </ClInclude>
@@ -814,6 +802,18 @@
     </ClInclude>
     <ClInclude Include="engine\scene\ShapeNode.h">
       <Filter>engine\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\animationNew\AnimatedModel.h">
+      <Filter>engine\animationNew</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\animationNew\Animation.h">
+      <Filter>engine\animationNew</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\animationNew\AnimationController.h">
+      <Filter>engine\animationNew</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\animationNew\AnimationState.h">
+      <Filter>engine\animationNew</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

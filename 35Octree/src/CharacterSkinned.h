@@ -1,14 +1,13 @@
 #pragma once
 
-#include <engine/Camera.h>
-#include <engine/Clock.h>
+#include <engine/animationNew/AnimationController.h>
 #include <engine/scene/ShapeNode.h>
 #include <engine/scene/BoneNode.h>
 #include <engine/scene/AnimationNode.h>
 #include <engine/Clock.h>
-#include <Animation/AnimationController.h>
-#include <Physics/Physics.h>
+#include <engine/Camera.h>
 
+#include <Physics/Physics.h>
 
 class Lift;
 class KinematicCharacterController;

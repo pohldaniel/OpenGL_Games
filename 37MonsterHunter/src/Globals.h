@@ -11,7 +11,7 @@
 #include <engine/Spritesheet.h>
 #include <Physics/Physics.h>
 
-#include <Animation/Animation.h>
+#include <engine/animationNew/Animation.h>
 #include <engine/animation/AssimpAnimation.h>
 
 #define WIDTH 1280

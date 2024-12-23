@@ -2,6 +2,7 @@
 
 #include <engine/input/MouseEventListener.h>
 #include <engine/input/KeyboardEventListener.h>
+#include <engine/animationNew/AnimationController.h>
 #include <engine/MeshObject/Shape.h>
 #include <engine/octree/Octree.h>
 #include <engine/Scene/ShapeNode.h>
@@ -9,7 +10,6 @@
 #include <engine/Camera.h>
 #include <engine/Frustum.h>
 
-#include <Animation/AnimationController.h>
 #include <Physics/Physics.h>
 #include <States/StateMachine.h>
 

@@ -1,11 +1,11 @@
 #pragma once
 
 #include <unordered_map>
+#include <engine/animationNew/AnimationController.h>
 #include <engine/input/Keyboard.h>
 #include <engine/scene/SceneNodeLC.h>
 #include <engine/Camera.h>
 #include <Physics/Physics.h>
-#include <Animation/AnimationController.h>
 
 class Lift;
 class KinematicCharacterController;

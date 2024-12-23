@@ -2,11 +2,11 @@
 
 #include <engine/input/MouseEventListener.h>
 #include <engine/input/KeyboardEventListener.h>
-#include <engine/Vector.h>
-#include <engine/Camera.h>
+#include <engine/animationNew/AnimatedModel.h>
 #include <engine/scene/AnimationNode.h>
 #include <engine/octree/Octree.h>
-#include <Animation/AnimatedModel.h>
+#include <engine/Vector.h>
+#include <engine/Camera.h>
 
 #include <States/StateMachine.h>
 

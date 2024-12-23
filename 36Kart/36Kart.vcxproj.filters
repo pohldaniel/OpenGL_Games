@@ -58,9 +58,6 @@
     <Filter Include="engine\thread">
       <UniqueIdentifier>{7a3cb299-0e80-46a4-b690-67a56e836b00}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Animation">
-      <UniqueIdentifier>{9f08d314-c171-4eae-8407-e9470e7cf559}</UniqueIdentifier>
-    </Filter>
     <Filter Include="engine\utils">
       <UniqueIdentifier>{2d9e1f13-19d9-499f-8ddb-24bec9f7e795}</UniqueIdentifier>
     </Filter>
@@ -72,6 +69,9 @@
     </Filter>
     <Filter Include="engine\octree">
       <UniqueIdentifier>{13ef4786-41bd-47d2-b91d-addce13f8f7d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="engine\animationNew">
+      <UniqueIdentifier>{0fb7929a-c3fd-48a4-9355-68fb20497492}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -321,18 +321,6 @@
     <ClCompile Include="engine\Sprite.cpp">
       <Filter>engine</Filter>
     </ClCompile>
-    <ClCompile Include="src\Animation\AnimatedModel.cpp">
-      <Filter>Source Files\Animation</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Animation\Animation.cpp">
-      <Filter>Source Files\Animation</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Animation\AnimationState.cpp">
-      <Filter>Source Files\Animation</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Animation\AnimationController.cpp">
-      <Filter>Source Files\Animation</Filter>
-    </ClCompile>
     <ClCompile Include="engine\utils\StringHash.cpp">
       <Filter>engine\utils</Filter>
     </ClCompile>
@@ -449,6 +437,18 @@
     </ClCompile>
     <ClCompile Include="src\Entities\Skybox.cpp">
       <Filter>Source Files\Entities</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\animationNew\AnimatedModel.cpp">
+      <Filter>engine\animationNew</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\animationNew\Animation.cpp">
+      <Filter>engine\animationNew</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\animationNew\AnimationController.cpp">
+      <Filter>engine\animationNew</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\animationNew\AnimationState.cpp">
+      <Filter>engine\animationNew</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -731,18 +731,6 @@
     <ClInclude Include="engine\Sprite.h">
       <Filter>engine</Filter>
     </ClInclude>
-    <ClInclude Include="src\Animation\AnimatedModel.h">
-      <Filter>Source Files\Animation</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Animation\Animation.h">
-      <Filter>Source Files\Animation</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Animation\AnimationState.h">
-      <Filter>Source Files\Animation</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Animation\AnimationController.h">
-      <Filter>Source Files\Animation</Filter>
-    </ClInclude>
     <ClInclude Include="engine\utils\StringHash.h">
       <Filter>engine\utils</Filter>
     </ClInclude>
@@ -859,6 +847,18 @@
     </ClInclude>
     <ClInclude Include="src\Entities\Skybox.h">
       <Filter>Source Files\Entities</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\animationNew\AnimatedModel.h">
+      <Filter>engine\animationNew</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\animationNew\Animation.h">
+      <Filter>engine\animationNew</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\animationNew\AnimationController.h">
+      <Filter>engine\animationNew</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\animationNew\AnimationState.h">
+      <Filter>engine\animationNew</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

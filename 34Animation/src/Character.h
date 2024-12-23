@@ -3,7 +3,7 @@
 #include <engine/input/Keyboard.h>
 #include <engine/Camera.h>
 
-#include <Animation/AnimationController.h>
+#include <engine/animationNew/AnimationController.h>
 
 class Character {
 

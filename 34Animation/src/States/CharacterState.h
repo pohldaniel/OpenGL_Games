@@ -7,8 +7,8 @@
 #include <engine/ObjModel.h>
 #include <States/StateMachine.h>
 
-#include <Animation/AnimatedModel.h>
-#include <Animation/AnimationController.h>
+#include <engine/animationNew/AnimatedModel.h>
+#include <engine/animationNew/AnimationController.h>
 
 #include "Character.h"
 

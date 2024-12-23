@@ -4,7 +4,7 @@
 #include <engine/Clock.h>
 #include <engine/scene/ShapeNode.h>
 #include <engine/scene/BoneNode.h>
-#include <Animation/AnimationController.h>
+#include <engine/animationNew/AnimationController.h>
 
 class QueInput {
 public:
