@@ -24,7 +24,6 @@ CharacterSet::~CharacterSet() {
 }
 
 void CharacterSet::loadFromFile(const std::string& path, unsigned int characterSize, unsigned int paddingX, unsigned int paddingY, unsigned int minHeight, int spacing, const bool flipVertical, unsigned int _frame) {
-	//paddingX = paddingX == 0 ? 1 : paddingX;
 
 	FT_Library ft;
 	if (FT_Init_FreeType(&ft)) {
@@ -35,8 +34,7 @@ void CharacterSet::loadFromFile(const std::string& path, unsigned int characterS
 	FT_Face face;
 	if (FT_New_Face(ft, path.c_str(), 0, &face)) {
 		std::cout << "ERROR::FREETYPE: Failed to load font" << std::endl;
-	}
-	else {
+	}else {
 		FT_Set_Pixel_Sizes(face, 0, characterSize);
 		FT_GlyphSlot g = face->glyph;
 
@@ -113,7 +111,6 @@ void CharacterSet::loadFromFile(const std::string& path, unsigned int characterS
 
 			if (flipVertical) {
 				std::vector<unsigned char> srcPixels(g->bitmap.width * g->bitmap.rows);
-				//memcpy(&srcPixels[0], g->bitmap.buffer, g->bitmap.width * g->bitmap.rows);
 
 				for (unsigned int i = 0; i < g->bitmap.width * g->bitmap.rows; ++i) {
 					srcPixels[i] = g->bitmap.buffer[i];
@@ -142,7 +139,7 @@ void CharacterSet::loadFromFile(const std::string& path, unsigned int characterS
 			}
 
 			for (unsigned int i = 0; i < g->bitmap.width * g->bitmap.rows; i++, index++) {
-				bytes[index] = g->bitmap.buffer[i];				
+				bytes[index] = g->bitmap.buffer[i];
 			}
 
 			for (unsigned int i = 0; i < g->bitmap.width * std::max(0, yOffset); i++, index++) {
@@ -152,13 +149,11 @@ void CharacterSet::loadFromFile(const std::string& path, unsigned int characterS
 			glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, ox, oy, 0, g->bitmap.width, height, 1, GL_RED, GL_UNSIGNED_BYTE, bytes);
 
 			free(bytes);
-			float off = 0.0f;
 			Char character = {
 				{ g->bitmap_left, g->bitmap_top },
 				{ g->bitmap.width, height },
-				//{ static_cast<float>(ox - shiftX) / (float)maxWidth, static_cast<float>(oy) / (float)maxHeight },
-				{ (static_cast<float>(ox) + off) / (float)maxWidth, (static_cast<float>(oy) + off) / (float)maxHeight },
-				{ (static_cast<float>(g->bitmap.width) - off) / static_cast<float>(maxWidth), (static_cast<float>(height) - off) / static_cast<float>(maxHeight)  },
+				{ (static_cast<float>(ox) + 0.5f) / (float)maxWidth, (static_cast<float>(oy) + 0.5f) / (float)maxHeight },
+				{ (static_cast<float>(g->bitmap.width) - 1.0f) / static_cast<float>(maxWidth), (static_cast<float>(height) - 1.0f) / static_cast<float>(maxHeight)  },
 				{ (g->advance.x >> 6) + spacing }
 			};
 
@@ -209,7 +204,7 @@ void CharacterSet::safeFont(std::string name) {
 	Texture::Safe((name + ".png").c_str(), bytesNew, maxWidth, maxHeight, 4);
 
 	free(bytes);
-	free(bytesNew);	
+	free(bytesNew);
 }
 
 void CharacterSet::addSpacing(std::string chars, int spacing) {

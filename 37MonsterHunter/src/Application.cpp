@@ -419,10 +419,10 @@ void Application::fixedUpdate() {
 
 void Application::initStates() {	
 	Machine = new StateMachine(m_dt, m_fdt);
-	//Machine->addStateAtTop(new Menu(*Machine));
+	Machine->addStateAtTop(new Menu(*Machine));
 	//Machine->addStateAtTop(new Default(*Machine));
 	//Machine->addStateAtTop(new Tmx(*Machine));
-	Machine->addStateAtTop(new MonsterHunter(*Machine));
+	//Machine->addStateAtTop(new MonsterHunter(*Machine));
 	//Machine->addStateAtTop(new Bars(*Machine));
 }
 
