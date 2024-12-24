@@ -25,15 +25,6 @@ Bars::Bars(StateMachine& machine) : State(machine, States::DEFAULT) {
 	glClearColor(0.494f, 0.686f, 0.796f, 1.0f);
 	glClearDepth(1.0f);
 
-	m_background.resize(Application::Width, Application::Height);
-	m_background.setLayer(std::vector<BackgroundLayer>{
-		{ &Globals::textureManager.get("forest_1"), 1, 1.0f },
-		{ &Globals::textureManager.get("forest_2"), 1, 2.0f },
-		{ &Globals::textureManager.get("forest_3"), 1, 3.0f },
-		{ &Globals::textureManager.get("forest_4"), 1, 4.0f },
-		{ &Globals::textureManager.get("forest_5"), 1, 5.0f }});
-	m_background.setSpeed(0.005f);
-	
 	TileSetManager::Get().getTileSet("bars").createBarRects(1024u, 256u, 200u, 5u);
 	//TileSetManager::Get().getTileSet("bars").setLinearMipMap();
 }
@@ -67,15 +58,11 @@ void Bars::update() {
 
 	if (keyboard.keyDown(Keyboard::KEY_A)) {
 		direction += Vector3f(-1.0f, 0.0f, 0.0f);
-		m_background.addOffset(-0.001f);
-		m_background.setSpeed(-0.005f);
 		move |= true;
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_D)) {
 		direction += Vector3f(1.0f, 0.0f, 0.0f);
-		m_background.addOffset(0.001f);
-		m_background.setSpeed(0.005f);
 		move |= true;
 	}
 
@@ -111,8 +98,6 @@ void Bars::update() {
 			m_camera.move(direction * m_dt);
 		}
 	}
-
-	m_background.update(m_dt);
 }
 
 void Bars::render() {
@@ -121,13 +106,10 @@ void Bars::render() {
 	const TextureRect& rect = TileSetManager::Get().getTileSet("bars").getTextureRects()[index];
 	TileSetManager::Get().getTileSet("bars").bind();
 
-	//std::cout << rect.textureOffsetX << "  " << rect.textureOffsetY << "  " << rect.textureWidth << "  " << rect.textureHeight << "  " << rect.width << "  " << rect.height << std::endl;
-
-	//m_sprite.draw(bgRect, Vector4f(1.0f, 0.0f, 0.0f, 1.0));
 	m_sprite.setPosition(static_cast<float>(Application::Width) * 0.5f, static_cast<float>(Application::Height) * 0.5f);
 	m_sprite.setScale(rect.width, rect.height);
-	//m_sprite.draw({0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0u}, Vector4f(1.0f, 1.0f, 1.0f, 1.0));
 	m_sprite.draw(rect, Vector4f(1.0f, 1.0f, 1.0f, 1.0));
+
 	if (m_drawUi)
 		renderUi();
 }

@@ -3,7 +3,6 @@
 #include <engine/input/MouseEventListener.h>
 #include <engine/input/KeyboardEventListener.h>
 #include <engine/Camera.h>
-#include <engine/Background.h>
 #include <engine/Sprite.h>
 #include <States/StateMachine.h>
 
@@ -33,7 +32,6 @@ private:
 	bool m_drawUi = true;
 
 	Camera m_camera;
-	Background m_background;
 	Sprite m_sprite;
 	int index = 50;
 };

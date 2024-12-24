@@ -1061,7 +1061,7 @@ bool Battle::growSupplyIndexPlayer() {
 }
 
 void Battle::playAttackSound(const std::string& attackName) {
-	if (m_currentAbility.first == "scratch")
+	if (attackName == "scratch" || attackName == "ice")
 		Globals::soundManager.get("game").play("res/audio/" + attackName + ".mp3");
 	else
 		Globals::soundManager.get("game").play("res/audio/" + attackName + ".wav");

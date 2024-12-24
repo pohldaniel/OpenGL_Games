@@ -5,6 +5,7 @@
 #include <States/Default.h>
 #include <States/MonsterHunter.h>
 #include <States/Tmx.h>
+#include <States/Bars.h>
 
 #include "Menu.h"
 #include "Application.h"
@@ -23,6 +24,7 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 
 	m_buttons = std::initializer_list<std::pair<const std::string, Button>>({
 		{ "tmx",            Button() },
+		{ "bars",           Button() },
 		{ "hunter",         Button() }
 	});
 
@@ -35,9 +37,18 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 		m_machine.addStateAtBottom(new Tmx(m_machine));
 	});
 
+	m_buttons.at("bars").setCharset(Globals::fontManager.get("upheaval_50"));
+	m_buttons.at("bars").setPosition(50.0f, 250.0f);
+	m_buttons.at("bars").setOutlineThickness(5.0f);
+	m_buttons.at("bars").setText("Bars");
+	m_buttons.at("bars").setFunction([&]() {
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new Bars(m_machine));
+		});
+
 
 	m_buttons.at("hunter").setCharset(Globals::fontManager.get("upheaval_50"));
-	m_buttons.at("hunter").setPosition(50.0f, 250.0f);
+	m_buttons.at("hunter").setPosition(50.0f, 150.0f);
 	m_buttons.at("hunter").setOutlineThickness(5.0f);
 	m_buttons.at("hunter").setText("Monster Hunter");
 	m_buttons.at("hunter").setFunction([&]() {

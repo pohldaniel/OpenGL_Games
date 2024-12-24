@@ -302,8 +302,10 @@ void MonsterHunter::render() {
 		m_evolve.draw();
 	}
 
+#if DEVBUILD
 	if (m_drawUi)
 		renderUi();
+#endif
 }
 
 void MonsterHunter::OnReEnter(unsigned int prevState) {
