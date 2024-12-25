@@ -9,9 +9,6 @@ out vec4 color;
 
 uniform vec3 u_light;  
 
-
-out vec4 FragColor;
-
 void main() {
 	vec4 diffuseColor = texture2D(diffuse, v_texCoord);
 

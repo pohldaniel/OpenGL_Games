@@ -139,18 +139,6 @@ void Battle::fixedUpdate() {
 void Battle::update() {
 	Keyboard &keyboard = Keyboard::instance();
 	
-	if (keyboard.keyPressed(Keyboard::KEY_T)) {
-		exit();
-	}
-
-	if (keyboard.keyPressed(Keyboard::KEY_P)) {
-		std::for_each(m_monsters.begin(), m_monsters.end(), std::mem_fn(&Monster::unPause));
-		std::for_each(m_monsters.begin(), m_monsters.end(), std::bind(std::mem_fn<void(bool)>(&Monster::setHighlight), std::placeholders::_1, false));
-
-		onDrawGeneralUI(false);
-		m_currentSelectedMonster = -1;
-	}
-
 	Mouse &mouse = Mouse::instance();
 
 	if (m_playAbility) {

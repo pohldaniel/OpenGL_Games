@@ -372,11 +372,14 @@ void MonsterHunter::OnMouseButtonUp(Event::MouseButtonEvent& event) {
 }
 
 void MonsterHunter::OnKeyDown(Event::KeyboardEvent& event) {
+#if DEVBUILD
 	if (event.keyCode == VK_LMENU) {
 		m_drawUi = !m_drawUi;
 	}
+#endif
 
 	if (event.keyCode == VK_ESCAPE) {
+		Globals::musicManager.get("background").stop();
 		Mouse::instance().detach();
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new Menu(m_machine));
