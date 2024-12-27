@@ -2,9 +2,9 @@
 
 #include <engine/input/MouseEventListener.h>
 #include <engine/input/KeyboardEventListener.h>
+#include <engine/MeshObject/Shape.h>
 #include <engine/Camera.h>
 #include <engine/Background.h>
-
 #include <States/StateMachine.h>
 
 #include "Utils/BinaryIO.h"
@@ -44,4 +44,7 @@ private:
 
 	//MD2 md2;
 	Utils::MD2IO md2Converter;
+	std::vector<float> vertexBuffer;
+	std::vector<unsigned int> indexBuffer;
+	Shape m_shape;
 };

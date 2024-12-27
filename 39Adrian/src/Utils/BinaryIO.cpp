@@ -420,17 +420,6 @@ std::array<float, 3> Utils::SolidIO::ScalePoint(std::array<float, 3> point, floa
 	return { point[0] * scaleX, point[1] * scaleY , point[2] * scaleZ };
 }
 
-void Utils::SolidIO::fromBufferMap(const std::vector<Vertex>& bufferMap, std::vector<float>& vertexBufferOut) {
-	for (unsigned int i = 0; i < bufferMap.size(); i++) {
-		vertexBufferOut.push_back(bufferMap[i].data[0]);
-		vertexBufferOut.push_back(bufferMap[i].data[1]);
-		vertexBufferOut.push_back(bufferMap[i].data[2]);
-		vertexBufferOut.push_back(bufferMap[i].data[3]);
-		vertexBufferOut.push_back(bufferMap[i].data[4]);
-	}
-}
-
-
 void Utils::SolidIO::solidToBuffer(const char* filename, bool flipTextureVertical, std::array<float, 3> eulerAngle, std::array<float, 3> scale, std::vector<Vertex>& vertexBufferOut, std::vector<unsigned int>& indexBufferOut) {
 	std::vector<Vertex> vertices;
 	std::map<Vertex, short, Comparer> vertexCache;
@@ -1529,46 +1518,40 @@ void Utils::MD2IO::md2ToObj(const char *path, const char* outFileObj, const char
 	buffer = new char[framesize];
 
 	int i = frame;
-	//for (int i = 1; i < 2; i++) {
-		file.seekg(header.ofs_frames + i * framesize, std::ios::beg);
-		file.read(buffer, framesize);
 
-		Utils::UFloat scale[3];
+	file.seekg(header.ofs_frames + i * framesize, std::ios::beg);
+	file.read(buffer, framesize);
 
-		scale[0].c[0] = buffer[0]; scale[0].c[1] = buffer[1]; scale[0].c[2] = buffer[2]; scale[0].c[3] = buffer[3];
-		scale[1].c[0] = buffer[4]; scale[1].c[1] = buffer[5]; scale[1].c[2] = buffer[6]; scale[1].c[3] = buffer[7];
-		scale[2].c[0] = buffer[8]; scale[2].c[1] = buffer[9]; scale[2].c[2] = buffer[10]; scale[2].c[3] = buffer[11];
+	Utils::UFloat scale[3];
 
-		Utils::UFloat translate[3];
+	scale[0].c[0] = buffer[0]; scale[0].c[1] = buffer[1]; scale[0].c[2] = buffer[2]; scale[0].c[3] = buffer[3];
+	scale[1].c[0] = buffer[4]; scale[1].c[1] = buffer[5]; scale[1].c[2] = buffer[6]; scale[1].c[3] = buffer[7];
+	scale[2].c[0] = buffer[8]; scale[2].c[1] = buffer[9]; scale[2].c[2] = buffer[10]; scale[2].c[3] = buffer[11];
 
-		translate[0].c[0] = buffer[12]; translate[0].c[1] = buffer[13]; translate[0].c[2] = buffer[14]; translate[0].c[3] = buffer[15];
-		translate[1].c[0] = buffer[16]; translate[1].c[1] = buffer[17]; translate[1].c[2] = buffer[18]; translate[1].c[3] = buffer[19];
-		translate[2].c[0] = buffer[20]; translate[2].c[1] = buffer[21]; translate[2].c[2] = buffer[22]; translate[2].c[3] = buffer[23];
+	Utils::UFloat translate[3];
 
-		std::string name;
-		name.resize(16);
-		std::copy(buffer + 24, buffer + 40, name.begin());
+	translate[0].c[0] = buffer[12]; translate[0].c[1] = buffer[13]; translate[0].c[2] = buffer[14]; translate[0].c[3] = buffer[15];
+	translate[1].c[0] = buffer[16]; translate[1].c[1] = buffer[17]; translate[1].c[2] = buffer[18]; translate[1].c[3] = buffer[19];
+	translate[2].c[0] = buffer[20]; translate[2].c[1] = buffer[21]; translate[2].c[2] = buffer[22]; translate[2].c[3] = buffer[23];
 
-		for (int k = 0; k < header.num_xyz; k++) {
-			Utils::UShort vertexS[3];
-			vertexS[0].c[0] = buffer[40 + k * 4 + 0]; vertexS[0].c[1] = 0;
-			vertexS[1].c[0] = buffer[40 + k * 4 + 1]; vertexS[1].c[1] = 0;
-			vertexS[2].c[0] = buffer[40 + k * 4 + 2]; vertexS[2].c[1] = 0;
+	std::string name;
+	name.resize(16);
+	std::copy(buffer + 24, buffer + 40, name.begin());
 
+	for (int k = 0; k < header.num_xyz; k++) {
+		Utils::UShort vertexS[3];
+		vertexS[0].c[0] = buffer[40 + k * 4 + 0]; vertexS[0].c[1] = 0;
+		vertexS[1].c[0] = buffer[40 + k * 4 + 1]; vertexS[1].c[1] = 0;
+		vertexS[2].c[0] = buffer[40 + k * 4 + 2]; vertexS[2].c[1] = 0;
 
-			Utils::UFloat vertex[3];
+		Utils::UFloat vertex[3];
+		vertex[0].flt = vertexS[0].shrt;
+		vertex[1].flt = vertexS[1].shrt;
+		vertex[2].flt = vertexS[2].shrt;
 
-			vertex[0].flt = buffer[40 + k * 4 + 0];
-			vertex[1].flt = buffer[40 + k * 4 + 1];
-			vertex[2].flt = buffer[40 + k * 4 + 2];
-
-			vertex[0].flt = vertexS[0].shrt;
-			vertex[1].flt = vertexS[1].shrt;
-			vertex[2].flt = vertexS[2].shrt;
-
-			positions.push_back({ vertex[0].flt * scale[0].flt + translate[0].flt, vertex[2].flt * scale[2].flt + translate[2].flt, vertex[1].flt * scale[1].flt + translate[1].flt });
-		}
-	//}
+		positions.push_back({ vertex[0].flt * scale[0].flt + translate[0].flt, vertex[2].flt * scale[2].flt + translate[2].flt, vertex[1].flt * scale[1].flt + translate[1].flt });
+	}
+	delete buffer;
 
 	file.close();
 
@@ -1607,4 +1590,161 @@ void Utils::MD2IO::md2ToObj(const char *path, const char* outFileObj, const char
 	std::replace(absPath.begin(), absPath.end(), '\\', '/');
 	fileOut << "map_Kd " << absPath << texturePath;
 	fileOut.close();
+}
+
+int Utils::MD2IO::addVertex(int hash, const float *pVertex, int stride, std::vector<float>& vertexBufferOut) {
+
+	int index = -1;
+	std::map<int, std::vector<int> >::const_iterator iter = m_vertexCache.find(hash);
+
+	if (iter == m_vertexCache.end()) {
+		// Vertex hash doesn't exist in the cache.
+		index = static_cast<int>(vertexBufferOut.size() / stride);
+		vertexBufferOut.insert(vertexBufferOut.end(), pVertex, pVertex + stride);
+		m_vertexCache.insert(std::make_pair(hash, std::vector<int>(1, index)));
+	}
+	else {
+		// One or more vertices have been hashed to this entry in the cache.
+		const std::vector<int> &vertices = iter->second;
+		const float *pCachedVertex = 0;
+		bool found = false;
+
+		for (std::vector<int>::const_iterator i = vertices.begin(); i != vertices.end(); ++i) {
+			index = *i;
+			pCachedVertex = &vertexBufferOut[index * stride];
+
+			if (memcmp(pCachedVertex, pVertex, sizeof(float)* stride) == 0) {
+				found = true;
+				break;
+			}
+		}
+
+		if (!found) {
+			index = static_cast<int>(vertexBufferOut.size() / stride);
+			vertexBufferOut.insert(vertexBufferOut.end(), pVertex, pVertex + stride);
+			m_vertexCache[hash].push_back(index);
+		}
+	}
+	return index;
+}
+
+void Utils::MD2IO::md2ToBuffer(const char* path, bool flipVertical, int frame, std::array<float, 3> eulerAngle, std::array<float, 3> scale, std::vector<float>& vertexBufferOut, std::vector<unsigned int>& indexBufferOut) {
+	std::ifstream file(path, std::ios::binary);
+	std::vector<std::array<short, 3>> faces;
+	std::vector<std::array<short, 3>> uvFaves;
+	std::vector<std::array<float, 3>> positions;
+	std::vector <std::array<float, 2>> textureCoords;
+
+	MD2Header header;
+	file.read(reinterpret_cast<char*>(&header), sizeof(MD2Header));
+
+	if (frame >= header.num_frames)
+		return;
+
+	char* buffer = new char[header.num_tris * 6 * sizeof(short)];
+	file.seekg(header.ofs_tris, std::ios::beg);
+	file.read(buffer, header.num_tris * 6 * sizeof(short));
+
+	for (int i = 0; i < header.num_tris * 6 * sizeof(short); i = i + 6 * sizeof(short)) {
+		Utils::UShort value[6];
+
+		value[0].c[0] = buffer[i + 0]; value[0].c[1] = buffer[i + 1];
+		value[1].c[0] = buffer[i + 2]; value[1].c[1] = buffer[i + 3];
+		value[2].c[0] = buffer[i + 4]; value[2].c[1] = buffer[i + 5];
+
+		faces.push_back({ value[0].shrt , value[1].shrt , value[2].shrt });
+
+		value[3].c[0] = buffer[i + 6]; value[3].c[1] = buffer[i + 7];
+		value[4].c[0] = buffer[i + 8]; value[4].c[1] = buffer[i + 9];
+		value[5].c[0] = buffer[i + 10]; value[5].c[1] = buffer[i + 11];
+
+		uvFaves.push_back({ value[3].shrt , value[4].shrt , value[5].shrt });
+	}
+	delete buffer;
+
+	buffer = new char[header.num_st * 2 * sizeof(short)];
+	file.seekg(header.ofs_st, std::ios::beg);
+	file.read(buffer, header.num_st * 2 * sizeof(short));
+
+	for (int i = 0; i < header.num_st * 2 * sizeof(short); i = i + 2 * sizeof(short)) {
+		Utils::UShort s, t;
+
+		s.c[0] = buffer[i + 0]; s.c[1] = buffer[i + 1];
+		t.c[0] = buffer[i + 2]; t.c[1] = buffer[i + 3];
+
+		if (flipVertical)
+			textureCoords.push_back({ (float)s.shrt / header.skinwidth , 1.0f - (float)t.shrt / header.skinheight });
+		else
+			textureCoords.push_back({ (float)s.shrt / header.skinwidth , (float)t.shrt / header.skinheight });
+	}
+	delete buffer;
+
+	int framesize = 40 + header.num_xyz * 4 * sizeof(unsigned char);
+	buffer = new char[framesize];
+
+	int i = frame;
+
+	file.seekg(header.ofs_frames + i * framesize, std::ios::beg);
+	file.read(buffer, framesize);
+
+	Utils::UFloat _scale[3];
+
+	_scale[0].c[0] = buffer[0]; _scale[0].c[1] = buffer[1]; _scale[0].c[2] = buffer[2]; _scale[0].c[3] = buffer[3];
+	_scale[1].c[0] = buffer[4]; _scale[1].c[1] = buffer[5]; _scale[1].c[2] = buffer[6]; _scale[1].c[3] = buffer[7];
+	_scale[2].c[0] = buffer[8]; _scale[2].c[1] = buffer[9]; _scale[2].c[2] = buffer[10]; _scale[2].c[3] = buffer[11];
+
+	Utils::UFloat translate[3];
+
+	translate[0].c[0] = buffer[12]; translate[0].c[1] = buffer[13]; translate[0].c[2] = buffer[14]; translate[0].c[3] = buffer[15];
+	translate[1].c[0] = buffer[16]; translate[1].c[1] = buffer[17]; translate[1].c[2] = buffer[18]; translate[1].c[3] = buffer[19];
+	translate[2].c[0] = buffer[20]; translate[2].c[1] = buffer[21]; translate[2].c[2] = buffer[22]; translate[2].c[3] = buffer[23];
+
+	std::string name;
+	name.resize(16);
+	std::copy(buffer + 24, buffer + 40, name.begin());
+
+	for (int k = 0; k < header.num_xyz; k++) {
+		Utils::UShort vertexS[3];
+		vertexS[0].c[0] = buffer[40 + k * 4 + 0]; vertexS[0].c[1] = 0;
+		vertexS[1].c[0] = buffer[40 + k * 4 + 1]; vertexS[1].c[1] = 0;
+		vertexS[2].c[0] = buffer[40 + k * 4 + 2]; vertexS[2].c[1] = 0;
+
+		Utils::UFloat vertex[3];
+		vertex[0].flt = vertexS[0].shrt;
+		vertex[1].flt = vertexS[1].shrt;
+		vertex[2].flt = vertexS[2].shrt;
+
+		std::array<float, 3> vert = Utils::SolidIO::ScalePoint(Utils::SolidIO::RotatePoint({ vertex[0].flt * _scale[0].flt + translate[0].flt, vertex[2].flt * _scale[2].flt + translate[2].flt, vertex[1].flt * _scale[1].flt + translate[1].flt }, eulerAngle[0], eulerAngle[1], eulerAngle[2]), scale[0], scale[1], scale[2]);
+
+		positions.push_back({ vert[0], vert[1], vert[2] });
+	}
+	delete buffer;
+
+	file.close();
+
+	indexBufferOut.resize(faces.size() * 3);
+	for (int i = 0; i < faces.size(); i++) {
+		float vertex1[] = { positions[faces[i][0]][0], positions[faces[i][0]][1], positions[faces[i][0]][2],
+                            textureCoords[uvFaves[i][0]][0], textureCoords[uvFaves[i][0]][1] };
+		indexBufferOut[i * 3] = addVertex(faces[i][0], &vertex1[0], 5, vertexBufferOut);
+
+		float vertex2[] = { positions[faces[i][1]][0], positions[faces[i][1]][1], positions[faces[i][1]][2],
+                            textureCoords[uvFaves[i][1]][0], textureCoords[uvFaves[i][1]][1] };
+		indexBufferOut[i * 3 + 1] = addVertex(faces[i][1], &vertex2[0], 5, vertexBufferOut);
+
+		float vertex3[] = { positions[faces[i][2]][0], positions[faces[i][2]][1], positions[faces[i][2]][2],
+                            textureCoords[uvFaves[i][2]][0], textureCoords[uvFaves[i][2]][1] };
+		indexBufferOut[i * 3 + 2] = addVertex(faces[i][2], &vertex3[0], 5, vertexBufferOut);
+	}
+
+	faces.clear();
+	faces.shrink_to_fit();
+	uvFaves.clear();
+	uvFaves.shrink_to_fit();
+	positions.clear();
+	positions.shrink_to_fit();
+	textureCoords.clear();
+	textureCoords.shrink_to_fit();
+
+	std::map<int, std::vector<int>>().swap(m_vertexCache);
 }

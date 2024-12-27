@@ -305,7 +305,6 @@
     <ClCompile Include="VertexBufferObject.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Anorms.h" />
     <ClInclude Include="engine\animationNew\AnimatedModel.h" />
     <ClInclude Include="engine\animationNew\Animation.h" />
     <ClInclude Include="engine\animationNew\AnimationController.h" />

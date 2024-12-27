@@ -908,9 +908,6 @@
     <ClInclude Include="engine\animationNew\AnimationState.h">
       <Filter>engine\animationNew</Filter>
     </ClInclude>
-    <ClInclude Include="Anorms.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="VertexBufferObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>

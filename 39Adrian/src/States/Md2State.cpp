@@ -37,8 +37,12 @@ Md2State::Md2State(StateMachine& machine) : State(machine, States::DEFAULT) {
 	md2Models[3].LoadModel("res/models/HoboGoblin/Model.md2");
 	animationStateMain = md2Models[0].StartAnimation(STAND);
 
-	md2Converter.md2ToObj("data/models/dynamic/corpse/corpse.md2", "data/corpse_0.obj", "data/corpse.mtl", "/data/models/dynamic/corpse/corpse.tga", true, 0);
-	md2Converter.md2ToObj("data/models/dynamic/corpse/corpse.md2", "data/corpse_10.obj", "data/corpse.mtl", "/data/models/dynamic/corpse/corpse.tga", true, 10);
+	//md2Converter.md2ToObj("data/models/dynamic/corpse/corpse.md2", "data/corpse_0.obj", "data/corpse.mtl", "/data/models/dynamic/corpse/corpse.tga", true, 0);
+	//md2Converter.md2ToObj("data/models/dynamic/corpse/corpse.md2", "data/corpse_10.obj", "data/corpse.mtl", "/data/models/dynamic/corpse/corpse.tga", true, 10);
+
+	md2Converter.md2ToBuffer("data/models/dynamic/corpse/corpse.md2", true, 0, { 0.0f, -90.0f, 0.0f }, {0.5f, 0.5f, 0.5f}, vertexBuffer, indexBuffer);
+	m_shape.fromBuffer(vertexBuffer, indexBuffer, 5);
+
 }
 
 Md2State::~Md2State() {
@@ -118,8 +122,17 @@ void Md2State::render() {
 	shader->loadMatrix("u_model", Matrix4f::Scale(0.35f) * Matrix4f::Rotate(Vector3f(1.0f, 0.0f, 0.0f), -90.0f));
 	shader->loadFloat("u_interpolation", animationStateMain.interpol);
 
-	md2Models[iCurrentModel].RenderModel(&animationStateMain);
+	//md2Models[iCurrentModel].RenderModel(&animationStateMain);
 
+	shader->unuse();
+
+	Globals::textureManager.get("corpse").bind(0);
+	shader = Globals::shaderManager.getAssetPointer("shape");
+	shader->use();
+	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
+	shader->loadMatrix("u_view", m_camera.getViewMatrix());
+
+	m_shape.drawRaw();
 	shader->unuse();
 
 	if (m_drawUi)
