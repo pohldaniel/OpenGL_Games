@@ -1,0 +1,14 @@
+uniform sampler2D GameTexture;
+uniform sampler2D ShadowMap;
+varying vec4 shadowCoord;
+
+void main()
+{
+   vec4 shad = shadowCoord/shadowCoord.w;
+   float dist = texture2D(ShadowMap, shad.st).z;
+   float shadow = 1.0;
+   if(shadowCoord.w > 0)
+       shadow = (dist < shad.z)? 0.5 : 1.0;
+   gl_FragColor =  shadow * gl_Color * texture2D(GameTexture, gl_TexCoord[0].st);                                           
+}                                                                              
+

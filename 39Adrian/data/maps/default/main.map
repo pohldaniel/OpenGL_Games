@@ -1,0 +1,94 @@
+2000.0 2000.0
+20
+textures/buildings/ground.tga 1
+textures/misc/los.tga 3
+textures/buildings/200x200building.tga 16
+textures/buildings/generalsbuilding.tga 17
+textures/buildings/bunker.tga 19
+textures/buildings/aircraftgun.tga 20
+textures/buildings/barrel.tga 21
+textures/buildings/crate.tga 22
+textures/buildings/metal.tga 23
+textures/buildings/font.tga 50
+textures/buildings/wall.tga 30
+textures/panel/panel.tga 62
+textures/panel/panelhero.tga 65
+textures/panel/MutantManPanel.tga 66
+textures/panel/CorpsePanel.tga 67
+textures/panel/SkelPanel.tga 68
+textures/panel/MutantCheeta.tga 69
+textures/panel/MutantLizard.tga 70
+textures/panel/Ripper.tga 71
+textures/misc/tree.tga 72
+26
+-1040 -1000 -1000 960 10  18 buildings/building_0.bld
+960 -1040 1000 1000 10 18 buildings/building_1.bld
+-1040 -1040 960 -1000 10 18 buildings/building_2.bld
+-1040 960 960 1000 10 18 buildings/building_3.bld
+-900 -900 -700 -700 9 17 buildings/building_4.bld
+-640 -900 -580 -860 5 22 buildings/building_5.bld
+-640 -760 -580 -700 5 22 buildings/building_6.bld
+-530 -550 -330 -350 4 20 buildings/building_7.bld
+-350 -550 -300 -500 7 21 buildings/building_8.bld
+-400 -550 -350 -500 7 21 buildings/building_9.bld
+-350 -500 -300 -450 6 22 buildings/building_10.bld
+-350 -400 -300 -350 6 22 buildings/building_11.bld
+-740 -200 -425 0 3 16 buildings/building_12.bld
+-420 0 -380 40 6 22 buildings/building_13.bld
+-1000 -100 -740 -60 10 18 buildings/building_14.bld
+-960 -60 -920 -20 7 21 buildings/building_15.bld
+-1000 -60 -960 -20 7 21 buildings/building_16.bld
+-30 -740 170 -540 3 16 buildings/building_17.bld
+0 -1000 40 -740 10 18 buildings/building_18.bld
+-740 600 -425 960 3 16 buildings/building_19.bld
+-425 200 -225 400 8 19 buildings/building_20.bld
+0 0 200 200 5 23 buildings/building_21.bld
+330 350 530 550 4 20 buildings/building_22.bld
+490 500 530 550 7 21 buildings/building_23.bld
+490 350 530 400 7 19 buildings/building_24.bld
+425 -400 625 -200 8 19 buildings/building_25.bld
+30
+models/dynamic/mutantman/mutantman.md2 66 -700 550 -700 550 0 270 textures/panel/MutantManPanel.tga
+models/dynamic/hueteotl/hueteotl.md2 68 -900 200 -760 550 0.3 0 textures/panel/SkelPanel.tga
+models/dynamic/hueteotl/hueteotl.md2 68 -450 40 -450 40 0 90 textures/panel/SkelPanel.tga
+models/dynamic/corpse/corpse.md2 67 -400 650 -400 650 0 0 textures/panel/CorpsePanel.tga
+models/dynamic/mutantman/mutantman.md2 66 -330 250 -330 250 0 250 textures/panel/MutantManPanel.tga
+models/dynamic/mutantman/mutantman.md2 66 -300 250 -300 250 0 290 textures/panel/MutantManPanel.tga
+models/dynamic/mutantman/mutantman.md2 66 0 300 -400 550 1 0 textures/panel/MutantManPanel.tga
+models/dynamic/mutantlizard/mutantlizard.md2 70 150 300 150 300 0 90 textures/panel/MutantLizard.tga
+models/dynamic/mutantcheetah/mutantcheetah.md2 69 60 900 60 900 0 270 textures/panel/MutantCheeta.tga
+models/dynamic/mutantman/mutantman.md2 66 -200 700 900 700 1.0 0 textures/panel/MutantManPanel.tga
+models/dynamic/mutantman/mutantman.md2 66 -150 -120 -150 -120 0 60 textures/panel/MutantManPanel.tga
+models/dynamic/mutantlizard/mutantlizard.md2 70 475 -275 475 -275 0 150 textures/panel/MutantLizard.tga
+models/dynamic/mutantman/mutantman.md2 66 500 -240 500 -240 0 110 textures/panel/MutantManPanel.tga
+models/dynamic/mutantman/mutantman.md2 66 200 -120 200 -120 0 60 textures/panel/MutantManPanel.tga
+models/dynamic/mutantcheetah/mutantcheetah.md2 69 140 -520 140 -520 0 90 textures/panel/MutantCheeta.tga
+models/dynamic/ripper/ripper.md2 71 220 -820 600 -820 1.5 0 textures/panel/Ripper.tga
+models/dynamic/hueteotl/hueteotl.md2 68 620 -380 820 -280 0.3 0 textures/panel/SkelPanel.tga
+models/dynamic/mutantman/mutantman.md2 66 780 -880 830 -380 1 0 textures/panel/MutantManPanel.tga
+models/dynamic/mutantlizard/mutantlizard.md2 70 -800 -600 -800 -600 0 0 textures/panel/MutantLizard.tga
+models/dynamic/mutantman/mutantman.md2 66 -380 -800 -280 -600 1 0 textures/panel/MutantManPanel.tga
+models/dynamic/corpse/corpse.md2 67 -740 -500 -480 -800 0.5 0 textures/panel/CorpsePanel.tga
+models/dynamic/mutantman/mutantman.md2 66 -700 -300 -50 -300 1 0 textures/panel/MutantManPanel.tga
+models/dynamic/ripper/ripper.md2 71 500 100 900 70 1.5 0 textures/panel/Ripper.tga
+models/dynamic/corpse/corpse.md2 67 450 200 900 400 .5 0 textures/panel/CorpsePanel.tga
+models/dynamic/hueteotl/hueteotl.md2 68 900 90 900 90 0 180 textures/panel/SkelPanel.tga
+models/dynamic/mutantcheetah/mutantcheetah.md2 69 300 400 -100 400 .7 0 textures/panel/MutantCheeta.tga
+models/dynamic/mutantcheetah/mutantcheetah.md2 69 900 900 900 900 .7 230  textures/panel/MutantCheeta.tga
+models/dynamic/ripper/ripper.md2 71 0 -300 200 -500 1.5 270 textures/panel/Ripper.tga
+models/dynamic/corpse/corpse.md2 67 -50 -600 -50 -900 0.5 180 textures/panel/CorpsePanel.tga
+models/dynamic/hueteotl/hueteotl.md2 68 -450 -900 -450 -900 0 90 textures/panel/SkelPanel.tga
+8
+72 -1100 1100
+72 -1050 1100
+72 -950 1100
+72 -750 1100
+72 -350 1100
+72 -1100 700
+72 -1100 300
+72 -1100 -100
+3
+wavs/background.wav 1 -1
+wavs/laser.wav 2 0
+wavs/alarm.wav 3 3
+0

@@ -79,6 +79,9 @@ namespace std {
 
 #include <engine/MeshBone.h>
 
+#define	MD2_IDENT_VAL	(('I'<<0) | ('D' << 8) | ('P' << 16) | ('2' << 24))
+#define	MD2_VERSION_VAL	8
+
 namespace Utils {
 
 	static const float BONE_SIZE_THRESHOLD = 0.05f;
@@ -313,7 +316,7 @@ namespace Utils {
 		private:
 			
 		bool getSimilarVertexIndex(std::array<float, 2>& packed, std::map<std::array<float, 2>, short, ComparerUv>& uvToOutIndex, short& result);	
-		bool getSimilarVertexIndex(Vertex& packed, std::map<Vertex, short, Comparer>& uvToOutIndex, short & result);		
+		bool getSimilarVertexIndex(Vertex& packed, std::map<Vertex, short, Comparer>& vertexToOutIndex, short & result);		
 	};
 
 	struct MdlIO {
@@ -353,5 +356,30 @@ namespace Utils {
 
 		void vbmToObj(const char* path, const char* outFileObj, const char* outFileMtl, const char* texturePath);
 		void vbmToBuffer(const char* path, std::vector<float>& vertexBufferOut, std::vector<unsigned int>& indexBufferOut);
+	};
+
+	struct MD2IO {
+		struct MD2Header {
+
+			int ident;		// Magic number. Must be equal to "IDP2"
+			int version;	// MD2 version. Must be equal to 8
+			int skinwidth;	// Width of the texture
+			int skinheight; // Height of the texture
+			int framesize;	// Size of one frame in bytes
+			int num_skins;	// Number of textures
+			int num_xyz;	// Number of vertices
+			int num_st;		// Number of texture coordinates
+			int num_tris;	// Number of triangles
+			int num_glcmds; // Number of OpenGL commands
+			int num_frames; // Total number of frames
+			int ofs_skins;	// Offset to skin names (each skin name is an unsigned char[64] and are null terminated)
+			int ofs_st;		// Offset to s-t texture coordinates
+			int ofs_tris;	// Offset to triangles
+			int ofs_frames; // Offset to frame data
+			int ofs_glcmds; // Offset to OpenGL commands
+			int ofs_end;	// Offset to end of file
+		};
+
+		void md2ToObj(const char *path, const char* outFileObj, const char* outFileMtl, const char* texturePath, bool flipVertical = true, int frame = 0);
 	};
 }

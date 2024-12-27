@@ -36,6 +36,9 @@ Md2State::Md2State(StateMachine& machine) : State(machine, States::DEFAULT) {
 	md2Models[2].LoadModel("res/models/samourai/Samourai.md2");
 	md2Models[3].LoadModel("res/models/HoboGoblin/Model.md2");
 	animationStateMain = md2Models[0].StartAnimation(STAND);
+
+	md2Converter.md2ToObj("data/models/dynamic/corpse/corpse.md2", "data/corpse_0.obj", "data/corpse.mtl", "/data/models/dynamic/corpse/corpse.tga", true, 0);
+	md2Converter.md2ToObj("data/models/dynamic/corpse/corpse.md2", "data/corpse_10.obj", "data/corpse.mtl", "/data/models/dynamic/corpse/corpse.tga", true, 10);
 }
 
 Md2State::~Md2State() {

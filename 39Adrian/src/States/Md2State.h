@@ -7,7 +7,9 @@
 
 #include <States/StateMachine.h>
 
+#include "Utils/BinaryIO.h"
 #include "Md2Model.h"
+#include "Md2.h"
 
 class Md2State : public State, public MouseEventListener, public KeyboardEventListener {
 
@@ -39,4 +41,7 @@ private:
 	CMD2Model md2Models[4];
 	animState_t animationStateMain;
 	int iCurrentModel = 0;
+
+	//MD2 md2;
+	Utils::MD2IO md2Converter;
 };

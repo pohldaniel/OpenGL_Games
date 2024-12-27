@@ -125,10 +125,6 @@ typedef enum {
 
 extern std::string sMD2AnimationNames[MAX_ANIMATIONS];
 
-//#include "vertexBufferObject.h"
-//#include "shaders.h"
-//#include "texture.h"
-
 /*****************************************************
 
 Class:		CMD2Model

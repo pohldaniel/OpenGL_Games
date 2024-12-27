@@ -1,0 +1,9 @@
+uniform mat4 LightMVP;
+varying vec4 shadowCoord;
+void main()
+{
+   gl_FrontColor = gl_Color;
+   shadowCoord = LightMVP * gl_Vertex;
+   gl_TexCoord[0] = gl_MultiTexCoord0;
+   gl_Position = ftransform();             
+}                                          

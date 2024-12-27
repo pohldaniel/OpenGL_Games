@@ -1,0 +1,33 @@
+uniform sampler2D tex0;
+uniform sampler2D tex1;
+void main()
+{	
+	vec4 texel = texture2D(tex0, gl_TexCoord[0].st);
+    vec4 dpt = texture2D(tex1, gl_TexCoord[0].st);
+    mat3 gx = mat3(-1.0f, -2.0f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 2.0f, 1.0f);
+    mat3 gy = mat3(1.0f, 0.0f, -1.0f, 2.0f, 0.0f, -2.0f, 1.0f, 0.0f, -1.0f);
+    int i, j;
+//    float x = gl_TexCoord[0].s - 0.5;
+//    float y = gl_TexCoord[0].t - 0.5;
+    vec4 ones = vec4(1.0, 1.0, 1.0, 1.0); 
+    vec4 zeros = vec4(0.0, 0.0, 0.0, 0.0); 
+
+        vec4 sx = vec4(0, 0, 0, 0);
+        vec4 sy = vec4(0, 0, 0, 0);
+        float contrib = 0;
+        //blur the pixel 1024x768 taken for test
+        for(i = -1; i < 2; i++)
+        {
+            for(j = -1; j < 2; j++)
+            {
+                vec2 coord = gl_TexCoord[0].st + vec2(i/1024.0, j/768.0);
+                sx += gx[i+1][j+1] * texture2D(tex0, coord.st);
+                sy += gy[i+1][j+1] * texture2D(tex0, coord.st);
+            }
+        }
+        float sum = dot(abs(sx), abs(sy));
+        if(sum > 0.1)
+            gl_FragColor = ones * 0.2; 
+        else
+            gl_FragColor =  texel + ones * 0.2; 
+}
