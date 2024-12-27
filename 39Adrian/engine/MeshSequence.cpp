@@ -749,3 +749,7 @@ const void MeshSequence::draw(unsigned short meshIndex, short textureIndex, shor
 	glDrawElementsBaseVertex(GL_TRIANGLES, m_meshes[meshIndex].drawCount, GL_UNSIGNED_INT, (void*)(sizeof(unsigned int) * m_meshes[meshIndex].baseIndex), m_meshes[meshIndex].baseVertex);
 	glBindVertexArray(0);
 }
+
+void MeshSequence::setStride(unsigned int stride) {
+	m_stride = stride;
+}

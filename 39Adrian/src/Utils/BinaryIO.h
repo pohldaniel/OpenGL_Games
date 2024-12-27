@@ -78,6 +78,7 @@ namespace std {
 #include <algorithm>
 
 #include <engine/MeshBone.h>
+#include <engine/MeshSequence.h>
 
 #define	MD2_IDENT_VAL	(('I'<<0) | ('D' << 8) | ('P' << 16) | ('2' << 24))
 #define	MD2_VERSION_VAL	8
@@ -283,8 +284,10 @@ namespace Utils {
 	short bytesToShortBE(unsigned char b0, unsigned char b1);
 	bool bytesToBool(unsigned char b0);
 
+	static std::array<float, 3> RotatePoint(std::array<float, 3> point, float xang, float yang, float zang);
+	static std::array<float, 3> ScalePoint(std::array<float, 3> point, float scaleX, float scaleY, float scaleZ);
+
 	struct SolidIO{
-	
 		
 		struct Vertex {
 			std::array<float, 5> data;
@@ -309,10 +312,7 @@ namespace Utils {
 		void loadSkeleton(const char* filename, const std::vector<Vertex>& vertexBufferMap, std::vector<float>& vertexBufferOut, Skeleton& skeleton, std::vector<std::array<float, 4>>& weightsOut, std::vector<std::array<unsigned int, 4>>& boneIdsOut);
 		void loadAnimation(const char* filename, Utils::anim_height_type height, Utils::anim_attack_type attack, Animation& animation);
 
-		static std::array<float, 3> RotatePoint(std::array<float, 3> point, float xang, float yang, float zang);		
-		static std::array<float, 3> ScalePoint(std::array<float, 3> point, float scaleX, float scaleY, float scaleZ);
-
-		private:
+	private:
 			
 		bool getSimilarVertexIndex(std::array<float, 2>& packed, std::map<std::array<float, 2>, short, ComparerUv>& uvToOutIndex, short& result);	
 		bool getSimilarVertexIndex(Vertex& packed, std::map<Vertex, short, Comparer>& vertexToOutIndex, short & result);		
@@ -381,6 +381,8 @@ namespace Utils {
 
 		void md2ToObj(const char *path, const char* outFileObj, const char* outFileMtl, const char* texturePath, bool flipVertical = true, int frame = 0);
 		void md2ToBuffer(const char* path, bool flipVertical , int frame, std::array<float, 3> eulerAngle, std::array<float, 3> scale, std::vector<float>& vertexBufferOut, std::vector<unsigned int>& indexBufferOut);
+		void md2ToSequence(const char* path, bool flipVertical, std::array<float, 3> eulerAngle, std::array<float, 3> scale, MeshSequence& sequenceOut);
+
 
 	private:
 		std::map<int, std::vector<int>> m_vertexCache;

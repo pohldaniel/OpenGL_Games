@@ -56,7 +56,8 @@ public:
 	const std::vector<Mesh>& getMeshes() const;
 	const std::vector<BoundingBox>& getLocalBoundingBoxes() const;
 	const BoundingBox& getLocalBoundingBox(unsigned int meshIndex) const;
-	
+	void setStride(unsigned int stride);
+
 private:
 
 	std::vector<BoundingBox> m_localBoundingBoxes;

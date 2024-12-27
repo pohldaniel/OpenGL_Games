@@ -721,4 +721,12 @@ void Application::loadAssets() {
 	Globals::textureManager.loadTexture("forest_5", "res/backgrounds/Forest/plx-5.png");
 
 	Globals::textureManager.loadTexture("corpse", "data/models/dynamic/corpse/corpse.tga");
+	Globals::textureManager.loadTexture("hero", "data/models/dynamic/hero/hero.tga");
+	Globals::textureManager.loadTexture("hueteotl", "data/models/dynamic/hueteotl/hueteotl.tga");
+	Globals::textureManager.loadTexture("mutantcheetah", "data/models/dynamic/mutantcheetah/mutantcheetah.tga");
+
+	Globals::textureManager.loadTexture("mutantlizard", "data/models/dynamic/mutantlizard/mutantlizard.tga");
+	Globals::textureManager.loadTexture("mutantman", "data/models/dynamic/mutantman/mutantman.tga");
+	Globals::textureManager.loadTexture("ripper", "data/models/dynamic/ripper/ripper.tga");
+	
 }

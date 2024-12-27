@@ -5,6 +5,7 @@
 #include <engine/MeshObject/Shape.h>
 #include <engine/Camera.h>
 #include <engine/Background.h>
+#include <engine/MeshSequence.h>
 #include <States/StateMachine.h>
 
 #include "Utils/BinaryIO.h"
@@ -47,4 +48,7 @@ private:
 	std::vector<float> vertexBuffer;
 	std::vector<unsigned int> indexBuffer;
 	Shape m_shape;
+	MeshSequence m_sequence;
+
+	int index = 0;
 };

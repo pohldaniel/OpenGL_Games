@@ -40,9 +40,13 @@ Md2State::Md2State(StateMachine& machine) : State(machine, States::DEFAULT) {
 	//md2Converter.md2ToObj("data/models/dynamic/corpse/corpse.md2", "data/corpse_0.obj", "data/corpse.mtl", "/data/models/dynamic/corpse/corpse.tga", true, 0);
 	//md2Converter.md2ToObj("data/models/dynamic/corpse/corpse.md2", "data/corpse_10.obj", "data/corpse.mtl", "/data/models/dynamic/corpse/corpse.tga", true, 10);
 
-	md2Converter.md2ToBuffer("data/models/dynamic/corpse/corpse.md2", true, 0, { 0.0f, -90.0f, 0.0f }, {0.5f, 0.5f, 0.5f}, vertexBuffer, indexBuffer);
-	m_shape.fromBuffer(vertexBuffer, indexBuffer, 5);
+	//m_sequence.setStride(5u);
+	//md2Converter.md2ToSequence("data/models/dynamic/corpse/corpse.md2", true, { 0.0f, -90.0f, 0.0f }, { 0.5f, 0.5f, 0.5f }, m_sequence);
+	//m_sequence.loadSequenceGpu();
 
+	m_sequence.setStride(5u);
+	md2Converter.md2ToSequence("data/models/dynamic/hero/hero.md2", true, { 0.0f, -90.0f, 0.0f }, { 0.5f, 0.5f, 0.5f }, m_sequence);
+	m_sequence.loadSequenceGpu();
 }
 
 Md2State::~Md2State() {
@@ -115,24 +119,13 @@ void Md2State::update() {
 void Md2State::render() {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	auto shader = Globals::shaderManager.getAssetPointer("md2");
+	
+	Globals::textureManager.get("hero").bind(0);
+	auto shader = Globals::shaderManager.getAssetPointer("shape");
 	shader->use();
 	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
 	shader->loadMatrix("u_view", m_camera.getViewMatrix());
-	shader->loadMatrix("u_model", Matrix4f::Scale(0.35f) * Matrix4f::Rotate(Vector3f(1.0f, 0.0f, 0.0f), -90.0f));
-	shader->loadFloat("u_interpolation", animationStateMain.interpol);
-
-	//md2Models[iCurrentModel].RenderModel(&animationStateMain);
-
-	shader->unuse();
-
-	Globals::textureManager.get("corpse").bind(0);
-	shader = Globals::shaderManager.getAssetPointer("shape");
-	shader->use();
-	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
-	shader->loadMatrix("u_view", m_camera.getViewMatrix());
-
-	m_shape.drawRaw();
+	m_sequence.draw(index);
 	shader->unuse();
 
 	if (m_drawUi)
@@ -216,6 +209,7 @@ void Md2State::renderUi() {
 	// render widgets
 	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 	ImGui::Checkbox("Draw Wirframe", &StateMachine::GetEnableWireframe());
+	ImGui::SliderInt("Index", &index, 0, m_sequence.getMeshes().size());
 	ImGui::End();
 
 	ImGui::Render();
