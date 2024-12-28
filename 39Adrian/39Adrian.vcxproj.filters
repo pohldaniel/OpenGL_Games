@@ -914,9 +914,6 @@
     <ClInclude Include="src\States\Md2State.h">
       <Filter>Source Files\States</Filter>
     </ClInclude>
-    <ClInclude Include="src\Anorms.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\Md2.h">
       <Filter>Header Files</Filter>
     </ClInclude>

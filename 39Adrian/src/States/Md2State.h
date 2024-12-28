@@ -43,19 +43,13 @@ private:
 	animState_t animationStateMain;
 	int iCurrentModel = 0;
 
-	//MD2 md2;
 	Utils::MD2IO md2Converter;
-	std::vector<float> vertexBuffer;
+	std::vector<float> res;
 	std::vector<unsigned int> indexBuffer;
-	Shape m_shape;
+
 	MeshSequence m_sequence;
 
 	int index = 0;
-	
-
-	std::vector<Utils::MD2IO::Frame> m_frames;
-	std::vector<float> res;
-
 	unsigned int m_vao;
 	unsigned int m_vbo;
 	unsigned int m_ibo;
@@ -63,8 +57,7 @@ private:
 	GLuint streamOffset = 0;
 	GLuint drawOffset = 0;
 	float mActiveFrame = 0.0f;
-	float mSpeed = 1.0f;
-	float whole;
+	float m_speed = 1.0f;
 	std::vector<Utils::MD2IO::Animation> m_animation;
 	Utils::MD2IO::Animation* currentAnimation;
 };

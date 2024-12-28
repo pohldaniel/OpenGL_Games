@@ -205,7 +205,6 @@ namespace Utils {
 		float speed;
 	};
 
-	
 	struct Animation {
 		int numFrames;
 		int numJoints;
@@ -230,7 +229,6 @@ namespace Utils {
 		MAX_VERTEX_ELEMENT_SEMANTICS
 	};
 
-	
 	struct GeometryDesc {
 		float lodDistance;
 		unsigned vbRef;
@@ -357,6 +355,7 @@ namespace Utils {
 		void vbmToBuffer(const char* path, std::vector<float>& vertexBufferOut, std::vector<unsigned int>& indexBufferOut);
 	};
 
+//https://formats.kaitai.io/quake2_md2/
 	struct MD2IO {
 		struct MD2Header {
 
@@ -481,6 +480,7 @@ namespace Utils {
 		int loadMd2(const char* path, bool flipVertical, std::array<float, 3> eulerAngle, std::array<float, 3> scale, std::vector<float>& vertexBufferOut, std::vector<unsigned int>& indexBufferOut, std::vector<Animation>& animations);
 
 	private:
+
 		std::map<int, std::vector<int>> m_vertexCache;
 		int addVertex(int hash, const float *pVertex, int stride, std::vector<float>& vertexBufferOut);
 	};

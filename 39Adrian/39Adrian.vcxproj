@@ -409,7 +409,6 @@
     <ClInclude Include="Physics\Constraint.h" />
     <ClInclude Include="Physics\Constraint6DoF.h" />
     <ClInclude Include="Physics\VehiclePhysics.h" />
-    <ClInclude Include="src\Anorms.h" />
     <ClInclude Include="src\Application.h" />
     <ClInclude Include="src\Entities\Entity.h" />
     <ClInclude Include="src\Entities\MeshEntity.h" />

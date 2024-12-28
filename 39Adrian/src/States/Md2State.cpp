@@ -39,8 +39,12 @@ Md2State::Md2State(StateMachine& machine) : State(machine, States::DEFAULT){
 	md2Models[3].LoadModel("res/models/HoboGoblin/Model.md2");
 	animationStateMain = md2Models[0].StartAnimation(STAND);
 
-	md2Converter.loadMd2("data/models/dynamic/hero/hero.md2", true, { 0.0f, -90.0f, 0.0f }, { 0.5f, 0.5f, 0.5f }, res, indexBuffer, m_animation);
-	
+	m_sequence.setStride(8u);
+	md2Converter.md2ToSequence("data/models/dynamic/corpse/corpse.md2", true, { 0.0f, -90.0f, 0.0f }, { 0.5f, 0.5f, 0.5f }, m_sequence);
+	m_sequence.loadSequenceGpu();
+
+	//md2Converter.loadMd2("data/models/dynamic/hero/hero.md2", true, { 0.0f, -90.0f, 0.0f }, { 0.5f, 0.5f, 0.5f }, res, indexBuffer, m_animation);
+	md2Converter.loadMd2("data/models/dynamic/ripper/ripper.md2", true, { 0.0f, -90.0f, 0.0f }, { 0.5f, 0.5f, 0.5f }, res, indexBuffer, m_animation);
 	glGenBuffers(1, &m_vbo);
 	glGenBuffers(1, &m_ibo);
 
@@ -55,11 +59,13 @@ Md2State::Md2State(StateMachine& machine) : State(machine, States::DEFAULT){
 	glBindVertexArray(m_vao);
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
-	//glEnableVertexAttribArray(2);
+	glEnableVertexAttribArray(2);
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-	glVertexAttribPointer(0, 3, GL_FLOAT, 0, 5 * sizeof(float), (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, 0, 8 * sizeof(float), (void*)0);
 
-	glVertexAttribPointer(1, 2, GL_FLOAT, 0, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+	glVertexAttribPointer(1, 2, GL_FLOAT, 0, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+
+	glVertexAttribPointer(2, 2, GL_FLOAT, 0, 8 * sizeof(float), (void*)(5 * sizeof(float)));
 
 
 	//Indices
@@ -123,7 +129,6 @@ void Md2State::update() {
 		streamOffset = 0;
 		drawOffset = 0;
 		mActiveFrame = 0.0f;
-		mSpeed = 1.0f;
 	}
 
 	if (keyboard.keyPressed(Keyboard::KEY_2)) {
@@ -131,7 +136,6 @@ void Md2State::update() {
 		streamOffset = 0;
 		drawOffset = 0;
 		mActiveFrame = 0.0f;
-		mSpeed = 1.0f;
 	}
 
 	if (keyboard.keyPressed(Keyboard::KEY_3)) {
@@ -139,7 +143,6 @@ void Md2State::update() {
 		streamOffset = 0;
 		drawOffset = 0;
 		mActiveFrame = 0.0f;
-		mSpeed = 1.0f;
 	}
 
 	if (keyboard.keyPressed(Keyboard::KEY_4)) {
@@ -147,7 +150,6 @@ void Md2State::update() {
 		streamOffset = 0;
 		drawOffset = 0;
 		mActiveFrame = 0.0f;
-		mSpeed = 1.0f;
 	}
 
 	if (keyboard.keyPressed(Keyboard::KEY_5)) {
@@ -155,7 +157,6 @@ void Md2State::update() {
 		streamOffset = 0;
 		drawOffset = 0;
 		mActiveFrame = 0.0f;
-		mSpeed = 1.0f;
 	}
 
 	if (keyboard.keyPressed(Keyboard::KEY_6)) {
@@ -163,7 +164,6 @@ void Md2State::update() {
 		streamOffset = 0;
 		drawOffset = 0;
 		mActiveFrame = 0.0f;
-		mSpeed = 1.0f;
 	}
 
 	Mouse &mouse = Mouse::instance();
@@ -186,7 +186,7 @@ void Md2State::update() {
 	md2Models[iCurrentModel].UpdateAnimation(&animationStateMain, m_dt);
 
 	// increment frame
-	mActiveFrame += mSpeed * m_dt * currentAnimation->fps;
+	mActiveFrame += m_speed * m_dt * currentAnimation->fps;
 
 	int len = currentAnimation->frames.size() - 1;
 	float lenf = static_cast<float>(len);
@@ -201,13 +201,17 @@ void Md2State::update() {
 	float lerp = mActiveFrame - floor(mActiveFrame);
 	float oneMinusLerp = 1.0f - lerp;
 
-	for (int i = 0; i < res.size(); i = i + 5) {
+	for (int i = 0; i < res.size(); i = i + 8) {
 		const Utils::MD2IO::Frame& frameA = currentAnimation->frames[activeFrameIdx];
 		const Utils::MD2IO::Frame& frameB = currentAnimation->frames[nextFrame];
 
 		res[i + 0] = oneMinusLerp * frameA.vertices[i + 0] + lerp * frameB.vertices[i + 0];
 		res[i + 1] = oneMinusLerp * frameA.vertices[i + 1] + lerp * frameB.vertices[i + 1];
 		res[i + 2] = oneMinusLerp * frameA.vertices[i + 2] + lerp * frameB.vertices[i + 2];
+
+		res[i + 5] = oneMinusLerp * frameA.vertices[i + 5] + lerp * frameB.vertices[i + 5];
+		res[i + 6] = oneMinusLerp * frameA.vertices[i + 6] + lerp * frameB.vertices[i + 6];
+		res[i + 7] = oneMinusLerp * frameA.vertices[i + 7] + lerp * frameB.vertices[i + 7];
 	}	
 }
 
@@ -215,12 +219,12 @@ void Md2State::render() {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
-	Globals::textureManager.get("hero").bind(0);
+	Globals::textureManager.get("ripper").bind(0);
 	auto shader = Globals::shaderManager.getAssetPointer("shape");
 	shader->use();
 	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
 	shader->loadMatrix("u_view", m_camera.getViewMatrix());
-	//m_sequence.draw(index);
+	//gm_sequence.draw(index);
 	
 
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
@@ -239,7 +243,7 @@ void Md2State::render() {
 	glUnmapBuffer(GL_ARRAY_BUFFER);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-	drawOffset = streamOffset / (sizeof(float) * 5);
+	drawOffset = streamOffset / (sizeof(float) * 8);
 	glBindVertexArray(m_vao);
 	//glDrawElements(GL_TRIANGLES, indexBuffer.size(), GL_UNSIGNED_INT, 0);
 	glDrawElementsBaseVertex(GL_TRIANGLES, indexBuffer.size(), GL_UNSIGNED_INT, 0, drawOffset);
@@ -330,6 +334,7 @@ void Md2State::renderUi() {
 	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 	ImGui::Checkbox("Draw Wirframe", &StateMachine::GetEnableWireframe());
 	ImGui::SliderInt("Index", &index, 0, m_sequence.getMeshes().size() - 1);
+	ImGui::SliderFloat("Speed", &m_speed, 0.0f, 20.0f);
 	ImGui::End();
 
 	ImGui::Render();

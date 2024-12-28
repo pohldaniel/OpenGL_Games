@@ -1838,24 +1838,28 @@ void Utils::MD2IO::md2ToSequence(const char* path, bool flipVertical, std::array
 			vertex[2].flt = vertexS[2].shrt;
 
 			std::array<float, 3> vert = Utils::ScalePoint(Utils::RotatePoint({ vertex[0].flt * _scale[0].flt + translate[0].flt, vertex[2].flt * _scale[2].flt + translate[2].flt, vertex[1].flt * _scale[1].flt + translate[1].flt }, eulerAngle[0], eulerAngle[1], eulerAngle[2]), scale[0], scale[1], scale[2]);
-
 			positions.push_back({ vert[0], vert[1], vert[2] });
-			normals.push_back({ aNormals[vertexS[3].shrt][0], aNormals[vertexS[3].shrt][1], aNormals[vertexS[3].shrt][2] });
+
+			std::array<float, 3> norm = Utils::RotatePoint({ aNormals[vertexS[3].shrt][0], aNormals[vertexS[3].shrt][1], aNormals[vertexS[3].shrt][2] }, eulerAngle[0], eulerAngle[1], eulerAngle[2]);
+			normals.push_back({ norm[0], norm[1], norm[2] });
 		}
 
 		indexBuffer.resize(faces.size() * 3);
 		for (int i = 0; i < faces.size(); i++) {
 			float vertex1[] = { positions[faces[i][0]][0], positions[faces[i][0]][1], positions[faces[i][0]][2],
-								textureCoords[uvFaves[i][0]][0], textureCoords[uvFaves[i][0]][1] };
-			indexBuffer[i * 3] = addVertex(faces[i][0], &vertex1[0], 5, vertexBuffer);
+                                textureCoords[uvFaves[i][0]][0], textureCoords[uvFaves[i][0]][1],
+                                normals[faces[i][0]][0], normals[faces[i][0]][1], normals[faces[i][0]][2] };
+			indexBuffer[i * 3] = addVertex(faces[i][0], &vertex1[0], 8, vertexBuffer);
 
 			float vertex2[] = { positions[faces[i][1]][0], positions[faces[i][1]][1], positions[faces[i][1]][2],
-								textureCoords[uvFaves[i][1]][0], textureCoords[uvFaves[i][1]][1] };
-			indexBuffer[i * 3 + 1] = addVertex(faces[i][1], &vertex2[0], 5, vertexBuffer);
+								textureCoords[uvFaves[i][1]][0], textureCoords[uvFaves[i][1]][1],
+								normals[faces[i][1]][0], normals[faces[i][1]][1], normals[faces[i][1]][2] };
+			indexBuffer[i * 3 + 1] = addVertex(faces[i][1], &vertex2[0], 8, vertexBuffer);
 
 			float vertex3[] = { positions[faces[i][2]][0], positions[faces[i][2]][1], positions[faces[i][2]][2],
-								textureCoords[uvFaves[i][2]][0], textureCoords[uvFaves[i][2]][1] };
-			indexBuffer[i * 3 + 2] = addVertex(faces[i][2], &vertex3[0], 5, vertexBuffer);
+								textureCoords[uvFaves[i][2]][0], textureCoords[uvFaves[i][2]][1],
+								normals[faces[i][2]][0], normals[faces[i][2]][1], normals[faces[i][2]][2] };
+			indexBuffer[i * 3 + 2] = addVertex(faces[i][2], &vertex3[0], 8, vertexBuffer);
 		}
 		sequenceOut.addMesh(vertexBuffer, indexBuffer);
 
@@ -1971,80 +1975,87 @@ int Utils::MD2IO::loadMd2(const char* path, bool flipVertical, std::array<float,
 			vertex[1].flt = vertexS[1].shrt;
 			vertex[2].flt = vertexS[2].shrt;
 
-			std::array<float, 3> vert = Utils::ScalePoint(Utils::RotatePoint({ vertex[0].flt * _scale[0].flt + translate[0].flt, vertex[2].flt * _scale[2].flt + translate[2].flt, vertex[1].flt * _scale[1].flt + translate[1].flt }, eulerAngle[0], eulerAngle[1], eulerAngle[2]), scale[0], scale[1], scale[2]);
-
+			std::array<float, 3> vert = Utils::ScalePoint(Utils::RotatePoint({ vertex[0].flt * _scale[0].flt + translate[0].flt, vertex[2].flt * _scale[2].flt + translate[2].flt, vertex[1].flt * _scale[1].flt + translate[1].flt }, eulerAngle[0], eulerAngle[1], eulerAngle[2]), scale[0], scale[1], scale[2]);			
 			positions.push_back({ vert[0], vert[1], vert[2] });
-			normals.push_back({ aNormals[vertexS[3].shrt][0], aNormals[vertexS[3].shrt][1], aNormals[vertexS[3].shrt][2] });
+
+			std::array<float, 3> norm = Utils::RotatePoint({ aNormals[vertexS[3].shrt][0], aNormals[vertexS[3].shrt][1], aNormals[vertexS[3].shrt][2]}, eulerAngle[0], eulerAngle[1], eulerAngle[2]);
+			normals.push_back({ norm[0], norm[1], norm[2] });
 		}
 
 		if (i == 0) {
 			indexBufferOut.resize(faces.size() * 3);
 			for (int i = 0; i < faces.size(); i++) {
 				float vertex1[] = { positions[faces[i][0]][0], positions[faces[i][0]][1], positions[faces[i][0]][2],
-									textureCoords[uvFaves[i][0]][0], textureCoords[uvFaves[i][0]][1] };
-				indexBufferOut[i * 3] = addVertex(faces[i][0], &vertex1[0], 5, vertexBuffer);
+									textureCoords[uvFaves[i][0]][0], textureCoords[uvFaves[i][0]][1],
+									normals[faces[i][0]][0], normals[faces[i][0]][1], normals[faces[i][0]][2] };
+				indexBufferOut[i * 3] = addVertex(faces[i][0], &vertex1[0], 8, vertexBuffer);
 
 				float vertex2[] = { positions[faces[i][1]][0], positions[faces[i][1]][1], positions[faces[i][1]][2],
-									textureCoords[uvFaves[i][1]][0], textureCoords[uvFaves[i][1]][1] };
-				indexBufferOut[i * 3 + 1] = addVertex(faces[i][1], &vertex2[0], 5, vertexBuffer);
+									textureCoords[uvFaves[i][1]][0], textureCoords[uvFaves[i][1]][1],
+									normals[faces[i][1]][0], normals[faces[i][1]][1], normals[faces[i][1]][2] };
+				indexBufferOut[i * 3 + 1] = addVertex(faces[i][1], &vertex2[0], 8, vertexBuffer);
 
 				float vertex3[] = { positions[faces[i][2]][0], positions[faces[i][2]][1], positions[faces[i][2]][2],
-									textureCoords[uvFaves[i][2]][0], textureCoords[uvFaves[i][2]][1] };
-				indexBufferOut[i * 3 + 2] = addVertex(faces[i][2], &vertex3[0], 5, vertexBuffer);
+									textureCoords[uvFaves[i][2]][0], textureCoords[uvFaves[i][2]][1],
+				                    normals[faces[i][2]][0], normals[faces[i][2]][1], normals[faces[i][2]][2] };
+				indexBufferOut[i * 3 + 2] = addVertex(faces[i][2], &vertex3[0], 8, vertexBuffer);
 			}
 			std::copy(vertexBuffer.begin(), vertexBuffer.end(), std::back_inserter(vertexBufferOut));
 		}else {
 			for (int i = 0; i < faces.size(); i++) {
 				float vertex1[] = { positions[faces[i][0]][0], positions[faces[i][0]][1], positions[faces[i][0]][2],
-									textureCoords[uvFaves[i][0]][0], textureCoords[uvFaves[i][0]][1] };
-				addVertex(faces[i][0], &vertex1[0], 5, vertexBuffer);
+									textureCoords[uvFaves[i][0]][0], textureCoords[uvFaves[i][0]][1], 
+									normals[faces[i][0]][0], normals[faces[i][0]][1], normals[faces[i][0]][2] };
+				addVertex(faces[i][0], &vertex1[0], 8, vertexBuffer);
 
 				float vertex2[] = { positions[faces[i][1]][0], positions[faces[i][1]][1], positions[faces[i][1]][2],
-									textureCoords[uvFaves[i][1]][0], textureCoords[uvFaves[i][1]][1] };
-				addVertex(faces[i][1], &vertex2[0], 5, vertexBuffer);
+									textureCoords[uvFaves[i][1]][0], textureCoords[uvFaves[i][1]][1],
+									normals[faces[i][1]][0], normals[faces[i][1]][1], normals[faces[i][1]][2] };
+				addVertex(faces[i][1], &vertex2[0], 8, vertexBuffer);
 
 				float vertex3[] = { positions[faces[i][2]][0], positions[faces[i][2]][1], positions[faces[i][2]][2],
-									textureCoords[uvFaves[i][2]][0], textureCoords[uvFaves[i][2]][1] };
-				addVertex(faces[i][2], &vertex3[0], 5, vertexBuffer);
+									textureCoords[uvFaves[i][2]][0], textureCoords[uvFaves[i][2]][1],
+									normals[faces[i][2]][0], normals[faces[i][2]][1], normals[faces[i][2]][2] };
+				addVertex(faces[i][2], &vertex3[0], 8, vertexBuffer);
 			}
 		}
 
-		if (name.find("stand") != std::string::npos) {
+		if(0 <= i && i <= 39){		
 			strcpy(animations[0].name, "stand");
 			animations[0].fps = 9.0f;
 			animations[0].frames.push_back(Frame());
 			std::copy(vertexBuffer.begin(), vertexBuffer.end(), std::back_inserter(animations[0].frames.back().vertices));
 		}
 
-		if (name.find("run") != std::string::npos) {
+		if (40 <= i && i <= 45) {			
 			strcpy(animations[1].name, "run");
 			animations[1].fps = 10.0f;
 			animations[1].frames.push_back(Frame());
 			std::copy(vertexBuffer.begin(), vertexBuffer.end(), std::back_inserter(animations[1].frames.back().vertices));
 		}
 
-		if (name.find("attack") != std::string::npos) {
+		if (46 <= i && i <= 53) {
 			strcpy(animations[2].name, "attack");
 			animations[2].fps = 10.0f;
 			animations[2].frames.push_back(Frame());
 			std::copy(vertexBuffer.begin(), vertexBuffer.end(), std::back_inserter(animations[2].frames.back().vertices));
 		}
-
-		if (i == 178 || i == 179 || i == 180 || i == 181 || i == 182 || i == 183) {
+		
+		if (178 <= i && i <= 183) {
 			strcpy(animations[3].name, "death_back");
 			animations[3].fps = 7.0f;
 			animations[3].frames.push_back(Frame());
 			std::copy(vertexBuffer.begin(), vertexBuffer.end(), std::back_inserter(animations[3].frames.back().vertices));
 		}
-
-		if (i == 184 || i == 185 || i == 186 || i == 187 || i == 188 || i == 189) {
+		
+		if (184 <= i && i <= 189) {
 			strcpy(animations[4].name, "death_forward");
 			animations[4].fps = 7.0f;
 			animations[4].frames.push_back(Frame());
 			std::copy(vertexBuffer.begin(), vertexBuffer.end(), std::back_inserter(animations[4].frames.back().vertices));
 		}
-
-		if (i == 190 || i == 191 || i == 192 || i == 193 || i == 194 || i == 195 || i == 196 || i == 197) {
+		
+		if (190 <= i && i <= 197) {
 			strcpy(animations[5].name, "death_back_slow");
 			animations[5].fps = 7.0f;
 			animations[5].frames.push_back(Frame());
@@ -2053,7 +2064,8 @@ int Utils::MD2IO::loadMd2(const char* path, bool flipVertical, std::array<float,
 
 		positions.clear();
 		positions.shrink_to_fit();
-		
+		normals.clear();
+		normals.shrink_to_fit();
 		vertexBuffer.clear();
 		vertexBuffer.shrink_to_fit();
 		std::map<int, std::vector<int>>().swap(m_vertexCache);
@@ -2069,8 +2081,7 @@ int Utils::MD2IO::loadMd2(const char* path, bool flipVertical, std::array<float,
 
 	textureCoords.clear();
 	textureCoords.shrink_to_fit();
-	normals.clear();
-	normals.shrink_to_fit();
+	
 
 	return header.num_xyz;
 }
