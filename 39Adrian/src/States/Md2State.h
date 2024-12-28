@@ -51,4 +51,16 @@ private:
 	MeshSequence m_sequence;
 
 	int index = 0;
+	float mActiveFrame = 0.0f;
+	float mSpeed = 1.0f;
+
+	std::vector<Utils::MD2IO::Frame> m_frames;
+	std::vector<float> res;
+
+	unsigned int m_vao;
+	unsigned int m_vbo;
+	unsigned int m_ibo;
+
+	GLuint streamOffset = 0;
+	GLuint drawOffset = 0;
 };

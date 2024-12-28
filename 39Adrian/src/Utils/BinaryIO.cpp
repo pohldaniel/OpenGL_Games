@@ -1749,7 +1749,7 @@ void Utils::MD2IO::md2ToBuffer(const char* path, bool flipVertical, int frame, s
 	std::map<int, std::vector<int>>().swap(m_vertexCache);
 }
 
-void Utils::MD2IO::md2ToSequence(const char* path, bool flipVertical, std::array<float, 3> eulerAngle, std::array<float, 3> scale, MeshSequence& sequenceOut) {
+void Utils::MD2IO::md2ToSequence(const char* path, bool flipVertical, std::array<float, 3> eulerAngle, std::array<float, 3> scale, MeshSequence& sequenceOut, std::vector<Frame>& frames) {
 	std::ifstream file(path, std::ios::binary);
 	std::vector<std::array<short, 3>> faces;
 	std::vector<std::array<short, 3>> uvFaves;
@@ -1803,7 +1803,7 @@ void Utils::MD2IO::md2ToSequence(const char* path, bool flipVertical, std::array
 	int framesize = 40 + header.num_xyz * 4 * sizeof(unsigned char);
 	buffer = new char[framesize];
 
-	for (int i = 0; i < header.num_frames; i++) {
+	for (int i = 0; i < 40; i++) {
 
 		file.seekg(header.ofs_frames + i * framesize, std::ios::beg);
 		file.read(buffer, framesize);
@@ -1840,7 +1840,6 @@ void Utils::MD2IO::md2ToSequence(const char* path, bool flipVertical, std::array
 			positions.push_back({ vert[0], vert[1], vert[2] });
 		}
 		
-
 		indexBuffer.resize(faces.size() * 3);
 		for (int i = 0; i < faces.size(); i++) {
 			float vertex1[] = { positions[faces[i][0]][0], positions[faces[i][0]][1], positions[faces[i][0]][2],
@@ -1856,6 +1855,9 @@ void Utils::MD2IO::md2ToSequence(const char* path, bool flipVertical, std::array
 			indexBuffer[i * 3 + 2] = addVertex(faces[i][2], &vertex3[0], 5, vertexBuffer);
 		}
 		sequenceOut.addMesh(vertexBuffer, indexBuffer);
+
+		frames.push_back(Frame());
+		std::copy(vertexBuffer.begin(), vertexBuffer.end(), std::back_inserter(frames.back().vertices));
 
 		positions.clear();
 		positions.shrink_to_fit();

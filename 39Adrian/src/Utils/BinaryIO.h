@@ -379,9 +379,13 @@ namespace Utils {
 			int ofs_end;	// Offset to end of file
 		};
 
+		struct Frame {
+			std::vector<float> vertices;
+		};
+
 		void md2ToObj(const char *path, const char* outFileObj, const char* outFileMtl, const char* texturePath, bool flipVertical = true, int frame = 0);
 		void md2ToBuffer(const char* path, bool flipVertical , int frame, std::array<float, 3> eulerAngle, std::array<float, 3> scale, std::vector<float>& vertexBufferOut, std::vector<unsigned int>& indexBufferOut);
-		void md2ToSequence(const char* path, bool flipVertical, std::array<float, 3> eulerAngle, std::array<float, 3> scale, MeshSequence& sequenceOut);
+		void md2ToSequence(const char* path, bool flipVertical, std::array<float, 3> eulerAngle, std::array<float, 3> scale, MeshSequence& sequenceOut, std::vector<Frame>& frames);
 
 
 	private:

@@ -16,6 +16,8 @@ std::string sModelNames[] =
 	"HoboGoblin"
 };
 
+const GLuint STREAM_BUFFER_CAPACITY = 8192 * 1024; // 8MBytes
+
 Md2State::Md2State(StateMachine& machine) : State(machine, States::DEFAULT) {
 
 	Application::SetCursorIcon(IDC_ARROW);
@@ -44,9 +46,42 @@ Md2State::Md2State(StateMachine& machine) : State(machine, States::DEFAULT) {
 	//md2Converter.md2ToSequence("data/models/dynamic/corpse/corpse.md2", true, { 0.0f, -90.0f, 0.0f }, { 0.5f, 0.5f, 0.5f }, m_sequence);
 	//m_sequence.loadSequenceGpu();
 
+	md2Converter.md2ToBuffer("data/models/dynamic/hero/hero.md2", true, 0, { 0.0f, -90.0f, 0.0f }, { 0.5f, 0.5f, 0.5f }, vertexBuffer, indexBuffer);
+
 	m_sequence.setStride(5u);
-	md2Converter.md2ToSequence("data/models/dynamic/hero/hero.md2", true, { 0.0f, -90.0f, 0.0f }, { 0.5f, 0.5f, 0.5f }, m_sequence);
+	md2Converter.md2ToSequence("data/models/dynamic/hero/hero.md2", true, { 0.0f, -90.0f, 0.0f }, { 0.5f, 0.5f, 0.5f }, m_sequence, m_frames);
 	m_sequence.loadSequenceGpu();
+
+	std::copy(m_frames[0].vertices.begin(), m_frames[0].vertices.end(), std::back_inserter(res));
+
+	glGenBuffers(1, &m_vbo);
+	glGenBuffers(1, &m_ibo);
+
+	glGenVertexArrays(1, &m_vao);
+	glBindVertexArray(m_vao);
+
+
+
+	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+	glBufferData(GL_ARRAY_BUFFER, STREAM_BUFFER_CAPACITY, NULL, GL_STREAM_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	// configure vertex arrays
+	glBindVertexArray(m_vao);
+	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
+	//glEnableVertexAttribArray(2);
+	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+	glVertexAttribPointer(0, 3, GL_FLOAT, 0, 5 * sizeof(float), (void*)0);
+
+	glVertexAttribPointer(1, 2, GL_FLOAT, 0, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+
+
+	//Indices
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexBuffer.size() * sizeof(unsigned int), &indexBuffer[0], GL_STATIC_DRAW);
+
+	glBindVertexArray(0);
 }
 
 Md2State::~Md2State() {
@@ -114,9 +149,43 @@ void Md2State::update() {
 	}
 
 	md2Models[iCurrentModel].UpdateAnimation(&animationStateMain, m_dt);
+
+	// ignore if paused
+	//if (!mIsPlaying)
+		//return;
+
+	// increment frame
+	mActiveFrame += mSpeed * m_dt * 9.0f;
+
+	// loop animation
+	if (mActiveFrame >= 39.0f)
+		mActiveFrame = std::modf(mActiveFrame, &mActiveFrame) + std::fmod(mActiveFrame - 0.0f,40.0f) + 0.0f;
+
+	//std::cout << "Frame: " << mActiveFrame << std::endl;
+
+	int16_t activeFrameIdx = static_cast<int16_t>(mActiveFrame);
+	uint16_t nextFrame = activeFrameIdx == 39 ? 0 : activeFrameIdx + 1;
+	
+
+	float posA[3], posB[3];
+	float lerp = std::modf(mActiveFrame, &posA[0]);
+	float oneMinusLerp = 1.0f - lerp;
+
+	for (int i = 0; i < res.size(); i = i + 5) {
+		const Utils::MD2IO::Frame& frameA = m_frames[activeFrameIdx];
+		const Utils::MD2IO::Frame& frameB = m_frames[nextFrame];
+
+		res[i + 0] = oneMinusLerp * frameA.vertices[i + 0] + lerp * frameB.vertices[i + 0];
+		res[i + 1] = oneMinusLerp * frameA.vertices[i + 1] + lerp * frameB.vertices[i + 1];
+		res[i + 2] = oneMinusLerp * frameA.vertices[i + 2] + lerp * frameB.vertices[i + 2];
+	}
+
+	
 }
 
 void Md2State::render() {
+
+	
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
@@ -125,7 +194,32 @@ void Md2State::render() {
 	shader->use();
 	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
 	shader->loadMatrix("u_view", m_camera.getViewMatrix());
-	m_sequence.draw(index);
+	//m_sequence.draw(index);
+	
+
+	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+	//glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * res.size(), &res[0]);
+
+	//orphan the buffer if full
+	GLuint streamDataSize = sizeof(float) * res.size();	
+	streamOffset = streamOffset + streamDataSize > STREAM_BUFFER_CAPACITY ? 0 : streamOffset;
+	
+
+	//get memory safely
+	float* vertices = (float*)(glMapBufferRange(GL_ARRAY_BUFFER, streamOffset, streamDataSize, GL_MAP_WRITE_BIT| GL_MAP_UNSYNCHRONIZED_BIT));
+	memcpy(vertices, res.data(), sizeof(float) * res.size());
+
+	//unmap buffer
+	glUnmapBuffer(GL_ARRAY_BUFFER);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	drawOffset = streamOffset / (sizeof(float) * 5);
+	glBindVertexArray(m_vao);
+	//glDrawElements(GL_TRIANGLES, indexBuffer.size(), GL_UNSIGNED_INT, 0);
+	glDrawElementsBaseVertex(GL_TRIANGLES, indexBuffer.size(), GL_UNSIGNED_INT, 0, drawOffset);
+	glBindVertexArray(0);
+
+	streamOffset += streamDataSize;
 	shader->unuse();
 
 	if (m_drawUi)
@@ -209,7 +303,7 @@ void Md2State::renderUi() {
 	// render widgets
 	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 	ImGui::Checkbox("Draw Wirframe", &StateMachine::GetEnableWireframe());
-	ImGui::SliderInt("Index", &index, 0, m_sequence.getMeshes().size());
+	ImGui::SliderInt("Index", &index, 0, m_sequence.getMeshes().size() - 1);
 	ImGui::End();
 
 	ImGui::Render();
