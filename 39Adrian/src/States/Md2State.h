@@ -51,8 +51,7 @@ private:
 	MeshSequence m_sequence;
 
 	int index = 0;
-	float mActiveFrame = 0.0f;
-	float mSpeed = 1.0f;
+	
 
 	std::vector<Utils::MD2IO::Frame> m_frames;
 	std::vector<float> res;
@@ -63,4 +62,9 @@ private:
 
 	GLuint streamOffset = 0;
 	GLuint drawOffset = 0;
+	float mActiveFrame = 0.0f;
+	float mSpeed = 1.0f;
+	float whole;
+	std::vector<Utils::MD2IO::Animation> m_animation;
+	Utils::MD2IO::Animation* currentAnimation;
 };

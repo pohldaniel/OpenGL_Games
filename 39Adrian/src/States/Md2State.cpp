@@ -18,7 +18,7 @@ std::string sModelNames[] =
 
 const GLuint STREAM_BUFFER_CAPACITY = 8192 * 1024; // 8MBytes
 
-Md2State::Md2State(StateMachine& machine) : State(machine, States::DEFAULT) {
+Md2State::Md2State(StateMachine& machine) : State(machine, States::DEFAULT){
 
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
@@ -39,28 +39,13 @@ Md2State::Md2State(StateMachine& machine) : State(machine, States::DEFAULT) {
 	md2Models[3].LoadModel("res/models/HoboGoblin/Model.md2");
 	animationStateMain = md2Models[0].StartAnimation(STAND);
 
-	//md2Converter.md2ToObj("data/models/dynamic/corpse/corpse.md2", "data/corpse_0.obj", "data/corpse.mtl", "/data/models/dynamic/corpse/corpse.tga", true, 0);
-	//md2Converter.md2ToObj("data/models/dynamic/corpse/corpse.md2", "data/corpse_10.obj", "data/corpse.mtl", "/data/models/dynamic/corpse/corpse.tga", true, 10);
-
-	//m_sequence.setStride(5u);
-	//md2Converter.md2ToSequence("data/models/dynamic/corpse/corpse.md2", true, { 0.0f, -90.0f, 0.0f }, { 0.5f, 0.5f, 0.5f }, m_sequence);
-	//m_sequence.loadSequenceGpu();
-
-	md2Converter.md2ToBuffer("data/models/dynamic/hero/hero.md2", true, 0, { 0.0f, -90.0f, 0.0f }, { 0.5f, 0.5f, 0.5f }, vertexBuffer, indexBuffer);
-
-	m_sequence.setStride(5u);
-	md2Converter.md2ToSequence("data/models/dynamic/hero/hero.md2", true, { 0.0f, -90.0f, 0.0f }, { 0.5f, 0.5f, 0.5f }, m_sequence, m_frames);
-	m_sequence.loadSequenceGpu();
-
-	std::copy(m_frames[0].vertices.begin(), m_frames[0].vertices.end(), std::back_inserter(res));
-
+	md2Converter.loadMd2("data/models/dynamic/hero/hero.md2", true, { 0.0f, -90.0f, 0.0f }, { 0.5f, 0.5f, 0.5f }, res, indexBuffer, m_animation);
+	
 	glGenBuffers(1, &m_vbo);
 	glGenBuffers(1, &m_ibo);
 
 	glGenVertexArrays(1, &m_vao);
 	glBindVertexArray(m_vao);
-
-
 
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
 	glBufferData(GL_ARRAY_BUFFER, STREAM_BUFFER_CAPACITY, NULL, GL_STREAM_DRAW);
@@ -82,6 +67,8 @@ Md2State::Md2State(StateMachine& machine) : State(machine, States::DEFAULT) {
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexBuffer.size() * sizeof(unsigned int), &indexBuffer[0], GL_STATIC_DRAW);
 
 	glBindVertexArray(0);
+
+	currentAnimation = &m_animation[0];
 }
 
 Md2State::~Md2State() {
@@ -131,6 +118,54 @@ void Md2State::update() {
 		move |= true;
 	}
 
+	if (keyboard.keyPressed(Keyboard::KEY_1)) {
+		currentAnimation = &m_animation[0];
+		streamOffset = 0;
+		drawOffset = 0;
+		mActiveFrame = 0.0f;
+		mSpeed = 1.0f;
+	}
+
+	if (keyboard.keyPressed(Keyboard::KEY_2)) {
+		currentAnimation = &m_animation[1];
+		streamOffset = 0;
+		drawOffset = 0;
+		mActiveFrame = 0.0f;
+		mSpeed = 1.0f;
+	}
+
+	if (keyboard.keyPressed(Keyboard::KEY_3)) {
+		currentAnimation = &m_animation[2];
+		streamOffset = 0;
+		drawOffset = 0;
+		mActiveFrame = 0.0f;
+		mSpeed = 1.0f;
+	}
+
+	if (keyboard.keyPressed(Keyboard::KEY_4)) {
+		currentAnimation = &m_animation[3];
+		streamOffset = 0;
+		drawOffset = 0;
+		mActiveFrame = 0.0f;
+		mSpeed = 1.0f;
+	}
+
+	if (keyboard.keyPressed(Keyboard::KEY_5)) {
+		currentAnimation = &m_animation[4];
+		streamOffset = 0;
+		drawOffset = 0;
+		mActiveFrame = 0.0f;
+		mSpeed = 1.0f;
+	}
+
+	if (keyboard.keyPressed(Keyboard::KEY_6)) {
+		currentAnimation = &m_animation[5];
+		streamOffset = 0;
+		drawOffset = 0;
+		mActiveFrame = 0.0f;
+		mSpeed = 1.0f;
+	}
+
 	Mouse &mouse = Mouse::instance();
 
 	if (mouse.buttonDown(Mouse::MouseButton::BUTTON_RIGHT)) {
@@ -150,42 +185,33 @@ void Md2State::update() {
 
 	md2Models[iCurrentModel].UpdateAnimation(&animationStateMain, m_dt);
 
-	// ignore if paused
-	//if (!mIsPlaying)
-		//return;
-
 	// increment frame
-	mActiveFrame += mSpeed * m_dt * 9.0f;
+	mActiveFrame += mSpeed * m_dt * currentAnimation->fps;
 
+	int len = currentAnimation->frames.size() - 1;
+	float lenf = static_cast<float>(len);
+	
 	// loop animation
-	if (mActiveFrame >= 39.0f)
-		mActiveFrame = std::modf(mActiveFrame, &mActiveFrame) + std::fmod(mActiveFrame - 0.0f,40.0f) + 0.0f;
-
-	//std::cout << "Frame: " << mActiveFrame << std::endl;
+	if (mActiveFrame >= lenf)
+		mActiveFrame = std::modf(mActiveFrame, &mActiveFrame) + std::fmod(mActiveFrame, lenf + 1.0f);
 
 	int16_t activeFrameIdx = static_cast<int16_t>(mActiveFrame);
-	uint16_t nextFrame = activeFrameIdx == 39 ? 0 : activeFrameIdx + 1;
-	
+	uint16_t nextFrame = activeFrameIdx == len ? 0 : activeFrameIdx + 1;
 
-	float posA[3], posB[3];
-	float lerp = std::modf(mActiveFrame, &posA[0]);
+	float lerp = mActiveFrame - floor(mActiveFrame);
 	float oneMinusLerp = 1.0f - lerp;
 
 	for (int i = 0; i < res.size(); i = i + 5) {
-		const Utils::MD2IO::Frame& frameA = m_frames[activeFrameIdx];
-		const Utils::MD2IO::Frame& frameB = m_frames[nextFrame];
+		const Utils::MD2IO::Frame& frameA = currentAnimation->frames[activeFrameIdx];
+		const Utils::MD2IO::Frame& frameB = currentAnimation->frames[nextFrame];
 
 		res[i + 0] = oneMinusLerp * frameA.vertices[i + 0] + lerp * frameB.vertices[i + 0];
 		res[i + 1] = oneMinusLerp * frameA.vertices[i + 1] + lerp * frameB.vertices[i + 1];
 		res[i + 2] = oneMinusLerp * frameA.vertices[i + 2] + lerp * frameB.vertices[i + 2];
-	}
-
-	
+	}	
 }
 
 void Md2State::render() {
-
-	
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
