@@ -10,7 +10,7 @@
 
 #include "Utils/BinaryIO.h"
 #include "Md2Model.h"
-#include "Md2.h"
+#include "Md2ModelNew.h"
 
 class Md2State : public State, public MouseEventListener, public KeyboardEventListener {
 
@@ -38,26 +38,5 @@ private:
 	bool m_drawUi = true;
 
 	Camera m_camera;
-
-	CMD2Model md2Models[4];
-	animState_t animationStateMain;
-	int iCurrentModel = 0;
-
-	Utils::MD2IO md2Converter;
-	std::vector<float> res;
-	std::vector<unsigned int> indexBuffer;
-
-	MeshSequence m_sequence;
-
-	int index = 0;
-	unsigned int m_vao;
-	unsigned int m_vbo;
-	unsigned int m_ibo;
-
-	GLuint streamOffset = 0;
-	GLuint drawOffset = 0;
-	float mActiveFrame = 0.0f;
-	float m_speed = 1.0f;
-	std::vector<Utils::MD2IO::Animation> m_animation;
-	Utils::MD2IO::Animation* currentAnimation;
+	Md2Model m_hero, m_ripper;
 };

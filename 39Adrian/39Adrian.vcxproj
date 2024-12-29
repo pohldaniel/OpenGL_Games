@@ -229,8 +229,8 @@
     <ClCompile Include="src\Entities\Vehicle.cpp" />
     <ClCompile Include="src\Fade.cpp" />
     <ClCompile Include="src\LoadingManager.cpp" />
-    <ClCompile Include="src\Md2.cpp" />
     <ClCompile Include="src\Md2Model.cpp" />
+    <ClCompile Include="src\Md2ModelNew.cpp" />
     <ClCompile Include="src\States\Controls.cpp" />
     <ClCompile Include="src\States\Default.cpp" />
     <ClCompile Include="src\States\Md2State.cpp" />
@@ -419,8 +419,8 @@
     <ClInclude Include="src\Fade.h" />
     <ClInclude Include="src\Globals.h" />
     <ClInclude Include="src\LoadingManager.h" />
-    <ClInclude Include="src\Md2.h" />
     <ClInclude Include="src\Md2Model.h" />
+    <ClInclude Include="src\Md2ModelNew.h" />
     <ClInclude Include="src\States\Controls.h" />
     <ClInclude Include="src\States\Default.h" />
     <ClInclude Include="src\States\Md2State.h" />

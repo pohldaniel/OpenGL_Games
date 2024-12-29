@@ -1886,12 +1886,18 @@ void Utils::MD2IO::md2ToSequence(const char* path, bool flipVertical, std::array
 	normals.shrink_to_fit();
 }
 
-int Utils::MD2IO::loadMd2(const char* path, bool flipVertical, std::array<float, 3> eulerAngle, std::array<float, 3> scale, std::vector<float>& vertexBufferOut, std::vector<unsigned int>& indexBufferOut, std::vector<Animation>& animations) {
+void Utils::MD2IO::convert(const std::vector<float>& a, std::vector<Vertex>& b) {
+	for (int i = 0; i < a.size() / 8; i++) {
+		b.push_back({ a[i * 8 + 0], a[i * 8 + 1], a[i * 8 + 2], a[i * 8 + 3], a[i * 8 + 4], a[i * 8 + 5], a[i * 8 + 6], a[i * 8 + 7] });
+	}
+}
+
+int Utils::MD2IO::loadMd2(const char* path, bool flipVertical, std::array<float, 3> eulerAngle, std::array<float, 3> scale, std::vector<Vertex>& vertexBufferOut, std::vector<unsigned int>& indexBufferOut, std::vector<Animation>& animations) {
 	std::ifstream file(path, std::ios::binary);
 	std::vector<std::array<short, 3>> faces;
 	std::vector<std::array<short, 3>> uvFaves;
 	std::vector<std::array<float, 3>> positions;
-	std::vector <std::array<float, 2>> textureCoords;
+	std::vector<std::array<float, 2>> textureCoords;
 	std::vector<std::array<float, 3>> normals;
 
 	std::vector<float> vertexBuffer;
@@ -2000,7 +2006,8 @@ int Utils::MD2IO::loadMd2(const char* path, bool flipVertical, std::array<float,
 				                    normals[faces[i][2]][0], normals[faces[i][2]][1], normals[faces[i][2]][2] };
 				indexBufferOut[i * 3 + 2] = addVertex(faces[i][2], &vertex3[0], 8, vertexBuffer);
 			}
-			std::copy(vertexBuffer.begin(), vertexBuffer.end(), std::back_inserter(vertexBufferOut));
+			//std::copy(vertexBuffer.begin(), vertexBuffer.end(), std::back_inserter(vertexBufferOut));
+			convert(vertexBuffer, vertexBufferOut);
 		}else {
 			for (int i = 0; i < faces.size(); i++) {
 				float vertex1[] = { positions[faces[i][0]][0], positions[faces[i][0]][1], positions[faces[i][0]][2],
@@ -2024,42 +2031,48 @@ int Utils::MD2IO::loadMd2(const char* path, bool flipVertical, std::array<float,
 			strcpy(animations[0].name, "stand");
 			animations[0].fps = 9.0f;
 			animations[0].frames.push_back(Frame());
-			std::copy(vertexBuffer.begin(), vertexBuffer.end(), std::back_inserter(animations[0].frames.back().vertices));
+			//std::copy(vertexBuffer.begin(), vertexBuffer.end(), std::back_inserter(animations[0].frames.back().vertices));
+			convert(vertexBuffer, animations[0].frames.back().vertices);
 		}
 
 		if (40 <= i && i <= 45) {			
 			strcpy(animations[1].name, "run");
 			animations[1].fps = 10.0f;
 			animations[1].frames.push_back(Frame());
-			std::copy(vertexBuffer.begin(), vertexBuffer.end(), std::back_inserter(animations[1].frames.back().vertices));
+			//std::copy(vertexBuffer.begin(), vertexBuffer.end(), std::back_inserter(animations[1].frames.back().vertices));
+			convert(vertexBuffer, animations[1].frames.back().vertices);
 		}
 
 		if (46 <= i && i <= 53) {
 			strcpy(animations[2].name, "attack");
 			animations[2].fps = 10.0f;
 			animations[2].frames.push_back(Frame());
-			std::copy(vertexBuffer.begin(), vertexBuffer.end(), std::back_inserter(animations[2].frames.back().vertices));
+			//std::copy(vertexBuffer.begin(), vertexBuffer.end(), std::back_inserter(animations[2].frames.back().vertices));
+			convert(vertexBuffer, animations[2].frames.back().vertices);
 		}
 		
 		if (178 <= i && i <= 183) {
 			strcpy(animations[3].name, "death_back");
 			animations[3].fps = 7.0f;
 			animations[3].frames.push_back(Frame());
-			std::copy(vertexBuffer.begin(), vertexBuffer.end(), std::back_inserter(animations[3].frames.back().vertices));
+			//std::copy(vertexBuffer.begin(), vertexBuffer.end(), std::back_inserter(animations[3].frames.back().vertices));
+			convert(vertexBuffer, animations[3].frames.back().vertices);
 		}
 		
 		if (184 <= i && i <= 189) {
 			strcpy(animations[4].name, "death_forward");
 			animations[4].fps = 7.0f;
 			animations[4].frames.push_back(Frame());
-			std::copy(vertexBuffer.begin(), vertexBuffer.end(), std::back_inserter(animations[4].frames.back().vertices));
+			//std::copy(vertexBuffer.begin(), vertexBuffer.end(), std::back_inserter(animations[4].frames.back().vertices));
+			convert(vertexBuffer, animations[4].frames.back().vertices);
 		}
 		
 		if (190 <= i && i <= 197) {
 			strcpy(animations[5].name, "death_back_slow");
 			animations[5].fps = 7.0f;
 			animations[5].frames.push_back(Frame());
-			std::copy(vertexBuffer.begin(), vertexBuffer.end(), std::back_inserter(animations[5].frames.back().vertices));
+			//std::copy(vertexBuffer.begin(), vertexBuffer.end(), std::back_inserter(animations[5].frames.back().vertices));
+			convert(vertexBuffer, animations[5].frames.back().vertices);
 		}
 
 		positions.clear();

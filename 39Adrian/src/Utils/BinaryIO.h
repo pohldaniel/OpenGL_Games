@@ -79,6 +79,7 @@ namespace std {
 
 #include <engine/MeshBone.h>
 #include <engine/MeshSequence.h>
+#include <engine/BoundingBox.h>
 
 #define	MD2_IDENT_VAL	(('I'<<0) | ('D' << 8) | ('P' << 16) | ('2' << 24))
 #define	MD2_VERSION_VAL	8
@@ -378,10 +379,6 @@ namespace Utils {
 			int ofs_end;	// Offset to end of file
 		};
 
-		struct Frame {
-			std::vector<float> vertices;
-		};
-
 		const std::array<float,3> aNormals[162] =
 		{
 			{ -0.525731f,  0.000000f,  0.850651f }, { -0.442863f,  0.238856f,  0.864188f },
@@ -467,6 +464,23 @@ namespace Utils {
 			{ -0.587785f, -0.425325f, -0.688191f }, { -0.688191f, -0.587785f, -0.425325f }
 		};
 
+		struct Vertex {
+			float x, y, z;
+			float u, v;
+			float n1, n2, n3;
+
+			static Vertex Lerp(const Vertex &a, const Vertex &b, float begin, float end) {
+				return { a.x * end + begin * b.x, a.y * end + begin * b.y, a.z * end + begin * b.z,
+				         a.u, a.v,
+					     a.n1 * end + begin * b.n1, a.n2 * end + begin * b.n2, a.n3 * end + begin * b.n3 };
+			}
+		};
+
+		struct Frame {
+			BoundingBox boundingBox;
+			std::vector<Vertex> vertices;
+		};
+
 		struct Animation {
 		public:
 			char name[16];
@@ -477,11 +491,12 @@ namespace Utils {
 		void md2ToObj(const char *path, const char* outFileObj, const char* outFileMtl, const char* texturePath, bool flipVertical = true, int frame = 0);
 		void md2ToBuffer(const char* path, bool flipVertical , int frame, std::array<float, 3> eulerAngle, std::array<float, 3> scale, std::vector<float>& vertexBufferOut, std::vector<unsigned int>& indexBufferOut);
 		void md2ToSequence(const char* path, bool flipVertical, std::array<float, 3> eulerAngle, std::array<float, 3> scale, MeshSequence& sequenceOut);
-		int loadMd2(const char* path, bool flipVertical, std::array<float, 3> eulerAngle, std::array<float, 3> scale, std::vector<float>& vertexBufferOut, std::vector<unsigned int>& indexBufferOut, std::vector<Animation>& animations);
+		int loadMd2(const char* path, bool flipVertical, std::array<float, 3> eulerAngle, std::array<float, 3> scale, std::vector<Vertex>& vertexBufferOut, std::vector<unsigned int>& indexBufferOut, std::vector<Animation>& animations);
 
 	private:
 
 		std::map<int, std::vector<int>> m_vertexCache;
 		int addVertex(int hash, const float *pVertex, int stride, std::vector<float>& vertexBufferOut);
+		void convert(const std::vector<float>& a, std::vector<Vertex>& b);
 	};
 }
