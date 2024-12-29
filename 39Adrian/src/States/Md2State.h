@@ -3,14 +3,15 @@
 #include <engine/input/MouseEventListener.h>
 #include <engine/input/KeyboardEventListener.h>
 #include <engine/MeshObject/Shape.h>
+#include <engine/octree/Octree.h>
+#include <engine/scene/Md2Node.h>
 #include <engine/Camera.h>
 #include <engine/Background.h>
 #include <engine/MeshSequence.h>
-#include <States/StateMachine.h>
+#include <engine/Frustum.h>
+#include <engine/Md2Model.h>
 
-#include "Utils/BinaryIO.h"
-#include "Md2Model.h"
-#include "Md2ModelNew.h"
+#include <States/StateMachine.h>
 
 class Md2State : public State, public MouseEventListener, public KeyboardEventListener {
 
@@ -36,7 +37,13 @@ private:
 
 	bool m_initUi = true;
 	bool m_drawUi = true;
+	bool m_debugTree = true;
 
 	Camera m_camera;
-	Md2Model m_hero, m_ripper;
+	Octree* m_octree;
+	Frustum m_frustum;
+	Md2Model m_hero, m_ripper, m_corpse;
+	SceneNodeLC* m_root;
+
+	Md2Node *m_heroNode, *m_heroNode2, *m_ripperNode, *m_corpseNode;
 };

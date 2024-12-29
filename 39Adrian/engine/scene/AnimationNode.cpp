@@ -16,8 +16,8 @@ AnimationNode::AnimationNode(const AnimatedModel& animatedModel) :
 	m_animationDirty(true),
 	m_skinningDirty(true),
 	m_numBones(0), 
-	m_updateSilent(false){
-	OnBoundingBoxChanged();
+	m_updateSilent(false),
+	m_boneBoundingBoxDirty(true){
 	createBones();
 }
 

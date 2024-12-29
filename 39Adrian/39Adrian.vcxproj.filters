@@ -468,17 +468,14 @@
     <ClCompile Include="engine\animationNew\AnimationState.cpp">
       <Filter>engine\animationNew</Filter>
     </ClCompile>
-    <ClCompile Include="VertexBufferObject.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\States\Md2State.cpp">
       <Filter>Source Files\States</Filter>
     </ClCompile>
-    <ClCompile Include="src\Md2Model.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="engine\scene\Md2Node.cpp">
+      <Filter>engine\scene</Filter>
     </ClCompile>
-    <ClCompile Include="src\Md2ModelNew.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="engine\Md2Model.cpp">
+      <Filter>engine</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -908,17 +905,14 @@
     <ClInclude Include="engine\animationNew\AnimationState.h">
       <Filter>engine\animationNew</Filter>
     </ClInclude>
-    <ClInclude Include="VertexBufferObject.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\States\Md2State.h">
       <Filter>Source Files\States</Filter>
     </ClInclude>
-    <ClInclude Include="src\Md2Model.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="engine\scene\Md2Node.h">
+      <Filter>engine\scene</Filter>
     </ClInclude>
-    <ClInclude Include="src\Md2ModelNew.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="engine\Md2Model.h">
+      <Filter>engine</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -1,0 +1,45 @@
+#pragma once
+
+#include "OctreeNode.h"
+#include "../Md2Model.h"
+#include "../BoundingBox.h"
+
+class Md2Node : public OctreeNode {
+
+public:
+
+	Md2Node(const Md2Model& md2Model);
+
+	void drawRaw() const override;
+	void update(float dt);
+
+	using OctreeNode::addChild;
+	void addChild(Md2Node* node, bool drawDebug);
+	const Md2Model& getMd2Model() const;
+	short getMaterialIndex() const;
+	short getTextureIndex() const;
+
+	void setMaterialIndex(short index);
+	void setTextureIndex(short index);
+	void setAnimationType(AnimationType animationType);
+
+private:
+
+	void OnWorldBoundingBoxUpdate() const;	
+	void OnAnimationChanged();
+	void updateAnimation();
+	const BoundingBox& getLocalBoundingBox() const;
+
+	std::vector<Utils::MD2IO::Vertex> m_interpolated;
+	bool m_animationDirty;
+	short m_materialIndex;
+	short m_textureIndex;
+
+	const Utils::MD2IO::Animation* currentAnimation;
+	AnimationType m_animationType;
+	float m_speed;
+	short m_activeFrameIdx;
+	float m_activeFrame;
+
+	const Md2Model& md2Model;
+};

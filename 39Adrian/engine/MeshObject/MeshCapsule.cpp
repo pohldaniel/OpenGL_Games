@@ -53,13 +53,10 @@ void MeshCapsule::setPrecision(int uResolution, int vResolution) {
 }
 
 void MeshCapsule::BuildMesh(float radius, float length, const Vector3f& position, int uResolution, int vResolution, bool generateTexels, bool generateNormals, bool generateTangents, std::vector<Vector3f>& positions, std::vector<Vector2f>& texels, std::vector<Vector3f>& normals, std::vector<unsigned int>& indexBuffer, std::vector<Vector3f>& tangents, std::vector<Vector3f>& bitangents) {
-
 	BuildHemisphere(radius, length, position + Vector3f(0.0f, length * 0.5f, 0.0f), true, uResolution, vResolution, generateTexels, generateNormals, generateTangents, positions, texels, normals, indexBuffer, tangents, bitangents);
 	if (length != 0)
 		BuildCylinder(radius, length, position, uResolution, vResolution, generateTexels, generateNormals, generateTangents, positions, texels, normals, indexBuffer, tangents, bitangents);
 	BuildHemisphere(radius, length, position + Vector3f(0.0f, -length * 0.5f, 0.0f), false, uResolution, vResolution, generateTexels, generateNormals, generateTangents, positions, texels, normals, indexBuffer, tangents, bitangents);
-
-
 }
 
 void MeshCapsule::BuildHemisphere(float radius, float length, const Vector3f& position, bool north, int uResolution, int vResolution, bool generateTexels, bool generateNormals, bool generateTangents, std::vector<Vector3f>& positions, std::vector<Vector2f>& texels, std::vector<Vector3f>& normals, std::vector<unsigned int>& indexBuffer, std::vector<Vector3f>& tangents, std::vector<Vector3f>& bitangents) {

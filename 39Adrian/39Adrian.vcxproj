@@ -176,6 +176,7 @@
     <ClCompile Include="engine\Background.cpp" />
     <ClCompile Include="engine\BoundingBox.cpp" />
     <ClCompile Include="engine\DebugRenderer.cpp" />
+    <ClCompile Include="engine\Md2Model.cpp" />
     <ClCompile Include="engine\MeshBone.cpp" />
     <ClCompile Include="engine\MeshObject\MeshTorusKnot.cpp" />
     <ClCompile Include="engine\MeshSequence.cpp" />
@@ -186,6 +187,7 @@
     <ClCompile Include="engine\scene\AnimationNode.cpp" />
     <ClCompile Include="engine\scene\BaseNode.cpp" />
     <ClCompile Include="engine\scene\BoneNode.cpp" />
+    <ClCompile Include="engine\scene\Md2Node.cpp" />
     <ClCompile Include="engine\scene\MeshNode.cpp" />
     <ClCompile Include="engine\scene\Node.cpp" />
     <ClCompile Include="engine\scene\OctreeNode.cpp" />
@@ -229,8 +231,6 @@
     <ClCompile Include="src\Entities\Vehicle.cpp" />
     <ClCompile Include="src\Fade.cpp" />
     <ClCompile Include="src\LoadingManager.cpp" />
-    <ClCompile Include="src\Md2Model.cpp" />
-    <ClCompile Include="src\Md2ModelNew.cpp" />
     <ClCompile Include="src\States\Controls.cpp" />
     <ClCompile Include="src\States\Default.cpp" />
     <ClCompile Include="src\States\Md2State.cpp" />
@@ -302,7 +302,6 @@
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\States\Menu.cpp" />
     <ClCompile Include="src\Utils\BinaryIO.cpp" />
-    <ClCompile Include="VertexBufferObject.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine\animationNew\AnimatedModel.h" />
@@ -324,6 +323,7 @@
     <ClInclude Include="engine\input\Mouse.h" />
     <ClInclude Include="engine\interfaces\ICounter.h" />
     <ClInclude Include="engine\interfaces\IStateMachine.h" />
+    <ClInclude Include="engine\Md2Model.h" />
     <ClInclude Include="engine\MeshBone.h" />
     <ClInclude Include="engine\MeshObject\MeshTorusKnot.h" />
     <ClInclude Include="engine\MeshSequence.h" />
@@ -369,6 +369,7 @@
     <ClInclude Include="engine\scene\BaseNode.h" />
     <ClInclude Include="engine\scene\BoneNode.h" />
     <ClInclude Include="engine\scene\INode.h" />
+    <ClInclude Include="engine\scene\Md2Node.h" />
     <ClInclude Include="engine\scene\MeshNode.h" />
     <ClInclude Include="engine\scene\Node.h" />
     <ClInclude Include="engine\scene\OctreeNode.h" />
@@ -419,8 +420,6 @@
     <ClInclude Include="src\Fade.h" />
     <ClInclude Include="src\Globals.h" />
     <ClInclude Include="src\LoadingManager.h" />
-    <ClInclude Include="src\Md2Model.h" />
-    <ClInclude Include="src\Md2ModelNew.h" />
     <ClInclude Include="src\States\Controls.h" />
     <ClInclude Include="src\States\Default.h" />
     <ClInclude Include="src\States\Md2State.h" />
@@ -450,7 +449,6 @@
     <ClInclude Include="Miniball\Miniball.h" />
     <ClInclude Include="src\States\Menu.h" />
     <ClInclude Include="src\Utils\BinaryIO.h" />
-    <ClInclude Include="VertexBufferObject.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

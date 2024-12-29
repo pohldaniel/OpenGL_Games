@@ -186,8 +186,10 @@ void AnimatedModel::loadModelAssimp(const std::string& path, const short addVirt
 
 			for (unsigned short count = 0; count < addVirtualRoots; count++) {
 				mesh->m_meshBones.insert(mesh->m_meshBones.begin(), MeshBone());
-				mesh->m_meshBones[0].name = "Root_" + count;
+				mesh->m_meshBones[0].name = "Root_" + (addVirtualRoots- 1) - count;
 				mesh->m_meshBones[0].nameHash = StringHash(mesh->m_meshBones[0].name);
+				if (count + 1 != addVirtualRoots)
+					mesh->m_meshBones[0].parentIndex = (addVirtualRoots - 1) - count - 1;
 			}
 		}
 	}

@@ -2,6 +2,8 @@
 #include <imgui_impl_win32.h>
 #include <imgui_impl_opengl3.h>
 #include <imgui_internal.h>
+
+#include <engine/DebugRenderer.h>
 #include <States/Menu.h>
 
 #include "Md2State.h"
@@ -18,7 +20,7 @@ Md2State::Md2State(StateMachine& machine) : State(machine, States::DEFAULT){
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
 	m_camera.lookAt(Vector3f(0.0f, 20.0f, 50.0f), Vector3f(0.0f, 19.5f, 50.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
 	m_camera.setRotationSpeed(0.1f);
-	m_camera.setMovingSpeed(10.0f);
+	m_camera.setMovingSpeed(20.0f);
 
 	glClearColor(0.494f, 0.686f, 0.796f, 1.0f);
 	glClearDepth(1.0f);
@@ -26,8 +28,50 @@ Md2State::Md2State(StateMachine& machine) : State(machine, States::DEFAULT){
 	
 	Material::AddTexture("data/models/dynamic/hero/hero.tga");
 	Material::AddTexture("data/models/dynamic/ripper/ripper.tga");
+	Material::AddTexture("data/models/dynamic/corpse/corpse.tga");
 	m_hero.load("data/models/dynamic/hero/hero.md2");
 	m_ripper.load("data/models/dynamic/ripper/ripper.md2");
+	m_corpse.load("data/models/dynamic/corpse/corpse.md2");
+
+	WorkQueue::Init(0);
+	m_octree = new Octree(m_camera, m_frustum, m_dt);
+
+	DebugRenderer::Get().setEnable(true);
+	m_root = new SceneNodeLC();
+
+	m_heroNode = m_root->addChild<Md2Node, Md2Model>(m_hero);
+	m_heroNode->setTextureIndex(0);
+	m_heroNode->setPosition(-20.0f, 0.0f, 0.0f);
+	m_heroNode->setScale(0.5f, 0.5f, 0.5f);
+	m_heroNode->setOrientation(0.0f, -90.0f, 0.0f);
+	m_heroNode->setAnimationType(AnimationType::RUN);
+	m_heroNode->OnOctreeSet(m_octree);
+
+	m_heroNode2 = m_root->addChild<Md2Node, Md2Model>(m_hero);
+	m_heroNode2->setTextureIndex(0);
+	m_heroNode2->setPosition(0.0f, 0.0f, 0.0f);
+	m_heroNode2->setScale(0.5f, 0.5f, 0.5f);
+	m_heroNode2->setOrientation(0.0f, -90.0f, 0.0f);
+	m_heroNode2->setAnimationType(AnimationType::STAND);
+	m_heroNode2->OnOctreeSet(m_octree);
+
+	m_ripperNode = m_root->addChild<Md2Node, Md2Model>(m_ripper);
+	m_ripperNode->setTextureIndex(1);
+	m_ripperNode->setPosition(20.0f, 0.0f, 0.0f);
+	m_ripperNode->setScale(0.5f, 0.5f, 0.5f);
+	m_ripperNode->setOrientation(0.0f, -90.0f, 0.0f);
+	m_ripperNode->OnOctreeSet(m_octree);
+
+	m_corpseNode = m_root->addChild<Md2Node, Md2Model>(m_corpse);
+	m_corpseNode->setTextureIndex(2);
+	m_corpseNode->setPosition(20.0f, 0.0f, -15.0f);
+	m_corpseNode->setScale(0.5f, 0.5f, 0.5f);
+	m_corpseNode->setOrientation(0.0f, -90.0f, 0.0f);
+	m_corpseNode->setAnimationType(AnimationType::DEATH_BACK);
+	m_corpseNode->OnOctreeSet(m_octree);
+
+	//m_frustum.init();
+	//m_frustum.getDebug() = true;
 }
 
 Md2State::~Md2State() {
@@ -78,36 +122,6 @@ void Md2State::update() {
 		move |= true;
 	}
 
-	if (keyboard.keyPressed(Keyboard::KEY_1)) {
-		m_hero.setAnimationType(AnimationType::_STAND);
-		m_hero.setAnimationType(AnimationType::_STAND);
-	}
-
-	if (keyboard.keyPressed(Keyboard::KEY_2)) {
-		m_hero.setAnimationType(AnimationType::_RUN);
-		m_ripper.setAnimationType(AnimationType::_RUN);
-	}
-
-	if (keyboard.keyPressed(Keyboard::KEY_3)) {
-		m_hero.setAnimationType(AnimationType::_ATTACK);
-		m_ripper.setAnimationType(AnimationType::_ATTACK);
-	}
-
-	if (keyboard.keyPressed(Keyboard::KEY_4)) {
-		m_hero.setAnimationType(AnimationType::_DEATH_BACK);
-		m_ripper.setAnimationType(AnimationType::_DEATH_BACK);
-	}
-
-	if (keyboard.keyPressed(Keyboard::KEY_5)) {
-		m_hero.setAnimationType(AnimationType::_DEATH_FORWARD);
-		m_ripper.setAnimationType(AnimationType::_DEATH_FORWARD);
-	}
-
-	if (keyboard.keyPressed(Keyboard::KEY_6)) {
-		m_hero.setAnimationType(AnimationType::_DEATH_BACK_SLOW);
-		m_ripper.setAnimationType(AnimationType::_DEATH_BACK_SLOW);
-	}
-
 	Mouse &mouse = Mouse::instance();
 
 	if (mouse.buttonDown(Mouse::MouseButton::BUTTON_RIGHT)) {
@@ -124,23 +138,50 @@ void Md2State::update() {
 			m_camera.move(direction * m_dt);
 		}
 	}
+	m_octree->updateFrameNumber();
 
-	m_hero.update(m_dt);
-	m_ripper.update(m_dt);
+	m_ripperNode->update(m_dt);
+	m_heroNode->update(m_dt);
+	m_heroNode2->update(m_dt);
+	m_corpseNode->update(m_dt);
+
+	m_frustum.updatePlane(m_camera.getPerspectiveMatrix(), m_camera.getViewMatrix());
+	m_frustum.updateVertices(m_camera.getPerspectiveMatrix(), m_camera.getViewMatrix());
+	m_frustum.m_frustumSATData.calculate(m_frustum);
+	m_octree->updateOctree();
 }
 
 void Md2State::render() {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
-	
 	auto shader = Globals::shaderManager.getAssetPointer("shape");
 	shader->use();
 	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
 	shader->loadMatrix("u_view", m_camera.getViewMatrix());
 	
-	m_hero.draw(0u);
-	m_ripper.draw(1u);
+	for (size_t i = 0; i < m_octree->getRootLevelOctants().size(); ++i) {
+		const Octree::ThreadOctantResult& result = m_octree->getOctantResults()[i];
+		for (auto oIt = result.octants.begin(); oIt != result.octants.end(); ++oIt) {
+			Octant* octant = oIt->first;
+			if (m_debugTree)
+				octant->OnRenderAABB(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
+
+			const std::vector<OctreeNode*>& drawables = octant->getOctreeNodes();
+			for (auto dIt = drawables.begin(); dIt != drawables.end(); ++dIt) {
+				OctreeNode* drawable = *dIt;
+				shader->loadMatrix("u_model", drawable->getWorldTransformation());
+				drawable->drawRaw();
+				if (m_debugTree)
+					drawable->OnRenderAABB(Vector4f(0.0f, 1.0f, 0.0f, 1.0f));
+			}
+		}
+	}
+
+	if (m_debugTree) {
+		DebugRenderer::Get().SetProjectionView(m_camera.getPerspectiveMatrix(), m_camera.getViewMatrix());
+		DebugRenderer::Get().drawBuffer();
+	}
 
 	shader->unuse();
 
@@ -173,6 +214,10 @@ void Md2State::OnMouseWheel(Event::MouseWheelEvent& event) {
 }
 
 void Md2State::OnKeyDown(Event::KeyboardEvent& event) {
+	if (event.keyCode == VK_LMENU) {
+		m_drawUi = !m_drawUi;
+	}
+
 	if (event.keyCode == VK_ESCAPE) {
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new Menu(m_machine));
@@ -225,6 +270,7 @@ void Md2State::renderUi() {
 	// render widgets
 	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 	ImGui::Checkbox("Draw Wirframe", &StateMachine::GetEnableWireframe());
+	ImGui::Checkbox("Debug Tree", &m_debugTree);
 	ImGui::End();
 
 	ImGui::Render();
