@@ -14,8 +14,8 @@
 #include <engine/animationNew/Animation.h>
 #include <engine/animation/AssimpAnimation.h>
 
-#define WIDTH 1280
-#define HEIGHT 720
+#define WIDTH 1024
+#define HEIGHT 768
 
 #define DEBUG 1
 #define DEVBUILD 1

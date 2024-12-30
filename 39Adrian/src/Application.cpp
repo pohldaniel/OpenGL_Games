@@ -19,6 +19,7 @@
 #include <States/Menu.h>
 #include <States/Default.h>
 #include <States/Md2State.h>
+#include <States/MapState.h>
 
 #include "Application.h"
 #include "Globals.h"
@@ -418,7 +419,8 @@ void Application::initStates() {
 	Machine = new StateMachine(m_dt, m_fdt);
 	//Machine->addStateAtTop(new Menu(*Machine));
 	//Machine->addStateAtTop(new Default(*Machine));
-	Machine->addStateAtTop(new Md2State(*Machine));
+	//Machine->addStateAtTop(new Md2State(*Machine));
+	Machine->addStateAtTop(new MapState(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -710,6 +712,7 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("quad", "res/shader/quad.vert", "res/shader/quad.frag");
 	Globals::shaderManager.loadShader("md2", "res/shader/md2anim.vert", "res/shader/md2anim.frag");
 	Globals::shaderManager.loadShader("shape", "res/shader/shape.vert", "res/shader/shape.frag");
+	Globals::shaderManager.loadShader("map", "res/shader/map.vert", "res/shader/map.frag");
 	
 	Globals::fontManager.loadCharacterSet("upheaval_200", "res/fonts/upheavtt.ttf", 200, 0, 30, 128, 0, true, 0u);
 	Globals::fontManager.loadCharacterSet("upheaval_30", "res/fonts/upheavtt.ttf", 30, 0, 3, 0, 0, true, 0u);
@@ -728,5 +731,12 @@ void Application::loadAssets() {
 	Globals::textureManager.loadTexture("mutantlizard", "data/models/dynamic/mutantlizard/mutantlizard.tga");
 	Globals::textureManager.loadTexture("mutantman", "data/models/dynamic/mutantman/mutantman.tga");
 	Globals::textureManager.loadTexture("ripper", "data/models/dynamic/ripper/ripper.tga");
-	
+
+	Globals::textureManager.loadTexture("ground", "res/textures/ground.tga", false);
+	Globals::textureManager.get("ground").setWrapMode(GL_REPEAT);
+
+	Globals::shapeManager.buildQuadXY("quad_xy", Vector3f(0.0f, 0.0f, 0.0f), Vector2f(600.0f, 600.0f), 1, 1, true, false, false);
+	//Globals::shapeManager.buildQuadXZ("quad_xz", Vector3f(-300.0f, 0.0f, -300.0f), Vector2f(600.0f, 600.0f), 1, 1, true, false, false);
+
+	Globals::shapeManager.buildQuadXZ("quad_xz", Vector3f(-1.0f, 0.0f, -1.0f), Vector2f(2.0f, 2.0f), 1, 1, true, false, false);
 }

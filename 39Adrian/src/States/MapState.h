@@ -2,23 +2,19 @@
 
 #include <engine/input/MouseEventListener.h>
 #include <engine/input/KeyboardEventListener.h>
-#include <engine/MeshObject/Shape.h>
-#include <engine/octree/Octree.h>
-#include <engine/scene/Md2Node.h>
 #include <engine/Camera.h>
 #include <engine/Background.h>
-#include <engine/MeshSequence.h>
-#include <engine/Frustum.h>
-#include <engine/Md2Model.h>
 
 #include <States/StateMachine.h>
 
-class Md2State : public State, public MouseEventListener, public KeyboardEventListener {
+#include "CameraNew.h"
+
+class MapState : public State, public MouseEventListener, public KeyboardEventListener {
 
 public:
 
-	Md2State(StateMachine& machine);
-	~Md2State();
+	MapState(StateMachine& machine);
+	~MapState();
 
 	void fixedUpdate() override;
 	void update() override;
@@ -37,13 +33,11 @@ private:
 
 	bool m_initUi = true;
 	bool m_drawUi = true;
-	bool m_debugTree = false;
+	float m_tileFactor = 8.0f;
+	float m_angle = -M_PI_4;
+	float m_height = 30.0f;
+	float m_zoom = 1.0f;
 
 	Camera m_camera;
-	Octree* m_octree;
-	Frustum m_frustum;
-	Md2Model m_hero, m_ripper, m_corpse;
-	SceneNodeLC* m_root;
-
-	Md2Node *m_heroNode, *m_heroNode2, *m_ripperNode, *m_corpseNode;
+	CameraNew m_cameraNew;
 };

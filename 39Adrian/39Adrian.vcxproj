@@ -223,6 +223,7 @@
     <ClCompile Include="Physics\Constraint.cpp" />
     <ClCompile Include="Physics\Constraint6DoF.cpp" />
     <ClCompile Include="Physics\VehiclePhysics.cpp" />
+    <ClCompile Include="src\CameraNew.cpp" />
     <ClCompile Include="src\Entities\Entity.cpp" />
     <ClCompile Include="src\Entities\MeshEntity.cpp" />
     <ClCompile Include="src\Entities\ShapeEntity.cpp" />
@@ -233,6 +234,7 @@
     <ClCompile Include="src\LoadingManager.cpp" />
     <ClCompile Include="src\States\Controls.cpp" />
     <ClCompile Include="src\States\Default.cpp" />
+    <ClCompile Include="src\States\MapState.cpp" />
     <ClCompile Include="src\States\Md2State.cpp" />
     <ClCompile Include="src\States\Settings.cpp" />
     <ClCompile Include="src\States\StateMachine.cpp" />
@@ -411,6 +413,7 @@
     <ClInclude Include="Physics\Constraint6DoF.h" />
     <ClInclude Include="Physics\VehiclePhysics.h" />
     <ClInclude Include="src\Application.h" />
+    <ClInclude Include="src\CameraNew.h" />
     <ClInclude Include="src\Entities\Entity.h" />
     <ClInclude Include="src\Entities\MeshEntity.h" />
     <ClInclude Include="src\Entities\ShapeEntity.h" />
@@ -422,6 +425,7 @@
     <ClInclude Include="src\LoadingManager.h" />
     <ClInclude Include="src\States\Controls.h" />
     <ClInclude Include="src\States\Default.h" />
+    <ClInclude Include="src\States\MapState.h" />
     <ClInclude Include="src\States\Md2State.h" />
     <ClInclude Include="src\States\Settings.h" />
     <ClInclude Include="src\States\StateMachine.h" />
