@@ -2,6 +2,8 @@
 #include <imgui_impl_win32.h>
 #include <imgui_impl_opengl3.h>
 #include <imgui_internal.h>
+
+#include <engine/DebugRenderer.h>
 #include <States/Menu.h>
 
 #include "MapState.h"
@@ -25,6 +27,22 @@ MapState::MapState(StateMachine& machine) : State(machine, States::DEFAULT) {
 
 	glClearColor(0.494f, 0.686f, 0.796f, 1.0f);
 	glClearDepth(1.0f);
+
+	Material::AddTexture("data/models/dynamic/hero/hero.tga");
+	m_hero.load("data/models/dynamic/hero/hero.md2");
+
+	WorkQueue::Init(0);
+	m_octree = new Octree(m_camera, m_frustum, m_dt);
+	m_octree->setUseOcclusionCulling(false);
+	m_octree->setUseCulling(m_useCulling);
+
+	DebugRenderer::Get().setEnable(true);
+	m_root = new SceneNodeLC();
+	m_heroEnity = m_root->addChild<Md2Entity, Md2Model>(m_hero);
+	m_heroEnity->setPosition(-780.0f, MAP_MODEL_HEIGHT_Y, 780.0f);
+	m_heroEnity->setOrientation(0.0f, 90.0f, 0.0f);
+	m_heroEnity->setTextureIndex(0);
+	m_heroEnity->OnOctreeSet(m_octree);
 }
 
 MapState::~MapState() {
@@ -94,6 +112,17 @@ void MapState::update() {
 			m_camera.move(direction * m_dt);
 		}
 	}
+
+	view.lookAt(Vector3f(m_cameraNew.camx, m_cameraNew.camy, m_cameraNew.camz), Vector3f(m_cameraNew.pointx, m_cameraNew.pointy, m_cameraNew.pointz), Vector3f(m_cameraNew.lookx, m_cameraNew.looky, m_cameraNew.lookz));
+
+
+	m_octree->updateFrameNumber();
+	m_heroEnity->update(m_dt);
+
+	m_frustum.updatePlane(m_camera.getOrthographicMatrix(), view);
+	m_frustum.updateVertices(m_camera.getOrthographicMatrix(), view);
+	m_frustum.m_frustumSATData.calculate(m_frustum);
+	m_octree->updateOctree();
 }
 
 void MapState::render() {
@@ -108,9 +137,6 @@ void MapState::render() {
 	tilex = ((int)m_cameraNew.initx / TILE_SIZE) * TILE_SIZE;
 	tilez = ((int)m_cameraNew.initz / TILE_SIZE) * TILE_SIZE;
 
-	Matrix4f view;
-	view.lookAt(Vector3f(m_cameraNew.camx, m_cameraNew.camy, m_cameraNew.camz), Vector3f(m_cameraNew.pointx, m_cameraNew.pointy, m_cameraNew.pointz), Vector3f(m_cameraNew.lookx, m_cameraNew.looky, m_cameraNew.lookz));
-
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	Globals::textureManager.get("ground").bind(0);
 	auto shader = Globals::shaderManager.getAssetPointer("map");
@@ -118,10 +144,39 @@ void MapState::render() {
 	shader->loadMatrix("u_projection", m_camera.getOrthographicMatrix());
 	shader->loadMatrix("u_view", view);
 	shader->loadMatrix("u_model", Matrix4f::Translate(tilex, 0.0f, tilez) * Matrix4f::Scale(TILE_SIZE * TILE_LOWFACTOR, 0.0f, TILE_SIZE * TILE_HIGHFACTOR));
-	//shader->loadMatrix("u_model", Matrix4f::IDENTITY);
 	shader->loadFloat("u_tileFactor", m_tileFactor);
 
 	Globals::shapeManager.get("quad_xz").drawRaw();
+
+	shader->unuse();
+
+	shader = Globals::shaderManager.getAssetPointer("shape");
+	shader->use();
+	shader->loadMatrix("u_projection", m_camera.getOrthographicMatrix());
+	shader->loadMatrix("u_view", view);
+
+	for (size_t i = 0; i < m_octree->getRootLevelOctants().size(); ++i) {
+		const Octree::ThreadOctantResult& result = m_octree->getOctantResults()[i];
+		for (auto oIt = result.octants.begin(); oIt != result.octants.end(); ++oIt) {
+			Octant* octant = oIt->first;
+			if (m_debugTree)
+				octant->OnRenderAABB(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
+
+			const std::vector<OctreeNode*>& drawables = octant->getOctreeNodes();
+			for (auto dIt = drawables.begin(); dIt != drawables.end(); ++dIt) {
+				OctreeNode* drawable = *dIt;
+				shader->loadMatrix("u_model", drawable->getWorldTransformation());
+				drawable->drawRaw();
+				if (m_debugTree)
+					drawable->OnRenderAABB(Vector4f(0.0f, 1.0f, 0.0f, 1.0f));
+			}
+		}
+	}
+
+	if (m_debugTree) {
+		DebugRenderer::Get().SetProjectionView(m_camera.getOrthographicMatrix(), view);
+		DebugRenderer::Get().drawBuffer();
+	}
 
 	shader->unuse();
 
@@ -152,12 +207,12 @@ void MapState::OnMouseButtonUp(Event::MouseButtonEvent& event) {
 void MapState::OnMouseWheel(Event::MouseWheelEvent& event) {
 	if (event.direction == 1u) {
 		m_zoom = m_zoom - 0.05f;
-		m_zoom = Math::Clamp(m_zoom, 0.25f, 5.0f);
+		m_zoom = Math::Clamp(m_zoom, 0.2f, 5.0f);
 	}
 
 	if (event.direction == 0u) {
 		m_zoom = m_zoom + 0.05f;
-		m_zoom = Math::Clamp(m_zoom, 0.25f, 5.0f);
+		m_zoom = Math::Clamp(m_zoom, 0.2f, 5.0f);
 	}
 	m_camera.orthographic(-static_cast<float>(Application::Width / 2) / m_zoom, static_cast<float>(Application::Width / 2) / m_zoom, -static_cast<float>(Application::Height / 2) / m_zoom, static_cast<float>(Application::Height / 2) / m_zoom, -static_cast<float>(Application::Width) / m_zoom, static_cast<float>(Application::Width) / m_zoom);
 }
@@ -232,7 +287,10 @@ void MapState::renderUi() {
 	if (ImGui::SliderFloat("Height", &m_height, 1.0f, 150.0f)) {
 		m_cameraNew.SetHeight(m_height);
 	}
-
+	if (ImGui::Checkbox("Use Culling", &m_useCulling)) {
+		m_octree->setUseCulling(m_useCulling);
+	}
+	ImGui::Checkbox("Debug Tree", &m_debugTree);
 	ImGui::End();
 
 	ImGui::Render();

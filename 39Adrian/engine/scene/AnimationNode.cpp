@@ -89,7 +89,7 @@ void AnimationNode::drawRaw() const {
 	animatedModel.drawRaw();
 }
 
-void AnimationNode::update(float dt) {
+void AnimationNode::update(const float dt) {
 	if (frameNumber && wasInView(*frameNumber) || m_updateSilent){
 		OnAnimationChanged();
 		if (m_animationDirty) {

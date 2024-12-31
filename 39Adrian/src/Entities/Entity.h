@@ -13,15 +13,16 @@ public:
 	virtual void update(const float dt);
 
 	const Material& getMaterial() const;
-	short getMaterialIndex() const;
-	void setMaterialIndex(short index) const;
-	short getTextureIndex() const;
-	void setTextureIndex(short index) const;
 	void setShader(Shader* shader);
 
+	virtual short getMaterialIndex() const;
+	virtual void setMaterialIndex(short index);
+	virtual short getTextureIndex() const;
+	virtual void setTextureIndex(short index);
+	
 protected:
 
-	mutable short m_materialIndex;
-	mutable short m_textureIndex;
+	short m_materialIndex;
+	short m_textureIndex;
 	Shader* shader;
 };

@@ -225,6 +225,7 @@
     <ClCompile Include="Physics\VehiclePhysics.cpp" />
     <ClCompile Include="src\CameraNew.cpp" />
     <ClCompile Include="src\Entities\Entity.cpp" />
+    <ClCompile Include="src\Entities\Md2Entity.cpp" />
     <ClCompile Include="src\Entities\MeshEntity.cpp" />
     <ClCompile Include="src\Entities\ShapeEntity.cpp" />
     <ClCompile Include="src\Entities\Skybox.cpp" />
@@ -232,6 +233,7 @@
     <ClCompile Include="src\Entities\Vehicle.cpp" />
     <ClCompile Include="src\Fade.cpp" />
     <ClCompile Include="src\LoadingManager.cpp" />
+    <ClCompile Include="src\MiniMap.cpp" />
     <ClCompile Include="src\States\Controls.cpp" />
     <ClCompile Include="src\States\Default.cpp" />
     <ClCompile Include="src\States\MapState.cpp" />
@@ -415,6 +417,7 @@
     <ClInclude Include="src\Application.h" />
     <ClInclude Include="src\CameraNew.h" />
     <ClInclude Include="src\Entities\Entity.h" />
+    <ClInclude Include="src\Entities\Md2Entity.h" />
     <ClInclude Include="src\Entities\MeshEntity.h" />
     <ClInclude Include="src\Entities\ShapeEntity.h" />
     <ClInclude Include="src\Entities\Skybox.h" />
@@ -423,6 +426,7 @@
     <ClInclude Include="src\Fade.h" />
     <ClInclude Include="src\Globals.h" />
     <ClInclude Include="src\LoadingManager.h" />
+    <ClInclude Include="src\MiniMap.h" />
     <ClInclude Include="src\States\Controls.h" />
     <ClInclude Include="src\States\Default.h" />
     <ClInclude Include="src\States\MapState.h" />

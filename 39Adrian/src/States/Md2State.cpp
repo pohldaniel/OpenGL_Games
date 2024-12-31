@@ -35,6 +35,7 @@ Md2State::Md2State(StateMachine& machine) : State(machine, States::DEFAULT){
 
 	WorkQueue::Init(0);
 	m_octree = new Octree(m_camera, m_frustum, m_dt);
+	m_octree->setUseOcclusionCulling(false);
 
 	DebugRenderer::Get().setEnable(true);
 	m_root = new SceneNodeLC();

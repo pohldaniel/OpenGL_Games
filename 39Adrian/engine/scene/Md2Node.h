@@ -11,17 +11,22 @@ public:
 	Md2Node(const Md2Model& md2Model);
 
 	void drawRaw() const override;
-	void update(float dt);
+	void update(const float dt);
 
 	using OctreeNode::addChild;
 	void addChild(Md2Node* node, bool drawDebug);
 	const Md2Model& getMd2Model() const;
+	void setAnimationType(AnimationType animationType);
+
 	short getMaterialIndex() const;
 	short getTextureIndex() const;
-
 	void setMaterialIndex(short index);
 	void setTextureIndex(short index);
-	void setAnimationType(AnimationType animationType);
+
+protected:
+
+	short m_materialIndex;
+	short m_textureIndex;
 
 private:
 
@@ -32,8 +37,7 @@ private:
 
 	std::vector<Utils::MD2IO::Vertex> m_interpolated;
 	bool m_animationDirty;
-	short m_materialIndex;
-	short m_textureIndex;
+	
 
 	const Utils::MD2IO::Animation* currentAnimation;
 	AnimationType m_animationType;

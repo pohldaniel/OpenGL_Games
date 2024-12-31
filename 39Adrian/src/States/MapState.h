@@ -2,12 +2,15 @@
 
 #include <engine/input/MouseEventListener.h>
 #include <engine/input/KeyboardEventListener.h>
+#include <engine/octree/Octree.h>
 #include <engine/Camera.h>
 #include <engine/Background.h>
-
+#include <engine/Frustum.h>
 #include <States/StateMachine.h>
-
+#include <Entities/Md2Entity.h>
 #include "CameraNew.h"
+
+#define		MAP_MODEL_HEIGHT_Y	25.0f
 
 class MapState : public State, public MouseEventListener, public KeyboardEventListener {
 
@@ -33,6 +36,9 @@ private:
 
 	bool m_initUi = true;
 	bool m_drawUi = true;
+	bool m_debugTree = true;
+	bool m_useCulling = true;
+
 	float m_tileFactor = 8.0f;
 	float m_angle = -M_PI_4;
 	float m_height = 30.0f;
@@ -40,4 +46,13 @@ private:
 
 	Camera m_camera;
 	CameraNew m_cameraNew;
+
+	Md2Model m_hero;
+	Md2Entity *m_heroEnity;
+
+	SceneNodeLC* m_root;
+	Octree* m_octree;
+	Frustum m_frustum;
+
+	Matrix4f view;
 };
