@@ -4,6 +4,7 @@
 #include <imgui_internal.h>
 
 #include <engine/DebugRenderer.h>
+#include <Physics/ShapeDrawer.h>
 #include <States/Menu.h>
 
 #include "MapState.h"
@@ -40,18 +41,24 @@ MapState::MapState(StateMachine& machine) : State(machine, States::DEFAULT) {
 	m_root = new SceneNodeLC();
 	m_heroEnity = m_root->addChild<Md2Entity, Md2Model>(m_hero);
 	m_heroEnity->setPosition(-780.0f, MAP_MODEL_HEIGHT_Y, 780.0f);
-	m_heroEnity->setOrientation(0.0f, 90.0f, 0.0f);
+	m_heroEnity->setOrientation(0.0f, 0.0f, 0.0f);
 	m_heroEnity->setTextureIndex(0);
 	m_heroEnity->OnOctreeSet(m_octree);
+
+	ShapeDrawer::Get().init(32768);
+	ShapeDrawer::Get().setCamera(m_camera);
+	m_heroEnity->m_rigidBody = Physics::AddKinematicRigidBody(Physics::BtTransform(Physics::VectorFrom(m_heroEnity->getWorldPosition())), new btBoxShape(btVector3(0.5f, 0.5f, 0.5f)), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER, nullptr, false);
 }
 
 MapState::~MapState() {
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
+
+	ShapeDrawer::Get().shutdown();
 }
 
 void MapState::fixedUpdate() {
-
+	m_heroEnity->fixedUpdate(m_fdt);
 }
 
 void MapState::update() {
@@ -90,11 +97,26 @@ void MapState::update() {
 		direction += Vector3f(0.0f, -1.0f, 0.0f);
 		move |= true;
 	}
-
+	
 	if (keyboard.keyDown(Keyboard::KEY_E)) {
 		direction += Vector3f(0.0f, 1.0f, 0.0f);
 		move |= true;
 	}
+
+	Vector3f moveDir = Vector3f::ZERO;
+	if (keyboard.keyDown(Keyboard::KEY_UP))
+		moveDir += Vector3f::RIGHT;
+	if (keyboard.keyDown(Keyboard::KEY_DOWN))
+		moveDir += Vector3f::LEFT;
+	if (keyboard.keyDown(Keyboard::KEY_RIGHT))
+		moveDir += Vector3f::FORWARD;
+	if (keyboard.keyDown(Keyboard::KEY_LEFT))
+		moveDir += Vector3f::BACK;
+
+	if (moveDir.lengthSq() > 0.0f)
+		Vector3f::Normalize(moveDir);
+
+	m_heroEnity->translateRelative(moveDir);
 
 	Mouse &mouse = Mouse::instance();
 
@@ -113,14 +135,14 @@ void MapState::update() {
 		}
 	}
 
-	view.lookAt(Vector3f(m_cameraNew.camx, m_cameraNew.camy, m_cameraNew.camz), Vector3f(m_cameraNew.pointx, m_cameraNew.pointy, m_cameraNew.pointz), Vector3f(m_cameraNew.lookx, m_cameraNew.looky, m_cameraNew.lookz));
+	m_view.lookAt(Vector3f(m_cameraNew.camx, m_cameraNew.camy, m_cameraNew.camz), Vector3f(m_cameraNew.pointx, m_cameraNew.pointy, m_cameraNew.pointz), Vector3f(m_cameraNew.lookx, m_cameraNew.looky, m_cameraNew.lookz));
 
 
 	m_octree->updateFrameNumber();
 	m_heroEnity->update(m_dt);
 
-	m_frustum.updatePlane(m_camera.getOrthographicMatrix(), view);
-	m_frustum.updateVertices(m_camera.getOrthographicMatrix(), view);
+	m_frustum.updatePlane(m_camera.getOrthographicMatrix(), m_view);
+	m_frustum.updateVertices(m_camera.getOrthographicMatrix(), m_view);
 	m_frustum.m_frustumSATData.calculate(m_frustum);
 	m_octree->updateOctree();
 }
@@ -142,7 +164,7 @@ void MapState::render() {
 	auto shader = Globals::shaderManager.getAssetPointer("map");
 	shader->use();
 	shader->loadMatrix("u_projection", m_camera.getOrthographicMatrix());
-	shader->loadMatrix("u_view", view);
+	shader->loadMatrix("u_view", m_view);
 	shader->loadMatrix("u_model", Matrix4f::Translate(tilex, 0.0f, tilez) * Matrix4f::Scale(TILE_SIZE * TILE_LOWFACTOR, 0.0f, TILE_SIZE * TILE_HIGHFACTOR));
 	shader->loadFloat("u_tileFactor", m_tileFactor);
 
@@ -153,7 +175,7 @@ void MapState::render() {
 	shader = Globals::shaderManager.getAssetPointer("shape");
 	shader->use();
 	shader->loadMatrix("u_projection", m_camera.getOrthographicMatrix());
-	shader->loadMatrix("u_view", view);
+	shader->loadMatrix("u_view", m_view);
 
 	for (size_t i = 0; i < m_octree->getRootLevelOctants().size(); ++i) {
 		const Octree::ThreadOctantResult& result = m_octree->getOctantResults()[i];
@@ -168,24 +190,34 @@ void MapState::render() {
 				shader->loadMatrix("u_model", drawable->getWorldTransformation());
 				drawable->drawRaw();
 				if (m_debugTree)
-					drawable->OnRenderAABB(Vector4f(0.0f, 1.0f, 0.0f, 1.0f));
+					drawable->OnRenderAABB(Vector4f(0.0f, 0.0f, 1.0f, 1.0f));
 			}
 		}
 	}
 
 	if (m_debugTree) {
-		DebugRenderer::Get().SetProjectionView(m_camera.getOrthographicMatrix(), view);
+		DebugRenderer::Get().SetProjectionView(m_camera.getOrthographicMatrix(), m_view);
 		DebugRenderer::Get().drawBuffer();
 	}
 
 	shader->unuse();
+
+	if (m_debugPhysic) {
+		ShapeDrawer::Get().setProjectionView(m_camera.getOrthographicMatrix(), m_view);
+
+		glDisable(GL_CULL_FACE);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		ShapeDrawer::Get().drawDynmicsWorld(Physics::GetDynamicsWorld());
+		glPolygonMode(GL_FRONT_AND_BACK, StateMachine::GetEnableWireframe() ? GL_LINE : GL_FILL);
+		glEnable(GL_CULL_FACE);
+	}
 
 	if (m_drawUi)
 		renderUi();
 }
 
 void MapState::OnMouseMotion(Event::MouseMoveEvent& event) {
-
+	//m_mousePicker.updatePosition(event.x, event.y, m_camera);
 }
 
 void MapState::OnMouseButtonDown(Event::MouseButtonEvent& event) {
@@ -195,6 +227,15 @@ void MapState::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 
 	if (event.button == 1u) {
 		Mouse::instance().attach(Application::GetWindow(), false, false, false);
+		
+		m_mousePicker.updatePosition(event.x, event.y, m_camera);
+		if (m_mousePicker.click2(event.x, event.y, m_camera)) {
+			m_mousePicker.setHasPicked(true);
+			const MousePickCallback& callback = m_mousePicker.getCallback();
+			m_heroEnity->m_isActive = false;
+
+			//pickObject(callback.m_hitPointWorld, callback.m_collisionObject);
+		}
 	}
 }
 
@@ -291,6 +332,7 @@ void MapState::renderUi() {
 		m_octree->setUseCulling(m_useCulling);
 	}
 	ImGui::Checkbox("Debug Tree", &m_debugTree);
+	ImGui::Checkbox("Debug Physic", &m_debugPhysic);
 	ImGui::End();
 
 	ImGui::Render();

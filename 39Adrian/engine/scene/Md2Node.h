@@ -25,6 +25,8 @@ public:
 
 protected:
 
+	const BoundingBox& getLocalBoundingBox() const;
+
 	short m_materialIndex;
 	short m_textureIndex;
 
@@ -33,11 +35,9 @@ private:
 	void OnWorldBoundingBoxUpdate() const;	
 	void OnAnimationChanged();
 	void updateAnimation();
-	const BoundingBox& getLocalBoundingBox() const;
-
+	
 	std::vector<Utils::MD2IO::Vertex> m_interpolated;
 	bool m_animationDirty;
-	
 
 	const Utils::MD2IO::Animation* currentAnimation;
 	AnimationType m_animationType;

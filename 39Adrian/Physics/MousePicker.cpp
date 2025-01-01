@@ -103,6 +103,34 @@ bool MousePicker::click(unsigned int posX, unsigned int posY, const Camera& came
 	}
 }
 
+bool MousePicker::click2(unsigned int posX, unsigned int posY, const Camera& camera) {
+	float mouseXndc = (2.0f * posX) / static_cast<float>(Application::Width) - 1.0f;
+	float mouseYndc = 1.0f - (2.0f * posY) / static_cast<float>(Application::Height);
+
+	std::cout << "Pos: " << mouseXndc << "  " << mouseYndc << std::endl;
+
+	float tanfov = camera.getInvPerspectiveMatrixNew()[1][1];
+	float aspect = (static_cast<float>(Application::Width) / static_cast<float>(Application::Height));
+
+	Vector3f rayStartWorld = camera.getPosition() + (camera.getCamX() * mouseXndc * tanfov * aspect + camera.getCamY() * mouseYndc * tanfov + camera.getViewDirection()) * camera.getNear();
+	Vector3f rayEndWorld = camera.getPosition() + (camera.getCamX() * mouseXndc * tanfov * aspect + camera.getCamY() * mouseYndc * tanfov + camera.getViewDirection()) * camera.getFar();
+
+	Vector3f rayDirection = rayEndWorld - rayStartWorld;
+	Vector3f::Normalize(rayDirection);
+
+	m_callback = MousePickCallback(Physics::VectorFrom(rayStartWorld), Physics::VectorFrom(rayEndWorld), Physics::MOUSEPICKER, Physics::PICKABLE_OBJECT);
+	Physics::GetDynamicsWorld()->rayTest(m_callback.m_origin, m_callback.m_target, m_callback);
+
+	if (m_callback.hasHit()) {
+		m_pickingDistance = (m_callback.m_hitPointWorld - m_callback.m_origin).length();
+		m_isActivated = true;
+		return true;
+
+	}else {
+		return false;
+	}
+}
+
 void MousePicker::createBuffer() {
 	if (m_debug) {
 

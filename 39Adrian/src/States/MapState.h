@@ -6,6 +6,8 @@
 #include <engine/Camera.h>
 #include <engine/Background.h>
 #include <engine/Frustum.h>
+#include <Physics/Physics.h>
+#include <Physics/MousePicker.h>
 #include <States/StateMachine.h>
 #include <Entities/Md2Entity.h>
 #include "CameraNew.h"
@@ -35,9 +37,10 @@ private:
 	void renderUi();
 
 	bool m_initUi = true;
-	bool m_drawUi = true;
-	bool m_debugTree = true;
+	bool m_drawUi = true;	
 	bool m_useCulling = true;
+	bool m_debugTree = false;
+	bool m_debugPhysic = true;
 
 	float m_tileFactor = 8.0f;
 	float m_angle = -M_PI_4;
@@ -54,5 +57,6 @@ private:
 	Octree* m_octree;
 	Frustum m_frustum;
 
-	Matrix4f view;
+	Matrix4f m_view;
+	MousePicker m_mousePicker;
 };

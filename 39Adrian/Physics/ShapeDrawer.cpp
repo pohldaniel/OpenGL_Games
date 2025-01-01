@@ -89,8 +89,7 @@ void ShapeDrawer::drawDynmicsWorld(btDynamicsWorld* dynamicsWorld) {
 		if (body&&body->getMotionState()) {
 			btDefaultMotionState* myMotionState = (btDefaultMotionState*)body->getMotionState();
 			myMotionState->m_graphicsWorldTrans.getOpenGLMatrix(m);
-		}
-		else {
+		}else {
 			colObj->getWorldTransform().getOpenGLMatrix(m);
 		}
 

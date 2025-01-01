@@ -67,6 +67,7 @@ public:
 	void drawPicker(const Camera& camera);	
 	void updatePosition(unsigned int posX, unsigned int posY, const Camera& camera);
 	bool click(unsigned int posX, unsigned int posY, const Camera& camera);
+	bool click2(unsigned int posX, unsigned int posY, const Camera& camera);
 	void setHasPicked(bool value);
 	void setPosition(const Vector3f& pos);
 	void setIsActivated(bool isactivated);

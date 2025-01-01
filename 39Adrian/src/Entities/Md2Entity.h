@@ -1,8 +1,8 @@
 //http://www.gotw.ca/gotw/039.htm
-
 #pragma once
 
 #include <engine/scene/Md2Node.h>
+#include <Physics/Physics.h>
 #include <Entities/Entity.h>
 
 class Md2Entity : public Md2Node, public Entity {
@@ -14,9 +14,13 @@ public:
 
 	virtual void draw() override;
 	virtual void update(const float dt) override;
+	void fixedUpdate(float fdt);
 
 	short getMaterialIndex() const override;
 	void setMaterialIndex(short index) override;
 	short getTextureIndex() const override;
 	void setTextureIndex(short index) override;
+
+	btRigidBody* m_rigidBody;
+	bool m_isActive;
 };
