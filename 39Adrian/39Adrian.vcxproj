@@ -223,7 +223,6 @@
     <ClCompile Include="Physics\Constraint.cpp" />
     <ClCompile Include="Physics\Constraint6DoF.cpp" />
     <ClCompile Include="Physics\VehiclePhysics.cpp" />
-    <ClCompile Include="src\CameraNew.cpp" />
     <ClCompile Include="src\Entities\Entity.cpp" />
     <ClCompile Include="src\Entities\Md2Entity.cpp" />
     <ClCompile Include="src\Entities\MeshEntity.cpp" />
@@ -415,7 +414,6 @@
     <ClInclude Include="Physics\Constraint6DoF.h" />
     <ClInclude Include="Physics\VehiclePhysics.h" />
     <ClInclude Include="src\Application.h" />
-    <ClInclude Include="src\CameraNew.h" />
     <ClInclude Include="src\Entities\Entity.h" />
     <ClInclude Include="src\Entities\Md2Entity.h" />
     <ClInclude Include="src\Entities\MeshEntity.h" />

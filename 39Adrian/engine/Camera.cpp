@@ -14,6 +14,7 @@ Camera::Camera(){
 	m_rotationSpeed = 1.0f;
 	m_movingSpeed = 1.0f;
 	m_offsetDistance = 0.0f;
+	m_currentSettleTime = 0.0f;
 
     m_xAxis.set(1.0f, 0.0f, 0.0f);
     m_yAxis.set(0.0f, 1.0f, 0.0f);
@@ -48,6 +49,7 @@ Camera::Camera(Camera const& rhs) {
 	m_zAxis = rhs.m_zAxis;
 	m_viewDir = rhs.m_viewDir;
 	m_target = rhs.m_target;
+	m_currentSettleTime = rhs.m_currentSettleTime;
 
 	m_viewMatrix = rhs.m_viewMatrix;
 	m_invViewMatrix = rhs.m_invViewMatrix;
@@ -68,6 +70,7 @@ Camera::Camera(Camera&& rhs) {
 	m_rotationSpeed = rhs.m_rotationSpeed;
 	m_movingSpeed = rhs.m_movingSpeed;
 	m_offsetDistance = rhs.m_offsetDistance;
+	m_currentSettleTime = rhs.m_currentSettleTime;
 
 	m_eye = rhs.m_eye;
 	m_xAxis = rhs.m_xAxis;
@@ -95,6 +98,7 @@ Camera& Camera::operator=(const Camera& rhs) {
 	m_rotationSpeed = rhs.m_rotationSpeed;
 	m_movingSpeed = rhs.m_movingSpeed;
 	m_offsetDistance = rhs.m_offsetDistance;
+	m_currentSettleTime = rhs.m_currentSettleTime;
 
 	m_eye = rhs.m_eye;
 	m_xAxis = rhs.m_xAxis;
@@ -124,6 +128,7 @@ Camera::Camera(const Vector3f &eye, const Vector3f &target, const Vector3f &up) 
 	m_rotationSpeed = 0.1f;
 	m_movingSpeed = 1.0f;
 	m_offsetDistance = 0.0f;
+	m_currentSettleTime = 0.0f;
 
 	m_persMatrix.identity();
 	m_invPersMatrix.identity();
@@ -1283,15 +1288,15 @@ void Camera::follow(const Matrix4f& targetMat, const Vector3f& targetVelocity, c
 	//static float currentSettleTime2 = 0.f;
 
 	// camera intro
-	if (currentSettleTime < settleTime) {
+	if (m_currentSettleTime < settleTime) {
 		Vector3f defaultPos = targetPos - targetRot * 20.0f;
-		if (currentSettleTime > settleTime - 1.0f)
-			lastBaseLookFromPos += (settleTime - currentSettleTime) * (defaultPos - lastBaseLookFromPos);
+		if (m_currentSettleTime > settleTime - 1.0f)
+			lastBaseLookFromPos += (settleTime - m_currentSettleTime) * (defaultPos - lastBaseLookFromPos);
 		else
 			lastBaseLookFromPos = defaultPos;
 
-		viewDistance += (settleTime - currentSettleTime) * (settleTime - currentSettleTime);
-		currentSettleTime += dt;
+		viewDistance += (settleTime - m_currentSettleTime) * (settleTime - m_currentSettleTime);
+		m_currentSettleTime += dt;
 	}
 
 	float nudge = Vector3f::Length(targetPos, lastBaseLookFromPos);
@@ -1436,4 +1441,134 @@ void ThirdPersonCamera::enableSpringSystem(bool enableSpringSystem){
 
 void ThirdPersonCamera::setTarget(const Vector3f& target) {
 	m_target = target;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+IsometricCamera::IsometricCamera(unsigned int width, unsigned int height) : Camera(), m_startAngle(-M_PI_4){
+	m_height = 30.0f;
+	m_distance = m_height * M_SQRT3;
+	//distance = 50.0f;
+	m_angle = m_startAngle;
+
+	m_target[0] = 0.0f;
+	m_target[1] = 0.0f;
+	m_target[2] = 0.0f;
+
+	m_initx = -780.0f;
+	m_initz = 780.0f;
+
+	m_breadth = 2000.0f;
+	m_length = 2000.0f;
+
+	m_hres = static_cast<float>(width);
+	m_vres = static_cast<float>(height);
+
+	
+	m_eye[0] = m_distance * sinf(m_angle) + m_initx;
+	m_eye[1] = m_height;
+	m_eye[2] = m_distance * cosf(m_angle) + m_initz;
+
+	m_yfactor = -sqrt(1 + (m_distance * m_distance) / (m_height * m_height));
+
+	m_speed = 5.0f;
+
+	move();
+}
+
+IsometricCamera::~IsometricCamera() {
+
+}
+
+void IsometricCamera::move() {
+	m_eye[0] = m_distance * sin(m_angle) + m_initx;
+	m_eye[2] = m_distance * cos(m_angle) + m_initz;
+
+	m_target[0] = m_initx;
+	m_target[2] = m_initz;
+
+	lookAt(m_eye, m_target, Vector3f(0.0f, 1.0f, 0.0f));
+}
+
+void IsometricCamera::moveUp() {
+	float tmpx, tmpy;
+	convertCoordinates((m_hres / 2.0), (m_vres / 2.0), tmpx, tmpy);
+	if (tmpy > m_breadth / 2)
+		return;
+
+	m_initx += sin(m_angle) * m_speed;
+	m_initz += cos(m_angle) * m_speed;
+	move();
+}
+
+void IsometricCamera::moveDown() {
+	float tmpx, tmpy;
+	convertCoordinates((m_hres / 2.0), (m_vres / 2.0), tmpx, tmpy);
+	if (tmpy < -m_breadth / 2)
+		return;
+
+	m_initx -= sinf(m_angle) * m_speed;
+	m_initz -= cosf(m_angle) * m_speed;
+	move();
+}
+
+void IsometricCamera::moveLeft() {
+	float tmpx, tmpy;
+	convertCoordinates((m_hres / 2.0), (m_vres / 2.0), tmpx, tmpy);
+	if (tmpx > m_length / 2)
+		return;
+
+	m_initx += cosf(m_angle) * m_speed;
+	m_initz -= sinf(m_angle) * m_speed;
+	move();
+}
+
+void IsometricCamera::moveRight() {
+	float tmpx, tmpy;
+	convertCoordinates((m_hres / 2.0), (m_vres / 2.0), tmpx, tmpy);
+	if (tmpx < -m_length / 2)
+		return;
+
+	m_initx -= cos(m_angle) * m_speed;
+	m_initz += sin(m_angle) * m_speed;
+	move();
+}
+
+void IsometricCamera::rotate(float angle) {
+	m_angle = angle;
+	m_eye[0] = m_distance * sinf(angle) + m_initx;
+	m_eye[2] = m_distance * cosf(angle) + m_initz;
+
+	m_target[0] = m_initx;
+	m_target[2] = m_initz;
+
+	lookAt(m_eye, m_target, Vector3f(0.0f, 1.0f, 0.0f));
+}
+
+void IsometricCamera::setHeight(float height) {
+	m_height = height;
+
+	m_eye[0] = m_distance * sinf(m_angle) + m_initx;
+	m_eye[1] = m_height;
+	m_eye[2] = m_distance * cosf(m_angle) + m_initz;
+
+	m_yfactor = -sqrtf(1 + (m_distance * m_distance) / (m_height * m_height));
+	lookAt(m_eye, m_target, Vector3f(0.0f, 1.0f, 0.0f));
+}
+
+void IsometricCamera::resize(unsigned int width, unsigned int height) {
+	m_hres = static_cast<float>(width);
+	m_vres = static_cast<float>(height);
+}
+
+int IsometricCamera::convertCoordinates(int x, int y, float &x3, float &y3) {
+	float newx = x - (m_hres / 2.0);
+	float newy = m_yfactor * ((m_vres / 2.0) - y);
+
+	x3 = newx * cosf(m_angle) + newy * sinf(m_angle);
+	y3 = newy * cosf(m_angle) - newx * sinf(m_angle);
+
+	x3 += m_eye[0];
+	y3 += m_eye[2];
+
+	return 0;
 }

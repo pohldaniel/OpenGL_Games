@@ -10,7 +10,6 @@
 #include <Physics/MousePicker.h>
 #include <States/StateMachine.h>
 #include <Entities/Md2Entity.h>
-#include "CameraNew.h"
 
 #define		MAP_MODEL_HEIGHT_Y	25.0f
 
@@ -47,8 +46,7 @@ private:
 	float m_height = 30.0f;
 	float m_zoom = 1.0f;
 
-	Camera m_camera;
-	CameraNew m_cameraNew;
+	IsometricCamera m_camera;
 
 	Md2Model m_hero;
 	Md2Entity *m_heroEnity;
@@ -57,6 +55,5 @@ private:
 	Octree* m_octree;
 	Frustum m_frustum;
 
-	Matrix4f m_view;
 	MousePicker m_mousePicker;
 };

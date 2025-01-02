@@ -1,6 +1,6 @@
 #include "Md2Entity.h"
 
-Md2Entity::Md2Entity(const Md2Model& md2Model) : Md2Node(md2Model), Entity(), m_isActive(true), m_rigidBody(nullptr){
+Md2Entity::Md2Entity(const Md2Model& md2Model) : Md2Node(md2Model), Entity(), m_isActive(true), m_rigidBody(nullptr), m_color(Vector4f::ONE){
 
 }
 
@@ -8,9 +8,12 @@ Md2Entity::~Md2Entity() {
 
 }
 
+void Md2Entity::drawRaw() const {
+	Md2Node::drawRaw();
+}
+
 void Md2Entity::draw() {
-	if(m_isActive)
-	  Md2Node::drawRaw();
+	Md2Node::drawRaw();
 }
 
 void Md2Entity::update(const float dt) {
@@ -25,7 +28,7 @@ void Md2Entity::fixedUpdate(float fdt) {
 
 	m_rigidBody->setWorldTransform(Physics::BtTransform(aabb.min + pos + 0.5f * size ));
 	m_rigidBody->getCollisionShape()->setLocalScaling(Physics::VectorFrom(size));
-	Physics::GetDynamicsWorld()->updateSingleAabb(m_rigidBody);
+	//Physics::GetDynamicsWorld()->updateSingleAabb(m_rigidBody);
 }
 
 short Md2Entity::getMaterialIndex() const {
@@ -42,4 +45,13 @@ short Md2Entity::getTextureIndex() const {
 
 void Md2Entity::setTextureIndex(short index) {
 	Md2Node::m_textureIndex = index;
+}
+
+void Md2Entity::setIsActive(bool isActive) {
+	m_isActive = isActive;
+	m_color = m_isActive ? Vector4f(0.7f, 0.7f, 1.0f, 1.0f) : Vector4f::ONE;
+}
+
+const Vector4f& Md2Entity::getColor() const {
+	return m_color;
 }

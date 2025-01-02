@@ -11,21 +11,15 @@
 #include "Application.h"
 #include "Globals.h"
 
-MapState::MapState(StateMachine& machine) : State(machine, States::DEFAULT) {
+MapState::MapState(StateMachine& machine) : State(machine, States::DEFAULT), m_camera(Application::Width, Application::Height) {
 
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
 	EventDispatcher::AddMouseListener(this);
 
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
-	//m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
-
-	m_camera.orthographic(-static_cast<float>(Application::Width / 2), static_cast<float>(Application::Width / 2), -static_cast<float>(Application::Height / 2), static_cast<float>(Application::Height / 2), -static_cast<float>(Application::Width) / m_zoom, static_cast<float>(Application::Width) / m_zoom);
+	m_camera.orthographic(-static_cast<float>(Application::Width / 2) / m_zoom, static_cast<float>(Application::Width / 2) / m_zoom, -static_cast<float>(Application::Height / 2) / m_zoom, static_cast<float>(Application::Height / 2) / m_zoom, -static_cast<float>(Application::Width) / m_zoom, static_cast<float>(Application::Width) / m_zoom);
 	
-	m_camera.lookAt(Vector3f(0.0f, 2.0f, 10.0f), Vector3f(0.0f, 2.0f, 10.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
-	m_camera.setRotationSpeed(0.1f);
-	m_camera.setMovingSpeed(50.0f);
-
 	glClearColor(0.494f, 0.686f, 0.796f, 1.0f);
 	glClearDepth(1.0f);
 
@@ -59,6 +53,7 @@ MapState::~MapState() {
 
 void MapState::fixedUpdate() {
 	m_heroEnity->fixedUpdate(m_fdt);
+	Globals::physics->stepSimulation(m_fdt);
 }
 
 void MapState::update() {
@@ -72,25 +67,25 @@ void MapState::update() {
 	if (keyboard.keyDown(Keyboard::KEY_W)) {
 		direction += Vector3f(0.0f, 0.0f, 1.0f);
 		move |= true;
-		m_cameraNew.MoveDown();	
+		m_camera.moveDown();	
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_S)) {
 		direction += Vector3f(0.0f, 0.0f, -1.0f);
 		move |= true;
-		m_cameraNew.MoveUp();
+		m_camera.moveUp();
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_A)) {
 		direction += Vector3f(-1.0f, 0.0f, 0.0f);
 		move |= true;
-		m_cameraNew.MoveRight();
+		m_camera.moveRight();
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_D)) {
 		direction += Vector3f(1.0f, 0.0f, 0.0f);
 		move |= true;
-		m_cameraNew.MoveLeft();
+		m_camera.moveLeft();
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_Q)) {
@@ -118,31 +113,11 @@ void MapState::update() {
 
 	m_heroEnity->translateRelative(moveDir);
 
-	Mouse &mouse = Mouse::instance();
-
-	if (mouse.buttonDown(Mouse::MouseButton::BUTTON_RIGHT)) {
-		dx = mouse.xDelta();
-		dy = mouse.yDelta();
-	}
-
-	if (move || dx != 0.0f || dy != 0.0f) {
-		if (dx || dy) {
-			m_camera.rotate(dx, dy);
-		}
-
-		if (move) {
-			m_camera.move(direction * m_dt);
-		}
-	}
-
-	m_view.lookAt(Vector3f(m_cameraNew.camx, m_cameraNew.camy, m_cameraNew.camz), Vector3f(m_cameraNew.pointx, m_cameraNew.pointy, m_cameraNew.pointz), Vector3f(m_cameraNew.lookx, m_cameraNew.looky, m_cameraNew.lookz));
-
-
 	m_octree->updateFrameNumber();
 	m_heroEnity->update(m_dt);
 
-	m_frustum.updatePlane(m_camera.getOrthographicMatrix(), m_view);
-	m_frustum.updateVertices(m_camera.getOrthographicMatrix(), m_view);
+	m_frustum.updatePlane(m_camera.getOrthographicMatrix(), m_camera.getViewMatrix());
+	m_frustum.updateVertices(m_camera.getOrthographicMatrix(), m_camera.getViewMatrix());
 	m_frustum.m_frustumSATData.calculate(m_frustum);
 	m_octree->updateOctree();
 }
@@ -156,15 +131,15 @@ void MapState::render() {
 	const int TILE_HIGHFACTOR = 4.0;
 	int tileSzFactor = TILE_HIGHFACTOR + TILE_LOWFACTOR;
 
-	tilex = ((int)m_cameraNew.initx / TILE_SIZE) * TILE_SIZE;
-	tilez = ((int)m_cameraNew.initz / TILE_SIZE) * TILE_SIZE;
+	tilex = ((int)m_camera.m_initx / TILE_SIZE) * TILE_SIZE;
+	tilez = ((int)m_camera.m_initz / TILE_SIZE) * TILE_SIZE;
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	Globals::textureManager.get("ground").bind(0);
 	auto shader = Globals::shaderManager.getAssetPointer("map");
 	shader->use();
 	shader->loadMatrix("u_projection", m_camera.getOrthographicMatrix());
-	shader->loadMatrix("u_view", m_view);
+	shader->loadMatrix("u_view", m_camera.getViewMatrix());
 	shader->loadMatrix("u_model", Matrix4f::Translate(tilex, 0.0f, tilez) * Matrix4f::Scale(TILE_SIZE * TILE_LOWFACTOR, 0.0f, TILE_SIZE * TILE_HIGHFACTOR));
 	shader->loadFloat("u_tileFactor", m_tileFactor);
 
@@ -175,7 +150,7 @@ void MapState::render() {
 	shader = Globals::shaderManager.getAssetPointer("shape");
 	shader->use();
 	shader->loadMatrix("u_projection", m_camera.getOrthographicMatrix());
-	shader->loadMatrix("u_view", m_view);
+	shader->loadMatrix("u_view", m_camera.getViewMatrix());
 
 	for (size_t i = 0; i < m_octree->getRootLevelOctants().size(); ++i) {
 		const Octree::ThreadOctantResult& result = m_octree->getOctantResults()[i];
@@ -188,6 +163,7 @@ void MapState::render() {
 			for (auto dIt = drawables.begin(); dIt != drawables.end(); ++dIt) {
 				OctreeNode* drawable = *dIt;
 				shader->loadMatrix("u_model", drawable->getWorldTransformation());
+				shader->loadVector("u_color", m_heroEnity->getColor());
 				drawable->drawRaw();
 				if (m_debugTree)
 					drawable->OnRenderAABB(Vector4f(0.0f, 0.0f, 1.0f, 1.0f));
@@ -196,14 +172,14 @@ void MapState::render() {
 	}
 
 	if (m_debugTree) {
-		DebugRenderer::Get().SetProjectionView(m_camera.getOrthographicMatrix(), m_view);
+		DebugRenderer::Get().SetProjectionView(m_camera.getOrthographicMatrix(), m_camera.getViewMatrix());
 		DebugRenderer::Get().drawBuffer();
 	}
 
 	shader->unuse();
 
 	if (m_debugPhysic) {
-		ShapeDrawer::Get().setProjectionView(m_camera.getOrthographicMatrix(), m_view);
+		ShapeDrawer::Get().setProjectionView(m_camera.getOrthographicMatrix(), m_camera.getViewMatrix());
 
 		glDisable(GL_CULL_FACE);
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -217,7 +193,7 @@ void MapState::render() {
 }
 
 void MapState::OnMouseMotion(Event::MouseMoveEvent& event) {
-	//m_mousePicker.updatePosition(event.x, event.y, m_camera);
+	//m_mousePicker.updatePositionOrthographic(event.x, event.y, m_camera);
 }
 
 void MapState::OnMouseButtonDown(Event::MouseButtonEvent& event) {
@@ -229,12 +205,10 @@ void MapState::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 		Mouse::instance().attach(Application::GetWindow(), false, false, false);
 		
 		m_mousePicker.updatePosition(event.x, event.y, m_camera);
-		if (m_mousePicker.click2(event.x, event.y, m_camera)) {
-			m_mousePicker.setHasPicked(true);
-			const MousePickCallback& callback = m_mousePicker.getCallback();
-			m_heroEnity->m_isActive = false;
-
-			//pickObject(callback.m_hitPointWorld, callback.m_collisionObject);
+		if (m_mousePicker.clickOrthographic(event.x, event.y, m_camera)) {
+			m_heroEnity->setIsActive(true);
+		}else {
+			m_heroEnity->setIsActive(false);
 		}
 	}
 }
@@ -279,7 +253,7 @@ void MapState::resize(int deltaW, int deltaH) {
 	m_camera.orthographic(-static_cast<float>(Application::Width / 2) / m_zoom, static_cast<float>(Application::Width / 2) / m_zoom, -static_cast<float>(Application::Height / 2) / m_zoom, static_cast<float>(Application::Height / 2) / m_zoom, -static_cast<float>(Application::Width) / m_zoom, static_cast<float>(Application::Width) / m_zoom);
 
 
-	m_cameraNew.Resize();
+	m_camera.resize(Application::Width, Application::Height);
 }
 
 void MapState::renderUi() {
@@ -320,14 +294,15 @@ void MapState::renderUi() {
 	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 	ImGui::Checkbox("Draw Wirframe", &StateMachine::GetEnableWireframe());
 	ImGui::SliderFloat("Tile", &m_tileFactor, 1.0f, 100.0f);
-	ImGui::SliderFloat("Speed", &m_cameraNew.m_speed, 1.0f, 100.0f);
+
 	if (ImGui::SliderFloat("Rotate", &m_angle, -2*PI, 2 * PI)) {
-		m_cameraNew.Rotate(m_angle);
+		m_camera.rotate(m_angle);
 	}
 
 	if (ImGui::SliderFloat("Height", &m_height, 1.0f, 150.0f)) {
-		m_cameraNew.SetHeight(m_height);
+		m_camera.setHeight(m_height);
 	}
+
 	if (ImGui::Checkbox("Use Culling", &m_useCulling)) {
 		m_octree->setUseCulling(m_useCulling);
 	}

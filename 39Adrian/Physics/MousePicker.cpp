@@ -39,11 +39,8 @@ void MousePicker::updatePosition(unsigned int posX, unsigned int posY, const Cam
 	float aspect = (static_cast<float>(Application::Width) / static_cast<float>(Application::Height));
 
 	Vector3f rayStartWorld = camera.getPosition() + (camera.getCamX() * mouseXndc * tanfov * aspect + camera.getCamY() * mouseYndc * tanfov + camera.getViewDirection()) * camera.getNear();
-	//Vector3f rayStartWorld = camera.getPosition();
 	Vector3f rayEndWorld = camera.getPosition() + (camera.getCamX() * mouseXndc * tanfov * aspect + camera.getCamY() * mouseYndc * tanfov + camera.getViewDirection()) * camera.getFar();
-	Vector3f rayDirection = rayEndWorld - rayStartWorld;
-	Vector3f::Normalize(rayDirection);
-
+	
 	m_callback = MousePickCallback(Physics::VectorFrom(rayStartWorld), Physics::VectorFrom(rayEndWorld), Physics::MOUSEPICKER, Physics::PICKABLE_OBJECT);
 	Physics::GetDynamicsWorld()->rayTest(m_callback.m_origin, m_callback.m_target, m_callback);
 
@@ -89,9 +86,6 @@ bool MousePicker::click(unsigned int posX, unsigned int posY, const Camera& came
 	Vector3f rayStartWorld = camera.getPosition() + (camera.getCamX() * mouseXndc * tanfov * aspect + camera.getCamY() * mouseYndc * tanfov + camera.getViewDirection()) * camera.getNear();
 	Vector3f rayEndWorld = camera.getPosition() + (camera.getCamX() * mouseXndc * tanfov * aspect + camera.getCamY() * mouseYndc * tanfov + camera.getViewDirection()) * camera.getFar();
 
-	Vector3f rayDirection = rayEndWorld - rayStartWorld;
-	Vector3f::Normalize(rayDirection);
-
 	m_callback = MousePickCallback(Physics::VectorFrom(rayStartWorld), Physics::VectorFrom(rayEndWorld), Physics::MOUSEPICKER, Physics::PICKABLE_OBJECT);
 	Physics::GetDynamicsWorld()->rayTest(m_callback.m_origin, m_callback.m_target, m_callback);
 
@@ -103,29 +97,69 @@ bool MousePicker::click(unsigned int posX, unsigned int posY, const Camera& came
 	}
 }
 
-bool MousePicker::click2(unsigned int posX, unsigned int posY, const Camera& camera) {
+void MousePicker::updatePositionOrthographic(unsigned int posX, unsigned int posY, const Camera& camera) {
 	float mouseXndc = (2.0f * posX) / static_cast<float>(Application::Width) - 1.0f;
 	float mouseYndc = 1.0f - (2.0f * posY) / static_cast<float>(Application::Height);
 
-	std::cout << "Pos: " << mouseXndc << "  " << mouseYndc << std::endl;
+	float scaleX = (camera.getRightOrthographic() - camera.getLeftOrthographic()) * 0.5f;
+	float scaleY = (camera.getTopOrthographic() - camera.getBottomOrthographic()) * 0.5f;
+	float scaleZ = (camera.getFarOrthographic() - camera.getNearOrthographic()) * 0.5f;
 
-	float tanfov = camera.getInvPerspectiveMatrixNew()[1][1];
-	float aspect = (static_cast<float>(Application::Width) / static_cast<float>(Application::Height));
+	Vector3f rayStartWorld = camera.getPosition() + camera.getCamX() * scaleX * mouseXndc + camera.getCamY() * scaleY * mouseYndc;
+	Vector3f rayEndWorld = rayStartWorld + camera.getViewDirection() * scaleZ;
 
-	Vector3f rayStartWorld = camera.getPosition() + (camera.getCamX() * mouseXndc * tanfov * aspect + camera.getCamY() * mouseYndc * tanfov + camera.getViewDirection()) * camera.getNear();
-	Vector3f rayEndWorld = camera.getPosition() + (camera.getCamX() * mouseXndc * tanfov * aspect + camera.getCamY() * mouseYndc * tanfov + camera.getViewDirection()) * camera.getFar();
+	m_callback = MousePickCallback(Physics::VectorFrom(rayStartWorld), Physics::VectorFrom(rayEndWorld), Physics::MOUSEPICKER, Physics::PICKABLE_OBJECT);
+	Physics::GetDynamicsWorld()->rayTest(m_callback.m_origin, m_callback.m_target, m_callback);
 
-	Vector3f rayDirection = rayEndWorld - rayStartWorld;
-	Vector3f::Normalize(rayDirection);
+	if (m_callback.hasHit()) {
+		if (!m_hasPicked) {
+			Vector3f normal = Vector3f(m_callback.m_hitNormalWorld[0], m_callback.m_hitNormalWorld[1], m_callback.m_hitNormalWorld[2]);
+			Vector3f tangent = fabsf(Vector3f::Dot(normal, Vector3f(0.0f, 0.0f, 1.0f))) > 0.9f ? Vector3f::Cross(normal, Vector3f(0.0f, 1.0f, 0.0f)) : Vector3f::Cross(normal, Vector3f(0.0f, 0.0f, 1.0f));
+			Vector3f bitangent = Vector3f::Cross(normal, tangent);
+
+			m_model[0][0] = tangent[0];
+			m_model[0][1] = tangent[1];
+			m_model[0][2] = tangent[2];
+			m_model[0][3] = 0.0f;
+
+			m_model[1][0] = normal[0];
+			m_model[1][1] = normal[1];
+			m_model[1][2] = normal[2];
+			m_model[1][3] = 0.0f;
+
+			m_model[2][0] = bitangent[0];
+			m_model[2][1] = bitangent[1];
+			m_model[2][2] = bitangent[2];
+			m_model[2][3] = 0.0f;
+		}
+
+		m_model[3][0] = m_callback.m_hitPointWorld[0];
+		m_model[3][1] = m_callback.m_hitPointWorld[1];
+		m_model[3][2] = m_callback.m_hitPointWorld[2];
+		m_model[3][3] = 1.0f;
+		m_isActivated = true;
+	}else {
+		m_isActivated = false;
+	}
+}
+
+bool MousePicker::clickOrthographic(unsigned int posX, unsigned int posY, const Camera& camera) {
+	float mouseXndc = (2.0f * posX) / static_cast<float>(Application::Width) - 1.0f;
+	float mouseYndc = 1.0f - (2.0f * posY) / static_cast<float>(Application::Height);
+
+	float scaleX = (camera.getRightOrthographic() - camera.getLeftOrthographic()) * 0.5f;
+	float scaleY = (camera.getTopOrthographic() - camera.getBottomOrthographic()) * 0.5f;
+	float scaleZ = (camera.getFarOrthographic() - camera.getNearOrthographic()) * 0.5f;
+
+	Vector3f rayStartWorld = camera.getPosition() + camera.getCamX() * scaleX * mouseXndc + camera.getCamY() * scaleY * mouseYndc;
+	Vector3f rayEndWorld = rayStartWorld + camera.getViewDirection() * scaleZ;
 
 	m_callback = MousePickCallback(Physics::VectorFrom(rayStartWorld), Physics::VectorFrom(rayEndWorld), Physics::MOUSEPICKER, Physics::PICKABLE_OBJECT);
 	Physics::GetDynamicsWorld()->rayTest(m_callback.m_origin, m_callback.m_target, m_callback);
 
 	if (m_callback.hasHit()) {
 		m_pickingDistance = (m_callback.m_hitPointWorld - m_callback.m_origin).length();
-		m_isActivated = true;
 		return true;
-
 	}else {
 		return false;
 	}

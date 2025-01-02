@@ -14,13 +14,20 @@ public:
 
 	virtual void draw() override;
 	virtual void update(const float dt) override;
+	void drawRaw() const override;
 	void fixedUpdate(float fdt);
 
 	short getMaterialIndex() const override;
 	void setMaterialIndex(short index) override;
 	short getTextureIndex() const override;
 	void setTextureIndex(short index) override;
+	void setIsActive(bool active);
+	
+	const Vector4f& getColor() const;
 
 	btRigidBody* m_rigidBody;
+
+private:
 	bool m_isActive;
+	Vector4f m_color;
 };

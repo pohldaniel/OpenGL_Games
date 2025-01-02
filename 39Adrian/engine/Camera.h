@@ -111,8 +111,6 @@ public:
 	short m_numberCascades = 0;
 	float* m_cascadeEndClipSpace;
 
-	float currentSettleTime = 0.0f;
-
 protected:
 
     void rotateFirstPerson(float yaw, float pitch);
@@ -128,6 +126,7 @@ protected:
 	float			m_rotationSpeed;
 	float			m_movingSpeed;
 	float			m_offsetDistance;
+	float			m_currentSettleTime;
 
 	Vector3f		m_eye;
 	Vector3f		m_xAxis;
@@ -146,7 +145,6 @@ protected:
 };
 
 class ThirdPersonCamera : public Camera {
-
 
 public:
 
@@ -180,6 +178,41 @@ private:
 
 	static const float DEFAULT_SPRING_CONSTANT;
 	static const float DEFAULT_DAMPING_CONSTANT;
+};
+
+class IsometricCamera : public Camera {
+
+public:
+	IsometricCamera(unsigned int width, unsigned int height);
+	~IsometricCamera();
+
+	void move();
+	void moveUp();
+	void moveDown();
+	void moveLeft();
+	void moveRight();
+	void rotate(float angle);
+	void setHeight(float height);
+	void resize(unsigned int width, unsigned int height);
+
+	float m_initx;
+	float m_initz;
+
+private:
+
+	int convertCoordinates(int x, int y, float &, float &);
+
+	float m_distance;
+	float m_height;
+	float m_angle;
+	float m_startAngle;
+	
+	float m_yfactor;
+
+	float m_hres, m_vres;
+	float m_breadth, m_length;
+
+	float m_speed;
 };
 
 #endif // __cameraH__
