@@ -342,10 +342,10 @@ void Application::initOpenGL(int msaaSamples) {
 
 	ToggleVerticalSync();
 
-	glDisable(GL_CULL_FACE);
-	//glEnable(GL_CULL_FACE);
-	//glCullFace(GL_BACK);
-	//glFrontFace(GL_CCW);
+	//glDisable(GL_CULL_FACE);
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
+	glFrontFace(GL_CCW);
 
 	//glDisable(GL_DEPTH_TEST);
 	glEnable(GL_DEPTH_TEST);
@@ -722,6 +722,7 @@ void Application::loadAssets() {
 	Globals::textureManager.loadTexture("forest_3", "res/backgrounds/Forest/plx-3.png");
 	Globals::textureManager.loadTexture("forest_4", "res/backgrounds/Forest/plx-4.png");
 	Globals::textureManager.loadTexture("forest_5", "res/backgrounds/Forest/plx-5.png");
+	Globals::textureManager.createNullTexture("null");
 
 	Globals::textureManager.loadTexture("corpse", "data/models/dynamic/corpse/corpse.tga");
 	Globals::textureManager.loadTexture("hero", "data/models/dynamic/hero/hero.tga");
@@ -739,4 +740,5 @@ void Application::loadAssets() {
 	//Globals::shapeManager.buildQuadXZ("quad_xz", Vector3f(-300.0f, 0.0f, -300.0f), Vector2f(600.0f, 600.0f), 1, 1, true, false, false);
 
 	Globals::shapeManager.buildQuadXZ("quad_xz", Vector3f(-1.0f, 0.0f, -1.0f), Vector2f(2.0f, 2.0f), 1, 1, true, false, false);
+	//Globals::shapeManager.buildSegmentXZ("segment_xz", 20.0f, 0.0f, PI, Vector3f(0.0f, 0.0f, 0.0f), 20, 20, true, false, false);
 }

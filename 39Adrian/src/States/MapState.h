@@ -2,6 +2,8 @@
 
 #include <engine/input/MouseEventListener.h>
 #include <engine/input/KeyboardEventListener.h>
+#include <engine/MeshObject/Shape.h>
+#include <engine/scene/ShapeNode.h>
 #include <engine/octree/Octree.h>
 #include <engine/Camera.h>
 #include <engine/Background.h>
@@ -39,7 +41,7 @@ private:
 	bool m_drawUi = true;	
 	bool m_useCulling = true;
 	bool m_debugTree = false;
-	bool m_debugPhysic = true;
+	bool m_debugPhysic = false;
 
 	float m_tileFactor = 8.0f;
 	float m_angle = -M_PI_4;
@@ -54,6 +56,9 @@ private:
 	SceneNodeLC* m_root;
 	Octree* m_octree;
 	Frustum m_frustum;
+
+	Shape m_segment;
+	ShapeNode* m_segmentNode;
 
 	MousePicker m_mousePicker;
 };

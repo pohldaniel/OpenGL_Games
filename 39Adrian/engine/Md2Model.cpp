@@ -1,4 +1,4 @@
-#include <engine/Material.h>
+#include "Material.h"
 #include "Md2Model.h"
 
 Md2Model::Md2Model() : 

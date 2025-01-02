@@ -486,6 +486,9 @@
     <ClCompile Include="src\Entities\Md2Entity.cpp">
       <Filter>Source Files\Entities</Filter>
     </ClCompile>
+    <ClCompile Include="engine\MeshObject\MeshSegment.cpp">
+      <Filter>engine\MeshObject</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="convhull\convhull_3d.h">
@@ -931,6 +934,9 @@
     </ClInclude>
     <ClInclude Include="src\Entities\Md2Entity.h">
       <Filter>Source Files\Entities</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\MeshObject\MeshSegment.h">
+      <Filter>engine\MeshObject</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -222,8 +222,18 @@ public:
 		m_assets[name].markForDelete();
 	}
 
-	void buildDiskXZ(const std::string& name, float radius = 1.0f, const Vector3f& position = Vector3f(-1.0f, 0.0f, -1.0f), int uResolution = 1, int vResolution = 1, bool generateTexels = true, bool generateNormals = true, bool generateTangents = false) {
+	void buildDiskXZ(const std::string& name, float radius = 1.0f, const Vector3f& position = Vector3f(-1.0f, -1.0f, 0.0f), int uResolution = 1, int vResolution = 1, bool generateTexels = true, bool generateNormals = true, bool generateTangents = false) {
 		m_assets[name].buildDiskXZ(radius, position, uResolution, vResolution, generateTexels, generateNormals, generateTangents);
+		m_assets[name].markForDelete();
+	}
+
+	void buildSegmentXY(const std::string& name, float radius = 1.0f, float startAngle = 0.0f, float endAngle = 180.0f, const Vector3f& position = Vector3f(-1.0f, 0.0f, -1.0f), int uResolution = 1, int vResolution = 1, bool generateTexels = true, bool generateNormals = true, bool generateTangents = false) {
+		m_assets[name].buildSegmentXY(radius, startAngle, endAngle, position, uResolution, vResolution, generateTexels, generateNormals, generateTangents);
+		m_assets[name].markForDelete();
+	}
+
+	void buildSegmentXZ(const std::string& name, float radius = 1.0f, float startAngle = 0.0f, float endAngle = 180.0f, const Vector3f& position = Vector3f(-1.0f, -1.0f, 0.0f), int uResolution = 1, int vResolution = 1, bool generateTexels = true, bool generateNormals = true, bool generateTangents = false) {
+		m_assets[name].buildSegmentXZ(radius, startAngle, endAngle, position, uResolution, vResolution, generateTexels, generateNormals, generateTangents);
 		m_assets[name].markForDelete();
 	}
 
@@ -245,18 +255,13 @@ public:
 		return m_assetPointer[name];
 	}
 
-	void clear() {
+	void clear() {	
+		for (auto& s : m_assetPointer) {		
+			delete s.second;
+			s.second = nullptr;		
+		}
 		m_assetPointer.clear();
-		/*for (auto& s : m_assetPointer) {
-			if (s.second) {
-				delete s.second;
-				s.second = NULL;
-			}
-		}*/
-
-		/*for (const auto& s : m_assets) {
-		s.second.~T();
-		}*/
+		m_assets.clear();
 	}
 
 	bool checkAsset(const std::string& name) {
@@ -346,12 +351,12 @@ public:
 	}
 
 	void clear() {
-		for (auto&& s : m_assetPointer) {
-			if (s.second) {
-				delete s.second;
-				s.second = NULL;
-			}
+		for (auto& s : m_assetPointer) {
+			delete s.second;
+			s.second = nullptr;
 		}
+		m_assetPointer.clear();
+		m_assets.clear();
 	}
 
 	~AssetManagerStatic() {}

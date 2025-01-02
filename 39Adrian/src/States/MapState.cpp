@@ -24,6 +24,7 @@ MapState::MapState(StateMachine& machine) : State(machine, States::DEFAULT), m_c
 	glClearDepth(1.0f);
 
 	Material::AddTexture("data/models/dynamic/hero/hero.tga");
+	Material::AddTexture();
 	m_hero.load("data/models/dynamic/hero/hero.md2");
 
 	WorkQueue::Init(0);
@@ -42,6 +43,15 @@ MapState::MapState(StateMachine& machine) : State(machine, States::DEFAULT), m_c
 	ShapeDrawer::Get().init(32768);
 	ShapeDrawer::Get().setCamera(m_camera);
 	m_heroEnity->m_rigidBody = Physics::AddKinematicRigidBody(Physics::BtTransform(Physics::VectorFrom(m_heroEnity->getWorldPosition())), new btBoxShape(btVector3(0.5f, 0.5f, 0.5f)), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER, nullptr, false);
+	//m_heroEnity->m_rigidBody = Physics::AddKinematicRigidBody(Physics::BtTransform(Physics::VectorFrom(m_heroEnity->getWorldPosition())), new btBoxShape(btVector3(12.5f, 12.5f, 12.5f)), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER, nullptr, false);
+
+	m_segment.buildSegmentXZ(150.0f, -30.0f, 30.0f, Vector3f(0.0f, 0.0f, 0.0f), 20, 20, true, false, false);
+	m_segment.createBoundingBox();
+	m_segment.markForDelete();
+	m_segmentNode = m_heroEnity->addChild<ShapeNode, Shape>(m_segment);
+	m_segmentNode->setPosition(0.0f, -MAP_MODEL_HEIGHT_Y + 0.01f, 0.0f);
+	m_segmentNode->setTextureIndex(1);
+	m_segmentNode->OnOctreeSet(m_octree);
 }
 
 MapState::~MapState() {
@@ -142,10 +152,9 @@ void MapState::render() {
 	shader->loadMatrix("u_view", m_camera.getViewMatrix());
 	shader->loadMatrix("u_model", Matrix4f::Translate(tilex, 0.0f, tilez) * Matrix4f::Scale(TILE_SIZE * TILE_LOWFACTOR, 0.0f, TILE_SIZE * TILE_HIGHFACTOR));
 	shader->loadFloat("u_tileFactor", m_tileFactor);
-
 	Globals::shapeManager.get("quad_xz").drawRaw();
-
 	shader->unuse();
+
 
 	shader = Globals::shaderManager.getAssetPointer("shape");
 	shader->use();

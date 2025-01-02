@@ -1,7 +1,9 @@
 #include "ShapeNode.h"
 #include "../DebugRenderer.h"
+#include "../Material.h"
+#include "../BuiltInShader.h"
 
-ShapeNode::ShapeNode(const Shape& shape) : OctreeNode(shape.getAABB()), shape(shape) {
+ShapeNode::ShapeNode(const Shape& shape) : OctreeNode(shape.getAABB()), shape(shape), m_materialIndex(-1), m_textureIndex(-1) {
 	OnBoundingBoxChanged();
 }
 
@@ -10,7 +12,12 @@ ShapeNode::~ShapeNode() {
 }
 
 void ShapeNode::drawRaw() const {
-	Vector3f position = getWorldPosition();
+	if (m_materialIndex >= 0)
+		Material::GetMaterials()[m_materialIndex].updateMaterialUbo(BuiltInShader::materialUbo);
+
+	if (m_textureIndex >= 0)
+		Material::GetTextures()[m_textureIndex].bind();
+
 	shape.drawRaw();
 }
 
@@ -21,4 +28,20 @@ void ShapeNode::addChild(ShapeNode* node, bool drawDebug) {
 
 const Shape& ShapeNode::getShape() const {
 	return shape;
+}
+
+short ShapeNode::getMaterialIndex() const {
+	return m_materialIndex;
+}
+
+void ShapeNode::setMaterialIndex(short index) {
+	m_materialIndex = index;
+}
+
+short ShapeNode::getTextureIndex() const {
+	return m_textureIndex;
+}
+
+void ShapeNode::setTextureIndex(short index) {
+	m_textureIndex = index;
 }

@@ -13,11 +13,21 @@ void ShapeEntity::draw() {
 	shader->use();
 	shader->loadMatrix("modelMatrix", getWorldTransformation());
 
-	if (m_materialIndex >= 0)
-		Material::GetMaterials()[m_materialIndex].bind();
+	ShapeNode::drawRaw();
+}
 
-	if (m_textureIndex >= 0)
-		Material::GetTextures()[m_textureIndex].bind();
+short ShapeEntity::getMaterialIndex() const {
+	return ShapeNode::m_materialIndex;
+}
 
-	shape.drawRaw();
+void ShapeEntity::setMaterialIndex(short index) {
+	ShapeNode::m_materialIndex = index;
+}
+
+short ShapeEntity::getTextureIndex() const {
+	return ShapeNode::m_textureIndex;
+}
+
+void ShapeEntity::setTextureIndex(short index) {
+	ShapeNode::m_textureIndex = index;
 }

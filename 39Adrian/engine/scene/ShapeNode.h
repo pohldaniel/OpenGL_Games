@@ -17,8 +17,18 @@ public:
 	using OctreeNode::addChild;
 	void addChild(ShapeNode* node, bool drawDebug);
 	const Shape& getShape() const;
+
+	short getMaterialIndex() const;
+	short getTextureIndex() const;
+	void setMaterialIndex(short index);
+	void setTextureIndex(short index);
 	
 protected:
+
+	short m_materialIndex;
+	short m_textureIndex;
+
+private:
 
 	const Shape& shape;
 };

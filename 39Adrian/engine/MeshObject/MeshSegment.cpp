@@ -1,10 +1,11 @@
-#include "MeshDisk.h"
+#include <iostream>
+#include "MeshSegment.h"
 
-MeshDisk::MeshDisk(int uResolution, int vResolution) : MeshDisk(1.0f, Vector3f(0.0f, 0.0f, 0.0f), true, true, false, uResolution, vResolution) { }
+MeshSegment::MeshSegment(int uResolution, int vResolution) : MeshSegment(1.0f, Vector3f(0.0f, 0.0f, 0.0f), true, true, false, uResolution, vResolution) { }
 
-MeshDisk::MeshDisk(bool generateTexels, bool generateNormals, bool generateTangents, int uResolution, int vResolution) : MeshDisk(1.0f, Vector3f(0.0f, 0.0f, 0.0f), generateTexels, generateNormals, generateTangents, uResolution, vResolution) { }
+MeshSegment::MeshSegment(bool generateTexels, bool generateNormals, bool generateTangents, int uResolution, int vResolution) : MeshSegment(1.0f, Vector3f(0.0f, 0.0f, 0.0f), generateTexels, generateNormals, generateTangents, uResolution, vResolution) { }
 
-MeshDisk::MeshDisk(float radius, const Vector3f &position, bool generateTexels, bool generateNormals, bool generateTangents, int uResolution, int vResolution) {
+MeshSegment::MeshSegment(float radius, const Vector3f &position, bool generateTexels, bool generateNormals, bool generateTangents, int uResolution, int vResolution) {
 
 	m_position = position;
 	m_radius = radius;
@@ -18,11 +19,11 @@ MeshDisk::MeshDisk(float radius, const Vector3f &position, bool generateTexels, 
 
 	m_numBuffers = 1 + generateTexels + generateNormals + 2 * generateTangents;
 
-	BuildMeshXZ(m_radius, m_position,  m_uResolution, m_vResolution, m_generateTexels, m_generateNormals, m_generateTangents, m_positions, m_texels, m_normals, m_indexBuffer, m_tangents, m_bitangents);
+	BuildMeshXZ(m_radius, 0.0f, PI, m_position, m_uResolution, m_vResolution, m_generateTexels, m_generateNormals, m_generateTangents, m_positions, m_texels, m_normals, m_indexBuffer, m_tangents, m_bitangents);
 	createBuffer();
 }
 
-MeshDisk::~MeshDisk() {
+MeshSegment::~MeshSegment() {
 	if (m_vao)
 		glDeleteVertexArrays(1, &m_vao);
 
@@ -45,28 +46,28 @@ MeshDisk::~MeshDisk() {
 		glDeleteBuffers(1, &m_vboInstances);
 }
 
-void MeshDisk::setPrecision(int uResolution, int vResolution) {
+void MeshSegment::setPrecision(int uResolution, int vResolution) {
 	m_uResolution = uResolution;
 	m_vResolution = vResolution;
 }
 
-int MeshDisk::getNumberOfTriangles() {
+int MeshSegment::getNumberOfTriangles() {
 	return m_drawCount / 3;
 }
 
-const Vector3f& MeshDisk::getPosition() const {
+const Vector3f& MeshSegment::getPosition() const {
 	return m_position;
 }
 
-std::vector<Vector3f>& MeshDisk::getPositions() {
+std::vector<Vector3f>& MeshSegment::getPositions() {
 	return m_positions;
 }
 
-std::vector<unsigned int>& MeshDisk::getIndexBuffer() {
+std::vector<unsigned int>& MeshSegment::getIndexBuffer() {
 	return m_indexBuffer;
 }
 
-void MeshDisk::BuildMeshXY(float radius, const Vector3f& _position, int uResolution, int vResolution, bool generateTexels, bool generateNormals, bool generateTangents, std::vector<Vector3f>& positions, std::vector<Vector2f>& texels, std::vector<Vector3f>& normals, std::vector<unsigned int>& indexBuffer, std::vector<Vector3f>& tangents, std::vector<Vector3f>& bitangents) {
+void MeshSegment::BuildMeshXY(float radius, float startAngle, float endAngle, const Vector3f& _position, int uResolution, int vResolution, bool generateTexels, bool generateNormals, bool generateTangents, std::vector<Vector3f>& positions, std::vector<Vector2f>& texels, std::vector<Vector3f>& normals, std::vector<unsigned int>& indexBuffer, std::vector<Vector3f>& tangents, std::vector<Vector3f>& bitangents) {
 	// put vertices of base of cylinder
 	float x = 0.0f, z = 0.0f;
 	unsigned int topVertexIndex = (unsigned int)positions.size();
@@ -84,11 +85,12 @@ void MeshDisk::BuildMeshXY(float radius, const Vector3f& _position, int uResolut
 		bitangents.push_back(Vector3f(0.0f, 1.0f, 0.0f));
 	}
 
-	float sectorStep = 2.0f * PI / vResolution;
-	float sectorAngle;  // radian
+	float _startAngle = startAngle * PI_ON_180;
+	float sectorStep = (endAngle * PI_ON_180 - _startAngle) / vResolution;
+	float sectorAngle;
 
-	for (int i = 0; i < vResolution; ++i) {
-		sectorAngle = i * sectorStep;
+	for (int i = 0; i <= vResolution; ++i) {
+		sectorAngle = i * sectorStep + _startAngle;
 		x = cos(sectorAngle);
 		z = sin(sectorAngle);
 
@@ -96,27 +98,21 @@ void MeshDisk::BuildMeshXY(float radius, const Vector3f& _position, int uResolut
 		if (generateTexels)
 			texels.push_back(Vector2f(x * 0.5f + 0.5f, z * 0.5f + 0.5f));
 
-		if (generateNormals) {
+		if (generateNormals) 
 			normals.push_back(Vector3f(0.0f, 0.0f, 1.0f));
-		}
-
+		
 		if (generateTangents) {
 			tangents.push_back(Vector3f(1.0f, 0.0f, 0.0f));
 			bitangents.push_back(Vector3f(0.0f, 1.0f, 0.0f));
 		}
 	}
 
-	for (int i = 0, k = topVertexIndex + 1; i < vResolution; ++i, ++k) {
-		if (i < (vResolution - 1)) {
-			indexBuffer.push_back(topVertexIndex); indexBuffer.push_back(k + 1); indexBuffer.push_back(k);
-		}
-		else {
-			indexBuffer.push_back(topVertexIndex); indexBuffer.push_back(topVertexIndex + 1); indexBuffer.push_back(k);
-		}
+	for (int i = 0, k = topVertexIndex + 1; i <= vResolution; ++i, ++k) {
+		indexBuffer.push_back(topVertexIndex); indexBuffer.push_back(k + 1); indexBuffer.push_back(k);
 	}
 }
 
-void MeshDisk::BuildMeshXZ(float radius, const Vector3f& _position, int uResolution, int vResolution, bool generateTexels, bool generateNormals, bool generateTangents, std::vector<Vector3f>& positions, std::vector<Vector2f>& texels, std::vector<Vector3f>& normals, std::vector<unsigned int>& indexBuffer, std::vector<Vector3f>& tangents, std::vector<Vector3f>& bitangents) {
+void MeshSegment::BuildMeshXZ(float radius, float startAngle, float endAngle, const Vector3f& _position, int uResolution, int vResolution, bool generateTexels, bool generateNormals, bool generateTangents, std::vector<Vector3f>& positions, std::vector<Vector2f>& texels, std::vector<Vector3f>& normals, std::vector<unsigned int>& indexBuffer, std::vector<Vector3f>& tangents, std::vector<Vector3f>& bitangents) {
 	// put vertices of base of cylinder
 	float x = 0.0f, z = 0.0f;
 	unsigned int topVertexIndex = (unsigned int)positions.size();
@@ -133,11 +129,12 @@ void MeshDisk::BuildMeshXZ(float radius, const Vector3f& _position, int uResolut
 		bitangents.push_back(Vector3f(1.0f, 0.0f, 0.0f));
 	}
 
-	float sectorStep = 2.0f * PI / vResolution;
-	float sectorAngle;  // radian
+	float _startAngle = startAngle * PI_ON_180;
+	float sectorStep = (endAngle * PI_ON_180 - _startAngle) / vResolution;
+	float sectorAngle;
 
-	for (int i = 0; i < vResolution; ++i) {
-		sectorAngle = i * sectorStep;
+	for (int i = 0; i <= vResolution; ++i) {
+		sectorAngle = i * sectorStep + _startAngle;
 		x = cos(sectorAngle);
 		z = sin(sectorAngle);
 
@@ -154,16 +151,12 @@ void MeshDisk::BuildMeshXZ(float radius, const Vector3f& _position, int uResolut
 		}
 	}
 
-	for (int i = 0, k = topVertexIndex + 1; i < vResolution; ++i, ++k) {
-		if (i < (vResolution - 1)) {
-			indexBuffer.push_back(topVertexIndex); indexBuffer.push_back(k + 1); indexBuffer.push_back(k);
-		}else {
-			indexBuffer.push_back(topVertexIndex); indexBuffer.push_back(topVertexIndex + 1); indexBuffer.push_back(k);
-		}
+	for (int i = 0, k = topVertexIndex + 1; i <= vResolution; ++i, ++k) {
+		indexBuffer.push_back(topVertexIndex); indexBuffer.push_back(k + 1); indexBuffer.push_back(k);
 	}
 }
 
-void MeshDisk::createBuffer() {
+void MeshSegment::createBuffer() {
 	m_drawCount = m_indexBuffer.size();
 
 	unsigned int ibo;
@@ -220,7 +213,7 @@ void MeshDisk::createBuffer() {
 
 	glBindVertexArray(0);
 	glDeleteBuffers(1, &ibo);
-	
+
 	//m_positions.clear();
 	//m_positions.shrink_to_fit();
 	//m_indexBuffer.clear();
@@ -235,13 +228,13 @@ void MeshDisk::createBuffer() {
 	m_bitangents.shrink_to_fit();
 }
 
-void MeshDisk::drawRaw() {
+void MeshSegment::drawRaw() {
 	glBindVertexArray(m_vao);
 	glDrawElements(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
 }
 
-void MeshDisk::createInstancesStatic(const std::vector<Matrix4f>& modelMTX) {
+void MeshSegment::createInstancesStatic(const std::vector<Matrix4f>& modelMTX) {
 	m_instances.clear();
 	m_instances.shrink_to_fit();
 	m_instances = modelMTX;
@@ -273,7 +266,7 @@ void MeshDisk::createInstancesStatic(const std::vector<Matrix4f>& modelMTX) {
 	glBindVertexArray(0);
 }
 
-void MeshDisk::addInstance(const Matrix4f& modelMTX) {
+void MeshSegment::addInstance(const Matrix4f& modelMTX) {
 	m_instances.push_back(modelMTX);
 	m_instanceCount = m_instances.size();
 
@@ -303,11 +296,11 @@ void MeshDisk::addInstance(const Matrix4f& modelMTX) {
 		glVertexAttribDivisor(8, 1);
 
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		glBindVertexArray(0);		
+		glBindVertexArray(0);
 	}
 }
 
-void MeshDisk::drawRawInstanced() {
+void MeshSegment::drawRawInstanced() {
 	glBindVertexArray(m_vao);
 	glDrawElementsInstanced(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0, m_instanceCount);
 	glBindVertexArray(0);

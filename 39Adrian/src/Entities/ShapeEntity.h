@@ -14,4 +14,9 @@ public:
 	virtual ~ShapeEntity();
 
 	virtual void draw() override;
+
+	short getMaterialIndex() const override;
+	void setMaterialIndex(short index) override;
+	short getTextureIndex() const override;
+	void setTextureIndex(short index) override;
 };

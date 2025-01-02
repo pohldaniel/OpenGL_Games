@@ -210,15 +210,11 @@ public:
 
 	void clear() {
 		for (auto& s : m_assetPointer) {
-			if (s.second) {
-				delete s.second;
-				s.second = NULL;
-			}
+			delete s.second;
+			s.second = nullptr;
 		}
-
-		/*for (const auto& s : m_assets) {
-		s.second.~T();
-		}*/
+		m_assetPointer.clear();
+		m_assets.clear();
 	}
 
 	bool checkAsset(const std::string& name) {
@@ -297,11 +293,11 @@ public:
 
 	void clear() {
 		for (auto& s : m_assetPointer) {
-			if (s.second) {
-				delete s.second;
-				s.second = NULL;
-			}
+			delete s.second;
+			s.second = nullptr;
 		}
+		m_assetPointer.clear();
+		m_assets.clear();
 	}
 
 	~AssetManagerStatic() {}

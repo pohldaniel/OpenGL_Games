@@ -28,7 +28,7 @@ void Md2Entity::fixedUpdate(float fdt) {
 
 	m_rigidBody->setWorldTransform(Physics::BtTransform(aabb.min + pos + 0.5f * size ));
 	m_rigidBody->getCollisionShape()->setLocalScaling(Physics::VectorFrom(size));
-	//Physics::GetDynamicsWorld()->updateSingleAabb(m_rigidBody);
+	Physics::GetDynamicsWorld()->updateSingleAabb(m_rigidBody);
 }
 
 short Md2Entity::getMaterialIndex() const {

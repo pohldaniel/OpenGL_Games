@@ -10,6 +10,7 @@ namespace TextureType {
 		TEXTURE2D,
 		CROSS,
 		CUBE,
+		TEXTURE2D_NULL
 	} TextureType;
 }
 
@@ -59,6 +60,7 @@ struct Material {
 	static Material& AddMaterial(const MaterialBuffer& material =  { {0.0f, 0.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 0.0f}, 1.0f} );
 
 	static Texture& AddTexture(std::string path, TextureType::TextureType textureType = TextureType::TEXTURE2D);
+	static Texture& AddTexture(TextureType::TextureType textureType = TextureType::TEXTURE2D_NULL);
 	static std::vector<Texture>& GetTextures();
 	static void SetTextures(const std::vector<Texture>& textures);
 	static void CleanupTextures();

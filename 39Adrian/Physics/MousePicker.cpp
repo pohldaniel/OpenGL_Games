@@ -105,8 +105,8 @@ void MousePicker::updatePositionOrthographic(unsigned int posX, unsigned int pos
 	float scaleY = (camera.getTopOrthographic() - camera.getBottomOrthographic()) * 0.5f;
 	float scaleZ = (camera.getFarOrthographic() - camera.getNearOrthographic()) * 0.5f;
 
-	Vector3f rayStartWorld = camera.getPosition() + camera.getCamX() * scaleX * mouseXndc + camera.getCamY() * scaleY * mouseYndc;
-	Vector3f rayEndWorld = rayStartWorld + camera.getViewDirection() * scaleZ;
+	Vector3f rayStartWorld = camera.getPosition() + camera.getCamX() * scaleX * mouseXndc + camera.getCamY() * scaleY * mouseYndc + camera.getCamZ() * scaleZ;
+	Vector3f rayEndWorld = camera.getPosition() + camera.getCamX() * scaleX * mouseXndc + camera.getCamY() * scaleY * mouseYndc + camera.getViewDirection() * scaleZ;
 
 	m_callback = MousePickCallback(Physics::VectorFrom(rayStartWorld), Physics::VectorFrom(rayEndWorld), Physics::MOUSEPICKER, Physics::PICKABLE_OBJECT);
 	Physics::GetDynamicsWorld()->rayTest(m_callback.m_origin, m_callback.m_target, m_callback);
@@ -151,8 +151,8 @@ bool MousePicker::clickOrthographic(unsigned int posX, unsigned int posY, const 
 	float scaleY = (camera.getTopOrthographic() - camera.getBottomOrthographic()) * 0.5f;
 	float scaleZ = (camera.getFarOrthographic() - camera.getNearOrthographic()) * 0.5f;
 
-	Vector3f rayStartWorld = camera.getPosition() + camera.getCamX() * scaleX * mouseXndc + camera.getCamY() * scaleY * mouseYndc;
-	Vector3f rayEndWorld = rayStartWorld + camera.getViewDirection() * scaleZ;
+	Vector3f rayStartWorld = camera.getPosition() + camera.getCamX() * scaleX * mouseXndc + camera.getCamY() * scaleY * mouseYndc + camera.getCamZ() * scaleZ;
+	Vector3f rayEndWorld = camera.getPosition() + camera.getCamX() * scaleX * mouseXndc + camera.getCamY() * scaleY * mouseYndc + camera.getViewDirection() * scaleZ;
 
 	m_callback = MousePickCallback(Physics::VectorFrom(rayStartWorld), Physics::VectorFrom(rayEndWorld), Physics::MOUSEPICKER, Physics::PICKABLE_OBJECT);
 	Physics::GetDynamicsWorld()->rayTest(m_callback.m_origin, m_callback.m_target, m_callback);

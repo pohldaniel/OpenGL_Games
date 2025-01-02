@@ -8,6 +8,7 @@
 #include "MeshQuad.h"
 #include "MeshCube.h"
 #include "MeshDisk.h"
+#include "MeshSegment.h"
 #include "MeshTorusKnot.h"
 #include "../utils/Utils.h"
 
@@ -163,6 +164,16 @@ void Shape::buildDiskXZ(float radius, const Vector3f& position, int uResolution,
 	createBuffer();
 }
 
+void Shape::buildSegmentXY(float radius, float startAngle, float endAngle, const Vector3f& position, int uResolution, int vResolution, bool generateTexels, bool generateNormals, bool generateTangents) {
+	MeshSegment::BuildMeshXY(radius, startAngle, endAngle, position, uResolution, vResolution, generateTexels, generateNormals, generateTangents, m_positions, m_texels, m_normals, m_indexBuffer, m_tangents, m_bitangents);
+	createBuffer();
+}
+
+void Shape::buildSegmentXZ(float radius, float startAngle, float endAngle, const Vector3f& position, int uResolution, int vResolution, bool generateTexels, bool generateNormals, bool generateTangents) {
+	MeshSegment::BuildMeshXZ(radius, startAngle, endAngle, position, uResolution, vResolution, generateTexels, generateNormals, generateTangents, m_positions, m_texels, m_normals, m_indexBuffer, m_tangents, m_bitangents);
+	createBuffer();
+}
+
 void Shape::fromBuffer(const std::vector<float>& vertexBuffer, const std::vector<unsigned int>& indexBuffer, unsigned int stride, bool _createBuffer) {
 	if (stride == 3) {
 		for (unsigned int i = 0; i < vertexBuffer.size(); i = i + stride) {
@@ -188,8 +199,7 @@ void Shape::fromBuffer(const std::vector<float>& vertexBuffer, const std::vector
 		for (unsigned int i = 0; i < vertexBuffer.size(); i = i + stride) {
 			m_positions.push_back(Vector3f(vertexBuffer[i], vertexBuffer[i + 1], vertexBuffer[i + 2]));
 			m_texels.push_back(Vector2f(vertexBuffer[i + 3], vertexBuffer[i + 4]));
-			m_normals.push_back(Vector3f(vertexBuffer[i + 5], vertexBuffer[i + 6], vertexBuffer[i + 7]));
-			
+			m_normals.push_back(Vector3f(vertexBuffer[i + 5], vertexBuffer[i + 6], vertexBuffer[i + 7]));		
 		}
 	}
 
@@ -200,7 +210,6 @@ void Shape::fromBuffer(const std::vector<float>& vertexBuffer, const std::vector
 			m_normals.push_back(Vector3f(vertexBuffer[i + 5], vertexBuffer[i + 6], vertexBuffer[i + 7]));
 			m_tangents.push_back(Vector3f(vertexBuffer[i + 8], vertexBuffer[i + 9], vertexBuffer[i + 10]));
 			m_bitangents.push_back(Vector3f(vertexBuffer[i + 11], vertexBuffer[i + 12], vertexBuffer[i + 13]));
-
 		}
 	}
 

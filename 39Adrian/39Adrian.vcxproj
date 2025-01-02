@@ -178,6 +178,7 @@
     <ClCompile Include="engine\DebugRenderer.cpp" />
     <ClCompile Include="engine\Md2Model.cpp" />
     <ClCompile Include="engine\MeshBone.cpp" />
+    <ClCompile Include="engine\MeshObject\MeshSegment.cpp" />
     <ClCompile Include="engine\MeshObject\MeshTorusKnot.cpp" />
     <ClCompile Include="engine\MeshSequence.cpp" />
     <ClCompile Include="engine\MousePickerFBO.cpp" />
@@ -328,6 +329,7 @@
     <ClInclude Include="engine\interfaces\IStateMachine.h" />
     <ClInclude Include="engine\Md2Model.h" />
     <ClInclude Include="engine\MeshBone.h" />
+    <ClInclude Include="engine\MeshObject\MeshSegment.h" />
     <ClInclude Include="engine\MeshObject\MeshTorusKnot.h" />
     <ClInclude Include="engine\MeshSequence.h" />
     <ClInclude Include="engine\MousePickerFBO.h" />

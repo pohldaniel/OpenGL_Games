@@ -137,6 +137,22 @@ Texture& Material::AddTexture(std::string path, TextureType::TextureType texture
 	return texture;
 }
 
+Texture& Material::AddTexture(TextureType::TextureType textureType) {
+	Textures.resize(Textures.size() + 1);
+	Texture& texture = Textures.back();
+	texture.setDeepCopy(true);
+
+	switch (textureType) {
+	case TextureType::TEXTURE2D_NULL:
+		texture.createNullTexture(2u, 2u);
+		break;
+	default:
+		break;
+	}
+
+	return texture;
+}
+
 std::vector<Texture>& Material::GetTextures() {
 	return Textures;
 }
