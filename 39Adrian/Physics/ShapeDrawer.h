@@ -54,6 +54,8 @@ public:
 	void drawShape(btScalar* m,  btCollisionShape* shape);
 	void setCamera(const Camera& camera);
 	void setProjectionView(const Matrix4f& projection, const Matrix4f& view);
+	void addToCache(btCollisionShape* shape);
+	void removeFromCache(btCollisionShape* shape);
 
 	static ShapeDrawer& Get();
 

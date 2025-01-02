@@ -51,10 +51,9 @@ void ShapeDrawer::shutdown() {
 	}
 	m_shapecache.clear();
 
-	for (int i = 0; i<m_shapecacheConvex.size(); i++) {
+	for (int i = 0; i < m_shapecacheConvex.size(); i++) {
 		delete m_shapecacheConvex[i];
 	}
-
 	m_shapecacheConvex.clear();
 
 	if (m_vbo) {
@@ -248,6 +247,19 @@ void ShapeDrawer::drawShape(btScalar* m, btCollisionShape* shape) {
 
 	}
 
+}
+
+void ShapeDrawer::addToCache(btCollisionShape* shape) {
+	cacheConvex(const_cast<btCollisionShape*>(shape));
+}
+
+void ShapeDrawer::removeFromCache(btCollisionShape* shape) {
+	ShapeCacheConvex* sc = (ShapeCacheConvex*)shape->getUserPointer();
+	if (!sc)
+		return;
+
+	delete sc;
+	m_shapecacheConvex.remove(sc);
 }
 
 ShapeDrawer::ShapeCacheConvex* ShapeDrawer::cacheConvex(btCollisionShape* shape) {

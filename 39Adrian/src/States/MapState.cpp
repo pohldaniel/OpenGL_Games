@@ -24,7 +24,9 @@ MapState::MapState(StateMachine& machine) : State(machine, States::DEFAULT), m_c
 	glClearDepth(1.0f);
 
 	Material::AddTexture("data/models/dynamic/hero/hero.tga");
+	Material::AddTexture("res/textures/los.tga");
 	Material::AddTexture();
+
 	m_hero.load("data/models/dynamic/hero/hero.md2");
 
 	WorkQueue::Init(0);
@@ -42,8 +44,8 @@ MapState::MapState(StateMachine& machine) : State(machine, States::DEFAULT), m_c
 
 	ShapeDrawer::Get().init(32768);
 	ShapeDrawer::Get().setCamera(m_camera);
-	m_heroEnity->m_rigidBody = Physics::AddKinematicRigidBody(Physics::BtTransform(Physics::VectorFrom(m_heroEnity->getWorldPosition())), new btBoxShape(btVector3(0.5f, 0.5f, 0.5f)), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER, nullptr, false);
-	//m_heroEnity->m_rigidBody = Physics::AddKinematicRigidBody(Physics::BtTransform(Physics::VectorFrom(m_heroEnity->getWorldPosition())), new btBoxShape(btVector3(12.5f, 12.5f, 12.5f)), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER, nullptr, false);
+	m_heroEnity->setRigidBody(Physics::AddKinematicRigidBody(Physics::BtTransform(Physics::VectorFrom(m_heroEnity->getWorldPosition())), new btBoxShape(btVector3(0.5f, 0.5f, 0.5f)), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER, nullptr, false));
+	//m_heroEnity->setRigidBody(Physics::AddKinematicRigidBody(Physics::BtTransform(Physics::VectorFrom(m_heroEnity->getWorldPosition())), new btBoxShape(btVector3(12.5f, 12.5f, 12.5f)), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER, nullptr, false));
 
 	m_segment.buildSegmentXZ(150.0f, -30.0f, 30.0f, Vector3f(0.0f, 0.0f, 0.0f), 20, 20, true, false, false);
 	m_segment.createBoundingBox();
@@ -52,6 +54,11 @@ MapState::MapState(StateMachine& machine) : State(machine, States::DEFAULT), m_c
 	m_segmentNode->setPosition(0.0f, -MAP_MODEL_HEIGHT_Y + 0.01f, 0.0f);
 	m_segmentNode->setTextureIndex(1);
 	m_segmentNode->OnOctreeSet(m_octree);
+
+	m_disk.buildDiskXZ(20.0f, Vector3f(0.0f, 0.0f, 0.0f), 20, 20, true, false, false);
+	m_disk.createBoundingBox();
+	m_disk.markForDelete();
+	
 }
 
 MapState::~MapState() {
@@ -59,6 +66,7 @@ MapState::~MapState() {
 	EventDispatcher::RemoveMouseListener(this);
 
 	ShapeDrawer::Get().shutdown();
+	delete m_octree;
 }
 
 void MapState::fixedUpdate() {
@@ -215,8 +223,21 @@ void MapState::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 		
 		m_mousePicker.updatePosition(event.x, event.y, m_camera);
 		if (m_mousePicker.clickOrthographic(event.x, event.y, m_camera)) {
+			
+			if (!m_heroEnity->isActive()) {
+				m_diskNode = m_heroEnity->addChild<ShapeNode, Shape>(m_disk);
+				m_diskNode->setPosition(0.0f, -MAP_MODEL_HEIGHT_Y + 0.01f, 0.0f);
+				m_diskNode->setTextureIndex(2);
+				m_diskNode->setName("marker");
+				m_diskNode->OnOctreeSet(m_octree);
+			}
 			m_heroEnity->setIsActive(true);
 		}else {
+			if (m_heroEnity->isActive()) {
+				ShapeNode* marker = m_heroEnity->findChild<ShapeNode>("marker");
+				marker->OnOctreeSet(nullptr);
+				marker->eraseSelf();
+			}
 			m_heroEnity->setIsActive(false);
 		}
 	}

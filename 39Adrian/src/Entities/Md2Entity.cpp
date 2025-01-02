@@ -1,6 +1,7 @@
+#include <Physics/ShapeDrawer.h>
 #include "Md2Entity.h"
 
-Md2Entity::Md2Entity(const Md2Model& md2Model) : Md2Node(md2Model), Entity(), m_isActive(true), m_rigidBody(nullptr), m_color(Vector4f::ONE){
+Md2Entity::Md2Entity(const Md2Model& md2Model) : Md2Node(md2Model), Entity(), m_isActive(false), m_rigidBody(nullptr), m_color(Vector4f::ONE){
 
 }
 
@@ -21,12 +22,11 @@ void Md2Entity::update(const float dt) {
 }
 
 void Md2Entity::fixedUpdate(float fdt) {
-
 	const BoundingBox& aabb = getLocalBoundingBox();
 	const Vector3f& pos = getWorldPosition();
 	const Vector3f size = aabb.getSize();
 
-	m_rigidBody->setWorldTransform(Physics::BtTransform(aabb.min + pos + 0.5f * size ));
+	m_rigidBody->setWorldTransform(Physics::BtTransform(aabb.min + pos + 0.5f * size));
 	m_rigidBody->getCollisionShape()->setLocalScaling(Physics::VectorFrom(size));
 	Physics::GetDynamicsWorld()->updateSingleAabb(m_rigidBody);
 }
@@ -54,4 +54,13 @@ void Md2Entity::setIsActive(bool isActive) {
 
 const Vector4f& Md2Entity::getColor() const {
 	return m_color;
+}
+
+bool Md2Entity::isActive() {
+	return m_isActive;
+}
+
+void Md2Entity::setRigidBody(btRigidBody* rigidBody) {
+	m_rigidBody = rigidBody;
+	ShapeDrawer::Get().addToCache(m_rigidBody->getCollisionShape());
 }

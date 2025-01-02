@@ -22,12 +22,15 @@ public:
 	short getTextureIndex() const override;
 	void setTextureIndex(short index) override;
 	void setIsActive(bool active);
-	
+	bool isActive();
+	void setRigidBody(btRigidBody* rigidBody);
+
 	const Vector4f& getColor() const;
 
-	btRigidBody* m_rigidBody;
+	
 
 private:
 	bool m_isActive;
 	Vector4f m_color;
+	btRigidBody* m_rigidBody;
 };

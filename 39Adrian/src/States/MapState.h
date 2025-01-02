@@ -57,8 +57,8 @@ private:
 	Octree* m_octree;
 	Frustum m_frustum;
 
-	Shape m_segment;
-	ShapeNode* m_segmentNode;
+	Shape m_segment, m_disk;
+	ShapeNode* m_segmentNode, *m_diskNode;
 
 	MousePicker m_mousePicker;
 };
