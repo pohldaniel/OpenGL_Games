@@ -28,7 +28,7 @@ void Md2Entity::fixedUpdate(float fdt) {
 
 	m_rigidBody->setWorldTransform(Physics::BtTransform(aabb.min + pos + 0.5f * size));
 	m_rigidBody->getCollisionShape()->setLocalScaling(Physics::VectorFrom(size));
-	Physics::GetDynamicsWorld()->updateSingleAabb(m_rigidBody);
+	//Physics::GetDynamicsWorld()->updateSingleAabb(m_rigidBody);
 }
 
 short Md2Entity::getMaterialIndex() const {
@@ -63,4 +63,12 @@ bool Md2Entity::isActive() {
 void Md2Entity::setRigidBody(btRigidBody* rigidBody) {
 	m_rigidBody = rigidBody;
 	ShapeDrawer::Get().addToCache(m_rigidBody->getCollisionShape());
+}
+
+btRigidBody* Md2Entity::getRigidBody() {
+	return m_rigidBody;
+}
+
+void Md2Entity::move(float x, float z) {
+	setPosition(x, MAP_MODEL_HEIGHT_Y, z);
 }

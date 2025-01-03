@@ -1560,7 +1560,7 @@ void IsometricCamera::resize(unsigned int width, unsigned int height) {
 	m_vres = static_cast<float>(height);
 }
 
-int IsometricCamera::convertCoordinates(int x, int y, float &x3, float &y3) {
+int IsometricCamera::convertCoordinates(unsigned int x, unsigned int y, float &x3, float &y3) {
 	float newx = x - (m_hres / 2.0);
 	float newy = m_yfactor * ((m_vres / 2.0) - y);
 

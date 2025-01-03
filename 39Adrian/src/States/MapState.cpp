@@ -58,7 +58,12 @@ MapState::MapState(StateMachine& machine) : State(machine, States::DEFAULT), m_c
 	m_disk.buildDiskXZ(20.0f, Vector3f(0.0f, 0.0f, 0.0f), 20, 20, true, false, false);
 	m_disk.createBoundingBox();
 	m_disk.markForDelete();
-	
+
+	m_sphere.buildSphere(10.0f, Vector3f(0.0f, 0.0f, 0.0f), 20, 20, true, false, false);
+	m_sphere.createBoundingBox();
+	m_sphere.markForDelete();
+
+	m_ground = Physics::AddStaticObject(Physics::BtTransform(btVector3(0.0f, 0.0f, 0.0f)), new  btStaticPlaneShape(btVector3(0.0f, 1.0f, 0.0f), -0.1f), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER, nullptr);
 }
 
 MapState::~MapState() {
@@ -114,6 +119,10 @@ void MapState::update() {
 	if (keyboard.keyDown(Keyboard::KEY_E)) {
 		direction += Vector3f(0.0f, 1.0f, 0.0f);
 		move |= true;
+	}
+
+	if (keyboard.keyPressed(Keyboard::KEY_T)) {
+		clearMarker();
 	}
 
 	Vector3f moveDir = Vector3f::ZERO;
@@ -215,26 +224,35 @@ void MapState::OnMouseMotion(Event::MouseMoveEvent& event) {
 
 void MapState::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 	if (event.button == 2u) {
-		Mouse::instance().attach(Application::GetWindow());
+		Mouse::instance().attach(Application::GetWindow(), false, false, false);
+		
+		if (m_mousePicker.clickOrthographicAll(event.x, event.y, m_camera, m_ground)) {
+			const MousePickCallbackAll& callbackAll = m_mousePicker.getCallbackAll();
+			m_marker.push_back(m_root->addChild<ShapeNode, Shape>(m_sphere));
+			m_marker.back()->setPosition(Physics::VectorFrom(callbackAll.m_hitPointWorld[callbackAll.index]));
+			m_marker.back()->setTextureIndex(2);
+			m_marker.back()->OnOctreeSet(m_octree);
+			const Vector3f& pos = m_marker.back()->getPosition();
+			m_heroEnity->move(pos[0], pos[2]);
+		}
 	}
 
 	if (event.button == 1u) {
 		Mouse::instance().attach(Application::GetWindow(), false, false, false);
 		
 		m_mousePicker.updatePosition(event.x, event.y, m_camera);
-		if (m_mousePicker.clickOrthographic(event.x, event.y, m_camera)) {
-			
+		if (m_mousePicker.clickOrthographic(event.x, event.y, m_camera, m_heroEnity->getRigidBody())) {
 			if (!m_heroEnity->isActive()) {
 				m_diskNode = m_heroEnity->addChild<ShapeNode, Shape>(m_disk);
 				m_diskNode->setPosition(0.0f, -MAP_MODEL_HEIGHT_Y + 0.01f, 0.0f);
 				m_diskNode->setTextureIndex(2);
-				m_diskNode->setName("marker");
-				m_diskNode->OnOctreeSet(m_octree);
+				m_diskNode->setName("disk");
+				m_diskNode->OnOctreeSet(m_octree);		
 			}
 			m_heroEnity->setIsActive(true);
 		}else {
 			if (m_heroEnity->isActive()) {
-				ShapeNode* marker = m_heroEnity->findChild<ShapeNode>("marker");
+				ShapeNode* marker = m_heroEnity->findChild<ShapeNode>("disk");
 				marker->OnOctreeSet(nullptr);
 				marker->eraseSelf();
 			}
@@ -338,8 +356,19 @@ void MapState::renderUi() {
 	}
 	ImGui::Checkbox("Debug Tree", &m_debugTree);
 	ImGui::Checkbox("Debug Physic", &m_debugPhysic);
+	if (ImGui::Button("Clear Marker"))
+		clearMarker();
+	
 	ImGui::End();
 
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+}
+
+void MapState::clearMarker() {
+	for (auto shapeNode : m_marker) {
+		shapeNode->OnOctreeSet(nullptr);
+		shapeNode->eraseSelf();
+	}
+	m_marker.clear();
 }

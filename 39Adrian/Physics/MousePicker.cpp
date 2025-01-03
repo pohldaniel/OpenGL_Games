@@ -3,7 +3,7 @@
 
 std::unique_ptr<Shader> MousePicker::s_shader = nullptr;
 
-MousePicker::MousePicker() : m_callback(btVector3(0.0f, 0.0f, 0.0f), btVector3(0.0f, 0.0f, 0.0f)), m_hasPicked(false), m_isActivated(false){
+MousePicker::MousePicker() : m_callback(btVector3(0.0f, 0.0f, 0.0f), btVector3(0.0f, 0.0f, 0.0f)), m_callbackAll(btVector3(0.0f, 0.0f, 0.0f), btVector3(0.0f, 0.0f, 0.0f)), m_hasPicked(false), m_isActivated(false) {
 
 	if (!s_shader) {
 		s_shader = std::unique_ptr<Shader>(new Shader(MOUSEPICKER_VERTEX, MOUSEPICKER_FRGAMENT, false));		
@@ -76,7 +76,7 @@ void MousePicker::updatePosition(unsigned int posX, unsigned int posY, const Cam
 	}
 }
 
-bool MousePicker::click(unsigned int posX, unsigned int posY, const Camera& camera) {
+bool MousePicker::click(unsigned int posX, unsigned int posY, const Camera& camera, btCollisionObject* collisonObject) {
 	float mouseXndc = (2.0f * posX) / static_cast<float>(Application::Width) - 1.0f;
 	float mouseYndc = 1.0f - (2.0f * posY) / static_cast<float>(Application::Height);
 
@@ -91,7 +91,7 @@ bool MousePicker::click(unsigned int posX, unsigned int posY, const Camera& came
 
 	if (m_callback.hasHit()) {
 		m_pickingDistance = (m_callback.m_hitPointWorld - m_callback.m_origin).length();	
-		return true;
+		return collisonObject == nullptr ? true : collisonObject == m_callback.m_collisionObject;
 	} else {
 		return false;
 	}
@@ -143,7 +143,7 @@ void MousePicker::updatePositionOrthographic(unsigned int posX, unsigned int pos
 	}
 }
 
-bool MousePicker::clickOrthographic(unsigned int posX, unsigned int posY, const Camera& camera) {
+bool MousePicker::clickOrthographic(unsigned int posX, unsigned int posY, const Camera& camera, btCollisionObject* collisonObject) {
 	float mouseXndc = (2.0f * posX) / static_cast<float>(Application::Width) - 1.0f;
 	float mouseYndc = 1.0f - (2.0f * posY) / static_cast<float>(Application::Height);
 
@@ -158,8 +158,29 @@ bool MousePicker::clickOrthographic(unsigned int posX, unsigned int posY, const 
 	Physics::GetDynamicsWorld()->rayTest(m_callback.m_origin, m_callback.m_target, m_callback);
 
 	if (m_callback.hasHit()) {
-		m_pickingDistance = (m_callback.m_hitPointWorld - m_callback.m_origin).length();
-		return true;
+		return collisonObject == nullptr ? true : collisonObject == m_callback.m_collisionObject;
+	}else {
+		return false;
+	}
+}
+
+bool MousePicker::clickOrthographicAll(unsigned int posX, unsigned int posY, const Camera& camera, btCollisionObject* collisonObject) {
+	float mouseXndc = (2.0f * posX) / static_cast<float>(Application::Width) - 1.0f;
+	float mouseYndc = 1.0f - (2.0f * posY) / static_cast<float>(Application::Height);
+
+	float scaleX = (camera.getRightOrthographic() - camera.getLeftOrthographic()) * 0.5f;
+	float scaleY = (camera.getTopOrthographic() - camera.getBottomOrthographic()) * 0.5f;
+	float scaleZ = (camera.getFarOrthographic() - camera.getNearOrthographic()) * 0.5f;
+
+	Vector3f rayStartWorld = camera.getPosition() + camera.getCamX() * scaleX * mouseXndc + camera.getCamY() * scaleY * mouseYndc + camera.getCamZ() * scaleZ;
+	Vector3f rayEndWorld = camera.getPosition() + camera.getCamX() * scaleX * mouseXndc + camera.getCamY() * scaleY * mouseYndc + camera.getViewDirection() * scaleZ;
+
+	m_callbackAll = MousePickCallbackAll(Physics::VectorFrom(rayStartWorld), Physics::VectorFrom(rayEndWorld), Physics::MOUSEPICKER, Physics::PICKABLE_OBJECT);
+	Physics::GetDynamicsWorld()->rayTest(m_callbackAll.m_origin, m_callbackAll.m_target, m_callbackAll);
+
+	if (m_callbackAll.hasHit()) {
+		m_callbackAll.index = m_callbackAll.m_collisionObjects.findLinearSearch2(collisonObject);
+		return collisonObject == nullptr ? true : m_callbackAll.index >= 0;
 	}else {
 		return false;
 	}
@@ -229,6 +250,10 @@ void MousePicker::drawPicker(const Camera& camera) {
 
 const MousePickCallback& MousePicker::getCallback() {
 	return m_callback;
+}
+
+const MousePickCallbackAll& MousePicker::getCallbackAll() {
+	return m_callbackAll;
 }
 
 float MousePicker::getPickingDistance() {

@@ -53,6 +53,27 @@ public:
 	btScalar addSingleResult(btCollisionWorld::LocalRayResult& rayResult, bool normalInWorldSpace) {
 		return ClosestRayResultCallback::addSingleResult(rayResult, normalInWorldSpace);
 	}
+};
+
+class MousePickCallbackAll : public btCollisionWorld::AllHitsRayResultCallback {
+
+public:
+
+	btVector3 m_origin;
+	btVector3 m_target;
+	int index;
+
+	MousePickCallbackAll(const btVector3& origin, const btVector3& target, int collisionFilterGroup = btBroadphaseProxy::DefaultFilter, int collisionFilterMask = btBroadphaseProxy::AllFilter) : btCollisionWorld::AllHitsRayResultCallback(origin, target) {
+		m_collisionFilterGroup = collisionFilterGroup;
+		m_collisionFilterMask = collisionFilterMask;
+		m_origin = origin;
+		m_target = target;
+		index = -1;
+	}
+
+	btScalar addSingleResult(btCollisionWorld::LocalRayResult& rayResult, bool normalInWorldSpace) {
+		return AllHitsRayResultCallback::addSingleResult(rayResult, normalInWorldSpace);
+	}
 
 };
 
@@ -67,12 +88,14 @@ public:
 	void drawPicker(const Camera& camera);	
 	void updatePosition(unsigned int posX, unsigned int posY, const Camera& camera);
 	void updatePositionOrthographic(unsigned int posX, unsigned int posY, const Camera& camera);
-	bool click(unsigned int posX, unsigned int posY, const Camera& camera);
-	bool clickOrthographic(unsigned int posX, unsigned int posY, const Camera& camera);
+	bool click(unsigned int posX, unsigned int posY, const Camera& camera, btCollisionObject* collisonObject = nullptr);
+	bool clickOrthographic(unsigned int posX, unsigned int posY, const Camera& camera, btCollisionObject* collisonObject = nullptr);
+	bool clickOrthographicAll(unsigned int posX, unsigned int posY, const Camera& camera, btCollisionObject* collisonObject = nullptr);
 	void setHasPicked(bool value);
 	void setPosition(const Vector3f& pos);
 	void setIsActivated(bool isactivated);
 	const MousePickCallback& getCallback();
+	const MousePickCallbackAll& getCallbackAll();
 	float getPickingDistance();
 
 private:
@@ -80,6 +103,7 @@ private:
 	void createBuffer();
 
 	MousePickCallback m_callback;	
+	MousePickCallbackAll m_callbackAll;
 
 	bool m_debug = true;
 	unsigned int m_vao = 0;

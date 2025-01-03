@@ -194,24 +194,19 @@ public:
 	void rotate(float angle);
 	void setHeight(float height);
 	void resize(unsigned int width, unsigned int height);
-
+	int convertCoordinates(unsigned int x, unsigned int y, float &, float &);
 	float m_initx;
 	float m_initz;
-
 private:
 
-	int convertCoordinates(int x, int y, float &, float &);
-
+	
 	float m_distance;
 	float m_height;
 	float m_angle;
-	float m_startAngle;
-	
+	float m_startAngle;	
 	float m_yfactor;
-
 	float m_hres, m_vres;
 	float m_breadth, m_length;
-
 	float m_speed;
 };
 

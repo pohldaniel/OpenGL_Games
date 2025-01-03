@@ -5,6 +5,8 @@
 #include <Physics/Physics.h>
 #include <Entities/Entity.h>
 
+#define		MAP_MODEL_HEIGHT_Y	25.0f
+
 class Md2Entity : public Md2Node, public Entity {
 
 public:
@@ -26,8 +28,8 @@ public:
 	void setRigidBody(btRigidBody* rigidBody);
 
 	const Vector4f& getColor() const;
-
-	
+	btRigidBody* getRigidBody();
+	void move(float x, float z);
 
 private:
 	bool m_isActive;

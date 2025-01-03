@@ -13,8 +13,6 @@
 #include <States/StateMachine.h>
 #include <Entities/Md2Entity.h>
 
-#define		MAP_MODEL_HEIGHT_Y	25.0f
-
 class MapState : public State, public MouseEventListener, public KeyboardEventListener {
 
 public:
@@ -36,6 +34,7 @@ public:
 private:
 
 	void renderUi();
+	void clearMarker();
 
 	bool m_initUi = true;
 	bool m_drawUi = true;	
@@ -57,8 +56,11 @@ private:
 	Octree* m_octree;
 	Frustum m_frustum;
 
-	Shape m_segment, m_disk;
+	Shape m_segment, m_disk, m_sphere;
 	ShapeNode* m_segmentNode, *m_diskNode;
 
+	std::vector<ShapeNode*> m_marker;
+
 	MousePicker m_mousePicker;
+	btCollisionObject* m_ground;
 };
