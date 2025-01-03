@@ -76,6 +76,9 @@
     <Filter Include="engine\animationNew">
       <UniqueIdentifier>{9281786b-817c-4dcc-910c-ac1a3c76892c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Navigation">
+      <UniqueIdentifier>{f6a91854-253f-44df-9622-c64926224444}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\input\ApplicationEventListener.cpp">
@@ -429,12 +432,6 @@
     <ClCompile Include="src\Entities\SpriteEntity.cpp">
       <Filter>Source Files\Entities</Filter>
     </ClCompile>
-    <ClCompile Include="src\Timer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Fade.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\UI\Label.cpp">
       <Filter>Source Files\UI</Filter>
     </ClCompile>
@@ -488,6 +485,21 @@
     </ClCompile>
     <ClCompile Include="engine\MeshObject\MeshSegment.cpp">
       <Filter>engine\MeshObject</Filter>
+    </ClCompile>
+    <ClCompile Include="Navigation\DynamicNavigationMesh.cpp">
+      <Filter>Navigation</Filter>
+    </ClCompile>
+    <ClCompile Include="Navigation\NavigationMesh.cpp">
+      <Filter>Navigation</Filter>
+    </ClCompile>
+    <ClCompile Include="src\States\NavigationState.cpp">
+      <Filter>Source Files\States</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Utils\Fade.cpp">
+      <Filter>Source Files\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Utils\Timer.cpp">
+      <Filter>Source Files\Utils</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -881,12 +893,6 @@
     <ClInclude Include="src\Entities\SpriteEntity.h">
       <Filter>Source Files\Entities</Filter>
     </ClInclude>
-    <ClInclude Include="src\Timer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Fade.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\UI\Label.h">
       <Filter>Source Files\UI</Filter>
     </ClInclude>
@@ -937,6 +943,21 @@
     </ClInclude>
     <ClInclude Include="engine\MeshObject\MeshSegment.h">
       <Filter>engine\MeshObject</Filter>
+    </ClInclude>
+    <ClInclude Include="Navigation\DynamicNavigationMesh.h">
+      <Filter>Navigation</Filter>
+    </ClInclude>
+    <ClInclude Include="Navigation\NavigationMesh.h">
+      <Filter>Navigation</Filter>
+    </ClInclude>
+    <ClInclude Include="src\States\NavigationState.h">
+      <Filter>Source Files\States</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Utils\Fade.h">
+      <Filter>Source Files\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Utils\Timer.h">
+      <Filter>Source Files\Utils</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -11,7 +11,7 @@
 #include "Application.h"
 #include "Globals.h"
 
-MapState::MapState(StateMachine& machine) : State(machine, States::DEFAULT), m_camera(Application::Width, Application::Height) {
+MapState::MapState(StateMachine& machine) : State(machine, States::MAP), m_camera(Application::Width, Application::Height) {
 
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
@@ -59,7 +59,7 @@ MapState::MapState(StateMachine& machine) : State(machine, States::DEFAULT), m_c
 	m_disk.createBoundingBox();
 	m_disk.markForDelete();
 
-	m_sphere.buildSphere(10.0f, Vector3f(0.0f, 0.0f, 0.0f), 20, 20, true, false, false);
+	m_sphere.buildSphere(10.0f, Vector3f(0.0f, 0.0f, 0.0f), 10, 10, true, false, false);
 	m_sphere.createBoundingBox();
 	m_sphere.markForDelete();
 
