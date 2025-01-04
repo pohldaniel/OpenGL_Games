@@ -1,18 +1,18 @@
 #pragma once
 #include <memory>
-#include <engine/Clock.h>
-#include <engine/MeshObject/Shape.h>
+
+#include <engine/animation/AssimpAnimation.h>
+#include <engine/animationNew/Animation.h>
 #include <engine/sound/SoundBuffer.h>
 #include <engine/sound/MusicBuffer.h>
-#include <engine/AssetManger.h>
-#include <engine/Shader.h>
-#include <engine/Texture.h>
+#include <engine/MeshObject/Shape.h>
 #include <engine/CharacterSet.h>
 #include <engine/Spritesheet.h>
+#include <engine/AssetManger.h>
+#include <engine/Texture.h>
+#include <engine/Shader.h>
+#include <engine/Clock.h>
 #include <Physics/Physics.h>
-
-#include <engine/animationNew/Animation.h>
-#include <engine/animation/AssimpAnimation.h>
 
 #define WIDTH 1024
 #define HEIGHT 768

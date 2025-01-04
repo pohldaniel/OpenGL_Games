@@ -738,6 +738,9 @@ void Application::loadAssets() {
 	Globals::textureManager.loadTexture("ground", "res/textures/ground.tga", false);
 	Globals::textureManager.get("ground").setWrapMode(GL_REPEAT);
 
+	Globals::textureManager.loadTexture("proto_white", "res/textures/ProtoWhite256.jpg", true);
+	Globals::textureManager.get("proto_white").setWrapMode(GL_REPEAT);
+
 	Globals::shapeManager.buildQuadXY("quad_xy", Vector3f(0.0f, 0.0f, 0.0f), Vector2f(600.0f, 600.0f), 1, 1, true, false, false);
 	//Globals::shapeManager.buildQuadXZ("quad_xz", Vector3f(-300.0f, 0.0f, -300.0f), Vector2f(600.0f, 600.0f), 1, 1, true, false, false);
 

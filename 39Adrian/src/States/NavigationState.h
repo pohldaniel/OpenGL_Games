@@ -1,9 +1,14 @@
 #pragma once
 
-#include <engine/input/MouseEventListener.h>
 #include <engine/input/KeyboardEventListener.h>
-#include <engine/Camera.h>
+#include <engine/input/MouseEventListener.h>
+#include <engine/animationNew/AnimationController.h>
+#include <engine/animationNew/AnimatedModel.h>
+#include <engine/MeshObject/Shape.h>
+#include <engine/Scene/ShapeNode.h>
+#include <engine/octree/Octree.h>
 #include <engine/Background.h>
+#include <engine/Camera.h>
 
 #include <States/StateMachine.h>
 
@@ -28,10 +33,20 @@ public:
 private:
 
 	void renderUi();
+	void createShapes();
+	void createScene();
 
 	bool m_initUi = true;
 	bool m_drawUi = true;
+	bool m_debugTree = false;
 
 	Camera m_camera;
+	Frustum m_frustum;
 	Background m_background;
+
+	SceneNodeLC* m_root;
+	Octree* m_octree;
+
+	Shape m_ground, m_cylinder, m_cube, m_cube14, m_cube17;
+	AnimatedModel m_beta;
 };

@@ -16,7 +16,7 @@ public:
 
 	void OnOctreeSet(Octree* octree) override;
 
-	void drawRaw() const override;
+	virtual void drawRaw() const override;
 	void update(const float dt);
 
 	AnimationState* addAnimationState(Animation* animation);
@@ -41,6 +41,15 @@ public:
 	unsigned short getNumBones();
 	const Matrix4f* getSkinMatrices();
 	BoneNode* getRootBone();
+	short getMaterialIndex() const;
+	short getTextureIndex() const;
+	void setMaterialIndex(short index);
+	void setTextureIndex(short index);
+
+protected:
+
+	short m_materialIndex;
+	short m_textureIndex;
 
 private:
 

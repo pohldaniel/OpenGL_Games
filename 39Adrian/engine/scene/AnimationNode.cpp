@@ -1,5 +1,6 @@
 #include "AnimationNode.h"
 #include "../DebugRenderer.h"
+#include "../Material.h"
 #include "../BuiltInShader.h"
 #include "../octree/Octree.h"
 
@@ -17,7 +18,9 @@ AnimationNode::AnimationNode(const AnimatedModel& animatedModel) :
 	m_skinningDirty(true),
 	m_numBones(0), 
 	m_updateSilent(false),
-	m_boneBoundingBoxDirty(true){
+	m_boneBoundingBoxDirty(true),
+	m_materialIndex(-1),
+	m_textureIndex(-1){
 	createBones();
 }
 
@@ -82,6 +85,13 @@ void AnimationNode::OnOctreeSet(Octree* octree) {
 }
 
 void AnimationNode::drawRaw() const {
+
+	if (m_materialIndex >= 0)
+		Material::GetMaterials()[m_materialIndex].updateMaterialUbo(BuiltInShader::materialUbo);
+
+	if (m_textureIndex >= 0)
+		Material::GetTextures()[m_textureIndex].bind();
+
 	glBindBuffer(GL_UNIFORM_BUFFER, BuiltInShader::matrixUbo);
 	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(Matrix4f) * m_numBones, m_skinMatrices);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
@@ -315,4 +325,20 @@ void AnimationNode::setUpdateSilent(bool updateSilent) {
 
 BoneNode* AnimationNode::getRootBone() {
 	return m_rootBone;
+}
+
+short AnimationNode::getMaterialIndex() const {
+	return m_materialIndex;
+}
+
+void AnimationNode::setMaterialIndex(short index) {
+	m_materialIndex = index;
+}
+
+short AnimationNode::getTextureIndex() const {
+	return m_textureIndex;
+}
+
+void AnimationNode::setTextureIndex(short index) {
+	m_textureIndex = index;
 }
