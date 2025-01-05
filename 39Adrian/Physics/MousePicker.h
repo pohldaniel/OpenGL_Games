@@ -89,6 +89,7 @@ public:
 	void updatePosition(unsigned int posX, unsigned int posY, const Camera& camera);
 	void updatePositionOrthographic(unsigned int posX, unsigned int posY, const Camera& camera);
 	bool click(unsigned int posX, unsigned int posY, const Camera& camera, btCollisionObject* collisonObject = nullptr);
+	bool clickAll(unsigned int posX, unsigned int posY, const Camera& camera, btCollisionObject* collisonObject = nullptr);
 	bool clickOrthographic(unsigned int posX, unsigned int posY, const Camera& camera, btCollisionObject* collisonObject = nullptr);
 	bool clickOrthographicAll(unsigned int posX, unsigned int posY, const Camera& camera, btCollisionObject* collisonObject = nullptr);
 	void setHasPicked(bool value);

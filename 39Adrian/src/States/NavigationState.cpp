@@ -7,6 +7,8 @@
 #include <Utils/BinaryIO.h>
 #include <States/Menu.h>
 
+#include <Physics/ShapeDrawer.h>
+
 #include "NavigationState.h"
 #include "Application.h"
 #include "Globals.h"
@@ -19,7 +21,7 @@ NavigationState::NavigationState(StateMachine& machine) : State(machine, States:
 
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
-	m_camera.lookAt(Vector3f(0.0f, 2.0f, -50.0f), Vector3f(0.0f, 2.0f, -50.0f) + Vector3f(0.0f, 0.0f, 1.0f), Vector3f(0.0f, 1.0f, 0.0f));
+	m_camera.lookAt(Vector3f(0.0f, 20.0f, -75.0f), Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 1.0f, 0.0f));
 	m_camera.setRotationSpeed(0.1f);
 	m_camera.setMovingSpeed(10.0f);
 
@@ -31,6 +33,9 @@ NavigationState::NavigationState(StateMachine& machine) : State(machine, States:
 	glBufferData(GL_UNIFORM_BUFFER, sizeof(Matrix4f) * 96, NULL, GL_DYNAMIC_DRAW);
 	glBindBufferRange(GL_UNIFORM_BUFFER, 3, BuiltInShader::matrixUbo, 0, sizeof(Matrix4f) * 96);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+	ShapeDrawer::Get().init(32768);
+	ShapeDrawer::Get().setCamera(m_camera);
 
 	WorkQueue::Init(0);
 	m_octree = new Octree(m_camera, m_frustum, m_dt);
@@ -51,7 +56,12 @@ NavigationState::NavigationState(StateMachine& machine) : State(machine, States:
 	m_idle = new Animation();
 	m_idle->loadAnimationAni("res/models/BetaLowpoly/Beta_Idle.ani");
 	createShapes();
+	createPhysics();
 	createScene();
+
+	m_sphere.buildSphere(0.5f, Vector3f(0.0f, 0.0f, 0.0f), 10, 10, true, false, false);
+	m_sphere.createBoundingBox();
+	m_sphere.markForDelete();
 }
 
 NavigationState::~NavigationState() {
@@ -60,7 +70,7 @@ NavigationState::~NavigationState() {
 }
 
 void NavigationState::fixedUpdate() {
-
+	Globals::physics->stepSimulation(m_fdt);
 }
 
 void NavigationState::update() {
@@ -167,6 +177,16 @@ void NavigationState::render() {
 
 	shader->unuse();
 
+	if (m_debugPhysic) {
+		ShapeDrawer::Get().setProjectionView(m_camera.getPerspectiveMatrix(), m_camera.getViewMatrix());
+
+		glDisable(GL_CULL_FACE);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		ShapeDrawer::Get().drawDynmicsWorld(Physics::GetDynamicsWorld());
+		glPolygonMode(GL_FRONT_AND_BACK, StateMachine::GetEnableWireframe() ? GL_LINE : GL_FILL);
+		glEnable(GL_CULL_FACE);
+	}
+
 	if (m_drawUi)
 		renderUi();
 }
@@ -178,6 +198,15 @@ void NavigationState::OnMouseMotion(Event::MouseMoveEvent& event) {
 void NavigationState::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 	if (event.button == 2u) {
 		Mouse::instance().attach(Application::GetWindow());
+
+		if (m_mousePicker.clickAll(event.x, event.y, m_camera, m_groundObject)) {			
+			const MousePickCallbackAll& callbackAll = m_mousePicker.getCallbackAll();
+			btVector3 pos = callbackAll.m_hitPointWorld[callbackAll.index];
+			m_marker.push_back(m_root->addChild<ShapeNode, Shape>(m_sphere));
+			m_marker.back()->setPosition(Physics::VectorFrom(callbackAll.m_hitPointWorld[callbackAll.index]));
+			m_marker.back()->setTextureIndex(1);
+			m_marker.back()->OnOctreeSet(m_octree);
+		}
 	}
 
 	if (event.button == 1u) {
@@ -253,6 +282,9 @@ void NavigationState::renderUi() {
 	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 	ImGui::Checkbox("Draw Wirframe", &StateMachine::GetEnableWireframe());
 	ImGui::Checkbox("Debug Tree", &m_debugTree);
+	ImGui::Checkbox("Debug Physic", &m_debugPhysic);
+	if (ImGui::Button("Clear Marker"))
+		clearMarker();
 	ImGui::End();
 
 	ImGui::Render();
@@ -293,6 +325,10 @@ void NavigationState::createShapes() {
 	m_cube17.createBoundingBox();
 	m_cube17.markForDelete();
 	vertexBuffer.clear(); vertexBuffer.shrink_to_fit(); indexBuffer.clear(); indexBuffer.shrink_to_fit();
+}
+
+void NavigationState::createPhysics() {
+	m_groundObject = Physics::AddStaticObject(Physics::BtTransform(btVector3(0.0f, 0.0f, 0.0f)), Physics::CreateCollisionShape(&m_ground, btVector3(1.0f, 1.0f, 1.0f)), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER);
 }
 
 void NavigationState::createScene() {
@@ -418,4 +454,12 @@ void NavigationState::createScene() {
 	animationNode->setIndex(0);
 	animationNode->setSortKey(1);
 	animationNode->setShader(Globals::shaderManager.getAssetPointer("animation"));
+}
+
+void NavigationState::clearMarker() {
+	for (auto shapeNode : m_marker) {
+		shapeNode->OnOctreeSet(nullptr);
+		shapeNode->eraseSelf();
+	}
+	m_marker.clear();
 }

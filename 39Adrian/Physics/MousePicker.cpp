@@ -97,6 +97,36 @@ bool MousePicker::click(unsigned int posX, unsigned int posY, const Camera& came
 	}
 }
 
+bool MousePicker::clickAll(unsigned int posX, unsigned int posY, const Camera& camera, btCollisionObject* collisonObject) {
+	float mouseXndc = (2.0f * posX) / static_cast<float>(Application::Width) - 1.0f;
+	float mouseYndc = 1.0f - (2.0f * posY) / static_cast<float>(Application::Height);
+
+	float tanfov = camera.getInvPerspectiveMatrixNew()[1][1];
+	float aspect = (static_cast<float>(Application::Width) / static_cast<float>(Application::Height));
+
+	Vector3f rayStartWorld = camera.getPosition() + (camera.getCamX() * mouseXndc * tanfov * aspect + camera.getCamY() * mouseYndc * tanfov + camera.getViewDirection()) * camera.getNear();
+	Vector3f rayEndWorld = camera.getPosition() + (camera.getCamX() * mouseXndc * tanfov * aspect + camera.getCamY() * mouseYndc * tanfov + camera.getViewDirection()) * camera.getFar();
+
+	m_callbackAll = MousePickCallbackAll(Physics::VectorFrom(rayStartWorld), Physics::VectorFrom(rayEndWorld), Physics::MOUSEPICKER, Physics::PICKABLE_OBJECT);
+	Physics::GetDynamicsWorld()->rayTest(m_callbackAll.m_origin, m_callbackAll.m_target, m_callbackAll);
+
+	if (m_callbackAll.hasHit()) {
+
+		float fraction = 1.0f;
+		m_callbackAll.index = -1;
+		for (size_t i = 0; i < m_callbackAll.m_hitFractions.size(); i++) {
+			if (m_callbackAll.m_hitFractions[i] <= fraction /*&& m_callbackAll.m_collisionObjects[i] != collisonObject*/) {
+				m_callbackAll.index = i;
+				fraction = m_callbackAll.m_hitFractions[i];
+			}
+		}
+
+		return collisonObject == nullptr ? true : m_callbackAll.index >= 0 && m_callbackAll.m_collisionObjects[m_callbackAll.index] == collisonObject;
+	}else {
+		return false;
+	}
+}
+
 void MousePicker::updatePositionOrthographic(unsigned int posX, unsigned int posY, const Camera& camera) {
 	float mouseXndc = (2.0f * posX) / static_cast<float>(Application::Width) - 1.0f;
 	float mouseYndc = 1.0f - (2.0f * posY) / static_cast<float>(Application::Height);

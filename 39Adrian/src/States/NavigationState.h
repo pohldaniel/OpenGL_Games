@@ -8,6 +8,8 @@
 #include <engine/Scene/ShapeNode.h>
 #include <engine/octree/Octree.h>
 #include <engine/Camera.h>
+#include <Physics/Physics.h>
+#include <Physics/MousePicker.h>
 
 #include <States/StateMachine.h>
 
@@ -33,11 +35,14 @@ private:
 
 	void renderUi();
 	void createShapes();
+	void createPhysics();
 	void createScene();
+	void clearMarker();
 
 	bool m_initUi = true;
 	bool m_drawUi = true;
 	bool m_debugTree = false;
+	bool m_debugPhysic = true;
 
 	Camera m_camera;
 	Frustum m_frustum;
@@ -45,8 +50,12 @@ private:
 	SceneNodeLC* m_root;
 	Octree* m_octree;
 
-	Shape m_ground, m_cylinder, m_cube, m_cube14, m_cube17;
+	Shape m_ground, m_cylinder, m_cube, m_cube14, m_cube17, m_sphere;
 	AnimatedModel m_beta;
 	Animation *m_run, *m_idle;
 	Animation* m_animationNode;
+	std::vector<ShapeNode*> m_marker;
+
+	MousePicker m_mousePicker;
+	btCollisionObject* m_groundObject;
 };
