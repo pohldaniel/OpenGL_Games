@@ -715,6 +715,7 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("md2", "res/shader/md2anim.vert", "res/shader/md2anim.frag");
 	Globals::shaderManager.loadShader("shape", "res/shader/shape.vert", "res/shader/shape.frag");
 	Globals::shaderManager.loadShader("map", "res/shader/map.vert", "res/shader/map.frag");
+	Globals::shaderManager.loadShader("animation", "res/shader/animation.vert", "res/shader/animation.frag");
 	
 	Globals::fontManager.loadCharacterSet("upheaval_200", "res/fonts/upheavtt.ttf", 200, 0, 30, 128, 0, true, 0u);
 	Globals::fontManager.loadCharacterSet("upheaval_30", "res/fonts/upheavtt.ttf", 30, 0, 3, 0, 0, true, 0u);

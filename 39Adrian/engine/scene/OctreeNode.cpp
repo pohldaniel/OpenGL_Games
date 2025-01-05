@@ -2,7 +2,7 @@
 #include "../DebugRenderer.h"
 #include "../octree/Octree.h"
 
-OctreeNode::OctreeNode(const BoundingBox& localBoundingBox) : localBoundingBox(localBoundingBox), m_drawDebug(true), m_reinsertQueued(false), m_octant(nullptr), m_octree(nullptr), m_octreeUpdate(true), m_lastFrameNumber(0), frameNumber(nullptr) {
+OctreeNode::OctreeNode(const BoundingBox& localBoundingBox) : localBoundingBox(localBoundingBox), m_drawDebug(true), m_reinsertQueued(false), m_octant(nullptr), m_octree(nullptr), m_octreeUpdate(true), m_lastFrameNumber(0), frameNumber(nullptr), m_sortKey(0){
 	OnBoundingBoxChanged();
 }
 
@@ -101,4 +101,12 @@ bool OctreeNode::wasInView(unsigned short frameNumber) const {
 	if (!previousFrameNumber)
 		--previousFrameNumber;
 	return m_lastFrameNumber == previousFrameNumber;
+}
+
+void OctreeNode::setSortKey(int sortKey) {
+	m_sortKey = sortKey;
+}
+
+const int OctreeNode::getSortKey() const{
+	return m_sortKey;
 }

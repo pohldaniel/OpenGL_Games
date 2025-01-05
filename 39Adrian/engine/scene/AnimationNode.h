@@ -1,9 +1,11 @@
 #pragma once
 
+#include "../animationNew/AnimatedModel.h"
+#include "../BoundingBox.h"
+#include "../Shader.h"
+
 #include "OctreeNode.h"
 #include "BoneNode.h"
-#include "../BoundingBox.h"
-#include "../animationNew/AnimatedModel.h"
 
 class AnimationNode : public OctreeNode {
 
@@ -45,6 +47,7 @@ public:
 	short getTextureIndex() const;
 	void setMaterialIndex(short index);
 	void setTextureIndex(short index);
+	void setShader(Shader* shader);
 
 protected:
 
@@ -81,4 +84,5 @@ private:
 
 	const AnimatedModel& animatedModel;
 	const std::vector<MeshBone>& meshBones;
+	Shader* m_shader;
 };

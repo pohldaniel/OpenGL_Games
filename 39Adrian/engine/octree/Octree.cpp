@@ -238,6 +238,7 @@ Octree::Octree(const Camera& camera, const Frustum& frustum, const float& dt) :
 	m_reinsertQueues = new std::vector<OctreeNode*>[workQueue->getNumThreads()];
 
 	m_octantResults = new ThreadOctantResult[NUM_OCTANT_TASKS];
+	m_batchResults = new ThreadBatchResult[workQueue->getNumThreads()];
 
 	for (size_t i = 0; i < NUM_OCTANTS + 1; ++i) {
 		m_collectOctantsTasks[i] = new CollectOctantsTask(this, &Octree::collectOctantsWork);
@@ -265,6 +266,7 @@ Octree::~Octree(){
     deleteChildOctants(&m_root, true);
 
 	delete[] m_octantResults;
+	delete[] m_batchResults;
 	delete[] m_reinsertQueues;
 
 	for (size_t i = 0; i < NUM_OCTANTS + 1; ++i) {
@@ -608,9 +610,13 @@ void Octree::checkReinsertWork(Task* task_, unsigned threadIndex_){
 void Octree::updateOctree(){
 	// Clear results from last frame
 	m_rootLevelOctants.clear();
+	m_opaqueBatches.clear();
 
 	for (size_t i = 0; i < NUM_OCTANT_TASKS; ++i)
 		m_octantResults[i].Clear();
+
+	for (size_t i = 0; i < workQueue->getNumThreads(); ++i)
+		m_batchResults[i].Clear();
 
 	// Process moved / animated objects' octree reinsertions
 	update();
@@ -645,8 +651,11 @@ void Octree::updateOctree(){
 	workQueue->queueTasks(m_rootLevelOctants.size(), reinterpret_cast<Task**>(&m_collectOctantsTasks[0]));
 
 	// Execute tasks until can sort the main batches. Perform that in the main thread to potentially run faster
-	while (m_numPendingBatchTasks.load() > 0)
+	while (m_numPendingBatchTasks.load() > 0) {
 		workQueue->tryComplete();
+	}
+
+	sortMainBatches();
 
 	// Finish remaining view preparation tasks (shadowcaster batches, light culling to frustum grid)
 	workQueue->complete();
@@ -809,6 +818,16 @@ void Octree::renderOcclusionQueries() {
 	m_previousCameraPosition = cameraPosition;
 }
 
+void Octree::sortMainBatches() {
+	// Join per-thread collected batches and sort
+	for (size_t i = 0; i < workQueue->getNumThreads(); ++i){
+		ThreadBatchResult& res = m_batchResults[i];
+		if (res.opaqueBatches.size())
+			m_opaqueBatches.m_batches.insert(m_opaqueBatches.m_batches.end(), res.opaqueBatches.begin(), res.opaqueBatches.end());	
+	}
+	m_opaqueBatches.sort(SORT_STATE);
+}
+
 void Octree::collectOctantsWork(Task* task_, unsigned) {
 	CollectOctantsTask* task = static_cast<CollectOctantsTask*>(task_);
 
@@ -817,6 +836,47 @@ void Octree::collectOctantsWork(Task* task_, unsigned) {
 	ThreadOctantResult& result = m_octantResults[task->resultIdx];
 
 	collectOctants(octant, result);
+	// Queue final batch task for leftover nodes if needed
+	if (result.drawableAcc){
+		if (result.collectBatchesTasks.size() <= result.batchTaskIdx)
+			result.collectBatchesTasks.push_back(new CollectBatchesTask(this, &Octree::collectBatchesWork));
+
+		CollectBatchesTask* batchTask = result.collectBatchesTasks[result.batchTaskIdx];
+		batchTask->octants.clear();
+		batchTask->octants.insert(batchTask->octants.end(), result.octants.begin() + result.taskOctantIdx, result.octants.end());
+		m_numPendingBatchTasks.fetch_add(1);
+		workQueue->queueTask(batchTask);
+	}
+
+	m_numPendingBatchTasks.fetch_add(-1);
+}
+
+void Octree::collectBatchesWork(Task* _task, unsigned threadIndex) {
+
+	CollectBatchesTask* task = static_cast<CollectBatchesTask*>(_task);
+	ThreadBatchResult& result = m_batchResults[threadIndex];
+	bool threaded = workQueue->getNumThreads() > 1;
+
+	std::vector<std::pair<Octant*, unsigned char> >& octants = task->octants;
+	std::vector<Batch>& opaqueQueue = threaded ? result.opaqueBatches : m_opaqueBatches.m_batches;
+
+	//std::cout << "Size: " << octants.size() << std::endl;
+	for (auto it = octants.begin(); it != octants.end(); ++it){
+		Octant* octant = it->first;
+		unsigned char planeMask = it->second;
+		const std::vector<OctreeNode*>& drawables = octant->getOctreeNodes();
+
+		for (auto dIt = drawables.begin(); dIt != drawables.end(); ++dIt) {
+			OctreeNode* drawable = *dIt;
+
+			Batch newBatch;
+			//const SourceBatches& batches = static_cast<GeometryDrawable*>(drawable)->Batches();
+			newBatch.sortKey = drawable->getSortKey();
+			newBatch.octreeNode = drawable;
+			opaqueQueue.push_back(newBatch);
+		}
+	}
+
 	m_numPendingBatchTasks.fetch_add(-1);
 }
 
@@ -888,6 +948,10 @@ void Octree::ThreadOctantResult::Clear() {
 	occlusionQueries.clear();
 }
 
+void Octree::ThreadBatchResult::Clear() {
+	opaqueBatches.clear();
+}
+
 void Octree::createCube() {
 	float vertices[] = {
 		-1.0f, 1.0f, -1.0f,
@@ -942,4 +1006,8 @@ void Octree::setUseCulling(bool useCulling) {
 
 void Octree::setUseOcclusionCulling(bool useOcclusionCulling) {
 	m_useOcclusionCulling = useOcclusionCulling;
+}
+
+const BatchQueue& Octree::getOpaqueBatches() const {
+	return m_opaqueBatches;
 }

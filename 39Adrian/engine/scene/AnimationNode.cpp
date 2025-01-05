@@ -12,6 +12,7 @@ AnimationNode::AnimationNode(const AnimatedModel& animatedModel) :
 	OctreeNode(animatedModel.getAABB()), 
 	animatedModel(animatedModel), 
 	meshBones(animatedModel.m_meshes[0]->getMeshBones()),
+	m_shader(nullptr),
 	m_animationOrderDirty(true), 
 	m_hasAnimationController(false), 
 	m_animationDirty(true),
@@ -96,7 +97,13 @@ void AnimationNode::drawRaw() const {
 	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(Matrix4f) * m_numBones, m_skinMatrices);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
+	if (m_shader) 
+		m_shader->use();
+	
 	animatedModel.drawRaw();
+
+	if (m_shader)
+		m_shader->unuse();
 }
 
 void AnimationNode::update(const float dt) {
@@ -341,4 +348,8 @@ short AnimationNode::getTextureIndex() const {
 
 void AnimationNode::setTextureIndex(short index) {
 	m_textureIndex = index;
+}
+
+void AnimationNode::setShader(Shader* shader) {
+	m_shader = shader;
 }

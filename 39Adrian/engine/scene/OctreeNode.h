@@ -31,6 +31,8 @@ public:
 	void setDrawDebug(bool drawDebug);
 	void setLastFrameNumber(unsigned short lastFrameNumber);
 	bool wasInView(unsigned short frameNumber) const;
+	void setSortKey(int sortKey);
+	const int getSortKey() const;
 
 protected:
 
@@ -51,4 +53,5 @@ protected:
 private:
 
 	const BoundingBox& localBoundingBox;
+	int m_sortKey;
 };

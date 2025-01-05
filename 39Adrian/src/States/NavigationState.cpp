@@ -19,21 +19,18 @@ NavigationState::NavigationState(StateMachine& machine) : State(machine, States:
 
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
-	m_camera.lookAt(Vector3f(0.0f, 2.0f, 10.0f), Vector3f(0.0f, 2.0f, 10.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
+	m_camera.lookAt(Vector3f(0.0f, 2.0f, -50.0f), Vector3f(0.0f, 2.0f, -50.0f) + Vector3f(0.0f, 0.0f, 1.0f), Vector3f(0.0f, 1.0f, 0.0f));
 	m_camera.setRotationSpeed(0.1f);
 	m_camera.setMovingSpeed(10.0f);
 
 	glClearColor(0.494f, 0.686f, 0.796f, 1.0f);
 	glClearDepth(1.0f);
 
-	m_background.resize(Application::Width, Application::Height);
-	m_background.setLayer(std::vector<BackgroundLayer>{
-		{ &Globals::textureManager.get("forest_1"), 1, 1.0f },
-		{ &Globals::textureManager.get("forest_2"), 1, 2.0f },
-		{ &Globals::textureManager.get("forest_3"), 1, 3.0f },
-		{ &Globals::textureManager.get("forest_4"), 1, 4.0f },
-		{ &Globals::textureManager.get("forest_5"), 1, 5.0f }});
-	m_background.setSpeed(0.005f);
+	glGenBuffers(1, &BuiltInShader::matrixUbo);
+	glBindBuffer(GL_UNIFORM_BUFFER, BuiltInShader::matrixUbo);
+	glBufferData(GL_UNIFORM_BUFFER, sizeof(Matrix4f) * 96, NULL, GL_DYNAMIC_DRAW);
+	glBindBufferRange(GL_UNIFORM_BUFFER, 3, BuiltInShader::matrixUbo, 0, sizeof(Matrix4f) * 96);
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 	WorkQueue::Init(0);
 	m_octree = new Octree(m_camera, m_frustum, m_dt);
@@ -49,6 +46,10 @@ NavigationState::NavigationState(StateMachine& machine) : State(machine, States:
 	Material::AddTexture();
 
 	m_beta.loadModelMdl("res/models/BetaLowpoly/Beta.mdl");
+	m_run = new Animation();
+	m_run->loadAnimationAni("res/models/BetaLowpoly/Beta_Run.ani");
+	m_idle = new Animation();
+	m_idle->loadAnimationAni("res/models/BetaLowpoly/Beta_Idle.ani");
 	createShapes();
 	createScene();
 }
@@ -82,15 +83,11 @@ void NavigationState::update() {
 
 	if (keyboard.keyDown(Keyboard::KEY_A)) {
 		direction += Vector3f(-1.0f, 0.0f, 0.0f);
-		m_background.addOffset(-0.001f);
-		m_background.setSpeed(-0.005f);
 		move |= true;
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_D)) {
 		direction += Vector3f(1.0f, 0.0f, 0.0f);
-		m_background.addOffset(0.001f);
-		m_background.setSpeed(0.005f);
 		move |= true;
 	}
 
@@ -122,8 +119,7 @@ void NavigationState::update() {
 	}
 
 	m_octree->updateFrameNumber();
-
-	
+	m_root->findChild<AnimationNode>(0)->update(m_dt);
 	m_frustum.updatePlane(m_camera.getPerspectiveMatrix(), m_camera.getViewMatrix());
 	m_frustum.updateVertices(m_camera.getPerspectiveMatrix(), m_camera.getViewMatrix());
 	m_frustum.m_frustumSATData.calculate(m_frustum);
@@ -133,30 +129,38 @@ void NavigationState::update() {
 void NavigationState::render() {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	auto shader = Globals::shaderManager.getAssetPointer("shape");
+	auto shader = Globals::shaderManager.getAssetPointer("animation");
 	shader->use();
 	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
 	shader->loadMatrix("u_view", m_camera.getViewMatrix());
-	for (size_t i = 0; i < m_octree->getRootLevelOctants().size(); ++i) {
-		const Octree::ThreadOctantResult& result = m_octree->getOctantResults()[i];
-		for (auto oIt = result.octants.begin(); oIt != result.octants.end(); ++oIt) {
-			Octant* octant = oIt->first;
-			if (m_debugTree)
-				octant->OnRenderAABB(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
 
-			const std::vector<OctreeNode*>& drawables = octant->getOctreeNodes();
-			for (auto dIt = drawables.begin(); dIt != drawables.end(); ++dIt) {
-				OctreeNode* drawable = *dIt;
-				shader->loadMatrix("u_model", drawable->getWorldTransformation());
-				drawable->drawRaw();
-				if (m_debugTree)
-					drawable->OnRenderAABB(Vector4f(0.0f, 1.0f, 0.0f, 1.0f));
-			}
-		}
+	shader = Globals::shaderManager.getAssetPointer("shape");
+	shader->use();
+	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
+	shader->loadMatrix("u_view", m_camera.getViewMatrix());
+	
+	for (const Batch& batch : m_octree->getOpaqueBatches().m_batches) {
+		OctreeNode* drawable = batch.octreeNode;
+		shader->loadMatrix("u_model", drawable->getWorldTransformation());
+		drawable->drawRaw();
 	}
 
 	if (m_debugTree) {
+
+		for (size_t i = 0; i < m_octree->getRootLevelOctants().size(); ++i) {
+			const Octree::ThreadOctantResult& result = m_octree->getOctantResults()[i];
+			for (auto oIt = result.octants.begin(); oIt != result.octants.end(); ++oIt) {
+				Octant* octant = oIt->first;
+				if (m_debugTree)
+					octant->OnRenderAABB(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
+
+				const std::vector<OctreeNode*>& drawables = octant->getOctreeNodes();
+				for (auto dIt = drawables.begin(); dIt != drawables.end(); ++dIt) {
+					(*dIt)->OnRenderAABB(Vector4f(0.0f, 1.0f, 0.0f, 1.0f));
+				}
+			}
+		}
+
 		DebugRenderer::Get().SetProjectionView(m_camera.getPerspectiveMatrix(), m_camera.getViewMatrix());
 		DebugRenderer::Get().drawBuffer();
 	}
@@ -382,7 +386,7 @@ void NavigationState::createScene() {
 	shapeNode->setTextureIndex(1);
 
 	shapeNode = m_root->addChild<ShapeNode, Shape>(m_cube);
-	shapeNode->setPosition(11.2092f, 2.31663f, -30.8257);
+	shapeNode->setPosition(11.2092f, 2.31663f, -30.8257f);
 	shapeNode->OnOctreeSet(m_octree);
 	shapeNode->setTextureIndex(2);
 
@@ -406,6 +410,12 @@ void NavigationState::createScene() {
 
 	AnimationNode* animationNode = m_root->addChild<AnimationNode, AnimatedModel>(m_beta);
 	animationNode->setPosition(0.0f, 0.5f, -30.0f);
+	animationNode->setOrientation(0.0f, 180.0f, 0.0f);
 	animationNode->OnOctreeSet(m_octree);
 	animationNode->setTextureIndex(3);
+	animationNode->addAnimationState(m_idle);
+	animationNode->getAnimationState(0)->setLooped(true);
+	animationNode->setIndex(0);
+	animationNode->setSortKey(1);
+	animationNode->setShader(Globals::shaderManager.getAssetPointer("animation"));
 }

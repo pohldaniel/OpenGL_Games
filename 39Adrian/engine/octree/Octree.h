@@ -6,6 +6,7 @@
 #include "../scene/OctreeNode.h"
 #include "../Frustum.h"
 #include "../thread/WorkQueue.h"
+#include "Batch.h"
 
 #define OCCLUSION_VERTEX "#version 410 core										 \n \
 																				 \n \
@@ -80,7 +81,7 @@ private:
     Octant* m_children[NUM_OCTANTS];
     Octant* m_parent;
     OctantVisibility m_visibility;
-    unsigned m_occlusionQueryId;
+    unsigned int m_occlusionQueryId;
     float m_occlusionQueryTimer;
     unsigned char m_numChildren;
     unsigned char m_level;
@@ -96,9 +97,14 @@ class Octree{
 	friend OctreeNode;
 
 	struct CollectOctantsTask : public MemberFunctionTask<Octree> {
-		CollectOctantsTask(Octree* object, MemberWorkFunctionPtr function) :MemberFunctionTask<Octree>(object, function) {}
+		CollectOctantsTask(Octree* object, MemberWorkFunctionPtr function) : MemberFunctionTask<Octree>(object, function) {}
 		Octant* startOctant;
 		size_t resultIdx;
+	};
+
+	struct CollectBatchesTask : public MemberFunctionTask<Octree>{
+		CollectBatchesTask(Octree* object, MemberWorkFunctionPtr function) : MemberFunctionTask<Octree>(object, function){}
+		std::vector<std::pair<Octant*, unsigned char > > octants;
 	};
 
 	struct OcclusionQueryResult {
@@ -115,7 +121,13 @@ public:
 		size_t taskOctantIdx;
 		size_t batchTaskIdx;
 		std::vector<std::pair<Octant*, unsigned char>> octants;
+		std::vector<CollectBatchesTask*> collectBatchesTasks;
 		std::vector<Octant*> occlusionQueries;
+	};
+
+	struct ThreadBatchResult{
+		void Clear();
+		std::vector<Batch> opaqueBatches;
 	};
 	
 
@@ -135,10 +147,12 @@ public:
 	Octant* getRoot() const;
 
 	void collectOctants(Octant* octant, ThreadOctantResult& result, unsigned char planeMask = 0x3f);
+	
 	void addOcclusionQuery(Octant* octant, ThreadOctantResult& result, unsigned char planeMask);
 	void checkOcclusionQueries();
 	void renderOcclusionQueries();
 	void collectOctantsWork(Task* task, unsigned threadIndex);
+	void collectBatchesWork(Task* task, unsigned threadIndex);
 	void updateOctree();
 	void updateFrameNumber();
 
@@ -151,6 +165,7 @@ public:
 	void setUseOcclusionCulling(bool useOcclusionCulling);
 	const std::vector<Octant*>& getRootLevelOctants() const;
 	const ThreadOctantResult* getOctantResults() const;
+	const BatchQueue& getOpaqueBatches() const;
 
 	static void FreeOcclusionQuery(unsigned id);
 	static std::vector<std::pair<unsigned, void*>> PendingQueries;
@@ -167,6 +182,7 @@ private:
 	void collectDrawables(std::vector<OctreeNode*>& result, Octant* octant) const;
 	void checkReinsertWork(Task* task, unsigned threadIndex);
 	template <class T> void collectDrawables(std::vector<OctreeNode*>& result, Octant* octant, const T& volume, unsigned short drawableFlags, unsigned layerMask) const;
+	void sortMainBatches();
 
 	void createCube();
 	void callRebuild(Octant* octant);
@@ -178,6 +194,8 @@ private:
     Octant m_root;
 	std::vector<Octant*> m_rootLevelOctants;
 	ThreadOctantResult* m_octantResults;
+	ThreadBatchResult* m_batchResults;
+
 	std::vector<ReinsertDrawablesTask*> m_reinsertTasks;
 	std::vector<OctreeNode*>* m_reinsertQueues;
     std::atomic<int> m_numPendingReinsertionTasks;
@@ -185,7 +203,7 @@ private:
 	Vector3f m_previousCameraPosition;
 	
 	std::atomic<int> m_numPendingBatchTasks;
-	
+	BatchQueue m_opaqueBatches;
 	CollectOctantsTask* m_collectOctantsTasks[NUM_OCTANT_TASKS];
 
 	unsigned short m_frameNumber;

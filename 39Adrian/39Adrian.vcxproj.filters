@@ -501,6 +501,9 @@
     <ClCompile Include="src\Utils\Timer.cpp">
       <Filter>Source Files\Utils</Filter>
     </ClCompile>
+    <ClCompile Include="engine\octree\Batch.cpp">
+      <Filter>engine\octree</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="convhull\convhull_3d.h">
@@ -958,6 +961,9 @@
     </ClInclude>
     <ClInclude Include="src\Utils\Timer.h">
       <Filter>Source Files\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\octree\Batch.h">
+      <Filter>engine\octree</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

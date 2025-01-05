@@ -1,7 +1,7 @@
 #pragma once
 
-#include "BaseNode.h"
 #include "../utils/StringHash.h"
+#include "BaseNode.h"
 
 class SceneNodeLC : public BaseNode {
 

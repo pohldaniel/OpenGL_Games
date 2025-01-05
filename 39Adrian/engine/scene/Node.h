@@ -4,8 +4,9 @@
 #include <functional>
 #include <algorithm>
 #include <memory>
-#include "../Camera.h"
+
 #include "../utils/StringHash.h"
+#include "../Camera.h"
 
 class Node {
 

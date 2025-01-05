@@ -7,7 +7,6 @@
 #include <engine/MeshObject/Shape.h>
 #include <engine/Scene/ShapeNode.h>
 #include <engine/octree/Octree.h>
-#include <engine/Background.h>
 #include <engine/Camera.h>
 
 #include <States/StateMachine.h>
@@ -42,11 +41,12 @@ private:
 
 	Camera m_camera;
 	Frustum m_frustum;
-	Background m_background;
 
 	SceneNodeLC* m_root;
 	Octree* m_octree;
 
 	Shape m_ground, m_cylinder, m_cube, m_cube14, m_cube17;
 	AnimatedModel m_beta;
+	Animation *m_run, *m_idle;
+	Animation* m_animationNode;
 };

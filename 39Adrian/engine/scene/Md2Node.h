@@ -1,8 +1,8 @@
 #pragma once
 
-#include "OctreeNode.h"
 #include "../Md2Model.h"
 #include "../BoundingBox.h"
+#include "OctreeNode.h"
 
 class Md2Node : public OctreeNode {
 

@@ -1,8 +1,8 @@
 #pragma once
 
+#include "../utils/StringHash.h"
 #include "SceneNode.h"
 #include "SceneNodeLC.h"
-#include "../utils/StringHash.h"
 
 class BoneNode : public SceneNodeLC {
 

@@ -1,6 +1,6 @@
 #include "Node.h"
 
-Node::Node() : m_parent(nullptr), m_markForRemove(false){
+Node::Node() : m_parent(nullptr), m_markForRemove(false), m_index(-1){
 
 }
 

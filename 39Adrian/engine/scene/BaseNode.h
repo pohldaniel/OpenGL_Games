@@ -3,9 +3,8 @@
 #include <list>
 #include <functional>
 #include <memory>
-#include "Node.h"
 #include "../Object.h"
-
+#include "Node.h"
 
 class BaseNode : public Node, public Object {
 

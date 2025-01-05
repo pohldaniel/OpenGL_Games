@@ -1,8 +1,8 @@
 #pragma once
 
-#include "OctreeNode.h"
 #include "../BoundingBox.h"
 #include "../MeshSequence.h"
+#include "OctreeNode.h"
 
 class SequenceNode : public OctreeNode {
 
