@@ -62,6 +62,8 @@ NavigationState::NavigationState(StateMachine& machine) : State(machine, States:
 	m_sphere.buildSphere(0.5f, Vector3f(0.0f, 0.0f, 0.0f), 10, 10, true, false, false);
 	m_sphere.createBoundingBox();
 	m_sphere.markForDelete();
+
+	navigationMesh = new NavigationMesh();
 }
 
 NavigationState::~NavigationState() {
@@ -197,20 +199,20 @@ void NavigationState::OnMouseMotion(Event::MouseMoveEvent& event) {
 
 void NavigationState::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 	if (event.button == 2u) {
-		Mouse::instance().attach(Application::GetWindow());
-
-		if (m_mousePicker.clickAll(event.x, event.y, m_camera, m_groundObject)) {			
-			const MousePickCallbackAll& callbackAll = m_mousePicker.getCallbackAll();
-			btVector3 pos = callbackAll.m_hitPointWorld[callbackAll.index];
-			m_marker.push_back(m_root->addChild<ShapeNode, Shape>(m_sphere));
-			m_marker.back()->setPosition(Physics::VectorFrom(callbackAll.m_hitPointWorld[callbackAll.index]));
-			m_marker.back()->setTextureIndex(1);
-			m_marker.back()->OnOctreeSet(m_octree);
-		}
+		Mouse::instance().attach(Application::GetWindow());	
 	}
 
 	if (event.button == 1u) {
 		Mouse::instance().attach(Application::GetWindow(), false, false, false);
+
+		if (m_mousePicker.clickAll(event.x, event.y, m_camera, m_groundObject)) {
+			const MousePickCallbackAll& callbackAll = m_mousePicker.getCallbackAll();
+			btVector3 pos = callbackAll.m_hitPointWorld[callbackAll.index];
+			m_marker.push_back(m_root->addChild<ShapeNode, Shape>(m_sphere));
+			m_marker.back()->setPosition(Physics::VectorFrom(callbackAll.m_hitPointWorld[callbackAll.index]));
+			m_marker.back()->setTextureIndex(4);
+			m_marker.back()->OnOctreeSet(m_octree);
+		}
 	}
 }
 
@@ -329,6 +331,31 @@ void NavigationState::createShapes() {
 
 void NavigationState::createPhysics() {
 	m_groundObject = Physics::AddStaticObject(Physics::BtTransform(btVector3(0.0f, 0.0f, 0.0f)), Physics::CreateCollisionShape(&m_ground, btVector3(1.0f, 1.0f, 1.0f)), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER);
+	Physics::AddStaticObject(Physics::BtTransform(btVector3(23.2655f, -0.414571f, -24.8348f)), Physics::CreateCollisionShape(&m_cylinder, btVector3(1.0f, 1.0f, 1.0f)), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER);
+	Physics::AddStaticObject(Physics::BtTransform(btVector3(-0.0426907f, 2.31663f, -9.42164f)), Physics::CreateCollisionShape(&m_cube, btVector3(1.0f, 1.0f, 1.0f)), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER);
+	Physics::AddStaticObject(Physics::BtTransform(btVector3(-14.0839f, 2.31663f, 1.92646f)), Physics::CreateCollisionShape(&m_cube, btVector3(1.0f, 1.0f, 1.0f)), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER);
+	Physics::AddStaticObject(Physics::BtTransform(btVector3(-11.4615f, 2.31663f, -22.13f)), Physics::CreateCollisionShape(&m_cube, btVector3(1.0f, 1.0f, 1.0f)), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER);
+	Physics::AddStaticObject(Physics::BtTransform(btVector3(-21.9248f, 2.31663f, -8.26868f)), Physics::CreateCollisionShape(&m_cube, btVector3(1.0f, 1.0f, 1.0f)), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER);
+	Physics::AddStaticObject(Physics::BtTransform(btVector3(-6.17903f, 2.31663f, 6.16944f)), Physics::CreateCollisionShape(&m_cube, btVector3(1.0f, 1.0f, 1.0f)), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER);
+	
+	Physics::AddStaticObject(Physics::BtTransform(btVector3(22.4007f, 2.30943f, -9.9086f)), Physics::CreateCollisionShape(&m_cube, btVector3(1.71352f, 1.0f, 3.86812f)), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER);
+	Physics::AddStaticObject(Physics::BtTransform(btVector3(-26.3652f, 2.36106f, -20.859f)), Physics::CreateCollisionShape(&m_cube, btVector3(1.71352f, 1.0f, 3.86812f)), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER);
+	Physics::AddStaticObject(Physics::BtTransform(btVector3(-26.3652f, 2.36106f, -9.20306f)), Physics::CreateCollisionShape(&m_cube, btVector3(1.71352f, 1.0f, 3.86812f)), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER);
+	Physics::AddStaticObject(Physics::BtTransform(btVector3(-26.3652f, 2.36106f, -32.5239f)), Physics::CreateCollisionShape(&m_cube, btVector3(1.71352f, 1.0f, 3.86812f)), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER);
+	Physics::AddStaticObject(Physics::BtTransform(btVector3(-26.3652f, 2.36106f, -44.1777f)), Physics::CreateCollisionShape(&m_cube, btVector3(1.71352f, 1.0f, 3.86812f)), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER);
+
+
+	Physics::AddStaticObject(Physics::BtTransform(btVector3(-22.3009f, 2.33817f, -31.3599f)), Physics::CreateCollisionShape(&m_cube14, btVector3(1.0f, 1.0f, 1.0f)), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER);
+	Physics::AddStaticObject(Physics::BtTransform(btVector3(-26.3652f, 2.36106f, 16.6828f)), Physics::CreateCollisionShape(&m_cube, btVector3(1.71352f, 1.0f, 3.86812f)), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER);
+	Physics::AddStaticObject(Physics::BtTransform(btVector3(22.4007f, 2.30943f, -40.1603f)), Physics::CreateCollisionShape(&m_cube, btVector3(1.71352f, 1.0f, 3.86812f)), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER);
+
+	Physics::AddStaticObject(Physics::BtTransform(btVector3(-26.3733f, 4.53696f, -18.4788f)), Physics::CreateCollisionShape(&m_cube17, btVector3(1.0f, 1.0f, 1.0f)), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER);
+	Physics::AddStaticObject(Physics::BtTransform(btVector3(11.2092f, 2.31663f, -30.8257f)), Physics::CreateCollisionShape(&m_cube, btVector3(1.0f, 1.0f, 1.0f)), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER);
+	Physics::AddStaticObject(Physics::BtTransform(btVector3(-30.3823f, 2.33817f, -42.2312f), btQuaternion(0.0f, 1.0f, 0.0f, 0.0f)), Physics::CreateCollisionShape(&m_cube14, btVector3(1.0f, 1.0f, 1.0f)), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER);
+	Physics::AddStaticObject(Physics::BtTransform(btVector3(18.3143f, 2.33817f, -13.2117f), btQuaternion(0.0f, 1.0f, 0.0f, 0.0f)), Physics::CreateCollisionShape(&m_cube14, btVector3(1.0f, 1.0f, 1.0f)), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER);
+
+	Physics::AddStaticObject(Physics::BtTransform(btVector3(22.4007f, 2.30943f, 1.55447f)), Physics::CreateCollisionShape(&m_cube, btVector3(1.71352f, 1.0f, 3.86812f)), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER);
+
 }
 
 void NavigationState::createScene() {
@@ -368,7 +395,7 @@ void NavigationState::createScene() {
 	shapeNode->setPosition(-6.17903f, 2.31663f, 6.16944f);
 	shapeNode->OnOctreeSet(m_octree);
 	shapeNode->setTextureIndex(2);
-
+///////////////////////////////////////////////////////////////////////////////////
 	shapeNode = m_root->addChild<ShapeNode, Shape>(m_cube);
 	shapeNode->setPosition(22.4007f, 2.30943f, -9.9086f);
 	shapeNode->setScale(1.71352f, 1.0f, 3.86812f);
@@ -398,7 +425,7 @@ void NavigationState::createScene() {
 	shapeNode->setScale(1.71352f, 1.0f, 3.86812f);
 	shapeNode->OnOctreeSet(m_octree);
 	shapeNode->setTextureIndex(2);
-
+	///////////////////////////////////////////////////////////////////////////////////
 	shapeNode = m_root->addChild<ShapeNode, Shape>(m_cube14);
 	shapeNode->setPosition(-22.3009f, 2.33817f, -31.3599f);
 	shapeNode->OnOctreeSet(m_octree);

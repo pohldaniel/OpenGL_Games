@@ -121,7 +121,7 @@ bool MousePicker::clickAll(unsigned int posX, unsigned int posY, const Camera& c
 			}
 		}
 
-		return collisonObject == nullptr ? true : m_callbackAll.index >= 0 && m_callbackAll.m_collisionObjects[m_callbackAll.index] == collisonObject;
+		return collisonObject == nullptr ? true : m_callbackAll.index >= 0;
 	}else {
 		return false;
 	}

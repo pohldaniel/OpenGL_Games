@@ -10,6 +10,7 @@
 #include <engine/Camera.h>
 #include <Physics/Physics.h>
 #include <Physics/MousePicker.h>
+#include <Navigation/NavigationMesh.h>
 
 #include <States/StateMachine.h>
 
@@ -42,7 +43,7 @@ private:
 	bool m_initUi = true;
 	bool m_drawUi = true;
 	bool m_debugTree = false;
-	bool m_debugPhysic = true;
+	bool m_debugPhysic = false;
 
 	Camera m_camera;
 	Frustum m_frustum;
@@ -58,4 +59,5 @@ private:
 
 	MousePicker m_mousePicker;
 	btCollisionObject* m_groundObject;
+	NavigationMesh* navigationMesh;
 };

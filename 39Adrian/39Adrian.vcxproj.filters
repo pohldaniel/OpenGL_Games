@@ -504,6 +504,15 @@
     <ClCompile Include="engine\octree\Batch.cpp">
       <Filter>engine\octree</Filter>
     </ClCompile>
+    <ClCompile Include="Navigation\Navigable.cpp">
+      <Filter>Navigation</Filter>
+    </ClCompile>
+    <ClCompile Include="Navigation\OffMeshConnection.cpp">
+      <Filter>Navigation</Filter>
+    </ClCompile>
+    <ClCompile Include="Navigation\NavArea.cpp">
+      <Filter>Navigation</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="convhull\convhull_3d.h">
@@ -964,6 +973,15 @@
     </ClInclude>
     <ClInclude Include="engine\octree\Batch.h">
       <Filter>engine\octree</Filter>
+    </ClInclude>
+    <ClInclude Include="Navigation\Navigable.h">
+      <Filter>Navigation</Filter>
+    </ClInclude>
+    <ClInclude Include="Navigation\OffMeshConnection.h">
+      <Filter>Navigation</Filter>
+    </ClInclude>
+    <ClInclude Include="Navigation\NavArea.h">
+      <Filter>Navigation</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

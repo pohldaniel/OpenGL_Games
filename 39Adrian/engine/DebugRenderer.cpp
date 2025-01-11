@@ -346,6 +346,35 @@ void DebugRenderer::AddNode(SceneNodeLC* node, float scale){
 	AddLine(start, start + Quaternion::Rotate(rotation, scale * Vector3f::FORWARD), Vector4f(0.0f, 0.0f, 1.0f, 1.0f));
 }
 
+void DebugRenderer::AddSphere(const Vector3f& center, float radius, const Vector4f& color) {
+	for (float j = 0.0f; j < 180.0f; j += 45.0f)
+	{
+		for (float i = 0.0f; i < 360.0f; i += 45.0f)
+		{
+			/*unsigned startVertex = (unsigned)vertices.size();
+
+			vertices.push_back(DebugVertex(sphere.Point(i, j), uintColor));
+			vertices.push_back(DebugVertex(sphere.Point(i + 45.0f, j), uintColor));
+			vertices.push_back(DebugVertex(sphere.Point(i, j + 45.0f), uintColor));
+			vertices.push_back(DebugVertex(sphere.Point(i + 45.0f, j + 45.0f), uintColor));
+
+			std::vector<unsigned>& dest = depthTest ? indices : noDepthIndices;
+
+			dest.push_back(startVertex);
+			dest.push_back(startVertex + 1);
+
+			dest.push_back(startVertex + 2);
+			dest.push_back(startVertex + 3);
+
+			dest.push_back(startVertex);
+			dest.push_back(startVertex + 2);
+
+			dest.push_back(startVertex + 1);
+			dest.push_back(startVertex + 3);*/
+		}
+	}
+}
+
 void DebugRenderer::drawBuffer() {
 	if (!s_enabled)
 		return;

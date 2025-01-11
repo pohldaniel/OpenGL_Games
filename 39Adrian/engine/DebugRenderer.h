@@ -54,6 +54,7 @@ public:
 	void AddCylinder(const Vector3f& position, float radius, float height, const Vector4f& color);
 	void AddSkeleton(BoneNode**& bones, unsigned short numBones, const Vector4f& color);
 	void AddNode(SceneNodeLC* node, float scale = 1.0f);
+	void AddSphere(const Vector3f& center, float radius, const Vector4f& color);
 
 	void init(size_t size = 400);
 	void shutdown();

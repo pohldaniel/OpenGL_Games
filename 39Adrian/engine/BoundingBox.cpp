@@ -200,6 +200,11 @@ std::pair<float, float> BoundingBox::projected(const Vector3f& axis) const{
 	return std::make_pair(centerProj - edgeProj, centerProj + edgeProj);
 }
 
+void BoundingBox::reset() {
+	min.set(FLT_MAX, FLT_MAX, FLT_MAX);
+	max.set(-FLT_MAX, -FLT_MAX, -FLT_MAX);
+}
+
 BoundingBox::~BoundingBox() {
 	cleanup();
 }
