@@ -64,6 +64,9 @@ NavigationState::NavigationState(StateMachine& machine) : State(machine, States:
 	m_sphere.markForDelete();
 
 	navigationMesh = new NavigationMesh();
+	navigationMesh->m_navigables = m_navigables;
+	navigationMesh->SetPadding(Vector3f(0.0f, 10.0f, 0.0f));
+	navigationMesh->Build();
 }
 
 NavigationState::~NavigationState() {
@@ -154,8 +157,9 @@ void NavigationState::render() {
 	for (const Batch& batch : m_octree->getOpaqueBatches().m_batches) {
 		OctreeNode* drawable = batch.octreeNode;
 		shader->loadMatrix("u_model", drawable->getWorldTransformation());
-		drawable->drawRaw();
+		//drawable->drawRaw();
 	}
+	shader->unuse();
 
 	if (m_debugTree) {
 
@@ -177,8 +181,10 @@ void NavigationState::render() {
 		DebugRenderer::Get().drawBuffer();
 	}
 
-	shader->unuse();
-
+	navigationMesh->DrawDebugGeometry(&DebugRenderer::Get(), false);
+	DebugRenderer::Get().SetProjectionView(m_camera.getPerspectiveMatrix(), m_camera.getViewMatrix());
+	DebugRenderer::Get().drawBuffer();
+	
 	if (m_debugPhysic) {
 		ShapeDrawer::Get().setProjectionView(m_camera.getPerspectiveMatrix(), m_camera.getViewMatrix());
 
@@ -365,111 +371,131 @@ void NavigationState::createScene() {
 	shapeNode = m_root->addChild<ShapeNode, Shape>(m_ground);
 	shapeNode->OnOctreeSet(m_octree);
 	shapeNode->setTextureIndex(0);
+	//m_navigables.push_back(new Navigable(shapeNode));
 
 	shapeNode = m_root->addChild<ShapeNode, Shape>(m_cylinder);
 	shapeNode->setPosition(23.2655f, -0.414571f, -24.8348f);
 	shapeNode->OnOctreeSet(m_octree);
 	shapeNode->setTextureIndex(1);
+	m_navigables.push_back(new Navigable(shapeNode));
 
 	shapeNode = m_root->addChild<ShapeNode, Shape>(m_cube);
 	shapeNode->setPosition(-0.0426907f, 2.31663f, -9.42164f);
 	shapeNode->OnOctreeSet(m_octree);
 	shapeNode->setTextureIndex(2);
+	m_navigables.push_back(new Navigable(shapeNode));
 
 	shapeNode = m_root->addChild<ShapeNode, Shape>(m_cube);
 	shapeNode->setPosition(-14.0839f, 2.31663f, 1.92646f);
 	shapeNode->OnOctreeSet(m_octree);
 	shapeNode->setTextureIndex(2);
+	m_navigables.push_back(new Navigable(shapeNode));
 
 	shapeNode = m_root->addChild<ShapeNode, Shape>(m_cube);
 	shapeNode->setPosition(-11.4615f, 2.31663f, -22.13f);
 	shapeNode->OnOctreeSet(m_octree);
 	shapeNode->setTextureIndex(2);
+	m_navigables.push_back(new Navigable(shapeNode));
 
 	shapeNode = m_root->addChild<ShapeNode, Shape>(m_cube);
 	shapeNode->setPosition(-21.9248f, 2.31663f, -8.26868f);
 	shapeNode->OnOctreeSet(m_octree);
 	shapeNode->setTextureIndex(2);
+	m_navigables.push_back(new Navigable(shapeNode));
 
 	shapeNode = m_root->addChild<ShapeNode, Shape>(m_cube);
 	shapeNode->setPosition(-6.17903f, 2.31663f, 6.16944f);
 	shapeNode->OnOctreeSet(m_octree);
 	shapeNode->setTextureIndex(2);
-///////////////////////////////////////////////////////////////////////////////////
+	m_navigables.push_back(new Navigable(shapeNode));
+
 	shapeNode = m_root->addChild<ShapeNode, Shape>(m_cube);
 	shapeNode->setPosition(22.4007f, 2.30943f, -9.9086f);
 	shapeNode->setScale(1.71352f, 1.0f, 3.86812f);
 	shapeNode->OnOctreeSet(m_octree);
 	shapeNode->setTextureIndex(2);
+	m_navigables.push_back(new Navigable(shapeNode));
 
 	shapeNode = m_root->addChild<ShapeNode, Shape>(m_cube);
 	shapeNode->setPosition(-26.3652f, 2.36106f, -20.859f);
 	shapeNode->setScale(1.71352f, 1.0f, 3.86812f);
 	shapeNode->OnOctreeSet(m_octree);
 	shapeNode->setTextureIndex(2);
+	m_navigables.push_back(new Navigable(shapeNode));
 
 	shapeNode = m_root->addChild<ShapeNode, Shape>(m_cube);
 	shapeNode->setPosition(-26.3652f, 2.36106f, -9.20306f);
 	shapeNode->setScale(1.71352f, 1.0f, 3.86812f);
 	shapeNode->OnOctreeSet(m_octree);
 	shapeNode->setTextureIndex(2);
+	m_navigables.push_back(new Navigable(shapeNode));
 
 	shapeNode = m_root->addChild<ShapeNode, Shape>(m_cube);
 	shapeNode->setPosition(-26.3652f, 2.36106f, -32.5239f);
 	shapeNode->setScale(1.71352f, 1.0f, 3.86812f);
 	shapeNode->OnOctreeSet(m_octree);
 	shapeNode->setTextureIndex(2);
+	m_navigables.push_back(new Navigable(shapeNode));
 
 	shapeNode = m_root->addChild<ShapeNode, Shape>(m_cube);
 	shapeNode->setPosition(-26.3652f, 2.36106f, -44.1777f);
 	shapeNode->setScale(1.71352f, 1.0f, 3.86812f);
 	shapeNode->OnOctreeSet(m_octree);
 	shapeNode->setTextureIndex(2);
-	///////////////////////////////////////////////////////////////////////////////////
+	m_navigables.push_back(new Navigable(shapeNode));
+
 	shapeNode = m_root->addChild<ShapeNode, Shape>(m_cube14);
 	shapeNode->setPosition(-22.3009f, 2.33817f, -31.3599f);
 	shapeNode->OnOctreeSet(m_octree);
 	shapeNode->setTextureIndex(2);
+	m_navigables.push_back(new Navigable(shapeNode));
 
 	shapeNode = m_root->addChild<ShapeNode, Shape>(m_cube);
 	shapeNode->setPosition(-26.3652f, 2.36106f, 16.6828f);
 	shapeNode->setScale(1.71352f, 1.0f, 3.86812f);
 	shapeNode->OnOctreeSet(m_octree);
 	shapeNode->setTextureIndex(2);
+	m_navigables.push_back(new Navigable(shapeNode));
 
 	shapeNode = m_root->addChild<ShapeNode, Shape>(m_cube);
 	shapeNode->setPosition(22.4007f, 2.30943f, -40.1603f);
 	shapeNode->setScale(1.71352f, 1.0f, 3.86812f);
 	shapeNode->OnOctreeSet(m_octree);
 	shapeNode->setTextureIndex(2);
+	m_navigables.push_back(new Navigable(shapeNode));
 
 	shapeNode = m_root->addChild<ShapeNode, Shape>(m_cube17);
 	shapeNode->setPosition(-26.3733f, 4.53696f, -18.4788f);
 	shapeNode->OnOctreeSet(m_octree);
 	shapeNode->setTextureIndex(1);
+	m_navigables.push_back(new Navigable(shapeNode));
 
 	shapeNode = m_root->addChild<ShapeNode, Shape>(m_cube);
 	shapeNode->setPosition(11.2092f, 2.31663f, -30.8257f);
 	shapeNode->OnOctreeSet(m_octree);
 	shapeNode->setTextureIndex(2);
+	m_navigables.push_back(new Navigable(shapeNode));
 
 	shapeNode = m_root->addChild<ShapeNode, Shape>(m_cube14);
 	shapeNode->setPosition(-30.3823f, 2.33817f, -42.2312f);
 	shapeNode->setOrientation(Quaternion(0.0f, 1.0f, 0.0f, 0.0f));
 	shapeNode->OnOctreeSet(m_octree);
 	shapeNode->setTextureIndex(2);
+	m_navigables.push_back(new Navigable(shapeNode));
 
 	shapeNode = m_root->addChild<ShapeNode, Shape>(m_cube14);
 	shapeNode->setPosition(18.3143f, 2.33817f, -13.2117f);
 	shapeNode->setOrientation(Quaternion(0.0f, 1.0f, 0.0f, 0.0f));
 	shapeNode->OnOctreeSet(m_octree);
 	shapeNode->setTextureIndex(2);
+	m_navigables.push_back(new Navigable(shapeNode));
 
 	shapeNode = m_root->addChild<ShapeNode, Shape>(m_cube);
 	shapeNode->setPosition(22.4007f, 2.30943f, 1.55447f);
 	shapeNode->setScale(1.71352f, 1.0f, 3.86812f);
 	shapeNode->OnOctreeSet(m_octree);
 	shapeNode->setTextureIndex(2);
+	m_navigables.push_back(new Navigable(shapeNode));
 
 	AnimationNode* animationNode = m_root->addChild<AnimationNode, AnimatedModel>(m_beta);
 	animationNode->setPosition(0.0f, 0.5f, -30.0f);

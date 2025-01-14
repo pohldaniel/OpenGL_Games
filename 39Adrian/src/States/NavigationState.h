@@ -1,5 +1,6 @@
 #pragma once
 
+#include <vector>
 #include <engine/input/KeyboardEventListener.h>
 #include <engine/input/MouseEventListener.h>
 #include <engine/animationNew/AnimationController.h>
@@ -11,6 +12,7 @@
 #include <Physics/Physics.h>
 #include <Physics/MousePicker.h>
 #include <Navigation/NavigationMesh.h>
+#include <Navigation/Navigable.h>
 
 #include <States/StateMachine.h>
 
@@ -60,4 +62,5 @@ private:
 	MousePicker m_mousePicker;
 	btCollisionObject* m_groundObject;
 	NavigationMesh* navigationMesh;
+	std::vector<Navigable*> m_navigables;
 };

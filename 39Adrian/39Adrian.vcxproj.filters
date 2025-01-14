@@ -513,6 +513,9 @@
     <ClCompile Include="Navigation\NavArea.cpp">
       <Filter>Navigation</Filter>
     </ClCompile>
+    <ClCompile Include="Navigation\NavBuildData.cpp">
+      <Filter>Navigation</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="convhull\convhull_3d.h">
@@ -981,6 +984,9 @@
       <Filter>Navigation</Filter>
     </ClInclude>
     <ClInclude Include="Navigation\NavArea.h">
+      <Filter>Navigation</Filter>
+    </ClInclude>
+    <ClInclude Include="Navigation\NavBuildData.h">
       <Filter>Navigation</Filter>
     </ClInclude>
   </ItemGroup>

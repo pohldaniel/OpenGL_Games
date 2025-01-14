@@ -8,6 +8,7 @@
 #include "../engine/Vector.h"
 #include "../engine/BoundingBox.h"
 #include "../engine/DebugRenderer.h"
+#include "Navigable.h"
 
 #ifdef DT_POLYREF64
 typedef uint64_t dtPolyRef;
@@ -27,6 +28,8 @@ enum NavmeshPartitionType
 
 class Geometry;
 class NavArea;
+class ShapeNode;
+class Shape;
 
 struct FindPathData;
 struct NavBuildData;
@@ -35,7 +38,7 @@ struct NavBuildData;
 struct NavigationGeometryInfo
 {
 	/// Component.
-	//Component* component_;
+	ShapeNode* component_;
 	/// Geometry LOD level if applicable.
 	unsigned lodLevel_;
 	/// Transform relative to the navigation mesh root node.
@@ -75,6 +78,9 @@ inline unsigned NextPowerOfTwo(unsigned value)
 	value |= value >> 16;
 	return ++value;
 }
+
+template <class T> int CeilToInt(T x) { return static_cast<int>(ceil(x)); }
+template <class T> int FloorToInt(T x) { return static_cast<int>(floor(x)); }
 
 inline unsigned LogBaseTwo(unsigned value)
 {
@@ -260,14 +266,14 @@ public:
 
 	/// Return whether to draw NavArea components.
 	bool GetDrawNavAreas() const { return drawNavAreas_; }
-
-private:
+	std::vector<Navigable*> m_navigables;
+	//private:
 	/// Write tile data.
 	//void WriteTile(Serializer& dest, int x, int z) const;
 	/// Read tile data to the navigation mesh.
 	//bool ReadTile(Deserializer& source, bool silent);
 
-protected:
+//protected:
 	/// Collect geometry from under Navigable components.
 	void CollectGeometries(std::vector<NavigationGeometryInfo>& geometryList);
 	/// Visit nodes and collect navigable geometry.
@@ -275,7 +281,7 @@ protected:
 	/// Get geometry data within a bounding box.
 	void GetTileGeometry(NavBuildData* build, std::vector<NavigationGeometryInfo>& geometryList, BoundingBox& box);
 	/// Add a triangle mesh to the geometry data.
-	void AddTriMeshGeometry(NavBuildData* build, Geometry* geometry, const Matrix4f& transform);
+	void AddTriMeshGeometry(NavBuildData* build, const Shape& shape, const Matrix4f& transform);
 	/// Build one tile of the navigation mesh. Return true if successful.
 	virtual bool BuildTile(std::vector<NavigationGeometryInfo>& geometryList, int x, int z);
 	/// Build tiles in the rectangular area. Return number of built tiles.

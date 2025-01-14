@@ -46,6 +46,7 @@ struct BoundingBox {
 	void drawRaw() const;
 	void cleanup();
 	Intersection isInside(const BoundingBox& box) const;
+	Intersection isInsideFast(const BoundingBox& box) const;
 
 	Vector3f min;
 	Vector3f max;
