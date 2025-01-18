@@ -81,6 +81,27 @@ NavigationState::NavigationState(StateMachine& machine) : State(machine, States:
 
 
 	m_crowdManager = new CrowdManager();
+	CrowdObstacleAvoidanceParams params = m_crowdManager->GetObstacleAvoidanceParams(0);
+	// Set the params to "High (66)" setting
+	params.velBias = 0.5f;
+	params.adaptiveDivs = 7;
+	params.adaptiveRings = 3;
+	params.adaptiveDepth = 3;
+	m_crowdManager->SetObstacleAvoidanceParams(0, params);
+
+	unsigned numqs = m_crowdManager->GetNumQueryFilterTypes();
+	m_crowdManager->SetIncludeFlags(0, NAVPOLYFLAG_LEVEL1);
+	m_crowdManager->SetExcludeFlags(0, NAVPOLYFLAG_LEVEL2 | NAVPOLYFLAG_LEVEL3);
+
+	m_crowdManager->SetIncludeFlags(1, NAVPOLYFLAG_LEVEL1 | NAVPOLYFLAG_LEVEL2);
+	m_crowdManager->SetExcludeFlags(1, NAVPOLYFLAG_LEVEL3);
+
+	m_crowdManager->SetIncludeFlags(2, NAVPOLYFLAG_LEVEL1 | NAVPOLYFLAG_LEVEL2 | NAVPOLYFLAG_LEVEL3);
+	m_crowdManager->SetNavigationMesh(navigationMesh);
+
+	m_crowdAgent = new CrowdAgent();
+
+	m_crowdManager->AddAgent(m_crowdAgent, m_root->findChild<AnimationNode>(0)->getWorldPosition());
 }
 
 NavigationState::~NavigationState() {

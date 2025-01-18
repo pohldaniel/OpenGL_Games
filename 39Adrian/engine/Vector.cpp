@@ -1043,7 +1043,7 @@ Matrix4f::Matrix4f(float m11, float m12, float m13, float m14,
 	mtx[3][0] = m41, mtx[3][1] = m42, mtx[3][2] = m43, mtx[3][3] = m44;
 }
 
-Matrix4f::Matrix4f(float array[16]) {
+Matrix4f::Matrix4f(const float array[16]) {
 	mtx[0][0] = array[0], mtx[0][1] = array[1], mtx[0][2] = array[2], mtx[0][3] = array[3];
 	mtx[1][0] = array[4], mtx[1][1] = array[5], mtx[1][2] = array[6], mtx[1][3] = array[7];
 	mtx[2][0] = array[8], mtx[2][1] = array[9], mtx[2][2] = array[10], mtx[2][3] = array[11];
@@ -2641,7 +2641,7 @@ Vector2f::Vector2f(float x_, float y_) {
 	vec[1] = y_;
 }
 
-Vector2f::Vector2f(float array[2]) {
+Vector2f::Vector2f(const float array[2]) {
 	vec[0] = array[0];
 	vec[1] = array[1];
 }
@@ -2857,7 +2857,7 @@ Vector3f::Vector3f(float x_, float y_, float z_) {
 	vec[2] = z_;
 }
 
-Vector3f::Vector3f(float array[3]) {
+Vector3f::Vector3f(const float array[3]) {
 	vec[0] = array[0];
 	vec[1] = array[1];
 	vec[2] = array[2];
@@ -3119,7 +3119,7 @@ Vector4f::Vector4f(const Vector3f &rhs, float w) {
 	vec[3] = w;
 }
 
-Vector4f::Vector4f(float array[4]) {
+Vector4f::Vector4f(const float array[4]) {
 	vec[0] = array[0];
 	vec[1] = array[1];
 	vec[2] = array[2];

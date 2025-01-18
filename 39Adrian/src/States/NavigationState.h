@@ -14,8 +14,17 @@
 #include <Navigation/NavigationMesh.h>
 #include <Navigation/Navigable.h>
 #include <Navigation/CrowdManager.h>
+#include <Navigation/CrowdAgent.h>
 
 #include <States/StateMachine.h>
+
+enum NavFlag
+{
+	NAVPOLYFLAG_LEVEL0 = 0,
+	NAVPOLYFLAG_LEVEL1 = (1 << 0),
+	NAVPOLYFLAG_LEVEL2 = (1 << 1),
+	NAVPOLYFLAG_LEVEL3 = (1 << 2),
+};
 
 class NavigationState : public State, public MouseEventListener, public KeyboardEventListener {
 
@@ -66,4 +75,5 @@ private:
 	NavigationMesh* navigationMesh;
 	std::vector<Navigable*> m_navigables;
 	CrowdManager* m_crowdManager;
+	CrowdAgent* m_crowdAgent;
 };

@@ -36,7 +36,7 @@ public:
 	Vector2f();
 	Vector2f(float x_);
 	Vector2f(float x_, float y_);
-	Vector2f(float array[2]);	
+	Vector2f(const float array[2]);
 	Vector2f(const Vector3f& vec);
 	Vector2f(const Vector4f& vec);
 	Vector2f(Vector2f const& rhs);
@@ -109,7 +109,7 @@ public:
 	Vector3f();
 	Vector3f(float x_);
 	Vector3f(float x_, float y_, float z_);
-	Vector3f(float array[3]);
+	Vector3f(const float array[3]);
 	Vector3f(Vector3f const& rhs);
 	Vector3f(Vector3f&& rhs);
 	Vector3f(const Vector4f& vec);
@@ -183,7 +183,7 @@ public:
 	Vector4f();
 	Vector4f(float x_, float y_, float z_, float w_);
 	Vector4f(float value);
-	Vector4f(float array[4]);
+	Vector4f(const float array[4]);
 	Vector4f(const Vector3f &rhs, float w = 1.0f);
 	Vector4f(Vector4f const& rhs);
 	Vector4f(Vector4f&& rhs);
@@ -246,7 +246,7 @@ public:
              float m21, float m22, float m23, float m24,
              float m31, float m32, float m33, float m34,
              float m41, float m42, float m43, float m44);
-	Matrix4f(float array[16]);
+	Matrix4f(const float array[16]);
 	Matrix4f(const Vector3f& pos, const Quaternion& quat, const Vector3f& scale);
 	Matrix4f(Matrix4f const& rhs);
 	Matrix4f(Matrix4f&& rhs);

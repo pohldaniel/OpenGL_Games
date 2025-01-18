@@ -198,10 +198,14 @@ struct dtCrowdAgentDebugInfo
 	dtObstacleAvoidanceDebugData* vod;
 };
 
+/// Type for the update callback.
+typedef void(*dtUpdateCallback)(bool positionUpdate, dtCrowdAgent* agent, float* pos, float dt);
+
 /// Provides local steering behaviors for a group of agents. 
 /// @ingroup crowd
 class dtCrowd
 {
+	dtUpdateCallback m_updateCallback;
 	int m_maxAgents;
 	dtCrowdAgent* m_agents;
 	dtCrowdAgent** m_activeAgents;
@@ -246,7 +250,7 @@ public:
 	///  @param[in]		maxAgentRadius	The maximum radius of any agent that will be added to the crowd. [Limit: > 0]
 	///  @param[in]		nav				The navigation mesh to use for planning.
 	/// @return True if the initialization succeeded.
-	bool init(const int maxAgents, const float maxAgentRadius, dtNavMesh* nav);
+	bool init(const int maxAgents, const float maxAgentRadius, dtNavMesh* nav, dtUpdateCallback cb = 0);
 	
 	/// Sets the shared avoidance configuration for the specified index.
 	///  @param[in]		idx		The index. [Limits: 0 <= value < #DT_CROWD_MAX_OBSTAVOIDANCE_PARAMS]
@@ -272,6 +276,10 @@ public:
 	/// The maximum number of agents that can be managed by the object.
 	/// @return The maximum number of agents.
 	int getAgentCount() const;
+
+	/// The maximum radius of any agent that will be added to the crowd.
+	/// @return The maximum radius of any agent.
+	float getMaxAgentRadius() const { return m_maxAgentRadius; }
 	
 	/// Adds a new agent to the crowd.
 	///  @param[in]		pos		The requested position of the agent. [(x, y, z)]

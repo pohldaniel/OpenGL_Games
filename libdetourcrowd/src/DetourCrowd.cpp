@@ -329,6 +329,7 @@ Notes:
 */
 
 dtCrowd::dtCrowd() :
+	m_updateCallback(nullptr),
 	m_maxAgents(0),
 	m_agents(0),
 	m_activeAgents(0),
@@ -341,6 +342,9 @@ dtCrowd::dtCrowd() :
 	m_velocitySampleCount(0),
 	m_navquery(0)
 {
+	// Urho3D: initialize all class members
+	memset(&m_agentPlacementHalfExtents, 0, sizeof(m_agentPlacementHalfExtents));
+	memset(&m_obstacleQueryParams, 0, sizeof(m_obstacleQueryParams));
 }
 
 dtCrowd::~dtCrowd()
@@ -378,10 +382,12 @@ void dtCrowd::purge()
 /// @par
 ///
 /// May be called more than once to purge and re-initialize the crowd.
-bool dtCrowd::init(const int maxAgents, const float maxAgentRadius, dtNavMesh* nav)
+bool dtCrowd::init(const int maxAgents, const float maxAgentRadius, dtNavMesh* nav, dtUpdateCallback cb)
 {
 	purge();
 	
+	// Urho3D
+	m_updateCallback = cb;
 	m_maxAgents = maxAgents;
 	m_maxAgentRadius = maxAgentRadius;
 
@@ -561,6 +567,9 @@ int dtCrowd::addAgent(const float* pos, const dtCrowdAgentParams* params)
 	ag->targetState = DT_CROWDAGENT_TARGET_NONE;
 	
 	ag->active = true;
+
+	// Urho3D: added to fix illegal memory access when ncorners is queried before the agent has updated
+	ag->ncorners = 0;
 
 	return idx;
 }
@@ -1208,6 +1217,10 @@ void dtCrowd::update(const float dt, dtCrowdAgentDebugInfo* debug)
 			dtVscale(dvel, dvel, ag->desiredSpeed * speedScale);
 		}
 
+		// Urho3D: Update velocity callback
+		if (m_updateCallback)
+			m_updateCallback(false, ag, dvel, dt);
+
 		// Separation
 		if (ag->params.updateFlags & DT_CROWD_SEPARATION)
 		{
@@ -1364,6 +1377,10 @@ void dtCrowd::update(const float dt, dtCrowdAgentDebugInfo* debug)
 				{
 					pen = (1.0f/dist) * (pen*0.5f) * COLLISION_RESOLVE_FACTOR;
 				}
+
+				// Urho3D: Avoid tremble when another agent can not move away
+				if (ag->params.separationWeight < 0.0001f)
+					continue;
 				
 				dtVmad(ag->disp, ag->disp, diff, pen);			
 				
@@ -1404,6 +1421,10 @@ void dtCrowd::update(const float dt, dtCrowdAgentDebugInfo* debug)
 			ag->corridor.reset(ag->corridor.getFirstPoly(), ag->npos);
 			ag->partial = false;
 		}
+
+		// Urho3D: Update position callback support
+		if (m_updateCallback)
+			m_updateCallback(true, ag, ag->npos, dt);
 
 	}
 	
