@@ -516,6 +516,12 @@
     <ClCompile Include="Navigation\NavBuildData.cpp">
       <Filter>Navigation</Filter>
     </ClCompile>
+    <ClCompile Include="Navigation\CrowdAgent.cpp">
+      <Filter>Navigation</Filter>
+    </ClCompile>
+    <ClCompile Include="Navigation\CrowdManager.cpp">
+      <Filter>Navigation</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="convhull\convhull_3d.h">
@@ -987,6 +993,12 @@
       <Filter>Navigation</Filter>
     </ClInclude>
     <ClInclude Include="Navigation\NavBuildData.h">
+      <Filter>Navigation</Filter>
+    </ClInclude>
+    <ClInclude Include="Navigation\CrowdAgent.h">
+      <Filter>Navigation</Filter>
+    </ClInclude>
+    <ClInclude Include="Navigation\CrowdManager.h">
       <Filter>Navigation</Filter>
     </ClInclude>
   </ItemGroup>

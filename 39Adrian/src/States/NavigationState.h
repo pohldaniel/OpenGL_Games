@@ -13,6 +13,7 @@
 #include <Physics/MousePicker.h>
 #include <Navigation/NavigationMesh.h>
 #include <Navigation/Navigable.h>
+#include <Navigation/CrowdManager.h>
 
 #include <States/StateMachine.h>
 
@@ -64,4 +65,5 @@ private:
 	btCollisionObject* m_groundObject;
 	NavigationMesh* navigationMesh;
 	std::vector<Navigable*> m_navigables;
+	CrowdManager* m_crowdManager;
 };

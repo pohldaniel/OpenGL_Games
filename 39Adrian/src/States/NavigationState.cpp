@@ -78,6 +78,9 @@ NavigationState::NavigationState(StateMachine& machine) : State(machine, States:
 
 	navigationMesh->Build();
 	navigationMesh->boundingBox_.createBuffer();
+
+
+	m_crowdManager = new CrowdManager();
 }
 
 NavigationState::~NavigationState() {
