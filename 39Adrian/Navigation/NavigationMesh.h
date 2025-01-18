@@ -281,7 +281,7 @@ public:
 	/// Get geometry data within a bounding box.
 	void GetTileGeometry(NavBuildData* build, std::vector<NavigationGeometryInfo>& geometryList, BoundingBox& box);
 	/// Add a triangle mesh to the geometry data.
-	void AddTriMeshGeometry(NavBuildData* build, const Shape& shape, const Matrix4f& transform);
+	void AddTriMeshGeometry(NavBuildData* build, const Shape& shape, const Matrix4f& transform, unsigned int& vertexCount);
 	/// Build one tile of the navigation mesh. Return true if successful.
 	virtual bool BuildTile(std::vector<NavigationGeometryInfo>& geometryList, int x, int z);
 	/// Build tiles in the rectangular area. Return number of built tiles.
@@ -347,5 +347,7 @@ public:
 	bool drawNavAreas_;
 	/// NavAreas for this NavMesh
 	std::vector<NavArea*> areas_;
+
+	std::vector<BoundingBox> m_boxes;
 
 };

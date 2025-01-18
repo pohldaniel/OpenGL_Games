@@ -1,35 +1,50 @@
 #include <GL/glew.h>
 #include "BoundingBox.h"
 
-BoundingBox::BoundingBox() : min(Vector3f(FLT_MAX, FLT_MAX, FLT_MAX)), max(Vector3f(-FLT_MAX, -FLT_MAX, -FLT_MAX)) {
+BoundingBox::BoundingBox() : min(Vector3f(FLT_MAX, FLT_MAX, FLT_MAX)), max(Vector3f(-FLT_MAX, -FLT_MAX, -FLT_MAX)), m_markForDelete(false) {
 
 }
 
-BoundingBox::BoundingBox(BoundingBox const& rhs) : min(rhs.min), max(rhs.max){
+BoundingBox::BoundingBox(const Vector3f& min, const Vector3f& max) : min(min), max(max), m_markForDelete(false) {
+
 }
 
-BoundingBox::BoundingBox(BoundingBox&& rhs) : min(rhs.min), max(rhs.max){
+BoundingBox::BoundingBox(float min, float max) : min(Vector3f(min)), max(Vector3f(max)), m_markForDelete(false) {
+
+}
+
+BoundingBox::BoundingBox(BoundingBox const& rhs) : min(rhs.min), max(rhs.max), m_vao(rhs.m_vao), m_vbo(rhs.m_vbo), m_ibo(rhs.m_ibo), m_markForDelete(false) {
+}
+
+BoundingBox::BoundingBox(BoundingBox&& rhs) : min(rhs.min), max(rhs.max), m_vao(rhs.m_vao), m_vbo(rhs.m_vbo), m_ibo(rhs.m_ibo), m_markForDelete(false) {
 
 }
 
 BoundingBox& BoundingBox::operator=(const BoundingBox& rhs) {
 	min = rhs.min;
 	max = rhs.max;
+	m_vao = rhs.m_vao;
+	m_vbo = rhs.m_vbo;
+	m_ibo = rhs.m_ibo;
+	m_markForDelete = false;
 	return *this;
 }
 
 BoundingBox& BoundingBox::operator=(BoundingBox&& rhs) {
 	min = rhs.min;
 	max = rhs.max;
+	m_vao = rhs.m_vao;
+	m_vbo = rhs.m_vbo;
+	m_ibo = rhs.m_ibo;
+	m_markForDelete = false;
 	return *this;
 }
 
-BoundingBox::BoundingBox(const Vector3f& min, const Vector3f& max) : min(min), max(max){
 
-}
-
-BoundingBox::BoundingBox(float min, float max) : min(Vector3f(min)), max(Vector3f(max)){
-
+BoundingBox::~BoundingBox() {
+	if (m_markForDelete) {
+		cleanup();
+	}
 }
 
 Vector3f BoundingBox::getSize() const {
@@ -211,10 +226,6 @@ std::pair<float, float> BoundingBox::projected(const Vector3f& axis) const{
 void BoundingBox::reset() {
 	min.set(FLT_MAX, FLT_MAX, FLT_MAX);
 	max.set(-FLT_MAX, -FLT_MAX, -FLT_MAX);
-}
-
-BoundingBox::~BoundingBox() {
-	cleanup();
 }
 
 void BoundingBox::createBuffer() {

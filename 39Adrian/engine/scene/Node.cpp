@@ -1,6 +1,6 @@
 #include "Node.h"
 
-Node::Node() : m_parent(nullptr), m_markForRemove(false), m_index(-1){
+Node::Node() : m_parent(nullptr), m_markForRemove(false), m_id(-1){
 
 }
 
@@ -47,8 +47,8 @@ const Node* Node::getParent() const {
 	return m_parent;
 }
 
-const int Node::getIndex() const {
-	return m_index;
+const int Node::getId() const {
+	return m_id;
 }
 
 void Node::setParent(Node* node) {
@@ -70,12 +70,12 @@ void Node::setName(const std::string& name) {
 	m_nameHash = StringHash(name);
 }
 
-void Node::setIndex(const int index) {
-	m_index = index;
+void Node::setId(const int id) {
+	m_id = id;
 }
 
-void Node::eraseChild(const int index) {
-	m_children.erase(std::remove_if(m_children.begin(), m_children.end(), [index](const std::unique_ptr<Node, std::function<void(Node* node)>>& node) { return node->getIndex() == index; }), m_children.end());
+void Node::eraseChild(const int id) {
+	m_children.erase(std::remove_if(m_children.begin(), m_children.end(), [id](const std::unique_ptr<Node, std::function<void(Node* node)>>& node) { return node->getId() == id; }), m_children.end());
 }
 
 void Node::eraseAllChildren(size_t offset) {

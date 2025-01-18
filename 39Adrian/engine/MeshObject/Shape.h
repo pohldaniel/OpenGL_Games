@@ -40,6 +40,7 @@ public:
 	void fromBuffer(const std::vector<float>& vertexBuffer, const std::vector<unsigned int>& indexBuffer, unsigned int stride, bool createBuffer = true);
 	void fromBuffer(const std::vector<float>& vertexBuffer, const std::vector<unsigned int>& indexBuffer, unsigned int stride, const std::vector<std::array<float, 4>>& weights, const std::vector<std::array<unsigned int, 4>>& boneIds);
 	void fromObj(const char* filename);
+	void fromObj(const char* a_filename, const Vector3f& axis, float degree, const Vector3f& translate, float scale, const Vector3f& origin = Vector3f::ZERO);
 
 	void drawRaw() const;
 	void drawRawInstanced() const;

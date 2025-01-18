@@ -77,11 +77,13 @@ void NavigationMesh::DrawDebugGeometry(DebugRenderer* debug, bool depthTest) {
 	const Matrix4f& worldTransform = Matrix4f::IDENTITY;
 
 	const dtNavMesh* navMesh = navMesh_;
+	if (!navMesh_)
+		return;
 
 	for (int j = 0; j < navMesh->getMaxTiles(); ++j)
 	{
 		const dtMeshTile* tile = navMesh->getTile(j);
-		//std::cout << "Header Pointer: " << tile->header << std::endl;
+
 
 		//assert(tile);
 		if (!tile->header)
@@ -195,9 +197,6 @@ bool NavigationMesh::Build() {
 	boundingBox_.min -= padding_;
 	boundingBox_.max += padding_;
 
-	std::cout << "Min: " << boundingBox_.min[0] << "  " << boundingBox_.min[1] << "  " << boundingBox_.min[2] << std::endl;
-	std::cout << "Max: " << boundingBox_.max[0] << "  " << boundingBox_.max[1] << "  " << boundingBox_.max[2] << std::endl;
-
 	{
 		//URHO3D_PROFILE(BuildNavigationMesh);
 
@@ -220,8 +219,6 @@ bool NavigationMesh::Build() {
 		params.maxTiles = maxTiles;
 		params.maxPolys = maxPolys;
 
-		std::cout << "Min: " << params.orig[0] << "  " << params.orig[1] << "  " << params.orig[2] << std::endl;
-
 		navMesh_ = dtAllocNavMesh();
 		if (!navMesh_)
 		{
@@ -237,7 +234,7 @@ bool NavigationMesh::Build() {
 		}
 		
 		// Build each tile
-		unsigned numTiles = BuildTiles(geometryList, std::array<int, 2>({0, 0}), std::array<int, 2>({ GetNumTiles()[0] - 1, GetNumTiles()[1] - 1 }));
+		unsigned numTiles = BuildTiles(geometryList, std::array<int, 2>({0, 0}), std::array<int, 2>({ GetNumTiles()[0], GetNumTiles()[1] }));
 
 		std::cout << "Built navigation mesh with " + std::to_string(maxTiles) + " tiles" << std::endl;
 		// Send a notification event to concerned parties that we've been fully rebuilt
@@ -289,9 +286,10 @@ unsigned char* NavigationMesh::GetNavigationDataAttr() const {
 
 bool NavigationMesh::BuildTile(std::vector<NavigationGeometryInfo>& geometryList, int x, int z) {
 	// Remove previous tile (if any)
-	navMesh_->removeTile(navMesh_->getTileRefAt(x, z, 0), 0, 0);
+	//navMesh_->removeTile(navMesh_->getTileRefAt(x, z, 0), 0, 0);
 
-	BoundingBox tileBoundingBox = GetTileBoudningBox(std::array<int, 2>({x, z}));
+	BoundingBox tileBoundingBox = GetTileBoudningBox(std::array<int, 2>({x, z}));	 
+	m_boxes.push_back(tileBoundingBox);
 
 	SimpleNavBuildData build;
 
@@ -347,9 +345,6 @@ bool NavigationMesh::BuildTile(std::vector<NavigationGeometryInfo>& geometryList
 	unsigned numTriangles = build.indices_.size() / 3;
 	unsigned char* triAreas = new unsigned char[numTriangles];
 	memset(triAreas, 0, numTriangles);
-
-	std::cout << "Num Triangles: " << numTriangles << std::endl;
-
 
 	rcMarkWalkableTriangles(build.ctx_, cfg.walkableSlopeAngle, &build.vertices_[0][0], build.vertices_.size(),&build.indices_[0], numTriangles, triAreas);
 	rcRasterizeTriangles(build.ctx_, &build.vertices_[0][0], build.vertices_.size(), &build.indices_[0],triAreas, numTriangles, *build.heightField_, cfg.walkableClimb);
@@ -565,11 +560,8 @@ void NavigationMesh::ReleaseNavigationMesh() {
 unsigned NavigationMesh::BuildTiles(std::vector<NavigationGeometryInfo>& geometryList, const std::array<int, 2>& from, const std::array<int, 2>& to)
 {
 	unsigned numTiles = 0;
-
-	for (int z = from[1]; z <= to[1]; ++z)
-	{
-		for (int x = from[0]; x <= to[0]; ++x)
-		{
+	for (int z = from[1]; z < to[1]; ++z){
+		for (int x = from[0]; x < to[0]; ++x){
 			if (BuildTile(geometryList, x, z))
 				++numTiles;
 		}
@@ -584,7 +576,6 @@ void NavigationMesh::CollectGeometries(std::vector<NavigationGeometryInfo>& geom
 	// the scene into several navigation meshes
 	//std::vector<Navigable*> navigables;
 	//node_->GetComponents<Navigable>(navigables, true);
-	std::cout << "Size: " << m_navigables.size() << std::endl;
 	std::hash_set<SceneNodeLC*> processedNodes;
 	for (unsigned i = 0; i < m_navigables.size(); ++i){
 		//if (true)
@@ -641,37 +632,6 @@ void NavigationMesh::CollectGeometries(std::vector<NavigationGeometryInfo>& geom
 
 	//Matrix4f inverse = node_->GetWorldTransform().Inverse();
 	Matrix4f inverse = Matrix4f::IDENTITY;
-
-#if 0
-	// Prefer compatible physics collision shapes (triangle mesh, convex hull, box) if found.
-	// Then fallback to visible geometry
-	std::vector<CollisionShape*> collisionShapes;
-	//node->GetComponents<CollisionShape>(collisionShapes);
-	bool collisionShapeFound = false;
-
-	for (unsigned i = 0; i < collisionShapes.Size(); ++i)
-	{
-		CollisionShape* shape = collisionShapes[i];
-		if (!shape->IsEnabledEffective())
-			continue;
-
-		ShapeType type = shape->GetShapeType();
-		if ((type == SHAPE_BOX || type == SHAPE_TRIANGLEMESH || type == SHAPE_CONVEXHULL) && shape->GetCollisionShape())
-		{
-			Matrix4f shapeTransform(shape->GetPosition(), shape->GetRotation(), shape->GetSize());
-
-			NavigationGeometryInfo info;
-			info.component_ = shape;
-			info.transform_ = inverse * node->GetWorldTransform() * shapeTransform;
-			info.boundingBox_ = shape->GetWorldBoundingBox().Transformed(inverse);
-
-			geometryList.Push(info);
-			collisionShapeFound = true;
-		}
-	}
-	if (!collisionShapeFound)
-#endif
-
 	{
 		//std::vector<ShapeNode*> drawables;
 		//node->GetDerivedComponents<Drawable>(drawables);
@@ -734,139 +694,64 @@ BoundingBox NavigationMesh::GetTileBoudningBox(const std::array<int, 2>& tile) c
 		));
 }
 
-void NavigationMesh::GetTileGeometry(NavBuildData* build, std::vector<NavigationGeometryInfo>& geometryList, BoundingBox& box)
-{
-	//Matrix4f inverse = node_->GetWorldTransform().Inverse();
+void NavigationMesh::GetTileGeometry(NavBuildData* build, std::vector<NavigationGeometryInfo>& geometryList, BoundingBox& box){
+
 	Matrix4f inverse = Matrix4f::IDENTITY;
-	//std::cout << "Size: " << geometryList.size() << std::endl;
-	for (unsigned i = 0; i < geometryList.size(); ++i)
-	{
-		//if (box.isInsideFast(geometryList[i].boundingBox_) != BoundingBox::Intersection::OUTSIDE)
-		//{
+	unsigned int vertexCount = 0u;
+
+	for (unsigned i = 0; i < geometryList.size(); ++i){
+		if (box.isInsideFast(geometryList[i].boundingBox_) != BoundingBox::Intersection::OUTSIDE){
 			const Matrix4f& transform = geometryList[i].transform_;
 
-			//transform.print();
-
-			/*if (geometryList[i].component_->GetType() == OffMeshConnection::GetTypeStatic())
-			{
-				OffMeshConnection* connection = static_cast<OffMeshConnection*>(geometryList[i].component_);
-				Vector3 start = inverse * connection->GetNode()->GetWorldPosition();
-				Vector3 end = inverse * connection->GetEndPoint()->GetWorldPosition();
-
-				build->offMeshVertices_.Push(start);
-				build->offMeshVertices_.Push(end);
-				build->offMeshRadii_.Push(connection->GetRadius());
-				build->offMeshFlags_.Push((unsigned short)connection->GetMask());
-				build->offMeshAreas_.Push((unsigned char)connection->GetAreaID());
-				build->offMeshDir_.Push((unsigned char)(connection->IsBidirectional() ? DT_OFFMESH_CON_BIDIR : 0));
-				continue;
-			}
-			else if (geometryList[i].component_->GetType() == NavArea::GetTypeStatic())
-			{
-				NavArea* area = static_cast<NavArea*>(geometryList[i].component_);
-				NavAreaStub stub;
-				stub.areaID_ = (unsigned char)area->GetAreaID();
-				stub.bounds_ = area->GetWorldBoundingBox();
-				build->navAreas_.Push(stub);
-				continue;
-			}*/
-
-#ifdef URHO3D_PHYSICS
-			CollisionShape* shape = dynamic_cast<CollisionShape*>(geometryList[i].component_);
-			if (shape)
-			{
-				switch (shape->GetShapeType())
-				{
-				case SHAPE_TRIANGLEMESH:
-				{
-					Model* model = shape->GetModel();
-					if (!model)
-						continue;
-
-					unsigned lodLevel = shape->GetLodLevel();
-					for (unsigned j = 0; j < model->GetNumGeometries(); ++j)
-						AddTriMeshGeometry(build, model->GetGeometry(j, lodLevel), transform);
-				}
-				break;
-
-				case SHAPE_CONVEXHULL:
-				{
-					ConvexData* data = static_cast<ConvexData*>(shape->GetGeometryData());
-					if (!data)
-						continue;
-
-					unsigned numVertices = data->vertexCount_;
-					unsigned numIndices = data->indexCount_;
-					unsigned destVertexStart = build->vertices_.Size();
-
-					for (unsigned j = 0; j < numVertices; ++j)
-						build->vertices_.Push(transform * data->vertexData_[j]);
-
-					for (unsigned j = 0; j < numIndices; ++j)
-						build->indices_.Push(data->indexData_[j] + destVertexStart);
-				}
-				break;
-
-				case SHAPE_BOX:
-				{
-					unsigned destVertexStart = build->vertices_.Size();
-
-					build->vertices_.Push(transform * Vector3(-0.5f, 0.5f, -0.5f));
-					build->vertices_.Push(transform * Vector3(0.5f, 0.5f, -0.5f));
-					build->vertices_.Push(transform * Vector3(0.5f, -0.5f, -0.5f));
-					build->vertices_.Push(transform * Vector3(-0.5f, -0.5f, -0.5f));
-					build->vertices_.Push(transform * Vector3(-0.5f, 0.5f, 0.5f));
-					build->vertices_.Push(transform * Vector3(0.5f, 0.5f, 0.5f));
-					build->vertices_.Push(transform * Vector3(0.5f, -0.5f, 0.5f));
-					build->vertices_.Push(transform * Vector3(-0.5f, -0.5f, 0.5f));
-
-					const unsigned indices[] = {
-						0, 1, 2, 0, 2, 3, 1, 5, 6, 1, 6, 2, 4, 5, 1, 4, 1, 0, 5, 4, 7, 5, 7, 6,
-						4, 0, 3, 4, 3, 7, 1, 0, 4, 1, 4, 5
-					};
-
-					for (unsigned j = 0; j < 36; ++j)
-						build->indices_.Push(indices[j] + destVertexStart);
-				}
-				break;
-
-				default:
-					break;
-				}
-
-				continue;
-			}
-#endif
 			ShapeNode* drawable = geometryList[i].component_;
-			if (drawable)
-			{
-				std::cout << "----------" << std::endl;
-				//const Vector<SourceBatch>& batches = drawable->GetBatches();
-
-				//for (unsigned j = 0; j < batches.Size(); ++j)
-					AddTriMeshGeometry(build, drawable->getShape(), transform);
+			if (drawable){
+				AddTriMeshGeometry(build, drawable->getShape(), transform, vertexCount);
 			}
 		}
-	//}
+	}
 }
 
-void NavigationMesh::AddTriMeshGeometry(NavBuildData* build, const Shape& shape, const Matrix4f& transform) {
+void NavigationMesh::AddTriMeshGeometry(NavBuildData* build, const Shape& shape, const Matrix4f& transform, unsigned int& vertexCount) {
 	unsigned srcIndexStart = 0u;
 	unsigned srcIndexCount = shape.getIndexBuffer().size();
 	unsigned srcVertexStart = 0u;
 	unsigned srcVertexCount = shape.getPositions().size();
 
-	//std::cout << "Vertex Count: " << shape.getPositions().size() << std::endl;
-	//std::cout << "Index Count: " << shape.getIndexBuffer().size() << std::endl;
-
-	//transform.print();
-	
-	for (unsigned k = srcVertexStart; k < srcVertexStart + srcVertexCount; ++k){
-
+	for (unsigned k = 0u; k < srcVertexCount; ++k){
 		build->vertices_.push_back(transform ^ shape.getPositions()[k]);
 	}
 
-	for (unsigned k = srcIndexStart; k < srcIndexStart + srcIndexCount; ++k) {
-		build->indices_.push_back(shape.getIndexBuffer()[k]);
+	for (unsigned k = 0u; k < srcIndexCount; ++k) {
+		build->indices_.push_back(shape.getIndexBuffer()[k] + vertexCount);
 	}
+
+	vertexCount += srcVertexCount;
+}
+
+void NavigationMesh::SetTileSize(int size){
+	tileSize_ = std::max(size, 1);
+}
+
+void NavigationMesh::SetAgentHeight(float height){
+	agentHeight_ = std::max(height, EPSILON);
+}
+
+void NavigationMesh::SetCellHeight(float height){
+	cellHeight_ = std::max(height, EPSILON);
+}
+
+void NavigationMesh::SetAgentMaxClimb(float maxClimb){
+	agentMaxClimb_ = std::max(maxClimb, EPSILON);
+}
+
+void NavigationMesh::SetAgentMaxSlope(float maxSlope){
+	agentMaxSlope_ = std::max(maxSlope, 0.0f);
+}
+
+void NavigationMesh::SetAgentRadius(float radius){
+	agentRadius_ = std::max(radius, EPSILON);
+}
+
+void NavigationMesh::SetCellSize(float size){
+	cellSize_ = std::max(size, EPSILON);
 }

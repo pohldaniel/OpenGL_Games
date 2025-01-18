@@ -46,6 +46,7 @@ private:
 	bool m_drawUi = true;
 	bool m_debugTree = false;
 	bool m_debugPhysic = false;
+	bool m_debugNavmesh = true;
 
 	Camera m_camera;
 	Frustum m_frustum;

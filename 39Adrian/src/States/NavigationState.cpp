@@ -23,7 +23,7 @@ NavigationState::NavigationState(StateMachine& machine) : State(machine, States:
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
 	m_camera.lookAt(Vector3f(0.0f, 20.0f, -75.0f), Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 1.0f, 0.0f));
 	m_camera.setRotationSpeed(0.1f);
-	m_camera.setMovingSpeed(10.0f);
+	m_camera.setMovingSpeed(50.0f);
 
 	glClearColor(0.494f, 0.686f, 0.796f, 1.0f);
 	glClearDepth(1.0f);
@@ -66,7 +66,18 @@ NavigationState::NavigationState(StateMachine& machine) : State(machine, States:
 	navigationMesh = new NavigationMesh();
 	navigationMesh->m_navigables = m_navigables;
 	navigationMesh->SetPadding(Vector3f(0.0f, 10.0f, 0.0f));
+	navigationMesh->SetTileSize(8);
+
+	navigationMesh->SetCellSize(0.3);
+	navigationMesh->SetCellHeight(0.2f);
+
+	navigationMesh->SetAgentMaxSlope(45.0f);
+	navigationMesh->SetAgentMaxClimb(0.9f);
+	navigationMesh->SetAgentHeight(2.0f);
+	navigationMesh->SetAgentRadius(0.6f);
+
 	navigationMesh->Build();
+	navigationMesh->boundingBox_.createBuffer();
 }
 
 NavigationState::~NavigationState() {
@@ -157,8 +168,9 @@ void NavigationState::render() {
 	for (const Batch& batch : m_octree->getOpaqueBatches().m_batches) {
 		OctreeNode* drawable = batch.octreeNode;
 		shader->loadMatrix("u_model", drawable->getWorldTransformation());
-		//drawable->drawRaw();
+		drawable->drawRaw();
 	}
+	shader->loadMatrix("u_model", Matrix4f::IDENTITY);
 	shader->unuse();
 
 	if (m_debugTree) {
@@ -181,9 +193,11 @@ void NavigationState::render() {
 		DebugRenderer::Get().drawBuffer();
 	}
 
-	navigationMesh->DrawDebugGeometry(&DebugRenderer::Get(), false);
-	DebugRenderer::Get().SetProjectionView(m_camera.getPerspectiveMatrix(), m_camera.getViewMatrix());
-	DebugRenderer::Get().drawBuffer();
+	if (m_debugNavmesh) {
+		navigationMesh->DrawDebugGeometry(&DebugRenderer::Get(), false);
+		DebugRenderer::Get().SetProjectionView(m_camera.getPerspectiveMatrix(), m_camera.getViewMatrix());
+		DebugRenderer::Get().drawBuffer();
+	}
 	
 	if (m_debugPhysic) {
 		ShapeDrawer::Get().setProjectionView(m_camera.getPerspectiveMatrix(), m_camera.getViewMatrix());
@@ -291,6 +305,7 @@ void NavigationState::renderUi() {
 	ImGui::Checkbox("Draw Wirframe", &StateMachine::GetEnableWireframe());
 	ImGui::Checkbox("Debug Tree", &m_debugTree);
 	ImGui::Checkbox("Debug Physic", &m_debugPhysic);
+	ImGui::Checkbox("Debug Navmesh", &m_debugNavmesh);
 	if (ImGui::Button("Clear Marker"))
 		clearMarker();
 	ImGui::End();
@@ -361,7 +376,6 @@ void NavigationState::createPhysics() {
 	Physics::AddStaticObject(Physics::BtTransform(btVector3(18.3143f, 2.33817f, -13.2117f), btQuaternion(0.0f, 1.0f, 0.0f, 0.0f)), Physics::CreateCollisionShape(&m_cube14, btVector3(1.0f, 1.0f, 1.0f)), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER);
 
 	Physics::AddStaticObject(Physics::BtTransform(btVector3(22.4007f, 2.30943f, 1.55447f)), Physics::CreateCollisionShape(&m_cube, btVector3(1.71352f, 1.0f, 3.86812f)), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER);
-
 }
 
 void NavigationState::createScene() {
@@ -371,7 +385,7 @@ void NavigationState::createScene() {
 	shapeNode = m_root->addChild<ShapeNode, Shape>(m_ground);
 	shapeNode->OnOctreeSet(m_octree);
 	shapeNode->setTextureIndex(0);
-	//m_navigables.push_back(new Navigable(shapeNode));
+	m_navigables.push_back(new Navigable(shapeNode));
 
 	shapeNode = m_root->addChild<ShapeNode, Shape>(m_cylinder);
 	shapeNode->setPosition(23.2655f, -0.414571f, -24.8348f);
@@ -504,7 +518,7 @@ void NavigationState::createScene() {
 	animationNode->setTextureIndex(3);
 	animationNode->addAnimationState(m_idle);
 	animationNode->getAnimationState(0)->setLooped(true);
-	animationNode->setIndex(0);
+	animationNode->setId(0);
 	animationNode->setSortKey(1);
 	animationNode->setShader(Globals::shaderManager.getAssetPointer("animation"));
 }

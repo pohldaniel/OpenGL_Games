@@ -23,10 +23,10 @@ public:
 	void setParent(Node* node);
 	
 	void setName(const std::string& name);
-	void setIndex(const int index);
+	void setId(const int id);
 	
 	std::list<std::unique_ptr<Node, std::function<void(Node* node)>>>& getChildren() const;	
-	const int getIndex() const;
+	const int getId() const;
 	const Node* getParent() const;
 
 	void removeChild(Node* child);
@@ -34,7 +34,7 @@ public:
 
 	void eraseSelf();
 	void eraseChild(Node* child);
-	void eraseChild(const int index);
+	void eraseChild(const int id);
 	void eraseAllChildren(size_t offset = 0);
 	template <class T> void eraseChildren() const;
 
@@ -46,7 +46,7 @@ public:
 
 	template <class T> T* findChild(std::string name, bool recursive = true) const;
 	template <class T> T* findChild(StringHash nameHash, bool recursive = true) const;
-	template <class T> T* findChild(const int index, bool recursive = true) const;
+	template <class T> T* findChild(const int id, bool recursive = true) const;
 
 	size_t countNodes();
 
@@ -56,7 +56,7 @@ protected:
 	Node* m_parent;
 	bool m_markForRemove;
 	StringHash m_nameHash;
-	int m_index;
+	int m_id;
 };
 
 template <class T> T* Node::addChild(bool disableDelete) {
@@ -108,17 +108,17 @@ template <class T> T* Node::findChild(StringHash nameHash, bool recursive) const
 	return nullptr;
 }
 
-template <class T> T* Node::findChild(const int index, bool recursive) const {
+template <class T> T* Node::findChild(const int id, bool recursive) const {
 	for (auto it = m_children.begin(); it != m_children.end(); ++it) {
 		Node* child = (*it).get();
 		if (!child) {
 			continue;
 		}
 
-		if (child->m_index == index && dynamic_cast<T*>(child) != nullptr)
+		if (child->m_id == id && dynamic_cast<T*>(child) != nullptr)
 			return dynamic_cast<T*>(child);
 		else if (recursive && child->m_children.size()) {
-			Node* result = child->findChild<T>(index, recursive);
+			Node* result = child->findChild<T>(id, recursive);
 			if (result)
 				return dynamic_cast<T*>(result);
 		}

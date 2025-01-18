@@ -58,7 +58,7 @@ private:
 	void undefine();
 
 	
-	
+	bool m_markForDelete;
 	unsigned int m_vao = 0u;
 	unsigned int m_vbo = 0u;
 	unsigned int m_ibo = 0u;

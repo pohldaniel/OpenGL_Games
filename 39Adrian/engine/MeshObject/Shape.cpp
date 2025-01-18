@@ -233,6 +233,10 @@ void Shape::fromBuffer(const std::vector<float>& vertexBuffer, const std::vector
 }
 
 void Shape::fromObj(const char* filename) {
+	fromObj(filename, Vector3f(0.0f, 1.0f, 0.0f), 0.0f, Vector3f(0.0f, 0.0f, 0.0f), 1.0f);
+}
+
+void Shape::fromObj(const char* filename, const Vector3f& axis, float degree, const Vector3f& translate, float scale, const Vector3f& origin) {
 
 	std::vector<std::array<int, 9>> face;
 	std::vector<float> positionCoords;
@@ -262,6 +266,14 @@ void Shape::fromObj(const char* filename) {
 					float tmpx, tmpy, tmpz;
 					fgets(buffer, sizeof(buffer), pFile);
 					sscanf(buffer, "%f %f %f", &tmpx, &tmpy, &tmpz);
+					Matrix4f rot;
+					rot.rotate(axis, degree);
+
+					Vector3f tmp = rot * Vector3f(tmpx, tmpy, tmpz);
+
+					tmpx = (tmp[0] - origin[0]) * scale + translate[0];
+					tmpy = (tmp[1] - origin[1]) * scale + translate[1];
+					tmpz = (tmp[2] - origin[2]) * scale + translate[2];
 				
 					positionCoords.push_back(tmpx);
 					positionCoords.push_back(tmpy);
@@ -283,9 +295,14 @@ void Shape::fromObj(const char* filename) {
 					float tmpx, tmpy, tmpz;
 					fgets(buffer, sizeof(buffer), pFile);
 					sscanf(buffer, "%f %f %f", &tmpx, &tmpy, &tmpz);
-					normalCoords.push_back(tmpx);
-					normalCoords.push_back(tmpy);
-					normalCoords.push_back(tmpz);		
+					Matrix4f rot;
+					rot.rotate(axis, degree);
+
+					Vector3f tmp = rot * Vector3f(tmpx, tmpy, tmpz);
+
+					normalCoords.push_back(tmp[0]);
+					normalCoords.push_back(tmp[1]);
+					normalCoords.push_back(tmp[2]);
 					break;
 
 				}default: {
