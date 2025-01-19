@@ -160,8 +160,7 @@ public:
 	/// Return index of the tile at the position.
 	std::array<int, 2> GetTileIndex(const Vector3f& position) const;
 	/// Find the nearest point on the navigation mesh to a given point. Extents specifies how far out from the specified point to check along each axis.
-	Vector3f FindNearestPoint
-	(const Vector3f& point, const Vector3f& extents = Vector3f::ONE, const dtQueryFilter* filter = 0, dtPolyRef* nearestRef = 0);
+	Vector3f FindNearestPoint(const Vector3f& point, const Vector3f& extents = Vector3f::ONE, const dtQueryFilter* filter = 0, dtPolyRef* nearestRef = 0);
 	/// Try to move along the surface from one point to another.
 	Vector3f MoveAlongSurface(const Vector3f& start, const Vector3f& end, const Vector3f& extents = Vector3f::ONE, int maxVisited = 3, const dtQueryFilter* filter = 0);
 	/// Find a path between world space points. Return non-empty list of points if successful. Extents specifies how far off the navigation mesh the points can be.

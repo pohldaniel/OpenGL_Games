@@ -242,6 +242,7 @@
     <ClCompile Include="src\Entities\Vehicle.cpp" />
     <ClCompile Include="src\LoadingManager.cpp" />
     <ClCompile Include="src\MiniMap.cpp" />
+    <ClCompile Include="src\Sphere.cpp" />
     <ClCompile Include="src\States\Controls.cpp" />
     <ClCompile Include="src\States\Default.cpp" />
     <ClCompile Include="src\States\MapState.cpp" />
@@ -445,6 +446,7 @@
     <ClInclude Include="src\Globals.h" />
     <ClInclude Include="src\LoadingManager.h" />
     <ClInclude Include="src\MiniMap.h" />
+    <ClInclude Include="src\Sphere.h" />
     <ClInclude Include="src\States\Controls.h" />
     <ClInclude Include="src\States\Default.h" />
     <ClInclude Include="src\States\MapState.h" />

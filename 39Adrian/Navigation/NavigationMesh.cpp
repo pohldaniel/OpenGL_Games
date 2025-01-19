@@ -755,3 +755,23 @@ void NavigationMesh::SetAgentRadius(float radius){
 void NavigationMesh::SetCellSize(float size){
 	cellSize_ = std::max(size, EPSILON);
 }
+
+Vector3f NavigationMesh::FindNearestPoint(const Vector3f& point, const Vector3f& extents, const dtQueryFilter* filter,dtPolyRef* nearestRef){
+	if (!InitializeQuery())
+		return point;
+
+	const Matrix4f& transform = Matrix4f::IDENTITY;
+	Matrix4f inverse = transform;
+
+	Vector3f localPoint = inverse * point;
+	Vector3f nearestPoint;
+
+	dtPolyRef pointRef;
+	if (!nearestRef)
+		nearestRef = &pointRef;
+	navMeshQuery_->findNearestPoly(localPoint.getVec(), extents.getVec(), filter ? filter : queryFilter_, nearestRef, &nearestPoint[0]);
+
+	//std::cout << "Nearest: " << nearestPoint[0] << "  " << nearestPoint[1] << "  " << nearestPoint[2] << std::endl;
+
+	return *nearestRef ? transform * nearestPoint : point;
+}

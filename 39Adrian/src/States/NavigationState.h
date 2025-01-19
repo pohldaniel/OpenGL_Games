@@ -72,7 +72,7 @@ private:
 
 	MousePicker m_mousePicker;
 	btCollisionObject* m_groundObject;
-	NavigationMesh* navigationMesh;
+	NavigationMesh* m_navigationMesh;
 	std::vector<Navigable*> m_navigables;
 	CrowdManager* m_crowdManager;
 	CrowdAgent* m_crowdAgent;

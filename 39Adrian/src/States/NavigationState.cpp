@@ -63,21 +63,21 @@ NavigationState::NavigationState(StateMachine& machine) : State(machine, States:
 	m_sphere.createBoundingBox();
 	m_sphere.markForDelete();
 
-	navigationMesh = new NavigationMesh();
-	navigationMesh->m_navigables = m_navigables;
-	navigationMesh->SetPadding(Vector3f(0.0f, 10.0f, 0.0f));
-	navigationMesh->SetTileSize(8);
+	m_navigationMesh = new NavigationMesh();
+	m_navigationMesh->m_navigables = m_navigables;
+	m_navigationMesh->SetPadding(Vector3f(0.0f, 10.0f, 0.0f));
+	m_navigationMesh->SetTileSize(8);
 
-	navigationMesh->SetCellSize(0.3);
-	navigationMesh->SetCellHeight(0.2f);
+	m_navigationMesh->SetCellSize(0.3);
+	m_navigationMesh->SetCellHeight(0.2f);
 
-	navigationMesh->SetAgentMaxSlope(45.0f);
-	navigationMesh->SetAgentMaxClimb(0.9f);
-	navigationMesh->SetAgentHeight(2.0f);
-	navigationMesh->SetAgentRadius(0.6f);
+	m_navigationMesh->SetAgentMaxSlope(45.0f);
+	m_navigationMesh->SetAgentMaxClimb(0.9f);
+	m_navigationMesh->SetAgentHeight(2.0f);
+	m_navigationMesh->SetAgentRadius(0.6f);
 
-	navigationMesh->Build();
-	navigationMesh->boundingBox_.createBuffer();
+	m_navigationMesh->Build();
+	//m_navigationMesh->boundingBox_.createBuffer();
 
 
 	m_crowdManager = new CrowdManager();
@@ -97,11 +97,15 @@ NavigationState::NavigationState(StateMachine& machine) : State(machine, States:
 	m_crowdManager->SetExcludeFlags(1, NAVPOLYFLAG_LEVEL3);
 
 	m_crowdManager->SetIncludeFlags(2, NAVPOLYFLAG_LEVEL1 | NAVPOLYFLAG_LEVEL2 | NAVPOLYFLAG_LEVEL3);
-	m_crowdManager->SetNavigationMesh(navigationMesh);
+	m_crowdManager->SetNavigationMesh(m_navigationMesh);
 
 	m_crowdAgent = new CrowdAgent();
-
-	m_crowdManager->AddAgent(m_crowdAgent, m_root->findChild<AnimationNode>(0)->getWorldPosition());
+	m_crowdAgent->SetHeight(2.0f);
+	m_crowdAgent->SetMaxSpeed(3.0f);
+	m_crowdAgent->SetMaxAccel(5.0f);
+	m_crowdAgent->SetRadius(1.0f);
+	m_crowdAgent->crowdManager_ = m_crowdManager;
+	m_crowdAgent->AddAgentToCrowd(false, m_root->findChild<AnimationNode>(0)->getWorldPosition());
 }
 
 NavigationState::~NavigationState() {
@@ -173,6 +177,7 @@ void NavigationState::update() {
 	m_frustum.updatePlane(m_camera.getPerspectiveMatrix(), m_camera.getViewMatrix());
 	m_frustum.updateVertices(m_camera.getPerspectiveMatrix(), m_camera.getViewMatrix());
 	m_frustum.m_frustumSATData.calculate(m_frustum);
+	m_crowdManager->Update(m_dt);
 	m_octree->updateOctree();
 }
 
@@ -218,7 +223,8 @@ void NavigationState::render() {
 	}
 
 	if (m_debugNavmesh) {
-		navigationMesh->DrawDebugGeometry(&DebugRenderer::Get(), false);
+		m_navigationMesh->DrawDebugGeometry(&DebugRenderer::Get(), false);
+		m_crowdManager->DrawDebugGeometry(&DebugRenderer::Get(), false);
 		DebugRenderer::Get().SetProjectionView(m_camera.getPerspectiveMatrix(), m_camera.getViewMatrix());
 		DebugRenderer::Get().drawBuffer();
 	}
@@ -253,9 +259,13 @@ void NavigationState::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 			const MousePickCallbackAll& callbackAll = m_mousePicker.getCallbackAll();
 			btVector3 pos = callbackAll.m_hitPointWorld[callbackAll.index];
 			m_marker.push_back(m_root->addChild<ShapeNode, Shape>(m_sphere));
-			m_marker.back()->setPosition(Physics::VectorFrom(callbackAll.m_hitPointWorld[callbackAll.index]));
+			m_marker.back()->setPosition(Physics::VectorFrom(pos));
 			m_marker.back()->setTextureIndex(4);
 			m_marker.back()->OnOctreeSet(m_octree);
+
+			Vector3f pathPos = m_navigationMesh->FindNearestPoint(Physics::VectorFrom(pos), Vector3f(1.0f, 1.0f, 1.0f));
+
+			m_crowdManager->SetCrowdTarget(pathPos, m_root->findChild<AnimationNode>(0));
 		}
 	}
 }

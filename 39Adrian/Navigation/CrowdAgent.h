@@ -163,6 +163,9 @@ public:
 	virtual void OnCrowdVelocityUpdate(dtCrowdAgent* ag, float* pos, float dt);
 	/// Handle crowd agent being updated. It is called by CrowdManager::Update() via callback.
 	virtual void OnCrowdPositionUpdate(dtCrowdAgent* ag, float* pos, float dt);
+	/// Add agent into crowd.
+	int AddAgentToCrowd(bool force = false, const Vector3f& initialPosition = Vector3f::ZERO);
+	CrowdManager* crowdManager_;
 protected:
 	/// Handle node being assigned.
 	//virtual void OnNodeSet(Node* node);
@@ -178,12 +181,11 @@ protected:
 private:
 	/// Update Detour crowd agent parameter.
 	void UpdateParameters(unsigned scope = std::numeric_limits<unsigned int>::max());
-	/// Add agent into crowd.
-	int AddAgentToCrowd(bool force = false);
+	
 	/// Remove agent from crowd.
 	void RemoveAgentFromCrowd();
 	/// Crowd manager.
-	CrowdManager* crowdManager_;
+	
 	/// Velocity callback.
 	CrowdAgentVelocityCallback velocityCallback_;
 	/// Height callback.

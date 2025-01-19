@@ -1,4 +1,5 @@
 #include "DebugRenderer.h"
+#include <Sphere.h>
 
 DebugRenderer DebugRenderer::s_instance;
 bool DebugRenderer::s_enabled = true;
@@ -306,13 +307,13 @@ void DebugRenderer::AddCylinder(const Vector3f& position, float radius, float he
 	Vector3f offsetXVec(radius, 0, 0);
 	Vector3f offsetZVec(0, 0, radius);
 
-	/*Sphere sphere(position, radius);
+	Sphere sphere(position, radius);
 	for (float i = 0.0f; i < 360.0f; i += 45.0f){
 		Vector3f p1 = sphere.Point(i, 90.0f);
 		Vector3f p2 = sphere.Point(i + 45.0f, 90.0f);
 		AddLine(p1, p2, color);
 		AddLine(p1 + heightVec, p2 + heightVec, color);
-	}*/
+	}
 
 	AddLine(position + offsetXVec, position + heightVec + offsetXVec, color);
 	AddLine(position - offsetXVec, position + heightVec - offsetXVec, color);
