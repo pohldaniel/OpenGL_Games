@@ -465,6 +465,7 @@ public:
 	Quaternion normalize() const;
 	void set(float x, float y, float z, float w);
 	void set(const Vector3f &axis, float degrees);
+	void set(const Vector3f &directionXZ);
 	void conjugate();
 	void inverse();
 	void rotate(float pitch, float yaw, float roll);

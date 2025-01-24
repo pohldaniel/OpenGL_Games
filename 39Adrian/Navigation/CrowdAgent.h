@@ -1,5 +1,7 @@
 #pragma once
 #include <limits>
+#include <functional>
+
 #include "../engine/Vector.h"
 #include "CrowdManager.h"
 
@@ -39,7 +41,6 @@ enum NavigationPushiness
 };
 enum CrowdAgentState : int;
 class DebugRenderer;
-class SceneNodeLC;
 
 class CrowdAgent {
 
@@ -154,9 +155,6 @@ public:
 	/// Return true when the agent is in crowd (being managed by a crowd manager).
 	bool IsInCrowd() const;
 
-	//SceneNodeLC* m_node;
-	//Vector3f m_initialPosition;
-
 	/// Handle crowd agent being updated. It is called by CrowdManager::Update() via callback.
 	//virtual void OnCrowdUpdate(dtCrowdAgent* ag, float dt);
 
@@ -166,6 +164,11 @@ public:
 	/// Add agent into crowd.
 	int AddAgentToCrowd(bool force = false, const Vector3f& initialPosition = Vector3f::ZERO);
 	CrowdManager* crowdManager_;
+
+	void HandleCrowdAgentReposition(const Vector3f& position, const Vector3f& velocity, bool isArrived, float dt);
+
+	void setOnPositionVelocityUpdate(std::function<void(const Vector3f& pos, const Vector3f& vel)> fun);
+
 protected:
 	/// Handle node being assigned.
 	//virtual void OnNodeSet(Node* node);
@@ -224,4 +227,6 @@ private:
 	CrowdAgentState previousAgentState_;
 	/// Internal flag to ignore transform changes because it came from us, used in OnCrowdAgentReposition().
 	bool ignoreTransformChanges_;
+
+	std::function<void(const Vector3f& pos, const Vector3f& vel)> OnPositionVelocityUpdate;
 };

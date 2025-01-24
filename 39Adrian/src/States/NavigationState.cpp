@@ -100,12 +100,21 @@ NavigationState::NavigationState(StateMachine& machine) : State(machine, States:
 	m_crowdManager->SetNavigationMesh(m_navigationMesh);
 
 	m_crowdAgent = new CrowdAgent();
+	m_crowdAgent->crowdManager_ = m_crowdManager;
+	m_crowdAgent->AddAgentToCrowd(false, m_root->findChild<AnimationNode>(0)->getWorldPosition());
+
 	m_crowdAgent->SetHeight(2.0f);
 	m_crowdAgent->SetMaxSpeed(3.0f);
 	m_crowdAgent->SetMaxAccel(5.0f);
 	m_crowdAgent->SetRadius(1.0f);
-	m_crowdAgent->crowdManager_ = m_crowdManager;
-	m_crowdAgent->AddAgentToCrowd(false, m_root->findChild<AnimationNode>(0)->getWorldPosition());
+	//m_crowdAgent->Update
+	
+	m_crowdAgent->setOnPositionVelocityUpdate([&m_root = m_root](const Vector3f& pos, const Vector3f& vel) {
+		m_root->findChild<AnimationNode>(0)->setPosition(pos);
+		m_root->findChild<AnimationNode>(0)->getOrientation().set(-vel);
+	});
+
+	
 }
 
 NavigationState::~NavigationState() {
@@ -254,7 +263,7 @@ void NavigationState::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 
 	if (event.button == 1u) {
 		Mouse::instance().attach(Application::GetWindow(), false, false, false);
-
+		clearMarker();
 		if (m_mousePicker.clickAll(event.x, event.y, m_camera, m_groundObject)) {
 			const MousePickCallbackAll& callbackAll = m_mousePicker.getCallbackAll();
 			btVector3 pos = callbackAll.m_hitPointWorld[callbackAll.index];
@@ -265,7 +274,7 @@ void NavigationState::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 
 			Vector3f pathPos = m_navigationMesh->FindNearestPoint(Physics::VectorFrom(pos), Vector3f(1.0f, 1.0f, 1.0f));
 
-			m_crowdManager->SetCrowdTarget(pathPos, m_root->findChild<AnimationNode>(0));
+			m_crowdManager->SetCrowdTarget(pathPos, m_root->findChild<AnimationNode>(0), m_crowdAgent);
 		}
 	}
 }

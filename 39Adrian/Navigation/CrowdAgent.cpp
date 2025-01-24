@@ -1,7 +1,6 @@
 #include <DetourCommon.h>
 #include <DetourCrowd.h>
 
-#include "../engine/scene/SceneNodeLC.h"
 #include "../engine/DebugRenderer.h"
 #include "CrowdAgent.h"
 
@@ -66,9 +65,7 @@ CrowdAgent::~CrowdAgent()
 	//RemoveAgentFromCrowd();
 }
 
-void CrowdAgent::OnCrowdPositionUpdate(dtCrowdAgent* ag, float* pos, float dt){
-
-	//std::cout << "----------" << std::endl;
+void CrowdAgent::OnCrowdPositionUpdate(dtCrowdAgent* ag, float* , float dt){
 
 	//assert(ag);
 	//if (node_)
@@ -85,15 +82,15 @@ void CrowdAgent::OnCrowdPositionUpdate(dtCrowdAgent* ag, float* pos, float dt){
 		if (newPos != previousPosition_)
 		{
 			previousPosition_ = newPos;
-
-			if (updateNodePosition_)
+			OnPositionVelocityUpdate(newPos, newVel);
+			//if (updateNodePosition_)
 			{
 				ignoreTransformChanges_ = true;
 				//node_->SetWorldPosition(newPos);
 				ignoreTransformChanges_ = false;
 			}
-
-			/*using namespace CrowdAgentReposition;
+			/*HandleCrowdAgentReposition(newPos, newVel, HasArrived(), dt);
+			using namespace CrowdAgentReposition;
 
 			VariantMap& map = GetEventDataMap();
 			map[P_NODE] = node_;
@@ -197,9 +194,6 @@ CrowdAgentTargetState CrowdAgent::GetTargetState() const
 Vector3f CrowdAgent::GetPosition() const
 {
 	const dtCrowdAgent* agent = GetDetourCrowdAgent();
-
-	//std::cout << "Pointer Agent: " << agent << std::endl;
-
 	return agent ? Vector3f(agent->npos) : Vector3f::ZERO;
 }
 
@@ -277,7 +271,7 @@ int CrowdAgent::AddAgentToCrowd(bool force, const Vector3f& initialPosition)
 		// Save the initial position to prevent CrowdAgentReposition event being triggered unnecessarily
 		previousPosition_ = GetPosition();
 	}
-	std::cout << "Crowd Agent ID: " << agentCrowdId_ << std::endl;
+	UpdateParameters();
 	return agentCrowdId_;
 }
 
@@ -403,4 +397,15 @@ void CrowdAgent::SetTargetPosition(const Vector3f& position){
 			crowdManager_->GetCrowd()->requestMoveTarget(agentCrowdId_, nearestRef, nearestPos.getVec());
 		}
 	}
+}
+
+void CrowdAgent::HandleCrowdAgentReposition(const Vector3f& position, const Vector3f& velocity, bool isArrived, float dt) {
+	//Node* node = static_cast<Node*>(eventData[P_NODE].GetPtr());
+	//CrowdAgent* agent = static_cast<CrowdAgent*>(eventData[P_CROWD_AGENT].GetPtr());
+	//Vector3f velocity = eventData[P_VELOCITY].GetVector3();
+	//float timeStep = eventData[P_TIMESTEP].GetFloat();
+}
+
+void CrowdAgent::setOnPositionVelocityUpdate(std::function<void(const Vector3f& pos, const Vector3f& vel)> fun) {
+	OnPositionVelocityUpdate = fun;
 }

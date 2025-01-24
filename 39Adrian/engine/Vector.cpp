@@ -3488,6 +3488,14 @@ void Quaternion::set(const Vector3f &axis, float degrees) {
 	}
 }
 
+void Quaternion::set(const Vector3f &directionXZ) {
+	float angle = atan2f(directionXZ[0], directionXZ[2]);
+	quat[0] = 0.0f;
+	quat[1] = sinf(angle * 0.5f);
+	quat[2] = 0.0f;
+	quat[3] = cosf(angle * 0.5f);
+}
+
 void Quaternion::conjugate() {
 	quat[0] = -quat[0]; quat[1] = -quat[1]; quat[2] = -quat[2];
 }

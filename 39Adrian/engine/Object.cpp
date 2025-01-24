@@ -320,6 +320,18 @@ const Quaternion& Object::getOrientation() const {
 	return m_orientation;
 }
 
+Vector3f& Object::getPosition() {
+	return m_position;
+}
+
+Vector3f& Object::getScale() {
+	return m_scale;
+}
+
+Quaternion& Object::getOrientation() {
+	return m_orientation;
+}
+
 const Matrix4f& Object::getTransformationSOP() const{
 	Transformation.translate(m_position);
 	Transformation *= Matrix4f::Rotate(m_orientation, m_origin);

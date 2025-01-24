@@ -37,11 +37,6 @@ const char* obstacleAvoidanceTypesStructureElementNames[] =
 	0
 };
 
-/*void CrowdAgentUpdateCallback(dtCrowdAgent* ag, float dt)
-{
-	static_cast<CrowdAgent*>(ag->params.userData)->OnCrowdUpdate(ag, dt);
-}*/
-
 void CrowdAgentUpdateCallback(bool positionUpdate, dtCrowdAgent* ag, float* pos, float dt)
 {
 	auto crowdAgent = static_cast<CrowdAgent*>(ag->params.userData);
@@ -91,8 +86,6 @@ void CrowdManager::DrawDebugGeometry(DebugRenderer* debug, bool depthTest)
 			// Draw move target if any
 			if (crowdAgent->GetTargetState() == CA_TARGET_NONE || crowdAgent->GetTargetState() == CA_TARGET_VELOCITY)
 				continue;
-
-			std::cout << "-----------" << std::endl;
 
 			Vector4f color(0.6f, 0.2f, 0.2f, 1.0f);
 
@@ -194,7 +187,6 @@ void CrowdManager::SetNavigationMesh(NavigationMesh* navMesh)
 		}
 
 		CreateCrowd();
-		std::cout << "#########" << std::endl;
 		//MarkNetworkUpdate();
 	}
 }
@@ -241,7 +233,6 @@ bool CrowdManager::CreateCrowd(){
 
 		return false;
 	}
-	std::cout << "------------------ " << crowd_ << std::endl;
 	if (recreate){
 		// Reconfigure the newly initialized crowd
 		//SetQueryFilterTypesAttr(queryFilterTypeConfiguration);
@@ -281,14 +272,15 @@ std::vector<CrowdAgent*> CrowdManager::GetAgents(SceneNodeLC* node, bool inCrowd
 	return m_agents;
 }
 
-void CrowdManager::SetCrowdTarget(const Vector3f& position, SceneNodeLC* node)
+void CrowdManager::SetCrowdTarget(const Vector3f& position, SceneNodeLC* node, CrowdAgent* agent)
 {
 	if (!crowd_)
 		return;
 
-	std::vector<CrowdAgent*> agents = GetAgents(node, false);     // Get all crowd agent components
-	Vector3f moveTarget(position);
-	for (unsigned i = 0; i < agents.size(); ++i)
+	
+	//std::vector<CrowdAgent*> agents = GetAgents(node, false);     // Get all crowd agent components
+	//Vector3f moveTarget(position);
+	/*for (unsigned i = 0; i < agents.size(); ++i)
 	{
 		// Give application a chance to determine the desired crowd formation when they reach the target position
 		CrowdAgent* agent = agents[i];
@@ -304,9 +296,10 @@ void CrowdManager::SetCrowdTarget(const Vector3f& position, SceneNodeLC* node)
 
 		SendEvent(E_CROWD_AGENT_FORMATION, map);
 
-		moveTarget = map[P_POSITION].GetVector3();*/
-		agent->SetTargetPosition(moveTarget);
-	}
+		moveTarget = map[P_POSITION].GetVector3();
+		agent->SetTargetPosition(position);
+	}*/
+	agent->SetTargetPosition(position);
 }
 
 Vector3f CrowdManager::FindNearestPoint(const Vector3f& point, int queryFilterType, dtPolyRef* nearestRef){
@@ -317,5 +310,6 @@ Vector3f CrowdManager::FindNearestPoint(const Vector3f& point, int queryFilterTy
 }
 
 void CrowdManager::Update(float delta){
-	crowd_->update(delta, 0);
+	crowd_->update(delta, nullptr);
+	const dtCrowdAgent* agent = crowd_->getAgent(0);
 }

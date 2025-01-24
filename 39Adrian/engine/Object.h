@@ -106,6 +106,9 @@ public:
 	const Vector3f& getPosition() const;
 	const Vector3f& getScale() const;
 	const Quaternion& getOrientation() const;
+	Vector3f& getPosition();
+	Vector3f& getScale();
+	Quaternion& getOrientation();
 
 	const Matrix4f& getTransformationSOP() const;
 	const Matrix4f& getTransformationSO() const;
