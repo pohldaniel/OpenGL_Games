@@ -32,6 +32,7 @@ public:
 
 	virtual void rotate(float yaw, float pitch);
 	void rotate(float yaw, float pitch, const Vector3f &target);
+	void updateTarget();
 
 	void pitchReflection(const float distance);
 	void calcLightTransformation(Vector3f &direction);

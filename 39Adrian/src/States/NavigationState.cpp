@@ -24,6 +24,7 @@ NavigationState::NavigationState(StateMachine& machine) : State(machine, States:
 	m_camera.lookAt(Vector3f(0.0f, 20.0f, -75.0f), Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 1.0f, 0.0f));
 	m_camera.setRotationSpeed(0.1f);
 	m_camera.setMovingSpeed(50.0f);
+	m_offsetDistance = m_camera.getOffsetDistance();
 
 	glClearColor(0.494f, 0.686f, 0.796f, 1.0f);
 	glClearDepth(1.0f);
@@ -51,22 +52,27 @@ NavigationState::NavigationState(StateMachine& machine) : State(machine, States:
 	Material::AddTexture();
 
 	m_beta.loadModelMdl("res/models/BetaLowpoly/Beta.mdl");
-	m_run = new Animation();
-	m_run->loadAnimationAni("res/models/BetaLowpoly/Beta_Run.ani");
-	m_idle = new Animation();
-	m_idle->loadAnimationAni("res/models/BetaLowpoly/Beta_Idle.ani");
+	m_jack.loadModelMdl("res/models/Jack/Jack.mdl");
+
+	Globals::animationManagerNew.loadAnimationAni("beta_idle", "res/models/BetaLowpoly/Beta_Idle.ani");
+	Globals::animationManagerNew.loadAnimationAni("beta_run", "res/models/BetaLowpoly/Beta_Run.ani");
+	Globals::animationManagerNew.loadAnimationAni("jack_idle", "res/models/Jack/Jack_Walk.ani");
+	Globals::animationManagerNew.loadAnimationAni("jack_walk", "res/models/Jack/Jack_Walk.ani");
+
 	createShapes();
 	createPhysics();
 	createScene();
 
-	Globals::animationManagerNew.loadAnimationAni("beta_idle", "res/models/BetaLowpoly/Beta_Idle.ani");
-	Globals::animationManagerNew.loadAnimationAni("beta_run", "res/models/BetaLowpoly/Beta_Run.ani");
+
 
 	m_sphere.buildSphere(0.5f, Vector3f(0.0f, 0.0f, 0.0f), 10, 10, true, false, false);
 	m_sphere.createBoundingBox();
 	m_sphere.markForDelete();
 
-	m_animationController = new AnimationController(m_root->findChild<AnimationNode>(0));
+	m_animationControllerBeta = new AnimationController(m_root->findChild<AnimationNode>(0, false));
+	m_animationControllerBeta->playExclusive("beta_idle", 0, true, 0.0f);
+
+	m_animationControllerJack = new AnimationController(m_root->findChild<AnimationNode>(1, false));
 
 	m_navigationMesh = new NavigationMesh();
 	m_navigationMesh->m_navigables = m_navigables;
@@ -113,13 +119,16 @@ NavigationState::NavigationState(StateMachine& machine) : State(machine, States:
 	m_crowdAgent->SetMaxAccel(5.0f);
 	m_crowdAgent->SetRadius(1.0f);
 
-	m_crowdAgent->setOnPositionVelocityUpdate([&m_crowdAgent = m_crowdAgent,m_node = m_root->findChild<AnimationNode>(0), &m_animationController = m_animationController](const Vector3f& pos, const Vector3f& vel) {		
+	m_crowdAgent->setOnPositionVelocityUpdate([&m_crowdAgent = m_crowdAgent,m_node = m_root->findChild<AnimationNode>(0), &m_animationControllerBeta = m_animationControllerBeta, &m_animationControllerJack = m_animationControllerJack](const Vector3f& pos, const Vector3f& vel) {
 		if (m_crowdAgent->HasArrived()) {
-			m_animationController->playExclusive("beta_idle", 0, true, 0.2f);
+			m_animationControllerBeta->playExclusive("beta_idle", 0, true, 0.5f);
+			m_animationControllerJack->stop("jack_walk", 0.5f);
 		}else {			
-			m_animationController->playExclusive("beta_run", 0, true, 0.2f);
+			m_animationControllerBeta->playExclusive("beta_run", 0, true, 0.1f);
 			m_node->getOrientation().set(-vel);
 			m_node->setPosition(pos);
+
+			m_animationControllerJack->playExclusive("jack_walk", 0, true, 0.1f);
 		}
 	});
 }
@@ -186,15 +195,21 @@ void NavigationState::update() {
 		if (move) {
 			m_camera.move(direction * m_dt);
 		}
+		m_camera.updateTarget();
 	}
 
 	m_octree->updateFrameNumber();
-	//m_root->findChild<AnimationNode>(0)->update(m_dt);
+
 	m_frustum.updatePlane(m_camera.getPerspectiveMatrix(), m_camera.getViewMatrix());
 	m_frustum.updateVertices(m_camera.getPerspectiveMatrix(), m_camera.getViewMatrix());
 	m_frustum.m_frustumSATData.calculate(m_frustum);
-	m_animationController->update(m_dt);
+
+	m_animationControllerBeta->update(m_dt);
 	m_root->findChild<AnimationNode>(0)->update(m_dt);
+
+	m_animationControllerJack->update(m_dt);
+	m_root->findChild<AnimationNode>(1)->update(m_dt);
+
 	m_crowdManager->Update(m_dt);
 	m_octree->updateOctree();
 }
@@ -296,6 +311,17 @@ void NavigationState::OnMouseButtonUp(Event::MouseButtonEvent& event) {
 
 void NavigationState::OnMouseWheel(Event::MouseWheelEvent& event) {
 
+	if (event.direction == 1u) {
+		m_offsetDistance += 2.0f;
+		m_offsetDistance = std::max(0.0f, std::min(m_offsetDistance, 150.0f));
+		m_camera.setOffsetDistance(m_offsetDistance);
+	}
+
+	if (event.direction == 0u) {
+		m_offsetDistance -= 2.0f;
+		m_offsetDistance = std::max(0.0f, std::min(m_offsetDistance, 150.0f));
+		m_camera.setOffsetDistance(m_offsetDistance);
+	}
 }
 
 void NavigationState::OnKeyDown(Event::KeyboardEvent& event) {
@@ -568,9 +594,16 @@ void NavigationState::createScene() {
 	animationNode->setOrientation(0.0f, 180.0f, 0.0f);
 	animationNode->OnOctreeSet(m_octree);
 	animationNode->setTextureIndex(3);
-	animationNode->addAnimationState(m_idle);
-	animationNode->getAnimationState(0)->setLooped(true);
 	animationNode->setId(0);
+	animationNode->setSortKey(1);
+	animationNode->setShader(Globals::shaderManager.getAssetPointer("animation"));
+
+	animationNode = m_root->addChild<AnimationNode, AnimatedModel>(m_jack);
+	animationNode->setPosition(5.0f, 0.5f, -30.0f);
+	animationNode->setOrientation(0.0f, 180.0f, 0.0f);
+	animationNode->OnOctreeSet(m_octree);
+	animationNode->setTextureIndex(3);
+	animationNode->setId(1);
 	animationNode->setSortKey(1);
 	animationNode->setShader(Globals::shaderManager.getAssetPointer("animation"));
 }

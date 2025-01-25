@@ -290,7 +290,7 @@ void Camera::orthographic(float left, float right, float bottom, float top, floa
 void Camera::lookAt(const Vector3f &eye, const Vector3f &target, const Vector3f &up){
 	m_eye = eye;
 	m_target = target;
-	//m_offsetDistance = (m_target - m_eye).length();
+	m_offsetDistance = (m_target - m_eye).length();
 
 	m_zAxis = m_eye - target;
 	Vector3f::Normalize(m_zAxis);
@@ -633,6 +633,10 @@ void Camera::rotate(float yaw, float pitch, const Vector3f &target) {
 	orthogonalize();
 	m_eye = target - m_offsetDistance * m_viewDir;
 	updateViewMatrix();
+}
+
+void Camera::updateTarget() {
+	m_target = m_eye + m_offsetDistance * m_viewDir;
 }
 
 void Camera::rotateFirstPerson(float yaw, float pitch){

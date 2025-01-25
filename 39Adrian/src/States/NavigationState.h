@@ -56,7 +56,8 @@ private:
 	bool m_drawUi = true;
 	bool m_debugTree = false;
 	bool m_debugPhysic = false;
-	bool m_debugNavmesh = true;
+	bool m_debugNavmesh = false;
+	float m_offsetDistance;
 
 	Camera m_camera;
 	Frustum m_frustum;
@@ -65,8 +66,7 @@ private:
 	Octree* m_octree;
 
 	Shape m_ground, m_cylinder, m_cube, m_cube14, m_cube17, m_sphere;
-	AnimatedModel m_beta;
-	Animation *m_run, *m_idle;
+	AnimatedModel m_beta, m_jack;
 	Animation* m_animationNode;
 	std::vector<ShapeNode*> m_marker;
 
@@ -76,5 +76,5 @@ private:
 	std::vector<Navigable*> m_navigables;
 	CrowdManager* m_crowdManager;
 	CrowdAgent* m_crowdAgent;
-	AnimationController* m_animationController;
+	AnimationController *m_animationControllerBeta, *m_animationControllerJack;
 };
