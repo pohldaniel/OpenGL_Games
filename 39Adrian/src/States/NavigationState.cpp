@@ -59,9 +59,14 @@ NavigationState::NavigationState(StateMachine& machine) : State(machine, States:
 	createPhysics();
 	createScene();
 
+	Globals::animationManagerNew.loadAnimationAni("beta_idle", "res/models/BetaLowpoly/Beta_Idle.ani");
+	Globals::animationManagerNew.loadAnimationAni("beta_run", "res/models/BetaLowpoly/Beta_Run.ani");
+
 	m_sphere.buildSphere(0.5f, Vector3f(0.0f, 0.0f, 0.0f), 10, 10, true, false, false);
 	m_sphere.createBoundingBox();
 	m_sphere.markForDelete();
+
+	m_animationController = new AnimationController(m_root->findChild<AnimationNode>(0));
 
 	m_navigationMesh = new NavigationMesh();
 	m_navigationMesh->m_navigables = m_navigables;
@@ -107,14 +112,16 @@ NavigationState::NavigationState(StateMachine& machine) : State(machine, States:
 	m_crowdAgent->SetMaxSpeed(3.0f);
 	m_crowdAgent->SetMaxAccel(5.0f);
 	m_crowdAgent->SetRadius(1.0f);
-	//m_crowdAgent->Update
-	
-	m_crowdAgent->setOnPositionVelocityUpdate([&m_root = m_root](const Vector3f& pos, const Vector3f& vel) {
-		m_root->findChild<AnimationNode>(0)->setPosition(pos);
-		m_root->findChild<AnimationNode>(0)->getOrientation().set(-vel);
-	});
 
-	
+	m_crowdAgent->setOnPositionVelocityUpdate([&m_crowdAgent = m_crowdAgent,m_node = m_root->findChild<AnimationNode>(0), &m_animationController = m_animationController](const Vector3f& pos, const Vector3f& vel) {		
+		if (m_crowdAgent->HasArrived()) {
+			m_animationController->playExclusive("beta_idle", 0, true, 0.2f);
+		}else {			
+			m_animationController->playExclusive("beta_run", 0, true, 0.2f);
+			m_node->getOrientation().set(-vel);
+			m_node->setPosition(pos);
+		}
+	});
 }
 
 NavigationState::~NavigationState() {
@@ -182,10 +189,12 @@ void NavigationState::update() {
 	}
 
 	m_octree->updateFrameNumber();
-	m_root->findChild<AnimationNode>(0)->update(m_dt);
+	//m_root->findChild<AnimationNode>(0)->update(m_dt);
 	m_frustum.updatePlane(m_camera.getPerspectiveMatrix(), m_camera.getViewMatrix());
 	m_frustum.updateVertices(m_camera.getPerspectiveMatrix(), m_camera.getViewMatrix());
 	m_frustum.m_frustumSATData.calculate(m_frustum);
+	m_animationController->update(m_dt);
+	m_root->findChild<AnimationNode>(0)->update(m_dt);
 	m_crowdManager->Update(m_dt);
 	m_octree->updateOctree();
 }

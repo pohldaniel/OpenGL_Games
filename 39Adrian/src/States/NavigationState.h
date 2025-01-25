@@ -76,4 +76,5 @@ private:
 	std::vector<Navigable*> m_navigables;
 	CrowdManager* m_crowdManager;
 	CrowdAgent* m_crowdAgent;
+	AnimationController* m_animationController;
 };
