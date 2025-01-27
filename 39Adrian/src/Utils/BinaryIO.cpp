@@ -758,43 +758,62 @@ void Utils::SolidIO::loadAnimation(const char* filename, Utils::anim_height_type
 
 void Utils::MdlIO::mdlToObj(const char* path, const char* outFileObj, const char* outFileMtl, const char* texturePath) {
 	std::filesystem::path mltPath(outFileMtl);
-	
+
 	std::vector<std::array<float, 3>> positions;
 	std::vector<std::array<float, 3>> normals;
 	std::vector <std::array<float, 2>> uvCoords;
 
 	std::vector<std::array<short, 3>> faces;
+	std::vector<std::array<short, 3>> facesLod;
+	std::map<std::pair<unsigned int, unsigned int>, std::pair<unsigned int, unsigned int>> geomteries;
 
 	std::ifstream file(path, std::ios::binary);
 
 	std::string ret;
 	ret.resize(4);
 	file.read(&ret[0], 4 * sizeof(char));
-	//std::cout << "Ret: " << ret << std::endl;
 
 	char metaData[4];
 
 	file.read(metaData, sizeof(unsigned int));
-	//std::cout << "Buffer Count: " << Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]) << std::endl;
-
 
 	file.read(metaData, sizeof(unsigned int));
 	unsigned int vertexCount = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
 
-	//std::cout << "Vertex Count: " << vertexCount << std::endl;
-
 	file.read(metaData, sizeof(unsigned int));
 	unsigned int numElements = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
-	//std::cout << "Num Elements: " << numElements << std::endl;
 
 	unsigned int vertexSize = 0;
 
-	for (unsigned j = 0; j < numElements; ++j) {
-		file.read(metaData, sizeof(unsigned int));
-		unsigned int elementDesc = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
-		vertexSize += ELEMENT_TYPESIZES[elementDesc & 0xff];	
+	if (ret == "UMD2") {
+		for (unsigned j = 0; j < numElements; ++j) {
+			file.read(metaData, sizeof(unsigned int));
+			unsigned int elementDesc = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
+			VertexElementSemantic semantic = (VertexElementSemantic)((elementDesc >> 8) & 0xff);
+			vertexSize += Utils::ELEMENT_TYPESIZES[elementDesc & 0xff];
+		}
+	}else {
+		if (numElements & 1)
+			vertexSize += sizeof(float) * 3;
+		if (numElements & 2)
+			vertexSize += sizeof(float) * 3;
+		if (numElements & 4)
+			vertexSize += 4;
+		if (numElements & 8)
+			vertexSize += sizeof(float) * 2;
+		if (numElements & 16)
+			vertexSize += sizeof(float) * 2;
+		if (numElements & 32)
+			vertexSize += sizeof(float) * 3;
+		if (numElements & 64)
+			vertexSize += sizeof(float) * 3;
+		if (numElements & 128)
+			vertexSize += sizeof(float) * 4;
+		if (numElements & 256)
+			vertexSize += sizeof(float) * 4;
+		if (numElements & 512)
+			vertexSize += 4;
 	}
-	//std::cout << "Vertex Size2: " << vertexSize << std::endl;
 
 	file.read(metaData, sizeof(unsigned int));
 	file.read(metaData, sizeof(unsigned int));
@@ -810,8 +829,13 @@ void Utils::MdlIO::mdlToObj(const char* path, const char* outFileObj, const char
 		value[2].c[0] = buffer[i + 8]; value[2].c[1] = buffer[i + 9]; value[2].c[2] = buffer[i + 10]; value[2].c[3] = buffer[i + 11];
 		positions.push_back({ value[0].flt , value[1].flt , value[2].flt });
 
-		value[0].c[0] = buffer[i + 24]; value[0].c[1] = buffer[i + 25]; value[0].c[2] = buffer[i + 26]; value[0].c[3] = buffer[i + 27];
-		value[1].c[0] = buffer[i + 28]; value[1].c[1] = buffer[i + 29]; value[1].c[2] = buffer[i + 30]; value[1].c[3] = buffer[i + 31];
+		if (numElements & 8 && ret == "UMDL") {
+			value[0].c[0] = buffer[i + 28]; value[0].c[1] = buffer[i + 29]; value[0].c[2] = buffer[i + 30]; value[0].c[3] = buffer[i + 31];
+			value[1].c[0] = buffer[i + 32]; value[1].c[1] = buffer[i + 33]; value[1].c[2] = buffer[i + 34]; value[1].c[3] = buffer[i + 35];
+		}else {
+			value[0].c[0] = buffer[i + 24]; value[0].c[1] = buffer[i + 25]; value[0].c[2] = buffer[i + 26]; value[0].c[3] = buffer[i + 27];
+			value[1].c[0] = buffer[i + 28]; value[1].c[1] = buffer[i + 29]; value[1].c[2] = buffer[i + 30]; value[1].c[3] = buffer[i + 31];
+		}
 		uvCoords.push_back({ value[0].flt , value[1].flt });
 
 		value[0].c[0] = buffer[i + 12]; value[0].c[1] = buffer[i + 13]; value[0].c[2] = buffer[i + 14]; value[0].c[3] = buffer[i + 15];
@@ -830,7 +854,7 @@ void Utils::MdlIO::mdlToObj(const char* path, const char* outFileObj, const char
 
 	file.read(metaData, sizeof(unsigned int));
 	unsigned int indexSize = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
-	//std::cout << "Index Size: " << indexSize << std::endl;
+	
 
 	buffer = new char[indexCount * indexSize];
 	file.read(buffer, indexCount * indexSize);
@@ -845,6 +869,53 @@ void Utils::MdlIO::mdlToObj(const char* path, const char* outFileObj, const char
 		faces.push_back({ value[0].shrt, value[1].shrt, value[2].shrt });
 	}
 	delete buffer;
+
+	file.read(metaData, sizeof(unsigned int));
+	unsigned int numGeometries = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
+
+	for (unsigned int i = 0; i < numGeometries; ++i){
+		file.read(metaData, sizeof(unsigned int));
+		unsigned int boneMappingCount = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
+
+		if (boneMappingCount)
+			file.ignore(boneMappingCount * sizeof(unsigned int));
+		
+		file.read(metaData, sizeof(unsigned int));
+		unsigned int numLodLevels = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
+
+		for (unsigned int j = 0; j < numLodLevels; ++j){
+			file.read(metaData, sizeof(float));
+			float lodDistance = Utils::bytesToFloatLE(metaData[0], metaData[1], metaData[2], metaData[3]);			
+			file.read(metaData, sizeof(unsigned int));
+			file.read(metaData, sizeof(unsigned int));
+			unsigned int vbRef = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
+			file.read(metaData, sizeof(unsigned int));
+			unsigned int ibRef = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
+
+			file.read(metaData, sizeof(unsigned int));
+			unsigned int drawStart = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
+			file.read(metaData, sizeof(unsigned int));
+			unsigned int drawCount = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
+
+			geomteries[std::make_pair(i, j)] = std::make_pair(drawStart / 3, drawCount / 3);
+		}
+	}
+	
+	short maxIndex = 0, minIndex = positions.size();
+	for (const std::pair<std::pair<unsigned int, unsigned int>, std::pair<unsigned int, unsigned int>> &geometrie : geomteries) {
+		if (geometrie.first.second == 0u ) {
+			for (unsigned int i = geometrie.second.first; i < geometrie.second.first + geometrie.second.second; i++) {
+				facesLod.push_back(faces[i]);
+				maxIndex = std::max(maxIndex, faces[i][0]);
+				maxIndex = std::max(maxIndex, faces[i][1]);
+				maxIndex = std::max(maxIndex, faces[i][2]);
+
+				minIndex = std::min(minIndex, faces[i][0]);
+				minIndex = std::min(minIndex, faces[i][1]);
+				minIndex = std::min(minIndex, faces[i][2]);
+			}
+		}
+	}
 	file.close();
 
 	std::ofstream fileOut;
@@ -864,9 +935,10 @@ void Utils::MdlIO::mdlToObj(const char* path, const char* outFileObj, const char
 	for (int i = 0; i < uvCoords.size(); i++) {
 		fileOut << "vt " << uvCoords[i][0] << " " << uvCoords[i][1] << std::endl;
 	}
+
 	fileOut << "usemtl Material\n";
-	for (int i = 0; i < faces.size(); i++) {
-		fileOut << "f " << faces[i][0] + 1 << "/" << faces[i][0] + 1 << "/" << faces[i][0] + 1 << " " << faces[i][1] + 1 << "/" << faces[i][1] + 1 << "/" << faces[i][1] + 1 << " " << faces[i][2] + 1 << "/" << faces[i][2] + 1 << "/" << faces[i][2] + 1 << std::endl;
+	for (int i = 0; i < facesLod.size(); i++) {
+		fileOut << "f " << facesLod[i][0] + 1 << "/" << facesLod[i][0] + 1 << "/" << facesLod[i][0] + 1 << " " << facesLod[i][1] + 1 << "/" << facesLod[i][1] + 1 << "/" << facesLod[i][1] + 1 << " " << facesLod[i][2] + 1 << "/" << facesLod[i][2] + 1 << "/" << facesLod[i][2] + 1 << std::endl;
 	}
 
 	fileOut.close();
@@ -893,6 +965,9 @@ void Utils::MdlIO::mdlToBuffer(const char* filename, float scale, std::vector<fl
 }
 
 void Utils::MdlIO::mdlToBuffer(const char* filename, std::array<float, 3> scale, std::vector<float>& vertexBufferOut, std::vector<unsigned int>& indexBufferOut) {
+	std::vector<std::array<short, 3>> faces;
+	std::map<std::pair<unsigned int, unsigned int>, std::pair<unsigned int, unsigned int>> geomteries;
+	
 	std::ifstream file(filename, std::ios::binary);
 
 	std::string ret;
@@ -918,45 +993,26 @@ void Utils::MdlIO::mdlToBuffer(const char* filename, std::array<float, 3> scale,
 			vertexSize += Utils::ELEMENT_TYPESIZES[elementDesc & 0xff];
 		}
 	}else {
-		if (numElements & 1){
+		if (numElements & 1)
 			vertexSize += sizeof(float) * 3;
-		}
 		if (numElements & 2)
-		{
-			vertexSize += sizeof(float) * 3;
-		}
-		if (numElements & 4)
-		{
-			vertexSize += 4;
-		}
-		if (numElements & 8)
-		{		
-			vertexSize += sizeof(float) * 2;
-		}
-		if (numElements & 16)
-		{
-			vertexSize += sizeof(float) * 2;
-		}
-		if (numElements & 32)
-		{
-			vertexSize += sizeof(float) * 3;
-		}
-		if (numElements & 64)
-		{
 			vertexSize += sizeof(float) * 3;		
-		}
-		if (numElements & 128)
-		{
-			vertexSize += sizeof(float) * 4;
-		}
-		if (numElements & 256)
-		{
-			vertexSize += sizeof(float) * 4;
-		}
-		if (numElements & 512)
-		{
+		if (numElements & 4)
 			vertexSize += 4;
-		}
+		if (numElements & 8)	
+			vertexSize += sizeof(float) * 2;
+		if (numElements & 16)
+			vertexSize += sizeof(float) * 2;
+		if (numElements & 32)
+			vertexSize += sizeof(float) * 3;
+		if (numElements & 64)
+			vertexSize += sizeof(float) * 3;		
+		if (numElements & 128)
+			vertexSize += sizeof(float) * 4;
+		if (numElements & 256)
+			vertexSize += sizeof(float) * 4;
+		if (numElements & 512)
+			vertexSize += 4;
 	}
 
 	//morph
@@ -974,7 +1030,7 @@ void Utils::MdlIO::mdlToBuffer(const char* filename, std::array<float, 3> scale,
 		value[2].c[0] = buffer[i + 8]; value[2].c[1] = buffer[i + 9]; value[2].c[2] = buffer[i + 10]; value[2].c[3] = buffer[i + 11];
 		vertexBufferOut.push_back(value[0].flt * scale[0]); vertexBufferOut.push_back(value[1].flt * scale[1]); vertexBufferOut.push_back(value[2].flt * scale[2]);
 
-		if (numElements & 4 && ret == "UMDL") {
+		if (numElements & 8 && ret == "UMDL") {
 			value[0].c[0] = buffer[i + 28]; value[0].c[1] = buffer[i + 29]; value[0].c[2] = buffer[i + 30]; value[0].c[3] = buffer[i + 31];
 			value[1].c[0] = buffer[i + 32]; value[1].c[1] = buffer[i + 33]; value[1].c[2] = buffer[i + 34]; value[1].c[3] = buffer[i + 35];
 		}else {
@@ -1008,17 +1064,61 @@ void Utils::MdlIO::mdlToBuffer(const char* filename, std::array<float, 3> scale,
 		value[0].c[0] = buffer[i + 0]; value[0].c[1] = buffer[i + 1];
 		value[1].c[0] = buffer[i + 2]; value[1].c[1] = buffer[i + 3];
 		value[2].c[0] = buffer[i + 4]; value[2].c[1] = buffer[i + 5];
-		indexBufferOut.push_back(value[0].shrt); indexBufferOut.push_back(value[1].shrt); indexBufferOut.push_back(value[2].shrt);
+
+		faces.push_back({ value[0].shrt, value[1].shrt, value[2].shrt });
 	}
 	delete buffer;
+
+	file.read(metaData, sizeof(unsigned int));
+	unsigned int numGeometries = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
+
+	for (unsigned int i = 0; i < numGeometries; ++i) {
+		file.read(metaData, sizeof(unsigned int));
+		unsigned int boneMappingCount = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
+
+		if (boneMappingCount)
+			file.ignore(boneMappingCount * sizeof(unsigned int));
+
+		file.read(metaData, sizeof(unsigned int));
+		unsigned int numLodLevels = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
+
+		for (unsigned int j = 0; j < numLodLevels; ++j) {
+			file.read(metaData, sizeof(float));
+			float lodDistance = Utils::bytesToFloatLE(metaData[0], metaData[1], metaData[2], metaData[3]);
+			file.read(metaData, sizeof(unsigned int));
+			file.read(metaData, sizeof(unsigned int));
+			unsigned int vbRef = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
+			file.read(metaData, sizeof(unsigned int));
+			unsigned int ibRef = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
+
+			file.read(metaData, sizeof(unsigned int));
+			unsigned int drawStart = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
+			file.read(metaData, sizeof(unsigned int));
+			unsigned int drawCount = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
+
+			geomteries[std::make_pair(i, j)] = std::make_pair(drawStart / 3, drawCount / 3);
+		}
+	}
+
+	for (const std::pair<std::pair<unsigned int, unsigned int>, std::pair<unsigned int, unsigned int>> &geometrie : geomteries) {
+		if (geometrie.first.second == 0u) {
+			for (unsigned int i = geometrie.second.first; i < geometrie.second.first + geometrie.second.second; i++) {			
+				indexBufferOut.push_back(faces[i][0]); indexBufferOut.push_back(faces[i][1]); indexBufferOut.push_back(faces[i][2]);
+			}
+		}
+	}
+
 	file.close();
 }
 
-void Utils::MdlIO::mdlToBuffer(const char* path, float scale, std::vector<float>& vertexBufferOut, std::vector<unsigned int>& indexBufferOut, std::vector<std::array<float, 4>>& weightsOut, std::vector<std::array<unsigned int, 4>>& boneIdsOut, std::vector<std::vector<GeometryDesc>>& geomDescs, std::vector<MeshBone>& bones, BoundingBox& boundingBox) {
-	mdlToBuffer(path, { scale, scale, scale }, vertexBufferOut, indexBufferOut, weightsOut, boneIdsOut, geomDescs, bones, boundingBox);
+void Utils::MdlIO::mdlToBuffer(const char* path, float scale, std::vector<float>& vertexBufferOut, std::vector<unsigned int>& indexBufferOut, std::vector<std::array<float, 4>>& weightsOut, std::vector<std::array<unsigned int, 4>>& boneIdsOut, std::vector<MeshBone>& bones, BoundingBox& boundingBox) {
+	mdlToBuffer(path, { scale, scale, scale }, vertexBufferOut, indexBufferOut, weightsOut, boneIdsOut, bones, boundingBox);
 }
 
-void Utils::MdlIO::mdlToBuffer(const char* path, std::array<float,3> _scale, std::vector<float>& vertexBufferOut, std::vector<unsigned int>& indexBufferOut, std::vector<std::array<float, 4>>& weightsOut, std::vector<std::array<unsigned int, 4>>& boneIdsOut, std::vector<std::vector<GeometryDesc>>& geomDescs, std::vector<MeshBone>& bones, BoundingBox& boundingBox) {
+void Utils::MdlIO::mdlToBuffer(const char* path, std::array<float,3> _scale, std::vector<float>& vertexBufferOut, std::vector<unsigned int>& indexBufferOut, std::vector<std::array<float, 4>>& weightsOut, std::vector<std::array<unsigned int, 4>>& boneIdsOut, std::vector<MeshBone>& bones, BoundingBox& boundingBox) {	
+	std::vector<std::array<short, 3>> faces;
+	std::map<std::pair<unsigned int, unsigned int>, std::tuple<unsigned int, unsigned int, std::vector<unsigned int>>> geomteries;
+	
 	std::ifstream file(path, std::ios::binary);
 
 	std::string ret;
@@ -1046,45 +1146,26 @@ void Utils::MdlIO::mdlToBuffer(const char* path, std::array<float,3> _scale, std
 			vertexSize += Utils::ELEMENT_TYPESIZES[elementDesc & 0xff];
 		}
 	}else {
-		if (numElements & 1){
-
-			vertexSize += sizeof(Vector3f);
-		}
-		if (numElements & 2){
-			vertexSize += sizeof(Vector3f);
-		}
+		if (numElements & 1)
+			vertexSize += sizeof(float) * 3;
+		if (numElements & 2)
+			vertexSize += sizeof(float) * 3;
 		if (numElements & 4)
-		{
 			vertexSize += 4;
-		}
 		if (numElements & 8)
-		{
-			vertexSize += sizeof(Vector2f);
-		}
+			vertexSize += sizeof(float) * 2;
 		if (numElements & 16)
-		{
-			vertexSize += sizeof(Vector2f);
-		}
+			vertexSize += sizeof(float) * 2;
 		if (numElements & 32)
-		{
-			vertexSize += sizeof(Vector3f);
-		}
+			vertexSize += sizeof(float) * 3;
 		if (numElements & 64)
-		{
-			vertexSize += sizeof(Vector3f);
-		}
+			vertexSize += sizeof(float) * 3;
 		if (numElements & 128)
-		{
-			vertexSize += sizeof(Vector4f);
-		}
+			vertexSize += sizeof(float) * 4;
 		if (numElements & 256)
-		{
-			vertexSize += sizeof(Vector4f);
-		}
+			vertexSize += sizeof(float) * 4;
 		if (numElements & 512)
-		{
 			vertexSize += 4;
-		}
 	}
 
 	file.read(metaData, sizeof(unsigned int));
@@ -1101,7 +1182,7 @@ void Utils::MdlIO::mdlToBuffer(const char* path, std::array<float,3> _scale, std
 		value[2].c[0] = buffer[i + 8]; value[2].c[1] = buffer[i + 9]; value[2].c[2] = buffer[i + 10]; value[2].c[3] = buffer[i + 11];
 		vertexBufferOut.push_back(value[0].flt * _scale[0]); vertexBufferOut.push_back(value[1].flt * _scale[1]); vertexBufferOut.push_back(value[2].flt * _scale[2]);
 
-		if (numElements & 4 && ret == "UMDL") {
+		if (numElements & 8 && ret == "UMDL") {
 			value[0].c[0] = buffer[i + 28]; value[0].c[1] = buffer[i + 29]; value[0].c[2] = buffer[i + 30]; value[0].c[3] = buffer[i + 31];
 			value[1].c[0] = buffer[i + 32]; value[1].c[1] = buffer[i + 33]; value[1].c[2] = buffer[i + 34]; value[1].c[3] = buffer[i + 35];
 		}else {
@@ -1121,7 +1202,6 @@ void Utils::MdlIO::mdlToBuffer(const char* path, std::array<float,3> _scale, std
 		value[3].c[0] = buffer[i + vertexSize - 8]; value[3].c[1] = buffer[i + vertexSize - 7]; value[3].c[2] = buffer[i + vertexSize - 6]; value[3].c[3] = buffer[i + vertexSize - 5];
 		weightsOut.push_back({ value[0].flt , value[1].flt , value[2].flt ,  value[3].flt });
 		boneIdsOut.push_back({ static_cast<unsigned int>(buffer[i + vertexSize - 4]),  static_cast<unsigned int>(buffer[i + vertexSize - 3]), static_cast<unsigned int>(buffer[i + vertexSize - 2]), static_cast<unsigned int>(buffer[i + vertexSize - 1]) });
-
 	}
 	delete buffer;
 
@@ -1139,49 +1219,84 @@ void Utils::MdlIO::mdlToBuffer(const char* path, std::array<float,3> _scale, std
 	
 	for (unsigned int i = 0; i < indexCount * indexSize; i = i + indexSize * 3) {
 		Utils::UShort value[3];
-
 		value[0].c[0] = buffer[i + 0]; value[0].c[1] = buffer[i + 1];
 		value[1].c[0] = buffer[i + 2]; value[1].c[1] = buffer[i + 3];
 		value[2].c[0] = buffer[i + 4]; value[2].c[1] = buffer[i + 5];
-		indexBufferOut.push_back(value[0].shrt); indexBufferOut.push_back(value[1].shrt); indexBufferOut.push_back(value[2].shrt);
+		faces.push_back({ value[0].shrt, value[1].shrt, value[2].shrt });
 	}
 	delete buffer;
 
 	file.read(metaData, sizeof(unsigned int));
 	unsigned int numGeometries = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
-	geomDescs.resize(numGeometries);
 
-	for (size_t i = 0; i < numGeometries; ++i) {
+	for (unsigned int i = 0; i < numGeometries; ++i) {
+		std::vector<unsigned int> boneMap;
+
 		file.read(metaData, sizeof(unsigned int));
 		unsigned int boneMappingCount = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
+
+		buffer = new char[boneMappingCount * sizeof(unsigned int)];
 		if (boneMappingCount) {
-			file.ignore(boneMappingCount * sizeof(unsigned));
+			file.read(buffer, boneMappingCount * sizeof(unsigned int));
+			for (unsigned int i = 0; i < boneMappingCount * sizeof(unsigned int); i = i + sizeof(unsigned int)) {
+				Utils::UUint value;
+				value.c[0] = buffer[i + 0]; value.c[1] = buffer[i + 1]; value.c[2] = buffer[i + 2]; value.c[3] = buffer[i + 3];			
+				boneMap.push_back(value.unt);				
+			}
 		}
+		delete buffer;
 
 		file.read(metaData, sizeof(unsigned int));
 		unsigned int numLodLevels = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
 
-		geomDescs[i].resize(numLodLevels);
-		for (size_t j = 0; j < numLodLevels; ++j) {
-
-			GeometryDesc& geomDesc = geomDescs[i][j];
+		for (unsigned int j = 0; j < numLodLevels; ++j) {
 			file.read(metaData, sizeof(float));
-			geomDesc.lodDistance = Utils::bytesToFloatLE(metaData[0], metaData[1], metaData[2], metaData[3]);
-
-			// Primitive type
+			float lodDistance = Utils::bytesToFloatLE(metaData[0], metaData[1], metaData[2], metaData[3]);
 			file.read(metaData, sizeof(unsigned int));
-
 			file.read(metaData, sizeof(unsigned int));
-			geomDesc.vbRef = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
-
+			unsigned int vbRef = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
 			file.read(metaData, sizeof(unsigned int));
-			geomDesc.ibRef = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
+			unsigned int ibRef = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
 
 			file.read(metaData, sizeof(unsigned int));
-			geomDesc.drawStart = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
-
+			unsigned int drawStart = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
 			file.read(metaData, sizeof(unsigned int));
-			geomDesc.drawCount = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
+			unsigned int drawCount = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
+			geomteries[std::make_pair(i, j)] = std::make_tuple(drawStart / 3, drawCount / 3, boneMap);
+		}
+	}
+	std::set<short> processedVertices;
+
+	for (const std::pair<std::pair<unsigned int, unsigned int>, std::tuple<unsigned int, unsigned int, std::vector<unsigned int>>> &geometrie : geomteries) {
+		if (geometrie.first.second == 0u) {
+			for (unsigned int i = std::get<0>(geometrie.second); i < std::get<0>(geometrie.second) + std::get<1>(geometrie.second); i++) {
+				indexBufferOut.push_back(faces[i][0]); indexBufferOut.push_back(faces[i][1]); indexBufferOut.push_back(faces[i][2]);
+				if (!std::get<2>(geometrie.second).empty()) {
+					if (processedVertices.find(faces[i][0]) == processedVertices.end()) {
+						processedVertices.insert(faces[i][0]);
+						boneIdsOut[faces[i][0]][0] = std::get<2>(geometrie.second)[boneIdsOut[faces[i][0]][0]];
+						boneIdsOut[faces[i][0]][1] = std::get<2>(geometrie.second)[boneIdsOut[faces[i][0]][1]];
+						boneIdsOut[faces[i][0]][2] = std::get<2>(geometrie.second)[boneIdsOut[faces[i][0]][2]];
+						boneIdsOut[faces[i][0]][3] = std::get<2>(geometrie.second)[boneIdsOut[faces[i][0]][3]];
+					}
+
+					if (processedVertices.find(faces[i][1]) == processedVertices.end()) {
+						processedVertices.insert(faces[i][1]);
+						boneIdsOut[faces[i][1]][0] = std::get<2>(geometrie.second)[boneIdsOut[faces[i][1]][0]];
+						boneIdsOut[faces[i][1]][1] = std::get<2>(geometrie.second)[boneIdsOut[faces[i][1]][1]];
+						boneIdsOut[faces[i][1]][2] = std::get<2>(geometrie.second)[boneIdsOut[faces[i][1]][2]];
+						boneIdsOut[faces[i][1]][3] = std::get<2>(geometrie.second)[boneIdsOut[faces[i][1]][3]];
+					}
+
+					if (processedVertices.find(faces[i][2]) == processedVertices.end()) {
+						processedVertices.insert(faces[i][2]);
+						boneIdsOut[faces[i][2]][0] = std::get<2>(geometrie.second)[boneIdsOut[faces[i][2]][0]];
+						boneIdsOut[faces[i][2]][1] = std::get<2>(geometrie.second)[boneIdsOut[faces[i][2]][1]];
+						boneIdsOut[faces[i][2]][2] = std::get<2>(geometrie.second)[boneIdsOut[faces[i][2]][2]];
+						boneIdsOut[faces[i][2]][3] = std::get<2>(geometrie.second)[boneIdsOut[faces[i][2]][3]];
+					}
+				}
+			}
 		}
 	}
 
@@ -1205,7 +1320,7 @@ void Utils::MdlIO::mdlToBuffer(const char* path, std::array<float,3> _scale, std
 			else
 				boneName += metaData[0];
 		}
-
+		//std::cout << "Name: " << boneName << std::endl;
 		bone.name = boneName;
 		bone.nameHash = StringHash(bone.name);
 

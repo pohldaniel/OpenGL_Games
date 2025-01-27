@@ -272,7 +272,7 @@ std::vector<CrowdAgent*> CrowdManager::GetAgents(SceneNodeLC* node, bool inCrowd
 	return m_agents;
 }
 
-void CrowdManager::SetCrowdTarget(const Vector3f& position, SceneNodeLC* node, CrowdAgent* agent)
+void CrowdManager::SetCrowdTarget(const Vector3f& position, CrowdAgent* agent)
 {
 	if (!crowd_)
 		return;

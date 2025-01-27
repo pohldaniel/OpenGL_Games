@@ -74,6 +74,7 @@ namespace std {
 #include <iomanip>
 #include <array>
 #include <map>
+#include <set>
 #include <iostream>
 #include <algorithm>
 
@@ -322,8 +323,8 @@ namespace Utils {
 		void mdlToObj(const char* path, const char* outFileObj, const char* outFileMtl, const char* texturePath);
 		void mdlToBuffer(const char* path, float scale, std::vector<float>& vertexBufferOut, std::vector<unsigned int>& indexBufferOut);
 		void mdlToBuffer(const char* path, std::array<float, 3> scale, std::vector<float>& vertexBufferOut, std::vector<unsigned int>& indexBufferOut);
-		void mdlToBuffer(const char* path, float scale, std::vector<float>& vertexBufferOut, std::vector<unsigned int>& indexBufferOut, std::vector<std::array<float,4>>& weightsOut, std::vector<std::array<unsigned int, 4>>& boneIdsOut, std::vector<std::vector<GeometryDesc>>& geomDescs, std::vector<MeshBone>& bones, BoundingBox& boundingBox);
-		void mdlToBuffer(const char* path, std::array<float,3> scale, std::vector<float>& vertexBufferOut, std::vector<unsigned int>& indexBufferOut, std::vector<std::array<float,4>>& weightsOut, std::vector<std::array<unsigned int, 4>>& boneIdsOut, std::vector<std::vector<GeometryDesc>>& geomDescs, std::vector<MeshBone>& bones, BoundingBox& boundingBox);
+		void mdlToBuffer(const char* path, float scale, std::vector<float>& vertexBufferOut, std::vector<unsigned int>& indexBufferOut, std::vector<std::array<float,4>>& weightsOut, std::vector<std::array<unsigned int, 4>>& boneIdsOut, std::vector<MeshBone>& bones, BoundingBox& boundingBox);
+		void mdlToBuffer(const char* path, std::array<float,3> scale, std::vector<float>& vertexBufferOut, std::vector<unsigned int>& indexBufferOut, std::vector<std::array<float,4>>& weightsOut, std::vector<std::array<unsigned int, 4>>& boneIdsOut, std::vector<MeshBone>& bones, BoundingBox& boundingBox);
 	};
 
 	struct VbmIO{

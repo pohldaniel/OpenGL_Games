@@ -240,8 +240,7 @@ void AnimatedModel::loadModelMdl(const std::string& path) {
 	m_meshes.push_back(new AnimatedMesh(this));
 	AnimatedMesh* mesh = m_meshes.back();
 
-	std::vector<std::vector<Utils::GeometryDesc>> geomDescs;
-	mdlConverter.mdlToBuffer(path.c_str(), 1.0f, mesh->m_vertexBuffer, mesh->m_indexBuffer, mesh->m_weights, mesh->m_boneIds, geomDescs, mesh->m_meshBones, m_aabb);
+	mdlConverter.mdlToBuffer(path.c_str(), 1.0f, mesh->m_vertexBuffer, mesh->m_indexBuffer, mesh->m_weights, mesh->m_boneIds, mesh->m_meshBones, m_aabb);
 	mesh->m_drawCount = static_cast<unsigned int>(mesh->m_indexBuffer.size());
 	CreateBuffer(mesh->m_vertexBuffer, mesh->m_indexBuffer, mesh->m_vao, mesh->m_vbo, mesh->m_ibo, 8, mesh->m_weights, mesh->m_boneIds);
 }

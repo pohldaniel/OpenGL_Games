@@ -115,21 +115,25 @@ NavigationState::NavigationState(StateMachine& machine) : State(machine, States:
 	m_crowdAgent->AddAgentToCrowd(false, m_root->findChild<AnimationNode>(0)->getWorldPosition());
 
 	m_crowdAgent->SetHeight(2.0f);
-	m_crowdAgent->SetMaxSpeed(3.0f);
-	m_crowdAgent->SetMaxAccel(5.0f);
+	m_crowdAgent->SetMaxSpeed(6.0f);
+	m_crowdAgent->SetMaxAccel(10.0f);
 	m_crowdAgent->SetRadius(1.0f);
 
-	m_crowdAgent->setOnPositionVelocityUpdate([&m_crowdAgent = m_crowdAgent,m_node = m_root->findChild<AnimationNode>(0), &m_animationControllerBeta = m_animationControllerBeta, &m_animationControllerJack = m_animationControllerJack](const Vector3f& pos, const Vector3f& vel) {
-		if (m_crowdAgent->HasArrived()) {
+	m_crowdAgent->setOnPositionVelocityUpdate([&m_crowdAgent = m_crowdAgent, &m_crowdManager = m_crowdManager, m_node = m_root->findChild<AnimationNode>(0), &m_animationControllerBeta = m_animationControllerBeta, &m_animationControllerJack = m_animationControllerJack](const Vector3f& pos, const Vector3f& vel) {
+		if (m_crowdAgent->HasArrived()) {			
+			m_crowdManager->SetCrowdTarget(pos, m_crowdAgent);
+		}
+
+		if (vel.lengthSq() < 0.45f) {
 			m_animationControllerBeta->playExclusive("beta_idle", 0, true, 0.5f);
 			m_animationControllerJack->stop("jack_walk", 0.5f);
-		}else {			
+		}else {
 			m_animationControllerBeta->playExclusive("beta_run", 0, true, 0.1f);
-			m_node->getOrientation().set(-vel);
-			m_node->setPosition(pos);
-
 			m_animationControllerJack->playExclusive("jack_walk", 0, true, 0.1f);
 		}
+
+		m_node->getOrientation().set(-vel);
+		m_node->setPosition(pos);
 	});
 }
 
@@ -298,7 +302,7 @@ void NavigationState::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 
 			Vector3f pathPos = m_navigationMesh->FindNearestPoint(Physics::VectorFrom(pos), Vector3f(1.0f, 1.0f, 1.0f));
 
-			m_crowdManager->SetCrowdTarget(pathPos, m_root->findChild<AnimationNode>(0), m_crowdAgent);
+			m_crowdManager->SetCrowdTarget(pathPos, m_crowdAgent);
 		}
 	}
 }
