@@ -169,6 +169,8 @@ public:
 
 	void setOnPositionVelocityUpdate(std::function<void(const Vector3f& pos, const Vector3f& vel)> fun);
 
+	void setOnCrowdFormation(std::function<Vector3f(const Vector3f& pos, const unsigned int index, CrowdAgent* agent)> fun);
+
 protected:
 	/// Handle node being assigned.
 	//virtual void OnNodeSet(Node* node);
@@ -229,4 +231,5 @@ private:
 	bool ignoreTransformChanges_;
 
 	std::function<void(const Vector3f& pos, const Vector3f& vel)> OnPositionVelocityUpdate;
+	std::function<Vector3f(const Vector3f& pos, const unsigned int index, CrowdAgent* agent)> OnCrowdFormation;
 };

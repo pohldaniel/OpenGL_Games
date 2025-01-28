@@ -51,6 +51,7 @@ private:
 	void createPhysics();
 	void createScene();
 	void clearMarker();
+	void addMarker(const Vector3f& pos);
 
 	bool m_initUi = true;
 	bool m_drawUi = true;
@@ -75,6 +76,6 @@ private:
 	NavigationMesh* m_navigationMesh;
 	std::vector<Navigable*> m_navigables;
 	CrowdManager* m_crowdManager;
-	CrowdAgent* m_crowdAgent;
+	CrowdAgent *m_crowdAgentBeta, *m_crowdAgentJack;
 	AnimationController *m_animationControllerBeta, *m_animationControllerJack;
 };

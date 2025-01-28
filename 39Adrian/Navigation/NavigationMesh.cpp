@@ -27,6 +27,9 @@ static const float DEFAULT_DETAIL_SAMPLE_DISTANCE = 6.0f;
 static const float DEFAULT_DETAIL_SAMPLE_MAX_ERROR = 1.0f;
 
 static const int MAX_POLYS = 2048;
+std::random_device NavigationMesh::RandomDevice;
+std::mt19937 NavigationMesh::MersenTwist(RandomDevice());
+std::uniform_real_distribution<float> NavigationMesh::Dist(0.0f, 1.0f);
 
 /// Temporary data for finding a path.
 struct FindPathData
@@ -774,4 +777,34 @@ Vector3f NavigationMesh::FindNearestPoint(const Vector3f& point, const Vector3f&
 	//std::cout << "Nearest: " << nearestPoint[0] << "  " << nearestPoint[1] << "  " << nearestPoint[2] << std::endl;
 
 	return *nearestRef ? transform * nearestPoint : point;
+}
+
+Vector3f NavigationMesh::GetRandomPointInCircle(const Vector3f& center, float radius, const Vector3f& extents, const dtQueryFilter* filter, dtPolyRef* randomRef){
+	if (randomRef)
+		*randomRef = 0;
+
+	if (!InitializeQuery())
+		return center;
+
+	//const Matrix3x4& transform = node_->GetWorldTransform();
+	//Matrix4f inverse = Matrix4f::IDENTITY;
+	Vector3f localCenter = center;
+
+	const dtQueryFilter* queryFilter = filter ? filter : queryFilter_;
+	dtPolyRef startRef;
+	navMeshQuery_->findNearestPoly(&localCenter[0], extents.getVec(), queryFilter, &startRef, 0);
+	if (!startRef)
+		return center;
+
+	dtPolyRef polyRef;
+	if (!randomRef)
+		randomRef = &polyRef;
+	Vector3f point(localCenter);
+
+	navMeshQuery_->findRandomPointAroundCircle(startRef, &localCenter[0], radius, queryFilter, Random, randomRef, &point[0]);
+	return point;
+}
+
+float NavigationMesh::Random() {
+	return Dist(MersenTwist);
 }

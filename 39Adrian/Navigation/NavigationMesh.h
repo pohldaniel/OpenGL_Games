@@ -4,6 +4,7 @@
 #include <string>
 #include <hash_set>
 #include <memory>
+#include <random>
 
 #include "../engine/Vector.h"
 #include "../engine/BoundingBox.h"
@@ -349,4 +350,9 @@ public:
 
 	std::vector<BoundingBox> m_boxes;
 
+	static std::random_device RandomDevice;
+	static std::mt19937 MersenTwist;
+	static std::uniform_real_distribution<float> Dist;
+
+	static float Random();
 };

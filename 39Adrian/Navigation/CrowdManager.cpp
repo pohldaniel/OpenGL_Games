@@ -272,12 +272,16 @@ std::vector<CrowdAgent*> CrowdManager::GetAgents(SceneNodeLC* node, bool inCrowd
 	return m_agents;
 }
 
-void CrowdManager::SetCrowdTarget(const Vector3f& position, CrowdAgent* agent)
+void CrowdManager::SetCrowdTarget(const Vector3f& position)
 {
 	if (!crowd_)
 		return;
-
-	
+	//std::cout << m_agents.size() << std::endl;
+	for (unsigned int i = 0; i < m_agents.size(); ++i)
+	{
+		CrowdAgent* agent = m_agents[i];			
+		agent->SetTargetPosition(agent->OnCrowdFormation(position, i, agent));
+	}
 	//std::vector<CrowdAgent*> agents = GetAgents(node, false);     // Get all crowd agent components
 	//Vector3f moveTarget(position);
 	/*for (unsigned i = 0; i < agents.size(); ++i)
@@ -298,8 +302,8 @@ void CrowdManager::SetCrowdTarget(const Vector3f& position, CrowdAgent* agent)
 
 		moveTarget = map[P_POSITION].GetVector3();
 		agent->SetTargetPosition(position);
-	}*/
-	agent->SetTargetPosition(position);
+	}
+	agent->SetTargetPosition(position);*/
 }
 
 Vector3f CrowdManager::FindNearestPoint(const Vector3f& point, int queryFilterType, dtPolyRef* nearestRef){
@@ -312,4 +316,12 @@ Vector3f CrowdManager::FindNearestPoint(const Vector3f& point, int queryFilterTy
 void CrowdManager::Update(float delta){
 	crowd_->update(delta, nullptr);
 	const dtCrowdAgent* agent = crowd_->getAgent(0);
+}
+
+Vector3f CrowdManager::GetRandomPointInCircle(const Vector3f& center, float radius, int queryFilterType, dtPolyRef* randomRef)
+{
+	if (randomRef)
+		*randomRef = 0;
+	return crowd_ && navigationMesh_ ?
+		navigationMesh_->GetRandomPointInCircle(center, radius, Vector3f(crowd_->getQueryExtents()),crowd_->getFilter(queryFilterType), randomRef) : center;
 }

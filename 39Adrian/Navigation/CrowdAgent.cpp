@@ -241,6 +241,8 @@ int CrowdAgent::AddAgentToCrowd(bool force, const Vector3f& initialPosition)
 		if (agentCrowdId_ == -1)
 			return -1;
 
+
+
 		//ApplyAttributes();
 
 		previousAgentState_ = GetAgentState();
@@ -383,6 +385,15 @@ void CrowdAgent::SetHeight(float height){
 	}
 }
 
+void CrowdAgent::SetNavigationPushiness(NavigationPushiness val)
+{
+	if (val != navPushiness_)
+	{
+		navPushiness_ = val;
+		UpdateParameters(SCOPE_NAVIGATION_PUSHINESS_PARAMS);
+	}
+}
+
 void CrowdAgent::SetTargetPosition(const Vector3f& position){
 	if (position != targetPosition_ || CA_REQUESTEDTARGET_POSITION != requestedTargetType_){
 		targetPosition_ = position;
@@ -408,4 +419,8 @@ void CrowdAgent::HandleCrowdAgentReposition(const Vector3f& position, const Vect
 
 void CrowdAgent::setOnPositionVelocityUpdate(std::function<void(const Vector3f& pos, const Vector3f& vel)> fun) {
 	OnPositionVelocityUpdate = fun;
+}
+
+void CrowdAgent::setOnCrowdFormation(std::function<Vector3f(const Vector3f& pos, const unsigned int index, CrowdAgent* agent)> fun) {
+	OnCrowdFormation = fun;
 }

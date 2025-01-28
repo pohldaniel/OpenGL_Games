@@ -63,7 +63,7 @@ public:
 	void UpdateAgentPosition(CrowdAgent* agent, float timeStep, Vector3f& position) const;
 
 	/// Set the crowd target position. The target position is set to all crowd agents found in the specified node. Defaulted to scene node.
-	void SetCrowdTarget(const Vector3f& position, CrowdAgent* agent = nullptr);
+	void SetCrowdTarget(const Vector3f& position);
 	/// Set the crowd move velocity. The move velocity is applied to all crowd agents found in the specified node. Defaulted to scene node.
 	void SetCrowdVelocity(const Vector3f& velocity, SceneNodeLC* node = nullptr);
 	/// Reset any crowd target for all crowd agents found in the specified node. Defaulted to scene node.
