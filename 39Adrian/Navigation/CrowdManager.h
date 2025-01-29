@@ -155,6 +155,8 @@ public:
 	/// Get the internal detour crowd component.
 	dtCrowd* GetCrowd() const { return crowd_; }
 
+	void setSeparationWeight(float separationWeight);
+
 	std::vector<CrowdAgent*> m_agents;
 
 private:

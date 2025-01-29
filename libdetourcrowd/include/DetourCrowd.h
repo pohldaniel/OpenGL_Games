@@ -69,6 +69,14 @@ enum CrowdAgentState
 	DT_CROWDAGENT_STATE_OFFMESH 		///< The agent is traversing an off-mesh connection.
 };
 
+/// The type of navigation mesh polygon the agent is currently traversing.
+/// @ingroup crowd
+enum CrowdAgentTravel
+{
+	DT_CROWDAGENT_TRAVEL_NONE,		///< The agent is traveling
+	DT_CROWDAGENT_TRAVEL            ///< The agent is traveling
+};
+
 /// Configuration parameters for a crowd agent.
 /// @ingroup crowd
 struct dtCrowdAgentParams
@@ -169,6 +177,7 @@ struct dtCrowdAgent
 	dtPathQueueRef targetPathqRef;		///< Path finder ref.
 	bool targetReplan;					///< Flag indicating that the current path is being replanned.
 	float targetReplanTime;				/// <Time since the agent's target was replanned.
+	unsigned char travelState;
 };
 
 struct dtCrowdAgentAnimation
@@ -355,6 +364,21 @@ public:
 
 	/// Gets the query object used by the crowd.
 	const dtNavMeshQuery* getNavMeshQuery() const { return m_navquery; }
+
+	/// Check agent active
+	const bool isActive(const int idx) const;
+
+	/// Check agent active
+	const bool isActive(const int idx, const float threshold) const;
+
+	/// Get agent targetstate
+	const unsigned char getTargetstate(const int idx) const;
+
+	/// Get agent state
+	const unsigned char getState(const int idx) const;
+
+	/// Get agent state
+	const unsigned char getTravelState(const int idx) const;
 
 private:
 	// Explicitly disabled copy constructor and copy assignment operator.

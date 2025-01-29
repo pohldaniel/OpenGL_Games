@@ -151,7 +151,7 @@ public:
 	bool HasRequestedTarget() const { return requestedTargetType_ != CA_REQUESTEDTARGET_NONE; }
 
 	/// Return true when the agent has arrived at its target.
-	bool HasArrived() const;
+	bool HasArrived(const float scale = 1.0f) const;
 	/// Return true when the agent is in crowd (being managed by a crowd manager).
 	bool IsInCrowd() const;
 
@@ -165,11 +165,16 @@ public:
 	int AddAgentToCrowd(bool force = false, const Vector3f& initialPosition = Vector3f::ZERO);
 	CrowdManager* crowdManager_;
 
-	void HandleCrowdAgentReposition(const Vector3f& position, const Vector3f& velocity, bool isArrived, float dt);
-
-	void setOnPositionVelocityUpdate(std::function<void(const Vector3f& pos, const Vector3f& vel)> fun);
-
+	void setOnPositionVelocityUpdate(std::function<void(const Vector3f& pos, const Vector3f& vel, CrowdAgent* agent)> fun);
 	void setOnCrowdFormation(std::function<Vector3f(const Vector3f& pos, const unsigned int index, CrowdAgent* agent)> fun);
+	void setOnTarget(std::function<void(const Vector3f& pos)> fun);
+	void setOnInactive(std::function<void()> fun);
+	void SetSeparationWeight(float separationWeight);
+
+	void resetAgent();
+	bool isActive();
+
+	static const Vector3f& GetNearestPos();
 
 protected:
 	/// Handle node being assigned.
@@ -213,6 +218,10 @@ private:
 	float radius_;
 	/// Agent's height, if 0 the navigation mesh's setting will be used.
 	float height_;
+
+	float separationWeight_;
+	
+
 	/// Agent's query filter type, it is an index to the query filter buffer configured in Detour crowd manager.
 	unsigned queryFilterType_;
 	/// Agent's obstacle avoidance type, it is an index to the obstacle avoidance array configured in Detour crowd manager. It is ignored when agent's navigation quality is not set to "NAVIGATIONQUALITY_HIGH".
@@ -230,6 +239,11 @@ private:
 	/// Internal flag to ignore transform changes because it came from us, used in OnCrowdAgentReposition().
 	bool ignoreTransformChanges_;
 
-	std::function<void(const Vector3f& pos, const Vector3f& vel)> OnPositionVelocityUpdate;
+	std::function<void(const Vector3f& pos, const Vector3f& vel, CrowdAgent* agent)> OnPositionVelocityUpdate;
 	std::function<Vector3f(const Vector3f& pos, const unsigned int index, CrowdAgent* agent)> OnCrowdFormation;
+	std::function<void(const Vector3f& pos)> OnTarget;
+	std::function<void()> OnInactive;
+	static Vector3f NearestPos;
+
+	bool m_active = false;
 };

@@ -52,13 +52,18 @@ private:
 	void createScene();
 	void clearMarker();
 	void addMarker(const Vector3f& pos);
+	void spawnAgent(const Vector3f& pos);
 
 	bool m_initUi = true;
 	bool m_drawUi = true;
 	bool m_debugTree = false;
 	bool m_debugPhysic = false;
-	bool m_debugNavmesh = false;
+	bool m_debugNavmesh = true;
 	float m_offsetDistance;
+	float m_separaionWeight;
+	float m_height;
+
+	NavigationPushiness m_mode = NavigationPushiness::NAVIGATIONPUSHINESS_MEDIUM;
 
 	Camera m_camera;
 	Frustum m_frustum;

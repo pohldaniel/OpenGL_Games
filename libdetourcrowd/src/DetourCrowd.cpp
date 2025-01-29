@@ -598,6 +598,7 @@ bool dtCrowd::requestMoveTargetReplan(const int idx, dtPolyRef ref, const float*
 	dtVcopy(ag->targetPos, pos);
 	ag->targetPathqRef = DT_PATHQ_INVALID;
 	ag->targetReplan = true;
+	ag->travelState = DT_CROWDAGENT_TRAVEL;
 	if (ag->targetRef)
 		ag->targetState = DT_CROWDAGENT_TARGET_REQUESTING;
 	else
@@ -627,6 +628,7 @@ bool dtCrowd::requestMoveTarget(const int idx, dtPolyRef ref, const float* pos)
 	dtVcopy(ag->targetPos, pos);
 	ag->targetPathqRef = DT_PATHQ_INVALID;
 	ag->targetReplan = false;
+	ag->travelState = DT_CROWDAGENT_TRAVEL;
 	if (ag->targetRef)
 		ag->targetState = DT_CROWDAGENT_TARGET_REQUESTING;
 	else
@@ -648,7 +650,7 @@ bool dtCrowd::requestMoveVelocity(const int idx, const float* vel)
 	ag->targetPathqRef = DT_PATHQ_INVALID;
 	ag->targetReplan = false;
 	ag->targetState = DT_CROWDAGENT_TARGET_VELOCITY;
-	
+	ag->travelState = DT_CROWDAGENT_TRAVEL;
 	return true;
 }
 
@@ -666,7 +668,7 @@ bool dtCrowd::resetMoveTarget(const int idx)
 	ag->targetPathqRef = DT_PATHQ_INVALID;
 	ag->targetReplan = false;
 	ag->targetState = DT_CROWDAGENT_TARGET_NONE;
-	
+	ag->travelState = DT_CROWDAGENT_TRAVEL_NONE;
 	return true;
 }
 
@@ -682,6 +684,44 @@ int dtCrowd::getActiveAgents(dtCrowdAgent** agents, const int maxAgents)
 	return n;
 }
 
+const bool dtCrowd::isActive(const int idx) const {
+	if (idx < 0 || idx >= m_maxAgents)
+		return false;
+
+	return m_agents[idx].active;
+}
+
+const bool dtCrowd::isActive(const int idx, const float threshold) const {
+	if (idx < 0 || idx >= m_maxAgents)
+		return false;
+
+	return threshold <= dtVlenSqr(m_agents[idx].vel);
+}
+
+
+
+
+
+const unsigned char dtCrowd::getTargetstate(const int idx) const {
+	if (idx < 0 || idx >= m_maxAgents)
+		return false;
+
+	return m_agents[idx].targetState;
+}
+
+const unsigned char dtCrowd::getState(const int idx) const {
+	if (idx < 0 || idx >= m_maxAgents)
+		return false;
+
+	return m_agents[idx].state;
+}
+
+const unsigned char dtCrowd::getTravelState(const int idx) const {
+	if (idx < 0 || idx >= m_maxAgents)
+		return false;
+
+	return m_agents[idx].travelState;
+}
 
 void dtCrowd::updateMoveRequest(const float /*dt*/)
 {
