@@ -59,6 +59,7 @@ public:
 
 	void removeAnimationState(AnimationState* state);
 	void findAnimation(const std::string& name, unsigned& index, AnimationState*& state) const;
+	AnimationNode* getAnimationNode();
 
 private:
 

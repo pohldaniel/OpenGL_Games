@@ -4,21 +4,21 @@
 #include "../BoundingBox.h"
 #include "OctreeNode.h"
 
-class CrowdAgentNode : public OctreeNode {
+class CrowdAgentNode : public SceneNodeLC {
 
 public:
 
-	CrowdAgentNode(const CrowdAgent& crowdAgent, const OctreeNode& octreeNode);
+	CrowdAgentNode(const CrowdAgent& crowdAgent);
+
+	virtual void OnPositionVelocityUpdate(const Vector3f& pos, const Vector3f& vel) = 0;
+	virtual void OnInactive() = 0;
+
+	void setControlledNode(SceneNodeLC* controlledNode);
 
 protected:
 
-	const BoundingBox& getLocalBoundingBox() const;
-
-	short m_materialIndex;
-	short m_textureIndex;
-
 private:
 
+	SceneNodeLC* m_controlledNode;
 	const CrowdAgent& crowdAgent;
-	const OctreeNode& octreeNode;
 };

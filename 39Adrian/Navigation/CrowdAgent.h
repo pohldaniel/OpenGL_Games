@@ -56,6 +56,7 @@ public:
 	void setRadius(float radius);
 	void setHeight(float height);
 	void setNavigationPushiness(NavigationPushiness val);
+	void setSeparationWeight(float separationWeight);
 
 	const CrowdAgentVelocityCallback& getVelocityCallback() const;
 	const CrowdAgentHeightCallback& getHeightCallback() const;
@@ -88,11 +89,13 @@ public:
 	int addAgentToCrowd(bool force = false, const Vector3f& initialPosition = Vector3f::ZERO);
 	
 
-	void setOnPositionVelocityUpdate(std::function<void(const Vector3f& pos, const Vector3f& vel, CrowdAgent* agent)> fun);
+	void setOnPositionVelocityUpdate(std::function<void(const Vector3f& pos, const Vector3f& vel)> fun) const;
+	void setOnInactive(std::function<void()> fun) const;
+
 	void setOnCrowdFormation(std::function<Vector3f(const Vector3f& pos, const unsigned int index, CrowdAgent* agent)> fun);
 	void setOnTarget(std::function<void(const Vector3f& pos)> fun);
-	void setOnInactive(std::function<void()> fun);
-	void setSeparationWeight(float separationWeight);
+	
+
 
 	void resetAgent();
 	bool isActive();
@@ -129,10 +132,12 @@ private:
 	CrowdManager* m_crowdManager;
 	bool m_active;
 
-	std::function<void(const Vector3f& pos, const Vector3f& vel, CrowdAgent* agent)> OnPositionVelocityUpdate;
+	mutable std::function<void(const Vector3f& pos, const Vector3f& vel)> OnPositionVelocityUpdate;
+	mutable std::function<void()> OnInactive;
+
 	std::function<Vector3f(const Vector3f& pos, const unsigned int index, CrowdAgent* agent)> OnCrowdFormation;
 	std::function<void(const Vector3f& pos)> OnTarget;
-	std::function<void()> OnInactive;
+	
 
 	static Vector3f NearestPos;
 };

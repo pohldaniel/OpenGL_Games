@@ -55,7 +55,7 @@ void CrowdAgent::OnCrowdPositionUpdate(dtCrowdAgent* ag, float* , float dt){
 	if (isActive()){
 		m_active = true;
 		m_previousPosition = newPos;
-		OnPositionVelocityUpdate(newPos, newVel, this);	
+		OnPositionVelocityUpdate(newPos, newVel);	
 		return;
 	}
 		
@@ -344,8 +344,12 @@ const CrowdAgentHeightCallback& CrowdAgent::getHeightCallback() const {
 	return m_heightCallback;
 }
 
-void CrowdAgent::setOnPositionVelocityUpdate(std::function<void(const Vector3f& pos, const Vector3f& vel, CrowdAgent* agent)> fun) {
+void CrowdAgent::setOnPositionVelocityUpdate(std::function<void(const Vector3f& pos, const Vector3f& vel)> fun) const {
 	OnPositionVelocityUpdate = fun;
+}
+
+void CrowdAgent::setOnInactive(std::function<void()> fun) const {
+	OnInactive = fun;
 }
 
 void CrowdAgent::setOnCrowdFormation(std::function<Vector3f(const Vector3f& pos, const unsigned int index, CrowdAgent* agent)> fun) {
@@ -354,10 +358,6 @@ void CrowdAgent::setOnCrowdFormation(std::function<Vector3f(const Vector3f& pos,
 
 void CrowdAgent::setOnTarget(std::function<void(const Vector3f& pos)> fun) {
 	OnTarget = fun;
-}
-
-void CrowdAgent::setOnInactive(std::function<void()> fun) {
-	OnInactive = fun;
 }
 
 void CrowdAgent::resetAgent() {

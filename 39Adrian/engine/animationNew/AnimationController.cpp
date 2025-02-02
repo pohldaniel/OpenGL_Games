@@ -340,3 +340,7 @@ float AnimationController::getTime(const std::string& name) const{
 	AnimationState* state = getAnimationState(StringHash(name));
 	return state ? state->getTime() : 0.0f;
 }
+
+AnimationNode* AnimationController::getAnimationNode() {
+	return m_animationNode;
+}

@@ -528,6 +528,9 @@
     <ClCompile Include="engine\scene\CrowdAgentNode.cpp">
       <Filter>engine\scene</Filter>
     </ClCompile>
+    <ClCompile Include="src\Entities\CrowdAgentEntity.cpp">
+      <Filter>Source Files\Entities</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="convhull\convhull_3d.h">
@@ -1012,6 +1015,9 @@
     </ClInclude>
     <ClInclude Include="engine\scene\CrowdAgentNode.h">
       <Filter>engine\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Entities\CrowdAgentEntity.h">
+      <Filter>Source Files\Entities</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

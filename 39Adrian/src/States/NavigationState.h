@@ -15,6 +15,7 @@
 #include <Navigation/Navigable.h>
 #include <Navigation/CrowdManager.h>
 #include <Navigation/CrowdAgent.h>
+#include <Entities/CrowdAgentEntity.h>
 
 #include <States/StateMachine.h>
 
@@ -83,4 +84,6 @@ private:
 	CrowdManager* m_crowdManager;
 	CrowdAgent *m_crowdAgentBeta, *m_crowdAgentJack;
 	AnimationController *m_animationControllerBeta, *m_animationControllerJack;
+
+	CrowdAgentEntity* m_crowdAgentEntity;
 };

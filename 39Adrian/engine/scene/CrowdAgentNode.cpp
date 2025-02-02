@@ -1,13 +1,10 @@
 #include "CrowdAgentNode.h"
 
-CrowdAgentNode::CrowdAgentNode(const CrowdAgent& crowdAgent, const OctreeNode& octreeNode) :
-	OctreeNode(),
-	crowdAgent(crowdAgent),
-	octreeNode(octreeNode),
-	m_materialIndex(-1),
-	m_textureIndex(-1) {
+CrowdAgentNode::CrowdAgentNode(const CrowdAgent& crowdAgent) : crowdAgent(crowdAgent){
+	crowdAgent.setOnPositionVelocityUpdate(std::bind(&CrowdAgentNode::OnPositionVelocityUpdate, this, std::placeholders::_1, std::placeholders::_2));
+	crowdAgent.setOnInactive(std::bind(&CrowdAgentNode::OnInactive, this));
 }
 
-const BoundingBox& CrowdAgentNode::getLocalBoundingBox() const {
-	return octreeNode.getLocalBoundingBox();
+void CrowdAgentNode::setControlledNode(SceneNodeLC* controlledNode) {
+	m_controlledNode = controlledNode;
 }
