@@ -183,13 +183,13 @@
     <ClCompile Include="engine\MeshSequence.cpp" />
     <ClCompile Include="engine\MousePickerFBO.cpp" />
     <ClCompile Include="engine\Object.cpp" />
+    <ClCompile Include="engine\objects\CrowdAgentObject.cpp" />
     <ClCompile Include="engine\octree\Batch.cpp" />
     <ClCompile Include="engine\octree\Octree.cpp" />
     <ClCompile Include="engine\RandomColor.cpp" />
     <ClCompile Include="engine\scene\AnimationNode.cpp" />
     <ClCompile Include="engine\scene\BaseNode.cpp" />
     <ClCompile Include="engine\scene\BoneNode.cpp" />
-    <ClCompile Include="engine\scene\CrowdAgentNode.cpp" />
     <ClCompile Include="engine\scene\Md2Node.cpp" />
     <ClCompile Include="engine\scene\MeshNode.cpp" />
     <ClCompile Include="engine\scene\Node.cpp" />
@@ -234,6 +234,7 @@
     <ClCompile Include="Physics\Constraint.cpp" />
     <ClCompile Include="Physics\Constraint6DoF.cpp" />
     <ClCompile Include="Physics\VehiclePhysics.cpp" />
+    <ClCompile Include="src\Entities\Beta.cpp" />
     <ClCompile Include="src\Entities\CrowdAgentEntity.cpp" />
     <ClCompile Include="src\Entities\Entity.cpp" />
     <ClCompile Include="src\Entities\Md2Entity.cpp" />
@@ -375,6 +376,7 @@
     <ClInclude Include="engine\MeshObject\MeshSpiral.h" />
     <ClInclude Include="engine\MeshObject\MeshTorus.h" />
     <ClInclude Include="engine\MeshObject\Shape.h" />
+    <ClInclude Include="engine\objects\CrowdAgentObject.h" />
     <ClInclude Include="engine\ObjModel.h" />
     <ClInclude Include="engine\octree\Batch.h" />
     <ClInclude Include="engine\octree\Octree.h" />
@@ -387,7 +389,6 @@
     <ClInclude Include="engine\scene\AnimationNode.h" />
     <ClInclude Include="engine\scene\BaseNode.h" />
     <ClInclude Include="engine\scene\BoneNode.h" />
-    <ClInclude Include="engine\scene\CrowdAgentNode.h" />
     <ClInclude Include="engine\scene\INode.h" />
     <ClInclude Include="engine\scene\Md2Node.h" />
     <ClInclude Include="engine\scene\MeshNode.h" />
@@ -439,6 +440,7 @@
     <ClInclude Include="Physics\Constraint6DoF.h" />
     <ClInclude Include="Physics\VehiclePhysics.h" />
     <ClInclude Include="src\Application.h" />
+    <ClInclude Include="src\Entities\Beta.h" />
     <ClInclude Include="src\Entities\CrowdAgentEntity.h" />
     <ClInclude Include="src\Entities\Entity.h" />
     <ClInclude Include="src\Entities\Md2Entity.h" />

@@ -79,6 +79,9 @@
     <Filter Include="Navigation">
       <UniqueIdentifier>{f6a91854-253f-44df-9622-c64926224444}</UniqueIdentifier>
     </Filter>
+    <Filter Include="engine\objects">
+      <UniqueIdentifier>{727a38d5-795f-442e-915b-f17a96e67984}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\input\ApplicationEventListener.cpp">
@@ -525,10 +528,13 @@
     <ClCompile Include="src\Sphere.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="engine\scene\CrowdAgentNode.cpp">
-      <Filter>engine\scene</Filter>
-    </ClCompile>
     <ClCompile Include="src\Entities\CrowdAgentEntity.cpp">
+      <Filter>Source Files\Entities</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\objects\CrowdAgentObject.cpp">
+      <Filter>engine\objects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Entities\Beta.cpp">
       <Filter>Source Files\Entities</Filter>
     </ClCompile>
   </ItemGroup>
@@ -1013,10 +1019,13 @@
     <ClInclude Include="src\Sphere.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="engine\scene\CrowdAgentNode.h">
-      <Filter>engine\scene</Filter>
-    </ClInclude>
     <ClInclude Include="src\Entities\CrowdAgentEntity.h">
+      <Filter>Source Files\Entities</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\objects\CrowdAgentObject.h">
+      <Filter>engine\objects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Entities\Beta.h">
       <Filter>Source Files\Entities</Filter>
     </ClInclude>
   </ItemGroup>

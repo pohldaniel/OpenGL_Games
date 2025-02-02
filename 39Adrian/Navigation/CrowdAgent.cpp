@@ -356,7 +356,7 @@ void CrowdAgent::setOnCrowdFormation(std::function<Vector3f(const Vector3f& pos,
 	OnCrowdFormation = fun;
 }
 
-void CrowdAgent::setOnTarget(std::function<void(const Vector3f& pos)> fun) {
+void CrowdAgent::setOnTarget(std::function<void(const Vector3f& pos)> fun) const {
 	OnTarget = fun;
 }
 

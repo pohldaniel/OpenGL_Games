@@ -91,12 +91,9 @@ public:
 
 	void setOnPositionVelocityUpdate(std::function<void(const Vector3f& pos, const Vector3f& vel)> fun) const;
 	void setOnInactive(std::function<void()> fun) const;
+	void setOnTarget(std::function<void(const Vector3f& pos)> fun) const;
 
 	void setOnCrowdFormation(std::function<Vector3f(const Vector3f& pos, const unsigned int index, CrowdAgent* agent)> fun);
-	void setOnTarget(std::function<void(const Vector3f& pos)> fun);
-	
-
-
 	void resetAgent();
 	bool isActive();
 
@@ -134,10 +131,9 @@ private:
 
 	mutable std::function<void(const Vector3f& pos, const Vector3f& vel)> OnPositionVelocityUpdate;
 	mutable std::function<void()> OnInactive;
+	mutable std::function<void(const Vector3f& pos)> OnTarget;
 
 	std::function<Vector3f(const Vector3f& pos, const unsigned int index, CrowdAgent* agent)> OnCrowdFormation;
-	std::function<void(const Vector3f& pos)> OnTarget;
 	
-
 	static Vector3f NearestPos;
 };

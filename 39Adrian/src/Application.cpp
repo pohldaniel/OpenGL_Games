@@ -747,4 +747,7 @@ void Application::loadAssets() {
 
 	Globals::shapeManager.buildQuadXZ("quad_xz", Vector3f(-1.0f, 0.0f, -1.0f), Vector2f(2.0f, 2.0f), 1, 1, true, false, false);
 	//Globals::shapeManager.buildSegmentXZ("segment_xz", 20.0f, 0.0f, PI, Vector3f(0.0f, 0.0f, 0.0f), 20, 20, true, false, false);
+
+	Globals::shapeManager.buildSphere("sphere", 0.5f, Vector3f(0.0f, 0.0f, 0.0f), 10, 10, true, false, false);
+	Globals::shapeManager.get("sphere").createBoundingBox();
 }

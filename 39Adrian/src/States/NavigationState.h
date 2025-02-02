@@ -15,7 +15,7 @@
 #include <Navigation/Navigable.h>
 #include <Navigation/CrowdManager.h>
 #include <Navigation/CrowdAgent.h>
-#include <Entities/CrowdAgentEntity.h>
+#include <Entities/Beta.h>
 
 #include <States/StateMachine.h>
 
@@ -45,6 +45,8 @@ public:
 	void OnKeyDown(Event::KeyboardEvent& event) override;
 	void OnKeyUp(Event::KeyboardEvent& event) override;
 
+	static void AddMarker(const Vector3f& pos);
+
 private:
 
 	void renderUi();
@@ -52,7 +54,7 @@ private:
 	void createPhysics();
 	void createScene();
 	void clearMarker();
-	void addMarker(const Vector3f& pos);
+	
 	void spawnAgent(const Vector3f& pos);
 
 	bool m_initUi = true;
@@ -69,14 +71,10 @@ private:
 	Camera m_camera;
 	Frustum m_frustum;
 
-	SceneNodeLC* m_root;
-	Octree* m_octree;
-
-	Shape m_ground, m_cylinder, m_cube, m_cube14, m_cube17, m_sphere;
+	Shape m_ground, m_cylinder, m_cube, m_cube14, m_cube17;
 	AnimatedModel m_beta, m_jack;
 	Animation* m_animationNode;
-	std::vector<ShapeNode*> m_marker;
-
+	
 	MousePicker m_mousePicker;
 	btCollisionObject* m_groundObject;
 	NavigationMesh* m_navigationMesh;
@@ -85,5 +83,12 @@ private:
 	CrowdAgent *m_crowdAgentBeta, *m_crowdAgentJack;
 	AnimationController *m_animationControllerBeta, *m_animationControllerJack;
 
-	CrowdAgentEntity* m_crowdAgentEntity;
+	Beta* m_betaNew;
+
+	void addMarker(const Vector3f& pos);
+
+	
+	static std::vector<ShapeNode*> Marker;
+	static Octree* _Octree;
+	static SceneNodeLC* Root;
 };

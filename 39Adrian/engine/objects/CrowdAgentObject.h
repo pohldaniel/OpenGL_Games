@@ -2,18 +2,23 @@
 
 #include "../Navigation/CrowdAgent.h"
 #include "../BoundingBox.h"
-#include "OctreeNode.h"
+#include "../Object.h"
 
-class CrowdAgentNode : public SceneNodeLC {
+class SceneNodeLC;
+
+class CrowdAgentObject : public Object {
 
 public:
 
-	CrowdAgentNode(const CrowdAgent& crowdAgent);
+	CrowdAgentObject(const CrowdAgent& crowdAgent, SceneNodeLC* controlledNode);
 
 	virtual void OnPositionVelocityUpdate(const Vector3f& pos, const Vector3f& vel) = 0;
 	virtual void OnInactive() = 0;
+	virtual void OnTarget(const Vector3f& pos) = 0;
 
 	void setControlledNode(SceneNodeLC* controlledNode);
+	void setPosition(const Vector3f& position) override;
+	void setOrientation(const Vector3f &directionXZ) override;
 
 protected:
 
