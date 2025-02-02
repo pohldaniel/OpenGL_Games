@@ -525,6 +525,9 @@
     <ClCompile Include="src\Sphere.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="engine\scene\CrowdAgentNode.cpp">
+      <Filter>engine\scene</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="convhull\convhull_3d.h">
@@ -1006,6 +1009,9 @@
     </ClInclude>
     <ClInclude Include="src\Sphere.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\scene\CrowdAgentNode.h">
+      <Filter>engine\scene</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

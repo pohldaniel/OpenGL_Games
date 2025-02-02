@@ -1,6 +1,6 @@
 #include "Vehicle.h"
 
-Vehicle::Vehicle(const MeshSequence& meshSequence) : SequenceNode(meshSequence, BoundingBox(Vector3f(0.0f, 0.0f, 0.0f), Vector3f(1.0f, 1.0f, 1.0f))), Entity() {
+Vehicle::Vehicle(const MeshSequence& meshSequence) : SequenceNode(meshSequence), Entity() {
 
 }
 

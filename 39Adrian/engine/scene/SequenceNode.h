@@ -8,8 +8,7 @@ class SequenceNode : public OctreeNode {
 
 public:
 
-	SequenceNode(const MeshSequence& meshSequence, int meshIndex);
-	SequenceNode(const MeshSequence& meshSequence, const BoundingBox& localBoundingBox);
+	SequenceNode(const MeshSequence& meshSequence, int meshIndex = 0);
 	using OctreeNode::addChild;
 	void addChild(SequenceNode* node, bool drawDebug);
 	int getMeshIndex() const;
@@ -17,6 +16,8 @@ public:
 	const MeshSequence& getSequence() const;
 	
 protected:
+
+	const BoundingBox& getLocalBoundingBox() const;
 
 	const MeshSequence& meshSequence;
 	int m_meshIndex;

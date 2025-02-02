@@ -9,7 +9,7 @@ bool AnimationNode::CompareAnimationStates(const std::shared_ptr<AnimationState>
 }
 
 AnimationNode::AnimationNode(const AnimatedModel& animatedModel) :
-	OctreeNode(animatedModel.getAABB()), 
+	OctreeNode(), 
 	animatedModel(animatedModel), 
 	meshBones(animatedModel.m_meshes[0]->getMeshBones()),
 	m_shader(nullptr),
@@ -332,6 +332,11 @@ void AnimationNode::setUpdateSilent(bool updateSilent) {
 
 BoneNode* AnimationNode::getRootBone() {
 	return m_rootBone;
+}
+
+
+const BoundingBox& AnimationNode::getLocalBoundingBox() const {
+	return animatedModel.getAABB();
 }
 
 short AnimationNode::getMaterialIndex() const {

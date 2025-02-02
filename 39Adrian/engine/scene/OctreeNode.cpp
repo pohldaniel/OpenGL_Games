@@ -2,7 +2,7 @@
 #include "../DebugRenderer.h"
 #include "../octree/Octree.h"
 
-OctreeNode::OctreeNode(const BoundingBox& localBoundingBox) : localBoundingBox(localBoundingBox), m_drawDebug(true), m_reinsertQueued(false), m_octant(nullptr), m_octree(nullptr), m_octreeUpdate(true), m_lastFrameNumber(0), frameNumber(nullptr), m_sortKey(0){
+OctreeNode::OctreeNode() : m_drawDebug(true), m_reinsertQueued(false), m_octant(nullptr), m_octree(nullptr), m_octreeUpdate(true), m_lastFrameNumber(0), frameNumber(nullptr), m_sortKey(0){
 	OnBoundingBoxChanged();
 }
 
@@ -14,6 +14,10 @@ void OctreeNode::drawRaw() const {
 
 }
 
+void OctreeNode::OnRenderDebug() const {
+
+}
+
 const BoundingBox& OctreeNode::getWorldBoundingBox() const {
 	if (m_worldBoundingBoxDirty) {
 		OnWorldBoundingBoxUpdate();
@@ -22,9 +26,9 @@ const BoundingBox& OctreeNode::getWorldBoundingBox() const {
 	return m_worldBoundingBox;
 }
 
-const BoundingBox& OctreeNode::getLocalBoundingBox() const {
+/*const BoundingBox& OctreeNode::getLocalBoundingBox() const {
 	return localBoundingBox;
-}
+}*/
 
 void OctreeNode::OnWorldBoundingBoxUpdate() const {
 	m_worldBoundingBox = getLocalBoundingBox().transformed(getWorldTransformation());

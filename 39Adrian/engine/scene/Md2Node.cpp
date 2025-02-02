@@ -2,7 +2,7 @@
 #include "../octree/Octree.h"
 
 Md2Node::Md2Node(const Md2Model& md2Model) :
-	OctreeNode(md2Model.getLocalBoundingBox()),
+	OctreeNode(),
 	md2Model(md2Model),
 	m_animationDirty(true),
 	m_materialIndex(-1),

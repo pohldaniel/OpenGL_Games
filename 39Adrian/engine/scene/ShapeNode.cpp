@@ -3,7 +3,7 @@
 #include "../Material.h"
 #include "../BuiltInShader.h"
 
-ShapeNode::ShapeNode(const Shape& shape) : OctreeNode(shape.getAABB()), shape(shape), m_materialIndex(-1), m_textureIndex(-1) {
+ShapeNode::ShapeNode(const Shape& shape) : OctreeNode(), shape(shape), m_materialIndex(-1), m_textureIndex(-1) {
 	OnBoundingBoxChanged();
 }
 
@@ -28,6 +28,10 @@ void ShapeNode::addChild(ShapeNode* node, bool drawDebug) {
 
 const Shape& ShapeNode::getShape() const {
 	return shape;
+}
+
+const BoundingBox& ShapeNode::getLocalBoundingBox() const {
+	return shape.getAABB();
 }
 
 short ShapeNode::getMaterialIndex() const {

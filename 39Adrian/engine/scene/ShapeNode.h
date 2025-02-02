@@ -24,6 +24,8 @@ public:
 	
 protected:
 
+	const BoundingBox& getLocalBoundingBox() const;
+
 	short m_materialIndex;
 	short m_textureIndex;
 

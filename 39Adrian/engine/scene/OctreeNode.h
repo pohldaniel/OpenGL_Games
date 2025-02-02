@@ -10,21 +10,22 @@ class OctreeNode : public SceneNodeLC {
 
 public:
 
-	OctreeNode(const BoundingBox& localBoundingBox);
+	OctreeNode();
 	~OctreeNode();
 
 	virtual void OnTransformChanged() override;
 	virtual void OnOctreeSet(Octree* octree);
 
 	virtual void drawRaw() const;
+	virtual void OnRenderDebug() const;
 
 	void OnRenderOBB(const Vector4f& color = { 1.0f, 0.0f, 0.0f, 1.0f });
 	void OnRenderAABB(const Vector4f& color = { 0.0f, 1.0f, 0.0f, 1.0f });
-	
+
 	void removeFromOctree();
 
 	const BoundingBox& getWorldBoundingBox() const;
-	const BoundingBox& getLocalBoundingBox() const;
+	virtual const BoundingBox& getLocalBoundingBox() const = 0;
 
 	Octant* getOctant() const;
 	Octree* getOctree() const;
@@ -52,6 +53,6 @@ protected:
 
 private:
 
-	const BoundingBox& localBoundingBox;
+	//const BoundingBox& localBoundingBox;
 	int m_sortKey;
 };

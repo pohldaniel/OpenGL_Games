@@ -17,5 +17,7 @@ public:
 
 protected:
 
+	const BoundingBox& getLocalBoundingBox() const;
+
 	const AssimpModel& model;
 };
