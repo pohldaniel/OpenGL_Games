@@ -4,17 +4,15 @@
 #include <engine/objects/CrowdAgentObject.h>
 #include <Entities/Entity.h>
 
-class CrowdAgentEntity : public CrowdAgentObject, public Entity  {
+class EmptyAgentEntity : public CrowdAgentObject, public Entity {
 
 public:
 
-	CrowdAgentEntity(const CrowdAgent& crowdAgent, SceneNodeLC* controlledNode);
-	virtual ~CrowdAgentEntity();
-
-	void update(const float dt) override = 0;
+	EmptyAgentEntity(const CrowdAgent& crowdAgent, SceneNodeLC* controlledNode);
+	virtual ~EmptyAgentEntity();
 
 	virtual void OnInactive() override;
 	virtual void OnPositionVelocityUpdate(const Vector3f& pos, const Vector3f& vel) override;
 	virtual void OnTarget(const Vector3f& targetPos) override;
-	virtual void OnAddAgent(const Vector3f& pos) override;
+	virtual void OnAddAgent(const Vector3f& targetPos) override;
 };

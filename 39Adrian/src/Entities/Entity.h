@@ -9,7 +9,7 @@ public:
 	Entity();
 	virtual ~Entity() = default;
 
-	virtual void draw() = 0;
+	virtual void draw();
 	virtual void update(const float dt);
 
 	const Material& getMaterial() const;

@@ -537,6 +537,15 @@
     <ClCompile Include="src\Entities\Beta.cpp">
       <Filter>Source Files\Entities</Filter>
     </ClCompile>
+    <ClCompile Include="src\Entities\Jack.cpp">
+      <Filter>Source Files\Entities</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Entities\Hero.cpp">
+      <Filter>Source Files\Entities</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Entities\EmptyAgentEntity.cpp">
+      <Filter>Source Files\Entities</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="convhull\convhull_3d.h">
@@ -1026,6 +1035,15 @@
       <Filter>engine\objects</Filter>
     </ClInclude>
     <ClInclude Include="src\Entities\Beta.h">
+      <Filter>Source Files\Entities</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Entities\Jack.h">
+      <Filter>Source Files\Entities</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Entities\Hero.h">
+      <Filter>Source Files\Entities</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Entities\EmptyAgentEntity.h">
       <Filter>Source Files\Entities</Filter>
     </ClInclude>
   </ItemGroup>

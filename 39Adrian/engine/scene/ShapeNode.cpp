@@ -12,6 +12,7 @@ ShapeNode::~ShapeNode() {
 }
 
 void ShapeNode::drawRaw() const {
+
 	if (m_materialIndex >= 0)
 		Material::GetMaterials()[m_materialIndex].updateMaterialUbo(BuiltInShader::materialUbo);
 

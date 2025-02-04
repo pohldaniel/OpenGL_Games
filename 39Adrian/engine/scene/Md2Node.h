@@ -11,7 +11,7 @@ public:
 	Md2Node(const Md2Model& md2Model);
 
 	virtual void drawRaw() const override;
-	void update(const float dt);
+	virtual void update(const float dt);
 
 	using OctreeNode::addChild;
 	void addChild(Md2Node* node, bool drawDebug);

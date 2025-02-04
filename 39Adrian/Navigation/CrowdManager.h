@@ -66,6 +66,8 @@ public:
 	dtCrowd* getCrowd() const;
 	void setSeparationWeight(float separationWeight);
 
+	void setOnCrowdFormation(std::function<Vector3f(const Vector3f& pos, CrowdAgent* agent)> fun);
+
 	/// Get the number of configured obstacle avoidance types.
 	//unsigned GetNumObstacleAvoidanceTypes() const { return numObstacleAvoidanceTypes_; }
 	/// Get the number of configured query filter types.
@@ -95,6 +97,8 @@ private:
 	unsigned int m_maxAgents;
 	float m_maxAgentRadius;
 	std::vector<CrowdAgent*> m_agents;
+
+	std::function<Vector3f(const Vector3f& pos, CrowdAgent* agent)> OnCrowdFormation;
 
 	/// Number of query filter types configured in the crowd. Limit to DT_CROWD_MAX_QUERY_FILTER_TYPE.
 	//unsigned int numQueryFilterTypes_;

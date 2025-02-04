@@ -16,6 +16,8 @@
 #include <Navigation/CrowdManager.h>
 #include <Navigation/CrowdAgent.h>
 #include <Entities/Beta.h>
+#include <Entities/Jack.h>
+#include <Entities/EmptyAgentEntity.h>
 
 #include <States/StateMachine.h>
 
@@ -56,6 +58,8 @@ private:
 	void clearMarker();
 	
 	void spawnAgent(const Vector3f& pos);
+	void spawnBeta(const Vector3f& pos);
+	void spawnJack(const Vector3f& pos);
 
 	bool m_initUi = true;
 	bool m_drawUi = true;
@@ -84,6 +88,9 @@ private:
 	AnimationController *m_animationControllerBeta, *m_animationControllerJack;
 
 	Beta* m_betaNew;
+	Jack* m_jackNew;
+
+	std::vector<CrowdAgentEntity*> m_entities;
 
 	void addMarker(const Vector3f& pos);
 

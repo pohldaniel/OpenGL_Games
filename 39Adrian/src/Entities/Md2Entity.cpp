@@ -9,10 +9,6 @@ Md2Entity::~Md2Entity() {
 
 }
 
-void Md2Entity::drawRaw() const {
-	Md2Node::drawRaw();
-}
-
 void Md2Entity::draw() {
 	Md2Node::drawRaw();
 }

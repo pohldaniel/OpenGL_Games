@@ -453,6 +453,10 @@ void AnimatedModel::OnAnimationOrderChanged() {
 	m_animationOrderDirty = true;
 }
 
+std::vector<AnimatedMesh*>& AnimatedModel::getMeshes() const {
+	return m_meshes;
+}
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 AnimatedMesh::AnimatedMesh(AnimatedModel* model) : m_skinMatrices(nullptr) {
 	m_model = model;

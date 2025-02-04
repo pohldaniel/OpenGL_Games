@@ -5,16 +5,12 @@ CrowdAgentEntity::CrowdAgentEntity(const CrowdAgent& crowdAgent, SceneNodeLC* co
 
 }
 
-void CrowdAgentEntity::draw() {
-
-}
-
-void CrowdAgentEntity::update(const float dt) {
+CrowdAgentEntity::~CrowdAgentEntity() {
 
 }
 
 void CrowdAgentEntity::OnPositionVelocityUpdate(const Vector3f& pos, const Vector3f& vel) {
-	setOrientation(-vel);
+	setOrientation(vel);
 	setPosition(pos);
 }
 
@@ -24,4 +20,8 @@ void CrowdAgentEntity::OnInactive() {
 
 void CrowdAgentEntity::OnTarget(const Vector3f& targetPos) {
 	NavigationState::AddMarker(targetPos);
+}
+
+void CrowdAgentEntity::OnAddAgent(const Vector3f& pos) {
+	setPosition(pos);
 }

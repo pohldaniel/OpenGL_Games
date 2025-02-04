@@ -108,12 +108,21 @@ int CrowdManager::addAgent(CrowdAgent* agent, const Vector3f& pos){
 		agent->m_height = m_navigationMesh->GetAgentHeight();
 	// dtCrowd::addAgent() requires the query filter type to find the nearest position on navmesh as the initial agent's position
 	params.queryFilterType = (unsigned char)agent->getQueryFilterType();
-
-	int id = m_crowd->addAgent(pos.getVec(), &params);
+	float nearest[3];
+	int id = m_crowd->addAgent(pos.getVec(), &params, nearest);
 	if (id > -1) {
 		agent->m_agentCrowdId = id;
 		agent->m_crowdManager = this;
+		agent->m_last = true;
+		CrowdAgent::FirstTick = true;
 		m_agents.push_back(agent);
+
+		
+
+		//std::for_each(m_agents.begin(), m_agents.end(), std::bind(std::mem_fn<void(bool)>(&Monster::setHighlight), std::placeholders::_1, false));
+
+		//for (auto&& agent : m_agents)
+			//agent->m_firstTick = true;
 	}
 	return id;
 }
@@ -168,7 +177,7 @@ void CrowdManager::setCrowdTarget(const Vector3f& position){
 
 	for (unsigned int i = 0; i < m_agents.size(); ++i){
 		CrowdAgent* agent = m_agents[i];			
-		agent->setTargetPosition(agent->OnCrowdFormation(position, i, agent));
+		agent->setTargetPosition(OnCrowdFormation(position, i ? agent : nullptr));
 		agent->OnTarget(CrowdAgent::GetNearestPos());
 	}
 }
@@ -188,7 +197,7 @@ Vector3f CrowdManager::getRandomPointInCircle(const Vector3f& center, float radi
 	if (randomRef)
 		*randomRef = 0;
 	return m_crowd && m_navigationMesh ?
-		m_navigationMesh->GetRandomPointInCircle(center, radius * 2.0f, Vector3f(m_crowd->getQueryHalfExtents()), m_crowd->getFilter(queryFilterType), randomRef) : center;
+		m_navigationMesh->GetRandomPointInCircle(center, radius, Vector3f(m_crowd->getQueryHalfExtents()), m_crowd->getFilter(queryFilterType), randomRef) : center;
 }
 
 void CrowdManager::setSeparationWeight(float separationWeight) {
@@ -227,6 +236,10 @@ NavigationMesh* CrowdManager::getNavigationMesh() const {
 
 dtCrowd* CrowdManager::getCrowd() const { 
 	return m_crowd; 
+}
+
+void CrowdManager::setOnCrowdFormation(std::function<Vector3f(const Vector3f& pos, CrowdAgent* agent)> fun) {
+	OnCrowdFormation = fun;
 }
 
 /*const dtQueryFilter* CrowdManager::GetDetourQueryFilter(unsigned queryFilterType) const {

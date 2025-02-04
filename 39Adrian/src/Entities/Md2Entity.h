@@ -16,7 +16,7 @@ public:
 
 	virtual void draw() override;
 	virtual void update(const float dt) override;
-	void drawRaw() const override;
+	
 	void fixedUpdate(float fdt);
 
 	short getMaterialIndex() const override;

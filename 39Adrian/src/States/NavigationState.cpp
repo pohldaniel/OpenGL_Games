@@ -59,6 +59,7 @@ NavigationState::NavigationState(StateMachine& machine) :
 	Material::AddTexture();
 
 	m_beta.loadModelMdl("res/models/BetaLowpoly/Beta.mdl");
+	m_beta.getMeshes()[0]->getMeshBones()[0].initialRotation.rotate(Vector3f(0.0f, 1.0f, 0.0f), 180.0f);
 	m_jack.loadModelMdl("res/models/Jack/Jack.mdl");
 
 	Globals::animationManagerNew.loadAnimationAni("beta_idle", "res/models/BetaLowpoly/Beta_Idle.ani");
@@ -69,11 +70,6 @@ NavigationState::NavigationState(StateMachine& machine) :
 	createShapes();
 	createPhysics();
 	createScene();
-
-	
-	m_animationControllerBeta = new AnimationController(Root->findChild<AnimationNode>(0, false));
-	m_animationControllerBeta->playExclusive("beta_idle", 0, true, 0.0f);
-	m_animationControllerJack = new AnimationController(Root->findChild<AnimationNode>(1, false));
 
 	m_navigationMesh = new NavigationMesh();
 	m_navigationMesh->m_navigables = m_navigables;
@@ -92,6 +88,14 @@ NavigationState::NavigationState(StateMachine& machine) :
 
 	m_crowdManager = new CrowdManager();
 	m_crowdManager->setNavigationMesh(m_navigationMesh);
+	m_crowdManager->setOnCrowdFormation([&m_crowdManager = m_crowdManager](const Vector3f& pos, CrowdAgent* agent) {
+		if (agent) {
+			Vector3f _pos = m_crowdManager->getRandomPointInCircle(pos, agent->getRadius(), agent->getQueryFilterType());
+			return _pos;
+		}
+		return Vector3f(pos);
+	});
+
 	/*CrowdObstacleAvoidanceParams params = m_crowdManager->GetObstacleAvoidanceParams(0);
 	// Set the params to "High (66)" setting
 	params.velBias = 0.5f;
@@ -109,93 +113,8 @@ NavigationState::NavigationState(StateMachine& machine) :
 
 	m_crowdManager->SetIncludeFlags(2, NAVPOLYFLAG_LEVEL1 | NAVPOLYFLAG_LEVEL2 | NAVPOLYFLAG_LEVEL3);*/
 	
-	m_crowdAgentBeta = new CrowdAgent();	
-	m_crowdManager->addAgent(m_crowdAgentBeta, Root->findChild<AnimationNode>(0)->getWorldPosition());
-
-	m_crowdAgentBeta->setHeight(2.0f);
-	m_crowdAgentBeta->setMaxSpeed(6.0f);
-	m_crowdAgentBeta->setMaxAccel(10.0f);
-	m_crowdAgentBeta->setRadius(0.5f);
-	m_crowdAgentBeta->setNavigationPushiness(NAVIGATIONPUSHINESS_MEDIUM);
-	m_crowdAgentBeta->setSeparationWeight(m_separaionWeight);
-
-	m_crowdAgentBeta->setOnPositionVelocityUpdate([&m_crowdManager = m_crowdManager, m_node = Root->findChild<AnimationNode>(0), &m_animationControllerBeta = m_animationControllerBeta](const Vector3f& pos, const Vector3f& vel) {
-		m_animationControllerBeta->playExclusive("beta_run", 0, true, 0.1f);
-		m_node->getOrientation().set(-vel);
-		m_node->setPosition(pos);
-	});
-
-	m_crowdAgentBeta->setOnInactive([&m_animationControllerBeta = m_animationControllerBeta]() {
-		m_animationControllerBeta->playExclusive("beta_idle", 0, true, 0.5f);
-	});
-
-	m_crowdAgentBeta->setOnCrowdFormation([this](const Vector3f& pos, const unsigned int index, CrowdAgent* agent) {
-		if (index) {
-			Vector3f _pos = m_crowdManager->getRandomPointInCircle(pos, agent->getRadius(), agent->getQueryFilterType());
-			return _pos;
-		}
-		return Vector3f(pos);
-	});
-
-	m_crowdAgentBeta->setOnTarget([this](const Vector3f& pos) {
-		addMarker(pos);
-	});
-
-	m_crowdAgentJack = new CrowdAgent();
-	m_crowdManager->addAgent(m_crowdAgentJack, Root->findChild<AnimationNode>(1)->getWorldPosition());
-
-	m_crowdAgentJack->setHeight(2.0f);
-	m_crowdAgentJack->setMaxSpeed(6.0f);
-	m_crowdAgentJack->setMaxAccel(10.0f);
-	m_crowdAgentJack->setRadius(0.5f);
-	m_crowdAgentJack->setNavigationPushiness(NAVIGATIONPUSHINESS_MEDIUM);
-	m_crowdAgentJack->setSeparationWeight(m_separaionWeight);
-
-	m_crowdAgentJack->setOnPositionVelocityUpdate([&m_crowdManager = m_crowdManager, m_node = Root->findChild<AnimationNode>(1), &m_animationControllerJack = m_animationControllerJack](const Vector3f& pos, const Vector3f& vel) {
-		m_animationControllerJack->playExclusive("jack_walk", 0, true, 0.1f);
-		m_node->getOrientation().set(vel);
-		m_node->setPosition(pos);
-	});
-
-	m_crowdAgentJack->setOnInactive([&m_animationControllerJack = m_animationControllerJack]() {
-		m_animationControllerJack->stop("jack_walk", 0.5f);
-	});
-		
-	m_crowdAgentJack->setOnCrowdFormation([this](const Vector3f& pos, const unsigned int index, CrowdAgent* agent) {
-
-		if (index) {
-			Vector3f _pos = m_crowdManager->getRandomPointInCircle(pos, agent->getRadius(), agent->getQueryFilterType());
-			return _pos;
-		}
-		return Vector3f(pos);
-	});
-
-	m_crowdAgentJack->setOnTarget([this](const Vector3f& pos) {
-		addMarker(pos);
-	});
-
-	CrowdAgent* agent = new CrowdAgent();
-	m_crowdManager->addAgent(agent, Root->findChild<AnimationNode>(2)->getWorldPosition());
-
-	agent->setHeight(2.0f);
-	agent->setMaxSpeed(6.0f);
-	agent->setMaxAccel(10.0f);
-	agent->setRadius(0.5f);
-	agent->setNavigationPushiness(NAVIGATIONPUSHINESS_MEDIUM);
-	agent->setSeparationWeight(m_separaionWeight);
-
-	agent->setOnCrowdFormation([this](const Vector3f& pos, const unsigned int index, CrowdAgent* agent) {
-		if (index) {
-			Vector3f _pos = m_crowdManager->getRandomPointInCircle(pos, agent->getRadius(), agent->getQueryFilterType());
-			return _pos;
-		}
-		return Vector3f(pos);
-	});
-
-	/*agent->setOnTarget([this](const Vector3f& pos) {
-		addMarker(pos);
-	});*/
-	m_betaNew = new Beta(*agent, Root->findChild<AnimationNode>(2, false));
+	//spawnJack(Vector3f( 5.0f, 0.5f, -30.0f));
+	//spawnBeta(Vector3f(-5.0f, 0.5f, -30.0f));
 }
 
 NavigationState::~NavigationState() {
@@ -269,15 +188,11 @@ void NavigationState::update() {
 	m_frustum.updateVertices(m_camera.getPerspectiveMatrix(), m_camera.getViewMatrix());
 	m_frustum.m_frustumSATData.calculate(m_frustum);
 
-	m_animationControllerBeta->update(m_dt);
-	Root->findChild<AnimationNode>(0)->update(m_dt);
-
-	m_animationControllerJack->update(m_dt);
-	Root->findChild<AnimationNode>(1)->update(m_dt);
-
-	m_betaNew->update(m_dt);
-
 	m_crowdManager->update(m_dt);
+
+	for (auto&& entity : m_entities)
+		entity->update(m_dt);
+
 	_Octree->updateOctree();
 }
 
@@ -354,19 +269,25 @@ void NavigationState::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 
 	if (event.button == 1u) {
 		Mouse::instance().attach(Application::GetWindow(), false, false, false);
-		if (!Keyboard::instance().keyDown(Keyboard::KEY_LSHIFT)) {
+		if (Keyboard::instance().keyDown(Keyboard::KEY_LSHIFT)) {
+			if (m_mousePicker.clickAll(event.x, event.y, m_camera, m_groundObject)) {
+				const MousePickCallbackAll& callbackAll = m_mousePicker.getCallbackAll();
+				btVector3 pos = callbackAll.m_hitPointWorld[callbackAll.index];
+				spawnBeta(Physics::VectorFrom(pos));
+			}
+		}else if (Keyboard::instance().keyDown(Keyboard::KEY_LCTRL)) {
+			if (m_mousePicker.clickAll(event.x, event.y, m_camera, m_groundObject)) {
+				const MousePickCallbackAll& callbackAll = m_mousePicker.getCallbackAll();
+				btVector3 pos = callbackAll.m_hitPointWorld[callbackAll.index];
+				spawnJack(Physics::VectorFrom(pos));
+			}
+		}else{			
 			clearMarker();
 			if (m_mousePicker.clickAll(event.x, event.y, m_camera, m_groundObject)) {
 				const MousePickCallbackAll& callbackAll = m_mousePicker.getCallbackAll();
 				btVector3 pos = callbackAll.m_hitPointWorld[callbackAll.index];
 				Vector3f pathPos = m_navigationMesh->FindNearestPoint(Physics::VectorFrom(pos), Vector3f(1.0f, 1.0f, 1.0f));
 				m_crowdManager->setCrowdTarget(pathPos);
-			}
-		}else {
-			if (m_mousePicker.clickAll(event.x, event.y, m_camera, m_groundObject)) {
-				const MousePickCallbackAll& callbackAll = m_mousePicker.getCallbackAll();
-				btVector3 pos = callbackAll.m_hitPointWorld[callbackAll.index];
-				spawnAgent(Physics::VectorFrom(pos));
 			}
 		}
 	}
@@ -680,34 +601,6 @@ void NavigationState::createScene() {
 	shapeNode->OnOctreeSet(_Octree);
 	shapeNode->setTextureIndex(2);
 	m_navigables.push_back(new Navigable(shapeNode));
-
-	AnimationNode* animationNode = Root->addChild<AnimationNode, AnimatedModel>(m_beta);
-	animationNode->setPosition(0.0f, 0.5f, -30.0f);
-	animationNode->setOrientation(0.0f, 180.0f, 0.0f);
-	animationNode->OnOctreeSet(_Octree);
-	animationNode->setTextureIndex(3);
-	animationNode->setId(0);
-	animationNode->setSortKey(1);
-	animationNode->setShader(Globals::shaderManager.getAssetPointer("animation"));
-
-	animationNode = Root->addChild<AnimationNode, AnimatedModel>(m_jack);
-	animationNode->setPosition(5.0f, 0.5f, -30.0f);
-	animationNode->setOrientation(0.0f, 180.0f, 0.0f);
-	animationNode->OnOctreeSet(_Octree);
-	animationNode->setTextureIndex(3);
-	animationNode->setId(1);
-	animationNode->setSortKey(1);
-	animationNode->setShader(Globals::shaderManager.getAssetPointer("animation"));
-
-	animationNode = Root->addChild<AnimationNode, AnimatedModel>(m_beta);
-	animationNode->setPosition(-5.0f, 0.5f, -30.0f);
-	animationNode->setOrientation(0.0f, 180.0f, 0.0f);
-	animationNode->OnOctreeSet(_Octree);
-	animationNode->setTextureIndex(3);
-	animationNode->setId(2);
-	animationNode->setSortKey(1);
-	animationNode->setShader(Globals::shaderManager.getAssetPointer("animation"));
-
 }
 
 void NavigationState::clearMarker() {
@@ -735,26 +628,60 @@ void NavigationState::spawnAgent(const Vector3f& pos){
 	agent->setRadius(0.5f);
 	agent->setNavigationPushiness(NAVIGATIONPUSHINESS_MEDIUM);
 	agent->setSeparationWeight(m_separaionWeight);
+	EmptyAgentEntity(*agent, nullptr);
+}
 
-	agent->setOnPositionVelocityUpdate([&m_crowdManager = m_crowdManager](const Vector3f& pos, const Vector3f& vel) {
+void NavigationState::spawnBeta(const Vector3f& pos) {
+	CrowdAgent* agent = new CrowdAgent();
+	m_crowdManager->addAgent(agent, pos);
 
-	});
+	agent->setHeight(2.0f);
+	agent->setMaxSpeed(6.0f);
+	agent->setMaxAccel(10.0f);
+	agent->setRadius(0.5f);
+	agent->setNavigationPushiness(NAVIGATIONPUSHINESS_MEDIUM);
+	agent->setSeparationWeight(m_separaionWeight);
 
-	agent->setOnInactive([]() {
+	AnimationNode* animationNode = Root->addChild<AnimationNode, AnimatedModel>(m_beta);
+	animationNode->setPosition(pos);
+	animationNode->setOrientation(0.0f, 180.0f, 0.0f);
+	animationNode->OnOctreeSet(_Octree);
+	animationNode->setTextureIndex(3);
+	animationNode->setId(Root->countChild<AnimationNode>() - 1);
+	animationNode->setSortKey(1);
+	animationNode->setShader(Globals::shaderManager.getAssetPointer("animation"));
 
-	});
+	Beta* beta = new Beta(*agent, animationNode);
 
-	agent->setOnCrowdFormation([this](const Vector3f& pos, const unsigned int index, CrowdAgent* agent) {
-		if (index) {
-			Vector3f _pos = m_crowdManager->getRandomPointInCircle(pos, agent->getRadius(), agent->getQueryFilterType());
-			return _pos;
-		}
-		return Vector3f(pos);
-	});
+	//overcome t pose
+	beta->setUpdateSilent(true);
+	beta->update(0.0f);
+	beta->setUpdateSilent(false);
 
-	agent->setOnTarget([this](const Vector3f& pos) {
-		addMarker(pos);
-	});
+	m_entities.push_back(beta);
+}
+
+void NavigationState::spawnJack(const Vector3f& pos) {
+	CrowdAgent* agent = new CrowdAgent();
+	m_crowdManager->addAgent(agent, pos);
+
+	agent->setHeight(2.0f);
+	agent->setMaxSpeed(6.0f);
+	agent->setMaxAccel(10.0f);
+	agent->setRadius(0.5f);
+	agent->setNavigationPushiness(NAVIGATIONPUSHINESS_MEDIUM);
+	agent->setSeparationWeight(m_separaionWeight);
+
+	AnimationNode* animationNode = Root->addChild<AnimationNode, AnimatedModel>(m_jack);
+	animationNode->setPosition(pos);
+	animationNode->setOrientation(0.0f, 180.0f, 0.0f);
+	animationNode->OnOctreeSet(_Octree);
+	animationNode->setTextureIndex(3);
+	animationNode->setId(Root->countChild<AnimationNode>() - 1);
+	animationNode->setSortKey(1);
+	animationNode->setShader(Globals::shaderManager.getAssetPointer("animation"));
+
+	m_entities.push_back(new Jack(*agent, animationNode));
 }
 
 void NavigationState::AddMarker(const Vector3f& pos) {

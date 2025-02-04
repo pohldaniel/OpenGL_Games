@@ -20,6 +20,7 @@ static const unsigned SCOPE_SEPARATION_WEIGHT = 3;
 static const unsigned SCOPE_BASE_PARAMS = std::numeric_limits<unsigned int>::max() & ~SCOPE_NAVIGATION_QUALITY_PARAMS & ~SCOPE_NAVIGATION_PUSHINESS_PARAMS & ~SCOPE_SEPARATION_WEIGHT;
 
 Vector3f CrowdAgent::NearestPos;
+bool CrowdAgent::FirstTick = false;
 
 CrowdAgent::CrowdAgent() : 
 	m_crowdManager(nullptr),
@@ -35,7 +36,8 @@ CrowdAgent::CrowdAgent() :
 	m_navPushiness(DEFAULT_AGENT_NAVIGATION_PUSHINESS),
 	m_previousTargetState(CA_TARGET_NONE),
 	m_previousAgentState(CrowdAgentState::DT_CROWDAGENT_STATE_WALKING),
-	m_active(false)
+	m_active(false),
+	m_last(false)
 {
 
 }
@@ -46,11 +48,20 @@ CrowdAgent::~CrowdAgent(){
 
 void CrowdAgent::OnCrowdPositionUpdate(dtCrowdAgent* ag, float* , float dt){
 	
+	
 	CrowdAgent* self(this);
 
 	Vector3f newPos(ag->npos);
-	Vector3f newVel(ag->vel);		
+	Vector3f newVel(ag->vel);	
+
+
 	m_crowdManager->updateAgentPosition(this, dt, newPos);
+
+	if (FirstTick) {
+		OnAddAgent(newPos);
+		FirstTick = !m_last;
+		m_last = false;
+	}
 
 	if (isActive()){
 		m_active = true;
@@ -352,12 +363,12 @@ void CrowdAgent::setOnInactive(std::function<void()> fun) const {
 	OnInactive = fun;
 }
 
-void CrowdAgent::setOnCrowdFormation(std::function<Vector3f(const Vector3f& pos, const unsigned int index, CrowdAgent* agent)> fun) {
-	OnCrowdFormation = fun;
-}
-
 void CrowdAgent::setOnTarget(std::function<void(const Vector3f& pos)> fun) const {
 	OnTarget = fun;
+}
+
+void CrowdAgent::setOnAddAgent(std::function<void(const Vector3f& pos)> fun) const {
+	OnAddAgent = fun;
 }
 
 void CrowdAgent::resetAgent() {
@@ -370,4 +381,8 @@ bool CrowdAgent::isActive() {
 
 const Vector3f& CrowdAgent::GetNearestPos() {
 	return NearestPos;
+}
+
+void CrowdAgent::SetNearestPos(const Vector3f& nearestPos) {
+	NearestPos = nearestPos;
 }

@@ -10,11 +10,11 @@ Vehicle::~Vehicle() {
 
 void Vehicle::draw() {
 
-	if (m_materialIndex >= 0)
-		Material::GetMaterials()[m_materialIndex].bind();
+	if (Entity::m_materialIndex >= 0)
+		Material::GetMaterials()[Entity::m_materialIndex].bind();
 
-	if (m_textureIndex >= 0)
-		Material::GetTextures()[m_textureIndex].bind();
+	if (Entity::m_textureIndex >= 0)
+		Material::GetTextures()[Entity::m_textureIndex].bind();
 
 	updateModelMatrix();
 	

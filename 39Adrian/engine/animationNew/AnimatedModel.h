@@ -68,7 +68,7 @@ public:
 	void translateRelative(const Vector3f& trans);
 	void rotate(const float pitch, const float yaw, const float roll);
 
-	std::vector<AnimatedMesh*> m_meshes;
+	std::vector<AnimatedMesh*>& getMeshes() const;
 	bool m_hasAnimationController;
 
 private:
@@ -80,6 +80,7 @@ private:
 
 	bool m_animationOrderDirty;
 	BoundingBox m_aabb;
+	mutable std::vector<AnimatedMesh*> m_meshes;
 };
 
 class AnimatedMesh {

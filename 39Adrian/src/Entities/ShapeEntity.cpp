@@ -9,10 +9,6 @@ ShapeEntity::~ShapeEntity() {
 }
 
 void ShapeEntity::draw() {
-
-	shader->use();
-	shader->loadMatrix("modelMatrix", getWorldTransformation());
-
 	ShapeNode::drawRaw();
 }
 

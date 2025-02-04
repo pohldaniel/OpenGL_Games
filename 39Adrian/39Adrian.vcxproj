@@ -236,7 +236,10 @@
     <ClCompile Include="Physics\VehiclePhysics.cpp" />
     <ClCompile Include="src\Entities\Beta.cpp" />
     <ClCompile Include="src\Entities\CrowdAgentEntity.cpp" />
+    <ClCompile Include="src\Entities\EmptyAgentEntity.cpp" />
     <ClCompile Include="src\Entities\Entity.cpp" />
+    <ClCompile Include="src\Entities\Hero.cpp" />
+    <ClCompile Include="src\Entities\Jack.cpp" />
     <ClCompile Include="src\Entities\Md2Entity.cpp" />
     <ClCompile Include="src\Entities\MeshEntity.cpp" />
     <ClCompile Include="src\Entities\ShapeEntity.cpp" />
@@ -442,7 +445,10 @@
     <ClInclude Include="src\Application.h" />
     <ClInclude Include="src\Entities\Beta.h" />
     <ClInclude Include="src\Entities\CrowdAgentEntity.h" />
+    <ClInclude Include="src\Entities\EmptyAgentEntity.h" />
     <ClInclude Include="src\Entities\Entity.h" />
+    <ClInclude Include="src\Entities\Hero.h" />
+    <ClInclude Include="src\Entities\Jack.h" />
     <ClInclude Include="src\Entities\Md2Entity.h" />
     <ClInclude Include="src\Entities\MeshEntity.h" />
     <ClInclude Include="src\Entities\ShapeEntity.h" />

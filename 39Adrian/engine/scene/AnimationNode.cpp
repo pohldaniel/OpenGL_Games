@@ -11,7 +11,7 @@ bool AnimationNode::CompareAnimationStates(const std::shared_ptr<AnimationState>
 AnimationNode::AnimationNode(const AnimatedModel& animatedModel) :
 	OctreeNode(), 
 	animatedModel(animatedModel), 
-	meshBones(animatedModel.m_meshes[0]->getMeshBones()),
+	meshBones(animatedModel.getMeshes()[0]->getMeshBones()),
 	m_shader(nullptr),
 	m_animationOrderDirty(true), 
 	m_hasAnimationController(false), 

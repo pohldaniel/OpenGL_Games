@@ -8,17 +8,33 @@ class SequenceNode : public OctreeNode {
 
 public:
 
-	SequenceNode(const MeshSequence& meshSequence, int meshIndex = 0);
+	SequenceNode(const MeshSequence& meshSequence, short meshIndex = 0);
+
+	virtual void drawRaw() const override;
+	virtual void update(const float dt);
+
 	using OctreeNode::addChild;
 	void addChild(SequenceNode* node, bool drawDebug);
-	int getMeshIndex() const;
-	void setMeshIndex(short index);
+	
 	const MeshSequence& getSequence() const;
+	short getMeshIndex() const;
+	void setMeshIndex(short index);
+	short getMaterialIndex() const;
+	short getTextureIndex() const;
+	void setMaterialIndex(short index);
+	void setTextureIndex(short index);
 	
 protected:
 
 	const BoundingBox& getLocalBoundingBox() const;
+	short m_materialIndex;
+	short m_textureIndex;
 
 	const MeshSequence& meshSequence;
-	int m_meshIndex;
+
+private:
+
+	short m_meshIndex;
+	float m_speed;
+	float m_activeFrame;
 };

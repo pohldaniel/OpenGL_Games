@@ -48,6 +48,8 @@ public:
 	template <class T> T* findChild(StringHash nameHash, bool recursive = true) const;
 	template <class T> T* findChild(const int id, bool recursive = true) const;
 
+	template <class T> size_t countChild(bool recursive = true) const;
+
 	size_t countNodes();
 
 protected:
@@ -124,6 +126,19 @@ template <class T> T* Node::findChild(const int id, bool recursive) const {
 		}
 	}
 	return nullptr;
+}
+
+template <class T> size_t Node::countChild(bool recursive) const {
+	size_t num = 0;
+	for (auto it = m_children.begin(); it != m_children.end(); ++it) {
+		Node* child = (*it).get();
+		
+		if (dynamic_cast<T*>(child) != nullptr)
+			num++;
+		if (recursive && child->m_children.size())
+			num += child->countChild<T>(recursive);
+	}
+	return num;
 }
 
 template <class T> void Node::eraseChildren() const {

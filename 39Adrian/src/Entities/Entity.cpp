@@ -4,6 +4,10 @@ Entity::Entity() : m_materialIndex(-1), m_textureIndex(-1), shader(nullptr) {
 
 }
 
+void Entity::draw() {
+
+}
+
 void Entity::update(const float dt) {
 
 }

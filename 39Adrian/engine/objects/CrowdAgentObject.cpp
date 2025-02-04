@@ -5,6 +5,7 @@ CrowdAgentObject::CrowdAgentObject(const CrowdAgent& crowdAgent, SceneNodeLC* co
 	crowdAgent.setOnPositionVelocityUpdate(std::bind(&CrowdAgentObject::OnPositionVelocityUpdate, this, std::placeholders::_1, std::placeholders::_2));
 	crowdAgent.setOnInactive(std::bind(&CrowdAgentObject::OnInactive, this));
 	crowdAgent.setOnTarget(std::bind(&CrowdAgentObject::OnTarget, this, std::placeholders::_1));
+	crowdAgent.setOnAddAgent(std::bind(&CrowdAgentObject::OnAddAgent, this, std::placeholders::_1));
 }
 
 void CrowdAgentObject::setControlledNode(SceneNodeLC* controlledNode) {

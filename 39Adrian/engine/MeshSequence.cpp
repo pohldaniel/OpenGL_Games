@@ -726,7 +726,6 @@ void MeshSequence::addMeshAfter(std::vector<float>& vertexBuffer, std::vector<un
 
 	free(vertices);
 	free(indices);
-
 }
 
 const unsigned int MeshSequence::getNumberOfMeshes() const{

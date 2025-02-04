@@ -3,10 +3,11 @@
 Beta::Beta(const CrowdAgent& crowdAgent, AnimationNode* animationNode) : CrowdAgentEntity(crowdAgent, animationNode){
 	m_animationController = new AnimationController(animationNode);
 	m_animationController->playExclusive("beta_idle", 0, true, 0.0f);
+	setPosition(CrowdAgent::GetNearestPos());
 }
 
-void Beta::draw() {
-	m_animationController->getAnimationNode()->drawRaw();
+Beta::~Beta() {
+	delete m_animationController;
 }
 
 void Beta::update(const float dt) {
@@ -22,4 +23,8 @@ void Beta::OnPositionVelocityUpdate(const Vector3f& pos, const Vector3f& vel) {
 void Beta::OnInactive() {
 	CrowdAgentEntity::OnInactive();
 	m_animationController->playExclusive("beta_idle", 0, true, 0.5f);
+}
+
+void Beta::setUpdateSilent(bool value) {
+	m_animationController->getAnimationNode()->setUpdateSilent(value);
 }
