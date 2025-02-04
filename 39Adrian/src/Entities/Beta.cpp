@@ -3,7 +3,6 @@
 Beta::Beta(const CrowdAgent& crowdAgent, AnimationNode* animationNode) : CrowdAgentEntity(crowdAgent, animationNode){
 	m_animationController = new AnimationController(animationNode);
 	m_animationController->playExclusive("beta_idle", 0, true, 0.0f);
-	setPosition(CrowdAgent::GetNearestPos());
 }
 
 Beta::~Beta() {

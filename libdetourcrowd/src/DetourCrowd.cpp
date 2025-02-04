@@ -514,7 +514,7 @@ void dtCrowd::updateAgentParameters(const int idx, const dtCrowdAgentParams* par
 /// @par
 ///
 /// The agent's position will be constrained to the surface of the navigation mesh.
-int dtCrowd::addAgent(const float* pos, const dtCrowdAgentParams* params)
+int dtCrowd::addAgent(const float* pos, const dtCrowdAgentParams* params, float* _nearst)
 {
 	// Find empty slot.
 	int idx = -1;
@@ -556,6 +556,7 @@ int dtCrowd::addAgent(const float* pos, const dtCrowdAgentParams* params)
 	dtVset(ag->nvel, 0,0,0);
 	dtVset(ag->vel, 0,0,0);
 	dtVcopy(ag->npos, nearest);
+	dtVcopy(_nearst, nearest);
 	
 	ag->desiredSpeed = 0;
 

@@ -59,7 +59,7 @@ struct Material {
 	static void CleanupMaterials();
 	static Material& AddMaterial(const MaterialBuffer& material =  { {0.0f, 0.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 0.0f}, 1.0f} );
 
-	static Texture& AddTexture(std::string path, TextureType::TextureType textureType = TextureType::TEXTURE2D);
+	static Texture& AddTexture(std::string path, TextureType::TextureType textureType = TextureType::TEXTURE2D, bool flipvertical = true);
 	static Texture& AddTexture(TextureType::TextureType textureType = TextureType::TEXTURE2D_NULL);
 	static std::vector<Texture>& GetTextures();
 	static void SetTextures(const std::vector<Texture>& textures);

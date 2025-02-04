@@ -15,9 +15,11 @@
 #include <Navigation/Navigable.h>
 #include <Navigation/CrowdManager.h>
 #include <Navigation/CrowdAgent.h>
+#include <Entities/EmptyAgentEntity.h>
+#include <Entities/Woman.h>
 #include <Entities/Beta.h>
 #include <Entities/Jack.h>
-#include <Entities/EmptyAgentEntity.h>
+
 
 #include <States/StateMachine.h>
 
@@ -60,6 +62,7 @@ private:
 	void spawnAgent(const Vector3f& pos);
 	void spawnBeta(const Vector3f& pos);
 	void spawnJack(const Vector3f& pos);
+	void spawnWoman(const Vector3f& pos);
 
 	bool m_initUi = true;
 	bool m_drawUi = true;
@@ -76,7 +79,7 @@ private:
 	Frustum m_frustum;
 
 	Shape m_ground, m_cylinder, m_cube, m_cube14, m_cube17;
-	AnimatedModel m_beta, m_jack;
+	AnimatedModel m_beta, m_jack, m_woman;
 	Animation* m_animationNode;
 	
 	MousePicker m_mousePicker;
@@ -87,8 +90,6 @@ private:
 	CrowdAgent *m_crowdAgentBeta, *m_crowdAgentJack;
 	AnimationController *m_animationControllerBeta, *m_animationControllerJack;
 
-	Beta* m_betaNew;
-	Jack* m_jackNew;
 
 	std::vector<CrowdAgentEntity*> m_entities;
 

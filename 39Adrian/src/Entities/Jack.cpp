@@ -2,7 +2,6 @@
 
 Jack::Jack(const CrowdAgent& crowdAgent, AnimationNode* animationNode) : CrowdAgentEntity(crowdAgent, animationNode) {
 	m_animationController = new AnimationController(animationNode);
-	setPosition(CrowdAgent::GetNearestPos());
 }
 
 Jack::~Jack() {

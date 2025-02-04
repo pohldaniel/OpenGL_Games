@@ -116,17 +116,17 @@ const float Material::getAlpha() const {
 	return buffer.alpha;
 }
 
-Texture& Material::AddTexture(std::string path, TextureType::TextureType textureType) {
+Texture& Material::AddTexture(std::string path, TextureType::TextureType textureType, bool flipvertical) {
 	Textures.resize(Textures.size() + 1);
 	Texture& texture = Textures.back();
 	texture.setDeepCopy(true);
 	
 	switch (textureType){
 		case TextureType::TEXTURE2D:
-			texture.loadFromFile(path, true);
+			texture.loadFromFile(path, flipvertical);
 			break;
 		case TextureType::CROSS:
-			texture.loadCrossCubeFromFile(path, true);
+			texture.loadCrossCubeFromFile(path, flipvertical);
 			break;
 		case TextureType::CUBE:
 			break;

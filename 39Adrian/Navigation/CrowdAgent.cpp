@@ -376,7 +376,7 @@ void CrowdAgent::resetAgent() {
 }
 
 bool CrowdAgent::isActive() {
-	return m_crowdManager->getCrowd()->isActive(m_agentCrowdId, 0.5f);
+	return m_crowdManager->getCrowd()->isActive(m_agentCrowdId, 5.0f);
 }
 
 const Vector3f& CrowdAgent::GetNearestPos() {

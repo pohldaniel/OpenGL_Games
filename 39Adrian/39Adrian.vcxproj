@@ -246,6 +246,7 @@
     <ClCompile Include="src\Entities\Skybox.cpp" />
     <ClCompile Include="src\Entities\SpriteEntity.cpp" />
     <ClCompile Include="src\Entities\Vehicle.cpp" />
+    <ClCompile Include="src\Entities\Woman.cpp" />
     <ClCompile Include="src\LoadingManager.cpp" />
     <ClCompile Include="src\MiniMap.cpp" />
     <ClCompile Include="src\Sphere.cpp" />
@@ -455,6 +456,7 @@
     <ClInclude Include="src\Entities\Skybox.h" />
     <ClInclude Include="src\Entities\SpriteEntity.h" />
     <ClInclude Include="src\Entities\Vehicle.h" />
+    <ClInclude Include="src\Entities\Woman.h" />
     <ClInclude Include="src\Globals.h" />
     <ClInclude Include="src\LoadingManager.h" />
     <ClInclude Include="src\MiniMap.h" />

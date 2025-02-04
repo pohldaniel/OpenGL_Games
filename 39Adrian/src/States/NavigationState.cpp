@@ -56,16 +56,30 @@ NavigationState::NavigationState(StateMachine& machine) :
 	Material::AddTexture("res/textures/ProtoBlue256.jpg");
 	Material::AddTexture("res/textures/ProtoRed256.jpg");
 	Material::AddTexture("res/textures/ProtoYellow256.jpg");
+	Material::AddTexture("res/models/woman/Woman.png", TextureType::TEXTURE2D, false);
 	Material::AddTexture();
 
 	m_beta.loadModelMdl("res/models/BetaLowpoly/Beta.mdl");
 	m_beta.getMeshes()[0]->getMeshBones()[0].initialRotation.rotate(Vector3f(0.0f, 1.0f, 0.0f), 180.0f);
 	m_jack.loadModelMdl("res/models/Jack/Jack.mdl");
-
+	m_woman.loadModelAssimp("res/models/woman/Woman.gltf", true, false);
+	m_woman.getMeshes()[0]->getMeshBones()[0].initialScale.scale(0.004f, 0.004f, 0.004f);
+	
 	Globals::animationManagerNew.loadAnimationAni("beta_idle", "res/models/BetaLowpoly/Beta_Idle.ani");
 	Globals::animationManagerNew.loadAnimationAni("beta_run", "res/models/BetaLowpoly/Beta_Run.ani");
 	Globals::animationManagerNew.loadAnimationAni("jack_idle", "res/models/Jack/Jack_Walk.ani");
 	Globals::animationManagerNew.loadAnimationAni("jack_walk", "res/models/Jack/Jack_Walk.ani");
+
+	Globals::animationManagerNew.loadAnimationAssimp("woman_walk", "res/models/woman/Woman.gltf", "Walking", "woman_walk");
+	Globals::animationManagerNew.loadAnimationAssimp("woman_lean_left", "res/models/woman/Woman.gltf", "Lean_Left", "woman_lean_left");
+	Globals::animationManagerNew.loadAnimationAssimp("woman_run", "res/models/woman/Woman.gltf", "Running", "woman_run");
+	Globals::animationManagerNew.loadAnimationAssimp("woman_jump_1", "res/models/woman/Woman.gltf", "Jump", "woman_jump_1");
+	Globals::animationManagerNew.loadAnimationAssimp("woman_jump_2", "res/models/woman/Woman.gltf", "Jump2", "woman_jump_2");
+	Globals::animationManagerNew.loadAnimationAssimp("woman_pick_up", "res/models/woman/Woman.gltf", "PickUp", "woman_pick_up");
+	Globals::animationManagerNew.loadAnimationAssimp("woman_sit_idle", "res/models/woman/Woman.gltf", "SitIdle", "woman_sit_idle");
+	Globals::animationManagerNew.loadAnimationAssimp("woman_idle", "res/models/woman/Woman.gltf", "Idle", "woman_idle");
+	Globals::animationManagerNew.loadAnimationAssimp("woman_punch", "res/models/woman/Woman.gltf", "Punch", "woman_punch");
+	Globals::animationManagerNew.loadAnimationAssimp("woman_sit", "res/models/woman/Woman.gltf", "Sitting", "woman_sit");
 
 	createShapes();
 	createPhysics();
@@ -113,8 +127,9 @@ NavigationState::NavigationState(StateMachine& machine) :
 
 	m_crowdManager->SetIncludeFlags(2, NAVPOLYFLAG_LEVEL1 | NAVPOLYFLAG_LEVEL2 | NAVPOLYFLAG_LEVEL3);*/
 	
-	//spawnJack(Vector3f( 5.0f, 0.5f, -30.0f));
-	//spawnBeta(Vector3f(-5.0f, 0.5f, -30.0f));
+	spawnJack(Vector3f( 5.0f, 0.5f, -30.0f));
+	spawnBeta(Vector3f(-5.0f, 0.5f, -30.0f));
+	spawnWoman(Vector3f(-10.0f, 0.5f, -30.0f));
 }
 
 NavigationState::~NavigationState() {
@@ -682,6 +697,29 @@ void NavigationState::spawnJack(const Vector3f& pos) {
 	animationNode->setShader(Globals::shaderManager.getAssetPointer("animation"));
 
 	m_entities.push_back(new Jack(*agent, animationNode));
+}
+
+void NavigationState::spawnWoman(const Vector3f& pos) {
+	CrowdAgent* agent = new CrowdAgent();
+	m_crowdManager->addAgent(agent, pos);
+
+	agent->setHeight(2.0f);
+	agent->setMaxSpeed(6.0f);
+	agent->setMaxAccel(10.0f);
+	agent->setRadius(0.5f);
+	agent->setNavigationPushiness(NAVIGATIONPUSHINESS_MEDIUM);
+	agent->setSeparationWeight(m_separaionWeight);
+
+	AnimationNode* animationNode = Root->addChild<AnimationNode, AnimatedModel>(m_woman);
+	animationNode->setPosition(pos);
+	animationNode->setOrientation(0.0f, 180.0f, 0.0f);
+	animationNode->OnOctreeSet(_Octree);
+	animationNode->setTextureIndex(5);
+	animationNode->setId(Root->countChild<AnimationNode>() - 1);
+	animationNode->setSortKey(1);
+	animationNode->setShader(Globals::shaderManager.getAssetPointer("animation"));
+
+	m_entities.push_back(new Woman(*agent, animationNode));
 }
 
 void NavigationState::AddMarker(const Vector3f& pos) {
