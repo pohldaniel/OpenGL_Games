@@ -1,4 +1,5 @@
 #include <States/NavigationState.h>
+#include <States/NavigationStreamState.h>
 #include "EmptyAgentEntity.h"
 
 EmptyAgentEntity::EmptyAgentEntity(const CrowdAgent& crowdAgent, SceneNodeLC* controlledNode) : CrowdAgentObject(crowdAgent, controlledNode), Entity() {
@@ -18,7 +19,7 @@ void EmptyAgentEntity::OnInactive() {
 }
 
 void EmptyAgentEntity::OnTarget(const Vector3f& targetPos) {
-	NavigationState::AddMarker(targetPos);
+	NavigationStreamState::AddMarker(targetPos);
 }
 
 void EmptyAgentEntity::OnAddAgent(const Vector3f& targetPos) {

@@ -21,6 +21,7 @@
 #include <States/Md2State.h>
 #include <States/MapState.h>
 #include <States/NavigationState.h>
+#include <States/NavigationStreamState.h>
 
 #include "Application.h"
 #include "Globals.h"
@@ -422,7 +423,8 @@ void Application::initStates() {
 	//Machine->addStateAtTop(new Default(*Machine));
 	//Machine->addStateAtTop(new Md2State(*Machine));
 	//Machine->addStateAtTop(new MapState(*Machine));
-	Machine->addStateAtTop(new NavigationState(*Machine));
+	//Machine->addStateAtTop(new NavigationState(*Machine));
+	Machine->addStateAtTop(new NavigationStreamState(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {

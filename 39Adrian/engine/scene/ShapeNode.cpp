@@ -3,7 +3,7 @@
 #include "../Material.h"
 #include "../BuiltInShader.h"
 
-ShapeNode::ShapeNode(const Shape& shape) : OctreeNode(), shape(shape), m_materialIndex(-1), m_textureIndex(-1) {
+ShapeNode::ShapeNode(const Shape& shape) : OctreeNode(), shape(shape), m_materialIndex(-1), m_textureIndex(-1), m_shader(nullptr){
 	OnBoundingBoxChanged();
 }
 
@@ -19,7 +19,15 @@ void ShapeNode::drawRaw() const {
 	if (m_textureIndex >= 0)
 		Material::GetTextures()[m_textureIndex].bind();
 
+	if (m_shader) {
+		m_shader->use();
+		m_shader->loadMatrix("u_model", getWorldTransformation());
+	}
+
 	shape.drawRaw();
+
+	if (m_shader)
+		m_shader->unuse();
 }
 
 void ShapeNode::addChild(ShapeNode* node, bool drawDebug) {
@@ -49,4 +57,8 @@ short ShapeNode::getTextureIndex() const {
 
 void ShapeNode::setTextureIndex(short index) {
 	m_textureIndex = index;
+}
+
+void ShapeNode::setShader(Shader* shader) {
+	m_shader = shader;
 }

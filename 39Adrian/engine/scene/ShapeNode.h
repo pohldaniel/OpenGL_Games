@@ -2,6 +2,7 @@
 
 #include "../MeshObject/Shape.h"
 #include "../BoundingBox.h"
+#include "../Shader.h"
 #include "OctreeNode.h"
 
 class Octant;
@@ -21,7 +22,8 @@ public:
 	short getTextureIndex() const;
 	void setMaterialIndex(short index);
 	void setTextureIndex(short index);
-	
+	void setShader(Shader* shader);
+
 protected:
 
 	const BoundingBox& getLocalBoundingBox() const;
@@ -32,4 +34,5 @@ protected:
 private:
 
 	const Shape& shape;
+	Shader* m_shader;
 };
