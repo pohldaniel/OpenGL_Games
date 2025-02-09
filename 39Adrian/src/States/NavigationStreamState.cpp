@@ -117,6 +117,13 @@ NavigationStreamState::NavigationStreamState(StateMachine& machine) :
 	for (unsigned i = 0; i < 100; ++i)
 		createMushroom(Vector3f(Utils::random(90.0f) - 45.0f, 0.0f, Utils::random(90.0f) - 45.0f));
 
+	CrowdObstacleAvoidanceParams params = m_crowdManager->getObstacleAvoidanceParams(0);
+	params.velBias = 0.5f;
+	params.adaptiveDivs = 7;
+	params.adaptiveRings = 3;
+	params.adaptiveDepth = 3;
+	m_crowdManager->setObstacleAvoidanceParams(0, params);
+
 	spawnJack(Vector3f(5.0f, 0.5f, -30.0f));
 	spawnBeta(Vector3f(-5.0f, 0.5f, -30.0f));
 	spawnWoman(Vector3f(-10.0f, 0.5f, -30.0f));

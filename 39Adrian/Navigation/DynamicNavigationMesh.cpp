@@ -6,11 +6,13 @@
 #include <Recast.h>
 
 #include "DynamicNavigationMesh.h"
+#include "NavBuildData.h"
 #include "Obstacle.h"
 #include "OffMeshConnection.h"
 
 static const int DEFAULT_MAX_OBSTACLES = 1024;
 static const int DEFAULT_MAX_LAYERS = 16;
+static const unsigned TILECACHE_MAXLAYERS = 255;
 
 struct DynamicNavigationMesh::TileCacheData{
 	unsigned char* data;
@@ -161,8 +163,8 @@ DynamicNavigationMesh::~DynamicNavigationMesh() {
 
 }
 
-bool DynamicNavigationMesh::Allocate(const BoundingBox& boundingBox, unsigned maxTiles)
-{
+bool DynamicNavigationMesh::Allocate(const BoundingBox& boundingBox, unsigned maxTiles) {
+
 	// Release existing navigation data and zero the bounding box
 	ReleaseNavigationMesh();
 
@@ -247,6 +249,319 @@ bool DynamicNavigationMesh::Allocate(const BoundingBox& boundingBox, unsigned ma
 	return true;
 }
 
+bool DynamicNavigationMesh::Build() {
+	//URHO3D_PROFILE(BuildNavigationMesh);
+
+	// Release existing navigation data and zero the bounding box
+	ReleaseNavigationMesh();
+
+	//if (!node_)
+		//return false;
+
+	//if (!node_->GetWorldScale().Equals(Vector3::ONE))
+		//URHO3D_LOGWARNING("Navigation mesh root node has scaling. Agent parameters may not work as intended");
+
+	std::vector<NavigationGeometryInfo> geometryList;
+	CollectGeometries(geometryList);
+
+	if (geometryList.empty()) {
+		std::cout << "Nothing to do" << std::endl;
+		return true; // Nothing to do
+	}
+
+	// Build the combined bounding box
+	for (unsigned i = 0; i < geometryList.size(); ++i)
+		boundingBox_.merge(geometryList[i].boundingBox_);
+
+	// Expand bounding box by padding
+	boundingBox_.min -= padding_;
+	boundingBox_.max += padding_;
+
+	{
+		//URHO3D_PROFILE(BuildNavigationMesh);
+
+		// Calculate number of tiles
+		int gridW = 0, gridH = 0;
+		float tileEdgeLength = (float)tileSize_ * cellSize_;
+		rcCalcGridSize(&boundingBox_.min[0], &boundingBox_.max[0], cellSize_, &gridW, &gridH);
+		numTilesX_ = (gridW + tileSize_ - 1) / tileSize_;
+		numTilesZ_ = (gridH + tileSize_ - 1) / tileSize_;
+
+		// Calculate max. number of tiles and polygons, 22 bits available to identify both tile & polygon within tile
+		unsigned maxTiles = NextPowerOfTwo((unsigned)(numTilesX_ * numTilesZ_));
+		unsigned tileBits = LogBaseTwo(maxTiles);
+		unsigned maxPolys = (unsigned)(1 << (22 - tileBits));
+
+		dtNavMeshParams params;
+		rcVcopy(params.orig, &boundingBox_.min[0]);
+		params.tileWidth = tileEdgeLength;
+		params.tileHeight = tileEdgeLength;
+		params.maxTiles = maxTiles;
+		params.maxPolys = maxPolys;
+
+		navMesh_ = dtAllocNavMesh();
+		if (!navMesh_)
+		{
+			std::cout << "Could not allocate navigation mesh" << std::endl;
+			return false;
+		}
+
+		if (dtStatusFailed(navMesh_->init(&params))){
+			std::cout << "Could not initialize navigation mesh" << std::endl;
+			ReleaseNavigationMesh();
+			return false;
+		}
+
+		dtTileCacheParams tileCacheParams;
+		memset(&tileCacheParams, 0, sizeof(tileCacheParams));
+		rcVcopy(tileCacheParams.orig, &boundingBox_.min[0]);
+		tileCacheParams.ch = cellHeight_;
+		tileCacheParams.cs = cellSize_;
+		tileCacheParams.width = tileSize_;
+		tileCacheParams.height = tileSize_;
+		tileCacheParams.maxSimplificationError = edgeMaxError_;
+		tileCacheParams.maxTiles = numTilesX_ * numTilesZ_ * maxLayers_;
+		tileCacheParams.maxObstacles = maxObstacles_;
+		// Settings from NavigationMesh
+		tileCacheParams.walkableClimb = agentMaxClimb_;
+		tileCacheParams.walkableHeight = agentHeight_;
+		tileCacheParams.walkableRadius = agentRadius_;
+
+		tileCache_ = dtAllocTileCache();
+		if (!tileCache_){
+			std::cout << "Could not allocate tile cache" << std::endl;
+			ReleaseNavigationMesh();
+			return false;
+		}
+
+		if (dtStatusFailed(tileCache_->init(&tileCacheParams, allocator_, compressor_, meshProcessor_))){
+			std::cout << "Could not initialize tile cache" << std::endl;
+			ReleaseNavigationMesh();
+			return false;
+		}
+
+		// Build each tile
+		unsigned numTiles = 0;
+
+		for (int z = 0; z < numTilesZ_; ++z)
+		{
+			for (int x = 0; x < numTilesX_; ++x)
+			{
+				TileCacheData tiles[TILECACHE_MAXLAYERS];
+				int layerCt = BuildTile(geometryList, x, z, tiles);
+				for (int i = 0; i < layerCt; ++i)
+				{
+					dtCompressedTileRef tileRef;
+					int status = tileCache_->addTile(tiles[i].data, tiles[i].dataSize, DT_COMPRESSEDTILE_FREE_DATA, &tileRef);
+					if (dtStatusFailed((dtStatus)status))
+					{
+						dtFree(tiles[i].data);
+						tiles[i].data = 0x0;
+					}
+				}
+				tileCache_->buildNavMeshTilesAt(x, z, navMesh_);
+				++numTiles;
+			}
+		}
+
+		// For a full build it's necessary to update the nav mesh
+	    // not doing so will cause dependent components to crash, like CrowdManager
+		tileCache_->update(0, navMesh_);
+
+		std::cout << "Built navigation mesh with " + std::to_string(numTiles) + " tiles" << std::endl;
+
+		// Send a notification event to concerned parties that we've been fully rebuilt
+		/*{
+			using namespace NavigationMeshRebuilt;
+			VariantMap& buildEventParams = GetContext()->GetEventDataMap();
+			buildEventParams[P_NODE] = node_;
+			buildEventParams[P_MESH] = this;
+			SendEvent(E_NAVIGATION_MESH_REBUILT, buildEventParams);
+		}*/
+
+		// Scan for obstacles to insert into us
+		//PODVector<Node*> obstacles;
+		//GetScene()->GetChildrenWithComponent<Obstacle>(obstacles, true);
+		for (unsigned i = 0; i < m_obstacles.size(); ++i)
+		{
+			Obstacle* obs = m_obstacles[i];
+			if (obs && obs->isEnabled_)
+				AddObstacle(obs);
+		}
+
+		return true;
+	}
+}
+
+int DynamicNavigationMesh::BuildTile(std::vector<NavigationGeometryInfo>& geometryList, int x, int z, TileCacheData* tiles) {
+	//URHO3D_PROFILE(BuildNavigationMeshTile);
+
+	tileCache_->removeTile(navMesh_->getTileRefAt(x, z, 0), 0, 0);
+
+	BoundingBox tileBoundingBox = GetTileBoudningBox(std::array<int, 2>({ x, z }));
+
+	DynamicNavBuildData build(allocator_);
+
+	rcConfig cfg;
+	memset(&cfg, 0, sizeof cfg);
+	cfg.cs = cellSize_;
+	cfg.ch = cellHeight_;
+	cfg.walkableSlopeAngle = agentMaxSlope_;
+	cfg.walkableHeight = (int)ceilf(agentHeight_ / cfg.ch);
+	cfg.walkableClimb = (int)floorf(agentMaxClimb_ / cfg.ch);
+	cfg.walkableRadius = (int)ceilf(agentRadius_ / cfg.cs);
+	cfg.maxEdgeLen = (int)(edgeMaxLength_ / cellSize_);
+	cfg.maxSimplificationError = edgeMaxError_;
+	cfg.minRegionArea = (int)sqrtf(regionMinSize_);
+	cfg.mergeRegionArea = (int)sqrtf(regionMergeSize_);
+	cfg.maxVertsPerPoly = 6;
+	cfg.tileSize = tileSize_;
+	cfg.borderSize = cfg.walkableRadius + 3; // Add padding
+	cfg.width = cfg.tileSize + cfg.borderSize * 2;
+	cfg.height = cfg.tileSize + cfg.borderSize * 2;
+	cfg.detailSampleDist = detailSampleDistance_ < 0.9f ? 0.0f : cellSize_ * detailSampleDistance_;
+	cfg.detailSampleMaxError = cellHeight_ * detailSampleMaxError_;
+
+	rcVcopy(cfg.bmin, &tileBoundingBox.min[0]);
+	rcVcopy(cfg.bmax, &tileBoundingBox.max[0]);
+	cfg.bmin[0] -= cfg.borderSize * cfg.cs;
+	cfg.bmin[2] -= cfg.borderSize * cfg.cs;
+	cfg.bmax[0] += cfg.borderSize * cfg.cs;
+	cfg.bmax[2] += cfg.borderSize * cfg.cs;
+
+	BoundingBox expandedBox(*reinterpret_cast<Vector3f*>(cfg.bmin), *reinterpret_cast<Vector3f*>(cfg.bmax));
+	GetTileGeometry(&build, geometryList, expandedBox);
+
+	if (build.vertices_.empty() || build.indices_.empty())
+		return 0; // Nothing to do
+
+	build.heightField_ = rcAllocHeightfield();
+	if (!build.heightField_)
+	{
+		std::cout << "Could not allocate heightfield" << std::endl;
+		return 0;
+	}
+
+	if (!rcCreateHeightfield(build.ctx_, *build.heightField_, cfg.width, cfg.height, cfg.bmin, cfg.bmax, cfg.cs,
+		cfg.ch))
+	{
+		std::cout << "Could not create heightfield" << std::endl;
+		return 0;
+	}
+
+	unsigned numTriangles = build.indices_.size() / 3;
+	unsigned char* triAreas = new unsigned char[numTriangles];
+	memset(triAreas, 0, numTriangles);
+
+	rcMarkWalkableTriangles(build.ctx_, cfg.walkableSlopeAngle, &build.vertices_[0][0], build.vertices_.size(),
+		&build.indices_[0], numTriangles, triAreas);
+	rcRasterizeTriangles(build.ctx_, &build.vertices_[0][0], build.vertices_.size(), &build.indices_[0],
+		triAreas, numTriangles, *build.heightField_, cfg.walkableClimb);
+	rcFilterLowHangingWalkableObstacles(build.ctx_, cfg.walkableClimb, *build.heightField_);
+
+	rcFilterLedgeSpans(build.ctx_, cfg.walkableHeight, cfg.walkableClimb, *build.heightField_);
+	rcFilterWalkableLowHeightSpans(build.ctx_, cfg.walkableHeight, *build.heightField_);
+
+	build.compactHeightField_ = rcAllocCompactHeightfield();
+	if (!build.compactHeightField_) {
+		std::cout << "Could not allocate create compact heightfield" << std::endl;
+		return 0;
+	}
+
+	if (!rcBuildCompactHeightfield(build.ctx_, cfg.walkableHeight, cfg.walkableClimb, *build.heightField_,
+		*build.compactHeightField_)) {
+		std::cout << "Could not build compact heightfield" << std::endl;
+		return 0;
+	}
+
+	if (!rcErodeWalkableArea(build.ctx_, cfg.walkableRadius, *build.compactHeightField_)) {
+		std::cout << "Could not erode compact heightfield" << std::endl;
+		return 0;
+	}
+
+	// area volumes
+	for (unsigned i = 0; i < build.navAreas_.size(); ++i)
+		rcMarkBoxArea(build.ctx_, &build.navAreas_[i].bounds_.min[0], &build.navAreas_[i].bounds_.max[0],
+			build.navAreas_[i].areaID_, *build.compactHeightField_);
+
+	if (this->partitionType_ == NAVMESH_PARTITION_WATERSHED) {
+		if (!rcBuildDistanceField(build.ctx_, *build.compactHeightField_)) {
+			std::cout << "Could not build distance field" << std::endl;
+			return 0;
+		}
+
+		if (!rcBuildRegions(build.ctx_, *build.compactHeightField_, cfg.borderSize, cfg.minRegionArea,
+			cfg.mergeRegionArea)) {
+			std::cout << "Could not build regions" << std::endl;
+			return 0;
+		}
+	}else {
+		if (!rcBuildRegionsMonotone(build.ctx_, *build.compactHeightField_, cfg.borderSize, cfg.minRegionArea, cfg.mergeRegionArea)) {
+			std::cout << "Could not build monotone regions" << std::endl;
+			return 0;
+		}
+	}
+
+	build.heightFieldLayers_ = rcAllocHeightfieldLayerSet();
+	if (!build.heightFieldLayers_) {
+		std::cout << "Could not allocate height field layer set" << std::endl;
+		return 0;
+	}
+
+	if (!rcBuildHeightfieldLayers(build.ctx_, *build.compactHeightField_, cfg.borderSize, cfg.walkableHeight,
+		*build.heightFieldLayers_)) {
+		std::cout << "Could not build height field layers" << std::endl;
+		return 0;
+	}
+
+	int retCt = 0;
+	for (int i = 0; i < build.heightFieldLayers_->nlayers; ++i) {
+		dtTileCacheLayerHeader header;
+		header.magic = DT_TILECACHE_MAGIC;
+		header.version = DT_TILECACHE_VERSION;
+		header.tx = x;
+		header.ty = z;
+		header.tlayer = i;
+
+		rcHeightfieldLayer* layer = &build.heightFieldLayers_->layers[i];
+
+		// Tile info.
+		rcVcopy(header.bmin, layer->bmin);
+		rcVcopy(header.bmax, layer->bmax);
+		header.width = (unsigned char)layer->width;
+		header.height = (unsigned char)layer->height;
+		header.minx = (unsigned char)layer->minx;
+		header.maxx = (unsigned char)layer->maxx;
+		header.miny = (unsigned char)layer->miny;
+		header.maxy = (unsigned char)layer->maxy;
+		header.hmin = (unsigned short)layer->hmin;
+		header.hmax = (unsigned short)layer->hmax;
+
+		if (dtStatusFailed(
+			dtBuildTileCacheLayer(compressor_/*compressor*/, &header, layer->heights, layer->areas/*areas*/, layer->cons,
+				&(tiles[retCt].data), &tiles[retCt].dataSize)))
+		{
+			std::cout << "Failed to build tile cache layers" << std::endl;
+			return 0;
+		}
+		else
+			++retCt;
+	}
+
+	// Send a notification of the rebuild of this tile to anyone interested
+	/*{
+		using namespace NavigationAreaRebuilt;
+		VariantMap& eventData = GetContext()->GetEventDataMap();
+		eventData[P_NODE] = GetNode();
+		eventData[P_MESH] = this;
+		eventData[P_BOUNDSMIN] = Variant(tileBoundingBox.min_);
+		eventData[P_BOUNDSMAX] = Variant(tileBoundingBox.max_);
+		SendEvent(E_NAVIGATION_AREA_REBUILT, eventData);
+	}*/
+
+	return retCt;
+}
+
 void DynamicNavigationMesh::ReleaseNavigationMesh() {
 	NavigationMesh::ReleaseNavigationMesh();
 	ReleaseTileCache();
@@ -270,7 +585,6 @@ void DynamicNavigationMesh::OnRenderDebug() {
 }
 
 void DynamicNavigationMesh::AddObstacle(Obstacle* obstacle, bool silent) {
-
 	if (tileCache_){
 		float pos[3];
 		const Vector3f& obsPos = obstacle->m_node->getWorldPosition();
@@ -304,6 +618,7 @@ void DynamicNavigationMesh::RemoveObstacle(Obstacle* obstacle, bool silent) {
 
 void DynamicNavigationMesh::ObstacleChanged(Obstacle* obstacle) {
 	if (tileCache_) {
+		
 		RemoveObstacle(obstacle, true);
 		AddObstacle(obstacle, true);
 	}

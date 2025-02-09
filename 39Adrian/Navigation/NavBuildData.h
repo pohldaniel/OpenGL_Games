@@ -75,3 +75,20 @@ struct SimpleNavBuildData : public NavBuildData
 	/// Recast detail poly mesh.
 	rcPolyMeshDetail* polyMeshDetail_;
 };
+
+struct DynamicNavBuildData : public NavBuildData
+{
+	/// Constructor.
+	DynamicNavBuildData(dtTileCacheAlloc* alloc);
+	/// Destructor.
+	virtual ~DynamicNavBuildData();
+
+	/// TileCache specific recast contour set.
+	dtTileCacheContourSet* contourSet_;
+	/// TileCache specific recast poly mesh.
+	dtTileCachePolyMesh* polyMesh_;
+	/// Recast heightfield layer set.
+	rcHeightfieldLayerSet* heightFieldLayers_;
+	/// Allocator from DynamicNavigationMesh instance.
+	dtTileCacheAlloc* alloc_;
+};

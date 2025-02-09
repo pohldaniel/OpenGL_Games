@@ -22,9 +22,10 @@ void CrowdAgentUpdateCallback(bool positionUpdate, dtCrowdAgent* ag, float* pos,
 
 CrowdManager::CrowdManager() :
 	m_crowd(nullptr),
-	m_navigationMeshId(0),
+	m_navigationMeshId(0u),
 	m_maxAgents(DEFAULT_MAX_AGENTS),
-	m_maxAgentRadius(DEFAULT_MAX_AGENT_RADIUS)
+	m_maxAgentRadius(DEFAULT_MAX_AGENT_RADIUS),
+	m_numObstacleAvoidanceTypes(0u)
 {
 	
 }
@@ -277,3 +278,17 @@ void CrowdManager::SetExcludeFlags(unsigned queryFilterType, unsigned short flag
 			numQueryFilterTypes_ = queryFilterType + 1;
 	}
 }*/
+
+const CrowdObstacleAvoidanceParams& CrowdManager::getObstacleAvoidanceParams(unsigned int obstacleAvoidanceType) const {
+	static const CrowdObstacleAvoidanceParams EMPTY_PARAMS = CrowdObstacleAvoidanceParams();
+	const dtObstacleAvoidanceParams* params = m_crowd ? m_crowd->getObstacleAvoidanceParams(obstacleAvoidanceType) : 0;
+	return params ? *reinterpret_cast<const CrowdObstacleAvoidanceParams*>(params) : EMPTY_PARAMS;
+}
+
+void CrowdManager::setObstacleAvoidanceParams(unsigned int obstacleAvoidanceType, const CrowdObstacleAvoidanceParams& params) {
+	if (m_crowd && obstacleAvoidanceType < DT_CROWD_MAX_OBSTAVOIDANCE_PARAMS) {
+		m_crowd->setObstacleAvoidanceParams(obstacleAvoidanceType, reinterpret_cast<const dtObstacleAvoidanceParams*>(&params));
+		if (m_numObstacleAvoidanceTypes < obstacleAvoidanceType + 1)
+			m_numObstacleAvoidanceTypes = obstacleAvoidanceType + 1;
+	}
+}

@@ -37,3 +37,22 @@ SimpleNavBuildData::~SimpleNavBuildData()
 	rcFreePolyMeshDetail(polyMeshDetail_);
 	polyMeshDetail_ = 0;
 }
+
+DynamicNavBuildData::DynamicNavBuildData(dtTileCacheAlloc* allocator) :
+	NavBuildData(),
+	contourSet_(0),
+	polyMesh_(0),
+	heightFieldLayers_(0),
+	alloc_(allocator)
+{
+}
+
+DynamicNavBuildData::~DynamicNavBuildData()
+{
+	dtFreeTileCacheContourSet(alloc_, contourSet_);
+	contourSet_ = 0;
+	dtFreeTileCachePolyMesh(alloc_, polyMesh_);
+	polyMesh_ = 0;
+	rcFreeHeightfieldLayerSet(heightFieldLayers_);
+	heightFieldLayers_ = 0;
+}

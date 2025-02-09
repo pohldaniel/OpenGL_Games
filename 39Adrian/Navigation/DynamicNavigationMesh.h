@@ -13,6 +13,8 @@ class Obstacle;
 
 class DynamicNavigationMesh : public NavigationMesh {
 
+	struct TileCacheData;
+
 public:
 
 	DynamicNavigationMesh();
@@ -21,6 +23,7 @@ public:
 	void OnRenderDebug() override;
 	bool Allocate(const BoundingBox& boundingBox, unsigned maxTiles) override;
 	void ReleaseNavigationMesh() override;
+	bool Build() override;
 
 	/// Used by Obstacle class to add itself to the tile cache, if 'silent' an event will not be raised.
 	void AddObstacle(Obstacle* obstacle, bool silent = false);
@@ -30,6 +33,8 @@ public:
 	void RemoveObstacle(Obstacle* obstacle, bool silent = false);
 
 	void ReleaseTileCache();
+	/// Build one tile of the navigation mesh. Return true if successful.
+	int BuildTile(std::vector<NavigationGeometryInfo>& geometryList, int x, int z, TileCacheData* tiles);
 
 	std::vector<Obstacle*> m_obstacles;
 
@@ -44,5 +49,5 @@ public:
 	/// Maximum number of layers that are allowed to be constructed.
 	unsigned maxLayers_;
 
-	struct TileCacheData;
+	
 };
