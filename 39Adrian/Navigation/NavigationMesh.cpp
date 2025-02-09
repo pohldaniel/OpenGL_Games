@@ -5,6 +5,7 @@
 
 #include "../engine/scene/ShapeNode.h"
 #include "../engine/MeshObject/Shape.h"
+#include "../engine/DebugRenderer.h"
 #include "NavigationMesh.h"
 #include "OffMeshConnection.h"
 #include "NavArea.h"
@@ -76,29 +77,24 @@ NavigationMesh::~NavigationMesh() {
 	ReleaseNavigationMesh();
 }
 
-void NavigationMesh::DrawDebugGeometry(DebugRenderer* debug, bool depthTest) {
+void NavigationMesh::OnRenderDebug() {
+
 	const Matrix4f& worldTransform = Matrix4f::IDENTITY;
 
 	const dtNavMesh* navMesh = navMesh_;
 	if (!navMesh_)
 		return;
 
-	for (int j = 0; j < navMesh->getMaxTiles(); ++j)
-	{
+	for (int j = 0; j < navMesh->getMaxTiles(); ++j){
 		const dtMeshTile* tile = navMesh->getTile(j);
 
-
-		//assert(tile);
 		if (!tile->header)
 			continue;
 		
-		for (int i = 0; i < tile->header->polyCount; ++i)
-		{
+		for (int i = 0; i < tile->header->polyCount; ++i){
 			dtPoly* poly = tile->polys + i;
-			for (unsigned j = 0; j < poly->vertCount; ++j)
-			{
-				
-				debug->AddLine(
+			for (unsigned j = 0; j < poly->vertCount; ++j){
+				DebugRenderer::Get().AddLine(
 					worldTransform * *reinterpret_cast<const Vector3f*>(&tile->verts[poly->verts[j] * 3]),
 					worldTransform * *reinterpret_cast<const Vector3f*>(&tile->verts[poly->verts[(j + 1) % poly->vertCount] * 3]),
 					Vector4f(1.0f, 1.0f, 0.0f, 1.0f)
@@ -106,10 +102,6 @@ void NavigationMesh::DrawDebugGeometry(DebugRenderer* debug, bool depthTest) {
 			}
 		}
 	}
-}
-
-void NavigationMesh::DrawDebugGeometry(bool depthTest) {
-
 }
 
 bool NavigationMesh::Allocate(const BoundingBox& boundingBox, unsigned maxTiles) {

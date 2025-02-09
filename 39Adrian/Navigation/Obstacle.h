@@ -43,6 +43,7 @@ public:
 	SceneNodeLC* m_node;
 
 	DynamicNavigationMesh* ownerMesh_;
+	bool isEnabled_;
 
 protected:
 	/// Handle node being assigned.
@@ -65,5 +66,5 @@ private:
 	/// Pointer to the navigation mesh we belong to.
 	
 
-	bool isEnabled_;
+	
 };

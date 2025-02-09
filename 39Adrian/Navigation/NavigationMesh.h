@@ -106,7 +106,7 @@ public:
 	static void RegisterObject();
 
 	/// Visualize the component as debug geometry.
-	virtual void DrawDebugGeometry(DebugRenderer* debug, bool depthTest);
+	virtual void OnRenderDebug();
 
 	/// Set tile size.
 	void SetTileSize(int size);
@@ -178,8 +178,6 @@ public:
 	Vector3f Raycast(const Vector3f& start, const Vector3f& end, const Vector3f& extents = Vector3f::ONE, const dtQueryFilter* filter = 0, Vector3f* hitNormal = 0);
 	///Lumak - editable feature
 	int SetPolyFlag(const Vector3f& point, unsigned short polyMask, const Vector3f& extents = Vector3f::ONE, const dtQueryFilter* filter = 0);
-	/// Add debug geometry to the debug renderer.
-	void DrawDebugGeometry(bool depthTest);
 
 	/// Return the given name of this navigation mesh.
 	std::string GetMeshName() const { return meshName_; }

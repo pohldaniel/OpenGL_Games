@@ -89,7 +89,7 @@ NavigationStreamState::NavigationStreamState(StateMachine& machine) :
 	createPhysics();
 	createScene();
 
-	m_navigationMesh = new NavigationMesh();
+	m_navigationMesh = new DynamicNavigationMesh();
 	m_navigationMesh->m_navigables = m_navigables;
 	m_navigationMesh->SetPadding(Vector3f(0.0f, 10.0f, 0.0f));
 	m_navigationMesh->SetTileSize(8);
@@ -254,7 +254,7 @@ void NavigationStreamState::render() {
 	}
 
 	if (m_debugNavmesh) {
-		m_navigationMesh->DrawDebugGeometry(&DebugRenderer::Get(), false);
+		m_navigationMesh->OnRenderDebug();
 		m_crowdManager->OnRenderDebug();
 		DebugRenderer::Get().SetProjectionView(m_camera.getPerspectiveMatrix(), m_camera.getViewMatrix());
 		DebugRenderer::Get().drawBuffer();
@@ -638,7 +638,11 @@ void NavigationStreamState::createMushroom(const Vector3f& pos) {
 	shapeNode->setScale(2.0f + Utils::random(0.5f));
 	shapeNode->OnOctreeSet(_Octree);
 	shapeNode->setTextureIndex(7);
-	m_obstacles.push_back(new Obstacle(shapeNode));
+	m_navigationMesh->m_obstacles.push_back(new Obstacle(shapeNode));
+	m_navigationMesh->m_obstacles.back()->ownerMesh_ = m_navigationMesh;
+	m_navigationMesh->m_obstacles.back()->OnSetEnabled();
+	m_navigationMesh->m_obstacles.back()->SetRadius(shapeNode->getScale()[0]);
+	m_navigationMesh->m_obstacles.back()->SetHeight(shapeNode->getScale()[1]);	
 }
 
 void NavigationStreamState::AddMarker(const Vector3f& pos) {

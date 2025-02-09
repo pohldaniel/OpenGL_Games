@@ -2,26 +2,18 @@
 #include "Obstacle.h"
 
 Obstacle::Obstacle(SceneNodeLC* node) :
+	m_node(node),
 	height_(5.0f),
 	radius_(5.0f),
 	obstacleId_(0),
-	isEnabled_(true)
-{
+	isEnabled_(true){
+
 }
 
-Obstacle::~Obstacle()
-{
+Obstacle::~Obstacle(){
 	if (obstacleId_ > 0 && ownerMesh_)
 		ownerMesh_->RemoveObstacle(this);
 }
-
-/*void Obstacle::RegisterObject(Context* context)
-{
-	context->RegisterFactory<Obstacle>(NAVIGATION_CATEGORY);
-	URHO3D_COPY_BASE_ATTRIBUTES(Component);
-	URHO3D_ACCESSOR_ATTRIBUTE("Radius", GetRadius, SetRadius, float, 5.0f, AM_DEFAULT);
-	URHO3D_ACCESSOR_ATTRIBUTE("Height", GetHeight, SetHeight, float, 5.0f, AM_DEFAULT);
-}*/
 
 void Obstacle::OnSetEnabled() {
 	if (ownerMesh_){
@@ -104,7 +96,5 @@ void Obstacle::OnMarkedDirty(SceneNodeLC* node) {
 }*/
 
 void Obstacle::OnRenderDebug() {
-	//if (debug && IsEnabledEffective())
-		//debug->AddCylinder(node_->GetWorldPosition(), radius_, height_, Color(0.0f, 1.0f, 1.0f), depthTest);
 	DebugRenderer::Get().AddCylinder(m_node->getWorldPosition(), radius_, height_, Vector4f(0.0f, 1.0f, 1.0f, 1.0f));
 }

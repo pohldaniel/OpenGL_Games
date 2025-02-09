@@ -11,7 +11,7 @@
 #include <engine/Camera.h>
 #include <Physics/Physics.h>
 #include <Physics/MousePicker.h>
-#include <Navigation/NavigationMesh.h>
+#include <Navigation/DynamicNavigationMesh.h>
 #include <Navigation/Navigable.h>
 #include <Navigation/CrowdManager.h>
 #include <Navigation/CrowdAgent.h>
@@ -77,9 +77,8 @@ private:
 	Animation* m_animationNode;
 
 	MousePicker m_mousePicker;
-	NavigationMesh* m_navigationMesh;
+	DynamicNavigationMesh* m_navigationMesh;
 	std::vector<Navigable*> m_navigables;
-	std::vector<Obstacle*> m_obstacles;
 
 	CrowdManager* m_crowdManager;
 	CrowdAgent *m_crowdAgentBeta, *m_crowdAgentJack;

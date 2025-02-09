@@ -253,7 +253,7 @@ void NavigationState::render() {
 	}
 
 	if (m_debugNavmesh) {
-		m_navigationMesh->DrawDebugGeometry(&DebugRenderer::Get(), false);
+		m_navigationMesh->OnRenderDebug();
 		m_crowdManager->OnRenderDebug();
 		DebugRenderer::Get().SetProjectionView(m_camera.getPerspectiveMatrix(), m_camera.getViewMatrix());
 		DebugRenderer::Get().drawBuffer();
