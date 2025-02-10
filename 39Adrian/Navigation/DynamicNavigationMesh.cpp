@@ -366,7 +366,7 @@ bool DynamicNavigationMesh::Build() {
 
 		// For a full build it's necessary to update the nav mesh
 	    // not doing so will cause dependent components to crash, like CrowdManager
-		tileCache_->update(0, navMesh_);
+		tileCache_->update(0.0f, navMesh_);
 
 		std::cout << "Built navigation mesh with " + std::to_string(numTiles) + " tiles" << std::endl;
 
@@ -586,19 +586,21 @@ void DynamicNavigationMesh::OnRenderDebug() {
 
 void DynamicNavigationMesh::AddObstacle(Obstacle* obstacle, bool silent) {
 	if (tileCache_){
+
 		float pos[3];
 		const Vector3f& obsPos = obstacle->m_node->getWorldPosition();
 		rcVcopy(pos, obsPos.getVec());
 		dtObstacleRef refHolder;
+		// Because dtTileCache doesn't process obstacle requests while updating tiles
+		// it's necessary update until sufficient request space is available
+		while (tileCache_->isObstacleQueueFull()) {
+			tileCache_->update(0.0f, navMesh_);
+		}
 
-		while (tileCache_->isObstacleQueueFull())
-			tileCache_->update(1, navMesh_);
-
-		if (dtStatusFailed(tileCache_->addObstacle(pos, obstacle->GetRadius(), obstacle->GetHeight(), &refHolder))){
+		if (dtStatusFailed(tileCache_->addObstacle(pos, obstacle->GetRadius() * 0.5f, obstacle->GetHeight() * 0.5f, &refHolder))){
 			std::cout << "Failed to add obstacle" << std::endl;
 			return;
 		}
-		obstacle->obstacleId_ = refHolder;
 	}
 }
 
@@ -606,7 +608,7 @@ void DynamicNavigationMesh::RemoveObstacle(Obstacle* obstacle, bool silent) {
 	
 	if (tileCache_ && obstacle->obstacleId_ > 0) {
 		while (tileCache_->isObstacleQueueFull())
-			tileCache_->update(1, navMesh_);
+			tileCache_->update(0.0f, navMesh_);
 
 		if (dtStatusFailed(tileCache_->removeObstacle(obstacle->obstacleId_))){
 			std::cout << "Failed to remove obstacle" << std::endl;
@@ -617,9 +619,20 @@ void DynamicNavigationMesh::RemoveObstacle(Obstacle* obstacle, bool silent) {
 }
 
 void DynamicNavigationMesh::ObstacleChanged(Obstacle* obstacle) {
-	if (tileCache_) {
-		
+	if (tileCache_) {		
 		RemoveObstacle(obstacle, true);
 		AddObstacle(obstacle, true);
 	}
+}
+
+void DynamicNavigationMesh::update(float dt) {
+	if (tileCache_ && navMesh_)
+		tileCache_->update(0.0f, navMesh_);
+}
+
+void DynamicNavigationMesh::wait() {
+	bool upToDate = false;
+	while (!upToDate){
+		tileCache_->update(0.0f, navMesh_, &upToDate);
+	}		
 }

@@ -92,7 +92,7 @@ NavigationStreamState::NavigationStreamState(StateMachine& machine) :
 	m_navigationMesh = new DynamicNavigationMesh();
 	m_navigationMesh->m_navigables = m_navigables;
 	m_navigationMesh->SetPadding(Vector3f(0.0f, 10.0f, 0.0f));
-	m_navigationMesh->SetTileSize(8);
+	m_navigationMesh->SetTileSize(16);
 
 	m_navigationMesh->SetCellSize(0.3);
 	m_navigationMesh->SetCellHeight(0.2f);
@@ -116,6 +116,7 @@ NavigationStreamState::NavigationStreamState(StateMachine& machine) :
 
 	for (unsigned i = 0; i < 100; ++i)
 		createMushroom(Vector3f(Utils::random(90.0f) - 45.0f, 0.0f, Utils::random(90.0f) - 45.0f));
+	m_navigationMesh->wait();
 
 	CrowdObstacleAvoidanceParams params = m_crowdManager->getObstacleAvoidanceParams(0);
 	params.velBias = 0.5f;
@@ -207,6 +208,7 @@ void NavigationStreamState::update() {
 	m_frustum.m_frustumSATData.calculate(m_frustum);
 
 	m_crowdManager->update(m_dt);
+	//m_navigationMesh->update(m_dt);
 
 	for (auto&& entity : m_entities)
 		entity->update(m_dt);
@@ -520,9 +522,9 @@ void NavigationStreamState::createScene() {
 	shapeNode->setTextureIndex(6);
 	shapeNode->setSortKey(2);
 	shapeNode->setShader(Globals::shaderManager.getAssetPointer("map"));
-
 	m_navigables.push_back(new Navigable(shapeNode));
-	for (unsigned i = 0; i < 20; ++i){
+
+	/*for (unsigned i = 0; i < 20; ++i){
 		float size = 1.0f + Utils::random(10.0f);
 		shapeNode = Root->addChild<ShapeNode, Shape>(m_box);
 		shapeNode->OnOctreeSet(_Octree);
@@ -531,7 +533,7 @@ void NavigationStreamState::createScene() {
 		shapeNode->setScale(size);
 		m_navigables.push_back(new Navigable(shapeNode));
 		Physics::AddStaticObject(Physics::BtTransform(Physics::VectorFrom(shapeNode->getPosition())), Physics::CreateCollisionShape(&m_box, btVector3(size, size, size)), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER);
-	}
+	}*/
 }
 
 void NavigationStreamState::clearMarker() {
@@ -638,18 +640,26 @@ void NavigationStreamState::spawnWoman(const Vector3f& pos) {
 }
 
 void NavigationStreamState::createMushroom(const Vector3f& pos) {
+
+	float scale = 2.0f + Utils::random(0.5f);
+
 	ShapeNode* shapeNode;
 	shapeNode = Root->addChild<ShapeNode, Shape>(m_mushroom);
 	shapeNode->setPosition(pos);
 	shapeNode->setOrientation(Quaternion(0.0f, Utils::random(360.0f), 0.0f));
-	shapeNode->setScale(2.0f + Utils::random(0.5f));
+	shapeNode->setScale(scale);
 	shapeNode->OnOctreeSet(_Octree);
 	shapeNode->setTextureIndex(7);
 	m_navigationMesh->m_obstacles.push_back(new Obstacle(shapeNode));
 	m_navigationMesh->m_obstacles.back()->ownerMesh_ = m_navigationMesh;
 	m_navigationMesh->m_obstacles.back()->OnSetEnabled();
+
 	m_navigationMesh->m_obstacles.back()->SetRadius(shapeNode->getScale()[0]);
 	m_navigationMesh->m_obstacles.back()->SetHeight(shapeNode->getScale()[1]);	
+	m_navigationMesh->AddObstacle(m_navigationMesh->m_obstacles.back(), false);
+
+
+	
 }
 
 void NavigationStreamState::AddMarker(const Vector3f& pos) {

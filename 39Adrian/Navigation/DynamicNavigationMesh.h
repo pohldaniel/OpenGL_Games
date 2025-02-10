@@ -24,6 +24,8 @@ public:
 	bool Allocate(const BoundingBox& boundingBox, unsigned maxTiles) override;
 	void ReleaseNavigationMesh() override;
 	bool Build() override;
+	void update(float dt);
+	void wait();
 
 	/// Used by Obstacle class to add itself to the tile cache, if 'silent' an event will not be raised.
 	void AddObstacle(Obstacle* obstacle, bool silent = false);
