@@ -258,7 +258,7 @@ public:
 	///  @param[in]		maxAgents		The maximum number of agents the crowd can manage. [Limit: >= 1]
 	///  @param[in]		maxAgentRadius	The maximum radius of any agent that will be added to the crowd. [Limit: > 0]
 	///  @param[in]		nav				The navigation mesh to use for planning.
-	/// @return True if the initialization succeeded.
+	///  @return True if the initialization succeeded.
 	bool init(const int maxAgents, const float maxAgentRadius, dtNavMesh* nav, dtUpdateCallback cb = 0);
 	
 	/// Sets the shared avoidance configuration for the specified index.
@@ -293,8 +293,8 @@ public:
 	/// Adds a new agent to the crowd.
 	///  @param[in]		pos		The requested position of the agent. [(x, y, z)]
 	///  @param[in]		params	The configuration of the agent.
-	/// @return The index of the agent in the agent pool. Or -1 if the agent could not be added.
-	int addAgent(const float* pos, const dtCrowdAgentParams* params, float* nearst);
+	///  @return The index of the agent in the agent pool. Or -1 if the agent could not be added.
+	int addAgent(const float* pos, const dtCrowdAgentParams* params, float* nearstOut = nullptr, float scale = 1.0f);
 
 	/// Updates the specified agent's configuration.
 	///  @param[in]		idx		The agent index. [Limits: 0 <= value < #getAgentCount()]

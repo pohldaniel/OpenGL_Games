@@ -109,8 +109,8 @@ int CrowdManager::addAgent(CrowdAgent* agent, const Vector3f& pos){
 		agent->m_height = m_navigationMesh->GetAgentHeight();
 	// dtCrowd::addAgent() requires the query filter type to find the nearest position on navmesh as the initial agent's position
 	params.queryFilterType = (unsigned char)agent->getQueryFilterType();
-	float nearest[3];
-	int id = m_crowd->addAgent(pos.getVec(), &params, nearest);
+
+	int id = m_crowd->addAgent(pos.getVec(), &params, nullptr, 1.5f);
 	if (id > -1) {
 		agent->m_agentCrowdId = id;
 		agent->m_crowdManager = this;

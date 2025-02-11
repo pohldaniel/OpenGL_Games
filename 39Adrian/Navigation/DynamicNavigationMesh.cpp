@@ -597,7 +597,7 @@ void DynamicNavigationMesh::AddObstacle(Obstacle* obstacle, bool silent) {
 			tileCache_->update(0.0f, navMesh_);
 		}
 
-		if (dtStatusFailed(tileCache_->addObstacle(pos, obstacle->GetRadius() * 0.5f, obstacle->GetHeight() * 0.5f, &refHolder))){
+		if (dtStatusFailed(tileCache_->addObstacle(pos, obstacle->GetRadius() * 0.5, obstacle->GetHeight() * 0.5, &refHolder))){
 			std::cout << "Failed to add obstacle" << std::endl;
 			return;
 		}

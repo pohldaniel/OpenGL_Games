@@ -311,7 +311,7 @@ void NavigationStreamState::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 			if (m_mousePicker.clickAll(event.x, event.y, m_camera, nullptr)) {
 				const MousePickCallbackAll& callbackAll = m_mousePicker.getCallbackAll();
 				btVector3 pos = callbackAll.m_hitPointWorld[callbackAll.index];
-				Vector3f pathPos = m_navigationMesh->FindNearestPoint(Physics::VectorFrom(pos), Vector3f(1.0f, 1.0f, 1.0f));
+				Vector3f pathPos = m_navigationMesh->FindNearestPoint(Physics::VectorFrom(pos), Vector3f(1.5f, 1.5f, 1.5f));
 				m_crowdManager->setCrowdTarget(pathPos);
 			}
 		}
@@ -657,9 +657,6 @@ void NavigationStreamState::createMushroom(const Vector3f& pos) {
 	m_navigationMesh->m_obstacles.back()->SetRadius(shapeNode->getScale()[0]);
 	m_navigationMesh->m_obstacles.back()->SetHeight(shapeNode->getScale()[1]);	
 	m_navigationMesh->AddObstacle(m_navigationMesh->m_obstacles.back(), false);
-
-
-	
 }
 
 void NavigationStreamState::AddMarker(const Vector3f& pos) {

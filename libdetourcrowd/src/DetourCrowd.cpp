@@ -514,7 +514,7 @@ void dtCrowd::updateAgentParameters(const int idx, const dtCrowdAgentParams* par
 /// @par
 ///
 /// The agent's position will be constrained to the surface of the navigation mesh.
-int dtCrowd::addAgent(const float* pos, const dtCrowdAgentParams* params, float* _nearst)
+int dtCrowd::addAgent(const float* pos, const dtCrowdAgentParams* params, float* nearstOut, float scale)
 {
 	// Find empty slot.
 	int idx = -1;
@@ -537,7 +537,10 @@ int dtCrowd::addAgent(const float* pos, const dtCrowdAgentParams* params, float*
 	float nearest[3];
 	dtPolyRef ref = 0;
 	dtVcopy(nearest, pos);
-	dtStatus status = m_navquery->findNearestPoly(pos, m_agentPlacementHalfExtents, &m_filters[ag->params.queryFilterType], &ref, nearest);
+	float halfExtens[3];
+	dtVscale(halfExtens, m_agentPlacementHalfExtents, scale);
+
+	dtStatus status = m_navquery->findNearestPoly(pos, halfExtens, &m_filters[ag->params.queryFilterType], &ref, nearest);
 	if (dtStatusFailed(status))
 	{
 		dtVcopy(nearest, pos);
@@ -556,7 +559,9 @@ int dtCrowd::addAgent(const float* pos, const dtCrowdAgentParams* params, float*
 	dtVset(ag->nvel, 0,0,0);
 	dtVset(ag->vel, 0,0,0);
 	dtVcopy(ag->npos, nearest);
-	dtVcopy(_nearst, nearest);
+
+	if(nearstOut)
+	  dtVcopy(nearstOut, nearest);
 	
 	ag->desiredSpeed = 0;
 
