@@ -114,16 +114,7 @@ int CrowdManager::addAgent(CrowdAgent* agent, const Vector3f& pos){
 	if (id > -1) {
 		agent->m_agentCrowdId = id;
 		agent->m_crowdManager = this;
-		agent->m_last = true;
-		CrowdAgent::FirstTick = true;
 		m_agents.push_back(agent);
-
-		
-
-		//std::for_each(m_agents.begin(), m_agents.end(), std::bind(std::mem_fn<void(bool)>(&Monster::setHighlight), std::placeholders::_1, false));
-
-		//for (auto&& agent : m_agents)
-			//agent->m_firstTick = true;
 	}
 	return id;
 }
@@ -197,6 +188,7 @@ void CrowdManager::update(float delta){
 Vector3f CrowdManager::getRandomPointInCircle(const Vector3f& center, float radius, int queryFilterType, dtPolyRef* randomRef){
 	if (randomRef)
 		*randomRef = 0;
+
 	return m_crowd && m_navigationMesh ?
 		m_navigationMesh->GetRandomPointInCircle(center, radius, Vector3f(m_crowd->getQueryHalfExtents()), m_crowd->getFilter(queryFilterType), randomRef) : center;
 }

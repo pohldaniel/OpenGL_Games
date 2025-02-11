@@ -347,10 +347,12 @@ public:
 	std::vector<NavArea*> areas_;
 
 	std::vector<BoundingBox> m_boxes;
+	Vector3f randPoint(const Vector3f& center, float radius);
 
 	static std::random_device RandomDevice;
 	static std::mt19937 MersenTwist;
 	static std::uniform_real_distribution<float> Dist;
+	static float Scale;
 
 	static float Random();
 };

@@ -30,7 +30,8 @@ static const float DEFAULT_DETAIL_SAMPLE_MAX_ERROR = 1.0f;
 static const int MAX_POLYS = 2048;
 std::random_device NavigationMesh::RandomDevice;
 std::mt19937 NavigationMesh::MersenTwist(RandomDevice());
-std::uniform_real_distribution<float> NavigationMesh::Dist(0.0f, 1.0f);
+std::uniform_real_distribution<float> NavigationMesh::Dist(0.3f, 1.0f);
+float NavigationMesh::Scale = 5.0f;
 
 /// Temporary data for finding a path.
 struct FindPathData
@@ -766,9 +767,15 @@ Vector3f NavigationMesh::FindNearestPoint(const Vector3f& point, const Vector3f&
 		nearestRef = &pointRef;
 	navMeshQuery_->findNearestPoly(localPoint.getVec(), extents.getVec(), filter ? filter : queryFilter_, nearestRef, &nearestPoint[0]);
 
-	//std::cout << "Nearest: " << nearestPoint[0] << "  " << nearestPoint[1] << "  " << nearestPoint[2] << std::endl;
-
 	return *nearestRef ? transform * nearestPoint : point;
+}
+
+Vector3f NavigationMesh::randPoint(const Vector3f& center, float radius) {
+	const float length = sqrt(Random()) * radius;
+	const float degree = Random() * TWO_PI;
+	const float x = center[0] + length * cos(degree);
+	const float z = center[2] + length * sin(degree);
+	return { x, 0.0f, z };
 }
 
 Vector3f NavigationMesh::GetRandomPointInCircle(const Vector3f& center, float radius, const Vector3f& extents, const dtQueryFilter* filter, dtPolyRef* randomRef){
@@ -785,6 +792,7 @@ Vector3f NavigationMesh::GetRandomPointInCircle(const Vector3f& center, float ra
 	const dtQueryFilter* queryFilter = filter ? filter : queryFilter_;
 	dtPolyRef startRef;
 	navMeshQuery_->findNearestPoly(&localCenter[0], extents.getVec(), queryFilter, &startRef, 0);
+
 	if (!startRef)
 		return center;
 
@@ -793,10 +801,10 @@ Vector3f NavigationMesh::GetRandomPointInCircle(const Vector3f& center, float ra
 		randomRef = &polyRef;
 	Vector3f point(localCenter);
 
-	navMeshQuery_->findRandomPointAroundCircle(startRef, &localCenter[0], radius, queryFilter, Random, randomRef, &point[0]);
-	return point;
+	//navMeshQuery_->findRandomPointAroundCircle(startRef, &localCenter[0], radius, queryFilter, Random, randomRef, &point[0]);
+	return randPoint(point, radius);
 }
 
 float NavigationMesh::Random() {
-	return Dist(MersenTwist);
+	return Dist(MersenTwist) * Scale;
 }

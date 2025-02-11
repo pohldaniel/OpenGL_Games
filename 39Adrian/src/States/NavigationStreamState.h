@@ -63,6 +63,7 @@ private:
 	bool m_debugTree = false;
 	bool m_debugPhysic = false;
 	bool m_debugNavmesh = true;
+
 	float m_offsetDistance;
 	float m_separaionWeight;
 	float m_height;

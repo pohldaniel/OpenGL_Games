@@ -77,18 +77,15 @@ public:
 	NavigationPushiness getNavigationPushiness() const;
 	bool hasRequestedTarget() const;
 
-
 	CrowdAgentState getAgentState() const;
 	CrowdAgentTargetState getTargetState() const;
 	bool hasArrived(const float scale = 1.0f) const;
 	bool isInCrowd() const;
 
-	
 	virtual void OnCrowdVelocityUpdate(dtCrowdAgent* ag, float* pos, float dt);
 	virtual void OnCrowdPositionUpdate(dtCrowdAgent* ag, float* pos, float dt);
 	int addAgentToCrowd(bool force = false, const Vector3f& initialPosition = Vector3f::ZERO);
 	
-
 	void setOnPositionVelocityUpdate(std::function<void(const Vector3f& pos, const Vector3f& vel)> fun) const;
 	void setOnInactive(std::function<void()> fun) const;
 	void setOnTarget(std::function<void(const Vector3f& pos)> fun) const;
@@ -96,6 +93,7 @@ public:
 
 	void resetAgent();
 	bool isActive();
+	bool m_update = false;
 
 	static const Vector3f& GetNearestPos();
 	static void SetNearestPos(const Vector3f& nearestPos);
@@ -128,14 +126,13 @@ private:
 	CrowdAgentTargetState m_previousTargetState;
 	CrowdAgentState m_previousAgentState;
 	CrowdManager* m_crowdManager;
-	bool m_active, m_last;
+	bool m_active;
+	
 
 	mutable std::function<void(const Vector3f& pos, const Vector3f& vel)> OnPositionVelocityUpdate;
 	mutable std::function<void()> OnInactive;
 	mutable std::function<void(const Vector3f& pos)> OnTarget;
 	mutable std::function<void(const Vector3f& pos)> OnAddAgent;
 	
-	
 	static Vector3f NearestPos;
-	static bool FirstTick;
 };
