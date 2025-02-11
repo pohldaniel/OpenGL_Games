@@ -3,6 +3,8 @@
 #include <imgui_impl_opengl3.h>
 #include <imgui_internal.h>
 
+#include <magic_enum.hpp>
+
 #include <engine/DebugRenderer.h>
 #include <Utils/BinaryIO.h>
 #include <States/Menu.h>
@@ -114,8 +116,11 @@ NavigationStreamState::NavigationStreamState(StateMachine& machine) :
 		return Vector3f(pos);
 	});
 
-	for (unsigned i = 0; i < 100; ++i)
-		createMushroom(Vector3f(Utils::random(90.0f) - 45.0f, 0.0f, Utils::random(90.0f) - 45.0f));
+	//for (unsigned i = 0; i < 100; ++i)
+	//	createMushroom(Vector3f(Utils::random(90.0f) - 45.0f, 0.0f, Utils::random(90.0f) - 45.0f));
+
+	createMushroom(Vector3f(0.0f, 0.0f, 0.0f));
+
 	m_navigationMesh->wait();
 
 	CrowdObstacleAvoidanceParams params = m_crowdManager->getObstacleAvoidanceParams(0);
@@ -241,6 +246,7 @@ void NavigationStreamState::render() {
 	}
 	shader->loadMatrix("u_model", Matrix4f::IDENTITY);
 	shader->unuse();
+	//m_mousePicker.drawPicker(m_camera);
 
 	if (m_debugTree) {
 
@@ -284,7 +290,7 @@ void NavigationStreamState::render() {
 }
 
 void NavigationStreamState::OnMouseMotion(Event::MouseMoveEvent& event) {
-
+	//m_mousePicker.updatePosition(event.x, event.y, m_camera);
 }
 
 void NavigationStreamState::OnMouseButtonDown(Event::MouseButtonEvent& event) {
@@ -294,7 +300,12 @@ void NavigationStreamState::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 
 	if (event.button == 1u) {
 		Mouse::instance().attach(Application::GetWindow(), false, false, false);
-		if (Keyboard::instance().keyDown(Keyboard::KEY_LSHIFT)) {
+	    if (Keyboard::instance().keyDown(Keyboard::KEY_TAB)) {
+		    if (m_mousePicker.clickAll(event.x, event.y, m_camera, nullptr)) {
+			    const MousePickCallbackAll& callbackAll = m_mousePicker.getCallbackAll();
+			    addOrRemoveObject(static_cast<PhysicalObjects>(callbackAll.m_userIndex), static_cast<ShapeNode*>(callbackAll.m_userPoiner));
+		    }
+	    }else if (Keyboard::instance().keyDown(Keyboard::KEY_LSHIFT)) {
 			if (m_mousePicker.clickAll(event.x, event.y, m_camera, nullptr)) {
 				const MousePickCallbackAll& callbackAll = m_mousePicker.getCallbackAll();
 				btVector3 pos = callbackAll.m_hitPointWorld[callbackAll.index];
@@ -485,33 +496,8 @@ void NavigationStreamState::createShapes() {
 }
 
 void NavigationStreamState::createPhysics() {
-	/*Physics::AddStaticObject(Physics::BtTransform(btVector3(0.0f, 0.0f, 0.0f)), Physics::CreateCollisionShape(&m_ground, btVector3(1.0f, 1.0f, 1.0f)), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER);
-	Physics::AddStaticObject(Physics::BtTransform(btVector3(23.2655f, -0.414571f, -24.8348f)), Physics::CreateCollisionShape(&m_cylinder, btVector3(1.0f, 1.0f, 1.0f)), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER);
-	Physics::AddStaticObject(Physics::BtTransform(btVector3(-0.0426907f, 2.31663f, -9.42164f)), Physics::CreateCollisionShape(&m_cube, btVector3(1.0f, 1.0f, 1.0f)), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER);
-	Physics::AddStaticObject(Physics::BtTransform(btVector3(-14.0839f, 2.31663f, 1.92646f)), Physics::CreateCollisionShape(&m_cube, btVector3(1.0f, 1.0f, 1.0f)), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER);
-	Physics::AddStaticObject(Physics::BtTransform(btVector3(-11.4615f, 2.31663f, -22.13f)), Physics::CreateCollisionShape(&m_cube, btVector3(1.0f, 1.0f, 1.0f)), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER);
-	Physics::AddStaticObject(Physics::BtTransform(btVector3(-21.9248f, 2.31663f, -8.26868f)), Physics::CreateCollisionShape(&m_cube, btVector3(1.0f, 1.0f, 1.0f)), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER);
-	Physics::AddStaticObject(Physics::BtTransform(btVector3(-6.17903f, 2.31663f, 6.16944f)), Physics::CreateCollisionShape(&m_cube, btVector3(1.0f, 1.0f, 1.0f)), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER);
-
-	Physics::AddStaticObject(Physics::BtTransform(btVector3(22.4007f, 2.30943f, -9.9086f)), Physics::CreateCollisionShape(&m_cube, btVector3(1.71352f, 1.0f, 3.86812f)), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER);
-	Physics::AddStaticObject(Physics::BtTransform(btVector3(-26.3652f, 2.36106f, -20.859f)), Physics::CreateCollisionShape(&m_cube, btVector3(1.71352f, 1.0f, 3.86812f)), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER);
-	Physics::AddStaticObject(Physics::BtTransform(btVector3(-26.3652f, 2.36106f, -9.20306f)), Physics::CreateCollisionShape(&m_cube, btVector3(1.71352f, 1.0f, 3.86812f)), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER);
-	Physics::AddStaticObject(Physics::BtTransform(btVector3(-26.3652f, 2.36106f, -32.5239f)), Physics::CreateCollisionShape(&m_cube, btVector3(1.71352f, 1.0f, 3.86812f)), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER);
-	Physics::AddStaticObject(Physics::BtTransform(btVector3(-26.3652f, 2.36106f, -44.1777f)), Physics::CreateCollisionShape(&m_cube, btVector3(1.71352f, 1.0f, 3.86812f)), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER);
-
-
-	Physics::AddStaticObject(Physics::BtTransform(btVector3(-22.3009f, 2.33817f, -31.3599f)), Physics::CreateCollisionShape(&m_cube14, btVector3(1.0f, 1.0f, 1.0f)), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER);
-	Physics::AddStaticObject(Physics::BtTransform(btVector3(-26.3652f, 2.36106f, 16.6828f)), Physics::CreateCollisionShape(&m_cube, btVector3(1.71352f, 1.0f, 3.86812f)), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER);
-	Physics::AddStaticObject(Physics::BtTransform(btVector3(22.4007f, 2.30943f, -40.1603f)), Physics::CreateCollisionShape(&m_cube, btVector3(1.71352f, 1.0f, 3.86812f)), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER);
-
-	Physics::AddStaticObject(Physics::BtTransform(btVector3(-26.3733f, 4.53696f, -18.4788f)), Physics::CreateCollisionShape(&m_cube17, btVector3(1.0f, 1.0f, 1.0f)), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER);
-	Physics::AddStaticObject(Physics::BtTransform(btVector3(11.2092f, 2.31663f, -30.8257f)), Physics::CreateCollisionShape(&m_cube, btVector3(1.0f, 1.0f, 1.0f)), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER);
-	Physics::AddStaticObject(Physics::BtTransform(btVector3(-30.3823f, 2.33817f, -42.2312f), btQuaternion(0.0f, 1.0f, 0.0f, 0.0f)), Physics::CreateCollisionShape(&m_cube14, btVector3(1.0f, 1.0f, 1.0f)), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER);
-	Physics::AddStaticObject(Physics::BtTransform(btVector3(18.3143f, 2.33817f, -13.2117f), btQuaternion(0.0f, 1.0f, 0.0f, 0.0f)), Physics::CreateCollisionShape(&m_cube14, btVector3(1.0f, 1.0f, 1.0f)), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER);
-
-	Physics::AddStaticObject(Physics::BtTransform(btVector3(22.4007f, 2.30943f, 1.55447f)), Physics::CreateCollisionShape(&m_cube, btVector3(1.71352f, 1.0f, 3.86812f)), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER);*/
-
-	Physics::AddStaticObject(Physics::BtTransform(btVector3(0.0f, 0.0f, 0.0f)), Physics::CreateCollisionShape(&m_plane, btVector3(1.0f, 1.0f, 1.0f)), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER);
+	//btCollisionObject* collisionObject = Physics::AddStaticObject(Physics::BtTransform(btVector3(0.0f, 0.0f, 0.0f)), Physics::CreateCollisionShape(&m_plane, btVector3(1.0f, 1.0f, 1.0f)), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER);
+	//collisionObject->setUserIndex(PhysicalObjects::GROUND);
 }
 
 void NavigationStreamState::createScene() {
@@ -642,11 +628,12 @@ void NavigationStreamState::spawnWoman(const Vector3f& pos) {
 void NavigationStreamState::createMushroom(const Vector3f& pos) {
 
 	float scale = 2.0f + Utils::random(0.5f);
+	Quaternion orientation = Quaternion(0.0f, Utils::random(360.0f), 0.0f);
 
 	ShapeNode* shapeNode;
 	shapeNode = Root->addChild<ShapeNode, Shape>(m_mushroom);
 	shapeNode->setPosition(pos);
-	shapeNode->setOrientation(Quaternion(0.0f, Utils::random(360.0f), 0.0f));
+	shapeNode->setOrientation(orientation);
 	shapeNode->setScale(scale);
 	shapeNode->OnOctreeSet(_Octree);
 	shapeNode->setTextureIndex(7);
@@ -654,9 +641,55 @@ void NavigationStreamState::createMushroom(const Vector3f& pos) {
 	m_navigationMesh->m_obstacles.back()->ownerMesh_ = m_navigationMesh;
 	m_navigationMesh->m_obstacles.back()->OnSetEnabled();
 
-	m_navigationMesh->m_obstacles.back()->SetRadius(shapeNode->getScale()[0]);
-	m_navigationMesh->m_obstacles.back()->SetHeight(shapeNode->getScale()[1]);	
+	m_navigationMesh->m_obstacles.back()->SetRadius(scale);
+	m_navigationMesh->m_obstacles.back()->SetHeight(scale);
 	m_navigationMesh->AddObstacle(m_navigationMesh->m_obstacles.back(), false);
+	
+
+	btCollisionObject* collisionObject = Physics::AddStaticObject(Physics::BtTransform(Physics::VectorFrom(pos), Physics::QuaternionFrom(orientation)), Physics::CreateConvexHullShape(&m_mushroom, {scale, scale, scale}), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER);
+	collisionObject->setUserIndex(PhysicalObjects::MUSHRROM);
+	collisionObject->setUserPointer(shapeNode);
+
+	std::cout << "Pointer1: " << shapeNode << std::endl;
+
+	//Physics::AddStaticObject(Physics::BtTransform(Physics::VectorFrom(pos), Physics::QuaternionFrom(orientation)), Physics::CreateCollisionShape(&m_mushroom, { scale, scale, scale }), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER);
+}
+
+void NavigationStreamState::addOrRemoveObject(PhysicalObjects physicalObjects, ShapeNode* shapeNode){
+	std::cout << "Pointer2: " << shapeNode << std::endl;
+
+	shapeNode->OnOctreeSet(nullptr);
+	shapeNode->eraseSelf(); 
+	/*switch (physicalObjects){
+	  case MUSHRROM:
+		  std::cout << magic_enum::enum_name(physicalObjects) << std::endl;
+		break;
+	  case ENTITY:
+		  std::cout << magic_enum::enum_name(physicalObjects) << std::endl;
+		break;
+	  case GROUND:
+		  std::cout << magic_enum::enum_name(physicalObjects) << std::endl;
+		break;
+	  default:
+		break;
+	}*/
+
+	/*// Raycast and check if we hit a mushroom node. If yes, remove it, if no, create a new one
+	Vector3 hitPos;
+	Drawable* hitDrawable;
+
+	if (Raycast(250.0f, hitPos, hitDrawable))
+	{
+		Node* hitNode = hitDrawable->GetNode();
+
+		// Note that navmesh rebuild happens when the Obstacle component is removed
+		if (hitNode->GetName() == "Mushroom")
+			hitNode->Remove();
+		else if (hitNode->GetName() == "Jack")
+			hitNode->Remove();
+		else
+			CreateMushroom(hitPos);
+	}*/
 }
 
 void NavigationStreamState::AddMarker(const Vector3f& pos) {

@@ -189,12 +189,9 @@ std::vector<btCollisionShape *> Physics::CreateCollisionShapes(ObjModel* model, 
 	return CreateCollisionShapes(model, btVector3(scale, scale, scale));
 }
 
-btCollisionShape* Physics::CreateCollisionShape(const Shape* _shape, const btVector3& scale) {
-	
+btCollisionShape* Physics::CreateCollisionShape(const Shape* _shape, const btVector3& scale) {	
 	int indexStride = 3 * sizeof(int);
-
 	btTriangleIndexVertexArray* tiva = new btTriangleIndexVertexArray(_shape->getNumberOfTriangles(), (int*)(&_shape->getIndexBuffer()[0]), indexStride, _shape->getPositions().size(), (btScalar*)(&_shape->getPositions()[0]), sizeof(Vector3f));
-
 	btBvhTriangleMeshShape *shape = new btBvhTriangleMeshShape(tiva, true);
 	shape->setLocalScaling(scale);
 

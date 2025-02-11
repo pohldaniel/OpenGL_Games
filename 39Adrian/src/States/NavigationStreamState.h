@@ -24,6 +24,12 @@
 #include <States/StateMachine.h>
 
 
+enum PhysicalObjects : int {
+	MUSHRROM,
+	ENTITY,
+	GROUND
+};
+
 class NavigationStreamState : public State, public MouseEventListener, public KeyboardEventListener {
 
 public:
@@ -57,9 +63,10 @@ private:
 	void spawnJack(const Vector3f& pos);
 	void spawnWoman(const Vector3f& pos);
 	void createMushroom(const Vector3f& pos);
+	void addOrRemoveObject(PhysicalObjects physicalObjects, ShapeNode* shapeNode);
 
 	bool m_initUi = true;
-	bool m_drawUi = true;
+	bool m_drawUi = false;
 	bool m_debugTree = false;
 	bool m_debugPhysic = false;
 	bool m_debugNavmesh = true;

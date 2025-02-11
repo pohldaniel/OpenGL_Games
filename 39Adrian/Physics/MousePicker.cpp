@@ -27,14 +27,6 @@ void MousePicker::updatePosition(unsigned int posX, unsigned int posY, const Cam
 	float mouseXndc = (2.0f * posX) / static_cast<float>(Application::Width) - 1.0f;
 	float mouseYndc = 1.0f - (2.0f * posY) / static_cast<float>(Application::Height);
 
-	//Vector4f rayStartEye = Vector4f(mouseXndc, mouseYndc, -1.0f, 1.0f) ^ camera.getInvPerspectiveMatrix();
-	//Vector4f rayEndEye = Vector4f(mouseXndc, mouseYndc, 1.0f, 1.0f) ^ camera.getInvPerspectiveMatrix();
-	//rayStartEye = rayStartEye * (1.0f / rayStartEye[3]);
-	//rayEndEye = rayEndEye * (1.0f / rayEndEye[3]);
-	//
-	//Vector3f rayStartWorld = rayStartEye * camera.getInvViewMatrix();
-	//Vector3f rayEndWorld = rayEndEye * camera.getInvViewMatrix();
-
 	float tanfov = camera.getInvPerspectiveMatrixNew()[1][1];
 	float aspect = (static_cast<float>(Application::Width) / static_cast<float>(Application::Height));
 
@@ -113,14 +105,14 @@ bool MousePicker::clickAll(unsigned int posX, unsigned int posY, const Camera& c
 	if (m_callbackAll.hasHit()) {
 
 		float fraction = 1.0f;
-		m_callbackAll.index = -1;
 		for (size_t i = 0; i < m_callbackAll.m_hitFractions.size(); i++) {
 			if (m_callbackAll.m_hitFractions[i] <= fraction /*&& m_callbackAll.m_collisionObjects[i] != collisonObject*/) {
 				m_callbackAll.index = i;
-				fraction = m_callbackAll.m_hitFractions[i];
+				fraction = m_callbackAll.m_hitFractions[i];				
 			}
 		}
-
+		m_callbackAll.m_userIndex = m_callbackAll.m_collisionObjects[m_callbackAll.index]->getUserIndex();
+		m_callbackAll.m_userPoiner = m_callbackAll.m_collisionObjects[m_callbackAll.index]->getUserPointer();
 		return collisonObject == nullptr ? true : m_callbackAll.index >= 0;
 	}else {
 		return false;

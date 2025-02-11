@@ -42,12 +42,16 @@ public:
 
 	btVector3 m_origin;
 	btVector3 m_target;
+	int m_userIndex;
+	void* m_userPoiner;
 
 	MousePickCallback(const btVector3& origin, const btVector3& target, int collisionFilterGroup = btBroadphaseProxy::DefaultFilter, int collisionFilterMask = btBroadphaseProxy::AllFilter) : btCollisionWorld::ClosestRayResultCallback(origin, target) {
 		m_collisionFilterGroup = collisionFilterGroup;
 		m_collisionFilterMask = collisionFilterMask;
 		m_origin = origin;
 		m_target = target;
+		m_userIndex = -1;
+		m_userPoiner = nullptr;
 	}
 
 	btScalar addSingleResult(btCollisionWorld::LocalRayResult& rayResult, bool normalInWorldSpace) {
@@ -61,7 +65,8 @@ public:
 
 	btVector3 m_origin;
 	btVector3 m_target;
-	int index;
+	int index, m_userIndex;
+	void* m_userPoiner;
 
 	MousePickCallbackAll(const btVector3& origin, const btVector3& target, int collisionFilterGroup = btBroadphaseProxy::DefaultFilter, int collisionFilterMask = btBroadphaseProxy::AllFilter) : btCollisionWorld::AllHitsRayResultCallback(origin, target) {
 		m_collisionFilterGroup = collisionFilterGroup;
@@ -69,6 +74,8 @@ public:
 		m_origin = origin;
 		m_target = target;
 		index = -1;
+		m_userIndex = -1;
+		m_userPoiner = nullptr;
 	}
 
 	btScalar addSingleResult(btCollisionWorld::LocalRayResult& rayResult, bool normalInWorldSpace) {

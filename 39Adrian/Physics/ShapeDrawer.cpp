@@ -117,7 +117,7 @@ void ShapeDrawer::drawShape(btScalar* m, btCollisionShape* shape) {
 
 		ShapeCacheConvex* sc = cacheConvex(const_cast<btCollisionShape*>(shape));
 		btShapeHull* hull = &sc->m_shapehull;
-		btVector3 scale = shape->getLocalScaling();
+		btVector3 scale = shape->getShapeType() == CONVEX_HULL_SHAPE_PROXYTYPE ? shape->getLocalScaling() * 0.5f : shape->getLocalScaling();
 		Matrix4f mat = Matrix4f(m);
 		Matrix4f scaleMat = Matrix4f::Scale(scale.x(), scale.y(), scale.z());
 		const unsigned int* idx = hull->getIndexPointer();
@@ -131,7 +131,7 @@ void ShapeDrawer::drawShape(btScalar* m, btCollisionShape* shape) {
 
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
 		glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, hull->numIndices() * sizeof(unsigned int), idx);
-	
+
 		s_shader->use();
 
 		s_shader->loadMatrix("u_projection", m_perspective);
