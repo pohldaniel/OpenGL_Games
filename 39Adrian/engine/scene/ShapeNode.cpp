@@ -8,7 +8,7 @@ ShapeNode::ShapeNode(const Shape& shape) : OctreeNode(), shape(shape), m_materia
 }
 
 ShapeNode::~ShapeNode() {
-	std::cout << "------" << std::endl;
+
 }
 
 void ShapeNode::drawRaw() const {

@@ -68,7 +68,7 @@ private:
 	bool m_initUi = true;
 	bool m_drawUi = false;
 	bool m_debugTree = false;
-	bool m_debugPhysic = true;
+	bool m_debugPhysic = false;
 	bool m_debugNavmesh = false;
 
 	float m_offsetDistance;

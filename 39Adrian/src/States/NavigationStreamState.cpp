@@ -119,8 +119,6 @@ NavigationStreamState::NavigationStreamState(StateMachine& machine) :
 	for (unsigned i = 0; i < 100; ++i)
 		createMushroom(Vector3f(Utils::random(90.0f) - 45.0f, 0.0f, Utils::random(90.0f) - 45.0f));
 
-	createMushroom(Vector3f(0.0f, 0.0f, 0.0f));
-
 	m_navigationMesh->wait();
 
 	CrowdObstacleAvoidanceParams params = m_crowdManager->getObstacleAvoidanceParams(0);
