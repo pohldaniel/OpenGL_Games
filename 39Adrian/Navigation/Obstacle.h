@@ -1,6 +1,6 @@
 #pragma once
 #include "../engine/DebugRenderer.h"
-#include "../engine/scene/SceneNodeLC.h"
+#include "../engine/scene/OctreeNode.h"
 
 class DynamicNavigationMesh;
 
@@ -12,7 +12,7 @@ class Obstacle {
 
 public:
 	/// Construct.
-	Obstacle(SceneNodeLC* node);
+	Obstacle(OctreeNode* node);
 	/// Destruct.
 	virtual ~Obstacle();
 
@@ -40,18 +40,18 @@ public:
 	/// Render debug information.
 	void OnRenderDebug();
 
-	SceneNodeLC* m_node;
+	OctreeNode* m_node;
 
 	DynamicNavigationMesh* ownerMesh_;
 	bool isEnabled_;
 
 protected:
 	/// Handle node being assigned.
-	virtual void OnNodeSet(SceneNodeLC* node);
+	virtual void OnNodeSet(OctreeNode* node);
 	/// Handle scene being assigned, identify our DynamicNavigationMesh.
 	//virtual void OnSceneSet(Scene* scene);
 	/// Handle node transform being dirtied.
-	virtual void OnMarkedDirty(SceneNodeLC* node);
+	virtual void OnMarkedDirty(OctreeNode* node);
 	/// Handle navigation mesh tile added.
 	//void HandleNavigationTileAdded(StringHash eventType, VariantMap& eventData);
 

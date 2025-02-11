@@ -116,8 +116,8 @@ NavigationStreamState::NavigationStreamState(StateMachine& machine) :
 		return Vector3f(pos);
 	});
 
-	//for (unsigned i = 0; i < 100; ++i)
-	//	createMushroom(Vector3f(Utils::random(90.0f) - 45.0f, 0.0f, Utils::random(90.0f) - 45.0f));
+	for (unsigned i = 0; i < 100; ++i)
+		createMushroom(Vector3f(Utils::random(90.0f) - 45.0f, 0.0f, Utils::random(90.0f) - 45.0f));
 
 	createMushroom(Vector3f(0.0f, 0.0f, 0.0f));
 
@@ -303,7 +303,8 @@ void NavigationStreamState::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 	    if (Keyboard::instance().keyDown(Keyboard::KEY_TAB)) {
 		    if (m_mousePicker.clickAll(event.x, event.y, m_camera, nullptr)) {
 			    const MousePickCallbackAll& callbackAll = m_mousePicker.getCallbackAll();
-			    addOrRemoveObject(static_cast<PhysicalObjects>(callbackAll.m_userIndex), static_cast<ShapeNode*>(callbackAll.m_userPoiner));
+				btVector3 pos = callbackAll.m_hitPointWorld[callbackAll.index];
+			    addOrRemoveObject(Physics::VectorFrom(pos), static_cast<PhysicalObjects>(callbackAll.m_userIndex), static_cast<Obstacle*>(callbackAll.m_userPoiner), callbackAll.m_collisionObject);
 		    }
 	    }else if (Keyboard::instance().keyDown(Keyboard::KEY_LSHIFT)) {
 			if (m_mousePicker.clickAll(event.x, event.y, m_camera, nullptr)) {
@@ -496,8 +497,8 @@ void NavigationStreamState::createShapes() {
 }
 
 void NavigationStreamState::createPhysics() {
-	//btCollisionObject* collisionObject = Physics::AddStaticObject(Physics::BtTransform(btVector3(0.0f, 0.0f, 0.0f)), Physics::CreateCollisionShape(&m_plane, btVector3(1.0f, 1.0f, 1.0f)), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER);
-	//collisionObject->setUserIndex(PhysicalObjects::GROUND);
+	btCollisionObject* collisionObject = Physics::AddStaticObject(Physics::BtTransform(btVector3(0.0f, 0.0f, 0.0f)), Physics::CreateCollisionShape(&m_plane, btVector3(1.0f, 1.0f, 1.0f)), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER);
+	collisionObject->setUserIndex(PhysicalObjects::GROUND);
 }
 
 void NavigationStreamState::createScene() {
@@ -637,59 +638,41 @@ void NavigationStreamState::createMushroom(const Vector3f& pos) {
 	shapeNode->setScale(scale);
 	shapeNode->OnOctreeSet(_Octree);
 	shapeNode->setTextureIndex(7);
-	m_navigationMesh->m_obstacles.push_back(new Obstacle(shapeNode));
-	m_navigationMesh->m_obstacles.back()->ownerMesh_ = m_navigationMesh;
-	m_navigationMesh->m_obstacles.back()->OnSetEnabled();
 
-	m_navigationMesh->m_obstacles.back()->SetRadius(scale);
-	m_navigationMesh->m_obstacles.back()->SetHeight(scale);
-	m_navigationMesh->AddObstacle(m_navigationMesh->m_obstacles.back(), false);
-	
+	Obstacle* obstacle = new Obstacle(shapeNode);	
+	obstacle->ownerMesh_ = m_navigationMesh;
+	obstacle->OnSetEnabled();
+	obstacle->SetRadius(scale);
+	obstacle->SetHeight(scale);
+	m_navigationMesh->AddObstacle(obstacle, false);
+	m_navigationMesh->m_obstacles.push_back(obstacle);
 
 	btCollisionObject* collisionObject = Physics::AddStaticObject(Physics::BtTransform(Physics::VectorFrom(pos), Physics::QuaternionFrom(orientation)), Physics::CreateConvexHullShape(&m_mushroom, {scale, scale, scale}), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER);
 	collisionObject->setUserIndex(PhysicalObjects::MUSHRROM);
-	collisionObject->setUserPointer(shapeNode);
-
-	std::cout << "Pointer1: " << shapeNode << std::endl;
-
-	//Physics::AddStaticObject(Physics::BtTransform(Physics::VectorFrom(pos), Physics::QuaternionFrom(orientation)), Physics::CreateCollisionShape(&m_mushroom, { scale, scale, scale }), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER);
+	collisionObject->setUserPointer(obstacle);
 }
 
-void NavigationStreamState::addOrRemoveObject(PhysicalObjects physicalObjects, ShapeNode* shapeNode){
-	std::cout << "Pointer2: " << shapeNode << std::endl;
+void NavigationStreamState::addOrRemoveObject(const Vector3f& pos, PhysicalObjects physicalObjects, Obstacle* obstacle, btCollisionObject* collisionObject){
 
-	shapeNode->OnOctreeSet(nullptr);
-	shapeNode->eraseSelf(); 
-	/*switch (physicalObjects){
+	switch (physicalObjects){
 	  case MUSHRROM:
-		  std::cout << magic_enum::enum_name(physicalObjects) << std::endl;
+		  //std::cout << magic_enum::enum_name(physicalObjects) << "  " << obstacle->m_node << std::endl;
+		  obstacle->isEnabled_ = false;
+		  obstacle->m_node->OnOctreeSet(nullptr);
+		  obstacle->m_node->eraseSelf();
+		  obstacle->m_node = nullptr;
+		  Physics::DeleteCollisionObject(collisionObject);
 		break;
 	  case ENTITY:
-		  std::cout << magic_enum::enum_name(physicalObjects) << std::endl;
+		  //std::cout << magic_enum::enum_name(physicalObjects) << std::endl;
 		break;
 	  case GROUND:
-		  std::cout << magic_enum::enum_name(physicalObjects) << std::endl;
+		  createMushroom(pos);
+		  m_navigationMesh->wait();
 		break;
 	  default:
 		break;
-	}*/
-
-	/*// Raycast and check if we hit a mushroom node. If yes, remove it, if no, create a new one
-	Vector3 hitPos;
-	Drawable* hitDrawable;
-
-	if (Raycast(250.0f, hitPos, hitDrawable))
-	{
-		Node* hitNode = hitDrawable->GetNode();
-
-		// Note that navmesh rebuild happens when the Obstacle component is removed
-		if (hitNode->GetName() == "Mushroom")
-			hitNode->Remove();
-		else if (hitNode->GetName() == "Jack")
-			hitNode->Remove();
-		else
-			CreateMushroom(hitPos);
-	}*/
+	}
 }
 
 void NavigationStreamState::AddMarker(const Vector3f& pos) {

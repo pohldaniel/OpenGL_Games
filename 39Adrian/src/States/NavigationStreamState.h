@@ -63,13 +63,13 @@ private:
 	void spawnJack(const Vector3f& pos);
 	void spawnWoman(const Vector3f& pos);
 	void createMushroom(const Vector3f& pos);
-	void addOrRemoveObject(PhysicalObjects physicalObjects, ShapeNode* shapeNode);
+	void addOrRemoveObject(const Vector3f& pos, PhysicalObjects physicalObjects, Obstacle* obstacle, btCollisionObject* collisionObject);
 
 	bool m_initUi = true;
 	bool m_drawUi = false;
 	bool m_debugTree = false;
-	bool m_debugPhysic = false;
-	bool m_debugNavmesh = true;
+	bool m_debugPhysic = true;
+	bool m_debugNavmesh = false;
 
 	float m_offsetDistance;
 	float m_separaionWeight;

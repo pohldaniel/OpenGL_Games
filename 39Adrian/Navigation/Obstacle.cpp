@@ -1,7 +1,7 @@
 #include "DynamicNavigationMesh.h"
 #include "Obstacle.h"
 
-Obstacle::Obstacle(SceneNodeLC* node) :
+Obstacle::Obstacle(OctreeNode* node) :
 	m_node(node),
 	height_(5.0f),
 	radius_(5.0f),
@@ -37,7 +37,7 @@ void Obstacle::SetRadius(float newRadius) {
 		ownerMesh_->ObstacleChanged(this);
 }
 
-void Obstacle::OnNodeSet(SceneNodeLC* node) {
+void Obstacle::OnNodeSet(OctreeNode* node) {
 	//if (node)
 		//node->AddListener(this);
 }
@@ -69,7 +69,7 @@ void Obstacle::OnNodeSet(SceneNodeLC* node) {
 	}
 }*/
 
-void Obstacle::OnMarkedDirty(SceneNodeLC* node) {
+void Obstacle::OnMarkedDirty(OctreeNode* node) {
 	if (isEnabled_ && ownerMesh_) {
 		/*Scene* scene = GetScene();
 		/// \hack If scene already unassigned, or if it's being destroyed, do nothing
@@ -96,5 +96,6 @@ void Obstacle::OnMarkedDirty(SceneNodeLC* node) {
 }*/
 
 void Obstacle::OnRenderDebug() {
-	DebugRenderer::Get().AddCylinder(m_node->getWorldPosition(), radius_, height_, Vector4f(0.0f, 1.0f, 1.0f, 1.0f));
+	if(isEnabled_)
+	  DebugRenderer::Get().AddCylinder(m_node->getWorldPosition(), radius_, height_, Vector4f(0.0f, 1.0f, 1.0f, 1.0f));
 }

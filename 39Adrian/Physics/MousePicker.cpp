@@ -83,6 +83,9 @@ bool MousePicker::click(unsigned int posX, unsigned int posY, const Camera& came
 
 	if (m_callback.hasHit()) {
 		m_pickingDistance = (m_callback.m_hitPointWorld - m_callback.m_origin).length();	
+		m_callback.m_collisionObject = const_cast<btCollisionObject*>(m_callback.btCollisionWorld::RayResultCallback::m_collisionObject);
+		m_callback.m_userIndex = m_callback.m_collisionObject->getUserIndex();
+		m_callback.m_userPoiner = m_callback.m_collisionObject->getUserPointer();		
 		return collisonObject == nullptr ? true : collisonObject == m_callback.m_collisionObject;
 	} else {
 		return false;
@@ -113,6 +116,7 @@ bool MousePicker::clickAll(unsigned int posX, unsigned int posY, const Camera& c
 		}
 		m_callbackAll.m_userIndex = m_callbackAll.m_collisionObjects[m_callbackAll.index]->getUserIndex();
 		m_callbackAll.m_userPoiner = m_callbackAll.m_collisionObjects[m_callbackAll.index]->getUserPointer();
+		m_callbackAll.m_collisionObject = const_cast<btCollisionObject*>(m_callbackAll.m_collisionObjects[m_callbackAll.index]);
 		return collisonObject == nullptr ? true : m_callbackAll.index >= 0;
 	}else {
 		return false;
