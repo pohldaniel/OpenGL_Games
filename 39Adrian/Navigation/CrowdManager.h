@@ -7,6 +7,7 @@ typedef unsigned int dtPolyRef;
 
 class dtCrowd;
 class dtQueryFilter;
+class dtNavMesh;
 struct dtCrowdAgent;
 
 class CrowdAgent;
@@ -70,6 +71,9 @@ public:
 
 	const CrowdObstacleAvoidanceParams& getObstacleAvoidanceParams(unsigned int obstacleAvoidanceType) const;
 	void setObstacleAvoidanceParams(unsigned int obstacleAvoidanceType, const CrowdObstacleAvoidanceParams& params);
+
+	void resetNavMesh(dtNavMesh* nav);
+	void initNavquery(dtNavMesh* nav);
 
 	/// Get the number of configured obstacle avoidance types.
 	//unsigned GetNumObstacleAvoidanceTypes() const { return numObstacleAvoidanceTypes_; }

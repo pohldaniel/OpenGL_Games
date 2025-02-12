@@ -191,6 +191,8 @@ public:
 	/// Return cell size.
 	float GetCellSize() const { return cellSize_; }
 
+	dtNavMesh* GetDetourNavMesh() { return navMesh_; }
+
 	/// Return cell height.
 	float GetCellHeight() const { return cellHeight_; }
 

@@ -64,16 +64,20 @@ private:
 	void spawnWoman(const Vector3f& pos);
 	void createMushroom(const Vector3f& pos);
 	void addOrRemoveObject(const Vector3f& pos, PhysicalObjects physicalObjects, Obstacle* obstacle, btCollisionObject* collisionObject);
+	void toggleStreaming(bool enabled);
+	void updateStreaming();
 
 	bool m_initUi = true;
 	bool m_drawUi = false;
 	bool m_debugTree = false;
 	bool m_debugPhysic = false;
-	bool m_debugNavmesh = false;
+	bool m_debugNavmesh = true;
+	bool m_useStreaming = false;
 
 	float m_offsetDistance;
 	float m_separaionWeight;
 	float m_height;
+	int m_streamingDistance;
 
 	NavigationPushiness m_mode = NavigationPushiness::NAVIGATIONPUSHINESS_MEDIUM;
 
@@ -96,7 +100,6 @@ private:
 	std::vector<CrowdAgentEntity*> m_entities;
 
 	void addMarker(const Vector3f& pos);
-
 
 	static std::vector<ShapeNode*> Marker;
 	static Octree* _Octree;

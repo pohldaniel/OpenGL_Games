@@ -28,7 +28,7 @@
 #include "DetourMath.h"
 #include "DetourAssert.h"
 #include "DetourAlloc.h"
-
+#include <iostream>
 
 dtCrowd* dtAllocCrowd()
 {
@@ -457,13 +457,21 @@ bool dtCrowd::init(const int maxAgents, const float maxAgentRadius, dtNavMesh* n
 		m_agentAnims[i].active = false;
 	}
 
-	// The navquery is mostly used for local searches, no need for large node pool.
+	return initNavquery(nav);
+}
+
+bool dtCrowd::initNavquery(dtNavMesh* nav) {
+
+	if (m_navquery) {
+		dtFreeNavMeshQuery(m_navquery);
+		m_navquery = 0;
+	}
 	m_navquery = dtAllocNavMeshQuery();
 	if (!m_navquery)
 		return false;
 	if (dtStatusFailed(m_navquery->init(nav, MAX_COMMON_NODES)))
 		return false;
-	
+
 	return true;
 }
 
@@ -1513,4 +1521,8 @@ void dtCrowd::update(const float dt, dtCrowdAgentDebugInfo* debug)
 		dtVset(ag->dvel, 0,0,0);
 	}
 	
+}
+
+void dtCrowd::resetNavMesh(dtNavMesh* nav) {
+	m_pathq.getNavQuery()->resetNavMesh(nav);
 }

@@ -521,7 +521,8 @@ public:
 	const dtNavMesh* getAttachedNavMesh() const { return m_nav; }
 
 	/// @}
-	
+	void resetNavMesh(const dtNavMesh* nav);
+
 private:
 	// Explicitly disabled copy constructor and copy assignment operator
 	dtNavMeshQuery(const dtNavMeshQuery&);

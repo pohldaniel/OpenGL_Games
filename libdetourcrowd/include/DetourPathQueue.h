@@ -70,6 +70,8 @@ public:
 	
 	inline const dtNavMeshQuery* getNavQuery() const { return m_navquery; }
 
+	inline dtNavMeshQuery* getNavQuery() { return m_navquery; }
+
 private:
 	// Explicitly disabled copy constructor and copy assignment operator.
 	dtPathQueue(const dtPathQueue&);

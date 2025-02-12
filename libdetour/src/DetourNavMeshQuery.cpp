@@ -3688,3 +3688,7 @@ bool dtNavMeshQuery::isInClosedList(dtPolyRef ref) const
 
 	return false;
 }
+
+void dtNavMeshQuery::resetNavMesh(const dtNavMesh* nav) {
+	m_nav = nav;
+}

@@ -249,7 +249,7 @@ class dtCrowd
 	bool requestMoveTargetReplan(const int idx, dtPolyRef ref, const float* pos);
 
 	void purge();
-	
+
 public:
 	dtCrowd();
 	~dtCrowd();
@@ -379,6 +379,9 @@ public:
 
 	/// Get agent state
 	const unsigned char getTravelState(const int idx) const;
+
+	void resetNavMesh(dtNavMesh* nav);
+	bool initNavquery(dtNavMesh* nav);
 
 private:
 	// Explicitly disabled copy constructor and copy assignment operator.

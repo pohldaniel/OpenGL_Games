@@ -1,5 +1,6 @@
 #include <iostream>
 #include <DetourCrowd.h>
+#include <DetourNavMesh.h>
 
 #include "../engine/scene/SceneNode.h"
 #include "../engine/DebugRenderer.h"
@@ -283,4 +284,12 @@ void CrowdManager::setObstacleAvoidanceParams(unsigned int obstacleAvoidanceType
 		if (m_numObstacleAvoidanceTypes < obstacleAvoidanceType + 1)
 			m_numObstacleAvoidanceTypes = obstacleAvoidanceType + 1;
 	}
+}
+
+void CrowdManager::resetNavMesh(dtNavMesh* nav) {
+	m_crowd->resetNavMesh(nav);
+}
+
+void CrowdManager::initNavquery(dtNavMesh* nav) {
+	m_crowd->initNavquery(nav);
 }

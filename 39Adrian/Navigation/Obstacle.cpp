@@ -6,13 +6,17 @@ Obstacle::Obstacle(OctreeNode* node) :
 	height_(5.0f),
 	radius_(5.0f),
 	obstacleId_(0),
-	isEnabled_(true){
+	isEnabled_(true),
+	ownerMesh_(nullptr){
 
 }
 
 Obstacle::~Obstacle(){
-	if (obstacleId_ > 0 && ownerMesh_)
+	if (obstacleId_ > 0 && ownerMesh_) {
 		ownerMesh_->RemoveObstacle(this);
+	}
+	ownerMesh_ = nullptr;
+	m_node = nullptr;
 }
 
 void Obstacle::OnSetEnabled() {
@@ -26,15 +30,15 @@ void Obstacle::OnSetEnabled() {
 
 void Obstacle::SetHeight(float newHeight) {
 	height_ = newHeight;
-	if (ownerMesh_)
-		ownerMesh_->ObstacleChanged(this);
+	//if (ownerMesh_)
+		//ownerMesh_->ObstacleChanged(this);
 
 }
 
 void Obstacle::SetRadius(float newRadius) {
 	radius_ = newRadius;
-	if (ownerMesh_)
-		ownerMesh_->ObstacleChanged(this);
+	//if (ownerMesh_)
+		//ownerMesh_->ObstacleChanged(this);
 }
 
 void Obstacle::OnNodeSet(OctreeNode* node) {

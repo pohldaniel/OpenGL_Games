@@ -175,6 +175,16 @@ bool DynamicNavigationMesh::Allocate(const BoundingBox& boundingBox, unsigned ma
 		//URHO3D_LOGWARNING("Navigation mesh root node has scaling. Agent parameters may not work as intended");
 
 	//boundingBox_ = boundingBox.Transformed(node_->GetWorldTransform().Inverse());
+
+	std::vector<NavigationGeometryInfo> geometryList;
+	CollectGeometries(geometryList);
+
+	if (geometryList.empty()) {
+		std::cout << "Nothing to do" << std::endl;
+		return true; // Nothing to do
+	}
+
+	boundingBox_ = boundingBox;
 	maxTiles = NextPowerOfTwo(maxTiles);
 
 	// Calculate number of tiles
@@ -235,11 +245,38 @@ bool DynamicNavigationMesh::Allocate(const BoundingBox& boundingBox, unsigned ma
 		return false;
 	}
 
+	// Build each tile
+	unsigned numTiles = 0;
+
+	for (int z = 0; z < numTilesZ_; ++z)
+	{
+		for (int x = 0; x < numTilesX_; ++x)
+		{
+			TileCacheData tiles[TILECACHE_MAXLAYERS];
+			int layerCt = BuildTile(geometryList, x, z, tiles);
+			for (int i = 0; i < layerCt; ++i)
+			{
+				dtCompressedTileRef tileRef;
+				int status = tileCache_->addTile(tiles[i].data, tiles[i].dataSize, DT_COMPRESSEDTILE_FREE_DATA, &tileRef);
+				if (dtStatusFailed((dtStatus)status))
+				{
+					dtFree(tiles[i].data);
+					tiles[i].data = 0x0;
+				}
+			}
+			tileCache_->buildNavMeshTilesAt(x, z, navMesh_);
+			++numTiles;
+		}
+	}
+
+	// For a full build it's necessary to update the nav mesh
+	// not doing so will cause dependent components to crash, like CrowdManager
+	tileCache_->update(0.0f, navMesh_);
+
 	std::cout << "Allocated empty navigation mesh with max " + std::to_string(maxTiles) + " tiles" << std::endl;
 
 	// Scan for obstacles to insert into us
 	std::vector<SceneNodeLC*> obstacles;
-	//GetScene()->GetChildrenWithComponent<Obstacle>(obstacles, true);
 	for (unsigned i = 0; i < m_obstacles.size(); ++i){
 		Obstacle* obs = m_obstacles[i];
 		if (obs && obs->isEnabled_)
@@ -276,7 +313,6 @@ bool DynamicNavigationMesh::Build() {
 	// Expand bounding box by padding
 	boundingBox_.min -= padding_;
 	boundingBox_.max += padding_;
-
 	{
 		//URHO3D_PROFILE(BuildNavigationMesh);
 
@@ -311,7 +347,7 @@ bool DynamicNavigationMesh::Build() {
 			ReleaseNavigationMesh();
 			return false;
 		}
-
+		
 		dtTileCacheParams tileCacheParams;
 		memset(&tileCacheParams, 0, sizeof(tileCacheParams));
 		rcVcopy(tileCacheParams.orig, &boundingBox_.min[0]);
@@ -380,10 +416,7 @@ bool DynamicNavigationMesh::Build() {
 		}*/
 
 		// Scan for obstacles to insert into us
-		//PODVector<Node*> obstacles;
-		//GetScene()->GetChildrenWithComponent<Obstacle>(obstacles, true);
-		for (unsigned i = 0; i < m_obstacles.size(); ++i)
-		{
+		for (unsigned i = 0; i < m_obstacles.size(); ++i){
 			Obstacle* obs = m_obstacles[i];
 			if (obs && obs->isEnabled_)
 				AddObstacle(obs);
@@ -597,10 +630,13 @@ void DynamicNavigationMesh::AddObstacle(Obstacle* obstacle, bool silent) {
 			tileCache_->update(0.0f, navMesh_);
 		}
 
-		if (dtStatusFailed(tileCache_->addObstacle(pos, obstacle->GetRadius() * 0.5, obstacle->GetHeight() * 0.5, &refHolder))){
+		if (dtStatusFailed(tileCache_->addObstacle(pos, obstacle->GetRadius(), obstacle->GetHeight(), &refHolder))){
 			std::cout << "Failed to add obstacle" << std::endl;
 			return;
 		}
+		obstacle->obstacleId_ = refHolder;
+
+		wait();
 	}
 }
 
@@ -614,6 +650,7 @@ void DynamicNavigationMesh::RemoveObstacle(Obstacle* obstacle, bool silent) {
 			std::cout << "Failed to remove obstacle" << std::endl;
 			return;
 		}
+
 		obstacle->obstacleId_ = 0;
 	}
 }

@@ -23,7 +23,8 @@ SceneNodeLC* NavigationStreamState::Root = nullptr;
 NavigationStreamState::NavigationStreamState(StateMachine& machine) :
 	State(machine, States::NAVIGATION_STREAM),
 	m_separaionWeight(3.0f),
-	m_height(2.0f) {
+	m_height(2.0f),
+	m_streamingDistance(2) {
 
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
@@ -105,7 +106,6 @@ NavigationStreamState::NavigationStreamState(StateMachine& machine) :
 	m_navigationMesh->SetAgentRadius(0.6f);
 	m_navigationMesh->Build();
 
-
 	m_crowdManager = new CrowdManager();
 	m_crowdManager->setNavigationMesh(m_navigationMesh);
 	m_crowdManager->setOnCrowdFormation([&m_crowdManager = m_crowdManager](const Vector3f& pos, CrowdAgent* agent) {
@@ -118,8 +118,6 @@ NavigationStreamState::NavigationStreamState(StateMachine& machine) :
 
 	for (unsigned i = 0; i < 100; ++i)
 		createMushroom(Vector3f(Utils::random(90.0f) - 45.0f, 0.0f, Utils::random(90.0f) - 45.0f));
-
-	m_navigationMesh->wait();
 
 	CrowdObstacleAvoidanceParams params = m_crowdManager->getObstacleAvoidanceParams(0);
 	params.velBias = 0.5f;
@@ -186,6 +184,17 @@ void NavigationStreamState::update() {
 		move |= true;
 	}
 
+	if (keyboard.keyPressed(Keyboard::KEY_T)) {
+		m_useStreaming = !m_useStreaming;
+		toggleStreaming(m_useStreaming);
+	}
+
+	if (keyboard.keyPressed(Keyboard::KEY_R)) {
+		m_navigationMesh->Build();
+		m_crowdManager->resetNavMesh(m_navigationMesh->GetDetourNavMesh());
+		m_crowdManager->initNavquery(m_navigationMesh->GetDetourNavMesh());
+	}
+
 	Mouse &mouse = Mouse::instance();
 
 	if (mouse.buttonDown(Mouse::MouseButton::BUTTON_RIGHT)) {
@@ -212,6 +221,9 @@ void NavigationStreamState::update() {
 
 	m_crowdManager->update(m_dt);
 	//m_navigationMesh->update(m_dt);
+
+	if (m_useStreaming)
+		updateStreaming();
 
 	for (auto&& entity : m_entities)
 		entity->update(m_dt);
@@ -638,8 +650,9 @@ void NavigationStreamState::createMushroom(const Vector3f& pos) {
 	shapeNode->setTextureIndex(7);
 
 	Obstacle* obstacle = new Obstacle(shapeNode);	
+
+	obstacle = new Obstacle(shapeNode);
 	obstacle->ownerMesh_ = m_navigationMesh;
-	obstacle->OnSetEnabled();
 	obstacle->SetRadius(scale);
 	obstacle->SetHeight(scale);
 	m_navigationMesh->AddObstacle(obstacle, false);
@@ -648,18 +661,24 @@ void NavigationStreamState::createMushroom(const Vector3f& pos) {
 	btCollisionObject* collisionObject = Physics::AddStaticObject(Physics::BtTransform(Physics::VectorFrom(pos), Physics::QuaternionFrom(orientation)), Physics::CreateConvexHullShape(&m_mushroom, {scale, scale, scale}), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER);
 	collisionObject->setUserIndex(PhysicalObjects::MUSHRROM);
 	collisionObject->setUserPointer(obstacle);
+	
+	//m_navigationMesh->wait();
 }
 
 void NavigationStreamState::addOrRemoveObject(const Vector3f& pos, PhysicalObjects physicalObjects, Obstacle* obstacle, btCollisionObject* collisionObject){
 
 	switch (physicalObjects){
 	  case MUSHRROM:
-		  //std::cout << magic_enum::enum_name(physicalObjects) << "  " << obstacle->m_node << std::endl;
 		  obstacle->isEnabled_ = false;
 		  obstacle->m_node->OnOctreeSet(nullptr);
 		  obstacle->m_node->eraseSelf();
 		  obstacle->m_node = nullptr;
+
+		  delete obstacle;
+		  m_navigationMesh->m_obstacles.erase(std::remove(m_navigationMesh->m_obstacles.begin(), m_navigationMesh->m_obstacles.end(), obstacle), m_navigationMesh->m_obstacles.end());
+
 		  Physics::DeleteCollisionObject(collisionObject);
+		  m_navigationMesh->wait();
 		break;
 	  case ENTITY:
 		  //std::cout << magic_enum::enum_name(physicalObjects) << std::endl;
@@ -671,6 +690,67 @@ void NavigationStreamState::addOrRemoveObject(const Vector3f& pos, PhysicalObjec
 	  default:
 		break;
 	}
+}
+
+void NavigationStreamState::toggleStreaming(bool enabled) {
+	//DynamicNavigationMesh* navMesh = scene_->GetComponent<DynamicNavigationMesh>();
+	if (enabled){
+		int maxTiles = (2 * m_streamingDistance + 1) * (2 * m_streamingDistance + 1);
+		BoundingBox boundingBox = m_navigationMesh->GetBoundingBox();
+		
+		//SaveNavigationData();
+		m_navigationMesh->Allocate(boundingBox, maxTiles);
+		m_crowdManager->resetNavMesh(m_navigationMesh->GetDetourNavMesh());
+		m_crowdManager->initNavquery(m_navigationMesh->GetDetourNavMesh());
+
+	}else {
+		m_navigationMesh->Build();
+		m_crowdManager->resetNavMesh(m_navigationMesh->GetDetourNavMesh());
+		m_crowdManager->initNavquery(m_navigationMesh->GetDetourNavMesh());
+	}
+}
+
+void NavigationStreamState::updateStreaming() {
+	// Center the navigation mesh at the crowd of jacks
+	Vector3f averageJackPosition;
+	/*if (Node* jackGroup = scene_->GetChild("Jacks"))
+	{
+		const unsigned numJacks = jackGroup->GetNumChildren();
+		for (unsigned i = 0; i < numJacks; ++i)
+			averageJackPosition += jackGroup->GetChild(i)->GetWorldPosition();
+		averageJackPosition /= (float)numJacks;
+	}
+
+	// Compute currently loaded area
+	DynamicNavigationMesh* navMesh = scene_->GetComponent<DynamicNavigationMesh>();
+	const IntVector2 jackTile = navMesh->GetTileIndex(averageJackPosition);
+	const IntVector2 numTiles = navMesh->GetNumTiles();
+	const IntVector2 beginTile = VectorMax(IntVector2::ZERO, jackTile - IntVector2::ONE * streamingDistance_);
+	const IntVector2 endTile = VectorMin(jackTile + IntVector2::ONE * streamingDistance_, numTiles - IntVector2::ONE);
+
+	// Remove tiles
+	for (HashSet<IntVector2>::Iterator i = addedTiles_.Begin(); i != addedTiles_.End();)
+	{
+		const IntVector2 tileIdx = *i;
+		if (beginTile.x_ <= tileIdx.x_ && tileIdx.x_ <= endTile.x_ && beginTile.y_ <= tileIdx.y_ && tileIdx.y_ <= endTile.y_)
+			++i;
+		else
+		{
+			navMesh->RemoveTile(tileIdx);
+			i = addedTiles_.Erase(i);
+		}
+	}
+
+	// Add tiles
+	for (int z = beginTile.y_; z <= endTile.y_; ++z) {
+		for (int x = beginTile.x_; x <= endTile.x_; ++x) {
+			const IntVector2 tileIdx(x, z);
+			if (!navMesh->HasTile(tileIdx) && tileData_.Contains(tileIdx)){
+				addedTiles_.Insert(tileIdx);
+				navMesh->AddTile(tileData_[tileIdx]);
+			}
+		}
+	}*/
 }
 
 void NavigationStreamState::AddMarker(const Vector3f& pos) {
