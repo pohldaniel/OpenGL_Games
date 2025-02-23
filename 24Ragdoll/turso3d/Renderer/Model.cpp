@@ -146,12 +146,14 @@ bool Model::BeginLoad(Stream& source)
 
 		size_t numVertexBuffers = source.Read<unsigned>();
 		vbDescs.resize(numVertexBuffers);
+
 		for (size_t i = 0; i < numVertexBuffers; ++i)
 		{
 			VertexBufferDesc& vbDesc = vbDescs[i];
 
 			vbDesc.numVertices = source.Read<unsigned>();
 			unsigned elementMask = source.Read<unsigned>();
+
 			source.Read<unsigned>(); // morphRangeStart
 			source.Read<unsigned>(); // morphRangeCount
 
@@ -206,11 +208,9 @@ bool Model::BeginLoad(Stream& source)
 				vbDesc.vertexElements.push_back(VertexElement(ELEM_UBYTE4, SEM_BLENDINDICES));
 				vertexSize += 4;
 			}
-
 			vbDesc.vertexSize = vertexSize;
 			vbDesc.vertexData = new unsigned char[vbDesc.numVertices * vertexSize];
 			source.Read(&vbDesc.vertexData[0], vbDesc.numVertices * vertexSize);
-
 			if (elementMask & 1)
 			{
 				vbDesc.cpuPositionData = new Vector3[vbDesc.numVertices];
@@ -233,7 +233,6 @@ bool Model::BeginLoad(Stream& source)
 		}
 
 		size_t numGeometries = source.Read<unsigned>();
-
 		geomDescs.resize(numGeometries);
 
 		std::vector<std::vector<unsigned> > boneMappings;
@@ -250,7 +249,6 @@ bool Model::BeginLoad(Stream& source)
 
 			size_t numLodLevels = source.Read<unsigned>();
 			geomDescs[i].resize(numLodLevels);
-
 			for (size_t j = 0; j < numLodLevels; ++j)
 			{
 				GeometryDesc& geomDesc = geomDescs[i][j];
@@ -261,7 +259,6 @@ bool Model::BeginLoad(Stream& source)
 				geomDesc.ibRef = source.Read<unsigned>();
 				geomDesc.drawStart = source.Read<unsigned>();
 				geomDesc.drawCount = source.Read<unsigned>();
-
 				// Apply bone mappings to geometry
 				if (boneMappingCount)
 					ApplyBoneMappings(geomDesc, boneMappings[i], processedVertices);
@@ -465,7 +462,7 @@ void Model::ApplyBoneMappings(const GeometryDesc& geomDesc, const std::vector<un
         else
             blendIndicesOffset += VertexBuffer::VertexElementSize(vbDesc.vertexElements[i]);
     }
-
+	
     if (!blendIndicesFound)
         return;
 
@@ -485,10 +482,9 @@ void Model::ApplyBoneMappings(const GeometryDesc& geomDesc, const std::vector<un
             std::pair<unsigned, unsigned> vRef = std::make_pair(geomDesc.vbRef, vIndex);
             if (processedVertices.find(vRef) != processedVertices.end())
                 continue;
-            
+
             for (size_t i = 0; i < 4; ++i)
                 blendIndicesData[vIndex * vbDesc.vertexSize + i] = (unsigned char)boneMappings[blendIndicesData[vIndex * vbDesc.vertexSize + i]];
-            
             processedVertices.insert(vRef);
         }
     }
