@@ -673,3 +673,24 @@ void DynamicNavigationMesh::wait() {
 		tileCache_->update(0.0f, navMesh_, &upToDate);
 	}		
 }
+
+void DynamicNavigationMesh::RemoveTile(const std::array<int, 2>& tile) {
+	if (!navMesh_)
+		return;
+
+	dtCompressedTileRef existing[TILECACHE_MAXLAYERS];
+	const int existingCt = tileCache_->getTilesAt(tile[0], tile[1], existing, maxLayers_);
+	for (int i = 0; i < existingCt; ++i){
+		unsigned char* data = 0x0;
+		if (!dtStatusFailed(tileCache_->removeTile(existing[i], &data, 0)) && data != 0x0)
+			dtFree(data);
+	}
+
+	NavigationMesh::RemoveTile(tile);
+}
+
+bool DynamicNavigationMesh::AddTile(const unsigned char*& tileData){
+	//MemoryBuffer buffer(tileData);
+	//return ReadTiles(buffer, false);
+	return false;
+}

@@ -553,8 +553,6 @@ namespace Math {
 		return (T(0) < val) - (val < T(0));
 	}
 
-
-
 	inline Vector3f RotatePoint(Vector3f point, float pitch, float yaw, float roll) {
 		Vector3f newpoint;
 

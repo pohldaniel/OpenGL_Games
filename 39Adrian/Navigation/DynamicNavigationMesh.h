@@ -24,6 +24,9 @@ public:
 	bool Allocate(const BoundingBox& boundingBox, unsigned maxTiles) override;
 	void ReleaseNavigationMesh() override;
 	bool Build() override;
+	void RemoveTile(const std::array<int, 2>& tile) override;
+	bool AddTile(const unsigned char*& tileData) override;
+
 	void update(float dt);
 	void wait();
 
@@ -37,6 +40,8 @@ public:
 	void ReleaseTileCache();
 	/// Build one tile of the navigation mesh. Return true if successful.
 	int BuildTile(std::vector<NavigationGeometryInfo>& geometryList, int x, int z, TileCacheData* tiles);
+
+
 
 	std::vector<Obstacle*> m_obstacles;
 

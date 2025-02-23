@@ -20,11 +20,16 @@ std::vector<ShapeNode*> NavigationStreamState::Marker;
 Octree* NavigationStreamState::_Octree = nullptr;
 SceneNodeLC* NavigationStreamState::Root = nullptr;
 
+auto hash = [](const std::array<int, 2>& p) {  return std::hash<int>()(p[0]) ^ std::hash<int>()(p[1]) << 1; };
+auto equal = [](const std::array<int, 2>& p1, const std::array<int, 2>& p2) { return p1[0] == p2[0] && p1[1] == p2[1]; };
+
 NavigationStreamState::NavigationStreamState(StateMachine& machine) :
 	State(machine, States::NAVIGATION_STREAM),
 	m_separaionWeight(3.0f),
 	m_height(2.0f),
-	m_streamingDistance(2) {
+	m_streamingDistance(2),
+	m_addedTiles(0, hash, equal),
+	m_tileData(0, hash, equal) {
 
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
@@ -712,45 +717,45 @@ void NavigationStreamState::toggleStreaming(bool enabled) {
 
 void NavigationStreamState::updateStreaming() {
 	// Center the navigation mesh at the crowd of jacks
-	Vector3f averageJackPosition;
-	/*if (Node* jackGroup = scene_->GetChild("Jacks"))
-	{
-		const unsigned numJacks = jackGroup->GetNumChildren();
-		for (unsigned i = 0; i < numJacks; ++i)
-			averageJackPosition += jackGroup->GetChild(i)->GetWorldPosition();
-		averageJackPosition /= (float)numJacks;
+	Vector3f averageAgentPosition;
+	const float numAgents = static_cast<float>(m_crowdManager->getAgents().size());
+	for (auto agent : m_crowdManager->getAgents()) {
+		averageAgentPosition += agent->getPosition();
 	}
+	averageAgentPosition /= numAgents;
 
+	
 	// Compute currently loaded area
-	DynamicNavigationMesh* navMesh = scene_->GetComponent<DynamicNavigationMesh>();
-	const IntVector2 jackTile = navMesh->GetTileIndex(averageJackPosition);
-	const IntVector2 numTiles = navMesh->GetNumTiles();
-	const IntVector2 beginTile = VectorMax(IntVector2::ZERO, jackTile - IntVector2::ONE * streamingDistance_);
-	const IntVector2 endTile = VectorMin(jackTile + IntVector2::ONE * streamingDistance_, numTiles - IntVector2::ONE);
+	//DynamicNavigationMesh* navMesh = scene_->GetComponent<DynamicNavigationMesh>();
+	const std::array<int, 2> jackTile = m_navigationMesh->GetTileIndex(averageAgentPosition);
+	const std::array<int, 2> numTiles = m_navigationMesh->GetNumTiles();
+
+	const std::array<int, 2> beginTile = { std::max(0, jackTile[0] - m_streamingDistance), std::max(0, jackTile[1] - m_streamingDistance) };
+	const std::array<int, 2> endTile = { std::min(jackTile[0] + m_streamingDistance, numTiles[0] - 1), std::min(jackTile[1] + m_streamingDistance, numTiles[1] - 1) };
 
 	// Remove tiles
-	for (HashSet<IntVector2>::Iterator i = addedTiles_.Begin(); i != addedTiles_.End();)
-	{
-		const IntVector2 tileIdx = *i;
-		if (beginTile.x_ <= tileIdx.x_ && tileIdx.x_ <= endTile.x_ && beginTile.y_ <= tileIdx.y_ && tileIdx.y_ <= endTile.y_)
+	for (std::unordered_set<std::array<int, 2>>::iterator i = m_addedTiles.begin(); i != m_addedTiles.end();){
+		const std::array<int, 2> tileIdx = *i;
+		if (beginTile[0] <= tileIdx[0] && tileIdx[0] <= endTile[0] && beginTile[1] <= tileIdx[1] && tileIdx[1] <= endTile[1])
 			++i;
 		else
 		{
-			navMesh->RemoveTile(tileIdx);
-			i = addedTiles_.Erase(i);
+			m_navigationMesh->RemoveTile(tileIdx);
+			i = m_addedTiles.erase(i);
 		}
+		i = m_addedTiles.erase(i);
 	}
 
 	// Add tiles
-	for (int z = beginTile.y_; z <= endTile.y_; ++z) {
-		for (int x = beginTile.x_; x <= endTile.x_; ++x) {
-			const IntVector2 tileIdx(x, z);
-			if (!navMesh->HasTile(tileIdx) && tileData_.Contains(tileIdx)){
-				addedTiles_.Insert(tileIdx);
-				navMesh->AddTile(tileData_[tileIdx]);
+	for (int z = beginTile[1]; z <= endTile[1]; ++z) {
+		for (int x = beginTile[0]; x <= endTile[0]; ++x) {
+			const std::array<int, 2> tileIdx = { x, z };			
+			if (!m_navigationMesh->HasTile(tileIdx) && m_tileData.find(tileIdx) != m_tileData.end()){
+				m_addedTiles.insert(tileIdx);
+				m_navigationMesh->AddTile(m_tileData[tileIdx]);
 			}
 		}
-	}*/
+	}
 }
 
 void NavigationStreamState::AddMarker(const Vector3f& pos) {

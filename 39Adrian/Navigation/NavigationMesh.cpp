@@ -260,13 +260,6 @@ unsigned char* NavigationMesh::GetTileData(const std::array<int, 2>& tile) const
 	return nullptr;
 }
 
-bool NavigationMesh::AddTile(const unsigned char*& tileData) {
-	return false;
-}
-
-void NavigationMesh::RemoveTile(const std::array<int, 2>& tile) {
-
-}
 
 void NavigationMesh::RemoveAllTiles() {
 	
@@ -807,4 +800,37 @@ Vector3f NavigationMesh::GetRandomPointInCircle(const Vector3f& center, float ra
 
 float NavigationMesh::Random() {
 	return Dist(MersenTwist) * Scale;
+}
+
+std::array<int, 2> NavigationMesh::GetTileIndex(const Vector3f& position) const{
+
+	const float tileEdgeLength = (float)tileSize_ * cellSize_;
+	const Vector3f localPosition = position - boundingBox_.min;
+	const Vector2f localPosition2D(localPosition[0], localPosition[2]);
+
+	const std::array<int, 2> max = { std::max(0, static_cast<int>(floor(localPosition2D[0] / tileEdgeLength))), std::max(0, static_cast<int>(floor(localPosition2D[1] / tileEdgeLength))) };
+
+	return { std::min(max[0],  GetNumTiles()[0] - 1), std::min(max[1],  GetNumTiles()[1] - 1) };		
+}
+
+
+bool NavigationMesh::AddTile(const unsigned char*& tileData) {
+	return false;
+}
+
+void NavigationMesh::RemoveTile(const std::array<int, 2>& tile) {
+	if (!navMesh_)
+		return;
+
+	const dtTileRef tileRef = navMesh_->getTileRefAt(tile[0], tile[1], 0);
+	if (!tileRef)
+		return;
+
+	navMesh_->removeTile(tileRef, 0, 0);
+}
+
+bool NavigationMesh::HasTile(const std::array<int, 2>& tile) const{
+	if (navMesh_)
+		return !!navMesh_->getTileAt(tile[0], tile[1], 0);
+	return false;
 }

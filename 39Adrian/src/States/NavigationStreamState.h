@@ -1,6 +1,10 @@
 #pragma once
 
 #include <vector>
+#include <array>
+#include <unordered_set>
+#include <unordered_map>
+
 #include <engine/input/KeyboardEventListener.h>
 #include <engine/input/MouseEventListener.h>
 #include <engine/animationNew/AnimationController.h>
@@ -95,7 +99,7 @@ private:
 	CrowdManager* m_crowdManager;
 	CrowdAgent *m_crowdAgentBeta, *m_crowdAgentJack;
 	AnimationController *m_animationControllerBeta, *m_animationControllerJack;
-
+	//std::hash_set<std::array<int, 2>> m_addedTiles;
 
 	std::vector<CrowdAgentEntity*> m_entities;
 
@@ -104,4 +108,8 @@ private:
 	static std::vector<ShapeNode*> Marker;
 	static Octree* _Octree;
 	static SceneNodeLC* Root;
+
+	
+	std::unordered_set< std::array<int, 2>, std::function<size_t(const std::array<int, 2>&)>, std::function<bool(const std::array<int, 2>&, const std::array<int, 2>&)>> m_addedTiles;
+	std::unordered_map< std::array<int, 2>, const unsigned char*, std::function<size_t(const std::array<int, 2>&)>, std::function<bool(const std::array<int, 2>&, const std::array<int, 2>&)>> m_tileData;
 };
