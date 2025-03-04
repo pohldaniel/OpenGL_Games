@@ -142,20 +142,21 @@ bool CrowdManager::createCrowd(){
 		return false;
 	}
 
-	/*if (recreate){
+	if (recreate){
 		// Reconfigure the newly initialized crowd
 		//SetQueryFilterTypesAttr(queryFilterTypeConfiguration);
 		//SetObstacleAvoidanceTypesAttr(obstacleAvoidanceTypeConfiguration);
 		
 		// Re-add the existing crowd agents
-		std::vector<CrowdAgent*> agents = GetAgents();
-		for (unsigned i = 0; i < agents.size(); ++i){
-			if (agents[i]->AddAgentToCrowd(true) == -1){
-				std::cout << "CrowdManager: " << agents.size() - i << " crowd agents orphaned" << std::endl;
+		//std::vector<CrowdAgent*> agents = GetAgents();
+		std::cout << "ssssssssssss" << std::endl;
+		for (unsigned i = 0; i < m_agents.size(); ++i){
+			if (m_agents[i]->addAgentToCrowd(true) == -1){
+				std::cout << "CrowdManager: " << m_agents.size() - i << " crowd agents orphaned" << std::endl;
 				break;
 			}
 		}
-	}*/
+	}
 
 	return true;
 }

@@ -256,7 +256,7 @@ bool NavigationMesh::Build(const std::array<int, 2>& from, const std::array<int,
 	return false;
 }
 
-Buffer NavigationMesh::GetTileData(const std::array<int, 2>& tile) const {
+Buffer NavigationMesh::GetTileData(Buffer& buffer, const std::array<int, 2>& tile) const {
 	return Buffer();
 }
 

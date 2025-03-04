@@ -29,7 +29,7 @@ public:
 	bool Build() override;
 	void RemoveTile(const std::array<int, 2>& tile) override;
 	bool AddTile(const Buffer& tileData) override;
-	Buffer GetTileData(const std::array<int, 2>& tile) const override;
+	Buffer GetTileData(Buffer& buffer, const std::array<int, 2>& tile) const override;
 	void WriteTiles(Buffer& dest, int x, int z) const;
 	bool ReadTiles(const Buffer& source);
 

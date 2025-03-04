@@ -245,34 +245,6 @@ bool DynamicNavigationMesh::Allocate(const BoundingBox& boundingBox, unsigned ma
 		return false;
 	}
 
-	// Build each tile
-	unsigned numTiles = 0;
-
-	for (int z = 0; z < numTilesZ_; ++z)
-	{
-		for (int x = 0; x < numTilesX_; ++x)
-		{
-			TileCacheData tiles[TILECACHE_MAXLAYERS];
-			int layerCt = BuildTile(geometryList, x, z, tiles);
-			for (int i = 0; i < layerCt; ++i)
-			{
-				dtCompressedTileRef tileRef;
-				int status = tileCache_->addTile(tiles[i].data, tiles[i].dataSize, DT_COMPRESSEDTILE_FREE_DATA, &tileRef);
-				if (dtStatusFailed((dtStatus)status))
-				{
-					dtFree(tiles[i].data);
-					tiles[i].data = 0x0;
-				}
-			}
-			tileCache_->buildNavMeshTilesAt(x, z, navMesh_);
-			++numTiles;
-		}
-	}
-
-	// For a full build it's necessary to update the nav mesh
-	// not doing so will cause dependent components to crash, like CrowdManager
-	tileCache_->update(0.0f, navMesh_);
-
 	std::cout << "Allocated empty navigation mesh with max " + std::to_string(maxTiles) + " tiles" << std::endl;
 
 	// Scan for obstacles to insert into us
@@ -690,8 +662,6 @@ void DynamicNavigationMesh::RemoveTile(const std::array<int, 2>& tile) {
 }
 
 bool DynamicNavigationMesh::AddTile(const Buffer& tileData){
-	//MemoryBuffer buffer(tileData);
-	//return ReadTiles(buffer, false);
 	return ReadTiles(tileData);
 }
 
@@ -700,7 +670,7 @@ bool DynamicNavigationMesh::ReadTiles(const Buffer& source){
 	size_t size = source.size;
 	size_t offset = 0;
 
-	while (size >= 0){
+	while (size > 0){
 		dtTileCacheLayerHeader header;
 		memcpy(&header, source.data + offset, sizeof(dtTileCacheLayerHeader));
 
@@ -712,8 +682,7 @@ bool DynamicNavigationMesh::ReadTiles(const Buffer& source){
 			std::cout << "Could not allocate data for navigation mesh tile" << std::endl;
 			return false;
 		}
-
-		memcpy(&data, source.data + offset + sizeof(dtTileCacheLayerHeader) + sizeof(int), dataSize);
+		memcpy(data, source.data + offset + sizeof(dtTileCacheLayerHeader) + sizeof(int), dataSize);
 		if (dtStatusFailed(tileCache_->addTile(data, dataSize, DT_TILE_FREE_DATA, 0))){
 			std::cout << "Failed to add tile" << std::endl;
 			dtFree(data);
@@ -724,7 +693,8 @@ bool DynamicNavigationMesh::ReadTiles(const Buffer& source){
 		if (m_tileQueue.empty() || m_tileQueue.back() != tileIdx)
 			m_tileQueue.push_back(tileIdx);
 
-		size -= offset + sizeof(dtTileCacheLayerHeader) + sizeof(int);
+		size -= sizeof(dtTileCacheLayerHeader) + sizeof(int) + dataSize;
+		offset += sizeof(dtTileCacheLayerHeader) + sizeof(int) + dataSize;
 	}
 
 	for (unsigned i = 0; i < m_tileQueue.size(); ++i)
@@ -734,10 +704,9 @@ bool DynamicNavigationMesh::ReadTiles(const Buffer& source){
 	return true;
 }
 
-Buffer DynamicNavigationMesh::GetTileData(const std::array<int, 2>& tile) const {
-	Buffer ret;
-	WriteTiles(ret, tile[0], tile[1]);
-	return ret;
+Buffer DynamicNavigationMesh::GetTileData(Buffer& buffer, const std::array<int, 2>& tile) const {
+	WriteTiles(buffer, tile[0], tile[1]);
+	return buffer;
 }
 
 void DynamicNavigationMesh::WriteTiles(Buffer& dest, int x, int z) const {
@@ -754,7 +723,9 @@ void DynamicNavigationMesh::WriteTiles(Buffer& dest, int x, int z) const {
 		dest.resize(sizeof(dtTileCacheLayerHeader) + sizeof(int) + tile->dataSize);
 		memcpy(dest.data + offset, tile->header, sizeof(dtTileCacheLayerHeader));
 		memcpy(dest.data + offset + sizeof(dtTileCacheLayerHeader), &tile->dataSize, sizeof(int));
-		memcpy(dest.data + offset  + sizeof(dtTileCacheLayerHeader) + sizeof(int), tile->data, tile->dataSize);
+		memcpy(dest.data + offset + sizeof(dtTileCacheLayerHeader) + sizeof(int), tile->data, tile->dataSize);
+
+		//std::cout << dest.data[0] << "  " << dest.data[1] << "  " << dest.data[2] << "  " << dest.data[3] << std::endl;
 
 		//dest.Write(tile->header, sizeof(dtTileCacheLayerHeader));
 		//dest.WriteInt(tile->dataSize);

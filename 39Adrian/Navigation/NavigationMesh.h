@@ -160,7 +160,7 @@ public:
 	/// Rebuild part of the navigation mesh in the rectangular area. Return true if successful.
 	virtual bool Build(const std::array<int,2>& from, const std::array<int, 2>& to);
 	/// Return tile data.
-	virtual Buffer GetTileData(const std::array<int, 2>& tile) const;
+	virtual Buffer GetTileData(Buffer& buffer, const std::array<int, 2>& tile) const;
 	/// Add tile to navigation mesh.
 	virtual bool AddTile(const Buffer& tileData);
 	/// Remove tile from navigation mesh.

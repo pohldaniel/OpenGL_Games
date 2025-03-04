@@ -28,7 +28,6 @@
 #include "DetourMath.h"
 #include "DetourAssert.h"
 #include "DetourAlloc.h"
-#include <iostream>
 
 dtCrowd* dtAllocCrowd()
 {
