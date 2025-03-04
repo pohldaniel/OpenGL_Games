@@ -689,8 +689,86 @@ void DynamicNavigationMesh::RemoveTile(const std::array<int, 2>& tile) {
 	NavigationMesh::RemoveTile(tile);
 }
 
-bool DynamicNavigationMesh::AddTile(const unsigned char*& tileData){
+bool DynamicNavigationMesh::AddTile(const Buffer& tileData){
 	//MemoryBuffer buffer(tileData);
 	//return ReadTiles(buffer, false);
-	return false;
+	return ReadTiles(tileData);
+}
+
+bool DynamicNavigationMesh::ReadTiles(const Buffer& source){
+	m_tileQueue.clear();
+	size_t size = source.size;
+	size_t offset = 0;
+
+	while (size >= 0){
+		dtTileCacheLayerHeader header;
+		memcpy(&header, source.data + offset, sizeof(dtTileCacheLayerHeader));
+
+		int dataSize;
+
+		memcpy(&dataSize, source.data + offset + sizeof(dtTileCacheLayerHeader), sizeof(int));
+		unsigned char* data = (unsigned char*)dtAlloc(dataSize, DT_ALLOC_PERM);
+		if (!data){
+			std::cout << "Could not allocate data for navigation mesh tile" << std::endl;
+			return false;
+		}
+
+		memcpy(&data, source.data + offset + sizeof(dtTileCacheLayerHeader) + sizeof(int), dataSize);
+		if (dtStatusFailed(tileCache_->addTile(data, dataSize, DT_TILE_FREE_DATA, 0))){
+			std::cout << "Failed to add tile" << std::endl;
+			dtFree(data);
+			return false;
+		}
+
+		const std::array<int, 2> tileIdx = { header.tx, header.ty };
+		if (m_tileQueue.empty() || m_tileQueue.back() != tileIdx)
+			m_tileQueue.push_back(tileIdx);
+
+		size -= offset + sizeof(dtTileCacheLayerHeader) + sizeof(int);
+	}
+
+	for (unsigned i = 0; i < m_tileQueue.size(); ++i)
+		tileCache_->buildNavMeshTilesAt(m_tileQueue[i][0], m_tileQueue[i][1], navMesh_);
+
+	tileCache_->update(0, navMesh_);
+	return true;
+}
+
+Buffer DynamicNavigationMesh::GetTileData(const std::array<int, 2>& tile) const {
+	Buffer ret;
+	WriteTiles(ret, tile[0], tile[1]);
+	return ret;
+}
+
+void DynamicNavigationMesh::WriteTiles(Buffer& dest, int x, int z) const {
+	dtCompressedTileRef tiles[TILECACHE_MAXLAYERS];
+	const int ct = tileCache_->getTilesAt(x, z, tiles, maxLayers_);
+	for (int i = 0; i < ct; ++i){
+
+		const dtCompressedTile* tile = tileCache_->getTileByRef(tiles[i]);
+		if (!tile || !tile->header || !tile->dataSize)
+			continue; // Don't write "void-space" tiles
+					  // The header conveniently has the majority of the information required
+
+		size_t offset = dest.size;
+		dest.resize(sizeof(dtTileCacheLayerHeader) + sizeof(int) + tile->dataSize);
+		memcpy(dest.data + offset, tile->header, sizeof(dtTileCacheLayerHeader));
+		memcpy(dest.data + offset + sizeof(dtTileCacheLayerHeader), &tile->dataSize, sizeof(int));
+		memcpy(dest.data + offset  + sizeof(dtTileCacheLayerHeader) + sizeof(int), tile->data, tile->dataSize);
+
+		//dest.Write(tile->header, sizeof(dtTileCacheLayerHeader));
+		//dest.WriteInt(tile->dataSize);
+		//dest.Write(tile->data, (unsigned)tile->dataSize);
+	}
+}
+
+void Buffer::resize(size_t _size) {
+	size_t newSize = size + _size;
+	unsigned char* newArr = new unsigned char[newSize];
+
+	memcpy(newArr, data, size * sizeof(unsigned char));
+
+	size = newSize;
+	delete[] data;
+	data = newArr;
 }

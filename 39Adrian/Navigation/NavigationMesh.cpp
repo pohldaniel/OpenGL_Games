@@ -256,8 +256,21 @@ bool NavigationMesh::Build(const std::array<int, 2>& from, const std::array<int,
 	return false;
 }
 
-unsigned char* NavigationMesh::GetTileData(const std::array<int, 2>& tile) const {
-	return nullptr;
+Buffer NavigationMesh::GetTileData(const std::array<int, 2>& tile) const {
+	return Buffer();
+}
+
+void NavigationMesh::WriteTile(unsigned char*& dest, int x, int z) const{
+	const dtNavMesh* navMesh = navMesh_;
+	const dtMeshTile* tile = navMesh->getTileAt(x, z, 0);
+	if (!tile)
+		return;
+
+	/*dest.WriteInt(x);
+	dest.WriteInt(z);
+	dest.WriteUInt(navMesh->getTileRef(tile));
+	dest.WriteUInt((unsigned)tile->dataSize);
+	dest.Write(tile->data, (unsigned)tile->dataSize);*/
 }
 
 
@@ -814,7 +827,7 @@ std::array<int, 2> NavigationMesh::GetTileIndex(const Vector3f& position) const{
 }
 
 
-bool NavigationMesh::AddTile(const unsigned char*& tileData) {
+bool NavigationMesh::AddTile(const Buffer& tileData) {
 	return false;
 }
 
@@ -830,7 +843,14 @@ void NavigationMesh::RemoveTile(const std::array<int, 2>& tile) {
 }
 
 bool NavigationMesh::HasTile(const std::array<int, 2>& tile) const{
-	if (navMesh_)
-		return !!navMesh_->getTileAt(tile[0], tile[1], 0);
+	if (navMesh_) {
+		bool tmp = !!navMesh_->getTileAt(tile[0], tile[1], 0);
+
+		//std::cout << tmp << std::endl;
+
+		return tmp;
+	}
+
+
 	return false;
 }

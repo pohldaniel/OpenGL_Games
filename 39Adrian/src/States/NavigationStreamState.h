@@ -70,6 +70,7 @@ private:
 	void addOrRemoveObject(const Vector3f& pos, PhysicalObjects physicalObjects, Obstacle* obstacle, btCollisionObject* collisionObject);
 	void toggleStreaming(bool enabled);
 	void updateStreaming();
+	void saveNavigationData();
 
 	bool m_initUi = true;
 	bool m_drawUi = false;
@@ -111,5 +112,5 @@ private:
 
 	
 	std::unordered_set< std::array<int, 2>, std::function<size_t(const std::array<int, 2>&)>, std::function<bool(const std::array<int, 2>&, const std::array<int, 2>&)>> m_addedTiles;
-	std::unordered_map< std::array<int, 2>, const unsigned char*, std::function<size_t(const std::array<int, 2>&)>, std::function<bool(const std::array<int, 2>&, const std::array<int, 2>&)>> m_tileData;
+	std::unordered_map< std::array<int, 2>, Buffer, std::function<size_t(const std::array<int, 2>&)>, std::function<bool(const std::array<int, 2>&, const std::array<int, 2>&)>> m_tileData;
 };

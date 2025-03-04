@@ -92,6 +92,19 @@ inline unsigned LogBaseTwo(unsigned value)
 	return ret;
 }
 
+struct Buffer {
+	
+	Buffer() : size(0), data(nullptr){
+
+	}
+
+	void resize(size_t size);
+
+	size_t size;
+	unsigned char* data;
+	
+};
+
 class NavigationMesh
 {
 	friend class CrowdManager;
@@ -147,9 +160,9 @@ public:
 	/// Rebuild part of the navigation mesh in the rectangular area. Return true if successful.
 	virtual bool Build(const std::array<int,2>& from, const std::array<int, 2>& to);
 	/// Return tile data.
-	virtual unsigned char* GetTileData(const std::array<int, 2>& tile) const;
+	virtual Buffer GetTileData(const std::array<int, 2>& tile) const;
 	/// Add tile to navigation mesh.
-	virtual bool AddTile(const unsigned char*& tileData);
+	virtual bool AddTile(const Buffer& tileData);
 	/// Remove tile from navigation mesh.
 	virtual void RemoveTile(const std::array<int, 2>& tile);
 	/// Remove all tiles from navigation mesh.
@@ -269,7 +282,7 @@ public:
 	std::vector<Navigable*> m_navigables;
 	//private:
 	/// Write tile data.
-	//void WriteTile(Serializer& dest, int x, int z) const;
+	void WriteTile(unsigned char*& dest, int x, int z) const;
 	/// Read tile data to the navigation mesh.
 	//bool ReadTile(Deserializer& source, bool silent);
 

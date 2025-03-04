@@ -11,6 +11,9 @@ struct dtTileCacheMeshProcess;
 class OffMeshConnection;
 class Obstacle;
 
+
+
+
 class DynamicNavigationMesh : public NavigationMesh {
 
 	struct TileCacheData;
@@ -25,7 +28,10 @@ public:
 	void ReleaseNavigationMesh() override;
 	bool Build() override;
 	void RemoveTile(const std::array<int, 2>& tile) override;
-	bool AddTile(const unsigned char*& tileData) override;
+	bool AddTile(const Buffer& tileData) override;
+	Buffer GetTileData(const std::array<int, 2>& tile) const override;
+	void WriteTiles(Buffer& dest, int x, int z) const;
+	bool ReadTiles(const Buffer& source);
 
 	void update(float dt);
 	void wait();
@@ -56,5 +62,5 @@ public:
 	/// Maximum number of layers that are allowed to be constructed.
 	unsigned maxLayers_;
 
-	
+	std::vector<std::array<int, 2>> m_tileQueue;
 };

@@ -100,7 +100,7 @@ NavigationStreamState::NavigationStreamState(StateMachine& machine) :
 	m_navigationMesh = new DynamicNavigationMesh();
 	m_navigationMesh->m_navigables = m_navigables;
 	m_navigationMesh->SetPadding(Vector3f(0.0f, 10.0f, 0.0f));
-	m_navigationMesh->SetTileSize(16);
+	m_navigationMesh->SetTileSize(32);
 
 	m_navigationMesh->SetCellSize(0.3);
 	m_navigationMesh->SetCellHeight(0.2f);
@@ -131,9 +131,9 @@ NavigationStreamState::NavigationStreamState(StateMachine& machine) :
 	params.adaptiveDepth = 3;
 	m_crowdManager->setObstacleAvoidanceParams(0, params);
 
-	spawnJack(Vector3f(5.0f, 0.5f, -30.0f));
-	spawnBeta(Vector3f(-5.0f, 0.5f, -30.0f));
-	spawnWoman(Vector3f(-10.0f, 0.5f, -30.0f));
+	spawnJack(Vector3f(-5.0f, 0.0f, 20.0f));
+	//spawnBeta(Vector3f(-5.0f, 0.5f, -30.0f));
+	//spawnWoman(Vector3f(-10.0f, 0.5f, -30.0f));
 
 	auto shader = Globals::shaderManager.getAssetPointer("map");
 	shader->use();
@@ -703,7 +703,7 @@ void NavigationStreamState::toggleStreaming(bool enabled) {
 		int maxTiles = (2 * m_streamingDistance + 1) * (2 * m_streamingDistance + 1);
 		BoundingBox boundingBox = m_navigationMesh->GetBoundingBox();
 		
-		//SaveNavigationData();
+		saveNavigationData();
 		m_navigationMesh->Allocate(boundingBox, maxTiles);
 		m_crowdManager->resetNavMesh(m_navigationMesh->GetDetourNavMesh());
 		m_crowdManager->initNavquery(m_navigationMesh->GetDetourNavMesh());
@@ -723,18 +723,24 @@ void NavigationStreamState::updateStreaming() {
 		averageAgentPosition += agent->getPosition();
 	}
 	averageAgentPosition /= numAgents;
+	//std::cout << "Average: " << averageAgentPosition[0] << "  " << averageAgentPosition[1] << "  " << averageAgentPosition[2] <<  std::endl;
 
-	
 	// Compute currently loaded area
 	//DynamicNavigationMesh* navMesh = scene_->GetComponent<DynamicNavigationMesh>();
 	const std::array<int, 2> jackTile = m_navigationMesh->GetTileIndex(averageAgentPosition);
 	const std::array<int, 2> numTiles = m_navigationMesh->GetNumTiles();
 
+	//std::cout << "Jack Tile: " << jackTile[0] << "  " << jackTile[1] << std::endl;
+	//std::cout << "Num Tile: " << numTiles[0] << "  " << numTiles[1] << std::endl;
+
 	const std::array<int, 2> beginTile = { std::max(0, jackTile[0] - m_streamingDistance), std::max(0, jackTile[1] - m_streamingDistance) };
 	const std::array<int, 2> endTile = { std::min(jackTile[0] + m_streamingDistance, numTiles[0] - 1), std::min(jackTile[1] + m_streamingDistance, numTiles[1] - 1) };
 
+	//std::cout << "Begin Tile: " << beginTile[0] << "  " << beginTile[1] << std::endl;
+	//std::cout << "End Tile: " << endTile[0] << "  " << endTile[1] << std::endl;
+
 	// Remove tiles
-	for (std::unordered_set<std::array<int, 2>>::iterator i = m_addedTiles.begin(); i != m_addedTiles.end();){
+	/*for (std::unordered_set<std::array<int, 2>>::iterator i = m_addedTiles.begin(); i != m_addedTiles.end();){
 		const std::array<int, 2> tileIdx = *i;
 		if (beginTile[0] <= tileIdx[0] && tileIdx[0] <= endTile[0] && beginTile[1] <= tileIdx[1] && tileIdx[1] <= endTile[1])
 			++i;
@@ -744,18 +750,22 @@ void NavigationStreamState::updateStreaming() {
 			i = m_addedTiles.erase(i);
 		}
 		i = m_addedTiles.erase(i);
-	}
+	}*/
 
 	// Add tiles
 	for (int z = beginTile[1]; z <= endTile[1]; ++z) {
 		for (int x = beginTile[0]; x <= endTile[0]; ++x) {
-			const std::array<int, 2> tileIdx = { x, z };			
+			const std::array<int, 2> tileIdx = { x, z };	
+			bool tmp = m_navigationMesh->HasTile(tileIdx);
+			std::cout << "Has Tile: " << tmp << "  " << tileIdx[0] << "  " << tileIdx[1] << "  " << m_tileData[tileIdx].size << std::endl;
 			if (!m_navigationMesh->HasTile(tileIdx) && m_tileData.find(tileIdx) != m_tileData.end()){
+				//std::cout << tileIdx[0] << "  " << tileIdx[1] << std::endl;
 				m_addedTiles.insert(tileIdx);
 				m_navigationMesh->AddTile(m_tileData[tileIdx]);
 			}
 		}
 	}
+	std::cout << "##########" << std::endl;
 }
 
 void NavigationStreamState::AddMarker(const Vector3f& pos) {
@@ -763,4 +773,19 @@ void NavigationStreamState::AddMarker(const Vector3f& pos) {
 	Marker.back()->setPosition(pos);
 	Marker.back()->setTextureIndex(4);
 	Marker.back()->OnOctreeSet(_Octree);
+}
+
+void NavigationStreamState::saveNavigationData()
+{
+	DynamicNavigationMesh* navMesh = m_navigationMesh;
+	m_tileData.clear();
+	m_addedTiles.clear();
+	const  std::array<int, 2> numTiles = navMesh->GetNumTiles();
+	for (int z = 0; z < numTiles[1]; ++z)
+		for (int x = 0; x <= numTiles[0]; ++x)
+		{
+			const std::array<int, 2> tileIdx = { x, z };
+			m_tileData[tileIdx] = navMesh->GetTileData(tileIdx);
+		}
+
 }
