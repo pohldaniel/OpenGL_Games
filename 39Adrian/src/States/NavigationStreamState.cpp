@@ -100,7 +100,7 @@ NavigationStreamState::NavigationStreamState(StateMachine& machine) :
 	m_navigationMesh = new DynamicNavigationMesh();
 	m_navigationMesh->m_navigables = m_navigables;
 	m_navigationMesh->SetPadding(Vector3f(0.0f, 10.0f, 0.0f));
-	m_navigationMesh->SetTileSize(16);
+	m_navigationMesh->SetTileSize(32);
 
 	m_navigationMesh->SetCellSize(0.3);
 	m_navigationMesh->SetCellHeight(0.2f);
@@ -110,8 +110,6 @@ NavigationStreamState::NavigationStreamState(StateMachine& machine) :
 	m_navigationMesh->SetAgentHeight(2.0f);
 	m_navigationMesh->SetAgentRadius(0.6f);
 	m_navigationMesh->Build();
-
-	
 
 	m_crowdManager = new CrowdManager();
 	m_crowdManager->setNavigationMesh(m_navigationMesh);
@@ -123,8 +121,10 @@ NavigationStreamState::NavigationStreamState(StateMachine& machine) :
 		return Vector3f(pos);
 	});
 
-	//for (unsigned i = 0; i < 100; ++i)
-	//	createMushroom(Vector3f(Utils::random(90.0f) - 45.0f, 0.0f, Utils::random(90.0f) - 45.0f));
+	m_navigationMesh->m_crowdManager = m_crowdManager;
+
+	for (unsigned i = 0; i < 100; ++i)
+		createMushroom(Vector3f(Utils::random(90.0f) - 45.0f, 0.0f, Utils::random(90.0f) - 45.0f));
 
 	CrowdObstacleAvoidanceParams params = m_crowdManager->getObstacleAvoidanceParams(0);
 	params.velBias = 0.5f;
@@ -196,16 +196,6 @@ void NavigationStreamState::update() {
 	if (keyboard.keyPressed(Keyboard::KEY_T)) {
 		m_useStreaming = !m_useStreaming;
 		toggleStreaming(m_useStreaming);
-	
-		/*m_navigationMesh->wait();
-		for (int i = 0; i < 500000; i++) {
-
-		}
-		spawnBeta(Vector3f(-5.0f, 0.0f, 18.0f));
-		spawnBeta(Vector3f(-5.0f, 0.0f, 18.0f));
-		spawnBeta(Vector3f(-5.0f, 0.0f, 18.0f));
-		spawnBeta(Vector3f(-5.0f, 0.0f, 18.0f));
-		spawnBeta(Vector3f(-5.0f, 0.0f, 18.0f));*/
 	}
 
 	if (keyboard.keyPressed(Keyboard::KEY_R)) {
@@ -341,15 +331,13 @@ void NavigationStreamState::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 			if (m_mousePicker.clickAll(event.x, event.y, m_camera, nullptr)) {
 				const MousePickCallbackAll& callbackAll = m_mousePicker.getCallbackAll();
 				btVector3 pos = callbackAll.m_hitPointWorld[callbackAll.index];
-				//spawnBeta(Physics::VectorFrom(pos));
-				spawnBeta(Vector3f(-5.0f, 0.0f, 18.0f));
+				spawnBeta(Physics::VectorFrom(pos));
 			}
 		}else if (Keyboard::instance().keyDown(Keyboard::KEY_LCTRL)) {
 			if (m_mousePicker.clickAll(event.x, event.y, m_camera, nullptr)) {
 				const MousePickCallbackAll& callbackAll = m_mousePicker.getCallbackAll();
 				btVector3 pos = callbackAll.m_hitPointWorld[callbackAll.index];
 				spawnJack(Physics::VectorFrom(pos));
-				//spawnJack(Vector3f(-5.0f, 0.0f, 18.0f));
 			}
 		}else {
 			clearMarker();
@@ -719,15 +707,13 @@ void NavigationStreamState::addOrRemoveObject(const Vector3f& pos, PhysicalObjec
 void NavigationStreamState::toggleStreaming(bool enabled) {
 	if (enabled){
 		int maxTiles = (2 * m_streamingDistance + 1) * (2 * m_streamingDistance + 1);
-		BoundingBox boundingBox = m_navigationMesh->GetBoundingBox();
-		
+		BoundingBox boundingBox = m_navigationMesh->GetBoundingBox();		
 		saveNavigationData();
 		m_navigationMesh->Allocate(boundingBox, maxTiles);		
 		m_crowdManager->resetNavMesh(m_navigationMesh->GetDetourNavMesh());
 		m_crowdManager->initNavquery(m_navigationMesh->GetDetourNavMesh());	
 		updateStreaming();
-		m_crowdManager->reCreateCrowd();
-
+		//m_crowdManager->reCreateCrowd();
 	}else {
 		m_navigationMesh->Build();
 		m_crowdManager->resetNavMesh(m_navigationMesh->GetDetourNavMesh());
@@ -746,7 +732,6 @@ void NavigationStreamState::updateStreaming() {
 	averageAgentPosition /= numAgents;
 
 	// Compute currently loaded area
-	//DynamicNavigationMesh* navMesh = scene_->GetComponent<DynamicNavigationMesh>();
 	const std::array<int, 2> jackTile = m_navigationMesh->GetTileIndex(averageAgentPosition);
 	const std::array<int, 2> numTiles = m_navigationMesh->GetNumTiles();
 
@@ -754,17 +739,15 @@ void NavigationStreamState::updateStreaming() {
 	const std::array<int, 2> endTile = { std::min(jackTile[0] + m_streamingDistance, numTiles[0] - 1), std::min(jackTile[1] + m_streamingDistance, numTiles[1] - 1) };
 
 	// Remove tiles
-	/*for (std::unordered_set<std::array<int, 2>>::iterator i = m_addedTiles.begin(); i != m_addedTiles.end();){
+	for (std::unordered_set<std::array<int, 2>>::iterator i = m_addedTiles.begin(); i != m_addedTiles.end();){
 		const std::array<int, 2> tileIdx = *i;
 		if (beginTile[0] <= tileIdx[0] && tileIdx[0] <= endTile[0] && beginTile[1] <= tileIdx[1] && tileIdx[1] <= endTile[1])
 			++i;
-		else
-		{
+		else{
 			m_navigationMesh->RemoveTile(tileIdx);
 			i = m_addedTiles.erase(i);
 		}
-		i = m_addedTiles.erase(i);
-	}*/
+	}
 
 	// Add tiles
 	for (int z = beginTile[1]; z <= endTile[1]; ++z) {

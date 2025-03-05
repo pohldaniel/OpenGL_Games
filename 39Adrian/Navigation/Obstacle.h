@@ -39,6 +39,7 @@ public:
 
 	/// Render debug information.
 	void OnRenderDebug();
+	void OnTileAdded(const std::array<int, 2>& tile);
 
 	OctreeNode* m_node;
 

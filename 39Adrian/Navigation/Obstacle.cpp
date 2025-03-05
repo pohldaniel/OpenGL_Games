@@ -103,3 +103,8 @@ void Obstacle::OnRenderDebug() {
 	if(isEnabled_)
 	  DebugRenderer::Get().AddCylinder(m_node->getWorldPosition(), radius_, height_, Vector4f(0.0f, 1.0f, 1.0f, 1.0f));
 }
+
+void Obstacle::OnTileAdded(const std::array<int, 2>& tile) {
+	if (isEnabled_ && ownerMesh_ && ownerMesh_->IsObstacleInTile(this, tile))
+		ownerMesh_->ObstacleChanged(this);
+}

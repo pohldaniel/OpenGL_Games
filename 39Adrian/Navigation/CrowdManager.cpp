@@ -118,7 +118,6 @@ int CrowdManager::addAgent(CrowdAgent* agent, const Vector3f& pos, bool add){
 		if(add)
 			m_agents.push_back(agent);
 	}
-	std::cout << "Id: " << id << std::endl;
 	return id;
 }
 

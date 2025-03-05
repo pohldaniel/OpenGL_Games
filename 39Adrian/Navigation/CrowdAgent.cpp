@@ -3,6 +3,7 @@
 
 #include "../engine/DebugRenderer.h"
 #include "CrowdAgent.h"
+#include "NavigationMesh.h"
 
 extern const char* NAVIGATION_CATEGORY;
 
@@ -111,7 +112,6 @@ bool CrowdAgent::isInCrowd() const {
 }
 
 int CrowdAgent::addAgentToCrowd(bool force, const Vector3f& initialPosition, bool add){
-	std::cout << "Pos: " << initialPosition[0] << "  " << initialPosition[1] << "  " << initialPosition[2] << std::endl;
 	if (force || !isInCrowd()){
 		m_agentCrowdId = m_crowdManager->addAgent(this, initialPosition, add);
 		if (m_agentCrowdId == -1)
@@ -122,8 +122,14 @@ int CrowdAgent::addAgentToCrowd(bool force, const Vector3f& initialPosition, boo
 		m_previousPosition = getPosition();
 	}
 	updateParameters();
-	std::cout << "Id: " << m_agentCrowdId << std::endl;
 	return m_agentCrowdId;
+}
+
+void CrowdAgent::removeAgentFromCrowd() {
+	if (isInCrowd()){
+		m_crowdManager->removeAgent(this);
+		m_agentCrowdId = -1;
+	}
 }
 
 void CrowdAgent::updateParameters(unsigned int scope) {
@@ -373,6 +379,21 @@ void CrowdAgent::resetAgent() {
 
 bool CrowdAgent::isActive() {
 	return m_crowdManager->getCrowd()->isActive(m_agentCrowdId, 5.0f);
+}
+
+void CrowdAgent::OnTileAdded(const std::array<int, 2>& tile){
+	if (!m_crowdManager)
+		return;
+
+	NavigationMesh* mesh = m_crowdManager->getNavigationMesh();
+
+	const Vector3f pos = getPosition();
+	const std::array<int, 2> agentTile = mesh->GetTileIndex(pos);
+	const BoundingBox boundingBox = mesh->GetTileBoudningBox(agentTile);
+	if (tile == agentTile && isInCrowd()){
+		removeAgentFromCrowd();
+		addAgentToCrowd(true, pos, false);
+	}
 }
 
 const Vector3f& CrowdAgent::GetNearestPos() {

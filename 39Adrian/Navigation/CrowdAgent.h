@@ -47,6 +47,7 @@ public:
 	CrowdAgent();
 	virtual ~CrowdAgent();
 	void OnRenderDebug();
+	void OnTileAdded(const std::array<int, 2>& tile);
 
 	void setVelocityCallback(const CrowdAgentVelocityCallback& callback);
 	void setHeightCallback(const CrowdAgentHeightCallback& callback);
@@ -85,7 +86,8 @@ public:
 	virtual void OnCrowdVelocityUpdate(dtCrowdAgent* ag, float* pos, float dt);
 	virtual void OnCrowdPositionUpdate(dtCrowdAgent* ag, float* pos, float dt);
 	int addAgentToCrowd(bool force = false, const Vector3f& initialPosition = Vector3f::ZERO, bool add = true);
-	
+	void removeAgentFromCrowd();
+
 	void setOnPositionVelocityUpdate(std::function<void(const Vector3f& pos, const Vector3f& vel)> fun) const;
 	void setOnInactive(std::function<void()> fun) const;
 	void setOnTarget(std::function<void(const Vector3f& pos)> fun) const;

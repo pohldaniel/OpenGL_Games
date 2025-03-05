@@ -844,13 +844,7 @@ void NavigationMesh::RemoveTile(const std::array<int, 2>& tile) {
 
 bool NavigationMesh::HasTile(const std::array<int, 2>& tile) const{
 	if (navMesh_) {
-		bool tmp = !!navMesh_->getTileAt(tile[0], tile[1], 0);
-
-		//std::cout << tmp << std::endl;
-
-		return tmp;
+		return !!navMesh_->getTileAt(tile[0], tile[1], 0);
 	}
-
-
 	return false;
 }

@@ -9,6 +9,7 @@
 #include "NavBuildData.h"
 #include "Obstacle.h"
 #include "OffMeshConnection.h"
+#include "CrowdAgent.h"
 
 static const int DEFAULT_MAX_OBSTACLES = 1024;
 static const int DEFAULT_MAX_LAYERS = 16;
@@ -246,15 +247,7 @@ bool DynamicNavigationMesh::Allocate(const BoundingBox& boundingBox, unsigned ma
 	}
 
 	std::cout << "Allocated empty navigation mesh with max " + std::to_string(maxTiles) + " tiles" << std::endl;
-
-	// Scan for obstacles to insert into us
-	std::vector<SceneNodeLC*> obstacles;
-	for (unsigned i = 0; i < m_obstacles.size(); ++i){
-		Obstacle* obs = m_obstacles[i];
-		if (obs && obs->isEnabled_)
-			AddObstacle(obs);
-	}
-
+	//addObstacles();
 	return true;
 }
 
@@ -308,8 +301,7 @@ bool DynamicNavigationMesh::Build() {
 		params.maxPolys = maxPolys;
 
 		navMesh_ = dtAllocNavMesh();
-		if (!navMesh_)
-		{
+		if (!navMesh_){
 			std::cout << "Could not allocate navigation mesh" << std::endl;
 			return false;
 		}
@@ -351,18 +343,14 @@ bool DynamicNavigationMesh::Build() {
 		// Build each tile
 		unsigned numTiles = 0;
 
-		for (int z = 0; z < numTilesZ_; ++z)
-		{
-			for (int x = 0; x < numTilesX_; ++x)
-			{
+		for (int z = 0; z < numTilesZ_; ++z){
+			for (int x = 0; x < numTilesX_; ++x){
 				TileCacheData tiles[TILECACHE_MAXLAYERS];
 				int layerCt = BuildTile(geometryList, x, z, tiles);
-				for (int i = 0; i < layerCt; ++i)
-				{
+				for (int i = 0; i < layerCt; ++i){
 					dtCompressedTileRef tileRef;
 					int status = tileCache_->addTile(tiles[i].data, tiles[i].dataSize, DT_COMPRESSEDTILE_FREE_DATA, &tileRef);
-					if (dtStatusFailed((dtStatus)status))
-					{
+					if (dtStatusFailed((dtStatus)status)){
 						dtFree(tiles[i].data);
 						tiles[i].data = 0x0;
 					}
@@ -374,26 +362,11 @@ bool DynamicNavigationMesh::Build() {
 
 		// For a full build it's necessary to update the nav mesh
 	    // not doing so will cause dependent components to crash, like CrowdManager
-		tileCache_->update(0.0f, navMesh_);
-
+		//tileCache_->update(0.0f, navMesh_);
+		wait();
 		std::cout << "Built navigation mesh with " + std::to_string(numTiles) + " tiles" << std::endl;
 
-		// Send a notification event to concerned parties that we've been fully rebuilt
-		/*{
-			using namespace NavigationMeshRebuilt;
-			VariantMap& buildEventParams = GetContext()->GetEventDataMap();
-			buildEventParams[P_NODE] = node_;
-			buildEventParams[P_MESH] = this;
-			SendEvent(E_NAVIGATION_MESH_REBUILT, buildEventParams);
-		}*/
-
-		// Scan for obstacles to insert into us
-		for (unsigned i = 0; i < m_obstacles.size(); ++i){
-			Obstacle* obs = m_obstacles[i];
-			if (obs && obs->isEnabled_)
-				AddObstacle(obs);
-		}
-
+		addObstacles();
 		return true;
 	}
 }
@@ -441,15 +414,12 @@ int DynamicNavigationMesh::BuildTile(std::vector<NavigationGeometryInfo>& geomet
 		return 0; // Nothing to do
 
 	build.heightField_ = rcAllocHeightfield();
-	if (!build.heightField_)
-	{
+	if (!build.heightField_){
 		std::cout << "Could not allocate heightfield" << std::endl;
 		return 0;
 	}
 
-	if (!rcCreateHeightfield(build.ctx_, *build.heightField_, cfg.width, cfg.height, cfg.bmin, cfg.bmax, cfg.cs,
-		cfg.ch))
-	{
+	if (!rcCreateHeightfield(build.ctx_, *build.heightField_, cfg.width, cfg.height, cfg.bmin, cfg.bmax, cfg.cs,cfg.ch)){
 		std::cout << "Could not create heightfield" << std::endl;
 		return 0;
 	}
@@ -542,28 +512,13 @@ int DynamicNavigationMesh::BuildTile(std::vector<NavigationGeometryInfo>& geomet
 		header.hmin = (unsigned short)layer->hmin;
 		header.hmax = (unsigned short)layer->hmax;
 
-		if (dtStatusFailed(
-			dtBuildTileCacheLayer(compressor_/*compressor*/, &header, layer->heights, layer->areas/*areas*/, layer->cons,
-				&(tiles[retCt].data), &tiles[retCt].dataSize)))
-		{
+		if (dtStatusFailed(dtBuildTileCacheLayer(compressor_, &header, layer->heights, layer->areas/*areas*/, layer->cons,&(tiles[retCt].data), &tiles[retCt].dataSize))){
 			std::cout << "Failed to build tile cache layers" << std::endl;
 			return 0;
 		}
 		else
 			++retCt;
 	}
-
-	// Send a notification of the rebuild of this tile to anyone interested
-	/*{
-		using namespace NavigationAreaRebuilt;
-		VariantMap& eventData = GetContext()->GetEventDataMap();
-		eventData[P_NODE] = GetNode();
-		eventData[P_MESH] = this;
-		eventData[P_BOUNDSMIN] = Variant(tileBoundingBox.min_);
-		eventData[P_BOUNDSMAX] = Variant(tileBoundingBox.max_);
-		SendEvent(E_NAVIGATION_AREA_REBUILT, eventData);
-	}*/
-
 	return retCt;
 }
 
@@ -599,7 +554,7 @@ void DynamicNavigationMesh::AddObstacle(Obstacle* obstacle, bool silent) {
 		// Because dtTileCache doesn't process obstacle requests while updating tiles
 		// it's necessary update until sufficient request space is available
 		while (tileCache_->isObstacleQueueFull()) {
-			tileCache_->update(0.0f, navMesh_);
+			wait();
 		}
 
 		if (dtStatusFailed(tileCache_->addObstacle(pos, obstacle->GetRadius(), obstacle->GetHeight(), &refHolder))){
@@ -615,9 +570,11 @@ void DynamicNavigationMesh::AddObstacle(Obstacle* obstacle, bool silent) {
 void DynamicNavigationMesh::RemoveObstacle(Obstacle* obstacle, bool silent) {
 	
 	if (tileCache_ && obstacle->obstacleId_ > 0) {
-		while (tileCache_->isObstacleQueueFull())
-			tileCache_->update(0.0f, navMesh_);
-
+		while (tileCache_->isObstacleQueueFull()) {
+			//tileCache_->update(0.0f, navMesh_);
+			wait();
+		}
+		
 		if (dtStatusFailed(tileCache_->removeObstacle(obstacle->obstacleId_))){
 			std::cout << "Failed to remove obstacle" << std::endl;
 			return;
@@ -700,7 +657,16 @@ bool DynamicNavigationMesh::ReadTiles(const Buffer& source){
 	for (unsigned i = 0; i < m_tileQueue.size(); ++i)
 		tileCache_->buildNavMeshTilesAt(m_tileQueue[i][0], m_tileQueue[i][1], navMesh_);
 
-	tileCache_->update(0, navMesh_);
+	wait();
+
+	for (unsigned j = 0; j < m_tileQueue.size(); ++j) {
+		for(auto&& obstacle : m_obstacles)
+			obstacle->OnTileAdded(m_tileQueue[j]);
+
+		for(auto&& agent : m_crowdManager->getAgents())
+			agent->OnTileAdded(m_tileQueue[j]);
+	}
+
 	return true;
 }
 
@@ -724,13 +690,21 @@ void DynamicNavigationMesh::WriteTiles(Buffer& dest, int x, int z) const {
 		memcpy(dest.data + offset, tile->header, sizeof(dtTileCacheLayerHeader));
 		memcpy(dest.data + offset + sizeof(dtTileCacheLayerHeader), &tile->dataSize, sizeof(int));
 		memcpy(dest.data + offset + sizeof(dtTileCacheLayerHeader) + sizeof(int), tile->data, tile->dataSize);
-
-		//std::cout << dest.data[0] << "  " << dest.data[1] << "  " << dest.data[2] << "  " << dest.data[3] << std::endl;
-
-		//dest.Write(tile->header, sizeof(dtTileCacheLayerHeader));
-		//dest.WriteInt(tile->dataSize);
-		//dest.Write(tile->data, (unsigned)tile->dataSize);
 	}
+}
+
+void DynamicNavigationMesh::addObstacles() {
+	for (unsigned i = 0; i < m_obstacles.size(); ++i) {
+		Obstacle* obs = m_obstacles[i];
+		if (obs && obs->isEnabled_)
+			AddObstacle(obs);
+	}
+}
+
+bool DynamicNavigationMesh::IsObstacleInTile(Obstacle* obstacle, const std::array<int, 2>& tile) const {
+	const BoundingBox tileBoundingBox = GetTileBoudningBox(tile);
+	const Vector3f obstaclePosition = obstacle->m_node->getWorldPosition();
+	return tileBoundingBox.distance(obstaclePosition) < obstacle->GetRadius();
 }
 
 void Buffer::resize(size_t _size) {
