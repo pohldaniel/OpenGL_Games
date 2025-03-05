@@ -99,7 +99,7 @@ void CrowdManager::setNavigationMesh(NavigationMesh* navigationMesh){
 	}
 }
 
-int CrowdManager::addAgent(CrowdAgent* agent, const Vector3f& pos){
+int CrowdManager::addAgent(CrowdAgent* agent, const Vector3f& pos, bool add){
 	if (!m_crowd || !m_navigationMesh || !agent)
 		return -1;
 	dtCrowdAgentParams params;
@@ -115,8 +115,10 @@ int CrowdManager::addAgent(CrowdAgent* agent, const Vector3f& pos){
 	if (id > -1) {
 		agent->m_agentCrowdId = id;
 		agent->m_crowdManager = this;
-		m_agents.push_back(agent);
+		if(add)
+			m_agents.push_back(agent);
 	}
+	std::cout << "Id: " << id << std::endl;
 	return id;
 }
 
@@ -130,7 +132,7 @@ bool CrowdManager::createCrowd(){
 	if (recreate){
 		//queryFilterTypeConfiguration = GetQueryFilterTypesAttr();
 		//obstacleAvoidanceTypeConfiguration = GetObstacleAvoidanceTypesAttr();
-		dtFreeCrowd(m_crowd);
+		//dtFreeCrowd(m_crowd);
 	}
 	m_crowd = dtAllocCrowd();
 
@@ -148,17 +150,45 @@ bool CrowdManager::createCrowd(){
 		//SetObstacleAvoidanceTypesAttr(obstacleAvoidanceTypeConfiguration);
 		
 		// Re-add the existing crowd agents
-		//std::vector<CrowdAgent*> agents = GetAgents();
-		std::cout << "ssssssssssss" << std::endl;
-		for (unsigned i = 0; i < m_agents.size(); ++i){
-			if (m_agents[i]->addAgentToCrowd(true) == -1){
+		/*size_t size = m_agents.size();
+		for (unsigned i = 0; i < size; ++i){
+			if (m_agents[i]->addAgentToCrowd(true, m_agents[i]->getPosition()) == -1){
 				std::cout << "CrowdManager: " << m_agents.size() - i << " crowd agents orphaned" << std::endl;
 				break;
 			}
-		}
+		}*/
 	}
 
 	return true;
+}
+
+bool CrowdManager::reCreateCrowd() {
+	size_t size = m_agents.size();
+	for (unsigned i = 0; i < size; ++i) {
+		Vector3f pos = m_agents[i]->getPosition();
+
+		removeAgent(m_agents[i]);
+
+		
+		addAgent(m_agents[i], pos, false);
+		m_agents[i]->setHeight(2.0f, true);
+		m_agents[i]->setMaxSpeed(6.0f, true);
+		m_agents[i]->setMaxAccel(10.0f, true);
+		m_agents[i]->setRadius(0.5f, true);
+		m_agents[i]->setNavigationPushiness(NAVIGATIONPUSHINESS_MEDIUM, true);
+		m_agents[i]->setSeparationWeight(3.0f, true);
+	}
+	return true;
+}
+
+void CrowdManager::removeAgent(CrowdAgent* agent)
+{
+	if (!m_crowd || !agent)
+		return;
+	dtCrowdAgent* agt = m_crowd->getEditableAgent(agent->m_agentCrowdId);
+	if (agt)
+		agt->params.userData = 0;
+	m_crowd->removeAgent(agent->m_agentCrowdId);
 }
 
 std::vector<CrowdAgent*> CrowdManager::getAgents() {

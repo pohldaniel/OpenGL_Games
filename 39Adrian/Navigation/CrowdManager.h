@@ -61,7 +61,9 @@ public:
 	NavigationMesh* getNavigationMesh() const;
 
 	bool createCrowd();
-	int addAgent(CrowdAgent* agent, const Vector3f& pos);
+	bool reCreateCrowd();
+	int addAgent(CrowdAgent* agent, const Vector3f& pos, bool add = true);
+	void removeAgent(CrowdAgent* agent);
 
 	const dtCrowdAgent* getDetourCrowdAgent(int agent) const;
 	dtCrowd* getCrowd() const;

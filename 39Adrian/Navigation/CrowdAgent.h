@@ -51,12 +51,12 @@ public:
 	void setVelocityCallback(const CrowdAgentVelocityCallback& callback);
 	void setHeightCallback(const CrowdAgentHeightCallback& callback);
 	void setTargetPosition(const Vector3f& position);
-	void setMaxAccel(float maxAccel);
-	void setMaxSpeed(float maxSpeed);
-	void setRadius(float radius);
-	void setHeight(float height);
-	void setNavigationPushiness(NavigationPushiness val);
-	void setSeparationWeight(float separationWeight);
+	void setMaxAccel(float maxAccel, bool force = false);
+	void setMaxSpeed(float maxSpeed, bool force = false);
+	void setRadius(float radius, bool force = false);
+	void setHeight(float height, bool force = false);
+	void setNavigationPushiness(NavigationPushiness val, bool force = false);
+	void setSeparationWeight(float separationWeight, bool force = false);
 
 	const CrowdAgentVelocityCallback& getVelocityCallback() const;
 	const CrowdAgentHeightCallback& getHeightCallback() const;
@@ -84,7 +84,7 @@ public:
 
 	virtual void OnCrowdVelocityUpdate(dtCrowdAgent* ag, float* pos, float dt);
 	virtual void OnCrowdPositionUpdate(dtCrowdAgent* ag, float* pos, float dt);
-	int addAgentToCrowd(bool force = false, const Vector3f& initialPosition = Vector3f::ZERO);
+	int addAgentToCrowd(bool force = false, const Vector3f& initialPosition = Vector3f::ZERO, bool add = true);
 	
 	void setOnPositionVelocityUpdate(std::function<void(const Vector3f& pos, const Vector3f& vel)> fun) const;
 	void setOnInactive(std::function<void()> fun) const;
@@ -93,7 +93,6 @@ public:
 
 	void resetAgent();
 	bool isActive();
-	bool m_update = false;
 
 	static const Vector3f& GetNearestPos();
 	static void SetNearestPos(const Vector3f& nearestPos);

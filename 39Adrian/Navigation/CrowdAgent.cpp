@@ -110,10 +110,10 @@ bool CrowdAgent::isInCrowd() const {
 	return m_crowdManager && m_agentCrowdId != -1;
 }
 
-int CrowdAgent::addAgentToCrowd(bool force, const Vector3f& initialPosition){
-
+int CrowdAgent::addAgentToCrowd(bool force, const Vector3f& initialPosition, bool add){
+	std::cout << "Pos: " << initialPosition[0] << "  " << initialPosition[1] << "  " << initialPosition[2] << std::endl;
 	if (force || !isInCrowd()){
-		m_agentCrowdId = m_crowdManager->addAgent(this, initialPosition);
+		m_agentCrowdId = m_crowdManager->addAgent(this, initialPosition, add);
 		if (m_agentCrowdId == -1)
 			return -1;
 
@@ -122,6 +122,7 @@ int CrowdAgent::addAgentToCrowd(bool force, const Vector3f& initialPosition){
 		m_previousPosition = getPosition();
 	}
 	updateParameters();
+	std::cout << "Id: " << m_agentCrowdId << std::endl;
 	return m_agentCrowdId;
 }
 
@@ -275,43 +276,44 @@ NavigationPushiness CrowdAgent::getNavigationPushiness() const {
 	return m_navPushiness;
 }
 
-void CrowdAgent::setMaxAccel(float maxAccel){
-	if (maxAccel != m_maxAccel && maxAccel >= 0.f){
+void CrowdAgent::setMaxAccel(float maxAccel, bool force){
+	if (maxAccel != m_maxAccel && maxAccel >= 0.f ||force){
 		m_maxAccel = maxAccel;
+		
 		updateParameters(SCOPE_BASE_PARAMS);
 	}
 }
 
-void CrowdAgent::setMaxSpeed(float maxSpeed){
-	if (maxSpeed != m_maxSpeed && maxSpeed >= 0.f){
+void CrowdAgent::setMaxSpeed(float maxSpeed, bool force){
+	if (maxSpeed != m_maxSpeed && maxSpeed >= 0.f || force){
 		m_maxSpeed = maxSpeed;
 		updateParameters(SCOPE_BASE_PARAMS);
 	}
 }
 
-void CrowdAgent::setRadius(float radius){
-	if (radius != m_radius && radius > 0.f){
+void CrowdAgent::setRadius(float radius, bool force){
+	if (radius != m_radius && radius > 0.f || force){
 		m_radius = radius;
 		updateParameters(SCOPE_BASE_PARAMS | SCOPE_NAVIGATION_PUSHINESS_PARAMS);
 	}
 }
 
-void CrowdAgent::setHeight(float height){
-	if (height != m_height && height > 0.f){
+void CrowdAgent::setHeight(float height, bool force){
+	if (height != m_height && height > 0.f || force){
 		m_height = height;
 		updateParameters(SCOPE_BASE_PARAMS);
 	}
 }
 
-void CrowdAgent::setSeparationWeight(float separationWeight) {
-	if (separationWeight != m_separationWeight && separationWeight > 0.f) {
+void CrowdAgent::setSeparationWeight(float separationWeight, bool force) {
+	if (separationWeight != m_separationWeight && separationWeight > 0.f || force) {
 		m_separationWeight = separationWeight;
 		updateParameters(SCOPE_SEPARATION_WEIGHT);
 	}
 }
 
-void CrowdAgent::setNavigationPushiness(NavigationPushiness val){
-	if (val != m_navPushiness){
+void CrowdAgent::setNavigationPushiness(NavigationPushiness val, bool force){
+	if (val != m_navPushiness || force){
 		m_navPushiness = val;
 		updateParameters(SCOPE_NAVIGATION_PUSHINESS_PARAMS);
 	}

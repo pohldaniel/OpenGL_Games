@@ -122,10 +122,9 @@ NavigationStreamState::NavigationStreamState(StateMachine& machine) :
 		}
 		return Vector3f(pos);
 	});
-	m_useStreaming = !m_useStreaming;
-	toggleStreaming(m_useStreaming);
-	for (unsigned i = 0; i < 100; ++i)
-		createMushroom(Vector3f(Utils::random(90.0f) - 45.0f, 0.0f, Utils::random(90.0f) - 45.0f));
+
+	//for (unsigned i = 0; i < 100; ++i)
+	//	createMushroom(Vector3f(Utils::random(90.0f) - 45.0f, 0.0f, Utils::random(90.0f) - 45.0f));
 
 	CrowdObstacleAvoidanceParams params = m_crowdManager->getObstacleAvoidanceParams(0);
 	params.velBias = 0.5f;
@@ -135,6 +134,8 @@ NavigationStreamState::NavigationStreamState(StateMachine& machine) :
 	m_crowdManager->setObstacleAvoidanceParams(0, params);
 
 	spawnJack(Vector3f(-5.0f, 0.0f, 20.0f));
+	//spawnAgent(Vector3f(-5.0f, 0.0f, 20.0f));
+	//spawnJack(Vector3f(0.0f, 0.0f, 0.0f));
 	//spawnBeta(Vector3f(-5.0f, 0.5f, -30.0f));
 	//spawnWoman(Vector3f(-10.0f, 0.5f, -30.0f));
 
@@ -195,6 +196,16 @@ void NavigationStreamState::update() {
 	if (keyboard.keyPressed(Keyboard::KEY_T)) {
 		m_useStreaming = !m_useStreaming;
 		toggleStreaming(m_useStreaming);
+	
+		/*m_navigationMesh->wait();
+		for (int i = 0; i < 500000; i++) {
+
+		}
+		spawnBeta(Vector3f(-5.0f, 0.0f, 18.0f));
+		spawnBeta(Vector3f(-5.0f, 0.0f, 18.0f));
+		spawnBeta(Vector3f(-5.0f, 0.0f, 18.0f));
+		spawnBeta(Vector3f(-5.0f, 0.0f, 18.0f));
+		spawnBeta(Vector3f(-5.0f, 0.0f, 18.0f));*/
 	}
 
 	if (keyboard.keyPressed(Keyboard::KEY_R)) {
@@ -227,11 +238,13 @@ void NavigationStreamState::update() {
 	m_frustum.updateVertices(m_camera.getPerspectiveMatrix(), m_camera.getViewMatrix());
 	m_frustum.m_frustumSATData.calculate(m_frustum);
 
-	m_crowdManager->update(m_dt);
-	//m_navigationMesh->update(m_dt);
+	
 
 	if (m_useStreaming)
 		updateStreaming();
+
+	m_crowdManager->update(m_dt);
+	//m_navigationMesh->update(m_dt);
 
 	for (auto&& entity : m_entities)
 		entity->update(m_dt);
@@ -328,13 +341,15 @@ void NavigationStreamState::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 			if (m_mousePicker.clickAll(event.x, event.y, m_camera, nullptr)) {
 				const MousePickCallbackAll& callbackAll = m_mousePicker.getCallbackAll();
 				btVector3 pos = callbackAll.m_hitPointWorld[callbackAll.index];
-				spawnBeta(Physics::VectorFrom(pos));
+				//spawnBeta(Physics::VectorFrom(pos));
+				spawnBeta(Vector3f(-5.0f, 0.0f, 18.0f));
 			}
 		}else if (Keyboard::instance().keyDown(Keyboard::KEY_LCTRL)) {
 			if (m_mousePicker.clickAll(event.x, event.y, m_camera, nullptr)) {
 				const MousePickCallbackAll& callbackAll = m_mousePicker.getCallbackAll();
 				btVector3 pos = callbackAll.m_hitPointWorld[callbackAll.index];
 				spawnJack(Physics::VectorFrom(pos));
+				//spawnJack(Vector3f(-5.0f, 0.0f, 18.0f));
 			}
 		}else {
 			clearMarker();
@@ -566,7 +581,8 @@ void NavigationStreamState::spawnAgent(const Vector3f& pos) {
 	agent->setRadius(0.5f);
 	agent->setNavigationPushiness(NAVIGATIONPUSHINESS_MEDIUM);
 	agent->setSeparationWeight(m_separaionWeight);
-	EmptyAgentEntity(*agent, nullptr);
+	
+	m_empty.push_back(new EmptyAgentEntity(*agent, nullptr));
 }
 
 void NavigationStreamState::spawnBeta(const Vector3f& pos) {
@@ -706,15 +722,17 @@ void NavigationStreamState::toggleStreaming(bool enabled) {
 		BoundingBox boundingBox = m_navigationMesh->GetBoundingBox();
 		
 		saveNavigationData();
-		m_navigationMesh->Allocate(boundingBox, maxTiles);
-		m_crowdManager->createCrowd();
-		//m_crowdManager->resetNavMesh(m_navigationMesh->GetDetourNavMesh());
-		//m_crowdManager->initNavquery(m_navigationMesh->GetDetourNavMesh());
+		m_navigationMesh->Allocate(boundingBox, maxTiles);		
+		m_crowdManager->resetNavMesh(m_navigationMesh->GetDetourNavMesh());
+		m_crowdManager->initNavquery(m_navigationMesh->GetDetourNavMesh());	
+		updateStreaming();
+		m_crowdManager->reCreateCrowd();
 
 	}else {
 		m_navigationMesh->Build();
 		m_crowdManager->resetNavMesh(m_navigationMesh->GetDetourNavMesh());
 		m_crowdManager->initNavquery(m_navigationMesh->GetDetourNavMesh());
+		m_crowdManager->reCreateCrowd();
 	}
 }
 

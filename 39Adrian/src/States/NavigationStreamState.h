@@ -103,6 +103,7 @@ private:
 	//std::hash_set<std::array<int, 2>> m_addedTiles;
 
 	std::vector<CrowdAgentEntity*> m_entities;
+	std::vector<EmptyAgentEntity*> m_empty;
 
 	void addMarker(const Vector3f& pos);
 
