@@ -117,12 +117,37 @@ int CrowdAgent::addAgentToCrowd(bool force, const Vector3f& initialPosition, boo
 		if (m_agentCrowdId == -1)
 			return -1;
 
+		resetParameter();
 		m_previousAgentState = getAgentState();
 		m_previousTargetState = getTargetState();
 		m_previousPosition = getPosition();
 	}
-	updateParameters();
 	return m_agentCrowdId;
+}
+
+void CrowdAgent::resetParameter() {
+	m_maxAccel = std::max(0.f, m_maxAccel);
+	m_maxSpeed = std::max(0.f, m_maxSpeed);
+	m_radius = std::max(0.f, m_radius);
+	m_height = std::max(0.f, m_height);
+	m_queryFilterType = std::min(m_queryFilterType, (unsigned)DT_CROWD_MAX_QUERY_FILTER_TYPE - 1);
+	m_obstacleAvoidanceType = std::min(m_obstacleAvoidanceType, (unsigned)DT_CROWD_MAX_OBSTAVOIDANCE_PARAMS - 1);
+
+	updateParameters();
+
+	CrowdAgentRequestedTarget requestedTargetType = m_requestedTargetType;
+
+	if (CA_REQUESTEDTARGET_NONE != m_requestedTargetType) {
+		// Assign a dummy value such that the value check in the setter method passes
+		m_requestedTargetType = CA_REQUESTEDTARGET_NONE;
+		if (requestedTargetType == CA_REQUESTEDTARGET_POSITION) 
+			setTargetPosition(m_targetPosition);
+		else
+			setTargetVelocity(m_targetVelocity);
+	}else {
+		m_requestedTargetType = CA_REQUESTEDTARGET_POSITION;
+		resetTarget();
+	}
 }
 
 void CrowdAgent::removeAgentFromCrowd() {
@@ -330,14 +355,21 @@ void CrowdAgent::setTargetPosition(const Vector3f& position){
 		m_targetPosition = position;
 		m_requestedTargetType = CA_REQUESTEDTARGET_POSITION;
 
-		//if (!IsInCrowd())
-			//AddAgentToCrowd();
-
-		if (isInCrowd()){
+		if (isInCrowd()){		
 			dtPolyRef nearestRef;
 			NearestPos = m_crowdManager->findNearestPoint(position, m_queryFilterType, &nearestRef);
 			m_crowdManager->getCrowd()->requestMoveTarget(m_agentCrowdId, nearestRef, NearestPos.getVec());
 		}
+	}
+}
+
+void CrowdAgent::setTargetVelocity(const Vector3f& velocity){
+	if (velocity != m_targetVelocity || CA_REQUESTEDTARGET_VELOCITY != m_requestedTargetType){
+		m_targetVelocity = velocity;
+		m_requestedTargetType = CA_REQUESTEDTARGET_VELOCITY;
+
+		if (isInCrowd())
+			m_crowdManager->getCrowd()->requestMoveVelocity(m_agentCrowdId, velocity.getVec());
 	}
 }
 
@@ -374,26 +406,40 @@ void CrowdAgent::setOnAddAgent(std::function<void(const Vector3f& pos)> fun) con
 }
 
 void CrowdAgent::resetAgent() {
+	m_requestedTargetType = CA_REQUESTEDTARGET_NONE;
 	m_crowdManager->getCrowd()->resetMoveTarget(m_agentCrowdId);
+}
+
+void CrowdAgent::resetTarget() {
+	if (CA_REQUESTEDTARGET_NONE != m_requestedTargetType){
+		m_requestedTargetType = CA_REQUESTEDTARGET_NONE;
+		if (isInCrowd())
+			m_crowdManager->getCrowd()->resetMoveTarget(m_agentCrowdId);
+	}
 }
 
 bool CrowdAgent::isActive() {
 	return m_crowdManager->getCrowd()->isActive(m_agentCrowdId, 5.0f);
 }
 
-void CrowdAgent::OnTileAdded(const std::array<int, 2>& tile){
+bool CrowdAgent::OnTileAdded(const std::array<int, 2>& tile){
+
 	if (!m_crowdManager)
-		return;
+		return false;
 
 	NavigationMesh* mesh = m_crowdManager->getNavigationMesh();
 
 	const Vector3f pos = getPosition();
 	const std::array<int, 2> agentTile = mesh->GetTileIndex(pos);
 	const BoundingBox boundingBox = mesh->GetTileBoudningBox(agentTile);
+
 	if (tile == agentTile && isInCrowd()){
-		removeAgentFromCrowd();
-		addAgentToCrowd(true, pos, false);
+		m_crowdManager->removeAgent(this);
+		m_crowdManager->addAgent(this, pos, false);
+		return true;
 	}
+
+	return false;
 }
 
 const Vector3f& CrowdAgent::GetNearestPos() {

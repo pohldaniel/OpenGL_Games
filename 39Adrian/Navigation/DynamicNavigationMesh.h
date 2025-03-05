@@ -11,6 +11,7 @@ struct dtTileCacheMeshProcess;
 class OffMeshConnection;
 class Obstacle;
 class CrowdManager;
+class CrowdAgent;
 
 class DynamicNavigationMesh : public NavigationMesh {
 
@@ -65,4 +66,5 @@ public:
 	unsigned maxLayers_;
 
 	std::vector<std::array<int, 2>> m_tileQueue;
+	std::vector<CrowdAgent*> m_agentsToReset;
 };

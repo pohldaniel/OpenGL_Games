@@ -47,11 +47,12 @@ public:
 	CrowdAgent();
 	virtual ~CrowdAgent();
 	void OnRenderDebug();
-	void OnTileAdded(const std::array<int, 2>& tile);
+	bool OnTileAdded(const std::array<int, 2>& tile);
 
 	void setVelocityCallback(const CrowdAgentVelocityCallback& callback);
 	void setHeightCallback(const CrowdAgentHeightCallback& callback);
 	void setTargetPosition(const Vector3f& position);
+	void setTargetVelocity(const Vector3f& velocity);
 	void setMaxAccel(float maxAccel, bool force = false);
 	void setMaxSpeed(float maxSpeed, bool force = false);
 	void setRadius(float radius, bool force = false);
@@ -87,6 +88,7 @@ public:
 	virtual void OnCrowdPositionUpdate(dtCrowdAgent* ag, float* pos, float dt);
 	int addAgentToCrowd(bool force = false, const Vector3f& initialPosition = Vector3f::ZERO, bool add = true);
 	void removeAgentFromCrowd();
+	void resetParameter();
 
 	void setOnPositionVelocityUpdate(std::function<void(const Vector3f& pos, const Vector3f& vel)> fun) const;
 	void setOnInactive(std::function<void()> fun) const;
@@ -94,6 +96,7 @@ public:
 	void setOnAddAgent(std::function<void(const Vector3f& pos)> fun) const;
 
 	void resetAgent();
+	void resetTarget();
 	bool isActive();
 
 	static const Vector3f& GetNearestPos();

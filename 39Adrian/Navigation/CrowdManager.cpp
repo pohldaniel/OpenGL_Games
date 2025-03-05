@@ -170,12 +170,13 @@ bool CrowdManager::reCreateCrowd() {
 
 		
 		addAgent(m_agents[i], pos, false);
-		m_agents[i]->setHeight(2.0f, true);
+		m_agents[i]->resetParameter();
+		/*m_agents[i]->setHeight(2.0f, true);
 		m_agents[i]->setMaxSpeed(6.0f, true);
 		m_agents[i]->setMaxAccel(10.0f, true);
 		m_agents[i]->setRadius(0.5f, true);
 		m_agents[i]->setNavigationPushiness(NAVIGATIONPUSHINESS_MEDIUM, true);
-		m_agents[i]->setSeparationWeight(3.0f, true);
+		m_agents[i]->setSeparationWeight(3.0f, true);*/
 	}
 	return true;
 }

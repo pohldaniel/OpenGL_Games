@@ -624,6 +624,7 @@ bool DynamicNavigationMesh::AddTile(const Buffer& tileData){
 
 bool DynamicNavigationMesh::ReadTiles(const Buffer& source){
 	m_tileQueue.clear();
+
 	size_t size = source.size;
 	size_t offset = 0;
 
@@ -658,14 +659,28 @@ bool DynamicNavigationMesh::ReadTiles(const Buffer& source){
 		tileCache_->buildNavMeshTilesAt(m_tileQueue[i][0], m_tileQueue[i][1], navMesh_);
 
 	wait();
+	//std::cout << "Size: " << m_tileQueue.size() << std::endl;
+
+	bool addAgent = false;
+	CrowdAgent* _agent = nullptr;
+	for (unsigned j = 0; j < m_tileQueue.size(); ++j) {
+		for(Obstacle* obstacle : m_obstacles)
+			obstacle->OnTileAdded(m_tileQueue[j]);		
+	}
 
 	for (unsigned j = 0; j < m_tileQueue.size(); ++j) {
-		for(auto&& obstacle : m_obstacles)
-			obstacle->OnTileAdded(m_tileQueue[j]);
-
-		for(auto&& agent : m_crowdManager->getAgents())
-			agent->OnTileAdded(m_tileQueue[j]);
+		for (CrowdAgent* agent : m_crowdManager->getAgents())
+			if (agent->OnTileAdded(m_tileQueue[j])) {
+				m_agentsToReset.push_back(agent);
+			}
 	}
+
+	/*if (_agent) {
+		const Vector3f pos = _agent->getPosition();
+		m_crowdManager->removeAgent(_agent);
+		m_crowdManager->addAgent(_agent, pos, false);
+		_agent->resetParameter();
+	}*/
 
 	return true;
 }

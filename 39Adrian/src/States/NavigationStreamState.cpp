@@ -27,7 +27,7 @@ NavigationStreamState::NavigationStreamState(StateMachine& machine) :
 	State(machine, States::NAVIGATION_STREAM),
 	m_separaionWeight(3.0f),
 	m_height(2.0f),
-	m_streamingDistance(2),
+	m_streamingDistance(6),
 	m_addedTiles(0, hash, equal),
 	m_tileData(0, hash, equal) {
 
@@ -100,7 +100,7 @@ NavigationStreamState::NavigationStreamState(StateMachine& machine) :
 	m_navigationMesh = new DynamicNavigationMesh();
 	m_navigationMesh->m_navigables = m_navigables;
 	m_navigationMesh->SetPadding(Vector3f(0.0f, 10.0f, 0.0f));
-	m_navigationMesh->SetTileSize(32);
+	m_navigationMesh->SetTileSize(16);
 
 	m_navigationMesh->SetCellSize(0.3);
 	m_navigationMesh->SetCellHeight(0.2f);
@@ -133,11 +133,9 @@ NavigationStreamState::NavigationStreamState(StateMachine& machine) :
 	params.adaptiveDepth = 3;
 	m_crowdManager->setObstacleAvoidanceParams(0, params);
 
-	spawnJack(Vector3f(-5.0f, 0.0f, 20.0f));
-	//spawnAgent(Vector3f(-5.0f, 0.0f, 20.0f));
-	//spawnJack(Vector3f(0.0f, 0.0f, 0.0f));
-	//spawnBeta(Vector3f(-5.0f, 0.5f, -30.0f));
-	//spawnWoman(Vector3f(-10.0f, 0.5f, -30.0f));
+	spawnJack(Vector3f(0.0f, 0.0f, 0.0f));
+	spawnBeta(Vector3f(-5.0f, 0.5f, -30.0f));
+	spawnWoman(Vector3f(-10.0f, 0.5f, -30.0f));
 
 	auto shader = Globals::shaderManager.getAssetPointer("map");
 	shader->use();
@@ -202,6 +200,10 @@ void NavigationStreamState::update() {
 		m_navigationMesh->Build();
 		m_crowdManager->resetNavMesh(m_navigationMesh->GetDetourNavMesh());
 		m_crowdManager->initNavquery(m_navigationMesh->GetDetourNavMesh());
+	}
+
+	if (keyboard.keyPressed(Keyboard::KEY_C)) {
+		
 	}
 
 	Mouse &mouse = Mouse::instance();
@@ -532,7 +534,7 @@ void NavigationStreamState::createScene() {
 	shapeNode->setShader(Globals::shaderManager.getAssetPointer("map"));
 	m_navigables.push_back(new Navigable(shapeNode));
 
-	/*for (unsigned i = 0; i < 20; ++i){
+	for (unsigned i = 0; i < 20; ++i){
 		float size = 1.0f + Utils::random(10.0f);
 		shapeNode = Root->addChild<ShapeNode, Shape>(m_box);
 		shapeNode->OnOctreeSet(_Octree);
@@ -541,7 +543,7 @@ void NavigationStreamState::createScene() {
 		shapeNode->setScale(size);
 		m_navigables.push_back(new Navigable(shapeNode));
 		Physics::AddStaticObject(Physics::BtTransform(Physics::VectorFrom(shapeNode->getPosition())), Physics::CreateCollisionShape(&m_box, btVector3(size, size, size)), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER);
-	}*/
+	}
 }
 
 void NavigationStreamState::clearMarker() {
@@ -713,7 +715,6 @@ void NavigationStreamState::toggleStreaming(bool enabled) {
 		m_crowdManager->resetNavMesh(m_navigationMesh->GetDetourNavMesh());
 		m_crowdManager->initNavquery(m_navigationMesh->GetDetourNavMesh());	
 		updateStreaming();
-		//m_crowdManager->reCreateCrowd();
 	}else {
 		m_navigationMesh->Build();
 		m_crowdManager->resetNavMesh(m_navigationMesh->GetDetourNavMesh());
@@ -749,6 +750,8 @@ void NavigationStreamState::updateStreaming() {
 		}
 	}
 
+	m_navigationMesh->m_agentsToReset.clear();
+
 	// Add tiles
 	for (int z = beginTile[1]; z <= endTile[1]; ++z) {
 		for (int x = beginTile[0]; x <= endTile[0]; ++x) {
@@ -760,6 +763,9 @@ void NavigationStreamState::updateStreaming() {
 			}
 		}
 	}
+
+	for (CrowdAgent* agent : m_navigationMesh->m_agentsToReset)
+		agent->resetParameter();
 }
 
 void NavigationStreamState::AddMarker(const Vector3f& pos) {
