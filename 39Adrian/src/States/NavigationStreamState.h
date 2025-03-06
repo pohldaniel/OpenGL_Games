@@ -20,6 +20,7 @@
 #include <Navigation/CrowdManager.h>
 #include <Navigation/CrowdAgent.h>
 #include <Navigation/Obstacle.h>
+#include <Navigation/OffMeshConnection.h>
 #include <Entities/EmptyAgentEntity.h>
 #include <Entities/Woman.h>
 #include <Entities/Beta.h>
@@ -61,6 +62,7 @@ private:
 	void createPhysics();
 	void createScene();
 	void clearMarker();
+	void createBoxOffMeshConnections(DynamicNavigationMesh* navMesh, SceneNodeLC* boxGroup);
 
 	void spawnAgent(const Vector3f& pos);
 	void spawnBeta(const Vector3f& pos);

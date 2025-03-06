@@ -31,6 +31,7 @@ class Geometry;
 class NavArea;
 class ShapeNode;
 class Shape;
+class OffMeshConnection;
 
 struct FindPathData;
 struct NavBuildData;
@@ -39,7 +40,11 @@ struct NavBuildData;
 struct NavigationGeometryInfo
 {
 	/// Component.
-	ShapeNode* component_;
+	ShapeNode* component_ = nullptr;
+
+	/// Connection.
+	OffMeshConnection* connection_ = nullptr;
+
 	/// Geometry LOD level if applicable.
 	unsigned lodLevel_;
 	/// Transform relative to the navigation mesh root node.
@@ -280,6 +285,7 @@ public:
 	/// Return whether to draw NavArea components.
 	bool GetDrawNavAreas() const { return drawNavAreas_; }
 	std::vector<Navigable*> m_navigables;
+	std::vector<OffMeshConnection*> m_offMeshConnections;
 	//private:
 	/// Write tile data.
 	void WriteTile(unsigned char*& dest, int x, int z) const;

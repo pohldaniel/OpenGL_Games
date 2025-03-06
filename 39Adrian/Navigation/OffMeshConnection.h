@@ -21,7 +21,7 @@ public:
 	/// Apply attribute changes that can not be applied immediately. Called after scene load or a network update.
 	//virtual void ApplyAttributes();
 	/// Visualize the component as debug geometry.
-	virtual void DrawDebugGeometry(DebugRenderer* debug, bool depthTest);
+	void OnRenderDebug();
 
 	/// Set endpoint node.
 	void SetEndPoint(SceneNodeLC* node);
@@ -50,7 +50,7 @@ public:
 	unsigned GetAreaID() const { return areaId_; }
 
 	SceneNodeLC* m_node;
-		
+	bool isEnabled_;
 private:
 	/// Endpoint node.
 	//std::weak_ptr<SceneNodeLC> endPoint_;

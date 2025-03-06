@@ -19,6 +19,7 @@ struct BoundingBox {
 
 	BoundingBox(const Vector3f& min, const Vector3f& max);
 	BoundingBox(float min, float max);
+	BoundingBox(const Vector3f& center, float radius);
 
 	~BoundingBox();
 

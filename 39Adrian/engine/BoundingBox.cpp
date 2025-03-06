@@ -13,6 +13,10 @@ BoundingBox::BoundingBox(float min, float max) : min(Vector3f(min)), max(Vector3
 
 }
 
+BoundingBox::BoundingBox(const Vector3f& center, float radius) : min(center - Vector3f(radius)), max(center + Vector3f(radius)), m_markForDelete(false) {
+
+}
+
 BoundingBox::BoundingBox(BoundingBox const& rhs) : min(rhs.min), max(rhs.max), m_vao(rhs.m_vao), m_vbo(rhs.m_vbo), m_ibo(rhs.m_ibo), m_markForDelete(false) {
 }
 

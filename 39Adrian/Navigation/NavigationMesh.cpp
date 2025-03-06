@@ -6,6 +6,7 @@
 #include "../engine/scene/ShapeNode.h"
 #include "../engine/MeshObject/Shape.h"
 #include "../engine/DebugRenderer.h"
+
 #include "NavigationMesh.h"
 #include "OffMeshConnection.h"
 #include "NavArea.h"
@@ -580,26 +581,16 @@ void NavigationMesh::CollectGeometries(std::vector<NavigationGeometryInfo>& geom
 	//node_->GetComponents<Navigable>(navigables, true);
 	std::hash_set<SceneNodeLC*> processedNodes;
 	for (unsigned i = 0; i < m_navigables.size(); ++i){
-		//if (true)
 			CollectGeometries(geometryList, m_navigables[i]->m_node, processedNodes, m_navigables[i]->IsRecursive());
 	}
 
 	// Get offmesh connections
-	//Matrix4f inverse = node_->GetWorldTransform().Inverse();
-	std::vector<OffMeshConnection*> connections;
-	//node_->GetComponents<OffMeshConnection>(connections, true);
-
-	for (unsigned i = 0; i < connections.size(); ++i)
-	{
-		OffMeshConnection* connection = connections[i];
-		if (true && connection->GetEndPoint())
-		{
-			const Matrix4f& transform = connection->m_node->getWorldTransformation();
-
+	for (unsigned i = 0; i < m_offMeshConnections.size(); ++i){
+		OffMeshConnection* connection = m_offMeshConnections[i];
+		if (connection->isEnabled_ && connection->GetEndPoint()){
 			NavigationGeometryInfo info;
-			//info.component_ = connection;
-			//info.boundingBox_ = BoundingBox(Sphere(transform.Translation(), connection->GetRadius())).Transformed(inverse);
-
+			info.connection_ = connection;
+			info.boundingBox_ = BoundingBox(connection->m_node->getWorldPosition(), connection->GetRadius());
 			geometryList.push_back(info);
 		}
 	}
@@ -671,7 +662,8 @@ void NavigationMesh::CollectGeometries(std::vector<NavigationGeometryInfo>& geom
 	if (recursive){
 		const std::list<std::unique_ptr<Node, std::function<void(Node* node)>>>& children = node->getChildren();
 		for (auto it = children.begin(); it != children.end(); ++it) {
-			CollectGeometries(geometryList, static_cast<SceneNodeLC*>((*it).get()), processedNodes, recursive);
+			if(dynamic_cast<ShapeNode*>((*it).get()))
+				CollectGeometries(geometryList, static_cast<SceneNodeLC*>((*it).get()), processedNodes, recursive);
 		}
 	}
 }
@@ -705,10 +697,23 @@ void NavigationMesh::GetTileGeometry(NavBuildData* build, std::vector<Navigation
 		if (box.isInsideFast(geometryList[i].boundingBox_) != BoundingBox::Intersection::OUTSIDE){
 			const Matrix4f& transform = geometryList[i].transform_;
 
-			ShapeNode* drawable = geometryList[i].component_;
-			if (drawable){
-				AddTriMeshGeometry(build, drawable->getShape(), transform, vertexCount);
-			}
+			if (geometryList[i].connection_){
+				OffMeshConnection* connection = geometryList[i].connection_;
+				Vector3f start = inverse * connection->m_node->getWorldPosition();
+				Vector3f end = inverse * connection->GetEndPoint()->getWorldPosition();
+
+				build->offMeshVertices_.push_back(start);
+				build->offMeshVertices_.push_back(end);
+				build->offMeshRadii_.push_back(connection->GetRadius());
+				build->offMeshFlags_.push_back((unsigned short)connection->GetMask());
+				build->offMeshAreas_.push_back((unsigned char)connection->GetAreaID());
+				build->offMeshDir_.push_back((unsigned char)(connection->IsBidirectional() ? DT_OFFMESH_CON_BIDIR : 0));
+			}else {
+				ShapeNode* drawable = geometryList[i].component_;
+				if (drawable) {
+					AddTriMeshGeometry(build, drawable->getShape(), transform, vertexCount);
+				}
+			}	
 		}
 	}
 }

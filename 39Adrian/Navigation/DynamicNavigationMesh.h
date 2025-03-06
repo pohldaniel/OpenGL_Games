@@ -8,7 +8,6 @@ struct dtTileCacheAlloc;
 struct dtTileCacheCompressor;
 struct dtTileCacheMeshProcess;
 
-class OffMeshConnection;
 class Obstacle;
 class CrowdManager;
 class CrowdAgent;
@@ -48,11 +47,10 @@ public:
 	/// Build one tile of the navigation mesh. Return true if successful.
 	int BuildTile(std::vector<NavigationGeometryInfo>& geometryList, int x, int z, TileCacheData* tiles);
 	
-
-
 	std::vector<Obstacle*> m_obstacles;
 
 	bool drawObstacles_;
+	bool drawOffMeshConnections_;
 	dtTileCache* tileCache_;
 	dtTileCacheAlloc* allocator_;
 	dtTileCacheCompressor* compressor_;

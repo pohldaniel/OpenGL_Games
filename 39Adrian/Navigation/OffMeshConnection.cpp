@@ -11,58 +11,45 @@ OffMeshConnection::OffMeshConnection(SceneNodeLC* node) :
 	endPointDirty_(false),
 	mask_(DEFAULT_MASK_FLAG),
 	areaId_(DEFAULT_AREA),
-	m_node(node){
+	m_node(node),
+	isEnabled_(true){
 }
 
 OffMeshConnection::~OffMeshConnection(){
 }
 
-void OffMeshConnection::DrawDebugGeometry(DebugRenderer* debug, bool depthTest)
-{
+void OffMeshConnection::OnRenderDebug(){
 	if (endPoint_ == nullptr)
 		return;
 
-	//Vector3f start = node_->GetWorldPosition();
-	Vector3f start = Vector3f(0.0f, 0.0f, 0.0f);
+	Vector3f start = m_node->getWorldPosition();
 	Vector3f end = endPoint_->getWorldPosition();
 
-	debug->AddSphere(start, radius_, Vector4f::ONE);
-	debug->AddSphere(end, radius_, Vector4f::ONE);
-	debug->AddLine(start, end, Vector4f::ONE);
+	DebugRenderer::Get().AddSphere(start, radius_, Vector4f::ONE);
+	DebugRenderer::Get().AddSphere(end, radius_, Vector4f::ONE);
+	DebugRenderer::Get().AddLine(start, end, Vector4f::ONE);
 }
 
-void OffMeshConnection::SetRadius(float radius)
-{
+void OffMeshConnection::SetRadius(float radius){
 	radius_ = radius;
-	//MarkNetworkUpdate();
 }
 
-void OffMeshConnection::SetBidirectional(bool enabled)
-{
+void OffMeshConnection::SetBidirectional(bool enabled){
 	bidirectional_ = enabled;
-	//MarkNetworkUpdate();
 }
 
-void OffMeshConnection::SetMask(unsigned newMask)
-{
+void OffMeshConnection::SetMask(unsigned newMask){
 	mask_ = newMask;
-	//MarkNetworkUpdate();
 }
 
-void OffMeshConnection::SetAreaID(unsigned newAreaID)
-{
+void OffMeshConnection::SetAreaID(unsigned newAreaID){
 	areaId_ = newAreaID;
-	//MarkNetworkUpdate();
 }
 
-void OffMeshConnection::SetEndPoint(SceneNodeLC* node)
-{
+void OffMeshConnection::SetEndPoint(SceneNodeLC* node){
 	endPoint_ = node;
-	//endPointID_ = node ? node->GetID() : 0;
-	//MarkNetworkUpdate();
 }
 
-SceneNodeLC* OffMeshConnection::GetEndPoint() const
-{
+SceneNodeLC* OffMeshConnection::GetEndPoint() const{
 	return endPoint_;
 }

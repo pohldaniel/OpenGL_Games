@@ -2477,7 +2477,6 @@ Matrix4f Matrix4f::inverse() const {
 	float d = determinant();
 
 	/*if (fabsf(d) < 0.0001f) {
-		std::cout << "Determinate: " << d << std::endl;
 		tmp.identity();
 	}else {*/
 		d = 1.0f / d;

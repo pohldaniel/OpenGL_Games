@@ -6,9 +6,9 @@
 #include <Recast.h>
 
 #include "DynamicNavigationMesh.h"
+#include "OffMeshConnection.h"
 #include "NavBuildData.h"
 #include "Obstacle.h"
-#include "OffMeshConnection.h"
 #include "CrowdAgent.h"
 
 static const int DEFAULT_MAX_OBSTACLES = 1024;
@@ -150,6 +150,7 @@ struct LinearAllocator : public dtTileCacheAlloc {
 DynamicNavigationMesh::DynamicNavigationMesh() : 
 	NavigationMesh(), 
 	drawObstacles_(true), 
+	drawOffMeshConnections_(true),
 	tileCache_(nullptr),
 	maxObstacles_(DEFAULT_MAX_OBSTACLES),
 	maxLayers_(DEFAULT_MAX_LAYERS) {
@@ -165,10 +166,10 @@ DynamicNavigationMesh::~DynamicNavigationMesh() {
 }
 
 bool DynamicNavigationMesh::Allocate(const BoundingBox& boundingBox, unsigned maxTiles) {
-
+	
 	// Release existing navigation data and zero the bounding box
 	ReleaseNavigationMesh();
-
+	
 	//if (!node_)
 		//return false;
 
@@ -542,6 +543,17 @@ void DynamicNavigationMesh::OnRenderDebug() {
 				obstacle->OnRenderDebug();
 		}
 	}
+
+	// Draw OffMeshConnection components
+	if (drawOffMeshConnections_)
+	{
+
+		for (unsigned i = 0; i < m_offMeshConnections.size(); ++i) {
+			OffMeshConnection* offMeshConnections = m_offMeshConnections[i];
+			if (offMeshConnections && offMeshConnections->isEnabled_)
+				offMeshConnections->OnRenderDebug();
+		}
+	}
 }
 
 void DynamicNavigationMesh::AddObstacle(Obstacle* obstacle, bool silent) {
@@ -659,10 +671,7 @@ bool DynamicNavigationMesh::ReadTiles(const Buffer& source){
 		tileCache_->buildNavMeshTilesAt(m_tileQueue[i][0], m_tileQueue[i][1], navMesh_);
 
 	wait();
-	//std::cout << "Size: " << m_tileQueue.size() << std::endl;
 
-	bool addAgent = false;
-	CrowdAgent* _agent = nullptr;
 	for (unsigned j = 0; j < m_tileQueue.size(); ++j) {
 		for(Obstacle* obstacle : m_obstacles)
 			obstacle->OnTileAdded(m_tileQueue[j]);		
@@ -674,14 +683,6 @@ bool DynamicNavigationMesh::ReadTiles(const Buffer& source){
 				m_agentsToReset.push_back(agent);
 			}
 	}
-
-	/*if (_agent) {
-		const Vector3f pos = _agent->getPosition();
-		m_crowdManager->removeAgent(_agent);
-		m_crowdManager->addAgent(_agent, pos, false);
-		_agent->resetParameter();
-	}*/
-
 	return true;
 }
 

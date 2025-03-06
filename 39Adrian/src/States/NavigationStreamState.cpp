@@ -98,6 +98,8 @@ NavigationStreamState::NavigationStreamState(StateMachine& machine) :
 	createScene();
 
 	m_navigationMesh = new DynamicNavigationMesh();
+
+
 	m_navigationMesh->m_navigables = m_navigables;
 	m_navigationMesh->SetPadding(Vector3f(0.0f, 10.0f, 0.0f));
 	m_navigationMesh->SetTileSize(16);
@@ -111,6 +113,10 @@ NavigationStreamState::NavigationStreamState(StateMachine& machine) :
 	m_navigationMesh->SetAgentRadius(0.6f);
 	m_navigationMesh->Build();
 
+	SceneNodeLC* boxGroup = Root->findChild<SceneNodeLC>("box_group");
+	createBoxOffMeshConnections(m_navigationMesh, boxGroup);
+	m_navigationMesh->Build();
+
 	m_crowdManager = new CrowdManager();
 	m_crowdManager->setNavigationMesh(m_navigationMesh);
 	m_crowdManager->setOnCrowdFormation([&m_crowdManager = m_crowdManager](const Vector3f& pos, CrowdAgent* agent) {
@@ -122,6 +128,8 @@ NavigationStreamState::NavigationStreamState(StateMachine& machine) :
 	});
 
 	m_navigationMesh->m_crowdManager = m_crowdManager;
+
+	
 
 	for (unsigned i = 0; i < 100; ++i)
 		createMushroom(Vector3f(Utils::random(90.0f) - 45.0f, 0.0f, Utils::random(90.0f) - 45.0f));
@@ -534,15 +542,18 @@ void NavigationStreamState::createScene() {
 	shapeNode->setShader(Globals::shaderManager.getAssetPointer("map"));
 	m_navigables.push_back(new Navigable(shapeNode));
 
+	SceneNodeLC* boxGroup = Root->addChild<SceneNodeLC>();
+	boxGroup->setName("box_group");
+
 	for (unsigned i = 0; i < 20; ++i){
-		float size = 1.0f + Utils::random(10.0f);
-		shapeNode = Root->addChild<ShapeNode, Shape>(m_box);
-		shapeNode->OnOctreeSet(_Octree);
-		shapeNode->setPosition(Utils::random(80.0f) - 40.0f, 0.5f * size, Utils::random(80.0f) - 40.0f);
-		shapeNode->setTextureIndex(6);
-		shapeNode->setScale(size);
-		m_navigables.push_back(new Navigable(shapeNode));
-		Physics::AddStaticObject(Physics::BtTransform(Physics::VectorFrom(shapeNode->getPosition())), Physics::CreateCollisionShape(&m_box, btVector3(size, size, size)), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER);
+		float size = 1.0f + Utils::random(10.0f);		
+		ShapeNode* boxNode = boxGroup->addChild<ShapeNode, Shape>(m_box);
+		boxNode->OnOctreeSet(_Octree);
+		boxNode->setPosition(Utils::random(80.0f) - 40.0f, 0.5f * size, Utils::random(80.0f) - 40.0f);
+		boxNode->setTextureIndex(6);
+		boxNode->setScale(size);
+		m_navigables.push_back(new Navigable(boxNode));
+		Physics::AddStaticObject(Physics::BtTransform(Physics::VectorFrom(boxNode->getPosition())), Physics::CreateCollisionShape(&m_box, btVector3(size, size, size)), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER);
 	}
 }
 
@@ -785,4 +796,27 @@ void NavigationStreamState::saveNavigationData(){
 			const std::array<int, 2> tileIdx = { x, z };
 			navMesh->GetTileData(m_tileData[tileIdx], tileIdx);		
 		}
+}
+
+void NavigationStreamState::createBoxOffMeshConnections(DynamicNavigationMesh* navMesh, SceneNodeLC* boxGroup) {
+	const std::list<std::unique_ptr<Node, std::function<void(Node* node)>>>& boxes = boxGroup->getChildren();
+
+	for (auto it = boxes.begin(); it != boxes.end(); ++it) {
+		ShapeNode* box = dynamic_cast<ShapeNode*>((*it).get());
+		Vector3f boxPos = box->getWorldPosition();
+		float boxHalfSize = box->getWorldScale()[0] / 2;
+
+		Matrix4f inv = box->getWorldTransformation().inverse();
+
+		SceneNodeLC* connectionStart = box->addChild<SceneNodeLC>();
+		connectionStart->setPosition(inv ^ navMesh->FindNearestPoint(boxPos + Vector3f(boxHalfSize, -boxHalfSize, 0)));
+
+		SceneNodeLC* connectionEnd = box->addChild<SceneNodeLC>();
+		connectionEnd->setPosition(inv ^ navMesh->FindNearestPoint(boxPos + Vector3f(boxHalfSize, boxHalfSize, 0)));
+
+		OffMeshConnection* connection = new OffMeshConnection(connectionStart);
+		connection->SetEndPoint(connectionEnd);
+
+		navMesh->m_offMeshConnections.push_back(connection);
+	}
 }
