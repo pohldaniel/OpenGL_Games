@@ -786,7 +786,7 @@ Vector3f NavigationMesh::randPoint(const Vector3f& center, float radius) {
 	const float degree = Random() * TWO_PI;
 	const float x = center[0] + length * cos(degree);
 	const float z = center[2] + length * sin(degree);
-	return { x, 0.0f, z };
+	return { x, center[1], z };
 }
 
 Vector3f NavigationMesh::GetRandomPointInCircle(const Vector3f& center, float radius, const Vector3f& extents, const dtQueryFilter* filter, dtPolyRef* randomRef){

@@ -64,7 +64,7 @@ struct MeshProcess : public dtTileCacheMeshProcess {
 		rcVcopy(&bounds.max[0], params->bmin);
 
 		// collect off-mesh connections
-		/*std::vector<OffMeshConnection*> offMeshConnections = owner_->CollectOffMeshConnections(bounds);
+		std::vector<OffMeshConnection*> offMeshConnections = owner_->m_offMeshConnections;
 		if (offMeshConnections.size() > 0) {
 			if (offMeshConnections.size() != offMeshRadii_.size()) {
 
@@ -74,8 +74,8 @@ struct MeshProcess : public dtTileCacheMeshProcess {
 				for (unsigned i = 0; i < offMeshConnections.size(); ++i) {
 
 					OffMeshConnection* connection = offMeshConnections[i];
-					Vector3f start = inverse * connection->GetNode()->GetWorldPosition();
-					Vector3f end = inverse * connection->GetEndPoint()->GetWorldPosition();
+					Vector3f start = inverse * connection->m_node->getWorldPosition();
+					Vector3f end = inverse * connection->GetEndPoint()->getWorldPosition();
 
 					offMeshVertices_.push_back(start);
 					offMeshVertices_.push_back(end);
@@ -91,7 +91,7 @@ struct MeshProcess : public dtTileCacheMeshProcess {
 			params->offMeshConFlags = &offMeshFlags_[0];
 			params->offMeshConAreas = &offMeshAreas_[0];
 			params->offMeshConDir = &offMeshDir_[0];
-		}*/
+		}
 	}
 
 	void ClearConnectionData() {
