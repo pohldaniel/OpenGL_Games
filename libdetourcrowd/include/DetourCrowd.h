@@ -207,8 +207,13 @@ struct dtCrowdAgentDebugInfo
 	dtObstacleAvoidanceDebugData* vod;
 };
 
+//State:
+// 0 -> velocity
+// 1 -> position
+// 2 -> offMeshConnection velocity
+// 4 -> offMeshConnection position
 /// Type for the update callback.
-typedef void(*dtUpdateCallback)(bool positionUpdate, dtCrowdAgent* agent, float* pos, float dt);
+typedef void(*dtUpdateCallback)(unsigned int state, dtCrowdAgent* agent, float* posVel, float dt);
 
 /// Provides local steering behaviors for a group of agents. 
 /// @ingroup crowd

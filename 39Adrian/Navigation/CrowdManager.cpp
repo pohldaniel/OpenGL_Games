@@ -13,12 +13,16 @@ extern const char* NAVIGATION_CATEGORY;
 static const unsigned DEFAULT_MAX_AGENTS = 512;
 static const float DEFAULT_MAX_AGENT_RADIUS = 0.f;
 
-void CrowdAgentUpdateCallback(bool positionUpdate, dtCrowdAgent* ag, float* pos, float dt){
+void CrowdAgentUpdateCallback(unsigned int state, dtCrowdAgent* ag, float* posVel, float dt){
 	auto crowdAgent = static_cast<CrowdAgent*>(ag->params.userData);
-	if (positionUpdate)
-		crowdAgent->OnCrowdPositionUpdate(ag, pos, dt);
-	else
-		crowdAgent->OnCrowdVelocityUpdate(ag, pos, dt);
+	if (state == 0)
+		crowdAgent->OnCrowdVelocityUpdate(ag, posVel, dt);
+	else if (state == 1)
+		crowdAgent->OnCrowdPositionUpdate(ag, posVel, dt);
+	else if (state == 2)
+		crowdAgent->OnCrowdVelocityUpdate(ag, posVel, dt);
+	else if (state == 4)
+		crowdAgent->OnCrowdPositionUpdate(ag, posVel, dt);
 }
 
 CrowdManager::CrowdManager() :

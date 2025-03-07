@@ -804,12 +804,12 @@ void NavigationStreamState::createBoxOffMeshConnections(DynamicNavigationMesh* n
 	for (auto it = boxes.begin(); it != boxes.end(); ++it) {
 		ShapeNode* box = dynamic_cast<ShapeNode*>((*it).get());
 		Vector3f boxPos = box->getWorldPosition();
-		float boxHalfSize = box->getWorldScale()[0] / 2;
+		float boxHalfSize = (box->getWorldScale()[0] / 2);
 
 		Matrix4f inv = box->getWorldTransformation().inverse();
 
 		SceneNodeLC* connectionStart = box->addChild<SceneNodeLC>();
-		connectionStart->setPosition(inv ^ navMesh->FindNearestPoint(boxPos + Vector3f(boxHalfSize, -boxHalfSize, 0)));
+		connectionStart->setPosition(inv ^ navMesh->FindNearestPoint(boxPos + Vector3f(boxHalfSize + 0.05f * boxHalfSize, -boxHalfSize, 0)));
 
 		SceneNodeLC* connectionEnd = box->addChild<SceneNodeLC>();
 		connectionEnd->setPosition(inv ^ navMesh->FindNearestPoint(boxPos + Vector3f(boxHalfSize, boxHalfSize, 0)));

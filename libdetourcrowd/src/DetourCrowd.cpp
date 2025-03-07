@@ -1272,7 +1272,7 @@ void dtCrowd::update(const float dt, dtCrowdAgentDebugInfo* debug)
 
 		// Urho3D: Update velocity callback
 		if (m_updateCallback)
-			m_updateCallback(false, ag, dvel, dt);
+			m_updateCallback(0, ag, dvel, dt);
 
 		// Separation
 		if (ag->params.updateFlags & DT_CROWD_SEPARATION)
@@ -1477,7 +1477,7 @@ void dtCrowd::update(const float dt, dtCrowdAgentDebugInfo* debug)
 
 		// Urho3D: Update position callback support
 		if (m_updateCallback)
-			m_updateCallback(true, ag, ag->npos, dt);
+			m_updateCallback(1, ag, ag->npos, dt);
 
 	}
 	
@@ -1514,10 +1514,18 @@ void dtCrowd::update(const float dt, dtCrowdAgentDebugInfo* debug)
 			const float u = tween(anim->t, ta, tb);
 			dtVlerp(ag->npos, anim->startPos, anim->endPos, u);
 		}
-			
+		
+		// Urho3D: Update offMeshConnection position callback support
+		if (m_updateCallback)
+			m_updateCallback(4, ag, ag->npos, dt);
+
 		// Update velocity.
 		dtVset(ag->vel, 0,0,0);
 		dtVset(ag->dvel, 0,0,0);
+
+		// Urho3D: Update offMeshConnection velocity callback
+		if (m_updateCallback)
+			m_updateCallback(2, ag, ag->dvel, dt);
 	}
 	
 }
