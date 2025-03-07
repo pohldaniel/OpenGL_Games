@@ -20,3 +20,11 @@ void CrowdAgentObject::setPosition(const Vector3f& position) {
 void CrowdAgentObject::setOrientation(const Vector3f& directionXZ) {
 	m_controlledNode->getOrientation().set(directionXZ);
 }
+
+void CrowdAgentObject::translate(const Vector3f& trans) {
+	m_controlledNode->translate(trans);
+}
+
+void CrowdAgentObject::translateRelative(const Vector3f& trans) {
+	m_controlledNode->translateRelative(trans);
+}

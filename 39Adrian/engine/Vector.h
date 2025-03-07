@@ -104,7 +104,7 @@ public:
 	static const Vector3f UP;
 	static const Vector3f DOWN;
 	static const Vector3f FORWARD;
-	static const Vector3f BACK;
+	static const Vector3f BACKWARD;
 
 	Vector3f();
 	Vector3f(float x_);

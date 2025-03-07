@@ -211,9 +211,17 @@ BoundingBox::Intersection BoundingBox::isInside(const BoundingBox& box) const {
 		return INSIDE;
 }
 
-BoundingBox::Intersection BoundingBox::isInsideFast(const BoundingBox& box) const{
+BoundingBox::Intersection BoundingBox::isInsideFast(const BoundingBox& box) const {
 	if (box.max[0] < min[0] || box.min[0] > max[0] || box.max[1] < min[1] || box.min[1] > max[1] ||
 		box.max[2] < min[2] || box.min[2] > max[2])
+		return OUTSIDE;
+	else
+		return INSIDE;
+}
+
+BoundingBox::Intersection BoundingBox::isInside(const Vector3f& point) const {
+	if (point[0] < min[0] || point[0] > max[0] || point[1] < min[1] || point[1] > max[1] ||
+		point[2] < min[2] || point[2] > max[2])
 		return OUTSIDE;
 	else
 		return INSIDE;

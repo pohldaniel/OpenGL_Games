@@ -41,10 +41,10 @@ struct NavigationGeometryInfo
 {
 	/// Component.
 	ShapeNode* component_ = nullptr;
-
 	/// Connection.
 	OffMeshConnection* connection_ = nullptr;
-
+	/// Connection.
+	NavArea* area_ = nullptr;
 	/// Geometry LOD level if applicable.
 	unsigned lodLevel_;
 	/// Transform relative to the navigation mesh root node.
@@ -286,6 +286,7 @@ public:
 	bool GetDrawNavAreas() const { return drawNavAreas_; }
 	std::vector<Navigable*> m_navigables;
 	std::vector<OffMeshConnection*> m_offMeshConnections;
+	std::vector<NavArea*> m_navAreas;
 	//private:
 	/// Write tile data.
 	void WriteTile(unsigned char*& dest, int x, int z) const;
@@ -364,8 +365,7 @@ public:
 	bool drawOffMeshConnections_;
 	/// Debug draw NavArea components.
 	bool drawNavAreas_;
-	/// NavAreas for this NavMesh
-	std::vector<NavArea*> areas_;
+
 
 	std::vector<BoundingBox> m_boxes;
 	Vector3f randPoint(const Vector3f& center, float radius);

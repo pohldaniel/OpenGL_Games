@@ -63,6 +63,8 @@ private:
 	void createScene();
 	void clearMarker();
 	void createBoxOffMeshConnections(DynamicNavigationMesh* navMesh, SceneNodeLC* boxGroup);
+	void setPathPoint(const Vector3f& pos);
+	void followPath(float dt);
 
 	void spawnAgent(const Vector3f& pos);
 	void spawnBeta(const Vector3f& pos);
@@ -106,13 +108,16 @@ private:
 
 	std::vector<CrowdAgentEntity*> m_entities;
 	std::vector<EmptyAgentEntity*> m_empty;
+	std::vector<Vector3f> m_currentPath;
+	Vector3f m_endPos;
+	Jack* m_jackAgent;
 
 	void addMarker(const Vector3f& pos);
 
 	static std::vector<ShapeNode*> Marker;
 	static Octree* _Octree;
 	static SceneNodeLC* Root;
-
+	
 	
 	std::unordered_set< std::array<int, 2>, std::function<size_t(const std::array<int, 2>&)>, std::function<bool(const std::array<int, 2>&, const std::array<int, 2>&)>> m_addedTiles;
 	std::unordered_map< std::array<int, 2>, Buffer, std::function<size_t(const std::array<int, 2>&)>, std::function<bool(const std::array<int, 2>&, const std::array<int, 2>&)>> m_tileData;

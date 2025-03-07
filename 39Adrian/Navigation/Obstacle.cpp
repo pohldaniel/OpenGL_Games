@@ -1,12 +1,12 @@
-#include "DynamicNavigationMesh.h"
 #include "Obstacle.h"
+#include "DynamicNavigationMesh.h"
+
 
 Obstacle::Obstacle(OctreeNode* node) :
 	m_node(node),
 	height_(5.0f),
 	radius_(5.0f),
 	obstacleId_(0),
-	isEnabled_(true),
 	ownerMesh_(nullptr){
 
 }

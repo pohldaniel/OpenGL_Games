@@ -7,6 +7,7 @@
 
 #include "DynamicNavigationMesh.h"
 #include "OffMeshConnection.h"
+#include "NavArea.h"
 #include "NavBuildData.h"
 #include "Obstacle.h"
 #include "CrowdAgent.h"
@@ -536,6 +537,7 @@ void DynamicNavigationMesh::ReleaseTileCache() {
 void DynamicNavigationMesh::OnRenderDebug() {
 	NavigationMesh::OnRenderDebug();
 
+	// Draw Obstacle components
 	if (drawObstacles_) {
 		for (unsigned i = 0; i < m_obstacles.size(); ++i) {
 			Obstacle* obstacle = m_obstacles[i];
@@ -545,20 +547,27 @@ void DynamicNavigationMesh::OnRenderDebug() {
 	}
 
 	// Draw OffMeshConnection components
-	if (drawOffMeshConnections_)
-	{
-
+	if (drawOffMeshConnections_){
 		for (unsigned i = 0; i < m_offMeshConnections.size(); ++i) {
 			OffMeshConnection* offMeshConnections = m_offMeshConnections[i];
 			if (offMeshConnections && offMeshConnections->isEnabled_)
 				offMeshConnections->OnRenderDebug();
 		}
 	}
+
+	// Draw NavArea components
+	if (drawNavAreas_){
+		for (unsigned i = 0; i < m_navAreas.size(); ++i){
+			NavArea* area = m_navAreas[i];
+			if (area && area->isEnabled_)
+				area->OnRenderDebug();
+		}
+	}
 }
 
 void DynamicNavigationMesh::AddObstacle(Obstacle* obstacle, bool silent) {
-	if (tileCache_){
 
+	if (tileCache_){
 		float pos[3];
 		const Vector3f& obsPos = obstacle->m_node->getWorldPosition();
 		rcVcopy(pos, obsPos.getVec());
@@ -574,7 +583,6 @@ void DynamicNavigationMesh::AddObstacle(Obstacle* obstacle, bool silent) {
 			return;
 		}
 		obstacle->obstacleId_ = refHolder;
-
 		wait();
 	}
 }

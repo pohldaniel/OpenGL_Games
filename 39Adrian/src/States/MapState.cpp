@@ -133,7 +133,7 @@ void MapState::update() {
 	if (keyboard.keyDown(Keyboard::KEY_RIGHT))
 		moveDir += Vector3f::FORWARD;
 	if (keyboard.keyDown(Keyboard::KEY_LEFT))
-		moveDir += Vector3f::BACK;
+		moveDir += Vector3f::BACKWARD;
 
 	if (moveDir.lengthSq() > 0.0f)
 		Vector3f::Normalize(moveDir);

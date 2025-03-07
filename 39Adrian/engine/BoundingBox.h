@@ -48,6 +48,7 @@ struct BoundingBox {
 	void cleanup();
 	Intersection isInside(const BoundingBox& box) const;
 	Intersection isInsideFast(const BoundingBox& box) const;
+	Intersection isInside(const Vector3f& point) const;
 
 	Vector3f min;
 	Vector3f max;

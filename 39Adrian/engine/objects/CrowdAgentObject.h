@@ -20,9 +20,14 @@ public:
 	void setControlledNode(SceneNodeLC* controlledNode);
 	void setPosition(const Vector3f& position) override;
 	void setOrientation(const Vector3f &directionXZ) override;
+	void translate(const Vector3f& trans) override;
+	void translateRelative(const Vector3f& trans) override;
+
+protected:
+
+	SceneNodeLC* m_controlledNode;
 
 private:
 
-	SceneNodeLC* m_controlledNode;
 	const CrowdAgent& crowdAgent;
 };

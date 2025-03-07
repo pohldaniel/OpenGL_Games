@@ -22,3 +22,7 @@ void Jack::OnInactive() {
 	CrowdAgentEntity::OnInactive();
 	m_animationController->stop("jack_walk", 0.5f);
 }
+
+const Vector3f& Jack::getPosition() {
+	return m_controlledNode->getWorldPosition();
+}

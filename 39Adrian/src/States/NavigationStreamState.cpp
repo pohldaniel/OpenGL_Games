@@ -29,7 +29,8 @@ NavigationStreamState::NavigationStreamState(StateMachine& machine) :
 	m_height(2.0f),
 	m_streamingDistance(6),
 	m_addedTiles(0, hash, equal),
-	m_tileData(0, hash, equal) {
+	m_tileData(0, hash, equal),
+	m_jackAgent(nullptr){
 
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
@@ -129,8 +130,6 @@ NavigationStreamState::NavigationStreamState(StateMachine& machine) :
 
 	m_navigationMesh->m_crowdManager = m_crowdManager;
 
-	
-
 	for (unsigned i = 0; i < 100; ++i)
 		createMushroom(Vector3f(Utils::random(90.0f) - 45.0f, 0.0f, Utils::random(90.0f) - 45.0f));
 
@@ -142,8 +141,8 @@ NavigationStreamState::NavigationStreamState(StateMachine& machine) :
 	m_crowdManager->setObstacleAvoidanceParams(0, params);
 
 	spawnJack(Vector3f(0.0f, 0.0f, 0.0f));
-	spawnBeta(Vector3f(-5.0f, 0.5f, -30.0f));
-	spawnWoman(Vector3f(-10.0f, 0.5f, -30.0f));
+	//spawnBeta(Vector3f(-5.0f, 0.5f, -30.0f));
+	//spawnWoman(Vector3f(-10.0f, 0.5f, -30.0f));
 
 	auto shader = Globals::shaderManager.getAssetPointer("map");
 	shader->use();
@@ -243,8 +242,8 @@ void NavigationStreamState::update() {
 	if (m_useStreaming)
 		updateStreaming();
 
-	m_crowdManager->update(m_dt);
-	//m_navigationMesh->update(m_dt);
+	//m_crowdManager->update(m_dt);
+	followPath(m_dt);
 
 	for (auto&& entity : m_entities)
 		entity->update(m_dt);
@@ -302,6 +301,20 @@ void NavigationStreamState::render() {
 	if (m_debugNavmesh) {
 		m_navigationMesh->OnRenderDebug();
 		m_crowdManager->OnRenderDebug();
+		if (m_currentPath.size()) {
+			// Visualize the current calculated path		
+			DebugRenderer::Get().AddBoundingBox(BoundingBox(m_endPos - Vector3f(0.1f, 0.1f, 0.1f), m_endPos + Vector3f(0.1f, 0.1f, 0.1f)), Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+
+			// Draw the path with a small upward bias so that it does not clip into the surfaces
+			Vector3f bias(0.0f, 0.05f, 0.0f);
+			DebugRenderer::Get().AddLine(m_jackAgent->getPosition() + bias, m_currentPath[0] + bias, Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+
+			if (m_currentPath.size() > 1) {
+				for (unsigned i = 0; i < m_currentPath.size() - 1; ++i)
+					DebugRenderer::Get().AddLine(m_currentPath[i] + bias, m_currentPath[i + 1] + bias, Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+			}
+		}
+
 		DebugRenderer::Get().SetProjectionView(m_camera.getPerspectiveMatrix(), m_camera.getViewMatrix());
 		DebugRenderer::Get().drawBuffer();
 	}
@@ -356,6 +369,7 @@ void NavigationStreamState::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 				btVector3 pos = callbackAll.m_hitPointWorld[callbackAll.index];
 				Vector3f pathPos = m_navigationMesh->FindNearestPoint(Physics::VectorFrom(pos), Vector3f(1.5f, 1.5f, 1.5f));
 				m_crowdManager->setCrowdTarget(pathPos);
+				setPathPoint(Physics::VectorFrom(pos));
 			}
 		}
 	}
@@ -637,6 +651,9 @@ void NavigationStreamState::spawnJack(const Vector3f& pos) {
 	animationNode->setShader(Globals::shaderManager.getAssetPointer("animation"));
 
 	m_entities.push_back(new Jack(*agent, animationNode));
+
+	if (!m_jackAgent)
+		m_jackAgent = static_cast<Jack*>(m_entities.back());
 }
 
 void NavigationStreamState::spawnWoman(const Vector3f& pos) {
@@ -818,5 +835,33 @@ void NavigationStreamState::createBoxOffMeshConnections(DynamicNavigationMesh* n
 		connection->SetEndPoint(connectionEnd);
 
 		navMesh->m_offMeshConnections.push_back(connection);
+	}
+}
+
+void NavigationStreamState::setPathPoint(const Vector3f& pos) {
+	Vector3f pathPos = m_navigationMesh->FindNearestPoint(pos, Vector3f(1.5f, 1.5f, 1.5f));
+	m_endPos = pathPos;
+	m_navigationMesh->FindPath(m_currentPath, m_jackAgent->getPosition(), m_endPos);
+}
+
+void NavigationStreamState::followPath(float dt) {
+
+	if (m_currentPath.size()){
+		Vector3f nextWaypoint = m_currentPath[0];
+		Vector3f pos = m_jackAgent->getPosition();
+		pos[1] = nextWaypoint[1];
+
+		float move = 5.0f * dt;
+		float distance = (pos - nextWaypoint).length();
+		if (move > distance)
+			move = distance;
+
+		m_jackAgent->setOrientation(Vector3f::Normalize(nextWaypoint - pos));
+		m_jackAgent->translateRelative(Vector3f::FORWARD * move);
+	
+		// Remove waypoint if reached it
+		if (distance < 0.2f) {
+			m_currentPath.erase(m_currentPath.begin());
+		}
 	}
 }

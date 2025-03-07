@@ -27,6 +27,7 @@ static const float DEFAULT_EDGE_MAX_LENGTH = 12.0f;
 static const float DEFAULT_EDGE_MAX_ERROR = 1.3f;
 static const float DEFAULT_DETAIL_SAMPLE_DISTANCE = 6.0f;
 static const float DEFAULT_DETAIL_SAMPLE_MAX_ERROR = 1.0f;
+static const float M_LARGE_VALUE = 100000000.0f;
 
 static const int MAX_POLYS = 2048;
 std::random_device NavigationMesh::RandomDevice;
@@ -596,19 +597,13 @@ void NavigationMesh::CollectGeometries(std::vector<NavigationGeometryInfo>& geom
 	}
 
 	// Get nav area volumes
-	std::vector<NavArea*> navAreas;
-	//node_->GetComponents<NavArea>(navAreas, true);
-	areas_.clear();
-	for (unsigned i = 0; i < navAreas.size(); ++i)
-	{
-		NavArea* area = navAreas[i];
-		if (true)
-		{
+	for (unsigned i = 0; i < m_navAreas.size(); ++i){
+		NavArea* area = m_navAreas[i];
+		if (true){
 			NavigationGeometryInfo info;
-			//info.component_ = area;
+			info.area_ = area;
 			info.boundingBox_ = area->GetWorldBoundingBox();
 			geometryList.push_back(info);
-			areas_.push_back(area);
 		}
 	}
 }
@@ -708,12 +703,18 @@ void NavigationMesh::GetTileGeometry(NavBuildData* build, std::vector<Navigation
 				build->offMeshFlags_.push_back((unsigned short)connection->GetMask());
 				build->offMeshAreas_.push_back((unsigned char)connection->GetAreaID());
 				build->offMeshDir_.push_back((unsigned char)(connection->IsBidirectional() ? DT_OFFMESH_CON_BIDIR : 0));
-			}else {
+			}else if(geometryList[i].area_) {
+				NavArea* area = geometryList[i].area_;
+				NavAreaStub stub;
+				stub.areaID_ = (unsigned char)area->GetAreaID();
+				stub.bounds_ = area->GetWorldBoundingBox();
+				build->navAreas_.push_back(stub);
+			}else if (geometryList[i].component_) {
 				ShapeNode* drawable = geometryList[i].component_;
 				if (drawable) {
 					AddTriMeshGeometry(build, drawable->getShape(), transform, vertexCount);
 				}
-			}	
+			}
 		}
 	}
 }
@@ -852,4 +853,85 @@ bool NavigationMesh::HasTile(const std::array<int, 2>& tile) const{
 		return !!navMesh_->getTileAt(tile[0], tile[1], 0);
 	}
 	return false;
+}
+
+void NavigationMesh::FindPath(std::vector<Vector3f>& dest, const Vector3f& start, const Vector3f& end, const Vector3f& extents, const dtQueryFilter* filter){
+	std::vector<NavigationPathPoint> navPathPoints;
+	FindPath(navPathPoints, start, end, extents, filter);
+
+	dest.clear();
+
+	//for (std::vector<NavigationPathPoint>::reverse_iterator riter = navPathPoints.rbegin();riter != navPathPoints.rend(); ++riter){
+	//	dest.push_back((*riter).position_);
+	//}
+
+	for (unsigned i = 0; i < navPathPoints.size(); ++i)
+		dest.push_back(navPathPoints[i].position_);
+}
+
+void NavigationMesh::FindPath(std::vector<NavigationPathPoint>& dest, const Vector3f& start, const Vector3f& end, const Vector3f& extents, const dtQueryFilter* filter){
+	dest.clear();
+
+	if (!InitializeQuery())
+		return;
+
+	// Navigation data is in local space. Transform path points from world to local
+	//const Matrix3x4& transform = node_->GetWorldTransform();
+	//Matrix3x4 inverse = transform.Inverse();
+
+	Vector3f localStart = start;
+	Vector3f localEnd = end;
+
+	const dtQueryFilter* queryFilter = filter ? filter : queryFilter_;
+	dtPolyRef startRef;
+	dtPolyRef endRef;
+	navMeshQuery_->findNearestPoly(&localStart[0], extents.getVec(), queryFilter, &startRef, 0);
+	navMeshQuery_->findNearestPoly(&localEnd[0], extents.getVec(), queryFilter, &endRef, 0);
+
+	if (!startRef || !endRef)
+		return;
+
+	int numPolys = 0;
+	int numPathPoints = 0;
+
+	navMeshQuery_->findPath(startRef, endRef, &localStart[0], &localEnd[0], queryFilter, pathData_->polys_, &numPolys, MAX_POLYS);
+	if (!numPolys)
+		return;
+
+	Vector3f actualLocalEnd = localEnd;
+
+	// If full path was not found, clamp end point to the end polygon
+	if (pathData_->polys_[numPolys - 1] != endRef)
+		navMeshQuery_->closestPointOnPoly(pathData_->polys_[numPolys - 1], &localEnd[0], &actualLocalEnd[0], 0);
+
+	navMeshQuery_->findStraightPath(&localStart[0], &actualLocalEnd[0], pathData_->polys_, numPolys,
+		&pathData_->pathPoints_[0][0], pathData_->pathFlags_, pathData_->pathPolys_, &numPathPoints, MAX_POLYS);
+
+	// Transform path result back to world space
+	for (int i = 0; i < numPathPoints; ++i){
+		NavigationPathPoint pt;
+		pt.position_ = pathData_->pathPoints_[i];
+		pt.flag_ = (NavigationPathPointFlag)pathData_->pathFlags_[i];
+
+		// Walk through all NavAreas and find nearest
+		unsigned nearestNavAreaID = 0;       // 0 is the default nav area ID
+		float nearestDistance = M_LARGE_VALUE;
+		for (unsigned j = 0; j < m_navAreas.size(); j++){
+			NavArea* area = m_navAreas[j];
+			if (area && area->isEnabled_){
+				BoundingBox bb = area->GetWorldBoundingBox();
+				if (bb.isInside(pt.position_) == BoundingBox::Intersection::INSIDE){
+					Vector3f areaWorldCenter = bb.getCenter();
+					float distance = (areaWorldCenter - pt.position_).lengthSq();
+					if (distance < nearestDistance){
+						nearestDistance = distance;
+						nearestNavAreaID = area->GetAreaID();
+					}
+				}
+			}
+		}
+		pt.areaID_ = (unsigned char)nearestNavAreaID;
+
+		dest.push_back(pt);
+	}
 }

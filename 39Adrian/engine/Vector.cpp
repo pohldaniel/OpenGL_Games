@@ -2836,7 +2836,7 @@ const Vector3f Vector3f::RIGHT(1.0f, 0.0f, 0.0f);
 const Vector3f Vector3f::UP(0.0f, -1.0f, 0.0f);
 const Vector3f Vector3f::DOWN(0.0f, 1.0f, 0.0f);
 const Vector3f Vector3f::FORWARD(0.0f, 0.0f, 1.0f);
-const Vector3f Vector3f::BACK(0.0f, 0.0f, -1.0f);
+const Vector3f Vector3f::BACKWARD(0.0f, 0.0f, -1.0f);
 
 Vector3f::Vector3f() {
 	vec[0] = 0.0f;

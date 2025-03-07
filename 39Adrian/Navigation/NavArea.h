@@ -16,7 +16,7 @@ public:
 	//static void RegisterObject(Context*);
 
 	/// Render debug geometry for the bounds.
-	virtual void DrawDebugGeometry(DebugRenderer* debug, bool depthTest);
+	void OnRenderDebug();
 
 	/// Get the area id for this volume.
 	unsigned GetAreaID() const { return (unsigned)areaID_; }
@@ -32,7 +32,7 @@ public:
 
 	/// Get the bounds of this navigation area in world space.
 	BoundingBox GetWorldBoundingBox() const;
-
+	bool isEnabled_;
 private:
 	/// Bounds of area to mark.
 	BoundingBox boundingBox_;

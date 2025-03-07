@@ -7,7 +7,9 @@ static const unsigned DEFAULT_AREA_ID = 0;
 
 NavArea::NavArea() :
 	areaID_(DEFAULT_AREA_ID),
-	boundingBox_(DEFAULT_BOUNDING_BOX_MIN, DEFAULT_BOUNDING_BOX_MAX){
+	boundingBox_(DEFAULT_BOUNDING_BOX_MIN, DEFAULT_BOUNDING_BOX_MAX),
+	isEnabled_(true)
+{
 
 }
 
@@ -18,21 +20,16 @@ void NavArea::SetAreaID(unsigned newID){
 	if (newID > MAX_NAV_AREA_ID)
 		std::cout << "NavArea Area ID %u exceeds maximum value of %u" << std::endl;
 	areaID_ = (unsigned char)newID;
-	//MarkNetworkUpdate();
 }
 
 BoundingBox NavArea::GetWorldBoundingBox() const{
-	Matrix4f mat;
-	//Matrix4f::Translate(node_->GetWorldPosition());
-	return boundingBox_.transformed(mat);
+	return boundingBox_;
 }
 
-void NavArea::DrawDebugGeometry(DebugRenderer* debug, bool depthTest){
+void NavArea::OnRenderDebug() {
 
-	if (debug){
-		Matrix4f mat;
-		//Matrix4f::Translate(node_->GetWorldPosition());
-		debug->AddBoundingBox(boundingBox_, mat, Vector4f(0.0f, 1.0f, 0.0f, 1.0f));
-		//debug->AddBoundingBox(boundingBox_, mat, Color(0.0f, 1.0f, 0.0f, 0.15f), true, true);
+	if (isEnabled_){
+		DebugRenderer::Get().AddBoundingBox(boundingBox_, Vector4f(0.0f, 1.0f, 0.0f, 1.0f));
+		//DebugRenderer::Get().AddBoundingBox(boundingBox_, Vector4f(0.0f, 1.0f, 0.0f, 0.15f));
 	}
 }
