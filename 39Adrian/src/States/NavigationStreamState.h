@@ -77,11 +77,12 @@ private:
 	void saveNavigationData();
 
 	bool m_initUi = true;
-	bool m_drawUi = false;
+	bool m_drawUi = true;
 	bool m_debugTree = false;
 	bool m_debugPhysic = false;
 	bool m_debugNavmesh = true;
 	bool m_useStreaming = false;
+	bool m_useWayPoint = true;
 
 	float m_offsetDistance;
 	float m_separaionWeight;

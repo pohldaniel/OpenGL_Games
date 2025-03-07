@@ -541,8 +541,9 @@ void DynamicNavigationMesh::OnRenderDebug() {
 	if (drawObstacles_) {
 		for (unsigned i = 0; i < m_obstacles.size(); ++i) {
 			Obstacle* obstacle = m_obstacles[i];
-			if (obstacle && obstacle->isEnabled_)
+			if (obstacle && obstacle->isEnabled_) {
 				obstacle->OnRenderDebug();
+			}
 		}
 	}
 

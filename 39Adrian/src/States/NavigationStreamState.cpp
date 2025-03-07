@@ -237,13 +237,14 @@ void NavigationStreamState::update() {
 	m_frustum.updateVertices(m_camera.getPerspectiveMatrix(), m_camera.getViewMatrix());
 	m_frustum.m_frustumSATData.calculate(m_frustum);
 
-	
-
 	if (m_useStreaming)
 		updateStreaming();
 
-	//m_crowdManager->update(m_dt);
-	followPath(m_dt);
+	if(m_useWayPoint)
+		followPath(m_dt);
+	else
+		m_crowdManager->update(m_dt);
+	
 
 	for (auto&& entity : m_entities)
 		entity->update(m_dt);
@@ -367,9 +368,13 @@ void NavigationStreamState::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 			if (m_mousePicker.clickAll(event.x, event.y, m_camera, nullptr)) {
 				const MousePickCallbackAll& callbackAll = m_mousePicker.getCallbackAll();
 				btVector3 pos = callbackAll.m_hitPointWorld[callbackAll.index];
-				Vector3f pathPos = m_navigationMesh->FindNearestPoint(Physics::VectorFrom(pos), Vector3f(1.5f, 1.5f, 1.5f));
-				m_crowdManager->setCrowdTarget(pathPos);
-				setPathPoint(Physics::VectorFrom(pos));
+				if(m_useWayPoint)
+					setPathPoint(Physics::VectorFrom(pos));
+				else {			
+					Vector3f pathPos = m_navigationMesh->FindNearestPoint(Physics::VectorFrom(pos), Vector3f(1.5f, 1.5f, 1.5f));
+					m_crowdManager->setCrowdTarget(pathPos);
+				}
+				
 			}
 		}
 	}
@@ -456,6 +461,8 @@ void NavigationStreamState::renderUi() {
 	ImGui::Checkbox("Debug Tree", &m_debugTree);
 	ImGui::Checkbox("Debug Physic", &m_debugPhysic);
 	ImGui::Checkbox("Debug Navmesh", &m_debugNavmesh);
+	ImGui::Checkbox("Use Waypoint", &m_useWayPoint);
+
 	if (ImGui::Button("Clear Marker"))
 		clearMarker();
 
@@ -754,11 +761,15 @@ void NavigationStreamState::toggleStreaming(bool enabled) {
 void NavigationStreamState::updateStreaming() {
 	// Center the navigation mesh at the crowd of jacks
 	Vector3f averageAgentPosition;
-	const float numAgents = static_cast<float>(m_crowdManager->getAgents().size());
-	for (auto agent : m_crowdManager->getAgents()) {
-		averageAgentPosition += agent->getPosition();
+	if (m_useWayPoint)
+		averageAgentPosition = m_jackAgent->getPosition();
+	else {
+		const float numAgents = static_cast<float>(m_crowdManager->getAgents().size());
+		for (auto agent : m_crowdManager->getAgents()) {
+			averageAgentPosition += agent->getPosition();
+		}
+		averageAgentPosition /= numAgents;
 	}
-	averageAgentPosition /= numAgents;
 
 	// Compute currently loaded area
 	const std::array<int, 2> jackTile = m_navigationMesh->GetTileIndex(averageAgentPosition);
@@ -842,6 +853,7 @@ void NavigationStreamState::setPathPoint(const Vector3f& pos) {
 	Vector3f pathPos = m_navigationMesh->FindNearestPoint(pos, Vector3f(1.5f, 1.5f, 1.5f));
 	m_endPos = pathPos;
 	m_navigationMesh->FindPath(m_currentPath, m_jackAgent->getPosition(), m_endPos);
+	m_jackAgent->playAnimation();
 }
 
 void NavigationStreamState::followPath(float dt) {
@@ -859,6 +871,10 @@ void NavigationStreamState::followPath(float dt) {
 		m_jackAgent->setOrientation(Vector3f::Normalize(nextWaypoint - pos));
 		m_jackAgent->translateRelative(Vector3f::FORWARD * move);
 	
+		if (m_currentPath.size() == 1 && distance < 0.5f) {
+			m_jackAgent->OnInactive();
+		}
+		
 		// Remove waypoint if reached it
 		if (distance < 0.2f) {
 			m_currentPath.erase(m_currentPath.begin());

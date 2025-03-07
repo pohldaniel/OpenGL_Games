@@ -15,6 +15,10 @@ void Jack::update(const float dt) {
 
 void Jack::OnPositionVelocityUpdate(const Vector3f& pos, const Vector3f& vel) {
 	CrowdAgentEntity::OnPositionVelocityUpdate(pos, vel);
+	playAnimation();
+}
+
+void Jack::playAnimation() {
 	m_animationController->playExclusive("jack_walk", 0, true, 0.1f);
 }
 

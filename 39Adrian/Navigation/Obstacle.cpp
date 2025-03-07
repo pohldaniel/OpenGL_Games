@@ -7,7 +7,8 @@ Obstacle::Obstacle(OctreeNode* node) :
 	height_(5.0f),
 	radius_(5.0f),
 	obstacleId_(0),
-	ownerMesh_(nullptr){
+	ownerMesh_(nullptr),
+	isEnabled_(true){
 
 }
 
