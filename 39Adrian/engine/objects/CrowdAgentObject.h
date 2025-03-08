@@ -19,7 +19,8 @@ public:
 
 	void setControlledNode(SceneNodeLC* controlledNode);
 	void setPosition(const Vector3f& position) override;
-	void setOrientation(const Vector3f &directionXZ) override;
+	void setOrientation(const Vector3f& directionXZ) override;
+	void setOrientation(const Quaternion& orientation) override;
 	void translate(const Vector3f& trans) override;
 	void translateRelative(const Vector3f& trans) override;
 

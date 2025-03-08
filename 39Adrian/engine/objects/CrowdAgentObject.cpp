@@ -21,6 +21,10 @@ void CrowdAgentObject::setOrientation(const Vector3f& directionXZ) {
 	m_controlledNode->getOrientation().set(directionXZ);
 }
 
+void CrowdAgentObject::setOrientation(const Quaternion& orientation) {
+	m_controlledNode->setOrientation(orientation);
+}
+
 void CrowdAgentObject::translate(const Vector3f& trans) {
 	m_controlledNode->translate(trans);
 }

@@ -879,7 +879,12 @@ void NavigationStreamState::followPath(float dt) {
 		if (move > distance)
 			move = distance;
 
-		m_jackAgent->setOrientation(Vector3f::Normalize(nextWaypoint - pos));
+		//m_jackAgent->setOrientation(Vector3f::Normalize(nextWaypoint - pos));
+
+		Quaternion quat;
+		quat.fromLookRotation(nextWaypoint - pos, Vector3f::UP);
+
+		m_jackAgent->setOrientation(quat);
 		m_jackAgent->translateRelative(Vector3f::FORWARD * move);
 	
 		if (m_currentPath.size() == 1 && distance < 0.5f) {

@@ -477,6 +477,8 @@ public:
 	void fromMatrix(const Matrix4f &m);
 	void fromPitchYawRoll(float pitch, float yaw, float roll);
 	void fromRotationTo(const Vector3f& start, const Vector3f& end);
+	void fromLookRotation(const Vector3f& direction, const Vector3f& upDirection);
+	void fromAxis(const Vector3f &xAxis, const Vector3f &yAxis, const Vector3f &zAxis);
 
 	void toPitchYawRoll(float& pitch, float& yaw, float& roll) const;
 	void toAxisAngle(Vector3f &axis, float &degrees) const;

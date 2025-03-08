@@ -3594,6 +3594,51 @@ void Quaternion::fromRotationTo(const Vector3f& start, const Vector3f& end){
 	}
 }
 
+void Quaternion::fromLookRotation(const Vector3f& direction, const Vector3f& upDirection){
+	Quaternion ret;
+	Vector3f forward = Vector3f::Normalize(direction);
+	Vector3f v = Vector3f::Cross(forward, upDirection);
+
+	// If direction & upDirection are parallel and crossproduct becomes zero, use FromRotationTo() fallback
+	if (v.lengthSq() >= EPSILON){
+		v.normalize();
+		Vector3f up = Vector3f::Cross(v, forward);	
+		Vector3f right = Vector3f::Cross(up, forward);
+
+		ret.fromAxis(right, up, forward);
+	}
+	else
+		ret.fromRotationTo(Vector3f::FORWARD, forward);
+
+	(*this) = ret;
+}
+
+void Quaternion::fromAxis(const Vector3f &xAxis, const Vector3f &yAxis, const Vector3f &zAxis) {
+	Matrix4f mtx;
+
+	mtx[0][0] = xAxis[0];
+	mtx[0][1] = xAxis[1];
+	mtx[0][2] = xAxis[2];
+	mtx[0][3] = 0.0f;
+
+	mtx[1][0] = yAxis[0];
+	mtx[1][1] = yAxis[1];
+	mtx[1][2] = yAxis[2];
+	mtx[1][3] = 0.0f;
+
+	mtx[2][0] = zAxis[0];
+	mtx[2][1] = zAxis[1];
+	mtx[2][2] = zAxis[2];
+	mtx[2][3] = 0.0f;
+
+	mtx[3][0] = 0.0f;
+	mtx[3][1] = 0.0f;
+	mtx[3][2] = 0.0f;
+	mtx[3][3] = 1.0f;
+
+	fromMatrix(mtx);
+}
+
 void Quaternion::rotate(float pitch, float yaw, float roll) {
 	pitch = pitch * HALF_PI_ON_180;
 	yaw = yaw * HALF_PI_ON_180;
