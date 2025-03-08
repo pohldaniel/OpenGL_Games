@@ -17,4 +17,5 @@ public:
 	virtual void OnPositionVelocityUpdate(const Vector3f& pos, const Vector3f& vel) override;
 	virtual void OnTarget(const Vector3f& targetPos) override;
 	virtual void OnAddAgent(const Vector3f& pos) override;
+	void resetAgent();
 };

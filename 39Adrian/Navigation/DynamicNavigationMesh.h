@@ -51,6 +51,8 @@ public:
 
 	bool drawObstacles_;
 	bool drawOffMeshConnections_;
+	bool drawNavAreas_;
+
 	dtTileCache* tileCache_;
 	dtTileCacheAlloc* allocator_;
 	dtTileCacheCompressor* compressor_;

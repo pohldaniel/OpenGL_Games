@@ -36,7 +36,8 @@ CrowdAgent::CrowdAgent() :
 	m_navPushiness(DEFAULT_AGENT_NAVIGATION_PUSHINESS),
 	m_previousTargetState(CA_TARGET_NONE),
 	m_previousAgentState(CrowdAgentState::DT_CROWDAGENT_STATE_WALKING),
-	m_active(false)
+	m_active(false),
+	m_forceArrived(false)
 {
 
 }
@@ -67,7 +68,6 @@ void CrowdAgent::OnCrowdPositionUpdate(dtCrowdAgent* ag, float* , float dt){
 		
 	if (m_active) {
 		if (hasArrived(10.0f)) {
-			m_active = false;
 			resetAgent();
 			OnInactive();
 		}
@@ -104,7 +104,7 @@ bool CrowdAgent::hasArrived(const float scale) const {
 	const dtCrowdAgent* agent = getDetourCrowdAgent();
 	return agent && (!agent->ncorners || (agent->cornerFlags[agent->ncorners - 1] & DT_STRAIGHTPATH_END &&
 		dtVdist2D(agent->npos, &agent->cornerVerts[(agent->ncorners - 1) * 3]) <=
-		agent->params.radius * scale));
+		agent->params.radius * scale)) || m_forceArrived;
 }
 
 bool CrowdAgent::isInCrowd() const {
@@ -405,7 +405,9 @@ void CrowdAgent::setOnAddAgent(std::function<void(const Vector3f& pos)> fun) con
 	OnAddAgent = fun;
 }
 
-void CrowdAgent::resetAgent() {
+void CrowdAgent::resetAgent() const {
+	m_active = false;
+	m_forceArrived = true;
 	m_requestedTargetType = CA_REQUESTEDTARGET_NONE;
 	m_crowdManager->getCrowd()->resetMoveTarget(m_agentCrowdId);
 }
@@ -420,6 +422,10 @@ void CrowdAgent::resetTarget() {
 
 bool CrowdAgent::isActive() {
 	return m_crowdManager->getCrowd()->isActive(m_agentCrowdId, 5.0f);
+}
+
+void CrowdAgent::setForceArrived(bool forceArrived) const {
+	m_forceArrived = forceArrived;
 }
 
 bool CrowdAgent::OnTileAdded(const std::array<int, 2>& tile){

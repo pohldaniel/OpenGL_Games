@@ -116,6 +116,7 @@ NavigationStreamState::NavigationStreamState(StateMachine& machine) :
 
 	SceneNodeLC* boxGroup = Root->findChild<SceneNodeLC>("box_group");
 	createBoxOffMeshConnections(m_navigationMesh, boxGroup);
+	createNavArea();
 	m_navigationMesh->Build();
 
 	m_crowdManager = new CrowdManager();
@@ -129,7 +130,7 @@ NavigationStreamState::NavigationStreamState(StateMachine& machine) :
 	});
 
 	m_navigationMesh->m_crowdManager = m_crowdManager;
-
+	
 	for (unsigned i = 0; i < 100; ++i)
 		createMushroom(Vector3f(Utils::random(90.0f) - 45.0f, 0.0f, Utils::random(90.0f) - 45.0f));
 
@@ -141,8 +142,8 @@ NavigationStreamState::NavigationStreamState(StateMachine& machine) :
 	m_crowdManager->setObstacleAvoidanceParams(0, params);
 
 	spawnJack(Vector3f(0.0f, 0.0f, 0.0f));
-	//spawnBeta(Vector3f(-5.0f, 0.5f, -30.0f));
-	//spawnWoman(Vector3f(-10.0f, 0.5f, -30.0f));
+	spawnBeta(Vector3f(-5.0f, 0.5f, -30.0f));
+	spawnWoman(Vector3f(-10.0f, 0.5f, -30.0f));
 
 	auto shader = Globals::shaderManager.getAssetPointer("map");
 	shader->use();
@@ -365,8 +366,17 @@ void NavigationStreamState::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 			}
 		}else {
 			clearMarker();
+			m_currentPath.clear();
+
 			if (m_mousePicker.clickAll(event.x, event.y, m_camera, nullptr)) {
 				const MousePickCallbackAll& callbackAll = m_mousePicker.getCallbackAll();
+				if (static_cast<PhysicalObjects>(callbackAll.m_userIndex) == PhysicalObjects::NAVAREA || static_cast<PhysicalObjects>(callbackAll.m_userIndex) == PhysicalObjects::OBSTACLE) {
+					m_crowdManager->resetAgents();
+					if(m_useWayPoint)
+						m_jackAgent->OnInactive();
+					return;
+				}
+					
 				btVector3 pos = callbackAll.m_hitPointWorld[callbackAll.index];
 				if(m_useWayPoint)
 					setPathPoint(Physics::VectorFrom(pos));
@@ -708,16 +718,14 @@ void NavigationStreamState::createMushroom(const Vector3f& pos) {
 	m_navigationMesh->m_obstacles.push_back(obstacle);
 
 	btCollisionObject* collisionObject = Physics::AddStaticObject(Physics::BtTransform(Physics::VectorFrom(pos), Physics::QuaternionFrom(orientation)), Physics::CreateConvexHullShape(&m_mushroom, {scale, scale, scale}), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER);
-	collisionObject->setUserIndex(PhysicalObjects::MUSHRROM);
+	collisionObject->setUserIndex(PhysicalObjects::OBSTACLE);
 	collisionObject->setUserPointer(obstacle);
-	
-	//m_navigationMesh->wait();
 }
 
 void NavigationStreamState::addOrRemoveObject(const Vector3f& pos, PhysicalObjects physicalObjects, Obstacle* obstacle, btCollisionObject* collisionObject){
 
 	switch (physicalObjects){
-	  case MUSHRROM:
+	  case OBSTACLE:
 		  obstacle->isEnabled_ = false;
 		  obstacle->m_node->OnOctreeSet(nullptr);
 		  obstacle->m_node->eraseSelf();
@@ -850,10 +858,13 @@ void NavigationStreamState::createBoxOffMeshConnections(DynamicNavigationMesh* n
 }
 
 void NavigationStreamState::setPathPoint(const Vector3f& pos) {
-	Vector3f pathPos = m_navigationMesh->FindNearestPoint(pos, Vector3f(1.5f, 1.5f, 1.5f));
+	Vector3f pathPos = m_navigationMesh->FindNearestPoint(pos);
 	m_endPos = pathPos;
 	m_navigationMesh->FindPath(m_currentPath, m_jackAgent->getPosition(), m_endPos);
-	m_jackAgent->playAnimation();
+
+	if (m_currentPath.size())
+		m_jackAgent->playAnimation();
+
 }
 
 void NavigationStreamState::followPath(float dt) {
@@ -880,4 +891,19 @@ void NavigationStreamState::followPath(float dt) {
 			m_currentPath.erase(m_currentPath.begin());
 		}
 	}
+}
+
+void NavigationStreamState::createNavArea() {
+	BoundingBox box = BoundingBox(Vector3f(-30.0f, -2.0f, -30.0f), Vector3f(-10.0f, 2.0f, -10.0f));
+
+	m_navigationMesh->m_navAreas.push_back(new NavArea());
+	m_navigationMesh->m_navAreas.back()->SetBoundingBox(box);
+	m_navigationMesh->m_navAreas.back()->SetAreaID(0);
+	
+	Vector3f size = box.getSize() * 0.5f;
+	size[1] = 0.01f;
+
+	btCollisionObject* collisionObject = Physics::AddStaticObject(Physics::BtTransform(box.getCenter()), new btBoxShape(Physics::VectorFrom(size)), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER);
+	collisionObject->setUserIndex(PhysicalObjects::NAVAREA);
+	collisionObject->setUserPointer(m_navigationMesh->m_navAreas.back());
 }

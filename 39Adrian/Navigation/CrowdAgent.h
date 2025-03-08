@@ -94,11 +94,11 @@ public:
 	void setOnInactive(std::function<void()> fun) const;
 	void setOnTarget(std::function<void(const Vector3f& pos)> fun) const;
 	void setOnAddAgent(std::function<void(const Vector3f& pos)> fun) const;
+	void setForceArrived(bool forceArrived) const;
 
-	void resetAgent();
+	void resetAgent() const;
 	void resetTarget();
-	bool isActive();
-
+	
 	static const Vector3f& GetNearestPos();
 	static void SetNearestPos(const Vector3f& nearestPos);
 	
@@ -109,13 +109,14 @@ protected:
 private:
 
 	void updateParameters(unsigned int scope = std::numeric_limits<unsigned int>::max());
+	bool isActive();
 
 	CrowdAgentVelocityCallback m_velocityCallback;
 	CrowdAgentHeightCallback m_heightCallback;
 	int m_agentCrowdId;
 	Vector3f m_targetPosition;
 	Vector3f m_targetVelocity;
-	CrowdAgentRequestedTarget m_requestedTargetType;
+
 	float m_maxAccel;
 	float m_maxSpeed;
 	float m_radius;
@@ -130,9 +131,11 @@ private:
 	CrowdAgentTargetState m_previousTargetState;
 	CrowdAgentState m_previousAgentState;
 	CrowdManager* m_crowdManager;
-	bool m_active;
-	
 
+	mutable CrowdAgentRequestedTarget m_requestedTargetType;
+	mutable bool m_active;
+	mutable bool m_forceArrived;
+	
 	mutable std::function<void(const Vector3f& pos, const Vector3f& vel)> OnPositionVelocityUpdate;
 	mutable std::function<void()> OnInactive;
 	mutable std::function<void(const Vector3f& pos)> OnTarget;

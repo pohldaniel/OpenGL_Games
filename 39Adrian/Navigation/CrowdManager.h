@@ -77,6 +77,8 @@ public:
 	void resetNavMesh(dtNavMesh* nav);
 	void initNavquery(dtNavMesh* nav);
 
+	void resetAgents();
+
 	/// Get the number of configured obstacle avoidance types.
 	//unsigned GetNumObstacleAvoidanceTypes() const { return numObstacleAvoidanceTypes_; }
 	/// Get the number of configured query filter types.

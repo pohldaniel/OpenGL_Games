@@ -22,8 +22,20 @@ void NavArea::SetAreaID(unsigned newID){
 	areaID_ = (unsigned char)newID;
 }
 
-BoundingBox NavArea::GetWorldBoundingBox() const{
+BoundingBox NavArea::GetWorldBoundingBox() const {
 	return boundingBox_;
+}
+
+void NavArea::SetBoundingBox(const BoundingBox& bnds) {
+	boundingBox_ = bnds; 
+}
+
+BoundingBox NavArea::GetBoundingBox() const {
+	return boundingBox_; 
+}
+
+unsigned NavArea::GetAreaID() const {
+	return (unsigned)areaID_; 
 }
 
 void NavArea::OnRenderDebug() {

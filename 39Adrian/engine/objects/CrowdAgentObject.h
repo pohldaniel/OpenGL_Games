@@ -23,6 +23,8 @@ public:
 	void translate(const Vector3f& trans) override;
 	void translateRelative(const Vector3f& trans) override;
 
+	const CrowdAgent& getCrowdAgent() const;
+	
 protected:
 
 	SceneNodeLC* m_controlledNode;

@@ -328,3 +328,9 @@ void CrowdManager::resetNavMesh(dtNavMesh* nav) {
 void CrowdManager::initNavquery(dtNavMesh* nav) {
 	m_crowd->initNavquery(nav);
 }
+
+void CrowdManager::resetAgents() {
+	for (unsigned int i = 0; i < m_agents.size(); ++i) {
+		m_agents[i]->resetAgent();
+	}
+}

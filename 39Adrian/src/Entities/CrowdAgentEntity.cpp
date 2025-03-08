@@ -21,8 +21,13 @@ void CrowdAgentEntity::OnInactive() {
 
 void CrowdAgentEntity::OnTarget(const Vector3f& targetPos) {
 	NavigationStreamState::AddMarker(targetPos);
+	getCrowdAgent().setForceArrived(false);
 }
 
 void CrowdAgentEntity::OnAddAgent(const Vector3f& pos) {
 	setPosition(pos);
+}
+
+void CrowdAgentEntity::resetAgent() {
+	getCrowdAgent().resetAgent();
 }

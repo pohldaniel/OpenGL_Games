@@ -860,11 +860,6 @@ void NavigationMesh::FindPath(std::vector<Vector3f>& dest, const Vector3f& start
 	FindPath(navPathPoints, start, end, extents, filter);
 
 	dest.clear();
-
-	//for (std::vector<NavigationPathPoint>::reverse_iterator riter = navPathPoints.rbegin();riter != navPathPoints.rend(); ++riter){
-	//	dest.push_back((*riter).position_);
-	//}
-
 	for (unsigned i = 0; i < navPathPoints.size(); ++i)
 		dest.push_back(navPathPoints[i].position_);
 }

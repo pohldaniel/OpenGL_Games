@@ -19,16 +19,16 @@ public:
 	void OnRenderDebug();
 
 	/// Get the area id for this volume.
-	unsigned GetAreaID() const { return (unsigned)areaID_; }
+	unsigned GetAreaID() const;
 
 	/// Set the area id for this volume.
 	void SetAreaID(unsigned newID);
 
 	/// Get the bounding box of this navigation area, in local space.
-	BoundingBox GetBoundingBox() const { return boundingBox_; }
+	BoundingBox GetBoundingBox() const;
 
 	/// Set the bounding box of this area, in local space.
-	void SetBoundingBox(const BoundingBox& bnds) { boundingBox_ = bnds; }
+	void SetBoundingBox(const BoundingBox& bnds);
 
 	/// Get the bounds of this navigation area in world space.
 	BoundingBox GetWorldBoundingBox() const;

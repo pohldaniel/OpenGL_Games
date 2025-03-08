@@ -19,7 +19,7 @@ void Jack::OnPositionVelocityUpdate(const Vector3f& pos, const Vector3f& vel) {
 }
 
 void Jack::playAnimation() {
-	m_animationController->playExclusive("jack_walk", 0, true, 0.1f);
+	m_animationController->playExclusive("jack_walk", 0, true, 0.1f);	
 }
 
 void Jack::OnInactive() {

@@ -28,3 +28,7 @@ void CrowdAgentObject::translate(const Vector3f& trans) {
 void CrowdAgentObject::translateRelative(const Vector3f& trans) {
 	m_controlledNode->translateRelative(trans);
 }
+
+const CrowdAgent& CrowdAgentObject::getCrowdAgent() const {
+	return crowdAgent;
+}

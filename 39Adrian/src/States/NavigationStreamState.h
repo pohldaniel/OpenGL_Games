@@ -21,6 +21,7 @@
 #include <Navigation/CrowdAgent.h>
 #include <Navigation/Obstacle.h>
 #include <Navigation/OffMeshConnection.h>
+#include <Navigation/NavArea.h>
 #include <Entities/EmptyAgentEntity.h>
 #include <Entities/Woman.h>
 #include <Entities/Beta.h>
@@ -30,9 +31,10 @@
 
 
 enum PhysicalObjects : int {
-	MUSHRROM,
+	OBSTACLE,
 	ENTITY,
-	GROUND
+	GROUND,
+	NAVAREA
 };
 
 class NavigationStreamState : public State, public MouseEventListener, public KeyboardEventListener {
@@ -65,6 +67,7 @@ private:
 	void createBoxOffMeshConnections(DynamicNavigationMesh* navMesh, SceneNodeLC* boxGroup);
 	void setPathPoint(const Vector3f& pos);
 	void followPath(float dt);
+	void createNavArea();
 
 	void spawnAgent(const Vector3f& pos);
 	void spawnBeta(const Vector3f& pos);
@@ -82,7 +85,7 @@ private:
 	bool m_debugPhysic = false;
 	bool m_debugNavmesh = true;
 	bool m_useStreaming = false;
-	bool m_useWayPoint = true;
+	bool m_useWayPoint = false;
 
 	float m_offsetDistance;
 	float m_separaionWeight;

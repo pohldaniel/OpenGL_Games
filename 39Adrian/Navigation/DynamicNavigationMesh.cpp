@@ -152,6 +152,7 @@ DynamicNavigationMesh::DynamicNavigationMesh() :
 	NavigationMesh(), 
 	drawObstacles_(true), 
 	drawOffMeshConnections_(true),
+	drawNavAreas_(true),
 	tileCache_(nullptr),
 	maxObstacles_(DEFAULT_MAX_OBSTACLES),
 	maxLayers_(DEFAULT_MAX_LAYERS) {
