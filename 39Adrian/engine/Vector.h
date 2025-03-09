@@ -124,7 +124,7 @@ public:
 	void translate(const float dx, const float dy, const float dz);
 	void scale(const Vector3f& rhs);
 	void scale(const float sx, const float sy, const float sz);
-	bool compare(const Vector3f& rhs, float precision);
+	bool compare(const Vector3f& rhs, float precision) const;
 
 	float &operator[](int index);
 	const float operator[](int index) const;
@@ -433,8 +433,8 @@ public:
 	Quaternion(float pitch, float yaw, float roll);
 	Quaternion(const Vector3f &axis, float degrees);
 	Quaternion(const Vector3f &start, const Vector3f &end);
-	Quaternion(const Vector3f &directionXZ);
 	Quaternion(const Vector3f &xAxis, const Vector3f &yAxis, const Vector3f &zAxis);
+	Quaternion(const Vector3f &directionXZ);
 	Quaternion(Quaternion const& rhs);
 	Quaternion(Quaternion&& rhs);
 	explicit Quaternion(const Matrix4f &m);

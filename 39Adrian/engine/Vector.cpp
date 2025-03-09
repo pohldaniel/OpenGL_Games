@@ -2833,8 +2833,8 @@ const Vector3f Vector3f::ZERO(0.0f, 0.0f, 0.0f);
 const Vector3f Vector3f::ONE(1.0f, 1.0f, 1.0f);
 const Vector3f Vector3f::LEFT(-1.0f, 0.0f, 0.0f);
 const Vector3f Vector3f::RIGHT(1.0f, 0.0f, 0.0f);
-const Vector3f Vector3f::UP(0.0f, -1.0f, 0.0f);
-const Vector3f Vector3f::DOWN(0.0f, 1.0f, 0.0f);
+const Vector3f Vector3f::UP(0.0f, 1.0f, 0.0f);
+const Vector3f Vector3f::DOWN(0.0f, -1.0f, 0.0f);
 const Vector3f Vector3f::FORWARD(0.0f, 0.0f, 1.0f);
 const Vector3f Vector3f::BACKWARD(0.0f, 0.0f, -1.0f);
 
@@ -3061,7 +3061,7 @@ const float* Vector3f::getVec()const {
 	return vec;
 }
 
-bool Vector3f::compare(const Vector3f &rhs, float precision) {
+bool Vector3f::compare(const Vector3f &rhs, float precision) const {
 	return fabs(lengthSq() - rhs.lengthSq()) < precision * precision;
 	//return fabs(vec[0] - rhs[0]) <= precision && fabs(vec[1] - rhs[1]) <= precision && fabs(vec[2] - rhs[2]) <= precision;
 }
@@ -3571,63 +3571,56 @@ void Quaternion::fromPitchYawRoll(float pitch, float yaw, float roll) {
 	quat[3] = cosP * cosY * cosR + sinP * sinY * sinR;
 }
 
-void Quaternion::fromRotationTo(const Vector3f& start, const Vector3f& end){
-	Vector3f normStart = Vector3f::Normalize(start);
-	Vector3f normEnd = Vector3f::Normalize(end);
-	float d = Vector3f::Dot(normStart, normEnd);
-
-	if (d > -1.0f + EPSILON){
-		Vector3f c = Vector3f::Cross(normStart, normEnd);
-		float s = sqrtf((1.0f + d) * 2.0f);
-		float invS = 1.0f / s;
-
-		quat[0] = c[0] * invS;
-		quat[1] = c[1] * invS;
-		quat[2] = c[2] * invS;
-		quat[3] = 0.5f * s;
-	}else{
-		Vector3f axis = Vector3f::Cross(Vector3f::RIGHT, normStart);
-		if (axis.length() < EPSILON)
-			axis = Vector3f::Cross(Vector3f::UP,normStart);
-
-		fromAxisAngle(axis, 180.0f);
-	}
+void Quaternion::fromRotationTo(const Vector3f& start, const Vector3f& end){	
+	fromLookRotation(end - start, Vector3f::UP);	
 }
 
 void Quaternion::fromLookRotation(const Vector3f& direction, const Vector3f& upDirection){
-	Quaternion ret;
 	Vector3f forward = Vector3f::Normalize(direction);
-	Vector3f v = Vector3f::Cross(forward, upDirection);
+	Vector3f v = Vector3f::Cross(upDirection, forward);
 
 	// If direction & upDirection are parallel and crossproduct becomes zero, use FromRotationTo() fallback
 	if (v.lengthSq() >= EPSILON){
 		v.normalize();
-		Vector3f up = Vector3f::Cross(v, forward);	
+		Vector3f up = Vector3f::Cross(forward, v);
 		Vector3f right = Vector3f::Cross(up, forward);
+		fromAxis(right, up, forward);
+	}else {
+		if (direction.compare(Vector3f::ZERO, EPSILON))
+			return;
+		float d = Vector3f::Dot(Vector3f::FORWARD, direction);
+		if (d < -1.0f + EPSILON) {
+			Vector3f axis = Vector3f::Cross(Vector3f::RIGHT, Vector3f::FORWARD);
+			fromAxisAngle(axis, 180.0f);
+			return;
+		}else {
+			Vector3f c = Vector3f::Cross(Vector3f::FORWARD, direction);
+			float s = sqrtf((1.0f + d) * 2.0f);
+			float invS = 1.0f / s;
 
-		ret.fromAxis(right, up, forward);
+			quat[0] = c[0] * invS;
+			quat[1] = c[1] * invS;
+			quat[2] = c[2] * invS;
+			quat[3] = 0.5f * s;
+		}
 	}
-	else
-		ret.fromRotationTo(Vector3f::FORWARD, forward);
-
-	(*this) = ret;
 }
 
 void Quaternion::fromAxis(const Vector3f &xAxis, const Vector3f &yAxis, const Vector3f &zAxis) {
 	Matrix4f mtx;
 
 	mtx[0][0] = xAxis[0];
-	mtx[0][1] = xAxis[1];
-	mtx[0][2] = xAxis[2];
+	mtx[0][1] = yAxis[0];
+	mtx[0][2] = zAxis[0];
 	mtx[0][3] = 0.0f;
 
-	mtx[1][0] = yAxis[0];
+	mtx[1][0] = xAxis[1];
 	mtx[1][1] = yAxis[1];
-	mtx[1][2] = yAxis[2];
+	mtx[1][2] = zAxis[1];
 	mtx[1][3] = 0.0f;
 
-	mtx[2][0] = zAxis[0];
-	mtx[2][1] = zAxis[1];
+	mtx[2][0] = xAxis[2];
+	mtx[2][1] = yAxis[2];
 	mtx[2][2] = zAxis[2];
 	mtx[2][3] = 0.0f;
 
