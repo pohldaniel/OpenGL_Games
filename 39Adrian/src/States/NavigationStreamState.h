@@ -55,15 +55,12 @@ public:
 	void OnKeyDown(Event::KeyboardEvent& event) override;
 	void OnKeyUp(Event::KeyboardEvent& event) override;
 
-	static void AddMarker(const Vector3f& pos);
-
 private:
 
 	void renderUi();
 	void createShapes();
 	void createPhysics();
 	void createScene();
-	void clearMarker();
 	void createBoxOffMeshConnections(DynamicNavigationMesh* navMesh, SceneNodeLC* boxGroup);
 	void setPathPoint(const Vector3f& pos);
 	void followPath(float dt);
@@ -108,20 +105,14 @@ private:
 	CrowdManager* m_crowdManager;
 	CrowdAgent *m_crowdAgentBeta, *m_crowdAgentJack;
 	AnimationController *m_animationControllerBeta, *m_animationControllerJack;
-	//std::hash_set<std::array<int, 2>> m_addedTiles;
 
 	std::vector<CrowdAgentEntity*> m_entities;
-	std::vector<EmptyAgentEntity*> m_empty;
 	std::vector<Vector3f> m_currentPath;
 	Vector3f m_endPos;
 	Jack* m_jackAgent;
 
-	void addMarker(const Vector3f& pos);
-
-	static std::vector<ShapeNode*> Marker;
-	static Octree* _Octree;
-	static SceneNodeLC* Root;
-	
+	Octree* m_octree;
+	SceneNodeLC* m_root;
 	
 	std::unordered_set< std::array<int, 2>, std::function<size_t(const std::array<int, 2>&)>, std::function<bool(const std::array<int, 2>&, const std::array<int, 2>&)>> m_addedTiles;
 	std::unordered_map< std::array<int, 2>, Buffer, std::function<size_t(const std::array<int, 2>&)>, std::function<bool(const std::array<int, 2>&, const std::array<int, 2>&)>> m_tileData;

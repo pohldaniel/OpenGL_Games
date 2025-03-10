@@ -558,6 +558,9 @@
     <ClCompile Include="Navigation\Obstacle.cpp">
       <Filter>Navigation</Filter>
     </ClCompile>
+    <ClCompile Include="src\Renderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="convhull\convhull_3d.h">
@@ -1069,6 +1072,9 @@
     </ClInclude>
     <ClInclude Include="Navigation\Obstacle.h">
       <Filter>Navigation</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

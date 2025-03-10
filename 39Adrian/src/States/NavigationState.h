@@ -57,7 +57,6 @@ private:
 	void createShapes();
 	void createPhysics();
 	void createScene();
-	void clearMarker();
 	
 	void spawnAgent(const Vector3f& pos);
 	void spawnBeta(const Vector3f& pos);
@@ -90,13 +89,8 @@ private:
 	CrowdAgent *m_crowdAgentBeta, *m_crowdAgentJack;
 	AnimationController *m_animationControllerBeta, *m_animationControllerJack;
 
-
 	std::vector<CrowdAgentEntity*> m_entities;
 
-	void addMarker(const Vector3f& pos);
-
-	
-	static std::vector<ShapeNode*> Marker;
-	static Octree* _Octree;
-	static SceneNodeLC* Root;
+	Octree* m_octree;
+	SceneNodeLC* m_root;
 };

@@ -94,6 +94,12 @@ void CrowdAgent::OnRenderDebug() {
 	DebugRenderer::Get().AddCylinder(pos, m_radius, m_height, isActive() ? Vector4f(1.0f, 1.0f, 1.0f, 1.0f) : Vector4f(0.0f, 1.0f, 0.0f, 1.0f));
 }
 
+void CrowdAgent::initCallbacks() {
+	OnPositionVelocityUpdate = [](const Vector3f& pos, const Vector3f& vel) { };
+	OnInactive = []() {};
+	OnTarget = [](const Vector3f& pos) {};
+	OnAddAgent = [](const Vector3f& pos) {};
+}
 
 bool CrowdAgent::hasRequestedTarget() const { 
 	return m_requestedTargetType != CA_REQUESTEDTARGET_NONE;

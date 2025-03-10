@@ -1,8 +1,9 @@
 #include <States/NavigationState.h>
 #include <States/NavigationStreamState.h>
 #include "EmptyAgentEntity.h"
+#include "Renderer.h"
 
-EmptyAgentEntity::EmptyAgentEntity(const CrowdAgent& crowdAgent, SceneNodeLC* controlledNode) : CrowdAgentObject(crowdAgent, controlledNode), Entity() {
+EmptyAgentEntity::EmptyAgentEntity(const CrowdAgent& crowdAgent) : CrowdAgentObject(crowdAgent, nullptr), Entity() {
 
 }
 
@@ -19,9 +20,13 @@ void EmptyAgentEntity::OnInactive() {
 }
 
 void EmptyAgentEntity::OnTarget(const Vector3f& targetPos) {
-	NavigationStreamState::AddMarker(targetPos);
+	Renderer::Get().addMarker(targetPos);
 }
 
-void EmptyAgentEntity::OnAddAgent(const Vector3f& targetPos) {
+void EmptyAgentEntity::OnAddAgent(const Vector3f& pos) {
 
+}
+
+void EmptyAgentEntity::resetAgent() {
+	getCrowdAgent().resetAgent();
 }

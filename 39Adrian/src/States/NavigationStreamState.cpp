@@ -14,11 +14,8 @@
 #include "Utils/RandomNew.h"
 #include "NavigationStreamState.h"
 #include "Application.h"
+#include "Renderer.h"
 #include "Globals.h"
-
-std::vector<ShapeNode*> NavigationStreamState::Marker;
-Octree* NavigationStreamState::_Octree = nullptr;
-SceneNodeLC* NavigationStreamState::Root = nullptr;
 
 auto hash = [](const std::array<int, 2>& p) {  return std::hash<int>()(p[0]) ^ std::hash<int>()(p[1]) << 1; };
 auto equal = [](const std::array<int, 2>& p1, const std::array<int, 2>& p2) { return p1[0] == p2[0] && p1[1] == p2[1]; };
@@ -56,8 +53,9 @@ NavigationStreamState::NavigationStreamState(StateMachine& machine) :
 	ShapeDrawer::Get().setCamera(m_camera);
 
 	WorkQueue::Init(0);
-	_Octree = new Octree(m_camera, m_frustum, m_dt);
-	_Octree->setUseOcclusionCulling(false);
+	Renderer::Get().init(new Octree(m_camera, m_frustum, m_dt), new SceneNodeLC());
+	m_octree = Renderer::Get().getOctree();
+	m_root = Renderer::Get().getScene();
 
 	DebugRenderer::Get().setEnable(true);
 
@@ -114,7 +112,7 @@ NavigationStreamState::NavigationStreamState(StateMachine& machine) :
 	m_navigationMesh->SetAgentRadius(0.6f);
 	m_navigationMesh->Build();
 
-	SceneNodeLC* boxGroup = Root->findChild<SceneNodeLC>("box_group");
+	SceneNodeLC* boxGroup = m_root->findChild<SceneNodeLC>("box_group");
 	createBoxOffMeshConnections(m_navigationMesh, boxGroup);
 	createNavArea();
 	m_navigationMesh->Build();
@@ -144,6 +142,7 @@ NavigationStreamState::NavigationStreamState(StateMachine& machine) :
 	spawnJack(Vector3f(0.0f, 0.0f, 0.0f));
 	spawnBeta(Vector3f(-5.0f, 0.5f, -30.0f));
 	spawnWoman(Vector3f(-10.0f, 0.5f, -30.0f));
+	spawnAgent(Vector3f(-15.0f, 0.5f, -30.0f));
 
 	auto shader = Globals::shaderManager.getAssetPointer("map");
 	shader->use();
@@ -155,6 +154,8 @@ NavigationStreamState::NavigationStreamState(StateMachine& machine) :
 NavigationStreamState::~NavigationStreamState() {
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
+	Material::CleanupTextures();
+	Renderer::Get().shutdown();
 }
 
 void NavigationStreamState::fixedUpdate() {
@@ -232,7 +233,7 @@ void NavigationStreamState::update() {
 		m_camera.updateTarget();
 	}
 
-	_Octree->updateFrameNumber();
+	m_octree->updateFrameNumber();
 
 	m_frustum.updatePlane(m_camera.getPerspectiveMatrix(), m_camera.getViewMatrix());
 	m_frustum.updateVertices(m_camera.getPerspectiveMatrix(), m_camera.getViewMatrix());
@@ -250,7 +251,7 @@ void NavigationStreamState::update() {
 	for (auto&& entity : m_entities)
 		entity->update(m_dt);
 
-	_Octree->updateOctree();
+	m_octree->updateOctree();
 }
 
 void NavigationStreamState::render() {
@@ -271,7 +272,7 @@ void NavigationStreamState::render() {
 	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
 	shader->loadMatrix("u_view", m_camera.getViewMatrix());
 
-	for (const Batch& batch : _Octree->getOpaqueBatches().m_batches) {
+	for (const Batch& batch : m_octree->getOpaqueBatches().m_batches) {
 		OctreeNode* drawable = batch.octreeNode;
 		shader->loadMatrix("u_model", drawable->getWorldTransformation());
 		drawable->drawRaw();
@@ -282,8 +283,8 @@ void NavigationStreamState::render() {
 
 	if (m_debugTree) {
 
-		for (size_t i = 0; i < _Octree->getRootLevelOctants().size(); ++i) {
-			const Octree::ThreadOctantResult& result = _Octree->getOctantResults()[i];
+		for (size_t i = 0; i < m_octree->getRootLevelOctants().size(); ++i) {
+			const Octree::ThreadOctantResult& result = m_octree->getOctantResults()[i];
 			for (auto oIt = result.octants.begin(); oIt != result.octants.end(); ++oIt) {
 				Octant* octant = oIt->first;
 				if (m_debugTree)
@@ -365,7 +366,7 @@ void NavigationStreamState::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 				spawnJack(Physics::VectorFrom(pos));
 			}
 		}else {
-			clearMarker();
+			Renderer::Get().clearMarker();
 			m_currentPath.clear();
 
 			if (m_mousePicker.clickAll(event.x, event.y, m_camera, nullptr)) {
@@ -474,7 +475,7 @@ void NavigationStreamState::renderUi() {
 	ImGui::Checkbox("Use Waypoint", &m_useWayPoint);
 
 	if (ImGui::Button("Clear Marker"))
-		clearMarker();
+		Renderer::Get().clearMarker();
 
 	if (ImGui::SliderFloat("Separation Weight", &m_separaionWeight, 0.0f, 32.0f)) {
 		//m_crowdManager->setSeparationWeight(m_separaionWeight);
@@ -482,7 +483,6 @@ void NavigationStreamState::renderUi() {
 			agent->setSeparationWeight(m_separaionWeight);
 		}
 	}
-
 
 	if (ImGui::SliderFloat("Height", &m_height, 0.0f, 8.0f)) {
 		for (CrowdAgent* agent : m_crowdManager->getAgents()) {
@@ -564,43 +564,28 @@ void NavigationStreamState::createPhysics() {
 }
 
 void NavigationStreamState::createScene() {
-	Root = new SceneNodeLC();
+	
 	ShapeNode* shapeNode;
-	shapeNode = Root->addChild<ShapeNode, Shape>(m_plane);
-	shapeNode->OnOctreeSet(_Octree);
+	shapeNode = m_root->addChild<ShapeNode, Shape>(m_plane);
+	shapeNode->OnOctreeSet(m_octree);
 	shapeNode->setTextureIndex(6);
 	shapeNode->setSortKey(2);
 	shapeNode->setShader(Globals::shaderManager.getAssetPointer("map"));
 	m_navigables.push_back(new Navigable(shapeNode));
 
-	SceneNodeLC* boxGroup = Root->addChild<SceneNodeLC>();
+	SceneNodeLC* boxGroup = m_root->addChild<SceneNodeLC>();
 	boxGroup->setName("box_group");
 
 	for (unsigned i = 0; i < 20; ++i){
 		float size = 1.0f + Utils::random(10.0f);		
 		ShapeNode* boxNode = boxGroup->addChild<ShapeNode, Shape>(m_box);
-		boxNode->OnOctreeSet(_Octree);
+		boxNode->OnOctreeSet(m_octree);
 		boxNode->setPosition(Utils::random(80.0f) - 40.0f, 0.5f * size, Utils::random(80.0f) - 40.0f);
 		boxNode->setTextureIndex(6);
 		boxNode->setScale(size);
 		m_navigables.push_back(new Navigable(boxNode));
 		Physics::AddStaticObject(Physics::BtTransform(Physics::VectorFrom(boxNode->getPosition())), Physics::CreateCollisionShape(&m_box, btVector3(size, size, size)), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER);
 	}
-}
-
-void NavigationStreamState::clearMarker() {
-	for (auto shapeNode : Marker) {
-		shapeNode->OnOctreeSet(nullptr);
-		shapeNode->eraseSelf();
-	}
-	Marker.clear();
-}
-
-void NavigationStreamState::addMarker(const Vector3f& pos) {
-	Marker.push_back(Root->addChild<ShapeNode, Shape>(Globals::shapeManager.get("sphere")));
-	Marker.back()->setPosition(pos);
-	Marker.back()->setTextureIndex(4);
-	Marker.back()->OnOctreeSet(_Octree);
 }
 
 void NavigationStreamState::spawnAgent(const Vector3f& pos) {
@@ -614,7 +599,10 @@ void NavigationStreamState::spawnAgent(const Vector3f& pos) {
 	agent->setNavigationPushiness(NAVIGATIONPUSHINESS_MEDIUM);
 	agent->setSeparationWeight(m_separaionWeight);
 	
-	m_empty.push_back(new EmptyAgentEntity(*agent, nullptr));
+	agent->initCallbacks();
+	agent->setOnTarget([&agent = m_crowdManager->getAgents().back()](const Vector3f& pos) {
+		Renderer::Get().addMarker(pos);
+	});
 }
 
 void NavigationStreamState::spawnBeta(const Vector3f& pos) {
@@ -628,12 +616,12 @@ void NavigationStreamState::spawnBeta(const Vector3f& pos) {
 	agent->setNavigationPushiness(NAVIGATIONPUSHINESS_MEDIUM);
 	agent->setSeparationWeight(m_separaionWeight);
 
-	AnimationNode* animationNode = Root->addChild<AnimationNode, AnimatedModel>(m_beta);
+	AnimationNode* animationNode = m_root->addChild<AnimationNode, AnimatedModel>(m_beta);
 	animationNode->setPosition(pos);
 	animationNode->setOrientation(0.0f, 180.0f, 0.0f);
-	animationNode->OnOctreeSet(_Octree);
+	animationNode->OnOctreeSet(m_octree);
 	animationNode->setTextureIndex(3);
-	animationNode->setId(Root->countChild<AnimationNode>() - 1);
+	animationNode->setId(m_root->countChild<AnimationNode>() - 1);
 	animationNode->setSortKey(1);
 	animationNode->setShader(Globals::shaderManager.getAssetPointer("animation"));
 
@@ -658,12 +646,12 @@ void NavigationStreamState::spawnJack(const Vector3f& pos) {
 	agent->setNavigationPushiness(NAVIGATIONPUSHINESS_MEDIUM);
 	agent->setSeparationWeight(m_separaionWeight);
 
-	AnimationNode* animationNode = Root->addChild<AnimationNode, AnimatedModel>(m_jack);
+	AnimationNode* animationNode = m_root->addChild<AnimationNode, AnimatedModel>(m_jack);
 	animationNode->setPosition(pos);
 	animationNode->setOrientation(0.0f, 180.0f, 0.0f);
-	animationNode->OnOctreeSet(_Octree);
+	animationNode->OnOctreeSet(m_octree);
 	animationNode->setTextureIndex(3);
-	animationNode->setId(Root->countChild<AnimationNode>() - 1);
+	animationNode->setId(m_root->countChild<AnimationNode>() - 1);
 	animationNode->setSortKey(1);
 	animationNode->setShader(Globals::shaderManager.getAssetPointer("animation"));
 
@@ -684,12 +672,12 @@ void NavigationStreamState::spawnWoman(const Vector3f& pos) {
 	agent->setNavigationPushiness(NAVIGATIONPUSHINESS_MEDIUM);
 	agent->setSeparationWeight(m_separaionWeight);
 
-	AnimationNode* animationNode = Root->addChild<AnimationNode, AnimatedModel>(m_woman);
+	AnimationNode* animationNode = m_root->addChild<AnimationNode, AnimatedModel>(m_woman);
 	animationNode->setPosition(pos);
 	animationNode->setOrientation(0.0f, 180.0f, 0.0f);
-	animationNode->OnOctreeSet(_Octree);
+	animationNode->OnOctreeSet(m_octree);
 	animationNode->setTextureIndex(5);
-	animationNode->setId(Root->countChild<AnimationNode>() - 1);
+	animationNode->setId(m_root->countChild<AnimationNode>() - 1);
 	animationNode->setSortKey(1);
 	animationNode->setShader(Globals::shaderManager.getAssetPointer("animation"));
 	m_entities.push_back(new Woman(*agent, animationNode));
@@ -701,11 +689,11 @@ void NavigationStreamState::createMushroom(const Vector3f& pos) {
 	Quaternion orientation = Quaternion(0.0f, Utils::random(360.0f), 0.0f);
 
 	ShapeNode* shapeNode;
-	shapeNode = Root->addChild<ShapeNode, Shape>(m_mushroom);
+	shapeNode = m_root->addChild<ShapeNode, Shape>(m_mushroom);
 	shapeNode->setPosition(pos);
 	shapeNode->setOrientation(orientation);
 	shapeNode->setScale(scale);
-	shapeNode->OnOctreeSet(_Octree);
+	shapeNode->OnOctreeSet(m_octree);
 	shapeNode->setTextureIndex(7);
 
 	Obstacle* obstacle = new Obstacle(shapeNode);	
@@ -813,13 +801,6 @@ void NavigationStreamState::updateStreaming() {
 
 	for (CrowdAgent* agent : m_navigationMesh->m_agentsToReset)
 		agent->resetParameter();
-}
-
-void NavigationStreamState::AddMarker(const Vector3f& pos) {
-	Marker.push_back(Root->addChild<ShapeNode, Shape>(Globals::shapeManager.get("sphere")));
-	Marker.back()->setPosition(pos);
-	Marker.back()->setTextureIndex(4);
-	Marker.back()->OnOctreeSet(_Octree);
 }
 
 void NavigationStreamState::saveNavigationData(){

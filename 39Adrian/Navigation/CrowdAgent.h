@@ -49,6 +49,7 @@ public:
 	void OnRenderDebug();
 	bool OnTileAdded(const std::array<int, 2>& tile);
 
+	void initCallbacks();
 	void setVelocityCallback(const CrowdAgentVelocityCallback& callback);
 	void setHeightCallback(const CrowdAgentHeightCallback& callback);
 	void setTargetPosition(const Vector3f& position);

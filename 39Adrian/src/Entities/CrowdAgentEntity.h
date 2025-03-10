@@ -3,8 +3,9 @@
 #include <engine/animationNew/AnimationController.h>
 #include <engine/objects/CrowdAgentObject.h>
 #include <Entities/Entity.h>
+#include "EmptyAgentEntity.h"
 
-class CrowdAgentEntity : public CrowdAgentObject, public Entity  {
+class CrowdAgentEntity : public EmptyAgentEntity {
 
 public:
 
