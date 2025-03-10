@@ -207,6 +207,7 @@ void CrowdManager::setCrowdTarget(const Vector3f& position){
 		CrowdAgent* agent = m_agents[i];			
 		agent->setTargetPosition(OnCrowdFormation(position, i ? agent : nullptr));
 		agent->setForceArrived(false);
+		agent->setForceActive(true);
 		agent->OnTarget(CrowdAgent::GetNearestPos());	
 	}
 }

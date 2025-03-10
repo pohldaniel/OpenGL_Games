@@ -37,7 +37,8 @@ CrowdAgent::CrowdAgent() :
 	m_previousTargetState(CA_TARGET_NONE),
 	m_previousAgentState(CrowdAgentState::DT_CROWDAGENT_STATE_WALKING),
 	m_active(false),
-	m_forceArrived(false)
+	m_forceArrived(false),
+	m_forceActive(false)
 {
 
 }
@@ -61,6 +62,7 @@ void CrowdAgent::OnCrowdPositionUpdate(dtCrowdAgent* ag, float* , float dt){
 	
 	if (isActive()){
 		m_active = true;
+		m_forceActive = false;
 		m_previousPosition = newPos;
 		OnPositionVelocityUpdate(newPos, newVel);	
 		return;
@@ -427,11 +429,15 @@ void CrowdAgent::resetTarget() {
 }
 
 bool CrowdAgent::isActive() {
-	return m_crowdManager->getCrowd()->isActive(m_agentCrowdId, 5.0f);
+	return m_crowdManager->getCrowd()->isActive(m_agentCrowdId, 5.0f) || m_forceActive;
 }
 
 void CrowdAgent::setForceArrived(bool forceArrived) const {
 	m_forceArrived = forceArrived;
+}
+
+void CrowdAgent::setForceActive(bool forceActive) const {
+	m_forceActive = forceActive;
 }
 
 bool CrowdAgent::OnTileAdded(const std::array<int, 2>& tile){

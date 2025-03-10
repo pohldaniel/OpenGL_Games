@@ -96,6 +96,7 @@ public:
 	void setOnTarget(std::function<void(const Vector3f& pos)> fun) const;
 	void setOnAddAgent(std::function<void(const Vector3f& pos)> fun) const;
 	void setForceArrived(bool forceArrived) const;
+	void setForceActive(bool forceActive) const;
 
 	void resetAgent() const;
 	void resetTarget();
@@ -135,7 +136,7 @@ private:
 
 	mutable CrowdAgentRequestedTarget m_requestedTargetType;
 	mutable bool m_active;
-	mutable bool m_forceArrived;
+	mutable bool m_forceArrived, m_forceActive;
 	
 	mutable std::function<void(const Vector3f& pos, const Vector3f& vel)> OnPositionVelocityUpdate;
 	mutable std::function<void()> OnInactive;

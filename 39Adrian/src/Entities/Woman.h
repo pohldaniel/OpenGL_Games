@@ -16,5 +16,7 @@ public:
 
 	void setUpdateSilent(bool value);
 
+private:
+
 	AnimationController *m_animationController;
 };
