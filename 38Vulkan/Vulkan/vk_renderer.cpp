@@ -64,7 +64,8 @@ bool vk_init(VkContext *vkcontext, void *window)
 	};
 
 	char *layers[]{
-		"VK_LAYER_KHRONOS_validation" };
+		"VK_LAYER_KHRONOS_validation" 
+	};
 
 	VkInstanceCreateInfo instanceInfo = {};
 	instanceInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
@@ -113,9 +114,7 @@ bool vk_init(VkContext *vkcontext, void *window)
 		VK_CHECK(vkEnumeratePhysicalDevices(vkcontext->instance, &gpuCount, gpus));
 
 		
-
-		for (uint32_t i = 0; i < gpuCount; i++)
-		{
+		for (uint32_t i = 0; i < gpuCount; i++){
 			VkPhysicalDevice gpu = gpus[i];
 			//printStats(gpu);
 			if (isTypeOf(gpu, VkPhysicalDeviceType::VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU))
@@ -127,18 +126,14 @@ bool vk_init(VkContext *vkcontext, void *window)
 			vkGetPhysicalDeviceQueueFamilyProperties(gpu, &queueFamilyCount, 0);
 			vkGetPhysicalDeviceQueueFamilyProperties(gpu, &queueFamilyCount, queueProps);
 
-			for (uint32_t j = 0; j < queueFamilyCount; j++)
-			{
-				if (queueProps[j].queueFlags & VK_QUEUE_GRAPHICS_BIT)
-				{
+			for (uint32_t j = 0; j < queueFamilyCount; j++){
+				if (queueProps[j].queueFlags & VK_QUEUE_GRAPHICS_BIT){
 					VkBool32 surfaceSupport = VK_FALSE;
 					VK_CHECK(vkGetPhysicalDeviceSurfaceSupportKHR(gpu, j, vkcontext->surface, &surfaceSupport));
 
-					if (surfaceSupport)
-					{
+					if (surfaceSupport){
 						vkcontext->graphicsIdx = j;
-						vkcontext->gpu = gpu;
-						
+						vkcontext->gpu = gpu;					
 						break;
 					}
 				}

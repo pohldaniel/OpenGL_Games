@@ -10,7 +10,8 @@ enum States {
 	MD2,
 	MAP,
 	NAVIGATION,
-	NAVIGATION_STREAM
+	NAVIGATION_STREAM,
+	ADRIAN
 };
 
 class State;

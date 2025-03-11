@@ -108,14 +108,12 @@ void Controls::fixedUpdate() {}
 void Controls::update() {}
 
 void Controls::render() {
-
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
 	m_headline.draw();
 	m_button.draw();
 	for (auto&& b : m_textFields)
 		b.second.draw();
-	
 
 	Globals::fontManager.get("upheaval_50").bind(0);
 	Fontrenderer::Get().addText(Globals::fontManager.get("upheaval_50"), static_cast<float>(Application::Width / 2 - 665), static_cast<float>(Application::Height - 300), "Move", Vector4f(1.0f, 1.0f, 1.0f, 1.0f));

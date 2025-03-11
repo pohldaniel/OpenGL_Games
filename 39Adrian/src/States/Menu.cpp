@@ -3,6 +3,10 @@
 #include <States/Settings.h>
 #include <States/Controls.h>
 #include <States/Default.h>
+#include <States/NavigationState.h>
+#include <States/NavigationStreamState.h>
+#include <States/MapState.h>
+#include <States/Adrian.h>
 
 #include "Menu.h"
 #include "Application.h"
@@ -20,18 +24,58 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	m_headline.setOffset(5.0f, -7.0f);
 
 	m_buttons = std::initializer_list<std::pair<const std::string, Button>>({
-		{ "default", Button()  },
-		{ "settings", Button() },
-		{ "controls", Button() },
+		{ "default",           Button() },
+		{ "navigation",        Button() },
+		{ "navigation_stream", Button() },
+		{ "iso_map",           Button() },
+		{ "adrian",            Button() },
+		{ "settings",          Button() },
+		{ "controls",          Button() },
 	});
 
 	m_buttons.at("default").setCharset(Globals::fontManager.get("upheaval_30"));
-	m_buttons.at("default").setPosition(50.0f, 350.0f);
+	m_buttons.at("default").setPosition(50.0f, 500.0f);
 	m_buttons.at("default").setOutlineThickness(5.0f);
 	m_buttons.at("default").setText("Default");
 	m_buttons.at("default").setFunction([&]() {
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new Default(m_machine));
+	});
+
+	m_buttons.at("navigation").setCharset(Globals::fontManager.get("upheaval_30"));
+	m_buttons.at("navigation").setPosition(50.0f, 400.0f);
+	m_buttons.at("navigation").setOutlineThickness(5.0f);
+	m_buttons.at("navigation").setText("Navigation");
+	m_buttons.at("navigation").setFunction([&]() {
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new NavigationState(m_machine));
+	});
+
+	m_buttons.at("navigation_stream").setCharset(Globals::fontManager.get("upheaval_30"));
+	m_buttons.at("navigation_stream").setPosition(50.0f, 300.0f);
+	m_buttons.at("navigation_stream").setOutlineThickness(5.0f);
+	m_buttons.at("navigation_stream").setText("Navigation Stream");
+	m_buttons.at("navigation_stream").setFunction([&]() {
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new NavigationStreamState(m_machine));
+	});
+
+	m_buttons.at("iso_map").setCharset(Globals::fontManager.get("upheaval_30"));
+	m_buttons.at("iso_map").setPosition(50.0f, 200.0f);
+	m_buttons.at("iso_map").setOutlineThickness(5.0f);
+	m_buttons.at("iso_map").setText("Isometric Map");
+	m_buttons.at("iso_map").setFunction([&]() {
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new MapState(m_machine));
+	});
+
+	m_buttons.at("adrian").setCharset(Globals::fontManager.get("upheaval_30"));
+	m_buttons.at("adrian").setPosition(50.0f, 100.0f);
+	m_buttons.at("adrian").setOutlineThickness(5.0f);
+	m_buttons.at("adrian").setText("Adrian");
+	m_buttons.at("adrian").setFunction([&]() {
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new Adrian(m_machine));
 	});
 
 	m_buttons.at("settings").setCharset(Globals::fontManager.get("upheaval_30"));

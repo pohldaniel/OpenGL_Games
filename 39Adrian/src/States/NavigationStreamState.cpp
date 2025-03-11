@@ -156,6 +156,8 @@ NavigationStreamState::~NavigationStreamState() {
 	EventDispatcher::RemoveMouseListener(this);
 	Material::CleanupTextures();
 	Renderer::Get().shutdown();
+	ShapeDrawer::Get().shutdown();
+	Physics::DeleteAllCollisionObjects();
 }
 
 void NavigationStreamState::fixedUpdate() {

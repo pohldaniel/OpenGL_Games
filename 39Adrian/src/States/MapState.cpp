@@ -69,9 +69,16 @@ MapState::MapState(StateMachine& machine) : State(machine, States::MAP), m_camer
 MapState::~MapState() {
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
-
+	Material::CleanupTextures();
 	ShapeDrawer::Get().shutdown();
+
 	delete m_octree;
+	m_octree = nullptr;
+
+	delete m_root;
+	m_root = nullptr;
+
+	Physics::DeleteAllCollisionObjects();
 }
 
 void MapState::fixedUpdate() {

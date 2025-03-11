@@ -97,7 +97,6 @@ NavigationState::NavigationState(StateMachine& machine) :
 	m_navigationMesh->SetAgentRadius(0.6f);
 	m_navigationMesh->Build();
 
-
 	m_crowdManager = new CrowdManager();
 	m_crowdManager->setNavigationMesh(m_navigationMesh);
 	m_crowdManager->setOnCrowdFormation([&m_crowdManager = m_crowdManager](const Vector3f& pos, CrowdAgent* agent) {
@@ -135,6 +134,8 @@ NavigationState::~NavigationState() {
 	EventDispatcher::RemoveMouseListener(this);
 	Material::CleanupTextures();
 	Renderer::Get().shutdown();
+	ShapeDrawer::Get().shutdown();
+	Physics::DeleteAllCollisionObjects();
 }
 
 void NavigationState::fixedUpdate() {
