@@ -283,7 +283,7 @@ void AssimpModel::loadModel(const char* filename, bool isStacked, bool generateN
 	loadModelGpu();
 }
 
-void AssimpModel::loadModel(const char* filename, Vector3f& axis, float degree, Vector3f& translate, float scale, bool isStacked, bool generateNormals, bool generateTangents, bool flipYZ, bool flipWinding) {
+void AssimpModel::loadModel(const char* filename, const Vector3f& axis, float degree, const Vector3f& translate, float scale, bool isStacked, bool generateNormals, bool generateTangents, bool flipYZ, bool flipWinding) {
 	loadModelCpu(filename, axis, degree, translate, scale, isStacked, generateNormals, generateTangents, flipYZ, flipWinding);
 	loadModelGpu();
 }
@@ -292,7 +292,7 @@ void AssimpModel::loadModelCpu(const char* filename, bool isStacked, bool genera
 	loadModelCpu(filename, Vector3f(0.0, 1.0, 0.0), 0.0, Vector3f(0.0, 0.0, 0.0), 1.0, isStacked, generateNormals, generateTangents, flipYZ, flipWinding);
 }
 
-void AssimpModel::loadModelCpu(const char* _filename, Vector3f& axis, float degree, Vector3f& translate, float scale, bool isStacked, bool generateNormals, bool generateTangents, bool flipYZ, bool flipWinding) {
+void AssimpModel::loadModelCpu(const char* _filename, const Vector3f& axis, float degree, const Vector3f& translate, float scale, bool isStacked, bool generateNormals, bool generateTangents, bool flipYZ, bool flipWinding) {
 	std::string filename(_filename);
 
 	const size_t index = filename.rfind('/');

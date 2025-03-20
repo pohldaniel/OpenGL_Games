@@ -197,6 +197,9 @@ void ObjModel::cleanup() {
 	m_instances.clear();
 	m_instances.shrink_to_fit();
 
+	for (ObjMesh* mesh : m_meshes) {
+		delete mesh;
+	}
 	m_meshes.clear();
 	m_meshes.shrink_to_fit();
 
@@ -256,7 +259,7 @@ void ObjModel::loadModel(const char* filename, bool isStacked, bool withoutNorma
 	loadModelGpu();
 }
 
-void ObjModel::loadModel(const char* filename, Vector3f& axis, float degree, Vector3f& translate, float scale, bool isStacked, bool withoutNormals, bool generateSmoothNormals, bool generateFlatNormals, bool generateSmoothTangents, bool rescale) {
+void ObjModel::loadModel(const char* filename, const Vector3f& axis, float degree, const Vector3f& translate, float scale, bool isStacked, bool withoutNormals, bool generateSmoothNormals, bool generateFlatNormals, bool generateSmoothTangents, bool rescale) {
 	loadModelCpu(filename, axis, degree, translate, scale, isStacked, withoutNormals, generateSmoothNormals, generateFlatNormals, generateSmoothTangents, rescale);
 	loadModelGpu();
 }
@@ -269,7 +272,7 @@ bool compare(const std::array<int, 10> &i_lhs, const std::array<int, 10> &i_rhs)
 	return i_lhs[9] < i_rhs[9];
 }
 
-void ObjModel::loadModelCpu(const char* _filename, Vector3f& axis, float degree, Vector3f& translate, float scale, bool isStacked, bool withoutNormals, bool generateSmoothNormals, bool generateFlatNormals, bool generateSmoothTangents, bool rescale) {
+void ObjModel::loadModelCpu(const char* _filename, const Vector3f& axis, float degree, const Vector3f& translate, float scale, bool isStacked, bool withoutNormals, bool generateSmoothNormals, bool generateFlatNormals, bool generateSmoothTangents, bool rescale) {
 
 	std::string filename(_filename);
 	const size_t index = filename.rfind('/');
@@ -908,7 +911,7 @@ void ObjModel::createConvexHull(const char* filename, bool useConvhull) {
 	createConvexHull(filename, Vector3f(0.0, 1.0, 0.0), 0.0, Vector3f(0.0, 0.0, 0.0), 1.0, useConvhull);
 }
 
-void ObjModel::createConvexHull(const char* filename, Vector3f &rotate, float degree, Vector3f& translate, float scale, bool useConvhull) {
+void ObjModel::createConvexHull(const char* filename, const Vector3f &rotate, float degree, const Vector3f& translate, float scale, bool useConvhull) {
 	m_convexHull.createBuffer(filename, rotate, degree, translate, scale, useConvhull, *this);
 }
 
@@ -2632,7 +2635,7 @@ void BoundingSphere::drawRaw() const {
 	glBindVertexArray(0);
 }
 
-void ConvexHull::createBuffer(const char* filename, Vector3f &rotate, float degree, Vector3f& translate, float scale, bool useConvhull, ObjModel& model) {
+void ConvexHull::createBuffer(const char* filename, const Vector3f &rotate, float degree, const Vector3f& translate, float scale, bool useConvhull, ObjModel& model) {
 	std::vector<float> vertexCoords;
 
 	char buffer[250];
