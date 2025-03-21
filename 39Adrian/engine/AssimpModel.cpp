@@ -200,7 +200,7 @@ void AssimpModel::cleanup() {
 	m_instances.clear();
 	m_instances.shrink_to_fit();
 
-	for (auto mesh : m_meshes) {
+	for (AssimpMesh* mesh : m_meshes) {
 		delete mesh;
 	}
 
@@ -250,23 +250,23 @@ const Vector3f &AssimpModel::getCenter() const {
 	return m_center;
 }
 
-std::string AssimpModel::getModelDirectory() {
+const std::string& AssimpModel::getModelDirectory() {
 	return m_modelDirectory;
 }
 
-Transform& AssimpModel::getTransform() {
+const Transform& AssimpModel::getTransform() const {
 	return m_transform;
 }
 
-std::vector<AssimpMesh*>& AssimpModel::getMeshes() {
+const std::vector<AssimpMesh*>& AssimpModel::getMeshes() const {
 	return m_meshes;
 }
 
-std::vector<float>& AssimpModel::getVertexBuffer() {
+const std::vector<float>& AssimpModel::getVertexBuffer() const {
 	return m_vertexBuffer;
 }
 
-std::vector<unsigned int>& AssimpModel::getIndexBuffer() {
+const std::vector<unsigned int>& AssimpModel::getIndexBuffer() const {
 	return m_indexBuffer;
 }
 
@@ -1127,11 +1127,11 @@ void AssimpMesh::drawRawInstanced() const{
 	glBindVertexArray(0);
 }
 
-std::vector<float>& AssimpMesh::getVertexBuffer() {
+const std::vector<float>& AssimpMesh::getVertexBuffer() const {
 	return m_vertexBuffer;
 }
 
-std::vector<unsigned int>& AssimpMesh::getIndexBuffer() {
+const std::vector<unsigned int>& AssimpMesh::getIndexBuffer() const {
 	return m_indexBuffer;
 }
 

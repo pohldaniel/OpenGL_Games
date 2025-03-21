@@ -200,6 +200,7 @@ void ObjModel::cleanup() {
 	for (ObjMesh* mesh : m_meshes) {
 		delete mesh;
 	}
+
 	m_meshes.clear();
 	m_meshes.shrink_to_fit();
 
@@ -246,11 +247,11 @@ const Vector3f &ObjModel::getCenter() const {
 	return m_center;
 }
 
-std::string ObjModel::getMltPath() {
+const std::string& ObjModel::getMltPath() {
 	return m_mltPath;
 }
 
-std::string ObjModel::getModelDirectory() {
+const std::string& ObjModel::getModelDirectory() {
 	return m_modelDirectory;
 }
 
@@ -923,20 +924,28 @@ const BoundingBox& ObjModel::getAABB() const{
 	return m_aabb;
 }
 
-BoundingSphere& ObjModel::getBoundingSphere() {
+const BoundingSphere& ObjModel::getBoundingSphere() const {
 	return m_boundingSphere;
 }
 
-ConvexHull& ObjModel::getConvexHull() {
+const ConvexHull& ObjModel::getConvexHull() const {
 	return m_convexHull;
 }
 
-Transform& ObjModel::getTransform() {
+const Transform& ObjModel::getTransform() const {
 	return m_transform;
 }
 
-std::vector<ObjMesh*>& ObjModel::getMeshes() {
+const std::vector<ObjMesh*>& ObjModel::getMeshes() const {
 	return m_meshes;
+}
+
+const std::vector<float>& ObjModel::getVertexBuffer() const {
+	return m_vertexBuffer;
+}
+
+const std::vector<unsigned int>& ObjModel::getIndexBuffer() const {
+	return m_indexBuffer;
 }
 
 unsigned int ObjModel::getNumberOfTriangles() {
@@ -2330,11 +2339,11 @@ void ObjMesh::drawRawInstanced() const{
 	glBindVertexArray(0);
 }
 
-std::vector<float>& ObjMesh::getVertexBuffer() {
+const std::vector<float>& ObjMesh::getVertexBuffer() const {
 	return m_vertexBuffer;
 }
 
-std::vector<unsigned int>& ObjMesh::getIndexBuffer() {
+const std::vector<unsigned int>& ObjMesh::getIndexBuffer() const {
 	return m_indexBuffer;
 }
 

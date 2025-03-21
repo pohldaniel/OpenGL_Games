@@ -135,14 +135,16 @@ public:
 	void loadModelCpu(const char* filename, const Vector3f& axis, float degree, const Vector3f& translate = Vector3f(0.0f, 0.0f, 0.0f), float scale = 1.0f, bool asStacked = false, bool withoutNormals = false, bool generateSmoothNormals = false, bool generateFlatNormals = false, bool generateSmoothTangents = false, bool rescale = false);
 	void loadModelGpu();
 
-	std::string getMltPath();
-	std::string getModelDirectory();
+	const std::string& getMltPath();
+	const std::string& getModelDirectory();
 	const BoundingBox& getAABB() const;
-	BoundingSphere& getBoundingSphere();
-	ConvexHull& getConvexHull();
-	Transform& getTransform();
+	const BoundingSphere& getBoundingSphere() const;
+	const ConvexHull& getConvexHull() const;
+	const Transform& getTransform() const;
 	const ObjMesh* getMesh(unsigned short index = 0u) const;
-	std::vector<ObjMesh*>& getMeshes();
+	const std::vector<ObjMesh*>& getMeshes() const;
+	const std::vector<float>& getVertexBuffer() const;
+	const std::vector<unsigned int>& getIndexBuffer() const;
 	unsigned int getNumberOfTriangles();
 
 	void generateTangents();
@@ -234,8 +236,8 @@ public:
 	void drawRaw() const;
 	void drawRawInstanced() const;
 	
-	std::vector<float>& getVertexBuffer();
-	std::vector<unsigned int>& getIndexBuffer();
+	const std::vector<float>& getVertexBuffer() const;
+	const std::vector<unsigned int>& getIndexBuffer() const;
 	int getStride();
 	short getMaterialIndex() const;
 	void setMaterialIndex(short index) const;
