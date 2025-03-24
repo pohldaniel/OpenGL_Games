@@ -2005,24 +2005,23 @@ void ObjModel::ReadMaterialFromFile(std::string path, std::string mltLib, std::s
 			}else if ((*lines[i])[0] == 'm') {
 
 				char identifierBuffer[20], valueBuffer[250];;
+				memset(identifierBuffer, 0, 20);
+				memset(valueBuffer, 0, 250);
 				sscanf(lines[i]->c_str(), "%s %s", identifierBuffer, valueBuffer);
 
-				if (strstr(identifierBuffer, "map_Kd") != 0) {
+				if (strstr(identifierBuffer, "map_Kd") != 0 && valueBuffer[0] != 0) {
 					material.textures[0] = Texture();
 					material.textures[0].loadFromFile(GetTexturePath(valueBuffer, path), true);
 					material.textures[0].setFilter(GL_LINEAR_MIPMAP_LINEAR);
-
-				}else if (strstr(identifierBuffer, "map_bump") != 0) {
+				}else if (strstr(identifierBuffer, "map_bump") != 0 && valueBuffer[0] != 0) {
 					material.textures[1] = Texture();
 					material.textures[1].loadFromFile(GetTexturePath(valueBuffer, path), true);
 					material.textures[1].setFilter(GL_LINEAR_MIPMAP_LINEAR);
-
-				}else if (strstr(identifierBuffer, "map_Kn") != 0) {
+				}else if (strstr(identifierBuffer, "map_Kn") != 0 && valueBuffer[0] != 0) {
 					material.textures[1] = Texture();
 					material.textures[1].loadFromFile(GetTexturePath(valueBuffer, path), true);
 					material.textures[1].setFilter(GL_LINEAR_MIPMAP_LINEAR);
-
-				}else if (strstr(identifierBuffer, "map_Ks") != 0) {
+				}else if (strstr(identifierBuffer, "map_Ks") != 0 && valueBuffer[0] != 0) {
 					material.textures[2] = Texture();
 					material.textures[2].loadFromFile(GetTexturePath(valueBuffer, path), true);
 					material.textures[2].setFilter(GL_LINEAR_MIPMAP_LINEAR);
