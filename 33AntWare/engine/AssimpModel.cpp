@@ -173,17 +173,25 @@ AssimpModel::~AssimpModel() {
 }
 
 void AssimpModel::cleanup() {
-	if (m_vao)
+	if (m_vao) {
 		glDeleteVertexArrays(1, &m_vao);
+		m_vao = 0;
+	}
 
-	if (m_vbo)
+	if (m_vbo) {
 		glDeleteBuffers(1, &m_vbo);
+		m_vbo = 0;
+	}
 
-	if (m_ibo)
+	if (m_ibo) {
 		glDeleteBuffers(1, &m_ibo);
+		m_ibo = 0;
+	}
 
-	if (m_vboInstances)
+	if (m_vboInstances) {
 		glDeleteBuffers(1, &m_vboInstances);
+		m_vboInstances = 0;
+	}
 
 	m_vertexBuffer.clear();
 	m_vertexBuffer.shrink_to_fit();
@@ -192,7 +200,7 @@ void AssimpModel::cleanup() {
 	m_instances.clear();
 	m_instances.shrink_to_fit();
 
-	for (auto mesh : m_meshes) {
+	for (AssimpMesh* mesh : m_meshes) {
 		delete mesh;
 	}
 
@@ -242,23 +250,23 @@ const Vector3f &AssimpModel::getCenter() const {
 	return m_center;
 }
 
-std::string AssimpModel::getModelDirectory() {
+const std::string& AssimpModel::getModelDirectory() {
 	return m_modelDirectory;
 }
 
-Transform& AssimpModel::getTransform() {
+const Transform& AssimpModel::getTransform() const {
 	return m_transform;
 }
 
-std::vector<AssimpMesh*>& AssimpModel::getMeshes() {
+const std::vector<AssimpMesh*>& AssimpModel::getMeshes() const {
 	return m_meshes;
 }
 
-std::vector<float>& AssimpModel::getVertexBuffer() {
+const std::vector<float>& AssimpModel::getVertexBuffer() const {
 	return m_vertexBuffer;
 }
 
-std::vector<unsigned int>& AssimpModel::getIndexBuffer() {
+const std::vector<unsigned int>& AssimpModel::getIndexBuffer() const {
 	return m_indexBuffer;
 }
 
@@ -266,17 +274,25 @@ const AssimpMesh* AssimpModel::getMesh(unsigned short index) const {
 	return m_meshes[index];
 }
 
-BoundingBox& AssimpModel::getAABB() {
+const BoundingBox& AssimpModel::getAABB() const {
 	return m_aabb;
 }
 
-void AssimpModel::loadModel(const char* filename, bool isStacked, bool generateTangents, bool flipYZ, bool flipWinding) {
-	loadModelCpu(filename, isStacked, generateTangents, flipYZ, flipWinding);
+void AssimpModel::loadModel(const char* filename, bool isStacked, bool generateNormals, bool generateTangents, bool flipYZ, bool flipWinding) {
+	loadModelCpu(filename, Vector3f(0.0, 1.0, 0.0), 0.0, Vector3f(0.0, 0.0, 0.0), 1.0, isStacked, generateNormals, generateTangents, flipYZ, flipWinding);
 	loadModelGpu();
 }
 
-void AssimpModel::loadModelCpu(const char* _filename, bool isStacked, bool generateTangents, bool flipYZ, bool flipWinding) {
+void AssimpModel::loadModel(const char* filename, const Vector3f& axis, float degree, const Vector3f& translate, float scale, bool isStacked, bool generateNormals, bool generateTangents, bool flipYZ, bool flipWinding) {
+	loadModelCpu(filename, axis, degree, translate, scale, isStacked, generateNormals, generateTangents, flipYZ, flipWinding);
+	loadModelGpu();
+}
 
+void AssimpModel::loadModelCpu(const char* filename, bool isStacked, bool generateNormals, bool generateTangents, bool flipYZ, bool flipWinding) {
+	loadModelCpu(filename, Vector3f(0.0, 1.0, 0.0), 0.0, Vector3f(0.0, 0.0, 0.0), 1.0, isStacked, generateNormals, generateTangents, flipYZ, flipWinding);
+}
+
+void AssimpModel::loadModelCpu(const char* _filename, const Vector3f& axis, float degree, const Vector3f& translate, float scale, bool isStacked, bool generateNormals, bool generateTangents, bool flipYZ, bool flipWinding) {
 	std::string filename(_filename);
 
 	const size_t index = filename.rfind('/');
@@ -286,11 +302,12 @@ void AssimpModel::loadModelCpu(const char* _filename, bool isStacked, bool gener
 	}
 
 	Assimp::Importer Importer;
+	unsigned int flag = ASSIMP_LOAD_FLAGS;
+	flag = generateNormals ? flag | aiProcess_GenSmoothNormals : flag;
+	flag = generateTangents ? flag | aiProcess_CalcTangentSpace : flag;
+	flag = flipWinding ? flag | aiProcess_FlipWindingOrder : flag;
 
-	const aiScene* pScene = Importer.ReadFile(_filename, (generateTangents && flipWinding) ? (ASSIMP_LOAD_FLAGS | aiProcess_CalcTangentSpace) | aiProcess_FlipWindingOrder :
-														  generateTangents ? ASSIMP_LOAD_FLAGS | aiProcess_CalcTangentSpace :  
-														  flipWinding ? ASSIMP_LOAD_FLAGS | aiProcess_FlipWindingOrder :	
-														  ASSIMP_LOAD_FLAGS);
+	const aiScene* pScene = Importer.ReadFile(_filename, flag);
 
 	bool exportTangents = generateTangents;
 
@@ -309,12 +326,12 @@ void AssimpModel::loadModelCpu(const char* _filename, bool isStacked, bool gener
 
 		const aiMaterial* aiMaterial = pScene->mMaterials[aiMesh->mMaterialIndex];
 
-		if(aiMaterial->GetName().length != 0)
+		if (aiMaterial->GetName().length != 0) {
 			AssimpModel::ReadAiMaterial(aiMaterial, mesh->m_materialIndex, m_modelDirectory, aiMaterial->GetName().length == 0 ? "default" : aiMaterial->GetName().data);
-
+		}
 		m_isStacked ? m_hasTextureCoords = aiMesh->HasTextureCoords(0) : mesh->m_hasTextureCoords = aiMesh->HasTextureCoords(0);
 		m_isStacked ? m_hasNormals = aiMesh->HasNormals() : mesh->m_hasNormals = aiMesh->HasNormals();
-		m_isStacked ? m_hasTangents = aiMesh->HasTangentsAndBitangents() & exportTangents : mesh->m_hasTangents = aiMesh->HasTangentsAndBitangents() & exportTangents;
+		m_isStacked ? m_hasTangents = aiMesh->HasTangentsAndBitangents() && exportTangents : mesh->m_hasTangents = aiMesh->HasTangentsAndBitangents() && exportTangents;
 
 		m_isStacked ? m_stride = m_hasTangents ? 14 : (m_hasNormals && m_hasTextureCoords) ? 8 : m_hasNormals ? 6 : m_hasTextureCoords ? 5 : 3
 			: mesh->m_stride = mesh->m_hasTangents ? 14 : (mesh->m_hasNormals && mesh->m_hasTextureCoords) ? 8 : mesh->m_hasNormals ? 6 : mesh->m_hasTextureCoords ? 5 : 3;
@@ -329,19 +346,27 @@ void AssimpModel::loadModelCpu(const char* _filename, bool isStacked, bool gener
 		std::vector<unsigned int>& indexBuffer = m_isStacked ? m_indexBuffer : mesh->m_indexBuffer;
 
 		for (unsigned int i = 0; i < aiMesh->mNumVertices; i++) {
-
+			float posX = aiMesh->mVertices[i].x;
 			float posY = flipYZ ? aiMesh->mVertices[i].z : aiMesh->mVertices[i].y;
 			float posZ = flipYZ ? aiMesh->mVertices[i].y : aiMesh->mVertices[i].z;
 
-			xmin = (std::min)(aiMesh->mVertices[i].x, xmin);
+			Matrix4f rot;
+			rot.rotate(axis, degree);
+			Vector3f pos = rot * Vector3f(posX, posY, posZ);
+
+			posX = pos[0] * scale + translate[0];
+			posY = pos[1] * scale + translate[1];
+			posZ = pos[2] * scale + translate[2];
+
+			xmin = (std::min)(posX, xmin);
 			ymin = (std::min)(posY, ymin);
 			zmin = (std::min)(posZ, zmin);
 
-			xmax = (std::max)(aiMesh->mVertices[i].x, xmax);
+			xmax = (std::max)(posX, xmax);
 			ymax = (std::max)(posY, ymax);
 			zmax = (std::max)(posZ, zmax);
 
-			vertexBuffer.push_back(aiMesh->mVertices[i].x); vertexBuffer.push_back(posY); vertexBuffer.push_back(posZ);
+			vertexBuffer.push_back(posX); vertexBuffer.push_back(posY); vertexBuffer.push_back(posZ);
 
 			if (m_hasTextureCoords || mesh->m_hasTextureCoords) {
 				vertexBuffer.push_back(aiMesh->mTextureCoords[0][i].x); vertexBuffer.push_back(aiMesh->mTextureCoords[0][i].y);
@@ -350,7 +375,12 @@ void AssimpModel::loadModelCpu(const char* _filename, bool isStacked, bool gener
 			if (m_hasNormals || mesh->m_hasNormals) {
 				float normY = flipYZ ? aiMesh->mNormals[i].z : aiMesh->mNormals[i].y;
 				float normZ = flipYZ ? aiMesh->mNormals[i].y : aiMesh->mNormals[i].z;
-				vertexBuffer.push_back(aiMesh->mNormals[i].x); vertexBuffer.push_back(normY); vertexBuffer.push_back(normZ);
+
+				Matrix4f rot;
+				rot.rotate(axis, degree);
+
+				Vector3f normal = rot * Vector3f(aiMesh->mNormals[i].x, normY, normZ);
+				vertexBuffer.push_back(normal[0]); vertexBuffer.push_back(normal[1]); vertexBuffer.push_back(normal[2]);
 			}
 
 			if (m_hasTangents || mesh->m_hasTangents) {
@@ -361,8 +391,14 @@ void AssimpModel::loadModelCpu(const char* _filename, bool isStacked, bool gener
 				float bitangY = flipYZ ? aiMesh->mBitangents[i].z : aiMesh->mBitangents[i].y;
 				float bitangZ = flipYZ ? aiMesh->mBitangents[i].y : aiMesh->mBitangents[i].z;
 
-				vertexBuffer.push_back(aiMesh->mTangents[i].x); vertexBuffer.push_back(tangY); vertexBuffer.push_back(tangZ);
-				vertexBuffer.push_back(aiMesh->mBitangents[i].x); vertexBuffer.push_back(bitangY); vertexBuffer.push_back(bitangZ);
+				Matrix4f rot;
+				rot.rotate(axis, degree);
+
+				Vector3f tangent = rot * Vector3f(aiMesh->mTangents[i].x, tangY, tangZ);
+				Vector3f bitangent = rot * Vector3f(aiMesh->mBitangents[i].x, bitangY, bitangZ);
+
+				vertexBuffer.push_back(tangent[0]); vertexBuffer.push_back(tangent[1]); vertexBuffer.push_back(tangent[2]);
+				vertexBuffer.push_back(bitangent[0]); vertexBuffer.push_back(bitangent[1]); vertexBuffer.push_back(bitangent[2]);
 			}
 
 		}
@@ -381,6 +417,7 @@ void AssimpModel::loadModelCpu(const char* _filename, bool isStacked, bool gener
 	m_aabb.min = Vector3f(xmin, ymin, zmin);
 	m_aabb.max = Vector3f(xmax, ymax, zmax);
 }
+
 
 void AssimpModel::loadModelGpu() {
 	if (m_isStacked) {
@@ -428,9 +465,10 @@ void AssimpModel::addInstances(const std::vector<Matrix4f>& modelMTX) {
 		glVertexAttribDivisor(7, 1);
 		glVertexAttribDivisor(8, 1);
 
-		glBindVertexArray(0);
-	}
-	else {
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindVertexArray(0);	
+
+	}else {
 
 		for (int j = 0; j < m_numberOfMeshes; j++) {
 			m_meshes[j]->addInstance(*this);
@@ -466,9 +504,10 @@ void AssimpModel::addInstance(const Matrix4f& modelMTX) {
 		glVertexAttribDivisor(7, 1);
 		glVertexAttribDivisor(8, 1);
 
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindVertexArray(0);
-	}
-	else {
+		
+	}else {
 
 		for (int j = 0; j < m_numberOfMeshes; j++) {
 			m_meshes[j]->addInstance(*this);
@@ -486,8 +525,6 @@ void AssimpModel::createInstancesDynamic(unsigned int numberOfInstances) {
 
 		glBindBuffer(GL_ARRAY_BUFFER, m_vboInstances);
 		glBufferData(GL_ARRAY_BUFFER, m_instanceCount * sizeof(GLfloat) * 4 * 4, NULL, GL_DYNAMIC_DRAW);
-		//glBindBuffer(GL_ARRAY_BUFFER, 0);
-
 
 		glEnableVertexAttribArray(5);
 		glEnableVertexAttribArray(6);
@@ -503,9 +540,10 @@ void AssimpModel::createInstancesDynamic(unsigned int numberOfInstances) {
 		glVertexAttribDivisor(7, 1);
 		glVertexAttribDivisor(8, 1);
 
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindVertexArray(0);
-	}
-	else {
+		
+	}else {
 		for (int j = 0; j < m_numberOfMeshes; j++) {
 			m_meshes[j]->createInstancesDynamic(numberOfInstances);
 		}
@@ -526,19 +564,19 @@ void AssimpModel::updateInstances(std::vector<Matrix4f>& modelMTX) {
 	}
 }
 
-void AssimpModel::drawRaw() {
+void AssimpModel::drawRaw() const{
 	for (int j = 0; j < m_numberOfMeshes; j++) {
 		m_meshes[j]->drawRaw();
 	}
 }
 
-void AssimpModel::drawRawInstanced() {
+void AssimpModel::drawRawInstanced() const{
 	for (int j = 0; j < m_numberOfMeshes; j++) {
 		m_meshes[j]->drawRawInstanced();
 	}
 }
 
-void  AssimpModel::drawRawStacked() {
+void  AssimpModel::drawRawStacked() const{
 	glBindVertexArray(m_vao);
 	for (auto&& mesh : m_meshes) {
 		if(mesh->m_materialIndex >= 0)
@@ -551,7 +589,7 @@ void  AssimpModel::drawRawStacked() {
 	glBindVertexArray(0);
 }
 
-void AssimpModel::drawRawInstancedStacked() {
+void AssimpModel::drawRawInstancedStacked() const{
 	glBindVertexArray(m_vao);
 	for (auto&& mesh : m_meshes) {
 		if (mesh->m_materialIndex >= 0)
@@ -564,7 +602,7 @@ void AssimpModel::drawRawInstancedStacked() {
 	glBindVertexArray(0);
 }
 
-void AssimpModel::draw(const Camera& camera) {
+void AssimpModel::draw(const Camera& camera) const{
 	for (int i = 0; i < m_meshes.size(); i++) {
 		Material& material = Material::GetMaterials()[m_meshes[i]->m_materialIndex];
 		material.updateMaterialUbo(BuiltInShader::materialUbo);
@@ -581,7 +619,25 @@ void AssimpModel::draw(const Camera& camera) {
 	//Texture::Unbind();
 }
 
-void AssimpModel::drawInstanced(const Camera& camera) {
+void AssimpModel::draw(const Camera& camera, unsigned short meshIndex) const {
+	Material& material = Material::GetMaterials()[m_meshes[meshIndex]->m_materialIndex];
+	material.updateMaterialUbo(BuiltInShader::materialUbo);
+	if (!m_shader[meshIndex]->inUse()) {
+		m_shader[meshIndex]->use();
+
+		m_shader[meshIndex]->loadMatrix("u_projection", camera.getPerspectiveMatrix());
+		m_shader[meshIndex]->loadMatrix("u_view", camera.getViewMatrix());
+		m_shader[meshIndex]->loadMatrix("u_model", m_transform.getTransformationMatrix());
+	}
+
+	material.bind();
+	m_meshes[meshIndex]->drawRaw();
+
+	unuseAllShader();
+	//Texture::Unbind();
+}
+
+void AssimpModel::drawInstanced(const Camera& camera) const{
 	for (int i = 0; i < m_meshes.size(); i++) {
 		Material& material = Material::GetMaterials()[m_meshes[i]->m_materialIndex];
 		material.updateMaterialUbo(BuiltInShader::materialUbo);
@@ -598,7 +654,7 @@ void AssimpModel::drawInstanced(const Camera& camera) {
 	//Texture::Unbind();
 }
 
-void AssimpModel::drawStacked(const Camera& camera) {
+void AssimpModel::drawStacked(const Camera& camera) const{
 	glBindVertexArray(m_vao);
 	for (int i = 0; i < m_meshes.size(); i++) {
 		Material& material = Material::GetMaterials()[m_meshes[i]->m_materialIndex];
@@ -618,7 +674,7 @@ void AssimpModel::drawStacked(const Camera& camera) {
 	glBindVertexArray(0);
 }
 
-void AssimpModel::drawInstancedStacked(const Camera& camera) {
+void AssimpModel::drawInstancedStacked(const Camera& camera) const{
 	glBindVertexArray(m_vao);
 	for (int i = 0; i < m_meshes.size(); i++) {
 		Material& material = Material::GetMaterials()[m_meshes[i]->m_materialIndex];
@@ -636,7 +692,7 @@ void AssimpModel::drawInstancedStacked(const Camera& camera) {
 	glBindVertexArray(0);
 }
 
-void AssimpModel::unuseAllShader() {
+void AssimpModel::unuseAllShader() const{
 	for (Shader* shader : m_shader) {
 		if (shader->inUse()) {
 			shader->unuse();
@@ -798,12 +854,13 @@ void AssimpModel::CreateBuffer(std::vector<float>& vertexBuffer, std::vector<uns
 		glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)(11 * sizeof(float)));
 
 	}
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	//Indices
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexBuffer.size() * sizeof(unsigned int), &indexBuffer[0], GL_STATIC_DRAW);
 
-	glBindVertexArray(0);
+	glBindVertexArray(0);	
 }
 
 
@@ -820,6 +877,10 @@ std::string AssimpModel::GetTexturePath(std::string texPath, std::string modelDi
 }
 
 void AssimpModel::ReadAiMaterial(const aiMaterial* aiMaterial, short& index, std::string modelDirectory, std::string mltName) {
+	//skip assimp default material
+	if(mltName == "DefaultMaterial" || mltName == "default")
+		return;
+
 	std::vector<Material>::iterator it = std::find_if(Material::GetMaterials().begin(), Material::GetMaterials().end(), std::bind(compareMaterial, std::placeholders::_1, mltName));
 	if (it == Material::GetMaterials().end()) {
 
@@ -845,7 +906,7 @@ void AssimpModel::ReadAiMaterial(const aiMaterial* aiMaterial, short& index, std
 		if (AI_SUCCESS == aiGetMaterialFloat(aiMaterial, AI_MATKEY_SHININESS, &shininess)) { }
 
 		material.setShininess(shininess);
-		material.print();
+
 		int numTextures = aiMaterial->GetTextureCount(aiTextureType_DIFFUSE);
 		if (numTextures > 0) {
 			aiString name;
@@ -1009,17 +1070,25 @@ AssimpMesh::~AssimpMesh() {
 }
 
 void AssimpMesh::cleanup() {
-	if (m_vao)
+	if (m_vao) {
 		glDeleteVertexArrays(1, &m_vao);
+		m_vao = 0;
+	}
 
-	if (m_vbo)
+	if (m_vbo) {
 		glDeleteBuffers(1, &m_vbo);
+		m_vbo = 0;
+	}
 
-	if (m_ibo)
+	if (m_ibo) {
 		glDeleteBuffers(1, &m_ibo);
+		m_ibo = 0;
+	}
 
-	if (m_vboInstances)
+	if (m_vboInstances) {
 		glDeleteBuffers(1, &m_vboInstances);
+		m_vboInstances = 0;
+	}
 
 	m_vertexBuffer.clear();
 	m_vertexBuffer.shrink_to_fit();
@@ -1032,35 +1101,37 @@ void AssimpMesh::markForDelete() {
 	m_markForDelete = true;
 }
 
-void AssimpMesh::drawRaw() {
+void AssimpMesh::drawRaw() const{
 
-	if (m_materialIndex >= 0) 
-		Material::GetMaterials()[m_materialIndex].updateMaterialUbo(BuiltInShader::materialUbo);
+	if (m_materialIndex >= 0)
+		Material::GetMaterials()[m_materialIndex].bind();
 
-	m_textureIndex >= 0 ? Material::GetTextures()[m_textureIndex].bind() : Texture::Unbind();
+	if (m_textureIndex >= 0)
+		Material::GetTextures()[m_textureIndex].bind();
 
 	glBindVertexArray(m_vao);
 	glDrawElements(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
 }
 
-void AssimpMesh::drawRawInstanced() {
+void AssimpMesh::drawRawInstanced() const{
 
-	if (m_materialIndex >= 0)
-		Material::GetMaterials()[m_materialIndex].updateMaterialUbo(BuiltInShader::materialUbo);
+	if (m_materialIndex >= 0) 
+		Material::GetMaterials()[m_materialIndex].bind();
 
-	m_textureIndex >= 0 ? Material::GetTextures()[m_textureIndex].bind() : Texture::Unbind();
+	if (m_textureIndex >= 0)
+		Material::GetTextures()[m_textureIndex].bind();
 
 	glBindVertexArray(m_vao);
 	glDrawElementsInstanced(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0, m_instanceCount);
 	glBindVertexArray(0);
 }
 
-std::vector<float>& AssimpMesh::getVertexBuffer() {
+const std::vector<float>& AssimpMesh::getVertexBuffer() const {
 	return m_vertexBuffer;
 }
 
-std::vector<unsigned int>& AssimpMesh::getIndexBuffer() {
+const std::vector<unsigned int>& AssimpMesh::getIndexBuffer() const {
 	return m_indexBuffer;
 }
 
@@ -1097,8 +1168,8 @@ void AssimpMesh::addInstance(const AssimpModel& model) {
 		glBindBuffer(GL_ARRAY_BUFFER, m_vboInstances);
 		glBufferData(GL_ARRAY_BUFFER, instances.size() * sizeof(float) * 4 * 4, instances[0][0], GL_STATIC_DRAW);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
-	}
-	else {
+
+	}else {
 		glGenBuffers(1, &m_vboInstances);
 		glBindVertexArray(m_vao);
 
@@ -1119,7 +1190,8 @@ void AssimpMesh::addInstance(const AssimpModel& model) {
 		glVertexAttribDivisor(7, 1);
 		glVertexAttribDivisor(8, 1);
 
-		glBindVertexArray(0);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindVertexArray(0);	
 	}
 }
 
@@ -1147,6 +1219,7 @@ void AssimpMesh::createInstancesDynamic(unsigned int numberOfInstances) {
 	glVertexAttribDivisor(7, 1);
 	glVertexAttribDivisor(8, 1);
 
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 }
 

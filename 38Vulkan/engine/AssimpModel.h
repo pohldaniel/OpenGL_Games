@@ -59,19 +59,19 @@ public:
 	void createAABB();
 	void drawAABB();
 	void loadModel(const char* filename, bool isStacked = false, bool generateNormals = false, bool generateTangents = false, bool flipYZ = false, bool flipWinding = false);
-	void loadModel(const char* filename, Vector3f& axis, float degree, Vector3f& translate = Vector3f(0.0f, 0.0f, 0.0f), float scale = 1.0f, bool isStacked = false, bool generateNormals = false, bool generateTangents = false, bool flipYZ = false, bool flipWinding = false);
+	void loadModel(const char* filename, const Vector3f& axis, float degree, const Vector3f& translate = Vector3f(0.0f, 0.0f, 0.0f), float scale = 1.0f, bool isStacked = false, bool generateNormals = false, bool generateTangents = false, bool flipYZ = false, bool flipWinding = false);
 	void loadModelCpu(const char* filename, bool isStacked = false, bool generateNormals = false, bool generateTangents = false, bool flipYZ = false, bool flipWinding = false);
-	void loadModelCpu(const char* filename, Vector3f& axis, float degree, Vector3f& translate = Vector3f(0.0f, 0.0f, 0.0f), float scale = 1.0f, bool isStacked = false, bool generateNormals = false, bool generateTangents = false, bool flipYZ = false, bool flipWinding = false);
+	void loadModelCpu(const char* filename, const Vector3f& axis, float degree, const Vector3f& translate = Vector3f(0.0f, 0.0f, 0.0f), float scale = 1.0f, bool isStacked = false, bool generateNormals = false, bool generateTangents = false, bool flipYZ = false, bool flipWinding = false);
 	
 	void loadModelGpu();
 
-	std::string getModelDirectory();
+	const std::string& getModelDirectory();
 	const BoundingBox& getAABB() const;
-	Transform& getTransform();
+	const Transform& getTransform() const;
 	const AssimpMesh* getMesh(unsigned short index = 0u) const;
-	std::vector<AssimpMesh*>& getMeshes();
-	std::vector<float>& getVertexBuffer();
-	std::vector<unsigned int>& getIndexBuffer();
+	const std::vector<AssimpMesh*>& getMeshes() const;
+	const std::vector<float>& getVertexBuffer() const;
+	const std::vector<unsigned int>& getIndexBuffer() const;
 
 	void addInstances(const std::vector<Matrix4f>& modelMTX);
 	void addInstance(const Matrix4f& modelMTX);
@@ -138,8 +138,8 @@ public:
 	void drawRaw() const;
 	void drawRawInstanced() const;
 
-	std::vector<float>& getVertexBuffer();
-	std::vector<unsigned int>& getIndexBuffer();
+	const std::vector<float>& getVertexBuffer() const;
+	const std::vector<unsigned int>& getIndexBuffer() const;
 	unsigned int getStride();
 	short getMaterialIndex() const;
 	void setMaterialIndex(short index) const;

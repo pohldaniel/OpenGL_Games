@@ -170,17 +170,25 @@ ObjModel::~ObjModel() {
 }
 
 void ObjModel::cleanup() {
-	if (m_vao)
+	if (m_vao) {
 		glDeleteVertexArrays(1, &m_vao);
+		m_vao = 0u;
+	}
 
-	if (m_vbo)
+	if (m_vbo) {
 		glDeleteBuffers(1, &m_vbo);
+		m_vbo = 0u;
+	}
 
-	if (m_ibo)
+	if (m_ibo) {
 		glDeleteBuffers(1, &m_ibo);
+		m_ibo = 0u;
+	}
 
-	if (m_vboInstances)
+	if (m_vboInstances) {
 		glDeleteBuffers(1, &m_vboInstances);
+		m_vboInstances = 0u;
+	}
 
 	m_vertexBuffer.clear();
 	m_vertexBuffer.shrink_to_fit();
@@ -188,6 +196,10 @@ void ObjModel::cleanup() {
 	m_indexBuffer.shrink_to_fit();
 	m_instances.clear();
 	m_instances.shrink_to_fit();
+
+	for (ObjMesh* mesh : m_meshes) {
+		delete mesh;
+	}
 
 	m_meshes.clear();
 	m_meshes.shrink_to_fit();
@@ -235,11 +247,11 @@ const Vector3f &ObjModel::getCenter() const {
 	return m_center;
 }
 
-std::string ObjModel::getMltPath() {
+const std::string& ObjModel::getMltPath() {
 	return m_mltPath;
 }
 
-std::string ObjModel::getModelDirectory() {
+const std::string& ObjModel::getModelDirectory() {
 	return m_modelDirectory;
 }
 
@@ -248,7 +260,7 @@ void ObjModel::loadModel(const char* filename, bool isStacked, bool withoutNorma
 	loadModelGpu();
 }
 
-void ObjModel::loadModel(const char* filename, Vector3f& axis, float degree, Vector3f& translate, float scale, bool isStacked, bool withoutNormals, bool generateSmoothNormals, bool generateFlatNormals, bool generateSmoothTangents, bool rescale) {
+void ObjModel::loadModel(const char* filename, const Vector3f& axis, float degree, const Vector3f& translate, float scale, bool isStacked, bool withoutNormals, bool generateSmoothNormals, bool generateFlatNormals, bool generateSmoothTangents, bool rescale) {
 	loadModelCpu(filename, axis, degree, translate, scale, isStacked, withoutNormals, generateSmoothNormals, generateFlatNormals, generateSmoothTangents, rescale);
 	loadModelGpu();
 }
@@ -261,7 +273,7 @@ bool compare(const std::array<int, 10> &i_lhs, const std::array<int, 10> &i_rhs)
 	return i_lhs[9] < i_rhs[9];
 }
 
-void ObjModel::loadModelCpu(const char* _filename, Vector3f& axis, float degree, Vector3f& translate, float scale, bool isStacked, bool withoutNormals, bool generateSmoothNormals, bool generateFlatNormals, bool generateSmoothTangents, bool rescale) {
+void ObjModel::loadModelCpu(const char* _filename, const Vector3f& axis, float degree, const Vector3f& translate, float scale, bool isStacked, bool withoutNormals, bool generateSmoothNormals, bool generateFlatNormals, bool generateSmoothTangents, bool rescale) {
 
 	std::string filename(_filename);
 	const size_t index = filename.rfind('/');
@@ -622,7 +634,7 @@ void ObjModel::loadModelCpu(const char* _filename, Vector3f& axis, float degree,
 			for (iterName; iterName != name.end(); iterName++) {
 
 				if (iterDup->first == iterName->second) {
-					m_meshes.push_back(new ObjMesh("newmtl " + iterName->first, iterDup->second, this));
+					m_meshes.push_back(new ObjMesh(iterName->first, iterDup->second, this));
 					if (m_meshes.size() > 1) {
 						m_meshes[m_meshes.size() - 1]->m_triangleOffset = m_meshes[m_meshes.size() - 2]->m_numberOfTriangles + m_meshes[m_meshes.size() - 2]->m_triangleOffset;
 					}
@@ -679,7 +691,7 @@ void ObjModel::loadModelCpu(const char* _filename, Vector3f& axis, float degree,
 		}
 
 		if (m_hasMaterial) {
-			ObjModel::ReadMaterialFromFile(getModelDirectory() + "/" + getMltPath(), m_meshes[j]->m_mltName, m_meshes[j]->m_materialIndex);
+			ObjModel::ReadMaterialFromFile(getModelDirectory() + "/", getMltPath(), m_meshes[j]->m_mltName, m_meshes[j]->m_materialIndex);
 		}
 
 		if (!m_isStacked) {
@@ -740,19 +752,19 @@ void ObjModel::loadModelGpu() {
 	}
 }
 
-void ObjModel::drawRaw() const {
+void ObjModel::drawRaw() const{
 	for (int j = 0; j < m_numberOfMeshes; j++) {
 		m_meshes[j]->drawRaw();
 	}
 }
 
-void ObjModel::drawRawInstanced() {
+void ObjModel::drawRawInstanced() const{
 	for (int j = 0; j < m_numberOfMeshes; j++) {
 		m_meshes[j]->drawRawInstanced();
 	}
 }
 
-void ObjModel::drawRawStacked() {
+void ObjModel::drawRawStacked() const{
 	glBindVertexArray(m_vao);
 	for (int i = 0; i < m_meshes.size(); i++) {
 		glDrawElementsBaseVertex(GL_TRIANGLES, m_meshes[i]->m_drawCount, GL_UNSIGNED_INT, (void*)(sizeof(unsigned int) * m_meshes[i]->m_baseIndex), m_meshes[i]->m_baseVertex);
@@ -760,7 +772,7 @@ void ObjModel::drawRawStacked() {
 	glBindVertexArray(0);
 }
 
-void ObjModel::drawRawInstancedStacked() {
+void ObjModel::drawRawInstancedStacked() const{
 	glBindVertexArray(m_vao);
 	for (int i = 0; i < m_meshes.size(); i++) {
 		glDrawElementsInstancedBaseVertexBaseInstance(GL_TRIANGLES, m_meshes[i]->m_drawCount, GL_UNSIGNED_INT, (void*)(sizeof(unsigned int) * m_meshes[i]->m_baseIndex), m_instanceCount, m_meshes[i]->m_baseVertex, 0);
@@ -768,13 +780,13 @@ void ObjModel::drawRawInstancedStacked() {
 	glBindVertexArray(0);
 }
 
-void ObjModel::drawRawSequence(unsigned short frame) {
+void ObjModel::drawRawSequence(unsigned short frame) const{
 	glBindVertexArray(m_vao);
 	glDrawElementsBaseVertex(GL_TRIANGLES, m_meshes[frame]->m_drawCount, GL_UNSIGNED_INT, (void*)(sizeof(unsigned int) * m_meshes[frame]->m_baseIndex), m_meshes[frame]->m_baseVertex);
 	glBindVertexArray(0);
 }
 
-void ObjModel::draw(const Camera& camera) {
+void ObjModel::draw(const Camera& camera) const{
 	for (int i = 0; i < m_meshes.size(); i++) {
 		Material& material = Material::GetMaterials()[m_meshes[i]->m_materialIndex];
 		material.updateMaterialUbo(BuiltInShader::materialUbo);
@@ -786,16 +798,33 @@ void ObjModel::draw(const Camera& camera) {
 			m_shader[i]->loadMatrix("u_model", m_transform.getTransformationMatrix());
 		}
 
-		material.bind();
+		material.bind();		
 		m_meshes[i]->drawRaw();
-
-		
+				
 	}
 	unuseAllShader();
 	Texture::Unbind();	
 }
 
-void ObjModel::drawInstanced(const Camera& camera) {
+void ObjModel::draw(const Camera& camera, unsigned short meshIndex) const {
+	Material& material = Material::GetMaterials()[m_meshes[meshIndex]->m_materialIndex];
+	material.updateMaterialUbo(BuiltInShader::materialUbo);
+	if (!m_shader[meshIndex]->inUse()) {
+		m_shader[meshIndex]->use();
+
+		m_shader[meshIndex]->loadMatrix("u_projection", camera.getPerspectiveMatrix());
+		m_shader[meshIndex]->loadMatrix("u_view", camera.getViewMatrix());
+		m_shader[meshIndex]->loadMatrix("u_model", m_transform.getTransformationMatrix());
+	}
+
+	material.bind();
+	m_meshes[meshIndex]->drawRaw();
+
+	unuseAllShader();
+	Texture::Unbind();
+}
+
+void ObjModel::drawInstanced(const Camera& camera) const{
 	for (int i = 0; i < m_meshes.size(); i++) {
 		Material& material = Material::GetMaterials()[m_meshes[i]->m_materialIndex];
 		material.updateMaterialUbo(BuiltInShader::materialUbo);
@@ -812,7 +841,7 @@ void ObjModel::drawInstanced(const Camera& camera) {
 	Texture::Unbind();
 }
 
-void ObjModel::drawStacked(const Camera& camera) {
+void ObjModel::drawStacked(const Camera& camera) const{
 	glBindVertexArray(m_vao);
 
 	for (int i = 0; i < m_meshes.size(); i++) {
@@ -833,7 +862,7 @@ void ObjModel::drawStacked(const Camera& camera) {
 	glBindVertexArray(0);
 }
 
-void ObjModel::drawInstancedStacked(const Camera& camera) {
+void ObjModel::drawInstancedStacked(const Camera& camera) const{
 	glBindVertexArray(m_vao);
 	for (int i = 0; i < m_meshes.size(); i++) {
 		Material& material = Material::GetMaterials()[m_meshes[i]->m_materialIndex];
@@ -850,7 +879,7 @@ void ObjModel::drawInstancedStacked(const Camera& camera) {
 	glBindVertexArray(0);
 }
 
-void ObjModel::unuseAllShader() {
+void ObjModel::unuseAllShader() const{
 	for (Shader* shader : m_shader) {
 		if (shader->inUse()) {
 			shader->unuse();
@@ -883,28 +912,40 @@ void ObjModel::createConvexHull(const char* filename, bool useConvhull) {
 	createConvexHull(filename, Vector3f(0.0, 1.0, 0.0), 0.0, Vector3f(0.0, 0.0, 0.0), 1.0, useConvhull);
 }
 
-void ObjModel::createConvexHull(const char* filename, Vector3f &rotate, float degree, Vector3f& translate, float scale, bool useConvhull) {
+void ObjModel::createConvexHull(const char* filename, const Vector3f &rotate, float degree, const Vector3f& translate, float scale, bool useConvhull) {
 	m_convexHull.createBuffer(filename, rotate, degree, translate, scale, useConvhull, *this);
 }
 
-BoundingBox& ObjModel::getAABB() {
+const ObjMesh* ObjModel::getMesh(unsigned short index) const {
+	return m_meshes[index];
+}
+
+const BoundingBox& ObjModel::getAABB() const{
 	return m_aabb;
 }
 
-BoundingSphere& ObjModel::getBoundingSphere() {
+const BoundingSphere& ObjModel::getBoundingSphere() const {
 	return m_boundingSphere;
 }
 
-ConvexHull& ObjModel::getConvexHull() {
+const ConvexHull& ObjModel::getConvexHull() const {
 	return m_convexHull;
 }
 
-Transform& ObjModel::getTransform() {
+const Transform& ObjModel::getTransform() const {
 	return m_transform;
 }
 
-std::vector<ObjMesh*>& ObjModel::getMeshes() {
+const std::vector<ObjMesh*>& ObjModel::getMeshes() const {
 	return m_meshes;
+}
+
+const std::vector<float>& ObjModel::getVertexBuffer() const {
+	return m_vertexBuffer;
+}
+
+const std::vector<unsigned int>& ObjModel::getIndexBuffer() const {
+	return m_indexBuffer;
 }
 
 unsigned int ObjModel::getNumberOfTriangles() {
@@ -1406,7 +1447,7 @@ void ObjModel::addInstance(const Matrix4f& modelMTX) {
 		glVertexAttribDivisor(6, 1);
 		glVertexAttribDivisor(7, 1);
 		glVertexAttribDivisor(8, 1);
-
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindVertexArray(0);
 	}else {
 
@@ -1441,7 +1482,7 @@ void ObjModel::createInstancesDynamic(unsigned int numberOfInstances){
 		glVertexAttribDivisor(4, 1);
 		glVertexAttribDivisor(5, 1);
 		glVertexAttribDivisor(6, 1);
-
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindVertexArray(0);
 	}else {
 		for (int j = 0; j < m_numberOfMeshes; j++) {
@@ -1575,17 +1616,15 @@ void ObjModel::CreateBuffer(std::vector<float>& vertexBuffer, std::vector<unsign
 	if (ibo)
 		glDeleteBuffers(1, &ibo);
 
-
-	glGenBuffers(1, &vbo);
 	glGenBuffers(1, &ibo);
+	glGenBuffers(1, &vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glBufferData(GL_ARRAY_BUFFER, vertexBuffer.size() * sizeof(float), &vertexBuffer[0], GL_STATIC_DRAW);
 
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
 
 	//Positions
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, vertexBuffer.size() * sizeof(float), &vertexBuffer[0], GL_STATIC_DRAW);
-
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)0);
 
@@ -1610,6 +1649,7 @@ void ObjModel::CreateBuffer(std::vector<float>& vertexBuffer, std::vector<unsign
 		glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)(11 * sizeof(float)));
 
 	}
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	//Indices
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
@@ -1888,7 +1928,8 @@ std::string ObjModel::GetTexturePath(std::string texPath, std::string modelDirec
 	return textureName, foundSlash < 0 ? modelDirectory + "/" + texPath.substr(foundSlash + 1) : texPath;
 }
 
-void ObjModel::ReadMaterialFromFile(std::string path, std::string mltName, short& index) {
+void ObjModel::ReadMaterialFromFile(std::string path, std::string mltLib, std::string mltName, short& index) {
+	
 
 	std::vector<Material>::iterator it = std::find_if(Material::GetMaterials().begin(), Material::GetMaterials().end(), std::bind([](Material const& s1, std::string const& s2) -> bool { return s1.name == s2;}, std::placeholders::_1, mltName));
 	if (it == Material::GetMaterials().end()) {
@@ -1902,7 +1943,7 @@ void ObjModel::ReadMaterialFromFile(std::string path, std::string mltName, short
 		int start = -1;
 		int end = -1;
 
-		std::ifstream in(path);
+		std::ifstream in(path + mltLib);
 
 		if (!in.is_open()) {
 			std::cout << "mlt file not found" << std::endl;
@@ -1918,12 +1959,12 @@ void ObjModel::ReadMaterialFromFile(std::string path, std::string mltName, short
 
 		for (int i = 0; i < lines.size(); i++) {
 
-			if (strcmp((*lines[i]).c_str(), mltName.c_str()) == 0) {
+			if (strcmp((*lines[i]).c_str(), ("newmtl " + mltName).c_str()) == 0) {
 				start = i;
 				continue;
 			}
 
-			if ((*lines[i]).find("newmtl") != std::string::npos && start > 0) {
+			if ((*lines[i]).find("newmtl") != std::string::npos && start >= 0) {
 				end = i;
 				break;
 			}
@@ -1964,24 +2005,23 @@ void ObjModel::ReadMaterialFromFile(std::string path, std::string mltName, short
 			}else if ((*lines[i])[0] == 'm') {
 
 				char identifierBuffer[20], valueBuffer[250];;
+				memset(identifierBuffer, 0, 20);
+				memset(valueBuffer, 0, 250);
 				sscanf(lines[i]->c_str(), "%s %s", identifierBuffer, valueBuffer);
 
-				if (strstr(identifierBuffer, "map_Kd") != 0) {
+				if (strstr(identifierBuffer, "map_Kd") != 0 && valueBuffer[0] != 0) {
 					material.textures[0] = Texture();
 					material.textures[0].loadFromFile(GetTexturePath(valueBuffer, path), true);
 					material.textures[0].setFilter(GL_LINEAR_MIPMAP_LINEAR);
-
-				}else if (strstr(identifierBuffer, "map_bump") != 0) {
+				}else if (strstr(identifierBuffer, "map_bump") != 0 && valueBuffer[0] != 0) {
 					material.textures[1] = Texture();
 					material.textures[1].loadFromFile(GetTexturePath(valueBuffer, path), true);
 					material.textures[1].setFilter(GL_LINEAR_MIPMAP_LINEAR);
-
-				}else if (strstr(identifierBuffer, "map_Kn") != 0) {
+				}else if (strstr(identifierBuffer, "map_Kn") != 0 && valueBuffer[0] != 0) {
 					material.textures[1] = Texture();
 					material.textures[1].loadFromFile(GetTexturePath(valueBuffer, path), true);
 					material.textures[1].setFilter(GL_LINEAR_MIPMAP_LINEAR);
-
-				}else if (strstr(identifierBuffer, "map_Ks") != 0) {
+				}else if (strstr(identifierBuffer, "map_Ks") != 0 && valueBuffer[0] != 0) {
 					material.textures[2] = Texture();
 					material.textures[2].loadFromFile(GetTexturePath(valueBuffer, path), true);
 					material.textures[2].setFilter(GL_LINEAR_MIPMAP_LINEAR);
@@ -2148,17 +2188,25 @@ ObjMesh::~ObjMesh(){
 
 void ObjMesh::cleanup(){
 
-	if (m_vao)
+	if (m_vao) {
 		glDeleteVertexArrays(1, &m_vao);
+		m_vao = 0;
+	}
 
-	if (m_vbo)
+	if (m_vbo) {
 		glDeleteBuffers(1, &m_vbo);
+		m_vbo = 0;
+	}
 
-	if (m_ibo)
+	if (m_ibo) {
 		glDeleteBuffers(1, &m_ibo);
+		m_ibo = 0;
+	}
 
-	if (m_vboInstances)
+	if (m_vboInstances) {
 		glDeleteBuffers(1, &m_vboInstances);
+		m_vboInstances = 0;
+	}
 
 	m_vertexBuffer.clear();
 	m_vertexBuffer.shrink_to_fit();
@@ -2193,7 +2241,7 @@ void ObjMesh::createInstancesStatic(std::vector<Matrix4f>& modelMTX){
 	glVertexAttribDivisor(6, 1);
 	glVertexAttribDivisor(7, 1);
 	glVertexAttribDivisor(8, 1);
-
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 }
 
@@ -2226,7 +2274,7 @@ void ObjMesh::addInstance(ObjModel& model) {
 		glVertexAttribDivisor(6, 1);
 		glVertexAttribDivisor(7, 1);
 		glVertexAttribDivisor(8, 1);
-
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindVertexArray(0);
 	}
 }
@@ -2240,8 +2288,6 @@ void ObjMesh::createInstancesDynamic(unsigned int numberOfInstances) {
 
 	glBindBuffer(GL_ARRAY_BUFFER, m_vboInstances);
 	glBufferData(GL_ARRAY_BUFFER, m_instanceCount * sizeof(GLfloat) * 4 * 4, NULL, GL_DYNAMIC_DRAW);
-	//glBindBuffer(GL_ARRAY_BUFFER, 0);
-
 
 	glEnableVertexAttribArray(3);
 	glEnableVertexAttribArray(4);
@@ -2256,7 +2302,7 @@ void ObjMesh::createInstancesDynamic(unsigned int numberOfInstances) {
 	glVertexAttribDivisor(4, 1);
 	glVertexAttribDivisor(5, 1);
 	glVertexAttribDivisor(6, 1);
-
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 }
 
@@ -2266,35 +2312,37 @@ void ObjMesh::updateInstances(std::vector<Matrix4f>& modelMTX) {
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-void ObjMesh::drawRaw() const {
+void ObjMesh::drawRaw() const{
 
 	if (m_materialIndex >= 0)
-		Material::GetMaterials()[m_materialIndex].updateMaterialUbo(BuiltInShader::materialUbo);
+		Material::GetMaterials()[m_materialIndex].bind();
 
-	m_textureIndex >= 0 ? Material::GetTextures()[m_textureIndex].bind() : Texture::Unbind();
+	if (m_textureIndex >= 0)
+		Material::GetTextures()[m_textureIndex].bind();
 
 	glBindVertexArray(m_vao);
 	glDrawElements(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
 }
 
-void ObjMesh::drawRawInstanced() {
+void ObjMesh::drawRawInstanced() const{
 
 	if (m_materialIndex >= 0)
-		Material::GetMaterials()[m_materialIndex].updateMaterialUbo(BuiltInShader::materialUbo);
+		Material::GetMaterials()[m_materialIndex].bind();
 
-	m_textureIndex >= 0 ? Material::GetTextures()[m_textureIndex].bind() : Texture::Unbind();
+	if (m_textureIndex >= 0)
+		Material::GetTextures()[m_textureIndex].bind();
 
 	glBindVertexArray(m_vao);
 	glDrawElementsInstanced(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0, m_instanceCount);
 	glBindVertexArray(0);
 }
 
-std::vector<float>& ObjMesh::getVertexBuffer() {
+const std::vector<float>& ObjMesh::getVertexBuffer() const {
 	return m_vertexBuffer;
 }
 
-std::vector<unsigned int>& ObjMesh::getIndexBuffer() {
+const std::vector<unsigned int>& ObjMesh::getIndexBuffer() const {
 	return m_indexBuffer;
 }
 
@@ -2595,7 +2643,7 @@ void BoundingSphere::drawRaw() const {
 	glBindVertexArray(0);
 }
 
-void ConvexHull::createBuffer(const char* filename, Vector3f &rotate, float degree, Vector3f& translate, float scale, bool useConvhull, ObjModel& model) {
+void ConvexHull::createBuffer(const char* filename, const Vector3f &rotate, float degree, const Vector3f& translate, float scale, bool useConvhull, ObjModel& model) {
 	std::vector<float> vertexCoords;
 
 	char buffer[250];

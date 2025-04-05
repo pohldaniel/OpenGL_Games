@@ -172,22 +172,22 @@ ObjModel::~ObjModel() {
 void ObjModel::cleanup() {
 	if (m_vao) {
 		glDeleteVertexArrays(1, &m_vao);
-		m_vao = 0;
+		m_vao = 0u;
 	}
 
 	if (m_vbo) {
 		glDeleteBuffers(1, &m_vbo);
-		m_vbo = 0;
+		m_vbo = 0u;
 	}
 
 	if (m_ibo) {
 		glDeleteBuffers(1, &m_ibo);
-		m_ibo = 0;
+		m_ibo = 0u;
 	}
 
 	if (m_vboInstances) {
 		glDeleteBuffers(1, &m_vboInstances);
-		m_vboInstances = 0;
+		m_vboInstances = 0u;
 	}
 
 	m_vertexBuffer.clear();
@@ -196,6 +196,10 @@ void ObjModel::cleanup() {
 	m_indexBuffer.shrink_to_fit();
 	m_instances.clear();
 	m_instances.shrink_to_fit();
+
+	for (ObjMesh* mesh : m_meshes) {
+		delete mesh;
+	}
 
 	m_meshes.clear();
 	m_meshes.shrink_to_fit();
@@ -243,11 +247,11 @@ const Vector3f &ObjModel::getCenter() const {
 	return m_center;
 }
 
-std::string ObjModel::getMltPath() {
+const std::string& ObjModel::getMltPath() {
 	return m_mltPath;
 }
 
-std::string ObjModel::getModelDirectory() {
+const std::string& ObjModel::getModelDirectory() {
 	return m_modelDirectory;
 }
 
@@ -256,7 +260,7 @@ void ObjModel::loadModel(const char* filename, bool isStacked, bool withoutNorma
 	loadModelGpu();
 }
 
-void ObjModel::loadModel(const char* filename, Vector3f& axis, float degree, Vector3f& translate, float scale, bool isStacked, bool withoutNormals, bool generateSmoothNormals, bool generateFlatNormals, bool generateSmoothTangents, bool rescale) {
+void ObjModel::loadModel(const char* filename, const Vector3f& axis, float degree, const Vector3f& translate, float scale, bool isStacked, bool withoutNormals, bool generateSmoothNormals, bool generateFlatNormals, bool generateSmoothTangents, bool rescale) {
 	loadModelCpu(filename, axis, degree, translate, scale, isStacked, withoutNormals, generateSmoothNormals, generateFlatNormals, generateSmoothTangents, rescale);
 	loadModelGpu();
 }
@@ -269,7 +273,7 @@ bool compare(const std::array<int, 10> &i_lhs, const std::array<int, 10> &i_rhs)
 	return i_lhs[9] < i_rhs[9];
 }
 
-void ObjModel::loadModelCpu(const char* _filename, Vector3f& axis, float degree, Vector3f& translate, float scale, bool isStacked, bool withoutNormals, bool generateSmoothNormals, bool generateFlatNormals, bool generateSmoothTangents, bool rescale) {
+void ObjModel::loadModelCpu(const char* _filename, const Vector3f& axis, float degree, const Vector3f& translate, float scale, bool isStacked, bool withoutNormals, bool generateSmoothNormals, bool generateFlatNormals, bool generateSmoothTangents, bool rescale) {
 
 	std::string filename(_filename);
 	const size_t index = filename.rfind('/');
@@ -908,7 +912,7 @@ void ObjModel::createConvexHull(const char* filename, bool useConvhull) {
 	createConvexHull(filename, Vector3f(0.0, 1.0, 0.0), 0.0, Vector3f(0.0, 0.0, 0.0), 1.0, useConvhull);
 }
 
-void ObjModel::createConvexHull(const char* filename, Vector3f &rotate, float degree, Vector3f& translate, float scale, bool useConvhull) {
+void ObjModel::createConvexHull(const char* filename, const Vector3f &rotate, float degree, const Vector3f& translate, float scale, bool useConvhull) {
 	m_convexHull.createBuffer(filename, rotate, degree, translate, scale, useConvhull, *this);
 }
 
@@ -920,20 +924,28 @@ const BoundingBox& ObjModel::getAABB() const{
 	return m_aabb;
 }
 
-BoundingSphere& ObjModel::getBoundingSphere() {
+const BoundingSphere& ObjModel::getBoundingSphere() const {
 	return m_boundingSphere;
 }
 
-ConvexHull& ObjModel::getConvexHull() {
+const ConvexHull& ObjModel::getConvexHull() const {
 	return m_convexHull;
 }
 
-Transform& ObjModel::getTransform() {
+const Transform& ObjModel::getTransform() const {
 	return m_transform;
 }
 
-std::vector<ObjMesh*>& ObjModel::getMeshes() {
+const std::vector<ObjMesh*>& ObjModel::getMeshes() const {
 	return m_meshes;
+}
+
+const std::vector<float>& ObjModel::getVertexBuffer() const {
+	return m_vertexBuffer;
+}
+
+const std::vector<unsigned int>& ObjModel::getIndexBuffer() const {
+	return m_indexBuffer;
 }
 
 unsigned int ObjModel::getNumberOfTriangles() {
@@ -1604,17 +1616,15 @@ void ObjModel::CreateBuffer(std::vector<float>& vertexBuffer, std::vector<unsign
 	if (ibo)
 		glDeleteBuffers(1, &ibo);
 
-
-	glGenBuffers(1, &vbo);
 	glGenBuffers(1, &ibo);
+	glGenBuffers(1, &vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glBufferData(GL_ARRAY_BUFFER, vertexBuffer.size() * sizeof(float), &vertexBuffer[0], GL_STATIC_DRAW);
 
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
 
 	//Positions
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, vertexBuffer.size() * sizeof(float), &vertexBuffer[0], GL_STATIC_DRAW);
-
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)0);
 
@@ -1995,24 +2005,23 @@ void ObjModel::ReadMaterialFromFile(std::string path, std::string mltLib, std::s
 			}else if ((*lines[i])[0] == 'm') {
 
 				char identifierBuffer[20], valueBuffer[250];;
+				memset(identifierBuffer, 0, 20);
+				memset(valueBuffer, 0, 250);
 				sscanf(lines[i]->c_str(), "%s %s", identifierBuffer, valueBuffer);
 
-				if (strstr(identifierBuffer, "map_Kd") != 0) {
+				if (strstr(identifierBuffer, "map_Kd") != 0 && valueBuffer[0] != 0) {
 					material.textures[0] = Texture();
 					material.textures[0].loadFromFile(GetTexturePath(valueBuffer, path), true);
 					material.textures[0].setFilter(GL_LINEAR_MIPMAP_LINEAR);
-
-				}else if (strstr(identifierBuffer, "map_bump") != 0) {
+				}else if (strstr(identifierBuffer, "map_bump") != 0 && valueBuffer[0] != 0) {
 					material.textures[1] = Texture();
 					material.textures[1].loadFromFile(GetTexturePath(valueBuffer, path), true);
 					material.textures[1].setFilter(GL_LINEAR_MIPMAP_LINEAR);
-
-				}else if (strstr(identifierBuffer, "map_Kn") != 0) {
+				}else if (strstr(identifierBuffer, "map_Kn") != 0 && valueBuffer[0] != 0) {
 					material.textures[1] = Texture();
 					material.textures[1].loadFromFile(GetTexturePath(valueBuffer, path), true);
 					material.textures[1].setFilter(GL_LINEAR_MIPMAP_LINEAR);
-
-				}else if (strstr(identifierBuffer, "map_Ks") != 0) {
+				}else if (strstr(identifierBuffer, "map_Ks") != 0 && valueBuffer[0] != 0) {
 					material.textures[2] = Texture();
 					material.textures[2].loadFromFile(GetTexturePath(valueBuffer, path), true);
 					material.textures[2].setFilter(GL_LINEAR_MIPMAP_LINEAR);
@@ -2329,11 +2338,11 @@ void ObjMesh::drawRawInstanced() const{
 	glBindVertexArray(0);
 }
 
-std::vector<float>& ObjMesh::getVertexBuffer() {
+const std::vector<float>& ObjMesh::getVertexBuffer() const {
 	return m_vertexBuffer;
 }
 
-std::vector<unsigned int>& ObjMesh::getIndexBuffer() {
+const std::vector<unsigned int>& ObjMesh::getIndexBuffer() const {
 	return m_indexBuffer;
 }
 
@@ -2634,7 +2643,7 @@ void BoundingSphere::drawRaw() const {
 	glBindVertexArray(0);
 }
 
-void ConvexHull::createBuffer(const char* filename, Vector3f &rotate, float degree, Vector3f& translate, float scale, bool useConvhull, ObjModel& model) {
+void ConvexHull::createBuffer(const char* filename, const Vector3f &rotate, float degree, const Vector3f& translate, float scale, bool useConvhull, ObjModel& model) {
 	std::vector<float> vertexCoords;
 
 	char buffer[250];

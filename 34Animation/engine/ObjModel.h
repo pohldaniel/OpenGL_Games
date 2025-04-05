@@ -49,7 +49,7 @@ struct BoundingSphere {
 };
 
 struct ConvexHull {
-	void createBuffer(const char* filename, Vector3f &rotate, float degree, Vector3f& translate, float scale, bool useConvhull, ObjModel& model);
+	void createBuffer(const char* filename, const Vector3f &rotate, float degree, const Vector3f& translate, float scale, bool useConvhull, ObjModel& model);
 	void drawRaw() const;
 
 	std::vector<float> m_vertexBuffer;
@@ -109,38 +109,42 @@ public:
 	void scale(float sx, float sy, float sz);
 
 	void drawRaw() const;
-	void drawRawInstanced();
-	void drawRawStacked();
-	void drawRawInstancedStacked();
-	void drawRawSequence(unsigned short frame);
+	void drawRawInstanced() const;
+	void drawRawStacked() const;
+	void drawRawInstancedStacked() const;
+	void drawRawSequence(unsigned short frame) const;
 
-	void draw(const Camera& camera);
-	void drawInstanced(const Camera& camera);
-	void drawStacked(const Camera& camera);
-	void drawInstancedStacked(const Camera& camera);
+	void draw(const Camera& camera) const;
+	void draw(const Camera& camera, unsigned short meshIndex) const;
+	void drawInstanced(const Camera& camera) const;
+	void drawStacked(const Camera& camera) const;
+	void drawInstancedStacked(const Camera& camera) const;
 
 	void createAABB();
 	void createSphere();
 	void createConvexHull(const char* a_filename, bool useConvhull = true);
-	void createConvexHull(const char* a_filename, Vector3f& rotate, float degree, Vector3f& translate, float scale, bool useConvhull = true);
+	void createConvexHull(const char* a_filename, const Vector3f& rotate, float degree, const Vector3f& translate, float scale, bool useConvhull = true);
 
 	void drawAABB() const;
 	void drawSphere() const;
 	void drawHull() const;
 
 	void loadModel(const char* filename, bool isStacked = false, bool withoutNormals = false, bool generateSmoothNormals = false, bool generateFlatNormals = false, bool generateSmoothTangents = false, bool rescale = false);
-	void loadModel(const char* filename, Vector3f& axis, float degree, Vector3f& translate = Vector3f(0.0f, 0.0f, 0.0f), float scale = 1.0f, bool isStacked = false, bool withoutNormals = false, bool generateSmoothNormals = false, bool generateFlatNormals = false, bool generateSmoothTangents = false, bool rescale = false);
+	void loadModel(const char* filename, const Vector3f& axis, float degree, const Vector3f& translate = Vector3f(0.0f, 0.0f, 0.0f), float scale = 1.0f, bool isStacked = false, bool withoutNormals = false, bool generateSmoothNormals = false, bool generateFlatNormals = false, bool generateSmoothTangents = false, bool rescale = false);
 	void loadModelCpu(const char* filename, bool isStacked = false, bool withoutNormals = false, bool generateSmoothNormals = false, bool generateFlatNormals = false, bool generateSmoothTangents = false, bool rescale = false);
-	void loadModelCpu(const char* filename, Vector3f& axis, float degree, Vector3f& translate = Vector3f(0.0f, 0.0f, 0.0f), float scale = 1.0f, bool asStacked = false, bool withoutNormals = false, bool generateSmoothNormals = false, bool generateFlatNormals = false, bool generateSmoothTangents = false, bool rescale = false);
+	void loadModelCpu(const char* filename, const Vector3f& axis, float degree, const Vector3f& translate = Vector3f(0.0f, 0.0f, 0.0f), float scale = 1.0f, bool asStacked = false, bool withoutNormals = false, bool generateSmoothNormals = false, bool generateFlatNormals = false, bool generateSmoothTangents = false, bool rescale = false);
 	void loadModelGpu();
 
-	std::string getMltPath();
-	std::string getModelDirectory();
-	BoundingBox& getAABB();
-	BoundingSphere& getBoundingSphere();
-	ConvexHull& getConvexHull();
-	Transform& getTransform();
-	std::vector<ObjMesh*>& getMeshes();
+	const std::string& getMltPath();
+	const std::string& getModelDirectory();
+	const BoundingBox& getAABB() const;
+	const BoundingSphere& getBoundingSphere() const;
+	const ConvexHull& getConvexHull() const;
+	const Transform& getTransform() const;
+	const ObjMesh* getMesh(unsigned short index = 0u) const;
+	const std::vector<ObjMesh*>& getMeshes() const;
+	const std::vector<float>& getVertexBuffer() const;
+	const std::vector<unsigned int>& getIndexBuffer() const;
 	unsigned int getNumberOfTriangles();
 
 	void generateTangents();
@@ -197,7 +201,7 @@ private:
 	unsigned int m_vboInstances;
 	bool m_markForDelete;
 
-	void unuseAllShader();
+	void unuseAllShader() const;
 
 	void static CreateBuffer(std::vector<float>& vertexBuffer, std::vector<unsigned int> indexBuffer, unsigned int& vao, unsigned int& vbo, unsigned int& ibo, unsigned int stride);
 	void static GenerateNormals(std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer, ObjModel& model, bool& hasNormals, unsigned int& stride, unsigned int startIndex, unsigned int endIndex);
@@ -209,7 +213,7 @@ private:
 	void static GenerateTangents(std::vector<float>& vertexCoords, std::vector<float>& textureCoords, std::vector<float>& normalCoords, std::vector<std::array<int, 10>>& face, std::vector<float>& tangentCoords, std::vector<float>& bitangentCoords);
 
 
-	void static ReadMaterialFromFile(std::string path, std::string mltName, short& index);
+	void static ReadMaterialFromFile(std::string path, std::string mltLib, std::string mltName, short& index);
 	std::string static GetTexturePath(std::string texPath, std::string modelDirectory);
 
 	static AssetManager<Shader> ShaderManager;
@@ -230,10 +234,10 @@ public:
 	~ObjMesh();
 
 	void drawRaw() const;
-	void drawRawInstanced();
+	void drawRawInstanced() const;
 	
-	std::vector<float>& getVertexBuffer();
-	std::vector<unsigned int>& getIndexBuffer();
+	const std::vector<float>& getVertexBuffer() const;
+	const std::vector<unsigned int>& getIndexBuffer() const;
 	int getStride();
 	short getMaterialIndex() const;
 	void setMaterialIndex(short index) const;

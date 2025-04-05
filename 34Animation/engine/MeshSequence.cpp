@@ -603,11 +603,11 @@ const BoundingBox& MeshSequence::getLocalBoundingBox(unsigned int meshIndex) con
 	return m_localBoundingBoxes[m_boundingBoxCache.at(meshIndex)];
 }
 
-void MeshSequence::addMesh(std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer) {
+void MeshSequence::addMesh(const std::vector<float>& vertexBuffer, const std::vector<unsigned int>& indexBuffer) {
 	float xmin = FLT_MAX, ymin = FLT_MAX, zmin = FLT_MAX;
 	float xmax = -FLT_MAX, ymax = -FLT_MAX, zmax = -FLT_MAX;
 
-	for (std::vector<float>::iterator pit = vertexBuffer.begin(); pit != vertexBuffer.end(); pit = pit + m_stride) {
+	for (std::vector<float>::const_iterator pit = vertexBuffer.begin(); pit != vertexBuffer.end(); pit = pit + m_stride) {
 		xmin = (std::min)(*pit, xmin);
 		ymin = (std::min)(*(pit + 1), ymin);
 		zmin = (std::min)(*(pit + 2), zmin);
@@ -632,7 +632,7 @@ void MeshSequence::addMesh(std::vector<float>& vertexBuffer, std::vector<unsigne
 	m_numberOfIndices = m_indexBuffer.size();
 }
 
-void MeshSequence::addMeshAfter(std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer) {
+void MeshSequence::addMeshAfter(const std::vector<float>& vertexBuffer, const std::vector<unsigned int>& indexBuffer) {
 	
 	m_numberOfMeshes++;
 	m_meshes.push_back({ static_cast<unsigned int>(indexBuffer.size()) / 3, 0u, 0u, 0u });
