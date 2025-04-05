@@ -22,6 +22,7 @@
 #include <States/MapState.h>
 #include <States/NavigationState.h>
 #include <States/NavigationStreamState.h>
+#include <States/Adrian.h>
 
 #include "Application.h"
 #include "Globals.h"
@@ -344,10 +345,10 @@ void Application::initOpenGL(int msaaSamples) {
 
 	ToggleVerticalSync();
 
-	//glDisable(GL_CULL_FACE);
-	glEnable(GL_CULL_FACE);
-	glCullFace(GL_BACK);
-	glFrontFace(GL_CCW);
+	glDisable(GL_CULL_FACE);
+	//glEnable(GL_CULL_FACE);
+	//glCullFace(GL_BACK);
+	//glFrontFace(GL_CCW);
 
 	//glDisable(GL_DEPTH_TEST);
 	glEnable(GL_DEPTH_TEST);
@@ -424,7 +425,8 @@ void Application::initStates() {
 	//Machine->addStateAtTop(new Md2State(*Machine));
 	//Machine->addStateAtTop(new MapState(*Machine));
 	//Machine->addStateAtTop(new NavigationState(*Machine));
-	Machine->addStateAtTop(new NavigationStreamState(*Machine));
+	//Machine->addStateAtTop(new NavigationStreamState(*Machine));
+	Machine->addStateAtTop(new Adrian(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -741,6 +743,12 @@ void Application::loadAssets() {
 	Globals::textureManager.loadTexture("ground", "res/textures/ground.tga", false);
 	Globals::textureManager.get("ground").setWrapMode(GL_REPEAT);
 
+	Globals::textureManager.loadTexture("wall", "res/textures/wall.tga", false);
+	Globals::textureManager.get("wall").setWrapMode(GL_REPEAT);
+
+	Globals::textureManager.loadTexture("crate", "res/textures/crate.tga", false);
+	Globals::textureManager.get("crate").setWrapMode(GL_REPEAT);
+
 	Globals::textureManager.loadTexture("proto_white", "res/textures/ProtoWhite256.jpg", true);
 	Globals::textureManager.get("proto_white").setWrapMode(GL_REPEAT);
 
@@ -752,4 +760,7 @@ void Application::loadAssets() {
 
 	Globals::shapeManager.buildSphere("sphere", 0.5f, Vector3f(0.0f, 0.0f, 0.0f), 10, 10, true, false, false);
 	Globals::shapeManager.get("sphere").createBoundingBox();
+
+	Globals::shapeManager.buildCylinder("cylinder", 1.0f, 1.0f, 1.0f, Vector3f(0.0f, 0.0f, 0.0f), true, true, 8, 8, true, true);
+	Globals::shapeManager.get("cylinder").createBoundingBox();
 }

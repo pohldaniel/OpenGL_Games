@@ -58,7 +58,7 @@ public:
 	void updateInstances(const std::vector<Matrix4f>& values);
 	void updateInstance(const Matrix4f& mtx, unsigned int index);
 
-	void setVec4Attribute(const std::vector<Vector4f>& values, unsigned int divisor = 1u);
+	void setVec4Attribute(const std::vector<Vector4f>& values, unsigned int divisor = 1u, unsigned int location = 9u);
 	void setMat4Attribute(const std::vector<Matrix4f>& values, unsigned int divisor = 1u);
 	void setFloatAttribute(const std::vector<float>& values, unsigned int divisor = 1u);
 

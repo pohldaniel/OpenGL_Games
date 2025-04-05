@@ -991,7 +991,7 @@ void Shape::updateInstances(const std::vector<Matrix4f>& values) {
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-void Shape::setVec4Attribute(const std::vector<Vector4f>& values, unsigned int divisor) {
+void Shape::setVec4Attribute(const std::vector<Vector4f>& values, unsigned int divisor, unsigned int location) {
 	if (m_vboAdd1) {
 		glBindBuffer(GL_ARRAY_BUFFER, m_vboAdd1);
 		glBufferData(GL_ARRAY_BUFFER, values.size() * sizeof(float) * 4, &values[0], GL_STATIC_DRAW);
@@ -1005,9 +1005,9 @@ void Shape::setVec4Attribute(const std::vector<Vector4f>& values, unsigned int d
 		glBindBuffer(GL_ARRAY_BUFFER, m_vboAdd1);
 		glBufferData(GL_ARRAY_BUFFER, values.size() * sizeof(float) * 4, &values[0], GL_STATIC_DRAW);
 
-		glEnableVertexAttribArray(9);
-		glVertexAttribPointer(9, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 4, (void*)(0));
-		glVertexAttribDivisor(9, divisor);
+		glEnableVertexAttribArray(location);
+		glVertexAttribPointer(location, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 4, (void*)(0));
+		glVertexAttribDivisor(location, divisor);
 
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindVertexArray(0);
