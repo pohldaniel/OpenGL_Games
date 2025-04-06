@@ -32,6 +32,7 @@ public:
 	void OnKeyUp(Event::KeyboardEvent& event) override;
 
 	void loadQuads(const char* filename, int count);
+	void loadCylinder(const char* filename);
 	char filepath[256];
 
 private:
@@ -68,4 +69,6 @@ private:
 	btCollisionObject* m_ground;
 
 	std::vector<Shape> m_quads;
+
+	std::vector<Shape> m_cylinder;
 };

@@ -26,8 +26,8 @@ Adrian::Adrian(StateMachine& machine) : State(machine, States::MAP), m_camera(Ap
 	Material::AddTexture("data/models/dynamic/hero/hero.tga");
 	Material::AddTexture("res/textures/los.tga");
 	Material::AddTexture();
-	Material::AddTexture("res/textures/crate.tga");
-	Material::AddTexture("res/textures/barrel.tga");
+	Material::AddTexture("res/textures/crate.tga", TextureType::TEXTURE2D, false);
+	Material::AddTexture("res/textures/barrel.tga", TextureType::TEXTURE2D, false);
 
 	m_hero.load("data/models/dynamic/hero/hero.md2");
 
@@ -67,53 +67,23 @@ Adrian::Adrian(StateMachine& machine) : State(machine, States::MAP), m_camera(Ap
 
 	m_ground = Physics::AddStaticObject(Physics::BtTransform(btVector3(0.0f, 0.0f, 0.0f)), new  btStaticPlaneShape(btVector3(0.0f, 1.0f, 0.0f), -0.1f), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER, nullptr);
 
-	m_cylinderNode = m_root->addChild<ShapeNode, Shape>(Globals::shapeManager.get("cylinder"));
-	m_cylinderNode->setPosition(-600.0f,  50.0f, -880.0f);
-	m_cylinderNode->setScale(20.0f, 99.0f, 20.0f);
-	m_cylinderNode->setTextureIndex(3);
-	m_cylinderNode->OnOctreeSet(m_octree);
-
-	m_cylinderNode = m_root->addChild<ShapeNode, Shape>(Globals::shapeManager.get("cylinder"));
-	m_cylinderNode->setPosition(-600.0f, 50.0f, -720.0f);
-	m_cylinderNode->setScale(20.0f, 99.0f, 20.0f);
-	m_cylinderNode->setTextureIndex(3);
-	m_cylinderNode->OnOctreeSet(m_octree);
-
-
-	m_cylinderNode = m_root->addChild<ShapeNode, Shape>(Globals::shapeManager.get("cylinder"));
-	m_cylinderNode->setPosition(-320.0f, 20.0f, -520.0f);
-	m_cylinderNode->setScale(20.0f, 40.0f, 20.0f);
-	m_cylinderNode->setTextureIndex(4);
-	m_cylinderNode->OnOctreeSet(m_octree);
-
-	m_cylinderNode = m_root->addChild<ShapeNode, Shape>(Globals::shapeManager.get("cylinder"));
-	m_cylinderNode->setPosition(-360.0f, 20.0f, -520.0f);
-	m_cylinderNode->setScale(20.0f, 40.0f, 20.0f);
-	m_cylinderNode->setTextureIndex(4);
-	m_cylinderNode->OnOctreeSet(m_octree);
-
 	loadQuads("res/building_0.bld", 5);
 	loadQuads("res/building_1.bld", 5);
 	loadQuads("res/building_2.bld", 5);
 	loadQuads("res/building_3.bld", 5);
 	//loadQuads("res/building_4.bld", 8);
 
-	//loadQuads("res/building_5.bld", 4);
-	//loadQuads("res/building_6.bld", 5);
+	loadCylinder("res/building_5.bld");
+	loadCylinder("res/building_6.bld");
 	//loadQuads("res/building_7.bld", 5);
-	//loadQuads("res/building_8.bld", 5);
-	//loadQuads("res/building_9.bld", 8);
+	loadCylinder("res/building_8.bld");
+	loadCylinder("res/building_9.bld");
 
-	Vector3f mid = Vector3f(-340.000000, 40.000000, -520.000000);
-	mid += Vector3f(-345.855713, 40.000000, -505.855713);
-	mid += Vector3f(-360.000000, 40.000000, -500.000000);
-	mid += Vector3f(-374.144287, 40.000000, -505.855713);
-	mid += Vector3f(-380.000000, 40.000000, -520.000000);
-	mid += Vector3f(-374.144287, 40.000000, -534.144287);
-	mid += Vector3f(-360.000000, 40.000000, -540.000000);
-	mid += Vector3f(-345.855713, 40.000000, -534.144287);
-	mid = mid / 8;
-	std::cout << mid[0] << "  " << mid[1] << "  " << mid[2] << std::endl;
+	for (int i = 0; i < m_cylinder.size(); i++) {
+		m_cylinderNode = m_root->addChild<ShapeNode, Shape>(m_cylinder[i]);
+		m_cylinderNode->setTextureIndex(i < 2 ? 3 : 4);
+		m_cylinderNode->OnOctreeSet(m_octree);
+	}
 }
 
 Adrian::~Adrian() {
@@ -494,4 +464,103 @@ void Adrian::loadQuads(const char* fn, int count) {
 		m_quads.back().fromBuffer(vertices, { 0u, 2u, 1u, 2u, 0u, 3u }, 8u, true);
 		m_quads.back().setVec4Attribute(shapeColor, 1u, 3u);
 	}
+}
+
+void Adrian::loadCylinder(const char* fn) {
+	FILE *f;
+	char buf[1024];
+	strncpy(filepath, fn, 256);
+
+	if ((f = fopen(filepath, "r")) == NULL) {
+		fprintf(stderr, "Cannot open building file: %s\n", filepath);
+		exit(-1);
+	}
+
+	std::vector<Vector3f> positions;
+	std::vector<Vector2f> texels;
+	std::vector<Vector4f> colors;
+	
+	std::vector<float> vertices;
+	std::vector<unsigned int> indices;
+	std::vector<Vector4f> shapeColor;
+
+	Vector4f currentColor = Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
+	unsigned int currentPolygon;
+
+	while (fgets(buf, 1024, f) != NULL) {
+		char *str = buf + 5;
+		float fl[5];
+		int ret;
+
+		if (!strncmp(buf, "#", 1))
+			continue;
+
+		for (int i = 0; str[i]; i++)
+			if (str[i] == '\n' || str[i] == '\r')
+				str[i] = '\0';
+
+		ret = sscanf(str, "%f,%f,%f,%f,%f", &fl[0], &fl[1], &fl[2], &fl[3], &fl[4]);
+		if (!strncmp(buf, "txco:", 5)) {
+			texels.push_back({ fl[0], fl[1] });
+		}else if (!strncmp(buf, "colr:", 5)) {
+			currentColor.set(fl[0], fl[1], fl[2], 1.0f);
+		}else if (!strncmp(buf, "vrtx:", 5)) {
+			positions.push_back({ fl[0], fl[1], fl[2] });
+			colors.push_back(currentColor);
+		}else if (!strncmp(buf, "begn:", 5)) {
+			sscanf(str, "%d", &currentPolygon);
+		}else if (!strncmp(buf, "ends", 4)) {
+			if (currentPolygon == 8u) {
+
+				unsigned int baseIndex = vertices.size() / 8;
+				for (int i = 0; i < positions.size(); i++) {
+					vertices.push_back(positions[i][0]); vertices.push_back(positions[i][1]); vertices.push_back(positions[i][2]);
+					vertices.push_back(texels[i][0]); vertices.push_back(texels[i][1]);
+					vertices.push_back(0.0f); vertices.push_back(0.0f); vertices.push_back(0.0f);
+					shapeColor.push_back(colors[i]);
+				}
+				
+				for (unsigned int i = 0; i < positions.size() - 2; i = i + 2) {
+					indices.push_back(0u + i + baseIndex); indices.push_back(1u + i + baseIndex); indices.push_back(2u + i + baseIndex);
+					indices.push_back(1u + i + baseIndex); indices.push_back(2u + i + baseIndex); indices.push_back(3u + i + baseIndex);
+				}		
+			}else if (currentPolygon == 9u) {
+				Vector3f mid;
+				Vector2f midTex;
+				for (unsigned int i = 0; i < positions.size(); i++) {
+					mid += positions[i];
+					midTex += texels[i];
+				}
+				mid = mid / positions.size();
+				midTex = midTex / texels.size();
+				
+				unsigned int baseIndex = vertices.size() / 8;
+				for (int i = 0; i < 8; i++) {
+					vertices.push_back(positions[i][0]); vertices.push_back(positions[i][1]); vertices.push_back(positions[i][2]);
+					vertices.push_back(texels[i][0]); vertices.push_back(texels[i][1]);
+					vertices.push_back(0.0f); vertices.push_back(0.0f); vertices.push_back(0.0f);
+					shapeColor.push_back(colors[i]);
+				}
+				vertices.push_back(mid[0]); vertices.push_back(mid[1]); vertices.push_back(mid[2]);
+				vertices.push_back(midTex[0]); vertices.push_back(midTex[1]);
+				vertices.push_back(0.0f); vertices.push_back(0.0f); vertices.push_back(0.0f);
+				shapeColor.push_back(colors[0]);
+			
+				indices.push_back(0u + baseIndex); indices.push_back(1u + baseIndex); indices.push_back(8u + baseIndex);
+				indices.push_back(1u + baseIndex); indices.push_back(2u + baseIndex); indices.push_back(8u + baseIndex);
+				indices.push_back(2u + baseIndex); indices.push_back(3u + baseIndex); indices.push_back(8u + baseIndex);
+				indices.push_back(3u + baseIndex); indices.push_back(4u + baseIndex); indices.push_back(8u + baseIndex);
+
+				indices.push_back(4u + baseIndex); indices.push_back(5u + baseIndex); indices.push_back(8u + baseIndex);
+				indices.push_back(5u + baseIndex); indices.push_back(6u + baseIndex); indices.push_back(8u + baseIndex);
+				indices.push_back(6u + baseIndex); indices.push_back(7u + baseIndex); indices.push_back(8u + baseIndex);
+				indices.push_back(7u + baseIndex); indices.push_back(0u + baseIndex); indices.push_back(8u + baseIndex);
+				
+			}			
+		}		
+	}
+	m_cylinder.push_back(Shape());
+	m_cylinder.back().fromBuffer(vertices, indices, 8u, true);
+	m_cylinder.back().createBoundingBox();
+	m_cylinder.back().setVec4Attribute(shapeColor, 1u, 3u);	
 }
