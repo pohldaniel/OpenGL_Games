@@ -509,8 +509,9 @@ void Adrian::loadBuilding(const char* fn) {
 					shapeColor.push_back(currentColor);
 				}
 
-				indices.push_back(0u + baseIndex); indices.push_back(1u + baseIndex); indices.push_back(2u + baseIndex);
-				indices.push_back(0u + baseIndex); indices.push_back(2u + baseIndex); indices.push_back(3u + baseIndex);
+				for (unsigned int i = 1u; i < positions.size() - 1; i++) {
+					indices.push_back(0u + baseIndex); indices.push_back(i + baseIndex); indices.push_back(i + 1u + baseIndex);
+				}
 
 				positions.shrink_to_fit();
 				positions.clear();
