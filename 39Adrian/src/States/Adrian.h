@@ -31,9 +31,8 @@ public:
 	void OnKeyDown(Event::KeyboardEvent& event) override;
 	void OnKeyUp(Event::KeyboardEvent& event) override;
 
-	void loadQuads(const char* filename, int count);
-	void loadCylinder(const char* filename);
-	char filepath[256];
+	void loadBuilding(const char* filename);
+	void createScene(bool recreate = false);
 
 private:
 
@@ -46,7 +45,7 @@ private:
 	bool m_debugTree = false;
 	bool m_debugPhysic = false;
 
-	float m_tileFactor = 8.0f;
+	float m_tileFactor = 80.0f;
 	float m_angle = -M_PI_4;
 	float m_height = 30.0f;
 	float m_zoom = 1.0f;
@@ -61,14 +60,11 @@ private:
 	Frustum m_frustum;
 
 	Shape m_segment, m_disk, m_sphere;
-	ShapeNode *m_segmentNode, *m_diskNode, *m_cylinderNode;
+	ShapeNode *m_segmentNode, *m_diskNode, *m_buildingNode;
 
 	std::vector<ShapeNode*> m_marker;
 
 	MousePicker m_mousePicker;
 	btCollisionObject* m_ground;
-
-	std::vector<Shape> m_quads;
-
-	std::vector<Shape> m_cylinder;
+	std::vector<Shape> m_buildings;
 };

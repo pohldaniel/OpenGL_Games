@@ -27,7 +27,16 @@ Adrian::Adrian(StateMachine& machine) : State(machine, States::MAP), m_camera(Ap
 	Material::AddTexture("res/textures/los.tga");
 	Material::AddTexture();
 	Material::AddTexture("res/textures/crate.tga", TextureType::TEXTURE2D, false);
+	Material::GetTextures().back().setLinear();
 	Material::AddTexture("res/textures/barrel.tga", TextureType::TEXTURE2D, false);
+	Material::GetTextures().back().setLinear();
+	Material::AddTexture("res/textures/aircraftgun.tga", TextureType::TEXTURE2D, false);
+	Material::GetTextures().back().setLinear();
+	Material::AddTexture("res/textures/generalsbuilding.tga", TextureType::TEXTURE2D, false);
+	Material::GetTextures().back().setLinear();
+	Material::AddTexture("res/textures/wall.tga", TextureType::TEXTURE2D, false);
+	Material::GetTextures().back().setLinear();
+	Material::GetTextures().back().setWrapMode(GL_REPEAT);
 
 	m_hero.load("data/models/dynamic/hero/hero.md2");
 
@@ -67,23 +76,20 @@ Adrian::Adrian(StateMachine& machine) : State(machine, States::MAP), m_camera(Ap
 
 	m_ground = Physics::AddStaticObject(Physics::BtTransform(btVector3(0.0f, 0.0f, 0.0f)), new  btStaticPlaneShape(btVector3(0.0f, 1.0f, 0.0f), -0.1f), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER, nullptr);
 
-	loadQuads("res/building_0.bld", 5);
-	loadQuads("res/building_1.bld", 5);
-	loadQuads("res/building_2.bld", 5);
-	loadQuads("res/building_3.bld", 5);
-	//loadQuads("res/building_4.bld", 8);
-
-	loadCylinder("res/building_5.bld");
-	loadCylinder("res/building_6.bld");
-	//loadQuads("res/building_7.bld", 5);
-	loadCylinder("res/building_8.bld");
-	loadCylinder("res/building_9.bld");
-
-	for (int i = 0; i < m_cylinder.size(); i++) {
-		m_cylinderNode = m_root->addChild<ShapeNode, Shape>(m_cylinder[i]);
-		m_cylinderNode->setTextureIndex(i < 2 ? 3 : 4);
-		m_cylinderNode->OnOctreeSet(m_octree);
-	}
+	loadBuilding("res/building_0.bld");
+	loadBuilding("res/building_1.bld");
+	loadBuilding("res/building_2.bld");
+	loadBuilding("res/building_3.bld");
+	
+	loadBuilding("res/building_5.bld");
+	loadBuilding("res/building_6.bld");
+	loadBuilding("res/building_8.bld");
+	loadBuilding("res/building_9.bld");
+	
+	loadBuilding("res/building_7.bld");
+	
+	loadBuilding("res/building_4.bld");
+	createScene();
 }
 
 Adrian::~Adrian() {
@@ -148,7 +154,7 @@ void Adrian::update() {
 		move |= true;
 	}
 
-	if (keyboard.keyPressed(Keyboard::KEY_T)) {
+	if (keyboard.keyDown(Keyboard::KEY_T)) {
 		clearMarker();
 	}
 
@@ -180,9 +186,9 @@ void Adrian::render() {
 
 	int tilex, tilez;
 
-	const int TILE_SIZE = 300;
-	const int TILE_LOWFACTOR = 4.0;
-	const int TILE_HIGHFACTOR = 4.0;
+	const int TILE_SIZE = 3000;
+	const float TILE_LOWFACTOR = 4.0;
+	const float TILE_HIGHFACTOR = 4.0;
 	int tileSzFactor = TILE_HIGHFACTOR + TILE_LOWFACTOR;
 
 	tilex = ((int)m_camera.m_initx / TILE_SIZE) * TILE_SIZE;
@@ -223,27 +229,14 @@ void Adrian::render() {
 		}
 	}
 
-	Globals::textureManager.get("wall").bind(0);
-	shader->loadMatrix("u_model", Matrix4f::IDENTITY);
-	for (const Shape& quad : m_quads) {
-		quad.drawRaw();
-	}
-
-	//auto shader = Globals::shaderManager.getAssetPointer("shape");
-	//shader->use();
-	//shader->loadMatrix("u_projection", m_camera.getOrthographicMatrix());
-	//shader->loadMatrix("u_view", m_camera.getViewMatrix());
-	//shader->loadMatrix("u_model", Matrix4f::Translate(-780.0f, MAP_MODEL_HEIGHT_Y, 780.0f));
-	//Globals::shapeManager.get("cylinder").drawRaw();
-
-	/*if (m_debugTree) {
+	if (m_debugTree) {
 		DebugRenderer::Get().SetProjectionView(m_camera.getOrthographicMatrix(), m_camera.getViewMatrix());
 		DebugRenderer::Get().drawBuffer();
-	}*/
+	}
 
 	shader->unuse();
 
-	/*if (m_debugPhysic) {
+	if (m_debugPhysic) {
 		ShapeDrawer::Get().setProjectionView(m_camera.getOrthographicMatrix(), m_camera.getViewMatrix());
 
 		glDisable(GL_CULL_FACE);
@@ -251,7 +244,7 @@ void Adrian::render() {
 		ShapeDrawer::Get().drawDynmicsWorld(Physics::GetDynamicsWorld());
 		glPolygonMode(GL_FRONT_AND_BACK, StateMachine::GetEnableWireframe() ? GL_LINE : GL_FILL);
 		glEnable(GL_CULL_FACE);
-	}*/
+	}
 
 	if (m_drawUi)
 		renderUi();
@@ -411,9 +404,10 @@ void Adrian::clearMarker() {
 	m_marker.clear();
 }
 
-void Adrian::loadQuads(const char* fn, int count) {
+void Adrian::loadBuilding(const char* fn) {
 	FILE *f;
 	char buf[1024];
+	char filepath[256];
 	strncpy(filepath, fn, 256);
 
 	if ((f = fopen(filepath, "r")) == NULL) {
@@ -423,62 +417,6 @@ void Adrian::loadQuads(const char* fn, int count) {
 
 	std::vector<Vector3f> positions;
 	std::vector<Vector2f> texels;
-	std::vector<Vector4f> color;
-	Vector4f currentColor = Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
-
-	while (fgets(buf, 1024, f) != NULL) {
-		char *str = buf + 5;
-		float fl[5];
-		int ret;
-
-		if (!strncmp(buf, "#", 1))
-			continue;
-
-		for (int i = 0; str[i]; i++)
-			if (str[i] == '\n' || str[i] == '\r')
-				str[i] = '\0';
-
-			ret = sscanf(str, "%f,%f,%f,%f,%f", &fl[0], &fl[1], &fl[2], &fl[3], &fl[4]);
-			if (!strncmp(buf, "txco:", 5)) {
-				texels.push_back({ fl[0], fl[1] });
-			}else if (!strncmp(buf, "colr:", 5)) {	
-				currentColor.set(fl[0], fl[1], fl[2], 1.0f);
-			}else if (!strncmp(buf, "vrtx:", 5)) {
-				positions.push_back({ fl[0], fl[1], fl[2] });
-				color.push_back(currentColor);
-			}else if (!strncmp(buf, "txtr:", 5)) {			
-		}
-	}
-
-	for (int j = 0; j < count; j++) {
-		std::vector<float> vertices;
-		std::vector<Vector4f> shapeColor;
-		for (int i = j * 4; i < (j + 1) * 4; i++) {
-			vertices.push_back(positions[i][0]); vertices.push_back(positions[i][1]); vertices.push_back(positions[i][2]);
-			vertices.push_back(texels[i][0]); vertices.push_back(texels[i][1]);
-			vertices.push_back(0.0f); vertices.push_back(0.0f); vertices.push_back(0.0f);
-			shapeColor.push_back(color[i]);
-		}
-
-		m_quads.push_back(Shape());
-		m_quads.back().fromBuffer(vertices, { 0u, 2u, 1u, 2u, 0u, 3u }, 8u, true);
-		m_quads.back().setVec4Attribute(shapeColor, 1u, 3u);
-	}
-}
-
-void Adrian::loadCylinder(const char* fn) {
-	FILE *f;
-	char buf[1024];
-	strncpy(filepath, fn, 256);
-
-	if ((f = fopen(filepath, "r")) == NULL) {
-		fprintf(stderr, "Cannot open building file: %s\n", filepath);
-		exit(-1);
-	}
-
-	std::vector<Vector3f> positions;
-	std::vector<Vector2f> texels;
-	std::vector<Vector4f> colors;
 	
 	std::vector<float> vertices;
 	std::vector<unsigned int> indices;
@@ -503,64 +441,99 @@ void Adrian::loadCylinder(const char* fn) {
 		if (!strncmp(buf, "txco:", 5)) {
 			texels.push_back({ fl[0], fl[1] });
 		}else if (!strncmp(buf, "colr:", 5)) {
-			currentColor.set(fl[0], fl[1], fl[2], 1.0f);
+			currentColor.set(fl[0], fl[1], fl[2], fl[3]);
 		}else if (!strncmp(buf, "vrtx:", 5)) {
 			positions.push_back({ fl[0], fl[1], fl[2] });
-			colors.push_back(currentColor);
 		}else if (!strncmp(buf, "begn:", 5)) {
 			sscanf(str, "%d", &currentPolygon);
 		}else if (!strncmp(buf, "ends", 4)) {
-			if (currentPolygon == 8u) {
+		
+			if (currentPolygon == 7u) {
+				unsigned int baseIndex = vertices.size() / 8;
+				for (int i = 0; i < positions.size(); i++) {
+					vertices.push_back(positions[i][0]); vertices.push_back(positions[i][1]); vertices.push_back(positions[i][2]);
+					vertices.push_back(texels[i][0]); vertices.push_back(texels[i][1]);
+					vertices.push_back(0.0f); vertices.push_back(0.0f); vertices.push_back(0.0f);
+					shapeColor.push_back(currentColor);
+				}
+			
+				indices.push_back(0u + baseIndex); indices.push_back(1u + baseIndex); indices.push_back(2u + baseIndex);
+				indices.push_back(0u + baseIndex); indices.push_back(2u + baseIndex); indices.push_back(3u + baseIndex);
+
+				positions.shrink_to_fit();
+				positions.clear();
+				texels.shrink_to_fit();
+				texels.clear();
+			}else if (currentPolygon == 8u) {
 
 				unsigned int baseIndex = vertices.size() / 8;
 				for (int i = 0; i < positions.size(); i++) {
 					vertices.push_back(positions[i][0]); vertices.push_back(positions[i][1]); vertices.push_back(positions[i][2]);
 					vertices.push_back(texels[i][0]); vertices.push_back(texels[i][1]);
 					vertices.push_back(0.0f); vertices.push_back(0.0f); vertices.push_back(0.0f);
-					shapeColor.push_back(colors[i]);
+					shapeColor.push_back(currentColor);
 				}
 				
 				for (unsigned int i = 0; i < positions.size() - 2; i = i + 2) {
-					indices.push_back(0u + i + baseIndex); indices.push_back(1u + i + baseIndex); indices.push_back(2u + i + baseIndex);
+					indices.push_back(0u + i + baseIndex); indices.push_back(2u + i + baseIndex); indices.push_back(1u + i + baseIndex);
 					indices.push_back(1u + i + baseIndex); indices.push_back(2u + i + baseIndex); indices.push_back(3u + i + baseIndex);
-				}		
-			}else if (currentPolygon == 9u) {
-				Vector3f mid;
-				Vector2f midTex;
-				for (unsigned int i = 0; i < positions.size(); i++) {
-					mid += positions[i];
-					midTex += texels[i];
 				}
-				mid = mid / positions.size();
-				midTex = midTex / texels.size();
+
+				positions.shrink_to_fit();
+				positions.clear();
+				texels.shrink_to_fit();
+				texels.clear();
+			}else if (currentPolygon == 9u) {
 				
 				unsigned int baseIndex = vertices.size() / 8;
 				for (int i = 0; i < 8; i++) {
 					vertices.push_back(positions[i][0]); vertices.push_back(positions[i][1]); vertices.push_back(positions[i][2]);
 					vertices.push_back(texels[i][0]); vertices.push_back(texels[i][1]);
 					vertices.push_back(0.0f); vertices.push_back(0.0f); vertices.push_back(0.0f);
-					shapeColor.push_back(colors[i]);
+					shapeColor.push_back(currentColor);
 				}
-				vertices.push_back(mid[0]); vertices.push_back(mid[1]); vertices.push_back(mid[2]);
-				vertices.push_back(midTex[0]); vertices.push_back(midTex[1]);
-				vertices.push_back(0.0f); vertices.push_back(0.0f); vertices.push_back(0.0f);
-				shapeColor.push_back(colors[0]);
-			
-				indices.push_back(0u + baseIndex); indices.push_back(1u + baseIndex); indices.push_back(8u + baseIndex);
-				indices.push_back(1u + baseIndex); indices.push_back(2u + baseIndex); indices.push_back(8u + baseIndex);
-				indices.push_back(2u + baseIndex); indices.push_back(3u + baseIndex); indices.push_back(8u + baseIndex);
-				indices.push_back(3u + baseIndex); indices.push_back(4u + baseIndex); indices.push_back(8u + baseIndex);
-
-				indices.push_back(4u + baseIndex); indices.push_back(5u + baseIndex); indices.push_back(8u + baseIndex);
-				indices.push_back(5u + baseIndex); indices.push_back(6u + baseIndex); indices.push_back(8u + baseIndex);
-				indices.push_back(6u + baseIndex); indices.push_back(7u + baseIndex); indices.push_back(8u + baseIndex);
-				indices.push_back(7u + baseIndex); indices.push_back(0u + baseIndex); indices.push_back(8u + baseIndex);
 				
+				indices.push_back(0u + baseIndex); indices.push_back(1u + baseIndex); indices.push_back(2u + baseIndex);
+				indices.push_back(0u + baseIndex); indices.push_back(2u + baseIndex); indices.push_back(3u + baseIndex);
+
+				indices.push_back(0u + baseIndex);  indices.push_back(6u + baseIndex); indices.push_back(7u + baseIndex);
+				indices.push_back(0u + baseIndex);  indices.push_back(5u + baseIndex); indices.push_back(6u + baseIndex);
+
+				indices.push_back(0u + baseIndex); indices.push_back(4u + baseIndex); indices.push_back(5u + baseIndex);
+				indices.push_back(0u + baseIndex); indices.push_back(3u + baseIndex); indices.push_back(4u + baseIndex);
+
+				
+				positions.shrink_to_fit();
+				positions.clear();
+				texels.shrink_to_fit();
+				texels.clear();
 			}			
 		}		
 	}
-	m_cylinder.push_back(Shape());
-	m_cylinder.back().fromBuffer(vertices, indices, 8u, true);
-	m_cylinder.back().createBoundingBox();
-	m_cylinder.back().setVec4Attribute(shapeColor, 1u, 3u);	
+	m_buildings.push_back(Shape(vertices, indices, 8u));
+	m_buildings.back().createBoundingBox();
+	m_buildings.back().setVec4Attribute(shapeColor, 0u, 3u);
+}
+
+void Adrian::createScene(bool recreate) {
+
+	for (int i = 0; i < 4; i++) {
+		m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[i]);
+		m_buildingNode->setTextureIndex(7);
+		m_buildingNode->OnOctreeSet(m_octree);
+	}
+
+	for (int i = 4; i < 8; i++) {
+		m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[i]);
+		m_buildingNode->setTextureIndex(i < 6 ? 3 : 4);
+		m_buildingNode->OnOctreeSet(m_octree);
+	}
+
+	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[8]);
+	m_buildingNode->setTextureIndex(5);
+	m_buildingNode->OnOctreeSet(m_octree);
+
+	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[9]);
+	m_buildingNode->setTextureIndex(6);
+	m_buildingNode->OnOctreeSet(m_octree);
 }

@@ -80,9 +80,9 @@ public:
 
 private:
 
-	unsigned int m_vao;
+	unsigned int m_vao = 0u;
 	unsigned int m_vbo[7] = { 0u };
-	unsigned int m_drawCount;
+	unsigned int m_drawCount = 0u;
 	unsigned int m_vboInstances = 0u;
 	unsigned int m_vboAdd1 = 0u;
 	unsigned int m_vboAdd2 = 0u;

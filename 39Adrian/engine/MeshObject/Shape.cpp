@@ -18,7 +18,7 @@ Shape::Shape(std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexB
 	fromBuffer(vertexBuffer, indexBuffer, stride, createBuffer);
 }
 
-Shape::Shape(Shape const& rhs) {
+Shape::Shape(Shape const& rhs) {	
 	m_vao = rhs.m_vao;
 	m_vbo[0] = rhs.m_vbo[0];
 	m_vbo[1] = rhs.m_vbo[1];
@@ -34,8 +34,8 @@ Shape::Shape(Shape const& rhs) {
 	m_vboAdd3 = rhs.m_vboAdd3;
 	m_instanceCount = rhs.m_instanceCount;
 	m_aabb = rhs.m_aabb;	
-	m_positions.insert(m_positions.end(), rhs.m_positions.begin(),rhs.m_positions.end());
-	m_indexBuffer.insert(m_indexBuffer.end(), rhs.m_indexBuffer.begin(), rhs.m_indexBuffer.end());
+	m_positions = rhs.m_positions;
+	m_indexBuffer = rhs.m_indexBuffer;
 	m_markForDelete = false;
 }
 
@@ -76,9 +76,9 @@ Shape& Shape::operator=(const Shape& rhs) {
 	m_vboAdd3 = rhs.m_vboAdd3;
 	m_instanceCount = rhs.m_instanceCount;
 	m_aabb = rhs.m_aabb;
-	m_positions.insert(m_positions.end(), rhs.m_positions.begin(), rhs.m_positions.end());
-	m_indexBuffer.insert(m_indexBuffer.end(), rhs.m_indexBuffer.begin(), rhs.m_indexBuffer.end());
-	m_markForDelete = false;
+	m_positions = rhs.m_positions;
+	m_indexBuffer = rhs.m_indexBuffer;
+	m_markForDelete = false; 
 	return *this;
 }
 
@@ -100,7 +100,7 @@ Shape& Shape::operator=(Shape&& rhs) {
 	m_aabb = rhs.m_aabb;
 	m_positions = rhs.m_positions;
 	m_indexBuffer = rhs.m_indexBuffer;
-	m_markForDelete = false;
+	m_markForDelete = false; 
 	return *this;
 }
 
