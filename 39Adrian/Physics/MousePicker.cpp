@@ -182,7 +182,7 @@ bool MousePicker::clickOrthographic(unsigned int posX, unsigned int posY, const 
 
 	m_callback = MousePickCallback(Physics::VectorFrom(rayStartWorld), Physics::VectorFrom(rayEndWorld), Physics::MOUSEPICKER, Physics::PICKABLE_OBJECT);
 	Physics::GetDynamicsWorld()->rayTest(m_callback.m_origin, m_callback.m_target, m_callback);
-
+	std::cout << "Has Hit: " << m_callback.hasHit() << std::endl;
 	if (m_callback.hasHit()) {
 		return collisonObject == nullptr ? true : collisonObject == m_callback.m_collisionObject;
 	}else {

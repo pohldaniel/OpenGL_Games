@@ -18,12 +18,12 @@ void Vehicle::draw() {
 
 	updateModelMatrix();
 	
-	shader->use();
-	shader->loadMatrix("modelMatrix", m_objModelMatrix);
+	m_shader->use();
+	m_shader->loadMatrix("modelMatrix", m_objModelMatrix);
 	meshSequence.draw(0);
 
 	for (const Matrix4f& wheelMatrix : m_wheelMatrices) {
-		shader->loadMatrix("modelMatrix", wheelMatrix);
+		m_shader->loadMatrix("modelMatrix", wheelMatrix);
 		meshSequence.draw(1);
 	}
 }

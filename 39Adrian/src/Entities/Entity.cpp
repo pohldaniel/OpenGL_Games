@@ -1,6 +1,6 @@
 #include "Entity.h"
 
-Entity::Entity() : m_materialIndex(-1), m_textureIndex(-1), shader(nullptr) {
+Entity::Entity() : m_materialIndex(-1), m_textureIndex(-1), m_shader(nullptr) {
 
 }
 
@@ -33,5 +33,5 @@ void Entity::setTextureIndex(short index){
 }
 
 void Entity::setShader(Shader* shader) {
-	Entity::shader = shader;
+	m_shader = shader;
 }

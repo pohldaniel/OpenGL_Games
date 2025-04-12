@@ -9,7 +9,7 @@ Md2Entity::~Md2Entity() {
 
 }
 
-void Md2Entity::draw() {
+void Md2Entity::draw() {	
 	Md2Node::drawRaw();
 }
 

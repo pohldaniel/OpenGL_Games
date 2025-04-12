@@ -24,5 +24,5 @@ protected:
 
 	short m_materialIndex;
 	short m_textureIndex;
-	Shader* shader;
+	Shader* m_shader;
 };

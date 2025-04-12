@@ -22,6 +22,7 @@ public:
 	short getTextureIndex() const;
 	void setMaterialIndex(short index);
 	void setTextureIndex(short index);
+	void setShader(Shader* shader);
 
 protected:
 
@@ -44,6 +45,7 @@ private:
 	float m_speed;
 	short m_activeFrameIdx;
 	float m_activeFrame;
+	Shader* m_shader;
 
 	const Md2Model& md2Model;
 };

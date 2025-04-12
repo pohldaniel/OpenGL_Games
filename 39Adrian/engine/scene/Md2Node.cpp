@@ -11,6 +11,7 @@ Md2Node::Md2Node(const Md2Model& md2Model) :
 	currentAnimation(&md2Model.getAnimations()[0]),
 	m_speed(1.0f),
 	m_activeFrame(0.0f),
+	m_shader(nullptr),
 	m_animationType(AnimationType::STAND) {
 	m_interpolated.resize(md2Model.getNumVertices());
 }
@@ -76,8 +77,17 @@ void Md2Node::updateAnimation() {
 }
 
 void  Md2Node::drawRaw() const {
+	if (m_shader) {
+		m_shader->use();
+		m_shader->loadMatrix("u_model", getWorldTransformation());
+	}
+
+	
 	md2Model.updateBuffer(m_interpolated);
 	md2Model.draw(m_textureIndex, m_materialIndex);
+
+	if (m_shader)
+		m_shader->unuse();
 }
 
 const BoundingBox& Md2Node::getLocalBoundingBox() const {
@@ -104,4 +114,8 @@ void Md2Node::setAnimationType(AnimationType animationType) {
 	m_animationType = animationType;
 	currentAnimation = &md2Model.getAnimations()[m_animationType];
 	m_activeFrame = 0.0f;
+}
+
+void Md2Node::setShader(Shader* shader) {
+	m_shader = shader;
 }

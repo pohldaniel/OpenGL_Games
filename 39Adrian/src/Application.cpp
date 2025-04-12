@@ -718,6 +718,7 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("quad", "res/shader/quad.vert", "res/shader/quad.frag");
 	Globals::shaderManager.loadShader("md2", "res/shader/md2anim.vert", "res/shader/md2anim.frag");
 	Globals::shaderManager.loadShader("shape", "res/shader/shape.vert", "res/shader/shape.frag");
+	Globals::shaderManager.loadShader("shape_color", "res/shader/shape_color.vert", "res/shader/shape.frag");
 	Globals::shaderManager.loadShader("map", "res/shader/map.vert", "res/shader/map.frag");
 	Globals::shaderManager.loadShader("animation", "res/shader/animation.vert", "res/shader/animation.frag");
 	

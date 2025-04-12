@@ -18,7 +18,8 @@ Adrian::Adrian(StateMachine& machine) : State(machine, States::MAP), m_camera(Ap
 	EventDispatcher::AddMouseListener(this);
 
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
-	m_camera.orthographic(-static_cast<float>(Application::Width / 2) / m_zoom, static_cast<float>(Application::Width / 2) / m_zoom, -static_cast<float>(Application::Height / 2) / m_zoom, static_cast<float>(Application::Height / 2) / m_zoom, -static_cast<float>(Application::Width) / m_zoom, static_cast<float>(Application::Width) / m_zoom);
+	//m_camera.orthographic(-static_cast<float>(Application::Width / 2) / m_zoom, static_cast<float>(Application::Width / 2) / m_zoom, -static_cast<float>(Application::Height / 2) / m_zoom, static_cast<float>(Application::Height / 2) / m_zoom, -static_cast<float>(Application::Width) / m_zoom, static_cast<float>(Application::Width) / m_zoom);
+	m_camera.orthographic(-static_cast<float>(Application::Width / 2) / m_zoom, static_cast<float>(Application::Width / 2) / m_zoom, -static_cast<float>(Application::Height / 2) / m_zoom, static_cast<float>(Application::Height / 2) / m_zoom, -5000.0f, 5000.0f);
 
 	glClearColor(0.494f, 0.686f, 0.796f, 1.0f);
 	glClearDepth(1.0f);
@@ -37,6 +38,12 @@ Adrian::Adrian(StateMachine& machine) : State(machine, States::MAP), m_camera(Ap
 	Material::AddTexture("res/textures/wall.tga", TextureType::TEXTURE2D, false);
 	Material::GetTextures().back().setLinear();
 	Material::GetTextures().back().setWrapMode(GL_REPEAT);
+	Material::AddTexture("res/textures/200x200building.tga", TextureType::TEXTURE2D, false);
+	Material::GetTextures().back().setLinear();
+	Material::AddTexture("res/textures/bunker.tga", TextureType::TEXTURE2D, false);
+	Material::GetTextures().back().setLinear();
+	Material::AddTexture("res/textures/metal.tga", TextureType::TEXTURE2D, false);
+	Material::GetTextures().back().setLinear();
 
 	m_hero.load("data/models/dynamic/hero/hero.md2");
 
@@ -52,6 +59,8 @@ Adrian::Adrian(StateMachine& machine) : State(machine, States::MAP), m_camera(Ap
 	m_heroEnity->setOrientation(0.0f, 0.0f, 0.0f);
 	m_heroEnity->setTextureIndex(0);
 	m_heroEnity->OnOctreeSet(m_octree);
+	m_heroEnity->setSortKey(1);
+	m_heroEnity->Md2Node::setShader(Globals::shaderManager.getAssetPointer("shape_color"));
 
 	ShapeDrawer::Get().init(32768);
 	ShapeDrawer::Get().setCamera(m_camera);
@@ -79,16 +88,33 @@ Adrian::Adrian(StateMachine& machine) : State(machine, States::MAP), m_camera(Ap
 	loadBuilding("res/building_0.bld");
 	loadBuilding("res/building_1.bld");
 	loadBuilding("res/building_2.bld");
-	loadBuilding("res/building_3.bld");
-	
+	loadBuilding("res/building_3.bld");	
 	loadBuilding("res/building_5.bld");
 	loadBuilding("res/building_6.bld");
 	loadBuilding("res/building_8.bld");
-	loadBuilding("res/building_9.bld");
-	
-	loadBuilding("res/building_7.bld");
-	
+	loadBuilding("res/building_9.bld");	
+	loadBuilding("res/building_7.bld");	
 	loadBuilding("res/building_4.bld");
+
+	loadBuilding("res/building_10.bld");
+	loadBuilding("res/building_11.bld");
+	loadBuilding("res/building_12.bld");
+	loadBuilding("res/building_13.bld");
+	loadBuilding("res/building_14.bld");
+	loadBuilding("res/building_15.bld");
+
+	loadBuilding("res/building_16.bld");
+	loadBuilding("res/building_17.bld");
+	loadBuilding("res/building_18.bld");
+	loadBuilding("res/building_19.bld");
+	loadBuilding("res/building_20.bld");
+	
+	loadBuilding("res/building_21.bld");
+	loadBuilding("res/building_22.bld");
+	loadBuilding("res/building_23.bld");
+	loadBuilding("res/building_24.bld");
+	loadBuilding("res/building_25.bld");
+
 	createScene();
 }
 
@@ -145,13 +171,24 @@ void Adrian::update() {
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_Q)) {
-		direction += Vector3f(0.0f, -1.0f, 0.0f);
-		move |= true;
+		if (Keyboard::instance().keyDown(Keyboard::KEY_LSHIFT)) {
+			m_height += 0.05f;
+			m_camera.setHeight(m_height);
+		}else {
+			m_angle += 0.005f;
+			m_camera.rotate(m_angle);
+		}
+		
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_E)) {
-		direction += Vector3f(0.0f, 1.0f, 0.0f);
-		move |= true;
+		if (Keyboard::instance().keyDown(Keyboard::KEY_LSHIFT)) {
+			m_height -= 0.05f;
+			m_camera.setHeight(m_height);
+		}else {
+			m_angle -= 0.005f;
+			m_camera.rotate(m_angle);
+		}
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_T)) {
@@ -205,32 +242,39 @@ void Adrian::render() {
 	Globals::shapeManager.get("quad_xz").drawRaw();
 	shader->unuse();
 
+
+	shader = Globals::shaderManager.getAssetPointer("shape_color");
+	shader->use();
+	shader->loadMatrix("u_projection", m_camera.getOrthographicMatrix());
+	shader->loadMatrix("u_view", m_camera.getViewMatrix());
+	shader->loadVector("u_color", m_heroEnity->getColor());
+
 	shader = Globals::shaderManager.getAssetPointer("shape");
 	shader->use();
 	shader->loadMatrix("u_projection", m_camera.getOrthographicMatrix());
 	shader->loadMatrix("u_view", m_camera.getViewMatrix());
-
-	for (size_t i = 0; i < m_octree->getRootLevelOctants().size(); ++i) {
-		const Octree::ThreadOctantResult& result = m_octree->getOctantResults()[i];
-		for (auto oIt = result.octants.begin(); oIt != result.octants.end(); ++oIt) {
-			Octant* octant = oIt->first;
-			if (m_debugTree)
-				octant->OnRenderAABB(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
-
-			const std::vector<OctreeNode*>& drawables = octant->getOctreeNodes();
-			for (auto dIt = drawables.begin(); dIt != drawables.end(); ++dIt) {
-				OctreeNode* drawable = *dIt;
-				shader->loadMatrix("u_model", drawable->getWorldTransformation());
-				shader->loadVector("u_color", m_heroEnity->getColor());
-				drawable->drawRaw();
+	for (const Batch& batch : m_octree->getOpaqueBatches().m_batches) {
+		OctreeNode* drawable = batch.octreeNode;
+		shader->loadMatrix("u_model", drawable->getWorldTransformation());
+		drawable->drawRaw();
+	}
+	
+	if (m_debugTree) {
+		for (size_t i = 0; i < m_octree->getRootLevelOctants().size(); ++i) {
+			const Octree::ThreadOctantResult& result = m_octree->getOctantResults()[i];
+			for (auto oIt = result.octants.begin(); oIt != result.octants.end(); ++oIt) {
+				Octant* octant = oIt->first;
 				if (m_debugTree)
-					drawable->OnRenderAABB(Vector4f(0.0f, 0.0f, 1.0f, 1.0f));
+					octant->OnRenderAABB(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
+
+				const std::vector<OctreeNode*>& drawables = octant->getOctreeNodes();
+				for (auto dIt = drawables.begin(); dIt != drawables.end(); ++dIt) {
+					(*dIt)->OnRenderAABB(Vector4f(0.0f, 1.0f, 0.0f, 1.0f));
+				}
 			}
 		}
-	}
 
-	if (m_debugTree) {
-		DebugRenderer::Get().SetProjectionView(m_camera.getOrthographicMatrix(), m_camera.getViewMatrix());
+		DebugRenderer::Get().SetProjectionView(m_camera.getPerspectiveMatrix(), m_camera.getViewMatrix());
 		DebugRenderer::Get().drawBuffer();
 	}
 
@@ -271,19 +315,21 @@ void Adrian::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 
 	if (event.button == 1u) {
 		Mouse::instance().attach(Application::GetWindow(), false, false, false);
-
 		m_mousePicker.updatePosition(event.x, event.y, m_camera);
-		if (m_mousePicker.clickOrthographic(event.x, event.y, m_camera, m_heroEnity->getRigidBody())) {
+		if (m_mousePicker.clickOrthographicAll(event.x, event.y, m_camera, m_heroEnity->getRigidBody())) {
 			if (!m_heroEnity->isActive()) {
 				m_diskNode = m_heroEnity->addChild<ShapeNode, Shape>(m_disk);
 				m_diskNode->setPosition(0.0f, -MAP_MODEL_HEIGHT_Y + 0.01f, 0.0f);
 				m_diskNode->setTextureIndex(2);
 				m_diskNode->setName("disk");
 				m_diskNode->OnOctreeSet(m_octree);
+			}else {
+				ShapeNode* marker = m_heroEnity->findChild<ShapeNode>("disk");
+				marker->OnOctreeSet(nullptr);
+				marker->eraseSelf();
 			}
-			m_heroEnity->setIsActive(true);
-		}
-		else {
+			m_heroEnity->setIsActive(!m_heroEnity->isActive());
+		}else {
 			if (m_heroEnity->isActive()) {
 				ShapeNode* marker = m_heroEnity->findChild<ShapeNode>("disk");
 				marker->OnOctreeSet(nullptr);
@@ -310,7 +356,8 @@ void Adrian::OnMouseWheel(Event::MouseWheelEvent& event) {
 		m_zoom = m_zoom + 0.05f;
 		m_zoom = Math::Clamp(m_zoom, 0.2f, 5.0f);
 	}
-	m_camera.orthographic(-static_cast<float>(Application::Width / 2) / m_zoom, static_cast<float>(Application::Width / 2) / m_zoom, -static_cast<float>(Application::Height / 2) / m_zoom, static_cast<float>(Application::Height / 2) / m_zoom, -static_cast<float>(Application::Width) / m_zoom, static_cast<float>(Application::Width) / m_zoom);
+	//m_camera.orthographic(-static_cast<float>(Application::Width / 2) / m_zoom, static_cast<float>(Application::Width / 2) / m_zoom, -static_cast<float>(Application::Height / 2) / m_zoom, static_cast<float>(Application::Height / 2) / m_zoom, -static_cast<float>(Application::Width) / m_zoom, static_cast<float>(Application::Width) / m_zoom);
+	m_camera.orthographic(-static_cast<float>(Application::Width / 2) / m_zoom, static_cast<float>(Application::Width / 2) / m_zoom, -static_cast<float>(Application::Height / 2) / m_zoom, static_cast<float>(Application::Height / 2) / m_zoom, -5000.0f, 5000.0f);
 }
 
 void Adrian::OnKeyDown(Event::KeyboardEvent& event) {
@@ -330,8 +377,8 @@ void Adrian::OnKeyUp(Event::KeyboardEvent& event) {
 
 void Adrian::resize(int deltaW, int deltaH) {
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
-	m_camera.orthographic(-static_cast<float>(Application::Width / 2) / m_zoom, static_cast<float>(Application::Width / 2) / m_zoom, -static_cast<float>(Application::Height / 2) / m_zoom, static_cast<float>(Application::Height / 2) / m_zoom, -static_cast<float>(Application::Width) / m_zoom, static_cast<float>(Application::Width) / m_zoom);
-
+	//m_camera.orthographic(-static_cast<float>(Application::Width / 2) / m_zoom, static_cast<float>(Application::Width / 2) / m_zoom, -static_cast<float>(Application::Height / 2) / m_zoom, static_cast<float>(Application::Height / 2) / m_zoom, -static_cast<float>(Application::Width) / m_zoom, static_cast<float>(Application::Width) / m_zoom);
+	m_camera.orthographic(-static_cast<float>(Application::Width / 2) / m_zoom, static_cast<float>(Application::Width / 2) / m_zoom, -static_cast<float>(Application::Height / 2) / m_zoom, static_cast<float>(Application::Height / 2) / m_zoom, -5000.0f, 5000.0f);
 	m_camera.resize(Application::Width, Application::Height);
 }
 
@@ -448,11 +495,36 @@ void Adrian::loadBuilding(const char* fn) {
 			sscanf(str, "%d", &currentPolygon);
 		}else if (!strncmp(buf, "ends", 4)) {
 		
-			if (currentPolygon == 7u) {
+			if (currentPolygon == 6u) {
 				unsigned int baseIndex = vertices.size() / 8;
 				for (int i = 0; i < positions.size(); i++) {
 					vertices.push_back(positions[i][0]); vertices.push_back(positions[i][1]); vertices.push_back(positions[i][2]);
-					vertices.push_back(texels[i][0]); vertices.push_back(texels[i][1]);
+					if (texels.size() > i) {
+						vertices.push_back(texels[i][0]); vertices.push_back(texels[i][1]);
+					}
+					else {
+						vertices.push_back(0.0f); vertices.push_back(0.0f);
+					}
+					vertices.push_back(0.0f); vertices.push_back(0.0f); vertices.push_back(0.0f);
+					shapeColor.push_back(currentColor);
+				}
+
+				indices.push_back(0u + baseIndex); indices.push_back(1u + baseIndex); indices.push_back(2u + baseIndex);
+				indices.push_back(0u + baseIndex); indices.push_back(2u + baseIndex); indices.push_back(3u + baseIndex);
+
+				positions.shrink_to_fit();
+				positions.clear();
+				texels.shrink_to_fit();
+				texels.clear();
+			}else if (currentPolygon == 7u) {
+				unsigned int baseIndex = vertices.size() / 8;
+				for (int i = 0; i < positions.size(); i++) {
+					vertices.push_back(positions[i][0]); vertices.push_back(positions[i][1]); vertices.push_back(positions[i][2]);
+					if (texels.size() > i) {						
+						vertices.push_back(texels[i][0]); vertices.push_back(texels[i][1]);
+					}else {
+						vertices.push_back(0.0f); vertices.push_back(0.0f);
+					}
 					vertices.push_back(0.0f); vertices.push_back(0.0f); vertices.push_back(0.0f);
 					shapeColor.push_back(currentColor);
 				}
@@ -469,7 +541,11 @@ void Adrian::loadBuilding(const char* fn) {
 				unsigned int baseIndex = vertices.size() / 8;
 				for (int i = 0; i < positions.size(); i++) {
 					vertices.push_back(positions[i][0]); vertices.push_back(positions[i][1]); vertices.push_back(positions[i][2]);
-					vertices.push_back(texels[i][0]); vertices.push_back(texels[i][1]);
+					if (texels.size() > i) {
+						vertices.push_back(texels[i][0]); vertices.push_back(texels[i][1]);
+					}else {
+						vertices.push_back(0.0f); vertices.push_back(0.0f);
+					}
 					vertices.push_back(0.0f); vertices.push_back(0.0f); vertices.push_back(0.0f);
 					shapeColor.push_back(currentColor);
 				}
@@ -488,7 +564,11 @@ void Adrian::loadBuilding(const char* fn) {
 				unsigned int baseIndex = vertices.size() / 8;
 				for (int i = 0; i < 8; i++) {
 					vertices.push_back(positions[i][0]); vertices.push_back(positions[i][1]); vertices.push_back(positions[i][2]);
-					vertices.push_back(texels[i][0]); vertices.push_back(texels[i][1]);
+					if (texels.size() > i) {
+						vertices.push_back(texels[i][0]); vertices.push_back(texels[i][1]);
+					}else {
+						vertices.push_back(0.0f); vertices.push_back(0.0f);
+					}
 					vertices.push_back(0.0f); vertices.push_back(0.0f); vertices.push_back(0.0f);
 					shapeColor.push_back(currentColor);
 				}
@@ -535,5 +615,69 @@ void Adrian::createScene(bool recreate) {
 
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[9]);
 	m_buildingNode->setTextureIndex(6);
+	m_buildingNode->OnOctreeSet(m_octree);
+
+	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[10]);
+	m_buildingNode->setTextureIndex(3);
+	m_buildingNode->OnOctreeSet(m_octree);
+
+	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[11]);
+	m_buildingNode->setTextureIndex(3);
+	m_buildingNode->OnOctreeSet(m_octree);
+
+	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[12]);
+	m_buildingNode->setTextureIndex(8);
+	m_buildingNode->OnOctreeSet(m_octree);
+
+	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[13]);
+	m_buildingNode->setTextureIndex(3);
+	m_buildingNode->OnOctreeSet(m_octree);
+
+	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[14]);
+	m_buildingNode->setTextureIndex(7);
+	m_buildingNode->OnOctreeSet(m_octree);
+
+	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[15]);
+	m_buildingNode->setTextureIndex(4);
+	m_buildingNode->OnOctreeSet(m_octree);
+
+	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[16]);
+	m_buildingNode->setTextureIndex(3);
+	m_buildingNode->OnOctreeSet(m_octree);
+
+	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[17]);
+	m_buildingNode->setTextureIndex(8);
+	m_buildingNode->OnOctreeSet(m_octree);
+
+	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[18]);
+	m_buildingNode->setTextureIndex(7);
+	m_buildingNode->OnOctreeSet(m_octree);
+
+	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[19]);
+	m_buildingNode->setTextureIndex(8);
+	m_buildingNode->OnOctreeSet(m_octree);
+
+	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[20]);
+	m_buildingNode->setTextureIndex(9);
+	m_buildingNode->OnOctreeSet(m_octree);
+
+	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[21]);
+	m_buildingNode->setTextureIndex(10);
+	m_buildingNode->OnOctreeSet(m_octree);
+
+	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[22]);
+	m_buildingNode->setTextureIndex(5);
+	m_buildingNode->OnOctreeSet(m_octree);
+
+	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[23]);
+	m_buildingNode->setTextureIndex(4);
+	m_buildingNode->OnOctreeSet(m_octree);
+
+	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[24]);
+	m_buildingNode->setTextureIndex(9);
+	m_buildingNode->OnOctreeSet(m_octree);
+
+	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[25]);
+	m_buildingNode->setTextureIndex(9);
 	m_buildingNode->OnOctreeSet(m_octree);
 }
