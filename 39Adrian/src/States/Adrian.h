@@ -7,11 +7,14 @@
 #include <engine/octree/Octree.h>
 #include <engine/Camera.h>
 #include <engine/Background.h>
+#include <Navigation/DynamicNavigationMesh.h>
+#include <Navigation/Navigable.h>
 #include <engine/Frustum.h>
 #include <Physics/Physics.h>
 #include <Physics/MousePicker.h>
 #include <States/StateMachine.h>
 #include <Entities/Md2Entity.h>
+
 
 class Adrian : public State, public MouseEventListener, public KeyboardEventListener {
 
@@ -31,7 +34,7 @@ public:
 	void OnKeyDown(Event::KeyboardEvent& event) override;
 	void OnKeyUp(Event::KeyboardEvent& event) override;
 
-	void loadBuilding(const char* filename);
+	void loadBuilding(const char* filename, bool changeWinding = false);
 	void createScene(bool recreate = false);
 
 private:
@@ -44,6 +47,7 @@ private:
 	bool m_useCulling = true;
 	bool m_debugTree = false;
 	bool m_debugPhysic = false;
+	bool m_debugNavmesh = false;
 
 	float m_tileFactor = 80.0f;
 	float m_angle = -M_PI_4;
@@ -67,4 +71,7 @@ private:
 	MousePicker m_mousePicker;
 	btCollisionObject* m_ground;
 	std::vector<Shape> m_buildings;
+
+	DynamicNavigationMesh* m_navigationMesh;
+	std::vector<Navigable*> m_navigables;
 };

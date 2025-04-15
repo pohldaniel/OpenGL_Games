@@ -85,7 +85,7 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	Batchrenderer::Get().init(1000, false, false);
 	Batchrenderer::Get().setShader(Globals::shaderManager.getAssetPointer("batch"));
 
-	DebugRenderer::Get().init(8200);
+	DebugRenderer::Get().init(1000000);
 	DebugRenderer::Get().disable();
 
 	auto shader = Globals::shaderManager.getAssetPointer("font");

@@ -537,7 +537,6 @@ void DynamicNavigationMesh::ReleaseTileCache() {
 
 void DynamicNavigationMesh::OnRenderDebug() {
 	NavigationMesh::OnRenderDebug();
-
 	// Draw Obstacle components
 	if (drawObstacles_) {
 		for (unsigned i = 0; i < m_obstacles.size(); ++i) {

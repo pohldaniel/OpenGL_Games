@@ -90,13 +90,13 @@ void NavigationMesh::OnRenderDebug() {
 
 	for (int j = 0; j < navMesh->getMaxTiles(); ++j){
 		const dtMeshTile* tile = navMesh->getTile(j);
-
+		
 		if (!tile->header)
 			continue;
 		
 		for (int i = 0; i < tile->header->polyCount; ++i){
 			dtPoly* poly = tile->polys + i;
-			for (unsigned j = 0; j < poly->vertCount; ++j){
+			for (unsigned j = 0; j < poly->vertCount; ++j){				
 				DebugRenderer::Get().AddLine(
 					worldTransform * *reinterpret_cast<const Vector3f*>(&tile->verts[poly->verts[j] * 3]),
 					worldTransform * *reinterpret_cast<const Vector3f*>(&tile->verts[poly->verts[(j + 1) % poly->vertCount] * 3]),
@@ -350,7 +350,7 @@ bool NavigationMesh::BuildTile(std::vector<NavigationGeometryInfo>& geometryList
 	unsigned char* triAreas = new unsigned char[numTriangles];
 	memset(triAreas, 0, numTriangles);
 
-	rcMarkWalkableTriangles(build.ctx_, cfg.walkableSlopeAngle, &build.vertices_[0][0], build.vertices_.size(),&build.indices_[0], numTriangles, triAreas);
+	rcMarkWalkableTriangles(build.ctx_, cfg.walkableSlopeAngle, &build.vertices_[0][0], build.vertices_.size(), &build.indices_[0], numTriangles, triAreas);
 	rcRasterizeTriangles(build.ctx_, &build.vertices_[0][0], build.vertices_.size(), &build.indices_[0],triAreas, numTriangles, *build.heightField_, cfg.walkableClimb);
 	rcFilterLowHangingWalkableObstacles(build.ctx_, cfg.walkableClimb, *build.heightField_);
 
@@ -720,9 +720,9 @@ void NavigationMesh::GetTileGeometry(NavBuildData* build, std::vector<Navigation
 }
 
 void NavigationMesh::AddTriMeshGeometry(NavBuildData* build, const Shape& shape, const Matrix4f& transform, unsigned int& vertexCount) {
-	unsigned srcIndexStart = 0u;
+	//unsigned srcIndexStart = 0u;
 	unsigned srcIndexCount = shape.getIndexBuffer().size();
-	unsigned srcVertexStart = 0u;
+	//unsigned srcVertexStart = 0u;
 	unsigned srcVertexCount = shape.getPositions().size();
 
 	for (unsigned k = 0u; k < srcVertexCount; ++k){

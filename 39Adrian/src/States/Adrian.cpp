@@ -44,6 +44,8 @@ Adrian::Adrian(StateMachine& machine) : State(machine, States::MAP), m_camera(Ap
 	Material::GetTextures().back().setLinear();
 	Material::AddTexture("res/textures/metal.tga", TextureType::TEXTURE2D, false);
 	Material::GetTextures().back().setLinear();
+	Material::AddTexture("res/textures/ground.tga", TextureType::TEXTURE2D, false);
+	Material::GetTextures().back().setLinear();
 
 	m_hero.load("data/models/dynamic/hero/hero.md2");
 
@@ -88,20 +90,20 @@ Adrian::Adrian(StateMachine& machine) : State(machine, States::MAP), m_camera(Ap
 	loadBuilding("res/building_0.bld");
 	loadBuilding("res/building_1.bld");
 	loadBuilding("res/building_2.bld");
-	loadBuilding("res/building_3.bld");	
+	loadBuilding("res/building_3.bld");
 	loadBuilding("res/building_5.bld");
 	loadBuilding("res/building_6.bld");
 	loadBuilding("res/building_8.bld");
-	loadBuilding("res/building_9.bld");	
+	loadBuilding("res/building_9.bld");
 	loadBuilding("res/building_7.bld");	
-	loadBuilding("res/building_4.bld");
+	loadBuilding("res/building_4.bld", true);
 
-	loadBuilding("res/building_10.bld");
-	loadBuilding("res/building_11.bld");
+	loadBuilding("res/building_10.bld", true);
+	loadBuilding("res/building_11.bld", true);
 	loadBuilding("res/building_12.bld");
-	loadBuilding("res/building_13.bld");
+	loadBuilding("res/building_13.bld", true);
 	loadBuilding("res/building_14.bld");
-	loadBuilding("res/building_15.bld");
+	loadBuilding("res/building_15.bld", true);
 
 	loadBuilding("res/building_16.bld");
 	loadBuilding("res/building_17.bld");
@@ -109,13 +111,27 @@ Adrian::Adrian(StateMachine& machine) : State(machine, States::MAP), m_camera(Ap
 	loadBuilding("res/building_19.bld");
 	loadBuilding("res/building_20.bld");
 	
-	loadBuilding("res/building_21.bld");
+	loadBuilding("res/building_21.bld", true);
 	loadBuilding("res/building_22.bld");
-	loadBuilding("res/building_23.bld");
-	loadBuilding("res/building_24.bld");
+	loadBuilding("res/building_23.bld", true);
+	loadBuilding("res/building_24.bld", true);
 	loadBuilding("res/building_25.bld");
-
 	createScene();
+
+	m_navigationMesh = new DynamicNavigationMesh();
+
+	m_navigationMesh->m_navigables = m_navigables;
+	m_navigationMesh->SetPadding(Vector3f(0.0f, 10.0f, 0.0f));
+	m_navigationMesh->SetTileSize(16);
+
+	m_navigationMesh->SetCellSize(0.3);
+	m_navigationMesh->SetCellHeight(0.2f);
+
+	m_navigationMesh->SetAgentMaxSlope(45.0f);
+	m_navigationMesh->SetAgentMaxClimb(0.9f);
+	m_navigationMesh->SetAgentHeight(2.0f);
+	m_navigationMesh->SetAgentRadius(0.6f);
+	m_navigationMesh->Build();
 }
 
 Adrian::~Adrian() {
@@ -274,8 +290,8 @@ void Adrian::render() {
 			}
 		}
 
-		DebugRenderer::Get().SetProjectionView(m_camera.getPerspectiveMatrix(), m_camera.getViewMatrix());
-		DebugRenderer::Get().drawBuffer();
+		//DebugRenderer::Get().SetProjectionView(m_camera.getPerspectiveMatrix(), m_camera.getViewMatrix());
+		//DebugRenderer::Get().drawBuffer();
 	}
 
 	shader->unuse();
@@ -287,7 +303,30 @@ void Adrian::render() {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		ShapeDrawer::Get().drawDynmicsWorld(Physics::GetDynamicsWorld());
 		glPolygonMode(GL_FRONT_AND_BACK, StateMachine::GetEnableWireframe() ? GL_LINE : GL_FILL);
-		glEnable(GL_CULL_FACE);
+		//glEnable(GL_CULL_FACE);
+	}
+
+	if (m_debugNavmesh) {
+		m_navigationMesh->OnRenderDebug();
+		/*m_crowdManager->OnRenderDebug();
+		if (m_currentPath.size()) {
+			// Visualize the current calculated path		
+			DebugRenderer::Get().AddBoundingBox(BoundingBox(m_endPos - Vector3f(0.1f, 0.1f, 0.1f), m_endPos + Vector3f(0.1f, 0.1f, 0.1f)), Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+
+			// Draw the path with a small upward bias so that it does not clip into the surfaces
+			Vector3f bias(0.0f, 0.05f, 0.0f);
+			DebugRenderer::Get().AddLine(m_jackAgent->getPosition() + bias, m_currentPath[0] + bias, Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+
+			if (m_currentPath.size() > 1) {
+				for (unsigned i = 0; i < m_currentPath.size() - 1; ++i)
+					DebugRenderer::Get().AddLine(m_currentPath[i] + bias, m_currentPath[i + 1] + bias, Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+			}
+		}*/		
+	}
+
+	if (m_debugTree || m_debugNavmesh) {
+		DebugRenderer::Get().SetProjectionView(m_camera.getOrthographicMatrix(), m_camera.getViewMatrix());
+		DebugRenderer::Get().drawBuffer();
 	}
 
 	if (m_drawUi)
@@ -434,6 +473,7 @@ void Adrian::renderUi() {
 	}
 	ImGui::Checkbox("Debug Tree", &m_debugTree);
 	ImGui::Checkbox("Debug Physic", &m_debugPhysic);
+	ImGui::Checkbox("Debug Navmesh", &m_debugNavmesh);
 	if (ImGui::Button("Clear Marker"))
 		clearMarker();
 
@@ -451,7 +491,7 @@ void Adrian::clearMarker() {
 	m_marker.clear();
 }
 
-void Adrian::loadBuilding(const char* fn) {
+void Adrian::loadBuilding(const char* fn, bool changeWinding) {
 	FILE *f;
 	char buf[1024];
 	char filepath[256];
@@ -470,6 +510,7 @@ void Adrian::loadBuilding(const char* fn) {
 	std::vector<Vector4f> shapeColor;
 
 	Vector4f currentColor = Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
+	std::string currentTexture;
 	unsigned int currentPolygon;
 
 	while (fgets(buf, 1024, f) != NULL) {
@@ -493,6 +534,20 @@ void Adrian::loadBuilding(const char* fn) {
 			positions.push_back({ fl[0], fl[1], fl[2] });
 		}else if (!strncmp(buf, "begn:", 5)) {
 			sscanf(str, "%d", &currentPolygon);
+		}else if (!strncmp(buf, "txtr:", 5)) {
+			if (currentTexture != str && !currentTexture.empty()) {
+				m_buildings.push_back(Shape(vertices, indices, 8u));
+				m_buildings.back().createBoundingBox();
+				m_buildings.back().setVec4Attribute(shapeColor, 0u, 3u);
+
+				vertices.shrink_to_fit();
+				vertices.clear();
+				indices.shrink_to_fit();
+				indices.clear();
+				shapeColor.shrink_to_fit();
+				shapeColor.clear();
+			}
+			currentTexture = str;
 		}else if (!strncmp(buf, "ends", 4)) {
 		
 			if (currentPolygon == 6u) {
@@ -510,7 +565,7 @@ void Adrian::loadBuilding(const char* fn) {
 				}
 
 				for (unsigned int i = 1u; i < positions.size() - 1; i++) {
-					indices.push_back(0u + baseIndex); indices.push_back(i + baseIndex); indices.push_back(i + 1u + baseIndex);
+					indices.push_back(0u + baseIndex); indices.push_back(changeWinding ? i + 1u + baseIndex : i + baseIndex); indices.push_back(changeWinding ? i+ baseIndex : i + 1u + baseIndex);
 				}
 
 				positions.shrink_to_fit();
@@ -530,9 +585,10 @@ void Adrian::loadBuilding(const char* fn) {
 					shapeColor.push_back(currentColor);
 				}
 			
-				indices.push_back(0u + baseIndex); indices.push_back(1u + baseIndex); indices.push_back(2u + baseIndex);
-				indices.push_back(0u + baseIndex); indices.push_back(2u + baseIndex); indices.push_back(3u + baseIndex);
+				indices.push_back(0u + baseIndex); indices.push_back(changeWinding ? 2u + baseIndex : 1u + baseIndex); indices.push_back(changeWinding ? 1u + baseIndex : 2u + baseIndex);
+				indices.push_back(0u + baseIndex); indices.push_back(changeWinding ? 3u + baseIndex : 2u + baseIndex); indices.push_back(changeWinding ? 2u + baseIndex : 3u + baseIndex);
 
+				
 				positions.shrink_to_fit();
 				positions.clear();
 				texels.shrink_to_fit();
@@ -552,8 +608,8 @@ void Adrian::loadBuilding(const char* fn) {
 				}
 				
 				for (unsigned int i = 0; i < positions.size() - 2; i = i + 2) {
-					indices.push_back(0u + i + baseIndex); indices.push_back(2u + i + baseIndex); indices.push_back(1u + i + baseIndex);
-					indices.push_back(1u + i + baseIndex); indices.push_back(2u + i + baseIndex); indices.push_back(3u + i + baseIndex);
+					indices.push_back(0u + i + baseIndex); indices.push_back(changeWinding ? 1u + i + baseIndex : 2u + i + baseIndex); indices.push_back(changeWinding ? 2u + i + baseIndex : 1u + i + baseIndex);
+					indices.push_back(1u + i + baseIndex); indices.push_back(changeWinding ? 3u + i + baseIndex : 2u + i + baseIndex); indices.push_back(changeWinding ? 2u + i + baseIndex : 3u + i + baseIndex);
 				}
 
 				positions.shrink_to_fit();
@@ -574,21 +630,23 @@ void Adrian::loadBuilding(const char* fn) {
 					shapeColor.push_back(currentColor);
 				}
 				
-				indices.push_back(0u + baseIndex); indices.push_back(1u + baseIndex); indices.push_back(2u + baseIndex);
-				indices.push_back(0u + baseIndex); indices.push_back(2u + baseIndex); indices.push_back(3u + baseIndex);
 
-				indices.push_back(0u + baseIndex);  indices.push_back(6u + baseIndex); indices.push_back(7u + baseIndex);
-				indices.push_back(0u + baseIndex);  indices.push_back(5u + baseIndex); indices.push_back(6u + baseIndex);
+				indices.push_back(0u + baseIndex); indices.push_back(changeWinding ? 2u + baseIndex : 1u + baseIndex); indices.push_back(changeWinding ? 1u + baseIndex : 2u + baseIndex);
+				indices.push_back(0u + baseIndex); indices.push_back(changeWinding ? 3u + baseIndex : 2u + baseIndex); indices.push_back(changeWinding ? 2u + baseIndex : 3u + baseIndex);
 
-				indices.push_back(0u + baseIndex); indices.push_back(4u + baseIndex); indices.push_back(5u + baseIndex);
-				indices.push_back(0u + baseIndex); indices.push_back(3u + baseIndex); indices.push_back(4u + baseIndex);
+				indices.push_back(0u + baseIndex);  indices.push_back(changeWinding ? 7u + baseIndex : 6u + baseIndex); indices.push_back(changeWinding ? 6u + baseIndex : 7u + baseIndex);
+				indices.push_back(0u + baseIndex);  indices.push_back(changeWinding ? 6u + baseIndex : 5u + baseIndex); indices.push_back(changeWinding ? 5u + baseIndex : 6u + baseIndex);
 
-				
+				indices.push_back(0u + baseIndex); indices.push_back(changeWinding ? 5u + baseIndex : 4u + baseIndex); indices.push_back(changeWinding ? 4u + baseIndex : 5u + baseIndex);
+				indices.push_back(0u + baseIndex); indices.push_back(changeWinding ? 4u + baseIndex : 3u + baseIndex); indices.push_back(changeWinding ? 3u + baseIndex : 4u + baseIndex);
+
+							
 				positions.shrink_to_fit();
 				positions.clear();
 				texels.shrink_to_fit();
 				texels.clear();
-			}			
+			}
+			
 		}		
 	}
 	m_buildings.push_back(Shape(vertices, indices, 8u));
@@ -602,83 +660,119 @@ void Adrian::createScene(bool recreate) {
 		m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[i]);
 		m_buildingNode->setTextureIndex(7);
 		m_buildingNode->OnOctreeSet(m_octree);
+		m_navigables.push_back(new Navigable(m_buildingNode));
 	}
 
 	for (int i = 4; i < 8; i++) {
 		m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[i]);
 		m_buildingNode->setTextureIndex(i < 6 ? 3 : 4);
 		m_buildingNode->OnOctreeSet(m_octree);
+		m_navigables.push_back(new Navigable(m_buildingNode));
 	}
+	
 
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[8]);
 	m_buildingNode->setTextureIndex(5);
 	m_buildingNode->OnOctreeSet(m_octree);
+	m_navigables.push_back(new Navigable(m_buildingNode));
 
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[9]);
 	m_buildingNode->setTextureIndex(6);
 	m_buildingNode->OnOctreeSet(m_octree);
+	m_navigables.push_back(new Navigable(m_buildingNode));
 
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[10]);
 	m_buildingNode->setTextureIndex(3);
 	m_buildingNode->OnOctreeSet(m_octree);
+	m_navigables.push_back(new Navigable(m_buildingNode));
 
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[11]);
 	m_buildingNode->setTextureIndex(3);
 	m_buildingNode->OnOctreeSet(m_octree);
+	m_navigables.push_back(new Navigable(m_buildingNode));
 
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[12]);
 	m_buildingNode->setTextureIndex(8);
 	m_buildingNode->OnOctreeSet(m_octree);
+	m_navigables.push_back(new Navigable(m_buildingNode));
 
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[13]);
 	m_buildingNode->setTextureIndex(3);
 	m_buildingNode->OnOctreeSet(m_octree);
+	m_navigables.push_back(new Navigable(m_buildingNode));
 
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[14]);
 	m_buildingNode->setTextureIndex(7);
 	m_buildingNode->OnOctreeSet(m_octree);
+	m_navigables.push_back(new Navigable(m_buildingNode));
 
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[15]);
 	m_buildingNode->setTextureIndex(4);
 	m_buildingNode->OnOctreeSet(m_octree);
+	m_navigables.push_back(new Navigable(m_buildingNode));
 
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[16]);
 	m_buildingNode->setTextureIndex(3);
 	m_buildingNode->OnOctreeSet(m_octree);
+	m_navigables.push_back(new Navigable(m_buildingNode));
 
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[17]);
 	m_buildingNode->setTextureIndex(8);
 	m_buildingNode->OnOctreeSet(m_octree);
+	m_navigables.push_back(new Navigable(m_buildingNode));
 
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[18]);
 	m_buildingNode->setTextureIndex(7);
 	m_buildingNode->OnOctreeSet(m_octree);
+	m_navigables.push_back(new Navigable(m_buildingNode));
 
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[19]);
 	m_buildingNode->setTextureIndex(8);
 	m_buildingNode->OnOctreeSet(m_octree);
+	m_navigables.push_back(new Navigable(m_buildingNode));
 
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[20]);
 	m_buildingNode->setTextureIndex(9);
 	m_buildingNode->OnOctreeSet(m_octree);
+	m_navigables.push_back(new Navigable(m_buildingNode));
 
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[21]);
 	m_buildingNode->setTextureIndex(10);
 	m_buildingNode->OnOctreeSet(m_octree);
+	m_navigables.push_back(new Navigable(m_buildingNode));
 
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[22]);
-	m_buildingNode->setTextureIndex(5);
+	m_buildingNode->setTextureIndex(10);
 	m_buildingNode->OnOctreeSet(m_octree);
+	m_navigables.push_back(new Navigable(m_buildingNode));
 
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[23]);
-	m_buildingNode->setTextureIndex(4);
+	m_buildingNode->setTextureIndex(5);
 	m_buildingNode->OnOctreeSet(m_octree);
+	m_navigables.push_back(new Navigable(m_buildingNode));
 
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[24]);
-	m_buildingNode->setTextureIndex(9);
+	m_buildingNode->setTextureIndex(4);
 	m_buildingNode->OnOctreeSet(m_octree);
+	m_navigables.push_back(new Navigable(m_buildingNode));
 
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[25]);
 	m_buildingNode->setTextureIndex(9);
 	m_buildingNode->OnOctreeSet(m_octree);
+	m_navigables.push_back(new Navigable(m_buildingNode));
+
+	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[26]);
+	m_buildingNode->setTextureIndex(9);
+	m_buildingNode->OnOctreeSet(m_octree);
+	m_navigables.push_back(new Navigable(m_buildingNode));
+
+	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[27]);
+	m_buildingNode->setTextureIndex(10);
+	m_buildingNode->OnOctreeSet(m_octree);
+	m_navigables.push_back(new Navigable(m_buildingNode));
+
+	m_buildingNode = m_root->addChild<ShapeNode, Shape>(Globals::shapeManager.get("quad_xz"));
+	m_buildingNode->translate(0.0f, 0.1f, 0.0f);
+	m_buildingNode->setScale(1000.0f, 0.0f, 1000.0f);
+	m_navigables.push_back(new Navigable(m_buildingNode));
 }
