@@ -837,15 +837,18 @@ bool NavigationMesh::AddTile(const Buffer& tileData) {
 	return false;
 }
 
-void NavigationMesh::RemoveTile(const std::array<int, 2>& tile) {
+void NavigationMesh::RemoveTile(const std::array<int, 2>& tile, unsigned int layersToRemove) {
 	if (!navMesh_)
 		return;
 
-	const dtTileRef tileRef = navMesh_->getTileRefAt(tile[0], tile[1], 0);
-	if (!tileRef)
-		return;
+	for (unsigned int i = 0u; i < layersToRemove + 1u; i++) {
+		const dtTileRef tileRef = navMesh_->getTileRefAt(tile[0], tile[1], i);
+		if (!tileRef)
+			continue;
+		navMesh_->removeTile(tileRef, 0, 0);
+	}
 
-	navMesh_->removeTile(tileRef, 0, 0);
+	return;
 }
 
 bool NavigationMesh::HasTile(const std::array<int, 2>& tile) const{

@@ -1,4 +1,8 @@
 #pragma once
+#include <array>
+#include <functional>
+#include <unordered_set>
+#include <unordered_map>
 
 #include <engine/input/MouseEventListener.h>
 #include <engine/input/KeyboardEventListener.h>
@@ -14,7 +18,6 @@
 #include <Physics/MousePicker.h>
 #include <States/StateMachine.h>
 #include <Entities/Md2Entity.h>
-
 
 class Adrian : public State, public MouseEventListener, public KeyboardEventListener {
 
@@ -41,6 +44,9 @@ private:
 
 	void renderUi();
 	void clearMarker();
+	void toggleStreaming(bool enabled);
+	void saveNavigationData();
+	void updateStreaming();
 
 	bool m_initUi = true;
 	bool m_drawUi = true;
@@ -48,11 +54,13 @@ private:
 	bool m_debugTree = false;
 	bool m_debugPhysic = false;
 	bool m_debugNavmesh = false;
+	bool m_useStreaming = false;
 
 	float m_tileFactor = 80.0f;
 	float m_angle = -M_PI_4;
 	float m_height = 30.0f;
 	float m_zoom = 1.0f;
+	int m_streamingDistance;
 
 	IsometricCamera m_camera;
 
@@ -74,4 +82,7 @@ private:
 
 	DynamicNavigationMesh* m_navigationMesh;
 	std::vector<Navigable*> m_navigables;
+
+	std::unordered_set< std::array<int, 2>, std::function<size_t(const std::array<int, 2>&)>, std::function<bool(const std::array<int, 2>&, const std::array<int, 2>&)>> m_addedTiles;
+	std::unordered_map< std::array<int, 2>, Buffer, std::function<size_t(const std::array<int, 2>&)>, std::function<bool(const std::array<int, 2>&, const std::array<int, 2>&)>> m_tileData;
 };

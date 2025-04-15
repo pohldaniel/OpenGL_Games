@@ -54,8 +54,7 @@ struct MeshProcess : public dtTileCacheMeshProcess {
 	virtual void process(struct dtNavMeshCreateParams* params, unsigned char* polyAreas, unsigned short* polyFlags) {
 		// Update poly flags from areas.
 		// \todo Assignment of flags from areas?
-		for (int i = 0; i < params->polyCount; ++i)
-		{
+		for (int i = 0; i < params->polyCount; ++i){
 			if (polyAreas[i] != RC_NULL_AREA)
 				polyFlags[i] = RC_WALKABLE_AREA;
 		}
@@ -154,6 +153,7 @@ DynamicNavigationMesh::DynamicNavigationMesh() :
 	drawOffMeshConnections_(true),
 	drawNavAreas_(true),
 	tileCache_(nullptr),
+	m_crowdManager(nullptr),
 	maxObstacles_(DEFAULT_MAX_OBSTACLES),
 	maxLayers_(DEFAULT_MAX_LAYERS) {
 	tileSize_ = 64;
@@ -624,7 +624,7 @@ void DynamicNavigationMesh::wait() {
 	}		
 }
 
-void DynamicNavigationMesh::RemoveTile(const std::array<int, 2>& tile) {
+void DynamicNavigationMesh::RemoveTile(const std::array<int, 2>& tile, unsigned int layersToRemove) {
 	if (!navMesh_)
 		return;
 
@@ -636,7 +636,8 @@ void DynamicNavigationMesh::RemoveTile(const std::array<int, 2>& tile) {
 			dtFree(data);
 	}
 
-	NavigationMesh::RemoveTile(tile);
+	NavigationMesh::RemoveTile(tile, layersToRemove);
+	return;
 }
 
 bool DynamicNavigationMesh::AddTile(const Buffer& tileData){
@@ -663,7 +664,7 @@ bool DynamicNavigationMesh::ReadTiles(const Buffer& source){
 		}
 		memcpy(data, source.data + offset + sizeof(dtTileCacheLayerHeader) + sizeof(int), dataSize);
 		if (dtStatusFailed(tileCache_->addTile(data, dataSize, DT_TILE_FREE_DATA, 0))){
-			std::cout << "Failed to add tile" << std::endl;
+			//std::cout << "Failed to add tile" << std::endl;
 			dtFree(data);
 			return false;
 		}
@@ -686,11 +687,13 @@ bool DynamicNavigationMesh::ReadTiles(const Buffer& source){
 			obstacle->OnTileAdded(m_tileQueue[j]);		
 	}
 
-	for (unsigned j = 0; j < m_tileQueue.size(); ++j) {
-		for (CrowdAgent* agent : m_crowdManager->getAgents())
-			if (agent->OnTileAdded(m_tileQueue[j])) {
-				m_agentsToReset.push_back(agent);
-			}
+	if (m_crowdManager) {
+		for (unsigned j = 0; j < m_tileQueue.size(); ++j) {
+			for (CrowdAgent* agent : m_crowdManager->getAgents())
+				if (agent->OnTileAdded(m_tileQueue[j])) {
+					m_agentsToReset.push_back(agent);
+				}
+		}
 	}
 	return true;
 }

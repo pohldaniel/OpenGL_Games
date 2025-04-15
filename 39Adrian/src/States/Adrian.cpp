@@ -11,7 +11,14 @@
 #include "Application.h"
 #include "Globals.h"
 
-Adrian::Adrian(StateMachine& machine) : State(machine, States::MAP), m_camera(Application::Width, Application::Height) {
+auto hash2 = [](const std::array<int, 2>& p) {  return std::hash<int>()(p[0]) ^ std::hash<int>()(p[1]) << 1; };
+auto equal2 = [](const std::array<int, 2>& p1, const std::array<int, 2>& p2) { return p1[0] == p2[0] && p1[1] == p2[1]; };
+
+Adrian::Adrian(StateMachine& machine) : State(machine, States::MAP),
+	m_camera(Application::Width, Application::Height),
+	m_addedTiles(0, hash2, equal2),
+	m_tileData(0, hash2, equal2),
+	m_streamingDistance(6) {
 
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
@@ -122,7 +129,7 @@ Adrian::Adrian(StateMachine& machine) : State(machine, States::MAP), m_camera(Ap
 
 	m_navigationMesh->m_navigables = m_navigables;
 	m_navigationMesh->SetPadding(Vector3f(0.0f, 10.0f, 0.0f));
-	m_navigationMesh->SetTileSize(16);
+	m_navigationMesh->SetTileSize(128);
 
 	m_navigationMesh->SetCellSize(0.3);
 	m_navigationMesh->SetCellHeight(0.2f);
@@ -207,8 +214,9 @@ void Adrian::update() {
 		}
 	}
 
-	if (keyboard.keyDown(Keyboard::KEY_T)) {
-		clearMarker();
+	if (keyboard.keyPressed(Keyboard::KEY_T)) {
+		m_useStreaming = !m_useStreaming;
+		toggleStreaming(m_useStreaming);
 	}
 
 	Vector3f moveDir = Vector3f::ZERO;
@@ -232,6 +240,10 @@ void Adrian::update() {
 	m_frustum.updatePlane(m_camera.getOrthographicMatrix(), m_camera.getViewMatrix());
 	m_frustum.updateVertices(m_camera.getOrthographicMatrix(), m_camera.getViewMatrix());
 	m_frustum.m_frustumSATData.calculate(m_frustum);
+
+	if (m_useStreaming)
+		updateStreaming();
+
 	m_octree->updateOctree();
 }
 
@@ -775,4 +787,61 @@ void Adrian::createScene(bool recreate) {
 	m_buildingNode->translate(0.0f, 0.1f, 0.0f);
 	m_buildingNode->setScale(1000.0f, 0.0f, 1000.0f);
 	m_navigables.push_back(new Navigable(m_buildingNode));
+}
+
+void Adrian::toggleStreaming(bool enabled) {
+	if (enabled) {
+		int maxTiles = (2 * m_streamingDistance + 1) * (2 * m_streamingDistance + 1);
+		BoundingBox boundingBox = m_navigationMesh->GetBoundingBox();
+		saveNavigationData();
+		m_navigationMesh->Allocate(boundingBox, maxTiles);
+		updateStreaming();
+	}else {
+		m_navigationMesh->Build();
+	}
+}
+
+void Adrian::saveNavigationData() {
+	DynamicNavigationMesh* navMesh = m_navigationMesh;
+	m_tileData.clear();
+	m_addedTiles.clear();
+	const  std::array<int, 2> numTiles = navMesh->GetNumTiles();
+	for (int z = 0; z < numTiles[1]; ++z)
+		for (int x = 0; x <= numTiles[0]; ++x) {
+			const std::array<int, 2> tileIdx = { x, z };
+			navMesh->GetTileData(m_tileData[tileIdx], tileIdx);
+		}
+}
+
+void Adrian::updateStreaming() {
+	Vector3f averageAgentPosition = m_heroEnity->getWorldPosition();
+	// Compute currently loaded area
+	const std::array<int, 2> jackTile = m_navigationMesh->GetTileIndex(averageAgentPosition);
+	const std::array<int, 2> numTiles = m_navigationMesh->GetNumTiles();
+
+	const std::array<int, 2> beginTile = { std::max(0, jackTile[0] - m_streamingDistance), std::max(0, jackTile[1] - m_streamingDistance) };
+	const std::array<int, 2> endTile = { std::min(jackTile[0] + m_streamingDistance, numTiles[0] - 1), std::min(jackTile[1] + m_streamingDistance, numTiles[1] - 1) };
+	//m_navigationMesh->wait();
+	// Remove tiles
+	for (std::unordered_set<std::array<int, 2>>::iterator i = m_addedTiles.begin(); i != m_addedTiles.end();) {
+		const std::array<int, 2> tileIdx = *i;
+		if (beginTile[0] <= tileIdx[0] && tileIdx[0] <= endTile[0] && beginTile[1] <= tileIdx[1] && tileIdx[1] <= endTile[1])
+			++i;
+		else {
+			m_navigationMesh->RemoveTile(tileIdx, 3u);
+			i = m_addedTiles.erase(i);
+		}
+	}
+	
+	// Add tiles
+	for (int z = beginTile[1]; z <= endTile[1]; ++z) {
+		for (int x = beginTile[0]; x <= endTile[0]; ++x) {
+			const std::array<int, 2> tileIdx = { x, z };
+			bool tmp = m_navigationMesh->HasTile(tileIdx);
+			if (!m_navigationMesh->HasTile(tileIdx) && m_tileData.find(tileIdx) != m_tileData.end()) {
+				m_addedTiles.insert(tileIdx);
+				m_navigationMesh->AddTile(m_tileData[tileIdx]);
+			}
+		}
+	}
 }

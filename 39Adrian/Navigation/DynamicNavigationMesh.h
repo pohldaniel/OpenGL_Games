@@ -25,7 +25,7 @@ public:
 	bool Allocate(const BoundingBox& boundingBox, unsigned maxTiles) override;
 	void ReleaseNavigationMesh() override;
 	bool Build() override;
-	void RemoveTile(const std::array<int, 2>& tile) override;
+	void RemoveTile(const std::array<int, 2>& tile, unsigned int layersToRemove = 0u) override;
 	bool AddTile(const Buffer& tileData) override;
 	Buffer GetTileData(Buffer& buffer, const std::array<int, 2>& tile) const override;
 	void WriteTiles(Buffer& dest, int x, int z) const;

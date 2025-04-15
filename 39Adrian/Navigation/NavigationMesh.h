@@ -169,7 +169,7 @@ public:
 	/// Add tile to navigation mesh.
 	virtual bool AddTile(const Buffer& tileData);
 	/// Remove tile from navigation mesh.
-	virtual void RemoveTile(const std::array<int, 2>& tile);
+	virtual void RemoveTile(const std::array<int, 2>& tile, unsigned int layersToRemove = 0u);
 	/// Remove all tiles from navigation mesh.
 	virtual void RemoveAllTiles();
 	/// Return whether the navigation mesh has tile.
