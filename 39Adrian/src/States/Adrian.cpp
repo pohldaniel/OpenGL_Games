@@ -17,7 +17,6 @@ auto equal2 = [](const std::array<int, 2>& p1, const std::array<int, 2>& p2) { r
 Adrian::Adrian(StateMachine& machine) : State(machine, States::MAP),
 	m_camera(Application::Width, Application::Height),
 	m_addedTiles(0, hash2, equal2),
-	//m_tileData(0, hash2, equal2),
 	m_streamingDistance(6) {
 
 	Application::SetCursorIcon(IDC_ARROW);
@@ -129,7 +128,7 @@ Adrian::Adrian(StateMachine& machine) : State(machine, States::MAP),
 
 	m_navigationMesh->m_navigables = m_navigables;
 	m_navigationMesh->SetPadding(Vector3f(0.0f, 10.0f, 0.0f));
-	m_navigationMesh->SetTileSize(16);
+	m_navigationMesh->SetTileSize(128);
 
 	m_navigationMesh->SetCellSize(0.3);
 	m_navigationMesh->SetCellHeight(0.2f);
@@ -138,19 +137,10 @@ Adrian::Adrian(StateMachine& machine) : State(machine, States::MAP),
 	m_navigationMesh->SetAgentMaxClimb(0.9f);
 	m_navigationMesh->SetAgentHeight(2.0f);
 	m_navigationMesh->SetAgentRadius(0.6f);
-	/*m_navigationMesh->Build();
-	saveNavigationData();
-
-	const  std::array<int, 2> numTiles = m_navigationMesh->GetNumTiles();
-	BoundingBox boundingBox = m_navigationMesh->GetBoundingBox();
-
+	//m_navigationMesh->Build();
+	
 	Utils::NavIO navIO;
-	navIO.writeNavigationMap("res/data_high_res.nav", numTiles[0], numTiles[1], boundingBox, m_tileData);*/
-
-	//BoundingBox box;
-	//int numX, numZ;
-	Utils::NavIO navIO;
-	navIO.readNavigationMap("res/data_high_res.nav", m_navigationMesh->numTilesX_, m_navigationMesh->numTilesZ_, m_navigationMesh->boundingBox_, m_tileData);
+	navIO.readNavigationMap("res/data.nav", m_navigationMesh->numTilesX_, m_navigationMesh->numTilesZ_, m_navigationMesh->boundingBox_, m_tileData);
 	m_navigationMesh->Allocate();
 	for (int z = 0; z < m_navigationMesh->numTilesZ_; ++z) {
 		for (int x = 0; x < m_navigationMesh->numTilesX_; ++x) {
@@ -320,9 +310,6 @@ void Adrian::render() {
 				}
 			}
 		}
-
-		//DebugRenderer::Get().SetProjectionView(m_camera.getPerspectiveMatrix(), m_camera.getViewMatrix());
-		//DebugRenderer::Get().drawBuffer();
 	}
 
 	shader->unuse();
@@ -339,20 +326,6 @@ void Adrian::render() {
 
 	if (m_debugNavmesh) {
 		m_navigationMesh->OnRenderDebug();
-		/*m_crowdManager->OnRenderDebug();
-		if (m_currentPath.size()) {
-			// Visualize the current calculated path		
-			DebugRenderer::Get().AddBoundingBox(BoundingBox(m_endPos - Vector3f(0.1f, 0.1f, 0.1f), m_endPos + Vector3f(0.1f, 0.1f, 0.1f)), Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
-
-			// Draw the path with a small upward bias so that it does not clip into the surfaces
-			Vector3f bias(0.0f, 0.05f, 0.0f);
-			DebugRenderer::Get().AddLine(m_jackAgent->getPosition() + bias, m_currentPath[0] + bias, Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
-
-			if (m_currentPath.size() > 1) {
-				for (unsigned i = 0; i < m_currentPath.size() - 1; ++i)
-					DebugRenderer::Get().AddLine(m_currentPath[i] + bias, m_currentPath[i + 1] + bias, Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
-			}
-		}*/		
 	}
 
 	if (m_debugTree || m_debugNavmesh) {
@@ -834,13 +807,11 @@ void Adrian::saveNavigationData() {
 
 void Adrian::updateStreaming() {
 	Vector3f averageAgentPosition = m_heroEnity->getWorldPosition();
-	// Compute currently loaded area
-	const std::array<int, 2> jackTile = m_navigationMesh->GetTileIndex(averageAgentPosition);
+	const std::array<int, 2> heroTile = m_navigationMesh->GetTileIndex(averageAgentPosition);
 	const std::array<int, 2> numTiles = m_navigationMesh->GetNumTiles();
+	const std::array<int, 2> beginTile = { std::max(0, heroTile[0] - m_streamingDistance), std::max(0, heroTile[1] - m_streamingDistance) };
+	const std::array<int, 2> endTile = { std::min(heroTile[0] + m_streamingDistance, numTiles[0] - 1), std::min(heroTile[1] + m_streamingDistance, numTiles[1] - 1) };
 
-	const std::array<int, 2> beginTile = { std::max(0, jackTile[0] - m_streamingDistance), std::max(0, jackTile[1] - m_streamingDistance) };
-	const std::array<int, 2> endTile = { std::min(jackTile[0] + m_streamingDistance, numTiles[0] - 1), std::min(jackTile[1] + m_streamingDistance, numTiles[1] - 1) };
-	//m_navigationMesh->wait();
 	// Remove tiles
 	for (std::unordered_set<std::array<int, 2>>::iterator i = m_addedTiles.begin(); i != m_addedTiles.end();) {
 		const std::array<int, 2> tileIdx = *i;

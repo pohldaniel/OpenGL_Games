@@ -173,8 +173,13 @@ bool DynamicNavigationMesh::Allocate() {
 }
 
 bool DynamicNavigationMesh::Allocate(const BoundingBox& boundingBox, unsigned tilesX, unsigned tilesZ) {
+	Vector3f min = boundingBox.min;
+	Vector3f max = boundingBox.max;
+
 	ReleaseNavigationMesh();
-	boundingBox_ = boundingBox;
+	boundingBox_.setMin(min);
+	boundingBox_.setMax(max);
+
 	numTilesX_ = tilesX;
 	numTilesZ_ = tilesZ;
 	unsigned maxTiles = NextPowerOfTwo((unsigned)(numTilesX_ * numTilesZ_));
@@ -249,7 +254,6 @@ bool DynamicNavigationMesh::Allocate(const BoundingBox& boundingBox, unsigned ma
 	rcCalcGridSize(&boundingBox_.min[0], &boundingBox_.max[0], cellSize_, &gridW, &gridH);
 	numTilesX_ = (gridW + tileSize_ - 1) / tileSize_;
 	numTilesZ_ = (gridH + tileSize_ - 1) / tileSize_;
-
 	// Calculate max number of polygons, 22 bits available to identify both tile & polygon within tile
 	unsigned tileBits = LogBaseTwo(maxTiles);
 	unsigned maxPolys = (unsigned)(1 << (22 - tileBits));
