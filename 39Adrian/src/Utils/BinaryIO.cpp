@@ -2237,3 +2237,36 @@ int Utils::MD2IO::loadMd2(const char* path, bool flipVertical, std::array<float,
 
 	return static_cast<int>(vertexBufferOut.size());
 }
+
+void Utils::NavIO::writeNavigationMap(const std::string path, int numX, int numZ, const BoundingBox& boundingBox, const std::unordered_map<int, Buffer>& data) {
+	std::ofstream stream(path, std::ios::binary);
+	stream.write(reinterpret_cast<const char*>(&numX), sizeof(int));
+	stream.write(reinterpret_cast<const char*>(&numZ), sizeof(int));
+	stream.write(reinterpret_cast<const char*>(&boundingBox), sizeof(BoundingBox));
+
+	for (int z = 0; z < numZ; ++z) {
+		for (int x = 0; x < numX; ++x) {
+			const Buffer& buffer = data.at(z * numX + x);
+			stream.write(reinterpret_cast<const char*>(&buffer.size), sizeof(size_t));
+			stream.write(buffer.data, buffer.size);
+		}
+	}
+	stream.close();
+}
+
+void Utils::NavIO::readNavigationMap(const std::string path, int& numX, int& numZ, BoundingBox& boundingBox, std::unordered_map<int, Buffer>& data) {
+	std::ifstream stream(path, std::ios::binary);
+	stream.read(reinterpret_cast<char*>(&numX), sizeof(int));
+	stream.read(reinterpret_cast<char*>(&numZ), sizeof(int));
+	stream.read(reinterpret_cast<char*>(&boundingBox), sizeof(BoundingBox));
+	size_t size;
+	for (int z = 0; z < numZ; ++z) {
+		for (int x = 0; x < numX; ++x) {			
+			Buffer& bufer = data[z * numX + x];		
+			stream.read(reinterpret_cast<char*>(&size), sizeof(size_t));
+			bufer.resize(size);
+			stream.read(bufer.data, bufer.size);
+		}
+	}
+	stream.close();
+}

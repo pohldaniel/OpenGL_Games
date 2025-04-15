@@ -6,7 +6,7 @@
 #include <engine/DebugRenderer.h>
 #include <Physics/ShapeDrawer.h>
 #include <States/Menu.h>
-
+#include <Utils/BinaryIO.h>
 #include "Adrian.h"
 #include "Application.h"
 #include "Globals.h"
@@ -17,7 +17,7 @@ auto equal2 = [](const std::array<int, 2>& p1, const std::array<int, 2>& p2) { r
 Adrian::Adrian(StateMachine& machine) : State(machine, States::MAP),
 	m_camera(Application::Width, Application::Height),
 	m_addedTiles(0, hash2, equal2),
-	m_tileData(0, hash2, equal2),
+	//m_tileData(0, hash2, equal2),
 	m_streamingDistance(6) {
 
 	Application::SetCursorIcon(IDC_ARROW);
@@ -112,7 +112,7 @@ Adrian::Adrian(StateMachine& machine) : State(machine, States::MAP),
 	loadBuilding("res/building_14.bld");
 	loadBuilding("res/building_15.bld", true);
 
-	loadBuilding("res/building_16.bld");
+	loadBuilding("res/building_16.bld", true);
 	loadBuilding("res/building_17.bld");
 	loadBuilding("res/building_18.bld");
 	loadBuilding("res/building_19.bld");
@@ -129,7 +129,7 @@ Adrian::Adrian(StateMachine& machine) : State(machine, States::MAP),
 
 	m_navigationMesh->m_navigables = m_navigables;
 	m_navigationMesh->SetPadding(Vector3f(0.0f, 10.0f, 0.0f));
-	m_navigationMesh->SetTileSize(128);
+	m_navigationMesh->SetTileSize(16);
 
 	m_navigationMesh->SetCellSize(0.3);
 	m_navigationMesh->SetCellHeight(0.2f);
@@ -138,7 +138,26 @@ Adrian::Adrian(StateMachine& machine) : State(machine, States::MAP),
 	m_navigationMesh->SetAgentMaxClimb(0.9f);
 	m_navigationMesh->SetAgentHeight(2.0f);
 	m_navigationMesh->SetAgentRadius(0.6f);
-	m_navigationMesh->Build();
+	/*m_navigationMesh->Build();
+	saveNavigationData();
+
+	const  std::array<int, 2> numTiles = m_navigationMesh->GetNumTiles();
+	BoundingBox boundingBox = m_navigationMesh->GetBoundingBox();
+
+	Utils::NavIO navIO;
+	navIO.writeNavigationMap("res/data_high_res.nav", numTiles[0], numTiles[1], boundingBox, m_tileData);*/
+
+	//BoundingBox box;
+	//int numX, numZ;
+	Utils::NavIO navIO;
+	navIO.readNavigationMap("res/data_high_res.nav", m_navigationMesh->numTilesX_, m_navigationMesh->numTilesZ_, m_navigationMesh->boundingBox_, m_tileData);
+	m_navigationMesh->Allocate();
+	for (int z = 0; z < m_navigationMesh->numTilesZ_; ++z) {
+		for (int x = 0; x < m_navigationMesh->numTilesX_; ++x) {
+			const std::array<int, 2> tileIdx = { x, z };
+			m_navigationMesh->AddTile(m_tileData[z * m_navigationMesh->numTilesX_ + x]);
+		}
+	}
 }
 
 Adrian::~Adrian() {
@@ -724,7 +743,7 @@ void Adrian::createScene(bool recreate) {
 	m_navigables.push_back(new Navigable(m_buildingNode));
 
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[16]);
-	m_buildingNode->setTextureIndex(3);
+	m_buildingNode->setTextureIndex(4);
 	m_buildingNode->OnOctreeSet(m_octree);
 	m_navigables.push_back(new Navigable(m_buildingNode));
 
@@ -797,7 +816,7 @@ void Adrian::toggleStreaming(bool enabled) {
 		m_navigationMesh->Allocate(boundingBox, maxTiles);
 		updateStreaming();
 	}else {
-		m_navigationMesh->Build();
+		rebuild();
 	}
 }
 
@@ -809,7 +828,7 @@ void Adrian::saveNavigationData() {
 	for (int z = 0; z < numTiles[1]; ++z)
 		for (int x = 0; x <= numTiles[0]; ++x) {
 			const std::array<int, 2> tileIdx = { x, z };
-			navMesh->GetTileData(m_tileData[tileIdx], tileIdx);
+			navMesh->GetTileData(m_tileData[z * numTiles[0] + x], tileIdx);
 		}
 }
 
@@ -838,10 +857,22 @@ void Adrian::updateStreaming() {
 		for (int x = beginTile[0]; x <= endTile[0]; ++x) {
 			const std::array<int, 2> tileIdx = { x, z };
 			bool tmp = m_navigationMesh->HasTile(tileIdx);
-			if (!m_navigationMesh->HasTile(tileIdx) && m_tileData.find(tileIdx) != m_tileData.end()) {
+			if (!m_navigationMesh->HasTile(tileIdx) && m_tileData.find(z * numTiles[0] + x) != m_tileData.end()) {
 				m_addedTiles.insert(tileIdx);
-				m_navigationMesh->AddTile(m_tileData[tileIdx]);
+				m_navigationMesh->AddTile(m_tileData[z * numTiles[0] + x]);
 			}
+		}
+	}
+}
+
+void Adrian::rebuild() {
+	const  std::array<int, 2> numTiles = m_navigationMesh->GetNumTiles();
+	BoundingBox boundingBox = m_navigationMesh->GetBoundingBox();
+	m_navigationMesh->Allocate(boundingBox, numTiles[0], numTiles[1]);
+	for (int z = 0; z < numTiles[1]; ++z) {
+		for (int x = 0; x < numTiles[0]; ++x) {
+			const std::array<int, 2> tileIdx = { x, z };
+			m_navigationMesh->AddTile(m_tileData[z * numTiles[0] + x]);
 		}
 	}
 }

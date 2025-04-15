@@ -107,6 +107,45 @@ void NavigationMesh::OnRenderDebug() {
 	}
 }
 
+bool NavigationMesh::Allocate() {
+	return Allocate(boundingBox_, numTilesX_, numTilesZ_);
+}
+
+bool NavigationMesh::Allocate(const BoundingBox& boundingBox, unsigned tilesX, unsigned tilesZ) {
+	ReleaseNavigationMesh();	
+	numTilesX_ = tilesX;
+	numTilesZ_ = tilesZ;
+	boundingBox_ = boundingBox;
+	float tileEdgeLength = (float)tileSize_ * cellSize_;
+
+	// Calculate max number of polygons, 22 bits available to identify both tile & polygon within tile
+	unsigned maxTiles = NextPowerOfTwo((unsigned)(numTilesX_ * numTilesZ_));
+	unsigned tileBits = LogBaseTwo(maxTiles);
+	unsigned maxPolys = (unsigned)(1 << (22 - tileBits));
+
+	dtNavMeshParams params;
+	rcVcopy(params.orig, &boundingBox_.min[0]);
+	params.tileWidth = tileEdgeLength;
+	params.tileHeight = tileEdgeLength;
+	params.maxTiles = maxTiles;
+	params.maxPolys = maxPolys;
+
+	navMesh_ = dtAllocNavMesh();
+	if (!navMesh_){
+		std::cout << "Could not allocate navigation mesh" << std::endl;
+		return false;
+	}
+
+	if (dtStatusFailed(navMesh_->init(&params))){
+		std::cout << "Could not initialize navigation mesh" << std::endl;
+		ReleaseNavigationMesh();
+		return false;
+	}
+	std::cout << "Allocated empty navigation mesh with max " + std::to_string(maxTiles) + " tiles" << std::endl;
+
+	return true;
+}
+
 bool NavigationMesh::Allocate(const BoundingBox& boundingBox, unsigned maxTiles) {
 
 	// Release existing navigation data and zero the bounding box
@@ -119,6 +158,7 @@ bool NavigationMesh::Allocate(const BoundingBox& boundingBox, unsigned maxTiles)
 	//	URHO3D_LOGWARNING("Navigation mesh root node has scaling. Agent parameters may not work as intended");
 
 	//boundingBox_ = boundingBox.Transformed(node_->GetWorldTransform().Inverse());
+	boundingBox_ = boundingBox;
 	maxTiles = NextPowerOfTwo(maxTiles);
 
 	// Calculate number of tiles

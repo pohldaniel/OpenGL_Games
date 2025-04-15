@@ -106,7 +106,7 @@ struct Buffer {
 	void resize(size_t size);
 
 	size_t size;
-	unsigned char* data;
+	char* data;
 	
 };
 
@@ -156,6 +156,10 @@ public:
 	void SetPadding(const Vector3f& padding);
 	/// Set the cost of an area.
 	void SetAreaCost(unsigned areaID, float cost);
+	/// Allocate the navigation mesh without building any tiles. Bounding box is not padded. Return true if successful.
+	virtual bool Allocate();
+	/// Allocate the navigation mesh without building any tiles. Bounding box is not padded. Return true if successful.
+	virtual bool Allocate(const BoundingBox& boundingBox, unsigned tilesX, unsigned tilesZ);
 	/// Allocate the navigation mesh without building any tiles. Bounding box is not padded. Return true if successful.
 	virtual bool Allocate(const BoundingBox& boundingBox, unsigned maxTiles);
 	/// Rebuild the navigation mesh. Return true if successful.

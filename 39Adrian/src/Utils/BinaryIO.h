@@ -81,6 +81,7 @@ namespace std {
 #include <engine/MeshBone.h>
 #include <engine/MeshSequence.h>
 #include <engine/BoundingBox.h>
+#include <Navigation/NavigationMesh.h>
 
 #define	MD2_IDENT_VAL	(('I'<<0) | ('D' << 8) | ('P' << 16) | ('2' << 24))
 #define	MD2_VERSION_VAL	8
@@ -499,5 +500,10 @@ namespace Utils {
 		void convert(const std::vector<float>& in, std::vector<Vertex>& out);
 		void extractTexels(const std::vector<float>& in, std::vector<float>& out);
 		void calcAABB(const std::vector<float>& vertices, BoundingBox& boundingBox);
+	};
+
+	struct NavIO {
+		void writeNavigationMap(const std::string path, int numX, int numZ, const BoundingBox& boundingBox, const std::unordered_map<int, Buffer>& data);
+		void readNavigationMap(const std::string path, int& numX, int& numZ, BoundingBox& boundingBox, std::unordered_map<int, Buffer>& data);
 	};
 }

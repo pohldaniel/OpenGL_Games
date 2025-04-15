@@ -22,7 +22,9 @@ public:
 	~DynamicNavigationMesh();
 
 	void OnRenderDebug() override;
+	bool Allocate() override;
 	bool Allocate(const BoundingBox& boundingBox, unsigned maxTiles) override;
+	bool Allocate(const BoundingBox& boundingBox, unsigned tilesX, unsigned tilesZ) override;
 	void ReleaseNavigationMesh() override;
 	bool Build() override;
 	void RemoveTile(const std::array<int, 2>& tile, unsigned int layersToRemove = 0u) override;
@@ -67,4 +69,6 @@ public:
 
 	std::vector<std::array<int, 2>> m_tileQueue;
 	std::vector<CrowdAgent*> m_agentsToReset;
+
+	unsigned numTiles_;
 };

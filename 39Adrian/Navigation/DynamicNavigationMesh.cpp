@@ -157,6 +157,7 @@ DynamicNavigationMesh::DynamicNavigationMesh() :
 	maxObstacles_(DEFAULT_MAX_OBSTACLES),
 	maxLayers_(DEFAULT_MAX_LAYERS) {
 	tileSize_ = 64;
+	numTiles_ = 0u;
 	partitionType_ = NAVMESH_PARTITION_MONOTONE;
 	allocator_ = new LinearAllocator(32000); //32kb to start
 	compressor_ = new TileCompressor();
@@ -167,27 +168,78 @@ DynamicNavigationMesh::~DynamicNavigationMesh() {
 
 }
 
+bool DynamicNavigationMesh::Allocate() {
+	return Allocate(boundingBox_, numTilesX_, numTilesZ_);
+}
+
+bool DynamicNavigationMesh::Allocate(const BoundingBox& boundingBox, unsigned tilesX, unsigned tilesZ) {
+	ReleaseNavigationMesh();
+	boundingBox_ = boundingBox;
+	numTilesX_ = tilesX;
+	numTilesZ_ = tilesZ;
+	unsigned maxTiles = NextPowerOfTwo((unsigned)(numTilesX_ * numTilesZ_));
+	unsigned tileBits = LogBaseTwo(maxTiles);
+	unsigned maxPolys = (unsigned)(1 << (22 - tileBits));
+	float tileEdgeLength = (float)tileSize_ * cellSize_;
+
+	dtNavMeshParams params;
+	rcVcopy(params.orig, &boundingBox_.min[0]);
+	params.tileWidth = tileEdgeLength;
+	params.tileHeight = tileEdgeLength;
+	params.maxTiles = maxTiles;
+	params.maxPolys = maxPolys;
+
+	navMesh_ = dtAllocNavMesh();
+	if (!navMesh_) {
+		std::cout << "Could not allocate navigation mesh" << std::endl;
+		return false;
+	}
+
+	if (dtStatusFailed(navMesh_->init(&params))) {
+		std::cout << "Could not initialize navigation mesh" << std::endl;
+		ReleaseNavigationMesh();
+		return false;
+	}
+
+	dtTileCacheParams tileCacheParams;
+	memset(&tileCacheParams, 0, sizeof(tileCacheParams));
+	rcVcopy(tileCacheParams.orig, &boundingBox_.min[0]);
+	tileCacheParams.ch = cellHeight_;
+	tileCacheParams.cs = cellSize_;
+	tileCacheParams.width = tileSize_;
+	tileCacheParams.height = tileSize_;
+	tileCacheParams.maxSimplificationError = edgeMaxError_;
+	tileCacheParams.maxTiles = numTilesX_ * numTilesZ_ * maxLayers_;
+	tileCacheParams.maxObstacles = maxObstacles_;
+	// Settings from NavigationMesh
+	tileCacheParams.walkableClimb = agentMaxClimb_;
+	tileCacheParams.walkableHeight = agentHeight_;
+	tileCacheParams.walkableRadius = agentRadius_;
+
+	tileCache_ = dtAllocTileCache();
+	if (!tileCache_) {
+		std::cout << "Could not allocate tile cache" << std::endl;
+		ReleaseNavigationMesh();
+		return false;
+	}
+
+	if (dtStatusFailed(tileCache_->init(&tileCacheParams, allocator_, compressor_, meshProcessor_))) {
+		std::cout << "Could not initialize tile cache" << std::endl;
+		ReleaseNavigationMesh();
+		return false;
+	}
+
+	//wait();
+	std::cout << "Built navigation mesh with " + std::to_string(numTilesX_ * numTilesZ_) + " tiles" << std::endl;
+
+	//addObstacles();
+	return true;
+}
+
 bool DynamicNavigationMesh::Allocate(const BoundingBox& boundingBox, unsigned maxTiles) {
 	
 	// Release existing navigation data and zero the bounding box
 	ReleaseNavigationMesh();
-	
-	//if (!node_)
-		//return false;
-
-	//if (!node_->GetWorldScale().Equals(Vector3::ONE))
-		//URHO3D_LOGWARNING("Navigation mesh root node has scaling. Agent parameters may not work as intended");
-
-	//boundingBox_ = boundingBox.Transformed(node_->GetWorldTransform().Inverse());
-
-	std::vector<NavigationGeometryInfo> geometryList;
-	CollectGeometries(geometryList);
-
-	if (geometryList.empty()) {
-		std::cout << "Nothing to do" << std::endl;
-		return true; // Nothing to do
-	}
-
 	boundingBox_ = boundingBox;
 	maxTiles = NextPowerOfTwo(maxTiles);
 
@@ -344,8 +396,6 @@ bool DynamicNavigationMesh::Build() {
 		}
 
 		// Build each tile
-		unsigned numTiles = 0;
-
 		for (int z = 0; z < numTilesZ_; ++z){
 			for (int x = 0; x < numTilesX_; ++x){
 				TileCacheData tiles[TILECACHE_MAXLAYERS];
@@ -359,7 +409,7 @@ bool DynamicNavigationMesh::Build() {
 					}
 				}
 				tileCache_->buildNavMeshTilesAt(x, z, navMesh_);
-				++numTiles;
+				++numTiles_;
 			}
 		}
 
@@ -367,7 +417,7 @@ bool DynamicNavigationMesh::Build() {
 	    // not doing so will cause dependent components to crash, like CrowdManager
 		//tileCache_->update(0.0f, navMesh_);
 		wait();
-		std::cout << "Built navigation mesh with " + std::to_string(numTiles) + " tiles" << std::endl;
+		std::cout << "Built navigation mesh with " + std::to_string(numTiles_) + " tiles" << std::endl;
 
 		addObstacles();
 		return true;
@@ -737,9 +787,9 @@ bool DynamicNavigationMesh::IsObstacleInTile(Obstacle* obstacle, const std::arra
 
 void Buffer::resize(size_t _size) {
 	size_t newSize = size + _size;
-	unsigned char* newArr = new unsigned char[newSize];
+	char* newArr = new char[newSize];
 
-	memcpy(newArr, data, size * sizeof(unsigned char));
+	memcpy(newArr, data, size * sizeof(char));
 
 	size = newSize;
 	delete[] data;
