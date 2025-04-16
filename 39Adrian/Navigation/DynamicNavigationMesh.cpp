@@ -75,14 +75,14 @@ struct MeshProcess : public dtTileCacheMeshProcess {
 
 					OffMeshConnection* connection = offMeshConnections[i];
 					Vector3f start = inverse * connection->m_node->getWorldPosition();
-					Vector3f end = inverse * connection->GetEndPoint()->getWorldPosition();
+					Vector3f end = inverse * connection->m_endPoint->getWorldPosition();
 
 					offMeshVertices_.push_back(start);
 					offMeshVertices_.push_back(end);
-					offMeshRadii_.push_back(connection->GetRadius());
-					offMeshFlags_.push_back((unsigned short)connection->GetMask());
-					offMeshAreas_.push_back((unsigned char)connection->GetAreaID());
-					offMeshDir_.push_back((unsigned char)(connection->IsBidirectional() ? DT_OFFMESH_CON_BIDIR : 0));
+					offMeshRadii_.push_back(connection->m_radius);
+					offMeshFlags_.push_back((unsigned short)connection->m_mask);
+					offMeshAreas_.push_back((unsigned char)connection->m_areaId);
+					offMeshDir_.push_back((unsigned char)(connection->m_bidirectional ? DT_OFFMESH_CON_BIDIR : 0));
 				}
 			}
 			params->offMeshConCount = offMeshRadii_.size();
@@ -467,87 +467,87 @@ int DynamicNavigationMesh::BuildTile(std::vector<NavigationGeometryInfo>& geomet
 	BoundingBox expandedBox(*reinterpret_cast<Vector3f*>(cfg.bmin), *reinterpret_cast<Vector3f*>(cfg.bmax));
 	GetTileGeometry(&build, geometryList, expandedBox);
 
-	if (build.vertices_.empty() || build.indices_.empty())
+	if (build.vertices.empty() || build.indices.empty())
 		return 0; // Nothing to do
 
-	build.heightField_ = rcAllocHeightfield();
-	if (!build.heightField_){
+	build.heightField = rcAllocHeightfield();
+	if (!build.heightField){
 		std::cout << "Could not allocate heightfield" << std::endl;
 		return 0;
 	}
 
-	if (!rcCreateHeightfield(build.ctx_, *build.heightField_, cfg.width, cfg.height, cfg.bmin, cfg.bmax, cfg.cs,cfg.ch)){
+	if (!rcCreateHeightfield(build.ctx, *build.heightField, cfg.width, cfg.height, cfg.bmin, cfg.bmax, cfg.cs,cfg.ch)){
 		std::cout << "Could not create heightfield" << std::endl;
 		return 0;
 	}
 
-	unsigned numTriangles = build.indices_.size() / 3;
+	unsigned numTriangles = build.indices.size() / 3;
 	unsigned char* triAreas = new unsigned char[numTriangles];
 	memset(triAreas, 0, numTriangles);
 
-	rcMarkWalkableTriangles(build.ctx_, cfg.walkableSlopeAngle, &build.vertices_[0][0], build.vertices_.size(),
-		&build.indices_[0], numTriangles, triAreas);
-	rcRasterizeTriangles(build.ctx_, &build.vertices_[0][0], build.vertices_.size(), &build.indices_[0],
-		triAreas, numTriangles, *build.heightField_, cfg.walkableClimb);
-	rcFilterLowHangingWalkableObstacles(build.ctx_, cfg.walkableClimb, *build.heightField_);
+	rcMarkWalkableTriangles(build.ctx, cfg.walkableSlopeAngle, &build.vertices[0][0], build.vertices.size(),
+		&build.indices[0], numTriangles, triAreas);
+	rcRasterizeTriangles(build.ctx, &build.vertices[0][0], build.vertices.size(), &build.indices[0],
+		triAreas, numTriangles, *build.heightField, cfg.walkableClimb);
+	rcFilterLowHangingWalkableObstacles(build.ctx, cfg.walkableClimb, *build.heightField);
 
-	rcFilterLedgeSpans(build.ctx_, cfg.walkableHeight, cfg.walkableClimb, *build.heightField_);
-	rcFilterWalkableLowHeightSpans(build.ctx_, cfg.walkableHeight, *build.heightField_);
+	rcFilterLedgeSpans(build.ctx, cfg.walkableHeight, cfg.walkableClimb, *build.heightField);
+	rcFilterWalkableLowHeightSpans(build.ctx, cfg.walkableHeight, *build.heightField);
 
-	build.compactHeightField_ = rcAllocCompactHeightfield();
-	if (!build.compactHeightField_) {
+	build.compactHeightField = rcAllocCompactHeightfield();
+	if (!build.compactHeightField) {
 		std::cout << "Could not allocate create compact heightfield" << std::endl;
 		return 0;
 	}
 
-	if (!rcBuildCompactHeightfield(build.ctx_, cfg.walkableHeight, cfg.walkableClimb, *build.heightField_,
-		*build.compactHeightField_)) {
+	if (!rcBuildCompactHeightfield(build.ctx, cfg.walkableHeight, cfg.walkableClimb, *build.heightField,
+		*build.compactHeightField)) {
 		std::cout << "Could not build compact heightfield" << std::endl;
 		return 0;
 	}
 
-	if (!rcErodeWalkableArea(build.ctx_, cfg.walkableRadius, *build.compactHeightField_)) {
+	if (!rcErodeWalkableArea(build.ctx, cfg.walkableRadius, *build.compactHeightField)) {
 		std::cout << "Could not erode compact heightfield" << std::endl;
 		return 0;
 	}
 
 	// area volumes
-	for (unsigned i = 0; i < build.navAreas_.size(); ++i)
-		rcMarkBoxArea(build.ctx_, &build.navAreas_[i].bounds_.min[0], &build.navAreas_[i].bounds_.max[0],
-			build.navAreas_[i].areaID_, *build.compactHeightField_);
+	for (unsigned i = 0; i < build.navAreas.size(); ++i)
+		rcMarkBoxArea(build.ctx, &build.navAreas[i].bounds.min[0], &build.navAreas[i].bounds.max[0],
+			build.navAreas[i].areaID, *build.compactHeightField);
 
 	if (this->partitionType_ == NAVMESH_PARTITION_WATERSHED) {
-		if (!rcBuildDistanceField(build.ctx_, *build.compactHeightField_)) {
+		if (!rcBuildDistanceField(build.ctx, *build.compactHeightField)) {
 			std::cout << "Could not build distance field" << std::endl;
 			return 0;
 		}
 
-		if (!rcBuildRegions(build.ctx_, *build.compactHeightField_, cfg.borderSize, cfg.minRegionArea,
+		if (!rcBuildRegions(build.ctx, *build.compactHeightField, cfg.borderSize, cfg.minRegionArea,
 			cfg.mergeRegionArea)) {
 			std::cout << "Could not build regions" << std::endl;
 			return 0;
 		}
 	}else {
-		if (!rcBuildRegionsMonotone(build.ctx_, *build.compactHeightField_, cfg.borderSize, cfg.minRegionArea, cfg.mergeRegionArea)) {
+		if (!rcBuildRegionsMonotone(build.ctx, *build.compactHeightField, cfg.borderSize, cfg.minRegionArea, cfg.mergeRegionArea)) {
 			std::cout << "Could not build monotone regions" << std::endl;
 			return 0;
 		}
 	}
 
-	build.heightFieldLayers_ = rcAllocHeightfieldLayerSet();
-	if (!build.heightFieldLayers_) {
+	build.heightFieldLayers = rcAllocHeightfieldLayerSet();
+	if (!build.heightFieldLayers) {
 		std::cout << "Could not allocate height field layer set" << std::endl;
 		return 0;
 	}
 
-	if (!rcBuildHeightfieldLayers(build.ctx_, *build.compactHeightField_, cfg.borderSize, cfg.walkableHeight,
-		*build.heightFieldLayers_)) {
+	if (!rcBuildHeightfieldLayers(build.ctx, *build.compactHeightField, cfg.borderSize, cfg.walkableHeight,
+		*build.heightFieldLayers)) {
 		std::cout << "Could not build height field layers" << std::endl;
 		return 0;
 	}
 
 	int retCt = 0;
-	for (int i = 0; i < build.heightFieldLayers_->nlayers; ++i) {
+	for (int i = 0; i < build.heightFieldLayers->nlayers; ++i) {
 		dtTileCacheLayerHeader header;
 		header.magic = DT_TILECACHE_MAGIC;
 		header.version = DT_TILECACHE_VERSION;
@@ -555,7 +555,7 @@ int DynamicNavigationMesh::BuildTile(std::vector<NavigationGeometryInfo>& geomet
 		header.ty = z;
 		header.tlayer = i;
 
-		rcHeightfieldLayer* layer = &build.heightFieldLayers_->layers[i];
+		rcHeightfieldLayer* layer = &build.heightFieldLayers->layers[i];
 
 		// Tile info.
 		rcVcopy(header.bmin, layer->bmin);
@@ -595,7 +595,7 @@ void DynamicNavigationMesh::OnRenderDebug() {
 	if (drawObstacles_) {
 		for (unsigned i = 0; i < m_obstacles.size(); ++i) {
 			Obstacle* obstacle = m_obstacles[i];
-			if (obstacle && obstacle->isEnabled_) {
+			if (obstacle && obstacle->m_isEnabled) {
 				obstacle->OnRenderDebug();
 			}
 		}
@@ -605,7 +605,7 @@ void DynamicNavigationMesh::OnRenderDebug() {
 	if (drawOffMeshConnections_){
 		for (unsigned i = 0; i < m_offMeshConnections.size(); ++i) {
 			OffMeshConnection* offMeshConnections = m_offMeshConnections[i];
-			if (offMeshConnections && offMeshConnections->isEnabled_)
+			if (offMeshConnections && offMeshConnections->m_isEnabled)
 				offMeshConnections->OnRenderDebug();
 		}
 	}
@@ -614,7 +614,7 @@ void DynamicNavigationMesh::OnRenderDebug() {
 	if (drawNavAreas_){
 		for (unsigned i = 0; i < m_navAreas.size(); ++i){
 			NavArea* area = m_navAreas[i];
-			if (area && area->isEnabled_)
+			if (area && area->m_isEnabled)
 				area->OnRenderDebug();
 		}
 	}
@@ -633,29 +633,29 @@ void DynamicNavigationMesh::AddObstacle(Obstacle* obstacle, bool silent) {
 			wait();
 		}
 
-		if (dtStatusFailed(tileCache_->addObstacle(pos, obstacle->GetRadius(), obstacle->GetHeight(), &refHolder))){
+		if (dtStatusFailed(tileCache_->addObstacle(pos, obstacle->m_radius, obstacle->m_height, &refHolder))){
 			std::cout << "Failed to add obstacle" << std::endl;
 			return;
 		}
-		obstacle->obstacleId_ = refHolder;
+		obstacle->m_obstacleId = refHolder;
 		wait();
 	}
 }
 
 void DynamicNavigationMesh::RemoveObstacle(Obstacle* obstacle, bool silent) {
 	
-	if (tileCache_ && obstacle->obstacleId_ > 0) {
+	if (tileCache_ && obstacle->m_obstacleId > 0) {
 		while (tileCache_->isObstacleQueueFull()) {
 			//tileCache_->update(0.0f, navMesh_);
 			wait();
 		}
 		
-		if (dtStatusFailed(tileCache_->removeObstacle(obstacle->obstacleId_))){
+		if (dtStatusFailed(tileCache_->removeObstacle(obstacle->m_obstacleId))){
 			std::cout << "Failed to remove obstacle" << std::endl;
 			return;
 		}
 
-		obstacle->obstacleId_ = 0;
+		obstacle->m_obstacleId = 0;
 	}
 }
 
@@ -788,7 +788,7 @@ void DynamicNavigationMesh::WriteTiles(Buffer& dest, int x, int z) const {
 void DynamicNavigationMesh::addObstacles() {
 	for (unsigned i = 0; i < m_obstacles.size(); ++i) {
 		Obstacle* obs = m_obstacles[i];
-		if (obs && obs->isEnabled_)
+		if (obs && obs->m_isEnabled)
 			AddObstacle(obs);
 	}
 }
@@ -796,7 +796,7 @@ void DynamicNavigationMesh::addObstacles() {
 bool DynamicNavigationMesh::IsObstacleInTile(Obstacle* obstacle, const std::array<int, 2>& tile) const {
 	const BoundingBox tileBoundingBox = GetTileBoudningBox(tile);
 	const Vector3f obstaclePosition = obstacle->m_node->getWorldPosition();
-	return tileBoundingBox.distance(obstaclePosition) < obstacle->GetRadius();
+	return tileBoundingBox.distance(obstaclePosition) < obstacle->m_radius;
 }
 
 void Buffer::resize(size_t _size) {

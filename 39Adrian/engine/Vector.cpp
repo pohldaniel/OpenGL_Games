@@ -3061,6 +3061,10 @@ const float* Vector3f::getVec()const {
 	return vec;
 }
 
+float* Vector3f::getVec() {
+	return vec;
+}
+
 bool Vector3f::compare(const Vector3f &rhs, float precision) const {
 	return fabs(lengthSq() - rhs.lengthSq()) < precision * precision;
 	//return fabs(vec[0] - rhs[0]) <= precision && fabs(vec[1] - rhs[1]) <= precision && fabs(vec[2] - rhs[2]) <= precision;

@@ -6,9 +6,9 @@ static const Vector3f DEFAULT_BOUNDING_BOX_MAX(10.0f, 10.0f, 10.0f);
 static const unsigned DEFAULT_AREA_ID = 0;
 
 NavArea::NavArea() :
-	areaID_(DEFAULT_AREA_ID),
-	boundingBox_(DEFAULT_BOUNDING_BOX_MIN, DEFAULT_BOUNDING_BOX_MAX),
-	isEnabled_(true)
+	m_areaID(DEFAULT_AREA_ID),
+	m_boundingBox(DEFAULT_BOUNDING_BOX_MIN, DEFAULT_BOUNDING_BOX_MAX),
+	m_isEnabled(true)
 {
 
 }
@@ -16,32 +16,34 @@ NavArea::NavArea() :
 NavArea::~NavArea(){
 }
 
-void NavArea::SetAreaID(unsigned newID){
-	if (newID > MAX_NAV_AREA_ID)
-		std::cout << "NavArea Area ID %u exceeds maximum value of %u" << std::endl;
-	areaID_ = (unsigned char)newID;
-}
-
-BoundingBox NavArea::GetWorldBoundingBox() const {
-	return boundingBox_;
-}
-
-void NavArea::SetBoundingBox(const BoundingBox& bnds) {
-	boundingBox_ = bnds; 
-}
-
-BoundingBox NavArea::GetBoundingBox() const {
-	return boundingBox_; 
-}
-
-unsigned NavArea::GetAreaID() const {
-	return (unsigned)areaID_; 
-}
-
 void NavArea::OnRenderDebug() {
 
-	if (isEnabled_){
-		DebugRenderer::Get().AddBoundingBox(boundingBox_, Vector4f(0.0f, 1.0f, 0.0f, 1.0f));
-		//DebugRenderer::Get().AddBoundingBox(boundingBox_, Vector4f(0.0f, 1.0f, 0.0f, 0.15f));
+	if (m_isEnabled) {
+		DebugRenderer::Get().AddBoundingBox(m_boundingBox, Vector4f(0.0f, 1.0f, 0.0f, 1.0f));
 	}
+}
+
+void NavArea::setAreaID(unsigned newID){
+	if (newID > MAX_NAV_AREA_ID)
+		std::cout << "NavArea Area ID %u exceeds maximum value of %u" << std::endl;
+	m_areaID = (unsigned char)newID;
+}
+
+
+void NavArea::setBoundingBox(const BoundingBox& bnds) {
+	m_boundingBox = bnds;
+}
+
+const BoundingBox& NavArea::getBoundingBox() const {
+	return m_boundingBox;
+}
+
+unsigned NavArea::getAreaID() const {
+	return (unsigned)m_areaID;
+}
+
+
+
+const bool NavArea::isEnabled() const {
+	return m_isEnabled;
 }

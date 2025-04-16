@@ -701,9 +701,9 @@ void NavigationStreamState::createMushroom(const Vector3f& pos) {
 	Obstacle* obstacle = new Obstacle(shapeNode);	
 
 	obstacle = new Obstacle(shapeNode);
-	obstacle->ownerMesh_ = m_navigationMesh;
-	obstacle->SetRadius(scale);
-	obstacle->SetHeight(scale);
+	obstacle->setOwnerMesh(m_navigationMesh);
+	obstacle->setRadius(scale);
+	obstacle->setHeight(scale);
 	m_navigationMesh->AddObstacle(obstacle, false);
 	m_navigationMesh->m_obstacles.push_back(obstacle);
 
@@ -716,10 +716,10 @@ void NavigationStreamState::addOrRemoveObject(const Vector3f& pos, PhysicalObjec
 
 	switch (physicalObjects){
 	  case OBSTACLE:
-		  obstacle->isEnabled_ = false;
-		  obstacle->m_node->OnOctreeSet(nullptr);
-		  obstacle->m_node->eraseSelf();
-		  obstacle->m_node = nullptr;
+		  obstacle->setIsEnabled(false);
+		  obstacle->getNode()->OnOctreeSet(nullptr);
+		  obstacle->getNode()->eraseSelf();
+		  obstacle->setNode(nullptr);
 
 		  delete obstacle;
 		  m_navigationMesh->m_obstacles.erase(std::remove(m_navigationMesh->m_obstacles.begin(), m_navigationMesh->m_obstacles.end(), obstacle), m_navigationMesh->m_obstacles.end());
@@ -834,7 +834,7 @@ void NavigationStreamState::createBoxOffMeshConnections(DynamicNavigationMesh* n
 		connectionEnd->setPosition(inv ^ navMesh->FindNearestPoint(boxPos + Vector3f(boxHalfSize, boxHalfSize, 0)));
 
 		OffMeshConnection* connection = new OffMeshConnection(connectionStart);
-		connection->SetEndPoint(connectionEnd);
+		connection->setEndPoint(connectionEnd);
 
 		navMesh->m_offMeshConnections.push_back(connection);
 	}
@@ -880,8 +880,8 @@ void NavigationStreamState::createNavArea() {
 	BoundingBox box = BoundingBox(Vector3f(-30.0f, -2.0f, -30.0f), Vector3f(-10.0f, 2.0f, -10.0f));
 
 	m_navigationMesh->m_navAreas.push_back(new NavArea());
-	m_navigationMesh->m_navAreas.back()->SetBoundingBox(box);
-	m_navigationMesh->m_navAreas.back()->SetAreaID(0);
+	m_navigationMesh->m_navAreas.back()->setBoundingBox(box);
+	m_navigationMesh->m_navAreas.back()->setAreaID(0);
 	
 	Vector3f size = box.getSize() * 0.5f;
 	size[1] = 0.01f;

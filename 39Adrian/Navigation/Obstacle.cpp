@@ -1,111 +1,81 @@
 #include "Obstacle.h"
 #include "DynamicNavigationMesh.h"
-
+#include "../engine/DebugRenderer.h"
 
 Obstacle::Obstacle(OctreeNode* node) :
 	m_node(node),
-	height_(5.0f),
-	radius_(5.0f),
-	obstacleId_(0),
-	ownerMesh_(nullptr),
-	isEnabled_(true){
-
+	m_height(5.0f),
+	m_radius(5.0f),
+	m_obstacleId(0),
+	m_ownerMesh(nullptr),
+	m_isEnabled(true){
 }
 
 Obstacle::~Obstacle(){
-	if (obstacleId_ > 0 && ownerMesh_) {
-		ownerMesh_->RemoveObstacle(this);
+	if (m_obstacleId > 0 && m_ownerMesh) {
+		m_ownerMesh->RemoveObstacle(this);
 	}
-	ownerMesh_ = nullptr;
+	m_ownerMesh = nullptr;
 	m_node = nullptr;
 }
 
+void Obstacle::setOwnerMesh(DynamicNavigationMesh* ownerMesh) {
+	m_ownerMesh = ownerMesh;
+}
+
+void Obstacle::setIsEnabled(bool isEnabled) {
+	m_isEnabled = isEnabled;
+}
+
+void Obstacle::setNode(OctreeNode* node) {
+	m_node = node;
+}
+
 void Obstacle::OnSetEnabled() {
-	if (ownerMesh_){
-		if (isEnabled_)
-			ownerMesh_->AddObstacle(this);
+	if (m_ownerMesh){
+		if (m_isEnabled)
+			m_ownerMesh->AddObstacle(this);
 		else
-			ownerMesh_->RemoveObstacle(this);
+			m_ownerMesh->RemoveObstacle(this);
 	}
 }
 
-void Obstacle::SetHeight(float newHeight) {
-	height_ = newHeight;
-	//if (ownerMesh_)
-		//ownerMesh_->ObstacleChanged(this);
+void Obstacle::setHeight(float newHeight) {
+	m_height = newHeight;
+	if (m_ownerMesh)
+		m_ownerMesh->ObstacleChanged(this);
 
 }
 
-void Obstacle::SetRadius(float newRadius) {
-	radius_ = newRadius;
-	//if (ownerMesh_)
-		//ownerMesh_->ObstacleChanged(this);
+void Obstacle::setRadius(float newRadius) {
+	m_radius = newRadius;
+	if (m_ownerMesh)
+		m_ownerMesh->ObstacleChanged(this);
 }
 
-void Obstacle::OnNodeSet(OctreeNode* node) {
-	//if (node)
-		//node->AddListener(this);
-}
-
-/*void Obstacle::OnSceneSet(Scene* scene)
-{
-	if (scene)
-	{
-		if (scene == node_)
-		{
-			URHO3D_LOGWARNING(GetTypeName() + " should not be created to the root scene node");
-			return;
-		}
-		if (!ownerMesh_)
-			ownerMesh_ = node_->GetParentComponent<DynamicNavigationMesh>(true);
-		if (ownerMesh_)
-		{
-			ownerMesh_->AddObstacle(this);
-			SubscribeToEvent(ownerMesh_, E_NAVIGATION_TILE_ADDED, URHO3D_HANDLER(Obstacle, HandleNavigationTileAdded));
-		}
-	}
-	else
-	{
-		if (obstacleId_ > 0 && ownerMesh_)
-			ownerMesh_->RemoveObstacle(this);
-
-		UnsubscribeFromEvent(E_NAVIGATION_TILE_ADDED);
-		ownerMesh_.Reset();
-	}
-}*/
-
-void Obstacle::OnMarkedDirty(OctreeNode* node) {
-	if (isEnabled_ && ownerMesh_) {
-		/*Scene* scene = GetScene();
-		/// \hack If scene already unassigned, or if it's being destroyed, do nothing
-		if (!scene || scene->Refs() == 0)
-			return;
-
-		// If within threaded update, update later
-		if (scene->IsThreadedUpdate())
-		{
-			scene->DelayedMarkedDirty(this);
-			return;
-		}
-
-		ownerMesh_->ObstacleChanged(this);*/
-	}
-}
-
-/*void Obstacle::HandleNavigationTileAdded(StringHash eventType, VariantMap& eventData)
-{
-	// Re-add obstacle if it is intersected with newly added tile
-	const IntVector2 tile = eventData[NavigationTileAdded::P_TILE].GetIntVector2();
-	if (IsEnabledEffective() && ownerMesh_ && ownerMesh_->IsObstacleInTile(this, tile))
-		ownerMesh_->ObstacleChanged(this);
-}*/
 
 void Obstacle::OnRenderDebug() {
-	if(isEnabled_)
-	  DebugRenderer::Get().AddCylinder(m_node->getWorldPosition(), radius_, height_, Vector4f(0.0f, 1.0f, 1.0f, 1.0f));
+	if(m_isEnabled)
+	  DebugRenderer::Get().AddCylinder(m_node->getWorldPosition(), m_radius, m_height, Vector4f(0.0f, 1.0f, 1.0f, 1.0f));
 }
 
 void Obstacle::OnTileAdded(const std::array<int, 2>& tile) {
-	if (isEnabled_ && ownerMesh_ && ownerMesh_->IsObstacleInTile(this, tile))
-		ownerMesh_->ObstacleChanged(this);
+	if (m_isEnabled && m_ownerMesh && m_ownerMesh->IsObstacleInTile(this, tile))
+		m_ownerMesh->ObstacleChanged(this);
+}
+
+OctreeNode* Obstacle::getNode() {
+	return m_node;
+}
+
+float Obstacle::getHeight() const {
+	return m_height;
+}
+
+float Obstacle::getRadius() const {
+	return m_radius;
+}
+
+unsigned Obstacle::getObstacleID() const { 
+	return m_obstacleId;
 }

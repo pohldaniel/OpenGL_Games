@@ -130,6 +130,7 @@ public:
 	const float operator[](int index) const;
 
 	const float* getVec()const;
+	float* getVec();
 
 	Vector3f &operator=(const Vector3f& rhs);
 	Vector3f &operator=(Vector3f&& rhs);

@@ -4,55 +4,50 @@
 #include "NavBuildData.h"
 
 NavBuildData::NavBuildData() :
-	ctx_(new rcContext(true)),
-	heightField_(0),
-	compactHeightField_(0)
+	ctx(new rcContext(true)),
+	heightField(0),
+	compactHeightField(0)
 {
 }
 
-NavBuildData::~NavBuildData()
-{
-	delete(ctx_);
-	ctx_ = 0;
-	rcFreeHeightField(heightField_);
-	heightField_ = 0;
-	rcFreeCompactHeightfield(compactHeightField_);
-	compactHeightField_ = 0;
+NavBuildData::~NavBuildData(){
+	delete(ctx);
+	ctx = nullptr;
+	rcFreeHeightField(heightField);
+	heightField = nullptr;
+	rcFreeCompactHeightfield(compactHeightField);
+	compactHeightField = nullptr;
 }
 
 SimpleNavBuildData::SimpleNavBuildData() :
 	NavBuildData(),
-	contourSet_(0),
-	polyMesh_(0),
-	polyMeshDetail_(0)
-{
+	contourSet(nullptr),
+	polyMesh(nullptr),
+	polyMeshDetail(nullptr){
 }
 
-SimpleNavBuildData::~SimpleNavBuildData()
-{
-	rcFreeContourSet(contourSet_);
-	contourSet_ = 0;
-	rcFreePolyMesh(polyMesh_);
-	polyMesh_ = 0;
-	rcFreePolyMeshDetail(polyMeshDetail_);
-	polyMeshDetail_ = 0;
+SimpleNavBuildData::~SimpleNavBuildData(){
+	rcFreeContourSet(contourSet);
+	contourSet = nullptr;
+	rcFreePolyMesh(polyMesh);
+	polyMesh = nullptr;
+	rcFreePolyMeshDetail(polyMeshDetail);
+	polyMeshDetail = nullptr;
 }
 
 DynamicNavBuildData::DynamicNavBuildData(dtTileCacheAlloc* allocator) :
 	NavBuildData(),
-	contourSet_(0),
-	polyMesh_(0),
-	heightFieldLayers_(0),
-	alloc_(allocator)
-{
+	contourSet(nullptr),
+	polyMesh(nullptr),
+	heightFieldLayers(nullptr),
+	alloc(allocator){
 }
 
-DynamicNavBuildData::~DynamicNavBuildData()
-{
-	dtFreeTileCacheContourSet(alloc_, contourSet_);
-	contourSet_ = 0;
-	dtFreeTileCachePolyMesh(alloc_, polyMesh_);
-	polyMesh_ = 0;
-	rcFreeHeightfieldLayerSet(heightFieldLayers_);
-	heightFieldLayers_ = 0;
+DynamicNavBuildData::~DynamicNavBuildData(){
+	dtFreeTileCacheContourSet(alloc, contourSet);
+	contourSet = nullptr;
+	dtFreeTileCachePolyMesh(alloc, polyMesh);
+	polyMesh = nullptr;
+	rcFreeHeightfieldLayerSet(heightFieldLayers);
+	heightFieldLayers = nullptr;
 }

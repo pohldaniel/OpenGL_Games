@@ -3,39 +3,27 @@
 #include "../engine/DebugRenderer.h"
 #include "../engine/BoundingBox.h"
 
-class NavArea
-{
-	//URHO3D_OBJECT(NavArea, Component);
+class NavArea{
 
+	friend class NavigationMesh;
+	friend class DynamicNavigationMesh;
+	 
 public:
-	/// Construct.
-	NavArea();
-	/// Destruct.
-	virtual ~NavArea();
-	/// Register object factory and attributes.
-	//static void RegisterObject(Context*);
 
-	/// Render debug geometry for the bounds.
+	NavArea();
+	virtual ~NavArea();
+
 	void OnRenderDebug();
 
-	/// Get the area id for this volume.
-	unsigned GetAreaID() const;
+	unsigned getAreaID() const;
+	void setAreaID(unsigned newID);
+	void setBoundingBox(const BoundingBox& bnds);
+	const BoundingBox& getBoundingBox() const;
+	const bool isEnabled() const;
 
-	/// Set the area id for this volume.
-	void SetAreaID(unsigned newID);
-
-	/// Get the bounding box of this navigation area, in local space.
-	BoundingBox GetBoundingBox() const;
-
-	/// Set the bounding box of this area, in local space.
-	void SetBoundingBox(const BoundingBox& bnds);
-
-	/// Get the bounds of this navigation area in world space.
-	BoundingBox GetWorldBoundingBox() const;
-	bool isEnabled_;
 private:
-	/// Bounds of area to mark.
-	BoundingBox boundingBox_;
-	/// Area id to assign to the marked area.
-	unsigned char areaID_;
+
+	BoundingBox m_boundingBox;
+	unsigned char m_areaID;
+	bool m_isEnabled;
 };

@@ -17,78 +17,47 @@ struct rcPolyMesh;
 struct rcPolyMeshDetail;
 
 
-
-/// Navigation area stub.
-struct NavAreaStub
-{
-	/// Area bounding box.
-	BoundingBox bounds_;
-	/// Area ID.
-	unsigned char areaID_;
+struct NavAreaStub{
+	BoundingBox bounds;
+	unsigned char areaID;
 };
 
-/// Navigation build data.
-struct NavBuildData
-{
-	/// Constructor.
+struct NavBuildData{
+
 	NavBuildData();
-	/// Destructor.
 	virtual ~NavBuildData();
 
-	/// World-space bounding box of the navigation mesh tile.
-	BoundingBox worldBoundingBox_;
-	/// Vertices from geometries.
-	std::vector<Vector3f> vertices_;
-	/// Triangle indices from geometries.
-	std::vector<int> indices_;
-	/// Offmesh connection vertices.
-	std::vector<Vector3f> offMeshVertices_;
-	/// Offmesh connection radii.
-	std::vector<float> offMeshRadii_;
-	/// Offmesh connection flags.
-	std::vector<unsigned short> offMeshFlags_;
-	/// Offmesh connection areas.
-	std::vector<unsigned char> offMeshAreas_;
-	/// Offmesh connection direction.
-	std::vector<unsigned char> offMeshDir_;
-	/// Recast context.
-	rcContext* ctx_;
-	/// Recast heightfield.
-	rcHeightfield* heightField_;
-	/// Recast compact heightfield.
-	rcCompactHeightfield* compactHeightField_;
-	/// Pretransformed navigation areas, no correlation to the geometry above.
-	std::vector<NavAreaStub> navAreas_;
+	BoundingBox boundingBox;
+	std::vector<Vector3f> vertices;
+	std::vector<int> indices;
+	std::vector<Vector3f> offMeshVertices;
+	std::vector<float> offMeshRadii;
+	std::vector<unsigned short> offMeshFlags;
+	std::vector<unsigned char> offMeshAreas;
+	std::vector<unsigned char> offMeshDir;
+	rcContext* ctx;
+	rcHeightfield* heightField;
+	rcCompactHeightfield* compactHeightField;
+	std::vector<NavAreaStub> navAreas;
 };
 
-struct SimpleNavBuildData : public NavBuildData
-{
-	/// Constructor.
+struct SimpleNavBuildData : public NavBuildData{
+
 	SimpleNavBuildData();
-	/// Descturctor.
 	virtual ~SimpleNavBuildData();
 
-	/// Recast contour set.
-	rcContourSet* contourSet_;
-	/// Recast poly mesh.
-	rcPolyMesh* polyMesh_;
-	/// Recast detail poly mesh.
-	rcPolyMeshDetail* polyMeshDetail_;
+	rcContourSet* contourSet;
+	rcPolyMesh* polyMesh;
+	rcPolyMeshDetail* polyMeshDetail;
 };
 
-struct DynamicNavBuildData : public NavBuildData
-{
-	/// Constructor.
+struct DynamicNavBuildData : public NavBuildData{
+
 	DynamicNavBuildData(dtTileCacheAlloc* alloc);
-	/// Destructor.
 	virtual ~DynamicNavBuildData();
 
-	/// TileCache specific recast contour set.
-	dtTileCacheContourSet* contourSet_;
-	/// TileCache specific recast poly mesh.
-	dtTileCachePolyMesh* polyMesh_;
-	/// Recast heightfield layer set.
-	rcHeightfieldLayerSet* heightFieldLayers_;
-	/// Allocator from DynamicNavigationMesh instance.
-	dtTileCacheAlloc* alloc_;
+	dtTileCacheContourSet* contourSet;
+	dtTileCachePolyMesh* polyMesh;
+	rcHeightfieldLayerSet* heightFieldLayers;
+	dtTileCacheAlloc* alloc;
 };
