@@ -112,12 +112,15 @@ bool NavigationMesh::Allocate() {
 }
 
 bool NavigationMesh::Allocate(const BoundingBox& boundingBox, unsigned tilesX, unsigned tilesZ) {
+	Vector3f min = boundingBox.min;
+	Vector3f max = boundingBox.max;
 	ReleaseNavigationMesh();	
+	boundingBox_.setMin(min);
+	boundingBox_.setMax(max);
 	numTilesX_ = tilesX;
 	numTilesZ_ = tilesZ;
-	boundingBox_ = boundingBox;
-	float tileEdgeLength = (float)tileSize_ * cellSize_;
 
+	float tileEdgeLength = (float)tileSize_ * cellSize_;
 	// Calculate max number of polygons, 22 bits available to identify both tile & polygon within tile
 	unsigned maxTiles = NextPowerOfTwo((unsigned)(numTilesX_ * numTilesZ_));
 	unsigned tileBits = LogBaseTwo(maxTiles);
@@ -298,26 +301,83 @@ bool NavigationMesh::Build(const std::array<int, 2>& from, const std::array<int,
 	return false;
 }
 
-Buffer NavigationMesh::GetTileData(Buffer& buffer, const std::array<int, 2>& tile) const {
-	return Buffer();
+Buffer& NavigationMesh::GetTileData(Buffer& buffer, const std::array<int, 2>& tile) const {
+	WriteTile(buffer, tile[0], tile[1]);
+	return buffer;
 }
 
-void NavigationMesh::WriteTile(unsigned char*& dest, int x, int z) const{
+Buffer& NavigationMesh::GetTileData(int x, int z) {
+	WriteTile(m_tileData[z * numTilesX_ + x], x, z);
+	return m_tileData[z * numTilesX_ + x];
+}
+
+void NavigationMesh::WriteTile(Buffer& dest, int x, int z) const{
 	const dtNavMesh* navMesh = navMesh_;
 	const dtMeshTile* tile = navMesh->getTileAt(x, z, 0);
 	if (!tile)
 		return;
 
-	/*dest.WriteInt(x);
-	dest.WriteInt(z);
-	dest.WriteUInt(navMesh->getTileRef(tile));
-	dest.WriteUInt((unsigned)tile->dataSize);
-	dest.Write(tile->data, (unsigned)tile->dataSize);*/
+	dest.resize(sizeof(int) + tile->dataSize);
+	memcpy(dest.data, &tile->dataSize, sizeof(int));
+	memcpy(dest.data + sizeof(int), tile->data, tile->dataSize);
 }
 
+bool NavigationMesh::ReadTile(const Buffer& source) {	
+	int navDataSize;
+	memcpy(&navDataSize, source.data, sizeof(int));
+
+	unsigned char* navData = (unsigned char*)dtAlloc(navDataSize, DT_ALLOC_PERM);
+	if (!navData){
+		std::cout << "Could not allocate data for navigation mesh tile" << std::endl;
+		return false;
+	}
+
+	memcpy(navData, source.data + sizeof(int), navDataSize);
+	if (dtStatusFailed(navMesh_->addTile(navData, navDataSize, DT_TILE_FREE_DATA, 0, 0))){
+		std::cout << "Failed to add navigation mesh tile" << std::endl;
+		dtFree(navData);
+		return false;
+	}
+	return true;
+}
+
+bool NavigationMesh::AddTile(const Buffer& tileData) {
+	return ReadTile(tileData);
+}
+
+bool NavigationMesh::AddTile(int x, int z) {
+	return AddTile(m_tileData.at(z * numTilesX_ + x));
+}
+
+void NavigationMesh::saveToTileData() {
+	clearTileData();
+	for (int z = 0; z < numTilesZ_; ++z) {
+		for (int x = 0; x < numTilesX_; ++x) {
+			GetTileData(x, z);
+		}
+	}
+}
+
+void NavigationMesh::AddTiles() {
+	for (int z = 0; z < numTilesZ_; ++z) {
+		for (int x = 0; x < numTilesX_; ++x) {
+			const std::array<int, 2> tileIdx = { x, z };
+			AddTile(m_tileData[z * numTilesX_ + x]);
+		}
+	}
+}
 
 void NavigationMesh::RemoveAllTiles() {
-	
+	const dtNavMesh* navMesh = navMesh_;
+	for (int i = 0; i < navMesh_->getMaxTiles(); ++i){
+		const dtMeshTile* tile = navMesh->getTile(i);
+		if (tile->header)
+			navMesh_->removeTile(navMesh_->getTileRef(tile), 0, 0);
+	}
+}
+
+void NavigationMesh::clearTileData() {
+	m_tileData.clear();
 }
 
 void NavigationMesh::SetNavigationDataAttr(const unsigned char*& value) {
@@ -371,17 +431,12 @@ bool NavigationMesh::BuildTile(std::vector<NavigationGeometryInfo>& geometryList
 		return true; // Nothing to do
 
 	build.heightField_ = rcAllocHeightfield();
-	if (!build.heightField_)
-	{
-		//URHO3D_LOGERROR("Could not allocate heightfield");
+	if (!build.heightField_){
 		std::cout << "Could not allocate heightfield" << std::endl;
 		return false;
 	}
 
-	if (!rcCreateHeightfield(build.ctx_, *build.heightField_, cfg.width, cfg.height, cfg.bmin, cfg.bmax, cfg.cs,
-		cfg.ch))
-	{
-		//URHO3D_LOGERROR("Could not create heightfield");
+	if (!rcCreateHeightfield(build.ctx_, *build.heightField_, cfg.width, cfg.height, cfg.bmin, cfg.bmax, cfg.cs, cfg.ch)){
 		std::cout << "Could not create heightfield" << std::endl;
 		return false;
 	}
@@ -398,22 +453,17 @@ bool NavigationMesh::BuildTile(std::vector<NavigationGeometryInfo>& geometryList
 	rcFilterLedgeSpans(build.ctx_, cfg.walkableHeight, cfg.walkableClimb, *build.heightField_);
 
 	build.compactHeightField_ = rcAllocCompactHeightfield();
-	if (!build.compactHeightField_)
-	{
-		//URHO3D_LOGERROR("Could not allocate create compact heightfield");
+	if (!build.compactHeightField_){
 		std::cout << "Could not allocate create compact heightfield" << std::endl;
 		return false;
 	}
-	if (!rcBuildCompactHeightfield(build.ctx_, cfg.walkableHeight, cfg.walkableClimb, *build.heightField_,
-		*build.compactHeightField_))
-	{
-		//URHO3D_LOGERROR("Could not build compact heightfield");
+
+	if (!rcBuildCompactHeightfield(build.ctx_, cfg.walkableHeight, cfg.walkableClimb, *build.heightField_, *build.compactHeightField_)){
 		std::cout << "Could not build compact heightfield" << std::endl;
 		return false;
 	}
-	if (!rcErodeWalkableArea(build.ctx_, cfg.walkableRadius, *build.compactHeightField_))
-	{
-		//URHO3D_LOGERROR("Could not erode compact heightfield");
+
+	if (!rcErodeWalkableArea(build.ctx_, cfg.walkableRadius, *build.compactHeightField_)){
 		std::cout << "Could not erode compact heightfield" << std::endl;
 		return false;
 	}
@@ -423,80 +473,59 @@ bool NavigationMesh::BuildTile(std::vector<NavigationGeometryInfo>& geometryList
 		rcMarkBoxArea(build.ctx_, &build.navAreas_[i].bounds_.min[0], &build.navAreas_[i].bounds_.max[0],
 			build.navAreas_[i].areaID_, *build.compactHeightField_);
 
-	if (this->partitionType_ == NAVMESH_PARTITION_WATERSHED)
-	{
-		if (!rcBuildDistanceField(build.ctx_, *build.compactHeightField_))
-		{
-			//URHO3D_LOGERROR("Could not build distance field");
+	if (this->partitionType_ == NAVMESH_PARTITION_WATERSHED){
+		if (!rcBuildDistanceField(build.ctx_, *build.compactHeightField_)){
 			std::cout << "Could not build distance field" << std::endl;
 			return false;
 		}
-		if (!rcBuildRegions(build.ctx_, *build.compactHeightField_, cfg.borderSize, cfg.minRegionArea,
-			cfg.mergeRegionArea))
-		{
-			//URHO3D_LOGERROR("Could not build regions");
+
+		if (!rcBuildRegions(build.ctx_, *build.compactHeightField_, cfg.borderSize, cfg.minRegionArea, cfg.mergeRegionArea)){
 			std::cout << "Could not build regions" << std::endl;
 			return false;
 		}
-	}
-	else
-	{
-		if (!rcBuildRegionsMonotone(build.ctx_, *build.compactHeightField_, cfg.borderSize, cfg.minRegionArea, cfg.mergeRegionArea))
-		{
-			//URHO3D_LOGERROR("Could not build monotone regions");
+	}else{
+		if (!rcBuildRegionsMonotone(build.ctx_, *build.compactHeightField_, cfg.borderSize, cfg.minRegionArea, cfg.mergeRegionArea)){
 			std::cout << "Could not build monotone regions" << std::endl;
 			return false;
 		}
 	}
 
 	build.contourSet_ = rcAllocContourSet();
-	if (!build.contourSet_)
-	{
-		//URHO3D_LOGERROR("Could not allocate contour set");
+	if (!build.contourSet_){
 		std::cout << "Could not allocate contour set" << std::endl;
 		return false;
 	}
-	if (!rcBuildContours(build.ctx_, *build.compactHeightField_, cfg.maxSimplificationError, cfg.maxEdgeLen,
-		*build.contourSet_))
-	{
-		//URHO3D_LOGERROR("Could not create contours");
+
+	if (!rcBuildContours(build.ctx_, *build.compactHeightField_, cfg.maxSimplificationError, cfg.maxEdgeLen, *build.contourSet_)){
 		std::cout << "Could not create contours" << std::endl;
 		return false;
 	}
 
 	build.polyMesh_ = rcAllocPolyMesh();
-	if (!build.polyMesh_)
-	{
-		//URHO3D_LOGERROR("Could not allocate poly mesh");
+	if (!build.polyMesh_){
 		std::cout << "Could not allocate poly mesh" << std::endl;
 		return false;
 	}
-	if (!rcBuildPolyMesh(build.ctx_, *build.contourSet_, cfg.maxVertsPerPoly, *build.polyMesh_))
-	{
-		//URHO3D_LOGERROR("Could not triangulate contours");
+
+	if (!rcBuildPolyMesh(build.ctx_, *build.contourSet_, cfg.maxVertsPerPoly, *build.polyMesh_)){
 		std::cout << "Could not triangulate contours" << std::endl;
 		return false;
 	}
 
 	build.polyMeshDetail_ = rcAllocPolyMeshDetail();
-	if (!build.polyMeshDetail_)
-	{
-		//URHO3D_LOGERROR("Could not allocate detail mesh");
+	if (!build.polyMeshDetail_){
 		std::cout << "Could not allocate detail mesh" << std::endl;
 		return false;
 	}
-	if (!rcBuildPolyMeshDetail(build.ctx_, *build.polyMesh_, *build.compactHeightField_, cfg.detailSampleDist,
-		cfg.detailSampleMaxError, *build.polyMeshDetail_))
-	{
-		//URHO3D_LOGERROR("Could not build detail mesh");
+
+	if (!rcBuildPolyMeshDetail(build.ctx_, *build.polyMesh_, *build.compactHeightField_, cfg.detailSampleDist, cfg.detailSampleMaxError, *build.polyMeshDetail_)){
 		std::cout << "Could not build detail mesh" << std::endl;
 		return false;
 	}
 
 	// Set polygon flags
 	/// \todo Assignment of flags from navigation areas?
-	for (int i = 0; i < build.polyMesh_->npolys; ++i)
-	{
+	for (int i = 0; i < build.polyMesh_->npolys; ++i){
 		if (build.polyMesh_->areas[i] != RC_NULL_AREA)
 			build.polyMesh_->flags[i] = 0x1;
 	}
@@ -530,8 +559,7 @@ bool NavigationMesh::BuildTile(std::vector<NavigationGeometryInfo>& geometryList
 	params.buildBvTree = true;
 
 	// Add off-mesh connections if have them
-	if (build.offMeshRadii_.size())
-	{
+	if (build.offMeshRadii_.size()){
 		params.offMeshConCount = build.offMeshRadii_.size();
 		params.offMeshConVerts = &build.offMeshVertices_[0][0];
 		params.offMeshConRad = &build.offMeshRadii_[0];
@@ -540,31 +568,17 @@ bool NavigationMesh::BuildTile(std::vector<NavigationGeometryInfo>& geometryList
 		params.offMeshConDir = &build.offMeshDir_[0];
 	}
 
-	if (!dtCreateNavMeshData(&params, &navData, &navDataSize))
-	{
-		//URHO3D_LOGERROR("Could not build navigation mesh tile data");
+	if (!dtCreateNavMeshData(&params, &navData, &navDataSize)){
 		std::cout << "Could not build navigation mesh tile data" << std::endl;
 		return false;
 	}
 
-	if (dtStatusFailed(navMesh_->addTile(navData, navDataSize, DT_TILE_FREE_DATA, 0, 0)))
-	{
-		//URHO3D_LOGERROR("Failed to add navigation mesh tile");
+	if (dtStatusFailed(navMesh_->addTile(navData, navDataSize, DT_TILE_FREE_DATA, 0, 0))){
 		std::cout << "Failed to add navigation mesh tile" << std::endl;
 		dtFree(navData);
 		return false;
 	}
 
-	// Send a notification of the rebuild of this tile to anyone interested
-	/*{
-		using namespace NavigationAreaRebuilt;
-		VariantMap& eventData = GetContext()->GetEventDataMap();
-		eventData[P_NODE] = GetNode();
-		eventData[P_MESH] = this;
-		eventData[P_BOUNDSMIN] = Variant(tileBoundingBox.min_);
-		eventData[P_BOUNDSMAX] = Variant(tileBoundingBox.max_);
-		SendEvent(E_NAVIGATION_AREA_REBUILT, eventData);
-	}*/
 	return true;
 }
 
@@ -601,8 +615,7 @@ void NavigationMesh::ReleaseNavigationMesh() {
 	boundingBox_.reset();
 }
 
-unsigned NavigationMesh::BuildTiles(std::vector<NavigationGeometryInfo>& geometryList, const std::array<int, 2>& from, const std::array<int, 2>& to)
-{
+unsigned NavigationMesh::BuildTiles(std::vector<NavigationGeometryInfo>& geometryList, const std::array<int, 2>& from, const std::array<int, 2>& to){
 	unsigned numTiles = 0;
 	for (int z = from[1]; z < to[1]; ++z){
 		for (int x = from[0]; x < to[0]; ++x){
@@ -873,9 +886,6 @@ std::array<int, 2> NavigationMesh::GetTileIndex(const Vector3f& position) const{
 }
 
 
-bool NavigationMesh::AddTile(const Buffer& tileData) {
-	return false;
-}
 
 void NavigationMesh::RemoveTile(const std::array<int, 2>& tile, unsigned int layersToRemove) {
 	if (!navMesh_)
@@ -896,6 +906,10 @@ bool NavigationMesh::HasTile(const std::array<int, 2>& tile) const{
 		return !!navMesh_->getTileAt(tile[0], tile[1], 0);
 	}
 	return false;
+}
+
+bool NavigationMesh::HasTileData(int x, int z) const {
+	return m_tileData.find(z * numTilesX_ + x) != m_tileData.end();
 }
 
 void NavigationMesh::FindPath(std::vector<Vector3f>& dest, const Vector3f& start, const Vector3f& end, const Vector3f& extents, const dtQueryFilter* filter){

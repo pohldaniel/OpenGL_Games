@@ -85,5 +85,5 @@ private:
 	std::vector<Navigable*> m_navigables;
 
 	std::unordered_set< std::array<int, 2>, std::function<size_t(const std::array<int, 2>&)>, std::function<bool(const std::array<int, 2>&, const std::array<int, 2>&)>> m_addedTiles;
-	std::unordered_map<int, Buffer> m_tileData;
+	
 };

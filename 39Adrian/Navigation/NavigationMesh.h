@@ -5,6 +5,7 @@
 #include <hash_set>
 #include <memory>
 #include <random>
+#include <unordered_map>
 
 #include "../engine/Vector.h"
 #include "../engine/BoundingBox.h"
@@ -169,15 +170,26 @@ public:
 	/// Rebuild part of the navigation mesh in the rectangular area. Return true if successful.
 	virtual bool Build(const std::array<int,2>& from, const std::array<int, 2>& to);
 	/// Return tile data.
-	virtual Buffer GetTileData(Buffer& buffer, const std::array<int, 2>& tile) const;
+	virtual Buffer& GetTileData(Buffer& buffer, const std::array<int, 2>& tile) const;
+	/// Return tile data.
+	virtual Buffer& GetTileData(int x, int z);
 	/// Add tile to navigation mesh.
 	virtual bool AddTile(const Buffer& tileData);
+	/// Add tile to navigation mesh.
+	virtual bool AddTile(int x, int z);
+	/// Add tile to navigation mesh.
+	void AddTiles();
 	/// Remove tile from navigation mesh.
 	virtual void RemoveTile(const std::array<int, 2>& tile, unsigned int layersToRemove = 0u);
 	/// Remove all tiles from navigation mesh.
 	virtual void RemoveAllTiles();
 	/// Return whether the navigation mesh has tile.
 	bool HasTile(const std::array<int, 2>& tile) const;
+
+
+	/// Return whether the navigation mesh has tile.
+	bool HasTileData(int x, int z) const;
+
 	/// Return bounding box of the tile in the node space.
 	BoundingBox GetTileBoudningBox(const std::array<int, 2>& tile) const;
 	/// Return index of the tile at the position.
@@ -286,16 +298,19 @@ public:
 	/// Draw debug geometry for NavArea components.
 	void SetDrawNavAreas(bool enable) { drawNavAreas_ = enable; }
 
+	void WriteTile(Buffer& dest, int x, int z) const;
+	bool ReadTile(const Buffer& source);
+	void saveToTileData();
+	void clearTileData();
+
 	/// Return whether to draw NavArea components.
 	bool GetDrawNavAreas() const { return drawNavAreas_; }
 	std::vector<Navigable*> m_navigables;
 	std::vector<OffMeshConnection*> m_offMeshConnections;
 	std::vector<NavArea*> m_navAreas;
-	//private:
-	/// Write tile data.
-	void WriteTile(unsigned char*& dest, int x, int z) const;
-	/// Read tile data to the navigation mesh.
-	//bool ReadTile(Deserializer& source, bool silent);
+//private:
+
+	
 
 //protected:
 	/// Collect geometry from under Navigable components.
@@ -369,7 +384,7 @@ public:
 	bool drawOffMeshConnections_;
 	/// Debug draw NavArea components.
 	bool drawNavAreas_;
-
+	std::unordered_map<int, Buffer> m_tileData;
 
 	std::vector<BoundingBox> m_boxes;
 	Vector3f randPoint(const Vector3f& center, float radius);

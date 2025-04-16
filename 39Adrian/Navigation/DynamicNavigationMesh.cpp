@@ -698,6 +698,10 @@ bool DynamicNavigationMesh::AddTile(const Buffer& tileData){
 	return ReadTiles(tileData);
 }
 
+bool DynamicNavigationMesh::AddTile(int x, int z) {
+	return AddTile(m_tileData.at(z * numTilesX_ + x));
+}
+
 bool DynamicNavigationMesh::ReadTiles(const Buffer& source){
 	m_tileQueue.clear();
 
@@ -752,9 +756,15 @@ bool DynamicNavigationMesh::ReadTiles(const Buffer& source){
 	return true;
 }
 
-Buffer DynamicNavigationMesh::GetTileData(Buffer& buffer, const std::array<int, 2>& tile) const {
-	WriteTiles(buffer, tile[0], tile[1]);
+
+Buffer& DynamicNavigationMesh::GetTileData(Buffer& buffer, const std::array<int, 2>& tile) const {
+	WriteTile(buffer, tile[0], tile[1]);
 	return buffer;
+}
+
+Buffer& DynamicNavigationMesh::GetTileData(int x, int z) {
+	WriteTile(m_tileData[z * numTilesX_ + x], x, z);
+	return m_tileData[z * numTilesX_ + x];
 }
 
 void DynamicNavigationMesh::WriteTiles(Buffer& dest, int x, int z) const {
