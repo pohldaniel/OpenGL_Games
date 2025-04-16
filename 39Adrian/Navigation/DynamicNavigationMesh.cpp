@@ -758,12 +758,12 @@ bool DynamicNavigationMesh::ReadTiles(const Buffer& source){
 
 
 Buffer& DynamicNavigationMesh::GetTileData(Buffer& buffer, const std::array<int, 2>& tile) const {
-	WriteTile(buffer, tile[0], tile[1]);
+	WriteTiles(buffer, tile[0], tile[1]);
 	return buffer;
 }
 
 Buffer& DynamicNavigationMesh::GetTileData(int x, int z) {
-	WriteTile(m_tileData[z * numTilesX_ + x], x, z);
+	WriteTiles(m_tileData[z * numTilesX_ + x], x, z);
 	return m_tileData[z * numTilesX_ + x];
 }
 

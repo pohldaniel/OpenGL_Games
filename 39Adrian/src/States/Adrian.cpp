@@ -124,7 +124,7 @@ Adrian::Adrian(StateMachine& machine) : State(machine, States::MAP),
 	loadBuilding("res/building_25.bld");
 	createScene();
 
-	m_navigationMesh = new DynamicNavigationMesh();
+	m_navigationMesh = new NavigationMesh();
 
 	m_navigationMesh->m_navigables = m_navigables;
 	m_navigationMesh->SetPadding(Vector3f(0.0f, 10.0f, 0.0f));
@@ -140,7 +140,7 @@ Adrian::Adrian(StateMachine& machine) : State(machine, States::MAP),
 	//m_navigationMesh->Build();
 
 	Utils::NavIO navIO;
-	navIO.readNavigationMap("res/data_dyn.nav", m_navigationMesh->numTilesX_, m_navigationMesh->numTilesZ_, m_navigationMesh->boundingBox_, m_navigationMesh->m_tileData);
+	navIO.readNavigationMap("res/data.nav", m_navigationMesh->numTilesX_, m_navigationMesh->numTilesZ_, m_navigationMesh->boundingBox_, m_navigationMesh->m_tileData);
 	m_navigationMesh->Allocate();
 	m_navigationMesh->AddTiles();
 }
@@ -789,11 +789,8 @@ void Adrian::toggleStreaming(bool enabled) {
 }
 
 void Adrian::saveNavigationData() {
-	NavigationMesh* navMesh = m_navigationMesh;
 	m_addedTiles.clear();
-	std::cout << "Size: " << m_navigationMesh->m_tileData.size() << std::endl;
 	m_navigationMesh->saveToTileData();
-	std::cout << "Size: " << m_navigationMesh->m_tileData.size() << std::endl;
 }
 
 void Adrian::updateStreaming() {

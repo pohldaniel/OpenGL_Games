@@ -81,7 +81,7 @@ private:
 	btCollisionObject* m_ground;
 	std::vector<Shape> m_buildings;
 
-	DynamicNavigationMesh* m_navigationMesh;
+	NavigationMesh* m_navigationMesh;
 	std::vector<Navigable*> m_navigables;
 
 	std::unordered_set< std::array<int, 2>, std::function<size_t(const std::array<int, 2>&)>, std::function<bool(const std::array<int, 2>&, const std::array<int, 2>&)>> m_addedTiles;
