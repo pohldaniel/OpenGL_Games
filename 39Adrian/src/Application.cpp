@@ -754,10 +754,9 @@ void Application::loadAssets() {
 	Globals::textureManager.get("proto_white").setWrapMode(GL_REPEAT);
 
 	Globals::shapeManager.buildQuadXY("quad_xy", Vector3f(0.0f, 0.0f, 0.0f), Vector2f(600.0f, 600.0f), 1, 1, true, false, false);
-	//Globals::shapeManager.buildQuadXZ("quad_xz", Vector3f(-300.0f, 0.0f, -300.0f), Vector2f(600.0f, 600.0f), 1, 1, true, false, false);
 
 	Globals::shapeManager.buildQuadXZ("quad_xz", Vector3f(-1.0f, 0.0f, -1.0f), Vector2f(2.0f, 2.0f), 1, 1, true, false, false);
-	//Globals::shapeManager.buildSegmentXZ("segment_xz", 20.0f, 0.0f, PI, Vector3f(0.0f, 0.0f, 0.0f), 20, 20, true, false, false);
+	Globals::shapeManager.get("quad_xz").createBoundingBox();
 
 	Globals::shapeManager.buildSphere("sphere", 0.5f, Vector3f(0.0f, 0.0f, 0.0f), 10, 10, true, false, false);
 	Globals::shapeManager.get("sphere").createBoundingBox();

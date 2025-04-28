@@ -122,27 +122,28 @@ Adrian::Adrian(StateMachine& machine) : State(machine, States::MAP),
 	loadBuilding("res/building_23.bld", true);
 	loadBuilding("res/building_24.bld", true);
 	loadBuilding("res/building_25.bld");
-	createScene();
 
 	m_navigationMesh = new NavigationMesh();
+	createScene();
 
-	m_navigationMesh->m_navigables = m_navigables;
-	m_navigationMesh->SetPadding(Vector3f(0.0f, 10.0f, 0.0f));
-	m_navigationMesh->SetTileSize(128);
+	
 
-	m_navigationMesh->SetCellSize(0.3);
-	m_navigationMesh->SetCellHeight(0.2f);
+	m_navigationMesh->setPadding(Vector3f(0.0f, 10.0f, 0.0f));
+	m_navigationMesh->setTileSize(128);
 
-	m_navigationMesh->SetAgentMaxSlope(45.0f);
-	m_navigationMesh->SetAgentMaxClimb(0.9f);
-	m_navigationMesh->SetAgentHeight(2.0f);
-	m_navigationMesh->SetAgentRadius(0.6f);
-	//m_navigationMesh->Build();
+	m_navigationMesh->setCellSize(0.3);
+	m_navigationMesh->setCellHeight(0.2f);
+
+	m_navigationMesh->setAgentMaxSlope(45.0f);
+	m_navigationMesh->setAgentMaxClimb(0.9f);
+	m_navigationMesh->setAgentHeight(2.0f);
+	m_navigationMesh->setAgentRadius(0.6f);
+	//m_navigationMesh->build();
 
 	Utils::NavIO navIO;
-	navIO.readNavigationMap("res/data.nav", m_navigationMesh->numTilesX_, m_navigationMesh->numTilesZ_, m_navigationMesh->boundingBox_, m_navigationMesh->m_tileData);
-	m_navigationMesh->Allocate();
-	m_navigationMesh->AddTiles();
+	navIO.readNavigationMap("res/data.nav", m_navigationMesh->numTilesX(), m_navigationMesh->numTilesZ(), m_navigationMesh->boundingBox(), m_navigationMesh->tileData());
+	m_navigationMesh->allocate();
+	m_navigationMesh->addTiles();
 }
 
 Adrian::~Adrian() {
@@ -659,129 +660,128 @@ void Adrian::createScene(bool recreate) {
 		m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[i]);
 		m_buildingNode->setTextureIndex(7);
 		m_buildingNode->OnOctreeSet(m_octree);
-		m_navigables.push_back(new Navigable(m_buildingNode));
+		m_navigationMesh->addNavigable(Navigable(m_buildingNode));
 	}
 
 	for (int i = 4; i < 8; i++) {
 		m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[i]);
 		m_buildingNode->setTextureIndex(i < 6 ? 3 : 4);
 		m_buildingNode->OnOctreeSet(m_octree);
-		m_navigables.push_back(new Navigable(m_buildingNode));
+		m_navigationMesh->addNavigable(Navigable(m_buildingNode));
 	}
 	
-
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[8]);
 	m_buildingNode->setTextureIndex(5);
 	m_buildingNode->OnOctreeSet(m_octree);
-	m_navigables.push_back(new Navigable(m_buildingNode));
+	m_navigationMesh->addNavigable(Navigable(m_buildingNode));
 
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[9]);
 	m_buildingNode->setTextureIndex(6);
 	m_buildingNode->OnOctreeSet(m_octree);
-	m_navigables.push_back(new Navigable(m_buildingNode));
+	m_navigationMesh->addNavigable(Navigable(m_buildingNode));
 
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[10]);
 	m_buildingNode->setTextureIndex(3);
 	m_buildingNode->OnOctreeSet(m_octree);
-	m_navigables.push_back(new Navigable(m_buildingNode));
+	m_navigationMesh->addNavigable(Navigable(m_buildingNode));
 
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[11]);
 	m_buildingNode->setTextureIndex(3);
 	m_buildingNode->OnOctreeSet(m_octree);
-	m_navigables.push_back(new Navigable(m_buildingNode));
+	m_navigationMesh->addNavigable(Navigable(m_buildingNode));
 
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[12]);
 	m_buildingNode->setTextureIndex(8);
 	m_buildingNode->OnOctreeSet(m_octree);
-	m_navigables.push_back(new Navigable(m_buildingNode));
+	m_navigationMesh->addNavigable(Navigable(m_buildingNode));
 
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[13]);
 	m_buildingNode->setTextureIndex(3);
 	m_buildingNode->OnOctreeSet(m_octree);
-	m_navigables.push_back(new Navigable(m_buildingNode));
+	m_navigationMesh->addNavigable(Navigable(m_buildingNode));
 
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[14]);
 	m_buildingNode->setTextureIndex(7);
 	m_buildingNode->OnOctreeSet(m_octree);
-	m_navigables.push_back(new Navigable(m_buildingNode));
+	m_navigationMesh->addNavigable(Navigable(m_buildingNode));
 
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[15]);
 	m_buildingNode->setTextureIndex(4);
 	m_buildingNode->OnOctreeSet(m_octree);
-	m_navigables.push_back(new Navigable(m_buildingNode));
+	m_navigationMesh->addNavigable(Navigable(m_buildingNode));
 
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[16]);
 	m_buildingNode->setTextureIndex(4);
 	m_buildingNode->OnOctreeSet(m_octree);
-	m_navigables.push_back(new Navigable(m_buildingNode));
+	m_navigationMesh->addNavigable(Navigable(m_buildingNode));
 
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[17]);
 	m_buildingNode->setTextureIndex(8);
 	m_buildingNode->OnOctreeSet(m_octree);
-	m_navigables.push_back(new Navigable(m_buildingNode));
+	m_navigationMesh->addNavigable(Navigable(m_buildingNode));
 
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[18]);
 	m_buildingNode->setTextureIndex(7);
 	m_buildingNode->OnOctreeSet(m_octree);
-	m_navigables.push_back(new Navigable(m_buildingNode));
+	m_navigationMesh->addNavigable(Navigable(m_buildingNode));
 
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[19]);
 	m_buildingNode->setTextureIndex(8);
 	m_buildingNode->OnOctreeSet(m_octree);
-	m_navigables.push_back(new Navigable(m_buildingNode));
+	m_navigationMesh->addNavigable(Navigable(m_buildingNode));
 
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[20]);
 	m_buildingNode->setTextureIndex(9);
 	m_buildingNode->OnOctreeSet(m_octree);
-	m_navigables.push_back(new Navigable(m_buildingNode));
+	m_navigationMesh->addNavigable(Navigable(m_buildingNode));
 
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[21]);
 	m_buildingNode->setTextureIndex(10);
 	m_buildingNode->OnOctreeSet(m_octree);
-	m_navigables.push_back(new Navigable(m_buildingNode));
+	m_navigationMesh->addNavigable(Navigable(m_buildingNode));
 
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[22]);
 	m_buildingNode->setTextureIndex(10);
 	m_buildingNode->OnOctreeSet(m_octree);
-	m_navigables.push_back(new Navigable(m_buildingNode));
+	m_navigationMesh->addNavigable(Navigable(m_buildingNode));
 
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[23]);
 	m_buildingNode->setTextureIndex(5);
 	m_buildingNode->OnOctreeSet(m_octree);
-	m_navigables.push_back(new Navigable(m_buildingNode));
+	m_navigationMesh->addNavigable(Navigable(m_buildingNode));
 
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[24]);
 	m_buildingNode->setTextureIndex(4);
 	m_buildingNode->OnOctreeSet(m_octree);
-	m_navigables.push_back(new Navigable(m_buildingNode));
+	m_navigationMesh->addNavigable(Navigable(m_buildingNode));
 
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[25]);
 	m_buildingNode->setTextureIndex(9);
 	m_buildingNode->OnOctreeSet(m_octree);
-	m_navigables.push_back(new Navigable(m_buildingNode));
+	m_navigationMesh->addNavigable(Navigable(m_buildingNode));
 
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[26]);
 	m_buildingNode->setTextureIndex(9);
 	m_buildingNode->OnOctreeSet(m_octree);
-	m_navigables.push_back(new Navigable(m_buildingNode));
+	m_navigationMesh->addNavigable(Navigable(m_buildingNode));
 
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[27]);
 	m_buildingNode->setTextureIndex(10);
 	m_buildingNode->OnOctreeSet(m_octree);
-	m_navigables.push_back(new Navigable(m_buildingNode));
+	m_navigationMesh->addNavigable(Navigable(m_buildingNode));
 
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(Globals::shapeManager.get("quad_xz"));
 	m_buildingNode->translate(0.0f, 0.1f, 0.0f);
 	m_buildingNode->setScale(1000.0f, 0.0f, 1000.0f);
-	m_navigables.push_back(new Navigable(m_buildingNode));
+	m_navigationMesh->addNavigable(Navigable(m_buildingNode));
 }
 
 void Adrian::toggleStreaming(bool enabled) {
 	if (enabled) {
 		int maxTiles = (2 * m_streamingDistance + 1) * (2 * m_streamingDistance + 1);
-		BoundingBox boundingBox = m_navigationMesh->GetBoundingBox();
+		BoundingBox boundingBox = m_navigationMesh->getBoundingBox();
 		saveNavigationData();
-		m_navigationMesh->Allocate(boundingBox, maxTiles);
+		m_navigationMesh->allocate(boundingBox, maxTiles);
 		updateStreaming();
 	}else {
 		rebuild();
@@ -795,8 +795,8 @@ void Adrian::saveNavigationData() {
 
 void Adrian::updateStreaming() {
 	Vector3f averageAgentPosition = m_heroEnity->getWorldPosition();
-	const std::array<int, 2> heroTile = m_navigationMesh->GetTileIndex(averageAgentPosition);
-	const std::array<int, 2> numTiles = m_navigationMesh->GetNumTiles();
+	const std::array<int, 2> heroTile = m_navigationMesh->getTileIndex(averageAgentPosition);
+	const std::array<int, 2> numTiles = m_navigationMesh->getNumTiles();
 	const std::array<int, 2> beginTile = { std::max(0, heroTile[0] - m_streamingDistance), std::max(0, heroTile[1] - m_streamingDistance) };
 	const std::array<int, 2> endTile = { std::min(heroTile[0] + m_streamingDistance, numTiles[0] - 1), std::min(heroTile[1] + m_streamingDistance, numTiles[1] - 1) };
 
@@ -806,7 +806,7 @@ void Adrian::updateStreaming() {
 		if (beginTile[0] <= tileIdx[0] && tileIdx[0] <= endTile[0] && beginTile[1] <= tileIdx[1] && tileIdx[1] <= endTile[1])
 			++i;
 		else {
-			m_navigationMesh->RemoveTile(tileIdx, 3u);
+			m_navigationMesh->removeTile(tileIdx, 3u);
 			i = m_addedTiles.erase(i);
 		}
 	}
@@ -815,18 +815,18 @@ void Adrian::updateStreaming() {
 	for (int z = beginTile[1]; z <= endTile[1]; ++z) {
 		for (int x = beginTile[0]; x <= endTile[0]; ++x) {
 			const std::array<int, 2> tileIdx = { x, z };
-			bool tmp = m_navigationMesh->HasTile(tileIdx);
-			if (!m_navigationMesh->HasTile(tileIdx) && m_navigationMesh->HasTileData(x, z)) {
+			bool tmp = m_navigationMesh->hasTile(tileIdx);
+			if (!m_navigationMesh->hasTile(tileIdx) && m_navigationMesh->hasTileData(x, z)) {
 				m_addedTiles.insert(tileIdx);
-				m_navigationMesh->AddTile(x, z);
+				m_navigationMesh->addTile(x, z);
 			}
 		}
 	}
 }
 
 void Adrian::rebuild() {
-	const  std::array<int, 2> numTiles = m_navigationMesh->GetNumTiles();
-	BoundingBox boundingBox = m_navigationMesh->GetBoundingBox();
-	m_navigationMesh->Allocate(boundingBox, numTiles[0], numTiles[1]);
-	m_navigationMesh->AddTiles();
+	const  std::array<int, 2> numTiles = m_navigationMesh->getNumTiles();
+	BoundingBox boundingBox = m_navigationMesh->getBoundingBox();
+	m_navigationMesh->allocate(boundingBox, numTiles[0], numTiles[1]);
+	m_navigationMesh->addTiles();
 }

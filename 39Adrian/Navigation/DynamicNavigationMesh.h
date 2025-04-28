@@ -22,17 +22,17 @@ public:
 	~DynamicNavigationMesh();
 
 	void OnRenderDebug() override;
-	bool Allocate() override;
-	bool Allocate(const BoundingBox& boundingBox, unsigned maxTiles) override;
-	bool Allocate(const BoundingBox& boundingBox, unsigned tilesX, unsigned tilesZ) override;
-	void ReleaseNavigationMesh() override;
-	bool Build() override;
-	void RemoveTile(const std::array<int, 2>& tile, unsigned int layersToRemove = 0u) override;
-	bool AddTile(const Buffer& tileData) override;
-	bool AddTile(int x, int z);
+	bool allocate() override;
+	bool allocate(const BoundingBox& boundingBox, unsigned int maxTiles) override;
+	bool allocate(const BoundingBox& boundingBox, unsigned int tilesX, unsigned int tilesZ) override;
+	void releaseNavigationMesh() override;
+	bool build() override;
+	void removeTile(const std::array<int, 2>& tile, unsigned int layersToRemove = 0u) override;
+	bool addTile(const Buffer& tileData) override;
+	bool addTile(int x, int z);
 
-	Buffer& GetTileData(Buffer& buffer, const std::array<int, 2>& tile) const override;
-	Buffer& GetTileData(int x, int z) override;
+	Buffer& getTileData(Buffer& buffer, const std::array<int, 2>& tile) const override;
+	Buffer& getTileData(int x, int z) override;
 	void WriteTiles(Buffer& dest, int x, int z) const;
 	bool ReadTiles(const Buffer& source);
 	bool IsObstacleInTile(Obstacle* obstacle, const std::array<int, 2>& tile) const;

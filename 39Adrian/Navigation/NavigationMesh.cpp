@@ -77,7 +77,7 @@ NavigationMesh::NavigationMesh() :
 }
 
 NavigationMesh::~NavigationMesh() {
-	ReleaseNavigationMesh();
+	releaseNavigationMesh();
 }
 
 void NavigationMesh::OnRenderDebug() {
@@ -107,14 +107,14 @@ void NavigationMesh::OnRenderDebug() {
 	}
 }
 
-bool NavigationMesh::Allocate() {
-	return Allocate(boundingBox_, numTilesX_, numTilesZ_);
+bool NavigationMesh::allocate() {
+	return allocate(boundingBox_, numTilesX_, numTilesZ_);
 }
 
-bool NavigationMesh::Allocate(const BoundingBox& boundingBox, unsigned tilesX, unsigned tilesZ) {
+bool NavigationMesh::allocate(const BoundingBox& boundingBox, unsigned int tilesX, unsigned int tilesZ) {
 	Vector3f min = boundingBox.min;
 	Vector3f max = boundingBox.max;
-	ReleaseNavigationMesh();	
+	releaseNavigationMesh();	
 	boundingBox_.setMin(min);
 	boundingBox_.setMax(max);
 	numTilesX_ = tilesX;
@@ -122,8 +122,8 @@ bool NavigationMesh::Allocate(const BoundingBox& boundingBox, unsigned tilesX, u
 
 	float tileEdgeLength = (float)tileSize_ * cellSize_;
 	// Calculate max number of polygons, 22 bits available to identify both tile & polygon within tile
-	unsigned maxTiles = NextPowerOfTwo((unsigned)(numTilesX_ * numTilesZ_));
-	unsigned tileBits = LogBaseTwo(maxTiles);
+	unsigned maxTiles = Math::NextPowerOfTwo((unsigned)(numTilesX_ * numTilesZ_));
+	unsigned tileBits = Math::LogBaseTwo(maxTiles);
 	unsigned maxPolys = (unsigned)(1 << (22 - tileBits));
 
 	dtNavMeshParams params;
@@ -141,7 +141,7 @@ bool NavigationMesh::Allocate(const BoundingBox& boundingBox, unsigned tilesX, u
 
 	if (dtStatusFailed(navMesh_->init(&params))){
 		std::cout << "Could not initialize navigation mesh" << std::endl;
-		ReleaseNavigationMesh();
+		releaseNavigationMesh();
 		return false;
 	}
 	std::cout << "Allocated empty navigation mesh with max " + std::to_string(maxTiles) + " tiles" << std::endl;
@@ -149,11 +149,11 @@ bool NavigationMesh::Allocate(const BoundingBox& boundingBox, unsigned tilesX, u
 	return true;
 }
 
-bool NavigationMesh::Allocate(const BoundingBox& boundingBox, unsigned maxTiles) {
-	ReleaseNavigationMesh();
+bool NavigationMesh::allocate(const BoundingBox& boundingBox, unsigned int maxTiles) {
+	releaseNavigationMesh();
 
 	boundingBox_ = boundingBox;
-	maxTiles = NextPowerOfTwo(maxTiles);
+	maxTiles = Math::NextPowerOfTwo(maxTiles);
 
 
 	int gridW = 0, gridH = 0;
@@ -162,7 +162,7 @@ bool NavigationMesh::Allocate(const BoundingBox& boundingBox, unsigned maxTiles)
 	numTilesX_ = (gridW + tileSize_ - 1) / tileSize_;
 	numTilesZ_ = (gridH + tileSize_ - 1) / tileSize_;
 
-	unsigned tileBits = LogBaseTwo(maxTiles);
+	unsigned tileBits = Math::LogBaseTwo(maxTiles);
 	unsigned maxPolys = (unsigned)(1 << (22 - tileBits));
 
 	dtNavMeshParams params;
@@ -180,15 +180,15 @@ bool NavigationMesh::Allocate(const BoundingBox& boundingBox, unsigned maxTiles)
 
 	if (dtStatusFailed(navMesh_->init(&params))){
 		std::cout << "Could not initialize navigation mesh" << std::endl;
-		ReleaseNavigationMesh();
+		releaseNavigationMesh();
 		return false;
 	}
 	std::cout <<  "Allocated empty navigation mesh with max " + std::to_string(maxTiles) + " tiles" << std::endl;
 	return true;
 }
 
-bool NavigationMesh::Build() {
-	ReleaseNavigationMesh();
+bool NavigationMesh::build() {
+	releaseNavigationMesh();
 	std::vector<NavigationGeometryInfo> geometryList;
 	CollectGeometries(geometryList);
 
@@ -198,7 +198,7 @@ bool NavigationMesh::Build() {
 	}
 
 	for (unsigned i = 0; i < geometryList.size(); ++i)
-		boundingBox_.merge(geometryList[i].boundingBox_);
+		boundingBox_.merge(geometryList[i].boundingBox);
 
 	// Expand bounding box by padding
 	boundingBox_.min -= padding_;
@@ -213,8 +213,8 @@ bool NavigationMesh::Build() {
 		numTilesZ_ = (gridH + tileSize_ - 1) / tileSize_;
 
 		// Calculate max. number of tiles and polygons, 22 bits available to identify both tile & polygon within tile
-		unsigned maxTiles = NextPowerOfTwo((unsigned)(numTilesX_ * numTilesZ_));
-		unsigned tileBits = LogBaseTwo(maxTiles);
+		unsigned maxTiles = Math::NextPowerOfTwo((unsigned)(numTilesX_ * numTilesZ_));
+		unsigned tileBits = Math::LogBaseTwo(maxTiles);
 		unsigned maxPolys = (unsigned)(1 << (22 - tileBits));
 
 		dtNavMeshParams params;
@@ -232,12 +232,12 @@ bool NavigationMesh::Build() {
 
 		if (dtStatusFailed(navMesh_->init(&params))){
 			std::cout << "Could not initialize navigation mesh" << std::endl;
-			ReleaseNavigationMesh();
+			releaseNavigationMesh();
 			return false;
 		}
 		
 		// Build each tile
-		unsigned numTiles = BuildTiles(geometryList, std::array<int, 2>({0, 0}), std::array<int, 2>({ GetNumTiles()[0], GetNumTiles()[1] }));
+		unsigned numTiles = BuildTiles(geometryList, std::array<int, 2>({0, 0}), std::array<int, 2>({ getNumTiles()[0], getNumTiles()[1] }));
 		std::cout << "Built navigation mesh with " + std::to_string(maxTiles) + " tiles" << std::endl;
 		return true;
 	}
@@ -245,25 +245,17 @@ bool NavigationMesh::Build() {
 	return false;
 }
 
-bool NavigationMesh::Build(const BoundingBox& boundingBox) {
-	return false;
-}
-
-bool NavigationMesh::Build(const std::array<int, 2>& from, const std::array<int, 2>& to) {
-	return false;
-}
-
-Buffer& NavigationMesh::GetTileData(Buffer& buffer, const std::array<int, 2>& tile) const {
-	WriteTile(buffer, tile[0], tile[1]);
+Buffer& NavigationMesh::getTileData(Buffer& buffer, const std::array<int, 2>& tile) const {
+	writeTile(buffer, tile[0], tile[1]);
 	return buffer;
 }
 
-Buffer& NavigationMesh::GetTileData(int x, int z) {
-	WriteTile(m_tileData[z * numTilesX_ + x], x, z);
+Buffer& NavigationMesh::getTileData(int x, int z) {
+	writeTile(m_tileData[z * numTilesX_ + x], x, z);
 	return m_tileData[z * numTilesX_ + x];
 }
 
-void NavigationMesh::WriteTile(Buffer& dest, int x, int z) const{
+void NavigationMesh::writeTile(Buffer& dest, int x, int z) const{
 	const dtNavMesh* navMesh = navMesh_;
 	const dtMeshTile* tile = navMesh->getTileAt(x, z, 0);
 	if (!tile)
@@ -274,7 +266,7 @@ void NavigationMesh::WriteTile(Buffer& dest, int x, int z) const{
 	memcpy(dest.data + sizeof(int), tile->data, tile->dataSize);
 }
 
-bool NavigationMesh::ReadTile(const Buffer& source) {	
+bool NavigationMesh::readTile(const Buffer& source) {	
 	int navDataSize;
 	memcpy(&navDataSize, source.data, sizeof(int));
 
@@ -293,33 +285,46 @@ bool NavigationMesh::ReadTile(const Buffer& source) {
 	return true;
 }
 
-bool NavigationMesh::AddTile(const Buffer& tileData) {
-	return ReadTile(tileData);
+bool NavigationMesh::addTile(const Buffer& tileData) {
+	return readTile(tileData);
 }
 
-bool NavigationMesh::AddTile(int x, int z) {
-	return AddTile(m_tileData.at(z * numTilesX_ + x));
+bool NavigationMesh::addTile(int x, int z) {
+	return addTile(m_tileData.at(z * numTilesX_ + x));
 }
 
 void NavigationMesh::saveToTileData() {
 	clearTileData();
 	for (int z = 0; z < numTilesZ_; ++z) {
 		for (int x = 0; x < numTilesX_; ++x) {
-			GetTileData(x, z);
+			getTileData(x, z);
 		}
 	}
 }
 
-void NavigationMesh::AddTiles() {
+void NavigationMesh::addTiles() {
 	for (int z = 0; z < numTilesZ_; ++z) {
 		for (int x = 0; x < numTilesX_; ++x) {
 			const std::array<int, 2> tileIdx = { x, z };
-			AddTile(m_tileData[z * numTilesX_ + x]);
+			addTile(m_tileData[z * numTilesX_ + x]);
 		}
 	}
 }
 
-void NavigationMesh::RemoveAllTiles() {
+void NavigationMesh::removeTile(const std::array<int, 2>& tile, unsigned int layersToRemove) {
+	if (!navMesh_)
+		return;
+
+	for (unsigned int i = 0u; i < layersToRemove + 1u; i++) {
+		const dtTileRef tileRef = navMesh_->getTileRefAt(tile[0], tile[1], i);
+		if (!tileRef)
+			continue;
+		navMesh_->removeTile(tileRef, 0, 0);
+	}
+	return;
+}
+
+void NavigationMesh::removeAllTiles() {
 	const dtNavMesh* navMesh = navMesh_;
 	for (int i = 0; i < navMesh_->getMaxTiles(); ++i){
 		const dtMeshTile* tile = navMesh->getTile(i);
@@ -332,11 +337,34 @@ void NavigationMesh::clearTileData() {
 	m_tileData.clear();
 }
 
+void NavigationMesh::addNavigable(const Navigable& navigable) {
+	m_navigables.push_back(navigable);
+}
+
+void NavigationMesh::addOffMeshConnection(const OffMeshConnection& offMeshConnection) {
+	m_offMeshConnections.push_back(offMeshConnection);
+}
+
+void NavigationMesh::addNavArea(const NavArea& navArea) {
+	m_navAreas.push_back(navArea);
+}
+
+bool NavigationMesh::hasTile(const std::array<int, 2>& tile) const {
+	if (navMesh_) {
+		return !!navMesh_->getTileAt(tile[0], tile[1], 0);
+	}
+	return false;
+}
+
+bool NavigationMesh::hasTileData(int x, int z) const {
+	return m_tileData.find(z * numTilesX_ + x) != m_tileData.end();
+}
+
 bool NavigationMesh::BuildTile(std::vector<NavigationGeometryInfo>& geometryList, int x, int z) {
 	// Remove previous tile (if any)
 	navMesh_->removeTile(navMesh_->getTileRefAt(x, z, 0), 0, 0);
 
-	BoundingBox tileBoundingBox = GetTileBoudningBox(std::array<int, 2>({x, z}));	 
+	BoundingBox tileBoundingBox = getTileBoudningBox(std::array<int, 2>({x, z}));	 
 	m_boxes.push_back(tileBoundingBox);
 
 	SimpleNavBuildData build;
@@ -346,9 +374,9 @@ bool NavigationMesh::BuildTile(std::vector<NavigationGeometryInfo>& geometryList
 	cfg.cs = cellSize_;
 	cfg.ch = cellHeight_;
 	cfg.walkableSlopeAngle = agentMaxSlope_;
-	cfg.walkableHeight = CeilToInt(agentHeight_ / cfg.ch);
-	cfg.walkableClimb = FloorToInt(agentMaxClimb_ / cfg.ch);
-	cfg.walkableRadius = CeilToInt(agentRadius_ / cfg.cs);
+	cfg.walkableHeight = Math::CeilToInt(agentHeight_ / cfg.ch);
+	cfg.walkableClimb = Math::FloorToInt(agentMaxClimb_ / cfg.ch);
+	cfg.walkableRadius = Math::CeilToInt(agentRadius_ / cfg.cs);
 	cfg.maxEdgeLen = (int)(edgeMaxLength_ / cellSize_);
 	cfg.maxSimplificationError = edgeMaxError_;
 	cfg.minRegionArea = (int)sqrtf(regionMinSize_);
@@ -547,7 +575,7 @@ bool NavigationMesh::InitializeQuery(){
 	return true;
 }
 
-void NavigationMesh::ReleaseNavigationMesh() {
+void NavigationMesh::releaseNavigationMesh() {
 	dtFreeNavMesh(navMesh_);
 	navMesh_ = 0;
 
@@ -559,7 +587,7 @@ void NavigationMesh::ReleaseNavigationMesh() {
 	boundingBox_.reset();
 }
 
-unsigned NavigationMesh::BuildTiles(std::vector<NavigationGeometryInfo>& geometryList, const std::array<int, 2>& from, const std::array<int, 2>& to){
+unsigned int NavigationMesh::BuildTiles(std::vector<NavigationGeometryInfo>& geometryList, const std::array<int, 2>& from, const std::array<int, 2>& to){
 	unsigned numTiles = 0;
 	for (int z = from[1]; z < to[1]; ++z){
 		for (int x = from[0]; x < to[0]; ++x){
@@ -574,27 +602,27 @@ void NavigationMesh::CollectGeometries(std::vector<NavigationGeometryInfo>& geom
 
 	std::hash_set<SceneNodeLC*> processedNodes;
 	for (unsigned i = 0; i < m_navigables.size(); ++i){
-		CollectGeometries(geometryList, m_navigables[i]->m_node, processedNodes, m_navigables[i]->isRecursive());
+		CollectGeometries(geometryList, m_navigables[i].m_node, processedNodes, m_navigables[i].isRecursive());
 	}
 
 	// Get offmesh connections
 	for (unsigned i = 0; i < m_offMeshConnections.size(); ++i){
-		OffMeshConnection* connection = m_offMeshConnections[i];
-		if (connection->m_isEnabled && connection->m_endPoint){
+		OffMeshConnection& connection = m_offMeshConnections[i];
+		if (connection.m_isEnabled && connection.m_endPoint){
 			NavigationGeometryInfo info;
-			info.connection_ = connection;
-			info.boundingBox_ = BoundingBox(connection->m_node->getWorldPosition(), connection->m_radius);
+			info.connection = &connection;
+			info.boundingBox = BoundingBox(connection.m_node->getWorldPosition(), connection.m_radius);
 			geometryList.push_back(info);
 		}
 	}
 
 	// Get nav area volumes
 	for (unsigned i = 0; i < m_navAreas.size(); ++i){
-		NavArea* area = m_navAreas[i];
+		NavArea& area = m_navAreas[i];
 		if (true){
 			NavigationGeometryInfo info;
-			info.area_ = area;
-			info.boundingBox_ = area->getBoundingBox();
+			info.area = &area;
+			info.boundingBox = area.getBoundingBox();
 			geometryList.push_back(info);
 		}
 	}
@@ -607,14 +635,13 @@ void NavigationMesh::CollectGeometries(std::vector<NavigationGeometryInfo>& geom
 	}
 	
 	processedNodes.insert(node);
-
 	{
 		ShapeNode* shapeNode = static_cast<ShapeNode*>(node);
 		NavigationGeometryInfo info;
-		info.lodLevel_ = 0;			
-		info.component_ = shapeNode;
-		info.transform_ =  node->getWorldTransformation();
-		info.boundingBox_ = shapeNode->getWorldBoundingBox();
+		info.lodLevel = 0;			
+		info.component = shapeNode;
+		info.transform =  node->getWorldTransformation();
+		info.boundingBox = shapeNode->getWorldBoundingBox();
 		geometryList.push_back(info);
 	}
 
@@ -627,47 +654,17 @@ void NavigationMesh::CollectGeometries(std::vector<NavigationGeometryInfo>& geom
 	}
 }
 
-void NavigationMesh::SetPadding(const Vector3f& padding) {
-	padding_ = padding;
-}
-
-void NavigationMesh::SetAreaCost(unsigned areaID, float cost) {
-	if (queryFilter_)
-		queryFilter_->setAreaCost((int)areaID, cost);
-}
-
-float NavigationMesh::GetAreaCost(unsigned areaID) const {
-	if (queryFilter_)
-		return queryFilter_->getAreaCost((int)areaID);
-	return 1.0f;
-}
-
-BoundingBox NavigationMesh::GetTileBoudningBox(const std::array<int, 2>& tile) const{
-	const float tileEdgeLength = (float)tileSize_ * cellSize_;
-	return BoundingBox(
-		Vector3f(
-			boundingBox_.min[0] + tileEdgeLength * (float)tile[0],
-			boundingBox_.min[1],
-			boundingBox_.min[2] + tileEdgeLength * (float)tile[1]
-		),
-		Vector3f(
-			boundingBox_.min[0] + tileEdgeLength * (float)(tile[0] + 1),
-			boundingBox_.max[1],
-			boundingBox_.min[2] + tileEdgeLength * (float)(tile[1] + 1)
-		));
-}
-
 void NavigationMesh::GetTileGeometry(NavBuildData* build, std::vector<NavigationGeometryInfo>& geometryList, BoundingBox& box){
 
 	Matrix4f inverse = Matrix4f::IDENTITY;
 	unsigned int vertexCount = 0u;
 
 	for (unsigned i = 0; i < geometryList.size(); ++i){
-		if (box.isInsideFast(geometryList[i].boundingBox_) != BoundingBox::Intersection::OUTSIDE){
-			const Matrix4f& transform = geometryList[i].transform_;
+		if (box.isInsideFast(geometryList[i].boundingBox) != BoundingBox::Intersection::OUTSIDE){
+			const Matrix4f& transform = geometryList[i].transform;
 
-			if (geometryList[i].connection_){
-				OffMeshConnection* connection = geometryList[i].connection_;
+			if (geometryList[i].connection){
+				OffMeshConnection* connection = geometryList[i].connection;
 				Vector3f start = inverse * connection->m_node->getWorldPosition();
 				Vector3f end = inverse * connection->m_endPoint->getWorldPosition();
 
@@ -678,14 +675,14 @@ void NavigationMesh::GetTileGeometry(NavBuildData* build, std::vector<Navigation
 				build->offMeshAreas.push_back((unsigned char)connection->m_areaId);
 				build->offMeshDir.push_back((unsigned char)(connection->m_bidirectional ? DT_OFFMESH_CON_BIDIR : 0));
 
-			}else if(geometryList[i].area_) {
-				NavArea* area = geometryList[i].area_;
+			}else if(geometryList[i].area) {
+				NavArea* area = geometryList[i].area;
 				NavAreaStub stub;
 				stub.areaID = (unsigned char)area->m_areaID;
 				stub.bounds = area->getBoundingBox();
 				build->navAreas.push_back(stub);
-			}else if (geometryList[i].component_) {
-				ShapeNode* drawable = geometryList[i].component_;
+			}else if (geometryList[i].component) {
+				ShapeNode* drawable = geometryList[i].component;
 				if (drawable) {
 					AddTriMeshGeometry(build, drawable->getShape(), transform, vertexCount);
 				}
@@ -709,223 +706,12 @@ void NavigationMesh::AddTriMeshGeometry(NavBuildData* build, const Shape& shape,
 	vertexCount += srcVertexCount;
 }
 
-void NavigationMesh::SetTileSize(int size){
-	tileSize_ = std::max(size, 1);
-}
-
-void NavigationMesh::SetAgentHeight(float height){
-	agentHeight_ = std::max(height, EPSILON);
-}
-
-void NavigationMesh::SetCellHeight(float height){
-	cellHeight_ = std::max(height, EPSILON);
-}
-
-void NavigationMesh::SetAgentMaxClimb(float maxClimb){
-	agentMaxClimb_ = std::max(maxClimb, EPSILON);
-}
-
-void NavigationMesh::SetAgentMaxSlope(float maxSlope){
-	agentMaxSlope_ = std::max(maxSlope, 0.0f);
-}
-
-void NavigationMesh::SetAgentRadius(float radius){
-	agentRadius_ = std::max(radius, EPSILON);
-}
-
-void NavigationMesh::SetCellSize(float size){
-	cellSize_ = std::max(size, EPSILON);
-}
-
-Vector3f NavigationMesh::FindNearestPoint(const Vector3f& point, const Vector3f& extents, const dtQueryFilter* filter,dtPolyRef* nearestRef){
-	if (!InitializeQuery())
-		return point;
-
-	Vector3f localPoint = point;
-	Vector3f nearestPoint;
-
-	dtPolyRef pointRef;
-	if (!nearestRef)
-		nearestRef = &pointRef;
-	navMeshQuery_->findNearestPoly(localPoint.getVec(), extents.getVec(), filter ? filter : queryFilter_, nearestRef, &nearestPoint[0]);
-
-	return *nearestRef ? nearestPoint : point;
-}
-
-Vector3f NavigationMesh::randPoint(const Vector3f& center, float radius) {
-	const float length = sqrt(Random()) * radius;
-	const float degree = Random() * TWO_PI;
-	const float x = center[0] + length * cos(degree);
-	const float z = center[2] + length * sin(degree);
-	return { x, center[1], z };
-}
-
-Vector3f NavigationMesh::GetRandomPoint(const dtQueryFilter* filter, dtPolyRef* randomRef){
-	if (!InitializeQuery())
-		return Vector3f::ZERO;
-
-	dtPolyRef polyRef;
-	Vector3f point(Vector3f::ZERO);
-	navMeshQuery_->findRandomPoint(filter ? filter : queryFilter_, Random, randomRef ? randomRef : &polyRef, &point[0]);
-	return point;
-}
-
-Vector3f NavigationMesh::GetRandomPointInCircle(const Vector3f& center, float radius, const Vector3f& extents, const dtQueryFilter* filter, dtPolyRef* randomRef){
-	if (randomRef)
-		*randomRef = 0;
-
-	if (!InitializeQuery())
-		return center;
-
-	Vector3f localCenter = center;
-	const dtQueryFilter* queryFilter = filter ? filter : queryFilter_;
-	dtPolyRef startRef;
-	navMeshQuery_->findNearestPoly(&localCenter[0], extents.getVec(), queryFilter, &startRef, 0);
-
-	if (!startRef)
-		return center;
-
-	dtPolyRef polyRef;
-	if (!randomRef)
-		randomRef = &polyRef;
-	Vector3f point(localCenter);
-
-	//navMeshQuery_->findRandomPointAroundCircle(startRef, &localCenter[0], radius, queryFilter, Random, randomRef, &point[0]);
-	return randPoint(point, radius);
-}
-
-float NavigationMesh::GetDistanceToWall(const Vector3f& point, float radius, const Vector3f& extents, const dtQueryFilter* filter, Vector3f* hitPos, Vector3f* hitNormal) {
-	if (hitPos)
-		*hitPos = Vector3f::ZERO;
-	if (hitNormal)
-		*hitNormal = Vector3f::DOWN;
-
-	if (!InitializeQuery())
-		return radius;
-
-	Vector3f localPoint = point;
-
-	const dtQueryFilter* queryFilter = filter ? filter : queryFilter_;
-	dtPolyRef startRef;
-	navMeshQuery_->findNearestPoly(&localPoint[0], extents.getVec(), queryFilter, &startRef, 0);
-	if (!startRef)
-		return radius;
-
-	float hitDist = radius;
-	Vector3f pos;
-	if (!hitPos)
-		hitPos = &pos;
-	Vector3f normal;
-	if (!hitNormal)
-		hitNormal = &normal;
-
-	navMeshQuery_->findDistanceToWall(startRef, &localPoint[0], radius, queryFilter, &hitDist, &hitPos->getVec()[0], &hitNormal->getVec()[0]);
-	return hitDist;
-}
-
-Vector3f NavigationMesh::Raycast(const Vector3f& start, const Vector3f& end, const Vector3f& extents, const dtQueryFilter* filter, Vector3f* hitNormal) {
-	if (hitNormal)
-		*hitNormal = Vector3f::DOWN;
-
+Vector3f NavigationMesh::moveAlongSurface(const Vector3f& start, const Vector3f& end, const Vector3f& extents, int maxVisited, const dtQueryFilter* filter) {
 	if (!InitializeQuery())
 		return end;
 
 	Vector3f localStart = start;
 	Vector3f localEnd = end;
-
-	const dtQueryFilter* queryFilter = filter ? filter : queryFilter_;
-	dtPolyRef startRef;
-	navMeshQuery_->findNearestPoly(&localStart[0], extents.getVec(), queryFilter, &startRef, 0);
-
-	if (!startRef)
-		return end;
-
-	Vector3f normal;
-	if (!hitNormal)
-		hitNormal = &normal;
-	float t;
-	int numPolys;
-
-	navMeshQuery_->raycast(startRef, &localStart[0], &localEnd[0], queryFilter, &t, &hitNormal->getVec()[0], pathData_->polys_, &numPolys,
-		MAX_POLYS);
-	if (t == FLT_MAX)
-		t = 1.0f;
-
-	return Math::Lerp(start, end, t);
-}
-
-int NavigationMesh::SetPolyFlag(const Vector3f& point, unsigned short polyMask, const Vector3f& extents, const dtQueryFilter* filter){
-	if (!InitializeQuery())
-		return 0;
-
-
-	Vector3f localPoint = point;
-
-	const dtQueryFilter* queryFilter = filter ? filter : queryFilter_;
-	dtPolyRef polyRef[16];
-	int polyCnt = 0;
-
-	if (navMeshQuery_->queryPolygons(&localPoint[0], extents.getVec(), queryFilter, polyRef, &polyCnt, 16) == DT_SUCCESS){
-		for (int i = 0; i < polyCnt; ++i){
-			navMesh_->setPolyFlags(polyRef[i], polyMask);
-		}
-	}
-
-	return polyCnt;
-}
-
-float NavigationMesh::Random() {
-	return Dist(MersenTwist) * Scale;
-}
-
-std::array<int, 2> NavigationMesh::GetTileIndex(const Vector3f& position) const{
-	const float tileEdgeLength = (float)tileSize_ * cellSize_;
-	const Vector3f localPosition = position - boundingBox_.min;
-	const Vector2f localPosition2D(localPosition[0], localPosition[2]);
-	const std::array<int, 2> max = { std::max(0, static_cast<int>(floor(localPosition2D[0] / tileEdgeLength))), std::max(0, static_cast<int>(floor(localPosition2D[1] / tileEdgeLength))) };
-	return { std::min(max[0],  GetNumTiles()[0] - 1), std::min(max[1],  GetNumTiles()[1] - 1) };		
-}
-
-void NavigationMesh::RemoveTile(const std::array<int, 2>& tile, unsigned int layersToRemove) {
-	if (!navMesh_)
-		return;
-
-	for (unsigned int i = 0u; i < layersToRemove + 1u; i++) {
-		const dtTileRef tileRef = navMesh_->getTileRefAt(tile[0], tile[1], i);
-		if (!tileRef)
-			continue;
-		navMesh_->removeTile(tileRef, 0, 0);
-	}
-
-	return;
-}
-
-bool NavigationMesh::HasTile(const std::array<int, 2>& tile) const{
-	if (navMesh_) {
-		return !!navMesh_->getTileAt(tile[0], tile[1], 0);
-	}
-	return false;
-}
-
-bool NavigationMesh::HasTileData(int x, int z) const {
-	return m_tileData.find(z * numTilesX_ + x) != m_tileData.end();
-}
-
-void NavigationMesh::FindPath(std::vector<Vector3f>& dest, const Vector3f& start, const Vector3f& end, const Vector3f& extents, const dtQueryFilter* filter){
-	std::vector<NavigationPathPoint> navPathPoints;
-	FindPath(navPathPoints, start, end, extents, filter);
-
-	dest.clear();
-	for (unsigned i = 0; i < navPathPoints.size(); ++i)
-		dest.push_back(navPathPoints[i].position_);
-}
-
-Vector3f NavigationMesh::MoveAlongSurface(const Vector3f& start, const Vector3f& end, const Vector3f& extents, int maxVisited, const dtQueryFilter* filter){
-	if (!InitializeQuery())
-		return end;
-
-	Vector3f localStart = start;
-	Vector3f localEnd =  end;
 
 	const dtQueryFilter* queryFilter = filter ? filter : queryFilter_;
 	dtPolyRef startRef;
@@ -942,8 +728,31 @@ Vector3f NavigationMesh::MoveAlongSurface(const Vector3f& start, const Vector3f&
 	return resultPos;
 }
 
+Vector3f NavigationMesh::findNearestPoint(const Vector3f& point, const Vector3f& extents, const dtQueryFilter* filter,dtPolyRef* nearestRef){
+	if (!InitializeQuery())
+		return point;
 
-void NavigationMesh::FindPath(std::vector<NavigationPathPoint>& dest, const Vector3f& start, const Vector3f& end, const Vector3f& extents, const dtQueryFilter* filter){
+	Vector3f localPoint = point;
+	Vector3f nearestPoint;
+
+	dtPolyRef pointRef;
+	if (!nearestRef)
+		nearestRef = &pointRef;
+	navMeshQuery_->findNearestPoly(localPoint.getVec(), extents.getVec(), filter ? filter : queryFilter_, nearestRef, &nearestPoint[0]);
+
+	return *nearestRef ? nearestPoint : point;
+}
+
+void NavigationMesh::findPath(std::vector<Vector3f>& dest, const Vector3f& start, const Vector3f& end, const Vector3f& extents, const dtQueryFilter* filter) {
+	std::vector<NavigationPathPoint> navPathPoints;
+	findPath(navPathPoints, start, end, extents, filter);
+
+	dest.clear();
+	for (unsigned i = 0; i < navPathPoints.size(); ++i)
+		dest.push_back(navPathPoints[i].m_position);
+}
+
+void NavigationMesh::findPath(std::vector<NavigationPathPoint>& dest, const Vector3f& start, const Vector3f& end, const Vector3f& extents, const dtQueryFilter* filter) {
 	dest.clear();
 
 	if (!InitializeQuery())
@@ -978,34 +787,349 @@ void NavigationMesh::FindPath(std::vector<NavigationPathPoint>& dest, const Vect
 		&pathData_->pathPoints_[0][0], pathData_->pathFlags_, pathData_->pathPolys_, &numPathPoints, MAX_POLYS);
 
 	// Transform path result back to world space
-	for (int i = 0; i < numPathPoints; ++i){
+	for (int i = 0; i < numPathPoints; ++i) {
 		NavigationPathPoint pt;
-		pt.position_ = pathData_->pathPoints_[i];
-		pt.flag_ = (NavigationPathPointFlag)pathData_->pathFlags_[i];
+		pt.m_position = pathData_->pathPoints_[i];
+		pt.m_flag = (NavigationPathPointFlag)pathData_->pathFlags_[i];
 
 		// Walk through all NavAreas and find nearest
 		unsigned nearestNavAreaID = 0;       // 0 is the default nav area ID
 		float nearestDistance = M_LARGE_VALUE;
-		for (unsigned j = 0; j < m_navAreas.size(); j++){
-			NavArea* area = m_navAreas[j];
-			if (area && area->m_isEnabled){
-				BoundingBox bb = area->getBoundingBox();
-				if (bb.isInside(pt.position_) == BoundingBox::Intersection::INSIDE){
+		for (unsigned j = 0; j < m_navAreas.size(); j++) {
+			const NavArea& area = m_navAreas[j];
+			if (area.m_isEnabled) {
+				BoundingBox bb = area.getBoundingBox();
+				if (bb.isInside(pt.m_position) == BoundingBox::Intersection::INSIDE) {
 					Vector3f areaWorldCenter = bb.getCenter();
-					float distance = (areaWorldCenter - pt.position_).lengthSq();
-					if (distance < nearestDistance){
+					float distance = (areaWorldCenter - pt.m_position).lengthSq();
+					if (distance < nearestDistance) {
 						nearestDistance = distance;
-						nearestNavAreaID = area->m_areaID;
+						nearestNavAreaID = area.m_areaID;
 					}
 				}
 			}
 		}
-		pt.areaID_ = (unsigned char)nearestNavAreaID;
+		pt.m_areaID = (unsigned char)nearestNavAreaID;
 
 		dest.push_back(pt);
 	}
 }
 
-void NavigationMesh::SetPartitionType(NavmeshPartitionType ptype){
+Vector3f NavigationMesh::raycast(const Vector3f& start, const Vector3f& end, const Vector3f& extents, const dtQueryFilter* filter, Vector3f* hitNormal) {
+	if (hitNormal)
+		*hitNormal = Vector3f::DOWN;
+
+	if (!InitializeQuery())
+		return end;
+
+	Vector3f localStart = start;
+	Vector3f localEnd = end;
+
+	const dtQueryFilter* queryFilter = filter ? filter : queryFilter_;
+	dtPolyRef startRef;
+	navMeshQuery_->findNearestPoly(&localStart[0], extents.getVec(), queryFilter, &startRef, 0);
+
+	if (!startRef)
+		return end;
+
+	Vector3f normal;
+	if (!hitNormal)
+		hitNormal = &normal;
+	float t;
+	int numPolys;
+
+	navMeshQuery_->raycast(startRef, &localStart[0], &localEnd[0], queryFilter, &t, &hitNormal->getVec()[0], pathData_->polys_, &numPolys,
+		MAX_POLYS);
+	if (t == FLT_MAX)
+		t = 1.0f;
+
+	return Math::Lerp(start, end, t);
+}
+
+Vector3f NavigationMesh::randPoint(const Vector3f& center, float radius) {
+	const float length = sqrt(Random()) * radius;
+	const float degree = Random() * TWO_PI;
+	const float x = center[0] + length * cos(degree);
+	const float z = center[2] + length * sin(degree);
+	return { x, center[1], z };
+}
+
+bool NavigationMesh::isInitialized() const {
+	return navMesh_ != 0; 
+}
+
+void NavigationMesh::setPartitionType(NavmeshPartitionType ptype){
 	partitionType_ = ptype;
+}
+
+void NavigationMesh::setPadding(const Vector3f& padding) {
+	padding_ = padding;
+}
+
+void NavigationMesh::setAreaCost(unsigned int areaID, float cost) {
+	if (queryFilter_)
+		queryFilter_->setAreaCost((int)areaID, cost);
+}
+
+void NavigationMesh::setTileSize(int size) {
+	tileSize_ = std::max(size, 1);
+}
+
+void NavigationMesh::setAgentHeight(float height) {
+	agentHeight_ = std::max(height, EPSILON);
+}
+
+void NavigationMesh::setCellHeight(float height) {
+	cellHeight_ = std::max(height, EPSILON);
+}
+
+void NavigationMesh::setAgentMaxClimb(float maxClimb) {
+	agentMaxClimb_ = std::max(maxClimb, EPSILON);
+}
+
+void NavigationMesh::setAgentMaxSlope(float maxSlope) {
+	agentMaxSlope_ = std::max(maxSlope, 0.0f);
+}
+
+void NavigationMesh::setAgentRadius(float radius) {
+	agentRadius_ = std::max(radius, EPSILON);
+}
+
+void NavigationMesh::setCellSize(float size) {
+	cellSize_ = std::max(size, EPSILON);
+}
+
+int NavigationMesh::setPolyFlag(const Vector3f& point, unsigned short polyMask, const Vector3f& extents, const dtQueryFilter* filter) {
+	if (!InitializeQuery())
+		return 0;
+
+	Vector3f localPoint = point;
+
+	const dtQueryFilter* queryFilter = filter ? filter : queryFilter_;
+	dtPolyRef polyRef[16];
+	int polyCnt = 0;
+
+	if (navMeshQuery_->queryPolygons(&localPoint[0], extents.getVec(), queryFilter, polyRef, &polyCnt, 16) == DT_SUCCESS) {
+		for (int i = 0; i < polyCnt; ++i) {
+			navMesh_->setPolyFlags(polyRef[i], polyMask);
+		}
+	}
+
+	return polyCnt;
+}
+
+void NavigationMesh::setDrawOffMeshConnections(bool enable) { 
+	drawOffMeshConnections_ = enable; 
+}
+
+void NavigationMesh::setDrawNavAreas(bool enable) { 
+	drawNavAreas_ = enable; 
+}
+
+float NavigationMesh::getAreaCost(unsigned areaID) const {
+	if (queryFilter_)
+		return queryFilter_->getAreaCost((int)areaID);
+	return 1.0f;
+}
+
+BoundingBox NavigationMesh::getTileBoudningBox(const std::array<int, 2>& tile) const {
+	const float tileEdgeLength = (float)tileSize_ * cellSize_;
+	return BoundingBox(
+		Vector3f(
+			boundingBox_.min[0] + tileEdgeLength * (float)tile[0],
+			boundingBox_.min[1],
+			boundingBox_.min[2] + tileEdgeLength * (float)tile[1]
+		),
+		Vector3f(
+			boundingBox_.min[0] + tileEdgeLength * (float)(tile[0] + 1),
+			boundingBox_.max[1],
+			boundingBox_.min[2] + tileEdgeLength * (float)(tile[1] + 1)
+		));
+}
+
+Vector3f NavigationMesh::getRandomPoint(const dtQueryFilter* filter, dtPolyRef* randomRef) {
+	if (!InitializeQuery())
+		return Vector3f::ZERO;
+
+	dtPolyRef polyRef;
+	Vector3f point(Vector3f::ZERO);
+	navMeshQuery_->findRandomPoint(filter ? filter : queryFilter_, Random, randomRef ? randomRef : &polyRef, &point[0]);
+	return point;
+}
+
+Vector3f NavigationMesh::getRandomPointInCircle(const Vector3f& center, float radius, const Vector3f& extents, const dtQueryFilter* filter, dtPolyRef* randomRef) {
+	if (randomRef)
+		*randomRef = 0;
+
+	if (!InitializeQuery())
+		return center;
+
+	Vector3f localCenter = center;
+	const dtQueryFilter* queryFilter = filter ? filter : queryFilter_;
+	dtPolyRef startRef;
+	navMeshQuery_->findNearestPoly(&localCenter[0], extents.getVec(), queryFilter, &startRef, 0);
+
+	if (!startRef)
+		return center;
+
+	dtPolyRef polyRef;
+	if (!randomRef)
+		randomRef = &polyRef;
+	Vector3f point(localCenter);
+
+	//navMeshQuery_->findRandomPointAroundCircle(startRef, &localCenter[0], radius, queryFilter, Random, randomRef, &point[0]);
+	return randPoint(point, radius);
+}
+
+float NavigationMesh::getDistanceToWall(const Vector3f& point, float radius, const Vector3f& extents, const dtQueryFilter* filter, Vector3f* hitPos, Vector3f* hitNormal) {
+	if (hitPos)
+		*hitPos = Vector3f::ZERO;
+	if (hitNormal)
+		*hitNormal = Vector3f::DOWN;
+
+	if (!InitializeQuery())
+		return radius;
+
+	Vector3f localPoint = point;
+
+	const dtQueryFilter* queryFilter = filter ? filter : queryFilter_;
+	dtPolyRef startRef;
+	navMeshQuery_->findNearestPoly(&localPoint[0], extents.getVec(), queryFilter, &startRef, 0);
+	if (!startRef)
+		return radius;
+
+	float hitDist = radius;
+	Vector3f pos;
+	if (!hitPos)
+		hitPos = &pos;
+	Vector3f normal;
+	if (!hitNormal)
+		hitNormal = &normal;
+
+	navMeshQuery_->findDistanceToWall(startRef, &localPoint[0], radius, queryFilter, &hitDist, &hitPos->getVec()[0], &hitNormal->getVec()[0]);
+	return hitDist;
+}
+
+std::array<int, 2> NavigationMesh::getTileIndex(const Vector3f& position) const {
+	const float tileEdgeLength = (float)tileSize_ * cellSize_;
+	const Vector3f localPosition = position - boundingBox_.min;
+	const Vector2f localPosition2D(localPosition[0], localPosition[2]);
+	const std::array<int, 2> max = { std::max(0, static_cast<int>(floor(localPosition2D[0] / tileEdgeLength))), std::max(0, static_cast<int>(floor(localPosition2D[1] / tileEdgeLength))) };
+	return { std::min(max[0],  getNumTiles()[0] - 1), std::min(max[1],  getNumTiles()[1] - 1) };
+}
+
+bool NavigationMesh::getDrawOffMeshConnections() const { 
+	return drawOffMeshConnections_; 
+}
+
+int NavigationMesh::getTileSize() const { 
+	return tileSize_; 
+}
+
+float NavigationMesh::getCellSize() const { 
+	return cellSize_; 
+}
+
+dtNavMesh* NavigationMesh::getDetourNavMesh() { 
+	return navMesh_; 
+}
+
+float NavigationMesh::getCellHeight() const { 
+	return cellHeight_; 
+}
+
+float NavigationMesh::getAgentHeight() const { 
+	return agentHeight_; 
+}
+
+float NavigationMesh::getAgentRadius() const { 
+	return agentRadius_; 
+}
+
+float NavigationMesh::getAgentMaxClimb() const { 
+	return agentMaxClimb_; 
+}
+
+float NavigationMesh::getAgentMaxSlope() const { 
+	return agentMaxSlope_; 
+}
+
+float NavigationMesh::getRegionMinSize() const { 
+	return regionMinSize_; 
+}
+
+float NavigationMesh::getRegionMergeSize() const { 
+	return regionMergeSize_; 
+}
+
+float NavigationMesh::getEdgeMaxLength() const { 
+	return edgeMaxLength_; 
+}
+
+float NavigationMesh::getEdgeMaxError() const { 
+	return edgeMaxError_; 
+}
+
+float NavigationMesh::getDetailSampleDistance() const { 
+	return detailSampleDistance_; 
+}
+
+float NavigationMesh::getDetailSampleMaxError() const { 
+	return detailSampleMaxError_; 
+}
+
+const Vector3f& NavigationMesh::getPadding() const { 
+	return padding_; 
+}
+
+const BoundingBox& NavigationMesh::getBoundingBox() const { 
+	return boundingBox_; 
+}
+
+BoundingBox& NavigationMesh::boundingBox() {
+	return boundingBox_;
+}
+
+std::array<int, 2> NavigationMesh::getNumTiles() const { 
+	return std::array<int, 2>({ numTilesX_, numTilesZ_ }); 
+}
+
+const int NavigationMesh::getNumTilesX() const {
+	return numTilesX_;
+}
+
+const int NavigationMesh::getNumTilesZ() const {
+	return numTilesZ_;
+}
+
+int& NavigationMesh::numTilesX() {
+	return numTilesX_;
+}
+
+int& NavigationMesh::numTilesZ() {
+	return numTilesZ_;
+}
+
+NavmeshPartitionType NavigationMesh::getPartitionType() const { 
+	return partitionType_; 
+}
+
+bool NavigationMesh::getDrawNavAreas() const { 
+	return drawNavAreas_; 
+}
+
+std::unordered_map<int, Buffer>& NavigationMesh::tileData() {
+	return m_tileData;
+}
+
+const std::vector<NavArea>& NavigationMesh::getNavAreas() const {
+	return m_navAreas;
+}
+
+std::vector<NavArea>& NavigationMesh::navAreas() {
+	return m_navAreas;
+}
+
+float NavigationMesh::Random() {
+	return Dist(MersenTwist) * Scale;
 }

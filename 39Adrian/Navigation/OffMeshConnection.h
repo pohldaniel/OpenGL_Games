@@ -14,15 +14,20 @@ class OffMeshConnection{
 public:
 
 	OffMeshConnection(SceneNodeLC* node);
+	OffMeshConnection(SceneNodeLC* node, SceneNodeLC* endPoint);
+	OffMeshConnection(OffMeshConnection const& rhs);
+	OffMeshConnection(OffMeshConnection&& rhs);
+	OffMeshConnection& operator=(const OffMeshConnection& rhs);
+	OffMeshConnection& operator=(OffMeshConnection&& rhs);
 	virtual ~OffMeshConnection();
 
-	void OnRenderDebug();
+	void OnRenderDebug() const;
 
 	void setEndPoint(SceneNodeLC* node);
 	void setRadius(float radius);
 	void setBidirectional(bool enabled);
-	void setMask(unsigned newMask);
-	void setAreaID(unsigned newAreaID);
+	void setMask(unsigned int newMask);
+	void setAreaID(unsigned int newAreaID);
 
 	SceneNodeLC* getEndPoint() const;
 	SceneNodeLC* getNode() const;
@@ -38,11 +43,10 @@ private:
 	SceneNodeLC* m_node;
 	SceneNodeLC* m_endPoint;
 
-	unsigned m_endPointID;
 	float m_radius;
 	bool m_endPointDirty;
-	unsigned m_mask;
-	unsigned m_areaId;
+	unsigned int m_mask;
+	unsigned int m_areaId;
 	bool m_bidirectional;
 	bool m_isEnabled;
 };

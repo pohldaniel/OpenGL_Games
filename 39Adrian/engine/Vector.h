@@ -587,6 +587,32 @@ namespace Math {
 
 		return point;
 	}
-};
 
+	inline unsigned NextPowerOfTwo(unsigned int value) {
+		// http://graphics.stanford.edu/~seander/bithacks.html#RoundUpPowerOf2
+		--value;
+		value |= value >> 1;
+		value |= value >> 2;
+		value |= value >> 4;
+		value |= value >> 8;
+		value |= value >> 16;
+		return ++value;
+	}
+
+	inline int CeilToInt(float x) { 
+		return static_cast<int>(ceil(x)); 
+	}
+
+	inline int FloorToInt(float x) { 
+		return static_cast<int>(floor(x)); 
+	}
+
+	inline unsigned int LogBaseTwo(unsigned int value) {
+		// http://graphics.stanford.edu/~seander/bithacks.html#IntegerLogObvious
+		unsigned ret = 0;
+		while (value >>= 1)     // Unroll for more speed...
+			++ret;
+		return ret;
+	}
+};
 #endif

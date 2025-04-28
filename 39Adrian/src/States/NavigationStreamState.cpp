@@ -94,28 +94,26 @@ NavigationStreamState::NavigationStreamState(StateMachine& machine) :
 
 	createShapes();
 	createPhysics();
-	createScene();
 
 	m_navigationMesh = new DynamicNavigationMesh();
+	createScene();
 
+	m_navigationMesh->setPadding(Vector3f(0.0f, 10.0f, 0.0f));
+	m_navigationMesh->setTileSize(16);
 
-	m_navigationMesh->m_navigables = m_navigables;
-	m_navigationMesh->SetPadding(Vector3f(0.0f, 10.0f, 0.0f));
-	m_navigationMesh->SetTileSize(16);
+	m_navigationMesh->setCellSize(0.3);
+	m_navigationMesh->setCellHeight(0.2f);
 
-	m_navigationMesh->SetCellSize(0.3);
-	m_navigationMesh->SetCellHeight(0.2f);
-
-	m_navigationMesh->SetAgentMaxSlope(45.0f);
-	m_navigationMesh->SetAgentMaxClimb(0.9f);
-	m_navigationMesh->SetAgentHeight(2.0f);
-	m_navigationMesh->SetAgentRadius(0.6f);
-	m_navigationMesh->Build();
+	m_navigationMesh->setAgentMaxSlope(45.0f);
+	m_navigationMesh->setAgentMaxClimb(0.9f);
+	m_navigationMesh->setAgentHeight(2.0f);
+	m_navigationMesh->setAgentRadius(0.6f);
+	m_navigationMesh->build();
 
 	SceneNodeLC* boxGroup = m_root->findChild<SceneNodeLC>("box_group");
 	createBoxOffMeshConnections(m_navigationMesh, boxGroup);
 	createNavArea();
-	m_navigationMesh->Build();
+	m_navigationMesh->build();
 
 	m_crowdManager = new CrowdManager();
 	m_crowdManager->setNavigationMesh(m_navigationMesh);
@@ -208,9 +206,9 @@ void NavigationStreamState::update() {
 	}
 
 	if (keyboard.keyPressed(Keyboard::KEY_R)) {
-		m_navigationMesh->Build();
-		m_crowdManager->resetNavMesh(m_navigationMesh->GetDetourNavMesh());
-		m_crowdManager->initNavquery(m_navigationMesh->GetDetourNavMesh());
+		m_navigationMesh->build();
+		m_crowdManager->resetNavMesh(m_navigationMesh->getDetourNavMesh());
+		m_crowdManager->initNavquery(m_navigationMesh->getDetourNavMesh());
 	}
 
 	if (keyboard.keyPressed(Keyboard::KEY_C)) {
@@ -384,7 +382,7 @@ void NavigationStreamState::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 				if(m_useWayPoint)
 					setPathPoint(Physics::VectorFrom(pos));
 				else {			
-					Vector3f pathPos = m_navigationMesh->FindNearestPoint(Physics::VectorFrom(pos), Vector3f(1.5f, 1.5f, 1.5f));
+					Vector3f pathPos = m_navigationMesh->findNearestPoint(Physics::VectorFrom(pos), Vector3f(1.5f, 1.5f, 1.5f));
 					m_crowdManager->setCrowdTarget(pathPos);
 				}
 				
@@ -573,7 +571,7 @@ void NavigationStreamState::createScene() {
 	shapeNode->setTextureIndex(6);
 	shapeNode->setSortKey(2);
 	shapeNode->setShader(Globals::shaderManager.getAssetPointer("map"));
-	m_navigables.push_back(new Navigable(shapeNode));
+	m_navigationMesh->addNavigable(Navigable(shapeNode));
 
 	SceneNodeLC* boxGroup = m_root->addChild<SceneNodeLC>();
 	boxGroup->setName("box_group");
@@ -585,7 +583,8 @@ void NavigationStreamState::createScene() {
 		boxNode->setPosition(Utils::random(80.0f) - 40.0f, 0.5f * size, Utils::random(80.0f) - 40.0f);
 		boxNode->setTextureIndex(6);
 		boxNode->setScale(size);
-		m_navigables.push_back(new Navigable(boxNode));
+		m_navigationMesh->addNavigable(Navigable(boxNode));
+
 		Physics::AddStaticObject(Physics::BtTransform(Physics::VectorFrom(boxNode->getPosition())), Physics::CreateCollisionShape(&m_box, btVector3(size, size, size)), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER);
 	}
 }
@@ -742,16 +741,16 @@ void NavigationStreamState::addOrRemoveObject(const Vector3f& pos, PhysicalObjec
 void NavigationStreamState::toggleStreaming(bool enabled) {
 	if (enabled){
 		int maxTiles = (2 * m_streamingDistance + 1) * (2 * m_streamingDistance + 1);
-		BoundingBox boundingBox = m_navigationMesh->GetBoundingBox();		
+		BoundingBox boundingBox = m_navigationMesh->getBoundingBox();		
 		saveNavigationData();
-		m_navigationMesh->Allocate(boundingBox, maxTiles);		
-		m_crowdManager->resetNavMesh(m_navigationMesh->GetDetourNavMesh());
-		m_crowdManager->initNavquery(m_navigationMesh->GetDetourNavMesh());	
+		m_navigationMesh->allocate(boundingBox, maxTiles);		
+		m_crowdManager->resetNavMesh(m_navigationMesh->getDetourNavMesh());
+		m_crowdManager->initNavquery(m_navigationMesh->getDetourNavMesh());	
 		updateStreaming();
 	}else {
-		m_navigationMesh->Build();
-		m_crowdManager->resetNavMesh(m_navigationMesh->GetDetourNavMesh());
-		m_crowdManager->initNavquery(m_navigationMesh->GetDetourNavMesh());
+		m_navigationMesh->build();
+		m_crowdManager->resetNavMesh(m_navigationMesh->getDetourNavMesh());
+		m_crowdManager->initNavquery(m_navigationMesh->getDetourNavMesh());
 		m_crowdManager->reCreateCrowd();
 	}
 }
@@ -770,8 +769,8 @@ void NavigationStreamState::updateStreaming() {
 	}
 
 	// Compute currently loaded area
-	const std::array<int, 2> jackTile = m_navigationMesh->GetTileIndex(averageAgentPosition);
-	const std::array<int, 2> numTiles = m_navigationMesh->GetNumTiles();
+	const std::array<int, 2> jackTile = m_navigationMesh->getTileIndex(averageAgentPosition);
+	const std::array<int, 2> numTiles = m_navigationMesh->getNumTiles();
 
 	const std::array<int, 2> beginTile = { std::max(0, jackTile[0] - m_streamingDistance), std::max(0, jackTile[1] - m_streamingDistance) };
 	const std::array<int, 2> endTile = { std::min(jackTile[0] + m_streamingDistance, numTiles[0] - 1), std::min(jackTile[1] + m_streamingDistance, numTiles[1] - 1) };
@@ -782,7 +781,7 @@ void NavigationStreamState::updateStreaming() {
 		if (beginTile[0] <= tileIdx[0] && tileIdx[0] <= endTile[0] && beginTile[1] <= tileIdx[1] && tileIdx[1] <= endTile[1])
 			++i;
 		else{
-			m_navigationMesh->RemoveTile(tileIdx);
+			m_navigationMesh->removeTile(tileIdx);
 			i = m_addedTiles.erase(i);
 		}
 	}
@@ -793,10 +792,10 @@ void NavigationStreamState::updateStreaming() {
 	for (int z = beginTile[1]; z <= endTile[1]; ++z) {
 		for (int x = beginTile[0]; x <= endTile[0]; ++x) {
 			const std::array<int, 2> tileIdx = { x, z };	
-			bool tmp = m_navigationMesh->HasTile(tileIdx);
-			if (!m_navigationMesh->HasTile(tileIdx) && m_tileData.find(tileIdx) != m_tileData.end()){
+			bool tmp = m_navigationMesh->hasTile(tileIdx);
+			if (!m_navigationMesh->hasTile(tileIdx) && m_tileData.find(tileIdx) != m_tileData.end()){
 				m_addedTiles.insert(tileIdx);
-				m_navigationMesh->AddTile(m_tileData[tileIdx]);
+				m_navigationMesh->addTile(m_tileData[tileIdx]);
 			}
 		}
 	}
@@ -809,11 +808,11 @@ void NavigationStreamState::saveNavigationData(){
 	DynamicNavigationMesh* navMesh = m_navigationMesh;
 	m_tileData.clear();
 	m_addedTiles.clear();
-	const  std::array<int, 2> numTiles = navMesh->GetNumTiles();
+	const  std::array<int, 2> numTiles = navMesh->getNumTiles();
 	for (int z = 0; z < numTiles[1]; ++z)
 		for (int x = 0; x <= numTiles[0]; ++x){
 			const std::array<int, 2> tileIdx = { x, z };
-			navMesh->GetTileData(m_tileData[tileIdx], tileIdx);		
+			navMesh->getTileData(m_tileData[tileIdx], tileIdx);		
 		}
 }
 
@@ -828,22 +827,19 @@ void NavigationStreamState::createBoxOffMeshConnections(DynamicNavigationMesh* n
 		Matrix4f inv = box->getWorldTransformation().inverse();
 
 		SceneNodeLC* connectionStart = box->addChild<SceneNodeLC>();
-		connectionStart->setPosition(inv ^ navMesh->FindNearestPoint(boxPos + Vector3f(boxHalfSize + 0.05f * boxHalfSize, -boxHalfSize, 0)));
+		connectionStart->setPosition(inv ^ navMesh->findNearestPoint(boxPos + Vector3f(boxHalfSize + 0.05f * boxHalfSize, -boxHalfSize, 0)));
 
 		SceneNodeLC* connectionEnd = box->addChild<SceneNodeLC>();
-		connectionEnd->setPosition(inv ^ navMesh->FindNearestPoint(boxPos + Vector3f(boxHalfSize, boxHalfSize, 0)));
+		connectionEnd->setPosition(inv ^ navMesh->findNearestPoint(boxPos + Vector3f(boxHalfSize, boxHalfSize, 0)));
 
-		OffMeshConnection* connection = new OffMeshConnection(connectionStart);
-		connection->setEndPoint(connectionEnd);
-
-		navMesh->m_offMeshConnections.push_back(connection);
+		navMesh->addOffMeshConnection(OffMeshConnection(connectionStart, connectionEnd));
 	}
 }
 
 void NavigationStreamState::setPathPoint(const Vector3f& pos) {
-	Vector3f pathPos = m_navigationMesh->FindNearestPoint(pos);
+	Vector3f pathPos = m_navigationMesh->findNearestPoint(pos);
 	m_endPos = pathPos;
-	m_navigationMesh->FindPath(m_currentPath, m_jackAgent->getPosition(), m_endPos);
+	m_navigationMesh->findPath(m_currentPath, m_jackAgent->getPosition(), m_endPos);
 
 	if (m_currentPath.size())
 		m_jackAgent->playAnimation();
@@ -879,14 +875,14 @@ void NavigationStreamState::followPath(float dt) {
 void NavigationStreamState::createNavArea() {
 	BoundingBox box = BoundingBox(Vector3f(-30.0f, -2.0f, -30.0f), Vector3f(-10.0f, 2.0f, -10.0f));
 
-	m_navigationMesh->m_navAreas.push_back(new NavArea());
-	m_navigationMesh->m_navAreas.back()->setBoundingBox(box);
-	m_navigationMesh->m_navAreas.back()->setAreaID(0);
+	m_navigationMesh->addNavArea(NavArea());
+	m_navigationMesh->getNavAreas().back().setBoundingBox(box);
+	m_navigationMesh->getNavAreas().back().setAreaID(0);
 	
 	Vector3f size = box.getSize() * 0.5f;
 	size[1] = 0.01f;
 
 	btCollisionObject* collisionObject = Physics::AddStaticObject(Physics::BtTransform(box.getCenter()), new btBoxShape(Physics::VectorFrom(size)), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER);
 	collisionObject->setUserIndex(PhysicalObjects::NAVAREA);
-	collisionObject->setUserPointer(m_navigationMesh->m_navAreas.back());
+	collisionObject->setUserPointer(static_cast<void*>(&m_navigationMesh->navAreas().back()));
 }

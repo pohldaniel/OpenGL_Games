@@ -100,7 +100,7 @@ private:
 
 	MousePicker m_mousePicker;
 	DynamicNavigationMesh* m_navigationMesh;
-	std::vector<Navigable*> m_navigables;
+
 
 	CrowdManager* m_crowdManager;
 	CrowdAgent *m_crowdAgentBeta, *m_crowdAgentJack;

@@ -64,25 +64,23 @@ struct MeshProcess : public dtTileCacheMeshProcess {
 		rcVcopy(&bounds.max[0], params->bmin);
 
 		// collect off-mesh connections
-		std::vector<OffMeshConnection*> offMeshConnections = owner_->m_offMeshConnections;
+		const std::vector<OffMeshConnection>& offMeshConnections = owner_->m_offMeshConnections;
 		if (offMeshConnections.size() > 0) {
 			if (offMeshConnections.size() != offMeshRadii_.size()) {
-
-				//Matrix3x4 inverse = owner_->GetNode()->GetWorldTransform().Inverse();
 				Matrix4f inverse = Matrix4f::IDENTITY;
 				ClearConnectionData();
 				for (unsigned i = 0; i < offMeshConnections.size(); ++i) {
 
-					OffMeshConnection* connection = offMeshConnections[i];
-					Vector3f start = inverse * connection->m_node->getWorldPosition();
-					Vector3f end = inverse * connection->m_endPoint->getWorldPosition();
+					const OffMeshConnection& connection = offMeshConnections[i];
+					Vector3f start = inverse * connection.m_node->getWorldPosition();
+					Vector3f end = inverse * connection.m_endPoint->getWorldPosition();
 
 					offMeshVertices_.push_back(start);
 					offMeshVertices_.push_back(end);
-					offMeshRadii_.push_back(connection->m_radius);
-					offMeshFlags_.push_back((unsigned short)connection->m_mask);
-					offMeshAreas_.push_back((unsigned char)connection->m_areaId);
-					offMeshDir_.push_back((unsigned char)(connection->m_bidirectional ? DT_OFFMESH_CON_BIDIR : 0));
+					offMeshRadii_.push_back(connection.m_radius);
+					offMeshFlags_.push_back((unsigned short)connection.m_mask);
+					offMeshAreas_.push_back((unsigned char)connection.m_areaId);
+					offMeshDir_.push_back((unsigned char)(connection.m_bidirectional ? DT_OFFMESH_CON_BIDIR : 0));
 				}
 			}
 			params->offMeshConCount = offMeshRadii_.size();
@@ -168,22 +166,22 @@ DynamicNavigationMesh::~DynamicNavigationMesh() {
 
 }
 
-bool DynamicNavigationMesh::Allocate() {
-	return Allocate(boundingBox_, numTilesX_, numTilesZ_);
+bool DynamicNavigationMesh::allocate() {
+	return allocate(boundingBox_, numTilesX_, numTilesZ_);
 }
 
-bool DynamicNavigationMesh::Allocate(const BoundingBox& boundingBox, unsigned tilesX, unsigned tilesZ) {
+bool DynamicNavigationMesh::allocate(const BoundingBox& boundingBox, unsigned int tilesX, unsigned int tilesZ) {
 	Vector3f min = boundingBox.min;
 	Vector3f max = boundingBox.max;
 
-	ReleaseNavigationMesh();
+	releaseNavigationMesh();
 	boundingBox_.setMin(min);
 	boundingBox_.setMax(max);
 
 	numTilesX_ = tilesX;
 	numTilesZ_ = tilesZ;
-	unsigned maxTiles = NextPowerOfTwo((unsigned)(numTilesX_ * numTilesZ_));
-	unsigned tileBits = LogBaseTwo(maxTiles);
+	unsigned maxTiles = Math::NextPowerOfTwo((unsigned)(numTilesX_ * numTilesZ_));
+	unsigned tileBits = Math::LogBaseTwo(maxTiles);
 	unsigned maxPolys = (unsigned)(1 << (22 - tileBits));
 	float tileEdgeLength = (float)tileSize_ * cellSize_;
 
@@ -202,7 +200,7 @@ bool DynamicNavigationMesh::Allocate(const BoundingBox& boundingBox, unsigned ti
 
 	if (dtStatusFailed(navMesh_->init(&params))) {
 		std::cout << "Could not initialize navigation mesh" << std::endl;
-		ReleaseNavigationMesh();
+		releaseNavigationMesh();
 		return false;
 	}
 
@@ -224,13 +222,13 @@ bool DynamicNavigationMesh::Allocate(const BoundingBox& boundingBox, unsigned ti
 	tileCache_ = dtAllocTileCache();
 	if (!tileCache_) {
 		std::cout << "Could not allocate tile cache" << std::endl;
-		ReleaseNavigationMesh();
+		releaseNavigationMesh();
 		return false;
 	}
 
 	if (dtStatusFailed(tileCache_->init(&tileCacheParams, allocator_, compressor_, meshProcessor_))) {
 		std::cout << "Could not initialize tile cache" << std::endl;
-		ReleaseNavigationMesh();
+		releaseNavigationMesh();
 		return false;
 	}
 
@@ -241,12 +239,12 @@ bool DynamicNavigationMesh::Allocate(const BoundingBox& boundingBox, unsigned ti
 	return true;
 }
 
-bool DynamicNavigationMesh::Allocate(const BoundingBox& boundingBox, unsigned maxTiles) {
+bool DynamicNavigationMesh::allocate(const BoundingBox& boundingBox, unsigned int maxTiles) {
 	
 	// Release existing navigation data and zero the bounding box
-	ReleaseNavigationMesh();
+	releaseNavigationMesh();
 	boundingBox_ = boundingBox;
-	maxTiles = NextPowerOfTwo(maxTiles);
+	maxTiles = Math::NextPowerOfTwo(maxTiles);
 
 	// Calculate number of tiles
 	int gridW = 0, gridH = 0;
@@ -255,7 +253,7 @@ bool DynamicNavigationMesh::Allocate(const BoundingBox& boundingBox, unsigned ma
 	numTilesX_ = (gridW + tileSize_ - 1) / tileSize_;
 	numTilesZ_ = (gridH + tileSize_ - 1) / tileSize_;
 	// Calculate max number of polygons, 22 bits available to identify both tile & polygon within tile
-	unsigned tileBits = LogBaseTwo(maxTiles);
+	unsigned tileBits = Math::LogBaseTwo(maxTiles);
 	unsigned maxPolys = (unsigned)(1 << (22 - tileBits));
 
 	dtNavMeshParams params;
@@ -273,7 +271,7 @@ bool DynamicNavigationMesh::Allocate(const BoundingBox& boundingBox, unsigned ma
 
 	if (dtStatusFailed(navMesh_->init(&params))){
 		std::cout << "Could not initialize navigation mesh" << std::endl;
-		ReleaseNavigationMesh();
+		releaseNavigationMesh();
 		return false;
 	}
 
@@ -295,13 +293,13 @@ bool DynamicNavigationMesh::Allocate(const BoundingBox& boundingBox, unsigned ma
 	tileCache_ = dtAllocTileCache();
 	if (!tileCache_){
 		std:: cout << "Could not allocate tile cache" << std::endl;
-		ReleaseNavigationMesh();
+		releaseNavigationMesh();
 		return false;
 	}
 
 	if (dtStatusFailed(tileCache_->init(&tileCacheParams, allocator_, compressor_, meshProcessor_))){
 		std::cout << "Could not initialize tile cache" << std::endl;;
-		ReleaseNavigationMesh();
+		releaseNavigationMesh();
 		return false;
 	}
 
@@ -310,17 +308,8 @@ bool DynamicNavigationMesh::Allocate(const BoundingBox& boundingBox, unsigned ma
 	return true;
 }
 
-bool DynamicNavigationMesh::Build() {
-	//URHO3D_PROFILE(BuildNavigationMesh);
-
-	// Release existing navigation data and zero the bounding box
-	ReleaseNavigationMesh();
-
-	//if (!node_)
-		//return false;
-
-	//if (!node_->GetWorldScale().Equals(Vector3::ONE))
-		//URHO3D_LOGWARNING("Navigation mesh root node has scaling. Agent parameters may not work as intended");
+bool DynamicNavigationMesh::build() {
+	releaseNavigationMesh();
 
 	std::vector<NavigationGeometryInfo> geometryList;
 	CollectGeometries(geometryList);
@@ -332,7 +321,7 @@ bool DynamicNavigationMesh::Build() {
 
 	// Build the combined bounding box
 	for (unsigned i = 0; i < geometryList.size(); ++i)
-		boundingBox_.merge(geometryList[i].boundingBox_);
+		boundingBox_.merge(geometryList[i].boundingBox);
 
 	// Expand bounding box by padding
 	boundingBox_.min -= padding_;
@@ -348,8 +337,8 @@ bool DynamicNavigationMesh::Build() {
 		numTilesZ_ = (gridH + tileSize_ - 1) / tileSize_;
 
 		// Calculate max. number of tiles and polygons, 22 bits available to identify both tile & polygon within tile
-		unsigned maxTiles = NextPowerOfTwo((unsigned)(numTilesX_ * numTilesZ_));
-		unsigned tileBits = LogBaseTwo(maxTiles);
+		unsigned maxTiles = Math::NextPowerOfTwo((unsigned)(numTilesX_ * numTilesZ_));
+		unsigned tileBits = Math::LogBaseTwo(maxTiles);
 		unsigned maxPolys = (unsigned)(1 << (22 - tileBits));
 
 		dtNavMeshParams params;
@@ -367,7 +356,7 @@ bool DynamicNavigationMesh::Build() {
 
 		if (dtStatusFailed(navMesh_->init(&params))){
 			std::cout << "Could not initialize navigation mesh" << std::endl;
-			ReleaseNavigationMesh();
+			releaseNavigationMesh();
 			return false;
 		}
 		
@@ -389,13 +378,13 @@ bool DynamicNavigationMesh::Build() {
 		tileCache_ = dtAllocTileCache();
 		if (!tileCache_){
 			std::cout << "Could not allocate tile cache" << std::endl;
-			ReleaseNavigationMesh();
+			releaseNavigationMesh();
 			return false;
 		}
 
 		if (dtStatusFailed(tileCache_->init(&tileCacheParams, allocator_, compressor_, meshProcessor_))){
 			std::cout << "Could not initialize tile cache" << std::endl;
-			ReleaseNavigationMesh();
+			releaseNavigationMesh();
 			return false;
 		}
 
@@ -433,7 +422,7 @@ int DynamicNavigationMesh::BuildTile(std::vector<NavigationGeometryInfo>& geomet
 
 	tileCache_->removeTile(navMesh_->getTileRefAt(x, z, 0), 0, 0);
 
-	BoundingBox tileBoundingBox = GetTileBoudningBox(std::array<int, 2>({ x, z }));
+	BoundingBox tileBoundingBox = getTileBoudningBox(std::array<int, 2>({ x, z }));
 
 	DynamicNavBuildData build(allocator_);
 
@@ -579,8 +568,8 @@ int DynamicNavigationMesh::BuildTile(std::vector<NavigationGeometryInfo>& geomet
 	return retCt;
 }
 
-void DynamicNavigationMesh::ReleaseNavigationMesh() {
-	NavigationMesh::ReleaseNavigationMesh();
+void DynamicNavigationMesh::releaseNavigationMesh() {
+	NavigationMesh::releaseNavigationMesh();
 	ReleaseTileCache();
 }
 
@@ -604,18 +593,18 @@ void DynamicNavigationMesh::OnRenderDebug() {
 	// Draw OffMeshConnection components
 	if (drawOffMeshConnections_){
 		for (unsigned i = 0; i < m_offMeshConnections.size(); ++i) {
-			OffMeshConnection* offMeshConnections = m_offMeshConnections[i];
-			if (offMeshConnections && offMeshConnections->m_isEnabled)
-				offMeshConnections->OnRenderDebug();
+			const OffMeshConnection& offMeshConnections = m_offMeshConnections[i];
+			if (offMeshConnections.m_isEnabled)
+				offMeshConnections.OnRenderDebug();
 		}
 	}
 
 	// Draw NavArea components
 	if (drawNavAreas_){
 		for (unsigned i = 0; i < m_navAreas.size(); ++i){
-			NavArea* area = m_navAreas[i];
-			if (area && area->m_isEnabled)
-				area->OnRenderDebug();
+			const NavArea& area = m_navAreas[i];
+			if (area.m_isEnabled)
+				area.OnRenderDebug();
 		}
 	}
 }
@@ -678,7 +667,7 @@ void DynamicNavigationMesh::wait() {
 	}		
 }
 
-void DynamicNavigationMesh::RemoveTile(const std::array<int, 2>& tile, unsigned int layersToRemove) {
+void DynamicNavigationMesh::removeTile(const std::array<int, 2>& tile, unsigned int layersToRemove) {
 	if (!navMesh_)
 		return;
 
@@ -690,16 +679,16 @@ void DynamicNavigationMesh::RemoveTile(const std::array<int, 2>& tile, unsigned 
 			dtFree(data);
 	}
 
-	NavigationMesh::RemoveTile(tile, layersToRemove);
+	NavigationMesh::removeTile(tile, layersToRemove);
 	return;
 }
 
-bool DynamicNavigationMesh::AddTile(const Buffer& tileData){
+bool DynamicNavigationMesh::addTile(const Buffer& tileData){
 	return ReadTiles(tileData);
 }
 
-bool DynamicNavigationMesh::AddTile(int x, int z) {
-	return AddTile(m_tileData.at(z * numTilesX_ + x));
+bool DynamicNavigationMesh::addTile(int x, int z) {
+	return addTile(m_tileData.at(z * numTilesX_ + x));
 }
 
 bool DynamicNavigationMesh::ReadTiles(const Buffer& source){
@@ -757,12 +746,12 @@ bool DynamicNavigationMesh::ReadTiles(const Buffer& source){
 }
 
 
-Buffer& DynamicNavigationMesh::GetTileData(Buffer& buffer, const std::array<int, 2>& tile) const {
+Buffer& DynamicNavigationMesh::getTileData(Buffer& buffer, const std::array<int, 2>& tile) const {
 	WriteTiles(buffer, tile[0], tile[1]);
 	return buffer;
 }
 
-Buffer& DynamicNavigationMesh::GetTileData(int x, int z) {
+Buffer& DynamicNavigationMesh::getTileData(int x, int z) {
 	WriteTiles(m_tileData[z * numTilesX_ + x], x, z);
 	return m_tileData[z * numTilesX_ + x];
 }
@@ -794,7 +783,7 @@ void DynamicNavigationMesh::addObstacles() {
 }
 
 bool DynamicNavigationMesh::IsObstacleInTile(Obstacle* obstacle, const std::array<int, 2>& tile) const {
-	const BoundingBox tileBoundingBox = GetTileBoudningBox(tile);
+	const BoundingBox tileBoundingBox = getTileBoudningBox(tile);
 	const Vector3f obstaclePosition = obstacle->m_node->getWorldPosition();
 	return tileBoundingBox.distance(obstaclePosition) < obstacle->m_radius;
 }

@@ -13,24 +13,46 @@ NavArea::NavArea() :
 
 }
 
+NavArea::NavArea(NavArea const& rhs) : m_boundingBox(rhs.m_boundingBox), m_areaID(rhs.m_areaID), m_isEnabled(rhs.m_isEnabled) {
+
+}
+
+NavArea::NavArea(NavArea&& rhs) : m_boundingBox(rhs.m_boundingBox), m_areaID(rhs.m_areaID), m_isEnabled(rhs.m_isEnabled) {
+
+}
+
+NavArea& NavArea::operator=(const NavArea& rhs) {
+	m_boundingBox = rhs.m_boundingBox;
+	m_areaID = rhs.m_areaID;
+	m_isEnabled = rhs.m_isEnabled;
+	return *this;
+}
+
+NavArea& NavArea::operator=(NavArea&& rhs) {
+	m_boundingBox = rhs.m_boundingBox;
+	m_areaID = rhs.m_areaID;
+	m_isEnabled = rhs.m_isEnabled;
+	return *this;
+}
+
 NavArea::~NavArea(){
 }
 
-void NavArea::OnRenderDebug() {
+void NavArea::OnRenderDebug() const {
 
 	if (m_isEnabled) {
 		DebugRenderer::Get().AddBoundingBox(m_boundingBox, Vector4f(0.0f, 1.0f, 0.0f, 1.0f));
 	}
 }
 
-void NavArea::setAreaID(unsigned newID){
+void NavArea::setAreaID(unsigned int newID) const {
 	if (newID > MAX_NAV_AREA_ID)
 		std::cout << "NavArea Area ID %u exceeds maximum value of %u" << std::endl;
 	m_areaID = (unsigned char)newID;
 }
 
 
-void NavArea::setBoundingBox(const BoundingBox& bnds) {
+void NavArea::setBoundingBox(const BoundingBox& bnds) const {
 	m_boundingBox = bnds;
 }
 

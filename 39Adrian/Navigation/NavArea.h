@@ -11,19 +11,23 @@ class NavArea{
 public:
 
 	NavArea();
+	NavArea(NavArea const& rhs);
+	NavArea(NavArea&& rhs);
+	NavArea& operator=(const NavArea& rhs);
+	NavArea& operator=(NavArea&& rhs);
 	virtual ~NavArea();
 
-	void OnRenderDebug();
+	void OnRenderDebug() const;
 
 	unsigned getAreaID() const;
-	void setAreaID(unsigned newID);
-	void setBoundingBox(const BoundingBox& bnds);
+	void setAreaID(unsigned int newID) const;
+	void setBoundingBox(const BoundingBox& bnds) const;
 	const BoundingBox& getBoundingBox() const;
 	const bool isEnabled() const;
 
 private:
 
-	BoundingBox m_boundingBox;
-	unsigned char m_areaID;
+	mutable BoundingBox m_boundingBox;
+	mutable unsigned char m_areaID;
 	bool m_isEnabled;
 };

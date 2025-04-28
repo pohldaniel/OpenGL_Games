@@ -109,9 +109,9 @@ int CrowdManager::addAgent(CrowdAgent* agent, const Vector3f& pos, bool add){
 	dtCrowdAgentParams params;
 	params.userData = agent;
 	if (agent->m_radius == 0.f)
-		agent->m_radius = m_navigationMesh->GetAgentRadius();
+		agent->m_radius = m_navigationMesh->getAgentRadius();
 	if (agent->m_height == 0.f)
-		agent->m_height = m_navigationMesh->GetAgentHeight();
+		agent->m_height = m_navigationMesh->getAgentHeight();
 	// dtCrowd::addAgent() requires the query filter type to find the nearest position on navmesh as the initial agent's position
 	params.queryFilterType = (unsigned char)agent->getQueryFilterType();
 
@@ -126,42 +126,18 @@ int CrowdManager::addAgent(CrowdAgent* agent, const Vector3f& pos, bool add){
 }
 
 bool CrowdManager::createCrowd(){
-	if (!m_navigationMesh || !m_navigationMesh->InitializeQuery())
+	if (!m_navigationMesh || !m_navigationMesh->InitializeQuery() || m_crowd != nullptr)
 		return false;
 
-	// Preserve the existing crowd configuration before recreating it
-	//VariantVector queryFilterTypeConfiguration, obstacleAvoidanceTypeConfiguration;
-	bool recreate = m_crowd != nullptr;
-	if (recreate){
-		//queryFilterTypeConfiguration = GetQueryFilterTypesAttr();
-		//obstacleAvoidanceTypeConfiguration = GetObstacleAvoidanceTypesAttr();
-		//dtFreeCrowd(m_crowd);
-	}
 	m_crowd = dtAllocCrowd();
 
 	// Initialize the crowd
 	if (m_maxAgentRadius == 0.f)
-		m_maxAgentRadius = m_navigationMesh->GetAgentRadius();
+		m_maxAgentRadius = m_navigationMesh->getAgentRadius();
 	if (!m_crowd->init(m_maxAgents, m_maxAgentRadius, m_navigationMesh->navMesh_, CrowdAgentUpdateCallback)){
 		std::cout << "Could not initialize DetourCrowd" << std::endl;
 		return false;
 	}
-
-	if (recreate){
-		// Reconfigure the newly initialized crowd
-		//SetQueryFilterTypesAttr(queryFilterTypeConfiguration);
-		//SetObstacleAvoidanceTypesAttr(obstacleAvoidanceTypeConfiguration);
-		
-		// Re-add the existing crowd agents
-		/*size_t size = m_agents.size();
-		for (unsigned i = 0; i < size; ++i){
-			if (m_agents[i]->addAgentToCrowd(true, m_agents[i]->getPosition()) == -1){
-				std::cout << "CrowdManager: " << m_agents.size() - i << " crowd agents orphaned" << std::endl;
-				break;
-			}
-		}*/
-	}
-
 	return true;
 }
 
@@ -170,17 +146,9 @@ bool CrowdManager::reCreateCrowd() {
 	for (unsigned i = 0; i < size; ++i) {
 		Vector3f pos = m_agents[i]->getPosition();
 
-		removeAgent(m_agents[i]);
-
-		
+		removeAgent(m_agents[i]);	
 		addAgent(m_agents[i], pos, false);
 		m_agents[i]->resetParameter();
-		/*m_agents[i]->setHeight(2.0f, true);
-		m_agents[i]->setMaxSpeed(6.0f, true);
-		m_agents[i]->setMaxAccel(10.0f, true);
-		m_agents[i]->setRadius(0.5f, true);
-		m_agents[i]->setNavigationPushiness(NAVIGATIONPUSHINESS_MEDIUM, true);
-		m_agents[i]->setSeparationWeight(3.0f, true);*/
 	}
 	return true;
 }
@@ -216,7 +184,7 @@ Vector3f CrowdManager::findNearestPoint(const Vector3f& point, int queryFilterTy
 	if (nearestRef)
 		*nearestRef = 0;
 	return m_crowd && m_navigationMesh ?
-		m_navigationMesh->FindNearestPoint(point, Vector3f(m_crowd->getQueryExtents()), m_crowd->getFilter(queryFilterType), nearestRef) : point;
+		m_navigationMesh->findNearestPoint(point, Vector3f(m_crowd->getQueryExtents()), m_crowd->getFilter(queryFilterType), nearestRef) : point;
 }
 
 void CrowdManager::update(float delta){
@@ -228,7 +196,7 @@ Vector3f CrowdManager::getRandomPointInCircle(const Vector3f& center, float radi
 		*randomRef = 0;
 
 	return m_crowd && m_navigationMesh ?
-		m_navigationMesh->GetRandomPointInCircle(center, radius, Vector3f(m_crowd->getQueryHalfExtents()), m_crowd->getFilter(queryFilterType), randomRef) : center;
+		m_navigationMesh->getRandomPointInCircle(center, radius, Vector3f(m_crowd->getQueryHalfExtents()), m_crowd->getFilter(queryFilterType), randomRef) : center;
 }
 
 void CrowdManager::setSeparationWeight(float separationWeight) {
@@ -272,42 +240,6 @@ dtCrowd* CrowdManager::getCrowd() const {
 void CrowdManager::setOnCrowdFormation(std::function<Vector3f(const Vector3f& pos, CrowdAgent* agent)> fun) {
 	OnCrowdFormation = fun;
 }
-
-/*const dtQueryFilter* CrowdManager::GetDetourQueryFilter(unsigned queryFilterType) const {
-	return crowd_ ? crowd_->getFilter(queryFilterType) : nullptr;
-}
-
-const CrowdObstacleAvoidanceParams& CrowdManager::GetObstacleAvoidanceParams(unsigned obstacleAvoidanceType) const {
-	static const CrowdObstacleAvoidanceParams EMPTY_PARAMS = CrowdObstacleAvoidanceParams();
-	const dtObstacleAvoidanceParams* params = crowd_ ? crowd_->getObstacleAvoidanceParams(obstacleAvoidanceType) : 0;
-	return params ? *reinterpret_cast<const CrowdObstacleAvoidanceParams*>(params) : EMPTY_PARAMS;
-}
-
-void CrowdManager::SetObstacleAvoidanceParams(unsigned obstacleAvoidanceType, const CrowdObstacleAvoidanceParams& params) {
-	if (crowd_ && obstacleAvoidanceType < DT_CROWD_MAX_OBSTAVOIDANCE_PARAMS) {
-		crowd_->setObstacleAvoidanceParams(obstacleAvoidanceType, reinterpret_cast<const dtObstacleAvoidanceParams*>(&params));
-		if (numObstacleAvoidanceTypes_ < obstacleAvoidanceType + 1)
-			numObstacleAvoidanceTypes_ = obstacleAvoidanceType + 1;
-	}
-}
-
-void CrowdManager::SetIncludeFlags(unsigned queryFilterType, unsigned short flags) {
-	dtQueryFilter* filter = const_cast<dtQueryFilter*>(GetDetourQueryFilter(queryFilterType));
-	if (filter) {
-		filter->setIncludeFlags(flags);
-		if (numQueryFilterTypes_ < queryFilterType + 1)
-			numQueryFilterTypes_ = queryFilterType + 1;
-	}
-}
-
-void CrowdManager::SetExcludeFlags(unsigned queryFilterType, unsigned short flags) {
-	dtQueryFilter* filter = const_cast<dtQueryFilter*>(GetDetourQueryFilter(queryFilterType));
-	if (filter) {
-		filter->setExcludeFlags(flags);
-		if (numQueryFilterTypes_ < queryFilterType + 1)
-			numQueryFilterTypes_ = queryFilterType + 1;
-	}
-}*/
 
 const CrowdObstacleAvoidanceParams& CrowdManager::getObstacleAvoidanceParams(unsigned int obstacleAvoidanceType) const {
 	static const CrowdObstacleAvoidanceParams EMPTY_PARAMS = CrowdObstacleAvoidanceParams();

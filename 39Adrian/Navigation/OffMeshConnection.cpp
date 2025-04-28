@@ -5,21 +5,83 @@ static const unsigned DEFAULT_MASK_FLAG = 1;
 static const unsigned DEFAULT_AREA = 1;
 
 OffMeshConnection::OffMeshConnection(SceneNodeLC* node) :
-	m_endPointID(0u),
 	m_radius(DEFAULT_RADIUS),
 	m_bidirectional(true),
 	m_endPointDirty(false),
 	m_mask(DEFAULT_MASK_FLAG),
 	m_areaId(DEFAULT_AREA),
 	m_node(node),
+	m_endPoint(nullptr),
 	m_isEnabled(true){
+}
+
+OffMeshConnection::OffMeshConnection(SceneNodeLC* node, SceneNodeLC* endPoint):
+	m_radius(DEFAULT_RADIUS),
+	m_bidirectional(true),
+	m_endPointDirty(false),
+	m_mask(DEFAULT_MASK_FLAG),
+	m_areaId(DEFAULT_AREA),
+	m_node(node),
+	m_endPoint(endPoint),
+	m_isEnabled(true) {
+
+}
+
+OffMeshConnection::OffMeshConnection(OffMeshConnection const& rhs) :
+	m_node(rhs.m_node),
+	m_endPoint(rhs.m_endPoint),
+	m_radius(rhs.m_radius),
+	m_endPointDirty(rhs.m_endPointDirty),
+	m_mask(rhs.m_mask),
+	m_areaId(rhs.m_areaId),
+	m_bidirectional(rhs.m_bidirectional),
+	m_isEnabled(rhs.m_isEnabled)
+
+{
+
+}
+
+OffMeshConnection::OffMeshConnection(OffMeshConnection&& rhs) :
+	m_node(rhs.m_node),
+	m_endPoint(rhs.m_endPoint),
+	m_radius(rhs.m_radius),
+	m_endPointDirty(rhs.m_endPointDirty),
+	m_mask(rhs.m_mask),
+	m_areaId(rhs.m_areaId),
+	m_bidirectional(rhs.m_bidirectional),
+	m_isEnabled(rhs.m_isEnabled) {
+
+}
+
+OffMeshConnection& OffMeshConnection::operator=(const OffMeshConnection& rhs) {
+	m_node = rhs.m_node;
+	m_endPoint = rhs.m_endPoint;
+	m_radius = rhs.m_radius;
+	m_endPointDirty = rhs.m_endPointDirty;
+	m_mask = rhs.m_mask;
+	m_areaId = rhs.m_areaId;
+	m_bidirectional = rhs.m_bidirectional;
+	m_isEnabled = rhs.m_isEnabled;
+	return *this;
+}
+
+OffMeshConnection& OffMeshConnection::operator=(OffMeshConnection&& rhs) {
+	m_node = rhs.m_node;
+	m_endPoint = rhs.m_endPoint;
+	m_radius = rhs.m_radius;
+	m_endPointDirty = rhs.m_endPointDirty;
+	m_mask = rhs.m_mask;
+	m_areaId = rhs.m_areaId;
+	m_bidirectional = rhs.m_bidirectional;
+	m_isEnabled = rhs.m_isEnabled;
+	return *this;
 }
 
 OffMeshConnection::~OffMeshConnection(){
 
 }
 
-void OffMeshConnection::OnRenderDebug(){
+void OffMeshConnection::OnRenderDebug() const {
 	if (m_endPoint == nullptr)
 		return;
 
@@ -39,11 +101,11 @@ void OffMeshConnection::setBidirectional(bool enabled){
 	m_bidirectional = enabled;
 }
 
-void OffMeshConnection::setMask(unsigned newMask){
+void OffMeshConnection::setMask(unsigned int newMask){
 	m_mask = newMask;
 }
 
-void OffMeshConnection::setAreaID(unsigned newAreaID){
+void OffMeshConnection::setAreaID(unsigned int newAreaID){
 	m_areaId = newAreaID;
 }
 

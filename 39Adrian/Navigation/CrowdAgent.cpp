@@ -448,8 +448,8 @@ bool CrowdAgent::OnTileAdded(const std::array<int, 2>& tile){
 	NavigationMesh* mesh = m_crowdManager->getNavigationMesh();
 
 	const Vector3f pos = getPosition();
-	const std::array<int, 2> agentTile = mesh->GetTileIndex(pos);
-	const BoundingBox boundingBox = mesh->GetTileBoudningBox(agentTile);
+	const std::array<int, 2> agentTile = mesh->getTileIndex(pos);
+	const BoundingBox boundingBox = mesh->getTileBoudningBox(agentTile);
 
 	if (tile == agentTile && isInCrowd()){
 		m_crowdManager->removeAgent(this);
