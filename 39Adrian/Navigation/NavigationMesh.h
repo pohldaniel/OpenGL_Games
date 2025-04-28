@@ -154,13 +154,10 @@ public:
 	std::unordered_map<int, Buffer>& tileData();
 	const std::vector<NavArea>& getNavAreas() const;
 	std::vector<NavArea>& navAreas();
-//private:
-	
-	
 
+	
 protected:
-
-	virtual bool BuildTile(std::vector<NavigationGeometryInfo>& geometryList, int x, int z);
+	
 	virtual void releaseNavigationMesh();
 
 	void CollectGeometries(std::vector<NavigationGeometryInfo>& geometryList);
@@ -168,70 +165,42 @@ protected:
 	void GetTileGeometry(NavBuildData* build, std::vector<NavigationGeometryInfo>& geometryList, BoundingBox& box);
 	void AddTriMeshGeometry(NavBuildData* build, const Shape& shape, const Matrix4f& transform, unsigned int& vertexCount);	
 	unsigned int BuildTiles(std::vector<NavigationGeometryInfo>& geometryList, const std::array<int, 2>& from, const std::array<int, 2>& to);
+	Vector3f randPoint(const Vector3f& center, float radius);
+	bool buildTile(std::vector<NavigationGeometryInfo>& geometryList, int x, int z);
 	bool InitializeQuery();
 	
-
 	std::vector<Navigable> m_navigables;
 	std::vector<OffMeshConnection> m_offMeshConnections;
 	std::vector<NavArea> m_navAreas;
 
-	/// Detour navigation mesh.
 	dtNavMesh* navMesh_;
-	/// Detour navigation mesh query.
 	dtNavMeshQuery* navMeshQuery_;
-	/// Detour navigation mesh query filter.
-	//UniquePtr<dtQueryFilter> queryFilter_;
 	dtQueryFilter* queryFilter_;
-	/// Temporary data for finding a path.
-	//UniquePtr<FindPathData> pathData_;
 	FindPathData*  pathData_;
-	/// Tile size.
 	int tileSize_;
-	/// Cell size.
 	float cellSize_;
-	/// Cell height.
 	float cellHeight_;
-	/// Navigation agent height.
 	float agentHeight_;
-	/// Navigation agent radius.
 	float agentRadius_;
-	/// Navigation agent max vertical climb.
 	float agentMaxClimb_;
-	/// Navigation agent max slope.
 	float agentMaxSlope_;
-	/// Region minimum size.
 	float regionMinSize_;
-	/// Region merge size.
 	float regionMergeSize_;
-	/// Edge max length.
 	float edgeMaxLength_;
-	/// Edge max error.
 	float edgeMaxError_;
-	/// Detail sampling distance.
 	float detailSampleDistance_;
-	/// Detail sampling maximum error.
 	float detailSampleMaxError_;
-	/// Bounding box padding.
 	Vector3f padding_;
-	/// Number of tiles in X direction.
 	int numTilesX_;
-	/// Number of tiles in Z direction.
 	int numTilesZ_;
-	/// Whole navigation mesh bounding box.
 	BoundingBox boundingBox_;
-	/// Type of the heightfield partitioning.
 	NavmeshPartitionType partitionType_;
-	/// Keep internal build resources for debug draw modes.
-	bool keepInterResults_;
-	/// Debug draw OffMeshConnection components.
 	bool drawOffMeshConnections_;
-	/// Debug draw NavArea components.
 	bool drawNavAreas_;
 	std::unordered_map<int, Buffer> m_tileData;
 
 	std::vector<BoundingBox> m_boxes;
-	Vector3f randPoint(const Vector3f& center, float radius);
-
+	
 	static std::random_device RandomDevice;
 	static std::mt19937 MersenTwist;
 	static std::uniform_real_distribution<float> Dist;

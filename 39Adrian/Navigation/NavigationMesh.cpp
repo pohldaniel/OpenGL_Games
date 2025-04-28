@@ -36,16 +36,11 @@ std::uniform_real_distribution<float> NavigationMesh::Dist(0.3f, 1.0f);
 float NavigationMesh::Scale = 5.0f;
 
 /// Temporary data for finding a path.
-struct FindPathData
-{
-	// Polygons.
-	dtPolyRef polys_[MAX_POLYS];
-	// Polygons on the path.
-	dtPolyRef pathPolys_[MAX_POLYS];
-	// Points on the path.
-	Vector3f pathPoints_[MAX_POLYS];
-	// Flags on the path.
-	unsigned char pathFlags_[MAX_POLYS];
+struct FindPathData{
+	dtPolyRef polys[MAX_POLYS];
+	dtPolyRef pathPolys[MAX_POLYS];
+	Vector3f pathPoints[MAX_POLYS];
+	unsigned char pathFlags[MAX_POLYS];
 };
 
 NavigationMesh::NavigationMesh() :
@@ -70,7 +65,6 @@ NavigationMesh::NavigationMesh() :
 	numTilesX_(0),
 	numTilesZ_(0),
 	partitionType_(NAVMESH_PARTITION_WATERSHED),
-	keepInterResults_(false),
 	drawOffMeshConnections_(false),
 	drawNavAreas_(false) {
 
@@ -360,7 +354,7 @@ bool NavigationMesh::hasTileData(int x, int z) const {
 	return m_tileData.find(z * numTilesX_ + x) != m_tileData.end();
 }
 
-bool NavigationMesh::BuildTile(std::vector<NavigationGeometryInfo>& geometryList, int x, int z) {
+bool NavigationMesh::buildTile(std::vector<NavigationGeometryInfo>& geometryList, int x, int z) {
 	// Remove previous tile (if any)
 	navMesh_->removeTile(navMesh_->getTileRefAt(x, z, 0), 0, 0);
 
@@ -591,7 +585,7 @@ unsigned int NavigationMesh::BuildTiles(std::vector<NavigationGeometryInfo>& geo
 	unsigned numTiles = 0;
 	for (int z = from[1]; z < to[1]; ++z){
 		for (int x = from[0]; x < to[0]; ++x){
-			if (BuildTile(geometryList, x, z))
+			if (buildTile(geometryList, x, z))
 				++numTiles;
 		}
 	}
@@ -773,24 +767,24 @@ void NavigationMesh::findPath(std::vector<NavigationPathPoint>& dest, const Vect
 	int numPolys = 0;
 	int numPathPoints = 0;
 
-	navMeshQuery_->findPath(startRef, endRef, &localStart[0], &localEnd[0], queryFilter, pathData_->polys_, &numPolys, MAX_POLYS);
+	navMeshQuery_->findPath(startRef, endRef, &localStart[0], &localEnd[0], queryFilter, pathData_->polys, &numPolys, MAX_POLYS);
 	if (!numPolys)
 		return;
 
 	Vector3f actualLocalEnd = localEnd;
 
 	// If full path was not found, clamp end point to the end polygon
-	if (pathData_->polys_[numPolys - 1] != endRef)
-		navMeshQuery_->closestPointOnPoly(pathData_->polys_[numPolys - 1], &localEnd[0], &actualLocalEnd[0], 0);
+	if (pathData_->polys[numPolys - 1] != endRef)
+		navMeshQuery_->closestPointOnPoly(pathData_->polys[numPolys - 1], &localEnd[0], &actualLocalEnd[0], 0);
 
-	navMeshQuery_->findStraightPath(&localStart[0], &actualLocalEnd[0], pathData_->polys_, numPolys,
-		&pathData_->pathPoints_[0][0], pathData_->pathFlags_, pathData_->pathPolys_, &numPathPoints, MAX_POLYS);
+	navMeshQuery_->findStraightPath(&localStart[0], &actualLocalEnd[0], pathData_->polys, numPolys,
+		&pathData_->pathPoints[0][0], pathData_->pathFlags, pathData_->pathPolys, &numPathPoints, MAX_POLYS);
 
 	// Transform path result back to world space
 	for (int i = 0; i < numPathPoints; ++i) {
 		NavigationPathPoint pt;
-		pt.m_position = pathData_->pathPoints_[i];
-		pt.m_flag = (NavigationPathPointFlag)pathData_->pathFlags_[i];
+		pt.m_position = pathData_->pathPoints[i];
+		pt.m_flag = (NavigationPathPointFlag)pathData_->pathFlags[i];
 
 		// Walk through all NavAreas and find nearest
 		unsigned nearestNavAreaID = 0;       // 0 is the default nav area ID
@@ -838,8 +832,9 @@ Vector3f NavigationMesh::raycast(const Vector3f& start, const Vector3f& end, con
 	float t;
 	int numPolys;
 
-	navMeshQuery_->raycast(startRef, &localStart[0], &localEnd[0], queryFilter, &t, &hitNormal->getVec()[0], pathData_->polys_, &numPolys,
+	navMeshQuery_->raycast(startRef, &localStart[0], &localEnd[0], queryFilter, &t, &hitNormal->getVec()[0], pathData_->polys, &numPolys,
 		MAX_POLYS);
+
 	if (t == FLT_MAX)
 		t = 1.0f;
 
