@@ -728,7 +728,7 @@ void Separable::renderUi() {
 
 		switch (model) {
 		case Model::STATUE:
-			lights[1].color[0] = m_lightColor[0]; lights[0].color[1] = m_lightColor[1]; lights[0].color[2] = m_lightColor[2];
+			lights[0].color[0] = m_lightColor[0]; lights[0].color[1] = m_lightColor[1]; lights[0].color[2] = m_lightColor[2];
 			break;
 		case Model::DRAGON:
 			//lights[0].color[0] = m_lightColor[0]; lights[0].color[1] = m_lightColor[1]; lights[0].color[2] = m_lightColor[2];
@@ -772,7 +772,8 @@ void Separable::presetDragon() {
 	m_specularFresnel = 0.409f;
 	m_weight = 4.0f;
 	m_strength = 20.0f;
-	m_translucencyStrength = 5.0;
+	m_translucencyStrength = 5.0f;
+	m_folowSurface = true;
 
 	m_center = Vector3f(0.0f, 5.0f, 0.0f);
 
@@ -780,19 +781,17 @@ void Separable::presetDragon() {
 	lights[0].viewDirection = Vector3f::Normalize(m_transform.getTransformationMatrix() * m_center - lights[0].pos);
 	lights[0].m_shadowView.lookAt(lights[0].pos, m_transform.getTransformationMatrix() * m_center, Vector3f(0.0f, 1.0f, 0.0f));
 
-
 	lights[1].color = Vector3f(1.0f, 1.0f, 1.0f);
 	lights[1].viewDirection = Vector3f::Normalize(m_transform.getTransformationMatrix() * m_center - lights[1].pos);
 	lights[1].m_shadowView.lookAt(lights[1].pos, m_transform.getTransformationMatrix() * m_center, Vector3f(0.0f, 1.0f, 0.0f));
 
-
 	lights[2].color = Vector3f(1.0f, 1.0f, 1.0f);
 	lights[2].viewDirection = Vector3f::Normalize(m_transform.getTransformationMatrix() * m_center - lights[2].pos);
-	lights[2].m_shadowView.lookAt(lights[1].pos, m_transform.getTransformationMatrix() * m_center, Vector3f(0.0f, 1.0f, 0.0f));
+	lights[2].m_shadowView.lookAt(lights[2].pos, m_transform.getTransformationMatrix() * m_center, Vector3f(0.0f, 1.0f, 0.0f));
 
 	lights[3].color = Vector3f(1.0f, 1.0f, 1.0f);
 	lights[3].viewDirection = Vector3f::Normalize(m_transform.getTransformationMatrix() * m_center - lights[3].pos);
-	lights[3].m_shadowView.lookAt(lights[1].pos, m_transform.getTransformationMatrix() * m_center, Vector3f(0.0f, 1.0f, 0.0f));
+	lights[3].m_shadowView.lookAt(lights[3].pos, m_transform.getTransformationMatrix() * m_center, Vector3f(0.0f, 1.0f, 0.0f));
 
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 100.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
@@ -807,36 +806,35 @@ void Separable::presetDragon() {
 void Separable::presetStatue() {
 	m_tangentSpaceNormal = true;
 	m_specularAOMap = false;
-	m_sssWidth = 50.0f;
+	m_sssWidth = 700.0f;
 	m_translucency = 0.65f;
 	m_specularIntensity = 1.0f;
 	m_specularRoughness = 0.08f;
 	m_specularFresnel = 0.81f;
-	m_weight = 2.0f;
-	m_strength = 10.0f;
-	m_translucencyStrength = 5.0;
+	m_weight = 1.0f;
+	m_strength = 40.0f;
+	m_translucencyStrength = 1.5f;
+	m_folowSurface = false;
 
 	m_center = m_statue.getCenter();
 
-	lights[0].color = Vector3f(0.3f, 0.3f, 0.3f);
+	lights[0].color = Vector3f(1.0f, 1.0f, 1.0f);
 	lights[0].viewDirection = Vector3f::Normalize(m_transform.getTransformationMatrix() * m_center - lights[0].pos);
 	lights[0].m_shadowView.lookAt(lights[0].pos, m_transform.getTransformationMatrix() * m_center, Vector3f(0.0f, 1.0f, 0.0f));
 
-
-	lights[1].color = Vector3f(0.0f, 1.0f, 0.5f);
+	lights[1].color = Vector3f(0.6f, 0.6f, 0.6f);
 	lights[1].viewDirection = Vector3f::Normalize(m_transform.getTransformationMatrix() * m_center - lights[1].pos);
 	lights[1].m_shadowView.lookAt(lights[1].pos, m_transform.getTransformationMatrix() * m_center, Vector3f(0.0f, 1.0f, 0.0f));
 
-
-	lights[2].color = Vector3f(0.3f, 0.3f, 0.3f);
+	lights[2].color = Vector3f(0.6f, 0.6f, 0.6f);
 	lights[2].viewDirection = Vector3f::Normalize(m_transform.getTransformationMatrix() * m_center - lights[2].pos);
-	lights[2].m_shadowView.lookAt(lights[1].pos, m_transform.getTransformationMatrix() * m_center, Vector3f(0.0f, 1.0f, 0.0f));
+	lights[2].m_shadowView.lookAt(lights[2].pos, m_transform.getTransformationMatrix() * m_center, Vector3f(0.0f, 1.0f, 0.0f));
 
-	lights[3].color = Vector3f(0.3f, 0.3f, 0.3f);
+	lights[3].color = Vector3f(0.6f, 0.6f, 0.6f);
 	lights[3].viewDirection = Vector3f::Normalize(m_transform.getTransformationMatrix() * m_center - lights[3].pos);
-	lights[3].m_shadowView.lookAt(lights[1].pos, m_transform.getTransformationMatrix() * m_center, Vector3f(0.0f, 1.0f, 0.0f));
+	lights[3].m_shadowView.lookAt(lights[3].pos, m_transform.getTransformationMatrix() * m_center, Vector3f(0.0f, 1.0f, 0.0f));
 
-	m_lightColor[0] = lights[1].color[0]; m_lightColor[1] = lights[1].color[1]; m_lightColor[2] = lights[1].color[2];
+	m_lightColor[0] = lights[0].color[0]; m_lightColor[1] = lights[0].color[1]; m_lightColor[2] = lights[0].color[2];
 
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 100.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);

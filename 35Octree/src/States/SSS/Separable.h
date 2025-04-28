@@ -85,7 +85,7 @@ private:
 	bool m_addSpecular = true;
 	bool m_showBlurRadius = false;
 	bool m_debug = false;
-	bool m_folowSurface = true;
+	bool m_folowSurface = false;
 	bool m_wasFollow = true;
 	bool m_shadow = true;
 
