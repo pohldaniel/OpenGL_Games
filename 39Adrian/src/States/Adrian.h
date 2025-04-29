@@ -14,6 +14,7 @@
 #include <Navigation/DynamicNavigationMesh.h>
 #include <Navigation/Navigable.h>
 #include <Navigation/NavArea.h>
+#include <Navigation/NavPolygon.h>
 #include <Navigation/Obstacle.h>
 #include <engine/Frustum.h>
 #include <Physics/Physics.h>
@@ -55,15 +56,17 @@ private:
 	bool m_drawUi = true;
 	bool m_useCulling = true;
 	bool m_debugTree = false;
-	bool m_debugPhysic = false;
+	bool m_debugPhysic = true;
 	bool m_debugNavmesh = true;
 	bool m_useStreaming = false;
+	bool m_drawPolygon = true;
 
 	float m_tileFactor = 80.0f;
 	float m_angle = -M_PI_4;
 	float m_height = 30.0f;
 	float m_zoom = 1.0f;
 	int m_streamingDistance;
+	float m_markerSize = 20.0f;
 
 	IsometricCamera m_camera;
 
@@ -83,8 +86,11 @@ private:
 	btCollisionObject* m_ground;
 	std::vector<Shape> m_buildings;
 
-	DynamicNavigationMesh* m_navigationMesh;
+	NavigationMesh* m_navigationMesh;
 
 	std::unordered_set< std::array<int, 2>, std::function<size_t(const std::array<int, 2>&)>, std::function<bool(const std::array<int, 2>&, const std::array<int, 2>&)>> m_addedTiles;
-	
+	std::vector<Vector3f> m_edgePoints;
+	std::vector<btCollisionObject*> m_collisionObjects;
+
+	int m_globalUserIndex;
 };

@@ -22,9 +22,16 @@ public:
 	unsigned getAreaID() const;
 	void setAreaID(unsigned int newID) const;
 	const bool isEnabled() const;
+	const BoundingBox& getBoundingBox() const;
+	void createBoundingBox();
+
+	void setNumVerts(int numVerts);
+	void setMinY(float minY);
+	void setMaxY(float maxY);
+	void setVerts(float* verts);
 
 private:
-
+	BoundingBox m_boundingBox;
 	mutable unsigned char m_areaID;
 	bool m_isEnabled;
 	float *m_verts;

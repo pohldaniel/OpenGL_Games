@@ -17,7 +17,8 @@ auto equal2 = [](const std::array<int, 2>& p1, const std::array<int, 2>& p2) { r
 Adrian::Adrian(StateMachine& machine) : State(machine, States::MAP),
 	m_camera(Application::Width, Application::Height),
 	m_addedTiles(0, hash2, equal2),
-	m_streamingDistance(6) {
+	m_streamingDistance(6),
+	m_globalUserIndex(-1) {
 
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
@@ -29,7 +30,7 @@ Adrian::Adrian(StateMachine& machine) : State(machine, States::MAP),
 
 	glClearColor(0.494f, 0.686f, 0.796f, 1.0f);
 	glClearDepth(1.0f);
-
+	Utils::NavIO navIO;
 	Material::AddTexture("data/models/dynamic/hero/hero.tga");
 	Material::AddTexture("res/textures/los.tga");
 	Material::AddTexture();
@@ -123,7 +124,7 @@ Adrian::Adrian(StateMachine& machine) : State(machine, States::MAP),
 	loadBuilding("res/building_24.bld", true);
 	loadBuilding("res/building_25.bld");
 
-	m_navigationMesh = new DynamicNavigationMesh();
+	m_navigationMesh = new NavigationMesh();
 	createScene();
 
 	
@@ -138,12 +139,14 @@ Adrian::Adrian(StateMachine& machine) : State(machine, States::MAP),
 	m_navigationMesh->setAgentMaxClimb(0.9f);
 	m_navigationMesh->setAgentHeight(2.0f);
 	m_navigationMesh->setAgentRadius(0.6f);
-	m_navigationMesh->build();
-	saveNavigationData();
-	//Utils::NavIO navIO;
-	//navIO.readNavigationMap("res/data.nav", m_navigationMesh->numTilesX(), m_navigationMesh->numTilesZ(), m_navigationMesh->boundingBox(), m_navigationMesh->tileData());
-	//m_navigationMesh->allocate();
-	//m_navigationMesh->addTiles();
+	
+	//m_navigationMesh->build();
+	//saveNavigationData();
+	//navIO.writeNavigationMap("res/data_edit.nav", m_navigationMesh->getNumTilesX(), m_navigationMesh->getNumTilesZ(), m_navigationMesh->getBoundingBox(), m_navigationMesh->getTileData());
+
+	navIO.readNavigationMap("res/data_edit.nav", m_navigationMesh->numTilesX(), m_navigationMesh->numTilesZ(), m_navigationMesh->boundingBox(), m_navigationMesh->tileData());
+	m_navigationMesh->allocate();
+	m_navigationMesh->addTiles();
 }
 
 Adrian::~Adrian() {
@@ -275,6 +278,10 @@ void Adrian::render() {
 	Globals::shapeManager.get("quad_xz").drawRaw();
 	shader->unuse();
 
+	shader = Globals::shaderManager.getAssetPointer("shape");
+	shader->use();
+	shader->loadMatrix("u_projection", m_camera.getOrthographicMatrix());
+	shader->loadMatrix("u_view", m_camera.getViewMatrix());
 
 	shader = Globals::shaderManager.getAssetPointer("shape_color");
 	shader->use();
@@ -282,16 +289,32 @@ void Adrian::render() {
 	shader->loadMatrix("u_view", m_camera.getViewMatrix());
 	shader->loadVector("u_color", m_heroEnity->getColor());
 
-	shader = Globals::shaderManager.getAssetPointer("shape");
-	shader->use();
-	shader->loadMatrix("u_projection", m_camera.getOrthographicMatrix());
-	shader->loadMatrix("u_view", m_camera.getViewMatrix());
 	for (const Batch& batch : m_octree->getOpaqueBatches().m_batches) {
 		OctreeNode* drawable = batch.octreeNode;
 		shader->loadMatrix("u_model", drawable->getWorldTransformation());
 		drawable->drawRaw();
 	}
+
+	shader->use();
+	Globals::textureManager.get("null").bind(0);
+	shader->loadMatrix("u_projection", m_camera.getOrthographicMatrix());
+	shader->loadMatrix("u_view", m_camera.getViewMatrix());
 	
+	if (m_drawPolygon) {
+		for (int i = 0; i < m_edgePoints.size(); i++) {
+			shader->loadMatrix("u_model", Matrix4f::Translate(m_edgePoints[i]) * Matrix4f::Scale(m_markerSize, m_markerSize, m_markerSize));
+			shader->loadVector("u_color", i == m_globalUserIndex ? Vector4f(1.0f, 0.0f, 0.0f, 1.0f) : Vector4f::ONE);
+			Globals::shapeManager.get("sphere").drawRaw();
+			if (m_edgePoints.size() > 1 && i < m_edgePoints.size() - 1) {
+				DebugRenderer::Get().AddLine(m_edgePoints[i] + Vector3f(0.0f, 1.0f, 0.0f), m_edgePoints[i + 1] + Vector3f(0.0f, 1.0f, 0.0f), Vector4f(0.0f, 1.0f, 0.0f, 1.0f));
+			}
+			if (i == m_edgePoints.size() - 1) {
+				DebugRenderer::Get().AddLine(m_edgePoints[i] + Vector3f(0.0f, 1.0f, 0.0f), m_edgePoints[0] + Vector3f(0.0f, 1.0f, 0.0f), Vector4f(0.0f, 1.0f, 0.0f, 1.0f));
+			}
+		}
+	}
+	shader->unuse();
+
 	if (m_debugTree) {
 		for (size_t i = 0; i < m_octree->getRootLevelOctants().size(); ++i) {
 			const Octree::ThreadOctantResult& result = m_octree->getOctantResults()[i];
@@ -307,8 +330,6 @@ void Adrian::render() {
 			}
 		}
 	}
-
-	shader->unuse();
 
 	if (m_debugPhysic) {
 		ShapeDrawer::Get().setProjectionView(m_camera.getOrthographicMatrix(), m_camera.getViewMatrix());
@@ -334,47 +355,85 @@ void Adrian::render() {
 }
 
 void Adrian::OnMouseMotion(Event::MouseMoveEvent& event) {
-	//m_mousePicker.updatePositionOrthographic(event.x, event.y, m_camera);
+	if (m_drawPolygon && m_mousePicker.updatePositionOrthographicAll(event.x, event.y, m_camera, m_ground)) {
+		const MousePickCallbackAll& callbackAll = m_mousePicker.getCallbackAll();
+		if (m_globalUserIndex >= 0) {
+			m_edgePoints[m_globalUserIndex] = Physics::VectorFrom(callbackAll.m_hitPointWorld[callbackAll.index]);
+
+			btTransform& transform = m_collisionObjects[m_globalUserIndex]->getWorldTransform();
+			transform.getOrigin() = callbackAll.m_hitPointWorld[callbackAll.index];
+			m_collisionObjects[m_globalUserIndex]->setWorldTransform(transform);
+		}
+	}	
 }
 
 void Adrian::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 	if (event.button == 2u) {
 		Mouse::instance().attach(Application::GetWindow(), false, false, false);
-
-		if (m_mousePicker.clickOrthographicAll(event.x, event.y, m_camera, m_ground)) {
-			const MousePickCallbackAll& callbackAll = m_mousePicker.getCallbackAll();
-			m_marker.push_back(m_root->addChild<ShapeNode, Shape>(m_sphere));
-			m_marker.back()->setPosition(Physics::VectorFrom(callbackAll.m_hitPointWorld[callbackAll.index]));
-			m_marker.back()->setTextureIndex(2);
-			m_marker.back()->OnOctreeSet(m_octree);
-			const Vector3f& pos = m_marker.back()->getPosition();
-			m_heroEnity->move(pos[0], pos[2]);
+		if (!m_drawPolygon) {
+			if (m_mousePicker.clickOrthographicAll(event.x, event.y, m_camera, m_ground)) {
+				const MousePickCallbackAll& callbackAll = m_mousePicker.getCallbackAll();
+				m_marker.push_back(m_root->addChild<ShapeNode, Shape>(m_sphere));
+				m_marker.back()->setPosition(Physics::VectorFrom(callbackAll.m_hitPointWorld[callbackAll.index]));
+				m_marker.back()->setTextureIndex(2);
+				m_marker.back()->OnOctreeSet(m_octree);
+				const Vector3f& pos = m_marker.back()->getPosition();
+				m_heroEnity->move(pos[0], pos[2]);
+			}
+		}else {
+			if (Keyboard::instance().keyDown(Keyboard::KEY_LCTRL)) {
+				m_edgePoints.pop_back();
+				Physics::DeleteCollisionObject(m_collisionObjects.back());
+				m_collisionObjects.pop_back();
+			}else {
+				m_edgePoints.clear();
+				for (btCollisionObject* obj : m_collisionObjects) {
+					Physics::DeleteCollisionObject(obj);
+				}
+				m_collisionObjects.clear();
+			}
 		}
 	}
 
 	if (event.button == 1u) {
-		Mouse::instance().attach(Application::GetWindow(), false, false, false);
-		m_mousePicker.updatePosition(event.x, event.y, m_camera);
-		if (m_mousePicker.clickOrthographicAll(event.x, event.y, m_camera, m_heroEnity->getRigidBody())) {
-			if (!m_heroEnity->isActive()) {
-				m_diskNode = m_heroEnity->addChild<ShapeNode, Shape>(m_disk);
-				m_diskNode->setPosition(0.0f, -MAP_MODEL_HEIGHT_Y + 0.01f, 0.0f);
-				m_diskNode->setTextureIndex(2);
-				m_diskNode->setName("disk");
-				m_diskNode->OnOctreeSet(m_octree);
+		if (!m_drawPolygon) {
+			Mouse::instance().attach(Application::GetWindow(), false, false, false);
+			m_mousePicker.updatePosition(event.x, event.y, m_camera);
+			if (m_mousePicker.clickOrthographicAll(event.x, event.y, m_camera, m_heroEnity->getRigidBody())) {
+				if (!m_heroEnity->isActive()) {
+					m_diskNode = m_heroEnity->addChild<ShapeNode, Shape>(m_disk);
+					m_diskNode->setPosition(0.0f, -MAP_MODEL_HEIGHT_Y + 0.01f, 0.0f);
+					m_diskNode->setTextureIndex(2);
+					m_diskNode->setName("disk");
+					m_diskNode->OnOctreeSet(m_octree);
+				}else {
+					ShapeNode* marker = m_heroEnity->findChild<ShapeNode>("disk");
+					marker->OnOctreeSet(nullptr);
+					marker->eraseSelf();
+				}
+				m_heroEnity->setIsActive(!m_heroEnity->isActive());
 			}else {
-				ShapeNode* marker = m_heroEnity->findChild<ShapeNode>("disk");
-				marker->OnOctreeSet(nullptr);
-				marker->eraseSelf();
+				if (m_heroEnity->isActive()) {
+					ShapeNode* marker = m_heroEnity->findChild<ShapeNode>("disk");
+					marker->OnOctreeSet(nullptr);
+					marker->eraseSelf();
+				}
+				m_heroEnity->setIsActive(false);
 			}
-			m_heroEnity->setIsActive(!m_heroEnity->isActive());
 		}else {
-			if (m_heroEnity->isActive()) {
-				ShapeNode* marker = m_heroEnity->findChild<ShapeNode>("disk");
-				marker->OnOctreeSet(nullptr);
-				marker->eraseSelf();
+			Mouse::instance().attach(Application::GetWindow(), false, false, false);
+			m_mousePicker.updatePosition(event.x, event.y, m_camera);
+			if (m_mousePicker.clickOrthographicAll(event.x, event.y, m_camera, nullptr)) {
+				const MousePickCallbackAll& callbackAll = m_mousePicker.getCallbackAll();								
+				if (callbackAll.m_userIndex >= 0) {
+					m_globalUserIndex = m_globalUserIndex >= 0 ? -1 : callbackAll.m_userIndex;
+				}else {
+					m_edgePoints.push_back(Physics::VectorFrom(callbackAll.m_hitPointWorld[callbackAll.index]));
+					btCollisionObject* collisionObject = Physics::AddKinematicObject(Physics::BtTransform(callbackAll.m_hitPointWorld[callbackAll.index]), new btSphereShape(m_markerSize * 0.5f), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER);
+					collisionObject->setUserIndex(m_edgePoints.size() - 1);
+					m_collisionObjects.push_back(collisionObject);
+				}
 			}
-			m_heroEnity->setIsActive(false);
 		}
 	}
 }
@@ -476,6 +535,30 @@ void Adrian::renderUi() {
 	ImGui::Checkbox("Debug Navmesh", &m_debugNavmesh);
 	if (ImGui::Button("Clear Marker"))
 		clearMarker();
+
+	ImGui::Checkbox("Draw Polygon", &m_drawPolygon);	
+	ImGui::SliderFloat("Marker Size", &m_markerSize, 0.0f, 20.0f);
+	if (ImGui::Button("Bake (to File)")) {
+		NavPolygon* poly = new NavPolygon();
+		poly->setNumVerts(m_edgePoints.size());
+		poly->setVerts(&m_edgePoints[0][0]);
+		poly->setMinY(-2.0f);
+		poly->setMaxY(2.0f);
+		poly->createBoundingBox();
+
+		m_navigationMesh->addNavPolygon(*poly);
+		m_navigationMesh->build();
+		saveNavigationData();
+
+		Utils::NavIO navIO;
+		navIO.writeNavigationMap("res/data_edit.nav", m_navigationMesh->getNumTilesX(), m_navigationMesh->getNumTilesZ(), m_navigationMesh->getBoundingBox(), m_navigationMesh->getTileData());
+
+		m_edgePoints.clear();
+		for (btCollisionObject* obj : m_collisionObjects) {
+			Physics::DeleteCollisionObject(obj);
+		}
+		m_collisionObjects.clear();
+	}
 
 	ImGui::End();
 
@@ -660,139 +743,102 @@ void Adrian::createScene(bool recreate) {
 		m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[i]);
 		m_buildingNode->setTextureIndex(7);
 		m_buildingNode->OnOctreeSet(m_octree);
-		//m_navigationMesh->addNavigable(Navigable(m_buildingNode));
 		m_navigationMesh->addNavArea(NavArea(m_buildings[i].getAABB()));
-		//m_navigationMesh->addObstacle(new Obstacle(m_buildingNode));
 	}
 
 	for (int i = 4; i < 8; i++) {
 		m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[i]);
 		m_buildingNode->setTextureIndex(i < 6 ? 3 : 4);
 		m_buildingNode->OnOctreeSet(m_octree);
-		//m_navigationMesh->addNavigable(Navigable(m_buildingNode));
-		m_navigationMesh->addNavArea(NavArea(m_buildings[i].getAABB()));
-		//m_navigationMesh->addObstacle(new Obstacle(m_buildingNode));
 	}
-	//////////////////////////////////////////////////////////////////////////
+
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[8]);
 	m_buildingNode->setTextureIndex(5);
 	m_buildingNode->OnOctreeSet(m_octree);
-	//m_navigationMesh->addNavigable(Navigable(m_buildingNode));
-	m_navigationMesh->addNavArea(NavArea(m_buildings[8].getAABB()));
 
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[9]);
 	m_buildingNode->setTextureIndex(6);
 	m_buildingNode->OnOctreeSet(m_octree);
-	//m_navigationMesh->addNavigable(Navigable(m_buildingNode));
-	m_navigationMesh->addNavArea(NavArea(m_buildings[9].getAABB()));
 
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[10]);
 	m_buildingNode->setTextureIndex(3);
 	m_buildingNode->OnOctreeSet(m_octree);
-	//m_navigationMesh->addNavigable(Navigable(m_buildingNode));
 	m_navigationMesh->addNavArea(NavArea(m_buildings[10].getAABB()));
 
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[11]);
 	m_buildingNode->setTextureIndex(3);
 	m_buildingNode->OnOctreeSet(m_octree);
-	//m_navigationMesh->addNavigable(Navigable(m_buildingNode));
 	m_navigationMesh->addNavArea(NavArea(m_buildings[11].getAABB()));
 
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[12]);
 	m_buildingNode->setTextureIndex(8);
 	m_buildingNode->OnOctreeSet(m_octree);
-	//m_navigationMesh->addNavigable(Navigable(m_buildingNode));
 	m_navigationMesh->addNavArea(NavArea(m_buildings[12].getAABB()));
 
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[13]);
 	m_buildingNode->setTextureIndex(3);
 	m_buildingNode->OnOctreeSet(m_octree);
-	//m_navigationMesh->addNavigable(Navigable(m_buildingNode));
 	m_navigationMesh->addNavArea(NavArea(m_buildings[13].getAABB()));
 
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[14]);
 	m_buildingNode->setTextureIndex(7);
 	m_buildingNode->OnOctreeSet(m_octree);
-	//m_navigationMesh->addNavigable(Navigable(m_buildingNode));
 	m_navigationMesh->addNavArea(NavArea(m_buildings[14].getAABB()));
 
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[15]);
 	m_buildingNode->setTextureIndex(4);
 	m_buildingNode->OnOctreeSet(m_octree);
-	//m_navigationMesh->addNavigable(Navigable(m_buildingNode));
-	m_navigationMesh->addNavArea(NavArea(m_buildings[15].getAABB()));
 
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[16]);
 	m_buildingNode->setTextureIndex(4);
 	m_buildingNode->OnOctreeSet(m_octree);
-	//m_navigationMesh->addNavigable(Navigable(m_buildingNode));
-	m_navigationMesh->addNavArea(NavArea(m_buildings[16].getAABB()));
 
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[17]);
 	m_buildingNode->setTextureIndex(8);
 	m_buildingNode->OnOctreeSet(m_octree);
-	//m_navigationMesh->addNavigable(Navigable(m_buildingNode));
 	m_navigationMesh->addNavArea(NavArea(m_buildings[17].getAABB()));
 
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[18]);
 	m_buildingNode->setTextureIndex(7);
 	m_buildingNode->OnOctreeSet(m_octree);
-	//m_navigationMesh->addNavigable(Navigable(m_buildingNode));
 	m_navigationMesh->addNavArea(NavArea(m_buildings[18].getAABB()));
 
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[19]);
 	m_buildingNode->setTextureIndex(8);
 	m_buildingNode->OnOctreeSet(m_octree);
-	//m_navigationMesh->addNavigable(Navigable(m_buildingNode));
 	m_navigationMesh->addNavArea(NavArea(m_buildings[19].getAABB()));
 
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[20]);
 	m_buildingNode->setTextureIndex(9);
 	m_buildingNode->OnOctreeSet(m_octree);
-	//m_navigationMesh->addNavigable(Navigable(m_buildingNode));
-	m_navigationMesh->addNavArea(NavArea(m_buildings[20].getAABB()));
 
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[21]);
 	m_buildingNode->setTextureIndex(10);
 	m_buildingNode->OnOctreeSet(m_octree);
-	//m_navigationMesh->addNavigable(Navigable(m_buildingNode));
-	m_navigationMesh->addNavArea(NavArea(m_buildings[21].getAABB()));
 
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[22]);
 	m_buildingNode->setTextureIndex(10);
 	m_buildingNode->OnOctreeSet(m_octree);
-	//m_navigationMesh->addNavigable(Navigable(m_buildingNode));
-	m_navigationMesh->addNavArea(NavArea(m_buildings[22].getAABB()));
 
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[23]);
 	m_buildingNode->setTextureIndex(5);
 	m_buildingNode->OnOctreeSet(m_octree);
-	//m_navigationMesh->addNavigable(Navigable(m_buildingNode));
-	m_navigationMesh->addNavArea(NavArea(m_buildings[23].getAABB()));
 
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[24]);
 	m_buildingNode->setTextureIndex(4);
 	m_buildingNode->OnOctreeSet(m_octree);
-	//m_navigationMesh->addNavigable(Navigable(m_buildingNode));
-	m_navigationMesh->addNavArea(NavArea(m_buildings[24].getAABB()));
 
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[25]);
 	m_buildingNode->setTextureIndex(9);
 	m_buildingNode->OnOctreeSet(m_octree);
-	//m_navigationMesh->addNavigable(Navigable(m_buildingNode));
-	m_navigationMesh->addNavArea(NavArea(m_buildings[25].getAABB()));
 
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[26]);
 	m_buildingNode->setTextureIndex(9);
 	m_buildingNode->OnOctreeSet(m_octree);
-	//m_navigationMesh->addNavigable(Navigable(m_buildingNode));
-	m_navigationMesh->addNavArea(NavArea(m_buildings[26].getAABB()));
 
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[27]);
 	m_buildingNode->setTextureIndex(10);
 	m_buildingNode->OnOctreeSet(m_octree);
-	//m_navigationMesh->addNavigable(Navigable(m_buildingNode));
-	m_navigationMesh->addNavArea(NavArea(m_buildings[27].getAABB()));
 
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(Globals::shapeManager.get("quad_xz"));
 	m_buildingNode->translate(0.0f, 0.1f, 0.0f);

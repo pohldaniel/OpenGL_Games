@@ -66,8 +66,8 @@ NavigationMesh::NavigationMesh() :
 	m_numTilesX(0),
 	m_numTilesZ(0),
 	m_partitionType(NAVMESH_PARTITION_WATERSHED),
-	m_drawOffMeshConnections(false),
-	m_drawNavAreas(false) {
+	m_drawNavAreas(true),
+	m_drawNavPolygons(true) {
 
 }
 
@@ -98,6 +98,24 @@ void NavigationMesh::OnRenderDebug() {
 					Vector4f(1.0f, 1.0f, 0.0f, 1.0f)
 				);
 			}
+		}
+	}
+
+	// Draw NavArea components
+	if (m_drawNavAreas) {
+		for (unsigned i = 0; i < m_navAreas.size(); ++i) {
+			const NavArea& area = m_navAreas[i];
+			if (area.m_isEnabled)
+				area.OnRenderDebug();
+		}
+	}
+
+	// Draw NavPolygons
+	if (m_drawNavPolygons) {
+		for (unsigned i = 0; i < m_navPolygons.size(); ++i) {
+			const NavPolygon& polygon = m_navPolygons[i];
+			if (polygon.m_isEnabled)
+				polygon.OnRenderDebug();
 		}
 	}
 }
@@ -253,17 +271,23 @@ Buffer& NavigationMesh::getTileData(int x, int z) {
 void NavigationMesh::writeTile(Buffer& dest, int x, int z) const{
 	const dtNavMesh* navMesh = m_navMesh;
 	const dtMeshTile* tile = navMesh->getTileAt(x, z, 0);
-	if (!tile)
-		return;
-
-	dest.resize(sizeof(int) + tile->dataSize);
-	memcpy(dest.data, &tile->dataSize, sizeof(int));
-	memcpy(dest.data + sizeof(int), tile->data, tile->dataSize);
+	if (!tile) {
+		int size = 0;
+		dest.resize(sizeof(int));
+		memcpy(dest.data, &size, sizeof(int));
+	}else {
+		dest.resize(sizeof(int) + tile->dataSize);
+		memcpy(dest.data, &tile->dataSize, sizeof(int));
+		memcpy(dest.data + sizeof(int), tile->data, tile->dataSize);
+	}
 }
 
 bool NavigationMesh::readTile(const Buffer& source) {	
 	int navDataSize;
 	memcpy(&navDataSize, source.data, sizeof(int));
+
+	if (!navDataSize)
+		return false;
 
 	unsigned char* navData = (unsigned char*)dtAlloc(navDataSize, DT_ALLOC_PERM);
 	if (!navData){
@@ -443,8 +467,9 @@ bool NavigationMesh::buildTile(std::vector<NavigationGeometryInfo>& geometryList
 		rcMarkBoxArea(build.ctx, &build.navAreas[i].bounds.min[0], &build.navAreas[i].bounds.max[0],
 			build.navAreas[i].areaID, *build.compactHeightField);
 
-	for (unsigned i = 0; i < build.polygons.size(); ++i)
-		rcMarkConvexPolyArea(build.ctx, build.polygons[i].verts, build.polygons[i].numVerts, build.polygons[i].minY, build.polygons[i].maxY, 
+	// Mark polygon volumes
+	for (unsigned i = 0; i < build.polygons.size(); ++i) 
+		rcMarkConvexPolyArea(build.ctx, build.polygons[i].verts, build.polygons[i].numVerts, build.polygons[i].minY, build.polygons[i].maxY,
 			build.polygons[i].areaID, *build.compactHeightField);
 
 	if (this->m_partitionType == NAVMESH_PARTITION_WATERSHED){
@@ -543,7 +568,7 @@ bool NavigationMesh::buildTile(std::vector<NavigationGeometryInfo>& geometryList
 	}
 
 	if (!dtCreateNavMeshData(&params, &navData, &navDataSize)){
-		std::cout << "Could not build navigation mesh tile data" << std::endl;
+		//std::cout << "Could not build navigation mesh tile data" << std::endl;
 		return false;
 	}
 
@@ -635,6 +660,7 @@ void NavigationMesh::collectGeometries(std::vector<NavigationGeometryInfo>& geom
 		if (polygon.isEnabled()) {
 			NavigationGeometryInfo info;
 			info.polygon = &polygon;
+			info.boundingBox = polygon.getBoundingBox();
 			geometryList.push_back(info);
 		}
 	}
@@ -672,6 +698,7 @@ void NavigationMesh::getTileGeometry(NavBuildData* build, std::vector<Navigation
 	unsigned int vertexCount = 0u;
 
 	for (unsigned i = 0; i < geometryList.size(); ++i){
+
 		if (box.isInsideFast(geometryList[i].boundingBox) != BoundingBox::Intersection::OUTSIDE){
 			const Matrix4f& transform = geometryList[i].transform;
 
@@ -686,7 +713,7 @@ void NavigationMesh::getTileGeometry(NavBuildData* build, std::vector<Navigation
 				build->offMeshFlags.push_back((unsigned short)connection->m_mask);
 				build->offMeshAreas.push_back((unsigned char)connection->m_areaId);
 				build->offMeshDir.push_back((unsigned char)(connection->m_bidirectional ? DT_OFFMESH_CON_BIDIR : 0));
-			}else if(geometryList[i].area) {
+			}else if(geometryList[i].area) {				
 				NavArea* area = geometryList[i].area;
 				NavAreaStub stub;
 				stub.areaID = (unsigned char)area->m_areaID;
@@ -699,8 +726,8 @@ void NavigationMesh::getTileGeometry(NavBuildData* build, std::vector<Navigation
 				stub.verts = polygon->m_verts;
 				stub.minY = polygon->m_minY;
 				stub.maxY = polygon->m_maxY;
-				build->polygons.push_back(stub);
 				stub.numVerts = polygon->m_numVerts;
+				build->polygons.push_back(stub);			
 			}else if (geometryList[i].component) {
 				ShapeNode* drawable = geometryList[i].component;
 				if (drawable) {
@@ -938,12 +965,12 @@ int NavigationMesh::setPolyFlag(const Vector3f& point, unsigned short polyMask, 
 	return polyCnt;
 }
 
-void NavigationMesh::setDrawOffMeshConnections(bool enable) { 
-	m_drawOffMeshConnections = enable;
-}
-
 void NavigationMesh::setDrawNavAreas(bool enable) { 
 	m_drawNavAreas = enable;
+}
+
+void NavigationMesh::setDrawNavPolygons(bool enable) {
+	m_drawNavPolygons = enable;
 }
 
 float NavigationMesh::getAreaCost(unsigned areaID) const {
@@ -1036,10 +1063,6 @@ std::array<int, 2> NavigationMesh::getTileIndex(const Vector3f& position) const 
 	const Vector2f localPosition2D(localPosition[0], localPosition[2]);
 	const std::array<int, 2> max = { std::max(0, static_cast<int>(floor(localPosition2D[0] / tileEdgeLength))), std::max(0, static_cast<int>(floor(localPosition2D[1] / tileEdgeLength))) };
 	return { std::min(max[0],  getNumTiles()[0] - 1), std::min(max[1],  getNumTiles()[1] - 1) };
-}
-
-bool NavigationMesh::getDrawOffMeshConnections() const { 
-	return m_drawOffMeshConnections;
 }
 
 int NavigationMesh::getTileSize() const { 
@@ -1136,6 +1159,10 @@ NavmeshPartitionType NavigationMesh::getPartitionType() const {
 
 bool NavigationMesh::getDrawNavAreas() const { 
 	return m_drawNavAreas;
+}
+
+const std::unordered_map<int, Buffer>& NavigationMesh::getTileData() const {
+	return m_tileData;
 }
 
 std::unordered_map<int, Buffer>& NavigationMesh::tileData() {

@@ -150,7 +150,6 @@ DynamicNavigationMesh::DynamicNavigationMesh() :
 	NavigationMesh(), 
 	m_drawObstacles(true),
 	m_drawOffMeshConnections(true),
-	m_drawNavAreas(true),
 	m_tileCache(nullptr),
 	m_crowdManager(nullptr),
 	m_maxObstacles(DEFAULT_MAX_OBSTACLES),
@@ -492,10 +491,15 @@ int DynamicNavigationMesh::buildTile(std::vector<NavigationGeometryInfo>& geomet
 		return 0;
 	}
 
-	// area volumes
+	// Mark area volumes
 	for (unsigned i = 0; i < build.navAreas.size(); ++i)
 		rcMarkBoxArea(build.ctx, &build.navAreas[i].bounds.min[0], &build.navAreas[i].bounds.max[0],
 			build.navAreas[i].areaID, *build.compactHeightField);
+
+	// Mark polygon volumes
+	for (unsigned i = 0; i < build.polygons.size(); ++i)
+		rcMarkConvexPolyArea(build.ctx, build.polygons[i].verts, build.polygons[i].numVerts, build.polygons[i].minY, build.polygons[i].maxY,
+			build.polygons[i].areaID, *build.compactHeightField);
 
 	if (m_partitionType == NAVMESH_PARTITION_WATERSHED) {
 		if (!rcBuildDistanceField(build.ctx, *build.compactHeightField)) {
@@ -578,7 +582,6 @@ void DynamicNavigationMesh::OnRenderDebug() {
 		for (unsigned i = 0; i < m_obstacles.size(); ++i) {
 			Obstacle* obstacle = m_obstacles[i];
 			if (obstacle && obstacle->m_isEnabled) {
-				std::cout << "########" << std::endl;
 				obstacle->OnRenderDebug();
 			}
 		}
@@ -590,24 +593,6 @@ void DynamicNavigationMesh::OnRenderDebug() {
 			const OffMeshConnection& offMeshConnections = m_offMeshConnections[i];
 			if (offMeshConnections.m_isEnabled)
 				offMeshConnections.OnRenderDebug();
-		}
-	}
-
-	// Draw NavArea components
-	if (m_drawNavAreas){
-		for (unsigned i = 0; i < m_navAreas.size(); ++i){
-			const NavArea& area = m_navAreas[i];
-			if (area.m_isEnabled)
-				area.OnRenderDebug();
-		}
-	}
-
-	// Draw NavPolygons
-	if (m_drawNavAreas) {
-		for (unsigned i = 0; i < m_navPolygons.size(); ++i) {
-			const NavPolygon& polygon = m_navPolygons[i];
-			if (polygon.m_isEnabled)
-				polygon.OnRenderDebug();
 		}
 	}
 }
@@ -821,4 +806,12 @@ void DynamicNavigationMesh::setCrowdManager(CrowdManager* crowdManager) {
 
 void DynamicNavigationMesh::initObstacles() {
 	m_tileCache->initObstacles();
+}
+
+bool DynamicNavigationMesh::getDrawOffMeshConnections() const {
+	return m_drawOffMeshConnections;
+}
+
+void DynamicNavigationMesh::setDrawOffMeshConnections(bool enable) {
+	m_drawOffMeshConnections = enable;
 }

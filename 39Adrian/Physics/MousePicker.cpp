@@ -169,6 +169,39 @@ void MousePicker::updatePositionOrthographic(unsigned int posX, unsigned int pos
 	}
 }
 
+bool MousePicker::updatePositionOrthographicAll(unsigned int posX, unsigned int posY, const Camera& camera, btCollisionObject* collisonObject) {
+	float mouseXndc = (2.0f * posX) / static_cast<float>(Application::Width) - 1.0f;
+	float mouseYndc = 1.0f - (2.0f * posY) / static_cast<float>(Application::Height);
+
+	float scaleX = (camera.getRightOrthographic() - camera.getLeftOrthographic()) * 0.5f;
+	float scaleY = (camera.getTopOrthographic() - camera.getBottomOrthographic()) * 0.5f;
+	float scaleZ = (camera.getFarOrthographic() - camera.getNearOrthographic()) * 0.5f;
+
+	Vector3f rayStartWorld = camera.getPosition() + camera.getCamX() * scaleX * mouseXndc + camera.getCamY() * scaleY * mouseYndc + camera.getCamZ() * scaleZ;
+	Vector3f rayEndWorld = camera.getPosition() + camera.getCamX() * scaleX * mouseXndc + camera.getCamY() * scaleY * mouseYndc + camera.getViewDirection() * scaleZ;
+	
+	m_callbackAll = MousePickCallbackAll(Physics::VectorFrom(rayStartWorld), Physics::VectorFrom(rayEndWorld), Physics::MOUSEPICKER, Physics::PICKABLE_OBJECT);
+	Physics::GetDynamicsWorld()->rayTest(m_callbackAll.m_origin, m_callbackAll.m_target, m_callbackAll);
+
+	if (m_callbackAll.hasHit()) {
+
+		float fraction = 1.0f;
+		for (size_t i = 0; i < m_callbackAll.m_hitFractions.size(); i++) {
+			if (m_callbackAll.m_hitFractions[i] <= fraction && m_callbackAll.m_collisionObjects[i] == collisonObject) {
+				m_callbackAll.index = i;
+				fraction = m_callbackAll.m_hitFractions[i];
+			}
+		}
+		
+		m_callbackAll.m_userIndex = m_callbackAll.m_collisionObjects[m_callbackAll.index]->getUserIndex();
+		m_callbackAll.m_userPoiner = m_callbackAll.m_collisionObjects[m_callbackAll.index]->getUserPointer();
+		m_callbackAll.m_collisionObject = const_cast<btCollisionObject*>(m_callbackAll.m_collisionObjects[m_callbackAll.index]);
+		return collisonObject == nullptr ? true : m_callbackAll.index >= 0;
+	}else {
+		return false;
+	}
+}
+
 bool MousePicker::clickOrthographic(unsigned int posX, unsigned int posY, const Camera& camera, btCollisionObject* collisonObject) {
 	float mouseXndc = (2.0f * posX) / static_cast<float>(Application::Width) - 1.0f;
 	float mouseYndc = 1.0f - (2.0f * posY) / static_cast<float>(Application::Height);
@@ -182,8 +215,11 @@ bool MousePicker::clickOrthographic(unsigned int posX, unsigned int posY, const 
 
 	m_callback = MousePickCallback(Physics::VectorFrom(rayStartWorld), Physics::VectorFrom(rayEndWorld), Physics::MOUSEPICKER, Physics::PICKABLE_OBJECT);
 	Physics::GetDynamicsWorld()->rayTest(m_callback.m_origin, m_callback.m_target, m_callback);
-	std::cout << "Has Hit: " << m_callback.hasHit() << std::endl;
 	if (m_callback.hasHit()) {
+		m_pickingDistance = (m_callback.m_hitPointWorld - m_callback.m_origin).length();
+		m_callback.m_collisionObject = const_cast<btCollisionObject*>(m_callback.btCollisionWorld::RayResultCallback::m_collisionObject);
+		m_callback.m_userIndex = m_callback.m_collisionObject->getUserIndex();
+		m_callback.m_userPoiner = m_callback.m_collisionObject->getUserPointer();
 		return collisonObject == nullptr ? true : collisonObject == m_callback.m_collisionObject;
 	}else {
 		return false;
@@ -205,7 +241,16 @@ bool MousePicker::clickOrthographicAll(unsigned int posX, unsigned int posY, con
 	Physics::GetDynamicsWorld()->rayTest(m_callbackAll.m_origin, m_callbackAll.m_target, m_callbackAll);
 
 	if (m_callbackAll.hasHit()) {
-		m_callbackAll.index = m_callbackAll.m_collisionObjects.findLinearSearch2(collisonObject);
+		float fraction = 1.0f;
+		for (size_t i = 0; i < m_callbackAll.m_hitFractions.size(); i++) {
+			if (m_callbackAll.m_hitFractions[i] <= fraction /*&& m_callbackAll.m_collisionObjects[i] != collisonObject*/) {
+				m_callbackAll.index = i;
+				fraction = m_callbackAll.m_hitFractions[i];
+			}
+		}
+		m_callbackAll.m_userIndex = m_callbackAll.m_collisionObjects[m_callbackAll.index]->getUserIndex();
+		m_callbackAll.m_userPoiner = m_callbackAll.m_collisionObjects[m_callbackAll.index]->getUserPointer();
+		m_callbackAll.m_collisionObject = const_cast<btCollisionObject*>(m_callbackAll.m_collisionObjects[m_callbackAll.index]);
 		return collisonObject == nullptr ? true : m_callbackAll.index >= 0;
 	}else {
 		return false;

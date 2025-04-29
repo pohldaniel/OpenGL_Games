@@ -120,8 +120,8 @@ public:
 	void setAreaCost(unsigned int areaID, float  cost);
 	int setPolyFlag(const Vector3f& point, unsigned short polyMask, const Vector3f& extents = Vector3f::ONE, const dtQueryFilter* filter = 0);
 	void setPartitionType(NavmeshPartitionType aType);
-	void setDrawOffMeshConnections(bool enable);
 	void setDrawNavAreas(bool enable);
+	void setDrawNavPolygons(bool enable);
 	
 	float getAreaCost(unsigned areaID) const;
 	Vector3f getRandomPoint(const dtQueryFilter* filter = 0, dtPolyRef* randomRef = 0);
@@ -129,7 +129,6 @@ public:
 	float getDistanceToWall(const Vector3f& point, float radius, const Vector3f& extents = Vector3f::ONE, const dtQueryFilter* filter = 0, Vector3f* hitPos = 0, Vector3f* hitNormal = 0);
 	std::array<int, 2> getTileIndex(const Vector3f& position) const;
 	BoundingBox getTileBoudningBox(const std::array<int, 2>& tile) const;
-	bool getDrawOffMeshConnections() const;
 	int getTileSize() const;
 	float getCellSize() const;
 	dtNavMesh* getDetourNavMesh();
@@ -154,7 +153,8 @@ public:
 	int& numTilesZ();
 	NavmeshPartitionType getPartitionType() const;
 	bool getDrawNavAreas() const;
-	std::unordered_map<int, Buffer>& tileData();
+	const std::unordered_map<int, Buffer>& getTileData() const;
+	std::unordered_map<int, Buffer>& tileData();	
 	const std::vector<NavArea>& getNavAreas() const;
 	std::vector<NavArea>& navAreas();
 	
@@ -200,8 +200,8 @@ protected:
 	int m_numTilesZ;
 	Vector3f m_padding;
 	NavmeshPartitionType m_partitionType;
-	bool m_drawOffMeshConnections;
-	bool m_drawNavAreas;	
+	bool m_drawNavAreas;
+	bool m_drawNavPolygons;
 	std::vector<BoundingBox> m_boxes;
 	
 	static std::random_device RandomDevice;

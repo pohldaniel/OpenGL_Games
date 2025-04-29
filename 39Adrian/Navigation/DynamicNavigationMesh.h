@@ -50,6 +50,8 @@ public:
 	std::vector<CrowdAgent*>& agentsToReset();
 	void setCrowdManager(CrowdManager* crowdManager);
 	void initObstacles();
+	bool getDrawOffMeshConnections() const;
+	void setDrawOffMeshConnections(bool enable);
 
 private:
 
@@ -71,5 +73,4 @@ private:
 
 	bool m_drawObstacles;
 	bool m_drawOffMeshConnections;
-	bool m_drawNavAreas;
 };
