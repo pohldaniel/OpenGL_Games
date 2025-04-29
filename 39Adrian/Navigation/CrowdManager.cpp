@@ -126,7 +126,7 @@ int CrowdManager::addAgent(CrowdAgent* agent, const Vector3f& pos, bool add){
 }
 
 bool CrowdManager::createCrowd(){
-	if (!m_navigationMesh || !m_navigationMesh->InitializeQuery() || m_crowd != nullptr)
+	if (!m_navigationMesh || !m_navigationMesh->initializeQuery() || m_crowd != nullptr)
 		return false;
 
 	m_crowd = dtAllocCrowd();
@@ -134,7 +134,7 @@ bool CrowdManager::createCrowd(){
 	// Initialize the crowd
 	if (m_maxAgentRadius == 0.f)
 		m_maxAgentRadius = m_navigationMesh->getAgentRadius();
-	if (!m_crowd->init(m_maxAgents, m_maxAgentRadius, m_navigationMesh->navMesh_, CrowdAgentUpdateCallback)){
+	if (!m_crowd->init(m_maxAgents, m_maxAgentRadius, m_navigationMesh->m_navMesh, CrowdAgentUpdateCallback)){
 		std::cout << "Could not initialize DetourCrowd" << std::endl;
 		return false;
 	}

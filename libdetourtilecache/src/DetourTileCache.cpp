@@ -131,13 +131,7 @@ dtStatus dtTileCache::init(const dtTileCacheParams* params,
 	if (!m_obstacles)
 		return DT_FAILURE | DT_OUT_OF_MEMORY;
 	memset(m_obstacles, 0, sizeof(dtTileCacheObstacle)*m_params.maxObstacles);
-	m_nextFreeObstacle = 0;
-	for (int i = m_params.maxObstacles-1; i >= 0; --i)
-	{
-		m_obstacles[i].salt = 1;
-		m_obstacles[i].next = m_nextFreeObstacle;
-		m_nextFreeObstacle = &m_obstacles[i];
-	}
+	initObstacles();
 	
 	// Init tiles
 	m_tileLutSize = dtNextPow2(m_params.maxTiles/4);
@@ -168,6 +162,16 @@ dtStatus dtTileCache::init(const dtTileCacheParams* params,
 		return DT_FAILURE | DT_INVALID_PARAM;
 	
 	return DT_SUCCESS;
+}
+
+void dtTileCache::initObstacles() {
+	m_nextFreeObstacle = 0;
+	for (int i = m_params.maxObstacles - 1; i >= 0; --i)
+	{
+		m_obstacles[i].salt = 1;
+		m_obstacles[i].next = m_nextFreeObstacle;
+		m_nextFreeObstacle = &m_obstacles[i];
+	}
 }
 
 int dtTileCache::getTilesAt(const int tx, const int ty, dtCompressedTileRef* tiles, const int maxTiles) const 
@@ -361,13 +365,14 @@ dtStatus dtTileCache::addObstacle(const float* pos, const float radius, const fl
 	if (m_nreqs >= MAX_REQUESTS)
 		return DT_FAILURE | DT_BUFFER_TOO_SMALL;
 	
-	dtTileCacheObstacle* ob = 0;
+ 	dtTileCacheObstacle* ob = 0;
 	if (m_nextFreeObstacle)
 	{
 		ob = m_nextFreeObstacle;
 		m_nextFreeObstacle = ob->next;
 		ob->next = 0;
 	}
+
 	if (!ob)
 		return DT_FAILURE | DT_OUT_OF_MEMORY;
 	

@@ -30,48 +30,46 @@ public:
 	void removeTile(const std::array<int, 2>& tile, unsigned int layersToRemove = 0u) override;
 	bool addTile(const Buffer& tileData) override;
 	bool addTile(int x, int z);
-
 	Buffer& getTileData(Buffer& buffer, const std::array<int, 2>& tile) const override;
-	Buffer& getTileData(int x, int z) override;
-	void WriteTiles(Buffer& dest, int x, int z) const;
-	bool ReadTiles(const Buffer& source);
-	bool IsObstacleInTile(Obstacle* obstacle, const std::array<int, 2>& tile) const;
-
+	
 	void update(float dt);
 	void wait();
 
-	/// Used by Obstacle class to add itself to the tile cache, if 'silent' an event will not be raised.
-	void AddObstacle(Obstacle* obstacle, bool silent = false);
-	/// Used by Obstacle class to update itself.
-	void ObstacleChanged(Obstacle* obstacle);
-	/// Used by Obstacle class to remove itself from the tile cache, if 'silent' an event will not be raised.
-	void RemoveObstacle(Obstacle* obstacle, bool silent = false);
-	void addObstacles();
-
-	void ReleaseTileCache();
-	/// Build one tile of the navigation mesh. Return true if successful.
-	int BuildTile(std::vector<NavigationGeometryInfo>& geometryList, int x, int z, TileCacheData* tiles);
 	
-	std::vector<Obstacle*> m_obstacles;
+	Buffer& getTileData(int x, int z) override;
+	void writeTiles(Buffer& dest, int x, int z) const;
+	bool readTiles(const Buffer& source);
+	void releaseTileCache();
 
-	bool drawObstacles_;
-	bool drawOffMeshConnections_;
-	bool drawNavAreas_;
+	void addObstacle(Obstacle* obstacle, bool force = true);
+	void obstacleChanged(Obstacle* obstacle);
+	void removeObstacle(Obstacle* obstacle);
+	void addObstacles();
+	bool isObstacleInTile(Obstacle* obstacle, const std::array<int, 2>& tile) const;
+	const std::vector<CrowdAgent*>& getAgentsToReset() const;
+	std::vector<CrowdAgent*>& agentsToReset();
+	void setCrowdManager(CrowdManager* crowdManager);
+	void initObstacles();
 
-	dtTileCache* tileCache_;
-	dtTileCacheAlloc* allocator_;
-	dtTileCacheCompressor* compressor_;
-	dtTileCacheMeshProcess* meshProcessor_;
+private:
+
+	int buildTile(std::vector<NavigationGeometryInfo>& geometryList, int x, int z, TileCacheData* tiles);
+	
+	dtTileCache* m_tileCache;
+	dtTileCacheAlloc* m_allocator;
+	dtTileCacheCompressor* m_compressor;
+	dtTileCacheMeshProcess* m_meshProcessor;
 
 	CrowdManager* m_crowdManager;
-
-	/// Maximum number of obstacle objects allowed.
-	unsigned maxObstacles_;
-	/// Maximum number of layers that are allowed to be constructed.
-	unsigned maxLayers_;
-
-	std::vector<std::array<int, 2>> m_tileQueue;
 	std::vector<CrowdAgent*> m_agentsToReset;
+	std::vector<Obstacle*> m_obstacles;
+	std::vector<std::array<int, 2>> m_tileQueue;
 
-	unsigned numTiles_;
+	unsigned int m_maxObstacles;
+	unsigned int m_maxLayers;
+	unsigned int m_numTiles;
+
+	bool m_drawObstacles;
+	bool m_drawOffMeshConnections;
+	bool m_drawNavAreas;
 };

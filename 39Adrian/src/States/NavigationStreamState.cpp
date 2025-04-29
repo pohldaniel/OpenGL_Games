@@ -125,7 +125,7 @@ NavigationStreamState::NavigationStreamState(StateMachine& machine) :
 		return Vector3f(pos);
 	});
 
-	m_navigationMesh->m_crowdManager = m_crowdManager;
+	m_navigationMesh->setCrowdManager(m_crowdManager);
 	
 	for (unsigned i = 0; i < 100; ++i)
 		createMushroom(Vector3f(Utils::random(90.0f) - 45.0f, 0.0f, Utils::random(90.0f) - 45.0f));
@@ -700,11 +700,10 @@ void NavigationStreamState::createMushroom(const Vector3f& pos) {
 	Obstacle* obstacle = new Obstacle(shapeNode);	
 
 	obstacle = new Obstacle(shapeNode);
-	obstacle->setOwnerMesh(m_navigationMesh);
 	obstacle->setRadius(scale);
 	obstacle->setHeight(scale);
-	m_navigationMesh->AddObstacle(obstacle, false);
-	m_navigationMesh->m_obstacles.push_back(obstacle);
+	obstacle->setOwnerMesh(m_navigationMesh);
+	m_navigationMesh->addObstacle(obstacle);
 
 	btCollisionObject* collisionObject = Physics::AddStaticObject(Physics::BtTransform(Physics::VectorFrom(pos), Physics::QuaternionFrom(orientation)), Physics::CreateConvexHullShape(&m_mushroom, {scale, scale, scale}), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER);
 	collisionObject->setUserIndex(PhysicalObjects::OBSTACLE);
@@ -715,16 +714,16 @@ void NavigationStreamState::addOrRemoveObject(const Vector3f& pos, PhysicalObjec
 
 	switch (physicalObjects){
 	  case OBSTACLE:
+
+		  m_navigationMesh->removeObstacle(obstacle);
+
 		  obstacle->setIsEnabled(false);
 		  obstacle->getNode()->OnOctreeSet(nullptr);
 		  obstacle->getNode()->eraseSelf();
 		  obstacle->setNode(nullptr);
 
 		  delete obstacle;
-		  m_navigationMesh->m_obstacles.erase(std::remove(m_navigationMesh->m_obstacles.begin(), m_navigationMesh->m_obstacles.end(), obstacle), m_navigationMesh->m_obstacles.end());
-
 		  Physics::DeleteCollisionObject(collisionObject);
-		  m_navigationMesh->wait();
 		break;
 	  case ENTITY:
 		  //std::cout << magic_enum::enum_name(physicalObjects) << std::endl;
@@ -786,13 +785,12 @@ void NavigationStreamState::updateStreaming() {
 		}
 	}
 
-	m_navigationMesh->m_agentsToReset.clear();
+	m_navigationMesh->agentsToReset().clear();
 
 	// Add tiles
 	for (int z = beginTile[1]; z <= endTile[1]; ++z) {
 		for (int x = beginTile[0]; x <= endTile[0]; ++x) {
 			const std::array<int, 2> tileIdx = { x, z };	
-			bool tmp = m_navigationMesh->hasTile(tileIdx);
 			if (!m_navigationMesh->hasTile(tileIdx) && m_tileData.find(tileIdx) != m_tileData.end()){
 				m_addedTiles.insert(tileIdx);
 				m_navigationMesh->addTile(m_tileData[tileIdx]);
@@ -800,7 +798,7 @@ void NavigationStreamState::updateStreaming() {
 		}
 	}
 
-	for (CrowdAgent* agent : m_navigationMesh->m_agentsToReset)
+	for (CrowdAgent* agent : m_navigationMesh->getAgentsToReset())
 		agent->resetParameter();
 }
 

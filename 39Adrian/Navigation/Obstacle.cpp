@@ -13,7 +13,7 @@ Obstacle::Obstacle(OctreeNode* node) :
 
 Obstacle::~Obstacle(){
 	if (m_obstacleId > 0 && m_ownerMesh) {
-		m_ownerMesh->RemoveObstacle(this);
+		m_ownerMesh->removeObstacle(this);
 	}
 	m_ownerMesh = nullptr;
 	m_node = nullptr;
@@ -32,25 +32,26 @@ void Obstacle::setNode(OctreeNode* node) {
 }
 
 void Obstacle::OnSetEnabled() {
+	std::cout << "fffffffffff" << std::endl;
 	if (m_ownerMesh){
 		if (m_isEnabled)
-			m_ownerMesh->AddObstacle(this);
+			m_ownerMesh->addObstacle(this);
 		else
-			m_ownerMesh->RemoveObstacle(this);
+			m_ownerMesh->removeObstacle(this);
 	}
 }
 
 void Obstacle::setHeight(float newHeight) {
 	m_height = newHeight;
 	if (m_ownerMesh)
-		m_ownerMesh->ObstacleChanged(this);
+		m_ownerMesh->obstacleChanged(this);
 
 }
 
 void Obstacle::setRadius(float newRadius) {
 	m_radius = newRadius;
 	if (m_ownerMesh)
-		m_ownerMesh->ObstacleChanged(this);
+		m_ownerMesh->obstacleChanged(this);
 }
 
 
@@ -60,8 +61,8 @@ void Obstacle::OnRenderDebug() {
 }
 
 void Obstacle::OnTileAdded(const std::array<int, 2>& tile) {
-	if (m_isEnabled && m_ownerMesh && m_ownerMesh->IsObstacleInTile(this, tile))
-		m_ownerMesh->ObstacleChanged(this);
+	if (m_isEnabled && m_ownerMesh && m_ownerMesh->isObstacleInTile(this, tile))
+		m_ownerMesh->obstacleChanged(this);
 }
 
 OctreeNode* Obstacle::getNode() {

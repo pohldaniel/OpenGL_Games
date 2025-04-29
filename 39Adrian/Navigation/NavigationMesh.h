@@ -154,51 +154,50 @@ public:
 	std::unordered_map<int, Buffer>& tileData();
 	const std::vector<NavArea>& getNavAreas() const;
 	std::vector<NavArea>& navAreas();
-
 	
 protected:
 	
 	virtual void releaseNavigationMesh();
 
-	void CollectGeometries(std::vector<NavigationGeometryInfo>& geometryList);
-	void CollectGeometries(std::vector<NavigationGeometryInfo>& geometryList, SceneNodeLC* node, std::hash_set<SceneNodeLC*>& processedNodes, bool recursive);
-	void GetTileGeometry(NavBuildData* build, std::vector<NavigationGeometryInfo>& geometryList, BoundingBox& box);
-	void AddTriMeshGeometry(NavBuildData* build, const Shape& shape, const Matrix4f& transform, unsigned int& vertexCount);	
-	unsigned int BuildTiles(std::vector<NavigationGeometryInfo>& geometryList, const std::array<int, 2>& from, const std::array<int, 2>& to);
+	void collectGeometries(std::vector<NavigationGeometryInfo>& geometryList);
+	void collectGeometries(std::vector<NavigationGeometryInfo>& geometryList, SceneNodeLC* node, std::hash_set<SceneNodeLC*>& processedNodes, bool recursive);
+	void getTileGeometry(NavBuildData* build, std::vector<NavigationGeometryInfo>& geometryList, BoundingBox& box);
+	void addTriMeshGeometry(NavBuildData* build, const Shape& shape, const Matrix4f& transform, unsigned int& vertexCount);	
+	unsigned int buildTiles(std::vector<NavigationGeometryInfo>& geometryList, const std::array<int, 2>& from, const std::array<int, 2>& to);
 	Vector3f randPoint(const Vector3f& center, float radius);
 	bool buildTile(std::vector<NavigationGeometryInfo>& geometryList, int x, int z);
-	bool InitializeQuery();
+	bool initializeQuery();
 	
 	std::vector<Navigable> m_navigables;
 	std::vector<OffMeshConnection> m_offMeshConnections;
 	std::vector<NavArea> m_navAreas;
 
-	dtNavMesh* navMesh_;
-	dtNavMeshQuery* navMeshQuery_;
-	dtQueryFilter* queryFilter_;
-	FindPathData*  pathData_;
-	int tileSize_;
-	float cellSize_;
-	float cellHeight_;
-	float agentHeight_;
-	float agentRadius_;
-	float agentMaxClimb_;
-	float agentMaxSlope_;
-	float regionMinSize_;
-	float regionMergeSize_;
-	float edgeMaxLength_;
-	float edgeMaxError_;
-	float detailSampleDistance_;
-	float detailSampleMaxError_;
-	Vector3f padding_;
-	int numTilesX_;
-	int numTilesZ_;
-	BoundingBox boundingBox_;
-	NavmeshPartitionType partitionType_;
-	bool drawOffMeshConnections_;
-	bool drawNavAreas_;
+	dtNavMesh* m_navMesh;
+	dtNavMeshQuery* m_navMeshQuery;
+	dtQueryFilter* m_queryFilter;
+	FindPathData*  m_pathData;
+	BoundingBox m_boundingBox;
 	std::unordered_map<int, Buffer> m_tileData;
 
+	int m_tileSize;
+	float m_cellSize;
+	float m_cellHeight;
+	float m_agentHeight;
+	float m_agentRadius;
+	float m_agentMaxClimb;
+	float m_agentMaxSlope;
+	float m_regionMinSize;
+	float m_regionMergeSize;
+	float m_edgeMaxLength;
+	float m_edgeMaxError;
+	float m_detailSampleDistance;
+	float m_detailSampleMaxError;
+	int m_numTilesX;
+	int m_numTilesZ;
+	Vector3f m_padding;
+	NavmeshPartitionType m_partitionType;
+	bool m_drawOffMeshConnections;
+	bool m_drawNavAreas;	
 	std::vector<BoundingBox> m_boxes;
 	
 	static std::random_device RandomDevice;

@@ -123,6 +123,8 @@ public:
 				  struct dtTileCacheCompressor* tcomp,
 				  struct dtTileCacheMeshProcess* tmproc);
 	
+	void initObstacles();
+
 	int getTilesAt(const int tx, const int ty, dtCompressedTileRef* tiles, const int maxTiles) const ;
 	
 	dtCompressedTile* getTileAt(const int tx, const int ty, const int tlayer);
