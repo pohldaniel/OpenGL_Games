@@ -123,7 +123,7 @@ Adrian::Adrian(StateMachine& machine) : State(machine, States::MAP),
 	loadBuilding("res/building_24.bld", true);
 	loadBuilding("res/building_25.bld");
 
-	m_navigationMesh = new NavigationMesh();
+	m_navigationMesh = new DynamicNavigationMesh();
 	createScene();
 
 	
@@ -138,12 +138,12 @@ Adrian::Adrian(StateMachine& machine) : State(machine, States::MAP),
 	m_navigationMesh->setAgentMaxClimb(0.9f);
 	m_navigationMesh->setAgentHeight(2.0f);
 	m_navigationMesh->setAgentRadius(0.6f);
-	//m_navigationMesh->build();
-
-	Utils::NavIO navIO;
-	navIO.readNavigationMap("res/data.nav", m_navigationMesh->numTilesX(), m_navigationMesh->numTilesZ(), m_navigationMesh->boundingBox(), m_navigationMesh->tileData());
-	m_navigationMesh->allocate();
-	m_navigationMesh->addTiles();
+	m_navigationMesh->build();
+	saveNavigationData();
+	//Utils::NavIO navIO;
+	//navIO.readNavigationMap("res/data.nav", m_navigationMesh->numTilesX(), m_navigationMesh->numTilesZ(), m_navigationMesh->boundingBox(), m_navigationMesh->tileData());
+	//m_navigationMesh->allocate();
+	//m_navigationMesh->addTiles();
 }
 
 Adrian::~Adrian() {
@@ -660,115 +660,139 @@ void Adrian::createScene(bool recreate) {
 		m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[i]);
 		m_buildingNode->setTextureIndex(7);
 		m_buildingNode->OnOctreeSet(m_octree);
-		m_navigationMesh->addNavigable(Navigable(m_buildingNode));
+		//m_navigationMesh->addNavigable(Navigable(m_buildingNode));
+		m_navigationMesh->addNavArea(NavArea(m_buildings[i].getAABB()));
+		//m_navigationMesh->addObstacle(new Obstacle(m_buildingNode));
 	}
 
 	for (int i = 4; i < 8; i++) {
 		m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[i]);
 		m_buildingNode->setTextureIndex(i < 6 ? 3 : 4);
 		m_buildingNode->OnOctreeSet(m_octree);
-		m_navigationMesh->addNavigable(Navigable(m_buildingNode));
+		//m_navigationMesh->addNavigable(Navigable(m_buildingNode));
+		m_navigationMesh->addNavArea(NavArea(m_buildings[i].getAABB()));
+		//m_navigationMesh->addObstacle(new Obstacle(m_buildingNode));
 	}
-	
+	//////////////////////////////////////////////////////////////////////////
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[8]);
 	m_buildingNode->setTextureIndex(5);
 	m_buildingNode->OnOctreeSet(m_octree);
-	m_navigationMesh->addNavigable(Navigable(m_buildingNode));
+	//m_navigationMesh->addNavigable(Navigable(m_buildingNode));
+	m_navigationMesh->addNavArea(NavArea(m_buildings[8].getAABB()));
 
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[9]);
 	m_buildingNode->setTextureIndex(6);
 	m_buildingNode->OnOctreeSet(m_octree);
-	m_navigationMesh->addNavigable(Navigable(m_buildingNode));
+	//m_navigationMesh->addNavigable(Navigable(m_buildingNode));
+	m_navigationMesh->addNavArea(NavArea(m_buildings[9].getAABB()));
 
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[10]);
 	m_buildingNode->setTextureIndex(3);
 	m_buildingNode->OnOctreeSet(m_octree);
-	m_navigationMesh->addNavigable(Navigable(m_buildingNode));
+	//m_navigationMesh->addNavigable(Navigable(m_buildingNode));
+	m_navigationMesh->addNavArea(NavArea(m_buildings[10].getAABB()));
 
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[11]);
 	m_buildingNode->setTextureIndex(3);
 	m_buildingNode->OnOctreeSet(m_octree);
-	m_navigationMesh->addNavigable(Navigable(m_buildingNode));
+	//m_navigationMesh->addNavigable(Navigable(m_buildingNode));
+	m_navigationMesh->addNavArea(NavArea(m_buildings[11].getAABB()));
 
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[12]);
 	m_buildingNode->setTextureIndex(8);
 	m_buildingNode->OnOctreeSet(m_octree);
-	m_navigationMesh->addNavigable(Navigable(m_buildingNode));
+	//m_navigationMesh->addNavigable(Navigable(m_buildingNode));
+	m_navigationMesh->addNavArea(NavArea(m_buildings[12].getAABB()));
 
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[13]);
 	m_buildingNode->setTextureIndex(3);
 	m_buildingNode->OnOctreeSet(m_octree);
-	m_navigationMesh->addNavigable(Navigable(m_buildingNode));
+	//m_navigationMesh->addNavigable(Navigable(m_buildingNode));
+	m_navigationMesh->addNavArea(NavArea(m_buildings[13].getAABB()));
 
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[14]);
 	m_buildingNode->setTextureIndex(7);
 	m_buildingNode->OnOctreeSet(m_octree);
-	m_navigationMesh->addNavigable(Navigable(m_buildingNode));
+	//m_navigationMesh->addNavigable(Navigable(m_buildingNode));
+	m_navigationMesh->addNavArea(NavArea(m_buildings[14].getAABB()));
 
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[15]);
 	m_buildingNode->setTextureIndex(4);
 	m_buildingNode->OnOctreeSet(m_octree);
-	m_navigationMesh->addNavigable(Navigable(m_buildingNode));
+	//m_navigationMesh->addNavigable(Navigable(m_buildingNode));
+	m_navigationMesh->addNavArea(NavArea(m_buildings[15].getAABB()));
 
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[16]);
 	m_buildingNode->setTextureIndex(4);
 	m_buildingNode->OnOctreeSet(m_octree);
-	m_navigationMesh->addNavigable(Navigable(m_buildingNode));
+	//m_navigationMesh->addNavigable(Navigable(m_buildingNode));
+	m_navigationMesh->addNavArea(NavArea(m_buildings[16].getAABB()));
 
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[17]);
 	m_buildingNode->setTextureIndex(8);
 	m_buildingNode->OnOctreeSet(m_octree);
-	m_navigationMesh->addNavigable(Navigable(m_buildingNode));
+	//m_navigationMesh->addNavigable(Navigable(m_buildingNode));
+	m_navigationMesh->addNavArea(NavArea(m_buildings[17].getAABB()));
 
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[18]);
 	m_buildingNode->setTextureIndex(7);
 	m_buildingNode->OnOctreeSet(m_octree);
-	m_navigationMesh->addNavigable(Navigable(m_buildingNode));
+	//m_navigationMesh->addNavigable(Navigable(m_buildingNode));
+	m_navigationMesh->addNavArea(NavArea(m_buildings[18].getAABB()));
 
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[19]);
 	m_buildingNode->setTextureIndex(8);
 	m_buildingNode->OnOctreeSet(m_octree);
-	m_navigationMesh->addNavigable(Navigable(m_buildingNode));
+	//m_navigationMesh->addNavigable(Navigable(m_buildingNode));
+	m_navigationMesh->addNavArea(NavArea(m_buildings[19].getAABB()));
 
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[20]);
 	m_buildingNode->setTextureIndex(9);
 	m_buildingNode->OnOctreeSet(m_octree);
-	m_navigationMesh->addNavigable(Navigable(m_buildingNode));
+	//m_navigationMesh->addNavigable(Navigable(m_buildingNode));
+	m_navigationMesh->addNavArea(NavArea(m_buildings[20].getAABB()));
 
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[21]);
 	m_buildingNode->setTextureIndex(10);
 	m_buildingNode->OnOctreeSet(m_octree);
-	m_navigationMesh->addNavigable(Navigable(m_buildingNode));
+	//m_navigationMesh->addNavigable(Navigable(m_buildingNode));
+	m_navigationMesh->addNavArea(NavArea(m_buildings[21].getAABB()));
 
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[22]);
 	m_buildingNode->setTextureIndex(10);
 	m_buildingNode->OnOctreeSet(m_octree);
-	m_navigationMesh->addNavigable(Navigable(m_buildingNode));
+	//m_navigationMesh->addNavigable(Navigable(m_buildingNode));
+	m_navigationMesh->addNavArea(NavArea(m_buildings[22].getAABB()));
 
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[23]);
 	m_buildingNode->setTextureIndex(5);
 	m_buildingNode->OnOctreeSet(m_octree);
-	m_navigationMesh->addNavigable(Navigable(m_buildingNode));
+	//m_navigationMesh->addNavigable(Navigable(m_buildingNode));
+	m_navigationMesh->addNavArea(NavArea(m_buildings[23].getAABB()));
 
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[24]);
 	m_buildingNode->setTextureIndex(4);
 	m_buildingNode->OnOctreeSet(m_octree);
-	m_navigationMesh->addNavigable(Navigable(m_buildingNode));
+	//m_navigationMesh->addNavigable(Navigable(m_buildingNode));
+	m_navigationMesh->addNavArea(NavArea(m_buildings[24].getAABB()));
 
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[25]);
 	m_buildingNode->setTextureIndex(9);
 	m_buildingNode->OnOctreeSet(m_octree);
-	m_navigationMesh->addNavigable(Navigable(m_buildingNode));
+	//m_navigationMesh->addNavigable(Navigable(m_buildingNode));
+	m_navigationMesh->addNavArea(NavArea(m_buildings[25].getAABB()));
 
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[26]);
 	m_buildingNode->setTextureIndex(9);
 	m_buildingNode->OnOctreeSet(m_octree);
-	m_navigationMesh->addNavigable(Navigable(m_buildingNode));
+	//m_navigationMesh->addNavigable(Navigable(m_buildingNode));
+	m_navigationMesh->addNavArea(NavArea(m_buildings[26].getAABB()));
 
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[27]);
 	m_buildingNode->setTextureIndex(10);
 	m_buildingNode->OnOctreeSet(m_octree);
-	m_navigationMesh->addNavigable(Navigable(m_buildingNode));
+	//m_navigationMesh->addNavigable(Navigable(m_buildingNode));
+	m_navigationMesh->addNavArea(NavArea(m_buildings[27].getAABB()));
 
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(Globals::shapeManager.get("quad_xz"));
 	m_buildingNode->translate(0.0f, 0.1f, 0.0f);

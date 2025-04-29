@@ -29,6 +29,7 @@ enum NavmeshPartitionType{
 
 class Geometry;
 class NavArea;
+class NavPolygon;
 class ShapeNode;
 class Shape;
 class OffMeshConnection;
@@ -40,6 +41,7 @@ struct NavigationGeometryInfo{
 	ShapeNode* component = nullptr;
 	OffMeshConnection* connection = nullptr;
 	NavArea* area = nullptr;
+	NavPolygon* polygon = nullptr;
 	unsigned int lodLevel;
 	Matrix4f transform;
 	BoundingBox boundingBox;
@@ -98,6 +100,7 @@ public:
 	void addNavigable(const Navigable& navigable);
 	void addOffMeshConnection(const OffMeshConnection& offMeshConnection);
 	void addNavArea(const NavArea& navArea);
+	void addNavPolygon(const NavPolygon& navPolygon);
 	
 	Vector3f moveAlongSurface(const Vector3f& start, const Vector3f& end, const Vector3f& extents = Vector3f::ONE, int maxVisited = 3, const dtQueryFilter* filter = 0);
 	Vector3f findNearestPoint(const Vector3f& point, const Vector3f& extents = Vector3f::ONE, const dtQueryFilter* filter = 0, dtPolyRef* nearestRef = 0);
@@ -171,6 +174,7 @@ protected:
 	std::vector<Navigable> m_navigables;
 	std::vector<OffMeshConnection> m_offMeshConnections;
 	std::vector<NavArea> m_navAreas;
+	std::vector<NavPolygon> m_navPolygons;
 
 	dtNavMesh* m_navMesh;
 	dtNavMeshQuery* m_navMeshQuery;

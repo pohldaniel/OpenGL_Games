@@ -97,7 +97,7 @@ NavigationStreamState::NavigationStreamState(StateMachine& machine) :
 
 	m_navigationMesh = new DynamicNavigationMesh();
 	createScene();
-
+	createNavArea();
 	m_navigationMesh->setPadding(Vector3f(0.0f, 10.0f, 0.0f));
 	m_navigationMesh->setTileSize(16);
 
@@ -112,7 +112,7 @@ NavigationStreamState::NavigationStreamState(StateMachine& machine) :
 
 	SceneNodeLC* boxGroup = m_root->findChild<SceneNodeLC>("box_group");
 	createBoxOffMeshConnections(m_navigationMesh, boxGroup);
-	createNavArea();
+	
 	m_navigationMesh->build();
 
 	m_crowdManager = new CrowdManager();
@@ -702,7 +702,6 @@ void NavigationStreamState::createMushroom(const Vector3f& pos) {
 	obstacle = new Obstacle(shapeNode);
 	obstacle->setRadius(scale);
 	obstacle->setHeight(scale);
-	obstacle->setOwnerMesh(m_navigationMesh);
 	m_navigationMesh->addObstacle(obstacle);
 
 	btCollisionObject* collisionObject = Physics::AddStaticObject(Physics::BtTransform(Physics::VectorFrom(pos), Physics::QuaternionFrom(orientation)), Physics::CreateConvexHullShape(&m_mushroom, {scale, scale, scale}), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER);

@@ -10,6 +10,7 @@
 #include "NavigationMesh.h"
 #include "OffMeshConnection.h"
 #include "NavArea.h"
+#include "NavPolygon.h"
 #include "NavBuildData.h"
 
 const char* NAVIGATION_CATEGORY = "Navigation";
@@ -342,6 +343,10 @@ void NavigationMesh::addNavArea(const NavArea& navArea) {
 	m_navAreas.push_back(navArea);
 }
 
+void NavigationMesh::addNavPolygon(const NavPolygon& navPolygon) {
+	m_navPolygons.push_back(navPolygon);
+}
+
 bool NavigationMesh::hasTile(const std::array<int, 2>& tile) const {
 	if (m_navMesh) {
 		return m_navMesh->getTileAt(tile[0], tile[1], 0);
@@ -437,6 +442,10 @@ bool NavigationMesh::buildTile(std::vector<NavigationGeometryInfo>& geometryList
 	for (unsigned i = 0; i < build.navAreas.size(); ++i)
 		rcMarkBoxArea(build.ctx, &build.navAreas[i].bounds.min[0], &build.navAreas[i].bounds.max[0],
 			build.navAreas[i].areaID, *build.compactHeightField);
+
+	for (unsigned i = 0; i < build.polygons.size(); ++i)
+		rcMarkConvexPolyArea(build.ctx, build.polygons[i].verts, build.polygons[i].numVerts, build.polygons[i].minY, build.polygons[i].maxY, 
+			build.polygons[i].areaID, *build.compactHeightField);
 
 	if (this->m_partitionType == NAVMESH_PARTITION_WATERSHED){
 		if (!rcBuildDistanceField(build.ctx, *build.compactHeightField)){
@@ -612,10 +621,20 @@ void NavigationMesh::collectGeometries(std::vector<NavigationGeometryInfo>& geom
 	// Get nav area volumes
 	for (unsigned i = 0; i < m_navAreas.size(); ++i){
 		NavArea& area = m_navAreas[i];
-		if (true){
+		if (area.isEnabled()){
 			NavigationGeometryInfo info;
 			info.area = &area;
 			info.boundingBox = area.getBoundingBox();
+			geometryList.push_back(info);
+		}
+	}
+
+	// Get polygon volumes
+	for (unsigned i = 0; i < m_navPolygons.size(); ++i) {
+		NavPolygon& polygon = m_navPolygons[i];
+		if (polygon.isEnabled()) {
+			NavigationGeometryInfo info;
+			info.polygon = &polygon;
 			geometryList.push_back(info);
 		}
 	}
@@ -667,13 +686,21 @@ void NavigationMesh::getTileGeometry(NavBuildData* build, std::vector<Navigation
 				build->offMeshFlags.push_back((unsigned short)connection->m_mask);
 				build->offMeshAreas.push_back((unsigned char)connection->m_areaId);
 				build->offMeshDir.push_back((unsigned char)(connection->m_bidirectional ? DT_OFFMESH_CON_BIDIR : 0));
-
 			}else if(geometryList[i].area) {
 				NavArea* area = geometryList[i].area;
 				NavAreaStub stub;
 				stub.areaID = (unsigned char)area->m_areaID;
 				stub.bounds = area->getBoundingBox();
 				build->navAreas.push_back(stub);
+			}else if (geometryList[i].polygon) {
+				NavPolygon* polygon = geometryList[i].polygon;
+				PolygonStub stub;
+				stub.areaID = (unsigned char)polygon->m_areaID;
+				stub.verts = polygon->m_verts;
+				stub.minY = polygon->m_minY;
+				stub.maxY = polygon->m_maxY;
+				build->polygons.push_back(stub);
+				stub.numVerts = polygon->m_numVerts;
 			}else if (geometryList[i].component) {
 				ShapeNode* drawable = geometryList[i].component;
 				if (drawable) {

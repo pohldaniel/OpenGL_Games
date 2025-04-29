@@ -8,6 +8,7 @@
 #include "DynamicNavigationMesh.h"
 #include "OffMeshConnection.h"
 #include "NavArea.h"
+#include "NavPolygon.h"
 #include "NavBuildData.h"
 #include "Obstacle.h"
 #include "CrowdAgent.h"
@@ -577,6 +578,7 @@ void DynamicNavigationMesh::OnRenderDebug() {
 		for (unsigned i = 0; i < m_obstacles.size(); ++i) {
 			Obstacle* obstacle = m_obstacles[i];
 			if (obstacle && obstacle->m_isEnabled) {
+				std::cout << "########" << std::endl;
 				obstacle->OnRenderDebug();
 			}
 		}
@@ -599,9 +601,23 @@ void DynamicNavigationMesh::OnRenderDebug() {
 				area.OnRenderDebug();
 		}
 	}
+
+	// Draw NavPolygons
+	if (m_drawNavAreas) {
+		for (unsigned i = 0; i < m_navPolygons.size(); ++i) {
+			const NavPolygon& polygon = m_navPolygons[i];
+			if (polygon.m_isEnabled)
+				polygon.OnRenderDebug();
+		}
+	}
 }
 
 void DynamicNavigationMesh::addObstacle(Obstacle* obstacle, bool force) {
+	if (force) {
+		obstacle->setOwnerMesh(this);
+		m_obstacles.push_back(obstacle);
+	}
+
 	if (m_tileCache){
 		float pos[3];
 		const Vector3f& obsPos = obstacle->m_node->getWorldPosition();
@@ -619,8 +635,6 @@ void DynamicNavigationMesh::addObstacle(Obstacle* obstacle, bool force) {
 		}
 		obstacle->m_obstacleId = refHolder;
 		wait();
-		if(force)
-			m_obstacles.push_back(obstacle);
 	}
 }
 

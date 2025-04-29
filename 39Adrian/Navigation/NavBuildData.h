@@ -22,6 +22,14 @@ struct NavAreaStub{
 	unsigned char areaID;
 };
 
+struct PolygonStub {
+	float* verts;
+	int numVerts;
+	float minY;
+	float maxY; 
+	unsigned char areaID;
+};
+
 struct NavBuildData{
 
 	NavBuildData();
@@ -39,6 +47,7 @@ struct NavBuildData{
 	rcHeightfield* heightField;
 	rcCompactHeightfield* compactHeightField;
 	std::vector<NavAreaStub> navAreas;
+	std::vector<PolygonStub> polygons;
 };
 
 struct SimpleNavBuildData : public NavBuildData{

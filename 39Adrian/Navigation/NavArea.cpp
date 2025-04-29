@@ -13,6 +13,13 @@ NavArea::NavArea() :
 
 }
 
+NavArea::NavArea(const BoundingBox& boudingBox) :
+	m_areaID(DEFAULT_AREA_ID),
+	m_boundingBox(boudingBox),
+	m_isEnabled(true){
+
+}
+
 NavArea::NavArea(NavArea const& rhs) : m_boundingBox(rhs.m_boundingBox), m_areaID(rhs.m_areaID), m_isEnabled(rhs.m_isEnabled) {
 
 }

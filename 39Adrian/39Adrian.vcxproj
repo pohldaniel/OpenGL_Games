@@ -229,6 +229,7 @@
     <ClCompile Include="Navigation\NavBuildData.cpp" />
     <ClCompile Include="Navigation\Navigable.cpp" />
     <ClCompile Include="Navigation\NavigationMesh.cpp" />
+    <ClCompile Include="Navigation\NavPolygon.cpp" />
     <ClCompile Include="Navigation\Obstacle.cpp" />
     <ClCompile Include="Navigation\OffMeshConnection.cpp" />
     <ClCompile Include="Physics\BulletDebugDrawer.cpp" />
@@ -443,6 +444,7 @@
     <ClInclude Include="Navigation\NavBuildData.h" />
     <ClInclude Include="Navigation\Navigable.h" />
     <ClInclude Include="Navigation\NavigationMesh.h" />
+    <ClInclude Include="Navigation\NavPolygon.h" />
     <ClInclude Include="Navigation\Obstacle.h" />
     <ClInclude Include="Navigation\OffMeshConnection.h" />
     <ClInclude Include="Physics\BulletDebugDrawer.h" />

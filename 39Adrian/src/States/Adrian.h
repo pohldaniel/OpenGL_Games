@@ -13,6 +13,8 @@
 #include <engine/Background.h>
 #include <Navigation/DynamicNavigationMesh.h>
 #include <Navigation/Navigable.h>
+#include <Navigation/NavArea.h>
+#include <Navigation/Obstacle.h>
 #include <engine/Frustum.h>
 #include <Physics/Physics.h>
 #include <Physics/MousePicker.h>
@@ -81,7 +83,7 @@ private:
 	btCollisionObject* m_ground;
 	std::vector<Shape> m_buildings;
 
-	NavigationMesh* m_navigationMesh;
+	DynamicNavigationMesh* m_navigationMesh;
 
 	std::unordered_set< std::array<int, 2>, std::function<size_t(const std::array<int, 2>&)>, std::function<bool(const std::array<int, 2>&, const std::array<int, 2>&)>> m_addedTiles;
 	
