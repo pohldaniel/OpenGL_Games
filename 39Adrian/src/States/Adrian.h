@@ -22,6 +22,12 @@
 #include <States/StateMachine.h>
 #include <Entities/Md2Entity.h>
 
+struct EditPolygon{
+	int userPointerOffset = 0;
+	int size = 0;
+	std::vector<Vector3f> edgePoints;
+};
+
 class Adrian : public State, public MouseEventListener, public KeyboardEventListener {
 
 public:
@@ -89,6 +95,9 @@ private:
 	NavigationMesh* m_navigationMesh;
 
 	std::unordered_set< std::array<int, 2>, std::function<size_t(const std::array<int, 2>&)>, std::function<bool(const std::array<int, 2>&, const std::array<int, 2>&)>> m_addedTiles;
+	std::vector<EditPolygon*> m_editPolygons;
+	EditPolygon* m_currentPolygon;
+
 	std::vector<Vector3f> m_edgePoints;
 	std::vector<btCollisionObject*> m_collisionObjects;
 
