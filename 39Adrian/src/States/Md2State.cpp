@@ -79,6 +79,14 @@ Md2State::~Md2State() {
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
 	Material::CleanupTextures();
+
+	delete m_octree;
+	m_octree = nullptr;
+
+	delete m_root;
+	m_root = nullptr;
+
+	WorkQueue::Shutdown();
 }
 
 void Md2State::fixedUpdate() {

@@ -12,12 +12,9 @@
 #include "Globals.h"
 #include "Renderer.h"
 
-auto hash2 = [](const std::array<int, 2>& p) {  return std::hash<int>()(p[0]) ^ std::hash<int>()(p[1]) << 1; };
-auto equal2 = [](const std::array<int, 2>& p1, const std::array<int, 2>& p2) { return p1[0] == p2[0] && p1[1] == p2[1]; };
-
-Adrian::Adrian(StateMachine& machine) : State(machine, States::MAP),
+Adrian::Adrian(StateMachine& machine) : State(machine, States::ADRIAN),
 	m_camera(Application::Width, Application::Height),
-	m_addedTiles(0, hash2, equal2),
+	m_addedTiles(0, [](const std::array<int, 2>& p) {  return std::hash<int>()(p[0]) ^ std::hash<int>()(p[1]) << 1; }, [](const std::array<int, 2>& p1, const std::array<int, 2>& p2) { return p1[0] == p2[0] && p1[1] == p2[1]; }),
 	m_streamingDistance(6),
 	m_globalUserIndex(-1) {
 

@@ -262,6 +262,7 @@
     <ClCompile Include="src\States\NavigationStreamState.cpp" />
     <ClCompile Include="src\States\Settings.cpp" />
     <ClCompile Include="src\States\StateMachine.cpp" />
+    <ClCompile Include="src\States\Winston.cpp" />
     <ClCompile Include="src\UI\Bar.cpp" />
     <ClCompile Include="src\UI\Empty.cpp" />
     <ClCompile Include="src\UI\Icon.cpp" />
@@ -479,6 +480,7 @@
     <ClInclude Include="src\States\NavigationStreamState.h" />
     <ClInclude Include="src\States\Settings.h" />
     <ClInclude Include="src\States\StateMachine.h" />
+    <ClInclude Include="src\States\Winston.h" />
     <ClInclude Include="src\UI\Bar.h" />
     <ClInclude Include="src\UI\Empty.h" />
     <ClInclude Include="src\UI\Icon.h" />

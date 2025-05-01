@@ -567,6 +567,9 @@
     <ClCompile Include="Navigation\NavPolygon.cpp">
       <Filter>Navigation</Filter>
     </ClCompile>
+    <ClCompile Include="src\States\Winston.cpp">
+      <Filter>Source Files\States</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="convhull\convhull_3d.h">
@@ -1087,6 +1090,9 @@
     </ClInclude>
     <ClInclude Include="Navigation\NavPolygon.h">
       <Filter>Navigation</Filter>
+    </ClInclude>
+    <ClInclude Include="src\States\Winston.h">
+      <Filter>Source Files\States</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

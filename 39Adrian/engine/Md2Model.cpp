@@ -93,14 +93,14 @@ Md2Model::~Md2Model() {
 		cleanup();
 	}
 
-	m_texels.clear();
+	/*m_texels.clear();
 	m_texels.shrink_to_fit();
 	m_interpolated.clear();
 	m_interpolated.shrink_to_fit();
 	m_indexBuffer.clear();
 	m_indexBuffer.shrink_to_fit();
 	m_animations.clear();
-	m_animations.shrink_to_fit();
+	m_animations.shrink_to_fit();*/
 }
 
 void Md2Model::cleanup() {

@@ -7,6 +7,8 @@
 #include <States/NavigationStreamState.h>
 #include <States/MapState.h>
 #include <States/Adrian.h>
+#include <States/Md2State.h>
+#include <States/Winston.h>
 
 #include "Menu.h"
 #include "Application.h"
@@ -29,6 +31,8 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 		{ "navigation_stream", Button() },
 		{ "iso_map",           Button() },
 		{ "adrian",            Button() },
+		{ "md2",               Button() },
+		{ "winston",           Button() },
 		{ "settings",          Button() },
 		{ "controls",          Button() },
 	});
@@ -78,8 +82,26 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 		m_machine.addStateAtBottom(new Adrian(m_machine));
 	});
 
+	m_buttons.at("md2").setCharset(Globals::fontManager.get("upheaval_30"));
+	m_buttons.at("md2").setPosition(450.0f, 500.0f);
+	m_buttons.at("md2").setOutlineThickness(5.0f);
+	m_buttons.at("md2").setText("MD2");
+	m_buttons.at("md2").setFunction([&]() {
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new Md2State(m_machine));
+	});
+
+	m_buttons.at("winston").setCharset(Globals::fontManager.get("upheaval_30"));
+	m_buttons.at("winston").setPosition(450.0f, 400.0f);
+	m_buttons.at("winston").setOutlineThickness(5.0f);
+	m_buttons.at("winston").setText("Winston Child");
+	m_buttons.at("winston").setFunction([&]() {
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new Winston(m_machine));
+	});
+
 	m_buttons.at("settings").setCharset(Globals::fontManager.get("upheaval_30"));
-	m_buttons.at("settings").setPosition(static_cast<float>(Application::Width - 350), 200.0f);
+	m_buttons.at("settings").setPosition(static_cast<float>(Application::Width - 250), 200.0f);
 	m_buttons.at("settings").setOutlineThickness(5.0f);
 	m_buttons.at("settings").setText("Settings");
 	m_buttons.at("settings").setFunction([&]() {
@@ -88,7 +110,7 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	});
 
 	m_buttons.at("controls").setCharset(Globals::fontManager.get("upheaval_30"));
-	m_buttons.at("controls").setPosition(static_cast<float>(Application::Width - 350), 100.0f);
+	m_buttons.at("controls").setPosition(static_cast<float>(Application::Width - 250), 100.0f);
 	m_buttons.at("controls").setOutlineThickness(5.0f);
 	m_buttons.at("controls").setText("Controls");
 	m_buttons.at("controls").setFunction([&]() {

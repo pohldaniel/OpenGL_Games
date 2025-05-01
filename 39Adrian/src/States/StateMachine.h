@@ -11,7 +11,8 @@ enum States {
 	MAP,
 	NAVIGATION,
 	NAVIGATION_STREAM,
-	ADRIAN
+	ADRIAN,
+	WINSTON
 };
 
 class State;
