@@ -153,7 +153,7 @@ bool CrowdManager::reCreateCrowd() {
 	for (unsigned i = 0; i < size; ++i) {
 		Vector3f pos = m_agents[i]->getPosition();
 
-		removeAgent(m_agents[i]);	
+		removeAgent(m_agents[i], false);
 		addAgent(m_agents[i], pos, false);
 		m_agents[i]->resetParameter();
 	}

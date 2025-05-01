@@ -13,6 +13,9 @@ void Renderer::init(Octree* octree, SceneNodeLC* scene) {
 }
 
 void Renderer::shutdown() {
+
+	clearMarker();
+
 	delete m_octree;
 	m_octree = nullptr;
 
@@ -28,10 +31,11 @@ Octree* Renderer::getOctree() {
 	return m_octree;
 }
 
-void Renderer::addMarker(const Vector3f& pos) {
-	m_marker.push_back(m_scene->addChild<ShapeNode, Shape>(Globals::shapeManager.get("sphere")));
+void Renderer::addMarker(const Vector3f& pos, float scale, int textureIndex) {
+	m_marker.push_back(m_scene->addChild<ShapeNode, Shape>(Globals::shapeManager.get("sphere"), true));
 	m_marker.back()->setPosition(pos);
-	m_marker.back()->setTextureIndex(4);
+	m_marker.back()->setScale(scale);
+	m_marker.back()->setTextureIndex(textureIndex);
 	m_marker.back()->OnOctreeSet(m_octree);
 }
 
@@ -41,6 +45,7 @@ void Renderer::clearMarker() {
 		shapeNode->eraseSelf();
 	}
 	m_marker.clear();
+	m_marker.shrink_to_fit();
 }
 
 Renderer& Renderer::Get() {

@@ -52,7 +52,6 @@ public:
 private:
 
 	void renderUi();
-	void clearMarker();
 	void toggleStreaming(bool enabled);
 	void saveNavigationData();
 	void updateStreaming();
@@ -83,10 +82,8 @@ private:
 	Octree* m_octree;
 	Frustum m_frustum;
 
-	Shape m_segment, m_disk, m_sphere;
+	Shape m_segment, m_disk;
 	ShapeNode *m_segmentNode, *m_diskNode, *m_buildingNode;
-
-	std::vector<ShapeNode*> m_marker;
 
 	MousePicker m_mousePicker;
 	btCollisionObject* m_ground;

@@ -184,15 +184,15 @@ bool MousePicker::updatePositionOrthographicAll(unsigned int posX, unsigned int 
 	Physics::GetDynamicsWorld()->rayTest(m_callbackAll.m_origin, m_callbackAll.m_target, m_callbackAll);
 
 	if (m_callbackAll.hasHit()) {
-
 		float fraction = 1.0f;
 		for (size_t i = 0; i < m_callbackAll.m_hitFractions.size(); i++) {
-			if (m_callbackAll.m_hitFractions[i] <= fraction && m_callbackAll.m_collisionObjects[i] == collisonObject) {
+			if (m_callbackAll.m_hitFractions[i] <= fraction) {
 				m_callbackAll.index = i;
 				fraction = m_callbackAll.m_hitFractions[i];
+				if (m_callbackAll.m_collisionObjects[i] == collisonObject)
+					break;
 			}
-		}
-		
+		}		
 		m_callbackAll.m_userIndex = m_callbackAll.m_collisionObjects[m_callbackAll.index]->getUserIndex();
 		m_callbackAll.m_userPoiner = m_callbackAll.m_collisionObjects[m_callbackAll.index]->getUserPointer();
 		m_callbackAll.m_collisionObject = const_cast<btCollisionObject*>(m_callbackAll.m_collisionObjects[m_callbackAll.index]);
@@ -240,12 +240,14 @@ bool MousePicker::clickOrthographicAll(unsigned int posX, unsigned int posY, con
 	m_callbackAll = MousePickCallbackAll(Physics::VectorFrom(rayStartWorld), Physics::VectorFrom(rayEndWorld), Physics::MOUSEPICKER, Physics::PICKABLE_OBJECT);
 	Physics::GetDynamicsWorld()->rayTest(m_callbackAll.m_origin, m_callbackAll.m_target, m_callbackAll);
 
-	if (m_callbackAll.hasHit()) {
+	if (m_callbackAll.hasHit()) {		
 		float fraction = 1.0f;
-		for (size_t i = 0; i < m_callbackAll.m_hitFractions.size(); i++) {
-			if (m_callbackAll.m_hitFractions[i] <= fraction && m_callbackAll.m_collisionObjects[i] == collisonObject) {
+		for (size_t i = 0; i < m_callbackAll.m_hitFractions.size(); i++) {		
+			if (m_callbackAll.m_hitFractions[i] <= fraction) {
 				m_callbackAll.index = i;
 				fraction = m_callbackAll.m_hitFractions[i];
+				if (m_callbackAll.m_collisionObjects[i] == collisonObject)
+					break;
 			}
 		}
 		m_callbackAll.m_userIndex = m_callbackAll.m_collisionObjects[m_callbackAll.index]->getUserIndex();

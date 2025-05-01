@@ -49,8 +49,6 @@ public:
 	void OnKeyDown(Event::KeyboardEvent& event) override;
 	void OnKeyUp(Event::KeyboardEvent& event) override;
 
-	static void AddMarker(const Vector3f& pos);
-
 private:
 
 	void renderUi();

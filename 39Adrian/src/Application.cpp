@@ -763,4 +763,20 @@ void Application::loadAssets() {
 
 	Globals::shapeManager.buildCylinder("cylinder", 1.0f, 1.0f, 1.0f, Vector3f(0.0f, 0.0f, 0.0f), true, true, 8, 8, true, true);
 	Globals::shapeManager.get("cylinder").createBoundingBox();
+
+	Globals::animationManagerNew.loadAnimationAni("beta_idle", "res/models/BetaLowpoly/Beta_Idle.ani");
+	Globals::animationManagerNew.loadAnimationAni("beta_run", "res/models/BetaLowpoly/Beta_Run.ani");
+	Globals::animationManagerNew.loadAnimationAni("jack_idle", "res/models/Jack/Jack_Walk.ani");
+	Globals::animationManagerNew.loadAnimationAni("jack_walk", "res/models/Jack/Jack_Walk.ani");
+
+	Globals::animationManagerNew.loadAnimationAssimp("woman_walk", "res/models/woman/Woman.gltf", "Walking", "woman_walk");
+	Globals::animationManagerNew.loadAnimationAssimp("woman_lean_left", "res/models/woman/Woman.gltf", "Lean_Left", "woman_lean_left");
+	Globals::animationManagerNew.loadAnimationAssimp("woman_run", "res/models/woman/Woman.gltf", "Running", "woman_run");
+	Globals::animationManagerNew.loadAnimationAssimp("woman_jump_1", "res/models/woman/Woman.gltf", "Jump", "woman_jump_1");
+	Globals::animationManagerNew.loadAnimationAssimp("woman_jump_2", "res/models/woman/Woman.gltf", "Jump2", "woman_jump_2");
+	Globals::animationManagerNew.loadAnimationAssimp("woman_pick_up", "res/models/woman/Woman.gltf", "PickUp", "woman_pick_up");
+	Globals::animationManagerNew.loadAnimationAssimp("woman_sit_idle", "res/models/woman/Woman.gltf", "SitIdle", "woman_sit_idle");
+	Globals::animationManagerNew.loadAnimationAssimp("woman_idle", "res/models/woman/Woman.gltf", "Idle", "woman_idle");
+	Globals::animationManagerNew.loadAnimationAssimp("woman_punch", "res/models/woman/Woman.gltf", "Punch", "woman_punch");
+	Globals::animationManagerNew.loadAnimationAssimp("woman_sit", "res/models/woman/Woman.gltf", "Sitting", "woman_sit");
 }

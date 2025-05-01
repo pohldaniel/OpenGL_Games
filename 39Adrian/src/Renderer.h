@@ -8,7 +8,7 @@
 class Renderer {
 
 public:
-	void addMarker(const Vector3f& pos);
+	void addMarker(const Vector3f& pos, float scale = 1.0f, int textureIndex = 4);
 	void clearMarker();
 	void init(Octree* octree, SceneNodeLC* scene);
 	void shutdown();

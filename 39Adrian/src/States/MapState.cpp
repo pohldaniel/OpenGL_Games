@@ -10,6 +10,7 @@
 #include "MapState.h"
 #include "Application.h"
 #include "Globals.h"
+#include "Renderer.h"
 
 MapState::MapState(StateMachine& machine) : State(machine, States::MAP), m_camera(Application::Width, Application::Height) {
 
@@ -30,9 +31,11 @@ MapState::MapState(StateMachine& machine) : State(machine, States::MAP), m_camer
 	m_hero.load("data/models/dynamic/hero/hero.md2");
 
 	WorkQueue::Init(0);
-	m_octree = new Octree(m_camera, m_frustum, m_dt);
+	Renderer::Get().init(new Octree(m_camera, m_frustum, m_dt), new SceneNodeLC());
+	m_octree = Renderer::Get().getOctree();
 	m_octree->setUseOcclusionCulling(false);
 	m_octree->setUseCulling(m_useCulling);
+	m_root = Renderer::Get().getScene();
 
 	DebugRenderer::Get().setEnable(true);
 	m_root = new SceneNodeLC();
@@ -59,10 +62,6 @@ MapState::MapState(StateMachine& machine) : State(machine, States::MAP), m_camer
 	m_disk.createBoundingBox();
 	m_disk.markForDelete();
 
-	m_sphere.buildSphere(10.0f, Vector3f(0.0f, 0.0f, 0.0f), 10, 10, true, false, false);
-	m_sphere.createBoundingBox();
-	m_sphere.markForDelete();
-
 	m_ground = Physics::AddStaticObject(Physics::BtTransform(btVector3(0.0f, 0.0f, 0.0f)), new  btStaticPlaneShape(btVector3(0.0f, 1.0f, 0.0f), -0.1f), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER, nullptr);
 }
 
@@ -70,13 +69,8 @@ MapState::~MapState() {
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
 	Material::CleanupTextures();
+	Renderer::Get().shutdown();
 	ShapeDrawer::Get().shutdown();
-
-	delete m_octree;
-	m_octree = nullptr;
-
-	delete m_root;
-	m_root = nullptr;
 
 	Physics::DeleteAllCollisionObjects();
 }
@@ -129,7 +123,7 @@ void MapState::update() {
 	}
 
 	if (keyboard.keyPressed(Keyboard::KEY_T)) {
-		clearMarker();
+		Renderer::Get().clearMarker();
 	}
 
 	Vector3f moveDir = Vector3f::ZERO;
@@ -176,6 +170,7 @@ void MapState::render() {
 	shader->loadMatrix("u_view", m_camera.getViewMatrix());
 	shader->loadMatrix("u_model", Matrix4f::Translate(tilex, 0.0f, tilez) * Matrix4f::Scale(TILE_SIZE * TILE_LOWFACTOR, 0.0f, TILE_SIZE * TILE_HIGHFACTOR));
 	shader->loadFloat("u_tileFactor", m_tileFactor);
+	shader->loadVector("u_blendColor", Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
 	Globals::shapeManager.get("quad_xz").drawRaw();
 	shader->unuse();
 
@@ -235,11 +230,8 @@ void MapState::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 		
 		if (m_mousePicker.clickOrthographicAll(event.x, event.y, m_camera, m_ground)) {
 			const MousePickCallbackAll& callbackAll = m_mousePicker.getCallbackAll();
-			m_marker.push_back(m_root->addChild<ShapeNode, Shape>(m_sphere));
-			m_marker.back()->setPosition(Physics::VectorFrom(callbackAll.m_hitPointWorld[callbackAll.index]));
-			m_marker.back()->setTextureIndex(2);
-			m_marker.back()->OnOctreeSet(m_octree);
-			const Vector3f& pos = m_marker.back()->getPosition();
+			Vector3f pos = Physics::VectorFrom(callbackAll.m_hitPointWorld[callbackAll.index]);
+			Renderer::Get().addMarker(pos, 20.0f, 2);
 			m_heroEnity->move(pos[0], pos[2]);
 		}
 	}
@@ -364,18 +356,10 @@ void MapState::renderUi() {
 	ImGui::Checkbox("Debug Tree", &m_debugTree);
 	ImGui::Checkbox("Debug Physic", &m_debugPhysic);
 	if (ImGui::Button("Clear Marker"))
-		clearMarker();
+		Renderer::Get().clearMarker();
 	
 	ImGui::End();
 
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-}
-
-void MapState::clearMarker() {
-	for (auto shapeNode : m_marker) {
-		shapeNode->OnOctreeSet(nullptr);
-		shapeNode->eraseSelf();
-	}
-	m_marker.clear();
 }

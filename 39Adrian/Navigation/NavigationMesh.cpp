@@ -74,6 +74,12 @@ NavigationMesh::NavigationMesh() :
 
 NavigationMesh::~NavigationMesh() {
 	releaseNavigationMesh();
+
+	delete m_queryFilter;
+	m_queryFilter = nullptr;
+
+	delete m_pathData;
+	m_pathData = nullptr;
 }
 
 void NavigationMesh::OnRenderDebug() {
@@ -619,12 +625,6 @@ void NavigationMesh::releaseNavigationMesh() {
 	dtFreeNavMeshQuery(m_navMeshQuery);
 	m_navMeshQuery = nullptr;
 
-	delete m_queryFilter;
-	m_queryFilter = nullptr;
-
-	delete m_pathData;
-	m_pathData = nullptr;
-
 	m_numTilesX = 0;
 	m_numTilesZ = 0;
 	m_boundingBox.reset();
@@ -802,8 +802,6 @@ Vector3f NavigationMesh::findNearestPoint(const Vector3f& point, const Vector3f&
 	if (!nearestRef)
 		nearestRef = &pointRef;
 	m_navMeshQuery->findNearestPoly(localPoint.getVec(), extents.getVec(), filter ? filter : m_queryFilter, nearestRef, &nearestPoint[0]);
-	std::cout << "Point: " << point[0] << "  " << point[1] << "  " << point[2] << std::endl;
-	std::cout << "Nerest Point: " << nearestPoint[0] << "  " << nearestPoint[1] << "  " << nearestPoint[2] << std::endl;
 	return *nearestRef ? nearestPoint : point;
 }
 

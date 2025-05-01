@@ -162,7 +162,8 @@ DynamicNavigationMesh::DynamicNavigationMesh() :
 }
 
 DynamicNavigationMesh::~DynamicNavigationMesh() {
-
+	removeObstacles();
+	releaseNavigationMesh();
 }
 
 bool DynamicNavigationMesh::allocate() {
@@ -260,7 +261,7 @@ bool DynamicNavigationMesh::allocate(const BoundingBox& boundingBox, unsigned in
 	params.tileHeight = tileEdgeLength;
 	params.maxTiles = maxTiles;
 	params.maxPolys = maxPolys;
-
+	
 	m_navMesh = dtAllocNavMesh();
 	if (!m_navMesh){
 		std::cout << "Could not allocate navigation mesh" << std::endl;
@@ -410,7 +411,7 @@ bool DynamicNavigationMesh::build() {
 }
 
 int DynamicNavigationMesh::buildTile(std::vector<NavigationGeometryInfo>& geometryList, int x, int z, TileCacheData* tiles) {
-
+	
 	m_tileCache->removeTile(m_navMesh->getTileRefAt(x, z, 0), 0, 0);
 	BoundingBox tileBoundingBox = getTileBoudningBox(std::array<int, 2>({ x, z }));
 	DynamicNavBuildData build(m_allocator);
@@ -564,7 +565,6 @@ int DynamicNavigationMesh::buildTile(std::vector<NavigationGeometryInfo>& geomet
 
 void DynamicNavigationMesh::releaseNavigationMesh() {
 	NavigationMesh::releaseNavigationMesh();
-	removeObstacles();
 	releaseTileCache();
 	m_numTiles = 0u;	
 }
@@ -752,7 +752,6 @@ void DynamicNavigationMesh::writeTiles(Buffer& dest, int x, int z) const {
 		if (!tile || !tile->header || !tile->dataSize)
 			continue; // Don't write "void-space" tiles
 					  // The header conveniently has the majority of the information required
-
 		size_t offset = dest.size;
 		dest.resize(sizeof(dtTileCacheLayerHeader) + sizeof(int) + tile->dataSize);
 		memcpy(dest.data + offset, tile->header, sizeof(dtTileCacheLayerHeader));

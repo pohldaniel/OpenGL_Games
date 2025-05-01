@@ -452,7 +452,7 @@ bool CrowdAgent::OnTileAdded(const std::array<int, 2>& tile){
 	const BoundingBox boundingBox = mesh->getTileBoudningBox(agentTile);
 
 	if (tile == agentTile && isInCrowd()){
-		m_crowdManager->removeAgent(this);
+		m_crowdManager->removeAgent(this, false);
 		m_crowdManager->addAgent(this, pos, false);
 		return true;
 	}

@@ -32,7 +32,6 @@ void Obstacle::setNode(OctreeNode* node) {
 }
 
 void Obstacle::OnSetEnabled() {
-	std::cout << "fffffffffff" << std::endl;
 	if (m_ownerMesh){
 		if (m_isEnabled)
 			m_ownerMesh->addObstacle(this);

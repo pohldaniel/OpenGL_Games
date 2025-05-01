@@ -860,7 +860,6 @@ void Octree::collectBatchesWork(Task* _task, unsigned threadIndex) {
 	std::vector<std::pair<Octant*, unsigned char> >& octants = task->octants;
 	std::vector<Batch>& opaqueQueue = threaded ? result.opaqueBatches : m_opaqueBatches.m_batches;
 
-	//std::cout << "Size: " << octants.size() << std::endl;
 	for (auto it = octants.begin(); it != octants.end(); ++it){
 		Octant* octant = it->first;
 		unsigned char planeMask = it->second;

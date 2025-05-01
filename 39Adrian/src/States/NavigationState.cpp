@@ -63,29 +63,12 @@ NavigationState::NavigationState(StateMachine& machine) :
 	m_woman.loadModelAssimp("res/models/woman/Woman.gltf", true, false);
 	m_woman.getMeshes()[0]->getMeshBones()[0].initialScale.scale(0.004f, 0.004f, 0.004f);
 	
-	Globals::animationManagerNew.loadAnimationAni("beta_idle", "res/models/BetaLowpoly/Beta_Idle.ani");
-	Globals::animationManagerNew.loadAnimationAni("beta_run", "res/models/BetaLowpoly/Beta_Run.ani");
-	Globals::animationManagerNew.loadAnimationAni("jack_idle", "res/models/Jack/Jack_Walk.ani");
-	Globals::animationManagerNew.loadAnimationAni("jack_walk", "res/models/Jack/Jack_Walk.ani");
-
-	Globals::animationManagerNew.loadAnimationAssimp("woman_walk", "res/models/woman/Woman.gltf", "Walking", "woman_walk");
-	Globals::animationManagerNew.loadAnimationAssimp("woman_lean_left", "res/models/woman/Woman.gltf", "Lean_Left", "woman_lean_left");
-	Globals::animationManagerNew.loadAnimationAssimp("woman_run", "res/models/woman/Woman.gltf", "Running", "woman_run");
-	Globals::animationManagerNew.loadAnimationAssimp("woman_jump_1", "res/models/woman/Woman.gltf", "Jump", "woman_jump_1");
-	Globals::animationManagerNew.loadAnimationAssimp("woman_jump_2", "res/models/woman/Woman.gltf", "Jump2", "woman_jump_2");
-	Globals::animationManagerNew.loadAnimationAssimp("woman_pick_up", "res/models/woman/Woman.gltf", "PickUp", "woman_pick_up");
-	Globals::animationManagerNew.loadAnimationAssimp("woman_sit_idle", "res/models/woman/Woman.gltf", "SitIdle", "woman_sit_idle");
-	Globals::animationManagerNew.loadAnimationAssimp("woman_idle", "res/models/woman/Woman.gltf", "Idle", "woman_idle");
-	Globals::animationManagerNew.loadAnimationAssimp("woman_punch", "res/models/woman/Woman.gltf", "Punch", "woman_punch");
-	Globals::animationManagerNew.loadAnimationAssimp("woman_sit", "res/models/woman/Woman.gltf", "Sitting", "woman_sit");
-
 	createShapes();
 	createPhysics();
 
 	m_navigationMesh = new NavigationMesh();
 	createScene();
 
-	
 	m_navigationMesh->setPadding(Vector3f(0.0f, 10.0f, 0.0f));
 	m_navigationMesh->setTileSize(8);
 
@@ -119,13 +102,6 @@ NavigationState::~NavigationState() {
 	Material::CleanupTextures();
 	Renderer::Get().shutdown();
 	ShapeDrawer::Get().shutdown();
-
-	//allready delete at the renderer
-	//delete m_octree;
-	//m_octree = nullptr;
-
-	//delete m_root;
-	//m_root = nullptr;
 
 	delete m_navigationMesh;
 	m_navigationMesh = nullptr;
@@ -301,10 +277,7 @@ void NavigationState::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 			if (m_mousePicker.clickAll(event.x, event.y, m_camera, m_groundObject)) {
 				const MousePickCallbackAll& callbackAll = m_mousePicker.getCallbackAll();
 				btVector3 pos = callbackAll.m_hitPointWorld[callbackAll.index];
-				std::cout << "Pos: " << pos[0] << "  " << pos[1] << "  " << pos[2] << std::endl;
-				Vector3f pathPos = m_navigationMesh->findNearestPoint(Physics::VectorFrom(pos), Vector3f(1.0f, 1.0f, 1.0f));
-				
-				std::cout << "Path Pos: " << pathPos[0] << "  " << pathPos[1] << "  " << pathPos[2] << std::endl;
+				Vector3f pathPos = m_navigationMesh->findNearestPoint(Physics::VectorFrom(pos), Vector3f(1.0f, 1.0f, 1.0f));			
 				m_crowdManager->setCrowdTarget(pathPos);
 			}
 		}

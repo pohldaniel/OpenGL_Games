@@ -156,16 +156,10 @@ void TextField::processInput(const int mouseX, const int mouseY, const Event::Mo
 
 	if (mouseX > m_position[0] + m_thickness && mouseX < m_position[0] + m_size[0] + m_thickness  &&
 		mouseY > m_position[1] + m_thickness && mouseY < m_position[1] + m_size[1] + m_thickness) {
-		m_outlineColor = m_outlineColorHover;
-		
+		m_outlineColor = m_outlineColorHover;		
 	}else {
 		m_outlineColor = m_outlineColorDefault;
 
-	}
-
-	Keyboard &keyboard = Keyboard::instance();
-	if (keyboard.keyPressed(Keyboard::KEY_T)) {
-		std::cout << "Pos: " << m_position[0] << "  " << m_position[1] << std::endl;
 	}
 }
 

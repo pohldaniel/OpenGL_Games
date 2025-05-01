@@ -76,22 +76,6 @@ NavigationStreamState::NavigationStreamState(StateMachine& machine) :
 	m_woman.loadModelAssimp("res/models/woman/Woman.gltf", true, false);
 	m_woman.getMeshes()[0]->getMeshBones()[0].initialScale.scale(0.004f, 0.004f, 0.004f);
 
-	Globals::animationManagerNew.loadAnimationAni("beta_idle", "res/models/BetaLowpoly/Beta_Idle.ani");
-	Globals::animationManagerNew.loadAnimationAni("beta_run", "res/models/BetaLowpoly/Beta_Run.ani");
-	Globals::animationManagerNew.loadAnimationAni("jack_idle", "res/models/Jack/Jack_Walk.ani");
-	Globals::animationManagerNew.loadAnimationAni("jack_walk", "res/models/Jack/Jack_Walk.ani");
-
-	Globals::animationManagerNew.loadAnimationAssimp("woman_walk", "res/models/woman/Woman.gltf", "Walking", "woman_walk");
-	Globals::animationManagerNew.loadAnimationAssimp("woman_lean_left", "res/models/woman/Woman.gltf", "Lean_Left", "woman_lean_left");
-	Globals::animationManagerNew.loadAnimationAssimp("woman_run", "res/models/woman/Woman.gltf", "Running", "woman_run");
-	Globals::animationManagerNew.loadAnimationAssimp("woman_jump_1", "res/models/woman/Woman.gltf", "Jump", "woman_jump_1");
-	Globals::animationManagerNew.loadAnimationAssimp("woman_jump_2", "res/models/woman/Woman.gltf", "Jump2", "woman_jump_2");
-	Globals::animationManagerNew.loadAnimationAssimp("woman_pick_up", "res/models/woman/Woman.gltf", "PickUp", "woman_pick_up");
-	Globals::animationManagerNew.loadAnimationAssimp("woman_sit_idle", "res/models/woman/Woman.gltf", "SitIdle", "woman_sit_idle");
-	Globals::animationManagerNew.loadAnimationAssimp("woman_idle", "res/models/woman/Woman.gltf", "Idle", "woman_idle");
-	Globals::animationManagerNew.loadAnimationAssimp("woman_punch", "res/models/woman/Woman.gltf", "Punch", "woman_punch");
-	Globals::animationManagerNew.loadAnimationAssimp("woman_sit", "res/models/woman/Woman.gltf", "Sitting", "woman_sit");
-
 	createShapes();
 	createPhysics();
 
@@ -155,13 +139,6 @@ NavigationStreamState::~NavigationStreamState() {
 	Material::CleanupTextures();
 	Renderer::Get().shutdown();
 	ShapeDrawer::Get().shutdown();
-
-	//allready delete at the renderer
-	//delete m_octree;
-	//m_octree = nullptr;
-
-	//delete m_root;
-	//m_root = nullptr;
 
 	delete m_navigationMesh;
 	m_navigationMesh = nullptr;
@@ -746,7 +723,7 @@ void NavigationStreamState::toggleStreaming(bool enabled) {
 		int maxTiles = (2 * m_streamingDistance + 1) * (2 * m_streamingDistance + 1);
 		BoundingBox boundingBox = m_navigationMesh->getBoundingBox();		
 		saveNavigationData();
-		m_navigationMesh->allocate(boundingBox, maxTiles);		
+		m_navigationMesh->allocate(boundingBox, maxTiles);	
 		m_crowdManager->resetNavMesh(m_navigationMesh->getDetourNavMesh());
 		m_crowdManager->initNavquery(m_navigationMesh->getDetourNavMesh());	
 		updateStreaming();
@@ -777,7 +754,7 @@ void NavigationStreamState::updateStreaming() {
 
 	const std::array<int, 2> beginTile = { std::max(0, jackTile[0] - m_streamingDistance), std::max(0, jackTile[1] - m_streamingDistance) };
 	const std::array<int, 2> endTile = { std::min(jackTile[0] + m_streamingDistance, numTiles[0] - 1), std::min(jackTile[1] + m_streamingDistance, numTiles[1] - 1) };
-
+	
 	// Remove tiles
 	for (std::unordered_set<std::array<int, 2>>::iterator i = m_addedTiles.begin(); i != m_addedTiles.end();){
 		const std::array<int, 2> tileIdx = *i;
@@ -810,6 +787,7 @@ void NavigationStreamState::saveNavigationData(){
 	DynamicNavigationMesh* navMesh = m_navigationMesh;
 	m_tileData.clear();
 	m_addedTiles.clear();
+
 	const  std::array<int, 2> numTiles = navMesh->getNumTiles();
 	for (int z = 0; z < numTiles[1]; ++z)
 		for (int x = 0; x <= numTiles[0]; ++x){
