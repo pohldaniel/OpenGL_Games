@@ -243,7 +243,7 @@ bool MousePicker::clickOrthographicAll(unsigned int posX, unsigned int posY, con
 	if (m_callbackAll.hasHit()) {
 		float fraction = 1.0f;
 		for (size_t i = 0; i < m_callbackAll.m_hitFractions.size(); i++) {
-			if (m_callbackAll.m_hitFractions[i] <= fraction /*&& m_callbackAll.m_collisionObjects[i] != collisonObject*/) {
+			if (m_callbackAll.m_hitFractions[i] <= fraction && m_callbackAll.m_collisionObjects[i] == collisonObject) {
 				m_callbackAll.index = i;
 				fraction = m_callbackAll.m_hitFractions[i];
 			}

@@ -62,6 +62,7 @@ public:
     static unsigned GetThreadIndex() { return ThreadIndex; }
 
 	static void Init(unsigned numThreads);
+	static void Shutdown();
 	static WorkQueue* Get();
 
 private:

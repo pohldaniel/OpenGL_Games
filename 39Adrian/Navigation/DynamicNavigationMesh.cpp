@@ -149,7 +149,6 @@ struct LinearAllocator : public dtTileCacheAlloc {
 DynamicNavigationMesh::DynamicNavigationMesh() : 
 	NavigationMesh(), 
 	m_drawObstacles(true),
-	m_drawOffMeshConnections(true),
 	m_tileCache(nullptr),
 	m_crowdManager(nullptr),
 	m_maxObstacles(DEFAULT_MAX_OBSTACLES),
@@ -235,7 +234,6 @@ bool DynamicNavigationMesh::allocate(const BoundingBox& boundingBox, unsigned in
 	//wait();
 	std::cout << "Built navigation mesh with " + std::to_string(m_numTilesX * m_numTilesZ) + " tiles" << std::endl;
 
-	//addObstacles();
 	return true;
 }
 
@@ -566,8 +564,9 @@ int DynamicNavigationMesh::buildTile(std::vector<NavigationGeometryInfo>& geomet
 
 void DynamicNavigationMesh::releaseNavigationMesh() {
 	NavigationMesh::releaseNavigationMesh();
+	removeObstacles();
 	releaseTileCache();
-	m_numTiles = 0u;
+	m_numTiles = 0u;	
 }
 
 void DynamicNavigationMesh::releaseTileCache() {
@@ -584,15 +583,6 @@ void DynamicNavigationMesh::OnRenderDebug() {
 			if (obstacle && obstacle->m_isEnabled) {
 				obstacle->OnRenderDebug();
 			}
-		}
-	}
-
-	// Draw OffMeshConnection components
-	if (m_drawOffMeshConnections){
-		for (unsigned i = 0; i < m_offMeshConnections.size(); ++i) {
-			const OffMeshConnection& offMeshConnections = m_offMeshConnections[i];
-			if (offMeshConnections.m_isEnabled)
-				offMeshConnections.OnRenderDebug();
 		}
 	}
 }
@@ -623,7 +613,7 @@ void DynamicNavigationMesh::addObstacle(Obstacle* obstacle, bool force) {
 	}
 }
 
-void DynamicNavigationMesh::removeObstacle(Obstacle* obstacle) {
+void DynamicNavigationMesh::removeObstacle(Obstacle* obstacle, bool force) {
 	
 	if (m_tileCache && obstacle->m_obstacleId > 0) {
 		while (m_tileCache->isObstacleQueueFull()) {
@@ -634,17 +624,21 @@ void DynamicNavigationMesh::removeObstacle(Obstacle* obstacle) {
 			std::cout << "Failed to remove obstacle" << std::endl;
 			return;
 		}
-
-		obstacle->m_obstacleId = 0;
 		wait();
-		m_obstacles.erase(std::remove(m_obstacles.begin(), m_obstacles.end(), obstacle), m_obstacles.end());
+
+		obstacle->m_obstacleId = 0;		
+
+		if (force) {
+			delete obstacle;
+			m_obstacles.erase(std::remove(m_obstacles.begin(), m_obstacles.end(), obstacle), m_obstacles.end());
+		}
 	}
 }
 
 void DynamicNavigationMesh::obstacleChanged(Obstacle* obstacle) {
 	if (m_tileCache) {
-		removeObstacle(obstacle);
-		addObstacle(obstacle);
+		removeObstacle(obstacle, false);
+		addObstacle(obstacle, false);
 	}
 }
 
@@ -775,6 +769,18 @@ void DynamicNavigationMesh::addObstacles() {
 	}
 }
 
+void DynamicNavigationMesh::removeObstacles() {
+	for (unsigned i = 0; i < m_obstacles.size(); ++i) {
+		Obstacle* obs = m_obstacles[i];
+		if (obs && obs->m_isEnabled)
+			removeObstacle(obs, false);
+
+		delete obs;
+	}
+	m_obstacles.clear();
+	m_obstacles.shrink_to_fit();
+}
+
 bool DynamicNavigationMesh::isObstacleInTile(Obstacle* obstacle, const std::array<int, 2>& tile) const {
 	const BoundingBox tileBoundingBox = getTileBoudningBox(tile);
 	const Vector3f obstaclePosition = obstacle->m_node->getWorldPosition();
@@ -806,12 +812,4 @@ void DynamicNavigationMesh::setCrowdManager(CrowdManager* crowdManager) {
 
 void DynamicNavigationMesh::initObstacles() {
 	m_tileCache->initObstacles();
-}
-
-bool DynamicNavigationMesh::getDrawOffMeshConnections() const {
-	return m_drawOffMeshConnections;
-}
-
-void DynamicNavigationMesh::setDrawOffMeshConnections(bool enable) {
-	m_drawOffMeshConnections = enable;
 }

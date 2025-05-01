@@ -36,6 +36,7 @@ CrowdManager::CrowdManager() :
 }
 
 CrowdManager::~CrowdManager(){
+	removeAgents();
 	dtFreeCrowd(m_crowd);
 	m_crowd = nullptr;
 }
@@ -103,7 +104,13 @@ void CrowdManager::setNavigationMesh(NavigationMesh* navigationMesh){
 	}
 }
 
-int CrowdManager::addAgent(CrowdAgent* agent, const Vector3f& pos, bool add){
+CrowdAgent* CrowdManager::addAgent(const Vector3f& pos) {
+	CrowdAgent* agent = new CrowdAgent();
+	addAgent(agent, pos, true);
+	return agent;
+}
+
+int CrowdManager::addAgent(CrowdAgent* agent, const Vector3f& pos, bool force){
 	if (!m_crowd || !m_navigationMesh || !agent)
 		return -1;
 	dtCrowdAgentParams params;
@@ -119,7 +126,7 @@ int CrowdManager::addAgent(CrowdAgent* agent, const Vector3f& pos, bool add){
 	if (id > -1) {
 		agent->m_agentCrowdId = id;
 		agent->m_crowdManager = this;
-		if(add)
+		if(force)
 			m_agents.push_back(agent);
 	}
 	return id;
@@ -153,14 +160,18 @@ bool CrowdManager::reCreateCrowd() {
 	return true;
 }
 
-void CrowdManager::removeAgent(CrowdAgent* agent)
-{
+void CrowdManager::removeAgent(CrowdAgent* agent, bool force){
 	if (!m_crowd || !agent)
 		return;
 	dtCrowdAgent* agt = m_crowd->getEditableAgent(agent->m_agentCrowdId);
 	if (agt)
 		agt->params.userData = 0;
 	m_crowd->removeAgent(agent->m_agentCrowdId);
+
+	if (force) {
+		delete agent;
+		m_agents.erase(std::remove(m_agents.begin(), m_agents.end(), agent), m_agents.end());
+	}
 }
 
 std::vector<CrowdAgent*> CrowdManager::getAgents() {
@@ -267,4 +278,16 @@ void CrowdManager::resetAgents() {
 	for (unsigned int i = 0; i < m_agents.size(); ++i) {
 		m_agents[i]->resetAgent();
 	}
+}
+
+void CrowdManager::removeAgents() {
+	for (unsigned i = 0; i < m_agents.size(); ++i) {
+		CrowdAgent* agent = m_agents[i];
+		if (agent)
+			removeAgent(agent, false);
+
+		delete agent;
+	}
+	m_agents.clear();
+	m_agents.shrink_to_fit();
 }

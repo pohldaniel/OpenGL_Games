@@ -59,9 +59,6 @@ AssimpModel::AssimpModel(AssimpModel const& rhs) {
 	m_ibo = rhs.m_ibo;
 	m_vboInstances = rhs.m_vboInstances;
 
-	//m_vertexBuffer = rhs.m_vertexBuffer;
-    //m_indexBuffer = rhs.m_indexBuffer;
-
 	m_markForDelete = false;
 }
 
@@ -92,9 +89,6 @@ AssimpModel::AssimpModel(AssimpModel&& rhs) {
 	m_ibo = rhs.m_ibo;
 	m_vboInstances = rhs.m_vboInstances;
 
-	//m_vertexBuffer = rhs.m_vertexBuffer;
-    //m_indexBuffer = rhs.m_indexBuffer;
-
 	m_markForDelete = false;
 }
 
@@ -124,9 +118,6 @@ AssimpModel& AssimpModel::operator=(const AssimpModel& rhs) {
 	m_vbo = rhs.m_vbo;
 	m_ibo = rhs.m_ibo;
 	m_vboInstances = rhs.m_vboInstances;
-
-	//m_vertexBuffer = rhs.m_vertexBuffer;
-	//m_indexBuffer = rhs.m_indexBuffer;
 
 	m_markForDelete = false;
 	return *this;
@@ -159,9 +150,6 @@ AssimpModel& AssimpModel::operator=(AssimpModel&& rhs) {
 	m_ibo = rhs.m_ibo;
 	m_vboInstances = rhs.m_vboInstances;
 
-	//m_vertexBuffer = rhs.m_vertexBuffer;
-   //m_indexBuffer = rhs.m_indexBuffer;
-
 	m_markForDelete = false;
 	return *this;
 }
@@ -193,21 +181,26 @@ void AssimpModel::cleanup() {
 		m_vboInstances = 0;
 	}
 
-	m_vertexBuffer.clear();
-	m_vertexBuffer.shrink_to_fit();
-	m_indexBuffer.clear();
-	m_indexBuffer.shrink_to_fit();
-	m_instances.clear();
-	m_instances.shrink_to_fit();
+	//m_vertexBuffer.clear();
+	//m_vertexBuffer.shrink_to_fit();
+	//m_indexBuffer.clear();
+	//m_indexBuffer.shrink_to_fit();
+	//m_instances.clear();
+	//m_instances.shrink_to_fit();
 
 	for (AssimpMesh* mesh : m_meshes) {
 		delete mesh;
 	}
 
-	m_meshes.clear();
-	m_meshes.shrink_to_fit();
+	//m_meshes.clear();
+	//m_meshes.shrink_to_fit();
 
-	m_shader.clear();
+	for (Shader* shader : m_shader) {
+		delete shader;
+	}
+
+	//m_shader.clear();
+	//m_shader.shrink_to_fit();
 	m_aabb.cleanup();
 }
 
@@ -419,20 +412,25 @@ void AssimpModel::loadModelCpu(const char* _filename, const Vector3f& axis, floa
 }
 
 
-void AssimpModel::loadModelGpu() {
+void AssimpModel::loadModelGpu(bool forceClearCpuBuffer) {
 	if (m_isStacked) {
 		AssimpModel::CreateBuffer(m_vertexBuffer, m_indexBuffer, m_vao, m_vbo, m_ibo, m_stride);
-		//m_vertexBuffer.clear();
-		//m_vertexBuffer.shrink_to_fit();
-		//m_indexBuffer.clear();
-		//m_indexBuffer.shrink_to_fit();
+		if(forceClearCpuBuffer){
+			m_vertexBuffer.clear();
+			m_vertexBuffer.shrink_to_fit();
+			m_indexBuffer.clear();
+			m_indexBuffer.shrink_to_fit();
+		}
+
 	}else{
 		for (auto&& mesh : m_meshes) {
 			AssimpModel::CreateBuffer(mesh->m_vertexBuffer, mesh->m_indexBuffer, mesh->m_vao,mesh->m_vbo, mesh->m_ibo, mesh->m_stride);
-			//mesh->m_vertexBuffer.clear(); 
-			//mesh->m_vertexBuffer.shrink_to_fit();
-			//mesh->m_indexBuffer.clear();
-			//mesh->m_indexBuffer.shrink_to_fit();
+			if (forceClearCpuBuffer) {
+				mesh->m_vertexBuffer.clear(); 
+				mesh->m_vertexBuffer.shrink_to_fit();
+				mesh->m_indexBuffer.clear();
+				mesh->m_indexBuffer.shrink_to_fit();
+			}
 		}
 	}
 }
@@ -985,9 +983,6 @@ AssimpMesh::AssimpMesh(AssimpMesh const& rhs) {
 	m_materialIndex = rhs.m_materialIndex;
 	m_textureIndex = rhs.m_textureIndex;
 	m_markForDelete = false;
-
-	//m_vertexBuffer = rhs.m_vertexBuffer;
-    //m_indexBuffer = rhs.m_indexBuffer;
 }
 
 AssimpMesh::AssimpMesh(AssimpMesh&& rhs) {
@@ -1008,9 +1003,6 @@ AssimpMesh::AssimpMesh(AssimpMesh&& rhs) {
 	m_materialIndex = rhs.m_materialIndex;
 	m_textureIndex = rhs.m_textureIndex;
 	m_markForDelete = false;
-
-	//m_vertexBuffer = rhs.m_vertexBuffer;
-    //m_indexBuffer = rhs.m_indexBuffer;
 }
 
 AssimpMesh& AssimpMesh::operator=(const AssimpMesh& rhs) {
@@ -1031,10 +1023,6 @@ AssimpMesh& AssimpMesh::operator=(const AssimpMesh& rhs) {
 	m_materialIndex = rhs.m_materialIndex;
 	m_textureIndex = rhs.m_textureIndex;
 	m_markForDelete = false;
-
-	//m_vertexBuffer = rhs.m_vertexBuffer;
-    //m_indexBuffer = rhs.m_indexBuffer;
-
 	return *this;
 }
 
@@ -1056,10 +1044,6 @@ AssimpMesh& AssimpMesh::operator=(AssimpMesh&& rhs) {
 	m_materialIndex = rhs.m_materialIndex;
 	m_textureIndex = rhs.m_textureIndex;
 	m_markForDelete = false;
-
-	//m_vertexBuffer = rhs.m_vertexBuffer;
-    //m_indexBuffer = rhs.m_indexBuffer;
-
 	return *this;
 }
 
@@ -1090,10 +1074,10 @@ void AssimpMesh::cleanup() {
 		m_vboInstances = 0;
 	}
 
-	m_vertexBuffer.clear();
-	m_vertexBuffer.shrink_to_fit();
-	m_indexBuffer.clear();
-	m_indexBuffer.shrink_to_fit();
+	//m_vertexBuffer.clear();
+	//m_vertexBuffer.shrink_to_fit();
+	//m_indexBuffer.clear();
+	//m_indexBuffer.shrink_to_fit();
 }
 
 

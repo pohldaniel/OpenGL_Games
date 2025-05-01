@@ -81,9 +81,11 @@ NavigationState::NavigationState(StateMachine& machine) :
 
 	createShapes();
 	createPhysics();
-	createScene();
 
 	m_navigationMesh = new NavigationMesh();
+	createScene();
+
+	
 	m_navigationMesh->setPadding(Vector3f(0.0f, 10.0f, 0.0f));
 	m_navigationMesh->setTileSize(8);
 
@@ -117,6 +119,21 @@ NavigationState::~NavigationState() {
 	Material::CleanupTextures();
 	Renderer::Get().shutdown();
 	ShapeDrawer::Get().shutdown();
+
+	//allready delete at the renderer
+	//delete m_octree;
+	//m_octree = nullptr;
+
+	//delete m_root;
+	//m_root = nullptr;
+
+	delete m_navigationMesh;
+	m_navigationMesh = nullptr;
+
+	delete m_crowdManager;
+	m_crowdManager = nullptr;
+
+	WorkQueue::Shutdown();
 	Physics::DeleteAllCollisionObjects();
 }
 
@@ -284,7 +301,10 @@ void NavigationState::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 			if (m_mousePicker.clickAll(event.x, event.y, m_camera, m_groundObject)) {
 				const MousePickCallbackAll& callbackAll = m_mousePicker.getCallbackAll();
 				btVector3 pos = callbackAll.m_hitPointWorld[callbackAll.index];
+				std::cout << "Pos: " << pos[0] << "  " << pos[1] << "  " << pos[2] << std::endl;
 				Vector3f pathPos = m_navigationMesh->findNearestPoint(Physics::VectorFrom(pos), Vector3f(1.0f, 1.0f, 1.0f));
+				
+				std::cout << "Path Pos: " << pathPos[0] << "  " << pathPos[1] << "  " << pathPos[2] << std::endl;
 				m_crowdManager->setCrowdTarget(pathPos);
 			}
 		}
@@ -600,8 +620,7 @@ void NavigationState::createScene() {
 }
 
 void NavigationState::spawnAgent(const Vector3f& pos){
-	CrowdAgent* agent = new CrowdAgent();
-	m_crowdManager->addAgent(agent, pos);
+	CrowdAgent* agent = m_crowdManager->addAgent(pos);
 	
 	agent->setHeight(2.0f);
 	agent->setMaxSpeed(6.0f);
@@ -617,8 +636,7 @@ void NavigationState::spawnAgent(const Vector3f& pos){
 }
 
 void NavigationState::spawnBeta(const Vector3f& pos) {
-	CrowdAgent* agent = new CrowdAgent();
-	m_crowdManager->addAgent(agent, pos);
+	CrowdAgent* agent = m_crowdManager->addAgent(pos);
 
 	agent->setHeight(2.0f);
 	agent->setMaxSpeed(6.0f);
@@ -647,8 +665,7 @@ void NavigationState::spawnBeta(const Vector3f& pos) {
 }
 
 void NavigationState::spawnJack(const Vector3f& pos) {
-	CrowdAgent* agent = new CrowdAgent();
-	m_crowdManager->addAgent(agent, pos);
+	CrowdAgent* agent = m_crowdManager->addAgent(pos);
 
 	agent->setHeight(2.0f);
 	agent->setMaxSpeed(6.0f);
@@ -670,8 +687,7 @@ void NavigationState::spawnJack(const Vector3f& pos) {
 }
 
 void NavigationState::spawnWoman(const Vector3f& pos) {
-	CrowdAgent* agent = new CrowdAgent();
-	m_crowdManager->addAgent(agent, pos);
+	CrowdAgent* agent = m_crowdManager->addAgent(pos);
 
 	agent->setHeight(2.0f);
 	agent->setMaxSpeed(6.0f);

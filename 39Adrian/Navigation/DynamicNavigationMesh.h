@@ -43,16 +43,15 @@ public:
 
 	void addObstacle(Obstacle* obstacle, bool force = true);
 	void obstacleChanged(Obstacle* obstacle);
-	void removeObstacle(Obstacle* obstacle);
+	void removeObstacle(Obstacle* obstacle, bool force = true);
 	void addObstacles();
+	void removeObstacles();
 	bool isObstacleInTile(Obstacle* obstacle, const std::array<int, 2>& tile) const;
 	const std::vector<CrowdAgent*>& getAgentsToReset() const;
 	std::vector<CrowdAgent*>& agentsToReset();
 	void setCrowdManager(CrowdManager* crowdManager);
 	void initObstacles();
-	bool getDrawOffMeshConnections() const;
-	void setDrawOffMeshConnections(bool enable);
-
+	
 private:
 
 	int buildTile(std::vector<NavigationGeometryInfo>& geometryList, int x, int z, TileCacheData* tiles);
@@ -72,5 +71,5 @@ private:
 	unsigned int m_numTiles;
 
 	bool m_drawObstacles;
-	bool m_drawOffMeshConnections;
+
 };

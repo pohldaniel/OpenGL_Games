@@ -103,12 +103,12 @@ void MeshSequence::cleanup() {
 		m_ibo = 0;
 	}
 
-	m_vertexBuffer.clear();
-	m_vertexBuffer.shrink_to_fit();
-	m_indexBuffer.clear();
-	m_indexBuffer.shrink_to_fit();
-	m_meshes.clear();
-	m_meshes.shrink_to_fit();
+	//m_vertexBuffer.clear();
+	//m_vertexBuffer.shrink_to_fit();
+	//m_indexBuffer.clear();
+	//m_indexBuffer.shrink_to_fit();
+	//m_meshes.clear();
+	//m_meshes.shrink_to_fit();
 }
 
 void MeshSequence::markForDelete() {

@@ -63,7 +63,7 @@ public:
 	void loadModelCpu(const char* filename, bool isStacked = false, bool generateNormals = false, bool generateTangents = false, bool flipYZ = false, bool flipWinding = false);
 	void loadModelCpu(const char* filename, const Vector3f& axis, float degree, const Vector3f& translate = Vector3f(0.0f, 0.0f, 0.0f), float scale = 1.0f, bool isStacked = false, bool generateNormals = false, bool generateTangents = false, bool flipYZ = false, bool flipWinding = false);
 	
-	void loadModelGpu();
+	void loadModelGpu(bool forceClearCpuBuffer = true);
 
 	const std::string& getModelDirectory();
 	const BoundingBox& getAABB() const;

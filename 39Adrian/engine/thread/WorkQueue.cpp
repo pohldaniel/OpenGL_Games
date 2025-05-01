@@ -201,3 +201,8 @@ WorkQueue* WorkQueue::Get() {
 void WorkQueue::Init(unsigned numThreads) {
 	Instance = new WorkQueue(numThreads);
 }
+
+void WorkQueue::Shutdown() {
+	delete Instance;
+	Instance = nullptr;
+}

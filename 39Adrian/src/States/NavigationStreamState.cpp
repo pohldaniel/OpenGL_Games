@@ -155,6 +155,17 @@ NavigationStreamState::~NavigationStreamState() {
 	Material::CleanupTextures();
 	Renderer::Get().shutdown();
 	ShapeDrawer::Get().shutdown();
+
+	//allready delete at the renderer
+	//delete m_octree;
+	//m_octree = nullptr;
+
+	//delete m_root;
+	//m_root = nullptr;
+
+	delete m_navigationMesh;
+	m_navigationMesh = nullptr;
+
 	Physics::DeleteAllCollisionObjects();
 }
 
@@ -590,8 +601,7 @@ void NavigationStreamState::createScene() {
 }
 
 void NavigationStreamState::spawnAgent(const Vector3f& pos) {
-	CrowdAgent* agent = new CrowdAgent();
-	m_crowdManager->addAgent(agent, pos);
+	CrowdAgent* agent = m_crowdManager->addAgent(pos);
 
 	agent->setHeight(2.0f);
 	agent->setMaxSpeed(6.0f);
@@ -607,8 +617,7 @@ void NavigationStreamState::spawnAgent(const Vector3f& pos) {
 }
 
 void NavigationStreamState::spawnBeta(const Vector3f& pos) {
-	CrowdAgent* agent = new CrowdAgent();
-	m_crowdManager->addAgent(agent, pos);
+	CrowdAgent* agent = m_crowdManager->addAgent(pos);
 
 	agent->setHeight(2.0f);
 	agent->setMaxSpeed(6.0f);
@@ -637,8 +646,7 @@ void NavigationStreamState::spawnBeta(const Vector3f& pos) {
 }
 
 void NavigationStreamState::spawnJack(const Vector3f& pos) {
-	CrowdAgent* agent = new CrowdAgent();
-	m_crowdManager->addAgent(agent, pos);
+	CrowdAgent* agent = m_crowdManager->addAgent(pos);
 
 	agent->setHeight(2.0f);
 	agent->setMaxSpeed(6.0f);
@@ -663,8 +671,7 @@ void NavigationStreamState::spawnJack(const Vector3f& pos) {
 }
 
 void NavigationStreamState::spawnWoman(const Vector3f& pos) {
-	CrowdAgent* agent = new CrowdAgent();
-	m_crowdManager->addAgent(agent, pos);
+	CrowdAgent* agent = m_crowdManager->addAgent(pos);
 
 	agent->setHeight(2.0f);
 	agent->setMaxSpeed(6.0f);
@@ -698,8 +705,6 @@ void NavigationStreamState::createMushroom(const Vector3f& pos) {
 	shapeNode->setTextureIndex(7);
 
 	Obstacle* obstacle = new Obstacle(shapeNode);	
-
-	obstacle = new Obstacle(shapeNode);
 	obstacle->setRadius(scale);
 	obstacle->setHeight(scale);
 	m_navigationMesh->addObstacle(obstacle);

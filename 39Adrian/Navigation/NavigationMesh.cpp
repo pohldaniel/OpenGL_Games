@@ -67,7 +67,8 @@ NavigationMesh::NavigationMesh() :
 	m_numTilesZ(0),
 	m_partitionType(NAVMESH_PARTITION_WATERSHED),
 	m_drawNavAreas(true),
-	m_drawNavPolygons(true) {
+	m_drawNavPolygons(true),
+	m_drawOffMeshConnections(true) {
 
 }
 
@@ -116,6 +117,15 @@ void NavigationMesh::OnRenderDebug() {
 			const NavPolygon& polygon = m_navPolygons[i];
 			if (polygon.m_isEnabled)
 				polygon.OnRenderDebug();
+		}
+	}
+
+	// Draw OffMeshConnection components
+	if (m_drawOffMeshConnections) {
+		for (unsigned i = 0; i < m_offMeshConnections.size(); ++i) {
+			const OffMeshConnection& offMeshConnections = m_offMeshConnections[i];
+			if (offMeshConnections.m_isEnabled)
+				offMeshConnections.OnRenderDebug();
 		}
 	}
 }
@@ -577,7 +587,7 @@ bool NavigationMesh::buildTile(std::vector<NavigationGeometryInfo>& geometryList
 		dtFree(navData);
 		return false;
 	}
-
+	delete[] triAreas;
 	return true;
 }
 
@@ -608,6 +618,12 @@ void NavigationMesh::releaseNavigationMesh() {
 
 	dtFreeNavMeshQuery(m_navMeshQuery);
 	m_navMeshQuery = nullptr;
+
+	delete m_queryFilter;
+	m_queryFilter = nullptr;
+
+	delete m_pathData;
+	m_pathData = nullptr;
 
 	m_numTilesX = 0;
 	m_numTilesZ = 0;
@@ -786,7 +802,8 @@ Vector3f NavigationMesh::findNearestPoint(const Vector3f& point, const Vector3f&
 	if (!nearestRef)
 		nearestRef = &pointRef;
 	m_navMeshQuery->findNearestPoly(localPoint.getVec(), extents.getVec(), filter ? filter : m_queryFilter, nearestRef, &nearestPoint[0]);
-
+	std::cout << "Point: " << point[0] << "  " << point[1] << "  " << point[2] << std::endl;
+	std::cout << "Nerest Point: " << nearestPoint[0] << "  " << nearestPoint[1] << "  " << nearestPoint[2] << std::endl;
 	return *nearestRef ? nearestPoint : point;
 }
 
@@ -1179,4 +1196,12 @@ std::vector<NavArea>& NavigationMesh::navAreas() {
 
 float NavigationMesh::Random() {
 	return Dist(MersenTwist) * Scale;
+}
+
+bool NavigationMesh::getDrawOffMeshConnections() const {
+	return m_drawOffMeshConnections;
+}
+
+void NavigationMesh::setDrawOffMeshConnections(bool enable) {
+	m_drawOffMeshConnections = enable;
 }

@@ -140,16 +140,16 @@ Adrian::Adrian(StateMachine& machine) : State(machine, States::MAP),
 	m_navigationMesh->setAgentHeight(2.0f);
 	m_navigationMesh->setAgentRadius(0.6f);
 	
-	//m_navigationMesh->build();
+	m_navigationMesh->build();
 	//saveNavigationData();
 	//navIO.writeNavigationMap("res/data_edit.nav", m_navigationMesh->getNumTilesX(), m_navigationMesh->getNumTilesZ(), m_navigationMesh->getBoundingBox(), m_navigationMesh->getTileData());
 
-	navIO.readNavigationMap("res/data_fin.nav", m_navigationMesh->numTilesX(), m_navigationMesh->numTilesZ(), m_navigationMesh->boundingBox(), m_navigationMesh->tileData());
+	navIO.readNavigationMap("res/data_edit.nav", m_navigationMesh->numTilesX(), m_navigationMesh->numTilesZ(), m_navigationMesh->boundingBox(), m_navigationMesh->tileData());
 	m_navigationMesh->allocate();
 	m_navigationMesh->addTiles();
 
-	m_editPolygons.push_back(new EditPolygon());
-	m_currentPolygon = m_editPolygons.back();
+	m_editPolygons.push_back(EditPolygon());
+	m_currentPolygon = &m_editPolygons.back();
 }
 
 Adrian::~Adrian() {
@@ -164,6 +164,10 @@ Adrian::~Adrian() {
 	delete m_root;
 	m_root = nullptr;
 
+	delete m_navigationMesh;
+	m_navigationMesh = nullptr;
+
+	WorkQueue::Shutdown();
 	Physics::DeleteAllCollisionObjects();
 }
 
@@ -281,10 +285,6 @@ void Adrian::render() {
 	Globals::shapeManager.get("quad_xz").drawRaw();
 	shader->unuse();
 
-	shader = Globals::shaderManager.getAssetPointer("shape");
-	shader->use();
-	shader->loadMatrix("u_projection", m_camera.getOrthographicMatrix());
-	shader->loadMatrix("u_view", m_camera.getViewMatrix());
 
 	shader = Globals::shaderManager.getAssetPointer("shape_color");
 	shader->use();
@@ -292,30 +292,36 @@ void Adrian::render() {
 	shader->loadMatrix("u_view", m_camera.getViewMatrix());
 	shader->loadVector("u_color", m_heroEnity->getColor());
 
+	shader = Globals::shaderManager.getAssetPointer("shape");
+	shader->use();
+	shader->loadMatrix("u_projection", m_camera.getOrthographicMatrix());
+	shader->loadMatrix("u_view", m_camera.getViewMatrix());
+
 	for (const Batch& batch : m_octree->getOpaqueBatches().m_batches) {
 		OctreeNode* drawable = batch.octreeNode;
 		shader->loadMatrix("u_model", drawable->getWorldTransformation());
 		drawable->drawRaw();
 	}
 
+	shader = Globals::shaderManager.getAssetPointer("shape_color");
 	shader->use();
 	Globals::textureManager.get("null").bind(0);
 	shader->loadMatrix("u_projection", m_camera.getOrthographicMatrix());
 	shader->loadMatrix("u_view", m_camera.getViewMatrix());
 	
 	if (m_drawPolygon) {
-		for (EditPolygon* editPolygon : m_editPolygons) {
+		for (const EditPolygon& editPolygon : m_editPolygons) {
 			
-			for (int i = editPolygon->userPointerOffset, j = 0; i < editPolygon->userPointerOffset + editPolygon->size; i++, j++) {			
+			for (int i = editPolygon.userPointerOffset, j = 0; i < editPolygon.userPointerOffset + editPolygon.size; i++, j++) {			
 				shader->loadMatrix("u_model", Matrix4f::Translate(m_edgePoints[i]) * Matrix4f::Scale(m_markerSize, m_markerSize, m_markerSize));
 				shader->loadVector("u_color", i == m_globalUserIndex ? Vector4f(1.0f, 0.0f, 0.0f, 1.0f) : Vector4f::ONE);
 				Globals::shapeManager.get("sphere").drawRaw();
-				if (editPolygon->size > 1 && i < editPolygon->userPointerOffset + editPolygon->size - 1) {
+				if (editPolygon.size > 1 && i < editPolygon.userPointerOffset + editPolygon.size - 1) {
 					DebugRenderer::Get().AddLine(m_edgePoints[i] + Vector3f(0.0f, 1.0f, 0.0f), m_edgePoints[i + 1] + Vector3f(0.0f, 1.0f, 0.0f), Vector4f(0.0f, 1.0f, 0.0f, 1.0f));
 				}
 
-				if (i == editPolygon->userPointerOffset + editPolygon->size - 1) {
-					DebugRenderer::Get().AddLine(m_edgePoints[i] + Vector3f(0.0f, 1.0f, 0.0f), m_edgePoints[editPolygon->userPointerOffset] + Vector3f(0.0f, 1.0f, 0.0f), Vector4f(0.0f, 1.0f, 0.0f, 1.0f));
+				if (i == editPolygon.userPointerOffset + editPolygon.size - 1) {
+					DebugRenderer::Get().AddLine(m_edgePoints[i] + Vector3f(0.0f, 1.0f, 0.0f), m_edgePoints[editPolygon.userPointerOffset] + Vector3f(0.0f, 1.0f, 0.0f), Vector4f(0.0f, 1.0f, 0.0f, 1.0f));
 				}
 			}
 		}
@@ -550,18 +556,18 @@ void Adrian::renderUi() {
 	ImGui::Checkbox("Draw Polygon", &m_drawPolygon);	
 	ImGui::SliderFloat("Marker Size", &m_markerSize, 0.0f, 20.0f);
 	if (ImGui::Button("New Polygon")) {
-		m_editPolygons.push_back(new EditPolygon());
-		m_currentPolygon = m_editPolygons.back();
+		m_editPolygons.push_back(EditPolygon());
+		m_currentPolygon = &m_editPolygons.back();
 		m_currentPolygon->userPointerOffset = m_edgePoints.size();
 	}
 
 	if (ImGui::Button("Bake (to File)")) {
 
-		for (EditPolygon* editPolygon : m_editPolygons) {
+		for (EditPolygon& editPolygon : m_editPolygons) {
 			NavPolygon poly = NavPolygon();
-			poly.setNumVerts(editPolygon->size);
-			editPolygon->edgePoints = { m_edgePoints.begin() + editPolygon->userPointerOffset, m_edgePoints.begin() + editPolygon->userPointerOffset + editPolygon->size };
-			poly.setVerts(&editPolygon->edgePoints[0][0]);
+			poly.setNumVerts(editPolygon.size);
+			editPolygon.edgePoints = { m_edgePoints.begin() + editPolygon.userPointerOffset, m_edgePoints.begin() + editPolygon.userPointerOffset + editPolygon.size };
+			poly.setVerts(&editPolygon.edgePoints[0][0]);
 			poly.setMinY(-2.0f);
 			poly.setMaxY(2.0f);
 			poly.createBoundingBox();
@@ -589,8 +595,8 @@ void Adrian::renderUi() {
 		m_collisionObjects.clear();
 		m_collisionObjects.shrink_to_fit();
 
-		for (EditPolygon* editPolygon : m_editPolygons) {
-			editPolygon->size = 0;
+		for (EditPolygon& editPolygon : m_editPolygons) {
+			editPolygon.size = 0;
 		}
 	}
 

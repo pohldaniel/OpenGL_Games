@@ -157,7 +157,9 @@ public:
 	std::unordered_map<int, Buffer>& tileData();	
 	const std::vector<NavArea>& getNavAreas() const;
 	std::vector<NavArea>& navAreas();
-	
+	bool getDrawOffMeshConnections() const;
+	void setDrawOffMeshConnections(bool enable);
+
 protected:
 	
 	virtual void releaseNavigationMesh();
@@ -202,6 +204,7 @@ protected:
 	NavmeshPartitionType m_partitionType;
 	bool m_drawNavAreas;
 	bool m_drawNavPolygons;
+	bool m_drawOffMeshConnections;
 	std::vector<BoundingBox> m_boxes;
 	
 	static std::random_device RandomDevice;

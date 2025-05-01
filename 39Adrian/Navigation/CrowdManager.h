@@ -62,9 +62,10 @@ public:
 
 	bool createCrowd();
 	bool reCreateCrowd();
-	int addAgent(CrowdAgent* agent, const Vector3f& pos, bool add = true);
-	void removeAgent(CrowdAgent* agent);
-
+	CrowdAgent* addAgent(const Vector3f& pos);
+	
+	void removeAgent(CrowdAgent* agent, bool force = true);
+	void removeAgents();
 	const dtCrowdAgent* getDetourCrowdAgent(int agent) const;
 	dtCrowd* getCrowd() const;
 	void setSeparationWeight(float separationWeight);
@@ -79,27 +80,10 @@ public:
 
 	void resetAgents();
 
-	/// Get the number of configured obstacle avoidance types.
-	//unsigned GetNumObstacleAvoidanceTypes() const { return numObstacleAvoidanceTypes_; }
-	/// Get the number of configured query filter types.
-	//unsigned GetNumQueryFilterTypes() const { return numQueryFilterTypes_; }
-	/// Get the detour query filter.
-	//const dtQueryFilter* GetDetourQueryFilter(unsigned queryFilterType) const;
-	/// Get the params for the specified obstacle avoidance type.
-	//const CrowdObstacleAvoidanceParams& GetObstacleAvoidanceParams(unsigned obstacleAvoidanceType) const;
-	/// Set the params for the specified obstacle avoidance type.
-	//void SetObstacleAvoidanceParams(unsigned obstacleAvoidanceType, const CrowdObstacleAvoidanceParams& params);
-	/// Set the include flags for the specified query filter type.
-	//void SetIncludeFlags(unsigned queryFilterType, unsigned short flags);
-	/// Set the exclude flags for the specified query filter type.
-	//void SetExcludeFlags(unsigned queryFilterType, unsigned short flags);
-	/// Get the include flags for the specified query filter type.
-	//unsigned short GetIncludeFlags(unsigned queryFilterType) const;
-	/// Get the exclude flags for the specified query filter type.
-	//unsigned short GetExcludeFlags(unsigned queryFilterType) const;
-	
 private:
-	
+
+	int addAgent(CrowdAgent* agent, const Vector3f& pos, bool force = true);
+
 	dtCrowd* m_crowd;
 	CrowdAgentVelocityCallback m_velocityCallback;
 	CrowdAgentHeightCallback m_heightCallback;
@@ -112,10 +96,4 @@ private:
 
 	std::function<Vector3f(const Vector3f& pos, CrowdAgent* agent)> OnCrowdFormation;
 
-	/// Number of query filter types configured in the crowd. Limit to DT_CROWD_MAX_QUERY_FILTER_TYPE.
-	//unsigned int numQueryFilterTypes_;
-	/// Number of configured area in each filter type. Limit to DT_MAX_AREAS.
-	//std::vector<unsigned int> numAreas_;
-	/// Number of obstacle avoidance types configured in the crowd. Limit to DT_CROWD_MAX_OBSTAVOIDANCE_PARAMS.
-	//unsigned int numObstacleAvoidanceTypes_;
 };

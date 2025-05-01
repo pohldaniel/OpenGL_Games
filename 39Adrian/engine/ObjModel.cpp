@@ -190,21 +190,26 @@ void ObjModel::cleanup() {
 		m_vboInstances = 0u;
 	}
 
-	m_vertexBuffer.clear();
-	m_vertexBuffer.shrink_to_fit();
-	m_indexBuffer.clear();
-	m_indexBuffer.shrink_to_fit();
-	m_instances.clear();
-	m_instances.shrink_to_fit();
+	//m_vertexBuffer.clear();
+	//m_vertexBuffer.shrink_to_fit();
+	//m_indexBuffer.clear();
+	//m_indexBuffer.shrink_to_fit();
+	//m_instances.clear();
+	//m_instances.shrink_to_fit();
 
 	for (ObjMesh* mesh : m_meshes) {
 		delete mesh;
 	}
 
-	m_meshes.clear();
-	m_meshes.shrink_to_fit();
+	//m_meshes.clear();
+	//m_meshes.shrink_to_fit();
 
-	m_shader.clear();
+	for (Shader* shader : m_shader) {
+		delete shader;
+	}
+
+	//m_shader.clear();
+	//m_shader.shrink_to_fit();
 	m_aabb.cleanup();
 }
 
@@ -734,20 +739,24 @@ void ObjModel::loadModelCpu(const char* _filename, const Vector3f& axis, float d
 	return;
 }
 
-void ObjModel::loadModelGpu() {
+void ObjModel::loadModelGpu(bool forceClearCpuBuffer) {
 	if (m_isStacked) {
 		ObjModel::CreateBuffer(m_vertexBuffer, m_indexBuffer, m_vao, m_vbo, m_ibo, m_stride);
-		//m_vertexBuffer.clear();
-        //m_vertexBuffer.shrink_to_fit();
-        //m_indexBuffer.clear();
-        //m_indexBuffer.shrink_to_fit();
+		if (forceClearCpuBuffer) {
+			m_vertexBuffer.clear();
+			m_vertexBuffer.shrink_to_fit();
+			m_indexBuffer.clear();
+			m_indexBuffer.shrink_to_fit();
+		}
 	}else {
 		for (auto&& mesh : m_meshes) {
 			ObjModel::CreateBuffer(mesh->m_vertexBuffer, mesh->m_indexBuffer, mesh->m_vao, mesh->m_vbo, mesh->m_ibo, mesh->m_stride);
-			//mesh->m_vertexBuffer.clear(); 
-			//mesh->m_vertexBuffer.shrink_to_fit();
-			//mesh->m_indexBuffer.clear();
-			//mesh->m_indexBuffer.shrink_to_fit();
+			if (forceClearCpuBuffer) {
+				mesh->m_vertexBuffer.clear(); 
+				mesh->m_vertexBuffer.shrink_to_fit();
+				mesh->m_indexBuffer.clear();
+				mesh->m_indexBuffer.shrink_to_fit();
+			}
 		}
 	}
 }
@@ -2208,10 +2217,10 @@ void ObjMesh::cleanup(){
 		m_vboInstances = 0;
 	}
 
-	m_vertexBuffer.clear();
-	m_vertexBuffer.shrink_to_fit();
-	m_indexBuffer.clear();
-	m_indexBuffer.shrink_to_fit();
+	//m_vertexBuffer.clear();
+	//m_vertexBuffer.shrink_to_fit();
+	//m_indexBuffer.clear();
+	//m_indexBuffer.shrink_to_fit();
 }
 
 void ObjMesh::markForDelete() {

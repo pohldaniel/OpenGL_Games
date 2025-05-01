@@ -65,7 +65,7 @@ private:
 	bool m_debugPhysic = true;
 	bool m_debugNavmesh = true;
 	bool m_useStreaming = false;
-	bool m_drawPolygon = true;
+	bool m_drawPolygon = false;
 
 	float m_tileFactor = 80.0f;
 	float m_angle = -M_PI_4;
@@ -95,7 +95,7 @@ private:
 	NavigationMesh* m_navigationMesh;
 
 	std::unordered_set< std::array<int, 2>, std::function<size_t(const std::array<int, 2>&)>, std::function<bool(const std::array<int, 2>&, const std::array<int, 2>&)>> m_addedTiles;
-	std::vector<EditPolygon*> m_editPolygons;
+	std::vector<EditPolygon> m_editPolygons;
 	EditPolygon* m_currentPolygon;
 
 	std::vector<Vector3f> m_edgePoints;
