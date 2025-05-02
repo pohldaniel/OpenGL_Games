@@ -23,6 +23,7 @@
 #include <States/NavigationState.h>
 #include <States/NavigationStreamState.h>
 #include <States/Adrian.h>
+#include <States/Winston.h>
 
 #include "Application.h"
 #include "Globals.h"
@@ -420,13 +421,14 @@ void Application::fixedUpdate() {
 
 void Application::initStates() {	
 	Machine = new StateMachine(m_dt, m_fdt);
-	Machine->addStateAtTop(new Menu(*Machine));
+	//Machine->addStateAtTop(new Menu(*Machine));
 	//Machine->addStateAtTop(new Default(*Machine));
 	//Machine->addStateAtTop(new Md2State(*Machine));
 	//Machine->addStateAtTop(new MapState(*Machine));
 	//Machine->addStateAtTop(new NavigationState(*Machine));
 	//Machine->addStateAtTop(new NavigationStreamState(*Machine));
-	//Machine->addStateAtTop(new Adrian(*Machine));
+	Machine->addStateAtTop(new Adrian(*Machine));
+	//Machine->addStateAtTop(new Winston(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -721,6 +723,13 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("shape_color", "res/shader/shape_color.vert", "res/shader/shape.frag");
 	Globals::shaderManager.loadShader("map", "res/shader/map.vert", "res/shader/map.frag");
 	Globals::shaderManager.loadShader("animation", "res/shader/animation.vert", "res/shader/animation.frag");
+	Globals::shaderManager.loadShader("depth_ortho", "res/shader/depth_ortho.vert", "res/shader/depth_ortho.frag");
+	Globals::shaderManager.loadShader("bubble_new", "res/shader/bubble.vert", "res/shader/bubble.frag");
+
+	Globals::shaderManager.loadShader("bubble", "res/shader/winston/bubble.vert", "res/shader/winston/bubble.frag");
+	Globals::shaderManager.loadShader("depth", "res/shader/winston/depth.vert", "res/shader/winston/depth.frag");
+	Globals::shaderManager.loadShader("scene", "res/shader/winston/scene.vert", "res/shader/winston/scene.frag");
+	Globals::shaderManager.loadShader("screenquad", "res/shader/winston/screenquad.vert", "res/shader/winston/screenquad.frag");
 	
 	Globals::fontManager.loadCharacterSet("upheaval_200", "res/fonts/upheavtt.ttf", 200, 0, 30, 128, 0, true, 0u);
 	Globals::fontManager.loadCharacterSet("upheaval_30", "res/fonts/upheavtt.ttf", 30, 0, 3, 0, 0, true, 0u);
@@ -753,13 +762,15 @@ void Application::loadAssets() {
 	Globals::textureManager.loadTexture("proto_white", "res/textures/ProtoWhite256.jpg", true);
 	Globals::textureManager.get("proto_white").setWrapMode(GL_REPEAT);
 
-	Globals::shapeManager.buildQuadXY("quad_xy", Vector3f(0.0f, 0.0f, 0.0f), Vector2f(600.0f, 600.0f), 1, 1, true, false, false);
+	Globals::shapeManager.buildQuadXY("quad_xy", Vector3f(-1.0f, -1.0f, 0.0f), Vector2f(2.0f, 2.0f), 1, 1, true, false, false);
 
 	Globals::shapeManager.buildQuadXZ("quad_xz", Vector3f(-1.0f, 0.0f, -1.0f), Vector2f(2.0f, 2.0f), 1, 1, true, false, false);
 	Globals::shapeManager.get("quad_xz").createBoundingBox();
 
 	Globals::shapeManager.buildSphere("sphere", 0.5f, Vector3f(0.0f, 0.0f, 0.0f), 10, 10, true, false, false);
 	Globals::shapeManager.get("sphere").createBoundingBox();
+
+	Globals::shapeManager.buildSphere("sphere_heigh", 0.5f, Vector3f(0.0f, 0.0f, 0.0f), 50, 50, true, true, false);
 
 	Globals::shapeManager.buildCylinder("cylinder", 1.0f, 1.0f, 1.0f, Vector3f(0.0f, 0.0f, 0.0f), true, true, 8, 8, true, true);
 	Globals::shapeManager.get("cylinder").createBoundingBox();

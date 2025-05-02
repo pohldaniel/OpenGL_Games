@@ -9,18 +9,21 @@
 #include <engine/MeshObject/Shape.h>
 #include <engine/scene/ShapeNode.h>
 #include <engine/octree/Octree.h>
-#include <engine/Camera.h>
+#include <engine/Framebuffer.h>
 #include <engine/Background.h>
+#include <engine/Frustum.h>
+#include <engine/Camera.h>
 #include <Navigation/DynamicNavigationMesh.h>
 #include <Navigation/Navigable.h>
 #include <Navigation/NavArea.h>
 #include <Navigation/NavPolygon.h>
 #include <Navigation/Obstacle.h>
-#include <engine/Frustum.h>
+
 #include <Physics/Physics.h>
 #include <Physics/MousePicker.h>
 #include <States/StateMachine.h>
 #include <Entities/Md2Entity.h>
+#include <Utils/Fade.h>
 
 struct EditPolygon{
 	int userPointerOffset = 0;
@@ -56,6 +59,9 @@ private:
 	void saveNavigationData();
 	void updateStreaming();
 	void rebuild();
+	void renderScene();
+	void renderSceneDepth();
+	void renderBubble();
 
 	bool m_initUi = true;
 	bool m_drawUi = true;
@@ -72,6 +78,8 @@ private:
 	float m_zoom = 1.0f;
 	int m_streamingDistance;
 	float m_markerSize = 20.0f;
+	float m_rimScale = 1.0f;
+	float m_fadeValue = 1.0f;
 
 	IsometricCamera m_camera;
 
@@ -82,7 +90,7 @@ private:
 	Octree* m_octree;
 	Frustum m_frustum;
 
-	Shape m_segment, m_disk;
+	Shape m_segment, m_disk, m_sphere;
 	ShapeNode *m_segmentNode, *m_diskNode, *m_buildingNode;
 
 	MousePicker m_mousePicker;
@@ -99,4 +107,6 @@ private:
 	std::vector<btCollisionObject*> m_collisionObjects;
 
 	int m_globalUserIndex;
+	Framebuffer m_depthBuffer;
+	Fade m_fade;
 };

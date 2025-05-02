@@ -16,7 +16,8 @@ Adrian::Adrian(StateMachine& machine) : State(machine, States::ADRIAN),
 	m_camera(Application::Width, Application::Height),
 	m_addedTiles(0, [](const std::array<int, 2>& p) {  return std::hash<int>()(p[0]) ^ std::hash<int>()(p[1]) << 1; }, [](const std::array<int, 2>& p1, const std::array<int, 2>& p2) { return p1[0] == p2[0] && p1[1] == p2[1]; }),
 	m_streamingDistance(6),
-	m_globalUserIndex(-1) {
+	m_globalUserIndex(-1),
+	m_fade(m_fadeValue){
 
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
@@ -144,6 +145,13 @@ Adrian::Adrian(StateMachine& machine) : State(machine, States::ADRIAN),
 
 	m_editPolygons.push_back(EditPolygon());
 	m_currentPolygon = &m_editPolygons.back();
+
+	m_depthBuffer.create(Application::Width, Application::Height);
+	m_depthBuffer.attachTexture2D(AttachmentTex::DEPTH24);
+	m_sphere.fromObj("res/models/sphere.obj");
+
+	m_fade.setTransitionEnd(true);
+	m_fade.setTransitionSpeed(3.0f);
 }
 
 Adrian::~Adrian() {
@@ -223,6 +231,10 @@ void Adrian::update() {
 		toggleStreaming(m_useStreaming);
 	}
 
+	if (keyboard.keyPressed(Keyboard::KEY_F)) {
+		m_fade.toggleFade();
+	}
+
 	Vector3f moveDir = Vector3f::ZERO;
 	if (keyboard.keyDown(Keyboard::KEY_UP))
 		moveDir += Vector3f::RIGHT;
@@ -240,6 +252,7 @@ void Adrian::update() {
 
 	m_octree->updateFrameNumber();
 	m_heroEnity->update(m_dt);
+	m_fade.update(m_dt);
 
 	m_frustum.updatePlane(m_camera.getOrthographicMatrix(), m_camera.getViewMatrix());
 	m_frustum.updateVertices(m_camera.getOrthographicMatrix(), m_camera.getViewMatrix());
@@ -253,47 +266,24 @@ void Adrian::update() {
 
 void Adrian::render() {
 
-	int tilex, tilez;
-
-	const int TILE_SIZE = 3000;
-	const float TILE_LOWFACTOR = 4.0;
-	const float TILE_HIGHFACTOR = 4.0;
-	int tileSzFactor = TILE_HIGHFACTOR + TILE_LOWFACTOR;
-
-	tilex = ((int)m_camera.m_initx / TILE_SIZE) * TILE_SIZE;
-	tilez = ((int)m_camera.m_initz / TILE_SIZE) * TILE_SIZE;
+	m_depthBuffer.bind();
+	glClear(GL_DEPTH_BUFFER_BIT);
+	renderSceneDepth();
+	m_depthBuffer.unbind();
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	Globals::textureManager.get("ground").bind(0);
-	auto shader = Globals::shaderManager.getAssetPointer("map");
-	shader->use();
-	shader->loadMatrix("u_projection", m_camera.getOrthographicMatrix());
-	shader->loadMatrix("u_view", m_camera.getViewMatrix());
-	shader->loadMatrix("u_model", Matrix4f::Translate(tilex, 0.0f, tilez) * Matrix4f::Scale(TILE_SIZE * TILE_LOWFACTOR, 0.0f, TILE_SIZE * TILE_HIGHFACTOR));
-	shader->loadFloat("u_tileFactor", m_tileFactor);
-	shader->loadVector("u_blendColor", Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
-	Globals::shapeManager.get("quad_xz").drawRaw();
-	shader->unuse();
+	renderScene();
 
+	glDepthMask(GL_FALSE);
+	glCullFace(GL_FRONT);
+	renderBubble();
 
-	shader = Globals::shaderManager.getAssetPointer("shape_color");
-	shader->use();
-	shader->loadMatrix("u_projection", m_camera.getOrthographicMatrix());
-	shader->loadMatrix("u_view", m_camera.getViewMatrix());
-	shader->loadVector("u_color", m_heroEnity->getColor());
+	glCullFace(GL_BACK);
+	renderBubble();
 
-	shader = Globals::shaderManager.getAssetPointer("shape");
-	shader->use();
-	shader->loadMatrix("u_projection", m_camera.getOrthographicMatrix());
-	shader->loadMatrix("u_view", m_camera.getViewMatrix());
+	glDepthMask(GL_TRUE);
 
-	for (const Batch& batch : m_octree->getOpaqueBatches().m_batches) {
-		OctreeNode* drawable = batch.octreeNode;
-		shader->loadMatrix("u_model", drawable->getWorldTransformation());
-		drawable->drawRaw();
-	}
-
-	shader = Globals::shaderManager.getAssetPointer("shape_color");
+	auto shader = Globals::shaderManager.getAssetPointer("shape_color");
 	shader->use();
 	Globals::textureManager.get("null").bind(0);
 	shader->loadMatrix("u_projection", m_camera.getOrthographicMatrix());
@@ -348,13 +338,103 @@ void Adrian::render() {
 		m_navigationMesh->OnRenderDebug();
 	}
 
-	if (m_debugTree || m_debugNavmesh) {
+	if (m_debugTree || m_debugNavmesh || m_drawPolygon) {
 		DebugRenderer::Get().SetProjectionView(m_camera.getOrthographicMatrix(), m_camera.getViewMatrix());
 		DebugRenderer::Get().drawBuffer();
 	}
 
 	if (m_drawUi)
 		renderUi();
+}
+
+void Adrian::renderScene() {
+
+	int tilex, tilez;
+
+	const int TILE_SIZE = 3000;
+	const float TILE_LOWFACTOR = 4.0;
+	const float TILE_HIGHFACTOR = 4.0;
+	int tileSzFactor = TILE_HIGHFACTOR + TILE_LOWFACTOR;
+
+	tilex = ((int)m_camera.m_initx / TILE_SIZE) * TILE_SIZE;
+	tilez = ((int)m_camera.m_initz / TILE_SIZE) * TILE_SIZE;
+
+	Globals::textureManager.get("ground").bind(0);
+	auto shader = Globals::shaderManager.getAssetPointer("map");
+	shader->use();
+	shader->loadMatrix("u_projection", m_camera.getOrthographicMatrix());
+	shader->loadMatrix("u_view", m_camera.getViewMatrix());
+	shader->loadMatrix("u_model", Matrix4f::Translate(tilex, 0.0f, tilez) * Matrix4f::Scale(TILE_SIZE * TILE_LOWFACTOR, 0.0f, TILE_SIZE * TILE_HIGHFACTOR));
+	shader->loadFloat("u_tileFactor", m_tileFactor);
+	shader->loadVector("u_blendColor", Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+	Globals::shapeManager.get("quad_xz").drawRaw();
+	shader->unuse();
+
+
+	shader = Globals::shaderManager.getAssetPointer("shape_color");
+	shader->use();
+	shader->loadMatrix("u_projection", m_camera.getOrthographicMatrix());
+	shader->loadMatrix("u_view", m_camera.getViewMatrix());
+	shader->loadVector("u_color", m_heroEnity->getColor());
+
+	shader = Globals::shaderManager.getAssetPointer("shape");
+	shader->use();
+	shader->loadMatrix("u_projection", m_camera.getOrthographicMatrix());
+	shader->loadMatrix("u_view", m_camera.getViewMatrix());
+
+	for (const Batch& batch : m_octree->getOpaqueBatches().m_batches) {
+		OctreeNode* drawable = batch.octreeNode;
+		shader->loadMatrix("u_model", drawable->getWorldTransformation());
+		drawable->drawRaw();
+	}
+}
+
+void Adrian::renderSceneDepth() {
+
+	int tilex, tilez;
+
+	const int TILE_SIZE = 3000;
+	const float TILE_LOWFACTOR = 4.0;
+	const float TILE_HIGHFACTOR = 4.0;
+	int tileSzFactor = TILE_HIGHFACTOR + TILE_LOWFACTOR;
+
+	tilex = ((int)m_camera.m_initx / TILE_SIZE) * TILE_SIZE;
+	tilez = ((int)m_camera.m_initz / TILE_SIZE) * TILE_SIZE;
+
+	auto shader = Globals::shaderManager.getAssetPointer("depth_ortho");
+
+	shader->use();
+	shader->loadMatrix("u_projection", m_camera.getOrthographicMatrix());
+	shader->loadMatrix("u_view", m_camera.getViewMatrix());
+	shader->loadMatrix("u_model", Matrix4f::Translate(tilex, 0.0f, tilez) * Matrix4f::Scale(TILE_SIZE * TILE_LOWFACTOR, 0.0f, TILE_SIZE * TILE_HIGHFACTOR));
+
+	Globals::shapeManager.get("quad_xz").drawRaw();
+
+	for (const Batch& batch : m_octree->getOpaqueBatches().m_batches) {
+		OctreeNode* drawable = batch.octreeNode;
+		shader->loadMatrix("u_model", drawable->getWorldTransformation());
+		drawable->drawRaw();
+	}
+}
+
+void Adrian::renderBubble() {
+
+	Matrix4f model = Matrix4f::Translate(m_heroEnity->getWorldPosition() - Vector3f(0.0f, 40.0f, 0.0f)) * Matrix4f::Scale(m_fadeValue * 100.0f, m_fadeValue * 100.0f, m_fadeValue * 100.0f);
+
+	auto shader = Globals::shaderManager.getAssetPointer("bubble_new");
+
+	shader->use();	
+	shader->loadMatrix("u_projection", m_camera.getOrthographicMatrix());
+	shader->loadMatrix("u_view", m_camera.getViewMatrix());
+	shader->loadMatrix("u_model", model);
+	shader->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(m_camera.getViewMatrix() * model));
+	shader->loadVector("color", Vector3f(0.0f, 0.9f, 1.0f));
+	shader->loadFloat("alpha", 0.1f);
+	shader->loadVector("screensize", Vector2f(static_cast<float>(Application::Width), static_cast<float>(Application::Height)));
+	shader->loadFloat("scale", m_rimScale);
+
+	m_depthBuffer.bindDepthTexture(0u);
+	m_sphere.drawRaw();
 }
 
 void Adrian::OnMouseMotion(Event::MouseMoveEvent& event) {
@@ -483,6 +563,7 @@ void Adrian::resize(int deltaW, int deltaH) {
 	//m_camera.orthographic(-static_cast<float>(Application::Width / 2) / m_zoom, static_cast<float>(Application::Width / 2) / m_zoom, -static_cast<float>(Application::Height / 2) / m_zoom, static_cast<float>(Application::Height / 2) / m_zoom, -static_cast<float>(Application::Width) / m_zoom, static_cast<float>(Application::Width) / m_zoom);
 	m_camera.orthographic(-static_cast<float>(Application::Width / 2) / m_zoom, static_cast<float>(Application::Width / 2) / m_zoom, -static_cast<float>(Application::Height / 2) / m_zoom, static_cast<float>(Application::Height / 2) / m_zoom, -5000.0f, 5000.0f);
 	m_camera.resize(Application::Width, Application::Height);
+	m_depthBuffer.resize(Application::Width, Application::Height);
 }
 
 void Adrian::renderUi() {
@@ -548,7 +629,7 @@ void Adrian::renderUi() {
 		m_currentPolygon = &m_editPolygons.back();
 		m_currentPolygon->userPointerOffset = m_edgePoints.size();
 	}
-
+	ImGui::SliderFloat("Rim Scale", &m_rimScale, 0.0f, 2.0f);
 	if (ImGui::Button("Bake (to File)")) {
 
 		for (EditPolygon& editPolygon : m_editPolygons) {
@@ -580,7 +661,7 @@ void Adrian::renderUi() {
 			editPolygon.size = 0;
 		}
 	}
-
+	ImGui::Image((ImTextureID)(intptr_t)m_depthBuffer.getDepthTexture(), ImVec2(200.0f, 200.0f), { 0.0f, 1.0f }, { 1.0f, 0.0f });
 	ImGui::End();
 
 	ImGui::Render();

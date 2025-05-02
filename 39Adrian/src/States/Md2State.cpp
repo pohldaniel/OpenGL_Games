@@ -169,25 +169,26 @@ void Md2State::render() {
 	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
 	shader->loadMatrix("u_view", m_camera.getViewMatrix());
 	
-	for (size_t i = 0; i < m_octree->getRootLevelOctants().size(); ++i) {
-		const Octree::ThreadOctantResult& result = m_octree->getOctantResults()[i];
-		for (auto oIt = result.octants.begin(); oIt != result.octants.end(); ++oIt) {
-			Octant* octant = oIt->first;
-			if (m_debugTree)
-				octant->OnRenderAABB(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
-
-			const std::vector<OctreeNode*>& drawables = octant->getOctreeNodes();
-			for (auto dIt = drawables.begin(); dIt != drawables.end(); ++dIt) {
-				OctreeNode* drawable = *dIt;
-				shader->loadMatrix("u_model", drawable->getWorldTransformation());
-				drawable->drawRaw();
-				if (m_debugTree)
-					drawable->OnRenderAABB(Vector4f(0.0f, 1.0f, 0.0f, 1.0f));
-			}
-		}
+	for (const Batch& batch : m_octree->getOpaqueBatches().m_batches) {
+		OctreeNode* drawable = batch.octreeNode;
+		shader->loadMatrix("u_model", drawable->getWorldTransformation());
+		drawable->drawRaw();
 	}
 
 	if (m_debugTree) {
+		for (size_t i = 0; i < m_octree->getRootLevelOctants().size(); ++i) {
+			const Octree::ThreadOctantResult& result = m_octree->getOctantResults()[i];
+			for (auto oIt = result.octants.begin(); oIt != result.octants.end(); ++oIt) {
+				Octant* octant = oIt->first;
+				if (m_debugTree)
+					octant->OnRenderAABB(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
+
+				const std::vector<OctreeNode*>& drawables = octant->getOctreeNodes();
+				for (auto dIt = drawables.begin(); dIt != drawables.end(); ++dIt) {
+					(*dIt)->OnRenderAABB(Vector4f(0.0f, 1.0f, 0.0f, 1.0f));
+				}
+			}
+		}
 		DebugRenderer::Get().SetProjectionView(m_camera.getPerspectiveMatrix(), m_camera.getViewMatrix());
 		DebugRenderer::Get().drawBuffer();
 	}

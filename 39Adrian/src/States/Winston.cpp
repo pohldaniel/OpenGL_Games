@@ -14,7 +14,7 @@ Winston::Winston(StateMachine& machine) : State(machine, States::WINSTON) {
 	EventDispatcher::AddKeyboardListener(this);
 	EventDispatcher::AddMouseListener(this);
 
-	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
+	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 100.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
 	m_camera.lookAt(Vector3f(0.0f, 2.0f, 10.0f), Vector3f(0.0f, 2.0f, 10.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
 	m_camera.setRotationSpeed(0.1f);
@@ -23,14 +23,11 @@ Winston::Winston(StateMachine& machine) : State(machine, States::WINSTON) {
 	glClearColor(0.494f, 0.686f, 0.796f, 1.0f);
 	glClearDepth(1.0f);
 
-	m_background.resize(Application::Width, Application::Height);
-	m_background.setLayer(std::vector<BackgroundLayer>{
-		{ &Globals::textureManager.get("forest_1"), 1, 1.0f },
-		{ &Globals::textureManager.get("forest_2"), 1, 2.0f },
-		{ &Globals::textureManager.get("forest_3"), 1, 3.0f },
-		{ &Globals::textureManager.get("forest_4"), 1, 4.0f },
-		{ &Globals::textureManager.get("forest_5"), 1, 5.0f }});
-	m_background.setSpeed(0.005f);
+	m_world.fromObj("res/models/scene.obj");
+	m_sphere.fromObj("res/models/sphere.obj");
+
+	m_depthBuffer.create(Application::Width, Application::Height);
+	m_depthBuffer.attachTexture2D(AttachmentTex::DEPTH24);
 }
 
 Winston::~Winston() {
@@ -62,15 +59,11 @@ void Winston::update() {
 
 	if (keyboard.keyDown(Keyboard::KEY_A)) {
 		direction += Vector3f(-1.0f, 0.0f, 0.0f);
-		m_background.addOffset(-0.001f);
-		m_background.setSpeed(-0.005f);
 		move |= true;
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_D)) {
 		direction += Vector3f(1.0f, 0.0f, 0.0f);
-		m_background.addOffset(0.001f);
-		m_background.setSpeed(0.005f);
 		move |= true;
 	}
 
@@ -82,6 +75,22 @@ void Winston::update() {
 	if (keyboard.keyDown(Keyboard::KEY_E)) {
 		direction += Vector3f(0.0f, 1.0f, 0.0f);
 		move |= true;
+	}
+
+	if (keyboard.keyDown(Keyboard::KEY_LEFT)) {
+		m_bubblePos[0] -= m_dt;
+	}
+
+	if (keyboard.keyDown(Keyboard::KEY_RIGHT)) {
+		m_bubblePos[0] += m_dt;
+	}
+
+	if (keyboard.keyDown(Keyboard::KEY_UP)) {
+		m_bubblePos[2] -= m_dt;
+	}
+
+	if (keyboard.keyDown(Keyboard::KEY_DOWN)) {
+		m_bubblePos[2] += m_dt;
 	}
 
 	Mouse &mouse = Mouse::instance();
@@ -100,14 +109,25 @@ void Winston::update() {
 			m_camera.move(direction * m_dt);
 		}
 	}
-
-	m_background.update(m_dt);
 }
 
 void Winston::render() {
 
+	m_depthBuffer.bind();
+	glClear(GL_DEPTH_BUFFER_BIT);
+	renderSceneDepth();
+	m_depthBuffer.unbind();
+
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	m_background.draw();
+	renderScene();
+	glDepthMask(GL_FALSE);
+	glCullFace(GL_FRONT);
+	renderBubble();
+
+	glCullFace(GL_BACK);
+	renderBubble();
+
+	glDepthMask(GL_TRUE);
 
 	if (m_drawUi)
 		renderUi();
@@ -118,11 +138,19 @@ void Winston::OnMouseMotion(Event::MouseMoveEvent& event) {
 }
 
 void Winston::OnMouseButtonDown(Event::MouseButtonEvent& event) {
+	if (event.button == 2u) {
+		Mouse::instance().attach(Application::GetWindow());
+	}
 
+	if (event.button == 1u) {
+		Mouse::instance().attach(Application::GetWindow(), false, false, false);
+	}
 }
 
 void Winston::OnMouseButtonUp(Event::MouseButtonEvent& event) {
-
+	if (event.button == 2u || event.button == 1u) {
+		Mouse::instance().detach();
+	}
 }
 
 void Winston::OnMouseWheel(Event::MouseWheelEvent& event) {
@@ -143,6 +171,7 @@ void Winston::OnKeyUp(Event::KeyboardEvent& event) {
 void Winston::resize(int deltaW, int deltaH) {
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
+	m_depthBuffer.resize(Application::Width, Application::Height);
 }
 
 void Winston::renderUi() {
@@ -182,8 +211,53 @@ void Winston::renderUi() {
 	// render widgets
 	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 	ImGui::Checkbox("Draw Wirframe", &StateMachine::GetEnableWireframe());
+	ImGui::Image((ImTextureID)(intptr_t)m_depthBuffer.getDepthTexture(), ImVec2(200.0f, 200.0f), { 0.0f, 1.0f }, { 1.0f, 0.0f });
 	ImGui::End();
 
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+}
+
+void Winston::renderBubble() {
+	
+	Matrix4f model = Matrix4f::Translate(m_bubblePos);
+
+	auto shader = Globals::shaderManager.getAssetPointer("bubble");
+
+	shader->use();
+	shader->loadMatrix("modelView", m_camera.getViewMatrix() * model);
+	shader->loadMatrix("projection", m_camera.getPerspectiveMatrix());
+	shader->loadVector("color", Vector3f(0.0f, 0.9f, 1.0f));
+	shader->loadFloat("alpha", 0.01f);
+	shader->loadVector("screensize", Vector2f(static_cast<float>(Application::Width), static_cast<float>(Application::Height)));
+	shader->loadFloat("near", 0.1f);
+	shader->loadFloat("far", 100.0f);
+
+	m_depthBuffer.bindDepthTexture(0u);
+	m_sphere.drawRaw();
+}
+
+void Winston::renderSceneDepth() {
+
+	auto shader = Globals::shaderManager.getAssetPointer("depth");
+
+	shader->use();
+	shader->loadMatrix("modelView", m_camera.getViewMatrix());
+	shader->loadMatrix("projection", m_camera.getPerspectiveMatrix());
+	shader->loadFloat("near", 0.1f);
+	shader->loadFloat("far", 100.0f);
+	m_world.drawRaw();
+}
+
+void Winston::renderScene() {
+	auto shader = Globals::shaderManager.getAssetPointer("scene");
+	
+	shader->use();
+	shader->loadMatrix("modelView", m_camera.getViewMatrix());
+	shader->loadMatrix("projection", m_camera.getPerspectiveMatrix());
+
+	shader->loadMatrix("view", m_camera.getViewMatrix());
+	shader->loadVector("color", Vector3f(0.3f, 0.3f, 0.3f));
+	shader->loadVector("lightDir", Vector3f(0.5f, -0.72f, -0.65f));
+	m_world.drawRaw();
 }

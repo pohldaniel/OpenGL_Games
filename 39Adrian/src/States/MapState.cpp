@@ -179,27 +179,28 @@ void MapState::render() {
 	shader->use();
 	shader->loadMatrix("u_projection", m_camera.getOrthographicMatrix());
 	shader->loadMatrix("u_view", m_camera.getViewMatrix());
+	shader->loadVector("u_color", m_heroEnity->getColor());
 
-	for (size_t i = 0; i < m_octree->getRootLevelOctants().size(); ++i) {
-		const Octree::ThreadOctantResult& result = m_octree->getOctantResults()[i];
-		for (auto oIt = result.octants.begin(); oIt != result.octants.end(); ++oIt) {
-			Octant* octant = oIt->first;
-			if (m_debugTree)
-				octant->OnRenderAABB(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
-
-			const std::vector<OctreeNode*>& drawables = octant->getOctreeNodes();
-			for (auto dIt = drawables.begin(); dIt != drawables.end(); ++dIt) {
-				OctreeNode* drawable = *dIt;
-				shader->loadMatrix("u_model", drawable->getWorldTransformation());
-				shader->loadVector("u_color", m_heroEnity->getColor());
-				drawable->drawRaw();
+	for (const Batch& batch : m_octree->getOpaqueBatches().m_batches) {
+		OctreeNode* drawable = batch.octreeNode;
+		shader->loadMatrix("u_model", drawable->getWorldTransformation());
+		drawable->drawRaw();
+	}
+	
+	if (m_debugTree) {
+		for (size_t i = 0; i < m_octree->getRootLevelOctants().size(); ++i) {
+			const Octree::ThreadOctantResult& result = m_octree->getOctantResults()[i];
+			for (auto oIt = result.octants.begin(); oIt != result.octants.end(); ++oIt) {
+				Octant* octant = oIt->first;
 				if (m_debugTree)
-					drawable->OnRenderAABB(Vector4f(0.0f, 0.0f, 1.0f, 1.0f));
+					octant->OnRenderAABB(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
+
+				const std::vector<OctreeNode*>& drawables = octant->getOctreeNodes();
+				for (auto dIt = drawables.begin(); dIt != drawables.end(); ++dIt) {
+					(*dIt)->OnRenderAABB(Vector4f(0.0f, 1.0f, 0.0f, 1.0f));
+				}
 			}
 		}
-	}
-
-	if (m_debugTree) {
 		DebugRenderer::Get().SetProjectionView(m_camera.getOrthographicMatrix(), m_camera.getViewMatrix());
 		DebugRenderer::Get().drawBuffer();
 	}
@@ -246,9 +247,15 @@ void MapState::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 				m_diskNode->setPosition(0.0f, -MAP_MODEL_HEIGHT_Y + 0.01f, 0.0f);
 				m_diskNode->setTextureIndex(2);
 				m_diskNode->setName("disk");
-				m_diskNode->OnOctreeSet(m_octree);		
+				m_diskNode->OnOctreeSet(m_octree);	
+				m_heroEnity->setIsActive(true);
+			}else {
+				ShapeNode* marker = m_heroEnity->findChild<ShapeNode>("disk");
+				marker->OnOctreeSet(nullptr);
+				marker->eraseSelf();
+				m_heroEnity->setIsActive(false);
 			}
-			m_heroEnity->setIsActive(true);
+			
 		}else {
 			if (m_heroEnity->isActive()) {
 				ShapeNode* marker = m_heroEnity->findChild<ShapeNode>("disk");
