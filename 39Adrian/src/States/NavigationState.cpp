@@ -109,6 +109,9 @@ NavigationState::~NavigationState() {
 	delete m_crowdManager;
 	m_crowdManager = nullptr;
 
+	for (CrowdAgentEntity* entity : m_entities)
+		delete entity;
+
 	WorkQueue::Shutdown();
 	Physics::DeleteAllCollisionObjects();
 }

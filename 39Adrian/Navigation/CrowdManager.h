@@ -33,7 +33,7 @@ using CrowdAgentVelocityCallback = std::function<void(CrowdAgent* agent, float t
 /// Callback used to evaluate crowd agent Y position.
 using CrowdAgentHeightCallback = std::function<float(CrowdAgent* agent, float timeStep, const Vector3f& position)>;
 
-class CrowdManager{
+class CrowdManager {
 	friend class CrowdAgent;
 
 public:

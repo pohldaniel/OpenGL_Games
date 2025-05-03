@@ -63,7 +63,6 @@ Adrian::Adrian(StateMachine& machine) : State(machine, States::ADRIAN),
 	m_root = Renderer::Get().getScene();
 
 	DebugRenderer::Get().setEnable(true);
-	m_root = new SceneNodeLC();
 	m_heroEnity = m_root->addChild<Md2Entity, Md2Model>(m_hero);
 	m_heroEnity->setPosition(-780.0f, MAP_MODEL_HEIGHT_Y, 780.0f);
 	m_heroEnity->setOrientation(0.0f, 0.0f, 0.0f);
@@ -158,6 +157,7 @@ Adrian::~Adrian() {
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
 	Material::CleanupTextures();
+	Renderer::Get().shutdown();
 	Renderer::Get().shutdown();
 	ShapeDrawer::Get().shutdown();
 

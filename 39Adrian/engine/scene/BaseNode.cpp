@@ -29,10 +29,6 @@ BaseNode& BaseNode::operator=(BaseNode&& rhs) {
 	return *this;
 }
 
-BaseNode::~BaseNode() {
-	
-}
-
 void BaseNode::OnTransformChanged() {
 
 	if (m_isDirty) {

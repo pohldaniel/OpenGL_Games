@@ -11,7 +11,6 @@ class OctreeNode : public SceneNodeLC {
 public:
 
 	OctreeNode();
-	~OctreeNode();
 
 	virtual void OnTransformChanged() override;
 	virtual void OnOctreeSet(Octree* octree);

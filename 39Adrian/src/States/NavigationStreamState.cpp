@@ -143,6 +143,9 @@ NavigationStreamState::~NavigationStreamState() {
 	delete m_navigationMesh;
 	m_navigationMesh = nullptr;
 
+	for (CrowdAgentEntity* entity : m_entities)
+		delete entity;
+
 	Physics::DeleteAllCollisionObjects();
 }
 

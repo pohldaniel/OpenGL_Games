@@ -13,7 +13,6 @@ void Renderer::init(Octree* octree, SceneNodeLC* scene) {
 }
 
 void Renderer::shutdown() {
-
 	clearMarker();
 
 	delete m_octree;

@@ -96,7 +96,6 @@ private:
 
 	Shape m_ground, m_cylinder, m_cube, m_cube14, m_cube17, m_plane, m_box, m_mushroom;
 	AnimatedModel m_beta, m_jack, m_woman;
-	Animation* m_animationNode;
 
 	MousePicker m_mousePicker;
 	DynamicNavigationMesh* m_navigationMesh;

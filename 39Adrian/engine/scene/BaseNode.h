@@ -18,7 +18,6 @@ public:
 	BaseNode& operator=(const BaseNode& rhs);
 	BaseNode(BaseNode&& rhs);
 	BaseNode& operator=(BaseNode&& rhs);
-	virtual ~BaseNode();
 
 	virtual const Matrix4f& getWorldTransformation() const = 0;
 	virtual const Vector3f& getWorldPosition(bool update = true) const = 0;

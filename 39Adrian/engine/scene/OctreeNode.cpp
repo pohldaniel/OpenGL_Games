@@ -6,10 +6,6 @@ OctreeNode::OctreeNode() : m_drawDebug(true), m_reinsertQueued(false), m_octant(
 	OnBoundingBoxChanged();
 }
 
-OctreeNode::~OctreeNode() {
-
-}
-
 void OctreeNode::drawRaw() const {
 
 }

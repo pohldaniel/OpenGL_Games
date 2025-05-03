@@ -18,7 +18,8 @@
 #include <Navigation/NavArea.h>
 #include <Navigation/NavPolygon.h>
 #include <Navigation/Obstacle.h>
-
+#include <Navigation/CrowdManager.h>
+#include <Navigation/CrowdAgent.h>
 #include <Physics/Physics.h>
 #include <Physics/MousePicker.h>
 #include <States/StateMachine.h>
