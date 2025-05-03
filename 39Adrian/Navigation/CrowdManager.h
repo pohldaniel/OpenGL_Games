@@ -83,7 +83,7 @@ public:
 private:
 
 	int addAgent(CrowdAgent* agent, const Vector3f& pos, bool force = true);
-
+	Vector3f OnCrowdFormationDefault(const Vector3f& pos, CrowdAgent* agent);
 	dtCrowd* m_crowd;
 	CrowdAgentVelocityCallback m_velocityCallback;
 	CrowdAgentHeightCallback m_heightCallback;

@@ -525,9 +525,6 @@
     <ClCompile Include="Navigation\CrowdManager.cpp">
       <Filter>Navigation</Filter>
     </ClCompile>
-    <ClCompile Include="src\Sphere.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\Entities\CrowdAgentEntity.cpp">
       <Filter>Source Files\Entities</Filter>
     </ClCompile>
@@ -1048,9 +1045,6 @@
     </ClInclude>
     <ClInclude Include="Navigation\CrowdManager.h">
       <Filter>Navigation</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Sphere.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Entities\CrowdAgentEntity.h">
       <Filter>Source Files\Entities</Filter>

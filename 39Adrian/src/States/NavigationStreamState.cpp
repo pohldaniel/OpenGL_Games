@@ -101,14 +101,6 @@ NavigationStreamState::NavigationStreamState(StateMachine& machine) :
 
 	m_crowdManager = new CrowdManager();
 	m_crowdManager->setNavigationMesh(m_navigationMesh);
-	m_crowdManager->setOnCrowdFormation([&m_crowdManager = m_crowdManager](const Vector3f& pos, CrowdAgent* agent) {
-		if (agent) {
-			Vector3f _pos = m_crowdManager->getRandomPointInCircle(pos, agent->getRadius(), agent->getQueryFilterType());
-			return _pos;
-		}
-		return Vector3f(pos);
-	});
-
 	m_navigationMesh->setCrowdManager(m_crowdManager);
 	
 	for (unsigned i = 0; i < 100; ++i)
@@ -142,6 +134,9 @@ NavigationStreamState::~NavigationStreamState() {
 
 	delete m_navigationMesh;
 	m_navigationMesh = nullptr;
+
+	delete m_crowdManager;
+	m_crowdManager = nullptr;
 
 	for (CrowdAgentEntity* entity : m_entities)
 		delete entity;
@@ -588,12 +583,8 @@ void NavigationStreamState::spawnAgent(const Vector3f& pos) {
 	agent->setMaxAccel(10.0f);
 	agent->setRadius(0.5f);
 	agent->setNavigationPushiness(NAVIGATIONPUSHINESS_MEDIUM);
-	agent->setSeparationWeight(m_separaionWeight);
-	
+	agent->setSeparationWeight(m_separaionWeight);	
 	agent->initCallbacks();
-	agent->setOnTarget([&agent = m_crowdManager->getAgents().back()](const Vector3f& pos) {
-		Renderer::Get().addMarker(pos);
-	});
 }
 
 void NavigationStreamState::spawnBeta(const Vector3f& pos) {

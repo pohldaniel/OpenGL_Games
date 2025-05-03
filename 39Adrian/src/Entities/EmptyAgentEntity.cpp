@@ -20,7 +20,7 @@ void EmptyAgentEntity::OnInactive() {
 }
 
 void EmptyAgentEntity::OnTarget(const Vector3f& targetPos) {
-	Renderer::Get().addMarker(targetPos);
+
 }
 
 void EmptyAgentEntity::OnAddAgent(const Vector3f& pos) {

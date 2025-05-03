@@ -252,7 +252,6 @@
     <ClCompile Include="src\LoadingManager.cpp" />
     <ClCompile Include="src\MiniMap.cpp" />
     <ClCompile Include="src\Renderer.cpp" />
-    <ClCompile Include="src\Sphere.cpp" />
     <ClCompile Include="src\States\Adrian.cpp" />
     <ClCompile Include="src\States\Controls.cpp" />
     <ClCompile Include="src\States\Default.cpp" />
@@ -470,7 +469,6 @@
     <ClInclude Include="src\LoadingManager.h" />
     <ClInclude Include="src\MiniMap.h" />
     <ClInclude Include="src\Renderer.h" />
-    <ClInclude Include="src\Sphere.h" />
     <ClInclude Include="src\States\Adrian.h" />
     <ClInclude Include="src\States\Controls.h" />
     <ClInclude Include="src\States\Default.h" />

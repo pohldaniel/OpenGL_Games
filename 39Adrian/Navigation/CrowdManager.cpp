@@ -32,7 +32,7 @@ CrowdManager::CrowdManager() :
 	m_maxAgentRadius(DEFAULT_MAX_AGENT_RADIUS),
 	m_numObstacleAvoidanceTypes(0u)
 {
-	
+	setOnCrowdFormation(std::bind(&CrowdManager::OnCrowdFormationDefault, this, std::placeholders::_1, std::placeholders::_2));
 }
 
 CrowdManager::~CrowdManager(){
@@ -43,11 +43,12 @@ CrowdManager::~CrowdManager(){
 
 void CrowdManager::OnRenderDebug() const {
 	if (m_crowd) {
-		for (int i = 0; i < m_crowd->getAgentCount(); i++) {
-			const dtCrowdAgent* ag = m_crowd->getAgent(i);
+		
+		for (int i = 0; i < m_agents.size(); i++) {
+			const dtCrowdAgent* ag = m_crowd->getAgent(m_agents[i]->m_agentCrowdId);
 			if (!ag->active)
 				continue;
-
+			
 			// Draw CrowdAgent shape (from its radius & height)
 			CrowdAgent* crowdAgent = static_cast<CrowdAgent*>(ag->params.userData);
 			crowdAgent->OnRenderDebug();
@@ -74,7 +75,7 @@ void CrowdManager::OnRenderDebug() const {
 			DebugRenderer::Get().AddLine(pos1, pos2, color);
 
 			// Draw target circle
-			//debug->AddSphere(Sphere(pos2, 0.5f), color, depthTest);
+			DebugRenderer::Get().AddSphere(pos2, 0.5f , Vector3f(0.0f, 0.0f, 1.0f));
 		}
 	}
 }
@@ -290,4 +291,12 @@ void CrowdManager::removeAgents() {
 	}
 	m_agents.clear();
 	m_agents.shrink_to_fit();
+}
+
+Vector3f CrowdManager::OnCrowdFormationDefault(const Vector3f& pos, CrowdAgent* agent) {
+	if (agent) {
+		Vector3f _pos = getRandomPointInCircle(pos, agent->getRadius(), agent->getQueryFilterType());
+		return _pos;
+	}
+	return Vector3f(pos);
 }

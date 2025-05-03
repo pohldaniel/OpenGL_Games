@@ -100,7 +100,8 @@ public:
 
 	void resetAgent() const;
 	void resetTarget();
-	
+	void markForReset() const;
+
 	static const Vector3f& GetNearestPos();
 	static void SetNearestPos(const Vector3f& nearestPos);
 	

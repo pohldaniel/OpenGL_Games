@@ -83,14 +83,7 @@ NavigationState::NavigationState(StateMachine& machine) :
 
 	m_crowdManager = new CrowdManager();
 	m_crowdManager->setNavigationMesh(m_navigationMesh);
-	m_crowdManager->setOnCrowdFormation([&m_crowdManager = m_crowdManager](const Vector3f& pos, CrowdAgent* agent) {
-		if (agent) {
-			Vector3f _pos = m_crowdManager->getRandomPointInCircle(pos, agent->getRadius(), agent->getQueryFilterType());
-			return _pos;
-		}
-		return Vector3f(pos);
-	});
-	
+
 	spawnJack(Vector3f( 5.0f, 0.5f, -30.0f));
 	spawnBeta(Vector3f(-5.0f, 0.5f, -30.0f));
 	spawnWoman(Vector3f(-10.0f, 0.5f, -30.0f));
@@ -604,11 +597,7 @@ void NavigationState::spawnAgent(const Vector3f& pos){
 	agent->setRadius(0.5f);
 	agent->setNavigationPushiness(NAVIGATIONPUSHINESS_MEDIUM);
 	agent->setSeparationWeight(m_separaionWeight);
-
 	agent->initCallbacks();
-	agent->setOnTarget([&agent = agent](const Vector3f& pos) {
-		Renderer::Get().addMarker(pos);
-	});
 }
 
 void NavigationState::spawnBeta(const Vector3f& pos) {

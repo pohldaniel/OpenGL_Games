@@ -1,5 +1,4 @@
 #include "DebugRenderer.h"
-#include <Sphere.h>
 
 DebugRenderer DebugRenderer::s_instance;
 bool DebugRenderer::s_enabled = true;
@@ -307,10 +306,12 @@ void DebugRenderer::AddCylinder(const Vector3f& position, float radius, float he
 	Vector3f offsetXVec(radius, 0, 0);
 	Vector3f offsetZVec(0, 0, radius);
 
-	Sphere sphere(position, radius);
 	for (float i = 0.0f; i < 360.0f; i += 45.0f){
-		Vector3f p1 = sphere.Point(i, 90.0f);
-		Vector3f p2 = sphere.Point(i + 45.0f, 90.0f);
+		float theta1 = i * PI_ON_180;
+		float theta2 = (i + 45.0f) * PI_ON_180;
+		float phi = 90.0f * PI_ON_180;
+		Vector3f p1 = position + Vector3f(radius * std::sinf(theta1) * std::sinf(phi), radius * std::cosf(phi), radius * std::cosf(theta1) * std::sinf(phi));
+		Vector3f p2 = position + Vector3f(radius * std::sinf(theta2) * std::sinf(phi), radius * std::cosf(phi), radius * std::cosf(theta2) * std::sinf(phi));
 		AddLine(p1, p2, color);
 		AddLine(p1 + heightVec, p2 + heightVec, color);
 	}
@@ -348,30 +349,42 @@ void DebugRenderer::AddNode(SceneNodeLC* node, float scale){
 }
 
 void DebugRenderer::AddSphere(const Vector3f& center, float radius, const Vector4f& color) {
-	for (float j = 0.0f; j < 180.0f; j += 45.0f)
-	{
-		for (float i = 0.0f; i < 360.0f; i += 45.0f)
-		{
-			/*unsigned startVertex = (unsigned)vertices.size();
+	unsigned uintColor = color.toUInt();
+	for (float j = 0.0f; j < 180.0f; j += 45.0f){
+		for (float i = 0.0f; i < 360.0f; i += 45.0f){
 
-			vertices.push_back(DebugVertex(sphere.Point(i, j), uintColor));
-			vertices.push_back(DebugVertex(sphere.Point(i + 45.0f, j), uintColor));
-			vertices.push_back(DebugVertex(sphere.Point(i, j + 45.0f), uintColor));
-			vertices.push_back(DebugVertex(sphere.Point(i + 45.0f, j + 45.0f), uintColor));
+			verticesPtr->position = center + Vector3f(radius * std::sinf(i * PI_ON_180) * std::sinf(j * PI_ON_180), radius * std::cosf(j * PI_ON_180), radius * std::cosf(i * PI_ON_180) * std::sinf(j * PI_ON_180));
+			verticesPtr->color = uintColor;
+			verticesPtr++;
 
-			std::vector<unsigned>& dest = depthTest ? indices : noDepthIndices;
+			verticesPtr->position = center + Vector3f(radius * std::sinf((i + 45.0f) * PI_ON_180) * std::sinf(j * PI_ON_180), radius * std::cosf(j * PI_ON_180), radius * std::cosf((i + 45.0f) * PI_ON_180) * std::sinf(j * PI_ON_180));
+			verticesPtr->color = uintColor;
+			verticesPtr++;
 
-			dest.push_back(startVertex);
-			dest.push_back(startVertex + 1);
+			verticesPtr->position = center + Vector3f(radius * std::sinf(i * PI_ON_180) * std::sinf((j + 45.0f) * PI_ON_180), radius * std::cosf((j + 45.0f) * PI_ON_180), radius * std::cosf(i * PI_ON_180) * std::sinf((j + 45.0f) * PI_ON_180));
+			verticesPtr->color = uintColor;
+			verticesPtr++;
 
-			dest.push_back(startVertex + 2);
-			dest.push_back(startVertex + 3);
+			verticesPtr->position = center + Vector3f(radius * std::sinf((i + 45.0f) * PI_ON_180) * std::sinf((j + 45.0f) * PI_ON_180), radius * std::cosf((j + 45.0f) * PI_ON_180), radius * std::cosf((i + 45.0f) * PI_ON_180) * std::sinf((j + 45.0f) * PI_ON_180));
+			verticesPtr->color = uintColor;
+			verticesPtr++;
 
-			dest.push_back(startVertex);
-			dest.push_back(startVertex + 2);
+			*indicesPtr = vertexCount;
+			*(indicesPtr + 1) = vertexCount + 1;
 
-			dest.push_back(startVertex + 1);
-			dest.push_back(startVertex + 3);*/
+			*(indicesPtr + 2) = vertexCount + 2;
+			*(indicesPtr + 3) = vertexCount + 3;
+
+			*(indicesPtr + 4) = vertexCount;
+			*(indicesPtr + 5) = vertexCount + 2;
+
+			*(indicesPtr + 6) = vertexCount + 1;
+			*(indicesPtr + 7) = vertexCount + 3;
+
+			indicesPtr += 8;
+
+			vertexCount += 4;
+			indexCount += 8;
 		}
 	}
 }
