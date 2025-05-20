@@ -98,9 +98,6 @@ void MeshTorusKnot::BuildMesh(float radius, float tubeRadius, int p, int q, cons
 		N = Vector3f::Normalize(Vector3f::Cross(T, B));
 		T = Vector3f::Normalize(Vector3f::Cross(B, N));
 
-		Vector3f::Normalize(B);
-		Vector3f::Normalize(N);
-
 		float currentTubeSegmentAngle = 0.0f;
 		for (unsigned int i = 0; i <= vResolution; ++i) {
 			float v = currentTubeSegmentAngle * TWO_PI;

@@ -17,7 +17,8 @@ Adrian::Adrian(StateMachine& machine) : State(machine, States::ADRIAN),
 	m_addedTiles(0, [](const std::array<int, 2>& p) {  return std::hash<int>()(p[0]) ^ std::hash<int>()(p[1]) << 1; }, [](const std::array<int, 2>& p1, const std::array<int, 2>& p2) { return p1[0] == p2[0] && p1[1] == p2[1]; }),
 	m_streamingDistance(6),
 	m_globalUserIndex(-1),
-	m_fade(m_fadeValue){
+	m_fade(m_fadeValue),
+	m_separaionWeight(3.0f){
 
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
@@ -151,6 +152,11 @@ Adrian::Adrian(StateMachine& machine) : State(machine, States::ADRIAN),
 
 	m_fade.setTransitionEnd(true);
 	m_fade.setTransitionSpeed(3.0f);
+
+	m_crowdManager = new CrowdManager();
+	m_crowdManager->setNavigationMesh(m_navigationMesh);
+
+	spawnAgent(m_heroEnity->getWorldPosition() - Vector3f(0.0f, 26.0f, 0.0f));
 }
 
 Adrian::~Adrian() {
@@ -251,6 +257,8 @@ void Adrian::update() {
 	m_heroEnity->translateRelative(moveDir);
 
 	m_octree->updateFrameNumber();
+
+	m_crowdManager->update(m_dt);
 	m_heroEnity->update(m_dt);
 	m_fade.update(m_dt);
 
@@ -336,6 +344,7 @@ void Adrian::render() {
 
 	if (m_debugNavmesh) {
 		m_navigationMesh->OnRenderDebug();
+		m_crowdManager->OnRenderDebug();
 	}
 
 	if (m_debugTree || m_debugNavmesh || m_drawPolygon) {
@@ -459,6 +468,10 @@ void Adrian::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 				Vector3f pos = Physics::VectorFrom(callbackAll.m_hitPointWorld[callbackAll.index]);
 				Renderer::Get().addMarker(pos, 20.0f, 2);
 				m_heroEnity->move(pos[0], pos[2]);
+
+				//btVector3 pos = callbackAll.m_hitPointWorld[callbackAll.index];
+				Vector3f pathPos = m_navigationMesh->findNearestPoint(pos, Vector3f(1.0f, 1.0f, 1.0f));
+				m_crowdManager->setCrowdTarget(pathPos);
 			}
 		}else {
 			if (Keyboard::instance().keyDown(Keyboard::KEY_LCTRL)) {
@@ -993,4 +1006,20 @@ void Adrian::rebuild() {
 	BoundingBox boundingBox = m_navigationMesh->getBoundingBox();
 	m_navigationMesh->allocate(boundingBox, numTiles[0], numTiles[1]);
 	m_navigationMesh->addTiles();
+}
+
+void Adrian::spawnHero(const Vector3f& pos) {
+
+}
+
+void Adrian::spawnAgent(const Vector3f& pos) {
+	CrowdAgent* agent = m_crowdManager->addAgent(pos);
+
+	agent->setHeight(60.0f);
+	agent->setMaxSpeed(6.0f, true);
+	agent->setMaxAccel(10.0f, true);
+	agent->setRadius(30.0f);
+	agent->setNavigationPushiness(NAVIGATIONPUSHINESS_MEDIUM);
+	agent->setSeparationWeight(m_separaionWeight);
+	agent->initCallbacks();
 }

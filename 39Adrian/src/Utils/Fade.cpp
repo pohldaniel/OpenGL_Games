@@ -2,7 +2,7 @@
 #include <algorithm>
 #include "Fade.h"
 
-Fade::Fade(float& fadeValue) : m_transitionSpeed(1.0f), m_fadeValue(fadeValue), m_transitionEnd(false), m_fadeIn(false), m_fadeOut(false), m_activate(false), m_activateIn(false), m_activateOut(false), OnFadeEnd(nullptr), OnFadeIn(nullptr), OnFadeOut(nullptr){
+Fade::Fade(float& fadeValue) : m_transitionSpeed(1.0f), m_fadeValue(fadeValue), m_transitionEnd(fadeValue == 1.0f ? true : false), m_fadeIn(false), m_fadeOut(false), m_activate(false), m_activateIn(false), m_activateOut(false), OnFadeEnd(nullptr), OnFadeIn(nullptr), OnFadeOut(nullptr){
 
 }
 

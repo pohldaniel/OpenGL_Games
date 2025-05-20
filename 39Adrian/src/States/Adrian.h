@@ -63,6 +63,8 @@ private:
 	void renderScene();
 	void renderSceneDepth();
 	void renderBubble();
+	void spawnHero(const Vector3f& pos);
+	void spawnAgent(const Vector3f& pos);
 
 	bool m_initUi = true;
 	bool m_drawUi = true;
@@ -72,7 +74,7 @@ private:
 	bool m_debugNavmesh = true;
 	bool m_useStreaming = false;
 	bool m_drawPolygon = false;
-
+	
 	float m_tileFactor = 80.0f;
 	float m_angle = -M_PI_4;
 	float m_height = 30.0f;
@@ -81,6 +83,7 @@ private:
 	float m_markerSize = 20.0f;
 	float m_rimScale = 1.0f;
 	float m_fadeValue = 1.0f;
+	float m_separaionWeight;
 
 	IsometricCamera m_camera;
 
@@ -99,6 +102,7 @@ private:
 	std::vector<Shape> m_buildings;
 
 	NavigationMesh* m_navigationMesh;
+	CrowdManager* m_crowdManager;
 
 	std::unordered_set< std::array<int, 2>, std::function<size_t(const std::array<int, 2>&)>, std::function<bool(const std::array<int, 2>&, const std::array<int, 2>&)>> m_addedTiles;
 	std::vector<EditPolygon> m_editPolygons;
