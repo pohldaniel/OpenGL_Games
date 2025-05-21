@@ -1,4 +1,5 @@
 #pragma once
+
 #include <GL/glew.h>
 #include <vector>
 #include <tuple>
@@ -73,7 +74,7 @@ public:
 	void attachTexture(unsigned int& texture, Attachment::Attachment attachment = Attachment::Attachment::COLOR, Target::Target target = Target::Target::TEXTURE2D, unsigned short layer = 0);
 
 	void attachLayerdTexture(AttachmentTex::AttachmentTex attachment, unsigned short layer);
-	void attachRenderbuffer(AttachmentRB::AttachmentRB attachment, unsigned int samples = 0, unsigned int coverageSamples = 0);
+	void attachRenderbuffer(AttachmentRB::AttachmentRB attachment, unsigned int samples = 0u, unsigned int coverageSamples = 0u);
 	void bindVP(unsigned int width, unsigned int height);
 
 	void unbind();
@@ -88,13 +89,12 @@ public:
 	void cleanup();
 	unsigned int getWidth();
 	unsigned int getHeight();
-	void bindColorTexture(unsigned int unit, unsigned int attachment) const;
+	void bindColorTexture(unsigned int unit = 0u, unsigned short attachment = 0) const;
 	void bindDepthTexture(unsigned int unit) const;
 	void bindStencilTexture(unsigned int unit) const;
 	void bindDepthStencilTexture(unsigned int unit) const;
 
-	const unsigned int& getColorTexture(unsigned short attachment) const;
-	const unsigned int& getColorTexture() const;
+	const unsigned int& getColorTexture(unsigned short attachment = 0) const;
 	const unsigned int& getDepthTexture() const;
 	const unsigned int& getStencilTexture() const;
 	const unsigned int& getDepthStencilTexture() const;
