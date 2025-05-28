@@ -180,6 +180,14 @@ void BoundingBox::maximize(float factor) const {
 	ptr->max += Vector3f(factor);
 }
 
+const BoundingBox BoundingBox::minmize(float factor) {
+	return BoundingBox(min + Vector3f(factor), max - Vector3f(factor));
+}
+
+const BoundingBox BoundingBox::maximize(float factor) {
+	return BoundingBox(min - Vector3f(factor), max + Vector3f(factor));
+}
+
 bool BoundingBox::isColliding(Vector3f point) const {
 	return min[0] < point[0] && point[0] < max[0] && min[1] < point[1] && point[1] < max[1] && min[2] < point[2] && point[2] < max[2];
 }

@@ -33,6 +33,10 @@ struct BoundingBox {
 	void set(const Vector3f& min, const Vector3f& max) const;
 	void minmize(float factor) const;
 	void maximize(float factor) const;
+	const BoundingBox minmize(float factor);
+	const BoundingBox maximize(float factor);
+
+
 	bool isColliding(Vector3f point) const;
 	bool isColliding(const BoundingBox &box) const;
 	Vector3f getCenter() const;

@@ -14,7 +14,7 @@ class CrowdAgent;
 class NavigationMesh;
 class SceneNodeLC;
 
-/// Parameter structure for obstacle avoidance params (copied from DetourObstacleAvoidance.h in order to hide Detour header from Urho3D library users).
+/// Parameter structure for obstacle avoidance params.
 struct CrowdObstacleAvoidanceParams{
 	float velBias;
 	float weightDesVel;

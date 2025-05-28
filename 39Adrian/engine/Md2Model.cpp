@@ -136,7 +136,7 @@ void Md2Model::load(const char* path) {
 
 void Md2Model::loadCpu(const char* path) {
 	Utils::MD2IO md2Converter;
-	m_numVertices = md2Converter.loadMd2(path, true, { 0.0f, 0.0f, 0.0f }, { 1.0f, 1.0f, 1.0f }, m_interpolated, m_texels, m_indexBuffer, m_animations);
+	m_numVertices = md2Converter.loadMd2(path, true, { 0.0f, 25.0f, 0.0f }, { 0.0f, -90.0f, 0.0f }, { 1.0f, 1.0f, 1.0f }, m_interpolated, m_texels, m_indexBuffer, m_animations);
 	currentAnimation = &m_animations[m_animationType];
 }
 

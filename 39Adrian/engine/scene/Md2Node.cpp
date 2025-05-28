@@ -111,6 +111,8 @@ void Md2Node::setTextureIndex(short index) {
 }
 
 void Md2Node::setAnimationType(AnimationType animationType) {
+	if (m_animationType == animationType)
+		return;
 	m_animationType = animationType;
 	currentAnimation = &md2Model.getAnimations()[m_animationType];
 	m_activeFrame = 0.0f;

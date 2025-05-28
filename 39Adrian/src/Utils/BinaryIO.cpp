@@ -2031,7 +2031,7 @@ void Utils::MD2IO::calcAABB(const std::vector<float>& vertices, BoundingBox& bou
 	boundingBox.max.set(xmax, ymax, zmax);
 }
 
-int Utils::MD2IO::loadMd2(const char* path, bool flipVertical, std::array<float, 3> eulerAngle, std::array<float, 3> scale, std::vector<Vertex>& vertexBufferOut, std::vector<float>& texelsOut, std::vector<unsigned int>& indexBufferOut, std::vector<Animation>& animations) {
+int Utils::MD2IO::loadMd2(const char* path, bool flipVertical, std::array<float, 3> positionOffset, std::array<float, 3> eulerAngle, std::array<float, 3> scale, std::vector<Vertex>& vertexBufferOut, std::vector<float>& texelsOut, std::vector<unsigned int>& indexBufferOut, std::vector<Animation>& animations) {
 	std::ifstream file(path, std::ios::binary);
 	std::vector<std::array<short, 3>> faces;
 	std::vector<std::array<short, 3>> uvFaves;
@@ -2121,7 +2121,7 @@ int Utils::MD2IO::loadMd2(const char* path, bool flipVertical, std::array<float,
 			vertex[2].flt = vertexS[2].shrt;
 
 			std::array<float, 3> vert = Utils::ScalePoint(Utils::RotatePoint({ vertex[0].flt * _scale[0].flt + translate[0].flt, vertex[2].flt * _scale[2].flt + translate[2].flt, vertex[1].flt * _scale[1].flt + translate[1].flt }, eulerAngle[0], eulerAngle[1], eulerAngle[2]), scale[0], scale[1], scale[2]);			
-			positions.push_back({ vert[0], vert[1], vert[2] });
+			positions.push_back({ vert[0] + positionOffset[0], vert[1] + positionOffset[1], vert[2] + positionOffset[2] });
 
 			std::array<float, 3> norm = Utils::RotatePoint({ aNormals[vertexS[3].shrt][0], aNormals[vertexS[3].shrt][1], aNormals[vertexS[3].shrt][2]}, eulerAngle[0], eulerAngle[1], eulerAngle[2]);
 			normals.push_back({ norm[0], norm[1], norm[2] });

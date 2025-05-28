@@ -8,6 +8,7 @@
 #include <engine/input/KeyboardEventListener.h>
 #include <engine/MeshObject/Shape.h>
 #include <engine/scene/ShapeNode.h>
+#include <engine/scene/Md2Node.h>
 #include <engine/octree/Octree.h>
 #include <engine/Framebuffer.h>
 #include <engine/Background.h>
@@ -24,6 +25,8 @@
 #include <Physics/MousePicker.h>
 #include <States/StateMachine.h>
 #include <Entities/Md2Entity.h>
+#include <Entities/CrowdAgentEntity.h>
+#include <Entities/Hero.h>
 #include <Utils/Fade.h>
 
 struct EditPolygon {
@@ -70,8 +73,8 @@ private:
 	bool m_drawUi = true;
 	bool m_useCulling = true;
 	bool m_debugTree = false;
-	bool m_debugPhysic = true;
-	bool m_debugNavmesh = true;
+	bool m_debugPhysic = false;
+	bool m_debugNavmesh = false;
 	bool m_useStreaming = false;
 	bool m_drawPolygon = false;
 
@@ -82,13 +85,14 @@ private:
 	int m_streamingDistance;
 	float m_markerSize = 20.0f;
 	float m_rimScale = 1.0f;
-	float m_fadeValue = 1.0f;
+	float m_fadeValue = 0.0f;
 	float m_separaionWeight;
 
 	IsometricCamera m_camera;
 
 	Md2Model m_hero;
 	Md2Entity *m_heroEnity;
+	Md2Node *m_md2Node;
 
 	SceneNodeLC* m_root;
 	Octree* m_octree;
@@ -115,4 +119,6 @@ private:
 	int m_globalUserIndex;
 	Framebuffer m_depthBuffer;
 	Fade m_fade;
+
+	std::vector<CrowdAgentEntity*> m_entities;
 };

@@ -65,8 +65,8 @@ m_separaionWeight(3.0f) {
 
 	DebugRenderer::Get().setEnable(true);
 	m_heroEnity = m_root->addChild<Md2Entity, Md2Model>(m_hero);
-	m_heroEnity->setPosition(-780.0f, MAP_MODEL_HEIGHT_Y, 780.0f);
-	m_heroEnity->setOrientation(0.0f, 0.0f, 0.0f);
+	m_heroEnity->setPosition(-780.0f, 0.0f, 780.0f);
+	m_heroEnity->setOrientation(0.0f, 180.0f, 0.0f);
 	m_heroEnity->setTextureIndex(0);
 	m_heroEnity->OnOctreeSet(m_octree);
 	m_heroEnity->setSortKey(1);
@@ -77,11 +77,12 @@ m_separaionWeight(3.0f) {
 	m_heroEnity->setRigidBody(Physics::AddKinematicRigidBody(Physics::BtTransform(Physics::VectorFrom(m_heroEnity->getWorldPosition())), new btBoxShape(btVector3(0.5f, 0.5f, 0.5f)), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER, nullptr, false));
 	//m_heroEnity->setRigidBody(Physics::AddKinematicRigidBody(Physics::BtTransform(Physics::VectorFrom(m_heroEnity->getWorldPosition())), new btBoxShape(btVector3(12.5f, 12.5f, 12.5f)), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER, nullptr, false));
 
-	m_segment.buildSegmentXZ(150.0f, -30.0f, 30.0f, Vector3f(0.0f, 0.0f, 0.0f), 20, 20, true, false, false);
+	m_segment.buildSegmentXZ(150.0f, 60.0f, 120.0f, Vector3f(0.0f, 0.0f, 0.0f), 20, 20, true, false, false);
 	m_segment.createBoundingBox();
 	m_segment.markForDelete();
 	m_segmentNode = m_heroEnity->addChild<ShapeNode, Shape>(m_segment);
-	m_segmentNode->setPosition(0.0f, -MAP_MODEL_HEIGHT_Y + 0.01f, 0.0f);
+	m_segmentNode->setPosition(0.0f, 0.01f, 0.0f);
+	m_segmentNode->setOrientation(0.0f, 0.0f, 0.0f);
 	m_segmentNode->setTextureIndex(1);
 	m_segmentNode->OnOctreeSet(m_octree);
 
@@ -156,7 +157,9 @@ m_separaionWeight(3.0f) {
 	m_crowdManager = new CrowdManager();
 	m_crowdManager->setNavigationMesh(m_navigationMesh);
 
-	spawnAgent(m_heroEnity->getWorldPosition() - Vector3f(0.0f, 26.0f, 0.0f));
+	//spawnAgent(m_heroEnity->getWorldPosition() - Vector3f(0.0f, 26.0f, 0.0f));
+
+	spawnHero(m_heroEnity->getWorldPosition());
 }
 
 Adrian::~Adrian() {
@@ -266,7 +269,11 @@ void Adrian::update() {
 	m_octree->updateFrameNumber();
 
 	m_crowdManager->update(m_dt);
-	m_heroEnity->update(m_dt);
+	//m_heroEnity->update(m_dt);
+
+	for (auto&& entity : m_entities)
+		entity->update(m_dt);
+
 	m_fade.update(m_dt);
 
 	m_frustum.updatePlane(m_camera.getOrthographicMatrix(), m_camera.getViewMatrix());
@@ -435,7 +442,7 @@ void Adrian::renderSceneDepth() {
 
 void Adrian::renderBubble() {
 
-	Matrix4f model = Matrix4f::Translate(m_heroEnity->getWorldPosition() - Vector3f(0.0f, 40.0f, 0.0f)) * Matrix4f::Scale(m_fadeValue * 100.0f, m_fadeValue * 100.0f, m_fadeValue * 100.0f);
+	Matrix4f model = Matrix4f::Translate(m_heroEnity->getWorldPosition() - Vector3f(0.0f, 30.0f, 0.0f)) * Matrix4f::Scale(m_fadeValue * 100.0f, m_fadeValue * 100.0f, m_fadeValue * 100.0f);
 
 	auto shader = Globals::shaderManager.getAssetPointer("bubble_new");
 
@@ -470,29 +477,20 @@ void Adrian::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 	if (event.button == 2u) {
 		Mouse::instance().attach(Application::GetWindow(), false, false, false);
 		if (!m_drawPolygon) {
-			if (m_mousePicker.clickOrthographicAll(event.x, event.y, m_camera, m_ground)) {
-
-				//Vector3f p
-
+			if (m_mousePicker.clickOrthographicAll(event.x, event.y, m_camera, m_ground) && m_heroEnity->isActive()) {
 				const MousePickCallbackAll& callbackAll = m_mousePicker.getCallbackAll();
 				Vector3f pos = Physics::VectorFrom(callbackAll.m_hitPointWorld[callbackAll.index]);
-				Renderer::Get().addMarker(pos, 20.0f, 2);
-				m_heroEnity->move(pos[0], pos[2]);
-
-				//btVector3 pos = callbackAll.m_hitPointWorld[callbackAll.index];
 				Vector3f pathPos = m_navigationMesh->findNearestPoint(pos, Vector3f(1.0f, 1.0f, 1.0f));
 				m_crowdManager->setCrowdTarget(pathPos);
 			}
-		}
-		else {
+		}else {
 			if (Keyboard::instance().keyDown(Keyboard::KEY_LCTRL)) {
 				m_edgePoints.pop_back();
 				Physics::DeleteCollisionObject(m_collisionObjects.back());
 				m_collisionObjects.pop_back();
 				if (m_currentPolygon->size > 0)
 					m_currentPolygon->size--;
-			}
-			else {
+			}else {
 				m_edgePoints.resize(m_edgePoints.size() - m_currentPolygon->size);
 				m_edgePoints.shrink_to_fit();
 				for (int i = m_currentPolygon->userPointerOffset; i < m_currentPolygon->userPointerOffset + m_currentPolygon->size; i++) {
@@ -511,35 +509,32 @@ void Adrian::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 			if (m_mousePicker.clickOrthographicAll(event.x, event.y, m_camera, m_heroEnity->getRigidBody())) {
 				if (!m_heroEnity->isActive()) {
 					m_diskNode = m_heroEnity->addChild<ShapeNode, Shape>(m_disk);
-					m_diskNode->setPosition(0.0f, -MAP_MODEL_HEIGHT_Y + 0.01f, 0.0f);
+					m_diskNode->setPosition(0.0f, 0.0f, 0.0f);
 					m_diskNode->setTextureIndex(2);
 					m_diskNode->setName("disk");
 					m_diskNode->OnOctreeSet(m_octree);
-				}
-				else {
-					ShapeNode* marker = m_heroEnity->findChild<ShapeNode>("disk");
-					marker->OnOctreeSet(nullptr);
-					marker->eraseSelf();
+				}else {
+					ShapeNode* disk = m_heroEnity->findChild<ShapeNode>("disk");
+					disk->OnOctreeSet(nullptr);
+					disk->eraseSelf();
 				}
 				m_heroEnity->setIsActive(!m_heroEnity->isActive());
-			}
-			else {
+
+			}else {
 				if (m_heroEnity->isActive()) {
-					ShapeNode* marker = m_heroEnity->findChild<ShapeNode>("disk");
-					marker->OnOctreeSet(nullptr);
-					marker->eraseSelf();
+					ShapeNode* disk = m_heroEnity->findChild<ShapeNode>("disk");
+					disk->OnOctreeSet(nullptr);
+					disk->eraseSelf();
 				}
 				m_heroEnity->setIsActive(false);
 			}
-		}
-		else {
+		}else {
 			Mouse::instance().attach(Application::GetWindow(), false, false, false);
 			if (m_mousePicker.clickOrthographicAll(event.x, event.y, m_camera, nullptr)) {
 				const MousePickCallbackAll& callbackAll = m_mousePicker.getCallbackAll();
 				if (callbackAll.m_userIndex >= 0) {
 					m_globalUserIndex = m_globalUserIndex >= 0 ? -1 : callbackAll.m_userIndex;
-				}
-				else {
+				}else {
 					Vector3f pos = callbackAll.m_hitPointWorld[callbackAll.index];
 					m_edgePoints.push_back(pos);
 					btCollisionObject* collisionObject = Physics::AddKinematicObject(Physics::BtTransform(pos), new btSphereShape(m_markerSize * 0.5f), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER);
@@ -877,7 +872,7 @@ void Adrian::createScene(bool recreate) {
 		m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[i]);
 		m_buildingNode->setTextureIndex(7);
 		m_buildingNode->OnOctreeSet(m_octree);
-		m_navigationMesh->addNavArea(NavArea(m_buildings[i].getAABB()));
+		m_navigationMesh->addNavArea(NavArea(m_buildings[i].getAABB().maximize(30.0f)));
 	}
 
 	for (int i = 4; i < 8; i++) {
@@ -897,27 +892,27 @@ void Adrian::createScene(bool recreate) {
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[10]);
 	m_buildingNode->setTextureIndex(3);
 	m_buildingNode->OnOctreeSet(m_octree);
-	m_navigationMesh->addNavArea(NavArea(m_buildings[10].getAABB()));
+	m_navigationMesh->addNavArea(NavArea(m_buildings[10].getAABB().maximize(30.0f)));
 
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[11]);
 	m_buildingNode->setTextureIndex(3);
 	m_buildingNode->OnOctreeSet(m_octree);
-	m_navigationMesh->addNavArea(NavArea(m_buildings[11].getAABB()));
+	m_navigationMesh->addNavArea(NavArea(m_buildings[11].getAABB().maximize(30.0f)));
 
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[12]);
 	m_buildingNode->setTextureIndex(8);
 	m_buildingNode->OnOctreeSet(m_octree);
-	m_navigationMesh->addNavArea(NavArea(m_buildings[12].getAABB()));
+	m_navigationMesh->addNavArea(NavArea(m_buildings[12].getAABB().maximize(30.0f)));
 
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[13]);
 	m_buildingNode->setTextureIndex(3);
 	m_buildingNode->OnOctreeSet(m_octree);
-	m_navigationMesh->addNavArea(NavArea(m_buildings[13].getAABB()));
+	m_navigationMesh->addNavArea(NavArea(m_buildings[13].getAABB().maximize(30.0f)));
 
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[14]);
 	m_buildingNode->setTextureIndex(7);
 	m_buildingNode->OnOctreeSet(m_octree);
-	m_navigationMesh->addNavArea(NavArea(m_buildings[14].getAABB()));
+	m_navigationMesh->addNavArea(NavArea(m_buildings[14].getAABB().maximize(30.0f)));
 
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[15]);
 	m_buildingNode->setTextureIndex(4);
@@ -930,17 +925,17 @@ void Adrian::createScene(bool recreate) {
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[17]);
 	m_buildingNode->setTextureIndex(8);
 	m_buildingNode->OnOctreeSet(m_octree);
-	m_navigationMesh->addNavArea(NavArea(m_buildings[17].getAABB()));
+	m_navigationMesh->addNavArea(NavArea(m_buildings[17].getAABB().maximize(30.0f)));
 
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[18]);
 	m_buildingNode->setTextureIndex(7);
 	m_buildingNode->OnOctreeSet(m_octree);
-	m_navigationMesh->addNavArea(NavArea(m_buildings[18].getAABB()));
+	m_navigationMesh->addNavArea(NavArea(m_buildings[18].getAABB().maximize(30.0f)));
 
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[19]);
 	m_buildingNode->setTextureIndex(8);
 	m_buildingNode->OnOctreeSet(m_octree);
-	m_navigationMesh->addNavArea(NavArea(m_buildings[19].getAABB()));
+	m_navigationMesh->addNavArea(NavArea(m_buildings[19].getAABB().maximize(30.0f)));
 
 	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[20]);
 	m_buildingNode->setTextureIndex(9);
@@ -1037,7 +1032,21 @@ void Adrian::rebuild() {
 }
 
 void Adrian::spawnHero(const Vector3f& pos) {
+	m_agent = m_crowdManager->addAgent(pos);
 
+	m_agent->setHeight(60.0f);
+	m_agent->setMaxSpeed(200.0f, true);
+
+	m_agent->setMaxAccel(FLT_MAX, true);
+	m_agent->setActiveThreshold(37500.0f);
+	m_agent->setArrivedScale(10.0f);
+	m_agent->setCorrection(60.0f);
+	m_agent->setRadius(30.0f);
+	m_agent->setNavigationPushiness(NAVIGATIONPUSHINESS_MEDIUM);
+	m_agent->setSeparationWeight(m_separaionWeight);
+	m_agent->initCallbacks();
+
+	m_entities.push_back(new Hero(*m_agent, m_heroEnity));
 }
 
 void Adrian::spawnAgent(const Vector3f& pos) {
