@@ -38,7 +38,11 @@ CrowdAgent::CrowdAgent() :
 	m_previousAgentState(CrowdAgentState::DT_CROWDAGENT_STATE_WALKING),
 	m_active(false),
 	m_forceArrived(false),
-	m_forceActive(false)
+	m_forceActive(false),
+	m_handleArrived(false),
+	m_arrivedScale(12.0f),
+	m_activeThreshold(5.0f),
+	m_correction(0.5f)
 {
 
 }
@@ -69,9 +73,18 @@ void CrowdAgent::OnCrowdPositionUpdate(dtCrowdAgent* ag, float* , float dt){
 	}
 		
 	if (m_active) {
-		if (hasArrived(10.0f)) {
-			resetAgent();
-			OnInactive();
+		if (hasArrived(m_arrivedScale)) {
+			if (!m_handleArrived) {
+				Vector3f delta = m_targetPosition - getPosition();
+				Vector3f::Normalize(delta);
+				setTargetPosition(m_targetPosition + delta * m_correction);
+				m_handleArrived = true;
+			}
+			else {
+				resetAgent();
+				OnInactive();
+				m_handleArrived = false;
+			}
 		}
 	}
 }
@@ -417,19 +430,19 @@ void CrowdAgent::resetAgent() const {
 	m_active = false;
 	m_forceArrived = true;
 	m_requestedTargetType = CA_REQUESTEDTARGET_NONE;
-	m_crowdManager->getCrowd()->resetMoveTarget(m_agentCrowdId);
+	m_crowdManager->getCrowd()->resetMoveTarget(m_agentCrowdId, true);
 }
 
 void CrowdAgent::resetTarget() {
 	if (CA_REQUESTEDTARGET_NONE != m_requestedTargetType){
 		m_requestedTargetType = CA_REQUESTEDTARGET_NONE;
 		if (isInCrowd())
-			m_crowdManager->getCrowd()->resetMoveTarget(m_agentCrowdId);
+			m_crowdManager->getCrowd()->resetMoveTarget(m_agentCrowdId, true);
 	}
 }
 
 bool CrowdAgent::isActive() {
-	return m_crowdManager->getCrowd()->isActive(m_agentCrowdId, 5.0f) || m_forceActive;
+	return m_crowdManager->getCrowd()->isActive(m_agentCrowdId, m_activeThreshold) || m_forceActive;
 }
 
 void CrowdAgent::setForceArrived(bool forceArrived) const {
@@ -438,6 +451,18 @@ void CrowdAgent::setForceArrived(bool forceArrived) const {
 
 void CrowdAgent::setForceActive(bool forceActive) const {
 	m_forceActive = forceActive;
+}
+
+void CrowdAgent::setActiveThreshold(float activeThreshold) {
+	m_activeThreshold = activeThreshold;
+}
+
+void CrowdAgent::setArrivedScale(float arrivedScale) {
+	m_arrivedScale = arrivedScale;
+}
+
+void CrowdAgent::setCorrection(float correction) {
+	m_correction = correction;
 }
 
 bool CrowdAgent::OnTileAdded(const std::array<int, 2>& tile){

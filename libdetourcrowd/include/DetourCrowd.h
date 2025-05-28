@@ -325,8 +325,9 @@ public:
 
 	/// Resets any request for the specified agent.
 	///  @param[in]		idx		The agent index. [Limits: 0 <= value < #getAgentCount()]
+	///  @param[in]		force   reset velocity
 	/// @return True if the request was successfully reseted.
-	bool resetMoveTarget(const int idx);
+	bool resetMoveTarget(const int idx, const bool force = false);
 
 	/// Gets the active agents int the agent pool.
 	///  @param[out]	agents		An array of agent pointers. [(#dtCrowdAgent *) * maxAgents]
@@ -375,6 +376,12 @@ public:
 
 	/// Check agent active
 	const bool isActive(const int idx, const float threshold) const;
+
+	/// Get agent velSq
+	const float getVelSq(const int idx) const;
+
+	/// Get agent newVelSq
+	const float getNewVelSq(const int idx) const;
 
 	/// Get agent targetstate
 	const unsigned char getTargetstate(const int idx) const;

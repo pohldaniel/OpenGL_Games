@@ -26,7 +26,7 @@
 #include <Entities/Md2Entity.h>
 #include <Utils/Fade.h>
 
-struct EditPolygon{
+struct EditPolygon {
 	int userPointerOffset = 0;
 	int size = 0;
 	std::vector<Vector3f> edgePoints;
@@ -74,7 +74,7 @@ private:
 	bool m_debugNavmesh = true;
 	bool m_useStreaming = false;
 	bool m_drawPolygon = false;
-	
+
 	float m_tileFactor = 80.0f;
 	float m_angle = -M_PI_4;
 	float m_height = 30.0f;
@@ -103,6 +103,7 @@ private:
 
 	NavigationMesh* m_navigationMesh;
 	CrowdManager* m_crowdManager;
+	CrowdAgent* m_agent;
 
 	std::unordered_set< std::array<int, 2>, std::function<size_t(const std::array<int, 2>&)>, std::function<bool(const std::array<int, 2>&, const std::array<int, 2>&)>> m_addedTiles;
 	std::vector<EditPolygon> m_editPolygons;

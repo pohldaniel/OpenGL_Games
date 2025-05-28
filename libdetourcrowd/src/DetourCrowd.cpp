@@ -667,7 +667,7 @@ bool dtCrowd::requestMoveVelocity(const int idx, const float* vel)
 	return true;
 }
 
-bool dtCrowd::resetMoveTarget(const int idx)
+bool dtCrowd::resetMoveTarget(const int idx, const bool force)
 {
 	if (idx < 0 || idx >= m_maxAgents)
 		return false;
@@ -678,6 +678,8 @@ bool dtCrowd::resetMoveTarget(const int idx)
 	ag->targetRef = 0;
 	dtVset(ag->targetPos, 0,0,0);
 	dtVset(ag->dvel, 0,0,0);
+	if(force)
+        dtVset(ag->vel, 0, 0, 0);
 	ag->targetPathqRef = DT_PATHQ_INVALID;
 	ag->targetReplan = false;
 	ag->targetState = DT_CROWDAGENT_TARGET_NONE;
@@ -708,12 +710,22 @@ const bool dtCrowd::isActive(const int idx, const float threshold) const {
 	if (idx < 0 || idx >= m_maxAgents)
 		return false;
 
-	return threshold <= dtVlenSqr(m_agents[idx].vel);
+	return threshold < dtVlenSqr(m_agents[idx].nvel);
 }
 
+const float dtCrowd::getVelSq(const int idx) const {
+	if (idx < 0 || idx >= m_maxAgents)
+		return 0.0f;
 
+	return dtVlenSqr(m_agents[idx].vel);
+}
 
+const float dtCrowd::getNewVelSq(const int idx) const {
+	if (idx < 0 || idx >= m_maxAgents)
+		return 0.0f;
 
+	return dtVlenSqr(m_agents[idx].nvel);
+}
 
 const unsigned char dtCrowd::getTargetstate(const int idx) const {
 	if (idx < 0 || idx >= m_maxAgents)

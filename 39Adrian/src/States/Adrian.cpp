@@ -13,12 +13,12 @@
 #include "Renderer.h"
 
 Adrian::Adrian(StateMachine& machine) : State(machine, States::ADRIAN),
-	m_camera(Application::Width, Application::Height),
-	m_addedTiles(0, [](const std::array<int, 2>& p) {  return std::hash<int>()(p[0]) ^ std::hash<int>()(p[1]) << 1; }, [](const std::array<int, 2>& p1, const std::array<int, 2>& p2) { return p1[0] == p2[0] && p1[1] == p2[1]; }),
-	m_streamingDistance(6),
-	m_globalUserIndex(-1),
-	m_fade(m_fadeValue),
-	m_separaionWeight(3.0f){
+m_camera(Application::Width, Application::Height),
+m_addedTiles(0, [](const std::array<int, 2>& p) {  return std::hash<int>()(p[0]) ^ std::hash<int>()(p[1]) << 1; }, [](const std::array<int, 2>& p1, const std::array<int, 2>& p2) { return p1[0] == p2[0] && p1[1] == p2[1]; }),
+m_streamingDistance(6),
+m_globalUserIndex(-1),
+m_fade(m_fadeValue),
+m_separaionWeight(3.0f) {
 
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
@@ -99,7 +99,7 @@ Adrian::Adrian(StateMachine& machine) : State(machine, States::ADRIAN),
 	loadBuilding("res/building_6.bld");
 	loadBuilding("res/building_8.bld");
 	loadBuilding("res/building_9.bld");
-	loadBuilding("res/building_7.bld");	
+	loadBuilding("res/building_7.bld");
 	loadBuilding("res/building_4.bld", true);
 
 	loadBuilding("res/building_10.bld", true);
@@ -114,7 +114,7 @@ Adrian::Adrian(StateMachine& machine) : State(machine, States::ADRIAN),
 	loadBuilding("res/building_18.bld");
 	loadBuilding("res/building_19.bld");
 	loadBuilding("res/building_20.bld");
-	
+
 	loadBuilding("res/building_21.bld", true);
 	loadBuilding("res/building_22.bld");
 	loadBuilding("res/building_23.bld", true);
@@ -134,7 +134,7 @@ Adrian::Adrian(StateMachine& machine) : State(machine, States::ADRIAN),
 	m_navigationMesh->setAgentMaxClimb(0.9f);
 	m_navigationMesh->setAgentHeight(2.0f);
 	m_navigationMesh->setAgentRadius(0.6f);
-	
+
 	//m_navigationMesh->build();
 	//saveNavigationData();
 	//navIO.writeNavigationMap("res/data_edit.nav", m_navigationMesh->getNumTilesX(), m_navigationMesh->getNumTilesZ(), m_navigationMesh->getBoundingBox(), m_navigationMesh->getTileData());
@@ -215,18 +215,20 @@ void Adrian::update() {
 		if (Keyboard::instance().keyDown(Keyboard::KEY_LSHIFT)) {
 			m_height += 0.05f;
 			m_camera.setHeight(m_height);
-		}else {
+		}
+		else {
 			m_angle += 0.005f;
 			m_camera.rotate(m_angle);
 		}
-		
+
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_E)) {
 		if (Keyboard::instance().keyDown(Keyboard::KEY_LSHIFT)) {
 			m_height -= 0.05f;
 			m_camera.setHeight(m_height);
-		}else {
+		}
+		else {
 			m_angle -= 0.005f;
 			m_camera.rotate(m_angle);
 		}
@@ -241,6 +243,10 @@ void Adrian::update() {
 		m_fade.toggleFade();
 	}
 
+	if (keyboard.keyPressed(Keyboard::KEY_R)) {
+		m_agent->resetAgent();
+	}
+
 	Vector3f moveDir = Vector3f::ZERO;
 	if (keyboard.keyDown(Keyboard::KEY_UP))
 		moveDir += Vector3f::RIGHT;
@@ -250,6 +256,7 @@ void Adrian::update() {
 		moveDir += Vector3f::FORWARD;
 	if (keyboard.keyDown(Keyboard::KEY_LEFT))
 		moveDir += Vector3f::BACKWARD;
+
 
 	if (moveDir.lengthSq() > 0.0f)
 		Vector3f::Normalize(moveDir);
@@ -296,11 +303,11 @@ void Adrian::render() {
 	Globals::textureManager.get("null").bind(0);
 	shader->loadMatrix("u_projection", m_camera.getOrthographicMatrix());
 	shader->loadMatrix("u_view", m_camera.getViewMatrix());
-	
+
 	if (m_drawPolygon) {
 		for (const EditPolygon& editPolygon : m_editPolygons) {
-			
-			for (int i = editPolygon.userPointerOffset, j = 0; i < editPolygon.userPointerOffset + editPolygon.size; i++, j++) {			
+
+			for (int i = editPolygon.userPointerOffset, j = 0; i < editPolygon.userPointerOffset + editPolygon.size; i++, j++) {
 				shader->loadMatrix("u_model", Matrix4f::Translate(m_edgePoints[i]) * Matrix4f::Scale(m_markerSize, m_markerSize, m_markerSize));
 				shader->loadVector("u_color", i == m_globalUserIndex ? Vector4f(1.0f, 0.0f, 0.0f, 1.0f) : Vector4f::ONE);
 				Globals::shapeManager.get("sphere").drawRaw();
@@ -432,7 +439,7 @@ void Adrian::renderBubble() {
 
 	auto shader = Globals::shaderManager.getAssetPointer("bubble_new");
 
-	shader->use();	
+	shader->use();
 	shader->loadMatrix("u_projection", m_camera.getOrthographicMatrix());
 	shader->loadMatrix("u_view", m_camera.getViewMatrix());
 	shader->loadMatrix("u_model", model);
@@ -456,7 +463,7 @@ void Adrian::OnMouseMotion(Event::MouseMoveEvent& event) {
 			transform.getOrigin() = callbackAll.m_hitPointWorld[callbackAll.index];
 			m_collisionObjects[m_globalUserIndex]->setWorldTransform(transform);
 		}
-	}	
+	}
 }
 
 void Adrian::OnMouseButtonDown(Event::MouseButtonEvent& event) {
@@ -464,6 +471,9 @@ void Adrian::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 		Mouse::instance().attach(Application::GetWindow(), false, false, false);
 		if (!m_drawPolygon) {
 			if (m_mousePicker.clickOrthographicAll(event.x, event.y, m_camera, m_ground)) {
+
+				//Vector3f p
+
 				const MousePickCallbackAll& callbackAll = m_mousePicker.getCallbackAll();
 				Vector3f pos = Physics::VectorFrom(callbackAll.m_hitPointWorld[callbackAll.index]);
 				Renderer::Get().addMarker(pos, 20.0f, 2);
@@ -473,16 +483,18 @@ void Adrian::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 				Vector3f pathPos = m_navigationMesh->findNearestPoint(pos, Vector3f(1.0f, 1.0f, 1.0f));
 				m_crowdManager->setCrowdTarget(pathPos);
 			}
-		}else {
+		}
+		else {
 			if (Keyboard::instance().keyDown(Keyboard::KEY_LCTRL)) {
 				m_edgePoints.pop_back();
 				Physics::DeleteCollisionObject(m_collisionObjects.back());
 				m_collisionObjects.pop_back();
 				if (m_currentPolygon->size > 0)
 					m_currentPolygon->size--;
-			}else {
+			}
+			else {
 				m_edgePoints.resize(m_edgePoints.size() - m_currentPolygon->size);
-				m_edgePoints.shrink_to_fit();				
+				m_edgePoints.shrink_to_fit();
 				for (int i = m_currentPolygon->userPointerOffset; i < m_currentPolygon->userPointerOffset + m_currentPolygon->size; i++) {
 					Physics::DeleteCollisionObject(m_collisionObjects[i]);
 				}
@@ -503,13 +515,15 @@ void Adrian::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 					m_diskNode->setTextureIndex(2);
 					m_diskNode->setName("disk");
 					m_diskNode->OnOctreeSet(m_octree);
-				}else {
+				}
+				else {
 					ShapeNode* marker = m_heroEnity->findChild<ShapeNode>("disk");
 					marker->OnOctreeSet(nullptr);
 					marker->eraseSelf();
 				}
 				m_heroEnity->setIsActive(!m_heroEnity->isActive());
-			}else {
+			}
+			else {
 				if (m_heroEnity->isActive()) {
 					ShapeNode* marker = m_heroEnity->findChild<ShapeNode>("disk");
 					marker->OnOctreeSet(nullptr);
@@ -517,13 +531,15 @@ void Adrian::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 				}
 				m_heroEnity->setIsActive(false);
 			}
-		}else {
+		}
+		else {
 			Mouse::instance().attach(Application::GetWindow(), false, false, false);
 			if (m_mousePicker.clickOrthographicAll(event.x, event.y, m_camera, nullptr)) {
-				const MousePickCallbackAll& callbackAll = m_mousePicker.getCallbackAll();								
+				const MousePickCallbackAll& callbackAll = m_mousePicker.getCallbackAll();
 				if (callbackAll.m_userIndex >= 0) {
 					m_globalUserIndex = m_globalUserIndex >= 0 ? -1 : callbackAll.m_userIndex;
-				}else {
+				}
+				else {
 					Vector3f pos = callbackAll.m_hitPointWorld[callbackAll.index];
 					m_edgePoints.push_back(pos);
 					btCollisionObject* collisionObject = Physics::AddKinematicObject(Physics::BtTransform(pos), new btSphereShape(m_markerSize * 0.5f), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER);
@@ -635,7 +651,7 @@ void Adrian::renderUi() {
 	if (ImGui::Button("Clear Marker"))
 		Renderer::Get().clearMarker();
 
-	ImGui::Checkbox("Draw Polygon", &m_drawPolygon);	
+	ImGui::Checkbox("Draw Polygon", &m_drawPolygon);
 	ImGui::SliderFloat("Marker Size", &m_markerSize, 0.0f, 20.0f);
 	if (ImGui::Button("New Polygon")) {
 		m_editPolygons.push_back(EditPolygon());
@@ -655,7 +671,7 @@ void Adrian::renderUi() {
 			poly.createBoundingBox();
 			m_navigationMesh->addNavPolygon(poly);
 		}
-	
+
 		m_navigationMesh->build();
 		saveNavigationData();
 
@@ -694,7 +710,7 @@ void Adrian::loadBuilding(const char* fn, bool changeWinding) {
 
 	std::vector<Vector3f> positions;
 	std::vector<Vector2f> texels;
-	
+
 	std::vector<float> vertices;
 	std::vector<unsigned int> indices;
 	std::vector<Vector4f> shapeColor;
@@ -718,13 +734,17 @@ void Adrian::loadBuilding(const char* fn, bool changeWinding) {
 		ret = sscanf(str, "%f,%f,%f,%f,%f", &fl[0], &fl[1], &fl[2], &fl[3], &fl[4]);
 		if (!strncmp(buf, "txco:", 5)) {
 			texels.push_back({ fl[0], fl[1] });
-		}else if (!strncmp(buf, "colr:", 5)) {
+		}
+		else if (!strncmp(buf, "colr:", 5)) {
 			currentColor.set(fl[0], fl[1], fl[2], fl[3]);
-		}else if (!strncmp(buf, "vrtx:", 5)) {
+		}
+		else if (!strncmp(buf, "vrtx:", 5)) {
 			positions.push_back({ fl[0], fl[1], fl[2] });
-		}else if (!strncmp(buf, "begn:", 5)) {
+		}
+		else if (!strncmp(buf, "begn:", 5)) {
 			sscanf(str, "%d", &currentPolygon);
-		}else if (!strncmp(buf, "txtr:", 5)) {
+		}
+		else if (!strncmp(buf, "txtr:", 5)) {
 			if (currentTexture != str && !currentTexture.empty()) {
 				m_buildings.push_back(Shape(vertices, indices, 8u));
 				m_buildings.back().createBoundingBox();
@@ -738,8 +758,9 @@ void Adrian::loadBuilding(const char* fn, bool changeWinding) {
 				shapeColor.clear();
 			}
 			currentTexture = str;
-		}else if (!strncmp(buf, "ends", 4)) {
-		
+		}
+		else if (!strncmp(buf, "ends", 4)) {
+
 			if (currentPolygon == 6u) {
 				unsigned int baseIndex = vertices.size() / 8;
 				for (int i = 0; i < positions.size(); i++) {
@@ -755,48 +776,52 @@ void Adrian::loadBuilding(const char* fn, bool changeWinding) {
 				}
 
 				for (unsigned int i = 1u; i < positions.size() - 1; i++) {
-					indices.push_back(0u + baseIndex); indices.push_back(changeWinding ? i + 1u + baseIndex : i + baseIndex); indices.push_back(changeWinding ? i+ baseIndex : i + 1u + baseIndex);
+					indices.push_back(0u + baseIndex); indices.push_back(changeWinding ? i + 1u + baseIndex : i + baseIndex); indices.push_back(changeWinding ? i + baseIndex : i + 1u + baseIndex);
 				}
 
 				positions.shrink_to_fit();
 				positions.clear();
 				texels.shrink_to_fit();
 				texels.clear();
-			}else if (currentPolygon == 7u) {
+			}
+			else if (currentPolygon == 7u) {
 				unsigned int baseIndex = vertices.size() / 8;
 				for (int i = 0; i < positions.size(); i++) {
 					vertices.push_back(positions[i][0]); vertices.push_back(positions[i][1]); vertices.push_back(positions[i][2]);
-					if (texels.size() > i) {						
+					if (texels.size() > i) {
 						vertices.push_back(texels[i][0]); vertices.push_back(texels[i][1]);
-					}else {
+					}
+					else {
 						vertices.push_back(0.0f); vertices.push_back(0.0f);
 					}
 					vertices.push_back(0.0f); vertices.push_back(0.0f); vertices.push_back(0.0f);
 					shapeColor.push_back(currentColor);
 				}
-			
+
 				indices.push_back(0u + baseIndex); indices.push_back(changeWinding ? 2u + baseIndex : 1u + baseIndex); indices.push_back(changeWinding ? 1u + baseIndex : 2u + baseIndex);
 				indices.push_back(0u + baseIndex); indices.push_back(changeWinding ? 3u + baseIndex : 2u + baseIndex); indices.push_back(changeWinding ? 2u + baseIndex : 3u + baseIndex);
 
-				
+
 				positions.shrink_to_fit();
 				positions.clear();
 				texels.shrink_to_fit();
 				texels.clear();
-			}else if (currentPolygon == 8u) {
+			}
+			else if (currentPolygon == 8u) {
 
 				unsigned int baseIndex = vertices.size() / 8;
 				for (int i = 0; i < positions.size(); i++) {
 					vertices.push_back(positions[i][0]); vertices.push_back(positions[i][1]); vertices.push_back(positions[i][2]);
 					if (texels.size() > i) {
 						vertices.push_back(texels[i][0]); vertices.push_back(texels[i][1]);
-					}else {
+					}
+					else {
 						vertices.push_back(0.0f); vertices.push_back(0.0f);
 					}
 					vertices.push_back(0.0f); vertices.push_back(0.0f); vertices.push_back(0.0f);
 					shapeColor.push_back(currentColor);
 				}
-				
+
 				for (unsigned int i = 0; i < positions.size() - 2; i = i + 2) {
 					indices.push_back(0u + i + baseIndex); indices.push_back(changeWinding ? 1u + i + baseIndex : 2u + i + baseIndex); indices.push_back(changeWinding ? 2u + i + baseIndex : 1u + i + baseIndex);
 					indices.push_back(1u + i + baseIndex); indices.push_back(changeWinding ? 3u + i + baseIndex : 2u + i + baseIndex); indices.push_back(changeWinding ? 2u + i + baseIndex : 3u + i + baseIndex);
@@ -806,20 +831,22 @@ void Adrian::loadBuilding(const char* fn, bool changeWinding) {
 				positions.clear();
 				texels.shrink_to_fit();
 				texels.clear();
-			}else if (currentPolygon == 9u) {
-				
+			}
+			else if (currentPolygon == 9u) {
+
 				unsigned int baseIndex = vertices.size() / 8;
 				for (int i = 0; i < 8; i++) {
 					vertices.push_back(positions[i][0]); vertices.push_back(positions[i][1]); vertices.push_back(positions[i][2]);
 					if (texels.size() > i) {
 						vertices.push_back(texels[i][0]); vertices.push_back(texels[i][1]);
-					}else {
+					}
+					else {
 						vertices.push_back(0.0f); vertices.push_back(0.0f);
 					}
 					vertices.push_back(0.0f); vertices.push_back(0.0f); vertices.push_back(0.0f);
 					shapeColor.push_back(currentColor);
 				}
-				
+
 
 				indices.push_back(0u + baseIndex); indices.push_back(changeWinding ? 2u + baseIndex : 1u + baseIndex); indices.push_back(changeWinding ? 1u + baseIndex : 2u + baseIndex);
 				indices.push_back(0u + baseIndex); indices.push_back(changeWinding ? 3u + baseIndex : 2u + baseIndex); indices.push_back(changeWinding ? 2u + baseIndex : 3u + baseIndex);
@@ -830,14 +857,14 @@ void Adrian::loadBuilding(const char* fn, bool changeWinding) {
 				indices.push_back(0u + baseIndex); indices.push_back(changeWinding ? 5u + baseIndex : 4u + baseIndex); indices.push_back(changeWinding ? 4u + baseIndex : 5u + baseIndex);
 				indices.push_back(0u + baseIndex); indices.push_back(changeWinding ? 4u + baseIndex : 3u + baseIndex); indices.push_back(changeWinding ? 3u + baseIndex : 4u + baseIndex);
 
-							
+
 				positions.shrink_to_fit();
 				positions.clear();
 				texels.shrink_to_fit();
 				texels.clear();
 			}
-			
-		}		
+
+		}
 	}
 	m_buildings.push_back(Shape(vertices, indices, 8u));
 	m_buildings.back().createBoundingBox();
@@ -960,7 +987,8 @@ void Adrian::toggleStreaming(bool enabled) {
 		saveNavigationData();
 		m_navigationMesh->allocate(boundingBox, maxTiles);
 		updateStreaming();
-	}else {
+	}
+	else {
 		rebuild();
 	}
 }
@@ -987,7 +1015,7 @@ void Adrian::updateStreaming() {
 			i = m_addedTiles.erase(i);
 		}
 	}
-	
+
 	// Add tiles
 	for (int z = beginTile[1]; z <= endTile[1]; ++z) {
 		for (int x = beginTile[0]; x <= endTile[0]; ++x) {
@@ -1013,13 +1041,23 @@ void Adrian::spawnHero(const Vector3f& pos) {
 }
 
 void Adrian::spawnAgent(const Vector3f& pos) {
-	CrowdAgent* agent = m_crowdManager->addAgent(pos);
+	m_agent = m_crowdManager->addAgent(pos);
 
-	agent->setHeight(60.0f);
-	agent->setMaxSpeed(6.0f, true);
-	agent->setMaxAccel(10.0f, true);
-	agent->setRadius(30.0f);
-	agent->setNavigationPushiness(NAVIGATIONPUSHINESS_MEDIUM);
-	agent->setSeparationWeight(m_separaionWeight);
-	agent->initCallbacks();
+	m_agent->setHeight(60.0f);
+	m_agent->setMaxSpeed(200.0f, true);
+
+	m_agent->setMaxAccel(FLT_MAX, true);
+	m_agent->setActiveThreshold(37500.0f);
+	m_agent->setArrivedScale(10.0f);
+	m_agent->setCorrection(60.0f);
+
+	//m_agent->setMaxAccel(10.0f, true);
+	//m_agent->setActiveThreshold(37500.0f);
+	//m_agent->setArrivedScale(5000.0f);
+	//m_agent->setCorrection(60.0f);
+
+	m_agent->setRadius(30.0f);
+	m_agent->setNavigationPushiness(NAVIGATIONPUSHINESS_MEDIUM);
+	m_agent->setSeparationWeight(m_separaionWeight);
+	m_agent->initCallbacks();
 }

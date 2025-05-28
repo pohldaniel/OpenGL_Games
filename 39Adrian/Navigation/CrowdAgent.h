@@ -97,10 +97,12 @@ public:
 	void setOnAddAgent(std::function<void(const Vector3f& pos)> fun) const;
 	void setForceArrived(bool forceArrived) const;
 	void setForceActive(bool forceActive) const;
+	void setActiveThreshold(float activeThreshold);
+	void setArrivedScale(float arrivedScale);
+	void setCorrection(float correction);
 
 	void resetAgent() const;
 	void resetTarget();
-	void markForReset() const;
 
 	static const Vector3f& GetNearestPos();
 	static void SetNearestPos(const Vector3f& nearestPos);
@@ -125,6 +127,9 @@ private:
 	float m_radius;
 	float m_height;
 	float m_separationWeight;
+	float m_arrivedScale;
+	float m_activeThreshold;
+	float m_correction;
 	
 	unsigned int m_queryFilterType;
 	unsigned int m_obstacleAvoidanceType;
@@ -136,7 +141,7 @@ private:
 	CrowdManager* m_crowdManager;
 
 	mutable CrowdAgentRequestedTarget m_requestedTargetType;
-	mutable bool m_active;
+	mutable bool m_active, m_handleArrived;
 	mutable bool m_forceArrived, m_forceActive;
 	
 	mutable std::function<void(const Vector3f& pos, const Vector3f& vel)> OnPositionVelocityUpdate;
