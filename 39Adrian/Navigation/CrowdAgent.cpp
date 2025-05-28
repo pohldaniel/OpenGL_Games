@@ -371,7 +371,7 @@ void CrowdAgent::setNavigationPushiness(NavigationPushiness val, bool force){
 	}
 }
 
-void CrowdAgent::setTargetPosition(const Vector3f& position){
+bool CrowdAgent::setTargetPosition(const Vector3f& position){
 	if (position != m_targetPosition || CA_REQUESTEDTARGET_POSITION != m_requestedTargetType){
 		m_targetPosition = position;
 		m_requestedTargetType = CA_REQUESTEDTARGET_POSITION;
@@ -379,9 +379,13 @@ void CrowdAgent::setTargetPosition(const Vector3f& position){
 		if (isInCrowd()){		
 			dtPolyRef nearestRef;
 			NearestPos = m_crowdManager->findNearestPoint(position, m_queryFilterType, &nearestRef);
-			m_crowdManager->getCrowd()->requestMoveTarget(m_agentCrowdId, nearestRef, NearestPos.getVec());
+			if (nearestRef) {
+				m_crowdManager->getCrowd()->requestMoveTarget(m_agentCrowdId, nearestRef, NearestPos.getVec());
+				return true;
+			}
 		}
 	}
+	return false;
 }
 
 void CrowdAgent::setTargetVelocity(const Vector3f& velocity){

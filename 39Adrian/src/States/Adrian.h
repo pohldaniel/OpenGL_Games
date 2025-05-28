@@ -66,6 +66,7 @@ private:
 	void renderScene();
 	void renderSceneDepth();
 	void renderBubble();
+	void renderCircle(const Vector3f& pos);
 	void spawnHero(const Vector3f& pos);
 	void spawnAgent(const Vector3f& pos);
 
@@ -86,6 +87,7 @@ private:
 	float m_markerSize = 20.0f;
 	float m_rimScale = 1.0f;
 	float m_fadeValue = 0.0f;
+	float m_fadeCircleValue = 1.0f;
 	float m_separaionWeight;
 
 	IsometricCamera m_camera;
@@ -99,7 +101,7 @@ private:
 	Frustum m_frustum;
 
 	Shape m_segment, m_disk, m_sphere;
-	ShapeNode *m_segmentNode, *m_diskNode, *m_buildingNode;
+	ShapeNode *m_segmentNode, *m_diskNode, *m_buildingNode, *m_cursorNode = nullptr;
 
 	MousePicker m_mousePicker;
 	btCollisionObject* m_ground;
@@ -118,7 +120,7 @@ private:
 
 	int m_globalUserIndex;
 	Framebuffer m_depthBuffer;
-	Fade m_fade;
+	Fade m_fade, m_fadeCircle;
 
 	std::vector<CrowdAgentEntity*> m_entities;
 };

@@ -46,7 +46,7 @@ public:
 	void updateAgentVelocity(CrowdAgent* agent, float timeStep, Vector3f& desiredVelocity, float& desiredSpeed) const;
 	void updateAgentPosition(CrowdAgent* agent, float timeStep, Vector3f& position) const;
 
-	void setCrowdTarget(const Vector3f& position);
+	bool setCrowdTarget(const Vector3f& position);
 	void setNavigationMesh(NavigationMesh* navigationMesh);
 	
 	std::vector<CrowdAgent*> getAgents();

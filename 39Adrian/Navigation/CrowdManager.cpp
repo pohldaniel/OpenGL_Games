@@ -179,17 +179,23 @@ std::vector<CrowdAgent*> CrowdManager::getAgents() {
 	return m_agents;
 }
 
-void CrowdManager::setCrowdTarget(const Vector3f& position){
+bool CrowdManager::setCrowdTarget(const Vector3f& position){
 	if (!m_crowd)
-		return;
+		return false;
+
+	bool res = false;
 
 	for (unsigned int i = 0; i < m_agents.size(); ++i){
-		CrowdAgent* agent = m_agents[i];			
-		agent->setTargetPosition(OnCrowdFormation(position, i ? agent : nullptr));
-		agent->setForceArrived(false);
-		agent->setForceActive(true);
-		agent->OnTarget(CrowdAgent::GetNearestPos());	
+		CrowdAgent* agent = m_agents[i];	
+		bool _res = agent->setTargetPosition(OnCrowdFormation(position, i ? agent : nullptr));
+		res |= _res;
+		if (_res) {
+			agent->setForceArrived(false);
+			agent->setForceActive(true);
+			agent->OnTarget(CrowdAgent::GetNearestPos());
+		}
 	}
+	return res;
 }
 
 Vector3f CrowdManager::findNearestPoint(const Vector3f& point, int queryFilterType, dtPolyRef* nearestRef){

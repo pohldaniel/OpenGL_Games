@@ -52,7 +52,7 @@ public:
 	void initCallbacks();
 	void setVelocityCallback(const CrowdAgentVelocityCallback& callback);
 	void setHeightCallback(const CrowdAgentHeightCallback& callback);
-	void setTargetPosition(const Vector3f& position);
+	bool setTargetPosition(const Vector3f& position);
 	void setTargetVelocity(const Vector3f& velocity);
 	void setMaxAccel(float maxAccel, bool force = false);
 	void setMaxSpeed(float maxSpeed, bool force = false);

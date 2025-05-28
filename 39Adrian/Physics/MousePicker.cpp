@@ -309,7 +309,9 @@ void MousePicker::drawPicker(const Camera& camera) {
 	glEnable(GL_BLEND);
 	
 	s_shader->use();
-	s_shader->loadMatrix("u_transform", camera.getPerspectiveMatrix() * camera.getViewMatrix() * m_model);
+	s_shader->loadMatrix("u_projection", camera.getPerspectiveMatrix());
+	s_shader->loadMatrix("u_view", camera.getViewMatrix());
+	s_shader->loadMatrix("u_model", m_model);
 	glBindVertexArray(m_vao);
 	glDrawElements(GL_QUADS, 4, GL_UNSIGNED_SHORT, 0);
 	glBindVertexArray(0);
@@ -346,4 +348,8 @@ void MousePicker::setPosition(const Vector3f& pos) {
 
 void MousePicker::setIsActivated(bool isactivated) {
 	m_isActivated = isactivated;
+}
+
+std::unique_ptr<Shader>& MousePicker::GetShader() {
+	return s_shader;
 }

@@ -5,17 +5,19 @@
 #include "engine/Shader.h"
 #include "Physics.h"
 
-#define MOUSEPICKER_VERTEX	"#version 410 core										\n \
-																					\n \
-							layout(location = 0) in vec3 i_position;				\n \
-							layout(location = 1) in vec2 i_texCoord;				\n \
-																					\n \
-							uniform mat4 u_transform = mat4(1.0);					\n \
-							out vec2 v_texCoord;									\n \
-																					\n \
-							void main() {											\n \
-								gl_Position = u_transform * vec4(i_position, 1.0);	\n \
-								v_texCoord = i_texCoord;							\n \
+#define MOUSEPICKER_VERTEX	"#version 410 core										                    \n \
+																					                    \n \
+							layout(location = 0) in vec3 i_position;				                    \n \
+							layout(location = 1) in vec2 i_texCoord;				                    \n \
+																					                    \n \
+							uniform mat4 u_projection;                                                  \n \
+							uniform mat4 u_view;                                                        \n \
+							uniform mat4 u_model;					                                    \n \
+							out vec2 v_texCoord;									                    \n \
+																					                    \n \
+							void main() {											                    \n \
+								gl_Position = u_projection * u_view * u_model * vec4(i_position, 1.0);	\n \
+								v_texCoord = i_texCoord;							                    \n \
 							}"
 
 
@@ -110,6 +112,8 @@ public:
 	const MousePickCallback& getCallback();
 	const MousePickCallbackAll& getCallbackAll();
 	float getPickingDistance();
+
+	static std::unique_ptr<Shader>& GetShader();
 
 private:
 

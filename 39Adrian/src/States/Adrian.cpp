@@ -18,6 +18,7 @@ m_addedTiles(0, [](const std::array<int, 2>& p) {  return std::hash<int>()(p[0])
 m_streamingDistance(6),
 m_globalUserIndex(-1),
 m_fade(m_fadeValue),
+m_fadeCircle(m_fadeCircleValue),
 m_separaionWeight(3.0f) {
 
 	Application::SetCursorIcon(IDC_ARROW);
@@ -69,7 +70,7 @@ m_separaionWeight(3.0f) {
 	m_heroEnity->setOrientation(0.0f, 180.0f, 0.0f);
 	m_heroEnity->setTextureIndex(0);
 	m_heroEnity->OnOctreeSet(m_octree);
-	m_heroEnity->setSortKey(1);
+	m_heroEnity->setSortKey(3);
 	m_heroEnity->Md2Node::setShader(Globals::shaderManager.getAssetPointer("shape_color"));
 
 	ShapeDrawer::Get().init(32768);
@@ -77,14 +78,16 @@ m_separaionWeight(3.0f) {
 	m_heroEnity->setRigidBody(Physics::AddKinematicRigidBody(Physics::BtTransform(Physics::VectorFrom(m_heroEnity->getWorldPosition())), new btBoxShape(btVector3(0.5f, 0.5f, 0.5f)), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER, nullptr, false));
 	//m_heroEnity->setRigidBody(Physics::AddKinematicRigidBody(Physics::BtTransform(Physics::VectorFrom(m_heroEnity->getWorldPosition())), new btBoxShape(btVector3(12.5f, 12.5f, 12.5f)), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER, nullptr, false));
 
-	m_segment.buildSegmentXZ(150.0f, 60.0f, 120.0f, Vector3f(0.0f, 0.0f, 0.0f), 20, 20, true, false, false);
+	m_segment.buildSegmentXZ(300.0f, 60.0f, 120.0f, Vector3f(0.0f, 0.0f, 0.0f), 20, 20, true, false, false);
 	m_segment.createBoundingBox();
 	m_segment.markForDelete();
 	m_segmentNode = m_heroEnity->addChild<ShapeNode, Shape>(m_segment);
-	m_segmentNode->setPosition(0.0f, 0.01f, 0.0f);
+	m_segmentNode->setPosition(0.0f, 0.02f, 0.0f);
 	m_segmentNode->setOrientation(0.0f, 0.0f, 0.0f);
 	m_segmentNode->setTextureIndex(1);
 	m_segmentNode->OnOctreeSet(m_octree);
+	m_segmentNode->setSortKey(2);
+	m_segmentNode->setShader(Globals::shaderManager.getAssetPointer("shape"));
 
 	m_disk.buildDiskXZ(20.0f, Vector3f(0.0f, 0.0f, 0.0f), 20, 20, true, false, false);
 	m_disk.createBoundingBox();
@@ -136,13 +139,13 @@ m_separaionWeight(3.0f) {
 	m_navigationMesh->setAgentHeight(2.0f);
 	m_navigationMesh->setAgentRadius(0.6f);
 
-	//m_navigationMesh->build();
+	m_navigationMesh->build();
 	//saveNavigationData();
 	//navIO.writeNavigationMap("res/data_edit.nav", m_navigationMesh->getNumTilesX(), m_navigationMesh->getNumTilesZ(), m_navigationMesh->getBoundingBox(), m_navigationMesh->getTileData());
 
-	navIO.readNavigationMap("res/data_edit.nav", m_navigationMesh->numTilesX(), m_navigationMesh->numTilesZ(), m_navigationMesh->boundingBox(), m_navigationMesh->tileData());
-	m_navigationMesh->allocate();
-	m_navigationMesh->addTiles();
+	//navIO.readNavigationMap("res/data_edit.nav", m_navigationMesh->numTilesX(), m_navigationMesh->numTilesZ(), m_navigationMesh->boundingBox(), m_navigationMesh->tileData());
+	//m_navigationMesh->allocate();
+	//m_navigationMesh->addTiles();
 
 	m_editPolygons.push_back(EditPolygon());
 	m_currentPolygon = &m_editPolygons.back();
@@ -151,8 +154,8 @@ m_separaionWeight(3.0f) {
 	m_depthBuffer.attachTexture2D(AttachmentTex::DEPTH24);
 	m_sphere.fromObj("res/models/sphere.obj");
 
-	m_fade.setTransitionEnd(true);
 	m_fade.setTransitionSpeed(3.0f);
+	m_fadeCircle.setTransitionSpeed(3.0f);
 
 	m_crowdManager = new CrowdManager();
 	m_crowdManager->setNavigationMesh(m_navigationMesh);
@@ -243,7 +246,7 @@ void Adrian::update() {
 	}
 
 	if (keyboard.keyPressed(Keyboard::KEY_F)) {
-		m_fade.toggleFade();
+		m_fade.toggleFade(false);
 	}
 
 	if (keyboard.keyPressed(Keyboard::KEY_R)) {
@@ -275,6 +278,7 @@ void Adrian::update() {
 		entity->update(m_dt);
 
 	m_fade.update(m_dt);
+	m_fadeCircle.update(m_dt);
 
 	m_frustum.updatePlane(m_camera.getOrthographicMatrix(), m_camera.getViewMatrix());
 	m_frustum.updateVertices(m_camera.getOrthographicMatrix(), m_camera.getViewMatrix());
@@ -400,6 +404,12 @@ void Adrian::renderScene() {
 	shader->loadMatrix("u_view", m_camera.getViewMatrix());
 	shader->loadVector("u_color", m_heroEnity->getColor());
 
+	shader = MousePicker::GetShader().get();
+	shader->use();
+	shader->loadMatrix("u_projection", m_camera.getOrthographicMatrix());
+	shader->loadMatrix("u_view", m_camera.getViewMatrix());
+	shader->loadFloat("u_radius", 0.7f * m_fadeCircleValue);
+
 	shader = Globals::shaderManager.getAssetPointer("shape");
 	shader->use();
 	shader->loadMatrix("u_projection", m_camera.getOrthographicMatrix());
@@ -460,6 +470,14 @@ void Adrian::renderBubble() {
 	m_sphere.drawRaw();
 }
 
+void Adrian::renderCircle(const Vector3f& pos) {
+	auto shader = MousePicker::GetShader().get();
+	shader->use();
+	//shader->loadMatrix("u_transform", m_camera.getOrthographicMatrix() * m_camera.getViewMatrix() * Matrix4f::Translate(pos) * Matrix4f::Scale(100.0f, 0.0f, 100.0f));
+	//Globals::shapeManager.get("quad_xz").drawRaw();
+	shader->unuse();
+}
+
 void Adrian::OnMouseMotion(Event::MouseMoveEvent& event) {
 	if (m_drawPolygon && m_mousePicker.updatePositionOrthographicAll(event.x, event.y, m_camera, m_ground)) {
 		const MousePickCallbackAll& callbackAll = m_mousePicker.getCallbackAll();
@@ -481,7 +499,25 @@ void Adrian::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 				const MousePickCallbackAll& callbackAll = m_mousePicker.getCallbackAll();
 				Vector3f pos = Physics::VectorFrom(callbackAll.m_hitPointWorld[callbackAll.index]);
 				Vector3f pathPos = m_navigationMesh->findNearestPoint(pos, Vector3f(1.0f, 1.0f, 1.0f));
-				m_crowdManager->setCrowdTarget(pathPos);
+				if (m_crowdManager->setCrowdTarget(pathPos)) {
+					if (!m_cursorNode) {
+						m_cursorNode = m_root->addChild<ShapeNode, Shape>(Globals::shapeManager.get("quad_xz"));
+						m_cursorNode->setSortKey(1);
+						m_cursorNode->setScale(50.0f, 0.0f, 50.0f);
+						m_cursorNode->setShader(MousePicker::GetShader().get());
+						m_cursorNode->OnOctreeSet(m_octree);
+					}
+					m_cursorNode->setPosition(pathPos);
+				}else {
+					if (m_cursorNode) {
+						m_cursorNode->OnOctreeSet(nullptr);
+						m_cursorNode->eraseSelf();
+						m_cursorNode = nullptr;
+					}
+				}
+
+				m_fadeCircle.setTransitionEnd(true);
+				m_fadeCircle.fadeOut(false);
 			}
 		}else {
 			if (Keyboard::instance().keyDown(Keyboard::KEY_LCTRL)) {
@@ -1038,9 +1074,14 @@ void Adrian::spawnHero(const Vector3f& pos) {
 	m_agent->setMaxSpeed(200.0f, true);
 
 	m_agent->setMaxAccel(FLT_MAX, true);
-	m_agent->setActiveThreshold(37500.0f);
-	m_agent->setArrivedScale(10.0f);
-	m_agent->setCorrection(60.0f);
+	//m_agent->setActiveThreshold(37500.0f);
+	//m_agent->setArrivedScale(10.0f);
+	//m_agent->setCorrection(60.0f);
+
+	m_agent->setActiveThreshold(35000.0f);
+	m_agent->setArrivedScale(0.75f);
+	m_agent->setCorrection(7.5f);
+
 	m_agent->setRadius(30.0f);
 	m_agent->setNavigationPushiness(NAVIGATIONPUSHINESS_MEDIUM);
 	m_agent->setSeparationWeight(m_separaionWeight);
