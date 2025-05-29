@@ -66,7 +66,6 @@ private:
 	void renderScene();
 	void renderSceneDepth();
 	void renderBubble();
-	void renderCircle(const Vector3f& pos);
 	void spawnHero(const Vector3f& pos);
 	void spawnAgent(const Vector3f& pos);
 

@@ -470,14 +470,6 @@ void Adrian::renderBubble() {
 	m_sphere.drawRaw();
 }
 
-void Adrian::renderCircle(const Vector3f& pos) {
-	auto shader = MousePicker::GetShader().get();
-	shader->use();
-	//shader->loadMatrix("u_transform", m_camera.getOrthographicMatrix() * m_camera.getViewMatrix() * Matrix4f::Translate(pos) * Matrix4f::Scale(100.0f, 0.0f, 100.0f));
-	//Globals::shapeManager.get("quad_xz").drawRaw();
-	shader->unuse();
-}
-
 void Adrian::OnMouseMotion(Event::MouseMoveEvent& event) {
 	if (m_drawPolygon && m_mousePicker.updatePositionOrthographicAll(event.x, event.y, m_camera, m_ground)) {
 		const MousePickCallbackAll& callbackAll = m_mousePicker.getCallbackAll();
