@@ -77,3 +77,9 @@ The project 37MonsterHunter is from https://github.com/clear-code-projects/Pytho
 
 ![screen1](https://github.com/user-attachments/assets/f23bf17f-bba5-4466-8baf-41a91455868d)
 ![antware](https://github.com/user-attachments/assets/21147167-cc31-4ca4-b68e-88bbfe5314bd)
+
+The project 38Vulkan is a really simple vulkan example a more polished one can be foud here https://github.com/pohldaniel/Vulkan
+
+The project 39Adrian is from https://code.google.com/archive/p/adrian/
+
+The project 40RecastDemo is from https://github.com/recastnavigation/recastnavigation and serves as "look up" for some library features 
