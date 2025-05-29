@@ -80,6 +80,6 @@ The project 37MonsterHunter is from https://github.com/clear-code-projects/Pytho
 
 The project 38Vulkan is a really simple vulkan example a more polished one can be foud here https://github.com/pohldaniel/Vulkan
 
-The project 39Adrian is from https://code.google.com/archive/p/adrian/
+The project 39Adrian is from https://code.google.com/archive/p/adrian/. For building the origin on windows take a look here https://github.com/pohldaniel/Adrian
 
 The project 40RecastDemo is from https://github.com/recastnavigation/recastnavigation and serves as "look up" for some library features 
