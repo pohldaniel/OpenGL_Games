@@ -58,7 +58,6 @@ void NavArea::setAreaID(unsigned int newID) const {
 	m_areaID = (unsigned char)newID;
 }
 
-
 void NavArea::setBoundingBox(const BoundingBox& bnds) const {
 	m_boundingBox = bnds;
 }
@@ -70,8 +69,6 @@ const BoundingBox& NavArea::getBoundingBox() const {
 unsigned NavArea::getAreaID() const {
 	return (unsigned)m_areaID;
 }
-
-
 
 const bool NavArea::isEnabled() const {
 	return m_isEnabled;
