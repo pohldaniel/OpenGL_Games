@@ -502,6 +502,14 @@ btTransform Physics::BtTransform(const Vector3f& origin, const Vector3f& axis, f
 	return transform;
 }
 
+btTransform Physics::BtTransform(const Vector3f& origin, const Quaternion& rotation) {
+	btTransform transform;
+	transform.setIdentity();
+	transform.setOrigin(btVector3(origin[0], origin[1], origin[2]));
+	transform.setRotation(btQuaternion(rotation[0], rotation[1], rotation[2], rotation[3]));
+	return transform;
+}
+
 Matrix4f Physics::MatrixFrom(const btTransform& trans, const btVector3& scale) {
 	btMatrix3x3 m = trans.getBasis();
 	btVector3 v = trans.getOrigin();

@@ -122,6 +122,7 @@ public:
 	static btTransform BtTransform(const Vector3f& origin);
 	static btTransform BtTransform(const Vector3f& axis, float degrees);
 	static btTransform BtTransform(const Vector3f& origin, const Vector3f& axis, float degrees);
+	static btTransform BtTransform(const Vector3f& origin, const Quaternion& rotation);
 	static btVector3 VectorFrom(const Vector3f& vector);
 	static btQuaternion QuaternionFrom(const Quaternion& quaternion);
 

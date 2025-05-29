@@ -20,13 +20,14 @@ void Md2Entity::update(const float dt) {
 void Md2Entity::fixedUpdate(float fdt) {
 	const BoundingBox& aabb = getLocalBoundingBox();
 	const Vector3f& pos = getWorldPosition();
+	const Quaternion& rot = getWorldOrientation();
 	const Vector3f size = aabb.getSize();
-	Vector3f pivot(-aabb.max[0], aabb.min[1], -aabb.max[2]);
-	btTransform trans = Physics::BtTransform(pos + pivot +  0.5f * size);
+	Vector3f pivot(0.0f, aabb.min[1] + size[1] * 0.5f, 0.0f);
+	btTransform trans = Physics::BtTransform(pos + pivot, rot);
 
 	m_rigidBody->setWorldTransform(trans);
 	//m_rigidBody->setInterpolationWorldTransform(trans);
-	m_rigidBody->getCollisionShape()->setLocalScaling(Physics::VectorFrom(size));	
+	m_rigidBody->getCollisionShape()->setLocalScaling(Physics::VectorFrom(size * 0.75));	
 	//Physics::GetDynamicsWorld()->updateSingleAabb(m_rigidBody);
 }
 
