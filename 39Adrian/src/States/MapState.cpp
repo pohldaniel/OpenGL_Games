@@ -28,7 +28,7 @@ MapState::MapState(StateMachine& machine) : State(machine, States::MAP), m_camer
 	Material::AddTexture("res/textures/los.tga");
 	Material::AddTexture();
 
-	m_hero.load("data/models/dynamic/hero/hero.md2");
+	m_heroModel.load("data/models/dynamic/hero/hero.md2");
 
 	WorkQueue::Init(0);
 	Renderer::Get().init(new Octree(m_camera, m_frustum, m_dt), new SceneNodeLC());
@@ -39,16 +39,15 @@ MapState::MapState(StateMachine& machine) : State(machine, States::MAP), m_camer
 
 	DebugRenderer::Get().setEnable(true);
 	m_root = new SceneNodeLC();
-	m_heroEnity = m_root->addChild<Md2Entity, Md2Model>(m_hero);
-	m_heroEnity->setPosition(-780.0f, MAP_MODEL_HEIGHT_Y, 780.0f);
-	m_heroEnity->setOrientation(0.0f, 0.0f, 0.0f);
-	m_heroEnity->setTextureIndex(0);
+	m_heroEnity = m_root->addChild<Md2Entity, Md2Model>(m_heroModel);
+	m_heroEnity->Md2Node::setPosition(-780.0f, MAP_MODEL_HEIGHT_Y, 780.0f);
+	m_heroEnity->Md2Node::setOrientation(0.0f, 0.0f, 0.0f);
+	m_heroEnity->Md2Node::setTextureIndex(0);
 	m_heroEnity->OnOctreeSet(m_octree);
 
 	ShapeDrawer::Get().init(32768);
 	ShapeDrawer::Get().setCamera(m_camera);
-	m_heroEnity->setRigidBody(Physics::AddKinematicRigidBody(Physics::BtTransform(Physics::VectorFrom(m_heroEnity->getWorldPosition())), new btBoxShape(btVector3(0.5f, 0.5f, 0.5f)), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER, nullptr, false));
-	//m_heroEnity->setRigidBody(Physics::AddKinematicRigidBody(Physics::BtTransform(Physics::VectorFrom(m_heroEnity->getWorldPosition())), new btBoxShape(btVector3(12.5f, 12.5f, 12.5f)), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER, nullptr, false));
+	m_rigidBody = Physics::AddKinematicRigidBody(Physics::BtTransform(Physics::VectorFrom(m_heroEnity->getWorldPosition())), new btBoxShape(btVector3(0.5f, 0.5f, 0.5f)), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER, nullptr, false);
 
 	m_segment.buildSegmentXZ(150.0f, -30.0f, 30.0f, Vector3f(0.0f, 0.0f, 0.0f), 20, 20, true, false, false);
 	m_segment.createBoundingBox();
@@ -76,7 +75,15 @@ MapState::~MapState() {
 }
 
 void MapState::fixedUpdate() {
-	m_heroEnity->fixedUpdate(m_fdt);
+	const BoundingBox& aabb = m_heroEnity->getLocalBoundingBox();
+	const Vector3f& pos = m_heroEnity->getWorldPosition();
+	const Quaternion& rot = m_heroEnity->getWorldOrientation();
+	const Vector3f size = aabb.getSize();
+	Vector3f pivot(0.0f, aabb.min[1] + size[1] * 0.5f, 0.0f);
+	btTransform trans = Physics::BtTransform(pos + pivot, rot);
+	m_rigidBody->setWorldTransform(trans);
+	m_rigidBody->getCollisionShape()->setLocalScaling(Physics::VectorFrom(size * 0.75));
+
 	Globals::physics->stepSimulation(m_fdt);
 }
 
@@ -139,7 +146,7 @@ void MapState::update() {
 	if (moveDir.lengthSq() > 0.0f)
 		Vector3f::Normalize(moveDir);
 
-	m_heroEnity->translateRelative(moveDir);
+	//m_heroEnity->translateRelative(moveDir);
 
 	m_octree->updateFrameNumber();
 	m_heroEnity->update(m_dt);
@@ -241,7 +248,7 @@ void MapState::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 		Mouse::instance().attach(Application::GetWindow(), false, false, false);
 		
 		m_mousePicker.updatePosition(event.x, event.y, m_camera);
-		if (m_mousePicker.clickOrthographic(event.x, event.y, m_camera, m_heroEnity->getRigidBody())) {
+		if (m_mousePicker.clickOrthographic(event.x, event.y, m_camera, m_rigidBody)) {
 			if (!m_heroEnity->isActive()) {
 				m_diskNode = m_heroEnity->addChild<ShapeNode, Shape>(m_disk);
 				m_diskNode->setPosition(0.0f, -MAP_MODEL_HEIGHT_Y + 0.01f, 0.0f);

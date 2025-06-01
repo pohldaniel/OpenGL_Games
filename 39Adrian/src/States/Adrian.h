@@ -12,6 +12,7 @@
 #include <engine/octree/Octree.h>
 #include <engine/Framebuffer.h>
 #include <engine/Background.h>
+#include <engine/Md2Model.h>
 #include <engine/Frustum.h>
 #include <engine/Camera.h>
 #include <Navigation/DynamicNavigationMesh.h>
@@ -91,8 +92,12 @@ private:
 
 	IsometricCamera m_camera;
 
-	Md2Model m_hero;
-	Md2Entity *m_heroEnity;
+	Md2Model m_heroModel, m_hueteotl;
+	Md2Entity *m_hueteotlEnity;
+	Md2Entity* m_heroEnity;
+
+	Hero* m_hero;
+
 	Md2Node *m_md2Node;
 
 	SceneNodeLC* m_root;
@@ -121,5 +126,5 @@ private:
 	Framebuffer m_depthBuffer;
 	Fade m_fade, m_fadeCircle;
 
-	std::vector<CrowdAgentEntity*> m_entities;
+	std::vector<Md2Entity*> m_entities;
 };

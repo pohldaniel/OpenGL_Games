@@ -1,7 +1,6 @@
-#include <Physics/ShapeDrawer.h>
 #include "Md2Entity.h"
 
-Md2Entity::Md2Entity(const Md2Model& md2Model) : Md2Node(md2Model), Entity(), m_isActive(false), m_rigidBody(nullptr), m_color(Vector4f::ONE){
+Md2Entity::Md2Entity(const Md2Model& md2Model) : Md2Node(md2Model), Entity(), m_isActive(false), m_color(Vector4f::ONE){
 
 }
 
@@ -15,20 +14,6 @@ void Md2Entity::draw() {
 
 void Md2Entity::update(const float dt) {
 	Md2Node::update(dt);
-}
-
-void Md2Entity::fixedUpdate(float fdt) {
-	const BoundingBox& aabb = getLocalBoundingBox();
-	const Vector3f& pos = getWorldPosition();
-	const Quaternion& rot = getWorldOrientation();
-	const Vector3f size = aabb.getSize();
-	Vector3f pivot(0.0f, aabb.min[1] + size[1] * 0.5f, 0.0f);
-	btTransform trans = Physics::BtTransform(pos + pivot, rot);
-
-	m_rigidBody->setWorldTransform(trans);
-	//m_rigidBody->setInterpolationWorldTransform(trans);
-	m_rigidBody->getCollisionShape()->setLocalScaling(Physics::VectorFrom(size * 0.75));	
-	//Physics::GetDynamicsWorld()->updateSingleAabb(m_rigidBody);
 }
 
 short Md2Entity::getMaterialIndex() const {
@@ -58,15 +43,6 @@ const Vector4f& Md2Entity::getColor() const {
 
 bool Md2Entity::isActive() {
 	return m_isActive;
-}
-
-void Md2Entity::setRigidBody(btRigidBody* rigidBody) {
-	m_rigidBody = rigidBody;
-	ShapeDrawer::Get().addToCache(m_rigidBody->getCollisionShape());
-}
-
-btRigidBody* Md2Entity::getRigidBody() {
-	return m_rigidBody;
 }
 
 void Md2Entity::move(float x, float z) {

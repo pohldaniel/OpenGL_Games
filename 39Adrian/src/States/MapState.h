@@ -7,6 +7,7 @@
 #include <engine/octree/Octree.h>
 #include <engine/Camera.h>
 #include <engine/Background.h>
+#include <engine/Md2Model.h>
 #include <engine/Frustum.h>
 #include <Physics/Physics.h>
 #include <Physics/MousePicker.h>
@@ -48,7 +49,7 @@ private:
 
 	IsometricCamera m_camera;
 
-	Md2Model m_hero;
+	Md2Model m_heroModel;
 	Md2Entity *m_heroEnity;
 
 	SceneNodeLC* m_root;
@@ -60,4 +61,5 @@ private:
 
 	MousePicker m_mousePicker;
 	btCollisionObject* m_ground;
+	btRigidBody* m_rigidBody;
 };

@@ -3,7 +3,7 @@
 #include "EmptyAgentEntity.h"
 #include "Renderer.h"
 
-EmptyAgentEntity::EmptyAgentEntity(const CrowdAgent& crowdAgent) : CrowdAgentObject(crowdAgent, nullptr), Entity() {
+EmptyAgentEntity::EmptyAgentEntity(const CrowdAgent& crowdAgent) : CrowdAgentObject(crowdAgent, nullptr) {
 
 }
 

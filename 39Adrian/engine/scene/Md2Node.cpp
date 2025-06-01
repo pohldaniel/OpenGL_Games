@@ -82,7 +82,6 @@ void  Md2Node::drawRaw() const {
 		m_shader->loadMatrix("u_model", getWorldTransformation());
 	}
 
-	
 	md2Model.updateBuffer(m_interpolated);
 	md2Model.draw(m_textureIndex, m_materialIndex);
 

@@ -19,14 +19,13 @@ public:
 	void setAnimationType(AnimationType animationType);
 
 	short getMaterialIndex() const;
-	short getTextureIndex() const;
+	short getTextureIndex() const;	
 	void setMaterialIndex(short index);
 	void setTextureIndex(short index);
 	void setShader(Shader* shader);
+	const BoundingBox& getLocalBoundingBox() const;
 
 protected:
-
-	const BoundingBox& getLocalBoundingBox() const;
 
 	short m_materialIndex;
 	short m_textureIndex;

@@ -17,22 +17,18 @@ public:
 	virtual void draw() override;
 	virtual void update(const float dt) override;
 	
-	void fixedUpdate(float fdt);
-
 	short getMaterialIndex() const override;
 	void setMaterialIndex(short index) override;
 	short getTextureIndex() const override;
 	void setTextureIndex(short index) override;
 	void setIsActive(bool active);
 	bool isActive();
-	void setRigidBody(btRigidBody* rigidBody);
-
+	
 	const Vector4f& getColor() const;
-	btRigidBody* getRigidBody();
 	void move(float x, float z);
 
 private:
+
 	bool m_isActive;
 	Vector4f m_color;
-	btRigidBody* m_rigidBody;
 };
