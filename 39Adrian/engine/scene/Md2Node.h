@@ -24,6 +24,7 @@ public:
 	void setTextureIndex(short index);
 	void setShader(Shader* shader);
 	const BoundingBox& getLocalBoundingBox() const;
+	void setSpeed(float speed);
 
 protected:
 

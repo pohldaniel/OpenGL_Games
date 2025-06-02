@@ -3,7 +3,7 @@
 #include "CrowdAgentEntity.h"
 #include "Renderer.h"
 
-CrowdAgentEntity::CrowdAgentEntity(const CrowdAgent& crowdAgent, SceneNodeLC* controlledNode) : EmptyAgentEntity(crowdAgent){
+CrowdAgentEntity::CrowdAgentEntity(const CrowdAgent& crowdAgent, SceneNodeLC* controlledNode) : EmptyAgentEntity(crowdAgent) {
 	setControlledNode(controlledNode);
 }
 

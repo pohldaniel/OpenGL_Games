@@ -4,7 +4,7 @@
 #include <engine/objects/CrowdAgentObject.h>
 #include <Entities/Entity.h>
 
-class EmptyAgentEntity : public CrowdAgentObject {
+class EmptyAgentEntity : public CrowdAgentObject, public Entity {
 
 public:
 

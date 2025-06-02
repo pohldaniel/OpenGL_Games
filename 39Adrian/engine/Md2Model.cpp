@@ -234,6 +234,6 @@ const  std::vector<Utils::MD2IO::Animation>& Md2Model::getAnimations() const {
 	return m_animations;
 }
 
-const unsigned int  Md2Model::getNumVertices() const {
+const unsigned int Md2Model::getNumVertices() const {
 	return m_numVertices;
 }

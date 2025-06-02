@@ -135,50 +135,49 @@ m_separaionWeight(3.0f) {
 	m_crowdManager = new CrowdManager();
 	m_crowdManager->setNavigationMesh(m_navigationMesh);
 
-	//spawnAgent(m_heroEnity->getWorldPosition() - Vector3f(0.0f, 26.0f, 0.0f));
-
-	m_heroEnity = m_root->addChild<Md2Entity, Md2Model>(m_heroModel);
-	m_heroEnity->Md2Node::setPosition(-780.0f, 0.0f, 780.0f);
-	m_heroEnity->Md2Node::setOrientation(0.0f, 180.0f, 0.0f);
-	m_heroEnity->Md2Node::setTextureIndex(11);
-	m_heroEnity->OnOctreeSet(m_octree);
-	m_heroEnity->setSortKey(3);
-	m_heroEnity->Md2Node::setShader(Globals::shaderManager.getAssetPointer("shape_color"));
-	spawnHero(m_heroEnity->getWorldPosition());
-
-	//620 - 380 820 - 280
-	m_hueteotlEnity = m_root->addChild<Md2Entity, Md2Model>(m_hueteotl);
-	m_hueteotlEnity->setPosition(620.0f, 0.0f, -380.0f);
-	m_hueteotlEnity->setOrientation(0.0f, 0.0f, 0.0f);
-	m_hueteotlEnity->setTextureIndex(12);
-	m_hueteotlEnity->OnOctreeSet(m_octree);
-	m_hueteotlEnity->setSortKey(3);
-	m_hueteotlEnity->Md2Node::setShader(Globals::shaderManager.getAssetPointer("shape_color"));
-	m_entities.push_back(m_hueteotlEnity);
-
-
 	ShapeDrawer::Get().init(32768);
 	ShapeDrawer::Get().setCamera(m_camera);
-	m_hero->setRigidBody(Physics::AddKinematicRigidBody(Physics::BtTransform(Physics::VectorFrom(m_heroEnity->getWorldPosition())), new btBoxShape(btVector3(0.5f, 0.5f, 0.5f)), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER, nullptr, false));
 
-	m_segment.buildSegmentXZ(300.0f, 60.0f, 120.0f, Vector3f(0.0f, 0.0f, 0.0f), 20, 20, true, false, false);
+	m_segment.buildSegmentXZ(100.0f, 60.0f, 120.0f, Vector3f(0.0f, 0.0f, 0.0f), 20, 20, true, false, false);
 	m_segment.createBoundingBox();
 	m_segment.markForDelete();
-	m_segmentNode = m_heroEnity->addChild<ShapeNode, Shape>(m_segment);
-	m_segmentNode->setPosition(0.0f, 0.02f, 0.0f);
-	m_segmentNode->setOrientation(0.0f, 0.0f, 0.0f);
-	m_segmentNode->setTextureIndex(0);
-	m_segmentNode->OnOctreeSet(m_octree);
-	m_segmentNode->setSortKey(2);
-	m_segmentNode->setShader(Globals::shaderManager.getAssetPointer("shape"));
-
+	
 	m_disk.buildDiskXZ(20.0f, Vector3f(0.0f, 0.0f, 0.0f), 20, 20, true, false, false);
 	m_disk.createBoundingBox();
 	m_disk.markForDelete();
 
 	m_ground = Physics::AddStaticObject(Physics::BtTransform(btVector3(0.0f, 0.0f, 0.0f)), new  btStaticPlaneShape(btVector3(0.0f, 1.0f, 0.0f), -0.1f), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER, nullptr);
 
+	spawnHero(Vector3f(-780.0f, 0.0f, 780.0f));
+	m_hero->setRigidBody(Physics::AddKinematicRigidBody(Physics::BtTransform(Physics::VectorFrom(m_hero->getWorldPosition())), new btBoxShape(btVector3(0.5f, 0.5f, 0.5f)), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER, nullptr, false));
 
+	m_bot = m_root->addChild<Bot, Md2Model>(m_hueteotl);
+	m_bot->setPosition(620.0f, 0.0f, -380.0f);
+	m_bot->setOrientation(0.0f, 0.0f, 0.0f);
+	m_bot->setTextureIndex(12);
+	m_bot->OnOctreeSet(m_octree);
+	m_bot->setSortKey(4);
+	m_bot->Md2Node::setShader(Globals::shaderManager.getAssetPointer("shape_color"));
+	m_entities.push_back(m_bot);
+
+	m_segmentNode = m_bot->addChild<ShapeNode, Shape>(m_segment);
+	m_segmentNode->setPosition(0.0f, 0.5f, 0.0f);
+	m_segmentNode->setOrientation(0.0f, 0.0f, 0.0f);
+	m_segmentNode->setScale(2.5f, 0.0f, 2.5f);
+	m_segmentNode->setTextureIndex(0);
+	m_segmentNode->OnOctreeSet(m_octree);
+	m_segmentNode->setSortKey(3);
+	m_segmentNode->setShader(Globals::shaderManager.getAssetPointer("shape_color"));
+	m_segmentNode->setColor(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
+
+	m_diskNode = m_bot->addChild<ShapeNode, Shape>(m_disk);
+	m_diskNode->setPosition(0.0f, 1.0f, 0.0f);
+	m_diskNode->setTextureIndex(1);
+	m_diskNode->setName("disk");
+	m_diskNode->OnOctreeSet(m_octree);
+	m_diskNode->setSortKey(2);
+	m_diskNode->setShader(Globals::shaderManager.getAssetPointer("shape_color"));
+	m_diskNode->setColor(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
 }
 
 Adrian::~Adrian() {
@@ -305,7 +304,7 @@ void Adrian::update() {
 }
 
 void Adrian::render() {
-
+	
 	m_depthBuffer.bind();
 	glClear(GL_DEPTH_BUFFER_BIT);
 	renderSceneDepth();
@@ -416,7 +415,7 @@ void Adrian::renderScene() {
 	shader->use();
 	shader->loadMatrix("u_projection", m_camera.getOrthographicMatrix());
 	shader->loadMatrix("u_view", m_camera.getViewMatrix());
-	shader->loadVector("u_color", m_heroEnity->getColor());
+	shader->loadVector("u_color", m_hero->getColor());
 
 	shader = MousePicker::GetShader().get();
 	shader->use();
@@ -432,7 +431,12 @@ void Adrian::renderScene() {
 	for (const Batch& batch : m_octree->getOpaqueBatches().m_batches) {
 		OctreeNode* drawable = batch.octreeNode;
 		shader->loadMatrix("u_model", drawable->getWorldTransformation());
+
+		//if (drawable->getSortKey() == 1)
+			//continue;
+
 		drawable->drawRaw();
+		//std::cout << "Sort Key: " << drawable->getSortKey() << std::endl;
 	}
 }
 
@@ -466,7 +470,7 @@ void Adrian::renderSceneDepth() {
 
 void Adrian::renderBubble() {
 
-	Matrix4f model = Matrix4f::Translate(m_heroEnity->getWorldPosition() - Vector3f(0.0f, 30.0f, 0.0f)) * Matrix4f::Scale(m_fadeValue * 100.0f, m_fadeValue * 100.0f, m_fadeValue * 100.0f);
+	Matrix4f model = Matrix4f::Translate(m_hero->getWorldPosition() - Vector3f(0.0f, 30.0f, 0.0f)) * Matrix4f::Scale(m_fadeValue * 100.0f, m_fadeValue * 100.0f, m_fadeValue * 100.0f);
 
 	auto shader = Globals::shaderManager.getAssetPointer("bubble_new");
 
@@ -501,7 +505,7 @@ void Adrian::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 	if (event.button == 2u) {
 		Mouse::instance().attach(Application::GetWindow(), false, false, false);
 		if (!m_drawPolygon) {
-			if (m_mousePicker.clickOrthographicAll(event.x, event.y, m_camera, m_ground) && m_heroEnity->isActive()) {
+			if (m_mousePicker.clickOrthographicAll(event.x, event.y, m_camera, m_ground) && m_hero->isActive()) {
 				const MousePickCallbackAll& callbackAll = m_mousePicker.getCallbackAll();
 				Vector3f pos = Physics::VectorFrom(callbackAll.m_hitPointWorld[callbackAll.index]);
 				Vector3f pathPos = m_navigationMesh->findNearestPoint(pos, Vector3f(1.0f, 1.0f, 1.0f));
@@ -549,26 +553,28 @@ void Adrian::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 		if (!m_drawPolygon) {
 			Mouse::instance().attach(Application::GetWindow(), false, false, false);
 			if (m_mousePicker.clickOrthographicAll(event.x, event.y, m_camera, m_hero->getRigidBody())) {
-				if (!m_heroEnity->isActive()) {
-					m_diskNode = m_heroEnity->addChild<ShapeNode, Shape>(m_disk);
-					m_diskNode->setPosition(0.0f, 0.0f, 0.0f);
+				if (!m_hero->isActive()) {
+					m_diskNode = m_hero->addChild<ShapeNode, Shape>(m_disk);
+					m_diskNode->setPosition(0.0f, 0.51f, 0.0f);
+					m_diskNode->setSortKey(2);
 					m_diskNode->setTextureIndex(1);
 					m_diskNode->setName("disk");
 					m_diskNode->OnOctreeSet(m_octree);
+					m_diskNode->setShader(Globals::shaderManager.getAssetPointer("shape"));
 				}else {
-					ShapeNode* disk = m_heroEnity->findChild<ShapeNode>("disk");
+					ShapeNode* disk = m_hero->findChild<ShapeNode>("disk");
 					disk->OnOctreeSet(nullptr);
 					disk->eraseSelf();
 				}
-				m_heroEnity->setIsActive(!m_heroEnity->isActive());
+				m_hero->setIsActive(!m_hero->isActive());
 
 			}else {
-				if (m_heroEnity->isActive()) {
-					ShapeNode* disk = m_heroEnity->findChild<ShapeNode>("disk");
+				if (m_hero->isActive()) {
+					ShapeNode* disk = m_hero->findChild<ShapeNode>("disk");
 					disk->OnOctreeSet(nullptr);
 					disk->eraseSelf();
 				}
-				m_heroEnity->setIsActive(false);
+				m_hero->setIsActive(false);
 			}
 		}else {
 			Mouse::instance().attach(Application::GetWindow(), false, false, false);
@@ -1036,7 +1042,7 @@ void Adrian::saveNavigationData() {
 }
 
 void Adrian::updateStreaming() {
-	Vector3f averageAgentPosition = m_heroEnity->getWorldPosition();
+	Vector3f averageAgentPosition = m_hero->getWorldPosition();
 	const std::array<int, 2> heroTile = m_navigationMesh->getTileIndex(averageAgentPosition);
 	const std::array<int, 2> numTiles = m_navigationMesh->getNumTiles();
 	const std::array<int, 2> beginTile = { std::max(0, heroTile[0] - m_streamingDistance), std::max(0, heroTile[1] - m_streamingDistance) };
@@ -1092,10 +1098,25 @@ void Adrian::spawnHero(const Vector3f& pos) {
 	m_agent->setNavigationPushiness(NAVIGATIONPUSHINESS_MEDIUM);
 	m_agent->setSeparationWeight(m_separaionWeight);
 	m_agent->initCallbacks();
-
-
-	m_hero = new Hero(*m_agent, m_heroEnity);
+	
+	m_hero = m_root->addChild<Hero, Md2Model>(m_heroModel, *m_agent);
+	m_hero->Md2Node::setPosition(pos);
+	m_hero->Md2Node::setOrientation(0.0f, 180.0f, 0.0f);
+	m_hero->Md2Node::setTextureIndex(11);
+	m_hero->OnOctreeSet(m_octree);
+	m_hero->setSortKey(4);
+	m_hero->Md2Node::setShader(Globals::shaderManager.getAssetPointer("shape_color"));
 	m_entities.push_back(m_hero);
+
+	m_segmentNode = m_hero->addChild<ShapeNode, Shape>(m_segment);
+	m_segmentNode->setPosition(0.0f, 0.5f, 0.0f);
+	m_segmentNode->setOrientation(0.0f, 0.0f, 0.0f);
+	m_segmentNode->setScale(1.5f, 0.0f, 1.5f);
+	m_segmentNode->setTextureIndex(0);
+	m_segmentNode->OnOctreeSet(m_octree);
+	m_segmentNode->setSortKey(3);
+	m_segmentNode->setShader(Globals::shaderManager.getAssetPointer("shape_color"));
+	m_segmentNode->setColor(Vector4f(0.0f, 1.0f, 0.0f, 1.0f));
 }
 
 void Adrian::spawnAgent(const Vector3f& pos) {

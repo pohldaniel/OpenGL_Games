@@ -8,7 +8,7 @@ class Hero : public CrowdAgentEntity, public Md2Entity {
 
 public:
 
-	Hero(const CrowdAgent& crowdAgent, Md2Node* md2Node);
+	Hero(const Md2Model& md2Model, const CrowdAgent& crowdAgent);
 	~Hero();
 
 	void update(const float dt) override;
@@ -22,6 +22,5 @@ public:
 
 private:
 
-	Md2Node *m_md2Node;
 	btRigidBody* m_rigidBody;
 };

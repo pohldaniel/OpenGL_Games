@@ -12,7 +12,7 @@ public:
 	CrowdAgentEntity(const CrowdAgent& crowdAgent, SceneNodeLC* controlledNode);
 	virtual ~CrowdAgentEntity();
 
-	virtual void update(const float dt) = 0;
+	virtual void update(const float dt) override = 0;
 
 	virtual void OnInactive() override;
 	virtual void OnPositionVelocityUpdate(const Vector3f& pos, const Vector3f& vel) override;

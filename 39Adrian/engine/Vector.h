@@ -201,6 +201,7 @@ public:
 	Vector4f &operator/=(const Vector4f &rhs);
 	Vector4f &operator*=(float scalar);
 	Vector4f &operator/=(float scalar);
+	bool operator==(const Vector4f& b) const;
 
 	Vector4f operator+(const Vector4f &rhs) const;
 	Vector4f operator-(const Vector4f &rhs) const;

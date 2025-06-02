@@ -3205,6 +3205,10 @@ Vector4f &Vector4f::operator/=(float scalar) {
 	return *this;
 }
 
+bool Vector4f::operator==(const Vector4f& b) const {
+	return vec[0] == b[0] && vec[1] == b[1] && vec[2] == b[2] && vec[3] == b[3];
+}
+
 Vector4f Vector4f::operator-(const Vector4f &rhs) const {
 
 	Vector4f tmp(*this);

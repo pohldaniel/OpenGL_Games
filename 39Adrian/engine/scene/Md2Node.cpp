@@ -120,3 +120,7 @@ void Md2Node::setAnimationType(AnimationType animationType) {
 void Md2Node::setShader(Shader* shader) {
 	m_shader = shader;
 }
+
+void Md2Node::setSpeed(float speed) {
+	m_speed = speed;
+}

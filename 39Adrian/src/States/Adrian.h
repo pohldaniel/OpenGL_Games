@@ -28,6 +28,7 @@
 #include <Entities/Md2Entity.h>
 #include <Entities/CrowdAgentEntity.h>
 #include <Entities/Hero.h>
+#include <Entities/Bot.h>
 #include <Utils/Fade.h>
 
 struct EditPolygon {
@@ -93,10 +94,11 @@ private:
 	IsometricCamera m_camera;
 
 	Md2Model m_heroModel, m_hueteotl;
-	Md2Entity *m_hueteotlEnity;
-	Md2Entity* m_heroEnity;
+	//Md2Entity *m_hueteotlEnity;
+	//Md2Entity* m_heroEnity;
 
 	Hero* m_hero;
+	Bot* m_bot;
 
 	Md2Node *m_md2Node;
 

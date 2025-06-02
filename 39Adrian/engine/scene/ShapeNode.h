@@ -23,6 +23,7 @@ public:
 	void setMaterialIndex(short index);
 	void setTextureIndex(short index);
 	void setShader(Shader* shader);
+	void setColor(const Vector4f& color);
 
 protected:
 
@@ -35,4 +36,5 @@ private:
 
 	const Shape& shape;
 	Shader* m_shader;
+	Vector4f m_color;
 };

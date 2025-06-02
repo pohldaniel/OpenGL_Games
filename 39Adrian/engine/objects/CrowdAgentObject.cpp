@@ -2,7 +2,6 @@
 #include "CrowdAgentObject.h"
 
 CrowdAgentObject::CrowdAgentObject(const CrowdAgent& crowdAgent, SceneNodeLC* controlledNode) : crowdAgent(crowdAgent), m_controlledNode(controlledNode){
-
 	crowdAgent.setOnPositionVelocityUpdate(std::bind(&CrowdAgentObject::OnPositionVelocityUpdate, this, std::placeholders::_1, std::placeholders::_2));
 	crowdAgent.setOnInactive(std::bind(&CrowdAgentObject::OnInactive, this));
 	crowdAgent.setOnTarget(std::bind(&CrowdAgentObject::OnTarget, this, std::placeholders::_1));
