@@ -16,7 +16,7 @@ public:
 	using OctreeNode::addChild;
 	void addChild(Md2Node* node, bool drawDebug);
 	const Md2Model& getMd2Model() const;
-	void setAnimationType(AnimationType animationType);
+	void setAnimationType(AnimationType animationType, AnimationType animationTypeN = AnimationType::STAND);
 
 	short getMaterialIndex() const;
 	short getTextureIndex() const;	

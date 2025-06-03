@@ -59,11 +59,17 @@ m_separaionWeight(3.0f) {
 	Material::AddTexture("data/models/dynamic/hueteotl/hueteotl.tga");
 	Material::AddTexture("data/models/dynamic/mutantman/mutantman.tga");
 	Material::AddTexture("data/models/dynamic/corpse/corpse.tga");
+	Material::AddTexture("data/models/dynamic/mutantlizard/mutantlizard.tga");
+	Material::AddTexture("data/models/dynamic/mutantcheetah/mutantcheetah.tga");
+	Material::AddTexture("data/models/dynamic/ripper/ripper.tga");
 
 	m_heroModel.load("data/models/dynamic/hero/hero.md2");
 	m_hueteotl.load("data/models/dynamic/hueteotl/hueteotl.md2");
 	m_mutantman.load("data/models/dynamic/mutantman/mutantman.md2");
 	m_corpse.load("data/models/dynamic/corpse/corpse.md2");
+	m_mutantlizard.load("data/models/dynamic/mutantlizard/mutantlizard.md2");
+	m_mutantcheetah.load("data/models/dynamic/mutantcheetah/mutantcheetah.md2");
+	m_ripper.load("data/models/dynamic/ripper/ripper.md2");
 
 	WorkQueue::Init(0);
 	Renderer::Get().init(new Octree(m_camera, m_frustum, m_dt), new SceneNodeLC());
@@ -271,6 +277,106 @@ m_separaionWeight(3.0f) {
 	m_segmentNode->setColor(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
 
 	m_diskNode = m_bot4->addChild<ShapeNode, Shape>(m_disk);
+	m_diskNode->setPosition(0.0f, 1.0f, 0.0f);
+	m_diskNode->setTextureIndex(1);
+	m_diskNode->setName("disk");
+	m_diskNode->OnOctreeSet(m_octree);
+	m_diskNode->setSortKey(2);
+	m_diskNode->setShader(Globals::shaderManager.getAssetPointer("shape_color"));
+	m_diskNode->setColor(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
+
+	m_bot5 = m_root->addChild<Bot, Md2Model>(m_mutantlizard);
+	m_bot5->setPosition(150.0f, 0.0f, 300.0f);
+	m_bot5->setOrientation(0.0f, 0.0f, 0.0f);
+	m_bot5->setTextureIndex(15);
+	m_bot5->setStart(150.0f, 0.0f, 300.0f);
+	m_bot5->setEnd(150.0f, 0.0f, 300.0f);
+	m_bot5->setSpeed(1.0f);
+	m_bot5->setMoveSpeed(0.0f);
+	m_bot5->setAnimationType(AnimationType::STAND);
+	m_bot5->OnOctreeSet(m_octree);
+	m_bot5->setSortKey(5);
+	m_bot5->Md2Node::setShader(Globals::shaderManager.getAssetPointer("shape_color"));
+	m_entities.push_back(m_bot5);
+
+	m_segmentNode = m_bot5->addChild<ShapeNode, Shape>(m_segment);
+	m_segmentNode->setPosition(0.0f, 0.5f, 0.0f);
+	m_segmentNode->setOrientation(0.0f, 0.0f, 0.0f);
+	m_segmentNode->setScale(2.5f, 0.0f, 2.5f);
+	m_segmentNode->setTextureIndex(0);
+	m_segmentNode->OnOctreeSet(m_octree);
+	m_segmentNode->setSortKey(4);
+	m_segmentNode->setShader(Globals::shaderManager.getAssetPointer("shape_color"));
+	m_segmentNode->setColor(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
+
+	m_diskNode = m_bot5->addChild<ShapeNode, Shape>(m_disk);
+	m_diskNode->setPosition(0.0f, 1.0f, 0.0f);
+	m_diskNode->setTextureIndex(1);
+	m_diskNode->setName("disk");
+	m_diskNode->OnOctreeSet(m_octree);
+	m_diskNode->setSortKey(2);
+	m_diskNode->setShader(Globals::shaderManager.getAssetPointer("shape_color"));
+	m_diskNode->setColor(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
+
+	m_bot6 = m_root->addChild<Bot, Md2Model>(m_mutantcheetah);
+	m_bot6->setPosition(60.0f, 0.0f, 900.0f);
+	m_bot6->setOrientation(0.0f, 270.0f, 0.0f);
+	m_bot6->setTextureIndex(16);
+	m_bot6->setStart(60.0f, 0.0f, 900.0f);
+	m_bot6->setEnd(60.0f, 0.0f, 900.0f);
+	m_bot6->setSpeed(1.0f);
+	m_bot6->setMoveSpeed(0.0f);
+	m_bot6->setAnimationType(AnimationType::NONE);
+	m_bot6->OnOctreeSet(m_octree);
+	m_bot6->setSortKey(5);
+	m_bot6->Md2Node::setShader(Globals::shaderManager.getAssetPointer("shape_color"));
+	m_entities.push_back(m_bot6);
+
+	m_segmentNode = m_bot6->addChild<ShapeNode, Shape>(m_segment);
+	m_segmentNode->setPosition(0.0f, 0.5f, 0.0f);
+	m_segmentNode->setOrientation(0.0f, 0.0f, 0.0f);
+	m_segmentNode->setScale(2.5f, 0.0f, 2.5f);
+	m_segmentNode->setTextureIndex(0);
+	m_segmentNode->OnOctreeSet(m_octree);
+	m_segmentNode->setSortKey(4);
+	m_segmentNode->setShader(Globals::shaderManager.getAssetPointer("shape_color"));
+	m_segmentNode->setColor(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
+
+	m_diskNode = m_bot6->addChild<ShapeNode, Shape>(m_disk);
+	m_diskNode->setPosition(0.0f, 1.0f, 0.0f);
+	m_diskNode->setTextureIndex(1);
+	m_diskNode->setName("disk");
+	m_diskNode->OnOctreeSet(m_octree);
+	m_diskNode->setSortKey(2);
+	m_diskNode->setShader(Globals::shaderManager.getAssetPointer("shape_color"));
+	m_diskNode->setColor(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
+
+
+	m_bot7 = m_root->addChild<Bot, Md2Model>(m_ripper);
+	m_bot7->setPosition(220.0f, 0.0f, -820.0f);
+	m_bot7->setOrientation(0.0f, 0.0f, 0.0f);
+	m_bot7->setTextureIndex(17);
+	m_bot7->setStart(220.0f, 0.0f, -820.0f);
+	m_bot7->setEnd(600.0f, 0.0f, -820.0f);
+	m_bot7->setMoveSpeed(175.0f);
+	m_bot7->setSpeed(0.6f);
+	m_bot7->setAnimationType(AnimationType::RUN);
+	m_bot7->OnOctreeSet(m_octree);
+	m_bot7->setSortKey(5);
+	m_bot7->Md2Node::setShader(Globals::shaderManager.getAssetPointer("shape_color"));
+	m_entities.push_back(m_bot7);
+
+	m_segmentNode = m_bot7->addChild<ShapeNode, Shape>(m_segment);
+	m_segmentNode->setPosition(0.0f, 0.5f, 0.0f);
+	m_segmentNode->setOrientation(0.0f, 0.0f, 0.0f);
+	m_segmentNode->setScale(2.5f, 0.0f, 2.5f);
+	m_segmentNode->setTextureIndex(0);
+	m_segmentNode->OnOctreeSet(m_octree);
+	m_segmentNode->setSortKey(4);
+	m_segmentNode->setShader(Globals::shaderManager.getAssetPointer("shape_color"));
+	m_segmentNode->setColor(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
+
+	m_diskNode = m_bot7->addChild<ShapeNode, Shape>(m_disk);
 	m_diskNode->setPosition(0.0f, 1.0f, 0.0f);
 	m_diskNode->setTextureIndex(1);
 	m_diskNode->setName("disk");

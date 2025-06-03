@@ -7,9 +7,10 @@ enum AnimationType {
 	STAND = 0,
 	RUN = 1,
 	ATTACK = 2,
-	DEATH_BACK = 3,
-	DEATH_FORWARD = 4,
-	DEATH_BACK_SLOW = 5,
+	JUMP = 3,
+	DEATH_BACK = 4,
+	DEATH_FORWARD = 5,
+	DEATH_BACK_SLOW = 6,
 	NONE
 };
 
@@ -32,7 +33,7 @@ public:
 	const void updateBuffer(const std::vector<Utils::MD2IO::Vertex>& interpolated) const;
 
 	const BoundingBox& getLocalBoundingBox() const;
-	void setAnimationType(AnimationType animationType);
+	void setAnimationType(AnimationType animationType, AnimationType animationTypeN = AnimationType::STAND);
 	const std::vector<Utils::MD2IO::Animation>& getAnimations() const;
 	const unsigned int getNumVertices() const;
 

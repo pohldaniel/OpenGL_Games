@@ -36,6 +36,10 @@ void Md2Node::OnAnimationChanged() {
 }
 
 void Md2Node::update(float dt) {
+
+	if (m_animationType == AnimationType::NONE)
+		return;
+
 	if (frameNumber && wasInView(*frameNumber)) {
 
 		// increment frame
@@ -82,7 +86,9 @@ void  Md2Node::drawRaw() const {
 		m_shader->loadMatrix("u_model", getWorldTransformation());
 	}
 
-	md2Model.updateBuffer(m_interpolated);
+	if(m_animationType != AnimationType::NONE)
+		md2Model.updateBuffer(m_interpolated);
+	
 	md2Model.draw(m_textureIndex, m_materialIndex);
 
 	if (m_shader)
@@ -109,12 +115,26 @@ void Md2Node::setTextureIndex(short index) {
 	m_textureIndex = index;
 }
 
-void Md2Node::setAnimationType(AnimationType animationType) {
+void Md2Node::setAnimationType(AnimationType animationType, AnimationType animationTypeN) {
 	if (m_animationType == animationType)
 		return;
+
 	m_animationType = animationType;
-	currentAnimation = &md2Model.getAnimations()[m_animationType];
 	m_activeFrame = 0.0f;
+	if (m_animationType == AnimationType::NONE) {
+		m_interpolated.clear();
+		m_interpolated.shrink_to_fit();
+
+		currentAnimation = &md2Model.getAnimations()[animationTypeN];
+		const Utils::MD2IO::Frame& frame = currentAnimation->frames[0];
+		std::copy(frame.vertices.begin(), frame.vertices.end(), std::back_inserter(m_interpolated));	
+
+		md2Model.updateBuffer(m_interpolated);
+
+		return;
+	}
+		
+	currentAnimation = &md2Model.getAnimations()[m_animationType];	
 }
 
 void Md2Node::setShader(Shader* shader) {

@@ -2041,7 +2041,7 @@ int Utils::MD2IO::loadMd2(const char* path, bool flipVertical, std::array<float,
 
 	std::vector<float> vertexBuffer;
 
-	animations.resize(6);
+	animations.resize(7);
 
 	MD2Header header;
 	file.read(reinterpret_cast<char*>(&header), sizeof(MD2Header));
@@ -2189,29 +2189,37 @@ int Utils::MD2IO::loadMd2(const char* path, bool flipVertical, std::array<float,
 			convert(vertexBuffer, animations[2].frames.back().vertices);
 			calcAABB(vertexBuffer, animations[2].frames.back().boundingBox);
 		}
-		
-		if (178 <= i && i <= 183) {
-			strcpy(animations[3].name, "death_back");
+
+		if (66 <= i && i <= 71) {
+			strcpy(animations[3].name, "jump");
 			animations[3].fps = 7.0f;
 			animations[3].frames.push_back(Frame());
 			convert(vertexBuffer, animations[3].frames.back().vertices);
 			calcAABB(vertexBuffer, animations[3].frames.back().boundingBox);
 		}
 		
-		if (184 <= i && i <= 189) {
-			strcpy(animations[4].name, "death_forward");
+		if (178 <= i && i <= 183) {
+			strcpy(animations[4].name, "death_back");
 			animations[4].fps = 7.0f;
 			animations[4].frames.push_back(Frame());
 			convert(vertexBuffer, animations[4].frames.back().vertices);
 			calcAABB(vertexBuffer, animations[4].frames.back().boundingBox);
 		}
 		
-		if (190 <= i && i <= 197) {
-			strcpy(animations[5].name, "death_back_slow");
+		if (184 <= i && i <= 189) {
+			strcpy(animations[5].name, "death_forward");
 			animations[5].fps = 7.0f;
 			animations[5].frames.push_back(Frame());
 			convert(vertexBuffer, animations[5].frames.back().vertices);
 			calcAABB(vertexBuffer, animations[5].frames.back().boundingBox);
+		}
+		
+		if (190 <= i && i <= 197) {
+			strcpy(animations[6].name, "death_back_slow");
+			animations[6].fps = 7.0f;
+			animations[6].frames.push_back(Frame());
+			convert(vertexBuffer, animations[6].frames.back().vertices);
+			calcAABB(vertexBuffer, animations[6].frames.back().boundingBox);
 		}
 
 		positions.clear();

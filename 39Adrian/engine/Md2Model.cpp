@@ -175,7 +175,10 @@ void Md2Model::loadGpu() {
 }
 
 const void Md2Model::update(float dt) const {
-	// increment frame
+
+	if (m_animationType == AnimationType::NONE)
+		return;
+
 	m_activeFrame += m_speed * dt * currentAnimation->fps;
 
 	int len = static_cast<int>(currentAnimation->frames.size()) - 1;
@@ -224,10 +227,20 @@ const BoundingBox& Md2Model::getLocalBoundingBox() const {
 	return currentAnimation->frames[m_activeFrameIdx].boundingBox;
 }
 
-void Md2Model::setAnimationType(AnimationType animationType) {
+void Md2Model::setAnimationType(AnimationType animationType, AnimationType animationTypeN) {
 	m_animationType = animationType;
-	currentAnimation = &m_animations[m_animationType];
 	m_activeFrame = 0.0f;
+	if (m_animationType == AnimationType::NONE) {
+		m_interpolated.clear();
+		m_interpolated.shrink_to_fit();
+
+		currentAnimation = &m_animations[animationTypeN];
+		const Utils::MD2IO::Frame& frame = currentAnimation->frames[0];
+		std::copy(frame.vertices.begin(), frame.vertices.end(), std::back_inserter(m_interpolated));
+		updateBuffer(m_interpolated);
+		return;
+	}
+	currentAnimation = &m_animations[m_animationType];
 }
 
 const  std::vector<Utils::MD2IO::Animation>& Md2Model::getAnimations() const {
