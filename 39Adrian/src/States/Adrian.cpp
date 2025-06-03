@@ -57,9 +57,13 @@ m_separaionWeight(3.0f) {
 
 	Material::AddTexture("data/models/dynamic/hero/hero.tga");
 	Material::AddTexture("data/models/dynamic/hueteotl/hueteotl.tga");
+	Material::AddTexture("data/models/dynamic/mutantman/mutantman.tga");
+	Material::AddTexture("data/models/dynamic/corpse/corpse.tga");
 
 	m_heroModel.load("data/models/dynamic/hero/hero.md2");
 	m_hueteotl.load("data/models/dynamic/hueteotl/hueteotl.md2");
+	m_mutantman.load("data/models/dynamic/mutantman/mutantman.md2");
+	m_corpse.load("data/models/dynamic/corpse/corpse.md2");
 
 	WorkQueue::Init(0);
 	Renderer::Get().init(new Octree(m_camera, m_frustum, m_dt), new SceneNodeLC());
@@ -151,26 +155,122 @@ m_separaionWeight(3.0f) {
 	spawnHero(Vector3f(-780.0f, 0.0f, 780.0f));
 	m_hero->setRigidBody(Physics::AddKinematicRigidBody(Physics::BtTransform(Physics::VectorFrom(m_hero->getWorldPosition())), new btBoxShape(btVector3(0.5f, 0.5f, 0.5f)), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER, nullptr, false));
 
-	m_bot = m_root->addChild<Bot, Md2Model>(m_hueteotl);
-	m_bot->setPosition(620.0f, 0.0f, -380.0f);
-	m_bot->setOrientation(0.0f, 0.0f, 0.0f);
-	m_bot->setTextureIndex(12);
-	m_bot->OnOctreeSet(m_octree);
-	m_bot->setSortKey(4);
-	m_bot->Md2Node::setShader(Globals::shaderManager.getAssetPointer("shape_color"));
-	m_entities.push_back(m_bot);
+	m_bot1 = m_root->addChild<Bot, Md2Model>(m_hueteotl);
+	m_bot1->setPosition(620.0f, 0.0f, -380.0f);
+	m_bot1->setOrientation(0.0f, 0.0f, 0.0f);
+	m_bot1->setTextureIndex(12);
+	m_bot1->OnOctreeSet(m_octree);
+	m_bot1->setSortKey(5);
+	m_bot1->Md2Node::setShader(Globals::shaderManager.getAssetPointer("shape_color"));
+	m_entities.push_back(m_bot1);
 
-	m_segmentNode = m_bot->addChild<ShapeNode, Shape>(m_segment);
+	m_segmentNode = m_bot1->addChild<ShapeNode, Shape>(m_segment);
 	m_segmentNode->setPosition(0.0f, 0.5f, 0.0f);
 	m_segmentNode->setOrientation(0.0f, 0.0f, 0.0f);
 	m_segmentNode->setScale(2.5f, 0.0f, 2.5f);
 	m_segmentNode->setTextureIndex(0);
 	m_segmentNode->OnOctreeSet(m_octree);
-	m_segmentNode->setSortKey(3);
+	m_segmentNode->setSortKey(4);
 	m_segmentNode->setShader(Globals::shaderManager.getAssetPointer("shape_color"));
 	m_segmentNode->setColor(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
 
-	m_diskNode = m_bot->addChild<ShapeNode, Shape>(m_disk);
+	m_diskNode = m_bot1->addChild<ShapeNode, Shape>(m_disk);
+	m_diskNode->setPosition(0.0f, 1.0f, 0.0f);
+	m_diskNode->setTextureIndex(1);
+	m_diskNode->setName("disk");
+	m_diskNode->OnOctreeSet(m_octree);
+	m_diskNode->setSortKey(2);
+	m_diskNode->setShader(Globals::shaderManager.getAssetPointer("shape_color"));
+	m_diskNode->setColor(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
+
+	m_bot2 = m_root->addChild<Bot, Md2Model>(m_mutantman);
+	m_bot2->setPosition(-700.0f, 0.0f, 550.0f);
+	m_bot2->setOrientation(0.0f, 270.0f, 0.0f);
+	m_bot2->setTextureIndex(13);
+	m_bot2->setStart(-700.0f, 0.0f, 550.0f);
+	m_bot2->setEnd(-700.0f, 0.0f, 550.0f);
+	m_bot2->setSpeed(1.0f);
+	m_bot2->setMoveSpeed(0.0f);
+	m_bot2->setAnimationType(AnimationType::STAND);
+	m_bot2->OnOctreeSet(m_octree);
+	m_bot2->setSortKey(5);
+	m_bot2->Md2Node::setShader(Globals::shaderManager.getAssetPointer("shape_color"));
+	m_entities.push_back(m_bot2);
+
+	m_segmentNode = m_bot2->addChild<ShapeNode, Shape>(m_segment);
+	m_segmentNode->setPosition(0.0f, 0.5f, 0.0f);
+	m_segmentNode->setOrientation(0.0f, 0.0f, 0.0f);
+	m_segmentNode->setScale(2.5f, 0.0f, 2.5f);
+	m_segmentNode->setTextureIndex(0);
+	m_segmentNode->OnOctreeSet(m_octree);
+	m_segmentNode->setSortKey(4);
+	m_segmentNode->setShader(Globals::shaderManager.getAssetPointer("shape_color"));
+	m_segmentNode->setColor(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
+
+	m_diskNode = m_bot2->addChild<ShapeNode, Shape>(m_disk);
+	m_diskNode->setPosition(0.0f, 1.0f, 0.0f);
+	m_diskNode->setTextureIndex(1);
+	m_diskNode->setName("disk");
+	m_diskNode->OnOctreeSet(m_octree);
+	m_diskNode->setSortKey(2);
+	m_diskNode->setShader(Globals::shaderManager.getAssetPointer("shape_color"));
+	m_diskNode->setColor(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
+
+	m_bot3 = m_root->addChild<Bot, Md2Model>(m_hueteotl);
+	m_bot3->setPosition(-900.0f, 0.0f, 200.0f);
+	m_bot3->setOrientation(0.0f, 0.0f, 0.0f);
+	m_bot3->setTextureIndex(12);
+	m_bot3->setStart(-900.0f, 0.0f, 200.0f);
+	m_bot3->setEnd(-760.0f, 0.0f, 550.0f);
+	m_bot3->OnOctreeSet(m_octree);
+	m_bot3->setSortKey(5);
+	m_bot3->Md2Node::setShader(Globals::shaderManager.getAssetPointer("shape_color"));
+	m_entities.push_back(m_bot3);
+
+	m_segmentNode = m_bot3->addChild<ShapeNode, Shape>(m_segment);
+	m_segmentNode->setPosition(0.0f, 0.5f, 0.0f);
+	m_segmentNode->setOrientation(0.0f, 0.0f, 0.0f);
+	m_segmentNode->setScale(2.5f, 0.0f, 2.5f);
+	m_segmentNode->setTextureIndex(0);
+	m_segmentNode->OnOctreeSet(m_octree);
+	m_segmentNode->setSortKey(4);
+	m_segmentNode->setShader(Globals::shaderManager.getAssetPointer("shape_color"));
+	m_segmentNode->setColor(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
+
+	m_diskNode = m_bot3->addChild<ShapeNode, Shape>(m_disk);
+	m_diskNode->setPosition(0.0f, 1.0f, 0.0f);
+	m_diskNode->setTextureIndex(1);
+	m_diskNode->setName("disk");
+	m_diskNode->OnOctreeSet(m_octree);
+	m_diskNode->setSortKey(2);
+	m_diskNode->setShader(Globals::shaderManager.getAssetPointer("shape_color"));
+	m_diskNode->setColor(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
+
+	m_bot4 = m_root->addChild<Bot, Md2Model>(m_corpse);
+	m_bot4->setPosition(-400.0f, 0.0f, 650.0f);
+	m_bot4->setOrientation(0.0f, 90.0f, 0.0f);
+	m_bot4->setTextureIndex(14);
+	m_bot4->setStart(-400.0f, 0.0f, 650.0f);
+	m_bot4->setEnd(-400.0f, 0.0f, 650.0f);
+	m_bot4->setSpeed(1.0f);
+	m_bot4->setMoveSpeed(0.0f);
+	m_bot4->setAnimationType(AnimationType::STAND);
+	m_bot4->OnOctreeSet(m_octree);
+	m_bot4->setSortKey(5);
+	m_bot4->Md2Node::setShader(Globals::shaderManager.getAssetPointer("shape_color"));
+	m_entities.push_back(m_bot4);
+
+	m_segmentNode = m_bot4->addChild<ShapeNode, Shape>(m_segment);
+	m_segmentNode->setPosition(0.0f, 0.5f, 0.0f);
+	m_segmentNode->setOrientation(0.0f, 0.0f, 0.0f);
+	m_segmentNode->setScale(2.5f, 0.0f, 2.5f);
+	m_segmentNode->setTextureIndex(0);
+	m_segmentNode->OnOctreeSet(m_octree);
+	m_segmentNode->setSortKey(4);
+	m_segmentNode->setShader(Globals::shaderManager.getAssetPointer("shape_color"));
+	m_segmentNode->setColor(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
+
+	m_diskNode = m_bot4->addChild<ShapeNode, Shape>(m_disk);
 	m_diskNode->setPosition(0.0f, 1.0f, 0.0f);
 	m_diskNode->setTextureIndex(1);
 	m_diskNode->setName("disk");
@@ -267,22 +367,6 @@ void Adrian::update() {
 	if (keyboard.keyPressed(Keyboard::KEY_R)) {
 		m_agent->resetAgent();
 	}
-
-	Vector3f moveDir = Vector3f::ZERO;
-	if (keyboard.keyDown(Keyboard::KEY_UP))
-		moveDir += Vector3f::RIGHT;
-	if (keyboard.keyDown(Keyboard::KEY_DOWN))
-		moveDir += Vector3f::LEFT;
-	if (keyboard.keyDown(Keyboard::KEY_RIGHT))
-		moveDir += Vector3f::FORWARD;
-	if (keyboard.keyDown(Keyboard::KEY_LEFT))
-		moveDir += Vector3f::BACKWARD;
-
-
-	if (moveDir.lengthSq() > 0.0f)
-		Vector3f::Normalize(moveDir);
-
-	//m_heroEnity->translateRelative(moveDir);
 
 	m_octree->updateFrameNumber();
 	m_crowdManager->update(m_dt);
@@ -431,12 +515,14 @@ void Adrian::renderScene() {
 	for (const Batch& batch : m_octree->getOpaqueBatches().m_batches) {
 		OctreeNode* drawable = batch.octreeNode;
 		shader->loadMatrix("u_model", drawable->getWorldTransformation());
+						
+		if (drawable->getSortKey() == 4) 
+			glDepthMask(GL_FALSE);
 
-		//if (drawable->getSortKey() == 1)
-			//continue;
-
+		if (drawable->getSortKey() == 5) 		
+			glDepthMask(GL_TRUE);
+		
 		drawable->drawRaw();
-		//std::cout << "Sort Key: " << drawable->getSortKey() << std::endl;
 	}
 }
 
@@ -1104,7 +1190,7 @@ void Adrian::spawnHero(const Vector3f& pos) {
 	m_hero->Md2Node::setOrientation(0.0f, 180.0f, 0.0f);
 	m_hero->Md2Node::setTextureIndex(11);
 	m_hero->OnOctreeSet(m_octree);
-	m_hero->setSortKey(4);
+	m_hero->setSortKey(5);
 	m_hero->Md2Node::setShader(Globals::shaderManager.getAssetPointer("shape_color"));
 	m_entities.push_back(m_hero);
 

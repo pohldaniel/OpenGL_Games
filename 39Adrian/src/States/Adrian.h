@@ -93,12 +93,10 @@ private:
 
 	IsometricCamera m_camera;
 
-	Md2Model m_heroModel, m_hueteotl;
-	//Md2Entity *m_hueteotlEnity;
-	//Md2Entity* m_heroEnity;
+	Md2Model m_heroModel, m_hueteotl, m_mutantman, m_corpse;
 
 	Hero* m_hero;
-	Bot* m_bot;
+	Bot *m_bot1, *m_bot2, *m_bot3, *m_bot4;
 
 	Md2Node *m_md2Node;
 
