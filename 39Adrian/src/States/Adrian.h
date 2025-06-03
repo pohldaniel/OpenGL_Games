@@ -15,6 +15,7 @@
 #include <engine/Md2Model.h>
 #include <engine/Frustum.h>
 #include <engine/Camera.h>
+#include <engine/Sprite.h>
 #include <Navigation/DynamicNavigationMesh.h>
 #include <Navigation/Navigable.h>
 #include <Navigation/NavArea.h>
@@ -56,8 +57,9 @@ public:
 	void OnKeyUp(Event::KeyboardEvent& event) override;
 
 	void loadBuilding(const char* filename, bool changeWinding = false);
+	void loadBots(const char* filename);
 	void createScene(bool recreate = false);
-
+	
 private:
 
 	void renderUi();
@@ -72,7 +74,7 @@ private:
 	void spawnAgent(const Vector3f& pos);
 
 	bool m_initUi = true;
-	bool m_drawUi = true;
+	bool m_drawUi = false;
 	bool m_useCulling = true;
 	bool m_debugTree = false;
 	bool m_debugPhysic = false;
@@ -127,4 +129,7 @@ private:
 	Fade m_fade, m_fadeCircle;
 
 	std::vector<Md2Entity*> m_entities;
+	Sprite m_panel;
+	std::vector<TextureRect> m_tileSet;
+	unsigned int m_atlas;
 };

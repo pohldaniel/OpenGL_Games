@@ -34,46 +34,70 @@ Sprite::~Sprite() {
 
 }
 
-void Sprite::draw(const TextureRect& rect, const Vector4f& color, bool flipped) {
+void Sprite::draw(const TextureRect& rect, const Vector4f& color, bool flipped, float tileX, float tileY) {
 	auto shader = m_shader ? m_shader : SpriteShader.get();
 	
+	float offsetX = tileX != 1.0f ? 0.0f : rect.textureOffsetX;
+	float offsetY = tileY != 1.0f ? 0.0f : rect.textureOffsetY;
+	float width = tileX != 1.0f ? 1.0f : rect.textureWidth;
+	float height = tileY != 1.0f ? 1.0f : rect.textureHeight;
+	
+	float texelPosX = tileX != 1.0f ? rect.textureOffsetX : 0.0f;
+	float texelPosY = tileY != 1.0f ? rect.textureOffsetY : 0.0f;
+	float texelSizeX = tileX != 1.0f ? rect.textureWidth : 1.0f;
+	float texelSizeY = tileY != 1.0f ? rect.textureHeight : 1.0f;
+
 	shader->use();
 	shader->loadMatrix("u_transform", Orthographic * getTransformationSOP());
 	shader->loadVector("u_color", color);
-	shader->loadVector("u_texRect", flipped ? Vector4f(rect.textureOffsetX + rect.textureWidth, rect.textureOffsetY, rect.textureOffsetX, rect.textureOffsetY + rect.textureHeight) : Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureOffsetX + rect.textureWidth, rect.textureOffsetY + rect.textureHeight));
+	shader->loadVector("u_texRect", flipped ? Vector4f(offsetX + width, offsetY, offsetX, offsetY + height) : Vector4f(offsetX, offsetY, offsetX + width, offsetY + height));
+	shader->loadVector("u_texelTrans", Vector4f(texelPosX, texelPosY, texelSizeX, texelSizeY));
+	shader->loadVector("u_tileFactor", Vector2f(tileX, tileY));
 	shader->loadInt("u_layer", rect.frame);
 	DrawQuad();
 }
 
-void Sprite::draw(const Vector4f& color, bool flipped) {
+void Sprite::draw(const Vector4f& color, bool flipped, float tileX, float tileY) {
 	auto shader = m_shader ? m_shader : SpriteShader.get();
 
 	shader->use();
 	shader->loadMatrix("u_transform", Orthographic * getTransformationSOP());
 	shader->loadVector("u_color", color);
-	shader->loadVector("u_texRect", flipped ? Vector4f(1.0f, 0.0f, 0.0f, 1.0f) : Vector4f(0.0f, 0.0f, 1.0f, 1.0f));
+	shader->loadVector("u_texRect", flipped ? Vector4f(1.0f * tileX, 0.0f, 0.0f, 1.0f * tileY) : Vector4f(0.0f, 0.0f, 1.0f * tileX, 1.0f * tileY));
 	shader->loadInt("u_layer", 0u);
 	DrawQuad();
 }
 
-void Sprite::drawTransformed(const TextureRect& rect, const Vector4f& color, const Matrix4f& worldTransformation, bool flipped) {
+void Sprite::drawTransformed(const TextureRect& rect, const Vector4f& color, const Matrix4f& worldTransformation, bool flipped, float tileX, float tileY) {
 	auto shader = m_shader ? m_shader : SpriteShader.get();
+
+	float offsetX = tileX != 1.0f ? 0.0f : rect.textureOffsetX;
+	float offsetY = tileY != 1.0f ? 0.0f : rect.textureOffsetY;
+	float width = tileX != 1.0f ? 1.0f : rect.textureWidth;
+	float height = tileY != 1.0f ? 1.0f : rect.textureHeight;
+
+	float texelPosX = tileX != 1.0f ? rect.textureOffsetX : 0.0f;
+	float texelPosY = tileY != 1.0f ? rect.textureOffsetY : 0.0f;
+	float texelSizeX = tileX != 1.0f ? rect.textureWidth : 1.0f;
+	float texelSizeY = tileY != 1.0f ? rect.textureHeight : 1.0f;
 
 	shader->use();
 	shader->loadMatrix("u_transform", Orthographic * worldTransformation);
 	shader->loadVector("u_color", color);
-	shader->loadVector("u_texRect", flipped ? Vector4f(rect.textureOffsetX + rect.textureWidth, rect.textureOffsetY, rect.textureOffsetX, rect.textureOffsetY + rect.textureHeight) : Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureOffsetX + rect.textureWidth, rect.textureOffsetY + rect.textureHeight));
+	shader->loadVector("u_texRect", flipped ? Vector4f(offsetX + width, offsetY, offsetX, offsetY + height) : Vector4f(offsetX, offsetY, offsetX + width, offsetY + height));
+	shader->loadVector("u_texelTrans", Vector4f(texelPosX, texelPosY, texelSizeX, texelSizeY));
+	shader->loadVector("u_tileFactor", Vector2f(tileX, tileY));
 	shader->loadInt("u_layer", rect.frame);
 	DrawQuad();
 }
 
-void Sprite::drawTransformed(const Vector4f& color, const Matrix4f& worldTransformation, bool flipped) {
+void Sprite::drawTransformed(const Vector4f& color, const Matrix4f& worldTransformation, bool flipped, float tileX, float tileY) {
 	auto shader = m_shader ? m_shader : SpriteShader.get();
 
 	shader->use();
 	shader->loadMatrix("u_transform", Orthographic * worldTransformation);
 	shader->loadVector("u_color", color);
-	shader->loadVector("u_texRect", flipped ? Vector4f(1.0f, 0.0f, 0.0f, 1.0f) : Vector4f(0.0f, 0.0f, 1.0f, 1.0f));
+	shader->loadVector("u_texRect", flipped ? Vector4f(1.0f * tileX, 0.0f, 0.0f, 1.0f * tileY) : Vector4f(0.0f, 0.0f, 1.0f * tileX, 1.0f * tileY));
 	shader->loadInt("u_layer", 0u);
 	DrawQuad();
 }

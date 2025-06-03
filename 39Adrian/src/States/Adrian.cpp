@@ -4,6 +4,7 @@
 #include <imgui_internal.h>
 
 #include <engine/DebugRenderer.h>
+#include <engine/TileSet.h>
 #include <Physics/ShapeDrawer.h>
 #include <States/Menu.h>
 #include <Utils/BinaryIO.h>
@@ -62,6 +63,8 @@ m_separaionWeight(3.0f) {
 	Material::AddTexture("data/models/dynamic/mutantlizard/mutantlizard.tga");
 	Material::AddTexture("data/models/dynamic/mutantcheetah/mutantcheetah.tga");
 	Material::AddTexture("data/models/dynamic/ripper/ripper.tga");
+	Material::AddTexture("data/textures/misc/tree.tga");
+	//Material::AddTexture("data/textures/panel/panel.tga");
 
 	m_heroModel.load("data/models/dynamic/hero/hero.md2");
 	m_hueteotl.load("data/models/dynamic/hueteotl/hueteotl.md2");
@@ -160,6 +163,8 @@ m_separaionWeight(3.0f) {
 
 	spawnHero(Vector3f(-780.0f, 0.0f, 780.0f));
 	m_hero->setRigidBody(Physics::AddKinematicRigidBody(Physics::BtTransform(Physics::VectorFrom(m_hero->getWorldPosition())), new btBoxShape(btVector3(0.5f, 0.5f, 0.5f)), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER, nullptr, false));
+
+	loadBots("data/maps/default/main.map");
 
 	m_bot1 = m_root->addChild<Bot, Md2Model>(m_hueteotl);
 	m_bot1->setPosition(620.0f, 0.0f, -380.0f);
@@ -384,6 +389,23 @@ m_separaionWeight(3.0f) {
 	m_diskNode->setSortKey(2);
 	m_diskNode->setShader(Globals::shaderManager.getAssetPointer("shape_color"));
 	m_diskNode->setColor(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
+
+	TextureAtlasCreator::Get().init(64u, 64u);
+	TileSetManager::Get().getTileSet("overlay").loadTileSetCpu(std::vector<std::string>({
+		"data/textures/panel/panel.tga",
+		"data/textures/panel/panelhero.tga"
+	}), true);
+
+
+	TileSetManager::Get().getTileSet("overlay").loadTileSetGpu();
+	m_tileSet = TileSetManager::Get().getTileSet("overlay").getTextureRects();
+	m_atlas = TileSetManager::Get().getTileSet("overlay").getAtlas();
+
+	Spritesheet::SetWrapMode(m_atlas, GL_REPEAT);
+	Spritesheet::Bind(m_atlas, 1u);
+	Sprite::GetShader()->use();
+	Sprite::GetShader()->loadInt("u_texture", 1);
+	Sprite::GetShader()->unuse();
 }
 
 Adrian::~Adrian() {
@@ -571,6 +593,17 @@ void Adrian::render() {
 	if (m_debugTree || m_debugNavmesh || m_drawPolygon) {
 		DebugRenderer::Get().SetProjectionView(m_camera.getOrthographicMatrix(), m_camera.getViewMatrix());
 		DebugRenderer::Get().drawBuffer();
+	}
+
+	glClear(GL_DEPTH_BUFFER_BIT);
+	m_panel.setPosition(0.0f, 0.0f);
+	m_panel.setScale(static_cast<float>(Application::Width), (50.0f / 480.0f) * static_cast<float>(Application::Height));
+	m_panel.draw(m_tileSet[0], Vector4f::ONE, false, 10.0f, 1.0f);
+
+	if (m_hero->isActive()) {
+		m_panel.setPosition(0.0f, (10.0f / 480.0f) * static_cast<float>(Application::Height));
+		m_panel.setScale((100.0f / 640.0f) * static_cast<float>(Application::Width), (100.0f / 480.0f) * static_cast<float>(Application::Height));
+		m_panel.draw(m_tileSet[1], Vector4f::ONE, false, 1.0f, 1.0f);
 	}
 
 	if (m_drawUi)
@@ -1104,6 +1137,53 @@ void Adrian::loadBuilding(const char* fn, bool changeWinding) {
 	m_buildings.push_back(Shape(vertices, indices, 8u));
 	m_buildings.back().createBoundingBox();
 	m_buildings.back().setVec4Attribute(shapeColor, 0u, 3u);
+}
+
+void Adrian::loadBots(const char* filename) {
+	FILE *f;
+	char buf[256];
+	char filepath[256];
+	strncpy(filepath, filename, 256);
+
+	if ((f = fopen(filepath, "r")) == NULL) {
+		fprintf(stderr, "Cannot open building file: %s\n", filepath);
+		exit(-1);
+	}
+	float width, height;
+	fscanf(f, "%f %f", &width, &height);
+
+	int numTextures;
+	unsigned int texId;
+	fscanf(f, "%d", &numTextures);
+	for (int i = 0; i < numTextures; i++) {
+		fscanf(f, "%s %d", buf, &texId);
+	}
+
+	int noOfBuildings, btype;	
+	float bx1, by1, bx2, by2;
+	char fn[256];
+	fscanf(f, "%d", &noOfBuildings);
+	for (int i = 0; i < noOfBuildings; i++) {
+		fscanf(f, "%f %f %f %f %d %d %s", &bx1, &by1, &bx2, &by2, &btype, &texId, fn);
+	}
+
+	int numGuards, gtype;
+	float gx1, gy1, gx2, gy2, gspeed, gangle;
+	char paneltexfn[256];
+	fscanf(f, "%d", &numGuards);
+	for (int i = 0; i < numGuards; i++) {
+		fscanf(f, "%s %d %f %f %f %f %f %f %s", buf, &gtype, &gx1, &gy1, &gx2, &gy2, &gspeed, &gangle, paneltexfn);
+		std::cout << "Path: " << paneltexfn << std::endl;
+	}
+
+	int numSprites;
+	float sx, sz;
+	fscanf(f, "%d", &numSprites);
+	for (int i = 0; i < numSprites; i++) {
+		fscanf(f, "%d %f %f", &texId, &sx, &sz);
+	}
+
+	fclose(f);
 }
 
 void Adrian::createScene(bool recreate) {
