@@ -733,7 +733,8 @@ void Application::loadAssets() {
 	
 	Globals::fontManager.loadCharacterSet("upheaval_200", "res/fonts/upheavtt.ttf", 200, 0, 30, 128, 0, true, 0u);
 	Globals::fontManager.loadCharacterSet("upheaval_30", "res/fonts/upheavtt.ttf", 30, 0, 3, 0, 0, true, 0u);
-	
+	Globals::fontManager.loadCharacterSet("tahoma_64", "data/fonts/tahoma.ttf", 64, 20, 20, 0, 0, true, 0u);
+
 	Globals::textureManager.loadTexture("forest_1", "res/backgrounds/Forest/plx-1.png");
 	Globals::textureManager.loadTexture("forest_2", "res/backgrounds/Forest/plx-2.png");
 	Globals::textureManager.loadTexture("forest_3", "res/backgrounds/Forest/plx-3.png");
@@ -790,4 +791,7 @@ void Application::loadAssets() {
 	Globals::animationManagerNew.loadAnimationAssimp("woman_idle", "res/models/woman/Woman.gltf", "Idle", "woman_idle");
 	Globals::animationManagerNew.loadAnimationAssimp("woman_punch", "res/models/woman/Woman.gltf", "Punch", "woman_punch");
 	Globals::animationManagerNew.loadAnimationAssimp("woman_sit", "res/models/woman/Woman.gltf", "Sitting", "woman_sit");
+
+	
+
 }

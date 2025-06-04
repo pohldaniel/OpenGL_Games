@@ -59,7 +59,8 @@ public:
 	void loadBuilding(const char* filename, bool changeWinding = false);
 	void loadBots(const char* filename);
 	void createScene(bool recreate = false);
-	
+	void loadFont();
+
 private:
 
 	void renderUi();
@@ -132,4 +133,6 @@ private:
 	Sprite m_panel;
 	std::vector<TextureRect> m_tileSet;
 	unsigned int m_atlas;
+
+	CharacterSet set;
 };

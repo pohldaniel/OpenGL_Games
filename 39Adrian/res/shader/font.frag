@@ -9,7 +9,6 @@ out vec4 outColor;
 uniform sampler2DArray u_texture;
 
 void main() {
-	outColor = v_color * vec4(1.0, 1.0, 1.0, texture(u_texture, vec3(v_texCoord, v_layer)).r);
-	
-	//outColor = v_color * vec4(vec3(texture(u_texture, vec3(v_texCoord, v_layer)).r), 1.0);
+	//outColor = v_color * vec4(1.0, 1.0, 1.0, texture(u_texture, vec3(v_texCoord, v_layer)).r);	
+	outColor = v_color * texture(u_texture, vec3(v_texCoord, v_layer));
 } 
