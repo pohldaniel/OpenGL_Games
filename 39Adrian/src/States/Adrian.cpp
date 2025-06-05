@@ -163,7 +163,7 @@ m_separaionWeight(3.0f) {
 	m_ground = Physics::AddStaticObject(Physics::BtTransform(btVector3(0.0f, 0.0f, 0.0f)), new  btStaticPlaneShape(btVector3(0.0f, 1.0f, 0.0f), -0.1f), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER, nullptr);
 
 	spawnHero(Vector3f(-780.0f, 0.0f, 780.0f));
-	m_hero->setRigidBody(Physics::AddKinematicRigidBody(Physics::BtTransform(Physics::VectorFrom(m_hero->getWorldPosition())), new btBoxShape(btVector3(0.5f, 0.5f, 0.5f)), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER, nullptr, false));
+	
 
 	loadBots("data/maps/default/main.map");
 
@@ -174,6 +174,7 @@ m_separaionWeight(3.0f) {
 	m_bot1->OnOctreeSet(m_octree);
 	m_bot1->setSortKey(5);
 	m_bot1->Md2Node::setShader(Globals::shaderManager.getAssetPointer("shape_color"));
+	m_bot1->init(m_segment);
 	m_entities.push_back(m_bot1);
 
 	m_segmentNode = m_bot1->addChild<ShapeNode, Shape>(m_segment);
@@ -197,7 +198,7 @@ m_separaionWeight(3.0f) {
 
 	m_bot2 = m_root->addChild<Bot, Md2Model>(m_mutantman);
 	m_bot2->setPosition(-700.0f, 0.0f, 550.0f);
-	m_bot2->setOrientation(0.0f, 270.0f, 0.0f);
+	m_bot2->setOrientation(0.0f, 180.0f, 0.0f);
 	m_bot2->setTextureIndex(13);
 	m_bot2->setStart(-700.0f, 0.0f, 550.0f);
 	m_bot2->setEnd(-700.0f, 0.0f, 550.0f);
@@ -207,6 +208,7 @@ m_separaionWeight(3.0f) {
 	m_bot2->OnOctreeSet(m_octree);
 	m_bot2->setSortKey(5);
 	m_bot2->Md2Node::setShader(Globals::shaderManager.getAssetPointer("shape_color"));
+	m_bot2->init(m_segment);
 	m_entities.push_back(m_bot2);
 
 	m_segmentNode = m_bot2->addChild<ShapeNode, Shape>(m_segment);
@@ -237,6 +239,7 @@ m_separaionWeight(3.0f) {
 	m_bot3->OnOctreeSet(m_octree);
 	m_bot3->setSortKey(5);
 	m_bot3->Md2Node::setShader(Globals::shaderManager.getAssetPointer("shape_color"));
+	m_bot3->init(m_segment);
 	m_entities.push_back(m_bot3);
 
 	m_segmentNode = m_bot3->addChild<ShapeNode, Shape>(m_segment);
@@ -270,6 +273,7 @@ m_separaionWeight(3.0f) {
 	m_bot4->OnOctreeSet(m_octree);
 	m_bot4->setSortKey(5);
 	m_bot4->Md2Node::setShader(Globals::shaderManager.getAssetPointer("shape_color"));
+	m_bot4->init(m_segment);
 	m_entities.push_back(m_bot4);
 
 	m_segmentNode = m_bot4->addChild<ShapeNode, Shape>(m_segment);
@@ -303,6 +307,7 @@ m_separaionWeight(3.0f) {
 	m_bot5->OnOctreeSet(m_octree);
 	m_bot5->setSortKey(5);
 	m_bot5->Md2Node::setShader(Globals::shaderManager.getAssetPointer("shape_color"));
+	m_bot5->init(m_segment);
 	m_entities.push_back(m_bot5);
 
 	m_segmentNode = m_bot5->addChild<ShapeNode, Shape>(m_segment);
@@ -336,6 +341,7 @@ m_separaionWeight(3.0f) {
 	m_bot6->OnOctreeSet(m_octree);
 	m_bot6->setSortKey(5);
 	m_bot6->Md2Node::setShader(Globals::shaderManager.getAssetPointer("shape_color"));
+	m_bot6->init(m_segment);
 	m_entities.push_back(m_bot6);
 
 	m_segmentNode = m_bot6->addChild<ShapeNode, Shape>(m_segment);
@@ -357,7 +363,6 @@ m_separaionWeight(3.0f) {
 	m_diskNode->setShader(Globals::shaderManager.getAssetPointer("shape_color"));
 	m_diskNode->setColor(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
 
-
 	m_bot7 = m_root->addChild<Bot, Md2Model>(m_ripper);
 	m_bot7->setPosition(220.0f, 0.0f, -820.0f);
 	m_bot7->setOrientation(0.0f, 0.0f, 0.0f);
@@ -370,6 +375,7 @@ m_separaionWeight(3.0f) {
 	m_bot7->OnOctreeSet(m_octree);
 	m_bot7->setSortKey(5);
 	m_bot7->Md2Node::setShader(Globals::shaderManager.getAssetPointer("shape_color"));
+	m_bot7->init(m_segment);
 	m_entities.push_back(m_bot7);
 
 	m_segmentNode = m_bot7->addChild<ShapeNode, Shape>(m_segment);
@@ -426,7 +432,17 @@ Adrian::~Adrian() {
 }
 
 void Adrian::fixedUpdate() {
-	m_hero->fixedUpdate(m_fdt);
+	for (auto&& entity : m_entities)
+		entity->fixedUpdate(m_fdt);
+
+	m_hero->handleCollision(m_bot1->getSegmentRigidBody());
+	m_hero->handleCollision(m_bot2->getSegmentRigidBody());
+	m_hero->handleCollision(m_bot3->getSegmentRigidBody());
+	m_hero->handleCollision(m_bot4->getSegmentRigidBody());
+	m_hero->handleCollision(m_bot5->getSegmentRigidBody());
+	m_hero->handleCollision(m_bot6->getSegmentRigidBody());
+	m_hero->handleCollision(m_bot7->getSegmentRigidBody());
+
 	Globals::physics->stepSimulation(m_fdt);
 }
 
@@ -742,7 +758,7 @@ void Adrian::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 				const MousePickCallbackAll& callbackAll = m_mousePicker.getCallbackAll();
 				Vector3f pos = Physics::VectorFrom(callbackAll.m_hitPointWorld[callbackAll.index]);
 				Vector3f pathPos = m_navigationMesh->findNearestPoint(pos, Vector3f(1.0f, 1.0f, 1.0f));
-				if (m_crowdManager->setCrowdTarget(pathPos)) {
+				if (m_crowdManager->setCrowdTarget(pathPos) || m_hero->isDeath()) {
 					if (!m_cursorNode) {
 						m_cursorNode = m_root->addChild<ShapeNode, Shape>(Globals::shapeManager.get("quad_xz"));
 						m_cursorNode->setSortKey(1);
@@ -1386,6 +1402,7 @@ void Adrian::spawnHero(const Vector3f& pos) {
 	m_hero->OnOctreeSet(m_octree);
 	m_hero->setSortKey(5);
 	m_hero->Md2Node::setShader(Globals::shaderManager.getAssetPointer("shape_color"));
+	m_hero->init(m_segment);
 	m_entities.push_back(m_hero);
 
 	m_segmentNode = m_hero->addChild<ShapeNode, Shape>(m_segment);

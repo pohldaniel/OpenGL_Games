@@ -12,6 +12,10 @@ void Md2Entity::draw() {
 	Md2Node::drawRaw();
 }
 
+void Md2Entity::fixedUpdate(float fdt) {
+
+}
+
 void Md2Entity::update(const float dt) {
 	Md2Node::update(dt);
 }

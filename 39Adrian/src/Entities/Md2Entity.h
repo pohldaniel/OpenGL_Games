@@ -16,7 +16,8 @@ public:
 
 	virtual void draw() override;
 	virtual void update(const float dt) override;
-	
+	virtual void fixedUpdate(float fdt);
+
 	short getMaterialIndex() const override;
 	void setMaterialIndex(short index) override;
 	short getTextureIndex() const override;

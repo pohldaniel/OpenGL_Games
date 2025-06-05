@@ -31,3 +31,7 @@ void CrowdAgentEntity::OnAddAgent(const Vector3f& pos) {
 void CrowdAgentEntity::resetAgent() {
 	getCrowdAgent().resetAgent();
 }
+
+void CrowdAgentEntity::removeAgent() {
+	getCrowdAgent().removeAgentFromCrowd();
+}

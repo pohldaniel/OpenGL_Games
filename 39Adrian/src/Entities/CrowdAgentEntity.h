@@ -19,4 +19,5 @@ public:
 	virtual void OnTarget(const Vector3f& targetPos) override;
 	virtual void OnAddAgent(const Vector3f& pos) override;
 	void resetAgent();
+	void removeAgent();
 };

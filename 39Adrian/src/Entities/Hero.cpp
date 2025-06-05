@@ -1,8 +1,9 @@
+#include <engine/MeshObject/Shape.h>
 #include <Physics/Shapedrawer.h>
 #include "Hero.h"
 
-Hero::Hero(const Md2Model& md2Model, const CrowdAgent& crowdAgent) : CrowdAgentEntity(crowdAgent, this), Md2Entity(md2Model), m_rigidBody(nullptr) {
-
+Hero::Hero(const Md2Model& md2Model, const CrowdAgent& crowdAgent) : CrowdAgentEntity(crowdAgent, this), Md2Entity(md2Model), m_rigidBody(nullptr), m_isDeath(false){
+	setRigidBody(Physics::AddKinematicRigidBody(Physics::BtTransform(Physics::VectorFrom(getWorldPosition())), new btBoxShape(btVector3(0.5f, 0.5f, 0.5f)), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER, nullptr, true));
 }
 
 Hero::~Hero() {
@@ -14,17 +15,23 @@ void Hero::fixedUpdate(float fdt) {
 	const Vector3f& pos = getWorldPosition();
 	const Quaternion& rot = getWorldOrientation();
 	const Vector3f size = aabb.getSize();
-	Vector3f pivot(0.0f, aabb.min[1] + size[1] * 0.5f, 0.0f);
-	btTransform trans = Physics::BtTransform(pos + pivot, rot);
+	const Vector3f pivot1(0.0f, aabb.min[1] + size[1] * 0.5f, 0.0f);
+	const Vector3f pivot2(0.0f, 0.5f, 0.0f);
 
-	m_rigidBody->setWorldTransform(trans);
-	m_rigidBody->setInterpolationWorldTransform(trans);
+	m_rigidBody->getMotionState()->setWorldTransform(Physics::BtTransform(pos + pivot1, rot));
 	m_rigidBody->getCollisionShape()->setLocalScaling(Physics::VectorFrom(size * 0.75));
-	Physics::GetDynamicsWorld()->updateSingleAabb(m_rigidBody, true);
+
+	m_segmentBody->getMotionState()->setWorldTransform(Physics::BtTransform(pos, rot));
+	m_triggerBody->getMotionState()->setWorldTransform(Physics::BtTransform(pos, rot));
 }
 
 void Hero::update(const float dt) {
 	Md2Node::update(dt);
+}
+
+void Hero::init(const Shape& shape) {
+	m_segmentBody = Physics::AddKinematicRigidBody(Physics::BtTransform(Physics::VectorFrom(getWorldPosition())), Physics::CreateCollisionShape(&shape, btVector3(1.5f, 1.5f, 1.5f)), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER, nullptr, true);
+	m_triggerBody = Physics::AddKinematicRigidBody(Physics::BtTransform(Physics::VectorFrom(getWorldPosition())), new btCylinderShape(btVector3(1.0f, 1.0f, 0.0f)), Physics::collisiontypes::CHARACTER, Physics::collisiontypes::SPHERE, this, true);
 }
 
 void Hero::OnPositionVelocityUpdate(const Vector3f& pos, const Vector3f& vel) {
@@ -39,9 +46,31 @@ void Hero::OnInactive() {
 
 void Hero::setRigidBody(btRigidBody* rigidBody) {
 	m_rigidBody = rigidBody;
-	ShapeDrawer::Get().addToCache(m_rigidBody->getCollisionShape());
 }
 
 btRigidBody* Hero::getRigidBody() {
 	return m_rigidBody;
+}
+
+void Hero::handleCollision(btCollisionObject* collisionObject) {
+	if(!m_isDeath)
+		Physics::GetDynamicsWorld()->contactPairTest(m_triggerBody, collisionObject, m_triggerResult);
+}
+
+void Hero::setIsDeath(bool isDeath) {
+	m_isDeath = isDeath;
+}
+
+bool Hero::isDeath() {
+	return m_isDeath;
+}
+
+btScalar Hero::TriggerCallback::addSingleResult(btManifoldPoint& cp, const btCollisionObjectWrapper* colObj0Wrap, int partId0, int index0, const btCollisionObjectWrapper* colObj1Wrap, int partId1, int index1) {
+	Hero* hero = reinterpret_cast<Hero*>(colObj0Wrap->getCollisionObject()->getUserPointer());
+	hero->setAnimationType(AnimationType::DEATH_BACK);
+	hero->setLoopAnimation(false);
+	hero->resetAgent();
+	hero->removeAgent();
+	hero->setIsDeath(true);
+	return 0;
 }

@@ -7,6 +7,7 @@ Md2Model::Md2Model() :
 	m_speed(1.0f),
 	m_activeFrame(0.0f),
 	m_animationType(AnimationType::STAND),
+	m_loopAnimation(true),
 	m_vao(0),
     m_ibo(0u),
 	m_vbo{ 0u,0u } {
@@ -184,9 +185,9 @@ const void Md2Model::update(float dt) const {
 	int len = static_cast<int>(currentAnimation->frames.size()) - 1;
 	float lenf = static_cast<float>(len);
 
-	// loop animation
-	if (m_activeFrame >= lenf)
-		m_activeFrame = std::modf(m_activeFrame, &m_activeFrame) + std::fmod(m_activeFrame, lenf + 1.0f);
+	if (m_activeFrame > lenf) {
+		m_activeFrame = m_loopAnimation ? 0.0f : lenf;
+	}
 
 	m_activeFrameIdx = static_cast<short>(m_activeFrame);
 	short nextFrame = m_activeFrameIdx == len ? 0 : m_activeFrameIdx + 1;
@@ -231,22 +232,26 @@ void Md2Model::setAnimationType(AnimationType animationType, AnimationType anima
 	m_animationType = animationType;
 	m_activeFrame = 0.0f;
 	if (m_animationType == AnimationType::NONE) {
-		m_interpolated.clear();
-		m_interpolated.shrink_to_fit();
-
 		currentAnimation = &m_animations[animationTypeN];
 		const Utils::MD2IO::Frame& frame = currentAnimation->frames[0];
 		std::copy(frame.vertices.begin(), frame.vertices.end(), std::back_inserter(m_interpolated));
-		updateBuffer(m_interpolated);
 		return;
 	}
 	currentAnimation = &m_animations[m_animationType];
 }
 
-const  std::vector<Utils::MD2IO::Animation>& Md2Model::getAnimations() const {
+const std::vector<Utils::MD2IO::Animation>& Md2Model::getAnimations() const {
 	return m_animations;
 }
 
 const unsigned int Md2Model::getNumVertices() const {
 	return m_numVertices;
+}
+
+void Md2Model::setSpeed(float speed) {
+	m_speed = speed;
+}
+
+void Md2Model::setLoopAnimation(bool loopAnimation) {
+	m_loopAnimation = loopAnimation;
 }

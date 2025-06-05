@@ -64,7 +64,7 @@ public:
 	bool reCreateCrowd();
 	CrowdAgent* addAgent(const Vector3f& pos);
 	
-	void removeAgent(CrowdAgent* agent, bool force = true);
+	void removeAgent(const CrowdAgent* agent, bool force = true);
 	void removeAgents();
 	const dtCrowdAgent* getDetourCrowdAgent(int agent) const;
 	dtCrowd* getCrowd() const;

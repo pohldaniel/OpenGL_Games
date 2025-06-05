@@ -161,7 +161,7 @@ bool CrowdManager::reCreateCrowd() {
 	return true;
 }
 
-void CrowdManager::removeAgent(CrowdAgent* agent, bool force){
+void CrowdManager::removeAgent(const CrowdAgent* agent, bool force){
 	if (!m_crowd || !agent)
 		return;
 	dtCrowdAgent* agt = m_crowd->getEditableAgent(agent->m_agentCrowdId);

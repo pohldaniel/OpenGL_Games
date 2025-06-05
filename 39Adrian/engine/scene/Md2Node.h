@@ -25,6 +25,7 @@ public:
 	void setShader(Shader* shader);
 	const BoundingBox& getLocalBoundingBox() const;
 	void setSpeed(float speed);
+	void setLoopAnimation(bool loopAnimation);
 
 protected:
 
@@ -46,6 +47,7 @@ private:
 	short m_activeFrameIdx;
 	float m_activeFrame;
 	Shader* m_shader;
+	bool m_loopAnimation;
 
 	const Md2Model& md2Model;
 };

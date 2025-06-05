@@ -9,16 +9,23 @@ public:
 	~Bot();
 
 	void update(const float dt) override;
+	void fixedUpdate(float fdt) override;
+
+	void init(const Shape& shape);
 	void setStart(const Vector3f& start);
 	void setEnd(const Vector3f& end);
 	void setStart(const float x, const float y, const float z);
 	void setEnd(const float x, const float y, const float z);
 	void setMoveSpeed(const float moveSpeed);
+	btRigidBody* getRigidBody();
+	void setRigidBody(btRigidBody* rigidBody);
+	btRigidBody* getSegmentRigidBody();
 
 private:
-
+	
 	void followPath(float dt);
 
 	Vector3f m_start, m_end, m_currentWaypoint;
 	float m_moveSpeed;
+	btRigidBody *m_rigidBody, *m_segmentBody;
 };

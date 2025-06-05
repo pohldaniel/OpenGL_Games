@@ -88,7 +88,7 @@ public:
 	virtual void OnCrowdVelocityUpdate(dtCrowdAgent* ag, float* pos, float dt);
 	virtual void OnCrowdPositionUpdate(dtCrowdAgent* ag, float* pos, float dt);
 	int addAgentToCrowd(bool force = false, const Vector3f& initialPosition = Vector3f::ZERO, bool add = true);
-	void removeAgentFromCrowd();
+	void removeAgentFromCrowd() const;
 	void resetParameter();
 
 	void setOnPositionVelocityUpdate(std::function<void(const Vector3f& pos, const Vector3f& vel)> fun) const;
@@ -118,7 +118,6 @@ private:
 
 	CrowdAgentVelocityCallback m_velocityCallback;
 	CrowdAgentHeightCallback m_heightCallback;
-	int m_agentCrowdId;
 	Vector3f m_targetPosition;
 	Vector3f m_targetVelocity;
 
@@ -131,6 +130,7 @@ private:
 	float m_activeThreshold;
 	float m_correction;
 	
+	mutable int m_agentCrowdId;
 	unsigned int m_queryFilterType;
 	unsigned int m_obstacleAvoidanceType;
 	NavigationQuality m_navQuality;

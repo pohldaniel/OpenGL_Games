@@ -6,21 +6,31 @@
 
 class Hero : public CrowdAgentEntity, public Md2Entity {
 
+	struct TriggerCallback : public btCollisionWorld::ContactResultCallback {
+		TriggerCallback() {}
+		btScalar TriggerCallback::addSingleResult(btManifoldPoint& cp, const btCollisionObjectWrapper* colObj0Wrap, int partId0, int index0, const btCollisionObjectWrapper* colObj1Wrap, int partId1, int index1) override;
+	};
+
 public:
 
 	Hero(const Md2Model& md2Model, const CrowdAgent& crowdAgent);
 	~Hero();
 
 	void update(const float dt) override;
-	void fixedUpdate(float fdt);
+	void fixedUpdate(float fdt) override;
 
+	void init(const Shape& shape);
 	void OnInactive() override;
 	void OnPositionVelocityUpdate(const Vector3f& pos, const Vector3f& vel) override;
-	//void OnTarget(const Vector3f& targetPos) override;
 	btRigidBody* getRigidBody();
 	void setRigidBody(btRigidBody* rigidBody);
+	void handleCollision(btCollisionObject* collisionObject);
+	void setIsDeath(bool isDeath);
+	bool isDeath();
 
 private:
-
-	btRigidBody* m_rigidBody;
+	
+	btRigidBody *m_rigidBody, *m_segmentBody, *m_triggerBody;
+	TriggerCallback m_triggerResult;
+	bool m_isDeath;
 };

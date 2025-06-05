@@ -12,6 +12,7 @@ Md2Node::Md2Node(const Md2Model& md2Model) :
 	m_speed(1.0f),
 	m_activeFrame(0.0f),
 	m_shader(nullptr),
+	m_loopAnimation(true),
 	m_animationType(AnimationType::STAND) {
 	m_interpolated.resize(md2Model.getNumVertices());
 }
@@ -42,15 +43,14 @@ void Md2Node::update(float dt) {
 
 	if (frameNumber && wasInView(*frameNumber)) {
 
-		// increment frame
 		m_activeFrame += m_speed * dt * currentAnimation->fps;
 
 		int len = static_cast<int>(currentAnimation->frames.size()) - 1;
 		float lenf = static_cast<float>(len);
-
-		// loop animation
-		if (m_activeFrame >= lenf)
-			m_activeFrame = std::modf(m_activeFrame, &m_activeFrame) + std::fmod(m_activeFrame, lenf + 1.0f);
+		
+		if (m_activeFrame > lenf) {
+			m_activeFrame = m_loopAnimation ? 0.0f : lenf;
+		}
 
 		m_activeFrameIdx = static_cast<short>(m_activeFrame);
 		short nextFrame = m_activeFrameIdx == len ? 0 : m_activeFrameIdx + 1;
@@ -116,15 +116,12 @@ void Md2Node::setTextureIndex(short index) {
 }
 
 void Md2Node::setAnimationType(AnimationType animationType, AnimationType animationTypeN) {
-	if (m_animationType == animationType)
+	if (m_animationType == animationType || m_animationType == AnimationType::DEATH_BACK)
 		return;
-
+	
 	m_animationType = animationType;
 	m_activeFrame = 0.0f;
-	if (m_animationType == AnimationType::NONE) {
-		m_interpolated.clear();
-		m_interpolated.shrink_to_fit();
-
+	if (m_animationType == AnimationType::NONE) {		
 		currentAnimation = &md2Model.getAnimations()[animationTypeN];
 		const Utils::MD2IO::Frame& frame = currentAnimation->frames[0];
 		std::copy(frame.vertices.begin(), frame.vertices.end(), std::back_inserter(m_interpolated));	
@@ -133,8 +130,7 @@ void Md2Node::setAnimationType(AnimationType animationType, AnimationType animat
 
 		return;
 	}
-		
-	currentAnimation = &md2Model.getAnimations()[m_animationType];	
+	currentAnimation = &md2Model.getAnimations()[m_animationType];
 }
 
 void Md2Node::setShader(Shader* shader) {
@@ -143,4 +139,8 @@ void Md2Node::setShader(Shader* shader) {
 
 void Md2Node::setSpeed(float speed) {
 	m_speed = speed;
+}
+
+void Md2Node::setLoopAnimation(bool loopAnimation) {
+	m_loopAnimation = loopAnimation;
 }

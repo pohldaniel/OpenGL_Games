@@ -36,6 +36,8 @@ public:
 	void setAnimationType(AnimationType animationType, AnimationType animationTypeN = AnimationType::STAND);
 	const std::vector<Utils::MD2IO::Animation>& getAnimations() const;
 	const unsigned int getNumVertices() const;
+	void setLoopAnimation(bool loopAnimation);
+	void setSpeed(float speed);
 
 	void cleanup();
 	void markForDelete();
@@ -60,6 +62,7 @@ private:
 	unsigned int m_ibo;
 	
 	bool m_markForDelete;
+	bool m_loopAnimation;
 
 	static unsigned int StreamBufferCapacity;
 };

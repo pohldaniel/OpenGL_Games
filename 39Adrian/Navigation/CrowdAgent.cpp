@@ -171,7 +171,7 @@ void CrowdAgent::resetParameter() {
 	}
 }
 
-void CrowdAgent::removeAgentFromCrowd() {
+void CrowdAgent::removeAgentFromCrowd() const {
 	if (isInCrowd()){
 		m_crowdManager->removeAgent(this);
 		m_agentCrowdId = -1;
