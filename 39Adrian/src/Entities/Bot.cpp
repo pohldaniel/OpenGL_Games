@@ -9,7 +9,8 @@ Bot::Bot(const Md2Model& md2Model) : Md2Entity(md2Model) {
 	setSpeed(0.3f);
 	m_moveSpeed = 35.0f;
 	
-	setRigidBody(Physics::AddKinematicRigidBody(Physics::BtTransform(Physics::VectorFrom(getWorldPosition())), new btBoxShape(btVector3(0.5f, 0.5f, 0.5f)), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER, nullptr, false));
+	setRigidBody(Physics::AddKinematicRigidBody(Physics::BtTransform(Physics::VectorFrom(getWorldPosition())), new btBoxShape(btVector3(0.5f, 0.5f, 0.5f)), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER, this, false));
+	ShapeDrawer::Get().addToCache(m_rigidBody->getCollisionShape());
 }
 
 Bot::~Bot() {
@@ -26,8 +27,6 @@ void Bot::fixedUpdate(float fdt) {
 
 	m_rigidBody->setWorldTransform(Physics::BtTransform(pos + pivot1, rot));
 	m_rigidBody->getCollisionShape()->setLocalScaling(Physics::VectorFrom(size * 0.75));
-	//Physics::GetDynamicsWorld()->updateSingleAabb(m_rigidBody, true);
-
 	m_segmentBody->setWorldTransform(Physics::BtTransform(pos + pivot2, rot));
 }
 
@@ -96,4 +95,12 @@ btRigidBody* Bot::getRigidBody() {
 
 btRigidBody* Bot::getSegmentRigidBody() {
 	return m_segmentBody;
+}
+
+void Bot::setEnemyType(EnemyType enemyType) {
+	m_enemyType = enemyType;
+}
+
+EnemyType Bot::getEnemyType() {
+	return m_enemyType;
 }

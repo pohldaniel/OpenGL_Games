@@ -7,8 +7,10 @@
 #include <engine/Fontrenderer.h>
 #include <engine/TileSet.h>
 #include <Physics/ShapeDrawer.h>
+#include <Physics/MousePicker.h>
 #include <States/Menu.h>
 #include <Utils/BinaryIO.h>
+
 #include "Adrian.h"
 #include "Application.h"
 #include "Globals.h"
@@ -21,7 +23,8 @@ m_streamingDistance(6),
 m_globalUserIndex(-1),
 m_fade(m_fadeValue),
 m_fadeCircle(m_fadeCircleValue),
-m_separaionWeight(3.0f) {
+m_separaionWeight(3.0f),
+m_currentPanelTex(-1){
 
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
@@ -175,6 +178,7 @@ m_separaionWeight(3.0f) {
 	m_bot1->setSortKey(5);
 	m_bot1->Md2Node::setShader(Globals::shaderManager.getAssetPointer("shape_color"));
 	m_bot1->init(m_segment);
+	m_bot1->setEnemyType(EnemyType::SKEL);
 	m_entities.push_back(m_bot1);
 
 	m_segmentNode = m_bot1->addChild<ShapeNode, Shape>(m_segment);
@@ -209,6 +213,7 @@ m_separaionWeight(3.0f) {
 	m_bot2->setSortKey(5);
 	m_bot2->Md2Node::setShader(Globals::shaderManager.getAssetPointer("shape_color"));
 	m_bot2->init(m_segment);
+	m_bot2->setEnemyType(EnemyType::MUTANT_MAN);
 	m_entities.push_back(m_bot2);
 
 	m_segmentNode = m_bot2->addChild<ShapeNode, Shape>(m_segment);
@@ -240,6 +245,7 @@ m_separaionWeight(3.0f) {
 	m_bot3->setSortKey(5);
 	m_bot3->Md2Node::setShader(Globals::shaderManager.getAssetPointer("shape_color"));
 	m_bot3->init(m_segment);
+	m_bot3->setEnemyType(EnemyType::SKEL);
 	m_entities.push_back(m_bot3);
 
 	m_segmentNode = m_bot3->addChild<ShapeNode, Shape>(m_segment);
@@ -274,6 +280,7 @@ m_separaionWeight(3.0f) {
 	m_bot4->setSortKey(5);
 	m_bot4->Md2Node::setShader(Globals::shaderManager.getAssetPointer("shape_color"));
 	m_bot4->init(m_segment);
+	m_bot4->setEnemyType(EnemyType::CORPSE);
 	m_entities.push_back(m_bot4);
 
 	m_segmentNode = m_bot4->addChild<ShapeNode, Shape>(m_segment);
@@ -308,6 +315,7 @@ m_separaionWeight(3.0f) {
 	m_bot5->setSortKey(5);
 	m_bot5->Md2Node::setShader(Globals::shaderManager.getAssetPointer("shape_color"));
 	m_bot5->init(m_segment);
+	m_bot5->setEnemyType(EnemyType::MUTANT_LIZARD);
 	m_entities.push_back(m_bot5);
 
 	m_segmentNode = m_bot5->addChild<ShapeNode, Shape>(m_segment);
@@ -337,11 +345,12 @@ m_separaionWeight(3.0f) {
 	m_bot6->setEnd(60.0f, 0.0f, 900.0f);
 	m_bot6->setSpeed(1.0f);
 	m_bot6->setMoveSpeed(0.0f);
-	m_bot6->setAnimationType(AnimationType::NONE);
+	//m_bot6->setAnimationType(AnimationType::NONE);
 	m_bot6->OnOctreeSet(m_octree);
 	m_bot6->setSortKey(5);
 	m_bot6->Md2Node::setShader(Globals::shaderManager.getAssetPointer("shape_color"));
 	m_bot6->init(m_segment);
+	m_bot6->setEnemyType(EnemyType::MUTANT_CHEETA);
 	m_entities.push_back(m_bot6);
 
 	m_segmentNode = m_bot6->addChild<ShapeNode, Shape>(m_segment);
@@ -376,6 +385,7 @@ m_separaionWeight(3.0f) {
 	m_bot7->setSortKey(5);
 	m_bot7->Md2Node::setShader(Globals::shaderManager.getAssetPointer("shape_color"));
 	m_bot7->init(m_segment);
+	m_bot7->setEnemyType(EnemyType::RIPPER);
 	m_entities.push_back(m_bot7);
 
 	m_segmentNode = m_bot7->addChild<ShapeNode, Shape>(m_segment);
@@ -398,9 +408,15 @@ m_separaionWeight(3.0f) {
 	m_diskNode->setColor(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
 
 	TextureAtlasCreator::Get().init(64u, 64u);
-	TileSetManager::Get().getTileSet("overlay").loadTileSetCpu(std::vector<std::string>({
+	TileSetManager::Get().getTileSet("overlay").loadTileSetCpu(std::vector<std::string>({	
+		"data/textures/panel/panelhero.tga",
+		"data/textures/panel/CorpsePanel.tga",
+		"data/textures/panel/MutantCheeta.tga",
+		"data/textures/panel/MutantLizard.tga",
+		"data/textures/panel/MutantManPanel.tga",
+		"data/textures/panel/Ripper.tga",
+		"data/textures/panel/SkelPanel.tga",
 		"data/textures/panel/panel.tga",
-		"data/textures/panel/panelhero.tga"
 	}), true);
 
 
@@ -616,12 +632,12 @@ void Adrian::render() {
 	glClear(GL_DEPTH_BUFFER_BIT);
 	m_panel.setPosition(0.0f, 0.0f);
 	m_panel.setScale(static_cast<float>(Application::Width), (50.0f / 480.0f) * static_cast<float>(Application::Height));
-	m_panel.draw(m_tileSet[0], Vector4f::ONE, false, 10.0f, 1.0f);
+	m_panel.draw(m_tileSet[7], Vector4f::ONE, false, 10.0f, 1.0f);
 
-	if (m_hero->isActive()) {
+	if (m_currentPanelTex >= 0) {
 		m_panel.setPosition(0.0f, (10.0f / 480.0f) * static_cast<float>(Application::Height));
 		m_panel.setScale((100.0f / 640.0f) * static_cast<float>(Application::Width), (100.0f / 480.0f) * static_cast<float>(Application::Height));
-		m_panel.draw(m_tileSet[1], Vector4f::ONE, false, 1.0f, 1.0f);
+		m_panel.draw(m_tileSet[m_currentPanelTex], Vector4f::ONE, false, 1.0f, 1.0f);
 		
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D_ARRAY, set.spriteSheet);
@@ -662,7 +678,6 @@ void Adrian::renderScene() {
 	shader->use();
 	shader->loadMatrix("u_projection", m_camera.getOrthographicMatrix());
 	shader->loadMatrix("u_view", m_camera.getViewMatrix());
-	shader->loadVector("u_color", m_hero->getColor());
 
 	shader = MousePicker::GetShader().get();
 	shader->use();
@@ -754,7 +769,7 @@ void Adrian::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 	if (event.button == 2u) {
 		Mouse::instance().attach(Application::GetWindow(), false, false, false);
 		if (!m_drawPolygon) {
-			if (m_mousePicker.clickOrthographicAll(event.x, event.y, m_camera, m_ground) && m_hero->isActive()) {
+			if (m_mousePicker.clickOrthographicAll(event.x, event.y, m_camera, m_ground) && !m_hero->isDeath()) {
 				const MousePickCallbackAll& callbackAll = m_mousePicker.getCallbackAll();
 				Vector3f pos = Physics::VectorFrom(callbackAll.m_hitPointWorld[callbackAll.index]);
 				Vector3f pathPos = m_navigationMesh->findNearestPoint(pos, Vector3f(1.0f, 1.0f, 1.0f));
@@ -774,7 +789,6 @@ void Adrian::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 						m_cursorNode = nullptr;
 					}
 				}
-
 				m_fadeCircle.setTransitionEnd(true);
 				m_fadeCircle.fadeOut(false);
 			}
@@ -801,29 +815,44 @@ void Adrian::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 	if (event.button == 1u) {
 		if (!m_drawPolygon) {
 			Mouse::instance().attach(Application::GetWindow(), false, false, false);
-			if (m_mousePicker.clickOrthographicAll(event.x, event.y, m_camera, m_hero->getRigidBody())) {
-				if (!m_hero->isActive()) {
-					m_diskNode = m_hero->addChild<ShapeNode, Shape>(m_disk);
-					m_diskNode->setPosition(0.0f, 0.51f, 0.0f);
-					m_diskNode->setSortKey(2);
-					m_diskNode->setTextureIndex(1);
-					m_diskNode->setName("disk");
-					m_diskNode->OnOctreeSet(m_octree);
-					m_diskNode->setShader(Globals::shaderManager.getAssetPointer("shape"));
-				}else {
-					ShapeNode* disk = m_hero->findChild<ShapeNode>("disk");
-					disk->OnOctreeSet(nullptr);
-					disk->eraseSelf();
+			if (m_mousePicker.clickOrthographic(event.x, event.y, m_camera, nullptr, m_ground)) {
+				const MousePickCallback& cb = m_mousePicker.getCallback();
+				if (cb.m_userPoiner == m_hero && !m_hero->isDeath()) {					
+					if (m_currentPanelTex != 0) {
+						m_diskNode = m_hero->addChild<ShapeNode, Shape>(m_disk);
+						m_diskNode->setPosition(0.0f, 0.51f, 0.0f);
+						m_diskNode->setSortKey(2);
+						m_diskNode->setTextureIndex(1);
+						m_diskNode->setName("disk");
+						m_diskNode->OnOctreeSet(m_octree);
+						m_diskNode->setShader(Globals::shaderManager.getAssetPointer("shape"));
+						m_hero->setColor(Vector4f(0.7f, 0.7f, 1.0f, 1.0f));
+						m_currentPanelTex = 0;
+					}else {
+						ShapeNode* disk = m_hero->findChild<ShapeNode>("disk");
+						disk->OnOctreeSet(nullptr);
+						disk->eraseSelf();
+						m_hero->setColor(Vector4f::ONE);
+						m_currentPanelTex = -1;						
+					}					
+				}else {					
+					if (m_currentPanelTex == 0) {
+						ShapeNode* disk = m_hero->findChild<ShapeNode>("disk");		
+						disk->OnOctreeSet(nullptr);
+						disk->eraseSelf();		
+						m_hero->setColor(Vector4f::ONE);
+					}
+					Bot* bot = static_cast<Bot*>(cb.m_userPoiner);					
+					m_currentPanelTex = m_currentPanelTex == bot->getEnemyType() && m_currentPanelTex != 0 ? -1 : bot->getEnemyType();	
 				}
-				m_hero->setIsActive(!m_hero->isActive());
-
 			}else {
-				if (m_hero->isActive()) {
+				if (m_currentPanelTex == 0) {
 					ShapeNode* disk = m_hero->findChild<ShapeNode>("disk");
 					disk->OnOctreeSet(nullptr);
 					disk->eraseSelf();
+					m_hero->setColor(Vector4f::ONE);
 				}
-				m_hero->setIsActive(false);
+				m_currentPanelTex = -1;
 			}
 		}else {
 			Mouse::instance().attach(Application::GetWindow(), false, false, false);
@@ -1403,6 +1432,15 @@ void Adrian::spawnHero(const Vector3f& pos) {
 	m_hero->setSortKey(5);
 	m_hero->Md2Node::setShader(Globals::shaderManager.getAssetPointer("shape_color"));
 	m_hero->init(m_segment);
+	m_hero->setOnDeath([this] {
+		m_currentPanelTex = -1;
+		if (m_cursorNode) {
+			m_cursorNode->OnOctreeSet(nullptr);
+			m_cursorNode->eraseSelf();
+			m_cursorNode = nullptr;
+		}
+	});
+
 	m_entities.push_back(m_hero);
 
 	m_segmentNode = m_hero->addChild<ShapeNode, Shape>(m_segment);
@@ -1414,6 +1452,7 @@ void Adrian::spawnHero(const Vector3f& pos) {
 	m_segmentNode->setSortKey(3);
 	m_segmentNode->setShader(Globals::shaderManager.getAssetPointer("shape_color"));
 	m_segmentNode->setColor(Vector4f(0.0f, 1.0f, 0.0f, 1.0f));
+	m_segmentNode->setName("segment");
 }
 
 void Adrian::spawnAgent(const Vector3f& pos) {
@@ -1489,4 +1528,8 @@ void Adrian::loadFont() {
 	set.characters[90] = { {0, 0}, {15u, 15u}, {0.117f, 0.375f}, {(float)10 / (float)128, (float)15 / (float)128}, 15u };
 
 	Spritesheet::CreateSpritesheet(Texture::LoadFromFile("res/textures/font.tga", false), 128u, 128u, 1u, set.spriteSheet);
+}
+
+void Adrian::setCurrentPanelTex(int currentPanelTex) {
+	m_currentPanelTex = currentPanelTex;
 }

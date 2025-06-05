@@ -1,9 +1,12 @@
 #include <engine/MeshObject/Shape.h>
+#include <engine/Scene/ShapeNode.h>
 #include <Physics/Shapedrawer.h>
+#include <States/Adrian.h>
 #include "Hero.h"
 
 Hero::Hero(const Md2Model& md2Model, const CrowdAgent& crowdAgent) : CrowdAgentEntity(crowdAgent, this), Md2Entity(md2Model), m_rigidBody(nullptr), m_isDeath(false){
-	setRigidBody(Physics::AddKinematicRigidBody(Physics::BtTransform(Physics::VectorFrom(getWorldPosition())), new btBoxShape(btVector3(0.5f, 0.5f, 0.5f)), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER, nullptr, true));
+	setRigidBody(Physics::AddKinematicRigidBody(Physics::BtTransform(Physics::VectorFrom(getWorldPosition())), new btBoxShape(btVector3(0.5f, 0.5f, 0.5f)), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER, this, true));
+	ShapeDrawer::Get().addToCache(m_rigidBody->getCollisionShape());
 }
 
 Hero::~Hero() {
@@ -11,6 +14,9 @@ Hero::~Hero() {
 }
 
 void Hero::fixedUpdate(float fdt) {
+	if (isDeath())
+		return;
+
 	const BoundingBox& aabb = getLocalBoundingBox();
 	const Vector3f& pos = getWorldPosition();
 	const Quaternion& rot = getWorldOrientation();
@@ -31,7 +37,7 @@ void Hero::update(const float dt) {
 
 void Hero::init(const Shape& shape) {
 	m_segmentBody = Physics::AddKinematicRigidBody(Physics::BtTransform(Physics::VectorFrom(getWorldPosition())), Physics::CreateCollisionShape(&shape, btVector3(1.5f, 1.5f, 1.5f)), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER, nullptr, true);
-	m_triggerBody = Physics::AddKinematicRigidBody(Physics::BtTransform(Physics::VectorFrom(getWorldPosition())), new btCylinderShape(btVector3(1.0f, 1.0f, 0.0f)), Physics::collisiontypes::CHARACTER, Physics::collisiontypes::SPHERE, this, true);
+	m_triggerBody = Physics::AddKinematicRigidBody(Physics::BtTransform(Physics::VectorFrom(getWorldPosition())), new btCylinderShape(btVector3(0.5f, 1.0f, 0.0f)), Physics::collisiontypes::CHARACTER, Physics::collisiontypes::SPHERE, this, true);
 }
 
 void Hero::OnPositionVelocityUpdate(const Vector3f& pos, const Vector3f& vel) {
@@ -52,6 +58,14 @@ btRigidBody* Hero::getRigidBody() {
 	return m_rigidBody;
 }
 
+btRigidBody* Hero::getSegmentBody() {
+	return m_segmentBody;
+}
+
+btRigidBody* Hero::getTriggerBody() {
+	return m_triggerBody;
+}
+
 void Hero::handleCollision(btCollisionObject* collisionObject) {
 	if(!m_isDeath)
 		Physics::GetDynamicsWorld()->contactPairTest(m_triggerBody, collisionObject, m_triggerResult);
@@ -65,6 +79,10 @@ bool Hero::isDeath() {
 	return m_isDeath;
 }
 
+void Hero::setOnDeath(std::function<void()> fun) {
+	m_triggerResult.OnDeath = fun;
+}
+
 btScalar Hero::TriggerCallback::addSingleResult(btManifoldPoint& cp, const btCollisionObjectWrapper* colObj0Wrap, int partId0, int index0, const btCollisionObjectWrapper* colObj1Wrap, int partId1, int index1) {
 	Hero* hero = reinterpret_cast<Hero*>(colObj0Wrap->getCollisionObject()->getUserPointer());
 	hero->setAnimationType(AnimationType::DEATH_BACK);
@@ -72,5 +90,26 @@ btScalar Hero::TriggerCallback::addSingleResult(btManifoldPoint& cp, const btCol
 	hero->resetAgent();
 	hero->removeAgent();
 	hero->setIsDeath(true);
+
+	ShapeNode* shape = hero->findChild<ShapeNode>("disk");
+	if (shape) {
+		shape->OnOctreeSet(nullptr);
+		shape->eraseSelf();
+	}
+
+	shape = hero->findChild<ShapeNode>("segment");
+	if (shape) {
+		shape->OnOctreeSet(nullptr);
+		shape->eraseSelf();
+	}
+
+	hero->setColor(Vector4f::ONE);
+	
+	Physics::DeleteCollisionObject(hero->getRigidBody());
+	Physics::DeleteCollisionObject(hero->getSegmentBody());
+
+	if (OnDeath)
+		OnDeath();
+
 	return 0;
 }

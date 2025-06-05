@@ -186,7 +186,6 @@ void MapState::render() {
 	shader->use();
 	shader->loadMatrix("u_projection", m_camera.getOrthographicMatrix());
 	shader->loadMatrix("u_view", m_camera.getViewMatrix());
-	shader->loadVector("u_color", m_heroEnity->getColor());
 
 	for (const Batch& batch : m_octree->getOpaqueBatches().m_batches) {
 		OctreeNode* drawable = batch.octreeNode;
@@ -240,7 +239,6 @@ void MapState::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 			const MousePickCallbackAll& callbackAll = m_mousePicker.getCallbackAll();
 			Vector3f pos = Physics::VectorFrom(callbackAll.m_hitPointWorld[callbackAll.index]);
 			Renderer::Get().addMarker(pos, 20.0f, 2);
-			m_heroEnity->move(pos[0], pos[2]);
 		}
 	}
 

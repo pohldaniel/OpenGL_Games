@@ -2,7 +2,6 @@
 #pragma once
 
 #include <engine/scene/Md2Node.h>
-#include <Physics/Physics.h>
 #include <Entities/Entity.h>
 
 #define		MAP_MODEL_HEIGHT_Y	25.0f
@@ -25,11 +24,7 @@ public:
 	void setIsActive(bool active);
 	bool isActive();
 	
-	const Vector4f& getColor() const;
-	void move(float x, float z);
-
 private:
 
 	bool m_isActive;
-	Vector4f m_color;
 };

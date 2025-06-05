@@ -1,5 +1,16 @@
 #pragma once
 #include <Entities/Md2Entity.h>
+#include <Physics/Physics.h>
+
+enum EnemyType {
+	HERO = 0,
+	CORPSE = 1,
+	MUTANT_CHEETA = 2,
+	MUTANT_LIZARD = 3,
+	MUTANT_MAN = 4,
+	RIPPER = 5,
+	SKEL = 6
+};
 
 class Bot : public Md2Entity {
 
@@ -20,6 +31,8 @@ public:
 	btRigidBody* getRigidBody();
 	void setRigidBody(btRigidBody* rigidBody);
 	btRigidBody* getSegmentRigidBody();
+	void setEnemyType(EnemyType enemyType);
+	EnemyType getEnemyType();
 
 private:
 	
@@ -28,4 +41,5 @@ private:
 	Vector3f m_start, m_end, m_currentWaypoint;
 	float m_moveSpeed;
 	btRigidBody *m_rigidBody, *m_segmentBody;
+	EnemyType m_enemyType;
 };

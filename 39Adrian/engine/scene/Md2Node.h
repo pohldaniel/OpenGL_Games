@@ -26,6 +26,7 @@ public:
 	const BoundingBox& getLocalBoundingBox() const;
 	void setSpeed(float speed);
 	void setLoopAnimation(bool loopAnimation);
+	void setColor(const Vector4f& color);
 
 protected:
 
@@ -48,6 +49,6 @@ private:
 	float m_activeFrame;
 	Shader* m_shader;
 	bool m_loopAnimation;
-
+	Vector4f m_color;
 	const Md2Model& md2Model;
 };

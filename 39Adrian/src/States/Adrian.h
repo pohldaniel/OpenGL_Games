@@ -10,6 +10,7 @@
 #include <engine/scene/ShapeNode.h>
 #include <engine/scene/Md2Node.h>
 #include <engine/octree/Octree.h>
+#include <engine/CharacterSet.h>
 #include <engine/Framebuffer.h>
 #include <engine/Background.h>
 #include <engine/Md2Model.h>
@@ -60,6 +61,7 @@ public:
 	void loadBots(const char* filename);
 	void createScene(bool recreate = false);
 	void loadFont();
+	void setCurrentPanelTex(int currentPanelTex);
 
 private:
 
@@ -133,6 +135,6 @@ private:
 	Sprite m_panel;
 	std::vector<TextureRect> m_tileSet;
 	unsigned int m_atlas;
-
+	int m_currentPanelTex;
 	CharacterSet set;
 };

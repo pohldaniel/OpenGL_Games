@@ -1,6 +1,6 @@
 #include "Md2Entity.h"
 
-Md2Entity::Md2Entity(const Md2Model& md2Model) : Md2Node(md2Model), Entity(), m_isActive(false), m_color(Vector4f::ONE){
+Md2Entity::Md2Entity(const Md2Model& md2Model) : Md2Node(md2Model), Entity(), m_isActive(false){
 
 }
 
@@ -38,17 +38,8 @@ void Md2Entity::setTextureIndex(short index) {
 
 void Md2Entity::setIsActive(bool isActive) {
 	m_isActive = isActive;
-	m_color = m_isActive ? Vector4f(0.7f, 0.7f, 1.0f, 1.0f) : Vector4f::ONE;
-}
-
-const Vector4f& Md2Entity::getColor() const {
-	return m_color;
 }
 
 bool Md2Entity::isActive() {
 	return m_isActive;
-}
-
-void Md2Entity::move(float x, float z) {
-	setPosition(x, MAP_MODEL_HEIGHT_Y, z);
 }

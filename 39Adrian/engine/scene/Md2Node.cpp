@@ -13,7 +13,8 @@ Md2Node::Md2Node(const Md2Model& md2Model) :
 	m_activeFrame(0.0f),
 	m_shader(nullptr),
 	m_loopAnimation(true),
-	m_animationType(AnimationType::STAND) {
+	m_animationType(AnimationType::STAND),
+	m_color(Vector4f::ONE){
 	m_interpolated.resize(md2Model.getNumVertices());
 }
 
@@ -81,9 +82,13 @@ void Md2Node::updateAnimation() {
 }
 
 void  Md2Node::drawRaw() const {
+	
+	bool change = !(m_color == Vector4f::ONE);
 	if (m_shader) {
 		m_shader->use();
 		m_shader->loadMatrix("u_model", getWorldTransformation());
+		if (change)
+			m_shader->loadVector("u_color", m_color);
 	}
 
 	if(m_animationType != AnimationType::NONE)
@@ -91,8 +96,11 @@ void  Md2Node::drawRaw() const {
 	
 	md2Model.draw(m_textureIndex, m_materialIndex);
 
-	if (m_shader)
+	if (m_shader) {
+		if (change)
+			m_shader->loadVector("u_color", Vector4f::ONE);
 		m_shader->unuse();
+	}
 }
 
 const BoundingBox& Md2Node::getLocalBoundingBox() const {
@@ -143,4 +151,8 @@ void Md2Node::setSpeed(float speed) {
 
 void Md2Node::setLoopAnimation(bool loopAnimation) {
 	m_loopAnimation = loopAnimation;
+}
+
+void Md2Node::setColor(const Vector4f& color) {
+	m_color = color;
 }
