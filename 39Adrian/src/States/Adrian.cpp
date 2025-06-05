@@ -190,6 +190,7 @@ m_currentPanelTex(-1){
 	m_segmentNode->setSortKey(4);
 	m_segmentNode->setShader(Globals::shaderManager.getAssetPointer("shape_color"));
 	m_segmentNode->setColor(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
+	m_segmentNode->setName("segment");
 
 	m_diskNode = m_bot1->addChild<ShapeNode, Shape>(m_disk);
 	m_diskNode->setPosition(0.0f, 1.0f, 0.0f);
@@ -225,6 +226,7 @@ m_currentPanelTex(-1){
 	m_segmentNode->setSortKey(4);
 	m_segmentNode->setShader(Globals::shaderManager.getAssetPointer("shape_color"));
 	m_segmentNode->setColor(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
+	m_segmentNode->setName("segment");
 
 	m_diskNode = m_bot2->addChild<ShapeNode, Shape>(m_disk);
 	m_diskNode->setPosition(0.0f, 1.0f, 0.0f);
@@ -257,6 +259,7 @@ m_currentPanelTex(-1){
 	m_segmentNode->setSortKey(4);
 	m_segmentNode->setShader(Globals::shaderManager.getAssetPointer("shape_color"));
 	m_segmentNode->setColor(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
+	m_segmentNode->setName("segment");
 
 	m_diskNode = m_bot3->addChild<ShapeNode, Shape>(m_disk);
 	m_diskNode->setPosition(0.0f, 1.0f, 0.0f);
@@ -292,6 +295,7 @@ m_currentPanelTex(-1){
 	m_segmentNode->setSortKey(4);
 	m_segmentNode->setShader(Globals::shaderManager.getAssetPointer("shape_color"));
 	m_segmentNode->setColor(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
+	m_segmentNode->setName("segment");
 
 	m_diskNode = m_bot4->addChild<ShapeNode, Shape>(m_disk);
 	m_diskNode->setPosition(0.0f, 1.0f, 0.0f);
@@ -327,6 +331,7 @@ m_currentPanelTex(-1){
 	m_segmentNode->setSortKey(4);
 	m_segmentNode->setShader(Globals::shaderManager.getAssetPointer("shape_color"));
 	m_segmentNode->setColor(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
+	m_segmentNode->setName("segment");
 
 	m_diskNode = m_bot5->addChild<ShapeNode, Shape>(m_disk);
 	m_diskNode->setPosition(0.0f, 1.0f, 0.0f);
@@ -345,7 +350,7 @@ m_currentPanelTex(-1){
 	m_bot6->setEnd(60.0f, 0.0f, 900.0f);
 	m_bot6->setSpeed(1.0f);
 	m_bot6->setMoveSpeed(0.0f);
-	//m_bot6->setAnimationType(AnimationType::NONE);
+	m_bot6->setAnimationType(AnimationType::NONE, AnimationType::STAND);
 	m_bot6->OnOctreeSet(m_octree);
 	m_bot6->setSortKey(5);
 	m_bot6->Md2Node::setShader(Globals::shaderManager.getAssetPointer("shape_color"));
@@ -362,6 +367,7 @@ m_currentPanelTex(-1){
 	m_segmentNode->setSortKey(4);
 	m_segmentNode->setShader(Globals::shaderManager.getAssetPointer("shape_color"));
 	m_segmentNode->setColor(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
+	m_segmentNode->setName("segment");
 
 	m_diskNode = m_bot6->addChild<ShapeNode, Shape>(m_disk);
 	m_diskNode->setPosition(0.0f, 1.0f, 0.0f);
@@ -397,6 +403,7 @@ m_currentPanelTex(-1){
 	m_segmentNode->setSortKey(4);
 	m_segmentNode->setShader(Globals::shaderManager.getAssetPointer("shape_color"));
 	m_segmentNode->setColor(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
+	m_segmentNode->setName("segment");
 
 	m_diskNode = m_bot7->addChild<ShapeNode, Shape>(m_disk);
 	m_diskNode->setPosition(0.0f, 1.0f, 0.0f);
@@ -448,16 +455,32 @@ Adrian::~Adrian() {
 }
 
 void Adrian::fixedUpdate() {
+
 	for (auto&& entity : m_entities)
 		entity->fixedUpdate(m_fdt);
 
-	m_hero->handleCollision(m_bot1->getSegmentRigidBody());
-	m_hero->handleCollision(m_bot2->getSegmentRigidBody());
-	m_hero->handleCollision(m_bot3->getSegmentRigidBody());
-	m_hero->handleCollision(m_bot4->getSegmentRigidBody());
-	m_hero->handleCollision(m_bot5->getSegmentRigidBody());
-	m_hero->handleCollision(m_bot6->getSegmentRigidBody());
-	m_hero->handleCollision(m_bot7->getSegmentRigidBody());
+	if(!m_bot1->isDeath())
+		m_hero->handleCollision(m_bot1->getSegmentBody());
+	if (!m_bot2->isDeath())
+		m_hero->handleCollision(m_bot2->getSegmentBody());
+	if (!m_bot3->isDeath())
+		m_hero->handleCollision(m_bot3->getSegmentBody());
+	if (!m_bot4->isDeath())
+		m_hero->handleCollision(m_bot4->getSegmentBody());
+	if (!m_bot5->isDeath())
+		m_hero->handleCollision(m_bot5->getSegmentBody());
+	if (!m_bot6->isDeath())
+		m_hero->handleCollision(m_bot6->getSegmentBody());
+	if (!m_bot7->isDeath())
+		m_hero->handleCollision(m_bot7->getSegmentBody());
+
+	m_bot1->handleCollision(m_hero->getSegmentBody());
+	m_bot2->handleCollision(m_hero->getSegmentBody());
+	m_bot3->handleCollision(m_hero->getSegmentBody());
+	m_bot4->handleCollision(m_hero->getSegmentBody());
+	m_bot5->handleCollision(m_hero->getSegmentBody());
+	m_bot6->handleCollision(m_hero->getSegmentBody());
+	m_bot7->handleCollision(m_hero->getSegmentBody());
 
 	Globals::physics->stepSimulation(m_fdt);
 }
@@ -765,33 +788,49 @@ void Adrian::OnMouseMotion(Event::MouseMoveEvent& event) {
 	}
 }
 
+void Adrian::setTarget(const Vector3f& _pos) {
+	Vector3f pos = Physics::VectorFrom(_pos);
+	Vector3f pathPos = m_navigationMesh->findNearestPoint(pos, Vector3f(1.0f, 1.0f, 1.0f));
+	if (m_currentPanelTex == 0 && m_crowdManager->setCrowdTarget(pathPos)) {
+		if (!m_cursorNode) {
+			m_cursorNode = m_root->addChild<ShapeNode, Shape>(Globals::shapeManager.get("quad_xz"));
+			m_cursorNode->setSortKey(1);
+			m_cursorNode->setScale(50.0f, 0.0f, 50.0f);
+			m_cursorNode->setShader(MousePicker::GetShader().get());
+			m_cursorNode->OnOctreeSet(m_octree);
+		}
+		m_cursorNode->setPosition(pathPos);
+	}
+}
+
 void Adrian::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 	if (event.button == 2u) {
 		Mouse::instance().attach(Application::GetWindow(), false, false, false);
 		if (!m_drawPolygon) {
-			if (m_mousePicker.clickOrthographicAll(event.x, event.y, m_camera, m_ground) && !m_hero->isDeath()) {
-				const MousePickCallbackAll& callbackAll = m_mousePicker.getCallbackAll();
-				Vector3f pos = Physics::VectorFrom(callbackAll.m_hitPointWorld[callbackAll.index]);
-				Vector3f pathPos = m_navigationMesh->findNearestPoint(pos, Vector3f(1.0f, 1.0f, 1.0f));
-				if (m_crowdManager->setCrowdTarget(pathPos) || m_hero->isDeath()) {
-					if (!m_cursorNode) {
-						m_cursorNode = m_root->addChild<ShapeNode, Shape>(Globals::shapeManager.get("quad_xz"));
-						m_cursorNode->setSortKey(1);
-						m_cursorNode->setScale(50.0f, 0.0f, 50.0f);
-						m_cursorNode->setShader(MousePicker::GetShader().get());
-						m_cursorNode->OnOctreeSet(m_octree);
+			if (m_mousePicker.clickOrthographicAll(event.x, event.y, m_camera, m_ground, 1)) {
+				
+				const MousePickCallbackAll& cb = m_mousePicker.getCallbackAll();
+
+				if (cb.m_userPointer2) {
+					Bot* bot = static_cast<Bot*>(cb.m_userPointer2);
+					bool inRange = bot->isInRange();
+					if (inRange) {
+						m_hero->setAnimationType(AnimationType::ATTACK);
+						m_hero->setOnAnimationEnd([&m_hero = m_hero, &bot = bot]{
+							m_hero->setAnimationType(AnimationType::STAND);
+							m_hero->setOnAnimationEnd(nullptr);
+							
+						});						
+						bot->death();
+
+						
 					}
-					m_cursorNode->setPosition(pathPos);
 				}else {
-					if (m_cursorNode) {
-						m_cursorNode->OnOctreeSet(nullptr);
-						m_cursorNode->eraseSelf();
-						m_cursorNode = nullptr;
-					}
-				}
+					setTarget(Physics::VectorFrom(cb.m_hitPointWorld[cb.index]));
+				}				
 				m_fadeCircle.setTransitionEnd(true);
 				m_fadeCircle.fadeOut(false);
-			}
+			}			
 		}else {
 			if (Keyboard::instance().keyDown(Keyboard::KEY_LCTRL)) {
 				m_edgePoints.pop_back();
@@ -858,8 +897,8 @@ void Adrian::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 			Mouse::instance().attach(Application::GetWindow(), false, false, false);
 			if (m_mousePicker.clickOrthographicAll(event.x, event.y, m_camera, nullptr)) {
 				const MousePickCallbackAll& callbackAll = m_mousePicker.getCallbackAll();
-				if (callbackAll.m_userIndex >= 0) {
-					m_globalUserIndex = m_globalUserIndex >= 0 ? -1 : callbackAll.m_userIndex;
+				if (callbackAll.m_userIndex1 >= 0) {
+					m_globalUserIndex = m_globalUserIndex >= 0 ? -1 : callbackAll.m_userIndex1;
 				}else {
 					Vector3f pos = callbackAll.m_hitPointWorld[callbackAll.index];
 					m_edgePoints.push_back(pos);

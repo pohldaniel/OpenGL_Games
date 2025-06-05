@@ -36,8 +36,8 @@ void Hero::update(const float dt) {
 }
 
 void Hero::init(const Shape& shape) {
-	m_segmentBody = Physics::AddKinematicRigidBody(Physics::BtTransform(Physics::VectorFrom(getWorldPosition())), Physics::CreateCollisionShape(&shape, btVector3(1.5f, 1.5f, 1.5f)), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER, nullptr, true);
-	m_triggerBody = Physics::AddKinematicRigidBody(Physics::BtTransform(Physics::VectorFrom(getWorldPosition())), new btCylinderShape(btVector3(0.5f, 1.0f, 0.0f)), Physics::collisiontypes::CHARACTER, Physics::collisiontypes::SPHERE, this, true);
+	m_segmentBody = Physics::AddKinematicRigidBody(Physics::BtTransform(Physics::VectorFrom(getWorldPosition())), Physics::CreateCollisionShape(&shape, btVector3(1.5f, 1.5f, 1.5f)), Physics::collisiontypes::TRIGGER_1, Physics::collisiontypes::ENEMY, nullptr, true);
+	m_triggerBody = Physics::AddKinematicRigidBody(Physics::BtTransform(Physics::VectorFrom(getWorldPosition())), new btCylinderShape(btVector3(0.5f, 1.0f, 0.0f)), Physics::collisiontypes::TRIGGER_2, Physics::collisiontypes::ENEMY, this, true);
 }
 
 void Hero::OnPositionVelocityUpdate(const Vector3f& pos, const Vector3f& vel) {
@@ -106,7 +106,6 @@ btScalar Hero::TriggerCallback::addSingleResult(btManifoldPoint& cp, const btCol
 	hero->setColor(Vector4f::ONE);
 	
 	Physics::DeleteCollisionObject(hero->getRigidBody());
-	Physics::DeleteCollisionObject(hero->getSegmentBody());
 
 	if (OnDeath)
 		OnDeath();

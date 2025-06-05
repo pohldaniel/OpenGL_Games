@@ -337,7 +337,7 @@ void NavigationStreamState::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 		    if (m_mousePicker.clickAll(event.x, event.y, m_camera, nullptr)) {
 			    const MousePickCallbackAll& callbackAll = m_mousePicker.getCallbackAll();
 				btVector3 pos = callbackAll.m_hitPointWorld[callbackAll.index];
-			    addOrRemoveObject(Physics::VectorFrom(pos), static_cast<PhysicalObjects>(callbackAll.m_userIndex), static_cast<Obstacle*>(callbackAll.m_userPoiner), callbackAll.m_collisionObject);
+			    addOrRemoveObject(Physics::VectorFrom(pos), static_cast<PhysicalObjects>(callbackAll.m_userIndex1), static_cast<Obstacle*>(callbackAll.m_userPointer1), callbackAll.m_collisionObject);
 		    }
 	    }else if (Keyboard::instance().keyDown(Keyboard::KEY_LSHIFT)) {
 			if (m_mousePicker.clickAll(event.x, event.y, m_camera, nullptr)) {
@@ -357,7 +357,7 @@ void NavigationStreamState::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 
 			if (m_mousePicker.clickAll(event.x, event.y, m_camera, nullptr)) {
 				const MousePickCallbackAll& callbackAll = m_mousePicker.getCallbackAll();
-				if (static_cast<PhysicalObjects>(callbackAll.m_userIndex) == PhysicalObjects::NAVAREA || static_cast<PhysicalObjects>(callbackAll.m_userIndex) == PhysicalObjects::OBSTACLE) {
+				if (static_cast<PhysicalObjects>(callbackAll.m_userIndex1) == PhysicalObjects::NAVAREA || static_cast<PhysicalObjects>(callbackAll.m_userIndex1) == PhysicalObjects::OBSTACLE) {
 					m_crowdManager->resetAgents();
 					if(m_useWayPoint)
 						m_jackAgent->OnInactive();

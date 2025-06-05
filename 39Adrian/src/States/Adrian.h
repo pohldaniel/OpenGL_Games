@@ -75,6 +75,7 @@ private:
 	void renderBubble();
 	void spawnHero(const Vector3f& pos);
 	void spawnAgent(const Vector3f& pos);
+	void setTarget(const Vector3f& pos);
 
 	bool m_initUi = true;
 	bool m_drawUi = false;

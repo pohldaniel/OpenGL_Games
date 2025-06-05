@@ -13,6 +13,7 @@ Md2Node::Md2Node(const Md2Model& md2Model) :
 	m_activeFrame(0.0f),
 	m_shader(nullptr),
 	m_loopAnimation(true),
+	OnAnimationEnd(nullptr),
 	m_animationType(AnimationType::STAND),
 	m_color(Vector4f::ONE){
 	m_interpolated.resize(md2Model.getNumVertices());
@@ -51,6 +52,8 @@ void Md2Node::update(float dt) {
 		
 		if (m_activeFrame > lenf) {
 			m_activeFrame = m_loopAnimation ? 0.0f : lenf;
+			if (OnAnimationEnd)
+				OnAnimationEnd();
 		}
 
 		m_activeFrameIdx = static_cast<short>(m_activeFrame);
@@ -91,9 +94,7 @@ void  Md2Node::drawRaw() const {
 			m_shader->loadVector("u_color", m_color);
 	}
 
-	if(m_animationType != AnimationType::NONE)
-		md2Model.updateBuffer(m_interpolated);
-	
+	md2Model.updateBuffer(m_interpolated);	
 	md2Model.draw(m_textureIndex, m_materialIndex);
 
 	if (m_shader) {
@@ -124,18 +125,15 @@ void Md2Node::setTextureIndex(short index) {
 }
 
 void Md2Node::setAnimationType(AnimationType animationType, AnimationType animationTypeN) {
-	if (m_animationType == animationType || m_animationType == AnimationType::DEATH_BACK)
+	if (m_animationType == animationType || m_animationType == AnimationType::DEATH_BACK || m_animationType == AnimationType::DEATH_BACK_SLOW || m_animationType == AnimationType::DEATH_FORWARD)
 		return;
 	
 	m_animationType = animationType;
 	m_activeFrame = 0.0f;
-	if (m_animationType == AnimationType::NONE) {		
+	if (m_animationType == AnimationType::NONE) {	
 		currentAnimation = &md2Model.getAnimations()[animationTypeN];
 		const Utils::MD2IO::Frame& frame = currentAnimation->frames[0];
-		std::copy(frame.vertices.begin(), frame.vertices.end(), std::back_inserter(m_interpolated));	
-
-		md2Model.updateBuffer(m_interpolated);
-
+		std::copy(frame.vertices.begin(), frame.vertices.end(), m_interpolated.begin());		
 		return;
 	}
 	currentAnimation = &md2Model.getAnimations()[m_animationType];
@@ -155,4 +153,8 @@ void Md2Node::setLoopAnimation(bool loopAnimation) {
 
 void Md2Node::setColor(const Vector4f& color) {
 	m_color = color;
+}
+
+void Md2Node::setOnAnimationEnd(std::function<void()> fun) {
+	OnAnimationEnd = fun;
 }

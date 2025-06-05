@@ -70,6 +70,9 @@ public:
 		SPHERE = 512,
 		DUMMY = 1024,
 		SWORD = 2048,
+		TRIGGER_1 = 4096,
+		TRIGGER_2 = 8192,
+		ENEMY = 16384,
 		COL_FORCE_8BIT = 0xFFFF
 	};
 

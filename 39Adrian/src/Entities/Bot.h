@@ -14,6 +14,12 @@ enum EnemyType {
 
 class Bot : public Md2Entity {
 
+	struct TriggerCallback : public btCollisionWorld::ContactResultCallback {
+		TriggerCallback() {}
+		btScalar TriggerCallback::addSingleResult(btManifoldPoint& cp, const btCollisionObjectWrapper* colObj0Wrap, int partId0, int index0, const btCollisionObjectWrapper* colObj1Wrap, int partId1, int index1) override;
+		std::function<void()> OnDeath = nullptr;
+	};
+
 public:
 
 	Bot(const Md2Model& md2Model);
@@ -28,11 +34,17 @@ public:
 	void setStart(const float x, const float y, const float z);
 	void setEnd(const float x, const float y, const float z);
 	void setMoveSpeed(const float moveSpeed);
+	void handleCollision(btCollisionObject* collisionObject);
 	btRigidBody* getRigidBody();
+	btRigidBody* getSegmentBody();
+	btRigidBody* getTriggerBody();
 	void setRigidBody(btRigidBody* rigidBody);
-	btRigidBody* getSegmentRigidBody();
 	void setEnemyType(EnemyType enemyType);
 	EnemyType getEnemyType();
+	void setIsInRange(bool isInRange);
+	bool isInRange();
+	void death();
+	bool isDeath();
 
 private:
 	
@@ -40,6 +52,8 @@ private:
 
 	Vector3f m_start, m_end, m_currentWaypoint;
 	float m_moveSpeed;
-	btRigidBody *m_rigidBody, *m_segmentBody;
+	btRigidBody *m_rigidBody, *m_segmentBody, *m_triggerBody;
 	EnemyType m_enemyType;
+	TriggerCallback m_triggerResult;
+	bool m_isInRange, m_isDeath;
 };

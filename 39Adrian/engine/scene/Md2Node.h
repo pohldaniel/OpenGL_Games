@@ -27,6 +27,7 @@ public:
 	void setSpeed(float speed);
 	void setLoopAnimation(bool loopAnimation);
 	void setColor(const Vector4f& color);
+	void setOnAnimationEnd(std::function<void()> fun);
 
 protected:
 
@@ -51,4 +52,6 @@ private:
 	bool m_loopAnimation;
 	Vector4f m_color;
 	const Md2Model& md2Model;
+
+	std::function<void()> OnAnimationEnd;
 };

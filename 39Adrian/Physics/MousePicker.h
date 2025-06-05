@@ -69,8 +69,9 @@ public:
 
 	btVector3 m_origin;
 	btVector3 m_target;
-	int index, m_userIndex;
-	void* m_userPoiner;
+	int index, m_userIndex1, m_userIndex2;
+	void* m_userPointer1;
+	void* m_userPointer2;
 	btCollisionObject* m_collisionObject;
 
 	MousePickCallbackAll(const btVector3& origin, const btVector3& target, int collisionFilterGroup = btBroadphaseProxy::DefaultFilter, int collisionFilterMask = btBroadphaseProxy::AllFilter) : btCollisionWorld::AllHitsRayResultCallback(origin, target) {
@@ -79,8 +80,10 @@ public:
 		m_origin = origin;
 		m_target = target;
 		index = -1;
-		m_userIndex = -1;
-		m_userPoiner = nullptr;
+		m_userIndex1 = -1;
+		m_userIndex2 = -1;
+		m_userPointer1 = nullptr;
+		m_userPointer2 = nullptr;
 		m_collisionObject = nullptr;
 	}
 
@@ -105,7 +108,7 @@ public:
 	bool click(unsigned int posX, unsigned int posY, const Camera& camera, btCollisionObject* collisonObject1 = nullptr, btCollisionObject* collisonObject2 = nullptr);
 	bool clickAll(unsigned int posX, unsigned int posY, const Camera& camera, btCollisionObject* collisonObject = nullptr);
 	bool clickOrthographic(unsigned int posX, unsigned int posY, const Camera& camera, btCollisionObject* collisonObject1 = nullptr, btCollisionObject* collisonObject2 = nullptr);
-	bool clickOrthographicAll(unsigned int posX, unsigned int posY, const Camera& camera, btCollisionObject* collisonObject = nullptr);
+	bool clickOrthographicAll(unsigned int posX, unsigned int posY, const Camera& camera, btCollisionObject* collisonObject = nullptr, int userIndex1 = -1);
 	void setHasPicked(bool value);
 	void setPosition(const Vector3f& pos);
 	void setIsActivated(bool isactivated);

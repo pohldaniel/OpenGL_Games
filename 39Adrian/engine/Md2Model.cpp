@@ -234,7 +234,7 @@ void Md2Model::setAnimationType(AnimationType animationType, AnimationType anima
 	if (m_animationType == AnimationType::NONE) {
 		currentAnimation = &m_animations[animationTypeN];
 		const Utils::MD2IO::Frame& frame = currentAnimation->frames[0];
-		std::copy(frame.vertices.begin(), frame.vertices.end(), std::back_inserter(m_interpolated));
+		std::copy(frame.vertices.begin(), frame.vertices.end(), m_interpolated.begin());
 		return;
 	}
 	currentAnimation = &m_animations[m_animationType];
