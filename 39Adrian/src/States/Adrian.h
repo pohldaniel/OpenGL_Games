@@ -102,7 +102,7 @@ private:
 	Md2Model m_heroModel, m_hueteotl, m_mutantman, m_corpse, m_mutantlizard, m_mutantcheetah, m_ripper;
 
 	Hero* m_hero;
-	Bot *m_bot1, *m_bot2, *m_bot3, *m_bot4, *m_bot5, *m_bot6, *m_bot7;
+	Bot *m_bot1, *m_bot2, *m_bot3, *m_bot4, *m_bot5, *m_bot6, *m_bot7, *m_currentBot;
 
 	Md2Node *m_md2Node;
 

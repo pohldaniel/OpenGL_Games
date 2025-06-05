@@ -807,23 +807,18 @@ void Adrian::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 	if (event.button == 2u) {
 		Mouse::instance().attach(Application::GetWindow(), false, false, false);
 		if (!m_drawPolygon) {
-			if (m_mousePicker.clickOrthographicAll(event.x, event.y, m_camera, m_ground, 1)) {
-				
+			if (m_mousePicker.clickOrthographicAll(event.x, event.y, m_camera, m_ground, 1)) {			
 				const MousePickCallbackAll& cb = m_mousePicker.getCallbackAll();
-
 				if (cb.m_userPointer2) {
-					Bot* bot = static_cast<Bot*>(cb.m_userPointer2);
-					bool inRange = bot->isInRange();
+					m_currentBot = static_cast<Bot*>(cb.m_userPointer2);
+					bool inRange = m_currentBot->isInRange();
 					if (inRange) {
 						m_hero->setAnimationType(AnimationType::ATTACK);
-						m_hero->setOnAnimationEnd([&m_hero = m_hero, &bot = bot]{
+						m_hero->setOnAnimationEnd([&m_hero = m_hero, &m_currentBot = m_currentBot]{
 							m_hero->setAnimationType(AnimationType::STAND);
-							m_hero->setOnAnimationEnd(nullptr);
-							
+							m_hero->setOnAnimationEnd(nullptr);								
 						});						
-						bot->death();
-
-						
+						m_currentBot->death();
 					}
 				}else {
 					setTarget(Physics::VectorFrom(cb.m_hitPointWorld[cb.index]));
@@ -1505,11 +1500,6 @@ void Adrian::spawnAgent(const Vector3f& pos) {
 	m_agent->setArrivedScale(10.0f);
 	m_agent->setCorrection(60.0f);
 
-	//m_agent->setMaxAccel(10.0f, true);
-	//m_agent->setActiveThreshold(37500.0f);
-	//m_agent->setArrivedScale(5000.0f);
-	//m_agent->setCorrection(60.0f);
-
 	m_agent->setRadius(30.0f);
 	m_agent->setNavigationPushiness(NAVIGATIONPUSHINESS_MEDIUM);
 	m_agent->setSeparationWeight(m_separaionWeight);
@@ -1552,7 +1542,6 @@ void Adrian::loadFont() {
 	set.characters[78] = { {0, 0}, {15u, 15u}, {0.625f, 0.125f}, {(float)10 / (float)128, (float)15 / (float)128}, 15u };
 	set.characters[79] = { {0, 0}, {15u, 15u}, {0.742f, 0.125f}, {(float)10 / (float)128, (float)15 / (float)128}, 15u };
 	set.characters[80] = { {0, 0}, {15u, 15u}, {0.875f, 0.125f}, {(float)10 / (float)128, (float)15 / (float)128}, 15u };
-
 
 	set.characters[81] = { {0, 0}, {15u, 15u}, {0.0f, 0.25f}, {(float)10 / (float)128, (float)15 / (float)128}, 15u };
 	set.characters[82] = { {0, 0}, {15u, 15u}, {0.117f, 0.25f}, {(float)10 / (float)128, (float)15 / (float)128}, 15u };
