@@ -196,11 +196,12 @@ public:
 	void setHeight(float height);
 	void resize(unsigned int width, unsigned int height);
 	int convertCoordinates(unsigned int x, unsigned int y, float &, float &);
+	float getAngle();
 	float m_initx;
 	float m_initz;
+
 private:
 
-	
 	float m_distance;
 	float m_height;
 	float m_angle;

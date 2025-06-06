@@ -12,7 +12,8 @@ enum States {
 	NAVIGATION,
 	NAVIGATION_STREAM,
 	ADRIAN,
-	WINSTON
+	WINSTON,
+	BILLBOARD
 };
 
 class State;

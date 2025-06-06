@@ -62,6 +62,7 @@ public:
 	void createScene(bool recreate = false);
 	void loadFont();
 	void setCurrentPanelTex(int currentPanelTex);
+	void loadBillboards();
 
 private:
 
@@ -138,4 +139,9 @@ private:
 	unsigned int m_atlas;
 	int m_currentPanelTex;
 	CharacterSet set;
+
+
+	std::vector<Vector3f> m_positions;
+	unsigned int m_vao = 0u;
+	unsigned int m_vbo = 0u;
 };

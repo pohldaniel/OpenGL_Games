@@ -9,6 +9,7 @@
 #include <States/Adrian.h>
 #include <States/Md2State.h>
 #include <States/Winston.h>
+#include <States/BillboardState.h>
 
 #include "Menu.h"
 #include "Application.h"
@@ -35,6 +36,7 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 		{ "winston",           Button() },
 		{ "settings",          Button() },
 		{ "controls",          Button() },
+		{ "billboard",         Button() },
 	});
 
 	m_buttons.at("default").setCharset(Globals::fontManager.get("upheaval_30"));
@@ -98,6 +100,15 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	m_buttons.at("winston").setFunction([&]() {
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new Winston(m_machine));
+	});
+
+	m_buttons.at("billboard").setCharset(Globals::fontManager.get("upheaval_30"));
+	m_buttons.at("billboard").setPosition(450.0f, 300.0f);
+	m_buttons.at("billboard").setOutlineThickness(5.0f);
+	m_buttons.at("billboard").setText("Billboard");
+	m_buttons.at("billboard").setFunction([&]() {
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new BillboardState(m_machine));
 	});
 
 	m_buttons.at("settings").setCharset(Globals::fontManager.get("upheaval_30"));

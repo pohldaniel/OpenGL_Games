@@ -24,6 +24,7 @@
 #include <States/NavigationStreamState.h>
 #include <States/Adrian.h>
 #include <States/Winston.h>
+#include <States/BillboardState.h>
 
 #include "Application.h"
 #include "Globals.h"
@@ -429,6 +430,7 @@ void Application::initStates() {
 	//Machine->addStateAtTop(new NavigationStreamState(*Machine));
 	Machine->addStateAtTop(new Adrian(*Machine));
 	//Machine->addStateAtTop(new Winston(*Machine));
+	//Machine->addStateAtTop(new BillboardState(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -731,6 +733,9 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("scene", "res/shader/winston/scene.vert", "res/shader/winston/scene.frag");
 	Globals::shaderManager.loadShader("screenquad", "res/shader/winston/screenquad.vert", "res/shader/winston/screenquad.frag");
 	
+	Globals::shaderManager.loadShader("billboard", "res/shader/billboard/billboard.vert", "res/shader/billboard/billboard.frag", "res/shader/billboard/billboard.gem");
+	Globals::shaderManager.loadShader("billboard_new", "res/shader/billboard/billboard.vert", "res/shader/billboard/billboard.frag", "res/shader/billboard_new.gem");
+
 	Globals::fontManager.loadCharacterSet("upheaval_200", "res/fonts/upheavtt.ttf", 200, 0, 30, 128, 0, true, 0u);
 	Globals::fontManager.loadCharacterSet("upheaval_30", "res/fonts/upheavtt.ttf", 30, 0, 3, 0, 0, true, 0u);
 	Globals::fontManager.loadCharacterSet("tahoma_64", "data/fonts/tahoma.ttf", 64, 20, 20, 0, 0, true, 0u);
@@ -750,6 +755,9 @@ void Application::loadAssets() {
 	Globals::textureManager.loadTexture("mutantlizard", "data/models/dynamic/mutantlizard/mutantlizard.tga");
 	Globals::textureManager.loadTexture("mutantman", "data/models/dynamic/mutantman/mutantman.tga");
 	Globals::textureManager.loadTexture("ripper", "data/models/dynamic/ripper/ripper.tga");
+
+	Globals::textureManager.loadTexture("death", "res/textures/death.png");
+	Globals::textureManager.loadTexture("tree", "data/textures/misc/tree.tga");
 
 	Globals::textureManager.loadTexture("ground", "res/textures/ground.tga", false);
 	Globals::textureManager.get("ground").setWrapMode(GL_REPEAT);

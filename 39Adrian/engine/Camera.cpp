@@ -1576,3 +1576,7 @@ int IsometricCamera::convertCoordinates(unsigned int x, unsigned int y, float &x
 
 	return 0;
 }
+
+float IsometricCamera::getAngle() {
+	return m_angle;
+}
