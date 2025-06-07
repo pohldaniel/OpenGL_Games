@@ -689,15 +689,10 @@ void NavigationStreamState::addOrRemoveObject(const Vector3f& pos, PhysicalObjec
 
 	switch (physicalObjects){
 	  case OBSTACLE:
-
-		  m_navigationMesh->removeObstacle(obstacle);
-
-		  obstacle->setIsEnabled(false);
 		  obstacle->getNode()->OnOctreeSet(nullptr);
 		  obstacle->getNode()->eraseSelf();
 		  obstacle->setNode(nullptr);
-
-		  delete obstacle;
+		  m_navigationMesh->removeObstacle(obstacle);
 		  Physics::DeleteCollisionObject(collisionObject);
 		break;
 	  case ENTITY:

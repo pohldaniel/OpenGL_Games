@@ -16,7 +16,6 @@ Obstacle::~Obstacle(){
 		m_ownerMesh->removeObstacle(this);
 	}
 	m_ownerMesh = nullptr;
-	m_node = nullptr;
 }
 
 void Obstacle::setOwnerMesh(DynamicNavigationMesh* ownerMesh) {
