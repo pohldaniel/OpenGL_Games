@@ -21,7 +21,7 @@ Bot::~Bot() {
 }
 
 void Bot::fixedUpdate(float fdt) {
-	if (m_isDeath)
+	if (isDeath())
 		return;
 
 	const BoundingBox& aabb = getLocalBoundingBox();
@@ -48,7 +48,7 @@ void Bot::update(const float dt) {
 
 void Bot::followPath(float dt) {
 
-	if (m_isDeath)
+	if (isDeath())
 		return;
 
 	Vector3f nextWaypoint = m_currentWaypoint;
@@ -116,7 +116,7 @@ btRigidBody* Bot::getTriggerBody() {
 
 
 void Bot::handleCollision(btCollisionObject* collisionObject) {
-	if (!m_isDeath)
+	if (!isDeath() && collisionObject)
 		Physics::GetDynamicsWorld()->contactPairTest(m_triggerBody, collisionObject, m_triggerResult);
 }
 
@@ -159,7 +159,10 @@ void Bot::death() {
 		shape->eraseSelf();
 	}
 
-	Physics::DeleteCollisionObject(getRigidBody());
+	if (getRigidBody()) {
+		Physics::DeleteCollisionObject(getRigidBody());
+		setRigidBody(nullptr);
+	}
 }
 
 bool Bot::isDeath() {

@@ -68,7 +68,6 @@ m_currentPanelTex(-1){
 	Material::AddTexture("data/models/dynamic/mutantcheetah/mutantcheetah.tga");
 	Material::AddTexture("data/models/dynamic/ripper/ripper.tga");
 	Material::AddTexture("data/textures/misc/tree.tga");
-	//Material::AddTexture("data/textures/panel/panel.tga");
 
 	m_heroModel.load("data/models/dynamic/hero/hero.md2");
 	m_hueteotl.load("data/models/dynamic/hueteotl/hueteotl.md2");

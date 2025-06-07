@@ -67,7 +67,7 @@ btRigidBody* Hero::getTriggerBody() {
 }
 
 void Hero::handleCollision(btCollisionObject* collisionObject) {
-	if(!m_isDeath)
+	if(!isDeath() && collisionObject)
 		Physics::GetDynamicsWorld()->contactPairTest(m_triggerBody, collisionObject, m_triggerResult);
 }
 
@@ -84,12 +84,14 @@ void Hero::setOnDeath(std::function<void()> fun) {
 }
 
 btScalar Hero::TriggerCallback::addSingleResult(btManifoldPoint& cp, const btCollisionObjectWrapper* colObj0Wrap, int partId0, int index0, const btCollisionObjectWrapper* colObj1Wrap, int partId1, int index1) {
+
 	Hero* hero = reinterpret_cast<Hero*>(colObj0Wrap->getCollisionObject()->getUserPointer());
 	hero->setAnimationType(AnimationType::DEATH_BACK);
 	hero->setLoopAnimation(false);
 	hero->resetAgent();
 	hero->removeAgent();
 	hero->setIsDeath(true);
+	
 
 	ShapeNode* shape = hero->findChild<ShapeNode>("disk");
 	if (shape) {
@@ -105,7 +107,10 @@ btScalar Hero::TriggerCallback::addSingleResult(btManifoldPoint& cp, const btCol
 
 	hero->setColor(Vector4f::ONE);
 	
-	Physics::DeleteCollisionObject(hero->getRigidBody());
+	if (hero->getRigidBody()) {
+		Physics::DeleteCollisionObject(hero->getRigidBody());
+		hero->setRigidBody(nullptr);
+	}
 
 	if (OnDeath)
 		OnDeath();
