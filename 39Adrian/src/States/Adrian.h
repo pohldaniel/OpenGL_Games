@@ -89,7 +89,7 @@ private:
 	bool m_drawPolygon = false;
 
 	float m_tileFactor = 80.0f;
-	float m_angle = -M_PI_4;
+	float m_angle = -0.628f;
 	float m_height = 30.0f;
 	float m_zoom = 1.0f;
 	int m_streamingDistance;
@@ -151,4 +151,5 @@ private:
 	std::vector<std::array<float, 6>> m_entities_;
 	unsigned int m_vao2 = 0u;
 	unsigned int m_vbo2 = 0u;
+	bool isMouseOver(int sx, int sy, float &, float &);
 };

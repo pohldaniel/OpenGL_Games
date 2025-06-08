@@ -32,6 +32,8 @@ void Bot::fixedUpdate(float fdt) {
 
 	m_rigidBody->setWorldTransform(Physics::BtTransform(pos + pivot1, rot));
 	m_rigidBody->getCollisionShape()->setLocalScaling(Physics::VectorFrom(size * 0.75));
+	Physics::GetDynamicsWorld()->updateSingleAabb(m_rigidBody, true);
+
 	m_segmentBody->setWorldTransform(Physics::BtTransform(pos, rot));
 	m_triggerBody->setWorldTransform(Physics::BtTransform(pos, rot));
 	m_isInRange = false;

@@ -683,19 +683,26 @@ void Adrian::render() {
 	m_panel.draw(m_tileSet[7], Vector4f::ONE, false, 10.0f, 1.0f);
 
 	shader->use();
-	Globals::textureManager.get("null").bind(0);
+	Globals::textureManager.get("ground").bind(0);
 	shader->loadMatrix("u_projection", Sprite::GetOrthographic());
 	shader->loadMatrix("u_view", Matrix4f::IDENTITY);
-	shader->loadVector("u_color", Vector4f::ONE);
+	shader->loadVector("u_color", Vector4f(0.8f, 0.8f, 0.8f, 1.0f));
+	shader->loadMatrix("u_model", Matrix4f::Translate((565.0f / 640.0f) * 1024.0f, (75.0f / 480.0f) * 768.0f, 0.0f) *
+                                  Matrix4f::Rotate(Vector3f(0.0f, 0.0f, -1.0f), m_camera.getAngle() * _180_ON_PI) *
+                                  Matrix4f::Scale(1000.0f / m_xconvfactor, 1000.0f / m_yconvfactor, 0.0f));
+    Globals::shapeManager.get("quad_xy").drawRaw();
 
+	
+	shader->loadVector("u_color", Vector4f::ONE);
 	for (int i = 0; i < m_buildings_.size(); i++) {
 		shader->loadMatrix("u_model", Matrix4f::Translate(m_buildings_[i][0] / m_xconvfactor, m_buildings_[i][1] / m_yconvfactor, 0.0f) *
                                       Matrix4f::Translate((565.0f / 640.0f) * 1024.0f, (75.0f / 480.0f) * 768.0f, 0.0f) *
                                       Matrix4f::Rotate(Vector3f(0.0f , 0.0f, -1.0f), m_camera.getAngle() * _180_ON_PI, Vector3f(-m_buildings_[i][0] / m_xconvfactor, -m_buildings_[i][1] / m_yconvfactor, 0.0f)) *
                                       Matrix4f::Scale(m_buildings_[i][2] / m_xconvfactor, m_buildings_[i][3] / m_yconvfactor, 0.0f));
-		Globals::shapeManager.get("quad_xy").drawRaw();
+		Globals::shapeManager.get("quad_xy_nt").drawRaw();
 	}
 
+	Globals::textureManager.get("null").bind(0);
 	updateEntitiePositions();
 	glBindVertexArray(m_vao2);
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo2);
@@ -711,21 +718,25 @@ void Adrian::render() {
 
 	glDrawArrays(GL_POINTS, 0, m_entities_.size());
 	shader->unuse();
-	glPointSize(1.0f);
 
+	glLineWidth(2.0f);
 	float hm = (21.33f / 640.0f) * 1024.0f;
 	float vm = (21.33f / 480.0f) * 768.0f;
 
 	Vector3f pos = m_camera.getPosition() * Matrix4f::Rotate(Vector3f(0.0f, -1.0f, 0.0f), m_camera.getAngle() * _180_ON_PI);
-	shader = Globals::shaderManager.getAssetPointer("shape_color");
+	shader = Globals::shaderManager.getAssetPointer("view");
 	shader->use();
+	shader->loadMatrix("u_projection", Sprite::GetOrthographic());
+	shader->loadMatrix("u_view", Matrix4f::IDENTITY);
 	shader->loadMatrix("u_model", Matrix4f::Translate(pos[0] / m_xconvfactor, -pos[2] / m_yconvfactor, 0.0f) *
                                   Matrix4f::Translate((565.0f / 640.0f) * 1024.0f, (75.0f / 480.0f) * 768.0f, 0.0f) *
                                   Matrix4f::Scale(hm, vm, 0.0f));
-
+	shader->loadVector("u_color", Vector4f::ONE);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	//glLineWidth(1);
+	
 	Globals::shapeManager.get("quad_xy").drawRaw();
+
+	glLineWidth(1.0f);
 	glPolygonMode(GL_FRONT_AND_BACK, StateMachine::GetEnableWireframe() ? GL_LINE : GL_FILL);
 	shader->unuse();
 
@@ -736,7 +747,7 @@ void Adrian::render() {
 		
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D_ARRAY, set.spriteSheet);
-		Fontrenderer::Get().addText(set, (120.0f / 640.0f) * static_cast<float>(Application::Width), 20.0f, "RIGHT CLICK ON ENEMYS LEG", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
+		Fontrenderer::Get().addText(set, (120.0f / 640.0f) * static_cast<float>(Application::Width), 20.0f, "RIGHT CLICK ON ENEMYS TORSO", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
 		Fontrenderer::Get().addText(set, (120.0f / 640.0f) * static_cast<float>(Application::Width), 0.0f, "TO KILL IT", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
 		Fontrenderer::Get().drawBuffer();	
 	}
@@ -940,6 +951,12 @@ void Adrian::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 	if (event.button == 1u) {
 		if (!m_drawPolygon) {
 			Mouse::instance().attach(Application::GetWindow(), false, false, false);
+			float nx, ny;
+			if (isMouseOver(event.x, event.y, nx, ny)) {
+				m_camera.scrollOver(nx * m_xconvfactor, ny * m_yconvfactor);
+				return;
+			}
+
 			if (m_mousePicker.clickOrthographic(event.x, event.y, m_camera, nullptr, m_ground)) {
 				const MousePickCallback& cb = m_mousePicker.getCallback();
 				if (cb.m_userPoiner == m_hero && !m_hero->isDeath()) {					
@@ -1701,4 +1718,19 @@ const std::vector<std::array<float, 6>>& Adrian::updateEntitiePositions() {
 		return   { pos[0] / m_xconvfactor, -pos[2] / m_yconvfactor, 1.0f, 0.0f, 0.0f, 1.0f };
 	});
 	return m_entities_;
+}
+
+bool Adrian::isMouseOver(int sx, int sy, float &nx, float &ny){
+
+	float mx, my;
+	mx = (sx - (565.0f / 640.0f) * 1024.0f) * cosf(m_camera.getAngle()) + (sy - (405.0f / 480.0f) * 768.0f) * sinf(m_camera.getAngle());
+	my = (sy - (405.0f / 480.0f) * 768.0f) * cosf(m_camera.getAngle()) - (sx - (565.0f / 640.0f) * 1024.0f) * sinf(m_camera.getAngle());
+
+	if (mx < (50.0f / 640.0f) * 1024.0f && mx > -(50.0f / 640.0f) * 1024.0f && my < (50.0f / 480.0f) * 768.0f  && my > -(50.0f / 480.0f) * 768.0f) {
+		nx = mx;
+		ny = my;
+		return true;
+	}
+
+	return false;
 }

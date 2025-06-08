@@ -1580,3 +1580,9 @@ int IsometricCamera::convertCoordinates(unsigned int x, unsigned int y, float &x
 float IsometricCamera::getAngle() {
 	return m_angle;
 }
+
+void IsometricCamera::scrollOver(float x, float y){
+	m_initx = x;
+	m_initz = y;
+	move();
+}

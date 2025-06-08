@@ -199,6 +199,7 @@ public:
 	float getAngle();
 	float m_initx;
 	float m_initz;
+	void scrollOver(float x, float y);
 
 private:
 

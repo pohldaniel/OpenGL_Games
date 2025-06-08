@@ -728,6 +728,7 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("depth_ortho", "res/shader/depth_ortho.vert", "res/shader/depth_ortho.frag");
 	Globals::shaderManager.loadShader("bubble_new", "res/shader/bubble.vert", "res/shader/bubble.frag");
 	Globals::shaderManager.loadShader("points", "res/shader/points.vert", "res/shader/points.frag", "res/shader/points.gem");
+	Globals::shaderManager.loadShader("view", "res/shader/view.vert", "res/shader/view.frag");
 
 	Globals::shaderManager.loadShader("bubble", "res/shader/winston/bubble.vert", "res/shader/winston/bubble.frag");
 	Globals::shaderManager.loadShader("depth", "res/shader/winston/depth.vert", "res/shader/winston/depth.frag");
@@ -773,6 +774,7 @@ void Application::loadAssets() {
 	Globals::textureManager.get("proto_white").setWrapMode(GL_REPEAT);
 
 	Globals::shapeManager.buildQuadXY("quad_xy", Vector3f(-1.0f, -1.0f, 0.0f), Vector2f(2.0f, 2.0f), 1, 1, true, false, false);
+	Globals::shapeManager.buildQuadXY("quad_xy_nt", Vector3f(-1.0f, -1.0f, 0.0f), Vector2f(2.0f, 2.0f), 1, 1, false, false, false);
 
 	Globals::shapeManager.buildQuadXZ("quad_xz", Vector3f(-1.0f, 0.0f, -1.0f), Vector2f(2.0f, 2.0f), 1, 1, true, false, false);
 	Globals::shapeManager.get("quad_xz").createBoundingBox();
