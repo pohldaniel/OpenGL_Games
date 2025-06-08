@@ -441,6 +441,25 @@ m_currentPanelTex(-1){
 
 	m_xconvfactor = 2000.0f / ((100.0f / 640.0f) * 1024.0f);
 	m_yconvfactor = 2000.0f / ((100.0f / 480.0f) * 768.0f);
+
+
+	updateEntitiePositions();
+
+	glGenVertexArrays(1, &m_vao2);
+	glBindVertexArray(m_vao2);
+
+	glGenBuffers(1, &m_vbo2);
+	glBindBuffer(GL_ARRAY_BUFFER, m_vbo2);
+	glBufferData(GL_ARRAY_BUFFER, 6 * sizeof(float) * m_entities_.size(), NULL, GL_DYNAMIC_DRAW);
+
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(2 * sizeof(float)));
+
+	glBindVertexArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 Adrian::~Adrian() {
@@ -675,11 +694,31 @@ void Adrian::render() {
                                       Matrix4f::Scale(m_buildings_[i][2] / m_xconvfactor, m_buildings_[i][3] / m_yconvfactor, 0.0f));
 		Globals::shapeManager.get("quad_xy").drawRaw();
 	}
+	updateEntitiePositions();
+	glPointSize(3.0f);
+	glBindVertexArray(m_vao2);
+	glBindBuffer(GL_ARRAY_BUFFER, m_vbo2);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, 6 * sizeof(float) * m_entities_.size(), &m_entities_[0]);
+
+	shader = Globals::shaderManager.getAssetPointer("points");
+	shader->use();
+	shader->loadMatrix("u_projection", Sprite::GetOrthographic());
+	shader->loadMatrix("u_view", Matrix4f::IDENTITY);
+	shader->loadMatrix("u_model", Matrix4f::Translate((565.0f / 640.0f) * 1024.0f, (75.0f / 480.0f) * 768.0f, 0.0f));
+	shader->loadVector("u_color", Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
+
+	glDrawArrays(GL_POINTS, 0, m_entities_.size());
+	shader->unuse();
+
+
+	glPointSize(1.0f);
 
 	float hm = (21.33f / 640.0f) * 1024.0f;
 	float vm = (21.33f / 480.0f) * 768.0f;
 
 	Vector3f pos = m_camera.getPosition() * Matrix4f::Rotate(Vector3f(0.0f, -1.0f, 0.0f), m_camera.getAngle() * _180_ON_PI);
+	shader = Globals::shaderManager.getAssetPointer("shape_color");
+	shader->use();
 	shader->loadMatrix("u_model", Matrix4f::Translate(pos[0] / m_xconvfactor, -pos[2] / m_yconvfactor, 0.0f) *
                                   Matrix4f::Translate((565.0f / 640.0f) * 1024.0f, (75.0f / 480.0f) * 768.0f, 0.0f) *
                                   Matrix4f::Scale(hm, vm, 0.0f));
@@ -1648,4 +1687,18 @@ void Adrian::loadBillboards() {
 
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
+
+const std::vector<std::array<float, 6>>& Adrian::updateEntitiePositions() {
+	m_entities_.clear();
+
+	Matrix4f rot = Matrix4f::Rotate(Vector3f(0.0f, -1.0f, 0.0f), m_camera.getAngle() * _180_ON_PI);
+	Vector3f pos = m_entities[0]->getWorldPosition() * rot;
+	m_entities_.push_back({ pos[0] / m_xconvfactor, -pos[2] / m_yconvfactor, 1.0f, 1.0f, 1.0f, 1.0f });
+
+	std::transform(m_entities.begin() + 1, m_entities.end(), std::back_inserter(m_entities_), [this, &rot = rot](Md2Entity* p)->std::array<float, 6> {
+		Vector3f pos = p->getWorldPosition() * rot;
+		return   { pos[0] / m_xconvfactor, -pos[2] / m_yconvfactor, 1.0f, 0.0f, 0.0f, 1.0f };
+	});
+	return m_entities_;
 }

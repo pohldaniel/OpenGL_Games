@@ -77,6 +77,7 @@ private:
 	void spawnHero(const Vector3f& pos);
 	void spawnAgent(const Vector3f& pos);
 	void setTarget(const Vector3f& pos);
+	const std::vector<std::array<float, 6>>& updateEntitiePositions();
 
 	bool m_initUi = true;
 	bool m_drawUi = false;
@@ -144,7 +145,10 @@ private:
 	unsigned int m_vao = 0u;
 	unsigned int m_vbo = 0u;
 
-	std::vector<std::array<float, 4>> m_buildings_;
+	std::vector<std::array<float,4>> m_buildings_;
 	float m_xconvfactor;
 	float m_yconvfactor;
+	std::vector<std::array<float, 6>> m_entities_;
+	unsigned int m_vao2 = 0u;
+	unsigned int m_vbo2 = 0u;
 };
