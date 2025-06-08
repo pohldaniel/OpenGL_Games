@@ -81,6 +81,7 @@ public:
 	static void SetTextureUnit(unsigned int unit);
 	static Shader* GetShader();
 	static void UnuseShader();
+	static const Matrix4f& GetOrthographic();
 
 private:
 

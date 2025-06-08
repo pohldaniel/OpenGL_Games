@@ -110,6 +110,18 @@ void Sprite::setTextureUnit(unsigned int unit) {
 	}
 }
 
+void Sprite::setShader(Shader* shader) {
+	m_shader = shader;
+}
+
+Shader* Sprite::getShader() {
+	return m_shader;
+}
+
+void Sprite::resetShader() {
+	m_shader = nullptr;
+}
+
 void Sprite::Resize(unsigned int width, unsigned int height) {
 	Orthographic.orthographic(0.0f, static_cast<float>(width), 0.0f, static_cast<float>(height), -1.0f, 1.0f);
 }
@@ -191,14 +203,6 @@ void Sprite::UnuseShader() {
 	SpriteShader->unuse();
 }
 
-void Sprite::setShader(Shader* shader) {
-	m_shader = shader;
-}
-
-Shader* Sprite::getShader() {
-	return m_shader;
-}
-
-void Sprite::resetShader() {
-	m_shader = nullptr;
+const Matrix4f& Sprite::GetOrthographic() {
+	return Orthographic;
 }

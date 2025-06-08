@@ -140,8 +140,11 @@ private:
 	int m_currentPanelTex;
 	CharacterSet set;
 
-
 	std::vector<Vector3f> m_positions;
 	unsigned int m_vao = 0u;
 	unsigned int m_vbo = 0u;
+
+	std::vector<std::array<float, 4>> m_buildings_;
+	float m_xconvfactor;
+	float m_yconvfactor;
 };

@@ -1701,11 +1701,11 @@ Matrix4f Matrix4f::Rotate(const Vector3f &axis, float degrees, const Vector3f &c
 	float mtx22 = (z * z) * (1.0f - c) + c;
 
 	return Matrix4f(mtx00, mtx01, mtx02, 0.0f,
-		mtx10, mtx11, mtx12, 0.0f,
-		mtx20, mtx21, mtx22, 0.0f,
-		centerOfRotation[0] * (1.0f - mtx00) - centerOfRotation[1] * mtx10 - centerOfRotation[2] * mtx20,
-		centerOfRotation[1] * (1.0f - mtx11) - centerOfRotation[0] * mtx01 - centerOfRotation[2] * mtx21,
-		centerOfRotation[2] * (1.0f - mtx22) - centerOfRotation[0] * mtx02 - centerOfRotation[1] * mtx12, 1.0);
+                    mtx10, mtx11, mtx12, 0.0f,
+                    mtx20, mtx21, mtx22, 0.0f,
+                   centerOfRotation[0] * (1.0f - mtx00) - centerOfRotation[1] * mtx10 - centerOfRotation[2] * mtx20,
+                   centerOfRotation[1] * (1.0f - mtx11) - centerOfRotation[0] * mtx01 - centerOfRotation[2] * mtx21,
+                   centerOfRotation[2] * (1.0f - mtx22) - centerOfRotation[0] * mtx02 - centerOfRotation[1] * mtx12, 1.0);
 
 }
 

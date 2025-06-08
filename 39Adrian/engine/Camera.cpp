@@ -1448,7 +1448,7 @@ void ThirdPersonCamera::setTarget(const Vector3f& target) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
-IsometricCamera::IsometricCamera(unsigned int width, unsigned int height) : Camera(), m_startAngle(-M_PI_4){
+IsometricCamera::IsometricCamera(unsigned int width, unsigned int height) : Camera(), m_startAngle(-0.628f){
 	m_height = 30.0f;
 	m_distance = m_height * M_SQRT3;
 	//distance = 50.0f;

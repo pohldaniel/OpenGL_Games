@@ -438,6 +438,9 @@ m_currentPanelTex(-1){
 	Sprite::GetShader()->unuse();
 
 	loadBillboards();
+
+	m_xconvfactor = 2000.0f / ((100.0f / 640.0f) * 1024.0f);
+	m_yconvfactor = 2000.0f / ((100.0f / 480.0f) * 768.0f);
 }
 
 Adrian::~Adrian() {
@@ -651,10 +654,41 @@ void Adrian::render() {
 		DebugRenderer::Get().drawBuffer();
 	}
 
+	
+
 	glClear(GL_DEPTH_BUFFER_BIT);
+
 	m_panel.setPosition(0.0f, 0.0f);
 	m_panel.setScale(static_cast<float>(Application::Width), (50.0f / 480.0f) * static_cast<float>(Application::Height));
 	m_panel.draw(m_tileSet[7], Vector4f::ONE, false, 10.0f, 1.0f);
+
+	shader->use();
+	Globals::textureManager.get("null").bind(0);
+	shader->loadMatrix("u_projection", Sprite::GetOrthographic());
+	shader->loadMatrix("u_view", Matrix4f::IDENTITY);
+	shader->loadVector("u_color", Vector4f::ONE);
+
+	for (int i = 0; i < m_buildings_.size(); i++) {
+		shader->loadMatrix("u_model", Matrix4f::Translate(m_buildings_[i][0] / m_xconvfactor, m_buildings_[i][1] / m_yconvfactor, 0.0f) *
+                                      Matrix4f::Translate((565.0f / 640.0f) * 1024.0f, (75.0f / 480.0f) * 768.0f, 0.0f) *
+                                      Matrix4f::Rotate(Vector3f(0.0f , 0.0f, -1.0f), m_camera.getAngle() * _180_ON_PI, Vector3f(-m_buildings_[i][0] / m_xconvfactor, -m_buildings_[i][1] / m_yconvfactor, 0.0f)) *
+                                      Matrix4f::Scale(m_buildings_[i][2] / m_xconvfactor, m_buildings_[i][3] / m_yconvfactor, 0.0f));
+		Globals::shapeManager.get("quad_xy").drawRaw();
+	}
+
+	float hm = (21.33f / 640.0f) * 1024.0f;
+	float vm = (21.33f / 480.0f) * 768.0f;
+
+	Vector3f pos = m_camera.getPosition() * Matrix4f::Rotate(Vector3f(0.0f, -1.0f, 0.0f), m_camera.getAngle() * _180_ON_PI);
+	shader->loadMatrix("u_model", Matrix4f::Translate(pos[0] / m_xconvfactor, -pos[2] / m_yconvfactor, 0.0f) *
+                                  Matrix4f::Translate((565.0f / 640.0f) * 1024.0f, (75.0f / 480.0f) * 768.0f, 0.0f) *
+                                  Matrix4f::Scale(hm, vm, 0.0f));
+
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	//glLineWidth(1);
+	Globals::shapeManager.get("quad_xy").drawRaw();
+	glPolygonMode(GL_FRONT_AND_BACK, StateMachine::GetEnableWireframe() ? GL_LINE : GL_FILL);
+	shader->unuse();
 
 	if (m_currentPanelTex >= 0) {
 		m_panel.setPosition(0.0f, (10.0f / 480.0f) * static_cast<float>(Application::Height));
@@ -1244,6 +1278,15 @@ void Adrian::loadBuilding(const char* fn, bool changeWinding) {
 	m_buildings.back().setVec4Attribute(shapeColor, 0u, 3u);
 }
 
+void block_convert(float &newx, float &newy, float x, float y){
+	int tempx, tempy;
+
+	tempx = (int)((2000.0f / 2.0 + x) / 40.0f);
+	tempy = (int)((2000.0f / 2.0 + y) / 40.0f);
+	newx = -2000.0f / 2.0 + tempx * 40.0f + 40.0f / 2.0;
+	newy = -2000.0f / 2.0 + tempy * 40.0f + 40.0f / 2.0;
+}
+
 void Adrian::loadBots(const char* filename) {
 	FILE *f;
 	char buf[256];
@@ -1270,6 +1313,10 @@ void Adrian::loadBots(const char* filename) {
 	fscanf(f, "%d", &noOfBuildings);
 	for (int i = 0; i < noOfBuildings; i++) {
 		fscanf(f, "%f %f %f %f %d %d %s", &bx1, &by1, &bx2, &by2, &btype, &texId, fn);
+		float _bx1, _by1, _bx2, _by2;
+		block_convert(_bx1, _by1, bx1, by1);
+		block_convert(_bx2, _by2, bx2, by2);
+		m_buildings_.push_back({ _bx1 + (_bx2 - _bx1) * 0.5f, -(_by1 + (_by2 - _by1) * 0.5f),  (_bx2 - _bx1) * 0.5f, (_by2 - _by1) * 0.5f });
 	}
 
 	int numGuards, gtype;
@@ -1407,8 +1454,7 @@ void Adrian::toggleStreaming(bool enabled) {
 		saveNavigationData();
 		m_navigationMesh->allocate(boundingBox, maxTiles);
 		updateStreaming();
-	}
-	else {
+	}else {
 		rebuild();
 	}
 }
