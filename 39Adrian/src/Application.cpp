@@ -727,7 +727,7 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("animation", "res/shader/animation.vert", "res/shader/animation.frag");
 	Globals::shaderManager.loadShader("depth_ortho", "res/shader/depth_ortho.vert", "res/shader/depth_ortho.frag");
 	Globals::shaderManager.loadShader("bubble_new", "res/shader/bubble.vert", "res/shader/bubble.frag");
-	Globals::shaderManager.loadShader("points", "res/shader/points.vert", "res/shader/points.frag");
+	Globals::shaderManager.loadShader("points", "res/shader/points.vert", "res/shader/points.frag", "res/shader/points.gem");
 
 	Globals::shaderManager.loadShader("bubble", "res/shader/winston/bubble.vert", "res/shader/winston/bubble.frag");
 	Globals::shaderManager.loadShader("depth", "res/shader/winston/depth.vert", "res/shader/winston/depth.frag");

@@ -48,7 +48,7 @@ public:
 	const float getFovXDeg() const;
 	const float getFovXRad() const;
 	const float getScaleFactor() const;
-	const float getAspect() const;
+	const float getAspect(bool ortho = false) const;
 	const float getOffsetDistance() const;
 
 	const float getLeftOrthographic() const;

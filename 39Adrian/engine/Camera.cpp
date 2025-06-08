@@ -692,9 +692,9 @@ const float Camera::getScaleFactor() const{
 	return m_invPersMatrix[1][1];
 }
 
-const float Camera::getAspect() const {
+const float Camera::getAspect(bool ortho) const {
 	//return m_persMatrix[1][1] / m_persMatrix[0][0];
-	return m_invPersMatrix[0][0] / m_invPersMatrix[1][1];
+	return ortho ? m_orthMatrix[0][0] / m_orthMatrix[1][1] : m_invPersMatrix[0][0] / m_invPersMatrix[1][1];
 }
 
 const float Camera::getLeftOrthographic() const {

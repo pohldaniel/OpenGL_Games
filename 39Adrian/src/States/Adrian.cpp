@@ -442,7 +442,8 @@ m_currentPanelTex(-1){
 	m_xconvfactor = 2000.0f / ((100.0f / 640.0f) * 1024.0f);
 	m_yconvfactor = 2000.0f / ((100.0f / 480.0f) * 768.0f);
 
-
+	//glEnable(GL_PROGRAM_POINT_SIZE);
+	//glDisable(GL_POINT_SMOOTH);
 	updateEntitiePositions();
 
 	glGenVertexArrays(1, &m_vao2);
@@ -694,23 +695,22 @@ void Adrian::render() {
                                       Matrix4f::Scale(m_buildings_[i][2] / m_xconvfactor, m_buildings_[i][3] / m_yconvfactor, 0.0f));
 		Globals::shapeManager.get("quad_xy").drawRaw();
 	}
+
 	updateEntitiePositions();
-	glPointSize(3.0f);
 	glBindVertexArray(m_vao2);
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo2);
 	glBufferSubData(GL_ARRAY_BUFFER, 0, 6 * sizeof(float) * m_entities_.size(), &m_entities_[0]);
-
 	shader = Globals::shaderManager.getAssetPointer("points");
 	shader->use();
 	shader->loadMatrix("u_projection", Sprite::GetOrthographic());
 	shader->loadMatrix("u_view", Matrix4f::IDENTITY);
 	shader->loadMatrix("u_model", Matrix4f::Translate((565.0f / 640.0f) * 1024.0f, (75.0f / 480.0f) * 768.0f, 0.0f));
 	shader->loadVector("u_color", Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
+	shader->loadFloat("u_size", 0.01f);
+	shader->loadFloat("u_ratio", m_camera.getAspect(true));
 
 	glDrawArrays(GL_POINTS, 0, m_entities_.size());
 	shader->unuse();
-
-
 	glPointSize(1.0f);
 
 	float hm = (21.33f / 640.0f) * 1024.0f;
