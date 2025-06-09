@@ -379,6 +379,8 @@ public:
 	static Matrix4f &Rotate(Matrix4f& mtx, const Vector3f& axis, float degrees);
 	static Matrix4f &Rotate(Matrix4f& mtx, const Vector3f& axis, float degrees, const Vector3f&centerOfRotation);
 
+	static Vector3f RotateVec(const Vector3f& axis, float degrees, const Vector3f& vec);
+
 	static Matrix4f InvRotate(const Vector3f& axis, float degrees);
 	static Matrix4f InvRotate(const Quaternion& orientation);
 	static Matrix4f InvRotate(float pitch, float yaw, float roll);

@@ -723,7 +723,8 @@ void Adrian::render() {
 	float hm = (21.33f / 640.0f) * 1024.0f;
 	float vm = (21.33f / 480.0f) * 768.0f;
 
-	Vector3f pos = m_camera.getPosition() * Matrix4f::Rotate(Vector3f(0.0f, -1.0f, 0.0f), m_camera.getAngle() * _180_ON_PI);
+
+	Vector3f pos = Matrix4f::RotateVec(Vector3f(0.0f, -1.0f, 0.0f), m_camera.getAngle() * _180_ON_PI, m_camera.getPosition());
 	shader = Globals::shaderManager.getAssetPointer("view");
 	shader->use();
 	shader->loadMatrix("u_projection", Sprite::GetOrthographic());

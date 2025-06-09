@@ -1841,6 +1841,28 @@ Matrix4f& Matrix4f::Rotate(Matrix4f &mtx, const Vector3f &axis, float degrees, c
 	return mtx;
 }
 
+Vector3f Matrix4f::RotateVec(const Vector3f& axis, float degrees, const Vector3f& vec) {
+	float rad = degrees * PI_ON_180;
+	float magnitude = axis.length();
+
+	float x = axis[0] * (1.0f / magnitude);
+	float y = axis[1] * (1.0f / magnitude);
+	float z = axis[2] * (1.0f / magnitude);
+	float c = cosf(rad);
+	float s = sinf(rad);
+	float xy = x * y;
+	float xz = x * z;
+	float yz = y * z;
+	float shiftc = 1.0f - c;
+	float xs = x * s;
+	float ys = y * s;
+	float zs = z * s;
+
+	return Vector3f(vec[0] * ((x * x) * shiftc + c)  + vec[1] * (xy * shiftc - zs)     + vec[2] * (xz * shiftc + ys),
+                    vec[0] * (xy * shiftc + zs)      + vec[1] * ((y * y) * shiftc + c) + vec[2] * (yz * shiftc - xs),
+                    vec[0] * (xz * shiftc - ys)      + vec[1] * (yz * shiftc + xs)     + vec[2] * ((z * z) * shiftc + c));
+}
+
 Matrix4f Matrix4f::GetNormalMatrix(const Matrix4f &modelViewMatrix) {
 
 	Matrix4f normalMatrix;

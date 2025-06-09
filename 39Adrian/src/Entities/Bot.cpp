@@ -31,6 +31,7 @@ void Bot::fixedUpdate(float fdt) {
 	const Vector3f pivot1(0.0f, aabb.min[1] + size[1] * 0.5f, 0.0f);
 
 	m_rigidBody->setWorldTransform(Physics::BtTransform(pos + pivot1, rot));
+	m_rigidBody->setInterpolationWorldTransform(Physics::BtTransform(pos + pivot1, rot));
 	m_rigidBody->getCollisionShape()->setLocalScaling(Physics::VectorFrom(size * 0.75));
 	Physics::GetDynamicsWorld()->updateSingleAabb(m_rigidBody, true);
 
