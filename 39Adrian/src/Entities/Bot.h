@@ -37,6 +37,7 @@ public:
 	void handleCollision(btCollisionObject* collisionObject);
 	btRigidBody* getRigidBody();
 	btRigidBody* getSegmentBody();
+	void setSegmentBody(btRigidBody* segmentBody);
 	btRigidBody* getTriggerBody();
 	void setRigidBody(btRigidBody* rigidBody);
 	void setEnemyType(EnemyType enemyType);

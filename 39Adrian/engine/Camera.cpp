@@ -1474,8 +1474,7 @@ IsometricCamera::IsometricCamera(unsigned int width, unsigned int height) : Came
 
 	m_yfactor = -sqrt(1 + (m_distance * m_distance) / (m_height * m_height));
 
-	m_speed = 5.0f;
-
+	m_speed = 1000.0f;
 	move();
 }
 
@@ -1493,54 +1492,54 @@ void IsometricCamera::move() {
 	lookAt(m_eye, m_target, Vector3f(0.0f, 1.0f, 0.0f));
 }
 
-void IsometricCamera::moveUp() {
+void IsometricCamera::moveUp(float dt) {
 	float tmpx, tmpy;
 	convertCoordinates((m_hres / 2.0), (m_vres / 2.0), tmpx, tmpy);
 	if (tmpy > m_breadth / 2)
 		return;
 
-	m_initx += sin(m_angle) * m_speed;
-	m_initz += cos(m_angle) * m_speed;
+	m_initx += sin(m_angle) * m_speed * dt;
+	m_initz += cos(m_angle) * m_speed * dt;
 	move();
 }
 
-void IsometricCamera::moveDown() {
+void IsometricCamera::moveDown(float dt) {
 	float tmpx, tmpy;
 	convertCoordinates((m_hres / 2.0), (m_vres / 2.0), tmpx, tmpy);
 	if (tmpy < -m_breadth / 2)
 		return;
 
-	m_initx -= sinf(m_angle) * m_speed;
-	m_initz -= cosf(m_angle) * m_speed;
+	m_initx -= sinf(m_angle) * m_speed * dt;
+	m_initz -= cosf(m_angle) * m_speed * dt;
 	move();
 }
 
-void IsometricCamera::moveLeft() {
+void IsometricCamera::moveLeft(float dt) {
 	float tmpx, tmpy;
 	convertCoordinates((m_hres / 2.0), (m_vres / 2.0), tmpx, tmpy);
 	if (tmpx > m_length / 2)
 		return;
 
-	m_initx += cosf(m_angle) * m_speed;
-	m_initz -= sinf(m_angle) * m_speed;
+	m_initx += cosf(m_angle) * m_speed * dt;
+	m_initz -= sinf(m_angle) * m_speed * dt;
 	move();
 }
 
-void IsometricCamera::moveRight() {
+void IsometricCamera::moveRight(float dt) {
 	float tmpx, tmpy;
 	convertCoordinates((m_hres / 2.0), (m_vres / 2.0), tmpx, tmpy);
 	if (tmpx < -m_length / 2)
 		return;
 
-	m_initx -= cos(m_angle) * m_speed;
-	m_initz += sin(m_angle) * m_speed;
+	m_initx -= cos(m_angle) * m_speed * dt;
+	m_initz += sin(m_angle) * m_speed * dt;
 	move();
 }
 
 void IsometricCamera::rotate(float angle) {
 	m_angle = angle;
-	m_eye[0] = m_distance * sinf(angle) + m_initx;
-	m_eye[2] = m_distance * cosf(angle) + m_initz;
+	m_eye[0] = (m_distance * sinf(angle) + m_initx);
+	m_eye[2] = (m_distance * cosf(angle) + m_initz);
 
 	m_target[0] = m_initx;
 	m_target[2] = m_initz;

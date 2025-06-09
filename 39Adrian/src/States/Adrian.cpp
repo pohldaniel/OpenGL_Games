@@ -520,33 +520,33 @@ void Adrian::update() {
 	if (keyboard.keyDown(Keyboard::KEY_W)) {
 		direction += Vector3f(0.0f, 0.0f, 1.0f);
 		move |= true;
-		m_camera.moveDown();
+		m_camera.moveDown(m_dt);
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_S)) {
 		direction += Vector3f(0.0f, 0.0f, -1.0f);
 		move |= true;
-		m_camera.moveUp();
+		m_camera.moveUp(m_dt);
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_A)) {
 		direction += Vector3f(-1.0f, 0.0f, 0.0f);
 		move |= true;
-		m_camera.moveRight();
+		m_camera.moveRight(m_dt);
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_D)) {
 		direction += Vector3f(1.0f, 0.0f, 0.0f);
 		move |= true;
-		m_camera.moveLeft();
+		m_camera.moveLeft(m_dt);
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_Q)) {
 		if (Keyboard::instance().keyDown(Keyboard::KEY_LSHIFT)) {
-			m_height += 0.05f;
+			m_height += m_dt * 30.0f;
 			m_camera.setHeight(m_height);
 		}else {
-			m_angle += 0.005f;
+			m_angle += m_dt;
 			m_camera.rotate(m_angle);
 		}
 
@@ -554,10 +554,10 @@ void Adrian::update() {
 
 	if (keyboard.keyDown(Keyboard::KEY_E)) {
 		if (Keyboard::instance().keyDown(Keyboard::KEY_LSHIFT)) {
-			m_height -= 0.05f;
+			m_height -= m_dt * 30.0f;
 			m_camera.setHeight(m_height);
 		}else {
-			m_angle -= 0.005f;
+			m_angle -= m_dt;
 			m_camera.rotate(m_angle);
 		}
 	}

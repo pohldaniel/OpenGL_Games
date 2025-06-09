@@ -188,10 +188,10 @@ public:
 	~IsometricCamera();
 
 	void move();
-	void moveUp();
-	void moveDown();
-	void moveLeft();
-	void moveRight();
+	void moveUp(float dt);
+	void moveDown(float dt);
+	void moveLeft(float dt);
+	void moveRight(float dt);
 	void rotate(float angle);
 	void setHeight(float height);
 	void resize(unsigned int width, unsigned int height);

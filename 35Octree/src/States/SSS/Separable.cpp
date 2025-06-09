@@ -87,7 +87,7 @@ Separable::Separable(StateMachine& machine) : State(machine, States::SEPARABLE) 
 	lights[3].farPlane = 100.0f;
 	lights[3].bias = -0.01f;
 	
-	model = Model::DRAGON;
+	model = Model::STATUE;
 	switch (model) {
 	case Model::STATUE:
 		presetStatue();
@@ -776,7 +776,7 @@ void Separable::presetDragon() {
 	m_folowSurface = true;
 
 	m_center = Vector3f(0.0f, 5.0f, 0.0f);
-
+	m_transform.reset();
 	lights[0].color = Vector3f(1.0f, 1.0f, 1.0f);
 	lights[0].viewDirection = Vector3f::Normalize(m_transform.getTransformationMatrix() * m_center - lights[0].pos);
 	lights[0].m_shadowView.lookAt(lights[0].pos, m_transform.getTransformationMatrix() * m_center, Vector3f(0.0f, 1.0f, 0.0f));
@@ -817,7 +817,7 @@ void Separable::presetStatue() {
 	m_folowSurface = false;
 
 	m_center = m_statue.getCenter();
-
+	m_transform.reset();
 	lights[0].color = Vector3f(1.0f, 1.0f, 1.0f);
 	lights[0].viewDirection = Vector3f::Normalize(m_transform.getTransformationMatrix() * m_center - lights[0].pos);
 	lights[0].m_shadowView.lookAt(lights[0].pos, m_transform.getTransformationMatrix() * m_center, Vector3f(0.0f, 1.0f, 0.0f));

@@ -98,25 +98,25 @@ void MapState::update() {
 	if (keyboard.keyDown(Keyboard::KEY_W)) {
 		direction += Vector3f(0.0f, 0.0f, 1.0f);
 		move |= true;
-		m_camera.moveDown();	
+		m_camera.moveDown(m_dt);	
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_S)) {
 		direction += Vector3f(0.0f, 0.0f, -1.0f);
 		move |= true;
-		m_camera.moveUp();
+		m_camera.moveUp(m_dt);
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_A)) {
 		direction += Vector3f(-1.0f, 0.0f, 0.0f);
 		move |= true;
-		m_camera.moveRight();
+		m_camera.moveRight(m_dt);
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_D)) {
 		direction += Vector3f(1.0f, 0.0f, 0.0f);
 		move |= true;
-		m_camera.moveLeft();
+		m_camera.moveLeft(m_dt);
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_Q)) {

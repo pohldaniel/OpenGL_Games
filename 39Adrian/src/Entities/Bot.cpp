@@ -108,6 +108,10 @@ btRigidBody* Bot::getRigidBody() {
 	return m_rigidBody;
 }
 
+void Bot::setSegmentBody(btRigidBody* segmentBody) {
+	m_segmentBody = segmentBody;
+}
+
 btRigidBody* Bot::getSegmentBody() {
 	return m_segmentBody;
 }
@@ -165,6 +169,11 @@ void Bot::death() {
 	if (getRigidBody()) {
 		Physics::DeleteCollisionObject(getRigidBody());
 		setRigidBody(nullptr);
+	}
+
+	if (getSegmentBody()) {
+		Physics::DeleteCollisionObject(getSegmentBody());
+		setSegmentBody(nullptr);
 	}
 }
 
