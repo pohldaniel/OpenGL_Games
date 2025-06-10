@@ -1,10 +1,9 @@
 #include <iostream>
 #include "SceneNodeLC.h"
 
-
-Vector3f SceneNodeLC::WorldPosition;
-Vector3f SceneNodeLC::WorldScale;
-Quaternion SceneNodeLC::WorldOrientation;
+thread_local Vector3f SceneNodeLC::WorldPosition;
+thread_local Vector3f SceneNodeLC::WorldScale;
+thread_local Quaternion SceneNodeLC::WorldOrientation;
 
 SceneNodeLC::SceneNodeLC() : BaseNode() {
 	m_modelMatrix.identity();

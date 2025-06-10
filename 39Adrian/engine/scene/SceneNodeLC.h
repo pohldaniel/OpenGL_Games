@@ -22,7 +22,7 @@ public:
 private:
 
 	mutable Matrix4f m_modelMatrix;
-	static Vector3f WorldPosition;
-	static Vector3f WorldScale;
-	static Quaternion WorldOrientation;
+	static thread_local Vector3f WorldPosition;
+	static thread_local Vector3f WorldScale;
+	static thread_local Quaternion WorldOrientation;
 };

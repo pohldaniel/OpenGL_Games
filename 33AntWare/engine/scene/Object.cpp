@@ -1,7 +1,7 @@
 #include <iostream>
 #include "Object.h"
 
-Matrix4f Object::Transformation;
+thread_local Matrix4f Object::Transformation;
 
 Object::Object() {
 	m_scale.set(1.0f, 1.0f, 1.0f);

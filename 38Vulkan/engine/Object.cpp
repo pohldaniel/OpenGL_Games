@@ -1,6 +1,6 @@
 #include "Object.h"
 
-Matrix4f Object2D::Transformation;
+thread_local Matrix4f Object2D::Transformation;
 
 Object2D::Object2D() {
 	m_position.set(0.0f, 0.0f);
@@ -181,7 +181,7 @@ const Matrix4f& Object2D::GetTransformation() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
-Matrix4f Object::Transformation;
+thread_local Matrix4f Object::Transformation;
 
 Object::Object() {
 	m_position.set(0.0f, 0.0f, 0.0f);

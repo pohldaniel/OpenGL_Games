@@ -51,7 +51,7 @@ textures/misc/tree.tga 72
 models/dynamic/mutantman/mutantman.md2 66 -700 550 -700 550 0 270 textures/panel/MutantManPanel.tga
 models/dynamic/hueteotl/hueteotl.md2 68 -900 200 -760 550 0.3 0 textures/panel/SkelPanel.tga
 models/dynamic/hueteotl/hueteotl.md2 68 -450 40 -450 40 0 90 textures/panel/SkelPanel.tga
-models/dynamic/corpse/corpse.md2 67 -400 650 -400 650 0 0 textures/panel/CorpsePanel.tga
+models/dynamic/corpse/corpse.md2 67 -400 650 -400 650 0 180 textures/panel/CorpsePanel.tga
 models/dynamic/mutantman/mutantman.md2 66 -330 250 -330 250 0 250 textures/panel/MutantManPanel.tga
 models/dynamic/mutantman/mutantman.md2 66 -300 250 -300 250 0 290 textures/panel/MutantManPanel.tga
 models/dynamic/mutantman/mutantman.md2 66 0 300 -400 550 1 0 textures/panel/MutantManPanel.tga

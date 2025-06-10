@@ -185,8 +185,8 @@ const void Md2Model::update(float dt) const {
 	int len = static_cast<int>(currentAnimation->frames.size()) - 1;
 	float lenf = static_cast<float>(len);
 
-	if (m_activeFrame > lenf) {
-		m_activeFrame = m_loopAnimation ? 0.0f : lenf;
+	if (m_activeFrame >= lenf) {
+		m_activeFrame = m_loopAnimation ? std::modf(m_activeFrame, &m_activeFrame) + std::fmod(m_activeFrame, lenf + 1.0f) : lenf;
 	}
 
 	m_activeFrameIdx = static_cast<short>(m_activeFrame);

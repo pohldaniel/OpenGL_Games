@@ -139,7 +139,7 @@ public:
 		return m_dispatcher1;
 	}
 
-	void updateSingleAabb(btCollisionObject* colObj, bool force = false);
+	void updateSingleAabb(btCollisionObject* colObj);
 
 	virtual void updateAabbs();
 

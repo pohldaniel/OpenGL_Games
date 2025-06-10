@@ -58,7 +58,7 @@ protected:
 	Vector2f m_scale;
 	float m_orientation;
 
-	static Matrix4f Transformation;
+	static thread_local Matrix4f Transformation;
 };
 
 class Object {
@@ -127,5 +127,5 @@ protected:
 	Vector3f m_scale;	
 	Quaternion m_orientation;
 
-	static Matrix4f Transformation;
+	static thread_local Matrix4f Transformation;
 };

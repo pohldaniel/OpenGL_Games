@@ -169,7 +169,7 @@ m_currentPanelTex(-1){
 
 	loadBots("data/maps/default/main.map");
 
-	m_bot1 = m_root->addChild<Bot, Md2Model>(m_hueteotl);
+	/*m_bot1 = m_root->addChild<Bot, Md2Model>(m_hueteotl);
 	m_bot1->setPosition(620.0f, 0.0f, -380.0f);
 	m_bot1->setOrientation(0.0f, 0.0f, 0.0f);
 	m_bot1->setTextureIndex(12);
@@ -411,7 +411,7 @@ m_currentPanelTex(-1){
 	m_diskNode->OnOctreeSet(m_octree);
 	m_diskNode->setSortKey(2);
 	m_diskNode->setShader(Globals::shaderManager.getAssetPointer("shape_color"));
-	m_diskNode->setColor(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
+	m_diskNode->setColor(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));*/
 
 	TextureAtlasCreator::Get().init(64u, 64u);
 	TileSetManager::Get().getTileSet("overlay").loadTileSetCpu(std::vector<std::string>({	
@@ -479,24 +479,24 @@ Adrian::~Adrian() {
 }
 
 void Adrian::fixedUpdate() {
-
-	for (auto&& entity : m_entities)
+	int index = 0;
+	for (auto&& entity : m_entities) {
 		entity->fixedUpdate(m_fdt);
+		if (index != 0) {
+			m_hero->handleCollision(static_cast<Bot*>(entity)->getSegmentBody());
+			static_cast<Bot*>(entity)->handleCollision(m_hero->getSegmentBody());
+		}
+		index++;
+	}
 
-	if(!m_bot1->isDeath())
-		m_hero->handleCollision(m_bot1->getSegmentBody());
-	if (!m_bot2->isDeath())
-		m_hero->handleCollision(m_bot2->getSegmentBody());
-	if (!m_bot3->isDeath())
-		m_hero->handleCollision(m_bot3->getSegmentBody());
-	if (!m_bot4->isDeath())
-		m_hero->handleCollision(m_bot4->getSegmentBody());
-	if (!m_bot5->isDeath())
-		m_hero->handleCollision(m_bot5->getSegmentBody());
-	if (!m_bot6->isDeath())
-		m_hero->handleCollision(m_bot6->getSegmentBody());
-	if (!m_bot7->isDeath())
-		m_hero->handleCollision(m_bot7->getSegmentBody());
+
+	/*m_hero->handleCollision(m_bot1->getSegmentBody());
+	m_hero->handleCollision(m_bot2->getSegmentBody());
+	m_hero->handleCollision(m_bot3->getSegmentBody());
+	m_hero->handleCollision(m_bot4->getSegmentBody());
+	m_hero->handleCollision(m_bot5->getSegmentBody());
+	m_hero->handleCollision(m_bot6->getSegmentBody());
+	m_hero->handleCollision(m_bot7->getSegmentBody());
 
 	m_bot1->handleCollision(m_hero->getSegmentBody());
 	m_bot2->handleCollision(m_hero->getSegmentBody());
@@ -504,7 +504,7 @@ void Adrian::fixedUpdate() {
 	m_bot4->handleCollision(m_hero->getSegmentBody());
 	m_bot5->handleCollision(m_hero->getSegmentBody());
 	m_bot6->handleCollision(m_hero->getSegmentBody());
-	m_bot7->handleCollision(m_hero->getSegmentBody());
+	m_bot7->handleCollision(m_hero->getSegmentBody());*/
 
 	Globals::physics->stepSimulation(m_fdt);
 }
@@ -1382,7 +1382,85 @@ void Adrian::loadBots(const char* filename) {
 	fscanf(f, "%d", &numGuards);
 	for (int i = 0; i < numGuards; i++) {
 		fscanf(f, "%s %d %f %f %f %f %f %f %s", buf, &gtype, &gx1, &gy1, &gx2, &gy2, &gspeed, &gangle, paneltexfn);
-		std::cout << "Path: " << paneltexfn << std::endl;
+		Bot* bot;
+		if (gtype == 66) {
+			bot = m_root->addChild<Bot, Md2Model>(m_mutantman);
+			bot->setTextureIndex(13);
+			bot->setEnemyType(EnemyType::MUTANT_MAN);
+         }else if (gtype == 68) {
+			bot = m_root->addChild<Bot, Md2Model>(m_hueteotl);
+			bot->setTextureIndex(12);
+			bot->setEnemyType(EnemyType::SKEL);
+		}else if (gtype == 67) {
+			bot = m_root->addChild<Bot, Md2Model>(m_corpse);
+			bot->setTextureIndex(14);
+			bot->setEnemyType(EnemyType::CORPSE);
+		}else if (gtype == 70) {
+			bot = m_root->addChild<Bot, Md2Model>(m_mutantlizard);
+			bot->setTextureIndex(15);
+			bot->setEnemyType(EnemyType::MUTANT_LIZARD);
+		}else if (gtype == 69) {
+			bot = m_root->addChild<Bot, Md2Model>(m_mutantcheetah);
+			bot->setTextureIndex(16);
+			bot->setEnemyType(EnemyType::MUTANT_CHEETA);
+		}else if (gtype == 71) {
+			bot = m_root->addChild<Bot, Md2Model>(m_ripper);
+			bot->setTextureIndex(17);
+			bot->setEnemyType(EnemyType::RIPPER);
+		}else {
+			continue;
+		}
+		
+
+		if (gx1 == gx2 && gy1 == gy2) {
+			bot->setPosition(gx1, 0.0f, gy1);
+			bot->setOrientation(0.0f, gangle - 90.0f, 0.0f);			
+			bot->setStart(gx1, 0.0f, gy1);
+			bot->setEnd(gx2, 0.0f, gy2);
+			bot->setSpeed(1.0f);
+			bot->setMoveSpeed(0.0f);
+			if(gtype == 69)
+				bot->setAnimationType(AnimationType::NONE, AnimationType::STAND);
+			else
+				bot->setAnimationType(AnimationType::STAND);
+			bot->OnOctreeSet(m_octree);
+			bot->setSortKey(5);
+			bot->Md2Node::setShader(Globals::shaderManager.getAssetPointer("shape_color"));
+			bot->init(m_segment);											
+		}else {
+			bot->setPosition(gx1, 0.0f, gy1);
+			bot->setOrientation(0.0f, gangle - 90.0f, 0.0f);
+			bot->setStart(gx1, 0.0f, gy1);
+			bot->setEnd(gx2, 0.0f, gy2);
+			bot->setSpeed(gtype == 71 ? 0.6f : gtype == 66 ? 0.5f : 0.3f);
+			bot->setMoveSpeed(gtype == 71 ? 175.6f : gtype == 66  ? 105.0f : 35.0f);
+			bot->setAnimationType(AnimationType::RUN);
+			bot->OnOctreeSet(m_octree);
+			bot->setSortKey(5);
+			bot->Md2Node::setShader(Globals::shaderManager.getAssetPointer("shape_color"));
+			bot->init(m_segment);
+		}
+
+		m_entities.push_back(bot);
+		m_segmentNode = bot->addChild<ShapeNode, Shape>(m_segment);
+		m_segmentNode->setPosition(0.0f, 0.5f, 0.0f);
+		m_segmentNode->setOrientation(0.0f, 0.0f, 0.0f);
+		m_segmentNode->setScale(2.5f, 0.0f, 2.5f);
+		m_segmentNode->setTextureIndex(0);
+		m_segmentNode->OnOctreeSet(m_octree);
+		m_segmentNode->setSortKey(4);
+		m_segmentNode->setShader(Globals::shaderManager.getAssetPointer("shape_color"));
+		m_segmentNode->setColor(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
+		m_segmentNode->setName("segment");
+
+		m_diskNode = bot->addChild<ShapeNode, Shape>(m_disk);
+		m_diskNode->setPosition(0.0f, 1.0f, 0.0f);
+		m_diskNode->setTextureIndex(1);
+		m_diskNode->setName("disk");
+		m_diskNode->OnOctreeSet(m_octree);
+		m_diskNode->setSortKey(2);
+		m_diskNode->setShader(Globals::shaderManager.getAssetPointer("shape_color"));
+		m_diskNode->setColor(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
 	}
 
 	int numSprites;

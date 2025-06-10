@@ -150,7 +150,7 @@ void btCollisionWorld::addCollisionObject(btCollisionObject* collisionObject, in
 		m_dispatcher1));
 }
 
-void btCollisionWorld::updateSingleAabb(btCollisionObject* colObj, bool force)
+void btCollisionWorld::updateSingleAabb(btCollisionObject* colObj)
 {
 	btVector3 minAabb, maxAabb;
 	colObj->getCollisionShape()->getAabb(colObj->getWorldTransform(), minAabb, maxAabb);
@@ -172,7 +172,7 @@ void btCollisionWorld::updateSingleAabb(btCollisionObject* colObj, bool force)
 	btBroadphaseInterface* bp = (btBroadphaseInterface*)m_broadphasePairCache;
 
 	//moving objects should be moderately sized, probably something wrong if not
-	if (colObj->isStaticObject() || ((maxAabb - minAabb).length2() < btScalar(1e12)) || force)
+	if (colObj->isStaticObject() || ((maxAabb - minAabb).length2() < btScalar(1e12)))
 	{
 		bp->setAabb(colObj->getBroadphaseHandle(), minAabb, maxAabb, m_dispatcher1);
 	}
