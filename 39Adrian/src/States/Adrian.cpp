@@ -130,16 +130,18 @@ m_currentPanelTex(-1){
 	m_navigationMesh->setAgentHeight(2.0f);
 	m_navigationMesh->setAgentRadius(0.6f);
 
+	if (!loadPolygonCache(m_navigationMesh) || !m_drawPolygon) {
+		m_editPolygons.push_back(EditPolygon());
+		m_currentPolygon = &m_editPolygons.back();
+	}
+
 	//m_navigationMesh->build();
 	//saveNavigationData();
 	//navIO.writeNavigationMap("res/data_edit.nav", m_navigationMesh->getNumTilesX(), m_navigationMesh->getNumTilesZ(), m_navigationMesh->getBoundingBox(), m_navigationMesh->getTileData());
 
-	navIO.readNavigationMap("res/data_edit2.nav", m_navigationMesh->numTilesX(), m_navigationMesh->numTilesZ(), m_navigationMesh->boundingBox(), m_navigationMesh->tileData());
+	navIO.readNavigationMap("res/data_fin.nav", m_navigationMesh->numTilesX(), m_navigationMesh->numTilesZ(), m_navigationMesh->boundingBox(), m_navigationMesh->tileData());
 	m_navigationMesh->allocate();
 	m_navigationMesh->addTiles();
-
-	m_editPolygons.push_back(EditPolygon());
-	m_currentPolygon = &m_editPolygons.back();
 
 	m_depthBuffer.create(Application::Width, Application::Height);
 	m_depthBuffer.attachTexture2D(AttachmentTex::DEPTH24);
@@ -164,10 +166,9 @@ m_currentPanelTex(-1){
 
 	m_ground = Physics::AddStaticObject(Physics::BtTransform(btVector3(0.0f, 0.0f, 0.0f)), new  btStaticPlaneShape(btVector3(0.0f, 1.0f, 0.0f), -0.1f), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER, nullptr);
 
-	spawnHero(Vector3f(-780.0f, 0.0f, 780.0f));
-	
-
+	spawnHero(Vector3f(-780.0f, 0.0f, 780.0f));	
 	loadBots("data/maps/default/main.map");
+	createCollisionFilter();
 
 	TextureAtlasCreator::Get().init(64u, 64u);
 	TileSetManager::Get().getTileSet("overlay").loadTileSetCpu(std::vector<std::string>({	
@@ -223,7 +224,6 @@ Adrian::~Adrian() {
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
 	Material::CleanupTextures();
-	Renderer::Get().shutdown();
 	Renderer::Get().shutdown();
 	ShapeDrawer::Get().shutdown();
 
@@ -737,11 +737,8 @@ void Adrian::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 			}
 		}else {
 			Mouse::instance().attach(Application::GetWindow(), false, false, false);
-			if (m_mousePicker.clickOrthographicAll(event.x, event.y, m_camera, nullptr, { m_hero->getRigidBody() }, -1)) {
+			if (m_mousePicker.clickOrthographicAll(event.x, event.y, m_camera, nullptr, m_colliosionFilter, -1)) {
 				const MousePickCallbackAll& callbackAll = m_mousePicker.getCallbackAll();
-
-				//std::cout << "Pointer: " << m_ground << "  " << m_hero->getRigidBody() << "  " << callbackAll.m_collisionObjects[callbackAll.index] << std::endl;
-
 				if (callbackAll.m_userIndex1 >= 0) {
 					m_globalUserIndex = m_globalUserIndex >= 0 ? -1 : callbackAll.m_userIndex1;
 				}else {
@@ -846,16 +843,13 @@ void Adrian::renderUi() {
 	if (ImGui::SliderFloat("Height", &m_height, 1.0f, 150.0f)) {
 		m_camera.setHeight(m_height);
 	}
-
+	ImGui::SliderFloat("Rim Scale", &m_rimScale, 0.0f, 2.0f);
 	if (ImGui::Checkbox("Use Culling", &m_useCulling)) {
 		m_octree->setUseCulling(m_useCulling);
 	}
 	ImGui::Checkbox("Debug Tree", &m_debugTree);
 	ImGui::Checkbox("Debug Physic", &m_debugPhysic);
 	ImGui::Checkbox("Debug Navmesh", &m_debugNavmesh);
-	if (ImGui::Button("Clear Marker"))
-		Renderer::Get().clearMarker();
-
 	ImGui::Checkbox("Draw Polygon", &m_drawPolygon);
 	ImGui::SliderFloat("Marker Size", &m_markerSize, 0.0f, 20.0f);
 	if (ImGui::Button("New Polygon")) {
@@ -863,7 +857,24 @@ void Adrian::renderUi() {
 		m_currentPolygon = &m_editPolygons.back();
 		m_currentPolygon->userPointerOffset = m_edgePoints.size();
 	}
-	ImGui::SliderFloat("Rim Scale", &m_rimScale, 0.0f, 2.0f);
+	
+	if (ImGui::Button("Save Polygon")) {
+		std::ofstream fileOut;
+		fileOut.open("res/polygon_cache.txt");
+		fileOut << std::setprecision(6) << std::fixed;
+		fileOut << "# Polygon Cache\n";
+		for (EditPolygon& editPolygon : m_editPolygons) {
+			std::vector<Vector3f> edgePoints = { m_edgePoints.begin() + editPolygon.userPointerOffset, m_edgePoints.begin() + editPolygon.userPointerOffset + editPolygon.size };	
+			for (int i = 0; i < edgePoints.size(); i++) {
+				fileOut << "v " << edgePoints[i][0] << " " << edgePoints[i][1] << " " << edgePoints[i][2] << std::endl;
+			}
+			if (&editPolygon != &m_editPolygons.back())
+				fileOut << "#" << std::endl;
+			else
+				fileOut << "#";
+		}
+		fileOut.close();
+	}
 	if (ImGui::Button("Bake (to File)")) {
 
 		for (EditPolygon& editPolygon : m_editPolygons) {
@@ -881,8 +892,12 @@ void Adrian::renderUi() {
 		saveNavigationData();
 
 		Utils::NavIO navIO;
-		navIO.writeNavigationMap("res/data_edit3.nav", m_navigationMesh->getNumTilesX(), m_navigationMesh->getNumTilesZ(), m_navigationMesh->getBoundingBox(), m_navigationMesh->getTileData());
+		navIO.writeNavigationMap("res/data_tmp.nav", m_navigationMesh->getNumTilesX(), m_navigationMesh->getNumTilesZ(), m_navigationMesh->getBoundingBox(), m_navigationMesh->getTileData());
 		
+		
+	}
+
+	if (ImGui::Button("Clear Polygons")) {
 		m_edgePoints.clear();
 		m_edgePoints.shrink_to_fit();
 		for (btCollisionObject* obj : m_collisionObjects) {
@@ -891,10 +906,10 @@ void Adrian::renderUi() {
 		m_collisionObjects.clear();
 		m_collisionObjects.shrink_to_fit();
 
-		for (EditPolygon& editPolygon : m_editPolygons) {
-			editPolygon.size = 0;
-		}
+		m_editPolygons.clear();
+		m_editPolygons.shrink_to_fit();
 	}
+
 	ImGui::Image((ImTextureID)(intptr_t)m_depthBuffer.getDepthTexture(), ImVec2(200.0f, 200.0f), { 0.0f, 1.0f }, { 1.0f, 0.0f });
 	ImGui::End();
 
@@ -1553,4 +1568,62 @@ bool Adrian::isMouseOver(int sx, int sy, float &nx, float &ny){
 	}
 
 	return false;
+}
+
+bool Adrian::loadPolygonCache(NavigationMesh* navigationMesh) {
+	FILE * pFile = fopen("res/polygon_cache.txt", "r");
+	if (pFile == NULL) {
+		return false;
+	}
+	char buffer[250];
+	int size = 0;
+	while (fscanf(pFile, "%s", buffer) != EOF) {
+		switch (buffer[0]) {
+
+		case 'v': {
+
+			switch (buffer[1]) {
+				case '\0': {
+					float x, y, z;
+					fgets(buffer, sizeof(buffer), pFile);
+					sscanf(buffer, "%f %f %f", &x, &y, &z);
+					m_edgePoints.push_back({ x, y, z });	
+					btCollisionObject* collisionObject = Physics::AddKinematicObject(Physics::BtTransform(m_edgePoints.back()), new btSphereShape(m_markerSize * 0.5f), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER);
+					collisionObject->setUserIndex(m_edgePoints.size() - 1);
+					m_collisionObjects.push_back(collisionObject);
+					size++;
+				}default: {
+					break;
+				}
+			}
+			break;
+		}case '#': {
+			if (!m_edgePoints.size())
+				break;
+
+			m_editPolygons.push_back(EditPolygon());
+			m_currentPolygon = &m_editPolygons.back();
+			m_currentPolygon->size = size;
+			m_currentPolygon->userPointerOffset = m_edgePoints.size() - size;
+			size = 0;
+		}default: {
+			break;
+		}
+
+		}//end switch
+	}// end while
+
+
+	m_editPolygons.push_back(EditPolygon());
+	m_currentPolygon = &m_editPolygons.back();
+	m_currentPolygon->userPointerOffset = m_edgePoints.size();
+
+	return true;
+}
+
+void Adrian::createCollisionFilter() {
+	m_colliosionFilter.push_back(m_hero->getRigidBody());
+	std::transform(m_entities.begin() + 1, m_entities.end(), std::back_inserter(m_colliosionFilter), [this](Md2Entity* p)->btCollisionObject* {
+		return   static_cast<Bot*>(p)->getRigidBody();
+	});
 }

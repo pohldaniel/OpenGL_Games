@@ -63,6 +63,7 @@ public:
 	void loadFont();
 	void setCurrentPanelTex(int currentPanelTex);
 	void loadBillboards();
+	bool loadPolygonCache(NavigationMesh* navigationMesh);
 
 private:
 
@@ -78,6 +79,7 @@ private:
 	void spawnAgent(const Vector3f& pos);
 	void setTarget(const Vector3f& pos);
 	const std::vector<std::array<float, 6>>& updateEntitiePositions();
+	void createCollisionFilter();
 
 	bool m_initUi = true;
 	bool m_drawUi = true;
@@ -86,7 +88,7 @@ private:
 	bool m_debugPhysic = false;
 	bool m_debugNavmesh = false;
 	bool m_useStreaming = false;
-	bool m_drawPolygon = true;
+	bool m_drawPolygon = false;
 
 	float m_tileFactor = 80.0f;
 	float m_angle = -0.628f;
@@ -128,6 +130,7 @@ private:
 
 	std::vector<Vector3f> m_edgePoints;
 	std::vector<btCollisionObject*> m_collisionObjects;
+	std::vector<btCollisionObject*> m_colliosionFilter;
 
 	int m_globalUserIndex;
 	Framebuffer m_depthBuffer;
