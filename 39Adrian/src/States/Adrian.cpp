@@ -134,7 +134,7 @@ m_currentPanelTex(-1){
 	//saveNavigationData();
 	//navIO.writeNavigationMap("res/data_edit.nav", m_navigationMesh->getNumTilesX(), m_navigationMesh->getNumTilesZ(), m_navigationMesh->getBoundingBox(), m_navigationMesh->getTileData());
 
-	navIO.readNavigationMap("res/data_edit.nav", m_navigationMesh->numTilesX(), m_navigationMesh->numTilesZ(), m_navigationMesh->boundingBox(), m_navigationMesh->tileData());
+	navIO.readNavigationMap("res/data_edit2.nav", m_navigationMesh->numTilesX(), m_navigationMesh->numTilesZ(), m_navigationMesh->boundingBox(), m_navigationMesh->tileData());
 	m_navigationMesh->allocate();
 	m_navigationMesh->addTiles();
 
@@ -168,250 +168,6 @@ m_currentPanelTex(-1){
 	
 
 	loadBots("data/maps/default/main.map");
-
-	/*m_bot1 = m_root->addChild<Bot, Md2Model>(m_hueteotl);
-	m_bot1->setPosition(620.0f, 0.0f, -380.0f);
-	m_bot1->setOrientation(0.0f, 0.0f, 0.0f);
-	m_bot1->setTextureIndex(12);
-	m_bot1->OnOctreeSet(m_octree);
-	m_bot1->setSortKey(5);
-	m_bot1->Md2Node::setShader(Globals::shaderManager.getAssetPointer("shape_color"));
-	m_bot1->init(m_segment);
-	m_bot1->setEnemyType(EnemyType::SKEL);
-	m_entities.push_back(m_bot1);
-
-	m_segmentNode = m_bot1->addChild<ShapeNode, Shape>(m_segment);
-	m_segmentNode->setPosition(0.0f, 0.5f, 0.0f);
-	m_segmentNode->setOrientation(0.0f, 0.0f, 0.0f);
-	m_segmentNode->setScale(2.5f, 0.0f, 2.5f);
-	m_segmentNode->setTextureIndex(0);
-	m_segmentNode->OnOctreeSet(m_octree);
-	m_segmentNode->setSortKey(4);
-	m_segmentNode->setShader(Globals::shaderManager.getAssetPointer("shape_color"));
-	m_segmentNode->setColor(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
-	m_segmentNode->setName("segment");
-
-	m_diskNode = m_bot1->addChild<ShapeNode, Shape>(m_disk);
-	m_diskNode->setPosition(0.0f, 1.0f, 0.0f);
-	m_diskNode->setTextureIndex(1);
-	m_diskNode->setName("disk");
-	m_diskNode->OnOctreeSet(m_octree);
-	m_diskNode->setSortKey(2);
-	m_diskNode->setShader(Globals::shaderManager.getAssetPointer("shape_color"));
-	m_diskNode->setColor(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
-
-	m_bot2 = m_root->addChild<Bot, Md2Model>(m_mutantman);
-	m_bot2->setPosition(-700.0f, 0.0f, 550.0f);
-	m_bot2->setOrientation(0.0f, 180.0f, 0.0f);
-	m_bot2->setTextureIndex(13);
-	m_bot2->setStart(-700.0f, 0.0f, 550.0f);
-	m_bot2->setEnd(-700.0f, 0.0f, 550.0f);
-	m_bot2->setSpeed(1.0f);
-	m_bot2->setMoveSpeed(0.0f);
-	m_bot2->setAnimationType(AnimationType::STAND);
-	m_bot2->OnOctreeSet(m_octree);
-	m_bot2->setSortKey(5);
-	m_bot2->Md2Node::setShader(Globals::shaderManager.getAssetPointer("shape_color"));
-	m_bot2->init(m_segment);
-	m_bot2->setEnemyType(EnemyType::MUTANT_MAN);
-	m_entities.push_back(m_bot2);
-
-	m_segmentNode = m_bot2->addChild<ShapeNode, Shape>(m_segment);
-	m_segmentNode->setPosition(0.0f, 0.5f, 0.0f);
-	m_segmentNode->setOrientation(0.0f, 0.0f, 0.0f);
-	m_segmentNode->setScale(2.5f, 0.0f, 2.5f);
-	m_segmentNode->setTextureIndex(0);
-	m_segmentNode->OnOctreeSet(m_octree);
-	m_segmentNode->setSortKey(4);
-	m_segmentNode->setShader(Globals::shaderManager.getAssetPointer("shape_color"));
-	m_segmentNode->setColor(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
-	m_segmentNode->setName("segment");
-
-	m_diskNode = m_bot2->addChild<ShapeNode, Shape>(m_disk);
-	m_diskNode->setPosition(0.0f, 1.0f, 0.0f);
-	m_diskNode->setTextureIndex(1);
-	m_diskNode->setName("disk");
-	m_diskNode->OnOctreeSet(m_octree);
-	m_diskNode->setSortKey(2);
-	m_diskNode->setShader(Globals::shaderManager.getAssetPointer("shape_color"));
-	m_diskNode->setColor(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
-
-	m_bot3 = m_root->addChild<Bot, Md2Model>(m_hueteotl);
-	m_bot3->setPosition(-900.0f, 0.0f, 200.0f);
-	m_bot3->setOrientation(0.0f, 0.0f, 0.0f);
-	m_bot3->setTextureIndex(12);
-	m_bot3->setStart(-900.0f, 0.0f, 200.0f);
-	m_bot3->setEnd(-760.0f, 0.0f, 550.0f);
-	m_bot3->OnOctreeSet(m_octree);
-	m_bot3->setSortKey(5);
-	m_bot3->Md2Node::setShader(Globals::shaderManager.getAssetPointer("shape_color"));
-	m_bot3->init(m_segment);
-	m_bot3->setEnemyType(EnemyType::SKEL);
-	m_entities.push_back(m_bot3);
-
-	m_segmentNode = m_bot3->addChild<ShapeNode, Shape>(m_segment);
-	m_segmentNode->setPosition(0.0f, 0.5f, 0.0f);
-	m_segmentNode->setOrientation(0.0f, 0.0f, 0.0f);
-	m_segmentNode->setScale(2.5f, 0.0f, 2.5f);
-	m_segmentNode->setTextureIndex(0);
-	m_segmentNode->OnOctreeSet(m_octree);
-	m_segmentNode->setSortKey(4);
-	m_segmentNode->setShader(Globals::shaderManager.getAssetPointer("shape_color"));
-	m_segmentNode->setColor(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
-	m_segmentNode->setName("segment");
-
-	m_diskNode = m_bot3->addChild<ShapeNode, Shape>(m_disk);
-	m_diskNode->setPosition(0.0f, 1.0f, 0.0f);
-	m_diskNode->setTextureIndex(1);
-	m_diskNode->setName("disk");
-	m_diskNode->OnOctreeSet(m_octree);
-	m_diskNode->setSortKey(2);
-	m_diskNode->setShader(Globals::shaderManager.getAssetPointer("shape_color"));
-	m_diskNode->setColor(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
-
-	m_bot4 = m_root->addChild<Bot, Md2Model>(m_corpse);
-	m_bot4->setPosition(-400.0f, 0.0f, 650.0f);
-	m_bot4->setOrientation(0.0f, 90.0f, 0.0f);
-	m_bot4->setTextureIndex(14);
-	m_bot4->setStart(-400.0f, 0.0f, 650.0f);
-	m_bot4->setEnd(-400.0f, 0.0f, 650.0f);
-	m_bot4->setSpeed(1.0f);
-	m_bot4->setMoveSpeed(0.0f);
-	m_bot4->setAnimationType(AnimationType::STAND);
-	m_bot4->OnOctreeSet(m_octree);
-	m_bot4->setSortKey(5);
-	m_bot4->Md2Node::setShader(Globals::shaderManager.getAssetPointer("shape_color"));
-	m_bot4->init(m_segment);
-	m_bot4->setEnemyType(EnemyType::CORPSE);
-	m_entities.push_back(m_bot4);
-
-	m_segmentNode = m_bot4->addChild<ShapeNode, Shape>(m_segment);
-	m_segmentNode->setPosition(0.0f, 0.5f, 0.0f);
-	m_segmentNode->setOrientation(0.0f, 0.0f, 0.0f);
-	m_segmentNode->setScale(2.5f, 0.0f, 2.5f);
-	m_segmentNode->setTextureIndex(0);
-	m_segmentNode->OnOctreeSet(m_octree);
-	m_segmentNode->setSortKey(4);
-	m_segmentNode->setShader(Globals::shaderManager.getAssetPointer("shape_color"));
-	m_segmentNode->setColor(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
-	m_segmentNode->setName("segment");
-
-	m_diskNode = m_bot4->addChild<ShapeNode, Shape>(m_disk);
-	m_diskNode->setPosition(0.0f, 1.0f, 0.0f);
-	m_diskNode->setTextureIndex(1);
-	m_diskNode->setName("disk");
-	m_diskNode->OnOctreeSet(m_octree);
-	m_diskNode->setSortKey(2);
-	m_diskNode->setShader(Globals::shaderManager.getAssetPointer("shape_color"));
-	m_diskNode->setColor(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
-
-	m_bot5 = m_root->addChild<Bot, Md2Model>(m_mutantlizard);
-	m_bot5->setPosition(150.0f, 0.0f, 300.0f);
-	m_bot5->setOrientation(0.0f, 0.0f, 0.0f);
-	m_bot5->setTextureIndex(15);
-	m_bot5->setStart(150.0f, 0.0f, 300.0f);
-	m_bot5->setEnd(150.0f, 0.0f, 300.0f);
-	m_bot5->setSpeed(1.0f);
-	m_bot5->setMoveSpeed(0.0f);
-	m_bot5->setAnimationType(AnimationType::STAND);
-	m_bot5->OnOctreeSet(m_octree);
-	m_bot5->setSortKey(5);
-	m_bot5->Md2Node::setShader(Globals::shaderManager.getAssetPointer("shape_color"));
-	m_bot5->init(m_segment);
-	m_bot5->setEnemyType(EnemyType::MUTANT_LIZARD);
-	m_entities.push_back(m_bot5);
-
-	m_segmentNode = m_bot5->addChild<ShapeNode, Shape>(m_segment);
-	m_segmentNode->setPosition(0.0f, 0.5f, 0.0f);
-	m_segmentNode->setOrientation(0.0f, 0.0f, 0.0f);
-	m_segmentNode->setScale(2.5f, 0.0f, 2.5f);
-	m_segmentNode->setTextureIndex(0);
-	m_segmentNode->OnOctreeSet(m_octree);
-	m_segmentNode->setSortKey(4);
-	m_segmentNode->setShader(Globals::shaderManager.getAssetPointer("shape_color"));
-	m_segmentNode->setColor(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
-	m_segmentNode->setName("segment");
-
-	m_diskNode = m_bot5->addChild<ShapeNode, Shape>(m_disk);
-	m_diskNode->setPosition(0.0f, 1.0f, 0.0f);
-	m_diskNode->setTextureIndex(1);
-	m_diskNode->setName("disk");
-	m_diskNode->OnOctreeSet(m_octree);
-	m_diskNode->setSortKey(2);
-	m_diskNode->setShader(Globals::shaderManager.getAssetPointer("shape_color"));
-	m_diskNode->setColor(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
-
-	m_bot6 = m_root->addChild<Bot, Md2Model>(m_mutantcheetah);
-	m_bot6->setPosition(60.0f, 0.0f, 900.0f);
-	m_bot6->setOrientation(0.0f, 270.0f, 0.0f);
-	m_bot6->setTextureIndex(16);
-	m_bot6->setStart(60.0f, 0.0f, 900.0f);
-	m_bot6->setEnd(60.0f, 0.0f, 900.0f);
-	m_bot6->setSpeed(1.0f);
-	m_bot6->setMoveSpeed(0.0f);
-	m_bot6->setAnimationType(AnimationType::NONE, AnimationType::STAND);
-	m_bot6->OnOctreeSet(m_octree);
-	m_bot6->setSortKey(5);
-	m_bot6->Md2Node::setShader(Globals::shaderManager.getAssetPointer("shape_color"));
-	m_bot6->init(m_segment);
-	m_bot6->setEnemyType(EnemyType::MUTANT_CHEETA);
-	m_entities.push_back(m_bot6);
-
-	m_segmentNode = m_bot6->addChild<ShapeNode, Shape>(m_segment);
-	m_segmentNode->setPosition(0.0f, 0.5f, 0.0f);
-	m_segmentNode->setOrientation(0.0f, 0.0f, 0.0f);
-	m_segmentNode->setScale(2.5f, 0.0f, 2.5f);
-	m_segmentNode->setTextureIndex(0);
-	m_segmentNode->OnOctreeSet(m_octree);
-	m_segmentNode->setSortKey(4);
-	m_segmentNode->setShader(Globals::shaderManager.getAssetPointer("shape_color"));
-	m_segmentNode->setColor(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
-	m_segmentNode->setName("segment");
-
-	m_diskNode = m_bot6->addChild<ShapeNode, Shape>(m_disk);
-	m_diskNode->setPosition(0.0f, 1.0f, 0.0f);
-	m_diskNode->setTextureIndex(1);
-	m_diskNode->setName("disk");
-	m_diskNode->OnOctreeSet(m_octree);
-	m_diskNode->setSortKey(2);
-	m_diskNode->setShader(Globals::shaderManager.getAssetPointer("shape_color"));
-	m_diskNode->setColor(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
-
-	m_bot7 = m_root->addChild<Bot, Md2Model>(m_ripper);
-	m_bot7->setPosition(220.0f, 0.0f, -820.0f);
-	m_bot7->setOrientation(0.0f, 0.0f, 0.0f);
-	m_bot7->setTextureIndex(17);
-	m_bot7->setStart(220.0f, 0.0f, -820.0f);
-	m_bot7->setEnd(600.0f, 0.0f, -820.0f);
-	m_bot7->setMoveSpeed(175.0f);
-	m_bot7->setSpeed(0.6f);
-	m_bot7->setAnimationType(AnimationType::RUN);
-	m_bot7->OnOctreeSet(m_octree);
-	m_bot7->setSortKey(5);
-	m_bot7->Md2Node::setShader(Globals::shaderManager.getAssetPointer("shape_color"));
-	m_bot7->init(m_segment);
-	m_bot7->setEnemyType(EnemyType::RIPPER);
-	m_entities.push_back(m_bot7);
-
-	m_segmentNode = m_bot7->addChild<ShapeNode, Shape>(m_segment);
-	m_segmentNode->setPosition(0.0f, 0.5f, 0.0f);
-	m_segmentNode->setOrientation(0.0f, 0.0f, 0.0f);
-	m_segmentNode->setScale(2.5f, 0.0f, 2.5f);
-	m_segmentNode->setTextureIndex(0);
-	m_segmentNode->OnOctreeSet(m_octree);
-	m_segmentNode->setSortKey(4);
-	m_segmentNode->setShader(Globals::shaderManager.getAssetPointer("shape_color"));
-	m_segmentNode->setColor(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
-	m_segmentNode->setName("segment");
-
-	m_diskNode = m_bot7->addChild<ShapeNode, Shape>(m_disk);
-	m_diskNode->setPosition(0.0f, 1.0f, 0.0f);
-	m_diskNode->setTextureIndex(1);
-	m_diskNode->setName("disk");
-	m_diskNode->OnOctreeSet(m_octree);
-	m_diskNode->setSortKey(2);
-	m_diskNode->setShader(Globals::shaderManager.getAssetPointer("shape_color"));
-	m_diskNode->setColor(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));*/
 
 	TextureAtlasCreator::Get().init(64u, 64u);
 	TileSetManager::Get().getTileSet("overlay").loadTileSetCpu(std::vector<std::string>({	
@@ -488,23 +244,6 @@ void Adrian::fixedUpdate() {
 		}
 		index++;
 	}
-
-
-	/*m_hero->handleCollision(m_bot1->getSegmentBody());
-	m_hero->handleCollision(m_bot2->getSegmentBody());
-	m_hero->handleCollision(m_bot3->getSegmentBody());
-	m_hero->handleCollision(m_bot4->getSegmentBody());
-	m_hero->handleCollision(m_bot5->getSegmentBody());
-	m_hero->handleCollision(m_bot6->getSegmentBody());
-	m_hero->handleCollision(m_bot7->getSegmentBody());
-
-	m_bot1->handleCollision(m_hero->getSegmentBody());
-	m_bot2->handleCollision(m_hero->getSegmentBody());
-	m_bot3->handleCollision(m_hero->getSegmentBody());
-	m_bot4->handleCollision(m_hero->getSegmentBody());
-	m_bot5->handleCollision(m_hero->getSegmentBody());
-	m_bot6->handleCollision(m_hero->getSegmentBody());
-	m_bot7->handleCollision(m_hero->getSegmentBody());*/
 
 	Globals::physics->stepSimulation(m_fdt);
 }
@@ -748,8 +487,8 @@ void Adrian::render() {
 		
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D_ARRAY, set.spriteSheet);
-		Fontrenderer::Get().addText(set, (120.0f / 640.0f) * static_cast<float>(Application::Width), 20.0f, "RIGHT CLICK ON ENEMYS TORSO", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
-		Fontrenderer::Get().addText(set, (120.0f / 640.0f) * static_cast<float>(Application::Width), 0.0f, "TO KILL IT", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
+		Fontrenderer::Get().addText(set, (120.0f / 640.0f) * static_cast<float>(Application::Width), 20.0f, std::get<0>(labels[m_currentPanelTex]), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
+		Fontrenderer::Get().addText(set, (120.0f / 640.0f) * static_cast<float>(Application::Width), 0.0f, std::get<1>(labels[m_currentPanelTex]), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
 		Fontrenderer::Get().drawBuffer();	
 	}
 
@@ -883,7 +622,6 @@ void Adrian::OnMouseMotion(Event::MouseMoveEvent& event) {
 		const MousePickCallbackAll& callbackAll = m_mousePicker.getCallbackAll();
 		if (m_globalUserIndex >= 0) {
 			m_edgePoints[m_globalUserIndex] = Physics::VectorFrom(callbackAll.m_hitPointWorld[callbackAll.index]);
-
 			btTransform& transform = m_collisionObjects[m_globalUserIndex]->getWorldTransform();
 			transform.getOrigin() = callbackAll.m_hitPointWorld[callbackAll.index];
 			m_collisionObjects[m_globalUserIndex]->setWorldTransform(transform);
@@ -910,7 +648,7 @@ void Adrian::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 	if (event.button == 2u) {
 		Mouse::instance().attach(Application::GetWindow(), false, false, false);
 		if (!m_drawPolygon) {
-			if (m_mousePicker.clickOrthographicAll(event.x, event.y, m_camera, m_ground, 1)) {			
+			if (m_mousePicker.clickOrthographicAll(event.x, event.y, m_camera, m_ground, {}, 1)) {
 				const MousePickCallbackAll& cb = m_mousePicker.getCallbackAll();
 				if (cb.m_userPointer2) {
 					m_currentBot = static_cast<Bot*>(cb.m_userPointer2);
@@ -999,8 +737,11 @@ void Adrian::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 			}
 		}else {
 			Mouse::instance().attach(Application::GetWindow(), false, false, false);
-			if (m_mousePicker.clickOrthographicAll(event.x, event.y, m_camera, nullptr)) {
+			if (m_mousePicker.clickOrthographicAll(event.x, event.y, m_camera, nullptr, { m_hero->getRigidBody() }, -1)) {
 				const MousePickCallbackAll& callbackAll = m_mousePicker.getCallbackAll();
+
+				//std::cout << "Pointer: " << m_ground << "  " << m_hero->getRigidBody() << "  " << callbackAll.m_collisionObjects[callbackAll.index] << std::endl;
+
 				if (callbackAll.m_userIndex1 >= 0) {
 					m_globalUserIndex = m_globalUserIndex >= 0 ? -1 : callbackAll.m_userIndex1;
 				}else {
@@ -1140,8 +881,8 @@ void Adrian::renderUi() {
 		saveNavigationData();
 
 		Utils::NavIO navIO;
-		navIO.writeNavigationMap("res/data_edit2.nav", m_navigationMesh->getNumTilesX(), m_navigationMesh->getNumTilesZ(), m_navigationMesh->getBoundingBox(), m_navigationMesh->getTileData());
-
+		navIO.writeNavigationMap("res/data_edit3.nav", m_navigationMesh->getNumTilesX(), m_navigationMesh->getNumTilesZ(), m_navigationMesh->getBoundingBox(), m_navigationMesh->getTileData());
+		
 		m_edgePoints.clear();
 		m_edgePoints.shrink_to_fit();
 		for (btCollisionObject* obj : m_collisionObjects) {
@@ -1432,8 +1173,8 @@ void Adrian::loadBots(const char* filename) {
 			bot->setOrientation(0.0f, gangle - 90.0f, 0.0f);
 			bot->setStart(gx1, 0.0f, gy1);
 			bot->setEnd(gx2, 0.0f, gy2);
-			bot->setSpeed(gtype == 71 ? 0.6f : gtype == 66 ? 0.5f : 0.3f);
-			bot->setMoveSpeed(gtype == 71 ? 175.6f : gtype == 66  ? 105.0f : 35.0f);
+			bot->setSpeed(gtype == 69 ?  0.4f : gtype == 71 ? 0.6f : gtype == 66 ? 0.5f : 0.3f);
+			bot->setMoveSpeed(gtype == 69 ? 125.6f : gtype == 71 ? 175.6f : gtype == 66  ? 105.0f : 35.0f);
 			bot->setAnimationType(AnimationType::RUN);
 			bot->OnOctreeSet(m_octree);
 			bot->setSortKey(5);

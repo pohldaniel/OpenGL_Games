@@ -80,13 +80,13 @@ private:
 	const std::vector<std::array<float, 6>>& updateEntitiePositions();
 
 	bool m_initUi = true;
-	bool m_drawUi = false;
+	bool m_drawUi = true;
 	bool m_useCulling = true;
 	bool m_debugTree = false;
 	bool m_debugPhysic = false;
 	bool m_debugNavmesh = false;
 	bool m_useStreaming = false;
-	bool m_drawPolygon = false;
+	bool m_drawPolygon = true;
 
 	float m_tileFactor = 80.0f;
 	float m_angle = -0.628f;
@@ -104,7 +104,6 @@ private:
 	Md2Model m_heroModel, m_hueteotl, m_mutantman, m_corpse, m_mutantlizard, m_mutantcheetah, m_ripper;
 
 	Hero* m_hero;
-	//Bot *m_bot1, *m_bot2, *m_bot3, *m_bot4, *m_bot5, *m_bot6, *m_bot7, *m_currentBot;
 	Bot *m_currentBot;
 	Md2Node *m_md2Node;
 
@@ -154,4 +153,13 @@ private:
 	bool isMouseOver(int sx, int sy, float &, float &);
 
 	std::vector<Bot*> m_bots;
+	std::tuple<std::string, std::string> labels[7] = { 
+		{"RIGHT CLICK ON ENEMYS TORSO", "TO KILL IT"},
+		{"THE CORPSE", "SLOWER THAN HERO"},
+		{"MUTANT CHEETA", "ITS FAST ENOUGH TO BE KILLED"},
+		{"MUTANT LIZARD", "SLOWER THAN MUTANT MAN"},
+		{"MUTANT MAN", "AS FAST AS HERO"},
+		{"RIPPER", "VERY FAST TRY SNEAKING PAST IT"},
+		{"THE UNDEAD", "VERY SLOW MUTANT"}
+	};
 };

@@ -657,7 +657,6 @@ void DynamicNavigationMesh::wait() {
 void DynamicNavigationMesh::removeTile(const std::array<int, 2>& tile, unsigned int layersToRemove) {
 	if (!m_navMesh)
 		return;
-
 	dtCompressedTileRef existing[TILECACHE_MAXLAYERS];
 	const int existingCt = m_tileCache->getTilesAt(tile[0], tile[1], existing, m_maxLayers);
 	for (int i = 0; i < existingCt; ++i){

@@ -104,11 +104,11 @@ public:
 	void drawPicker(const Camera& camera);	
 	void updatePosition(unsigned int posX, unsigned int posY, const Camera& camera);
 	void updatePositionOrthographic(unsigned int posX, unsigned int posY, const Camera& camera);
-	bool updatePositionOrthographicAll(unsigned int posX, unsigned int posY, const Camera& camera, btCollisionObject* collisonObject = nullptr);
+	bool updatePositionOrthographicAll(unsigned int posX, unsigned int posY, const Camera& camera, const btCollisionObject* collisonObject = nullptr, const std::vector<btCollisionObject*>& collisonObjects = {}, int userIndex1 = -1);
 	bool click(unsigned int posX, unsigned int posY, const Camera& camera, btCollisionObject* collisonObject1 = nullptr, btCollisionObject* collisonObject2 = nullptr);
-	bool clickAll(unsigned int posX, unsigned int posY, const Camera& camera, btCollisionObject* collisonObject = nullptr);
+	bool clickAll(unsigned int posX, unsigned int posY, const Camera& camera, const btCollisionObject* collisonObject = nullptr, const std::vector<btCollisionObject*>& collisonObjects = {}, int userIndex1 = -1);
 	bool clickOrthographic(unsigned int posX, unsigned int posY, const Camera& camera, btCollisionObject* collisonObject1 = nullptr, btCollisionObject* collisonObject2 = nullptr);
-	bool clickOrthographicAll(unsigned int posX, unsigned int posY, const Camera& camera, btCollisionObject* collisonObject = nullptr, int userIndex1 = -1);
+	bool clickOrthographicAll(unsigned int posX, unsigned int posY, const Camera& camera, const btCollisionObject* collisonObject = nullptr, const std::vector<btCollisionObject*>& collisonObjects = {}, int userIndex1 = -1);
 	void setHasPicked(bool value);
 	void setPosition(const Vector3f& pos);
 	void setIsActivated(bool isactivated);

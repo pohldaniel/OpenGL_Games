@@ -235,7 +235,7 @@ void MapState::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 	if (event.button == 2u) {
 		Mouse::instance().attach(Application::GetWindow(), false, false, false);
 		
-		if (m_mousePicker.clickOrthographicAll(event.x, event.y, m_camera, m_ground)) {
+		if (m_mousePicker.clickOrthographicAll(event.x, event.y, m_camera, m_ground, {})) {
 			const MousePickCallbackAll& callbackAll = m_mousePicker.getCallbackAll();
 			Vector3f pos = Physics::VectorFrom(callbackAll.m_hitPointWorld[callbackAll.index]);
 			Renderer::Get().addMarker(pos, 20.0f, 2);
