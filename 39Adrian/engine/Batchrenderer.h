@@ -5,6 +5,7 @@
 #include <array>
 #include "Shader.h"
 #include "Camera.h"
+#include "Rect.h"
 
 class Batchrenderer {
 
@@ -55,7 +56,8 @@ public:
 	static void ResetStatistic();
 	static void PrintStatistic();
 	static Batchrenderer& Get();
-	
+	void getBlitRect(Rect& rect);
+
 private:
 
 	size_t m_maxQuad = 0;

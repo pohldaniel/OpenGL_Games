@@ -232,6 +232,7 @@ Adrian::~Adrian() {
 
 	WorkQueue::Shutdown();
 	Physics::DeleteAllCollisionObjects();
+	Fontrenderer::Get().setShader(Globals::shaderManager.getAssetPointer("font_ttf"));
 }
 
 void Adrian::fixedUpdate() {
@@ -480,6 +481,24 @@ void Adrian::render() {
 	glPolygonMode(GL_FRONT_AND_BACK, StateMachine::GetEnableWireframe() ? GL_LINE : GL_FILL);
 	shader->unuse();
 
+	//std::cout << "Height: " << Globals::fontManager.get("tahoma_64").lineHeight << std::endl;
+	
+	Globals::fontManager.get("tahoma_64").bind();
+	Fontrenderer::Get().setShader(Globals::shaderManager.getAssetPointer("font_ttf"));
+	//Fontrenderer::Get().addText(Globals::fontManager.get("tahoma_64"), (120.0f / 640.0f) * static_cast<float>(Application::Width), 100.0f, "GAME OVER", Vector4f(1.0f, 0.0f, 0.0f, 1.0f), 1.0f, false);
+	//Fontrenderer::Get().addText(Globals::fontManager.get("tahoma_64"), (120.0f / 640.0f) * static_cast<float>(Application::Width), 200.0f, "Press F2 to exit to Main Menu", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, false);	
+	//Fontrenderer::Get().drawBuffer();
+
+	Fontrenderer::Get().addText(Globals::fontManager.get("tahoma_64"), 100.0f, 13.0f, "GAME OVER", Vector4f(1.0f, 0.0f, 0.0f, 1.0f), 1.0f, false);
+	Fontrenderer::Get().blitText((strlen("GAME OVER") + 1) * 40, 50, 200, 25);
+	Sprite::SwitchShader();
+	Fontrenderer::Get().bindColorTexture();
+	m_panel.setPosition(static_cast<float>(Application::Width) * 0.5f - (strlen("GAME OVER") + 1) * SCR2RESX(40) * 0.5f, static_cast<float>(Application::Height) * 0.5f - SCR2RESX(50) * 0.5f);
+	m_panel.setScale((strlen("GAME OVER") + 1) * SCR2RESX(40), SCR2RESX(50));
+	m_panel.draw(Vector4f::ONE, false, 1.0f, 1.0f);
+
+	Sprite::SwitchShader();
+	Fontrenderer::Get().setShader(Globals::shaderManager.getAssetPointer("font"));
 	if (m_currentPanelTex >= 0) {
 		m_panel.setPosition(0.0f, (10.0f / 480.0f) * static_cast<float>(Application::Height));
 		m_panel.setScale((100.0f / 640.0f) * static_cast<float>(Application::Width), (100.0f / 480.0f) * static_cast<float>(Application::Height));

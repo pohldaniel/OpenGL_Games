@@ -281,7 +281,7 @@ void Batchrenderer::addHexagonFlip(Vector4f posSize, Vector4f color, unsigned in
 	bufferPtr->frame = frame;
 	bufferPtr++;
 
-	bufferPtr->posTex = { posSize[0],                     posSize[1] - 0.5f  * posSize[3],   0.5f, 0.0f };
+	bufferPtr->posTex = { posSize[0], posSize[1] - 0.5f  * posSize[3], 0.5f, 0.0f };
 	bufferPtr->color = { color[0], color[1], color[2], color[3] };
 	bufferPtr->frame = frame;
 	bufferPtr++;
@@ -413,6 +413,24 @@ void Batchrenderer::addRotatedQuadLH(Vector4f posSize, float angle, float rotX, 
 	bufferPtr++;
 
 	indexCount += 6;
+}
+
+void Batchrenderer::getBlitRect(Rect& rect) {
+	size_t size = ((uint8_t*)bufferPtr - (uint8_t*)buffer) / sizeof(Vertex);
+
+	if (size == 0)
+		rect = { 0.0f, 0.0f, 0.0f, 0.0f };
+
+	rect.posX = FLT_MAX; rect.posY = FLT_MAX;
+	rect.width = -FLT_MAX; rect.height = -FLT_MAX;
+
+	for (int i = -size/4 ; i < 0; i++) {
+		rect.posX = std::min(rect.posX, bufferPtr[i * 4].posTex[0]);
+		rect.posY = std::min(rect.posY, bufferPtr[i * 4].posTex[1]);
+
+		rect.width = std::max(rect.width, bufferPtr[i * 4 + 2].posTex[0]);
+		rect.height = std::max(rect.height, bufferPtr[i * 4 + 2].posTex[1]);
+	}
 }
 
 void Batchrenderer::drawBuffer() {

@@ -11,6 +11,8 @@ class Texture{
 
 	friend bool operator== (const Texture& t1, const Texture& t2);
 	friend class Framebuffer;
+	friend class Fontrenderer;
+
 public:
 
 	Texture() = default;

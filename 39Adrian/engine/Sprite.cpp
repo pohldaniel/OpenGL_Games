@@ -1,7 +1,9 @@
 #include "Sprite.h"
 #include "Globals.h"
 
-std::unique_ptr<Shader> Sprite::SpriteShader = nullptr;
+std::shared_ptr<Shader> Sprite::SpriteShaderArray = nullptr;
+std::shared_ptr<Shader> Sprite::SpriteShaderTexture = nullptr;
+std::shared_ptr<Shader> Sprite::SpriteShader = nullptr;
 Matrix4f Sprite::Orthographic;
 unsigned int Sprite::Vao = 0u;
 unsigned int Sprite::Vbo = 0u;
@@ -128,8 +130,9 @@ void Sprite::Resize(unsigned int width, unsigned int height) {
 
 void Sprite::Init(unsigned int width, unsigned int height) {
 
-	SpriteShader = std::unique_ptr<Shader>(new Shader(SPRITE_VERTEX, SPRITE_FRGAMENT, false));
-
+	SpriteShaderArray = std::shared_ptr<Shader>(new Shader(SPRITE_VERTEX, SPRITE_FRGAMENT_ARRAY, false));
+	SpriteShaderTexture = std::shared_ptr<Shader>(new Shader(SPRITE_VERTEX, SPRITE_FRGAMENT_TEXTURE, false));
+	SpriteShader = SpriteShaderArray;
 
 	float data[] = {
 		0.0, 0.0, 0.0f, 0.0f, 0.0f,
@@ -205,4 +208,8 @@ void Sprite::UnuseShader() {
 
 const Matrix4f& Sprite::GetOrthographic() {
 	return Orthographic;
+}
+
+void Sprite::SwitchShader() {
+	SpriteShader = SpriteShader == SpriteShaderArray ? SpriteShaderTexture : SpriteShaderArray;
 }

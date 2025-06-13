@@ -1,4 +1,5 @@
 #include "Fontrenderer.h"
+#include "Texture.h"
 
 Fontrenderer Fontrenderer::s_instance;
 
@@ -26,6 +27,12 @@ void Fontrenderer::shutdown() {
 
 void Fontrenderer::init(size_t size, bool drawSingle)  {
 	m_batchrenderer->init(size, drawSingle);
+
+	renderTarget.create(1024u, 768u);
+	renderTarget.attachTexture2D(AttachmentTex::RGBA);
+
+	blitTarget.create();
+	blitTarget.attachTexture2D(AttachmentTex::RGBA);
 }
 
 void Fontrenderer::setShader(Shader* shader) {
@@ -58,10 +65,8 @@ void Fontrenderer::drawText(const CharacterSet& characterSet, float posX, float 
 
 void Fontrenderer::addText(const CharacterSet& characterSet, float posX, float posY, std::string text, Vector4f color, float size, bool flipGlyph) {
 	std::string::const_iterator c;
-
 	for (c = text.begin(); c != text.end(); c++) {
 		const Char& ch = characterSet.getCharacter(*c);
-
 		m_batchrenderer->addQuadAA(Vector4f(posX, posY, static_cast<float>(ch.size[0]) * size, static_cast<float>(ch.size[1]) * size), flipGlyph ? Vector4f(ch.textureOffset[0], ch.textureOffset[1] + ch.textureSize[1], ch.textureSize[0], -ch.textureSize[1]) : Vector4f(ch.textureOffset[0], ch.textureOffset[1], ch.textureSize[0], ch.textureSize[1]), color, characterSet.frame);
 		posX = posX + ch.advance * size;
 	}
@@ -89,6 +94,38 @@ void Fontrenderer::addTextTransformed(const CharacterSet& characterSet, const Ma
 
 void Fontrenderer::drawBuffer() {
 	m_batchrenderer->drawBuffer();
+}
+
+void Fontrenderer::blitText(int widthDst, int heightDst, int paddingX, int paddingY) {
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	
+	Rect blitRect;
+	m_batchrenderer->getBlitRect(blitRect);
+	renderTarget.bind();
+	glClear(GL_COLOR_BUFFER_BIT);
+	m_batchrenderer->drawBuffer();
+	renderTarget.unbind();
+
+
+	blitTarget.resize(widthDst, heightDst);
+	renderTarget.bindRead();
+	blitTarget.bindWrite();
+	glBlitFramebuffer(blitRect.posX - paddingX / 2, blitRect.posY - paddingY / 2, blitRect.width + paddingX / 2, blitRect.height + paddingY / 2, 0, 0, widthDst, heightDst, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+	Framebuffer::Unbind();
+
+	glClearColor(0.494f, 0.686f, 0.796f, 1.0f);
+}
+
+const unsigned int& Fontrenderer::getColorTexture(unsigned short attachment) const {
+	return blitTarget.getColorTexture(attachment);
+}
+
+void Fontrenderer::bindColorTexture(unsigned short attachment, unsigned int unit, bool forceBind) const {
+	if (Texture::ActiveTextures[unit] != getColorTexture(attachment) || forceBind) {
+		Texture::ActiveTextures[unit] = getColorTexture(attachment);
+		glActiveTexture(GL_TEXTURE0 + unit);
+		glBindTexture(GL_TEXTURE_2D, getColorTexture(attachment));
+	}
 }
 
 void Fontrenderer::bindTexture(const CharacterSet& characterSet) {

@@ -82,7 +82,7 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	SavedStyle = GetWindowLong(Window, GWL_STYLE);
 
 	Fontrenderer::Get().init(200, true);
-	Fontrenderer::Get().setShader(Globals::shaderManager.getAssetPointer("font"));
+	Fontrenderer::Get().setShader(Globals::shaderManager.getAssetPointer("font_ttf"));
 
 	Batchrenderer::Get().init(1000, false, false);
 	Batchrenderer::Get().setShader(Globals::shaderManager.getAssetPointer("batch"));
@@ -91,6 +91,11 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	DebugRenderer::Get().disable();
 
 	auto shader = Globals::shaderManager.getAssetPointer("font");
+	shader->use();
+	shader->loadMatrix("u_transform", Matrix4f::Orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f));
+	shader->unuse();
+
+	shader = Globals::shaderManager.getAssetPointer("font_ttf");
 	shader->use();
 	shader->loadMatrix("u_transform", Matrix4f::Orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f));
 	shader->unuse();
@@ -648,6 +653,11 @@ void Application::Resize(int deltaW, int deltaH) {
 		shader->loadMatrix("u_transform", Matrix4f::Orthographic(0.0f, static_cast<float>(Width), 0.0f, static_cast<float>(Height), -1.0f, 1.0f));
 		shader->unuse();
 
+		shader = Globals::shaderManager.getAssetPointer("font_ttf");
+		shader->use();
+		shader->loadMatrix("u_transform", Matrix4f::Orthographic(0.0f, static_cast<float>(Width), 0.0f, static_cast<float>(Height), -1.0f, 1.0f));
+		shader->unuse();
+
 		shader = Globals::shaderManager.getAssetPointer("batch");
 		shader->use();
 		shader->loadMatrix("u_transform", Matrix4f::Orthographic(0.0f, static_cast<float>(Width), 0.0f, static_cast<float>(Height), -1.0f, 1.0f));
@@ -718,6 +728,7 @@ void  Application::SetCursorIcon(HCURSOR cursor) {
 
 void Application::loadAssets() {
 	Globals::shaderManager.loadShader("font", "res/shader/batch.vert", "res/shader/font.frag");
+	Globals::shaderManager.loadShader("font_ttf", "res/shader/batch.vert", "res/shader/font_ttf.frag");
 	Globals::shaderManager.loadShader("batch", "res/shader/batch.vert", "res/shader/batch.frag");
 	Globals::shaderManager.loadShader("quad", "res/shader/quad.vert", "res/shader/quad.frag");
 	Globals::shaderManager.loadShader("md2", "res/shader/md2anim.vert", "res/shader/md2anim.frag");
@@ -740,7 +751,7 @@ void Application::loadAssets() {
 
 	Globals::fontManager.loadCharacterSet("upheaval_200", "res/fonts/upheavtt.ttf", 200, 0, 30, 128, 0, true, 0u);
 	Globals::fontManager.loadCharacterSet("upheaval_30", "res/fonts/upheavtt.ttf", 30, 0, 3, 0, 0, true, 0u);
-	Globals::fontManager.loadCharacterSet("tahoma_64", "data/fonts/tahoma.ttf", 64, 20, 20, 0, 0, true, 0u);
+	Globals::fontManager.loadCharacterSet("tahoma_64", "data/fonts/tahoma.ttf", 64, 20, 20, 0, 5, true, 0u);
 
 	Globals::textureManager.loadTexture("forest_1", "res/backgrounds/Forest/plx-1.png");
 	Globals::textureManager.loadTexture("forest_2", "res/backgrounds/Forest/plx-2.png");

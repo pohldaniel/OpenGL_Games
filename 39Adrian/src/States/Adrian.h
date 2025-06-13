@@ -33,6 +33,9 @@
 #include <Entities/Bot.h>
 #include <Utils/Fade.h>
 
+#define		SCR2RESX(x)		((x)/640.0 * (1024))
+#define		SCR2RESY(y)		((y)/480.0 * (768))
+
 struct EditPolygon {
 	int userPointerOffset = 0;
 	int size = 0;
@@ -82,7 +85,7 @@ private:
 	void createCollisionFilter();
 
 	bool m_initUi = true;
-	bool m_drawUi = true;
+	bool m_drawUi = false;
 	bool m_useCulling = true;
 	bool m_debugTree = false;
 	bool m_debugPhysic = false;
