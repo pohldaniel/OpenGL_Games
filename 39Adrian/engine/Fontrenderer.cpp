@@ -28,8 +28,8 @@ void Fontrenderer::shutdown() {
 void Fontrenderer::init(size_t size, bool drawSingle)  {
 	m_batchrenderer->init(size, drawSingle);
 
-	renderTarget.create(1024u, 768u);
-	renderTarget.attachTexture2D(AttachmentTex::RGBA);
+	renderTarget.create();
+	renderTarget.attachRenderbuffer(AttachmentRB::RGBA);
 
 	blitTarget.create();
 	blitTarget.attachTexture2D(AttachmentTex::RGBA);
@@ -101,19 +101,22 @@ void Fontrenderer::blitText(int widthDst, int heightDst, int paddingX, int paddi
 	
 	Rect blitRect;
 	m_batchrenderer->getBlitRect(blitRect);
+
+
 	renderTarget.bind();
 	glClear(GL_COLOR_BUFFER_BIT);
 	m_batchrenderer->drawBuffer();
 	renderTarget.unbind();
 
 
+	glClearColor(0.494f, 0.686f, 0.796f, 1.0f);
+
+
 	blitTarget.resize(widthDst, heightDst);
 	renderTarget.bindRead();
 	blitTarget.bindWrite();
 	glBlitFramebuffer(blitRect.posX - paddingX / 2, blitRect.posY - paddingY / 2, blitRect.width + paddingX / 2, blitRect.height + paddingY / 2, 0, 0, widthDst, heightDst, GL_COLOR_BUFFER_BIT, GL_LINEAR);
-	Framebuffer::Unbind();
-
-	glClearColor(0.494f, 0.686f, 0.796f, 1.0f);
+	Framebuffer::Unbind();	
 }
 
 const unsigned int& Fontrenderer::getColorTexture(unsigned short attachment) const {

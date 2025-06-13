@@ -82,6 +82,71 @@ void CharacterSet::loadFromFile(const std::string& path, unsigned int characterS
 			p <<= 1;
 		maxHeight = minHeight == 0 ? p : std::max(p, minHeight);
 
+		/*FT_Error err_code;
+		FT_Stroker stroker;
+		if (FT_Stroker_New(static_cast<FT_Library>(ft), &stroker) != 0){
+			std::cout << "ERROR::FREETYPE: Failed to load font" << std::endl;
+			return;
+		}
+
+		FT_Face face;
+		if (FT_New_Face(ft, path.c_str(), 0, &face)) {
+			std::cout << "ERROR::FREETYPE: Failed to load font" << std::endl;
+		}else {
+			FT_Set_Pixel_Sizes(face, 0, characterSize);
+			FT_GlyphSlot g = face->glyph;
+
+			unsigned int roww = 0;
+			unsigned int rowh = 0;
+			int maxDescent = 0;
+			int maxAscent = 0;
+
+			maxWidth = 0;
+			maxHeight = 0;
+			lineHeight = 0;
+			for (int i = 32; i < 128; i++) {
+
+				if (FT_Load_Char(face, i, FT_LOAD_NO_BITMAP | FT_LOAD_TARGET_NORMAL)) {
+					fprintf(stderr, "Loading character %c failed!\n", i);
+					continue;
+				}
+
+
+				FT_Glyph glyphDescStroke;
+				if (FT_Get_Glyph(face->glyph, &glyphDescStroke)) {
+					fprintf(stderr, "Loading character %c failed!\n", i);
+					continue;
+				}
+
+				static double outlineThickness = 2.0;
+				FT_Stroker_Set(stroker, static_cast<FT_Fixed>(outlineThickness * static_cast<float>(1 << 6)), FT_STROKER_LINECAP_ROUND, FT_STROKER_LINEJOIN_ROUND, 0);
+				if (err_code == 0)
+					err_code = FT_Glyph_Stroke(&glyphDescStroke, stroker, true);
+
+				if (err_code == 0)
+					err_code = FT_Glyph_To_Bitmap(&glyphDescStroke, FT_RENDER_MODE_NORMAL, 0, 1);
+
+				FT_BitmapGlyph glyph_bitmap;
+				FT_Bitmap *bitmap_stroke = nullptr;
+				if (err_code == 0){
+					glyph_bitmap = (FT_BitmapGlyph)glyphDescStroke;
+					bitmap_stroke = &glyph_bitmap->bitmap;
+
+					if (roww + bitmap_stroke->width + paddingX >= MAXWIDTH) {
+						maxWidth = std::max(maxWidth, roww);
+						maxHeight += rowh;
+						roww = 0;
+						rowh = 0;
+					}
+					roww += bitmap_stroke->width + paddingX;
+					rowh = std::max(rowh, (int)bitmap_stroke->rows + paddingY);
+
+					maxAscent = std::max(glyph_bitmap->top, maxAscent);
+					maxDescent = std::max((int)bitmap_stroke->rows - glyph_bitmap->top, maxDescent);
+				}
+			}
+		}*/
+
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 		glGenTextures(1, &spriteSheet);
 		glBindTexture(GL_TEXTURE_2D_ARRAY, spriteSheet);

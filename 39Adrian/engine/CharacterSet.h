@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <ft2build.h>
 #include <freetype/freetype.h>
+#include <freetype/ftstroke.h>
 
 #define MAXWIDTH 4096
 

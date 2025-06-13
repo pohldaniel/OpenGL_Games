@@ -647,7 +647,7 @@ void Application::Resize(int deltaW, int deltaH) {
 	if (Init) {
 		Framebuffer::SetDefaultSize(Width, Height);
 		Widget::Resize(Width, Height);
-
+		Sprite::Resize(Width, Height);
 		auto shader = Globals::shaderManager.getAssetPointer("font");
 		shader->use();
 		shader->loadMatrix("u_transform", Matrix4f::Orthographic(0.0f, static_cast<float>(Width), 0.0f, static_cast<float>(Height), -1.0f, 1.0f));

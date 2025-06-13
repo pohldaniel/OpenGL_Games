@@ -12,6 +12,9 @@ Framebuffer::~Framebuffer() {
 }
 
 void Framebuffer::create() {
+	m_width = Width;
+	m_height = Height;
+
 	bind = std::bind(&Framebuffer::bindNoneVP, this);
 	bindWrite = std::bind(&Framebuffer::bindWriteNoneVP, this);
 	bindRead = std::bind(&Framebuffer::bindReadNoneVP, this);
