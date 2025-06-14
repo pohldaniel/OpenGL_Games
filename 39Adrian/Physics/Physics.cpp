@@ -552,7 +552,7 @@ btQuaternion Physics::QuaternionFrom(const Quaternion& quaternion) {
 	return btQuaternion(quaternion[0], quaternion[1], quaternion[2], quaternion[3]);
 }
 
-btDiscreteDynamicsWorld * Physics::GetDynamicsWorld() {
+btDiscreteDynamicsWorld* Physics::GetDynamicsWorld() {
 	return DynamicsWorld;
 }
 

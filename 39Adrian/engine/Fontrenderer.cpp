@@ -91,49 +91,11 @@ void Fontrenderer::drawBuffer() {
 }
 
 void Fontrenderer::blitTextToTexture(int widthDst, int heightDst, int paddingX, int paddingY, Texture& texture) {
-	GLfloat color[4];
-	glGetFloatv(GL_COLOR_CLEAR_VALUE, color);	
-	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-	
-	Rect blitRect;
-	m_batchrenderer->getBlitRect(blitRect);
-
-	unsigned int renderTarget, renderBuffer, blitTarget;	
-	glGenRenderbuffers(1, &renderBuffer);
-	glBindRenderbuffer(GL_RENDERBUFFER, renderBuffer);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA8, Framebuffer::GetDefaultWidth(), Framebuffer::GetDefaultHeight());
-	glBindRenderbuffer(GL_RENDERBUFFER, 0);
-
-	glGenFramebuffers(1, &renderTarget);
-	glBindFramebuffer(GL_FRAMEBUFFER, renderTarget);
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, renderBuffer);
-
-	glClear(GL_COLOR_BUFFER_BIT);
-	m_batchrenderer->drawBuffer();
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-	glClearColor(color[0], color[1], color[2], color[3]);
-
-	glGenFramebuffers(1, &blitTarget);
-	glBindFramebuffer(GL_FRAMEBUFFER, blitTarget);
-
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture.getTexture(), 0);
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-	glBindFramebuffer(GL_READ_FRAMEBUFFER, renderTarget);
-	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, blitTarget);
-	glBlitFramebuffer(blitRect.posX - paddingX / 2, blitRect.posY - paddingY / 2, blitRect.width + paddingX / 2, blitRect.height + paddingY / 2, 0, 0, widthDst, heightDst, GL_COLOR_BUFFER_BIT, GL_LINEAR);
-	glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
-	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-
-	glDeleteFramebuffers(1, &renderTarget);
-	glDeleteFramebuffers(1, &blitTarget);
-	glDeleteRenderbuffers(1, &renderTarget);
+	m_batchrenderer->blitBufferToTexture(widthDst, heightDst, paddingX, paddingY, texture);
 }
 
 void Fontrenderer::setBlitSize(unsigned int width, unsigned int height) {
-	Framebuffer::SetDefaultSize(width, height);
-	glViewport(0, 0, width, height);
+	m_batchrenderer->setBlitSize(width, height);
 	const Shader* shader = m_batchrenderer->getShader();
 	shader->use();
 	shader->loadMatrix("u_transform", Matrix4f::Orthographic(0.0f, static_cast<float>(width), 0.0f, static_cast<float>(height), -1.0f, 1.0f));

@@ -1,5 +1,6 @@
 #include <algorithm>
 #include "Batchrenderer.h"
+#include "Framebuffer.h"
 
 Batchrenderer Batchrenderer::s_instance;
 unsigned int Batchrenderer::s_drawCallCount = 0;
@@ -171,6 +172,52 @@ void Batchrenderer::shutdown() {
 		glDeleteVertexArrays(1, &m_vaoSingle);
 		m_vaoSingle = 0u;
 	}
+}
+
+void Batchrenderer::blitBufferToTexture(int widthDst, int heightDst, int paddingX, int paddingY, Texture& texture) {
+	GLfloat color[4];
+	glGetFloatv(GL_COLOR_CLEAR_VALUE, color);
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+
+	Rect blitRect;
+	getBlitRect(blitRect);
+
+	unsigned int renderTarget, renderBuffer, blitTarget;
+	glGenRenderbuffers(1, &renderBuffer);
+	glBindRenderbuffer(GL_RENDERBUFFER, renderBuffer);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA8, Framebuffer::GetDefaultWidth(), Framebuffer::GetDefaultHeight());
+	glBindRenderbuffer(GL_RENDERBUFFER, 0);
+
+	glGenFramebuffers(1, &renderTarget);
+	glBindFramebuffer(GL_FRAMEBUFFER, renderTarget);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, renderBuffer);
+
+	glClear(GL_COLOR_BUFFER_BIT);
+	drawBuffer();
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	glClearColor(color[0], color[1], color[2], color[3]);
+
+	glGenFramebuffers(1, &blitTarget);
+	glBindFramebuffer(GL_FRAMEBUFFER, blitTarget);
+
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture.getTexture(), 0);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, renderTarget);
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, blitTarget);
+	glBlitFramebuffer(blitRect.posX - paddingX / 2, blitRect.posY - paddingY / 2, blitRect.width + paddingX / 2, blitRect.height + paddingY / 2, 0, 0, widthDst, heightDst, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+
+	glDeleteFramebuffers(1, &renderTarget);
+	glDeleteFramebuffers(1, &blitTarget);
+	glDeleteRenderbuffers(1, &renderTarget);
+}
+
+void Batchrenderer::setBlitSize(unsigned int width, unsigned int height) {
+	Framebuffer::SetDefaultSize(width, height);
+	glViewport(0, 0, width, height);
 }
 
 void Batchrenderer::addQuadAA(Vector4f posSize, Vector4f texPosSize, Vector4f color, unsigned int frame) {

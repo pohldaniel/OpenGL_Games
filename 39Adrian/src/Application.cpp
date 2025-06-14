@@ -107,7 +107,6 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	shader->unuse();
 
 	SetCursorIcon(IDC_ARROW);
-	ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
 	initStates();	
 }
 
@@ -383,8 +382,8 @@ void Application::initImGUI() {
 	ImGui_ImplWin32_Init(Window);
 	ImGuiIO& io = ImGui::GetIO();
 	io.IniFilename = NULL;
-
 	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
+	io.ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
 	ImGui_ImplOpenGL3_Init("#version 410 core");
 }
 

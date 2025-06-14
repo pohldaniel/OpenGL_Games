@@ -6,6 +6,7 @@
 #include "Shader.h"
 #include "Camera.h"
 #include "Rect.h"
+#include "Texture.h"
 
 class Batchrenderer {
 
@@ -23,6 +24,8 @@ public:
 	void shutdown();
 	void drawBuffer();
 	void drawBufferRaw();
+	void blitBufferToTexture(int widthDst, int heightDst, int paddingX, int paddingY, Texture& texture);
+	void setBlitSize(unsigned int width, unsigned int height);
 
 	void addQuadAA(Vector4f posSize, Vector4f texPosSize = Vector4f(0.0f, 0.0f, 1.0f, 1.0f), Vector4f color = Vector4f(1.0f, 1.0f, 1.0f, 1.0f), unsigned int frame = 0u);
 	void addDiamondAA(Vector4f posSize, Vector4f texPosSize = Vector4f(0.0f, 0.0f, 1.0f, 1.0f), Vector4f color = Vector4f(1.0f, 1.0f, 1.0f, 1.0f), unsigned int frame = 0u);	

@@ -2,7 +2,6 @@
 
 #include "CharacterSet.h"
 #include "Batchrenderer.h"
-#include "Texture.h"
 
 class Fontrenderer {
 	
