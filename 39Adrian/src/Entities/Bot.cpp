@@ -72,7 +72,7 @@ void Bot::followPath(float dt) {
 }
 
 void Bot::init(const Shape& shape) {
-	m_segmentBody = Physics::AddKinematicRigidBody(Physics::BtTransform(Physics::VectorFrom(getWorldPosition())), Physics::CreateCollisionShape(&shape, btVector3(2.3f, 2.3f, 2.3f)), Physics::collisiontypes::ENEMY, Physics::collisiontypes::TRIGGER_2, nullptr, false);
+	m_segmentBody = Physics::AddKinematicRigidBody(Physics::BtTransform(Physics::VectorFrom(getWorldPosition())), Physics::CreateCollisionShape(&shape, btVector3(2.2f, 2.2f, 2.2f)), Physics::collisiontypes::ENEMY, Physics::collisiontypes::TRIGGER_2, nullptr, false);
 	m_triggerBody = Physics::AddKinematicRigidBody(Physics::BtTransform(Physics::VectorFrom(getWorldPosition())), new btCylinderShape(btVector3(20.0f, 1.0f, 0.0f)), Physics::collisiontypes::ENEMY, Physics::collisiontypes::TRIGGER_1, this, false);
 }
 

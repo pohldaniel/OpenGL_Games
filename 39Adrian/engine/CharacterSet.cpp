@@ -217,7 +217,7 @@ void CharacterSet::loadFromFile(const std::string& path, unsigned int characterS
 			Char character = {
 				{ g->bitmap_left, g->bitmap_top },
 				{ g->bitmap.width, height },
-				{ (static_cast<float>(ox) + 0.5f) / (float)maxWidth, (static_cast<float>(oy) + 0.5f) / (float)maxHeight },
+				{ (static_cast<float>(ox) + 0.5f) / static_cast<float>(maxWidth), (static_cast<float>(oy) + 0.5f) / static_cast<float>(maxHeight) },
 				{ (static_cast<float>(g->bitmap.width) - 1.0f) / static_cast<float>(maxWidth), (static_cast<float>(height) - 1.0f) / static_cast<float>(maxHeight)  },
 				{ (g->advance.x >> 6) + spacing }
 			};

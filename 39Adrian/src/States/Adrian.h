@@ -36,6 +36,49 @@
 #define		SCR2RESX(x)		((x)/640.0 * (1024))
 #define		SCR2RESY(y)		((y)/480.0 * (768))
 
+static const char *arrow[] = {
+	/* width height num_colors chars_per_pixel */
+	"    32    32        3            1",
+	/* colors */
+	"+ c #FFFFFF",
+	". c #000000",
+	"  c None",
+	/* pixels */
+		"..                              ",
+		"....                            ",
+		" .....                          ",
+		" ..+++...                       ",
+		"  .+.++....                     ",
+		"  ..+.+++....                   ",
+		"  ..++.++++....                 ",
+		"   ..++.+++++....               ",
+		"   ..+++.++++++....             ",
+		"   ..++++.+++++++....           ",
+		"    ..++++.+++++++++...         ",
+		"    ..++++..+++++++++....       ",
+		"    ...++++..++++++++++....     ",
+		"     ..+++++..++++++++++.....   ",
+		"     ..++++++..+++++++++++....  ",
+		"      ..++++++..++++++++++++..  ",
+		"      ..+++++++..+++++++++++.   ",
+		"      ...+++++++..++++++++++.   ",
+		"       ..++++++++..+++++++++.   ",
+		"       ..+++++++++..++++++++.   ",
+		"       ...++++++++...+++++++.   ",
+		"        ..+++++++++...+++++.    ",
+		"        ...+++++++++...++++.    ",
+		"        ...++++++++++...+++.    ",
+		"         ..+++++++++++...++..   ",
+		"           ...+++++++++.......  ",
+		"               ....++++....  .  ",
+		"                   .......      ",
+		"                        .....   ",
+		"                        .....   ",
+		"                         .      ",
+		"                                ",
+		"0,0"
+};
+
 struct EditPolygon {
 	int userPointerOffset = 0;
 	int size = 0;
@@ -92,6 +135,7 @@ private:
 	bool m_debugNavmesh = false;
 	bool m_useStreaming = false;
 	bool m_drawPolygon = false;
+	bool m_invisible = false;
 
 	float m_tileFactor = 80.0f;
 	float m_angle = -0.628f;
@@ -168,4 +212,6 @@ private:
 		{"RIPPER", "VERY FAST TRY SNEAKING PAST IT"},
 		{"THE UNDEAD", "VERY SLOW MUTANT"}
 	};
+
+	Texture m_texture1, m_texture2;
 };

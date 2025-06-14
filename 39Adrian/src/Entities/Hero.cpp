@@ -5,7 +5,7 @@
 #include "Hero.h"
 
 Hero::Hero(const Md2Model& md2Model, const CrowdAgent& crowdAgent) : CrowdAgentEntity(crowdAgent, this), Md2Entity(md2Model), m_rigidBody(nullptr), m_isDeath(false){
-	setRigidBody(Physics::AddKinematicRigidBody(Physics::BtTransform(Physics::VectorFrom(getWorldPosition())), new btBoxShape(btVector3(0.5f, 0.5f, 0.5f)), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER, this, true));
+	setRigidBody(Physics::AddKinematicRigidBody(Physics::BtTransform(Physics::VectorFrom(getWorldPosition())), new btBoxShape(btVector3(0.5f, 0.5f, 0.5f)), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER, this, false));
 	ShapeDrawer::Get().addToCache(m_rigidBody->getCollisionShape());
 }
 
@@ -24,11 +24,11 @@ void Hero::fixedUpdate(float fdt) {
 	const Vector3f pivot1(0.0f, aabb.min[1] + size[1] * 0.5f, 0.0f);
 	const Vector3f pivot2(0.0f, 0.5f, 0.0f);
 
-	m_rigidBody->getMotionState()->setWorldTransform(Physics::BtTransform(pos + pivot1, rot));
+	m_rigidBody->setWorldTransform(Physics::BtTransform(pos + pivot1, rot));
 	m_rigidBody->getCollisionShape()->setLocalScaling(Physics::VectorFrom(size * 0.75));
 
-	m_segmentBody->getMotionState()->setWorldTransform(Physics::BtTransform(pos, rot));
-	m_triggerBody->getMotionState()->setWorldTransform(Physics::BtTransform(pos, rot));
+	m_segmentBody->setWorldTransform(Physics::BtTransform(pos, rot));
+	m_triggerBody->setWorldTransform(Physics::BtTransform(pos, rot));
 }
 
 void Hero::update(const float dt) {
@@ -36,8 +36,8 @@ void Hero::update(const float dt) {
 }
 
 void Hero::init(const Shape& shape) {
-	m_segmentBody = Physics::AddKinematicRigidBody(Physics::BtTransform(Physics::VectorFrom(getWorldPosition())), Physics::CreateCollisionShape(&shape, btVector3(1.5f, 1.5f, 1.5f)), Physics::collisiontypes::TRIGGER_1, Physics::collisiontypes::ENEMY, nullptr, true);
-	m_triggerBody = Physics::AddKinematicRigidBody(Physics::BtTransform(Physics::VectorFrom(getWorldPosition())), new btCylinderShape(btVector3(0.5f, 1.0f, 0.0f)), Physics::collisiontypes::TRIGGER_2, Physics::collisiontypes::ENEMY, this, true);
+	m_segmentBody = Physics::AddKinematicRigidBody(Physics::BtTransform(Physics::VectorFrom(getWorldPosition())), Physics::CreateCollisionShape(&shape, btVector3(1.5f, 1.5f, 1.5f)), Physics::collisiontypes::TRIGGER_1, Physics::collisiontypes::ENEMY, nullptr, false);
+	m_triggerBody = Physics::AddKinematicRigidBody(Physics::BtTransform(Physics::VectorFrom(getWorldPosition())), new btCylinderShape(btVector3(0.5f, 1.0f, 0.0f)), Physics::collisiontypes::TRIGGER_2, Physics::collisiontypes::ENEMY, this, false);
 }
 
 void Hero::OnPositionVelocityUpdate(const Vector3f& pos, const Vector3f& vel) {

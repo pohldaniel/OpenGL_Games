@@ -110,6 +110,8 @@ public:
 	static void UnbindWrite();
 	static void UnbindRead();
 	static void SetDefaultSize(unsigned int width, unsigned int height);
+	static unsigned int GetDefaultWidth();
+	static unsigned int GetDefaultHeight();
 
 private:
 

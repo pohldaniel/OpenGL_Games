@@ -2,7 +2,7 @@
 
 #include "CharacterSet.h"
 #include "Batchrenderer.h"
-#include "Framebuffer.h"
+#include "Texture.h"
 
 class Fontrenderer {
 	
@@ -15,9 +15,8 @@ public:
 	void bindTexture(const CharacterSet& characterSet);
 	void unbindTexture();
 	void shutdown();
-	void blitText(int widthDst, int heightDst, int paddingX = 0, int paddingY = 0);
-	const unsigned int& getColorTexture(unsigned short attachment = 0) const;
-	void bindColorTexture(unsigned short attachment = 0u, unsigned int unit = 0u, bool forceBind = false) const;
+	void blitTextToTexture(int widthDst, int heightDst, int paddingX, int paddingY, Texture& texture);
+	void setBlitSize(unsigned int width, unsigned int height);
 
 	void setShader(Shader* shader);
 	void setRenderer(Batchrenderer* renderer);
@@ -36,7 +35,6 @@ private:
 
 	Batchrenderer* m_batchrenderer;
 	Batchrenderer* batchrenderer;
-	Framebuffer renderTarget, blitTarget;
 
 	static Fontrenderer s_instance;
 };

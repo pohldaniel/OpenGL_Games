@@ -24,9 +24,12 @@ m_globalUserIndex(-1),
 m_fade(m_fadeValue),
 m_fadeCircle(m_fadeCircleValue),
 m_separaionWeight(3.0f),
-m_currentPanelTex(-1){
+m_currentPanelTex(-1),
+m_invisible(false){
 
-	Application::SetCursorIcon(IDC_ARROW);
+	//Application::SetCursorIcon(IDC_ARROW);
+	Application::SetCursorIcon(arrow);
+
 	EventDispatcher::AddKeyboardListener(this);
 	EventDispatcher::AddMouseListener(this);
 
@@ -219,10 +222,18 @@ m_currentPanelTex(-1){
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
+	m_texture1.createEmptyTexture((strlen("GAME OVER") + 1) * 40, 50);
+	m_texture2.createEmptyTexture((strlen("Press F2 to exit to Main Menu") + 1) * 20, 30);
+
 	Globals::fontManager.get("tahoma_64").bind();
 	Fontrenderer::Get().setShader(Globals::shaderManager.getAssetPointer("font_ttf"));
-	Fontrenderer::Get().addText(Globals::fontManager.get("tahoma_64"), 100.0f, 13.0f, "GAME OVER", Vector4f(1.0f, 0.0f, 0.0f, 1.0f), 1.0f, false);
-	Fontrenderer::Get().blitText((strlen("GAME OVER") + 1) * 40, 50, 200, 25);
+	Fontrenderer::Get().addText(Globals::fontManager.get("tahoma_64"), 100.0f, 30.0f, "GAME OVER", Vector4f(1.0f, 0.0f, 0.0f, 1.0f), 1.0f, false);
+	Fontrenderer::Get().blitTextToTexture((strlen("GAME OVER") + 1) * 40, 50, 200, 50, m_texture1);
+
+	Fontrenderer::Get().setBlitSize(2048u, 512u);
+	Fontrenderer::Get().addText(Globals::fontManager.get("tahoma_64"), 110.0f, 20.0f, "Press F2 to exit to Main Menu", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, false);
+	Fontrenderer::Get().blitTextToTexture((strlen("Press F2 to exit to Main Menu") + 1) * 20, 30, 220, 40, m_texture2);
+	Fontrenderer::Get().setBlitSize(Application::Width, Application::Height);	
 }
 
 Adrian::~Adrian() {
@@ -245,12 +256,13 @@ void Adrian::fixedUpdate() {
 	for (auto&& entity : m_entities) {
 		entity->fixedUpdate(m_fdt);
 		if (index != 0) {
-			m_hero->handleCollision(static_cast<Bot*>(entity)->getSegmentBody());
+			if (!m_invisible)
+				m_hero->handleCollision(static_cast<Bot*>(entity)->getSegmentBody());
+			
 			static_cast<Bot*>(entity)->handleCollision(m_hero->getSegmentBody());
 		}
 		index++;
 	}
-
 	Globals::physics->stepSimulation(m_fdt);
 }
 
@@ -318,6 +330,10 @@ void Adrian::update() {
 
 	if (keyboard.keyPressed(Keyboard::KEY_R)) {
 		m_agent->resetAgent();
+	}
+
+	if (keyboard.keyPressed(Keyboard::KEY_I)) {
+		m_invisible = !m_invisible;
 	}
 
 	m_octree->updateFrameNumber();
@@ -486,13 +502,6 @@ void Adrian::render() {
 	glPolygonMode(GL_FRONT_AND_BACK, StateMachine::GetEnableWireframe() ? GL_LINE : GL_FILL);
 	shader->unuse();
 
-	Sprite::SwitchShader();
-	Fontrenderer::Get().bindColorTexture();
-	m_panel.setPosition(static_cast<float>(Application::Width) * 0.5f - (strlen("GAME OVER") + 1) * SCR2RESX(40) * 0.5f, static_cast<float>(Application::Height) * 0.5f - SCR2RESX(50) * 0.5f);
-	m_panel.setScale((strlen("GAME OVER") + 1) * SCR2RESX(40), SCR2RESX(50));
-	m_panel.draw(Vector4f::ONE, false, 1.0f, 1.0f);
-
-	Sprite::SwitchShader();
 	Fontrenderer::Get().setShader(Globals::shaderManager.getAssetPointer("font"));
 	if (m_currentPanelTex >= 0) {
 		m_panel.setPosition(0.0f, (10.0f / 480.0f) * static_cast<float>(Application::Height));
@@ -504,6 +513,20 @@ void Adrian::render() {
 		Fontrenderer::Get().addText(set, (120.0f / 640.0f) * static_cast<float>(Application::Width), 20.0f, std::get<0>(labels[m_currentPanelTex]), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
 		Fontrenderer::Get().addText(set, (120.0f / 640.0f) * static_cast<float>(Application::Width), 0.0f, std::get<1>(labels[m_currentPanelTex]), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
 		Fontrenderer::Get().drawBuffer();	
+	}
+
+	if (m_hero->isDeath()) {
+		Sprite::SwitchShader();
+		m_texture1.bind();
+		m_panel.setPosition(static_cast<float>(Application::Width) * 0.5f - (strlen("GAME OVER") + 1) * SCR2RESX(40) * 0.5f, static_cast<float>(Application::Height) * 0.5f - SCR2RESX(50) * 0.5f);
+		m_panel.setScale((strlen("GAME OVER") + 1) * SCR2RESX(40), SCR2RESX(50));
+		m_panel.draw(Vector4f::ONE, false, 1.0f, 1.0f);
+
+		m_texture2.bind();
+		m_panel.setPosition(static_cast<float>(Application::Width) * 0.5f - (strlen("Press F2 to exit to Main Menu") + 1) * SCR2RESX(20) * 0.5f, static_cast<float>(Application::Height) * 0.5f - SCR2RESX(30) * 0.5 + 100.0f);
+		m_panel.setScale((strlen("Press F2 to exit to Main Menu") + 1) * SCR2RESX(20), SCR2RESX(30));
+		m_panel.draw(Vector4f::ONE, false, 1.0f, 1.0f);
+		Sprite::SwitchShader();
 	}
 
 	if (m_drawUi)
@@ -812,6 +835,9 @@ void Adrian::resize(int deltaW, int deltaH) {
 }
 
 void Adrian::renderUi() {
+
+	//Application::SetCursorIcon(arrow);
+
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();

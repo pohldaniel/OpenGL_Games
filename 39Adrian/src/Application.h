@@ -22,11 +22,13 @@ public:
 	static void SetCursorIconFromFile(std::string file);
 	static void SetCursorIcon(LPCSTR resource);
 	static void SetCursorIcon(HCURSOR cursor);
+	static void SetCursorIcon(const char *image[]);
 	static const HWND& GetWindow();
 	static StateMachine* GetMachine();
 
 	static int Width;
 	static int Height;
+	static bool OverClient;
 
 private:
 	static LRESULT CALLBACK StaticWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);

@@ -3,10 +3,14 @@
 
 Batchrenderer Batchrenderer::s_instance;
 unsigned int Batchrenderer::s_drawCallCount = 0;
-unsigned int Batchrenderer::s_quadCount = 0;
+unsigned int Batchrenderer::s_primitiveCount = 0;
 
 void Batchrenderer::setShader(const Shader* shader) {
 	m_shader = shader;
+}
+
+const Shader* Batchrenderer::getShader() {
+	return m_shader;
 }
 
 float(&Batchrenderer::getQuadPos())[8]{
@@ -142,6 +146,11 @@ void Batchrenderer::init(size_t size, bool drawSingle, bool drawRaw) {
 
 		glDeleteBuffers(1, &iboSingle);
 	}
+
+	left = FLT_MAX;
+	right = -FLT_MAX;
+	bottom = FLT_MAX;
+	top = -FLT_MAX;
 }
 
 void Batchrenderer::shutdown() {
@@ -191,7 +200,14 @@ void Batchrenderer::addQuadAA(Vector4f posSize, Vector4f texPosSize, Vector4f co
 	bufferPtr++;
 
 	indexCount += 6;
-	//s_quadCount++;
+	//s_primitiveCount++;
+
+
+	left = std::min(left, posSize[0]);
+	bottom = std::min(bottom, posSize[1]);
+	right = std::max(right, posSize[0] + posSize[2]);
+	top = std::max(top, posSize[1] + posSize[3]);
+
 }
 
 void Batchrenderer::addDiamondAA(Vector4f posSize, Vector4f texPosSize, Vector4f color, unsigned int frame) {
@@ -204,7 +220,7 @@ void Batchrenderer::addDiamondAA(Vector4f posSize, Vector4f texPosSize, Vector4f
 	bufferPtr->frame = frame;
 	bufferPtr++;
 
-	bufferPtr->posTex = { posSize[0], posSize[1] -posSize[3] * 0.5f,   texPosSize[0] + texPosSize[2],  texPosSize[1] };
+	bufferPtr->posTex = { posSize[0], posSize[1] - posSize[3] * 0.5f,   texPosSize[0] + texPosSize[2],  texPosSize[1] };
 	bufferPtr->color = { color[0], color[1], color[2], color[3] };
 	bufferPtr->frame = frame;
 	bufferPtr++;
@@ -220,6 +236,7 @@ void Batchrenderer::addDiamondAA(Vector4f posSize, Vector4f texPosSize, Vector4f
 	bufferPtr++;
 
 	indexCount += 6;
+	//s_primitiveCount++;
 }
 
 void Batchrenderer::addHexagon(Vector4f posSize, Vector4f color, unsigned int frame) {
@@ -269,6 +286,7 @@ void Batchrenderer::addHexagon(Vector4f posSize, Vector4f color, unsigned int fr
 	bufferPtr++;
 
 	indexCount += 12;
+	//s_primitiveCount++;
 }
 
 void Batchrenderer::addHexagonFlip(Vector4f posSize, Vector4f color, unsigned int frame) {
@@ -316,6 +334,7 @@ void Batchrenderer::addHexagonFlip(Vector4f posSize, Vector4f color, unsigned in
 	bufferPtr->frame = frame;
 	bufferPtr++;
 	indexCount += 12;
+	//s_primitiveCount++;
 }
 
 void Batchrenderer::addQuad(Vector2f vertices[4], Vector4f texPosSize, Vector4f color, unsigned int frame) {
@@ -344,6 +363,7 @@ void Batchrenderer::addQuad(Vector2f vertices[4], Vector4f texPosSize, Vector4f 
 	bufferPtr++;
 
 	indexCount += 6;
+	//s_primitiveCount++;
 }
 
 void Batchrenderer::addRotatedQuadRH(Vector4f posSize, float angle, float rotX, float rotY, Vector4f texPosSize, Vector4f color, unsigned int frame) {
@@ -379,6 +399,7 @@ void Batchrenderer::addRotatedQuadRH(Vector4f posSize, float angle, float rotX, 
 	bufferPtr++;
 
 	indexCount += 6;
+	//s_primitiveCount++;
 }
 
 void Batchrenderer::addRotatedQuadLH(Vector4f posSize, float angle, float rotX, float rotY, Vector4f texPosSize, Vector4f color, unsigned int frame) {
@@ -413,6 +434,7 @@ void Batchrenderer::addRotatedQuadLH(Vector4f posSize, float angle, float rotX, 
 	bufferPtr++;
 
 	indexCount += 6;
+	//s_primitiveCount++;
 }
 
 void Batchrenderer::getBlitRect(Rect& rect) {
@@ -421,16 +443,8 @@ void Batchrenderer::getBlitRect(Rect& rect) {
 	if (size == 0)
 		rect = { 0.0f, 0.0f, 0.0f, 0.0f };
 
-	rect.posX = FLT_MAX; rect.posY = FLT_MAX;
-	rect.width = -FLT_MAX; rect.height = -FLT_MAX;
-
-	for (int i = -size/4 ; i < 0; i++) {
-		rect.posX = std::min(rect.posX, bufferPtr[i * 4].posTex[0]);
-		rect.posY = std::min(rect.posY, bufferPtr[i * 4].posTex[1]);
-
-		rect.width = std::max(rect.width, bufferPtr[i * 4 + 2].posTex[0]);
-		rect.height = std::max(rect.height, bufferPtr[i * 4 + 2].posTex[1]);
-	}
+	rect.posX = left; rect.posY = bottom;
+	rect.width = right; rect.height = top;
 }
 
 void Batchrenderer::drawBuffer() {
@@ -447,6 +461,10 @@ void Batchrenderer::drawBuffer() {
 
 	indexCount = 0;
 	bufferPtr = buffer;
+	left = FLT_MAX;
+	right = -FLT_MAX;
+	bottom = FLT_MAX;
+	top = -FLT_MAX;
 }
 
 void Batchrenderer::drawBufferRaw() {
@@ -462,6 +480,10 @@ void Batchrenderer::drawBufferRaw() {
 
 	indexCount = 0;
 	bufferPtr = buffer;
+	left = FLT_MAX;
+	right = -FLT_MAX;
+	bottom = FLT_MAX;
+	top = -FLT_MAX;
 }
 
 void Batchrenderer::drawSingleQuadAA(Vector4f posSize, Vector4f texPosSize, Vector4f color, unsigned int frame) {
@@ -562,12 +584,12 @@ void Batchrenderer::activeTexture(unsigned int unit) {
 
 void Batchrenderer::ResetStatistic() {
 	s_drawCallCount = 0;
-	s_quadCount = 0;
+	s_primitiveCount = 0;
 }
 
 void Batchrenderer::PrintStatistic() {
 	std::cout << "Draw Calls: " << s_drawCallCount << std::endl;
-	std::cout << "Quad Count: " << s_quadCount << std::endl;
+	std::cout << "Quad Count: " << s_primitiveCount << std::endl;
 	std::cout << "------------------" << std::endl;
 	ResetStatistic();
 }

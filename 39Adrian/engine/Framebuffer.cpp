@@ -626,6 +626,7 @@ void Framebuffer::attachRenderbuffer(AttachmentRB::AttachmentRB attachments, uns
 	}else {
 		glRenderbufferStorage(GL_RENDERBUFFER, internalFormat, m_width, m_height);
 	}
+	glBindRenderbuffer(GL_RENDERBUFFER, 0);
 
 	if (attachments == AttachmentRB::RGBA || attachments == AttachmentRB::RGB || attachments == AttachmentRB::RED || attachments == AttachmentRB::RGBA32F || attachments == AttachmentRB::RGBA16F || attachments == AttachmentRB::R11FG11FB10F) {
 		glBindFramebuffer(m_colorAttachments == 1 ? GL_FRAMEBUFFER : GL_DRAW_FRAMEBUFFER, m_fbo);
@@ -755,22 +756,22 @@ void Framebuffer::cleanup() {
 	}
 
 	if (m_depthRB) {
-		glDeleteRenderbuffers(0, &m_depthRB);
+		glDeleteRenderbuffers(1, &m_depthRB);
 		m_depthRB = 0;
 	}
 
 	if (m_stencilRB) {
-		glDeleteRenderbuffers(0, &m_stencilRB);
+		glDeleteRenderbuffers(1, &m_stencilRB);
 		m_stencilRB = 0;
 	}
 
 	if (m_depthStencilRB) {
-		glDeleteRenderbuffers(0, &m_depthStencilRB);
+		glDeleteRenderbuffers(1, &m_depthStencilRB);
 		m_depthStencilRB = 0;
 	}
 
 	for (unsigned short i = 0; i < m_colorRB.size(); i++) {
-		glDeleteRenderbuffers(0, &m_colorRB[i]);
+		glDeleteRenderbuffers(1, &m_colorRB[i]);
 		m_colorRB[i] = 0;
 	}
 
@@ -867,6 +868,14 @@ void Framebuffer::UnbindRead() {
 void Framebuffer::SetDefaultSize(unsigned int width, unsigned int height) {
 	Width = width;
 	Height = height;
+}
+
+unsigned int Framebuffer::GetDefaultWidth() {
+	return Width;
+}
+
+unsigned int Framebuffer::GetDefaultHeight() {
+	return Height;
 }
 
 unsigned int Framebuffer::getWidth() {

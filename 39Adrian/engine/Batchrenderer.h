@@ -39,6 +39,7 @@ public:
 	void processSingleQuad();
 
 	void setShader(const Shader* shader);
+	const Shader* getShader();
 
 	void bindTexture(unsigned int texture, bool isTextureArray = false);
 	void unbindTexture(bool isTextureArray = false);
@@ -82,8 +83,11 @@ private:
 	float color[4];
 	unsigned int frame;
 
+
+	float left, right, top, bottom;
+
 	static unsigned int s_drawCallCount;
-	static unsigned int s_quadCount;
+	static unsigned int s_primitiveCount;
 	static Batchrenderer s_instance;	
 };
 #endif

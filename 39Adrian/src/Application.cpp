@@ -42,6 +42,7 @@ bool Application::Init = false;
 DWORD Application::SavedExStyle;
 DWORD Application::SavedStyle;
 RECT Application::Savedrc;
+bool Application::OverClient = true;
 
 HCURSOR Application::Cursor = LoadCursor(nullptr, IDC_ARROW);
 //HCURSOR Application::Cursor = LoadCursor(nullptr, IDC_NO);
@@ -105,8 +106,11 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	shader->loadMatrix("u_transform", Matrix4f::Orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f));
 	shader->unuse();
 
-	initStates();
+	SetCursorIcon(IDC_ARROW);
+	ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
+	initStates();	
 }
+
 Application::~Application() {
 	Fontrenderer::Get().shutdown();
 	DebugRenderer::Get().shutdown();
@@ -183,6 +187,9 @@ LRESULT CALLBACK Application::StaticWndProc(HWND hWnd, UINT message, WPARAM wPar
 	Application* application = nullptr;
 
 	switch (message) {
+		case WM_MOUSELEAVE:
+			OverClient = false;
+			break;
 		case WM_CREATE: {
 			application = static_cast<Application*>(reinterpret_cast<CREATESTRUCT*>(lParam)->lpCreateParams);
 			SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(application));
@@ -199,6 +206,10 @@ LRESULT CALLBACK Application::StaticWndProc(HWND hWnd, UINT message, WPARAM wPar
 
 	if ((message == WM_KEYDOWN && (wParam == 'v' || wParam == 'V' || wParam == 'z' || wParam == 'Z')) || (message == WM_KEYDOWN && wParam == VK_ESCAPE) || (message == WM_KEYDOWN && wParam == VK_RETURN && ((HIWORD(lParam) & KF_ALTDOWN))) || (message == WM_SYSKEYDOWN && wParam == VK_RETURN && ((HIWORD(lParam) & KF_ALTDOWN)))) {
 		ImGui::GetIO().WantCaptureMouse = false;
+	}
+
+	if (message == WM_SETCURSOR) {
+		return 0;
 	}
 
 	ImGui_ImplWin32_WndProcHandler(hWnd, message, wParam, lParam);
@@ -442,6 +453,12 @@ void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 
 	switch (message) {
 	case WM_MOUSEMOVE: {
+
+		if (!OverClient) {
+			OverClient = true;
+			SetCursor(Cursor);
+		}
+
 		Event event;
 		event.type = Event::MOUSEMOTION;
 		event.data.mouseMove.x = static_cast<int>(static_cast<short>(LOWORD(lParam)));
@@ -726,6 +743,43 @@ void  Application::SetCursorIcon(HCURSOR cursor) {
 	SetClassLongPtr(Window, GCLP_HCURSOR, LONG_PTR(Cursor));
 }
 
+//https://learn.microsoft.com/en-us/windows/win32/menurc/using-cursors
+void Application::SetCursorIcon(const char *image[]) {
+	int i, row, col;
+	BYTE  data[4 * 32];
+	BYTE  mask[4 * 32];
+	int hot_x, hot_y;
+	i = -1;
+	for (row = 0; row < 32; ++row) {
+		for (col = 0; col < 32; ++col) {
+			if (col % 8) {
+				data[i] <<= 1;
+				mask[i] <<= 1;
+			}else {
+				++i;
+				data[i] = mask[i] = 0;
+			}
+
+			switch (image[4 + row][col]) {
+				case '.':
+					data[i] |= 0x00;
+					break;
+				case '+':
+					mask[i] |= 0x01;
+					break;
+				case ' ':
+					data[i] |= 0x01;
+					break;
+			}
+		}
+	}
+	sscanf(image[4 + row], "%d,%d", &hot_x, &hot_y);	
+	Application::Cursor = CreateCursor(NULL, hot_x, hot_y, 32, 32, data, mask);
+
+	SetCursor(Cursor);
+	SetClassLongPtr(Window, GCLP_HCURSOR, LONG_PTR(Cursor));
+}
+
 void Application::loadAssets() {
 	Globals::shaderManager.loadShader("font", "res/shader/batch.vert", "res/shader/font.frag");
 	Globals::shaderManager.loadShader("font_ttf", "res/shader/batch.vert", "res/shader/font_ttf.frag");
@@ -813,7 +867,4 @@ void Application::loadAssets() {
 	Globals::animationManagerNew.loadAnimationAssimp("woman_idle", "res/models/woman/Woman.gltf", "Idle", "woman_idle");
 	Globals::animationManagerNew.loadAnimationAssimp("woman_punch", "res/models/woman/Woman.gltf", "Punch", "woman_punch");
 	Globals::animationManagerNew.loadAnimationAssimp("woman_sit", "res/models/woman/Woman.gltf", "Sitting", "woman_sit");
-
-	
-
 }
