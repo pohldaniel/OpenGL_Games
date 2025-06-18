@@ -7,9 +7,9 @@ class Fontrenderer {
 	
 public:
 
-	void drawText(const CharacterSet& characterSet, float posX, float posY, std::string text, Vector4f color = Vector4f(1.0f, 1.0f, 1.0f, 1.0f), float size = 1.0f, bool flipGlyph = false);
-	void addText(const CharacterSet& characterSet, float posX, float posY, std::string text, Vector4f color = Vector4f(1.0f, 1.0f, 1.0f, 1.0f), float size = 1.0f, bool flipGlyph = false);
-	void addTextTransformed(const CharacterSet& characterSet, const Matrix4f& transformation, std::string text, Vector4f color = Vector4f(1.0f, 1.0f, 1.0f, 1.0f), float size = 1.0f);
+	void drawText(const CharacterSet& characterSet, float posX, float posY, const std::string& text, const Vector4f& color = Vector4f(1.0f, 1.0f, 1.0f, 1.0f), float size = 1.0f, bool flipGlyph = false);
+	void addText(const CharacterSet& characterSet, float posX, float posY, const std::string& text, const Vector4f& color = Vector4f(1.0f, 1.0f, 1.0f, 1.0f), float size = 1.0f, bool flipGlyph = false);
+	void addTextTransformed(const CharacterSet& characterSet, const Matrix4f& transformation, const std::string& text, const Vector4f& color = Vector4f(1.0f, 1.0f, 1.0f, 1.0f), float size = 1.0f);
 	void drawBuffer();
 	void bindTexture(const CharacterSet& characterSet);
 	void unbindTexture();
@@ -29,6 +29,7 @@ public:
 	static std::string FloatToString(float val, int precision);
 
 private:
+
 	Fontrenderer();
 	~Fontrenderer();
 

@@ -43,7 +43,7 @@ void Fontrenderer::resetRenderer() {
 	batchrenderer = nullptr;
 }
 
-void Fontrenderer::drawText(const CharacterSet& characterSet, float posX, float posY, std::string text, Vector4f color, float size, bool flipGlyph) {
+void Fontrenderer::drawText(const CharacterSet& characterSet, float posX, float posY, const std::string& text, const Vector4f& color, float size, bool flipGlyph) {
 	glBindTexture(GL_TEXTURE_2D_ARRAY, characterSet.spriteSheet);
 	std::string::const_iterator c;
 	for (c = text.begin(); c != text.end(); c++) {
@@ -57,7 +57,7 @@ void Fontrenderer::drawText(const CharacterSet& characterSet, float posX, float 
 	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
 }
 
-void Fontrenderer::addText(const CharacterSet& characterSet, float posX, float posY, std::string text, Vector4f color, float size, bool flipGlyph) {
+void Fontrenderer::addText(const CharacterSet& characterSet, float posX, float posY, const std::string& text, const Vector4f& color, float size, bool flipGlyph) {
 	std::string::const_iterator c;
 	for (c = text.begin(); c != text.end(); c++) {
 		const Char& ch = characterSet.getCharacter(*c);
@@ -66,7 +66,7 @@ void Fontrenderer::addText(const CharacterSet& characterSet, float posX, float p
 	}
 }
 
-void Fontrenderer::addTextTransformed(const CharacterSet& characterSet, const Matrix4f& transformation, std::string text, Vector4f color, float size) {
+void Fontrenderer::addTextTransformed(const CharacterSet& characterSet, const Matrix4f& transformation, const std::string& text, const Vector4f& color, float size) {
 	Vector2f verices[4];
 	const Vector3f scale = transformation.getScale();
 	float sx = (1.0f / scale[0]) * size;
