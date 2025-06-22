@@ -75,7 +75,8 @@ Game::~Game() {
 }
 
 void Game::fixedUpdate() {
-
+	int64_t pts;
+	video_reader_read_frame(&vr_state, frame_data, &pts);
 }
 
 void Game::update() {
@@ -149,8 +150,7 @@ void Game::render() {
 
 
 	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	int64_t pts;
-	video_reader_read_frame(&vr_state, frame_data, &pts);
+	
 	
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, tex_handle);

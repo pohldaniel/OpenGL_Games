@@ -5,14 +5,14 @@ and cygwin with the following packges git diffutils nasm yasm pkgconf make. Impo
 
 
 cd /cygdrive/c
-
+cd /cygdrive/c/tmp/sources/x264
 
 mv /usr/bin/link.exe /usr/bin/link.exe.bak
 git clone https://code.videolan.org/videolan/x264.git
 curl "http://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.guess;hb=HEAD" > config.guess
 
-CC=cl ../../sources/x264/configure --prefix=../../installed --enable-static --host=msys --enable-debug --host=msys --extra-cflags="-MD -O2 -Zi"
-CC=cl ../../sources/x264/configure --prefix=../../installed --enable-static --host=msys --extra-cflags="-MD -O2 -Zi"
+CC=cl ../../sources/x264/configure --prefix=../../installed --enable-static --host=msys --enable-debug --host=msys --extra-cflags="-MD -O2 -Z7"
+CC=cl ../../sources/x264/configure --prefix=../../installed --enable-static --host=msys --extra-cflags="-MD -O2 -Z7"
 
 make
 make install
@@ -22,16 +22,13 @@ CC=cl PKG_CONFIG_PATH=../../installed/lib/pkgconfig ../../sources/ffmpeg/configu
 CC=cl PKG_CONFIG_PATH=../../installed/lib/pkgconfig ../../sources/ffmpeg/configure --prefix=../../installed --toolchain=msvc --target-os=win64 --arch=x86_64 --enable-asm --disable-shared --enable-static --enable-libx264 --enable-gpl --enable-nonfree --disable-optimizations --extra-ldflags="-LIBPATH:../../installed/lib  -LTCG:INCREMENTAL" --extra-cxxflags="-I../../installed/include/ -MD -O1 -Z7" --extra-cflags="-I../../installed/include/ -MD -O1 -Z7"
 
 
-
-copy all the source files to tmp/build/ffmpeg/src
-
 make
 make install
 
 
 
-CC=cl ../../sources/x264/configure --prefix=../../installed --enable-shared --host=msys --enable-debug --extra-cflags="-MD -O2 -Zi"
-CC=cl ../../sources/x264/configure --prefix=../../installed --enable-shared --host=msys --extra-cflags="-MD -O2 -Zi"
+CC=cl ../../sources/x264/configure --prefix=../../installed --enable-shared --host=msys --enable-debug --extra-cflags="-MD -O2 -Z7"
+CC=cl ../../sources/x264/configure --prefix=../../installed --enable-shared --host=msys --extra-cflags="-MD -O2 -Z7"
 CC=cl PKG_CONFIG_PATH=../../installed/lib/pkgconfig ../../sources/ffmpeg/configure --prefix=../../installed --toolchain=msvc --target-os=win64 --arch=x86_64 --enable-asm --disable-static --enable-shared --enable-libx264 --enable-gpl --enable-nonfree --enable-debug --disable-optimizations --extra-ldflags="-LIBPATH:../../installed/lib" --extra-cxxflags="-I../../installed/include/ -MD -O1 -Z7" --extra-cflags="-I../../installed/include/ -MD -O1 -Z7"
 CC=cl PKG_CONFIG_PATH=../../installed/lib/pkgconfig ../../sources/ffmpeg/configure --prefix=../../installed --toolchain=msvc --target-os=win64 --arch=x86_64 --enable-asm --disable-static --enable-shared --enable-libx264 --enable-gpl --enable-nonfree --disable-optimizations --extra-ldflags="-LIBPATH:../../installed/lib" --extra-cxxflags="-I../../installed/include/ -MD -O1 -Z7" --extra-cflags="-I../../installed/include/ -MD -O1 -Z7"
 
