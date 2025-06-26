@@ -147,6 +147,7 @@ public:
 	bool m_wireframe = false;
 	bool m_blend = false;
 	bool m_initUi = true;
+	bool m_drawUi = true;
 
 	Model model = Model::VENUS;
 	int currentBuffer = 1;

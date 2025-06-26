@@ -1203,3 +1203,11 @@ bool NavigationMesh::getDrawOffMeshConnections() const {
 void NavigationMesh::setDrawOffMeshConnections(bool enable) {
 	m_drawOffMeshConnections = enable;
 }
+
+void NavigationMesh::clearNavigables() {
+	if (m_navigables.empty())
+		return;
+
+	m_navigables.clear();
+	m_navigables.shrink_to_fit();
+}

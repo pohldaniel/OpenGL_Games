@@ -61,8 +61,8 @@ public:
 	NavigationMesh* getNavigationMesh() const;
 
 	bool createCrowd();
-	bool reCreateCrowd();
-	CrowdAgent* addAgent(const Vector3f& pos);
+	bool reCreateCrowd(const Vector3f& extents = Vector3f::ONE);
+	CrowdAgent* addAgent(const Vector3f& pos, const Vector3f& extents = Vector3f::ONE);
 	
 	void removeAgent(const CrowdAgent* agent, bool force = true);
 	void removeAgents();
@@ -82,7 +82,7 @@ public:
 
 private:
 
-	int addAgent(CrowdAgent* agent, const Vector3f& pos, bool force = true);
+	int addAgent(CrowdAgent* agent, const Vector3f& pos, bool force = true, const Vector3f& extents = Vector3f::ONE);
 	Vector3f OnCrowdFormationDefault(const Vector3f& pos, CrowdAgent* agent);
 	dtCrowd* m_crowd;
 	CrowdAgentVelocityCallback m_velocityCallback;

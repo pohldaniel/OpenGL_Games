@@ -118,6 +118,7 @@ public:
 	Vector3f& normalize();
 	float length() const;
 	float lengthSq() const;
+	float lengthSqXZ() const;
 
 	void set(float x_, float y_, float z_);
 	void translate(const Vector3f& rhs);
@@ -125,6 +126,7 @@ public:
 	void scale(const Vector3f& rhs);
 	void scale(const float sx, const float sy, const float sz);
 	bool compare(const Vector3f& rhs, float precision) const;
+	bool compareXZ(const Vector3f &rhs, float precision) const;
 
 	float &operator[](int index);
 	const float operator[](int index) const;

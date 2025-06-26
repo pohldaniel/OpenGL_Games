@@ -105,13 +105,13 @@ void CrowdManager::setNavigationMesh(NavigationMesh* navigationMesh){
 	}
 }
 
-CrowdAgent* CrowdManager::addAgent(const Vector3f& pos) {
+CrowdAgent* CrowdManager::addAgent(const Vector3f& pos, const Vector3f& extents) {
 	CrowdAgent* agent = new CrowdAgent();
-	addAgent(agent, pos, true);
+	addAgent(agent, pos, true, extents);
 	return agent;
 }
 
-int CrowdManager::addAgent(CrowdAgent* agent, const Vector3f& pos, bool force){
+int CrowdManager::addAgent(CrowdAgent* agent, const Vector3f& pos, bool force, const Vector3f& extents){
 	if (!m_crowd || !m_navigationMesh || !agent)
 		return -1;
 	dtCrowdAgentParams params;
@@ -123,7 +123,12 @@ int CrowdManager::addAgent(CrowdAgent* agent, const Vector3f& pos, bool force){
 	// dtCrowd::addAgent() requires the query filter type to find the nearest position on navmesh as the initial agent's position
 	params.queryFilterType = (unsigned char)agent->getQueryFilterType();
 
-	int id = m_crowd->addAgent(pos.getVec(), &params, nullptr, 1.5f);
+	Vector3f nearest = m_navigationMesh->findNearestPoint(pos.getVec(), extents);
+	if((nearest - pos).lengthSqXZ() > 0.5f)
+		agent->setRequestedTargetType(CrowdAgentRequestedTarget::CA_REQUESTEDTARGET_NONE);
+
+	int id = m_crowd->addAgent(nearest.getVec(), &params, nullptr, 1.5f);
+
 	if (id > -1) {
 		agent->m_agentCrowdId = id;
 		agent->m_crowdManager = this;
@@ -149,13 +154,13 @@ bool CrowdManager::createCrowd(){
 	return true;
 }
 
-bool CrowdManager::reCreateCrowd() {
+bool CrowdManager::reCreateCrowd(const Vector3f& extents) {
 	size_t size = m_agents.size();
 	for (unsigned i = 0; i < size; ++i) {
 		Vector3f pos = m_agents[i]->getPosition();
 
 		removeAgent(m_agents[i], false);
-		addAgent(m_agents[i], pos, false);
+		int id = addAgent(m_agents[i], pos, false, extents);
 		m_agents[i]->resetParameter();
 	}
 	return true;

@@ -398,6 +398,10 @@ void CrowdAgent::setTargetVelocity(const Vector3f& velocity){
 	}
 }
 
+void CrowdAgent::setRequestedTargetType(CrowdAgentRequestedTarget crowdAgentRequestedTarget) {
+	m_requestedTargetType = crowdAgentRequestedTarget;
+}
+
 void CrowdAgent::setVelocityCallback(const CrowdAgentVelocityCallback& callback) { 
 	m_velocityCallback = callback; 
 }

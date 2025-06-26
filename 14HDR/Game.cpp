@@ -116,6 +116,10 @@ void Game::update() {
 		m_drawSkaybox = !m_drawSkaybox;
 	}
 
+	if (keyboard.keyPressed(Keyboard::KEY_LALT)) {
+		m_drawUi = !m_drawUi;
+	}
+
 	Mouse &mouse = Mouse::instance();
 
 	if (mouse.buttonDown(Mouse::MouseButton::BUTTON_RIGHT)) {
@@ -269,7 +273,9 @@ void Game::render(unsigned int &frameBuffer) {
 		}
 	}
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	renderUi();
+
+	if (m_drawUi)
+		renderUi();
 }
 
 void Game::OnMouseMotion(Event::MouseMoveEvent& event) {

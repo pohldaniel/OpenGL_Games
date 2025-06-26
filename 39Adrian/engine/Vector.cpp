@@ -3012,6 +3012,10 @@ float Vector3f::lengthSq() const {
 	return (vec[0] * vec[0]) + (vec[1] * vec[1]) + (vec[2] * vec[2]);
 }
 
+float Vector3f::lengthSqXZ() const {
+	return (vec[0] * vec[0]) + (vec[2] * vec[2]);
+}
+
 Vector3f& Vector3f::Normalize(Vector3f &p) {
 	float length = p.length();
 	float invMag = length != 0.0f ? 1.0f / length : 1.0f;
@@ -3089,7 +3093,10 @@ float* Vector3f::getVec() {
 
 bool Vector3f::compare(const Vector3f &rhs, float precision) const {
 	return fabs(lengthSq() - rhs.lengthSq()) < precision * precision;
-	//return fabs(vec[0] - rhs[0]) <= precision && fabs(vec[1] - rhs[1]) <= precision && fabs(vec[2] - rhs[2]) <= precision;
+}
+
+bool Vector3f::compareXZ(const Vector3f &rhs, float precision) const {
+	return fabs((vec[0] * vec[0] + vec[1] * vec[1]) - (rhs.vec[0] * rhs.vec[0] + rhs.vec[1] * rhs.vec[1])) < precision * precision;
 }
 
 //friend operator

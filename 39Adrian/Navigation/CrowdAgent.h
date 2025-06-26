@@ -60,6 +60,7 @@ public:
 	void setHeight(float height, bool force = false);
 	void setNavigationPushiness(NavigationPushiness val, bool force = false);
 	void setSeparationWeight(float separationWeight, bool force = false);
+	void setRequestedTargetType(CrowdAgentRequestedTarget crowdAgentRequestedTarget);
 
 	const CrowdAgentVelocityCallback& getVelocityCallback() const;
 	const CrowdAgentHeightCallback& getHeightCallback() const;

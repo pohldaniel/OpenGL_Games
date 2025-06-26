@@ -234,6 +234,8 @@ m_invisible(false){
 	Fontrenderer::Get().addText(Globals::fontManager.get("tahoma_64"), 110.0f, 20.0f, "Press F2 to exit to Main Menu", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, false);
 	Fontrenderer::Get().blitTextToTexture((strlen("Press F2 to exit to Main Menu") + 1) * 20, 30, 220, 40, m_texture2);
 	Fontrenderer::Get().setBlitSize(Application::Width, Application::Height);	
+
+	activateHero();
 }
 
 Adrian::~Adrian() {
@@ -336,6 +338,45 @@ void Adrian::update() {
 		m_invisible = !m_invisible;
 	}
 
+	if (keyboard.keyPressed(Keyboard::KEY_U)) {
+		m_noWalls = !m_noWalls;
+
+		Utils::NavIO navIO;
+		if (m_noWalls) {
+			m_navigationMesh->clearTileData();
+			navIO.readNavigationMap("res/data_no.nav", m_navigationMesh->numTilesX(), m_navigationMesh->numTilesZ(), m_navigationMesh->boundingBox(), m_navigationMesh->tileData());			
+			m_navigationMesh->allocate();						
+			m_crowdManager->resetNavMesh(m_navigationMesh->getDetourNavMesh());
+			m_crowdManager->initNavquery(m_navigationMesh->getDetourNavMesh());
+			m_navigationMesh->addTiles();
+			m_crowdManager->reCreateCrowd();
+		}else {
+			m_navigationMesh->clearTileData();
+			navIO.readNavigationMap("res/data_fin.nav", m_navigationMesh->numTilesX(), m_navigationMesh->numTilesZ(), m_navigationMesh->boundingBox(), m_navigationMesh->tileData());
+			m_navigationMesh->allocate();						
+			m_crowdManager->resetNavMesh(m_navigationMesh->getDetourNavMesh());
+			m_crowdManager->initNavquery(m_navigationMesh->getDetourNavMesh());
+			m_navigationMesh->addTiles();
+			m_crowdManager->reCreateCrowd(Vector3f(1000.0f, 0.0f, 1000.0f));
+		}
+	}
+
+	if (keyboard.keyPressed(Keyboard::KEY_M)) {
+		m_showPanel = !m_showPanel;
+	}
+
+	if (keyboard.keyPressed(Keyboard::KEY_F1)) {
+		m_showHelp = !m_showHelp;
+	}
+
+	if (keyboard.keyPressed(Keyboard::KEY_SPACE)) {
+		centerHero();
+	}
+
+	if (keyboard.keyPressed(Keyboard::KEY_H)) {
+		activateHero();
+	}
+	
 	m_octree->updateFrameNumber();
 	m_crowdManager->update(m_dt);
 
@@ -435,87 +476,118 @@ void Adrian::render() {
 		DebugRenderer::Get().drawBuffer();
 	}
 
-	
+	if (m_showPanel) {
 
-	glClear(GL_DEPTH_BUFFER_BIT);
+		glClear(GL_DEPTH_BUFFER_BIT);
 
-	m_panel.setPosition(0.0f, 0.0f);
-	m_panel.setScale(static_cast<float>(Application::Width), (50.0f / 480.0f) * static_cast<float>(Application::Height));
-	m_panel.draw(m_tileSet[7], Vector4f::ONE, false, 10.0f, 1.0f);
+		m_panel.setPosition(0.0f, 0.0f);
+		m_panel.setScale(static_cast<float>(Application::Width), (50.0f / 480.0f) * static_cast<float>(Application::Height));
+		m_panel.draw(m_tileSet[7], Vector4f::ONE, false, 10.0f, 1.0f);
 
-	shader->use();
-	Globals::textureManager.get("ground").bind(0);
-	shader->loadMatrix("u_projection", Sprite::GetOrthographic());
-	shader->loadMatrix("u_view", Matrix4f::IDENTITY);
-	shader->loadVector("u_color", Vector4f(0.8f, 0.8f, 0.8f, 1.0f));
-	shader->loadMatrix("u_model", Matrix4f::Translate((565.0f / 640.0f) * 1024.0f, (75.0f / 480.0f) * 768.0f, 0.0f) *
-                                  Matrix4f::Rotate(Vector3f(0.0f, 0.0f, -1.0f), m_camera.getAngle() * _180_ON_PI) *
-                                  Matrix4f::Scale(1000.0f / m_xconvfactor, 1000.0f / m_yconvfactor, 0.0f));
-    Globals::shapeManager.get("quad_xy").drawRaw();
-
-	
-	shader->loadVector("u_color", Vector4f::ONE);
-	for (int i = 0; i < m_buildings_.size(); i++) {
-		shader->loadMatrix("u_model", Matrix4f::Translate(m_buildings_[i][0] / m_xconvfactor, m_buildings_[i][1] / m_yconvfactor, 0.0f) *
-                                      Matrix4f::Translate((565.0f / 640.0f) * 1024.0f, (75.0f / 480.0f) * 768.0f, 0.0f) *
-                                      Matrix4f::Rotate(Vector3f(0.0f , 0.0f, -1.0f), m_camera.getAngle() * _180_ON_PI, Vector3f(-m_buildings_[i][0] / m_xconvfactor, -m_buildings_[i][1] / m_yconvfactor, 0.0f)) *
-                                      Matrix4f::Scale(m_buildings_[i][2] / m_xconvfactor, m_buildings_[i][3] / m_yconvfactor, 0.0f));
-		Globals::shapeManager.get("quad_xy_nt").drawRaw();
-	}
-
-	Globals::textureManager.get("null").bind(0);
-	updateEntitiePositions();
-	glBindVertexArray(m_vao2);
-	glBindBuffer(GL_ARRAY_BUFFER, m_vbo2);
-	glBufferSubData(GL_ARRAY_BUFFER, 0, 6 * sizeof(float) * m_entities_.size(), &m_entities_[0]);
-	shader = Globals::shaderManager.getAssetPointer("points");
-	shader->use();
-	shader->loadMatrix("u_projection", Sprite::GetOrthographic());
-	shader->loadMatrix("u_view", Matrix4f::IDENTITY);
-	shader->loadMatrix("u_model", Matrix4f::Translate((565.0f / 640.0f) * 1024.0f, (75.0f / 480.0f) * 768.0f, 0.0f));
-	shader->loadVector("u_color", Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
-	shader->loadFloat("u_size", 0.01f);
-	shader->loadFloat("u_ratio", m_camera.getAspect(true));
-
-	glDrawArrays(GL_POINTS, 0, m_entities_.size());
-	shader->unuse();
-
-	glLineWidth(2.0f);
-	float hm = (21.33f / 640.0f) * 1024.0f;
-	float vm = (21.33f / 480.0f) * 768.0f;
+		shader->use();
+		Globals::textureManager.get("ground").bind(0);
+		shader->loadMatrix("u_projection", Sprite::GetOrthographic());
+		shader->loadMatrix("u_view", Matrix4f::IDENTITY);
+		shader->loadVector("u_color", Vector4f(0.8f, 0.8f, 0.8f, 1.0f));
+		shader->loadMatrix("u_model", Matrix4f::Translate((565.0f / 640.0f) * 1024.0f, (75.0f / 480.0f) * 768.0f, 0.0f) *
+			Matrix4f::Rotate(Vector3f(0.0f, 0.0f, -1.0f), m_camera.getAngle() * _180_ON_PI) *
+			Matrix4f::Scale(1000.0f / m_xconvfactor, 1000.0f / m_yconvfactor, 0.0f));
+		Globals::shapeManager.get("quad_xy").drawRaw();
 
 
-	Vector3f pos = Matrix4f::RotateVec(Vector3f(0.0f, -1.0f, 0.0f), m_camera.getAngle() * _180_ON_PI, m_camera.getPosition());
-	shader = Globals::shaderManager.getAssetPointer("view");
-	shader->use();
-	shader->loadMatrix("u_projection", Sprite::GetOrthographic());
-	shader->loadMatrix("u_view", Matrix4f::IDENTITY);
-	shader->loadMatrix("u_model", Matrix4f::Translate(pos[0] / m_xconvfactor, -pos[2] / m_yconvfactor, 0.0f) *
-                                  Matrix4f::Translate((565.0f / 640.0f) * 1024.0f, (75.0f / 480.0f) * 768.0f, 0.0f) *
-                                  Matrix4f::Scale(hm, vm, 0.0f));
-	shader->loadVector("u_color", Vector4f::ONE);
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	
-	Globals::shapeManager.get("quad_xy").drawRaw();
+		shader->loadVector("u_color", Vector4f::ONE);
+		for (int i = 0; i < m_buildings_.size(); i++) {
+			shader->loadMatrix("u_model", Matrix4f::Translate(m_buildings_[i][0] / m_xconvfactor, m_buildings_[i][1] / m_yconvfactor, 0.0f) *
+				Matrix4f::Translate((565.0f / 640.0f) * 1024.0f, (75.0f / 480.0f) * 768.0f, 0.0f) *
+				Matrix4f::Rotate(Vector3f(0.0f, 0.0f, -1.0f), m_camera.getAngle() * _180_ON_PI, Vector3f(-m_buildings_[i][0] / m_xconvfactor, -m_buildings_[i][1] / m_yconvfactor, 0.0f)) *
+				Matrix4f::Scale(m_buildings_[i][2] / m_xconvfactor, m_buildings_[i][3] / m_yconvfactor, 0.0f));
+			Globals::shapeManager.get("quad_xy_nt").drawRaw();
+		}
 
-	glLineWidth(1.0f);
-	glPolygonMode(GL_FRONT_AND_BACK, StateMachine::GetEnableWireframe() ? GL_LINE : GL_FILL);
-	shader->unuse();
+		Globals::textureManager.get("null").bind(0);
+		updateEntitiePositions();
+		glBindVertexArray(m_vao2);
+		glBindBuffer(GL_ARRAY_BUFFER, m_vbo2);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, 6 * sizeof(float) * m_entities_.size(), &m_entities_[0]);
+		shader = Globals::shaderManager.getAssetPointer("points");
+		shader->use();
+		shader->loadMatrix("u_projection", Sprite::GetOrthographic());
+		shader->loadMatrix("u_view", Matrix4f::IDENTITY);
+		shader->loadMatrix("u_model", Matrix4f::Translate((565.0f / 640.0f) * 1024.0f, (75.0f / 480.0f) * 768.0f, 0.0f));
+		shader->loadVector("u_color", Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
+		shader->loadFloat("u_size", 0.01f);
+		shader->loadFloat("u_ratio", m_camera.getAspect(true));
 
-	Fontrenderer::Get().setShader(Globals::shaderManager.getAssetPointer("font"));
-	if (m_currentPanelTex >= 0) {
-		m_panel.setPosition(0.0f, (10.0f / 480.0f) * static_cast<float>(Application::Height));
-		m_panel.setScale((100.0f / 640.0f) * static_cast<float>(Application::Width), (100.0f / 480.0f) * static_cast<float>(Application::Height));
-		m_panel.draw(m_tileSet[m_currentPanelTex], Vector4f::ONE, false, 1.0f, 1.0f);
-		
+		glDrawArrays(GL_POINTS, 0, m_entities_.size());
+		shader->unuse();
+
+		glLineWidth(2.0f);
+		float hm = (21.33f / 640.0f) * 1024.0f;
+		float vm = (21.33f / 480.0f) * 768.0f;
+
+
+		Vector3f pos = Matrix4f::RotateVec(Vector3f(0.0f, -1.0f, 0.0f), m_camera.getAngle() * _180_ON_PI, m_camera.getPosition());
+		shader = Globals::shaderManager.getAssetPointer("view");
+		shader->use();
+		shader->loadMatrix("u_projection", Sprite::GetOrthographic());
+		shader->loadMatrix("u_view", Matrix4f::IDENTITY);
+		shader->loadMatrix("u_model", Matrix4f::Translate(pos[0] / m_xconvfactor, -pos[2] / m_yconvfactor, 0.0f) *
+			Matrix4f::Translate((565.0f / 640.0f) * 1024.0f, (75.0f / 480.0f) * 768.0f, 0.0f) *
+			Matrix4f::Scale(hm, vm, 0.0f));
+		shader->loadVector("u_color", Vector4f::ONE);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+		Globals::shapeManager.get("quad_xy").drawRaw();
+
+		glLineWidth(1.0f);
+		glPolygonMode(GL_FRONT_AND_BACK, StateMachine::GetEnableWireframe() ? GL_LINE : GL_FILL);
+		shader->unuse();
+
+		Fontrenderer::Get().setShader(Globals::shaderManager.getAssetPointer("font"));
+		if (m_currentPanelTex >= 0) {
+			m_panel.setPosition(0.0f, (10.0f / 480.0f) * static_cast<float>(Application::Height));
+			m_panel.setScale((100.0f / 640.0f) * static_cast<float>(Application::Width), (100.0f / 480.0f) * static_cast<float>(Application::Height));
+			m_panel.draw(m_tileSet[m_currentPanelTex], Vector4f::ONE, false, 1.0f, 1.0f);
+
+
+			Fontrenderer::Get().addText(set, (120.0f / 640.0f) * static_cast<float>(Application::Width), 20.0f, std::get<0>(labels[m_currentPanelTex]), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
+			Fontrenderer::Get().addText(set, (120.0f / 640.0f) * static_cast<float>(Application::Width), 0.0f, std::get<1>(labels[m_currentPanelTex]), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
+			//Fontrenderer::Get().drawBuffer();	
+		}
+
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D_ARRAY, set.spriteSheet);
-		Fontrenderer::Get().addText(set, (120.0f / 640.0f) * static_cast<float>(Application::Width), 20.0f, std::get<0>(labels[m_currentPanelTex]), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
-		Fontrenderer::Get().addText(set, (120.0f / 640.0f) * static_cast<float>(Application::Width), 0.0f, std::get<1>(labels[m_currentPanelTex]), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
-		Fontrenderer::Get().drawBuffer();	
+
+		Fontrenderer::Get().addText(set, (500.0f / 640.0f) * static_cast<float>(Application::Width), (450.0f / 480.0f) * static_cast<float>(Application::Height), "F1:HELP", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
+		if (m_showHelp) {
+			Fontrenderer::Get().addText(set, (20.0f / 640.0f) * static_cast<float>(Application::Width), (450.0f / 480.0f) * static_cast<float>(Application::Height), "F2 : QUIT GAME", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
+			Fontrenderer::Get().addText(set, (20.0f / 640.0f) * static_cast<float>(Application::Width), (430.0f / 480.0f) * static_cast<float>(Application::Height), "P  : PAUSE GAME", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
+			Fontrenderer::Get().addText(set, (20.0f / 640.0f) * static_cast<float>(Application::Width), (410.0f / 480.0f) * static_cast<float>(Application::Height), "A  : ROTATE CAMERA ANTICLOCKWISE", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
+			Fontrenderer::Get().addText(set, (20.0f / 640.0f) * static_cast<float>(Application::Width), (390.0f / 480.0f) * static_cast<float>(Application::Height), "D  : ROTATE CAMERA CLOCKWISE", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
+
+			Fontrenderer::Get().addText(set, (20.0f / 640.0f) * static_cast<float>(Application::Width), (370.0f / 480.0f) * static_cast<float>(Application::Height), "M  : TOGGLE PANEL", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
+			Fontrenderer::Get().addText(set, (20.0f / 640.0f) * static_cast<float>(Application::Width), (350.0f / 480.0f) * static_cast<float>(Application::Height), "B  : BOMB", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
+			Fontrenderer::Get().addText(set, (20.0f / 640.0f) * static_cast<float>(Application::Width), (330.0f / 480.0f) * static_cast<float>(Application::Height), "H  : SELECT HERO", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
+			Fontrenderer::Get().addText(set, (20.0f / 640.0f) * static_cast<float>(Application::Width), (310.0f / 480.0f) * static_cast<float>(Application::Height), "SPACE  : BRINGS HERO TO SCREEEN CENTER", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
+
+			Fontrenderer::Get().addText(set, (20.0f / 640.0f) * static_cast<float>(Application::Width), (290.0f / 480.0f) * static_cast<float>(Application::Height), "Q  : QUIT", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
+			Fontrenderer::Get().addText(set, (20.0f / 640.0f) * static_cast<float>(Application::Width), (270.0f / 480.0f) * static_cast<float>(Application::Height), " ", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
+			Fontrenderer::Get().addText(set, (20.0f / 640.0f) * static_cast<float>(Application::Width), (250.0f / 480.0f) * static_cast<float>(Application::Height), "LEFT CLICK NEAR THE LEG TO SELECT", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
+			Fontrenderer::Get().addText(set, (20.0f / 640.0f) * static_cast<float>(Application::Width), (230.0f / 480.0f) * static_cast<float>(Application::Height), "RIGHT CLICK TO MOVE", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
+
+			Fontrenderer::Get().addText(set, (20.0f / 640.0f) * static_cast<float>(Application::Width), (210.0f / 480.0f) * static_cast<float>(Application::Height), "RIGHT CLICK ON THE RED CIRCLE", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
+			Fontrenderer::Get().addText(set, (20.0f / 640.0f) * static_cast<float>(Application::Width), (190.0f / 480.0f) * static_cast<float>(Application::Height), "          BELOW ENEMY TO KILL", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
+			Fontrenderer::Get().addText(set, (20.0f / 640.0f) * static_cast<float>(Application::Width), (170.0f / 480.0f) * static_cast<float>(Application::Height), "OBJECTIVE: ", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
+			Fontrenderer::Get().addText(set, (20.0f / 640.0f) * static_cast<float>(Application::Width), (150.0f / 480.0f) * static_cast<float>(Application::Height), "DESTROY THE EVIL SCIENTISTS CONTROL ROOM", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
+
+			Fontrenderer::Get().addText(set, (20.0f / 640.0f) * static_cast<float>(Application::Width), (130.0f / 480.0f) * static_cast<float>(Application::Height), "AT THE TOP RIGHT CORNER OF THE MAP BY", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
+			Fontrenderer::Get().addText(set, (20.0f / 640.0f) * static_cast<float>(Application::Width), (110.0f / 480.0f) * static_cast<float>(Application::Height), "PLACING A BOMB UNDER HIS HOUSE", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
+		}
+
+		Fontrenderer::Get().drawBuffer();
 	}
 
-	if (m_hero->isDeath()) {
+	if (m_hero->isDeath() && m_showPanel) {
 		Sprite::SwitchShader();
 		m_texture1.bind();
 		m_panel.setPosition(static_cast<float>(Application::Width) * 0.5f - (strlen("GAME OVER") + 1) * SCR2RESX(40) * 0.5f, static_cast<float>(Application::Height) * 0.5f - SCR2RESX(50) * 0.5f);
@@ -737,15 +809,7 @@ void Adrian::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 				const MousePickCallback& cb = m_mousePicker.getCallback();
 				if (cb.m_userPoiner == m_hero && !m_hero->isDeath()) {					
 					if (m_currentPanelTex != 0) {
-						m_diskNode = m_hero->addChild<ShapeNode, Shape>(m_disk);
-						m_diskNode->setPosition(0.0f, 0.51f, 0.0f);
-						m_diskNode->setSortKey(2);
-						m_diskNode->setTextureIndex(1);
-						m_diskNode->setName("disk");
-						m_diskNode->OnOctreeSet(m_octree);
-						m_diskNode->setShader(Globals::shaderManager.getAssetPointer("shape"));
-						m_hero->setColor(Vector4f(0.7f, 0.7f, 1.0f, 1.0f));
-						m_currentPanelTex = 0;
+						activateHero();
 					}else {
 						ShapeNode* disk = m_hero->findChild<ShapeNode>("disk");
 						disk->OnOctreeSet(nullptr);
@@ -817,6 +881,16 @@ void Adrian::OnKeyDown(Event::KeyboardEvent& event) {
 	}
 
 	if (event.keyCode == VK_ESCAPE) {
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new Menu(m_machine));
+	}
+
+	/*if (event.keyCode == 81u) {
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new Menu(m_machine));
+	}*/
+
+	if (event.keyCode == VK_F2) {
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new Menu(m_machine));
 	}
@@ -994,17 +1068,13 @@ void Adrian::loadBuilding(const char* fn, bool changeWinding) {
 		ret = sscanf(str, "%f,%f,%f,%f,%f", &fl[0], &fl[1], &fl[2], &fl[3], &fl[4]);
 		if (!strncmp(buf, "txco:", 5)) {
 			texels.push_back({ fl[0], fl[1] });
-		}
-		else if (!strncmp(buf, "colr:", 5)) {
+		}else if (!strncmp(buf, "colr:", 5)) {
 			currentColor.set(fl[0], fl[1], fl[2], fl[3]);
-		}
-		else if (!strncmp(buf, "vrtx:", 5)) {
+		}else if (!strncmp(buf, "vrtx:", 5)) {
 			positions.push_back({ fl[0], fl[1], fl[2] });
-		}
-		else if (!strncmp(buf, "begn:", 5)) {
+		}else if (!strncmp(buf, "begn:", 5)) {
 			sscanf(str, "%d", &currentPolygon);
-		}
-		else if (!strncmp(buf, "txtr:", 5)) {
+		}else if (!strncmp(buf, "txtr:", 5)) {
 			if (currentTexture != str && !currentTexture.empty()) {
 				m_buildings.push_back(Shape(vertices, indices, 8u));
 				m_buildings.back().createBoundingBox();
@@ -1018,8 +1088,7 @@ void Adrian::loadBuilding(const char* fn, bool changeWinding) {
 				shapeColor.clear();
 			}
 			currentTexture = str;
-		}
-		else if (!strncmp(buf, "ends", 4)) {
+		}else if (!strncmp(buf, "ends", 4)) {
 
 			if (currentPolygon == 6u) {
 				unsigned int baseIndex = vertices.size() / 8;
@@ -1043,8 +1112,7 @@ void Adrian::loadBuilding(const char* fn, bool changeWinding) {
 				positions.clear();
 				texels.shrink_to_fit();
 				texels.clear();
-			}
-			else if (currentPolygon == 7u) {
+			}else if (currentPolygon == 7u) {
 				unsigned int baseIndex = vertices.size() / 8;
 				for (int i = 0; i < positions.size(); i++) {
 					vertices.push_back(positions[i][0]); vertices.push_back(positions[i][1]); vertices.push_back(positions[i][2]);
@@ -1066,8 +1134,7 @@ void Adrian::loadBuilding(const char* fn, bool changeWinding) {
 				positions.clear();
 				texels.shrink_to_fit();
 				texels.clear();
-			}
-			else if (currentPolygon == 8u) {
+			}else if (currentPolygon == 8u) {
 
 				unsigned int baseIndex = vertices.size() / 8;
 				for (int i = 0; i < positions.size(); i++) {
@@ -1666,4 +1733,21 @@ void Adrian::createCollisionFilter() {
 	std::transform(m_entities.begin() + 1, m_entities.end(), std::back_inserter(m_colliosionFilter), [this](Md2Entity* p)->btCollisionObject* {
 		return   static_cast<Bot*>(p)->getRigidBody();
 	});
+}
+
+void Adrian::activateHero() {
+	m_diskNode = m_hero->addChild<ShapeNode, Shape>(m_disk);
+	m_diskNode->setPosition(0.0f, 0.51f, 0.0f);
+	m_diskNode->setSortKey(2);
+	m_diskNode->setTextureIndex(1);
+	m_diskNode->setName("disk");
+	m_diskNode->OnOctreeSet(m_octree);
+	m_diskNode->setShader(Globals::shaderManager.getAssetPointer("shape"));
+	m_hero->setColor(Vector4f(0.7f, 0.7f, 1.0f, 1.0f));
+	m_currentPanelTex = 0;
+}
+
+void Adrian::centerHero() {
+	Vector3f pos = m_hero->getWorldPosition();
+	m_camera.scrollOver(pos[0], pos[2]);
 }

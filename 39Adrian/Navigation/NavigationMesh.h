@@ -101,6 +101,7 @@ public:
 	void addOffMeshConnection(const OffMeshConnection& offMeshConnection);
 	void addNavArea(const NavArea& navArea);
 	void addNavPolygon(const NavPolygon& navPolygon);
+	void clearNavigables();
 	
 	Vector3f moveAlongSurface(const Vector3f& start, const Vector3f& end, const Vector3f& extents = Vector3f::ONE, int maxVisited = 3, const dtQueryFilter* filter = 0);
 	Vector3f findNearestPoint(const Vector3f& point, const Vector3f& extents = Vector3f::ONE, const dtQueryFilter* filter = 0, dtPolyRef* nearestRef = 0);

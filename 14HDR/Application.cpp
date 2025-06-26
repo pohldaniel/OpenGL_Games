@@ -129,12 +129,22 @@ LRESULT CALLBACK Application::StaticWndProc(HWND hWnd, UINT message, WPARAM wPar
 		}
 	}
 
+	if (wParam == SC_KEYMENU && (lParam >> 16) <= 0) {
+		return 0;
+	}
+
+	if ((message == WM_KEYDOWN && (wParam == 'v' || wParam == 'V' || wParam == 'z' || wParam == 'Z')) || (message == WM_KEYDOWN && wParam == VK_ESCAPE) || (message == WM_KEYDOWN && wParam == VK_RETURN && ((HIWORD(lParam) & KF_ALTDOWN))) || (message == WM_SYSKEYDOWN && wParam == VK_RETURN && ((HIWORD(lParam) & KF_ALTDOWN)))) {
+		ImGui::GetIO().WantCaptureMouse = false;
+	}
+
+	if (message == WM_SETCURSOR) {
+		return 0;
+	}
+
 	ImGui_ImplWin32_WndProcHandler(hWnd, message, wParam, lParam);
 	
-	if (Init) {
-		ImGuiIO& io = ImGui::GetIO();
-		if (io.WantCaptureMouse)
-			return DefWindowProc(hWnd, message, wParam, lParam);
+	if (Init && ImGui::GetIO().WantCaptureMouse) {
+		return DefWindowProc(hWnd, message, wParam, lParam);
 	}
 
 	if (application) {

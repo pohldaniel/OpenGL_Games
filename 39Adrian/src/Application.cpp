@@ -499,7 +499,6 @@ void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 		break;
 	} case WM_KEYDOWN: {
 		switch (wParam) {
-
 		case VK_ESCAPE: {
 			Event event;
 			event.type = Event::KEYDOWN;
@@ -518,7 +517,7 @@ void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 			event.data.keyboard.keyCode = wParam;
 			EventDispatcher.pushEvent(event);
 			break;
-		}case VK_DOWN: {
+		}case VK_DOWN: {			
 			Event event;
 			event.type = Event::KEYDOWN;
 			event.data.keyboard.keyCode = wParam;
@@ -545,6 +544,18 @@ void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 			Event event;
 			event.type = Event::KEYDOWN;
 			event.data.keyboard.keyCode = (lParam & 0x01000000) != 0 ? VK_RCONTROL : VK_LCONTROL;
+			EventDispatcher.pushEvent(event);
+			break;
+		}case VK_F2: {
+			Event event;
+			event.type = Event::KEYDOWN;
+			event.data.keyboard.keyCode = wParam;
+			EventDispatcher.pushEvent(event);
+			break;
+		}case 'Q': {
+			Event event;
+			event.type = Event::KEYDOWN;
+			event.data.keyboard.keyCode = wParam;
 			EventDispatcher.pushEvent(event);
 			break;
 		}

@@ -126,6 +126,8 @@ private:
 	void setTarget(const Vector3f& pos);
 	const std::vector<std::array<float, 6>>& updateEntitiePositions();
 	void createCollisionFilter();
+	void activateHero();
+	void centerHero();
 
 	bool m_initUi = true;
 	bool m_drawUi = false;
@@ -136,6 +138,9 @@ private:
 	bool m_useStreaming = false;
 	bool m_drawPolygon = false;
 	bool m_invisible = false;
+	bool m_showHelp = false;
+	bool m_showPanel = true;
+	bool m_noWalls = false;
 
 	float m_tileFactor = 80.0f;
 	float m_angle = -0.628f;
@@ -146,7 +151,7 @@ private:
 	float m_rimScale = 1.0f;
 	float m_fadeValue = 0.0f;
 	float m_fadeCircleValue = 1.0f;
-	float m_separaionWeight;
+	float m_separaionWeight = 3.0f;
 
 	IsometricCamera m_camera;
 
