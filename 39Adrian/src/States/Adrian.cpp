@@ -8,7 +8,7 @@
 #include <engine/TileSet.h>
 #include <Physics/ShapeDrawer.h>
 #include <Physics/MousePicker.h>
-#include <States/Menu.h>
+#include <States/AdrianMenu.h>
 #include <Utils/BinaryIO.h>
 
 #include "Adrian.h"
@@ -878,7 +878,7 @@ void Adrian::OnKeyDown(Event::KeyboardEvent& event) {
 
 	if (event.keyCode == VK_ESCAPE) {
 		m_isRunning = false;
-		m_machine.addStateAtBottom(new Menu(m_machine));
+		m_machine.addStateAtBottom(new AdrianMenu(m_machine));
 	}
 
 	/*if (event.keyCode == 81u) {
@@ -888,7 +888,7 @@ void Adrian::OnKeyDown(Event::KeyboardEvent& event) {
 
 	if (event.keyCode == VK_F2) {
 		m_isRunning = false;
-		m_machine.addStateAtBottom(new Menu(m_machine));
+		m_machine.addStateAtBottom(new AdrianMenu(m_machine));
 	}
 }
 

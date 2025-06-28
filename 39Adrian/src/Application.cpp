@@ -836,6 +836,7 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("billboard_new", "res/shader/billboard/billboard.vert", "res/shader/billboard/billboard.frag", "res/shader/billboard_new.gem");
 
 	Globals::fontManager.loadCharacterSet("upheaval_200", "res/fonts/upheavtt.ttf", 200, 0, 30, 128, 0, true, 0u);
+	Globals::fontManager.loadCharacterSet("upheaval_100", "res/fonts/upheavtt.ttf", 100, 0, 30, 128, 0, true, 0u);
 	Globals::fontManager.loadCharacterSet("upheaval_30", "res/fonts/upheavtt.ttf", 30, 0, 3, 0, 0, true, 0u);
 	Globals::fontManager.loadCharacterSet("tahoma_64", "data/fonts/tahoma.ttf", 64, 20, 20, 0, 5, true, 0u);
 
