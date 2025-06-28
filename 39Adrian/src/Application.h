@@ -29,6 +29,7 @@ public:
 	static int Width;
 	static int Height;
 	static bool OverClient;
+	static bool MouseTracking;
 
 private:
 	static LRESULT CALLBACK StaticWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
@@ -48,7 +49,6 @@ private:
 	const float& m_dt;
 
 	void processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
-	bool m_mouseTracking = false;
 
 	static void Resize(int deltaW, int deltaH);
 	static StateMachine* Machine;

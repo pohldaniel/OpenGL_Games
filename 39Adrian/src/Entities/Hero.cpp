@@ -22,11 +22,9 @@ void Hero::fixedUpdate(float fdt) {
 	const Quaternion& rot = getWorldOrientation();
 	const Vector3f size = aabb.getSize();
 	const Vector3f pivot1(0.0f, aabb.min[1] + size[1] * 0.5f, 0.0f);
-	const Vector3f pivot2(0.0f, 0.5f, 0.0f);
 
 	m_rigidBody->setWorldTransform(Physics::BtTransform(pos + pivot1, rot));
 	m_rigidBody->getCollisionShape()->setLocalScaling(Physics::VectorFrom(size * 0.75));
-	Physics::DynamicsWorld->updateSingleAabb(m_rigidBody);
 
 	m_segmentBody->setWorldTransform(Physics::BtTransform(pos, rot));
 	m_triggerBody->setWorldTransform(Physics::BtTransform(pos, rot));
@@ -85,7 +83,6 @@ void Hero::setOnDeath(std::function<void()> fun) {
 }
 
 btScalar Hero::TriggerCallback::addSingleResult(btManifoldPoint& cp, const btCollisionObjectWrapper* colObj0Wrap, int partId0, int index0, const btCollisionObjectWrapper* colObj1Wrap, int partId1, int index1) {
-
 	Hero* hero = reinterpret_cast<Hero*>(colObj0Wrap->getCollisionObject()->getUserPointer());
 	hero->setAnimationType(AnimationType::DEATH_BACK);
 	hero->setLoopAnimation(false);

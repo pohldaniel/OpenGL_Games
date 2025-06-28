@@ -33,6 +33,8 @@
 #include <Entities/Bot.h>
 #include <Utils/Fade.h>
 
+#include "CameraController.h"
+
 #define		SCR2RESX(x)		((x)/640.0 * (1024))
 #define		SCR2RESY(y)		((y)/480.0 * (768))
 
@@ -141,6 +143,7 @@ private:
 	bool m_showHelp = false;
 	bool m_showPanel = true;
 	bool m_noWalls = false;
+	bool m_roatecamera = false;
 
 	float m_tileFactor = 80.0f;
 	float m_angle = -0.628f;
@@ -219,4 +222,5 @@ private:
 	};
 
 	Texture m_texture1, m_texture2;
+	CameraController m_cameraController;
 };

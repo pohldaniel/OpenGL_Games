@@ -18,6 +18,7 @@
 
 Adrian::Adrian(StateMachine& machine) : State(machine, States::ADRIAN),
 m_camera(Application::Width, Application::Height),
+m_cameraController(m_camera),
 m_addedTiles(0, [](const std::array<int, 2>& p) {  return std::hash<int>()(p[0]) ^ std::hash<int>()(p[1]) << 1; }, [](const std::array<int, 2>& p1, const std::array<int, 2>& p2) { return p1[0] == p2[0] && p1[1] == p2[1]; }),
 m_streamingDistance(6),
 m_globalUserIndex(-1),
@@ -36,6 +37,7 @@ m_invisible(false){
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	//m_camera.orthographic(-static_cast<float>(Application::Width / 2) / m_zoom, static_cast<float>(Application::Width / 2) / m_zoom, -static_cast<float>(Application::Height / 2) / m_zoom, static_cast<float>(Application::Height / 2) / m_zoom, -static_cast<float>(Application::Width) / m_zoom, static_cast<float>(Application::Width) / m_zoom);
 	m_camera.orthographic(-static_cast<float>(Application::Width / 2) / m_zoom, static_cast<float>(Application::Width / 2) / m_zoom, -static_cast<float>(Application::Height / 2) / m_zoom, static_cast<float>(Application::Height / 2) / m_zoom, -5000.0f, 5000.0f);
+	m_camera.setSpeed(750.0f);
 
 	glClearColor(0.494f, 0.686f, 0.796f, 1.0f);
 	glClearDepth(1.0f);
@@ -274,7 +276,7 @@ void Adrian::update() {
 
 	float dx = 0.0f;
 	float dy = 0.0f;
-	bool move = false;
+	/*bool move = false;
 
 	if (keyboard.keyDown(Keyboard::KEY_W)) {
 		direction += Vector3f(0.0f, 0.0f, 1.0f);
@@ -298,7 +300,7 @@ void Adrian::update() {
 		direction += Vector3f(1.0f, 0.0f, 0.0f);
 		move |= true;
 		m_camera.moveLeft(m_dt);
-	}
+	}*/
 
 	if (keyboard.keyDown(Keyboard::KEY_Q)) {
 		if (Keyboard::instance().keyDown(Keyboard::KEY_LSHIFT)) {
@@ -361,6 +363,13 @@ void Adrian::update() {
 		}
 	}
 
+	if (keyboard.keyPressed(Keyboard::KEY_B)) {
+		const Vector3f& pos = m_hero->getWorldPosition();
+		if (pos[0] <= -580 && pos[2] <= -640) {
+			m_roatecamera = true;
+		}
+	}
+
 	if (keyboard.keyPressed(Keyboard::KEY_M)) {
 		m_showPanel = !m_showPanel;
 	}
@@ -376,12 +385,23 @@ void Adrian::update() {
 	if (keyboard.keyPressed(Keyboard::KEY_H)) {
 		activateHero();
 	}
+
+	m_cameraController.update(m_dt);
 	
 	m_octree->updateFrameNumber();
 	m_crowdManager->update(m_dt);
 
-	for (auto&& entity : m_entities)
-		entity->update(m_dt);
+	if (m_hero->isDeath() || m_roatecamera) {
+		m_hero->update(m_dt);
+	}else {		
+		for (auto&& entity : m_entities)
+			entity->update(m_dt);
+	}
+
+	if (m_roatecamera) {
+		m_angle -= m_dt;
+		m_camera.rotate(m_angle);
+	}
 
 	m_fade.update(m_dt);
 	m_fadeCircle.update(m_dt);
@@ -562,24 +582,23 @@ void Adrian::render() {
 		if (m_showHelp) {
 			Fontrenderer::Get().addText(set, (20.0f / 640.0f) * static_cast<float>(Application::Width), (450.0f / 480.0f) * static_cast<float>(Application::Height), "F2 : QUIT GAME", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
 			Fontrenderer::Get().addText(set, (20.0f / 640.0f) * static_cast<float>(Application::Width), (430.0f / 480.0f) * static_cast<float>(Application::Height), "P  : PAUSE GAME", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
-			Fontrenderer::Get().addText(set, (20.0f / 640.0f) * static_cast<float>(Application::Width), (410.0f / 480.0f) * static_cast<float>(Application::Height), "A  : ROTATE CAMERA ANTICLOCKWISE", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
-			Fontrenderer::Get().addText(set, (20.0f / 640.0f) * static_cast<float>(Application::Width), (390.0f / 480.0f) * static_cast<float>(Application::Height), "D  : ROTATE CAMERA CLOCKWISE", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
+			Fontrenderer::Get().addText(set, (20.0f / 640.0f) * static_cast<float>(Application::Width), (410.0f / 480.0f) * static_cast<float>(Application::Height), "Q  : ROTATE CAMERA ANTICLOCKWISE", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
+			Fontrenderer::Get().addText(set, (20.0f / 640.0f) * static_cast<float>(Application::Width), (390.0f / 480.0f) * static_cast<float>(Application::Height), "E  : ROTATE CAMERA CLOCKWISE", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
 
 			Fontrenderer::Get().addText(set, (20.0f / 640.0f) * static_cast<float>(Application::Width), (370.0f / 480.0f) * static_cast<float>(Application::Height), "M  : TOGGLE PANEL", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
 			Fontrenderer::Get().addText(set, (20.0f / 640.0f) * static_cast<float>(Application::Width), (350.0f / 480.0f) * static_cast<float>(Application::Height), "B  : BOMB", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
 			Fontrenderer::Get().addText(set, (20.0f / 640.0f) * static_cast<float>(Application::Width), (330.0f / 480.0f) * static_cast<float>(Application::Height), "H  : SELECT HERO", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
 			Fontrenderer::Get().addText(set, (20.0f / 640.0f) * static_cast<float>(Application::Width), (310.0f / 480.0f) * static_cast<float>(Application::Height), "SPACE  : BRINGS HERO TO SCREEEN CENTER", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
 
-			Fontrenderer::Get().addText(set, (20.0f / 640.0f) * static_cast<float>(Application::Width), (290.0f / 480.0f) * static_cast<float>(Application::Height), "Q  : QUIT", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
+			//Fontrenderer::Get().addText(set, (20.0f / 640.0f) * static_cast<float>(Application::Width), (290.0f / 480.0f) * static_cast<float>(Application::Height), "Q  : QUIT", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
 			Fontrenderer::Get().addText(set, (20.0f / 640.0f) * static_cast<float>(Application::Width), (270.0f / 480.0f) * static_cast<float>(Application::Height), " ", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
-			Fontrenderer::Get().addText(set, (20.0f / 640.0f) * static_cast<float>(Application::Width), (250.0f / 480.0f) * static_cast<float>(Application::Height), "LEFT CLICK NEAR THE LEG TO SELECT", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
+			Fontrenderer::Get().addText(set, (20.0f / 640.0f) * static_cast<float>(Application::Width), (250.0f / 480.0f) * static_cast<float>(Application::Height), "LEFT CLICK THE TORSO TO SELECT", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
 			Fontrenderer::Get().addText(set, (20.0f / 640.0f) * static_cast<float>(Application::Width), (230.0f / 480.0f) * static_cast<float>(Application::Height), "RIGHT CLICK TO MOVE", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
+			Fontrenderer::Get().addText(set, (20.0f / 640.0f) * static_cast<float>(Application::Width), (210.0f / 480.0f) * static_cast<float>(Application::Height), "RIGHT CLICK ON THE ENEMY TO KILL", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
 
-			Fontrenderer::Get().addText(set, (20.0f / 640.0f) * static_cast<float>(Application::Width), (210.0f / 480.0f) * static_cast<float>(Application::Height), "RIGHT CLICK ON THE RED CIRCLE", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
-			Fontrenderer::Get().addText(set, (20.0f / 640.0f) * static_cast<float>(Application::Width), (190.0f / 480.0f) * static_cast<float>(Application::Height), "          BELOW ENEMY TO KILL", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
+			Fontrenderer::Get().addText(set, (20.0f / 640.0f) * static_cast<float>(Application::Width), (190.0f / 480.0f) * static_cast<float>(Application::Height), " ", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
 			Fontrenderer::Get().addText(set, (20.0f / 640.0f) * static_cast<float>(Application::Width), (170.0f / 480.0f) * static_cast<float>(Application::Height), "OBJECTIVE: ", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
 			Fontrenderer::Get().addText(set, (20.0f / 640.0f) * static_cast<float>(Application::Width), (150.0f / 480.0f) * static_cast<float>(Application::Height), "DESTROY THE EVIL SCIENTISTS CONTROL ROOM", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
-
 			Fontrenderer::Get().addText(set, (20.0f / 640.0f) * static_cast<float>(Application::Width), (130.0f / 480.0f) * static_cast<float>(Application::Height), "AT THE TOP RIGHT CORNER OF THE MAP BY", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
 			Fontrenderer::Get().addText(set, (20.0f / 640.0f) * static_cast<float>(Application::Width), (110.0f / 480.0f) * static_cast<float>(Application::Height), "PLACING A BOMB UNDER HIS HOUSE", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
 		}
@@ -587,7 +606,7 @@ void Adrian::render() {
 		Fontrenderer::Get().drawBuffer();
 	}
 
-	if (m_hero->isDeath() && m_showPanel) {
+	if ((m_hero->isDeath() || m_roatecamera) && m_showPanel) {
 		Sprite::SwitchShader();
 		m_texture1.bind();
 		m_panel.setPosition(static_cast<float>(Application::Width) * 0.5f - (strlen("GAME OVER") + 1) * SCR2RESX(40) * 0.5f, static_cast<float>(Application::Height) * 0.5f - SCR2RESX(50) * 0.5f);
@@ -727,6 +746,7 @@ void Adrian::renderBubble() {
 }
 
 void Adrian::OnMouseMotion(Event::MouseMoveEvent& event) {
+	m_cameraController.OnMouseMotion(event);
 	if (m_drawPolygon && m_mousePicker.updatePositionOrthographicAll(event.x, event.y, m_camera, m_ground)) {
 		const MousePickCallbackAll& callbackAll = m_mousePicker.getCallbackAll();
 		if (m_globalUserIndex >= 0) {
@@ -876,6 +896,7 @@ void Adrian::OnMouseWheel(Event::MouseWheelEvent& event) {
 }
 
 void Adrian::OnKeyDown(Event::KeyboardEvent& event) {
+	m_cameraController.OnKeyDown(event);
 	if (event.keyCode == VK_LMENU) {
 		m_drawUi = !m_drawUi;
 	}
@@ -897,7 +918,7 @@ void Adrian::OnKeyDown(Event::KeyboardEvent& event) {
 }
 
 void Adrian::OnKeyUp(Event::KeyboardEvent& event) {
-
+	m_cameraController.OnKeyUp(event);
 }
 
 void Adrian::resize(int deltaW, int deltaH) {

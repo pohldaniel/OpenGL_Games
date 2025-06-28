@@ -236,6 +236,7 @@
     <ClCompile Include="Physics\Constraint.cpp" />
     <ClCompile Include="Physics\Constraint6DoF.cpp" />
     <ClCompile Include="Physics\VehiclePhysics.cpp" />
+    <ClCompile Include="src\CameraController.cpp" />
     <ClCompile Include="src\Entities\Beta.cpp" />
     <ClCompile Include="src\Entities\Bot.cpp" />
     <ClCompile Include="src\Entities\CrowdAgentEntity.cpp" />
@@ -454,6 +455,7 @@
     <ClInclude Include="Physics\Constraint6DoF.h" />
     <ClInclude Include="Physics\VehiclePhysics.h" />
     <ClInclude Include="src\Application.h" />
+    <ClInclude Include="src\CameraController.h" />
     <ClInclude Include="src\Entities\Beta.h" />
     <ClInclude Include="src\Entities\Bot.h" />
     <ClInclude Include="src\Entities\CrowdAgentEntity.h" />

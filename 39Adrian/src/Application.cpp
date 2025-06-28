@@ -43,6 +43,7 @@ DWORD Application::SavedExStyle;
 DWORD Application::SavedStyle;
 RECT Application::Savedrc;
 bool Application::OverClient = true;
+bool Application::MouseTracking = true;
 
 HCURSOR Application::Cursor = LoadCursor(nullptr, IDC_ARROW);
 //HCURSOR Application::Cursor = LoadCursor(nullptr, IDC_NO);
@@ -186,10 +187,22 @@ LRESULT CALLBACK Application::StaticWndProc(HWND hWnd, UINT message, WPARAM wPar
 	Application* application = nullptr;
 
 	switch (message) {
-		case WM_MOUSELEAVE:
+		case WM_MOUSELEAVE: {
 			OverClient = false;
+
+			POINT cursorPos;
+			GetCursorPos(&cursorPos);
+			ScreenToClient(Window, &cursorPos);
+
+			Event event;
+			event.type = Event::MOUSEMOTION;
+			event.data.mouseMove.x = cursorPos.x;
+			event.data.mouseMove.y = cursorPos.y;
+
+			event.data.mouseMove.button = wParam & MK_RBUTTON ? Event::MouseMoveEvent::MouseButton::BUTTON_RIGHT : wParam & MK_LBUTTON ? Event::MouseMoveEvent::MouseButton::BUTTON_LEFT : Event::MouseMoveEvent::MouseButton::NONE;
+			EventDispatcher.pushEvent(event);
 			break;
-		case WM_CREATE: {
+		}case WM_CREATE: {
 			application = static_cast<Application*>(reinterpret_cast<CREATESTRUCT*>(lParam)->lpCreateParams);
 			SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(application));
 			break;
@@ -499,139 +512,140 @@ void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 		break;
 	} case WM_KEYDOWN: {
 		switch (wParam) {
-		case VK_ESCAPE: {
-			Event event;
-			event.type = Event::KEYDOWN;
-			event.data.keyboard.keyCode = wParam;
-			EventDispatcher.pushEvent(event);
-			break;
-		}case VK_SPACE: {
-			Event event;
-			event.type = Event::KEYDOWN;
-			event.data.keyboard.keyCode = wParam;
-			EventDispatcher.pushEvent(event);
-			break;
-		}case VK_UP: {
-			Event event;
-			event.type = Event::KEYDOWN;
-			event.data.keyboard.keyCode = wParam;
-			EventDispatcher.pushEvent(event);
-			break;
-		}case VK_DOWN: {			
-			Event event;
-			event.type = Event::KEYDOWN;
-			event.data.keyboard.keyCode = wParam;
-			EventDispatcher.pushEvent(event);
-			break;
-		}case VK_LEFT: {
-			Event event;
-			event.type = Event::KEYDOWN;
-			event.data.keyboard.keyCode = wParam;
-			EventDispatcher.pushEvent(event);
-			break;
-		}case VK_RIGHT: {
-			Event event;
-			event.type = Event::KEYDOWN;
-			event.data.keyboard.keyCode = wParam;
-			EventDispatcher.pushEvent(event);
-			break;
-		}case VK_CONTROL: {
-
-			//Alt Graph
-			//if (HIWORD(lParam) == 29)
+			//case VK_ESCAPE: {
+			//	Event event;
+			//	event.type = Event::KEYDOWN;
+			//	event.data.keyboard.keyCode = wParam;
+			//	EventDispatcher.pushEvent(event);
 			//	break;
+			//}case VK_SPACE: {
+			//	Event event;
+			//	event.type = Event::KEYDOWN;
+			//	event.data.keyboard.keyCode = wParam;
+			//	EventDispatcher.pushEvent(event);
+			//	break;
+			//}case VK_UP: {
+			//	Event event;
+			//	event.type = Event::KEYDOWN;
+			//	event.data.keyboard.keyCode = wParam;
+			//	EventDispatcher.pushEvent(event);
+			//	break;
+			//}case VK_DOWN: {			
+			//	Event event;
+			//	event.type = Event::KEYDOWN;
+			//	event.data.keyboard.keyCode = wParam;
+			//	EventDispatcher.pushEvent(event);
+			//	break;
+			//}case VK_LEFT: {
+			//	Event event;
+			//	event.type = Event::KEYDOWN;
+			//	event.data.keyboard.keyCode = wParam;
+			//	EventDispatcher.pushEvent(event);
+			//	break;
+			//}case VK_RIGHT: {
+			//	Event event;
+			//	event.type = Event::KEYDOWN;
+			//	event.data.keyboard.keyCode = wParam;
+			//	EventDispatcher.pushEvent(event);
+			//	break;
+			//}
+			//case VK_MENU: {
+			//	Event event;
+			//	event.type = Event::KEYDOWN;
+			//	event.data.keyboard.keyCode = VK_RMENU;
+			//	EventDispatcher.pushEvent(event);
+			//	break;
+			//}
+			//case VK_HOME: {
+			//	Event event;
+			//	event.type = Event::KEYDOWN;
+			//	event.data.keyboard.keyCode = VK_HOME;
+			//	EventDispatcher.pushEvent(event);
+			//	break;
+			//}
+			case VK_CONTROL: {
 
-			Event event;
-			event.type = Event::KEYDOWN;
-			event.data.keyboard.keyCode = (lParam & 0x01000000) != 0 ? VK_RCONTROL : VK_LCONTROL;
-			EventDispatcher.pushEvent(event);
-			break;
-		}case VK_F2: {
-			Event event;
-			event.type = Event::KEYDOWN;
-			event.data.keyboard.keyCode = wParam;
-			EventDispatcher.pushEvent(event);
-			break;
-		}case 'Q': {
-			Event event;
-			event.type = Event::KEYDOWN;
-			event.data.keyboard.keyCode = wParam;
-			EventDispatcher.pushEvent(event);
-			break;
+				//Alt Graph
+				//if (HIWORD(lParam) == 29)
+				//	break;
+
+				Event event;
+				event.type = Event::KEYDOWN;
+				event.data.keyboard.keyCode = (lParam & 0x01000000) != 0 ? VK_RCONTROL : VK_LCONTROL;
+				EventDispatcher.pushEvent(event);
+				break;
+			}
+	#if DEVBUILD
+			case 'z': case 'Z': {
+				StateMachine::ToggleWireframe();
+				break;
+			}case 'v': case 'V': {
+				ToggleVerticalSync();
+				break;
+			}
+	#endif
 		}
-		//case VK_MENU: {
-		//	Event event;
-		//	event.type = Event::KEYDOWN;
-		//	event.data.keyboard.keyCode = VK_RMENU;
-		//	EventDispatcher.pushEvent(event);
-		//	break;
-		//}
-		//case VK_HOME: {
-		//	Event event;
-		//	event.type = Event::KEYDOWN;
-		//	event.data.keyboard.keyCode = VK_HOME;
-		//	EventDispatcher.pushEvent(event);
-		//	break;
-		//}
-#if DEVBUILD
-		case 'z': case 'Z': {
-			StateMachine::ToggleWireframe();
-			break;
-		}case 'v': case 'V': {
-			ToggleVerticalSync();
-			break;
-		}
-#endif
-		}
+
+		Event event;
+		event.type = Event::KEYDOWN;
+		event.data.keyboard.keyCode = wParam;
+		EventDispatcher.pushEvent(event);
+
 		break;
 	}case WM_KEYUP: {
 
 		switch (wParam) {
 
-		case VK_ESCAPE: {
-			Event event;
-			event.type = Event::KEYUP;
-			event.data.keyboard.keyCode = wParam;
-			EventDispatcher.pushEvent(event);
-			break;
-		}case VK_SPACE: {
-			Event event;
-			event.type = Event::KEYUP;
-			event.data.keyboard.keyCode = wParam;
-			EventDispatcher.pushEvent(event);
-			break;
-		}case VK_UP: {
-			Event event;
-			event.type = Event::KEYUP;
-			event.data.keyboard.keyCode = wParam;
-			EventDispatcher.pushEvent(event);
-			break;
-		}case VK_DOWN: {
-			Event event;
-			event.type = Event::KEYUP;
-			event.data.keyboard.keyCode = wParam;
-			EventDispatcher.pushEvent(event);
-			break;
-		}case VK_LEFT: {
-			Event event;
-			event.type = Event::KEYUP;
-			event.data.keyboard.keyCode = wParam;
-			EventDispatcher.pushEvent(event);
-			break;
-		}case VK_RIGHT: {
-			Event event;
-			event.type = Event::KEYUP;
-			event.data.keyboard.keyCode = wParam;
-			EventDispatcher.pushEvent(event);
-			break;
-		}case VK_CONTROL: {			
-			Event event;
-			event.type = Event::KEYUP;
-			event.data.keyboard.keyCode = (lParam & 0x01000000) != 0 ? VK_RCONTROL : VK_LCONTROL;
-			EventDispatcher.pushEvent(event);
-			break;
+			//case VK_ESCAPE: {
+			//	Event event;
+			//	event.type = Event::KEYUP;
+			//	event.data.keyboard.keyCode = wParam;
+			//	EventDispatcher.pushEvent(event);
+			//	break;
+			//}case VK_SPACE: {
+			//	Event event;
+			//	event.type = Event::KEYUP;
+			//	event.data.keyboard.keyCode = wParam;
+			//	EventDispatcher.pushEvent(event);
+			//	break;
+			//}case VK_UP: {
+			//	Event event;
+			//	event.type = Event::KEYUP;
+			//	event.data.keyboard.keyCode = wParam;
+			//	EventDispatcher.pushEvent(event);
+			//	break;
+			//}case VK_DOWN: {
+			//	Event event;
+			//	event.type = Event::KEYUP;
+			//	event.data.keyboard.keyCode = wParam;
+			//	EventDispatcher.pushEvent(event);
+			//	break;
+			//}case VK_LEFT: {
+			//	Event event;
+			//	event.type = Event::KEYUP;
+			//	event.data.keyboard.keyCode = wParam;
+			//	EventDispatcher.pushEvent(event);
+			//	break;
+			//}case VK_RIGHT: {
+			//	Event event;
+			//	event.type = Event::KEYUP;
+			//	event.data.keyboard.keyCode = wParam;
+			//	EventDispatcher.pushEvent(event);
+			//	break;}
+			case VK_CONTROL: {			
+				Event event;
+				event.type = Event::KEYUP;
+				event.data.keyboard.keyCode = (lParam & 0x01000000) != 0 ? VK_RCONTROL : VK_LCONTROL;
+				EventDispatcher.pushEvent(event);
+				break;
+			}
 		}
-		}
+
+		Event event;
+		event.type = Event::KEYUP;
+		event.data.keyboard.keyCode = wParam;
+		EventDispatcher.pushEvent(event);
+
 		break;
 	}case WM_SYSKEYDOWN: {
 

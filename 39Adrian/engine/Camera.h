@@ -200,6 +200,7 @@ public:
 	float m_initx;
 	float m_initz;
 	void scrollOver(float x, float y);
+	void setSpeed(float speed);
 
 private:
 

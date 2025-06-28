@@ -1558,6 +1558,10 @@ void IsometricCamera::setHeight(float height) {
 	lookAt(m_eye, m_target, Vector3f(0.0f, 1.0f, 0.0f));
 }
 
+void IsometricCamera::setSpeed(float speed) {
+	m_speed = speed;
+}
+
 void IsometricCamera::resize(unsigned int width, unsigned int height) {
 	m_hres = static_cast<float>(width);
 	m_vres = static_cast<float>(height);
