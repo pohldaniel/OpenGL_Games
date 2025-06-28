@@ -7,6 +7,7 @@
 Hero::Hero(const Md2Model& md2Model, const CrowdAgent& crowdAgent) : CrowdAgentEntity(crowdAgent, this), Md2Entity(md2Model), m_rigidBody(nullptr), m_isDeath(false){
 	setRigidBody(Physics::AddKinematicRigidBody(Physics::BtTransform(Physics::VectorFrom(getWorldPosition())), new btBoxShape(btVector3(0.5f, 0.5f, 0.5f)), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER, this, false));
 	ShapeDrawer::Get().addToCache(m_rigidBody->getCollisionShape());
+	//m_rigidBody->getCollisionShape()->setLocalScaling(Physics::VectorFrom(getLocalBoundingBox().getSize() * 0.75f));
 }
 
 Hero::~Hero() {

@@ -18,7 +18,7 @@
 
 Adrian::Adrian(StateMachine& machine) : State(machine, States::ADRIAN),
 m_camera(Application::Width, Application::Height),
-m_cameraController(m_camera),
+m_cameraController(m_camera, Application::Width, Application::Height),
 m_addedTiles(0, [](const std::array<int, 2>& p) {  return std::hash<int>()(p[0]) ^ std::hash<int>()(p[1]) << 1; }, [](const std::array<int, 2>& p1, const std::array<int, 2>& p2) { return p1[0] == p2[0] && p1[1] == p2[1]; }),
 m_streamingDistance(6),
 m_globalUserIndex(-1),
@@ -37,7 +37,7 @@ m_invisible(false){
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	//m_camera.orthographic(-static_cast<float>(Application::Width / 2) / m_zoom, static_cast<float>(Application::Width / 2) / m_zoom, -static_cast<float>(Application::Height / 2) / m_zoom, static_cast<float>(Application::Height / 2) / m_zoom, -static_cast<float>(Application::Width) / m_zoom, static_cast<float>(Application::Width) / m_zoom);
 	m_camera.orthographic(-static_cast<float>(Application::Width / 2) / m_zoom, static_cast<float>(Application::Width / 2) / m_zoom, -static_cast<float>(Application::Height / 2) / m_zoom, static_cast<float>(Application::Height / 2) / m_zoom, -5000.0f, 5000.0f);
-	m_camera.setSpeed(750.0f);
+	m_camera.setSpeed(500.0f);
 
 	glClearColor(0.494f, 0.686f, 0.796f, 1.0f);
 	glClearDepth(1.0f);
@@ -82,7 +82,7 @@ m_invisible(false){
 	m_mutantcheetah.load("data/models/dynamic/mutantcheetah/mutantcheetah.md2");
 	m_ripper.load("data/models/dynamic/ripper/ripper.md2");
 
-	WorkQueue::Init(0);
+	WorkQueue::Init(1);
 	Renderer::Get().init(new Octree(m_camera, m_frustum, m_dt), new SceneNodeLC());
 	m_octree = Renderer::Get().getOctree();
 	m_octree->setUseOcclusionCulling(false);
@@ -272,35 +272,6 @@ void Adrian::fixedUpdate() {
 
 void Adrian::update() {
 	Keyboard &keyboard = Keyboard::instance();
-	Vector3f direction = Vector3f();
-
-	float dx = 0.0f;
-	float dy = 0.0f;
-	/*bool move = false;
-
-	if (keyboard.keyDown(Keyboard::KEY_W)) {
-		direction += Vector3f(0.0f, 0.0f, 1.0f);
-		move |= true;
-		m_camera.moveDown(m_dt);
-	}
-
-	if (keyboard.keyDown(Keyboard::KEY_S)) {
-		direction += Vector3f(0.0f, 0.0f, -1.0f);
-		move |= true;
-		m_camera.moveUp(m_dt);
-	}
-
-	if (keyboard.keyDown(Keyboard::KEY_A)) {
-		direction += Vector3f(-1.0f, 0.0f, 0.0f);
-		move |= true;
-		m_camera.moveRight(m_dt);
-	}
-
-	if (keyboard.keyDown(Keyboard::KEY_D)) {
-		direction += Vector3f(1.0f, 0.0f, 0.0f);
-		move |= true;
-		m_camera.moveLeft(m_dt);
-	}*/
 
 	if (keyboard.keyDown(Keyboard::KEY_Q)) {
 		if (Keyboard::instance().keyDown(Keyboard::KEY_LSHIFT)) {
@@ -873,6 +844,11 @@ void Adrian::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 			}
 		}
 	}
+
+	if (event.button == 3u) {
+		m_zoom = 1.0f;
+		m_camera.orthographic(-static_cast<float>(Application::Width / 2) / m_zoom, static_cast<float>(Application::Width / 2) / m_zoom, -static_cast<float>(Application::Height / 2) / m_zoom, static_cast<float>(Application::Height / 2) / m_zoom, -5000.0f, 5000.0f);
+	}
 }
 
 void Adrian::OnMouseButtonUp(Event::MouseButtonEvent& event) {
@@ -891,7 +867,6 @@ void Adrian::OnMouseWheel(Event::MouseWheelEvent& event) {
 		m_zoom = m_zoom + 0.05f;
 		m_zoom = Math::Clamp(m_zoom, 0.2f, 5.0f);
 	}
-	//m_camera.orthographic(-static_cast<float>(Application::Width / 2) / m_zoom, static_cast<float>(Application::Width / 2) / m_zoom, -static_cast<float>(Application::Height / 2) / m_zoom, static_cast<float>(Application::Height / 2) / m_zoom, -static_cast<float>(Application::Width) / m_zoom, static_cast<float>(Application::Width) / m_zoom);
 	m_camera.orthographic(-static_cast<float>(Application::Width / 2) / m_zoom, static_cast<float>(Application::Width / 2) / m_zoom, -static_cast<float>(Application::Height / 2) / m_zoom, static_cast<float>(Application::Height / 2) / m_zoom, -5000.0f, 5000.0f);
 }
 

@@ -6,9 +6,9 @@ constexpr int SCROLL_R = 1;
 constexpr int SCROLL_U = -1;
 constexpr int SCROLL_D = 1;
 constexpr int NO_SCROLL = 0;
-constexpr float SCROLL_MARGIN = 10.0f;
+constexpr int SCROLL_MARGIN = 10;
 
-CameraController::CameraController(IsometricCamera& camera) : camera(camera), m_speed(DEF_SPEED){
+CameraController::CameraController(IsometricCamera& camera, const int& width, const int& height) : camera(camera), width(width), height(height), m_speed(DEF_SPEED){
 
 }
 
@@ -33,9 +33,6 @@ void CameraController::OnMouseMotion(Event::MouseMoveEvent& event) {
 }
 
 void CameraController::OnMouseMotion() {
-	float width = camera.getRightOrthographic() - camera.getLeftOrthographic();
-	float height = camera.getTopOrthographic() - camera.getBottomOrthographic();
-
 	if (m_screenX < SCROLL_MARGIN) {
 		if (!m_keyScrollX) {
 			m_dirX = SCROLL_R;

@@ -14,6 +14,7 @@ Bot::Bot(const Md2Model& md2Model) : Md2Entity(md2Model) {
 	setRigidBody(Physics::AddKinematicRigidBody(Physics::BtTransform(Physics::VectorFrom(getWorldPosition())), new btBoxShape(btVector3(0.5f, 0.5f, 0.5f)), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER, this, false));
 	m_rigidBody->setUserIndex(1);
 	ShapeDrawer::Get().addToCache(m_rigidBody->getCollisionShape());
+	//m_rigidBody->getCollisionShape()->setLocalScaling(Physics::VectorFrom(getLocalBoundingBox().getSize() * 0.75f));
 }
 
 Bot::~Bot() {

@@ -494,6 +494,14 @@ void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 		event.data.mouseButton.button = Event::MouseButtonEvent::MouseButton::BUTTON_RIGHT;
 		EventDispatcher.pushEvent(event);
 		break;
+	}case WM_MBUTTONDOWN: {
+		Event event;
+		event.type = Event::MOUSEBUTTONDOWN;
+		event.data.mouseButton.x = static_cast<int>(static_cast<short>(LOWORD(lParam)));
+		event.data.mouseButton.y = static_cast<int>(static_cast<short>(HIWORD(lParam)));
+		event.data.mouseButton.button = Event::MouseButtonEvent::MouseButton::BUTTON_MIDDLE;
+		EventDispatcher.pushEvent(event);
+		break;
 	}case WM_LBUTTONUP: {
 		Event event;
 		event.type = Event::MOUSEBUTTONUP;

@@ -7,7 +7,7 @@ class CameraController {
 
 public:
 
-	CameraController(IsometricCamera& camera);
+	CameraController(IsometricCamera& camera, const int& width, const int& height);
 
 	void update(float dt);
 	void setSpeed(float val);
@@ -21,6 +21,8 @@ private:
 	void OnMouseMotion();
 
 	IsometricCamera& camera;
+	const int& width;
+	const int& height;
 
 	float m_speed;
 
