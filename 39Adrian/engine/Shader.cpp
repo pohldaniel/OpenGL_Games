@@ -204,14 +204,14 @@ void Shader::createProgramFromFile(const std::string& vertex, const std::string&
 	GLuint vshader = LoadShaderProgram(GL_VERTEX_SHADER, vertex.c_str());
 	GLuint fshader = LoadShaderProgram(GL_FRAGMENT_SHADER, fragment.c_str());
 	m_program = glCreateProgram();
-	linkShaders(vshader, fshader);
+	LinkShaders(vshader, fshader, m_program);
 }
 
 void Shader::createProgram(const std::string& vertex, const std::string& fragment) {
 	GLuint vshader = LoadShaderProgram(GL_VERTEX_SHADER, vertex);
 	GLuint fshader = LoadShaderProgram(GL_FRAGMENT_SHADER, fragment);
 	m_program = glCreateProgram();
-	linkShaders(vshader, fshader);
+	LinkShaders(vshader, fshader, m_program);
 }
 
 void Shader::createProgramFromFile(const std::string& vertex, const std::string& fragment, const std::string& geometry) {
@@ -327,34 +327,43 @@ GLuint Shader::CompileShader(GLenum type, const char *pszSource) {
 	return shader;
 }
 
-void Shader::linkShaders(GLuint vertShader, GLuint fragShader) {
-	if (m_program) {
+GLuint Shader::LoadShaderProgram(const std::string& vertex, const std::string& fragment) {
+	GLuint vshader = LoadShaderProgram(GL_VERTEX_SHADER, vertex.c_str());
+	GLuint fshader = LoadShaderProgram(GL_FRAGMENT_SHADER, fragment.c_str());
+	GLuint program = 0;
+	program = glCreateProgram();
+	LinkShaders(vshader, fshader, program);
+	return program;
+}
+
+void Shader::LinkShaders(GLuint vertShader, GLuint fragShader, const GLuint& program) {
+	if (program) {
 		GLint linked = 0;
 
 		if (vertShader)
-			glAttachShader(m_program, vertShader);
+			glAttachShader(program, vertShader);
 
 		if (fragShader)
-			glAttachShader(m_program, fragShader);
+			glAttachShader(program, fragShader);
 
-		glLinkProgram(m_program);
+		glLinkProgram(program);
 
-		glGetProgramiv(m_program, GL_LINK_STATUS, &linked);
+		glGetProgramiv(program, GL_LINK_STATUS, &linked);
 
 		if (!linked) {
 			GLsizei logSizeInfo = 0;	
-			glGetShaderiv(m_program, GL_INFO_LOG_LENGTH, &logSizeInfo);
+			glGetShaderiv(program, GL_INFO_LOG_LENGTH, &logSizeInfo);
 
 			std::string logInfo;
 			logInfo.resize(logSizeInfo);
-			glGetShaderInfoLog(m_program, logSizeInfo, &logSizeInfo, &logInfo[0]);
+			glGetShaderInfoLog(program, logSizeInfo, &logSizeInfo, &logInfo[0]);
 			std::cout << "Compile status: \n" << logInfo << std::endl;
 
 			GLsizei logSizeProgram = 0;
 			std::string logProgram;
 			logProgram.resize(256);
 
-			glGetProgramInfoLog(m_program, 256, &logSizeProgram, &logProgram[0]);
+			glGetProgramInfoLog(program, 256, &logSizeProgram, &logProgram[0]);
 			std::cout << "Error Message: \n" << logProgram << std::endl;
 		}
 
@@ -582,4 +591,11 @@ void Shader::SetIncludeFromFile(const char *includeName, const char* filename) {
 
 const GLuint& Shader::getProgram() const {
 	return m_program;
+}
+
+void Shader::DeleteShader(GLuint& program) {
+	if (program) {
+		glDeleteProgram(program);
+		program = 0;
+	}
 }

@@ -76,6 +76,7 @@ public:
 	
 	static GLuint LoadShaderProgram(GLenum type, const char *pszFilename);
 	static GLuint LoadShaderProgram(GLenum type, std::string buffer);
+	static GLuint LoadShaderProgram(const std::string& vertex, const std::string& fragment);
 	static void SetIncludeFromFile(const char *includeName, const char* filename);
 	static void Unuse();
 
@@ -95,7 +96,7 @@ private:
 	void createProgram(const std::string& compute);
 
 	void linkShaders(GLuint compShader);
-	void linkShaders(GLuint vertShader, GLuint fragShader);
+	static void LinkShaders(GLuint vertShader, GLuint fragShader, const GLuint& program);
 	void linkShaders(GLuint vertShader, GLuint fragShader, GLuint geoShader);
 	void linkShaders(GLuint vertShader, GLuint fragShader, GLuint tesscShader, GLuint tesseShader);
 	
@@ -103,7 +104,8 @@ private:
 
 	static void ReadTextFile(const char *pszFilename, std::string &buffer);
 	static GLuint CompileShader(GLenum type, const char *pszSource);
-	
+	static void DeleteShader(GLuint& program);
+
 	bool m_use;
 	mutable std::unordered_map<std::string, unsigned int> m_uniformLocationCache;
 };

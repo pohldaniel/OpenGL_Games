@@ -23,6 +23,7 @@
 #include <States/NavigationState.h>
 #include <States/NavigationStreamState.h>
 #include <States/Adrian.h>
+#include <States/AdrianMenu.h>
 #include <States/Winston.h>
 #include <States/BillboardState.h>
 
@@ -456,7 +457,8 @@ void Application::initStates() {
 	//Machine->addStateAtTop(new MapState(*Machine));
 	//Machine->addStateAtTop(new NavigationState(*Machine));
 	//Machine->addStateAtTop(new NavigationStreamState(*Machine));
-	Machine->addStateAtTop(new Adrian(*Machine));
+	//Machine->addStateAtTop(new Adrian(*Machine));
+	Machine->addStateAtTop(new AdrianMenu(*Machine));
 	//Machine->addStateAtTop(new Winston(*Machine));
 	//Machine->addStateAtTop(new BillboardState(*Machine));
 }
@@ -839,6 +841,9 @@ void Application::loadAssets() {
 	Globals::fontManager.loadCharacterSet("upheaval_100", "res/fonts/upheavtt.ttf", 100, 0, 30, 128, 0, true, 0u);
 	Globals::fontManager.loadCharacterSet("upheaval_30", "res/fonts/upheavtt.ttf", 30, 0, 3, 0, 0, true, 0u);
 	Globals::fontManager.loadCharacterSet("tahoma_64", "data/fonts/tahoma.ttf", 64, 20, 20, 0, 5, true, 0u);
+	Globals::fontManager.loadCharacterSet("tahomab_64", "data/fonts/tahomabd.ttf", 64, 20, 20, 0, 5, true, 0u);
+	//Globals::fontManager.get("tahoma_64").safeFont("tahoma");
+	//Globals::fontManager.get("tahomab_64").safeFont("tahomab");
 
 	Globals::textureManager.loadTexture("forest_1", "res/backgrounds/Forest/plx-1.png");
 	Globals::textureManager.loadTexture("forest_2", "res/backgrounds/Forest/plx-2.png");
@@ -867,6 +872,9 @@ void Application::loadAssets() {
 
 	Globals::textureManager.loadTexture("crate", "res/textures/crate.tga", false);
 	Globals::textureManager.get("crate").setWrapMode(GL_REPEAT);
+
+	Globals::textureManager.loadTexture("background", "data/textures/menu/blood_splatter.jpg", true);
+	Globals::textureManager.get("background").setLinear();
 
 	Globals::textureManager.loadTexture("proto_white", "res/textures/ProtoWhite256.jpg", true);
 	Globals::textureManager.get("proto_white").setWrapMode(GL_REPEAT);
