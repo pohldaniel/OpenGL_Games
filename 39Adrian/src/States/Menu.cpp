@@ -7,6 +7,7 @@
 #include <States/NavigationStreamState.h>
 #include <States/MapState.h>
 #include <States/Adrian.h>
+#include <States/AdrianMenu.h>
 #include <States/Md2State.h>
 #include <States/Winston.h>
 #include <States/BillboardState.h>
@@ -81,7 +82,7 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	m_buttons.at("adrian").setText("Adrian");
 	m_buttons.at("adrian").setFunction([&]() {
 		m_isRunning = false;
-		m_machine.addStateAtBottom(new Adrian(m_machine));
+		m_machine.addStateAtBottom(new AdrianMenu(m_machine));
 	});
 
 	m_buttons.at("md2").setCharset(Globals::fontManager.get("upheaval_30"));
