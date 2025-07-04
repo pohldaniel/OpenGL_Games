@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ftdebug.c" />
+    <ClCompile Include="ftsystem.c" />
     <ClCompile Include="src\autofit\autofit.c" />
     <ClCompile Include="src\base\ftbase.c" />
     <ClCompile Include="src\base\ftbbox.c" />
@@ -37,7 +38,6 @@
     <ClCompile Include="src\base\ftpfr.c" />
     <ClCompile Include="src\base\ftstroke.c" />
     <ClCompile Include="src\base\ftsynth.c" />
-    <ClCompile Include="src\base\ftsystem.c" />
     <ClCompile Include="src\base\fttype1.c" />
     <ClCompile Include="src\base\ftwinfnt.c" />
     <ClCompile Include="src\bdf\bdf.c" />
@@ -56,10 +56,14 @@
     <ClCompile Include="src\sdf\sdf.c" />
     <ClCompile Include="src\sfnt\sfnt.c" />
     <ClCompile Include="src\smooth\smooth.c" />
+    <ClCompile Include="src\svg\svg.c" />
     <ClCompile Include="src\truetype\truetype.c" />
     <ClCompile Include="src\type1\type1.c" />
     <ClCompile Include="src\type42\type42.c" />
     <ClCompile Include="src\winfonts\winfnt.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="src\base\ftver.rc" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{40019CFF-D32E-4BCF-9831-17F1F15690C5}</ProjectGuid>

@@ -54,6 +54,9 @@
     <ClInclude Include="texture-font.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="utf8-utils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="vec234.h">
       <Filter>Header Files</Filter>
     </ClInclude>

@@ -37,7 +37,7 @@ void CharacterSet::loadFromFile(const std::string& path, unsigned int characterS
 	}else {
 		FT_Set_Pixel_Sizes(face, 0, characterSize);
 		FT_GlyphSlot g = face->glyph;
-
+	
 		unsigned int roww = 0;
 		unsigned int rowh = 0;
 		int maxDescent = 0;
@@ -161,6 +161,8 @@ void CharacterSet::loadFromFile(const std::string& path, unsigned int characterS
 		unsigned int oy = paddingY;
 		int yOffset = 0;
 		rowh = 0;
+		
+		//FT_Bitmap_Embolden(ft, &g->bitmap, 20, 20);
 
 		for (int i = 32; i < 128; i++) {
 			if (FT_Load_Char(face, i, FT_LOAD_RENDER)) {
@@ -168,57 +170,63 @@ void CharacterSet::loadFromFile(const std::string& path, unsigned int characterS
 				continue;
 			}
 
-			if (ox + g->bitmap.width >= maxWidth) {
+			//FT_Glyph glyphDesc = nullptr;
+			//FT_Get_Glyph(face->glyph, &glyphDesc);
+			//FT_Glyph_To_Bitmap(&glyphDesc, FT_RENDER_MODE_NORMAL, nullptr, 1);			
+			//FT_Bitmap bitmap = reinterpret_cast<FT_BitmapGlyph>(glyphDesc)->bitmap;
+			FT_Bitmap bitmap = g->bitmap;
+
+			if (ox + bitmap.width >= maxWidth) {
 				oy += rowh;
 				rowh = 0;
 				ox = paddingX;
 			}
 
 			if (flipVertical) {
-				std::vector<unsigned char> srcPixels(g->bitmap.width * g->bitmap.rows);
+				std::vector<unsigned char> srcPixels(bitmap.width * bitmap.rows);
 
-				for (unsigned int i = 0; i < g->bitmap.width * g->bitmap.rows; ++i) {
-					srcPixels[i] = g->bitmap.buffer[i];
+				for (unsigned int i = 0; i < bitmap.width *bitmap.rows; ++i) {
+					srcPixels[i] = bitmap.buffer[i];
 				}
 
 				unsigned char *pSrcRow = 0;
 				unsigned char *pDestRow = 0;
 
-				for (unsigned int i = 0; i < g->bitmap.rows; ++i) {
+				for (unsigned int i = 0; i < bitmap.rows; ++i) {
 
-					pSrcRow = &srcPixels[(g->bitmap.rows - 1 - i) * g->bitmap.width];
-					pDestRow = &g->bitmap.buffer[i * g->bitmap.width];
-					memcpy(pDestRow, pSrcRow, g->bitmap.width);
+					pSrcRow = &srcPixels[(bitmap.rows - 1 - i) * bitmap.width];
+					pDestRow = &bitmap.buffer[i * bitmap.width];
+					memcpy(pDestRow, pSrcRow, bitmap.width);
 				}
 			}
 
-			yOffset = g->bitmap.rows - g->bitmap_top;
+			yOffset = bitmap.rows - g->bitmap_top;
 
-			unsigned int height = yOffset >= 0 ? g->bitmap.rows + maxDescent : g->bitmap.rows + maxDescent - yOffset;
+			unsigned int height = yOffset >= 0 ? bitmap.rows + maxDescent : bitmap.rows + maxDescent - yOffset;
 
-			unsigned char* bytes = (unsigned char*)malloc(g->bitmap.width * height);
+			unsigned char* bytes = (unsigned char*)malloc(bitmap.width * height);
 			unsigned int index = 0;
 
-			for (unsigned int i = 0; i < g->bitmap.width * (maxDescent - yOffset); i++, index++) {
+			for (unsigned int i = 0; i < bitmap.width * (maxDescent - yOffset); i++, index++) {
 				bytes[index] = 0;
 			}
 
-			for (unsigned int i = 0; i < g->bitmap.width * g->bitmap.rows; i++, index++) {
-				bytes[index] = g->bitmap.buffer[i];				
+			for (unsigned int i = 0; i < bitmap.width * bitmap.rows; i++, index++) {
+				bytes[index] = bitmap.buffer[i];				
 			}
 
-			for (unsigned int i = 0; i < g->bitmap.width * std::max(0, yOffset); i++, index++) {
+			for (unsigned int i = 0; i < bitmap.width * std::max(0, yOffset); i++, index++) {
 				bytes[index] = 0;
 			}
 
-			glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, ox, oy, 0, g->bitmap.width, height, 1, GL_RED, GL_UNSIGNED_BYTE, bytes);
+			glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, ox, oy, 0, bitmap.width, height, 1, GL_RED, GL_UNSIGNED_BYTE, bytes);
 
 			free(bytes);
 			Char character = {
 				{ g->bitmap_left, g->bitmap_top },
-				{ g->bitmap.width, height },
+				{ bitmap.width, height },
 				{ (static_cast<float>(ox) + 0.5f) / static_cast<float>(maxWidth), (static_cast<float>(oy) + 0.5f) / static_cast<float>(maxHeight) },
-				{ (static_cast<float>(g->bitmap.width) - 1.0f) / static_cast<float>(maxWidth), (static_cast<float>(height) - 1.0f) / static_cast<float>(maxHeight)  },
+				{ (static_cast<float>(bitmap.width) - 1.0f) / static_cast<float>(maxWidth), (static_cast<float>(height) - 1.0f) / static_cast<float>(maxHeight)  },
 				{ (g->advance.x >> 6) + spacing }
 			};
 

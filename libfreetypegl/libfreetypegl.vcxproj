@@ -32,6 +32,7 @@
     <ClInclude Include="text-buffer.h" />
     <ClInclude Include="texture-atlas.h" />
     <ClInclude Include="texture-font.h" />
+    <ClInclude Include="utf8-utils.h" />
     <ClInclude Include="vec234.h" />
     <ClInclude Include="vector.h" />
     <ClInclude Include="vertex-attribute.h" />

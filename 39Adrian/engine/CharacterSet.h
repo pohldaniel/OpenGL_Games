@@ -9,6 +9,7 @@
 #include <ft2build.h>
 #include <freetype/freetype.h>
 #include <freetype/ftstroke.h>
+#include <freetype/ftbitmap.h>
 
 #define MAXWIDTH 4096
 
