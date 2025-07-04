@@ -24,7 +24,6 @@ AdrianMenu::AdrianMenu(StateMachine& machine) : State(machine, States::ADRIAN_ME
 		{ "adrian",            Button() }
 	});
 
-	
 	m_buttons.at("adrian").setCharset(Globals::fontManager.get("upheaval_30"));
 	m_buttons.at("adrian").setPosition(50.0f, 100.0f);
 	m_buttons.at("adrian").setOutlineThickness(5.0f);
@@ -35,8 +34,6 @@ AdrianMenu::AdrianMenu(StateMachine& machine) : State(machine, States::ADRIAN_ME
 	});
 
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-
-	//m_fontRenderer.InitFontRenderer();
 
 	m_texture1.createEmptyTexture((strlen("PLAY GAME")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT);
 	m_texture2.createEmptyTexture((strlen("SETTINGS")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT);
@@ -49,27 +46,30 @@ AdrianMenu::AdrianMenu(StateMachine& machine) : State(machine, States::ADRIAN_ME
 	Fontrenderer::Get().addText(Globals::fontManager.get("tahomab_64"), 0.0f, 0.0f, "PLAY GAME", Vector4f(1.0f, 0.0f, 0.0f, 1.0f), 1.0f, false);
 	Fontrenderer::Get().blitTextToTexture((strlen("PLAY GAME")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 20, 20, m_texture1);
 
-	item1 = { (strlen("PLAY GAME")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 0.0f, 600.0f, 400.0f, 600.0f, ANIMATION_SPIRAL, m_texture1 , 0.0f, 0.0f, 0.0f, 0.0f };
-
+	item1 = { (strlen("PLAY GAME")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 0.0f, 600.0f, 400.0f, 600.0f, ANIMATION_SPIRAL, m_texture1 , 0.0f, 0.0f, 0.0f, 0.0f, 20.0f, nullptr };
+	item1.OnClick = [&]() {
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new Adrian(m_machine));
+	};
 	Fontrenderer::Get().addText(Globals::fontManager.get("tahomab_64"), 0.0f, 0.0f, "SETTINGS", Vector4f(1.0f, 0.0f, 0.0f, 1.0f), 1.0f, false);
 	Fontrenderer::Get().blitTextToTexture((strlen("SETTINGS")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 20, 20, m_texture2);
 
-	item2 = { (strlen("SETTINGS")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 900.0f, 500.0f, 400.0f, 500.0f, ANIMATION_SPIRAL, m_texture2 , 0.0f, 0.0f, 0.0f, 0.0f };
+	item2 = { (strlen("SETTINGS")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 900.0f, 500.0f, 400.0f, 500.0f, ANIMATION_SPIRAL, m_texture2 , 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, nullptr };
 
 	Fontrenderer::Get().addText(Globals::fontManager.get("tahomab_64"), 0.0f, 0.0f, "OPTIONS", Vector4f(1.0f, 0.0f, 0.0f, 1.0f), 1.0f, false);
 	Fontrenderer::Get().blitTextToTexture((strlen("OPTIONS")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 20, 20, m_texture3);
 
-	item3 = { (strlen("OPTIONS")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 0.0f, 0.0f, 400.0f, 400.0f, ANIMATION_SPIRAL, m_texture3 , 0.0f, 0.0f, 0.0f, 0.0f };
+	item3 = { (strlen("OPTIONS")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 0.0f, 0.0f, 400.0f, 400.0f, ANIMATION_SPIRAL, m_texture3 , 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, nullptr };
 
 	Fontrenderer::Get().addText(Globals::fontManager.get("tahomab_64"), 0.0f, 0.0f, "CREDITS", Vector4f(1.0f, 0.0f, 0.0f, 1.0f), 1.0f, false);
 	Fontrenderer::Get().blitTextToTexture((strlen("CREDITS")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 20, 20, m_texture4);
 
-	item4 = { (strlen("CREDITS")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 400.0f, 0.0f, 400.0f, 300.0f, ANIMATION_SPIRAL, m_texture4 , 0.0f, 0.0f, 0.0f, 0.0f };
+	item4 = { (strlen("CREDITS")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 400.0f, 0.0f, 400.0f, 300.0f, ANIMATION_SPIRAL, m_texture4 , 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, nullptr };
 
 	Fontrenderer::Get().addText(Globals::fontManager.get("tahomab_64"), 0.0f, 0.0f, "QUIT", Vector4f(1.0f, 0.0f, 0.0f, 1.0f), 1.0f, false);
 	Fontrenderer::Get().blitTextToTexture((strlen("QUIT")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 20, 20, m_texture5);
 
-	item5 = { (strlen("QUIT")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 400.0f, 700.0f, 400.0f, 200.0f, ANIMATION_SPIRAL, m_texture5 , 0.0f, 0.0f, 0.0f, 0.0f };
+	item5 = { (strlen("QUIT")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 400.0f, 700.0f, 400.0f, 200.0f, ANIMATION_SPIRAL, m_texture5 , 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, nullptr };
 
 	animatePercent += 1;
 	item1.show();
@@ -86,6 +86,9 @@ AdrianMenu::AdrianMenu(StateMachine& machine) : State(machine, States::ADRIAN_ME
 
 	item5.show();
 	item5.animate(animatePercent);
+
+	linex = 0;
+	increment = 1;
 }
 
 AdrianMenu::~AdrianMenu() {
@@ -110,28 +113,41 @@ void AdrianMenu::render() {
 	m_sprite.setScale(static_cast<float>(Application::Width), static_cast<float>(Application::Height));
 	m_sprite.draw(Vector4f::ONE, false, 1.0f, 1.0f);
 
+	Globals::textureManager.get("null").bind(0);
+	m_sprite.setPosition(0.0f, linex * 2.0f + 200.0f - 2.5f);
+	m_sprite.setScale(static_cast<float>(Application::Width), 5.0f);
+	m_sprite.draw(Vector4f(10.0f, 0.0f, 0.0f, 1.0f), false, 1.0f, 1.0f);
+
+	m_sprite.setPosition(0.0f, linex * 3.0f -2.5f);
+	m_sprite.setScale(static_cast<float>(Application::Width), 5.0f);
+	m_sprite.draw(Vector4f(10.0f, 0.0f, 0.0f, 1.0f), false, 1.0f, 1.0f);
+
+	m_sprite.setPosition(linex * 3.0f -2.5f, 0.0f);
+	m_sprite.setScale(5.0f, static_cast<float>(Application::Height));
+	m_sprite.draw(Vector4f(10.0f, 0.0f, 0.0f, 1.0f), false, 1.0f, 1.0f);
+
 	item1.texture.bind();
-	m_sprite.setPosition(item1.x + 20.0f, item1.y);
+	m_sprite.setPosition(item1.x + item1.offset, item1.y);
 	m_sprite.setScale(item1.width, item1.height);
 	m_sprite.draw(Vector4f::ONE, false, 1.0f, 1.0f);
 
 	item2.texture.bind();
-	m_sprite.setPosition(item2.x, item2.y);
+	m_sprite.setPosition(item2.x + item2.offset, item2.y);
 	m_sprite.setScale(item2.width, item2.height);
 	m_sprite.draw(Vector4f::ONE, false, 1.0f, 1.0f);
 
 	item3.texture.bind();
-	m_sprite.setPosition(item3.x, item3.y);
+	m_sprite.setPosition(item3.x + item3.offset, item3.y);
 	m_sprite.setScale(item3.width, item3.height);
 	m_sprite.draw(Vector4f::ONE, false, 1.0f, 1.0f);
 
 	item4.texture.bind();
-	m_sprite.setPosition(item4.x, item4.y);
+	m_sprite.setPosition(item4.x + item4.offset, item4.y);
 	m_sprite.setScale(item4.width, item4.height);
 	m_sprite.draw(Vector4f::ONE, false, 1.0f, 1.0f);
 
 	item5.texture.bind();
-	m_sprite.setPosition(item5.x, item5.y);
+	m_sprite.setPosition(item5.x + item5.offset, item5.y);
 	m_sprite.setScale(item5.width, item5.height);
 	m_sprite.draw(Vector4f::ONE, false, 1.0f, 1.0f);
 
@@ -142,11 +158,23 @@ void AdrianMenu::render() {
 void AdrianMenu::OnMouseMotion(Event::MouseMoveEvent& event) {
 	for (auto&& b : m_buttons)
 		b.second.processInput(event.x, Application::Height - event.y);
+
+	item1.processInput(event.x, event.y);
+	item2.processInput(event.x, event.y);
+	item3.processInput(event.x, event.y);
+	item4.processInput(event.x, event.y);
+	item5.processInput(event.x, event.y);
 }
 
 void AdrianMenu::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 	for (auto&& b : m_buttons)
 		b.second.processInput(event.x, Application::Height - event.y, event.button);
+
+	item1.processInput(event.x, event.y, event.button);
+	item2.processInput(event.x, event.y, event.button);
+	item3.processInput(event.x, event.y, event.button);
+	item4.processInput(event.x, event.y, event.button);
+	item5.processInput(event.x, event.y, event.button);
 }
 
 void AdrianMenu::OnKeyDown(Event::KeyboardEvent& event) {
@@ -168,8 +196,14 @@ void AdrianMenu::OnReEnter(unsigned int prevState) {
 }
 
 void AdrianMenu::animate() {
-	if (animatePercent >= 100) {
-		animatePercent = 100;
+	if (linex >= 400.0f)
+		increment = -0.5f;
+	if (linex <= 0.0f)
+		increment = 0.5f;
+	linex += increment;
+
+	if (animatePercent >= 100.0f) {
+		animatePercent = 100.0f;
 		return;
 	}
 
@@ -183,12 +217,11 @@ void AdrianMenu::animate() {
 
 void MenuItem::show(){
 	if (animationType == ANIMATION_STRAIGHT) {
-		xincrement = (x - startx) / 100.0;
-		yincrement = (y - starty) / 100.0;
-	}
-	else if (animationType == ANIMATION_SPIRAL) {
-		xincrement = (x - startx) / 100.0;
-		yincrement = (y - starty) / 100.0;
+		xincrement = (x - startx) / 100.0f;
+		yincrement = (y - starty) / 100.0f;
+	}else if (animationType == ANIMATION_SPIRAL) {
+		xincrement = (x - startx) / 100.0f;
+		yincrement = (y - starty) / 100.0f;
 	}
 
 	tmpx = x;
@@ -208,5 +241,20 @@ void MenuItem::animate(float animatePercent) {
 		y = tmpy -
 			((yincrement * (100.0 - animatePercent))) *
 			cosf(animatePercent * 3.6f * 3.142f / 180.0f);
+	}
+}
+
+void MenuItem::processInput(const int mousex, const int mousey, const Event::MouseButtonEvent::MouseButton button) {
+	bool isPressed = false;
+	offset = 0.0f;
+	if (mousex >= x && mousex <= x + width + 2.0f) {
+		if (Application::Height - mousey >= y && Application::Height - mousey <= y + DEFAULT_FONT_HEIGHT) {
+			offset = 20.0f;
+			isPressed = button == Event::MouseButtonEvent::MouseButton::BUTTON_LEFT;
+		}
+	}
+	
+	if (isPressed && OnClick) {
+		OnClick();
 	}
 }

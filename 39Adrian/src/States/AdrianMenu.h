@@ -33,9 +33,11 @@ struct MenuItem {
 	float yincrement;
 	float tmpx;
 	float tmpy;
-
+	float offset;
+	std::function<void()> OnClick;
 	void show();
 	void animate(float animatePercent);
+	void processInput(const int mouseX, const int mouseY, const Event::MouseButtonEvent::MouseButton button = Event::MouseButtonEvent::MouseButton::NONE);
 };
 
 class AdrianMenu : public State, public MouseEventListener, public KeyboardEventListener {
@@ -69,4 +71,7 @@ private:
 	AnimationType2 animationType = ANIMATION_SPIRAL;
 
 	MenuItem item1, item2, item3, item4, item5;
+
+	float linex;
+	float increment;
 };
