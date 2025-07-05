@@ -26,6 +26,7 @@ m_fade(m_fadeValue),
 m_fadeCircle(m_fadeCircleValue),
 m_separaionWeight(3.0f),
 m_currentPanelTex(-1),
+m_wait(0),
 m_invisible(false){
 
 	//Application::SetCursorIcon(IDC_ARROW);
@@ -256,18 +257,23 @@ Adrian::~Adrian() {
 }
 
 void Adrian::fixedUpdate() {
-	int index = 0;
-	for (auto&& entity : m_entities) {
-		entity->fixedUpdate(m_fdt);
-		if (index != 0) {
-			if (!m_invisible)
-				m_hero->handleCollision(static_cast<Bot*>(entity)->getSegmentBody());
-			
-			static_cast<Bot*>(entity)->handleCollision(m_hero->getSegmentBody());
+	if (m_wait > 100 || m_fixedUpdate) {
+		m_fixedUpdate = true;
+		int index = 0;
+		for (auto&& entity : m_entities) {
+			entity->fixedUpdate(m_fdt);
+			if (index != 0) {
+				if (!m_invisible)
+					m_hero->handleCollision(static_cast<Bot*>(entity)->getSegmentBody());
+
+				static_cast<Bot*>(entity)->handleCollision(m_hero->getSegmentBody());
+			}
+			index++;
 		}
-		index++;
+		Globals::physics->stepSimulation(m_fdt);
+		return;
 	}
-	Globals::physics->stepSimulation(m_fdt);
+	m_wait++;
 }
 
 void Adrian::update() {

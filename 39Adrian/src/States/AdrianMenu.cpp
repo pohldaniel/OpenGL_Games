@@ -540,7 +540,7 @@ void AdrianMenu::animate() {
 		return;
 	}
 
-	animatePercent += 0.25f;
+	animatePercent += 0.5f;
 	item1.animate(animatePercent);
 	item2.animate(animatePercent);
 	item3.animate(animatePercent);

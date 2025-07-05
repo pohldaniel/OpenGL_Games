@@ -45,16 +45,10 @@ DWORD Application::SavedStyle;
 RECT Application::Savedrc;
 bool Application::OverClient = true;
 bool Application::MouseTracking = true;
+bool Application::VerticalSync = true;
 
 HCURSOR Application::Cursor = LoadCursor(nullptr, IDC_ARROW);
-//HCURSOR Application::Cursor = LoadCursor(nullptr, IDC_NO);
-//HCURSOR Application::Cursor = LoadCursorFromFileA("res/cursors/rotate.cur");
-
 HICON Application::Icon = (HICON)LoadImage(NULL, "res/adrian.ico", IMAGE_ICON, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
-//HICON Application::Icon = LoadIcon(NULL, IDI_QUESTION);
-//HICON Application::Icon = (HICON)LoadImage(NULL, IDI_HAND, IMAGE_ICON, 0, 0, LR_SHARED);
-
-bool Application::VerticalSync = true;
 
 Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fdt) {
 	Width = WIDTH;
@@ -371,7 +365,6 @@ void Application::initOpenGL(int msaaSamples) {
 			hRC = wglCreateContext(hDC);
 			wglMakeCurrent(hDC, hRC);
 		}
-
 	}
 
 	ToggleVerticalSync();
@@ -451,14 +444,14 @@ void Application::fixedUpdate() {
 
 void Application::initStates() {	
 	Machine = new StateMachine(m_dt, m_fdt);
-	//Machine->addStateAtTop(new Menu(*Machine));
+	Machine->addStateAtTop(new Menu(*Machine));
 	//Machine->addStateAtTop(new Default(*Machine));
 	//Machine->addStateAtTop(new Md2State(*Machine));
 	//Machine->addStateAtTop(new MapState(*Machine));
 	//Machine->addStateAtTop(new NavigationState(*Machine));
 	//Machine->addStateAtTop(new NavigationStreamState(*Machine));
 	//Machine->addStateAtTop(new Adrian(*Machine));
-	Machine->addStateAtTop(new AdrianMenu(*Machine));
+	//Machine->addStateAtTop(new AdrianMenu(*Machine));
 	//Machine->addStateAtTop(new Winston(*Machine));
 	//Machine->addStateAtTop(new BillboardState(*Machine));
 }
@@ -521,58 +514,7 @@ void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 		EventDispatcher.pushEvent(event);
 		break;
 	} case WM_KEYDOWN: {
-		switch (wParam) {
-			//case VK_ESCAPE: {
-			//	Event event;
-			//	event.type = Event::KEYDOWN;
-			//	event.data.keyboard.keyCode = wParam;
-			//	EventDispatcher.pushEvent(event);
-			//	break;
-			//}case VK_SPACE: {
-			//	Event event;
-			//	event.type = Event::KEYDOWN;
-			//	event.data.keyboard.keyCode = wParam;
-			//	EventDispatcher.pushEvent(event);
-			//	break;
-			//}case VK_UP: {
-			//	Event event;
-			//	event.type = Event::KEYDOWN;
-			//	event.data.keyboard.keyCode = wParam;
-			//	EventDispatcher.pushEvent(event);
-			//	break;
-			//}case VK_DOWN: {			
-			//	Event event;
-			//	event.type = Event::KEYDOWN;
-			//	event.data.keyboard.keyCode = wParam;
-			//	EventDispatcher.pushEvent(event);
-			//	break;
-			//}case VK_LEFT: {
-			//	Event event;
-			//	event.type = Event::KEYDOWN;
-			//	event.data.keyboard.keyCode = wParam;
-			//	EventDispatcher.pushEvent(event);
-			//	break;
-			//}case VK_RIGHT: {
-			//	Event event;
-			//	event.type = Event::KEYDOWN;
-			//	event.data.keyboard.keyCode = wParam;
-			//	EventDispatcher.pushEvent(event);
-			//	break;
-			//}
-			//case VK_MENU: {
-			//	Event event;
-			//	event.type = Event::KEYDOWN;
-			//	event.data.keyboard.keyCode = VK_RMENU;
-			//	EventDispatcher.pushEvent(event);
-			//	break;
-			//}
-			//case VK_HOME: {
-			//	Event event;
-			//	event.type = Event::KEYDOWN;
-			//	event.data.keyboard.keyCode = VK_HOME;
-			//	EventDispatcher.pushEvent(event);
-			//	break;
-			//}
+		switch (wParam) {		
 			case VK_CONTROL: {
 
 				//Alt Graph
@@ -604,44 +546,7 @@ void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 		break;
 	}case WM_KEYUP: {
 
-		switch (wParam) {
-
-			//case VK_ESCAPE: {
-			//	Event event;
-			//	event.type = Event::KEYUP;
-			//	event.data.keyboard.keyCode = wParam;
-			//	EventDispatcher.pushEvent(event);
-			//	break;
-			//}case VK_SPACE: {
-			//	Event event;
-			//	event.type = Event::KEYUP;
-			//	event.data.keyboard.keyCode = wParam;
-			//	EventDispatcher.pushEvent(event);
-			//	break;
-			//}case VK_UP: {
-			//	Event event;
-			//	event.type = Event::KEYUP;
-			//	event.data.keyboard.keyCode = wParam;
-			//	EventDispatcher.pushEvent(event);
-			//	break;
-			//}case VK_DOWN: {
-			//	Event event;
-			//	event.type = Event::KEYUP;
-			//	event.data.keyboard.keyCode = wParam;
-			//	EventDispatcher.pushEvent(event);
-			//	break;
-			//}case VK_LEFT: {
-			//	Event event;
-			//	event.type = Event::KEYUP;
-			//	event.data.keyboard.keyCode = wParam;
-			//	EventDispatcher.pushEvent(event);
-			//	break;
-			//}case VK_RIGHT: {
-			//	Event event;
-			//	event.type = Event::KEYUP;
-			//	event.data.keyboard.keyCode = wParam;
-			//	EventDispatcher.pushEvent(event);
-			//	break;}
+		switch (wParam) {			
 			case VK_CONTROL: {			
 				Event event;
 				event.type = Event::KEYUP;
@@ -743,9 +648,7 @@ void Application::ToggleFullScreen(bool isFullScreen, unsigned int width, unsign
 	}
 
 	if (!isFullScreen) {
-
 		Fullscreen = false;
-
 		SetWindowLong(Window, GWL_EXSTYLE, SavedExStyle);
 		SetWindowLong(Window, GWL_STYLE, SavedStyle);
 		SetWindowPos(Window, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_FRAMECHANGED | SWP_SHOWWINDOW);
@@ -842,8 +745,6 @@ void Application::loadAssets() {
 	Globals::fontManager.loadCharacterSet("upheaval_30", "res/fonts/upheavtt.ttf", 30, 0, 3, 0, 0, true, 0u);
 	Globals::fontManager.loadCharacterSet("tahoma_64", "data/fonts/tahoma.ttf", 64, 20, 20, 0, 5, true, 0u);
 	Globals::fontManager.loadCharacterSet("tahomab_64", "data/fonts/tahomabd.ttf", 64, 20, 20, 0, 5, true, 0u);
-	//Globals::fontManager.get("tahoma_64").safeFont("tahoma");
-	//Globals::fontManager.get("tahomab_64").safeFont("tahomab");
 
 	Globals::textureManager.loadTexture("forest_1", "res/backgrounds/Forest/plx-1.png");
 	Globals::textureManager.loadTexture("forest_2", "res/backgrounds/Forest/plx-2.png");

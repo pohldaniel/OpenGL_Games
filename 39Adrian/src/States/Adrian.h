@@ -144,6 +144,7 @@ private:
 	bool m_showPanel = true;
 	bool m_noWalls = false;
 	bool m_roatecamera = false;
+	bool m_fixedUpdate = false;
 
 	float m_tileFactor = 80.0f;
 	float m_angle = -0.628f;
@@ -209,6 +210,7 @@ private:
 	unsigned int m_vao2 = 0u;
 	unsigned int m_vbo2 = 0u;
 	bool isMouseOver(int sx, int sy, float &, float &);
+	unsigned short m_wait;
 
 	std::vector<Bot*> m_bots;
 	std::tuple<std::string, std::string> labels[7] = { 
