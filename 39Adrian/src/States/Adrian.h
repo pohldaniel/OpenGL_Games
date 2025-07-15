@@ -91,7 +91,7 @@ class Adrian : public State, public MouseEventListener, public KeyboardEventList
 
 public:
 
-	Adrian(StateMachine& machine);
+	Adrian(StateMachine& machine, std::string background = "data/textures/buildings/ground.tga");
 	~Adrian();
 
 	void fixedUpdate() override;
@@ -223,6 +223,6 @@ private:
 		{"THE UNDEAD", "VERY SLOW MUTANT"}
 	};
 
-	Texture m_texture1, m_texture2;
+	Texture m_texture1, m_texture2, m_background;
 	CameraController m_cameraController;
 };

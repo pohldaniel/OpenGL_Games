@@ -28,6 +28,7 @@ public:
 	void setLoopAnimation(bool loopAnimation);
 	void setColor(const Vector4f& color);
 	void setOnAnimationEnd(std::function<void()> fun);
+	void setDisabled(bool disabled);
 
 protected:
 
@@ -41,7 +42,7 @@ private:
 	void updateAnimation();
 	
 	std::vector<Utils::MD2IO::Vertex> m_interpolated;
-	bool m_animationDirty;
+	bool m_animationDirty, m_disabled;
 
 	const Utils::MD2IO::Animation* currentAnimation;
 	AnimationType m_animationType;

@@ -16,7 +16,7 @@
 #include "Globals.h"
 #include "Renderer.h"
 
-Adrian::Adrian(StateMachine& machine) : State(machine, States::ADRIAN),
+Adrian::Adrian(StateMachine& machine, std::string background) : State(machine, States::ADRIAN),
 m_camera(Application::Width, Application::Height),
 m_cameraController(m_camera, Application::Width, Application::Height),
 m_addedTiles(0, [](const std::array<int, 2>& p) {  return std::hash<int>()(p[0]) ^ std::hash<int>()(p[1]) << 1; }, [](const std::array<int, 2>& p1, const std::array<int, 2>& p2) { return p1[0] == p2[0] && p1[1] == p2[1]; }),
@@ -239,6 +239,9 @@ m_invisible(false){
 	Fontrenderer::Get().setBlitSize(Application::Width, Application::Height);	
 
 	activateHero();
+
+	m_background.loadFromFile(background);
+	m_background.setWrapMode(GL_REPEAT);
 }
 
 Adrian::~Adrian() {
@@ -613,7 +616,7 @@ void Adrian::renderScene() {
 	tilex = ((int)m_camera.m_initx / TILE_SIZE) * TILE_SIZE;
 	tilez = ((int)m_camera.m_initz / TILE_SIZE) * TILE_SIZE;
 
-	Globals::textureManager.get("ground").bind(0);
+	m_background.bind(0);
 	auto shader = Globals::shaderManager.getAssetPointer("map");
 	shader->use();
 	shader->loadMatrix("u_projection", m_camera.getOrthographicMatrix());

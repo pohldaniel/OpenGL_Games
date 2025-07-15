@@ -58,14 +58,36 @@ AdrianMenu::AdrianMenu(StateMachine& machine) : State(machine, States::ADRIAN_ME
 	m_texture17.createEmptyTexture((strlen("1600 X 1200")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT);
 	m_texture19.createEmptyTexture((strlen("BACK")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT);
 
+	m_texture20.createEmptyTexture((strlen("Area 51, Nevada")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT);
+	m_texture21.createEmptyTexture((strlen("USS Nimitz, Pacific")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT);
+	m_texture22.createEmptyTexture((strlen("Ross Island, Antarctica")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT);
+	m_texture23.createEmptyTexture((strlen("Edwards Air Force Base")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT);
+	m_texture24.createEmptyTexture((strlen("BACK")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT);
+
 	Globals::fontManager.get("tahomab_64").bind();
 	Fontrenderer::Get().setShader(Globals::shaderManager.getAssetPointer("font_ttf"));
 	Fontrenderer::Get().addText(Globals::fontManager.get("tahomab_64"), 0.0f, 0.0f, "PLAY GAME", Vector4f(1.0f, 0.0f, 0.0f, 1.0f), 1.0f, false);
 	Fontrenderer::Get().blitTextToTexture((strlen("PLAY GAME")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 20, 20, m_texture1);
 	item1 = { (strlen("PLAY GAME")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 0.0f, 600.0f, 400.0f, 600.0f, ANIMATION_SPIRAL, m_texture1 , 0.0f, 0.0f, 0.0f, 0.0f, 20.0f, nullptr, true };
 	item1.OnClick = [&]() {
-		m_isRunning = false;
-		m_machine.addStateAtBottom(new Adrian(m_machine));
+		item1.enable = false;
+		item2.enable = false;
+		item3.enable = false;
+		item4.enable = false;
+		item5.enable = false;
+
+		animatePercent = 0.0f;
+		animatePercent += 1;
+		item20.show();
+		item20.animate(animatePercent);
+		item21.show();
+		item21.animate(animatePercent);
+		item22.show();
+		item22.animate(animatePercent);
+		item23.show();
+		item23.animate(animatePercent);
+		item24.show();
+		item24.animate(animatePercent);
 	};
 
 	Fontrenderer::Get().addText(Globals::fontManager.get("tahomab_64"), 0.0f, 0.0f, "SETTINGS", Vector4f(1.0f, 0.0f, 0.0f, 1.0f), 1.0f, false);
@@ -261,6 +283,62 @@ AdrianMenu::AdrianMenu(StateMachine& machine) : State(machine, States::ADRIAN_ME
 		item10.animate(animatePercent);
 	};
 
+	Fontrenderer::Get().addText(Globals::fontManager.get("tahomab_64"), 0.0f, 0.0f, "Area 51, Nevada", Vector4f(1.0f, 0.0f, 0.0f, 1.0f), 1.0f, false);
+	Fontrenderer::Get().blitTextToTexture((strlen("Area 51, Nevada")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 20, 20, m_texture20);
+	item20 = { (strlen("Area 51, Nevada")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 0.0f, 0.0f, 400.0f, 600.0f, ANIMATION_SPIRAL, m_texture20 , 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, nullptr, false };
+	item20.OnClick = [&]() {
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new Adrian(m_machine, "data/textures/buildings/ground.tga"));
+	};
+
+	Fontrenderer::Get().addText(Globals::fontManager.get("tahomab_64"), 0.0f, 0.0f, "USS Nimitz, Pacific", Vector4f(1.0f, 0.0f, 0.0f, 1.0f), 1.0f, false);
+	Fontrenderer::Get().blitTextToTexture((strlen("USS Nimitz, Pacific")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 20, 20, m_texture21);
+	item21 = { (strlen("USS Nimitz, Pacific")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 0.0f, 0.0f, 400.0f, 500.0f, ANIMATION_SPIRAL, m_texture21 , 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, nullptr, false };
+	item21.OnClick = [&]() {
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new Adrian(m_machine, "data/textures/buildings/concrete.tga"));
+	};
+
+	Fontrenderer::Get().addText(Globals::fontManager.get("tahomab_64"), 0.0f, 0.0f, "Ross Island, Antarctica", Vector4f(1.0f, 0.0f, 0.0f, 1.0f), 1.0f, false);
+	Fontrenderer::Get().blitTextToTexture((strlen("Ross Island, Antarctica")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 20, 20, m_texture22);
+	item22 = { (strlen("Ross Island, Antarctica")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 0.0f, 0.0f, 400.0f, 400.0f, ANIMATION_SPIRAL, m_texture22 , 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, nullptr, false };
+	item22.OnClick = [&]() {
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new Adrian(m_machine, "data/textures/buildings/snow.jpg"));
+	};
+
+	Fontrenderer::Get().addText(Globals::fontManager.get("tahomab_64"), 0.0f, 0.0f, "Edwards Air Force Base", Vector4f(1.0f, 0.0f, 0.0f, 1.0f), 1.0f, false);
+	Fontrenderer::Get().blitTextToTexture((strlen("Edwards Air Force Base")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 20, 20, m_texture23);
+	item23 = { (strlen("Edwards Air Force Base")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 0.0f, 0.0f, 400.0f, 300.0f, ANIMATION_SPIRAL, m_texture23 , 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, nullptr, false };
+	item23.OnClick = [&]() {
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new Adrian(m_machine, "data/textures/buildings/concrete.tga"));
+	};
+
+	Fontrenderer::Get().addText(Globals::fontManager.get("tahomab_64"), 0.0f, 0.0f, "BACK", Vector4f(1.0f, 0.0f, 0.0f, 1.0f), 1.0f, false);
+	Fontrenderer::Get().blitTextToTexture((strlen("BACK")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 20, 20, m_texture24);
+	item24 = { (strlen("BACK")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 0.0f, 0.0f, 400.0f, 200.0f, ANIMATION_SPIRAL, m_texture24 , 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, nullptr, false };
+	item24.OnClick = [&]() {
+		item20.enable = false;
+		item21.enable = false;
+		item22.enable = false;
+		item23.enable = false;
+		item24.enable = false;
+
+		animatePercent = 0.0f;
+		animatePercent += 1;
+		item1.show();
+		item1.animate(animatePercent);
+		item2.show();
+		item2.animate(animatePercent);
+		item3.show();
+		item3.animate(animatePercent);
+		item4.show();
+		item4.animate(animatePercent);
+		item5.show();
+		item5.animate(animatePercent);
+	};
+
 	animatePercent += 1;
 	item1.show();
 	item1.animate(animatePercent);
@@ -449,6 +527,41 @@ void AdrianMenu::render() {
 		m_sprite.draw(Vector4f::ONE, false, 1.0f, 1.0f);
 	}
 
+	if (item20.enable) {
+		item20.texture.bind();
+		m_sprite.setPosition(item20.x + item20.offset, item20.y);
+		m_sprite.setScale(item20.width, item20.height);
+		m_sprite.draw(Vector4f::ONE, false, 1.0f, 1.0f);
+	}
+
+	if (item21.enable) {
+		item21.texture.bind();
+		m_sprite.setPosition(item21.x + item21.offset, item21.y);
+		m_sprite.setScale(item21.width, item21.height);
+		m_sprite.draw(Vector4f::ONE, false, 1.0f, 1.0f);
+	}
+
+	if (item22.enable) {
+		item22.texture.bind();
+		m_sprite.setPosition(item22.x + item22.offset, item22.y);
+		m_sprite.setScale(item22.width, item22.height);
+		m_sprite.draw(Vector4f::ONE, false, 1.0f, 1.0f);
+	}
+
+	if (item23.enable) {
+		item23.texture.bind();
+		m_sprite.setPosition(item23.x + item23.offset, item23.y);
+		m_sprite.setScale(item23.width, item23.height);
+		m_sprite.draw(Vector4f::ONE, false, 1.0f, 1.0f);
+	}
+
+	if (item24.enable) {
+		item24.texture.bind();
+		m_sprite.setPosition(item24.x + item24.offset, item24.y);
+		m_sprite.setScale(item24.width, item24.height);
+		m_sprite.draw(Vector4f::ONE, false, 1.0f, 1.0f);
+	}
+
 	Sprite::SwitchShader();
 
 }
@@ -479,6 +592,12 @@ void AdrianMenu::OnMouseMotion(Event::MouseMoveEvent& event) {
 	item17.processInput(event.x, event.y);
 	item18.processInput(event.x, event.y);
 	item19.processInput(event.x, event.y);
+
+	item20.processInput(event.x, event.y);
+	item21.processInput(event.x, event.y);
+	item22.processInput(event.x, event.y);
+	item23.processInput(event.x, event.y);
+	item24.processInput(event.x, event.y);
 }
 
 void AdrianMenu::OnMouseButtonDown(Event::MouseButtonEvent& event) {
@@ -488,8 +607,7 @@ void AdrianMenu::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 	item1.processInput(event.x, event.y, event.button);
 	item2.processInput(event.x, event.y, event.button);
 	item3.processInput(event.x, event.y, event.button);
-	item4.processInput(event.x, event.y, event.button);
-	item14.processInput(event.x, event.y, event.button);
+	item4.processInput(event.x, event.y, event.button);	
 	item5.processInput(event.x, event.y, event.button);
 
 	item6.processInput(event.x, event.y, event.button);
@@ -501,13 +619,19 @@ void AdrianMenu::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 	item11.processInput(event.x, event.y, event.button);
 	item12.processInput(event.x, event.y, event.button);
 	item13.processInput(event.x, event.y, event.button);
-	
+	item14.processInput(event.x, event.y, event.button);
 
 	item15.processInput(event.x, event.y, event.button);
 	item16.processInput(event.x, event.y, event.button);
 	item17.processInput(event.x, event.y, event.button);
 	item18.processInput(event.x, event.y, event.button);
 	item19.processInput(event.x, event.y, event.button);
+
+	item20.processInput(event.x, event.y, event.button);
+	item21.processInput(event.x, event.y, event.button);
+	item22.processInput(event.x, event.y, event.button);
+	item23.processInput(event.x, event.y, event.button);
+	item24.processInput(event.x, event.y, event.button);
 }
 
 void AdrianMenu::OnKeyDown(Event::KeyboardEvent& event) {
@@ -563,6 +687,12 @@ void AdrianMenu::animate() {
 	item17.animate(animatePercent);
 	item18.animate(animatePercent);
 	item19.animate(animatePercent);
+
+	item20.animate(animatePercent);
+	item21.animate(animatePercent);
+	item22.animate(animatePercent);
+	item23.animate(animatePercent);
+	item24.animate(animatePercent);
 }
 
 void MenuItem::show(){

@@ -69,6 +69,7 @@ private:
 	Texture m_texture6, m_texture7, m_texture8, m_texture9, m_texture10;
 	Texture m_texture11, m_texture12, m_texture13, m_texture14;
 	Texture m_texture15, m_texture16, m_texture17, m_texture18, m_texture19;
+	Texture m_texture20, m_texture21, m_texture22, m_texture23, m_texture24;
 
 	Sprite m_sprite;
 
@@ -81,6 +82,7 @@ private:
 	MenuItem item6, item7, item8, item9, item10;
 	MenuItem item11, item12, item13, item14;
 	MenuItem item15, item16, item17, item18, item19;
+	MenuItem item20, item21, item22, item23, item24;
 
 	float linex;
 	float increment;

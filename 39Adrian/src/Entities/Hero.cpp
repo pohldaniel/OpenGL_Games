@@ -32,7 +32,7 @@ void Hero::fixedUpdate(float fdt) {
 }
 
 void Hero::update(const float dt) {
-	Md2Node::update(dt);
+	Md2Entity::update(dt);
 }
 
 void Hero::init(const Shape& shape) {

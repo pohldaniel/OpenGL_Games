@@ -5,6 +5,7 @@ Md2Node::Md2Node(const Md2Model& md2Model) :
 	OctreeNode(),
 	md2Model(md2Model),
 	m_animationDirty(true),
+	m_disabled(false),
 	m_materialIndex(-1),
 	m_textureIndex(-1),
 	m_activeFrameIdx(0),
@@ -84,7 +85,9 @@ void Md2Node::updateAnimation() {
 }
 
 void  Md2Node::drawRaw() const {
-	
+	if (m_disabled)
+		return;
+
 	bool change = !(m_color == Vector4f::ONE);
 	if (m_shader) {
 		m_shader->use();
@@ -156,4 +159,8 @@ void Md2Node::setColor(const Vector4f& color) {
 
 void Md2Node::setOnAnimationEnd(std::function<void()> fun) {
 	OnAnimationEnd = fun;
+}
+
+void Md2Node::setDisabled(bool disabled) {
+	m_disabled = disabled;
 }

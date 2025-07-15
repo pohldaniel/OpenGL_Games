@@ -9,4 +9,5 @@ namespace Utils {
 	extern std::uniform_real_distribution<float> Dist;
 
 	extern float random(float range);
+	extern int random(int min, int max);
 }

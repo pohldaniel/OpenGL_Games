@@ -1,5 +1,6 @@
 #include <engine/scene/ShapeNode.h>
 #include <Physics/Shapedrawer.h>
+#include <Utils/RandomNew.h>
 #include "Bot.h"
 
 Bot::Bot(const Md2Model& md2Model) : Md2Entity(md2Model) {
@@ -40,7 +41,7 @@ void Bot::fixedUpdate(float fdt) {
 }
 
 void Bot::update(const float dt) {
-	Md2Node::update(dt);
+	Md2Entity::update(dt);
 
 	if (m_moveSpeed == 0.0f)
 		return;
@@ -149,9 +150,12 @@ btScalar Bot::TriggerCallback::addSingleResult(btManifoldPoint& cp, const btColl
 }
 
 void Bot::death() {
-	setAnimationType(AnimationType::DEATH_BACK);
+	setAnimationType(static_cast<AnimationType>(Utils::random(4, 6)));
 	setLoopAnimation(false);
 	m_isDeath = true;
+	setOnAnimationEnd([this] {
+		setDisabled(true);
+	});
 
 	ShapeNode* shape = findChild<ShapeNode>("disk");
 	if (shape) {
