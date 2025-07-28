@@ -12,8 +12,6 @@ public:
 	void draw();
 	void init();
 
-	
-
 private:
 
 	void updateEntitiePositions();

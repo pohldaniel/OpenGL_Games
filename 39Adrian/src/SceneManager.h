@@ -1,6 +1,7 @@
 #pragma once
 #include <engine/MeshObject/Shape.h>
 #include <engine/Md2Model.h>
+#include <engine/CharacterSet.h>
 
 class Scene {
 
@@ -13,6 +14,7 @@ public:
 	void loadScene();
 	void loadBuilding(const char* filename, bool changeWinding = false);
 	void loadMiniMap(const char* filename);
+	void loadFont();
 
 	Md2Model m_heroModel, m_hueteotl, m_mutantman, m_corpse, m_mutantlizard, m_mutantcheetah, m_ripper;
 	std::vector<Shape> m_buildings;
@@ -21,6 +23,7 @@ public:
 
 	float m_xconvfactor;
 	float m_yconvfactor;
+	CharacterSet m_characterSet;
 };
 
 class SceneManager {

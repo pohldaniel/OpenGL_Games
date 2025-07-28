@@ -1,4 +1,5 @@
 #include <engine/Material.h>
+#include <engine/Spritesheet.h>
 #include "SceneManager.h"
 
 Scene::Scene() {
@@ -95,6 +96,7 @@ void Scene::loadScene() {
 	m_disk.markForDelete();
 
 	loadMiniMap("data/maps/default/main.map");
+	loadFont();
 }
 
 void Scene::loadBuilding(const char* fn, bool changeWinding) {
@@ -303,4 +305,56 @@ void Scene::loadMiniMap(const char* filename) {
 		block_convert(_bx2, _by2, bx2, by2);
 		m_buildingsMiniMap.push_back({ _bx1 + (_bx2 - _bx1) * 0.5f, -(_by1 + (_by2 - _by1) * 0.5f),  (_bx2 - _bx1) * 0.5f, (_by2 - _by1) * 0.5f });
 	}
+}
+
+void Scene::loadFont() {
+	m_characterSet.frame = 0u;
+	m_characterSet.characters[46] = { {0, 0}, {15u, 15u}, {0.625f, 0.625f}, {(float)10 / (float)128, (float)15 / (float)128}, 15u };
+	m_characterSet.characters[63] = { {0, 0}, {15u, 15u}, {0.742f, 0.875f}, {(float)10 / (float)128, (float)15 / (float)128}, 15u };
+	m_characterSet.characters[35] = { {0, 0}, {15u, 15u}, {0.25f, 0.5f}, {(float)10 / (float)128, (float)15 / (float)128}, 15u };
+	m_characterSet.characters[32] = { {0, 0}, {15u, 15u}, {0.875f, 0.875f}, {(float)10 / (float)128, (float)15 / (float)128}, 15u };
+	m_characterSet.characters[48] = { {0, 0}, {15u, 15u}, {0.875f, 0.625f}, {(float)10 / (float)128, (float)15 / (float)128}, 15u };
+
+	m_characterSet.characters[49] = { {0, 0}, {15u, 15u}, {0.0f, 0.75f}, {(float)10 / (float)128, (float)15 / (float)128}, 15u };
+	m_characterSet.characters[50] = { {0, 0}, {15u, 15u}, {0.117f, 0.75f}, {(float)10 / (float)128, (float)15 / (float)128}, 15u };
+	m_characterSet.characters[51] = { {0, 0}, {15u, 15u}, {0.25f, 0.75f}, {(float)10 / (float)128, (float)15 / (float)128}, 15u };
+	m_characterSet.characters[52] = { {0, 0}, {15u, 15u}, {0.367f, 0.75f}, {(float)10 / (float)128, (float)15 / (float)128}, 15u };
+	m_characterSet.characters[53] = { {0, 0}, {15u, 15u}, {0.5f, 0.75f}, {(float)10 / (float)128, (float)15 / (float)128}, 15u };
+	m_characterSet.characters[54] = { {0, 0}, {15u, 15u}, {0.625f, 0.75f}, {(float)10 / (float)128, (float)15 / (float)128}, 15u };
+	m_characterSet.characters[55] = { {0, 0}, {15u, 15u}, {0.742f, 0.75f}, {(float)10 / (float)128, (float)15 / (float)128}, 15u };
+	m_characterSet.characters[56] = { {0, 0}, {15u, 15u}, {0.875f, 0.75f}, {(float)10 / (float)128, (float)15 / (float)128}, 15u };
+
+	m_characterSet.characters[57] = { {0, 0}, {15u, 15u}, {0.0f, 0.875f}, {(float)10 / (float)128, (float)15 / (float)128}, 15u };
+	m_characterSet.characters[58] = { {0, 0}, {15u, 15u}, {0.125f, 0.875f}, {(float)10 / (float)128, (float)15 / (float)128}, 15u };
+	m_characterSet.characters[65] = { {0, 0}, {15u, 15u}, {0.0f, 0.0f}, {(float)10 / (float)128, (float)15 / (float)128}, 15u };
+	m_characterSet.characters[66] = { {0, 0}, {15u, 15u}, {0.117f, 0.0f}, {(float)10 / (float)128, (float)15 / (float)128}, 15u };
+	m_characterSet.characters[67] = { {0, 0}, {15u, 15u}, {0.25f, 0.0f}, {(float)10 / (float)128, (float)15 / (float)128}, 15u };
+	m_characterSet.characters[68] = { {0, 0}, {15u, 15u}, {0.367f, 0.0f}, {(float)10 / (float)128, (float)15 / (float)128}, 15u };
+	m_characterSet.characters[69] = { {0, 0}, {15u, 15u}, {0.5f, 0.0f}, {(float)10 / (float)128, (float)15 / (float)128}, 15u };
+	m_characterSet.characters[70] = { {0, 0}, {15u, 15u}, {0.625f, 0.0f}, {(float)10 / (float)128, (float)15 / (float)128}, 15u };
+	m_characterSet.characters[71] = { {0, 0}, {15u, 15u}, {0.742f, 0.0f}, {(float)10 / (float)128, (float)15 / (float)128}, 15u };
+	m_characterSet.characters[72] = { {0, 0}, {15u, 15u}, {0.875f, 0.0f}, {(float)10 / (float)128, (float)15 / (float)128}, 15u };
+
+	m_characterSet.characters[73] = { {0, 0}, {15u, 15u}, {0.0f, 0.125f}, {(float)10 / (float)128, (float)15 / (float)128}, 15u };
+	m_characterSet.characters[74] = { {0, 0}, {15u, 15u}, {0.117f, 0.125f}, {(float)10 / (float)128, (float)15 / (float)128}, 15u };
+	m_characterSet.characters[75] = { {0, 0}, {15u, 15u}, {0.25f, 0.125f}, {(float)10 / (float)128, (float)15 / (float)128}, 15u };
+	m_characterSet.characters[76] = { {0, 0}, {15u, 15u}, {0.367f, 0.125f}, {(float)10 / (float)128, (float)15 / (float)128}, 15u };
+	m_characterSet.characters[77] = { {0, 0}, {15u, 15u}, {0.5f, 0.125f}, {(float)10 / (float)128, (float)15 / (float)128}, 15u };
+	m_characterSet.characters[78] = { {0, 0}, {15u, 15u}, {0.625f, 0.125f}, {(float)10 / (float)128, (float)15 / (float)128}, 15u };
+	m_characterSet.characters[79] = { {0, 0}, {15u, 15u}, {0.742f, 0.125f}, {(float)10 / (float)128, (float)15 / (float)128}, 15u };
+	m_characterSet.characters[80] = { {0, 0}, {15u, 15u}, {0.875f, 0.125f}, {(float)10 / (float)128, (float)15 / (float)128}, 15u };
+
+	m_characterSet.characters[81] = { {0, 0}, {15u, 15u}, {0.0f, 0.25f}, {(float)10 / (float)128, (float)15 / (float)128}, 15u };
+	m_characterSet.characters[82] = { {0, 0}, {15u, 15u}, {0.117f, 0.25f}, {(float)10 / (float)128, (float)15 / (float)128}, 15u };
+	m_characterSet.characters[83] = { {0, 0}, {15u, 15u}, {0.25f, 0.25f}, {(float)10 / (float)128, (float)15 / (float)128}, 15u };
+	m_characterSet.characters[84] = { {0, 0}, {15u, 15u}, {0.367f, 0.25f}, {(float)10 / (float)128, (float)15 / (float)128}, 15u };
+	m_characterSet.characters[85] = { {0, 0}, {15u, 15u}, {0.5f, 0.25f}, {(float)10 / (float)128, (float)15 / (float)128}, 15u };
+	m_characterSet.characters[86] = { {0, 0}, {15u, 15u}, {0.625f, 0.25f}, {(float)10 / (float)128, (float)15 / (float)128}, 15u };
+	m_characterSet.characters[87] = { {0, 0}, {15u, 15u}, {0.742f, 0.25f}, {(float)10 / (float)128, (float)15 / (float)128}, 15u };
+	m_characterSet.characters[88] = { {0, 0}, {15u, 15u}, {0.875f, 0.25f}, {(float)10 / (float)128, (float)15 / (float)128}, 15u };
+
+	m_characterSet.characters[89] = { {0, 0}, {15u, 15u}, {0.0f, 0.375f}, {(float)10 / (float)128, (float)15 / (float)128}, 15u };
+	m_characterSet.characters[90] = { {0, 0}, {15u, 15u}, {0.117f, 0.375f}, {(float)10 / (float)128, (float)15 / (float)128}, 15u };
+
+	Spritesheet::CreateSpritesheet(Texture::LoadFromFile("res/textures/font.tga", false), 128u, 128u, 1u, m_characterSet.spriteSheet);
 }

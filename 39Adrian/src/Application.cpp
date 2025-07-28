@@ -14,8 +14,6 @@
 #include <engine/Sprite.h>
 #include <engine/utils/Utils.h>
 
-#include <UI/Widget.h>
-
 #include <States/Menu.h>
 #include <States/Default.h>
 #include <States/Md2State.h>
@@ -64,7 +62,6 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	Framebuffer::SetDefaultSize(Width, Height);
 	Widget::Init(Width, Height);
 	Sprite::Init(Width, Height);
-	ui::Widget::Init();
 
 	EventDispatcher.setProcessOSEvents([&]() {
 		while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {

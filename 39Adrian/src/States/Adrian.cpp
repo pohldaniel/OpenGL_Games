@@ -27,7 +27,8 @@ m_fadeCircle(m_fadeCircleValue),
 m_separaionWeight(3.0f),
 m_currentPanelTex(-1),
 m_invisible(false),
-m_miniMap(m_camera, m_scene, m_entities){
+m_miniMap(m_camera, m_scene, m_entities),
+m_billboard(m_camera){
 
 	//Application::SetCursorIcon(IDC_ARROW);
 	Application::SetCursorIcon(arrow);
@@ -117,20 +118,18 @@ m_miniMap(m_camera, m_scene, m_entities){
 	TileSetManager::Get().getTileSet("overlay").loadTileSetGpu();
 	m_tileSet = TileSetManager::Get().getTileSet("overlay").getTextureRects();
 	m_atlas = TileSetManager::Get().getTileSet("overlay").getAtlas();
-	loadFont();
-	
+
 	Spritesheet::SetWrapMode(m_atlas, GL_REPEAT);
 	Spritesheet::Bind(m_atlas, 1u);
 	Sprite::GetShader()->use();
 	Sprite::GetShader()->loadInt("u_texture", 1);
 	Sprite::GetShader()->unuse();
 
-	loadBillboards();
-
-	
-
 	m_texture1.createEmptyTexture((strlen("GAME OVER") + 1) * 40, 50);
+	m_texture1.markForDelete();
+
 	m_texture2.createEmptyTexture((strlen("Press F2 to exit to Main Menu") + 1) * 20, 30);
+	m_texture2.markForDelete();
 
 	Globals::fontManager.get("tahoma_64").bind();
 	Fontrenderer::Get().setShader(Globals::shaderManager.getAssetPointer("font_ttf"));
@@ -146,6 +145,7 @@ m_miniMap(m_camera, m_scene, m_entities){
 
 	m_background.loadFromFile(background);
 	m_background.setWrapMode(GL_REPEAT);
+	m_background.markForDelete();
 }
 
 Adrian::~Adrian() {
@@ -158,9 +158,13 @@ Adrian::~Adrian() {
 	delete m_navigationMesh;
 	m_navigationMesh = nullptr;
 
-	WorkQueue::Shutdown();
+	delete m_crowdManager;
+	m_crowdManager = nullptr;
+
 	Physics::DeleteAllCollisionObjects();
 	Fontrenderer::Get().setShader(Globals::shaderManager.getAssetPointer("font_ttf"));
+
+	WorkQueue::Shutdown();
 }
 
 void Adrian::fixedUpdate() {
@@ -388,37 +392,37 @@ void Adrian::render() {
 			m_panel.draw(m_tileSet[m_currentPanelTex], Vector4f::ONE, false, 1.0f, 1.0f);
 
 
-			Fontrenderer::Get().addText(set, (120.0f / 640.0f) * static_cast<float>(Application::Width), 20.0f, std::get<0>(labels[m_currentPanelTex]), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
-			Fontrenderer::Get().addText(set, (120.0f / 640.0f) * static_cast<float>(Application::Width), 0.0f, std::get<1>(labels[m_currentPanelTex]), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
+			Fontrenderer::Get().addText(m_scene.m_characterSet, (120.0f / 640.0f) * static_cast<float>(Application::Width), 20.0f, std::get<0>(labels[m_currentPanelTex]), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
+			Fontrenderer::Get().addText(m_scene.m_characterSet, (120.0f / 640.0f) * static_cast<float>(Application::Width), 0.0f, std::get<1>(labels[m_currentPanelTex]), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
 			//Fontrenderer::Get().drawBuffer();	
 		}
 
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D_ARRAY, set.spriteSheet);
+		glBindTexture(GL_TEXTURE_2D_ARRAY, m_scene.m_characterSet.spriteSheet);
 
-		Fontrenderer::Get().addText(set, (500.0f / 640.0f) * static_cast<float>(Application::Width), (450.0f / 480.0f) * static_cast<float>(Application::Height), "F1:HELP", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
+		Fontrenderer::Get().addText(m_scene.m_characterSet, (500.0f / 640.0f) * static_cast<float>(Application::Width), (450.0f / 480.0f) * static_cast<float>(Application::Height), "F1:HELP", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
 		if (m_showHelp) {
-			Fontrenderer::Get().addText(set, (20.0f / 640.0f) * static_cast<float>(Application::Width), (450.0f / 480.0f) * static_cast<float>(Application::Height), "F2 : QUIT GAME", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
-			Fontrenderer::Get().addText(set, (20.0f / 640.0f) * static_cast<float>(Application::Width), (430.0f / 480.0f) * static_cast<float>(Application::Height), "P  : PAUSE GAME", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
-			Fontrenderer::Get().addText(set, (20.0f / 640.0f) * static_cast<float>(Application::Width), (410.0f / 480.0f) * static_cast<float>(Application::Height), "Q  : ROTATE CAMERA ANTICLOCKWISE", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
-			Fontrenderer::Get().addText(set, (20.0f / 640.0f) * static_cast<float>(Application::Width), (390.0f / 480.0f) * static_cast<float>(Application::Height), "E  : ROTATE CAMERA CLOCKWISE", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
+			Fontrenderer::Get().addText(m_scene.m_characterSet, (20.0f / 640.0f) * static_cast<float>(Application::Width), (450.0f / 480.0f) * static_cast<float>(Application::Height), "F2 : QUIT GAME", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
+			Fontrenderer::Get().addText(m_scene.m_characterSet, (20.0f / 640.0f) * static_cast<float>(Application::Width), (430.0f / 480.0f) * static_cast<float>(Application::Height), "P  : PAUSE GAME", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
+			Fontrenderer::Get().addText(m_scene.m_characterSet, (20.0f / 640.0f) * static_cast<float>(Application::Width), (410.0f / 480.0f) * static_cast<float>(Application::Height), "Q  : ROTATE CAMERA ANTICLOCKWISE", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
+			Fontrenderer::Get().addText(m_scene.m_characterSet, (20.0f / 640.0f) * static_cast<float>(Application::Width), (390.0f / 480.0f) * static_cast<float>(Application::Height), "E  : ROTATE CAMERA CLOCKWISE", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
 
-			Fontrenderer::Get().addText(set, (20.0f / 640.0f) * static_cast<float>(Application::Width), (370.0f / 480.0f) * static_cast<float>(Application::Height), "M  : TOGGLE PANEL", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
-			Fontrenderer::Get().addText(set, (20.0f / 640.0f) * static_cast<float>(Application::Width), (350.0f / 480.0f) * static_cast<float>(Application::Height), "B  : BOMB", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
-			Fontrenderer::Get().addText(set, (20.0f / 640.0f) * static_cast<float>(Application::Width), (330.0f / 480.0f) * static_cast<float>(Application::Height), "H  : SELECT HERO", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
-			Fontrenderer::Get().addText(set, (20.0f / 640.0f) * static_cast<float>(Application::Width), (310.0f / 480.0f) * static_cast<float>(Application::Height), "SPACE  : BRINGS HERO TO SCREEEN CENTER", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
+			Fontrenderer::Get().addText(m_scene.m_characterSet, (20.0f / 640.0f) * static_cast<float>(Application::Width), (370.0f / 480.0f) * static_cast<float>(Application::Height), "M  : TOGGLE PANEL", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
+			Fontrenderer::Get().addText(m_scene.m_characterSet, (20.0f / 640.0f) * static_cast<float>(Application::Width), (350.0f / 480.0f) * static_cast<float>(Application::Height), "B  : BOMB", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
+			Fontrenderer::Get().addText(m_scene.m_characterSet, (20.0f / 640.0f) * static_cast<float>(Application::Width), (330.0f / 480.0f) * static_cast<float>(Application::Height), "H  : SELECT HERO", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
+			Fontrenderer::Get().addText(m_scene.m_characterSet, (20.0f / 640.0f) * static_cast<float>(Application::Width), (310.0f / 480.0f) * static_cast<float>(Application::Height), "SPACE  : BRINGS HERO TO SCREEEN CENTER", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
 
 			//Fontrenderer::Get().addText(set, (20.0f / 640.0f) * static_cast<float>(Application::Width), (290.0f / 480.0f) * static_cast<float>(Application::Height), "Q  : QUIT", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
-			Fontrenderer::Get().addText(set, (20.0f / 640.0f) * static_cast<float>(Application::Width), (270.0f / 480.0f) * static_cast<float>(Application::Height), " ", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
-			Fontrenderer::Get().addText(set, (20.0f / 640.0f) * static_cast<float>(Application::Width), (250.0f / 480.0f) * static_cast<float>(Application::Height), "LEFT CLICK THE TORSO TO SELECT", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
-			Fontrenderer::Get().addText(set, (20.0f / 640.0f) * static_cast<float>(Application::Width), (230.0f / 480.0f) * static_cast<float>(Application::Height), "RIGHT CLICK TO MOVE", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
-			Fontrenderer::Get().addText(set, (20.0f / 640.0f) * static_cast<float>(Application::Width), (210.0f / 480.0f) * static_cast<float>(Application::Height), "RIGHT CLICK ON THE ENEMY TO KILL", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
+			Fontrenderer::Get().addText(m_scene.m_characterSet, (20.0f / 640.0f) * static_cast<float>(Application::Width), (270.0f / 480.0f) * static_cast<float>(Application::Height), " ", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
+			Fontrenderer::Get().addText(m_scene.m_characterSet, (20.0f / 640.0f) * static_cast<float>(Application::Width), (250.0f / 480.0f) * static_cast<float>(Application::Height), "LEFT CLICK THE TORSO TO SELECT", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
+			Fontrenderer::Get().addText(m_scene.m_characterSet, (20.0f / 640.0f) * static_cast<float>(Application::Width), (230.0f / 480.0f) * static_cast<float>(Application::Height), "RIGHT CLICK TO MOVE", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
+			Fontrenderer::Get().addText(m_scene.m_characterSet, (20.0f / 640.0f) * static_cast<float>(Application::Width), (210.0f / 480.0f) * static_cast<float>(Application::Height), "RIGHT CLICK ON THE ENEMY TO KILL", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
 
-			Fontrenderer::Get().addText(set, (20.0f / 640.0f) * static_cast<float>(Application::Width), (190.0f / 480.0f) * static_cast<float>(Application::Height), " ", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
-			Fontrenderer::Get().addText(set, (20.0f / 640.0f) * static_cast<float>(Application::Width), (170.0f / 480.0f) * static_cast<float>(Application::Height), "OBJECTIVE: ", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
-			Fontrenderer::Get().addText(set, (20.0f / 640.0f) * static_cast<float>(Application::Width), (150.0f / 480.0f) * static_cast<float>(Application::Height), "DESTROY THE EVIL SCIENTISTS CONTROL ROOM", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
-			Fontrenderer::Get().addText(set, (20.0f / 640.0f) * static_cast<float>(Application::Width), (130.0f / 480.0f) * static_cast<float>(Application::Height), "AT THE TOP RIGHT CORNER OF THE MAP BY", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
-			Fontrenderer::Get().addText(set, (20.0f / 640.0f) * static_cast<float>(Application::Width), (110.0f / 480.0f) * static_cast<float>(Application::Height), "PLACING A BOMB UNDER HIS HOUSE", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
+			Fontrenderer::Get().addText(m_scene.m_characterSet, (20.0f / 640.0f) * static_cast<float>(Application::Width), (190.0f / 480.0f) * static_cast<float>(Application::Height), " ", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
+			Fontrenderer::Get().addText(m_scene.m_characterSet, (20.0f / 640.0f) * static_cast<float>(Application::Width), (170.0f / 480.0f) * static_cast<float>(Application::Height), "OBJECTIVE: ", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
+			Fontrenderer::Get().addText(m_scene.m_characterSet, (20.0f / 640.0f) * static_cast<float>(Application::Width), (150.0f / 480.0f) * static_cast<float>(Application::Height), "DESTROY THE EVIL SCIENTISTS CONTROL ROOM", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
+			Fontrenderer::Get().addText(m_scene.m_characterSet, (20.0f / 640.0f) * static_cast<float>(Application::Width), (130.0f / 480.0f) * static_cast<float>(Application::Height), "AT THE TOP RIGHT CORNER OF THE MAP BY", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
+			Fontrenderer::Get().addText(m_scene.m_characterSet, (20.0f / 640.0f) * static_cast<float>(Application::Width), (110.0f / 480.0f) * static_cast<float>(Application::Height), "PLACING A BOMB UNDER HIS HOUSE", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
 		}
 
 		Fontrenderer::Get().drawBuffer();
@@ -495,24 +499,8 @@ void Adrian::renderScene() {
 		drawable->drawRaw();
 	}
 
-	glEnable(GL_ALPHA_TEST);
-	glAlphaFunc(GL_GREATER, 0.5);
-
-	Globals::textureManager.get("tree").bind(0u);
-	shader = Globals::shaderManager.getAssetPointer("billboard_new");
-	shader->use();
-	shader->loadMatrix("u_viewProjection", m_camera.getOrthographicMatrix() * m_camera.getViewMatrix());
-	shader->loadVector("u_camPos", m_camera.getPosition());
-	shader->loadVector("u_right", m_camera.getCamX());
-	shader->loadFloat("u_width", 60.0f);
-	shader->loadFloat("u_height", 150.0f);
-	shader->loadInt("u_texture", 0);
-
-	glBindVertexArray(m_vao);
-	glDrawArrays(GL_POINTS, 0, 8);
-	glBindVertexArray(0);
-	glDisable(GL_ALPHA_TEST);
-	shader->unuse();
+	m_billboard.draw();
+	
 }
 
 void Adrian::renderSceneDepth() {
@@ -1237,84 +1225,10 @@ void Adrian::spawnAgent(const Vector3f& pos) {
 	m_agent->initCallbacks();
 }
 
-void Adrian::loadFont() {
-	set.frame = 0u;
-	set.characters[46] = { {0, 0}, {15u, 15u}, {0.625f, 0.625f}, {(float)10 / (float)128, (float)15 / (float)128}, 15u };
-	set.characters[63] = { {0, 0}, {15u, 15u}, {0.742f, 0.875f}, {(float)10 / (float)128, (float)15 / (float)128}, 15u };
-	set.characters[35] = { {0, 0}, {15u, 15u}, {0.25f, 0.5f}, {(float)10 / (float)128, (float)15 / (float)128}, 15u };
-	set.characters[32] = { {0, 0}, {15u, 15u}, {0.875f, 0.875f}, {(float)10 / (float)128, (float)15 / (float)128}, 15u };
-	set.characters[48] = { {0, 0}, {15u, 15u}, {0.875f, 0.625f}, {(float)10 / (float)128, (float)15 / (float)128}, 15u };
 
-	set.characters[49] = { {0, 0}, {15u, 15u}, {0.0f, 0.75f}, {(float)10 / (float)128, (float)15 / (float)128}, 15u };
-	set.characters[50] = { {0, 0}, {15u, 15u}, {0.117f, 0.75f}, {(float)10 / (float)128, (float)15 / (float)128}, 15u };
-	set.characters[51] = { {0, 0}, {15u, 15u}, {0.25f, 0.75f}, {(float)10 / (float)128, (float)15 / (float)128}, 15u };
-	set.characters[52] = { {0, 0}, {15u, 15u}, {0.367f, 0.75f}, {(float)10 / (float)128, (float)15 / (float)128}, 15u };
-	set.characters[53] = { {0, 0}, {15u, 15u}, {0.5f, 0.75f}, {(float)10 / (float)128, (float)15 / (float)128}, 15u };
-	set.characters[54] = { {0, 0}, {15u, 15u}, {0.625f, 0.75f}, {(float)10 / (float)128, (float)15 / (float)128}, 15u };
-	set.characters[55] = { {0, 0}, {15u, 15u}, {0.742f, 0.75f}, {(float)10 / (float)128, (float)15 / (float)128}, 15u };
-	set.characters[56] = { {0, 0}, {15u, 15u}, {0.875f, 0.75f}, {(float)10 / (float)128, (float)15 / (float)128}, 15u };
-
-	set.characters[57] = { {0, 0}, {15u, 15u}, {0.0f, 0.875f}, {(float)10 / (float)128, (float)15 / (float)128}, 15u };
-	set.characters[58] = { {0, 0}, {15u, 15u}, {0.125f, 0.875f}, {(float)10 / (float)128, (float)15 / (float)128}, 15u };
-	set.characters[65] = { {0, 0}, {15u, 15u}, {0.0f, 0.0f}, {(float)10 / (float)128, (float)15 / (float)128}, 15u };
-	set.characters[66] = { {0, 0}, {15u, 15u}, {0.117f, 0.0f}, {(float)10 / (float)128, (float)15 / (float)128}, 15u };
-	set.characters[67] = { {0, 0}, {15u, 15u}, {0.25f, 0.0f}, {(float)10 / (float)128, (float)15 / (float)128}, 15u };
-	set.characters[68] = { {0, 0}, {15u, 15u}, {0.367f, 0.0f}, {(float)10 / (float)128, (float)15 / (float)128}, 15u };
-	set.characters[69] = { {0, 0}, {15u, 15u}, {0.5f, 0.0f}, {(float)10 / (float)128, (float)15 / (float)128}, 15u };
-	set.characters[70] = { {0, 0}, {15u, 15u}, {0.625f, 0.0f}, {(float)10 / (float)128, (float)15 / (float)128}, 15u };
-	set.characters[71] = { {0, 0}, {15u, 15u}, {0.742f, 0.0f}, {(float)10 / (float)128, (float)15 / (float)128}, 15u };
-	set.characters[72] = { {0, 0}, {15u, 15u}, {0.875f, 0.0f}, {(float)10 / (float)128, (float)15 / (float)128}, 15u };
-
-	set.characters[73] = { {0, 0}, {15u, 15u}, {0.0f, 0.125f}, {(float)10 / (float)128, (float)15 / (float)128}, 15u };
-	set.characters[74] = { {0, 0}, {15u, 15u}, {0.117f, 0.125f}, {(float)10 / (float)128, (float)15 / (float)128}, 15u };
-	set.characters[75] = { {0, 0}, {15u, 15u}, {0.25f, 0.125f}, {(float)10 / (float)128, (float)15 / (float)128}, 15u };
-	set.characters[76] = { {0, 0}, {15u, 15u}, {0.367f, 0.125f}, {(float)10 / (float)128, (float)15 / (float)128}, 15u };
-	set.characters[77] = { {0, 0}, {15u, 15u}, {0.5f, 0.125f}, {(float)10 / (float)128, (float)15 / (float)128}, 15u };
-	set.characters[78] = { {0, 0}, {15u, 15u}, {0.625f, 0.125f}, {(float)10 / (float)128, (float)15 / (float)128}, 15u };
-	set.characters[79] = { {0, 0}, {15u, 15u}, {0.742f, 0.125f}, {(float)10 / (float)128, (float)15 / (float)128}, 15u };
-	set.characters[80] = { {0, 0}, {15u, 15u}, {0.875f, 0.125f}, {(float)10 / (float)128, (float)15 / (float)128}, 15u };
-
-	set.characters[81] = { {0, 0}, {15u, 15u}, {0.0f, 0.25f}, {(float)10 / (float)128, (float)15 / (float)128}, 15u };
-	set.characters[82] = { {0, 0}, {15u, 15u}, {0.117f, 0.25f}, {(float)10 / (float)128, (float)15 / (float)128}, 15u };
-	set.characters[83] = { {0, 0}, {15u, 15u}, {0.25f, 0.25f}, {(float)10 / (float)128, (float)15 / (float)128}, 15u };
-	set.characters[84] = { {0, 0}, {15u, 15u}, {0.367f, 0.25f}, {(float)10 / (float)128, (float)15 / (float)128}, 15u };
-	set.characters[85] = { {0, 0}, {15u, 15u}, {0.5f, 0.25f}, {(float)10 / (float)128, (float)15 / (float)128}, 15u };
-	set.characters[86] = { {0, 0}, {15u, 15u}, {0.625f, 0.25f}, {(float)10 / (float)128, (float)15 / (float)128}, 15u };
-	set.characters[87] = { {0, 0}, {15u, 15u}, {0.742f, 0.25f}, {(float)10 / (float)128, (float)15 / (float)128}, 15u };
-	set.characters[88] = { {0, 0}, {15u, 15u}, {0.875f, 0.25f}, {(float)10 / (float)128, (float)15 / (float)128}, 15u };
-
-	set.characters[89] = { {0, 0}, {15u, 15u}, {0.0f, 0.375f}, {(float)10 / (float)128, (float)15 / (float)128}, 15u };
-	set.characters[90] = { {0, 0}, {15u, 15u}, {0.117f, 0.375f}, {(float)10 / (float)128, (float)15 / (float)128}, 15u };
-
-	Spritesheet::CreateSpritesheet(Texture::LoadFromFile("res/textures/font.tga", false), 128u, 128u, 1u, set.spriteSheet);
-}
 
 void Adrian::setCurrentPanelTex(int currentPanelTex) {
 	m_currentPanelTex = currentPanelTex;
-}
-
-void Adrian::loadBillboards() {
-	m_positions.push_back({ -1100.0f, 0.0f, 1100.0f });
-	m_positions.push_back({ -1050.0f, 0.0f, 1100.0f });
-	m_positions.push_back({ -950.0f, 0.0f, 1100.0f });
-	m_positions.push_back({ -750.0f, 0.0f, 1100.0f });
-	m_positions.push_back({ -350.0f, 0.0f, 1100.0f });
-	m_positions.push_back({ -1100.0f, 0.0f, 700.0f });
-	m_positions.push_back({ -1100.0f, 0.0f, 300.0f });
-	m_positions.push_back({ -1100.0f, 0.0f, -100.0f });
-
-	glGenVertexArrays(1, &m_vao);
-	glBindVertexArray(m_vao);
-
-	glGenBuffers(1, &m_vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(m_positions[0]) * m_positions.size(), &m_positions[0], GL_STATIC_DRAW);
-
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-
-	glBindVertexArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 bool Adrian::isMouseOver(int sx, int sy, float &nx, float &ny){
@@ -1386,7 +1300,7 @@ bool Adrian::loadPolygonCache(NavigationMesh* navigationMesh) {
 void Adrian::createCollisionFilter() {
 	m_colliosionFilter.push_back(m_hero->getRigidBody());
 	std::transform(m_entities.begin() + 1, m_entities.end(), std::back_inserter(m_colliosionFilter), [this](Md2Entity* p)->btCollisionObject* {
-		return   static_cast<Bot*>(p)->getRigidBody();
+		return static_cast<Bot*>(p)->getRigidBody();
 	});
 }
 

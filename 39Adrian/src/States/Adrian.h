@@ -36,6 +36,7 @@
 #include "CameraController.h"
 #include "SceneManager.h"
 #include "MiniMap.h"
+#include "Billboard.h"
 
 #define		SCR2RESX(x)		((x)/640.0 * (1024))
 #define		SCR2RESY(y)		((y)/480.0 * (768))
@@ -107,12 +108,9 @@ public:
 	void OnKeyDown(Event::KeyboardEvent& event) override;
 	void OnKeyUp(Event::KeyboardEvent& event) override;
 
-
 	void loadBots(const char* filename);
 	void createScene(bool recreate = false);
-	void loadFont();
 	void setCurrentPanelTex(int currentPanelTex);
-	void loadBillboards();
 	bool loadPolygonCache(NavigationMesh* navigationMesh);
 
 private:
@@ -168,48 +166,34 @@ private:
 	Frustum m_frustum;
 	Scene m_scene;
 	MiniMap m_miniMap;
-
-	ShapeNode *m_segmentNode = nullptr, *m_diskNode = nullptr, *m_buildingNode = nullptr, *m_cursorNode = nullptr;
-
-	MousePicker m_mousePicker;
-	btCollisionObject* m_ground;
-	
-
+	Billboard m_billboard;
 	NavigationMesh* m_navigationMesh;
 	CrowdManager* m_crowdManager;
 	CrowdAgent* m_agent;
 
+	ShapeNode *m_segmentNode = nullptr, *m_diskNode = nullptr, *m_buildingNode = nullptr, *m_cursorNode = nullptr;
+
+	MousePicker m_mousePicker;
+	btCollisionObject* m_ground;	
+	std::vector<Md2Entity*> m_entities;
+
+	Sprite m_panel;
+	Framebuffer m_depthBuffer;
+	///////////////////////////////////////////////////////////////////////////////////
 	std::unordered_set< std::array<int, 2>, std::function<size_t(const std::array<int, 2>&)>, std::function<bool(const std::array<int, 2>&, const std::array<int, 2>&)>> m_addedTiles;
 	std::vector<EditPolygon> m_editPolygons;
 	std::vector<Vector3f> m_edgePoints;
 	EditPolygon* m_currentPolygon;
-
-	
 	std::vector<btCollisionObject*> m_collisionObjects;
 	std::vector<btCollisionObject*> m_colliosionFilter;
 
 	int m_globalUserIndex;
-	Framebuffer m_depthBuffer;
 	Fade m_fade, m_fadeCircle;
-
-	std::vector<Md2Entity*> m_entities;
-	Sprite m_panel;
 	std::vector<TextureRect> m_tileSet;
 	unsigned int m_atlas;
 	int m_currentPanelTex;
-	CharacterSet set;
-
-	std::vector<Vector3f> m_positions;
-	unsigned int m_vao = 0u;
-	unsigned int m_vbo = 0u;
-
-	
-
-	
 	
 	bool isMouseOver(int sx, int sy, float &, float &);
-
-	std::vector<Bot*> m_bots;
 	std::tuple<std::string, std::string> labels[7] = { 
 		{"RIGHT CLICK ON ENEMYS TORSO", "TO KILL IT"},
 		{"THE CORPSE", "SLOWER THAN HERO"},

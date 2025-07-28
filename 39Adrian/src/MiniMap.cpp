@@ -85,7 +85,6 @@ void MiniMap::draw() {
 	float hm = (21.33f / 640.0f) * 1024.0f;
 	float vm = (21.33f / 480.0f) * 768.0f;
 
-
 	Vector3f pos = Matrix4f::RotateVec(Vector3f(0.0f, -1.0f, 0.0f), camera.getAngle() * _180_ON_PI, camera.getPosition());
 	shader = Globals::shaderManager.getAssetPointer("view");
 	shader->use();
