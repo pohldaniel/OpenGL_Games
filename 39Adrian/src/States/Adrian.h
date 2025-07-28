@@ -34,7 +34,7 @@
 #include <Utils/Fade.h>
 
 #include "CameraController.h"
-#include "SceneManager.h"
+#include "Scene.h"
 #include "MiniMap.h"
 #include "Billboard.h"
 
@@ -94,7 +94,7 @@ class Adrian : public State, public MouseEventListener, public KeyboardEventList
 
 public:
 
-	Adrian(StateMachine& machine, std::string background = "data/textures/buildings/ground.tga");
+	Adrian(StateMachine& machine, const std::string& background = "data/textures/buildings/ground.tga");
 	~Adrian();
 
 	void fixedUpdate() override;
@@ -110,7 +110,6 @@ public:
 
 	void loadBots(const char* filename);
 	void createScene(bool recreate = false);
-	void setCurrentPanelTex(int currentPanelTex);
 	bool loadPolygonCache(NavigationMesh* navigationMesh);
 
 private:
@@ -129,6 +128,7 @@ private:
 	void createCollisionFilter();
 	void activateHero();
 	void centerHero();
+	bool isMouseOver(int sx, int sy, float &, float &);
 
 	bool m_initUi = true;
 	bool m_drawUi = false;
@@ -160,6 +160,7 @@ private:
 	Hero* m_hero;
 	Bot *m_currentBot;
 	Md2Node *m_md2Node;
+	ShapeNode *m_segmentNode = nullptr, *m_diskNode = nullptr, *m_buildingNode = nullptr, *m_cursorNode = nullptr;
 
 	SceneNodeLC* m_root;
 	Octree* m_octree;
@@ -167,11 +168,10 @@ private:
 	Scene m_scene;
 	MiniMap m_miniMap;
 	Billboard m_billboard;
+	CameraController m_cameraController;
 	NavigationMesh* m_navigationMesh;
 	CrowdManager* m_crowdManager;
 	CrowdAgent* m_agent;
-
-	ShapeNode *m_segmentNode = nullptr, *m_diskNode = nullptr, *m_buildingNode = nullptr, *m_cursorNode = nullptr;
 
 	MousePicker m_mousePicker;
 	btCollisionObject* m_ground;	
@@ -179,6 +179,10 @@ private:
 
 	Sprite m_panel;
 	Framebuffer m_depthBuffer;
+	int m_globalUserIndex;
+	Fade m_fade, m_fadeCircle;	
+	int m_currentPanelTex;
+
 	///////////////////////////////////////////////////////////////////////////////////
 	std::unordered_set< std::array<int, 2>, std::function<size_t(const std::array<int, 2>&)>, std::function<bool(const std::array<int, 2>&, const std::array<int, 2>&)>> m_addedTiles;
 	std::vector<EditPolygon> m_editPolygons;
@@ -187,23 +191,6 @@ private:
 	std::vector<btCollisionObject*> m_collisionObjects;
 	std::vector<btCollisionObject*> m_colliosionFilter;
 
-	int m_globalUserIndex;
-	Fade m_fade, m_fadeCircle;
 	std::vector<TextureRect> m_tileSet;
 	unsigned int m_atlas;
-	int m_currentPanelTex;
-	
-	bool isMouseOver(int sx, int sy, float &, float &);
-	std::tuple<std::string, std::string> labels[7] = { 
-		{"RIGHT CLICK ON ENEMYS TORSO", "TO KILL IT"},
-		{"THE CORPSE", "SLOWER THAN HERO"},
-		{"MUTANT CHEETA", "ITS FAST ENOUGH TO BE KILLED"},
-		{"MUTANT LIZARD", "SLOWER THAN MUTANT MAN"},
-		{"MUTANT MAN", "AS FAST AS HERO"},
-		{"RIPPER", "VERY FAST TRY SNEAKING PAST IT"},
-		{"THE UNDEAD", "VERY SLOW MUTANT"}
-	};
-
-	Texture m_texture1, m_texture2, m_background;
-	CameraController m_cameraController;
 };

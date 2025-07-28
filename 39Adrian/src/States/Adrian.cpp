@@ -16,7 +16,7 @@
 #include "Globals.h"
 #include "Renderer.h"
 
-Adrian::Adrian(StateMachine& machine, std::string background) : State(machine, States::ADRIAN),
+Adrian::Adrian(StateMachine& machine, const std::string& background) : State(machine, States::ADRIAN),
 m_camera(Application::Width, Application::Height),
 m_cameraController(m_camera, Application::Width, Application::Height),
 m_addedTiles(0, [](const std::array<int, 2>& p) {  return std::hash<int>()(p[0]) ^ std::hash<int>()(p[1]) << 1; }, [](const std::array<int, 2>& p1, const std::array<int, 2>& p2) { return p1[0] == p2[0] && p1[1] == p2[1]; }),
@@ -125,27 +125,8 @@ m_billboard(m_camera){
 	Sprite::GetShader()->loadInt("u_texture", 1);
 	Sprite::GetShader()->unuse();
 
-	m_texture1.createEmptyTexture((strlen("GAME OVER") + 1) * 40, 50);
-	m_texture1.markForDelete();
-
-	m_texture2.createEmptyTexture((strlen("Press F2 to exit to Main Menu") + 1) * 20, 30);
-	m_texture2.markForDelete();
-
-	Globals::fontManager.get("tahoma_64").bind();
-	Fontrenderer::Get().setShader(Globals::shaderManager.getAssetPointer("font_ttf"));
-	Fontrenderer::Get().addText(Globals::fontManager.get("tahoma_64"), 100.0f, 30.0f, "GAME OVER", Vector4f(1.0f, 0.0f, 0.0f, 1.0f), 1.0f, false);
-	Fontrenderer::Get().blitTextToTexture((strlen("GAME OVER") + 1) * 40, 50, 200, 50, m_texture1);
-
-	Fontrenderer::Get().setBlitSize(2048u, 512u);
-	Fontrenderer::Get().addText(Globals::fontManager.get("tahoma_64"), 110.0f, 20.0f, "Press F2 to exit to Main Menu", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, false);
-	Fontrenderer::Get().blitTextToTexture((strlen("Press F2 to exit to Main Menu") + 1) * 20, 30, 220, 40, m_texture2);
-	Fontrenderer::Get().setBlitSize(Application::Width, Application::Height);	
-
 	activateHero();
-
-	m_background.loadFromFile(background);
-	m_background.setWrapMode(GL_REPEAT);
-	m_background.markForDelete();
+	m_scene.loadBackground(background);
 }
 
 Adrian::~Adrian() {
@@ -392,37 +373,37 @@ void Adrian::render() {
 			m_panel.draw(m_tileSet[m_currentPanelTex], Vector4f::ONE, false, 1.0f, 1.0f);
 
 
-			Fontrenderer::Get().addText(m_scene.m_characterSet, (120.0f / 640.0f) * static_cast<float>(Application::Width), 20.0f, std::get<0>(labels[m_currentPanelTex]), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
-			Fontrenderer::Get().addText(m_scene.m_characterSet, (120.0f / 640.0f) * static_cast<float>(Application::Width), 0.0f, std::get<1>(labels[m_currentPanelTex]), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
+			Fontrenderer::Get().addText(m_scene.characterSet, (120.0f / 640.0f) * static_cast<float>(Application::Width), 20.0f, std::get<0>(m_scene.labels[m_currentPanelTex]), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
+			Fontrenderer::Get().addText(m_scene.characterSet, (120.0f / 640.0f) * static_cast<float>(Application::Width), 0.0f, std::get<1>(m_scene.labels[m_currentPanelTex]), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
 			//Fontrenderer::Get().drawBuffer();	
 		}
 
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D_ARRAY, m_scene.m_characterSet.spriteSheet);
+		glBindTexture(GL_TEXTURE_2D_ARRAY, m_scene.characterSet.spriteSheet);
 
-		Fontrenderer::Get().addText(m_scene.m_characterSet, (500.0f / 640.0f) * static_cast<float>(Application::Width), (450.0f / 480.0f) * static_cast<float>(Application::Height), "F1:HELP", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
+		Fontrenderer::Get().addText(m_scene.characterSet, (500.0f / 640.0f) * static_cast<float>(Application::Width), (450.0f / 480.0f) * static_cast<float>(Application::Height), "F1:HELP", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
 		if (m_showHelp) {
-			Fontrenderer::Get().addText(m_scene.m_characterSet, (20.0f / 640.0f) * static_cast<float>(Application::Width), (450.0f / 480.0f) * static_cast<float>(Application::Height), "F2 : QUIT GAME", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
-			Fontrenderer::Get().addText(m_scene.m_characterSet, (20.0f / 640.0f) * static_cast<float>(Application::Width), (430.0f / 480.0f) * static_cast<float>(Application::Height), "P  : PAUSE GAME", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
-			Fontrenderer::Get().addText(m_scene.m_characterSet, (20.0f / 640.0f) * static_cast<float>(Application::Width), (410.0f / 480.0f) * static_cast<float>(Application::Height), "Q  : ROTATE CAMERA ANTICLOCKWISE", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
-			Fontrenderer::Get().addText(m_scene.m_characterSet, (20.0f / 640.0f) * static_cast<float>(Application::Width), (390.0f / 480.0f) * static_cast<float>(Application::Height), "E  : ROTATE CAMERA CLOCKWISE", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
+			Fontrenderer::Get().addText(m_scene.characterSet, (20.0f / 640.0f) * static_cast<float>(Application::Width), (450.0f / 480.0f) * static_cast<float>(Application::Height), "F2 : QUIT GAME", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
+			Fontrenderer::Get().addText(m_scene.characterSet, (20.0f / 640.0f) * static_cast<float>(Application::Width), (430.0f / 480.0f) * static_cast<float>(Application::Height), "P  : PAUSE GAME", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
+			Fontrenderer::Get().addText(m_scene.characterSet, (20.0f / 640.0f) * static_cast<float>(Application::Width), (410.0f / 480.0f) * static_cast<float>(Application::Height), "Q  : ROTATE CAMERA ANTICLOCKWISE", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
+			Fontrenderer::Get().addText(m_scene.characterSet, (20.0f / 640.0f) * static_cast<float>(Application::Width), (390.0f / 480.0f) * static_cast<float>(Application::Height), "E  : ROTATE CAMERA CLOCKWISE", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
 
-			Fontrenderer::Get().addText(m_scene.m_characterSet, (20.0f / 640.0f) * static_cast<float>(Application::Width), (370.0f / 480.0f) * static_cast<float>(Application::Height), "M  : TOGGLE PANEL", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
-			Fontrenderer::Get().addText(m_scene.m_characterSet, (20.0f / 640.0f) * static_cast<float>(Application::Width), (350.0f / 480.0f) * static_cast<float>(Application::Height), "B  : BOMB", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
-			Fontrenderer::Get().addText(m_scene.m_characterSet, (20.0f / 640.0f) * static_cast<float>(Application::Width), (330.0f / 480.0f) * static_cast<float>(Application::Height), "H  : SELECT HERO", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
-			Fontrenderer::Get().addText(m_scene.m_characterSet, (20.0f / 640.0f) * static_cast<float>(Application::Width), (310.0f / 480.0f) * static_cast<float>(Application::Height), "SPACE  : BRINGS HERO TO SCREEEN CENTER", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
+			Fontrenderer::Get().addText(m_scene.characterSet, (20.0f / 640.0f) * static_cast<float>(Application::Width), (370.0f / 480.0f) * static_cast<float>(Application::Height), "M  : TOGGLE PANEL", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
+			Fontrenderer::Get().addText(m_scene.characterSet, (20.0f / 640.0f) * static_cast<float>(Application::Width), (350.0f / 480.0f) * static_cast<float>(Application::Height), "B  : BOMB", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
+			Fontrenderer::Get().addText(m_scene.characterSet, (20.0f / 640.0f) * static_cast<float>(Application::Width), (330.0f / 480.0f) * static_cast<float>(Application::Height), "H  : SELECT HERO", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
+			Fontrenderer::Get().addText(m_scene.characterSet, (20.0f / 640.0f) * static_cast<float>(Application::Width), (310.0f / 480.0f) * static_cast<float>(Application::Height), "SPACE  : BRINGS HERO TO SCREEEN CENTER", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
 
 			//Fontrenderer::Get().addText(set, (20.0f / 640.0f) * static_cast<float>(Application::Width), (290.0f / 480.0f) * static_cast<float>(Application::Height), "Q  : QUIT", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
-			Fontrenderer::Get().addText(m_scene.m_characterSet, (20.0f / 640.0f) * static_cast<float>(Application::Width), (270.0f / 480.0f) * static_cast<float>(Application::Height), " ", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
-			Fontrenderer::Get().addText(m_scene.m_characterSet, (20.0f / 640.0f) * static_cast<float>(Application::Width), (250.0f / 480.0f) * static_cast<float>(Application::Height), "LEFT CLICK THE TORSO TO SELECT", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
-			Fontrenderer::Get().addText(m_scene.m_characterSet, (20.0f / 640.0f) * static_cast<float>(Application::Width), (230.0f / 480.0f) * static_cast<float>(Application::Height), "RIGHT CLICK TO MOVE", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
-			Fontrenderer::Get().addText(m_scene.m_characterSet, (20.0f / 640.0f) * static_cast<float>(Application::Width), (210.0f / 480.0f) * static_cast<float>(Application::Height), "RIGHT CLICK ON THE ENEMY TO KILL", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
+			Fontrenderer::Get().addText(m_scene.characterSet, (20.0f / 640.0f) * static_cast<float>(Application::Width), (270.0f / 480.0f) * static_cast<float>(Application::Height), " ", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
+			Fontrenderer::Get().addText(m_scene.characterSet, (20.0f / 640.0f) * static_cast<float>(Application::Width), (250.0f / 480.0f) * static_cast<float>(Application::Height), "LEFT CLICK THE TORSO TO SELECT", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
+			Fontrenderer::Get().addText(m_scene.characterSet, (20.0f / 640.0f) * static_cast<float>(Application::Width), (230.0f / 480.0f) * static_cast<float>(Application::Height), "RIGHT CLICK TO MOVE", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
+			Fontrenderer::Get().addText(m_scene.characterSet, (20.0f / 640.0f) * static_cast<float>(Application::Width), (210.0f / 480.0f) * static_cast<float>(Application::Height), "RIGHT CLICK ON THE ENEMY TO KILL", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
 
-			Fontrenderer::Get().addText(m_scene.m_characterSet, (20.0f / 640.0f) * static_cast<float>(Application::Width), (190.0f / 480.0f) * static_cast<float>(Application::Height), " ", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
-			Fontrenderer::Get().addText(m_scene.m_characterSet, (20.0f / 640.0f) * static_cast<float>(Application::Width), (170.0f / 480.0f) * static_cast<float>(Application::Height), "OBJECTIVE: ", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
-			Fontrenderer::Get().addText(m_scene.m_characterSet, (20.0f / 640.0f) * static_cast<float>(Application::Width), (150.0f / 480.0f) * static_cast<float>(Application::Height), "DESTROY THE EVIL SCIENTISTS CONTROL ROOM", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
-			Fontrenderer::Get().addText(m_scene.m_characterSet, (20.0f / 640.0f) * static_cast<float>(Application::Width), (130.0f / 480.0f) * static_cast<float>(Application::Height), "AT THE TOP RIGHT CORNER OF THE MAP BY", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
-			Fontrenderer::Get().addText(m_scene.m_characterSet, (20.0f / 640.0f) * static_cast<float>(Application::Width), (110.0f / 480.0f) * static_cast<float>(Application::Height), "PLACING A BOMB UNDER HIS HOUSE", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
+			Fontrenderer::Get().addText(m_scene.characterSet, (20.0f / 640.0f) * static_cast<float>(Application::Width), (190.0f / 480.0f) * static_cast<float>(Application::Height), " ", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
+			Fontrenderer::Get().addText(m_scene.characterSet, (20.0f / 640.0f) * static_cast<float>(Application::Width), (170.0f / 480.0f) * static_cast<float>(Application::Height), "OBJECTIVE: ", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
+			Fontrenderer::Get().addText(m_scene.characterSet, (20.0f / 640.0f) * static_cast<float>(Application::Width), (150.0f / 480.0f) * static_cast<float>(Application::Height), "DESTROY THE EVIL SCIENTISTS CONTROL ROOM", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
+			Fontrenderer::Get().addText(m_scene.characterSet, (20.0f / 640.0f) * static_cast<float>(Application::Width), (130.0f / 480.0f) * static_cast<float>(Application::Height), "AT THE TOP RIGHT CORNER OF THE MAP BY", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
+			Fontrenderer::Get().addText(m_scene.characterSet, (20.0f / 640.0f) * static_cast<float>(Application::Width), (110.0f / 480.0f) * static_cast<float>(Application::Height), "PLACING A BOMB UNDER HIS HOUSE", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
 		}
 
 		Fontrenderer::Get().drawBuffer();
@@ -430,12 +411,12 @@ void Adrian::render() {
 
 	if ((m_hero->isDeath() || m_roatecamera) && m_showPanel) {
 		Sprite::SwitchShader();
-		m_texture1.bind();
+		m_scene.texture1.bind();
 		m_panel.setPosition(static_cast<float>(Application::Width) * 0.5f - (strlen("GAME OVER") + 1) * SCR2RESX(40) * 0.5f, static_cast<float>(Application::Height) * 0.5f - SCR2RESX(50) * 0.5f);
 		m_panel.setScale((strlen("GAME OVER") + 1) * SCR2RESX(40), SCR2RESX(50));
 		m_panel.draw(Vector4f::ONE, false, 1.0f, 1.0f);
 
-		m_texture2.bind();
+		m_scene.texture2.bind();
 		m_panel.setPosition(static_cast<float>(Application::Width) * 0.5f - (strlen("Press F2 to exit to Main Menu") + 1) * SCR2RESX(20) * 0.5f, static_cast<float>(Application::Height) * 0.5f - SCR2RESX(30) * 0.5 + 100.0f);
 		m_panel.setScale((strlen("Press F2 to exit to Main Menu") + 1) * SCR2RESX(20), SCR2RESX(30));
 		m_panel.draw(Vector4f::ONE, false, 1.0f, 1.0f);
@@ -458,7 +439,7 @@ void Adrian::renderScene() {
 	tilex = ((int)m_camera.m_initx / TILE_SIZE) * TILE_SIZE;
 	tilez = ((int)m_camera.m_initz / TILE_SIZE) * TILE_SIZE;
 
-	m_background.bind(0);
+	m_scene.background.bind();
 	auto shader = Globals::shaderManager.getAssetPointer("map");
 	shader->use();
 	shader->loadMatrix("u_projection", m_camera.getOrthographicMatrix());
@@ -548,7 +529,7 @@ void Adrian::renderBubble() {
 	shader->loadFloat("scale", m_rimScale);
 
 	m_depthBuffer.bindDepthTexture(0u);
-	m_scene.m_sphere.drawRaw();
+	m_scene.sphere.drawRaw();
 }
 
 void Adrian::OnMouseMotion(Event::MouseMoveEvent& event) {
@@ -627,7 +608,7 @@ void Adrian::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 			Mouse::instance().attach(Application::GetWindow(), false, false, false);
 			float nx, ny;
 			if (isMouseOver(event.x, event.y, nx, ny)) {
-				m_camera.scrollOver(nx * m_scene.m_xconvfactor, ny * m_scene.m_yconvfactor);
+				m_camera.scrollOver(nx * m_scene.xconvfactor, ny * m_scene.yconvfactor);
 				return;
 			}
 
@@ -904,27 +885,27 @@ void Adrian::loadBots(const char* filename) {
 		fscanf(f, "%s %d %f %f %f %f %f %f %s", buf, &gtype, &gx1, &gy1, &gx2, &gy2, &gspeed, &gangle, paneltexfn);
 		Bot* bot;
 		if (gtype == 66) {
-			bot = m_root->addChild<Bot, Md2Model>(m_scene.m_mutantman);
+			bot = m_root->addChild<Bot, Md2Model>(m_scene.mutantman);
 			bot->setTextureIndex(13);
 			bot->setEnemyType(EnemyType::MUTANT_MAN);
          }else if (gtype == 68) {
-			bot = m_root->addChild<Bot, Md2Model>(m_scene.m_hueteotl);
+			bot = m_root->addChild<Bot, Md2Model>(m_scene.hueteotl);
 			bot->setTextureIndex(12);
 			bot->setEnemyType(EnemyType::SKEL);
 		}else if (gtype == 67) {
-			bot = m_root->addChild<Bot, Md2Model>(m_scene.m_corpse);
+			bot = m_root->addChild<Bot, Md2Model>(m_scene.corpse);
 			bot->setTextureIndex(14);
 			bot->setEnemyType(EnemyType::CORPSE);
 		}else if (gtype == 70) {
-			bot = m_root->addChild<Bot, Md2Model>(m_scene.m_mutantlizard);
+			bot = m_root->addChild<Bot, Md2Model>(m_scene.mutantlizard);
 			bot->setTextureIndex(15);
 			bot->setEnemyType(EnemyType::MUTANT_LIZARD);
 		}else if (gtype == 69) {
-			bot = m_root->addChild<Bot, Md2Model>(m_scene.m_mutantcheetah);
+			bot = m_root->addChild<Bot, Md2Model>(m_scene.mutantcheetah);
 			bot->setTextureIndex(16);
 			bot->setEnemyType(EnemyType::MUTANT_CHEETA);
 		}else if (gtype == 71) {
-			bot = m_root->addChild<Bot, Md2Model>(m_scene.m_ripper);
+			bot = m_root->addChild<Bot, Md2Model>(m_scene.ripper);
 			bot->setTextureIndex(17);
 			bot->setEnemyType(EnemyType::RIPPER);
 		}else {
@@ -946,7 +927,7 @@ void Adrian::loadBots(const char* filename) {
 			bot->OnOctreeSet(m_octree);
 			bot->setSortKey(5);
 			bot->Md2Node::setShader(Globals::shaderManager.getAssetPointer("shape_color"));
-			bot->init(m_scene.m_segment);
+			bot->init(m_scene.segment);
 		}else {
 			bot->setPosition(gx1, 0.0f, gy1);
 			bot->setOrientation(0.0f, gangle - 90.0f, 0.0f);
@@ -958,11 +939,11 @@ void Adrian::loadBots(const char* filename) {
 			bot->OnOctreeSet(m_octree);
 			bot->setSortKey(5);
 			bot->Md2Node::setShader(Globals::shaderManager.getAssetPointer("shape_color"));
-			bot->init(m_scene.m_segment);
+			bot->init(m_scene.segment);
 		}
 
 		m_entities.push_back(bot);
-		m_segmentNode = bot->addChild<ShapeNode, Shape>(m_scene.m_segment);
+		m_segmentNode = bot->addChild<ShapeNode, Shape>(m_scene.segment);
 		m_segmentNode->setPosition(0.0f, 0.5f, 0.0f);
 		m_segmentNode->setOrientation(0.0f, 0.0f, 0.0f);
 		m_segmentNode->setScale(2.5f, 0.0f, 2.5f);
@@ -973,7 +954,7 @@ void Adrian::loadBots(const char* filename) {
 		m_segmentNode->setColor(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
 		m_segmentNode->setName("segment");
 
-		m_diskNode = bot->addChild<ShapeNode, Shape>(m_scene.m_disk);
+		m_diskNode = bot->addChild<ShapeNode, Shape>(m_scene.disk);
 		m_diskNode->setPosition(0.0f, 1.0f, 0.0f);
 		m_diskNode->setTextureIndex(1);
 		m_diskNode->setName("disk");
@@ -996,103 +977,103 @@ void Adrian::loadBots(const char* filename) {
 void Adrian::createScene(bool recreate) {
 
 	for (int i = 0; i < 4; i++) {
-		m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_scene.m_buildings[i]);
+		m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_scene.buildings[i]);
 		m_buildingNode->setTextureIndex(6);
 		m_buildingNode->OnOctreeSet(m_octree);
-		m_navigationMesh->addNavArea(NavArea(m_scene.m_buildings[i].getAABB().maximize(30.0f)));
+		m_navigationMesh->addNavArea(NavArea(m_scene.buildings[i].getAABB().maximize(30.0f)));
 	}
 
 	for (int i = 4; i < 8; i++) {
-		m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_scene.m_buildings[i]);
+		m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_scene.buildings[i]);
 		m_buildingNode->setTextureIndex(i < 6 ? 2 : 3);
 		m_buildingNode->OnOctreeSet(m_octree);
 	}
 
-	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_scene.m_buildings[8]);
+	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_scene.buildings[8]);
 	m_buildingNode->setTextureIndex(4);
 	m_buildingNode->OnOctreeSet(m_octree);
 
-	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_scene.m_buildings[9]);
+	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_scene.buildings[9]);
 	m_buildingNode->setTextureIndex(5);
 	m_buildingNode->OnOctreeSet(m_octree);
 
-	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_scene.m_buildings[10]);
+	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_scene.buildings[10]);
 	m_buildingNode->setTextureIndex(2);
 	m_buildingNode->OnOctreeSet(m_octree);
-	m_navigationMesh->addNavArea(NavArea(m_scene.m_buildings[10].getAABB().maximize(30.0f)));
+	m_navigationMesh->addNavArea(NavArea(m_scene.buildings[10].getAABB().maximize(30.0f)));
 
-	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_scene.m_buildings[11]);
+	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_scene.buildings[11]);
 	m_buildingNode->setTextureIndex(2);
 	m_buildingNode->OnOctreeSet(m_octree);
-	m_navigationMesh->addNavArea(NavArea(m_scene.m_buildings[11].getAABB().maximize(30.0f)));
+	m_navigationMesh->addNavArea(NavArea(m_scene.buildings[11].getAABB().maximize(30.0f)));
 
-	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_scene.m_buildings[12]);
+	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_scene.buildings[12]);
 	m_buildingNode->setTextureIndex(7);
 	m_buildingNode->OnOctreeSet(m_octree);
-	m_navigationMesh->addNavArea(NavArea(m_scene.m_buildings[12].getAABB().maximize(30.0f)));
+	m_navigationMesh->addNavArea(NavArea(m_scene.buildings[12].getAABB().maximize(30.0f)));
 
-	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_scene.m_buildings[13]);
+	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_scene.buildings[13]);
 	m_buildingNode->setTextureIndex(2);
 	m_buildingNode->OnOctreeSet(m_octree);
-	m_navigationMesh->addNavArea(NavArea(m_scene.m_buildings[13].getAABB().maximize(30.0f)));
+	m_navigationMesh->addNavArea(NavArea(m_scene.buildings[13].getAABB().maximize(30.0f)));
 
-	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_scene.m_buildings[14]);
+	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_scene.buildings[14]);
 	m_buildingNode->setTextureIndex(6);
 	m_buildingNode->OnOctreeSet(m_octree);
-	m_navigationMesh->addNavArea(NavArea(m_scene.m_buildings[14].getAABB().maximize(30.0f)));
+	m_navigationMesh->addNavArea(NavArea(m_scene.buildings[14].getAABB().maximize(30.0f)));
 
-	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_scene.m_buildings[15]);
+	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_scene.buildings[15]);
 	m_buildingNode->setTextureIndex(3);
 	m_buildingNode->OnOctreeSet(m_octree);
 
-	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_scene.m_buildings[16]);
+	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_scene.buildings[16]);
 	m_buildingNode->setTextureIndex(3);
 	m_buildingNode->OnOctreeSet(m_octree);
 
-	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_scene.m_buildings[17]);
+	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_scene.buildings[17]);
 	m_buildingNode->setTextureIndex(7);
 	m_buildingNode->OnOctreeSet(m_octree);
-	m_navigationMesh->addNavArea(NavArea(m_scene.m_buildings[17].getAABB().maximize(30.0f)));
+	m_navigationMesh->addNavArea(NavArea(m_scene.buildings[17].getAABB().maximize(30.0f)));
 
-	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_scene.m_buildings[18]);
+	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_scene.buildings[18]);
 	m_buildingNode->setTextureIndex(6);
 	m_buildingNode->OnOctreeSet(m_octree);
-	m_navigationMesh->addNavArea(NavArea(m_scene.m_buildings[18].getAABB().maximize(30.0f)));
+	m_navigationMesh->addNavArea(NavArea(m_scene.buildings[18].getAABB().maximize(30.0f)));
 
-	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_scene.m_buildings[19]);
+	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_scene.buildings[19]);
 	m_buildingNode->setTextureIndex(7);
 	m_buildingNode->OnOctreeSet(m_octree);
-	m_navigationMesh->addNavArea(NavArea(m_scene.m_buildings[19].getAABB().maximize(30.0f)));
+	m_navigationMesh->addNavArea(NavArea(m_scene.buildings[19].getAABB().maximize(30.0f)));
 
-	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_scene.m_buildings[20]);
+	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_scene.buildings[20]);
 	m_buildingNode->setTextureIndex(8);
 	m_buildingNode->OnOctreeSet(m_octree);
 
-	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_scene.m_buildings[21]);
+	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_scene.buildings[21]);
 	m_buildingNode->setTextureIndex(9);
 	m_buildingNode->OnOctreeSet(m_octree);
 
-	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_scene.m_buildings[22]);
+	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_scene.buildings[22]);
 	m_buildingNode->setTextureIndex(9);
 	m_buildingNode->OnOctreeSet(m_octree);
 
-	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_scene.m_buildings[23]);
+	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_scene.buildings[23]);
 	m_buildingNode->setTextureIndex(4);
 	m_buildingNode->OnOctreeSet(m_octree);
 
-	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_scene.m_buildings[24]);
+	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_scene.buildings[24]);
 	m_buildingNode->setTextureIndex(3);
 	m_buildingNode->OnOctreeSet(m_octree);
 
-	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_scene.m_buildings[25]);
+	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_scene.buildings[25]);
 	m_buildingNode->setTextureIndex(8);
 	m_buildingNode->OnOctreeSet(m_octree);
 
-	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_scene.m_buildings[26]);
+	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_scene.buildings[26]);
 	m_buildingNode->setTextureIndex(8);
 	m_buildingNode->OnOctreeSet(m_octree);
 
-	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_scene.m_buildings[27]);
+	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_scene.buildings[27]);
 	m_buildingNode->setTextureIndex(9);
 	m_buildingNode->OnOctreeSet(m_octree);
 
@@ -1162,12 +1143,7 @@ void Adrian::spawnHero(const Vector3f& pos) {
 
 	m_agent->setHeight(60.0f);
 	m_agent->setMaxSpeed(200.0f, true);
-
 	m_agent->setMaxAccel(FLT_MAX, true);
-	//m_agent->setActiveThreshold(37500.0f);
-	//m_agent->setArrivedScale(10.0f);
-	//m_agent->setCorrection(60.0f);
-
 	m_agent->setActiveThreshold(35000.0f);
 	m_agent->setArrivedScale(0.75f);
 	m_agent->setCorrection(7.5f);
@@ -1177,14 +1153,14 @@ void Adrian::spawnHero(const Vector3f& pos) {
 	m_agent->setSeparationWeight(m_separaionWeight);
 	m_agent->initCallbacks();
 	
-	m_hero = m_root->addChild<Hero, Md2Model>(m_scene.m_heroModel, *m_agent);
+	m_hero = m_root->addChild<Hero, Md2Model>(m_scene.heroModel, *m_agent);
 	m_hero->Md2Node::setPosition(pos);
 	m_hero->Md2Node::setOrientation(0.0f, 180.0f, 0.0f);
 	m_hero->Md2Node::setTextureIndex(11);
 	m_hero->OnOctreeSet(m_octree);
 	m_hero->setSortKey(5);
 	m_hero->Md2Node::setShader(Globals::shaderManager.getAssetPointer("shape_color"));
-	m_hero->init(m_scene.m_segment);
+	m_hero->init(m_scene.segment);
 	m_hero->setOnDeath([this] {
 		m_currentPanelTex = -1;
 		if (m_cursorNode) {
@@ -1196,7 +1172,7 @@ void Adrian::spawnHero(const Vector3f& pos) {
 
 	m_entities.push_back(m_hero);
 
-	m_segmentNode = m_hero->addChild<ShapeNode, Shape>(m_scene.m_segment);
+	m_segmentNode = m_hero->addChild<ShapeNode, Shape>(m_scene.segment);
 	m_segmentNode->setPosition(0.0f, 0.5f, 0.0f);
 	m_segmentNode->setOrientation(0.0f, 0.0f, 0.0f);
 	m_segmentNode->setScale(1.5f, 0.0f, 1.5f);
@@ -1223,12 +1199,6 @@ void Adrian::spawnAgent(const Vector3f& pos) {
 	m_agent->setNavigationPushiness(NAVIGATIONPUSHINESS_MEDIUM);
 	m_agent->setSeparationWeight(m_separaionWeight);
 	m_agent->initCallbacks();
-}
-
-
-
-void Adrian::setCurrentPanelTex(int currentPanelTex) {
-	m_currentPanelTex = currentPanelTex;
 }
 
 bool Adrian::isMouseOver(int sx, int sy, float &nx, float &ny){
@@ -1305,7 +1275,7 @@ void Adrian::createCollisionFilter() {
 }
 
 void Adrian::activateHero() {
-	m_diskNode = m_hero->addChild<ShapeNode, Shape>(m_scene.m_disk);
+	m_diskNode = m_hero->addChild<ShapeNode, Shape>(m_scene.disk);
 	m_diskNode->setPosition(0.0f, 0.51f, 0.0f);
 	m_diskNode->setSortKey(2);
 	m_diskNode->setTextureIndex(1);

@@ -1,6 +1,6 @@
 #pragma once
 #include <engine/Camera.h>
-#include "SceneManager.h"
+#include "Scene.h"
 
 class MiniMap {
 

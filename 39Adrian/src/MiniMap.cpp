@@ -51,16 +51,16 @@ void MiniMap::draw() {
 	shader->loadVector("u_color", Vector4f(0.8f, 0.8f, 0.8f, 1.0f));
 	shader->loadMatrix("u_model", Matrix4f::Translate((565.0f / 640.0f) * 1024.0f, (75.0f / 480.0f) * 768.0f, 0.0f) *
 		Matrix4f::Rotate(Vector3f(0.0f, 0.0f, -1.0f), camera.getAngle() * _180_ON_PI) *
-		Matrix4f::Scale(1000.0f / scene.m_xconvfactor, 1000.0f / scene.m_yconvfactor, 0.0f));
+		Matrix4f::Scale(1000.0f / scene.xconvfactor, 1000.0f / scene.yconvfactor, 0.0f));
 	Globals::shapeManager.get("quad_xy").drawRaw();
 
 
 	shader->loadVector("u_color", Vector4f::ONE);
-	for (int i = 0; i < scene.m_buildingsMiniMap.size(); i++) {
-		shader->loadMatrix("u_model", Matrix4f::Translate(scene.m_buildingsMiniMap[i][0] / scene.m_xconvfactor, scene.m_buildingsMiniMap[i][1] / scene.m_yconvfactor, 0.0f) *
+	for (int i = 0; i < scene.buildingsMiniMap.size(); i++) {
+		shader->loadMatrix("u_model", Matrix4f::Translate(scene.buildingsMiniMap[i][0] / scene.xconvfactor, scene.buildingsMiniMap[i][1] / scene.yconvfactor, 0.0f) *
 			Matrix4f::Translate((565.0f / 640.0f) * 1024.0f, (75.0f / 480.0f) * 768.0f, 0.0f) *
-			Matrix4f::Rotate(Vector3f(0.0f, 0.0f, -1.0f), camera.getAngle() * _180_ON_PI, Vector3f(-scene.m_buildingsMiniMap[i][0] / scene.m_xconvfactor, -scene.m_buildingsMiniMap[i][1] / scene.m_yconvfactor, 0.0f)) *
-			Matrix4f::Scale(scene.m_buildingsMiniMap[i][2] / scene.m_xconvfactor, scene.m_buildingsMiniMap[i][3] / scene.m_yconvfactor, 0.0f));
+			Matrix4f::Rotate(Vector3f(0.0f, 0.0f, -1.0f), camera.getAngle() * _180_ON_PI, Vector3f(-scene.buildingsMiniMap[i][0] / scene.xconvfactor, -scene.buildingsMiniMap[i][1] / scene.yconvfactor, 0.0f)) *
+			Matrix4f::Scale(scene.buildingsMiniMap[i][2] / scene.xconvfactor, scene.buildingsMiniMap[i][3] / scene.yconvfactor, 0.0f));
 		Globals::shapeManager.get("quad_xy_nt").drawRaw();
 	}
 
@@ -90,7 +90,7 @@ void MiniMap::draw() {
 	shader->use();
 	shader->loadMatrix("u_projection", Sprite::GetOrthographic());
 	shader->loadMatrix("u_view", Matrix4f::IDENTITY);
-	shader->loadMatrix("u_model", Matrix4f::Translate(pos[0] / scene.m_xconvfactor, -pos[2] / scene.m_yconvfactor, 0.0f) *
+	shader->loadMatrix("u_model", Matrix4f::Translate(pos[0] / scene.xconvfactor, -pos[2] / scene.yconvfactor, 0.0f) *
 		Matrix4f::Translate((565.0f / 640.0f) * 1024.0f, (75.0f / 480.0f) * 768.0f, 0.0f) *
 		Matrix4f::Scale(hm, vm, 0.0f));
 	shader->loadVector("u_color", Vector4f::ONE);
@@ -108,10 +108,10 @@ void MiniMap::updateEntitiePositions() {
 
 	Matrix4f rot = Matrix4f::Rotate(Vector3f(0.0f, -1.0f, 0.0f), camera.getAngle() * _180_ON_PI);
 	Vector3f pos = entities[0]->getWorldPosition() * rot;
-	m_entitiesPosCol.push_back({ pos[0] / scene.m_xconvfactor, -pos[2] / scene.m_yconvfactor, 1.0f, 1.0f, 1.0f, 1.0f });
+	m_entitiesPosCol.push_back({ pos[0] / scene.xconvfactor, -pos[2] / scene.yconvfactor, 1.0f, 1.0f, 1.0f, 1.0f });
 
 	std::transform(entities.begin() + 1, entities.end(), std::back_inserter(m_entitiesPosCol), [this, &rot = rot](Md2Entity* p)->std::array<float, 6> {
 		Vector3f pos = p->getWorldPosition() * rot;
-		return   { pos[0] / scene.m_xconvfactor, -pos[2] / scene.m_yconvfactor, 1.0f, 0.0f, 0.0f, 1.0f };
+		return   { pos[0] / scene.xconvfactor, -pos[2] / scene.yconvfactor, 1.0f, 0.0f, 0.0f, 1.0f };
 	});
 }

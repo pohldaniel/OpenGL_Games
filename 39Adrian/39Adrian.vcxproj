@@ -256,7 +256,7 @@
     <ClCompile Include="src\LoadingManager.cpp" />
     <ClCompile Include="src\MiniMap.cpp" />
     <ClCompile Include="src\Renderer.cpp" />
-    <ClCompile Include="src\SceneManager.cpp" />
+    <ClCompile Include="src\Scene.cpp" />
     <ClCompile Include="src\States\Adrian.cpp" />
     <ClCompile Include="src\States\AdrianMenu.cpp" />
     <ClCompile Include="src\States\BillboardState.cpp" />
@@ -481,7 +481,7 @@
     <ClInclude Include="src\LoadingManager.h" />
     <ClInclude Include="src\MiniMap.h" />
     <ClInclude Include="src\Renderer.h" />
-    <ClInclude Include="src\SceneManager.h" />
+    <ClInclude Include="src\Scene.h" />
     <ClInclude Include="src\States\Adrian.h" />
     <ClInclude Include="src\States\AdrianMenu.h" />
     <ClInclude Include="src\States\BillboardState.h" />
