@@ -26,8 +26,8 @@ m_fade(m_fadeValue),
 m_fadeCircle(m_fadeCircleValue),
 m_separaionWeight(3.0f),
 m_currentPanelTex(-1),
-m_wait(0),
-m_invisible(false){
+m_invisible(false),
+m_miniMap(m_camera, m_scene, m_entities){
 
 	//Application::SetCursorIcon(IDC_ARROW);
 	Application::SetCursorIcon(arrow);
@@ -42,46 +42,6 @@ m_invisible(false){
 
 	glClearColor(0.494f, 0.686f, 0.796f, 1.0f);
 	glClearDepth(1.0f);
-	Utils::NavIO navIO;
-	
-	Material::AddTexture("res/textures/los.tga");
-	Material::AddTexture();
-	Material::AddTexture("res/textures/crate.tga", TextureType::TEXTURE2D, false);
-	Material::GetTextures().back().setLinear();
-	Material::AddTexture("res/textures/barrel.tga", TextureType::TEXTURE2D, false);
-	Material::GetTextures().back().setLinear();
-	Material::AddTexture("res/textures/aircraftgun.tga", TextureType::TEXTURE2D, false);
-	Material::GetTextures().back().setLinear();
-	Material::AddTexture("res/textures/generalsbuilding.tga", TextureType::TEXTURE2D, false);
-	Material::GetTextures().back().setLinear();
-	Material::AddTexture("res/textures/wall.tga", TextureType::TEXTURE2D, false);
-	Material::GetTextures().back().setLinear();
-	Material::GetTextures().back().setWrapMode(GL_REPEAT);
-	Material::AddTexture("res/textures/200x200building.tga", TextureType::TEXTURE2D, false);
-	Material::GetTextures().back().setLinear();
-	Material::AddTexture("res/textures/bunker.tga", TextureType::TEXTURE2D, false);
-	Material::GetTextures().back().setLinear();
-	Material::AddTexture("res/textures/metal.tga", TextureType::TEXTURE2D, false);
-	Material::GetTextures().back().setLinear();
-	Material::AddTexture("res/textures/ground.tga", TextureType::TEXTURE2D, false);
-	Material::GetTextures().back().setLinear();
-
-	Material::AddTexture("data/models/dynamic/hero/hero.tga");
-	Material::AddTexture("data/models/dynamic/hueteotl/hueteotl.tga");
-	Material::AddTexture("data/models/dynamic/mutantman/mutantman.tga");
-	Material::AddTexture("data/models/dynamic/corpse/corpse.tga");
-	Material::AddTexture("data/models/dynamic/mutantlizard/mutantlizard.tga");
-	Material::AddTexture("data/models/dynamic/mutantcheetah/mutantcheetah.tga");
-	Material::AddTexture("data/models/dynamic/ripper/ripper.tga");
-	Material::AddTexture("data/textures/misc/tree.tga");
-
-	m_heroModel.load("data/models/dynamic/hero/hero.md2");
-	m_hueteotl.load("data/models/dynamic/hueteotl/hueteotl.md2");
-	m_mutantman.load("data/models/dynamic/mutantman/mutantman.md2");
-	m_corpse.load("data/models/dynamic/corpse/corpse.md2");
-	m_mutantlizard.load("data/models/dynamic/mutantlizard/mutantlizard.md2");
-	m_mutantcheetah.load("data/models/dynamic/mutantcheetah/mutantcheetah.md2");
-	m_ripper.load("data/models/dynamic/ripper/ripper.md2");
 
 	WorkQueue::Init(1);
 	Renderer::Get().init(new Octree(m_camera, m_frustum, m_dt), new SceneNodeLC());
@@ -92,36 +52,6 @@ m_invisible(false){
 
 	DebugRenderer::Get().setEnable(true);
 	
-	loadBuilding("res/building_0.bld");
-	loadBuilding("res/building_1.bld");
-	loadBuilding("res/building_2.bld");
-	loadBuilding("res/building_3.bld");
-	loadBuilding("res/building_5.bld");
-	loadBuilding("res/building_6.bld");
-	loadBuilding("res/building_8.bld");
-	loadBuilding("res/building_9.bld");
-	loadBuilding("res/building_7.bld");
-	loadBuilding("res/building_4.bld", true);
-
-	loadBuilding("res/building_10.bld", true);
-	loadBuilding("res/building_11.bld", true);
-	loadBuilding("res/building_12.bld");
-	loadBuilding("res/building_13.bld", true);
-	loadBuilding("res/building_14.bld");
-	loadBuilding("res/building_15.bld", true);
-
-	loadBuilding("res/building_16.bld", true);
-	loadBuilding("res/building_17.bld");
-	loadBuilding("res/building_18.bld");
-	loadBuilding("res/building_19.bld");
-	loadBuilding("res/building_20.bld");
-
-	loadBuilding("res/building_21.bld", true);
-	loadBuilding("res/building_22.bld");
-	loadBuilding("res/building_23.bld", true);
-	loadBuilding("res/building_24.bld", true);
-	loadBuilding("res/building_25.bld");
-
 	m_navigationMesh = new NavigationMesh();
 	createScene();
 
@@ -140,7 +70,7 @@ m_invisible(false){
 		m_editPolygons.push_back(EditPolygon());
 		m_currentPolygon = &m_editPolygons.back();
 	}
-
+	Utils::NavIO navIO;
 	//m_navigationMesh->build();
 	//saveNavigationData();
 	//navIO.writeNavigationMap("res/data_edit.nav", m_navigationMesh->getNumTilesX(), m_navigationMesh->getNumTilesZ(), m_navigationMesh->getBoundingBox(), m_navigationMesh->getTileData());
@@ -151,7 +81,7 @@ m_invisible(false){
 
 	m_depthBuffer.create(Application::Width, Application::Height);
 	m_depthBuffer.attachTexture2D(AttachmentTex::DEPTH24);
-	m_sphere.fromObj("res/models/sphere.obj");
+	
 
 	m_fade.setTransitionSpeed(3.0f);
 	m_fadeCircle.setTransitionSpeed(3.0f);
@@ -162,18 +92,13 @@ m_invisible(false){
 	ShapeDrawer::Get().init(32768);
 	ShapeDrawer::Get().setCamera(m_camera);
 
-	m_segment.buildSegmentXZ(100.0f, 60.0f, 120.0f, Vector3f(0.0f, 0.0f, 0.0f), 20, 20, true, false, false);
-	m_segment.createBoundingBox();
-	m_segment.markForDelete();
-	
-	m_disk.buildDiskXZ(20.0f, Vector3f(0.0f, 0.0f, 0.0f), 20, 20, true, false, false);
-	m_disk.createBoundingBox();
-	m_disk.markForDelete();
-
 	m_ground = Physics::AddStaticObject(Physics::BtTransform(btVector3(0.0f, 0.0f, 0.0f)), new  btStaticPlaneShape(btVector3(0.0f, 1.0f, 0.0f), -0.1f), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER, nullptr);
 
 	spawnHero(Vector3f(-780.0f, 0.0f, 780.0f));	
 	loadBots("data/maps/default/main.map");
+
+	m_miniMap.init();
+
 	createCollisionFilter();
 
 	TextureAtlasCreator::Get().init(64u, 64u);
@@ -202,28 +127,7 @@ m_invisible(false){
 
 	loadBillboards();
 
-	m_xconvfactor = 2000.0f / ((100.0f / 640.0f) * 1024.0f);
-	m_yconvfactor = 2000.0f / ((100.0f / 480.0f) * 768.0f);
-
-	//glEnable(GL_PROGRAM_POINT_SIZE);
-	//glDisable(GL_POINT_SMOOTH);
-	updateEntitiePositions();
-
-	glGenVertexArrays(1, &m_vao2);
-	glBindVertexArray(m_vao2);
-
-	glGenBuffers(1, &m_vbo2);
-	glBindBuffer(GL_ARRAY_BUFFER, m_vbo2);
-	glBufferData(GL_ARRAY_BUFFER, 6 * sizeof(float) * m_entities_.size(), NULL, GL_DYNAMIC_DRAW);
-
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(2 * sizeof(float)));
-
-	glBindVertexArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	
 
 	m_texture1.createEmptyTexture((strlen("GAME OVER") + 1) * 40, 50);
 	m_texture2.createEmptyTexture((strlen("Press F2 to exit to Main Menu") + 1) * 20, 30);
@@ -247,7 +151,7 @@ m_invisible(false){
 Adrian::~Adrian() {
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
-	Material::CleanupTextures();
+	
 	Renderer::Get().shutdown();
 	ShapeDrawer::Get().shutdown();
 
@@ -260,23 +164,18 @@ Adrian::~Adrian() {
 }
 
 void Adrian::fixedUpdate() {
-	if (m_wait > 100 || m_fixedUpdate) {
-		m_fixedUpdate = true;
-		int index = 0;
-		for (auto&& entity : m_entities) {
-			entity->fixedUpdate(m_fdt);
-			if (index != 0) {
-				if (!m_invisible)
-					m_hero->handleCollision(static_cast<Bot*>(entity)->getSegmentBody());
+	int index = 0;
+	for (auto&& entity : m_entities) {
+		entity->fixedUpdate(m_fdt);
+		if (index != 0) {
+			if (!m_invisible)
+				m_hero->handleCollision(static_cast<Bot*>(entity)->getSegmentBody());
 
-				static_cast<Bot*>(entity)->handleCollision(m_hero->getSegmentBody());
-			}
-			index++;
+			static_cast<Bot*>(entity)->handleCollision(m_hero->getSegmentBody());
 		}
-		Globals::physics->stepSimulation(m_fdt);
-		return;
+		index++;
 	}
-	m_wait++;
+	Globals::physics->stepSimulation(m_fdt);	
 }
 
 void Adrian::update() {
@@ -310,10 +209,6 @@ void Adrian::update() {
 
 	if (keyboard.keyPressed(Keyboard::KEY_F)) {
 		m_fade.toggleFade(false);
-	}
-
-	if (keyboard.keyPressed(Keyboard::KEY_R)) {
-		m_agent->resetAgent();
 	}
 
 	if (keyboard.keyPressed(Keyboard::KEY_I)) {
@@ -484,64 +379,7 @@ void Adrian::render() {
 		m_panel.setScale(static_cast<float>(Application::Width), (50.0f / 480.0f) * static_cast<float>(Application::Height));
 		m_panel.draw(m_tileSet[7], Vector4f::ONE, false, 10.0f, 1.0f);
 
-		shader->use();
-		Globals::textureManager.get("ground").bind(0);
-		shader->loadMatrix("u_projection", Sprite::GetOrthographic());
-		shader->loadMatrix("u_view", Matrix4f::IDENTITY);
-		shader->loadVector("u_color", Vector4f(0.8f, 0.8f, 0.8f, 1.0f));
-		shader->loadMatrix("u_model", Matrix4f::Translate((565.0f / 640.0f) * 1024.0f, (75.0f / 480.0f) * 768.0f, 0.0f) *
-			Matrix4f::Rotate(Vector3f(0.0f, 0.0f, -1.0f), m_camera.getAngle() * _180_ON_PI) *
-			Matrix4f::Scale(1000.0f / m_xconvfactor, 1000.0f / m_yconvfactor, 0.0f));
-		Globals::shapeManager.get("quad_xy").drawRaw();
-
-
-		shader->loadVector("u_color", Vector4f::ONE);
-		for (int i = 0; i < m_buildings_.size(); i++) {
-			shader->loadMatrix("u_model", Matrix4f::Translate(m_buildings_[i][0] / m_xconvfactor, m_buildings_[i][1] / m_yconvfactor, 0.0f) *
-				Matrix4f::Translate((565.0f / 640.0f) * 1024.0f, (75.0f / 480.0f) * 768.0f, 0.0f) *
-				Matrix4f::Rotate(Vector3f(0.0f, 0.0f, -1.0f), m_camera.getAngle() * _180_ON_PI, Vector3f(-m_buildings_[i][0] / m_xconvfactor, -m_buildings_[i][1] / m_yconvfactor, 0.0f)) *
-				Matrix4f::Scale(m_buildings_[i][2] / m_xconvfactor, m_buildings_[i][3] / m_yconvfactor, 0.0f));
-			Globals::shapeManager.get("quad_xy_nt").drawRaw();
-		}
-
-		Globals::textureManager.get("null").bind(0);
-		updateEntitiePositions();
-		glBindVertexArray(m_vao2);
-		glBindBuffer(GL_ARRAY_BUFFER, m_vbo2);
-		glBufferSubData(GL_ARRAY_BUFFER, 0, 6 * sizeof(float) * m_entities_.size(), &m_entities_[0]);
-		shader = Globals::shaderManager.getAssetPointer("points");
-		shader->use();
-		shader->loadMatrix("u_projection", Sprite::GetOrthographic());
-		shader->loadMatrix("u_view", Matrix4f::IDENTITY);
-		shader->loadMatrix("u_model", Matrix4f::Translate((565.0f / 640.0f) * 1024.0f, (75.0f / 480.0f) * 768.0f, 0.0f));
-		shader->loadVector("u_color", Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
-		shader->loadFloat("u_size", 0.01f);
-		shader->loadFloat("u_ratio", m_camera.getAspect(true));
-
-		glDrawArrays(GL_POINTS, 0, m_entities_.size());
-		shader->unuse();
-
-		glLineWidth(2.0f);
-		float hm = (21.33f / 640.0f) * 1024.0f;
-		float vm = (21.33f / 480.0f) * 768.0f;
-
-
-		Vector3f pos = Matrix4f::RotateVec(Vector3f(0.0f, -1.0f, 0.0f), m_camera.getAngle() * _180_ON_PI, m_camera.getPosition());
-		shader = Globals::shaderManager.getAssetPointer("view");
-		shader->use();
-		shader->loadMatrix("u_projection", Sprite::GetOrthographic());
-		shader->loadMatrix("u_view", Matrix4f::IDENTITY);
-		shader->loadMatrix("u_model", Matrix4f::Translate(pos[0] / m_xconvfactor, -pos[2] / m_yconvfactor, 0.0f) *
-			Matrix4f::Translate((565.0f / 640.0f) * 1024.0f, (75.0f / 480.0f) * 768.0f, 0.0f) *
-			Matrix4f::Scale(hm, vm, 0.0f));
-		shader->loadVector("u_color", Vector4f::ONE);
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
-		Globals::shapeManager.get("quad_xy").drawRaw();
-
-		glLineWidth(1.0f);
-		glPolygonMode(GL_FRONT_AND_BACK, StateMachine::GetEnableWireframe() ? GL_LINE : GL_FILL);
-		shader->unuse();
+		m_miniMap.draw();
 
 		Fontrenderer::Get().setShader(Globals::shaderManager.getAssetPointer("font"));
 		if (m_currentPanelTex >= 0) {
@@ -722,7 +560,7 @@ void Adrian::renderBubble() {
 	shader->loadFloat("scale", m_rimScale);
 
 	m_depthBuffer.bindDepthTexture(0u);
-	m_sphere.drawRaw();
+	m_scene.m_sphere.drawRaw();
 }
 
 void Adrian::OnMouseMotion(Event::MouseMoveEvent& event) {
@@ -801,7 +639,7 @@ void Adrian::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 			Mouse::instance().attach(Application::GetWindow(), false, false, false);
 			float nx, ny;
 			if (isMouseOver(event.x, event.y, nx, ny)) {
-				m_camera.scrollOver(nx * m_xconvfactor, ny * m_yconvfactor);
+				m_camera.scrollOver(nx * m_scene.m_xconvfactor, ny * m_scene.m_yconvfactor);
 				return;
 			}
 
@@ -1036,181 +874,7 @@ void Adrian::renderUi() {
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
-void Adrian::loadBuilding(const char* fn, bool changeWinding) {
-	FILE *f;
-	char buf[1024];
-	char filepath[256];
-	strncpy(filepath, fn, 256);
 
-	if ((f = fopen(filepath, "r")) == NULL) {
-		fprintf(stderr, "Cannot open building file: %s\n", filepath);
-		exit(-1);
-	}
-
-	std::vector<Vector3f> positions;
-	std::vector<Vector2f> texels;
-
-	std::vector<float> vertices;
-	std::vector<unsigned int> indices;
-	std::vector<Vector4f> shapeColor;
-
-	Vector4f currentColor = Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
-	std::string currentTexture;
-	unsigned int currentPolygon;
-
-	while (fgets(buf, 1024, f) != NULL) {
-		char *str = buf + 5;
-		float fl[5];
-		int ret;
-
-		if (!strncmp(buf, "#", 1))
-			continue;
-
-		for (int i = 0; str[i]; i++)
-			if (str[i] == '\n' || str[i] == '\r')
-				str[i] = '\0';
-
-		ret = sscanf(str, "%f,%f,%f,%f,%f", &fl[0], &fl[1], &fl[2], &fl[3], &fl[4]);
-		if (!strncmp(buf, "txco:", 5)) {
-			texels.push_back({ fl[0], fl[1] });
-		}else if (!strncmp(buf, "colr:", 5)) {
-			currentColor.set(fl[0], fl[1], fl[2], fl[3]);
-		}else if (!strncmp(buf, "vrtx:", 5)) {
-			positions.push_back({ fl[0], fl[1], fl[2] });
-		}else if (!strncmp(buf, "begn:", 5)) {
-			sscanf(str, "%d", &currentPolygon);
-		}else if (!strncmp(buf, "txtr:", 5)) {
-			if (currentTexture != str && !currentTexture.empty()) {
-				m_buildings.push_back(Shape(vertices, indices, 8u));
-				m_buildings.back().createBoundingBox();
-				m_buildings.back().setVec4Attribute(shapeColor, 0u, 3u);
-
-				vertices.shrink_to_fit();
-				vertices.clear();
-				indices.shrink_to_fit();
-				indices.clear();
-				shapeColor.shrink_to_fit();
-				shapeColor.clear();
-			}
-			currentTexture = str;
-		}else if (!strncmp(buf, "ends", 4)) {
-
-			if (currentPolygon == 6u) {
-				unsigned int baseIndex = vertices.size() / 8;
-				for (int i = 0; i < positions.size(); i++) {
-					vertices.push_back(positions[i][0]); vertices.push_back(positions[i][1]); vertices.push_back(positions[i][2]);
-					if (texels.size() > i) {
-						vertices.push_back(texels[i][0]); vertices.push_back(texels[i][1]);
-					}
-					else {
-						vertices.push_back(0.0f); vertices.push_back(0.0f);
-					}
-					vertices.push_back(0.0f); vertices.push_back(0.0f); vertices.push_back(0.0f);
-					shapeColor.push_back(currentColor);
-				}
-
-				for (unsigned int i = 1u; i < positions.size() - 1; i++) {
-					indices.push_back(0u + baseIndex); indices.push_back(changeWinding ? i + 1u + baseIndex : i + baseIndex); indices.push_back(changeWinding ? i + baseIndex : i + 1u + baseIndex);
-				}
-
-				positions.shrink_to_fit();
-				positions.clear();
-				texels.shrink_to_fit();
-				texels.clear();
-			}else if (currentPolygon == 7u) {
-				unsigned int baseIndex = vertices.size() / 8;
-				for (int i = 0; i < positions.size(); i++) {
-					vertices.push_back(positions[i][0]); vertices.push_back(positions[i][1]); vertices.push_back(positions[i][2]);
-					if (texels.size() > i) {
-						vertices.push_back(texels[i][0]); vertices.push_back(texels[i][1]);
-					}
-					else {
-						vertices.push_back(0.0f); vertices.push_back(0.0f);
-					}
-					vertices.push_back(0.0f); vertices.push_back(0.0f); vertices.push_back(0.0f);
-					shapeColor.push_back(currentColor);
-				}
-
-				indices.push_back(0u + baseIndex); indices.push_back(changeWinding ? 2u + baseIndex : 1u + baseIndex); indices.push_back(changeWinding ? 1u + baseIndex : 2u + baseIndex);
-				indices.push_back(0u + baseIndex); indices.push_back(changeWinding ? 3u + baseIndex : 2u + baseIndex); indices.push_back(changeWinding ? 2u + baseIndex : 3u + baseIndex);
-
-
-				positions.shrink_to_fit();
-				positions.clear();
-				texels.shrink_to_fit();
-				texels.clear();
-			}else if (currentPolygon == 8u) {
-
-				unsigned int baseIndex = vertices.size() / 8;
-				for (int i = 0; i < positions.size(); i++) {
-					vertices.push_back(positions[i][0]); vertices.push_back(positions[i][1]); vertices.push_back(positions[i][2]);
-					if (texels.size() > i) {
-						vertices.push_back(texels[i][0]); vertices.push_back(texels[i][1]);
-					}
-					else {
-						vertices.push_back(0.0f); vertices.push_back(0.0f);
-					}
-					vertices.push_back(0.0f); vertices.push_back(0.0f); vertices.push_back(0.0f);
-					shapeColor.push_back(currentColor);
-				}
-
-				for (unsigned int i = 0; i < positions.size() - 2; i = i + 2) {
-					indices.push_back(0u + i + baseIndex); indices.push_back(changeWinding ? 1u + i + baseIndex : 2u + i + baseIndex); indices.push_back(changeWinding ? 2u + i + baseIndex : 1u + i + baseIndex);
-					indices.push_back(1u + i + baseIndex); indices.push_back(changeWinding ? 3u + i + baseIndex : 2u + i + baseIndex); indices.push_back(changeWinding ? 2u + i + baseIndex : 3u + i + baseIndex);
-				}
-
-				positions.shrink_to_fit();
-				positions.clear();
-				texels.shrink_to_fit();
-				texels.clear();
-			}
-			else if (currentPolygon == 9u) {
-
-				unsigned int baseIndex = vertices.size() / 8;
-				for (int i = 0; i < 8; i++) {
-					vertices.push_back(positions[i][0]); vertices.push_back(positions[i][1]); vertices.push_back(positions[i][2]);
-					if (texels.size() > i) {
-						vertices.push_back(texels[i][0]); vertices.push_back(texels[i][1]);
-					}
-					else {
-						vertices.push_back(0.0f); vertices.push_back(0.0f);
-					}
-					vertices.push_back(0.0f); vertices.push_back(0.0f); vertices.push_back(0.0f);
-					shapeColor.push_back(currentColor);
-				}
-
-
-				indices.push_back(0u + baseIndex); indices.push_back(changeWinding ? 2u + baseIndex : 1u + baseIndex); indices.push_back(changeWinding ? 1u + baseIndex : 2u + baseIndex);
-				indices.push_back(0u + baseIndex); indices.push_back(changeWinding ? 3u + baseIndex : 2u + baseIndex); indices.push_back(changeWinding ? 2u + baseIndex : 3u + baseIndex);
-
-				indices.push_back(0u + baseIndex);  indices.push_back(changeWinding ? 7u + baseIndex : 6u + baseIndex); indices.push_back(changeWinding ? 6u + baseIndex : 7u + baseIndex);
-				indices.push_back(0u + baseIndex);  indices.push_back(changeWinding ? 6u + baseIndex : 5u + baseIndex); indices.push_back(changeWinding ? 5u + baseIndex : 6u + baseIndex);
-
-				indices.push_back(0u + baseIndex); indices.push_back(changeWinding ? 5u + baseIndex : 4u + baseIndex); indices.push_back(changeWinding ? 4u + baseIndex : 5u + baseIndex);
-				indices.push_back(0u + baseIndex); indices.push_back(changeWinding ? 4u + baseIndex : 3u + baseIndex); indices.push_back(changeWinding ? 3u + baseIndex : 4u + baseIndex);
-
-
-				positions.shrink_to_fit();
-				positions.clear();
-				texels.shrink_to_fit();
-				texels.clear();
-			}
-
-		}
-	}
-	m_buildings.push_back(Shape(vertices, indices, 8u));
-	m_buildings.back().createBoundingBox();
-	m_buildings.back().setVec4Attribute(shapeColor, 0u, 3u);
-}
-
-void block_convert(float &newx, float &newy, float x, float y){
-	int tempx, tempy;
-
-	tempx = (int)((2000.0f / 2.0 + x) / 40.0f);
-	tempy = (int)((2000.0f / 2.0 + y) / 40.0f);
-	newx = -2000.0f / 2.0 + tempx * 40.0f + 40.0f / 2.0;
-	newy = -2000.0f / 2.0 + tempy * 40.0f + 40.0f / 2.0;
-}
 
 void Adrian::loadBots(const char* filename) {
 	FILE *f;
@@ -1238,10 +902,10 @@ void Adrian::loadBots(const char* filename) {
 	fscanf(f, "%d", &noOfBuildings);
 	for (int i = 0; i < noOfBuildings; i++) {
 		fscanf(f, "%f %f %f %f %d %d %s", &bx1, &by1, &bx2, &by2, &btype, &texId, fn);
-		float _bx1, _by1, _bx2, _by2;
-		block_convert(_bx1, _by1, bx1, by1);
-		block_convert(_bx2, _by2, bx2, by2);
-		m_buildings_.push_back({ _bx1 + (_bx2 - _bx1) * 0.5f, -(_by1 + (_by2 - _by1) * 0.5f),  (_bx2 - _bx1) * 0.5f, (_by2 - _by1) * 0.5f });
+		//float _bx1, _by1, _bx2, _by2;
+		//block_convert(_bx1, _by1, bx1, by1);
+		//block_convert(_bx2, _by2, bx2, by2);
+		//m_buildings_.push_back({ _bx1 + (_bx2 - _bx1) * 0.5f, -(_by1 + (_by2 - _by1) * 0.5f),  (_bx2 - _bx1) * 0.5f, (_by2 - _by1) * 0.5f });
 	}
 
 	int numGuards, gtype;
@@ -1252,27 +916,27 @@ void Adrian::loadBots(const char* filename) {
 		fscanf(f, "%s %d %f %f %f %f %f %f %s", buf, &gtype, &gx1, &gy1, &gx2, &gy2, &gspeed, &gangle, paneltexfn);
 		Bot* bot;
 		if (gtype == 66) {
-			bot = m_root->addChild<Bot, Md2Model>(m_mutantman);
+			bot = m_root->addChild<Bot, Md2Model>(m_scene.m_mutantman);
 			bot->setTextureIndex(13);
 			bot->setEnemyType(EnemyType::MUTANT_MAN);
          }else if (gtype == 68) {
-			bot = m_root->addChild<Bot, Md2Model>(m_hueteotl);
+			bot = m_root->addChild<Bot, Md2Model>(m_scene.m_hueteotl);
 			bot->setTextureIndex(12);
 			bot->setEnemyType(EnemyType::SKEL);
 		}else if (gtype == 67) {
-			bot = m_root->addChild<Bot, Md2Model>(m_corpse);
+			bot = m_root->addChild<Bot, Md2Model>(m_scene.m_corpse);
 			bot->setTextureIndex(14);
 			bot->setEnemyType(EnemyType::CORPSE);
 		}else if (gtype == 70) {
-			bot = m_root->addChild<Bot, Md2Model>(m_mutantlizard);
+			bot = m_root->addChild<Bot, Md2Model>(m_scene.m_mutantlizard);
 			bot->setTextureIndex(15);
 			bot->setEnemyType(EnemyType::MUTANT_LIZARD);
 		}else if (gtype == 69) {
-			bot = m_root->addChild<Bot, Md2Model>(m_mutantcheetah);
+			bot = m_root->addChild<Bot, Md2Model>(m_scene.m_mutantcheetah);
 			bot->setTextureIndex(16);
 			bot->setEnemyType(EnemyType::MUTANT_CHEETA);
 		}else if (gtype == 71) {
-			bot = m_root->addChild<Bot, Md2Model>(m_ripper);
+			bot = m_root->addChild<Bot, Md2Model>(m_scene.m_ripper);
 			bot->setTextureIndex(17);
 			bot->setEnemyType(EnemyType::RIPPER);
 		}else {
@@ -1294,7 +958,7 @@ void Adrian::loadBots(const char* filename) {
 			bot->OnOctreeSet(m_octree);
 			bot->setSortKey(5);
 			bot->Md2Node::setShader(Globals::shaderManager.getAssetPointer("shape_color"));
-			bot->init(m_segment);											
+			bot->init(m_scene.m_segment);
 		}else {
 			bot->setPosition(gx1, 0.0f, gy1);
 			bot->setOrientation(0.0f, gangle - 90.0f, 0.0f);
@@ -1306,11 +970,11 @@ void Adrian::loadBots(const char* filename) {
 			bot->OnOctreeSet(m_octree);
 			bot->setSortKey(5);
 			bot->Md2Node::setShader(Globals::shaderManager.getAssetPointer("shape_color"));
-			bot->init(m_segment);
+			bot->init(m_scene.m_segment);
 		}
 
 		m_entities.push_back(bot);
-		m_segmentNode = bot->addChild<ShapeNode, Shape>(m_segment);
+		m_segmentNode = bot->addChild<ShapeNode, Shape>(m_scene.m_segment);
 		m_segmentNode->setPosition(0.0f, 0.5f, 0.0f);
 		m_segmentNode->setOrientation(0.0f, 0.0f, 0.0f);
 		m_segmentNode->setScale(2.5f, 0.0f, 2.5f);
@@ -1321,7 +985,7 @@ void Adrian::loadBots(const char* filename) {
 		m_segmentNode->setColor(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
 		m_segmentNode->setName("segment");
 
-		m_diskNode = bot->addChild<ShapeNode, Shape>(m_disk);
+		m_diskNode = bot->addChild<ShapeNode, Shape>(m_scene.m_disk);
 		m_diskNode->setPosition(0.0f, 1.0f, 0.0f);
 		m_diskNode->setTextureIndex(1);
 		m_diskNode->setName("disk");
@@ -1344,103 +1008,103 @@ void Adrian::loadBots(const char* filename) {
 void Adrian::createScene(bool recreate) {
 
 	for (int i = 0; i < 4; i++) {
-		m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[i]);
+		m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_scene.m_buildings[i]);
 		m_buildingNode->setTextureIndex(6);
 		m_buildingNode->OnOctreeSet(m_octree);
-		m_navigationMesh->addNavArea(NavArea(m_buildings[i].getAABB().maximize(30.0f)));
+		m_navigationMesh->addNavArea(NavArea(m_scene.m_buildings[i].getAABB().maximize(30.0f)));
 	}
 
 	for (int i = 4; i < 8; i++) {
-		m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[i]);
+		m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_scene.m_buildings[i]);
 		m_buildingNode->setTextureIndex(i < 6 ? 2 : 3);
 		m_buildingNode->OnOctreeSet(m_octree);
 	}
 
-	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[8]);
+	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_scene.m_buildings[8]);
 	m_buildingNode->setTextureIndex(4);
 	m_buildingNode->OnOctreeSet(m_octree);
 
-	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[9]);
+	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_scene.m_buildings[9]);
 	m_buildingNode->setTextureIndex(5);
 	m_buildingNode->OnOctreeSet(m_octree);
 
-	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[10]);
+	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_scene.m_buildings[10]);
 	m_buildingNode->setTextureIndex(2);
 	m_buildingNode->OnOctreeSet(m_octree);
-	m_navigationMesh->addNavArea(NavArea(m_buildings[10].getAABB().maximize(30.0f)));
+	m_navigationMesh->addNavArea(NavArea(m_scene.m_buildings[10].getAABB().maximize(30.0f)));
 
-	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[11]);
+	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_scene.m_buildings[11]);
 	m_buildingNode->setTextureIndex(2);
 	m_buildingNode->OnOctreeSet(m_octree);
-	m_navigationMesh->addNavArea(NavArea(m_buildings[11].getAABB().maximize(30.0f)));
+	m_navigationMesh->addNavArea(NavArea(m_scene.m_buildings[11].getAABB().maximize(30.0f)));
 
-	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[12]);
+	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_scene.m_buildings[12]);
 	m_buildingNode->setTextureIndex(7);
 	m_buildingNode->OnOctreeSet(m_octree);
-	m_navigationMesh->addNavArea(NavArea(m_buildings[12].getAABB().maximize(30.0f)));
+	m_navigationMesh->addNavArea(NavArea(m_scene.m_buildings[12].getAABB().maximize(30.0f)));
 
-	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[13]);
+	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_scene.m_buildings[13]);
 	m_buildingNode->setTextureIndex(2);
 	m_buildingNode->OnOctreeSet(m_octree);
-	m_navigationMesh->addNavArea(NavArea(m_buildings[13].getAABB().maximize(30.0f)));
+	m_navigationMesh->addNavArea(NavArea(m_scene.m_buildings[13].getAABB().maximize(30.0f)));
 
-	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[14]);
+	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_scene.m_buildings[14]);
 	m_buildingNode->setTextureIndex(6);
 	m_buildingNode->OnOctreeSet(m_octree);
-	m_navigationMesh->addNavArea(NavArea(m_buildings[14].getAABB().maximize(30.0f)));
+	m_navigationMesh->addNavArea(NavArea(m_scene.m_buildings[14].getAABB().maximize(30.0f)));
 
-	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[15]);
+	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_scene.m_buildings[15]);
 	m_buildingNode->setTextureIndex(3);
 	m_buildingNode->OnOctreeSet(m_octree);
 
-	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[16]);
+	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_scene.m_buildings[16]);
 	m_buildingNode->setTextureIndex(3);
 	m_buildingNode->OnOctreeSet(m_octree);
 
-	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[17]);
+	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_scene.m_buildings[17]);
 	m_buildingNode->setTextureIndex(7);
 	m_buildingNode->OnOctreeSet(m_octree);
-	m_navigationMesh->addNavArea(NavArea(m_buildings[17].getAABB().maximize(30.0f)));
+	m_navigationMesh->addNavArea(NavArea(m_scene.m_buildings[17].getAABB().maximize(30.0f)));
 
-	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[18]);
+	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_scene.m_buildings[18]);
 	m_buildingNode->setTextureIndex(6);
 	m_buildingNode->OnOctreeSet(m_octree);
-	m_navigationMesh->addNavArea(NavArea(m_buildings[18].getAABB().maximize(30.0f)));
+	m_navigationMesh->addNavArea(NavArea(m_scene.m_buildings[18].getAABB().maximize(30.0f)));
 
-	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[19]);
+	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_scene.m_buildings[19]);
 	m_buildingNode->setTextureIndex(7);
 	m_buildingNode->OnOctreeSet(m_octree);
-	m_navigationMesh->addNavArea(NavArea(m_buildings[19].getAABB().maximize(30.0f)));
+	m_navigationMesh->addNavArea(NavArea(m_scene.m_buildings[19].getAABB().maximize(30.0f)));
 
-	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[20]);
+	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_scene.m_buildings[20]);
 	m_buildingNode->setTextureIndex(8);
 	m_buildingNode->OnOctreeSet(m_octree);
 
-	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[21]);
+	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_scene.m_buildings[21]);
 	m_buildingNode->setTextureIndex(9);
 	m_buildingNode->OnOctreeSet(m_octree);
 
-	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[22]);
+	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_scene.m_buildings[22]);
 	m_buildingNode->setTextureIndex(9);
 	m_buildingNode->OnOctreeSet(m_octree);
 
-	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[23]);
+	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_scene.m_buildings[23]);
 	m_buildingNode->setTextureIndex(4);
 	m_buildingNode->OnOctreeSet(m_octree);
 
-	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[24]);
+	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_scene.m_buildings[24]);
 	m_buildingNode->setTextureIndex(3);
 	m_buildingNode->OnOctreeSet(m_octree);
 
-	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[25]);
+	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_scene.m_buildings[25]);
 	m_buildingNode->setTextureIndex(8);
 	m_buildingNode->OnOctreeSet(m_octree);
 
-	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[26]);
+	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_scene.m_buildings[26]);
 	m_buildingNode->setTextureIndex(8);
 	m_buildingNode->OnOctreeSet(m_octree);
 
-	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_buildings[27]);
+	m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_scene.m_buildings[27]);
 	m_buildingNode->setTextureIndex(9);
 	m_buildingNode->OnOctreeSet(m_octree);
 
@@ -1525,14 +1189,14 @@ void Adrian::spawnHero(const Vector3f& pos) {
 	m_agent->setSeparationWeight(m_separaionWeight);
 	m_agent->initCallbacks();
 	
-	m_hero = m_root->addChild<Hero, Md2Model>(m_heroModel, *m_agent);
+	m_hero = m_root->addChild<Hero, Md2Model>(m_scene.m_heroModel, *m_agent);
 	m_hero->Md2Node::setPosition(pos);
 	m_hero->Md2Node::setOrientation(0.0f, 180.0f, 0.0f);
 	m_hero->Md2Node::setTextureIndex(11);
 	m_hero->OnOctreeSet(m_octree);
 	m_hero->setSortKey(5);
 	m_hero->Md2Node::setShader(Globals::shaderManager.getAssetPointer("shape_color"));
-	m_hero->init(m_segment);
+	m_hero->init(m_scene.m_segment);
 	m_hero->setOnDeath([this] {
 		m_currentPanelTex = -1;
 		if (m_cursorNode) {
@@ -1544,7 +1208,7 @@ void Adrian::spawnHero(const Vector3f& pos) {
 
 	m_entities.push_back(m_hero);
 
-	m_segmentNode = m_hero->addChild<ShapeNode, Shape>(m_segment);
+	m_segmentNode = m_hero->addChild<ShapeNode, Shape>(m_scene.m_segment);
 	m_segmentNode->setPosition(0.0f, 0.5f, 0.0f);
 	m_segmentNode->setOrientation(0.0f, 0.0f, 0.0f);
 	m_segmentNode->setScale(1.5f, 0.0f, 1.5f);
@@ -1653,20 +1317,6 @@ void Adrian::loadBillboards() {
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-const std::vector<std::array<float, 6>>& Adrian::updateEntitiePositions() {
-	m_entities_.clear();
-
-	Matrix4f rot = Matrix4f::Rotate(Vector3f(0.0f, -1.0f, 0.0f), m_camera.getAngle() * _180_ON_PI);
-	Vector3f pos = m_entities[0]->getWorldPosition() * rot;
-	m_entities_.push_back({ pos[0] / m_xconvfactor, -pos[2] / m_yconvfactor, 1.0f, 1.0f, 1.0f, 1.0f });
-
-	std::transform(m_entities.begin() + 1, m_entities.end(), std::back_inserter(m_entities_), [this, &rot = rot](Md2Entity* p)->std::array<float, 6> {
-		Vector3f pos = p->getWorldPosition() * rot;
-		return   { pos[0] / m_xconvfactor, -pos[2] / m_yconvfactor, 1.0f, 0.0f, 0.0f, 1.0f };
-	});
-	return m_entities_;
-}
-
 bool Adrian::isMouseOver(int sx, int sy, float &nx, float &ny){
 
 	float mx, my;
@@ -1741,7 +1391,7 @@ void Adrian::createCollisionFilter() {
 }
 
 void Adrian::activateHero() {
-	m_diskNode = m_hero->addChild<ShapeNode, Shape>(m_disk);
+	m_diskNode = m_hero->addChild<ShapeNode, Shape>(m_scene.m_disk);
 	m_diskNode->setPosition(0.0f, 0.51f, 0.0f);
 	m_diskNode->setSortKey(2);
 	m_diskNode->setTextureIndex(1);

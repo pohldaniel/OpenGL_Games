@@ -1580,7 +1580,7 @@ int IsometricCamera::convertCoordinates(unsigned int x, unsigned int y, float &x
 	return 0;
 }
 
-float IsometricCamera::getAngle() {
+const float IsometricCamera::getAngle() const {
 	return m_angle;
 }
 

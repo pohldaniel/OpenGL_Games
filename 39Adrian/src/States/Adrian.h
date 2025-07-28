@@ -34,6 +34,8 @@
 #include <Utils/Fade.h>
 
 #include "CameraController.h"
+#include "SceneManager.h"
+#include "MiniMap.h"
 
 #define		SCR2RESX(x)		((x)/640.0 * (1024))
 #define		SCR2RESY(y)		((y)/480.0 * (768))
@@ -105,7 +107,7 @@ public:
 	void OnKeyDown(Event::KeyboardEvent& event) override;
 	void OnKeyUp(Event::KeyboardEvent& event) override;
 
-	void loadBuilding(const char* filename, bool changeWinding = false);
+
 	void loadBots(const char* filename);
 	void createScene(bool recreate = false);
 	void loadFont();
@@ -126,7 +128,6 @@ private:
 	void spawnHero(const Vector3f& pos);
 	void spawnAgent(const Vector3f& pos);
 	void setTarget(const Vector3f& pos);
-	const std::vector<std::array<float, 6>>& updateEntitiePositions();
 	void createCollisionFilter();
 	void activateHero();
 	void centerHero();
@@ -144,7 +145,6 @@ private:
 	bool m_showPanel = true;
 	bool m_noWalls = false;
 	bool m_roatecamera = false;
-	bool m_fixedUpdate = false;
 
 	float m_tileFactor = 80.0f;
 	float m_angle = -0.628f;
@@ -159,8 +159,6 @@ private:
 
 	IsometricCamera m_camera;
 
-	Md2Model m_heroModel, m_hueteotl, m_mutantman, m_corpse, m_mutantlizard, m_mutantcheetah, m_ripper;
-
 	Hero* m_hero;
 	Bot *m_currentBot;
 	Md2Node *m_md2Node;
@@ -168,13 +166,14 @@ private:
 	SceneNodeLC* m_root;
 	Octree* m_octree;
 	Frustum m_frustum;
+	Scene m_scene;
+	MiniMap m_miniMap;
 
-	Shape m_segment, m_disk, m_sphere;
-	ShapeNode *m_segmentNode, *m_diskNode, *m_buildingNode, *m_cursorNode = nullptr;
+	ShapeNode *m_segmentNode = nullptr, *m_diskNode = nullptr, *m_buildingNode = nullptr, *m_cursorNode = nullptr;
 
 	MousePicker m_mousePicker;
 	btCollisionObject* m_ground;
-	std::vector<Shape> m_buildings;
+	
 
 	NavigationMesh* m_navigationMesh;
 	CrowdManager* m_crowdManager;
@@ -182,9 +181,10 @@ private:
 
 	std::unordered_set< std::array<int, 2>, std::function<size_t(const std::array<int, 2>&)>, std::function<bool(const std::array<int, 2>&, const std::array<int, 2>&)>> m_addedTiles;
 	std::vector<EditPolygon> m_editPolygons;
+	std::vector<Vector3f> m_edgePoints;
 	EditPolygon* m_currentPolygon;
 
-	std::vector<Vector3f> m_edgePoints;
+	
 	std::vector<btCollisionObject*> m_collisionObjects;
 	std::vector<btCollisionObject*> m_colliosionFilter;
 
@@ -203,14 +203,11 @@ private:
 	unsigned int m_vao = 0u;
 	unsigned int m_vbo = 0u;
 
-	std::vector<std::array<float,4>> m_buildings_;
-	float m_xconvfactor;
-	float m_yconvfactor;
-	std::vector<std::array<float, 6>> m_entities_;
-	unsigned int m_vao2 = 0u;
-	unsigned int m_vbo2 = 0u;
+	
+
+	
+	
 	bool isMouseOver(int sx, int sy, float &, float &);
-	unsigned short m_wait;
 
 	std::vector<Bot*> m_bots;
 	std::tuple<std::string, std::string> labels[7] = { 

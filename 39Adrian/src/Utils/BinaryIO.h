@@ -193,14 +193,14 @@ namespace Utils {
 		Joint& joint(int bodypart);
 	};
 
-	struct AnimationFrameJointInfo{
+	struct AnimationFrameJointInfo {
 		Vector3f position;
 		float twist;
 		float twist2;
 		bool onground;
 	};
 
-	struct AnimationFrame{
+	struct AnimationFrame {
 		std::vector<AnimationFrameJointInfo> joints;
 		Vector3f forward;
 		int label;
@@ -219,7 +219,7 @@ namespace Utils {
 		void print();
 	};
 
-	enum VertexElementSemantic{
+	enum VertexElementSemantic {
 		SEM_POSITION = 0,
 		SEM_NORMAL,
 		SEM_BINORMAL,
