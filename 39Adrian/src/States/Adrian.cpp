@@ -30,14 +30,12 @@ m_invisible(false),
 m_miniMap(m_camera, m_scene, m_entities),
 m_billboard(m_camera){
 
-	//Application::SetCursorIcon(IDC_ARROW);
 	Application::SetCursorIcon(arrow);
 
 	EventDispatcher::AddKeyboardListener(this);
 	EventDispatcher::AddMouseListener(this);
 
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
-	//m_camera.orthographic(-static_cast<float>(Application::Width / 2) / m_zoom, static_cast<float>(Application::Width / 2) / m_zoom, -static_cast<float>(Application::Height / 2) / m_zoom, static_cast<float>(Application::Height / 2) / m_zoom, -static_cast<float>(Application::Width) / m_zoom, static_cast<float>(Application::Width) / m_zoom);
 	m_camera.orthographic(-static_cast<float>(Application::Width / 2) / m_zoom, static_cast<float>(Application::Width / 2) / m_zoom, -static_cast<float>(Application::Height / 2) / m_zoom, static_cast<float>(Application::Height / 2) / m_zoom, -5000.0f, 5000.0f);
 	m_camera.setSpeed(500.0f);
 
@@ -83,7 +81,6 @@ m_billboard(m_camera){
 	m_depthBuffer.create(Application::Width, Application::Height);
 	m_depthBuffer.attachTexture2D(AttachmentTex::DEPTH24);
 	
-
 	m_fade.setTransitionSpeed(3.0f);
 	m_fadeCircle.setTransitionSpeed(3.0f);
 
@@ -113,7 +110,6 @@ m_billboard(m_camera){
 		"data/textures/panel/SkelPanel.tga",
 		"data/textures/panel/panel.tga",
 	}), true);
-
 
 	TileSetManager::Get().getTileSet("overlay").loadTileSetGpu();
 	m_tileSet = TileSetManager::Get().getTileSet("overlay").getTextureRects();
@@ -607,7 +603,7 @@ void Adrian::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 		if (!m_drawPolygon) {
 			Mouse::instance().attach(Application::GetWindow(), false, false, false);
 			float nx, ny;
-			if (isMouseOver(event.x, event.y, nx, ny)) {
+			if (m_miniMap.isMouseOver(event.x, event.y, nx, ny)) {
 				m_camera.scrollOver(nx * m_scene.xconvfactor, ny * m_scene.yconvfactor);
 				return;
 			}
@@ -871,10 +867,6 @@ void Adrian::loadBots(const char* filename) {
 	fscanf(f, "%d", &noOfBuildings);
 	for (int i = 0; i < noOfBuildings; i++) {
 		fscanf(f, "%f %f %f %f %d %d %s", &bx1, &by1, &bx2, &by2, &btype, &texId, fn);
-		//float _bx1, _by1, _bx2, _by2;
-		//block_convert(_bx1, _by1, bx1, by1);
-		//block_convert(_bx2, _by2, bx2, by2);
-		//m_buildings_.push_back({ _bx1 + (_bx2 - _bx1) * 0.5f, -(_by1 + (_by2 - _by1) * 0.5f),  (_bx2 - _bx1) * 0.5f, (_by2 - _by1) * 0.5f });
 	}
 
 	int numGuards, gtype;
@@ -1199,21 +1191,6 @@ void Adrian::spawnAgent(const Vector3f& pos) {
 	m_agent->setNavigationPushiness(NAVIGATIONPUSHINESS_MEDIUM);
 	m_agent->setSeparationWeight(m_separaionWeight);
 	m_agent->initCallbacks();
-}
-
-bool Adrian::isMouseOver(int sx, int sy, float &nx, float &ny){
-
-	float mx, my;
-	mx = (sx - (565.0f / 640.0f) * 1024.0f) * cosf(m_camera.getAngle()) + (sy - (405.0f / 480.0f) * 768.0f) * sinf(m_camera.getAngle());
-	my = (sy - (405.0f / 480.0f) * 768.0f) * cosf(m_camera.getAngle()) - (sx - (565.0f / 640.0f) * 1024.0f) * sinf(m_camera.getAngle());
-
-	if (mx < (50.0f / 640.0f) * 1024.0f && mx > -(50.0f / 640.0f) * 1024.0f && my < (50.0f / 480.0f) * 768.0f  && my > -(50.0f / 480.0f) * 768.0f) {
-		nx = mx;
-		ny = my;
-		return true;
-	}
-
-	return false;
 }
 
 bool Adrian::loadPolygonCache(NavigationMesh* navigationMesh) {

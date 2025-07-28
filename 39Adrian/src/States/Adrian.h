@@ -128,7 +128,6 @@ private:
 	void createCollisionFilter();
 	void activateHero();
 	void centerHero();
-	bool isMouseOver(int sx, int sy, float &, float &);
 
 	bool m_initUi = true;
 	bool m_drawUi = false;

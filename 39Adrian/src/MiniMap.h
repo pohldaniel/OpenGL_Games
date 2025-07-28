@@ -11,12 +11,12 @@ public:
 
 	void draw();
 	void init();
+	bool isMouseOver(int sx, int sy, float &, float &);
 
 private:
 
 	void updateEntitiePositions();
 
-	
 	const IsometricCamera& camera;
 	const Scene& scene;
 	const std::vector<Md2Entity*>& entities;

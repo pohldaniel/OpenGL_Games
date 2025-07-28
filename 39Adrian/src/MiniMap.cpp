@@ -115,3 +115,18 @@ void MiniMap::updateEntitiePositions() {
 		return   { pos[0] / scene.xconvfactor, -pos[2] / scene.yconvfactor, 1.0f, 0.0f, 0.0f, 1.0f };
 	});
 }
+
+bool MiniMap::isMouseOver(int sx, int sy, float &nx, float &ny) {
+
+	float mx, my;
+	mx = (sx - (565.0f / 640.0f) * 1024.0f) * cosf(camera.getAngle()) + (sy - (405.0f / 480.0f) * 768.0f) * sinf(camera.getAngle());
+	my = (sy - (405.0f / 480.0f) * 768.0f) * cosf(camera.getAngle()) - (sx - (565.0f / 640.0f) * 1024.0f) * sinf(camera.getAngle());
+
+	if (mx < (50.0f / 640.0f) * 1024.0f && mx > -(50.0f / 640.0f) * 1024.0f && my < (50.0f / 480.0f) * 768.0f  && my > -(50.0f / 480.0f) * 768.0f) {
+		nx = mx;
+		ny = my;
+		return true;
+	}
+
+	return false;
+}
