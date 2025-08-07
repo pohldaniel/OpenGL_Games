@@ -601,6 +601,13 @@ bool TileSetManager::containsTileset(std::string name) {
 	return m_tileSets.count(name) == 1;
 }
 
+void TileSetManager::cleanup(std::string name) {
+	if (containsTileset(name)) {
+		m_tileSets[name].cleanup();
+		m_tileSets.erase(name);
+	}
+}
+
 TileSetManager& TileSetManager::Get() {
 	return s_instance;
 }

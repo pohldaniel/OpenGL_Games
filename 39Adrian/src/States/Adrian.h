@@ -31,6 +31,7 @@
 #include <Entities/CrowdAgentEntity.h>
 #include <Entities/Hero.h>
 #include <Entities/Bot.h>
+#include <Utils/NavPolygonHelper.h>
 #include <Utils/Fade.h>
 
 #include "CameraController.h"
@@ -84,12 +85,6 @@ static const char *arrow[] = {
 		"0,0"
 };
 
-struct EditPolygon {
-	int userPointerOffset = 0;
-	int size = 0;
-	std::vector<Vector3f> edgePoints;
-};
-
 class Adrian : public State, public MouseEventListener, public KeyboardEventListener {
 
 public:
@@ -109,9 +104,7 @@ public:
 	void OnKeyUp(Event::KeyboardEvent& event) override;
 
 	void loadBots(const char* filename);
-	void createScene(bool recreate = false);
-	bool loadPolygonCache(NavigationMesh* navigationMesh);
-
+		
 private:
 
 	void renderUi();
@@ -128,6 +121,7 @@ private:
 	void createCollisionFilter();
 	void activateHero();
 	void centerHero();
+	void createScene(bool recreate = false);
 
 	bool m_initUi = true;
 	bool m_drawUi = false;
@@ -136,7 +130,7 @@ private:
 	bool m_debugPhysic = false;
 	bool m_debugNavmesh = false;
 	bool m_useStreaming = false;
-	bool m_drawPolygon = false;
+
 	bool m_invisible = false;
 	bool m_showHelp = false;
 	bool m_showPanel = true;
@@ -148,7 +142,6 @@ private:
 	float m_height = 30.0f;
 	float m_zoom = 1.0f;
 	int m_streamingDistance;
-	float m_markerSize = 20.0f;
 	float m_rimScale = 1.0f;
 	float m_fadeValue = 0.0f;
 	float m_fadeCircleValue = 1.0f;
@@ -167,6 +160,7 @@ private:
 	Scene m_scene;
 	MiniMap m_miniMap;
 	Billboard m_billboard;
+	NavPolygonHelper m_navPolygonHelper;
 	CameraController m_cameraController;
 	NavigationMesh* m_navigationMesh;
 	CrowdManager* m_crowdManager;
@@ -178,18 +172,13 @@ private:
 
 	Sprite m_panel;
 	Framebuffer m_depthBuffer;
-	int m_globalUserIndex;
+
 	Fade m_fade, m_fadeCircle;	
 	int m_currentPanelTex;
-
-	///////////////////////////////////////////////////////////////////////////////////
-	std::unordered_set< std::array<int, 2>, std::function<size_t(const std::array<int, 2>&)>, std::function<bool(const std::array<int, 2>&, const std::array<int, 2>&)>> m_addedTiles;
-	std::vector<EditPolygon> m_editPolygons;
-	std::vector<Vector3f> m_edgePoints;
-	EditPolygon* m_currentPolygon;
-	std::vector<btCollisionObject*> m_collisionObjects;
 	std::vector<btCollisionObject*> m_colliosionFilter;
 
+	std::unordered_set< std::array<int, 2>, std::function<size_t(const std::array<int, 2>&)>, std::function<bool(const std::array<int, 2>&, const std::array<int, 2>&)>> m_addedTiles;
 	std::vector<TextureRect> m_tileSet;
+
 	unsigned int m_atlas;
 };

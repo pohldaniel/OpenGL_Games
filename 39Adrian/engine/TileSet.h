@@ -94,6 +94,7 @@ class TileSetManager {
 public:
 
 	TileSet& getTileSet(std::string name);
+	void cleanup(std::string name);
 	static TileSetManager& Get();
 
 	bool containsTileset(std::string name);

@@ -68,7 +68,7 @@ void MousePicker::updatePosition(unsigned int posX, unsigned int posY, const Cam
 	}
 }
 
-bool MousePicker::click(unsigned int posX, unsigned int posY, const Camera& camera, btCollisionObject* collisonObject1, btCollisionObject* collisonObject2) {
+const bool MousePicker::click(unsigned int posX, unsigned int posY, const Camera& camera, btCollisionObject* collisonObject1, btCollisionObject* collisonObject2) const {
 	float mouseXndc = (2.0f * posX) / static_cast<float>(Application::Width) - 1.0f;
 	float mouseYndc = 1.0f - (2.0f * posY) / static_cast<float>(Application::Height);
 
@@ -92,7 +92,7 @@ bool MousePicker::click(unsigned int posX, unsigned int posY, const Camera& came
 	}
 }
 
-bool MousePicker::clickAll(unsigned int posX, unsigned int posY, const Camera& camera, const btCollisionObject* collisonObject, const std::vector<btCollisionObject*>& collisonObjects, int userIndex1) {
+const bool MousePicker::clickAll(unsigned int posX, unsigned int posY, const Camera& camera, const btCollisionObject* collisonObject, const std::vector<btCollisionObject*>& collisonObjects, int userIndex1) const {
 	float mouseXndc = (2.0f * posX) / static_cast<float>(Application::Width) - 1.0f;
 	float mouseYndc = 1.0f - (2.0f * posY) / static_cast<float>(Application::Height);
 
@@ -181,7 +181,7 @@ void MousePicker::updatePositionOrthographic(unsigned int posX, unsigned int pos
 	}
 }
 
-bool MousePicker::updatePositionOrthographicAll(unsigned int posX, unsigned int posY, const Camera& camera, const btCollisionObject* collisonObject, const std::vector<btCollisionObject*>& collisonObjects, int userIndex1) {
+const bool MousePicker::updatePositionOrthographicAll(unsigned int posX, unsigned int posY, const Camera& camera, const btCollisionObject* collisonObject, const std::vector<btCollisionObject*>& collisonObjects, int userIndex1) const {
 	float mouseXndc = (2.0f * posX) / static_cast<float>(Application::Width) - 1.0f;
 	float mouseYndc = 1.0f - (2.0f * posY) / static_cast<float>(Application::Height);
 
@@ -225,7 +225,7 @@ bool MousePicker::updatePositionOrthographicAll(unsigned int posX, unsigned int 
 	}
 }
 
-bool MousePicker::clickOrthographic(unsigned int posX, unsigned int posY, const Camera& camera, btCollisionObject* collisonObject1, btCollisionObject* collisonObject2) {
+const bool MousePicker::clickOrthographic(unsigned int posX, unsigned int posY, const Camera& camera, btCollisionObject* collisonObject1, btCollisionObject* collisonObject2) const {
 	float mouseXndc = (2.0f * posX) / static_cast<float>(Application::Width) - 1.0f;
 	float mouseYndc = 1.0f - (2.0f * posY) / static_cast<float>(Application::Height);
 
@@ -250,7 +250,7 @@ bool MousePicker::clickOrthographic(unsigned int posX, unsigned int posY, const 
 	}
 }
 
-bool MousePicker::clickOrthographicAll(unsigned int posX, unsigned int posY, const Camera& camera, const btCollisionObject* collisonObject, const std::vector<btCollisionObject*>& collisonObjects, int userIndex1) {
+const bool MousePicker::clickOrthographicAll(unsigned int posX, unsigned int posY, const Camera& camera, const btCollisionObject* collisonObject, const std::vector<btCollisionObject*>& collisonObjects, int userIndex1) const {
 	float mouseXndc = (2.0f * posX) / static_cast<float>(Application::Width) - 1.0f;
 	float mouseYndc = 1.0f - (2.0f * posY) / static_cast<float>(Application::Height);
 
@@ -358,11 +358,11 @@ void MousePicker::drawPicker(const Camera& camera) {
 
 }
 
-const MousePickCallback& MousePicker::getCallback() {
+const MousePickCallback& MousePicker::getCallback() const {
 	return m_callback;
 }
 
-const MousePickCallbackAll& MousePicker::getCallbackAll() {
+const MousePickCallbackAll& MousePicker::getCallbackAll() const {
 	return m_callbackAll;
 }
 

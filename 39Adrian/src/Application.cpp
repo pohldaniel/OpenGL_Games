@@ -447,8 +447,8 @@ void Application::initStates() {
 	//Machine->addStateAtTop(new MapState(*Machine));
 	//Machine->addStateAtTop(new NavigationState(*Machine));
 	//Machine->addStateAtTop(new NavigationStreamState(*Machine));
-	//Machine->addStateAtTop(new Adrian(*Machine));
-	Machine->addStateAtTop(new AdrianMenu(*Machine));
+	Machine->addStateAtTop(new Adrian(*Machine));
+	//Machine->addStateAtTop(new AdrianMenu(*Machine));
 	//Machine->addStateAtTop(new Winston(*Machine));
 	//Machine->addStateAtTop(new BillboardState(*Machine));
 }

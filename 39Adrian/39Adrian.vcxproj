@@ -276,6 +276,7 @@
     <ClCompile Include="src\UI\Surface.cpp" />
     <ClCompile Include="src\UI\Widget.cpp" />
     <ClCompile Include="src\Utils\Fade.cpp" />
+    <ClCompile Include="src\Utils\NavPolygonHelper.cpp" />
     <ClCompile Include="src\Utils\RandomNew.cpp" />
     <ClCompile Include="src\Utils\Rasterizer.cpp" />
     <ClCompile Include="engine\ArrayBuffer.cpp" />
@@ -501,6 +502,7 @@
     <ClInclude Include="src\UI\Surface.h" />
     <ClInclude Include="src\UI\Widget.h" />
     <ClInclude Include="src\Utils\Fade.h" />
+    <ClInclude Include="src\Utils\NavPolygonHelper.h" />
     <ClInclude Include="src\Utils\RandomNew.h" />
     <ClInclude Include="src\Utils\Rasterizer.h" />
     <ClInclude Include="Physics\BspConverter.h" />
