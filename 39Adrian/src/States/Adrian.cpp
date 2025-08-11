@@ -5,7 +5,6 @@
 
 #include <engine/DebugRenderer.h>
 #include <engine/Fontrenderer.h>
-#include <engine/TileSet.h>
 #include <Physics/ShapeDrawer.h>
 #include <Physics/MousePicker.h>
 #include <States/AdrianMenu.h>
@@ -19,7 +18,6 @@
 Adrian::Adrian(StateMachine& machine, const std::string& background) : State(machine, States::ADRIAN),
 m_camera(Application::Width, Application::Height),
 m_cameraController(m_camera, Application::Width, Application::Height),
-m_addedTiles(0, [](const std::array<int, 2>& p) {  return std::hash<int>()(p[0]) ^ std::hash<int>()(p[1]) << 1; }, [](const std::array<int, 2>& p1, const std::array<int, 2>& p2) { return p1[0] == p2[0] && p1[1] == p2[1]; }),
 m_streamingDistance(6),
 m_fade(m_fadeValue),
 m_fadeCircle(m_fadeCircleValue),
@@ -28,7 +26,8 @@ m_currentPanelTex(-1),
 m_invisible(false),
 m_miniMap(m_camera, m_scene, m_entities),
 m_billboard(m_camera),
-m_navPolygonHelper(m_mousePicker, m_camera){
+m_navPolygonHelper(m_mousePicker, m_camera),
+m_scene(background){
 
 	Application::SetCursorIcon(arrow);
 
@@ -51,75 +50,22 @@ m_navPolygonHelper(m_mousePicker, m_camera){
 
 	DebugRenderer::Get().setEnable(true);
 	
-	m_navigationMesh = new NavigationMesh();
 	createScene();
-
-	m_navigationMesh->setPadding(Vector3f(0.0f, 10.0f, 0.0f));
-	m_navigationMesh->setTileSize(128);
-
-	m_navigationMesh->setCellSize(0.3);
-	m_navigationMesh->setCellHeight(0.2f);
-
-	m_navigationMesh->setAgentMaxSlope(45.0f);
-	m_navigationMesh->setAgentMaxClimb(0.9f);
-	m_navigationMesh->setAgentHeight(2.0f);
-	m_navigationMesh->setAgentRadius(0.6f);
-
 	
-	Utils::NavIO navIO;
-	//m_navigationMesh->build();
-	//saveNavigationData();
-	//navIO.writeNavigationMap("res/data_edit.nav", m_navigationMesh->getNumTilesX(), m_navigationMesh->getNumTilesZ(), m_navigationMesh->getBoundingBox(), m_navigationMesh->getTileData());
+	spawnHero(Vector3f(-780.0f, 0.0f, 780.0f));
+	initBots();
 
-	navIO.readNavigationMap("res/data_fin.nav", m_navigationMesh->numTilesX(), m_navigationMesh->numTilesZ(), m_navigationMesh->boundingBox(), m_navigationMesh->tileData());
-	m_navigationMesh->allocate();
-	m_navigationMesh->addTiles();
-
+	createCollisionFilter();
+	activateHero();
+	
 	m_depthBuffer.create(Application::Width, Application::Height);
 	m_depthBuffer.attachTexture2D(AttachmentTex::DEPTH24);
 	
 	m_fade.setTransitionSpeed(3.0f);
 	m_fadeCircle.setTransitionSpeed(3.0f);
-
-	m_crowdManager = new CrowdManager();
-	m_crowdManager->setNavigationMesh(m_navigationMesh);
-
+	
 	ShapeDrawer::Get().init(32768);
-	ShapeDrawer::Get().setCamera(m_camera);
-
-	m_ground = Physics::AddStaticObject(Physics::BtTransform(btVector3(0.0f, 0.0f, 0.0f)), new  btStaticPlaneShape(btVector3(0.0f, 1.0f, 0.0f), -0.1f), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER, nullptr);
-
-	spawnHero(Vector3f(-780.0f, 0.0f, 780.0f));	
-	loadBots("data/maps/default/main.map");
-
-	m_miniMap.init();
-
-	createCollisionFilter();
-
-	TextureAtlasCreator::Get().init(64u, 64u);
-	TileSetManager::Get().getTileSet("overlay").loadTileSetCpu(std::vector<std::string>({	
-		"data/textures/panel/panelhero.tga",
-		"data/textures/panel/CorpsePanel.tga",
-		"data/textures/panel/MutantCheeta.tga",
-		"data/textures/panel/MutantLizard.tga",
-		"data/textures/panel/MutantManPanel.tga",
-		"data/textures/panel/Ripper.tga",
-		"data/textures/panel/SkelPanel.tga",
-		"data/textures/panel/panel.tga",
-	}), true);
-
-	TileSetManager::Get().getTileSet("overlay").loadTileSetGpu();
-	m_tileSet = TileSetManager::Get().getTileSet("overlay").getTextureRects();
-	m_atlas = TileSetManager::Get().getTileSet("overlay").getAtlas();
-
-	Spritesheet::SetWrapMode(m_atlas, GL_REPEAT);
-	Spritesheet::Bind(m_atlas, 1u);
-	Sprite::GetShader()->use();
-	Sprite::GetShader()->loadInt("u_texture", 1);
-	Sprite::GetShader()->unuse();
-
-	activateHero();
-	m_scene.loadBackground(background);
+	ShapeDrawer::Get().setCamera(m_camera);		
 }
 
 Adrian::~Adrian() {
@@ -137,7 +83,7 @@ Adrian::~Adrian() {
 
 	Physics::DeleteAllCollisionObjects();
 	Fontrenderer::Get().setShader(Globals::shaderManager.getAssetPointer("font_ttf"));
-	TileSetManager::Get().cleanup("overlay");
+	
 	WorkQueue::Shutdown();
 }
 
@@ -146,8 +92,10 @@ void Adrian::fixedUpdate() {
 	for (auto&& entity : m_entities) {
 		entity->fixedUpdate(m_fdt);
 		if (index != 0) {
-			if (!m_invisible)
+			if (!m_invisible) {
 				m_hero->handleCollision(static_cast<Bot*>(entity)->getSegmentBody());
+				//std::cout << static_cast<Bot*>(entity)->getSegmentBody() << "  " << m_hero->getSegmentBody() << std::endl;
+			}
 
 			static_cast<Bot*>(entity)->handleCollision(m_hero->getSegmentBody());
 		}
@@ -339,7 +287,7 @@ void Adrian::render() {
 
 		m_panel.setPosition(0.0f, 0.0f);
 		m_panel.setScale(static_cast<float>(Application::Width), (50.0f / 480.0f) * static_cast<float>(Application::Height));
-		m_panel.draw(m_tileSet[7], Vector4f::ONE, false, 10.0f, 1.0f);
+		m_panel.draw(m_scene.tileSet[7], Vector4f::ONE, false, 10.0f, 1.0f);
 
 		m_miniMap.draw();
 
@@ -347,7 +295,7 @@ void Adrian::render() {
 		if (m_currentPanelTex >= 0) {
 			m_panel.setPosition(0.0f, (10.0f / 480.0f) * static_cast<float>(Application::Height));
 			m_panel.setScale((100.0f / 640.0f) * static_cast<float>(Application::Width), (100.0f / 480.0f) * static_cast<float>(Application::Height));
-			m_panel.draw(m_tileSet[m_currentPanelTex], Vector4f::ONE, false, 1.0f, 1.0f);
+			m_panel.draw(m_scene.tileSet[m_currentPanelTex], Vector4f::ONE, false, 1.0f, 1.0f);
 
 
 			Fontrenderer::Get().addText(m_scene.characterSet, (120.0f / 640.0f) * static_cast<float>(Application::Width), 20.0f, std::get<0>(m_scene.labels[m_currentPanelTex]), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
@@ -762,62 +710,31 @@ void Adrian::renderUi() {
 
 
 
-void Adrian::loadBots(const char* filename) {
-	FILE *f;
-	char buf[256];
-	char filepath[256];
-	strncpy(filepath, filename, 256);
-
-	if ((f = fopen(filepath, "r")) == NULL) {
-		fprintf(stderr, "Cannot open building file: %s\n", filepath);
-		exit(-1);
-	}
-	float width, height;
-	fscanf(f, "%f %f", &width, &height);
-
-	int numTextures;
-	unsigned int texId;
-	fscanf(f, "%d", &numTextures);
-	for (int i = 0; i < numTextures; i++) {
-		fscanf(f, "%s %d", buf, &texId);
-	}
-
-	int noOfBuildings, btype;	
-	float bx1, by1, bx2, by2;
-	char fn[256];
-	fscanf(f, "%d", &noOfBuildings);
-	for (int i = 0; i < noOfBuildings; i++) {
-		fscanf(f, "%f %f %f %f %d %d %s", &bx1, &by1, &bx2, &by2, &btype, &texId, fn);
-	}
-
-	int numGuards, gtype;
-	float gx1, gy1, gx2, gy2, gspeed, gangle;
-	char paneltexfn[256];
-	fscanf(f, "%d", &numGuards);
-	for (int i = 0; i < numGuards; i++) {
-		fscanf(f, "%s %d %f %f %f %f %f %f %s", buf, &gtype, &gx1, &gy1, &gx2, &gy2, &gspeed, &gangle, paneltexfn);
+void Adrian::initBots() {
+	
+	for (const BotInfo& botInfo: m_scene.bots) {
 		Bot* bot;
-		if (gtype == 66) {
+		if (botInfo.type == 66) {
 			bot = m_root->addChild<Bot, Md2Model>(m_scene.mutantman);
 			bot->setTextureIndex(13);
 			bot->setEnemyType(EnemyType::MUTANT_MAN);
-         }else if (gtype == 68) {
+         }else if (botInfo.type == 68) {
 			bot = m_root->addChild<Bot, Md2Model>(m_scene.hueteotl);
 			bot->setTextureIndex(12);
 			bot->setEnemyType(EnemyType::SKEL);
-		}else if (gtype == 67) {
+		}else if (botInfo.type == 67) {
 			bot = m_root->addChild<Bot, Md2Model>(m_scene.corpse);
 			bot->setTextureIndex(14);
 			bot->setEnemyType(EnemyType::CORPSE);
-		}else if (gtype == 70) {
+		}else if (botInfo.type == 70) {
 			bot = m_root->addChild<Bot, Md2Model>(m_scene.mutantlizard);
 			bot->setTextureIndex(15);
 			bot->setEnemyType(EnemyType::MUTANT_LIZARD);
-		}else if (gtype == 69) {
+		}else if (botInfo.type == 69) {
 			bot = m_root->addChild<Bot, Md2Model>(m_scene.mutantcheetah);
 			bot->setTextureIndex(16);
 			bot->setEnemyType(EnemyType::MUTANT_CHEETA);
-		}else if (gtype == 71) {
+		}else if (botInfo.type == 71) {
 			bot = m_root->addChild<Bot, Md2Model>(m_scene.ripper);
 			bot->setTextureIndex(17);
 			bot->setEnemyType(EnemyType::RIPPER);
@@ -825,15 +742,14 @@ void Adrian::loadBots(const char* filename) {
 			continue;
 		}
 		
-
-		if (gx1 == gx2 && gy1 == gy2) {
-			bot->setPosition(gx1, 0.0f, gy1);
-			bot->setOrientation(0.0f, gangle - 90.0f, 0.0f);			
-			bot->setStart(gx1, 0.0f, gy1);
-			bot->setEnd(gx2, 0.0f, gy2);
+		if (botInfo.start[0] == botInfo.end[0] && botInfo.start[1] == botInfo.end[1]) {
+			bot->setPosition(botInfo.start[0], 0.0f, botInfo.start[1]);
+			bot->setOrientation(0.0f, botInfo.angle - 90.0f, 0.0f);
+			bot->setStart(botInfo.start[0], 0.0f, botInfo.start[1]);
+			bot->setEnd(botInfo.end[0], 0.0f, botInfo.end[1]);
 			bot->setSpeed(1.0f);
 			bot->setMoveSpeed(0.0f);
-			if(gtype == 69)
+			if(botInfo.type == 69)
 				bot->setAnimationType(AnimationType::NONE, AnimationType::STAND);
 			else
 				bot->setAnimationType(AnimationType::STAND);
@@ -842,12 +758,12 @@ void Adrian::loadBots(const char* filename) {
 			bot->Md2Node::setShader(Globals::shaderManager.getAssetPointer("shape_color"));
 			bot->init(m_scene.segment);
 		}else {
-			bot->setPosition(gx1, 0.0f, gy1);
-			bot->setOrientation(0.0f, gangle - 90.0f, 0.0f);
-			bot->setStart(gx1, 0.0f, gy1);
-			bot->setEnd(gx2, 0.0f, gy2);
-			bot->setSpeed(gtype == 69 ?  0.4f : gtype == 71 ? 0.6f : gtype == 66 ? 0.5f : 0.3f);
-			bot->setMoveSpeed(gtype == 69 ? 125.6f : gtype == 71 ? 175.6f : gtype == 66  ? 105.0f : 35.0f);
+			bot->setPosition(botInfo.start[0], 0.0f, botInfo.start[1]);
+			bot->setOrientation(0.0f, botInfo.angle - 90.0f, 0.0f);
+			bot->setStart(botInfo.start[0], 0.0f, botInfo.start[1]);
+			bot->setEnd(botInfo.end[0], 0.0f, botInfo.end[1]);
+			bot->setSpeed(botInfo.type == 69 ?  0.4f : botInfo.type == 71 ? 0.6f : botInfo.type == 66 ? 0.5f : 0.3f);
+			bot->setMoveSpeed(botInfo.type == 69 ? 125.6f : botInfo.type == 71 ? 175.6f : botInfo.type == 66  ? 105.0f : 35.0f);
 			bot->setAnimationType(AnimationType::RUN);
 			bot->OnOctreeSet(m_octree);
 			bot->setSortKey(5);
@@ -876,19 +792,11 @@ void Adrian::loadBots(const char* filename) {
 		m_diskNode->setShader(Globals::shaderManager.getAssetPointer("shape_color"));
 		m_diskNode->setColor(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
 	}
-
-	int numSprites;
-	float sx, sz;
-	fscanf(f, "%d", &numSprites);
-	for (int i = 0; i < numSprites; i++) {
-		fscanf(f, "%d %f %f", &texId, &sx, &sz);
-	}
-
-	fclose(f);
 }
 
 void Adrian::createScene(bool recreate) {
-
+	m_navigationMesh = new NavigationMesh();
+	
 	for (int i = 0; i < 4; i++) {
 		m_buildingNode = m_root->addChild<ShapeNode, Shape>(m_scene.buildings[i]);
 		m_buildingNode->setTextureIndex(6);
@@ -994,6 +902,31 @@ void Adrian::createScene(bool recreate) {
 	m_buildingNode->translate(0.0f, 0.1f, 0.0f);
 	m_buildingNode->setScale(1000.0f, 0.0f, 1000.0f);
 	m_navigationMesh->addNavigable(Navigable(m_buildingNode));
+
+	m_ground = Physics::AddStaticObject(Physics::BtTransform(btVector3(0.0f, 0.0f, 0.0f)), new  btStaticPlaneShape(btVector3(0.0f, 1.0f, 0.0f), -0.1f), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER, nullptr);
+
+	m_navigationMesh->setPadding(Vector3f(0.0f, 10.0f, 0.0f));
+	m_navigationMesh->setTileSize(128);
+
+	m_navigationMesh->setCellSize(0.3);
+	m_navigationMesh->setCellHeight(0.2f);
+
+	m_navigationMesh->setAgentMaxSlope(45.0f);
+	m_navigationMesh->setAgentMaxClimb(0.9f);
+	m_navigationMesh->setAgentHeight(2.0f);
+	m_navigationMesh->setAgentRadius(0.6f);
+
+	Utils::NavIO navIO;
+	//m_navigationMesh->build();
+	//saveNavigationData();
+	//navIO.writeNavigationMap("res/data_edit.nav", m_navigationMesh->getNumTilesX(), m_navigationMesh->getNumTilesZ(), m_navigationMesh->getBoundingBox(), m_navigationMesh->getTileData());
+
+	navIO.readNavigationMap("res/data_fin.nav", m_navigationMesh->numTilesX(), m_navigationMesh->numTilesZ(), m_navigationMesh->boundingBox(), m_navigationMesh->tileData());
+	m_navigationMesh->allocate();
+	m_navigationMesh->addTiles();
+
+	m_crowdManager = new CrowdManager();
+	m_crowdManager->setNavigationMesh(m_navigationMesh);
 }
 
 void Adrian::toggleStreaming(bool enabled) {
@@ -1009,7 +942,7 @@ void Adrian::toggleStreaming(bool enabled) {
 }
 
 void Adrian::saveNavigationData() {
-	m_addedTiles.clear();
+	m_scene.addedTiles.clear();
 	m_navigationMesh->saveToTileData();
 }
 
@@ -1021,13 +954,13 @@ void Adrian::updateStreaming() {
 	const std::array<int, 2> endTile = { std::min(heroTile[0] + m_streamingDistance, numTiles[0] - 1), std::min(heroTile[1] + m_streamingDistance, numTiles[1] - 1) };
 
 	// Remove tiles
-	for (std::unordered_set<std::array<int, 2>>::iterator i = m_addedTiles.begin(); i != m_addedTiles.end();) {
+	for (std::unordered_set<std::array<int, 2>>::iterator i = m_scene.addedTiles.begin(); i != m_scene.addedTiles.end();) {
 		const std::array<int, 2> tileIdx = *i;
 		if (beginTile[0] <= tileIdx[0] && tileIdx[0] <= endTile[0] && beginTile[1] <= tileIdx[1] && tileIdx[1] <= endTile[1])
 			++i;
 		else {
 			m_navigationMesh->removeTile(tileIdx, 3u);
-			i = m_addedTiles.erase(i);
+			i = m_scene.addedTiles.erase(i);
 		}
 	}
 
@@ -1037,7 +970,7 @@ void Adrian::updateStreaming() {
 			const std::array<int, 2> tileIdx = { x, z };
 			bool tmp = m_navigationMesh->hasTile(tileIdx);
 			if (!m_navigationMesh->hasTile(tileIdx) && m_navigationMesh->hasTileData(x, z)) {
-				m_addedTiles.insert(tileIdx);
+				m_scene.addedTiles.insert(tileIdx);
 				m_navigationMesh->addTile(x, z);
 			}
 		}

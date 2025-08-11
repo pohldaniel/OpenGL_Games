@@ -6,7 +6,21 @@
 #include "Globals.h"
 
 MiniMap::MiniMap(const IsometricCamera& camera, const Scene& scene, const std::vector<Md2Entity*>& entities) : camera(camera), scene(scene), entities(entities), m_vao(0u), m_vbo(0u){
-	
+	glGenVertexArrays(1, &m_vao);
+	glBindVertexArray(m_vao);
+
+	glGenBuffers(1, &m_vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+	glBufferData(GL_ARRAY_BUFFER, 6 * sizeof(float) * 31, NULL, GL_DYNAMIC_DRAW);
+
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(2 * sizeof(float)));
+
+	glBindVertexArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 MiniMap::~MiniMap() {
@@ -19,26 +33,6 @@ MiniMap::~MiniMap() {
 		glDeleteBuffers(1, &m_vbo);
 		m_vbo = 0u;
 	}
-}
-
-void MiniMap::init() {
-	updateEntitiePositions();
-
-	glGenVertexArrays(1, &m_vao);
-	glBindVertexArray(m_vao);
-
-	glGenBuffers(1, &m_vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-	glBufferData(GL_ARRAY_BUFFER, 6 * sizeof(float) * m_entitiesPosCol.size(), NULL, GL_DYNAMIC_DRAW);
-
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(2 * sizeof(float)));
-
-	glBindVertexArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 void MiniMap::draw() {

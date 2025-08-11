@@ -1,11 +1,9 @@
 #pragma once
-#include <array>
-#include <functional>
-#include <unordered_set>
-#include <unordered_map>
 
-#include <engine/input/MouseEventListener.h>
+#include <array>
+
 #include <engine/input/KeyboardEventListener.h>
+#include <engine/input/MouseEventListener.h>
 #include <engine/MeshObject/Shape.h>
 #include <engine/scene/ShapeNode.h>
 #include <engine/scene/Md2Node.h>
@@ -17,10 +15,11 @@
 #include <engine/Frustum.h>
 #include <engine/Camera.h>
 #include <engine/Sprite.h>
+#include <engine/Rect.h>
 #include <Navigation/DynamicNavigationMesh.h>
+#include <Navigation/NavPolygon.h>
 #include <Navigation/Navigable.h>
 #include <Navigation/NavArea.h>
-#include <Navigation/NavPolygon.h>
 #include <Navigation/Obstacle.h>
 #include <Navigation/CrowdManager.h>
 #include <Navigation/CrowdAgent.h>
@@ -103,8 +102,6 @@ public:
 	void OnKeyDown(Event::KeyboardEvent& event) override;
 	void OnKeyUp(Event::KeyboardEvent& event) override;
 
-	void loadBots(const char* filename);
-		
 private:
 
 	void renderUi();
@@ -122,6 +119,7 @@ private:
 	void activateHero();
 	void centerHero();
 	void createScene(bool recreate = false);
+	void initBots();
 
 	bool m_initUi = true;
 	bool m_drawUi = false;
@@ -176,9 +174,4 @@ private:
 	Fade m_fade, m_fadeCircle;	
 	int m_currentPanelTex;
 	std::vector<btCollisionObject*> m_colliosionFilter;
-
-	std::unordered_set< std::array<int, 2>, std::function<size_t(const std::array<int, 2>&)>, std::function<bool(const std::array<int, 2>&, const std::array<int, 2>&)>> m_addedTiles;
-	std::vector<TextureRect> m_tileSet;
-
-	unsigned int m_atlas;
 };

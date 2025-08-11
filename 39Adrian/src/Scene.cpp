@@ -1,19 +1,28 @@
 #include <engine/Material.h>
 #include <engine/Spritesheet.h>
 #include <engine/Fontrenderer.h>
+#include <engine/TileSet.h>
+#include <engine/Sprite.h>
 
 #include "Scene.h"
 #include "Globals.h"
 #include "Application.h"
 
-Scene::Scene() {
+Scene::Scene(const std::string& _background):
+	addedTiles(0, [](const std::array<int, 2>& p) {  return std::hash<int>()(p[0]) ^ std::hash<int>()(p[1]) << 1; }, [](const std::array<int, 2>& p1, const std::array<int, 2>& p2) { return p1[0] == p2[0] && p1[1] == p2[1]; }) {
 	loadScene();
 	xconvfactor = 2000.0f / ((100.0f / 640.0f) * 1024.0f);
 	yconvfactor = 2000.0f / ((100.0f / 480.0f) * 768.0f);
+
+	background.loadFromFile(_background);
+	background.setWrapMode(GL_REPEAT);
+	background.markForDelete();
 }
 
 Scene::~Scene() {
 	Material::CleanupTextures();
+	TileSetManager::Get().cleanup("overlay");
+	addedTiles.clear();
 }
 
 void Scene::loadScene() {
@@ -56,6 +65,7 @@ void Scene::loadScene() {
 	mutantcheetah.load("data/models/dynamic/mutantcheetah/mutantcheetah.md2");
 	ripper.load("data/models/dynamic/ripper/ripper.md2");
 
+	loadBots("data/maps/default/main.map");
 	loadBuilding("res/building_0.bld");
 	loadBuilding("res/building_1.bld");
 	loadBuilding("res/building_2.bld");
@@ -117,6 +127,28 @@ void Scene::loadScene() {
 	Fontrenderer::Get().addText(Globals::fontManager.get("tahoma_64"), 110.0f, 20.0f, "Press F2 to exit to Main Menu", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, false);
 	Fontrenderer::Get().blitTextToTexture((strlen("Press F2 to exit to Main Menu") + 1) * 20, 30, 220, 40, texture2);
 	Fontrenderer::Get().setBlitSize(Application::Width, Application::Height);
+
+	TextureAtlasCreator::Get().init(64u, 64u);
+	TileSetManager::Get().getTileSet("overlay").loadTileSetCpu(std::vector<std::string>({
+		"data/textures/panel/panelhero.tga",
+		"data/textures/panel/CorpsePanel.tga",
+		"data/textures/panel/MutantCheeta.tga",
+		"data/textures/panel/MutantLizard.tga",
+		"data/textures/panel/MutantManPanel.tga",
+		"data/textures/panel/Ripper.tga",
+		"data/textures/panel/SkelPanel.tga",
+		"data/textures/panel/panel.tga",
+		}), true);
+
+	TileSetManager::Get().getTileSet("overlay").loadTileSetGpu();
+	tileSet = TileSetManager::Get().getTileSet("overlay").getTextureRects();
+	atlas = TileSetManager::Get().getTileSet("overlay").getAtlas();
+
+	Spritesheet::SetWrapMode(atlas, GL_REPEAT);
+	Spritesheet::Bind(atlas, 1u);
+	Sprite::GetShader()->use();
+	Sprite::GetShader()->loadInt("u_texture", 1);
+	Sprite::GetShader()->unuse();
 }
 
 void Scene::loadBuilding(const char* fn, bool changeWinding) {
@@ -379,9 +411,40 @@ void Scene::loadFont() {
 	Spritesheet::CreateSpritesheet(Texture::LoadFromFile("res/textures/font.tga", false), 128u, 128u, 1u, characterSet.spriteSheet);
 }
 
-void Scene::loadBackground(const std::string& _background) {
-	background.loadFromFile(_background);
-	background.setWrapMode(GL_REPEAT);
-	background.markForDelete();
-}
+void Scene::loadBots(const char* filename) {
+	FILE *f;
+	char buf[256];
+	char filepath[256];
+	strncpy(filepath, filename, 256);
 
+	if ((f = fopen(filepath, "r")) == NULL) {
+		fprintf(stderr, "Cannot open building file: %s\n", filepath);
+		exit(-1);
+	}
+	float width, height;
+	fscanf(f, "%f %f", &width, &height);
+
+	int numTextures;
+	unsigned int texId;
+	fscanf(f, "%d", &numTextures);
+	for (int i = 0; i < numTextures; i++) {
+		fscanf(f, "%s %d", buf, &texId);
+	}
+
+	int noOfBuildings, btype;
+	float bx1, by1, bx2, by2;
+	char fn[256];
+	fscanf(f, "%d", &noOfBuildings);
+	for (int i = 0; i < noOfBuildings; i++) {
+		fscanf(f, "%f %f %f %f %d %d %s", &bx1, &by1, &bx2, &by2, &btype, &texId, fn);
+	}
+
+	int numGuards, gtype;
+	float gx1, gy1, gx2, gy2, gspeed, gangle;
+	char paneltexfn[256];
+	fscanf(f, "%d", &numGuards);
+	for (int i = 0; i < numGuards; i++) {
+		fscanf(f, "%s %d %f %f %f %f %f %f %s", buf, &gtype, &gx1, &gy1, &gx2, &gy2, &gspeed, &gangle, paneltexfn);
+		bots.push_back({ gtype , {gx1, gy1},  {gx2, gy2}, gspeed, gangle });
+	}
+}
