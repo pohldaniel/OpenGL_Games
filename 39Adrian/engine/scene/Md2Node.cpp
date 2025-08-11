@@ -84,12 +84,12 @@ void Md2Node::updateAnimation() {
 	m_animationDirty = false;
 }
 
-void  Md2Node::drawRaw() const {
+void  Md2Node::drawRaw(bool force) const {
 	if (m_disabled)
 		return;
 
 	bool change = !(m_color == Vector4f::ONE);
-	if (m_shader) {
+	if (m_shader && force) {
 		m_shader->use();
 		m_shader->loadMatrix("u_model", getWorldTransformation());
 		if (change)
@@ -99,7 +99,7 @@ void  Md2Node::drawRaw() const {
 	md2Model.updateBuffer(m_interpolated);	
 	md2Model.draw(m_textureIndex, m_materialIndex);
 
-	if (m_shader) {
+	if (m_shader && force) {
 		if (change)
 			m_shader->loadVector("u_color", Vector4f::ONE);
 		m_shader->unuse();

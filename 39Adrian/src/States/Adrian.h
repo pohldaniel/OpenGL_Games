@@ -111,6 +111,7 @@ private:
 	void rebuild();
 	void renderScene();
 	void renderSceneDepth();
+	void renderSceneShadow();
 	void renderBubble();
 	void spawnHero(const Vector3f& pos);
 	void spawnAgent(const Vector3f& pos);
@@ -169,9 +170,11 @@ private:
 	std::vector<Md2Entity*> m_entities;
 
 	Sprite m_panel;
-	Framebuffer m_depthBuffer;
+	Framebuffer m_depthRT, m_shadowRT;
 
 	Fade m_fade, m_fadeCircle;	
 	int m_currentPanelTex;
 	std::vector<btCollisionObject*> m_colliosionFilter;
+
+	Matrix4f m_shadowMatrix;
 };

@@ -85,7 +85,6 @@ public:
 private:
 
 	float vec[2];
-
 };
 
 class Vector3f {

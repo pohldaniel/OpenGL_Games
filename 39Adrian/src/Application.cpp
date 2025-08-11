@@ -728,6 +728,8 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("bubble_new", "res/shader/bubble.vert", "res/shader/bubble.frag");
 	Globals::shaderManager.loadShader("points", "res/shader/points.vert", "res/shader/points.frag", "res/shader/points.gem");
 	Globals::shaderManager.loadShader("view", "res/shader/view.vert", "res/shader/view.frag");
+	Globals::shaderManager.loadShader("shadow", "res/shader/shadow.vert", "res/shader/shadow.frag");
+	Globals::shaderManager.loadShader("scene_shadow", "res/shader/scene.vert", "res/shader/scene.frag");
 
 	Globals::shaderManager.loadShader("bubble", "res/shader/winston/bubble.vert", "res/shader/winston/bubble.frag");
 	Globals::shaderManager.loadShader("depth", "res/shader/winston/depth.vert", "res/shader/winston/depth.frag");

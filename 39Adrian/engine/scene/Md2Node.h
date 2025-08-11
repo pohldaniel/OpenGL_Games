@@ -10,7 +10,7 @@ public:
 
 	Md2Node(const Md2Model& md2Model);
 
-	virtual void drawRaw() const override;
+	virtual void drawRaw(bool force = true) const override;
 	virtual void update(const float dt);
 
 	using OctreeNode::addChild;

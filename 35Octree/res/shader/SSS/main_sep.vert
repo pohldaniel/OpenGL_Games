@@ -62,7 +62,7 @@ void main(){
 	vec3 shrinkedPos = i_position - 0.05 * normalize(i_normal);
 	
 	for(int i = 0; i < 4; i++){
-		sc[i] = u_projectionShadow[i]   * u_viewShadow[i] * u_model * vec4(shrinkedPos, 1.0);
+		sc[i] = u_projectionShadow[i] * u_viewShadow[i] * u_model * vec4(shrinkedPos, 1.0);
 		sc[i].xyz = sc[i].xyz * 0.5 + vec3(0.5) * sc[i].w;
 	}
 }

@@ -58,14 +58,20 @@ m_scene(background){
 	createCollisionFilter();
 	activateHero();
 	
-	m_depthBuffer.create(Application::Width, Application::Height);
-	m_depthBuffer.attachTexture2D(AttachmentTex::DEPTH24);
+	m_depthRT.create(Application::Width, Application::Height);
+	m_depthRT.attachTexture2D(AttachmentTex::DEPTH24);
 	
+	m_shadowRT.create(1024u, 768u);
+	m_shadowRT.attachTexture2D(AttachmentTex::DEPTH24);
+
 	m_fade.setTransitionSpeed(3.0f);
 	m_fadeCircle.setTransitionSpeed(3.0f);
 	
 	ShapeDrawer::Get().init(32768);
 	ShapeDrawer::Get().setCamera(m_camera);		
+
+	m_shadowMatrix = Matrix4f::Orthographic(-2000.0f, 2000.0f, -400.0f, 2000.0f, -2000.0f, 2000.0f) * Matrix4f::LookAt(Vector3f(-800.0f, 30.0f, 800.0f), Vector3f(-780.0f, 0.0f, 780.0f), Vector3f(0.0f, 1.0f, 0.0f));
+	glPolygonOffset(2.0f, 4.0f);
 }
 
 Adrian::~Adrian() {
@@ -219,11 +225,9 @@ void Adrian::update() {
 
 void Adrian::render() {
 	
-	m_depthBuffer.bind();
-	glClear(GL_DEPTH_BUFFER_BIT);
 	renderSceneDepth();
-	m_depthBuffer.unbind();
-
+	renderSceneShadow();
+	m_shadowRT.bindDepthTexture(2u);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	renderScene();
 
@@ -353,7 +357,7 @@ void Adrian::render() {
 }
 
 void Adrian::renderScene() {
-
+	
 	int tilex, tilez;
 
 	const int TILE_SIZE = 3000;
@@ -372,6 +376,9 @@ void Adrian::renderScene() {
 	shader->loadMatrix("u_model", Matrix4f::Translate(tilex, 0.0f, tilez) * Matrix4f::Scale(TILE_SIZE * TILE_LOWFACTOR, 0.0f, TILE_SIZE * TILE_HIGHFACTOR));
 	shader->loadFloat("u_tileFactor", m_tileFactor);
 	shader->loadVector("u_blendColor", Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+	shader->loadMatrix("u_shadow", Matrix4f::BIAS * m_shadowMatrix);
+	shader->loadInt("u_texture", 0);
+	shader->loadInt("u_shadowMap", 2);
 	Globals::shapeManager.get("quad_xz").drawRaw();
 	shader->unuse();
 
@@ -387,11 +394,14 @@ void Adrian::renderScene() {
 	shader->loadMatrix("u_view", m_camera.getViewMatrix());
 	shader->loadFloat("u_radius", 0.7f * m_fadeCircleValue);
 
-	shader = Globals::shaderManager.getAssetPointer("shape");
+	shader = Globals::shaderManager.getAssetPointer("scene_shadow");
 	shader->use();
 	shader->loadMatrix("u_projection", m_camera.getOrthographicMatrix());
 	shader->loadMatrix("u_view", m_camera.getViewMatrix());
-
+	shader->loadMatrix("u_shadow", Matrix4f::BIAS * m_shadowMatrix);
+	shader->loadInt("u_texture", 0);
+	shader->loadInt("u_shadowMap", 2);
+	
 	for (const Batch& batch : m_octree->getOpaqueBatches().m_batches) {
 		OctreeNode* drawable = batch.octreeNode;
 		shader->loadMatrix("u_model", drawable->getWorldTransformation());
@@ -404,13 +414,12 @@ void Adrian::renderScene() {
 		
 		drawable->drawRaw();
 	}
-
-	m_billboard.draw();
-	
+	m_billboard.draw();	
 }
 
 void Adrian::renderSceneDepth() {
-
+	m_depthRT.bind();
+	glClear(GL_DEPTH_BUFFER_BIT);
 	int tilex, tilez;
 
 	const int TILE_SIZE = 3000;
@@ -433,8 +442,42 @@ void Adrian::renderSceneDepth() {
 	for (const Batch& batch : m_octree->getOpaqueBatches().m_batches) {
 		OctreeNode* drawable = batch.octreeNode;
 		shader->loadMatrix("u_model", drawable->getWorldTransformation());
-		drawable->drawRaw();
+		drawable->drawRaw(false);
 	}
+	m_depthRT.unbind();
+}
+
+void Adrian::renderSceneShadow() {
+	m_shadowRT.bind();
+	glEnable(GL_POLYGON_OFFSET_FILL);
+	glClear(GL_DEPTH_BUFFER_BIT);
+	glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+	int tilex, tilez;
+
+	const int TILE_SIZE = 3000;
+	const float TILE_LOWFACTOR = 4.0;
+	const float TILE_HIGHFACTOR = 4.0;
+	int tileSzFactor = TILE_HIGHFACTOR + TILE_LOWFACTOR;
+
+	tilex = ((int)m_camera.m_initx / TILE_SIZE) * TILE_SIZE;
+	tilez = ((int)m_camera.m_initz / TILE_SIZE) * TILE_SIZE;
+
+	auto shader = Globals::shaderManager.getAssetPointer("shadow");
+
+	shader->use();
+	shader->loadMatrix("u_viewProjection", m_shadowMatrix);
+	shader->loadMatrix("u_model", Matrix4f::Translate(tilex, 0.0f, tilez) * Matrix4f::Scale(TILE_SIZE * TILE_LOWFACTOR, 0.0f, TILE_SIZE * TILE_HIGHFACTOR));
+
+	Globals::shapeManager.get("quad_xz").drawRaw();
+
+	for (const Batch& batch : m_octree->getOpaqueBatches().m_batches) {
+		OctreeNode* drawable = batch.octreeNode;
+		shader->loadMatrix("u_model", drawable->getWorldTransformation());
+		drawable->drawRaw(false);
+	}
+	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+	glDisable(GL_POLYGON_OFFSET_FILL);
+	m_shadowRT.unbind();
 }
 
 void Adrian::renderBubble() {
@@ -453,7 +496,7 @@ void Adrian::renderBubble() {
 	shader->loadVector("screensize", Vector2f(static_cast<float>(Application::Width), static_cast<float>(Application::Height)));
 	shader->loadFloat("scale", m_rimScale);
 
-	m_depthBuffer.bindDepthTexture(0u);
+	m_depthRT.bindDepthTexture(0u);
 	m_scene.sphere.drawRaw();
 }
 
@@ -606,7 +649,7 @@ void Adrian::resize(int deltaW, int deltaH) {
 	//m_camera.orthographic(-static_cast<float>(Application::Width / 2) / m_zoom, static_cast<float>(Application::Width / 2) / m_zoom, -static_cast<float>(Application::Height / 2) / m_zoom, static_cast<float>(Application::Height / 2) / m_zoom, -static_cast<float>(Application::Width) / m_zoom, static_cast<float>(Application::Width) / m_zoom);
 	m_camera.orthographic(-static_cast<float>(Application::Width / 2) / m_zoom, static_cast<float>(Application::Width / 2) / m_zoom, -static_cast<float>(Application::Height / 2) / m_zoom, static_cast<float>(Application::Height / 2) / m_zoom, -5000.0f, 5000.0f);
 	m_camera.resize(Application::Width, Application::Height);
-	m_depthBuffer.resize(Application::Width, Application::Height);
+	m_depthRT.resize(Application::Width, Application::Height);
 }
 
 void Adrian::renderUi() {
@@ -701,7 +744,8 @@ void Adrian::renderUi() {
 		m_navPolygonHelper.clearPolygonCache();
 	}
 
-	ImGui::Image((ImTextureID)(intptr_t)m_depthBuffer.getDepthTexture(), ImVec2(200.0f, 200.0f), { 0.0f, 1.0f }, { 1.0f, 0.0f });
+	//ImGui::Image((ImTextureID)(intptr_t)m_depthRT.getDepthTexture(), ImVec2(200.0f, 200.0f), { 0.0f, 1.0f }, { 1.0f, 0.0f });
+	ImGui::Image((ImTextureID)(intptr_t)m_shadowRT.getDepthTexture(), ImVec2(200.0f, 200.0f), { 0.0f, 1.0f }, { 1.0f, 0.0f });
 	ImGui::End();
 
 	ImGui::Render();

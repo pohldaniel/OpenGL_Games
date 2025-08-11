@@ -18,7 +18,7 @@ public:
 
 	void OnOctreeSet(Octree* octree) override;
 
-	virtual void drawRaw() const override;
+	virtual void drawRaw(bool force = true) const override;
 	void update(const float dt);
 
 	AnimationState* addAnimationState(Animation* animation);

@@ -20,6 +20,7 @@ enum AnimationType2 {
 };
 
 struct MenuItem {
+
 	float width;
 	float height;	
 	float startx;

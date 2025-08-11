@@ -85,7 +85,7 @@ void AnimationNode::OnOctreeSet(Octree* octree) {
 	m_skinningDirty = true;
 }
 
-void AnimationNode::drawRaw() const {
+void AnimationNode::drawRaw(bool force) const {
 
 	if (m_materialIndex >= 0)
 		Material::GetMaterials()[m_materialIndex].updateMaterialUbo(BuiltInShader::materialUbo);
@@ -97,12 +97,12 @@ void AnimationNode::drawRaw() const {
 	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(Matrix4f) * m_numBones, m_skinMatrices);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-	if (m_shader) 
+	if (m_shader && force)
 		m_shader->use();
 	
 	animatedModel.drawRaw();
 
-	if (m_shader)
+	if (m_shader && force)
 		m_shader->unuse();
 }
 

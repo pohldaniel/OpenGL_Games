@@ -709,7 +709,6 @@ void MenuItem::show(){
 	enable = true;
 }
 
-
 void MenuItem::animate(float animatePercent) {
 	if (!enable)
 		return;

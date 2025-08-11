@@ -8,7 +8,7 @@ MeshNode::MeshNode(const AssimpModel& model) : OctreeNode(),
 	OnBoundingBoxChanged();
 }
 
-void MeshNode::drawRaw() const {
+void MeshNode::drawRaw(bool force) const {
 
 	if (m_materialIndex >= 0)
 		Material::GetMaterials()[m_materialIndex].updateMaterialUbo(BuiltInShader::materialUbo);

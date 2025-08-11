@@ -10,7 +10,7 @@ public:
 
 	SequenceNode(const MeshSequence& meshSequence, short meshIndex = 0);
 
-	virtual void drawRaw() const override;
+	virtual void drawRaw(bool force = true) const override;
 	virtual void update(const float dt);
 
 	using OctreeNode::addChild;

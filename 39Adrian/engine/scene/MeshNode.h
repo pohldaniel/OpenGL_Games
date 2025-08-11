@@ -11,7 +11,7 @@ public:
 	MeshNode(const AssimpModel& model);
 	~MeshNode() = default;
 
-	virtual void drawRaw() const override;
+	virtual void drawRaw(bool force = true) const override;
 
 	using OctreeNode::addChild;
 	void addChild(MeshNode* node, bool drawDebug);

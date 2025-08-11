@@ -11,7 +11,7 @@ ShapeNode::~ShapeNode() {
 
 }
 
-void ShapeNode::drawRaw() const {
+void ShapeNode::drawRaw(bool force) const {
 
 	if (m_materialIndex >= 0)
 		Material::GetMaterials()[m_materialIndex].updateMaterialUbo(BuiltInShader::materialUbo);
@@ -20,7 +20,7 @@ void ShapeNode::drawRaw() const {
 		Material::GetTextures()[m_textureIndex].bind();
 
 	bool change = !(m_color == Vector4f::ONE);
-	if (m_shader) {
+	if (m_shader && force) {
 		m_shader->use();
 		m_shader->loadMatrix("u_model", getWorldTransformation());
 
@@ -30,7 +30,7 @@ void ShapeNode::drawRaw() const {
 
 	shape.drawRaw();
 
-	if (m_shader) {
+	if (m_shader&& force) {
 		if (change)
 			m_shader->loadVector("u_color", Vector4f::ONE);
 
