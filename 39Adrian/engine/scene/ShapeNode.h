@@ -13,7 +13,8 @@ public:
 	ShapeNode(const Shape& shape);
 	~ShapeNode();
 
-	virtual void drawRaw(bool force = true) const override;
+	virtual void drawRaw() const override;
+	virtual void drawShadow() const override;
 	using OctreeNode::addChild;
 	void addChild(ShapeNode* node, bool drawDebug);
 	const Shape& getShape() const;

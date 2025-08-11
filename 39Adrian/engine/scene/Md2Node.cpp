@@ -84,26 +84,31 @@ void Md2Node::updateAnimation() {
 	m_animationDirty = false;
 }
 
-void  Md2Node::drawRaw(bool force) const {
+void  Md2Node::drawRaw() const {
 	if (m_disabled)
 		return;
 
 	bool change = !(m_color == Vector4f::ONE);
-	if (m_shader && force) {
+	if (m_shader) {
 		m_shader->use();
 		m_shader->loadMatrix("u_model", getWorldTransformation());
 		if (change)
 			m_shader->loadVector("u_color", m_color);
 	}
 
-	md2Model.updateBuffer(m_interpolated);	
+	md2Model.updateBuffer(m_interpolated);
 	md2Model.draw(m_textureIndex, m_materialIndex);
 
-	if (m_shader && force) {
+	if (m_shader) {
 		if (change)
 			m_shader->loadVector("u_color", Vector4f::ONE);
 		m_shader->unuse();
 	}
+}
+
+void Md2Node::drawShadow() const {
+	md2Model.updateBuffer(m_interpolated);
+	md2Model.draw();
 }
 
 const BoundingBox& Md2Node::getLocalBoundingBox() const {

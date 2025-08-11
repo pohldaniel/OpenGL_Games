@@ -63,6 +63,8 @@ m_scene(background){
 	
 	m_shadowRT.create(1024u, 768u);
 	m_shadowRT.attachTexture2D(AttachmentTex::DEPTH24);
+	Texture::SetCompareFunc(m_shadowRT.getDepthTexture(), GL_LESS);
+	Texture::SetLinear(m_shadowRT.getDepthTexture());
 
 	m_fade.setTransitionSpeed(3.0f);
 	m_fadeCircle.setTransitionSpeed(3.0f);
@@ -442,7 +444,7 @@ void Adrian::renderSceneDepth() {
 	for (const Batch& batch : m_octree->getOpaqueBatches().m_batches) {
 		OctreeNode* drawable = batch.octreeNode;
 		shader->loadMatrix("u_model", drawable->getWorldTransformation());
-		drawable->drawRaw(false);
+		drawable->drawShadow();
 	}
 	m_depthRT.unbind();
 }
@@ -473,7 +475,7 @@ void Adrian::renderSceneShadow() {
 	for (const Batch& batch : m_octree->getOpaqueBatches().m_batches) {
 		OctreeNode* drawable = batch.octreeNode;
 		shader->loadMatrix("u_model", drawable->getWorldTransformation());
-		drawable->drawRaw(false);
+		drawable->drawShadow();
 	}
 	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 	glDisable(GL_POLYGON_OFFSET_FILL);

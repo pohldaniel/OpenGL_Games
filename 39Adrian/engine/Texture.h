@@ -141,7 +141,7 @@ public:
 	static void SetWrapMode(const unsigned int& textureRef, unsigned int mode, unsigned int target = 3553u);
 	static void ArrayTo3D(const unsigned int& textureRef1, unsigned int& textureRef2);
 	static void SetCompareFunc(const unsigned int& textureRef, unsigned int func = 0u, unsigned int target = 3553u);
-
+	static void SetLinear(const unsigned int& textureRef, unsigned int mode = 9987u /*GL_LINEAR_MIPMAP_LINEAR*/, unsigned int target = 3553u);
 	static void CreateBars(std::string fileOut, unsigned int width, unsigned int height, unsigned int numBars, unsigned int heightBar);
 
 private:

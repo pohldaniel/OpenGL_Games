@@ -15,7 +15,8 @@ public:
 	virtual void OnTransformChanged() override;
 	virtual void OnOctreeSet(Octree* octree);
 
-	virtual void drawRaw(bool force = true) const;
+	virtual void drawRaw() const;
+	virtual void drawShadow() const;
 	virtual void OnRenderDebug() const;
 
 	void OnRenderOBB(const Vector4f& color = { 1.0f, 0.0f, 0.0f, 1.0f });

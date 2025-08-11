@@ -11,8 +11,12 @@ SequenceNode::SequenceNode(const MeshSequence& meshSequence, short meshIndex) : 
 	OnBoundingBoxChanged();
 }
 
-void SequenceNode::drawRaw(bool force) const {
+void SequenceNode::drawRaw() const {
 	meshSequence.draw(m_meshIndex, m_textureIndex, m_materialIndex);
+}
+
+void SequenceNode::drawShadow() const {
+	meshSequence.draw(m_meshIndex);
 }
 
 void SequenceNode::update(const float dt) {

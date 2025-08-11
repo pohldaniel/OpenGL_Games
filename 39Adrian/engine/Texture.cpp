@@ -1902,6 +1902,15 @@ void Texture::SetCompareFunc(const unsigned int& textureRef, unsigned int func, 
 	glBindTexture(target, 0);
 }
 
+void Texture::SetLinear(const unsigned int& textureRef, unsigned int mode, unsigned int target) {
+	glBindTexture(target, textureRef);
+	glTexParameteri(target, GL_TEXTURE_MIN_FILTER, mode);
+	glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	if (mode == 9987)
+		glGenerateMipmap(target);
+	glBindTexture(target, 0);
+}
+
 void Texture::ArrayTo3D(const unsigned int& textureRef1, unsigned int& textureRef2) {
 	int width, height, depth;
 	int miplevel = 0;
