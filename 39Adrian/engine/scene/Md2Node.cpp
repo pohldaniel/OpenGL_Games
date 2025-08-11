@@ -107,6 +107,9 @@ void  Md2Node::drawRaw() const {
 }
 
 void Md2Node::drawShadow() const {
+	if (m_disabled)
+		return;
+
 	md2Model.updateBuffer(m_interpolated);
 	md2Model.draw();
 }
