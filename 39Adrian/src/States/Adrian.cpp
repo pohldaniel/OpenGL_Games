@@ -38,7 +38,7 @@ m_scene(background){
 	m_camera.orthographic(-static_cast<float>(Application::Width / 2) / m_zoom, static_cast<float>(Application::Width / 2) / m_zoom, -static_cast<float>(Application::Height / 2) / m_zoom, static_cast<float>(Application::Height / 2) / m_zoom, -5000.0f, 5000.0f);
 	m_camera.setSpeed(500.0f);
 
-	glClearColor(0.494f, 0.686f, 0.796f, 1.0f);
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClearDepth(1.0f);
 
 	WorkQueue::Init(1);
@@ -257,7 +257,19 @@ void Adrian::render() {
 
 	glDepthMask(GL_TRUE);
 
-	auto shader = Globals::shaderManager.getAssetPointer("shape_color");
+	m_mainRT.unbind();
+
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	m_mainRT.bindColorTexture(0u);
+	auto shader = Globals::shaderManager.getAssetPointer("toon");
+	shader->use();
+	shader->loadInt("u_color", 0);
+	shader->loadInt("u_shadow", 2);
+	Globals::shapeManager.get("quad_xy").drawRaw();
+	shader->unuse();
+
+	shader = Globals::shaderManager.getAssetPointer("shape_color");
 	shader->use();
 	Globals::textureManager.get("null").bind(0);
 	shader->loadMatrix("u_projection", m_camera.getOrthographicMatrix());
@@ -371,16 +383,6 @@ void Adrian::render() {
 
 	if (m_drawUi)
 		renderUi();
-
-	m_mainRT.unbind();
-
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	shader = Globals::shaderManager.getAssetPointer("quad");
-	shader->use();
-	m_mainRT.bindColorTexture(0u);
-	Globals::shapeManager.get("quad_xy").drawRaw();
-	shader->unuse();
 }
 
 void Adrian::renderScene() {
