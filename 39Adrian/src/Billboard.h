@@ -11,6 +11,7 @@ public:
 	Billboard(const IsometricCamera& camera);
 	~Billboard();
 	void draw();
+	void drawShadow(const Matrix4f& shadowMatrix, const Vector3f& lightPos, const Vector3f& lightRight);
 
 private:
 

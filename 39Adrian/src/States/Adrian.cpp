@@ -62,7 +62,14 @@ m_scene(background){
 	m_depthRT.attachTexture2D(AttachmentTex::DEPTH24);
 	
 	m_shadowRT.create(1024u, 768u);
+	m_shadowRT.attachTexture2D(AttachmentTex::RGBA);
 	m_shadowRT.attachTexture2D(AttachmentTex::DEPTH24);
+
+
+	m_mainRT.create(Application::Width, Application::Height);
+	m_mainRT.attachTexture2D(AttachmentTex::RGBA);
+	m_mainRT.attachTexture2D(AttachmentTex::DEPTH_STENCIL);
+
 	Texture::SetCompareFunc(m_shadowRT.getDepthTexture(), GL_LESS);
 	Texture::SetLinear(m_shadowRT.getDepthTexture());
 
@@ -73,6 +80,12 @@ m_scene(background){
 	ShapeDrawer::Get().setCamera(m_camera);		
 
 	m_shadowMatrix = Matrix4f::Orthographic(-2000.0f, 2000.0f, -400.0f, 2000.0f, -2000.0f, 2000.0f) * Matrix4f::LookAt(Vector3f(-800.0f, 30.0f, 800.0f), Vector3f(-780.0f, 0.0f, 780.0f), Vector3f(0.0f, 1.0f, 0.0f));
+	Vector3f zAxis = Vector3f(-800.0f, 30.0f, 800.0f) - Vector3f(-780.0f, 0.0f, 780.0f);
+	Vector3f::Normalize(zAxis);
+
+	m_lightRight = Vector3f::Cross(Vector3f(0.0f, 1.0f, 0.0f), zAxis);
+	Vector3f::Normalize(m_lightRight);
+	
 	glPolygonOffset(2.0f, 4.0f);
 }
 
@@ -230,6 +243,8 @@ void Adrian::render() {
 	renderSceneDepth();
 	renderSceneShadow();
 	m_shadowRT.bindDepthTexture(2u);
+
+	m_mainRT.bind();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	renderScene();
 
@@ -356,6 +371,16 @@ void Adrian::render() {
 
 	if (m_drawUi)
 		renderUi();
+
+	m_mainRT.unbind();
+
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	shader = Globals::shaderManager.getAssetPointer("quad");
+	shader->use();
+	m_mainRT.bindColorTexture(0u);
+	Globals::shapeManager.get("quad_xy").drawRaw();
+	shader->unuse();
 }
 
 void Adrian::renderScene() {
@@ -477,6 +502,9 @@ void Adrian::renderSceneShadow() {
 		shader->loadMatrix("u_model", drawable->getWorldTransformation());
 		drawable->drawShadow();
 	}
+
+	m_billboard.drawShadow(m_shadowMatrix, Vector3f(-800.0f, 30.0f, 800.0f), m_lightRight);
+
 	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 	glDisable(GL_POLYGON_OFFSET_FILL);
 	m_shadowRT.unbind();
@@ -652,6 +680,7 @@ void Adrian::resize(int deltaW, int deltaH) {
 	m_camera.orthographic(-static_cast<float>(Application::Width / 2) / m_zoom, static_cast<float>(Application::Width / 2) / m_zoom, -static_cast<float>(Application::Height / 2) / m_zoom, static_cast<float>(Application::Height / 2) / m_zoom, -5000.0f, 5000.0f);
 	m_camera.resize(Application::Width, Application::Height);
 	m_depthRT.resize(Application::Width, Application::Height);
+	m_mainRT.resize(Application::Width, Application::Height);
 }
 
 void Adrian::renderUi() {

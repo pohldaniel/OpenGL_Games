@@ -377,7 +377,10 @@ void Application::initOpenGL(int msaaSamples) {
 
 	//glDisable(GL_BLEND);
 	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+	glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+
 	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 }
 
@@ -738,6 +741,7 @@ void Application::loadAssets() {
 	
 	Globals::shaderManager.loadShader("billboard", "res/shader/billboard/billboard.vert", "res/shader/billboard/billboard.frag", "res/shader/billboard/billboard.gem");
 	Globals::shaderManager.loadShader("billboard_new", "res/shader/billboard/billboard.vert", "res/shader/billboard/billboard.frag", "res/shader/billboard_new.gem");
+	Globals::shaderManager.loadShader("billboard_shadow", "res/shader/billboard/billboard.vert", "res/shader/billboard/billboard_shadow.frag", "res/shader/billboard_new.gem");
 
 	Globals::fontManager.loadCharacterSet("upheaval_200", "res/fonts/upheavtt.ttf", 200, 0, 30, 128, 0, true, 0u);
 	Globals::fontManager.loadCharacterSet("upheaval_100", "res/fonts/upheavtt.ttf", 100, 0, 30, 128, 0, true, 0u);

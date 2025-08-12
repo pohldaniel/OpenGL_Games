@@ -39,6 +39,27 @@ void Billboard::draw() {
 	shader->unuse();
 }
 
+void Billboard::drawShadow(const Matrix4f& shadowMatrix, const Vector3f& lightPos, const Vector3f& lightRight) {
+	glEnable(GL_ALPHA_TEST);
+	glAlphaFunc(GL_GREATER, 0.5);
+
+	Globals::textureManager.get("tree").bind(0u);
+	auto shader = Globals::shaderManager.getAssetPointer("billboard_shadow");
+	shader->use();
+	shader->loadMatrix("u_viewProjection", shadowMatrix);
+	shader->loadVector("u_camPos", lightPos);
+	shader->loadVector("u_right", lightRight);
+	shader->loadFloat("u_width", 60.0f);
+	shader->loadFloat("u_height", 150.0f);
+	shader->loadInt("u_texture", 0);
+
+	glBindVertexArray(m_vao);
+	glDrawArrays(GL_POINTS, 0, 8);
+	glBindVertexArray(0);
+	glDisable(GL_ALPHA_TEST);
+	shader->unuse();
+}
+
 void Billboard::loadBillboards() {
 	m_positions.push_back({ -1100.0f, 0.0f, 1100.0f });
 	m_positions.push_back({ -1050.0f, 0.0f, 1100.0f });

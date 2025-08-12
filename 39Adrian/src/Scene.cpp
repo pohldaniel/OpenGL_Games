@@ -16,6 +16,7 @@ Scene::Scene(const std::string& _background):
 
 	background.loadFromFile(_background);
 	background.setWrapMode(GL_REPEAT);
+	background.setLinear();
 	background.markForDelete();
 }
 
@@ -49,13 +50,21 @@ void Scene::loadScene() {
 	Material::GetTextures().back().setLinear();
 
 	Material::AddTexture("data/models/dynamic/hero/hero.tga");
+	Material::GetTextures().back().setLinear();
 	Material::AddTexture("data/models/dynamic/hueteotl/hueteotl.tga");
+	Material::GetTextures().back().setLinear();
 	Material::AddTexture("data/models/dynamic/mutantman/mutantman.tga");
+	Material::GetTextures().back().setLinear();
 	Material::AddTexture("data/models/dynamic/corpse/corpse.tga");
+	Material::GetTextures().back().setLinear();
 	Material::AddTexture("data/models/dynamic/mutantlizard/mutantlizard.tga");
+	Material::GetTextures().back().setLinear();
 	Material::AddTexture("data/models/dynamic/mutantcheetah/mutantcheetah.tga");
+	Material::GetTextures().back().setLinear();
 	Material::AddTexture("data/models/dynamic/ripper/ripper.tga");
+	Material::GetTextures().back().setLinear();
 	Material::AddTexture("data/textures/misc/tree.tga");
+	Material::GetTextures().back().setLinear();
 
 	heroModel.load("data/models/dynamic/hero/hero.md2");
 	hueteotl.load("data/models/dynamic/hueteotl/hueteotl.md2");

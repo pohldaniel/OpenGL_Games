@@ -23,20 +23,20 @@
 #include <Navigation/Obstacle.h>
 #include <Navigation/CrowdManager.h>
 #include <Navigation/CrowdAgent.h>
-#include <Physics/Physics.h>
 #include <Physics/MousePicker.h>
-#include <States/StateMachine.h>
-#include <Entities/Md2Entity.h>
+#include <Physics/Physics.h>
 #include <Entities/CrowdAgentEntity.h>
+#include <Entities/Md2Entity.h>
 #include <Entities/Hero.h>
 #include <Entities/Bot.h>
 #include <Utils/NavPolygonHelper.h>
 #include <Utils/Fade.h>
+#include <States/StateMachine.h>
 
 #include "CameraController.h"
-#include "Scene.h"
-#include "MiniMap.h"
 #include "Billboard.h"
+#include "MiniMap.h"
+#include "Scene.h"
 
 #define		SCR2RESX(x)		((x)/640.0 * (1024))
 #define		SCR2RESY(y)		((y)/480.0 * (768))
@@ -170,11 +170,12 @@ private:
 	std::vector<Md2Entity*> m_entities;
 
 	Sprite m_panel;
-	Framebuffer m_depthRT, m_shadowRT;
+	Framebuffer m_depthRT, m_shadowRT, m_mainRT;
 
 	Fade m_fade, m_fadeCircle;	
 	int m_currentPanelTex;
 	std::vector<btCollisionObject*> m_colliosionFilter;
 
 	Matrix4f m_shadowMatrix;
+	Vector3f m_lightRight;
 };
