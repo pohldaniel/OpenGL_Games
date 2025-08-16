@@ -71,7 +71,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			physicsElapsedTime -= PHYSICS_STEP;
 		}
 
-
 		application.update();
 		application.render();
 

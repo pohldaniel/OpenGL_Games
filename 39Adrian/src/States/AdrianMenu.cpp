@@ -14,375 +14,309 @@ AdrianMenu::AdrianMenu(StateMachine& machine) : State(machine, States::ADRIAN_ME
 	EventDispatcher::AddMouseListener(this);
 	EventDispatcher::AddKeyboardListener(this);
 
-	m_headline.setCharset(Globals::fontManager.get("upheaval_100"));
-	m_headline.setPosition(Vector2f(static_cast<float>(Application::Width / 2 - 320), static_cast<float>(Application::Height - 200)));
-	m_headline.setOutlineThickness(5.0f);
-	m_headline.setText("Adrian Menu");
-	m_headline.setOffset(5.0f, -7.0f);
-
-	m_buttons = std::initializer_list<std::pair<const std::string, Button>>({
-		{ "adrian",            Button() }
-	});
-
-	m_buttons.at("adrian").setCharset(Globals::fontManager.get("upheaval_30"));
-	m_buttons.at("adrian").setPosition(50.0f, 100.0f);
-	m_buttons.at("adrian").setOutlineThickness(5.0f);
-	m_buttons.at("adrian").setText("Adrian");
-	m_buttons.at("adrian").setFunction([&]() {
-		m_isRunning = false;
-		m_machine.addStateAtBottom(new Adrian(m_machine));
-	});
+	items.resize(24);
 
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
-	m_texture1.createEmptyTexture((strlen("PLAY GAME")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT);
-	m_texture2.createEmptyTexture((strlen("SETTINGS")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT);
-	m_texture3.createEmptyTexture((strlen("OPTIONS")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT);
-	m_texture4.createEmptyTexture((strlen("CREDITS")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT);
-	m_texture5.createEmptyTexture((strlen("QUIT")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT);
-
-	m_texture6.createEmptyTexture((strlen("VIDEO")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT);
-	m_texture7.createEmptyTexture((strlen("SOUND")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT);
-	m_texture8.createEmptyTexture((strlen("KEYBOARD")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT);
-	m_texture9.createEmptyTexture((strlen("MOUSE")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT);
-	m_texture10.createEmptyTexture((strlen("BACK")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT);
-
-	m_texture11.createEmptyTexture((strlen("BHANU KALYAN")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT);
-	m_texture12.createEmptyTexture((strlen("VAMSI KRISHNA")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT);
-	m_texture13.createEmptyTexture((strlen("SWAMY SUMAN")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT);
-	m_texture14.createEmptyTexture((strlen("BACK")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT);
-
-	m_texture15.createEmptyTexture((strlen("640 X 480")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT);
-	m_texture16.createEmptyTexture((strlen("800 X 600")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT);
-	m_texture17.createEmptyTexture((strlen("1024 X 768")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT);
-	m_texture17.createEmptyTexture((strlen("1600 X 1200")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT);
-	m_texture19.createEmptyTexture((strlen("BACK")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT);
-
-	m_texture20.createEmptyTexture((strlen("Area 51, Nevada")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT);
-	m_texture21.createEmptyTexture((strlen("USS Nimitz, Pacific")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT);
-	m_texture22.createEmptyTexture((strlen("Ross Island, Antarctica")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT);
-	m_texture23.createEmptyTexture((strlen("Edwards Air Force Base")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT);
-	m_texture24.createEmptyTexture((strlen("BACK")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT);
-
 	Globals::fontManager.get("tahomab_64").bind();
 	Fontrenderer::Get().setShader(Globals::shaderManager.getAssetPointer("font_ttf"));
+	items[0] = MenuItem(strlen("PLAY GAME") * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 0.0f, 600.0f, 400.0f, 600.0f, ANIMATION_SPIRAL, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, true);
+	items[0].OnClick = [&]() {
+		items[0].enable = false;
+		items[1].enable = false;
+		items[2].enable = false;
+		items[3].enable = false;
+		items[4].enable = false;
+
+		animatePercent = 0.0f;
+		animatePercent += 1;
+		items[19].show();
+		items[19].animate(animatePercent);
+		items[20].show();
+		items[20].animate(animatePercent);
+		items[21].show();
+		items[21].animate(animatePercent);
+		items[22].show();
+		items[22].animate(animatePercent);
+		items[23].show();
+		items[23].animate(animatePercent);
+	};
 	Fontrenderer::Get().addText(Globals::fontManager.get("tahomab_64"), 0.0f, 0.0f, "PLAY GAME", Vector4f(1.0f, 0.0f, 0.0f, 1.0f), 1.0f, false);
-	Fontrenderer::Get().blitTextToTexture((strlen("PLAY GAME")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 20, 20, m_texture1);
-	item1 = { (strlen("PLAY GAME")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 0.0f, 600.0f, 400.0f, 600.0f, ANIMATION_SPIRAL, m_texture1 , 0.0f, 0.0f, 0.0f, 0.0f, 20.0f, nullptr, true };
-	item1.OnClick = [&]() {
-		item1.enable = false;
-		item2.enable = false;
-		item3.enable = false;
-		item4.enable = false;
-		item5.enable = false;
+	Fontrenderer::Get().blitTextToTexture(strlen("PLAY GAME") * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 20, 20, items[0].texture);
+
+	items[1] = MenuItem(strlen("SETTINGS") * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 900.0f, 500.0f, 400.0f, 500.0f, ANIMATION_SPIRAL, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, true );
+	items[1].OnClick = [&]() {
+		items[0].enable = false;
+		items[1].enable = false;
+		items[2].enable = false;
+		items[3].enable = false;
+		items[4].enable = false;
 
 		animatePercent = 0.0f;
 		animatePercent += 1;
-		item20.show();
-		item20.animate(animatePercent);
-		item21.show();
-		item21.animate(animatePercent);
-		item22.show();
-		item22.animate(animatePercent);
-		item23.show();
-		item23.animate(animatePercent);
-		item24.show();
-		item24.animate(animatePercent);
+		items[5].show();
+		items[5].animate(animatePercent);
+		items[6].show();
+		items[6].animate(animatePercent);
+		items[7].show();
+		items[7].animate(animatePercent);
+		items[8].show();
+		items[8].animate(animatePercent);
+		items[9].show();
+		items[9].animate(animatePercent);
 	};
-
 	Fontrenderer::Get().addText(Globals::fontManager.get("tahomab_64"), 0.0f, 0.0f, "SETTINGS", Vector4f(1.0f, 0.0f, 0.0f, 1.0f), 1.0f, false);
-	Fontrenderer::Get().blitTextToTexture((strlen("SETTINGS")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 20, 20, m_texture2);
-	item2 = { (strlen("SETTINGS")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 900.0f, 500.0f, 400.0f, 500.0f, ANIMATION_SPIRAL, m_texture2 , 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, nullptr, true };
-	item2.OnClick = [&]() {
-		item1.enable = false;
-		item2.enable = false;
-		item3.enable = false;
-		item4.enable = false;
-		item5.enable = false;
+	Fontrenderer::Get().blitTextToTexture(strlen("SETTINGS") * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 20, 20, items[1].texture);
 
-		animatePercent = 0.0f;
-		animatePercent += 1;
-		item6.show();
-		item6.animate(animatePercent);
-		item7.show();
-		item7.animate(animatePercent);	
-		item8.show();
-		item8.animate(animatePercent);
-		item9.show();
-		item9.animate(animatePercent);	
-		item10.show();
-		item10.animate(animatePercent);
-	};
-
+	
+	items[2] = MenuItem(strlen("OPTIONS") * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 0.0f, 0.0f, 400.0f, 400.0f, ANIMATION_SPIRAL, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, true);
 	Fontrenderer::Get().addText(Globals::fontManager.get("tahomab_64"), 0.0f, 0.0f, "OPTIONS", Vector4f(1.0f, 0.0f, 0.0f, 1.0f), 1.0f, false);
-	Fontrenderer::Get().blitTextToTexture((strlen("OPTIONS")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 20, 20, m_texture3);
-	item3 = { (strlen("OPTIONS")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 0.0f, 0.0f, 400.0f, 400.0f, ANIMATION_SPIRAL, m_texture3 , 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, nullptr, true };
+	Fontrenderer::Get().blitTextToTexture(strlen("OPTIONS") * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 20, 20, items[2].texture);
 
-	Fontrenderer::Get().addText(Globals::fontManager.get("tahomab_64"), 0.0f, 0.0f, "CREDITS", Vector4f(1.0f, 0.0f, 0.0f, 1.0f), 1.0f, false);
-	Fontrenderer::Get().blitTextToTexture((strlen("CREDITS")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 20, 20, m_texture4);
-	item4 = { (strlen("CREDITS")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 400.0f, 0.0f, 400.0f, 300.0f, ANIMATION_SPIRAL, m_texture4 , 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, nullptr, true };
-	item4.OnClick = [&]() {
-		item1.enable = false;
-		item2.enable = false;
-		item3.enable = false;
-		item4.enable = false;
-		item5.enable = false;
+	items[3] = MenuItem(strlen("CREDITS") * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 400.0f, 0.0f, 400.0f, 300.0f, ANIMATION_SPIRAL, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, true);
+	items[3].OnClick = [&]() {
+		items[0].enable = false;
+		items[1].enable = false;
+		items[2].enable = false;
+		items[3].enable = false;
+		items[4].enable = false;
 
 		animatePercent = 0.0f;
 		animatePercent += 1;
-		item11.show();
-		item11.animate(animatePercent);
-		item12.show();
-		item12.animate(animatePercent);		
-		item13.show();
-		item13.animate(animatePercent);
-		item14.show();
-		item14.animate(animatePercent);
+		items[10].show();
+		items[10].animate(animatePercent);
+		items[11].show();
+		items[11].animate(animatePercent);
+		items[12].show();
+		items[12].animate(animatePercent);
+		items[13].show();
+		items[13].animate(animatePercent);
 		
 	};
-
-	Fontrenderer::Get().addText(Globals::fontManager.get("tahomab_64"), 0.0f, 0.0f, "QUIT", Vector4f(1.0f, 0.0f, 0.0f, 1.0f), 1.0f, false);
-	Fontrenderer::Get().blitTextToTexture((strlen("QUIT")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 20, 20, m_texture5);
-	item5 = { (strlen("QUIT")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 400.0f, 700.0f, 400.0f, 200.0f, ANIMATION_SPIRAL, m_texture5 , 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, nullptr, true };
-	item5.OnClick = [&]() {
+	Fontrenderer::Get().addText(Globals::fontManager.get("tahomab_64"), 0.0f, 0.0f, "CREDITS", Vector4f(1.0f, 0.0f, 0.0f, 1.0f), 1.0f, false);
+	Fontrenderer::Get().blitTextToTexture(strlen("CREDITS") * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 20, 20, items[3].texture);
+	
+	items[4] = MenuItem(strlen("QUIT") * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 400.0f, 700.0f, 400.0f, 200.0f, ANIMATION_SPIRAL, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, true);
+	items[4].OnClick = [&]() {
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new Menu(m_machine));
 	};
-	Fontrenderer::Get().addText(Globals::fontManager.get("tahomab_64"), 0.0f, 0.0f, "VIDEO", Vector4f(1.0f, 0.0f, 0.0f, 1.0f), 1.0f, false);
-	Fontrenderer::Get().blitTextToTexture((strlen("VIDEO")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 20, 20, m_texture6);
-	item6 = { (strlen("VIDEO")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 0.0f, 500.0f, 400.0f, 600.0f, ANIMATION_STRAIGHT, m_texture6 , 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, nullptr, false };
-	item6.OnClick = [&]() {
-		item6.enable = false;
-		item7.enable = false;
-		item8.enable = false;
-		item9.enable = false;
-		item10.enable = false;
+	Fontrenderer::Get().addText(Globals::fontManager.get("tahomab_64"), 0.0f, 0.0f, "QUIT", Vector4f(1.0f, 0.0f, 0.0f, 1.0f), 1.0f, false);
+	Fontrenderer::Get().blitTextToTexture(strlen("QUIT") * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 20, 20, items[4].texture);
+
+	items[5] = MenuItem(strlen("VIDEO") * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 0.0f, 500.0f, 401.0f, 600.0f, ANIMATION_STRAIGHT, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, false);
+	items[5].OnClick = [&]() {
+		items[5].enable = false;
+		items[6].enable = false;
+		items[7].enable = false;
+		items[8].enable = false;
+		items[9].enable = false;
 
 		animatePercent = 0.0f;
 		animatePercent += 1;
-		item15.show();
-		item15.animate(animatePercent);
-		item16.show();
-		item16.animate(animatePercent);
-		item17.show();
-		item17.animate(animatePercent);
-		item18.show();
-		item18.animate(animatePercent);
-		item19.show();
-		item19.animate(animatePercent);
+		items[14].show();
+		items[14].animate(animatePercent);
+		items[15].show();
+		items[15].animate(animatePercent);
+		items[16].show();
+		items[16].animate(animatePercent);
+		items[17].show();
+		items[17].animate(animatePercent);
+		items[18].show();
+		items[18].animate(animatePercent);
 	};
+	Fontrenderer::Get().addText(Globals::fontManager.get("tahomab_64"), 0.0f, 0.0f, "VIDEO", Vector4f(1.0f, 0.0f, 0.0f, 1.0f), 1.0f, false);
+	Fontrenderer::Get().blitTextToTexture(strlen("VIDEO") * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 20, 20, items[5].texture);
 
+	items[6] = MenuItem(strlen("SOUND") * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 1000.0f, 500.0f, 407.0f, 500.0f, ANIMATION_STRAIGHT, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, false);
 	Fontrenderer::Get().addText(Globals::fontManager.get("tahomab_64"), 0.0f, 0.0f, "SOUND", Vector4f(1.0f, 0.0f, 0.0f, 1.0f), 1.0f, false);
-	Fontrenderer::Get().blitTextToTexture((strlen("SOUND")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 20, 20, m_texture7);
-	item7 = { (strlen("SOUND")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 1000.0f, 500.0f, 400.0f, 500.0f, ANIMATION_STRAIGHT, m_texture7 , 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, nullptr, false };
-
+	Fontrenderer::Get().blitTextToTexture(strlen("SOUND") * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 20, 20, items[6].texture);
+	
+	items[7] = MenuItem(strlen("KEYBOARD") * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 0.0f, 500.0f, 400.0f, 400.0f, ANIMATION_STRAIGHT, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, false);
 	Fontrenderer::Get().addText(Globals::fontManager.get("tahomab_64"), 0.0f, 0.0f, "KEYBOARD", Vector4f(1.0f, 0.0f, 0.0f, 1.0f), 1.0f, false);
-	Fontrenderer::Get().blitTextToTexture((strlen("KEYBOARD")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 20, 20, m_texture8);
-	item8 = { (strlen("KEYBOARD")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 0.0f, 500.0f, 400.0f, 400.0f, ANIMATION_STRAIGHT, m_texture8 , 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, nullptr, false };
-
+	Fontrenderer::Get().blitTextToTexture(strlen("KEYBOARD") * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 20, 20, items[7].texture);
+	
+	items[8] = MenuItem(strlen("MOUSE") * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 0.0f, 500.0f, 400.0f, 300.0f, ANIMATION_STRAIGHT, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, false);
 	Fontrenderer::Get().addText(Globals::fontManager.get("tahomab_64"), 0.0f, 0.0f, "MOUSE", Vector4f(1.0f, 0.0f, 0.0f, 1.0f), 1.0f, false);
-	Fontrenderer::Get().blitTextToTexture((strlen("MOUSE")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 20, 20, m_texture9);
-	item9 = { (strlen("MOUSE")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 0.0f, 500.0f, 400.0f, 300.0f, ANIMATION_STRAIGHT, m_texture9 , 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, nullptr, false };
+	Fontrenderer::Get().blitTextToTexture(strlen("MOUSE") * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 20, 20, items[8].texture);
 
-	Fontrenderer::Get().addText(Globals::fontManager.get("tahomab_64"), 0.0f, 0.0f, "BACK", Vector4f(1.0f, 0.0f, 0.0f, 1.0f), 1.0f, false);
-	Fontrenderer::Get().blitTextToTexture((strlen("BACK")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 20, 20, m_texture10);
-	item10 = { (strlen("BACK")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 400.0f, 0.0f, 400.0f, 200.0f, ANIMATION_STRAIGHT, m_texture10 , 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, nullptr, false };
-	item10.OnClick = [&]() {
-		item6.enable = false;
-		item7.enable = false;
-		item8.enable = false;
-		item9.enable = false;
-		item10.enable = false;
+	items[9] = MenuItem(strlen("BACK") * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 400.0f, 0.0f, 402.0f, 200.0f, ANIMATION_STRAIGHT, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, false);
+	items[9].OnClick = [&]() {
+		items[5].enable = false;
+		items[6].enable = false;
+		items[7].enable = false;
+		items[8].enable = false;
+		items[9].enable = false;
 		
 		animatePercent = 0.0f;
 		animatePercent += 1;
-		item1.show();
-		item1.animate(animatePercent);
-		item2.show();
-		item2.animate(animatePercent);
-		item3.show();
-		item3.animate(animatePercent);
-		item4.show();
-		item4.animate(animatePercent);
-		item5.show();
-		item5.animate(animatePercent);
+		items[0].show();
+		items[0].animate(animatePercent);
+		items[1].show();
+		items[1].animate(animatePercent);
+		items[2].show();
+		items[2].animate(animatePercent);
+		items[3].show();
+		items[3].animate(animatePercent);
+		items[4].show();
+		items[4].animate(animatePercent);
 	};
-
+	Fontrenderer::Get().addText(Globals::fontManager.get("tahomab_64"), 0.0f, 0.0f, "BACK", Vector4f(1.0f, 0.0f, 0.0f, 1.0f), 1.0f, false);
+	Fontrenderer::Get().blitTextToTexture(strlen("BACK") * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 20, 20, items[9].texture);
+	
+	items[10] = MenuItem(strlen("BHANU KALYAN") * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 0.0f, 0.0f, 400.0f, 600.0f, ANIMATION_SPIRAL, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, false);
 	Fontrenderer::Get().addText(Globals::fontManager.get("tahomab_64"), 0.0f, 0.0f, "BHANU KALYAN", Vector4f(1.0f, 0.0f, 0.0f, 1.0f), 1.0f, false);
-	Fontrenderer::Get().blitTextToTexture((strlen("BHANU KALYAN")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 20, 20, m_texture11);
-	item11 = { (strlen("BHANU KALYAN")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 0.0f, 0.0f, 400.0f, 600.0f, ANIMATION_SPIRAL, m_texture11 , 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, nullptr, false };
-
+	Fontrenderer::Get().blitTextToTexture(strlen("BHANU KALYAN") * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 20, 20, items[10].texture);
+	
+	items[11] = MenuItem(strlen("VAMSI KRISHNA") * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 0.0f, 0.0f, 400.0f, 500.0f, ANIMATION_SPIRAL, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, false);
 	Fontrenderer::Get().addText(Globals::fontManager.get("tahomab_64"), 0.0f, 0.0f, "VAMSI KRISHNA", Vector4f(1.0f, 0.0f, 0.0f, 1.0f), 1.0f, false);
-	Fontrenderer::Get().blitTextToTexture((strlen("VAMSI KRISHNA")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 20, 20, m_texture12);
-	item12 = { (strlen("VAMSI KRISHNA")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 0.0f, 0.0f, 400.0f, 500.0f, ANIMATION_SPIRAL, m_texture12 , 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, nullptr, false };
+	Fontrenderer::Get().blitTextToTexture(strlen("VAMSI KRISHNA") * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 20, 20, items[11].texture);
 
+	items[12] = MenuItem(strlen("SWAMY SUMAN") * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 0.0f, 0.0f, 400.0f, 400.0f, ANIMATION_SPIRAL, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, false);
 	Fontrenderer::Get().addText(Globals::fontManager.get("tahomab_64"), 0.0f, 0.0f, "SWAMY SUMAN", Vector4f(1.0f, 0.0f, 0.0f, 1.0f), 1.0f, false);
-	Fontrenderer::Get().blitTextToTexture((strlen("SWAMY SUMAN")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 20, 20, m_texture13);
-	item13 = { (strlen("SWAMY SUMAN")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 0.0f, 0.0f, 400.0f, 400.0f, ANIMATION_SPIRAL, m_texture13 , 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, nullptr, false };
+	Fontrenderer::Get().blitTextToTexture(strlen("SWAMY SUMAN") * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 20, 20, items[12].texture);
 
-	Fontrenderer::Get().addText(Globals::fontManager.get("tahomab_64"), 0.0f, 0.0f, "BACK", Vector4f(1.0f, 0.0f, 0.0f, 1.0f), 1.0f, false);
-	Fontrenderer::Get().blitTextToTexture((strlen("BACK")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 20, 20, m_texture14);
-	item14 = { (strlen("BACK")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 0.0f, 0.0f, 400.0f, 300.0f, ANIMATION_SPIRAL, m_texture14 , 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, nullptr, false };
-	item14.OnClick = [&]() {
-		item11.enable = false;
-		item12.enable = false;
-		item13.enable = false;
-		item14.enable = false;
+	items[13] = MenuItem(strlen("BACK") * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 0.0f, 0.0f, 400.0f, 300.0f, ANIMATION_SPIRAL, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, false);
+	items[13].OnClick = [&]() {
+		items[10].enable = false;
+		items[11].enable = false;
+		items[12].enable = false;
+		items[13].enable = false;
 
 		animatePercent = 0.0f;
 		animatePercent += 1;
-		item1.show();
-		item1.animate(animatePercent);
-		item2.show();
-		item2.animate(animatePercent);
-		item3.show();
-		item3.animate(animatePercent);
-		item4.show();
-		item4.animate(animatePercent);
-		item5.show();
-		item5.animate(animatePercent);
+		items[0].show();
+		items[0].animate(animatePercent);
+		items[1].show();
+		items[1].animate(animatePercent);
+		items[2].show();
+		items[2].animate(animatePercent);
+		items[3].show();
+		items[3].animate(animatePercent);
+		items[4].show();
+		items[4].animate(animatePercent);
 	};
-
+	Fontrenderer::Get().addText(Globals::fontManager.get("tahomab_64"), 0.0f, 0.0f, "BACK", Vector4f(1.0f, 0.0f, 0.0f, 1.0f), 1.0f, false);
+	Fontrenderer::Get().blitTextToTexture(strlen("BACK") * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 20, 20, items[13].texture);
+	
+	items[14] = MenuItem(strlen("640 X 480") * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 0.0f, 500.0f, 400.0f, 600.0f, ANIMATION_STRAIGHT, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, false);
 	Fontrenderer::Get().addText(Globals::fontManager.get("tahomab_64"), 0.0f, 0.0f, "640 X 480", Vector4f(1.0f, 0.0f, 0.0f, 1.0f), 1.0f, false);
-	Fontrenderer::Get().blitTextToTexture((strlen("640 X 480")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 20, 20, m_texture15);
-	item15 = { (strlen("640 X 480")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 0.0f, 500.0f, 400.0f, 600.0f, ANIMATION_STRAIGHT, m_texture15 , 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, nullptr, false };
-
+	Fontrenderer::Get().blitTextToTexture(strlen("640 X 480") * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 20, 20, items[14].texture);
+	
+	items[15] = MenuItem(strlen("800 X 600") * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 0.0f, 500.0f, 400.0f, 500.0f, ANIMATION_STRAIGHT, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, false);
 	Fontrenderer::Get().addText(Globals::fontManager.get("tahomab_64"), 0.0f, 0.0f, "800 X 600", Vector4f(1.0f, 0.0f, 0.0f, 1.0f), 1.0f, false);
-	Fontrenderer::Get().blitTextToTexture((strlen("800 X 600")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 20, 20, m_texture16);
-	item16 = { (strlen("800 X 600")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 0.0f, 500.0f, 400.0f, 500.0f, ANIMATION_STRAIGHT, m_texture16 , 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, nullptr, false };
+	Fontrenderer::Get().blitTextToTexture(strlen("800 X 600") * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 20, 20, items[15].texture);
 
+	items[16] = MenuItem(strlen("1024 X 768") * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 0.0f, 500.0f, 400.0f, 400.0f, ANIMATION_STRAIGHT, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, false);
 	Fontrenderer::Get().addText(Globals::fontManager.get("tahomab_64"), 0.0f, 0.0f, "1024 X 768", Vector4f(1.0f, 0.0f, 0.0f, 1.0f), 1.0f, false);
-	Fontrenderer::Get().blitTextToTexture((strlen("1024 X 768")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 20, 20, m_texture17);
-	item17 = { (strlen("1024 X 768")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 0.0f, 500.0f, 400.0f, 400.0f, ANIMATION_STRAIGHT, m_texture17 , 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, nullptr, false };
+	Fontrenderer::Get().blitTextToTexture(strlen("1024 X 768") * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 20, 20, items[16].texture);
 
+	items[17] = MenuItem(strlen("1600 X 1200") * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 0.0f, 500.0f, 400.0f, 300.0f, ANIMATION_STRAIGHT, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, false);
 	Fontrenderer::Get().addText(Globals::fontManager.get("tahomab_64"), 0.0f, 0.0f, "1600 X 1200", Vector4f(1.0f, 0.0f, 0.0f, 1.0f), 1.0f, false);
-	Fontrenderer::Get().blitTextToTexture((strlen("1600 X 1200")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 20, 20, m_texture18);
-	item18 = { (strlen("1600 X 1200")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 0.0f, 500.0f, 400.0f, 300.0f, ANIMATION_STRAIGHT, m_texture18 , 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, nullptr, false };
-
-	Fontrenderer::Get().addText(Globals::fontManager.get("tahomab_64"), 0.0f, 0.0f, "BACK", Vector4f(1.0f, 0.0f, 0.0f, 1.0f), 1.0f, false);
-	Fontrenderer::Get().blitTextToTexture((strlen("BACK")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 20, 20, m_texture19);
-	item19 = { (strlen("BACK")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 0.0f, 500.0f, 400.0f, 200.0f, ANIMATION_STRAIGHT, m_texture19 , 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, nullptr, false };
-	item19.OnClick = [&]() {
-		item15.enable = false;
-		item16.enable = false;
-		item17.enable = false;
-		item18.enable = false;
-		item19.enable = false;
+	Fontrenderer::Get().blitTextToTexture(strlen("1600 X 1200") * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 20, 20, items[17].texture);
+	
+	items[18] = MenuItem(strlen("BACK") * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 0.0f, 500.0f, 400.0f, 200.0f, ANIMATION_STRAIGHT, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, false);
+	items[18].OnClick = [&]() {
+		items[14].enable = false;
+		items[15].enable = false;
+		items[16].enable = false;
+		items[17].enable = false;
+		items[18].enable = false;
 
 		animatePercent = 0.0f;
 		animatePercent += 1;
-		item6.show();
-		item6.animate(animatePercent);
-		item7.show();
-		item7.animate(animatePercent);
-		item8.show();
-		item8.animate(animatePercent);
-		item9.show();
-		item9.animate(animatePercent);
-		item10.show();
-		item10.animate(animatePercent);
+		items[5].show();
+		items[5].animate(animatePercent);
+		items[6].show();
+		items[6].animate(animatePercent);
+		items[7].show();
+		items[7].animate(animatePercent);
+		items[8].show();
+		items[8].animate(animatePercent);
+		items[9].show();
+		items[9].animate(animatePercent);
 	};
-
-	Fontrenderer::Get().addText(Globals::fontManager.get("tahomab_64"), 0.0f, 0.0f, "Area 51, Nevada", Vector4f(1.0f, 0.0f, 0.0f, 1.0f), 1.0f, false);
-	Fontrenderer::Get().blitTextToTexture((strlen("Area 51, Nevada")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 20, 20, m_texture20);
-	item20 = { (strlen("Area 51, Nevada")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 0.0f, 0.0f, 400.0f, 600.0f, ANIMATION_SPIRAL, m_texture20 , 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, nullptr, false };
-	item20.OnClick = [&]() {
+	Fontrenderer::Get().addText(Globals::fontManager.get("tahomab_64"), 0.0f, 0.0f, "BACK", Vector4f(1.0f, 0.0f, 0.0f, 1.0f), 1.0f, false);
+	Fontrenderer::Get().blitTextToTexture(strlen("BACK") * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 20, 20, items[18].texture);
+	
+	items[19] = MenuItem(strlen("Area 51, Nevada") * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 0.0f, 0.0f, 400.0f, 600.0f, ANIMATION_SPIRAL, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, false);
+	items[19].OnClick = [&]() {
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new Adrian(m_machine, "data/textures/buildings/ground.tga"));
 	};
+	Fontrenderer::Get().addText(Globals::fontManager.get("tahomab_64"), 0.0f, 0.0f, "Area 51, Nevada", Vector4f(1.0f, 0.0f, 0.0f, 1.0f), 1.0f, false);
+	Fontrenderer::Get().blitTextToTexture(strlen("Area 51, Nevada") * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 20, 20, items[19].texture);
 
-	Fontrenderer::Get().addText(Globals::fontManager.get("tahomab_64"), 0.0f, 0.0f, "USS Nimitz, Pacific", Vector4f(1.0f, 0.0f, 0.0f, 1.0f), 1.0f, false);
-	Fontrenderer::Get().blitTextToTexture((strlen("USS Nimitz, Pacific")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 20, 20, m_texture21);
-	item21 = { (strlen("USS Nimitz, Pacific")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 0.0f, 0.0f, 400.0f, 500.0f, ANIMATION_SPIRAL, m_texture21 , 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, nullptr, false };
-	item21.OnClick = [&]() {
+	items[20] = MenuItem(strlen("USS Nimitz, Pacific") * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 0.0f, 0.0f, 400.0f, 500.0f, ANIMATION_SPIRAL, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, false);
+	items[20].OnClick = [&]() {
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new Adrian(m_machine, "data/textures/buildings/concrete.tga"));
 	};
-
-	Fontrenderer::Get().addText(Globals::fontManager.get("tahomab_64"), 0.0f, 0.0f, "Ross Island, Antarctica", Vector4f(1.0f, 0.0f, 0.0f, 1.0f), 1.0f, false);
-	Fontrenderer::Get().blitTextToTexture((strlen("Ross Island, Antarctica")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 20, 20, m_texture22);
-	item22 = { (strlen("Ross Island, Antarctica")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 0.0f, 0.0f, 400.0f, 400.0f, ANIMATION_SPIRAL, m_texture22 , 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, nullptr, false };
-	item22.OnClick = [&]() {
+	Fontrenderer::Get().addText(Globals::fontManager.get("tahomab_64"), 0.0f, 0.0f, "USS Nimitz, Pacific", Vector4f(1.0f, 0.0f, 0.0f, 1.0f), 1.0f, false);
+	Fontrenderer::Get().blitTextToTexture(strlen("USS Nimitz, Pacific") * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 20, 20, items[20].texture);
+	
+	items[21] = MenuItem(strlen("Ross Island, Antarctica") * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 0.0f, 0.0f, 400.0f, 400.0f, ANIMATION_SPIRAL, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, false);
+	items[21].OnClick = [&]() {
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new Adrian(m_machine, "data/textures/buildings/snow.jpg"));
 	};
-
-	Fontrenderer::Get().addText(Globals::fontManager.get("tahomab_64"), 0.0f, 0.0f, "Edwards Air Force Base", Vector4f(1.0f, 0.0f, 0.0f, 1.0f), 1.0f, false);
-	Fontrenderer::Get().blitTextToTexture((strlen("Edwards Air Force Base")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 20, 20, m_texture23);
-	item23 = { (strlen("Edwards Air Force Base")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 0.0f, 0.0f, 400.0f, 300.0f, ANIMATION_SPIRAL, m_texture23 , 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, nullptr, false };
-	item23.OnClick = [&]() {
+	Fontrenderer::Get().addText(Globals::fontManager.get("tahomab_64"), 0.0f, 0.0f, "Ross Island, Antarctica", Vector4f(1.0f, 0.0f, 0.0f, 1.0f), 1.0f, false);
+	Fontrenderer::Get().blitTextToTexture(strlen("Ross Island, Antarctica") * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 20, 20, items[21].texture);
+	
+	items[22] = MenuItem(strlen("Edwards Air Force Base") * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 0.0f, 0.0f, 400.0f, 300.0f, ANIMATION_SPIRAL, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, false);
+	items[22].OnClick = [&]() {
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new Adrian(m_machine, "data/textures/buildings/concrete.tga"));
 	};
+	Fontrenderer::Get().addText(Globals::fontManager.get("tahomab_64"), 0.0f, 0.0f, "Edwards Air Force Base", Vector4f(1.0f, 0.0f, 0.0f, 1.0f), 1.0f, false);
+	Fontrenderer::Get().blitTextToTexture(strlen("Edwards Air Force Base") * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 20, 20, items[22].texture);
 
-	Fontrenderer::Get().addText(Globals::fontManager.get("tahomab_64"), 0.0f, 0.0f, "BACK", Vector4f(1.0f, 0.0f, 0.0f, 1.0f), 1.0f, false);
-	Fontrenderer::Get().blitTextToTexture((strlen("BACK")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 20, 20, m_texture24);
-	item24 = { (strlen("BACK")) * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 0.0f, 0.0f, 400.0f, 200.0f, ANIMATION_SPIRAL, m_texture24 , 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, nullptr, false };
-	item24.OnClick = [&]() {
-		item20.enable = false;
-		item21.enable = false;
-		item22.enable = false;
-		item23.enable = false;
-		item24.enable = false;
+	items[23] = MenuItem(strlen("BACK") * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 0.0f, 0.0f, 400.0f, 200.0f, ANIMATION_SPIRAL, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, false);
+	items[23].OnClick = [&]() {
+		items[19].enable = false;
+		items[20].enable = false;
+		items[21].enable = false;
+		items[22].enable = false;
+		items[23].enable = false;
 
 		animatePercent = 0.0f;
 		animatePercent += 1;
-		item1.show();
-		item1.animate(animatePercent);
-		item2.show();
-		item2.animate(animatePercent);
-		item3.show();
-		item3.animate(animatePercent);
-		item4.show();
-		item4.animate(animatePercent);
-		item5.show();
-		item5.animate(animatePercent);
+		items[0].show();
+		items[0].animate(animatePercent);
+		items[1].show();
+		items[1].animate(animatePercent);
+		items[2].show();
+		items[2].animate(animatePercent);
+		items[3].show();
+		items[3].animate(animatePercent);
+		items[4].show();
+		items[4].animate(animatePercent);
 	};
+	Fontrenderer::Get().addText(Globals::fontManager.get("tahomab_64"), 0.0f, 0.0f, "BACK", Vector4f(1.0f, 0.0f, 0.0f, 1.0f), 1.0f, false);
+	Fontrenderer::Get().blitTextToTexture(strlen("BACK") * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 20, 20, items[23].texture);
 
 	animatePercent += 1;
-	item1.show();
-	item1.animate(animatePercent);
+	items[0].show();
+	items[0].animate(animatePercent);
 
-	item2.show();
-	item2.animate(animatePercent);
+	items[1].show();
+	items[1].animate(animatePercent);
 
-	item3.show();
-	item3.animate(animatePercent);
+	items[2].show();
+	items[2].animate(animatePercent);
 
-	item4.show();
-	item4.animate(animatePercent);
+	items[3].show();
+	items[3].animate(animatePercent);
 
-	item5.show();
-	item5.animate(animatePercent);
+	items[4].show();
+	items[4].animate(animatePercent);
 
 	linex = 0;
 	increment = 1;
 
-	m_texture1.markForDelete();
-	m_texture2.markForDelete();
-	m_texture3.markForDelete();
-	m_texture4.markForDelete();
-	m_texture5.markForDelete();
-	m_texture6.markForDelete();
-	m_texture7.markForDelete();
-	m_texture8.markForDelete();
-	m_texture9.markForDelete();
-	m_texture10.markForDelete();
-	m_texture11.markForDelete();
-	m_texture12.markForDelete();
-	m_texture13.markForDelete();
-
-	m_texture14.markForDelete();
-	m_texture15.markForDelete();
-	m_texture16.markForDelete();
-	m_texture17.markForDelete();
-	m_texture18.markForDelete();
-	m_texture19.markForDelete();
-	m_texture20.markForDelete();
-	m_texture21.markForDelete();
-	m_texture22.markForDelete();
-	m_texture23.markForDelete();
-	m_texture24.markForDelete();
+	for (MenuItem& item : items) {
+		item.texture.markForDelete();
+	}
 }
 
 AdrianMenu::~AdrianMenu() {
@@ -393,8 +327,7 @@ AdrianMenu::~AdrianMenu() {
 void AdrianMenu::fixedUpdate() {}
 
 void AdrianMenu::update() {
-	m_headline.processInput(0, 0);
-	animate();
+	animate(m_dt);
 }
 
 void AdrianMenu::render() {
@@ -420,255 +353,40 @@ void AdrianMenu::render() {
 	m_sprite.setScale(5.0f, static_cast<float>(Application::Height));
 	m_sprite.draw(Vector4f(10.0f, 0.0f, 0.0f, 1.0f), false, 1.0f, 1.0f);
 
-	if (item1.enable) {
-		item1.texture.bind();
-		m_sprite.setPosition(item1.x + item1.offset, item1.y);
-		m_sprite.setScale(item1.width, item1.height);
-		m_sprite.draw(Vector4f::ONE, false, 1.0f, 1.0f);
+	for (const MenuItem& item : items) {
+		if (item.enable) {
+			item.texture.bind();
+			m_sprite.setPosition(item.x + item.offset, item.y);
+			m_sprite.setScale(item.width, item.height);
+			m_sprite.draw(Vector4f::ONE, false, 1.0f, 1.0f);
+		}
 	}
-
-	if (item2.enable) {
-		item2.texture.bind();
-		m_sprite.setPosition(item2.x + item2.offset, item2.y);
-		m_sprite.setScale(item2.width, item2.height);
-		m_sprite.draw(Vector4f::ONE, false, 1.0f, 1.0f);
-	}
-
-	if (item3.enable) {
-		item3.texture.bind();
-		m_sprite.setPosition(item3.x + item3.offset, item3.y);
-		m_sprite.setScale(item3.width, item3.height);
-		m_sprite.draw(Vector4f::ONE, false, 1.0f, 1.0f);
-	}
-
-	if (item4.enable) {
-		item4.texture.bind();
-		m_sprite.setPosition(item4.x + item4.offset, item4.y);
-		m_sprite.setScale(item4.width, item4.height);
-		m_sprite.draw(Vector4f::ONE, false, 1.0f, 1.0f);
-	}
-
-	if (item5.enable) {
-		item5.texture.bind();
-		m_sprite.setPosition(item5.x + item5.offset, item5.y);
-		m_sprite.setScale(item5.width, item5.height);
-		m_sprite.draw(Vector4f::ONE, false, 1.0f, 1.0f);
-	}
-
-	if (item6.enable) {
-		item6.texture.bind();
-		m_sprite.setPosition(item6.x + item6.offset, item6.y);
-		m_sprite.setScale(item6.width, item6.height);
-		m_sprite.draw(Vector4f::ONE, false, 1.0f, 1.0f);
-	}
-
-	if (item7.enable) {
-		item7.texture.bind();
-		m_sprite.setPosition(item7.x + item7.offset, item7.y);
-		m_sprite.setScale(item7.width, item7.height);
-		m_sprite.draw(Vector4f::ONE, false, 1.0f, 1.0f);
-	}
-
-	if (item8.enable) {
-		item8.texture.bind();
-		m_sprite.setPosition(item8.x + item8.offset, item8.y);
-		m_sprite.setScale(item8.width, item8.height);
-		m_sprite.draw(Vector4f::ONE, false, 1.0f, 1.0f);
-	}
-
-	if (item9.enable) {
-		item9.texture.bind();
-		m_sprite.setPosition(item9.x + item9.offset, item9.y);
-		m_sprite.setScale(item9.width, item9.height);
-		m_sprite.draw(Vector4f::ONE, false, 1.0f, 1.0f);
-	}
-
-	if (item10.enable) {
-		item10.texture.bind();
-		m_sprite.setPosition(item10.x + item10.offset, item10.y);
-		m_sprite.setScale(item10.width, item10.height);
-		m_sprite.draw(Vector4f::ONE, false, 1.0f, 1.0f);
-	}
-
-	if (item11.enable) {
-		item11.texture.bind();
-		m_sprite.setPosition(item11.x + item11.offset, item11.y);
-		m_sprite.setScale(item11.width, item11.height);
-		m_sprite.draw(Vector4f::ONE, false, 1.0f, 1.0f);
-	}
-
-	if (item12.enable) {
-		item12.texture.bind();
-		m_sprite.setPosition(item12.x + item12.offset, item12.y);
-		m_sprite.setScale(item12.width, item12.height);
-		m_sprite.draw(Vector4f::ONE, false, 1.0f, 1.0f);
-	}
-
-	if (item13.enable) {
-		item13.texture.bind();
-		m_sprite.setPosition(item13.x + item13.offset, item13.y);
-		m_sprite.setScale(item13.width, item13.height);
-		m_sprite.draw(Vector4f::ONE, false, 1.0f, 1.0f);
-	}
-
-	if (item14.enable) {
-		item14.texture.bind();
-		m_sprite.setPosition(item14.x + item14.offset, item14.y);
-		m_sprite.setScale(item14.width, item14.height);
-		m_sprite.draw(Vector4f::ONE, false, 1.0f, 1.0f);
-	}
-
-	if (item15.enable) {
-		item15.texture.bind();
-		m_sprite.setPosition(item15.x + item15.offset, item15.y);
-		m_sprite.setScale(item15.width, item15.height);
-		m_sprite.draw(Vector4f::ONE, false, 1.0f, 1.0f);
-	}
-
-	if (item16.enable) {
-		item16.texture.bind();
-		m_sprite.setPosition(item16.x + item16.offset, item16.y);
-		m_sprite.setScale(item16.width, item16.height);
-		m_sprite.draw(Vector4f::ONE, false, 1.0f, 1.0f);
-	}
-
-	if (item17.enable) {
-		item17.texture.bind();
-		m_sprite.setPosition(item17.x + item17.offset, item17.y);
-		m_sprite.setScale(item17.width, item17.height);
-		m_sprite.draw(Vector4f::ONE, false, 1.0f, 1.0f);
-	}
-
-	if (item18.enable) {
-		item18.texture.bind();
-		m_sprite.setPosition(item18.x + item18.offset, item18.y);
-		m_sprite.setScale(item18.width, item18.height);
-		m_sprite.draw(Vector4f::ONE, false, 1.0f, 1.0f);
-	}
-
-	if (item19.enable) {
-		item19.texture.bind();
-		m_sprite.setPosition(item19.x + item19.offset, item19.y);
-		m_sprite.setScale(item19.width, item19.height);
-		m_sprite.draw(Vector4f::ONE, false, 1.0f, 1.0f);
-	}
-
-	if (item20.enable) {
-		item20.texture.bind();
-		m_sprite.setPosition(item20.x + item20.offset, item20.y);
-		m_sprite.setScale(item20.width, item20.height);
-		m_sprite.draw(Vector4f::ONE, false, 1.0f, 1.0f);
-	}
-
-	if (item21.enable) {
-		item21.texture.bind();
-		m_sprite.setPosition(item21.x + item21.offset, item21.y);
-		m_sprite.setScale(item21.width, item21.height);
-		m_sprite.draw(Vector4f::ONE, false, 1.0f, 1.0f);
-	}
-
-	if (item22.enable) {
-		item22.texture.bind();
-		m_sprite.setPosition(item22.x + item22.offset, item22.y);
-		m_sprite.setScale(item22.width, item22.height);
-		m_sprite.draw(Vector4f::ONE, false, 1.0f, 1.0f);
-	}
-
-	if (item23.enable) {
-		item23.texture.bind();
-		m_sprite.setPosition(item23.x + item23.offset, item23.y);
-		m_sprite.setScale(item23.width, item23.height);
-		m_sprite.draw(Vector4f::ONE, false, 1.0f, 1.0f);
-	}
-
-	if (item24.enable) {
-		item24.texture.bind();
-		m_sprite.setPosition(item24.x + item24.offset, item24.y);
-		m_sprite.setScale(item24.width, item24.height);
-		m_sprite.draw(Vector4f::ONE, false, 1.0f, 1.0f);
-	}
-
 	Sprite::SwitchShader();
 
 }
 
 void AdrianMenu::OnMouseMotion(Event::MouseMoveEvent& event) {
-	for (auto&& b : m_buttons)
-		b.second.processInput(event.x, Application::Height - event.y);
-
-	item1.processInput(event.x, event.y);
-	item2.processInput(event.x, event.y);
-	item3.processInput(event.x, event.y);
-	item4.processInput(event.x, event.y);
-	item5.processInput(event.x, event.y);
-
-	item6.processInput(event.x, event.y);
-	item7.processInput(event.x, event.y);
-	item8.processInput(event.x, event.y);
-	item9.processInput(event.x, event.y);
-	item10.processInput(event.x, event.y);
-
-	item11.processInput(event.x, event.y);
-	item12.processInput(event.x, event.y);
-	item13.processInput(event.x, event.y);
-	item14.processInput(event.x, event.y);
-
-	item15.processInput(event.x, event.y);
-	item16.processInput(event.x, event.y);
-	item17.processInput(event.x, event.y);
-	item18.processInput(event.x, event.y);
-	item19.processInput(event.x, event.y);
-
-	item20.processInput(event.x, event.y);
-	item21.processInput(event.x, event.y);
-	item22.processInput(event.x, event.y);
-	item23.processInput(event.x, event.y);
-	item24.processInput(event.x, event.y);
+	for (MenuItem& item : items) {
+		item.processInput(event.x, event.y);
+	}
 }
 
 void AdrianMenu::OnMouseButtonDown(Event::MouseButtonEvent& event) {
-	for (auto&& b : m_buttons)
-		b.second.processInput(event.x, Application::Height - event.y, event.button);
-
-	item1.processInput(event.x, event.y, event.button);
-	item2.processInput(event.x, event.y, event.button);
-	item3.processInput(event.x, event.y, event.button);
-	item4.processInput(event.x, event.y, event.button);	
-	item5.processInput(event.x, event.y, event.button);
-
-	item6.processInput(event.x, event.y, event.button);
-	item7.processInput(event.x, event.y, event.button);
-	item8.processInput(event.x, event.y, event.button);
-	item9.processInput(event.x, event.y, event.button);
-	item10.processInput(event.x, event.y, event.button);
-
-	item11.processInput(event.x, event.y, event.button);
-	item12.processInput(event.x, event.y, event.button);
-	item13.processInput(event.x, event.y, event.button);
-	item14.processInput(event.x, event.y, event.button);
-
-	item15.processInput(event.x, event.y, event.button);
-	item16.processInput(event.x, event.y, event.button);
-	item17.processInput(event.x, event.y, event.button);
-	item18.processInput(event.x, event.y, event.button);
-	item19.processInput(event.x, event.y, event.button);
-
-	item20.processInput(event.x, event.y, event.button);
-	item21.processInput(event.x, event.y, event.button);
-	item22.processInput(event.x, event.y, event.button);
-	item23.processInput(event.x, event.y, event.button);
-	item24.processInput(event.x, event.y, event.button);
+	for (MenuItem& item : items) {
+		item.processInput(event.x, event.y, event.button);
+	}
 }
 
 void AdrianMenu::OnKeyDown(Event::KeyboardEvent& event) {
 	if (event.keyCode == VK_ESCAPE) {
 		m_isRunning = false;
+#if DEVBUILD
 		m_machine.addStateAtBottom(new Menu(m_machine));
+#endif
 	}
 }
 
 void AdrianMenu::resize(int deltaW, int deltaH) {
-	m_headline.setPosition(Vector2f(static_cast<float>(Application::Width / 2 - 220), static_cast<float>(Application::Height - 200)));
 }
 
 void AdrianMenu::OnReEnter(unsigned int prevState) {
@@ -678,47 +396,41 @@ void AdrianMenu::OnReEnter(unsigned int prevState) {
 	shader->unuse();
 }
 
-void AdrianMenu::animate() {
+void AdrianMenu::animate(float dt) {
 	if (linex >= 400.0f)
 		increment = -0.5f;
 	if (linex <= 0.0f)
 		increment = 0.5f;
-	linex += increment;
+	linex += increment * dt * 170.0f;
 
 	if (animatePercent >= 100.0f) {
 		animatePercent = 100.0f;
 		return;
 	}
 
-	animatePercent += 0.5f;
-	item1.animate(animatePercent);
-	item2.animate(animatePercent);
-	item3.animate(animatePercent);
-	item4.animate(animatePercent);
-	item5.animate(animatePercent);
+	animatePercent += 0.5f * dt * 170.0f;
+	for (MenuItem& item : items) {
+		item.animate(animatePercent);
+	}
 
-	item6.animate(animatePercent);
-	item7.animate(animatePercent);
-	item8.animate(animatePercent);
-	item9.animate(animatePercent);
-	item10.animate(animatePercent);
+}
 
-	item11.animate(animatePercent);
-	item12.animate(animatePercent);
-	item13.animate(animatePercent);
-	item14.animate(animatePercent);
-
-	item15.animate(animatePercent);
-	item16.animate(animatePercent);
-	item17.animate(animatePercent);
-	item18.animate(animatePercent);
-	item19.animate(animatePercent);
-
-	item20.animate(animatePercent);
-	item21.animate(animatePercent);
-	item22.animate(animatePercent);
-	item23.animate(animatePercent);
-	item24.animate(animatePercent);
+MenuItem::MenuItem(float width, float height, float startx, float starty, float x, float y, AnimationTypeMenu animationType, float xincrement, float yincrement, float tmpx, float tmpy, float offset, bool enable) :
+	width(width),
+	height(height),
+	startx(startx),
+	starty(starty),
+	x(x),
+	y(y),
+	animationType(animationType),
+	xincrement(xincrement),
+	yincrement(yincrement),
+	tmpx(tmpx),
+	tmpy(tmpy),
+	offset(offset),
+	enable(enable),
+	OnClick(nullptr){
+	texture.createEmptyTexture(width, height);
 }
 
 void MenuItem::show(){
@@ -745,10 +457,10 @@ void MenuItem::animate(float animatePercent) {
 	}else if (animationType == ANIMATION_SPIRAL) {
 		x = tmpx -
 			((xincrement * (100.0f - animatePercent))) *
-			sinf(animatePercent * 3.6f * 3.142f / 180.0f);
+			sinf(animatePercent * 3.6f * 3.142f / 180.0f) ;
 		y = tmpy -
 			((yincrement * (100.0 - animatePercent))) *
-			cosf(animatePercent * 3.6f * 3.142f / 180.0f);
+			cosf(animatePercent * 3.6f * 3.142f / 180.0f) ;
 	}
 }
 

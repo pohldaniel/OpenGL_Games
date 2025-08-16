@@ -21,6 +21,9 @@ enum AnimationTypeMenu {
 
 struct MenuItem {
 
+	MenuItem() = default;
+	MenuItem(float width, float height, float startx, float starty, float x, float y, AnimationTypeMenu animationType, float xincrement, float yincrement, float tmpx, float tmpy, float offset, bool enable);
+
 	float width;
 	float height;	
 	float startx;
@@ -29,15 +32,17 @@ struct MenuItem {
 	float y;
 
 	AnimationTypeMenu animationType;
-	Texture texture;
+	
 	float xincrement;
 	float yincrement;
 	float tmpx;
 	float tmpy;
 	float offset;
 
-	std::function<void()> OnClick;
+	
 	bool enable;
+	std::function<void()> OnClick;
+	Texture texture;
 
 	void show();
 	void animate(float animatePercent);
@@ -62,28 +67,15 @@ private:
 	void OnMouseButtonDown(Event::MouseButtonEvent& event) override;
 	void OnKeyDown(Event::KeyboardEvent& event) override;
 
-	TextField m_headline;
-	std::unordered_map<std::string, Button> m_buttons;
 	FontRenderer m_fontRenderer;
-
-	Texture m_texture1, m_texture2, m_texture3, m_texture4, m_texture5;
-	Texture m_texture6, m_texture7, m_texture8, m_texture9, m_texture10;
-	Texture m_texture11, m_texture12, m_texture13, m_texture14;
-	Texture m_texture15, m_texture16, m_texture17, m_texture18, m_texture19;
-	Texture m_texture20, m_texture21, m_texture22, m_texture23, m_texture24;
 
 	Sprite m_sprite;
 
-	void animate();
+	void animate(float dt);
 	float animatePercent = 0.0f;
 	int noOfMenuItems = 5;
 	AnimationTypeMenu animationType = ANIMATION_SPIRAL;
-
-	MenuItem item1, item2, item3, item4, item5;
-	MenuItem item6, item7, item8, item9, item10;
-	MenuItem item11, item12, item13, item14;
-	MenuItem item15, item16, item17, item18, item19;
-	MenuItem item20, item21, item22, item23, item24;
+	std::vector<MenuItem> items;
 
 	float linex;
 	float increment;

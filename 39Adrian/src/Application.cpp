@@ -448,16 +448,11 @@ void Application::fixedUpdate() {
 
 void Application::initStates() {	
 	Machine = new StateMachine(m_dt, m_fdt);
-	//Machine->addStateAtTop(new Menu(*Machine));
-	//Machine->addStateAtTop(new Default(*Machine));
-	//Machine->addStateAtTop(new Md2State(*Machine));
-	//Machine->addStateAtTop(new MapState(*Machine));
-	//Machine->addStateAtTop(new NavigationState(*Machine));
-	//Machine->addStateAtTop(new NavigationStreamState(*Machine));
-	//Machine->addStateAtTop(new Adrian(*Machine));
+#if DEVBUILD
+	Machine->addStateAtTop(new Menu(*Machine));
+#else
 	Machine->addStateAtTop(new AdrianMenu(*Machine));
-	//Machine->addStateAtTop(new Winston(*Machine));
-	//Machine->addStateAtTop(new BillboardState(*Machine));
+#endif
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
