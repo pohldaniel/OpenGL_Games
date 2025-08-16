@@ -1,0 +1,470 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{083cae5c-7787-4c10-8e21-463eb524af2c}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>_41SuperPirate</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.\;src;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;..\libassimp\include;..\openal\include;..\sndfile\include;..\rapidjson\include;..\libtmxlite\include;..\glm;..\tsl;..\librecast\include;..\libdetour\include;..\libdetourtilecache\include;..\libdetourcrowd\include;..\liblz4;..\magic_enum;..\libfreetypegl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DisableSpecificWarnings>4005;</DisableSpecificWarnings>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>..\libd\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libsoil2.lib;libimgui.lib;libfreetype.lib;libbullet.lib;libopenal.lib;libsndfile.lib;libmpg.lib;liblame.lib;libflac.lib;libassimp.lib;libzlib.lib;winmm.lib;shlwapi.lib;libdetour.lib;libdetourtilecache.lib;libdetourcrowd.lib;librecast.lib;liblz4.lib;libfreetypegl.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.\;src;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;..\libassimp\include;..\openal\include;..\sndfile\include;..\rapidjson\include;..\libtmxlite\include;..\glm;..\tsl;..\librecast\include;..\libdetour\include;..\libdetourtilecache\include;..\libdetourcrowd\include;..\liblz4;..\magic_enum;..\libfreetypegl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DisableSpecificWarnings>4005;</DisableSpecificWarnings>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>..\libd\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libsoil2.lib;libimgui.lib;libfreetype.lib;libbullet.lib;libopenal.lib;libsndfile.lib;libmpg.lib;liblame.lib;libflac.lib;libassimp.lib;libzlib.lib;winmm.lib;shlwapi.lib;libdetour.lib;libdetourtilecache.lib;libdetourcrowd.lib;librecast.lib;liblz4.lib;libfreetypegl.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.\;src;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;..\libassimp\include;..\openal\include;..\sndfile\include;..\rapidjson\include;..\libtmxlite\include;..\glm;..\tsl;..\librecast\include;..\libdetour\include;..\libdetourtilecache\include;..\libdetourcrowd\include;..\liblz4;..\magic_enum;..\libfreetypegl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <DisableSpecificWarnings>4005;</DisableSpecificWarnings>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>..\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libsoil2.lib;libimgui.lib;libfreetype.lib;libbullet.lib;libopenal.lib;libsndfile.lib;libmpg.lib;liblame.lib;libflac.lib;libassimp.lib;libzlib.lib;winmm.lib;shlwapi.lib;libdetour.lib;libdetourtilecache.lib;libdetourcrowd.lib;librecast.lib;liblz4.lib;libfreetypegl.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.\;src;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;..\libassimp\include;..\openal\include;..\sndfile\include;..\rapidjson\include;..\libtmxlite\include;..\glm;..\tsl;..\librecast\include;..\libdetour\include;..\libdetourtilecache\include;..\libdetourcrowd\include;..\liblz4;..\magic_enum;..\libfreetypegl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <DisableSpecificWarnings>4005;</DisableSpecificWarnings>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>..\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libsoil2.lib;libimgui.lib;libfreetype.lib;libbullet.lib;libopenal.lib;libsndfile.lib;libmpg.lib;liblame.lib;libflac.lib;libassimp.lib;libzlib.lib;winmm.lib;shlwapi.lib;libdetour.lib;libdetourtilecache.lib;libdetourcrowd.lib;librecast.lib;liblz4.lib;libfreetypegl.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="engine\animationNew\AnimatedModel.cpp" />
+    <ClCompile Include="engine\animationNew\Animation.cpp" />
+    <ClCompile Include="engine\animationNew\AnimationController.cpp" />
+    <ClCompile Include="engine\animationNew\AnimationState.cpp" />
+    <ClCompile Include="engine\animation\AssimpAnimatedModel.cpp" />
+    <ClCompile Include="engine\animation\AssimpAnimation.cpp" />
+    <ClCompile Include="engine\animation\AssimpAnimator.cpp" />
+    <ClCompile Include="engine\animation\render\AnimationShader.cpp" />
+    <ClCompile Include="engine\AssimpModel.cpp" />
+    <ClCompile Include="engine\Background.cpp" />
+    <ClCompile Include="engine\BoundingBox.cpp" />
+    <ClCompile Include="engine\DebugRenderer.cpp" />
+    <ClCompile Include="engine\Md2Model.cpp" />
+    <ClCompile Include="engine\MeshBone.cpp" />
+    <ClCompile Include="engine\MeshObject\MeshSegment.cpp" />
+    <ClCompile Include="engine\MeshObject\MeshTorusKnot.cpp" />
+    <ClCompile Include="engine\MeshSequence.cpp" />
+    <ClCompile Include="engine\MousePickerFBO.cpp" />
+    <ClCompile Include="engine\Object.cpp" />
+    <ClCompile Include="engine\objects\CrowdAgentObject.cpp" />
+    <ClCompile Include="engine\octree\Batch.cpp" />
+    <ClCompile Include="engine\octree\Octree.cpp" />
+    <ClCompile Include="engine\RandomColor.cpp" />
+    <ClCompile Include="engine\RandomNew.cpp" />
+    <ClCompile Include="engine\scene\AnimationNode.cpp" />
+    <ClCompile Include="engine\scene\BaseNode.cpp" />
+    <ClCompile Include="engine\scene\BoneNode.cpp" />
+    <ClCompile Include="engine\scene\Md2Node.cpp" />
+    <ClCompile Include="engine\scene\MeshNode.cpp" />
+    <ClCompile Include="engine\scene\Node.cpp" />
+    <ClCompile Include="engine\scene\OctreeNode.cpp" />
+    <ClCompile Include="engine\scene\SceneNode.cpp" />
+    <ClCompile Include="engine\scene\SceneNodeLC.cpp" />
+    <ClCompile Include="engine\scene\SequenceNode.cpp" />
+    <ClCompile Include="engine\scene\ShapeNode.cpp" />
+    <ClCompile Include="engine\sound\MusicBuffer.cpp" />
+    <ClCompile Include="engine\sound\SoundBuffer.cpp" />
+    <ClCompile Include="engine\sound\SoundDevice.cpp" />
+    <ClCompile Include="engine\Sprite.cpp" />
+    <ClCompile Include="engine\thread\CThread.cpp" />
+    <ClCompile Include="engine\thread\EventClass.cpp" />
+    <ClCompile Include="engine\thread\MutexClass.cpp" />
+    <ClCompile Include="engine\thread\Thread.cpp" />
+    <ClCompile Include="engine\thread\WorkQueue.cpp" />
+    <ClCompile Include="engine\TileSet.cpp" />
+    <ClCompile Include="engine\uiNew\Bar.cpp" />
+    <ClCompile Include="engine\uiNew\Empty.cpp" />
+    <ClCompile Include="engine\uiNew\Icon.cpp" />
+    <ClCompile Include="engine\uiNew\Label.cpp" />
+    <ClCompile Include="engine\uiNew\Surface.cpp" />
+    <ClCompile Include="engine\uiNew\Widget.cpp" />
+    <ClCompile Include="engine\ui\Button.cpp" />
+    <ClCompile Include="engine\ui\CheckBox.cpp" />
+    <ClCompile Include="engine\ui\SeekerBar.cpp" />
+    <ClCompile Include="engine\ui\TextField.cpp" />
+    <ClCompile Include="engine\ui\Widget.cpp">
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(RelativeDir)</ObjectFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(RelativeDir)</ObjectFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)%(RelativeDir)</ObjectFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)%(RelativeDir)</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="engine\utils\StringHash.cpp" />
+    <ClCompile Include="engine\utils\StringUtils.cpp" />
+    <ClCompile Include="engine\utils\Utils.cpp" />
+    <ClCompile Include="engine\ZoomableQuad.cpp" />
+    <ClCompile Include="Navigation\CrowdAgent.cpp" />
+    <ClCompile Include="Navigation\CrowdManager.cpp" />
+    <ClCompile Include="Navigation\DynamicNavigationMesh.cpp" />
+    <ClCompile Include="Navigation\NavArea.cpp" />
+    <ClCompile Include="Navigation\NavBuildData.cpp" />
+    <ClCompile Include="Navigation\Navigable.cpp" />
+    <ClCompile Include="Navigation\NavigationMesh.cpp" />
+    <ClCompile Include="Navigation\NavPolygon.cpp" />
+    <ClCompile Include="Navigation\Obstacle.cpp" />
+    <ClCompile Include="Navigation\OffMeshConnection.cpp" />
+    <ClCompile Include="Physics\BulletDebugDrawer.cpp" />
+    <ClCompile Include="Physics\Constraint.cpp" />
+    <ClCompile Include="Physics\Constraint6DoF.cpp" />
+    <ClCompile Include="Physics\VehiclePhysics.cpp" />
+    <ClCompile Include="src\Entities\Entity.cpp" />
+    <ClCompile Include="src\Entities\ShapeEntity.cpp" />
+    <ClCompile Include="src\Entities\SpriteEntity.cpp" />
+    <ClCompile Include="src\LoadingManager.cpp" />
+    <ClCompile Include="src\States\Default.cpp" />
+    <ClCompile Include="src\States\StateMachine.cpp" />
+    <ClCompile Include="src\Utils\Fade.cpp" />
+    <ClCompile Include="engine\ArrayBuffer.cpp" />
+    <ClCompile Include="engine\Batchrenderer.cpp" />
+    <ClCompile Include="engine\BuiltInShader.cpp" />
+    <ClCompile Include="engine\Camera.cpp" />
+    <ClCompile Include="engine\CharacterSet.cpp" />
+    <ClCompile Include="engine\collision\Collision.cpp" />
+    <ClCompile Include="engine\Cube.cpp" />
+    <ClCompile Include="engine\CubeBuffer.cpp" />
+    <ClCompile Include="engine\Fontrenderer.cpp" />
+    <ClCompile Include="engine\Framebuffer.cpp" />
+    <ClCompile Include="engine\Frustum.cpp" />
+    <ClCompile Include="engine\input\ApplicationEventListener.cpp" />
+    <ClCompile Include="engine\input\EventDispatcher.cpp" />
+    <ClCompile Include="engine\input\Keyboard.cpp" />
+    <ClCompile Include="engine\input\KeyboardEventListener.cpp" />
+    <ClCompile Include="engine\input\Mouse.cpp" />
+    <ClCompile Include="engine\input\MouseEventListener.cpp" />
+    <ClCompile Include="engine\Line.cpp" />
+    <ClCompile Include="engine\Material.cpp" />
+    <ClCompile Include="engine\MeshObject\MeshCapsule.cpp" />
+    <ClCompile Include="engine\MeshObject\MeshCube.cpp" />
+    <ClCompile Include="engine\MeshObject\MeshCylinder.cpp" />
+    <ClCompile Include="engine\MeshObject\MeshDisk.cpp" />
+    <ClCompile Include="engine\MeshObject\MeshQuad.cpp" />
+    <ClCompile Include="engine\MeshObject\MeshSphere.cpp" />
+    <ClCompile Include="engine\MeshObject\MeshSpiral.cpp" />
+    <ClCompile Include="engine\MeshObject\MeshTorus.cpp" />
+    <ClCompile Include="engine\MeshObject\Shape.cpp" />
+    <ClCompile Include="engine\ObjModel.cpp" />
+    <ClCompile Include="engine\PerlinNoise.cpp" />
+    <ClCompile Include="engine\Pixelbuffer.cpp" />
+    <ClCompile Include="engine\Quad.cpp" />
+    <ClCompile Include="engine\Random.cpp" />
+    <ClCompile Include="engine\Shader.cpp" />
+    <ClCompile Include="engine\SlicedCube.cpp" />
+    <ClCompile Include="engine\Spritesheet.cpp" />
+    <ClCompile Include="engine\Tetraedron.cpp" />
+    <ClCompile Include="engine\Texture.cpp" />
+    <ClCompile Include="engine\Transform.cpp" />
+    <ClCompile Include="engine\Vector.cpp" />
+    <ClCompile Include="engine\VolumeBuffer.cpp" />
+    <ClCompile Include="Physics\BspConverter.cpp" />
+    <ClCompile Include="Physics\BspLoader.cpp" />
+    <ClCompile Include="Physics\DebugDrawer.cpp" />
+    <ClCompile Include="Physics\HeightField.cpp" />
+    <ClCompile Include="Physics\heightfield128x128.cpp" />
+    <ClCompile Include="Physics\KinematicObject.cpp" />
+    <ClCompile Include="Physics\KinematicTrigger.cpp" />
+    <ClCompile Include="Physics\MousePicker.cpp" />
+    <ClCompile Include="Physics\Physics.cpp" />
+    <ClCompile Include="Physics\PhysicsCar.cpp" />
+    <ClCompile Include="Physics\Ragdoll.cpp" />
+    <ClCompile Include="Physics\ShapeDrawer.cpp" />
+    <ClCompile Include="Physics\StaticTrigger.cpp" />
+    <ClCompile Include="src\Application.cpp" />
+    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\States\Menu.cpp" />
+    <ClCompile Include="src\Utils\BinaryIO.cpp" />
+    <ClCompile Include="src\Utils\Timer.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="engine\animationNew\AnimatedModel.h" />
+    <ClInclude Include="engine\animationNew\Animation.h" />
+    <ClInclude Include="engine\animationNew\AnimationController.h" />
+    <ClInclude Include="engine\animationNew\AnimationState.h" />
+    <ClInclude Include="engine\animation\AssimpAnimatedModel.h" />
+    <ClInclude Include="engine\animation\AssimpAnimation.h" />
+    <ClInclude Include="engine\animation\AssimpAnimator.h" />
+    <ClInclude Include="engine\animation\render\AnimationShader.h" />
+    <ClInclude Include="engine\ArrayBuffer.h" />
+    <ClInclude Include="engine\AssimpModel.h" />
+    <ClInclude Include="engine\Background.h" />
+    <ClInclude Include="engine\BoundingBox.h" />
+    <ClInclude Include="engine\collision\Collider.h" />
+    <ClInclude Include="engine\collision\Collision.h" />
+    <ClInclude Include="engine\CubeBuffer.h" />
+    <ClInclude Include="engine\DebugRenderer.h" />
+    <ClInclude Include="engine\input\Mouse.h" />
+    <ClInclude Include="engine\interfaces\ICounter.h" />
+    <ClInclude Include="engine\interfaces\IStateMachine.h" />
+    <ClInclude Include="engine\Md2Model.h" />
+    <ClInclude Include="engine\MeshBone.h" />
+    <ClInclude Include="engine\MeshObject\MeshSegment.h" />
+    <ClInclude Include="engine\MeshObject\MeshTorusKnot.h" />
+    <ClInclude Include="engine\MeshSequence.h" />
+    <ClInclude Include="engine\MousePickerFBO.h" />
+    <ClInclude Include="engine\Object.h" />
+    <ClInclude Include="convhull\convhull_3d.h" />
+    <ClInclude Include="engine\AssetManger.h" />
+    <ClInclude Include="engine\Batchrenderer.h" />
+    <ClInclude Include="engine\BuiltInShader.h" />
+    <ClInclude Include="engine\Camera.h" />
+    <ClInclude Include="engine\CharacterSet.h" />
+    <ClInclude Include="engine\Clock.h" />
+    <ClInclude Include="engine\Cube.h" />
+    <ClInclude Include="engine\Fontrenderer.h" />
+    <ClInclude Include="engine\Framebuffer.h" />
+    <ClInclude Include="engine\Frustum.h" />
+    <ClInclude Include="engine\input\ApplicationEventListener.h" />
+    <ClInclude Include="engine\input\Event.h" />
+    <ClInclude Include="engine\input\EventDispatcher.h" />
+    <ClInclude Include="engine\input\Keyboard.h" />
+    <ClInclude Include="engine\input\KeyboardEventListener.h" />
+    <ClInclude Include="engine\input\MouseEventListener.h" />
+    <ClInclude Include="engine\Line.h" />
+    <ClInclude Include="engine\Material.h" />
+    <ClInclude Include="engine\MeshObject\MeshCapsule.h" />
+    <ClInclude Include="engine\MeshObject\MeshCube.h" />
+    <ClInclude Include="engine\MeshObject\MeshCylinder.h" />
+    <ClInclude Include="engine\MeshObject\MeshDisk.h" />
+    <ClInclude Include="engine\MeshObject\MeshQuad.h" />
+    <ClInclude Include="engine\MeshObject\MeshSphere.h" />
+    <ClInclude Include="engine\MeshObject\MeshSpiral.h" />
+    <ClInclude Include="engine\MeshObject\MeshTorus.h" />
+    <ClInclude Include="engine\MeshObject\Shape.h" />
+    <ClInclude Include="engine\objects\CrowdAgentObject.h" />
+    <ClInclude Include="engine\ObjModel.h" />
+    <ClInclude Include="engine\octree\Batch.h" />
+    <ClInclude Include="engine\octree\Octree.h" />
+    <ClInclude Include="engine\PerlinNoise.h" />
+    <ClInclude Include="engine\Pixelbuffer.h" />
+    <ClInclude Include="engine\Quad.h" />
+    <ClInclude Include="engine\Random.h" />
+    <ClInclude Include="engine\RandomColor.h" />
+    <ClInclude Include="engine\RandomNew.h" />
+    <ClInclude Include="engine\Rect.h" />
+    <ClInclude Include="engine\scene\AnimationNode.h" />
+    <ClInclude Include="engine\scene\BaseNode.h" />
+    <ClInclude Include="engine\scene\BoneNode.h" />
+    <ClInclude Include="engine\scene\INode.h" />
+    <ClInclude Include="engine\scene\Md2Node.h" />
+    <ClInclude Include="engine\scene\MeshNode.h" />
+    <ClInclude Include="engine\scene\Node.h" />
+    <ClInclude Include="engine\scene\OctreeNode.h" />
+    <ClInclude Include="engine\scene\SceneNode.h" />
+    <ClInclude Include="engine\scene\SceneNodeLC.h" />
+    <ClInclude Include="engine\scene\SequenceNode.h" />
+    <ClInclude Include="engine\scene\ShapeNode.h" />
+    <ClInclude Include="engine\Shader.h" />
+    <ClInclude Include="engine\SlicedCube.h" />
+    <ClInclude Include="engine\sound\Cache.h" />
+    <ClInclude Include="engine\sound\MusicBuffer.h" />
+    <ClInclude Include="engine\sound\SoundBuffer.h" />
+    <ClInclude Include="engine\sound\SoundDevice.h" />
+    <ClInclude Include="engine\Sprite.h" />
+    <ClInclude Include="engine\Spritesheet.h" />
+    <ClInclude Include="engine\Tetraedron.h" />
+    <ClInclude Include="engine\Texture.h" />
+    <ClInclude Include="engine\thread\CThread.h" />
+    <ClInclude Include="engine\thread\EventClass.h" />
+    <ClInclude Include="engine\thread\MutexClass.h" />
+    <ClInclude Include="engine\thread\Thread.h" />
+    <ClInclude Include="engine\thread\WorkQueue.h" />
+    <ClInclude Include="engine\TileSet.h" />
+    <ClInclude Include="engine\TrackBall.h" />
+    <ClInclude Include="engine\Transform.h" />
+    <ClInclude Include="engine\uiNew\Bar.h" />
+    <ClInclude Include="engine\uiNew\Empty.h" />
+    <ClInclude Include="engine\uiNew\Icon.h" />
+    <ClInclude Include="engine\uiNew\Label.h" />
+    <ClInclude Include="engine\uiNew\Surface.h" />
+    <ClInclude Include="engine\uiNew\Widget.h" />
+    <ClInclude Include="engine\ui\Button.h" />
+    <ClInclude Include="engine\ui\CheckBox.h" />
+    <ClInclude Include="engine\ui\SeekerBar.h" />
+    <ClInclude Include="engine\ui\TextField.h" />
+    <ClInclude Include="engine\ui\Widget.h" />
+    <ClInclude Include="engine\utils\StringHash.h" />
+    <ClInclude Include="engine\utils\StringUtils.h" />
+    <ClInclude Include="engine\utils\Utils.h" />
+    <ClInclude Include="engine\Vector.h" />
+    <ClInclude Include="engine\VolumeBuffer.h" />
+    <ClInclude Include="engine\ZoomableQuad.h" />
+    <ClInclude Include="Navigation\CrowdAgent.h" />
+    <ClInclude Include="Navigation\CrowdManager.h" />
+    <ClInclude Include="Navigation\DynamicNavigationMesh.h" />
+    <ClInclude Include="Navigation\NavArea.h" />
+    <ClInclude Include="Navigation\NavBuildData.h" />
+    <ClInclude Include="Navigation\Navigable.h" />
+    <ClInclude Include="Navigation\NavigationMesh.h" />
+    <ClInclude Include="Navigation\NavPolygon.h" />
+    <ClInclude Include="Navigation\Obstacle.h" />
+    <ClInclude Include="Navigation\OffMeshConnection.h" />
+    <ClInclude Include="Physics\BulletDebugDrawer.h" />
+    <ClInclude Include="Physics\Constraint.h" />
+    <ClInclude Include="Physics\Constraint6DoF.h" />
+    <ClInclude Include="Physics\VehiclePhysics.h" />
+    <ClInclude Include="src\Application.h" />
+    <ClInclude Include="src\Entities\Entity.h" />
+    <ClInclude Include="src\Entities\ShapeEntity.h" />
+    <ClInclude Include="src\Entities\SpriteEntity.h" />
+    <ClInclude Include="src\Globals.h" />
+    <ClInclude Include="src\LoadingManager.h" />
+    <ClInclude Include="src\States\Default.h" />
+    <ClInclude Include="src\States\StateMachine.h" />
+    <ClInclude Include="src\Utils\Fade.h" />
+    <ClInclude Include="Physics\BspConverter.h" />
+    <ClInclude Include="Physics\BspLoader.h" />
+    <ClInclude Include="Physics\BspToBulletConverter.h" />
+    <ClInclude Include="Physics\DebugDrawer.h" />
+    <ClInclude Include="Physics\HeightField.h" />
+    <ClInclude Include="Physics\KinematicObject.h" />
+    <ClInclude Include="Physics\KinematicTrigger.h" />
+    <ClInclude Include="Physics\MousePicker.h" />
+    <ClInclude Include="Physics\Physics.h" />
+    <ClInclude Include="Physics\PhysicsCar.h" />
+    <ClInclude Include="Physics\Ragdoll.h" />
+    <ClInclude Include="Physics\ShapeDrawer.h" />
+    <ClInclude Include="Physics\StaticTrigger.h" />
+    <ClInclude Include="Miniball\Miniball.h" />
+    <ClInclude Include="src\States\Menu.h" />
+    <ClInclude Include="src\Utils\BinaryIO.h" />
+    <ClInclude Include="src\Utils\Timer.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
