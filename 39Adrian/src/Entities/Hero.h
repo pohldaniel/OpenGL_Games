@@ -11,6 +11,7 @@ class Hero : public CrowdAgentEntity, public Md2Entity {
 		TriggerCallback() {}
 		btScalar TriggerCallback::addSingleResult(btManifoldPoint& cp, const btCollisionObjectWrapper* colObj0Wrap, int partId0, int index0, const btCollisionObjectWrapper* colObj1Wrap, int partId1, int index1) override;	
 		std::function<void()> OnDeath = nullptr;
+		bool tick = false;
 	};
 
 public:
@@ -28,7 +29,7 @@ public:
 	btRigidBody* getSegmentBody();
 	btRigidBody* getTriggerBody();
 	void setRigidBody(btRigidBody* rigidBody);
-	void handleCollision(btCollisionObject* collisionObject);
+	bool handleCollision(btCollisionObject* collisionObject);
 	void setIsDeath(bool isDeath);
 	bool isDeath();
 	void setOnDeath(std::function<void()> fun);

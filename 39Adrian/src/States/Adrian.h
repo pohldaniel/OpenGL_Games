@@ -84,6 +84,11 @@ static const char *arrow[] = {
 		"0,0"
 };
 
+enum Mode {
+	TOON,
+	BLOOM
+};
+
 class Adrian : public State, public MouseEventListener, public KeyboardEventListener {
 
 public:
@@ -129,12 +134,13 @@ private:
 	bool m_debugPhysic = false;
 	bool m_debugNavmesh = false;
 	bool m_useStreaming = false;
-
+	
 	bool m_invisible = false;
 	bool m_showHelp = false;
 	bool m_showPanel = true;
 	bool m_noWalls = false;
 	bool m_roatecamera = false;
+	bool m_usePostprocess = true;
 
 	float m_tileFactor = 80.0f;
 	float m_angle = -0.628f;
@@ -178,4 +184,5 @@ private:
 
 	Matrix4f m_shadowMatrix;
 	Vector3f m_lightRight;
+	Mode m_mode;
 };

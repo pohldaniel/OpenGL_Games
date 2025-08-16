@@ -276,9 +276,6 @@
     <ClCompile Include="src\States\Default.cpp">
       <Filter>Source Files\States</Filter>
     </ClCompile>
-    <ClCompile Include="src\States\Settings.cpp">
-      <Filter>Source Files\States</Filter>
-    </ClCompile>
     <ClCompile Include="src\States\StateMachine.cpp">
       <Filter>Source Files\States</Filter>
     </ClCompile>
@@ -407,9 +404,6 @@
     </ClCompile>
     <ClCompile Include="Physics\Constraint6DoF.cpp">
       <Filter>Physics</Filter>
-    </ClCompile>
-    <ClCompile Include="src\States\Controls.cpp">
-      <Filter>Source Files\States</Filter>
     </ClCompile>
     <ClCompile Include="Physics\BulletDebugDrawer.cpp">
       <Filter>Physics</Filter>
@@ -812,13 +806,7 @@
     <ClInclude Include="engine\sound\SoundDevice.h">
       <Filter>engine\sound</Filter>
     </ClInclude>
-    <ClInclude Include="src\States\Controls.h">
-      <Filter>Source Files\States</Filter>
-    </ClInclude>
     <ClInclude Include="src\States\Default.h">
-      <Filter>Source Files\States</Filter>
-    </ClInclude>
-    <ClInclude Include="src\States\Settings.h">
       <Filter>Source Files\States</Filter>
     </ClInclude>
     <ClInclude Include="src\States\StateMachine.h">

@@ -260,13 +260,11 @@
     <ClCompile Include="src\States\Adrian.cpp" />
     <ClCompile Include="src\States\AdrianMenu.cpp" />
     <ClCompile Include="src\States\BillboardState.cpp" />
-    <ClCompile Include="src\States\Controls.cpp" />
     <ClCompile Include="src\States\Default.cpp" />
     <ClCompile Include="src\States\MapState.cpp" />
     <ClCompile Include="src\States\Md2State.cpp" />
     <ClCompile Include="src\States\NavigationState.cpp" />
     <ClCompile Include="src\States\NavigationStreamState.cpp" />
-    <ClCompile Include="src\States\Settings.cpp" />
     <ClCompile Include="src\States\StateMachine.cpp" />
     <ClCompile Include="src\States\Winston.cpp" />
     <ClCompile Include="src\UI\Bar.cpp" />
@@ -486,13 +484,11 @@
     <ClInclude Include="src\States\Adrian.h" />
     <ClInclude Include="src\States\AdrianMenu.h" />
     <ClInclude Include="src\States\BillboardState.h" />
-    <ClInclude Include="src\States\Controls.h" />
     <ClInclude Include="src\States\Default.h" />
     <ClInclude Include="src\States\MapState.h" />
     <ClInclude Include="src\States\Md2State.h" />
     <ClInclude Include="src\States\NavigationState.h" />
     <ClInclude Include="src\States\NavigationStreamState.h" />
-    <ClInclude Include="src\States\Settings.h" />
     <ClInclude Include="src\States\StateMachine.h" />
     <ClInclude Include="src\States\Winston.h" />
     <ClInclude Include="src\UI\Bar.h" />

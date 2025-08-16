@@ -1,7 +1,5 @@
 #include <engine/Fontrenderer.h>
 
-#include <States/Settings.h>
-#include <States/Controls.h>
 #include <States/Default.h>
 #include <States/NavigationState.h>
 #include <States/NavigationStreamState.h>
@@ -17,7 +15,7 @@
 #include "Globals.h"
 
 Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
-
+	Globals::musicManager.get("background").stop();
 	EventDispatcher::AddMouseListener(this);
 	EventDispatcher::AddKeyboardListener(this);
 
@@ -35,8 +33,6 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 		{ "adrian",            Button() },
 		{ "md2",               Button() },
 		{ "winston",           Button() },
-		{ "settings",          Button() },
-		{ "controls",          Button() },
 		{ "billboard",         Button() },
 	});
 
@@ -76,15 +72,6 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 		m_machine.addStateAtBottom(new MapState(m_machine));
 	});
 
-	m_buttons.at("adrian").setCharset(Globals::fontManager.get("upheaval_30"));
-	m_buttons.at("adrian").setPosition(50.0f, 100.0f);
-	m_buttons.at("adrian").setOutlineThickness(5.0f);
-	m_buttons.at("adrian").setText("Adrian");
-	m_buttons.at("adrian").setFunction([&]() {
-		m_isRunning = false;
-		m_machine.addStateAtBottom(new AdrianMenu(m_machine));
-	});
-
 	m_buttons.at("md2").setCharset(Globals::fontManager.get("upheaval_30"));
 	m_buttons.at("md2").setPosition(450.0f, 500.0f);
 	m_buttons.at("md2").setOutlineThickness(5.0f);
@@ -112,22 +99,13 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 		m_machine.addStateAtBottom(new BillboardState(m_machine));
 	});
 
-	m_buttons.at("settings").setCharset(Globals::fontManager.get("upheaval_30"));
-	m_buttons.at("settings").setPosition(static_cast<float>(Application::Width - 250), 200.0f);
-	m_buttons.at("settings").setOutlineThickness(5.0f);
-	m_buttons.at("settings").setText("Settings");
-	m_buttons.at("settings").setFunction([&]() {
+	m_buttons.at("adrian").setCharset(Globals::fontManager.get("upheaval_30"));
+	m_buttons.at("adrian").setPosition(static_cast<float>(Application::Width - 250), 100.0f);
+	m_buttons.at("adrian").setOutlineThickness(5.0f);
+	m_buttons.at("adrian").setText("Adrian");
+	m_buttons.at("adrian").setFunction([&]() {
 		m_isRunning = false;
-		m_machine.addStateAtBottom(new Settings(m_machine));
-	});
-
-	m_buttons.at("controls").setCharset(Globals::fontManager.get("upheaval_30"));
-	m_buttons.at("controls").setPosition(static_cast<float>(Application::Width - 250), 100.0f);
-	m_buttons.at("controls").setOutlineThickness(5.0f);
-	m_buttons.at("controls").setText("Controls");
-	m_buttons.at("controls").setFunction([&]() {
-		m_isRunning = false;
-		m_machine.addStateAtBottom(new Controls(m_machine));
+		m_machine.addStateAtBottom(new AdrianMenu(m_machine));
 	});
 
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);

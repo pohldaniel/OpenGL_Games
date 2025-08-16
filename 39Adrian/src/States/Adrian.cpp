@@ -27,8 +27,9 @@ m_invisible(false),
 m_miniMap(m_camera, m_scene, m_entities),
 m_billboard(m_camera),
 m_navPolygonHelper(m_mousePicker, m_camera),
-m_scene(background){
-
+m_scene(background),
+m_mode(Mode::TOON){
+	Globals::musicManager.get("background").play("data/wavs/background.wav");
 	Application::SetCursorIcon(arrow);
 
 	EventDispatcher::AddKeyboardListener(this);
@@ -114,8 +115,9 @@ void Adrian::fixedUpdate() {
 		entity->fixedUpdate(m_fdt);
 		if (index != 0) {
 			if (!m_invisible) {
-				m_hero->handleCollision(static_cast<Bot*>(entity)->getSegmentBody());
-				//std::cout << static_cast<Bot*>(entity)->getSegmentBody() << "  " << m_hero->getSegmentBody() << std::endl;
+				if (m_hero->handleCollision(static_cast<Bot*>(entity)->getSegmentBody())) {
+					Globals::musicManager.get("background").play("data/wavs/alarm.wav");
+				}
 			}
 
 			static_cast<Bot*>(entity)->handleCollision(m_hero->getSegmentBody());
@@ -160,6 +162,18 @@ void Adrian::update() {
 
 	if (keyboard.keyPressed(Keyboard::KEY_I)) {
 		m_invisible = !m_invisible;
+	}
+
+	if (keyboard.keyPressed(Keyboard::KEY_P)) {
+		m_usePostprocess = !m_usePostprocess;
+	}
+
+	if (keyboard.keyPressed(Keyboard::KEY_1)) {
+		m_mode = Mode::TOON;
+	}
+
+	if (keyboard.keyPressed(Keyboard::KEY_2)) {
+		m_mode = Mode::BLOOM;
 	}
 
 	if (keyboard.keyPressed(Keyboard::KEY_U)) {
@@ -244,7 +258,9 @@ void Adrian::render() {
 	renderSceneShadow();
 	m_shadowRT.bindDepthTexture(2u);
 
-	m_mainRT.bind();
+	if (m_usePostprocess)
+		m_mainRT.bind();
+
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	renderScene();
 
@@ -257,19 +273,21 @@ void Adrian::render() {
 
 	glDepthMask(GL_TRUE);
 
-	m_mainRT.unbind();
+	if(m_usePostprocess)
+		m_mainRT.unbind();
 
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	if (m_usePostprocess) {
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	m_mainRT.bindColorTexture(0u);
-	auto shader = Globals::shaderManager.getAssetPointer("toon");
-	shader->use();
-	shader->loadInt("u_color", 0);
-	shader->loadInt("u_shadow", 2);
-	Globals::shapeManager.get("quad_xy").drawRaw();
-	shader->unuse();
+		m_mainRT.bindColorTexture(0u);
+		auto shader = m_mode == Mode::TOON ? Globals::shaderManager.getAssetPointer("toon") : Globals::shaderManager.getAssetPointer("bloom");
+		shader->use();
+		shader->loadInt("u_color", 0);
+		Globals::shapeManager.get("quad_xy").drawRaw();
+		shader->unuse();
+	}
 
-	shader = Globals::shaderManager.getAssetPointer("shape_color");
+	auto shader = Globals::shaderManager.getAssetPointer("shape_color");
 	shader->use();
 	Globals::textureManager.get("null").bind(0);
 	shader->loadMatrix("u_projection", m_camera.getOrthographicMatrix());
@@ -342,7 +360,7 @@ void Adrian::render() {
 		Fontrenderer::Get().addText(m_scene.characterSet, (500.0f / 640.0f) * static_cast<float>(Application::Width), (450.0f / 480.0f) * static_cast<float>(Application::Height), "F1:HELP", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
 		if (m_showHelp) {
 			Fontrenderer::Get().addText(m_scene.characterSet, (20.0f / 640.0f) * static_cast<float>(Application::Width), (450.0f / 480.0f) * static_cast<float>(Application::Height), "F2 : QUIT GAME", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
-			Fontrenderer::Get().addText(m_scene.characterSet, (20.0f / 640.0f) * static_cast<float>(Application::Width), (430.0f / 480.0f) * static_cast<float>(Application::Height), "P  : PAUSE GAME", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
+			Fontrenderer::Get().addText(m_scene.characterSet, (20.0f / 640.0f) * static_cast<float>(Application::Width), (430.0f / 480.0f) * static_cast<float>(Application::Height), "P  : USE POSTPROCESS", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
 			Fontrenderer::Get().addText(m_scene.characterSet, (20.0f / 640.0f) * static_cast<float>(Application::Width), (410.0f / 480.0f) * static_cast<float>(Application::Height), "Q  : ROTATE CAMERA ANTICLOCKWISE", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
 			Fontrenderer::Get().addText(m_scene.characterSet, (20.0f / 640.0f) * static_cast<float>(Application::Width), (390.0f / 480.0f) * static_cast<float>(Application::Height), "E  : ROTATE CAMERA CLOCKWISE", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, true);
 
@@ -564,6 +582,7 @@ void Adrian::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 					m_currentBot = static_cast<Bot*>(cb.m_userPointer2);
 					bool inRange = m_currentBot->isInRange();
 					if (inRange) {
+						Globals::soundManager.get("game").play("data/wavs/laser.wav");
 						m_hero->setAnimationType(AnimationType::ATTACK);
 						m_hero->setOnAnimationEnd([&m_hero = m_hero, &m_currentBot = m_currentBot] {
 							m_hero->setAnimationType(AnimationType::STAND);

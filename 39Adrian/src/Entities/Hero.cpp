@@ -66,9 +66,12 @@ btRigidBody* Hero::getTriggerBody() {
 	return m_triggerBody;
 }
 
-void Hero::handleCollision(btCollisionObject* collisionObject) {
+bool Hero::handleCollision(btCollisionObject* collisionObject) {
+	m_triggerResult.tick = false;
 	if(!isDeath() && collisionObject)
 		Physics::GetDynamicsWorld()->contactPairTest(m_triggerBody, collisionObject, m_triggerResult);
+
+	return m_triggerResult.tick;
 }
 
 void Hero::setIsDeath(bool isDeath) {
@@ -90,7 +93,7 @@ btScalar Hero::TriggerCallback::addSingleResult(btManifoldPoint& cp, const btCol
 	hero->resetAgent();
 	hero->removeAgent();
 	hero->setIsDeath(true);
-	
+	tick = true;
 
 	ShapeNode* shape = hero->findChild<ShapeNode>("disk");
 	if (shape) {

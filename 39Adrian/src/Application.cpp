@@ -56,7 +56,7 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	initOpenGL(16);
 	showWindow();
 	initImGUI();
-	//initOpenAL();
+	initOpenAL();
 	loadAssets();
 
 	Framebuffer::SetDefaultSize(Width, Height);
@@ -112,7 +112,11 @@ Application::~Application() {
 	Globals::shaderManager.clear();
 	Widget::CleanUp();
     Sprite::CleanUp();
-	
+
+	Globals::musicManager.get("background").cleanup();
+	Globals::soundManager.get("game").cleanup();
+	SoundDevice::shutDown();
+	ImGui_ImplWin32_Shutdown();
 	ImGui::DestroyContext();
 
 	HDC hdc = GetDC(Window);
@@ -450,8 +454,8 @@ void Application::initStates() {
 	//Machine->addStateAtTop(new MapState(*Machine));
 	//Machine->addStateAtTop(new NavigationState(*Machine));
 	//Machine->addStateAtTop(new NavigationStreamState(*Machine));
-	Machine->addStateAtTop(new Adrian(*Machine));
-	//Machine->addStateAtTop(new AdrianMenu(*Machine));
+	//Machine->addStateAtTop(new Adrian(*Machine));
+	Machine->addStateAtTop(new AdrianMenu(*Machine));
 	//Machine->addStateAtTop(new Winston(*Machine));
 	//Machine->addStateAtTop(new BillboardState(*Machine));
 }
@@ -814,4 +818,12 @@ void Application::loadAssets() {
 	Globals::animationManagerNew.loadAnimationAssimp("woman_idle", "res/models/woman/Woman.gltf", "Idle", "woman_idle");
 	Globals::animationManagerNew.loadAnimationAssimp("woman_punch", "res/models/woman/Woman.gltf", "Punch", "woman_punch");
 	Globals::animationManagerNew.loadAnimationAssimp("woman_sit", "res/models/woman/Woman.gltf", "Sitting", "woman_sit");
+
+	MusicBuffer::Init();
+	Globals::musicManager.createMusicBuffer("background", 0.3f);
+	Globals::musicManager.get("background").setLooping(true);
+	Globals::musicManager.get("background").run();
+
+	SoundBuffer::Init();
+	Globals::soundManager.createSoundBuffer("game", 3u, 3u, 0.3f);
 }

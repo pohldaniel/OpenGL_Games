@@ -4,14 +4,12 @@ in vec2 v_texCoord;
 in vec4 v_color;
 
 uniform sampler2D u_color;
-uniform sampler2D u_shadow;
 
 out vec4 outColor;
 
 void main(){
 
 	vec4 texel = texture2D(u_color, v_texCoord);
-    //vec4 dpt = texture2D(u_shadow, v_texCoord);
 	mat3 gx = mat3(-1.0f, -2.0f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 2.0f, 1.0f);
     mat3 gy = mat3(1.0f, 0.0f, -1.0f, 2.0f, 0.0f, -2.0f, 1.0f, 0.0f, -1.0f);
 	int i, j;

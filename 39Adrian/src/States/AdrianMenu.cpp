@@ -10,7 +10,7 @@
 
 
 AdrianMenu::AdrianMenu(StateMachine& machine) : State(machine, States::ADRIAN_MENU) {
-
+	Globals::musicManager.get("background").play("data/wavs/menu.wav");
 	EventDispatcher::AddMouseListener(this);
 	EventDispatcher::AddKeyboardListener(this);
 
@@ -732,6 +732,7 @@ void MenuItem::processInput(const int mousex, const int mousey, const Event::Mou
 
 	bool pressed = false;
 	bool hover = false;
+	bool wasHover = offset != 0.0f;
 	if (mousex >= x && mousex <= x + width + 2.0f + offset) {
 		if (Application::Height - mousey >= y && Application::Height - mousey <= y + DEFAULT_FONT_HEIGHT) {			
 			hover = true;
@@ -744,4 +745,7 @@ void MenuItem::processInput(const int mousex, const int mousey, const Event::Mou
 	}
 
 	offset = OnClick && hover ? 20.0f : 0.0f;
+
+	if(hover && !wasHover && OnClick)
+		Globals::soundManager.get("game").play("data/wavs/ting.wav");
 }
