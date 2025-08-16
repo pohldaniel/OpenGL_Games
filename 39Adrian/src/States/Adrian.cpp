@@ -18,12 +18,11 @@
 Adrian::Adrian(StateMachine& machine, const std::string& background) : State(machine, States::ADRIAN),
 m_camera(Application::Width, Application::Height),
 m_cameraController(m_camera, Application::Width, Application::Height),
-m_streamingDistance(6),
+m_streamingDistance(18),
 m_fade(m_fadeValue),
 m_fadeCircle(m_fadeCircleValue),
 m_separaionWeight(3.0f),
 m_currentPanelTex(-1),
-m_invisible(false),
 m_miniMap(m_camera, m_scene, m_entities),
 m_billboard(m_camera),
 m_navPolygonHelper(m_mousePicker, m_camera),
@@ -156,12 +155,9 @@ void Adrian::update() {
 		toggleStreaming(m_useStreaming);
 	}
 
-	if (keyboard.keyPressed(Keyboard::KEY_F)) {
-		m_fade.toggleFade(false);
-	}
-
 	if (keyboard.keyPressed(Keyboard::KEY_I)) {
 		m_invisible = !m_invisible;
+		m_fade.toggleFade(false);
 	}
 
 	if (keyboard.keyPressed(Keyboard::KEY_P)) {
@@ -182,12 +178,15 @@ void Adrian::update() {
 		Utils::NavIO navIO;
 		if (m_noWalls) {
 			m_navigationMesh->clearTileData();
-			navIO.readNavigationMap("res/data_no.nav", m_navigationMesh->numTilesX(), m_navigationMesh->numTilesZ(), m_navigationMesh->boundingBox(), m_navigationMesh->tileData());			
+			navIO.readNavigationMap("res/data_no.nav", m_navigationMesh->numTilesX(), m_navigationMesh->numTilesZ(), m_navigationMesh->boundingBox(), m_navigationMesh->tileData());					
 			m_navigationMesh->allocate();						
 			m_crowdManager->resetNavMesh(m_navigationMesh->getDetourNavMesh());
 			m_crowdManager->initNavquery(m_navigationMesh->getDetourNavMesh());
 			m_navigationMesh->addTiles();
 			m_crowdManager->reCreateCrowd();
+			if (m_useStreaming)
+				toggleStreaming(true);
+
 		}else {
 			m_navigationMesh->clearTileData();
 			navIO.readNavigationMap("res/data_fin.nav", m_navigationMesh->numTilesX(), m_navigationMesh->numTilesZ(), m_navigationMesh->boundingBox(), m_navigationMesh->tileData());
@@ -196,6 +195,8 @@ void Adrian::update() {
 			m_crowdManager->initNavquery(m_navigationMesh->getDetourNavMesh());
 			m_navigationMesh->addTiles();
 			m_crowdManager->reCreateCrowd(Vector3f(1000.0f, 0.0f, 1000.0f));
+			if (m_useStreaming)
+				toggleStreaming(true);
 		}
 	}
 
@@ -203,6 +204,7 @@ void Adrian::update() {
 		const Vector3f& pos = m_hero->getWorldPosition();
 		if (pos[0] <= -580 && pos[2] <= -640) {
 			m_roatecamera = true;
+			//centerHero();
 		}
 	}
 
@@ -1031,6 +1033,8 @@ void Adrian::toggleStreaming(bool enabled) {
 		BoundingBox boundingBox = m_navigationMesh->getBoundingBox();
 		saveNavigationData();
 		m_navigationMesh->allocate(boundingBox, maxTiles);
+		m_crowdManager->resetNavMesh(m_navigationMesh->getDetourNavMesh());
+		m_crowdManager->initNavquery(m_navigationMesh->getDetourNavMesh());
 		updateStreaming();
 	}else {
 		rebuild();
@@ -1078,6 +1082,9 @@ void Adrian::rebuild() {
 	BoundingBox boundingBox = m_navigationMesh->getBoundingBox();
 	m_navigationMesh->allocate(boundingBox, numTiles[0], numTiles[1]);
 	m_navigationMesh->addTiles();
+	m_crowdManager->resetNavMesh(m_navigationMesh->getDetourNavMesh());
+	m_crowdManager->initNavquery(m_navigationMesh->getDetourNavMesh());
+	m_crowdManager->reCreateCrowd();
 }
 
 void Adrian::spawnHero(const Vector3f& pos) {

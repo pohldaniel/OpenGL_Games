@@ -24,8 +24,8 @@
 //#define PHYSICS_STEP 0.0125f
 //#define PHYSICS_STEP 0.0083333333333333f
 
-#define UPDATE_STEP 0.0166666666666667f
-//#define UPDATE_STEP 0.0083333333333333f
+//#define UPDATE_STEP 0.0166666666666667f
+#define UPDATE_STEP 0.0083333333333333f
 
 namespace Globals {
 	extern AssetManager<Shader> shaderManager;
