@@ -75,14 +75,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		application.update();
 		application.render();
 
-		//if (deltaTime > 1.0f) {
-		//	deltaTime = UPDATE_STEP;
-		//}
+		if (deltaTime > 1.0f) {
+			deltaTime = UPDATE_STEP;
+		}
 
-		//float timeToSleep = UPDATE_STEP - deltaTime;
-		//if (0 < timeToSleep) {
-		//	std::this_thread::sleep_for(std::chrono::milliseconds((uint32_t)(timeToSleep * 1000.0f)));
-		//}
+		float timeToSleep = UPDATE_STEP - deltaTime;
+		if (0 < timeToSleep) {
+			std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<uint32_t>(timeToSleep * 1000.0f)));
+		}
 
 		deltaTime = deltaClock.resetSec();
 
