@@ -18,14 +18,13 @@ Md2State::Md2State(StateMachine& machine) : State(machine, States::MD2){
 
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
-	m_camera.lookAt(Vector3f(0.0f, 20.0f, 50.0f), Vector3f(0.0f, 19.5f, 50.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
+	m_camera.lookAt(Vector3f(0.0f, 25.0f, 100.0f), Vector3f(0.0f, 25.0f, 100.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
 	m_camera.setRotationSpeed(0.1f);
 	m_camera.setMovingSpeed(20.0f);
 
 	glClearColor(0.494f, 0.686f, 0.796f, 1.0f);
 	glClearDepth(1.0f);
 
-	
 	Material::AddTexture("data/models/dynamic/hero/hero.tga");
 	Material::AddTexture("data/models/dynamic/ripper/ripper.tga");
 	Material::AddTexture("data/models/dynamic/corpse/corpse.tga");

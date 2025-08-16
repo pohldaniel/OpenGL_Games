@@ -40,7 +40,7 @@ MapState::MapState(StateMachine& machine) : State(machine, States::MAP), m_camer
 	DebugRenderer::Get().setEnable(true);
 	m_root = new SceneNodeLC();
 	m_heroEnity = m_root->addChild<Md2Entity, Md2Model>(m_heroModel);
-	m_heroEnity->Md2Node::setPosition(-780.0f, MAP_MODEL_HEIGHT_Y, 780.0f);
+	m_heroEnity->Md2Node::setPosition(-780.0f, 0.0f, 780.0f);
 	m_heroEnity->Md2Node::setOrientation(0.0f, 0.0f, 0.0f);
 	m_heroEnity->Md2Node::setTextureIndex(0);
 	m_heroEnity->OnOctreeSet(m_octree);
@@ -48,12 +48,13 @@ MapState::MapState(StateMachine& machine) : State(machine, States::MAP), m_camer
 	ShapeDrawer::Get().init(32768);
 	ShapeDrawer::Get().setCamera(m_camera);
 	m_rigidBody = Physics::AddKinematicRigidBody(Physics::BtTransform(Physics::VectorFrom(m_heroEnity->getWorldPosition())), new btBoxShape(btVector3(0.5f, 0.5f, 0.5f)), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::MOUSEPICKER, nullptr, false);
+	ShapeDrawer::Get().addToCache(m_rigidBody->getCollisionShape());
 
-	m_segment.buildSegmentXZ(150.0f, -30.0f, 30.0f, Vector3f(0.0f, 0.0f, 0.0f), 20, 20, true, false, false);
+	m_segment.buildSegmentXZ(150.0f, 60.0f, 120.0f, Vector3f(0.0f, 0.0f, 0.0f), 20, 20, true, false, false);
 	m_segment.createBoundingBox();
 	m_segment.markForDelete();
 	m_segmentNode = m_heroEnity->addChild<ShapeNode, Shape>(m_segment);
-	m_segmentNode->setPosition(0.0f, -MAP_MODEL_HEIGHT_Y + 0.01f, 0.0f);
+	m_segmentNode->setPosition(0.0f, 0.5f, 0.0f);
 	m_segmentNode->setTextureIndex(1);
 	m_segmentNode->OnOctreeSet(m_octree);
 
@@ -79,9 +80,9 @@ void MapState::fixedUpdate() {
 	const Vector3f& pos = m_heroEnity->getWorldPosition();
 	const Quaternion& rot = m_heroEnity->getWorldOrientation();
 	const Vector3f size = aabb.getSize();
-	Vector3f pivot(0.0f, aabb.min[1] + size[1] * 0.5f, 0.0f);
-	btTransform trans = Physics::BtTransform(pos + pivot, rot);
-	m_rigidBody->setWorldTransform(trans);
+	const Vector3f pivot1(0.0f, aabb.min[1] + size[1] * 0.5f, 0.0f);
+
+	m_rigidBody->setWorldTransform(Physics::BtTransform(pos + pivot1, rot));
 	m_rigidBody->getCollisionShape()->setLocalScaling(Physics::VectorFrom(size * 0.75));
 
 	Globals::physics->stepSimulation(m_fdt);
@@ -146,7 +147,7 @@ void MapState::update() {
 	if (moveDir.lengthSq() > 0.0f)
 		Vector3f::Normalize(moveDir);
 
-	//m_heroEnity->translateRelative(moveDir);
+	m_heroEnity->translateRelative(moveDir);
 
 	m_octree->updateFrameNumber();
 	m_heroEnity->update(m_dt);
@@ -234,11 +235,11 @@ void MapState::OnMouseMotion(Event::MouseMoveEvent& event) {
 void MapState::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 	if (event.button == 2u) {
 		Mouse::instance().attach(Application::GetWindow(), false, false, false);
-		
 		if (m_mousePicker.clickOrthographicAll(event.x, event.y, m_camera, m_ground, {})) {
 			const MousePickCallbackAll& callbackAll = m_mousePicker.getCallbackAll();
 			Vector3f pos = Physics::VectorFrom(callbackAll.m_hitPointWorld[callbackAll.index]);
 			Renderer::Get().addMarker(pos, 20.0f, 2);
+			m_heroEnity->Md2Node::setPosition(pos);
 		}
 	}
 
@@ -249,7 +250,7 @@ void MapState::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 		if (m_mousePicker.clickOrthographic(event.x, event.y, m_camera, m_rigidBody)) {
 			if (!m_heroEnity->isActive()) {
 				m_diskNode = m_heroEnity->addChild<ShapeNode, Shape>(m_disk);
-				m_diskNode->setPosition(0.0f, -MAP_MODEL_HEIGHT_Y + 0.01f, 0.0f);
+				m_diskNode->setPosition(0.0f, 0.51f, 0.0f);
 				m_diskNode->setTextureIndex(2);
 				m_diskNode->setName("disk");
 				m_diskNode->OnOctreeSet(m_octree);	
@@ -308,10 +309,7 @@ void MapState::OnKeyUp(Event::KeyboardEvent& event) {
 
 void MapState::resize(int deltaW, int deltaH) {
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
-	//m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
 	m_camera.orthographic(-static_cast<float>(Application::Width / 2) / m_zoom, static_cast<float>(Application::Width / 2) / m_zoom, -static_cast<float>(Application::Height / 2) / m_zoom, static_cast<float>(Application::Height / 2) / m_zoom, -static_cast<float>(Application::Width) / m_zoom, static_cast<float>(Application::Width) / m_zoom);
-
-
 	m_camera.resize(Application::Width, Application::Height);
 }
 

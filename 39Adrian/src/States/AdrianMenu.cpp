@@ -357,6 +357,32 @@ AdrianMenu::AdrianMenu(StateMachine& machine) : State(machine, States::ADRIAN_ME
 
 	linex = 0;
 	increment = 1;
+
+	m_texture1.markForDelete();
+	m_texture2.markForDelete();
+	m_texture3.markForDelete();
+	m_texture4.markForDelete();
+	m_texture5.markForDelete();
+	m_texture6.markForDelete();
+	m_texture7.markForDelete();
+	m_texture8.markForDelete();
+	m_texture9.markForDelete();
+	m_texture10.markForDelete();
+	m_texture11.markForDelete();
+	m_texture12.markForDelete();
+	m_texture13.markForDelete();
+
+	m_texture14.markForDelete();
+	m_texture15.markForDelete();
+	m_texture16.markForDelete();
+	m_texture17.markForDelete();
+	m_texture18.markForDelete();
+	m_texture19.markForDelete();
+	m_texture20.markForDelete();
+	m_texture21.markForDelete();
+	m_texture22.markForDelete();
+	m_texture23.markForDelete();
+	m_texture24.markForDelete();
 }
 
 AdrianMenu::~AdrianMenu() {

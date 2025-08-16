@@ -4,8 +4,6 @@
 #include <engine/scene/Md2Node.h>
 #include <Entities/Entity.h>
 
-#define		MAP_MODEL_HEIGHT_Y	25.0f
-
 class Md2Entity : public Md2Node, public Entity {
 
 public:

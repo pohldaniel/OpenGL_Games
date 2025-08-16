@@ -14,7 +14,7 @@
 #define			DEFAULT_FONT_WIDTH				12.5f
 #define			DEFAULT_FONT_HEIGHT				25.0f
 
-enum AnimationType2 {
+enum AnimationTypeMenu {
 	ANIMATION_STRAIGHT,
 	ANIMATION_SPIRAL
 };
@@ -28,7 +28,7 @@ struct MenuItem {
 	float x;
 	float y;
 
-	AnimationType2 animationType;
+	AnimationTypeMenu animationType;
 	Texture texture;
 	float xincrement;
 	float yincrement;
@@ -77,7 +77,7 @@ private:
 	void animate();
 	float animatePercent = 0.0f;
 	int noOfMenuItems = 5;
-	AnimationType2 animationType = ANIMATION_SPIRAL;
+	AnimationTypeMenu animationType = ANIMATION_SPIRAL;
 
 	MenuItem item1, item2, item3, item4, item5;
 	MenuItem item6, item7, item8, item9, item10;
