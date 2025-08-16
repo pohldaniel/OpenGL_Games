@@ -28,7 +28,7 @@ m_billboard(m_camera),
 m_navPolygonHelper(m_mousePicker, m_camera),
 m_scene(background),
 m_mode(Mode::TOON){
-	Globals::musicManager.get("background").play("data/wavs/background.wav");
+	Globals::musicManager.get("background").play("res/wavs/background.wav");
 	Application::SetCursorIcon(arrow);
 
 	EventDispatcher::AddKeyboardListener(this);
@@ -115,7 +115,7 @@ void Adrian::fixedUpdate() {
 		if (index != 0) {
 			if (!m_invisible) {
 				if (m_hero->handleCollision(static_cast<Bot*>(entity)->getSegmentBody())) {
-					Globals::musicManager.get("background").play("data/wavs/alarm.wav");
+					Globals::musicManager.get("background").play("res/wavs/alarm.wav");
 				}
 			}
 
@@ -591,7 +591,7 @@ void Adrian::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 					m_currentBot = static_cast<Bot*>(cb.m_userPointer2);
 					bool inRange = m_currentBot->isInRange();
 					if (inRange) {
-						Globals::soundManager.get("game").play("data/wavs/laser.wav");
+						Globals::soundManager.get("game").play("res/wavs/laser.wav");
 						m_hero->setAnimationType(AnimationType::ATTACK);
 						m_hero->setOnAnimationEnd([&m_hero = m_hero, &m_currentBot = m_currentBot] {
 							m_hero->setAnimationType(AnimationType::STAND);

@@ -93,7 +93,7 @@ class Adrian : public State, public MouseEventListener, public KeyboardEventList
 
 public:
 
-	Adrian(StateMachine& machine, const std::string& background = "data/textures/buildings/ground.tga");
+	Adrian(StateMachine& machine, const std::string& background = "res/textures/ground.tga");
 	~Adrian();
 
 	void fixedUpdate() override;

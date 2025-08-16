@@ -747,8 +747,8 @@ void Application::loadAssets() {
 	Globals::fontManager.loadCharacterSet("upheaval_200", "res/fonts/upheavtt.ttf", 200, 0, 30, 128, 0, true, 0u);
 	Globals::fontManager.loadCharacterSet("upheaval_100", "res/fonts/upheavtt.ttf", 100, 0, 30, 128, 0, true, 0u);
 	Globals::fontManager.loadCharacterSet("upheaval_30", "res/fonts/upheavtt.ttf", 30, 0, 3, 0, 0, true, 0u);
-	Globals::fontManager.loadCharacterSet("tahoma_64", "data/fonts/tahoma.ttf", 64, 20, 20, 0, 5, true, 0u);
-	Globals::fontManager.loadCharacterSet("tahomab_64", "data/fonts/tahomabd.ttf", 64, 20, 20, 0, 5, true, 0u);
+	Globals::fontManager.loadCharacterSet("tahoma_64", "res/fonts/tahoma.ttf", 64, 20, 20, 0, 5, true, 0u);
+	Globals::fontManager.loadCharacterSet("tahomab_64", "res/fonts/tahomabd.ttf", 64, 20, 20, 0, 5, true, 0u);
 
 	Globals::textureManager.loadTexture("forest_1", "res/backgrounds/Forest/plx-1.png");
 	Globals::textureManager.loadTexture("forest_2", "res/backgrounds/Forest/plx-2.png");
@@ -757,17 +757,17 @@ void Application::loadAssets() {
 	Globals::textureManager.loadTexture("forest_5", "res/backgrounds/Forest/plx-5.png");
 	Globals::textureManager.createNullTexture("null");
 
-	Globals::textureManager.loadTexture("corpse", "data/models/dynamic/corpse/corpse.tga");
-	Globals::textureManager.loadTexture("hero", "data/models/dynamic/hero/hero.tga");
-	Globals::textureManager.loadTexture("hueteotl", "data/models/dynamic/hueteotl/hueteotl.tga");
-	Globals::textureManager.loadTexture("mutantcheetah", "data/models/dynamic/mutantcheetah/mutantcheetah.tga");
+	Globals::textureManager.loadTexture("corpse", "res/models/dynamic/corpse/corpse.tga");
+	Globals::textureManager.loadTexture("hero", "res/models/dynamic/hero/hero.tga");
+	Globals::textureManager.loadTexture("hueteotl", "res/models/dynamic/hueteotl/hueteotl.tga");
+	Globals::textureManager.loadTexture("mutantcheetah", "res/models/dynamic/mutantcheetah/mutantcheetah.tga");
 
-	Globals::textureManager.loadTexture("mutantlizard", "data/models/dynamic/mutantlizard/mutantlizard.tga");
-	Globals::textureManager.loadTexture("mutantman", "data/models/dynamic/mutantman/mutantman.tga");
-	Globals::textureManager.loadTexture("ripper", "data/models/dynamic/ripper/ripper.tga");
+	Globals::textureManager.loadTexture("mutantlizard", "res/models/dynamic/mutantlizard/mutantlizard.tga");
+	Globals::textureManager.loadTexture("mutantman", "res/models/dynamic/mutantman/mutantman.tga");
+	Globals::textureManager.loadTexture("ripper", "res/models/dynamic/ripper/ripper.tga");
 
 	Globals::textureManager.loadTexture("death", "res/textures/death.png");
-	Globals::textureManager.loadTexture("tree", "data/textures/misc/tree.tga");
+	Globals::textureManager.loadTexture("tree", "res/textures/misc/tree.tga");
 
 	Globals::textureManager.loadTexture("ground", "res/textures/ground.tga", false);
 	Globals::textureManager.get("ground").setWrapMode(GL_REPEAT);
@@ -778,7 +778,7 @@ void Application::loadAssets() {
 	Globals::textureManager.loadTexture("crate", "res/textures/crate.tga", false);
 	Globals::textureManager.get("crate").setWrapMode(GL_REPEAT);
 
-	Globals::textureManager.loadTexture("background", "data/textures/menu/blood_splatter.jpg", true);
+	Globals::textureManager.loadTexture("background", "res/textures/blood_splatter.jpg", true);
 	Globals::textureManager.get("background").setLinear();
 
 	Globals::textureManager.loadTexture("proto_white", "res/textures/ProtoWhite256.jpg", true);

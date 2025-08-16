@@ -27,7 +27,7 @@ Scene::~Scene() {
 }
 
 void Scene::loadScene() {
-	Material::AddTexture("res/textures/los.tga");
+	Material::AddTexture("res/textures/misc/los.tga");
 	Material::AddTexture();
 	Material::AddTexture("res/textures/crate.tga", TextureType::TEXTURE2D, false);
 	Material::GetTextures().back().setLinear();
@@ -49,32 +49,32 @@ void Scene::loadScene() {
 	Material::AddTexture("res/textures/ground.tga", TextureType::TEXTURE2D, false);
 	Material::GetTextures().back().setLinear();
 
-	Material::AddTexture("data/models/dynamic/hero/hero.tga");
+	Material::AddTexture("res/models/dynamic/hero/hero.tga");
 	Material::GetTextures().back().setLinear();
-	Material::AddTexture("data/models/dynamic/hueteotl/hueteotl.tga");
+	Material::AddTexture("res/models/dynamic/hueteotl/hueteotl.tga");
 	Material::GetTextures().back().setLinear();
-	Material::AddTexture("data/models/dynamic/mutantman/mutantman.tga");
+	Material::AddTexture("res/models/dynamic/mutantman/mutantman.tga");
 	Material::GetTextures().back().setLinear();
-	Material::AddTexture("data/models/dynamic/corpse/corpse.tga");
+	Material::AddTexture("res/models/dynamic/corpse/corpse.tga");
 	Material::GetTextures().back().setLinear();
-	Material::AddTexture("data/models/dynamic/mutantlizard/mutantlizard.tga");
+	Material::AddTexture("res/models/dynamic/mutantlizard/mutantlizard.tga");
 	Material::GetTextures().back().setLinear();
-	Material::AddTexture("data/models/dynamic/mutantcheetah/mutantcheetah.tga");
+	Material::AddTexture("res/models/dynamic/mutantcheetah/mutantcheetah.tga");
 	Material::GetTextures().back().setLinear();
-	Material::AddTexture("data/models/dynamic/ripper/ripper.tga");
+	Material::AddTexture("res/models/dynamic/ripper/ripper.tga");
 	Material::GetTextures().back().setLinear();
-	Material::AddTexture("data/textures/misc/tree.tga");
+	Material::AddTexture("res/textures/misc/tree.tga");
 	Material::GetTextures().back().setLinear();
 
-	heroModel.load("data/models/dynamic/hero/hero.md2");
-	hueteotl.load("data/models/dynamic/hueteotl/hueteotl.md2");
-	mutantman.load("data/models/dynamic/mutantman/mutantman.md2");
-	corpse.load("data/models/dynamic/corpse/corpse.md2");
-	mutantlizard.load("data/models/dynamic/mutantlizard/mutantlizard.md2");
-	mutantcheetah.load("data/models/dynamic/mutantcheetah/mutantcheetah.md2");
-	ripper.load("data/models/dynamic/ripper/ripper.md2");
+	heroModel.load("res/models/dynamic/hero/hero.md2");
+	hueteotl.load("res/models/dynamic/hueteotl/hueteotl.md2");
+	mutantman.load("res/models/dynamic/mutantman/mutantman.md2");
+	corpse.load("res/models/dynamic/corpse/corpse.md2");
+	mutantlizard.load("res/models/dynamic/mutantlizard/mutantlizard.md2");
+	mutantcheetah.load("res/models/dynamic/mutantcheetah/mutantcheetah.md2");
+	ripper.load("res/models/dynamic/ripper/ripper.md2");
 
-	loadBots("data/maps/default/main.map");
+	loadBots("res/maps/default/main.map");
 	loadBuilding("res/building_0.bld");
 	loadBuilding("res/building_1.bld");
 	loadBuilding("res/building_2.bld");
@@ -118,7 +118,7 @@ void Scene::loadScene() {
 	disk.createBoundingBox();
 	disk.markForDelete();
 
-	loadMiniMap("data/maps/default/main.map");
+	loadMiniMap("res/maps/default/main.map");
 	loadFont();
 
 	texture1.createEmptyTexture((strlen("GAME OVER") + 1) * 40, 50);
@@ -139,14 +139,14 @@ void Scene::loadScene() {
 
 	TextureAtlasCreator::Get().init(64u, 64u);
 	TileSetManager::Get().getTileSet("overlay").loadTileSetCpu(std::vector<std::string>({
-		"data/textures/panel/panelhero.tga",
-		"data/textures/panel/CorpsePanel.tga",
-		"data/textures/panel/MutantCheeta.tga",
-		"data/textures/panel/MutantLizard.tga",
-		"data/textures/panel/MutantManPanel.tga",
-		"data/textures/panel/Ripper.tga",
-		"data/textures/panel/SkelPanel.tga",
-		"data/textures/panel/panel.tga",
+		"res/textures/panel/panelhero.tga",
+		"res/textures/panel/CorpsePanel.tga",
+		"res/textures/panel/MutantCheeta.tga",
+		"res/textures/panel/MutantLizard.tga",
+		"res/textures/panel/MutantManPanel.tga",
+		"res/textures/panel/Ripper.tga",
+		"res/textures/panel/SkelPanel.tga",
+		"res/textures/panel/panel.tga",
 		}), true);
 
 	TileSetManager::Get().getTileSet("overlay").loadTileSetGpu();

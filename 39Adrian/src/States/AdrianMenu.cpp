@@ -10,7 +10,7 @@
 
 
 AdrianMenu::AdrianMenu(StateMachine& machine) : State(machine, States::ADRIAN_MENU) {
-	Globals::musicManager.get("background").play("data/wavs/menu.wav");
+	Globals::musicManager.get("background").play("res/wavs/menu.wav");
 	EventDispatcher::AddMouseListener(this);
 	EventDispatcher::AddKeyboardListener(this);
 
@@ -242,7 +242,7 @@ AdrianMenu::AdrianMenu(StateMachine& machine) : State(machine, States::ADRIAN_ME
 	items[19] = MenuItem(strlen("Area 51, Nevada") * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 0.0f, 0.0f, 400.0f, 600.0f, ANIMATION_SPIRAL, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, false);
 	items[19].OnClick = [&]() {
 		m_isRunning = false;
-		m_machine.addStateAtBottom(new Adrian(m_machine, "data/textures/buildings/ground.tga"));
+		m_machine.addStateAtBottom(new Adrian(m_machine, "res/textures/ground.tga"));
 	};
 	Fontrenderer::Get().addText(Globals::fontManager.get("tahomab_64"), 0.0f, 0.0f, "Area 51, Nevada", Vector4f(1.0f, 0.0f, 0.0f, 1.0f), 1.0f, false);
 	Fontrenderer::Get().blitTextToTexture(strlen("Area 51, Nevada") * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 20, 20, items[19].texture);
@@ -250,7 +250,7 @@ AdrianMenu::AdrianMenu(StateMachine& machine) : State(machine, States::ADRIAN_ME
 	items[20] = MenuItem(strlen("USS Nimitz, Pacific") * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 0.0f, 0.0f, 400.0f, 500.0f, ANIMATION_SPIRAL, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, false);
 	items[20].OnClick = [&]() {
 		m_isRunning = false;
-		m_machine.addStateAtBottom(new Adrian(m_machine, "data/textures/buildings/concrete.tga"));
+		m_machine.addStateAtBottom(new Adrian(m_machine, "res/textures/concrete.tga"));
 	};
 	Fontrenderer::Get().addText(Globals::fontManager.get("tahomab_64"), 0.0f, 0.0f, "USS Nimitz, Pacific", Vector4f(1.0f, 0.0f, 0.0f, 1.0f), 1.0f, false);
 	Fontrenderer::Get().blitTextToTexture(strlen("USS Nimitz, Pacific") * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 20, 20, items[20].texture);
@@ -258,7 +258,7 @@ AdrianMenu::AdrianMenu(StateMachine& machine) : State(machine, States::ADRIAN_ME
 	items[21] = MenuItem(strlen("Ross Island, Antarctica") * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 0.0f, 0.0f, 400.0f, 400.0f, ANIMATION_SPIRAL, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, false);
 	items[21].OnClick = [&]() {
 		m_isRunning = false;
-		m_machine.addStateAtBottom(new Adrian(m_machine, "data/textures/buildings/snow.jpg"));
+		m_machine.addStateAtBottom(new Adrian(m_machine, "res/textures/snow.jpg"));
 	};
 	Fontrenderer::Get().addText(Globals::fontManager.get("tahomab_64"), 0.0f, 0.0f, "Ross Island, Antarctica", Vector4f(1.0f, 0.0f, 0.0f, 1.0f), 1.0f, false);
 	Fontrenderer::Get().blitTextToTexture(strlen("Ross Island, Antarctica") * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 20, 20, items[21].texture);
@@ -266,7 +266,7 @@ AdrianMenu::AdrianMenu(StateMachine& machine) : State(machine, States::ADRIAN_ME
 	items[22] = MenuItem(strlen("Edwards Air Force Base") * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 0.0f, 0.0f, 400.0f, 300.0f, ANIMATION_SPIRAL, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, false);
 	items[22].OnClick = [&]() {
 		m_isRunning = false;
-		m_machine.addStateAtBottom(new Adrian(m_machine, "data/textures/buildings/concrete.tga"));
+		m_machine.addStateAtBottom(new Adrian(m_machine, "res/textures/concrete.tga"));
 	};
 	Fontrenderer::Get().addText(Globals::fontManager.get("tahomab_64"), 0.0f, 0.0f, "Edwards Air Force Base", Vector4f(1.0f, 0.0f, 0.0f, 1.0f), 1.0f, false);
 	Fontrenderer::Get().blitTextToTexture(strlen("Edwards Air Force Base") * DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT, 20, 20, items[22].texture);
@@ -485,5 +485,5 @@ void MenuItem::processInput(const int mousex, const int mousey, const Event::Mou
 	offset = OnClick && hover ? 20.0f : 0.0f;
 
 	if(hover && !wasHover && OnClick)
-		Globals::soundManager.get("game").play("data/wavs/ting.wav");
+		Globals::soundManager.get("game").play("res/wavs/ting.wav");
 }
