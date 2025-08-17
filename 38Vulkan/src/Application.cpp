@@ -1,25 +1,11 @@
 #include <iostream>
 #include <time.h>
-#include <GL/glew.h>
-#include <GL/wglew.h>
-#include <imgui.h>
-#include <imgui_impl_win32.h>
-#include <imgui_impl_opengl3.h>
-
-#include <engine/sound/SoundDevice.h>
-#include <engine/ui/Widget.h>
-#include <engine/Framebuffer.h>
-#include <engine/Fontrenderer.h>
-#include <engine/DebugRenderer.h>
-#include <engine/Sprite.h>
-#include <engine/utils/Utils.h>
-
-#include <States/Menu.h>
 #include <States/Default.h>
 
 #include "Application.h"
 #include "Globals.h"
-#include "Vulkan/vk_renderer.h"
+#include "Vulkan/VlkExtension.h"
+#include "Vulkan/VlkSwapchain.h"
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -34,33 +20,21 @@ bool Application::Init = false;
 DWORD Application::SavedExStyle;
 DWORD Application::SavedStyle;
 RECT Application::Savedrc;
-VkContext Application::vkContext = {};
+//VlkContext Application::VlkContext = {};
+
+VkInstance instance = nullptr;
 
 HCURSOR Application::Cursor = LoadCursor(nullptr, IDC_ARROW);
-//HCURSOR Application::Cursor = LoadCursor(nullptr, IDC_NO);
-//HCURSOR Application::Cursor = LoadCursorFromFileA("res/cursors/black.cur");
-
 HICON Application::Icon = (HICON)LoadImage(NULL, "res/icon.ico", IMAGE_ICON, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
-//HICON Application::Icon = LoadIcon(NULL, IDI_QUESTION);
-//HICON Application::Icon = (HICON)LoadImage(NULL, IDI_HAND, IMAGE_ICON, 0, 0, LR_SHARED);
-
-bool Application::VerticalSync = true;
 
 Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fdt) {
 	Width = WIDTH;
 	Height = HEIGHT;
 
-	createWindow();
-	//initOpenGL(4);	
+	createWindow();	
 	showWindow();
 	initVulkan();
-	//initImGUI();
-	//initOpenAL();
-	//loadAssets();
-
-	//Framebuffer::SetDefaultSize(Width, Height);
-	//Widget::Init(Width, Height);
-	//Sprite::Init(Width, Height);
+	initImGUI();
 
 	EventDispatcher.setProcessOSEvents([&]() {
 		while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
@@ -73,46 +47,19 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	Init = true;
 	SavedExStyle = GetWindowLong(Window, GWL_EXSTYLE);
 	SavedStyle = GetWindowLong(Window, GWL_STYLE);
+	initStates();	
 
-	/*Fontrenderer::Get().init(200, true);
-	Fontrenderer::Get().setShader(Globals::shaderManager.getAssetPointer("font"));
-	//Fontrenderer::Get().setRenderer(&Batchrenderer::Get());
-
-	Batchrenderer::Get().init(1000, false, false);
-	Batchrenderer::Get().setShader(Globals::shaderManager.getAssetPointer("batch"));
-
-	DebugRenderer::Get().init(8200);
-	DebugRenderer::Get().disable();
-
-	auto shader = Globals::shaderManager.getAssetPointer("font");
-	shader->use();
-	shader->loadMatrix("u_transform", Matrix4f::Orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f));
-	shader->unuse();
-
-	shader = Globals::shaderManager.getAssetPointer("batch");
-	shader->use();
-	shader->loadMatrix("u_transform", Matrix4f::Orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f));
-	shader->unuse();*/
-
-	initStates();
-	
 }
-Application::~Application() {
-	Fontrenderer::Get().shutdown();
-	DebugRenderer::Get().shutdown();
-	Batchrenderer::Get().shutdown();
-
+Application::~Application() {	
 	delete Machine;
-	//Globals::shaderManager.clear();
-	//Widget::CleanUp();
-
-	//ImGui::DestroyContext();
+	vlkWaitIdle();
+	vlkShutDown();
+	ImGui_ImplVulkan_Shutdown();
+	ImGui_ImplWin32_Shutdown();
+	ImGui::DestroyContext();
 
 	HDC hdc = GetDC(Window);
-	//wglMakeCurrent(hdc, 0);
-	//wglDeleteContext(wglGetCurrentContext());
 	ReleaseDC(Window, hdc);
-
 	UnregisterClass("WINDOWCLASS", (HINSTANCE)GetModuleHandle(NULL));
 }
 
@@ -186,15 +133,15 @@ LRESULT CALLBACK Application::StaticWndProc(HWND hWnd, UINT message, WPARAM wPar
 		return 0;
 	}
 
-	//if ((message == WM_KEYDOWN && (wParam == 'v' || wParam == 'V' || wParam == 'z' || wParam == 'Z')) || (message == WM_KEYDOWN && wParam == VK_ESCAPE) || (message == WM_KEYDOWN && wParam == VK_RETURN && ((HIWORD(lParam) & KF_ALTDOWN))) || (message == WM_SYSKEYDOWN && wParam == VK_RETURN && ((HIWORD(lParam) & KF_ALTDOWN)))) {
-	//	ImGui::GetIO().WantCaptureMouse = false;
-	//}
+	if ((message == WM_KEYDOWN && (wParam == 'v' || wParam == 'V' || wParam == 'z' || wParam == 'Z')) || (message == WM_KEYDOWN && wParam == VK_ESCAPE) || (message == WM_KEYDOWN && wParam == VK_RETURN && ((HIWORD(lParam) & KF_ALTDOWN))) || (message == WM_SYSKEYDOWN && wParam == VK_RETURN && ((HIWORD(lParam) & KF_ALTDOWN)))) {
+		ImGui::GetIO().WantCaptureMouse = false;
+	}
 
-	//ImGui_ImplWin32_WndProcHandler(hWnd, message, wParam, lParam);
+	ImGui_ImplWin32_WndProcHandler(hWnd, message, wParam, lParam);
 
-	//if (InitWindow && ImGui::GetIO().WantCaptureMouse) {
-	//	return DefWindowProc(hWnd, message, wParam, lParam);
-	//}
+	if (InitWindow && ImGui::GetIO().WantCaptureMouse) {
+		return DefWindowProc(hWnd, message, wParam, lParam);
+	}
 
 	if (application) {
 		application->processEvent(hWnd, message, wParam, lParam);
@@ -258,134 +205,75 @@ LRESULT Application::ApplicationWndProc(HWND hWnd, UINT message, WPARAM wParam, 
 	return DefWindowProc(hWnd, message, wParam, lParam);
 }
 
-void Application::initOpenGL(int msaaSamples) {
-
-	static HGLRC hRC;					// rendering context
-	static HDC hDC;						// device context
-
-	hDC = GetDC(Window);
-	int nPixelFormat;					// our pixel format index
-
-	static PIXELFORMATDESCRIPTOR pfd = {
-		sizeof(PIXELFORMATDESCRIPTOR),	// size of structure
-		1,								// default version
-		PFD_DRAW_TO_WINDOW |			// window drawing support
-		PFD_SUPPORT_OPENGL |			// OpenGL support
-		PFD_DOUBLEBUFFER,				// double buffering support
-		PFD_TYPE_RGBA,					// RGBA color mode
-		32,								// 32 bit color mode
-		0, 0, 0, 0, 0, 0,				// ignore color bits, non-palettized mode
-		0,								// no alpha buffer
-		0,								// ignore shift bit
-		0,								// no accumulation buffer
-		0, 0, 0, 0,						// ignore accumulation bits
-		24,								// 24 bit z-buffer size
-		8,								// 8 bit stencil buffer
-		0,								// no auxiliary buffer
-		PFD_MAIN_PLANE,					// main drawing plane
-		0,								// reserved
-		0, 0, 0 };						// layer masks ignored
-
-	nPixelFormat = ChoosePixelFormat(hDC, &pfd);	// choose best matching pixel format
-	SetPixelFormat(hDC, nPixelFormat, &pfd);		// set pixel format to device context
-
-
-	hRC = wglCreateContext(hDC);				// create rendering context and make it current
-	wglMakeCurrent(hDC, hRC);
-	glewInit();
-
-	int MSAAPixelFormat = 0;
-
-	if (msaaSamples > 0) {
-		if (WGLEW_ARB_pixel_format && GLEW_ARB_multisample) {
-			while (msaaSamples > 0) {
-				UINT NumFormats = 0;
-
-				int PFAttribs[] = {
-					WGL_DRAW_TO_WINDOW_ARB, GL_TRUE,
-					WGL_SUPPORT_OPENGL_ARB, GL_TRUE,
-					WGL_DOUBLE_BUFFER_ARB, GL_TRUE,
-					WGL_ACCELERATION_ARB, WGL_FULL_ACCELERATION_ARB,
-					WGL_PIXEL_TYPE_ARB, WGL_TYPE_RGBA_ARB,
-					WGL_COLOR_BITS_ARB, 32,
-					WGL_DEPTH_BITS_ARB, 24,
-					WGL_STENCIL_BITS_ARB, 8,
-					WGL_SAMPLE_BUFFERS_ARB, GL_TRUE,
-					WGL_SAMPLES_ARB, msaaSamples,
-					0
-				};
-
-				if (wglChoosePixelFormatARB(hDC, PFAttribs, NULL, 1, &MSAAPixelFormat, &NumFormats) == TRUE && NumFormats > 0) break;
-				msaaSamples--;
-			}
-		}
-
-		if (MSAAPixelFormat) {
-			wglMakeCurrent(hDC, 0);
-			wglDeleteContext(hRC);
-			ReleaseDC(Window, hDC);
-			DestroyWindow(Window);
-			Window = NULL;
-			UnregisterClass("WINDOWCLASS", (HINSTANCE)GetModuleHandle(NULL));
-
-
-			createWindow();
-			hDC = GetDC(Window);
-
-			SetPixelFormat(hDC, MSAAPixelFormat == 0 ? nPixelFormat : MSAAPixelFormat, &pfd);
-			hRC = wglCreateContext(hDC);
-			wglMakeCurrent(hDC, hRC);
-		}
-
-	}
-
-	ToggleVerticalSync();
-
-	glDisable(GL_CULL_FACE);
-	//glEnable(GL_CULL_FACE);
-	//glCullFace(GL_BACK);
-	//glFrontFace(GL_CCW);
-
-	//glDisable(GL_DEPTH_TEST);
-	glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_LEQUAL);
-
-	//glDisable(GL_BLEND);
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-}
-
 void Application::initVulkan() {
-	vk_init(&vkContext, Window);
+	vlkInit(Window);
 }
 
 void Application::initImGUI() {
 	ImGui::CreateContext();
 	ImGui_ImplWin32_Init(Window);
+
 	ImGuiIO& io = ImGui::GetIO();
 	io.IniFilename = NULL;
+	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableSetMousePos;
+	io.DisplaySize.x = static_cast<float>(WIDTH);
+	io.DisplaySize.x = static_cast<float>(HEIGHT);
 
-	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
-	ImGui_ImplOpenGL3_Init("#version 410 core");
-}
+	ImGui::GetStyle().FontScaleMain = 1.0f;
+	ImGui::StyleColorsDark();
 
-void Application::initOpenAL() {
-	SoundDevice::init();
-}
+	VkDescriptorPoolSize pool_size[11] ={
+		{ VK_DESCRIPTOR_TYPE_SAMPLER, 1000 },
+		{ VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000 },
+		{ VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 1000 },
+		{ VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1000 },
+		{ VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER, 1000 },
+		{ VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, 1000 },
+		{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1000 },
+		{ VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1000 },
+		{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1000 },
+		{ VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, 1000 },
+		{ VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 1000 }
+	};
+	VkDescriptorPoolCreateInfo pool_info = {};
+	pool_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+	pool_info.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
+	pool_info.maxSets = 1000u * 11u;
+	pool_info.poolSizeCount = 11u;
+	pool_info.pPoolSizes = pool_size;
+	vkCreateDescriptorPool(vlkContext.vkDevice, &pool_info, VK_NULL_HANDLE, &imguiPool);
 
-void Application::ToggleVerticalSync() {
+	VkPipelineRenderingCreateInfoKHR pipelineRenderingCreateInfo = {};
+	pipelineRenderingCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO_KHR;
+	pipelineRenderingCreateInfo.pNext = NULL;
+	pipelineRenderingCreateInfo.viewMask = 0u;
+	pipelineRenderingCreateInfo.colorAttachmentCount = 1u;
+	pipelineRenderingCreateInfo.pColorAttachmentFormats = &vlkContext.swapchain->format;
+	pipelineRenderingCreateInfo.depthAttachmentFormat = vlkContext.vkDepthFormat;
+	pipelineRenderingCreateInfo.stencilAttachmentFormat = vlkContext.vkDepthFormat;
 
-	// WGL_EXT_swap_control.
-	typedef BOOL(WINAPI * PFNWGLSWAPINTERVALEXTPROC)(GLint);
-	static PFNWGLSWAPINTERVALEXTPROC wglSwapIntervalEXT =
-		reinterpret_cast<PFNWGLSWAPINTERVALEXTPROC>(
-			wglGetProcAddress("wglSwapIntervalEXT"));
+	ImGui_ImplVulkan_InitInfo init_info = {};
+	init_info.ApiVersion = VK_API_VERSION_1_4;
+	init_info.Instance = vlkContext.vkInstance;
+	init_info.PhysicalDevice = vlkContext.vkPhysicalDevice;
+	init_info.Device = vlkContext.vkDevice;
+	init_info.Queue = vlkContext.vkQueue;
+	init_info.QueueFamily = vlkContext.queueFamilyIndex;
+	init_info.DescriptorPool = imguiPool;
+	init_info.MinImageCount = 3u;
+	init_info.ImageCount = 3u;
+	init_info.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
+	init_info.UseDynamicRendering = VK_TRUE;
+	init_info.PipelineRenderingCreateInfo = pipelineRenderingCreateInfo;
+	init_info.RenderPass = NULL;
+	init_info.PipelineCache = NULL;
+	init_info.Subpass = 0u;
+	init_info.Allocator = NULL;
+	init_info.CheckVkResultFn = vlkContext.CheckVKResult;
 
-	if (wglSwapIntervalEXT) {
-		wglSwapIntervalEXT(VerticalSync);
-		VerticalSync = !VerticalSync;
-	}
+	ImGui_ImplVulkan_Init(&init_info);
 }
 
 const HWND& Application::GetWindow() {
@@ -534,10 +422,10 @@ void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 		//}
 #if DEVBUILD
 		case 'z': case 'Z': {
-			StateMachine::ToggleWireframe();
+			vlkToggleWireframe();
 			break;
 		}case 'v': case 'V': {
-			ToggleVerticalSync();
+			vlkToggleVerticalSync();
 			break;
 		}
 #endif
@@ -628,21 +516,8 @@ void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 }
 
 void Application::Resize(int deltaW, int deltaH) {
-	//glViewport(0, 0, Width, Height);
 	if (Init) {
-		/*Framebuffer::SetDefaultSize(Width, Height);
-		Widget::Resize(Width, Height);
-
-		auto shader = Globals::shaderManager.getAssetPointer("font");
-		shader->use();
-		shader->loadMatrix("u_transform", Matrix4f::Orthographic(0.0f, static_cast<float>(Width), 0.0f, static_cast<float>(Height), -1.0f, 1.0f));
-		shader->unuse();
-
-		shader = Globals::shaderManager.getAssetPointer("batch");
-		shader->use();
-		shader->loadMatrix("u_transform", Matrix4f::Orthographic(0.0f, static_cast<float>(Width), 0.0f, static_cast<float>(Height), -1.0f, 1.0f));
-		shader->unuse();*/
-		
+		vlkResize();
 		Machine->getStates().top()->resize(deltaW, deltaH);
 	}
 }
@@ -708,20 +583,4 @@ void  Application::SetCursorIcon(HCURSOR cursor) {
 
 void Application::loadAssets() {
 
-	Globals::shaderManager.loadShader("texture", "res/shader/texture.vert", "res/shader/texture.frag");	
-	Globals::shaderManager.loadShader("font", "res/shader/batch.vert", "res/shader/font.frag");
-	Globals::shaderManager.loadShader("batch", "res/shader/batch.vert", "res/shader/batch.frag");
-	
-	Globals::fontManager.loadCharacterSet("upheaval_200", "res/fonts/upheavtt.ttf", 200, 0, 30, 128, 0, true, 0u);
-	Globals::fontManager.loadCharacterSet("upheaval_50", "res/fonts/upheavtt.ttf", 30, 0, 3, 0, 0, true, 0u);
-	
-	Globals::textureManager.loadTexture("forest_1", "res/backgrounds/Forest/plx-1.png");
-	Globals::textureManager.loadTexture("forest_2", "res/backgrounds/Forest/plx-2.png");
-	Globals::textureManager.loadTexture("forest_3", "res/backgrounds/Forest/plx-3.png");
-	Globals::textureManager.loadTexture("forest_4", "res/backgrounds/Forest/plx-4.png");
-	Globals::textureManager.loadTexture("forest_5", "res/backgrounds/Forest/plx-5.png");
-
-	Globals::shapeManager.buildQuadXY("quad", Vector3f(-1.0f, -1.0f, 0.0f), Vector2f(2.0f, 2.0f), 1, 1, true, false, false);
-	Globals::shapeManager.buildQuadXY("quad_aligned", Vector3f(0.0f, 0.0f, 0.0f), Vector2f(2.0f, 2.0f), 1, 1, true, false, false);
-	Globals::shapeManager.buildQuadXY("quad_half_aligned", Vector3f(0.0f, 0.0f, 0.0f), Vector2f(1.0f, 1.0f), 1, 1, true, false, false);
 }

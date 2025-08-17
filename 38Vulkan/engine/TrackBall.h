@@ -1,8 +1,9 @@
-#ifndef __TrackBallH__
-#define __TrackBallH__
+#pragma once
 
-#include "Vector.h"
-#include "Transform.h"
+#include <glm/glm.hpp>
+#include <glm/gtx/quaternion.hpp>
+
+#define	EPSILON  1e-6f
 
 class TrackBall {
 
@@ -24,8 +25,11 @@ public:
 
 	TrackBall() : _width(0), _height(0), _tbActivateButton(ELeftButton), _dActivateButton(ERightButton), _pActivateButton(EMiddleButton),
 		_tbActivateModifiers(ENoModifier), _dActivateModifiers(ENoModifier), _pActivateModifiers(ENoModifier), _tbActive(false), _dActive(false), _pActive(false) {
-		_r = Quaternion(0.0f, 0.0f, 0.0f, 1.0f);
-		_incr = Quaternion(0.0f, 0.0f, 0.0f, 1.0f); //no rotation
+		_r = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
+		_incr = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
+		_pan = glm::vec3(0.0f, 0.0f, 0.0f);
+		_dolly = glm::vec3(0.0f, 0.0f, 0.0f);
+		_centroid = glm::vec3(0.0f, 0.0f, 0.0f);
 		_tbScale = 1.0f;
 		_dScale = 0.01f;
 		_pScale = 0.01f;
@@ -34,8 +38,11 @@ public:
 	~TrackBall() {}
 
 	void reset() {
-		_r = Quaternion(0.0f, 0.0f, 0.0f, 1.0f);
-		_incr = Quaternion(0.0f, 0.0f, 0.0f, 1.0f); //no rotation
+		_r = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
+		_incr = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
+		_pan = glm::vec3(0.0f, 0.0f, 0.0f);
+		_dolly = glm::vec3(0.0f, 0.0f, 0.0f);
+		_centroid = glm::vec3(0.0f, 0.0f, 0.0f);
 		_tbScale = 1.0f;
 		_dScale = 0.01f;
 		_pScale = 0.01f;
@@ -109,7 +116,7 @@ public:
 	//////////////////////////////////////////////////////////////////
 	void motion(int x, int y) {
 		if (_tbActive || _dActive || _pActive) {
-			_dx = x - _x;   _dy =  y - _y;
+			_dx = x - _x;   _dy = y - _y;
 			_x = x;   _y = y;
 			update();
 		}
@@ -129,27 +136,28 @@ public:
 	void updateTrackball() {
 		float min = _width < _height ? static_cast<float>(_width) : static_cast<float>(_height);
 		min *= 0.5f;
-		Vector3f offset(static_cast<float>(_width) / 2.0f, static_cast<float>(_height) / 2.0f, 0.0f);
-		Vector3f a(static_cast<float>(_x - _dx), static_cast<float>(_y + _dy), 0.0f);
-		Vector3f b(static_cast<float>(_x), static_cast<float>(_y), 0.0f);
+		glm::vec3 offset(static_cast<float>(_width) / 2.0f, static_cast<float>(_height) / 2.0f, 0.0f);
+		glm::vec3 a(static_cast<float>(_x - _dx), static_cast<float>(_y + _dy), 0.0f);
+		glm::vec3 b(static_cast<float>(_x), static_cast<float>(_y), 0.0f);
+
 		a -= offset;
 		b -= offset;
 		a /= min;
 		b /= min;
 
-		a[2] = pow(2.0f, 0.5f * a.length());
-		Vector3f::Normalize(a);
-		b[2] = pow(2.0f, 0.5f * b.length());
-		Vector3f::Normalize(b);
-		Vector3f axis = Vector3f::Cross(a, b);
-		Vector3f::Normalize(axis);
-
-		float rad = acos(Vector3f::Dot(a, b));
-
-		//original glh version had an invert flag and a parent frame, do we need one?		
-		_incr.set(axis, rad * _180_ON_PI * _tbScale);
-		_incr.conjugate();
-
+		a[2] = pow(2.0f, 0.5f * glm::length(a));
+		a = glm::normalize(a);
+		b[2] = pow(2.0f, 0.5f * glm::length(b));
+		b = glm::normalize(b);
+		glm::vec3 axis = glm::cross(a, b);
+		
+		if (glm::length2(axis) < EPSILON * EPSILON) {
+			_incr = glm::quat(1.0f, 0.0f, 0.0, 0.0f);
+		}else {
+			axis = glm::normalize(axis);
+			float rad = acos(glm::dot(a, b));
+			_incr = glm::angleAxis(rad * _tbScale, axis);
+		}
 		_r = _incr * _r;
 	}
 
@@ -157,8 +165,7 @@ public:
 	//
 	//////////////////////////////////////////////////////////////////
 	void updatePan() {
-		Vector3f v(static_cast<float>(_dx), static_cast<float>(_dy), 0.0f);
-
+		glm::vec3 v(static_cast<float>(_dx), static_cast<float>(_dy), 0.0f);
 		_pan += v * _pScale;
 	}
 
@@ -166,8 +173,7 @@ public:
 	//
 	//////////////////////////////////////////////////////////////////
 	void updateDolly() {
-		Vector3f v(0.0f, 0.0f, static_cast<float>(_dy));
-
+		glm::vec3 v(0.0f, 0.0f, static_cast<float>(_dy));
 		_dolly -= v * _dScale;
 	}
 
@@ -186,57 +192,23 @@ public:
 	//
 	//
 	//////////////////////////////////////////////////////////////////
-	const Matrix4f& getTransform() {
-		m_transform.reset();
-		m_transform.rotate(_r, _centroid);
-		m_transform.translate(_pan);
-		m_transform.translate(_dolly);
-		return m_transform.getTransformationMatrix();
+	const glm::mat4 getTransform() const {		
+		glm::mat4 transform = glm::translate(glm::mat4(1.0), _dolly);
+		transform = glm::translate(transform, _pan);
+		transform = glm::translate(transform, _centroid);
+		transform *= glm::mat4_cast(_r);
+		transform = glm::translate(transform, -_centroid);
+		return transform;
 	}
 
-	const Matrix4f& getTransform(const Vector3f& axis, float degree) {
-		m_transform.reset();
-		m_transform.rotate(axis, degree, _centroid);
-		m_transform.rotate(_r, _centroid);
-		m_transform.translate(_pan);
-		m_transform.translate(_dolly);
-		return m_transform.getTransformationMatrix();
-	}
-
-	const Matrix4f& getTransform(const Quaternion& quat) {
-		m_transform.reset();
-		m_transform.rotate(quat, _centroid);
-		m_transform.rotate(_r, _centroid);
-		m_transform.translate(_pan);
-		m_transform.translate(_dolly);
-		return m_transform.getTransformationMatrix();
-	}
-
-	const Matrix4f& getTransform(const Vector3f& trans, const Quaternion& quat) {
-		m_transform.reset();
-
-		m_transform.translate(trans);
-		m_transform.rotate(quat);
-		m_transform.rotate(_r);
-
-		m_transform.translate(_pan);
-		m_transform.translate(_dolly);
-
-		return m_transform.getTransformationMatrix();
-	}
-
-	const Matrix4f& getTransform(const Vector3f& trans, const Quaternion& quat, const Vector3f& scale) {
-		m_transform.reset();
-
-		m_transform.translate(trans);
-		m_transform.rotate(quat);
-		m_transform.rotate(_r);
-		m_transform.scale(scale, -trans);
-
-		m_transform.translate(_pan);
-		m_transform.translate(_dolly);
-
-		return m_transform.getTransformationMatrix();
+	const glm::mat4 getTransform(const glm::vec3& axis, float degree) {
+		glm::mat4 transform = glm::translate(glm::mat4(1.0), _dolly);
+		transform = glm::translate(transform, _pan);
+		transform = glm::translate(transform, _centroid);
+		transform *= glm::mat4_cast(_r);
+		transform *= glm::rotate(glm::mat4(1.0f), degree, axis);
+		transform = glm::translate(transform, -_centroid);
+		return transform;
 	}
 
 	//
@@ -294,7 +266,7 @@ public:
 		_dolly[2] = posz;
 	}
 
-	void setDollyPosition(const Vector3f& position) {
+	void setDollyPosition(const glm::vec3& position) {
 		_dolly = position;
 	}
 
@@ -323,15 +295,15 @@ public:
 	//
 	//    Set the point around which the trackball will rotate.
 	//////////////////////////////////////////////////////////////////
-	void setCenterOfRotation(const Vector3f& c) {
+	void setCenterOfRotation(const glm::vec3& c) {
 		_centroid = c;
 	}
 
 	// get the rotation quaternion
-	Quaternion &getRotation() { return _r; }
+	glm::quat& getRotation() { return _r; }
 
 	// get the rotation increment
-	Quaternion &getIncrement() { return _incr; }
+	glm::quat& getIncrement() { return _incr; }
 
 protected:
 
@@ -349,17 +321,15 @@ protected:
 	bool _dActive;
 	bool _pActive;
 
-	Quaternion _r;
-	Vector3f _pan;
-	Vector3f _dolly;
-	Vector3f _centroid;
-	Transform m_transform;
-
 	float _tbScale; //trackball scale
 	float _dScale;  //dolly scale
 	float _pScale;  //pan scale
-	Quaternion _incr;
+	
+
+	glm::quat _incr;
+	glm::quat _r;
+	glm::vec3 _pan;
+	glm::vec3 _dolly;
+	glm::vec3 _centroid;
 
 };
-
-#endif // __cubeH__

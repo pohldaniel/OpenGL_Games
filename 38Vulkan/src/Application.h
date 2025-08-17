@@ -1,11 +1,16 @@
 #pragma once
 #include <windows.h>
+
+#include <imgui.h>
+#include <imgui_impl_win32.h>
+#include <imgui_impl_vulkan.h>
+
 #include <engine/input/Event.h>
 #include <engine/input/EventDispatcher.h>
 #include <engine/input/Keyboard.h>
 #include <engine/input/Mouse.h>
 #include <States/StateMachine.h>
-#include "Vulkan/vk_renderer.h"
+#include "Vulkan/VlkContext.h"
 
 class Application {
 
@@ -19,7 +24,6 @@ public:
 	bool isRunning();
 
 	static void ToggleFullScreen(bool isFullScreen, unsigned int width = 0, unsigned int height = 0);
-	static void ToggleVerticalSync();
 	static void SetCursorIconFromFile(std::string file);
 	static void SetCursorIcon(LPCSTR resource);
 	static void SetCursorIcon(HCURSOR cursor);
@@ -28,33 +32,33 @@ public:
 
 	static int Width;
 	static int Height;
-	static VkContext vkContext;
+	//static VlkContext VlkContext;
+
+	VkDescriptorPool imguiPool;
 
 private:
+
 	static LRESULT CALLBACK StaticWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 	LRESULT ApplicationWndProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam);
 
 	void createWindow();
-	void initOpenGL(int msaaSamples = 0);
 	void showWindow();
+	void initVulkan();
 	void initImGUI();
-	void initOpenAL();
 	void loadAssets();
 	void initStates();
-	void initVulkan();
-
+	
 	MSG msg;
 
 	const float& m_fdt;
 	const float& m_dt;
 
 	void processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
-	bool m_mouseTracking = false;
 
 	static void Resize(int deltaW, int deltaH);
+
 	static StateMachine* Machine;
 	static EventDispatcher& EventDispatcher;
-
 	static HWND Window;
 	static bool InitWindow;
 	static bool Init;
@@ -64,6 +68,5 @@ private:
 	static DEVMODE DefaultScreen;
 	static HCURSOR Cursor;
 	static HICON Icon;
-	static bool VerticalSync;
 	static bool Fullscreen;
 };

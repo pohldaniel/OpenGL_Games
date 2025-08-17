@@ -7,9 +7,11 @@ enum States {
 	SETTINGS,
 	CONTROLLS,
 	DEFAULT,
-	TMX,
-	MONSTER_HUNTER,
-	BATTLE
+	MD2,
+	MAP,
+	NAVIGATION,
+	NAVIGATION_STREAM,
+	ADRIAN
 };
 
 class State;
@@ -29,16 +31,11 @@ public:
 	const float& m_fdt;
 	const float& m_dt;
 
-	static void ToggleWireframe();
-	static bool& GetEnableWireframe();
-
 private:
 
 	unsigned int m_frameTexture;
 	unsigned int m_frameBuffer;
 	unsigned int m_rbDepthStencil;
-
-	static bool EnableWireframe;
 
 };
 

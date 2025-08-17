@@ -100,6 +100,7 @@ Application::~Application() {
 	Widget::CleanUp();
     Sprite::CleanUp();
 
+	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplWin32_Shutdown();
 	ImGui::DestroyContext();
 

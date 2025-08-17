@@ -1,12 +1,6 @@
-#include <GL/glew.h>
 #include <imgui.h>
-#include <iostream>
-
 #include "StateMachine.h"
 #include "Application.h"
-#include "Vulkan/vk_renderer.h"
-
-bool StateMachine::EnableWireframe = false;
 
 StateMachine::StateMachine(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fdt) {
 
@@ -21,11 +15,12 @@ void StateMachine::update() {
 	if (!m_states.empty()) {
 		m_states.top()->update();
 		if (!m_states.top()->isRunning()) {
+			States state = m_states.top()->getCurrentState();
 			delete m_states.top();
 			m_states.pop();
-			//ImGui::GetIO().WantCaptureMouse = false;
+			ImGui::GetIO().WantCaptureMouse = false;
 			if (!m_states.empty())
-				m_states.top()->OnReEnter();
+				m_states.top()->OnReEnter(state);
 		}
 	}else {
 		m_isRunning = false;
@@ -35,11 +30,7 @@ void StateMachine::update() {
 void StateMachine::render() {
 
 	if (!m_states.empty()) {
-		setWireFrame(&Application::vkContext, EnableWireframe ? true : false);
-		//glPolygonMode(GL_FRONT_AND_BACK, EnableWireframe ? GL_LINE : GL_FILL);
 		m_states.top()->render();
-		//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-		setWireFrame(&Application::vkContext, false);
 	}
 }
 
@@ -56,14 +47,6 @@ void StateMachine::resizeState(int deltaW, int deltaH, States state) {
 		resizeState(deltaW, deltaH, state);
 		m_states.push(temp);
 	}
-}
-
-void StateMachine::ToggleWireframe() {
-	EnableWireframe = !EnableWireframe;
-}
-
-bool& StateMachine::GetEnableWireframe() {
-	return EnableWireframe;
 }
 
 /////////////////////////////////////////////

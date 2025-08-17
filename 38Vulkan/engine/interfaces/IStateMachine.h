@@ -91,7 +91,7 @@ public:
 	virtual void update() = 0;
 	virtual void render() = 0;
 	virtual void resize(int deltaW, int deltaH) {};
-	virtual void OnReEnter() {};
+	virtual void OnReEnter(unsigned int prevState) {};
 
 	const bool isRunning() const;
 	const bool isActive() const;
