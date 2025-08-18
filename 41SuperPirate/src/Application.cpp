@@ -16,6 +16,7 @@
 
 #include <States/Menu.h>
 #include <States/Default.h>
+#include <States/Game.h>
 
 #include "Application.h"
 #include "Globals.h"
@@ -432,7 +433,9 @@ void Application::fixedUpdate() {
 
 void Application::initStates() {	
 	Machine = new StateMachine(m_dt, m_fdt);
-	Machine->addStateAtTop(new Menu(*Machine));
+	//Machine->addStateAtTop(new Menu(*Machine));
+	Machine->addStateAtTop(new Game(*Machine));
+	
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -694,7 +697,7 @@ void Application::SetCursorIcon(const char *image[]) {
 void Application::loadAssets() {
 	Globals::shaderManager.loadShader("font_ttf", "res/shader/batch.vert", "res/shader/font_ttf.frag");
 	Globals::shaderManager.loadShader("batch", "res/shader/batch.vert", "res/shader/batch.frag");
-	
+	Globals::shaderManager.loadShader("color", "res/shader/color.vert", "res/shader/color.frag");
 
 	Globals::fontManager.loadCharacterSet("upheaval_200", "res/fonts/upheavtt.ttf", 200, 0, 30, 128, 0, true, 0u);
 	Globals::fontManager.loadCharacterSet("upheaval_30", "res/fonts/upheavtt.ttf", 30, 0, 3, 0, 0, true, 0u);
