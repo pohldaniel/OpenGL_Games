@@ -6,7 +6,7 @@ bool DebugDrawUI::visible = true;
 int DebugDrawUI::selIndex = -1;
 std::vector<Texture*> DebugDrawUI::images = {};
 unsigned char DebugDrawUI::brushSize = 5;
-Material* DebugDrawUI::selectedMaterial = &Materials::GENERIC_AIR;
+MaterialFall* DebugDrawUI::selectedMaterial = &Materials::GENERIC_AIR;
 
 void DebugDrawUI::Setup() {
 	

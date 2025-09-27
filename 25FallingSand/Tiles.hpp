@@ -42,6 +42,6 @@ public:
 
     static MaterialInstance createFire();
 
-    static MaterialInstance create(Material* mat, int x, int y);
+    static MaterialInstance create(MaterialFall* mat, int x, int y);
 
 };

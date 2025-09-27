@@ -186,7 +186,7 @@ MaterialInstance Tiles::createFire() {
     return MaterialInstance(&Materials::FIRE, rgb);
 }
 
-MaterialInstance Tiles::create(Material* mat, int x, int y) {
+MaterialInstance Tiles::create(MaterialFall* mat, int x, int y) {
     if(mat->id == Materials::TEST_SAND.id) {
         return createTestSand();
     } else if(mat->id == Materials::TEST_TEXTURED_SAND.id) {

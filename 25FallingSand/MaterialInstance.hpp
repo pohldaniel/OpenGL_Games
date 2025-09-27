@@ -7,12 +7,12 @@ class MaterialInstance {
 public:
 
 	MaterialInstance();
-	MaterialInstance(Material* mat, uint32_t color);
-    MaterialInstance(Material* mat, uint32_t color, int32_t temperature);
+	MaterialInstance(MaterialFall* mat, uint32_t color);
+    MaterialInstance(MaterialFall* mat, uint32_t color, int32_t temperature);
 	
     bool operator==(const MaterialInstance& other);
 
-	Material* mat;
+	MaterialFall* mat;
 	uint32_t color;
 	int32_t temperature;
 	uint32_t id = 0;

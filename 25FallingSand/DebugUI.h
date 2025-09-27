@@ -4,7 +4,7 @@
 #include <engine/Texture.h>
 
 class Game;
-class Material;
+class MaterialFall;
 
 class DebugUI {
 public:
@@ -29,7 +29,7 @@ public:
 	static int selIndex;
 	static std::vector<Texture*> images;
 
-	static Material* selectedMaterial;
+	static MaterialFall* selectedMaterial;
 	static unsigned char brushSize;
 
 	static void Setup();

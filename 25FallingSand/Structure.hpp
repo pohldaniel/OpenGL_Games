@@ -12,6 +12,6 @@ public:
     int h;
 
     Structure(int w, int h, MaterialInstance* tiles);
-    Structure(SDL_Surface* texture, Material templ);
+    Structure(SDL_Surface* texture, MaterialFall templ);
     Structure() = default;
 };

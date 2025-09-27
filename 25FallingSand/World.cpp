@@ -703,7 +703,7 @@ void World::updateChunkMesh(Chunk* chunk) {
 	for (int x = 0; x < CHUNK_W; x++) {
 		for (int y = 0; y < CHUNK_H; y++) {
 
-			Material* mat = tiles[(x + chTx) + (y + chTy) * width].mat;
+			MaterialFall* mat = tiles[(x + chTx) + (y + chTy) * width].mat;
 			if (mat != nullptr && mat->physicsType == PhysicsType::SOLID) {
 				foundAnything = true;
 				goto found;

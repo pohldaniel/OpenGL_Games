@@ -27,7 +27,7 @@ struct MaterialInteraction {
 	//MaterialInteraction(int type = INTERACT_NONE, int data1 = 0, int data2 = 0, int ofsX = 0, int ofsY = 0) :type(type), data1(data1), data2(data2), ofsX(ofsX), ofsY(ofsY) {}
 };
 
-class Material {
+class MaterialFall {
 public:
     std::string name;
     int id = 0;
@@ -51,10 +51,10 @@ public:
 
     int slipperyness = 1;
 
-    Material(int id, std::string name, int physicsType, int slipperyness, uint8_t alpha, float density, int iterations, int emit, uint32_t emitColor, uint32_t color);
-    Material(int id, std::string name, int physicsType, int slipperyness, uint8_t alpha, float density, int iterations, int emit, uint32_t emitColor) : Material(id, name, physicsType, slipperyness, alpha, density, iterations, emit, emitColor, 0xffffffff) {};
-    Material(int id, std::string name, int physicsType, int slipperyness, uint8_t alpha, float density, int iterations) : Material(id, name, physicsType, slipperyness, alpha, density, iterations, 0, 0) {};
-    Material(int id, std::string name, int physicsType, int slipperyness, float density, int iterations) : Material(id, name, physicsType, slipperyness, 0xff, density, iterations) {};
-    Material() : Material(0, "Air", PhysicsType::AIR, 4, 0, 0) {};
+    MaterialFall(int id, std::string name, int physicsType, int slipperyness, uint8_t alpha, float density, int iterations, int emit, uint32_t emitColor, uint32_t color);
+    MaterialFall(int id, std::string name, int physicsType, int slipperyness, uint8_t alpha, float density, int iterations, int emit, uint32_t emitColor);
+    MaterialFall(int id, std::string name, int physicsType, int slipperyness, uint8_t alpha, float density, int iterations);
+    MaterialFall(int id, std::string name, int physicsType, int slipperyness, float density, int iterations);
+    MaterialFall();
 
 };

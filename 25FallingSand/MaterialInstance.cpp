@@ -6,11 +6,11 @@ MaterialInstance::MaterialInstance() : MaterialInstance(&Materials::GENERIC_AIR,
 
 }
 
-MaterialInstance::MaterialInstance(Material* mat, uint32_t color) : MaterialInstance(mat, color, 0) {
+MaterialInstance::MaterialInstance(MaterialFall* mat, uint32_t color) : MaterialInstance(mat, color, 0) {
 
 }
 
-MaterialInstance::MaterialInstance(Material* mat, uint32_t color, int32_t temperature) {
+MaterialInstance::MaterialInstance(MaterialFall* mat, uint32_t color, int32_t temperature) {
     this->id = _curID++;
     this->mat = mat;
     this->color = color;

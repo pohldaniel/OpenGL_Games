@@ -10,7 +10,7 @@ Structure::Structure(int w, int h, MaterialInstance* tiles) {
     this->tiles = tiles;
 }
 
-Structure::Structure(SDL_Surface* texture, Material mat) {
+Structure::Structure(SDL_Surface* texture, MaterialFall mat) {
     MaterialInstance* tiles = new MaterialInstance[texture->w * texture->h];
     for(int x = 0; x < texture->w; x++) {
         for(int y = 0; y < texture->h; y++) {
