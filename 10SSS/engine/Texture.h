@@ -11,6 +11,7 @@ class Texture{
 public:
 	Texture() = default;
 	Texture(std::string pictureFile, const bool flipVertical = false, unsigned int format = -1);
+	Texture(Texture const& rhs);
 	~Texture();
 
 	unsigned int& getTexture();
@@ -36,6 +37,7 @@ public:
 	void setRepeat();
 	void setLinear();
 	void setLinearMip();
+	void markForDelete();
 
 	static void Unbind();
 	static void CutSubimage(std::string fileIn, std::string fileOut, unsigned int offsetX, unsigned int offsetY, unsigned int width = 0, unsigned int height = 0, const bool flipVertical = false);
@@ -66,6 +68,7 @@ private:
 	unsigned int m_format = 0;
 	unsigned int m_internalFormat = 0;
 	unsigned int m_type = 0;
+	bool m_markForDelete = false;
 };
 
 #endif

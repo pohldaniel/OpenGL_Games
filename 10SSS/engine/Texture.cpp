@@ -29,6 +29,17 @@ Texture::Texture(std::string fileName, const bool _flipVertical, unsigned int _f
 	m_channels = numComponents;
 }
 
+Texture::Texture(Texture const& rhs) {
+	m_texture = rhs.m_texture;
+	m_width = rhs.m_width;
+	m_height = rhs.m_height;
+	m_channels = rhs.m_channels;
+	m_format = rhs.m_format;
+	m_internalFormat = rhs.m_internalFormat;
+	m_type = rhs.m_type;
+	m_markForDelete = false;
+}
+
 void Texture::flipVertical(unsigned char* data, unsigned int padWidth, unsigned int height) {
 	std::vector<BYTE> srcPixels(padWidth * height);
 	memcpy(&srcPixels[0], data, padWidth * height);
@@ -60,7 +71,7 @@ void Texture::FlipVertical(unsigned char* data, unsigned int padWidth, unsigned 
 }
 
 Texture::~Texture() {
-	if (m_texture) {
+	if (m_texture && m_markForDelete) {
 		glDeleteTextures(1, &m_texture);
 		m_texture = 0;
 	}
