@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.33919.361
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36310.24 d17.14
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "01Platformer", "01Platformer\01Platformer.vcxproj", "{F3A95EB7-0E2A-4436-8C8F-D8F416FDDBE6}"
 EndProject
@@ -50,10 +50,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "vorbis", "vorbis\vorbis.vcx
 	ProjectSection(ProjectDependencies) = postProject
 		{3A835B71-24B8-4268-AD6F-74A4950BD45D} = {3A835B71-24B8-4268-AD6F-74A4950BD45D}
 	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "alure", "alure\alure.vcxproj", "{EA68998B-3B93-45F0-ACFF-BCD71F1B0CAB}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libalure", "libalure\libalure.vcxproj", "{538F5588-D239-4843-ADA3-577A4C3F4A83}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "vorbisfile", "vorbisfile\vorbisfile.vcxproj", "{57F67AA8-84B2-4132-AE1F-72572FF561DA}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -384,22 +380,6 @@ Global
 		{B5CF95CE-C3F6-4FF6-9652-472AABE2F739}.Release|x64.Build.0 = Release|x64
 		{B5CF95CE-C3F6-4FF6-9652-472AABE2F739}.Release|x86.ActiveCfg = Release|Win32
 		{B5CF95CE-C3F6-4FF6-9652-472AABE2F739}.Release|x86.Build.0 = Release|Win32
-		{EA68998B-3B93-45F0-ACFF-BCD71F1B0CAB}.Debug|x64.ActiveCfg = Debug|x64
-		{EA68998B-3B93-45F0-ACFF-BCD71F1B0CAB}.Debug|x64.Build.0 = Debug|x64
-		{EA68998B-3B93-45F0-ACFF-BCD71F1B0CAB}.Debug|x86.ActiveCfg = Debug|Win32
-		{EA68998B-3B93-45F0-ACFF-BCD71F1B0CAB}.Debug|x86.Build.0 = Debug|Win32
-		{EA68998B-3B93-45F0-ACFF-BCD71F1B0CAB}.Release|x64.ActiveCfg = Release|x64
-		{EA68998B-3B93-45F0-ACFF-BCD71F1B0CAB}.Release|x64.Build.0 = Release|x64
-		{EA68998B-3B93-45F0-ACFF-BCD71F1B0CAB}.Release|x86.ActiveCfg = Release|Win32
-		{EA68998B-3B93-45F0-ACFF-BCD71F1B0CAB}.Release|x86.Build.0 = Release|Win32
-		{538F5588-D239-4843-ADA3-577A4C3F4A83}.Debug|x64.ActiveCfg = Debug|x64
-		{538F5588-D239-4843-ADA3-577A4C3F4A83}.Debug|x64.Build.0 = Debug|x64
-		{538F5588-D239-4843-ADA3-577A4C3F4A83}.Debug|x86.ActiveCfg = Debug|Win32
-		{538F5588-D239-4843-ADA3-577A4C3F4A83}.Debug|x86.Build.0 = Debug|Win32
-		{538F5588-D239-4843-ADA3-577A4C3F4A83}.Release|x64.ActiveCfg = Release|x64
-		{538F5588-D239-4843-ADA3-577A4C3F4A83}.Release|x64.Build.0 = Release|x64
-		{538F5588-D239-4843-ADA3-577A4C3F4A83}.Release|x86.ActiveCfg = Release|Win32
-		{538F5588-D239-4843-ADA3-577A4C3F4A83}.Release|x86.Build.0 = Release|Win32
 		{57F67AA8-84B2-4132-AE1F-72572FF561DA}.Debug|x64.ActiveCfg = Debug|x64
 		{57F67AA8-84B2-4132-AE1F-72572FF561DA}.Debug|x64.Build.0 = Debug|x64
 		{57F67AA8-84B2-4132-AE1F-72572FF561DA}.Debug|x86.ActiveCfg = Debug|Win32

@@ -1,5 +1,6 @@
 #pragma once
 #include <functional>
+#include <string>
 #include "engine/MeshObject/Shape.h"
 #include "engine/Camera.h"
 #include "Object.h"

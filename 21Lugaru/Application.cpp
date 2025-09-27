@@ -66,7 +66,11 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 
 Application::~Application() {
 	delete Machine;
-	//release OpenGL context
+
+	ImGui_ImplOpenGL3_Shutdown();
+	ImGui_ImplWin32_Shutdown();
+	ImGui::DestroyContext();
+
 	HDC hdc = GetDC(Window);
 	wglMakeCurrent(GetDC(Window), 0);
 	wglDeleteContext(wglGetCurrentContext());

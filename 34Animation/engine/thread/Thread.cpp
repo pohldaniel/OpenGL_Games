@@ -145,6 +145,7 @@ EndlessLooper::~EndlessLooper(){
 
 void EndlessLooper::run() {
 	mThread = std::thread(&EndlessLooper::runFunc, this);
+	mRunning = true;
 }
 
 bool EndlessLooper::running() const {

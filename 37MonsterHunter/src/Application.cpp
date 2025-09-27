@@ -108,7 +108,8 @@ Application::~Application() {
 	Globals::soundManager.get("game").cleanup();
 	Globals::musicManager.get("background").cleanup();
 	SoundDevice::shutDown();
-
+	ImGui_ImplOpenGL3_Shutdown();
+	ImGui_ImplWin32_Shutdown();
 	ImGui::DestroyContext();
 
 	HDC hdc = GetDC(Window);

@@ -499,14 +499,6 @@ void vlkCreateSampler(VkSampler& vkSampler) {
     vkCreateSampler(vkDevice, &createInfo, nullptr, &vkSampler);
 }
 
-void vlkCreateAllocator(VmaAllocator& vmaAllocator) {
-    VmaAllocatorCreateInfo createInfo = {};
-    createInfo.physicalDevice = vlkContext.vkPhysicalDevice;
-    createInfo.device = vlkContext.vkDevice;
-    createInfo.instance = vlkContext.vkInstance;
-    vmaCreateAllocator(&createInfo, &vmaAllocator);
-}
-
 uint32_t vlkFindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) {
     VkPhysicalDeviceMemoryProperties memProperties;
     vkGetPhysicalDeviceMemoryProperties(vlkContext.vkPhysicalDevice, &memProperties);

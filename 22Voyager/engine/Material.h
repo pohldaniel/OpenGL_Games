@@ -7,7 +7,8 @@
 struct Material {
 
 	friend bool operator== (const Material& m1, const Material& m2);
-
+	Material() = default;
+	Material(const Material& rhs);
 	float ambient[4] = { 0.0f };
 	float diffuse[4] = { 0.0f };
 	float specular[4] = { 0.0f };

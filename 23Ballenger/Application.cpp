@@ -79,12 +79,16 @@ Application::~Application() {
 
 	delete Machine;
 	Globals::shaderManager.clear();
-	//release OpenGL context
+
+	ImGui_ImplOpenGL3_Shutdown();
+	ImGui_ImplWin32_Shutdown();
+	ImGui::DestroyContext();
+
 	HDC hdc = GetDC(Window);
 	wglMakeCurrent(GetDC(Window), 0);
 	wglDeleteContext(wglGetCurrentContext());
 	ReleaseDC(Window, hdc);
-	//release OpenAL context
+
 	SoundDevice::shutDown();
 
 	UnregisterClass("WINDOWCLASS", (HINSTANCE)GetModuleHandle(NULL));

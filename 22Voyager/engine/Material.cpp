@@ -12,6 +12,28 @@ bool operator== (const Material& m1, const Material& m2){
 		   && m1.shininess == m2.shininess;
 }
 
+Material::Material(const Material& rhs) {
+	textures = rhs.textures;
+
+	ambient[0] = rhs.ambient[0];
+	ambient[1] = rhs.ambient[1];
+	ambient[2] = rhs.ambient[2];
+	ambient[3] = rhs.ambient[3];
+
+	diffuse[0] = rhs.diffuse[0];
+	diffuse[1] = rhs.diffuse[1];
+	diffuse[2] = rhs.diffuse[2];
+	diffuse[3] = rhs.diffuse[3];
+
+	specular[0] = rhs.specular[0];
+	specular[1] = rhs.specular[1];
+	specular[2] = rhs.specular[2];
+	specular[3] = rhs.specular[3];
+
+	shininess = rhs.shininess;
+	name = rhs.name;
+}
+
 void Material::cleanup() {
 	
 	std::vector<Material>::iterator position = std::find(Materials.begin(), Materials.end(), *this);

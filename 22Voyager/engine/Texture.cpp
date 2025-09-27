@@ -51,6 +51,7 @@ Texture::Texture(Texture const& rhs){
 	m_internalFormat = rhs.m_internalFormat;
 	m_type = rhs.m_type;
 	m_target = rhs.m_target;
+	m_markForDelete = false;
 }
 
 void Texture::copy(const Texture& rhs) {
@@ -63,6 +64,7 @@ void Texture::copy(const Texture& rhs) {
 	m_internalFormat = rhs.m_internalFormat;
 	m_type = rhs.m_type;
 	m_target = rhs.m_target;
+	m_markForDelete = rhs.m_markForDelete;
 
 	if (m_target == GL_TEXTURE_2D) {
 		unsigned char* bytes = (unsigned char*)malloc(m_width * m_height * m_channels);
@@ -123,7 +125,9 @@ void Texture::FlipVertical(unsigned char* data, unsigned int padWidth, unsigned 
 }
 
 Texture::~Texture() {
-	cleanup();
+	if (m_markForDelete) {
+		cleanup();
+	}
 }
 
 void Texture::cleanup() {
@@ -131,6 +135,10 @@ void Texture::cleanup() {
 		glDeleteTextures(1, &m_texture);
 		m_texture = 0;
 	}
+}
+
+void Texture::markForDelete() {
+	m_markForDelete = true;
 }
 
 void Texture::loadFromFile(std::string fileName, const bool _flipVertical, unsigned int _internalFormat, unsigned int _format, int paddingLeft, int paddingRight, int paddingTop, int paddingBottom, unsigned int SOIL_FLAG) {

@@ -116,6 +116,7 @@ Application::~Application() {
 	Globals::musicManager.get("background").cleanup();
 	Globals::soundManager.get("game").cleanup();
 	SoundDevice::shutDown();
+	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplWin32_Shutdown();
 	ImGui::DestroyContext();
 

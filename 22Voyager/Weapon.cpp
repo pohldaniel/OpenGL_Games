@@ -106,9 +106,9 @@ void Weapon::draw(Camera& camera, const Matrix4f& model, bool bDrawRelativeToCam
 	m_shader->loadMatrix("view", bDrawRelativeToCamera ? Matrix4f::IDENTITY : camera.getViewMatrix());
 	m_shader->loadInt("texture_diffuse1", 0);
 
-	m_mesh.getMesh()->getMaterial().bind(1);
+	m_mesh.getMesh()->getMaterial().bind(1u);
 	m_mesh.drawRaw();
-	m_mesh.getMesh()->getMaterial().unbind(1);
+	m_mesh.getMesh()->getMaterial().unbind(1u);
 
 	m_shader->unuse();
 }

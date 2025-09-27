@@ -1,9 +1,9 @@
 #pragma once
 #include <vector>
 #include <list>
+#include <algorithm>
 #include <vulkan/vulkan.h>
 #include <shaderc/shaderc.h>
-#include <vma/vk_mem_alloc.h>
 
 class VlkSwapchain;
 class VlkMesh;
@@ -92,7 +92,6 @@ extern "C" {
     std::vector<VkShaderEXT>& vlkCreateShader(const std::vector<VkDescriptorSetLayout>& vkDescriptorSetLayouts, const std::vector<uint32_t>& vertexCode, const std::vector<uint32_t>& fragmentCode, std::vector<VkShaderEXT>& shader);
 
     void vlkCreateSampler(VkSampler& vkSampler);
-    void vlkCreateAllocator(VmaAllocator& vmaAllocator);
 
     uint32_t vlkFindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 

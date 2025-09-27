@@ -50,6 +50,7 @@ public:
 	void setWrapMode(unsigned int mode = 10497 /*GL_REPEAT*/) const;
 	void setAnisotropy(float aniso) const;
 	void cleanup();
+	void markForDelete();
 
 	static void Bind(unsigned int& textureRef, unsigned int unit = 0u, unsigned int target = 3553u);
 	static void Unbind(unsigned int unit = 0u, unsigned int target = 3553u);
@@ -90,6 +91,7 @@ private:
 	unsigned int m_internalFormat = 0;
 	unsigned int m_type = 0;
 	unsigned int m_target;
+	bool m_markForDelete = false;
 };
 
 #endif

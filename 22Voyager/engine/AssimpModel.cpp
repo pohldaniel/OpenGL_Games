@@ -648,7 +648,7 @@ void AssimpModel::ReadAiMaterial(const aiMaterial* aiMaterial, short& index, std
 		}
 
 		material.shininess = shininess;
-
+		
 		int numTextures = aiMaterial->GetTextureCount(aiTextureType_DIFFUSE);
 		if (numTextures > 0) {
 			aiString name;
@@ -657,7 +657,7 @@ void AssimpModel::ReadAiMaterial(const aiMaterial* aiMaterial, short& index, std
 			material.textures[0].loadFromFile(GetTexturePath(name.data, modelDirectory), true);
 			material.textures[0].setFilter(GL_LINEAR_MIPMAP_LINEAR);
 		}
-
+		
 		numTextures = aiMaterial->GetTextureCount(aiTextureType_NORMALS);
 		if (numTextures > 0) {
 			aiString name;

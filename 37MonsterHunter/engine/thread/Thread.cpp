@@ -155,6 +155,7 @@ EndlessLooper::~EndlessLooper(){
 
 void EndlessLooper::run() {
 	mThread = std::thread(&EndlessLooper::runFunc, this);
+	mRunning = true;
 }
 
 bool EndlessLooper::running() const {
@@ -190,7 +191,6 @@ bool EndlessLooper::addTask(std::function<void()> &&aRunnable){
 	if (!running()){
 		return false;
 	}
-
 	std::lock_guard<std::recursive_mutex> guard(mRunnablesMutex);
 	mRunnables.push_back(std::move(aRunnable));
 	return true;

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <functional>
+#include <string>
 #include <engine/scene/Object.h>
 #include <engine/Camera.h>
 

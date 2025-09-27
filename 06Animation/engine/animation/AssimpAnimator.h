@@ -4,6 +4,7 @@
 #include <set>
 #include <memory>
 #include <unordered_map>
+#include <string>
 #include "../Vector.h"
 
 class AssimpAnimation;

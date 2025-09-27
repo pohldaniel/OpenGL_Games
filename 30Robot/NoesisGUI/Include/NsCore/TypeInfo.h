@@ -30,7 +30,7 @@
     #include <exception>
 #endif
 
-    #include <typeinfo.h>
+    #include <typeinfo>
 
     template<class T> const char* NsTypeName()
     {

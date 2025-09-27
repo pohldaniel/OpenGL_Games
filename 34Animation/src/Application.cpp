@@ -103,6 +103,8 @@ Application::~Application() {
 	Globals::shaderManager.clear();
 	Widget::CleanUp();
 
+	ImGui_ImplOpenGL3_Shutdown();
+	ImGui_ImplWin32_Shutdown();
 	ImGui::DestroyContext();
 
 	HDC hdc = GetDC(Window);
