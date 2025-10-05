@@ -209,6 +209,7 @@ void Framebuffer::attachTexture2D(AttachmentTex::AttachmentTex _attachment) {
 
 			m_colorTextures.resize(m_colorTextures.size() + 1);
 			texture = &m_colorTextures[m_colorTextureAttachments - 1];
+
 			m_attachments.push_back(GL_COLOR_ATTACHMENT0 + (m_colorAttachments - 1));
 
 			m_resizeTexture.push_back(std::tuple<unsigned int, unsigned int, unsigned int>());
@@ -226,6 +227,7 @@ void Framebuffer::attachTexture2D(AttachmentTex::AttachmentTex _attachment) {
 			
 			m_colorTextures.resize(m_colorTextures.size() + 1);
 			texture = &m_colorTextures[m_colorTextureAttachments - 1];
+
 			m_attachments.push_back(GL_COLOR_ATTACHMENT0 + (m_colorAttachments - 1));
 
 			m_resizeTexture.push_back(std::tuple<unsigned int, unsigned int, unsigned int>());
