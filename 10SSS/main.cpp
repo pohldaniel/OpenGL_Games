@@ -32,6 +32,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	std::cout << "ESC              : quit" << std::endl;
 	std::cout << "v                : toggle vsync" << std::endl;
 	std::cout << "z                : toggle wireframe" << std::endl;
+	std::cout << "t                : toggle debug" << std::endl;
 	std::cout << "m                : toggle sss" << std::endl;
 	std::cout << "l / k            : increase decrease specular intensity" << std::endl;
 	std::cout << ", / .            : increase decrease translucency" << std::endl;
