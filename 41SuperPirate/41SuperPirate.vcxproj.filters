@@ -510,6 +510,9 @@
     <ClCompile Include="src\Zone.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Level.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="convhull\convhull_3d.h">
@@ -972,6 +975,9 @@
       <Filter>Source Files\States</Filter>
     </ClInclude>
     <ClInclude Include="src\Zone.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Level.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

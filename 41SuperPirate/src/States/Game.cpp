@@ -21,11 +21,10 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME), m_zone(m_camer
 	EventDispatcher::AddMouseListener(this);
 
 	m_camera.orthographic(0.0f, m_viewWidth, 0.0f, m_viewHeight, -1.0f, 1.0f);
-	m_camera.setPosition(0.0f, 400.0f, 0.0f);
+	m_camera.setPosition(0.0f, 400.0f, 400.0f);
 	m_camera.setRotationSpeed(0.1f);
 	m_camera.setMovingSpeed(m_movingSpeed);
 	
-
 	glClearColor(0.6f, 0.8f, 0.92f, 1.0f);
 	glClearDepth(1.0f);
 
@@ -113,6 +112,11 @@ void Game::render() {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	m_zone.draw();
+
+#if DEVBUILD
+	if (m_drawUi)
+		renderUi();
+#endif
 }
 
 void Game::OnReEnter(unsigned int prevState) {
@@ -164,6 +168,16 @@ void Game::OnKeyUp(Event::KeyboardEvent& event) {
 void Game::resize(int deltaW, int deltaH) {
 	m_camera.orthographic(0.0f, m_viewWidth, 0.0f, m_viewHeight, -1.0f, 1.0f);
 	m_zone.resize();
+
+	auto shader = Globals::shaderManager.getAssetPointer("batch");
+	shader->use();
+	shader->loadMatrix("u_transform", m_camera.getOrthographicMatrix());
+	shader->unuse();
+
+	shader = Globals::shaderManager.getAssetPointer("font_ttf");
+	shader->use();
+	shader->loadMatrix("u_transform", m_camera.getOrthographicMatrix());
+	shader->unuse();
 }
 
 void Game::renderUi() {
@@ -203,6 +217,13 @@ void Game::renderUi() {
 	// render widgets
 	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 	ImGui::Checkbox("Draw Wirframe", &StateMachine::GetEnableWireframe());
+	if (ImGui::Checkbox("Draw Center", &m_drawCenter)) {
+		m_zone.setDrawCenter(m_drawCenter);
+	}
+
+	if (ImGui::Checkbox("Use Culling", &m_useCulling)) {
+		m_zone.setUseCulling(m_useCulling);
+	}
 	ImGui::End();
 
 	ImGui::Render();

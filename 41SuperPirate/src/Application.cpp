@@ -135,7 +135,7 @@ void Application::createWindow() {
 	Window = CreateWindowEx(
 		NULL,
 		"WINDOWCLASS",
-		"Adrian",
+		"Super Pirate",
 		WS_OVERLAPPEDWINDOW,
 		CW_USEDEFAULT, CW_USEDEFAULT,
 		Width,
@@ -698,6 +698,7 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("font_ttf", "res/shader/batch.vert", "res/shader/font_ttf.frag");
 	Globals::shaderManager.loadShader("batch", "res/shader/batch.vert", "res/shader/batch.frag");
 	Globals::shaderManager.loadShader("color", "res/shader/color.vert", "res/shader/color.frag");
+	Globals::shaderManager.loadShader("quad", "res/shader/quad.vert", "res/shader/quad.frag");
 
 	Globals::fontManager.loadCharacterSet("upheaval_200", "res/fonts/upheavtt.ttf", 200, 0, 30, 128, 0, true, 0u);
 	Globals::fontManager.loadCharacterSet("upheaval_30", "res/fonts/upheavtt.ttf", 30, 0, 3, 0, 0, true, 0u);
@@ -707,5 +708,7 @@ void Application::loadAssets() {
 	Globals::textureManager.loadTexture("forest_3", "res/backgrounds/Forest/plx-3.png");
 	Globals::textureManager.loadTexture("forest_4", "res/backgrounds/Forest/plx-4.png");
 	Globals::textureManager.loadTexture("forest_5", "res/backgrounds/Forest/plx-5.png");
-	Globals::textureManager.createNullTexture("null");	
+	Globals::textureManager.createNullTexture("null");
+
+	Globals::shapeManager.buildQuadXY("quad", Vector3f(-1.0f, -1.0f, 0.0f), Vector2f(2.0f, 2.0f), 1, 1, true, false, false);
 }

@@ -5,34 +5,18 @@
 #include <engine/Camera.h>
 #include <engine/Rect.h>
 #include <engine/TileSet.h>
+#include <engine/Framebuffer.h>
 
 struct Cell {
+	int tileID;
 	float posX;
 	float posY;
 	float width;
-	float height;
-	int currentFrame;
+	float height;	
 	float centerX;
 	float centerY;
 	bool visibile;
 	bool flipped;
-};
-
-struct CellShadow : public Cell {
-
-	CellShadow(float _posX, float _posY, float _width, float _height, int _currentFrame, float _centerX, float _centerY, bool _visibile, bool _flipped, bool isNoticed, bool hasShadow) : hasShadow(hasShadow), isNoticed(isNoticed) {
-		posX = _posX;
-		posY = _posY;
-		width = _width;
-		height = _height;
-		currentFrame = _currentFrame;
-		centerX = _centerX;
-		centerY = _centerY;
-		visibile = _visibile;
-		flipped = _flipped;
-	}
-	bool hasShadow;
-	bool isNoticed;
 };
 
 struct TileSetData {
@@ -45,9 +29,12 @@ struct PointVertex {
 };
 
 class Zone {
+
 	static const int MAX_POINTS = 1000;
+
 public:
-	Zone(const Camera& camera);
+
+	Zone(const Camera& camera, const bool initDebug = true);
 	~Zone();
 
 	void update(float dt);
@@ -56,6 +43,12 @@ public:
 	void loadZone(const std::string path, const std::string currentTileset);
 	void loadTileSet(const std::vector<std::pair<std::string, float>>& pathSizes, const std::vector<std::pair<std::string, unsigned int>>& offsets);
 	void loadTileSetData(const std::string& path);
+
+	void setDrawCenter(bool drawCenter);
+	void setUseCulling(bool useCulling);
+
+private:
+
 	void culling();
 	void updateBorder();
 	int posYToRow(float y, float cellHeight, int min, int max, int shift);
@@ -64,14 +57,14 @@ public:
 	void updatePoints();
 	void initDebug();
 
-	bool m_useCulling;
+	bool m_useCulling, m_drawCenter;
 	float m_screeBorder;
 	std::array<Vector2f, 4> m_cullingVertices;
 	std::vector<std::pair<int, unsigned int>**> m_layers;
 	bool m_borderDirty;
 	size_t m_playerIndex, m_cols, m_rows;
 	std::vector<Cell> m_cellsBackground;
-	std::vector<CellShadow> m_cellsMain;
+	std::vector<Cell> m_cellsMain;
 	std::vector<Rect> m_collisionRects;
 	TileSet m_tileSet;
 	std::unordered_map<std::string, unsigned int> m_charachterOffsets;
@@ -83,9 +76,11 @@ public:
 	float m_mapHeight, m_tileHeight, m_tileWidth;
 
 	std::vector<Cell> m_visibleCellsBackground;
-	std::vector<CellShadow> m_visibleCellsMain;
+	std::vector<Cell> m_visibleCellsMain;
 
 	unsigned int m_vao, m_vbo;
 	Vector3f *pointBatch, *pointBatchPtr;
 	uint32_t m_pointCount;
+
+	Framebuffer m_mainRenderTarget;
 };

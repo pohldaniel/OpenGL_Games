@@ -8,16 +8,29 @@
 
 #include "Zone.h"
 #include "Globals.h"
+#include "Application.h"
 
 std::unordered_map<std::string, TileSetData> Zone::TileSets;
 
-Zone::Zone(const Camera& camera) :
+Zone::Zone(const Camera& camera, const bool _initDebug) :
 	camera(camera),
 	m_borderDirty(true),
 	m_screeBorder(0.0f),
-	m_useCulling(true) {
+	m_useCulling(true),
+	m_pointCount(0),
+	pointBatchPtr(nullptr),
+	pointBatch(nullptr),
+	m_vao(0u),
+	m_vbo(0u){
+
 	resize();
-	initDebug();
+
+	if(_initDebug)
+		initDebug();
+
+	m_mainRenderTarget.create(Application::Width, Application::Height);
+	m_mainRenderTarget.attachTexture2D(AttachmentTex::RGBA);
+	m_mainRenderTarget.attachTexture2D(AttachmentTex::DEPTH24);
 }
 
 Zone::~Zone() {
@@ -25,42 +38,56 @@ Zone::~Zone() {
 }
 
 void Zone::draw() {
+
+	//m_mainRenderTarget.bind();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	Spritesheet::Bind(m_spritesheet);
 	const std::vector<TextureRect>& rects = m_tileSet.getTextureRects();
 
 	for (const Cell& cell : m_visibleCellsBackground) {
-		const TextureRect& rect = rects[cell.currentFrame];
+		const TextureRect& rect = rects[cell.tileID];
 		Batchrenderer::Get().addQuadAA(Vector4f(cell.posX - camera.getPositionX(), m_mapHeight - 64.0f - cell.posY - camera.getPositionY(), rect.width, rect.height), Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureWidth, rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), rect.frame);
 	}
 
-	for (const CellShadow& cell : m_visibleCellsMain) {
-		const TextureRect& rect = rects[cell.currentFrame];
-		Batchrenderer::Get().addQuadAA(Vector4f(cell.posX - camera.getPositionX(), m_mapHeight - cell.posY - camera.getPositionY(), cell.width, cell.height), Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureWidth, rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), rect.frame);
+	for (const Cell& cell : m_visibleCellsMain) {
+		const TextureRect& rect = rects[cell.tileID];
+		Batchrenderer::Get().addQuadAA(Vector4f(cell.posX - camera.getPositionX(), m_mapHeight - cell.posY - camera.getPositionY(), rect.width, rect.height), Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureWidth, rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), rect.frame);
 	}
+
 	Batchrenderer::Get().drawBuffer();
+	if (m_drawCenter && m_vao) {
+		updatePoints();
+		glBindVertexArray(m_vao);
+		GLsizeiptr size = (uint8_t*)pointBatchPtr - (uint8_t*)pointBatch;
+		glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, size, pointBatch);
 
-	/*updatePoints();
-	glBindVertexArray(m_vao);
-	GLsizeiptr size = (uint8_t*)pointBatchPtr - (uint8_t*)pointBatch;
-	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-	glBufferSubData(GL_ARRAY_BUFFER, 0, size, pointBatch);
+		auto shader = Globals::shaderManager.getAssetPointer("color");
+		shader->use();
+		shader->loadMatrix("u_projection", camera.getOrthographicMatrix());
 
-	auto shader = Globals::shaderManager.getAssetPointer("color");
+		glDrawArrays(GL_POINTS, 0, m_pointCount);
+		shader->unuse();
+
+		pointBatchPtr = pointBatch;
+		m_pointCount = 0;
+	}
+	/*m_mainRenderTarget.unbind();
+
+	m_mainRenderTarget.bindColorTexture(0u, 0u);
+	auto shader = Globals::shaderManager.getAssetPointer("quad");
 	shader->use();
-	shader->loadMatrix("u_projection", camera.getOrthographicMatrix());
-
-	glDrawArrays(GL_POINTS, 0, m_pointCount);
-	shader->unuse();
-
-	pointBatchPtr = pointBatch;
-	m_pointCount = 0;*/
+	shader->loadMatrix("u_transform", Matrix4f::IDENTITY);
+	shader->loadVector("u_texRect", Vector4f(0.0f, 0.0f, 1.0f, 1.0f));
+	shader->loadVector("u_color", Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+	Globals::shapeManager.get("quad").drawRaw();
+	shader->unuse();*/
 }
 
 void Zone::update(float dt) {
 	culling();
-	std::sort(m_visibleCellsMain.begin(), m_visibleCellsMain.end(), [&](const CellShadow& cell1, const CellShadow& cell2) {return cell1.centerY < cell2.centerY; });
+	std::sort(m_visibleCellsMain.begin(), m_visibleCellsMain.end(), [&](const Cell& cell1, const Cell& cell2) {return cell1.centerY < cell2.centerY; });
 }
 
 void Zone::loadTileSet(const std::vector<std::pair<std::string, float>>& pathSizes, const std::vector<std::pair<std::string, unsigned int>>& offsets) {
@@ -135,7 +162,7 @@ void Zone::loadZone(const std::string path, const std::string currentTileset) {
 					auto idx = y * mapSize.x + x;
 					m_layers.back()[y][x].first = (tileIDs[idx].ID - 1);
 					if (m_layers.back()[y][x].first != -1) {
-						m_cellsBackground.push_back({ static_cast<float>(x) * m_tileWidth, static_cast<float>(y) * m_tileHeight, m_tileWidth, m_tileHeight, m_layers.back()[y][x].first, static_cast<float>(x) * m_tileWidth + 0.5f * m_tileWidth, static_cast<float>(y) * m_tileHeight + 0.5f * m_tileHeight, false, false });
+						m_cellsBackground.push_back({ m_layers.back()[y][x].first, static_cast<float>(x) * m_tileWidth, static_cast<float>(y) * m_tileHeight, m_tileWidth, m_tileHeight, static_cast<float>(x) * m_tileWidth + 0.5f * m_tileWidth, static_cast<float>(y) * m_tileHeight + 0.5f * m_tileHeight, false, false });
 						m_layers.back()[y][x].second = static_cast<unsigned int>(m_cellsBackground.size() - 1);
 					}
 				}
@@ -145,7 +172,7 @@ void Zone::loadZone(const std::string path, const std::string currentTileset) {
 		if (layer->getName() == "Objects") {
 			const tmx::ObjectGroup* objectLayer = dynamic_cast<const tmx::ObjectGroup*>(layer.get());
 			for (auto& object : objectLayer->getObjects()) {
-				m_cellsMain.push_back(CellShadow(object.getPosition().x, object.getPosition().y, object.getAABB().width, object.getAABB().height, static_cast<int>(object.getTileID() - 1u), object.getPosition().x + 0.5f * object.getAABB().width, object.getPosition().y, false, false, false, false));
+				m_cellsMain.push_back({ static_cast<int>(object.getTileID() - 1u), object.getPosition().x, object.getPosition().y, object.getAABB().width, object.getAABB().height, object.getPosition().x + 0.5f * object.getAABB().width, object.getPosition().y, false, false });
 				m_collisionRects.push_back({ object.getPosition().x , object.getPosition().y - object.getAABB().height + 0.3f *object.getAABB().height,  object.getAABB().width, object.getAABB().height * 0.4f });
 			}
 		}
@@ -185,6 +212,7 @@ void Zone::resize() {
 	m_right = camera.getRightOrthographic();
 	m_bottom = camera.getBottomOrthographic();
 	m_top = camera.getTopOrthographic();
+	m_mainRenderTarget.resize(Application::Width, Application::Height);
 }
 
 void Zone::updateBorder() {
@@ -240,9 +268,9 @@ void Zone::culling() {
 
 	m_visibleCellsMain.clear();
 	const std::vector<TextureRect>& rects = m_tileSet.getTextureRects();
-	for (CellShadow& cell : m_cellsMain) {
+	for (Cell& cell : m_cellsMain) {
 		cell.visibile = false;
-		const TextureRect& rect = rects[cell.currentFrame];
+		const TextureRect& rect = rects[cell.tileID];
 		if (isRectOnScreen(cell.posX, cell.posY - cell.height, cell.width, cell.height) || !m_useCulling) {
 			cell.visibile = true;
 			m_visibleCellsMain.push_back(cell);
@@ -271,9 +299,17 @@ void Zone::initDebug() {
 }
 
 void Zone::updatePoints() {
-	for (auto& cell : m_cellsMain) {
+	for (auto& cell : m_visibleCellsMain) {
 		*pointBatchPtr = { cell.centerX - camera.getPositionX(), m_mapHeight - cell.centerY - camera.getPositionY(), 0.0f };
 		pointBatchPtr++;
 		m_pointCount++;
 	}
+}
+
+void Zone::setDrawCenter(bool drawCenter) {
+	m_drawCenter = drawCenter;
+}
+
+void Zone::setUseCulling(bool useCulling) {
+	m_useCulling = useCulling;
 }
