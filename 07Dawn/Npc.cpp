@@ -92,11 +92,21 @@ void Npc::update(float deltaTime) {
 		cleanupActiveSpells();
 		cleanupCooldownSpells();
 		Respawn();
+		lastActivity = curActivity;
 		curActivity = m_waitForAnimation ? curActivity : getCurActivity();
+		
+		int lastX = getXPos();
+		int lastY = getYPos();
+	
 		lastActiveDirection = activeDirection != Enums::Direction::STOP ? activeDirection : lastActiveDirection;
 
 		processInput();
 		Move(deltaTime);
+
+		if ((lastX != getXPos() || lastY != getYPos())) {
+			interruptCurrentActivityWith(Enums::ActivityType::Walking);
+		}
+
 		Animate(deltaTime);
 
 		const std::vector<SpellActionBase*>& activeSpellActions = getActiveSpells();
@@ -105,7 +115,6 @@ void Npc::update(float deltaTime) {
 		}
 		
 	}
-
 }
 
 void Npc::setCharacterType(std::string characterType) {

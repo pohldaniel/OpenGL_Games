@@ -1212,7 +1212,6 @@ void Character::interruptCurrentActivityWith(Enums::ActivityType activity) {
 }
 
 Enums::ActivityType Character::getCurActivity() const {
-	//Enums::ActivityType curActivity = m_waitForAnimation ? curActivity : Enums::ActivityType::Walking;
 	if (curSpellAction != NULL) {
 		if (dynamic_cast<Spell*>(curSpellAction) != NULL) {
 			return Enums::ActivityType::Casting;
@@ -1223,14 +1222,9 @@ Enums::ActivityType Character::getCurActivity() const {
 		else if (dynamic_cast<MeleeDamageAction*>(curSpellAction) != NULL) {
 			return Enums::ActivityType::Attacking;
 		}
-	} else if (curActivity == Enums::ActivityType::Attacking) {
+	} /*else if (curActivity == Enums::ActivityType::Attacking) {
 		return Enums::ActivityType::Walking;
-	}
-
-	/*if (isAlive() == false && (dyingStartFrame < SDL_GetTicks() + 10000)) {
-		curActivity = ActivityType::Dying;
 	}*/
-
 	return curActivity;
 }
 

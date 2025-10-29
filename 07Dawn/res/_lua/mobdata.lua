@@ -380,6 +380,7 @@ skeletonbase:setWanderRadius( 250 )
 skeletonbase:setLevel( 3 )
 skeletonbase:setCoinDrop( 25, 75, 0.75 );
 skeletonbase:setClass( Enums.Warrior );
+skeletonbase:inscribeSpellInSpellbook( spellDatabase["melee"] );
 skeletonbase:setExperienceValue( 40 );
 
 skeletonarcherbase = DawnInterface.createNewMobType("Skeleton_Archer")
