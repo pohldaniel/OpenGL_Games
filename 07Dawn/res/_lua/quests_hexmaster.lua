@@ -1,25 +1,25 @@
 function Quests.quest_hexmaster.init()
 	if(not Quests.quest_hexmaster.inited) then
-	Quests.quest_hexmaster.isOpen = false
-	InteractionRegions.quest_hexmaster.questStartRegion = DawnInterface.addInteractionRegion();
-	InteractionRegions.quest_hexmaster.questStartRegion:setPosition( 730, 2250, 400, 310 );
-	InteractionRegions.quest_hexmaster.questStartRegion:setOnEnterText( "Quests.quest_hexmaster.onQuestGiverRegionInteraction()" );
+		Quests.quest_hexmaster.isOpen = false
+		InteractionRegions.quest_hexmaster.questStartRegion = DawnInterface.addInteractionRegion();
+		InteractionRegions.quest_hexmaster.questStartRegion:setPosition( 730, 2250, 400, 310 );
+		InteractionRegions.quest_hexmaster.questStartRegion:setOnEnterText( "Quests.quest_hexmaster.onQuestGiverRegionInteraction()" );
 
-	SpawnPoints.quest_hexmaster.ornadSaidor = DawnInterface.addMobSpawnPoint("Human", "Ornad Saidor", 900, 2350, 1, 0, Enums.FRIENDLY);
-	SpawnPoints.quest_hexmaster.ornadSaidor:setWanderRadius(50);
-	
-	InteractionPoints.quest_hexmaster.ornadSaidorInteraction = DawnInterface.addCharacterInteractionPoint( SpawnPoints.quest_hexmaster.ornadSaidor );
-	InteractionPoints.quest_hexmaster.ornadSaidorInteraction:setInteractionType( Enums.Quest );
-	InteractionPoints.quest_hexmaster.ornadSaidorInteraction:setInteractionCode( "Quests.quest_hexmaster.onOrnadSaidorInteraction()" );
+		SpawnPoints.quest_hexmaster.ornadSaidor = DawnInterface.addMobSpawnPoint("Human", "Ornad Saidor", 900, 2350, 1, 0, Enums.FRIENDLY);
+		SpawnPoints.quest_hexmaster.ornadSaidor:setWanderRadius(50);
+		
+		InteractionPoints.quest_hexmaster.ornadSaidorInteraction = DawnInterface.addCharacterInteractionPoint( SpawnPoints.quest_hexmaster.ornadSaidor );
+		InteractionPoints.quest_hexmaster.ornadSaidorInteraction:setInteractionType( Enums.Quest );
+		InteractionPoints.quest_hexmaster.ornadSaidorInteraction:setInteractionCode( "Quests.quest_hexmaster.onOrnadSaidorInteraction()" );
 
-	SpawnPoints.quest_hexmaster.noviceLeader = DawnInterface.addMobSpawnPoint("Wizard", "Novice Leader", 0, 2100, 1, 0, Enums.FRIENDLY);
-	
-	InteractionPoints.quest_hexmaster.noviceLeaderInteraction = DawnInterface.addCharacterInteractionPoint( SpawnPoints.quest_hexmaster.noviceLeader );
-	InteractionPoints.quest_hexmaster.noviceLeaderInteraction:setInteractionType( Enums.Quest );
-	InteractionPoints.quest_hexmaster.noviceLeaderInteraction:setInteractionCode( "Quests.quest_hexmaster.onNoviceLeaderInteraction()" );
-	
-	Quests.quest_hexmaster.inited = true;
-	Quests.quest_hexmaster.path = "res/_lua/quests_hexmaster.lua"
+		SpawnPoints.quest_hexmaster.noviceLeader = DawnInterface.addMobSpawnPoint("Wizard", "Novice Leader", 0, 2100, 1, 0, Enums.FRIENDLY);
+		
+		InteractionPoints.quest_hexmaster.noviceLeaderInteraction = DawnInterface.addCharacterInteractionPoint( SpawnPoints.quest_hexmaster.noviceLeader );
+		InteractionPoints.quest_hexmaster.noviceLeaderInteraction:setInteractionType( Enums.Quest );
+		InteractionPoints.quest_hexmaster.noviceLeaderInteraction:setInteractionCode( "Quests.quest_hexmaster.onNoviceLeaderInteraction()" );
+		
+		Quests.quest_hexmaster.inited = true;
+		Quests.quest_hexmaster.path = "res/_lua/quests_hexmaster.lua"
 	end
 end
 
@@ -252,7 +252,7 @@ function Quests.quest_hexmaster.showEnterRoomText( part )
 	end
 	if ( part == 4 )
 	then
-		SpawnPoints.quest_hexmaster.skeleton = DawnInterface.addMobSpawnPoint( "Skeleton", -1145, 1321, 180, 0, Enums.HOSTILE)
+		SpawnPoints.quest_hexmaster.skeleton = DawnInterface.addMobSpawnPoint("Skeleton","Skeleton", -1145, 1321, 180, 0, Enums.HOSTILE)
 		
 		Eventhandlers.quest_hexmaster.onDieEventHandler = DawnInterface.createEventHandler();
 		Eventhandlers.quest_hexmaster.onDieEventHandler:setExecuteText( "Quests.quest_hexmaster.showEnterRoomText( 5 )" );

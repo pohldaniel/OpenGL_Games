@@ -26,7 +26,7 @@ function Zones.zone1.init()
 		InteractionRegions.zone1.leavePoint1 = DawnInterface.addInteractionPoint();
 		InteractionRegions.zone1.leavePoint1:setPosition( 747, 1588, 56, 80 );
 		InteractionRegions.zone1.leavePoint1:setInteractionType( Enums.Zone );
-		InteractionRegions.zone1.leavePoint1:setBackgroundTexture( "res/transparent4x4pixel.png", true);
+		InteractionRegions.zone1.leavePoint1:setBackgroundTexture("res/transparent4x4pixel.png", true);
 		InteractionRegions.zone1.leavePoint1:setInteractionCode( "DawnInterface.enterZone('res/_lua/arinoxGeneralShop', -158, 0);\nDawnInterface.setSavingAllowed( true );" );
 		
 		InteractionPoints.zone1.leavePoint2 = DawnInterface.addInteractionPoint();
@@ -39,7 +39,8 @@ function Zones.zone1.init()
 		InteractionPoints.zone1.leavePoint3:setPosition( 428, 2060, 56, 80 );
 		InteractionPoints.zone1.leavePoint3:setInteractionType( Enums.Zone );
 		InteractionPoints.zone1.leavePoint3:setBackgroundTexture( "res/transparent4x4pixel.png", true);
-		InteractionPoints.zone1.leavePoint3:setInteractionCode( "DawnInterface.enterZone( 'res/_lua/arinoxMagesGuild', -158, 0 );\nDawnInterface.setSavingAllowed( true );" );
+		--InteractionPoints.zone1.leavePoint3:setInteractionCode( "DawnInterface.enterZone( 'res/_lua/arinoxMagesGuild', -158, 0 );\nDawnInterface.setSavingAllowed( true );" );
+		InteractionPoints.zone1.leavePoint3:setInteractionCode( "DawnInterface.enterZone( 'res/_lua/zone2', -670, 1529 );\nDawnInterface.setSavingAllowed( false );" );
 
 		InteractionRegions.zone1.townEnterRegion = DawnInterface.addInteractionRegion();
 		InteractionRegions.zone1.townEnterRegion:setPosition( 550, 1300, 300, 100 );
@@ -54,7 +55,7 @@ function Zones.zone1.init()
 		dofile("res/_lua/quests_venomousveins.lua");
 	
 		Zones.zone1.inited = true;
-		Zones.zone1.path = "res/_lua/zone1.init.lua"
+		Zones.zone1.path = "res/_lua/zone1.init.lua";
 	end
 end
 

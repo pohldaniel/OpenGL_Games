@@ -62,11 +62,6 @@ if(SpawnPoints.quest_hexmaster == nil) then
 	SpawnPoints.quest_hexmaster = {}
 end
 
-
-if(Eventhandlers == nil) then
-	Eventhandlers = {}
-end
-
 if(Eventhandlers == nil) then
 	Eventhandlers = {}
 end
@@ -77,6 +72,10 @@ end
 
 if(Eventhandlers.quest_venomousveins == nil) then
 	Eventhandlers.quest_venomousveins = {}
+end
+
+if(Eventhandlers.quest_hexmaster == nil) then
+	Eventhandlers.quest_hexmaster = {}
 end
 
 if(Quests == nil) then

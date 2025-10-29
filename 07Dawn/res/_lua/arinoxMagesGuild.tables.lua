@@ -21,6 +21,3 @@ end
 if (SpawnPoints.arinoxMagesGuild == nil) then
 	SpawnPoints.arinoxMagesGuild = {}
 end
-
-
-

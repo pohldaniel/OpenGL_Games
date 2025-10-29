@@ -10,7 +10,6 @@ function Quests.quest_playHideAndSeek.init()
 		Quests.quest_playHideAndSeek.path = "res/_lua/quests_wood.lua"
 	end
 	
-	
 end
 
 function Quests.quest_playHideAndSeek.onActivateJohn()
