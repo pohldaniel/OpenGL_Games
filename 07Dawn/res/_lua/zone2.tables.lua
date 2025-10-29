@@ -30,6 +30,10 @@ if(Eventhandlers.quest_hexmaster == nil) then
 	Eventhandlers.quest_hexmaster = {}
 end
 
+if(Quests == nil) then
+	Quests = {}
+end
+
 if(Quests.quest_hexmaster == nil) then
 	Quests.quest_hexmaster = {}
 end

@@ -23,11 +23,11 @@ end
 
 function Zones.zone1.init()
 	if(not Zones.zone1.inited) then
-		InteractionRegions.zone1.leavePoint1 = DawnInterface.addInteractionPoint();
-		InteractionRegions.zone1.leavePoint1:setPosition( 747, 1588, 56, 80 );
-		InteractionRegions.zone1.leavePoint1:setInteractionType( Enums.Zone );
-		InteractionRegions.zone1.leavePoint1:setBackgroundTexture("res/transparent4x4pixel.png", true);
-		InteractionRegions.zone1.leavePoint1:setInteractionCode( "DawnInterface.enterZone('res/_lua/arinoxGeneralShop', -158, 0);\nDawnInterface.setSavingAllowed( true );" );
+		InteractionPoints.zone1.leavePoint1 = DawnInterface.addInteractionPoint();
+		InteractionPoints.zone1.leavePoint1:setPosition( 747, 1588, 56, 80 );
+		InteractionPoints.zone1.leavePoint1:setInteractionType( Enums.Zone );
+		InteractionPoints.zone1.leavePoint1:setBackgroundTexture("res/transparent4x4pixel.png", true);
+		InteractionPoints.zone1.leavePoint1:setInteractionCode( "DawnInterface.enterZone('res/_lua/arinoxGeneralShop', -158, 0);\nDawnInterface.setSavingAllowed( true );" );
 		
 		InteractionPoints.zone1.leavePoint2 = DawnInterface.addInteractionPoint();
 		InteractionPoints.zone1.leavePoint2:setPosition( 822, 2570, 128, 128 );
@@ -40,6 +40,8 @@ function Zones.zone1.init()
 		InteractionPoints.zone1.leavePoint3:setInteractionType( Enums.Zone );
 		InteractionPoints.zone1.leavePoint3:setBackgroundTexture( "res/transparent4x4pixel.png", true);
 		InteractionPoints.zone1.leavePoint3:setInteractionCode( "DawnInterface.enterZone( 'res/_lua/arinoxMagesGuild', -158, 0 );\nDawnInterface.setSavingAllowed( true );" );
+		--InteractionPoints.zone1.leavePoint3:setInteractionCode( "DawnInterface.enterZone( 'res/_lua/zone2', -670, 1529 );\nDawnInterface.setSavingAllowed( false );" );
+		--InteractionPoints.zone1.leavePoint3:setInteractionCode( "DawnInterface.enterZone( 'res/_lua/arinoxDungeonLevel1', 2020, 1880 );\nDawnInterface.setSavingAllowed( false );" );
 
 		InteractionRegions.zone1.townEnterRegion = DawnInterface.addInteractionRegion();
 		InteractionRegions.zone1.townEnterRegion:setPosition( 550, 1300, 300, 100 );
