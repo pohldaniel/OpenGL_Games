@@ -3,23 +3,23 @@ if (Zones == nil) then
 end
 
 if (Zones.arinoxGeneralShop == nil) then
-	Zones.arinoxGeneralShop ={}
+	Zones.arinoxGeneralShop = {}
 end
 
 if (InteractionPoints == nil) then
-	InteractionPoints ={}
+	InteractionPoints = {}
 end
 
 if (InteractionPoints.arinoxGeneralShop == nil) then
-	InteractionPoints.arinoxGeneralShop ={}
+	InteractionPoints.arinoxGeneralShop = {}
 end
 
 if (SpawnPoints == nil) then
-	SpawnPoints ={}
+	SpawnPoints = {}
 end
 
 if (SpawnPoints.arinoxGeneralShop == nil) then
-	SpawnPoints.arinoxGeneralShop ={}
+	SpawnPoints.arinoxGeneralShop = {}
 end
 
 
