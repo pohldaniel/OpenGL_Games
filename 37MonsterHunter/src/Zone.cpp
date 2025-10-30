@@ -66,7 +66,7 @@ Zone::~Zone() {
 	}
 
 	for (auto& layer : m_layers) {
-		for (int i = 0; i < m_cols; i++) {			
+		for (int i = 0; i < m_rows; i++) {
 			delete[] layer[i];
 		}
 		delete[] layer;

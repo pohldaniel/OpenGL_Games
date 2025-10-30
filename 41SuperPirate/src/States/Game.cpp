@@ -156,6 +156,16 @@ void Game::OnKeyDown(Event::KeyboardEvent& event) {
 #endif
 
 	if (event.keyCode == VK_ESCAPE) {
+		auto shader = Globals::shaderManager.getAssetPointer("batch");
+		shader->use();
+		shader->loadMatrix("u_transform", Matrix4f::Orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f));
+		shader->unuse();
+
+		shader = Globals::shaderManager.getAssetPointer("font_ttf");
+		shader->use();
+		shader->loadMatrix("u_transform", Matrix4f::Orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f));
+		shader->unuse();
+
 		Mouse::instance().detach();
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new Menu(m_machine));

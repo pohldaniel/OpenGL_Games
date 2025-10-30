@@ -34,7 +34,29 @@ Zone::Zone(const Camera& camera, const bool _initDebug) :
 }
 
 Zone::~Zone() {
+	if (m_pointBatch) {
+		delete[] m_pointBatch;
+		m_pointBatch = nullptr;
+		m_pointBatchPtr = nullptr;
+	}
 
+	if (m_vao) {
+		glDeleteVertexArrays(1, &m_vao);
+		m_vao = 0u;
+	}
+
+	if (m_vbo) {
+		glDeleteBuffers(1, &m_vbo);
+		m_vbo = 0u;
+	}
+
+	for (auto& layer : m_layers) {
+		for (int i = 0; i < m_rows; i++) {
+			delete[] layer[i];
+		}
+		delete[] layer;
+		layer = nullptr;
+	}
 }
 
 void Zone::draw() {

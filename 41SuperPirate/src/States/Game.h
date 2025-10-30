@@ -6,6 +6,7 @@
 #include <States/StateMachine.h>
 
 #include "Zone.h"
+#include "Level.h"
 
 class Game : public State, public MouseEventListener, public KeyboardEventListener {
 
