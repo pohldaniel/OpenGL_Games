@@ -35,7 +35,6 @@ DWORD Application::SavedExStyle;
 DWORD Application::SavedStyle;
 RECT Application::Savedrc;
 bool Application::OverClient = true;
-bool Application::MouseTracking = true;
 bool Application::VerticalSync = true;
 
 HCURSOR Application::Cursor = LoadCursor(nullptr, IDC_ARROW);
@@ -88,7 +87,7 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	shader->unuse();
 
 	SetCursorIcon(IDC_ARROW);
-	initStates();	
+	initStates();
 }
 
 Application::~Application() {
@@ -99,7 +98,7 @@ Application::~Application() {
 	delete Machine;
 	Globals::shaderManager.clear();
 	Widget::CleanUp();
-    Sprite::CleanUp();
+	Sprite::CleanUp();
 
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplWin32_Shutdown();
@@ -114,7 +113,7 @@ Application::~Application() {
 }
 
 void Application::createWindow() {
-	
+
 	WNDCLASSEX windowClass = {};
 	windowClass.cbSize = sizeof(WNDCLASSEX);
 	windowClass.style = CS_HREDRAW | CS_VREDRAW;
@@ -147,7 +146,6 @@ void Application::createWindow() {
 
 	if (!Window)
 		return;
-
 }
 
 void Application::showWindow() {
@@ -202,10 +200,6 @@ LRESULT CALLBACK Application::StaticWndProc(HWND hWnd, UINT message, WPARAM wPar
 		ImGui::GetIO().WantCaptureMouse = false;
 	}
 
-	if (message == WM_SETCURSOR) {
-		return 0;
-	}
-
 	ImGui_ImplWin32_WndProcHandler(hWnd, message, wParam, lParam);
 
 	if (InitWindow && ImGui::GetIO().WantCaptureMouse) {
@@ -223,53 +217,53 @@ LRESULT CALLBACK Application::StaticWndProc(HWND hWnd, UINT message, WPARAM wPar
 LRESULT Application::ApplicationWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
 
 	switch (message) {
-	case WM_CREATE: {
-		Keyboard::instance().enable();
-		break;
-	}case WM_DESTROY: {
-		if (InitWindow) {
-			PostQuitMessage(0);
-		}
-		break;
-	}case WM_KEYDOWN: {
-		switch (wParam) {
-		case VK_RETURN: {
-			if ((HIWORD(lParam) & KF_ALTDOWN))
-				ToggleFullScreen(!Fullscreen);
+		case WM_CREATE: {
+			Keyboard::instance().enable();
 			break;
-		}
-		}
-		break;
-		//ignore left alt
-	}/*case WM_SYSKEYDOWN: {
-		switch (wParam) {
+		}case WM_DESTROY: {
+			if (InitWindow) {
+				PostQuitMessage(0);
+			}
+			break;
+		}case WM_KEYDOWN: {
+			switch (wParam) {
 			case VK_RETURN: {
 				if ((HIWORD(lParam) & KF_ALTDOWN))
 					ToggleFullScreen(!Fullscreen);
 				break;
 			}
+			}
+			break;
+			//ignore left alt
+		}/*case WM_SYSKEYDOWN: {
+			switch (wParam) {
+				case VK_RETURN: {
+					if ((HIWORD(lParam) & KF_ALTDOWN))
+						ToggleFullScreen(!Fullscreen);
+					break;
+				}
+			}
+			break;
+		}*/case WM_SIZE: {
+			int deltaW = Width;
+			int deltaH = Height;
+
+			Height = HIWORD(lParam);		// retrieve width and height
+			Width = LOWORD(lParam);
+
+			deltaW = Width - deltaW;
+			deltaH = Height - deltaH;
+
+			if (Height == 0) {					// avoid divide by zero
+				Height = 1;
+			}
+			Resize(deltaW, deltaH);
+
+			break;
+		}default: {
+			//Mouse::instance().handleMsg(hWnd, message, wParam, lParam);
+			break;
 		}
-		break;
-	}*/case WM_SIZE: {
-		int deltaW = Width;
-		int deltaH = Height;
-
-		Height = HIWORD(lParam);		// retrieve width and height
-		Width = LOWORD(lParam);
-
-		deltaW = Width - deltaW;
-		deltaH = Height - deltaH;
-
-		if (Height == 0) {					// avoid divide by zero
-			Height = 1;
-		}
-		Resize(deltaW, deltaH);
-
-		break;
-	}default: {
-		//Mouse::instance().handleMsg(hWnd, message, wParam, lParam);
-		break;
-	}
 	}
 	return DefWindowProc(hWnd, message, wParam, lParam);
 }
@@ -378,7 +372,7 @@ void Application::initImGUI() {
 	ImGui_ImplWin32_Init(Window);
 	ImGuiIO& io = ImGui::GetIO();
 	io.IniFilename = NULL;
-	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
+	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 	io.ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
 	ImGui_ImplOpenGL3_Init("#version 410 core");
 }
@@ -390,7 +384,7 @@ void Application::initOpenAL() {
 void Application::ToggleVerticalSync() {
 
 	// WGL_EXT_swap_control.
-	typedef BOOL(WINAPI * PFNWGLSWAPINTERVALEXTPROC)(GLint);
+	typedef BOOL(WINAPI* PFNWGLSWAPINTERVALEXTPROC)(GLint);
 	static PFNWGLSWAPINTERVALEXTPROC wglSwapIntervalEXT =
 		reinterpret_cast<PFNWGLSWAPINTERVALEXTPROC>(
 			wglGetProcAddress("wglSwapIntervalEXT"));
@@ -431,72 +425,72 @@ void Application::fixedUpdate() {
 	Machine->fixedUpdate();
 }
 
-void Application::initStates() {	
+void Application::initStates() {
 	Machine = new StateMachine(m_dt, m_fdt);
 	//Machine->addStateAtTop(new Menu(*Machine));
 	Machine->addStateAtTop(new Game(*Machine));
-	
+
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
 
 	switch (message) {
-	case WM_MOUSEMOVE: {
+		case WM_MOUSEMOVE: {
 
-		if (!OverClient) {
-			OverClient = true;
-			SetCursor(Cursor);
-		}
+			if (!OverClient) {
+				OverClient = true;
+				SetCursor(Cursor);
+			}
 
-		Event event;
-		event.type = Event::MOUSEMOTION;
-		event.data.mouseMove.x = static_cast<int>(static_cast<short>(LOWORD(lParam)));
-		event.data.mouseMove.y = static_cast<int>(static_cast<short>(HIWORD(lParam)));
-		event.data.mouseMove.button = wParam & MK_RBUTTON ? Event::MouseMoveEvent::MouseButton::BUTTON_RIGHT : wParam & MK_LBUTTON ? Event::MouseMoveEvent::MouseButton::BUTTON_LEFT : Event::MouseMoveEvent::MouseButton::NONE;
-		EventDispatcher.pushEvent(event);
-		break;
-	}case WM_LBUTTONDOWN: {
-		Event event;
-		event.type = Event::MOUSEBUTTONDOWN;
-		event.data.mouseButton.x = static_cast<int>(static_cast<short>(LOWORD(lParam)));
-		event.data.mouseButton.y = static_cast<int>(static_cast<short>(HIWORD(lParam)));
-		event.data.mouseButton.button = Event::MouseButtonEvent::MouseButton::BUTTON_LEFT;
-		EventDispatcher.pushEvent(event);
-		break;
-	}case WM_RBUTTONDOWN: {
-		Event event;
-		event.type = Event::MOUSEBUTTONDOWN;
-		event.data.mouseButton.x = static_cast<int>(static_cast<short>(LOWORD(lParam)));
-		event.data.mouseButton.y = static_cast<int>(static_cast<short>(HIWORD(lParam)));
-		event.data.mouseButton.button = Event::MouseButtonEvent::MouseButton::BUTTON_RIGHT;
-		EventDispatcher.pushEvent(event);
-		break;
-	}case WM_MBUTTONDOWN: {
-		Event event;
-		event.type = Event::MOUSEBUTTONDOWN;
-		event.data.mouseButton.x = static_cast<int>(static_cast<short>(LOWORD(lParam)));
-		event.data.mouseButton.y = static_cast<int>(static_cast<short>(HIWORD(lParam)));
-		event.data.mouseButton.button = Event::MouseButtonEvent::MouseButton::BUTTON_MIDDLE;
-		EventDispatcher.pushEvent(event);
-		break;
-	}case WM_LBUTTONUP: {
-		Event event;
-		event.type = Event::MOUSEBUTTONUP;
-		event.data.mouseButton.x = static_cast<int>(static_cast<short>(LOWORD(lParam)));
-		event.data.mouseButton.y = static_cast<int>(static_cast<short>(HIWORD(lParam)));
-		event.data.mouseButton.button = Event::MouseButtonEvent::MouseButton::BUTTON_LEFT;
-		EventDispatcher.pushEvent(event);
-		break;
-	} case WM_RBUTTONUP: {
-		Event event;
-		event.type = Event::MOUSEBUTTONUP;
-		event.data.mouseButton.x = static_cast<int>(static_cast<short>(LOWORD(lParam)));
-		event.data.mouseButton.y = static_cast<int>(static_cast<short>(HIWORD(lParam)));
-		event.data.mouseButton.button = Event::MouseButtonEvent::MouseButton::BUTTON_RIGHT;
-		EventDispatcher.pushEvent(event);
-		break;
-	} case WM_KEYDOWN: {
-		switch (wParam) {		
+			Event event;
+			event.type = Event::MOUSEMOTION;
+			event.data.mouseMove.x = static_cast<int>(static_cast<short>(LOWORD(lParam)));
+			event.data.mouseMove.y = static_cast<int>(static_cast<short>(HIWORD(lParam)));
+			event.data.mouseMove.button = wParam & MK_RBUTTON ? Event::MouseMoveEvent::MouseButton::BUTTON_RIGHT : wParam & MK_LBUTTON ? Event::MouseMoveEvent::MouseButton::BUTTON_LEFT : Event::MouseMoveEvent::MouseButton::NONE;
+			EventDispatcher.pushEvent(event);
+			break;
+		}case WM_LBUTTONDOWN: {
+			Event event;
+			event.type = Event::MOUSEBUTTONDOWN;
+			event.data.mouseButton.x = static_cast<int>(static_cast<short>(LOWORD(lParam)));
+			event.data.mouseButton.y = static_cast<int>(static_cast<short>(HIWORD(lParam)));
+			event.data.mouseButton.button = Event::MouseButtonEvent::MouseButton::BUTTON_LEFT;
+			EventDispatcher.pushEvent(event);
+			break;
+		}case WM_RBUTTONDOWN: {
+			Event event;
+			event.type = Event::MOUSEBUTTONDOWN;
+			event.data.mouseButton.x = static_cast<int>(static_cast<short>(LOWORD(lParam)));
+			event.data.mouseButton.y = static_cast<int>(static_cast<short>(HIWORD(lParam)));
+			event.data.mouseButton.button = Event::MouseButtonEvent::MouseButton::BUTTON_RIGHT;
+			EventDispatcher.pushEvent(event);
+			break;
+		}case WM_MBUTTONDOWN: {
+			Event event;
+			event.type = Event::MOUSEBUTTONDOWN;
+			event.data.mouseButton.x = static_cast<int>(static_cast<short>(LOWORD(lParam)));
+			event.data.mouseButton.y = static_cast<int>(static_cast<short>(HIWORD(lParam)));
+			event.data.mouseButton.button = Event::MouseButtonEvent::MouseButton::BUTTON_MIDDLE;
+			EventDispatcher.pushEvent(event);
+			break;
+		}case WM_LBUTTONUP: {
+			Event event;
+			event.type = Event::MOUSEBUTTONUP;
+			event.data.mouseButton.x = static_cast<int>(static_cast<short>(LOWORD(lParam)));
+			event.data.mouseButton.y = static_cast<int>(static_cast<short>(HIWORD(lParam)));
+			event.data.mouseButton.button = Event::MouseButtonEvent::MouseButton::BUTTON_LEFT;
+			EventDispatcher.pushEvent(event);
+			break;
+		} case WM_RBUTTONUP: {
+			Event event;
+			event.type = Event::MOUSEBUTTONUP;
+			event.data.mouseButton.x = static_cast<int>(static_cast<short>(LOWORD(lParam)));
+			event.data.mouseButton.y = static_cast<int>(static_cast<short>(HIWORD(lParam)));
+			event.data.mouseButton.button = Event::MouseButtonEvent::MouseButton::BUTTON_RIGHT;
+			EventDispatcher.pushEvent(event);
+			break;
+		} case WM_KEYDOWN: {
+			switch (wParam) {
 			case VK_CONTROL: {
 
 				//Alt Graph
@@ -509,7 +503,7 @@ void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 				EventDispatcher.pushEvent(event);
 				break;
 			}
-	#if DEVBUILD
+#if DEVBUILD
 			case 'z': case 'Z': {
 				StateMachine::ToggleWireframe();
 				break;
@@ -517,71 +511,71 @@ void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 				ToggleVerticalSync();
 				break;
 			}
-	#endif
-		}
-
-		Event event;
-		event.type = Event::KEYDOWN;
-		event.data.keyboard.keyCode = wParam;
-		EventDispatcher.pushEvent(event);
-
-		break;
-	}case WM_KEYUP: {
-
-		switch (wParam) {			
-			case VK_CONTROL: {			
-				Event event;
-				event.type = Event::KEYUP;
-				event.data.keyboard.keyCode = (lParam & 0x01000000) != 0 ? VK_RCONTROL : VK_LCONTROL;
-				EventDispatcher.pushEvent(event);
-				break;
+#endif
 			}
-		}
 
-		Event event;
-		event.type = Event::KEYUP;
-		event.data.keyboard.keyCode = wParam;
-		EventDispatcher.pushEvent(event);
-
-		break;
-	}case WM_SYSKEYDOWN: {
-
-		switch (wParam) {
-		case VK_MENU: {
 			Event event;
 			event.type = Event::KEYDOWN;
-			event.data.keyboard.keyCode = VK_LMENU;
+			event.data.keyboard.keyCode = wParam;
 			EventDispatcher.pushEvent(event);
-			break;
-		}
-		}
-		break;
-	}case WM_SYSKEYUP: {
 
-		switch (wParam) {
-		case VK_MENU: {
+			break;
+		}case WM_KEYUP: {
+
+			switch (wParam) {
+				case VK_CONTROL: {
+					Event event;
+					event.type = Event::KEYUP;
+					event.data.keyboard.keyCode = (lParam & 0x01000000) != 0 ? VK_RCONTROL : VK_LCONTROL;
+					EventDispatcher.pushEvent(event);
+					break;
+				}
+			}
+
 			Event event;
 			event.type = Event::KEYUP;
-			event.data.keyboard.keyCode = VK_LMENU;
+			event.data.keyboard.keyCode = wParam;
+			EventDispatcher.pushEvent(event);
+
+			break;
+		}case WM_SYSKEYDOWN: {
+
+			switch (wParam) {
+				case VK_MENU: {
+					Event event;
+					event.type = Event::KEYDOWN;
+					event.data.keyboard.keyCode = VK_LMENU;
+					EventDispatcher.pushEvent(event);
+					break;
+				}
+			}
+			break;
+		}case WM_SYSKEYUP: {
+
+			switch (wParam) {
+				case VK_MENU: {
+					Event event;
+					event.type = Event::KEYUP;
+					event.data.keyboard.keyCode = VK_LMENU;
+					EventDispatcher.pushEvent(event);
+					break;
+				}
+			}
+			break;
+		}case WM_MOUSEWHEEL: {
+			Event event;
+			event.type = Event::MOUSEWHEEL;
+			event.data.mouseWheel.delta = GET_WHEEL_DELTA_WPARAM(wParam) / WHEEL_DELTA;
+			event.data.mouseWheel.direction = event.data.mouseWheel.delta > 0 ? Event::MouseWheelEvent::WheelDirection::UP : Event::MouseWheelEvent::WheelDirection::DOWN;
 			EventDispatcher.pushEvent(event);
 			break;
 		}
-		}
-		break;
-	}case WM_MOUSEWHEEL: {
-		Event event;
-		event.type = Event::MOUSEWHEEL;
-		event.data.mouseWheel.delta = GET_WHEEL_DELTA_WPARAM(wParam) / WHEEL_DELTA;
-		event.data.mouseWheel.direction = event.data.mouseWheel.delta > 0 ? Event::MouseWheelEvent::WheelDirection::UP : Event::MouseWheelEvent::WheelDirection::DOWN;
-		EventDispatcher.pushEvent(event);
-		break;
-	}
 	}
 }
 
 void Application::Resize(int deltaW, int deltaH) {
 	glViewport(0, 0, Width, Height);
-	
+
 	if (Init) {
 		Framebuffer::SetDefaultSize(Width, Height);
 		Widget::Resize(Width, Height);
@@ -658,7 +652,7 @@ void  Application::SetCursorIcon(HCURSOR cursor) {
 }
 
 //https://learn.microsoft.com/en-us/windows/win32/menurc/using-cursors
-void Application::SetCursorIcon(const char *image[]) {
+void Application::SetCursorIcon(const char* image[]) {
 	int i, row, col;
 	BYTE  data[4 * 32];
 	BYTE  mask[4 * 32];
@@ -687,7 +681,7 @@ void Application::SetCursorIcon(const char *image[]) {
 			}
 		}
 	}
-	sscanf(image[4 + row], "%d,%d", &hot_x, &hot_y);	
+	sscanf(image[4 + row], "%d,%d", &hot_x, &hot_y);
 	Application::Cursor = CreateCursor(NULL, hot_x, hot_y, 32, 32, data, mask);
 
 	SetCursor(Cursor);

@@ -42,7 +42,6 @@ DWORD Application::SavedExStyle;
 DWORD Application::SavedStyle;
 RECT Application::Savedrc;
 bool Application::OverClient = true;
-bool Application::MouseTracking = true;
 bool Application::VerticalSync = true;
 
 HCURSOR Application::Cursor = LoadCursor(nullptr, IDC_ARROW);

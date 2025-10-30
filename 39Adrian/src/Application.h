@@ -29,7 +29,6 @@ public:
 	static int Width;
 	static int Height;
 	static bool OverClient;
-	static bool MouseTracking;
 
 private:
 	static LRESULT CALLBACK StaticWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);

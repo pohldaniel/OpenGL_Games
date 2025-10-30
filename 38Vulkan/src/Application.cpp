@@ -20,7 +20,6 @@ bool Application::Init = false;
 DWORD Application::SavedExStyle;
 DWORD Application::SavedStyle;
 RECT Application::Savedrc;
-//VlkContext Application::VlkContext = {};
 
 VkInstance instance = nullptr;
 
@@ -85,7 +84,7 @@ void Application::createWindow() {
 	Window = CreateWindowEx(
 		NULL,
 		"WINDOWCLASS",
-		"Monster Hunter",
+		"VUlkan",
 		WS_OVERLAPPEDWINDOW,
 		CW_USEDEFAULT, CW_USEDEFAULT,
 		Width,
