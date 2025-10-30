@@ -521,6 +521,10 @@ void TileSet::shrinkTextureRectY(size_t index, float scale) {
 	textureRect.textureHeight = textureRect.textureHeight < 0 ? textureRect.textureHeight + scaleY * 2.0f : textureRect.textureHeight - scaleY * 2.0f;
 }
 
+void TileSet::removeTextureRect(size_t index) {
+	m_textureRects.erase(m_textureRects.begin() + index);
+}
+
 void TileSet::loadTileSetGpu() {
 	if (m_init) return;
 	TextureAtlasCreator::Get().getAtlas(m_atlas);

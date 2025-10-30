@@ -121,10 +121,10 @@ void Zone::update(float dt) {
 	std::sort(m_visibleCellsMain.begin(), m_visibleCellsMain.end(), [&](const Cell& cell1, const Cell& cell2) {return cell1.centerY < cell2.centerY; });
 }
 
-void Zone::loadTileSet(const std::vector<std::pair<std::string, float>>& pathSizes, const std::vector<std::pair<std::string, unsigned int>>& offsets) {
+void Zone::loadTileSet(const TileSetData& tileSetData) {
 	m_tileSet.cleanup();
 	TextureAtlasCreator::Get().init(2048u, 2048u);
-	for (auto& pathSize : pathSizes) {
+	for (auto& pathSize : tileSetData.pathSizes) {
 		if (pathSize.second > 0.0f) {
 			m_tileSet.loadTileSetCpu(pathSize.first, false, pathSize.second, pathSize.second, true, false);
 		}else {
@@ -132,8 +132,12 @@ void Zone::loadTileSet(const std::vector<std::pair<std::string, float>>& pathSiz
 		}
 	}
 
-	for (auto& offset : offsets) {
+	for (auto& offset : tileSetData.offsets) {
 		m_charachterOffsets[offset.first] = offset.second;
+	}
+
+	for (auto& index : tileSetData.indices) {
+		m_tileSet.removeTextureRect(index);
 	}
 
 	m_tileSet.loadTileSetGpu();
@@ -163,7 +167,7 @@ void Zone::loadZone(const std::string path, const std::string currentTileset) {
 	m_collisionRects.reserve(700);
 	m_currentTileset = currentTileset;
 
-	loadTileSet(Zone::TileSets[m_currentTileset].pathSizes, Zone::TileSets[m_currentTileset].offsets);
+	loadTileSet(Zone::TileSets[m_currentTileset]);
 	tmx::Map map;
 	map.load(path);
 
@@ -210,9 +214,9 @@ void Zone::loadZone(const std::string path, const std::string currentTileset) {
 }
 
 void Zone::loadTileSetData(const std::string& path) {
-	std::ifstream file("res/tilesets.json", std::ios::in);
+	std::ifstream file(path, std::ios::in);
 	if (!file.is_open()) {
-		std::cerr << "Could not open file: " << "res/tilesets.json" << std::endl;
+		std::cerr << "Could not open file: " << path << std::endl;
 	}
 
 	rapidjson::IStreamWrapper streamWrapper(file);
@@ -222,7 +226,7 @@ void Zone::loadTileSetData(const std::string& path) {
 	for (rapidjson::Value::ConstMemberIterator tileset = doc.MemberBegin(); tileset != doc.MemberEnd(); ++tileset) {
 		for (rapidjson::Value::ConstValueIterator tuples = tileset->value["paths"].GetArray().Begin(); tuples != tileset->value["paths"].GetArray().End(); ++tuples) {
 			for (rapidjson::Value::ConstMemberIterator tuple = tuples->MemberBegin(); tuple != tuples->MemberEnd(); ++tuple) {
-				TileSets[tileset->name.GetString()].pathSizes.push_back({ tuple->name.GetString(),tuple->value.GetFloat() });
+				Zone::TileSets[tileset->name.GetString()].pathSizes.push_back({ tuple->name.GetString(),tuple->value.GetFloat() });
 			}
 		}
 
@@ -230,7 +234,7 @@ void Zone::loadTileSetData(const std::string& path) {
 			for (rapidjson::Value::ConstValueIterator tuples = tileset->value["offsets"].GetArray().Begin(); tuples != tileset->value["offsets"].GetArray().End(); ++tuples) {
 
 				for (rapidjson::Value::ConstMemberIterator tuple = tuples->MemberBegin(); tuple != tuples->MemberEnd(); ++tuple) {
-					TileSets[tileset->name.GetString()].offsets.push_back({ tuple->name.GetString(), tuple->value.GetUint() });
+					Zone::TileSets[tileset->name.GetString()].offsets.push_back({ tuple->name.GetString(), tuple->value.GetUint() });
 				}
 			}
 		}
@@ -311,9 +315,9 @@ void Zone::initDebug() {
 	glBindVertexArray(m_vao);
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
 
-	glBufferData(GL_ARRAY_BUFFER, sizeof(PointVertex) * MAX_POINTS, nullptr, GL_DYNAMIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, 3 * sizeof(float)  * MAX_POINTS, nullptr, GL_DYNAMIC_DRAW);
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(PointVertex), (void*)offsetof(PointVertex, position));
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);

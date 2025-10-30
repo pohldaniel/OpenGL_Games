@@ -1272,7 +1272,7 @@ void ObjModel::GenerateTangents(std::vector<float>& vertexBuffer, std::vector<un
 
 void ObjModel::PackBuffer(std::vector<float>& vertexBuffer, unsigned int& vao, unsigned int& vbo, unsigned int stride) {
 	std::vector<float> vertexBufferNew;
-	unsigned int strideNew;
+	unsigned int strideNew = 0u;
 
 	if (stride == 3) {
 		vertexBufferNew.resize(vertexBuffer.size() / 3 * 4);

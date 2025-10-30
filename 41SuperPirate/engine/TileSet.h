@@ -67,6 +67,7 @@ public:
 	void shrinkTextureRectX(size_t index, float scale);
 	void shrinkTextureRectY(size_t index, float scale);
 	const std::vector<TextureRect> getLastTextureRects() const;
+	void removeTextureRect(size_t index);
 
 	void loadTileSetGpu();
 	const std::vector<TextureRect>& getTextureRects() const;

@@ -8,6 +8,13 @@
 #include "Zone.h"
 #include "Level.h"
 
+enum Scene {
+	OVERWORLD,
+	OMNI,
+	LEVEL1,
+	LEVEL2
+};
+
 class Game : public State, public MouseEventListener, public KeyboardEventListener {
 
 public:
@@ -40,10 +47,13 @@ private:
 
 	Camera m_camera;
 	Zone m_zone;
+	Level m_level;
 
 	float m_movingSpeed;
 	float m_viewWidth;
 	float m_viewHeight;
 	float m_mapHeight;
 	float m_screeBorder;
+
+	Scene m_scene = Scene::OMNI;
 };

@@ -14,8 +14,8 @@
 #include <engine/Clock.h>
 #include <Physics/Physics.h>
 
-#define WIDTH 1024
-#define HEIGHT 768
+#define WIDTH 1280
+#define HEIGHT 720
 
 #define DEBUG 1
 #define DEVBUILD 1
