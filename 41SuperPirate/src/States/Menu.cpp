@@ -1,6 +1,7 @@
 #include <engine/Fontrenderer.h>
 
 #include <States/Default.h>
+#include <States/Game.h>
 
 #include "Menu.h"
 #include "Application.h"
@@ -18,7 +19,8 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	m_headline.setOffset(5.0f, -7.0f);
 
 	m_buttons = std::initializer_list<std::pair<const std::string, Button>>({
-		{ "default",           Button() },
+		{ "default",      Button() },
+		{ "game",         Button() }
 	});
 
 	m_buttons.at("default").setCharset(Globals::fontManager.get("upheaval_30"));
@@ -30,6 +32,14 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 		m_machine.addStateAtBottom(new Default(m_machine));
 	});
 
+	m_buttons.at("game").setCharset(Globals::fontManager.get("upheaval_30"));
+	m_buttons.at("game").setPosition(50.0f, 100.0f);
+	m_buttons.at("game").setOutlineThickness(5.0f);
+	m_buttons.at("game").setText("Game");
+	m_buttons.at("game").setFunction([&]() {
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new Game(m_machine));
+	});
 	
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 }
