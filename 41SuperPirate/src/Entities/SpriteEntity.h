@@ -2,24 +2,14 @@
 #include <string>
 #include <engine/Vector.h>
 
+#include "DataStructs.h"
+
 enum ViewDirection {
 	LEFT,
 	RIGHT,
 	DOWN,
 	UP,
 	NONE
-};
-
-struct Cell {
-	float posX;
-	float posY;
-	float width;
-	float height;
-	int currentFrame;
-	float centerX;
-	float centerY;
-	bool visibile;
-	bool flipped;
 };
 
 class SpriteEntity {
