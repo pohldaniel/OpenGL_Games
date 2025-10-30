@@ -7,7 +7,8 @@
 							{"res/graphics/overworld/objects/grass3.png": 0.0},
 							{"res/graphics/overworld/objects/grass4.png": 0.0},
 							{"res/graphics/overworld/objects/grass5.png": 0.0},
-							{"res/graphics/overworld/objects/stone.png": 0.0}
+							{"res/graphics/overworld/objects/stone.png": 0.0},
+							{"res/graphics/empty.png": 0.0}
 						]
 				}
 }

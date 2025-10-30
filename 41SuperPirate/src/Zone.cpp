@@ -13,17 +13,17 @@
 std::unordered_map<std::string, TileSetData> Zone::TileSets;
 
 Zone::Zone(const Camera& camera, const bool _initDebug) :
-	camera(camera),
-	m_borderDirty(true),
-	m_screeBorder(0.0f),
+	camera(camera),	
 	m_useCulling(true),
+	m_debugCollision(false),
+	m_drawCenter(false),
+	m_borderDirty(true),
+	m_screeBorder(0.0f),	
 	m_pointCount(0),
-	pointBatchPtr(nullptr),
-	pointBatch(nullptr),
+	m_pointBatchPtr(nullptr),
+	m_pointBatch(nullptr),
 	m_vao(0u),
 	m_vbo(0u){
-
-	resize();
 
 	if(_initDebug)
 		initDebug();
@@ -39,7 +39,7 @@ Zone::~Zone() {
 
 void Zone::draw() {
 
-	//m_mainRenderTarget.bind();
+	m_mainRenderTarget.bind();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	Spritesheet::Bind(m_spritesheet);
@@ -59,9 +59,9 @@ void Zone::draw() {
 	if (m_drawCenter && m_vao) {
 		updatePoints();
 		glBindVertexArray(m_vao);
-		GLsizeiptr size = (uint8_t*)pointBatchPtr - (uint8_t*)pointBatch;
+		GLsizeiptr size = (uint8_t*)m_pointBatchPtr - (uint8_t*)m_pointBatch;
 		glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-		glBufferSubData(GL_ARRAY_BUFFER, 0, size, pointBatch);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, size, m_pointBatch);
 
 		auto shader = Globals::shaderManager.getAssetPointer("color");
 		shader->use();
@@ -70,10 +70,19 @@ void Zone::draw() {
 		glDrawArrays(GL_POINTS, 0, m_pointCount);
 		shader->unuse();
 
-		pointBatchPtr = pointBatch;
+		m_pointBatchPtr = m_pointBatch;
 		m_pointCount = 0;
 	}
-	/*m_mainRenderTarget.unbind();
+
+	if (m_debugCollision) {
+		const TextureRect& textureRect = rects.back();
+		for (const Rect& rect : m_collisionRects) {
+			Batchrenderer::Get().addQuadAA(Vector4f(rect.posX - camera.getPositionX(), m_mapHeight - (rect.posY + rect.height) - camera.getPositionY(), rect.width, rect.height), Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), Vector4f(0.0f, 0.0f, 1.0f, 1.0f), textureRect.frame);
+		}
+		Batchrenderer::Get().drawBuffer();
+	}
+
+	m_mainRenderTarget.unbind();
 
 	m_mainRenderTarget.bindColorTexture(0u, 0u);
 	auto shader = Globals::shaderManager.getAssetPointer("quad");
@@ -82,7 +91,7 @@ void Zone::draw() {
 	shader->loadVector("u_texRect", Vector4f(0.0f, 0.0f, 1.0f, 1.0f));
 	shader->loadVector("u_color", Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
 	Globals::shapeManager.get("quad").drawRaw();
-	shader->unuse();*/
+	shader->unuse();
 }
 
 void Zone::update(float dt) {
@@ -155,7 +164,6 @@ void Zone::loadZone(const std::string path, const std::string currentTileset) {
 			for (int y = 0; y < mapSize.y; ++y)
 				m_layers.back()[y] = new std::pair<int, unsigned int>[mapSize.x];
 
-
 			const auto& tileIDs = tileLayer->getTiles();
 			for (auto y = 0u; y < mapSize.y; ++y) {
 				for (auto x = 0u; x < mapSize.x; ++x) {
@@ -208,10 +216,7 @@ void Zone::loadTileSetData(const std::string& path) {
 }
 
 void Zone::resize() {
-	m_left = camera.getLeftOrthographic();
-	m_right = camera.getRightOrthographic();
-	m_bottom = camera.getBottomOrthographic();
-	m_top = camera.getTopOrthographic();
+	updateBorder();
 	m_mainRenderTarget.resize(Application::Width, Application::Height);
 }
 
@@ -294,14 +299,14 @@ void Zone::initDebug() {
 	glEnable(GL_PROGRAM_POINT_SIZE);
 	glEnable(GL_POINT_SPRITE);
 
-	pointBatch = new Vector3f[MAX_POINTS];
-	pointBatchPtr = pointBatch;
+	m_pointBatch = new Vector3f[MAX_POINTS];
+	m_pointBatchPtr = m_pointBatch;
 }
 
 void Zone::updatePoints() {
 	for (auto& cell : m_visibleCellsMain) {
-		*pointBatchPtr = { cell.centerX - camera.getPositionX(), m_mapHeight - cell.centerY - camera.getPositionY(), 0.0f };
-		pointBatchPtr++;
+		*m_pointBatchPtr = { cell.centerX - camera.getPositionX(), m_mapHeight - cell.centerY - camera.getPositionY(), 0.0f };
+		m_pointBatchPtr++;
 		m_pointCount++;
 	}
 }
@@ -312,4 +317,8 @@ void Zone::setDrawCenter(bool drawCenter) {
 
 void Zone::setUseCulling(bool useCulling) {
 	m_useCulling = useCulling;
+}
+
+void Zone::setDebugCollision(bool debugCollision) {
+	m_debugCollision = debugCollision;
 }

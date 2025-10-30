@@ -34,7 +34,6 @@ private:
 	bool m_initUi = true;
 	bool m_drawUi = true;
 	bool m_useCulling = true;
-	bool m_drawScreenBorder = false;
 	bool m_debugCollision = false;
 	bool m_drawCenter = false;
 

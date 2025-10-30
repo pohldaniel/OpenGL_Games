@@ -46,6 +46,7 @@ public:
 
 	void setDrawCenter(bool drawCenter);
 	void setUseCulling(bool useCulling);
+	void setDebugCollision(bool debugCollision);
 
 private:
 
@@ -57,7 +58,7 @@ private:
 	void updatePoints();
 	void initDebug();
 
-	bool m_useCulling, m_drawCenter;
+	bool m_useCulling, m_drawCenter, m_debugCollision;
 	float m_screeBorder;
 	std::array<Vector2f, 4> m_cullingVertices;
 	std::vector<std::pair<int, unsigned int>**> m_layers;
@@ -79,7 +80,7 @@ private:
 	std::vector<Cell> m_visibleCellsMain;
 
 	unsigned int m_vao, m_vbo;
-	Vector3f *pointBatch, *pointBatchPtr;
+	Vector3f *m_pointBatch, *m_pointBatchPtr;
 	uint32_t m_pointCount;
 
 	Framebuffer m_mainRenderTarget;

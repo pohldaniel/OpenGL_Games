@@ -40,6 +40,7 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME), m_zone(m_camer
 
 	m_zone.loadTileSetData("res/tilesets.json");
 	m_zone.loadZone("res/data/overworld/overworld.tmx", "overworld");
+	m_zone.resize();
 }
 
 Game::~Game() {
@@ -223,6 +224,10 @@ void Game::renderUi() {
 
 	if (ImGui::Checkbox("Use Culling", &m_useCulling)) {
 		m_zone.setUseCulling(m_useCulling);
+	}
+
+	if (ImGui::Checkbox("Debug Collision", &m_debugCollision)) {
+		m_zone.setDebugCollision(m_debugCollision);
 	}
 	ImGui::End();
 
