@@ -61,7 +61,7 @@ void SpriteEntity::setViewDirection(ViewDirection direction) {
 	m_viewDirection = direction;
 	m_lastViewDirection = m_viewDirection;
 	m_direction = GetDirection(m_viewDirection);
-	//cell.currentFrame = m_startFrame + getFrameOffset(m_viewDirection);
+	cell.tileID = m_startFrame + getFrameOffset(m_viewDirection);
 }
 
 void SpriteEntity::updateLastViewDirection() const {
@@ -92,7 +92,7 @@ int SpriteEntity::getFrameOffset(ViewDirection viewDirection) {
 }
 
 void SpriteEntity::resetAnimation() {
-	//cell.currentFrame = m_startFrame + getFrameOffset(m_lastViewDirection);
+	cell.tileID = m_startFrame + getFrameOffset(m_lastViewDirection);
 	m_elapsedTime = 1.0f;
 }
 
@@ -106,11 +106,11 @@ void SpriteEntity::updateAnimation(float dt) {
 	int offset = m_startFrame + getFrameOffset(m_viewDirection);
 
 	m_elapsedTime += 6.0f * dt;
-	//cell.currentFrame = offset + static_cast<int>(std::floor(m_elapsedTime));
-	//if (cell.currentFrame - offset > m_frameCount - 1) {
-	//	cell.currentFrame = offset;
-	//	m_elapsedTime -= static_cast<float>(m_frameCount);
-	//}
+	cell.tileID = offset + static_cast<int>(std::floor(m_elapsedTime));
+	if (cell.tileID - offset > m_frameCount - 1) {
+		cell.tileID = offset;
+		m_elapsedTime -= static_cast<float>(m_frameCount);
+	}
 }
 
 ViewDirection SpriteEntity::GetDirection(std::string direction) {

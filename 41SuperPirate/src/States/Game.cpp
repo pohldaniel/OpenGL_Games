@@ -4,6 +4,8 @@
 #include <imgui_internal.h>
 
 #include <States/Menu.h>
+#include <Entities/SpriteEntity.h>
+#include <Entities/Player.h>
 
 #include "Game.h"
 #include "Application.h"
@@ -47,6 +49,10 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME), m_zone(m_camer
 	m_level.loadZone("res/data/levels/omni.tmx", "omni");
 	m_level.resize();
 	m_level.setDebugCollision(m_debugCollision);
+
+	m_level.getPlayer().setMovingSpeed(m_movingSpeed);
+	m_level.getPlayer().setViewWidth(m_viewWidth);
+	m_level.getPlayer().setViewHeight(m_viewHeight);
 }
 
 Game::~Game() {
@@ -59,6 +65,7 @@ void Game::fixedUpdate() {
 }
 
 void Game::update() {
+	
 	m_zone.update(m_dt);
 	m_level.update(m_dt);
 
@@ -105,20 +112,22 @@ void Game::update() {
 		m_scene == Scene::OMNI && m_debugCollision ? glClearColor(0.0f, 0.0f, 0.0f, 1.0f) : glClearColor(0.6f, 0.8f, 0.92f, 1.0f);
 	}
 
-	Mouse &mouse = Mouse::instance();
+	if (m_scene == Scene::OVERWORLD) {
+		Mouse& mouse = Mouse::instance();
 
-	if (mouse.buttonDown(Mouse::MouseButton::BUTTON_RIGHT)) {
-		dx = mouse.xDelta();
-		dy = mouse.yDelta();
-	}
-
-	if (move || dx != 0.0f || dy != 0.0f) {
-		if (dx || dy) {
-			m_camera.rotate(dx, dy);
+		if (mouse.buttonDown(Mouse::MouseButton::BUTTON_RIGHT)) {
+			dx = mouse.xDelta();
+			dy = mouse.yDelta();
 		}
 
-		if (move) {
-			m_camera.move(direction * m_dt);
+		if (move || dx != 0.0f || dy != 0.0f) {
+			if (dx || dy) {
+				m_camera.rotate(dx, dy);
+			}
+
+			if (move) {
+				m_camera.move(direction * m_dt);
+			}
 		}
 	}
 }
@@ -272,7 +281,12 @@ void Game::renderUi() {
 		if (m_scene == Scene::OMNI) {
 			m_camera.setPosition(0.0f, 240.0f, 0.0f);
 			m_debugCollision ? glClearColor(0.0f, 0.0f, 0.0f, 1.0f) : glClearColor(0.6f, 0.8f, 0.92f, 1.0f);
+			m_level.getPlayer().reset();
 		}
+	}
+
+	if (ImGui::Button("Reset player")) {
+		m_level.getPlayer().reset();
 	}
 
 	ImGui::End();

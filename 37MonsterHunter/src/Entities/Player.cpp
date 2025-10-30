@@ -72,8 +72,7 @@ void Player::update(float dt) {
 		}
 
 		cell.centerX = cell.posX + 64.0f;
-		cell.centerY = cell.posY - 64.0f;
-		
+		cell.centerY = cell.posY - 64.0f;	
 	}
 	camera.setPosition(cell.centerX - m_viewWidth * 0.5f, m_mapHeight - cell.centerY - 0.5f * m_viewHeight, 0.0f);
 

@@ -11,8 +11,16 @@ public:
 	Player(Cell& cell, Camera& camera, const std::vector<Rect>& collisionRects);
 	virtual ~Player();
 
+	void update(float dt) override;
+	void setViewWidth(float viewWidth);
+	void setViewHeight(float viewHeight);
+	void setMapHeight(float mapHeight);
+	void reset();
+
 private:
 
+	float m_mapHeight, m_viewWidth, m_viewHeight;
+	float m_initialX, m_initialY;
 	const std::vector<Rect>& collisionRects;
 	Camera& camera;
 };
