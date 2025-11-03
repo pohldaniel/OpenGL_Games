@@ -64,7 +64,7 @@ static const char* FontPaths[NUM_FONTS] = {
     "res/fonts/FreetypeGL/VeraMoBd.ttf",
     "res/fonts/FreetypeGL/VeraMoBI.ttf",
     "res/fonts/FreetypeGL/VeraMono.ttf",
-	"data/fonts/tahoma.ttf",
+	"res/fonts/tahoma.ttf",
 	"res/fonts/upheavtt.ttf"
 };
 

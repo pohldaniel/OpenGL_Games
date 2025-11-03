@@ -24,11 +24,11 @@ MapState::MapState(StateMachine& machine) : State(machine, States::MAP), m_camer
 	glClearColor(0.494f, 0.686f, 0.796f, 1.0f);
 	glClearDepth(1.0f);
 
-	Material::AddTexture("data/models/dynamic/hero/hero.tga");
+	Material::AddTexture("res/models/dynamic/hero/hero.tga");
 	Material::AddTexture("res/textures/los.tga");
 	Material::AddTexture();
 
-	m_heroModel.load("data/models/dynamic/hero/hero.md2");
+	m_heroModel.load("res/models/dynamic/hero/hero.md2");
 
 	WorkQueue::Init(0);
 	Renderer::Get().init(new Octree(m_camera, m_frustum, m_dt), new SceneNodeLC());

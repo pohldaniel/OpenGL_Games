@@ -25,12 +25,12 @@ Md2State::Md2State(StateMachine& machine) : State(machine, States::MD2){
 	glClearColor(0.494f, 0.686f, 0.796f, 1.0f);
 	glClearDepth(1.0f);
 
-	Material::AddTexture("data/models/dynamic/hero/hero.tga");
-	Material::AddTexture("data/models/dynamic/ripper/ripper.tga");
-	Material::AddTexture("data/models/dynamic/corpse/corpse.tga");
-	m_hero.load("data/models/dynamic/hero/hero.md2");
-	m_ripper.load("data/models/dynamic/ripper/ripper.md2");
-	m_corpse.load("data/models/dynamic/corpse/corpse.md2");
+	Material::AddTexture("res/models/dynamic/hero/hero.tga");
+	Material::AddTexture("res/models/dynamic/ripper/ripper.tga");
+	Material::AddTexture("res/models/dynamic/corpse/corpse.tga");
+	m_hero.load("res/models/dynamic/hero/hero.md2");
+	m_ripper.load("res/models/dynamic/ripper/ripper.md2");
+	m_corpse.load("res/models/dynamic/corpse/corpse.md2");
 
 	WorkQueue::Init(0);
 	m_octree = new Octree(m_camera, m_frustum, m_dt);
