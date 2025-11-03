@@ -51,8 +51,7 @@ void Level::draw() {
 		}
 
 		const Cell& player = m_cellsMain[m_playerIndex];
-		Batchrenderer::Get().addQuadAA(Vector4f(player.posX + 48.0f - camera.getPositionX(), m_mapHeight - (player.posY + 28.0f) - camera.getPositionY(), 48.0f, 56.0f), Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), Vector4f(1.0f, 0.0f, 0.0f, 1.0f), textureRect.frame);
-
+		Batchrenderer::Get().addQuadAA(Vector4f(player.posX  - camera.getPositionX(), m_mapHeight - (player.posY + camera.getPositionY()), 48.0f, 56.0f), Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), Vector4f(1.0f, 0.0f, 0.0f, 1.0f), textureRect.frame);
 		Batchrenderer::Get().drawBuffer();
 	}
 }
@@ -87,6 +86,8 @@ void Level::loadTileSet(const TileSetData& tileSetData) {
 
 	m_tileSet.loadTileSetGpu();
 	m_spritesheet = m_tileSet.getAtlas();
+
+	//Spritesheet::Safe("atlas_level", m_spritesheet);
 }
 
 void Level::loadZone(const std::string path, const std::string currentTileset) {
@@ -108,8 +109,8 @@ void Level::loadZone(const std::string path, const std::string currentTileset) {
 	m_cellsMain.clear();
 	m_cellsMain.shrink_to_fit();
 
-	m_cellsMain.reserve(600);
-	m_collisionRects.reserve(700);
+	m_cellsMain.reserve(6000);
+	m_collisionRects.reserve(7000);
 	m_currentTileset = currentTileset;
 
 	loadTileSet(Level::TileSets[m_currentTileset]);
@@ -155,16 +156,13 @@ void Level::loadZone(const std::string path, const std::string currentTileset) {
 			const tmx::ObjectGroup* objectLayer = dynamic_cast<const tmx::ObjectGroup*>(layer.get());
 			for (auto& object : objectLayer->getObjects()) {
 				if (object.getName() == "player") {
-					m_cellsMain.push_back({ static_cast<int>(object.getTileID() - 1u), object.getPosition().x, object.getPosition().y, object.getAABB().width, object.getAABB().height, object.getPosition().x + 0.5f * object.getAABB().width, object.getPosition().y, false, false });
-					//m_collisionRects.push_back({ object.getPosition().x , object.getPosition().y - object.getAABB().height,  object.getAABB().width, object.getAABB().height});
+					m_cellsMain.push_back({ static_cast<int>(object.getTileID() - 1u), object.getPosition().x + 48.0f, object.getPosition().y + 28.0f, object.getAABB().width, object.getAABB().height, object.getPosition().x + 0.5f * object.getAABB().width, object.getPosition().y, false, false });
 					m_playerIndex = m_cellsMain.size() - 1;
 				}
-				//m_cellsMain.push_back({ static_cast<int>(object.getTileID() - 1u), object.getPosition().x, object.getPosition().y, object.getAABB().width, object.getAABB().height, object.getPosition().x + 0.5f * object.getAABB().width, object.getPosition().y, false, false });
-				//m_collisionRects.push_back({ object.getPosition().x , object.getPosition().y - object.getAABB().height + 0.3f * object.getAABB().height,  object.getAABB().width, object.getAABB().height * 0.4f });
 			}
 
 			m_spriteEntities.push_back(std::make_unique<Player>(m_cellsMain[m_playerIndex], const_cast<Camera&>(camera), getCollisionRects()));
-			m_spriteEntities.back()->setViewDirection(SpriteEntity::GetDirection("left"));
+			m_spriteEntities.back()->setViewDirection(SpriteEntity::GetDirection("none"));
 			m_spriteEntities.back()->setMovingSpeed(200.0f);
 			getPlayer().setMapHeight(m_mapHeight);
 		}		

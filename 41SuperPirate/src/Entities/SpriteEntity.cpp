@@ -1,6 +1,6 @@
 #include "SpriteEntity.h"
 
-SpriteEntity::SpriteEntity(Cell& cell, float elpasedTime, int framecount) : cell(cell), m_startFrame(0), m_elapsedTime(elpasedTime), m_frameCount(framecount), m_movingSpeed(0.0f){
+SpriteEntity::SpriteEntity(Cell& cell, float elpasedTime, int framecount) : cell(cell), m_startFrame(cell.tileID), m_elapsedTime(elpasedTime), m_frameCount(framecount), m_movingSpeed(0.0f){
 	m_viewDirection = ViewDirection::NONE;
 	m_lastViewDirection = m_viewDirection;
 }
