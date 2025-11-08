@@ -196,20 +196,25 @@ const bool MousePicker::updatePositionOrthographicAll(unsigned int posX, unsigne
 	Physics::GetDynamicsWorld()->rayTest(m_callbackAll.m_origin, m_callbackAll.m_target, m_callbackAll);
 
 	if (m_callbackAll.hasHit()) {
+		std::vector<size_t> idx(m_callbackAll.m_hitFractions.size());
+		std::iota(idx.begin(), idx.end(), 0);
+		stable_sort(idx.begin(), idx.end(), [&v = m_callbackAll.m_hitFractions](size_t i1, size_t i2) {return v[i2] < v[i1]; });
+
 		float fraction = 1.0f;
 		bool found = false;
 
 		for (int i = 0; i < m_callbackAll.m_hitFractions.size(); i++) {
-			if (fraction >= m_callbackAll.m_hitFractions[i] && !found) {
-				fraction = m_callbackAll.m_hitFractions[i];
-				m_callbackAll.index = std::find(collisonObjects.begin(), collisonObjects.end(), m_callbackAll.m_collisionObjects[i]) == collisonObjects.end() ? i : m_callbackAll.index;
-				if (m_callbackAll.m_collisionObjects[i] == collisonObject) {
+			size_t index = idx[i];
+			if (fraction >= m_callbackAll.m_hitFractions[index] && !found) {
+				fraction = m_callbackAll.m_hitFractions[index];
+				m_callbackAll.index = std::find(collisonObjects.begin(), collisonObjects.end(), m_callbackAll.m_collisionObjects[index]) == collisonObjects.end() ? index : m_callbackAll.index;
+				if (m_callbackAll.m_collisionObjects[index] == collisonObject) {
 					found = true;
 				}
 			}
 
-			if (m_callbackAll.m_collisionObjects[i]->getUserIndex() == userIndex1) {
-				m_callbackAll.m_userPointer2 = m_callbackAll.m_collisionObjects[i]->getUserPointer();
+			if (m_callbackAll.m_collisionObjects[index]->getUserIndex() == userIndex1) {
+				m_callbackAll.m_userPointer2 = m_callbackAll.m_collisionObjects[index]->getUserPointer();
 				if (found) {
 					break;
 				}
@@ -265,19 +270,25 @@ const bool MousePicker::clickOrthographicAll(unsigned int posX, unsigned int pos
 	Physics::GetDynamicsWorld()->rayTest(m_callbackAll.m_origin, m_callbackAll.m_target, m_callbackAll);
 	
 	if (m_callbackAll.hasHit()) {	
+		std::vector<size_t> idx(m_callbackAll.m_hitFractions.size());
+		std::iota(idx.begin(), idx.end(), 0);
+		stable_sort(idx.begin(), idx.end(),[&v = m_callbackAll.m_hitFractions](size_t i1, size_t i2) {return v[i2] < v[i1]; });
+
 		float fraction = 1.0f;
 		bool found = false;
 	
 		for (int i = 0; i < m_callbackAll.m_hitFractions.size(); i++) {
-			if (fraction >= m_callbackAll.m_hitFractions[i] && !found) {
-				fraction = m_callbackAll.m_hitFractions[i];
-				m_callbackAll.index = std::find(collisonObjects.begin(), collisonObjects.end(), m_callbackAll.m_collisionObjects[i]) == collisonObjects.end() ? i : m_callbackAll.index;
-				if (m_callbackAll.m_collisionObjects[i] == collisonObject) {
+			size_t index = idx[i];
+			if (fraction >= m_callbackAll.m_hitFractions[index] && !found) {
+				fraction = m_callbackAll.m_hitFractions[index];
+				m_callbackAll.index = std::find(collisonObjects.begin(), collisonObjects.end(), m_callbackAll.m_collisionObjects[index]) == collisonObjects.end() ? index : m_callbackAll.index;
+							
+				if (m_callbackAll.m_collisionObjects[index] == collisonObject) {
 					found = true;
 				}
 			}
 			
-			if (m_callbackAll.m_collisionObjects[i]->getUserIndex() == userIndex1) {
+			if (m_callbackAll.m_collisionObjects[index]->getUserIndex() == userIndex1) {
 				m_callbackAll.m_userPointer2 = m_callbackAll.m_collisionObjects[i]->getUserPointer();
 				if (found) {
 					break;

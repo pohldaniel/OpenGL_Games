@@ -6,7 +6,7 @@ std::unique_ptr<Shader> MousePicker::s_shader = nullptr;
 MousePicker::MousePicker() : m_callback(btVector3(0.0f, 0.0f, 0.0f), btVector3(0.0f, 0.0f, 0.0f)), m_callbackAll(btVector3(0.0f, 0.0f, 0.0f), btVector3(0.0f, 0.0f, 0.0f)), m_hasPicked(false), m_isActivated(false) {
 
 	if (!s_shader) {
-		s_shader = std::unique_ptr<Shader>(new Shader(MOUSEPICKER_VERTEX, MOUSEPICKER_FRGAMENT, false));		
+		s_shader = std::unique_ptr<Shader>(new Shader(MOUSEPICKER_VERTEX, MOUSEPICKER_FRGAMENT, false));
 	}
 	createBuffer();
 }
@@ -32,7 +32,7 @@ void MousePicker::updatePosition(unsigned int posX, unsigned int posY, const Cam
 
 	Vector3f rayStartWorld = camera.getPosition() + (camera.getCamX() * mouseXndc * tanfov * aspect + camera.getCamY() * mouseYndc * tanfov + camera.getViewDirection()) * camera.getNear();
 	Vector3f rayEndWorld = camera.getPosition() + (camera.getCamX() * mouseXndc * tanfov * aspect + camera.getCamY() * mouseYndc * tanfov + camera.getViewDirection()) * camera.getFar();
-	
+
 	m_callback = MousePickCallback(Physics::VectorFrom(rayStartWorld), Physics::VectorFrom(rayEndWorld), Physics::MOUSEPICKER, Physics::PICKABLE_OBJECT);
 	Physics::GetDynamicsWorld()->rayTest(m_callback.m_origin, m_callback.m_target, m_callback);
 
@@ -82,12 +82,12 @@ const bool MousePicker::click(unsigned int posX, unsigned int posY, const Camera
 	Physics::GetDynamicsWorld()->rayTest(m_callback.m_origin, m_callback.m_target, m_callback);
 
 	if (m_callback.hasHit() && m_callback.btCollisionWorld::RayResultCallback::m_collisionObject != collisonObject2) {
-		m_pickingDistance = (m_callback.m_hitPointWorld - m_callback.m_origin).length();	
+		m_pickingDistance = (m_callback.m_hitPointWorld - m_callback.m_origin).length();
 		m_callback.m_collisionObject = const_cast<btCollisionObject*>(m_callback.btCollisionWorld::RayResultCallback::m_collisionObject);
 		m_callback.m_userIndex = m_callback.m_collisionObject->getUserIndex();
-		m_callback.m_userPoiner = m_callback.m_collisionObject->getUserPointer();		
+		m_callback.m_userPoiner = m_callback.m_collisionObject->getUserPointer();
 		return collisonObject1 == nullptr ? true : collisonObject1 == m_callback.m_collisionObject;
-	} else {
+	}else {
 		return false;
 	}
 }
@@ -191,25 +191,30 @@ const bool MousePicker::updatePositionOrthographicAll(unsigned int posX, unsigne
 
 	Vector3f rayStartWorld = camera.getPosition() + camera.getCamX() * scaleX * mouseXndc + camera.getCamY() * scaleY * mouseYndc + camera.getCamZ() * scaleZ;
 	Vector3f rayEndWorld = camera.getPosition() + camera.getCamX() * scaleX * mouseXndc + camera.getCamY() * scaleY * mouseYndc + camera.getViewDirection() * scaleZ;
-	
+
 	m_callbackAll = MousePickCallbackAll(Physics::VectorFrom(rayStartWorld), Physics::VectorFrom(rayEndWorld), Physics::MOUSEPICKER, Physics::PICKABLE_OBJECT);
 	Physics::GetDynamicsWorld()->rayTest(m_callbackAll.m_origin, m_callbackAll.m_target, m_callbackAll);
 
 	if (m_callbackAll.hasHit()) {
+		std::vector<size_t> idx(m_callbackAll.m_hitFractions.size());
+		std::iota(idx.begin(), idx.end(), 0);
+		stable_sort(idx.begin(), idx.end(), [&v = m_callbackAll.m_hitFractions](size_t i1, size_t i2) {return v[i2] < v[i1]; });
+
 		float fraction = 1.0f;
 		bool found = false;
 
 		for (int i = 0; i < m_callbackAll.m_hitFractions.size(); i++) {
-			if (fraction >= m_callbackAll.m_hitFractions[i] && !found) {
-				fraction = m_callbackAll.m_hitFractions[i];
-				m_callbackAll.index = std::find(collisonObjects.begin(), collisonObjects.end(), m_callbackAll.m_collisionObjects[i]) == collisonObjects.end() ? i : m_callbackAll.index;
-				if (m_callbackAll.m_collisionObjects[i] == collisonObject) {
+			size_t index = idx[i];
+			if (fraction >= m_callbackAll.m_hitFractions[index] && !found) {
+				fraction = m_callbackAll.m_hitFractions[index];
+				m_callbackAll.index = std::find(collisonObjects.begin(), collisonObjects.end(), m_callbackAll.m_collisionObjects[index]) == collisonObjects.end() ? index : m_callbackAll.index;
+				if (m_callbackAll.m_collisionObjects[index] == collisonObject) {
 					found = true;
 				}
 			}
 
-			if (m_callbackAll.m_collisionObjects[i]->getUserIndex() == userIndex1) {
-				m_callbackAll.m_userPointer2 = m_callbackAll.m_collisionObjects[i]->getUserPointer();
+			if (m_callbackAll.m_collisionObjects[index]->getUserIndex() == userIndex1) {
+				m_callbackAll.m_userPointer2 = m_callbackAll.m_collisionObjects[index]->getUserPointer();
 				if (found) {
 					break;
 				}
@@ -263,21 +268,27 @@ const bool MousePicker::clickOrthographicAll(unsigned int posX, unsigned int pos
 
 	m_callbackAll = MousePickCallbackAll(Physics::VectorFrom(rayStartWorld), Physics::VectorFrom(rayEndWorld), Physics::MOUSEPICKER, Physics::PICKABLE_OBJECT);
 	Physics::GetDynamicsWorld()->rayTest(m_callbackAll.m_origin, m_callbackAll.m_target, m_callbackAll);
-	
-	if (m_callbackAll.hasHit()) {	
+
+	if (m_callbackAll.hasHit()) {
+		std::vector<size_t> idx(m_callbackAll.m_hitFractions.size());
+		std::iota(idx.begin(), idx.end(), 0);
+		stable_sort(idx.begin(), idx.end(), [&v = m_callbackAll.m_hitFractions](size_t i1, size_t i2) {return v[i2] < v[i1]; });
+
 		float fraction = 1.0f;
 		bool found = false;
-	
+
 		for (int i = 0; i < m_callbackAll.m_hitFractions.size(); i++) {
-			if (fraction >= m_callbackAll.m_hitFractions[i] && !found) {
-				fraction = m_callbackAll.m_hitFractions[i];
-				m_callbackAll.index = std::find(collisonObjects.begin(), collisonObjects.end(), m_callbackAll.m_collisionObjects[i]) == collisonObjects.end() ? i : m_callbackAll.index;
-				if (m_callbackAll.m_collisionObjects[i] == collisonObject) {
+			size_t index = idx[i];
+			if (fraction >= m_callbackAll.m_hitFractions[index] && !found) {
+				fraction = m_callbackAll.m_hitFractions[index];
+				m_callbackAll.index = std::find(collisonObjects.begin(), collisonObjects.end(), m_callbackAll.m_collisionObjects[index]) == collisonObjects.end() ? index : m_callbackAll.index;
+
+				if (m_callbackAll.m_collisionObjects[index] == collisonObject) {
 					found = true;
 				}
 			}
-			
-			if (m_callbackAll.m_collisionObjects[i]->getUserIndex() == userIndex1) {
+
+			if (m_callbackAll.m_collisionObjects[index]->getUserIndex() == userIndex1) {
 				m_callbackAll.m_userPointer2 = m_callbackAll.m_collisionObjects[i]->getUserPointer();
 				if (found) {
 					break;
@@ -299,9 +310,9 @@ void MousePicker::createBuffer() {
 
 		std::vector<float> vertex;
 		vertex.push_back(-0.5f); vertex.push_back(0.0f); vertex.push_back(-0.5f); vertex.push_back(0.0f); vertex.push_back(0.0f);
-		vertex.push_back(-0.5f); vertex.push_back(0.0f); vertex.push_back( 0.5f); vertex.push_back(0.0f); vertex.push_back(1.0f);
-		vertex.push_back( 0.5f); vertex.push_back(0.0f); vertex.push_back( 0.5f); vertex.push_back(1.0f); vertex.push_back(1.0f);
-		vertex.push_back( 0.5f); vertex.push_back(0.0f); vertex.push_back(-0.5f); vertex.push_back(1.0f); vertex.push_back(0.0f);
+		vertex.push_back(-0.5f); vertex.push_back(0.0f); vertex.push_back(0.5f); vertex.push_back(0.0f); vertex.push_back(1.0f);
+		vertex.push_back(0.5f); vertex.push_back(0.0f); vertex.push_back(0.5f); vertex.push_back(1.0f); vertex.push_back(1.0f);
+		vertex.push_back(0.5f); vertex.push_back(0.0f); vertex.push_back(-0.5f); vertex.push_back(1.0f); vertex.push_back(0.0f);
 
 		if (!m_vao) {
 			const unsigned short indices[] = {
@@ -342,7 +353,7 @@ void MousePicker::drawPicker(const Camera& camera) {
 
 	glDisable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
-	
+
 	s_shader->use();
 	s_shader->loadMatrix("u_projection", camera.getPerspectiveMatrix());
 	s_shader->loadMatrix("u_view", camera.getViewMatrix());

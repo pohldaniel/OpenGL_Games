@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <numeric>
 #include "engine/Camera.h"
 #include "engine/Shader.h"
 #include "Physics.h"

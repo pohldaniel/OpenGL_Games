@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <numeric>
 #include "engine/Camera.h"
 #include "engine/Shader.h"
 #include "Physics.h"
@@ -101,7 +102,7 @@ public:
 	MousePicker();
 	~MousePicker();
 
-	void drawPicker(const Camera& camera);	
+	void drawPicker(const Camera& camera);
 	void updatePosition(unsigned int posX, unsigned int posY, const Camera& camera);
 	void updatePositionOrthographic(unsigned int posX, unsigned int posY, const Camera& camera);
 	const bool updatePositionOrthographicAll(unsigned int posX, unsigned int posY, const Camera& camera, const btCollisionObject* collisonObject = nullptr, const std::vector<btCollisionObject*>& collisonObjects = {}, int userIndex1 = -1) const;
@@ -122,7 +123,7 @@ private:
 
 	void createBuffer();
 
-	mutable MousePickCallback m_callback;	
+	mutable MousePickCallback m_callback;
 	mutable MousePickCallbackAll m_callbackAll;
 	mutable float m_pickingDistance;
 
@@ -130,7 +131,7 @@ private:
 	unsigned int m_vao = 0;
 	unsigned int m_vbo = 0;
 
-	
+
 	Matrix4f m_model;
 	bool m_hasPicked;
 	bool m_isActivated;
