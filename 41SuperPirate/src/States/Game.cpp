@@ -11,7 +11,7 @@
 #include "Application.h"
 #include "Globals.h"
 
-Game::Game(StateMachine& machine) : State(machine, States::GAME), m_zone(m_camera), m_level(m_camera), m_debugCollision(true){
+Game::Game(StateMachine& machine) : State(machine, States::GAME), m_overworld(m_camera), m_level(m_camera), m_debugCollision(true){
 
 	m_viewWidth = 1280.0f;
 	m_viewHeight = 720.0f;
@@ -40,10 +40,10 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME), m_zone(m_camer
 	shader->loadMatrix("u_transform", m_camera.getOrthographicMatrix());
 	shader->unuse();
 
-	m_zone.loadTileSetData("res/overworld.json");
-	m_zone.loadZone("res/data/overworld/overworld.tmx", "overworld");
-	m_zone.resize();
-	m_zone.setDebugCollision(m_debugCollision);
+	m_overworld.loadTileSetData("res/overworld.json");
+	m_overworld.loadZone("res/data/overworld/overworld.tmx", "overworld");
+	m_overworld.resize();
+	m_overworld.setDebugCollision(m_debugCollision);
 	
 	m_level.loadTileSetData("res/omni.json");
 	m_level.loadZone("res/data/levels/omni.tmx", "omni");
@@ -66,7 +66,7 @@ void Game::fixedUpdate() {
 
 void Game::update() {
 	
-	m_zone.update(m_dt);
+	m_overworld.update(m_dt);
 	m_level.update(m_dt);
 
 	Keyboard &keyboard = Keyboard::instance();
@@ -137,7 +137,7 @@ void Game::render() {
 	if (m_scene == Scene::OMNI)
 		m_level.draw();
 	else
-		m_zone.draw();
+		m_overworld.draw();
 
 #if DEVBUILD
 	if (m_drawUi)
@@ -203,7 +203,7 @@ void Game::OnKeyUp(Event::KeyboardEvent& event) {
 
 void Game::resize(int deltaW, int deltaH) {
 	m_camera.orthographic(0.0f, m_viewWidth, 0.0f, m_viewHeight, -1.0f, 1.0f);
-	m_zone.resize();
+	m_overworld.resize();
 	m_level.resize();
 
 	auto shader = Globals::shaderManager.getAssetPointer("batch");
@@ -255,17 +255,17 @@ void Game::renderUi() {
 	ImGui::Checkbox("Draw Wirframe", &StateMachine::GetEnableWireframe());
 	if (m_scene == Scene::OVERWORLD) {
 		if (ImGui::Checkbox("Draw Center", &m_drawCenter)) {
-			m_zone.setDrawCenter(m_drawCenter);
+			m_overworld.setDrawCenter(m_drawCenter);
 		}
 	}
 
 	if (ImGui::Checkbox("Use Culling", &m_useCulling)) {
-		m_zone.setUseCulling(m_useCulling);
+		m_overworld.setUseCulling(m_useCulling);
 		m_level.setUseCulling(m_useCulling);
 	}
 
 	if (ImGui::Checkbox("Debug Collision", &m_debugCollision)) {
-		m_zone.setDebugCollision(m_debugCollision);
+		m_overworld.setDebugCollision(m_debugCollision);
 		m_level.setDebugCollision(m_debugCollision);
 		m_debugCollision && m_scene == Scene::OMNI ? glClearColor(0.0f, 0.0f, 0.0f, 1.0f) : glClearColor(0.6f, 0.8f, 0.92f, 1.0f);
 	}

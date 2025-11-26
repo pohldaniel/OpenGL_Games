@@ -16,28 +16,28 @@ class Zone {
 public:
 
 	Zone(const Camera& camera, const bool initDebug = true);
-	~Zone();
+	virtual ~Zone();
 
-	void draw();
-	void update(float dt);
-	void resize();
-	void loadZone(const std::string path, const std::string currentTileset);
-	void loadTileSetData(const std::string& path);
-
-	void setDrawCenter(bool drawCenter);
-	void setUseCulling(bool useCulling);
-	void setDebugCollision(bool debugCollision);
+	virtual void draw();
+	virtual void update(float dt);
+	virtual void resize();
+	virtual void loadTileSetData(const std::string& path);
+	virtual void loadZone(const std::string path, const std::string currentTileset);
+	
+	virtual void setDrawCenter(bool drawCenter);
+	virtual void setUseCulling(bool useCulling);
+	virtual void setDebugCollision(bool debugCollision);
 
 private:
 
-	void loadTileSet(const TileSetData& tileSetData);
-	void culling();
-	void updateBorder();
-	int posYToRow(float y, float cellHeight, int min, int max, int shift);
-	int posXToCol(float y, float cellHeight, int min, int max, int shift);
-	bool isRectOnScreen(float posX, float posY, float width, float height);
-	void updatePoints();
-	void initDebug();
+	virtual void loadTileSet(const TileSetData& tileSetData);
+	virtual void culling();
+	virtual void updateBorder();
+	virtual int posYToRow(float y, float cellHeight, int min, int max, int shift);
+	virtual int posXToCol(float y, float cellHeight, int min, int max, int shift);
+	virtual bool isRectOnScreen(float posX, float posY, float width, float height);
+	virtual void updatePoints();
+	virtual void initDebug();
 
 	bool m_useCulling, m_drawCenter, m_debugCollision, m_borderDirty;
 	std::array<Vector2f, 4> m_cullingVertices;

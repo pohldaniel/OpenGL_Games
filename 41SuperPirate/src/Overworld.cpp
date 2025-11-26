@@ -6,26 +6,26 @@
 #include <engine/Batchrenderer.h>
 #include <engine/Spritesheet.h>
 
-#include "Zone.h"
+#include "Overworld.h"
 #include "Globals.h"
 #include "Application.h"
 
-std::unordered_map<std::string, TileSetData> Zone::TileSets;
+std::unordered_map<std::string, TileSetData> Overworld::TileSets;
 
-Zone::Zone(const Camera& camera, const bool _initDebug) :
-	camera(camera),	
+Overworld::Overworld(const Camera& camera, const bool _initDebug) : Zone(camera, _initDebug),
+	camera(camera),
 	m_useCulling(true),
 	m_debugCollision(false),
 	m_drawCenter(false),
 	m_borderDirty(true),
-	m_screeBorder(0.0f),	
+	m_screeBorder(0.0f),
 	m_pointCount(0),
 	m_pointBatchPtr(nullptr),
 	m_pointBatch(nullptr),
 	m_vao(0u),
-	m_vbo(0u){
+	m_vbo(0u) {
 
-	if(_initDebug)
+	if (_initDebug)
 		initDebug();
 
 	m_mainRenderTarget.create(Application::Width, Application::Height);
@@ -33,7 +33,7 @@ Zone::Zone(const Camera& camera, const bool _initDebug) :
 	m_mainRenderTarget.attachTexture2D(AttachmentTex::DEPTH24);
 }
 
-Zone::~Zone() {
+Overworld::~Overworld() {
 	if (m_pointBatch) {
 		delete[] m_pointBatch;
 		m_pointBatch = nullptr;
@@ -59,7 +59,7 @@ Zone::~Zone() {
 	}
 }
 
-void Zone::draw() {
+void Overworld::draw() {
 
 	m_mainRenderTarget.bind();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -116,18 +116,19 @@ void Zone::draw() {
 	shader->unuse();
 }
 
-void Zone::update(float dt) {
+void Overworld::update(float dt) {
 	culling();
 	std::sort(m_visibleCellsMain.begin(), m_visibleCellsMain.end(), [&](const Cell& cell1, const Cell& cell2) {return cell1.centerY < cell2.centerY; });
 }
 
-void Zone::loadTileSet(const TileSetData& tileSetData) {
+void Overworld::loadTileSet(const TileSetData& tileSetData) {
 	m_tileSet.cleanup();
 	TextureAtlasCreator::Get().init(2048u, 2048u);
 	for (auto& pathSize : tileSetData.pathSizes) {
 		if (pathSize.second > 0.0f) {
 			m_tileSet.loadTileSetCpu(pathSize.first, false, pathSize.second, pathSize.second, true, false);
-		}else {
+		}
+		else {
 			m_tileSet.loadTileCpu(pathSize.first, false, true, false);
 		}
 	}
@@ -144,7 +145,7 @@ void Zone::loadTileSet(const TileSetData& tileSetData) {
 	m_spritesheet = m_tileSet.getAtlas();
 }
 
-void Zone::loadTileSetData(const std::string& path) {
+void Overworld::loadTileSetData(const std::string& path) {
 	std::ifstream file(path, std::ios::in);
 	if (!file.is_open()) {
 		std::cerr << "Could not open file: " << path << std::endl;
@@ -157,7 +158,7 @@ void Zone::loadTileSetData(const std::string& path) {
 	for (rapidjson::Value::ConstMemberIterator tileset = doc.MemberBegin(); tileset != doc.MemberEnd(); ++tileset) {
 		for (rapidjson::Value::ConstValueIterator tuples = tileset->value["paths"].GetArray().Begin(); tuples != tileset->value["paths"].GetArray().End(); ++tuples) {
 			for (rapidjson::Value::ConstMemberIterator tuple = tuples->MemberBegin(); tuple != tuples->MemberEnd(); ++tuple) {
-				Zone::TileSets[tileset->name.GetString()].pathSizes.push_back({ tuple->name.GetString(),tuple->value.GetFloat() });
+				Overworld::TileSets[tileset->name.GetString()].pathSizes.push_back({ tuple->name.GetString(),tuple->value.GetFloat() });
 			}
 		}
 
@@ -165,14 +166,14 @@ void Zone::loadTileSetData(const std::string& path) {
 			for (rapidjson::Value::ConstValueIterator tuples = tileset->value["offsets"].GetArray().Begin(); tuples != tileset->value["offsets"].GetArray().End(); ++tuples) {
 
 				for (rapidjson::Value::ConstMemberIterator tuple = tuples->MemberBegin(); tuple != tuples->MemberEnd(); ++tuple) {
-					Zone::TileSets[tileset->name.GetString()].offsets.push_back({ tuple->name.GetString(), tuple->value.GetUint() });
+					Overworld::TileSets[tileset->name.GetString()].offsets.push_back({ tuple->name.GetString(), tuple->value.GetUint() });
 				}
 			}
 		}
 	}
 }
 
-void Zone::loadZone(const std::string path, const std::string currentTileset) {
+void Overworld::loadZone(const std::string path, const std::string currentTileset) {
 
 	for (auto& layer : m_layers) {
 		for (int i = 0; i < m_cols; i++) {
@@ -195,7 +196,7 @@ void Zone::loadZone(const std::string path, const std::string currentTileset) {
 	m_collisionRects.reserve(700);
 	m_currentTileset = currentTileset;
 
-	loadTileSet(Zone::TileSets[m_currentTileset]);
+	loadTileSet(Overworld::TileSets[m_currentTileset]);
 	tmx::Map map;
 	map.load(path);
 
@@ -214,7 +215,7 @@ void Zone::loadZone(const std::string path, const std::string currentTileset) {
 			if (!tileLayer)
 				continue;
 			m_layers.resize(m_layers.size() + 1);
-			m_layers.back() = new std::pair<int, unsigned int>*[mapSize.y];
+			m_layers.back() = new std::pair<int, unsigned int>* [mapSize.y];
 			for (int y = 0; y < mapSize.y; ++y)
 				m_layers.back()[y] = new std::pair<int, unsigned int>[mapSize.x];
 
@@ -235,18 +236,18 @@ void Zone::loadZone(const std::string path, const std::string currentTileset) {
 			const tmx::ObjectGroup* objectLayer = dynamic_cast<const tmx::ObjectGroup*>(layer.get());
 			for (auto& object : objectLayer->getObjects()) {
 				m_cellsMain.push_back({ static_cast<int>(object.getTileID() - 1u), object.getPosition().x, object.getPosition().y, object.getAABB().width, object.getAABB().height, object.getPosition().x + 0.5f * object.getAABB().width, object.getPosition().y, false, false });
-				m_collisionRects.push_back({ object.getPosition().x , object.getPosition().y - object.getAABB().height + 0.3f *object.getAABB().height,  object.getAABB().width, object.getAABB().height * 0.4f });
+				m_collisionRects.push_back({ object.getPosition().x , object.getPosition().y - object.getAABB().height + 0.3f * object.getAABB().height,  object.getAABB().width, object.getAABB().height * 0.4f });
 			}
 		}
 	}
 }
 
-void Zone::resize() {
+void Overworld::resize() {
 	updateBorder();
 	m_mainRenderTarget.resize(Application::Width, Application::Height);
 }
 
-void Zone::updateBorder() {
+void Overworld::updateBorder() {
 	if (m_borderDirty) {
 		m_left = camera.getLeftOrthographic();
 		m_right = camera.getRightOrthographic();
@@ -256,22 +257,22 @@ void Zone::updateBorder() {
 	}
 }
 
-int Zone::posYToRow(float y, float cellHeight, int min, int max, int shift) {
+int Overworld::posYToRow(float y, float cellHeight, int min, int max, int shift) {
 	return Math::Clamp(static_cast<int>(std::roundf(y / cellHeight)) + shift, min, max);
 }
 
-int Zone::posXToCol(float x, float cellWidth, int min, int max, int shift) {
+int Overworld::posXToCol(float x, float cellWidth, int min, int max, int shift) {
 	return Math::Clamp(static_cast<int>(std::roundf(x / cellWidth)) + shift, min, max);
 }
 
-bool Zone::isRectOnScreen(float posX, float posY, float width, float height) {
+bool Overworld::isRectOnScreen(float posX, float posY, float width, float height) {
 	if (posX + width < m_cullingVertices[0][0] || posX > m_cullingVertices[2][0] || m_mapHeight - posY < m_cullingVertices[0][1] || m_mapHeight - (posY + height) > m_cullingVertices[2][1]) {
 		return false;
 	}
 	return true;
 }
 
-void Zone::culling() {
+void Overworld::culling() {
 	updateBorder();
 	const Vector3f& position = camera.getPosition();
 
@@ -309,13 +310,13 @@ void Zone::culling() {
 	}
 }
 
-void Zone::initDebug() {
+void Overworld::initDebug() {
 	glGenVertexArrays(1, &m_vao);
 	glGenBuffers(1, &m_vbo);
 	glBindVertexArray(m_vao);
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
 
-	glBufferData(GL_ARRAY_BUFFER, 3 * sizeof(float)  * MAX_POINTS, nullptr, GL_DYNAMIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, 3 * sizeof(float) * MAX_POINTS, nullptr, GL_DYNAMIC_DRAW);
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 
@@ -329,7 +330,7 @@ void Zone::initDebug() {
 	m_pointBatchPtr = m_pointBatch;
 }
 
-void Zone::updatePoints() {
+void Overworld::updatePoints() {
 	for (auto& cell : m_visibleCellsMain) {
 		*m_pointBatchPtr = { cell.centerX - camera.getPositionX(), m_mapHeight - cell.centerY - camera.getPositionY(), 0.0f };
 		m_pointBatchPtr++;
@@ -337,14 +338,14 @@ void Zone::updatePoints() {
 	}
 }
 
-void Zone::setDrawCenter(bool drawCenter) {
+void Overworld::setDrawCenter(bool drawCenter) {
 	m_drawCenter = drawCenter;
 }
 
-void Zone::setUseCulling(bool useCulling) {
+void Overworld::setUseCulling(bool useCulling) {
 	m_useCulling = useCulling;
 }
 
-void Zone::setDebugCollision(bool debugCollision) {
+void Overworld::setDebugCollision(bool debugCollision) {
 	m_debugCollision = debugCollision;
 }

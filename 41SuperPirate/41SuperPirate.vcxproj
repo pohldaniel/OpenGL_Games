@@ -249,6 +249,7 @@
     <ClCompile Include="src\Entities\SpriteEntity.cpp" />
     <ClCompile Include="src\Level.cpp" />
     <ClCompile Include="src\LoadingManager.cpp" />
+    <ClCompile Include="src\Overworld.cpp" />
     <ClCompile Include="src\States\Default.cpp" />
     <ClCompile Include="src\States\Game.cpp" />
     <ClCompile Include="src\States\StateMachine.cpp" />
@@ -450,6 +451,7 @@
     <ClInclude Include="src\Globals.h" />
     <ClInclude Include="src\Level.h" />
     <ClInclude Include="src\LoadingManager.h" />
+    <ClInclude Include="src\Overworld.h" />
     <ClInclude Include="src\States\Default.h" />
     <ClInclude Include="src\States\Game.h" />
     <ClInclude Include="src\States\StateMachine.h" />

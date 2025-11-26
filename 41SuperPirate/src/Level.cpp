@@ -12,7 +12,7 @@
 
 std::unordered_map<std::string, TileSetData> Level::TileSets;
 
-Level::Level(const Camera& camera) : 
+Level::Level(const Camera& camera) : Zone(camera),
 	camera(camera),
 	m_useCulling(false),
 	m_debugCollision(false),
@@ -267,6 +267,10 @@ void Level::culling() {
 			m_visibleCellsMain.push_back(cell);
 		}
 	}
+}
+
+void Level::setDrawCenter(bool drawCenter) {
+	m_drawCenter = drawCenter;
 }
 
 void Level::setUseCulling(bool useCulling) {

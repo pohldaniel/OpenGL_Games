@@ -5,7 +5,7 @@
 #include <engine/Camera.h>
 #include <States/StateMachine.h>
 
-#include "Zone.h"
+#include "Overworld.h"
 #include "Level.h"
 
 enum Scene {
@@ -46,7 +46,7 @@ private:
 	bool m_drawCenter = false;
 
 	Camera m_camera;
-	Zone m_zone;
+	Overworld m_overworld;
 	Level m_level;
 
 	float m_movingSpeed;
