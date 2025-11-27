@@ -10,15 +10,7 @@
 #include "Globals.h"
 #include "Application.h"
 
-std::unordered_map<std::string, TileSetData> Overworld::TileSets;
-
 Overworld::Overworld(const Camera& camera, const bool _initDebug) : Zone(camera, _initDebug),
-	camera(camera),
-	m_useCulling(true),
-	m_debugCollision(false),
-	m_drawCenter(false),
-	m_borderDirty(true),
-	m_screeBorder(0.0f),
 	m_pointCount(0),
 	m_pointBatchPtr(nullptr),
 	m_pointBatch(nullptr),
@@ -34,6 +26,7 @@ Overworld::Overworld(const Camera& camera, const bool _initDebug) : Zone(camera,
 }
 
 Overworld::~Overworld() {
+
 	if (m_pointBatch) {
 		delete[] m_pointBatch;
 		m_pointBatch = nullptr;
@@ -116,63 +109,6 @@ void Overworld::draw() {
 	shader->unuse();
 }
 
-void Overworld::update(float dt) {
-	culling();
-	std::sort(m_visibleCellsMain.begin(), m_visibleCellsMain.end(), [&](const Cell& cell1, const Cell& cell2) {return cell1.centerY < cell2.centerY; });
-}
-
-void Overworld::loadTileSet(const TileSetData& tileSetData) {
-	m_tileSet.cleanup();
-	TextureAtlasCreator::Get().init(2048u, 2048u);
-	for (auto& pathSize : tileSetData.pathSizes) {
-		if (pathSize.second > 0.0f) {
-			m_tileSet.loadTileSetCpu(pathSize.first, false, pathSize.second, pathSize.second, true, false);
-		}
-		else {
-			m_tileSet.loadTileCpu(pathSize.first, false, true, false);
-		}
-	}
-
-	for (auto& offset : tileSetData.offsets) {
-		m_charachterOffsets[offset.first] = offset.second;
-	}
-
-	for (auto& index : tileSetData.indices) {
-		m_tileSet.removeTextureRect(index);
-	}
-
-	m_tileSet.loadTileSetGpu();
-	m_spritesheet = m_tileSet.getAtlas();
-}
-
-void Overworld::loadTileSetData(const std::string& path) {
-	std::ifstream file(path, std::ios::in);
-	if (!file.is_open()) {
-		std::cerr << "Could not open file: " << path << std::endl;
-	}
-
-	rapidjson::IStreamWrapper streamWrapper(file);
-	rapidjson::Document doc;
-	doc.ParseStream(streamWrapper);
-
-	for (rapidjson::Value::ConstMemberIterator tileset = doc.MemberBegin(); tileset != doc.MemberEnd(); ++tileset) {
-		for (rapidjson::Value::ConstValueIterator tuples = tileset->value["paths"].GetArray().Begin(); tuples != tileset->value["paths"].GetArray().End(); ++tuples) {
-			for (rapidjson::Value::ConstMemberIterator tuple = tuples->MemberBegin(); tuple != tuples->MemberEnd(); ++tuple) {
-				Overworld::TileSets[tileset->name.GetString()].pathSizes.push_back({ tuple->name.GetString(),tuple->value.GetFloat() });
-			}
-		}
-
-		if (tileset->value.HasMember("offsets")) {
-			for (rapidjson::Value::ConstValueIterator tuples = tileset->value["offsets"].GetArray().Begin(); tuples != tileset->value["offsets"].GetArray().End(); ++tuples) {
-
-				for (rapidjson::Value::ConstMemberIterator tuple = tuples->MemberBegin(); tuple != tuples->MemberEnd(); ++tuple) {
-					Overworld::TileSets[tileset->name.GetString()].offsets.push_back({ tuple->name.GetString(), tuple->value.GetUint() });
-				}
-			}
-		}
-	}
-}
-
 void Overworld::loadZone(const std::string path, const std::string currentTileset) {
 
 	for (auto& layer : m_layers) {
@@ -196,7 +132,7 @@ void Overworld::loadZone(const std::string path, const std::string currentTilese
 	m_collisionRects.reserve(700);
 	m_currentTileset = currentTileset;
 
-	loadTileSet(Overworld::TileSets[m_currentTileset]);
+	loadTileSet(Zone::TileSets[m_currentTileset]);
 	tmx::Map map;
 	map.load(path);
 
@@ -243,71 +179,8 @@ void Overworld::loadZone(const std::string path, const std::string currentTilese
 }
 
 void Overworld::resize() {
-	updateBorder();
+	Zone::resize();
 	m_mainRenderTarget.resize(Application::Width, Application::Height);
-}
-
-void Overworld::updateBorder() {
-	if (m_borderDirty) {
-		m_left = camera.getLeftOrthographic();
-		m_right = camera.getRightOrthographic();
-		m_bottom = camera.getBottomOrthographic();
-		m_top = camera.getTopOrthographic();
-		m_borderDirty = false;
-	}
-}
-
-int Overworld::posYToRow(float y, float cellHeight, int min, int max, int shift) {
-	return Math::Clamp(static_cast<int>(std::roundf(y / cellHeight)) + shift, min, max);
-}
-
-int Overworld::posXToCol(float x, float cellWidth, int min, int max, int shift) {
-	return Math::Clamp(static_cast<int>(std::roundf(x / cellWidth)) + shift, min, max);
-}
-
-bool Overworld::isRectOnScreen(float posX, float posY, float width, float height) {
-	if (posX + width < m_cullingVertices[0][0] || posX > m_cullingVertices[2][0] || m_mapHeight - posY < m_cullingVertices[0][1] || m_mapHeight - (posY + height) > m_cullingVertices[2][1]) {
-		return false;
-	}
-	return true;
-}
-
-void Overworld::culling() {
-	updateBorder();
-	const Vector3f& position = camera.getPosition();
-
-	m_cullingVertices[0] = Vector2f(m_left + m_screeBorder + position[0], m_bottom + m_screeBorder + position[1]);
-	m_cullingVertices[1] = Vector2f(m_left + m_screeBorder + position[0], m_top - m_screeBorder + position[1]);
-	m_cullingVertices[2] = Vector2f(m_right - m_screeBorder + position[0], m_top - m_screeBorder + position[1]);
-	m_cullingVertices[3] = Vector2f(m_right - m_screeBorder + position[0], m_bottom + m_screeBorder + position[1]);
-
-	int colMin = m_useCulling ? posXToCol(m_cullingVertices[0][0], m_tileWidth, 0, m_cols, -1) : 0;
-	int colMax = m_useCulling ? posXToCol(m_cullingVertices[2][0], m_tileWidth, 0, m_cols, 1) : m_cols;
-	int rowMin = m_useCulling ? m_rows - posYToRow(m_cullingVertices[2][1], m_tileHeight, 0, m_rows, 1) : 0;
-	int rowMax = m_useCulling ? m_rows - posYToRow(m_cullingVertices[0][1], m_tileHeight, 0, m_rows, -1) : m_rows;
-
-	m_visibleCellsBackground.clear();
-	for (int j = 0; j < m_layers.size(); j++) {
-		for (int y = rowMin; y < rowMax; y++) {
-			for (int x = colMin; x < colMax; x++) {
-				if (m_layers[j][y][x].first != -1) {
-					m_visibleCellsBackground.push_back(m_cellsBackground[m_layers[j][y][x].second]);
-				}
-
-			}
-		}
-	}
-
-	m_visibleCellsMain.clear();
-	const std::vector<TextureRect>& rects = m_tileSet.getTextureRects();
-	for (Cell& cell : m_cellsMain) {
-		cell.visibile = false;
-		const TextureRect& rect = rects[cell.tileID];
-		if (isRectOnScreen(cell.posX, cell.posY - cell.height, cell.width, cell.height) || !m_useCulling) {
-			cell.visibile = true;
-			m_visibleCellsMain.push_back(cell);
-		}
-	}
 }
 
 void Overworld::initDebug() {
@@ -336,16 +209,4 @@ void Overworld::updatePoints() {
 		m_pointBatchPtr++;
 		m_pointCount++;
 	}
-}
-
-void Overworld::setDrawCenter(bool drawCenter) {
-	m_drawCenter = drawCenter;
-}
-
-void Overworld::setUseCulling(bool useCulling) {
-	m_useCulling = useCulling;
-}
-
-void Overworld::setDebugCollision(bool debugCollision) {
-	m_debugCollision = debugCollision;
 }

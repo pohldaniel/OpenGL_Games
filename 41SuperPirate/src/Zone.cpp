@@ -18,102 +18,27 @@ Zone::Zone(const Camera& camera, const bool _initDebug) :
 	m_debugCollision(false),
 	m_drawCenter(false),
 	m_borderDirty(true),
-	m_screeBorder(0.0f),	
-	m_pointCount(0),
-	m_pointBatchPtr(nullptr),
-	m_pointBatch(nullptr),
-	m_vao(0u),
-	m_vbo(0u){
+	m_screeBorder(0.0f),
+	m_bottom(FLT_MAX),
+	m_top(FLT_MIN),
+	m_left(FLT_MAX),
+	m_right(FLT_MIN),	
+	m_tileWidth(0.0f),
+	m_tileHeight(0.0f),
+	m_rows(0),
+	m_cols(0),
+	m_mapHeight(0.0f),
+	m_spritesheet(0u)
+	{
 
-	if(_initDebug)
-		initDebug();
-
-	m_mainRenderTarget.create(Application::Width, Application::Height);
-	m_mainRenderTarget.attachTexture2D(AttachmentTex::RGBA);
-	m_mainRenderTarget.attachTexture2D(AttachmentTex::DEPTH24);
 }
 
 Zone::~Zone() {
-	if (m_pointBatch) {
-		delete[] m_pointBatch;
-		m_pointBatch = nullptr;
-		m_pointBatchPtr = nullptr;
-	}
 
-	if (m_vao) {
-		glDeleteVertexArrays(1, &m_vao);
-		m_vao = 0u;
-	}
-
-	if (m_vbo) {
-		glDeleteBuffers(1, &m_vbo);
-		m_vbo = 0u;
-	}
-
-	for (auto& layer : m_layers) {
-		for (int i = 0; i < m_rows; i++) {
-			delete[] layer[i];
-		}
-		delete[] layer;
-		layer = nullptr;
-	}
 }
 
 void Zone::draw() {
 
-	m_mainRenderTarget.bind();
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	Spritesheet::Bind(m_spritesheet);
-	const std::vector<TextureRect>& rects = m_tileSet.getTextureRects();
-
-	for (const Cell& cell : m_visibleCellsBackground) {
-		const TextureRect& rect = rects[cell.tileID];
-		Batchrenderer::Get().addQuadAA(Vector4f(cell.posX - camera.getPositionX(), m_mapHeight - 64.0f - cell.posY - camera.getPositionY(), rect.width, rect.height), Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureWidth, rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), rect.frame);
-	}
-
-	for (const Cell& cell : m_visibleCellsMain) {
-		const TextureRect& rect = rects[cell.tileID];
-		Batchrenderer::Get().addQuadAA(Vector4f(cell.posX - camera.getPositionX(), m_mapHeight - cell.posY - camera.getPositionY(), rect.width, rect.height), Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureWidth, rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), rect.frame);
-	}
-
-	Batchrenderer::Get().drawBuffer();
-	if (m_drawCenter && m_vao) {
-		updatePoints();
-		glBindVertexArray(m_vao);
-		GLsizeiptr size = (uint8_t*)m_pointBatchPtr - (uint8_t*)m_pointBatch;
-		glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-		glBufferSubData(GL_ARRAY_BUFFER, 0, size, m_pointBatch);
-
-		auto shader = Globals::shaderManager.getAssetPointer("color");
-		shader->use();
-		shader->loadMatrix("u_projection", camera.getOrthographicMatrix());
-
-		glDrawArrays(GL_POINTS, 0, m_pointCount);
-		shader->unuse();
-
-		m_pointBatchPtr = m_pointBatch;
-		m_pointCount = 0;
-	}
-
-	if (m_debugCollision) {
-		const TextureRect& textureRect = rects.back();
-		for (const Rect& rect : m_collisionRects) {
-			Batchrenderer::Get().addQuadAA(Vector4f(rect.posX - camera.getPositionX(), m_mapHeight - (rect.posY + rect.height) - camera.getPositionY(), rect.width, rect.height), Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), Vector4f(0.0f, 0.0f, 1.0f, 1.0f), textureRect.frame);
-		}
-		Batchrenderer::Get().drawBuffer();
-	}
-
-	m_mainRenderTarget.unbind();
-
-	m_mainRenderTarget.bindColorTexture(0u, 0u);
-	auto shader = Globals::shaderManager.getAssetPointer("quad");
-	shader->use();
-	shader->loadMatrix("u_transform", Matrix4f::IDENTITY);
-	shader->loadVector("u_texRect", Vector4f(0.0f, 0.0f, 1.0f, 1.0f));
-	shader->loadVector("u_color", Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
-	Globals::shapeManager.get("quad").drawRaw();
-	shader->unuse();
 }
 
 void Zone::update(float dt) {
@@ -167,6 +92,12 @@ void Zone::loadTileSetData(const std::string& path) {
 				for (rapidjson::Value::ConstMemberIterator tuple = tuples->MemberBegin(); tuple != tuples->MemberEnd(); ++tuple) {
 					Zone::TileSets[tileset->name.GetString()].offsets.push_back({ tuple->name.GetString(), tuple->value.GetUint() });
 				}
+			}
+		}
+
+		if (tileset->value.HasMember("remove")) {
+			for (rapidjson::Value::ConstValueIterator index = tileset->value["remove"].GetArray().Begin(); index != tileset->value["remove"].GetArray().End(); ++index) {
+				Zone::TileSets[tileset->name.GetString()].indices.push_back(index->GetUint());
 			}
 		}
 	}
@@ -243,7 +174,6 @@ void Zone::loadZone(const std::string path, const std::string currentTileset) {
 
 void Zone::resize() {
 	updateBorder();
-	m_mainRenderTarget.resize(Application::Width, Application::Height);
 }
 
 void Zone::updateBorder() {
@@ -306,34 +236,6 @@ void Zone::culling() {
 			cell.visibile = true;
 			m_visibleCellsMain.push_back(cell);
 		}
-	}
-}
-
-void Zone::initDebug() {
-	glGenVertexArrays(1, &m_vao);
-	glGenBuffers(1, &m_vbo);
-	glBindVertexArray(m_vao);
-	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-
-	glBufferData(GL_ARRAY_BUFFER, 3 * sizeof(float)  * MAX_POINTS, nullptr, GL_DYNAMIC_DRAW);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-
-	glBindVertexArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-	glEnable(GL_PROGRAM_POINT_SIZE);
-	glEnable(GL_POINT_SPRITE);
-
-	m_pointBatch = new Vector3f[MAX_POINTS];
-	m_pointBatchPtr = m_pointBatch;
-}
-
-void Zone::updatePoints() {
-	for (auto& cell : m_visibleCellsMain) {
-		*m_pointBatchPtr = { cell.centerX - camera.getPositionX(), m_mapHeight - cell.centerY - camera.getPositionY(), 0.0f };
-		m_pointBatchPtr++;
-		m_pointCount++;
 	}
 }
 

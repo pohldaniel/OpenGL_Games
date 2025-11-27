@@ -10,14 +10,8 @@
 
 #include "Level.h"
 
-std::unordered_map<std::string, TileSetData> Level::TileSets;
-
-Level::Level(const Camera& camera) : Zone(camera),
-	camera(camera),
-	m_useCulling(false),
-	m_debugCollision(false),
-	m_borderDirty(true),
-	m_screeBorder(0.0f) {
+Level::Level(const Camera& camera) : Zone(camera), 
+	m_playerIndex(SIZE_MAX) {
 
 }
 
@@ -61,33 +55,7 @@ void Level::update(float dt) {
 		spriteEntity->update(dt);
 	}
 
-	culling();
-	std::sort(m_visibleCellsMain.begin(), m_visibleCellsMain.end(), [&](const Cell& cell1, const Cell& cell2) {return cell1.centerY < cell2.centerY; });
-}
-
-void Level::loadTileSet(const TileSetData& tileSetData) {
-	m_tileSet.cleanup();
-	TextureAtlasCreator::Get().init(2048u, 2048u);
-	for (auto& pathSize : tileSetData.pathSizes) {
-		if (pathSize.second > 0.0f) {
-			m_tileSet.loadTileSetCpu(pathSize.first, false, pathSize.second, pathSize.second, true, false);
-		}else {
-			m_tileSet.loadTileCpu(pathSize.first, false, true, false);
-		}
-	}
-
-	for (auto& offset : tileSetData.offsets) {
-		m_charachterOffsets[offset.first] = offset.second;
-	}
-
-	for (auto& index : tileSetData.indices) {
-		m_tileSet.removeTextureRect(index);
-	}
-
-	m_tileSet.loadTileSetGpu();
-	m_spritesheet = m_tileSet.getAtlas();
-
-	//Spritesheet::Safe("atlas_level", m_spritesheet);
+	Zone::update(dt);
 }
 
 void Level::loadZone(const std::string path, const std::string currentTileset) {
@@ -113,7 +81,7 @@ void Level::loadZone(const std::string path, const std::string currentTileset) {
 	m_collisionRects.reserve(7000);
 	m_currentTileset = currentTileset;
 
-	loadTileSet(Level::TileSets[m_currentTileset]);
+	loadTileSet(Zone::TileSets[m_currentTileset]);
 	tmx::Map map;
 	map.load(path);
 
@@ -167,118 +135,6 @@ void Level::loadZone(const std::string path, const std::string currentTileset) {
 			getPlayer().setMapHeight(m_mapHeight);
 		}		
 	}
-}
-
-void Level::loadTileSetData(const std::string& path) {
-	std::ifstream file(path, std::ios::in);
-	if (!file.is_open()) {
-		std::cerr << "Could not open file: " << path << std::endl;
-	}
-
-	rapidjson::IStreamWrapper streamWrapper(file);
-	rapidjson::Document doc;
-	doc.ParseStream(streamWrapper);
-
-	for (rapidjson::Value::ConstMemberIterator tileset = doc.MemberBegin(); tileset != doc.MemberEnd(); ++tileset) {
-		for (rapidjson::Value::ConstValueIterator tuples = tileset->value["paths"].GetArray().Begin(); tuples != tileset->value["paths"].GetArray().End(); ++tuples) {
-			for (rapidjson::Value::ConstMemberIterator tuple = tuples->MemberBegin(); tuple != tuples->MemberEnd(); ++tuple) {
-				Level::TileSets[tileset->name.GetString()].pathSizes.push_back({ tuple->name.GetString(),tuple->value.GetFloat() });
-			}
-		}
-
-		if (tileset->value.HasMember("offsets")) {
-			for (rapidjson::Value::ConstValueIterator tuples = tileset->value["offsets"].GetArray().Begin(); tuples != tileset->value["offsets"].GetArray().End(); ++tuples) {
-				for (rapidjson::Value::ConstMemberIterator tuple = tuples->MemberBegin(); tuple != tuples->MemberEnd(); ++tuple) {
-					Level::TileSets[tileset->name.GetString()].offsets.push_back({ tuple->name.GetString(), tuple->value.GetUint() });
-				}
-			}
-		}
-
-		if (tileset->value.HasMember("remove")) {
-			for (rapidjson::Value::ConstValueIterator index = tileset->value["remove"].GetArray().Begin(); index != tileset->value["remove"].GetArray().End(); ++index) {
-				Level::TileSets[tileset->name.GetString()].indices.push_back(index->GetUint());
-			}
-		}
-	}
-}
-
-void Level::resize() {
-	updateBorder();
-}
-
-void Level::updateBorder() {
-	if (m_borderDirty) {
-		m_left = camera.getLeftOrthographic();
-		m_right = camera.getRightOrthographic();
-		m_bottom = camera.getBottomOrthographic();
-		m_top = camera.getTopOrthographic();
-		m_borderDirty = false;
-	}
-}
-
-int Level::posYToRow(float y, float cellHeight, int min, int max, int shift) {
-	return Math::Clamp(static_cast<int>(std::roundf(y / cellHeight)) + shift, min, max);
-}
-
-int Level::posXToCol(float x, float cellWidth, int min, int max, int shift) {
-	return Math::Clamp(static_cast<int>(std::roundf(x / cellWidth)) + shift, min, max);
-}
-
-bool Level::isRectOnScreen(float posX, float posY, float width, float height) {
-	if (posX + width < m_cullingVertices[0][0] || posX > m_cullingVertices[2][0] || m_mapHeight - posY < m_cullingVertices[0][1] || m_mapHeight - (posY + height) > m_cullingVertices[2][1]) {
-		return false;
-	}
-	return true;
-}
-
-void Level::culling() {
-	updateBorder();
-	const Vector3f& position = camera.getPosition();
-
-	m_cullingVertices[0] = Vector2f(m_left + m_screeBorder + position[0], m_bottom + m_screeBorder + position[1]);
-	m_cullingVertices[1] = Vector2f(m_left + m_screeBorder + position[0], m_top - m_screeBorder + position[1]);
-	m_cullingVertices[2] = Vector2f(m_right - m_screeBorder + position[0], m_top - m_screeBorder + position[1]);
-	m_cullingVertices[3] = Vector2f(m_right - m_screeBorder + position[0], m_bottom + m_screeBorder + position[1]);
-
-	int colMin = m_useCulling ? posXToCol(m_cullingVertices[0][0], m_tileWidth, 0, m_cols, -1) : 0;
-	int colMax = m_useCulling ? posXToCol(m_cullingVertices[2][0], m_tileWidth, 0, m_cols, 1) : m_cols;
-	int rowMin = m_useCulling ? m_rows - posYToRow(m_cullingVertices[2][1], m_tileHeight, 0, m_rows, 1) : 0;
-	int rowMax = m_useCulling ? m_rows - posYToRow(m_cullingVertices[0][1], m_tileHeight, 0, m_rows, -1) : m_rows;
-
-	m_visibleCellsBackground.clear();
-	for (int j = 0; j < m_layers.size(); j++) {
-		for (int y = rowMin; y < rowMax; y++) {
-			for (int x = colMin; x < colMax; x++) {
-				if (m_layers[j][y][x].first != -1) {
-					m_visibleCellsBackground.push_back(m_cellsBackground[m_layers[j][y][x].second]);
-				}
-
-			}
-		}
-	}
-
-	m_visibleCellsMain.clear();
-	const std::vector<TextureRect>& rects = m_tileSet.getTextureRects();
-	for (Cell& cell : m_cellsMain) {
-		cell.visibile = false;
-		const TextureRect& rect = rects[cell.tileID];
-		if (isRectOnScreen(cell.posX, cell.posY - cell.height, cell.width, cell.height) || !m_useCulling) {
-			cell.visibile = true;
-			m_visibleCellsMain.push_back(cell);
-		}
-	}
-}
-
-void Level::setDrawCenter(bool drawCenter) {
-	m_drawCenter = drawCenter;
-}
-
-void Level::setUseCulling(bool useCulling) {
-	m_useCulling = useCulling;
-}
-
-void Level::setDebugCollision(bool debugCollision) {
-	m_debugCollision = debugCollision;
 }
 
 Player& Level::getPlayer() {

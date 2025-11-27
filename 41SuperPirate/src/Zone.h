@@ -28,16 +28,14 @@ public:
 	virtual void setUseCulling(bool useCulling);
 	virtual void setDebugCollision(bool debugCollision);
 
-private:
+protected:
 
-	virtual void loadTileSet(const TileSetData& tileSetData);
+	void loadTileSet(const TileSetData& tileSetData);
 	virtual void culling();
 	virtual void updateBorder();
 	virtual int posYToRow(float y, float cellHeight, int min, int max, int shift);
 	virtual int posXToCol(float y, float cellHeight, int min, int max, int shift);
 	virtual bool isRectOnScreen(float posX, float posY, float width, float height);
-	virtual void updatePoints();
-	virtual void initDebug();
 
 	bool m_useCulling, m_drawCenter, m_debugCollision, m_borderDirty;
 	std::array<Vector2f, 4> m_cullingVertices;
@@ -56,12 +54,6 @@ private:
 
 	std::vector<Cell> m_visibleCellsBackground;
 	std::vector<Cell> m_visibleCellsMain;
-
-	unsigned int m_vao, m_vbo;
-	Vector3f *m_pointBatch, *m_pointBatchPtr;
-	uint32_t m_pointCount;
-
-	Framebuffer m_mainRenderTarget;
 
 	const Camera& camera;
 
