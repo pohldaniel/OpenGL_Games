@@ -42,14 +42,6 @@ Overworld::~Overworld() {
 		glDeleteBuffers(1, &m_vbo);
 		m_vbo = 0u;
 	}
-
-	for (auto& layer : m_layers) {
-		for (int i = 0; i < m_rows; i++) {
-			delete[] layer[i];
-		}
-		delete[] layer;
-		layer = nullptr;
-	}
 }
 
 void Overworld::draw() {
@@ -111,23 +103,6 @@ void Overworld::draw() {
 
 void Overworld::loadZone(const std::string path, const std::string currentTileset) {
 
-	for (auto& layer : m_layers) {
-		for (int i = 0; i < m_cols; i++) {
-			delete[] layer[i];
-		}
-		delete[] layer;
-		layer = nullptr;
-	}
-
-	m_layers.clear();
-	m_layers.shrink_to_fit();
-
-	m_cellsBackground.clear();
-	m_cellsBackground.shrink_to_fit();
-
-	m_cellsMain.clear();
-	m_cellsMain.shrink_to_fit();
-
 	m_cellsMain.reserve(600);
 	m_collisionRects.reserve(700);
 	m_currentTileset = currentTileset;
@@ -151,9 +126,9 @@ void Overworld::loadZone(const std::string path, const std::string currentTilese
 			if (!tileLayer)
 				continue;
 			m_layers.resize(m_layers.size() + 1);
-			m_layers.back() = new std::pair<int, unsigned int>* [mapSize.y];
-			for (int y = 0; y < mapSize.y; ++y)
-				m_layers.back()[y] = new std::pair<int, unsigned int>[mapSize.x];
+			m_layers.back() = new std::pair<int, unsigned int>* [m_rows];
+			for (int y = 0; y < m_rows; ++y)
+				m_layers.back()[y] = new std::pair<int, unsigned int>[m_cols];
 
 			const auto& tileIDs = tileLayer->getTiles();
 			for (auto y = 0u; y < mapSize.y; ++y) {

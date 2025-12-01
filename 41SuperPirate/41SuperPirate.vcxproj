@@ -243,6 +243,7 @@
     <ClCompile Include="Physics\Constraint.cpp" />
     <ClCompile Include="Physics\Constraint6DoF.cpp" />
     <ClCompile Include="Physics\VehiclePhysics.cpp" />
+    <ClCompile Include="src\Entities\Enemy.cpp" />
     <ClCompile Include="src\Entities\Entity.cpp" />
     <ClCompile Include="src\Entities\Player.cpp" />
     <ClCompile Include="src\Entities\ShapeEntity.cpp" />
@@ -444,6 +445,7 @@
     <ClInclude Include="Physics\VehiclePhysics.h" />
     <ClInclude Include="src\Application.h" />
     <ClInclude Include="src\DataStructs.h" />
+    <ClInclude Include="src\Entities\Enemy.h" />
     <ClInclude Include="src\Entities\Entity.h" />
     <ClInclude Include="src\Entities\Player.h" />
     <ClInclude Include="src\Entities\ShapeEntity.h" />

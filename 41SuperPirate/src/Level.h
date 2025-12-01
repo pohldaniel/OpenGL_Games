@@ -9,6 +9,7 @@
 
 class SpriteEntity;
 class Player;
+class Enemy;
 
 class Level : public Zone {
 
@@ -24,10 +25,11 @@ public:
 	const std::vector<Rect>& getCollisionRects();
 	const std::vector<std::unique_ptr<SpriteEntity>>& getSpriteEntities();
 	float getMapHeight();
-	Player& getPlayer();
+	static Player& GetPlayer();
 
 private:
 
 	size_t m_playerIndex;
 	std::vector<std::unique_ptr<SpriteEntity>> m_spriteEntities;
+	static std::unique_ptr<Player> s_player;
 };

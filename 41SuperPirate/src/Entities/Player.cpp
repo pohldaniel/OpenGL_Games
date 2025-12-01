@@ -3,9 +3,15 @@
 
 #include "Player.h"
 
-Player::Player(Cell& cell, Camera& camera, const std::vector<Rect>& collisionRects) : SpriteEntity(cell), camera(camera), collisionRects(collisionRects) {
-	m_direction.set(0.0f, 0.0f);
+Player::Player(Cell& cell, Camera& camera, const std::vector<Rect>& collisionRects, float elpasedTime, int framecount) : 
+	SpriteEntity(cell, elpasedTime, framecount), 
+	camera(camera), 
+	collisionRects(collisionRects),
+    m_mapHeight(0.0f),
+    m_viewHeight(0.0f),
+    m_viewWidth(0.0f){
 
+	m_direction.set(0.0f, 0.0f);
 	m_initialX = cell.posX;
 	m_initialY = cell.posY;
 }
@@ -48,8 +54,8 @@ void Player::update(float dt) {
 		cell.centerX = cell.posX + 24.0f;
 		cell.centerY = cell.posY - 28.0f;
 	}
-
 	//camera.setPosition(cell.centerX - m_viewWidth * 0.5f, m_mapHeight - cell.centerY - 0.5f * m_viewHeight, 0.0f);
+	updateAnimation(dt);
 }
 
 void Player::setViewWidth(float viewWidth) {

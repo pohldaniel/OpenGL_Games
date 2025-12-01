@@ -4,7 +4,9 @@
 #include <engine/input/KeyboardEventListener.h>
 #include <engine/Camera.h>
 #include <States/StateMachine.h>
+#include <Entities/Player.h>
 
+#include "Zone.h"
 #include "Overworld.h"
 #include "Level.h"
 
@@ -46,8 +48,10 @@ private:
 	bool m_drawCenter = false;
 
 	Camera m_camera;
-	Overworld m_overworld;
-	Level m_level;
+	//Overworld m_overworld;
+	//Level m_level;
+	Zone* m_zone;
+	Player* m_player;
 
 	float m_movingSpeed;
 	float m_viewWidth;

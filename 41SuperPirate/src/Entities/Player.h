@@ -8,7 +8,7 @@ class Player : public SpriteEntity {
 
 public:
 
-	Player(Cell& cell, Camera& camera, const std::vector<Rect>& collisionRects);
+	Player(Cell& cell, Camera& camera, const std::vector<Rect>& collisionRects, float elpasedTime = 0.0f, int framecount = 4);
 	virtual ~Player();
 
 	void update(float dt) override;

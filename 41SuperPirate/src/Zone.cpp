@@ -35,10 +35,22 @@ Zone::Zone(const Camera& camera, const bool _initDebug) :
 
 Zone::~Zone() {
 
-}
+	for (auto& layer : m_layers) {
+		for (int i = 0; i < m_rows; i++) {
+			delete[] layer[i];
+		}
+		delete[] layer;
+		layer = nullptr;
+	}
 
-void Zone::draw() {
+	m_layers.clear();
+	m_layers.shrink_to_fit();
 
+	m_cellsBackground.clear();
+	m_cellsBackground.shrink_to_fit();
+
+	m_cellsMain.clear();
+	m_cellsMain.shrink_to_fit();
 }
 
 void Zone::update(float dt) {
@@ -58,7 +70,7 @@ void Zone::loadTileSet(const TileSetData& tileSetData) {
 	}
 
 	for (auto& offset : tileSetData.offsets) {
-		m_charachterOffsets[offset.first] = offset.second;
+		m_animationOffsets[offset.first] = static_cast<int>(offset.second);
 	}
 
 	for (auto& index : tileSetData.indices) {
@@ -67,109 +79,6 @@ void Zone::loadTileSet(const TileSetData& tileSetData) {
 
 	m_tileSet.loadTileSetGpu();
 	m_spritesheet = m_tileSet.getAtlas();
-}
-
-void Zone::loadTileSetData(const std::string& path) {
-	std::ifstream file(path, std::ios::in);
-	if (!file.is_open()) {
-		std::cerr << "Could not open file: " << path << std::endl;
-	}
-
-	rapidjson::IStreamWrapper streamWrapper(file);
-	rapidjson::Document doc;
-	doc.ParseStream(streamWrapper);
-
-	for (rapidjson::Value::ConstMemberIterator tileset = doc.MemberBegin(); tileset != doc.MemberEnd(); ++tileset) {
-		for (rapidjson::Value::ConstValueIterator tuples = tileset->value["paths"].GetArray().Begin(); tuples != tileset->value["paths"].GetArray().End(); ++tuples) {
-			for (rapidjson::Value::ConstMemberIterator tuple = tuples->MemberBegin(); tuple != tuples->MemberEnd(); ++tuple) {
-				Zone::TileSets[tileset->name.GetString()].pathSizes.push_back({ tuple->name.GetString(),tuple->value.GetFloat() });
-			}
-		}
-
-		if (tileset->value.HasMember("offsets")) {
-			for (rapidjson::Value::ConstValueIterator tuples = tileset->value["offsets"].GetArray().Begin(); tuples != tileset->value["offsets"].GetArray().End(); ++tuples) {
-
-				for (rapidjson::Value::ConstMemberIterator tuple = tuples->MemberBegin(); tuple != tuples->MemberEnd(); ++tuple) {
-					Zone::TileSets[tileset->name.GetString()].offsets.push_back({ tuple->name.GetString(), tuple->value.GetUint() });
-				}
-			}
-		}
-
-		if (tileset->value.HasMember("remove")) {
-			for (rapidjson::Value::ConstValueIterator index = tileset->value["remove"].GetArray().Begin(); index != tileset->value["remove"].GetArray().End(); ++index) {
-				Zone::TileSets[tileset->name.GetString()].indices.push_back(index->GetUint());
-			}
-		}
-	}
-}
-
-void Zone::loadZone(const std::string path, const std::string currentTileset) {
-
-	for (auto& layer : m_layers) {
-		for (int i = 0; i < m_cols; i++) {
-			delete[] layer[i];
-		}
-		delete[] layer;
-		layer = nullptr;
-	}
-
-	m_layers.clear();
-	m_layers.shrink_to_fit();
-
-	m_cellsBackground.clear();
-	m_cellsBackground.shrink_to_fit();
-
-	m_cellsMain.clear();
-	m_cellsMain.shrink_to_fit();
-
-	m_cellsMain.reserve(600);
-	m_collisionRects.reserve(700);
-	m_currentTileset = currentTileset;
-
-	loadTileSet(Zone::TileSets[m_currentTileset]);
-	tmx::Map map;
-	map.load(path);
-
-	const tmx::Vector2u& mapSize = map.getTileCount();
-	m_mapHeight = static_cast<float>(mapSize.y * map.getTileSize().y);
-	m_tileHeight = static_cast<float>(map.getTileSize().y);
-	m_tileWidth = static_cast<float>(map.getTileSize().x);
-	m_cols = mapSize.x;
-	m_rows = mapSize.y;
-
-	const std::vector<std::unique_ptr<tmx::Layer>>& layers = map.getLayers();
-	for (auto& layer : layers) {
-		if (layer->getName() == "main" || layer->getName() == "top") {
-			const tmx::TileLayer* tileLayer = dynamic_cast<const tmx::TileLayer*>(layer.get());
-
-			if (!tileLayer)
-				continue;
-			m_layers.resize(m_layers.size() + 1);
-			m_layers.back() = new std::pair<int, unsigned int>*[mapSize.y];
-			for (int y = 0; y < mapSize.y; ++y)
-				m_layers.back()[y] = new std::pair<int, unsigned int>[mapSize.x];
-
-			const auto& tileIDs = tileLayer->getTiles();
-			for (auto y = 0u; y < mapSize.y; ++y) {
-				for (auto x = 0u; x < mapSize.x; ++x) {
-					auto idx = y * mapSize.x + x;
-					m_layers.back()[y][x].first = (tileIDs[idx].ID - 1);
-					if (m_layers.back()[y][x].first != -1) {
-						m_cellsBackground.push_back({ m_layers.back()[y][x].first, static_cast<float>(x) * m_tileWidth, static_cast<float>(y) * m_tileHeight, m_tileWidth, m_tileHeight, static_cast<float>(x) * m_tileWidth + 0.5f * m_tileWidth, static_cast<float>(y) * m_tileHeight + 0.5f * m_tileHeight, false, false });
-						m_layers.back()[y][x].second = static_cast<unsigned int>(m_cellsBackground.size() - 1);
-					}
-				}
-			}
-		}
-
-		if (layer->getName() == "Objects") {
-			const tmx::ObjectGroup* objectLayer = dynamic_cast<const tmx::ObjectGroup*>(layer.get());
-			for (auto& object : objectLayer->getObjects()) {
-				m_cellsMain.push_back({ static_cast<int>(object.getTileID() - 1u), object.getPosition().x, object.getPosition().y, object.getAABB().width, object.getAABB().height, object.getPosition().x + 0.5f * object.getAABB().width, object.getPosition().y, false, false });
-				m_collisionRects.push_back({ object.getPosition().x , object.getPosition().y - object.getAABB().height + 0.3f *object.getAABB().height,  object.getAABB().width, object.getAABB().height * 0.4f });
-			}
-		}
-	}
 }
 
 void Zone::resize() {
@@ -249,4 +158,47 @@ void Zone::setUseCulling(bool useCulling) {
 
 void Zone::setDebugCollision(bool debugCollision) {
 	m_debugCollision = debugCollision;
+}
+
+void Zone::LoadTileSetData(const std::string& path) {
+	std::ifstream file(path, std::ios::in);
+	if (!file.is_open()) {
+		std::cerr << "Could not open file: " << path << std::endl;
+	}
+
+	rapidjson::IStreamWrapper streamWrapper(file);
+	rapidjson::Document doc;
+	doc.ParseStream(streamWrapper);
+
+	for (rapidjson::Value::ConstMemberIterator tileset = doc.MemberBegin(); tileset != doc.MemberEnd(); ++tileset) {
+		for (rapidjson::Value::ConstValueIterator tuples = tileset->value["paths"].GetArray().Begin(); tuples != tileset->value["paths"].GetArray().End(); ++tuples) {
+			for (rapidjson::Value::ConstMemberIterator tuple = tuples->MemberBegin(); tuple != tuples->MemberEnd(); ++tuple) {
+				Zone::TileSets[tileset->name.GetString()].pathSizes.push_back({ tuple->name.GetString(),tuple->value.GetFloat() });
+			}
+		}
+
+		if (tileset->value.HasMember("offsets")) {
+			for (rapidjson::Value::ConstValueIterator tuples = tileset->value["offsets"].GetArray().Begin(); tuples != tileset->value["offsets"].GetArray().End(); ++tuples) {
+
+				for (rapidjson::Value::ConstMemberIterator tuple = tuples->MemberBegin(); tuple != tuples->MemberEnd(); ++tuple) {
+					Zone::TileSets[tileset->name.GetString()].offsets.push_back({ tuple->name.GetString(), tuple->value.GetUint() });
+				}
+			}
+		}
+
+		if (tileset->value.HasMember("remove")) {
+			for (rapidjson::Value::ConstValueIterator index = tileset->value["remove"].GetArray().Begin(); index != tileset->value["remove"].GetArray().End(); ++index) {
+				Zone::TileSets[tileset->name.GetString()].indices.push_back(index->GetUint());
+			}
+		}
+
+		if (tileset->value.HasMember("animation_offset")) {
+			for (rapidjson::Value::ConstValueIterator tuples = tileset->value["animation_offset"].GetArray().Begin(); tuples != tileset->value["animation_offset"].GetArray().End(); ++tuples) {
+
+				for (rapidjson::Value::ConstMemberIterator tuple = tuples->MemberBegin(); tuple != tuples->MemberEnd(); ++tuple) {
+					TileSets[tileset->name.GetString()].offsets.push_back({ tuple->name.GetString(), tuple->value.GetUint() });
+				}
+			}
+		}
+	}
 }

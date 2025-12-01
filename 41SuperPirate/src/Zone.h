@@ -18,15 +18,18 @@ public:
 	Zone(const Camera& camera, const bool initDebug = true);
 	virtual ~Zone();
 
-	virtual void draw();
+	virtual void draw() = 0;
 	virtual void update(float dt);
 	virtual void resize();
-	virtual void loadTileSetData(const std::string& path);
-	virtual void loadZone(const std::string path, const std::string currentTileset);
+	
+	virtual void loadZone(const std::string path, const std::string currentTileset) = 0;
 	
 	virtual void setDrawCenter(bool drawCenter);
 	virtual void setUseCulling(bool useCulling);
 	virtual void setDebugCollision(bool debugCollision);
+
+
+	static void LoadTileSetData(const std::string& path);
 
 protected:
 
@@ -45,7 +48,7 @@ protected:
 	std::vector<Cell> m_cellsMain;
 	std::vector<Rect> m_collisionRects;
 	TileSet m_tileSet;
-	std::unordered_map<std::string, unsigned int> m_charachterOffsets;
+	std::unordered_map<std::string, int> m_animationOffsets;
 	unsigned int m_spritesheet;
 	std::string m_currentTileset;
 	

@@ -7,16 +7,20 @@
 #include <engine/Spritesheet.h>
 #include <Entities/SpriteEntity.h>
 #include <Entities/Player.h>
+#include <Entities/Enemy.h>
 
 #include "Level.h"
 
+std::unique_ptr<Player> Level::s_player = nullptr;
+
 Level::Level(const Camera& camera) : Zone(camera), 
 	m_playerIndex(SIZE_MAX) {
-
 }
 
 Level::~Level() {
-
+	Player* player = s_player.release();
+	delete player;
+	Level::s_player = nullptr;
 }
 
 void Level::draw() {
@@ -54,28 +58,11 @@ void Level::update(float dt) {
 	for (auto&& spriteEntity : getSpriteEntities()) {		
 		spriteEntity->update(dt);
 	}
-
+	s_player->update(dt);
 	Zone::update(dt);
 }
 
 void Level::loadZone(const std::string path, const std::string currentTileset) {
-
-	for (auto& layer : m_layers) {
-		for (int i = 0; i < m_cols; i++) {
-			delete[] layer[i];
-		}
-		delete[] layer;
-		layer = nullptr;
-	}
-
-	m_layers.clear();
-	m_layers.shrink_to_fit();
-
-	m_cellsBackground.clear();
-	m_cellsBackground.shrink_to_fit();
-
-	m_cellsMain.clear();
-	m_cellsMain.shrink_to_fit();
 
 	m_cellsMain.reserve(6000);
 	m_collisionRects.reserve(7000);
@@ -94,14 +81,15 @@ void Level::loadZone(const std::string path, const std::string currentTileset) {
 
 	const std::vector<std::unique_ptr<tmx::Layer>>& layers = map.getLayers();
 	for (auto& layer : layers) {
-		if (layer->getName() == "Terrain" || layer->getName() == "Platforms" || layer->getName() == "FG" || layer->getName() == "BG") {
+		if (layer->getName() == "Terrain" || layer->getName() == "Platforms" || layer->getName() == "FG" || layer->getName() == "BG") {						
 			const tmx::TileLayer* tileLayer = dynamic_cast<const tmx::TileLayer*>(layer.get());
+
 			if (!tileLayer)
 				continue;
 			m_layers.resize(m_layers.size() + 1);
-			m_layers.back() = new std::pair<int, unsigned int>* [mapSize.y];
-			for (int y = 0; y < mapSize.y; ++y)
-				m_layers.back()[y] = new std::pair<int, unsigned int>[mapSize.x];
+			m_layers.back() = new std::pair<int, unsigned int>* [m_rows];
+			for (int y = 0; y < m_rows; ++y)
+				m_layers.back()[y] = new std::pair<int, unsigned int>[m_cols];
 
 			const auto& tileIDs = tileLayer->getTiles();
 			for (auto y = 0u; y < mapSize.y; ++y) {
@@ -120,25 +108,36 @@ void Level::loadZone(const std::string path, const std::string currentTileset) {
 			}
 		}
 
+		if (layer->getName() == "Enemies") {
+			const tmx::ObjectGroup* objectLayer = dynamic_cast<const tmx::ObjectGroup*>(layer.get());
+			for (auto& object : objectLayer->getObjects()) {
+				if (object.getName() == "shell") {
+					//m_cellsMain.push_back({ static_cast<int>(object.getTileID() - 1u), object.getPosition().x, object.getPosition().y, object.getAABB().width, object.getAABB().height, object.getPosition().x + 0.5f * object.getAABB().width, object.getPosition().y, false, false });					
+					m_cellsMain.push_back({ m_animationOffsets["shell_attack"], object.getPosition().x, object.getPosition().y, object.getAABB().width, object.getAABB().height, object.getPosition().x + 0.5f * object.getAABB().width, object.getPosition().y, false, false });
+					m_collisionRects.push_back({ object.getPosition().x, object.getPosition().y - object.getAABB().height, object.getAABB().width, object.getAABB().height });
+					m_spriteEntities.push_back(std::make_unique<Enemy>(m_cellsMain.back(), 0.0f, 6));
+					m_spriteEntities.back()->setMovingSpeed(250.0f);
+				}
+			}
+		}
+
 		if (layer->getName() == "Objects") {
 			const tmx::ObjectGroup* objectLayer = dynamic_cast<const tmx::ObjectGroup*>(layer.get());
 			for (auto& object : objectLayer->getObjects()) {
 				if (object.getName() == "player") {
-					m_cellsMain.push_back({ static_cast<int>(object.getTileID() - 1u), object.getPosition().x + 48.0f, object.getPosition().y + 28.0f, object.getAABB().width, object.getAABB().height, object.getPosition().x + 0.5f * object.getAABB().width, object.getPosition().y, false, false });
+					//m_cellsMain.push_back({ static_cast<int>(object.getTileID() - 1u), object.getPosition().x + 48.0f, object.getPosition().y + 28.0f, object.getAABB().width, object.getAABB().height, object.getPosition().x + 0.5f * object.getAABB().width, object.getPosition().y, false, false });
+					m_cellsMain.push_back({ m_animationOffsets["player_idle"], object.getPosition().x + 48.0f, object.getPosition().y + 28.0f, object.getAABB().width, object.getAABB().height, object.getPosition().x + 0.5f * object.getAABB().width, object.getPosition().y, false, false });
 					m_playerIndex = m_cellsMain.size() - 1;
-				}
+				}				
 			}
+			
+			m_spriteEntities.push_back(std::make_unique<Player>(m_cellsMain[m_playerIndex], const_cast<Camera&>(camera), getCollisionRects(), 0.0f, 5));
 
-			m_spriteEntities.push_back(std::make_unique<Player>(m_cellsMain[m_playerIndex], const_cast<Camera&>(camera), getCollisionRects()));
-			m_spriteEntities.back()->setViewDirection(SpriteEntity::GetDirection("none"));
-			m_spriteEntities.back()->setMovingSpeed(200.0f);
-			getPlayer().setMapHeight(m_mapHeight);
+			s_player = std::make_unique<Player>(m_cellsMain[m_playerIndex], const_cast<Camera&>(camera), getCollisionRects(), 0.0f, 5);
+			s_player->setMovingSpeed(200.0f);
+			s_player->setMapHeight(m_mapHeight);
 		}		
 	}
-}
-
-Player& Level::getPlayer() {
-	return static_cast<Player&>(*m_spriteEntities.back().get());
 }
 
 const std::vector<Rect>& Level::getCollisionRects() {
@@ -151,4 +150,8 @@ const std::vector<std::unique_ptr<SpriteEntity>>& Level::getSpriteEntities() {
 
 float Level::getMapHeight() {
 	return m_mapHeight;
+}
+
+Player& Level::GetPlayer() {
+	return static_cast<Player&>(*s_player.get());
 }
