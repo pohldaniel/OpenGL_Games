@@ -23,4 +23,5 @@ private:
 	float m_initialX, m_initialY;
 	const std::vector<Rect>& collisionRects;
 	Camera& camera;
+	Vector2f m_direction;
 };

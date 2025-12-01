@@ -4,6 +4,11 @@
 
 #include "DataStructs.h"
 
+enum ViewDirection {
+	LEFT,
+	RIGHT
+};
+
 class SpriteEntity {
 
 public:
@@ -32,4 +37,6 @@ protected:
 	int m_frameCount;
 	float m_elapsedTime;
 	float m_movingSpeed;
+
+	ViewDirection m_viewDirection;
 };

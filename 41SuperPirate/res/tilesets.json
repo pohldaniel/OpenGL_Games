@@ -7,9 +7,29 @@
 							{"res/graphics/overworld/objects/grass3.png": 0.0},
 							{"res/graphics/overworld/objects/grass4.png": 0.0},
 							{"res/graphics/overworld/objects/grass5.png": 0.0},
-							{"res/graphics/overworld/objects/stone.png": 0.0},
+							{"res/graphics/overworld/objects/stone.png": 0.0},							
+							{"res/graphics/overworld/objects/stone.png": 0.0},							
+							{"res/graphics/overworld/icon/right/0.png": 0.0},
+							{"res/graphics/overworld/icon/right/1.png": 0.0},
+							{"res/graphics/overworld/icon/right/0.png": 0.0},
+							{"res/graphics/overworld/icon/right/2.png": 0.0},
+							{"res/graphics/overworld/icon/left/0.png": 0.0},
+							{"res/graphics/overworld/icon/left/1.png": 0.0},
+							{"res/graphics/overworld/icon/left/2.png": 0.0},
+							{"res/graphics/overworld/icon/left/3.png": 0.0},
+							{"res/graphics/overworld/icon/down/0.png": 0.0},
+							{"res/graphics/overworld/icon/down/1.png": 0.0},
+							{"res/graphics/overworld/icon/down/2.png": 0.0},
+							{"res/graphics/overworld/icon/down/3.png": 0.0},
+							{"res/graphics/overworld/icon/up/0.png": 0.0},
+							{"res/graphics/overworld/icon/up/1.png": 0.0},
+							{"res/graphics/overworld/icon/up/0.png": 0.0},
+							{"res/graphics/overworld/icon/up/2.png": 0.0},
 							{"res/graphics/empty.png": 0.0}
-						]
+					],
+					"animation_offset":[
+						{"player": 256}
+					]
 				},
 	"omni"	:    {  "paths":[
 							{"res/graphics/tilesets/outside.png": 64.0},
@@ -60,10 +80,10 @@
 							{"res/graphics/enemies/shell/fire/5.png": 0.0},
 							{"res/graphics/empty.png": 0.0}
 						],
-				"remove":[54],
-				"animation_offset":[
-							{"player_idle": 256},
-							{"shell_attack": 261}
-						  ]
+					"remove":[54],
+					"animation_offset":[
+						{"player_idle": 256},
+						{"shell_attack": 261}
+					]
 			}
 }

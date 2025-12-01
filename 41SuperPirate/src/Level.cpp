@@ -37,7 +37,7 @@ void Level::draw() {
 
 		for (const Cell& cell : m_visibleCellsMain) {
 			const TextureRect& rect = rects[cell.tileID];
-			Batchrenderer::Get().addQuadAA(Vector4f(cell.posX - camera.getPositionX(), m_mapHeight - cell.posY - camera.getPositionY(), rect.width, rect.height), Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureWidth, rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), rect.frame);
+			Batchrenderer::Get().addQuadAA(Vector4f(cell.posX - camera.getPositionX(), m_mapHeight - cell.posY - camera.getPositionY(), rect.width, rect.height), Vector4f(cell.flipped ? rect.textureOffsetX + rect.textureWidth : rect.textureOffsetX, rect.textureOffsetY, cell.flipped ? -rect.textureWidth : rect.textureWidth, rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), rect.frame);
 		}
 		Batchrenderer::Get().drawBuffer();
 	}

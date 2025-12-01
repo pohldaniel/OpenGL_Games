@@ -55,6 +55,7 @@ Game::Game(StateMachine& machine) : State(machine, States::GAME), m_debugCollisi
 Game::~Game() {
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
+	delete m_zone;
 }
 
 void Game::fixedUpdate() {
@@ -244,11 +245,11 @@ void Game::renderUi() {
 
 	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 	ImGui::Checkbox("Draw Wirframe", &StateMachine::GetEnableWireframe());
-	if (m_scene == Scene::OVERWORLD) {
-		if (ImGui::Checkbox("Draw Center", &m_drawCenter)) {
-			m_zone->setDrawCenter(m_drawCenter);
-		}
+
+	if (m_scene == Scene::OVERWORLD && ImGui::Checkbox("Draw Center", &m_drawCenter)) {
+		m_zone->setDrawCenter(m_drawCenter);
 	}
+	
 
 	if (ImGui::Checkbox("Use Culling", &m_useCulling)) {
 		m_zone->setUseCulling(m_useCulling);
@@ -288,10 +289,11 @@ void Game::renderUi() {
 
 			m_camera.setPosition(0.0f, 240.0f, 0.0f);
 			m_debugCollision ? glClearColor(0.0f, 0.0f, 0.0f, 1.0f) : glClearColor(0.6f, 0.8f, 0.92f, 1.0f);
+			m_drawCenter = false;
 		}
 	}
 
-	if (ImGui::Button("Reset player")) {
+	if (m_scene == Scene::OMNI && ImGui::Button("Reset player")) {
 		Level::GetPlayer().reset();
 	}
 

@@ -1,4 +1,3 @@
-#include <iostream>
 #include <engine/input/Keyboard.h>
 
 #include "Player.h"
@@ -28,11 +27,13 @@ void Player::update(float dt) {
 
 	if (keyboard.keyDown(Keyboard::KEY_A)) {
 		m_direction += Vector2f(-1.0f, 0.0f);
+		m_viewDirection = ViewDirection::LEFT;
 		move |= true;
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_D)) {
 		m_direction += Vector2f(1.0f, 0.0f);
+		m_viewDirection = ViewDirection::RIGHT;
 		move |= true;
 	}
 

@@ -1,6 +1,11 @@
 #include "SpriteEntity.h"
 
-SpriteEntity::SpriteEntity(Cell& cell, float elpasedTime, int framecount) : cell(cell), m_startFrame(cell.tileID), m_elapsedTime(elpasedTime), m_frameCount(framecount), m_movingSpeed(0.0f){
+SpriteEntity::SpriteEntity(Cell& cell, float elpasedTime, int framecount) : 
+	cell(cell),
+	m_startFrame(cell.tileID), 
+	m_elapsedTime(elpasedTime), 
+	m_frameCount(framecount), m_movingSpeed(0.0f),
+	m_viewDirection(ViewDirection::RIGHT) {
 
 }
 
@@ -58,6 +63,8 @@ void SpriteEntity::updateAnimation(float dt) {
 		cell.tileID = offset;
 		m_elapsedTime -= static_cast<float>(m_frameCount);
 	}
+
+	cell.flipped = m_viewDirection == ViewDirection::LEFT;
 }
 
 void SpriteEntity::setMovingSpeed(float movingSpeed) {
