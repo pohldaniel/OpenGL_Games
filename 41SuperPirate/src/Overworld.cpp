@@ -147,7 +147,7 @@ void Overworld::loadZone(const std::string path, const std::string currentTilese
 			const tmx::ObjectGroup* objectLayer = dynamic_cast<const tmx::ObjectGroup*>(layer.get());
 			for (auto& object : objectLayer->getObjects()) {
 				m_cellsMain.push_back({ static_cast<int>(object.getTileID() - 1u), object.getPosition().x, object.getPosition().y, object.getAABB().width, object.getAABB().height, object.getPosition().x + 0.5f * object.getAABB().width, object.getPosition().y, false, false });
-				m_collisionRects.push_back({ object.getPosition().x , object.getPosition().y - object.getAABB().height + 0.3f * object.getAABB().height,  object.getAABB().width, object.getAABB().height * 0.4f });
+				m_collisionRects.push_back({ object.getPosition().x , object.getPosition().y - object.getAABB().height + 0.3f * object.getAABB().height, object.getAABB().width, object.getAABB().height * 0.4f, false });
 			}
 		}
 	}

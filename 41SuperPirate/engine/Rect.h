@@ -6,6 +6,7 @@ struct Rect {
 	float posY;
 	float width;
 	float height;
+	mutable bool hasCollision;
 };
 
 struct TextureRect {

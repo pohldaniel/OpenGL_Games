@@ -19,9 +19,12 @@ public:
 
 private:
 
+	Rect getRect() override;
+
 	float m_mapHeight, m_viewWidth, m_viewHeight;
 	float m_initialX, m_initialY;
 	const std::vector<Rect>& collisionRects;
 	Camera& camera;
 	Vector2f m_direction;
+	
 };

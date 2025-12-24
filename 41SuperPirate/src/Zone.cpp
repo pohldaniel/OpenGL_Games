@@ -176,16 +176,7 @@ void Zone::LoadTileSetData(const std::string& path) {
 				Zone::TileSets[tileset->name.GetString()].pathSizes.push_back({ tuple->name.GetString(),tuple->value.GetFloat() });
 			}
 		}
-
-		if (tileset->value.HasMember("offsets")) {
-			for (rapidjson::Value::ConstValueIterator tuples = tileset->value["offsets"].GetArray().Begin(); tuples != tileset->value["offsets"].GetArray().End(); ++tuples) {
-
-				for (rapidjson::Value::ConstMemberIterator tuple = tuples->MemberBegin(); tuple != tuples->MemberEnd(); ++tuple) {
-					Zone::TileSets[tileset->name.GetString()].offsets.push_back({ tuple->name.GetString(), tuple->value.GetUint() });
-				}
-			}
-		}
-
+		
 		if (tileset->value.HasMember("remove")) {
 			for (rapidjson::Value::ConstValueIterator index = tileset->value["remove"].GetArray().Begin(); index != tileset->value["remove"].GetArray().End(); ++index) {
 				Zone::TileSets[tileset->name.GetString()].indices.push_back(index->GetUint());

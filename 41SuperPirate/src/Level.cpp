@@ -45,7 +45,7 @@ void Level::draw() {
 	if (m_debugCollision) {
 		const TextureRect& textureRect = rects.back();
 		for (const Rect& rect : m_collisionRects) {
-			Batchrenderer::Get().addQuadAA(Vector4f(rect.posX - camera.getPositionX(), m_mapHeight - (rect.posY + rect.height) - camera.getPositionY(), rect.width, rect.height), Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), textureRect.frame);
+			Batchrenderer::Get().addQuadAA(Vector4f(rect.posX - camera.getPositionX(), m_mapHeight - (rect.posY + rect.height) - camera.getPositionY(), rect.width, rect.height), Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), rect.hasCollision ? Vector4f(1.0f, 1.0f, 0.0f, 1.0f) : Vector4f(1.0f, 1.0f, 1.0f, 1.0f), textureRect.frame);
 		}
 
 		const Cell& player = m_cellsMain[m_playerIndex];
@@ -101,7 +101,7 @@ void Level::loadZone(const std::string path, const std::string currentTileset) {
 						m_layers.back()[y][x].second = static_cast<unsigned int>(m_cellsBackground.size() - 1);
 
 						if (layer->getName() == "Terrain") {
-							m_collisionRects.push_back({ static_cast<float>(x) * m_tileWidth, static_cast<float>(y) * m_tileHeight,  m_tileWidth, m_tileHeight });
+							m_collisionRects.push_back({ static_cast<float>(x) * m_tileWidth, static_cast<float>(y) * m_tileHeight,  m_tileWidth, m_tileHeight, false });
 						}
 					}
 				}
