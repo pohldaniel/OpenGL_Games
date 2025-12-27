@@ -4,6 +4,11 @@
 #include <engine/Camera.h>
 #include "SpriteEntity.h"
 
+enum CollisionAxis {
+	HORIZONTAL,
+	VERTICAL
+};
+
 class Player : public SpriteEntity {
 
 public:
@@ -23,8 +28,9 @@ private:
 
 	float m_mapHeight, m_viewWidth, m_viewHeight;
 	float m_initialX, m_initialY;
+	float m_gravity;
 	const std::vector<Rect>& collisionRects;
 	Camera& camera;
 	Vector2f m_direction;
-	
+	void collision(const Rect& playerRect, const Rect& previousRect, CollisionAxis collisionAxis);
 };

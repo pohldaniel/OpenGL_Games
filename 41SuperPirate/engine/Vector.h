@@ -81,6 +81,7 @@ public:
 	static float Dot(const Vector2f &p, const Vector2f &q);
 	static float Length(const Vector2f &p, const Vector2f &q);
 	static Vector2f Inverse(const Vector2f &p);
+	static Vector2f Normalize(const Vector2f& p);
 
 private:
 

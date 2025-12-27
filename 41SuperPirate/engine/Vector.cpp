@@ -2849,6 +2849,12 @@ Vector2f Vector2f::Inverse(const Vector2f &p) {
 	return Vector2f(p[0] != 0 ? 1.0f / p[0] : p[0], p[1] != 0 ? 1.0f / p[1] : p[1]);
 }
 
+Vector2f Vector2f::Normalize(const Vector2f& p) {
+	float length = p.length();
+	float invMag = length != 0.0f ? 1.0f / length : 1.0f;
+	return Vector2f(p[0] * invMag, p[1] * invMag);
+}
+
 //////////////////////////////////////////////////////////////////////
 
 const Vector3f Vector3f::ZERO(0.0f, 0.0f, 0.0f);
