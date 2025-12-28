@@ -131,7 +131,7 @@ void Level::loadZone(const std::string path, const std::string currentTileset) {
 				}				
 			}
 			
-			m_spriteEntities.push_back(std::make_unique<Player>(m_cellsMain[m_playerIndex], const_cast<Camera&>(camera), getCollisionRects(), 0.0f, 5));
+			//m_spriteEntities.push_back(std::make_unique<Player>(m_cellsMain[m_playerIndex], const_cast<Camera&>(camera), getCollisionRects(), 0.0f, 5));
 
 			s_player = std::make_unique<Player>(m_cellsMain[m_playerIndex], const_cast<Camera&>(camera), getCollisionRects(), 0.0f, 5);
 			s_player->setMovingSpeed(200.0f);

@@ -12,7 +12,7 @@ Player::Player(Cell& cell, Camera& camera, const std::vector<Rect>& collisionRec
     m_viewWidth(0.0f),
 	m_gravity(1300.0f),
 	m_jump(false),
-	m_jumpHeight(700.0f),
+	m_jumpHeight(900.0f),
 	m_collideBottom(false),
 	m_collideLeft(false),
 	m_collideRight(false){
@@ -45,13 +45,13 @@ void Player::update(float dt) {
 		move |= true;
 	}
 
-	if ((keyboard.keyPressed(Keyboard::KEY_W) || keyboard.keyPressed(Keyboard::KEY_SPACE)) && !m_jump) {
+	if (keyboard.keyPressed(Keyboard::KEY_W)) {
 		m_jump = true;
 	}
 
 	std::for_each(collisionRects.begin(), collisionRects.end(), [](const Rect& rect) { rect.hasCollision = false; });
 	
-	if (move && m_collideBottom) {
+	if (move) {
 		Vector2f inputVector = Vector2f::Normalize(m_inputVector);		
 		m_direction[0] = inputVector[0];
 		cell.posX += m_direction[0] * dt * m_movingSpeed;
@@ -66,7 +66,6 @@ void Player::update(float dt) {
 	collision(playerRect, m_previousRect, CollisionAxis::VERTICAL);
 
 	checkContact();
-
 	if (m_jump && m_collideBottom) {
 		m_direction[1] = -m_jumpHeight;
 		m_jump = false;
@@ -75,29 +74,28 @@ void Player::update(float dt) {
 	//cell.centerX = cell.posX + 48.0f;
 	//cell.centerY = cell.posY - 56.0f;
 
-	updateAnimation(dt);
-	
+	updateAnimation(dt);	
 }
 
 void Player::collision(const Rect& playerRect, const Rect& previousRect, CollisionAxis collisionAxis) {
 	
-	for (const Rect& rect : collisionRects) {
+	for(const Rect& rect : collisionRects) {
 		
 		//rect.hasCollision = collisionAxis == CollisionAxis::HORIZONTAL ? false : rect.hasCollision;
 
-		if (SpriteEntity::HasCollision(rect.posX, rect.posY, rect.posX + rect.width, rect.posY + rect.height, playerRect.posX, playerRect.posY, playerRect.posX + playerRect.width, playerRect.posY + playerRect.height)) {
+		if(SpriteEntity::HasCollision(rect.posX, rect.posY, rect.posX + rect.width, rect.posY + rect.height, playerRect.posX, playerRect.posY, playerRect.posX + playerRect.width, playerRect.posY + playerRect.height)) {
 			rect.hasCollision = true;
-			if (collisionAxis == CollisionAxis::HORIZONTAL) {
-				if (playerRect.posX <= rect.posX + rect.width && previousRect.posX >= rect.posX + rect.width)
+			if(collisionAxis == CollisionAxis::HORIZONTAL){
+				if(playerRect.posX <= rect.posX + rect.width && previousRect.posX >= rect.posX + rect.width)
 					cell.posX = rect.posX + rect.width;
 
-				if (playerRect.posX + playerRect.width >= rect.posX && previousRect.posX + previousRect.width <= rect.posX)
+				if(playerRect.posX + playerRect.width >= rect.posX && previousRect.posX + previousRect.width <= rect.posX)
 					cell.posX = rect.posX - 48.0f;
-			}else {
-				if (playerRect.posY <= rect.posY + rect.height && previousRect.posY >= rect.posY + rect.height)
+			}else{
+				if(playerRect.posY <= rect.posY + rect.height && previousRect.posY >= rect.posY + rect.height)
 					cell.posY = rect.posY + rect.height + 56.0f /*+ 0.1f*/;
 
-				if (playerRect.posY + playerRect.height >= rect.posY && previousRect.posY + previousRect.height <= rect.posY)
+				if(playerRect.posY + playerRect.height >= rect.posY && previousRect.posY + previousRect.height <= rect.posY)
 					cell.posY = rect.posY /* - 0.1f*/;
 
 				m_direction[1] = 0.0f;
