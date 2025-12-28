@@ -209,6 +209,7 @@
     <ClCompile Include="engine\thread\Thread.cpp" />
     <ClCompile Include="engine\thread\WorkQueue.cpp" />
     <ClCompile Include="engine\TileSet.cpp" />
+    <ClCompile Include="engine\Timer.cpp" />
     <ClCompile Include="engine\uiNew\Bar.cpp" />
     <ClCompile Include="engine\uiNew\Empty.cpp" />
     <ClCompile Include="engine\uiNew\Icon.cpp" />
@@ -313,7 +314,6 @@
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\States\Menu.cpp" />
     <ClCompile Include="src\Utils\BinaryIO.cpp" />
-    <ClCompile Include="src\Utils\Timer.cpp" />
     <ClCompile Include="src\Zone.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -410,6 +410,7 @@
     <ClInclude Include="engine\thread\Thread.h" />
     <ClInclude Include="engine\thread\WorkQueue.h" />
     <ClInclude Include="engine\TileSet.h" />
+    <ClInclude Include="engine\Timer.h" />
     <ClInclude Include="engine\TrackBall.h" />
     <ClInclude Include="engine\Transform.h" />
     <ClInclude Include="engine\uiNew\Bar.h" />
@@ -474,7 +475,6 @@
     <ClInclude Include="Miniball\Miniball.h" />
     <ClInclude Include="src\States\Menu.h" />
     <ClInclude Include="src\Utils\BinaryIO.h" />
-    <ClInclude Include="src\Utils\Timer.h" />
     <ClInclude Include="src\Zone.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

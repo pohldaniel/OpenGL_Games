@@ -447,9 +447,6 @@
     <ClCompile Include="src\Utils\Fade.cpp">
       <Filter>Source Files\Utils</Filter>
     </ClCompile>
-    <ClCompile Include="src\Utils\Timer.cpp">
-      <Filter>Source Files\Utils</Filter>
-    </ClCompile>
     <ClCompile Include="engine\octree\Batch.cpp">
       <Filter>engine\octree</Filter>
     </ClCompile>
@@ -521,6 +518,9 @@
     </ClCompile>
     <ClCompile Include="src\Entities\Enemy.cpp">
       <Filter>Source Files\Entities</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\Timer.cpp">
+      <Filter>engine</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -920,9 +920,6 @@
     <ClInclude Include="src\Utils\Fade.h">
       <Filter>Source Files\Utils</Filter>
     </ClInclude>
-    <ClInclude Include="src\Utils\Timer.h">
-      <Filter>Source Files\Utils</Filter>
-    </ClInclude>
     <ClInclude Include="engine\octree\Batch.h">
       <Filter>engine\octree</Filter>
     </ClInclude>
@@ -1000,6 +997,9 @@
     </ClInclude>
     <ClInclude Include="src\Entities\Enemy.h">
       <Filter>Source Files\Entities</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\Timer.h">
+      <Filter>engine</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

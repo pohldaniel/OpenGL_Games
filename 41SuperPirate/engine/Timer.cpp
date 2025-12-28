@@ -12,7 +12,7 @@ Timer::Timer(Timer const& rhs) : OnTimerEnd(rhs.OnTimerEnd) {
 	m_startOnce = rhs.m_startOnce;
 }
 
-Timer::Timer(Timer&& rhs) : OnTimerEnd(std::move(rhs.OnTimerEnd)) {
+Timer::Timer(Timer&& rhs)  noexcept : OnTimerEnd(std::move(rhs.OnTimerEnd)) {
 	m_elapsedTime = rhs.m_elapsedTime;
 	m_updateTime = rhs.m_updateTime;
 	m_repeate = rhs.m_repeate;
@@ -30,13 +30,13 @@ Timer& Timer::operator=(const Timer& rhs) {
 	return *this;
 }
 
-Timer& Timer::operator=(Timer&& rhs) {
+Timer& Timer::operator=(Timer&& rhs) noexcept {
 	m_elapsedTime = rhs.m_elapsedTime;
 	m_updateTime = rhs.m_updateTime;
 	m_repeate = rhs.m_repeate;
 	m_activated = rhs.m_activated;
 	m_startOnce = rhs.m_startOnce;
-	OnTimerEnd = rhs.OnTimerEnd;
+	OnTimerEnd = std::move(rhs.OnTimerEnd);
 	return *this;
 }
 
@@ -66,6 +66,7 @@ void Timer::update(const float dt) {
 			OnTimerEnd();
 		}
 		m_elapsedTime = m_repeate ? m_elapsedTime - m_updateTime : 0.0f;
+		
 		m_activated = m_repeate;
 	}
 }
@@ -76,6 +77,14 @@ void Timer::stop() {
 		m_elapsedTime = 0.0f;
 		//OnTimerEnd = nullptr;
 	}
+}
+
+void Timer::reset() {
+	m_elapsedTime = 0.0f;
+	m_updateTime = 10.0f;
+	m_repeate = true;
+	m_activated = false;
+	m_startOnce = false;
 }
 
 void Timer::setOnTimerEnd(std::function<void()> fun) {

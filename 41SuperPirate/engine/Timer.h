@@ -8,15 +8,16 @@ public:
 
 	Timer();
 	Timer& operator=(const Timer& rhs);
-	Timer& operator=(Timer&& rhs);
+	Timer& operator=(Timer&& rhs) noexcept;
 	Timer(Timer const& rhs);
-	Timer(Timer&& rhs);
+	Timer(Timer&& rhs) noexcept;
 
 	virtual ~Timer() = default;
 
 	virtual void update(const float dt);
 	void start(unsigned int milli, bool repeat = true, bool starOnce = false);
 	void stop();
+	void reset();
 	const bool isActivated() const;
 	void setOnTimerEnd(std::function<void()> fun);
 	void setStartOnce(bool startOnce);

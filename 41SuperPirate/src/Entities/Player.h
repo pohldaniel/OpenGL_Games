@@ -2,6 +2,7 @@
 
 #include <engine/Rect.h>
 #include <engine/Camera.h>
+#include <engine/Timer.h>
 #include "SpriteEntity.h"
 
 enum CollisionAxis {
@@ -36,6 +37,8 @@ private:
 	float m_initialX, m_initialY;
 	float m_gravity, m_jumpHeight;
 	bool m_jump, m_collideBottom, m_collideLeft, m_collideRight;
+	bool m_onWall, m_wasCollideLeft, m_wasCollideRight;
+	Timer m_wallJumpTimer;
 	const std::vector<Rect>& collisionRects;
 	Camera& camera;
 	Vector2f m_direction, m_inputVector;
