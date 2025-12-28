@@ -105,14 +105,27 @@ void Player::collision(const Rect& playerRect, const Rect& previousRect, Collisi
 }
 
 void Player::checkContact() {
-	Rect bottomRect = { cell.posX, cell.posY + 2.0f, 48.0f, 2.0f };
-	Rect leftRect = { cell.posX - 2.0f, cell.posY - 56.0f , 2.0f, 56.0f };
-	Rect rightRect = { cell.posX + 48.0f, cell.posY - 56.0f , 2.0f, 56.0f };
+	Rect bottomRect = { cell.posX, cell.posY, 48.0f, 2.0f };
+	Rect leftRect = { cell.posX - 2.0f, cell.posY - 42.0f , 2.0f, 28.0f };
+	Rect rightRect = { cell.posX + 48.0f, cell.posY - 42.0f , 2.0f, 28.0f };
 	m_collideBottom = collideList(collisionRects, bottomRect);
+	m_collideLeft = collideList(collisionRects, leftRect);
+	m_collideRight = collideList(collisionRects, rightRect);
 }
 
-bool Player::collideList(const std::vector<Rect>& collisionRects, const Rect& _rect) {
-	
+const Rect Player::getBottomRect() {
+	return { cell.posX, cell.posY, 48.0f, 2.0f };
+}
+
+const Rect Player::getLeftRect() {
+	return { cell.posX - 2.0f, cell.posY - 42.0f , 2.0f, 28.0f };
+}
+
+const Rect Player::getRightRect() {
+	return { cell.posX + 48.0f, cell.posY - 42.0f , 2.0f, 28.0f };
+}
+
+bool Player::collideList(const std::vector<Rect>& collisionRects, const Rect& _rect) {	
 	for (const Rect& rect : collisionRects) {
 		if (SpriteEntity::HasCollision(rect.posX, rect.posY, rect.posX + rect.width, rect.posY + rect.height, _rect.posX, _rect.posY, _rect.posX + _rect.width, _rect.posY + _rect.height)) {
 			rect.hasCollision = true;

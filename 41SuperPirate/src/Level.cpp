@@ -50,6 +50,15 @@ void Level::draw() {
 
 		const Cell& player = m_cellsMain[m_playerIndex];
 		Batchrenderer::Get().addQuadAA(Vector4f(player.posX  - camera.getPositionX(), m_mapHeight - (player.posY + camera.getPositionY()), 48.0f, 56.0f), Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), Vector4f(1.0f, 0.0f, 0.0f, 1.0f), textureRect.frame);
+		
+		Rect bottom = GetPlayer().getBottomRect();
+		Rect left = GetPlayer().getLeftRect();
+		Rect right = GetPlayer().getRightRect();
+
+		Batchrenderer::Get().addQuadAA(Vector4f(bottom.posX - camera.getPositionX(), m_mapHeight - (bottom.posY + bottom.height) - camera.getPositionY(), bottom.width, bottom.height), Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), Vector4f(0.0f, 1.0f, 0.0f, 1.0f), textureRect.frame);
+		Batchrenderer::Get().addQuadAA(Vector4f(left.posX - camera.getPositionX(), m_mapHeight - (left.posY + left.height) - camera.getPositionY(), left.width, left.height), Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), Vector4f(0.0f, 1.0f, 0.0f, 1.0f), textureRect.frame);
+		Batchrenderer::Get().addQuadAA(Vector4f(right.posX - camera.getPositionX(), m_mapHeight - (right.posY + right.height) - camera.getPositionY(), right.width, right.height), Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), Vector4f(0.0f, 1.0f, 0.0f, 1.0f), textureRect.frame);
+		
 		Batchrenderer::Get().drawBuffer();
 	}
 }

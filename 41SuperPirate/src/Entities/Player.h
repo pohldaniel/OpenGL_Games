@@ -22,6 +22,10 @@ public:
 	void setMapHeight(float mapHeight);
 	void reset();
 
+	const Rect getBottomRect();
+	const Rect getLeftRect();
+	const Rect getRightRect();
+
 private:
 
 	Rect getRect() override;
