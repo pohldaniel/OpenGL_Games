@@ -10,8 +10,14 @@ Player::Player(Cell& cell, Camera& camera, const std::vector<Rect>& collisionRec
     m_mapHeight(0.0f),
     m_viewHeight(0.0f),
     m_viewWidth(0.0f),
-	m_gravity(1300.0f){
+	m_gravity(1300.0f),
+	m_jump(false),
+	m_jumpHeight(700.0f),
+	m_collideBottom(false),
+	m_collideLeft(false),
+	m_collideRight(false){
 
+	m_inputVector.set(0.0f, 0.0f);
 	m_direction.set(0.0f, 0.0f);
 	m_initialX = cell.posX;
 	m_initialY = cell.posY;
@@ -24,56 +30,53 @@ Player::~Player() {
 void Player::update(float dt) {
 	m_previousRect = getRect();
 	Keyboard& keyboard = Keyboard::instance();
-	m_direction[0] = 0.0f;
-	//m_direction[1] = 0.0f;
+	m_inputVector.set(0.0f, 0.0f);
 	bool move = false;
 
 	if (keyboard.keyDown(Keyboard::KEY_A)) {
-		m_direction += Vector2f(-1.0f, 0.0f);
+		m_inputVector += Vector2f(-1.0f, 0.0f);
 		m_viewDirection = ViewDirection::LEFT;
 		move |= true;
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_D)) {
-		m_direction += Vector2f(1.0f, 0.0f);
+		m_inputVector += Vector2f(1.0f, 0.0f);
 		m_viewDirection = ViewDirection::RIGHT;
 		move |= true;
 	}
 
-	if (keyboard.keyPressed(Keyboard::KEY_W) || keyboard.keyPressed(Keyboard::KEY_SPACE)) {
-		//m_direction += Vector2f(0.0f, -1.0f);
-		//move |= true;
-		m_direction[1] = -200.0f;
+	if ((keyboard.keyPressed(Keyboard::KEY_W) || keyboard.keyPressed(Keyboard::KEY_SPACE)) && !m_jump) {
+		m_jump = true;
 	}
-
-	/*if (keyboard.keyDown(Keyboard::KEY_S)) {
-		m_direction += Vector2f(0.0f, 1.0f);
-		move |= true;
-	}*/
 
 	std::for_each(collisionRects.begin(), collisionRects.end(), [](const Rect& rect) { rect.hasCollision = false; });
-	if (move) {
-		//m_direction.normalize();
-		Vector2f direction = Vector2f::Normalize(m_direction);
-		m_direction[0] = direction[0];
-
-		cell.posX += m_direction[0] * dt * m_movingSpeed;		
-		Rect playerRect = { cell.posX, cell.posY - 56.0f, 48.0f, 56.0f, false };
+	
+	if (move && m_collideBottom) {
+		Vector2f inputVector = Vector2f::Normalize(m_inputVector);		
+		m_direction[0] = inputVector[0];
+		cell.posX += m_direction[0] * dt * m_movingSpeed;
+		Rect playerRect = getRect();
 		collision(playerRect, m_previousRect, CollisionAxis::HORIZONTAL);	
 	}
+
 	m_direction[1] += m_gravity * 0.5f * dt;
 	cell.posY += m_direction[1] * dt;
 	m_direction[1] += m_gravity * 0.5f * dt;
-	//cell.posY += m_direction[1] * dt * m_movingSpeed;
-	Rect playerRect = { cell.posX, cell.posY - 56.0f, 48.0f, 56.0f, false };
+	Rect playerRect = getRect();
 	collision(playerRect, m_previousRect, CollisionAxis::VERTICAL);
-	
 
-	cell.centerX = cell.posX + 48.0f;
-	cell.centerY = cell.posY - 56.0f;
+	checkContact();
 
-	//camera.setPosition(cell.centerX - m_viewWidth * 0.5f, m_mapHeight - cell.centerY - 0.5f * m_viewHeight, 0.0f);
+	if (m_jump && m_collideBottom) {
+		m_direction[1] = -m_jumpHeight;
+		m_jump = false;
+	}
+
+	//cell.centerX = cell.posX + 48.0f;
+	//cell.centerY = cell.posY - 56.0f;
+
 	updateAnimation(dt);
+	
 }
 
 void Player::collision(const Rect& playerRect, const Rect& previousRect, CollisionAxis collisionAxis) {
@@ -101,6 +104,24 @@ void Player::collision(const Rect& playerRect, const Rect& previousRect, Collisi
 			}
 		}
 	}
+}
+
+void Player::checkContact() {
+	Rect bottomRect = { cell.posX, cell.posY + 2.0f, 48.0f, 2.0f };
+	Rect leftRect = { cell.posX - 2.0f, cell.posY - 56.0f , 2.0f, 56.0f };
+	Rect rightRect = { cell.posX + 48.0f, cell.posY - 56.0f , 2.0f, 56.0f };
+	m_collideBottom = collideList(collisionRects, bottomRect);
+}
+
+bool Player::collideList(const std::vector<Rect>& collisionRects, const Rect& _rect) {
+	
+	for (const Rect& rect : collisionRects) {
+		if (SpriteEntity::HasCollision(rect.posX, rect.posY, rect.posX + rect.width, rect.posY + rect.height, _rect.posX, _rect.posY, _rect.posX + _rect.width, _rect.posY + _rect.height)) {
+			rect.hasCollision = true;
+			return true;
+		}			
+	}
+	return false;
 }
 
 void Player::setViewWidth(float viewWidth) {

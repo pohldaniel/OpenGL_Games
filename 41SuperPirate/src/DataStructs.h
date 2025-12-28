@@ -12,6 +12,8 @@ struct Cell {
 	float height;
 	float centerX;
 	float centerY;
+	float offsetX;
+	float offsetY;
 	bool visibile;
 	bool flipped;
 };

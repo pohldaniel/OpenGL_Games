@@ -32,12 +32,12 @@ void Level::draw() {
 	if (!m_debugCollision) {
 		for (const Cell& cell : m_visibleCellsBackground) {
 			const TextureRect& rect = rects[cell.tileID];
-			Batchrenderer::Get().addQuadAA(Vector4f(cell.posX - camera.getPositionX(), m_mapHeight - 64.0f - cell.posY - camera.getPositionY(), rect.width, rect.height), Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureWidth, rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), rect.frame);
+			Batchrenderer::Get().addQuadAA(Vector4f(cell.posX + cell.offsetX - camera.getPositionX(), m_mapHeight - 64.0f - (cell.posY + cell.offsetY) - camera.getPositionY(), rect.width, rect.height), Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureWidth, rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), rect.frame);
 		}
 
 		for (const Cell& cell : m_visibleCellsMain) {
 			const TextureRect& rect = rects[cell.tileID];
-			Batchrenderer::Get().addQuadAA(Vector4f(cell.posX - camera.getPositionX(), m_mapHeight - cell.posY - camera.getPositionY(), rect.width, rect.height), Vector4f(cell.flipped ? rect.textureOffsetX + rect.textureWidth : rect.textureOffsetX, rect.textureOffsetY, cell.flipped ? -rect.textureWidth : rect.textureWidth, rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), rect.frame);
+			Batchrenderer::Get().addQuadAA(Vector4f(cell.posX + cell.offsetX - camera.getPositionX(), m_mapHeight - (cell.posY + cell.offsetY) - camera.getPositionY(), rect.width, rect.height), Vector4f(cell.flipped ? rect.textureOffsetX + rect.textureWidth : rect.textureOffsetX, rect.textureOffsetY, cell.flipped ? -rect.textureWidth : rect.textureWidth, rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), rect.frame);
 		}
 		Batchrenderer::Get().drawBuffer();
 	}
@@ -97,7 +97,7 @@ void Level::loadZone(const std::string path, const std::string currentTileset) {
 					auto idx = y * mapSize.x + x;
 					m_layers.back()[y][x].first = (tileIDs[idx].ID - 1);
 					if (m_layers.back()[y][x].first != -1) {						
-						m_cellsBackground.push_back({ m_layers.back()[y][x].first, static_cast<float>(x) * m_tileWidth, static_cast<float>(y) * m_tileHeight, m_tileWidth, m_tileHeight, static_cast<float>(x) * m_tileWidth + 0.5f * m_tileWidth, static_cast<float>(y) * m_tileHeight + 0.5f * m_tileHeight, false, false });
+						m_cellsBackground.push_back({ m_layers.back()[y][x].first, static_cast<float>(x) * m_tileWidth, static_cast<float>(y) * m_tileHeight, m_tileWidth, m_tileHeight, static_cast<float>(x) * m_tileWidth + 0.5f * m_tileWidth, static_cast<float>(y) * m_tileHeight + 0.5f * m_tileHeight, 0.0f, 0.0f, false, false });
 						m_layers.back()[y][x].second = static_cast<unsigned int>(m_cellsBackground.size() - 1);
 
 						if (layer->getName() == "Terrain") {
@@ -113,7 +113,7 @@ void Level::loadZone(const std::string path, const std::string currentTileset) {
 			for (auto& object : objectLayer->getObjects()) {
 				if (object.getName() == "shell") {
 					//m_cellsMain.push_back({ static_cast<int>(object.getTileID() - 1u), object.getPosition().x, object.getPosition().y, object.getAABB().width, object.getAABB().height, object.getPosition().x + 0.5f * object.getAABB().width, object.getPosition().y, false, false });					
-					m_cellsMain.push_back({ m_animationOffsets["shell_attack"], object.getPosition().x, object.getPosition().y, object.getAABB().width, object.getAABB().height, object.getPosition().x + 0.5f * object.getAABB().width, object.getPosition().y, false, false });
+					m_cellsMain.push_back({ m_animationOffsets["shell_attack"], object.getPosition().x, object.getPosition().y, object.getAABB().width, object.getAABB().height, object.getPosition().x + 0.5f * object.getAABB().width, object.getPosition().y, 0.0f, 0.0f, false, false });
 					m_collisionRects.push_back({ object.getPosition().x, object.getPosition().y - object.getAABB().height, object.getAABB().width, object.getAABB().height });
 					m_spriteEntities.push_back(std::make_unique<Enemy>(m_cellsMain.back(), 0.0f, 6));
 					m_spriteEntities.back()->setMovingSpeed(250.0f);
@@ -126,7 +126,7 @@ void Level::loadZone(const std::string path, const std::string currentTileset) {
 			for (auto& object : objectLayer->getObjects()) {
 				if (object.getName() == "player") {
 					//m_cellsMain.push_back({ static_cast<int>(object.getTileID() - 1u), object.getPosition().x + 48.0f, object.getPosition().y + 28.0f, object.getAABB().width, object.getAABB().height, object.getPosition().x + 0.5f * object.getAABB().width, object.getPosition().y, false, false });
-					m_cellsMain.push_back({ m_animationOffsets["player_idle"], object.getPosition().x + 48.0f, object.getPosition().y + 28.0f, object.getAABB().width, object.getAABB().height, object.getPosition().x + 0.5f * object.getAABB().width, object.getPosition().y, false, false });
+					m_cellsMain.push_back({ m_animationOffsets["player_idle"], object.getPosition().x + 48.0f, object.getPosition().y + 28.0f, object.getAABB().width, object.getAABB().height, object.getPosition().x + 0.5f * object.getAABB().width, object.getPosition().y, -33.0f, + 18.0f, false, false });
 					m_playerIndex = m_cellsMain.size() - 1;
 				}				
 			}
