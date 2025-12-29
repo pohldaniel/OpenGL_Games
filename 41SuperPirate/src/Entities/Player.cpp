@@ -95,6 +95,7 @@ void Player::update(float dt) {
 	}
 	
 	checkContact();
+
 	if (((m_wasCollideLeft && !m_collideLeft) || (m_wasCollideRight && !m_collideRight)) && !m_collideBottom) {
 		m_wallJumpTimer.start(250u, false);
 	}
