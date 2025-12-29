@@ -24,14 +24,6 @@ Player::Player(Cell& cell, Camera& camera, const std::vector<Rect>& collisionRec
 	m_direction.set(0.0f, 0.0f);
 	m_initialX = cell.posX;
 	m_initialY = cell.posY;
-
-	m_wallJumpTimer.setOnTimerEnd([&wallJumpTimer = m_wallJumpTimer, &wasCollideLeft = m_wasCollideLeft, &wasCollideRight = m_wasCollideRight] {
-		//wallJumpTimer.reset();
-		wallJumpTimer.stop();
-		wasCollideLeft = false;
-		wasCollideRight = false;
-		//wallJumpTimer.setStartOnce(false);
-	});
 }
 
 Player::~Player() {
@@ -40,11 +32,11 @@ Player::~Player() {
 
 void Player::update(float dt) {
 	m_previousRect = getRect();
+	m_wallJumpTimer.update(dt);
 
 	m_wasCollideLeft = m_wallJumpTimer.isActivated() || m_collideLeft;
 	m_wasCollideRight = m_wallJumpTimer.isActivated() || m_collideRight;
-	m_wallJumpTimer.update(dt);
-
+	
 	Keyboard& keyboard = Keyboard::instance();
 	m_inputVector.set(0.0f, 0.0f);
 	bool move = false;

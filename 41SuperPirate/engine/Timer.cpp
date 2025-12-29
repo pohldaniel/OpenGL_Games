@@ -1,3 +1,4 @@
+#include <iostream>
 #include "Timer.h"
 
 Timer::Timer() : m_elapsedTime(0.0f), m_updateTime(10.0f), m_repeate(true), m_activated(false), m_startOnce(false) {
@@ -61,13 +62,13 @@ void Timer::update(const float dt) {
 
 	m_elapsedTime += dt;
 
-	while (m_elapsedTime > m_updateTime) {
+	while (m_elapsedTime > m_updateTime) {		
+		m_elapsedTime = m_repeate ? m_elapsedTime - m_updateTime : 0.0f;	
+		m_activated = m_repeate;
+
 		if (OnTimerEnd) {
 			OnTimerEnd();
 		}
-		m_elapsedTime = m_repeate ? m_elapsedTime - m_updateTime : 0.0f;
-		
-		m_activated = m_repeate;
 	}
 }
 
@@ -79,18 +80,19 @@ void Timer::stop() {
 	}
 }
 
-void Timer::reset() {
-	m_elapsedTime = 0.0f;
-	m_updateTime = 10.0f;
-	m_repeate = true;
-	m_activated = false;
-	m_startOnce = false;
-}
-
 void Timer::setOnTimerEnd(std::function<void()> fun) {
 	OnTimerEnd = fun;
 }
 
 void Timer::setStartOnce(bool startOnce){
 	m_startOnce = startOnce;
+}
+
+void Timer::print() {
+	std::cout << "Activated: " << m_activated << std::endl;
+	std::cout << "Elapsed Time: " << m_elapsedTime << std::endl;
+	std::cout << "Update Time: " << m_updateTime << std::endl;
+	std::cout << "Repeat: " << m_repeate << std::endl;
+	std::cout << "Start Once: " << m_startOnce << std::endl;
+	std::cout << "--------------------" << std::endl;
 }

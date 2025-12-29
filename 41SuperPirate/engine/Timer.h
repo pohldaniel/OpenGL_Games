@@ -17,7 +17,7 @@ public:
 	virtual void update(const float dt);
 	void start(unsigned int milli, bool repeat = true, bool starOnce = false);
 	void stop();
-	void reset();
+	void print();
 	const bool isActivated() const;
 	void setOnTimerEnd(std::function<void()> fun);
 	void setStartOnce(bool startOnce);
