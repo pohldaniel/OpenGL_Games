@@ -18,7 +18,11 @@ Player::Player(Cell& cell, Camera& camera, const std::vector<Rect>& collisionRec
 	m_collideRight(false),
 	m_onWall(false),
 	m_wasCollideLeft(false),
-	m_wasCollideRight(false){
+	m_wasCollideRight(false),
+	m_wantJump(false),
+	m_waitForCollideBottom(false),
+	m_wallBounceLeft(false),
+	m_wallBounceRight(false){
 
 	m_inputVector.set(0.0f, 0.0f);
 	m_direction.set(0.0f, 0.0f);
@@ -34,13 +38,24 @@ void Player::update(float dt) {
 	m_previousRect = getRect();
 	m_wallJumpTimer.update(dt);
 
-	m_wasCollideLeft = m_wallJumpTimer.isActivated() || m_collideLeft;
-	m_wasCollideRight = m_wallJumpTimer.isActivated() || m_collideRight;
-	
+	bool isAcivated = m_wallJumpTimer.isActivated();
+
+	m_wasCollideLeft = isAcivated || m_collideLeft;
+	m_wasCollideRight = isAcivated || m_collideRight;
 	Keyboard& keyboard = Keyboard::instance();
 	m_inputVector.set(0.0f, 0.0f);
-	bool move = false;
-		
+
+	bool move = false;	
+	if (m_wallBounceLeft || m_wallBounceRight) {
+		if(m_wallBounceLeft)
+			m_direction += Vector2f(-100.0f, 0.0f);
+
+		if (m_wallBounceRight)
+			m_direction += Vector2f(100.0f, 0.0f);
+
+		move = true;
+	}
+
 	if (keyboard.keyDown(Keyboard::KEY_A)) {
 		m_inputVector += Vector2f(-1.0f, 0.0f);
 		m_viewDirection = ViewDirection::LEFT;
@@ -59,13 +74,15 @@ void Player::update(float dt) {
 
 	std::for_each(collisionRects.begin(), collisionRects.end(), [](const Rect& rect) { rect.hasCollision = false; });
 	
-
 	if (move) {
 		Vector2f inputVector = Vector2f::Normalize(m_inputVector);		
-		m_direction[0] = inputVector[0];
+		m_direction[0] = (m_wallBounceLeft || m_wallBounceRight) ? m_direction[0] : inputVector[0];
 		cell.posX += m_direction[0] * dt * m_movingSpeed;
 		Rect playerRect = getRect();
 		collision(playerRect, m_previousRect, CollisionAxis::HORIZONTAL);	
+
+		m_wallBounceLeft = false;
+		m_wallBounceRight = false;
 	}
 
 	if (!m_collideBottom && (m_collideRight || m_collideLeft) && !m_jump && !m_onWall) {
@@ -80,29 +97,41 @@ void Player::update(float dt) {
 	Rect playerRect = getRect();
 	collision(playerRect, m_previousRect, CollisionAxis::VERTICAL);
 
-	/*if (m_jump) {
-		if(m_collideBottom)
-			m_direction[1] = -m_jumpHeight;
-		else if (m_collideRight || m_collideLeft) {
-			m_wallJumpTimer.start(200u, false);
-			m_direction[1] = -m_jumpHeight;
-			cell.posX = m_collideLeft ? cell.posX + 1.0f : cell.posX -1.0f;
-		}
+	if (m_jump && m_collideBottom) {
+		m_wantJump = true;
+	}
+
+	/*if (m_jump && m_wasCollideLeft && !m_collideBottom) {
+		m_wallBounceRight = true;
+	}
+
+	if (m_jump && m_wasCollideRight && !m_collideBottom) {
+		m_wallBounceLeft = true;
 	}*/
 
-	if (m_jump && (m_collideBottom || m_collideRight || m_collideLeft)) {
-		m_direction[1] = -m_jumpHeight;
+	if (m_jump && (m_wasCollideLeft || m_wasCollideRight) && !m_waitForCollideBottom) {
+		m_wantJump = true;
+		m_waitForCollideBottom = true;
 	}
-	
+
+	m_waitForCollideBottom = !isAcivated;
+
 	checkContact();
 
 	if (((m_wasCollideLeft && !m_collideLeft) || (m_wasCollideRight && !m_collideRight)) && !m_collideBottom) {
-		m_wallJumpTimer.start(250u, false);
+		if(m_inputVector[0] != 0.0f)
+			m_wallJumpTimer.start(250u, false);
 	}
 
-	if ((m_wasCollideLeft || m_wasCollideRight) && m_jump) {
-		m_direction[1] = -m_jumpHeight;
+	if (m_collideBottom && m_direction[1] > 0.0f) {
+		m_waitForCollideBottom = false;
 	}
+	
+	if (m_wantJump) {
+		m_direction[1] = -m_jumpHeight;
+		m_wantJump = false;
+	}
+		
 
 	if (m_jump)
 		m_jump = false;
@@ -138,7 +167,7 @@ void Player::collision(const Rect& playerRect, const Rect& previousRect, Collisi
 }
 
 void Player::checkContact() {
-	Rect bottomRect = { cell.posX, cell.posY, 48.0f, 2.0f };	
+	Rect bottomRect = { cell.posX + 2.0f, cell.posY, 46.0f, 2.0f };	
 	Rect rightRect = { cell.posX + 48.0f, cell.posY - 42.0f , 2.0f, 28.0f };
 	Rect leftRect = { cell.posX - 2.0f, cell.posY - 42.0f , 2.0f, 28.0f };
 
@@ -148,7 +177,7 @@ void Player::checkContact() {
 }
 
 const Rect Player::getBottomRect() {
-	return { cell.posX, cell.posY, 48.0f, 2.0f };
+	return { cell.posX + 2.0f, cell.posY, 46.0f, 2.0f };
 }
 
 const Rect Player::getLeftRect() {

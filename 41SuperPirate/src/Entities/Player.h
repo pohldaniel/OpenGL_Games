@@ -37,7 +37,8 @@ private:
 	float m_initialX, m_initialY;
 	float m_gravity, m_jumpHeight;
 	bool m_jump, m_collideBottom, m_collideLeft, m_collideRight;
-	bool m_onWall, m_wasCollideLeft, m_wasCollideRight;
+	bool m_onWall, m_wasCollideLeft, m_wasCollideRight, m_wantJump, m_waitForCollideBottom;
+	bool m_wallBounceLeft, m_wallBounceRight;
 	Timer m_wallJumpTimer;
 	const std::vector<Rect>& collisionRects;
 	Camera& camera;
