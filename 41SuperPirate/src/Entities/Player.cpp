@@ -3,11 +3,12 @@
 
 #include "Player.h"
 
-Player::Player(Cell& cell, CollisionRect& collisionRect, Camera& camera, const std::vector<CollisionRect>& collisionRects, float elpasedTime, int framecount) :
+Player::Player(Cell& cell, CollisionRect& collisionRect, Camera& camera, const std::vector<Rect>& staticRects, const std::vector<CollisionRect>& dynamicRects, float elpasedTime, int framecount) :
 	SpriteEntity(cell, elpasedTime, framecount), 
 	collisionRect(collisionRect),
 	camera(camera), 
-	collisionRects(collisionRects),
+	staticRects(staticRects),
+	dynamicRects(dynamicRects),
     m_mapHeight(0.0f),
     m_viewHeight(0.0f),
     m_viewWidth(0.0f),
@@ -80,7 +81,7 @@ void Player::update(float dt) {
 		m_jump = true;
 	}
 
-	std::for_each(collisionRects.begin(), collisionRects.end(), [](const CollisionRect& rect) { rect.hasCollision = false; });
+	std::for_each(dynamicRects.begin(), dynamicRects.end(), [](const CollisionRect& rect) { rect.hasCollision = false; });
 	
 	if (move) {
 		Vector2f inputVector = Vector2f::Normalize(m_inputVector);		
@@ -157,26 +158,34 @@ void Player::update(float dt) {
 
 void Player::collision(const Rect& playerRect, const Rect& previousRect, CollisionAxis collisionAxis) {
 	
-	for(const CollisionRect& rect : collisionRects) {
-		//rect.hasCollision = collisionAxis == CollisionAxis::HORIZONTAL ? false : rect.hasCollision;
+	for (const Rect& rect : staticRects) {
+		resolveCollision(rect, playerRect, previousRect, collisionAxis);
+
+	}
+
+	for(const CollisionRect& rect : dynamicRects) {
 		if (rect.isPlayer)
 			continue;
+		resolveCollision(rect, playerRect, previousRect, collisionAxis);		
+	}
+}
 
-		if(SpriteEntity::HasCollision(rect.posX, rect.posY, rect.posX + rect.width, rect.posY + rect.height, playerRect.posX, playerRect.posY, playerRect.posX + playerRect.width, playerRect.posY + playerRect.height)) {
-			rect.hasCollision = true;
-			if(collisionAxis == CollisionAxis::HORIZONTAL){
-				if(playerRect.posX <= rect.posX + rect.width && previousRect.posX >= rect.previousRect.posX + rect.previousRect.width)
-					cell.posX = rect.posX + rect.width;
+void Player::resolveCollision(const Rect& rect, const Rect& playerRect, const Rect& previousRect, CollisionAxis collisionAxis) {
+	if (SpriteEntity::HasCollision(rect.posX, rect.posY, rect.posX + rect.width, rect.posY + rect.height, playerRect.posX, playerRect.posY, playerRect.posX + playerRect.width, playerRect.posY + playerRect.height)) {
+		rect.hasCollision = true;
+		if (collisionAxis == CollisionAxis::HORIZONTAL) {
+			if (playerRect.posX <= rect.posX + rect.width && previousRect.posX >= rect.posX + rect.width)
+				cell.posX = rect.posX + rect.width;
 
-				if(playerRect.posX + playerRect.width >= rect.posX && previousRect.posX + previousRect.width <= rect.previousRect.posX)
-					cell.posX = rect.posX - 48.0f;
-			}else{
-				if(playerRect.posY <= rect.posY + rect.height && previousRect.posY >= rect.posY + rect.height)
-					cell.posY = rect.posY + rect.height + 56.0f /*+ 0.1f*/;
+			if (playerRect.posX + playerRect.width >= rect.posX && previousRect.posX + previousRect.width <= rect.posX)
+				cell.posX = rect.posX - 48.0f;
+		}else {
+			if (playerRect.posY <= rect.posY + rect.height && previousRect.posY >= rect.posY + rect.height)
+				cell.posY = rect.posY + rect.height + 56.0f /*+ 0.1f*/;
 
-				if(playerRect.posY + playerRect.height >= rect.posY && previousRect.posY + previousRect.height <= rect.posY)
-					cell.posY = rect.posY /* - 0.1f*/;				
-			}
+			if (playerRect.posY + playerRect.height >= rect.posY && previousRect.posY + previousRect.height <= rect.posY)
+				cell.posY = rect.posY /* - 0.1f*/;
+
 		}
 	}
 }
@@ -188,14 +197,14 @@ void Player::checkContact() {
 	Rect topRect = { cell.posX + 2.0f, cell.posY - 58.0f, 44.0f, 2.0f };
 	
 	int indexBottom, indexRight, indexLeft, indexTop;
-	m_collideBottom = collideList(collisionRects, bottomRect, indexBottom);
-	m_collideRight = collideList(collisionRects, rightRect, indexRight);
-	m_collideLeft = collideList(collisionRects, leftRect, indexLeft);
-	m_collideTop = collideList(collisionRects, topRect, indexTop);
+	m_collideBottom = collideList(staticRects, dynamicRects, bottomRect, indexBottom);
+	m_collideRight = collideList(staticRects, dynamicRects, rightRect, indexRight);
+	m_collideLeft = collideList(staticRects, dynamicRects, leftRect, indexLeft);
+	m_collideTop = collideList(staticRects, dynamicRects, topRect, indexTop);
 
 	m_platformIndex = -1;
-	for (size_t i = 0; i < collisionRects.size(); i++) {
-		if (collisionRects[i].isMoving && SpriteEntity::HasCollision(collisionRects[i].posX, collisionRects[i].posY, collisionRects[i].posX + collisionRects[i].width, collisionRects[i].posY + collisionRects[i].height, bottomRect.posX, bottomRect.posY, bottomRect.posX + bottomRect.width, bottomRect.posY + bottomRect.height)) {
+	for (size_t i = 0; i < dynamicRects.size(); i++) {
+		if (dynamicRects[i].isMoving && SpriteEntity::HasCollision(dynamicRects[i].posX, dynamicRects[i].posY, dynamicRects[i].posX + dynamicRects[i].width, dynamicRects[i].posY + dynamicRects[i].height, bottomRect.posX, bottomRect.posY, bottomRect.posX + bottomRect.width, bottomRect.posY + bottomRect.height)) {
 			m_platformIndex = i;
 			if (m_collideBottom && indexBottom != m_platformIndex)
 				m_platformIndex = -1;
@@ -211,7 +220,7 @@ void Player::checkContact() {
 void Player::platformMove() {
 	
 	if (m_platformIndex >= 0) {
-		const CollisionRect& collisionRect = collisionRects[m_platformIndex];
+		const CollisionRect& collisionRect = dynamicRects[m_platformIndex];
 		if (collisionRect.posX != collisionRect.previousRect.posX)
 			cell.posX += collisionRect.posX - collisionRect.previousRect.posX;
 		else
@@ -235,19 +244,29 @@ const Rect Player::getTopRect() {
 	return { cell.posX + 2.0f, cell.posY - 58.0f, 44.0f, 2.0f };
 }
 
-bool Player::collideList(const std::vector<CollisionRect>& collisionRects, const Rect& _rect, int& index) {
+bool Player::collideList(const std::vector<Rect>& staticRects, const std::vector<CollisionRect>& dynamicRects, const Rect& rect, int& index) {
 	index = -1;
-	for (size_t i = 0; i < collisionRects.size(); i++) {
-		if (collisionRects[i].isPlayer)
+	bool res = false;
+	for (size_t i = 0; i < staticRects.size(); i++) {
+		if (SpriteEntity::HasCollision(staticRects[i].posX, staticRects[i].posY, staticRects[i].posX + staticRects[i].width, staticRects[i].posY + staticRects[i].height, rect.posX, rect.posY, rect.posX + rect.width, rect.posY + rect.height)) {
+			staticRects[i].hasCollision = true;
+			index = i;
+			res = true;
+		}
+	}
+
+	for (size_t i = 0; i < dynamicRects.size(); i++) {
+		if (dynamicRects[i].isPlayer)
 			continue;
 
-		if (SpriteEntity::HasCollision(collisionRects[i].posX, collisionRects[i].posY, collisionRects[i].posX + collisionRects[i].width, collisionRects[i].posY + collisionRects[i].height, _rect.posX, _rect.posY, _rect.posX + _rect.width, _rect.posY + _rect.height)) {
-			collisionRects[i].hasCollision = true;
+		if (SpriteEntity::HasCollision(dynamicRects[i].posX, dynamicRects[i].posY, dynamicRects[i].posX + dynamicRects[i].width, dynamicRects[i].posY + dynamicRects[i].height, rect.posX, rect.posY, rect.posX + rect.width, rect.posY + rect.height)) {
+			dynamicRects[i].hasCollision = true;
 			index = i;
-			return true;
-		}			
+			res = true;
+		}
 	}
-	return false;
+
+	return res;
 }
 
 void Player::setViewWidth(float viewWidth) {

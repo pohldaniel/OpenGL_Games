@@ -15,7 +15,7 @@ class Player : public SpriteEntity {
 
 public:
 
-	Player(Cell& cell, CollisionRect& collisionRect, Camera& camera, const std::vector<CollisionRect>& collisionRects, float elpasedTime = 0.0f, int framecount = 4);
+	Player(Cell& cell, CollisionRect& collisionRect, Camera& camera, const std::vector<Rect>& staticRects, const std::vector<CollisionRect>& dynamicRects, float elpasedTime = 0.0f, int framecount = 4);
 	virtual ~Player();
 
 	void update(float dt) override;
@@ -34,9 +34,11 @@ private:
 
 	const Rect& getRect();
 	void checkContact();
-	bool collideList(const std::vector<CollisionRect>& collisionRects, const Rect& rect, int& index);
+	bool collideList(const std::vector<Rect>& staticRects, const std::vector<CollisionRect>& dynamicRects, const Rect& rect, int& index);
 	void collision(const Rect& playerRect, const Rect& previousRect, CollisionAxis collisionAxis);
 	void platformMove();
+	void resolveCollision(const Rect& rect, const Rect& playerRect, const Rect& previousRect, CollisionAxis collisionAxis);
+
 
 	float m_mapHeight, m_viewWidth, m_viewHeight;
 	float m_initialX, m_initialY;
@@ -46,7 +48,8 @@ private:
 	bool m_onWall, m_wasCollideLeft, m_wasCollideRight, m_wantJump, m_waitForCollideBottom;
 	bool m_wallBounceLeft, m_wallBounceRight;
 	Timer m_wallJumpTimer;
-	const std::vector<CollisionRect>& collisionRects;
+	const std::vector<Rect>& staticRects;
+	const std::vector<CollisionRect>& dynamicRects;
 	Camera& camera;
 	Vector2f m_direction, m_inputVector;
 	float m_movingSpeed;

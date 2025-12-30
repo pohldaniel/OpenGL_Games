@@ -83,7 +83,7 @@ void Overworld::draw() {
 
 	if (m_debugCollision) {
 		const TextureRect& textureRect = rects.back();
-		for (const CollisionRect& rect : m_collisionRects) {
+		for (const Rect& rect : m_staticRects) {
 			Batchrenderer::Get().addQuadAA(Vector4f(rect.posX - camera.getPositionX(), m_mapHeight - (rect.posY + rect.height) - camera.getPositionY(), rect.width, rect.height), Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), Vector4f(0.0f, 0.0f, 1.0f, 1.0f), textureRect.frame);
 		}
 		Batchrenderer::Get().drawBuffer();
@@ -104,7 +104,7 @@ void Overworld::draw() {
 void Overworld::loadZone(const std::string path, const std::string currentTileset) {
 
 	m_cellsMain.reserve(600);
-	m_collisionRects.reserve(700);
+	m_staticRects.reserve(700);
 	m_currentTileset = currentTileset;
 
 	loadTileSet(Zone::TileSets[m_currentTileset]);
@@ -147,7 +147,7 @@ void Overworld::loadZone(const std::string path, const std::string currentTilese
 			const tmx::ObjectGroup* objectLayer = dynamic_cast<const tmx::ObjectGroup*>(layer.get());
 			for (auto& object : objectLayer->getObjects()) {
 				m_cellsMain.push_back({ static_cast<int>(object.getTileID() - 1u), object.getPosition().x, object.getPosition().y, object.getAABB().width, object.getAABB().height, object.getPosition().x + 0.5f * object.getAABB().width, object.getPosition().y, false, false });
-				m_collisionRects.push_back({ object.getPosition().x , object.getPosition().y - object.getAABB().height + 0.3f * object.getAABB().height, object.getAABB().width, object.getAABB().height * 0.4f });
+				m_staticRects.push_back({ object.getPosition().x , object.getPosition().y - object.getAABB().height + 0.3f * object.getAABB().height, object.getAABB().width, object.getAABB().height * 0.4f });
 			}
 		}
 	}

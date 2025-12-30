@@ -13,18 +13,18 @@ class Platform : public EntityNew {
 
 public:
 
-	Platform(CollisionRect& collisionRect, MoveDirection moveDirection, float speed, const Vector2f& start = Vector2f::ZERO, const Vector2f& end = Vector2f::ZERO);
+	Platform(CollisionRect& dynmaicRect, MoveDirection moveDirection, float speed, const Vector2f& start = Vector2f::ZERO, const Vector2f& end = Vector2f::ZERO);
 	virtual ~Platform();
 
 	void update(float dt) override;
-	const CollisionRect& getCollisionRect();
+	const CollisionRect& getDynamicRect();
 	Rect getRect();
 
 private:
 
 	void checkBoreder();
 
-	CollisionRect& collisionRect;
+	CollisionRect& dynmaicRect;
 	Vector2f m_start, m_end;
 	MoveDirection m_moveDirection;
 	float m_speed;
