@@ -1,7 +1,6 @@
 #pragma once
 #include <string>
 #include <engine/Vector.h>
-#include <engine/Rect.h>
 
 #include "DataStructs.h"
 #include "Entity_new.h"
@@ -29,8 +28,6 @@ public:
 
 protected:
 
-	virtual Rect getRect();
-
 	void updateAnimation(float dt);
 	void resetAnimation();
 
@@ -40,5 +37,4 @@ protected:
 	float m_elapsedTime;
 
 	ViewDirection m_viewDirection;
-	Rect m_previousRect;
 };

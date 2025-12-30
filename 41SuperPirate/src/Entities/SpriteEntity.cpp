@@ -6,8 +6,7 @@ SpriteEntity::SpriteEntity(Cell& cell, float elpasedTime, int framecount) :
 	m_startFrame(cell.tileID), 
 	m_elapsedTime(elpasedTime), 
 	m_frameCount(framecount), 
-	m_viewDirection(ViewDirection::RIGHT),
-    m_previousRect(getRect()){
+	m_viewDirection(ViewDirection::RIGHT){
 
 }
 
@@ -18,7 +17,6 @@ SpriteEntity& SpriteEntity::operator=(const SpriteEntity& rhs) {
 	m_frameCount = rhs.m_frameCount;
 	m_elapsedTime = rhs.m_elapsedTime;
 	m_viewDirection = rhs.m_viewDirection;
-	m_previousRect = rhs.m_previousRect;
 	return *this;
 }
 
@@ -29,7 +27,6 @@ SpriteEntity& SpriteEntity::operator=(SpriteEntity&& rhs) noexcept {
 	m_frameCount = rhs.m_frameCount;
 	m_elapsedTime = rhs.m_elapsedTime;
 	m_viewDirection = rhs.m_viewDirection;
-	m_previousRect = rhs.m_previousRect;
 	return *this;
 }
 
@@ -38,7 +35,6 @@ SpriteEntity::SpriteEntity(SpriteEntity const& rhs) : EntityNew(), cell(rhs.cell
 	m_frameCount = rhs.m_frameCount;
 	m_elapsedTime = rhs.m_elapsedTime;
 	m_viewDirection = rhs.m_viewDirection;
-	m_previousRect = rhs.m_previousRect;
 }
 
 SpriteEntity::SpriteEntity(SpriteEntity&& rhs)  noexcept : EntityNew(), cell(rhs.cell) {
@@ -46,7 +42,6 @@ SpriteEntity::SpriteEntity(SpriteEntity&& rhs)  noexcept : EntityNew(), cell(rhs
 	m_frameCount = rhs.m_frameCount;
 	m_elapsedTime = rhs.m_elapsedTime;
 	m_viewDirection = rhs.m_viewDirection;
-	m_previousRect = rhs.m_previousRect;
 }
 
 SpriteEntity::~SpriteEntity() {
@@ -77,8 +72,4 @@ void SpriteEntity::updateAnimation(float dt) {
 
 bool SpriteEntity::HasCollision(float r1_l, float r1_t, float r1_r, float r1_b, float r2_l, float r2_t, float r2_r, float r2_b) {
 	return (r2_b > r1_t) && (r2_t < r1_b) && (r1_l < r2_r) && (r2_l < r1_r);
-}
-
-Rect SpriteEntity::getRect() {
-	return { cell.posX, cell.posY - cell.height, cell.width, cell.height, false };
 }

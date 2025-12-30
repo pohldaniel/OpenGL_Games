@@ -22,7 +22,7 @@ public:
 	void update(float dt) override;
 	void loadZone(const std::string path, const std::string currentTileset) override;
 
-	const std::vector<Rect>& getCollisionRects();
+	const std::vector<CollisionRect>& getCollisionRects();
 	const std::vector<std::unique_ptr<EntityNew>>& getEntities();
 	float getMapHeight();
 	static Player& GetPlayer();

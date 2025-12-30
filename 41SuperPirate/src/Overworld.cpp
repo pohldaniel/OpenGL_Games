@@ -83,7 +83,7 @@ void Overworld::draw() {
 
 	if (m_debugCollision) {
 		const TextureRect& textureRect = rects.back();
-		for (const Rect& rect : m_collisionRects) {
+		for (const CollisionRect& rect : m_collisionRects) {
 			Batchrenderer::Get().addQuadAA(Vector4f(rect.posX - camera.getPositionX(), m_mapHeight - (rect.posY + rect.height) - camera.getPositionY(), rect.width, rect.height), Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), Vector4f(0.0f, 0.0f, 1.0f, 1.0f), textureRect.frame);
 		}
 		Batchrenderer::Get().drawBuffer();

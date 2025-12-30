@@ -1,8 +1,9 @@
 #pragma once
 
-#include <engine/Rect.h>
 #include <engine/Camera.h>
 #include <engine/Timer.h>
+
+#include "DataStructs.h"
 #include "SpriteEntity.h"
 
 enum CollisionAxis {
@@ -14,7 +15,7 @@ class Player : public SpriteEntity {
 
 public:
 
-	Player(Cell& cell, Camera& camera, const std::vector<Rect>& collisionRects, float elpasedTime = 0.0f, int framecount = 4);
+	Player(Cell& cell, Camera& camera, const std::vector<CollisionRect>& collisionRects, float elpasedTime = 0.0f, int framecount = 4);
 	virtual ~Player();
 
 	void update(float dt) override;
@@ -30,10 +31,12 @@ public:
 
 private:
 
-	Rect getRect() override;
+	Rect getRect();
 	void checkContact();
-	bool collideList(const std::vector<Rect>& collisionRects, const Rect& rect);
+	bool collideList(const std::vector<CollisionRect>& collisionRects, const Rect& rect);
 	void collision(const Rect& playerRect, const Rect& previousRect, CollisionAxis collisionAxis);
+	bool compare(const Rect& rect1, const Rect& rect2);
+
 
 	float m_mapHeight, m_viewWidth, m_viewHeight;
 	float m_initialX, m_initialY;
@@ -42,8 +45,9 @@ private:
 	bool m_onWall, m_wasCollideLeft, m_wasCollideRight, m_wantJump, m_waitForCollideBottom;
 	bool m_wallBounceLeft, m_wallBounceRight;
 	Timer m_wallJumpTimer;
-	const std::vector<Rect>& collisionRects;
+	const std::vector<CollisionRect>& collisionRects;
 	Camera& camera;
 	Vector2f m_direction, m_inputVector;
-	float m_movingSpeed;	
+	float m_movingSpeed;
+	Rect m_previousRect;
 };

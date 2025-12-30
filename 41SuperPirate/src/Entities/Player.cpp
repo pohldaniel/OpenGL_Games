@@ -3,7 +3,7 @@
 
 #include "Player.h"
 
-Player::Player(Cell& cell, Camera& camera, const std::vector<Rect>& collisionRects, float elpasedTime, int framecount) :
+Player::Player(Cell& cell, Camera& camera, const std::vector<CollisionRect>& collisionRects, float elpasedTime, int framecount) :
 	SpriteEntity(cell, elpasedTime, framecount), 
 	camera(camera), 
 	collisionRects(collisionRects),
@@ -23,7 +23,8 @@ Player::Player(Cell& cell, Camera& camera, const std::vector<Rect>& collisionRec
 	m_waitForCollideBottom(false),
 	m_wallBounceLeft(false),
 	m_wallBounceRight(false),
-	m_movingSpeed(0.0f){
+	m_movingSpeed(0.0f),
+    m_previousRect(getRect()){
 
 	m_inputVector.set(0.0f, 0.0f);
 	m_direction.set(0.0f, 0.0f);
@@ -73,7 +74,7 @@ void Player::update(float dt) {
 		m_jump = true;
 	}
 
-	std::for_each(collisionRects.begin(), collisionRects.end(), [](const Rect& rect) { rect.hasCollision = false; });
+	std::for_each(collisionRects.begin(), collisionRects.end(), [](const CollisionRect& rect) { rect.hasCollision = false; });
 	
 	if (move) {
 		Vector2f inputVector = Vector2f::Normalize(m_inputVector);		
@@ -142,23 +143,22 @@ void Player::update(float dt) {
 
 void Player::collision(const Rect& playerRect, const Rect& previousRect, CollisionAxis collisionAxis) {
 	
-	for(const Rect& rect : collisionRects) {
-		
+	for(const CollisionRect& rect : collisionRects) {
 		//rect.hasCollision = collisionAxis == CollisionAxis::HORIZONTAL ? false : rect.hasCollision;
-
+		
 		if(SpriteEntity::HasCollision(rect.posX, rect.posY, rect.posX + rect.width, rect.posY + rect.height, playerRect.posX, playerRect.posY, playerRect.posX + playerRect.width, playerRect.posY + playerRect.height)) {
 			rect.hasCollision = true;
 			if(collisionAxis == CollisionAxis::HORIZONTAL){
-				if(playerRect.posX <= rect.posX + rect.width && previousRect.posX >= rect.posX + rect.width)
+				if(playerRect.posX <= rect.posX + rect.width && previousRect.posX >= rect.previousRect.posX + rect.previousRect.width)
 					cell.posX = rect.posX + rect.width;
 
-				if(playerRect.posX + playerRect.width >= rect.posX && previousRect.posX + previousRect.width <= rect.posX)
+				if(playerRect.posX + playerRect.width >= rect.posX && previousRect.posX + previousRect.width <= rect.previousRect.posX)
 					cell.posX = rect.posX - 48.0f;
 			}else{
-				if(playerRect.posY <= rect.posY + rect.height && previousRect.posY >= rect.posY + rect.height)
+				if(playerRect.posY <= rect.posY + rect.height && previousRect.posY >= rect.previousRect.posY + rect.previousRect.height)
 					cell.posY = rect.posY + rect.height + 56.0f /*+ 0.1f*/;
 
-				if(playerRect.posY + playerRect.height >= rect.posY && previousRect.posY + previousRect.height <= rect.posY)
+				if(playerRect.posY + playerRect.height >= rect.posY && previousRect.posY + previousRect.height <= rect.previousRect.posY)
 					cell.posY = rect.posY /* - 0.1f*/;
 
 				m_direction[1] = 0.0f;
@@ -167,8 +167,12 @@ void Player::collision(const Rect& playerRect, const Rect& previousRect, Collisi
 	}
 }
 
+bool Player::compare(const Rect& rect1, const Rect& rect2) {
+	return rect1.posX == rect2.posX && rect1.posY == rect2.posY && rect1.width == rect2.width && rect1.height == rect2.height;
+}
+
 void Player::checkContact() {
-	Rect bottomRect = { cell.posX + 2.0f, cell.posY, 46.0f, 2.0f };	
+	Rect bottomRect = { cell.posX + 2.0f, cell.posY, 46.0f, 2.0f };
 	Rect rightRect = { cell.posX + 48.0f, cell.posY - 42.0f , 2.0f, 28.0f };
 	Rect leftRect = { cell.posX - 2.0f, cell.posY - 42.0f , 2.0f, 28.0f };
 
@@ -189,7 +193,7 @@ const Rect Player::getRightRect() {
 	return { cell.posX + 48.0f, cell.posY - 42.0f , 2.0f, 28.0f };
 }
 
-bool Player::collideList(const std::vector<Rect>& collisionRects, const Rect& _rect) {	
+bool Player::collideList(const std::vector<CollisionRect>& collisionRects, const Rect& _rect) {
 	for (const Rect& rect : collisionRects) {
 		if (SpriteEntity::HasCollision(rect.posX, rect.posY, rect.posX + rect.width, rect.posY + rect.height, _rect.posX, _rect.posY, _rect.posX + _rect.width, _rect.posY + _rect.height)) {
 			rect.hasCollision = true;

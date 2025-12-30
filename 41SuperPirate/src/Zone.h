@@ -3,7 +3,6 @@
 #include <string>
 #include <unordered_map>
 #include <engine/Camera.h>
-#include <engine/Rect.h>
 #include <engine/TileSet.h>
 #include <engine/Framebuffer.h>
 
@@ -46,7 +45,7 @@ protected:
 	size_t m_cols, m_rows;
 	std::vector<Cell> m_cellsBackground;
 	std::vector<Cell> m_cellsMain;
-	std::vector<Rect> m_collisionRects;
+	std::vector<CollisionRect> m_collisionRects;
 	TileSet m_tileSet;
 	std::unordered_map<std::string, int> m_animationOffsets;
 	unsigned int m_spritesheet;

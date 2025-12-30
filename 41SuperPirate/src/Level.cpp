@@ -47,7 +47,7 @@ void Level::draw() {
 
 	if (m_debugCollision) {
 		const TextureRect& textureRect = rects.back();
-		for (const Rect& rect : m_collisionRects) {
+		for (const CollisionRect& rect : m_collisionRects) {
 			Batchrenderer::Get().addQuadAA(Vector4f(rect.posX - camera.getPositionX(), m_mapHeight - (rect.posY + rect.height) - camera.getPositionY(), rect.width, rect.height), Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), rect.hasCollision ? Vector4f(1.0f, 1.0f, 0.0f, 1.0f) : Vector4f(1.0f, 1.0f, 1.0f, 1.0f), textureRect.frame);
 		}
 
@@ -57,26 +57,18 @@ void Level::draw() {
 		Rect bottom = GetPlayer().getBottomRect();
 		Rect left = GetPlayer().getLeftRect();
 		Rect right = GetPlayer().getRightRect();
-
-		const Rect& rect1 = dynamic_cast<Platform*>(m_entities[0].get())->getRect();
-		const Rect& rect2 = dynamic_cast<Platform*>(m_entities[1].get())->getRect();
-		const Rect& rect3 = dynamic_cast<Platform*>(m_entities[2].get())->getRect();
-
+		
 		Batchrenderer::Get().addQuadAA(Vector4f(bottom.posX - camera.getPositionX(), m_mapHeight - (bottom.posY + bottom.height) - camera.getPositionY(), bottom.width, bottom.height), Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), Vector4f(0.0f, 1.0f, 0.0f, 1.0f), textureRect.frame);
 		Batchrenderer::Get().addQuadAA(Vector4f(left.posX - camera.getPositionX(), m_mapHeight - (left.posY + left.height) - camera.getPositionY(), left.width, left.height), Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), Vector4f(0.0f, 1.0f, 0.0f, 1.0f), textureRect.frame);
 		Batchrenderer::Get().addQuadAA(Vector4f(right.posX - camera.getPositionX(), m_mapHeight - (right.posY + right.height) - camera.getPositionY(), right.width, right.height), Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), Vector4f(0.0f, 1.0f, 0.0f, 1.0f), textureRect.frame);
-		
-		//Batchrenderer::Get().addQuadAA(Vector4f(rect1.posX - camera.getPositionX(), m_mapHeight - (rect1.posY + rect1.height) - camera.getPositionY(), rect1.width, rect1.height), Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), Vector4f(0.0f, 0.0f, 1.0f, 1.0f), textureRect.frame);
-		//Batchrenderer::Get().addQuadAA(Vector4f(rect2.posX - camera.getPositionX(), m_mapHeight - (rect2.posY + rect2.height) - camera.getPositionY(), rect2.width, rect2.height), Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), Vector4f(0.0f, 0.0f, 1.0f, 1.0f), textureRect.frame);
-		//Batchrenderer::Get().addQuadAA(Vector4f(rect3.posX - camera.getPositionX(), m_mapHeight - (rect3.posY + rect3.height) - camera.getPositionY(), rect1.width, rect3.height), Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), Vector4f(0.0f, 0.0f, 1.0f, 1.0f), textureRect.frame);
 
 		Batchrenderer::Get().drawBuffer();
 	}
 }
 
 void Level::update(float dt) {
-	for (auto&& spriteEntity : getEntities()) {		
-		spriteEntity->update(dt);
+	for (auto&& entity : getEntities()) {		
+		entity->update(dt);
 	}
 	s_player->update(dt);
 	Zone::update(dt);
@@ -121,7 +113,7 @@ void Level::loadZone(const std::string path, const std::string currentTileset) {
 						m_layers.back()[y][x].second = static_cast<unsigned int>(m_cellsBackground.size() - 1);
 
 						if (layer->getName() == "Terrain") {
-							m_collisionRects.push_back({ static_cast<float>(x) * m_tileWidth, static_cast<float>(y) * m_tileHeight,  m_tileWidth, m_tileHeight, false });
+							m_collisionRects.push_back({ static_cast<float>(x) * m_tileWidth, static_cast<float>(y) * m_tileHeight,  m_tileWidth, m_tileHeight });
 						}
 					}
 				}
@@ -146,16 +138,16 @@ void Level::loadZone(const std::string path, const std::string currentTileset) {
 				
 				if (std::find_if(object.getProperties().begin(), object.getProperties().end(),
 					[](const tmx::Property& m) -> bool { return m.getName() == "platform" && m.getBoolValue(); }) != object.getProperties().end()) {
-					m_collisionRects.push_back({ object.getPosition().x, object.getPosition().y, object.getAABB().width, object.getAABB().height });										
+					m_collisionRects.push_back({ object.getPosition().x, object.getPosition().y, object.getAABB().width, object.getAABB().height });
 					
 					
 					float speed = static_cast<float>(object.getProperties()[2].getIntValue());
 
 					if (object.getAABB().width > object.getAABB().height) {
-						m_collisionRects.push_back({ object.getPosition().x - 100.0f, object.getAABB().height * 0.5f + object.getPosition().y - 25.0f, 200.0f, 50.0f });
+						m_collisionRects.push_back(CollisionRect{ object.getPosition().x - 100.0f, object.getAABB().height * 0.5f + object.getPosition().y - 25.0f, 200.0f, 50.0f });
 						m_entities.push_back(std::make_unique<Platform>(m_collisionRects.back(), MoveDirection::P_HORIZONTAL, speed, Vector2f(object.getPosition().x, object.getPosition().y + object.getAABB().height * 0.5f), Vector2f(object.getPosition().x + object.getAABB().width, object.getPosition().y + object.getAABB().height * 0.5f)));
 					}else{
-						m_collisionRects.push_back({ object.getAABB().width * 0.5f + object.getPosition().x - 100.0f, object.getPosition().y - 25.0f, 200.0f, 50.0f });
+						m_collisionRects.push_back(CollisionRect{ object.getAABB().width * 0.5f + object.getPosition().x - 100.0f, object.getPosition().y - 25.0f, 200.0f, 50.0f });
 						m_entities.push_back(std::make_unique<Platform>(m_collisionRects.back(), MoveDirection::P_VERTICAL, speed, Vector2f(object.getPosition().x + object.getAABB().width * 0.5f, object.getPosition().y), Vector2f(object.getPosition().x + object.getAABB().width * 0.5f, object.getPosition().y + object.getAABB().height)));
 					}
 				}				
@@ -181,7 +173,7 @@ void Level::loadZone(const std::string path, const std::string currentTileset) {
 	}
 }
 
-const std::vector<Rect>& Level::getCollisionRects() {
+const std::vector<CollisionRect>& Level::getCollisionRects() {
 	return m_collisionRects;
 }
 
