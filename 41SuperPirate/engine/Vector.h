@@ -31,7 +31,10 @@ class Vector2f {
 	friend Vector2f operator-(const Vector2f &v);
 	friend bool operator ==(Vector2f lhs, Vector2f rhs);
 	friend bool operator !=(Vector2f lhs, Vector2f rhs);
+
 public:
+
+	static const Vector2f ZERO;
 
 	Vector2f();
 	Vector2f(float x_);

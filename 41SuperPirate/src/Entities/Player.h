@@ -21,6 +21,7 @@ public:
 	void setViewWidth(float viewWidth);
 	void setViewHeight(float viewHeight);
 	void setMapHeight(float mapHeight);
+	void setMovingSpeed(float movingSpeed);
 	void reset();
 
 	const Rect getBottomRect();
@@ -32,6 +33,7 @@ private:
 	Rect getRect() override;
 	void checkContact();
 	bool collideList(const std::vector<Rect>& collisionRects, const Rect& rect);
+	void collision(const Rect& playerRect, const Rect& previousRect, CollisionAxis collisionAxis);
 
 	float m_mapHeight, m_viewWidth, m_viewHeight;
 	float m_initialX, m_initialY;
@@ -43,5 +45,5 @@ private:
 	const std::vector<Rect>& collisionRects;
 	Camera& camera;
 	Vector2f m_direction, m_inputVector;
-	void collision(const Rect& playerRect, const Rect& previousRect, CollisionAxis collisionAxis);
+	float m_movingSpeed;	
 };

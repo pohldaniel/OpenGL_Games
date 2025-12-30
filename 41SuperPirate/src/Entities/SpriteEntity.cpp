@@ -1,52 +1,50 @@
 #include "SpriteEntity.h"
 
 SpriteEntity::SpriteEntity(Cell& cell, float elpasedTime, int framecount) : 
+	EntityNew(),
 	cell(cell),
 	m_startFrame(cell.tileID), 
 	m_elapsedTime(elpasedTime), 
 	m_frameCount(framecount), 
-	m_movingSpeed(0.0f),
 	m_viewDirection(ViewDirection::RIGHT),
     m_previousRect(getRect()){
 
 }
 
 SpriteEntity& SpriteEntity::operator=(const SpriteEntity& rhs) {
+	EntityNew::operator=(rhs);
 	cell = rhs.cell;
 	m_startFrame = rhs.m_startFrame;
 	m_frameCount = rhs.m_frameCount;
 	m_elapsedTime = rhs.m_elapsedTime;
-	m_movingSpeed = rhs.m_movingSpeed;
 	m_viewDirection = rhs.m_viewDirection;
 	m_previousRect = rhs.m_previousRect;
 	return *this;
 }
 
 SpriteEntity& SpriteEntity::operator=(SpriteEntity&& rhs) noexcept {
+	EntityNew::operator=(rhs);
 	cell = rhs.cell;
 	m_startFrame = rhs.m_startFrame;
 	m_frameCount = rhs.m_frameCount;
 	m_elapsedTime = rhs.m_elapsedTime;
-	m_movingSpeed = rhs.m_movingSpeed;
 	m_viewDirection = rhs.m_viewDirection;
 	m_previousRect = rhs.m_previousRect;
 	return *this;
 }
 
-SpriteEntity::SpriteEntity(SpriteEntity const& rhs) : cell(rhs.cell){
+SpriteEntity::SpriteEntity(SpriteEntity const& rhs) : EntityNew(), cell(rhs.cell){
 	m_startFrame = rhs.m_startFrame;
 	m_frameCount = rhs.m_frameCount;
 	m_elapsedTime = rhs.m_elapsedTime;
-	m_movingSpeed = rhs.m_movingSpeed;
 	m_viewDirection = rhs.m_viewDirection;
 	m_previousRect = rhs.m_previousRect;
 }
 
-SpriteEntity::SpriteEntity(SpriteEntity&& rhs)  noexcept : cell(rhs.cell) {
+SpriteEntity::SpriteEntity(SpriteEntity&& rhs)  noexcept : EntityNew(), cell(rhs.cell) {
 	m_startFrame = rhs.m_startFrame;
 	m_frameCount = rhs.m_frameCount;
 	m_elapsedTime = rhs.m_elapsedTime;
-	m_movingSpeed = rhs.m_movingSpeed;
 	m_viewDirection = rhs.m_viewDirection;
 	m_previousRect = rhs.m_previousRect;
 }
@@ -75,10 +73,6 @@ void SpriteEntity::updateAnimation(float dt) {
 	}
 
 	cell.flipped = m_viewDirection == ViewDirection::LEFT;
-}
-
-void SpriteEntity::setMovingSpeed(float movingSpeed) {
-	m_movingSpeed = movingSpeed;
 }
 
 bool SpriteEntity::HasCollision(float r1_l, float r1_t, float r1_r, float r1_b, float r2_l, float r2_t, float r2_r, float r2_b) {

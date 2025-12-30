@@ -5,9 +5,11 @@
 #include <rapidjson/istreamwrapper.h>
 #include <engine/Batchrenderer.h>
 #include <engine/Spritesheet.h>
+#include <Entities/Entity_new.h>
 #include <Entities/SpriteEntity.h>
 #include <Entities/Player.h>
 #include <Entities/Enemy.h>
+#include <Entities/Platform.h>
 
 #include "Level.h"
 
@@ -64,7 +66,7 @@ void Level::draw() {
 }
 
 void Level::update(float dt) {
-	for (auto&& spriteEntity : getSpriteEntities()) {		
+	for (auto&& spriteEntity : getEntities()) {		
 		spriteEntity->update(dt);
 	}
 	s_player->update(dt);
@@ -124,9 +126,25 @@ void Level::loadZone(const std::string path, const std::string currentTileset) {
 					//m_cellsMain.push_back({ static_cast<int>(object.getTileID() - 1u), object.getPosition().x, object.getPosition().y, object.getAABB().width, object.getAABB().height, object.getPosition().x + 0.5f * object.getAABB().width, object.getPosition().y, false, false });					
 					m_cellsMain.push_back({ m_animationOffsets["shell_attack"], object.getPosition().x, object.getPosition().y, object.getAABB().width, object.getAABB().height, object.getPosition().x + 0.5f * object.getAABB().width, object.getPosition().y, 0.0f, 0.0f, false, false });
 					m_collisionRects.push_back({ object.getPosition().x, object.getPosition().y - object.getAABB().height, object.getAABB().width, object.getAABB().height });
-					m_spriteEntities.push_back(std::make_unique<Enemy>(m_cellsMain.back(), 0.0f, 6));
-					m_spriteEntities.back()->setMovingSpeed(250.0f);
+					m_entities.push_back(std::make_unique<Enemy>(m_cellsMain.back(), 0.0f, 6));
 				}
+			}
+		}
+
+		if (layer->getName() == "Moving Objects") {
+			const tmx::ObjectGroup* objectLayer = dynamic_cast<const tmx::ObjectGroup*>(layer.get());
+			for (auto& object : objectLayer->getObjects()) {
+				
+				if (std::find_if(object.getProperties().begin(), object.getProperties().end(),
+					[](const tmx::Property& m) -> bool { return m.getName() == "platform" && m.getBoolValue(); }) != object.getProperties().end()) {
+					m_collisionRects.push_back({ object.getPosition().x, object.getPosition().y, object.getAABB().width, object.getAABB().height });										
+					float speed = static_cast<float>(object.getProperties()[2].getIntValue());
+
+					if(object.getAABB().width > object.getAABB().height)
+						m_entities.push_back(std::make_unique<Platform>(m_collisionRects.back(), MoveDirection::P_HORIZONTAL, Vector2f(object.getPosition().x, object.getPosition().y + object.getAABB().height * 0.5f), Vector2f(object.getPosition().x + object.getAABB().width, object.getPosition().y + object.getAABB().height * 0.5f)));
+					else
+						m_entities.push_back(std::make_unique<Platform>(m_collisionRects.back(), MoveDirection::P_VERTICAL, Vector2f(object.getPosition().x + object.getAABB().width * 0.5f, object.getPosition().y), Vector2f(object.getPosition().x + object.getAABB().width * 0.5f, object.getPosition().y + object.getAABB().height)));
+				}				
 			}
 		}
 
@@ -153,8 +171,8 @@ const std::vector<Rect>& Level::getCollisionRects() {
 	return m_collisionRects;
 }
 
-const std::vector<std::unique_ptr<SpriteEntity>>& Level::getSpriteEntities() {
-	return m_spriteEntities;
+const std::vector<std::unique_ptr<EntityNew>>& Level::getEntities() {
+	return m_entities;
 }
 
 float Level::getMapHeight() {

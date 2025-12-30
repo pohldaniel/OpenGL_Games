@@ -522,6 +522,12 @@
     <ClCompile Include="engine\Timer.cpp">
       <Filter>engine</Filter>
     </ClCompile>
+    <ClCompile Include="src\Entities\Platform.cpp">
+      <Filter>Source Files\Entities</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Entities\Entity_new.cpp">
+      <Filter>Source Files\Entities</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="convhull\convhull_3d.h">
@@ -1000,6 +1006,12 @@
     </ClInclude>
     <ClInclude Include="engine\Timer.h">
       <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Entities\Platform.h">
+      <Filter>Source Files\Entities</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Entities\Entity_new.h">
+      <Filter>Source Files\Entities</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

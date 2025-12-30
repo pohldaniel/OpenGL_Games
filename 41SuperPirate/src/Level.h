@@ -7,7 +7,7 @@
 #include "DataStructs.h"
 #include "Zone.h"
 
-class SpriteEntity;
+class EntityNew;
 class Player;
 class Enemy;
 
@@ -23,13 +23,13 @@ public:
 	void loadZone(const std::string path, const std::string currentTileset) override;
 
 	const std::vector<Rect>& getCollisionRects();
-	const std::vector<std::unique_ptr<SpriteEntity>>& getSpriteEntities();
+	const std::vector<std::unique_ptr<EntityNew>>& getEntities();
 	float getMapHeight();
 	static Player& GetPlayer();
 
 private:
 
 	size_t m_playerIndex;
-	std::vector<std::unique_ptr<SpriteEntity>> m_spriteEntities;
+	std::vector<std::unique_ptr<EntityNew>> m_entities;
 	static std::unique_ptr<Player> s_player;
 };

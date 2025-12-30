@@ -22,7 +22,8 @@ Player::Player(Cell& cell, Camera& camera, const std::vector<Rect>& collisionRec
 	m_wantJump(false),
 	m_waitForCollideBottom(false),
 	m_wallBounceLeft(false),
-	m_wallBounceRight(false){
+	m_wallBounceRight(false),
+	m_movingSpeed(0.0f){
 
 	m_inputVector.set(0.0f, 0.0f);
 	m_direction.set(0.0f, 0.0f);
@@ -120,7 +121,7 @@ void Player::update(float dt) {
 
 	if (((m_wasCollideLeft && !m_collideLeft) || (m_wasCollideRight && !m_collideRight)) && !m_collideBottom) {
 		if(m_inputVector[0] != 0.0f)
-			m_wallJumpTimer.start(250u, false);
+			m_wallJumpTimer.start(400u, false);
 	}
 
 	if (m_collideBottom && m_direction[1] > 0.0f) {
@@ -208,6 +209,10 @@ void Player::setViewHeight(float viewHeight) {
 
 void Player::setMapHeight(float mapHeight) {
 	m_mapHeight = mapHeight;
+}
+
+void Player::setMovingSpeed(float movingSpeed) {
+	m_movingSpeed = movingSpeed;
 }
 
 void Player::reset() {

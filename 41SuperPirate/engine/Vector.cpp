@@ -2637,6 +2637,8 @@ void Matrix4f::print() const {
 }
 
 //////////////////////////////////////////////////////////////////////
+const Vector2f Vector2f::ZERO(0.0f, 0.0f);
+
 Vector2f::Vector2f() {
 	vec[0] = 0.0f;
 	vec[1] = 0.0f;
