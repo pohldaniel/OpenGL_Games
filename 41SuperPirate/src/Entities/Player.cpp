@@ -81,6 +81,7 @@ void Player::update(float dt) {
 		m_jump = true;
 	}
 
+	std::for_each(staticRects.begin(), staticRects.end(), [](const Rect& rect) { rect.hasCollision = false; });
 	std::for_each(dynamicRects.begin(), dynamicRects.end(), [](const CollisionRect& rect) { rect.hasCollision = false; });
 	
 	if (move) {

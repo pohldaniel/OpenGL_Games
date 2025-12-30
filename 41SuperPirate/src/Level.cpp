@@ -120,7 +120,7 @@ void Level::loadZone(const std::string path, const std::string currentTileset) {
 
 						if (layer->getName() == "Terrain") {
 							m_staticRects.push_back({ static_cast<float>(x) * m_tileWidth, static_cast<float>(y) * m_tileHeight,  m_tileWidth, m_tileHeight });
-							m_dynamicRects.push_back({ static_cast<float>(x) * m_tileWidth, static_cast<float>(y) * m_tileHeight,  m_tileWidth, m_tileHeight });
+							//m_dynamicRects.push_back({ static_cast<float>(x) * m_tileWidth, static_cast<float>(y) * m_tileHeight,  m_tileWidth, m_tileHeight });
 						}
 					}
 				}
