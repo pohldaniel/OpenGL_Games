@@ -136,13 +136,16 @@ void Player::update(float dt) {
 
 	if (m_collideBottom && m_direction[1] > 0.0f) {
 		m_waitForCollideBottom = false;
+		m_direction[1] = 0.0f;
 	}
-	
+
 	if (m_wantJump) {
 		m_direction[1] = -m_jumpHeight;
 		m_wantJump = false;
 	}
-		
+
+	if (m_collideTop && m_direction[1] < 0.0f)
+		m_direction[1] = 0.0f;
 
 	if (m_jump)
 		m_jump = false;
@@ -172,9 +175,7 @@ void Player::collision(const Rect& playerRect, const Rect& previousRect, Collisi
 					cell.posY = rect.posY + rect.height + 56.0f /*+ 0.1f*/;
 
 				if(playerRect.posY + playerRect.height >= rect.posY && previousRect.posY + previousRect.height <= rect.posY)
-					cell.posY = rect.posY /* - 0.1f*/;
-
-				m_direction[1] = 0.0f;
+					cell.posY = rect.posY /* - 0.1f*/;				
 			}
 		}
 	}
