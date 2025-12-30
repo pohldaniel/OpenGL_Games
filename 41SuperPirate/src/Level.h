@@ -29,7 +29,6 @@ public:
 
 private:
 
-	size_t m_playerIndex;
 	std::vector<std::unique_ptr<EntityNew>> m_entities;
 	static std::unique_ptr<Player> s_player;
 };

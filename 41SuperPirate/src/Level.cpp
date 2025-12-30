@@ -16,8 +16,8 @@
 
 std::unique_ptr<Player> Level::s_player = nullptr;
 
-Level::Level(const Camera& camera) : Zone(camera), 
-	m_playerIndex(SIZE_MAX) {
+Level::Level(const Camera& camera) : Zone(camera) {
+
 }
 
 Level::~Level() {
@@ -48,20 +48,21 @@ void Level::draw() {
 	if (m_debugCollision) {
 		const TextureRect& textureRect = rects.back();
 		for (const CollisionRect& rect : m_collisionRects) {
-			Batchrenderer::Get().addQuadAA(Vector4f(rect.posX - camera.getPositionX(), m_mapHeight - (rect.posY + rect.height) - camera.getPositionY(), rect.width, rect.height), Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), rect.hasCollision ? Vector4f(1.0f, 1.0f, 0.0f, 1.0f) : Vector4f(1.0f, 1.0f, 1.0f, 1.0f), textureRect.frame);
+			Batchrenderer::Get().addQuadAA(Vector4f(rect.posX - camera.getPositionX(), m_mapHeight - (rect.posY + rect.height) - camera.getPositionY(), rect.width, rect.height), Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), rect.isPlayer ? Vector4f(1.0f, 0.0f, 0.0f, 1.0f) : rect.hasCollision ? Vector4f(1.0f, 1.0f, 0.0f, 1.0f) : Vector4f(1.0f, 1.0f, 1.0f, 1.0f), textureRect.frame);
 		}
 
-		const Cell& player = m_cellsMain[m_playerIndex];
-		Batchrenderer::Get().addQuadAA(Vector4f(player.posX  - camera.getPositionX(), m_mapHeight - (player.posY + camera.getPositionY()), 48.0f, 56.0f), Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), Vector4f(1.0f, 0.0f, 0.0f, 1.0f), textureRect.frame);
+		//const Cell& player = m_cellsMain[0];
+		//Batchrenderer::Get().addQuadAA(Vector4f(player.posX  - camera.getPositionX(), m_mapHeight - (player.posY + camera.getPositionY()), 48.0f, 56.0f), Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), Vector4f(1.0f, 0.0f, 0.0f, 1.0f), textureRect.frame);
 		
 		Rect bottom = GetPlayer().getBottomRect();
 		Rect left = GetPlayer().getLeftRect();
 		Rect right = GetPlayer().getRightRect();
+		Rect top = GetPlayer().getTopRect();
 		
 		Batchrenderer::Get().addQuadAA(Vector4f(bottom.posX - camera.getPositionX(), m_mapHeight - (bottom.posY + bottom.height) - camera.getPositionY(), bottom.width, bottom.height), Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), Vector4f(0.0f, 1.0f, 0.0f, 1.0f), textureRect.frame);
 		Batchrenderer::Get().addQuadAA(Vector4f(left.posX - camera.getPositionX(), m_mapHeight - (left.posY + left.height) - camera.getPositionY(), left.width, left.height), Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), Vector4f(0.0f, 1.0f, 0.0f, 1.0f), textureRect.frame);
 		Batchrenderer::Get().addQuadAA(Vector4f(right.posX - camera.getPositionX(), m_mapHeight - (right.posY + right.height) - camera.getPositionY(), right.width, right.height), Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), Vector4f(0.0f, 1.0f, 0.0f, 1.0f), textureRect.frame);
-
+		Batchrenderer::Get().addQuadAA(Vector4f(top.posX - camera.getPositionX(), m_mapHeight - (top.posY + top.height) - camera.getPositionY(), top.width, top.height), Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), Vector4f(0.0f, 1.0f, 0.0f, 1.0f), textureRect.frame);
 		Batchrenderer::Get().drawBuffer();
 	}
 }
@@ -138,9 +139,7 @@ void Level::loadZone(const std::string path, const std::string currentTileset) {
 				
 				if (std::find_if(object.getProperties().begin(), object.getProperties().end(),
 					[](const tmx::Property& m) -> bool { return m.getName() == "platform" && m.getBoolValue(); }) != object.getProperties().end()) {
-					m_collisionRects.push_back({ object.getPosition().x, object.getPosition().y, object.getAABB().width, object.getAABB().height });
-					
-					
+					//m_collisionRects.push_back({ object.getPosition().x, object.getPosition().y, object.getAABB().width, object.getAABB().height });										
 					float speed = static_cast<float>(object.getProperties()[2].getIntValue());
 
 					if (object.getAABB().width > object.getAABB().height) {
@@ -156,17 +155,20 @@ void Level::loadZone(const std::string path, const std::string currentTileset) {
 
 		if (layer->getName() == "Objects") {
 			const tmx::ObjectGroup* objectLayer = dynamic_cast<const tmx::ObjectGroup*>(layer.get());
+			size_t playerIndex = 0;
+			size_t playerCollisionIndex = 0;		
 			for (auto& object : objectLayer->getObjects()) {
 				if (object.getName() == "player") {
 					//m_cellsMain.push_back({ static_cast<int>(object.getTileID() - 1u), object.getPosition().x + 48.0f, object.getPosition().y + 28.0f, object.getAABB().width, object.getAABB().height, object.getPosition().x + 0.5f * object.getAABB().width, object.getPosition().y, false, false });
+					m_collisionRects.push_back(CollisionRect{ object.getPosition().x + 48.0f, object.getPosition().y - 28.0f, 48.0f, 56.0f });
 					m_cellsMain.push_back({ m_animationOffsets["player_idle"], object.getPosition().x + 48.0f, object.getPosition().y + 28.0f, object.getAABB().width, object.getAABB().height, object.getPosition().x + 0.5f * object.getAABB().width, object.getPosition().y, -33.0f, + 18.0f, false, false });
-					m_playerIndex = m_cellsMain.size() - 1;
+					playerIndex = m_cellsMain.size() - 1;
+					playerCollisionIndex = m_collisionRects.size() - 1;
 				}				
 			}
-			
 			//m_spriteEntities.push_back(std::make_unique<Player>(m_cellsMain[m_playerIndex], const_cast<Camera&>(camera), getCollisionRects(), 0.0f, 5));
 
-			s_player = std::make_unique<Player>(m_cellsMain[m_playerIndex], const_cast<Camera&>(camera), getCollisionRects(), 0.0f, 5);
+			s_player = std::make_unique<Player>(m_cellsMain[playerIndex], m_collisionRects[playerCollisionIndex], const_cast<Camera&>(camera), getCollisionRects(), 0.0f, 5);
 			s_player->setMovingSpeed(200.0f);
 			s_player->setMapHeight(m_mapHeight);
 		}		

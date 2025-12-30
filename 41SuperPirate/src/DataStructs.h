@@ -27,12 +27,20 @@ struct TileSetData {
 
 struct CollisionRect : public Rect {
 	
-	mutable Rect previousRect;
-
-	CollisionRect(float posX, float posY, float width, float height, bool hasCollision = false) : 
-		Rect{ posX , posY , width , height , hasCollision },
-		previousRect({ posX , posY , width , height , hasCollision })
+	CollisionRect(float posX, float posY, float width, float height, bool isMoving = false, bool isPlayer= false) :
+		Rect{ posX , posY , width , height , false },
+		previousRect({ posX , posY , width , height , false }),
+		isMoving(isMoving),
+		isPlayer(isPlayer)
 	{
 		
 	}
+
+	bool CollisionRect::operator==(CollisionRect& rhs) const {
+		return posX == rhs.posX && posY == rhs.posY && width == rhs.width && height == rhs.height;
+	}
+
+	mutable Rect previousRect;
+	bool isMoving;
+	bool isPlayer;
 };

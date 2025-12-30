@@ -3,8 +3,9 @@
 
 #include "Player.h"
 
-Player::Player(Cell& cell, Camera& camera, const std::vector<CollisionRect>& collisionRects, float elpasedTime, int framecount) :
+Player::Player(Cell& cell, CollisionRect& collisionRect, Camera& camera, const std::vector<CollisionRect>& collisionRects, float elpasedTime, int framecount) :
 	SpriteEntity(cell, elpasedTime, framecount), 
+	collisionRect(collisionRect),
 	camera(camera), 
 	collisionRects(collisionRects),
     m_mapHeight(0.0f),
@@ -16,6 +17,7 @@ Player::Player(Cell& cell, Camera& camera, const std::vector<CollisionRect>& col
 	m_collideBottom(false),
 	m_collideLeft(false),
 	m_collideRight(false),
+	m_collideTop(false),
 	m_onWall(false),
 	m_wasCollideLeft(false),
 	m_wasCollideRight(false),
@@ -24,12 +26,16 @@ Player::Player(Cell& cell, Camera& camera, const std::vector<CollisionRect>& col
 	m_wallBounceLeft(false),
 	m_wallBounceRight(false),
 	m_movingSpeed(0.0f),
-    m_previousRect(getRect()){
+	m_platformIndex(-1),
+	m_sizeX(48.0f),
+	m_sizeY(56.0f) {
 
 	m_inputVector.set(0.0f, 0.0f);
 	m_direction.set(0.0f, 0.0f);
 	m_initialX = cell.posX;
 	m_initialY = cell.posY;
+
+	collisionRect.isPlayer = true;
 }
 
 Player::~Player() {
@@ -37,7 +43,7 @@ Player::~Player() {
 }
 
 void Player::update(float dt) {
-	m_previousRect = getRect();
+	collisionRect.previousRect = getRect();
 	m_wallJumpTimer.update(dt);
 
 	bool isAcivated = m_wallJumpTimer.isActivated();
@@ -80,8 +86,8 @@ void Player::update(float dt) {
 		Vector2f inputVector = Vector2f::Normalize(m_inputVector);		
 		m_direction[0] = (m_wallBounceLeft || m_wallBounceRight) ? m_direction[0] : inputVector[0];
 		cell.posX += m_direction[0] * dt * m_movingSpeed;
-		Rect playerRect = getRect();
-		collision(playerRect, m_previousRect, CollisionAxis::HORIZONTAL);	
+		collisionRect.posX += m_direction[0] * dt * m_movingSpeed;
+		collision(collisionRect, collisionRect.previousRect, CollisionAxis::HORIZONTAL);
 
 		m_wallBounceLeft = false;
 		m_wallBounceRight = false;
@@ -89,15 +95,17 @@ void Player::update(float dt) {
 
 	if (!m_collideBottom && (m_collideRight || m_collideLeft) && !m_jump && !m_onWall) {
 		m_direction[1] = 0.0f;
-		cell.posY += m_gravity * 0.1f * dt;			
+		cell.posY += m_gravity * 0.1f * dt;	
+		collisionRect.posY += m_gravity * 0.1f * dt;
 	}else {
 		m_direction[1] += m_gravity * 0.5f * dt;
 		cell.posY += m_direction[1] * dt;
+		collisionRect.posY += m_direction[1] * dt;
 		m_direction[1] += m_gravity * 0.5f * dt;
 		m_onWall = m_collideRight || m_collideLeft;
 	}
-	Rect playerRect = getRect();
-	collision(playerRect, m_previousRect, CollisionAxis::VERTICAL);
+
+	collision(collisionRect, collisionRect.previousRect, CollisionAxis::VERTICAL);
 
 	if (m_jump && m_collideBottom) {
 		m_wantJump = true;
@@ -119,6 +127,7 @@ void Player::update(float dt) {
 	m_waitForCollideBottom = !isAcivated;
 
 	checkContact();
+	platformMove();
 
 	if (((m_wasCollideLeft && !m_collideLeft) || (m_wasCollideRight && !m_collideRight)) && !m_collideBottom) {
 		if(m_inputVector[0] != 0.0f)
@@ -139,13 +148,17 @@ void Player::update(float dt) {
 		m_jump = false;
 
 	updateAnimation(dt);
+
+	collisionRect = { cell.posX, cell.posY - 56.0f, m_sizeX, m_sizeY, false, true };
 }
 
 void Player::collision(const Rect& playerRect, const Rect& previousRect, CollisionAxis collisionAxis) {
 	
 	for(const CollisionRect& rect : collisionRects) {
 		//rect.hasCollision = collisionAxis == CollisionAxis::HORIZONTAL ? false : rect.hasCollision;
-		
+		if (rect.isPlayer)
+			continue;
+
 		if(SpriteEntity::HasCollision(rect.posX, rect.posY, rect.posX + rect.width, rect.posY + rect.height, playerRect.posX, playerRect.posY, playerRect.posX + playerRect.width, playerRect.posY + playerRect.height)) {
 			rect.hasCollision = true;
 			if(collisionAxis == CollisionAxis::HORIZONTAL){
@@ -155,10 +168,10 @@ void Player::collision(const Rect& playerRect, const Rect& previousRect, Collisi
 				if(playerRect.posX + playerRect.width >= rect.posX && previousRect.posX + previousRect.width <= rect.previousRect.posX)
 					cell.posX = rect.posX - 48.0f;
 			}else{
-				if(playerRect.posY <= rect.posY + rect.height && previousRect.posY >= rect.previousRect.posY + rect.previousRect.height)
+				if(playerRect.posY <= rect.posY + rect.height && previousRect.posY >= rect.posY + rect.height)
 					cell.posY = rect.posY + rect.height + 56.0f /*+ 0.1f*/;
 
-				if(playerRect.posY + playerRect.height >= rect.posY && previousRect.posY + previousRect.height <= rect.previousRect.posY)
+				if(playerRect.posY + playerRect.height >= rect.posY && previousRect.posY + previousRect.height <= rect.posY)
 					cell.posY = rect.posY /* - 0.1f*/;
 
 				m_direction[1] = 0.0f;
@@ -167,22 +180,46 @@ void Player::collision(const Rect& playerRect, const Rect& previousRect, Collisi
 	}
 }
 
-bool Player::compare(const Rect& rect1, const Rect& rect2) {
-	return rect1.posX == rect2.posX && rect1.posY == rect2.posY && rect1.width == rect2.width && rect1.height == rect2.height;
-}
-
 void Player::checkContact() {
-	Rect bottomRect = { cell.posX + 2.0f, cell.posY, 46.0f, 2.0f };
+	Rect bottomRect = { cell.posX + 2.0f, cell.posY, 44.0f, 2.0f };
 	Rect rightRect = { cell.posX + 48.0f, cell.posY - 42.0f , 2.0f, 28.0f };
 	Rect leftRect = { cell.posX - 2.0f, cell.posY - 42.0f , 2.0f, 28.0f };
+	Rect topRect = { cell.posX + 2.0f, cell.posY - 58.0f, 44.0f, 2.0f };
+	
+	int indexBottom, indexRight, indexLeft, indexTop;
+	m_collideBottom = collideList(collisionRects, bottomRect, indexBottom);
+	m_collideRight = collideList(collisionRects, rightRect, indexRight);
+	m_collideLeft = collideList(collisionRects, leftRect, indexLeft);
+	m_collideTop = collideList(collisionRects, topRect, indexTop);
 
-	m_collideBottom = collideList(collisionRects, bottomRect);
-	m_collideRight = collideList(collisionRects, rightRect);
-	m_collideLeft = collideList(collisionRects, leftRect);
+	m_platformIndex = -1;
+	for (size_t i = 0; i < collisionRects.size(); i++) {
+		if (collisionRects[i].isMoving && SpriteEntity::HasCollision(collisionRects[i].posX, collisionRects[i].posY, collisionRects[i].posX + collisionRects[i].width, collisionRects[i].posY + collisionRects[i].height, bottomRect.posX, bottomRect.posY, bottomRect.posX + bottomRect.width, bottomRect.posY + bottomRect.height)) {
+			m_platformIndex = i;
+			if (m_collideBottom && indexBottom != m_platformIndex)
+				m_platformIndex = -1;
+
+			if (m_collideTop && indexTop != m_platformIndex) {
+				float delta = collisionRect.posY - collisionRect.previousRect.posY;
+				m_sizeY -= delta;
+			}
+		}
+	}
+}
+
+void Player::platformMove() {
+	
+	if (m_platformIndex >= 0) {
+		const CollisionRect& collisionRect = collisionRects[m_platformIndex];
+		if (collisionRect.posX != collisionRect.previousRect.posX)
+			cell.posX += collisionRect.posX - collisionRect.previousRect.posX;
+		else
+			cell.posY = collisionRect.posY;		
+	}
 }
 
 const Rect Player::getBottomRect() {
-	return { cell.posX + 2.0f, cell.posY, 46.0f, 2.0f };
+	return { cell.posX + 2.0f, cell.posY, 44.0f, 2.0f };
 }
 
 const Rect Player::getLeftRect() {
@@ -193,10 +230,19 @@ const Rect Player::getRightRect() {
 	return { cell.posX + 48.0f, cell.posY - 42.0f , 2.0f, 28.0f };
 }
 
-bool Player::collideList(const std::vector<CollisionRect>& collisionRects, const Rect& _rect) {
-	for (const Rect& rect : collisionRects) {
-		if (SpriteEntity::HasCollision(rect.posX, rect.posY, rect.posX + rect.width, rect.posY + rect.height, _rect.posX, _rect.posY, _rect.posX + _rect.width, _rect.posY + _rect.height)) {
-			rect.hasCollision = true;
+const Rect Player::getTopRect() {
+	return { cell.posX + 2.0f, cell.posY - 58.0f, 44.0f, 2.0f };
+}
+
+bool Player::collideList(const std::vector<CollisionRect>& collisionRects, const Rect& _rect, int& index) {
+	index = -1;
+	for (size_t i = 0; i < collisionRects.size(); i++) {
+		if (collisionRects[i].isPlayer)
+			continue;
+
+		if (SpriteEntity::HasCollision(collisionRects[i].posX, collisionRects[i].posY, collisionRects[i].posX + collisionRects[i].width, collisionRects[i].posY + collisionRects[i].height, _rect.posX, _rect.posY, _rect.posX + _rect.width, _rect.posY + _rect.height)) {
+			collisionRects[i].hasCollision = true;
+			index = i;
 			return true;
 		}			
 	}
@@ -224,6 +270,6 @@ void Player::reset() {
 	cell.posY = m_initialY;
 }
 
-Rect Player::getRect() {
-	return { cell.posX, cell.posY - 56.0f, 48.0f, 56.0f, false };
+const Rect& Player::getRect() {
+	return collisionRect;
 }

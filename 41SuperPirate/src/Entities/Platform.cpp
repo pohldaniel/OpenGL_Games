@@ -9,7 +9,7 @@ Platform::Platform(CollisionRect& collisionRect, MoveDirection moveDirection, fl
     m_start(start),
 	m_end(end),
 	m_direction(1.0f){
-
+	collisionRect.isMoving = true;
 }
 
 Platform::~Platform() {

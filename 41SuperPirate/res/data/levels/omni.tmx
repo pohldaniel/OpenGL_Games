@@ -100,6 +100,20 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
+ <objectgroup id="6" name="Enemies">
+  <object id="36" name="shell" gid="224" x="192" y="384" width="76" height="46">
+   <properties>
+    <property name="reverse" type="bool" value="true"/>
+   </properties>
+  </object>
+  <object id="38" name="tooth" gid="225" x="1344" y="576" width="48" height="46"/>
+  <object id="39" name="shell" gid="224" x="576" y="448" width="76" height="46">
+   <properties>
+    <property name="reverse" type="bool" value="false"/>
+   </properties>
+  </object>
+  <object id="76" name="tooth" gid="225" x="1408" y="256" width="48" height="46"/>
+ </objectgroup>
  <objectgroup id="13" name="Moving Objects">
   <object id="66" name="boat" x="1790.67" y="619.333" width="768" height="38">
    <properties>
@@ -131,7 +145,7 @@
     <property name="start_angle" type="int" value="0"/>
    </properties>
   </object>
-  <object id="74" name="helicopter" x="341" y="114" width="10" height="320">
+  <object id="74" name="helicopter" x="341" y="89" width="10" height="320">
    <properties>
     <property name="flip" type="bool" value="false"/>
     <property name="platform" type="bool" value="true"/>
@@ -184,20 +198,6 @@
   <object id="78" name="skull" gid="53" x="576" y="64" width="64" height="64"/>
   <object id="79" name="skull" gid="53" x="832" y="128" width="64" height="64"/>
   <object id="80" name="skull" gid="53" x="704" y="64" width="64" height="64"/>
- </objectgroup>
- <objectgroup id="6" name="Enemies">
-  <object id="36" name="shell" gid="224" x="192" y="384" width="76" height="46">
-   <properties>
-    <property name="reverse" type="bool" value="true"/>
-   </properties>
-  </object>
-  <object id="38" name="tooth" gid="225" x="1344" y="576" width="48" height="46"/>
-  <object id="39" name="shell" gid="224" x="576" y="448" width="76" height="46">
-   <properties>
-    <property name="reverse" type="bool" value="false"/>
-   </properties>
-  </object>
-  <object id="76" name="tooth" gid="225" x="1408" y="256" width="48" height="46"/>
  </objectgroup>
  <objectgroup id="2" name="Water">
   <object id="2" name="water" x="0" y="640" width="2560" height="320"/>

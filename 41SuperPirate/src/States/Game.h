@@ -42,7 +42,7 @@ private:
 	void renderUi();
 
 	bool m_initUi = true;
-	bool m_drawUi = true;
+	bool m_drawUi = false;
 	bool m_useCulling = true;
 	bool m_debugCollision = false;
 	bool m_drawCenter = false;
