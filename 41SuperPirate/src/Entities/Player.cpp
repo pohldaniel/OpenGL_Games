@@ -157,6 +157,7 @@ void Player::update(float dt) {
 		m_jump = false;
 
 	updateAnimation(dt);
+
 	if (m_wantReset) {
 		m_wantReset = false;
 		cell.posX = m_initialX;
@@ -224,13 +225,13 @@ bool Player::resolveCollision(const CollisionRect& rect, const Rect& playerRect,
 
 			if (playerRect.posY + playerRect.height >= rect.posY && previousRect.posY + previousRect.height <= rect.previousRect.posY)
 				cell.posY = rect.posY /* - 0.1f*/;
-
 		}
 	}
 	return false;
 }
 
 void Player::checkContact() {
+
 	Rect bottomRect = { cell.posX + 2.0f, cell.posY, 44.0f, 2.0f };
 	Rect rightRect = { cell.posX + 48.0f, cell.posY - 42.0f , 2.0f, 28.0f };
 	Rect leftRect = { cell.posX - 2.0f, cell.posY - 42.0f , 2.0f, 28.0f };
@@ -249,10 +250,10 @@ void Player::checkContact() {
 			if (m_collideBottom && indexBottom != m_platformIndex)
 				m_platformIndex = -1;
 
-			if (m_collideTop && indexTop != m_platformIndex) {
+			/*if (m_collideTop && indexTop != m_platformIndex) {
 				float delta = collisionRect.posY - collisionRect.previousRect.posY;
 				m_sizeY -= delta;
-			}
+			}*/
 		}
 	}
 }
@@ -286,12 +287,11 @@ const Rect Player::getTopRect() {
 
 bool Player::collideList(const std::vector<Rect>& staticRects, const std::vector<CollisionRect>& dynamicRects, const Rect& rect, int& index) {
 	index = -1;
-	bool res = false;
 	for (size_t i = 0; i < staticRects.size(); i++) {
 		if (SpriteEntity::HasCollision(staticRects[i].posX, staticRects[i].posY, staticRects[i].posX + staticRects[i].width, staticRects[i].posY + staticRects[i].height, rect.posX, rect.posY, rect.posX + rect.width, rect.posY + rect.height)) {
 			staticRects[i].hasCollision = true;
 			index = i;
-			res = true;
+			return true;
 		}
 	}
 
@@ -302,11 +302,10 @@ bool Player::collideList(const std::vector<Rect>& staticRects, const std::vector
 		if (SpriteEntity::HasCollision(dynamicRects[i].posX, dynamicRects[i].posY, dynamicRects[i].posX + dynamicRects[i].width, dynamicRects[i].posY + dynamicRects[i].height, rect.posX, rect.posY, rect.posX + rect.width, rect.posY + rect.height)) {
 			dynamicRects[i].hasCollision = true;
 			index = i;
-			res = true;
+			return true;
 		}
 	}
-
-	return res;
+	return false;
 }
 
 void Player::setViewWidth(float viewWidth) {
