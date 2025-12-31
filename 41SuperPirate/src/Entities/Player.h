@@ -34,11 +34,11 @@ private:
 
 	const Rect& getRect();
 	void checkContact();
-	bool collideList(const std::vector<Rect>& staticRects, const std::vector<CollisionRect>& dynamicRects, const Rect& rect, int& index);
-	void collision(const Rect& playerRect, const Rect& previousRect, CollisionAxis collisionAxis);
 	void platformMove();
-	void resolveCollision(const Rect& rect, const Rect& playerRect, const Rect& previousRect, CollisionAxis collisionAxis);
-
+	bool collideList(const std::vector<Rect>& staticRects, const std::vector<CollisionRect>& dynamicRects, const Rect& rect, int& index);
+	void collision(const Rect& playerRect, const Rect& previousRect, CollisionAxis collisionAxis, int& staticIndex, int& dynamicIndex);
+	bool resolveCollision(const Rect& rect, const Rect& playerRect, const Rect& previousRect, CollisionAxis collisionAxis, int staticIndex, int dynamicIndex);
+	bool resolveCollision(const CollisionRect& rect, const Rect& playerRect, const Rect& previousRect, CollisionAxis collisionAxis, int staticIndex, int dynamicIndex);
 
 	float m_mapHeight, m_viewWidth, m_viewHeight;
 	float m_initialX, m_initialY;
@@ -47,6 +47,7 @@ private:
 	bool m_jump, m_collideBottom, m_collideLeft, m_collideRight, m_collideTop;
 	bool m_onWall, m_wasCollideLeft, m_wasCollideRight, m_wantJump, m_waitForCollideBottom;
 	bool m_wallBounceLeft, m_wallBounceRight;
+	bool m_wantReset;
 	Timer m_wallJumpTimer;
 	const std::vector<Rect>& staticRects;
 	const std::vector<CollisionRect>& dynamicRects;
@@ -54,6 +55,7 @@ private:
 	Vector2f m_direction, m_inputVector;
 	float m_movingSpeed;
 	int m_platformIndex;
-
 	CollisionRect& collisionRect;
+
+	
 };
