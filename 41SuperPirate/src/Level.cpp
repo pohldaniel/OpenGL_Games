@@ -6,8 +6,6 @@
 #include <engine/Batchrenderer.h>
 #include <engine/Spritesheet.h>
 
-#include <Entities/Entity_new.h>
-#include <Entities/SpriteEntity.h>
 #include <Entities/Player.h>
 #include <Entities/Enemy.h>
 #include <Entities/Platform.h>
@@ -51,12 +49,9 @@ void Level::draw() {
 			Batchrenderer::Get().addQuadAA(Vector4f(rect.posX - camera.getPositionX(), m_mapHeight - (rect.posY + rect.height) - camera.getPositionY(), rect.width, rect.height), Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), rect.hasCollision ? Vector4f(1.0f, 1.0f, 0.0f, 1.0f) : Vector4f(1.0f, 1.0f, 1.0f, 1.0f), textureRect.frame);
 		}
 
-		for (const CollisionRect& rect : m_dynamicRects) {
+		for (const DynamicRect& rect : m_dynamicRects) {
 			Batchrenderer::Get().addQuadAA(Vector4f(rect.posX - camera.getPositionX(), m_mapHeight - (rect.posY + rect.height) - camera.getPositionY(), rect.width, rect.height), Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), rect.isPlayer ? Vector4f(1.0f, 0.0f, 0.0f, 1.0f) : rect.hasCollision ? Vector4f(1.0f, 1.0f, 0.0f, 1.0f) : Vector4f(1.0f, 1.0f, 1.0f, 1.0f), textureRect.frame);
 		}
-
-		//const Cell& player = m_cellsMain[0];
-		//Batchrenderer::Get().addQuadAA(Vector4f(player.posX  - camera.getPositionX(), m_mapHeight - (player.posY + camera.getPositionY()), 48.0f, 56.0f), Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), Vector4f(1.0f, 0.0f, 0.0f, 1.0f), textureRect.frame);
 		
 		Rect bottom = GetPlayer().getBottomRect();
 		Rect left = GetPlayer().getLeftRect();
@@ -149,10 +144,10 @@ void Level::loadZone(const std::string path, const std::string currentTileset) {
 					float speed = static_cast<float>(object.getProperties()[2].getIntValue());
 
 					if (object.getAABB().width > object.getAABB().height) {
-						m_dynamicRects.push_back(CollisionRect{ object.getPosition().x - 100.0f, object.getAABB().height * 0.5f + object.getPosition().y - 25.0f, 200.0f, 50.0f });
+						m_dynamicRects.push_back(DynamicRect{ object.getPosition().x - 100.0f, object.getAABB().height * 0.5f + object.getPosition().y - 25.0f, 200.0f, 50.0f });
 						m_entities.push_back(std::make_unique<Platform>(m_dynamicRects.back(), MoveDirection::P_HORIZONTAL, speed, Vector2f(object.getPosition().x, object.getPosition().y + object.getAABB().height * 0.5f), Vector2f(object.getPosition().x + object.getAABB().width, object.getPosition().y + object.getAABB().height * 0.5f)));
 					}else{
-						m_dynamicRects.push_back(CollisionRect{ object.getAABB().width * 0.5f + object.getPosition().x - 100.0f, object.getPosition().y - 25.0f, 200.0f, 50.0f });
+						m_dynamicRects.push_back(DynamicRect{ object.getAABB().width * 0.5f + object.getPosition().x - 100.0f, object.getPosition().y - 25.0f, 200.0f, 50.0f });
 						m_entities.push_back(std::make_unique<Platform>(m_dynamicRects.back(), MoveDirection::P_VERTICAL, speed, Vector2f(object.getPosition().x + object.getAABB().width * 0.5f, object.getPosition().y), Vector2f(object.getPosition().x + object.getAABB().width * 0.5f, object.getPosition().y + object.getAABB().height)));
 					}
 				}				
@@ -166,7 +161,7 @@ void Level::loadZone(const std::string path, const std::string currentTileset) {
 			for (auto& object : objectLayer->getObjects()) {
 				if (object.getName() == "player") {
 					//m_cellsMain.push_back({ static_cast<int>(object.getTileID() - 1u), object.getPosition().x + 48.0f, object.getPosition().y + 28.0f, object.getAABB().width, object.getAABB().height, object.getPosition().x + 0.5f * object.getAABB().width, object.getPosition().y, false, false });
-					m_dynamicRects.push_back(CollisionRect{ object.getPosition().x + 48.0f, object.getPosition().y - 28.0f, 48.0f, 56.0f });
+					m_dynamicRects.push_back(DynamicRect{ object.getPosition().x + 48.0f, object.getPosition().y - 28.0f, 48.0f, 56.0f });
 					m_cellsMain.push_back({ m_animationOffsets["player_idle"], object.getPosition().x + 48.0f, object.getPosition().y + 28.0f, object.getAABB().width, object.getAABB().height, object.getPosition().x + 0.5f * object.getAABB().width, object.getPosition().y, -33.0f, + 18.0f, false, false });
 					playerIndex = m_cellsMain.size() - 1;
 					playerCollisionIndex = m_dynamicRects.size() - 1;
@@ -185,11 +180,11 @@ const std::vector<Rect>& Level::getStaticRects() {
 	return m_staticRects;
 }
 
-const std::vector<CollisionRect>& Level::getDynamicRects() {
+const std::vector<DynamicRect>& Level::getDynamicRects() {
 	return m_dynamicRects;
 }
 
-const std::vector<std::unique_ptr<EntityNew>>& Level::getEntities() {
+const std::vector<std::unique_ptr<Entity2D>>& Level::getEntities() {
 	return m_entities;
 }
 

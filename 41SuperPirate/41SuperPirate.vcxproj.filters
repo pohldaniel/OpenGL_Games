@@ -525,7 +525,7 @@
     <ClCompile Include="src\Entities\Platform.cpp">
       <Filter>Source Files\Entities</Filter>
     </ClCompile>
-    <ClCompile Include="src\Entities\Entity_new.cpp">
+    <ClCompile Include="src\Entities\Entity2D.cpp">
       <Filter>Source Files\Entities</Filter>
     </ClCompile>
   </ItemGroup>
@@ -1010,7 +1010,7 @@
     <ClInclude Include="src\Entities\Platform.h">
       <Filter>Source Files\Entities</Filter>
     </ClInclude>
-    <ClInclude Include="src\Entities\Entity_new.h">
+    <ClInclude Include="src\Entities\Entity2D.h">
       <Filter>Source Files\Entities</Filter>
     </ClInclude>
   </ItemGroup>

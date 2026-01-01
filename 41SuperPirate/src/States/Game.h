@@ -28,8 +28,8 @@ public:
 	void update() override;
 	void render() override;
 	void resize(int deltaW, int deltaH) override;
-	void OnReEnter(unsigned int prevState) override;
 
+	void OnReEnter(unsigned int prevState) override;
 	void OnMouseMotion(Event::MouseMoveEvent& event) override;
 	void OnMouseWheel(Event::MouseWheelEvent& event) override;
 	void OnMouseButtonDown(Event::MouseButtonEvent& event) override;
@@ -48,8 +48,6 @@ private:
 	bool m_drawCenter = false;
 
 	Camera m_camera;
-	//Overworld m_overworld;
-	//Level m_level;
 	Zone* m_zone;
 	Player* m_player;
 

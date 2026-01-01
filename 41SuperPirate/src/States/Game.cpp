@@ -297,6 +297,14 @@ void Game::renderUi() {
 		Level::GetPlayer().reset();
 	}
 
+	if (m_scene == Scene::OMNI && ImGui::SliderFloat("Size X", &Level::GetPlayer().sizeX(), 0.0f, 48.0f)) {
+
+	}
+	
+	if (m_scene == Scene::OMNI && ImGui::SliderFloat("Size Y", &Level::GetPlayer().sizeY(), 0.0f, 56.0f)) {
+
+	}
+
 	ImGui::End();
 
 	ImGui::Render();

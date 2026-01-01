@@ -2,15 +2,15 @@
 #include <string>
 #include <engine/Vector.h>
 
+#include "Entity2D.h"
 #include "DataStructs.h"
-#include "Entity_new.h"
 
 enum ViewDirection {
 	LEFT,
 	RIGHT
 };
 
-class SpriteEntity : public EntityNew {
+class SpriteEntity : public Entity2D {
 
 public:
 

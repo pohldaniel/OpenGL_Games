@@ -25,9 +25,9 @@ struct TileSetData {
 	std::vector<unsigned int > indices;
 };
 
-struct CollisionRect : public Rect {
+struct DynamicRect : public Rect {
 	
-	CollisionRect(float posX, float posY, float width, float height, bool isMoving = false, bool isPlayer= false) :
+	DynamicRect(float posX, float posY, float width, float height, bool isMoving = false, bool isPlayer= false) :
 		Rect{ posX , posY , width , height , false },
 		previousRect({ posX , posY , width , height , false }),
 		isMoving(isMoving),
@@ -36,7 +36,7 @@ struct CollisionRect : public Rect {
 		
 	}
 
-	bool CollisionRect::operator==(CollisionRect& rhs) const {
+	bool DynamicRect::operator==(DynamicRect& rhs) const {
 		return posX == rhs.posX && posY == rhs.posY && width == rhs.width && height == rhs.height;
 	}
 

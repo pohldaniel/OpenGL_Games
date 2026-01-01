@@ -3,13 +3,12 @@
 #include <memory>
 #include <engine/Camera.h>
 #include <engine/TileSet.h>
+#include <Entities/Entity2D.h>
 
 #include "DataStructs.h"
 #include "Zone.h"
 
-class EntityNew;
 class Player;
-class Enemy;
 
 class Level : public Zone {
 
@@ -23,13 +22,14 @@ public:
 	void loadZone(const std::string path, const std::string currentTileset) override;
 
 	const std::vector<Rect>& getStaticRects();
-	const std::vector<CollisionRect>& getDynamicRects();
-	const std::vector<std::unique_ptr<EntityNew>>& getEntities();
+	const std::vector<DynamicRect>& getDynamicRects();
+	const std::vector<std::unique_ptr<Entity2D>>& getEntities();
 	float getMapHeight();
 	static Player& GetPlayer();
 
 private:
 
-	std::vector<std::unique_ptr<EntityNew>> m_entities;
+	std::vector<std::unique_ptr<Entity2D>> m_entities;
+	std::vector<DynamicRect> m_dynamicRects;
 	static std::unique_ptr<Player> s_player;
 };

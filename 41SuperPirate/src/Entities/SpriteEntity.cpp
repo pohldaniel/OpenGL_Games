@@ -1,7 +1,7 @@
 #include "SpriteEntity.h"
 
 SpriteEntity::SpriteEntity(Cell& cell, float elpasedTime, int framecount) : 
-	EntityNew(),
+	Entity2D(),
 	cell(cell),
 	m_startFrame(cell.tileID), 
 	m_elapsedTime(elpasedTime), 
@@ -11,7 +11,7 @@ SpriteEntity::SpriteEntity(Cell& cell, float elpasedTime, int framecount) :
 }
 
 SpriteEntity& SpriteEntity::operator=(const SpriteEntity& rhs) {
-	EntityNew::operator=(rhs);
+	Entity2D::operator=(rhs);
 	cell = rhs.cell;
 	m_startFrame = rhs.m_startFrame;
 	m_frameCount = rhs.m_frameCount;
@@ -21,7 +21,7 @@ SpriteEntity& SpriteEntity::operator=(const SpriteEntity& rhs) {
 }
 
 SpriteEntity& SpriteEntity::operator=(SpriteEntity&& rhs) noexcept {
-	EntityNew::operator=(rhs);
+	Entity2D::operator=(rhs);
 	cell = rhs.cell;
 	m_startFrame = rhs.m_startFrame;
 	m_frameCount = rhs.m_frameCount;
@@ -30,14 +30,14 @@ SpriteEntity& SpriteEntity::operator=(SpriteEntity&& rhs) noexcept {
 	return *this;
 }
 
-SpriteEntity::SpriteEntity(SpriteEntity const& rhs) : EntityNew(), cell(rhs.cell){
+SpriteEntity::SpriteEntity(SpriteEntity const& rhs) : Entity2D(), cell(rhs.cell){
 	m_startFrame = rhs.m_startFrame;
 	m_frameCount = rhs.m_frameCount;
 	m_elapsedTime = rhs.m_elapsedTime;
 	m_viewDirection = rhs.m_viewDirection;
 }
 
-SpriteEntity::SpriteEntity(SpriteEntity&& rhs)  noexcept : EntityNew(), cell(rhs.cell) {
+SpriteEntity::SpriteEntity(SpriteEntity&& rhs)  noexcept : Entity2D(), cell(rhs.cell) {
 	m_startFrame = rhs.m_startFrame;
 	m_frameCount = rhs.m_frameCount;
 	m_elapsedTime = rhs.m_elapsedTime;

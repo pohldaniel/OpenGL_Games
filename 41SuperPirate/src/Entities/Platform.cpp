@@ -1,8 +1,8 @@
 #include <iostream>
 #include "Platform.h"
 
-Platform::Platform(CollisionRect& dynmaicRect, MoveDirection moveDirection, float speed, const Vector2f& start, const Vector2f& end) :
-	EntityNew(), 
+Platform::Platform(DynamicRect& dynmaicRect, MoveDirection moveDirection, float speed, const Vector2f& start, const Vector2f& end) :
+	Entity2D(),
 	dynmaicRect(dynmaicRect),
 	m_moveDirection(moveDirection),
 	m_speed(speed),
@@ -48,7 +48,7 @@ void Platform::checkBoreder() {
 	}
 }
 
-const CollisionRect& Platform::getDynamicRect() {
+const DynamicRect& Platform::getDynamicRect() {
 	return dynmaicRect;
 }
 

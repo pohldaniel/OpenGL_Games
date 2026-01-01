@@ -1,7 +1,8 @@
 #pragma once
 #include <array>
 #include <engine/Vector.h>
-#include "Entity_new.h"
+
+#include "Entity2D.h"
 #include "DataStructs.h"
 
 enum MoveDirection {
@@ -9,22 +10,22 @@ enum MoveDirection {
 	P_VERTICAL
 };
 
-class Platform : public EntityNew {
+class Platform : public Entity2D {
 
 public:
 
-	Platform(CollisionRect& dynmaicRect, MoveDirection moveDirection, float speed, const Vector2f& start = Vector2f::ZERO, const Vector2f& end = Vector2f::ZERO);
+	Platform(DynamicRect& dynmaicRect, MoveDirection moveDirection, float speed, const Vector2f& start = Vector2f::ZERO, const Vector2f& end = Vector2f::ZERO);
 	virtual ~Platform();
 
 	void update(float dt) override;
-	const CollisionRect& getDynamicRect();
+	const DynamicRect& getDynamicRect();
 	Rect getRect();
 
 private:
 
 	void checkBoreder();
 
-	CollisionRect& dynmaicRect;
+	DynamicRect& dynmaicRect;
 	Vector2f m_start, m_end;
 	MoveDirection m_moveDirection;
 	float m_speed;

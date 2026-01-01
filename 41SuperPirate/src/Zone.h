@@ -46,7 +46,6 @@ protected:
 	std::vector<Cell> m_cellsBackground;
 	std::vector<Cell> m_cellsMain;
 	std::vector<Rect> m_staticRects;
-	std::vector<CollisionRect> m_dynamicRects;
 	TileSet m_tileSet;
 	std::unordered_map<std::string, int> m_animationOffsets;
 	unsigned int m_spritesheet;
