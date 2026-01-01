@@ -61,7 +61,6 @@ private:
 	float m_movingSpeed;
 	int m_platformIndex;
 	DynamicRect& collisionRect;
-	int m_lastDynamic;
 	bool m_collideDynamic, m_wasCollideDynamic, m_blockWallSlide, m_onWall;
 
 };

@@ -195,7 +195,6 @@ void Player::update(float dt) {
 		cell.posX = m_initialX;
 		cell.posY = m_initialY;
 	}
-	m_lastDynamic = dynamicIndex;
 	collisionRect = { cell.posX, cell.posY - 56.0f, m_sizeX, m_sizeY, false, true };
 }
 
