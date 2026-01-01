@@ -64,16 +64,6 @@ void Player::update(float dt) {
 	m_inputVector.set(0.0f, 0.0f);
 
 	bool move = false;	
-	if (m_wallBounceLeft || m_wallBounceRight) {
-		if(m_wallBounceLeft)
-			m_direction += Vector2f(-100.0f, 0.0f);
-
-		if (m_wallBounceRight)
-			m_direction += Vector2f(100.0f, 0.0f);
-
-		move = true;
-	}
-
 	if (keyboard.keyDown(Keyboard::KEY_A)) {
 		m_inputVector += Vector2f(-1.0f, 0.0f);
 		m_viewDirection = ViewDirection::LEFT;
@@ -88,6 +78,16 @@ void Player::update(float dt) {
 	
 	if (keyboard.keyPressed(Keyboard::KEY_W)) {
 		m_jumpPressed = true;
+	}
+
+	if (m_wallBounceLeft || m_wallBounceRight) {
+		if (m_wallBounceLeft)
+			m_direction = Vector2f(-100.0f, 0.0f);
+
+		if (m_wallBounceRight)
+			m_direction = Vector2f(100.0f, 0.0f);
+
+		move = true;
 	}
 
 	std::for_each(staticRects.begin(), staticRects.end(), [](const Rect& rect) { rect.hasCollision = false; });
@@ -107,24 +107,12 @@ void Player::update(float dt) {
 		m_wallBounceRight = false;
 	}
 
-	if (staticIndex >= 0 && m_direction[1] < 0.0f) {
-		const Rect& rect = staticRects[staticIndex];
-		if (collisionRect.previousRect.posY - collisionRect.previousRect.height < rect.posY - rect.height)
-			m_blockWallSlide = true;
-	}
-
-	if (dynamicIndex >= 0 && m_direction[1] < 0.0f) {
-		const Rect& rect = dynamicRects[dynamicIndex];
-		if (collisionRect.previousRect.posY - collisionRect.previousRect.height < rect.posY - rect.height)
-			m_blockWallSlide = true;
-	}
-
 	if (!m_collideBottom && (m_collideRight || m_collideLeft) && m_jumpPressed && !m_blockJump) {
 		m_wantJump = (m_inputVector[0] == 0.0f || (m_inputVector[0] < 0.0f || m_collideLeft) || (m_inputVector[0] > 0.0f || m_collideRight));
 		m_blockJump = true;
 	}
 	
-	if ((!m_collideBottom && (m_collideRight || m_collideLeft) && !m_jumpPressed && !m_onWall && !m_blockWallSlide)) {
+	if ((m_blockJump && m_jumpPressed) || ((!m_collideBottom && (m_collideRight || m_collideLeft) && !m_jumpPressed && !m_onWall && !m_blockWallSlide) && m_direction[1] >= 0.0f)) {
 		m_direction[1] = 0.0f;
 		cell.posY += m_gravity * 0.1f * dt;	
 		collisionRect.posY += m_gravity * 0.1f * dt;
@@ -142,11 +130,11 @@ void Player::update(float dt) {
 		m_wantJump = true;
 	}
 
-	/*if (m_jump && m_wasCollideLeft && !m_collideBottom) {
+	/*if (m_jumpPressed && m_wasCollideLeft && !m_collideBottom) {
 		m_wallBounceRight = true;
 	}
 
-	if (m_jump && m_wasCollideRight && !m_collideBottom) {
+	if (m_jumpPressed && m_wasCollideRight && !m_collideBottom) {
 		m_wallBounceLeft = true;
 	}*/
 	
@@ -176,8 +164,10 @@ void Player::update(float dt) {
 	}
 
 	if (((m_wasCollideLeft && !m_collideLeft) || (m_wasCollideRight && !m_collideRight)) && !m_collideBottom) {
-		if(m_inputVector[0] != 0.0f)
+		if (m_inputVector[0] != 0.0f) {
+			m_blockJump = false;
 			m_wallJumpTimer.start(400u, false);
+		}
 	}
 
 	if (m_collideBottom && m_direction[1] > 0.0f) {
@@ -337,6 +327,7 @@ bool Player::collideList(const std::vector<Rect>& staticRects, const std::vector
 		if (SpriteEntity::HasCollision(staticRects[i].posX, staticRects[i].posY, staticRects[i].posX + staticRects[i].width, staticRects[i].posY + staticRects[i].height, rect.posX, rect.posY, rect.posX + rect.width, rect.posY + rect.height)) {
 			staticRects[i].hasCollision = true;
 			index = i;
+			collideDynamic = false;
 			return true;
 		}
 	}
