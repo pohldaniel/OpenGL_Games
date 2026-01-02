@@ -1,5 +1,4 @@
 #pragma once
-#include <iostream>
 #include <functional>
 
 class Timer {
@@ -66,9 +65,9 @@ public:
 	void setReceiver(U* receiver);
 	void setCallBack(CallBack callBack);
 	U* m_receiver;
+
 private:
 
-	
 	CallBack m_callBack;
 };
 

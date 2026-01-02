@@ -91,7 +91,7 @@ void Timer::updateDefault(const float dt) {
 			OnTimerEnd();
 		}
 
-		if (m_elapsedTime < m_updateTime + m_delayTime) {
+		if (m_elapsedTime < m_updateTime + m_delayTime && m_delayTime > 0.0f) {
 			OnUpdate = std::bind(&Timer::updateDelay, this, std::placeholders::_1);
 			break;
 		}

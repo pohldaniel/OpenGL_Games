@@ -37,7 +37,12 @@ Player::Player(Cell& cell, DynamicRect& collisionRect, Camera& camera, const std
 	m_sizeY(56.0f),
 	m_wantReset(false),
 	m_upPressed(false),
-	m_dashPressed(false){
+	m_dashPressed(false),
+	m_jumpCount(0u),
+	m_maxJumps(2u),
+	m_currentMaxJumps(m_maxJumps),
+	m_wantAdditionalJump(false),
+	m_infinitWall(true){
 
 	m_inputVector.set(0.0f, 0.0f);
 	m_direction.set(0.0f, 0.0f);
@@ -57,6 +62,7 @@ void Player::update(float dt) {
 	m_coyoteJumpTimer.update(dt);
 	m_jumpBuffer.update(dt);
 	m_dashTimer.update(dt);
+	m_waitTimer.update(dt);
 
 	bool isAcivated = m_coyoteWallJumpTimer.isActivated();
 	m_wasCollideBottom = m_coyoteJumpTimer.isActivated() || m_collideBottom;
@@ -83,17 +89,22 @@ void Player::update(float dt) {
 		m_viewDirection = ViewDirection::RIGHT;
 		move |= true;
 	}
-	
+
 	if (keyboard.keyPressed(Keyboard::KEY_W)) {
 		m_upPressed = true;
 		m_jumpPressed = true;
 		if (!m_collideBottom)
 			m_jumpBuffer.start(200u, false);
+	
+		m_wantAdditionalJump = 0u < m_jumpCount && m_jumpCount < m_currentMaxJumps;
+		m_jumpCount = (m_jumpCount == m_currentMaxJumps) ? m_currentMaxJumps + 1u : m_jumpCount;
 	}
 
 	if (keyboard.keyUp(Keyboard::KEY_W) && m_upPressed) {
 		m_upPressed = false;
-		//m_direction[1] = 0.0f;
+		m_direction[1] *= 0.65f;
+		if(!m_collideBottom && m_jumpCount < m_currentMaxJumps && !m_waitTimer.isActivated())
+			m_jumpCount += 1u;
 	}
 
 	if (!m_dashPressed && (keyboard.keyDown(Keyboard::KEY_LEFT) || keyboard.keyDown(Keyboard::KEY_RIGHT) || keyboard.keyDown(Keyboard::KEY_SPACE))) {
@@ -156,17 +167,18 @@ void Player::update(float dt) {
 		m_blockJump = true;
 	}
 	
-
-	if ((m_blockJump && m_jumpPressed) || ((!m_collideBottom && (m_collideRight || m_collideLeft) && !m_jumpPressed && !m_onWall && !m_blockWallSlide) && m_direction[1] >= 0.0f)) {
+	if ((m_blockJump && m_jumpPressed && (m_collideRight || m_collideLeft)) || ((!m_collideBottom && (m_collideRight || m_collideLeft) && !m_jumpPressed && !m_onWall && !m_blockWallSlide) && m_direction[1] >= 0.0f)) {
 		m_direction[1] = 0.0f;
 		cell.posY += m_gravity * 0.1f * dt;
 		collisionRect.posY += m_gravity * 0.1f * dt;
 	}else {
-		m_direction[1] += m_gravity * 0.5f * dt;
-		cell.posY += m_direction[1] * dt;
-		collisionRect.posY += m_direction[1] * dt;
-		m_direction[1] += m_gravity * 0.5f * dt;
-		m_onWall = m_collideRight || m_collideLeft;
+		if (!m_waitTimer.isActivated()) {
+			m_direction[1] += m_gravity * 0.5f * dt;
+			cell.posY += m_direction[1] * dt;
+			collisionRect.posY += m_direction[1] * dt;
+			m_direction[1] += m_gravity * 0.5f * dt;
+			m_onWall = m_collideRight || m_collideLeft;
+		}
 	}
 		
 	collision(collisionRect, collisionRect.previousRect, CollisionAxis::VERTICAL, staticIndex, dynamicIndex);
@@ -198,8 +210,6 @@ void Player::update(float dt) {
 		m_waitForCollideBottom = true;		
 	}
 
-	m_waitForCollideBottom = !isAcivated;
-
 	checkContact();
 	platformMove();
 
@@ -215,6 +225,11 @@ void Player::update(float dt) {
 		if (m_inputVector[0] != 0.0f) {
 			m_blockJump = false;
 			m_coyoteWallJumpTimer.start(400u, false);
+			if (m_infinitWall) {
+				m_currentMaxJumps = m_maxJumps + 1u;
+				m_jumpCount = 1u;
+			}
+			m_infinitWall = false;
 		}
 	}
 
@@ -222,19 +237,25 @@ void Player::update(float dt) {
 		m_waitForCollideBottom = false;
 		m_blockJump = false;
 		m_blockWallSlide = false;
+		m_jumpCount = 0u;
+		m_infinitWall = true;
 		m_direction[1] = 0.0f;
-	}
+	} 
 
-	if (m_wantJump) {
-		m_direction[1] = -m_jumpHeight;
+	if (m_wantJump || m_wantAdditionalJump) {
+		m_direction[1] = m_wantJump  ? -m_jumpHeight : -m_jumpHeight * 0.5f;
+
+		if (m_wantAdditionalJump) 
+			m_waitTimer.startExclusive(50u, false);
+		
 		m_wantJump = false;
+		m_wantAdditionalJump = false;
 	}
 
 	if (m_collideTop && m_direction[1] < 0.0f)
 		m_direction[1] = 0.0f;
 
-	if (m_jumpPressed)
-		m_jumpPressed = false;
+	m_jumpPressed = false;
 	
 	updateAnimation(dt);
 
