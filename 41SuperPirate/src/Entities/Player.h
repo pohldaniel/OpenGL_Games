@@ -49,11 +49,11 @@ private:
 	float m_initialX, m_initialY;
 	float m_gravity, m_jumpHeight;
 	float m_sizeX, m_sizeY;
-	bool m_jumpPressed, m_wantJump, m_blockJump;
+	bool m_jumpPressed, m_wantJump, m_blockJump, m_upPressed, m_dashPressed;
 	bool m_collideBottom, m_collideLeft, m_collideRight, m_collideTop, m_waitForCollideBottom, m_wasCollideBottom, m_wasCollideLeft, m_wasCollideRight;
 	bool m_wallBounceLeft, m_wallBounceRight;
 	bool m_wantReset;
-	Timer m_wallJumpTimer, m_allowJumpTimer;
+	Timer m_coyoteWallJumpTimer, m_coyoteJumpTimer, m_jumpBuffer, m_dashTimer;
 	const std::vector<Rect>& staticRects;
 	const std::vector<DynamicRect>& dynamicRects;
 	Camera& camera;
@@ -62,5 +62,4 @@ private:
 	int m_platformIndex;
 	DynamicRect& collisionRect;
 	bool m_collideDynamic, m_wasCollideDynamic, m_blockWallSlide, m_onWall;
-
 };

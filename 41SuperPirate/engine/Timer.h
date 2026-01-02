@@ -15,7 +15,8 @@ public:
 	virtual ~Timer() = default;
 
 	virtual void update(const float dt);
-	void start(unsigned int milli, bool repeat = true, bool starOnce = false);
+	void start(unsigned int milli, bool repeat = true, unsigned int delayMilli = 0u, bool starOnce = false);
+	void startExclusive(unsigned int milli, bool repeat = true, unsigned int delayMilli = 0u, bool starOnce = false);
 	void stop();
 	void print();
 	const bool isActivated() const;
@@ -25,12 +26,18 @@ public:
 protected:
 
 	float m_elapsedTime;
+	float m_delayTime;
 	float m_updateTime;
 	bool m_repeate;
 	bool m_activated;
 	bool m_startOnce;
 
 private:
+	
+	void updateDefault(const float dt);
+	void updateDelay(const float dt);
+
+	std::function<void(const float dt)> OnUpdate;
 	std::function<void()> OnTimerEnd;
 };
 

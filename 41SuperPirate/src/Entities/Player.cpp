@@ -35,7 +35,9 @@ Player::Player(Cell& cell, DynamicRect& collisionRect, Camera& camera, const std
 	m_platformIndex(-1),
 	m_sizeX(48.0f),
 	m_sizeY(56.0f),
-	m_wantReset(false){
+	m_wantReset(false),
+	m_upPressed(false),
+	m_dashPressed(false){
 
 	m_inputVector.set(0.0f, 0.0f);
 	m_direction.set(0.0f, 0.0f);
@@ -51,11 +53,13 @@ Player::~Player() {
 
 void Player::update(float dt) {
 	collisionRect.previousRect = getRect();
-	m_wallJumpTimer.update(dt);
-	m_allowJumpTimer.update(dt);
+	m_coyoteWallJumpTimer.update(dt);
+	m_coyoteJumpTimer.update(dt);
+	m_jumpBuffer.update(dt);
+	m_dashTimer.update(dt);
 
-	bool isAcivated = m_wallJumpTimer.isActivated();
-	m_wasCollideBottom = m_allowJumpTimer.isActivated() || m_collideBottom;
+	bool isAcivated = m_coyoteWallJumpTimer.isActivated();
+	m_wasCollideBottom = m_coyoteJumpTimer.isActivated() || m_collideBottom;
 	m_wasCollideLeft = isAcivated || m_collideLeft;
 	m_wasCollideRight = isAcivated || m_collideRight;
 	m_wasCollideDynamic = m_collideDynamic;
@@ -64,6 +68,10 @@ void Player::update(float dt) {
 	m_inputVector.set(0.0f, 0.0f);
 
 	bool move = false;	
+	bool wantDash = false;
+
+	float speed = m_movingSpeed;
+
 	if (keyboard.keyDown(Keyboard::KEY_A)) {
 		m_inputVector += Vector2f(-1.0f, 0.0f);
 		m_viewDirection = ViewDirection::LEFT;
@@ -77,7 +85,36 @@ void Player::update(float dt) {
 	}
 	
 	if (keyboard.keyPressed(Keyboard::KEY_W)) {
+		m_upPressed = true;
 		m_jumpPressed = true;
+		if (!m_collideBottom)
+			m_jumpBuffer.start(200u, false);
+	}
+
+	if (keyboard.keyUp(Keyboard::KEY_W) && m_upPressed) {
+		m_upPressed = false;
+		//m_direction[1] = 0.0f;
+	}
+
+	if (!m_dashPressed && (keyboard.keyDown(Keyboard::KEY_LEFT) || keyboard.keyDown(Keyboard::KEY_RIGHT) || keyboard.keyDown(Keyboard::KEY_SPACE))) {
+		m_dashPressed = true;
+		m_dashTimer.startExclusive(100u, false, 400u);		
+	}
+
+	if (m_dashPressed && (keyboard.keyDown(Keyboard::KEY_LEFT) || keyboard.keyDown(Keyboard::KEY_RIGHT) || keyboard.keyDown(Keyboard::KEY_SPACE))) {
+		m_dashPressed = false;
+	}
+
+	if (m_dashTimer.isActivated()) {
+		m_inputVector.set(0.0f, 0.0f);
+		if (m_viewDirection == ViewDirection::LEFT)
+			m_inputVector = Vector2f(-1.0f, 0.0f);
+
+		if (m_viewDirection == ViewDirection::RIGHT)
+			m_inputVector = Vector2f(1.0f, 0.0f);
+		
+		wantDash = true;
+		speed = m_movingSpeed * 4.0f;
 	}
 
 	if (m_wallBounceLeft || m_wallBounceRight) {
@@ -95,11 +132,13 @@ void Player::update(float dt) {
 
 	int staticIndex = -1;
 	int dynamicIndex = -1;
-	if (move) {
+
+	if (move || wantDash) {
 		Vector2f inputVector = Vector2f::Normalize(m_inputVector);		
 		m_direction[0] = (m_wallBounceLeft || m_wallBounceRight) ? m_direction[0] : inputVector[0];
-		cell.posX += m_direction[0] * dt * m_movingSpeed;
-		collisionRect.posX += m_direction[0] * dt * m_movingSpeed;
+		
+		cell.posX += m_direction[0] * dt * speed;
+		collisionRect.posX += m_direction[0] * dt * speed;
 
 		collision(collisionRect, collisionRect.previousRect, CollisionAxis::HORIZONTAL, staticIndex, dynamicIndex);
 
@@ -107,14 +146,20 @@ void Player::update(float dt) {
 		m_wallBounceRight = false;
 	}
 
+	if (wantDash) {
+		collisionRect = { cell.posX, cell.posY - 56.0f, m_sizeX, m_sizeY, false, true };
+		return;
+	}
+
 	if (!m_collideBottom && (m_collideRight || m_collideLeft) && m_jumpPressed && !m_blockJump) {
 		m_wantJump = (m_inputVector[0] == 0.0f || (m_inputVector[0] < 0.0f || m_collideLeft) || (m_inputVector[0] > 0.0f || m_collideRight));
 		m_blockJump = true;
 	}
 	
+
 	if ((m_blockJump && m_jumpPressed) || ((!m_collideBottom && (m_collideRight || m_collideLeft) && !m_jumpPressed && !m_onWall && !m_blockWallSlide) && m_direction[1] >= 0.0f)) {
 		m_direction[1] = 0.0f;
-		cell.posY += m_gravity * 0.1f * dt;	
+		cell.posY += m_gravity * 0.1f * dt;
 		collisionRect.posY += m_gravity * 0.1f * dt;
 	}else {
 		m_direction[1] += m_gravity * 0.5f * dt;
@@ -123,11 +168,14 @@ void Player::update(float dt) {
 		m_direction[1] += m_gravity * 0.5f * dt;
 		m_onWall = m_collideRight || m_collideLeft;
 	}
-	
+		
 	collision(collisionRect, collisionRect.previousRect, CollisionAxis::VERTICAL, staticIndex, dynamicIndex);
 
-	if (m_jumpPressed && m_collideBottom) {
-		m_wantJump = true;
+	if (m_collideBottom) {
+		bool activateJumpBuffer = m_jumpBuffer.isActivated();
+		m_wantJump = m_jumpPressed || activateJumpBuffer;
+		if (activateJumpBuffer)
+			m_jumpBuffer.stop();
 	}
 
 	/*if (m_jumpPressed && m_wasCollideLeft && !m_collideBottom) {
@@ -142,7 +190,7 @@ void Player::update(float dt) {
 		m_wantJump = true;
 		m_waitForCollideBottom = true;
 		m_wasCollideBottom = false;
-		m_allowJumpTimer.stop();
+		m_coyoteJumpTimer.stop();
 	}
 
 	if (m_jumpPressed && (m_wasCollideLeft || m_wasCollideRight) && !m_waitForCollideBottom) {
@@ -160,13 +208,13 @@ void Player::update(float dt) {
 	}
 
 	if (m_wasCollideBottom && !m_collideBottom) {
-		m_allowJumpTimer.start(100u, false);
+		m_coyoteJumpTimer.start(100u, false);
 	}
 
 	if (((m_wasCollideLeft && !m_collideLeft) || (m_wasCollideRight && !m_collideRight)) && !m_collideBottom) {
 		if (m_inputVector[0] != 0.0f) {
 			m_blockJump = false;
-			m_wallJumpTimer.start(400u, false);
+			m_coyoteWallJumpTimer.start(400u, false);
 		}
 	}
 
