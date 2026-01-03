@@ -414,6 +414,8 @@ void Application::render() {
 void Application::update() {
 	Mouse::instance().update();
 	Keyboard::instance().update();
+	XInputController::instance().update();
+	
 	Machine->update();
 
 	if (!Machine->isRunning()) {

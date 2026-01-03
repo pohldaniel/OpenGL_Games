@@ -78,13 +78,13 @@ void Player::update(float dt) {
 
 	float speed = m_movingSpeed;
 
-	if (keyboard.keyDown(Keyboard::KEY_A)) {
+	if (keyboard.keyDown(Keyboard::KEY_A) || keyboard.keyPressed(Keyboard::KEY_LEFT)) {
 		m_inputVector += Vector2f(-1.0f, 0.0f);
 		m_viewDirection = ViewDirection::LEFT;
 		move |= true;
 	}
 
-	if (keyboard.keyDown(Keyboard::KEY_D)) {
+	if (keyboard.keyDown(Keyboard::KEY_D) || keyboard.keyPressed(Keyboard::KEY_RIGHT)) {
 		m_inputVector += Vector2f(1.0f, 0.0f);
 		m_viewDirection = ViewDirection::RIGHT;
 		move |= true;
@@ -107,12 +107,12 @@ void Player::update(float dt) {
 			m_jumpCount += 1u;
 	}
 
-	if (!m_dashPressed && (keyboard.keyDown(Keyboard::KEY_LEFT) || keyboard.keyDown(Keyboard::KEY_RIGHT) || keyboard.keyDown(Keyboard::KEY_SPACE))) {
+	if (!m_dashPressed && (keyboard.keyDown(Keyboard::KEY_F) || keyboard.keyDown(Keyboard::KEY_LEFT) || keyboard.keyDown(Keyboard::KEY_RIGHT) || keyboard.keyDown(Keyboard::KEY_SPACE))) {
 		m_dashPressed = true;
 		m_dashTimer.startExclusive(100u, false, 400u);		
 	}
 
-	if (m_dashPressed && (keyboard.keyDown(Keyboard::KEY_LEFT) || keyboard.keyDown(Keyboard::KEY_RIGHT) || keyboard.keyDown(Keyboard::KEY_SPACE))) {
+	if (m_dashPressed && (keyboard.keyDown(Keyboard::KEY_F) || keyboard.keyDown(Keyboard::KEY_LEFT) || keyboard.keyDown(Keyboard::KEY_RIGHT) || keyboard.keyDown(Keyboard::KEY_SPACE))) {
 		m_dashPressed = false;
 	}
 
@@ -243,7 +243,7 @@ void Player::update(float dt) {
 	} 
 
 	if (m_wantJump || m_wantAdditionalJump) {
-		m_direction[1] = m_wantJump  ? -m_jumpHeight : -m_jumpHeight * 0.5f;
+		m_direction[1] = m_wantJump  ? -m_jumpHeight : -m_jumpHeight * 0.75f;
 
 		if (m_wantAdditionalJump) 
 			m_waitTimer.startExclusive(50u, false);

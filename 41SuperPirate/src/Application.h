@@ -4,6 +4,7 @@
 #include <engine/input/EventDispatcher.h>
 #include <engine/input/Keyboard.h>
 #include <engine/input/Mouse.h>
+#include <engine/input/GamePad.h>
 #include <States/StateMachine.h>
 
 class Application {

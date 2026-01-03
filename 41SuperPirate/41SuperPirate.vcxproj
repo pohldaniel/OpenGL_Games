@@ -96,7 +96,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>..\libd\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libsoil2.lib;libfreetype.lib;libimgui.lib;libassimp.lib;libbullet.lib;libtmxlite.lib;libzlib.lib;libopenal.lib;libsndfile.lib;libmpg.lib;liblame.lib;libflac.lib;winmm.lib;shlwapi.lib;libdetour.lib;libdetourtilecache.lib;libdetourcrowd.lib;librecast.lib;liblz4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libsoil2.lib;libfreetype.lib;libimgui.lib;libassimp.lib;libbullet.lib;libtmxlite.lib;libzlib.lib;libopenal.lib;libsndfile.lib;libmpg.lib;liblame.lib;libflac.lib;winmm.lib;shlwapi.lib;libdetour.lib;libdetourtilecache.lib;libdetourcrowd.lib;librecast.lib;liblz4.lib;xinput.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -114,7 +114,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>..\libd\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libsoil2.lib;libfreetype.lib;libimgui.lib;libassimp.lib;libbullet.lib;libtmxlite.lib;libzlib.lib;libopenal.lib;libsndfile.lib;libmpg.lib;liblame.lib;libflac.lib;winmm.lib;shlwapi.lib;libdetour.lib;libdetourtilecache.lib;libdetourcrowd.lib;librecast.lib;liblz4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libsoil2.lib;libfreetype.lib;libimgui.lib;libassimp.lib;libbullet.lib;libtmxlite.lib;libzlib.lib;libopenal.lib;libsndfile.lib;libmpg.lib;liblame.lib;libflac.lib;winmm.lib;shlwapi.lib;libdetour.lib;libdetourtilecache.lib;libdetourcrowd.lib;librecast.lib;liblz4.lib;xinput.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -137,7 +137,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>..\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libsoil2.lib;libfreetype.lib;libimgui.lib;libassimp.lib;libbullet.lib;libtmxlite.lib;libzlib.lib;libopenal.lib;libsndfile.lib;libmpg.lib;liblame.lib;libflac.lib;winmm.lib;shlwapi.lib;libdetour.lib;libdetourtilecache.lib;libdetourcrowd.lib;librecast.lib;liblz4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libsoil2.lib;libfreetype.lib;libimgui.lib;libassimp.lib;libbullet.lib;libtmxlite.lib;libzlib.lib;libopenal.lib;libsndfile.lib;libmpg.lib;liblame.lib;libflac.lib;winmm.lib;shlwapi.lib;libdetour.lib;libdetourtilecache.lib;libdetourcrowd.lib;librecast.lib;liblz4.lib;xinput.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -160,7 +160,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>..\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libsoil2.lib;libfreetype.lib;libimgui.lib;libassimp.lib;libbullet.lib;libtmxlite.lib;libzlib.lib;libopenal.lib;libsndfile.lib;libmpg.lib;liblame.lib;libflac.lib;winmm.lib;shlwapi.lib;libdetour.lib;libdetourtilecache.lib;libdetourcrowd.lib;librecast.lib;liblz4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libsoil2.lib;libfreetype.lib;libimgui.lib;libassimp.lib;libbullet.lib;libtmxlite.lib;libzlib.lib;libopenal.lib;libsndfile.lib;libmpg.lib;liblame.lib;libflac.lib;winmm.lib;shlwapi.lib;libdetour.lib;libdetourtilecache.lib;libdetourcrowd.lib;librecast.lib;liblz4.lib;xinput.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -176,6 +176,7 @@
     <ClCompile Include="engine\Background.cpp" />
     <ClCompile Include="engine\BoundingBox.cpp" />
     <ClCompile Include="engine\DebugRenderer.cpp" />
+    <ClCompile Include="engine\input\GamePad.cpp" />
     <ClCompile Include="engine\Md2Model.cpp" />
     <ClCompile Include="engine\MeshBone.cpp" />
     <ClCompile Include="engine\MeshObject\MeshSegment.cpp" />
@@ -335,6 +336,7 @@
     <ClInclude Include="engine\collision\Collision.h" />
     <ClInclude Include="engine\CubeBuffer.h" />
     <ClInclude Include="engine\DebugRenderer.h" />
+    <ClInclude Include="engine\input\GamePad.h" />
     <ClInclude Include="engine\input\Mouse.h" />
     <ClInclude Include="engine\interfaces\ICounter.h" />
     <ClInclude Include="engine\interfaces\IStateMachine.h" />
