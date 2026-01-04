@@ -1,10 +1,10 @@
 #include "MeshDisk.h"
 
-MeshDisk::MeshDisk(int uResolution, int vResolution) : MeshDisk(1.0f, Vector3f(0.0f, 0.0f, 0.0f), true, true, false, uResolution, vResolution) { }
+MeshDisk::MeshDisk(int vResolution) : MeshDisk(1.0f, Vector3f(0.0f, 0.0f, 0.0f), true, true, false, vResolution) { }
 
-MeshDisk::MeshDisk(bool generateTexels, bool generateNormals, bool generateTangents, int uResolution, int vResolution) : MeshDisk(1.0f, Vector3f(0.0f, 0.0f, 0.0f), generateTexels, generateNormals, generateTangents, uResolution, vResolution) { }
+MeshDisk::MeshDisk(bool generateTexels, bool generateNormals, bool generateTangents, int vResolution) : MeshDisk(1.0f, Vector3f(0.0f, 0.0f, 0.0f), generateTexels, generateNormals, generateTangents, vResolution) { }
 
-MeshDisk::MeshDisk(float radius, const Vector3f &position, bool generateTexels, bool generateNormals, bool generateTangents, int uResolution, int vResolution) {
+MeshDisk::MeshDisk(float radius, const Vector3f &position, bool generateTexels, bool generateNormals, bool generateTangents, int vResolution) {
 
 	m_position = position;
 	m_radius = radius;
@@ -13,12 +13,11 @@ MeshDisk::MeshDisk(float radius, const Vector3f &position, bool generateTexels, 
 	m_generateTexels = generateTexels;
 	m_generateTangents = generateTangents;
 
-	m_uResolution = uResolution;
 	m_vResolution = vResolution;
 
 	m_numBuffers = 1 + generateTexels + generateNormals + 2 * generateTangents;
 
-	BuildMeshXZ(m_radius, m_position,  m_uResolution, m_vResolution, m_generateTexels, m_generateNormals, m_generateTangents, m_positions, m_texels, m_normals, m_indexBuffer, m_tangents, m_bitangents);
+	BuildMeshXY(m_radius, m_position, m_vResolution, m_generateTexels, m_generateNormals, m_generateTangents, m_positions, m_texels, m_normals, m_indexBuffer, m_tangents, m_bitangents);
 	createBuffer();
 }
 
@@ -45,8 +44,7 @@ MeshDisk::~MeshDisk() {
 		glDeleteBuffers(1, &m_vboInstances);
 }
 
-void MeshDisk::setPrecision(int uResolution, int vResolution) {
-	m_uResolution = uResolution;
+void MeshDisk::setPrecision(int vResolution) {
 	m_vResolution = vResolution;
 }
 
@@ -66,7 +64,7 @@ std::vector<unsigned int>& MeshDisk::getIndexBuffer() {
 	return m_indexBuffer;
 }
 
-void MeshDisk::BuildMeshXY(float radius, const Vector3f& _position, int uResolution, int vResolution, bool generateTexels, bool generateNormals, bool generateTangents, std::vector<Vector3f>& positions, std::vector<Vector2f>& texels, std::vector<Vector3f>& normals, std::vector<unsigned int>& indexBuffer, std::vector<Vector3f>& tangents, std::vector<Vector3f>& bitangents) {
+void MeshDisk::BuildMeshXY(float radius, const Vector3f& _position, int vResolution, bool generateTexels, bool generateNormals, bool generateTangents, std::vector<Vector3f>& positions, std::vector<Vector2f>& texels, std::vector<Vector3f>& normals, std::vector<unsigned int>& indexBuffer, std::vector<Vector3f>& tangents, std::vector<Vector3f>& bitangents) {
 	// put vertices of base of cylinder
 	float x = 0.0f, z = 0.0f;
 	unsigned int topVertexIndex = (unsigned int)positions.size();
@@ -105,18 +103,17 @@ void MeshDisk::BuildMeshXY(float radius, const Vector3f& _position, int uResolut
 			bitangents.push_back(Vector3f(0.0f, 1.0f, 0.0f));
 		}
 	}
-
+	
 	for (int i = 0, k = topVertexIndex + 1; i < vResolution; ++i, ++k) {
 		if (i < (vResolution - 1)) {
-			indexBuffer.push_back(topVertexIndex); indexBuffer.push_back(k + 1); indexBuffer.push_back(k);
-		}
-		else {
-			indexBuffer.push_back(topVertexIndex); indexBuffer.push_back(topVertexIndex + 1); indexBuffer.push_back(k);
+			indexBuffer.push_back(topVertexIndex); indexBuffer.push_back(k); indexBuffer.push_back(k + 1);
+		}else {
+			indexBuffer.push_back(topVertexIndex); indexBuffer.push_back(k); indexBuffer.push_back(topVertexIndex + 1);
 		}
 	}
 }
 
-void MeshDisk::BuildMeshXZ(float radius, const Vector3f& _position, int uResolution, int vResolution, bool generateTexels, bool generateNormals, bool generateTangents, std::vector<Vector3f>& positions, std::vector<Vector2f>& texels, std::vector<Vector3f>& normals, std::vector<unsigned int>& indexBuffer, std::vector<Vector3f>& tangents, std::vector<Vector3f>& bitangents) {
+void MeshDisk::BuildMeshXZ(float radius, const Vector3f& _position, int vResolution, bool generateTexels, bool generateNormals, bool generateTangents, std::vector<Vector3f>& positions, std::vector<Vector2f>& texels, std::vector<Vector3f>& normals, std::vector<unsigned int>& indexBuffer, std::vector<Vector3f>& tangents, std::vector<Vector3f>& bitangents) {
 	// put vertices of base of cylinder
 	float x = 0.0f, z = 0.0f;
 	unsigned int topVertexIndex = (unsigned int)positions.size();

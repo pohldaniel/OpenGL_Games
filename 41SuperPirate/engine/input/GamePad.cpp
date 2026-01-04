@@ -22,7 +22,7 @@ void XInputController::update() {
 		}
 
 		if (gamepad.GetState().Gamepad.wButtons & XINPUT_GAMEPAD_B){
-			std::cout << "B." << std::endl;
+			std::cout << "B" << std::endl;
 			gamepad.vibrate(0, 65535);
 		}
 

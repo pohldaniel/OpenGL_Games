@@ -528,6 +528,12 @@
     <ClCompile Include="src\Entities\Entity2D.cpp">
       <Filter>Source Files\Entities</Filter>
     </ClCompile>
+    <ClCompile Include="engine\input\GamePad.cpp">
+      <Filter>engine\input</Filter>
+    </ClCompile>
+    <ClCompile Include="src\States\Controller.cpp">
+      <Filter>Source Files\States</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="convhull\convhull_3d.h">
@@ -1012,6 +1018,12 @@
     </ClInclude>
     <ClInclude Include="src\Entities\Entity2D.h">
       <Filter>Source Files\Entities</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\input\GamePad.h">
+      <Filter>engine\input</Filter>
+    </ClInclude>
+    <ClInclude Include="src\States\Controller.h">
+      <Filter>Source Files\States</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -17,6 +17,7 @@
 #include <States/Menu.h>
 #include <States/Default.h>
 #include <States/Game.h>
+#include <States/Controller.h>
 
 #include "Application.h"
 #include "Globals.h"
@@ -430,7 +431,8 @@ void Application::fixedUpdate() {
 void Application::initStates() {
 	Machine = new StateMachine(m_dt, m_fdt);
 	//Machine->addStateAtTop(new Menu(*Machine));
-	Machine->addStateAtTop(new Game(*Machine));
+	//Machine->addStateAtTop(new Game(*Machine));
+	Machine->addStateAtTop(new Controller(*Machine));
 
 }
 
@@ -706,5 +708,7 @@ void Application::loadAssets() {
 	Globals::textureManager.loadTexture("forest_5", "res/backgrounds/Forest/plx-5.png");
 	Globals::textureManager.createNullTexture("null");
 
-	Globals::shapeManager.buildQuadXY("quad", Vector3f(-1.0f, -1.0f, 0.0f), Vector2f(2.0f, 2.0f), 1, 1, true, false, false);
+	Globals::shapeManager.buildQuadXY("quad", Vector3f(0.0f, 0.0f, 0.0f), Vector2f(200.0f, 200.0f), 1, 1, true, false, false);
+	Globals::shapeManager.buildDiskXY("disk", 100.0f, Vector3f(100.0f, 100.0f, -1.0f), 30, true, false, false);
+	Globals::shapeManager.buildDiamondXY("diamond", Vector3f(100.0f, 100.0f, -1.0f), Vector2f(200.0f, 200.0f), 1, 1, true, false, false);
 }

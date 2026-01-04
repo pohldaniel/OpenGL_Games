@@ -198,15 +198,18 @@ void MeshQuad::BuildMeshXZ(const Vector3f& _position, const Vector2f& size, int 
 	}
 }
 
-void MeshQuad::BuildDiamondXY(const Vector2f& size, float border, int uResolution, int vResolution, bool generateTexels, bool generateNormals, bool generateTangents, std::vector<Vector3f>& positions, std::vector<Vector2f>& texels, std::vector<Vector3f>& normals, std::vector<unsigned int>& indexBuffer, std::vector<Vector3f>& tangents, std::vector<Vector3f>& bitangents) {
+void MeshQuad::BuildDiamondXY(const Vector3f& position, const Vector2f& size, int uResolution, int vResolution, bool generateTexels, bool generateNormals, bool generateTangents, std::vector<Vector3f>& positions, std::vector<Vector2f>& texels, std::vector<Vector3f>& normals, std::vector<unsigned int>& indexBuffer, std::vector<Vector3f>& tangents, std::vector<Vector3f>& bitangents) {
 	Matrix4f rot;
 	rot.rotate(Vector3f(0.0f, 0.0f, 1.0f), 45.0f);
 
 	Matrix4f uniformScale;
 	uniformScale.scale( M_SQRT1_2, M_SQRT1_2, M_SQRT1_2);
 
+	Matrix4f trans;
+	trans.translate(position);
+
 	Matrix4f sizeScale;
-	sizeScale.scale(size[0] + border, size[1] + border, 1.0f);
+	sizeScale.scale(size[0], size[1], 1.0f);
 
 	Matrix4f transform = uniformScale * rot;
 		
@@ -221,7 +224,7 @@ void MeshQuad::BuildDiamondXY(const Vector2f& size, float border, int uResolutio
 			float y = i * vStep;
 			float z = 0.0f;
 
-			positions.push_back(sizeScale * (transform * (Vector3f(x, y, z) + Vector3f(-0.5f, -0.5f, 0.0f))));
+			positions.push_back(sizeScale * (transform * (Vector3f(x, y, z) + Vector3f(-0.5f, -0.5f, 0.0f))) + Vector3f(position[0], position[1], position[2]));
 
 			if (generateTexels) {
 				// Calculate texels on the surface of a quad
