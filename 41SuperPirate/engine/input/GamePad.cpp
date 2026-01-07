@@ -13,8 +13,8 @@ XInputController::XInputController(int num){
 	m_pCurrButtonStates = m_buttonStates[0];
 	m_pPrevButtonStates = m_buttonStates[1];
 
-	memset(m_pCurrButtonStates, false, 15);
-	memset(m_pPrevButtonStates, false, 15);
+	memset(m_pCurrButtonStates, false, 17);
+	memset(m_pPrevButtonStates, false, 17);
 }
 
 void XInputController::update() {
@@ -47,7 +47,10 @@ void XInputController::update() {
 			m_pCurrButtonStates[11] = (state.Gamepad.wButtons & XINPUT_GAMEPAD_A) ? true : false;
 			m_pCurrButtonStates[12] = (state.Gamepad.wButtons & XINPUT_GAMEPAD_B) ? true : false;
 			m_pCurrButtonStates[13] = (state.Gamepad.wButtons & XINPUT_GAMEPAD_X) ? true : false;
-			m_pCurrButtonStates[14] = (state.Gamepad.wButtons & XINPUT_GAMEPAD_Y) ? true : false;			
+			m_pCurrButtonStates[14] = (state.Gamepad.wButtons & XINPUT_GAMEPAD_Y) ? true : false;	
+
+			m_pCurrButtonStates[15] = (state.Gamepad.bLeftTrigger > 0) ? true : false;
+			m_pCurrButtonStates[16] = (state.Gamepad.bRightTrigger > 0) ? true : false;
 		}
 	}	
 }

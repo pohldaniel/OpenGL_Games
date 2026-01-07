@@ -23,7 +23,9 @@ public:
 		GAMEPAD_A = 11,
 		GAMEPAD_B = 12,
 		GAMEPAD_X = 13,
-		GAMEPAD_Y = 14
+		GAMEPAD_Y = 14,
+		GAMEPAD_LEFT_TRIGGER = 15,
+		GAMEPAD_RIGHT_TRIGGER = 16,
 	};
 
 	static XInputController& instance();
@@ -65,7 +67,7 @@ public:
 private:
 	XInputController(int num);
 
-	bool m_buttonStates[2][15];
+	bool m_buttonStates[2][17];
 	bool* m_pCurrButtonStates;
 	bool* m_pPrevButtonStates;
 	int n;
