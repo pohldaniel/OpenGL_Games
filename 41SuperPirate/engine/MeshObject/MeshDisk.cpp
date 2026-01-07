@@ -17,8 +17,10 @@ MeshDisk::MeshDisk(float radius, const Vector3f &position, bool generateTexels, 
 
 	m_numBuffers = 1 + generateTexels + generateNormals + 2 * generateTangents;
 
-	BuildMeshXY(m_radius, m_position, m_vResolution, m_generateTexels, m_generateNormals, m_generateTangents, m_positions, m_texels, m_normals, m_indexBuffer, m_tangents, m_bitangents);
+	BuildMeshXY(m_radius, m_position, m_vResolution, m_generateTexels, m_generateNormals, m_generateTangents, m_positions, m_texels, m_normals, m_indexBuffer, m_tangents, m_bitangents);	
+	
 	createBuffer();
+	createBufferWireframe();
 }
 
 MeshDisk::~MeshDisk() {
@@ -42,6 +44,12 @@ MeshDisk::~MeshDisk() {
 
 	if (m_vboInstances)
 		glDeleteBuffers(1, &m_vboInstances);
+
+	if (m_vboWireframe)
+		glDeleteBuffers(1, &m_vboWireframe);
+
+	if (m_vboWireframe)
+		glDeleteBuffers(1, &m_vboWireframe);
 }
 
 void MeshDisk::setPrecision(int vResolution) {
@@ -232,10 +240,60 @@ void MeshDisk::createBuffer() {
 	m_bitangents.shrink_to_fit();
 }
 
-void MeshDisk::drawRaw() {
-	glBindVertexArray(m_vao);
-	glDrawElements(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0);
+void MeshDisk::createBufferWireframe() {
+
+	std::vector<Vector3f> positions;
+	for (int i = 1; i < m_positions.size(); ++i) {
+		Vector3f direction = m_positions[i] - m_positions[0];
+		Vector3f::Normalize(direction);
+		positions.push_back(m_positions[i] + direction * 0.5f);
+	}
+
+	std::vector<unsigned int> indexBuffer;
+	for (int i = 0; i < m_vResolution; ++i) {
+		indexBuffer.push_back(i);;
+	}
+	indexBuffer.push_back(0);
+
+	m_drawCountWireframe = indexBuffer.size();
+
+	unsigned int ibo;
+	glGenBuffers(1, &ibo);
+	glGenBuffers(1, &m_vboWireframe);
+
+	glGenVertexArrays(1, &m_vaoWireframe);
+	glBindVertexArray(m_vaoWireframe);
+
+	//Position
+	glBindBuffer(GL_ARRAY_BUFFER, m_vboWireframe);
+	glBufferData(GL_ARRAY_BUFFER, positions.size() * sizeof(positions[0]), &positions[0], GL_STATIC_DRAW);
+
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	//Indices
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexBuffer.size() * sizeof(indexBuffer[0]), &indexBuffer[0], GL_STATIC_DRAW);
+
 	glBindVertexArray(0);
+	glDeleteBuffers(1, &ibo);
+}
+
+void MeshDisk::drawRaw(bool isWireframe, float lineWidth) {
+	if (isWireframe) {
+		if(lineWidth != 1.0f)
+			glLineWidth(lineWidth);
+		glBindVertexArray(m_vaoWireframe);
+		glDrawElements(GL_LINE_STRIP, m_drawCountWireframe, GL_UNSIGNED_INT, 0);
+		glBindVertexArray(0);
+		if (lineWidth != 1.0f)
+			glLineWidth(1.0f);
+	}else {
+		glBindVertexArray(m_vao);
+		glDrawElements(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0);
+		glBindVertexArray(0);
+	}
 }
 
 void MeshDisk::createInstancesStatic(const std::vector<Matrix4f>& modelMTX) {
@@ -304,8 +362,18 @@ void MeshDisk::addInstance(const Matrix4f& modelMTX) {
 	}
 }
 
-void MeshDisk::drawRawInstanced() {
-	glBindVertexArray(m_vao);
-	glDrawElementsInstanced(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0, m_instanceCount);
-	glBindVertexArray(0);
+void MeshDisk::drawRawInstanced(bool isWireframe, float lineWidth) {
+	if (isWireframe) {
+		if (lineWidth != 1.0f)
+			glLineWidth(lineWidth);
+		glBindVertexArray(m_vaoWireframe);
+		glDrawElementsInstanced(GL_LINE_STRIP, m_drawCountWireframe, GL_UNSIGNED_INT, 0, m_instanceCount);
+		glBindVertexArray(0);
+		if (lineWidth != 1.0f)
+			glLineWidth(1.0f);
+	}else {
+		glBindVertexArray(m_vao);
+		glDrawElementsInstanced(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0, m_instanceCount);
+		glBindVertexArray(0);
+	}
 }

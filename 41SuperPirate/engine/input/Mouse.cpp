@@ -6,9 +6,8 @@ const float Mouse::WEIGHT_MODIFIER = 0.2f;
 BYTE Mouse::m_tempBuffer[TEMP_BUFFER_SIZE];
 
 Mouse &Mouse::instance(){
-
-	static Mouse Instance;
-	return Instance;
+	static Mouse s_instance;
+	return s_instance;
 }
 
 Mouse::Mouse(){

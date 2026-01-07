@@ -14,12 +14,13 @@ public:
 	MeshDisk(float radius, const Vector3f &position, bool generateTexels, bool generateNormals, bool generateTangents, int vResolution = 1);
 	~MeshDisk();
 
-	void drawRaw();
-	void drawRawInstanced();
+	void drawRaw(bool isWireframe = false, float lineWidth = 1.0f);
+	void drawRawInstanced(bool isWireframe = false, float lineWidth = 1.0f);
 	void createInstancesStatic(const std::vector<Matrix4f>& modelMTX);
 	void addInstance(const Matrix4f& modelMTX);
 	void setPrecision(int vResolution);
 	int getNumberOfTriangles();
+	
 
 	const Vector3f &getPosition() const;
 	std::vector<Vector3f>& getPositions();
@@ -42,8 +43,10 @@ private:
 	short m_numBuffers;
 	unsigned int m_vao;
 	unsigned int m_vbo[5];
-	unsigned int m_drawCount;
+	unsigned int m_drawCount, m_drawCountWireframe;
 	unsigned int m_vboInstances = 0;
+	unsigned int m_vaoWireframe;
+	unsigned int m_vboWireframe;
 	unsigned int m_instanceCount = 0;
 
 	std::vector<unsigned int> m_indexBuffer;
@@ -55,6 +58,7 @@ private:
 	std::vector<Matrix4f> m_instances;
 
 	void createBuffer();
+	void createBufferWireframe();
 };
 
 #endif

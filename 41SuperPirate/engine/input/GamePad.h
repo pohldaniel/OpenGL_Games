@@ -3,17 +3,31 @@
 #include <XInput.h>
 
 class XInputController {
-private:
-	int n;
-	XINPUT_STATE state;
 
 public:
 
+	enum GamepadButton {
+		NONE = 0,
+		DPAD_UP = 1,
+		DPAD_DOWN = 2,
+		DPAD_LEFT = 3,
+		DPAD_RIGHT = 4,
+
+		GAMEPAD_START = 5,
+		GAMEPAD_BACK = 6,
+		GAMEPAD_LEFT_THUMB = 7,
+		GAMEPAD_RIGHT_THUMB = 8,
+
+		GAMEPAD_LEFT_SHOULDER = 9,
+		GAMEPAD_RIGHT_SHOULDER = 10,
+		GAMEPAD_A = 11,
+		GAMEPAD_B = 12,
+		GAMEPAD_X = 13,
+		GAMEPAD_Y = 14
+	};
+
 	static XInputController& instance();
 	static XInputController s_instance;
-
-
-	XInputController(int num);
 
 	void update();
 
@@ -44,4 +58,16 @@ public:
 
 		XInputSetState(n, &vibration);
 	}
+	bool buttonPressed(GamepadButton button) const;
+	bool buttonDown(GamepadButton button) const;
+	bool buttonUp(GamepadButton button) const;
+
+private:
+	XInputController(int num);
+
+	bool m_buttonStates[2][15];
+	bool* m_pCurrButtonStates;
+	bool* m_pPrevButtonStates;
+	int n;
+	XINPUT_STATE state;
 };
