@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.14.36310.24 d17.14
+VisualStudioVersion = 17.14.36310.24
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "01Platformer", "01Platformer\01Platformer.vcxproj", "{F3A95EB7-0E2A-4436-8C8F-D8F416FDDBE6}"
 EndProject
@@ -275,6 +275,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "40RecastDemo", "40RecastDemo\40RecastDemo.vcxproj", "{75346628-935F-45A0-A6F9-68F82BA3737E}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "41SuperPirate", "41SuperPirate\41SuperPirate.vcxproj", "{083CAE5C-7787-4C10-8E21-463EB524AF2C}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "42WebGPU-native", "42WebGPU-native\42WebGPU-native.vcxproj", "{17A0C71F-FF68-44E1-B31F-A3E81C26E982}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -1052,6 +1054,14 @@ Global
 		{083CAE5C-7787-4C10-8E21-463EB524AF2C}.Release|x64.Build.0 = Release|x64
 		{083CAE5C-7787-4C10-8E21-463EB524AF2C}.Release|x86.ActiveCfg = Release|Win32
 		{083CAE5C-7787-4C10-8E21-463EB524AF2C}.Release|x86.Build.0 = Release|Win32
+		{17A0C71F-FF68-44E1-B31F-A3E81C26E982}.Debug|x64.ActiveCfg = Debug|x64
+		{17A0C71F-FF68-44E1-B31F-A3E81C26E982}.Debug|x64.Build.0 = Debug|x64
+		{17A0C71F-FF68-44E1-B31F-A3E81C26E982}.Debug|x86.ActiveCfg = Debug|Win32
+		{17A0C71F-FF68-44E1-B31F-A3E81C26E982}.Debug|x86.Build.0 = Debug|Win32
+		{17A0C71F-FF68-44E1-B31F-A3E81C26E982}.Release|x64.ActiveCfg = Release|x64
+		{17A0C71F-FF68-44E1-B31F-A3E81C26E982}.Release|x64.Build.0 = Release|x64
+		{17A0C71F-FF68-44E1-B31F-A3E81C26E982}.Release|x86.ActiveCfg = Release|Win32
+		{17A0C71F-FF68-44E1-B31F-A3E81C26E982}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

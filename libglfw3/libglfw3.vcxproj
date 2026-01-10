@@ -38,6 +38,7 @@
   <ItemGroup>
     <ClInclude Include="glfw_config.h" />
     <ClInclude Include="include\GLFW\glfw3.h" />
+    <ClInclude Include="include\GLFW\glfw3native.h" />
     <ClInclude Include="src\egl_context.h" />
     <ClInclude Include="src\internal.h" />
     <ClInclude Include="src\mappings.h" />
