@@ -57,7 +57,6 @@ public:
 	void setDefault(WGPUDepthStencilState& depthStencilState);
 	void setDefault(WGPUBindGroupLayoutEntry& bindingLayout);
 	bool loadGeometryFromObj(const std::filesystem::path& path, std::vector<VertexAttributes>& vertexData);
-	void CreateRenderPipeline();
 
 	MyUniforms uniforms;
 	float angle1 = 2.0f;
@@ -112,6 +111,6 @@ private:
 	int indexCount;
 	WGPUBuffer uniformBuffer;
 	WGPUBindGroup bindGroup;
-	WGPUSurfaceTexture nextTexture;
+	//WGPUSurfaceTexture nextTexture;
 	
 };

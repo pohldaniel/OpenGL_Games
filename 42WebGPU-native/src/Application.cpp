@@ -431,78 +431,7 @@ void Application::initWebGPU() {
 	Queue = wgpuDeviceGetQueue(device);
 	assert(Queue);
 
-	WGPUShaderModule shader_module = load_shader_module(device, "res/shader/triangle.wgsl");
-	assert(shader_module);
-
-	WGPUPipelineLayoutDescriptor pipelineLayoutDescriptor = {};
-	pipelineLayoutDescriptor.label = { "pipeline_layout", WGPU_STRLEN };
-
-	WGPUPipelineLayout pipeline_layout = wgpuDeviceCreatePipelineLayout(device, &pipelineLayoutDescriptor);
-	assert(pipeline_layout);
-
-	WGPUSurfaceCapabilities surface_capabilities = { 0 };
-	wgpuSurfaceGetCapabilities(Surface, adapter, &surface_capabilities);
-
-	WGPUVertexState vertexState = {};
-	vertexState.module = shader_module;
-	vertexState.entryPoint = { "vs_main", WGPU_STRLEN };
-
-	WGPUColorTargetState colorTargetState = {};
-	colorTargetState.format = surface_capabilities.formats[0];
-	colorTargetState.writeMask = WGPUColorWriteMask_All;
-
-	WGPUFragmentState fragmentState = {};
-	fragmentState.module = shader_module;
-	fragmentState.entryPoint = { "fs_main", WGPU_STRLEN };
-	fragmentState.targetCount = 1;
-	fragmentState.targets = &colorTargetState;
-
-	WGPUMultisampleState multisampleState = {};
-	multisampleState.count = 1;
-	multisampleState.mask = 0xFFFFFFFF;
-
-	WGPURenderPipelineDescriptor renderPipelineDescriptor = {};
-	renderPipelineDescriptor.label = { "render_pipeline", WGPU_STRLEN };
-	renderPipelineDescriptor.vertex = vertexState;
-	renderPipelineDescriptor.fragment = &fragmentState;
-	renderPipelineDescriptor.primitive.topology = WGPUPrimitiveTopology_TriangleList;
-	renderPipelineDescriptor.multisample = multisampleState;
-
-	render_pipeline = wgpuDeviceCreateRenderPipeline(device, &renderPipelineDescriptor);
-
-	WGPUSurfaceConfiguration surfaceConfiguration = {};
-	surfaceConfiguration.device = device;
-	surfaceConfiguration.usage = WGPUTextureUsage_RenderAttachment;
-	surfaceConfiguration.format = surface_capabilities.formats[0];
-	surfaceConfiguration.presentMode = WGPUPresentMode_Fifo;
-	surfaceConfiguration.alphaMode = surface_capabilities.alphaModes[0];
-	surfaceConfiguration.width = Application::Width;
-	surfaceConfiguration.height = Application::Height;
-
-
-	wgpuSurfaceConfigure(Surface, &surfaceConfiguration);
-
-	/*WGPURequestAdapterOptions adapterOptions = {};
-	adapterOptions.compatibleSurface = Surface;
-
-	WGPURequestAdapterCallbackInfo adapterCallbackInfo = {};
-	adapterCallbackInfo.userdata1 = this;
-	adapterCallbackInfo.callback = handle_request_adapter;
-	wgpuInstanceRequestAdapter(instance, &adapterOptions, adapterCallbackInfo);
-
-
-	WGPURequestDeviceCallbackInfo deviceCallbackInfo = {};
-	deviceCallbackInfo.userdata1 = this;
-	deviceCallbackInfo.callback = handle_request_device;
-	wgpuAdapterRequestDevice(adapter, NULL, deviceCallbackInfo);
-
-	Queue = wgpuDeviceGetQueue(device);
-
-	CreateRenderPipeline();
-
-	std::cout << "Creating shader module..." << std::endl;
 	WGPUShaderModule shaderModule = load_shader_module(device, "res/shader/shader.wgsl");
-	std::cout << "Shader module: " << shaderModule << std::endl;
 	std::vector<WGPUVertexAttribute> vertexAttribs(3);
 
 	vertexAttribs[0].shaderLocation = 0;
@@ -523,59 +452,6 @@ void Application::initWebGPU() {
 	vertexBufferLayout.arrayStride = sizeof(VertexAttributes);
 	vertexBufferLayout.stepMode = WGPUVertexStepMode::WGPUVertexStepMode_Vertex;
 
-	WGPURenderPipelineDescriptor pipelineDesc;
-	pipelineDesc.vertex.bufferCount = 1;
-	pipelineDesc.vertex.buffers = &vertexBufferLayout;
-
-	pipelineDesc.vertex.module = shaderModule;
-	pipelineDesc.vertex.entryPoint = { "vs_main", WGPU_STRLEN };
-	pipelineDesc.vertex.constantCount = 0;
-	pipelineDesc.vertex.constants = nullptr;
-
-	pipelineDesc.primitive.topology = WGPUPrimitiveTopology::WGPUPrimitiveTopology_TriangleList;
-	pipelineDesc.primitive.stripIndexFormat = WGPUIndexFormat::WGPUIndexFormat_Undefined;
-	pipelineDesc.primitive.frontFace = WGPUFrontFace::WGPUFrontFace_CCW;
-	pipelineDesc.primitive.cullMode = WGPUCullMode::WGPUCullMode_Front;
-
-	WGPUFragmentState fragmentState;
-	pipelineDesc.fragment = &fragmentState;
-	fragmentState.module = shaderModule;
-	fragmentState.entryPoint = { "fs_main", WGPU_STRLEN };
-	fragmentState.constantCount = 0;
-	fragmentState.constants = nullptr;
-
-	WGPUBlendState blendState;
-	blendState.color.srcFactor = WGPUBlendFactor::WGPUBlendFactor_SrcAlpha;
-	blendState.color.dstFactor = WGPUBlendFactor::WGPUBlendFactor_OneMinusSrcAlpha;
-	blendState.color.operation = WGPUBlendOperation::WGPUBlendOperation_Add;
-	blendState.alpha.srcFactor = WGPUBlendFactor::WGPUBlendFactor_Zero;
-	blendState.alpha.dstFactor = WGPUBlendFactor::WGPUBlendFactor_One;
-	blendState.alpha.operation = WGPUBlendOperation::WGPUBlendOperation_Add;
-
-	WGPUColorTargetState colorTarget;
-	colorTarget.format = WGPUTextureFormat::WGPUTextureFormat_BGRA8UnormSrgb;
-	colorTarget.blend = &blendState;
-	colorTarget.writeMask = WGPUColorWriteMask_All;
-
-	fragmentState.targetCount = 1;
-	fragmentState.targets = &colorTarget;
-
-	WGPUDepthStencilState depthStencilState = {};
-	setDefault(depthStencilState);
-	depthStencilState.depthCompare = WGPUCompareFunction::WGPUCompareFunction_Less;
-	depthStencilState.depthWriteEnabled = WGPUOptionalBool_True;
-
-	WGPUTextureFormat depthTextureFormat = WGPUTextureFormat::WGPUTextureFormat_Depth24Plus;
-	depthStencilState.format = depthTextureFormat;
-	depthStencilState.stencilReadMask = 0;
-	depthStencilState.stencilWriteMask = 0;
-
-	pipelineDesc.depthStencil = &depthStencilState;
-
-	pipelineDesc.multisample.count = 1;
-	pipelineDesc.multisample.mask = ~0u;
-	pipelineDesc.multisample.alphaToCoverageEnabled = false;
-
 	// bind group layout (used by both the pipeline layout and uniform bind group, released at the end of this function)
 	WGPUBindGroupLayoutEntry bglEntry = {};
 	bglEntry.binding = 0;
@@ -591,11 +467,10 @@ void Application::initWebGPU() {
 	WGPUPipelineLayoutDescriptor layoutDesc = {};
 	layoutDesc.bindGroupLayoutCount = 1;
 	layoutDesc.bindGroupLayouts = &bindGroupLayout;
+
 	WGPUPipelineLayout pipelineLayout = wgpuDeviceCreatePipelineLayout(device, &layoutDesc);
-	pipelineDesc.layout = pipelineLayout;
 
 	WGPURenderPipelineDescriptor desc = {};
-
 	desc.layout = pipelineLayout;
 
 	WGPUVertexState vertexState = {};
@@ -606,59 +481,65 @@ void Application::initWebGPU() {
 	vertexState.bufferCount = 1;
 	vertexState.buffers = &vertexBufferLayout;
 
-	WGPUBlendState _blendState;
-	_blendState.color.srcFactor = WGPUBlendFactor::WGPUBlendFactor_SrcAlpha;
-	_blendState.color.dstFactor = WGPUBlendFactor::WGPUBlendFactor_OneMinusSrcAlpha;
-	_blendState.color.operation = WGPUBlendOperation::WGPUBlendOperation_Add;
-	_blendState.alpha.srcFactor = WGPUBlendFactor::WGPUBlendFactor_Zero;
-	_blendState.alpha.dstFactor = WGPUBlendFactor::WGPUBlendFactor_One;
-	_blendState.alpha.operation = WGPUBlendOperation::WGPUBlendOperation_Add;
+	WGPUBlendState blendState;
+	blendState.color.srcFactor = WGPUBlendFactor::WGPUBlendFactor_SrcAlpha;
+	blendState.color.dstFactor = WGPUBlendFactor::WGPUBlendFactor_OneMinusSrcAlpha;
+	blendState.color.operation = WGPUBlendOperation::WGPUBlendOperation_Add;
+	blendState.alpha.srcFactor = WGPUBlendFactor::WGPUBlendFactor_Zero;
+	blendState.alpha.dstFactor = WGPUBlendFactor::WGPUBlendFactor_One;
+	blendState.alpha.operation = WGPUBlendOperation::WGPUBlendOperation_Add;
 
-	WGPUColorTargetState _colorTarget;
-	_colorTarget.format = WGPUTextureFormat::WGPUTextureFormat_BGRA8UnormSrgb;
-	_colorTarget.blend = &_blendState;
-	_colorTarget.writeMask = WGPUColorWriteMask_All;
+	WGPUColorTargetState colorTarget;
+	colorTarget.format = WGPUTextureFormat::WGPUTextureFormat_BGRA8UnormSrgb;
+	colorTarget.blend = &blendState;
+	colorTarget.writeMask = WGPUColorWriteMask_All;
 
-	WGPUFragmentState _fragmentState = {};
-	_fragmentState.module = shaderModule;
-	_fragmentState.entryPoint = { "fs_main", WGPU_STRLEN };
-	_fragmentState.constantCount = 0;
-	_fragmentState.constants = nullptr;
-	_fragmentState.targetCount = 1;
-	_fragmentState.targets = &_colorTarget;
+	WGPUFragmentState fragmentState = {};
+	fragmentState.module = shaderModule;
+	fragmentState.entryPoint = { "fs_main", WGPU_STRLEN };
+	fragmentState.constantCount = 0;
+	fragmentState.constants = nullptr;
+	fragmentState.targetCount = 1;
+	fragmentState.targets = &colorTarget;
 
-	WGPUDepthStencilState _depthStencilState = {};
-	setDefault(_depthStencilState);
-	_depthStencilState.depthCompare = WGPUCompareFunction::WGPUCompareFunction_Less;
-	_depthStencilState.depthWriteEnabled = WGPUOptionalBool_True;
+	WGPUDepthStencilState depthStencilState = {};
+	setDefault(depthStencilState);
+	depthStencilState.depthCompare = WGPUCompareFunction::WGPUCompareFunction_Less;
+	depthStencilState.depthWriteEnabled = WGPUOptionalBool_True;
 
-	WGPUTextureFormat _depthTextureFormat = WGPUTextureFormat::WGPUTextureFormat_Depth24Plus;
-	_depthStencilState.format = _depthTextureFormat;
-	_depthStencilState.stencilReadMask = 0;
-	_depthStencilState.stencilWriteMask = 0;
+	depthStencilState.format = WGPUTextureFormat::WGPUTextureFormat_Depth24Plus;
+	depthStencilState.stencilReadMask = 0;
+	depthStencilState.stencilWriteMask = 0;
 	
 	desc.multisample.count = 1;
 	desc.multisample.mask = ~0u;
 	desc.multisample.alphaToCoverageEnabled = false;
 
 	desc.vertex = vertexState;
-	desc.fragment = &_fragmentState;
+	desc.fragment = &fragmentState;
 	desc.depthStencil = &depthStencilState;
 
+	desc.primitive.topology = WGPUPrimitiveTopology::WGPUPrimitiveTopology_TriangleList;
+	desc.primitive.stripIndexFormat = WGPUIndexFormat::WGPUIndexFormat_Undefined;
+	desc.primitive.frontFace = WGPUFrontFace::WGPUFrontFace_CCW;
+	desc.primitive.cullMode = WGPUCullMode::WGPUCullMode_Front;
+
 	pipeline = wgpuDeviceCreateRenderPipeline(device, &desc);
-	std::cout << "Render pipeline: " << pipeline << std::endl;
+
 
 	WGPUTextureDescriptor depthTextureDesc = {};
 	depthTextureDesc.dimension = WGPUTextureDimension::WGPUTextureDimension_2D;
-	depthTextureDesc.format = _depthTextureFormat;
+	depthTextureDesc.format = WGPUTextureFormat::WGPUTextureFormat_Depth24Plus;
 	depthTextureDesc.mipLevelCount = 1;
 	depthTextureDesc.sampleCount = 1;
 	depthTextureDesc.usage = WGPUTextureUsage_RenderAttachment;
 	depthTextureDesc.size = { static_cast<uint32_t>(Application::Width), static_cast<uint32_t>(Application::Height), 1 };
 	depthTextureDesc.viewFormatCount = 1;
-	depthTextureDesc.viewFormats = (WGPUTextureFormat*)&_depthTextureFormat;
+
+	WGPUTextureFormat depthformat = WGPUTextureFormat::WGPUTextureFormat_Depth24Plus;
+	depthTextureDesc.viewFormats = &depthformat;
 	WGPUTexture depthTexture = wgpuDeviceCreateTexture(device, &depthTextureDesc);
-	std::cout << "Depth texture: " << depthTexture << std::endl;
+
 
 	WGPUTextureViewDescriptor depthTextureViewDesc = {};
 	depthTextureViewDesc.aspect = WGPUTextureAspect::WGPUTextureAspect_DepthOnly;
@@ -667,13 +548,11 @@ void Application::initWebGPU() {
 	depthTextureViewDesc.baseMipLevel = 0;
 	depthTextureViewDesc.mipLevelCount = 1;
 	depthTextureViewDesc.dimension = WGPUTextureViewDimension::WGPUTextureViewDimension_2D;
-	depthTextureViewDesc.format = depthTextureFormat;
+	depthTextureViewDesc.format = WGPUTextureFormat::WGPUTextureFormat_Depth24Plus;
 	depthTextureView = wgpuTextureCreateView(depthTexture, &depthTextureViewDesc);
-	std::cout << "Depth texture view: " << depthTextureView << std::endl;
 
 	std::vector<float> pointData;
 	std::vector<uint16_t> indexData;
-
 	// Load mesh data from OBJ file
 	std::vector<VertexAttributes> vertexData;
 	bool success = loadGeometryFromObj("res/models/mammoth.obj", vertexData);
@@ -704,10 +583,10 @@ void Application::initWebGPU() {
 	float angle2 = 3.0f * PI / 4.0f;
 	S = Matrix4f::Scale(0.3f, 0.3f, 0.3f);
 	T1 = Matrix4f::IDENTITY;
-	R1 = Matrix4f::Rotate(0.0f, 0.0f, angle1);
+	R1 = Matrix4f::Rotate(0.0f, 0.0f, angle1 * _180_ON_PI);
 	uniforms.modelMatrix = R1 * T1 * S;
 
-	R2 = Matrix4f::Rotate(-angle2, 0.0f, 0.0f);
+	R2 = Matrix4f::Rotate(-angle2 * _180_ON_PI, 0.0f, 0.0f);
 	T2 = Matrix4f::Translate(-focalPoint);
 	uniforms.viewMatrix = T2 * R2;
 
@@ -740,32 +619,23 @@ void Application::initWebGPU() {
 	bindGroupDesc.entries = &binding;
 	bindGroup = wgpuDeviceCreateBindGroup(device, &bindGroupDesc);
 
-	// Configure the surface
-	WGPUSurfaceConfiguration config = {};
-	config.nextInChain = nullptr;
-
-	// Configuration of the textures created for the underlying swap chain
-	config.width = Width;
-	config.height = Height;
-	config.usage = WGPUTextureUsage_RenderAttachment;
-
 	WGPUSurfaceCapabilities surface_capabilities = { 0 };
 	wgpuSurfaceGetCapabilities(Surface, adapter, &surface_capabilities);
 
-	WGPUTextureFormat surfaceFormat = surface_capabilities.formats[0];
-	config.format = surfaceFormat;
-
-	// And we do not need any particular view format:
+	WGPUSurfaceConfiguration config = {};
+	config.nextInChain = nullptr;
+	config.format = surface_capabilities.formats[0];
+	config.width = Width;
+	config.height = Height;
+	config.usage = WGPUTextureUsage_RenderAttachment;
 	config.viewFormatCount = 0;
 	config.viewFormats = nullptr;
 	config.device = device;
 	config.presentMode = WGPUPresentMode_Fifo;
-	config.alphaMode = WGPUCompositeAlphaMode_Auto;
+	config.alphaMode = surface_capabilities.alphaModes[0];
 
 	wgpuSurfaceConfigure(Surface, &config);
-
-	// Release the adapter only after it has been fully utilized
-	wgpuAdapterRelease(adapter);*/
+	wgpuAdapterRelease(adapter);
 }
 
 void Application::initImGUI() {
@@ -808,79 +678,36 @@ bool Application::isRunning() {
 	return EventDispatcher.update();
 }
 
-const char shaderCode[] = R"(
-    @vertex fn vertexMain(@builtin(vertex_index) i : u32) ->
-      @builtin(position) vec4f {
-        const pos = array(vec2f(0, 1), vec2f(-1, -1), vec2f(1, -1));
-        return vec4f(pos[i], 0, 1);
-    }
-    @fragment fn fragmentMain() -> @location(0) vec4f {
-        return vec4f(1, 0, 0, 1);
-    }
-)";
-
-void Application::CreateRenderPipeline() {
-	WGPUShaderSourceWGSL wgsl = {};
-	wgsl.chain.next = nullptr;
-	wgsl.chain.sType = WGPUSType_ShaderSourceWGSL;
-	wgsl.code.data = shaderCode;
-	wgsl.code.length = WGPU_STRLEN;
-
-	WGPUShaderModuleDescriptor shaderModuleDescriptor = {};
-	shaderModuleDescriptor.nextInChain = (const WGPUChainedStruct*)&wgsl;
-
-	WGPUShaderModule shaderModule = wgpuDeviceCreateShaderModule(device, &shaderModuleDescriptor);
-
-	WGPUSurfaceCapabilities surface_capabilities = {};
-	wgpuSurfaceGetCapabilities(Surface, adapter, &surface_capabilities);
-	WGPUTextureFormat surfaceFormat = surface_capabilities.formats[0];
-
-	WGPUColorTargetState colorTarget = {};
-	colorTarget.format = surfaceFormat;
-
-	WGPUFragmentState fragmentState = {};
-	fragmentState.module = shaderModule;
-	fragmentState.entryPoint = { "fragmentMain", WGPU_STRLEN };
-	fragmentState.constantCount = 0;
-	fragmentState.constants = nullptr;
-	fragmentState.targetCount = 1;
-	fragmentState.targets = &colorTarget;
-
-	WGPURenderPipelineDescriptor desc = {};
-	desc.vertex.module = shaderModule;
-	desc.vertex.entryPoint = { "vertexMain", WGPU_STRLEN };
-	desc.fragment = &fragmentState;
-	desc.multisample.count = 1;
-
-	pipeline2 = wgpuDeviceCreateRenderPipeline(device, &desc);
-
-	WGPUSurfaceConfiguration config = {};
-	config.nextInChain = nullptr;
-	config.width = Width;
-	config.height = Height;
-	config.usage = WGPUTextureUsage_RenderAttachment;
-	config.format = surfaceFormat;
-	config.viewFormatCount = 0;
-	config.viewFormats = nullptr;
-	config.device = device;
-	config.presentMode = WGPUPresentMode_Fifo;
-	config.alphaMode = WGPUCompositeAlphaMode_Auto;
-
-	wgpuSurfaceConfigure(Surface, &config);
-}
-
-bool tmp = false;
 void Application::render() {
 
-	/*uniforms.time = static_cast<float>(Globals::clock.getElapsedTimeSec());
+	uniforms.time = static_cast<float>(Globals::clock.getElapsedTimeSec());
 	wgpuQueueWriteBuffer(Queue, uniformBuffer, offsetof(MyUniforms, time), &uniforms.time, sizeof(MyUniforms::time));
 	angle1 = uniforms.time;
-	R1 = Matrix4f::Rotate(0.0f, 0.0f, angle1);
+	R1 = Matrix4f::Rotate(0.0f, 0.0f, angle1 * _180_ON_PI);
 	uniforms.modelMatrix = R1 * T1 * S;
 	wgpuQueueWriteBuffer(Queue, uniformBuffer, offsetof(MyUniforms, modelMatrix), &uniforms.modelMatrix, sizeof(MyUniforms::modelMatrix));
-	wgpuSurfaceGetCurrentTexture(Surface, &nextTexture);
+
+	WGPUSurfaceTexture surface_texture;
+	wgpuSurfaceGetCurrentTexture(Surface, &surface_texture);
 	
-	WGPUTextureView frame = wgpuTextureCreateView(nextTexture.texture, NULL);
+	switch (surface_texture.status) {
+	case WGPUSurfaceGetCurrentTextureStatus_SuccessOptimal:
+	case WGPUSurfaceGetCurrentTextureStatus_SuccessSuboptimal:
+		// All good, could handle suboptimal here
+		break;
+	case WGPUSurfaceGetCurrentTextureStatus_Timeout:
+	case WGPUSurfaceGetCurrentTextureStatus_Outdated:
+	case WGPUSurfaceGetCurrentTextureStatus_Lost: {
+		// Skip this frame, and re-configure surface.
+		if (surface_texture.texture != NULL) {
+			wgpuTextureRelease(surface_texture.texture);
+		}
+		break;
+	}
+	}
+	assert(surface_texture.texture);
+
+	WGPUTextureView frame = wgpuTextureCreateView(surface_texture.texture, NULL);
 
 	WGPUCommandEncoderDescriptor commandEncoderDesc = {};
 	commandEncoderDesc.label = { "command_encoder", WGPU_STRLEN };
@@ -927,106 +754,11 @@ void Application::render() {
 	WGPUCommandBufferDescriptor cmdBufferDescriptor = {};
 	cmdBufferDescriptor.label = { "Command buffer", WGPU_STRLEN };
 	WGPUCommandBuffer command = wgpuCommandEncoderFinish(encoder, &cmdBufferDescriptor);
-
-	wgpuCommandEncoderRelease(encoder);
 	wgpuQueueSubmit(Queue, 1, &command);
-	wgpuCommandBufferRelease(command);
-
-	wgpuTextureRelease(nextTexture.texture);*/
-
-	/*if (!tmp) {
-		wgpuSurfaceGetCurrentTexture(Surface, &nextTexture);
-		tmp = true;
-	}
-	WGPUTextureView frame = wgpuTextureCreateView(nextTexture.texture, NULL);
-
-	WGPURenderPassDescriptor renderPassDesc = {};
-	WGPURenderPassColorAttachment renderPassColorAttachment = {};
-	renderPassColorAttachment.view = frame;
-	renderPassColorAttachment.resolveTarget = nullptr;
-	renderPassColorAttachment.loadOp = WGPULoadOp::WGPULoadOp_Clear;
-	renderPassColorAttachment.storeOp = WGPUStoreOp::WGPUStoreOp_Store;
-	renderPassColorAttachment.clearValue = WGPUColor{ 0.2, 0.2, 0.2, 1.0 };
-	renderPassColorAttachment.depthSlice = WGPU_DEPTH_SLICE_UNDEFINED;
-
-	renderPassDesc.colorAttachmentCount = 1;
-	renderPassDesc.colorAttachments = &renderPassColorAttachment;
-
-	WGPUCommandEncoderDescriptor commandEncoderDesc = {};
-	WGPUCommandEncoder encoder = wgpuDeviceCreateCommandEncoder(device, &commandEncoderDesc);
-	WGPURenderPassEncoder renderPass = wgpuCommandEncoderBeginRenderPass(encoder, &renderPassDesc);
-	wgpuRenderPassEncoderSetPipeline(renderPass, pipeline2);
-	wgpuRenderPassEncoderDraw(renderPass, 3, 1, 0, 0);
-	wgpuRenderPassEncoderEnd(renderPass);
-	wgpuRenderPassEncoderRelease(renderPass);
-
-	WGPUCommandBufferDescriptor cmdBufferDescriptor = {};
-	WGPUCommandBuffer command = wgpuCommandEncoderFinish(encoder, &cmdBufferDescriptor);
-
-	wgpuCommandEncoderRelease(encoder);
-	wgpuQueueSubmit(Queue, 1, &command);
-	wgpuCommandBufferRelease(command);*/
-
-	WGPUSurfaceTexture surface_texture;
-	wgpuSurfaceGetCurrentTexture(Surface, &surface_texture);
-	switch (surface_texture.status) {
-		case WGPUSurfaceGetCurrentTextureStatus_SuccessOptimal:
-		case WGPUSurfaceGetCurrentTextureStatus_SuccessSuboptimal:
-			// All good, could handle suboptimal here
-			break;
-		case WGPUSurfaceGetCurrentTextureStatus_Timeout:
-		case WGPUSurfaceGetCurrentTextureStatus_Outdated:
-		case WGPUSurfaceGetCurrentTextureStatus_Lost: {
-			// Skip this frame, and re-configure surface.
-			if (surface_texture.texture != NULL) {
-				wgpuTextureRelease(surface_texture.texture);
-			}			
-			break;
-		}	
-	}
-	assert(surface_texture.texture);
-
-	WGPUTextureView frame = wgpuTextureCreateView(surface_texture.texture, NULL);
-	assert(frame);
-
-	WGPUCommandEncoderDescriptor commandEncoderDescriptor = {};
-	commandEncoderDescriptor.label = { "command_encoder", WGPU_STRLEN };
-
-	WGPUCommandEncoder command_encoder = wgpuDeviceCreateCommandEncoder(device, &commandEncoderDescriptor);
-	assert(command_encoder);
-
-	WGPURenderPassColorAttachment renderPassColorAttachment = {};
-	renderPassColorAttachment.view = frame;
-	renderPassColorAttachment.loadOp = WGPULoadOp_Clear;
-	renderPassColorAttachment.storeOp = WGPUStoreOp_Store;
-	renderPassColorAttachment.depthSlice = WGPU_DEPTH_SLICE_UNDEFINED;
-	renderPassColorAttachment.clearValue = { 0.0f, 1.0f, 0.0f, 1.0f };
-
-	WGPURenderPassDescriptor renderPassDescriptor = {};
-	renderPassDescriptor.label = { "render_pass_encoder", WGPU_STRLEN };
-	renderPassDescriptor.colorAttachmentCount = 1;
-	renderPassDescriptor.colorAttachments = &renderPassColorAttachment;
-
-	WGPURenderPassEncoder render_pass_encoder =
-		wgpuCommandEncoderBeginRenderPass(command_encoder, &renderPassDescriptor);
-	assert(render_pass_encoder);
-
-	wgpuRenderPassEncoderSetPipeline(render_pass_encoder, render_pipeline);
-	wgpuRenderPassEncoderDraw(render_pass_encoder, 3, 1, 0, 0);
-	wgpuRenderPassEncoderEnd(render_pass_encoder);
-	wgpuRenderPassEncoderRelease(render_pass_encoder);
-
-	WGPUCommandBufferDescriptor commandBufferDescriptor = {};
-	commandBufferDescriptor.label = { "command_buffer", WGPU_STRLEN };
-
-	WGPUCommandBuffer command_buffer = wgpuCommandEncoderFinish(command_encoder, &commandBufferDescriptor);
-	assert(command_buffer);
-
-	wgpuQueueSubmit(Queue, 1, &command_buffer);
 	wgpuSurfacePresent(Surface);
 
-	wgpuCommandBufferRelease(command_buffer);
-	wgpuCommandEncoderRelease(command_encoder);
+	wgpuCommandBufferRelease(command);
+	wgpuCommandEncoderRelease(encoder);
 	wgpuTextureViewRelease(frame);
 	wgpuTextureRelease(surface_texture.texture);
 }
@@ -1049,10 +781,7 @@ void Application::fixedUpdate() {
 
 void Application::initStates() {
 	Machine = new StateMachine(m_dt, m_fdt);
-	//Machine->addStateAtTop(new Menu(*Machine));
-	//Machine->addStateAtTop(new Game(*Machine));
 	Machine->addStateAtTop(new Controller(*Machine));
-
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
