@@ -88,14 +88,14 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;src;wgpu\include;tinyobjloader\include;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;..\libassimp\include;..\openal\include;..\sndfile\include;..\rapidjson\include;..\libtmxlite\include;..\glm;..\tsl;..\librecast\include;..\libdetour\include;..\libdetourtilecache\include;..\libdetourcrowd\include;..\liblz4;..\magic_enum;..\libfreetypegl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;src;tinyobjloader\include;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;..\libassimp\include;..\openal\include;..\sndfile\include;..\rapidjson\include;..\libtmxlite\include;..\glm;..\tsl;..\librecast\include;..\libdetour\include;..\libdetourtilecache\include;..\libdetourcrowd\include;..\liblz4;..\magic_enum;..\libfreetypegl;..\SDKs\wgpu\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4005;</DisableSpecificWarnings>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>wgpu\libd\x86;..\libd\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\libd\x86;..\SDKs\wgpu\libd\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>OpenGl32.lib;libglew.lib;libsoil2.lib;libfreetype.lib;libimgui.lib;libassimp.lib;libbullet.lib;libtmxlite.lib;libzlib.lib;libopenal.lib;libsndfile.lib;libmpg.lib;liblame.lib;libflac.lib;winmm.lib;shlwapi.lib;libdetour.lib;libdetourtilecache.lib;libdetourcrowd.lib;librecast.lib;liblz4.lib;xinput.lib;wgpu_native.lib;ws2_32.lib;userenv.lib;ntdll.lib;propsys.lib;runtimeobject.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -106,14 +106,14 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;src;wgpu\include;tinyobjloader\include;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;..\libassimp\include;..\openal\include;..\sndfile\include;..\rapidjson\include;..\libtmxlite\include;..\glm;..\tsl;..\librecast\include;..\libdetour\include;..\libdetourtilecache\include;..\libdetourcrowd\include;..\liblz4;..\magic_enum;..\libfreetypegl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;src;tinyobjloader\include;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;..\libassimp\include;..\openal\include;..\sndfile\include;..\rapidjson\include;..\libtmxlite\include;..\glm;..\tsl;..\librecast\include;..\libdetour\include;..\libdetourtilecache\include;..\libdetourcrowd\include;..\liblz4;..\magic_enum;..\libfreetypegl;..\SDKs\wgpu\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4005;</DisableSpecificWarnings>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>wgpu\libd\x64;..\libd\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\libd\x64;..\SDKs\wgpu\libd\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>OpenGl32.lib;libglew.lib;libsoil2.lib;libfreetype.lib;libimgui.lib;libassimp.lib;libbullet.lib;libtmxlite.lib;libzlib.lib;libopenal.lib;libsndfile.lib;libmpg.lib;liblame.lib;libflac.lib;winmm.lib;shlwapi.lib;libdetour.lib;libdetourtilecache.lib;libdetourcrowd.lib;librecast.lib;liblz4.lib;xinput.lib;wgpu_native.lib;ws2_32.lib;userenv.lib;ntdll.lib;propsys.lib;runtimeobject.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -126,7 +126,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;src;wgpu\include;tinyobjloader\include;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;..\libassimp\include;..\openal\include;..\sndfile\include;..\rapidjson\include;..\libtmxlite\include;..\glm;..\tsl;..\librecast\include;..\libdetour\include;..\libdetourtilecache\include;..\libdetourcrowd\include;..\liblz4;..\magic_enum;..\libfreetypegl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;src;tinyobjloader\include;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;..\libassimp\include;..\openal\include;..\sndfile\include;..\rapidjson\include;..\libtmxlite\include;..\glm;..\tsl;..\librecast\include;..\libdetour\include;..\libdetourtilecache\include;..\libdetourcrowd\include;..\liblz4;..\magic_enum;..\libfreetypegl;..\SDKs\wgpu\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <DisableSpecificWarnings>4005;</DisableSpecificWarnings>
       <LanguageStandard>stdcpp17</LanguageStandard>
@@ -136,7 +136,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>wgpu\lib\x86;..\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\lib\x86;..\SDKs\wgpu\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>OpenGl32.lib;libglew.lib;libsoil2.lib;libfreetype.lib;libimgui.lib;libassimp.lib;libbullet.lib;libtmxlite.lib;libzlib.lib;libopenal.lib;libsndfile.lib;libmpg.lib;liblame.lib;libflac.lib;winmm.lib;shlwapi.lib;libdetour.lib;libdetourtilecache.lib;libdetourcrowd.lib;librecast.lib;liblz4.lib;xinput.lib;wgpu_native.lib;ws2_32.lib;userenv.lib;ntdll.lib;propsys.lib;runtimeobject.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -149,7 +149,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;src;wgpu\include;tinyobjloader\include;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;..\libassimp\include;..\openal\include;..\sndfile\include;..\rapidjson\include;..\libtmxlite\include;..\glm;..\tsl;..\librecast\include;..\libdetour\include;..\libdetourtilecache\include;..\libdetourcrowd\include;..\liblz4;..\magic_enum;..\libfreetypegl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;src;tinyobjloader\include;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;..\libassimp\include;..\openal\include;..\sndfile\include;..\rapidjson\include;..\libtmxlite\include;..\glm;..\tsl;..\librecast\include;..\libdetour\include;..\libdetourtilecache\include;..\libdetourcrowd\include;..\liblz4;..\magic_enum;..\libfreetypegl;..\SDKs\wgpu\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <DisableSpecificWarnings>4005;</DisableSpecificWarnings>
       <LanguageStandard>stdcpp17</LanguageStandard>
@@ -159,7 +159,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>wgpu\lib\x64;..\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\lib\x64;..\SDKs\wgpu\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>OpenGl32.lib;libglew.lib;libsoil2.lib;libfreetype.lib;libimgui.lib;libassimp.lib;libbullet.lib;libtmxlite.lib;libzlib.lib;libopenal.lib;libsndfile.lib;libmpg.lib;liblame.lib;libflac.lib;winmm.lib;shlwapi.lib;libdetour.lib;libdetourtilecache.lib;libdetourcrowd.lib;librecast.lib;liblz4.lib;xinput.lib;wgpu_native.lib;ws2_32.lib;userenv.lib;ntdll.lib;propsys.lib;runtimeobject.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>

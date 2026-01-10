@@ -263,15 +263,14 @@ void Application::initImGUI() {
 	init_info.DescriptorPool = imguiPool;
 	init_info.MinImageCount = 3u;
 	init_info.ImageCount = 3u;
-	init_info.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
-	init_info.UseDynamicRendering = VK_TRUE;
-	init_info.PipelineRenderingCreateInfo = pipelineRenderingCreateInfo;
-	init_info.RenderPass = NULL;
-	init_info.PipelineCache = NULL;
-	init_info.Subpass = 0u;
+	init_info.UseDynamicRendering = VK_TRUE;	
 	init_info.Allocator = NULL;
+	init_info.PipelineCache = NULL;
 	init_info.CheckVkResultFn = vlkContext.CheckVKResult;
-
+	init_info.PipelineInfoMain.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
+	init_info.PipelineInfoMain.PipelineRenderingCreateInfo = pipelineRenderingCreateInfo;
+	init_info.PipelineInfoMain.RenderPass = NULL;
+	init_info.PipelineInfoMain.Subpass = 0u;
 	ImGui_ImplVulkan_Init(&init_info);
 }
 

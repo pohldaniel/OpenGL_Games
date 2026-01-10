@@ -66,6 +66,10 @@ public:
 	Matrix4f R2;
 	Matrix4f T2;
 
+	void renderUi(WGPURenderPassEncoder renderPass);
+
+	bool m_initUi = true;
+
 private:
 	static LRESULT CALLBACK StaticWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 	LRESULT ApplicationWndProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam);
@@ -112,5 +116,5 @@ private:
 	WGPUBuffer uniformBuffer;
 	WGPUBindGroup bindGroup;
 	//WGPUSurfaceTexture nextTexture;
-	
+	WGPUSurfaceCapabilities surface_capabilities;
 };

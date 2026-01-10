@@ -4,7 +4,8 @@
 #include <GL/wglew.h>
 #include <imgui.h>
 #include <imgui_impl_win32.h>
-#include <imgui_impl_opengl3.h>
+#include <imgui_impl_wgpu.h>
+#include <imgui_internal.h>
 
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <tiny_obj_loader.h>
@@ -54,7 +55,8 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	createWindow();
 	showWindow();
 	initWebGPU();
-	
+	initImGUI();
+
 	EventDispatcher.setProcessOSEvents([&]() {
 		while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
 			if (msg.message == WM_QUIT) return false;
@@ -74,6 +76,10 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 Application::~Application() {
 	delete Machine;
 	
+	ImGui_ImplWGPU_Shutdown();
+	ImGui_ImplWin32_Shutdown();
+	ImGui::DestroyContext();
+
 	HDC hdc = GetDC(Window);
 	wglMakeCurrent(hdc, 0);
 	wglDeleteContext(wglGetCurrentContext());
@@ -166,7 +172,7 @@ LRESULT CALLBACK Application::StaticWndProc(HWND hWnd, UINT message, WPARAM wPar
 		return 0;
 	}
 
-	/*if ((message == WM_KEYDOWN && (wParam == 'v' || wParam == 'V' || wParam == 'z' || wParam == 'Z')) || (message == WM_KEYDOWN && wParam == VK_ESCAPE) || (message == WM_KEYDOWN && wParam == VK_RETURN && ((HIWORD(lParam) & KF_ALTDOWN))) || (message == WM_SYSKEYDOWN && wParam == VK_RETURN && ((HIWORD(lParam) & KF_ALTDOWN)))) {
+	if ((message == WM_KEYDOWN && (wParam == 'v' || wParam == 'V' || wParam == 'z' || wParam == 'Z')) || (message == WM_KEYDOWN && wParam == VK_ESCAPE) || (message == WM_KEYDOWN && wParam == VK_RETURN && ((HIWORD(lParam) & KF_ALTDOWN))) || (message == WM_SYSKEYDOWN && wParam == VK_RETURN && ((HIWORD(lParam) & KF_ALTDOWN)))) {
 		ImGui::GetIO().WantCaptureMouse = false;
 	}
 
@@ -174,7 +180,7 @@ LRESULT CALLBACK Application::StaticWndProc(HWND hWnd, UINT message, WPARAM wPar
 
 	if (InitWindow && ImGui::GetIO().WantCaptureMouse) {
 		return DefWindowProc(hWnd, message, wParam, lParam);
-	}*/
+	}
 
 	if (application) {
 		application->processEvent(hWnd, message, wParam, lParam);
@@ -619,7 +625,7 @@ void Application::initWebGPU() {
 	bindGroupDesc.entries = &binding;
 	bindGroup = wgpuDeviceCreateBindGroup(device, &bindGroupDesc);
 
-	WGPUSurfaceCapabilities surface_capabilities = { 0 };
+	surface_capabilities = { 0 };
 	wgpuSurfaceGetCapabilities(Surface, adapter, &surface_capabilities);
 
 	WGPUSurfaceConfiguration config = {};
@@ -645,7 +651,13 @@ void Application::initImGUI() {
 	io.IniFilename = NULL;
 	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 	io.ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
-	ImGui_ImplOpenGL3_Init("#version 410 core");
+
+	ImGui_ImplWGPU_InitInfo initInfo = {};
+	initInfo.Device = device;
+	initInfo.RenderTargetFormat = surface_capabilities.formats[0];
+	initInfo.DepthStencilFormat = WGPUTextureFormat_Depth24Plus;
+
+	ImGui_ImplWGPU_Init(&initInfo);
 }
 
 void Application::initOpenAL() {
@@ -741,26 +753,29 @@ void Application::render() {
 	renderPassDesc.timestampWrites = nullptr;
 
 	WGPURenderPassEncoder renderPass = wgpuCommandEncoderBeginRenderPass(encoder, &renderPassDesc);
-
+	
 	wgpuRenderPassEncoderSetPipeline(renderPass, pipeline);
 	wgpuRenderPassEncoderSetVertexBuffer(renderPass, 0, vertexBuffer, 0, wgpuBufferGetSize(vertexBuffer));
 	wgpuRenderPassEncoderSetBindGroup(renderPass, 0, bindGroup, 0, nullptr);
 	wgpuRenderPassEncoderDraw(renderPass, indexCount, 1, 0, 0);
+
+	renderUi(renderPass);
+
 	wgpuRenderPassEncoderEnd(renderPass);
 	wgpuRenderPassEncoderRelease(renderPass);
 	wgpuTextureViewRelease(frame);
 	
-
 	WGPUCommandBufferDescriptor cmdBufferDescriptor = {};
 	cmdBufferDescriptor.label = { "Command buffer", WGPU_STRLEN };
 	WGPUCommandBuffer command = wgpuCommandEncoderFinish(encoder, &cmdBufferDescriptor);
 	wgpuQueueSubmit(Queue, 1, &command);
+	
 	wgpuSurfacePresent(Surface);
 
 	wgpuCommandBufferRelease(command);
 	wgpuCommandEncoderRelease(encoder);
 	wgpuTextureViewRelease(frame);
-	wgpuTextureRelease(surface_texture.texture);
+	wgpuTextureRelease(surface_texture.texture);	
 }
 
 void Application::update() {
@@ -1038,4 +1053,48 @@ void Application::SetCursorIcon(const char* image[]) {
 
 	SetCursor(Cursor);
 	SetClassLongPtr(Window, GCLP_HCURSOR, LONG_PTR(Cursor));
+}
+
+void Application::renderUi(WGPURenderPassEncoder renderPass) {
+	ImGui_ImplWGPU_NewFrame();
+	ImGui_ImplWin32_NewFrame();
+	ImGui::NewFrame();
+
+	ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar |
+		ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove |
+		ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus |
+		ImGuiWindowFlags_NoBackground;
+
+	ImGuiViewport* viewport = ImGui::GetMainViewport();
+	ImGui::SetNextWindowPos(viewport->Pos);
+	ImGui::SetNextWindowSize(viewport->Size);
+	ImGui::SetNextWindowViewport(viewport->ID);
+
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+	ImGui::Begin("InvisibleWindow", nullptr, windowFlags);
+	ImGui::PopStyleVar(3);
+
+	ImGuiID dockSpaceId = ImGui::GetID("MainDockSpace");
+	ImGui::DockSpace(dockSpaceId, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_PassthruCentralNode);
+	ImGui::End();
+
+	if (m_initUi) {
+		m_initUi = false;
+		ImGuiID dock_id_left = ImGui::DockBuilderSplitNode(dockSpaceId, ImGuiDir_Left, 0.2f, nullptr, &dockSpaceId);
+		ImGuiID dock_id_right = ImGui::DockBuilderSplitNode(dockSpaceId, ImGuiDir_Right, 0.2f, nullptr, &dockSpaceId);
+		ImGuiID dock_id_down = ImGui::DockBuilderSplitNode(dockSpaceId, ImGuiDir_Down, 0.2f, nullptr, &dockSpaceId);
+		ImGuiID dock_id_up = ImGui::DockBuilderSplitNode(dockSpaceId, ImGuiDir_Up, 0.2f, nullptr, &dockSpaceId);
+		ImGui::DockBuilderDockWindow("Settings", dock_id_left);
+	}
+
+	// render widgets
+	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
+	ImGui::Checkbox("Draw Wirframe", &StateMachine::GetEnableWireframe());
+	ImGui::End();
+
+	ImGui::Render();
+
+	ImGui_ImplWGPU_RenderDrawData(ImGui::GetDrawData(), renderPass);
 }
