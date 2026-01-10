@@ -86,4 +86,4 @@ The project 40RecastDemo is from https://github.com/recastnavigation/recastnavig
 
 For building wgpu-native
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cargo build --target x86_64-pc-windows-msvc --release
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cargo build --target x86_64-pc-windows-msvc --release --no-default-features --features "vulkan wgsl spirv"
