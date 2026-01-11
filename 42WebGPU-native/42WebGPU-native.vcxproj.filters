@@ -82,6 +82,9 @@
     <Filter Include="engine\uiNew">
       <UniqueIdentifier>{a04c4081-6bf3-4f75-92fb-6e683cdf5a42}</UniqueIdentifier>
     </Filter>
+    <Filter Include="WebGPU">
+      <UniqueIdentifier>{f1f0391f-f7c4-4de1-a606-27c6973b4c54}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\input\ApplicationEventListener.cpp">
@@ -533,6 +536,12 @@
     </ClCompile>
     <ClCompile Include="src\States\Controller.cpp">
       <Filter>Source Files\States</Filter>
+    </ClCompile>
+    <ClCompile Include="WebGPU\WgpContext.cpp">
+      <Filter>WebGPU</Filter>
+    </ClCompile>
+    <ClCompile Include="WebGPU\WgpTexture.cpp">
+      <Filter>WebGPU</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1024,6 +1033,12 @@
     </ClInclude>
     <ClInclude Include="src\States\Controller.h">
       <Filter>Source Files\States</Filter>
+    </ClInclude>
+    <ClInclude Include="WebGPU\WgpContext.h">
+      <Filter>WebGPU</Filter>
+    </ClInclude>
+    <ClInclude Include="WebGPU\WgpTexture.h">
+      <Filter>WebGPU</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

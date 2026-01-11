@@ -73,3 +73,5 @@ https://gamedev.stackexchange.com/questions/165575/calculating-normal-map-from-h
 https://www.youtube.com/watch?v=99vXxyJtXeQ
 https://github.com/A-Ribeiro/OpenGLStarter
 https://github.com/LesleyLai/GLGrassRenderer
+
+https://github.com/assimp/assimp/issues/4746
