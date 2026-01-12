@@ -87,7 +87,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;FREEIMAGE_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\;src;tinyobjloader\include;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;..\libassimp\include;..\openal\include;..\sndfile\include;..\librecast\include;..\libdetour\include;..\libdetourtilecache\include;..\libdetourcrowd\include;..\liblz4;..\libtmxlite\include;..\rapidjson\include;..\Freeimage\libfreeimage\include;..\SDKs\wgpu\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4005;</DisableSpecificWarnings>
       <LanguageStandard>stdcpp17</LanguageStandard>
@@ -96,7 +96,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>..\libd\x86;..\SDKs\wgpu\libd\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libsoil2.lib;libfreetype.lib;libimgui.lib;libassimp.lib;libbullet.lib;libtmxlite.lib;libzlib.lib;libopenal.lib;libsndfile.lib;libmpg.lib;liblame.lib;libflac.lib;winmm.lib;shlwapi.lib;libdetour.lib;libdetourtilecache.lib;libdetourcrowd.lib;librecast.lib;liblz4.lib;xinput.lib;wgpu_native.lib;ws2_32.lib;userenv.lib;ntdll.lib;propsys.lib;runtimeobject.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libsoil2.lib;libfreetype.lib;libimgui.lib;libassimp.lib;libbullet.lib;libtmxlite.lib;libzlib.lib;libopenal.lib;libsndfile.lib;libmpg.lib;liblame.lib;libflac.lib;winmm.lib;shlwapi.lib;libdetour.lib;libdetourtilecache.lib;libdetourcrowd.lib;librecast.lib;liblz4.lib;xinput.lib;wgpu_native.lib;ws2_32.lib;userenv.lib;ntdll.lib;propsys.lib;runtimeobject.lib;libfreeimage.lib;libwebp.lib;libtiff4.lib;libpng.lib;libjxr.lib;libopenexr.lib;librawlite.lib;libopenjpeg.lib;libjpeg.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -105,7 +105,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;FREEIMAGE_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\;src;tinyobjloader\include;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;..\libassimp\include;..\openal\include;..\sndfile\include;..\librecast\include;..\libdetour\include;..\libdetourtilecache\include;..\libdetourcrowd\include;..\liblz4;..\libtmxlite\include;..\rapidjson\include;..\Freeimage\libfreeimage\include;..\SDKs\wgpu\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4005;</DisableSpecificWarnings>
       <LanguageStandard>stdcpp17</LanguageStandard>
@@ -114,7 +114,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>..\libd\x64;..\SDKs\wgpu\libd\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libsoil2.lib;libfreetype.lib;libimgui.lib;libassimp.lib;libbullet.lib;libtmxlite.lib;libzlib.lib;libopenal.lib;libsndfile.lib;libmpg.lib;liblame.lib;libflac.lib;winmm.lib;shlwapi.lib;libdetour.lib;libdetourtilecache.lib;libdetourcrowd.lib;librecast.lib;liblz4.lib;xinput.lib;wgpu_native.lib;ws2_32.lib;userenv.lib;ntdll.lib;propsys.lib;runtimeobject.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libsoil2.lib;libfreetype.lib;libimgui.lib;libassimp.lib;libbullet.lib;libtmxlite.lib;libzlib.lib;libopenal.lib;libsndfile.lib;libmpg.lib;liblame.lib;libflac.lib;winmm.lib;shlwapi.lib;libdetour.lib;libdetourtilecache.lib;libdetourcrowd.lib;librecast.lib;liblz4.lib;xinput.lib;wgpu_native.lib;ws2_32.lib;userenv.lib;ntdll.lib;propsys.lib;runtimeobject.lib;libfreeimage.lib;libwebp.lib;libtiff4.lib;libpng.lib;libjxr.lib;libopenexr.lib;librawlite.lib;libopenjpeg.lib;libjpeg.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -125,7 +125,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;FREEIMAGE_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\;src;tinyobjloader\include;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;..\libassimp\include;..\openal\include;..\sndfile\include;..\librecast\include;..\libdetour\include;..\libdetourtilecache\include;..\libdetourcrowd\include;..\liblz4;..\libtmxlite\include;..\rapidjson\include;..\Freeimage\libfreeimage\include;..\SDKs\wgpu\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <DisableSpecificWarnings>4005;</DisableSpecificWarnings>
@@ -137,7 +137,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>..\lib\x86;..\SDKs\wgpu\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libsoil2.lib;libfreetype.lib;libimgui.lib;libassimp.lib;libbullet.lib;libtmxlite.lib;libzlib.lib;libopenal.lib;libsndfile.lib;libmpg.lib;liblame.lib;libflac.lib;winmm.lib;shlwapi.lib;libdetour.lib;libdetourtilecache.lib;libdetourcrowd.lib;librecast.lib;liblz4.lib;xinput.lib;wgpu_native.lib;ws2_32.lib;userenv.lib;ntdll.lib;propsys.lib;runtimeobject.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libsoil2.lib;libfreetype.lib;libimgui.lib;libassimp.lib;libbullet.lib;libtmxlite.lib;libzlib.lib;libopenal.lib;libsndfile.lib;libmpg.lib;liblame.lib;libflac.lib;winmm.lib;shlwapi.lib;libdetour.lib;libdetourtilecache.lib;libdetourcrowd.lib;librecast.lib;liblz4.lib;xinput.lib;wgpu_native.lib;ws2_32.lib;userenv.lib;ntdll.lib;propsys.lib;runtimeobject.lib;libfreeimage.lib;libwebp.lib;libtiff4.lib;libpng.lib;libjxr.lib;libopenexr.lib;librawlite.lib;libopenjpeg.lib;libjpeg.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -148,7 +148,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;FREEIMAGE_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\;src;tinyobjloader\include;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;..\libassimp\include;..\openal\include;..\sndfile\include;..\librecast\include;..\libdetour\include;..\libdetourtilecache\include;..\libdetourcrowd\include;..\liblz4;..\libtmxlite\include;..\rapidjson\include;..\Freeimage\libfreeimage\include;..\SDKs\wgpu\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <DisableSpecificWarnings>4005;</DisableSpecificWarnings>
@@ -160,7 +160,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>..\lib\x64;..\SDKs\wgpu\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libsoil2.lib;libfreetype.lib;libimgui.lib;libassimp.lib;libbullet.lib;libtmxlite.lib;libzlib.lib;libopenal.lib;libsndfile.lib;libmpg.lib;liblame.lib;libflac.lib;winmm.lib;shlwapi.lib;libdetour.lib;libdetourtilecache.lib;libdetourcrowd.lib;librecast.lib;liblz4.lib;xinput.lib;wgpu_native.lib;ws2_32.lib;userenv.lib;ntdll.lib;propsys.lib;runtimeobject.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libsoil2.lib;libfreetype.lib;libimgui.lib;libassimp.lib;libbullet.lib;libtmxlite.lib;libzlib.lib;libopenal.lib;libsndfile.lib;libmpg.lib;liblame.lib;libflac.lib;winmm.lib;shlwapi.lib;libdetour.lib;libdetourtilecache.lib;libdetourcrowd.lib;librecast.lib;liblz4.lib;xinput.lib;wgpu_native.lib;ws2_32.lib;userenv.lib;ntdll.lib;propsys.lib;runtimeobject.lib;libfreeimage.lib;libwebp.lib;libtiff4.lib;libpng.lib;libjxr.lib;libopenexr.lib;librawlite.lib;libopenjpeg.lib;libjpeg.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

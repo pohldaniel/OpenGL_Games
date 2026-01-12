@@ -4,7 +4,6 @@
 #include "VlkContext.h"
 #include "VlkTexture.h"
 
-
 VlkTexture::VlkTexture(const VkDescriptorSetLayout& vkDescriptorSetLayout) :
     vkDescriptorSetLayout(vkDescriptorSetLayout),
     m_vkImage(VK_NULL_HANDLE), 
@@ -21,7 +20,7 @@ VlkTexture::VlkTexture(VlkTexture const& rhs) : vkDescriptorSetLayout(rhs.vkDesc
 
 }
 
-VlkTexture::VlkTexture(VlkTexture&& rhs) noexcept : vkDescriptorSetLayout(std::move(rhs.vkDescriptorSetLayout)), m_vkImage(std::move(rhs.m_vkImage)), m_vkDeviceMemory(std::move(rhs.m_vkDeviceMemory)), m_vkImageView(std::move(rhs.m_vkImageView)), m_vkDescriptorSet(std::move(rhs.m_vkDescriptorSet)), m_width(rhs.m_width), m_height(rhs.m_height), m_channels(rhs.m_channels) {
+VlkTexture::VlkTexture(VlkTexture&& rhs) noexcept : vkDescriptorSetLayout(rhs.vkDescriptorSetLayout), m_vkImage(std::move(rhs.m_vkImage)), m_vkDeviceMemory(std::move(rhs.m_vkDeviceMemory)), m_vkImageView(std::move(rhs.m_vkImageView)), m_vkDescriptorSet(std::move(rhs.m_vkDescriptorSet)), m_width(rhs.m_width), m_height(rhs.m_height), m_channels(rhs.m_channels) {
 
 }
 
@@ -83,6 +82,8 @@ void VlkTexture::loadFromFile(std::string fileName, const bool flipVertical) {
     // Allocate Sampler for every texture
     vlkAllocateDescriptorSet(m_vkDescriptorSet, vkDescriptorSetLayout);
     vlkBindImageViewToDescriptorSet(m_vkImageView, m_vkDescriptorSet, 0u);
+
+    SOIL_free_image_data(imageData);
 }
 
 void VlkTexture::FlipVertical(unsigned char* data, unsigned int padWidth, unsigned int height) {

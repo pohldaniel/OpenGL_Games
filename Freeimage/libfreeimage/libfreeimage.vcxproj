@@ -231,7 +231,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;OPJ_STATIC;_CRT_SECURE_NO_DEPRECATE;FREEIMAGE_LIB;LIBRAW_NODLL;PNG_SET_OPTION_SUPPORTED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE;OPJ_STATIC;LIBRAW_NODLL;FREEIMAGE_LIB;PNG_SET_OPTION_SUPPORTED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>include;..\libopenexr;..\libopenexr\Imath;..\libopenexr\Iex;..\libopenexr\Half;..\libjxr;..\libjxr\jxrgluelib;..\libjxr\image\sys;..\libjpeg\include;..\libpng\include;..\..\libzlib\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <InlineFunctionExpansion>Default</InlineFunctionExpansion>
