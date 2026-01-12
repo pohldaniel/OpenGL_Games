@@ -319,6 +319,7 @@
     <ClCompile Include="src\States\Menu.cpp" />
     <ClCompile Include="src\Utils\BinaryIO.cpp" />
     <ClCompile Include="src\Zone.cpp" />
+    <ClCompile Include="WebGPU\WgpBuffer.cpp" />
     <ClCompile Include="WebGPU\WgpContext.cpp" />
     <ClCompile Include="WebGPU\WgpTexture.cpp" />
   </ItemGroup>
@@ -486,6 +487,7 @@
     <ClInclude Include="src\States\Menu.h" />
     <ClInclude Include="src\Utils\BinaryIO.h" />
     <ClInclude Include="src\Zone.h" />
+    <ClInclude Include="WebGPU\WgpBuffer.h" />
     <ClInclude Include="WebGPU\WgpContext.h" />
     <ClInclude Include="WebGPU\WgpTexture.h" />
   </ItemGroup>

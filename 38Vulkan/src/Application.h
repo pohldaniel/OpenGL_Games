@@ -32,7 +32,6 @@ public:
 
 	static int Width;
 	static int Height;
-	//static VlkContext VlkContext;
 
 	VkDescriptorPool imguiPool;
 

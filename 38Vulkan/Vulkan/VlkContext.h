@@ -14,7 +14,7 @@ struct VlkContext {
     const int maxDescriptorSets = 10;
     const int maxDescriptorCount = 65536;
 
-    void createShaders(const VkDevice& vkDevice);
+    void createShader(const VkDevice& vkDevice);
     void createDescriptorSetLayout(const VkDevice& vkDevice, std::vector<VkDescriptorSetLayout>& vkDescriptorSetLayouts);
 
     VkInstance vkInstance;
@@ -54,7 +54,7 @@ extern int maxDescriptorCount;
 extern "C" {
 
     void vlkInit(void* window);
-    bool vlkCreateDevice(VlkContext& vlkcontext, void* window);
+    bool vlkCreateDevice(VlkContext& vlkContext, void* window);
     void vlkResize();
     void vlkToggleVerticalSync();
     void vlkWaitIdle();

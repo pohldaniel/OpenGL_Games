@@ -543,6 +543,9 @@
     <ClCompile Include="WebGPU\WgpTexture.cpp">
       <Filter>WebGPU</Filter>
     </ClCompile>
+    <ClCompile Include="WebGPU\WgpBuffer.cpp">
+      <Filter>WebGPU</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="convhull\convhull_3d.h">
@@ -1038,6 +1041,9 @@
       <Filter>WebGPU</Filter>
     </ClInclude>
     <ClInclude Include="WebGPU\WgpTexture.h">
+      <Filter>WebGPU</Filter>
+    </ClInclude>
+    <ClInclude Include="WebGPU\WgpBuffer.h">
       <Filter>WebGPU</Filter>
     </ClInclude>
   </ItemGroup>

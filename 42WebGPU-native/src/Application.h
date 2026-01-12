@@ -11,20 +11,15 @@
 #include <engine/Vector.h>
 #include <States/StateMachine.h>
 
+#include "WebGpu/WgpContext.h"
+
 struct VertexAttributes {
 	Vector3f position;
 	Vector3f normal;
 	Vector3f color;
 };
 
-struct MyUniforms {
-	Matrix4f projectionMatrix;
-	Matrix4f viewMatrix;
-	Matrix4f modelMatrix;
-	std::array<float, 4> color;
-	float time;
-	float _pad[3];
-};
+
 
 class Application {
 

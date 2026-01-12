@@ -4,18 +4,6 @@
 #include <engine/input/KeyboardEventListener.h>
 #include <engine/Camera.h>
 #include <States/StateMachine.h>
-#include <Entities/Player.h>
-
-#include "Zone.h"
-#include "Overworld.h"
-#include "Level.h"
-
-enum Scene {
-	OVERWORLD,
-	OMNI,
-	LEVEL1,
-	LEVEL2
-};
 
 class Game : public State, public MouseEventListener, public KeyboardEventListener {
 
@@ -48,14 +36,4 @@ private:
 	bool m_drawCenter = false;
 
 	Camera m_camera;
-	Zone* m_zone;
-	Player* m_player;
-
-	float m_movingSpeed;
-	float m_viewWidth;
-	float m_viewHeight;
-	float m_mapHeight;
-	float m_screeBorder;
-
-	Scene m_scene = Scene::OMNI;
 };

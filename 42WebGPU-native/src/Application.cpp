@@ -244,72 +244,6 @@ LRESULT Application::ApplicationWndProc(HWND hWnd, UINT message, WPARAM wParam, 
 	return DefWindowProc(hWnd, message, wParam, lParam);
 }
 
-void handle_request_adapter(WGPURequestAdapterStatus status, WGPUAdapter adapter, WGPUStringView message, void* userdata1, void* userdata2) {
-	if (status == WGPURequestAdapterStatus_Success) {
-		struct Application* application = (Application*)userdata1;
-		application->adapter = adapter;
-	}else {
-		std::cout << "ERROR: Adapter" << std::endl;
-	}
-}
-
-void handle_request_device(WGPURequestDeviceStatus status, WGPUDevice device, WGPUStringView message, void* userdata1, void* userdata2) {
-
-		if (status == WGPURequestDeviceStatus_Success) {
-			struct Application* application = (Application*)userdata1;
-			application->device = device;
-		}else {
-			std::cout << "ERROR: Device" << std::endl;
-		}
-}
-
-WGPUShaderModule Application::load_shader_module(WGPUDevice device, const char* name) {
-	FILE* file = NULL;
-	char* buf = NULL;
-	WGPUShaderModule shader_module = NULL;
-
-	file = fopen(name, "rb");
-	if (!file) {
-		perror("fopen");
-		goto cleanup;
-	}
-
-	if (fseek(file, 0, SEEK_END) != 0) {
-		perror("fseek");
-		goto cleanup;
-	}
-	long length = ftell(file);
-	if (length == -1) {
-		perror("ftell");
-		goto cleanup;
-	}
-	if (fseek(file, 0, SEEK_SET) != 0) {
-		perror("fseek");
-		goto cleanup;
-	}
-
-	buf = (char*)malloc(length + 1);
-	assert(buf);
-	fread(buf, 1, length, file);
-	buf[length] = 0;
-
-	WGPUShaderSourceWGSL shaderSourceWGSL = {};
-	shaderSourceWGSL.chain.sType = WGPUSType_ShaderSourceWGSL;
-	shaderSourceWGSL.code = { buf, WGPU_STRLEN };
-
-	WGPUShaderModuleDescriptor shaderModuleDescriptor = {};
-	shaderModuleDescriptor.label = { name, WGPU_STRLEN };
-	shaderModuleDescriptor.nextInChain = reinterpret_cast<WGPUChainedStruct*>(&shaderSourceWGSL);
-
-	shader_module = wgpuDeviceCreateShaderModule(device, &shaderModuleDescriptor);
-
-cleanup:
-	if (file)
-		fclose(file);
-	if (buf)
-		free(buf);
-	return shader_module;
-}
 
 void Application::setDefault(WGPUDepthStencilState& depthStencilState) {
 	depthStencilState.nextInChain = nullptr;
@@ -406,40 +340,17 @@ bool Application::loadGeometryFromObj(const std::filesystem::path& path, std::ve
 }
 
 void Application::initWebGPU() {
-	instance = wgpuCreateInstance(NULL);
+	wgpInit(Window);
 
-	WGPUSurfaceSourceWindowsHWND surfaceSourceWindowsHWND = {};
-	surfaceSourceWindowsHWND.chain.sType = WGPUSType_SurfaceSourceWindowsHWND;
-	surfaceSourceWindowsHWND.hinstance = GetModuleHandle(NULL);
-	surfaceSourceWindowsHWND.hwnd = Window;
+	instance = wgpContext.instance;
+	Surface = wgpContext.surface;
+	adapter = wgpContext.adapter;
+	device = wgpContext.device;
+	Queue = wgpContext.queue;
 
-	WGPUSurfaceDescriptor surfaceDescriptor = {};
-	surfaceDescriptor.nextInChain = reinterpret_cast<WGPUChainedStruct*>(&surfaceSourceWindowsHWND);
+	WGPUShaderModule shaderModule = wgpContext.createShader(device);
 
-	Surface = wgpuInstanceCreateSurface(instance, &surfaceDescriptor);
-
-	WGPURequestAdapterOptions requestAdapterOptions = {};
-	requestAdapterOptions.compatibleSurface = Surface;
-
-	WGPURequestAdapterCallbackInfo requestAdapterCallbackInfo = {};
-	requestAdapterCallbackInfo.callback = handle_request_adapter;
-	requestAdapterCallbackInfo.userdata1 = this;
-
-	wgpuInstanceRequestAdapter(instance, &requestAdapterOptions, requestAdapterCallbackInfo);
-
-	WGPURequestDeviceCallbackInfo  deviceCallbackInfo = {};
-	deviceCallbackInfo.callback = handle_request_device;
-	deviceCallbackInfo.userdata1 = this;
-
-	wgpuAdapterRequestDevice(adapter, NULL, deviceCallbackInfo);
-	assert(device);
-
-	Queue = wgpuDeviceGetQueue(device);
-	assert(Queue);
-
-	WGPUShaderModule shaderModule = load_shader_module(device, "res/shader/shader.wgsl");
 	std::vector<WGPUVertexAttribute> vertexAttribs(3);
-
 	vertexAttribs[0].shaderLocation = 0;
 	vertexAttribs[0].format = WGPUVertexFormat::WGPUVertexFormat_Float32x3;
 	vertexAttribs[0].offset = 0;
@@ -458,23 +369,7 @@ void Application::initWebGPU() {
 	vertexBufferLayout.arrayStride = sizeof(VertexAttributes);
 	vertexBufferLayout.stepMode = WGPUVertexStepMode::WGPUVertexStepMode_Vertex;
 
-	// bind group layout (used by both the pipeline layout and uniform bind group, released at the end of this function)
-	WGPUBindGroupLayoutEntry bglEntry = {};
-	bglEntry.binding = 0;
-	bglEntry.visibility = WGPUShaderStage_Vertex | WGPUShaderStage_Fragment;
-	bglEntry.buffer.type = WGPUBufferBindingType_Uniform;
-	bglEntry.buffer.minBindingSize = sizeof(MyUniforms);
-
-	WGPUBindGroupLayoutDescriptor bglDesc = {};
-	bglDesc.entryCount = 1;
-	bglDesc.entries = &bglEntry;
-	WGPUBindGroupLayout bindGroupLayout = wgpuDeviceCreateBindGroupLayout(device, &bglDesc);
-
-	WGPUPipelineLayoutDescriptor layoutDesc = {};
-	layoutDesc.bindGroupLayoutCount = 1;
-	layoutDesc.bindGroupLayouts = &bindGroupLayout;
-
-	WGPUPipelineLayout pipelineLayout = wgpuDeviceCreatePipelineLayout(device, &layoutDesc);
+	WGPUPipelineLayout pipelineLayout = wgpCreatePipelineLayout();
 
 	WGPURenderPipelineDescriptor desc = {};
 	desc.layout = pipelineLayout;
@@ -568,21 +463,29 @@ void Application::initWebGPU() {
 	}
 
 	// Create vertex buffer
-	WGPUBufferDescriptor bufferDesc = {};
+	/*WGPUBufferDescriptor bufferDesc = {};
 	bufferDesc.label = { "vertex_buf", WGPU_STRLEN };
 	bufferDesc.size = vertexData.size() * sizeof(VertexAttributes);
 	bufferDesc.usage = WGPUBufferUsage_CopyDst | WGPUBufferUsage_Vertex;
 	bufferDesc.mappedAtCreation = false;
-	vertexBuffer = wgpuDeviceCreateBuffer(device, &bufferDesc);
-	wgpuQueueWriteBuffer(Queue, vertexBuffer, 0, vertexData.data(), bufferDesc.size);
+	vertexBuffer = wgpuDeviceCreateBuffer(device, &bufferDesc);*/
+
+	vertexBuffer = wgpCreateBuffer(vertexData.size() * sizeof(VertexAttributes), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Vertex);
+	wgpuQueueWriteBuffer(Queue, vertexBuffer, 0, vertexData.data(), vertexData.size() * sizeof(VertexAttributes));
 	indexCount = static_cast<int>(vertexData.size());
 
 	// Create uniform buffer
+	/*WGPUBufferDescriptor bufferDesc = {};
 	bufferDesc.label = { "uniform_buf", WGPU_STRLEN };
 	bufferDesc.size = sizeof(MyUniforms);
 	bufferDesc.usage = WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform;
 	bufferDesc.mappedAtCreation = false;
-	uniformBuffer = wgpuDeviceCreateBuffer(device, &bufferDesc);
+	uniformBuffer = wgpuDeviceCreateBuffer(device, &bufferDesc);*/
+	
+	/*vertexBuffer = wgpCreateBuffer(vertexData.size() * sizeof(VertexAttributes), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Vertex);
+	wgpuQueueWriteBuffer(Queue, vertexBuffer, 0, vertexData.data(), vertexData.size() * sizeof(VertexAttributes));
+	indexCount = static_cast<int>(vertexData.size());*/
+	uniformBuffer = wgpCreateBuffer(sizeof(MyUniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
 	
 	// Translate the view
 	Vector3f focalPoint(0.0, 0.0, -1.0);
@@ -620,8 +523,8 @@ void Application::initWebGPU() {
 	binding.size = sizeof(MyUniforms);
 
 	WGPUBindGroupDescriptor bindGroupDesc = {};
-	bindGroupDesc.layout = bindGroupLayout;
-	bindGroupDesc.entryCount = bglDesc.entryCount;
+	bindGroupDesc.layout = wgpContext.bindGroupLayout;
+	bindGroupDesc.entryCount = 1;
 	bindGroupDesc.entries = &binding;
 	bindGroup = wgpuDeviceCreateBindGroup(device, &bindGroupDesc);
 

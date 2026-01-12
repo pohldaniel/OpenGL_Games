@@ -2,19 +2,24 @@
 #include <FreeImage.h>
 #include "WgpTexture.h"
 
-WgpTexture::WgpTexture() :
+WgpTexture::WgpTexture(const WGPUDevice& device, const WGPUQueue& queue) :
+    device(device),
+    queue(queue),
     m_width(0u),
     m_height(0u),
-    m_channels(0u) {
+    m_channels(0u),
+    m_data(nullptr),
+    m_texture(NULL){
 
 }
 
-WgpTexture::WgpTexture(WgpTexture const& rhs) : m_width(rhs.m_width), m_height(rhs.m_height), m_channels(rhs.m_channels) {
-
+WgpTexture::WgpTexture(WgpTexture const& rhs) : device(device), queue(rhs.queue), m_width(rhs.m_width), m_height(rhs.m_height), m_channels(rhs.m_channels), m_texture(rhs.m_texture) {
+    memcpy(rhs.m_data, m_data, m_width * m_height * m_channels);
 }
 
-WgpTexture::WgpTexture(WgpTexture&& rhs) noexcept : m_width(rhs.m_width), m_height(rhs.m_height), m_channels(rhs.m_channels) {
-
+WgpTexture::WgpTexture(WgpTexture&& rhs) noexcept : device(device), queue(rhs.queue), m_width(rhs.m_width), m_height(rhs.m_height), m_channels(rhs.m_channels), m_texture(rhs.m_texture) {
+    m_data = rhs.m_data;
+    rhs.m_data = nullptr;
 }
 
 void WgpTexture::loadFromFile(std::string fileName, const bool flipVertical) {
@@ -39,8 +44,40 @@ void WgpTexture::loadFromFile(std::string fileName, const bool flipVertical) {
         bpp = 4;      
     }
 
-    data = (unsigned char*)malloc(width * height * bpp);
-    memcpy(data, imageData, width * height * bpp);
+    m_width = width;
+    m_height = height;
+    m_channels = bpp;
+
+    WGPUTextureDescriptor textureDesc;
+    textureDesc.nextInChain = nullptr;
+    textureDesc.dimension = WGPUTextureDimension_2D;
+    textureDesc.size = { m_width, m_height, 1 };
+    textureDesc.mipLevelCount = 1;
+    textureDesc.sampleCount = 1;
+    textureDesc.format = WGPUTextureFormat_RGBA8Unorm;
+    textureDesc.usage = WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst;
+    textureDesc.viewFormatCount = 0;
+    textureDesc.viewFormats = nullptr;
+
+    m_data = (unsigned char*)malloc(width * height * bpp);
+    memcpy(m_data, imageData, width * height * bpp);
+
+    m_texture = wgpuDeviceCreateTexture(device, &textureDesc);
+
+
+    WGPUTexelCopyTextureInfo destination;
+    destination.texture = m_texture;
+    destination.mipLevel = 0;
+    destination.origin = { 0, 0, 0 };
+    destination.aspect = WGPUTextureAspect_All;
+
+    WGPUTexelCopyBufferLayout source;
+    source.offset = 0;
+    source.bytesPerRow = m_channels * textureDesc.size.width;
+    source.rowsPerImage = textureDesc.size.height;
+
+    wgpuQueueWriteTexture(queue, &destination, m_data, width * height * bpp, &source, &textureDesc.size);
+
 
     FreeImage_Unload(sourceBitmap);
     FreeImage_DeInitialise();

@@ -59,7 +59,7 @@ void vlkInit(void* window) {
 
     //Sample Scope
     vlkContext.createDescriptorSetLayout(vlkContext.vkDevice, vlkContext.vkDescriptorSetLayouts);
-    vlkContext.createShaders(vlkContext.vkDevice);
+    vlkContext.createShader(vlkContext.vkDevice);
 
     vlkCreatePipelineLayout(vlkContext.vkDescriptorSetLayouts, { }, vlkContext.vkPipelineLayout);
     vlkCreateSampler(vlkContext.sampler);
@@ -816,7 +816,7 @@ bool vlkCreateDevice(VlkContext& vlkContext, void* window){
 	return true;
 }
 
-void VlkContext::createShaders(const VkDevice& vkDevice){  
+void VlkContext::createShader(const VkDevice& vkDevice){
     std::vector<uint32_t> vertexCode, fragmentCode;
     vlkCompileSahder("res/shader/mesh.vert", shaderc_vertex_shader, vertexCode);
     vlkCompileSahder("res/shader/mesh.frag", shaderc_fragment_shader, fragmentCode);
