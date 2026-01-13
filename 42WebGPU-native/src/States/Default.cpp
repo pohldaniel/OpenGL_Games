@@ -1,7 +1,9 @@
 #include <imgui.h>
 #include <imgui_impl_win32.h>
-#include <imgui_impl_opengl3.h>
+#include <imgui_impl_wgpu.h>
 #include <imgui_internal.h>
+
+#include <WebGPU/WgpContext.h>
 
 #include "Default.h"
 #include "Application.h"
@@ -19,8 +21,22 @@ Default::Default(StateMachine& machine) : State(machine, States::DEFAULT) {
 	m_camera.setRotationSpeed(0.1f);
 	m_camera.setMovingSpeed(10.0f);
 
+	m_model.loadModel("res/models/mammoth.obj", Vector3f(1.0f, 0.0f, 0.0f), 0.0f, Vector3f(0.0f, 0.0f, 0.0f), 1.0f, false, false, false, false, false, true, false);
+	for (ObjMesh* mesh : m_model.getMeshes()) {
+		m_vertexBuffer.push_back(WgpBuffer());
+		m_vertexBuffer.back().createBuffer(reinterpret_cast<const void*>(mesh->getVertexBuffer().data()), sizeof(float) * mesh->getVertexBuffer().size(), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Vertex);
+		wgpuQueueWriteBuffer(wgpContext.queue, m_vertexBuffer.back().m_buffer, 0, reinterpret_cast<const void*>(mesh->getVertexBuffer().data()), sizeof(float) * mesh->getVertexBuffer().size());
 
-	m_model.loadModel("res/models/mammoth.obj", Vector3f(1.0f, 0.0f, 0.0f), 0.0f, Vector3f(0.0f, 0.0f, 0.0f), 1.0f, false, false, false, false, false, false, false);
+		m_indexBuffer.push_back(WgpBuffer());
+		m_indexBuffer.back().createBuffer(reinterpret_cast<const void*>(mesh->getIndexBuffer().data()), sizeof(unsigned int) * mesh->getIndexBuffer().size(), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Index);
+		wgpuQueueWriteBuffer(wgpContext.queue, m_indexBuffer.back().m_buffer, 0, reinterpret_cast<const void*>(mesh->getIndexBuffer().data()), sizeof(unsigned int) * mesh->getIndexBuffer().size());
+
+		m_textures.push_back(WgpTexture(wgpContext.device, wgpContext.queue));
+		m_textures.back().loadFromFile("res/textures/grid512.png", true);
+
+		m_mammoth.push_back(WgpMesh(m_vertexBuffer.back(), m_indexBuffer.back(), m_textures.back(), mesh->getIndexBuffer().size()));
+	}
+	wgpContext.OnDraw = std::bind(&Default::OnDraw, this, std::placeholders::_1);
 }
 
 Default::~Default() {
@@ -89,12 +105,16 @@ void Default::update() {
 }
 
 void Default::render() {
-	if (m_drawUi)
-		renderUi();
+	wgpDraw();
 }
 
 void Default::OnDraw(const WGPURenderPassEncoder& renderPass) {
+	wgpuRenderPassEncoderSetVertexBuffer(renderPass, 0, m_vertexBuffer.back().m_buffer, 0, wgpuBufferGetSize(m_vertexBuffer.back().m_buffer));
+	wgpuRenderPassEncoderSetIndexBuffer(renderPass, m_indexBuffer.back().m_buffer, WGPUIndexFormat_Uint32, 0, wgpuBufferGetSize(m_indexBuffer.back().m_buffer));
+	wgpuRenderPassEncoderDrawIndexed(renderPass, m_mammoth.back().drawCount, 1, 0, 0, 0);
 	
+	if (m_drawUi)
+		renderUi(renderPass);
 }
 
 void Default::OnMouseMotion(Event::MouseMoveEvent& event) {
@@ -128,8 +148,8 @@ void Default::resize(int deltaW, int deltaH) {
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
 }
 
-void Default::renderUi() {
-	ImGui_ImplOpenGL3_NewFrame();
+void Default::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
+	ImGui_ImplWGPU_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
 
@@ -168,5 +188,5 @@ void Default::renderUi() {
 	ImGui::End();
 
 	ImGui::Render();
-	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+	ImGui_ImplWGPU_RenderDrawData(ImGui::GetDrawData(), renderPassEncoder);
 }

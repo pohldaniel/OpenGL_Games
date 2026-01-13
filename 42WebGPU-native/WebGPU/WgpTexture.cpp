@@ -1,5 +1,6 @@
 #include <vector>
 #include <FreeImage.h>
+#include "WgpContext.h"
 #include "WgpTexture.h"
 
 WgpTexture::WgpTexture(const WGPUDevice& device, const WGPUQueue& queue) :
@@ -25,7 +26,7 @@ WgpTexture::WgpTexture(WgpTexture&& rhs) noexcept : device(device), queue(rhs.qu
 void WgpTexture::loadFromFile(std::string fileName, const bool flipVertical) {
     FreeImage_Initialise();
     FIBITMAP* sourceBitmap = FreeImage_Load(FIF_PNG, fileName.c_str(), PNG_DEFAULT);
-    unsigned int bpp = FreeImage_GetBPP(sourceBitmap);
+    unsigned int bpp = FreeImage_GetBPP(sourceBitmap) / 8;
     unsigned int width = FreeImage_GetWidth(sourceBitmap);
     unsigned int height = FreeImage_GetHeight(sourceBitmap);
     unsigned char* imageData =  FreeImage_GetBits(sourceBitmap);
@@ -48,22 +49,9 @@ void WgpTexture::loadFromFile(std::string fileName, const bool flipVertical) {
     m_height = height;
     m_channels = bpp;
 
-    WGPUTextureDescriptor textureDesc;
-    textureDesc.nextInChain = nullptr;
-    textureDesc.dimension = WGPUTextureDimension_2D;
-    textureDesc.size = { m_width, m_height, 1 };
-    textureDesc.mipLevelCount = 1;
-    textureDesc.sampleCount = 1;
-    textureDesc.format = WGPUTextureFormat_RGBA8Unorm;
-    textureDesc.usage = WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst;
-    textureDesc.viewFormatCount = 0;
-    textureDesc.viewFormats = nullptr;
-
+    m_texture = wgpCreateTexture(m_width, m_height, WGPUTextureFormat::WGPUTextureFormat_RGBA8Unorm, WGPUTextureUsage_CopyDst | WGPUTextureUsage_TextureBinding);
     m_data = (unsigned char*)malloc(width * height * bpp);
     memcpy(m_data, imageData, width * height * bpp);
-
-    m_texture = wgpuDeviceCreateTexture(device, &textureDesc);
-
 
     WGPUTexelCopyTextureInfo destination;
     destination.texture = m_texture;
@@ -73,10 +61,11 @@ void WgpTexture::loadFromFile(std::string fileName, const bool flipVertical) {
 
     WGPUTexelCopyBufferLayout source;
     source.offset = 0;
-    source.bytesPerRow = m_channels * textureDesc.size.width;
-    source.rowsPerImage = textureDesc.size.height;
+    source.bytesPerRow = m_channels * m_width;
+    source.rowsPerImage = m_height;
 
-    wgpuQueueWriteTexture(queue, &destination, m_data, width * height * bpp, &source, &textureDesc.size);
+    WGPUExtent3D extent3D = { m_width, m_height, 1 };
+    wgpuQueueWriteTexture(queue, &destination, m_data, width * height * bpp, &source, &extent3D);
 
 
     FreeImage_Unload(sourceBitmap);

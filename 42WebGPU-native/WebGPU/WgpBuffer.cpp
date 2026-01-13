@@ -17,5 +17,4 @@ WgpBuffer::WgpBuffer(WgpBuffer&& rhs) noexcept : m_buffer(std::move(rhs.m_buffer
 
 void WgpBuffer::createBuffer(const void* data, uint32_t size, WGPUBufferUsage bufferUsage) {
 	m_buffer = wgpCreateBuffer(size, bufferUsage);
-	//wgpuQueueWriteBuffer(Queue, vertexBuffer, 0, vertexData.data(), bufferDesc.size);
 }

@@ -8,6 +8,8 @@
 
 #include <States/StateMachine.h>
 
+#include <WebGPU/WgpTexture.h>
+#include <WebGPU/WgpBuffer.h>
 #include <WebGPU/WgpMesh.h>
 
 class Default : public State, public MouseEventListener, public KeyboardEventListener {
@@ -32,12 +34,15 @@ public:
 
 private:
 
-	void renderUi();
+	void renderUi(const WGPURenderPassEncoder& renderPassEncoder);
 
 	bool m_initUi = true;
 	bool m_drawUi = true;
 
 	Camera m_camera;
-	std::list<WgpMesh> m_mammoth;
 	ObjModel m_model;
+	std::list<WgpMesh> m_mammoth;
+	std::list<WgpTexture> m_textures;
+	std::list<WgpBuffer> m_vertexBuffer;
+	std::list<WgpBuffer> m_indexBuffer;	
 };

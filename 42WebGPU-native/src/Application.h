@@ -13,14 +13,6 @@
 
 #include "WebGpu/WgpContext.h"
 
-struct VertexAttributes {
-	Vector3f position;
-	Vector3f normal;
-	Vector3f color;
-};
-
-
-
 class Application {
 
 public:
@@ -44,24 +36,6 @@ public:
 	static int Width;
 	static int Height;
 	static bool OverClient;
-
-	//WGPUAdapter adapter;	
-	//WGPUDevice device;
-	//WGPUShaderModule load_shader_module(WGPUDevice device, const char* name);
-
-	void setDefault(WGPUDepthStencilState& depthStencilState);
-	void setDefault(WGPUBindGroupLayoutEntry& bindingLayout);
-	bool loadGeometryFromObj(const std::filesystem::path& path, std::vector<VertexAttributes>& vertexData);
-
-	MyUniforms uniforms;
-	float angle1 = 2.0f;
-	Matrix4f S;
-	Matrix4f T1;
-	Matrix4f R1;
-	Matrix4f R2;
-	Matrix4f T2;
-
-	void renderUi(WGPURenderPassEncoder renderPass);
 
 	bool m_initUi = true;
 
@@ -97,21 +71,5 @@ private:
 	static HCURSOR Cursor;
 	static HICON Icon;
 	static bool VerticalSync;
-	static bool Fullscreen;
-
-	
-	//static WGPUQueue Queue;
-	//static WGPUSurface Surface;
-
-	//WGPUInstance instance;
-	WGPURenderPipeline pipeline, pipeline2, render_pipeline;
-	WGPUTextureView depthTextureView;
-	WGPUTexture depthTexture;
-	WGPUBuffer vertexBuffer;
-	int indexCount;
-	WGPUBuffer uniformBuffer;
-	WGPUBindGroup bindGroup;
-	//WGPUSurfaceTexture nextTexture;
-	WGPUSurfaceCapabilities surface_capabilities;
-	WGPUSurfaceConfiguration config;
+	static bool Fullscreen;	
 };
