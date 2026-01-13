@@ -7,16 +7,6 @@
 #include "Application.h"
 #include "Globals.h"
 
-AssetManager<Shader> Globals::shaderManager = AssetManager<Shader>();
-AssetManager<Texture> Globals::textureManager = AssetManager<Texture>();
-AssetManager<Shape> Globals::shapeManager = AssetManager<Shape>();
-AssetManager<CharacterSet> Globals::fontManager = AssetManager<CharacterSet>();
-AssetManager<Spritesheet> Globals::spritesheetManager = AssetManager<Spritesheet>();
-AssetManager<SoundBuffer> Globals::soundManager = AssetManager<SoundBuffer>();
-AssetManager<MusicBuffer> Globals::musicManager = AssetManager<MusicBuffer>();
-AssetManager<AssimpAnimation> Globals::animationManager = AssetManager<AssimpAnimation>();AssetManager<Animation> Globals::animationManagerNew = AssetManager<Animation>();
-
-extern std::unique_ptr<Physics> Globals::physics = nullptr;
 extern Clock Globals::clock = Clock();
 
 extern unsigned int Globals::lightUbo = 0;
@@ -45,8 +35,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	int frames = 0;
 	float frameTime = 0;
 #endif
-
-	Globals::physics = std::make_unique<Physics>(PHYSICS_STEP);
 
 	float deltaTime = 0.0f;
 	float fixedDeltaTime = 0.0f;

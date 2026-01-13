@@ -1,11 +1,14 @@
 #pragma once
 
+#include <webgpu.h>
 #include <engine/input/MouseEventListener.h>
 #include <engine/input/KeyboardEventListener.h>
 #include <engine/Camera.h>
-#include <engine/Background.h>
+#include <engine/ObjModel.h>
 
 #include <States/StateMachine.h>
+
+#include <WebGPU/WgpMesh.h>
 
 class Default : public State, public MouseEventListener, public KeyboardEventListener {
 
@@ -17,6 +20,8 @@ public:
 	void fixedUpdate() override;
 	void update() override;
 	void render() override;
+	void OnDraw(const WGPURenderPassEncoder& renderPass);
+
 	void resize(int deltaW, int deltaH) override;
 	void OnMouseMotion(Event::MouseMoveEvent& event) override;
 	void OnMouseWheel(Event::MouseWheelEvent& event) override;
@@ -33,5 +38,6 @@ private:
 	bool m_drawUi = true;
 
 	Camera m_camera;
-	Background m_background;
+	std::list<WgpMesh> m_mammoth;
+	ObjModel m_model;
 };

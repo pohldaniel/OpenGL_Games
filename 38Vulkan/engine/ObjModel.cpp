@@ -617,7 +617,6 @@ unsigned int ObjModel::getNumberOfTriangles() {
 }
 
 void ObjModel::generateTangents() {
-
 	if (m_isStacked) {
 		if (m_hasTangents) 
 			return; 
@@ -631,16 +630,12 @@ void ObjModel::generateTangents() {
 	}
 }
 
-void ObjModel::generateNormals() {
-	
+void ObjModel::generateNormals() {	
 	if (m_isStacked) {
 		if (m_hasNormals)
 			return; 
 		ObjModel::GenerateNormals(m_vertexBuffer, m_indexBuffer, *this, m_hasNormals, m_stride, 0, m_meshes.size());
-
-
 	}else {
-
 		for (int j = 0; j < m_meshes.size(); j++) {
 			if (m_meshes[j]->m_hasNormals) continue;
 			ObjModel::GenerateNormals(m_meshes[j]->m_vertexBuffer, m_meshes[j]->m_indexBuffer, *this, m_meshes[j]->m_hasNormals, m_meshes[j]->m_stride, j, j + 1);
@@ -650,12 +645,11 @@ void ObjModel::generateNormals() {
 
 void ObjModel::packBuffer() {
 	if (m_isStacked) {
-		//ObjModel::PackBuffer(m_vertexBuffer, m_vao, m_vbo, m_stride);
-
+		ObjModel::PackBuffer(m_vertexBuffer, m_stride);
 	}else {
 
 		for (int j = 0; j < m_meshes.size(); j++) {
-			//ObjModel::PackBuffer(m_meshes[j]->m_vertexBuffer, m_meshes[j]->m_vao, m_meshes[j]->m_vbo, m_meshes[j]->m_stride);
+			ObjModel::PackBuffer(m_meshes[j]->m_vertexBuffer, m_meshes[j]->m_stride);
 		}
 	}
 }
@@ -913,7 +907,7 @@ void ObjModel::GenerateTangents(std::vector<float>& vertexBuffer, std::vector<un
 	stride = 14;
 }
 
-void ObjModel::PackBuffer(std::vector<float>& vertexBuffer, unsigned int& vao, unsigned int& vbo, unsigned int stride) {
+void ObjModel::PackBuffer(std::vector<float>& vertexBuffer, unsigned int stride) {
 	std::vector<float> vertexBufferNew;
 	unsigned int strideNew;
 
@@ -1002,9 +996,7 @@ void ObjModel::PackBuffer(std::vector<float>& vertexBuffer, unsigned int& vao, u
 
 	vertexBuffer.clear();
 	vertexBuffer.shrink_to_fit();
-	vertexBuffer.insert(vertexBuffer.end(), vertexBufferNew.begin(), vertexBufferNew.end());
-
-	
+	vertexBuffer.insert(vertexBuffer.end(), vertexBufferNew.begin(), vertexBufferNew.end());	
 }
 
 void ObjModel::GenerateNormals(std::vector<float>& vertexCoords, std::vector<std::array<int, 10>>& face, std::vector<float>& normalCoords) {
@@ -1346,13 +1338,13 @@ void ObjModel::ReadMaterialFromFile(std::string path, std::string mltLib, std::s
 
 				sscanf(lines[i].c_str(), "%s %s", identifierBuffer, valueBuffer);			
 				if (strstr(identifierBuffer, "map_Kd") != 0 && valueBuffer[0] != 0) {
-					material.addTexture(GetTexturePath(valueBuffer, path));					
+					material.addTexture(TextureSlot::TEXTURE_DIFFUSE, GetTexturePath(valueBuffer, path));					
 				}else if (strstr(identifierBuffer, "map_bump") != 0 && valueBuffer[0] != 0) {
-					material.addTexture(GetTexturePath(valueBuffer, path));
+					material.addTexture(TextureSlot::TEXTURE_NORMAL, GetTexturePath(valueBuffer, path));
 				}else if (strstr(identifierBuffer, "map_Kn") != 0 && valueBuffer[0] != 0) {
-					material.addTexture(GetTexturePath(valueBuffer, path));
+					material.addTexture(TextureSlot::TEXTURE_NORMAL, GetTexturePath(valueBuffer, path));
 				}else if (strstr(identifierBuffer, "map_Ks") != 0 && valueBuffer[0] != 0) {
-					material.addTexture(GetTexturePath(valueBuffer, path));
+					material.addTexture(TextureSlot::TEXTURE_SPECULAR, GetTexturePath(valueBuffer, path));
 				}
 			}
 		}
@@ -1373,7 +1365,6 @@ ObjMesh::ObjMesh(std::string mltName, unsigned int numberTriangles, ObjModel* mo
 	m_hasTextureCoords = false;
 	m_hasNormals = false;
 	m_hasTangents = false;
-
 
 	m_triangleOffset = 0u;
 	m_stride = 0u;
@@ -1477,14 +1468,6 @@ void ObjMesh::cleanup(){
 	m_vertexBuffer.shrink_to_fit();
 	m_indexBuffer.clear();
 	m_indexBuffer.shrink_to_fit();
-}
-
-void ObjMesh::drawRaw() const{
-	
-}
-
-void ObjMesh::draw(const Camera& camera) const {
-
 }
 
 const std::vector<float>& ObjMesh::getVertexBuffer() const {

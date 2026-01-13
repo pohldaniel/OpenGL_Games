@@ -2,7 +2,6 @@
 #include <imgui_impl_win32.h>
 #include <imgui_impl_opengl3.h>
 #include <imgui_internal.h>
-#include <States/Menu.h>
 
 #include "Default.h"
 #include "Application.h"
@@ -20,17 +19,8 @@ Default::Default(StateMachine& machine) : State(machine, States::DEFAULT) {
 	m_camera.setRotationSpeed(0.1f);
 	m_camera.setMovingSpeed(10.0f);
 
-	glClearColor(0.494f, 0.686f, 0.796f, 1.0f);
-	glClearDepth(1.0f);
 
-	m_background.resize(Application::Width, Application::Height);
-	m_background.setLayer(std::vector<BackgroundLayer>{
-		{ &Globals::textureManager.get("forest_1"), 1, 1.0f },
-		{ &Globals::textureManager.get("forest_2"), 1, 2.0f },
-		{ &Globals::textureManager.get("forest_3"), 1, 3.0f },
-		{ &Globals::textureManager.get("forest_4"), 1, 4.0f },
-		{ &Globals::textureManager.get("forest_5"), 1, 5.0f }});
-	m_background.setSpeed(0.005f);
+	m_model.loadModel("res/models/mammoth.obj", Vector3f(1.0f, 0.0f, 0.0f), 0.0f, Vector3f(0.0f, 0.0f, 0.0f), 1.0f, false, false, false, false, false, false, false);
 }
 
 Default::~Default() {
@@ -62,15 +52,11 @@ void Default::update() {
 
 	if (keyboard.keyDown(Keyboard::KEY_A)) {
 		direction += Vector3f(-1.0f, 0.0f, 0.0f);
-		m_background.addOffset(-0.001f);
-		m_background.setSpeed(-0.005f);
 		move |= true;
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_D)) {
 		direction += Vector3f(1.0f, 0.0f, 0.0f);
-		m_background.addOffset(0.001f);
-		m_background.setSpeed(0.005f);
 		move |= true;
 	}
 
@@ -100,17 +86,15 @@ void Default::update() {
 			m_camera.move(direction * m_dt);
 		}
 	}
-
-	m_background.update(m_dt);
 }
 
 void Default::render() {
-
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	m_background.draw();
-
 	if (m_drawUi)
 		renderUi();
+}
+
+void Default::OnDraw(const WGPURenderPassEncoder& renderPass) {
+	
 }
 
 void Default::OnMouseMotion(Event::MouseMoveEvent& event) {
@@ -132,7 +116,6 @@ void Default::OnMouseWheel(Event::MouseWheelEvent& event) {
 void Default::OnKeyDown(Event::KeyboardEvent& event) {
 	if (event.keyCode == VK_ESCAPE) {
 		m_isRunning = false;
-		m_machine.addStateAtBottom(new Menu(m_machine));
 	}
 }
 

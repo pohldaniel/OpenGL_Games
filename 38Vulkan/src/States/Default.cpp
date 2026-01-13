@@ -37,7 +37,7 @@ Default::Default(StateMachine& machine) : State(machine, States::DEFAULT) {
 		m_indexBuffer.back().createBuffer(reinterpret_cast<const void*>(mesh->getIndexBuffer().data()), sizeof(unsigned int) * mesh->getIndexBuffer().size(), VK_BUFFER_USAGE_INDEX_BUFFER_BIT);
 		
 		m_textures.push_back(VlkTexture(vlkContext.vkDescriptorSetLayouts[1]));
-		m_textures.back().loadFromFile(mesh->getMaterial().textures[0], true);
+		m_textures.back().loadFromFile(mesh->getMaterial().textures.at(TextureSlot::TEXTURE_DIFFUSE), true);
 
 		m_dragon.push_back(VlkMesh(m_vertexBuffer.back(), m_indexBuffer.back(), m_textures.back(), mesh->getIndexBuffer().size()));
 		m_dragon.back().setShader(vlkContext.shader);
@@ -51,7 +51,7 @@ Default::Default(StateMachine& machine) : State(machine, States::DEFAULT) {
 		m_indexBuffer.back().createBuffer(reinterpret_cast<const void*>(mesh->getIndexBuffer().data()), sizeof(unsigned int) * mesh->getIndexBuffer().size(), VK_BUFFER_USAGE_INDEX_BUFFER_BIT);
 
 		m_textures.push_back(VlkTexture(vlkContext.vkDescriptorSetLayouts[1]));
-		m_textures.back().loadFromFile(mesh->getMaterial().textures[0], true);
+		m_textures.back().loadFromFile(mesh->getMaterial().textures.at(TextureSlot::TEXTURE_DIFFUSE), true);
 
 		m_vikingRoom.push_back(VlkMesh(m_vertexBuffer.back(), m_indexBuffer.back(), m_textures.back(), mesh->getIndexBuffer().size()));
 		m_vikingRoom.back().setShader(vlkContext.shader);

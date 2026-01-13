@@ -23,37 +23,42 @@ void handle_request_device(WGPURequestDeviceStatus status, WGPUDevice device, WG
 	}
 }
 
+void setDefault(WGPULimits& limits) {
+	limits.maxTextureDimension1D = WGPU_LIMIT_U32_UNDEFINED;
+	limits.maxTextureDimension2D = WGPU_LIMIT_U32_UNDEFINED;
+	limits.maxTextureDimension3D = WGPU_LIMIT_U32_UNDEFINED;
+	limits.maxTextureArrayLayers = WGPU_LIMIT_U32_UNDEFINED;
+	limits.maxBindGroups = WGPU_LIMIT_U32_UNDEFINED;
+	limits.maxBindGroupsPlusVertexBuffers = WGPU_LIMIT_U32_UNDEFINED;
+	limits.maxBindingsPerBindGroup = WGPU_LIMIT_U32_UNDEFINED;
+	limits.maxDynamicUniformBuffersPerPipelineLayout = WGPU_LIMIT_U32_UNDEFINED;
+	limits.maxDynamicStorageBuffersPerPipelineLayout = WGPU_LIMIT_U32_UNDEFINED;
+	limits.maxSampledTexturesPerShaderStage = WGPU_LIMIT_U32_UNDEFINED;
+	limits.maxSamplersPerShaderStage = WGPU_LIMIT_U32_UNDEFINED;
+	limits.maxStorageBuffersPerShaderStage = WGPU_LIMIT_U32_UNDEFINED;
+	limits.maxStorageTexturesPerShaderStage = WGPU_LIMIT_U32_UNDEFINED;
+	limits.maxUniformBuffersPerShaderStage = WGPU_LIMIT_U32_UNDEFINED;
+	limits.maxUniformBufferBindingSize = WGPU_LIMIT_U64_UNDEFINED;
+	limits.maxStorageBufferBindingSize = WGPU_LIMIT_U64_UNDEFINED;
+	limits.minUniformBufferOffsetAlignment = WGPU_LIMIT_U32_UNDEFINED;
+	limits.minStorageBufferOffsetAlignment = WGPU_LIMIT_U32_UNDEFINED;
+	limits.maxVertexBuffers = WGPU_LIMIT_U32_UNDEFINED;
+	limits.maxBufferSize = WGPU_LIMIT_U64_UNDEFINED;
+	limits.maxVertexAttributes = WGPU_LIMIT_U32_UNDEFINED;
+	limits.maxVertexBufferArrayStride = WGPU_LIMIT_U32_UNDEFINED;
+	limits.maxInterStageShaderVariables = WGPU_LIMIT_U32_UNDEFINED;
+	limits.maxColorAttachments = WGPU_LIMIT_U32_UNDEFINED;
+	limits.maxColorAttachmentBytesPerSample = WGPU_LIMIT_U32_UNDEFINED;
+	limits.maxComputeWorkgroupStorageSize = WGPU_LIMIT_U32_UNDEFINED;
+	limits.maxComputeInvocationsPerWorkgroup = WGPU_LIMIT_U32_UNDEFINED;
+	limits.maxComputeWorkgroupSizeX = WGPU_LIMIT_U32_UNDEFINED;
+	limits.maxComputeWorkgroupSizeY = WGPU_LIMIT_U32_UNDEFINED;
+	limits.maxComputeWorkgroupSizeZ = WGPU_LIMIT_U32_UNDEFINED;
+	limits.maxComputeWorkgroupsPerDimension = WGPU_LIMIT_U32_UNDEFINED;	
+}
+
 void wgpInit(void* window) {
 	wgpCreateDevice(wgpContext, window);
-	/*instance = wgpuCreateInstance(NULL);
-
-	WGPUSurfaceSourceWindowsHWND surfaceSourceWindowsHWND = {};
-	surfaceSourceWindowsHWND.chain.sType = WGPUSType_SurfaceSourceWindowsHWND;
-	surfaceSourceWindowsHWND.hinstance = GetModuleHandle(NULL);
-	surfaceSourceWindowsHWND.hwnd = Window;
-
-	WGPUSurfaceDescriptor surfaceDescriptor = {};
-	surfaceDescriptor.nextInChain = reinterpret_cast<WGPUChainedStruct*>(&surfaceSourceWindowsHWND);
-
-	Surface = wgpuInstanceCreateSurface(instance, &surfaceDescriptor);
-
-	WGPURequestAdapterOptions requestAdapterOptions = {};
-	requestAdapterOptions.compatibleSurface = Surface;
-
-	WGPURequestAdapterCallbackInfo requestAdapterCallbackInfo = {};
-	requestAdapterCallbackInfo.callback = handle_request_adapter;
-	requestAdapterCallbackInfo.userdata1 = this;
-
-	wgpuInstanceRequestAdapter(instance, &requestAdapterOptions, requestAdapterCallbackInfo);
-
-	WGPURequestDeviceCallbackInfo  deviceCallbackInfo = {};
-	deviceCallbackInfo.callback = handle_request_device;
-	deviceCallbackInfo.userdata1 = this;
-
-	wgpuAdapterRequestDevice(adapter, NULL, deviceCallbackInfo);
-	assert(device);
-
-	Queue = wgpuDeviceGetQueue(device);*/
 }
 
 bool wgpCreateDevice(WgpContext& wgpContext, void* window) {
@@ -61,9 +66,10 @@ bool wgpCreateDevice(WgpContext& wgpContext, void* window) {
 
 	WGPUSurfaceSourceWindowsHWND surfaceSourceWindowsHWND = {};
 	surfaceSourceWindowsHWND.chain.sType = WGPUSType_SurfaceSourceWindowsHWND;
+	surfaceSourceWindowsHWND.chain.next = nullptr;
 	surfaceSourceWindowsHWND.hinstance = GetModuleHandle(NULL);
 	surfaceSourceWindowsHWND.hwnd = (HWND)window;
-
+	
 	WGPUSurfaceDescriptor surfaceDescriptor = {};
 	surfaceDescriptor.nextInChain = reinterpret_cast<WGPUChainedStruct*>(&surfaceSourceWindowsHWND);
 
@@ -82,7 +88,17 @@ bool wgpCreateDevice(WgpContext& wgpContext, void* window) {
 	deviceCallbackInfo.callback = handle_request_device;
 	deviceCallbackInfo.userdata1 = &wgpContext;
 
-	wgpuAdapterRequestDevice(wgpContext.adapter, NULL, deviceCallbackInfo);
+	
+	WGPULimits requiredLimits = {};
+	setDefault(requiredLimits);
+	requiredLimits.maxTextureDimension1D = 2048;
+	requiredLimits.maxTextureDimension2D = 2048;
+	requiredLimits.maxTextureDimension3D = 2048;
+
+	WGPUDeviceDescriptor deviceDescriptor = {};
+	deviceDescriptor.requiredLimits = &requiredLimits;
+	
+	wgpuAdapterRequestDevice(wgpContext.adapter, &deviceDescriptor, deviceCallbackInfo);
 
 	wgpContext.queue = wgpuDeviceGetQueue(wgpContext.device);
 
@@ -125,6 +141,39 @@ WGPUBuffer wgpCreateBuffer(uint32_t size, WGPUBufferUsage bufferUsage) {
 	bufferDesc.usage = bufferUsage;
 	bufferDesc.mappedAtCreation = false;
 	return wgpuDeviceCreateBuffer(device, &bufferDesc);
+}
+
+WGPUTexture wgpCreateTexture(uint32_t width, uint32_t height, WGPUTextureFormat textureFormat, WGPUTextureUsage textureUsage) {
+	const WGPUDevice& device = wgpContext.device;
+
+	WGPUTextureDescriptor textureDescriptor = {};
+	textureDescriptor.dimension = WGPUTextureDimension::WGPUTextureDimension_2D;
+	textureDescriptor.format = textureFormat;
+	textureDescriptor.mipLevelCount = 1;
+	textureDescriptor.sampleCount = 1;
+	textureDescriptor.usage = textureUsage;
+	textureDescriptor.size = { width, height, 1 };
+	textureDescriptor.viewFormatCount = 1;
+	textureDescriptor.nextInChain = nullptr;
+	textureDescriptor.viewFormats = &wgpContext.depthformat;
+	return wgpuDeviceCreateTexture(device, &textureDescriptor);;
+}
+
+WGPUTextureView wgpCreateTextureView(WGPUTextureFormat textureFormat, const WGPUTexture& texture) {
+	WGPUTextureViewDescriptor textureViewDescriptor = {};
+	textureViewDescriptor.aspect = WGPUTextureAspect::WGPUTextureAspect_DepthOnly;
+	textureViewDescriptor.baseArrayLayer = 0;
+	textureViewDescriptor.arrayLayerCount = 1;
+	textureViewDescriptor.baseMipLevel = 0;
+	textureViewDescriptor.mipLevelCount = 1;
+	textureViewDescriptor.dimension = WGPUTextureViewDimension::WGPUTextureViewDimension_2D;
+	textureViewDescriptor.format = textureFormat;
+	textureViewDescriptor.nextInChain = nullptr;
+	return wgpuTextureCreateView(texture, &textureViewDescriptor);
+}
+
+void vlkDraw() {
+
 }
 
 WGPUShaderModule load_shader_module(WGPUDevice device, const char* name) {

@@ -45,9 +45,9 @@ public:
 	static int Height;
 	static bool OverClient;
 
-	WGPUAdapter adapter;	
-	WGPUDevice device;
-	WGPUShaderModule load_shader_module(WGPUDevice device, const char* name);
+	//WGPUAdapter adapter;	
+	//WGPUDevice device;
+	//WGPUShaderModule load_shader_module(WGPUDevice device, const char* name);
 
 	void setDefault(WGPUDepthStencilState& depthStencilState);
 	void setDefault(WGPUBindGroupLayoutEntry& bindingLayout);
@@ -83,7 +83,7 @@ private:
 
 	void processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
-	static void Resize(int deltaW, int deltaH);
+	static void Resize(int deltaW, int deltaH, WGPUSurfaceConfiguration& config);
 	static StateMachine* Machine;
 	static EventDispatcher& EventDispatcher;
 
@@ -100,16 +100,18 @@ private:
 	static bool Fullscreen;
 
 	
-	static WGPUQueue Queue;
-	static WGPUSurface Surface;
+	//static WGPUQueue Queue;
+	//static WGPUSurface Surface;
 
-	WGPUInstance instance;
+	//WGPUInstance instance;
 	WGPURenderPipeline pipeline, pipeline2, render_pipeline;
 	WGPUTextureView depthTextureView;
+	WGPUTexture depthTexture;
 	WGPUBuffer vertexBuffer;
 	int indexCount;
 	WGPUBuffer uniformBuffer;
 	WGPUBindGroup bindGroup;
 	//WGPUSurfaceTexture nextTexture;
 	WGPUSurfaceCapabilities surface_capabilities;
+	WGPUSurfaceConfiguration config;
 };

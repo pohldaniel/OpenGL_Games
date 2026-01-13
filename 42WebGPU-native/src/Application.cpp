@@ -11,17 +11,8 @@
 #include <tiny_obj_loader.h>
 
 #include <engine/sound/SoundDevice.h>
-#include <engine/ui/Widget.h>
-#include <engine/Framebuffer.h>
-#include <engine/Fontrenderer.h>
-#include <engine/DebugRenderer.h>
-#include <engine/Sprite.h>
-#include <engine/utils/Utils.h>
 
-#include <States/Menu.h>
 #include <States/Default.h>
-#include <States/Game.h>
-#include <States/Controller.h>
 
 #include "Application.h"
 #include "Globals.h"
@@ -44,9 +35,6 @@ bool Application::VerticalSync = true;
 
 HCURSOR Application::Cursor = LoadCursor(nullptr, IDC_ARROW);
 HICON Application::Icon = (HICON)LoadImage(NULL, "res/poison.ico", IMAGE_ICON, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
-
-WGPUQueue Application::Queue;
-WGPUSurface Application::Surface;
 
 Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fdt) {
 	Width = WIDTH;
@@ -233,7 +221,7 @@ LRESULT Application::ApplicationWndProc(HWND hWnd, UINT message, WPARAM wParam, 
 			if (Height == 0) {					// avoid divide by zero
 				Height = 1;
 			}
-			Resize(deltaW, deltaH);
+			Resize(deltaW, deltaH, config);
 
 			break;
 		}default: {
@@ -341,14 +329,7 @@ bool Application::loadGeometryFromObj(const std::filesystem::path& path, std::ve
 
 void Application::initWebGPU() {
 	wgpInit(Window);
-
-	instance = wgpContext.instance;
-	Surface = wgpContext.surface;
-	adapter = wgpContext.adapter;
-	device = wgpContext.device;
-	Queue = wgpContext.queue;
-
-	WGPUShaderModule shaderModule = wgpContext.createShader(device);
+	WGPUShaderModule shaderModule = wgpContext.createShader(wgpContext.device);
 
 	std::vector<WGPUVertexAttribute> vertexAttribs(3);
 	vertexAttribs[0].shaderLocation = 0;
@@ -425,32 +406,9 @@ void Application::initWebGPU() {
 	desc.primitive.frontFace = WGPUFrontFace::WGPUFrontFace_CCW;
 	desc.primitive.cullMode = WGPUCullMode::WGPUCullMode_Front;
 
-	pipeline = wgpuDeviceCreateRenderPipeline(device, &desc);
-
-
-	WGPUTextureDescriptor depthTextureDesc = {};
-	depthTextureDesc.dimension = WGPUTextureDimension::WGPUTextureDimension_2D;
-	depthTextureDesc.format = WGPUTextureFormat::WGPUTextureFormat_Depth24Plus;
-	depthTextureDesc.mipLevelCount = 1;
-	depthTextureDesc.sampleCount = 1;
-	depthTextureDesc.usage = WGPUTextureUsage_RenderAttachment;
-	depthTextureDesc.size = { static_cast<uint32_t>(Application::Width), static_cast<uint32_t>(Application::Height), 1 };
-	depthTextureDesc.viewFormatCount = 1;
-
-	WGPUTextureFormat depthformat = WGPUTextureFormat::WGPUTextureFormat_Depth24Plus;
-	depthTextureDesc.viewFormats = &depthformat;
-	WGPUTexture depthTexture = wgpuDeviceCreateTexture(device, &depthTextureDesc);
-
-
-	WGPUTextureViewDescriptor depthTextureViewDesc = {};
-	depthTextureViewDesc.aspect = WGPUTextureAspect::WGPUTextureAspect_DepthOnly;
-	depthTextureViewDesc.baseArrayLayer = 0;
-	depthTextureViewDesc.arrayLayerCount = 1;
-	depthTextureViewDesc.baseMipLevel = 0;
-	depthTextureViewDesc.mipLevelCount = 1;
-	depthTextureViewDesc.dimension = WGPUTextureViewDimension::WGPUTextureViewDimension_2D;
-	depthTextureViewDesc.format = WGPUTextureFormat::WGPUTextureFormat_Depth24Plus;
-	depthTextureView = wgpuTextureCreateView(depthTexture, &depthTextureViewDesc);
+	pipeline = wgpuDeviceCreateRenderPipeline(wgpContext.device, &desc);
+	depthTexture = wgpCreateTexture(static_cast<uint32_t>(Application::Width), static_cast<uint32_t>(Application::Height), WGPUTextureFormat::WGPUTextureFormat_Depth24Plus, WGPUTextureUsage_RenderAttachment | WGPUTextureUsage_TextureBinding);
+	depthTextureView = wgpCreateTextureView(WGPUTextureFormat_Depth24Plus, depthTexture);
 
 	std::vector<float> pointData;
 	std::vector<uint16_t> indexData;
@@ -462,29 +420,9 @@ void Application::initWebGPU() {
 		return;
 	}
 
-	// Create vertex buffer
-	/*WGPUBufferDescriptor bufferDesc = {};
-	bufferDesc.label = { "vertex_buf", WGPU_STRLEN };
-	bufferDesc.size = vertexData.size() * sizeof(VertexAttributes);
-	bufferDesc.usage = WGPUBufferUsage_CopyDst | WGPUBufferUsage_Vertex;
-	bufferDesc.mappedAtCreation = false;
-	vertexBuffer = wgpuDeviceCreateBuffer(device, &bufferDesc);*/
-
 	vertexBuffer = wgpCreateBuffer(vertexData.size() * sizeof(VertexAttributes), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Vertex);
-	wgpuQueueWriteBuffer(Queue, vertexBuffer, 0, vertexData.data(), vertexData.size() * sizeof(VertexAttributes));
+	wgpuQueueWriteBuffer(wgpContext.queue, vertexBuffer, 0, vertexData.data(), vertexData.size() * sizeof(VertexAttributes));
 	indexCount = static_cast<int>(vertexData.size());
-
-	// Create uniform buffer
-	/*WGPUBufferDescriptor bufferDesc = {};
-	bufferDesc.label = { "uniform_buf", WGPU_STRLEN };
-	bufferDesc.size = sizeof(MyUniforms);
-	bufferDesc.usage = WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform;
-	bufferDesc.mappedAtCreation = false;
-	uniformBuffer = wgpuDeviceCreateBuffer(device, &bufferDesc);*/
-	
-	/*vertexBuffer = wgpCreateBuffer(vertexData.size() * sizeof(VertexAttributes), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Vertex);
-	wgpuQueueWriteBuffer(Queue, vertexBuffer, 0, vertexData.data(), vertexData.size() * sizeof(VertexAttributes));
-	indexCount = static_cast<int>(vertexData.size());*/
 	uniformBuffer = wgpCreateBuffer(sizeof(MyUniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
 	
 	// Translate the view
@@ -513,7 +451,7 @@ void Application::initWebGPU() {
 
 	uniforms.time = 1.0f;
 	uniforms.color = { 0.0f, 1.0f, 0.4f, 1.0f };
-	wgpuQueueWriteBuffer(Queue, uniformBuffer, 0, &uniforms, sizeof(MyUniforms));
+	wgpuQueueWriteBuffer(wgpContext.queue, uniformBuffer, 0, &uniforms, sizeof(MyUniforms));
 
 
 	WGPUBindGroupEntry binding = {};
@@ -526,12 +464,12 @@ void Application::initWebGPU() {
 	bindGroupDesc.layout = wgpContext.bindGroupLayout;
 	bindGroupDesc.entryCount = 1;
 	bindGroupDesc.entries = &binding;
-	bindGroup = wgpuDeviceCreateBindGroup(device, &bindGroupDesc);
+	bindGroup = wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc);
 
 	surface_capabilities = { 0 };
-	wgpuSurfaceGetCapabilities(Surface, adapter, &surface_capabilities);
+	wgpuSurfaceGetCapabilities(wgpContext.surface, wgpContext.adapter, &surface_capabilities);
 
-	WGPUSurfaceConfiguration config = {};
+	config = {};
 	config.nextInChain = nullptr;
 	config.format = surface_capabilities.formats[0];
 	config.width = Width;
@@ -539,12 +477,12 @@ void Application::initWebGPU() {
 	config.usage = WGPUTextureUsage_RenderAttachment;
 	config.viewFormatCount = 0;
 	config.viewFormats = nullptr;
-	config.device = device;
+	config.device = wgpContext.device;
 	config.presentMode = WGPUPresentMode_Fifo;
 	config.alphaMode = surface_capabilities.alphaModes[0];
 
-	wgpuSurfaceConfigure(Surface, &config);
-	wgpuAdapterRelease(adapter);
+	wgpuSurfaceConfigure(wgpContext.surface, &config);
+	//wgpuAdapterRelease(wgpContext.adapter);
 }
 
 void Application::initImGUI() {
@@ -556,7 +494,7 @@ void Application::initImGUI() {
 	io.ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
 
 	ImGui_ImplWGPU_InitInfo initInfo = {};
-	initInfo.Device = device;
+	initInfo.Device = wgpContext.device;
 	initInfo.RenderTargetFormat = surface_capabilities.formats[0];
 	initInfo.DepthStencilFormat = WGPUTextureFormat_Depth24Plus;
 
@@ -596,15 +534,15 @@ bool Application::isRunning() {
 void Application::render() {
 
 	uniforms.time = static_cast<float>(Globals::clock.getElapsedTimeSec());
-	wgpuQueueWriteBuffer(Queue, uniformBuffer, offsetof(MyUniforms, time), &uniforms.time, sizeof(MyUniforms::time));
+	wgpuQueueWriteBuffer(wgpContext.queue, uniformBuffer, offsetof(MyUniforms, time), &uniforms.time, sizeof(MyUniforms::time));
 	angle1 = uniforms.time;
 	R1 = Matrix4f::Rotate(0.0f, 0.0f, angle1 * _180_ON_PI);
 	uniforms.modelMatrix = R1 * T1 * S;
-	wgpuQueueWriteBuffer(Queue, uniformBuffer, offsetof(MyUniforms, modelMatrix), &uniforms.modelMatrix, sizeof(MyUniforms::modelMatrix));
+	wgpuQueueWriteBuffer(wgpContext.queue, uniformBuffer, offsetof(MyUniforms, modelMatrix), &uniforms.modelMatrix, sizeof(MyUniforms::modelMatrix));
 
 	WGPUSurfaceTexture surface_texture;
-	wgpuSurfaceGetCurrentTexture(Surface, &surface_texture);
-	
+	wgpuSurfaceGetCurrentTexture(wgpContext.surface, &surface_texture);
+
 	switch (surface_texture.status) {
 	case WGPUSurfaceGetCurrentTextureStatus_SuccessOptimal:
 	case WGPUSurfaceGetCurrentTextureStatus_SuccessSuboptimal:
@@ -626,7 +564,7 @@ void Application::render() {
 
 	WGPUCommandEncoderDescriptor commandEncoderDesc = {};
 	commandEncoderDesc.label = { "command_encoder", WGPU_STRLEN };
-	WGPUCommandEncoder encoder = wgpuDeviceCreateCommandEncoder(device, &commandEncoderDesc);
+	WGPUCommandEncoder encoder = wgpuDeviceCreateCommandEncoder(wgpContext.device, &commandEncoderDesc);
 
 	WGPURenderPassDescriptor renderPassDesc = {};
 
@@ -640,7 +578,7 @@ void Application::render() {
 	renderPassDesc.colorAttachmentCount = 1;
 	renderPassDesc.colorAttachments = &renderPassColorAttachment;
 
-	WGPURenderPassDepthStencilAttachment depthStencilAttachment;
+	WGPURenderPassDepthStencilAttachment depthStencilAttachment = {};
 	depthStencilAttachment.view = depthTextureView;
 	depthStencilAttachment.depthClearValue = 1.0f;
 	depthStencilAttachment.depthLoadOp = WGPULoadOp::WGPULoadOp_Clear;
@@ -671,9 +609,9 @@ void Application::render() {
 	WGPUCommandBufferDescriptor cmdBufferDescriptor = {};
 	cmdBufferDescriptor.label = { "Command buffer", WGPU_STRLEN };
 	WGPUCommandBuffer command = wgpuCommandEncoderFinish(encoder, &cmdBufferDescriptor);
-	wgpuQueueSubmit(Queue, 1, &command);
+	wgpuQueueSubmit(wgpContext.queue, 1, &command);
 	
-	wgpuSurfacePresent(Surface);
+	wgpuSurfacePresent(wgpContext.surface);
 
 	wgpuCommandBufferRelease(command);
 	wgpuCommandEncoderRelease(encoder);
@@ -699,7 +637,7 @@ void Application::fixedUpdate() {
 
 void Application::initStates() {
 	Machine = new StateMachine(m_dt, m_fdt);
-	Machine->addStateAtTop(new Controller(*Machine));
+	Machine->addStateAtTop(new Default(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -843,24 +781,11 @@ void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 	}
 }
 
-void Application::Resize(int deltaW, int deltaH) {
-	glViewport(0, 0, Width, Height);
-
-	if (Init) {
-		Framebuffer::SetDefaultSize(Width, Height);
-		Widget::Resize(Width, Height);
-		Sprite::Resize(Width, Height);
-		auto shader = Globals::shaderManager.getAssetPointer("font_ttf");
-		shader->use();
-		shader->loadMatrix("u_transform", Matrix4f::Orthographic(0.0f, static_cast<float>(Width), 0.0f, static_cast<float>(Height), -1.0f, 1.0f));
-		shader->unuse();
-
-		shader = Globals::shaderManager.getAssetPointer("batch");
-		shader->use();
-		shader->loadMatrix("u_transform", Matrix4f::Orthographic(0.0f, static_cast<float>(Width), 0.0f, static_cast<float>(Height), -1.0f, 1.0f));
-		shader->unuse();
-
-		Machine->getStates().top()->resize(deltaW, deltaH);
+void Application::Resize(int deltaW, int deltaH, WGPUSurfaceConfiguration& config) {
+	if (wgpContext.surface) {
+		config.width = Width;
+		config.height = Height;
+		wgpuSurfaceConfigure(wgpContext.surface, &config);
 	}
 }
 

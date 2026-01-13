@@ -18,14 +18,16 @@ struct WgpContext {
 
 	WGPUShaderModule createShader(const WGPUDevice& device);
 
-	WGPUInstance instance;
-	WGPUSurface surface;
+	WGPUInstance instance = nullptr;
+	WGPUSurface surface = nullptr;
 
-	WGPUAdapter adapter;
-	WGPUDevice device;
-	WGPUQueue queue;
+	WGPUAdapter adapter = nullptr;
+	WGPUDevice device = nullptr;
+	WGPUQueue queue = nullptr;
 
 	WGPUBindGroupLayout bindGroupLayout;
+
+	WGPUTextureFormat depthformat = WGPUTextureFormat::WGPUTextureFormat_Depth24Plus;
 };
 
 extern WgpContext wgpContext;
@@ -37,4 +39,8 @@ extern "C" {
 
 	WGPUPipelineLayout wgpCreatePipelineLayout();
 	WGPUBuffer wgpCreateBuffer(uint32_t size, WGPUBufferUsage bufferUsage);
+
+	WGPUTexture wgpCreateTexture(uint32_t width, uint32_t height, WGPUTextureFormat textureFormat, WGPUTextureUsage textureUsage);
+	WGPUTextureView wgpCreateTextureView(WGPUTextureFormat textureFormat, const WGPUTexture& texture);
+	void vlkDraw();
 }

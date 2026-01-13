@@ -115,7 +115,6 @@ AssimpModel::~AssimpModel() {
 }
 
 void AssimpModel::cleanup() {
-	
 	m_vertexBuffer.clear();
 	m_vertexBuffer.shrink_to_fit();
 	m_indexBuffer.clear();
@@ -286,9 +285,7 @@ void AssimpModel::loadModelCpu(const char* _filename, const glm::vec3& axis, flo
 }
 
 std::string AssimpModel::GetTexturePath(std::string texPath, std::string modelDirectory) {
-
 	int foundSlash = texPath.find_last_of("/\\");
-
 	int foundDot = texPath.find_last_of(".");
 	foundDot = (foundDot < 0 ? texPath.length() : foundDot);
 	foundDot = foundSlash < 0 ? foundDot : foundDot - 1;
@@ -332,21 +329,21 @@ void AssimpModel::ReadAiMaterial(const aiMaterial* aiMaterial, short& index, std
 		if (numTextures > 0) {
 			aiString name;
 			aiMaterial->Get(AI_MATKEY_TEXTURE(aiTextureType_DIFFUSE, 0), name);
-			material.addTexture(GetTexturePath(name.data, modelDirectory));
+			material.addTexture(TextureSlot::TEXTURE_DIFFUSE, GetTexturePath(name.data, modelDirectory));
 		}
 
 		numTextures = aiMaterial->GetTextureCount(aiTextureType_NORMALS);
 		if (numTextures > 0) {
 			aiString name;
 			aiMaterial->Get(AI_MATKEY_TEXTURE(aiTextureType_NORMALS, 0), name);
-			material.addTexture(GetTexturePath(name.data, modelDirectory));
+			material.addTexture(TextureSlot::TEXTURE_NORMAL, GetTexturePath(name.data, modelDirectory));
 		}
 
 		numTextures = aiMaterial->GetTextureCount(aiTextureType_SPECULAR);
 		if (numTextures > 0) {
 			aiString name;
 			aiMaterial->Get(AI_MATKEY_TEXTURE(aiTextureType_SPECULAR, 0), name);
-			material.addTexture(GetTexturePath(name.data, modelDirectory));
+			material.addTexture(TextureSlot::TEXTURE_SPECULAR, GetTexturePath(name.data, modelDirectory));
 		}
 	}else {
 		index = std::distance(Material::GetMaterials().begin(), it);
@@ -355,22 +352,18 @@ void AssimpModel::ReadAiMaterial(const aiMaterial* aiMaterial, short& index, std
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 AssimpMesh::AssimpMesh(AssimpModel* model) {
-	m_model = model;
-	
+	m_model = model;	
 	m_hasTextureCoords = false;
 	m_hasNormals = false;
 	m_hasTangents = false;
-
 	m_numberOfTriangles = 0u;
 	m_stride = 0u;
 	m_baseVertex = 0u;
 	m_baseIndex = 0u;
-
 	m_vao = 0u;
 	m_vbo = 0u;
 	m_vboInstances = 0u;
 	m_ibo = 0u;
-
 	m_drawCount = 0u;
 	m_materialIndex = -1;
 	m_textureIndex = -1;
@@ -413,7 +406,6 @@ AssimpMesh::AssimpMesh(AssimpMesh&& rhs) noexcept {
 	m_baseIndex = rhs.m_baseIndex;
 	m_materialIndex = rhs.m_materialIndex;
 	m_textureIndex = rhs.m_textureIndex;
-
 	m_vertexBuffer = rhs.m_vertexBuffer;
     m_indexBuffer = rhs.m_indexBuffer;
 }
@@ -434,10 +426,8 @@ AssimpMesh& AssimpMesh::operator=(const AssimpMesh& rhs) {
 	m_baseIndex = rhs.m_baseIndex;
 	m_materialIndex = rhs.m_materialIndex;
 	m_textureIndex = rhs.m_textureIndex;
-
 	m_vertexBuffer = rhs.m_vertexBuffer;
     m_indexBuffer = rhs.m_indexBuffer;
-
 	return *this;
 }
 
@@ -457,10 +447,8 @@ AssimpMesh& AssimpMesh::operator=(AssimpMesh&& rhs) noexcept {
 	m_baseIndex = rhs.m_baseIndex;
 	m_materialIndex = rhs.m_materialIndex;
 	m_textureIndex = rhs.m_textureIndex;
-
 	m_vertexBuffer = rhs.m_vertexBuffer;
     m_indexBuffer = rhs.m_indexBuffer;
-
 	return *this;
 }
 

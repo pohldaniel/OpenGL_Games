@@ -4,6 +4,12 @@
 #include <array>
 #include <string>
 
+enum TextureSlot {
+	TEXTURE_DIFFUSE = 0,
+	TEXTURE_NORMAL = 1,
+	TEXTURE_SPECULAR = 2
+};
+
 struct MaterialBuffer {
 	float ambient[4] = { 0.0f };
 	float diffuse[4] = { 0.0f };
@@ -25,15 +31,15 @@ struct Material {
 	void setShininess(float shininess) const;
 	void setAlpha(float alpha) const;
 
-	void addTexture(const std::string& texture);
-	const std::vector<std::string>& getTextures() const;
+	void addTexture(TextureSlot textureSlot,const std::string& texture);
+	const std::unordered_map<TextureSlot, std::string>& getTextures() const;
 
 	const float getAlpha() const;
 	const float getShininess() const;
 
 	mutable MaterialBuffer buffer;
 	std::string name;
-	std::vector<std::string> textures;
+	std::unordered_map<TextureSlot, std::string> textures;
 
 	static std::vector<Material>& GetMaterials();
 	static void SetMaterials(const std::vector<Material>& materials);

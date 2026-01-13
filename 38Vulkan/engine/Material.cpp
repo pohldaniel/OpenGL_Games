@@ -13,14 +13,13 @@ bool operator== (const Material& m1, const Material& m2){
 
 void Material::cleanup() {
 	
-
 }
 
-void Material::addTexture(const std::string& texture) {
-	textures.push_back(texture);
+void Material::addTexture(TextureSlot textureSlot, const std::string& texture) {
+	textures[textureSlot] = texture;
 }
 
-const std::vector<std::string>& Material::getTextures() const {
+const std::unordered_map<TextureSlot, std::string>& Material::getTextures() const {
 	return textures;
 }
 
