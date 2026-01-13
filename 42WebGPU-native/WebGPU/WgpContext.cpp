@@ -1,6 +1,7 @@
 #include <iostream>
 #include <Windows.h>
 #include "WgpContext.h"
+#include "WgpTexture.h"
 #include "../src/Application.h"
 #include "../src/Globals.h"
 
@@ -253,17 +254,63 @@ bool wgpCreateDevice(WgpContext& wgpContext, void* window) {
 	wgpContext.uniforms.color = { 1.0f, 1.0f, 1.0f, 1.0f };
 	wgpuQueueWriteBuffer(wgpContext.queue, wgpContext.uniformBuffer, 0, &wgpContext.uniforms, sizeof(MyUniforms));
 
+	std::vector<WGPUBindGroupEntry> bindings(2);
 
-	WGPUBindGroupEntry binding = {};
-	binding.binding = 0;
-	binding.buffer = wgpContext.uniformBuffer;
-	binding.offset = 0;
-	binding.size = sizeof(MyUniforms);
+	bindings[0].binding = 0;
+	bindings[0].buffer = wgpContext.uniformBuffer;
+	bindings[0].offset = 0;
+	bindings[0].size = sizeof(MyUniforms);
 
+	WGPUTextureDescriptor textureDescriptor = {};
+	textureDescriptor.dimension = WGPUTextureDimension::WGPUTextureDimension_2D;
+	textureDescriptor.format = WGPUTextureFormat::WGPUTextureFormat_RGBA8Unorm;
+	textureDescriptor.mipLevelCount = 1;
+	textureDescriptor.sampleCount = 1;
+	textureDescriptor.usage = WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst;
+	textureDescriptor.size = { 512, 512, 1 };
+	textureDescriptor.viewFormatCount = 1;
+	textureDescriptor.nextInChain = nullptr;
+	textureDescriptor.viewFormatCount = 0;
+	textureDescriptor.viewFormats = nullptr;
+
+	wgpContext.texture = wgpuDeviceCreateTexture(wgpContext.device, &textureDescriptor);
+
+	unsigned char* data = WgpTexture::LoadFromFile("res/textures/grid512.png", true);
+
+	WGPUTexelCopyTextureInfo destination;
+	destination.texture = wgpContext.texture;
+	destination.mipLevel = 0;
+	destination.origin = { 0, 0, 0 };
+	destination.aspect = WGPUTextureAspect_All;
+
+	WGPUTexelCopyBufferLayout source;
+	source.offset = 0;
+	source.bytesPerRow = 4 * 512;
+	source.rowsPerImage = 512;
+
+	WGPUExtent3D extent3D = { 512, 512, 1 };
+	wgpuQueueWriteTexture(wgpContext.queue, &destination, data, 512 * 512 * 4, &source, &extent3D);
+
+	WGPUTextureViewDescriptor textureViewDescriptor = {};
+	textureViewDescriptor.aspect = WGPUTextureAspect::WGPUTextureAspect_All;
+	textureViewDescriptor.baseArrayLayer = 0;
+	textureViewDescriptor.arrayLayerCount = 1;
+	textureViewDescriptor.baseMipLevel = 0;
+	textureViewDescriptor.mipLevelCount = 1;
+	textureViewDescriptor.dimension = WGPUTextureViewDimension::WGPUTextureViewDimension_2D;
+	textureViewDescriptor.format = WGPUTextureFormat::WGPUTextureFormat_RGBA8Unorm;
+	textureViewDescriptor.nextInChain = nullptr;
+
+	wgpContext.textureView = wgpuTextureCreateView(wgpContext.texture, &textureViewDescriptor);
+
+	bindings[1].binding = 1;
+	bindings[1].textureView = wgpContext.textureView;
+
+	
 	WGPUBindGroupDescriptor bindGroupDesc = {};
 	bindGroupDesc.layout = wgpContext.bindGroupLayout;
-	bindGroupDesc.entryCount = 1;
-	bindGroupDesc.entries = &binding;
+	bindGroupDesc.entryCount = (uint32_t)bindings.size();
+	bindGroupDesc.entries = bindings.data();
 	wgpContext.bindGroup = wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc);
 
 	wgpContext.surface_capabilities = { 0 };
@@ -289,15 +336,23 @@ bool wgpCreateDevice(WgpContext& wgpContext, void* window) {
 WGPUPipelineLayout wgpCreatePipelineLayout() {
 	const WGPUDevice& device = wgpContext.device;
 
-	WGPUBindGroupLayoutEntry bglEntry = {};
-	bglEntry.binding = 0;
-	bglEntry.visibility = WGPUShaderStage_Vertex | WGPUShaderStage_Fragment;
-	bglEntry.buffer.type = WGPUBufferBindingType_Uniform;
-	bglEntry.buffer.minBindingSize = sizeof(MyUniforms);
 
+	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(2);
+	WGPUBindGroupLayoutEntry& bindingLayout = bindingLayoutEntries[0];
+	bindingLayout.binding = 0;
+	bindingLayout.visibility = WGPUShaderStage_Vertex | WGPUShaderStage_Fragment;
+	bindingLayout.buffer.type = WGPUBufferBindingType_Uniform;
+	bindingLayout.buffer.minBindingSize = sizeof(MyUniforms);
+
+	WGPUBindGroupLayoutEntry& textureBindingLayout = bindingLayoutEntries[1];
+	textureBindingLayout.binding = 1;
+	textureBindingLayout.visibility = WGPUShaderStage_Fragment;
+	textureBindingLayout.texture.sampleType = WGPUTextureSampleType_Float;
+	textureBindingLayout.texture.viewDimension = WGPUTextureViewDimension_2D;
+	
 	WGPUBindGroupLayoutDescriptor bglDesc = {};
-	bglDesc.entryCount = 1;
-	bglDesc.entries = &bglEntry;
+	bglDesc.entryCount = (uint32_t)bindingLayoutEntries.size();
+	bglDesc.entries = bindingLayoutEntries.data();
 	wgpContext.bindGroupLayout = wgpuDeviceCreateBindGroupLayout(device, &bglDesc);
 
 	WGPUPipelineLayoutDescriptor layoutDesc = {};
@@ -336,7 +391,7 @@ WGPUTexture wgpCreateTexture(uint32_t width, uint32_t height, WGPUTextureFormat 
 	textureDescriptor.viewFormatCount = 1;
 	textureDescriptor.nextInChain = nullptr;
 	textureDescriptor.viewFormats = &textureFormat;
-	return wgpuDeviceCreateTexture(device, &textureDescriptor);;
+	return wgpuDeviceCreateTexture(device, &textureDescriptor);
 }
 
 WGPUTextureView wgpCreateTextureView(WGPUTextureFormat textureFormat, const WGPUTexture& texture) {

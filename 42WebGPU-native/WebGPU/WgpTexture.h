@@ -6,11 +6,14 @@ class WgpTexture {
 
 public:
 
-	WgpTexture(const WGPUDevice& device, const WGPUQueue& queue);
+	WgpTexture();
 	WgpTexture(WgpTexture const& rhs);
 	WgpTexture(WgpTexture&& rhs) noexcept;
 
 	void loadFromFile(std::string fileName, const bool flipVertical = false);
+	void copyToDestination(const WGPUTexture& destTesture);
+
+	static unsigned char* LoadFromFile(std::string fileName, const bool flipVertical = false, short alphaChannel = -1);
 
 private:
 
@@ -20,9 +23,6 @@ private:
 	unsigned int m_height;
 	unsigned short m_channels;
 	unsigned char* m_data;
-
-	const WGPUDevice& device;
-	const WGPUQueue& queue;
 
 	static void FlipVertical(unsigned char* data, unsigned int padWidth, unsigned int height);
 };

@@ -47,7 +47,8 @@ struct WgpContext {
 	WGPUTextureView depthTextureView;
 	WGPUTexture depthTexture;
 
-
+	WGPUTextureView textureView;
+	WGPUTexture texture;
 	std::function<void(const WGPURenderPassEncoder& commandBuffer)> OnDraw;
 };
 
