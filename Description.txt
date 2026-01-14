@@ -75,3 +75,5 @@ https://github.com/A-Ribeiro/OpenGLStarter
 https://github.com/LesleyLai/GLGrassRenderer
 
 https://github.com/assimp/assimp/issues/4746
+
+https://github.com/m-schuetz/webgpu_wireframe_thicklines/blob/master/renderWireframe.js

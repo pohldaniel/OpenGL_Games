@@ -138,7 +138,7 @@ bool wgpCreateDevice(WgpContext& wgpContext, void* window) {
 
 	WGPUDeviceDescriptor deviceDescriptor = {};
 	deviceDescriptor.requiredLimits = &requiredLimits;
-	
+	//deviceDescriptor.requiredFeatures
 
 	wgpuAdapterRequestDevice(wgpContext.adapter, &deviceDescriptor, deviceCallbackInfo);
 
