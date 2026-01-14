@@ -26,7 +26,7 @@ DWORD Application::SavedExStyle;
 DWORD Application::SavedStyle;
 RECT Application::Savedrc;
 bool Application::OverClient = true;
-bool Application::VerticalSync = true;
+bool Application::VerticalSync = false;
 
 HCURSOR Application::Cursor = LoadCursor(nullptr, IDC_ARROW);
 HICON Application::Icon = (HICON)LoadImage(NULL, "res/poison.ico", IMAGE_ICON, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
@@ -252,7 +252,7 @@ void Application::initOpenAL() {
 }
 
 void Application::ToggleVerticalSync() {
-
+	wgpToggleVerticalSync();
 }
 
 const HWND& Application::GetWindow() {
@@ -434,11 +434,7 @@ void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 }
 
 void Application::Resize(int deltaW, int deltaH, WGPUSurfaceConfiguration& config) {
-	if (wgpContext.surface) {
-		config.width = Width;
-		config.height = Height;
-		wgpuSurfaceConfigure(wgpContext.surface, &config);
-	}
+	wgpResize(static_cast<uint32_t>(Width), static_cast<uint32_t>(Height));
 }
 
 void Application::ToggleFullScreen(bool isFullScreen, unsigned int width, unsigned int height) {

@@ -35,7 +35,6 @@ struct VlkContext {
 
     VkPolygonMode vkPolygonMode = VkPolygonMode::VK_POLYGON_MODE_FILL;
     VkPresentModeKHR vkPresentModeKHR = VkPresentModeKHR::VK_PRESENT_MODE_FIFO_KHR;
-    bool drawUi;
 
     //Sample scope
     std::vector<VkDescriptorSetLayout> vkDescriptorSetLayouts;
@@ -60,8 +59,6 @@ extern "C" {
     void vlkWaitIdle();
     void vlkToggleWireframe();
     void vlkShutDown();
-    void vlkToggleUI();
-    void vlkSetDrawUI(bool flag);
     void vlkDraw();
 
     void vlkGetDeviceQueue(uint32_t queueFamilyIndex, VkQueue& vkQueue);

@@ -222,8 +222,8 @@ bool wgpCreateDevice(WgpContext& wgpContext, void* window) {
 	desc.primitive.cullMode = WGPUCullMode::WGPUCullMode_Back;
 
 	wgpContext.pipeline = wgpuDeviceCreateRenderPipeline(wgpContext.device, &desc);
-	wgpContext.depthTexture = wgpCreateTexture(static_cast<uint32_t>(Application::Width), static_cast<uint32_t>(Application::Height), WGPUTextureFormat::WGPUTextureFormat_Depth24Plus, WGPUTextureUsage_RenderAttachment | WGPUTextureUsage_TextureBinding);
-	wgpContext.depthTextureView = wgpCreateTextureView(WGPUTextureFormat_Depth24Plus, wgpContext.depthTexture);
+	wgpContext.depthTexture = wgpCreateTexture(static_cast<uint32_t>(Application::Width), static_cast<uint32_t>(Application::Height), WGPUTextureFormat::WGPUTextureFormat_Depth24Plus, WGPUTextureUsage_RenderAttachment);
+	wgpContext.depthTextureView = wgpCreateTextureView(WGPUTextureFormat::WGPUTextureFormat_Depth24Plus, WGPUTextureAspect::WGPUTextureAspect_DepthOnly, wgpContext.depthTexture);
 
 	wgpContext.uniformBuffer = wgpCreateBuffer(sizeof(MyUniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
 
@@ -395,9 +395,9 @@ WGPUTexture wgpCreateTexture(uint32_t width, uint32_t height, WGPUTextureFormat 
 	return wgpuDeviceCreateTexture(device, &textureDescriptor);
 }
 
-WGPUTextureView wgpCreateTextureView(WGPUTextureFormat textureFormat, const WGPUTexture& texture) {
+WGPUTextureView wgpCreateTextureView(WGPUTextureFormat textureFormat, WGPUTextureAspect aspect, const WGPUTexture& texture) {
 	WGPUTextureViewDescriptor textureViewDescriptor = {};
-	textureViewDescriptor.aspect = WGPUTextureAspect::WGPUTextureAspect_DepthOnly;
+	textureViewDescriptor.aspect = aspect;
 	textureViewDescriptor.baseArrayLayer = 0;
 	textureViewDescriptor.arrayLayerCount = 1;
 	textureViewDescriptor.baseMipLevel = 0;
@@ -406,6 +406,28 @@ WGPUTextureView wgpCreateTextureView(WGPUTextureFormat textureFormat, const WGPU
 	textureViewDescriptor.format = textureFormat;
 	textureViewDescriptor.nextInChain = nullptr;
 	return wgpuTextureCreateView(texture, &textureViewDescriptor);
+}
+
+void wgpResize(uint32_t width, uint32_t height) {
+	if (wgpContext.surface) {
+		wgpuTextureViewRelease(wgpContext.depthTextureView);
+		wgpuTextureDestroy(wgpContext.depthTexture);
+		wgpuTextureRelease(wgpContext.depthTexture);
+
+		wgpContext.depthTexture = wgpCreateTexture(width, height, WGPUTextureFormat::WGPUTextureFormat_Depth24Plus, WGPUTextureUsage_RenderAttachment);
+		wgpContext.depthTextureView = wgpCreateTextureView(WGPUTextureFormat_Depth24Plus, WGPUTextureAspect::WGPUTextureAspect_DepthOnly, wgpContext.depthTexture);
+
+		wgpContext.config.width = width;
+		wgpContext.config.height = height;
+		wgpuSurfaceConfigure(wgpContext.surface, &wgpContext.config);
+	}
+}
+
+void wgpToggleVerticalSync() {
+	if (wgpContext.surface) {
+		wgpContext.config.presentMode = wgpContext.config.presentMode == WGPUPresentMode_Fifo ? WGPUPresentMode_Immediate : WGPUPresentMode_Fifo;
+		wgpuSurfaceConfigure(wgpContext.surface, &wgpContext.config);
+	}
 }
 
 void wgpDraw() {

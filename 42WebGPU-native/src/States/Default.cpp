@@ -135,6 +135,12 @@ void Default::OnMouseWheel(Event::MouseWheelEvent& event) {
 }
 
 void Default::OnKeyDown(Event::KeyboardEvent& event) {
+#if DEVBUILD
+	if (event.keyCode == VK_LMENU) {
+		m_drawUi = !m_drawUi;
+	}
+#endif
+
 	if (event.keyCode == VK_ESCAPE) {
 		m_isRunning = false;
 	}

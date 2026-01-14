@@ -18,7 +18,6 @@ Default::Default(StateMachine& machine) : State(machine, States::DEFAULT) {
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
 	EventDispatcher::AddMouseListener(this);
-	vlkSetDrawUI(m_drawUi);
 
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
@@ -143,9 +142,7 @@ void Default::update() {
 	memcpy(uniformMappingMVP, &m_ubo, sizeof(m_ubo));
 }
 
-void Default::render() {
-	if (m_drawUi)
-		renderUi();
+void Default::render() {	
 	vlkDraw();	
 }
 
@@ -154,6 +151,9 @@ void Default::OnDraw(const VkCommandBuffer& vkCommandbuffer) {
 	for (std::list<VlkMesh>::const_iterator mesh = _model.begin(); mesh != _model.end(); ++mesh) {
 		(*mesh).draw(vkCommandbuffer);
 	}
+
+	if (m_drawUi)
+		renderUi(vkCommandbuffer);
 }
 
 void Default::OnMouseMotion(Event::MouseMoveEvent& event) {
@@ -186,7 +186,6 @@ void Default::OnMouseWheel(Event::MouseWheelEvent& event) {
 void Default::OnKeyDown(Event::KeyboardEvent& event) {
 	if (event.keyCode == VK_LMENU) {
 		m_drawUi = !m_drawUi;
-		vlkToggleUI();
 	}
 	
 	if (event.keyCode == VK_ESCAPE) {
@@ -207,7 +206,7 @@ void Default::resize(int deltaW, int deltaH) {
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
 }
 
-void Default::renderUi() {
+void Default::renderUi(const VkCommandBuffer& vkCommandbuffer) {
 	ImGui_ImplVulkan_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
@@ -255,4 +254,6 @@ void Default::renderUi() {
 	ImGui::End();
 
 	ImGui::Render();
+
+	ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), vkCommandbuffer);
 }

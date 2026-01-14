@@ -74,8 +74,6 @@ void VlkSwapchainElement::draw(){
     const VkPipelineLayout vkPipelineLayout = vlkContext.vkPipelineLayout;
     const VkDescriptorSet vkDescriptorSet = vlkContext.vkDescriptorSetUbo;
 
-    const bool drawUi = vlkContext.drawUi;
-    
     vlkBeginCommandBuffer(commandBuffer);
 
     vlkTransitionImageLayout(commandBuffer, image, VK_IMAGE_ASPECT_COLOR_BIT,
@@ -107,9 +105,6 @@ void VlkSwapchainElement::draw(){
 
     OnDraw(commandBuffer);
     
-    if(drawUi)
-      ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), commandBuffer);
-
     // End rendering
     vkCmdEndRendering(commandBuffer);
 

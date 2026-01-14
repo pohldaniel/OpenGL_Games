@@ -215,10 +215,11 @@ void Application::initImGUI() {
 	ImGuiIO& io = ImGui::GetIO();
 	io.IniFilename = NULL;
 	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-	io.ConfigFlags |= ImGuiConfigFlags_NavEnableSetMousePos;
+	io.ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
 	io.DisplaySize.x = static_cast<float>(WIDTH);
 	io.DisplaySize.x = static_cast<float>(HEIGHT);
+	//io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+	//io.ConfigFlags |= ImGuiConfigFlags_NavEnableSetMousePos;
 
 	ImGui::GetStyle().FontScaleMain = 1.0f;
 	ImGui::StyleColorsDark();

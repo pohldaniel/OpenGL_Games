@@ -55,7 +55,6 @@ void vlkInit(void* window) {
     vlkCreateCommandBuffer(vlkContext.vkCommandBuffer);
     vlkCreateDescriptorPool(vlkContext.vkDescriptorPool);
     vlkContext.swapchain = new VlkSwapchain(Application::Width, Application::Height, vlkContext.vkPresentModeKHR);
-    vlkContext.drawUi = true;
 
     //Sample Scope
     vlkContext.createDescriptorSetLayout(vlkContext.vkDevice, vlkContext.vkDescriptorSetLayouts);
@@ -103,14 +102,6 @@ void vlkShutDown() {
     const VkSurfaceKHR& vkSurfaceKHR = vlkContext.vkSurfaceKHR;
     delete vlkContext.swapchain;
     vkDestroySurfaceKHR(vkInstance, vkSurfaceKHR, VK_NULL_HANDLE);
-}
-
-void vlkToggleUI() {
-    vlkContext.drawUi = !vlkContext.drawUi;
-}
-
-void vlkSetDrawUI(bool flag) {
-    vlkContext.drawUi = flag;
 }
 
 void vlkDraw() {
