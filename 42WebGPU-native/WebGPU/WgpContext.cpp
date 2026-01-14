@@ -134,6 +134,7 @@ bool wgpCreateDevice(WgpContext& wgpContext, void* window) {
 	requiredLimits.maxTextureDimension1D = 2048;
 	requiredLimits.maxTextureDimension2D = 2048;
 	requiredLimits.maxTextureDimension3D = 2048;
+	requiredLimits.maxSamplersPerShaderStage = 1;
 
 	WGPUDeviceDescriptor deviceDescriptor = {};
 	deviceDescriptor.requiredLimits = &requiredLimits;
@@ -254,58 +255,53 @@ bool wgpCreateDevice(WgpContext& wgpContext, void* window) {
 	wgpContext.uniforms.color = { 1.0f, 1.0f, 1.0f, 1.0f };
 	wgpuQueueWriteBuffer(wgpContext.queue, wgpContext.uniformBuffer, 0, &wgpContext.uniforms, sizeof(MyUniforms));
 
-	std::vector<WGPUBindGroupEntry> bindings(2);
+	std::vector<WGPUBindGroupEntry> bindings(3);
 
 	bindings[0].binding = 0;
 	bindings[0].buffer = wgpContext.uniformBuffer;
 	bindings[0].offset = 0;
 	bindings[0].size = sizeof(MyUniforms);
 
-	WGPUTextureDescriptor textureDescriptor = {};
-	textureDescriptor.dimension = WGPUTextureDimension::WGPUTextureDimension_2D;
-	textureDescriptor.format = WGPUTextureFormat::WGPUTextureFormat_RGBA8Unorm;
-	textureDescriptor.mipLevelCount = 1;
-	textureDescriptor.sampleCount = 1;
-	textureDescriptor.usage = WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst;
-	textureDescriptor.size = { 512, 512, 1 };
-	textureDescriptor.viewFormatCount = 1;
-	textureDescriptor.nextInChain = nullptr;
-	textureDescriptor.viewFormatCount = 0;
-	textureDescriptor.viewFormats = nullptr;
-
-	wgpContext.texture = wgpuDeviceCreateTexture(wgpContext.device, &textureDescriptor);
-
-	unsigned char* data = WgpTexture::LoadFromFile("res/textures/grid512.png", true);
-
-	WGPUTexelCopyTextureInfo destination;
-	destination.texture = wgpContext.texture;
-	destination.mipLevel = 0;
-	destination.origin = { 0, 0, 0 };
-	destination.aspect = WGPUTextureAspect_All;
-
-	WGPUTexelCopyBufferLayout source;
-	source.offset = 0;
-	source.bytesPerRow = 4 * 512;
-	source.rowsPerImage = 512;
-
-	WGPUExtent3D extent3D = { 512, 512, 1 };
-	wgpuQueueWriteTexture(wgpContext.queue, &destination, data, 512 * 512 * 4, &source, &extent3D);
-
-	WGPUTextureViewDescriptor textureViewDescriptor = {};
-	textureViewDescriptor.aspect = WGPUTextureAspect::WGPUTextureAspect_All;
-	textureViewDescriptor.baseArrayLayer = 0;
-	textureViewDescriptor.arrayLayerCount = 1;
-	textureViewDescriptor.baseMipLevel = 0;
-	textureViewDescriptor.mipLevelCount = 1;
-	textureViewDescriptor.dimension = WGPUTextureViewDimension::WGPUTextureViewDimension_2D;
-	textureViewDescriptor.format = WGPUTextureFormat::WGPUTextureFormat_RGBA8Unorm;
-	textureViewDescriptor.nextInChain = nullptr;
-
-	wgpContext.textureView = wgpuTextureCreateView(wgpContext.texture, &textureViewDescriptor);
-
+	// Create the color texture
+	WGPUTextureDescriptor textureDesc = {};
+	textureDesc.dimension = WGPUTextureDimension::WGPUTextureDimension_2D;
+	textureDesc.size = { 512, 512, 1 };
+	textureDesc.mipLevelCount = 1;
+	textureDesc.sampleCount = 1;
+	textureDesc.format = WGPUTextureFormat::WGPUTextureFormat_RGBA8Unorm;
+	textureDesc.usage = WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst;
+	textureDesc.viewFormatCount = 0;
+	textureDesc.viewFormats = nullptr;
+	wgpContext.texture = wgpuDeviceCreateTexture(wgpContext.device, &textureDesc);
+	
+	WGPUTextureViewDescriptor textureViewDesc = {};
+	textureViewDesc.aspect = WGPUTextureAspect::WGPUTextureAspect_All;
+	textureViewDesc.baseArrayLayer = 0;
+	textureViewDesc.arrayLayerCount = 1;
+	textureViewDesc.baseMipLevel = 0;
+	textureViewDesc.mipLevelCount = 1;
+	textureViewDesc.dimension = WGPUTextureViewDimension::WGPUTextureViewDimension_2D;
+	textureViewDesc.format = textureDesc.format;
+	wgpContext.textureView = wgpuTextureCreateView(wgpContext.texture, &textureViewDesc);
+	
 	bindings[1].binding = 1;
 	bindings[1].textureView = wgpContext.textureView;
 
+	WGPUSamplerDescriptor samplerDesc;
+	samplerDesc.addressModeU = WGPUAddressMode_ClampToEdge;
+	samplerDesc.addressModeV = WGPUAddressMode_ClampToEdge;
+	samplerDesc.addressModeW = WGPUAddressMode_ClampToEdge;
+	samplerDesc.magFilter = WGPUFilterMode_Linear;
+	samplerDesc.minFilter = WGPUFilterMode_Linear;
+	samplerDesc.mipmapFilter = WGPUMipmapFilterMode_Linear;
+	samplerDesc.lodMinClamp = 0.0f;
+	samplerDesc.lodMaxClamp = 1.0f;
+	samplerDesc.compare = WGPUCompareFunction_Undefined;
+	samplerDesc.maxAnisotropy = 1;
+	WGPUSampler sampler = wgpuDeviceCreateSampler(wgpContext.device, &samplerDesc);
+
+	bindings[2].binding = 2;
+	bindings[2].sampler = sampler;
 	
 	WGPUBindGroupDescriptor bindGroupDesc = {};
 	bindGroupDesc.layout = wgpContext.bindGroupLayout;
@@ -337,7 +333,7 @@ WGPUPipelineLayout wgpCreatePipelineLayout() {
 	const WGPUDevice& device = wgpContext.device;
 
 
-	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(2);
+	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(3);
 	WGPUBindGroupLayoutEntry& bindingLayout = bindingLayoutEntries[0];
 	bindingLayout.binding = 0;
 	bindingLayout.visibility = WGPUShaderStage_Vertex | WGPUShaderStage_Fragment;
@@ -350,6 +346,11 @@ WGPUPipelineLayout wgpCreatePipelineLayout() {
 	textureBindingLayout.texture.sampleType = WGPUTextureSampleType_Float;
 	textureBindingLayout.texture.viewDimension = WGPUTextureViewDimension_2D;
 	
+	WGPUBindGroupLayoutEntry& samplerBindingLayout = bindingLayoutEntries[2];
+	samplerBindingLayout.binding = 2;
+	samplerBindingLayout.visibility = WGPUShaderStage_Fragment;
+	samplerBindingLayout.sampler.type = WGPUSamplerBindingType_Filtering;
+
 	WGPUBindGroupLayoutDescriptor bglDesc = {};
 	bglDesc.entryCount = (uint32_t)bindingLayoutEntries.size();
 	bglDesc.entries = bindingLayoutEntries.data();
