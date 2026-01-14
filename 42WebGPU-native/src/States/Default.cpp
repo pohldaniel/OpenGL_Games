@@ -32,7 +32,7 @@ Default::Default(StateMachine& machine) : State(machine, States::DEFAULT) {
 		wgpuQueueWriteBuffer(wgpContext.queue, m_indexBuffer.back().m_buffer, 0, reinterpret_cast<const void*>(mesh->getIndexBuffer().data()), sizeof(unsigned int) * mesh->getIndexBuffer().size());
 
 		m_textures.push_back(WgpTexture());
-		m_textures.back().loadFromFile("res/textures/grid512.png", true);
+		m_textures.back().loadFromFile(mesh->getMaterial().textures.at(TextureSlot::TEXTURE_DIFFUSE), true);
 		m_textures.back().copyToDestination(wgpContext.texture);
 
 		m_mammoth.push_back(WgpMesh(m_vertexBuffer.back(), m_indexBuffer.back(), m_textures.back(), mesh->getIndexBuffer().size()));
