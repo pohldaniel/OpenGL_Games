@@ -5,6 +5,8 @@
 #include "../src/Application.h"
 #include "../src/Globals.h"
 
+#define WGPU_STR(str) { str, sizeof(str) - 1 }
+
 WgpContext wgpContext = {};
 
 void handle_request_adapter(WGPURequestAdapterStatus status, WGPUAdapter adapter, WGPUStringView message, void* userdata1, void* userdata2) {
@@ -222,7 +224,7 @@ bool wgpCreateDevice(WgpContext& wgpContext, void* window) {
 	desc.primitive.cullMode = WGPUCullMode::WGPUCullMode_Back;
 
 	wgpContext.pipeline = wgpuDeviceCreateRenderPipeline(wgpContext.device, &desc);
-	wgpContext.depthTexture = wgpCreateTexture(static_cast<uint32_t>(Application::Width), static_cast<uint32_t>(Application::Height), WGPUTextureFormat::WGPUTextureFormat_Depth24Plus, WGPUTextureUsage_RenderAttachment);
+	wgpContext.depthTexture = wgpCreateTexture(static_cast<uint32_t>(Application::Width), static_cast<uint32_t>(Application::Height), WGPUTextureUsage_RenderAttachment, WGPUTextureFormat::WGPUTextureFormat_Depth24Plus, WGPUTextureFormat::WGPUTextureFormat_Depth24Plus);
 	wgpContext.depthTextureView = wgpCreateTextureView(WGPUTextureFormat::WGPUTextureFormat_Depth24Plus, WGPUTextureAspect::WGPUTextureAspect_DepthOnly, wgpContext.depthTexture);
 
 	wgpContext.uniformBuffer = wgpCreateBuffer(sizeof(MyUniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
@@ -262,32 +264,14 @@ bool wgpCreateDevice(WgpContext& wgpContext, void* window) {
 	bindings[0].offset = 0;
 	bindings[0].size = sizeof(MyUniforms);
 
-	// Create the color texture
-	WGPUTextureDescriptor textureDesc = {};
-	textureDesc.dimension = WGPUTextureDimension::WGPUTextureDimension_2D;
-	textureDesc.size = { 512, 512, 1 };
-	textureDesc.mipLevelCount = 1;
-	textureDesc.sampleCount = 1;
-	textureDesc.format = WGPUTextureFormat::WGPUTextureFormat_RGBA8Unorm;
-	textureDesc.usage = WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst;
-	textureDesc.viewFormatCount = 0;
-	textureDesc.viewFormats = nullptr;
-	wgpContext.texture = wgpuDeviceCreateTexture(wgpContext.device, &textureDesc);
 	
-	WGPUTextureViewDescriptor textureViewDesc = {};
-	textureViewDesc.aspect = WGPUTextureAspect::WGPUTextureAspect_All;
-	textureViewDesc.baseArrayLayer = 0;
-	textureViewDesc.arrayLayerCount = 1;
-	textureViewDesc.baseMipLevel = 0;
-	textureViewDesc.mipLevelCount = 1;
-	textureViewDesc.dimension = WGPUTextureViewDimension::WGPUTextureViewDimension_2D;
-	textureViewDesc.format = textureDesc.format;
-	wgpContext.textureView = wgpuTextureCreateView(wgpContext.texture, &textureViewDesc);
+	wgpContext.texture = wgpCreateTexture(512, 512, WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst, WGPUTextureFormat::WGPUTextureFormat_RGBA8Unorm);
+	wgpContext.textureView = wgpCreateTextureView(WGPUTextureFormat::WGPUTextureFormat_RGBA8Unorm, WGPUTextureAspect::WGPUTextureAspect_All, wgpContext.texture);
 	
 	bindings[1].binding = 1;
 	bindings[1].textureView = wgpContext.textureView;
 
-	WGPUSamplerDescriptor samplerDesc;
+	WGPUSamplerDescriptor samplerDesc = {};
 	samplerDesc.addressModeU = WGPUAddressMode_ClampToEdge;
 	samplerDesc.addressModeV = WGPUAddressMode_ClampToEdge;
 	samplerDesc.addressModeW = WGPUAddressMode_ClampToEdge;
@@ -366,13 +350,13 @@ WGPUPipelineLayout wgpCreatePipelineLayout() {
 WGPUBuffer wgpCreateBuffer(uint32_t size, WGPUBufferUsage bufferUsage) {
 	const WGPUDevice& device = wgpContext.device;
 	WGPUBufferDescriptor bufferDesc = {};
-	bufferDesc.label = { "buf", WGPU_STRLEN};
+	bufferDesc.label = WGPU_STR("buf");
 
 	if (bufferUsage & WGPUBufferUsage_Uniform)
-		bufferDesc.label = { "uniform_buf" , WGPU_STRLEN};
+		bufferDesc.label = WGPU_STR("uniform_buf");
 
 	if (bufferUsage & WGPUBufferUsage_Vertex)
-		bufferDesc.label = { "vertex_buf" , WGPU_STRLEN };
+		bufferDesc.label = WGPU_STR("vertex_buf");
 
 	bufferDesc.size = size;
 	bufferDesc.usage = bufferUsage;
@@ -380,23 +364,27 @@ WGPUBuffer wgpCreateBuffer(uint32_t size, WGPUBufferUsage bufferUsage) {
 	return wgpuDeviceCreateBuffer(device, &bufferDesc);
 }
 
-WGPUTexture wgpCreateTexture(uint32_t width, uint32_t height, WGPUTextureFormat textureFormat, WGPUTextureUsage textureUsage) {
+WGPUTexture wgpCreateTexture(uint32_t width, uint32_t height, WGPUTextureUsage textureUsage, WGPUTextureFormat textureFormat, WGPUTextureFormat viewFormat) {
 	const WGPUDevice& device = wgpContext.device;
 	WGPUTextureDescriptor textureDescriptor = {};
+	textureDescriptor.label = WGPU_STR("texture");
 	textureDescriptor.dimension = WGPUTextureDimension::WGPUTextureDimension_2D;
-	textureDescriptor.format = textureFormat;
-	textureDescriptor.mipLevelCount = 1;
-	textureDescriptor.sampleCount = 1;
-	textureDescriptor.usage = textureUsage;
 	textureDescriptor.size = { width, height, 1 };
-	textureDescriptor.viewFormatCount = 1;
+	textureDescriptor.format = textureFormat;
+	textureDescriptor.usage = textureUsage;
+	textureDescriptor.mipLevelCount = 1;
+	textureDescriptor.sampleCount = 1;	
 	textureDescriptor.nextInChain = nullptr;
-	textureDescriptor.viewFormats = &textureFormat;
+	if (viewFormat != WGPUTextureFormat_Undefined) {
+		textureDescriptor.viewFormatCount = 1;
+		textureDescriptor.viewFormats = &viewFormat;
+	}
 	return wgpuDeviceCreateTexture(device, &textureDescriptor);
 }
 
 WGPUTextureView wgpCreateTextureView(WGPUTextureFormat textureFormat, WGPUTextureAspect aspect, const WGPUTexture& texture) {
 	WGPUTextureViewDescriptor textureViewDescriptor = {};
+	textureViewDescriptor.label = WGPU_STR("texture_view");
 	textureViewDescriptor.aspect = aspect;
 	textureViewDescriptor.baseArrayLayer = 0;
 	textureViewDescriptor.arrayLayerCount = 1;
@@ -414,7 +402,7 @@ void wgpResize(uint32_t width, uint32_t height) {
 		wgpuTextureDestroy(wgpContext.depthTexture);
 		wgpuTextureRelease(wgpContext.depthTexture);
 
-		wgpContext.depthTexture = wgpCreateTexture(width, height, WGPUTextureFormat::WGPUTextureFormat_Depth24Plus, WGPUTextureUsage_RenderAttachment);
+		wgpContext.depthTexture = wgpCreateTexture(width, height, WGPUTextureUsage_RenderAttachment, WGPUTextureFormat::WGPUTextureFormat_Depth24Plus, WGPUTextureFormat::WGPUTextureFormat_Depth24Plus);
 		wgpContext.depthTextureView = wgpCreateTextureView(WGPUTextureFormat_Depth24Plus, WGPUTextureAspect::WGPUTextureAspect_DepthOnly, wgpContext.depthTexture);
 
 		wgpContext.config.width = width;
@@ -442,26 +430,24 @@ void wgpDraw() {
 	wgpuSurfaceGetCurrentTexture(wgpContext.surface, &surface_texture);
 
 	switch (surface_texture.status) {
-	case WGPUSurfaceGetCurrentTextureStatus_SuccessOptimal:
-	case WGPUSurfaceGetCurrentTextureStatus_SuccessSuboptimal:
-		// All good, could handle suboptimal here
-		break;
-	case WGPUSurfaceGetCurrentTextureStatus_Timeout:
-	case WGPUSurfaceGetCurrentTextureStatus_Outdated:
-	case WGPUSurfaceGetCurrentTextureStatus_Lost: {
-		// Skip this frame, and re-configure surface.
-		if (surface_texture.texture != NULL) {
-			wgpuTextureRelease(surface_texture.texture);
+		case WGPUSurfaceGetCurrentTextureStatus_SuccessOptimal:
+		case WGPUSurfaceGetCurrentTextureStatus_SuccessSuboptimal:
+			break;
+		case WGPUSurfaceGetCurrentTextureStatus_Timeout:
+		case WGPUSurfaceGetCurrentTextureStatus_Outdated:
+		case WGPUSurfaceGetCurrentTextureStatus_Lost: {
+			if (surface_texture.texture != NULL) {
+				wgpuTextureRelease(surface_texture.texture);
+				wgpuSurfaceConfigure(wgpContext.surface, &wgpContext.config);
+			}
+			return;
 		}
-		break;
 	}
-	}
-	//assert(surface_texture.texture);
 
 	WGPUTextureView frame = wgpuTextureCreateView(surface_texture.texture, NULL);
 
 	WGPUCommandEncoderDescriptor commandEncoderDesc = {};
-	commandEncoderDesc.label = { "command_encoder", WGPU_STRLEN };
+	commandEncoderDesc.label = WGPU_STR("command_encoder");
 	WGPUCommandEncoder encoder = wgpuDeviceCreateCommandEncoder(wgpContext.device, &commandEncoderDesc);
 
 	WGPURenderPassDescriptor renderPassDesc = {};
@@ -503,7 +489,7 @@ void wgpDraw() {
 	wgpuTextureViewRelease(frame);
 
 	WGPUCommandBufferDescriptor cmdBufferDescriptor = {};
-	cmdBufferDescriptor.label = { "Command buffer", WGPU_STRLEN };
+	cmdBufferDescriptor.label = WGPU_STR("Command buffer");
 	WGPUCommandBuffer command = wgpuCommandEncoderFinish(encoder, &cmdBufferDescriptor);
 	wgpuQueueSubmit(wgpContext.queue, 1, &command);
 
@@ -530,7 +516,7 @@ WGPUShaderModule load_shader_module(WGPUDevice device, const char* name) {
 		perror("fseek");
 		goto cleanup;
 	}
-	long length = ftell(file);
+	unsigned long long length = ftell(file);
 	if (length == -1) {
 		perror("ftell");
 		goto cleanup;
@@ -550,7 +536,7 @@ WGPUShaderModule load_shader_module(WGPUDevice device, const char* name) {
 	shaderSourceWGSL.code = { buf, WGPU_STRLEN };
 
 	WGPUShaderModuleDescriptor shaderModuleDescriptor = {};
-	shaderModuleDescriptor.label = { name, WGPU_STRLEN };
+	shaderModuleDescriptor.label = WGPU_STR(name);
 	shaderModuleDescriptor.nextInChain = reinterpret_cast<WGPUChainedStruct*>(&shaderSourceWGSL);
 
 	shader_module = wgpuDeviceCreateShaderModule(device, &shaderModuleDescriptor);
