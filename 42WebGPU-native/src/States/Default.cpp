@@ -37,6 +37,7 @@ Default::Default(StateMachine& machine) : State(machine, States::DEFAULT) {
 
 		m_mammoth.push_back(WgpMesh(m_vertexBuffer.back(), m_indexBuffer.back(), m_textures.back(), mesh->getIndexBuffer().size()));
 	}
+	renderPipelineSlot = RenderPipelineSlot::RP_PTN;
 	wgpContext.OnDraw = std::bind(&Default::OnDraw, this, std::placeholders::_1);
 }
 
@@ -110,6 +111,9 @@ void Default::render() {
 }
 
 void Default::OnDraw(const WGPURenderPassEncoder& renderPass) {
+
+	wgpuRenderPassEncoderSetPipeline(renderPass, wgpContext.renderPipelines.at(renderPipelineSlot));
+	wgpuRenderPassEncoderSetBindGroup(renderPass, 0, wgpContext.bindGroup, 0, nullptr);
 	wgpuRenderPassEncoderSetVertexBuffer(renderPass, 0, m_vertexBuffer.back().m_buffer, 0, wgpuBufferGetSize(m_vertexBuffer.back().m_buffer));
 	wgpuRenderPassEncoderSetIndexBuffer(renderPass, m_indexBuffer.back().m_buffer, WGPUIndexFormat_Uint32, 0, wgpuBufferGetSize(m_indexBuffer.back().m_buffer));
 	wgpuRenderPassEncoderDrawIndexed(renderPass, m_mammoth.back().drawCount, 1, 0, 0, 0);

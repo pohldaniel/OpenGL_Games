@@ -12,6 +12,8 @@
 #include <WebGPU/WgpBuffer.h>
 #include <WebGPU/WgpMesh.h>
 
+enum RenderPipelineSlot;
+
 class Default : public State, public MouseEventListener, public KeyboardEventListener {
 
 public:
@@ -45,4 +47,5 @@ private:
 	std::list<WgpTexture> m_textures;
 	std::list<WgpBuffer> m_vertexBuffer;
 	std::list<WgpBuffer> m_indexBuffer;	
+	RenderPipelineSlot renderPipelineSlot;
 };

@@ -241,7 +241,7 @@ void Application::initImGUI() {
 
 	ImGui_ImplWGPU_InitInfo initInfo = {};
 	initInfo.Device = wgpContext.device;
-	initInfo.RenderTargetFormat = wgpContext.surface_capabilities.formats[0];
+	initInfo.RenderTargetFormat = wgpContext.surfaceCapabilities.formats[0];
 	initInfo.DepthStencilFormat = WGPUTextureFormat_Depth24Plus;
 
 	ImGui_ImplWGPU_Init(&initInfo);
