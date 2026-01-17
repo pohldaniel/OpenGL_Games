@@ -21,11 +21,11 @@ Default::Default(StateMachine& machine) : State(machine, States::DEFAULT) {
 
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
-	m_camera.lookAt(Vector3f(0.0f, 2.0f, 10.0f), Vector3f(0.0f, 2.0f, 10.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
+	m_camera.lookAt(Vector3f(1.0f, 1.0f, 3.0f), Vector3f(0.2f, 0.2f, 1.5f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
 	m_camera.setRotationSpeed(0.1f);
 	m_camera.setMovingSpeed(10.0f);
 
-	m_model.loadModel("res/models/mammoth.obj", Vector3f(1.0f, 0.0f, 0.0f), 0.0f, Vector3f(0.0f, 0.0f, 0.0f), 1.0f, false, false, false, false, false, true, false);
+	m_model.loadModel("res/models/mammoth.obj");
 	for (ObjMesh* mesh : m_model.getMeshes()) {
 		m_vertexBuffer.push_back(WgpBuffer());
 		m_vertexBuffer.back().createBuffer(reinterpret_cast<const void*>(mesh->getVertexBuffer().data()), sizeof(float) * mesh->getVertexBuffer().size(), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Vertex);
@@ -40,36 +40,16 @@ Default::Default(StateMachine& machine) : State(machine, States::DEFAULT) {
 		m_textures.back().copyToDestination(m_texture);
 		m_mammoth.push_back(WgpMesh(m_vertexBuffer.back(), m_indexBuffer.back(), m_textures.back(), mesh->getIndexBuffer().size()));
 	}
-
-	Vector3f focalPoint(0.0, 0.0, -1.0);
-	float angle2 = 3.0f * PI / 4.0f;
-	S = Matrix4f::Scale(0.3f, 0.3f, 0.3f);
-	T1 = Matrix4f::IDENTITY;
-	R1 = Matrix4f::Rotate(0.0f, 0.0f, angle1 * _180_ON_PI);
-	m_uniforms.modelMatrix = R1 * T1 * S;
-
-	R2 = Matrix4f::Rotate(-angle2 * _180_ON_PI, 0.0f, 0.0f);
-	T2 = Matrix4f::Translate(-focalPoint);
-	m_uniforms.viewMatrix = T2 * R2;
-
-	float ratio = static_cast<float>(Application::Width) / static_cast<float>(Application::Height);
-	float focalLength = 2.0;
-	float _near = 0.01f;
-	float _far = 100.0f;
-	float divider = 1 / (focalLength * (_far - _near));
-	m_uniforms.projectionMatrix = Matrix4f::Transpose(Matrix4f(
-		1.0, 0.0, 0.0, 0.0,
-		0.0, ratio, 0.0, 0.0,
-		0.0, 0.0, _far * divider, -_far * _near * divider,
-		0.0, 0.0, 1.0 / focalLength, 0.0
-	));
+	m_trackball.reshape(Application::Width, Application::Height);
+	m_trackball.setTrackballScale(0.5f);
+	m_uniforms.projectionMatrix = Matrix4f::IDENTITY;
+	m_uniforms.viewMatrix = Matrix4f::IDENTITY;
+	m_uniforms.modelMatrix = Matrix4f::IDENTITY;
 
 	m_uniforms.time = 1.0f;
-	//wgpContext.uniforms.color = { 0.0f, 1.0f, 0.4f, 1.0f };
 	m_uniforms.color = { 1.0f, 1.0f, 1.0f, 1.0f };
 	
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer, 0, &m_uniforms, sizeof(MyUniforms));
-
 	wgpContext.OnDraw = std::bind(&Default::OnDraw, this, std::placeholders::_1);
 }
 
@@ -136,6 +116,12 @@ void Default::update() {
 			m_camera.move(direction * m_dt);
 		}
 	}
+
+	m_trackball.idle();
+	applyTransformation(m_trackball);
+
+	m_uniforms.projectionMatrix = m_camera.getPerspectiveMatrix();
+	m_uniforms.viewMatrix = m_camera.getViewMatrix();
 }
 
 void Default::render() {
@@ -144,11 +130,8 @@ void Default::render() {
 
 void Default::OnDraw(const WGPURenderPassEncoder& renderPass) {
 
-	m_uniforms.time = static_cast<float>(Globals::clock.getElapsedTimeSec());
-	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer, offsetof(MyUniforms, time), &m_uniforms.time, sizeof(MyUniforms::time));
-	angle1 = m_uniforms.time;
-	R1 = Matrix4f::Rotate(0.0f, 0.0f, angle1 * _180_ON_PI);
-	m_uniforms.modelMatrix = R1 * T1 * S;
+	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer, offsetof(MyUniforms, projectionMatrix), &m_uniforms.projectionMatrix, sizeof(MyUniforms::projectionMatrix));
+	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer, offsetof(MyUniforms, viewMatrix), &m_uniforms.viewMatrix, sizeof(MyUniforms::viewMatrix));
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer, offsetof(MyUniforms, modelMatrix), &m_uniforms.modelMatrix, sizeof(MyUniforms::modelMatrix));
 
 	wgpuRenderPassEncoderSetPipeline(renderPass, wgpContext.renderPipelines.at(m_mammoth.back().m_renderPipelineSlot));
@@ -162,15 +145,26 @@ void Default::OnDraw(const WGPURenderPassEncoder& renderPass) {
 }
 
 void Default::OnMouseMotion(Event::MouseMoveEvent& event) {
-
+	m_trackball.motion(event.x, event.y);
+	applyTransformation(m_trackball);
 }
 
 void Default::OnMouseButtonDown(Event::MouseButtonEvent& event) {
-
+	if (event.button == 1u) {
+		m_trackball.mouse(TrackBall::Button::ELeftButton, TrackBall::Modifier::ENoModifier, true, event.x, event.y);
+		applyTransformation(m_trackball);
+	}else if (event.button == 2u) {
+		Mouse::instance().attach(Application::GetWindow());
+	}
 }
 
 void Default::OnMouseButtonUp(Event::MouseButtonEvent& event) {
-
+	if (event.button == 1u) {
+		m_trackball.mouse(TrackBall::Button::ELeftButton, TrackBall::Modifier::ENoModifier, false, event.x, event.y);
+		applyTransformation(m_trackball);
+	}else if (event.button == 2u) {
+		Mouse::instance().detach();
+	}
 }
 
 void Default::OnMouseWheel(Event::MouseWheelEvent& event) {
@@ -191,6 +185,10 @@ void Default::OnKeyDown(Event::KeyboardEvent& event) {
 
 void Default::OnKeyUp(Event::KeyboardEvent& event) {
 
+}
+
+void Default::applyTransformation(TrackBall& arc) {
+	m_uniforms.modelMatrix = arc.getTransform();
 }
 
 void Default::resize(int deltaW, int deltaH) {

@@ -148,23 +148,23 @@ const std::string& ObjModel::getModelDirectory() {
 	return m_modelDirectory;
 }
 
-void ObjModel::loadModel(const char* filename, bool isStacked, bool withoutNormals, bool generateSmoothNormals, bool generateFlatNormals, bool generateSmoothTangents, bool flipYZ, bool rescale) {
-	loadModelCpu(filename, isStacked, withoutNormals, generateSmoothNormals, generateFlatNormals, generateSmoothTangents, flipYZ, rescale);
+void ObjModel::loadModel(const char* filename, bool isStacked, bool withoutNormals, bool generateSmoothNormals, bool generateFlatNormals, bool generateSmoothTangents, bool flipYZ, bool flipWinding, bool rescale) {
+	loadModelCpu(filename, isStacked, withoutNormals, generateSmoothNormals, generateFlatNormals, generateSmoothTangents, flipYZ, flipWinding, rescale);
 }
 
-void ObjModel::loadModel(const char* filename, const Vector3f& axis, float degree, const Vector3f& translate, float scale, bool isStacked, bool withoutNormals, bool generateSmoothNormals, bool generateFlatNormals, bool generateSmoothTangents, bool flipYZ, bool rescale) {
-	loadModelCpu(filename, axis, degree, translate, scale, isStacked, withoutNormals, generateSmoothNormals, generateFlatNormals, generateSmoothTangents, flipYZ, rescale);
+void ObjModel::loadModel(const char* filename, const Vector3f& axis, float degree, const Vector3f& translate, float scale, bool isStacked, bool withoutNormals, bool generateSmoothNormals, bool generateFlatNormals, bool generateSmoothTangents, bool flipYZ, bool flipWinding, bool rescale) {
+	loadModelCpu(filename, axis, degree, translate, scale, isStacked, withoutNormals, generateSmoothNormals, generateFlatNormals, generateSmoothTangents, flipYZ, flipWinding, rescale);
 }
 
-void ObjModel::loadModelCpu(const char* filename, bool isStacked, bool withoutNormals, bool generateSmoothNormals, bool generateFlatNormals, bool generateSmoothTangents, bool flipYZ, bool rescale) {
-	loadModelCpu(filename, Vector3f(0.0, 1.0, 0.0), 0.0, Vector3f(0.0, 0.0, 0.0), 1.0, isStacked, withoutNormals, generateSmoothNormals, generateFlatNormals, generateSmoothTangents, flipYZ, rescale);
+void ObjModel::loadModelCpu(const char* filename, bool isStacked, bool withoutNormals, bool generateSmoothNormals, bool generateFlatNormals, bool generateSmoothTangents, bool flipYZ, bool flipWinding, bool rescale) {
+	loadModelCpu(filename, Vector3f(0.0, 1.0, 0.0), 0.0, Vector3f(0.0, 0.0, 0.0), 1.0, isStacked, withoutNormals, generateSmoothNormals, generateFlatNormals, generateSmoothTangents, flipYZ, flipWinding, rescale);
 }
 
 bool compare(const std::array<int, 10> &i_lhs, const std::array<int, 10> &i_rhs) {
 	return i_lhs[9] < i_rhs[9];
 }
 
-void ObjModel::loadModelCpu(const char* _filename, const Vector3f& axis, float degree, const Vector3f& translate, float scale, bool isStacked, bool withoutNormals, bool generateSmoothNormals, bool generateFlatNormals, bool generateSmoothTangents, bool flipYZ, bool rescale) {
+void ObjModel::loadModelCpu(const char* _filename, const Vector3f& axis, float degree, const Vector3f& translate, float scale, bool isStacked, bool withoutNormals, bool generateSmoothNormals, bool generateFlatNormals, bool generateSmoothTangents, bool flipYZ, bool flipWinding, bool rescale) {
 
 	std::string filename(_filename);
 	const size_t index = filename.rfind('/');
@@ -556,7 +556,7 @@ void ObjModel::loadModelCpu(const char* _filename, const Vector3f& axis, float d
 		std::vector<std::array<int, 10>>::const_iterator last = face.begin() + (m_meshes[j]->m_triangleOffset + m_meshes[j]->m_numberOfTriangles);
 		std::vector<std::array<int, 10>> subFace(first, last);
 		indexBufferCreator.face = subFace;
-		indexBufferCreator.createIndexBuffer();
+		indexBufferCreator.createIndexBuffer(flipWinding || flipYZ);
 		if (!tangentCoords.empty()) {
 			m_hasTextureCoords = true; m_hasNormals = true; m_hasTangents = true;
 			m_stride = 14;
@@ -1553,7 +1553,7 @@ unsigned int ObjMesh::getNumberOfTriangles() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void IndexBufferCreator::createIndexBuffer() {
+void IndexBufferCreator::createIndexBuffer(bool flipWinding) {
 
 	indexBufferOut.resize(face.size() * 3);
 	if (!tangentCoordsIn.empty()) {
@@ -1573,7 +1573,7 @@ void IndexBufferCreator::createIndexBuffer() {
 				tangentCoordsIn[((face[i])[1] - 1) * 3], tangentCoordsIn[((face[i])[1] - 1) * 3 + 1], tangentCoordsIn[((face[i])[1] - 1) * 3 + 2],
 				bitangentCoordsIn[((face[i])[1] - 1) * 3], bitangentCoordsIn[((face[i])[1] - 1) * 3 + 1], bitangentCoordsIn[((face[i])[1] - 1) * 3 + 2]};
 
-			indexBufferOut[i * 3 + 1] = addVertex(((face[i])[1] - 1), &vertex2[0], 14);
+			flipWinding ? indexBufferOut[i * 3 + 2] = addVertex(((face[i])[1] - 1), &vertex2[0], 14) : indexBufferOut[i * 3 + 1] = addVertex(((face[i])[1] - 1), &vertex2[0], 14);
 
 			float vertex3[] = { positionCoordsIn[((face[i])[2] - 1) * 3], positionCoordsIn[((face[i])[2] - 1) * 3 + 1], positionCoordsIn[((face[i])[2] - 1) * 3 + 2],
 				textureCoordsIn[((face[i])[5] - 1) * 2], textureCoordsIn[((face[i])[5] - 1) * 2 + 1],
@@ -1581,7 +1581,7 @@ void IndexBufferCreator::createIndexBuffer() {
 				tangentCoordsIn[((face[i])[2] - 1) * 3], tangentCoordsIn[((face[i])[2] - 1) * 3 + 1], tangentCoordsIn[((face[i])[2] - 1) * 3 + 2] ,
 				bitangentCoordsIn[((face[i])[2] - 1) * 3], bitangentCoordsIn[((face[i])[2] - 1) * 3 + 1], bitangentCoordsIn[((face[i])[2] - 1) * 3 + 2] };
 
-			indexBufferOut[i * 3 + 2] = addVertex(((face[i])[2] - 1), &vertex3[0], 14);
+			flipWinding ? indexBufferOut[i * 3 + 1] = addVertex(((face[i])[2] - 1), &vertex3[0], 14) : indexBufferOut[i * 3 + 2] = addVertex(((face[i])[2] - 1), &vertex3[0], 14);
 		}
 	} else if (!textureCoordsIn.empty() && !normalCoordsIn.empty()) {
 
@@ -1595,12 +1595,12 @@ void IndexBufferCreator::createIndexBuffer() {
 			float vertex2[] = { positionCoordsIn[((face[i])[1] - 1) * 3], positionCoordsIn[((face[i])[1] - 1) * 3 + 1], positionCoordsIn[((face[i])[1] - 1) * 3 + 2],
 			textureCoordsIn[((face[i])[4] - 1) * 2], textureCoordsIn[((face[i])[4] - 1) * 2 + 1],
 			normalCoordsIn[((face[i])[7] - 1) * 3], normalCoordsIn[((face[i])[7] - 1) * 3 + 1], normalCoordsIn[((face[i])[7] - 1) * 3 + 2] };
-			indexBufferOut[i * 3 + 1] = addVertex(((face[i])[1] - 1), &vertex2[0], 8);
+			flipWinding ? indexBufferOut[i * 3 + 2] = addVertex(((face[i])[1] - 1), &vertex2[0], 8) : indexBufferOut[i * 3 + 1] = addVertex(((face[i])[1] - 1), &vertex2[0], 8);
 
 			float vertex3[] = { positionCoordsIn[((face[i])[2] - 1) * 3], positionCoordsIn[((face[i])[2] - 1) * 3 + 1], positionCoordsIn[((face[i])[2] - 1) * 3 + 2],
 			textureCoordsIn[((face[i])[5] - 1) * 2], textureCoordsIn[((face[i])[5] - 1) * 2 + 1],
 			normalCoordsIn[((face[i])[8] - 1) * 3], normalCoordsIn[((face[i])[8] - 1) * 3 + 1], normalCoordsIn[((face[i])[8] - 1) * 3 + 2] };
-			indexBufferOut[i * 3 + 2] = addVertex(((face[i])[2] - 1), &vertex3[0], 8);
+			flipWinding ? indexBufferOut[i * 3 + 1] = addVertex(((face[i])[2] - 1), &vertex3[0], 8) : indexBufferOut[i * 3 + 2] = addVertex(((face[i])[2] - 1), &vertex3[0], 8);
 		}
 
 	}else if (!normalCoordsIn.empty()) {
@@ -1613,11 +1613,11 @@ void IndexBufferCreator::createIndexBuffer() {
 
 			float vertex2[] = { positionCoordsIn[((face[i])[1] - 1) * 3], positionCoordsIn[((face[i])[1] - 1) * 3 + 1], positionCoordsIn[((face[i])[1] - 1) * 3 + 2],
 				normalCoordsIn[((face[i])[7] - 1) * 3], normalCoordsIn[((face[i])[7] - 1) * 3 + 1], normalCoordsIn[((face[i])[7] - 1) * 3 + 2] };
-			indexBufferOut[i * 3 + 1] = addVertex(((face[i])[1] - 1), &vertex2[0], 6);
+			flipWinding ? indexBufferOut[i * 3 + 2] = addVertex(((face[i])[1] - 1), &vertex2[0], 6) : indexBufferOut[i * 3 + 1] = addVertex(((face[i])[1] - 1), &vertex2[0], 6);
 
 			float vertex3[] = { positionCoordsIn[((face[i])[2] - 1) * 3], positionCoordsIn[((face[i])[2] - 1) * 3 + 1], positionCoordsIn[((face[i])[2] - 1) * 3 + 2],
 				normalCoordsIn[((face[i])[8] - 1) * 3], normalCoordsIn[((face[i])[8] - 1) * 3 + 1], normalCoordsIn[((face[i])[8] - 1) * 3 + 2] };
-			indexBufferOut[i * 3 + 2] = addVertex(((face[i])[2] - 1), &vertex3[0], 6);
+			flipWinding ? indexBufferOut[i * 3 + 1] = addVertex(((face[i])[2] - 1), &vertex3[0], 6) : indexBufferOut[i * 3 + 2] = addVertex(((face[i])[2] - 1), &vertex3[0], 6);
 		}
 
 	}else if (!textureCoordsIn.empty()) {
@@ -1629,11 +1629,11 @@ void IndexBufferCreator::createIndexBuffer() {
 
 			float vertex2[] = { positionCoordsIn[((face[i])[1] - 1) * 3],positionCoordsIn[((face[i])[1] - 1) * 3 + 1], positionCoordsIn[((face[i])[1] - 1) * 3 + 2],
 				textureCoordsIn[((face[i])[4] - 1) * 2], textureCoordsIn[((face[i])[4] - 1) * 2 + 1] };
-			indexBufferOut[i * 3 + 1] = addVertex(((face[i])[1] - 1), &vertex2[0], 5);
+			flipWinding ? indexBufferOut[i * 3 + 2] = addVertex(((face[i])[1] - 1), &vertex2[0], 5) : indexBufferOut[i * 3 + 1] = addVertex(((face[i])[1] - 1), &vertex2[0], 5);
 
 			float vertex3[] = { positionCoordsIn[((face[i])[2] - 1) * 3], positionCoordsIn[((face[i])[2] - 1) * 3 + 1], positionCoordsIn[((face[i])[2] - 1) * 3 + 2],
 				textureCoordsIn[((face[i])[5] - 1) * 2], textureCoordsIn[((face[i])[5] - 1) * 2 + 1] };
-			indexBufferOut[i * 3 + 2] = addVertex(((face[i])[2] - 1), &vertex3[0], 5);
+			flipWinding ? indexBufferOut[i * 3 + 1] = addVertex(((face[i])[2] - 1), &vertex3[0], 5) : indexBufferOut[i * 3 + 2] = addVertex(((face[i])[2] - 1), &vertex3[0], 5);
 		}
 
 	}else {
@@ -1642,10 +1642,10 @@ void IndexBufferCreator::createIndexBuffer() {
 			indexBufferOut[i * 3] = addVertex(((face[i])[0] - 1), &vertex1[0], 3);
 
 			float vertex2[] = { positionCoordsIn[((face[i])[1] - 1) * 3], positionCoordsIn[((face[i])[1] - 1) * 3 + 1], positionCoordsIn[((face[i])[1] - 1) * 3 + 2] };
-			indexBufferOut[i * 3 + 1] = addVertex(((face[i])[1] - 1), &vertex2[0], 3);
+			flipWinding ? indexBufferOut[i * 3 + 2] = addVertex(((face[i])[1] - 1), &vertex2[0], 3) : indexBufferOut[i * 3 + 1] = addVertex(((face[i])[1] - 1), &vertex2[0], 3);
 
 			float vertex3[] = { positionCoordsIn[((face[i])[2] - 1) * 3], positionCoordsIn[((face[i])[2] - 1) * 3 + 1], positionCoordsIn[((face[i])[2] - 1) * 3 + 2] };
-			indexBufferOut[i * 3 + 2] = addVertex(((face[i])[2] - 1), &vertex3[0], 3);
+			flipWinding ? indexBufferOut[i * 3 + 1] = addVertex(((face[i])[2] - 1), &vertex3[0], 3) : indexBufferOut[i * 3 + 2] = addVertex(((face[i])[2] - 1), &vertex3[0], 3);
 		}
 	}
 	

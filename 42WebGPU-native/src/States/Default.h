@@ -5,6 +5,7 @@
 #include <engine/input/KeyboardEventListener.h>
 #include <engine/Camera.h>
 #include <engine/ObjModel.h>
+#include <engine/TrackBall.h>
 
 #include <States/StateMachine.h>
 
@@ -45,6 +46,7 @@ public:
 private:
 
 	void renderUi(const WGPURenderPassEncoder& renderPassEncoder);
+	void applyTransformation(TrackBall& arc);
 
 	bool m_initUi = true;
 	bool m_drawUi = true;
@@ -58,13 +60,6 @@ private:
 
 	WGPUTexture m_texture;
 	WGPUBuffer m_uniformBuffer;
-
+	TrackBall m_trackball;
 	MyUniforms m_uniforms;
-	float angle1 = 2.0f;
-	Matrix4f S;
-	Matrix4f T1;
-	Matrix4f R1;
-	Matrix4f R2;
-	Matrix4f T2;
-
 };
