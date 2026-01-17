@@ -33,7 +33,7 @@ public:
 	void update() override;
 	void render() override;
 	void OnDraw(const WGPURenderPassEncoder& renderPass);
-	WGPUPipelineLayout OnPipelineLayout();
+	
 
 	void resize(int deltaW, int deltaH) override;
 	void OnMouseMotion(Event::MouseMoveEvent& event) override;
@@ -44,6 +44,10 @@ public:
 	void OnKeyUp(Event::KeyboardEvent& event) override;
 
 private:
+
+	WGPUBindGroupLayout OnBindGroupLayout();
+	WGPUPipelineLayout OnPipelineLayout(const WGPUBindGroupLayout& bindGroupLayout);	
+	void OnBindGroup(const WGPUBindGroupLayout& bindGroupLayout);
 
 	void renderUi(const WGPURenderPassEncoder& renderPassEncoder);
 	void applyTransformation(TrackBall& arc);
@@ -60,6 +64,9 @@ private:
 
 	WGPUTexture m_texture;
 	WGPUBuffer m_uniformBuffer;
+	WGPUBindGroup m_bindGroup;
+
+
 	TrackBall m_trackball;
 	MyUniforms m_uniforms;
 };

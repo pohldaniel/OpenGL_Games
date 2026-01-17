@@ -58,7 +58,7 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 
 Application::~Application() {
 	delete Machine;
-	
+	wgpShutDown();
 	ImGui_ImplWGPU_Shutdown();
 	ImGui_ImplWin32_Shutdown();
 	ImGui::DestroyContext();

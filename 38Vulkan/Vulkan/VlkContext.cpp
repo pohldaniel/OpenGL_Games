@@ -98,6 +98,7 @@ void vlkToggleWireframe() {
 }
 
 void vlkShutDown() {
+    vlkWaitIdle();
     const VkInstance& vkInstance = vlkContext.vkInstance;
     const VkSurfaceKHR& vkSurfaceKHR = vlkContext.vkSurfaceKHR;
     delete vlkContext.swapchain;

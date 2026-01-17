@@ -311,6 +311,10 @@ void wgpCreateVertexBufferLayout(VertexLayoutSlot slot) {
 	}
 }
 
+void wgpShutDown() {
+
+}
+
 void wgpResize(uint32_t width, uint32_t height) {
 	if (wgpContext.surface) {
 		wgpuTextureViewRelease(wgpContext.depthTextureView);
@@ -412,7 +416,9 @@ void WgpContext::createVertexBufferLayout(VertexLayoutSlot slot) {
 
 WGPURenderPipeline WgpContext::createRenderPipelinePTN(std::string path) {
 	WGPUShaderModule shaderModule = wgpCreateShader(path);
-	WGPUPipelineLayout pipelineLayout = OnPipelineLayout();
+	WGPUBindGroupLayout bindGroupLayout = OnBindGroupLayout();
+
+	WGPUPipelineLayout pipelineLayout = OnPipelineLayout(bindGroupLayout);
 
 	WGPUVertexState vertexState = {};
 	vertexState.module = shaderModule;

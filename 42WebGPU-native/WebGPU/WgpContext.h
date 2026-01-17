@@ -29,18 +29,22 @@ struct WgpContext {
 	WGPUAdapter adapter = nullptr;
 	WGPUDevice device = nullptr;
 	WGPUQueue queue = nullptr;
+	//WGPUBindGroup bindGroup = nullptr;
+
+	WGPUTextureView depthTextureView = nullptr;
+	WGPUTexture depthTexture = nullptr;
 	WGPUSurfaceConfiguration config = {};
 	WGPUSurfaceCapabilities surfaceCapabilities;
-	WGPUTextureView depthTextureView;
-	WGPUTexture depthTexture;
 
 	std::unordered_map<RenderPipelineSlot, WGPURenderPipeline> renderPipelines;
 	WGPUTextureFormat depthformat = WGPUTextureFormat::WGPUTextureFormat_Depth24Plus;
 		
-	WGPUBindGroup bindGroup;
+	
 
 	std::function<void(const WGPURenderPassEncoder& commandBuffer)> OnDraw;
-	std::function<WGPUPipelineLayout()> OnPipelineLayout;
+	std::function <WGPUBindGroupLayout()> OnBindGroupLayout;
+	std::function <void(const WGPUBindGroupLayout&)> OnBindGroup;
+	std::function<WGPUPipelineLayout(const WGPUBindGroupLayout&)> OnPipelineLayout;	
 };
 
 extern WgpContext wgpContext;
@@ -58,7 +62,7 @@ extern "C" {
 	WGPUSampler wgpCreateSampler();
 	WGPUShaderModule wgpCreateShader(std::string path);	
 	void wgpCreateVertexBufferLayout(VertexLayoutSlot slot = VL_PTN);
-
+	void wgpShutDown();
 
 	void wgpDraw();
 	void wgpResize(uint32_t width, uint32_t height);

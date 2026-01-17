@@ -51,7 +51,6 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 }
 Application::~Application() {	
 	delete Machine;
-	vlkWaitIdle();
 	vlkShutDown();
 	ImGui_ImplVulkan_Shutdown();
 	ImGui_ImplWin32_Shutdown();

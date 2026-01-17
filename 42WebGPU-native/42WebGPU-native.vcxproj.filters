@@ -12,9 +12,6 @@
     <Filter Include="Source Files\States">
       <UniqueIdentifier>{61f62bb9-5bfc-46f4-98b2-ff9f822154ae}</UniqueIdentifier>
     </Filter>
-    <Filter Include="miniball">
-      <UniqueIdentifier>{baa8049b-5ef1-4af6-b8b7-d019e52f0867}</UniqueIdentifier>
-    </Filter>
     <Filter Include="convhull">
       <UniqueIdentifier>{16b0aa13-3ea7-4211-bef6-e7a1047efd87}</UniqueIdentifier>
     </Filter>
@@ -24,23 +21,11 @@
     <Filter Include="engine\input">
       <UniqueIdentifier>{0facde4d-d456-4b50-9ce9-daab74ad9b27}</UniqueIdentifier>
     </Filter>
-    <Filter Include="engine\MeshObject">
-      <UniqueIdentifier>{10b2c2b0-8208-4a3d-ba5d-b1cf1c0f5dc4}</UniqueIdentifier>
-    </Filter>
     <Filter Include="engine\sound">
       <UniqueIdentifier>{af2fe3bc-45b1-4b7b-a4bf-f2b78430cea2}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Physics">
-      <UniqueIdentifier>{25bd00d9-4d5e-4732-bac4-aec51435a245}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Utils">
       <UniqueIdentifier>{c5ffcde2-dc23-4afa-a0da-d27a2ced2fdd}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="engine\collision">
-      <UniqueIdentifier>{a8ab60a4-23c7-4a80-9ea5-930f359b0744}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="engine\animation">
-      <UniqueIdentifier>{b0dd8b9e-8e51-446d-ae91-0badfcc86648}</UniqueIdentifier>
     </Filter>
     <Filter Include="Resource Files">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
@@ -49,35 +34,8 @@
     <Filter Include="engine\interfaces">
       <UniqueIdentifier>{d0201a6b-300d-429e-b832-577cfae6b06f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="engine\animation\render">
-      <UniqueIdentifier>{dc65e16c-d3ee-450e-9928-08111a249301}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="engine\scene">
-      <UniqueIdentifier>{58fa22b4-9086-4be7-bf5c-c6be43650c2b}</UniqueIdentifier>
-    </Filter>
     <Filter Include="engine\thread">
       <UniqueIdentifier>{7a3cb299-0e80-46a4-b690-67a56e836b00}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="engine\utils">
-      <UniqueIdentifier>{2d9e1f13-19d9-499f-8ddb-24bec9f7e795}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="engine\ui">
-      <UniqueIdentifier>{72a9ec7e-009c-4ea8-ad6d-b9eb9566490f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="engine\octree">
-      <UniqueIdentifier>{13ef4786-41bd-47d2-b91d-addce13f8f7d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="engine\animationNew">
-      <UniqueIdentifier>{9281786b-817c-4dcc-910c-ac1a3c76892c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Navigation">
-      <UniqueIdentifier>{f6a91854-253f-44df-9622-c64926224444}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="engine\objects">
-      <UniqueIdentifier>{727a38d5-795f-442e-915b-f17a96e67984}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="engine\uiNew">
-      <UniqueIdentifier>{a04c4081-6bf3-4f75-92fb-6e683cdf5a42}</UniqueIdentifier>
     </Filter>
     <Filter Include="WebGPU">
       <UniqueIdentifier>{f1f0391f-f7c4-4de1-a606-27c6973b4c54}</UniqueIdentifier>
