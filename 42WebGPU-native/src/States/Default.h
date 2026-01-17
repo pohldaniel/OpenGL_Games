@@ -12,7 +12,14 @@
 #include <WebGPU/WgpBuffer.h>
 #include <WebGPU/WgpMesh.h>
 
-enum RenderPipelineSlot;
+struct MyUniforms {
+	Matrix4f projectionMatrix;
+	Matrix4f viewMatrix;
+	Matrix4f modelMatrix;
+	std::array<float, 4> color;
+	float time;
+	float _pad[3];
+};
 
 class Default : public State, public MouseEventListener, public KeyboardEventListener {
 
@@ -25,6 +32,7 @@ public:
 	void update() override;
 	void render() override;
 	void OnDraw(const WGPURenderPassEncoder& renderPass);
+	WGPUPipelineLayout OnPipelineLayout();
 
 	void resize(int deltaW, int deltaH) override;
 	void OnMouseMotion(Event::MouseMoveEvent& event) override;
@@ -47,5 +55,16 @@ private:
 	std::list<WgpTexture> m_textures;
 	std::list<WgpBuffer> m_vertexBuffer;
 	std::list<WgpBuffer> m_indexBuffer;	
-	RenderPipelineSlot renderPipelineSlot;
+
+	WGPUTexture m_texture;
+	WGPUBuffer m_uniformBuffer;
+
+	MyUniforms m_uniforms;
+	float angle1 = 2.0f;
+	Matrix4f S;
+	Matrix4f T1;
+	Matrix4f R1;
+	Matrix4f R2;
+	Matrix4f T2;
+
 };

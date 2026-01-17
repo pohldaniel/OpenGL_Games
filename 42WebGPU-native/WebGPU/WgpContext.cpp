@@ -3,15 +3,14 @@
 #include "WgpContext.h"
 #include "WgpTexture.h"
 #include "../src/Application.h"
-#include "../src/Globals.h"
 
 #define WGPU_STR(str) { str, sizeof(str) - 1 }
 
 WgpContext wgpContext = {};
-std::unordered_map<VertexAttributeSlot, std::vector<WGPUVertexAttribute>> wgpVertexAttributes;
-std::unordered_map<VertexBufferLayoutSlot, WGPUVertexBufferLayout> wgpVertexBufferLayouts;
+std::unordered_map<VertexLayoutSlot, std::vector<WGPUVertexAttribute>> wgpVertexAttributes;
+std::unordered_map<VertexLayoutSlot, WGPUVertexBufferLayout> wgpVertexBufferLayouts;
 
-void handle_request_adapter(WGPURequestAdapterStatus status, WGPUAdapter adapter, WGPUStringView message, void* userdata1, void* userdata2) {
+void handleRequestAdapter(WGPURequestAdapterStatus status, WGPUAdapter adapter, WGPUStringView message, void* userdata1, void* userdata2) {
 	if (status == WGPURequestAdapterStatus_Success) {
 		struct WgpContext* context = (WgpContext*)userdata1;
 		context->adapter = adapter;
@@ -20,7 +19,7 @@ void handle_request_adapter(WGPURequestAdapterStatus status, WGPUAdapter adapter
 	}
 }
 
-void handle_request_device(WGPURequestDeviceStatus status, WGPUDevice device, WGPUStringView message, void* userdata1, void* userdata2) {
+void handleRequestDevice(WGPURequestDeviceStatus status, WGPUDevice device, WGPUStringView message, void* userdata1, void* userdata2) {
 
 	if (status == WGPURequestDeviceStatus_Success) {
 		struct WgpContext* context = (WgpContext*)userdata1;
@@ -64,20 +63,23 @@ void setDefault(WGPULimits& limits) {
 	limits.maxComputeWorkgroupsPerDimension = WGPU_LIMIT_U32_UNDEFINED;	
 }
 
+void setDefault(WGPUStencilFaceState& stencilFaceState) {
+	stencilFaceState.compare = WGPUCompareFunction::WGPUCompareFunction_Always;
+	stencilFaceState.failOp = WGPUStencilOperation::WGPUStencilOperation_Keep;
+	stencilFaceState.depthFailOp = WGPUStencilOperation::WGPUStencilOperation_Keep;
+	stencilFaceState.passOp = WGPUStencilOperation::WGPUStencilOperation_Keep;
+}
+
 void setDefault(WGPUDepthStencilState& depthStencilState) {
 	depthStencilState.nextInChain = nullptr;
 	depthStencilState.format = WGPUTextureFormat::WGPUTextureFormat_Undefined;
 	depthStencilState.depthWriteEnabled = WGPUOptionalBool::WGPUOptionalBool_True;
 	depthStencilState.depthCompare = WGPUCompareFunction::WGPUCompareFunction_Less;
-
-	//depthStencilState.stencilFront = WGPUStencilFaceState::compare;
-	//depthStencilState.stencilBack = WGPUStencilFaceState::WGPUCompareFunction;
-
+	setDefault(depthStencilState.stencilFront);
+	setDefault(depthStencilState.stencilBack);
 	depthStencilState.stencilReadMask = 0;
 	depthStencilState.stencilWriteMask = 0;
-
 	depthStencilState.depthBias = 0;
-
 	depthStencilState.depthBiasSlopeScale = 0.0f;
 	depthStencilState.depthBiasClamp = 0.0f;
 }
@@ -123,15 +125,14 @@ bool wgpCreateDevice(WgpContext& wgpContext, void* window) {
 	requestAdapterOptions.compatibleSurface = wgpContext.surface;
 
 	WGPURequestAdapterCallbackInfo requestAdapterCallbackInfo = {};
-	requestAdapterCallbackInfo.callback = handle_request_adapter;
+	requestAdapterCallbackInfo.callback = handleRequestAdapter;
 	requestAdapterCallbackInfo.userdata1 = &wgpContext;
 
 	wgpuInstanceRequestAdapter(wgpContext.instance, &requestAdapterOptions, requestAdapterCallbackInfo);
 
 	WGPURequestDeviceCallbackInfo  deviceCallbackInfo = {};
-	deviceCallbackInfo.callback = handle_request_device;
+	deviceCallbackInfo.callback = handleRequestDevice;
 	deviceCallbackInfo.userdata1 = &wgpContext;
-
 	
 	WGPULimits requiredLimits = {};
 	setDefault(requiredLimits);
@@ -145,77 +146,11 @@ bool wgpCreateDevice(WgpContext& wgpContext, void* window) {
 	//deviceDescriptor.requiredFeatures
 
 	wgpuAdapterRequestDevice(wgpContext.adapter, &deviceDescriptor, deviceCallbackInfo);
-	wgpCreateVertexBufferLayout(wgpVertexAttributes,wgpVertexBufferLayouts, VertexBufferLayoutSlot::VBL_PTN);
+	
 
 	wgpContext.queue = wgpuDeviceGetQueue(wgpContext.device);
-	wgpContext.createRenderPipelinePTN("res/shader/shader.wgsl", std::bind(&WgpContext::CreatePipelineLayout, std::placeholders::_1));
-
 	wgpContext.depthTexture = wgpCreateTexture(static_cast<uint32_t>(Application::Width), static_cast<uint32_t>(Application::Height), WGPUTextureUsage_RenderAttachment, WGPUTextureFormat::WGPUTextureFormat_Depth24Plus, WGPUTextureFormat::WGPUTextureFormat_Depth24Plus);
 	wgpContext.depthTextureView = wgpCreateTextureView(WGPUTextureFormat::WGPUTextureFormat_Depth24Plus, WGPUTextureAspect::WGPUTextureAspect_DepthOnly, wgpContext.depthTexture);
-	wgpContext.uniformBuffer = wgpCreateBuffer(sizeof(MyUniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
-
-	Vector3f focalPoint(0.0, 0.0, -1.0);
-	float angle2 = 3.0f * PI / 4.0f;
-	wgpContext.S = Matrix4f::Scale(0.3f, 0.3f, 0.3f);
-	wgpContext.T1 = Matrix4f::IDENTITY;
-	wgpContext.R1 = Matrix4f::Rotate(0.0f, 0.0f, wgpContext.angle1 * _180_ON_PI);
-	wgpContext.uniforms.modelMatrix = wgpContext.R1 * wgpContext.T1 * wgpContext.S;
-
-	wgpContext.R2 = Matrix4f::Rotate(-angle2 * _180_ON_PI, 0.0f, 0.0f);
-	wgpContext.T2 = Matrix4f::Translate(-focalPoint);
-	wgpContext.uniforms.viewMatrix = wgpContext.T2 * wgpContext.R2;
-
-	float ratio = static_cast<float>(Application::Width) / static_cast<float>(Application::Height);
-	float focalLength = 2.0;
-	float _near = 0.01f;
-	float _far = 100.0f;
-	float divider = 1 / (focalLength * (_far - _near));
-	wgpContext.uniforms.projectionMatrix = Matrix4f::Transpose(Matrix4f(
-		1.0, 0.0, 0.0, 0.0,
-		0.0, ratio, 0.0, 0.0,
-		0.0, 0.0, _far * divider, -_far * _near * divider,
-		0.0, 0.0, 1.0 / focalLength, 0.0
-	));
-
-	wgpContext.uniforms.time = 1.0f;
-	wgpContext.uniforms.color = { 0.0f, 1.0f, 0.4f, 1.0f };
-	//wgpContext.uniforms.color = { 1.0f, 1.0f, 1.0f, 1.0f };
-	wgpuQueueWriteBuffer(wgpContext.queue, wgpContext.uniformBuffer, 0, &wgpContext.uniforms, sizeof(MyUniforms));
-
-	std::vector<WGPUBindGroupEntry> bindings(3);
-
-	bindings[0].binding = 0;
-	bindings[0].buffer = wgpContext.uniformBuffer;
-	bindings[0].offset = 0;
-	bindings[0].size = sizeof(MyUniforms);
-
-	wgpContext.texture = wgpCreateTexture(512, 512, WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst, WGPUTextureFormat::WGPUTextureFormat_RGBA8Unorm);
-	WGPUTextureView textureView = wgpCreateTextureView(WGPUTextureFormat::WGPUTextureFormat_RGBA8Unorm, WGPUTextureAspect::WGPUTextureAspect_All, wgpContext.texture);
-	
-	bindings[1].binding = 1;
-	bindings[1].textureView = textureView;
-
-	WGPUSamplerDescriptor samplerDesc = {};
-	samplerDesc.addressModeU = WGPUAddressMode_ClampToEdge;
-	samplerDesc.addressModeV = WGPUAddressMode_ClampToEdge;
-	samplerDesc.addressModeW = WGPUAddressMode_ClampToEdge;
-	samplerDesc.magFilter = WGPUFilterMode_Linear;
-	samplerDesc.minFilter = WGPUFilterMode_Linear;
-	samplerDesc.mipmapFilter = WGPUMipmapFilterMode_Linear;
-	samplerDesc.lodMinClamp = 0.0f;
-	samplerDesc.lodMaxClamp = 1.0f;
-	samplerDesc.compare = WGPUCompareFunction_Undefined;
-	samplerDesc.maxAnisotropy = 1;
-	WGPUSampler sampler = wgpuDeviceCreateSampler(wgpContext.device, &samplerDesc);
-
-	bindings[2].binding = 2;
-	bindings[2].sampler = sampler;
-	
-	WGPUBindGroupDescriptor bindGroupDesc = {};
-	bindGroupDesc.layout = wgpContext.bindGroupLayout;
-	bindGroupDesc.entryCount = (uint32_t)bindings.size();
-	bindGroupDesc.entries = bindings.data();
-	wgpContext.bindGroup = wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc);
 
 	wgpContext.surfaceCapabilities = { 0 };
 	wgpuSurfaceGetCapabilities(wgpContext.surface, wgpContext.adapter, &wgpContext.surfaceCapabilities);
@@ -233,7 +168,7 @@ bool wgpCreateDevice(WgpContext& wgpContext, void* window) {
 	wgpContext.config.alphaMode = wgpContext.surfaceCapabilities.alphaModes[0];
 
 	wgpuSurfaceConfigure(wgpContext.surface, &wgpContext.config);
-
+	wgpCreateVertexBufferLayout();
 	return true;
 }
 
@@ -286,6 +221,22 @@ WGPUTextureView wgpCreateTextureView(WGPUTextureFormat textureFormat, WGPUTextur
 	return wgpuTextureCreateView(texture, &textureViewDescriptor);
 }
 
+WGPUSampler wgpCreateSampler() {
+	const WGPUDevice& device = wgpContext.device;
+	WGPUSamplerDescriptor samplerDescriptor = {};
+	samplerDescriptor.addressModeU = WGPUAddressMode_ClampToEdge;
+	samplerDescriptor.addressModeV = WGPUAddressMode_ClampToEdge;
+	samplerDescriptor.addressModeW = WGPUAddressMode_ClampToEdge;
+	samplerDescriptor.magFilter = WGPUFilterMode_Linear;
+	samplerDescriptor.minFilter = WGPUFilterMode_Linear;
+	samplerDescriptor.mipmapFilter = WGPUMipmapFilterMode_Linear;
+	samplerDescriptor.lodMinClamp = 0.0f;
+	samplerDescriptor.lodMaxClamp = 1.0f;
+	samplerDescriptor.compare = WGPUCompareFunction_Undefined;
+	samplerDescriptor.maxAnisotropy = 1;
+	return wgpuDeviceCreateSampler(device, &samplerDescriptor);
+}
+
 WGPUShaderModule wgpCreateShader(std::string path) {
 	const WGPUDevice& device = wgpContext.device;
 	FILE* file = NULL;
@@ -334,29 +285,29 @@ cleanup:
 	return shader_module;
 }
 
-void wgpCreateVertexBufferLayout(std::unordered_map<VertexAttributeSlot, std::vector<WGPUVertexAttribute>>& vertexAttributes, std::unordered_map<VertexBufferLayoutSlot, WGPUVertexBufferLayout>& vertexBufferLayouts, VertexBufferLayoutSlot slot) {
-	if (slot == VBL_PTN) {
-		std::vector<WGPUVertexAttribute>& vertexAttribute = vertexAttributes[VA_PTN];
-		vertexAttribute.resize(3);
+void wgpCreateVertexBufferLayout(VertexLayoutSlot slot) {
+	if (wgpVertexBufferLayouts.count(VL_PTN) == 0 && slot == VL_PTN) {
+		std::vector<WGPUVertexAttribute>& wgpVertexAttribute = wgpVertexAttributes[VL_PTN];
+		wgpVertexAttribute.resize(3);
 
-		vertexAttribute[0].shaderLocation = 0;
-		vertexAttribute[0].format = WGPUVertexFormat::WGPUVertexFormat_Float32x3;
-		vertexAttribute[0].offset = 0;
+		wgpVertexAttribute[0].shaderLocation = 0;
+		wgpVertexAttribute[0].format = WGPUVertexFormat::WGPUVertexFormat_Float32x3;
+		wgpVertexAttribute[0].offset = 0;
 
-		vertexAttribute[1].shaderLocation = 1;
-		vertexAttribute[1].format = WGPUVertexFormat::WGPUVertexFormat_Float32x2;
-		vertexAttribute[1].offset = 3 * sizeof(float);
+		wgpVertexAttribute[1].shaderLocation = 1;
+		wgpVertexAttribute[1].format = WGPUVertexFormat::WGPUVertexFormat_Float32x2;
+		wgpVertexAttribute[1].offset = 3 * sizeof(float);
 
-		vertexAttribute[2].shaderLocation = 2;
-		vertexAttribute[2].format = WGPUVertexFormat::WGPUVertexFormat_Float32x3;
-		vertexAttribute[2].offset = 5 * sizeof(float);
+		wgpVertexAttribute[2].shaderLocation = 2;
+		wgpVertexAttribute[2].format = WGPUVertexFormat::WGPUVertexFormat_Float32x3;
+		wgpVertexAttribute[2].offset = 5 * sizeof(float);
 
-		WGPUVertexBufferLayout vertexBufferLayout = {};
-		vertexBufferLayout.attributeCount = (uint32_t)vertexAttribute.size();
-		vertexBufferLayout.attributes = vertexAttribute.data();
-		vertexBufferLayout.arrayStride = 8 * sizeof(float);
-		vertexBufferLayout.stepMode = WGPUVertexStepMode::WGPUVertexStepMode_Vertex;
-		vertexBufferLayouts.emplace(VBL_PTN, vertexBufferLayout);
+		WGPUVertexBufferLayout wgpVertexBufferLayout = {};
+		wgpVertexBufferLayout.attributeCount = (uint32_t)wgpVertexAttribute.size();
+		wgpVertexBufferLayout.attributes = wgpVertexAttribute.data();
+		wgpVertexBufferLayout.arrayStride = 8 * sizeof(float);
+		wgpVertexBufferLayout.stepMode = WGPUVertexStepMode::WGPUVertexStepMode_Vertex;
+		wgpVertexBufferLayouts.emplace(VL_PTN, wgpVertexBufferLayout);
 	}
 }
 
@@ -383,12 +334,6 @@ void wgpToggleVerticalSync() {
 }
 
 void wgpDraw() {
-	wgpContext.uniforms.time = static_cast<float>(Globals::clock.getElapsedTimeSec());
-	wgpuQueueWriteBuffer(wgpContext.queue, wgpContext.uniformBuffer, offsetof(MyUniforms, time), &wgpContext.uniforms.time, sizeof(MyUniforms::time));
-	wgpContext.angle1 = wgpContext.uniforms.time;
-	wgpContext.R1 = Matrix4f::Rotate(0.0f, 0.0f, wgpContext.angle1 * _180_ON_PI);
-	wgpContext.uniforms.modelMatrix = wgpContext.R1 * wgpContext.T1 * wgpContext.S;
-	wgpuQueueWriteBuffer(wgpContext.queue, wgpContext.uniformBuffer, offsetof(MyUniforms, modelMatrix), &wgpContext.uniforms.modelMatrix, sizeof(MyUniforms::modelMatrix));
 
 	WGPUSurfaceTexture surface_texture;
 	wgpuSurfaceGetCurrentTexture(wgpContext.surface, &surface_texture);
@@ -461,9 +406,13 @@ void wgpDraw() {
 	wgpuTextureRelease(surface_texture.texture);
 }
 
-WGPURenderPipeline WgpContext::createRenderPipelinePTN(std::string path, std::function<WGPUPipelineLayout(WgpContext& context)> OnPipelineLayout) {
+void WgpContext::createVertexBufferLayout(VertexLayoutSlot slot) {
+	wgpCreateVertexBufferLayout(slot);
+}
+
+WGPURenderPipeline WgpContext::createRenderPipelinePTN(std::string path) {
 	WGPUShaderModule shaderModule = wgpCreateShader(path);
-	WGPUPipelineLayout pipelineLayout = OnPipelineLayout(wgpContext);
+	WGPUPipelineLayout pipelineLayout = OnPipelineLayout();
 
 	WGPUVertexState vertexState = {};
 	vertexState.module = shaderModule;
@@ -471,7 +420,7 @@ WGPURenderPipeline WgpContext::createRenderPipelinePTN(std::string path, std::fu
 	vertexState.constantCount = 0;
 	vertexState.constants = nullptr;
 	vertexState.bufferCount = 1;
-	vertexState.buffers = &wgpVertexBufferLayouts.at(VBL_PTN);
+	vertexState.buffers = &wgpVertexBufferLayouts.at(VL_PTN);
 
 	WGPUBlendState blendState;
 	blendState.color.srcFactor = WGPUBlendFactor::WGPUBlendFactor_SrcAlpha;
@@ -519,37 +468,4 @@ WGPURenderPipeline WgpContext::createRenderPipelinePTN(std::string path, std::fu
 	renderPipelineDescriptor.primitive.cullMode = WGPUCullMode::WGPUCullMode_Back;
 
 	wgpContext.renderPipelines[RP_PTN] = wgpuDeviceCreateRenderPipeline(wgpContext.device, &renderPipelineDescriptor);
-}
-
-WGPUPipelineLayout WgpContext::CreatePipelineLayout(WgpContext& context) {
-	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(3);
-	
-	bindingLayoutEntries.resize(3);
-	WGPUBindGroupLayoutEntry& bindingLayout = bindingLayoutEntries[0];
-	bindingLayout.binding = 0;
-	bindingLayout.visibility = WGPUShaderStage_Vertex | WGPUShaderStage_Fragment;
-	bindingLayout.buffer.type = WGPUBufferBindingType_Uniform;
-	bindingLayout.buffer.minBindingSize = sizeof(MyUniforms);
-
-	WGPUBindGroupLayoutEntry& textureBindingLayout = bindingLayoutEntries[1];
-	textureBindingLayout.binding = 1;
-	textureBindingLayout.visibility = WGPUShaderStage_Fragment;
-	textureBindingLayout.texture.sampleType = WGPUTextureSampleType_Float;
-	textureBindingLayout.texture.viewDimension = WGPUTextureViewDimension_2D;
-
-	WGPUBindGroupLayoutEntry& samplerBindingLayout = bindingLayoutEntries[2];
-	samplerBindingLayout.binding = 2;
-	samplerBindingLayout.visibility = WGPUShaderStage_Fragment;
-	samplerBindingLayout.sampler.type = WGPUSamplerBindingType_Filtering;
-
-	WGPUBindGroupLayoutDescriptor bindGroupLayoutDescriptor = {};
-	bindGroupLayoutDescriptor.entryCount = (uint32_t)bindingLayoutEntries.size();
-	bindGroupLayoutDescriptor.entries = bindingLayoutEntries.data();
-	context.bindGroupLayout = wgpuDeviceCreateBindGroupLayout(context.device, &bindGroupLayoutDescriptor);
-
-	WGPUPipelineLayoutDescriptor pipelineLayoutDescriptor = {};
-	pipelineLayoutDescriptor.bindGroupLayoutCount = 1;
-	pipelineLayoutDescriptor.bindGroupLayouts = &context.bindGroupLayout;
-
-	return wgpuDeviceCreatePipelineLayout(context.device, &pipelineLayoutDescriptor);
 }
