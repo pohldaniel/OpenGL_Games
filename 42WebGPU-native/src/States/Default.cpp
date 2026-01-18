@@ -16,10 +16,10 @@ Default::Default(StateMachine& machine) : State(machine, States::DEFAULT) {
 	EventDispatcher::AddMouseListener(this);
 
 	wgpContext.OnBindGroupLayout = std::bind(&Default::OnBindGroupLayout, this);
-	wgpContext.OnPipelineLayout = std::bind(&Default::OnPipelineLayout, this, std::placeholders::_1);
-
+	wgpContext.OnPipelineLayout = std::bind(&Default::OnPipelineLayout, this, std::placeholders::_1);	
 	wgpContext.createVertexBufferLayout(VertexLayoutSlot::VL_PTN);
 	wgpContext.createRenderPipelinePTN("res/shader/shader.wgsl");
+	m_bindGroup = createBindGroup();
 
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
@@ -269,14 +269,13 @@ WGPUBindGroupLayout Default::OnBindGroupLayout() {
 }
 
 WGPUPipelineLayout Default::OnPipelineLayout(const WGPUBindGroupLayout& bindGroupLayout) {
-	OnBindGroup(bindGroupLayout);
 	WGPUPipelineLayoutDescriptor pipelineLayoutDescriptor = {};
 	pipelineLayoutDescriptor.bindGroupLayoutCount = 1;
 	pipelineLayoutDescriptor.bindGroupLayouts = &bindGroupLayout;
 	return wgpuDeviceCreatePipelineLayout(wgpContext.device, &pipelineLayoutDescriptor);
 }
 
-void Default::OnBindGroup(const WGPUBindGroupLayout& bindGroupLayout) {
+WGPUBindGroup Default::createBindGroup() {
 	m_uniformBuffer = wgpCreateBuffer(sizeof(MyUniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
 	m_texture = wgpCreateTexture(512, 512, WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst, WGPUTextureFormat::WGPUTextureFormat_RGBA8Unorm);
 	WGPUTextureView textureView = wgpCreateTextureView(WGPUTextureFormat::WGPUTextureFormat_RGBA8Unorm, WGPUTextureAspect::WGPUTextureAspect_All, m_texture);
@@ -295,11 +294,9 @@ void Default::OnBindGroup(const WGPUBindGroupLayout& bindGroupLayout) {
 	bindings[2].binding = 2;
 	bindings[2].sampler = sampler;
 
-	//wgpContext.renderPipelines.at(RP_PTN);
-
 	WGPUBindGroupDescriptor bindGroupDesc = {};
-	bindGroupDesc.layout = bindGroupLayout;
+	bindGroupDesc.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at(RP_PTN), 0);
 	bindGroupDesc.entryCount = (uint32_t)bindings.size();
 	bindGroupDesc.entries = bindings.data();
-	m_bindGroup =  wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc);
+	return wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc);
 }

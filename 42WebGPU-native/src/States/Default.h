@@ -47,7 +47,7 @@ private:
 
 	WGPUBindGroupLayout OnBindGroupLayout();
 	WGPUPipelineLayout OnPipelineLayout(const WGPUBindGroupLayout& bindGroupLayout);	
-	void OnBindGroup(const WGPUBindGroupLayout& bindGroupLayout);
+	WGPUBindGroup createBindGroup();
 
 	void renderUi(const WGPURenderPassEncoder& renderPassEncoder);
 	void applyTransformation(TrackBall& arc);
