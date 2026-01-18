@@ -58,6 +58,19 @@ Default::Default(StateMachine& machine) : State(machine, States::DEFAULT) {
 Default::~Default() {
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
+
+	wgpuBindGroupRelease(m_bindGroup);
+
+	wgpuBufferDestroy(m_uniformBuffer);
+	wgpuBufferRelease(m_uniformBuffer);
+	m_uniformBuffer = nullptr;
+
+	wgpuTextureDestroy(m_texture);
+	wgpuTextureRelease(m_texture);
+	m_texture = nullptr;
+
+	wgpuTextureViewRelease(m_textureView);
+	m_textureView = nullptr;
 }
 
 void Default::fixedUpdate() {
@@ -278,8 +291,8 @@ WGPUPipelineLayout Default::OnPipelineLayout(const WGPUBindGroupLayout& bindGrou
 WGPUBindGroup Default::createBindGroup() {
 	m_uniformBuffer = wgpCreateBuffer(sizeof(MyUniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
 	m_texture = wgpCreateTexture(512, 512, WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst, WGPUTextureFormat::WGPUTextureFormat_RGBA8Unorm);
-	WGPUTextureView textureView = wgpCreateTextureView(WGPUTextureFormat::WGPUTextureFormat_RGBA8Unorm, WGPUTextureAspect::WGPUTextureAspect_All, m_texture);
-	WGPUSampler sampler = wgpCreateSampler();
+	m_textureView = wgpCreateTextureView(WGPUTextureFormat::WGPUTextureFormat_RGBA8Unorm, WGPUTextureAspect::WGPUTextureAspect_All, m_texture);
+	wgpContext.addSampler(wgpCreateSampler());
 
 	std::vector<WGPUBindGroupEntry> bindings(3);
 
@@ -289,10 +302,10 @@ WGPUBindGroup Default::createBindGroup() {
 	bindings[0].size = sizeof(MyUniforms);
 
 	bindings[1].binding = 1;
-	bindings[1].textureView = textureView;
+	bindings[1].textureView = m_textureView;
 
 	bindings[2].binding = 2;
-	bindings[2].sampler = sampler;
+	bindings[2].sampler = wgpContext.getSamplers().back();
 
 	WGPUBindGroupDescriptor bindGroupDesc = {};
 	bindGroupDesc.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at(RP_PTN), 0);

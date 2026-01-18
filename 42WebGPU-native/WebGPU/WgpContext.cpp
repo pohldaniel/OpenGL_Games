@@ -241,7 +241,7 @@ WGPUShaderModule wgpCreateShader(std::string path) {
 	const WGPUDevice& device = wgpContext.device;
 	FILE* file = NULL;
 	char* buf = NULL;
-	WGPUShaderModule shader_module = NULL;
+	WGPUShaderModule shaderModule = NULL;
 
 	file = fopen(path.c_str(), "rb");
 	if (!file) {
@@ -275,14 +275,14 @@ WGPUShaderModule wgpCreateShader(std::string path) {
 	shaderModuleDescriptor.label = WGPU_STR(path.c_str());
 	shaderModuleDescriptor.nextInChain = reinterpret_cast<WGPUChainedStruct*>(&shaderSourceWGSL);
 
-	shader_module = wgpuDeviceCreateShaderModule(device, &shaderModuleDescriptor);
+	shaderModule = wgpuDeviceCreateShaderModule(device, &shaderModuleDescriptor);
 
 cleanup:
 	if (file)
 		fclose(file);
 	if (buf)
 		free(buf);
-	return shader_module;
+	return shaderModule;
 }
 
 void wgpCreateVertexBufferLayout(VertexLayoutSlot slot) {
@@ -311,8 +311,60 @@ void wgpCreateVertexBufferLayout(VertexLayoutSlot slot) {
 	}
 }
 
-void wgpShutDown() {
+void wgpPipelinesRelease() {
+	for (auto& it : wgpContext.renderPipelines) {
+		WGPUBindGroupLayout bindGroupLayout = wgpuRenderPipelineGetBindGroupLayout(it.second, 0);
+		wgpuBindGroupLayoutRelease(bindGroupLayout);
+		wgpuPipelineLayoutRelease(wgpContext.pipelineLayouts[0]);
+		wgpuShaderModuleRelease(wgpContext.shaderModules[0]);
+		wgpuRenderPipelineRelease(it.second);
+	}
 
+	wgpContext.pipelineLayouts.clear();
+	wgpContext.pipelineLayouts.shrink_to_fit();
+
+	wgpContext.shaderModules.clear();
+	wgpContext.shaderModules.shrink_to_fit();
+
+	wgpContext.renderPipelines.clear();
+	wgpContext.renderPipelines.rehash(0u);
+}
+
+void wgpSamplersRelease() {
+	for (WGPUSampler& it : wgpContext.samplers) {
+		wgpuSamplerRelease(it);
+	}
+
+	wgpContext.samplers.clear();
+	wgpContext.samplers.shrink_to_fit();
+}
+
+void wgpShutDown() {
+	wgpPipelinesRelease();
+	wgpSamplersRelease();
+
+	wgpuTextureViewRelease(wgpContext.depthTextureView);
+	wgpContext.depthTextureView = nullptr;
+
+	wgpuTextureDestroy(wgpContext.depthTexture);
+	wgpuTextureRelease(wgpContext.depthTexture);
+	wgpContext.depthTexture = nullptr;
+
+	wgpuQueueRelease(wgpContext.queue);
+	wgpContext.queue = nullptr;
+
+	wgpuDeviceDestroy(wgpContext.device);
+	wgpuDeviceRelease(wgpContext.device);
+	wgpContext.device = nullptr;
+
+	wgpuAdapterRelease(wgpContext.adapter);
+	wgpContext.adapter = nullptr;
+
+	wgpuSurfaceRelease(wgpContext.surface);
+	wgpContext.surface = nullptr;
+
+	wgpuInstanceRelease(wgpContext.instance);
+	wgpContext.instance = nullptr;	
 }
 
 void wgpResize(uint32_t width, uint32_t height) {
@@ -414,14 +466,21 @@ void WgpContext::createVertexBufferLayout(VertexLayoutSlot slot) {
 	wgpCreateVertexBufferLayout(slot);
 }
 
-WGPURenderPipeline WgpContext::createRenderPipelinePTN(std::string path) {
-	WGPUShaderModule shaderModule = wgpCreateShader(path);
-	WGPUBindGroupLayout bindGroupLayout = OnBindGroupLayout();
+void WgpContext::addSampler(const WGPUSampler& sampler) {
+	samplers.push_back(sampler);
+}
 
-	WGPUPipelineLayout pipelineLayout = OnPipelineLayout(bindGroupLayout);
+const std::vector<WGPUSampler>& WgpContext::getSamplers() {
+	return samplers;
+}
+
+WGPURenderPipeline WgpContext::createRenderPipelinePTN(std::string path) {
+	shaderModules.push_back(wgpCreateShader(path));
+	WGPUBindGroupLayout bindGroupLayout = OnBindGroupLayout();
+	pipelineLayouts.push_back(OnPipelineLayout(bindGroupLayout));
 
 	WGPUVertexState vertexState = {};
-	vertexState.module = shaderModule;
+	vertexState.module = shaderModules.back();
 	vertexState.entryPoint = { "vs_main", WGPU_STRLEN };
 	vertexState.constantCount = 0;
 	vertexState.constants = nullptr;
@@ -442,7 +501,7 @@ WGPURenderPipeline WgpContext::createRenderPipelinePTN(std::string path) {
 	colorTarget.writeMask = WGPUColorWriteMask_All;
 
 	WGPUFragmentState fragmentState = {};
-	fragmentState.module = shaderModule;
+	fragmentState.module = shaderModules.back();
 	fragmentState.entryPoint = { "fs_main", WGPU_STRLEN };
 	fragmentState.constantCount = 0;
 	fragmentState.constants = nullptr;
@@ -459,7 +518,7 @@ WGPURenderPipeline WgpContext::createRenderPipelinePTN(std::string path) {
 	depthStencilState.stencilWriteMask = 0;
 
 	WGPURenderPipelineDescriptor renderPipelineDescriptor = {};
-	renderPipelineDescriptor.layout = pipelineLayout;
+	renderPipelineDescriptor.layout = pipelineLayouts.back();
 	renderPipelineDescriptor.multisample.count = 1;
 	renderPipelineDescriptor.multisample.mask = ~0u;
 	renderPipelineDescriptor.multisample.alphaToCoverageEnabled = false;

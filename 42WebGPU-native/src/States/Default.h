@@ -63,9 +63,9 @@ private:
 	std::list<WgpBuffer> m_indexBuffer;	
 
 	WGPUTexture m_texture;
+	WGPUTextureView m_textureView;
 	WGPUBuffer m_uniformBuffer;
 	WGPUBindGroup m_bindGroup;
-
 
 	TrackBall m_trackball;
 	MyUniforms m_uniforms;
