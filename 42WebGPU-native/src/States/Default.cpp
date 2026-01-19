@@ -15,10 +15,10 @@ Default::Default(StateMachine& machine) : State(machine, States::DEFAULT) {
 	EventDispatcher::AddKeyboardListener(this);
 	EventDispatcher::AddMouseListener(this);
 
+	wgpContext.addSahderModule("PTN", "res/shader/shader.wgsl");
 	wgpContext.OnBindGroupLayout = std::bind(&Default::OnBindGroupLayout, this);
 	wgpContext.OnPipelineLayout = std::bind(&Default::OnPipelineLayout, this, std::placeholders::_1);	
-	wgpContext.createVertexBufferLayout(VertexLayoutSlot::VL_PTN);
-	wgpContext.createRenderPipelinePTN("res/shader/shader.wgsl");
+	wgpContext.createRenderPipelinePTN("PTN");
 	m_bindGroup = createBindGroup();
 
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
@@ -305,7 +305,7 @@ WGPUBindGroup Default::createBindGroup() {
 	bindings[1].textureView = m_textureView;
 
 	bindings[2].binding = 2;
-	bindings[2].sampler = wgpContext.getSamplers().back();
+	bindings[2].sampler = wgpContext.getSampler(SS_LINEAR);
 
 	WGPUBindGroupDescriptor bindGroupDesc = {};
 	bindGroupDesc.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at(RP_PTN), 0);

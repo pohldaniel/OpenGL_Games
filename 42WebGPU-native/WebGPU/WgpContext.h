@@ -34,6 +34,8 @@ extern "C" {
 	void wgpShutDown();
 	void wgpPipelinesRelease();
 	void wgpSamplersRelease();
+	void wgpShaderModulesRelease();
+	void wgpPipelineLayoutsRelease();
 
 	void wgpDraw();
 	void wgpResize(uint32_t width, uint32_t height);
@@ -45,15 +47,23 @@ enum RenderPipelineSlot {
 	RP_WIREFRAME
 };
 
+enum SamplerSlot {
+	SS_LINEAR
+};
+
 struct WgpContext {
 
 	friend void wgpPipelinesRelease();
 	friend void wgpSamplersRelease();
+	friend void wgpShaderModulesRelease();
+	friend void wgpPipelineLayoutsRelease();
 
 	WGPURenderPipeline createRenderPipelinePTN(std::string path);
 	void createVertexBufferLayout(VertexLayoutSlot slot = VL_PTN);
-	void addSampler(const WGPUSampler& sampler);
-	const std::vector<WGPUSampler>& getSamplers();
+	void addSampler(const WGPUSampler& sampler, SamplerSlot samplerSlot = SS_LINEAR);
+	const WGPUSampler& getSampler(SamplerSlot samplerSlot);
+	void addSahderModule(const std::string& shaderModuleName, const std::string& shaderModulePath);
+	const WGPUShaderModule& getShaderModule(std::string shaderModuleName);
 
 	WGPUInstance instance = nullptr;
 	WGPUSurface surface = nullptr;
@@ -77,7 +87,8 @@ struct WgpContext {
 
 
 private:
-	std::vector<WGPUPipelineLayout> pipelineLayouts;
-	std::vector<WGPUShaderModule> shaderModules;
-	std::vector<WGPUSampler> samplers;
+	std::unordered_map<RenderPipelineSlot, WGPUPipelineLayout> pipelineLayouts;
+	std::unordered_map<SamplerSlot, WGPUSampler> samplers;
+	std::unordered_map<std::string, WGPUShaderModule> shaderModules;
+	
 };

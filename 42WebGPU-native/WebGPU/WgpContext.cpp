@@ -324,37 +324,49 @@ void wgpCreateVertexBufferLayout(VertexLayoutSlot slot) {
 	}
 }
 
+void wgpPipelineLayoutsRelease() {
+	for (auto& it : wgpContext.pipelineLayouts) {
+		wgpuPipelineLayoutRelease(it.second);
+	}
+
+	wgpContext.pipelineLayouts.clear();
+	wgpContext.pipelineLayouts.rehash(0u);
+}
+
 void wgpPipelinesRelease() {
 	for (auto& it : wgpContext.renderPipelines) {
 		WGPUBindGroupLayout bindGroupLayout = wgpuRenderPipelineGetBindGroupLayout(it.second, 0);
 		wgpuBindGroupLayoutRelease(bindGroupLayout);
-		wgpuPipelineLayoutRelease(wgpContext.pipelineLayouts[0]);
-		wgpuShaderModuleRelease(wgpContext.shaderModules[0]);
 		wgpuRenderPipelineRelease(it.second);
 	}
-
-	wgpContext.pipelineLayouts.clear();
-	wgpContext.pipelineLayouts.shrink_to_fit();
-
-	wgpContext.shaderModules.clear();
-	wgpContext.shaderModules.shrink_to_fit();
 
 	wgpContext.renderPipelines.clear();
 	wgpContext.renderPipelines.rehash(0u);
 }
 
 void wgpSamplersRelease() {
-	for (WGPUSampler& it : wgpContext.samplers) {
-		wgpuSamplerRelease(it);
+	for (auto& it : wgpContext.samplers) {
+		wgpuSamplerRelease(it.second);
 	}
 
 	wgpContext.samplers.clear();
-	wgpContext.samplers.shrink_to_fit();
+	wgpContext.samplers.rehash(0u);
+}
+
+void wgpShaderModulesRelease() {
+	for (auto& it : wgpContext.shaderModules) {
+		wgpuShaderModuleRelease(it.second);
+	}
+
+	wgpContext.shaderModules.clear();
+	wgpContext.shaderModules.rehash(0u);
 }
 
 void wgpShutDown() {
+	wgpPipelineLayoutsRelease();
 	wgpPipelinesRelease();
 	wgpSamplersRelease();
+	wgpShaderModulesRelease();
 
 	wgpuTextureViewRelease(wgpContext.depthTextureView);
 	wgpContext.depthTextureView = nullptr;
@@ -479,21 +491,28 @@ void WgpContext::createVertexBufferLayout(VertexLayoutSlot slot) {
 	wgpCreateVertexBufferLayout(slot);
 }
 
-void WgpContext::addSampler(const WGPUSampler& sampler) {
-	samplers.push_back(sampler);
+void WgpContext::addSampler(const WGPUSampler& sampler, SamplerSlot samplerSlot) {
+	samplers[SS_LINEAR] = sampler;
 }
 
-const std::vector<WGPUSampler>& WgpContext::getSamplers() {
-	return samplers;
+const WGPUSampler& WgpContext::getSampler(SamplerSlot samplerSlot) {
+	return samplers.at(samplerSlot);
 }
 
-WGPURenderPipeline WgpContext::createRenderPipelinePTN(std::string path) {
-	shaderModules.push_back(wgpCreateShader(path));
+void WgpContext::addSahderModule(const std::string& shaderModuleName, const std::string& shaderModulePath) {
+	shaderModules[shaderModuleName] = wgpCreateShader(shaderModulePath);
+}
+
+const WGPUShaderModule& WgpContext::getShaderModule(std::string shaderModuleName) {
+	return shaderModules.at(shaderModuleName);
+}
+
+WGPURenderPipeline WgpContext::createRenderPipelinePTN(std::string shaderModuleName) {
 	WGPUBindGroupLayout bindGroupLayout = OnBindGroupLayout();
-	pipelineLayouts.push_back(OnPipelineLayout(bindGroupLayout));
+	pipelineLayouts[RP_PTN] = OnPipelineLayout(bindGroupLayout);
 
 	WGPUVertexState vertexState = {};
-	vertexState.module = shaderModules.back();
+	vertexState.module = shaderModules.at(shaderModuleName);
 	vertexState.entryPoint = { "vs_main", WGPU_STRLEN };
 	vertexState.constantCount = 0;
 	vertexState.constants = nullptr;
@@ -514,7 +533,7 @@ WGPURenderPipeline WgpContext::createRenderPipelinePTN(std::string path) {
 	colorTarget.writeMask = WGPUColorWriteMask_All;
 
 	WGPUFragmentState fragmentState = {};
-	fragmentState.module = shaderModules.back();
+	fragmentState.module = shaderModules.at(shaderModuleName);
 	fragmentState.entryPoint = { "fs_main", WGPU_STRLEN };
 	fragmentState.constantCount = 0;
 	fragmentState.constants = nullptr;
@@ -531,7 +550,7 @@ WGPURenderPipeline WgpContext::createRenderPipelinePTN(std::string path) {
 	depthStencilState.stencilWriteMask = 0;
 
 	WGPURenderPipelineDescriptor renderPipelineDescriptor = {};
-	renderPipelineDescriptor.layout = pipelineLayouts.back();
+	renderPipelineDescriptor.layout = pipelineLayouts.at(RP_PTN);
 	renderPipelineDescriptor.multisample.count = 1;
 	renderPipelineDescriptor.multisample.mask = ~0u;
 	renderPipelineDescriptor.multisample.alphaToCoverageEnabled = false;
