@@ -509,7 +509,11 @@ const WGPUShaderModule& WgpContext::getShaderModule(std::string shaderModuleName
 
 WGPURenderPipeline WgpContext::createRenderPipelinePTN(std::string shaderModuleName) {
 	WGPUBindGroupLayout bindGroupLayout = OnBindGroupLayout();
-	pipelineLayouts[RP_PTN] = OnPipelineLayout(bindGroupLayout);
+
+	WGPUPipelineLayoutDescriptor pipelineLayoutDescriptor = {};
+	pipelineLayoutDescriptor.bindGroupLayoutCount = 1;
+	pipelineLayoutDescriptor.bindGroupLayouts = &bindGroupLayout;
+	pipelineLayouts[RP_PTN] = wgpuDeviceCreatePipelineLayout(wgpContext.device, &pipelineLayoutDescriptor);
 
 	WGPUVertexState vertexState = {};
 	vertexState.module = shaderModules.at(shaderModuleName);
@@ -565,4 +569,68 @@ WGPURenderPipeline WgpContext::createRenderPipelinePTN(std::string shaderModuleN
 	renderPipelineDescriptor.primitive.cullMode = WGPUCullMode::WGPUCullMode_Back;
 
 	wgpContext.renderPipelines[RP_PTN] = wgpuDeviceCreateRenderPipeline(wgpContext.device, &renderPipelineDescriptor);
+}
+
+WGPURenderPipeline WgpContext::createRenderPipelineWireframe(std::string shaderModuleName) {
+	WGPUBindGroupLayout bindGroupLayout = OnBindGroupLayout();
+
+	WGPUPipelineLayoutDescriptor pipelineLayoutDescriptor = {};
+	pipelineLayoutDescriptor.bindGroupLayoutCount = 1;
+	pipelineLayoutDescriptor.bindGroupLayouts = &bindGroupLayout;
+	pipelineLayouts[RP_WIREFRAME] = wgpuDeviceCreatePipelineLayout(wgpContext.device, &pipelineLayoutDescriptor);
+
+	WGPUVertexState vertexState = {};
+	vertexState.module = shaderModules.at(shaderModuleName);
+	vertexState.entryPoint = { "vs_main", WGPU_STRLEN };
+	vertexState.constantCount = 0;
+	vertexState.constants = nullptr;
+	vertexState.bufferCount = 1;
+	vertexState.buffers = &wgpVertexBufferLayouts.at(VL_PTN);
+
+	WGPUBlendState blendState;
+	blendState.color.srcFactor = WGPUBlendFactor::WGPUBlendFactor_SrcAlpha;
+	blendState.color.dstFactor = WGPUBlendFactor::WGPUBlendFactor_OneMinusSrcAlpha;
+	blendState.color.operation = WGPUBlendOperation::WGPUBlendOperation_Add;
+	blendState.alpha.srcFactor = WGPUBlendFactor::WGPUBlendFactor_Zero;
+	blendState.alpha.dstFactor = WGPUBlendFactor::WGPUBlendFactor_One;
+	blendState.alpha.operation = WGPUBlendOperation::WGPUBlendOperation_Add;
+
+	WGPUColorTargetState colorTarget;
+	colorTarget.format = WGPUTextureFormat::WGPUTextureFormat_BGRA8UnormSrgb;
+	colorTarget.blend = &blendState;
+	colorTarget.writeMask = WGPUColorWriteMask_All;
+
+	WGPUFragmentState fragmentState = {};
+	fragmentState.module = shaderModules.at(shaderModuleName);
+	fragmentState.entryPoint = { "fs_main", WGPU_STRLEN };
+	fragmentState.constantCount = 0;
+	fragmentState.constants = nullptr;
+	fragmentState.targetCount = 1;
+	fragmentState.targets = &colorTarget;
+
+	WGPUDepthStencilState depthStencilState = {};
+	setDefault(depthStencilState);
+	depthStencilState.depthCompare = WGPUCompareFunction::WGPUCompareFunction_Less;
+	depthStencilState.depthWriteEnabled = WGPUOptionalBool_True;
+
+	depthStencilState.format = WGPUTextureFormat::WGPUTextureFormat_Depth24Plus;
+	depthStencilState.stencilReadMask = 0;
+	depthStencilState.stencilWriteMask = 0;
+
+	WGPURenderPipelineDescriptor renderPipelineDescriptor = {};
+	renderPipelineDescriptor.layout = pipelineLayouts.at(RP_WIREFRAME);
+	renderPipelineDescriptor.multisample.count = 1;
+	renderPipelineDescriptor.multisample.mask = ~0u;
+	renderPipelineDescriptor.multisample.alphaToCoverageEnabled = false;
+
+	renderPipelineDescriptor.vertex = vertexState;
+	renderPipelineDescriptor.fragment = &fragmentState;
+	renderPipelineDescriptor.depthStencil = &depthStencilState;
+
+	renderPipelineDescriptor.primitive.topology = WGPUPrimitiveTopology::WGPUPrimitiveTopology_TriangleList;
+	renderPipelineDescriptor.primitive.stripIndexFormat = WGPUIndexFormat::WGPUIndexFormat_Undefined;
+	renderPipelineDescriptor.primitive.frontFace = WGPUFrontFace::WGPUFrontFace_CCW;
+	renderPipelineDescriptor.primitive.cullMode = WGPUCullMode::WGPUCullMode_Back;
+
+	wgpContext.renderPipelines[RP_WIREFRAME] = wgpuDeviceCreateRenderPipeline(wgpContext.device, &renderPipelineDescriptor);
 }

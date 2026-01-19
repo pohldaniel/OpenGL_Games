@@ -16,10 +16,14 @@ Default::Default(StateMachine& machine) : State(machine, States::DEFAULT) {
 	EventDispatcher::AddMouseListener(this);
 
 	wgpContext.addSahderModule("PTN", "res/shader/shader.wgsl");
-	wgpContext.OnBindGroupLayout = std::bind(&Default::OnBindGroupLayout, this);
-	wgpContext.OnPipelineLayout = std::bind(&Default::OnPipelineLayout, this, std::placeholders::_1);	
+	wgpContext.OnBindGroupLayout = std::bind(&Default::OnBindGroupLayoutPTN, this);
 	wgpContext.createRenderPipelinePTN("PTN");
-	m_bindGroup = createBindGroup();
+	m_bindGroupPTN = createBindGroupPTN();
+
+	/*wgpContext.addSahderModule("wireframe", "res/shader/wireframe.wgsl");
+	wgpContext.OnBindGroupLayout = std::bind(&Default::OnBindGroupLayoutWireframe, this);
+	wgpContext.createRenderPipelineWireframe("Wireframe");
+	m_bindGroupWireframe = createBindGroupWireframe();*/
 
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
@@ -59,7 +63,7 @@ Default::~Default() {
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
 
-	wgpuBindGroupRelease(m_bindGroup);
+	wgpuBindGroupRelease(m_bindGroupPTN);
 
 	wgpuBufferDestroy(m_uniformBuffer);
 	wgpuBufferRelease(m_uniformBuffer);
@@ -150,7 +154,7 @@ void Default::OnDraw(const WGPURenderPassEncoder& renderPass) {
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer, offsetof(MyUniforms, modelMatrix), &m_uniforms.modelMatrix, sizeof(MyUniforms::modelMatrix));
 
 	wgpuRenderPassEncoderSetPipeline(renderPass, wgpContext.renderPipelines.at(m_mammoth.back().m_renderPipelineSlot));
-	wgpuRenderPassEncoderSetBindGroup(renderPass, 0, m_bindGroup, 0, nullptr);
+	wgpuRenderPassEncoderSetBindGroup(renderPass, 0, m_bindGroupPTN, 0, nullptr);
 	wgpuRenderPassEncoderSetVertexBuffer(renderPass, 0, m_vertexBuffer.back().m_buffer, 0, wgpuBufferGetSize(m_vertexBuffer.back().m_buffer));
 	wgpuRenderPassEncoderSetIndexBuffer(renderPass, m_indexBuffer.back().m_buffer, WGPUIndexFormat_Uint32, 0, wgpuBufferGetSize(m_indexBuffer.back().m_buffer));
 	wgpuRenderPassEncoderDrawIndexed(renderPass, m_mammoth.back().m_drawCount, 1, 0, 0, 0);
@@ -254,7 +258,7 @@ void Default::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
 	ImGui_ImplWGPU_RenderDrawData(ImGui::GetDrawData(), renderPassEncoder);
 }
 
-WGPUBindGroupLayout Default::OnBindGroupLayout() {
+WGPUBindGroupLayout Default::OnBindGroupLayoutPTN() {
 	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(3);
 
 	bindingLayoutEntries.resize(3);
@@ -281,14 +285,7 @@ WGPUBindGroupLayout Default::OnBindGroupLayout() {
 	return wgpuDeviceCreateBindGroupLayout(wgpContext.device, &bindGroupLayoutDescriptor);
 }
 
-WGPUPipelineLayout Default::OnPipelineLayout(const WGPUBindGroupLayout& bindGroupLayout) {
-	WGPUPipelineLayoutDescriptor pipelineLayoutDescriptor = {};
-	pipelineLayoutDescriptor.bindGroupLayoutCount = 1;
-	pipelineLayoutDescriptor.bindGroupLayouts = &bindGroupLayout;
-	return wgpuDeviceCreatePipelineLayout(wgpContext.device, &pipelineLayoutDescriptor);
-}
-
-WGPUBindGroup Default::createBindGroup() {
+WGPUBindGroup Default::createBindGroupPTN() {
 	m_uniformBuffer = wgpCreateBuffer(sizeof(MyUniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
 	m_texture = wgpCreateTexture(512, 512, WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst, WGPUTextureFormat::WGPUTextureFormat_RGBA8Unorm);
 	m_textureView = wgpCreateTextureView(WGPUTextureFormat::WGPUTextureFormat_RGBA8Unorm, WGPUTextureAspect::WGPUTextureAspect_All, m_texture);
@@ -312,4 +309,43 @@ WGPUBindGroup Default::createBindGroup() {
 	bindGroupDesc.entryCount = (uint32_t)bindings.size();
 	bindGroupDesc.entries = bindings.data();
 	return wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc);
+}
+
+WGPUBindGroupLayout Default::OnBindGroupLayoutWireframe() {
+	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(3);
+
+	bindingLayoutEntries.resize(2);
+	WGPUBindGroupLayoutEntry& bindingLayout = bindingLayoutEntries[0];
+	bindingLayout.binding = 0;
+	bindingLayout.visibility = WGPUShaderStage_Vertex | WGPUShaderStage_Fragment;
+	bindingLayout.buffer.type = WGPUBufferBindingType_Uniform;
+	bindingLayout.buffer.minBindingSize = sizeof(MyUniforms);
+
+	bindingLayoutEntries.resize(2);
+	WGPUBindGroupLayoutEntry& indiceBindingLayout = bindingLayoutEntries[0];
+	indiceBindingLayout.binding = 1;
+	bindingLayout.visibility = WGPUShaderStage_Vertex;
+	bindingLayout.buffer.type = WGPUBufferBindingType_ReadOnlyStorage;
+	bindingLayout.buffer.hasDynamicOffset = false;
+	bindingLayout.buffer.minBindingSize = sizeof(unsigned int) * m_model.getMeshes()[0]->getIndexBuffer().size();
+
+	WGPUBindGroupLayoutDescriptor bindGroupLayoutDescriptor = {};
+	bindGroupLayoutDescriptor.entryCount = (uint32_t)bindingLayoutEntries.size();
+	bindGroupLayoutDescriptor.entries = bindingLayoutEntries.data();
+	return wgpuDeviceCreateBindGroupLayout(wgpContext.device, &bindGroupLayoutDescriptor);
+}
+
+WGPUBindGroup Default::createBindGroupWireframe() {
+	m_uniformBuffer = wgpCreateBuffer(sizeof(MyUniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
+	std::vector<WGPUBindGroupEntry> bindings(2);
+
+	bindings[0].binding = 0;
+	bindings[0].buffer = m_uniformBuffer;
+	bindings[0].offset = 0;
+	bindings[0].size = sizeof(MyUniforms);
+
+	bindings[1].binding = 1;
+	bindings[1].buffer = m_indexBuffer.back().m_buffer;
+	bindings[1].offset = 0;
+	bindings[1].size = sizeof(unsigned int) * m_model.getMeshes()[0]->getIndexBuffer().size();
 }

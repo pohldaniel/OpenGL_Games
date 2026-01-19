@@ -45,9 +45,12 @@ public:
 
 private:
 
-	WGPUBindGroupLayout OnBindGroupLayout();
-	WGPUPipelineLayout OnPipelineLayout(const WGPUBindGroupLayout& bindGroupLayout);	
-	WGPUBindGroup createBindGroup();
+	WGPUBindGroupLayout OnBindGroupLayoutPTN();
+	WGPUBindGroup createBindGroupPTN();
+
+
+	WGPUBindGroupLayout OnBindGroupLayoutWireframe();
+	WGPUBindGroup createBindGroupWireframe();
 
 	void renderUi(const WGPURenderPassEncoder& renderPassEncoder);
 	void applyTransformation(TrackBall& arc);
@@ -65,7 +68,7 @@ private:
 	WGPUTexture m_texture;
 	WGPUTextureView m_textureView;
 	WGPUBuffer m_uniformBuffer;
-	WGPUBindGroup m_bindGroup;
+	WGPUBindGroup m_bindGroupPTN, m_bindGroupWireframe;
 
 	TrackBall m_trackball;
 	MyUniforms m_uniforms;

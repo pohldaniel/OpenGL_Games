@@ -58,7 +58,9 @@ struct WgpContext {
 	friend void wgpShaderModulesRelease();
 	friend void wgpPipelineLayoutsRelease();
 
-	WGPURenderPipeline createRenderPipelinePTN(std::string path);
+	WGPURenderPipeline createRenderPipelinePTN(std::string shaderModuleName);
+	WGPURenderPipeline createRenderPipelineWireframe(std::string shaderModuleName);
+
 	void createVertexBufferLayout(VertexLayoutSlot slot = VL_PTN);
 	void addSampler(const WGPUSampler& sampler, SamplerSlot samplerSlot = SS_LINEAR);
 	const WGPUSampler& getSampler(SamplerSlot samplerSlot);
@@ -81,14 +83,10 @@ struct WgpContext {
 		
 	std::function<void(const WGPURenderPassEncoder& commandBuffer)> OnDraw;
 	std::function <WGPUBindGroupLayout()> OnBindGroupLayout;
-	std::function <void(const WGPUBindGroupLayout&)> OnBindGroup;
-	std::function<WGPUPipelineLayout(const WGPUBindGroupLayout&)> OnPipelineLayout;	
-
-
+	std::function <void(const WGPUBindGroupLayout&)> OnBindGroup;	
 
 private:
 	std::unordered_map<RenderPipelineSlot, WGPUPipelineLayout> pipelineLayouts;
 	std::unordered_map<SamplerSlot, WGPUSampler> samplers;
 	std::unordered_map<std::string, WGPUShaderModule> shaderModules;
-	
 };
