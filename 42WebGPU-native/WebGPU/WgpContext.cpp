@@ -108,7 +108,17 @@ void wgpInit(void* window) {
 }
 
 bool wgpCreateDevice(WgpContext& wgpContext, void* window) {
-	wgpContext.instance = wgpuCreateInstance(NULL);
+	WGPUInstanceExtras instanceExtras = { };
+	instanceExtras.chain.sType = (WGPUSType)WGPUSType_InstanceExtras;
+	instanceExtras.chain.next = nullptr;
+	instanceExtras.backends = WGPUInstanceBackend_Primary;
+
+
+	WGPUInstanceDescriptor instanceDescriptor = { };
+	//instanceDescriptor.nextInChain = reinterpret_cast<WGPUChainedStruct*>(&instanceExtras);
+	//instanceDescriptor.features.
+
+	wgpContext.instance = wgpuCreateInstance(&instanceDescriptor);
 
 	WGPUSurfaceSourceWindowsHWND surfaceSourceWindowsHWND = {};
 	surfaceSourceWindowsHWND.chain.sType = WGPUSType_SurfaceSourceWindowsHWND;
@@ -123,6 +133,9 @@ bool wgpCreateDevice(WgpContext& wgpContext, void* window) {
 
 	WGPURequestAdapterOptions requestAdapterOptions = {};
 	requestAdapterOptions.compatibleSurface = wgpContext.surface;
+	requestAdapterOptions.forceFallbackAdapter = false;
+	requestAdapterOptions.powerPreference = WGPUPowerPreference_HighPerformance;
+	requestAdapterOptions.backendType = WGPUBackendType_Vulkan;
 
 	WGPURequestAdapterCallbackInfo requestAdapterCallbackInfo = {};
 	requestAdapterCallbackInfo.callback = handleRequestAdapter;

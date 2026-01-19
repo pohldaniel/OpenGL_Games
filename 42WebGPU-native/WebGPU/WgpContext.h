@@ -5,6 +5,7 @@
 #include <string>
 #include <functional>
 #include <webgpu.h>
+#include <wgpu.h>
 #include <engine/Vector.h>
 
 struct WgpContext;
