@@ -185,7 +185,7 @@ bool wgpCreateDevice(WgpContext& wgpContext, void* window) {
 	return true;
 }
 
-WGPUBuffer wgpCreateBuffer(uint32_t size, WGPUBufferUsage bufferUsage) {
+WGPUBuffer wgpCreateBuffer(const void* data, uint32_t size, WGPUBufferUsage bufferUsage) {
 	const WGPUDevice& device = wgpContext.device;
 	WGPUBufferDescriptor bufferDesc = {};
 	bufferDesc.label = WGPU_STR("buf");
@@ -195,6 +195,34 @@ WGPUBuffer wgpCreateBuffer(uint32_t size, WGPUBufferUsage bufferUsage) {
 
 	if (bufferUsage & WGPUBufferUsage_Vertex)
 		bufferDesc.label = WGPU_STR("vertex_buf");
+
+	if (bufferUsage & WGPUBufferUsage_Index)
+		bufferDesc.label = WGPU_STR("index_buf");
+
+	bufferDesc.size = size;
+	bufferDesc.usage = bufferUsage;
+	bufferDesc.mappedAtCreation = true;
+
+	WGPUBuffer buffer = wgpuDeviceCreateBuffer(device, &bufferDesc);
+	void* mapping = wgpuBufferGetMappedRange(buffer, 0, size);
+	memcpy(mapping, data, size);
+	wgpuBufferUnmap(buffer);
+	return buffer;
+}
+
+WGPUBuffer wgpCreateEmptyBuffer(uint32_t size, WGPUBufferUsage bufferUsage) {
+	const WGPUDevice& device = wgpContext.device;
+	WGPUBufferDescriptor bufferDesc = {};
+	bufferDesc.label = WGPU_STR("buf");
+
+	if (bufferUsage & WGPUBufferUsage_Uniform)
+		bufferDesc.label = WGPU_STR("uniform_buf");
+
+	if (bufferUsage & WGPUBufferUsage_Vertex)
+		bufferDesc.label = WGPU_STR("vertex_buf");
+
+	if (bufferUsage & WGPUBufferUsage_Index)
+		bufferDesc.label = WGPU_STR("index_buf");
 
 	bufferDesc.size = size;
 	bufferDesc.usage = bufferUsage;
@@ -283,9 +311,8 @@ WGPUShaderModule wgpCreateShader(std::string path) {
 	WGPUShaderSourceWGSL shaderSourceWGSL = {};
 	shaderSourceWGSL.chain.sType = WGPUSType_ShaderSourceWGSL;
 	shaderSourceWGSL.code = { buf, WGPU_STRLEN };
-
 	WGPUShaderModuleDescriptor shaderModuleDescriptor = {};
-	shaderModuleDescriptor.label = WGPU_STR(path.c_str());
+	shaderModuleDescriptor.label = { path.c_str(), path.length() };
 	shaderModuleDescriptor.nextInChain = reinterpret_cast<WGPUChainedStruct*>(&shaderSourceWGSL);
 
 	shaderModule = wgpuDeviceCreateShaderModule(device, &shaderModuleDescriptor);
@@ -507,8 +534,8 @@ const WGPUShaderModule& WgpContext::getShaderModule(std::string shaderModuleName
 	return shaderModules.at(shaderModuleName);
 }
 
-WGPURenderPipeline WgpContext::createRenderPipelinePTN(std::string shaderModuleName) {
-	WGPUBindGroupLayout bindGroupLayout = OnBindGroupLayout();
+WGPURenderPipeline WgpContext::createRenderPipelinePTN(std::string shaderModuleName, std::function <WGPUBindGroupLayout()> onBindGroupLayout) {
+	WGPUBindGroupLayout bindGroupLayout = onBindGroupLayout();
 
 	WGPUPipelineLayoutDescriptor pipelineLayoutDescriptor = {};
 	pipelineLayoutDescriptor.bindGroupLayoutCount = 1;
@@ -571,8 +598,8 @@ WGPURenderPipeline WgpContext::createRenderPipelinePTN(std::string shaderModuleN
 	wgpContext.renderPipelines[RP_PTN] = wgpuDeviceCreateRenderPipeline(wgpContext.device, &renderPipelineDescriptor);
 }
 
-WGPURenderPipeline WgpContext::createRenderPipelineWireframe(std::string shaderModuleName) {
-	WGPUBindGroupLayout bindGroupLayout = OnBindGroupLayout();
+WGPURenderPipeline WgpContext::createRenderPipelineWireframe(std::string shaderModuleName, std::function <WGPUBindGroupLayout()> onBindGroupLayout) {
+	WGPUBindGroupLayout bindGroupLayout = onBindGroupLayout();
 
 	WGPUPipelineLayoutDescriptor pipelineLayoutDescriptor = {};
 	pipelineLayoutDescriptor.bindGroupLayoutCount = 1;
@@ -584,8 +611,6 @@ WGPURenderPipeline WgpContext::createRenderPipelineWireframe(std::string shaderM
 	vertexState.entryPoint = { "vs_main", WGPU_STRLEN };
 	vertexState.constantCount = 0;
 	vertexState.constants = nullptr;
-	vertexState.bufferCount = 1;
-	vertexState.buffers = &wgpVertexBufferLayouts.at(VL_PTN);
 
 	WGPUBlendState blendState;
 	blendState.color.srcFactor = WGPUBlendFactor::WGPUBlendFactor_SrcAlpha;
@@ -627,10 +652,10 @@ WGPURenderPipeline WgpContext::createRenderPipelineWireframe(std::string shaderM
 	renderPipelineDescriptor.fragment = &fragmentState;
 	renderPipelineDescriptor.depthStencil = &depthStencilState;
 
-	renderPipelineDescriptor.primitive.topology = WGPUPrimitiveTopology::WGPUPrimitiveTopology_TriangleList;
+	renderPipelineDescriptor.primitive.topology = WGPUPrimitiveTopology::WGPUPrimitiveTopology_LineList;
 	renderPipelineDescriptor.primitive.stripIndexFormat = WGPUIndexFormat::WGPUIndexFormat_Undefined;
 	renderPipelineDescriptor.primitive.frontFace = WGPUFrontFace::WGPUFrontFace_CCW;
-	renderPipelineDescriptor.primitive.cullMode = WGPUCullMode::WGPUCullMode_Back;
+	renderPipelineDescriptor.primitive.cullMode = WGPUCullMode::WGPUCullMode_None;
 
 	wgpContext.renderPipelines[RP_WIREFRAME] = wgpuDeviceCreateRenderPipeline(wgpContext.device, &renderPipelineDescriptor);
 }

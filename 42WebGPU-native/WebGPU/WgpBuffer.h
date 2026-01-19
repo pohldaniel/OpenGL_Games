@@ -10,6 +10,7 @@ public:
 	WgpBuffer(WgpBuffer&& rhs) noexcept;
 
 	void createBuffer(const void* data, uint32_t size, WGPUBufferUsage bufferUsage);
+	void createBuffer(uint32_t size, WGPUBufferUsage bufferUsage);
 
 	WGPUBuffer m_buffer;
 };

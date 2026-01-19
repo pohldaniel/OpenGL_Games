@@ -130,6 +130,7 @@ public:
 	~ObjMesh();
 
 	const std::vector<float>& getVertexBuffer() const;
+	const std::vector<float>& getPositionBuffer();
 	const std::vector<unsigned int>& getIndexBuffer() const;
 	int getStride();
 	short getMaterialIndex() const;
@@ -151,6 +152,7 @@ private:
 	unsigned int m_instanceCount;
 	
 	std::vector<float> m_vertexBuffer;
+	std::vector<float> m_positionBuffer;
 	std::vector<unsigned int> m_indexBuffer;
 
 	bool m_hasTextureCoords, m_hasNormals, m_hasTangents;

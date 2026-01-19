@@ -13,13 +13,11 @@
 #include <WebGPU/WgpBuffer.h>
 #include <WebGPU/WgpMesh.h>
 
-struct MyUniforms {
+struct Uniforms {
 	Matrix4f projectionMatrix;
 	Matrix4f viewMatrix;
 	Matrix4f modelMatrix;
 	std::array<float, 4> color;
-	float time;
-	float _pad[3];
 };
 
 class Default : public State, public MouseEventListener, public KeyboardEventListener {
@@ -71,5 +69,5 @@ private:
 	WGPUBindGroup m_bindGroupPTN, m_bindGroupWireframe;
 
 	TrackBall m_trackball;
-	MyUniforms m_uniforms;
+	Uniforms m_uniforms;
 };

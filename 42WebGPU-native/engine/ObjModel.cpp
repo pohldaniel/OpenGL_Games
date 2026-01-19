@@ -1520,6 +1520,19 @@ const std::vector<float>& ObjMesh::getVertexBuffer() const {
 	return m_vertexBuffer;
 }
 
+const std::vector<float>& ObjMesh::getPositionBuffer() {
+	if (m_positionBuffer.empty()) {
+		for (size_t i = 0; i < m_vertexBuffer.size(); i = i + m_stride) {
+			m_positionBuffer.push_back(m_vertexBuffer[i]);
+			m_positionBuffer.push_back(m_vertexBuffer[i + 1]);
+			m_positionBuffer.push_back(m_vertexBuffer[i + 2]);
+		}
+	}
+
+	return m_positionBuffer;
+}
+
+
 const std::vector<unsigned int>& ObjMesh::getIndexBuffer() const {
 	return m_indexBuffer;
 }

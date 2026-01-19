@@ -24,7 +24,8 @@ extern "C" {
 	void wgpInit(void* window);
 	bool wgpCreateDevice(WgpContext& wgpContext, void* window);
 
-	WGPUBuffer wgpCreateBuffer(uint32_t size, WGPUBufferUsage bufferUsage);
+	WGPUBuffer wgpCreateEmptyBuffer(uint32_t size, WGPUBufferUsage bufferUsage);
+	WGPUBuffer wgpCreateBuffer(const void* data, uint32_t size, WGPUBufferUsage bufferUsage);
 
 	WGPUTexture wgpCreateTexture(uint32_t width, uint32_t height, WGPUTextureUsage textureUsage, WGPUTextureFormat textureFormat, WGPUTextureFormat viewFormat = WGPUTextureFormat_Undefined);
 	WGPUTextureView wgpCreateTextureView(WGPUTextureFormat textureFormat, WGPUTextureAspect aspect, const WGPUTexture& texture);
@@ -58,8 +59,8 @@ struct WgpContext {
 	friend void wgpShaderModulesRelease();
 	friend void wgpPipelineLayoutsRelease();
 
-	WGPURenderPipeline createRenderPipelinePTN(std::string shaderModuleName);
-	WGPURenderPipeline createRenderPipelineWireframe(std::string shaderModuleName);
+	WGPURenderPipeline createRenderPipelinePTN(std::string shaderModuleName, std::function <WGPUBindGroupLayout()> onBindGroupLayout);
+	WGPURenderPipeline createRenderPipelineWireframe(std::string shaderModuleName, std::function <WGPUBindGroupLayout()> onBindGroupLayout);
 
 	void createVertexBufferLayout(VertexLayoutSlot slot = VL_PTN);
 	void addSampler(const WGPUSampler& sampler, SamplerSlot samplerSlot = SS_LINEAR);
@@ -82,8 +83,6 @@ struct WgpContext {
 	WGPUTextureFormat depthformat = WGPUTextureFormat::WGPUTextureFormat_Depth24Plus;
 		
 	std::function<void(const WGPURenderPassEncoder& commandBuffer)> OnDraw;
-	std::function <WGPUBindGroupLayout()> OnBindGroupLayout;
-	std::function <void(const WGPUBindGroupLayout&)> OnBindGroup;	
 
 private:
 	std::unordered_map<RenderPipelineSlot, WGPUPipelineLayout> pipelineLayouts;
