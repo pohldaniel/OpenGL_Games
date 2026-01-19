@@ -130,7 +130,6 @@ public:
 	~ObjMesh();
 
 	const std::vector<float>& getVertexBuffer() const;
-	const std::vector<float>& getPositionBuffer();
 	const std::vector<unsigned int>& getIndexBuffer() const;
 	int getStride();
 	short getMaterialIndex() const;

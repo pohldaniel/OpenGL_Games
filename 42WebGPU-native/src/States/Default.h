@@ -45,10 +45,11 @@ private:
 
 	WGPUBindGroupLayout OnBindGroupLayoutPTN();
 	WGPUBindGroup createBindGroupPTN();
-
-
 	WGPUBindGroupLayout OnBindGroupLayoutWireframe();
 	WGPUBindGroup createBindGroupWireframe();
+
+	void createColorBuffer();
+
 
 	void renderUi(const WGPURenderPassEncoder& renderPassEncoder);
 	void applyTransformation(TrackBall& arc);
@@ -62,10 +63,11 @@ private:
 	std::list<WgpTexture> m_textures;
 	std::list<WgpBuffer> m_vertexBuffer;
 	std::list<WgpBuffer> m_indexBuffer;	
+	WgpBuffer m_colorBuffer, m_uniformBuffer;
+	std::vector<float> m_colors;
 
 	WGPUTexture m_texture;
 	WGPUTextureView m_textureView;
-	WGPUBuffer m_uniformBuffer;
 	WGPUBindGroup m_bindGroupPTN, m_bindGroupWireframe;
 
 	TrackBall m_trackball;

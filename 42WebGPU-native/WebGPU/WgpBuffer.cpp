@@ -3,16 +3,32 @@
 #include "WgpContext.h"
 #include "WgpBuffer.h"
 
-WgpBuffer::WgpBuffer() : m_buffer(NULL) {
+WgpBuffer::WgpBuffer() : m_buffer(NULL), m_markForDelete(false) {
 
 }
 
-WgpBuffer::WgpBuffer(WgpBuffer const& rhs) : m_buffer(NULL) {
+WgpBuffer::WgpBuffer(WgpBuffer const& rhs) : m_buffer(NULL), m_markForDelete(false) {
 
 }
 
-WgpBuffer::WgpBuffer(WgpBuffer&& rhs) noexcept : m_buffer(std::move(rhs.m_buffer)) {
+WgpBuffer::WgpBuffer(WgpBuffer&& rhs) noexcept : m_buffer(std::move(rhs.m_buffer)), m_markForDelete(false) {
 
+}
+
+WgpBuffer::~WgpBuffer() {
+	if (m_markForDelete) {
+		cleanup();
+	}
+}
+
+void WgpBuffer::cleanup() {
+	wgpuBufferDestroy(m_buffer);
+	wgpuBufferRelease(m_buffer);
+	m_buffer = NULL;
+}
+
+void WgpBuffer::markForDelete() {
+	m_markForDelete = true;
 }
 
 void WgpBuffer::createBuffer(uint32_t size, WGPUBufferUsage bufferUsage) {

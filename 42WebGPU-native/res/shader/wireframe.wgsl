@@ -16,9 +16,7 @@ struct F32s {
 @group(0) @binding(0) var<uniform> uniforms : Uniforms;
 @group(0) @binding(1) var<storage, read> indices : U32s;
 @group(0) @binding(2) var<storage, read> positions : F32s;
-@group(0) @binding(3) var texture: texture_2d<f32>;
-@group(0) @binding(4) var textureSampler: sampler;
-//@group(0) @binding(5) var<storage, read> colors : U32s;
+@group(0) @binding(3) var<storage, read> colors : F32s;
 
 struct VertexInput {
 	@builtin(instance_index) instanceID : u32,
@@ -61,6 +59,13 @@ fn vs_main(in : VertexInput) -> VertexOutput {
         0.0
     );
 	
+	var color = vec4<f32>(
+        colors.values[4u * elementIndex + 0u],
+        colors.values[4u * elementIndex + 1u],
+        colors.values[4u * elementIndex + 2u],
+        colors.values[4u * elementIndex + 3u]
+    );
+	
     position = uniforms.projection * uniforms.view * uniforms.model * position;
 	normal = (uniforms.model * normal);
 
@@ -68,7 +73,7 @@ fn vs_main(in : VertexInput) -> VertexOutput {
     output.position = position;
 	output.texcoord = texcoord;
 	output.normal = normal.xyz;
-    output.color = uniforms.color;
+	output.color = color;
 
     return output;
 }
@@ -83,7 +88,6 @@ struct FragmentOutput {
 
 @fragment
 fn fs_main(in: VertexOutput) -> @location(0) vec4f {
-    let diffuse_color = textureSample(texture, textureSampler, in.texcoord);
 	let normal = normalize(in.normal);
 
 	let lightColor1 = vec3f(1.0, 0.9, 0.6);
@@ -95,7 +99,6 @@ fn fs_main(in: VertexOutput) -> @location(0) vec4f {
 	let shading = shading1 * lightColor1 + shading2 * lightColor2;
 	let color = in.color.xyz * shading;
 
-	// Gamma-correction
 	let corrected_color = pow(color.xyz, vec3f(2.2));
-	return vec4f(corrected_color, in.color.a) * diffuse_color;
+	return vec4f(corrected_color, in.color.a);
 }
