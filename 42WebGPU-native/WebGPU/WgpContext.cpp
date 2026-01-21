@@ -519,7 +519,8 @@ void WgpContext::createVertexBufferLayout(VertexLayoutSlot slot) {
 }
 
 void WgpContext::addSampler(const WGPUSampler& sampler, SamplerSlot samplerSlot) {
-	samplers[SS_LINEAR] = sampler;
+	if (samplers.count(samplerSlot) == 0)
+		samplers[samplerSlot] = sampler;
 }
 
 const WGPUSampler& WgpContext::getSampler(SamplerSlot samplerSlot) {

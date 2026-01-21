@@ -3,6 +3,9 @@
 
 class WgpBuffer {
 
+	friend class WgpMesh;
+	friend class WgpModel;
+
 public:
 
 	WgpBuffer();
@@ -14,6 +17,9 @@ public:
 	void createBuffer(uint32_t size, WGPUBufferUsage bufferUsage);
 	void cleanup();
 	void markForDelete();
+	const WGPUBuffer& getWgpuBuffer() const;
+
+private:
 
 	WGPUBuffer m_buffer;
 	bool m_markForDelete;

@@ -7,6 +7,7 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
+#include "Mesh.h"
 #include "Camera.h"
 #include "Transform.h"
 #include "Material.h"
@@ -74,7 +75,7 @@ private:
 	std::string static GetTexturePath(std::string texPath, std::string modelDirectory);
 };
 
-class AssimpMesh {
+class AssimpMesh : public Mesh {
 
 	friend AssimpModel;
 
@@ -87,9 +88,9 @@ public:
 	AssimpMesh& operator=(AssimpMesh&& rhs) noexcept;
 	~AssimpMesh();
 
-	const std::vector<float>& getVertexBuffer() const;
-	const std::vector<unsigned int>& getIndexBuffer() const;
-	unsigned int getStride();
+	const std::vector<float>& getVertexBuffer() const override;
+	const std::vector<unsigned int>& getIndexBuffer() const override;
+	unsigned int getStride() override;
 	short getMaterialIndex() const;
 	void setMaterialIndex(short index) const;
 	short getTextureIndex() const;

@@ -14,6 +14,7 @@
 #include <filesystem>
 #include <numeric>
 
+#include "Mesh.h"
 #include "Vector.h"
 #include "Camera.h"
 #include "Transform.h"
@@ -71,7 +72,7 @@ public:
 	const std::string& getMltPath();
 	const std::string& getModelDirectory();
 	const Transform& getTransform() const;
-	const ObjMesh* getMesh(unsigned short index = 0u) const;
+	const Mesh* getMesh(unsigned short index = 0u) const;
 	const std::vector<ObjMesh*>& getMeshes() const;
 	const std::vector<float>& getVertexBuffer() const;
 	const std::vector<unsigned int>& getIndexBuffer() const;
@@ -81,6 +82,7 @@ public:
 	void generateNormals();
 	void packBuffer();
 	void cleanup();
+	void rewind();
 
 private:
 
@@ -105,6 +107,7 @@ private:
 	void static GenerateNormals(std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer, ObjModel& model, bool& hasNormals, unsigned int& stride, unsigned int startIndex, unsigned int endIndex);
 	void static GenerateTangents(std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer, ObjModel& model, bool& hasNormals, bool& hasTangents, unsigned int& stride, unsigned int startIndex, unsigned int endIndex);
 	void static PackBuffer(std::vector<float>& vertexBuffer, unsigned int stride);
+	void static Rewind(const std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer, unsigned int stride);
 
 	void static GenerateNormals(std::vector<float>& vertexCoords, std::vector<std::array<int, 10>>& face, std::vector<float>& normalCoords);
 	void static GenerateFlatNormals(std::vector<float>& vertexCoords, std::vector<std::array<int, 10>>& face, std::vector<float>& normalCoords);
@@ -115,7 +118,7 @@ private:
 	std::string static GetTexturePath(std::string texPath, std::string modelDirectory);
 };
 
-class ObjMesh {
+class ObjMesh : public Mesh {
 
 	friend ObjModel;
 
@@ -129,18 +132,16 @@ public:
 	ObjMesh& operator=(ObjMesh&& rhs) noexcept;
 	~ObjMesh();
 
-	const std::vector<float>& getVertexBuffer() const;
-	const std::vector<unsigned int>& getIndexBuffer() const;
-	int getStride();
+	const std::vector<float>& getVertexBuffer() const override;
+	const std::vector<unsigned int>& getIndexBuffer() const override;
+	unsigned int getStride() override;
 	short getMaterialIndex() const;
 	void setMaterialIndex(short index) const;
 	short getTextureIndex() const;
 	void setTextureIndex(short index) const;
-
 	const Material& getMaterial() const;
+	unsigned int getNumberOfTriangles() const;
 	void cleanup();
-
-	unsigned int getNumberOfTriangles();
 
 private:
 

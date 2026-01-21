@@ -12,12 +12,12 @@
 #include <WebGPU/WgpTexture.h>
 #include <WebGPU/WgpBuffer.h>
 #include <WebGPU/WgpMesh.h>
+#include <WebGPU/WgpData.h>
+#include <WebGPU/WgpModel.h>
 
-struct Uniforms {
-	Matrix4f projectionMatrix;
-	Matrix4f viewMatrix;
-	Matrix4f modelMatrix;
-	std::array<float, 4> color;
+enum Model {
+	MAMMOTH,
+	DRAGON
 };
 
 class Default : public State, public MouseEventListener, public KeyboardEventListener {
@@ -44,32 +44,21 @@ public:
 private:
 
 	WGPUBindGroupLayout OnBindGroupLayoutPTN();
-	WGPUBindGroup createBindGroupPTN();
 	WGPUBindGroupLayout OnBindGroupLayoutWireframe();
-	WGPUBindGroup createBindGroupWireframe();
-
-	void createColorBuffer();
-
-
 	void renderUi(const WGPURenderPassEncoder& renderPassEncoder);
 	void applyTransformation(TrackBall& arc);
 
 	bool m_initUi = true;
 	bool m_drawUi = true;
-
+	Model m_model = Model::DRAGON;
 	Camera m_camera;
-	ObjModel m_model;
-	std::list<WgpMesh> m_mammoth;
-	std::list<WgpTexture> m_textures;
-	std::list<WgpBuffer> m_vertexBuffer;
-	std::list<WgpBuffer> m_indexBuffer;	
-	WgpBuffer m_colorBuffer, m_uniformBuffer;
-	std::vector<float> m_colors;
+	ObjModel m_mammoth, m_dragon;
+	WgpBuffer m_uniformBuffer;
 
 	WGPUTexture m_texture;
 	WGPUTextureView m_textureView;
-	WGPUBindGroup m_bindGroupPTN, m_bindGroupWireframe;
 
 	TrackBall m_trackball;
 	Uniforms m_uniforms;
+	WgpModel m_wgpDragon, m_wgpMammoth;
 };

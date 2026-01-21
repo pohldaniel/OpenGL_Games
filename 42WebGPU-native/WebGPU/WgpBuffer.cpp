@@ -7,7 +7,7 @@ WgpBuffer::WgpBuffer() : m_buffer(NULL), m_markForDelete(false) {
 
 }
 
-WgpBuffer::WgpBuffer(WgpBuffer const& rhs) : m_buffer(NULL), m_markForDelete(false) {
+WgpBuffer::WgpBuffer(WgpBuffer const& rhs) : m_buffer(rhs.m_buffer), m_markForDelete(false) {
 
 }
 
@@ -37,4 +37,8 @@ void WgpBuffer::createBuffer(uint32_t size, WGPUBufferUsage bufferUsage) {
 
 void WgpBuffer::createBuffer(const void* data, uint32_t size, WGPUBufferUsage bufferUsage) {
 	m_buffer = wgpCreateBuffer(data, size, bufferUsage);
+}
+
+const WGPUBuffer& WgpBuffer::getWgpuBuffer() const {
+	return m_buffer;
 }

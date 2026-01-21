@@ -1,0 +1,35 @@
+#include <engine/ObjModel.h>
+#include "WgpContext.h"
+#include "WgpModel.h"
+#include "WgpMesh.h"
+#include "WgpBuffer.h"
+
+WgpModel::WgpModel(WgpModel const& rhs) : m_meshes(rhs.m_meshes) {
+
+}
+
+WgpModel::WgpModel(WgpModel&& rhs) noexcept : m_meshes(rhs.m_meshes) {
+
+}
+
+void WgpModel::create(const ObjModel& model, const WGPUTextureView& textureView, const WgpBuffer& uniformBuffer) {
+	for (ObjMesh* mesh : model.getMeshes()) {
+		m_meshes.push_back(WgpMesh(mesh->getVertexBuffer(), mesh->getIndexBuffer(), mesh->getMaterial().textures.at(TextureSlot::TEXTURE_DIFFUSE), textureView, uniformBuffer.m_buffer, mesh->getStride()));
+	}
+
+	for (WgpMesh& mesh : m_meshes) {
+		mesh.markForDelete();
+	}
+}
+
+void WgpModel::setRenderPipelineSlot(RenderPipelineSlot renderPipelineSlot) {
+	for (WgpMesh& mesh : m_meshes) {
+		mesh.setRenderPipelineSlot(renderPipelineSlot);
+	}
+}
+
+void WgpModel::draw(const WGPURenderPassEncoder& renderPass) const {
+	for (std::list<WgpMesh>::const_iterator it = m_meshes.begin(); it != m_meshes.end(); ++it) {
+		(*it).draw(renderPass);
+	}
+}

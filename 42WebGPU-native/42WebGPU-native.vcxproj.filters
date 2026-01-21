@@ -150,6 +150,9 @@
     <ClCompile Include="WebGPU\WgpMesh.cpp">
       <Filter>WebGPU</Filter>
     </ClCompile>
+    <ClCompile Include="WebGPU\WgpModel.cpp">
+      <Filter>WebGPU</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="convhull\convhull_3d.h">
@@ -285,6 +288,15 @@
       <Filter>WebGPU</Filter>
     </ClInclude>
     <ClInclude Include="WebGPU\WgpMesh.h">
+      <Filter>WebGPU</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\Mesh.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="WebGPU\WgpData.h">
+      <Filter>WebGPU</Filter>
+    </ClInclude>
+    <ClInclude Include="WebGPU\WgpModel.h">
       <Filter>WebGPU</Filter>
     </ClInclude>
   </ItemGroup>

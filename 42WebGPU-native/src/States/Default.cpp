@@ -16,10 +16,15 @@ Default::Default(StateMachine& machine) : State(machine, States::DEFAULT) {
 	EventDispatcher::AddMouseListener(this);
 
 	m_uniformBuffer.createBuffer(sizeof(Uniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
+	wgpContext.addSampler(wgpCreateSampler());
+	m_texture = wgpCreateTexture(512, 512, WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst, WGPUTextureFormat::WGPUTextureFormat_RGBA8Unorm);
+	m_textureView = wgpCreateTextureView(WGPUTextureFormat::WGPUTextureFormat_RGBA8Unorm, WGPUTextureAspect::WGPUTextureAspect_All, m_texture);
 
 	wgpContext.addSahderModule("PTN", "res/shader/shader.wgsl");
 	wgpContext.createRenderPipelinePTN("PTN", std::bind(&Default::OnBindGroupLayoutPTN, this));
-	m_bindGroupPTN = createBindGroupPTN();
+
+	wgpContext.addSahderModule("wireframe", "res/shader/wireframe.wgsl");
+	wgpContext.createRenderPipelineWireframe("wireframe", std::bind(&Default::OnBindGroupLayoutWireframe, this));
 
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
@@ -27,34 +32,21 @@ Default::Default(StateMachine& machine) : State(machine, States::DEFAULT) {
 	m_camera.setRotationSpeed(0.1f);
 	m_camera.setMovingSpeed(10.0f);
 
-	m_model.loadModel("res/models/mammoth.obj");
-	for (ObjMesh* mesh : m_model.getMeshes()) {
-		m_vertexBuffer.push_back(WgpBuffer());
-		m_vertexBuffer.back().createBuffer(reinterpret_cast<const void*>(mesh->getVertexBuffer().data()), sizeof(float) * mesh->getVertexBuffer().size(), WGPUBufferUsage_Vertex | WGPUBufferUsage_Storage);
-
-		m_indexBuffer.push_back(WgpBuffer());
-		m_indexBuffer.back().createBuffer(reinterpret_cast<const void*>(mesh->getIndexBuffer().data()), sizeof(unsigned int) * mesh->getIndexBuffer().size(), WGPUBufferUsage_Index | WGPUBufferUsage_Vertex | WGPUBufferUsage_Storage);
-
-		m_textures.push_back(WgpTexture());
-		m_textures.back().loadFromFile(mesh->getMaterial().textures.at(TextureSlot::TEXTURE_DIFFUSE), true);
-		m_textures.back().copyToDestination(m_texture);
-		m_mammoth.push_back(WgpMesh(m_vertexBuffer.back(), m_indexBuffer.back(), m_textures.back(), mesh->getIndexBuffer().size()));
-	}
-	createColorBuffer();
-	wgpContext.addSahderModule("wireframe", "res/shader/wireframe.wgsl");
-	wgpContext.createRenderPipelineWireframe("wireframe", std::bind(&Default::OnBindGroupLayoutWireframe, this));
-	m_bindGroupWireframe = createBindGroupWireframe();
+	m_mammoth.loadModel("res/models/mammoth.obj");
+	m_wgpMammoth.create(m_mammoth, m_textureView, m_uniformBuffer);
+	
+	m_dragon.loadModel("res/models/dragon/dragon.obj", Vector3f(0.0f, 1.0f, 0.0f), 90.0f, Vector3f(0.0f, -1.0f, 0.0f), 0.1f, false, false, false, false, false, true);
+	m_dragon.rewind();
+	m_wgpDragon.create(m_dragon, m_textureView, m_uniformBuffer);
 
 	m_trackball.reshape(Application::Width, Application::Height);
 	m_trackball.setTrackballScale(0.5f);
 	m_uniforms.projectionMatrix = Matrix4f::IDENTITY;
 	m_uniforms.viewMatrix = Matrix4f::IDENTITY;
 	m_uniforms.modelMatrix = Matrix4f::IDENTITY;
-
-
 	m_uniforms.color = { 1.0f, 1.0f, 1.0f, 1.0f };
 	
-	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.m_buffer, 0, &m_uniforms, sizeof(Uniforms));
+	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getWgpuBuffer(), 0, &m_uniforms, sizeof(Uniforms));
 	wgpContext.OnDraw = std::bind(&Default::OnDraw, this, std::placeholders::_1);
 }
 
@@ -63,11 +55,6 @@ Default::~Default() {
 	EventDispatcher::RemoveMouseListener(this);
 
 	m_uniformBuffer.markForDelete();
-	m_colorBuffer.markForDelete();
-	m_vertexBuffer.back().markForDelete();
-	m_indexBuffer.back().markForDelete();
-
-	wgpuBindGroupRelease(m_bindGroupPTN);
 
 	wgpuTextureDestroy(m_texture);
 	wgpuTextureRelease(m_texture);
@@ -149,33 +136,12 @@ void Default::render() {
 
 void Default::OnDraw(const WGPURenderPassEncoder& renderPass) {
 
-	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.m_buffer, offsetof(Uniforms, projectionMatrix), &m_uniforms.projectionMatrix, sizeof(Uniforms::projectionMatrix));
-	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.m_buffer, offsetof(Uniforms, viewMatrix), &m_uniforms.viewMatrix, sizeof(Uniforms::viewMatrix));
-	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.m_buffer, offsetof(Uniforms, modelMatrix), &m_uniforms.modelMatrix, sizeof(Uniforms::modelMatrix));
+	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getWgpuBuffer(), offsetof(Uniforms, projectionMatrix), &m_uniforms.projectionMatrix, sizeof(Uniforms::projectionMatrix));
+	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getWgpuBuffer(), offsetof(Uniforms, viewMatrix), &m_uniforms.viewMatrix, sizeof(Uniforms::viewMatrix));
+	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getWgpuBuffer(), offsetof(Uniforms, modelMatrix), &m_uniforms.modelMatrix, sizeof(Uniforms::modelMatrix));
 	
+	m_model == MAMMOTH ? m_wgpMammoth.draw(renderPass) : m_wgpDragon.draw(renderPass);
 
-	if (StateMachine::GetEnableWireframe()) {
-		wgpuRenderPassEncoderSetPipeline(renderPass, wgpContext.renderPipelines.at(RP_WIREFRAME));
-		wgpuRenderPassEncoderSetBindGroup(renderPass, 0u, m_bindGroupWireframe, 0u, nullptr);
-
-		wgpuRenderPassEncoderSetVertexBuffer(renderPass, 0u, m_vertexBuffer.back().m_buffer, 0u, wgpuBufferGetSize(m_vertexBuffer.back().m_buffer));
-		wgpuRenderPassEncoderSetVertexBuffer(renderPass, 1u, m_indexBuffer.back().m_buffer,0u , wgpuBufferGetSize(m_indexBuffer.back().m_buffer));
-		wgpuRenderPassEncoderSetVertexBuffer(renderPass, 2u, m_vertexBuffer.back().m_buffer, 0u, wgpuBufferGetSize(m_vertexBuffer.back().m_buffer));
-		wgpuRenderPassEncoderSetVertexBuffer(renderPass, 5u, m_colorBuffer.m_buffer, 0u, wgpuBufferGetSize(m_colorBuffer.m_buffer));
-
-		const uint32_t num_triangles = m_model.getMeshes()[0]->getNumberOfTriangles();
-		wgpuRenderPassEncoderDraw(renderPass, 6 * num_triangles, 1, 0, 0);
-	}else {
-		wgpuRenderPassEncoderSetPipeline(renderPass, wgpContext.renderPipelines.at(RP_PTN));
-		wgpuRenderPassEncoderSetBindGroup(renderPass, 0u, m_bindGroupPTN, 0u, nullptr);
-
-		wgpuRenderPassEncoderSetVertexBuffer(renderPass, 0u, m_vertexBuffer.back().m_buffer, 0u, wgpuBufferGetSize(m_vertexBuffer.back().m_buffer));
-		wgpuRenderPassEncoderSetIndexBuffer(renderPass, m_indexBuffer.back().m_buffer, WGPUIndexFormat_Uint32, 0u, wgpuBufferGetSize(m_indexBuffer.back().m_buffer));
-		wgpuRenderPassEncoderDrawIndexed(renderPass, m_mammoth.back().m_drawCount, 1u, 0u, 0u, 0u);
-	}
-	
-	
-	
 	if (m_drawUi)
 		renderUi(renderPass);
 }
@@ -268,7 +234,14 @@ void Default::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
 
 	// render widgets
 	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
-	ImGui::Checkbox("Draw Wirframe", &StateMachine::GetEnableWireframe());
+	if (ImGui::Checkbox("Draw Wirframe", &StateMachine::GetEnableWireframe())) {
+		m_wgpMammoth.setRenderPipelineSlot(StateMachine::GetEnableWireframe() ? RP_WIREFRAME : RP_PTN);
+		m_wgpDragon.setRenderPipelineSlot(StateMachine::GetEnableWireframe() ? RP_WIREFRAME : RP_PTN);
+	}
+	int currentModel = m_model;
+	if (ImGui::Combo("Model", &currentModel, "Mammoth\0Dragon\0\0")) {
+		m_model = static_cast<Model>(currentModel);
+	}
 	ImGui::End();
 
 	ImGui::Render();
@@ -302,32 +275,6 @@ WGPUBindGroupLayout Default::OnBindGroupLayoutPTN() {
 	return wgpuDeviceCreateBindGroupLayout(wgpContext.device, &bindGroupLayoutDescriptor);
 }
 
-WGPUBindGroup Default::createBindGroupPTN() {
-	m_texture = wgpCreateTexture(512, 512, WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst, WGPUTextureFormat::WGPUTextureFormat_RGBA8Unorm);
-	m_textureView = wgpCreateTextureView(WGPUTextureFormat::WGPUTextureFormat_RGBA8Unorm, WGPUTextureAspect::WGPUTextureAspect_All, m_texture);
-	wgpContext.addSampler(wgpCreateSampler());
-
-	std::vector<WGPUBindGroupEntry> bindings(3);
-
-	bindings[0].binding = 0;
-	bindings[0].buffer = m_uniformBuffer.m_buffer;
-	bindings[0].offset = 0;
-	bindings[0].size = sizeof(Uniforms);
-
-	bindings[1].binding = 1;
-	bindings[1].textureView = m_textureView;
-
-	bindings[2].binding = 2;
-	bindings[2].sampler = wgpContext.getSampler(SS_LINEAR);
-
-	WGPUBindGroupDescriptor bindGroupDesc = {};
-	bindGroupDesc.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at(RP_PTN), 0);
-	bindGroupDesc.entryCount = (uint32_t)bindings.size();
-	bindGroupDesc.entries = bindings.data();
-
-	return wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc);
-}
-
 WGPUBindGroupLayout Default::OnBindGroupLayoutWireframe() {
 	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(4);
 
@@ -342,69 +289,21 @@ WGPUBindGroupLayout Default::OnBindGroupLayoutWireframe() {
 	indiceBindingLayout.visibility = WGPUShaderStage_Vertex;
 	indiceBindingLayout.buffer.type = WGPUBufferBindingType_ReadOnlyStorage;
 	indiceBindingLayout.buffer.hasDynamicOffset = false;
-	indiceBindingLayout.buffer.minBindingSize = sizeof(unsigned int) * m_model.getMeshes()[0]->getIndexBuffer().size();
 
 	WGPUBindGroupLayoutEntry& vertexBindingLayout = bindingLayoutEntries[2];
 	vertexBindingLayout.binding = 2;
 	vertexBindingLayout.visibility = WGPUShaderStage_Vertex;
 	vertexBindingLayout.buffer.type = WGPUBufferBindingType_ReadOnlyStorage;
 	vertexBindingLayout.buffer.hasDynamicOffset = false;
-	vertexBindingLayout.buffer.minBindingSize = sizeof(float) * m_model.getMeshes()[0]->getVertexBuffer().size();
 
 	WGPUBindGroupLayoutEntry& colorBindingLayout = bindingLayoutEntries[3];
 	colorBindingLayout.binding = 3;
 	colorBindingLayout.visibility = WGPUShaderStage_Vertex;
 	colorBindingLayout.buffer.type = WGPUBufferBindingType_ReadOnlyStorage;
 	colorBindingLayout.buffer.hasDynamicOffset = false;
-	colorBindingLayout.buffer.minBindingSize = sizeof(float) * m_colors.size();
 
 	WGPUBindGroupLayoutDescriptor bindGroupLayoutDescriptor = {};
 	bindGroupLayoutDescriptor.entryCount = (uint32_t)bindingLayoutEntries.size();
 	bindGroupLayoutDescriptor.entries = bindingLayoutEntries.data();
 	return wgpuDeviceCreateBindGroupLayout(wgpContext.device, &bindGroupLayoutDescriptor);
-}
-
-WGPUBindGroup Default::createBindGroupWireframe() {
-	std::vector<WGPUBindGroupEntry> bindings(4);
-
-	bindings[0].binding = 0;
-	bindings[0].buffer = m_uniformBuffer.m_buffer;
-	bindings[0].offset = 0;
-	bindings[0].size = sizeof(Uniforms);
-
-	bindings[1].binding = 1;
-	bindings[1].buffer = m_indexBuffer.back().m_buffer;
-	bindings[1].offset = 0;
-	bindings[1].size = sizeof(unsigned int) * m_model.getMeshes()[0]->getIndexBuffer().size();
-
-	bindings[2].binding = 2;
-	bindings[2].buffer = m_vertexBuffer.back().m_buffer;
-	bindings[2].offset = 0;
-	bindings[2].size = sizeof(float) * m_model.getMeshes()[0]->getVertexBuffer().size();
-
-	bindings[3].binding = 3;
-	bindings[3].buffer = m_colorBuffer.m_buffer;
-	bindings[3].offset = 0;
-	bindings[3].size = sizeof(float) * m_colors.size();
-
-	WGPUBindGroupDescriptor bindGroupDesc = {};
-	bindGroupDesc.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at(RP_WIREFRAME), 0);
-	bindGroupDesc.entryCount = (uint32_t)bindings.size();
-	bindGroupDesc.entries = bindings.data();
-
-	return wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc);
-}
-
-void Default::createColorBuffer() {
-	uint32_t numVertices = m_model.getMeshes()[0]->getVertexBuffer().size() / 8u;
-	m_colors.resize(4u * numVertices);
-	const std::vector<float>& vertices = m_model.getMeshes()[0]->getVertexBuffer();
-	float x = 0.0f, y = 0.0f, z = 0.0f;
-	for (uint32_t i = 0; i < numVertices; i++) {		
-		m_colors[4 * i + 0] = vertices[8 * i + 0];
-		m_colors[4 * i + 1] = vertices[8 * i + 1];
-		m_colors[4 * i + 2] = vertices[8 * i + 2];
-		m_colors[4 * i + 3] = 1.0f;
-	}
-	m_colorBuffer.createBuffer(reinterpret_cast<const void*>(m_colors.data()), sizeof(float) * m_colors.size(), WGPUBufferUsage_Vertex | WGPUBufferUsage_Storage);
 }

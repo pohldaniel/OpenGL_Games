@@ -8,50 +8,68 @@ WgpTexture::WgpTexture() :
     m_height(0u),
     m_channels(0u),
     m_texture(NULL),
+    m_markForDelete(false),
     m_data(nullptr){
 
 }
 
-WgpTexture::WgpTexture(WgpTexture const& rhs) : m_width(rhs.m_width), m_height(rhs.m_height), m_channels(rhs.m_channels), m_texture(rhs.m_texture) {
-    memcpy(rhs.m_data, m_data, m_width * m_height * m_channels);
+WgpTexture::WgpTexture(WgpTexture const& rhs) : m_data(rhs.m_data), m_width(rhs.m_width), m_height(rhs.m_height), m_channels(rhs.m_channels), m_texture(rhs.m_texture), m_markForDelete(false) {
+
 }
 
-WgpTexture::WgpTexture(WgpTexture&& rhs) noexcept : m_width(rhs.m_width), m_height(rhs.m_height), m_channels(rhs.m_channels), m_texture(rhs.m_texture) {
-    m_data = rhs.m_data;
-    rhs.m_data = nullptr;
+WgpTexture::WgpTexture(WgpTexture&& rhs) noexcept : m_data(std::move(rhs.m_data)), m_width(rhs.m_width), m_height(rhs.m_height), m_channels(rhs.m_channels), m_texture(rhs.m_texture), m_markForDelete(rhs.m_markForDelete) {
+
 }
 
-void WgpTexture::loadFromFile(std::string fileName, const bool flipVertical) {
+WgpTexture::~WgpTexture() {
+    if (m_markForDelete) {
+        cleanup();
+    }
+}
+
+void WgpTexture::cleanup() {
+    wgpuTextureDestroy(m_texture);
+    wgpuTextureRelease(m_texture);
+    free(m_data);
+    m_texture = nullptr;
+}
+
+void WgpTexture::markForDelete() {
+    m_markForDelete = true;
+}
+
+void WgpTexture::loadFromFile(std::string fileName, const bool flipVertical, short alphaChannel) { 
+    std::filesystem::path filePath = fileName;
+    
     FreeImage_Initialise();
-
-    FIBITMAP* sourceBitmap = FreeImage_Load(FIF_PNG, fileName.c_str(), PNG_DEFAULT);
+    FIBITMAP* sourceBitmap = filePath.extension() == ".png" ? FreeImage_Load(FIF_PNG, fileName.c_str(), PNG_DEFAULT) : FreeImage_Load(FIF_BMP, fileName.c_str(), BMP_DEFAULT);
     unsigned int bpp = FreeImage_GetBPP(sourceBitmap) / 8;
     unsigned int width = FreeImage_GetWidth(sourceBitmap);
     unsigned int height = FreeImage_GetHeight(sourceBitmap);
     unsigned char* imageData =  FreeImage_GetBits(sourceBitmap);
+    unsigned char* bytesNew = nullptr;
 
     if (bpp == 3) {
-        unsigned char* bytesNew = (unsigned char*)malloc(width * height * 4);
+        bytesNew  = (unsigned char*)malloc(width * height * 4);
 
         for (unsigned int i = 0, k = 0; i < static_cast<unsigned int>(width * height * 4); i = i + 4, k = k + 3) {
             bytesNew[i] = imageData[k];
             bytesNew[i + 1] = imageData[k + 1];
             bytesNew[i + 2] = imageData[k + 2];
-            bytesNew[i + 3] = 255;
+            bytesNew[i + 3] = alphaChannel == -1 ? 255 : alphaChannel;
         }
-        FreeImage_Unload(sourceBitmap);
         imageData = bytesNew;
-        bpp = 4;      
+        bpp = 4; 
     }
 
     m_width = width;
     m_height = height;
     m_channels = bpp;
-
+     
     m_data = (unsigned char*)malloc(width * height * bpp);
     memcpy(m_data, imageData, width * height * bpp);
 
-    /*m_texture = wgpCreateTexture(m_width, m_height, WGPUTextureFormat::WGPUTextureFormat_RGBA8Unorm, WGPUTextureUsage_CopyDst | WGPUTextureUsage_TextureBinding);
+    m_texture = wgpCreateTexture(m_width, m_height, WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst, WGPUTextureFormat::WGPUTextureFormat_RGBA8Unorm);
     
     WGPUTexelCopyTextureInfo destination;
     destination.texture = m_texture;
@@ -65,9 +83,12 @@ void WgpTexture::loadFromFile(std::string fileName, const bool flipVertical) {
     source.rowsPerImage = m_height;
 
     WGPUExtent3D extent3D = { m_width, m_height, 1 };
-    wgpuQueueWriteTexture(wgpContext.queue, &destination, imageData, width * height * bpp, &source, &extent3D);*/
+    wgpuQueueWriteTexture(wgpContext.queue, &destination, imageData, width * height * bpp, &source, &extent3D);
 
     FreeImage_Unload(sourceBitmap);
+    if (bytesNew)
+        free(bytesNew);
+
     FreeImage_DeInitialise();
 }
 
@@ -99,17 +120,19 @@ void WgpTexture::FlipVertical(unsigned char* data, unsigned int padWidth, unsign
     }
 }
 
-unsigned char* WgpTexture::LoadFromFile(std::string fileName, const bool flipVertical, short alphaChannel) {
-    FreeImage_Initialise();
+unsigned char* WgpTexture::LoadFromFile2(std::string fileName, const bool flipVertical, short alphaChannel) {
+    std::filesystem::path filePath = fileName;
 
-    FIBITMAP* sourceBitmap = FreeImage_Load(FIF_PNG, fileName.c_str(), PNG_DEFAULT);
+    FreeImage_Initialise();
+    FIBITMAP* sourceBitmap = filePath.extension() == ".png" ? FreeImage_Load(FIF_PNG, fileName.c_str(), PNG_DEFAULT) : FreeImage_Load(FIF_BMP, fileName.c_str(), BMP_DEFAULT);
     unsigned int bpp = FreeImage_GetBPP(sourceBitmap) / 8;
     unsigned int width = FreeImage_GetWidth(sourceBitmap);
     unsigned int height = FreeImage_GetHeight(sourceBitmap);
     unsigned char* imageData = FreeImage_GetBits(sourceBitmap);
+    unsigned char* bytesNew = nullptr;
 
     if (bpp == 3) {
-        unsigned char* bytesNew = (unsigned char*)malloc(width * height * 4);
+        bytesNew = (unsigned char*)malloc(width * height * 4);
 
         for (unsigned int i = 0, k = 0; i < static_cast<unsigned int>(width * height * 4); i = i + 4, k = k + 3) {
             bytesNew[i] = imageData[k];
@@ -117,9 +140,15 @@ unsigned char* WgpTexture::LoadFromFile(std::string fileName, const bool flipVer
             bytesNew[i + 2] = imageData[k + 2];
             bytesNew[i + 3] = alphaChannel == -1 ? 255 : alphaChannel;
         }
-        FreeImage_Unload(sourceBitmap);
         imageData = bytesNew;
         bpp = 4;
+    }
+
+   
+
+    if (bytesNew) {
+        FreeImage_Unload(sourceBitmap);
+        return bytesNew;
     }
 
     return imageData;

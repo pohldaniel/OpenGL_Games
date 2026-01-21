@@ -44,6 +44,7 @@ extern "C" {
 }
 
 enum RenderPipelineSlot {
+	RP_NONE,
 	RP_PTN,
 	RP_WIREFRAME
 };

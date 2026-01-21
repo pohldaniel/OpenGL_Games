@@ -199,6 +199,7 @@
     <ClCompile Include="WebGPU\WgpBuffer.cpp" />
     <ClCompile Include="WebGPU\WgpContext.cpp" />
     <ClCompile Include="WebGPU\WgpMesh.cpp" />
+    <ClCompile Include="WebGPU\WgpModel.cpp" />
     <ClCompile Include="WebGPU\WgpTexture.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -207,6 +208,7 @@
     <ClInclude Include="engine\input\Mouse.h" />
     <ClInclude Include="engine\interfaces\ICounter.h" />
     <ClInclude Include="engine\interfaces\IStateMachine.h" />
+    <ClInclude Include="engine\Mesh.h" />
     <ClInclude Include="engine\Object.h" />
     <ClInclude Include="convhull\convhull_3d.h" />
     <ClInclude Include="engine\Camera.h" />
@@ -245,7 +247,9 @@
     <ClInclude Include="src\Utils\Fade.h" />
     <ClInclude Include="WebGPU\WgpBuffer.h" />
     <ClInclude Include="WebGPU\WgpContext.h" />
+    <ClInclude Include="WebGPU\WgpData.h" />
     <ClInclude Include="WebGPU\WgpMesh.h" />
+    <ClInclude Include="WebGPU\WgpModel.h" />
     <ClInclude Include="WebGPU\WgpTexture.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
