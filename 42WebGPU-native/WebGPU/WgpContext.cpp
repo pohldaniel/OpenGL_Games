@@ -10,22 +10,30 @@ WgpContext wgpContext = {};
 std::unordered_map<VertexLayoutSlot, std::vector<WGPUVertexAttribute>> wgpVertexAttributes;
 std::unordered_map<VertexLayoutSlot, WGPUVertexBufferLayout> wgpVertexBufferLayouts;
 
-void handleRequestAdapter(WGPURequestAdapterStatus status, WGPUAdapter adapter, WGPUStringView message, void* userdata1, void* userdata2) {
+static void FatalError(WGPUStringView message){
+	char msg[1024];
+	snprintf(msg, sizeof(msg), "%.*s", (int)message.length, message.data);
+
+	MessageBoxA(NULL, msg, "Error", MB_ICONEXCLAMATION);
+	ExitProcess(0);
+}
+
+void OnRequestAdapter(WGPURequestAdapterStatus status, WGPUAdapter adapter, WGPUStringView message, void* userdata1, void* userdata2) {
 	if (status == WGPURequestAdapterStatus_Success) {
 		struct WgpContext* context = (WgpContext*)userdata1;
 		context->adapter = adapter;
 	}else {
-		std::cout << "ERROR: Adapter" << std::endl;
+		FatalError(message);
 	}
 }
 
-void handleRequestDevice(WGPURequestDeviceStatus status, WGPUDevice device, WGPUStringView message, void* userdata1, void* userdata2) {
+void OnRequestDevice(WGPURequestDeviceStatus status, WGPUDevice device, WGPUStringView message, void* userdata1, void* userdata2) {
 
 	if (status == WGPURequestDeviceStatus_Success) {
 		struct WgpContext* context = (WgpContext*)userdata1;
 		context->device = device;
 	}else {
-		std::cout << "ERROR: Device" << std::endl;
+		FatalError(message);
 	}
 }
 
@@ -143,7 +151,7 @@ bool wgpCreateDevice(WgpContext& wgpContext, void* window) {
 	requestAdapterOptions.backendType = WGPUBackendType_Vulkan;
 
 	WGPURequestAdapterCallbackInfo requestAdapterCallbackInfo = {};
-	requestAdapterCallbackInfo.callback = handleRequestAdapter;
+	requestAdapterCallbackInfo.callback = OnRequestAdapter;
 	requestAdapterCallbackInfo.userdata1 = &wgpContext;
 	requestAdapterCallbackInfo.mode = WGPUCallbackMode_WaitAnyOnly;
 	WGPUFuture futureAdapter = wgpuInstanceRequestAdapter(wgpContext.instance, &requestAdapterOptions, requestAdapterCallbackInfo);
@@ -155,7 +163,7 @@ bool wgpCreateDevice(WgpContext& wgpContext, void* window) {
 #endif
 
 	WGPURequestDeviceCallbackInfo  deviceCallbackInfo = {};
-	deviceCallbackInfo.callback = handleRequestDevice;
+	deviceCallbackInfo.callback = OnRequestDevice;
 	deviceCallbackInfo.userdata1 = &wgpContext;
 	deviceCallbackInfo.mode = WGPUCallbackMode_WaitAnyOnly;
 
@@ -169,7 +177,6 @@ bool wgpCreateDevice(WgpContext& wgpContext, void* window) {
 	WGPUDeviceDescriptor deviceDescriptor = {};
 	deviceDescriptor.requiredLimits = &requiredLimits;
 	//deviceDescriptor.requiredFeatures
-	wgpuAdapterRequestDevice(wgpContext.adapter, &deviceDescriptor, deviceCallbackInfo);
 	WGPUFuture futureDevice = wgpuAdapterRequestDevice(wgpContext.adapter, &deviceDescriptor, deviceCallbackInfo);
 
 #ifndef WEBGPU_NATIVE
