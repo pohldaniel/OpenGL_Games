@@ -206,7 +206,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="IexMath\IexMathFpu.cpp" />
-    <ClCompile Include="IlmImf\b44ExpLogTable.cpp" />
     <ClCompile Include="IlmImf\ImfAcesFile.cpp" />
     <ClCompile Include="IlmImf\ImfAttribute.cpp" />
     <ClCompile Include="IlmImf\ImfB44Compressor.cpp" />

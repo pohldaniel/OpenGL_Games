@@ -108,18 +108,23 @@ void wgpInit(void* window) {
 }
 
 bool wgpCreateDevice(WgpContext& wgpContext, void* window) {
+	
+
+#ifdef WEBGPU_NATIVE
 	WGPUInstanceExtras instanceExtras = { };
 	instanceExtras.chain.sType = (WGPUSType)WGPUSType_InstanceExtras;
 	instanceExtras.chain.next = nullptr;
 	instanceExtras.backends = WGPUInstanceBackend_Primary;
 
-
-	WGPUInstanceDescriptor instanceDescriptor = { };
+	WGPUInstanceDescriptor instanceDescriptor = {};
 	//instanceDescriptor.nextInChain = reinterpret_cast<WGPUChainedStruct*>(&instanceExtras);
 	//instanceDescriptor.features.
-
 	wgpContext.instance = wgpuCreateInstance(&instanceDescriptor);
-
+#else
+	
+#endif
+	wgpContext.instance = wgpuCreateInstance(NULL);
+	
 	WGPUSurfaceSourceWindowsHWND surfaceSourceWindowsHWND = {};
 	surfaceSourceWindowsHWND.chain.sType = WGPUSType_SurfaceSourceWindowsHWND;
 	surfaceSourceWindowsHWND.chain.next = nullptr;
@@ -140,13 +145,20 @@ bool wgpCreateDevice(WgpContext& wgpContext, void* window) {
 	WGPURequestAdapterCallbackInfo requestAdapterCallbackInfo = {};
 	requestAdapterCallbackInfo.callback = handleRequestAdapter;
 	requestAdapterCallbackInfo.userdata1 = &wgpContext;
+	requestAdapterCallbackInfo.mode = WGPUCallbackMode_WaitAnyOnly;
+	WGPUFuture futureAdapter = wgpuInstanceRequestAdapter(wgpContext.instance, &requestAdapterOptions, requestAdapterCallbackInfo);
 
-	wgpuInstanceRequestAdapter(wgpContext.instance, &requestAdapterOptions, requestAdapterCallbackInfo);
+#ifndef WEBGPU_NATIVE
+	WGPUFutureWaitInfo waitAdapter = {};
+	waitAdapter.future = futureAdapter;
+	WGPUWaitStatus statusAdapter = wgpuInstanceWaitAny(wgpContext.instance, 1, &waitAdapter, 0);
+#endif
 
 	WGPURequestDeviceCallbackInfo  deviceCallbackInfo = {};
 	deviceCallbackInfo.callback = handleRequestDevice;
 	deviceCallbackInfo.userdata1 = &wgpContext;
-	
+	deviceCallbackInfo.mode = WGPUCallbackMode_WaitAnyOnly;
+
 	WGPULimits requiredLimits = {};
 	setDefault(requiredLimits);
 	requiredLimits.maxTextureDimension1D = 2048;
@@ -157,9 +169,14 @@ bool wgpCreateDevice(WgpContext& wgpContext, void* window) {
 	WGPUDeviceDescriptor deviceDescriptor = {};
 	deviceDescriptor.requiredLimits = &requiredLimits;
 	//deviceDescriptor.requiredFeatures
-
 	wgpuAdapterRequestDevice(wgpContext.adapter, &deviceDescriptor, deviceCallbackInfo);
-	
+	WGPUFuture futureDevice = wgpuAdapterRequestDevice(wgpContext.adapter, &deviceDescriptor, deviceCallbackInfo);
+
+#ifndef WEBGPU_NATIVE
+	WGPUFutureWaitInfo waitDevice = {};
+	waitDevice.future = futureDevice;
+	WGPUWaitStatus statusDevice = wgpuInstanceWaitAny(wgpContext.instance, 1, &waitDevice, 0);
+#endif
 
 	wgpContext.queue = wgpuDeviceGetQueue(wgpContext.device);
 	wgpContext.depthTexture = wgpCreateTexture(static_cast<uint32_t>(Application::Width), static_cast<uint32_t>(Application::Height), WGPUTextureUsage_RenderAttachment, WGPUTextureFormat::WGPUTextureFormat_Depth24Plus, WGPUTextureFormat::WGPUTextureFormat_Depth24Plus);
@@ -405,10 +422,6 @@ void wgpShutDown() {
 	wgpuQueueRelease(wgpContext.queue);
 	wgpContext.queue = nullptr;
 
-	wgpuDeviceDestroy(wgpContext.device);
-	wgpuDeviceRelease(wgpContext.device);
-	wgpContext.device = nullptr;
-
 	wgpuAdapterRelease(wgpContext.adapter);
 	wgpContext.adapter = nullptr;
 
@@ -417,6 +430,10 @@ void wgpShutDown() {
 
 	wgpuInstanceRelease(wgpContext.instance);
 	wgpContext.instance = nullptr;	
+
+	wgpuDeviceDestroy(wgpContext.device);
+	wgpuDeviceRelease(wgpContext.device);
+	wgpContext.device = nullptr;
 }
 
 void wgpResize(uint32_t width, uint32_t height) {
