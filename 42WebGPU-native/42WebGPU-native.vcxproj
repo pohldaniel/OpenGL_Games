@@ -99,7 +99,8 @@
       <AdditionalDependencies>OpenGl32.lib;libglew.lib;libsoil2.lib;libfreetype.lib;libimgui.lib;libassimp.lib;libbullet.lib;libtmxlite.lib;libzlib.lib;libopenal.lib;libsndfile.lib;libmpg.lib;liblame.lib;libflac.lib;winmm.lib;shlwapi.lib;libdetour.lib;libdetourtilecache.lib;libdetourcrowd.lib;librecast.lib;liblz4.lib;xinput.lib;wgpu.lib;ws2_32.lib;userenv.lib;ntdll.lib;propsys.lib;runtimeobject.lib;libfreeimage.lib;libwebp.lib;libtiff4.lib;libpng.lib;libjxr.lib;libopenexr.lib;librawlite.lib;libopenjpeg.lib;libjpeg.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>copy /Y "$(ProjectDir)\..\SDKs\Vulkan\Bin\x64\vulkan-1.dll" "$(ProjectDir)\..\Release\vulkan-1.dll"</Command>
+      <Command>copy /Y "$(ProjectDir)..\SDKs\Vulkan\Bin\x64\vulkan-1.dll" "$(ProjectDir)\..\Debug\vulkan-1.dll"
+copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDir)..\Debug\d3dcompiler_47.dll"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -120,7 +121,8 @@
       <AdditionalDependencies>OpenGl32.lib;libglew.lib;libsoil2.lib;libfreetype.lib;libimgui.lib;libassimp.lib;libbullet.lib;libtmxlite.lib;libzlib.lib;libopenal.lib;libsndfile.lib;libmpg.lib;liblame.lib;libflac.lib;winmm.lib;shlwapi.lib;libdetour.lib;libdetourtilecache.lib;libdetourcrowd.lib;librecast.lib;liblz4.lib;xinput.lib;wgpu.lib;ws2_32.lib;userenv.lib;ntdll.lib;propsys.lib;runtimeobject.lib;libfreeimage.lib;libwebp.lib;libtiff4.lib;libpng.lib;libjxr.lib;libopenexr.lib;librawlite.lib;libopenjpeg.lib;libjpeg.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>copy /Y "$(ProjectDir)\..\SDKs\Vulkan\Bin\x64\vulkan-1.dll" "$(ProjectDir)\..\x64\release\vulkan-1.dll"</Command>
+      <Command>copy /Y "$(ProjectDir)..\SDKs\Vulkan\Bin\x64\vulkan-1.dll" "$(ProjectDir)..\x64\debug\vulkan-1.dll"
+copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDir)..\x64\debug\d3dcompiler_47.dll"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -146,7 +148,8 @@
       <AdditionalDependencies>OpenGl32.lib;libglew.lib;libsoil2.lib;libfreetype.lib;libimgui.lib;libassimp.lib;libbullet.lib;libtmxlite.lib;libzlib.lib;libopenal.lib;libsndfile.lib;libmpg.lib;liblame.lib;libflac.lib;winmm.lib;shlwapi.lib;libdetour.lib;libdetourtilecache.lib;libdetourcrowd.lib;librecast.lib;liblz4.lib;xinput.lib;wgpu.lib;ws2_32.lib;userenv.lib;ntdll.lib;propsys.lib;runtimeobject.lib;libfreeimage.lib;libwebp.lib;libtiff4.lib;libpng.lib;libjxr.lib;libopenexr.lib;librawlite.lib;libopenjpeg.lib;libjpeg.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>copy /Y "$(ProjectDir)\..\SDKs\Vulkan\Bin\x64\vulkan-1.dll" "$(ProjectDir)\..\Release\vulkan-1.dll"</Command>
+      <Command>copy /Y "$(ProjectDir)..\SDKs\Vulkan\Bin\x64\vulkan-1.dll" "$(ProjectDir)..\Release\vulkan-1.dll"
+copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDir)..\Release\d3dcompiler_47.dll"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -172,7 +175,8 @@
       <AdditionalDependencies>OpenGl32.lib;libglew.lib;libsoil2.lib;libfreetype.lib;libimgui.lib;libassimp.lib;libbullet.lib;libtmxlite.lib;libzlib.lib;libopenal.lib;libsndfile.lib;libmpg.lib;liblame.lib;libflac.lib;winmm.lib;shlwapi.lib;libdetour.lib;libdetourtilecache.lib;libdetourcrowd.lib;librecast.lib;liblz4.lib;xinput.lib;wgpu.lib;dxguid.lib;onecore.lib;ws2_32.lib;userenv.lib;ntdll.lib;propsys.lib;runtimeobject.lib;libfreeimage.lib;libwebp.lib;libtiff4.lib;libpng.lib;libjxr.lib;libopenexr.lib;librawlite.lib;libopenjpeg.lib;libjpeg.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>copy /Y "$(ProjectDir)\..\SDKs\Vulkan\Bin\x64\vulkan-1.dll" "$(ProjectDir)\..\x64\release\vulkan-1.dll"</Command>
+      <Command>copy /Y "$(ProjectDir)..\SDKs\Vulkan\Bin\x64\vulkan-1.dll" "$(ProjectDir)..\x64\release\vulkan-1.dll"
+copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDir)..\x64\release\d3dcompiler_47.dll"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
