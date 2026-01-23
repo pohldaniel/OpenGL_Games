@@ -36,12 +36,10 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	Width = WIDTH;
 	Height = HEIGHT;
 
-	createWindow();
-	
+	createWindow();	
 	initWebGPU();
 	showWindow();
 	configureSurface();
-	createPipeline();
 	initImGUI();
 
 	EventDispatcher.setProcessOSEvents([&]() {
@@ -244,8 +242,8 @@ void Application::initImGUI() {
 
 	ImGui_ImplWGPU_InitInfo initInfo = {};
 	initInfo.Device = wgpContext.device;
-	initInfo.RenderTargetFormat = wgpContext.surfaceCapabilities.formats[0];
-	initInfo.DepthStencilFormat = WGPUTextureFormat_Depth24Plus;
+	initInfo.RenderTargetFormat = wgpContext.colorformat;
+	initInfo.DepthStencilFormat = wgpContext.depthformat;
 
 	ImGui_ImplWGPU_Init(&initInfo);
 }

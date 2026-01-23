@@ -111,7 +111,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;IMGUI_IMPL_OPENGL_LOADER_CUSTOM;IMGUI_IMPL_OPENGL_LOADER_GLEW;GLEW_STATIC;IMGUI_IMPL_WEBGPU_BACKEND_WGPU;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\libglew;..\SDKs\Vulkan\Include;..\SDKs\wgpu\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\libglew;..\SDKs\Vulkan\Include;..\SDKs\wgpu-dawn\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -124,7 +124,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_LIB;IMGUI_IMPL_OPENGL_LOADER_CUSTOM;IMGUI_IMPL_OPENGL_LOADER_GLEW;GLEW_STATIC;IMGUI_IMPL_WEBGPU_BACKEND_WGPU;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\libglew;..\SDKs\Vulkan\Include;..\SDKs\wgpu\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\libglew;..\SDKs\Vulkan\Include;..\SDKs\wgpu-dawn\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -139,7 +139,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;IMGUI_IMPL_OPENGL_LOADER_CUSTOM;IMGUI_IMPL_OPENGL_LOADER_GLEW;GLEW_STATIC;IMGUI_IMPL_WEBGPU_BACKEND_WGPU;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\libglew;..\SDKs\Vulkan\Include;..\SDKs\wgpu\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\libglew;..\SDKs\Vulkan\Include;..\SDKs\wgpu-dawn\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -155,8 +155,8 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>NDEBUG;_LIB;IMGUI_IMPL_OPENGL_LOADER_CUSTOM;IMGUI_IMPL_OPENGL_LOADER_GLEW;GLEW_STATIC;IMGUI_IMPL_WEBGPU_BACKEND_WGPU;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\libglew;..\SDKs\Vulkan\Include;..\SDKs\wgpu\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>NDEBUG;_LIB;IMGUI_IMPL_OPENGL_LOADER_CUSTOM;IMGUI_IMPL_OPENGL_LOADER_GLEW;GLEW_STATIC;IMGUI_IMPL_WEBGPU_BACKEND_DAWN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\libglew;..\SDKs\Vulkan\Include;..\SDKs\wgpu-dawn\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
