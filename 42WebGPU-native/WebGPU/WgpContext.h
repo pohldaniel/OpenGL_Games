@@ -43,6 +43,8 @@ extern "C" {
 	void wgpDraw();
 	void wgpResize(uint32_t width, uint32_t height);
 	void wgpToggleVerticalSync();
+	void configureSurface();
+	void createPipeline();
 }
 
 enum RenderPipelineSlot {
@@ -87,6 +89,12 @@ struct WgpContext {
 		
 	std::function<void(const WGPURenderPassEncoder& commandBuffer)> OnDraw;
 
+
+
+	WGPURenderPipeline pipeline;
+	WGPUBindGroup bind_group;
+	WGPUBuffer vbuffer, ubuffer;
+	float angle = 0.0f;
 private:
 	std::unordered_map<RenderPipelineSlot, WGPUPipelineLayout> pipelineLayouts;
 	std::unordered_map<SamplerSlot, WGPUSampler> samplers;

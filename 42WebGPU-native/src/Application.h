@@ -57,7 +57,7 @@ private:
 
 	void processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
-	static void Resize(int deltaW, int deltaH, WGPUSurfaceConfiguration& config);
+	static void Resize(int deltaW, int deltaH);
 	static StateMachine* Machine;
 	static EventDispatcher& EventDispatcher;
 

@@ -4,7 +4,8 @@
 #include <imgui_impl_win32.h>
 #include <imgui_impl_wgpu.h>
 #include <imgui_internal.h>
-
+#include <chrono>
+#include <thread>
 #include <engine/sound/SoundDevice.h>
 
 #include <States/Default.h>
@@ -36,8 +37,11 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	Height = HEIGHT;
 
 	createWindow();
-	showWindow();
+	
 	initWebGPU();
+	showWindow();
+	configureSurface();
+	createPipeline();
 	initImGUI();
 
 	EventDispatcher.setProcessOSEvents([&]() {
@@ -115,7 +119,7 @@ void Application::showWindow() {
 
 	SetWindowPos(Window, NULL, rect1.left, rect1.top, Width + ((rect1.right - rect1.left) - (rect2.right - rect2.left)), Height + ((rect1.bottom - rect1.top) - (rect2.bottom - rect2.top)), NULL);
 
-	ShowWindow(Window, SW_SHOW);
+	ShowWindow(Window, SW_SHOWDEFAULT);
 	UpdateWindow(Window);
 
 	InitWindow = true;
@@ -160,7 +164,6 @@ LRESULT CALLBACK Application::StaticWndProc(HWND hWnd, UINT message, WPARAM wPar
 	}
 
 	ImGui_ImplWin32_WndProcHandler(hWnd, message, wParam, lParam);
-
 	if (InitWindow && ImGui::GetIO().WantCaptureMouse) {
 		return DefWindowProc(hWnd, message, wParam, lParam);
 	}
@@ -216,7 +219,7 @@ LRESULT Application::ApplicationWndProc(HWND hWnd, UINT message, WPARAM wParam, 
 			if (Height == 0) {					// avoid divide by zero
 				Height = 1;
 			}
-			Resize(deltaW, deltaH, wgpContext.config);
+			Resize(deltaW, deltaH);
 
 			break;
 		}default: {
@@ -433,8 +436,9 @@ void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 	}
 }
 
-void Application::Resize(int deltaW, int deltaH, WGPUSurfaceConfiguration& config) {
-	wgpResize(static_cast<uint32_t>(Width), static_cast<uint32_t>(Height));
+void Application::Resize(int deltaW, int deltaH) {
+	if(InitWindow)
+		wgpResize(static_cast<uint32_t>(Width), static_cast<uint32_t>(Height));
 }
 
 void Application::ToggleFullScreen(bool isFullScreen, unsigned int width, unsigned int height) {
