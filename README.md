@@ -82,8 +82,10 @@ The project 38Vulkan is a really simple vulkan example a more polished one can b
 
 The project 39Adrian is from https://code.google.com/archive/p/adrian/. For building the origin on windows take a look here https://github.com/pohldaniel/Adrian
 
-The project 40RecastDemo is from https://github.com/recastnavigation/recastnavigation and serves as "look up" for some library features 
+The project 40RecastDemo is from https://github.com/recastnavigation/recastnavigation and serves as "look up" for some library features
 
-For building wgpu-native
+For building wgpu-native use the following command the project https://github.com/gfx-rs/wgpu-native and make sure to add LLVM from https://github.com/llvm/llvm-project/releases to your environment path
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cargo build --target x86_64-pc-windows-msvc --release --no-default-features --features "vulkan wgsl spirv"
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cargo build --target x86_64-pc-windows-msvc --release  
+
+For building wgpu-dawn I have added a CMakeLists.txt add SDKs/wbgpu-dawn which will download and setup the project. Becareful libimgui has to be compiled for either native or dawn via changing the include and the Preprocessor Definition IMGUI_IMPL_WEBGPU_BACKEND_WGPU for WebGPU-native or IMGUI_IMPL_WEBGPU_BACKEND_DAWN for WebGPU-dawn.
