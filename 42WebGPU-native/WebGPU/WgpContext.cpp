@@ -606,8 +606,9 @@ void wgpDraw() {
 	wgpuQueueSubmit(wgpContext.queue, 1, &command );
 
 	wgpuSurfacePresent(wgpContext.surface);
-
+#ifdef WEBGPU_DAWN
 	wgpuDeviceTick(wgpContext.device);
+#endif
 	wgpuInstanceProcessEvents(wgpContext.instance);
 
 

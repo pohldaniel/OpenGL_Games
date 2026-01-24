@@ -1,10 +1,9 @@
-#include <GL/glew.h>
 #include <imgui.h>
 #include "StateMachine.h"
 #include "Application.h"
-#include <iostream>
 
-bool StateMachine::EnableWireframe = false;
+bool StateMachine::WireframeEnabled = false;
+bool StateMachine::WireframeToggled = false;
 
 StateMachine::StateMachine(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fdt) {
 
@@ -34,9 +33,7 @@ void StateMachine::update() {
 void StateMachine::render() {
 
 	if (!m_states.empty()) {
-		glPolygonMode(GL_FRONT_AND_BACK, EnableWireframe ? GL_LINE : GL_FILL);
 		m_states.top()->render();
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
 }
 
@@ -46,8 +43,7 @@ void StateMachine::resizeState(int deltaW, int deltaH, States state) {
 
 	if (m_states.top()->getCurrentState() == state) {
 		m_states.top()->resize(deltaW, deltaH);
-	}
-	else {
+	}else {
 		State* temp = m_states.top();
 		m_states.pop();
 		resizeState(deltaW, deltaH, state);
@@ -56,11 +52,20 @@ void StateMachine::resizeState(int deltaW, int deltaH, States state) {
 }
 
 void StateMachine::ToggleWireframe() {
-	EnableWireframe = !EnableWireframe;
+	WireframeEnabled = !WireframeEnabled;
+	WireframeToggled = true;
 }
 
-bool& StateMachine::GetEnableWireframe() {
-	return EnableWireframe;
+bool& StateMachine::GetWireframeEnabled() {
+	return WireframeEnabled;
+}
+
+bool StateMachine::IsWireframeToggled(){
+	if (WireframeToggled) {
+		WireframeToggled = false;
+		return true;
+	}
+	return false;
 }
 
 /////////////////////////////////////////////

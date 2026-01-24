@@ -234,10 +234,11 @@ void Default::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
 
 	// render widgets
 	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
-	if (ImGui::Checkbox("Draw Wirframe", &StateMachine::GetEnableWireframe())) {
-		m_wgpMammoth.setRenderPipelineSlot(StateMachine::GetEnableWireframe() ? RP_WIREFRAME : RP_PTN);
-		m_wgpDragon.setRenderPipelineSlot(StateMachine::GetEnableWireframe() ? RP_WIREFRAME : RP_PTN);
+	if (ImGui::Checkbox("Draw Wirframe", &StateMachine::GetWireframeEnabled())  || StateMachine::IsWireframeToggled()) {
+		m_wgpMammoth.setRenderPipelineSlot(StateMachine::GetWireframeEnabled() ? RP_WIREFRAME : RP_PTN);
+		m_wgpDragon.setRenderPipelineSlot(StateMachine::GetWireframeEnabled() ? RP_WIREFRAME : RP_PTN);
 	}
+
 	int currentModel = m_model;
 	if (ImGui::Combo("Model", &currentModel, "Mammoth\0Dragon\0\0")) {
 		m_model = static_cast<Model>(currentModel);

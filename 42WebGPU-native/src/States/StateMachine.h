@@ -1,5 +1,4 @@
 #pragma once
-
 #include <engine/interfaces/IStateMachine.h>
 
 enum States {
@@ -26,15 +25,12 @@ public:
 	const float& m_dt;
 
 	static void ToggleWireframe();
-	static bool& GetEnableWireframe();
-
+	static bool& GetWireframeEnabled();
+	static bool IsWireframeToggled();
 private:
 
-	unsigned int m_frameTexture;
-	unsigned int m_frameBuffer;
-	unsigned int m_rbDepthStencil;
-
-	static bool EnableWireframe;
+	static bool WireframeToggled;
+	static bool WireframeEnabled;
 
 };
 
