@@ -27,6 +27,7 @@ public:
 	static void ToggleWireframe();
 	static bool& GetWireframeEnabled();
 	static bool IsWireframeToggled();
+
 private:
 
 	static bool WireframeToggled;

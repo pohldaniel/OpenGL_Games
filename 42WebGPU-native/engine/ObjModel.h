@@ -1,6 +1,5 @@
 #pragma once
 #include <iostream>
-#include <ctime>
 #include <vector>
 #include <array>
 #include <fstream>
@@ -8,7 +7,6 @@
 #include <string>
 #include <algorithm>
 #include <memory>
-#include <cctype>
 #include <unordered_map>
 #include <functional>
 #include <filesystem>
@@ -16,7 +14,6 @@
 
 #include "Mesh.h"
 #include "Vector.h"
-#include "Camera.h"
 #include "Transform.h"
 #include "Material.h"
 
@@ -130,7 +127,7 @@ public:
 	ObjMesh(ObjMesh&& rhs) noexcept;
 	ObjMesh& operator=(const ObjMesh& rhs);
 	ObjMesh& operator=(ObjMesh&& rhs) noexcept;
-	~ObjMesh();
+	virtual ~ObjMesh();
 
 	const std::vector<float>& getVertexBuffer() const override;
 	const std::vector<unsigned int>& getIndexBuffer() const override;

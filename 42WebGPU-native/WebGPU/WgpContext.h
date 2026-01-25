@@ -1,6 +1,5 @@
 #pragma once
 
-#include <array>
 #include <vector>
 #include <string>
 #include <functional>
@@ -8,7 +7,6 @@
 #ifdef WEBGPU_NATIVE
 	#include <wgpu.h>
 #endif
-#include <engine/Vector.h>
 
 struct WgpContext;
 enum VertexLayoutSlot {
@@ -43,7 +41,7 @@ extern "C" {
 	void wgpDraw();
 	void wgpResize(uint32_t width, uint32_t height);
 	void wgpToggleVerticalSync();
-	void configureSurface();
+	void wgpConfigureSurface();
 }
 
 enum RenderPipelineSlot {
@@ -63,8 +61,8 @@ struct WgpContext {
 	friend void wgpShaderModulesRelease();
 	friend void wgpPipelineLayoutsRelease();
 
-	WGPURenderPipeline createRenderPipelinePTN(std::string shaderModuleName, std::function <WGPUBindGroupLayout()> onBindGroupLayout);
-	WGPURenderPipeline createRenderPipelineWireframe(std::string shaderModuleName, std::function <WGPUBindGroupLayout()> onBindGroupLayout);
+	void createRenderPipelinePTN(std::string shaderModuleName, std::function <WGPUBindGroupLayout()> onBindGroupLayout);
+	void createRenderPipelineWireframe(std::string shaderModuleName, std::function <WGPUBindGroupLayout()> onBindGroupLayout);
 
 	void createVertexBufferLayout(VertexLayoutSlot slot = VL_PTN);
 	void addSampler(const WGPUSampler& sampler, SamplerSlot samplerSlot = SS_LINEAR);
@@ -72,14 +70,14 @@ struct WgpContext {
 	void addSahderModule(const std::string& shaderModuleName, const std::string& shaderModulePath);
 	const WGPUShaderModule& getShaderModule(std::string shaderModuleName);
 
-	WGPUInstance instance = nullptr;
-	WGPUSurface surface = nullptr;
+	WGPUInstance instance = NULL;
+	WGPUAdapter adapter = NULL;
+	WGPUDevice device = NULL;
+	WGPUSurface surface = NULL;
+	WGPUQueue queue = NULL;
 
-	WGPUAdapter adapter = nullptr;
-	WGPUDevice device = nullptr;
-	WGPUQueue queue = nullptr;
-	WGPUTextureView depthTextureView = nullptr;
-	WGPUTexture depthTexture = nullptr;
+	WGPUTextureView depthTextureView = NULL;
+	WGPUTexture depthTexture = NULL;
 	WGPUSurfaceConfiguration config = {};
 	WGPUSurfaceCapabilities surfaceCapabilities;
 	WGPUTextureFormat depthformat = WGPUTextureFormat::WGPUTextureFormat_Depth24Plus;

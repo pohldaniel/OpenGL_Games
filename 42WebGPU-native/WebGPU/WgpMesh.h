@@ -1,8 +1,8 @@
 #pragma once
 #include <vector>
 #include <string>
-#include <WebGPU/WgpBuffer.h>
-#include <WebGPU/WgpTexture.h>
+#include "WgpBuffer.h"
+#include "WgpTexture.h"
 
 enum RenderPipelineSlot;
 

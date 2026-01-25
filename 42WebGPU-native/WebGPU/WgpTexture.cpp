@@ -4,20 +4,20 @@
 #include "WgpTexture.h"
 
 WgpTexture::WgpTexture() :
+    m_texture(NULL),
     m_width(0u),
     m_height(0u),
     m_channels(0u),
-    m_texture(NULL),
-    m_markForDelete(false),
-    m_data(nullptr){
+    m_data(nullptr),
+    m_markForDelete(false) {
 
 }
 
-WgpTexture::WgpTexture(WgpTexture const& rhs) : m_data(rhs.m_data), m_width(rhs.m_width), m_height(rhs.m_height), m_channels(rhs.m_channels), m_texture(rhs.m_texture), m_markForDelete(false) {
+WgpTexture::WgpTexture(WgpTexture const& rhs) : m_texture(rhs.m_texture), m_width(rhs.m_width), m_height(rhs.m_height), m_channels(rhs.m_channels), m_data(rhs.m_data), m_markForDelete(false) {
 
 }
 
-WgpTexture::WgpTexture(WgpTexture&& rhs) noexcept : m_data(std::move(rhs.m_data)), m_width(rhs.m_width), m_height(rhs.m_height), m_channels(rhs.m_channels), m_texture(rhs.m_texture), m_markForDelete(rhs.m_markForDelete) {
+WgpTexture::WgpTexture(WgpTexture&& rhs) noexcept : m_texture(rhs.m_texture), m_width(rhs.m_width), m_height(rhs.m_height), m_channels(rhs.m_channels), m_data(std::move(rhs.m_data)), m_markForDelete(rhs.m_markForDelete) {
 
 }
 
@@ -71,13 +71,13 @@ void WgpTexture::loadFromFile(std::string fileName, const bool flipVertical, sho
 
     m_texture = wgpCreateTexture(m_width, m_height, WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst, WGPUTextureFormat::WGPUTextureFormat_RGBA8Unorm);
     
-    WGPUTexelCopyTextureInfo destination;
+    WGPUTexelCopyTextureInfo destination = {};
     destination.texture = m_texture;
     destination.mipLevel = 0;
     destination.origin = { 0, 0, 0 };
     destination.aspect = WGPUTextureAspect_All;
 
-    WGPUTexelCopyBufferLayout source;
+    WGPUTexelCopyBufferLayout source = {};
     source.offset = 0;
     source.bytesPerRow = m_channels * m_width;
     source.rowsPerImage = m_height;
@@ -93,13 +93,13 @@ void WgpTexture::loadFromFile(std::string fileName, const bool flipVertical, sho
 }
 
 void WgpTexture::copyToDestination(const WGPUTexture& destTesture) {
-    WGPUTexelCopyTextureInfo destination;
+    WGPUTexelCopyTextureInfo destination = {};
     destination.texture = destTesture;
     destination.mipLevel = 0;
     destination.origin = { 0, 0, 0 };
     destination.aspect = WGPUTextureAspect_All;
 
-    WGPUTexelCopyBufferLayout source;
+    WGPUTexelCopyBufferLayout source = {};
     source.offset = 0;
     source.bytesPerRow = m_channels * m_width;
     source.rowsPerImage = m_height;
@@ -120,7 +120,7 @@ void WgpTexture::FlipVertical(unsigned char* data, unsigned int padWidth, unsign
     }
 }
 
-unsigned char* WgpTexture::LoadFromFile2(std::string fileName, const bool flipVertical, short alphaChannel) {
+unsigned char* WgpTexture::LoadFromFile(std::string fileName, const bool flipVertical, short alphaChannel) {
     std::filesystem::path filePath = fileName;
 
     FreeImage_Initialise();

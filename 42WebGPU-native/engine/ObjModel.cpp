@@ -519,14 +519,14 @@ void ObjModel::loadModelCpu(const char* _filename, const Vector3f& axis, float d
 	}
 
 	std::map<int, int>::const_iterator iterDup = dup.begin();
-	for (iterDup; iterDup != dup.end(); iterDup++) {
+	for (; iterDup != dup.end(); iterDup++) {
 
 		if (name.empty()) {
 			m_meshes.push_back(new ObjMesh(iterDup->second, this));
 		}else {
 
 			std::map<std::string, int >::const_iterator iterName = name.begin();
-			for (iterName; iterName != name.end(); iterName++) {
+			for (; iterName != name.end(); iterName++) {
 
 				if (iterDup->first == iterName->second) {
 					m_meshes.push_back(new ObjMesh(iterName->first, iterDup->second, this));
@@ -759,7 +759,7 @@ void ObjModel::GenerateNormals(std::vector<float>& vertexBuffer, std::vector<uns
 
 	for (int i = 0; i < tmpVertex.size(); i = i + vertexLength) {
 
-		float length = 1.0f / sqrtf(tmpVertex[i + 3 + vertexOffset] * tmpVertex[i + 3 + vertexOffset] +
+		length = 1.0f / sqrtf(tmpVertex[i + 3 + vertexOffset] * tmpVertex[i + 3 + vertexOffset] +
 			tmpVertex[i + 4 + vertexOffset] * tmpVertex[i + 4 + vertexOffset] +
 			tmpVertex[i + 5 + vertexOffset] * tmpVertex[i + 5 + vertexOffset]);
 
@@ -1034,7 +1034,7 @@ void ObjModel::PackBuffer(std::vector<float>& vertexBuffer, unsigned int stride)
 		}
 		strideNew = 20;
 	}
-
+	stride = strideNew;
 	vertexBuffer.clear();
 	vertexBuffer.shrink_to_fit();
 	vertexBuffer.insert(vertexBuffer.end(), vertexBufferNew.begin(), vertexBufferNew.end());
@@ -1331,7 +1331,7 @@ std::string ObjModel::GetTexturePath(std::string texPath, std::string modelDirec
 	foundDot = (foundDot < 0 ? texPath.length() : foundDot);
 	foundDot = foundSlash < 0 ? foundDot : foundDot - 1;
 	std::string textureName = texPath.substr(foundSlash + 1, foundDot);
-	return textureName, foundSlash < 0 ? modelDirectory + texPath.substr(foundSlash + 1) : texPath;
+	return foundSlash < 0 ? modelDirectory + texPath.substr(foundSlash + 1) : texPath;
 }
 
 void ObjModel::ReadMaterialFromFile(std::string path, std::string mltLib, std::string mltName, short& index) {

@@ -1,4 +1,3 @@
-
 #include <utility>
 #include "WgpContext.h"
 #include "WgpBuffer.h"

@@ -19,7 +19,7 @@ public:
 	void cleanup();
 	void markForDelete();
 
-	static unsigned char* LoadFromFile2(std::string fileName, const bool flipVertical = false, short alphaChannel = -1);
+	static unsigned char* LoadFromFile(std::string fileName, const bool flipVertical = false, short alphaChannel = -1);
 
 private:
 

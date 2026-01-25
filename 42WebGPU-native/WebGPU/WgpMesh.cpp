@@ -4,17 +4,17 @@
 #include "WgpData.h"
 
 WgpMesh::WgpMesh(const std::vector<float>& vertexBuffer, const std::vector<unsigned int>& indexBuffer, const std::string& texturePath, const WGPUTextureView& textureView, const WGPUBuffer& uniformBuffer, unsigned int stride) :
-	vertexBuffer(vertexBuffer),
-	indexBuffer(indexBuffer),
-	textureView(textureView), 
-	uniformBuffer(uniformBuffer), 
-	m_stride(stride),
 	m_textureView(NULL),
 	m_bindGroup(NULL),
 	m_bindGroupWireframe(NULL),
 	m_drawCount(indexBuffer.size()),
 	m_renderPipelineSlot(RP_PTN),
-	m_markForDelete(false){
+	m_markForDelete(false),
+	m_stride(stride),
+	vertexBuffer(vertexBuffer),
+	indexBuffer(indexBuffer),
+	textureView(textureView),
+	uniformBuffer(uniformBuffer) {
 
 	m_vertexBuffer.createBuffer(reinterpret_cast<const void*>(vertexBuffer.data()), sizeof(float) * vertexBuffer.size(), WGPUBufferUsage_Vertex | WGPUBufferUsage_Storage);
 	m_indexBuffer.createBuffer(reinterpret_cast<const void*>(indexBuffer.data()), sizeof(unsigned int) * indexBuffer.size(), WGPUBufferUsage_Index | WGPUBufferUsage_Vertex | WGPUBufferUsage_Storage);
@@ -25,11 +25,6 @@ WgpMesh::WgpMesh(const std::vector<float>& vertexBuffer, const std::vector<unsig
 }
 
 WgpMesh::WgpMesh(WgpMesh const& rhs) : 
-	vertexBuffer(rhs.vertexBuffer),
-	indexBuffer(rhs.indexBuffer),
-	textureView(rhs.textureView),
-	uniformBuffer(rhs.uniformBuffer),
-	m_stride(rhs.m_stride),
 	m_vertexBuffer(rhs.m_vertexBuffer),
 	m_indexBuffer(rhs.m_indexBuffer),
 	m_colorBuffer(rhs.m_colorBuffer),
@@ -39,25 +34,30 @@ WgpMesh::WgpMesh(WgpMesh const& rhs) :
 	m_bindGroupWireframe(rhs.m_bindGroupWireframe),
 	m_drawCount(rhs.m_drawCount),
 	m_renderPipelineSlot(rhs.m_renderPipelineSlot),
-	m_markForDelete(false) {
+	m_markForDelete(false),
+	m_stride(rhs.m_stride),
+	vertexBuffer(rhs.vertexBuffer),
+	indexBuffer(rhs.indexBuffer),
+	textureView(rhs.textureView),
+	uniformBuffer(rhs.uniformBuffer) {
 }
 
 WgpMesh::WgpMesh(WgpMesh&& rhs) noexcept :
+	m_vertexBuffer(std::move(rhs.m_vertexBuffer)),
+	m_indexBuffer(std::move(rhs.m_indexBuffer)),
+	m_colorBuffer(std::move(rhs.m_colorBuffer)),
+	m_texture(std::move(rhs.m_texture)),
+	m_textureView(std::move(rhs.m_textureView)),
+	m_bindGroup(std::move(rhs.m_bindGroup)),
+	m_bindGroupWireframe(std::move(rhs.m_bindGroupWireframe)),
+	m_drawCount(rhs.m_drawCount),
+	m_renderPipelineSlot(rhs.m_renderPipelineSlot),
+	m_markForDelete(false),
+	m_stride(rhs.m_stride),
 	vertexBuffer(rhs.vertexBuffer),
 	indexBuffer(rhs.indexBuffer),
 	textureView(rhs.textureView),
-	uniformBuffer(rhs.uniformBuffer),
-	m_stride(rhs.m_stride),
-	m_vertexBuffer(rhs.m_vertexBuffer),
-	m_indexBuffer(rhs.m_indexBuffer),
-	m_colorBuffer(rhs.m_colorBuffer),
-	m_texture(rhs.m_texture),
-	m_textureView(rhs.m_textureView),
-	m_bindGroup(rhs.m_bindGroup),
-	m_bindGroupWireframe(rhs.m_bindGroupWireframe),
-	m_drawCount(rhs.m_drawCount),
-	m_renderPipelineSlot(rhs.m_renderPipelineSlot),
-	m_markForDelete(false) {
+	uniformBuffer(rhs.uniformBuffer) {
 }
 
 WgpMesh::~WgpMesh() {
@@ -119,7 +119,6 @@ WGPUBindGroup WgpMesh::createBindGroup(const WGPUTextureView& textureView) {
 WGPUBindGroup WgpMesh::createBindGroupWireframe() {
 	uint32_t numVertices = vertexBuffer.size() / m_stride;
 	std::vector<float> colors(4u * numVertices);
-	float x = 0.0f, y = 0.0f, z = 0.0f;
 	for (uint32_t i = 0; i < numVertices; i++) {
 		colors[4 * i + 0] = vertexBuffer[m_stride * i + 0];
 		colors[4 * i + 1] = vertexBuffer[m_stride * i + 1];

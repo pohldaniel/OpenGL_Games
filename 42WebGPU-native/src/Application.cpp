@@ -39,7 +39,7 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	createWindow();	
 	initWebGPU();
 	showWindow();
-	configureSurface();
+	wgpConfigureSurface();
 	initImGUI();
 
 	EventDispatcher.setProcessOSEvents([&]() {
