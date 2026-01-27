@@ -28,8 +28,8 @@ void WgpModel::setRenderPipelineSlot(RenderPipelineSlot renderPipelineSlot) {
 	}
 }
 
-void WgpModel::draw(const WGPURenderPassEncoder& renderPass) const {
+void WgpModel::draw(const WGPURenderPassEncoder& renderPassEncoder) const {
 	for (std::list<WgpMesh>::const_iterator it = m_meshes.begin(); it != m_meshes.end(); ++it) {
-		(*it).draw(renderPass);
+		(*it).draw(renderPassEncoder);
 	}
 }

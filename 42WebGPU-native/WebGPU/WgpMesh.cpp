@@ -158,24 +158,24 @@ WGPUBindGroup WgpMesh::createBindGroupWireframe() {
 	return wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc);
 }
 
-void WgpMesh::draw(const WGPURenderPassEncoder& renderPass) const {
+void WgpMesh::draw(const WGPURenderPassEncoder& renderPassEncoder) const {
 	if (m_renderPipelineSlot == RP_WIREFRAME) {
-		wgpuRenderPassEncoderSetPipeline(renderPass, wgpContext.renderPipelines.at(m_renderPipelineSlot));
-		wgpuRenderPassEncoderSetBindGroup(renderPass, 0u, m_bindGroupWireframe, 0u, NULL);
+		wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at(m_renderPipelineSlot));
+		wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, 0u, m_bindGroupWireframe, 0u, NULL);
 
-		wgpuRenderPassEncoderSetVertexBuffer(renderPass, 0u, m_vertexBuffer.m_buffer, 0u, wgpuBufferGetSize(m_vertexBuffer.m_buffer));
-		wgpuRenderPassEncoderSetVertexBuffer(renderPass, 1u, m_indexBuffer.m_buffer, 0u, wgpuBufferGetSize(m_indexBuffer.m_buffer));
-		wgpuRenderPassEncoderSetVertexBuffer(renderPass, 2u, m_vertexBuffer.m_buffer, 0u, wgpuBufferGetSize(m_vertexBuffer.m_buffer));
-		wgpuRenderPassEncoderSetVertexBuffer(renderPass, 5u, m_colorBuffer.getWgpuBuffer(), 0u, wgpuBufferGetSize(m_colorBuffer.getWgpuBuffer()));
+		wgpuRenderPassEncoderSetVertexBuffer(renderPassEncoder, 0u, m_vertexBuffer.m_buffer, 0u, wgpuBufferGetSize(m_vertexBuffer.m_buffer));
+		wgpuRenderPassEncoderSetVertexBuffer(renderPassEncoder, 1u, m_indexBuffer.m_buffer, 0u, wgpuBufferGetSize(m_indexBuffer.m_buffer));
+		wgpuRenderPassEncoderSetVertexBuffer(renderPassEncoder, 2u, m_vertexBuffer.m_buffer, 0u, wgpuBufferGetSize(m_vertexBuffer.m_buffer));
+		wgpuRenderPassEncoderSetVertexBuffer(renderPassEncoder, 5u, m_colorBuffer.getWgpuBuffer(), 0u, wgpuBufferGetSize(m_colorBuffer.getWgpuBuffer()));
 
 		const uint32_t num_triangles = indexBuffer.size() / 3u;
-		wgpuRenderPassEncoderDraw(renderPass, 6 * num_triangles, 1, 0, 0);
+		wgpuRenderPassEncoderDraw(renderPassEncoder, 6 * num_triangles, 1, 0, 0);
 	}else {
-		wgpuRenderPassEncoderSetPipeline(renderPass, wgpContext.renderPipelines.at(m_renderPipelineSlot));
-		wgpuRenderPassEncoderSetBindGroup(renderPass, 0u, m_bindGroup, 0u, NULL);
+		wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at(m_renderPipelineSlot));
+		wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, 0u, m_bindGroup, 0u, NULL);
 
-		wgpuRenderPassEncoderSetVertexBuffer(renderPass, 0u, m_vertexBuffer.m_buffer, 0u, wgpuBufferGetSize(m_vertexBuffer.m_buffer));
-		wgpuRenderPassEncoderSetIndexBuffer(renderPass, m_indexBuffer.m_buffer, WGPUIndexFormat_Uint32, 0u, wgpuBufferGetSize(m_indexBuffer.m_buffer));
-		wgpuRenderPassEncoderDrawIndexed(renderPass, m_drawCount, 1u, 0u, 0u, 0u);
+		wgpuRenderPassEncoderSetVertexBuffer(renderPassEncoder, 0u, m_vertexBuffer.m_buffer, 0u, wgpuBufferGetSize(m_vertexBuffer.m_buffer));
+		wgpuRenderPassEncoderSetIndexBuffer(renderPassEncoder, m_indexBuffer.m_buffer, WGPUIndexFormat_Uint32, 0u, wgpuBufferGetSize(m_indexBuffer.m_buffer));
+		wgpuRenderPassEncoderDrawIndexed(renderPassEncoder, m_drawCount, 1u, 0u, 0u, 0u);
 	}
 }

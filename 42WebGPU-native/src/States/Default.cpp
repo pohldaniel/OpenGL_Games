@@ -134,16 +134,18 @@ void Default::render() {
 	wgpDraw();
 }
 
-void Default::OnDraw(const WGPURenderPassEncoder& renderPass) {
+void Default::OnDraw(const WGPURenderPassEncoder& renderPassEncoder) {
 
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getWgpuBuffer(), offsetof(Uniforms, projectionMatrix), &m_uniforms.projectionMatrix, sizeof(Uniforms::projectionMatrix));
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getWgpuBuffer(), offsetof(Uniforms, viewMatrix), &m_uniforms.viewMatrix, sizeof(Uniforms::viewMatrix));
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getWgpuBuffer(), offsetof(Uniforms, modelMatrix), &m_uniforms.modelMatrix, sizeof(Uniforms::modelMatrix));
 	
-	m_model == MAMMOTH ? m_wgpMammoth.draw(renderPass) : m_wgpDragon.draw(renderPass);
+	wgpuRenderPassEncoderSetViewport(renderPassEncoder, 0.0f, 0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, 1.0f);
+
+	m_model == MAMMOTH ? m_wgpMammoth.draw(renderPassEncoder) : m_wgpDragon.draw(renderPassEncoder);
 
 	if (m_drawUi)
-		renderUi(renderPass);
+		renderUi(renderPassEncoder);
 }
 
 void Default::OnMouseMotion(Event::MouseMoveEvent& event) {

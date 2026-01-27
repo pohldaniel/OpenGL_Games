@@ -15,7 +15,7 @@ public:
 	WgpModel(WgpModel const& rhs);
 	WgpModel(WgpModel&& rhs) noexcept;
 
-	void draw(const WGPURenderPassEncoder& renderPass) const;
+	void draw(const WGPURenderPassEncoder& renderPassEncoder) const;
 	void create(const ObjModel& model, const WGPUTextureView& textureView, const WgpBuffer& uniformBuffer);
 	void setRenderPipelineSlot(RenderPipelineSlot renderPipelineSlot);
 

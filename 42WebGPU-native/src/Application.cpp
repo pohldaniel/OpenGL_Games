@@ -239,7 +239,7 @@ void Application::initImGUI() {
 	io.IniFilename = NULL;
 	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 	io.ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
-
+	
 	ImGui_ImplWGPU_InitInfo initInfo = {};
 	initInfo.Device = wgpContext.device;
 	initInfo.RenderTargetFormat = wgpContext.colorformat;

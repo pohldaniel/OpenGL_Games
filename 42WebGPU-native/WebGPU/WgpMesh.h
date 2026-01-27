@@ -15,7 +15,7 @@ public:
 	WgpMesh(WgpMesh&& rhs) noexcept;
 	~WgpMesh();
 
-	void draw(const WGPURenderPassEncoder& renderPass) const;
+	void draw(const WGPURenderPassEncoder& renderPassEncoder) const;
 	void cleanup();
 	void markForDelete();
 	void setRenderPipelineSlot(RenderPipelineSlot renderPipelineSlot);

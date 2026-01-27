@@ -1343,12 +1343,10 @@ void ObjModel::ReadMaterialFromFile(std::string path, std::string mltLib, std::s
 		Material& material = Material::GetMaterials().back();
 		material.name = mltName;
 
-		std::vector<std::string*>lines;
+		std::vector<std::string> lines;
 		int start = -1;
 		int end = -1;
-
 		std::ifstream in(path + mltLib);
-
 		if (!in.is_open()) {
 			std::cout << "mlt file not found" << std::endl;
 			return;
@@ -1356,62 +1354,50 @@ void ObjModel::ReadMaterialFromFile(std::string path, std::string mltLib, std::s
 
 		std::string line;
 		while (getline(in, line)) {
-			lines.push_back(new std::string(line));
+			lines.push_back(line);
 
 		}
 		in.close();
 
 		for (int i = 0; i < lines.size(); i++) {
-
-			if (strcmp((*lines[i]).c_str(), ("newmtl " + mltName).c_str()) == 0) {
+			if (lines[i].compare("newmtl " + mltName) == 0) {
 				start = i;
 				continue;
 			}
-
-			if ((*lines[i]).find("newmtl") != std::string::npos && start >= 0) {
+			if (lines[i].find("newmtl") != std::string::npos && start >= 0) {
 				end = i;
 				break;
-			}
-			else {
+			}else {
 				end = lines.size();
 			}
-
 		}
 
 		if (start < 0 || end < 0) return;
 
 		for (int i = start; i < end; i++) {
-
-			if ((*lines[i])[0] == '#') {
-
+			if (lines[i][0] == '#') {
 				continue;
-
-			}else if ((*lines[i])[0] == 'N' && (*lines[i])[1] == 's') {
+			}else if (lines[i][0] == 'N' && lines[i][1] == 's') {
 				int tmp;
-				sscanf(lines[i]->c_str(), "Ns %i", &tmp);
+				sscanf(lines[i].c_str(), "Ns %i", &tmp);
 				material.setShininess(tmp);
-
-			}else if ((*lines[i])[0] == 'K' && (*lines[i])[1] == 'a') {
+			}else if (lines[i][0] == 'K' && lines[i][1] == 'a') {
 				float tmpx, tmpy, tmpz;
-				sscanf(lines[i]->c_str(), "Ka %f %f %f", &tmpx, &tmpy, &tmpz);
+				sscanf(lines[i].c_str(), "Ka %f %f %f", &tmpx, &tmpy, &tmpz);
 				material.setAmbient({ tmpx, tmpx, tmpz, 1.0f });
-	
-			}else if ((*lines[i])[0] == 'K' && (*lines[i])[1] == 'd') {
+			}else if (lines[i][0] == 'K' && lines[i][1] == 'd') {
 				float tmpx, tmpy, tmpz;
-				sscanf(lines[i]->c_str(), "Kd %f %f %f", &tmpx, &tmpy, &tmpz);
+				sscanf(lines[i].c_str(), "Kd %f %f %f", &tmpx, &tmpy, &tmpz);
 				material.setDiffuse({ tmpx, tmpx, tmpz, 1.0f });
-
-			}else if ((*lines[i])[0] == 'K' && (*lines[i])[1] == 's') {
+			}else if (lines[i][0] == 'K' && lines[i][1] == 's') {
 				float tmpx, tmpy, tmpz;
-				sscanf(lines[i]->c_str(), "Ks %f %f %f", &tmpx, &tmpy, &tmpz);
+				sscanf(lines[i].c_str(), "Ks %f %f %f", &tmpx, &tmpy, &tmpz);
 				material.setSpecular({ tmpx, tmpx, tmpz, 1.0f });
-
-			}else if ((*lines[i])[0] == 'm') {
-
+			}else if (lines[i][0] == 'm') {
 				char identifierBuffer[20], valueBuffer[250];;
 				memset(identifierBuffer, 0, 20);
 				memset(valueBuffer, 0, 250);
-				sscanf(lines[i]->c_str(), "%s %s", identifierBuffer, valueBuffer);
+				sscanf(lines[i].c_str(), "%s %s", identifierBuffer, valueBuffer);
 				if (strstr(identifierBuffer, "map_Kd") != 0 && valueBuffer[0] != 0) {
 					material.addTexture(TextureSlot::TEXTURE_DIFFUSE, GetTexturePath(valueBuffer, path));
 				}else if (strstr(identifierBuffer, "map_bump") != 0 && valueBuffer[0] != 0) {
@@ -1423,11 +1409,6 @@ void ObjModel::ReadMaterialFromFile(std::string path, std::string mltLib, std::s
 				}
 			}
 		}
-
-		for (int i = 0; i < lines.size(); i++) {
-			delete lines[i];
-		}
-
 	}else {
 		index = std::distance(Material::GetMaterials().begin(), it);
 	}

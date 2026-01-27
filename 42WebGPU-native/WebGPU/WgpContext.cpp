@@ -193,7 +193,7 @@ bool wgpCreateDevice(WgpContext& wgpContext, void* window) {
 	//wgpContext.colorformat = wgpContext.surfaceCapabilities.formats[0];
 
 	wgpContext.queue = wgpuDeviceGetQueue(wgpContext.device);
-	wgpContext.depthTexture = wgpCreateTexture(static_cast<uint32_t>(Application::Width), static_cast<uint32_t>(Application::Height), WGPUTextureUsage_RenderAttachment, WGPUTextureFormat::WGPUTextureFormat_Depth24Plus, WGPUTextureFormat::WGPUTextureFormat_Depth24Plus);
+	wgpContext.depthTexture = wgpCreateTexture(static_cast<uint32_t>(Application::Width), static_cast<uint32_t>(Application::Height), WGPUTextureUsage_RenderAttachment, wgpContext.depthformat, wgpContext.depthformat);
 	wgpContext.depthTextureView = wgpCreateTextureView(wgpContext.depthformat, WGPUTextureAspect::WGPUTextureAspect_DepthOnly, wgpContext.depthTexture);
 
 	wgpCreateVertexBufferLayout();
